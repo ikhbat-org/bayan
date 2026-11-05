@@ -1,0 +1,31 @@
+union error CarrierError {
+    timeout(i64 after)
+    rejected(string reason)
+}
+
+union error StockError {
+    outOfStock(string sku)
+}
+
+union error ShipError = CarrierError, StockError
+
+void ship(bool late) fails ShipError {
+    fail .timeout(30) if late
+    fail .outOfStock("a1")
+}
+
+string describe(ShipError e) => e switch {
+    .timeout t => $"timeout after {t.after}",
+    .rejected r => $"rejected {r.reason}",
+    .outOfStock s => $"out of stock {s.sku}",
+}
+
+ship(late: true) catch switch {
+    .timeout => print("late"),
+    .rejected => print("rejected"),
+    .outOfStock => print("stock"),
+}
+ship(late: false) catch switch {
+    CarrierError => print("carrier"),
+    StockError e => print(describe(e)),
+}

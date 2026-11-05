@@ -1,0 +1,25 @@
+i64? find(ReadOnlySpan<i64> xs, at i64 want) {
+    var i = 0
+    while i < xs.length {
+        if xs[i] == want {
+            return i
+        }
+        i += 1
+    }
+    return null
+}
+
+i64 firstOrMinusOne(ReadOnlySpan<i64> xs) {
+    let at = find(xs, at: 7) ?? return -1
+    return at
+}
+
+let xs: List<i64> = [5, 6, 7]
+let hit = find(xs, at: 6)
+let miss = find(xs, at: 9)
+print($"{hit} {miss}")
+print($"{hit is null} {miss is not null}")
+if hit is not null {
+    print($"found at {hit}")
+}
+print($"{miss ?? -1} {firstOrMinusOne(xs)}")

@@ -1,0 +1,10 @@
+let dec = 1_000_000
+let hex = 0xFF
+let bin = 0b1010
+let pi = 3.14
+let small = 2.5e-3
+let large = 1e20
+let wide: i64 = 5l
+let single = 2.5f
+print($"{dec} {hex} {bin}")
+print($"{pi} {small} {large} {wide} {single}")

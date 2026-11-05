@@ -1,0 +1,11 @@
+struct Account {
+    required string owner
+    i64 balance = 0
+
+    Account(string owner) {
+        this.owner = owner
+    }
+}
+
+let a = Account("ann")
+print($"{a.owner} {a.balance}")
