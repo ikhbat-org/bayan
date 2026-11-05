@@ -1,0 +1,70 @@
+title: 17. Concurrency
+nav: Learn
+order: 1700
+template: docs
+---
+<p>This chapter is short on purpose. The language design for concurrency is written, but the compiler does not run it yet. Every program you have seen in this book runs one step at a time. This page says what is planned, shows what the compiler says today if you try, and gives you the habits that will carry over.</p>
+<note>Planned: not in the compiler yet. Everything on this page about tasks, <code>await</code>, groups, mutexes and channels.</note>
+
+<h2 id="today">What happens if you try</h2>
+<p>The design uses <code>async</code> functions and <code>await</code> to wait for them. Today both are rejected while parsing:</p>
+<pre><code class="byn">async i64 fetch(i64 n) {
+    return n + 1
+}
+
+void main() uses console {
+    print($"{await fetch(1)}")
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN1002:</span> expected an expression, found keyword `async`
+<span class="gut">  --&gt;</span> async-try.byn:1:1
+
+<span class="gut">  1 │</span> <span class="hl">async</span> i64 fetch(i64 n) {
+<span class="gut">    │</span> <span class="hl">^^^^^</span>
+
+<span class="err">error BYN1002:</span> expected an expression, found keyword `await`
+<span class="gut">  --&gt;</span> async-try.byn:6:14
+
+<span class="gut">  6 │</span>     print($"{<span class="hl">await</span> fetch(1)}")
+<span class="gut">    │</span>              <span class="hl">^^^^^</span>
+
+<span class="gut">✗ build failed: 2 errors, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN1002</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>async-try.byn</code>.</figcaption>
+    </figure>
+<p>The error tells you the parser does not know the keywords yet. It is not a mistake in your code. Other names from the design are also missing: <code>Io.group</code> is not a member of <code>Io</code> (BYN2003), and <code>Mutex</code> and <code>Channel</code> are unknown types (BYN2002).</p>
+<p>Two parts are accepted but do nothing yet. A function may say <code>uses suspend</code> in its effect list (see <a href="book-14-effects.html">chapter 14</a>), and a file may start with <code>#:io threaded</code>. Nothing can suspend, so neither changes how your program runs.</p>
+
+<h2 id="design">The planned shape</h2>
+<p>The design has three ideas.</p>
+<ol>
+<li><strong>Waiting is an effect.</strong> A function that can suspend says <code>uses suspend</code>. Because it is in the signature, you can see from a function's header whether it can wait.</li>
+<li><strong>Tasks live in a scope.</strong> You join one task with <code>await</code>, several with <code>await (a, b)</code>, and a dynamic number through a group. Leaving the scope cancels the tasks that are still running, so no task outlives the code that started it. Because of that, a task may borrow from its caller's stack.</li>
+<li><strong>Shared data has rules.</strong> Shared mutation goes through <code>Mutex&lt;T&gt;</code>, atomics, or channels. A mutex guard alive across a suspension point is a compile error, and passing <code>ref x</code> to a spawned task locks <code>x</code> until the group ends.</li>
+</ol>
+<pre><code class="byn">// planned
+async i64 fetch(i64 n) uses suspend {
+    return n + 1
+}
+
+i64 total() fails uses suspend {
+    let (a, b) = try await (fetch(1), fetch(2))
+    return a + b
+}</code></pre>
+<p>Treat that fragment as a sketch of the design, not as something to copy. The <a href="cookbook-concurrency.html">concurrency cookbook</a> lists each planned form with its place in the specification.</p>
+
+<h2 id="habits">Habits that already carry over</h2>
+<ul>
+<li>Keep data owned by one place and pass it by <code>move</code> or <code>ref</code> (<a href="book-13-memory.html">chapter 13</a>). The rules for tasks build on the same rules.</li>
+<li>Write <code>uses</code> clauses honestly (<a href="book-14-effects.html">chapter 14</a>). Waiting will be one more effect in the same list.</li>
+<li>For parallel work today, run several processes. The <a href="cookbook-processes.html">processes cookbook</a> shows how.</li>
+</ul>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>1. You write <code>async i64 fetch(i64 n)</code>. What does the compiler report today?
+<ol type="a"><li>A run-time panic.</li><li>BYN1002, expected an expression, found keyword <code>async</code>.</li><li>Nothing, the function runs as ordinary code.</li></ol></summary>
+<p>b. The keyword is not parsed yet. It is a compile error, not a panic, and the function is not accepted as ordinary code.</p></details>
+<details class="quiz"><summary>2. You add <code>uses suspend</code> to a function. Does it now run concurrently?</summary>
+<p>No. The effect is accepted in a declaration, but nothing can suspend yet. It only records in the signature that the function may wait.</p></details>
+<details class="quiz"><summary>3. Why does the design say a task may borrow from its caller's stack?</summary>
+<p>Because the scope that starts a task cancels it on exit, the task cannot outlive the borrow. This is the same rule you met in chapter 13: a borrow must not outlive what it points into.</p></details>

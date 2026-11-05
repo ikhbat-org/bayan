@@ -1,0 +1,142 @@
+title: 18. Project: a grep-like command-line tool
+nav: Learn
+order: 1800
+template: docs
+---
+<p>In this chapter you build <code>bgrep</code>, a small search tool. It takes a pattern and some files, prints the lines that contain the pattern, and sets an exit code so scripts can use it. It uses what you have learned: structs, errors, effects, capabilities and tests. We build it in steps, then split it into a project.</p>
+<p>The behaviour we want:</p>
+<pre><code>bgrep [-i] [-n] [-c] PATTERN FILE...
+
+-i   ignore case
+-n   print line numbers
+-c   print only a count per file
+
+exit 0: at least one line matched
+exit 1: nothing matched
+exit 2: usage error or unreadable file</code></pre>
+
+<h2 id="args">Step 1: read the arguments</h2>
+<p>A command-line program is a <code>main</code> that takes the arguments as a <code>ReadOnlySpan&lt;string&gt;</code>. Parsing them is a plain function that returns an <code>Options</code> value or fails. Bad input is a usage error, so we give it its own error set:</p>
+<example name="book-18-args"/>
+<p>Points to notice.</p>
+<ul>
+<li>The error set is a <code>union error</code>. The doc comment above a case is the text the program prints if that case reaches the top of <code>main</code> (you will see it in step 4).</li>
+<li><code>fail .unknownOption(arg)</code> leaves the function with a value that carries the bad flag. <code>fail .missingPattern unless havePattern</code> checks at the end that a pattern was given.</li>
+<li><code>parseArgs</code> says <code>fails UsageError</code>, because the caller must handle it, and <code>uses alloc</code>, because it builds a list of file names.</li>
+<li>The <code>main</code> here uses a built-in list of arguments, so the example runs without any. <code>check</code> shows how to read the cases back with <code>catch switch</code>.</li>
+</ul>
+
+<h2 id="match">Step 2: decide if a line matches</h2>
+<p>Matching belongs to the options, since only they know about <code>-i</code>. It is a method on <code>Options</code>. A method that only reads has no <code>this</code> in its parameter list:</p>
+<pre><code class="byn">bool matches(string line) uses alloc {
+    if ignoreCase {
+        return line.lowercased().contains(pattern.lowercased())
+    }
+    return line.contains(pattern)
+}</code></pre>
+<p><code>lowercased()</code> makes new strings, so the method says <code>uses alloc</code>.</p>
+
+<h2 id="search">Step 3: search one file</h2>
+<p>The search function takes the text, the options, a name for output and a flag that says whether to prefix lines with the name. Bayan allows one plain parameter, the object. Every other required parameter needs a particle such as <code>by</code>, <code>as</code> or <code>to</code>. Without one:</p>
+<pre><code class="byn">i64 search(string text, string name) {
+    return text.length + name.length
+}
+
+void main() uses console {
+    print($"{search("a", "b")}")
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN5004:</span> `search` has 2 unlabeled parameters; give each but one a particle
+<span class="gut">  --&gt;</span> two-params.byn:1:5
+
+<span class="gut">  1 │</span> i64 <span class="hl">search</span>(string text, string name) {
+<span class="gut">    │</span>     <span class="hl">^^^^^^ 2 unlabeled parameters</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> keep one unlabeled parameter, the object
+
+<span class="err">error BYN5006:</span> `name` is a required parameter besides the object and needs a particle
+<span class="gut">  --&gt;</span> two-params.byn:1:32
+
+<span class="gut">  1 │</span> i64 search(string text, string <span class="hl">name</span>) {
+<span class="gut">    │</span>                                <span class="hl">^^^^ needs a particle</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+<span class="gut">✗ build failed: 2 errors, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN5004</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>two-params.byn</code>.</figcaption>
+    </figure>
+<p>The fix is in the final program: <code>search(string text, by Options opts, as string name, to bool showName)</code>. A call then reads <code>search(text, by: opts, as: path, to: true)</code>.</p>
+<p>Here is the whole tool in one file. With no arguments it writes a small file and searches it, so you can run it as is. The loop uses <code>text.lines</code>, and <code>Io.readText</code> with a <code>catch</code> that reports the problem on standard error and moves to the next file.</p>
+<example name="book-18-bgrep"/>
+<p>The demo ran <code>-n -i APPLE</code>. The match ignored case, so <code>Green Apple</code> was found, and <code>-n</code> printed the line numbers. The exit code from <code>main</code> is the return value: 0 here, since two lines matched.</p>
+
+<h2 id="project">Step 4: make it a project</h2>
+<p>Create the project and put the code in modules. A directory is one module, and a <code>public</code> name is visible to the other files in the project.</p>
+<pre><code>bayan new bgrep
+bgrep/
+  package.byn
+  src/app/main.byn       main
+  src/app/options.byn    Options, parseArgs, UsageError
+  src/app/search.byn     search
+  tests/app.test.byn
+  testdata/fruit.txt</code></pre>
+<p>The search reads files, so the package must allow it, as chapter 14 explained. In <code>package.byn</code>:</p>
+<pre><code class="byn">capabilities: [.fs],</code></pre>
+<p>Make the types, functions and error set that other files use <code>public</code>, and give each public function its <code>uses</code> clause. Then run it with <code>bayan run</code>. The arguments go after <code>--</code>. These are real runs against two small files in <code>testdata/</code>:</p>
+<pre><code>$ bayan run -- apple testdata/fruit.txt
+one apple
+three apple pie
+$ echo $?
+0
+$ bayan run -- zzz testdata/fruit.txt
+$ echo $?
+1
+$ bayan run -- -c a testdata/fruit.txt testdata/more.txt
+testdata/fruit.txt: 3
+testdata/more.txt: 1
+$ bayan run -- -x file
+error: Unknown option.
+$ echo $?
+2</code></pre>
+<p>The last run shows the doc comment from step 1. The error reached the top of <code>main</code>, so the program printed the text of the case and exited. Writing <code>@exitCode(2)</code> above a case sets that exit status. With several files, each line starts with the file name, as the <code>-c</code> run shows.</p>
+
+<h2 id="tests">Step 5: test it</h2>
+<p>Tests live in <code>tests/</code> and can call the public functions. <code>assert f() fails Error.case</code> checks that a call fails with a given error.</p>
+<pre><code class="byn">test "parses flags, pattern and files" {
+    let args: string[4] = ["-n", "apple", "a.txt", "b.txt"]
+    let opts = try parseArgs(args.span)
+    assert opts.numbers
+    assert !opts.ignoreCase
+    assert opts.pattern == "apple"
+    assert opts.files.length == 2
+}
+
+test "a missing pattern is a usage error" {
+    let none: string[1] = ["-i"]
+    assert parseArgs(none.span) fails UsageError.missingPattern
+}
+
+test "search counts matching lines" {
+    let args: string[2] = ["-c", "apple"]
+    let opts = try parseArgs(args.span)
+    assert search("one apple\ntwo\nthree apple\n", by: opts, as: "t.txt", to: false) == 2
+}</code></pre>
+<p>Running <code>bayan test</code> on the full project, with five tests, printed:</p>
+<pre><code>running 5 tests in 1 module
+
+◆ 5 passed</code></pre>
+
+<h2 id="next">Where to go next</h2>
+<p>Add a <code>-v</code> flag that inverts the match, or read from standard input when no files are given. The <a href="cookbook-cli.html">CLI cookbook</a> has more on arguments and exit codes.</p>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>1. The demo in <code>book-18-bgrep</code> prints <code>3:Green Apple</code>. Which flags made the line match and show a number?</summary>
+<p><code>-i</code> let the pattern <code>APPLE</code> match <code>Green Apple</code>, and <code>-n</code> added the line number. Without <code>-i</code> the pattern would not match. <code>-c</code> was not given: it would print a count instead of the lines.</p></details>
+<details class="quiz"><summary>2. What exit code does <code>bgrep zzz fruit.txt</code> return, if no line matches?
+<ol type="a"><li>0</li><li>1</li><li>2</li></ol></summary>
+<p>b. 0 means a match was found, and 2 is for usage errors and unreadable files. No match is not an error, so it is not 2.</p></details>
+<details class="quiz"><summary>3. Why does <code>search(string text, string name)</code> not compile?</summary>
+<p>It has two unlabeled parameters (BYN5004), and <code>name</code> needs a particle (BYN5006). Keep one object parameter plain and give the other a particle such as <code>as</code>.</p></details>
+<details class="quiz"><summary>4. The package builds locally but BYN6004 appears when you add <code>Io.readText</code>. What is missing?</summary>
+<p><code>capabilities: [.fs]</code> in <code>package.byn</code>. The functions already say <code>uses fs</code>; the package has not allowed it.</p></details>

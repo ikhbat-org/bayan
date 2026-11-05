@@ -1,0 +1,56 @@
+union error UsageError {
+    /// Usage: bgrep [-i] [-n] [-c] PATTERN FILE...
+    missingPattern
+    /// Unknown option.
+    unknownOption(string flag)
+}
+
+struct Options {
+    string pattern
+    bool ignoreCase
+    bool numbers
+    bool countOnly
+    List<string> files
+}
+
+Options parseArgs(ReadOnlySpan<string> args) fails UsageError uses alloc {
+    var opts = Options { pattern: "", ignoreCase: false, numbers: false, countOnly: false, files: List<string>() }
+    var havePattern = false
+    for arg in args {
+        if arg == "-i" {
+            opts.ignoreCase = true
+        } else if arg == "-n" {
+            opts.numbers = true
+        } else if arg == "-c" {
+            opts.countOnly = true
+        } else if arg.startsWith("-") {
+            fail .unknownOption(arg)
+        } else if !havePattern {
+            opts.pattern = arg
+            havePattern = true
+        } else {
+            opts.files.append(arg)
+        }
+    }
+    fail .missingPattern unless havePattern
+    return opts
+}
+
+string check(ReadOnlySpan<string> args) uses alloc {
+    let opts = parseArgs(args) catch switch {
+        .missingPattern => return "missing pattern",
+        .unknownOption(let flag) => return $"unknown option {flag}",
+    }
+    return $"ok: {opts.pattern}"
+}
+
+void main() uses console, alloc {
+    let demo: string[4] = ["-n", "apple", "a.txt", "b.txt"]
+    let opts = parseArgs(demo.span) catch {
+        print("usage error")
+        return
+    }
+    print($"pattern={opts.pattern} numbers={opts.numbers} files={opts.files.length}")
+    let none: string[1] = ["-x"]
+    print(check(none.span))
+}
