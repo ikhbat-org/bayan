@@ -1,0 +1,15 @@
+type Pred = i64 -> bool
+
+i64 count(ReadOnlySpan<i64> xs, by Pred p) {
+    var n: i64 = 0
+    for x in xs {
+        n += 1 if p(x)
+    }
+    return n
+}
+
+void main() {
+    let xs: Span<i64> = [1, 5, 8, 3, 9]
+    print($"{count(xs, by: it > 4)}")
+    print($"{count(xs, by: x => x % 2 == 1)}")
+}

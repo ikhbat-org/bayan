@@ -1,0 +1,13 @@
+struct Percent {
+    i32 value
+        requires it in 0..=100
+}
+
+Percent make(i32 v) fails ValidationError<Percent> => try Percent { value: v }
+
+void main() {
+    let ok = make(40) catch Percent { value: 0 }
+    print($"{ok.value}")
+    let bad = make(140) catch Percent { value: 0 }
+    print($"{bad.value}")
+}

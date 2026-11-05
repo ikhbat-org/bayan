@@ -14,6 +14,11 @@ template: docs
 <p>A method is read-only by default. A method that changes its receiver says so with <code>ref this</code> as its first parameter. You cannot call it on a <code>let</code>. Closest: Rust's <code>&amp;mut self</code>. In Python and C# every method can change the object, and here the signature tells you.</p>
 <example name="reading-ref-this"/>
 
+<h3 id="with"><code>x with { … }</code></h3>
+<pre><code class="byn">let b = a with { qty: 5, paid: true }</code></pre>
+<p><code>with</code> makes a copy of a struct with some fields replaced. The original is not touched. It is the only way to copy with changes, and the fields it lists are checked against the type's <code>requires</code> rules. Closest: Rust's struct update syntax, C#'s <code>with</code> on records.</p>
+<example name="reading-with"/>
+
 <h2 id="context">Names taken from context</h2>
 
 <h3 id="target-typed">Target-typed <code>.member</code></h3>
@@ -86,6 +91,14 @@ let k = digit(s) catch switch {
 <p><code>try</code> propagates a failure to the caller, and covers the whole expression to its right. <code>catch</code> handles it where it happens. Closest: Rust's <code>?</code> for <code>try</code>, and <code>match</code> on a <code>Result</code> for <code>catch switch</code>. See <a href="errors.html">Errors</a>.</p>
 <example name="errors-basic"/>
 
+<h3 id="except"><code>except</code></h3>
+<pre><code class="byn">union error Retryable = CarrierError except .rejected
+
+let q = send(n) catch (CarrierError.rejected) 1</code></pre>
+<p><code>except</code> takes a pattern away from a set. On an error set it gives a narrower set: <code>Retryable</code> is every <code>CarrierError</code> but <code>.rejected</code>. <code>catch (CarrierError.rejected) 1</code> handles that one error with a value, so <code>retry</code> may declare <code>fails Retryable</code> and nothing else. The compiler checks that nothing else escapes.</p>
+<example name="reading-except"/>
+<note>Planned: <code>except</code> on a sequence (<code>for x in xs except null</code>, <code>users except null</code>) is in the specification but not in the compiler yet. It subtracts a pattern and narrows the loop variable.</note>
+
 <h2 id="effects-ownership">Effects and ownership</h2>
 
 <h3 id="uses"><code>uses</code></h3>
@@ -107,6 +120,25 @@ if name is not null {
 let shown = name ?? "nobody"</code></pre>
 <p><code>T?</code> is "a <code>T</code> or nothing". Plain types are never null. <code>is null</code> and <code>is not null</code> are the checks, and after <code>is not null</code> the value has its non-null type. <code>??</code> gives a fallback, and <code>?.</code> stops at null (planned: <code>?.</code> is not supported yet). <code>x ?? return …</code> leaves early. Closest: TypeScript's <code>T | null</code> with narrowing, Kotlin's <code>T?</code>. <code>x == null</code> is rejected with a fix.</p>
 <example name="reading-optional"/>
+
+<h2 id="checked-types">Types that check for you</h2>
+
+<h3 id="requires"><code>requires</code></h3>
+<pre><code class="byn">struct Box {
+    i32 w
+        requires it &gt; 0
+    i32 h
+    requires w &lt; h at .w
+}</code></pre>
+<p>A <code>requires</code> clause is a rule a value must meet to exist. It is checked when the value is built, in every build mode. Building a type that has one can fail, so you write <code>try</code> or <code>catch</code>, and the error is <code>ValidationError&lt;Box&gt;</code>. A literal that breaks a rule is rejected at compile time. See <a href="features.html#requires">What makes Bayan different</a> for a complete program.</p>
+
+<h3 id="units">Units</h3>
+<note>Planned: not in the compiler yet. <code>unit</code> declarations do not parse today.</note>
+<pre><code class="byn">unit Seconds(s): i64
+unit Millis(ms) = Seconds / 1000
+
+let t = 2s + 500ms             // Millis 2500</code></pre>
+<p>A unit is a number type with a name and a literal suffix. Adding seconds to grams is a compile error. Conversion to a finer unit is automatic. Going to a coarser one names its rounding: <code>t.floor&lt;Seconds&gt;()</code>. A bare <code>0</code> never takes a unit. Units cost nothing at run time. <code>type distinct UserId = i64</code> is the same idea with no arithmetic, and it works today: <code>type distinct Qty = i32 requires it &gt; 0</code>.</p>
 
 <h2 id="attributes">Attributes and reasons</h2>
 

@@ -62,6 +62,22 @@ unsafe because "the C API wants a raw pointer" {
 <example name="features-postfix"/>
 <p>The suffix works on <code>return</code>, <code>fail</code>, <code>break</code>, <code>continue</code>, <code>panic</code>, a single call and a single assignment. Blocks and chains are not allowed.</p>
 
+<h2 id="ref-this">ref this: mutation in the signature</h2>
+<p>A method is read-only unless its first parameter is <code>ref this</code>. You cannot call a changing method on a <code>let</code>, and you can tell from the signature which methods change the value.</p>
+<example name="reading-ref-this"/>
+
+<h2 id="context-names">.member and it: names the compiler can supply</h2>
+<p>A leading dot names a member of the type the compiler already expects: <code>.red</code> for <code>Color.red</code>, <code>fail .told</code> for an error variant. In a call that expects a one-argument function, <code>it</code> stands for the argument. You leave out what can be recovered, and you still write what carries meaning. The <a href="reading.html">reading guide</a> has both.</p>
+<example name="reading-target"/>
+
+<h2 id="with">Copy-and-update</h2>
+<p><code>a with { qty: 5 }</code> is a copy of <code>a</code> with the listed fields replaced. It is the only copy-with-changes form, and a type with <code>requires</code> checks the result again.</p>
+<example name="reading-with"/>
+
+<h2 id="except">except</h2>
+<p><code>except</code> takes a pattern out of a set. On an error set it narrows what a function can fail with, so a caller sees exactly which errors remain. <code>except</code> on a list or loop (<code>for x in xs except null</code>) is planned.</p>
+<example name="reading-except"/>
+
 <h2 id="concurrency">Structured concurrency</h2>
 <p><strong>Planned.</strong> Functions are never declared <code>async</code>. You write <code>async f(x)</code> and <code>await</code> at the call site, and a future cannot outlive the block that started it: leaving the block cancels unfinished work, which runs its <code>defer failing</code> handlers. Tasks are started in a group:</p>
 <pre><code class="byn">let group = Io.group()

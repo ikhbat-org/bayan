@@ -1,0 +1,13 @@
+string greet(string? name) {
+    if name is not null {
+        return $"hello {name}"
+    }
+    return "hello, stranger"
+}
+
+void main() {
+    print(greet("Ada"))
+    print(greet(null))
+    let missing: string? = null
+    print(missing ?? "default")
+}
