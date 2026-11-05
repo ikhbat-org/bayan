@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
   <title>Bayan mark: the rasm of بين with its four dots</title>
-  <g transform="translate(14 14)">
+  <g transform="translate(-2.5 -6)">
     <path class="stroke" d="M212 82 C212 108 210 126 198 126 L180 126 C174 126 172 86 162 86 C154 86 156 126 146 126 L134 126 C130 168 108 186 84 186 C60 186 44 166 44 138" fill="none" stroke="#1F3A5F" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="dot" d="M84 84 L96 96 L84 108 L72 96 Z" fill="#C08A2E"/>
-    <path class="dot" d="M144 160 L156 172 L144 184 L132 172 Z" fill="#C08A2E"/>
-    <path class="dot" d="M178 160 L190 172 L178 184 L166 172 Z" fill="#C08A2E"/>
-    <path class="dot" d="M214 160 L226 172 L214 184 L202 172 Z" fill="#C08A2E"/>
+    <path class="dot" d="M88 86 L98 96 L88 106 L78 96 Z" fill="#C08A2E"/>
+    <path class="dot" d="M147 166 L157 176 L147 186 L137 176 Z" fill="#C08A2E"/>
+    <path class="dot" d="M171 166 L181 176 L171 186 L161 176 Z" fill="#C08A2E"/>
+    <path class="dot" d="M212 166 L222 176 L212 186 L202 176 Z" fill="#C08A2E"/>
   </g>
 </svg>
