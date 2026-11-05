@@ -23,7 +23,7 @@ template: docs
 <h2 id="effects">Effects: uses</h2>
 <p>A public function declares what it does besides computing. <code>checksum</code> has no <code>uses</code> clause, so it is pure: it allocates nothing and does no I/O. <code>squares</code> allocates, and says so.</p>
 <example name="features-effects"/>
-<p>Leaving out <code>uses alloc</code> is a compile error (BYN6002). The effects are <code>alloc suspend net fs clock random env process console</code>. Tests can replace handlers with <code>provide</code>, for example <code>provide net: FakeNet(…) { … }</code>, so a test of network code needs no network.</p>
+<p>Leaving out <code>uses alloc</code> is a compile error (BYN6002). The effects are <code>alloc suspend net fs clock random env process console</code>. Replacing a handler with <code>provide</code>, for example <code>provide net: FakeNet(…) { … }</code>, so a test of network code needs no network, is planned. <code>provide allocator:</code> works today.</p>
 
 <h2 id="units">Units</h2>
 <p><strong>Planned.</strong> The specification has units as types, with literal suffixes. The compiler does not parse <code>unit</code> declarations yet.</p>
@@ -50,7 +50,7 @@ let whole = t.floor&lt;Seconds&gt;()   // going coarser names its rounding</code
 <p>Building a type with <code>requires</code> is fallible, so it needs <code>try</code> or <code>catch</code>, and the error is <code>ValidationError&lt;Box&gt;</code>. Updates go through <code>with</code>, which checks again. Function preconditions are a separate word, <code>expects</code>, which panics on a violation in every build mode.</p>
 
 <h2 id="because">@attr because "…"</h2>
-<p>Anywhere code bypasses a safety rule, a written reason is required: <code>@allow(BYN5102) because "…"</code>, <code>x.trustUnchecked() because "…"</code> and <code>unsafe because "…" { … }</code>. A missing <code>because</code> is a compile error (BYN8001). <code>bayan audit</code> is specified to list every bypass in a project with its reason.</p>
+<p>Anywhere code bypasses a safety rule, a written reason is required: <code>@allow(BYN5102) because "…"</code>, <code>x.trustUnchecked() because "…"</code> and <code>unsafe because "…" { … }</code>. The <code>because</code> forms on <code>@allow</code> and <code>unsafe</code> are planned; the compiler does not run them yet, and only <code>trustUnchecked() because</code> works today. A missing <code>because</code> is a compile error (BYN8001). <code>bayan audit</code> is specified to list every bypass in a project with its reason.</p>
 <pre><code class="byn">let name = x.trustUnchecked() because "checked by the caller"
 
 unsafe because "the C API wants a raw pointer" {

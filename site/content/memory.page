@@ -45,14 +45,14 @@ template: docs
 <li>A borrow cannot be stored anywhere that outlives its region. The fix is <code>.copy()</code> or <code>.copy(to: alloc)</code>.</li>
 <li>While a borrow into a value is alive, you cannot change the value's structure, for example by appending to a list you are looping over. Loans are tracked per local variable, not per field.</li>
 <li>Passing <code>x</code> and <code>ref x</code> in one call is an error.</li>
-<li>A returned borrow comes from all the borrowed arguments, unless the signature narrows it: <code>string head(string s, at string sep) borrows s</code>.</li>
+<li>A returned borrow comes from all the borrowed arguments, unless the signature narrows it, with a <code>borrows</code> clause (planned): <code>string head(string s, at string sep) borrows s</code>.</li>
 <li>Literals and <code>const</code> data are static and can go anywhere.</li>
 <li>A struct that holds a mutable reference, such as a <code>Span&lt;T&gt;</code>, is itself <code>unique</code>, so two mutable aliases cannot exist.</li>
 </ul>
 <pre><code class="byn">for line in cart.lines {
     cart.add(line)      // error: `cart.lines` is borrowed by the loop
 }</code></pre>
-<p>Bounds checks apply in every build mode. Raw pointers and pointer arithmetic need an <code>unsafe because "…"</code> block, and region checks do not apply inside it.</p>
+<p>Bounds checks apply in every build mode. Raw pointers and pointer arithmetic need an <code>unsafe because "…"</code> block, and region checks do not apply inside it. The <code>unsafe</code> block is planned.</p>
 
 <h2 id="defer">Cleanup with defer</h2>
 <p><code>defer</code> runs a statement when the scope ends, however it ends, in reverse order of registration. It is the way to release anything that is not owned by a <code>unique</code> value, such as a shared arena.</p>

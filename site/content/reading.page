@@ -105,7 +105,7 @@ if name is not null {
     print(name)          // `name` is a string here
 }
 let shown = name ?? "nobody"</code></pre>
-<p><code>T?</code> is "a <code>T</code> or nothing". Plain types are never null. <code>is null</code> and <code>is not null</code> are the checks, and after <code>is not null</code> the value has its non-null type. <code>??</code> gives a fallback, and <code>?.</code> stops at null. <code>x ?? return …</code> leaves early. Closest: TypeScript's <code>T | null</code> with narrowing, Kotlin's <code>T?</code>. <code>x == null</code> is rejected with a fix.</p>
+<p><code>T?</code> is "a <code>T</code> or nothing". Plain types are never null. <code>is null</code> and <code>is not null</code> are the checks, and after <code>is not null</code> the value has its non-null type. <code>??</code> gives a fallback, and <code>?.</code> stops at null (planned: <code>?.</code> is not supported yet). <code>x ?? return …</code> leaves early. Closest: TypeScript's <code>T | null</code> with narrowing, Kotlin's <code>T?</code>. <code>x == null</code> is rejected with a fix.</p>
 <example name="reading-optional"/>
 
 <h2 id="attributes">Attributes and reasons</h2>
@@ -122,4 +122,4 @@ let s = x.trustUnchecked() because "demo input"
 unsafe because "the C API wants a raw pointer" {
     …
 }</code></pre>
-<p>An attribute starts with <code>@</code>, as in <code>@derive(Json)</code>. Most take no reason. An attribute that bypasses a safety rule, such as <code>@allow(…)</code>, or <code>@json(expose)</code> on a <code>Secret</code> field, must also say why. Other code that bypasses a safety rule must also say why, in a <code>because</code> clause with a string. Without it the code does not compile. Closest: a lint suppression that must carry a comment, enforced by the compiler.</p>
+<p><strong>Planned.</strong> Only the <code>trustUnchecked() because</code> line runs today. The <code>@allow</code>, <code>@json(expose)</code> and <code>unsafe because</code> forms are in the specification but not in the compiler yet. An attribute starts with <code>@</code>, as in <code>@derive(Json)</code>. Most take no reason. An attribute that bypasses a safety rule, such as <code>@allow(…)</code>, or <code>@json(expose)</code> on a <code>Secret</code> field, must also say why. Other code that bypasses a safety rule must also say why, in a <code>because</code> clause with a string. Without it the code does not compile. Closest: a lint suppression that must carry a comment, enforced by the compiler.</p>
