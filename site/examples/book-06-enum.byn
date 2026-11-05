@@ -1,0 +1,24 @@
+enum Planet(f64 mass, f64 radius) {
+    mercury(3.303e23, 2.4397e6)
+    earth(5.976e24, 6.37814e6)
+}
+
+enum Color {
+    red
+    green
+    blue
+}
+
+string name(Color c) => c switch {
+    .red => "red",
+    .green => "green",
+    .blue => "blue",
+}
+
+void main() {
+    let c: Color = .green
+    print(name(c))
+    print($"{c} {c == Color.green}")
+    print($"{Planet.earth.mass}")
+    print($"{Color.blue.ordinal}")
+}

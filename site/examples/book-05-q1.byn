@@ -1,0 +1,9 @@
+struct Box {
+    i64 w
+}
+
+let a = Box { w: 1 }
+var b = a
+b.w = 2
+let c = b with { w: 3 }
+print($"{a.w} {b.w} {c.w}")

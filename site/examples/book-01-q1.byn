@@ -1,0 +1,5 @@
+string label(i64 n) => $"item {n}"
+
+print("start")
+print(label(2))
+print("end")

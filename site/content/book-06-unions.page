@@ -1,0 +1,218 @@
+title: 6. Unions, enums and patterns
+nav: Learn
+order: 600
+template: docs
+---
+<p class="lede">A union is a type whose value is exactly one of several named cases, and each case can carry its own data. You take a union apart with <code>switch</code>, and the compiler checks that you handled every case. This chapter covers unions, enums, optional values and tuples.</p>
+
+<h2 id="unions">Unions</h2>
+<example name="book-06-union"/>
+<ul>
+  <li>Each line in the union is a case. <code>circle(f64 radius)</code> carries a radius, <code>rect</code> carries two numbers, and <code>point</code> carries nothing.</li>
+  <li>Cases are written with a leading dot where the type is known: <code>.circle(2.0)</code>. A leading dot means "the member of the type expected here". Elsewhere you write the type: <code>Shape.rect(width: 10.0, height: 2.0)</code>, with the field names.</li>
+  <li>A <code>switch</code> expression takes the union apart. <code>.circle(let r)</code> matches a circle and binds the radius to <code>r</code>.</li>
+  <li>Printing a union value shows the case and its fields: <code>circle(radius: 2)</code>. Whole floats print without a decimal point, which is why <code>12.0</code> shows as <code>12</code>.</li>
+  <li>Case names are camelCase. Only types are PascalCase:</li>
+</ul>
+<figure class="diag">
+<pre><span class="err">error BYN2009:</span> `Circle` must be camelCase
+  <span class="gut">--&gt;</span> camel.byn:2:5
+
+<span class="gut">  2 │</span>     Circle(f64 radius)
+<span class="gut">    │</span>     ^^^^^^
+<span class="gut">    │</span>
+<span class="gut">  help: rename it `circle`; only types are PascalCase</span>
+<span class="gut">    │ 2 │</span>     circle(f64 radius)
+<span class="gut">    │   │</span><span class="add">     +</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2009</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check camel.byn</code>). The path is shortened to <code>camel.byn</code>.</figcaption>
+</figure>
+<p>Using a case that does not exist is refused, and the message names the union:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2700:</span> `square` is not a variant of union `Shape`
+  <span class="gut">--&gt;</span> wrongcase.byn:6:17
+
+<span class="gut">  6 │</span> let s: Shape = .square(2.0)
+<span class="gut">    │</span>                 ^^^^^^
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2700</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check wrongcase.byn</code>). The path is shortened to <code>wrongcase.byn</code>.</figcaption>
+</figure>
+<p>Some words are reserved and cannot name a case. <code>move</code> is one of them. The error comes from the parser, so it appears at the wrong place and can look confusing:</p>
+<figure class="diag">
+<pre><span class="err">error BYN1001:</span> expected `}`, found keyword `move`
+  <span class="gut">--&gt;</span> keywordcase.byn:2:5
+
+<span class="gut">  2 │</span>     move(i64 dx)
+<span class="gut">    │</span>     ^^^^
+<span class="gut">    │</span>
+<span class="gut">  help: close the union opened on line 1</span>
+
+<span class="err">error BYN1012:</span> this expression does nothing as a statement
+  <span class="gut">--&gt;</span> keywordcase.byn:3:5
+
+<span class="gut">  3 │</span>     quit
+<span class="gut">    │</span>     ^^^^ the value is computed and discarded
+<span class="gut">    │</span>
+<span class="gut">  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand</span>
+        alone
+
+<span class="err">error BYN1001:</span> expected a declaration or statement, found `}`
+  <span class="gut">--&gt;</span> keywordcase.byn:4:1
+
+<span class="gut">  4 │</span> }
+<span class="gut">    │</span> ^
+<span class="gut">    │</span>
+<span class="gut">  help: remove this `}`; it has no matching `{`</span>
+
+<span class="gut">✗ build failed: 3 errors, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN1001</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check keywordcase.byn</code>). The path is shortened to <code>keywordcase.byn</code>.</figcaption>
+</figure>
+<p>The first error is the one to read: it says the parser found the keyword <code>move</code> where it expected the end of the union. Rename the case. The examples in this chapter use <code>step</code>.</p>
+
+<h2 id="exhaustive">The compiler checks every case</h2>
+<p>If a <code>switch</code> expression leaves out a case, you get an error that names it:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2410:</span> `switch` does not handle every `Shape`
+  <span class="gut">--&gt;</span> exhaustive.byn:7:26
+
+<span class="gut">  7 │</span> f64 area(Shape shape) =&gt; shape switch {
+<span class="gut">    │</span>                          ^^^^^ not covered: .point
+<span class="gut">    │</span>
+<span class="gut">  help: add the missing arms: .point</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2410</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check exhaustive.byn</code>). The path is shortened to <code>exhaustive.byn</code>.</figcaption>
+</figure>
+<p>The marker says what is not covered, and the help gives the arm to add. When you add a new case to a union later, every <code>switch</code> over it fails to compile until you decide what it does. That is the reason to use a union instead of a number code.</p>
+
+<h2 id="statement">Switch as a statement</h2>
+<example name="book-06-statement"/>
+<ul>
+  <li><code>case .step(let dx, _) when dx &lt; 0:</code> matches a step and adds a condition. <code>_</code> ignores the second field.</li>
+  <li>Cases are tried in order. The general <code>.step(let dx, let dy)</code> comes after the specific one.</li>
+  <li><code>c is .say(let t)</code> asks if a value has one case, and binds its data in the <code>if</code> body.</li>
+  <li><code>c is .quit</code> and <code>c == Command.quit</code> are both false here, because <code>c</code> is a <code>say</code>.</li>
+</ul>
+
+<h2 id="enums">Enums</h2>
+<p>An enum is a union whose cases carry nothing, or a fixed set of values that every case provides.</p>
+<example name="book-06-enum"/>
+<ul>
+  <li><code>enum Color { red green blue }</code> lists the values. <code>name</code> must cover all three, as with a union.</li>
+  <li><code>let c: Color = .green</code> uses the leading dot.</li>
+  <li><code>Color.blue.ordinal</code> is the position in the declaration, starting from 0.</li>
+  <li><code>enum Planet(f64 mass, f64 radius)</code> gives each case the same fields, and <code>Planet.earth.mass</code> reads one.</li>
+</ul>
+<p>A name that is not in the enum is refused and the message names the enum:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2720:</span> `blue` is not a member of `Color`
+  <span class="gut">--&gt;</span> nonlist.byn:6:17
+
+<span class="gut">  6 │</span> let c: Color = .blue
+<span class="gut">    │</span>                 ^^^^
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2720</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check nonlist.byn</code>). The path is shortened to <code>nonlist.byn</code>.</figcaption>
+</figure>
+
+<h2 id="optionals">Optional values</h2>
+<p>A type followed by <code>?</code> is the value or <code>null</code>. A plain type is never null.</p>
+<example name="book-06-optional"/>
+<ul>
+  <li><code>string? findName(i64 id)</code> may return a string or <code>null</code>.</li>
+  <li><code>a ?? "nobody"</code> gives the value, or the fallback when it is null.</li>
+  <li><code>if a is not null { … }</code> narrows: inside the braces <code>a</code> is a <code>string</code>, so <code>a.length</code> works.</li>
+  <li><code>b is null</code> tests for absence. <code>b switch { null =&gt; …, _ =&gt; … }</code> also works.</li>
+</ul>
+<p>An optional is not the plain type. Assigning one to a plain variable is refused:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `string`, found `string?`
+  <span class="gut">--&gt;</span> optionalunwrap.byn:6:20
+
+<span class="gut">  6 │</span> let name: string = findName(2)
+<span class="gut">    │</span>                    ^^^^^^^^^^^
+<span class="gut">    │</span>
+<span class="gut">  help: unwrap it with `??`, `is { } v`, or `?? return`; the value may be absent</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2202</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check optionalunwrap.byn</code>). The path is shortened to <code>optionalunwrap.byn</code>.</figcaption>
+</figure>
+<p>Using a member without checking first is refused as well:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2211:</span> `length` is not a member of `string?`; the value may be null
+  <span class="gut">--&gt;</span> optionalmember.byn:2:15
+
+<span class="gut">  2 │</span> print($"{name.length}")
+<span class="gut">    │</span>               ^^^^^^
+<span class="gut">    │</span>
+<span class="gut">  help: check it first: `if (name is { } value) { … value.length … }`</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2211</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check optionalmember.byn</code>). The path is shortened to <code>optionalmember.byn</code>.</figcaption>
+</figure>
+<p>Both messages suggest <code>is { } v</code> in their help text. In the current compiler, use the forms in the program above: <code>??</code>, <code>is not null</code>, or <code>switch</code>. Comparing with <code>==</code> is also refused, as chapter 3 showed.</p>
+<note>Planned: not in the compiler yet. The safe-navigation form <code>name?.length</code> is not available.</note>
+<pre><code class="byn">let n = name?.length   // i64?, null when name is null</code></pre>
+
+<h2 id="tuples">Tuples</h2>
+<example name="book-06-tuple"/>
+<ul>
+  <li>A function can return several values as a tuple with named elements: <code>(i64 quotient, i64 remainder) divide(…)</code>. Read them by name: <code>result.quotient</code>.</li>
+  <li><code>(a / b, a % b)</code> builds a tuple. <code>(name: "Ada", age: 36)</code> names the elements as it builds.</li>
+  <li>A tuple prints in parentheses. For an unnamed or inferred tuple like <code>pair</code>, the names are not printed: <code>(Ada, 36)</code>.</li>
+  <li><code>for (x, y) in points</code> takes each pair apart in a loop.</li>
+</ul>
+<note>Planned: not in the compiler yet. Taking a tuple apart with <code>let (a, b) = pair</code> and reading elements by position (<code>pair.0</code>) are in the specification but do not compile.</note>
+<pre><code class="byn">let (q, r) = divide(17, by: 5)</code></pre>
+
+<h2 id="recap">What you have now</h2>
+<ul>
+  <li>A union is one of several cases, each with its own data. <code>switch</code> takes it apart and must cover every case.</li>
+  <li>An enum is a fixed set of values, with <code>ordinal</code> and optional per-case fields.</li>
+  <li><code>T?</code> is a value or <code>null</code>: use <code>??</code>, <code>is null</code> and <code>is not null</code>.</li>
+  <li>Tuples return several values, read by name.</li>
+</ul>
+
+<h2 id="quiz">Check your understanding</h2>
+<example name="book-06-q1" output="no"/>
+<details class="quiz">
+  <summary>What does this program print?</summary>
+  <p>It prints:</p>
+<pre><code>n7 hi .</code></pre>
+  <p>Each call picks a different arm: <code>.num(7)</code> gives <code>n7</code>, <code>.word("hi")</code> gives the text itself, and <code>.end</code> gives a full stop. <code>let v</code> and <code>let s</code> bind the case data, and they are only visible in their own arm.</p>
+</details>
+<example name="book-06-q2" output="no"/>
+<details class="quiz">
+  <summary>What does this program print?</summary>
+  <p>It prints:</p>
+<pre><code>7 3</code></pre>
+  <p><code>x</code> is null, so <code>??</code> uses 7. <code>y</code> holds 3, so the fallback is ignored. An answer of <code>7 7</code> assumes <code>??</code> always picks the right side.</p>
+</details>
+<example name="book-06-q3" output="no"/>
+<details class="quiz">
+  <summary>What does this program print?</summary>
+  <p>It prints:</p>
+<pre><code>2 mid</code></pre>
+  <p><code>ordinal</code> counts from 0: <code>low</code> is 0, <code>mid</code> is 1, <code>high</code> is 2. An enum value prints as its name. The answer <code>3 mid</code> counts from 1.</p>
+</details>
+<details class="quiz">
+  <summary>You add a case <code>triangle</code> to a union. What happens to a <code>switch</code> expression over it that has no <code>_</code> arm?</summary>
+  <p>It stops compiling: <code>BYN2410</code>, <code>switch</code> does not handle every value, naming <code>.triangle</code> as not covered. That is the point of the check. The program does not run with a missing case and fail later, and the new case does not fall into some other arm.</p>
+</details>
+<details class="quiz">
+  <summary>Why is <code>let name: string = findName(2)</code> an error when <code>findName</code> returns <code>string?</code>?</summary>
+  <p>A <code>string?</code> might be null, and a <code>string</code> never is (<code>BYN2202</code>). Decide what happens when it is absent: <code>findName(2) ?? "nobody"</code> gives a fallback. Or check <code>is not null</code> first. Changing the declared type to <code>string?</code> also compiles, but then you have the same question later.</p>
+</details>
+
+<div class="next-box">
+  <p>Next: <a href="book-07-collections.html">7. Lists, maps, spans and strings</a>.</p>
+</div>

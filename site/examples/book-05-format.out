@@ -1,0 +1,2 @@
+tea costs $4.50 each
+Line { item: "tea", price: Money { cents: 450 }, qty: 2 }
