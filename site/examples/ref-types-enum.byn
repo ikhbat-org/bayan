@@ -1,0 +1,19 @@
+enum Planet(i64 mass, i64 radius) {
+    mercury(3, 24)
+    earth(6, 63)
+}
+
+enum Color {
+    red
+    green
+    blue
+}
+
+let c = Color.green
+print($"{c} {c.name} {c.ordinal} {Color.count}")
+for v in Color.values {
+    print($"{v.ordinal}:{v}")
+}
+print($"{Color.parse("red")} {Color.parse("pink")}")
+print($"{Color.fromOrdinal(2)} {Color.fromOrdinal(5)}")
+print($"{Planet.earth.mass * Planet.earth.radius}")

@@ -1,0 +1,16 @@
+union Shape {
+    circle(i64 r)
+    rect(i64 w, i64 h)
+    empty
+}
+
+i64 area(Shape s) => s switch {
+    .circle c => 3 * c.r * c.r,
+    .rect(let w, let h) => w * h,
+    .empty => 0,
+}
+
+let a = Shape.circle(2)
+let b: Shape = .rect(w: 3, h: 4)
+print($"{area(a)} {area(b)} {area(.empty)}")
+print($"{b is .rect(let w, let h)}")

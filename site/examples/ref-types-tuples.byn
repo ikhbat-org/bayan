@@ -1,0 +1,17 @@
+(i64 count, string label) pair() => (7, "seven")
+
+let p = pair()
+print($"{p.count} {p.label}")
+
+let t = (3, "three")
+switch t {
+    case (3, let word):
+        print(word)
+    default:
+        print("other")
+}
+
+let rows: List<(i64 id, string name)> = [(1, "a"), (2, "b")]
+for (id, name) in rows {
+    print($"{id}{name}")
+}
