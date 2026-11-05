@@ -1,3 +1,4 @@
+#!/usr/bin/env bayan
 void main() {
     print($"{i64.tryParse("42") ?? -1} {i64.tryParse("4x2") ?? -1} {u8.tryParse("300") ?? 0}")
     print($"{i64.tryParse("ff", as: .hex) ?? -1}")

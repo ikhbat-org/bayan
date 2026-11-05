@@ -1,3 +1,4 @@
+#!/usr/bin/env bayan
 void main() {
     var xs: List<i64> = [30, 10, 20]
     xs.sort()

@@ -1,3 +1,4 @@
+#!/usr/bin/env bayan
 void main() {
     let s = "  hello, world  "
     let t = s.trimmed()

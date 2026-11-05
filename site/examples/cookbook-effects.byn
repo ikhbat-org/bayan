@@ -1,3 +1,4 @@
+#!/usr/bin/env bayan
 public string load(string path) fails IoError uses fs, alloc {
     return try Io.readText(path)
 }

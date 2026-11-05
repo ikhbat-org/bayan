@@ -1,3 +1,4 @@
+#!/usr/bin/env bayan
 union error ConfigError {
     missing(string key)
     badValue
@@ -8,18 +9,16 @@ i64 port(string text) fails ConfigError {
     return i64.tryParse(text) ?? fail .badValue
 }
 
+string describe(string text) {
+    let n = port(text) catch switch {
+        .missing(let key) => return $"missing key {key}",
+        .badValue => return $"bad value `{text}`",
+    }
+    return $"port {n}"
+}
+
 void main() {
     for text in ["8080", "", "80x"] {
-        let n = port(text) catch switch {
-            .missing(let key) => {
-                print($"missing key {key}")
-                continue
-            },
-            .badValue => {
-                print($"bad value `{text}`")
-                continue
-            },
-        }
-        print($"port {n}")
+        print(describe(text))
     }
 }

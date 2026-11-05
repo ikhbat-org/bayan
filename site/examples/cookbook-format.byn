@@ -1,3 +1,4 @@
+#!/usr/bin/env bayan
 void main() {
     let name = "Ada"
     let n = 255

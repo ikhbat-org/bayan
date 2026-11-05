@@ -1,3 +1,4 @@
+#!/usr/bin/env bayan
 void main() fails IoError {
     let path = "/tmp/cookbook-read.txt"
     let text = "first\nsecond\nthird\n"

@@ -26,4 +26,6 @@ template: docs
 <pre><code class="other" data-lang="Go">i := strings.Index(s, "one") // -1 when missing</code></pre>
 
 <h2 id="regex">Match a regular expression</h2>
-<p><strong>Not in the standard library yet.</strong> The spec places <code>std.regex</code> after v0.1 (section 15.4) and describes it as linear-time, with no backtracking. It defines no matching or capture API yet, so none is shown here. For fixed patterns, <code>position</code>, <code>startsWith</code> and <code>parts(by:)</code> above cover most of the work.</p>
+<p><strong>Planned.</strong> The spec adds <code>std.regex</code> after v0.1 (sections 15.4 and 16.4): <code>s.matches(re)</code> and <code>s.replaced(re, by: y)</code> on strings, and <code>Regex.escape</code> for building a pattern from outside input. Matching runs in linear time, with no backtracking. The compiler has no <code>Regex</code> yet, and the spec gives no capture-group form, so none is shown. Until then, <code>position</code>, <code>startsWith</code> and <code>parts(by:)</code> above cover fixed patterns.</p>
+<pre><code class="byn">s.matches(re)
+s.replaced(re, by: y)</code></pre>
