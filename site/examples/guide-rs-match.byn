@@ -1,0 +1,16 @@
+union Event {
+    key(rune code)
+    click(i64 x, i64 y)
+    quit
+}
+
+string describe(Event e) => e switch {
+    .key(let c) => $"key {c}",
+    .click(let x, let y) => $"click at {x},{y}",
+    .quit => "quit",
+}
+
+void main() {
+    let events: List<Event> = [.key('a'), .click(3, 4), .quit]
+    for e in events { print(describe(e)) }
+}

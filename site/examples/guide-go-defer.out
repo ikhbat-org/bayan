@@ -1,0 +1,6 @@
+open a
+use a
+close a
+open b
+use b
+close b

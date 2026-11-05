@@ -1,0 +1,27 @@
+struct Cart {
+    List<i64> prices
+
+    // A noun with no arguments is a property.
+    i64 total {
+        var sum: i64 = 0
+        for p in prices { sum += p }
+        return sum
+    }
+
+    // A state reads as isX / hasX / canX.
+    bool isEmpty => prices.length == 0
+    bool hasDiscount => total > 100
+
+    // A verb that changes the receiver takes `ref this`.
+    void add(ref this, i64 price) {
+        prices.append(price)
+    }
+}
+
+void main() {
+    var cart = Cart { prices: List<i64>() }
+    print($"{cart.isEmpty} {cart.total}")
+    cart.add(80)
+    cart.add(40)
+    print($"{cart.isEmpty} {cart.total} {cart.hasDiscount}")
+}

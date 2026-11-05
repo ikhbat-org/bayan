@@ -1,0 +1,209 @@
+title: Bayan for TypeScript programmers
+nav: Guides
+order: 48
+template: docs
+---
+<p>TypeScript adds types to a language that already runs. Bayan starts with the types. If you use unions, narrowing and <code>strict</code> mode, much of this will look right: a value is a union of shapes, a <code>switch</code> narrows it, and <code>null</code> is only allowed where the type says so. The differences come from Bayan being compiled to a native program with no runtime: integers have sizes, memory has an owner, and a type that is wrong stops the build rather than being erased.</p>
+<p>Every Bayan program on this page was run with the compiler, and the output shown is its real output.</p>
+
+<h2 id="table">Common tasks side by side</h2>
+<table>
+<tr><th>Task</th><th>TypeScript</th><th>Bayan</th></tr>
+<tr><td>Print with values</td><td><code>console.log(`${n} items`)</code></td><td><code>print($"{n} items")</code></td></tr>
+<tr><td>Fixed binding</td><td><code>const x = 1</code></td><td><code>let x = 1</code></td></tr>
+<tr><td>Changing binding</td><td><code>let x = 1</code></td><td><code>var x = 1</code></td></tr>
+<tr><td>Number types</td><td><code>number</code>, <code>bigint</code></td><td><code>i64</code>, <code>i32</code>, <code>u8</code>, <code>f64</code> …</td></tr>
+<tr><td>Array</td><td><code>const xs: number[] = [1, 2, 3]</code></td><td><code>let xs: List&lt;i64&gt; = [1, 2, 3]</code></td></tr>
+<tr><td>Fixed-size array</td><td><code>[number, number, number]</code></td><td><code>i64[3]</code></td></tr>
+<tr><td>Push</td><td><code>xs.push(4)</code></td><td><code>xs.append(4)</code></td></tr>
+<tr><td>Length</td><td><code>xs.length</code></td><td><code>xs.length</code></td></tr>
+<tr><td>Index</td><td><code>xs[0]</code> (<code>undefined</code> if out of range)</td><td><code>xs[0]</code> (panic if out of range), <code>xs.tryGet(at: 0)</code> (<code>null</code>)</td></tr>
+<tr><td>Map</td><td><code>new Map&lt;string, number&gt;()</code></td><td><code>Map&lt;string, i64&gt;()</code></td></tr>
+<tr><td>Map get with default</td><td><code>m.get(k) ?? 0</code></td><td><code>m.tryGet(at: k) ?? 0</code></td></tr>
+<tr><td>Map has</td><td><code>m.has(k)</code></td><td><code>m.contains(k)</code></td></tr>
+<tr><td>Iterate</td><td><code>for (const x of xs)</code></td><td><code>for x in xs { … }</code></td></tr>
+<tr><td>Count loop</td><td><code>for (let i = 0; i &lt; n; i++)</code></td><td><code>for i in 0..n { … }</code></td></tr>
+<tr><td>Entries</td><td><code>for (const [k, v] of m)</code></td><td><code>for (k, v) in m { … }</code></td></tr>
+<tr><td>Nullable</td><td><code>string | null</code></td><td><code>string?</code></td></tr>
+<tr><td>Fallback</td><td><code>x ?? "none"</code></td><td><code>x ?? "none"</code></td></tr>
+<tr><td>Narrowing</td><td><code>if (x !== null) { … }</code></td><td><code>if x is not null { … }</code></td></tr>
+<tr><td>Optional chaining</td><td><code>user?.name</code></td><td>planned (BYN2022 today)</td></tr>
+<tr><td>Object type</td><td><code>interface User { name: string }</code></td><td><code>struct User { string name }</code></td></tr>
+<tr><td>Spread update</td><td><code>{ ...a, name: "grace" }</code></td><td><code>a with { name: "grace" }</code></td></tr>
+<tr><td>Default field</td><td><code>role = "guest"</code> in a class</td><td><code>Role role = .guest</code> in the struct</td></tr>
+<tr><td>String literal union</td><td><code>"admin" | "guest"</code></td><td><code>enum Role</code> with cases <code>admin</code> and <code>guest</code></td></tr>
+<tr><td>Tagged union</td><td><code>{ kind: "ok"; value: string } | { kind: "failed"; reason: string }</code></td><td><code>union Outcome</code> with the cases <code>ok(string value)</code> and <code>failed(string reason)</code></td></tr>
+<tr><td>Narrow by tag</td><td><code>switch (r.kind) { case "ok": … }</code></td><td><code>r switch { .ok(let v) =&gt; … }</code></td></tr>
+<tr><td>Throw</td><td><code>throw new Error("bad")</code></td><td><code>fail .bad</code></td></tr>
+<tr><td>Catch</td><td><code>try { … } catch (e) { … }</code></td><td><code>f() catch value</code>, <code>f() catch switch { … }</code></td></tr>
+<tr><td>Rethrow</td><td>(automatic)</td><td><code>try f()</code></td></tr>
+<tr><td>Arrow function</td><td><code>(x) =&gt; x + 1</code></td><td><code>x =&gt; x + 1</code> or <code>it + 1</code>, where a function type is expected</td></tr>
+<tr><td>Function type</td><td><code>(x: number) =&gt; number</code></td><td><code>i64 -&gt; i64</code></td></tr>
+<tr><td>Template string</td><td><code>`a${b}`</code></td><td><code>$"a{b}"</code></td></tr>
+<tr><td>Split and join</td><td><code>s.split(",")</code>, <code>xs.join(", ")</code></td><td><code>s.parts(by: ",")</code>, <code>xs.span.joined(by: ", ")</code></td></tr>
+<tr><td>Trim</td><td><code>s.trim()</code></td><td><code>s.trimmed()</code></td></tr>
+<tr><td>Case</td><td><code>s.toUpperCase()</code></td><td><code>s.uppercased()</code></td></tr>
+<tr><td>Replace</td><td><code>s.replaceAll("a", "b")</code></td><td><code>s.replaced("a", by: "b")</code></td></tr>
+<tr><td>Parse a number</td><td><code>parseInt(s, 10)</code> (<code>NaN</code> on failure)</td><td><code>i64.tryParse(s)</code> (<code>i64?</code>)</td></tr>
+<tr><td>Read a file</td><td><code>await fs.readFile(p, "utf8")</code></td><td><code>try Io.readText(p)</code></td></tr>
+<tr><td>Arguments</td><td><code>process.argv.slice(2)</code></td><td><code>void main(ReadOnlySpan&lt;string&gt; args)</code></td></tr>
+<tr><td>Sort</td><td><code>[...xs].sort((a, b) =&gt; a - b)</code></td><td><code>var ys = xs.copy()</code>, then <code>ys.sort()</code></td></tr>
+<tr><td>Map, filter, reduce</td><td><code>xs.map(…)</code>, <code>xs.filter(…)</code></td><td>a <code>for</code> loop (adapters are planned)</td></tr>
+<tr><td>Async</td><td><code>await fetch(url)</code></td><td>planned: <code>await</code> at the call site</td></tr>
+<tr><td>A test</td><td><code>test("sum", () =&gt; expect(…))</code></td><td><code>test "sum" { assert … }</code></td></tr>
+<tr><td>Manifest</td><td><code>package.json</code></td><td><code>package.byn</code></td></tr>
+</table>
+
+<h2 id="types">Types are not erased</h2>
+<p>A TypeScript type is a hint that disappears at run time, and a value from <code>JSON.parse</code> can be anything. A Bayan type is the layout of the data. A <code>struct</code> is a fixed set of fields, held by value. There is no structural typing: two structs with the same fields are different types, and there is no <code>any</code> and no <code>object</code>.</p>
+<pre><code class="other" data-lang="TypeScript">type Role = "admin" | "guest";
+interface User { name: string; role: Role; email?: string }
+
+const a: User = { name: "ada", role: "admin" };
+const b = { ...a, name: "grace", email: "g@example.com" };</code></pre>
+<example name="guide-ts-struct"/>
+<p><code>email</code> has the type <code>string?</code>. It is <code>null</code> unless set, and the compiler will not let you read it as a <code>string</code> before you have checked: inside <code>if b.email is not null { … }</code> it narrows to <code>string</code>, as TypeScript does. <code>a</code> is not changed by creating <code>b</code>. Every struct is a value, so <code>with</code> makes a copy.</p>
+<p>A struct literal must give a value to every field that has no default. A missing field is an error (BYN2109), not <code>undefined</code>.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `string`, found `null`
+  --&gt; nulls.byn:2:24
+
+  2 │     let name: string = null
+    │                        ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+
+<h2 id="unions">Tagged unions</h2>
+<p>You build tagged unions by hand in TypeScript, with a <code>kind</code> field. Bayan has them as a type. Each case may carry fields, a <code>switch</code> narrows to the case and binds its fields, and the compiler checks that every case is handled. The leading dot names a case of the type expected at that place. Cases are written one per line and are <code>camelCase</code>.</p>
+<pre><code class="other" data-lang="TypeScript">type Outcome =
+  | { kind: "ok"; value: string }
+  | { kind: "failed"; reason: string }
+  | { kind: "pending" };
+
+function render(r: Outcome): string {
+  switch (r.kind) {
+    case "ok": return `ok: ${r.value}`;
+    case "failed": return `failed: ${r.reason}`;
+    case "pending": return "pending";
+  }
+}</code></pre>
+<example name="guide-ts-union"/>
+<p>In TypeScript, forgetting a case is caught only if you add a <code>never</code> check. Here it is always caught. A name that is already taken cannot be reused: <code>Result</code> is a built-in type, so the example calls its union <code>Outcome</code>.</p>
+
+<h2 id="errors">Promises and exceptions become fails</h2>
+<p>Nothing throws. A function that can fail says which errors in its signature, so the failure is part of the type that TypeScript's <code>throw</code> leaves out. The caller handles the error with <code>catch</code>, or passes it up with <code>try</code>. A <code>catch switch</code> must cover every case.</p>
+<pre><code class="other" data-lang="TypeScript">async function show(name: string): Promise&lt;string&gt; {
+  try {
+    return await load(name);
+  } catch (e) {
+    if (e instanceof NotFound) return "no such user";
+    return "name required";
+  }
+}</code></pre>
+<example name="guide-ts-errors"/>
+<p>There is no <code>instanceof</code> and no catch-all that hides which error you got. See <a href="errors.html">Errors</a>. A doc comment on a case is the text <code>$"{e}"</code> prints for it.</p>
+<note>Planned: <code>async</code> and <code>await</code>. The model differs from <code>Promise</code>: a function is not declared <code>async</code>, you mark the call, and a task cannot outlive the block that started it. The compiler rejects both keywords today. See the <a href="cookbook-concurrency.html">Concurrency cookbook</a>.</note>
+
+<h2 id="functions">Functions and lambdas</h2>
+<p>Parameter types come first: <code>i64 add(i64 a, by i64 b)</code>. All parameters after the first carry a label, called a particle, from a fixed list (<code>from</code>, <code>to</code>, <code>until</code>, <code>through</code>, <code>at</code>, <code>by</code>, <code>for</code>, <code>as</code>), and the call writes it. This is where TypeScript would use an options object. A lambda borrows its parameter types from the function type it is passed to, so it is written without types.</p>
+<pre><code class="other" data-lang="TypeScript">const applyTwice = (x: number, step: (n: number) =&gt; number) =&gt; step(step(x));
+applyTwice(5, (n) =&gt; n * 3);</code></pre>
+<example name="guide-ts-fn"/>
+<p><code>it</code> is the implicit parameter of a one-parameter lambda, so <code>it * 3</code> and <code>x =&gt; x * 3</code> mean the same. A lambda must be placed where its type is known. On its own line it has no type to take from, and the compiler says so:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2218:</span> `x =&gt; x + 1` needs a known type here
+  --&gt; arrow.byn:2:15
+
+  2 │     let inc = x =&gt; x + 1
+    │               ^^^^^^^^^^
+    │
+  help: write the function type it has, such as `let f: i64 -&gt; i64 = x =&gt; x`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2218</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p>Write the function type, <code>let inc: i64 -&gt; i64 = x =&gt; x + 1</code>, as the compiler suggests.</p>
+
+<h2 id="loops">map, filter and reduce</h2>
+<p>Array methods that take a callback are not in the compiler yet. A <code>for</code> loop does the same work, and a postfix <code>if</code> or <code>continue if</code> keeps a filter on one line. <code>break</code> leaves the loop, which <code>.find</code> does for you in TypeScript.</p>
+<pre><code class="other" data-lang="TypeScript">const total = prices.reduce((a, p) =&gt; a + p, 0);
+const cheap = prices.filter((p) =&gt; p &lt; 10);
+const doubled = prices.map((p) =&gt; p * 2);
+const found = prices.find((p) =&gt; p &gt; 10);</code></pre>
+<example name="guide-ts-loops"/>
+<note>Planned: lazy <code>where</code>, <code>select</code> and <code>sumBy</code> on lists, written with <code>it</code> (<code>events.where(it.isValid)</code>). They are in the specification and give BYN2003 today.</note>
+
+<h2 id="surprises">What will surprise you</h2>
+
+<h3 id="s-numbers">Numbers have a size</h3>
+<p>There is one <code>number</code> in TypeScript and none in Bayan. You choose <code>i32</code>, <code>i64</code>, <code>u8</code>, <code>f64</code> and so on. Integer division gives an integer (<code>7 / 2</code> is <code>3</code>), overflow stops the program with a panic, and a conversion that could lose bits is written out. A value widens on its own, but <code>i64</code> to <code>i32</code> needs <code>i32(a)</code>. <b>Why:</b> <code>number</code> hides whether a value is a count, an id or a measurement, and a 2<sup>53</sup> limit that is easy to hit.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `i32`, found `i64`
+  --&gt; narrow.byn:3:18
+
+  3 │     let b: i32 = a
+    │                  ^
+    │
+  help: convert it if the value always fits; `i64` does not convert to `i32` without loss
+    │ 3 │     let b: i32 = i32(a)
+    │   │                  ++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+
+<h3 id="s-equality">== compares like with like</h3>
+<p>There is no <code>===</code> and no coercion. <code>1 == "1"</code> does not compile (BYN2208). A condition must be a <code>bool</code>: no truthy numbers, strings or arrays, and <code>if n</code> on an integer is an error (BYN2202).</p>
+
+<h3 id="s-null">Only one empty value</h3>
+<p>There is <code>null</code>, spelled with <code>?</code> in the type, and nothing called <code>undefined</code>. A missing list index or map key is not <code>undefined</code> either: <code>xs[9]</code> and <code>m["x"]</code> panic, and <code>tryGet(at:)</code> returns the optional.</p>
+
+<h3 id="s-copy">Objects are values, lists are owned</h3>
+<p>In TypeScript <code>const b = a</code> gives two names for one object. In Bayan a struct is copied, and a <code>List</code> or <code>Map</code>, which owns memory, cannot be copied by accident:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2780:</span> implicit copy of a unique value: `List&lt;i64&gt;` is unique: it owns its storage
+  --&gt; copy.byn:3:13
+
+  3 │     var b = a
+    │             ^
+    │
+  help: hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass
+        it by `ref` to share it instead
+    │ 3 │     var b = move a
+    │   │             +++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2780</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p>Hand it over with <code>move a</code>, make another with <code>a.copy()</code>, or share it with <code>ref</code>. <b>Why:</b> there is no garbage collector, so every list has exactly one owner that frees it. See <a href="memory.html">Memory and ownership</a>.</p>
+
+<h3 id="s-strings">Strings are UTF-8 bytes</h3>
+<p><code>length</code> counts bytes, not UTF-16 units, and <code>runeCount</code> counts characters. You slice with byte offsets, <code>s[0..5]</code>, and a slice that cuts a character in half panics. There is no <code>+</code> on strings:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2209:</span> strings cannot be joined with `+`; use interpolation
+  --&gt; concat.byn:3:11
+
+  3 │     print(a + "y")
+    │           ^^^^^^^
+    │
+  help: write the parts as one interpolation: `$"{a}{b}"`, or `buf.append($"{a}{b}")` in a loop
+    │ 3 │     print($"{a}y")
+    │   │           +++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2209</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+
+<h3 id="s-classes">No classes, no this</h3>
+<p>Methods live in a struct, and there is no inheritance. A method that changes the struct is marked <code>ref this</code> and cannot be called on a <code>let</code>. <code>this</code> is an ordinary first parameter, so it cannot change meaning depending on how a method is called.</p>
+
+<h3 id="s-modules">Packages and no runtime</h3>
+<p>A directory is a module, and <code>import app.orders</code> names it. There is no <code>node_modules</code>: dependencies are listed in <code>package.byn</code>. The result is a native program. Decoding JSON into a typed struct is planned and not in the compiler yet.</p>
+<p>Next: <a href="effective.html">Effective Bayan</a> says which form to choose.</p>
