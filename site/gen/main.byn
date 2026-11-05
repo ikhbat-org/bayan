@@ -1,0 +1,190 @@
+// The bayan.run site generator (FORMAT.md).
+//
+//     bayan run site/gen -- <site-dir>
+//
+// Reads `<site>/content/*.page`, `<site>/templates/*.html` and `<site>/examples/*`, and writes
+// `<site>/out/<name>.html` (the directory must exist). Exit 1 with `file:line: message` on stderr
+// for a page it cannot build, 2 on a usage error.
+
+const exitOk: i32 = 0
+const exitFailure: i32 = 1
+const exitUsage: i32 = 2
+
+i32 report(string message) {
+    Io.stderr.write($"gen: {message}\n")
+    return exitFailure
+}
+
+/// Whether `pages[a]` comes before `pages[b]` in the sidebar: by group, then `order`, then name.
+bool before(ReadOnlySpan<Page> pages, from i64 a, to i64 b) {
+    let ga = navIndex(pages[a].nav)
+    let gb = navIndex(pages[b].nav)
+    return ga < gb if ga != gb
+    return pages[a].order < pages[b].order if pages[a].order != pages[b].order
+    return pages[a].name < pages[b].name
+}
+
+/// The indices of the pages with a `nav` group, in sidebar order.
+List<i64> navOrder(ReadOnlySpan<Page> pages) {
+    var order = List<i64>()
+    for i in 0..pages.length {
+        if pages[i].nav.isEmpty { continue }
+        var at = order.length
+        while at > 0 && before(pages, from: i, to: order[at - 1]) { at -= 1 }
+        order.append(i)
+        var j = order.length - 1
+        while j > at {
+            order[j] = order[j - 1]
+            j -= 1
+        }
+        order[at] = i
+    }
+    return order
+}
+
+/// The position of page `index` in `order`, or -1.
+i64 positionIn(ReadOnlySpan<i64> order, for i64 index) {
+    for k in 0..order.length {
+        return k if order[k] == index
+    }
+    return -1
+}
+
+string sidebar(ReadOnlySpan<Page> pages, by ReadOnlySpan<i64> order, for i64 current) {
+    var sb = StrBuf()
+    var group = ""
+    for k in order {
+        let page = pages[k]
+        if page.nav != group {
+            unless group.isEmpty { sb.append("</ul>\n") }
+            group = page.nav
+            sb.append($"<p class=\"grp\">{group}</p>\n<ul>\n")
+        }
+        let here = k == current ? " aria-current=\"page\"" : ""
+        sb.append($"<li><a href=\"{page.name}.html\"{here}>")
+        escapeInto(page.title, to: ref sb)
+        sb.append("</a></li>\n")
+    }
+    unless group.isEmpty { sb.append("</ul>\n") }
+    return $"{sb.finish()}"
+}
+
+string tocList(ReadOnlySpan<Heading> toc) {
+    var sb = StrBuf()
+    for h in toc { sb.append($"<li><a href=\"#{h.id}\">{h.html}</a></li>\n") }
+    return $"{sb.finish()}"
+}
+
+void pagerLink(Page page, as string role, to ref StrBuf sb) {
+    let label = role == "prev" ? "Previous" : "Next"
+    sb.append($"<a class=\"{role}\" href=\"{page.name}.html\" rel=\"{role}\"><small>{label}</small><strong>")
+    escapeInto(page.title, to: ref sb)
+    sb.append("</strong></a>\n")
+}
+
+string pager(ReadOnlySpan<Page> pages, by ReadOnlySpan<i64> order, for i64 current) {
+    let k = positionIn(order, for: current)
+    if k < 0 { return "" }
+    var sb = StrBuf()
+    if k > 0 { pagerLink(pages[order[k - 1]], as: "prev", to: ref sb) }
+    if k + 1 < order.length { pagerLink(pages[order[k + 1]], as: "next", to: ref sb) }
+    return $"{sb.finish()}"
+}
+
+/// The page the "Docs" links go to: the first Reference page, else the first sidebar page that is not the tutorial; -1 if none.
+i64 docsPage(ReadOnlySpan<Page> pages, by ReadOnlySpan<i64> order) {
+    for k in order {
+        return k if pages[k].nav == "Reference"
+    }
+    for k in order {
+        return k if pages[k].name != "tutorial"
+    }
+    return -1
+}
+
+/// The header links: Docs, Tutorial and GitHub.
+string headNav(ReadOnlySpan<Page> pages, by ReadOnlySpan<i64> order, for i64 current) {
+    var tutorial: i64 = -1
+    for k in order {
+        if pages[k].name == "tutorial" { tutorial = k }
+    }
+    let docs = docsPage(pages, by: order)
+    var sb = StrBuf()
+    if docs >= 0 {
+        let here = current != tutorial && positionIn(order, for: current) >= 0 ? " aria-current=\"page\"" : ""
+        sb.append($"<a href=\"{pages[docs].name}.html\"{here}>Docs</a>\n")
+    }
+    if tutorial >= 0 {
+        let here = current == tutorial ? " aria-current=\"page\"" : ""
+        sb.append($"<a href=\"tutorial.html\"{here}>Tutorial</a>\n")
+    }
+    sb.append("<a href=\"https://github.com/ikhbat-org/bayan\">GitHub</a>")
+    return $"{sb.finish()}"
+}
+
+bool hasTemplate(ReadOnlySpan<string> templates, for string name) {
+    for t in templates {
+        return true if t == name
+    }
+    return false
+}
+
+/// The `file:line: message` for a page whose template is not in `templates`, or "".
+string templateError(Page page, from ReadOnlySpan<string> templates, at string site) {
+    return "" if hasTemplate(templates, for: page.template)
+    return $"{page.file}:{page.templateLine}: unknown template `{page.template}` (no {site}/templates/{page.template}.html)"
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    if args.length != 1 || args[0].startsWith("-") {
+        Io.stderr.write("usage: bayan run site/gen -- <site-dir>\n")
+        return exitUsage
+    }
+    let site = args[0]
+    let contentDir = $"{site}/content"
+    let names = Io.listDir(contentDir) catch return report($"cannot list {contentDir}")
+    let templateFiles = Io.listDir($"{site}/templates") catch return report($"cannot list {site}/templates")
+    var templates = List<string>()
+    for t in templateFiles {
+        if t.endsWith(".html") { templates.append(t[0..(t.length - 5)]) }
+    }
+
+    var pages = List<Page>()
+    for name in names {
+        unless name.endsWith(".page") { continue }
+        let file = $"{contentDir}/{name}"
+        let text = Io.readText(file) catch return report($"{file}: cannot read")
+        let parsed = parsePage(file, from: text)
+        unless parsed.error.isEmpty { return report(parsed.error) }
+        let missing = templateError(parsed.page, from: templates.span, at: site)
+        unless missing.isEmpty { return report(missing) }
+        pages.append(parsed.page)
+    }
+    if pages.isEmpty { return report($"no .page files in {contentDir}") }
+
+    let order = navOrder(pages.span)
+    let docs = docsPage(pages.span, by: order.span)
+    let docsHref = docs >= 0 ? $"{pages[docs].name}.html" : "index.html"
+    for index in 0..pages.length {
+        let page = pages[index]
+        var html = StrBuf()
+        var toc = List<Heading>()
+        let problem = renderBody(page, from: $"{site}/examples", to: ref html, for: ref toc)
+        unless problem.isEmpty { return report(problem) }
+        let shell = Io.readText($"{site}/templates/{page.template}.html") catch return report($"{site}/templates/{page.template}.html: cannot read")
+        let result = shell
+            .replaced("{{title}}", by: escapeHtml(page.title))
+            .replaced("{{name}}", by: page.name)
+            .replaced("{{group}}", by: page.nav)
+            .replaced("{{docs}}", by: docsHref)
+            .replaced("{{headnav}}", by: headNav(pages.span, by: order.span, for: index))
+            .replaced("{{sidebar}}", by: sidebar(pages.span, by: order.span, for: index))
+            .replaced("{{toc}}", by: tocList(toc.span))
+            .replaced("{{pager}}", by: pager(pages.span, by: order.span, for: index))
+            .replaced("{{body}}", by: html.finish())
+        let path = $"{site}/out/{page.name}.html"
+        Io.writeFile(path, result.bytes) catch return report($"{path}: cannot write")
+        print($"wrote {path}")
+    }
+    return exitOk
+}

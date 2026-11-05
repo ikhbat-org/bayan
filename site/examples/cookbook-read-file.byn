@@ -1,0 +1,14 @@
+void main() fails IoError {
+    let path = "/tmp/cookbook-read.txt"
+    let text = "first\nsecond\nthird\n"
+    try Io.writeFile(path, text.bytes)
+
+    let all = try Io.readText(path)
+    print($"{all.length} bytes")
+    let raw = try Io.readFile(path)
+    print($"{raw.length} raw bytes")
+    for line in all.lines {
+        print($"line: {line}")
+    }
+    print(Io.readText("/tmp/cookbook-missing.txt") catch "missing")
+}

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="assets/brand/favicon/favicon.ico" sizes="48x48">
+<link rel="icon" href="assets/brand/favicon/favicon-auto.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<title>{{title}} - Bayan</title>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="assets/brand/wordmark/bayan-wordmark-en-header.svg" alt="bayān" width="560" height="330"><span lang="ar" dir="rtl">بيان</span></a>
+    <nav aria-label="Main">
+{{headnav}}
+    </nav>
+  </div>
+</header>
+
+<div class="wrap docs" id="docs">
+  <aside class="side" aria-label="Documentation">
+    <details open>
+      <summary>Documentation</summary>
+{{sidebar}}
+    </details>
+  </aside>
+
+  <main id="main">
+    <div class="crumbs-row">
+      <p class="crumbs">{{group}}</p>
+      <button type="button" class="toc-btn" id="toc-btn" aria-controls="toc" aria-expanded="true">On this page</button>
+    </div>
+    <article class="prose">
+      <h1>{{title}}</h1>
+{{body}}
+      <nav class="pager" aria-label="Previous and next">
+{{pager}}
+      </nav>
+    </article>
+  </main>
+
+  <nav class="toc" id="toc" aria-label="On this page">
+    <h2>On this page</h2>
+    <ul>
+{{toc}}
+    </ul>
+  </nav>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Bayan is made by the Ikhbat Foundation.</span>
+    <span><a href="index.html">Home</a> &nbsp; <a href="tutorial.html">Tutorial</a> &nbsp; <a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a></span>
+  </div>
+</footer>
+<script>
+(function () {
+  var docs = document.getElementById('docs'), btn = document.getElementById('toc-btn'), toc = document.getElementById('toc');
+  function set(open) {
+    toc.hidden = !open;
+    docs.classList.toggle('toc-off', !open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('bayan-toc'); } catch (e) {}
+  set(saved !== 'closed');
+  btn.addEventListener('click', function () {
+    var open = btn.getAttribute('aria-expanded') !== 'true';
+    set(open);
+    try { localStorage.setItem('bayan-toc', open ? 'open' : 'closed'); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>

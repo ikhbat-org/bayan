@@ -1,0 +1,33 @@
+title: Parsing numbers and JSON cookbook
+nav: Guides
+order: 55
+template: docs
+---
+<p>Parsing is where outside text meets typed values. Number parsing works today. JSON and URL parsing do not run yet; where the spec defines them, the page says "Planned" and cites the section.</p>
+
+<h2 id="numbers">Parse a string into a number</h2>
+<p>Each number type has two parsers. <code>T.tryParse(text)</code> returns a <code>T?</code>: <code>null</code> for empty text, a stray space or sign, a bad digit, or a value that does not fit. <code>T.parse(text)</code> fails with <code>ParseError</code> instead, which says why: <code>badDigit(at)</code> carries the byte offset of the first bad digit, and <code>overflow</code> means every digit was good but the value does not fit. <code>as: .hex</code>, <code>.binary</code> and <code>.octal</code> change the base. <code>f64.tryParse</code> reads the float literal form.</p>
+<example name="cookbook-parse-number"/>
+<pre><code class="other" data-lang="Go">n, err := strconv.Atoi("42")
+f, err := strconv.ParseFloat("2.5e-3", 64)</code></pre>
+<p>You pick the width by calling the parser on the type (<code>i8</code>, <code>u16</code>, <code>i64</code>, and so on), and the range is checked for you.</p>
+
+<h2 id="json-encode">Serialize a value to JSON</h2>
+<p><strong>Planned.</strong> The spec derives JSON support from an attribute, <code>@derive(Json)</code> on a struct (sections 5.3 and 7.9), and names <code>Json.encode</code>, which rejects non-finite floats with <code>JsonError.nonFinite</code> (section 6.6). It gives no signature for <code>Json.encode</code>, the derivation mechanism is "not in v0.1", and the compiler has no <code>Json</code>. The spec's declaration:</p>
+<pre><code class="byn">@derive(Json)
+struct SignupForm {
+    string username
+    i32 age
+}</code></pre>
+
+<h2 id="json-decode">Deserialize JSON into a typed struct</h2>
+<p><strong>Planned.</strong> A decoder takes <code>Untrusted&lt;string&gt;</code> and returns a typed value or an error set; it checks the type's <code>requires</code> rules and reports every violation, not just the first (section 7.9):</p>
+<pre><code class="byn">static T fromJson(Untrusted&lt;string&gt; body) fails DecodeError&lt;T&gt; uses alloc</code></pre>
+<p>Bayan marks anything from outside the program, such as a request body, a file from a user's path or stdin, as <code>Untrusted&lt;T&gt;</code>, and the compiler stops it reaching a sensitive place until it passes a check (section 15.1). <code>Untrusted</code> and <code>trustUnchecked() because "…"</code> already work. Unwrapping without a check needs a written reason, and <code>audit</code> lists every one:</p>
+<example name="cookbook-untrusted"/>
+<note>The compiler does not yet mark file or stdin input as <code>Untrusted</code> (spec section 15.1, "Implemented so far"), so wrap it yourself with <code>Untrusted(x)</code> until it does.</note>
+<pre><code class="other" data-lang="Go">var f SignupForm
+err := json.Unmarshal(body, &amp;f)</code></pre>
+
+<h2 id="url">Parse a URL</h2>
+<p><strong>Not in the standard library yet.</strong> The spec mentions a <code>Url</code> type and says redirect targets must be an allowlisted <code>Url</code> (section 15.1), but it defines no parsing API for scheme, host, path or query, so none is shown.</p>

@@ -1,0 +1,12 @@
+void main() fails IoError {
+    let path = "/tmp/cookbook-write.txt"
+    try Io.writeFile(path, "hello\n".bytes)
+    // No append call yet: read, add, write back.
+    let old = try Io.readText(path)
+    let more = $"{old}world\n"
+    try Io.writeFile(path, more.bytes)
+    print(try Io.readText(path))
+    let bytes: u8[3] = [0, 255, 7]
+    try Io.writeFile("/tmp/cookbook-write.bin", bytes.span)
+    print($"{(try Io.readFile("/tmp/cookbook-write.bin")).length} binary bytes")
+}

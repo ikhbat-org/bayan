@@ -1,0 +1,31 @@
+title: Command-line arguments cookbook
+nav: Guides
+order: 59
+template: docs
+---
+<p>How do I read command-line arguments in Bayan? <code>main</code> can take them as a parameter. There is no flag-parsing library yet, so flags and subcommands are a loop you write; errors there are values like any others.</p>
+
+<h2 id="args">Read the positional arguments</h2>
+<p><strong>Runnable.</strong> Declare <code>void main(ReadOnlySpan&lt;string&gt; args)</code>. You get the arguments after the program name, as UTF-8 strings, without the program name itself. Pass them to <code>bayan run</code> after <code>--</code>.</p>
+<example name="cookbook-cli-args"/>
+<pre><code class="other" data-lang="shell">$ bayan run cookbook-cli-args.byn -- hello 42
+2 arguments
+0: hello
+1: 42</code></pre>
+<pre><code class="other" data-lang="Python">args = sys.argv[1:]</code></pre>
+<note>The spec lists command-line arguments as a source of <code>Untrusted&lt;T&gt;</code> (§15.1). Today <code>main</code> receives plain <code>string</code> values. Treat them as outside input anyway, in particular before you pass them to <code>Io.run</code> or build a path from them.</note>
+
+<h2 id="flags">Parse flags and options</h2>
+<p><strong>Runnable by hand; the library is Planned.</strong> The standard library has no flag parser. Loop over <code>args</code>, compare, and convert values with <code>i64.tryParse</code>, which returns <code>null</code> instead of throwing when the text is not a number; use <code>i64.parse</code> if you want a <code>ParseError</code> value that says which byte was wrong. The spec lists an <code>Args</code> derivation among the standard ones (§5.3), but the <code>derivation</code> mechanism is "not in v0.1", so you cannot use it yet. This example parses a fixed list when you pass no arguments, so its output is the same on every run.</p>
+<example name="cookbook-cli-flags"/>
+<pre><code class="other" data-lang="Go">verbose := flag.Bool("v", false, "verbose")
+count := flag.Int("count", 1, "how many")
+flag.Parse()</code></pre>
+
+<h2 id="subcommands">Parse subcommands</h2>
+<p><strong>Runnable by hand.</strong> A subcommand is the first argument. Declare the ways it can go wrong as a <code>union error</code>, return it with <code>fail</code>, and turn it into a message with <code>catch switch</code>. Nothing is thrown, and the compiler checks that the <code>switch</code> covers every case.</p>
+<example name="cookbook-cli-subcommands"/>
+<p>When <code>main</code> itself <code>fails</code>, the program exits with a nonzero code. The spec lets you choose the code per error case with <code>@exitCode(n)</code> (§8); this page did not run that attribute.</p>
+
+<h2 id="env">Read environment variables</h2>
+<p><strong>Not in the standard library yet.</strong> <code>Env</code> is not defined in the compiler. The spec reserves an <code>env</code> effect for "Environment variables and process-wide settings" (§14), so a function that reads them will declare <code>uses env</code>; it defines no read call yet.</p>
