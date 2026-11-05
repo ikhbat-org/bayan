@@ -80,8 +80,8 @@ defer failing tx.rollback()  // only when the function fails</code></pre>
 let n = digit(s) catch -1          // fall back to a value
 let m = digit(s) catch { return }  // leave
 let k = digit(s) catch switch {
-    .empty => 0,
-    .notDigit => -1,
+    .empty =&gt; 0,
+    .notDigit =&gt; -1,
 }</code></pre>
 <p><code>try</code> propagates a failure to the caller, and covers the whole expression to its right. <code>catch</code> handles it where it happens. Closest: Rust's <code>?</code> for <code>try</code>, and <code>match</code> on a <code>Result</code> for <code>catch switch</code>. See <a href="errors.html">Errors</a>.</p>
 <example name="errors-basic"/>
@@ -111,9 +111,15 @@ let shown = name ?? "nobody"</code></pre>
 <h2 id="attributes">Attributes and reasons</h2>
 
 <h3 id="because"><code>@attr because "…"</code></h3>
-<pre><code class="byn">let s = x.trustUnchecked() because "demo input"
+<pre><code class="byn">@allow(BYN5102) because "the name matches the C API"
+struct Header { … }
+
+@json(expose) because "the client needs the key"
+string apiKey
+
+let s = x.trustUnchecked() because "demo input"
 
 unsafe because "the C API wants a raw pointer" {
     …
 }</code></pre>
-<p>An attribute starts with <code>@</code>, as in <code>@derive(Json)</code>. Code that bypasses a safety rule must also say why, in a <code>because</code> clause with a string. Without it the code does not compile. Closest: a lint suppression that must carry a comment, enforced by the compiler.</p>
+<p>An attribute starts with <code>@</code>, as in <code>@derive(Json)</code>. Most take no reason. An attribute that bypasses a safety rule, such as <code>@allow(…)</code>, or <code>@json(expose)</code> on a <code>Secret</code> field, must also say why. Other code that bypasses a safety rule must also say why, in a <code>because</code> clause with a string. Without it the code does not compile. Closest: a lint suppression that must carry a comment, enforced by the compiler.</p>
