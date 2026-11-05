@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your first Bayan program</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="mark.svg" alt="" width="32" height="32">Bayan <span lang="ar" dir="rtl">بيان</span></a>
+    <nav aria-label="Main">
+      <a href="docs.html">Docs</a>
+      <a href="tutorial.html" aria-current="page">Tutorial</a>
+      <a href="https://github.com/ikhbat-org/bayan">GitHub</a>
+    </nav>
+    <span class="ver">v0.1</span>
+  </div>
+</header>
+
+<main id="main" class="tut">
+  <header>
+    <h1>Your first Bayan program</h1>
+    <p class="lede">Five steps from nothing to a native executable, including one error and its fix. You need a terminal and a few minutes.</p>
+  </header>
+
+  <ol class="steps">
+    <li>
+      <h2>Get the compiler</h2>
+      <p>The v0.1 compiler is built from source. It needs the .NET 10 SDK, and <code>zig</code> on your <code>PATH</code> to turn the generated C into an executable.</p>
+<pre class="code"><code>git clone https://github.com/ikhbat-org/bayan
+cd bayan
+dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
+./tmp/publish/bayan --version</code></pre>
+      <p>Use your own runtime identifier in place of <code>osx-arm64</code>. Then run <code>bayan doctor</code>: it checks the C compiler, zig, git and the build cache, and says how to fix what is missing.</p>
+    </li>
+    <li>
+      <h2>Write hello</h2>
+      <p>Create <code>hello.byn</code>. Bayan files end in <code>.byn</code>, and newlines end statements, so there is no semicolon.</p>
+<pre class="code"><code><span class="f">print</span>(<span class="s">"Hello, world!"</span>)</code></pre>
+    </li>
+    <li>
+      <h2>Build it</h2>
+      <p><code>bayan build</code> compiles to C, then to a native executable. <code>-o</code> names the result.</p>
+<pre class="code"><code>bayan build hello.byn -o hello</code></pre>
+      <p>Add <code>--emit-c</code> to see the C that was generated.</p>
+    </li>
+    <li>
+      <h2>Run it</h2>
+<pre class="code"><code>./hello</code></pre>
+<pre class="code"><code>Hello, world!</code></pre>
+      <p><code>bayan run hello.byn</code> does both steps at once.</p>
+    </li>
+    <li>
+      <h2>Read an error, then fix it</h2>
+      <p>Save this as <code>width.byn</code>. The second parameter carries the particle <code>until</code>, and the call leaves it out.</p>
+<pre class="code"><code><span class="t">i64</span> <span class="f">width</span>(<span class="t">i64</span> start, <span class="p">until</span> <span class="t">i64</span> end) => end - start
+
+<span class="k">let</span> start: <span class="t">i64</span> = <span class="n">2</span>
+<span class="k">let</span> end: <span class="t">i64</span> = <span class="n">5</span>
+<span class="f">print</span>(<span class="s">$"{width(end, start)}"</span>)</code></pre>
+<pre class="code"><code>bayan run width.byn</code></pre>
+      <figure class="diag">
+<pre><span class="err">error BYN5005:</span> `end` is passed without its particle `until:`
+<span class="gut">  --&gt;</span> width.byn:5:21
+
+<span class="gut">  5 │</span> print($"{width(<span class="hl">end, start</span>)}")
+<span class="gut">    │</span>                     <span class="hl">^^^^^ needs `until:`</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> add `until:` before the argument
+<span class="gut">    │ 5 │</span> print($"{width(end, <span class="add">until: </span>start)}")
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN5005</span></pre>
+        <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>width.byn</code>.</figcaption>
+      </figure>
+      <p>The message says what is wrong (an argument without its particle), where (line 5, the highlighted arguments) and how to fix it (add <code>until:</code>). The suggested edit would keep the arguments in the wrong order, though, and the particle belongs on <code>end</code>, the end of the range. Put it there:</p>
+<pre class="code"><code><span class="f">print</span>(<span class="s">$"{width(start, </span><span class="fixed"><span class="p">until:</span></span><span class="s"> end)}"</span>)</code></pre>
+<pre class="code"><code>bayan run width.byn</code></pre>
+<pre class="code"><code>3</code></pre>
+      <div class="next-box">
+        <p>That is the loop: write, build, read the message, fix. Next, read how <a href="docs.html#particles">argument particles</a> work, or run <code>bayan explain BYN5005</code> in your terminal.</p>
+      </div>
+    </li>
+  </ol>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Bayan is made by the Ikhbat Foundation.</span>
+    <a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a>
+    <a href="index.html">Home</a>
+    <a href="docs.html">Docs</a>
+  </div>
+</footer>
+</body>
+</html>
