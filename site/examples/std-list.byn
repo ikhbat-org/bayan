@@ -1,0 +1,22 @@
+void main() {
+    var xs: List<i64> = [5, 3, 9]
+    xs.append(1)
+    print($"length {xs.length}, empty {xs.isEmpty}, xs[0] = {xs[0]}")
+    print($"{xs.tryGet(at: 10) ?? -1}")
+    xs.sort()
+    for x in xs { print($"{x}") }
+    print($"removed last: {xs.removeLast()}")
+    xs.remove(at: 0)
+    print($"{xs.length}")
+    xs.remove(from: 0, until: 1)
+    print($"{xs.length}")
+    var more: List<i64> = [1, 2, 3, 4, 5]
+    let items: List<i64> = [20, 30, 40]
+    more.replace(at: 1..3, by: items.span)
+    for x in more { print($"{x}") }
+    let copy = more.copy()
+    more.clear()
+    print($"{more.length} {copy.length}")
+    let view = copy.span
+    print($"{view.length} {view[0]}")
+}

@@ -1,0 +1,11 @@
+void main() {
+    let s = "  Mixed Case  "
+    print($"[{s.trimmed()}] [{s.trimmed(from: .start)}] [{s.trimmed(from: .end)}]")
+    print($"[{"xxhixx".trimmed(by: ['x'])}]")
+    print(s.lowercased())
+    print(s.uppercased())
+    print("a-b-c".replaced("-", by: "+"))
+    print("ab".repeated(3))
+    print("7".padded(to: 3, by: '0'))
+    print("abcdef"[1..4])
+}

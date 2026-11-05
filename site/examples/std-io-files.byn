@@ -1,0 +1,12 @@
+void main() fails IoError {
+    let path = "/tmp/std-io-files.txt"
+    try Io.writeFile(path, "one\ntwo\n".bytes)
+    let text = try Io.readText(path)
+    print($"{text.length} bytes")
+    let raw = try Io.readFile(path)
+    print($"{raw.length} raw bytes, first is {raw[0]}")
+    try Io.writeFile("/tmp/std-io-files-b.txt", "b".bytes)
+    for name in try Io.listDir("/tmp") {
+        print(name) if name.startsWith("std-io-files")
+    }
+}

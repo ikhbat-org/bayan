@@ -1,0 +1,13 @@
+void main() {
+    let text = "one\ntwo\nthree"
+    for line in text.lines { print($"line: {line}") }
+    for part in "a,b,c".parts(by: ",") { print($"part: {part}") }
+    for part in "a,b,c".parts(by: ",", limit: 2) { print($"limited: {part}") }
+    for part in "a b".parts(by: ' ') { print($"rune split: {part}") }
+    for r in "hé".runes { print($"rune {r}") }
+    let names: string[3] = ["ada", "grace", "linus"]
+    print(names.span.joined(by: ", "))
+    print("héllo".runes.take(2))
+    print("héllo".runes.skip(3))
+    print("héllo".runes.takeLast(2))
+}
