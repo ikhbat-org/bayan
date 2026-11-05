@@ -1,0 +1,23 @@
+List<i64> squares(i64 n) {
+    var xs = List<i64>()
+    for i in 0..n {
+        xs.append(i * i)
+    }
+    return xs
+}
+
+void main() {
+    using var arena = Arena()
+    provide allocator: arena {
+        let xs = squares(5)
+        print($"{xs.length} {xs[4]}")
+        let name = "temporary".copy(to: arena)
+        print(name)
+    }
+    var many = List<i64>()
+    for i in 0..1000 {
+        many.append(i)
+    }
+    print($"{many.length} {many[999]}")
+    arena.reset()
+}

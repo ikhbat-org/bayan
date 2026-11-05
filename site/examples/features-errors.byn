@@ -1,0 +1,28 @@
+union error StockError {
+    /// The item is sold out.
+    soldOut
+    /// The quantity is not positive.
+    badQuantity
+}
+
+i64 reserve(i64 want, from i64 stock) fails StockError {
+    fail .badQuantity if want <= 0
+    fail .soldOut if want > stock
+    return stock - want
+}
+
+i64 order(i64 want, from i64 stock) fails StockError {
+    let left = try reserve(want, from: stock)
+    return left
+}
+
+void main() {
+    print($"{order(3, from: 10) catch -1}")
+    let a = order(30, from: 10) catch switch {
+        .soldOut => -2,
+        .badQuantity => -3,
+    }
+    print($"{a}")
+    let b = order(0, from: 10) catch -1
+    print($"{b}")
+}

@@ -1,0 +1,71 @@
+title: What makes Bayan different
+nav: Start
+order: 30
+template: docs
+---
+<p>Each feature below exists in other languages. The combination does not. Every example on this page is a complete program that compiles and runs. Features that the specification has but the compiler does not run yet are marked "planned" and shown as fragments.</p>
+
+<h2 id="particles">Particles: argument roles in the name</h2>
+<p>A required parameter after the first one carries a role word: <code>from</code>, <code>to</code>, <code>until</code>, <code>through</code>, <code>at</code>, <code>by</code> or <code>for</code>, or <code>as</code>. A call must write the same word. The particles are part of the function's name, so you can read it as <code>transfer(from:to:)</code>.</p>
+<example name="features-particles"/>
+<p>Swapping the two accounts means swapping the labels, so the mistake shows up in the text. A particle appears at most once per signature. A <code>bool</code> argument must be named.</p>
+
+<h2 id="errors">Errors as values: fails, try, catch</h2>
+<p>A function lists the errors it can produce with <code>fails</code>. <code>fail .x</code> leaves with one. <code>try</code> passes a failure up to the caller. <code>catch</code> handles it: with a fallback value, with a block that must leave (<code>return</code>, <code>break</code>, <code>continue</code>), or with an exhaustive <code>catch switch</code>.</p>
+<example name="features-errors"/>
+<p>Error sets compose: <code>union error ShipError = CarrierError, StockError</code>. They can also be narrowed: <code>union error Retryable = CarrierError except .rejected</code>. The <a href="errors.html">Errors guide</a> covers all of it.</p>
+
+<h2 id="defer-failing">defer failing</h2>
+<p><code>defer</code> runs a statement when the scope ends. <code>defer failing</code> runs it only when the function leaves by failing, which is the place for a rollback. Deferred statements run in reverse order, and they cannot fail.</p>
+<example name="features-defer"/>
+<p>On the failing path the output shows <code>rollback</code> before <code>always</code>: the later <code>defer</code> runs first.</p>
+
+<h2 id="effects">Effects: uses</h2>
+<p>A public function declares what it does besides computing. <code>checksum</code> has no <code>uses</code> clause, so it is pure: it allocates nothing and does no I/O. <code>squares</code> allocates, and says so.</p>
+<example name="features-effects"/>
+<p>Leaving out <code>uses alloc</code> is a compile error (BYN6002). The effects are <code>alloc suspend net fs clock random env process console</code>. Tests can replace handlers with <code>provide</code>, for example <code>provide net: FakeNet(…) { … }</code>, so a test of network code needs no network.</p>
+
+<h2 id="units">Units</h2>
+<p><strong>Planned.</strong> The specification has units as types, with literal suffixes. The compiler does not parse <code>unit</code> declarations yet.</p>
+<pre><code class="byn">unit Seconds(s): i64
+unit Millis(ms) = Seconds / 1000
+
+let t = 2s + 500ms        // Millis 2500: conversion goes to the finer unit
+let whole = t.floor&lt;Seconds&gt;()   // going coarser names its rounding</code></pre>
+<p>Mixing units is a compile error. A bare <code>0</code> never becomes a unit value, so you write <code>0g</code>. Units are erased at run time.</p>
+
+<h2 id="untrusted">Untrusted&lt;T&gt;</h2>
+<p>A value from outside the program can be wrapped as <code>Untrusted&lt;T&gt;</code>. There is no implicit conversion either way. Unwrapping needs <code>trustUnchecked()</code> followed by <code>because</code> and a written reason.</p>
+<example name="features-untrusted"/>
+<p>The specification goes further: sinks such as file paths, redirect URLs and process arguments reject <code>Untrusted</code> values, and only constructing a type with <code>requires</code> clears the taint. In the compiler today, request and input sources are not wrapped yet, so that part is planned.</p>
+
+<h2 id="states">Struct states</h2>
+<p>A struct can declare a lifecycle in a <code>states</code> block. <code>Order.paid</code> is then a type. A method says which state it needs (<code>ref this is .paid</code>) and which one it leaves behind (<code>becomes .shipped</code>).</p>
+<example name="features-states"/>
+<p>Calling <code>ship</code> on an order that is still a draft is a compile error. The payload of a state (<code>payment</code>, <code>tracking</code>) is readable only where the type guarantees the state. States cost nothing at run time: the checks happen at compile time.</p>
+
+<h2 id="requires">requires</h2>
+<p><code>requires</code> on a type or a field is checked when a value is constructed. A <code>Box</code> that breaks its rules cannot exist. Within a line, <code>it</code> means the value being checked. A rule that names other fields belongs to the struct, and <code>at .w</code> says which field a violation points at.</p>
+<example name="features-requires"/>
+<p>Building a type with <code>requires</code> is fallible, so it needs <code>try</code> or <code>catch</code>, and the error is <code>ValidationError&lt;Box&gt;</code>. Updates go through <code>with</code>, which checks again. Function preconditions are a separate word, <code>expects</code>, which panics on a violation in every build mode.</p>
+
+<h2 id="because">@attr because "…"</h2>
+<p>Anywhere code bypasses a safety rule, a written reason is required: <code>@allow(BYN5102) because "…"</code>, <code>x.trustUnchecked() because "…"</code> and <code>unsafe because "…" { … }</code>. A missing <code>because</code> is a compile error (BYN8001). <code>bayan audit</code> is specified to list every bypass in a project with its reason.</p>
+<pre><code class="byn">let name = x.trustUnchecked() because "checked by the caller"
+
+unsafe because "the C API wants a raw pointer" {
+    …
+}</code></pre>
+
+<h2 id="postfix-if">Statement if suffixes</h2>
+<p>A simple statement can end with <code>if</code> or <code>unless</code>. The condition is evaluated first, and the statement runs only if it applies. It must be on the same line.</p>
+<example name="features-postfix"/>
+<p>The suffix works on <code>return</code>, <code>fail</code>, <code>break</code>, <code>continue</code>, <code>panic</code>, a single call and a single assignment. Blocks and chains are not allowed.</p>
+
+<h2 id="concurrency">Structured concurrency</h2>
+<p><strong>Planned.</strong> Functions are never declared <code>async</code>. You write <code>async f(x)</code> and <code>await</code> at the call site, and a future cannot outlive the block that started it: leaving the block cancels unfinished work, which runs its <code>defer failing</code> handlers. Tasks are started in a group:</p>
+<pre><code class="byn">let group = Io.group()
+group.spawn(…)
+group.spawn(…)
+try await group.all()</code></pre>
+<p>The group form follows the specification's section on structured concurrency. Fibers, <code>async</code>, futures and deadlines are not in the compiler yet.</p>

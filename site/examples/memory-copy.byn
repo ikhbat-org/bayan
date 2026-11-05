@@ -1,0 +1,10 @@
+void main() {
+    var a = List<i64>()
+    a.append(1)
+    a.append(2)
+    var b = a.copy()
+    b.append(3)
+    print($"{a.length} {b.length}")
+    let view: ReadOnlySpan<i64> = a.span
+    print($"{view.length} {view[1]}")
+}

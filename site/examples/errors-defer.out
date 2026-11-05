@@ -1,0 +1,9 @@
+defer 2
+defer 1
+result 42
+---
+defer 2
+failing 2 saw The step was told to fail.
+failing 1
+defer 1
+result -1
