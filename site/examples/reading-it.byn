@@ -1,0 +1,16 @@
+type Pred = i64 -> bool
+
+bool any(ReadOnlySpan<i64> xs, by Pred p) {
+    for x in xs {
+        if p(x) {
+            return true
+        }
+    }
+    return false
+}
+
+void main() {
+    let xs: Span<i64> = [1, 2, 3]
+    print($"{any(xs, by: it > 2)}")
+    print($"{any(xs, by: x => x > 5)}")
+}

@@ -1,0 +1,19 @@
+union error StepError {
+    /// The step was told to fail.
+    told
+}
+
+i64 work(bool shouldFail) fails StepError {
+    defer print("defer 1")
+    defer failing print("failing 1")
+    defer failing (e) print($"failing 2 saw {e}")
+    defer print("defer 2")
+    fail .told if shouldFail
+    return 42
+}
+
+void main() {
+    print($"result {work(shouldFail: false) catch -1}")
+    print("---")
+    print($"result {work(shouldFail: true) catch -1}")
+}

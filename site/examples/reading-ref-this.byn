@@ -1,0 +1,18 @@
+struct Stat {
+    i64 hits = 0
+    i64 total = 0
+
+    void record(ref this, i64 ms) {
+        hits += 1
+        total += ms
+    }
+
+    i64 average() => total / hits
+}
+
+void main() {
+    var s = Stat {}
+    s.record(10)
+    s.record(30)
+    print($"{s.hits} {s.total} {s.average()}")
+}

@@ -1,0 +1,75 @@
+title: Why Bayan
+nav: Start
+order: 20
+template: docs
+---
+<p>Bayan is a value-oriented language that compiles to native code. It has no garbage collector, no runtime and no exceptions. This page lists the decisions behind that, the reason for each, and what each one costs you. The language specification has more detail, including the rationale notes for every decision.</p>
+
+<p>Some features here are in the specification but not yet in the compiler. They are marked "planned", and their code is shown as fragments, not programs.</p>
+
+<h2 id="principles">The principles</h2>
+<p>The specification opens with a short list. These are the ones that shape the rest of the language:</p>
+<ul>
+<li>Performance is a feature. Allocation, suspension and failure are always visible in the source or the tooling.</li>
+<li>Every keystroke carries meaning. If the compiler can infer something reliably, you do not type it. If it carries meaning, you do.</li>
+<li>One spelling per construct.</li>
+<li>Memory safety is never a build-mode option.</li>
+<li>Promise as little as possible. Anything specified exactly is permanent, so the specification leaves room where that costs nothing.</li>
+</ul>
+
+<h2 id="one-form">One form, one meaning</h2>
+<p><strong>What it is.</strong> Two spellings of one construct are not allowed. One is canonical. The other is an "input form": the compiler recognises it, reports it, and offers a fix. There is no <code>;</code>, no <code>/* */</code> comment, no <code>foreach</code>, and no <code>+</code> on strings. Each of them produces an error that tells you what to write instead.</p>
+<p><strong>Why.</strong> Code that says the same thing the same way is easier to read and to search. A formatter has nothing to argue about.</p>
+<p>Different compositions of the general grammar that mean the same thing are still allowed. <code>users except null</code> and <code>users.where(it is not null)</code> are both fine. Leaving out a part the compiler can recover (<code>it</code>, an inferred type, a target-typed <code>.member</code>) is also fine.</p>
+<p><strong>What it costs.</strong> If you come from C-family languages, some habits stop working. Two spellings are the documented exceptions, and a project picks one of each in <code>package.byn</code>: boolean operators (<code>&amp;&amp;</code> or <code>and</code>) and primitive type names (<code>i32</code> or <code>int</code>).</p>
+<pre><code class="byn">let line = a + b                 // BYN2209: strings cannot be joined with `+`
+let line = $"{a}{b}"             // the one way to join text</code></pre>
+
+<h2 id="keystrokes">Every keystroke carries meaning</h2>
+<p><strong>What it is.</strong> Newlines end statements, conditions have no parentheses, and you write a type only where it adds information. Where a part is easy to recover it is left out: a target-typed <code>.red</code> instead of <code>Color.red</code>, <code>it</code> in a one-argument lambda. Where a part matters, the language makes you write it. Mutation is <code>ref this</code>, a transfer of ownership is <code>move</code>, and the role of an argument is a particle such as <code>from:</code>.</p>
+<p><strong>Why.</strong> A call site should say what it does. <code>transfer(200, from: alice, to: bob)</code> cannot have its two accounts swapped without the labels changing.</p>
+<p><strong>What it costs.</strong> There is more to learn up front. A function with several required parameters needs a particle on all but one of them, and the call has to repeat each particle. The <a href="reading.html">reading guide</a> goes through the unfamiliar forms one by one.</p>
+<example name="features-particles"/>
+
+<h2 id="errors-values">Errors are values, not exceptions</h2>
+<p><strong>What it is.</strong> A function that can fail says so in its signature: <code>i64 reserve(...) fails StockError</code>. Inside it, <code>fail .soldOut</code> leaves with an error and <code>return</code> always returns a value. A caller either propagates with <code>try</code> or handles the failure with <code>catch</code>. There is nothing to catch that the signature did not declare. A panic is different: it means a bug, and it aborts the program.</p>
+<p><strong>Why.</strong> With exceptions, any call can fail without telling you. With <code>fails</code>, failure is a part of the type, so it stays visible in the source and costs the same as a return value.</p>
+<p><strong>What it costs.</strong> A public function has to list its errors. You write <code>try</code> at every call that can fail. The guide <a href="errors.html">Errors</a> covers the full set of forms.</p>
+<example name="features-errors"/>
+
+<h2 id="no-gc">No garbage collector and no runtime</h2>
+<p><strong>What it is.</strong> Data is made of structs, which are values. Values live on the stack, in an arena, on the heap through an allocator, or in static data. Collections and other resources are <code>unique</code>: assigning one moves it, and a copy is something you ask for. Borrows are checked against the region they come from, and you do not write lifetime annotations in the common case.</p>
+<p><strong>Why.</strong> The cost of memory is in the source, and a program starts with nothing running beside it.</p>
+<p><strong>What it costs.</strong> You decide where memory comes from and who owns it. A borrow cannot be stored somewhere that outlives its source, and a value cannot be changed structurally while a borrow into it is alive. The fix is usually an explicit <code>.copy()</code>. A garbage collector is a possible future allocator, never a language mode. The guide <a href="memory.html">Memory and ownership</a> has the details.</p>
+<pre><code class="byn">var a = List&lt;i64&gt;()
+a.append(1)
+let b = move a        // `a` can no longer be used
+var c = b.copy()      // an explicit copy</code></pre>
+
+<h2 id="effects">Effects in signatures</h2>
+<p><strong>What it is.</strong> A public function lists what it does besides computing: <code>uses alloc</code>, <code>uses net</code>, <code>uses fs</code> and so on. The list is closed: <code>alloc suspend net fs clock random env process console</code>. A function with no <code>uses</code> clause is pure. Private functions infer their effects. An undeclared effect on a public function is an error (BYN6002).</p>
+<p><strong>Why.</strong> A signature is a contract. You can tell from it whether a call allocates, touches the network or waits on I/O. A package can also declare which capabilities it may use at all, and one that does not list <code>.net</code> cannot contain a function that uses it.</p>
+<p><strong>What it costs.</strong> Public signatures get longer, and a new effect on a function reaches its public callers. A function-typed parameter takes the effects of whatever you pass, so <code>map</code> needs no separate variants.</p>
+<example name="features-effects"/>
+<p>Removing <code>uses alloc</code> from <code>squares</code> gives this error from the compiler:</p>
+<pre><code class="other" data-lang="Compiler output">error BYN6002: `squares` uses `alloc` but does not declare it</code></pre>
+
+<h2 id="safety">Safety modes</h2>
+<p><strong>What it is.</strong> The compiler has build modes: <code>debug</code>, <code>safe</code>, <code>fast</code> and <code>small</code>. The command line accepts <code>--mode debug|safe|fast</code> today. The modes change how much checking and diagnosis you get, never whether the program is memory safe. Bounds checks apply in every mode. Integer overflow traps in every mode, and the wrapping and saturating operators (<code>+%</code>, <code>+|</code>) are separate spellings. A <code>requires</code> check and an <code>expects</code> contract run in every mode.</p>
+<p><strong>Why.</strong> A program that behaves differently in <code>fast</code> than in <code>debug</code> makes the fast build a different program. Here only the extra diagnosis changes. Debug builds, for example, check ownership at run time and report a second owner or a use after a move, with both source locations.</p>
+<p><strong>What it costs.</strong> Some checks cost time. The compiler removes the ones it can prove redundant. Outside <code>unsafe</code> there is no undefined behaviour. Raw pointers, pointer arithmetic and <code>extern</code> calls need an <code>unsafe because "…"</code> block, and <code>bayan audit</code> is specified to list every such bypass with its reason. Today <code>bayan audit &lt;path&gt;</code> prints each <code>trustUnchecked() because</code> bypass with its file, position and reason, and a count. The <code>unsafe</code> block, the other <code>because</code> forms, and the <code>extern</code> listing are planned.</p>
+<pre><code class="byn">let ok: string = typed.trustUnchecked() because "demo input"</code></pre>
+
+<h2 id="c-backend">Compiling to C through zig cc</h2>
+<p><strong>What it is.</strong> The compiler checks your program, turns it into C, and runs <code>zig cc</code> on the result. The output is an ordinary native executable. The C it emits defines every behaviour C leaves undefined, with explicit checks and the flags <code>-fwrapv</code> and <code>-ffp-contract=off</code>. <code>bayan build --emit-c</code> shows the C.</p>
+<p><strong>Why.</strong> One mature C compiler gives the language many targets and good code without writing a back end for each. <code>zig cc</code> also cross-compiles from one machine. The target names are <code>linux-x64</code>, <code>linux-arm64</code>, <code>macos-x64</code>, <code>macos-arm64</code>, <code>windows-x64</code> and <code>windows-arm64</code>, plus <code>wasm32</code>.</p>
+<pre><code class="other" data-lang="Shell">bayan build main.byn --emit-c        # show the C
+bayan build main.byn --target linux-x64</code></pre>
+<p><strong>What it costs.</strong> You need <code>zig</code> on your <code>PATH</code>, or a C compiler named in <code>BAYAN_CC</code>. Compile time includes a C compiler run. The specification plans a faster in-process path for debug builds and scripts, which is not described here as done.</p>
+
+<h2 id="self-hosting">Self-hosting</h2>
+<p><strong>What it is.</strong> Bayan is meant to compile itself. Today the compiler is a bootstrap written in C#. The lexer, parser and semantic analysis are being ported to Bayan and checked against the C# version on the same inputs. The port is not finished, so the compiler you run is still the C# one.</p>
+<p><strong>Why.</strong> A language that is good for compilers should be able to write one, and the port finds gaps in the language while it is still cheap to fix them. The site you are reading is generated by a program written in Bayan.</p>
+<pre><code class="byn">// part of the lexer, written in Bayan
+bool isDigit(u8 c) =&gt; c &gt;= '0' &amp;&amp; c &lt;= '9'</code></pre>
+<p><strong>What it costs.</strong> The bootstrap compiler runs a subset of the specification. Features that the self-hosting port has not needed yet, such as units and some collection methods, come later.</p>

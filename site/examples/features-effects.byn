@@ -1,0 +1,20 @@
+public i64 checksum(ReadOnlySpan<i64> xs) {
+    var total: i64 = 0
+    for x in xs {
+        total = total * 31 + x
+    }
+    return total
+}
+
+public List<i64> squares(i64 n) uses alloc {
+    var xs = List<i64>()
+    for i in 0..n {
+        xs.append(i * i)
+    }
+    return xs
+}
+
+void main() {
+    let xs = squares(5)
+    print($"{xs.length} {checksum(xs.span)}")
+}

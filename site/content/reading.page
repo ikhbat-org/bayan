@@ -1,0 +1,125 @@
+title: Reading Bayan code
+nav: Learn
+order: 10
+template: docs
+---
+<p>If you know Python, Rust, Go, C# or TypeScript, most Bayan reads as you expect. This page covers the forms that do not: what each one does and why it is there. Each entry gives the form, a fragment, and what it means. Where a mainstream equivalent exists, it names it.</p>
+
+<h2 id="receivers">Methods that change their receiver</h2>
+
+<h3 id="ref-this"><code>ref this</code></h3>
+<pre><code class="byn">void record(ref this, i64 ms) {
+    hits += 1
+}</code></pre>
+<p>A method is read-only by default. A method that changes its receiver says so with <code>ref this</code> as its first parameter. You cannot call it on a <code>let</code>. Closest: Rust's <code>&amp;mut self</code>. In Python and C# every method can change the object, and here the signature tells you.</p>
+<example name="reading-ref-this"/>
+
+<h2 id="context">Names taken from context</h2>
+
+<h3 id="target-typed">Target-typed <code>.member</code></h3>
+<pre><code class="byn">return .notFound
+let c: Color = .red
+fail .told if shouldFail</code></pre>
+<p>A leading dot names a member of the type the compiler already expects at that place: a union case, an error variant or an enum value. <code>.red</code> here is <code>Color.red</code>. It has one meaning only, and it is never a lambda shortcut. Closest: Swift's implicit member expressions.</p>
+<example name="reading-target"/>
+
+<h3 id="it"><code>it</code></h3>
+<pre><code class="byn">any(xs, by: it &gt; 2)
+any(xs, by: x =&gt; x &gt; 5)</code></pre>
+<p>Where a call expects a one-parameter function, an argument that mentions <code>it</code> is a lambda whose parameter is <code>it</code>. The two lines above mean the same. Closest: Kotlin's <code>it</code>. Nesting a second <code>it</code> inside is an error, so name one lambda.</p>
+<p>In a <code>requires</code> clause, <code>it</code> is the value being checked:</p>
+<pre><code class="byn">string username
+    requires it.runeCount in 3..=32</code></pre>
+<example name="reading-it"/>
+
+<h2 id="calls">Calls and parameters</h2>
+
+<h3 id="particles">Particles in calls and parameters</h3>
+<pre><code class="byn">void transfer(i64 amount, from Account payer, to Account payee)
+
+transfer(200, from: alice, to: bob)</code></pre>
+<p>A required parameter after the first takes a role word. In the declaration the word comes before the type (<code>from Account payer</code>). In the call it is a label with a colon (<code>from: alice</code>). The words are <code>from to until through at by for as</code>. A call that leaves one out, or writes the wrong one, does not compile. Closest: Swift's argument labels, or Python keyword-only arguments, except that here the label is fixed by the language's word list.</p>
+<pre><code class="byn">i64 clamp(i64 x, to i64 max) =&gt; x &gt; max ? max : x
+
+clamp(12, to: 10)</code></pre>
+
+<h3 id="arrow">Bodies with <code>=&gt;</code></h3>
+<pre><code class="byn">i64 square(i64 x) =&gt; x * x</code></pre>
+<p><code>=&gt;</code> reads "evaluates to". A function whose body is one expression can use it in place of braces and <code>return</code>. It also separates a lambda's parameters from its body, and a <code>switch</code> arm from its result. Function types use <code>-&gt;</code> instead: <code>i64 -&gt; bool</code>. Closest: C# expression-bodied members, JavaScript arrow functions.</p>
+<example name="reading-expression-body"/>
+
+<h3 id="interpolation">Interpolated strings <code>$"…{…}"</code></h3>
+<pre><code class="byn">print($"{name} has {name.length} bytes")
+print($"{n, as: .hex}")</code></pre>
+<p>A <code>$</code> before the quote lets you write expressions inside braces. A format option is a named argument inside the hole, like any other argument. Strings have no <code>+</code>, so this is also how you join them. Closest: C# interpolated strings, Python f-strings.</p>
+
+<h2 id="statements">Statements</h2>
+
+<h3 id="postfix-if"><code>stmt if cond</code></h3>
+<pre><code class="byn">return if n &lt; 0
+fail .outOfStock if line.qty &gt; stock
+print("slow") unless fast</code></pre>
+<p>A simple statement can end with <code>if</code> or <code>unless</code>. The condition is evaluated first, and the statement runs only when it holds. It has to be on the same line, and it works only on a single simple statement. Closest: Ruby and Perl statement modifiers.</p>
+
+<h3 id="defer-failing"><code>defer failing</code></h3>
+<pre><code class="byn">defer arena.reset()          // every exit
+defer failing tx.rollback()  // only when the function fails</code></pre>
+<p><code>defer</code> runs a statement when the scope ends, in reverse order. <code>defer failing</code> runs it only if the function exits by failing. Closest: Go's <code>defer</code> for the first, Zig's <code>errdefer</code> for the second.</p>
+
+<h2 id="errors">Errors</h2>
+
+<h3 id="fails"><code>fails E</code></h3>
+<pre><code class="byn">i64 digit(string s) fails ParseError {
+    fail .empty if s.isEmpty
+    …
+}</code></pre>
+<p><code>fails</code> after a signature lists the error sets the function can produce. <code>fail .empty</code> leaves with an error, and <code>return</code> always returns a value. There are no exceptions. Closest: Rust's <code>Result&lt;T, E&gt;</code> and Java's <code>throws</code>, except that it is checked by the compiler and costs a return value.</p>
+
+<h3 id="try-catch"><code>try</code> and <code>catch</code></h3>
+<pre><code class="byn">let d = try digit(s)               // pass the failure up
+let n = digit(s) catch -1          // fall back to a value
+let m = digit(s) catch { return }  // leave
+let k = digit(s) catch switch {
+    .empty =&gt; 0,
+    .notDigit =&gt; -1,
+}</code></pre>
+<p><code>try</code> propagates a failure to the caller, and covers the whole expression to its right. <code>catch</code> handles it where it happens. Closest: Rust's <code>?</code> for <code>try</code>, and <code>match</code> on a <code>Result</code> for <code>catch switch</code>. See <a href="errors.html">Errors</a>.</p>
+<example name="errors-basic"/>
+
+<h2 id="effects-ownership">Effects and ownership</h2>
+
+<h3 id="uses"><code>uses</code></h3>
+<pre><code class="byn">public List&lt;i64&gt; squares(i64 n) uses alloc { … }</code></pre>
+<p><code>uses</code> lists the effects a function has: <code>alloc suspend net fs clock random env process console</code>. No <code>uses</code> means pure. A public function that does something it did not declare does not compile. There is no direct equivalent in mainstream languages. It is nearest to Koka's effect types.</p>
+
+<h3 id="move"><code>move</code></h3>
+<pre><code class="byn">let b = move a
+sum(move list)</code></pre>
+<p><code>move</code> transfers ownership of a value that cannot be copied, such as a <code>List</code>. After it, the source cannot be used. Closest: Rust's move, which is implicit there and written out here. See <a href="memory.html">Memory and ownership</a>.</p>
+
+<h2 id="optionals">Optionals</h2>
+
+<h3 id="optional"><code>?</code> types and narrowing</h3>
+<pre><code class="byn">let name: string? = null
+if name is not null {
+    print(name)          // `name` is a string here
+}
+let shown = name ?? "nobody"</code></pre>
+<p><code>T?</code> is "a <code>T</code> or nothing". Plain types are never null. <code>is null</code> and <code>is not null</code> are the checks, and after <code>is not null</code> the value has its non-null type. <code>??</code> gives a fallback, and <code>?.</code> stops at null (planned: <code>?.</code> is not supported yet). <code>x ?? return …</code> leaves early. Closest: TypeScript's <code>T | null</code> with narrowing, Kotlin's <code>T?</code>. <code>x == null</code> is rejected with a fix.</p>
+<example name="reading-optional"/>
+
+<h2 id="attributes">Attributes and reasons</h2>
+
+<h3 id="because"><code>@attr because "…"</code></h3>
+<pre><code class="byn">@allow(BYN5102) because "the name matches the C API"
+struct Header { … }
+
+@json(expose) because "the client needs the key"
+string apiKey
+
+let s = x.trustUnchecked() because "demo input"
+
+unsafe because "the C API wants a raw pointer" {
+    …
+}</code></pre>
+<p><strong>Planned.</strong> Only the <code>trustUnchecked() because</code> line runs today. The <code>@allow</code>, <code>@json(expose)</code> and <code>unsafe because</code> forms are in the specification but not in the compiler yet. An attribute starts with <code>@</code>, as in <code>@derive(Json)</code>. Most take no reason. An attribute that bypasses a safety rule, such as <code>@allow(…)</code>, or <code>@json(expose)</code> on a <code>Secret</code> field, must also say why. Other code that bypasses a safety rule must also say why, in a <code>because</code> clause with a string. Without it the code does not compile. Closest: a lint suppression that must carry a comment, enforced by the compiler.</p>
