@@ -59,6 +59,15 @@ test "header line without a colon" {
     assert parsed("title: T\nnonsense\n---\n").error == "content/x.page:2: expected `key: value` or `---`"
 }
 
+test "unknown template" {
+    var templates = List<string>()
+    templates.append("docs")
+    templates.append("landing")
+    let page = parsed("title: T\n\ntemplate: wiki\n---\n").page
+    assert templateError(page, from: templates.span, at: "site") == "content/x.page:3: unknown template `wiki` (no site/templates/wiki.html)"
+    assert templateError(parsed(good).page, from: templates.span, at: "site") == ""
+}
+
 test "h2 ids go to the toc" {
     let page = parsed("title: T\ntemplate: docs\n---\n<h2 id=\"a\">One <code>x</code></h2>\n<h2 id=\"b\">Two</h2>\n").page
     var html = StrBuf()

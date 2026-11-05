@@ -129,6 +129,12 @@ bool hasTemplate(ReadOnlySpan<string> templates, for string name) {
     return false
 }
 
+/// The `file:line: message` for a page whose template is not in `templates`, or "".
+string templateError(Page page, from ReadOnlySpan<string> templates, at string site) {
+    return "" if hasTemplate(templates, for: page.template)
+    return $"{page.file}:{page.templateLine}: unknown template `{page.template}` (no {site}/templates/{page.template}.html)"
+}
+
 i32 main(ReadOnlySpan<string> args) {
     if args.length != 1 || args[0].startsWith("-") {
         Io.stderr.write("usage: bayan run site/gen -- <site-dir>\n")
@@ -150,9 +156,8 @@ i32 main(ReadOnlySpan<string> args) {
         let text = Io.readText(file) catch return report($"{file}: cannot read")
         let parsed = parsePage(file, from: text)
         unless parsed.error.isEmpty { return report(parsed.error) }
-        unless hasTemplate(templates.span, for: parsed.page.template) {
-            return report($"{file}:{parsed.page.templateLine}: unknown template `{parsed.page.template}` (no {site}/templates/{parsed.page.template}.html)")
-        }
+        let missing = templateError(parsed.page, from: templates.span, at: site)
+        unless missing.isEmpty { return report(missing) }
         pages.append(parsed.page)
     }
     if pages.isEmpty { return report($"no .page files in {contentDir}") }
