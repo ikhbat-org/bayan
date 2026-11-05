@@ -1,0 +1,230 @@
+title: 11. Modules, visibility and packages
+nav: Learn
+order: 1100
+template: docs
+---
+<p class="lede">Until now every program was one file. This chapter splits a program into modules, decides what each module shows to the others, and lays the result out as a project. You build a small shop: a <code>money</code> module, an <code>orders</code> module that uses it, and an app that ties them together.</p>
+
+<h2 id="directory">A directory is a module</h2>
+<p>A module is a directory of <code>.byn</code> files. There is no <code>module</code> keyword and no header at the top of a file. Every file in a directory belongs to the same module, and the files of one module see each other's declarations without any import. Split a module into as many files as you like: the split is yours, the compiler sees one set of names.</p>
+<p>That has a consequence you will meet early. Two files in the same directory cannot both declare <code>grade</code>, even if you meant them as two separate programs. <code>bayan run</code> on a directory compiles the whole directory. This is why every example on this site is run from a directory of its own.</p>
+<p>A module name is the name of its directory. <code>import money</code> brings in the module in <code>money/</code>. The entry module is the one that holds the program's top-level statements. Only the entry module may have them; the others hold declarations.</p>
+
+<h2 id="project">Make a project</h2>
+<p><code>bayan new</code> creates a directory with a manifest, a source folder and a test folder.</p>
+<pre><code>bayan new tidy
+cd tidy</code></pre>
+<pre><code>.editorconfig
+.gitattributes
+.gitignore
+README.md
+docs/
+package.byn
+src/app/main.byn
+testdata/
+tests/app.test.byn</code></pre>
+<p><code>package.byn</code> is the manifest. It is data, not code: a <code>Package</code> literal with the name, version, edition, the kind of package (<code>.app</code> or <code>.lib</code>) and the effects it may use. <code>src/</code> holds the modules. The entry module of an app is <code>src/app/</code>, and every other directory under <code>src/</code> is a module you import by its path below <code>src/</code>. <code>tests/</code> holds test files, which chapter 12 covers.</p>
+<p>Inside a project, <code>bayan run</code>, <code>bayan build</code> and <code>bayan test</code> need no path. They use the current directory when it has a <code>package.byn</code>.</p>
+
+<h2 id="import">Add a module and import it</h2>
+<p>Create <code>src/money/money.byn</code>. The names it offers to other modules are marked <code>public</code>.</p>
+<pre><code class="byn">/// An amount in cents.
+public struct Money {
+    private i64 cents
+
+    public static Money dollars(i64 amount) =&gt; Money { cents: amount * 100 }
+
+    public Money adding(Money other) =&gt; Money { cents: cents + other.cents }
+
+    public i64 total() =&gt; cents
+}</code></pre>
+<p>The file name does not matter to the compiler; the directory does. Naming the file after the module is a habit that makes it easy to find.</p>
+<p>Now use it from <code>src/app/main.byn</code>. An <code>import</code> goes at the top of a file, and the module's name then qualifies everything you take from it.</p>
+<pre><code class="byn">import money
+
+let price = money.Money.dollars(3).adding(money.Money.dollars(4))
+print($"{price.total()}")</code></pre>
+<p><code>money.Money</code> is the type, <code>money.Money.dollars(3)</code> calls its static method. An import applies to the file that writes it, not to the whole module. A second file in the same directory that wants <code>money</code> needs its own <code>import money</code>.</p>
+<p>You can rename a module with <code>as</code>. Use it when a name is long or two modules would clash.</p>
+<pre><code class="byn">import money as m
+
+let price: m.Money = m.Money.dollars(5)</code></pre>
+<p>You import a whole module, never a single name. <code>import money.Money</code> is read as a module path and fails with BYN2004, <code>no module `money.Money`</code>. Write <code>import money</code> and then <code>money.Money</code>.</p>
+
+<h2 id="visibility">Choose what a module shows</h2>
+<p>Every declaration has one of three visibilities.</p>
+<table>
+<tr><th>Written</th><th>Visible to</th></tr>
+<tr><td><code>private</code></td><td>the type that declares it (a field or method)</td></tr>
+<tr><td>nothing</td><td>the module: every file in the directory</td></tr>
+<tr><td><code>public</code></td><td>other modules and packages</td></tr>
+</table>
+<p>Leave the keyword out and the name stays inside its module. That is the default for functions, types and fields, so a module shows nothing until you decide it should. Forget <code>public</code> on something another module needs and the compiler says so. Here <code>money</code> declares <code>round</code> without it:</p>
+<pre><code class="byn">import money
+let c = money.round(1)</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2005:</span> `round` is not visible here
+  --&gt; main.byn:2:15
+
+  2 │ let c = money.round(1)
+    │               ^^^^^ not `public`
+    │
+  help: mark `round` `public` to use it from another module</pre>
+<figcaption>Real output from the v0.1 compiler, from the test <code>tests/cases/diag/not-visible</code>.</figcaption>
+</figure>
+<p>Module-level constants (<code>const rate: i64 = 8</code>) have no <code>public</code> form today. Asking for one from another module is the same error, with a different label: <code>module constants are not visible outside their module</code>. Share a value by returning it from a <code>public</code> function.</p>
+<p>The same rule applies to types and to the fields of a type. Suppose <code>orders</code> declares <code>struct Draft { string note }</code> with no <code>public</code> anywhere. Another module cannot name the type or build it:</p>
+<pre><code class="byn">import orders
+
+let d: orders.Draft = { note: "x" }     // Draft and note are not public</code></pre>
+<pre><code>error BYN2005: `Draft` is not visible here
+  --&gt; src/app/main.byn:3:15
+
+  3 │ let d: orders.Draft = { note: "x" }
+    │               ^^^^^ not `public`
+    │
+  help: mark `Draft` `public` to use it from another module
+
+error BYN2005: `note` is not visible here
+  --&gt; src/app/main.byn:3:25
+
+  3 │ let d: orders.Draft = { note: "x" }
+    │                         ^^^^ not `public`
+    │
+  help: mark `note` `public` to use it from another module</code></pre>
+
+<h2 id="private">Hide a field with private</h2>
+<p><code>private</code> is narrower than a module. A private field is visible to the methods of its own type and nowhere else, not even to a function in the same file. Use it for a value whose rules the type must keep. Here an account's balance can only grow through <code>deposit</code>.</p>
+<example name="book-11-private"/>
+<p>Reading <code>a.cents</code> from <code>main</code> is rejected. Add this line to <code>main</code> and run it again:</p>
+<pre><code class="byn">    print($"{a.cents}")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2005:</span> `cents` is not visible here
+  --&gt; book-11-private.byn:19:16
+
+  19 │     print($"{a.cents}")
+     │                ^^^^^ `private` to `Account`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2005</pre>
+<figcaption>Real output from the v0.1 compiler.</figcaption>
+</figure>
+<p>The message tells you which type owns the field. The fix is a <code>public</code> method such as <code>balance()</code>, not a looser field. Building the struct by hand from outside (<code>Account { cents: 5, … }</code>) fails the same way, because the literal names the field. That is why <code>Account</code> offers <code>open</code>: it is the only way in, so every account starts at zero.</p>
+<note>The specification says tests in a sibling <code>x.test.byn</code> file have private access. The compiler does not give it today: a test that reads a private field gets the same BYN2005. Test through the type's public methods.</note>
+
+<h2 id="nested">Modules inside modules</h2>
+<p>A directory below another module is its own module, imported by its full path below <code>src/</code>. Add <code>src/orders/orders.byn</code>, which uses <code>money</code> in its own import:</p>
+<pre><code class="byn">import money
+
+public struct Order {
+    public string id
+    public money.Money price
+}
+
+public string describe(Order o) uses alloc =&gt; $"{o.id}: {o.price.total()} cents"</code></pre>
+<p><code>describe</code> builds a string, so it declares <code>uses alloc</code>. Chapter 14 explains why. Now add <code>src/orders/lines/lines.byn</code> with <code>public i64 limit() =&gt; 10</code>. The directory <code>orders/lines/</code> is the module <code>orders.lines</code>. You import it by that path and use the last segment as its name:</p>
+<pre><code class="byn">import money
+import orders
+import orders.lines
+
+let price = money.Money.dollars(3).adding(money.Money.dollars(4))
+let o: orders.Order = { id: "A-1", price: price }
+print(orders.describe(o))
+print($"limit {lines.limit()}")</code></pre>
+<p>Nesting is only a way to organise names. Importing <code>orders</code> does not give you <code>lines</code>: use <code>lines.limit()</code> without <code>import orders.lines</code> and the compiler says <code>`lines` is not defined</code> (BYN2001). Run the project from its root:</p>
+<pre><code>bayan run</code></pre>
+<pre><code>A-1: 700 cents
+limit 10</code></pre>
+<p>In an app you can leave out <code>main</code> and write statements at the top of the entry file, as above. The tutorial did the same.</p>
+
+<h2 id="rules">What the compiler rejects</h2>
+<h3 id="unknown">An unknown module</h3>
+<p>An import names a directory. If there is none, the compiler tells you where to put it.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2004:</span> no module `mony`
+
+  1 │ import mony
+    │        ^^^^
+    │
+  help: put the module's `.byn` files in `mony/` next to the entry file; a module is a directory</pre>
+<figcaption>Real output from the v0.1 compiler, from <code>tests/cases/diag/unknown-module</code>.</figcaption>
+</figure>
+<h3 id="entry">Statements outside the entry module</h3>
+<p>A statement that is not a declaration belongs in the entry module. Put <code>print("hi")</code> in <code>src/orders/</code> and you get:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2015:</span> top-level statements are allowed only in the entry module
+  --&gt; src/orders/hidden.byn:1:1
+
+  1 │ print("top level in a module")
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2015</pre>
+<figcaption>Real output from the v0.1 compiler.</figcaption>
+</figure>
+<p>Two files with top-level statements in the same directory fail for the same reason, which is why a directory of scratch programs does not build as a whole.</p>
+<h3 id="cycles">Import cycles</h3>
+<p>If <code>a</code> imports <code>b</code> and <code>b</code> imports <code>a</code>, neither can be compiled first. The compiler names the loop:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2010:</span> import cycle: a → b → a
+  --&gt; b/b.byn:1:8
+
+  1 │ import a
+    │        ^
+    │
+  help: move the shared declarations into a module both can import</pre>
+<figcaption>Real output from the v0.1 compiler, from <code>tests/cases/diag/import-cycle</code>.</figcaption>
+</figure>
+<p>Follow the help: put what both need in a third module and have each import that.</p>
+<h3 id="duplicates">The same name twice</h3>
+<p>Because the files of a module share one set of names, declaring <code>grade</code> in two of them is error BYN2006, <code>`grade` is declared twice</code>. The message points to both places.</p>
+
+<h2 id="tests">Tests and modules</h2>
+<p>Tests are covered in chapter 12. Two facts matter here. A test file next to a module's sources, like <code>src/money/money.test.byn</code>, is part of that module. It sees the module's names without an import:</p>
+<pre><code class="byn">test "dollars are hundreds of cents" {
+    assert(Money.dollars(2).total() == 200)
+}</code></pre>
+<p>Files in <code>tests/</code> join the entry module in test builds, and imports belong to a file, so they need their own. Leave out <code>import money</code> in <code>tests/app.test.byn</code> and the name is unknown:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2001:</span> `money` is not defined
+  --&gt; tests/app.test.byn:3:15
+
+  3 │     let sum = money.Money.dollars(1).adding(money.Money.dollars(2))
+    │               ^^^^^</pre>
+<figcaption>Real output from the v0.1 compiler. The compiler reports each use of <code>money</code>; the first is shown.</figcaption>
+</figure>
+<p>Run <code>bayan test</code> and both files run, each module reported by name:</p>
+<pre><code class="other" data-lang="bayan test -v">running 2 tests in 2 modules
+  ◆ money: dollars are hundreds of cents
+  ◆ app: adds dollars
+
+◆ 2 passed · 0.69s</code></pre>
+
+<h2 id="build">Build and the project layout</h2>
+<p><code>bayan build</code> in the project root compiles the app. It writes to <code>out/&lt;mode&gt;/&lt;target&gt;/</code>:</p>
+<pre><code>out/safe/macos-arm64/tidy         the program
+out/safe/macos-arm64/tidy-test    the test program
+out/safe/macos-arm64/c/           the C that was generated
+out/test/results.json             the last bayan test results</code></pre>
+<p><code>out/</code> is disposable and ignored by git. <code>bayan clean</code> removes it. Every project's compiled programs are kept in one cache per machine, so building the same code twice, or in a second checkout, compiles nothing.</p>
+<p>A <em>library</em> has no program. <code>bayan new stock --lib</code> puts its code in <code>src/stock/stock.byn</code>, which makes <code>stock</code> the module that others import, and its tests in <code>tests/stock.test.byn</code>. Building or running one is refused, and the message sends you to the tests:</p>
+<pre><code>bayan: `local/stock` is a library, so there is no program to run; `bayan test` runs its tests</code></pre>
+<p>The package name is <code>local/&lt;name&gt;</code> until you publish it under a verified namespace. A project directory is named in kebab-case (<code>my-app</code>) or camelCase.</p>
+<note>Planned: not in the compiler yet. The specification describes dependencies (<code>deps</code> in the manifest, minimal version selection, a lock file with content hashes, a registry with signed provenance) and a <code>public</code> that means "visible to other packages", separate from visibility between modules. Today <code>public</code> is what lets any other module in the same project use a name. A project with <code>deps: []</code> is the only kind you can build.</note>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>Two files in <code>src/money/</code> each declare a function called <code>format</code>. What happens?</summary>
+<p>The compiler reports that <code>format</code> is declared twice (BYN2006). All files in a directory are one module, so they share one set of names. It does not treat each file as its own scope, so no file can shadow the other. It does not ask for an import either: files of the same module never import each other.</p>
+</details>
+<details class="quiz"><summary>A struct has <code>private i64 cents</code>. A free function in the same file reads <code>a.cents</code>. Does it compile?</summary>
+<p>No. You get BYN2005, "`cents` is not visible here", labelled <code>`private` to `Account`</code>. <code>private</code> limits a field to the methods of its own type, which is narrower than the file or the module. A field with no keyword would be visible to the whole module, and a <code>public</code> field to every module, so neither describes a <code>private</code> field.</p>
+</details>
+<details class="quiz"><summary>You write <code>print("loaded")</code> at the top of <code>src/orders/orders.byn</code>. What do you get?</summary>
+<p>BYN2015, "top-level statements are allowed only in the entry module". Only the entry module (<code>src/app/</code> in an app) may hold statements; other modules hold declarations. The statement is not run when the module is imported, and it is not accepted with a warning. It is an error.</p>
+</details>
+<details class="quiz"><summary><code>tests/app.test.byn</code> calls <code>money.Money.dollars(1)</code> and has no <code>import money</code>, although <code>src/orders/orders.byn</code> imports it. Does it compile?</summary>
+<p>No. You get BYN2001, "`money` is not defined". An import applies to the file that writes it, so every file that uses <code>money</code> needs its own <code>import money</code>. The import in <code>orders</code> does not carry over, and files in <code>tests/</code> get no exemption.</p>
+</details>
+<details class="quiz"><summary>The module <code>a</code> imports <code>b</code> and <code>b</code> imports <code>a</code>. What does the compiler do?</summary>
+<p>It stops with BYN2010, "import cycle: a → b → a", and suggests moving the shared declarations into a module both can import. It does not choose an order and carry on, and it does not only warn.</p>
+</details>

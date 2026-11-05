@@ -1,0 +1,19 @@
+struct Account {
+    private i64 cents
+    public string owner
+
+    public static Account open(string owner) => Account { cents: 0, owner: owner }
+
+    public void deposit(ref this, i64 amount) {
+        cents += amount
+    }
+
+    public i64 balance() => cents
+}
+
+void main() {
+    var a = Account.open("Dina")
+    a.deposit(250)
+    a.deposit(125)
+    print($"{a.owner} has {a.balance()} cents")
+}
