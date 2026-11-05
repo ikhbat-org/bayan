@@ -1,0 +1,31 @@
+title: Cookbook: HTTP
+nav: Guides
+order: 60
+template: docs
+---
+<p>How do I send or serve HTTP requests in Bayan? Neither the compiler nor the spec defines an HTTP client or server API yet. The three tasks below are "Not in the standard library yet", and this page invents no function names. What the spec does fix is how network access is declared, checked and tested.</p>
+
+<h2 id="get">Send a GET request and read the body</h2>
+<p><strong>Not in the standard library yet.</strong> There is no client call. Three rules from the spec will apply to one:</p>
+<ul>
+<li>Any socket access is the <code>net</code> effect (§14), so a function that makes a request says <code>uses net</code>, and the package must list <code>.net</code> in its <code>capabilities</code> in <code>package.byn</code>.</li>
+<li>Third-party API responses are sources of <code>Untrusted&lt;T&gt;</code> (§15.1). You must build a type with <code>requires</code> rules from the body before you can use it as trusted data.</li>
+<li>An outbound target is checked against a host allowlist under <code>net</code> (§15.1).</li>
+</ul>
+<p>Until a client exists, a program can start an external tool with <code>Io.run</code>, which passes an argument vector and uses no shell. This needs the network, so the page does not run it; it does pass <code>bayan check</code>:</p>
+<pre><code class="byn">void main() fails IoError {
+    let args: string[2] = ["-s", "https://example.com/"]
+    let r = try Io.run("curl", args.span)
+    print(r.stdout)
+}</code></pre>
+<pre><code class="other" data-lang="Python">body = requests.get("https://example.com/").text</code></pre>
+
+<h2 id="post">Send a POST request with a JSON body and headers</h2>
+<p><strong>Not in the standard library yet.</strong> The spec names <code>@derive(Json)</code> and <code>T.fromJson(…)</code> for JSON, and says header values use a <code>HeaderValue</code> type that refuses control characters (§15.1). The <code>derivation</code> mechanism is "not in v0.1" (§5.3), and there is no request API, so there is nothing to run.</p>
+
+<h2 id="server">Run an HTTP server and route paths</h2>
+<p><strong>Not in the standard library yet.</strong> The spec mentions pieces of a server without defining one. Request handlers are ordinary functions that can fail, such as <code>Response handle(Request r) fails DbError</code> (§8); <code>@status(400)</code> maps an error variant to an HTTP status (§8); each request gets its own arena with a 16 MiB cap (§9); and route discovery uses a <code>comptime</code> query, <code>Program.functionsWith&lt;HttpRoute&gt;()</code> (§12.5, "Not in v0.1"). Request query, body, headers, cookies and route parameters are all <code>Untrusted&lt;T&gt;</code>. None of this runs today.</p>
+<pre><code class="other" data-lang="Go">http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintln(w, "hello")
+})
+http.ListenAndServe(":8080", nil)</code></pre>
