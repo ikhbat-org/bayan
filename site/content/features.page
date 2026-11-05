@@ -50,7 +50,7 @@ let whole = t.floor&lt;Seconds&gt;()   // going coarser names its rounding</code
 <p>Building a type with <code>requires</code> is fallible, so it needs <code>try</code> or <code>catch</code>, and the error is <code>ValidationError&lt;Box&gt;</code>. Updates go through <code>with</code>, which checks again. Function preconditions are a separate word, <code>expects</code>, which panics on a violation in every build mode.</p>
 
 <h2 id="because">@attr because "…"</h2>
-<p>Anywhere code bypasses a safety rule, a written reason is required: <code>@allow(BYN5102) because "…"</code>, <code>x.trustUnchecked() because "…"</code> and <code>unsafe because "…" { … }</code>. The <code>because</code> forms on <code>@allow</code> and <code>unsafe</code> are planned; the compiler does not run them yet, and only <code>trustUnchecked() because</code> works today. A missing <code>because</code> is a compile error (BYN8001). <code>bayan audit</code> is specified to list every bypass in a project with its reason.</p>
+<p>Anywhere code bypasses a safety rule, a written reason is required: <code>@allow(BYN5102) because "…"</code>, <code>x.trustUnchecked() because "…"</code> and <code>unsafe because "…" { … }</code>. The <code>because</code> forms on <code>@allow</code> and <code>unsafe</code> are planned; the compiler does not run them yet, and only <code>trustUnchecked() because</code> works today. A missing <code>because</code> is a compile error (BYN8001). <code>bayan audit &lt;path&gt;</code> lists each bypass with its reason; today it finds the <code>trustUnchecked() because</code> ones.</p>
 <pre><code class="byn">let name = x.trustUnchecked() because "checked by the caller"
 
 unsafe because "the C API wants a raw pointer" {
