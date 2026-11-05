@@ -1,4 +1,3 @@
-#!/usr/bin/env bayan
 void main() {
     let line = "ada,grace,,linus"
     for part in line.parts(by: ",") {

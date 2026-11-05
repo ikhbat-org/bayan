@@ -1,4 +1,3 @@
-#!/usr/bin/env bayan
 // os: unix
 void show(ProcessResult r) {
     print($"exit {r.exitCode}, stdout [{r.stdout}], stderr [{r.stderr}]")

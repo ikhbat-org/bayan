@@ -1,4 +1,3 @@
-#!/usr/bin/env bayan
 void main() {
     var stock = Map<string, i64>()
     stock["apples"] = 3

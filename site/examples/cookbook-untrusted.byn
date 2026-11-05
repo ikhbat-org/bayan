@@ -1,4 +1,3 @@
-#!/usr/bin/env bayan
 i64 port(Untrusted<string> text) {
     let s: string = text.trustUnchecked() because "demo: the digits are checked next"
     return i64.tryParse(s) ?? 0

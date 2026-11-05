@@ -4,6 +4,7 @@
 #   check-examples.sh --update   write the .out files from the real output
 # Each program runs from a directory of its own: the compiler treats a directory as one module,
 # so two examples side by side would be one program.
+# A program that exits non-zero on purpose has <name>.exit holding the expected exit code.
 set -u
 here=$(cd "$(dirname "$0")" && pwd)
 bayan=${BAYAN:-/Users/sy/Developer/ikhbat.org/bayan/dist/macos-arm64/latest/bayan}
@@ -14,7 +15,8 @@ case "${1:-}" in
   *) echo "usage: check-examples.sh [--update]" >&2; exit 2 ;;
 esac
 
-work=$(mktemp -d "${TMPDIR:-/tmp}/bayan-examples.XXXXXX")
+mkdir -p "$here/../tmp"
+work=$(mktemp -d "$here/../tmp/site-examples.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 failed=0
 count=0
@@ -24,8 +26,12 @@ for src in "$here"/examples/*.byn; do
   count=$((count + 1))
   mkdir -p "$work/$name"
   cp "$src" "$work/$name/$name.byn"
-  if ! (cd "$work/$name" && "$bayan" run "$name.byn") > "$work/$name.stdout" 2> "$work/$name.stderr"; then
-    echo "FAIL $name: the program did not run" >&2
+  want=0
+  [ -f "$here/examples/$name.exit" ] && want=$(cat "$here/examples/$name.exit")
+  (cd "$work/$name" && "$bayan" run "$name.byn") > "$work/$name.stdout" 2> "$work/$name.stderr"
+  got=$?
+  if [ "$got" != "$want" ]; then
+    echo "FAIL $name: exit $got, expected $want" >&2
     cat "$work/$name.stderr" >&2
     failed=1
     continue

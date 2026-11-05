@@ -1,4 +1,3 @@
-#!/usr/bin/env bayan
 void main() {
     var xs: List<i64> = [10, 20, 30, 40, 50, 60]
     xs.remove(at: 0)

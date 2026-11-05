@@ -1,4 +1,3 @@
-#!/usr/bin/env bayan
 void main() fails IoError {
     let path = "/tmp/cookbook-write.txt"
     try Io.writeFile(path, "hello\n".bytes)

@@ -1,4 +1,3 @@
-#!/usr/bin/env bayan
 void main() {
     let langs: List<string> = ["go", "rust", "python"]
     for lang in langs {

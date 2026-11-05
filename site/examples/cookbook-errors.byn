@@ -1,4 +1,3 @@
-#!/usr/bin/env bayan
 union error ConfigError {
     missing(string key)
     badValue

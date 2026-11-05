@@ -1,4 +1,3 @@
-#!/usr/bin/env bayan
 void main() {
     let s = "one two one three"
     print($"{s.contains("two")} {s.startsWith("one")} {s.endsWith("x")}")
