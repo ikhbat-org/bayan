@@ -143,8 +143,8 @@ pre.diag .u { color: var(--error); }
 }
 @media (min-width: 861px) { .two > div + div { padding-top: 3.5rem; } }
 @media (max-width: 860px) {
-  .hero, .two { grid-template-columns: 1fr; }
-  .docs { grid-template-columns: 1fr; }
+  .hero, .two { grid-template-columns: minmax(0, 1fr); }
+  .docs { grid-template-columns: minmax(0, 1fr); }
   .side { position: static; max-height: none; padding: 1rem 0 0; border-bottom: 1px solid var(--rule); }
   .side > ul { display: flex; flex-wrap: wrap; gap: 0 1rem; }
   .side ul ul { display: none; }
