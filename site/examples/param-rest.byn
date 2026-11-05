@@ -1,0 +1,12 @@
+i64 sum(rest ReadOnlySpan<i64> items) {
+    var total: i64 = 0
+    for x in items {
+        total += x
+    }
+    return total
+}
+
+let xs: List<i64> = [4, 5]
+print($"{sum(1, 2, 3)}")
+print($"{sum()}")
+print($"{sum(..xs)}")

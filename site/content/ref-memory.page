@@ -91,9 +91,37 @@ print($"{s.length}")</code></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
 
-<h2 id="planned">Planned</h2>
+<h2 id="bounds">Bounds checks</h2>
+<p>Every index and every slice is checked, in every build. Reading past the end of a list stops the program with a panic and exit code 134. The panic names the line. The compiler drops only the checks it can prove are not needed.</p>
+<pre><code class="byn">let xs: List&lt;i64&gt; = [1, 2, 3]
+var i: i64 = 0
+while i &lt; 5 {
+    print($"{xs[i]}")
+    i += 1
+}</code></pre>
+<figure class="diag">
+<pre>1
+2
+3
+panic: index out of range
+  at b1.byn:4</pre>
+  <figcaption>The real output of this program, which exits with code 134. It is not an example because the build checks that an example exits with 0.</figcaption>
+</figure>
+<p>A slice with an end past the length panics the same way: <code>xs[1..9]</code> on a three-element list prints <code>panic: slice out of range</code>.</p>
+
+<h2 id="unsafe">unsafe</h2>
+<p>Safe code has no undefined behavior. The specification reserves <code>unsafe because "…"</code> blocks for the few things that can break that: raw pointers, pointer arithmetic, <code>bitcast</code> on types that are not plain data, and calls to C functions. Region checks do not apply inside one, and the block needs a written reason.</p>
+<note>Planned: not in the compiler yet. <code>unsafe because "…" { … }</code> does not parse today (BYN1001), <code>bitcast</code> is an unknown name (BYN2002), and a plain <code>extern</code> declaration is BYN1016. See <a href="book-19-c.html">Talking to C</a> for what exists.</note>
+<pre><code class="byn">unsafe because "the C API wants a raw pointer" {
+    // raw pointer code
+}</code></pre>
+
+<h2 id="gc">The optional collector</h2>
+<p>Bayan has no garbage collector. The specification leaves room for one later as an allocator plus a <code>Gc&lt;T&gt;</code> handle that a package opts into with the <code>gc</code> capability. It would never be a build mode. The names <code>Gc</code> and <code>gc</code> are reserved now.</p>
+<note>Planned: not in the compiler yet, and not in v1. <code>Gc&lt;i64&gt;</code> is an unknown type (BYN2002).</note>
+
+<h2 id="planned">Other planned features</h2>
 <note>Planned: not in the compiler yet. <code>stackalloc u8[16] uninit</code> is BYN1005. <code>Pool</code> and <code>Handle</code> are BYN2002.</note>
 <pre><code class="byn">let buf = stackalloc u8[16] uninit
 Pool&lt;Node&gt; nodes
 </code></pre>
-<p>The specification also describes bounds checks, <code>unsafe</code> regions and an optional collector. These were not tried here.</p>

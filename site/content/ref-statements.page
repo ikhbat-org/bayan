@@ -197,7 +197,18 @@ print($"{gap(9, to: 5)}")</code></pre>
   help: pass a value that meets `requires a &lt;= b`</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<p>With a value only known at run time, <code>gap(9, to: 5)</code> stops the program with <code>panic: contract violated: a &lt;= b</code> and exit code 134. That run is not an example, because the build checks that an example exits with 0.</p>
+<p>With a value only known at run time, a violation stops the program. This program reads the two values from a list, so the compiler cannot see the violation. It is not an example, because the build checks that an example exits with 0.</p>
+<pre><code class="byn">i64 gap(i64 a, to i64 b) expects a &lt;= b =&gt; b - a
+
+print($"{gap(2, to: 5)}")
+let xs: List&lt;i64&gt; = [9, 5]
+print($"{gap(xs[0], to: xs[1])}")</code></pre>
+<figure class="diag">
+<pre>3
+panic: contract violated: a &lt;= b
+  at ex.byn:1</pre>
+  <figcaption>The real output of this program. The first call prints 3. The second panics, and the process exits with code 134. The location is the line of the <code>expects</code> clause.</figcaption>
+</figure>
 
 <h2 id="provide">provide and context</h2>
 <p><code>provide allocator: arena { … }</code> sets implicit context values for the block. <code>context.allocator</code> reads one back. The old <code>context (…) { }</code> block is rejected with a fix to <code>provide</code> (BYN6006). The rules for handlers are on <a href="ref-effects.html#provide">Effects</a>.</p>
