@@ -1,0 +1,20 @@
+// There is no bench runner yet: time a loop by hand with Io.monotonicNanos().
+i64 collatzSteps(i64 start) {
+    var n = start
+    var steps: i64 = 0
+    while n != 1 {
+        n = n % 2 == 0 ? n / 2 : 3 * n + 1
+        steps++
+    }
+    return steps
+}
+
+void main() {
+    let runs: i64 = 1000
+    var sink: i64 = 0
+    let start = Io.monotonicNanos()
+    for i in 1..=runs { sink += collatzSteps(i) }
+    let perRun = (Io.monotonicNanos() - start) / runs
+    print($"steps summed over {runs} runs: {sink}")
+    print($"time per run is positive: {perRun > 0}")
+}

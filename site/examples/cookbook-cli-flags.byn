@@ -1,0 +1,30 @@
+// No flag library yet: a loop over the arguments. Every failure is a value you handle.
+struct Options {
+    bool verbose
+    i64 count
+    string name
+}
+
+Options parse(ReadOnlySpan<string> args) {
+    var o = Options { verbose: false, count: 1, name: "world" }
+    var i = 0
+    while i < args.length {
+        if args[i] == "-v" || args[i] == "--verbose" {
+            o = o with { verbose: true }
+        } else if args[i] == "--count" && i + 1 < args.length {
+            i++
+            o = o with { count: i64.tryParse(args[i]) ?? 1 }
+        } else {
+            o = o with { name: args[i] }
+        }
+        i++
+    }
+    return o
+}
+
+void main(ReadOnlySpan<string> args) {
+    let demo: string[4] = ["--verbose", "--count", "3", "Bayan"]
+    var o = parse(args)
+    o = parse(demo.span) if args.length == 0
+    print($"verbose={o.verbose} count={o.count} name={o.name}")
+}

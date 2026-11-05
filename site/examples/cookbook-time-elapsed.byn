@@ -1,0 +1,16 @@
+// Io.monotonicNanos() is a clock that only moves forward: use it to measure elapsed time.
+i64 sumSquares(i64 count) {
+    var total: i64 = 0
+    for i in 0..count { total += i * i }
+    return total
+}
+
+void main() {
+    let start = Io.monotonicNanos()
+    let total = sumSquares(1_000_000)
+    let elapsedNanos = Io.monotonicNanos() - start
+    print($"total: {total}")
+    // The elapsed time differs on every run, so print only what is stable.
+    print($"elapsed is positive: {elapsedNanos > 0}")
+    print($"elapsed milliseconds fit in an i64: {elapsedNanos / 1_000_000 >= 0}")
+}

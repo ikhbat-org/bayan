@@ -1,0 +1,32 @@
+// Tests sit next to the code. `bayan test` runs them; `bayan run` ignores them.
+union error RangeError {
+    /// Below the lowest allowed value.
+    tooLow
+    /// Above the highest allowed value.
+    tooHigh
+}
+
+i64 checkPercent(i64 n) fails RangeError {
+    fail .tooLow if n < 0
+    fail .tooHigh if n > 100
+    return n
+}
+
+test "accepts the middle" {
+    let n = try checkPercent(50)
+    assert n == 50
+}
+
+test "rejects out of range" {
+    assert checkPercent(-1) fails RangeError.tooLow
+    assert checkPercent(101) fails RangeError
+}
+
+@cases((0, 0), (100, 100), (101, -1))
+test "bounds" (i64 input, i64 expected) {
+    assert (checkPercent(input) catch -1) == expected
+}
+
+void main() {
+    print($"checkPercent(50) = {checkPercent(50) catch -1}")
+}
