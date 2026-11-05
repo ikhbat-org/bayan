@@ -1,0 +1,14 @@
+void transfer(i64 amount, from string payer, to string payee) {
+    print($"{payer} pays {payee} {amount}")
+}
+
+i64 clamp(i64 x, to i64 max) => x > max ? max : x
+
+i64 span(from i64 start, until i64 end) => end - start
+
+void main() {
+    transfer(200, from: "alice", to: "bob")
+    transfer(75, to: "carol", from: "alice")
+    print($"{clamp(12, to: 10)}")
+    print($"{span(from: 3, until: 10)}")
+}

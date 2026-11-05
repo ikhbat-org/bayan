@@ -1,0 +1,28 @@
+string? findName(i64 id) {
+    if id == 1 { return "Ada" }
+    return null
+}
+
+void main() {
+    let a = findName(1)
+    let b = findName(2)
+
+    print(a ?? "nobody")
+    print(b ?? "nobody")
+
+    if a is not null {
+        print($"found {a.length} letters")
+    }
+    if b is null {
+        print("b is missing")
+    }
+    let label = b switch {
+        null => "none",
+        _ => "some",
+    }
+    print(label)
+    var count: i64? = null
+    print($"{count ?? 0}")
+    count = 5
+    print($"{count ?? 0}")
+}

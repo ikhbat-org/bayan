@@ -1,0 +1,4 @@
+circle(radius: 2) has area 12
+rect(width: 3, height: 4) has area 12
+point has area 0
+rect(width: 10, height: 2)

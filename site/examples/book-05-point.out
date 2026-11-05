@@ -1,0 +1,4 @@
+3, 4
+p.x is 3, q.x is 10
+true false
+Point { x: 3, y: 4 }

@@ -1,0 +1,11 @@
+i64 sum(rest ReadOnlySpan<i64> numbers) {
+    var total: i64 = 0
+    for n in numbers {
+        total += n
+    }
+    return total
+}
+
+void main() {
+    print($"{sum()} {sum(4)} {sum(1, 2, 3)}")
+}

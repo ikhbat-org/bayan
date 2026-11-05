@@ -1,0 +1,30 @@
+union Command {
+    step(i64 dx, i64 dy)
+    say(string text)
+    quit
+}
+
+void run(Command command) {
+    switch command {
+        case .step(let dx, _) when dx < 0:
+            print("stepping left")
+        case .step(let dx, let dy):
+            print($"stepping by {dx}, {dy}")
+        case .say(let text):
+            print($"saying {text}")
+        case .quit:
+            print("bye")
+    }
+}
+
+void main() {
+    run(.step(-1, 0))
+    run(.step(2, 3))
+    run(.say("hi"))
+    run(.quit)
+    let c = Command.say("x")
+    if c is .say(let t) {
+        print($"it says {t}")
+    }
+    print($"{c is .quit} {c == Command.quit}")
+}
