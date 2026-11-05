@@ -16,13 +16,8 @@ template: docs
 <p>Data is made of structs, which are values. There are no classes and no inheritance. A <code>string</code> is an immutable view of UTF-8 bytes: a literal lives in static data, and other strings borrow from, or own, their bytes.</p>
 
 <h2 id="allocators">Allocators</h2>
-<p>The specification lists these allocators: <code>Arena</code>, <code>Pool&lt;T&gt;</code>, <code>FixedBuffer</code>, <code>General</code> and <code>Page</code>. <code>General</code> detects leaks, double frees and use after free in debug mode. Collections such as <code>List</code>, <code>Map</code> and <code>StrBuf</code> take their memory from <code>context.allocator</code>. The default depends on the entry point:</p>
-<ul>
-<li><code>main</code>: <code>General</code>.</li>
-<li>An HTTP request: a per-request <code>Arena</code> with a memory cap, 16 MiB by default.</li>
-<li>A script: an <code>Arena</code> that is never freed.</li>
-<li>A test: <code>General</code> with leak checking, so a leak fails the test.</li>
-</ul>
+<p>Today the compiler runs one allocator type, <code>Arena</code>. Collections such as <code>List</code>, <code>Map</code> and <code>StrBuf</code> take their memory from <code>context.allocator</code>.</p>
+<p><strong>Planned.</strong> The specification also lists <code>Pool&lt;T&gt;</code>, <code>FixedBuffer</code>, <code>General</code> and <code>Page</code>, and none of them is in the compiler yet. <code>General</code> is specified to detect leaks, double frees and use after free in debug mode. The specification also sets a default allocator per entry point: <code>General</code> for <code>main</code>, a per-request <code>Arena</code> with a 16 MiB cap for an HTTP request, an <code>Arena</code> that is never freed for a script, and <code>General</code> with leak checking for a test. These defaults are planned, and HTTP is a later version.</p>
 <p>A function that allocates declares <code>uses alloc</code> if it is public. See <a href="features.html#effects">Effects</a>.</p>
 <p><code>provide allocator: arena { … }</code> sets the allocator for a block, including for the functions it calls, without passing it as an argument. <code>using var arena = Arena()</code> creates one for the current scope. <code>xs.copy(to: arena)</code> copies into a given allocator, and <code>arena.reset()</code> frees everything in it at once.</p>
 <example name="memory-arena"/>
