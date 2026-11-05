@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Calligraphic hoopoe composed from the letters of بيان (composition sketch)</title>
+  <!-- Composition only: alif = neck, swash of ي = wing, teeth of ب and ي = crest, bowl of ن = body, end of the bowl = tail. Dots are the four crest tips. No face. -->
+  <g fill="none" stroke="#1F3A5F" stroke-linecap="round" stroke-linejoin="round">
+    <path class="bowl" d="M80 146 C70 222 140 238 190 214 C216 200 228 186 250 170" stroke-width="30"/>
+    <path class="alif" d="M84 150 C74 124 80 104 72 80" stroke-width="18"/>
+    <path class="teeth" d="M70 70 L52 50 M70 70 L62 40 M70 70 L78 36 M70 70 L96 46" stroke-width="9"/>
+  </g>
+  <circle class="head" cx="70" cy="76" r="14" fill="#1F3A5F"/>
+  <path class="wing" d="M100 128 C134 88 200 96 246 132 C200 128 156 146 130 188 C112 174 102 154 100 128 Z" fill="#1F3A5F"/>
+  <path class="dot" d="M52 42 L60 50 L52 58 L44 50 Z" fill="#C08A2E"/>
+  <path class="dot" d="M62 24 L70 32 L62 40 L54 32 Z" fill="#C08A2E"/>
+  <path class="dot" d="M80 20 L88 28 L80 36 L72 28 Z" fill="#C08A2E"/>
+  <path class="dot" d="M102 34 L110 42 L102 50 L94 42 Z" fill="#C08A2E"/>
+</svg>

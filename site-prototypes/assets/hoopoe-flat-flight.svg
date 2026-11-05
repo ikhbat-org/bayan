@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Flat hoopoe in flight with a trail of dots</title>
+  <g transform="translate(-14 0)">
+  <path d="M58.0 101.0 L84.4 101.5 L106.0 96.0 L84.4 90.5 L58.0 91.0 Z" fill="#D9A05B"/>
+  <path d="M106.0 89.0 L113.0 96.0 L106.0 103.0 L99.0 96.0 Z" fill="#1F3A5F"/>
+  <path d="M60.0 100.6 L84.4 90.3 L101.9 76.5 L79.9 80.2 L56.0 91.4 Z" fill="#D9A05B"/>
+  <path d="M101.9 69.5 L108.9 76.5 L101.9 83.5 L94.9 76.5 Z" fill="#1F3A5F"/>
+  <path d="M61.7 99.3 L79.8 80.1 L90.1 60.3 L71.6 72.7 L54.3 92.7 Z" fill="#D9A05B"/>
+  <path d="M90.1 53.3 L97.1 60.3 L90.1 67.3 L83.1 60.3 Z" fill="#1F3A5F"/>
+  <path d="M62.8 97.5 L71.4 72.6 L72.8 50.3 L60.9 69.2 L53.2 94.5 Z" fill="#D9A05B"/>
+  <path d="M72.8 43.3 L79.8 50.3 L72.8 57.3 L65.8 50.3 Z" fill="#1F3A5F"/>
+  <path d="M63.0 95.5 L60.7 69.2 L53.0 48.3 L49.8 70.3 L53.0 96.5 Z" fill="#D9A05B"/>
+  <path d="M53.0 41.3 L60.0 48.3 L53.0 55.3 L46.0 48.3 Z" fill="#1F3A5F"/>
+  <clipPath id="ftail"><path d="M160 120 L226 128 L226 152 L162 146 Z"/></clipPath>
+  <path d="M160 120 L226 128 L226 152 L162 146 Z" fill="#1F3A5F"/>
+  <g clip-path="url(#ftail)">
+    <path d="M174.3 175.2 L183.2 176.0 L190.9 96.4 L182.0 95.6 Z" fill="#EDE6D6"/>
+    <path d="M191.3 176.8 L200.3 177.7 L208.0 98.1 L199.0 97.2 Z" fill="#EDE6D6"/>
+    <path d="M208.4 178.5 L217.3 179.3 L225.0 99.7 L216.1 98.9 Z" fill="#EDE6D6"/>
+  </g>
+  <path d="M40 128 C44 156 90 156 124 156 C150 156 170 146 178 132 L160 116 C130 108 100 106 64 122 Z" fill="#D9A05B"/>
+  <circle cx="50" cy="112" r="22" fill="#D9A05B"/>
+  <clipPath id="fwing"><path d="M100 126 C106 98 132 74 170 62 C172 92 162 118 146 146 Z"/></clipPath>
+  <path d="M100 126 C106 98 132 74 170 62 C172 92 162 118 146 146 Z" fill="#1F3A5F"/>
+  <g clip-path="url(#fwing)">
+    <path d="M150.8 160.9 L158.2 154.1 L77.2 65.5 L69.8 72.3 Z" fill="#EDE6D6"/>
+    <path d="M173.5 140.1 L180.9 133.3 L100.0 44.7 L92.6 51.5 Z" fill="#EDE6D6"/>
+    <path d="M196.3 119.3 L203.7 112.5 L122.7 23.9 L115.3 30.7 Z" fill="#EDE6D6"/>
+  </g>
+  <path d="M120.0 156.0 L114.0 176.0 L106.0 176.0" fill="none" stroke="#8A6F3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M138.0 154.0 L136.0 174.0 L128.0 174.0" fill="none" stroke="#8A6F3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <path class="dot" d="M228.0 107.0 L237.0 116.0 L228.0 125.0 L219.0 116.0 Z" fill="#C08A2E"/>
+  <path class="dot" d="M244.0 97.5 L250.5 104.0 L244.0 110.5 L237.5 104.0 Z" fill="#C08A2E"/>
+  <path class="dot" d="M254.0 92.0 L258.0 96.0 L254.0 100.0 L250.0 96.0 Z" fill="#C08A2E"/>
+</svg>
