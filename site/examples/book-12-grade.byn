@@ -1,0 +1,27 @@
+union error GradeError {
+    negative
+    tooHigh
+}
+
+string grade(i64 score) fails GradeError {
+    fail GradeError.negative if score < 0
+    fail GradeError.tooHigh if score > 100
+    return "A" if score >= 90
+    return "B" if score >= 80
+    return "C"
+}
+
+print(try grade(95))
+
+test "ninety is an A" {
+    assert (try grade(90)) == "A"
+}
+
+test "negative scores fail" {
+    assert grade(-1) fails GradeError.negative
+}
+
+@cases((100, "A"), (89, "B"), (79, "C"))
+test "grade table" (i64 score, string expected) {
+    assert (try grade(score)) == expected
+}
