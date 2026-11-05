@@ -1,0 +1,9 @@
+void main() {
+    print("to standard output")
+    print("to standard error", to: .stderr)
+    log("a note")
+    log("careful", as: .warn)
+    Io.stdout.write("no newline, ")
+    Io.stdout.write("then one\n")
+    Io.stderr.write("an error line\n")
+}

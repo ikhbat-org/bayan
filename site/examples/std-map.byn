@@ -1,0 +1,15 @@
+void main() {
+    var stock = Map<string, i64>()
+    stock["apples"] = 3
+    stock["pears"] = 0
+    print($"{stock["apples"]} {stock.length}")
+    print($"{stock.tryGet(at: "kiwis") ?? -1}")
+    print($"{stock.contains("pears")} {stock.contains("kiwis")}")
+    stock["figs"] = (stock.tryGet(at: "figs") ?? 0) + 1
+    let scratch = Arena()
+    let seen = stock.copy(to: scratch)
+    print($"{stock.remove("pears")} {stock.remove("pears")}")
+    print($"{seen.length} {stock.length}")
+    stock.clear()
+    print($"{stock.length}")
+}

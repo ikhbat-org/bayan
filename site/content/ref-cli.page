@@ -1,0 +1,241 @@
+title: The bayan command
+nav: Reference
+order: 80
+template: docs
+---
+<p>Every part of the toolchain is one program, <code>bayan</code>. This page lists each subcommand and flag, the exit codes, what a project looks like on disk, and where outputs go. Everything here was run against the current compiler (<code>bayan --version</code> prints its version and the commit it was built from). <code>bayan --help</code> prints the short form of this page.</p>
+<p>Commands that are in the design but not in the compiler are under <a href="#planned">Planned</a>.</p>
+
+<h2 id="overview">Overview</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><a href="#new"><code>new</code></a>, <a href="#init"><code>init</code></a></td><td>Create a project.</td></tr>
+<tr><td><a href="#check"><code>check</code></a></td><td>Report diagnostics without building.</td></tr>
+<tr><td><a href="#build"><code>build</code></a></td><td>Compile to a native executable.</td></tr>
+<tr><td><a href="#run"><code>run</code></a></td><td>Compile and run.</td></tr>
+<tr><td><a href="#test"><code>test</code></a></td><td>Compile and run the tests.</td></tr>
+<tr><td><a href="#dist"><code>dist</code></a></td><td>Build release binaries.</td></tr>
+<tr><td><a href="#format"><code>format</code></a></td><td>Rewrite input forms into canonical code.</td></tr>
+<tr><td><a href="#audit"><code>audit</code></a></td><td>List every safety bypass with its reason.</td></tr>
+<tr><td><a href="#explain"><code>explain</code></a></td><td>Explain a diagnostic code.</td></tr>
+<tr><td><a href="#inspect"><code>lex</code>, <code>parse</code>, <code>types</code>, <code>features</code></a></td><td>Show what the compiler sees.</td></tr>
+<tr><td><a href="#housekeeping"><code>doctor</code>, <code>clean</code>, <code>cache</code></a></td><td>Check the toolchain, remove outputs.</td></tr>
+</table>
+<p><code>check</code>, <code>types</code>, <code>build</code>, <code>run</code>, <code>test</code> and <code>features</code> take a path. The path is one of:</p>
+<ul>
+<li>a <strong>project directory</strong>: one with a <code>package.byn</code>. Inside a project the path can be left out.</li>
+<li>a <strong>script</strong>: a file whose first line starts with <code>#!</code>. It compiles alone.</li>
+<li>a <strong>file or directory of <code>.byn</code> files</strong>. A directory is one module: all its files compile together, so two files that both have top-level statements are an error (<a href="ref-diagnostics.html#byn2015">BYN2015</a>).</li>
+</ul>
+
+<h2 id="projects">Projects</h2>
+
+<h3 id="new"><code>bayan new &lt;name&gt;</code></h3>
+<pre><code>bayan new my-app [--lib | --script] [--vcs git | none] [--ci github | none]</code></pre>
+<p>Creates a directory named <code>name</code> and fills it. With no kind flag it makes an app. <code>--lib</code> makes a library. <code>--script</code> makes a single file <code>name.byn</code> that starts with <code>#!/usr/bin/env bayan</code>, with no manifest and no git. <code>--vcs git</code> (the default) runs <code>git init</code> when git is installed and the directory is not already inside a work tree; it never commits. <code>--ci github</code> adds <code>.github/workflows/bayan.yml</code>.</p>
+<pre><code>$ bayan new my-app --vcs none
+created app `local/my-app` in `my-app`
+
+  cd my-app
+  bayan run
+  bayan test</code></pre>
+<p>A project directory is named in kebab-case (<code>my-app</code>) or camelCase (<code>myApp</code>). The package name is <code>local/</code> plus the kebab-case form until the package is published. A fresh project builds and passes its tests with no edits.</p>
+
+<h3 id="init"><code>bayan init [&lt;dir&gt;]</code></h3>
+<p>Does what <code>new</code> does inside an existing directory, adding only the files that are missing and listing the ones it skipped. It takes the same options. It refuses a directory that already has a <code>package.byn</code>.</p>
+
+<h3 id="layout">Layout</h3>
+<pre><code>my-app/
+  package.byn          the manifest: name, version, kind, dependencies, dist settings
+  README.md
+  .gitignore           /out/, /dist/, /gen/
+  .gitattributes
+  .editorconfig
+  src/app/main.byn     the entry module
+  tests/app.test.byn   tests, which join the entry module in test builds
+  testdata/
+  docs/</code></pre>
+<ul>
+<li>In a project, <code>src/</code> holds the modules: <code>src/orders/</code> is <code>import orders</code>.</li>
+<li>The entry module is <code>src/app/</code> for an app and <code>src/&lt;name&gt;/&lt;name&gt;.byn</code> for a library.</li>
+<li>Every <code>tests/*.test.byn</code> file joins the entry module when you run <code>bayan test</code>.</li>
+<li>A library has no program, so <code>bayan build</code> and <code>bayan run</code> on one are usage errors. <code>bayan test</code> is its way to run code.</li>
+</ul>
+<p>The manifest is a Bayan value of type <code>Package</code>. A new app gets:</p>
+<pre><code class="byn">Package {
+    name: "local/my-app",
+    version: "0.1.0",
+    edition: 2027,
+    kind: .app,
+    capabilities: [],
+    deps: [],
+    dist: Dist {
+        targets: [.host],
+        mode: .safe,
+    },
+}</code></pre>
+<p>It is data only. Putting code in it is an error (<a href="ref-diagnostics.html#byn3100">BYN3100</a>).</p>
+
+<h2 id="build-commands">Building and running</h2>
+
+<h3 id="check"><code>bayan check &lt;path&gt;</code></h3>
+<p>Parses and checks the program and prints its diagnostics. It builds nothing. It exits 0 when there are no errors and 1 when there are.</p>
+<pre><code>$ bayan check
+◆ checked my-app in 0.00s</code></pre>
+
+<h3 id="build"><code>bayan build &lt;path&gt;</code></h3>
+<pre><code>bayan build [path] [-o file] [--mode debug|safe|fast] [--target t] [--emit-c] [-v]</code></pre>
+<table>
+<tr><th>Flag</th><th>Meaning</th></tr>
+<tr><td><code>-o &lt;file&gt;</code></td><td>Write the executable to this file instead of the default place.</td></tr>
+<tr><td><code>--mode</code></td><td><code>debug</code>, <code>safe</code> (the default) or <code>fast</code>. Bounds checks and region checks run in every mode; the mode only changes optimization and debug information.</td></tr>
+<tr><td><code>--target</code></td><td>The platform to build for. See the list below.</td></tr>
+<tr><td><code>--emit-c</code></td><td>Keep the generated C next to the executable, in <code>c/</code>.</td></tr>
+<tr><td><code>-v</code></td><td>Print the time each phase took and the output path.</td></tr>
+</table>
+<pre><code>$ bayan build -v
+  parse      0.00s
+  check      0.00s
+  emit       0.00s
+  compile    from cache
+  out/safe/macos-arm64/my-app
+◆ built my-app (safe, macos-arm64) in 0.01s · from cache</code></pre>
+<p>Valid targets are <code>host</code>, <code>linux-x64</code>, <code>linux-arm64</code>, <code>macos-x64</code>, <code>macos-arm64</code>, <code>windows-x64</code>, <code>windows-arm64</code> and <code>wasm32</code>. Any target other than the machine you are on needs <code>zig</code>. An unknown target or mode is a usage error (exit 2) that lists the valid values.</p>
+<p>In a project the result goes to <code>out/&lt;mode&gt;/&lt;target&gt;/</code>: the binary, the test binary <code>&lt;name&gt;-test</code>, and the emitted C in <code>c/</code>. <code>out/</code> is disposable.</p>
+
+<h3 id="run"><code>bayan run &lt;path&gt; [-- args]</code></h3>
+<p>Builds the program and runs it. Everything after <code>--</code> goes to the program as its arguments. <code>--mode</code> works as for <code>build</code>. A script can also run as <code>bayan script.byn</code>, which is what makes <code>#!/usr/bin/env bayan</code> work.</p>
+<p>A program reads its arguments by declaring a parameter on <code>main</code>:</p>
+<example name="cli-args"/>
+<pre><code>$ bayan run cli-args.byn -- one two
+2 arguments
+arg: one
+arg: two</code></pre>
+<p>A program sets its exit code by returning an <code>i32</code> from <code>main</code>:</p>
+<example name="cli-exit"/>
+<p><code>bayan run</code> exits 1 when compilation fails and 4 when the toolchain fails. After the program starts, <code>bayan run</code> exits with the program's own code, unchanged. That means it cannot tell a build failure from a program that exits 1. When the difference matters, run <code>bayan build</code> first, or read <code>--diagnostics json</code>. A program that panics ends with the abort status (134 on macOS and Linux).</p>
+<p>Compiled programs are cached, so a second run of an unchanged program starts at once. A script is remembered by its exact bytes, mode and compiler version.</p>
+
+<h3 id="test"><code>bayan test &lt;path&gt;</code></h3>
+<p>Builds the tests and runs each one in its own process. A test is a <code>test "name" { … }</code> block in a <code>.test.byn</code> file; the book's <a href="book-12-testing.html">testing chapter</a> covers writing them.</p>
+<pre><code>$ bayan test
+running 1 test in 1 module
+
+◆ 1 passed · 0.23s</code></pre>
+<table>
+<tr><th>Flag</th><th>Meaning</th></tr>
+<tr><td><code>--mode</code></td><td>As for <code>build</code>.</td></tr>
+<tr><td><code>--json</code></td><td>Print the results as JSON instead of text. The same JSON is always written to <code>out/test/results.json</code>.</td></tr>
+<tr><td><code>--only &lt;text&gt;</code></td><td>Run only the tests whose name contains the text. Repeat the flag to allow several.</td></tr>
+<tr><td><code>-v</code></td><td>Also list the passing and pending tests.</td></tr>
+<tr><td><code>--changed</code></td><td>Run only the modules with a file that differs from <code>HEAD</code>, untracked files included. A changed <code>package.byn</code> runs everything. It reads git and never writes to it, and it fails outside a git repository.</td></tr>
+<tr><td><code>--base &lt;ref&gt;</code></td><td>With <code>--changed</code>, compare with this git ref instead of <code>HEAD</code>.</td></tr>
+<tr><td><code>--coverage</code></td><td>Print line, branch and error-path coverage per file. A project can set a minimum in its manifest; a score below it exits 3.</td></tr>
+<tr><td><code>--mutate</code></td><td>Change the program one small way at a time and check that the tests notice. Reports killed, survived, timed-out and not-reached mutants. Add <code>--run &lt;cmd&gt;</code> to run a command once per mutant instead of the tests, with <code>BAYAN_MUTANT</code> set (exit 0 means the mutant survived).</td></tr>
+</table>
+<pre><code>$ bayan test -v --only greets
+running 1 test in 1 module
+  ◆ app: greets the world
+
+◆ 1 passed · 0.22s</code></pre>
+<p>A test that calls <code>todo(…)</code> is pending, not failed.</p>
+
+<h3 id="mutate"><code>bayan mutate</code></h3>
+<pre><code>bayan mutate --binary &lt;exe&gt; --sites &lt;map.json&gt; -- &lt;cmd&gt;</code></pre>
+<p>Runs a command once for each mutant site of a binary that was already built with <code>test --mutate</code>, as <code>test --mutate --run</code> does. It is for continuous integration setups that build once and run many times.</p>
+
+<h3 id="dist"><code>bayan dist [&lt;dir&gt;]</code></h3>
+<pre><code>bayan dist [dir] [--target t|all] [--mode m] [--force] [--allow-dirty]</code></pre>
+<p>Builds release binaries for the targets listed in the manifest's <code>dist.targets</code>, or for <code>--target</code> (<code>all</code> means every target), into <code>dist/&lt;version&gt;/&lt;target&gt;/</code>. It also writes:</p>
+<ul>
+<li><code>SHA256SUMS</code>, in <code>sha256sum</code> format.</li>
+<li><code>BUILDINFO.json</code>: package, version, compiler, mode, targets, source commit and whether the tree was dirty, and a hash of the inputs. It holds no timestamps, so the same inputs give the same file.</li>
+<li><code>dist/latest/</code>: a copy (not a symlink) of the highest version present, plus a <code>VERSION</code> file.</li>
+</ul>
+<p>A version directory never changes. <code>dist</code> refuses to rebuild one unless you pass <code>--force</code>, and tells you to bump the version instead. It refuses a dirty git tree unless you pass <code>--allow-dirty</code>. Libraries and scripts have no distributions.</p>
+
+<h2 id="source-tools">Source tools</h2>
+
+<h3 id="format"><code>bayan format &lt;path&gt;</code></h3>
+<p>Rewrites the input forms in a <code>.byn</code> file, or in every <code>.byn</code> file of a directory, into canonical syntax. An input form is an alternate spelling, such as a trailing <code>;</code>, that the compiler rejects with a machine-applicable fix. <code>format</code> applies those fixes, and also rewrites booleans and primitive type names to the <code>style</code> set in <code>package.byn</code>. <code>--check</code> writes nothing: it lists each file that would change and exits 1 if any would.</p>
+<pre><code>$ cat f.byn
+let a = 1;
+print($"{a}")
+$ bayan format --check f.byn
+would format f.byn
+$ bayan format f.byn
+formatted f.byn
+$ cat f.byn
+let a = 1
+print($"{a}")</code></pre>
+<p><code>bayan fmt</code> is not a command; its error message says <code>the formatter is `bayan format`</code>.</p>
+
+<h3 id="audit"><code>bayan audit &lt;path&gt;</code></h3>
+<p>Lists every place the program turns off a safety check: each <code>because</code> bypass, each <code>unsafe</code> and <code>extern</code> declaration, with the reason written next to it. A project with none prints <code>0 bypasses in .</code>.</p>
+
+<h3 id="explain"><code>bayan explain &lt;code&gt;</code></h3>
+<p>Prints the long explanation of a diagnostic: why it exists, an example, how to fix it. It works offline. An unknown code exits 2. <a href="ref-diagnostics.html">The diagnostics index</a> lists every code.</p>
+<pre><code>$ bayan explain BYN2001
+# BYN2001: undefined name
+
+**Why.** A name must be declared before it can be used…</code></pre>
+
+<h3 id="inspect">Looking inside the compiler</h3>
+<table>
+<tr><th>Command</th><th>Output</th></tr>
+<tr><td><code>bayan lex [--json] &lt;file&gt;</code></td><td>The token stream, one token per line as <code>line:column Kind `text`</code>. <code>-</code> reads standard input.</td></tr>
+<tr><td><code>bayan parse [--ast] &lt;file&gt;</code></td><td>Checks syntax only. With <code>--ast</code>, prints the syntax tree.</td></tr>
+<tr><td><code>bayan types &lt;path&gt;</code></td><td>Each function's parameter and local types, as JSON.</td></tr>
+<tr><td><code>bayan features --used &lt;path&gt;</code></td><td>The syntax node kinds, built-in functions and diagnostics a build touched, as JSON.</td></tr>
+</table>
+
+<h2 id="housekeeping">Housekeeping</h2>
+
+<h3 id="doctor"><code>bayan doctor</code></h3>
+<p>Checks the compiler, the host target, the C compiler, <code>zig</code>, <code>git</code> and the build cache. Each line is a ◆ when the check passes. A failure prints how to fix it, and the command exits 4.</p>
+<pre><code>$ bayan doctor
+◆ bayan       0.2.0-dev (commit 8940c0154e51)
+◆ host        macos-arm64
+◆ C compiler  /opt/homebrew/bin/zig cc (Homebrew clang version 22.1.8)
+◆ zig         /opt/homebrew/bin/zig (0.17.0)
+◆ git         /opt/homebrew/bin/git (git version 2.56.0)
+◆ cache       /Users/sy/Library/Caches/bayan (writable, 1258 programs, 228.7 MB)</code></pre>
+
+<h3 id="clean"><code>bayan clean [&lt;dir&gt;]</code></h3>
+<p>Removes <code>out/</code>. <code>--dist</code> also removes <code>dist/</code>, and <code>--cache</code> also empties the shared build cache. It removes only what you ask for.</p>
+
+<h3 id="cache"><code>bayan cache stats</code></h3>
+<p>Prints the cache's location, the number of compiled programs and scripts, and the size. One cache serves every project, worktree and process on the machine. Its place is <code>$BAYAN_CACHE</code> if set, else <code>~/Library/Caches/bayan</code> on macOS, <code>%LOCALAPPDATA%\bayan\cache</code> on Windows, and <code>$XDG_CACHE_HOME/bayan</code> or <code>~/.cache/bayan</code> elsewhere. A cache key covers the compiler version, mode, target, C compiler, flags and the emitted C, and the emitted C names files relative to the project root, so a second worktree or a moved project compiles nothing. A cached entry whose executable no longer matches its recorded SHA-256 is rebuilt.</p>
+
+<h2 id="options">Options for every command</h2>
+<table>
+<tr><th>Option</th><th>Meaning</th></tr>
+<tr><td><code>--color auto|always|never</code></td><td>Colour on a terminal. <code>auto</code> turns it on unless the output is piped or <code>NO_COLOR</code> is set. <code>FORCE_COLOR</code> turns it on and <code>TERM=dumb</code> turns it off.</td></tr>
+<tr><td><code>--ascii</code></td><td>Use ASCII symbols instead of ◆ ✗ │. Also the default under <code>TERM=dumb</code> or a non-UTF-8 locale.</td></tr>
+</table>
+<p>For <code>check</code>, <code>types</code>, <code>build</code>, <code>run</code> and <code>test</code>:</p>
+<table>
+<tr><th>Option</th><th>Meaning</th></tr>
+<tr><td><code>--all</code></td><td>Show every error instead of the first 20.</td></tr>
+<tr><td><code>--diagnostics json</code></td><td>Print each diagnostic on standard error as one JSON object per line.</td></tr>
+</table>
+<p>A JSON diagnostic has <code>code</code>, <code>severity</code>, <code>file</code>, <code>span</code>, <code>message</code>, <code>label</code>, <code>help</code> and <code>fixes</code>. The <code>span</code> has byte offsets (<code>start</code>, <code>end</code>) and one-based <code>line</code>, <code>column</code>, <code>endLine</code>, <code>endColumn</code>, counted in Unicode characters. <code>file</code> and <code>span</code> are <code>null</code> for a diagnostic with no location. Each fix is a <code>span</code> and a <code>replacement</code>. JSON output is never capped by <code>--all</code>'s limit.</p>
+
+<h2 id="exit-codes">Exit codes</h2>
+<table>
+<tr><th>Code</th><th>Meaning</th></tr>
+<tr><td>0</td><td>Success.</td></tr>
+<tr><td>1</td><td>Compile errors. Also, for <code>format --check</code>, files that would change.</td></tr>
+<tr><td>2</td><td>Usage error: an unknown command or option, or a missing path.</td></tr>
+<tr><td>3</td><td>Test failures, or a coverage or mutation score below its minimum.</td></tr>
+<tr><td>4</td><td>Toolchain problem: no C compiler, an unwritable cache, or the C compiler failed.</td></tr>
+</table>
+
+<h2 id="planned">Planned</h2>
+<note>Planned: not in the compiler yet. Each of these is an unknown command or option today (exit 2).</note>
+<ul>
+<li>Commands: <code>lint</code>, <code>doc</code>, <code>repl</code>, <code>lsp</code>, <code>pkg</code> (<code>add</code>, <code>audit</code>, <code>export --json</code>), <code>expand</code>, <code>migrate</code> and <code>new test</code>.</li>
+<li><code>--mode small</code> for <code>build</code>.</li>
+<li>Test options from the specification: <code>--tier</code>, <code>--explore</code>, <code>--sanitize</code>, <code>--update</code> and <code>--triage</code>.</li>
+<li>Prose translation: <code>format --prose</code>, <code>--from-prose</code>, <code>--check-prose</code>.</li>
+</ul>

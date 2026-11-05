@@ -1,0 +1,267 @@
+title: Settled decisions
+nav: Reference
+order: 90
+template: docs
+---
+<p>These choices are closed. Each entry says what Bayan does, what that rules out, and why. They come from the language specification's list of settled decisions (Appendix A) and its principles (§0). A request to reopen one needs a new argument, not a restatement of the old wish.</p>
+<p>Where the compiler already enforces a choice, the entry shows the message it prints.</p>
+
+<h2 id="principles">Principles behind the choices</h2>
+<ul>
+<li><strong>One spelling per construct.</strong> Synonyms are banned. Paraphrase and ellipsis are allowed in prose, never in code.</li>
+<li><strong>Safety is the default; bypasses are loud.</strong> Every bypass carries a <code>because</code> clause and shows up in <code>bayan audit</code>.</li>
+<li><strong>Read order matches meaning.</strong> A declaration starts with what it is, then its name.</li>
+<li><strong>The compiler does the tedious work.</strong> Formatting, canonical spelling and diagnostics are the tool's job, not the author's.</li>
+</ul>
+
+<h2 id="syntax">Syntax</h2>
+
+<h3 id="no-semicolons">No semicolons</h3>
+<p><strong>Choice.</strong> A statement ends at the end of its line. The newline rules are fixed and small.</p>
+<p><strong>Rules out.</strong> <code>;</code> as a terminator or separator in source.</p>
+<p><strong>Why.</strong> A terminator that the reader never needs is noise. The editor still accepts <code>;</code> as an input form and <code>bayan format</code> rewrites it. See <a href="ref-cli.html#format">the format command</a>.</p>
+<figure class="diag">
+<pre><span class="err">error BYN1040:</span> `;` is an input form; a statement ends at the newline
+  --&gt; main.byn:2:10
+
+  2 │ let b = 2; print(a + b)
+    │          ^ remove `;`
+    │
+  help: put the next statement on its own line
+    │ 2 │ let b = 2
+    │ 3 │ print(a + b)</pre>
+  <figcaption>The compiler's message for this program. <code>bayan explain BYN1040</code> prints the long form.</figcaption>
+</figure>
+
+<h3 id="one-comment-form">Only <code>//</code> comments</h3>
+<p><strong>Choice.</strong> Comments start with <code>//</code> and run to the end of the line.</p>
+<p><strong>Rules out.</strong> Block comments.</p>
+<p><strong>Why.</strong> Block comments nest badly, hide code and cannot be told apart from code when scanning down a page.</p>
+
+<h3 id="head-first">Head-first declarations</h3>
+<p><strong>Choice.</strong> The kind of a declaration comes first and its modifier follows: <code>struct unique</code>, <code>type distinct</code>, <code>union error</code>, <code>struct attribute</code>, <code>enum open</code>. In fields, parameters, returns and payloads the type comes before the name. A local binding puts the name first: <code>let total = 0</code>.</p>
+<p><strong>Rules out.</strong> Modifiers placed in front of the keyword, and <code>name: Type</code> declarations in fields and parameters. The arrow <code>-&gt;</code> appears only in function types, never in declarations.</p>
+<p><strong>Why.</strong> The reader learns what a declaration is before learning what it is called, and every declaration of a kind lines up the same way.</p>
+
+<h3 id="rune">The text unit is <code>rune</code></h3>
+<p><strong>Choice.</strong> A single Unicode scalar value has the type <code>rune</code>.</p>
+<p><strong>Rules out.</strong> <code>char</code>. The name suggests a byte or a 16-bit unit, which a Unicode scalar is neither.</p>
+<p><strong>Why.</strong> Text bugs come from confusing bytes, units and characters. The type name should not blur them.</p>
+<figure class="diag">
+<pre><span class="err">error BYN1048:</span> `char` is now `rune`
+  --&gt; main.byn:1:14
+
+  1 │ bool isVowel(char c) =&gt; c == 'a' or c == 'e'
+    │              ^^^^ the input form
+    │
+  help: rename the type to `rune`
+    │ 1 │ bool isVowel(rune c) =&gt; c == 'a' or c == 'e'
+    │   │              ++++</pre>
+  <figcaption>The compiler's message for this program. <code>bayan explain BYN1048</code> prints the long form.</figcaption>
+</figure>
+
+<h3 id="no-string-plus">No <code>+</code> on strings</h3>
+<p><strong>Choice.</strong> Strings join by interpolation (<code>"Hello, \(name)"</code>) or by writing one literal.</p>
+<p><strong>Rules out.</strong> <code>a + b</code> where both are strings.</p>
+<p><strong>Why.</strong> Repeated <code>+</code> allocates at every step and hides the cost. Interpolation builds the result once and shows its shape.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2209:</span> strings cannot be joined with `+`; use interpolation
+  --&gt; main.byn:2:12
+
+  2 │ let path = "/usr" + "/lib"
+    │            ^^^^^^^^^^^^^^^
+    │
+  help: write one literal: `"/usr/lib"`
+    │ 2 │ let path = "/usr" + "/lib"
+    │   │                 -----</pre>
+  <figcaption>The compiler's message for this program. <code>bayan explain BYN2209</code> prints the long form.</figcaption>
+</figure>
+
+<h3 id="postfix-if">Postfix <code>if</code> and <code>unless</code></h3>
+<p><strong>Choice.</strong> A one-statement condition can follow the statement. Both <code>and</code>/<code>or</code>/<code>not</code> and the symbolic spellings exist, and the project picks one with <code>style.booleans</code>.</p>
+<p><strong>Rules out.</strong> A per-file or per-line choice between boolean spellings, and <code>stmt unless not cond</code>.</p>
+<p><strong>Why.</strong> Early exits read as sentences. The boolean spelling is a project decision so that one codebase reads one way.</p>
+
+<h3 id="no-question-suffix">No <code>?</code> suffix on names</h3>
+<p><strong>Choice.</strong> <code>?</code> means only <code>T?</code>, <code>?.</code>, <code>??</code> and the ternary.</p>
+<p><strong>Rules out.</strong> Ruby-style boolean members such as <code>isEmpty?</code>.</p>
+<p><strong>Why.</strong> One symbol, one family of meanings: optionality.</p>
+
+<h3 id="null-checks">Null is tested with <code>is null</code></h3>
+<p><strong>Choice.</strong> Test an optional with <code>is null</code> or <code>is not null</code>, or use <code>?.</code> and <code>??</code>.</p>
+<p><strong>Rules out.</strong> <code>== null</code>.</p>
+<p><strong>Why.</strong> Equality is for values. Null is the absence of one.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2027:</span> compare with `is null` / `is not null`, not `==`
+  --&gt; main.byn:3:13
+
+  3 │     let c = n == null
+    │             ^^^^^^^^^
+    │
+  help: write `n is null`
+    │ 3 │     let c = n is null
+    │   │               ++</pre>
+  <figcaption>The compiler's message for this program. <code>bayan explain BYN2027</code> prints the long form.</figcaption>
+</figure>
+
+<h3 id="no-c-for">No C-style <code>for</code>, no <code>goto</code></h3>
+<p><strong>Choice.</strong> Loops iterate over a range or a collection, or are <code>while</code> loops.</p>
+<p><strong>Rules out.</strong> <code>for (init; test; step)</code> and <code>goto</code>.</p>
+<p><strong>Why.</strong> The three-part loop is where off-by-one bugs live. Ranges say the same thing with the bounds in plain sight.</p>
+
+<h3 id="no-lambda-sigil">No <code>@</code> lambda shorthand, no <code>mut</code></h3>
+<p><strong>Choice.</strong> The implicit argument is <code>it</code>. A method that changes its receiver says <code>ref this</code>.</p>
+<p><strong>Rules out.</strong> <code>@</code> as a lambda shorthand, and a <code>mut</code> keyword.</p>
+<p><strong>Why.</strong> <code>@</code> belongs to attributes. <code>ref this</code> already tells the reader and the compiler that the receiver can change.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2115:</span> `bump` modifies `this` but is not declared `ref this`
+  --&gt; main.byn:5:9
+
+  5 │         n += 1
+    │         ^ `this` is modified here
+    │
+  help: declare it `ref this` as the first parameter
+    │ 4 │     void bump(ref this) {
+    │   │               ++++++++</pre>
+  <figcaption>The compiler's message for this program. <code>bayan explain BYN2115</code> prints the long form.</figcaption>
+</figure>
+
+<h2 id="values">Values and types</h2>
+
+<h3 id="let-var">Bindings are immutable unless declared <code>var</code></h3>
+<p><strong>Choice.</strong> <code>let</code> binds once. <code>var</code> allows reassignment, and a <code>var</code> that is never reassigned draws a warning.</p>
+<p><strong>Rules out.</strong> Assigning to a <code>let</code>, and silent mutability.</p>
+<p><strong>Why.</strong> A reader can trust a <code>let</code> without scanning the rest of the function.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2104:</span> `total` is immutable
+  --&gt; main.byn:2:1
+
+  2 │ total += 1
+    │ ^^^^^ declared with `let` on line 1
+    │
+  help: declare it with `var` if it should change
+    │ 1 │ var total = 0
+    │   │ +++</pre>
+  <figcaption>The compiler's message for this program. <code>bayan explain BYN2104</code> prints the long form.</figcaption>
+</figure>
+
+<h3 id="units">Units are types, not angle brackets</h3>
+<p><strong>Choice.</strong> A unit is a distinct type. It converts implicitly only to a finer unit. A bare literal is not accepted for a distinct type. Mixed-currency addition traps; <code>tryAdd</code> and a failing <code>add</code> exist for the cases that need to recover.</p>
+<p><strong>Rules out.</strong> <code>5&lt;s&gt;</code> and <code>int&lt;Bytes&gt;</code>, a bare <code>0</code> for unit types, <code>per</code> for units, and automatic <code>T.Count</code> or <code>T.Index</code> types.</p>
+<p><strong>Why.</strong> Angle brackets collide with generics. Counts (<code>length</code>, <code>runeCount</code>) are plain <code>i64</code>; units apply to slice offsets, where mixing them up costs the most.</p>
+
+<h3 id="requires">Validation is <code>requires</code> on the type</h3>
+<p><strong>Choice.</strong> A type states its invariant with <code>requires</code>. The check runs at construction. A <code>requires</code> that mentions only <code>it</code> belongs to the field above it; one that mentions other fields is struct-level.</p>
+<p><strong>Rules out.</strong> <code>T.Validated</code> and <code>validated(T)</code>, and checks scattered over every caller.</p>
+<p><strong>Why.</strong> If a value of the type exists, it is valid. A field of a struct with <code>requires</code>, states or <code>@sealed</code> is writable only from its own <code>ref this</code> methods or through <code>with</code>.</p>
+
+<h3 id="with">One copy-with-changes form</h3>
+<p><strong>Choice.</strong> <code>x with { f: v }</code>.</p>
+<p><strong>Rules out.</strong> Derived <code>withF(v)</code> methods, and <code>with</code> as the keyword for effect handlers.</p>
+<p><strong>Why.</strong> One spelling, no generated API surface.</p>
+
+<h3 id="typestate">Typestate in a <code>states</code> block</h3>
+<p><strong>Choice.</strong> A type lists its states. Methods say which state they need and which they <code>become</code>. <code>state</code> is a keyword only at the start of a member declaration.</p>
+<p><strong>Rules out.</strong> Runtime "is it open yet" flags for protocols the compiler can check.</p>
+<p><strong>Why.</strong> Calling <code>write</code> on a closed file becomes a compile-time error.</p>
+
+<h3 id="views-copies">Views and copies have fixed names</h3>
+<p><strong>Choice.</strong> <code>span</code>, <code>mutableSpan()</code>, <code>copy()</code> and <code>T(x)</code>. Size is <code>length</code>. <code>count(p)</code> counts matches of a predicate. <code>string(x)</code> always formats.</p>
+<p><strong>Rules out.</strong> <code>toX</code> and <code>asX</code> members, <code>fromUtf8</code>, and <code>count</code> as a size.</p>
+<p><strong>Why.</strong> A reader can tell a cheap view from an allocation by the name alone. Decoding bytes goes through codecs: <code>try Utf8.decode(bytes)</code> or <code>Utf8.tryDecode(bytes)</code>. Integers format with <code>string(n, as: Radix)</code>; hex and base64 are codecs.</p>
+
+<h3 id="named-args">Arguments are named</h3>
+<p><strong>Choice.</strong> Arguments carry their parameter name unless a particle stands in. The particles are <code>from to until through at by for as</code>, and a particle appears at most once per signature. <code>at</code> is chosen over <code>on</code>; <code>for</code> is allowed in label position only.</p>
+<p><strong>Rules out.</strong> Positional calls with several same-typed arguments.</p>
+<p><strong>Why.</strong> <code>copy(from: a, to: b)</code> cannot be called backwards by accident.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2305:</span> argument for `verbose` must be named
+  --&gt; main.byn:4:6
+
+  4 │ show(true)
+    │      ^^^^
+    │
+  help: write `verbose: …`; a `bool` argument says nothing at the call site
+    │ 4 │ show(verbose: true)
+    │   │      +++++++++</pre>
+  <figcaption>The compiler's message for this program. <code>bayan explain BYN2305</code> prints the long form.</figcaption>
+</figure>
+
+<h3 id="no-inheritance">No inheritance</h3>
+<p><strong>Choice.</strong> Behaviour is shared through interfaces and generics. Generics are monomorphized.</p>
+<p><strong>Rules out.</strong> Class inheritance, until a GC tier exists to make it safe.</p>
+<p><strong>Why.</strong> Inheritance needs object lifetimes the language does not yet manage.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2802:</span> `Box.count` is `i32 count` but `ICount` requires `i64 count { get }`
+  --&gt; main.byn:6:9
+
+  6 │     i32 count
+    │         ^^^^^ does not match `ICount`
+    │
+  help: change the field's type to `i64`</pre>
+  <figcaption>The compiler's message for this program. <code>bayan explain BYN2802</code> prints the long form.</figcaption>
+</figure>
+
+<h3 id="json">JSON is library, not syntax</h3>
+<p><strong>Choice.</strong> JSON is a first-class standard-library feature. Decoding yields a trusted <code>T</code> only when every field is a <code>requires</code> type or a non-text scalar.</p>
+<p><strong>Rules out.</strong> A JSON literal syntax in the language.</p>
+<p><strong>Why.</strong> Data formats change faster than grammars.</p>
+
+<h2 id="errors">Errors and effects</h2>
+
+<h3 id="fails">Failure is part of the signature</h3>
+<p><strong>Choice.</strong> A function that can fail says <code>fails E</code>. A caller writes <code>try</code>, or handles it with <code>catch</code>. <code>try</code> covers the whole expression to its right. Error types are declared with <code>union error</code>. A failing function exits with <code>fail .case</code>.</p>
+<p><strong>Rules out.</strong> Exceptions, the <code>!</code> shorthand in source (<code>User!E</code> is an editor input form only), the older <code>error set</code> spelling, and returning an error case as an ordinary value.</p>
+<p><strong>Why.</strong> Every path that can fail is visible at the call site and in the type.</p>
+<figure class="diag">
+<pre><span class="err">error BYN1056:</span> `return .missing` returns an error; write `fail .missing`
+  --&gt; main.byn:6:5
+
+  6 │     return .missing if key.isEmpty
+    │     ^^^^^^ this leaves with an error
+    │
+  help: leave with the error: `fail .missing`
+    │ 6 │     fail .missing if key.isEmpty
+    │   │     ++++</pre>
+  <figcaption>The compiler's message for this program. <code>bayan explain BYN1056</code> prints the long form.</figcaption>
+</figure>
+
+<h3 id="unused-values">An unused value is an error</h3>
+<p><strong>Choice.</strong> A non-void expression used as a statement must be bound, returned or explicitly discarded with <code>let _ =</code>.</p>
+<p><strong>Rules out.</strong> Silently ignoring a result.</p>
+<p><strong>Why.</strong> Ignored results are how failures get lost.</p>
+
+<h3 id="except-patterns">Pattern rules</h3>
+<p><strong>Choice.</strong> <code>except</code> takes patterns only. Patterns can be named.</p>
+<p><strong>Rules out.</strong> Arbitrary expressions in <code>except</code>.</p>
+<p><strong>Why.</strong> One mechanism for taking values apart.</p>
+
+<h3 id="uses">Effects are a closed list after <code>uses</code></h3>
+<p><strong>Choice.</strong> A function lists the capabilities it needs after <code>uses</code>. <code>provide</code> installs handlers. <code>Panic.handler</code> is an effect handler that <code>uses console</code>.</p>
+<p><strong>Rules out.</strong> A symbol for effects, <code>noalloc</code> and <code>nosuspend</code> modifiers, <code>panic</code> as an effect, and open-ended effect names.</p>
+<p><strong>Why.</strong> A closed list can be checked and printed.</p>
+
+<h3 id="because">Every bypass says <code>because</code></h3>
+<p><strong>Choice.</strong> Anything that overrides a safety rule carries a <code>because</code> clause, for example <code>x.trustUnchecked() because "…"</code>. Secrets need <code>expose … because</code> in derivations. <code>bayan audit</code> lists every one.</p>
+<p><strong>Rules out.</strong> A bare string as the purpose clause, and bypasses with no reason.</p>
+<p><strong>Why.</strong> A reviewer can read the reasons without opening each file. Two trust layers apply: values from outside are untrusted until validated, and the bypass names its reason.</p>
+
+<h3 id="fibers">Fibers and borrows</h3>
+<p><strong>Choice.</strong> A struct holding a mutable reference is <code>unique</code>. No reference crosses into a fiber that may outlive it. The keywords are <code>async</code> and <code>await</code>.</p>
+<p><strong>Rules out.</strong> Sharing a mutable borrow with a task that can outlive its owner.</p>
+<p><strong>Why.</strong> It removes a class of data races without a runtime check.</p>
+
+<h2 id="names">Names and files</h2>
+
+<h3 id="naming">Naming grammar</h3>
+<p><strong>Choice.</strong> BYN50xx rules apply to all code; BYN51xx to a package's public API. Domain words go in <code>grammar</code>. The source extension is <code>.byn</code>, and the language is Bayan. Operator members use an <code>Op</code> suffix.</p>
+<p><strong>Rules out.</strong> Per-team naming arguments, and a separate linter configuration.</p>
+<p><strong>Why.</strong> The compiler enforces the names, so reviewers do not have to. See the <a href="ref-diagnostics.html">diagnostics index</a>.</p>
+
+<h3 id="canonical-form">One canonical form on disk</h3>
+<p><strong>Choice.</strong> <code>bayan format</code> rewrites input forms into the single canonical spelling.</p>
+<p><strong>Rules out.</strong> Configurable style, apart from <code>style.booleans</code>.</p>
+<p><strong>Why.</strong> Diffs show changes in meaning, never in taste.</p>
+
+<h2 id="planned">Planned</h2>
+<p>The specification lists features that are designed but not in the compiler today. They are not decisions to drop; they are not available yet. See <a href="ref-std.html#planned">the standard library's planned section</a> for the library side. The spec's <code>trust(value, "reason")</code> form is spelled <code>trustUnchecked() because "…"</code> in the compiler.</p>

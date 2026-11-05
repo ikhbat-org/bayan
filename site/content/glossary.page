@@ -1,0 +1,87 @@
+title: Glossary
+nav: Reference
+order: 99
+template: docs
+---
+<p>Terms as Bayan uses them. Each entry points to the page that treats the subject in full.</p>
+
+<h2 id="terms">Terms</h2>
+<dl>
+<dt id="arena">arena</dt>
+<dd>A block of memory that many values are allocated into and freed together. See <a href="memory.html">Memory</a>.</dd>
+
+<dt id="attribute">attribute</dt>
+<dd>A marker written with <code>@</code> in front of a declaration, such as <code>@sealed</code>.</dd>
+
+<dt id="because">because</dt>
+<dd>The clause that states why a safety bypass is acceptable. Every bypass has one and <code>bayan audit</code> prints them.</dd>
+
+<dt id="bypass">bypass</dt>
+<dd>Code that overrides a safety rule, for example <code>trustUnchecked()</code>. It always carries a <code>because</code>.</dd>
+
+<dt id="byn-code">BYN code</dt>
+<dd>The identifier of a diagnostic, such as BYN2015. All codes are listed in the <a href="ref-diagnostics.html">diagnostics index</a>.</dd>
+
+<dt id="canonical">canonical form</dt>
+<dd>The one spelling the compiler accepts for a construct. Other spellings are input forms.</dd>
+
+<dt id="catch">catch</dt>
+<dd>Handles a failure at the call that produced it. See <a href="errors.html">Errors</a>.</dd>
+
+<dt id="codec">codec</dt>
+<dd>A standard-library type that converts between bytes and another representation, such as <code>Utf8</code>. See <a href="ref-std.html#codecs">codecs</a>.</dd>
+
+<dt id="distinct">distinct type</dt>
+<dd>A type declared with <code>type distinct</code>. It has the representation of another type but is not interchangeable with it.</dd>
+
+<dt id="effect">effect</dt>
+<dd>A capability a function needs, listed after <code>uses</code>.</dd>
+
+<dt id="fails">fails</dt>
+<dd>Part of a function's signature saying which error type it can fail with.</dd>
+
+<dt id="fiber">fiber</dt>
+<dd>A lightweight task started with <code>async</code>. See <a href="cookbook-concurrency.html">the concurrency cookbook</a>.</dd>
+
+<dt id="head-first">head-first</dt>
+<dd>The declaration order in which the kind comes before the name.</dd>
+
+<dt id="input-form">input form</dt>
+<dd>A spelling the compiler recognises and rewrites to the canonical form, such as a trailing <code>;</code>. <code>bayan format</code> applies the rewrite.</dd>
+
+<dt id="module">module</dt>
+<dd>A directory of <code>.byn</code> files compiled together.</dd>
+
+<dt id="package">package</dt>
+<dd>A directory with a <code>package.byn</code> manifest. See <a href="ref-cli.html#projects">projects</a>.</dd>
+
+<dt id="particle">particle</dt>
+<dd>One of the argument labels <code>from to until through at by for as</code>.</dd>
+
+<dt id="ref-this">ref this</dt>
+<dd>Marks a method that can change its receiver.</dd>
+
+<dt id="requires">requires</dt>
+<dd>A condition on a type, checked whenever a value of the type is made.</dd>
+
+<dt id="result">Result</dt>
+<dd>The value that a <code>catch</code> produces: a success or an error. Some standard-library calls return one directly.</dd>
+
+<dt id="rune">rune</dt>
+<dd>A single Unicode scalar value.</dd>
+
+<dt id="span">span</dt>
+<dd>A view of a run of values owned by something else. Cheap to make; it does not copy.</dd>
+
+<dt id="typestate">typestate</dt>
+<dd>A type whose available methods depend on the state it is in, checked at compile time.</dd>
+
+<dt id="trusted">trusted and untrusted</dt>
+<dd>Data from outside the program is untrusted until it is validated.</dd>
+
+<dt id="union-error">union error</dt>
+<dd>A declaration of the set of error cases a function can fail with.</dd>
+
+<dt id="unit">unit</dt>
+<dd>A distinct numeric type such as seconds or bytes. See <a href="ref-design.html#units">units</a>.</dd>
+</dl>
