@@ -1,0 +1,267 @@
+title: 8. Errors
+nav: Learn
+order: 800
+template: docs
+---
+<p>Bayan has no exceptions. A function that can fail says so in its signature, a failure is a value that comes back through the return path, and the compiler makes every caller deal with it. In this chapter you will write a small order taker. It reads a quantity, takes stock from a map, and reports each rejected order with an exit code. Along the way you will meet every error the compiler gives you for getting this wrong.</p>
+<p>The <a href="errors.html">Errors guide</a> is the short reference. This chapter goes slowly and shows the diagnostics. You need maps and strings from <a href="book-07-collections.html">chapter 7</a> and unions from <a href="book-06-unions.html">chapter 6</a>.</p>
+
+<h2 id="declare">Declaring the ways to fail</h2>
+<p>An error set is a <code>union error</code>. Each case is one way to fail, written in camelCase on its own line. A case may carry data.</p>
+<pre><code class="byn">union error ParseError {
+    empty
+    notNumber
+}</code></pre>
+<p>A function lists the sets it can fail with after its parameters, with <code>fails</code>.</p>
+
+<h2 id="fail">Failing with <code>fail</code></h2>
+<p><code>fail .empty</code> leaves the function with an error. <code>return</code> never does that: it always returns a value of the declared return type. Both can take a suffix. <code>fail .empty if text.isEmpty</code> is the postfix form from <a href="reading.html">Reading Bayan code</a>, and <code>x ?? fail .notNumber</code> fails when an optional is <code>null</code>.</p>
+<example name="book-08-fail"/>
+<p><code>parseQty</code> returns an <code>i64</code> or fails with <code>empty</code> or <code>notNumber</code>. The caller of <code>parseQty</code> does <code>catch 0</code>: if the call fails, the value is the fallback. Each fallback here is different on purpose so you can tell from the output which path ran.</p>
+
+<h3 id="fail-mistakes">Two mistakes with <code>fail</code></h3>
+<p>The case must exist in a set the function lists. The leading dot looks the name up in the sets of the <code>fails</code> clause.</p>
+<pre><code class="byn">i64 parseQty(string text) fails ParseError {
+    fail .empty if text.isEmpty
+    fail .negative if text.length &gt; 3
+    return i64.tryParse(text) ?? fail .notNumber
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2603:</span> `.negative` is not in the `fails` clause of `parseQty`
+<span class="gut">  --&gt;</span> f2.byn:8:10
+
+<span class="gut">  8 │</span>     fail .negative if text.length &gt; 3
+<span class="gut">    │</span>          <span class="hl">^^^^^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> name a case of `ParseError`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2603</span></pre>
+</figure>
+<p>A function with no <code>fails</code> clause cannot fail at all.</p>
+<pre><code class="byn">i64 twice(i64 n) {
+    fail .empty if n == 0
+    return n * 2
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2604:</span> `twice` cannot fail, so it cannot pass on `.empty`
+<span class="gut">  --&gt;</span> g1.byn:6:10
+
+<span class="gut">  6 │</span>     fail .empty if n == 0
+<span class="gut">    │</span>          <span class="hl">^^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> declare the error in a `fails` clause, or handle it here
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2604</span></pre>
+</figure>
+
+<h2 id="handle">Handling a failure with <code>catch</code></h2>
+<p>You cannot call a function that fails and ignore the possibility.</p>
+<pre><code class="byn">void main() {
+    let n = parseQty("12")
+    print($"{n}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2602:</span> `parseQty` can fail; handle the error or pass it on
+<span class="gut">  --&gt;</span> f1.byn:12:13
+
+<span class="gut">  12 │</span>     let n = parseQty("12")
+<span class="gut">     │</span>             <span class="hl">^^^^^^^^^^^^^^</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> propagate the error with `try`, or handle it with `catch`
+<span class="gut">     │</span> 12 │     let n = try parseQty("12")
+<span class="gut">     │    │</span>             <span class="add">++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2602</span></pre>
+</figure>
+<p>The help line names both options. <code>catch</code> handles the failure here. It has three forms:</p>
+<ul>
+<li><code>f() catch value</code> uses a fallback value.</li>
+<li><code>f() catch { … }</code> runs a block.</li>
+<li><code>f() catch switch { … }</code> picks by which error happened (below).</li>
+</ul>
+<p>When <code>f()</code> returns a value, a <code>catch</code> block has no value to give back, so it must leave: with <code>return</code>, <code>break</code>, <code>continue</code> or a panic. If it falls through, the compiler stops you.</p>
+<pre><code class="byn">void main() {
+    let n = parseQty("") catch {
+        print("bad")
+    }
+    print($"{n}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2611:</span> this `catch` block can complete normally; end it with `return`, `break`, `continue`
+or a panic
+<span class="gut">  --&gt;</span> f5.byn:14:5
+
+<span class="gut">  14 │</span>     }
+<span class="gut">     │</span>     <span class="hl">^</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> leave the block instead of falling through; `parseQty` returns a value
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2611</span></pre>
+</figure>
+<p>A call that returns nothing (<code>void</code>) can use a block that simply ends.</p>
+
+<h2 id="try">Passing a failure up with <code>try</code></h2>
+<p>When the current function cannot do anything useful about a failure, it passes it to its own caller with <code>try</code>. The caller then has to deal with it, so the current function must list the error in its own <code>fails</code> clause.</p>
+<example name="book-08-try"/>
+<p><code>lineTotal</code> fails with <code>ParseError</code> because <code>try parseQty(qty)</code> may pass one on. In <code>main</code> the first call succeeds. The second fails with <code>negative</code>, the <code>catch</code> block prints a message and returns, and the last <code>print</code> never runs.</p>
+<p>Without a <code>fails</code> clause on the function that uses <code>try</code>, the error has nowhere to go:</p>
+<pre><code class="byn">i64 twice(string text) {
+    return try parseQty(text)
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2604:</span> `twice` cannot fail, so it cannot pass on `ParseError`
+<span class="gut">  --&gt;</span> h2.byn:11:12
+
+<span class="gut">  11 │</span>     return try parseQty(text) 
+<span class="gut">     │</span>            <span class="hl">^^^^^^^^^^^^^^^^^^</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> handle the error with `catch`, or declare `fails ParseError`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2604</span></pre>
+</figure>
+
+<h3 id="try-reach"><code>try</code> covers everything to its right</h3>
+<p><code>try</code> applies to the entire expression after it, down to the weakest operator. In <code>try parseQty(text) * 2</code> the compiler sees a multiplication that cannot fail. To apply <code>try</code> to the call only, use parentheses.</p>
+<pre><code class="byn">i64 twice(string text) fails ParseError {
+    return try parseQty(text) * 2
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN1054:</span> `try` covers `parseQty(text) * 2`, which cannot fail
+<span class="gut">  --&gt;</span> f6.byn:12:16
+
+<span class="gut">  12 │</span>     return try parseQty(text) * 2
+<span class="gut">     │</span>                <span class="hl">^^^^^^^^^^^^^^^^^^ cannot fail</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> wrap the part that fails in parentheses: `(try parseQty(text))`
+<span class="gut">     │</span> 12 │     return (try parseQty(text)) * 2
+<span class="gut">     │    │</span>            <span class="add">+++++++++++++++++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN1054</span></pre>
+</figure>
+<p>The fix the compiler suggests is <code>(try parseQty(text)) * 2</code>.</p>
+
+<h2 id="switch">Choosing by error with <code>catch switch</code></h2>
+<p>When each failure needs its own response, switch on the error. A case can carry data, which you name in the declaration and bind in the arm with <code>let</code>.</p>
+<example name="book-08-switch"/>
+<p>Every arm here is <code>return …</code>, which leaves <code>describe</code> at once. Only a success reaches the last line, so <code>n</code> is the quantity. The arm <code>.notNumber(let t)</code> binds the payload to <code>t</code>. An arm may also be an expression of the success type, as in <code>catch switch { .empty =&gt; 0, … }</code>.</p>
+<p>The switch must cover every case. If you leave one out the compiler names it.</p>
+<pre><code class="byn">let n = parseQty("12") catch switch {
+    .empty =&gt; 0,
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2410:</span> `switch` does not handle every `ParseError`
+<span class="gut">  --&gt;</span> f4.byn:12:34
+
+<span class="gut">  12 │</span>     let n = parseQty("12") catch switch {
+<span class="gut">     │</span>                                  <span class="hl">^^^^^^ not covered: .notNumber</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> add the missing arms, or `_ =&gt; …` for the rest
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2410</span></pre>
+</figure>
+<p>Add the missing arm, or end with <code>_ =&gt; …</code> for all the rest.</p>
+
+<h2 id="compose">Combining and narrowing error sets</h2>
+<p>A function that calls two others may fail in both ways. Rather than list every case again, build a bigger set out of the smaller ones. The result is flat: <code>OrderError</code> below has the cases of both. A <code>ParseError</code> converts into it without any code from you.</p>
+<example name="book-08-compose"/>
+<p>Read it in four parts.</p>
+<ul>
+<li><code>union error OrderError = ParseError, StockError</code> combines two sets.</li>
+<li><code>union error Retryable = OrderError except .notNumber</code> is the same set without one case.</li>
+<li>In <code>retrying</code>, <code>catch (ParseError.notNumber) 0</code> handles that one case and lets the others through. The remaining cases must be in the function's <code>fails</code> clause, which is why it says <code>fails Retryable</code> and not <code>fails OrderError</code>.</li>
+<li>In <code>main</code>, an arm <code>ParseError e</code> matches every case of that set and binds the error as <code>e</code>. An arm <code>.outOfStock(let item)</code> matches one case. The program prints <code>-2</code> because <code>take</code> asked for 9 and had 3.</li>
+</ul>
+<p>Two sets that share a case name cannot be combined, because a flat set would have two cases with one name.</p>
+<pre><code class="byn">union error ParseError {
+    empty
+}
+
+union error Other {
+    empty
+}
+
+union error Both = ParseError, Other</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN3202:</span> `ParseError` and `Other` both have a case `empty`
+<span class="gut">  --&gt;</span> h3.byn:9:1
+
+<span class="gut">  9 │</span> union error Both = ParseError, Other
+<span class="gut">    │</span> <span class="hl">^^^^^^^^^^^ two cases `empty`</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> rename one case, or compose fewer sets
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN3202</span></pre>
+</figure>
+<p>Cases are namespaced by their set: <code>ParseError.empty</code> is not <code>Other.empty</code>. A bare <code>.empty</code> that matches two sets is an error.</p>
+
+<h3 id="public-fails">Who has to write the list</h3>
+<p>A public function must list its errors. Anyone outside the package should be able to read them from the signature.</p>
+<pre><code class="byn">public i64 parseQty(string text) fails {
+    return 1
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2607:</span> public function `parseQty` must list its errors
+<span class="gut">  --&gt;</span> h4.byn:1:34
+
+<span class="gut">  1 │</span> public i64 parseQty(string text) fails {
+<span class="gut">    │</span>                                  <span class="hl">^^^^^</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2607</span></pre>
+</figure>
+<p>A private function may write a bare <code>fails</code> and let the compiler work out the set. Inside such a function you name the set when you fail: <code>fail ParseError.empty</code>, because there is no clause for the dot to look in. Your editor shows the inferred set as a hint.</p>
+
+<h2 id="main">Errors in <code>main</code></h2>
+<p><code>main</code> may fail. If it does, the process prints the doc comment (<code>///</code>) of the error to standard error and exits with code 1. A case marked <code>@exitCode(n)</code> picks the exit code. Deferred statements run before the exit.</p>
+<example name="book-08-main"/>
+<p>Standard output shows the four orders and then <code>shift over</code>, which <code>defer</code> printed on the way out. The line <code>error: Some orders were rejected.</code> goes to standard error, and the exit code is 3. Run <code>echo $?</code> after the program and you will see it.</p>
+<p>The quantity inside <code>rejected(i64 count)</code> is not printed. Only the doc comment is. To use the data, catch the error in a caller.</p>
+
+<h2 id="panic">Panics are not errors</h2>
+<p>A panic means the program has a bug that no caller can fix: an index out of range, a missing map key, a division by zero, integer overflow. It prints a message and the line, and the program stops.</p>
+<figure class="diag">
+<pre>panic: division by zero
+  at h1.byn:3</pre>
+</figure>
+<p>Integer arithmetic checks for overflow too:</p>
+<figure class="diag">
+<pre>panic: arithmetic overflow
+  at g4.byn:3</pre>
+</figure>
+<p>You do not list panics in <code>fails</code> and you do not <code>catch</code> them. Plain <code>defer</code> does not run during a panic. Use an error for what can go wrong with <em>good</em> code and bad input, like a quantity typed as <code>abc</code>. A panic is for a condition that can only be a bug. A precondition on a function parameter is written with <code>expects</code>; its violation is a bug, so it panics rather than fails.</p>
+
+<h2 id="planned">What is planned</h2>
+<note>Planned: not in the compiler yet. <code>except</code> on a sequence, as in <code>for line in lines except ""</code>, is in the specification. The compiler rejects it. Error return traces in debug builds and <code>@status(n)</code> for web responses are also described but not available.</note>
+<pre><code class="byn">for line in lines except "" {
+    print(line)
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2022:</span> this expression is not supported in v0.1
+<span class="gut">  --&gt;</span> i2.byn:3:14
+
+<span class="gut">  3 │</span>     for w in words except null {
+<span class="gut">    │</span>              <span class="hl">^^^^^^^^^^^^</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2022</span></pre>
+</figure>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>What does <code>book-08-fail</code> print for the input <code>"twelve"</code>?</summary>
+<p><code>-2</code>, the fallback of the third <code>catch</code>. <code>i64.tryParse("twelve")</code> is <code>null</code>, so <code>?? fail .notNumber</code> fails. <code>12</code> is the result for <code>"12"</code>, which succeeds, and <code>-1</code> belongs to the empty string.</p></details>
+<details class="quiz"><summary>A function calls <code>try parse(text)</code> but has no <code>fails</code> clause. What happens?</summary>
+<p>It does not compile (BYN2604): the function cannot pass the error on because it says it cannot fail. Either add a <code>fails</code> clause or use <code>catch</code>. It does not panic at run time, and the compiler does not infer a public <code>fails</code> for you.</p></details>
+<details class="quiz"><summary>In <code>book-08-try</code>, the call <code>lineTotal("-3", by: 250) catch { … }</code> prints a message and then <code>return</code>s. Why does the program not print a total after it?</summary>
+<p>The block ends with <code>return</code>, which leaves <code>main</code>. The last <code>print</code> is after it. A block that fell through would have been refused, because there would be no value for <code>bad</code>.</p></details>
+<details class="quiz"><summary>What exit code does <code>book-08-main</code> give, and where does the text <code>Some orders were rejected.</code> go?</summary>
+<p>Exit code 3, from <code>@exitCode(3)</code> on the case; without it the code would be 1. The text is the case's doc comment and goes to standard error, not standard output.</p></details>
+<details class="quiz"><summary>You index a list with <code>xs[10]</code> and the list has 2 elements. Which of these can you write to recover? (a) <code>xs[10] catch 0</code> (b) <code>try xs[10]</code> (c) neither</summary>
+<p>(c). An out-of-range index is a panic, not an error. It has no <code>fails</code> clause to catch or to <code>try</code>. To recover, ask a question that can come back empty: <code>xs.tryGet(at: 10) ?? 0</code>.</p></details>

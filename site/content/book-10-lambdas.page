@@ -1,0 +1,215 @@
+title: 10. Lambdas, it and function types
+nav: Learn
+order: 1000
+template: docs
+---
+<p>A lambda is a small function written where you use it. You give it to another function, and that function calls it. In this chapter you will write a function that counts the numbers in a list that pass a test, and then hand it tests of every kind. Along the way you will meet the function type, the shorthand <code>it</code>, and the limits that keep lambdas cheap.</p>
+<p>The <a href="reading.html">Reading Bayan code</a> page shows <code>it</code> in one line. This chapter explains the rules behind it. You need parameters and particles from <a href="book-04-functions.html">chapter 4</a>, spans from <a href="book-07-collections.html">chapter 7</a> and error sets from <a href="book-08-errors.html">chapter 8</a>.</p>
+
+<h2 id="types">A function type</h2>
+<p>A function type says what goes in and what comes out, with an arrow: <code>i64 -&gt; bool</code> takes an <code>i64</code> and gives a <code>bool</code>. Several inputs go in parentheses: <code>(i64, i64) -&gt; i64</code>. A function with no inputs is <code>() -&gt; void</code>.</p>
+<p>A <code>type</code> line gives a function type a name. A parameter of that type is written like any other parameter, type first.</p>
+<pre><code class="byn">type Pred = i64 -&gt; bool
+
+i64 count(ReadOnlySpan&lt;i64&gt; xs, by Pred check) {
+    var n = 0
+    for x in xs {
+        if check(x) {
+            n += 1
+        }
+    }
+    return n
+}</code></pre>
+<p><code>count</code> walks the span and calls <code>check</code> on each element like any function. Without an alias, the function type goes in parentheses before the name: <code>by (i64 -&gt; i64) f</code>.</p>
+
+<h2 id="lambdas">Passing a lambda</h2>
+<p>A lambda is a parameter name, an arrow and an expression: <code>x =&gt; x % 3 == 0</code>. When the expected type is a one-parameter function, you may skip the name and write <code>it</code>. The compiler reads any argument that mentions <code>it</code> as a lambda whose parameter is called <code>it</code>.</p>
+<example name="book-10-pred"/>
+<p>Take the lines one at a time. <code>it &gt; 3</code> passes 4, 5 and 6, so <code>3</code>. <code>x =&gt; x % 3 == 0</code> passes 3 and 6, so <code>2</code>. <code>isEven</code> is an ordinary function with the right shape, and passes 2, 4 and 6, so <code>3</code>. The fourth line reads <code>limit</code>, a <code>let</code> from the enclosing function. Only 5 and 6 are above 4, so <code>2</code>. The last line stores a lambda in a local with a declared type and calls it.</p>
+<p>A lambda takes its parameter types and its result from the function type that is expected where it appears. That is why it has no type annotations.</p>
+
+<h3 id="shapes">More than one parameter, and block bodies</h3>
+<p>Two or more parameters go in parentheses. A body may be a block with its own <code>return</code>.</p>
+<example name="book-10-apply"/>
+<p><code>it * 2</code> on 5 is <code>10</code>. <code>(a, b) =&gt; a * b</code> on 3 and 4 is <code>12</code>. The block body doubles 5 and adds 1, so <code>11</code>. A <code>return</code> inside a lambda leaves the lambda, not the function around it.</p>
+
+<h2 id="named">Named functions as values</h2>
+<p>A module-level function can be passed by name when its signature matches the expected function type exactly. <code>isEven</code> above is one. Particles are not part of the type, so <code>bool atLeast(i64 x, by i64 d)</code> is an <code>(i64, i64) -&gt; bool</code>. A function with the wrong shape is refused and the message shows both.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `i64 -&gt; i64`, found `i64 shifted(i64, i64)`
+<span class="gut">  --&gt;</span> l7.byn:4:27
+
+<span class="gut">  4 │</span>     print($"{apply(5, by: shifted)}")
+<span class="gut">    │</span>                           <span class="hl">^^^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> pass a function of type `i64 -&gt; i64`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2202</span></pre>
+</figure>
+<p>Methods, constructors and generic functions cannot be passed by name. Wrap them in a lambda.</p>
+
+<h2 id="it">The rules for it</h2>
+<p><code>it</code> only exists in an argument position where a one-parameter function is expected. Anywhere else it is just an undefined name.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2001:</span> `it` is not defined
+<span class="gut">  --&gt;</span> l10.byn:2:28
+
+<span class="gut">  2 │</span>     let big: i64 -&gt; bool = it &gt; 3
+<span class="gut">    │</span>                            <span class="hl">^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> did you mean `Io`?
+<span class="gut">    │</span> 2 │     let big: i64 -&gt; bool = Io &gt; 3
+<span class="gut">    │   │</span>                            <span class="add">++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2001</span></pre>
+</figure>
+<p>A lambda cannot use <code>it</code> inside another lambda that already uses it. Name one of them.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2029:</span> `it` inside a lambda that already uses `it`; name one lambda
+<span class="gut">  --&gt;</span> l8.byn:3:41
+
+<span class="gut">  3 │</span>     print($"{apply(5, by: apply(it, by: it + 1))}")
+<span class="gut">    │</span>                                         <span class="hl">^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> name the inner lambda's parameter: `x =&gt; …`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2029</span></pre>
+</figure>
+<p>A leading dot is not shorthand for a member of the parameter. <code>.active</code> means a member of the expected type, as in <code>return .notFound</code>. The compiler tells you what you probably meant.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2823:</span> `.active` is a member, not a lambda
+<span class="gut">  --&gt;</span> l6.byn:7:31
+
+<span class="gut">  7 │</span>     print($"{any(us.span, by: .active)}")
+<span class="gut">    │</span>                               <span class="hl">^^^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> write `it.active`
+<span class="gut">    │</span> 7 │     print($"{any(us.span, by: it.active)}")
+<span class="gut">    │   │</span>                               <span class="add">++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2823</span></pre>
+</figure>
+
+<h2 id="mismatch">When the lambda does not fit</h2>
+<p>The lambda is checked against the function type it is given to. A wrong result type is refused at the body.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `bool`, found `i64`
+<span class="gut">  --&gt;</span> l11.byn:13:41
+
+<span class="gut">  13 │</span>     print($"{sumWhere(xs.span, by: x =&gt; x + 1)}")
+<span class="gut">     │</span>                                         <span class="hl">^^^^^</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2202</span></pre>
+</figure>
+<p>A wrong number of parameters is refused at the lambda.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2820:</span> this lambda takes 2 parameter(s) but `i64 -&gt; i64` takes 1
+<span class="gut">  --&gt;</span> l3.byn:3:27
+
+<span class="gut">  3 │</span>     print($"{apply(5, by: (a, b) =&gt; a + b)}")
+<span class="gut">    │</span>                           <span class="hl">^^^^^^^^^^^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> write 1 parameter name(s): `x =&gt; …`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2820</span></pre>
+</figure>
+<p>A lambda with no function type to learn from has nothing to take its types from.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2218:</span> `x =&gt; x + 1` needs a known type here
+<span class="gut">  --&gt;</span> l2.byn:2:13
+
+<span class="gut">  2 │</span>     let f = x =&gt; x + 1
+<span class="gut">    │</span>             <span class="hl">^^^^^^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> write the function type it has, such as `let f: i64 -&gt; i64 = x =&gt; x`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2218</span></pre>
+</figure>
+
+<h2 id="captures">What a lambda can read</h2>
+<p>A lambda may read a <code>let</code>, a constant, a loop variable or a parameter from around it. The value is copied when the lambda is made, which is why the fourth line of <code>book-10-pred</code> is safe: nothing can change <code>limit</code> afterwards.</p>
+<p>A <code>var</code> cannot be captured. A lambda that could see a variable change would make code hard to follow, so the compiler asks for a copy.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2821:</span> `total` cannot be captured: it is a `var`
+<span class="gut">  --&gt;</span> l4.byn:4:32
+
+<span class="gut">  4 │</span>     print($"{apply(5, by: it + total)}")
+<span class="gut">    │</span>                                <span class="hl">^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> copy it into a `let` first
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2821</span></pre>
+</figure>
+<p>The same rule covers <code>ref</code> parameters and <code>this</code>. If a lambda must update a counter, write the loop out, or pass the counter as a <code>ref</code> parameter to a function.</p>
+
+<h2 id="storing">Where a function type may go</h2>
+<p>A function type is allowed in three places: as a parameter type, as the target of a <code>type</code> alias and as the type of a local. It is not allowed as a field, a return type, a constant, a payload or an element of a list or map.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2822:</span> a function type is not supported as a field yet
+<span class="gut">  --&gt;</span> l5.byn:3:5
+
+<span class="gut">  3 │</span>     Pred check
+<span class="gut">    │</span>     <span class="hl">^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> take the function as a parameter instead
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2822</span></pre>
+</figure>
+<p>The help line gives the usual cure: take the function as a parameter on each call. A lambda is also a borrow of the function that made it, so it cannot outlive that function.</p>
+
+<h2 id="errors">Lambdas and errors</h2>
+<p>A function type can list the errors it may fail with, after the result: <code>string -&gt; i64 fails ParseError</code>. A lambda given to that type may fail too, and the caller of the lambda handles it as usual. Calling a failing function inside a lambda still needs <code>try</code> or <code>catch</code>.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2602:</span> `number` can fail; handle the error or pass it on
+<span class="gut">  --&gt;</span> l14.byn:20:42
+
+<span class="gut">  20 │</span>     let t2 = parseAll(bad.span, by: s =&gt; number(s)) catch -1
+<span class="gut">     │</span>                                          <span class="hl">^^^^^^^^^</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> propagate the error with `try`, or handle it with `catch`
+<span class="gut">     │</span> 20 │     let t2 = parseAll(bad.span, by: s =&gt; try number(s)) catch -1
+<span class="gut">     │    │</span>                                          <span class="add">++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2602</span></pre>
+</figure>
+<p>Add <code>try</code>, and the error flows out through the function type.</p>
+<example name="book-10-fails"/>
+<p>The first call passes <code>number</code> by name and sums 4 and 5, so <code>9</code>. The second list holds <code>"x"</code>, which fails, so <code>parseAll</code> fails and its caller falls back to <code>-1</code>. The first <code>catch 0</code> never runs.</p>
+
+<h2 id="planned">What is planned</h2>
+<note>Planned: not in the compiler yet. Collection methods that take a lambda, such as <code>where</code>, <code>select</code>, <code>sumBy</code> and <code>sort(by:)</code>, are in the specification. Today, you write the loop once as a function that takes a function type, as <code>count</code> does. Function types with a type parameter (<code>type Predicate&lt;T&gt;</code>), lambdas with typed parameters, <code>move</code> lambdas, lambdas that capture a <code>var</code> and stored function values are also not available.</note>
+<pre><code class="byn">let big = xs.where(it &gt; 3)
+let doubled = xs.select(x =&gt; x * 2)
+let total = lines.sumBy(it.price * it.qty)</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2003:</span> `where` is not a member of `List&lt;i64&gt;`
+<span class="gut">  --&gt;</span> l12.byn:3:17
+
+<span class="gut">  3 │</span>     let ys = xs.where(it &gt; 1)
+<span class="gut">    │</span>                 <span class="hl">^^^^^</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2003</span></pre>
+</figure>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>What does the last <code>print</code> in <code>book-10-pred</code> output, and why?</summary>
+<p><code>true false</code>. <code>small</code> is <code>x =&gt; x &lt; 3</code>. <code>small(2)</code> is true and <code>small(7)</code> is false. It is not <code>false true</code>, and it is not an error: a lambda can be stored in a local that has a declared function type.</p></details>
+<details class="quiz"><summary>You write <code>let f = x =&gt; x + 1</code> with no type. What happens?</summary>
+<p>BYN2218. A lambda takes its types from the function type expected where it appears, and a plain <code>let</code> gives none. Write <code>let f: i64 -&gt; i64 = x =&gt; x + 1</code>. It does not guess <code>i64</code> from the body.</p></details>
+<details class="quiz"><summary>Inside <code>main</code>, you have <code>var total = 0</code> and pass <code>it + total</code> to <code>apply</code>. Which is true? (a) It compiles and reads the current total. (b) It compiles and reads a copy. (c) It is refused.</summary>
+<p>(c). A lambda can capture a <code>let</code>, but a <code>var</code> is BYN2821. The fix is <code>let snapshot = total</code> and then using <code>snapshot</code>. Options (a) and (b) both assume a <code>var</code> can be captured.</p></details>
+<details class="quiz"><summary>In <code>book-10-apply</code>, the block-bodied lambda contains <code>return doubled + 1</code>. What does that <code>return</code> leave?</summary>
+<p>Only the lambda. <code>main</code> goes on and prints <code>11</code>, the value the lambda gave back. If the <code>return</code> left <code>main</code>, nothing would be printed for that line.</p></details>
+<details class="quiz"><summary>Can a struct have a field of type <code>i64 -&gt; bool</code>?</summary>
+<p>No. The compiler refuses it (BYN2822) because a function type may only be a parameter, a <code>type</code> alias target or a local. Take the function as a parameter on each call that needs it.</p></details>

@@ -1,0 +1,31 @@
+struct Pair<A, B> {
+    A first
+    B second
+
+    Pair<B, A> swapped(move B x, by move A y) => Pair<B, A> { first: move x, second: move y }
+}
+
+union Option<T> {
+    some(T value)
+    nothing
+}
+
+string show<T>(Option<T> o) => o switch {
+    .some(let v) => $"some {v}",
+    .nothing => "nothing",
+}
+
+Option<T> wrap<T>(move T x) => .some(move x)
+
+bool same<T>(T a, as T b) => a == b
+
+void main() {
+    let p = Pair<i64, string> { first: 1, second: "x" }
+    let q = p.swapped(p.second, by: p.first)
+    print($"{p.first} {p.second} / {q.first} {q.second}")
+    let a = wrap("hi")
+    let b: Option<i64> = .nothing
+    print($"{show(a)} {show(b)}")
+    print($"{same(1, as: 1)} {same("a", as: "b")}")
+    print($"{same<i64>(2, as: 3)}")
+}
