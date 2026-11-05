@@ -1,27 +1,19 @@
-// A subcommand is the first argument; an unknown one is an error value, not an exception.
 union error CliError {
-    /// No subcommand was given.
     missing
-    /// The first argument names nothing.
     unknown
 }
-
 string run(ReadOnlySpan<string> args) fails CliError {
     fail .missing if args.length == 0
     if args[0] == "greet" { return "hello" }
     if args[0] == "add" && args.length == 3 {
-        let a = i64.tryParse(args[1]) ?? 0
-        let b = i64.tryParse(args[2]) ?? 0
-        return $"{a + b}"
+        return $"{(i64.tryParse(args[1]) ?? 0) + (i64.tryParse(args[2]) ?? 0)}"
     }
     fail .unknown
 }
-
 string describe(ReadOnlySpan<string> args) => run(args) catch switch {
     .missing => "usage: tool <greet|add>",
     .unknown => "unknown subcommand",
 }
-
 void main() {
     let add: string[3] = ["add", "2", "40"]
     let bad: string[1] = ["frobnicate"]

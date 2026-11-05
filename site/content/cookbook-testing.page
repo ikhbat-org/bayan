@@ -12,16 +12,16 @@ template: docs
 <p>Running <code>bayan test cookbook-testing-unit.byn</code> prints:</p>
 <pre><code class="other" data-lang="bayan test">running 5 tests in 1 module
 
-◆ 5 passed · 0.42s</code></pre>
+◆ 5 passed · 4.19s</code></pre>
 <p>Change <code>assert n == 50</code> to <code>assert n == 51</code> and the failure shows the values:</p>
-<pre><code class="other" data-lang="bayan test">  ✗ tc: accepts the middle
+<pre><code class="other" data-lang="bayan test">  ✗ t2b: accepts the middle
       assert n == 51
              │ │
              │ false
              50
-      cookbook-testing-unit.byn:17
+      cookbook-testing-unit.byn:12
 
-◆ 4 passed · ✗ 1 failed · 0 pending · 0.47s
+◆ 4 passed · ✗ 1 failed · 0 pending · 3.13s
   rerun the failure: bayan test --only "accepts the middle"</code></pre>
 <pre><code class="other" data-lang="Python">def test_check_percent():
     with pytest.raises(RangeError):
