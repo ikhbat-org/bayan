@@ -1,0 +1,17 @@
+public i64 add(i64 a, to i64 b) => a + b
+
+public void say(string text) uses console {
+    print(text)
+}
+
+public i64 count(i64 n) uses alloc {
+    let xs: List<i64> = [n, n]
+    return xs.length
+}
+
+void helper() {
+    print("inferred")
+}
+
+say($"{add(1, to: 2)} {count(4)}")
+helper()

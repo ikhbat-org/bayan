@@ -1,0 +1,99 @@
+title: Memory model
+nav: Reference
+order: 60
+template: docs
+---
+<p>Bayan has no garbage collector and no lifetimes in the syntax. Values live on the stack, in an allocator, or inside another value. The compiler checks ownership and borrowing.</p>
+
+<h2 id="allocators">Allocators</h2>
+<ul>
+  <li>Lists, maps and strings that grow allocate from the current allocator. A function that allocates declares <code>uses alloc</code> (see <a href="ref-effects.html">Effects</a>).</li>
+  <li><code>Arena()</code> is an allocator that frees everything at once. Create it with <code>var</code>. <code>reset()</code> on a <code>let</code> is BYN2104.</li>
+  <li><code>provide allocator: arena { … }</code> makes the arena the allocator for the block.</li>
+</ul>
+<example name="ref-memory-arena"/>
+
+<h2 id="ownership">Ownership</h2>
+<ul>
+  <li>A <code>List</code> has one owner. Assigning it to a second name is a compile error (BYN2780) and the help suggests <code>move</code>.</li>
+  <li><code>move a</code> hands the value over. Using <code>a</code> afterwards is BYN2781.</li>
+  <li>A parameter marked <code>move</code> takes ownership. Call it as <code>f(move a)</code>.</li>
+  <li><code>take()</code> moves a field out and leaves it empty. It works on collections, not on structs (BYN2788).</li>
+  <li><code>copy()</code> makes an independent owned value.</li>
+</ul>
+<example name="ref-memory-move"/>
+<pre><code class="byn">var a: List&lt;i64&gt; = [1]
+a.append(2)
+let b = a
+print($"{b.length}")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2780:</span> implicit copy of a unique value: `List&lt;i64&gt;` is unique: it owns its storage
+  --&gt; mm-implicit.byn:3:9
+
+<span class="gut">  3 │</span> let b = a
+<span class="gut">    │</span>         <span class="hl">^</span>
+<span class="gut">    │</span>
+  help: hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass
+        it by `ref` to share it instead
+<span class="gut">    │</span> 3 │ let b = move a
+<span class="gut">    │</span>   │         +++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">var a: List&lt;i64&gt; = [1]
+a.append(2)
+let b = move a
+print($"{a.length}")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2781:</span> `a` is used after it was moved
+  --&gt; mm-moved.byn:4:10
+
+<span class="gut">  4 │</span> print($"{a.length}")
+<span class="gut">    │</span>          <span class="hl">^ moved on line 3</span>
+<span class="gut">    │</span>
+  help: assign `a` a new value before using it again, or move a `.copy(to: alloc)` of it instead</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">struct P { i64 x }
+var p = P { x: 1 }
+p.x = 2
+let q = p.take()</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2788:</span> `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `P`
+  --&gt; mm-take.byn:4:11
+
+<span class="gut">  4 │</span> let q = p.take()
+<span class="gut">    │</span>           <span class="hl">^^^^</span>
+<span class="gut">    │</span>
+  help: copy it, or move the whole local; only an owned collection or optional has an empty value to
+        leave behind</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="borrowing">Borrowing</h2>
+<ul>
+  <li>A slice such as <code>s[1..3]</code> or <code>xs.span</code> borrows from its owner. It owns nothing.</li>
+  <li>While a borrow is still used, changing the owner is BYN3004.</li>
+  <li><code>copy()</code> turns a borrowed slice into an owned value.</li>
+</ul>
+<example name="ref-memory-borrow"/>
+<pre><code class="byn">var xs: List&lt;i64&gt; = [1, 2, 3]
+let s = xs.span
+xs.append(4)
+print($"{s.length}")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN3004:</span> `xs` is modified while `s` still borrows it
+  --&gt; mm-borrow.byn:3:1
+
+<span class="gut">  3 │</span> xs.append(4)
+<span class="gut">    │</span> <span class="hl">^^^^^^^^^^^^ `s` is used again on line 4</span>
+<span class="gut">    │</span>
+  help: finish using `s` first, or copy what it needs before changing `xs`</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="planned">Planned</h2>
+<note>Planned: not in the compiler yet. <code>stackalloc u8[16] uninit</code> is BYN1005. <code>Pool</code> and <code>Handle</code> are BYN2002.</note>
+<pre><code class="byn">let buf = stackalloc u8[16] uninit
+Pool&lt;Node&gt; nodes
+</code></pre>
+<p>The specification also describes bounds checks, <code>unsafe</code> regions and an optional collector. These were not tried here.</p>

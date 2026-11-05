@@ -1,0 +1,8 @@
+struct Line {
+    string name
+    i64 qty
+}
+
+let a = Line { name: "pen", qty: 2 }
+let b = a with { qty: 5 }
+print($"{a.qty} {b.qty} {a == b} {a == Line { name: "pen", qty: 2 }}")

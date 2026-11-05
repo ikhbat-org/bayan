@@ -1,0 +1,16 @@
+outer: for r in 0..3 {
+    for c in 0..3 {
+        if c == 2 { continue outer }
+        if r == 2 { break outer }
+        print($"{r}{c}")
+    }
+}
+var k = 0
+while k < 3 { k++ }
+do { k-- } while k > 0
+print($"{k}")
+let opt: i64? = 4
+while let x = opt {
+    print($"{x}")
+    break
+}
