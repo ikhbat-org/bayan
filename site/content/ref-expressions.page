@@ -1,0 +1,238 @@
+title: Expressions
+nav: Reference
+order: 40
+template: docs
+---
+<p>This page covers operators, conversions, target-typed literals, copy-and-update, patterns, interpolation, equality, error handling inside expressions and <code>except</code>. Each rule is checked against the compiler. Features it does not have yet are marked as planned.</p>
+
+<h2 id="operators">Operators</h2>
+<p>Operators and precedence are the ones C programmers know. Bayan adds the ones in this table.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Operator</th><th scope="col">Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>+% -% *%</code></td><td>Wrapping arithmetic.</td></tr>
+    <tr><td><code>+| -| *|</code></td><td>Saturating arithmetic.</td></tr>
+    <tr><td><code>a..b</code>, <code>a..=b</code></td><td>Range, end excluded or included.</td></tr>
+    <tr><td><code>^n</code></td><td>Index counted from the end.</td></tr>
+    <tr><td><code>x in a..=b</code></td><td>Boolean range test.</td></tr>
+    <tr><td><code>x ?? y</code></td><td>Fallback when <code>x</code> is null. <code>?? return</code>, <code>?? break</code>, <code>?? continue</code> and <code>?? fail</code> leave early.</td></tr>
+    <tr><td><code>! && ||</code> or <code>not and or</code></td><td>Boolean operators, two spellings. A project picks one with <code>style.booleans</code>, and <code>bayan format</code> rewrites to it.</td></tr>
+  </tbody>
+</table></div>
+<ul>
+  <li>Plain <code>+ - *</code> stop the program on overflow in every build mode: <code>panic: arithmetic overflow</code>.</li>
+  <li>Integer division and <code>%</code> round toward zero: <code>-7 / 2</code> is <code>-3</code> and <code>-7 % 3</code> is <code>-1</code>.</li>
+  <li>A range in a slice may leave out an end: <code>xs[..2]</code>, <code>xs[2..]</code>.</li>
+  <li>An integer mixed with a wider integer widens. An integer mixed with a float is an error (BYN2208).</li>
+  <li>The ternary <code>c ? a : b</code> exists. A ternary inside a collection literal needs parentheses.</li>
+  <li>You cannot define operators. Operator overloading is not in the compiler.</li>
+  <li><code>with</code> binds looser than every prefix operator, so <code>move tx with { … }</code> is <code>(move tx) with { … }</code>.</li>
+</ul>
+<example name="ref-expressions-operators"/>
+<pre><code class="byn">let a: f64 = 2.5
+let b: i64 = 2
+let c = a + b</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2208:</span> `+` cannot be applied to `f64` and `i64`
+  --&gt; x-mixed.byn:3:9
+
+<span class="gut">  3 │</span> let c = a + b
+<span class="gut">    │</span>         <span class="hl">^^^^^</span>
+<span class="gut">    │</span>
+  help: convert one side explicitly, e.g. `(i64)…`; mixed signedness never converts implicitly</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<note>The help text of BYN2208 suggests <code>(i64)…</code>. That C-style cast is not Bayan. Write <code>f64(b)</code>.</note>
+
+<h2 id="casts">Casts and conversions</h2>
+<p>A conversion is a call on the target type. The C cast <code>(T)x</code> is rejected (BYN1057).</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Conversion</th><th scope="col">Rule</th></tr></thead>
+  <tbody>
+    <tr><td>Lossless widening</td><td>Implicit.</td></tr>
+    <tr><td>Narrowing, <code>u8(x)</code></td><td>Explicit. Panics if the value does not fit.</td></tr>
+    <tr><td><code>u8.tryFrom(x)</code></td><td><code>u8?</code>, null when it does not fit.</td></tr>
+    <tr><td>Float to integer, <code>i64(2.9)</code></td><td>Drops the fraction.</td></tr>
+    <tr><td>Text to integer</td><td><code>i64.tryParse(text)</code> gives <code>i64?</code>.</td></tr>
+    <tr><td>Anything to text</td><td><code>$"{x}"</code> or <code>string(x)</code>. There is no <code>toString()</code> (BYN2031).</td></tr>
+    <tr><td>List or array to span</td><td>Implicit when passed as an argument. Elsewhere <code>xs.span</code>.</td></tr>
+    <tr><td>User-defined implicit conversions</td><td>Not allowed.</td></tr>
+  </tbody>
+</table></div>
+<pre><code class="byn">let n = 5
+print(n.toString())</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2031:</span> Bayan has no `toString()`; display is `format()` (derived from
+`formatInto(ref StrBuf)`)
+  --&gt; x-tostring.byn:2:9
+
+<span class="gut">  2 │</span> print(n.toString())
+<span class="gut">    │</span>         <span class="hl">^^^^^^^^ not a Bayan method</span>
+<span class="gut">    │</span>
+  help: call `format()`, or interpolate the value: `$"{x}"`
+<span class="gut">    │</span> 2 │ print(n.format())
+<span class="gut">    │</span>   │         ++++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<p>Examples of each numeric conversion are in <a href="ref-types.html#numbers">Types</a>.</p>
+<note>Planned: <code>x.truncate&lt;u8&gt;()</code>, <code>bitcast&lt;T&gt;(x)</code>, <code>checked(expr)</code>, <code>IFrom</code>/<code>ITryFrom</code> for user types and the <code>Radix</code> forms <code>string(n, as: .hex)</code> and <code>tryParse(text, as: .hex)</code> are in the specification. Test them before relying on them. Use <code>$"{n, as: .hex}"</code> for hex output.</note>
+
+<h2 id="target-typed">Target-typed literals</h2>
+<p><code>[…]</code>, <code>["k": v]</code>, <code>{ f: v }</code> and <code>.member</code> take their type from the place they appear: a variable's type, a parameter, a return type. A literal with no type to take is an error. A <code>.member</code> that the expected type does not have is BYN2003.</p>
+<ul>
+  <li>Fields are always set with <code>:</code>: <code>Money { cents: 250 }</code>, <code>with { qty: 5 }</code>, <code>take: 10</code>.</li>
+  <li>A <code>{</code> at the start of a statement is a block.</li>
+  <li>If more than one overload accepts a target-typed literal, it is an error and never a silent pick.</li>
+</ul>
+<pre><code class="byn">void show(i64 x) { print("i") }
+let c: i64 = .red</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2003:</span> `red` is not a member of `i64`
+  --&gt; x-ambig.byn:2:15
+
+<span class="gut">  2 │</span> let c: i64 = .red
+<span class="gut">    │</span>               <span class="hl">^^^</span></pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="with">Copy-and-update</h2>
+<p><code>a with { qty: 5 }</code> is a copy of <code>a</code> with the listed fields replaced. It is the only copy-with-changes form. If the type has a <code>requires</code> rule, the copy is checked again. A <code>@sealed</code> struct, or one with <code>requires</code>, can be changed from outside only this way.</p>
+<example name="ref-expressions-with"/>
+
+<h2 id="patterns">Patterns</h2>
+<p>A pattern tests a value and may bind parts of it. Patterns appear after <code>is</code>, in <code>case</code> arms, in <code>for</code> heads and after <code>except</code>.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Pattern</th><th scope="col">Matches</th></tr></thead>
+  <tbody>
+    <tr><td><code>500</code>, <code>"text"</code>, <code>null</code></td><td>A constant.</td></tr>
+    <tr><td><code>500..=599</code></td><td>A range.</td></tr>
+    <tr><td><code>.high</code></td><td>An enum value or union case.</td></tr>
+    <tr><td><code>.rect(let w, let h)</code>, <code>.circle c</code></td><td>A union case, binding its payload by position or the whole case by name.</td></tr>
+    <tr><td><code>let n</code>, <code>var n</code>, <code>_</code></td><td>Anything, binding it or not. Such an arm covers every case.</td></tr>
+    <tr><td><code>a or b</code>, <code>a and b</code>, <code>not a</code></td><td>Combinations. Patterns use words only.</td></tr>
+    <tr><td><code>(3, let w)</code></td><td>A tuple.</td></tr>
+    <tr><td><code>case let n when n &gt; 5</code></td><td>A guard. An arm with a guard never counts toward exhaustiveness.</td></tr>
+  </tbody>
+</table></div>
+<ul>
+  <li><code>switch</code> over a union, an enum or a <code>bool</code> must cover every case (BYN2410).</li>
+  <li>Type patterns apply only to <code>dyn</code> values and unions.</li>
+</ul>
+<example name="ref-expressions-patterns"/>
+<note>Planned: list patterns with slices (<code>[var first, .. var rest]</code>, BYN2022), the string prefix pattern (<code>"/api/v1/" + var rest</code>), property patterns, <code>switch</code> as an expression whose arms give values, and named patterns (<code>const inactive = pattern Line { … }</code>). Today an arm of <code>switch</code> is a statement.</note>
+
+<h2 id="interpolation">Interpolation</h2>
+<p><code>$"…{expr}…"</code> writes the value of each hole into the string. A format option is a named argument inside the hole.</p>
+<ul>
+  <li><code>as: .hex</code> writes an integer in hexadecimal, lowercase and without a prefix.</li>
+  <li><code>width: 6</code> pads to six characters. <code>fill: '0'</code> chooses the padding character.</li>
+  <li><code>digits: 2</code> sets the digits after the point of a float.</li>
+  <li><code>as: .debug</code> writes a struct in its literal form.</li>
+  <li>Floats print the shortest digits that read back to the same value. Fixed notation is used from <code>1e-5</code> up to below <code>1e15</code>, exponent form outside that, lowercase and with no <code>+</code>. A whole value prints with no point: <code>1.0</code> prints <code>1</code>.</li>
+  <li>A distinct type is written as its underlying value. A payload-free union case is written as its name. An error is written as its doc-comment summary.</li>
+  <li>A struct has no default display (BYN2225). Give it a <code>formatInto</code> or write <code>{x, as: .debug}</code>.</li>
+  <li>Lists and maps cannot be interpolated either (BYN2225). Loop over them.</li>
+  <li>The compact forms <code>{n:hex}</code> and <code>{x:.2}</code> are rejected (BYN1068).</li>
+</ul>
+<example name="ref-expressions-interpolation"/>
+<pre><code class="byn">struct P { i64 x }
+let p = P { x: 1 }
+print($"{p}")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2225:</span> `P` cannot be formatted
+  --&gt; x-structfmt.byn:3:10
+
+<span class="gut">  3 │</span> print($"{p}")
+<span class="gut">    │</span>          <span class="hl">^</span>
+<span class="gut">    │</span>
+  help: add `formatInto(ref StrBuf)` to `P`, or use `{x, as: .debug}`</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="equality">Equality</h2>
+<ul>
+  <li><code>==</code> and <code>!=</code> are derived for every struct whose fields all support them. They compare field by field.</li>
+  <li><code>&lt; &lt;= &gt; &gt;=</code> work on numbers, runes, strings and <code>Symbol</code>s. A bare generic <code>T</code> has no <code>&gt;</code> (BYN2743).</li>
+  <li>A distinct type compares only with the same distinct type.</li>
+  <li>Strings compare byte by byte.</li>
+  <li>Null is tested with <code>is null</code> and <code>is not null</code>. <code>x == null</code> is BYN2027.</li>
+  <li>Comparing against a partial struct literal is a lint, since the missing fields take their defaults. Use <code>is</code>.</li>
+</ul>
+<pre><code class="byn">let s: string? = null
+if s == null { print("x") }</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2027:</span> compare with `is null` / `is not null`, not `==`
+  --&gt; x-nullcmp.byn:2:4
+
+<span class="gut">  2 │</span> if s == null { print("x") }
+<span class="gut">    │</span>    <span class="hl">^^^^^^^^^</span>
+<span class="gut">    │</span>
+  help: write `s is null`
+<span class="gut">    │</span> 2 │ if s is null { print("x") }
+<span class="gut">    │</span>   │      ++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="catch">try and catch</h2>
+<p>These operators handle a failure inside an expression. The error sets and <code>fail</code> are explained in <a href="errors.html">Errors</a> and <a href="ref-types.html#error-sets">Types</a>.</p>
+<ul>
+  <li><code>try f()</code> passes a failure to the caller. The caller must list the error in its <code>fails</code> clause.</li>
+  <li><strong><code>try</code> covers the whole expression to its right.</strong> To apply it to a part, wrap that part in parentheses: <code>(try f()) * 2</code>. Otherwise BYN1054.</li>
+  <li><code>f() catch v</code> gives <code>v</code> when <code>f</code> fails.</li>
+  <li><code>f() catch switch { … }</code> handles each case. It must cover every case.</li>
+  <li><code>f() catch { … }</code> runs a block. When <code>f</code> returns a value, the block must end in <code>return</code>, <code>break</code>, <code>continue</code> or a panic (BYN2611).</li>
+  <li><code>fail .x</code> leaves with an error and <code>return</code> always returns a value. <code>fail .x if cond</code> and <code>x ?? fail .x</code> follow the postfix rules.</li>
+</ul>
+<example name="ref-expressions-catch"/>
+<pre><code class="byn">union error Bad {
+    nan
+}
+i64 parse(string s) fails Bad =&gt; i64.tryParse(s) ?? fail Bad.nan
+i64 twice(string s) fails Bad =&gt; try parse(s) * 2
+print("x")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN1054:</span> `try` covers `parse(s) * 2`, which cannot fail
+  --&gt; x-trymid.byn:5:38
+
+<span class="gut">  5 │</span> i64 twice(string s) fails Bad =&gt; try parse(s) * 2
+<span class="gut">    │</span>                                      <span class="hl">^^^^^^^^^^^^ cannot fail</span>
+<span class="gut">    │</span>
+  help: wrap the part that fails in parentheses: `(try parse(s))`
+<span class="gut">    │</span> 5 │ i64 twice(string s) fails Bad =&gt; (try parse(s)) * 2
+<span class="gut">    │</span>   │                                  +++++++++++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">union error Bad {
+    nan
+}
+i64 parse(string s) fails Bad =&gt; i64.tryParse(s) ?? fail Bad.nan
+let n = parse("x") catch { print("bad") }</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2611:</span> this `catch` block can complete normally; end it with `return`, `break`, `continue`
+or a panic
+  --&gt; x-catchfall.byn:5:41
+
+<span class="gut">  5 │</span> let n = parse("x") catch { print("bad") }
+<span class="gut">    │</span>                                         <span class="hl">^</span>
+<span class="gut">    │</span>
+  help: leave the block instead of falling through; `parse` returns a value</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<note>Planned: <code>f() catch (Set.variant) value</code>, which handles some cases and passes the rest on, is in the specification and was not checked here.</note>
+
+<h2 id="except">except</h2>
+<p><code>except</code> subtracts a pattern from a sequence, a set or an error set. It takes patterns only. A boolean expression after it is BYN1052, and <code>case _ except .draft</code> is BYN1051 with a fix to <code>case not .draft</code>. A line that starts with <code>except</code> continues the previous statement.</p>
+<p>On an error set it works today. The example is in <a href="ref-types.html#error-sets">Error sets</a>. On a sequence it does not.</p>
+<pre><code class="byn">let xs: List&lt;i64&gt; = [1, 2]
+for x in xs except 1 { print("x") }</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2022:</span> this expression is not supported in v0.1
+  --&gt; x-except.byn:2:10
+
+<span class="gut">  2 │</span> for x in xs except 1 { print("x") }
+<span class="gut">    │</span>          <span class="hl">^^^^^^^^^</span></pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">for line in order.lines except inactive { … }
+let present = users except null</code></pre>
+<note>Planned: <code>except</code> on a sequence is not in the compiler yet (BYN2022). Use a <code>for</code> loop with <code>continue</code>.</note>

@@ -1,0 +1,206 @@
+title: Statements
+nav: Reference
+order: 45
+template: docs
+---
+<p>This page covers bindings, conditionals, postfix forms, loops, <code>switch</code>, cleanup with <code>defer</code>, and the checks <code>requires</code> and <code>expects</code>. Attributes before a statement are rejected, except <code>@unobservable</code> in tests (BYN1016, BYN1069).</p>
+
+<h2 id="bindings">Bindings</h2>
+<ul>
+  <li><code>let</code> is immutable, <code>var</code> is mutable, <code>const</code> is a compile-time value. Assigning to a <code>let</code> is BYN2104, and the help shows <code>var</code>.</li>
+  <li>Parameters are immutable. To change one, copy it into a <code>var</code>.</li>
+  <li>A <code>var</code> that is never reassigned gets a warning that suggests <code>let</code> (BYN2311).</li>
+  <li>A local puts the name first: <code>let w: Grams = 0g</code>. A declaration puts the type first. <code>Grams w = 0g</code> in a body is rejected with a fix (BYN1043).</li>
+  <li><strong>Shadowing</strong> with <code>let</code> in the same scope is allowed when the type changes. Shadowing with the same type is a warning (BYN2028).</li>
+  <li>A loop variable is a fresh <code>let</code> for each step.</li>
+</ul>
+<example name="ref-statements-bindings"/>
+<pre><code class="byn">let a = 5
+a = 6</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2104:</span> `a` is immutable
+  --&gt; st-lett.byn:2:1
+
+<span class="gut">  2 │</span> a = 6
+<span class="gut">    │</span> <span class="hl">^ declared with `let` on line 1</span>
+<span class="gut">    │</span>
+  help: declare it with `var` if it should change
+<span class="gut">    │</span> 1 │ var a = 5
+<span class="gut">    │</span>   │ +++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">void f(i64 p) { p = 3 }
+f(1)</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2104:</span> `p` is immutable
+  --&gt; st-param.byn:1:17
+
+<span class="gut">  1 │</span> void f(i64 p) { p = 3 }
+<span class="gut">    │</span>                 <span class="hl">^ parameters are immutable</span>
+<span class="gut">    │</span>
+  help: copy it into a local `var`, or take it by `ref` if the caller's value should change</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">let x = 1
+let x = 3
+print("x")</code></pre>
+<figure class="diag">
+<pre>◆ checked st-shadow in 0.00s
+<span class="err">warning BYN2028:</span> `x` shadows an earlier `x` of the same type `i32`
+  --&gt; st-shadow.byn:2:5
+
+<span class="gut">  2 │</span> let x = 3
+<span class="gut">    │</span>     <span class="hl">^ `x` is declared on line 1</span>
+<span class="gut">    │</span>
+  help: use the first one, or rename this one to say how it differs</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="conditionals">Conditionals</h2>
+<ul>
+  <li>A condition has no parentheses and a body always has braces. Parentheses only group.</li>
+  <li><code>if … else if … else</code> works as expected.</li>
+  <li><code>unless cond { … }</code> runs the block when the condition is false. It has no <code>else</code>. <code>unless not x</code> and <code>unless !x</code> are BYN1007, because they are double negatives. Write <code>if x</code>.</li>
+  <li><code>if never cond { … }</code> panics if the condition is true, in every build mode. It states a fact the program relies on.</li>
+  <li><code>if unlikely cond { … }</code> is a hint that the block is cold. It changes nothing else.</li>
+  <li>Null checks are <code>is null</code> and <code>is not null</code>. After <code>is not null</code> the value has its non-null type.</li>
+  <li>A <code>switch</code> has no fall-through. A section may end with <code>break</code>, but does not need to. Join labels with <code>or</code>: <code>case 1 or 2:</code>. <code>goto case</code> does not exist.</li>
+</ul>
+<example name="ref-statements-conditionals"/>
+<pre><code class="byn">let a = true
+print("x") unless not a</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN1007:</span> `unless` with a negated condition is a double negative
+  --&gt; st-unless.byn:2:12
+
+<span class="gut">  2 │</span> print("x") unless not a
+<span class="gut">    │</span>            <span class="hl">^^^^^^^^^^^^ `unless` already negates</span>
+<span class="gut">    │</span>
+  help: use `if` with the condition as written
+<span class="gut">    │</span> 2 │ print("x") if a
+<span class="gut">    │</span>   │            ++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<note>Planned: the hint <code>if unlikely</code> is in the specification and was not checked here. <code>if let x = e</code> is deferred in the specification. <code>while let</code> exists.</note>
+
+<h2 id="postfix">Postfix modifiers</h2>
+<p>A single simple statement may end with <code>if</code> or <code>unless</code>. The simple statements are <code>return</code>, <code>fail</code>, <code>break</code>, <code>continue</code>, <code>panic</code>, one call, one assignment and <code>++</code>/<code>--</code>.</p>
+<ul>
+  <li>The condition is evaluated first. The statement runs only if it holds.</li>
+  <li>The modifier must be on the same line as the statement (BYN1042).</li>
+  <li>A block cannot take a modifier, and modifiers do not chain.</li>
+  <li><code>stmt unless not cond</code> is BYN1007. Write <code>stmt if cond</code>.</li>
+</ul>
+<pre><code class="byn">return if n &lt; 0
+fail .outOfStock if line.qty &gt; stock
+let user = users.find(id) ?? fail .unknownUser
+print("slow") unless fast</code></pre>
+
+<h2 id="loops">Loops</h2>
+<ul>
+  <li><code>for i in 0..n</code> counts from 0 up to but not including <code>n</code>. <code>0..=n</code> includes <code>n</code>.</li>
+  <li><code>for x in xs</code> walks a list, a span, an array, a string's <code>runes</code> or <code>bytes</code>, or a map.</li>
+  <li><code>for (key, value) in map</code> takes a tuple apart in the head. This is the one place a tuple is destructured.</li>
+  <li><code>for x: T in xs</code> gives the loop variable a type. <code>for T x in xs</code> is BYN1043.</li>
+  <li><code>while cond</code> and <code>do { … } while cond</code> work as usual.</li>
+  <li><code>while let x = e</code> loops while <code>e</code> (a <code>T?</code>) is not null, binding <code>x</code>.</li>
+  <li>A label goes before the loop: <code>outer: for …</code>. <code>break outer</code> and <code>continue outer</code> use it. This is the only way out of nested loops, since <code>goto</code> does not exist (BYN1010).</li>
+  <li><code>for try x in seq</code> and <code>while try cond</code> are loops whose steps can fail. Failures pass to the caller. Iterating a fallible sequence without <code>try</code> is BYN2221 with a fix.</li>
+</ul>
+<example name="ref-statements-loops"/>
+<pre><code class="byn">goto done</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN1010:</span> `goto` does not exist in Bayan
+  --&gt; st-goto.byn:1:1
+
+<span class="gut">  1 │</span> goto done
+<span class="gut">    │</span> <span class="hl">^^^^ not a keyword in Bayan</span>
+<span class="gut">    │</span>
+  help: label the loop (`outer: for x in xs { … }`) and use `break outer` to leave it early
+<span class="gut">    │</span> 1 │ break done
+<span class="gut">    │</span>   │ +++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<note>Planned: <code>for x in xs except pattern</code> (BYN2022), <code>xs.indexed()</code>, and tuple destructuring with <code>let (a, b)</code>. Lazy queries and readers for <code>for try</code> are also not in the specification's first version.</note>
+
+<h2 id="defer">Cleanup: defer</h2>
+<ul>
+  <li><code>defer stmt</code> runs the statement when the scope ends, however it ends.</li>
+  <li><code>defer failing stmt</code> runs only if the function exits by failing. It is allowed only in a function with a <code>fails</code> clause (BYN2606).</li>
+  <li><code>defer panicking stmt</code> runs only while a panic is in progress.</li>
+  <li>Deferred statements run in reverse order of registration. They cannot fail, so no <code>try</code> inside.</li>
+  <li>A panic does not unwind. On a panic only <code>defer panicking</code> handlers run. Plain <code>defer</code> and <code>defer failing</code> do not.</li>
+  <li>A <code>unique</code> value is cleaned up once, when its owner goes away. There is no <code>using</code>.</li>
+  <li>A postfix <code>if</code> on a deferred statement is decided when the <code>defer</code> is registered, not at exit.</li>
+</ul>
+<example name="ref-statements-defer"/>
+<pre><code class="byn">void f() {
+    defer failing print("x")
+}
+f()</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2606:</span> `defer failing` in a function that cannot fail
+  --&gt; st-deferfail.byn:2:5
+
+<span class="gut">  2 │</span>     defer failing print("x")
+<span class="gut">    │</span>     <span class="hl">^^^^^^^^^^^^^</span>
+<span class="gut">    │</span>
+  help: remove `failing` to run it on every exit, or add a `fails` clause to the function</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<note>Planned: <code>defer panicking</code> and the process-wide <code>Panic.handler</code> were not checked here.</note>
+
+<h2 id="requires">Validation: requires</h2>
+<p>On a type or a field, <code>requires</code> is checked when a value is built. A value of that type cannot exist in an invalid state.</p>
+<ul>
+  <li>In a field's <code>requires</code>, <code>it</code> is the value being checked. Each <code>requires</code> line is its own rule.</li>
+  <li>A distinct type takes a rule too: <code>type distinct Count = i64 requires it &gt; 0</code>.</li>
+  <li>Building such a value, with a literal or a call, can fail. Write <code>try</code>, and the enclosing function declares <code>fails ValidationError&lt;T&gt;</code>. Handle it with <code>catch</code> or <code>catch switch { .invalid e => … }</code>.</li>
+  <li>The error always names its type: <code>ValidationError&lt;User&gt;</code>. A bare <code>ValidationError</code> is BYN2023.</li>
+  <li>Fields of such a struct cannot be set one at a time (BYN3208). Use <code>with</code>, which checks again.</li>
+  <li>A type with <code>requires</code> has no default value.</li>
+</ul>
+<example name="ref-statements-requires"/>
+<pre><code class="byn">type distinct Count = i64 requires it &gt; 0
+let c = try Count(3) catch Count(1)</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2605:</span> `catch` needs a call that can fail
+  --&gt; st-tryscript.byn:2:13
+
+<span class="gut">  2 │</span> let c = try Count(3) catch Count(1)
+<span class="gut">    │</span>             <span class="hl">^^^^^^^^</span></pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<note>In a script, <code>try Count(3)</code> at the top level is BYN2605, because the top level has no <code>fails</code> clause. Put the construction in a function. The example above ends at <code>return</code> at the top level, so the last line is never printed.</note>
+<note>Planned: <code>requires it.matches(re)</code> (needs a regex library), <code>T.rules</code> as data, <code>T.Patch</code> and <code>complete()</code>, <code>at .field</code> on a struct-level rule, and decoders that collect every violation. The error carries no message text.</note>
+
+<h2 id="expects">Preconditions: expects</h2>
+<p>A function states a relation between its parameters with <code>expects</code>. A violation is a bug and panics in every build mode with <code>contract violated: …</code>. A constant argument that violates it is a compile error (BYN2321). <code>requires</code> on a function is rejected in favour of <code>expects</code> (BYN1063). An <code>expects</code> that reads only one parameter gets a warning that suggests a type with <code>requires</code> (BYN5011).</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col"></th><th scope="col">Type with <code>requires</code></th><th scope="col"><code>expects</code></th></tr></thead>
+  <tbody>
+    <tr><td>Purpose</td><td>Validating data</td><td>A contract between programmers</td></tr>
+    <tr><td>On violation</td><td>Fails, and the caller can recover</td><td>Panics</td></tr>
+    <tr><td>Checked</td><td>Once, at construction</td><td>Every call</td></tr>
+  </tbody>
+</table></div>
+<pre><code class="byn">i64 gap(i64 a, to i64 b) expects a &lt;= b =&gt; b - a</code></pre>
+<pre><code class="byn">i64 gap(i64 a, to i64 b) expects a &lt;= b =&gt; b - a
+print($"{gap(9, to: 5)}")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2321:</span> `9` violates `requires a &lt;= b` of `gap`
+  --&gt; st-contract.byn:2:14
+
+<span class="gut">  2 │</span> print($"{gap(9, to: 5)}")
+<span class="gut">    │</span>              <span class="hl">^ fails the contract</span>
+<span class="gut">    │</span>
+  help: pass a value that meets `requires a &lt;= b`</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<p>With a value only known at run time, <code>gap(9, to: 5)</code> stops the program with <code>panic: contract violated: a &lt;= b</code> and exit code 134. That run is not an example, because the build checks that an example exits with 0.</p>
+
+<h2 id="provide">provide and context</h2>
+<p><code>provide allocator: arena { … }</code> sets implicit context values for the block. <code>context.allocator</code> reads one back. The old <code>context (…) { }</code> block is rejected with a fix to <code>provide</code> (BYN6006). The rules for handlers are on <a href="ref-effects.html#provide">Effects</a>.</p>
+
+<h2 id="goto">goto</h2>
+<p><code>goto</code> does not exist. The compiler says so and suggests a labeled <code>break</code> (BYN1010). Typestate changes use <code>become</code> (see <a href="ref-types.html#states">Typestate</a>).</p>

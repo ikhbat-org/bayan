@@ -1,0 +1,93 @@
+title: Effects and capabilities
+nav: Reference
+order: 65
+template: docs
+---
+<p>An effect says what a function may touch. Functions are pure unless they say otherwise.</p>
+
+<h2 id="effects">The effects</h2>
+<p>There are nine: <code>alloc</code>, <code>suspend</code>, <code>net</code>, <code>fs</code>, <code>clock</code>, <code>random</code>, <code>env</code>, <code>process</code> and <code>console</code>. Write them after the signature: <code>uses console</code>. An unknown name is BYN6003.</p>
+<pre><code class="byn">public void bad() uses teleport { }</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6003:</span> `teleport` is not an effect
+  --&gt; ef-unknown.byn:1:24
+
+<span class="gut">  1 │</span> public void bad() uses teleport { }
+<span class="gut">    │</span>                        <span class="hl">^^^^^^^^ not an effect or an `effect` alias of this module</span>
+<span class="gut">    │</span>
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="declared">Declared and inferred</h2>
+<ul>
+  <li>A <code>public</code> function must declare every effect it has. Missing one is BYN6002. This includes printing and allocating.</li>
+  <li>A private function infers its effects. Nothing to write.</li>
+  <li>A public function that calls a <code>uses console</code> function must declare <code>console</code> too.</li>
+  <li>An interface method whose implementation allocates must declare <code>uses alloc</code> on the interface (BYN6005).</li>
+</ul>
+<example name="ref-effects-declared"/>
+<pre><code class="byn">public void say(string s) {
+    print(s)
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6002:</span> `say` uses `console` but does not declare it
+  --&gt; ef-undeclared.byn:2:5
+
+<span class="gut">  2 │</span>     print(s)
+<span class="gut">    │</span>     <span class="hl">^^^^^^^^ uses `console`</span>
+<span class="gut">    │</span>
+  help: add `console` to the `uses` clause, or remove the call
+<span class="gut">    │</span> 1 │ public void say(string s) uses console {
+<span class="gut">    │</span>   │                          +++++++++++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">public i64 grow() {
+    let xs: List&lt;i64&gt; = [1]
+    return xs.length
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6002:</span> `grow` uses `alloc` but does not declare it
+  --&gt; ef-alloc.byn:2:25
+
+<span class="gut">  2 │</span>     let xs: List&lt;i64&gt; = [1]
+<span class="gut">    │</span>                         <span class="hl">^^^ uses `alloc`</span>
+<span class="gut">    │</span>
+  help: add `alloc` to the `uses` clause, or remove the call
+<span class="gut">    │</span> 1 │ public i64 grow() uses alloc {
+<span class="gut">    │</span>   │                  +++++++++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="provide">Provide</h2>
+<ul>
+  <li><code>provide name: value { … }</code> supplies a capability for a block. Only <code>allocator</code> handlers work today. See <a href="ref-memory.html#allocators">Memory model</a> for an example.</li>
+  <li>Any other handler is BYN2022.</li>
+  <li>The old <code>context (…) { }</code> form is BYN6006 and the fix is <code>provide</code>.</li>
+</ul>
+<pre><code class="byn">provide clock: 1 {
+    print("x")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2022:</span> the `clock` handler is not supported in v0.1
+  --&gt; ef-handler.byn:1:9
+
+<span class="gut">  1 │</span> provide clock: 1 {
+<span class="gut">    │</span>         <span class="hl">^^^^^</span></pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">context (allocator: Arena()) { print("x") }</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6006:</span> `context (…) { }` is now `provide … { }`
+  --&gt; ef-context.byn:1:1
+
+<span class="gut">  1 │</span> context (allocator: Arena()) { print("x") }
+<span class="gut">    │</span> <span class="hl">^^^^^^^ the input form</span>
+<span class="gut">    │</span>
+  help: write `provide allocator: Arena() { }` without the parentheses
+<span class="gut">    │</span> 1 │ provide allocator: Arena() { print("x") }
+<span class="gut">    │</span>   │ +++++++++++++++++++++++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<note>Planned: handlers for <code>clock</code>, <code>random</code> and the other effects. Package-level capability checks (BYN6004) were not tried here.</note>
