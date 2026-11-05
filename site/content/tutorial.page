@@ -13,7 +13,7 @@ template: docs
 cd bayan
 dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
 ./tmp/publish/bayan --version</code></pre>
-    <p>Use your own runtime identifier in place of <code>osx-arm64</code>. Then run <code>bayan doctor</code>: it checks the C compiler, zig, git and the build cache, and says how to fix what is missing.</p>
+    <p>Use your own runtime identifier in place of <code>osx-arm64</code>. <a href="install.html">Install Bayan</a> has the details and the release binaries. Then run <code>bayan doctor</code>: it checks the C compiler, zig, git and the build cache, and says how to fix what is missing.</p>
   </li>
   <li>
     <h2 id="write">Write hello</h2>

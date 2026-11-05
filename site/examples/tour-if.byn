@@ -1,0 +1,14 @@
+string sign(i64 n) {
+    if n < 0 {
+        return "negative"
+    } else if n == 0 {
+        return "zero"
+    }
+    return "positive"
+}
+
+void main() {
+    print(sign(-4))
+    print(sign(0))
+    print(sign(9))
+}

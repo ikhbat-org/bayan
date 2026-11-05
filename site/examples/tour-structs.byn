@@ -1,0 +1,9 @@
+struct Point {
+    i64 x
+    i64 y = 0
+}
+
+void main() {
+    let p = Point { x: 3 }
+    print($"{p.x} {p.y}")
+}

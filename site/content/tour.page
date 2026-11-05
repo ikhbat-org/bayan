@@ -1,0 +1,134 @@
+title: A tour of Bayan
+nav: Start
+order: 18
+template: docs
+---
+<p class="lede">Twenty-four small steps. Each shows one idea and one complete program, with the output the compiler produces. Type them in, change them, run them with <code>bayan run</code>.</p>
+
+<p>You need the compiler first: see <a href="install.html">Install Bayan</a>. The <a href="reading.html">reading guide</a> goes deeper on the forms you will not have seen before.</p>
+
+<ol class="steps">
+  <li>
+    <h2 id="hello">1. Hello</h2>
+    <p><code>main</code> is where the program starts. <code>print</code> writes a line. Newlines end statements, so there are no semicolons.</p>
+    <example name="tour-hello"/>
+  </li>
+  <li>
+    <h2 id="bindings">2. let and var</h2>
+    <p><code>let</code> binds a name that never changes. <code>var</code> binds one you can assign to. The type is inferred from the value.</p>
+    <example name="tour-bindings"/>
+  </li>
+  <li>
+    <h2 id="types">3. Basic types</h2>
+    <p>Numbers are sized: <code>i64</code> is a 64-bit integer, <code>f64</code> a 64-bit float. There are also <code>bool</code> and <code>string</code>. Write a type where you want to pin it down.</p>
+    <example name="tour-types"/>
+  </li>
+  <li>
+    <h2 id="functions">4. Functions</h2>
+    <p>The return type comes first, then the name, then the parameters, each with its type first. <code>return</code> sends a value back, and <code>void</code> means there is none.</p>
+    <example name="tour-functions"/>
+  </li>
+  <li>
+    <h2 id="expression">5. One-line functions</h2>
+    <p>A function whose body is a single expression can use <code>=&gt;</code> instead of braces and <code>return</code>. Read it as "evaluates to".</p>
+    <example name="tour-expression"/>
+  </li>
+  <li>
+    <h2 id="if">6. Conditions</h2>
+    <p>A condition has no parentheses, and the body always has braces. <code>else if</code> chains further checks.</p>
+    <example name="tour-if"/>
+  </li>
+  <li>
+    <h2 id="loops">7. Loops</h2>
+    <p><code>for</code> walks a range or a collection. <code>1..=3</code> includes the 3, and <code>1..3</code> stops before it. <code>while</code> repeats until its condition is false.</p>
+    <example name="tour-loops"/>
+  </li>
+  <li>
+    <h2 id="postfix">8. A condition at the end</h2>
+    <p>A single statement can end with <code>if</code> or <code>unless</code>. It reads as a sentence and saves a block. It works for <code>return</code>, <code>fail</code>, <code>break</code>, <code>continue</code>, calls and assignments.</p>
+    <example name="tour-postfix"/>
+  </li>
+  <li>
+    <h2 id="strings">9. Joining text</h2>
+    <p>Strings have no <code>+</code>. Put <code>$</code> before the quote and write expressions in braces. A named argument in the braces, such as <code>as: .hex</code>, picks a format.</p>
+    <example name="tour-strings"/>
+  </li>
+  <li>
+    <h2 id="lists">10. Lists</h2>
+    <p><code>List&lt;T&gt;</code> grows. <code>append</code> adds to the end, <code>length</code> counts, and <code>xs[1]</code> reads by position. A list that you change must be a <code>var</code>.</p>
+    <example name="tour-lists"/>
+  </li>
+  <li>
+    <h2 id="maps">11. Maps</h2>
+    <p><code>Map&lt;K, V&gt;</code> stores values by key and keeps insertion order. <code>tryGet(at:)</code> returns an optional, and <code>??</code> supplies the value to use when the key is missing.</p>
+    <example name="tour-maps"/>
+  </li>
+  <li>
+    <h2 id="structs">12. Structs</h2>
+    <p>A struct groups fields. Each field has its type first and may have a default. Build one with <code>Point { x: 3 }</code>; the fields you leave out take their defaults.</p>
+    <example name="tour-structs"/>
+  </li>
+  <li>
+    <h2 id="methods">13. Methods and ref this</h2>
+    <p>A method is read-only unless its first parameter is <code>ref this</code>. That is how you can tell from the signature that <code>bump</code> changes the counter and <code>isBusy</code> does not. You call a changing method only on a <code>var</code>.</p>
+    <example name="tour-methods"/>
+  </li>
+  <li>
+    <h2 id="with">14. Copy and update</h2>
+    <p><code>a with { qty: 5 }</code> is a copy of <code>a</code> with the listed fields replaced. The original stays as it was.</p>
+    <example name="tour-with"/>
+  </li>
+  <li>
+    <h2 id="enums">15. Enums and .member</h2>
+    <p>An enum is a fixed set of names. Where the compiler already knows the type, a leading dot names a member: <code>.green</code> means <code>Color.green</code>. A <code>switch</code> on an enum must cover every member.</p>
+    <example name="tour-enums"/>
+  </li>
+  <li>
+    <h2 id="unions">16. Unions</h2>
+    <p>A union is a value that is one of several cases, each with its own data. <code>switch</code> takes the case apart and binds its data with <code>let</code>. The compiler rejects a <code>switch</code> that misses a case.</p>
+    <example name="tour-unions"/>
+  </li>
+  <li>
+    <h2 id="optionals">17. Optionals</h2>
+    <p>A plain type is never null. <code>string?</code> is a string or nothing. After <code>is not null</code> the value has its plain type, and <code>??</code> gives a fallback.</p>
+    <example name="tour-optionals"/>
+  </li>
+  <li>
+    <h2 id="particles">18. Particles</h2>
+    <p>A required parameter after the first carries a role word: <code>from</code>, <code>to</code>, <code>until</code>, <code>through</code>, <code>at</code>, <code>by</code>, <code>for</code> or <code>as</code>. The call writes the same word, so you cannot swap the two accounts without it showing.</p>
+    <example name="tour-particles"/>
+  </li>
+  <li>
+    <h2 id="lambdas">19. Lambdas and it</h2>
+    <p>Where a function is expected you can pass a lambda: <code>x =&gt; x % 2 == 1</code>. If the function takes one argument, write <code>it</code> and skip the parameter. Here <code>Pred</code> is a name for the type <code>i64 -&gt; bool</code>.</p>
+    <example name="tour-lambdas"/>
+  </li>
+  <li>
+    <h2 id="errors">20. Errors are values</h2>
+    <p><code>fails</code> lists the errors a function can produce, and <code>fail</code> leaves with one. <code>try</code> passes a failure up to the caller. <code>catch</code> handles it with a fallback value or an exhaustive <code>catch switch</code>. There are no exceptions.</p>
+    <example name="tour-errors"/>
+  </li>
+  <li>
+    <h2 id="defer">21. defer</h2>
+    <p><code>defer</code> runs a statement when the scope ends, however it ends. Use it to release things you opened. Deferred statements run in reverse order.</p>
+    <example name="tour-defer"/>
+  </li>
+  <li>
+    <h2 id="effects">22. Effects with uses</h2>
+    <p>A public function says what it does besides computing. <code>uses alloc</code> means it allocates. A function with no <code>uses</code> is pure. If you leave out a needed effect, the program does not compile.</p>
+    <example name="tour-effects"/>
+  </li>
+  <li>
+    <h2 id="requires">23. requires</h2>
+    <p>A <code>requires</code> clause is a rule that every value of the type must meet. A value that breaks it cannot be built. Building one can fail, so it takes <code>try</code> or <code>catch</code>.</p>
+    <example name="tour-requires"/>
+  </li>
+  <li>
+    <h2 id="move">24. Moving a list</h2>
+    <p>A list is owned by one name. <code>move</code> hands it to another, and the old name can no longer be used. To keep both, ask for <code>.copy()</code>.</p>
+    <example name="tour-move"/>
+  </li>
+</ol>
+
+<h2 id="next">Where next</h2>
+<p>Read <a href="reading.html">Reading Bayan code</a> for what each unfamiliar form means and why it exists, <a href="features.html">What makes Bayan different</a> for the features that set it apart, and the <a href="errors.html">Errors</a> and <a href="memory.html">Memory and ownership</a> guides for the two biggest topics.</p>
