@@ -1,0 +1,13 @@
+union Token {
+    num(i64 value)
+    word(string text)
+    end
+}
+
+string show(Token t) => t switch {
+    .num(let v) => $"n{v}",
+    .word(let s) => s,
+    .end => ".",
+}
+
+print($"{show(.num(7))} {show(.word("hi"))} {show(.end)}")

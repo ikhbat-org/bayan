@@ -1,0 +1,3 @@
+let x: i64? = null
+let y: i64? = 3
+print($"{x ?? 7} {y ?? 7}")

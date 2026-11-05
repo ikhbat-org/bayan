@@ -169,7 +169,7 @@ c 1</code></pre>
 </details>
 <details class="quiz">
   <summary>In <code>counts[word] = (counts.tryGet(at: word) ?? 0) + 1</code>, what does <code>?? 0</code> do, and what would happen to a word you had not seen before without it?</summary>
-  <p><code>tryGet</code> returns <code>i64?</code>. <code>??</code> picks the right side when the left is <code>null</code>, so a new word starts from 0. Without <code>?? 0</code> the type is wrong: you cannot add <code>1</code> to a number that might be missing, and the compiler says so. Writing <code>counts[word] + 1</code> instead compiles but panics on the first new word, because reading an absent key is a panic. <code>tryGet</code> is how you ask "is it there?" without stopping the program.</p>
+  <p><code>tryGet</code> returns <code>i64?</code>. <code>??</code> picks the right side when the left is <code>null</code>, so a new word starts from 0. Without <code>?? 0</code> the value is a number that might be missing, and you cannot add <code>1</code> to that. Reading with <code>counts[word]</code> instead does compile, but it panics on the first new word, because reading an absent key is a panic. <code>tryGet</code> is how you ask "is it there?" without stopping the program.</p>
 </details>
 <example name="book-02-q2" output="no"/>
 <details class="quiz">
@@ -184,7 +184,7 @@ c 1</code></pre>
 </details>
 <details class="quiz">
   <summary>Why does <code>sortEntries</code> take <code>ref List&lt;Entry&gt;</code> and not <code>List&lt;Entry&gt;</code>?</summary>
-  <p>A parameter without <code>ref</code> is read-only: the function cannot change it. <code>sortEntries</code> swaps elements, so it must change the caller's list, and <code>ref</code> says so in the signature and at the call (<code>sortEntries(ref entries)</code>). If you leave <code>ref</code> off the parameter, the compiler stops at the first assignment to <code>entries[j]</code>. If you leave it off the call, it stops with an error that the argument must be passed as <code>ref</code>.</p>
+  <p>A parameter without <code>ref</code> is read-only: the function cannot change it. <code>sortEntries</code> swaps elements, so it must change the caller's list, and <code>ref</code> says so in the signature and at the call (<code>sortEntries(ref entries)</code>). Without <code>ref</code> the function would only get a read-only view, and the compiler would reject the swaps. The marker at the call tells the reader of <code>main</code> that <code>entries</code> may change there.</p>
 </details>
 
 <div class="next-box">
