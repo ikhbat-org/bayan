@@ -63,6 +63,8 @@
     docs.classList.toggle('toc-off', !open);
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
+  var side = document.querySelector('.side details');
+  if (side && window.matchMedia('(max-width: 63.99rem)').matches) side.removeAttribute('open');
   var saved = null;
   try { saved = localStorage.getItem('bayan-toc'); } catch (e) {}
   set(saved !== 'closed');

@@ -20,3 +20,9 @@ Docs content is qalam's Parameters and arguments page, unchanged apart from note
 - The hoopoe overlay position (`.fly`) is computed from the SVG coordinates; check the landing against the perched bird in a real browser.
 - Docs sidebar links other than the current page are `#`; qalam's search box and version picker were dropped as non-functional.
 - `shapes.byn` is not in `tests/cases`.
+
+## Polish pass (verified with Playwright, Chromium, real time)
+- Hero captured at 1, 4, 6, 6.5 and 8 s: Arabic wipes right to left, bayān left to right, hoopoe flies in and rests on the macron (fly box 358-443 px, perch 363-438 px at 1400 px). Fix: `.art svg` (width 100%) beat `.fly`'s width, so the flying bird was full width; now `.art .fly`.
+- `details.quiz`, `.next-box`, `dl`, `var` styled; tables outside `.tablewrap` scroll inside their box under 860 px (from-python overflowed to 487 px before).
+- Docs sidebar starts closed below 64rem so it no longer pushes the page text down on phones.
+- Shots in `shots/` (1400 and 360). ref-diagnostics is clipped to its first 7000 px (page is about 250000 px tall). No overflow at 360 px, no non-local request from any page in `out/`.
