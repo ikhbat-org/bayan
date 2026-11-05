@@ -1,0 +1,31 @@
+effect store = console, alloc
+
+public i64 square(i64 n) {
+    return n * n
+}
+
+public List<i64> squares(i64 upTo) uses alloc {
+    var xs = List<i64>()
+    for i in 1..=upTo {
+        xs.append(square(i))
+    }
+    return xs
+}
+
+public void show(List<i64> xs) uses store {
+    for x in xs {
+        print($"- {x}")
+    }
+}
+
+public i64 traced(i64 n) {
+    log($"tracing {n}")
+    return n + 1
+}
+
+void main() uses console, alloc {
+    print($"square {square(7)}")
+    let xs = squares(4)
+    show(xs)
+    print($"traced {traced(1)}")
+}

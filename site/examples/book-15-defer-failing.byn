@@ -1,0 +1,15 @@
+union error StepError {
+    broken
+}
+
+void step(bool ok) fails StepError uses console {
+    defer print("always runs")
+    defer failing print("only when step fails")
+    fail .broken if !ok
+    print("step ok")
+}
+
+void main() uses console {
+    step(ok: true) catch { print("unexpected") }
+    step(ok: false) catch { print("caught") }
+}

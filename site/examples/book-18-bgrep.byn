@@ -1,0 +1,85 @@
+union error UsageError {
+    /// Usage: bgrep [-i] [-n] [-c] PATTERN FILE...
+    missingPattern
+    /// Unknown option.
+    unknownOption(string flag)
+}
+
+struct Options {
+    string pattern
+    bool ignoreCase
+    bool numbers
+    bool countOnly
+    List<string> files
+
+    bool matches(string line) uses alloc {
+        if ignoreCase {
+            return line.lowercased().contains(pattern.lowercased())
+        }
+        return line.contains(pattern)
+    }
+}
+
+Options parseArgs(ReadOnlySpan<string> args) fails UsageError uses alloc {
+    var opts = Options { pattern: "", ignoreCase: false, numbers: false, countOnly: false, files: List<string>() }
+    var havePattern = false
+    for arg in args {
+        if arg == "-i" {
+            opts.ignoreCase = true
+        } else if arg == "-n" {
+            opts.numbers = true
+        } else if arg == "-c" {
+            opts.countOnly = true
+        } else if arg.startsWith("-") {
+            fail .unknownOption(arg)
+        } else if !havePattern {
+            opts.pattern = arg
+            havePattern = true
+        } else {
+            opts.files.append(arg)
+        }
+    }
+    fail .missingPattern unless havePattern
+    return opts
+}
+
+
+/// Prints the matching lines of one file and returns how many matched.
+i64 search(string text, by Options opts, as string name, to bool showName) uses console, alloc {
+    var found: i64 = 0
+    var number: i64 = 0
+    for line in text.lines {
+        number += 1
+        if !opts.matches(line) { continue }
+        found += 1
+        if opts.countOnly { continue }
+        let prefix = showName ? $"{name}:" : ""
+        print(opts.numbers ? $"{prefix}{number}:{line}" : $"{prefix}{line}")
+    }
+    return found
+}
+
+i32 main(ReadOnlySpan<string> args) fails UsageError uses console, alloc, fs {
+    var list = args
+    let demo: string[4] = ["-n", "-i", "APPLE", "/tmp/book-18-fruit.txt"]
+    if args.length == 0 {
+        let text = "apple pie\nbanana\nGreen Apple\ncherry\n"
+        Io.writeFile("/tmp/book-18-fruit.txt", text.bytes) catch { return 2 }
+        list = demo.span
+    }
+    let opts = try parseArgs(list)
+    var total: i64 = 0
+    var failed = false
+    for path in opts.files {
+        let text = Io.readText(path) catch {
+            print($"bgrep: cannot read {path}", to: .stderr)
+            failed = true
+            continue
+        }
+        let n = search(text, by: opts, as: path, to: opts.files.length > 1)
+        if opts.countOnly { print($"{path}: {n}") }
+        total += n
+    }
+    if failed { return 2 }
+    return total > 0 ? 0 : 1
+}
