@@ -1,0 +1,7 @@
+public string load(string path) fails IoError uses fs, alloc {
+    return try Io.readText(path)
+}
+
+void main() {
+    print(load("/tmp/cookbook-none.txt") catch "not found")
+}

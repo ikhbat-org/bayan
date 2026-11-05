@@ -1,0 +1,30 @@
+title: Files and paths cookbook
+nav: Guides
+order: 52
+template: docs
+---
+<p>File access lives on <code>Io</code>. Every call can fail with <code>IoError</code> (<code>notFound</code>, <code>permissionDenied</code>, <code>invalidUtf8</code>, <code>notADirectory</code>, <code>other</code>, <code>invalidInput</code>, <code>unsupported</code>), and none of them throws. You either handle the error with <code>catch</code> or pass it on with <code>try</code> in a function that declares <code>fails IoError</code>. A public function that touches files also declares the effect, <code>uses fs</code>; see <a href="cookbook-errors.html#effects">Errors</a>.</p>
+<p>The examples write under <code>/tmp</code> so they can run anywhere on macOS or Linux.</p>
+
+<h2 id="read-file">Read a whole file</h2>
+<p><code>Io.readText(path)</code> returns a <code>string</code> and fails with <code>invalidUtf8</code> if the bytes are not valid text. <code>Io.readFile(path)</code> returns a <code>List&lt;u8&gt;</code> with no decoding.</p>
+<example name="cookbook-read-file"/>
+<pre><code class="other" data-lang="Python">text = open(path).read()   # raises FileNotFoundError</code></pre>
+
+<h2 id="read-lines">Read a file line by line</h2>
+<p>Read the text, then walk <code>text.lines</code>. It is a lazy view that splits on <code>\n</code> or <code>\r\n</code> and does not copy. The example above does this. <strong>Not in the standard library yet:</strong> a streaming reader that holds one line at a time; <code>Io.readText</code> loads the whole file first.</p>
+
+<h2 id="write-file">Write or append to a file</h2>
+<p><code>Io.writeFile(path, bytes)</code> takes bytes, replaces the file's content and returns nothing. For text, pass <code>text.bytes</code>; for binary data, pass a span. It does not create missing directories. <strong>Not in the standard library yet:</strong> an append call, and a call to create a directory. To append, read the file, build the longer text and write it back, as below.</p>
+<example name="cookbook-write-file"/>
+
+<h2 id="paths">Join and take apart file paths</h2>
+<p><strong>Planned: joining.</strong> The spec defines <code>Path.join</code> with a variable number of segments (section 10), and a <code>Path</code> type in function signatures (<code>copy(from Path src, to Path dst)</code>). The compiler has no <code>Path</code> yet; today a path is a plain <code>string</code>, built with interpolation (<code>$"{dir}/{name}.txt"</code>).</p>
+<pre><code class="byn">let p = Path.join(root, "orders", $"{id}.json")</code></pre>
+<p><strong>Not in the standard library yet:</strong> base name, directory name and extension. The spec does not define them.</p>
+<pre><code class="other" data-lang="Go">filepath.Join(root, "orders", id+".json")
+filepath.Base(p); filepath.Dir(p); filepath.Ext(p)</code></pre>
+
+<h2 id="list-dir">List a directory</h2>
+<p><code>Io.listDir(path)</code> returns the entry names, sorted by byte order, without the directory prefix. A file gives <code>notADirectory</code> and a missing path gives <code>notFound</code>. <strong>Not in the standard library yet:</strong> walking a directory tree, and telling a file from a directory in a listing. <code>listDir</code> returns names only.</p>
+<example name="cookbook-list-dir"/>
