@@ -1,0 +1,18 @@
+void bump(ref i64 n) {
+    n += 1
+}
+
+i64 total(ReadOnlySpan<i64> xs) {
+    var sum: i64 = 0
+    for x in xs { sum += x }
+    return sum
+}
+
+void main() {
+    var a: i64 = 1
+    bump(ref a)
+    bump(ref a)
+    print($"{a}")
+    let xs: List<i64> = [1, 2, 3]
+    print($"{total(xs.span)} {total(xs.span[1..3])}")
+}

@@ -1,0 +1,16 @@
+struct Doc {
+    List<string> lines
+}
+
+i64 count(move List<string> lines) => lines.length
+
+void show(ref List<string> lines) {
+    lines.append("shown")
+}
+
+void main() {
+    var lines: List<string> = ["a", "b"]
+    show(ref lines)
+    let copy = lines.copy()
+    print($"{count(move lines)} {copy.length}")
+}

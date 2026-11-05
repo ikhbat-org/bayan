@@ -1,0 +1,16 @@
+union Shape {
+    circle(f64 radius)
+    rect(f64 w, f64 h)
+    point
+}
+
+f64 area(Shape s) => s switch {
+    .circle(let r) => 3.14 * r * r,
+    .rect(let w, let h) => w * h,
+    .point => 0.0,
+}
+
+void main() {
+    let shapes: List<Shape> = [.circle(1.0), .rect(2.0, 3.0), .point]
+    for s in shapes { print($"{area(s)}") }
+}

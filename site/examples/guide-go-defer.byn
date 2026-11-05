@@ -1,0 +1,10 @@
+void work(string name) {
+    print($"open {name}")
+    defer print($"close {name}")
+    print($"use {name}")
+}
+
+void main() {
+    work("a")
+    work("b")
+}

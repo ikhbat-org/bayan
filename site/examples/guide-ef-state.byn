@@ -1,0 +1,24 @@
+enum Level {
+    low
+    high
+}
+
+union Shape {
+    circle(f64 radius)
+    square(f64 side)
+}
+
+string label(Level l) => l switch {
+    .low => "low",
+    .high => "high",
+}
+
+f64 area(Shape s) => s switch {
+    .circle(let r) => 3.0 * r * r,
+    .square(let a) => a * a,
+}
+
+void main() {
+    print(label(.high))
+    print($"{area(.circle(2.0))} {area(.square(3.0))}")
+}

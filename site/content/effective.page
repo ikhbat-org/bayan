@@ -1,0 +1,114 @@
+title: Effective Bayan
+nav: Guides
+order: 40
+template: docs
+---
+<p>This page is about writing Bayan the way the language wants to be written. It does not repeat the rules: the reference lists those. It says which form to choose when more than one works, and why. The compiler enforces some of these rules and the rest are habit. Each section says which.</p>
+<p>Every Bayan program on this page was run with the compiler, and the output shown is its real output. Run <code>bayan format</code> on your code: it rewrites input forms (the wrong order of a declaration, a stray <code>;</code>) into the one canonical spelling, so style never needs arguing about.</p>
+
+<h2 id="names">Names</h2>
+<p>Types are <code>PascalCase</code>. Everything else is <code>camelCase</code>: fields, locals, parameters, methods, enum members, union cases and error cases. Interface names start with <code>I</code>. Acronyms keep their case: <code>HttpClient</code>. A <code>PascalCase</code> function is a compile error (BYN2009).</p>
+<p>The rest follows from one idea: a name tells you what kind of thing it is.</p>
+<ul>
+<li><b>A noun with no arguments is a property.</b> <code>cart.total</code>, <code>list.length</code>, <code>name.runeCount</code>. Write it without parentheses. If it needs an argument, it is a call: <code>x.pow(2)</code>.</li>
+<li><b>A yes-or-no property starts with <code>is</code>, <code>has</code> or <code>can</code>.</b> <code>isEmpty</code>, <code>hasDiscount</code>. Never <code>empty</code> for a <code>bool</code>.</li>
+<li><b>A verb that changes the receiver takes <code>ref this</code>.</b> <code>add</code>, <code>append</code>, <code>sort</code>, <code>deposit</code>. A reader sees from the signature that the call changes the struct, and the compiler stops you calling it on a <code>let</code>.</li>
+<li><b>A past participle names a result.</b> <code>trimmed()</code>, <code>replaced(…)</code>, <code>uppercased()</code> give back a changed view or copy and leave the original alone. Use the participle when you return something new and the plain verb when you change in place: <code>sort()</code> sorts the list, and a participle would return a sorted copy.</li>
+<li><b>An attempt that may give nothing starts with <code>try</code>.</b> <code>i64.tryParse(s)</code> returns an <code>i64?</code>, and <code>i64.parse(s)</code> fails. Offer the pair when callers differ in what they want.</li>
+</ul>
+<example name="guide-ef-names"/>
+<p>Two things not to write. Do not add <code>get</code> to a noun (<code>getTotal</code> says nothing that <code>total</code> does not), and do not name a conversion <code>toList</code> or <code>asSpan</code>. The compiler rejects the second:</p>
+<figure class="diag">
+<pre><span class="err">error BYN5009:</span> `toList` spells a conversion with `to`; write `List(cart)`
+  --&gt; naming.byn:4:22
+
+  4 │     public List&lt;i64&gt; toList() uses alloc =&gt; prices.copy()
+    │                      ^^^^^^
+    │
+  help: use a view noun, `copy()`, or a `T(x)` conversion
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN5009</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p>A view is a noun (<code>xs.span</code>), an owned copy is <code>copy()</code>, and a conversion is the type applied to a value (<code>i32(a)</code>). Do not abbreviate: <code>message</code>, not <code>msg</code>.</p>
+
+<h2 id="particles">Particles: label the second argument</h2>
+<p>A function with more than one required parameter labels all but the first. The label is one of eight words: <code>from</code>, <code>to</code>, <code>until</code>, <code>through</code>, <code>at</code>, <code>by</code>, <code>for</code>, <code>as</code>. Choose the one that makes the call read as a short sentence, and use each at most once per signature.</p>
+<table>
+<tr><th>Particle</th><th>Means</th><th>Call</th></tr>
+<tr><td><code>at</code></td><td>a position or key</td><td><code>m.tryGet(at: name)</code></td></tr>
+<tr><td><code>by</code></td><td>the method, separator or measure</td><td><code>s.parts(by: ",")</code>, <code>find(names, by: "gr")</code></td></tr>
+<tr><td><code>from</code>, <code>to</code></td><td>a source and a destination</td><td><code>xs.copy(to: arena)</code></td></tr>
+<tr><td><code>until</code>, <code>through</code></td><td>an end that is excluded, or included</td><td><code>remove(from: a, through: b)</code></td></tr>
+<tr><td><code>as</code></td><td>the form something is shown or read in</td><td><code>i64.tryParse(s, as: .hex)</code></td></tr>
+</table>
+<p>The compiler checks that the label is there (BYN5006) and that it is on the right argument (BYN5005). Choosing the word is your job. The <a href="parameters.html">parameters page</a> has the full rules.</p>
+
+<h2 id="choose-failure">Fail, optional or panic</h2>
+<p>Three ways to say "this did not work" exist, and each has one use.</p>
+<table>
+<tr><th>Use</th><th>When</th><th>Because</th></tr>
+<tr><td><code>T?</code></td><td>Nothing there is a normal answer: a lookup, a search, an optional field.</td><td>The caller supplies a fallback with <code>??</code>. There is nothing to explain.</td></tr>
+<tr><td><code>fails E</code></td><td>The caller asked for something and could not get it, and the reason matters: bad input, a missing file.</td><td>The caller must handle each case or pass it up with <code>try</code>.</td></tr>
+<tr><td>panic</td><td>The program has a bug: an index out of range, a broken precondition.</td><td>No caller can fix it. Use <code>expects</code> to state a precondition.</td></tr>
+</table>
+<example name="guide-ef-forms"/>
+<p>A lookup that finds nothing is not an error. A port that is not a number is. Do not make a function <code>fails</code> if its only failure is "not found" and callers will always default it; and do not return <code>null</code> when the caller needs to know why. Public functions list their error sets; private ones can write a bare <code>fails</code> and let the compiler infer.</p>
+<p>When you define an error, name each case for what went wrong (<code>notNumber</code>, <code>outOfRange</code>), put a doc comment on it, and keep the set small enough that a caller can <code>catch switch</code> it. See <a href="errors.html">Errors</a>.</p>
+
+<h2 id="shapes">struct, union or enum</h2>
+<p>Data is a struct, and a struct is a value. Pick the type by how many shapes the value can take.</p>
+<ul>
+<li>One shape, many fields: a <code>struct</code>.</li>
+<li>A fixed set of names with nothing attached: an <code>enum</code>. It has <code>name</code> and <code>ordinal</code>, and <code>Color.values</code> lists them.</li>
+<li>One of several shapes, each with its own fields: a <code>union</code>.</li>
+<li>A set of ways to fail: a <code>union error</code>.</li>
+</ul>
+<example name="guide-ef-state"/>
+<p>Prefer a union to a struct with a flag and a handful of optional fields. The union cannot be in a state where the flag says "circle" and the radius is <code>null</code>. And prefer it to an interface when the set of shapes is closed: a <code>switch</code> over a union lists every case, and adding one breaks every <code>switch</code> that forgot it. Use an interface when callers outside your package add their own types.</p>
+<p>Reach for the tools that make bad states unwritable. A <code>type distinct</code> keeps two ids that are both integers from being mixed up, and a <code>requires</code> clause checks a value when it is built.</p>
+<example name="guide-ef-units"/>
+<p>Passing an <code>OrderId</code> where a <code>UserId</code> is wanted is a compile error. Reach the integer with <code>.value</code>. Use these for ids, money, ports and anything where "it is just a number" has caused a bug. See <a href="features.html#requires">What makes Bayan different</a>.</p>
+
+<h2 id="bindings">let first, var when needed</h2>
+<p>Start every binding as <code>let</code>. Change it to <code>var</code> when the compiler tells you the value must change. A <code>var</code> that is never reassigned draws a warning (BYN2311), and a <code>let</code> that is assigned twice is an error (BYN2104). Name a value once. Shadowing with <code>let</code> is allowed only when the type changes, so <code>let n = i64.tryParse(n) ?? 0</code> is fine and a same-type shadow is a warning.</p>
+<example name="guide-ef-letvar"/>
+<p>Keep the scope of a <code>var</code> small. Compute a value, then bind it with <code>let</code> and use that name afterward, so the reader sees which names can change and where.</p>
+
+<h2 id="guards">Leave early with a guard</h2>
+<p>Put the failing cases first and end the line with the condition. A postfix <code>if</code> or <code>unless</code> fits one simple statement: <code>return</code>, <code>fail</code>, <code>break</code>, <code>continue</code>, <code>panic</code>, a single call or an assignment. The rest of the function is then the main path with no nesting.</p>
+<example name="guide-ef-guard"/>
+<p>Use a block <code>if</code> when there are two or more statements, or an <code>else</code>. Write an <code>unless</code> for a plain positive condition and an <code>if</code> otherwise; <code>unless not x</code> is an error. To exit when an optional is empty, bind it with <code>let v = x ?? return</code> (or <code>?? fail .missing</code>) instead of nesting an <code>if x is not null</code>.</p>
+
+<h2 id="params">Read, ref or move</h2>
+<p>A plain parameter is the default, and it is almost always right: the compiler passes small values by copy and large ones by reference, and the callee cannot change them. Choose the others for a reason.</p>
+<ul>
+<li><b>Plain</b> when the function only reads. For a collection, take a <code>ReadOnlySpan&lt;T&gt;</code> so the caller can pass a list, an array or a slice.</li>
+<li><b><code>ref</code></b> when the function changes the caller's value. Write <code>ref</code> at the call too.</li>
+<li><b><code>move</code></b> when the function keeps or consumes the value. After the call the caller's name is gone.</li>
+</ul>
+<p>Return a new value rather than taking a <code>ref</code> when the result is the point of the call. A function that reads its input and returns an answer composes. A function that edits an argument does not.</p>
+
+<h2 id="expressions">Expression bodies and switch</h2>
+<p>When a function or property is one expression, use <code>=&gt;</code>: <code>bool isEmpty =&gt; prices.length == 0</code>. When it needs a statement, use a block. A <code>switch</code> that produces a value is an expression (<code>x switch { … }</code>), and a <code>switch</code> that does things is a statement. Use the expression form with a <code>return</code> or a binding, and leave out <code>default</code> when you can: without it, a new case in the union becomes a compile error at every switch that forgot it.</p>
+<p>Use <code>if</code> for one condition and <code>switch</code> for a value with several cases. Use the ternary <code>a ? b : c</code> only for a short choice between two values.</p>
+
+<h2 id="cleanup">Clean up where you acquire</h2>
+<p>Put the <code>defer</code> on the line after the thing it undoes, so the pair reads together and survives every exit from the scope: <code>return</code>, <code>fail</code> and <code>break</code>. Several defers run last in, first out. Use <code>defer failing</code> for work that should be undone only if the function fails, such as removing a half-written file.</p>
+<p>Most memory needs no <code>defer</code>. A <code>List</code> or <code>Map</code> frees itself when its owner goes away. Use an arena (<code>using var arena = Arena()</code>) when a lot of values share one lifetime, such as everything built while handling one request, and free it with a single <code>defer arena.reset()</code>. See <a href="memory.html">Memory and ownership</a>.</p>
+
+<h2 id="effects">Say what a function touches</h2>
+<p>A public function that allocates, reads files or runs programs lists it in a <code>uses</code> clause: <code>uses alloc</code>, <code>uses fs</code>, <code>uses process</code>. Private functions and <code>main</code> have it inferred. Do not hide an effect behind a global. Pass the allocator with <code>provide</code>, or take a parameter that does the work, and the signature stays honest. A function with no <code>uses</code> clause is pure, which is worth keeping where you can: it is easy to test and cannot surprise its caller.</p>
+
+<h2 id="tests">Tests live next to the code</h2>
+<p>Write a <code>test "name" { … }</code> block under the function it checks, and name it with a sentence that says what is true: <code>"rejects out of range"</code>. Use <code>assert</code> for the check, and <code>assert f() fails E.caseName</code> for the error you expect. <code>@cases(…)</code> runs one test over a table of inputs. Run them with <code>bayan test</code>. See the <a href="cookbook-testing.html">Testing cookbook</a>.</p>
+
+<h2 id="small">Keep to the plain parts</h2>
+<ul>
+<li>Do not build a deep tree of interfaces. A struct with a few methods is enough for most programs.</li>
+<li>Do not store references in structs to link nodes. For trees and graphs, keep the nodes in one list and refer to them by a <code>type distinct</code> index.</li>
+<li>Do not reach for <code>unsafe</code> or <code>because "…"</code> to silence the compiler. Each bypass needs a reason, and <code>bayan audit</code> lists them all.</li>
+<li>Prefer the standard library's names over your own for the same job: <code>length</code>, <code>isEmpty</code>, <code>append</code>, <code>tryGet</code>, <code>contains</code>.</li>
+</ul>
+<p>If you are coming from another language, <a href="from-python.html">Python</a>, <a href="from-go.html">Go</a>, <a href="from-rust.html">Rust</a> and <a href="from-typescript.html">TypeScript</a> guides map your habits to these forms.</p>

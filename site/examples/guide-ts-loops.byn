@@ -1,0 +1,20 @@
+void main() {
+    let prices: List<i64> = [5, 12, 8, 30]
+    var cheap = List<i64>()
+    var doubled = List<i64>()
+    var total: i64 = 0
+    for p in prices {
+        total += p
+        doubled.append(p * 2)
+        cheap.append(p) if p < 10
+    }
+    print($"total {total}, cheap {cheap.length}, doubled {doubled[3]}")
+    var found: i64? = null
+    for p in prices {
+        if p > 10 {
+            found = p
+            break
+        }
+    }
+    print($"first over 10: {found ?? -1}")
+}

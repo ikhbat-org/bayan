@@ -1,0 +1,20 @@
+enum Role {
+    admin
+    guest
+}
+
+struct User {
+    string name
+    Role role = .guest
+    string? email = null
+}
+
+void main() {
+    let a = User { name: "ada", role: .admin }
+    let b = a with { name: "grace", email: "g@example.com" }
+    print($"{a.name} {a.role.name} {a.email ?? "no email"}")
+    print($"{b.name} {b.role.name} {b.email ?? "no email"}")
+    if b.email is not null {
+        print($"mail {b.email}")
+    }
+}
