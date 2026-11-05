@@ -1,0 +1,5 @@
+i64 width(i64 start, until i64 end) => end - start
+
+let start: i64 = 2
+let end: i64 = 5
+print($"{width(start, until: end)}")

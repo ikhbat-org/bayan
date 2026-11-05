@@ -1,0 +1,187 @@
+// `.page` files (FORMAT.md): header lines, a `---` line, then the HTML body. `parsePage` reads the
+// header; `renderBody` expands `<example>`, `<note>` and code blocks and collects the `h2` ids.
+
+const navGroups: string[4] = ["Start", "Learn", "Guides", "Reference"]
+
+public struct Page {
+    /// The path messages name, as given (`site/content/x.page`).
+    string file
+    /// The file name without `.page`; the output is `<name>.html`.
+    string name
+    string title
+    string nav
+    i64 order
+    string template
+    i64 templateLine
+    string body
+    /// The line number of the body's first line in the file.
+    i64 bodyLine
+}
+
+/// A parsed page, or the message of the first problem (`error` is empty when there is none).
+public struct ParsedPage {
+    Page page
+    string error
+}
+
+public struct Heading {
+    string id
+    string html
+}
+
+/// The index of `group` in the sidebar order, or -1.
+i64 navIndex(string group) {
+    for i in 0..navGroups.length {
+        return i if navGroups[i] == group
+    }
+    return -1
+}
+
+/// `content/guide.page` → `guide`.
+string pageName(string file) {
+    let slash = file.lastPosition("/") ?? -1
+    let base = file[(slash + 1)..file.length]
+    return base.endsWith(".page") ? base[0..(base.length - 5)] : base
+}
+
+ParsedPage failed(Page page, at i64 line, by string message) => ParsedPage { page: page, error: $"{page.file}:{line}: {message}" }
+
+ParsedPage parsePage(string file, from string text) {
+    var page = Page {
+        file: file,
+        name: pageName(file),
+        title: "",
+        nav: "",
+        order: 0,
+        template: "",
+        templateLine: 1,
+        body: "",
+        bodyLine: 1,
+    }
+    let n = text.length
+    var start: i64 = 0
+    var line: i64 = 1
+    var navLine: i64 = 1
+    var found = false
+    while start < n {
+        let end = text.position("\n", from: start) ?? n
+        let row = text[start..end].trimmed()
+        start = end < n ? end + 1 : n
+        if row == "---" {
+            found = true
+            page.body = text[start..n]
+            page.bodyLine = line + 1
+            break
+        }
+        unless row.isEmpty {
+            let colon = row.position(":") ?? return failed(page, at: line, by: "expected `key: value` or `---`")
+            let key = row[0..colon].trimmed()
+            let value = row[(colon + 1)..row.length].trimmed()
+            if key == "title" {
+                page.title = value
+            } else if key == "nav" {
+                page.nav = value
+                navLine = line
+            } else if key == "order" {
+                page.order = i64.parse(value) catch return failed(page, at: line, by: $"order `{value}` is not an integer")
+            } else if key == "template" {
+                page.template = value
+                page.templateLine = line
+            } else {
+                return failed(page, at: line, by: $"unknown header `{key}` (expected title, nav, order or template)")
+            }
+        }
+        line += 1
+    }
+    unless found { return failed(page, at: line, by: "no `---` line after the header") }
+    if page.title.isEmpty { return failed(page, at: 1, by: "page has no title") }
+    if page.template.isEmpty { return failed(page, at: 1, by: "page has no template") }
+    if !page.nav.isEmpty && navIndex(page.nav) < 0 {
+        return failed(page, at: navLine, by: $"unknown nav `{page.nav}` (expected Start, Learn, Guides or Reference)")
+    }
+    return ParsedPage { page: page, error: "" }
+}
+
+/// The value of `name="…"` in the tag `tag`, or "".
+string attribute(string tag, for string name) {
+    let key = $" {name}=\""
+    let at = tag.position(key) ?? return ""
+    let start = at + key.length
+    let end = tag.position("\"", from: start) ?? return ""
+    return tag[start..end]
+}
+
+/// The line number of byte `at` in the page's body.
+i64 lineOf(Page page, at i64 offset) => page.bodyLine + page.body[0..offset].count("\n")
+
+string bodyError(Page page, at i64 offset, by string message) => $"{page.file}:{lineOf(page, at: offset)}: {message}"
+
+/// Appends the expanded body of `page` to `html` and its `h2` headings to `toc`; returns the first
+/// problem as `file:line: message`, or "".
+string renderBody(Page page, from string examples, to ref StrBuf html, for ref List<Heading> toc) {
+    let body = page.body
+    let n = body.length
+    var i: i64 = 0
+    var plain: i64 = 0
+    while i < n {
+        let lt = body.position("<", from: i) ?? n
+        if lt == n { break }
+        let rest = body[lt..n]
+        let tagEnd = (body.position(">", from: lt) ?? (n - 1)) + 1
+        if rest.startsWith("<h2 ") || rest.startsWith("<h2>") {
+            let id = attribute(body[lt..tagEnd], for: "id")
+            if id.isEmpty { return bodyError(page, at: lt, by: "h2 has no id") }
+            let close = body.position("</h2>", from: tagEnd) ?? return bodyError(page, at: lt, by: "h2 has no `</h2>`")
+            toc.append(Heading { id: id, html: body[tagEnd..close] })
+            i = tagEnd
+            continue
+        }
+        if rest.startsWith("<example ") || rest.startsWith("<example/") {
+            html.append(body[plain..lt])
+            let tag = body[lt..tagEnd]
+            let name = attribute(tag, for: "name")
+            if name.isEmpty { return bodyError(page, at: lt, by: "example has no name") }
+            let source = Io.readText($"{examples}/{name}.byn") catch return bodyError(page, at: lt, by: $"example `{name}`: {examples}/{name}.byn not found")
+            html.append($"<div class=\"example\">\n<figure class=\"src\"><figcaption class=\"label\">{name}.byn</figcaption>\n<pre class=\"byn\"><code>")
+            html.append(highlight(source.trimmed(from: .end)))
+            html.append("</code></pre></figure>\n")
+            unless attribute(tag, for: "output") == "no" {
+                let output = Io.readText($"{examples}/{name}.out") catch return bodyError(page, at: lt, by: $"example `{name}`: {examples}/{name}.out not found (run check-examples.sh --update)")
+                html.append("<figure class=\"out\"><figcaption class=\"label\">Output</figcaption>\n<pre class=\"out\"><code>")
+                escapeInto(output.trimmed(from: .end), to: ref html)
+                html.append("</code></pre></figure>\n")
+            }
+            html.append("</div>")
+            i = tagEnd
+            plain = tagEnd
+            continue
+        }
+        if rest.startsWith("<note>") || rest.startsWith("</note>") {
+            html.append(body[plain..lt])
+            html.append(rest.startsWith("<note>") ? "<aside class=\"note\">" : "</aside>")
+            i = tagEnd
+            plain = tagEnd
+            continue
+        }
+        if rest.startsWith("<pre><code class=\"byn\">") || rest.startsWith("<pre><code class=\"other\"") {
+            html.append(body[plain..lt])
+            let codeStart = (body.position(">", from: lt + 5) ?? (n - 1)) + 1
+            let close = body.position("</code></pre>", from: codeStart) ?? return bodyError(page, at: lt, by: "code block has no `</code></pre>`")
+            let inner = body[codeStart..close]
+            if rest.startsWith("<pre><code class=\"byn\">") {
+                html.append("<pre class=\"byn\"><code>")
+                html.append(highlight(unescapeHtml(inner)))
+                html.append("</code></pre>")
+            } else {
+                let lang = attribute(body[lt..codeStart], for: "data-lang")
+                html.append($"<figure class=\"other\"><figcaption class=\"label\">{lang}</figcaption>\n<pre class=\"other\"><code>{inner}</code></pre></figure>")
+            }
+            i = close + 13
+            plain = i
+            continue
+        }
+        i = lt + 1
+    }
+    html.append(body[plain..n])
+    return ""
+}

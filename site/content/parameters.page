@@ -1,0 +1,75 @@
+title: Parameters and arguments
+nav: Reference
+order: 50
+template: docs
+---
+<p>A parameter says how a function may use a value. A call says in what role each value takes part. Bayan makes both explicit, so a call site reads as a sentence and a swapped pair of arguments is a compile error rather than a bug.</p>
+
+<h2 id="modifiers">Parameter modifiers</h2>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Modifier</th><th scope="col">Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><em>none</em></td><td>Read-only. The compiler passes by value or by reference based on size.</td></tr>
+    <tr><td><code>ref</code></td><td>Mutable borrow.</td></tr>
+    <tr><td><code>move</code></td><td>Ownership transfer. Required for <code>unique</code> values.</td></tr>
+    <tr><td><code>out</code></td><td>Output parameter. Prefer returning <code>T?</code> or a tuple.</td></tr>
+    <tr><td><code>in</code></td><td>Accepted, redundant. Removed by the formatter.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="particles">Argument particles</h2>
+<p>A closed set of role particles labels every required parameter after the object.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Particle</th><th scope="col">Role</th></tr></thead>
+  <tbody>
+    <tr><td><em>none</em></td><td>The object being acted on</td></tr>
+    <tr><td><code>from</code></td><td>Source or start</td></tr>
+    <tr><td><code>to</code></td><td>Destination or recipient</td></tr>
+    <tr><td><code>until</code></td><td>Exclusive end</td></tr>
+    <tr><td><code>through</code></td><td>Inclusive end</td></tr>
+    <tr><td><code>at</code></td><td>Position or time</td></tr>
+    <tr><td><code>by</code></td><td>Means or replacement</td></tr>
+    <tr><td><code>for</code></td><td>Beneficiary or purpose</td></tr>
+    <tr><td><code>as</code></td><td>Role</td></tr>
+  </tbody>
+</table></div>
+<p>The particle comes before the type in a declaration and before the value in a call:</p>
+<pre><code class="byn">public void copy(from Path src, to Path dst) fails FsError uses fs
+public void insert(ref this, T item, at Index i) uses alloc
+
+copy(from: old, to: backup)
+xs.insert(item, at: 0)</code></pre>
+<ul>
+  <li>A function has at most one unlabeled parameter, the object (BYN5004). The receiver does not count as the object.</li>
+  <li>Every other required parameter takes a particle (BYN5006), and call sites must write it (BYN5005).</li>
+  <li>The particles are part of the function’s name: <code>copy(from:to:)</code>.</li>
+  <li><code>bool</code> parameters must be passed by name.</li>
+</ul>
+
+<h2 id="overloads">Overloading by particle set</h2>
+<p>Overloads may differ by particle set or by parameter type. The checks run at the declaration, so a call never needs ambiguity resolution: the labels a call writes select the overload.</p>
+<example name="overloads"/>
+
+<h2 id="diagnostic">When a particle is missing</h2>
+<p>Write the argument without its particle and the compiler names the particle, points at the argument and shows the fix. A swapped pair of arguments of the same type lands here too, which is why Bayan needs no separate same-type naming rule.</p>
+<pre><code class="byn">// A swapped pair is a particle mismatch (BYN5005).
+i64 width(i64 start, until i64 end) =&gt; end - start
+
+let start: i64 = 2
+let end: i64 = 5
+print($"{width(end, start)}")
+print($"{width(start, until: end)}")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5005:</span> `end` is passed without its particle `until:`
+
+<span class="gut">  6 │</span> print($"{width(end, <span class="hl">start</span>)}")
+<span class="gut">    │</span>                     <span class="hl">^^^^^ needs `until:`</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> add `until:` before the argument
+<span class="gut">    │ 6 │</span> print($"{width(end, <span class="add">until: </span>start)}")
+<span class="gut">    │   │</span>                     <span class="add">+++++++</span></pre>
+  <figcaption>The compiler’s message for this program, as recorded in <code>tests/cases/diag/arguments-swapped.diag</code>. Run <code>bayan explain BYN5005</code> for the long form.</figcaption>
+</figure>
+
+<h2 id="rest">Related</h2>
+<p>Variadic parameters use <code>rest</code>, and the generated constructor of an <code>@positional</code> struct is exempt from particles. Both are covered in the specification, section 10.</p>
