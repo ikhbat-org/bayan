@@ -1,0 +1,9 @@
+#!/usr/bin/env bayan
+void main() {
+    var xs: List<i64> = [30, 10, 20]
+    xs.sort()
+    for x in xs { print($"{x}") }
+    var words: List<string> = ["pear", "Apple", "fig"]
+    words.sort()
+    for w in words { print(w) }
+}

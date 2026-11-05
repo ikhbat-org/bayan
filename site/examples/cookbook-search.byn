@@ -1,0 +1,10 @@
+#!/usr/bin/env bayan
+void main() {
+    let s = "one two one three"
+    print($"{s.contains("two")} {s.startsWith("one")} {s.endsWith("x")}")
+    print($"{s.position("one") ?? -1} {s.position("one", from: 1) ?? -1} {s.position("zzz") ?? -1}")
+    print($"{s.lastPosition("one") ?? -1} {s.count("one")}")
+    print(s.replaced("one", by: "1"))
+    print($"{"ABC".equals("abc", as: .caseless)}")
+    print("Hello".uppercased())
+}

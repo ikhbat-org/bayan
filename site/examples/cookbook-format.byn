@@ -1,0 +1,12 @@
+#!/usr/bin/env bayan
+void main() {
+    let name = "Ada"
+    let n = 255
+    let pi = 3.14159
+    print($"{name} has {n * 2} items")
+    print($"hex {n, as: .hex}, binary {n, as: .binary}")
+    print($"[{n, width: 6, fill: '0'}] [{name, width: 6, align: .end}]")
+    print($"pi is about {pi, digits: 2}")
+    print($"{"say \"hi\"", as: .debug}")
+    print($"braces: {{ and }}")
+}

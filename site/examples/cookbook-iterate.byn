@@ -1,0 +1,11 @@
+#!/usr/bin/env bayan
+void main() {
+    let langs: List<string> = ["go", "rust", "python"]
+    for lang in langs {
+        print(lang)
+    }
+    for i in 0..langs.length {
+        print($"{i}: {langs[i]}")
+    }
+    print($"{langs.tryGet(at: 5) ?? "none"}")
+}

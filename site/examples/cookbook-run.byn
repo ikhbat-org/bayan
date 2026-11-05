@@ -1,0 +1,18 @@
+#!/usr/bin/env bayan
+// os: unix
+void show(ProcessResult r) {
+    print($"exit {r.exitCode}, stdout [{r.stdout}], stderr [{r.stderr}]")
+}
+
+void main() fails IoError {
+    let args: string[2] = ["-n", "hello"]
+    show(try Io.run("echo", args.span))
+    let sh: string[2] = ["-c", "echo oops >&2; exit 2"]
+    show(try Io.run("sh", sh.span))
+    let missing: string[1] = ["x"]
+    let r = Io.run("no-such-program", missing.span) catch {
+        print("could not start")
+        return
+    }
+    show(r)
+}

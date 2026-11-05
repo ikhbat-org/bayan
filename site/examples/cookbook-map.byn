@@ -1,0 +1,14 @@
+#!/usr/bin/env bayan
+void main() {
+    var stock = Map<string, i64>()
+    stock["apples"] = 3
+    stock["pears"] = 0
+    print($"apples: {stock["apples"]}")
+    print($"kiwis: {stock.tryGet(at: "kiwis") ?? -1}")
+    print($"{stock.contains("pears")} {stock.contains("kiwis")}")
+    stock["apples"] = (stock.tryGet(at: "apples") ?? 0) + 1
+    for e in stock {
+        print($"{e.key} = {e.value}")
+    }
+    print($"{stock.remove("pears")} {stock.length}")
+}
