@@ -1,12 +1,12 @@
 #!/bin/bash
-# preflight.sh on a fixture repo under tmp/, run by /bin/bash (3.2 on macOS), with a fake dotnet and deno on PATH: a clean branch is
+# preflight.sh on a fixture repo under tmp/, run by /bin/bash (3.2 on macOS), with a fake dotnet on PATH and a fake pinned bayan: a clean branch is
 # all `ok` but wp1 until tmp/wp1/<sha>.out holds a passing run of every class, then exits 0; each check fails on its own fixture:
 # cites (past the end, a quoted symbol not on a single cited line or the 2 after it, nor in a cited range, a missing file; a bare name resolves), files (a brace list is one name each; prints the addition),
 # questions (a number twice, one already on the base, one outside the range, a task with no range; a range from the task line or
 # BAYAN_QRANGES), tests (a class from the file's declaration, not its name; a class that matches no test, a failed test, a build
 # error, plan-strings-check), wp1 (missing, not `exit 0`, no tests, a filter without a class, uncommitted changes); on a checkout of
 # the branch it checks the working tree. It exits early on a spec with no specs.tsv row, an unknown branch or base, a worktree it
-# cannot make, or a branch with no merge base; deno missing from PATH fails the tests check.
+# cannot make, or a branch with no merge base; a pinned bayan that cannot be found fails the tests check.
 set -e
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 r="$root/tmp/preflight-test"; aux="$root/tmp/preflight-test-aux"
@@ -31,9 +31,9 @@ case "$1" in
   test) echo "$*" > "$AUX/test-args"; cat "$AUX/test-out"; exit "$(cat "$AUX/test-rc")";;
 esac
 EOF
-printf '#!/bin/bash\n[ -f "$AUX/deno-fail" ] && { echo "BYN1001 message missing"; exit 1; }; echo ok\n' > "$aux/bin/deno"
-chmod +x "$aux/bin/dotnet" "$aux/bin/deno"
-export AUX=$aux
+printf '#!/bin/bash\n[ -f "$AUX/tool-fail" ] && { echo "BYN1001 message missing"; exit 1; }; echo ok\n' > "$aux/bayan"
+chmod +x "$aux/bin/dotnet" "$aux/bayan"
+export AUX=$aux PINNED_BAYAN=$aux/bayan  # scripts/bayan-tool.sh runs it for plan-strings-check
 passing() { printf '  Passed Bayan.Tests.%s.A [1 ms]\n' FooT8Tests CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests > "$aux/test-out"; echo 0 > "$aux/test-rc"; }
 passing
 # br <name> <file> <line>…: a branch off base appending each line to its file
@@ -63,17 +63,15 @@ qdup=$(pf T99 qdup); qout=$(pf T99 qout); qbase=$(pf T99 qbase); qline=$(pf T98 
 printf '  Passed Bayan.Tests.%s.A [1 ms]\n' CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests > "$aux/test-out"; zero=$(pf T99 good)
 passing; printf '  Failed Bayan.Tests.CInventoryTests.B [1 ms]\n' >> "$aux/test-out"; echo 1 > "$aux/test-rc"; failed=$(pf T99 good)
 passing; touch "$aux/build-fail"; build=$(pf T99 good); rm "$aux/build-fail"
-touch "$aux/deno-fail"; deno=$(pf T99 good); rm "$aux/deno-fail"
+touch "$aux/tool-fail"; tool=$(pf T99 good); rm "$aux/tool-fail"
 git switch -q good; printf 'int c;\n' > src/c.c; writer=$(pf T99 good); rm src/c.c; git switch -q base
 # the exits before any check: no specs.tsv row, an unknown branch or base, a worktree that cannot be made, no merge base
 nospec=$(PATH="$aux/bin:$PATH" /bin/bash "$root/scripts/selfhost/preflight.sh" 999 T99 good 2>&1 && echo "rc=0" || echo "rc=$?")
 nobr=$(pf T99 nope); nobase=$(BAYAN_BASE=nobase PATH="$aux/bin:$PATH" BAYAN_QRANGES=$aux/q.tsv /bin/bash "$root/scripts/selfhost/preflight.sh" 012 T99 good 2>&1 && echo "rc=0" || echo "rc=$?")
 mkdir -p tmp/preflight; chmod a-w tmp; nowt=$(pf T99 good); chmod u+w tmp
 git branch lone "$(git commit-tree "$(git mktree < /dev/null)" -m "test: lone")"; nomb=$(pf T99 lone)
-# deno not on PATH: the fake dotnet, git, and the PATH directories that hold no deno
-mkdir "$aux/bin2"; cp "$aux/bin/dotnet" "$aux/bin2/"; ln -s "$(command -v git)" "$aux/bin2/git"
-nd=$(printf '%s' "$PATH" | tr ':' '\n' | while IFS= read -r d; do [ -x "$d/deno" ] || printf '%s:' "$d"; done)
-nodeno=$(PATH="$aux/bin2:$nd" BAYAN_BASE=base BAYAN_QRANGES=$aux/q.tsv /bin/bash "$root/scripts/selfhost/preflight.sh" 012 T99 good 2>&1 && echo "rc=0" || echo "rc=$?")
+# no pinned bayan
+nobayan=$(PINNED_BAYAN=$aux/none pf T99 good)
 cd "$root"; rm -rf "$r" "$aux"
 fail() { echo "FAIL: $1"; echo "$2"; exit 1; }
 has() { grep -qxF -- "$2" <<< "$1"; }
@@ -101,7 +99,7 @@ has "$notask" "FAIL task: no T96 in docs/specs/012-self-hosted-bootstrap/012-tas
 has "$zero" "FAIL tests: FullyQualifiedName~FooT8Tests matched no tests" || fail "a class matching no test passed" "$zero"
 has "$failed" "FAIL tests: Bayan.Tests.CInventoryTests.B failed" && has "$failed" "FAIL tests: dotnet test exited 1 (tmp/preflight/t99/test.txt)" || fail "a failed test passed" "$failed"
 grep -q '^FAIL tests: build failed — a.cs(1,1): error CS1002' <<< "$build" || fail "a build error passed" "$build"
-grep -q '^FAIL tests: scripts/plan-strings-check.js --base base failed — BYN1001 message missing$' <<< "$deno" || fail "a plan-strings failure passed" "$deno"
+grep -q '^FAIL tests: plan-strings-check --base base failed — BYN1001 message missing$' <<< "$tool" || fail "a plan-strings failure passed" "$tool"
 has "$writer" 'FAIL files: 1 changed outside T99'"'"'s files list; append to its files: in docs/specs/012-self-hosted-bootstrap/012-tasks.md: `src/c.c`' || fail "on the branch's checkout an untracked file is not checked" "$writer"
 grep -q '^FAIL wp1: the working tree has uncommitted changes' <<< "$writer" || fail "uncommitted changes did not make wp1 fail" "$writer"
 has "$nospec" "FAIL spec: no row for spec 999 in scripts/selfhost/specs.tsv" && has "$nospec" "rc=1" || fail "a spec without a specs.tsv row did not fail" "$nospec"
@@ -109,5 +107,5 @@ has "$nobr" "FAIL branch: no branch nope" && has "$nobr" "rc=1" || fail "an unkn
 has "$nobase" "FAIL branch: no base branch nobase" && has "$nobase" "rc=1" || fail "an unknown base did not fail" "$nobase"
 has "$nowt" "FAIL branch: cannot check out good in $r/tmp/preflight-t99" && has "$nowt" "rc=1" || fail "a worktree that cannot be made did not fail" "$nowt"
 has "$nomb" "FAIL branch: lone has no merge base with base" && has "$nomb" "rc=1" || fail "a branch with no merge base did not fail" "$nomb"
-has "$nodeno" "FAIL tests: deno is not installed, so scripts/plan-strings-check.js cannot run" && has "$nodeno" "rc=1" || fail "a missing deno did not fail" "$nodeno"
+has "$nobayan" "FAIL tests: plan-strings-check --base base failed — pinned-bayan: PINNED_BAYAN=$aux/none is not an executable" && has "$nobayan" "rc=1" || fail "a missing pinned bayan did not fail" "$nobayan"
 echo PASS
