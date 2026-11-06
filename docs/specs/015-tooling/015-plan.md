@@ -10,6 +10,10 @@ when `scripts/parity/run.sh <tool>` passes every recorded case (R6). Ports use o
 needs a New API (S2–S8) waits for the task that builds it, so the order below departs from the spec's table where a
 port's needs are larger than the table says (measured 2026-11-06).
 
+Each tool starts with `#!/usr/bin/env bayan`, so `bayan run` compiles it alone (script mode); without it every `.byn` in
+`tools/` would build as one program (BYN2013). The launcher refuses a tool without that line, and drops PATH entries
+under the caller's directory (parity stubs) before finding the pin.
+
 Port 1 (`mutation-exempt`) is not ported: the script has had no reader since Q910 and is removed by
 `scripts/cleanup/022-self-hosted-emitter.sh` (user decision Q916 (a)). `scripts/parity/run.test.sh` probes with
 `review-brief` instead.
