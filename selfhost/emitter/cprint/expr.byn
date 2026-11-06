@@ -350,16 +350,13 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
                 let env = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[4]].type)
                 let name = helper(ref cc, for: "bynh_io_run_with",
                     from: $"static uint32_t bynh_io_run_with(byn_str program, {span} args, {dir} directory, {input} input, {env} env, byn_process* out)",
-                    as: "{\n    return byn_io_run_with(program, args.ptr, args.len, directory.has ? &directory.value : NULL,\n"
-                        + "        input.has ? input.value.ptr : NULL, input.has ? input.value.len : -1,\n"
-                        + "        env.has ? env.value.keys : NULL, env.has ? env.value.vals : NULL, env.has ? env.value.h.dead : NULL,\n"
-                        + "        env.has ? env.value.h.len : 0, out, byn_context);\n}\n")
+                    as: "{\n    return byn_io_run_with(program, args.ptr, args.len, directory.has ? &directory.value : NULL,\n        input.has ? input.value.ptr : NULL, input.has ? input.value.len : -1,\n        env.has ? env.value.keys : NULL, env.has ? env.value.vals : NULL, env.has ? env.value.h.dead : NULL,\n        env.has ? env.value.h.len : 0, out, byn_context);\n}\n")
                 let program = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
-                let args = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])
+                let runArgs = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])
                 let directory = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[2])
                 let bytes = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[3])
                 let vars = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[4])
-                return $"{name}({program}, {args}, {directory}, {bytes}, {vars}, {outArg})"
+                return $"{name}({program}, {runArgs}, {directory}, {bytes}, {vars}, {outArg})"
             }
             let name = helper(ref cc, for: "bynh_io_run", from: $"static uint32_t bynh_io_run(byn_str program, {span} args, byn_process* out)",
                 as: "{\n    return byn_io_run(program, args.ptr, args.len, out, byn_context);\n}\n")
