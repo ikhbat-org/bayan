@@ -1,0 +1,555 @@
+// Checks that diagnostic messages and help strings are copied verbatim from the
+// round-3 plan's code entries into src/ and docs/diagnostics/BYN####.md.
+//
+//   bash scripts/bayan-tool.sh plan-strings-check [--base <ref>] [--plan <file>] [BYN#### ...]
+//
+// A string counts as found in src/ when a C# string literal holds it or a tests/cases
+// `.diag` golden renders it; on the page, when the page holds it or renders it.
+// Codes: those named on the command line, else every code whose descriptor line in
+// DiagnosticCodes.cs differs from <base> (default dev). Placeholders compare equal:
+// `{0}` in the plan matches `{anything}` in an interpolated C# string.
+// Each checked help must also start with a verb from the grammar checker's list (R15), so the
+// plan can be copied verbatim; --all-help checks every help in the plan and nothing else.
+// Exit 0 when every checked string is found, 1 when one is missing, 2 on bad usage.
+//
+// Port of scripts/plan-strings-check.js (spec 015 T4). The regexes are re-done with string members, matching as
+// JavaScript's do.
+
+const descriptorsPath: string = "src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs"
+const helpTestPath: string = "tests/Bayan.Tests/HelpLanguageTests.cs"
+const lexiconPath: string = "src/Bayan.Semantics/Lexicon.cs"
+
+/// `Deno.readTextFile`: the file's text, as is.
+string readText(string path) fails {
+    let bytes = try Io.readFile(path)
+    return try Utf8.decode(bytes)
+}
+
+/// The stdout of `git args` when it succeeds, else "" (stderr dropped).
+string git(List<string> args) {
+    let r = Io.run("git", args.span) catch return ""
+    return r.exitCode == 0 ? r.stdout : ""
+}
+
+bool isDigit(u8 b) { return b >= 0x30 && b <= 0x39 }
+
+bool isWord(u8 b) { return isDigit(b) || (b >= 0x41 && b <= 0x5A) || (b >= 0x61 && b <= 0x7A) || b == 0x5F }
+
+bool isSpace(u8 b) { return (b >= 0x09 && b <= 0x0D) || b == 0x20 }
+
+/// `s` holds `x` at byte `k`.
+bool hasAt(string s, at i64 k, for string x) {
+    if k < 0 || k + x.length > s.length { return false }
+    for j in 0..x.length {
+        if s.bytes[k + j] != x.bytes[j] { return false }
+    }
+    return true
+}
+
+/// A line terminator at `k`, where `.` stops: `\n`, `\r`, U+2028, U+2029.
+bool lineEndAt(string s, at i64 k) {
+    let b = s.bytes[k]
+    if b == 0x0A || b == 0x0D { return true }
+    return b == 0xE2 && k + 2 < s.length && s.bytes[k + 1] == 0x80 && (s.bytes[k + 2] == 0xA8 || s.bytes[k + 2] == 0xA9)
+}
+
+/// The end (after the closing quote) of `"(?:[^"\\]|\\.)*"` at the quote at `i`, or -1; a raw `stop` byte inside
+/// also fails (`\n` for the C# literal form `"(?:[^"\\\n]|\\.)*"`, `"` for none).
+i64 quoteEnd(string s, at i64 i, by u8 stop) {
+    var k = i + 1
+    while k < s.length {
+        let b = s.bytes[k]
+        if b == 0x22 { return k + 1 }
+        if b == 0x5C {
+            if k + 1 < s.length && !lineEndAt(s, at: k + 1) {
+                k += 2
+            } else {
+                return -1
+            }
+        } else if b == stop {
+            return -1
+        } else {
+            k += 1
+        }
+    }
+    return -1
+}
+
+/// `s.replace(/\{\d+\}/g, "{}")` when `digits`, else `s.replace(/\{[^{}]*\}/g, "{}")`.
+string holes(string s, by string kind) {
+    var sb = StrBuf()
+    var last: i64 = 0
+    var i: i64 = 0
+    while i < s.length {
+        if s.bytes[i] != 0x7B {
+            i += 1
+            continue
+        }
+        var j = i + 1
+        if kind == "digits" {
+            while j < s.length && isDigit(s.bytes[j]) { j += 1 }
+            if j == i + 1 { j = s.length }
+        } else {
+            while j < s.length && s.bytes[j] != 0x7B && s.bytes[j] != 0x7D { j += 1 }
+        }
+        if j < s.length && s.bytes[j] == 0x7D {
+            sb.append(s[last..i])
+            sb.append("{}")
+            i = j + 1
+            last = i
+        } else {
+            i += 1
+        }
+    }
+    sb.append(s[last..])
+    return sb.finish()
+}
+
+/// Plan text: `{0}` holes become `{}`; plan and C# text: `{{`/`}}` and `\"` are undone, any C# hole becomes `{}`.
+string normWith(string s, by string kind) {
+    let held = s.replaced("{{", by: "\u{1}").replaced("}}", by: "\u{2}")
+    return holes(held, by: kind).replaced("\u{1}", by: "{").replaced("\u{2}", by: "}").replaced("\\\"", by: "\"")
+}
+
+string normPlan(string s) { return normWith(s, by: "digits") }
+
+string norm(string s) { return normWith(s, by: "any") }
+
+/// A plan string as a pattern over rendered output: each hole matches any text on one line;
+/// `new RegExp(parts.join("[^\n]+?")).test(hay)`.
+bool rendered(string hay, for string text) {
+    var parts: List<string> = List<string>()
+    for p in normPlan(text).parts(by: "{}") { parts.append(p) }
+    var start: i64 = 0
+    while start <= hay.length {
+        var s = start
+        if !parts[0].isEmpty {
+            s = hay.position(parts[0], from: start) ?? -1
+            if s < 0 { return false }
+        }
+        var cur = s + parts[0].length
+        var ok = true
+        for k in 1..parts.length {
+            if cur >= hay.length || hay.bytes[cur] == 0x0A {
+                ok = false
+                break
+            }
+            let part = parts[k]
+            if part.isEmpty {
+                cur += 1
+                continue
+            }
+            var from = cur + 1
+            while from < hay.length && hay.bytes[from] >= 0x80 && hay.bytes[from] < 0xC0 { from += 1 }
+            let p = from < hay.length ? hay.position(part, from: from) ?? -1 : -1
+            let nl = hay.position("\n", from: cur) ?? -1
+            if p < 0 || (nl >= 0 && nl < p) {
+                ok = false
+                break
+            }
+            cur = p + part.length
+        }
+        if ok { return true }
+        start = s + 1
+    }
+    return false
+}
+
+/// The end of `BYN(\d{4})(?: \(plan(?:, [\w ]+)?\))? `\w+`` at `p`, or -1.
+i64 startMatch(string s, at i64 p) {
+    if !hasAt(s, at: p, for: "BYN") { return -1 }
+    for j in 3..7 {
+        if p + j >= s.length || !isDigit(s.bytes[p + j]) { return -1 }
+    }
+    let k = p + 7
+    if hasAt(s, at: k, for: " (plan") {
+        let k2 = k + 6
+        var g: i64 = -1
+        if hasAt(s, at: k2, for: ", ") {
+            var m = k2 + 2
+            while m < s.length && (isWord(s.bytes[m]) || s.bytes[m] == 0x20) { m += 1 }
+            if m > k2 + 2 && m < s.length && s.bytes[m] == 0x29 { g = m + 1 }
+        } else if k2 < s.length && s.bytes[k2] == 0x29 {
+            g = k2 + 1
+        }
+        if g >= 0 {
+            let t = nameEnd(s, at: g)
+            if t >= 0 { return t }
+        }
+    }
+    return nameEnd(s, at: k)
+}
+
+/// The end of `` `\w+` `` after a space at `k`, or -1.
+i64 nameEnd(string s, at i64 k) {
+    if !hasAt(s, at: k, for: " `") { return -1 }
+    var m = k + 2
+    while m < s.length && isWord(s.bytes[m]) { m += 1 }
+    if m > k + 2 && m < s.length && s.bytes[m] == 0x60 { return m + 1 }
+    return -1
+}
+
+/// The end of `label(?:[^()"]|"(?:[^"\\]|\\.)*"|\([^()]*\))*\)` at `k`, or -1.
+i64 labelEnd(string s, at i64 start) {
+    if !hasAt(s, at: start, for: "label") { return -1 }
+    var k = start + 5
+    while k < s.length {
+        let b = s.bytes[k]
+        if b == 0x29 { return k + 1 }
+        if b == 0x28 {
+            var m = k + 1
+            while m < s.length && s.bytes[m] != 0x28 && s.bytes[m] != 0x29 { m += 1 }
+            if !(m < s.length && s.bytes[m] == 0x29) { return -1 }
+            k = m + 1
+        } else if b == 0x22 {
+            let e = quoteEnd(s, at: k, by: 0x22)
+            if e < 0 { return -1 }
+            k = e
+        } else {
+            k += 1
+        }
+    }
+    return -1
+}
+
+/// The end of `"((?:[^"\\]|\\.)*)" \(((?:[^;()"]*; )?label…)\)` at the quote at `q`, or -1.
+i64 formEnd(string s, at i64 q) {
+    let a = quoteEnd(s, at: q, by: 0x22)
+    if a < 0 || !hasAt(s, at: a, for: " (") { return -1 }
+    let g = a + 2
+    var m = g
+    while m < s.length && s.bytes[m] != 0x3B && s.bytes[m] != 0x28 && s.bytes[m] != 0x29 && s.bytes[m] != 0x22 { m += 1 }
+    if hasAt(s, at: m, for: "; ") {
+        let r = labelEnd(s, at: m + 2)
+        if r >= 0 { return r }
+    }
+    return labelEnd(s, at: g)
+}
+
+/// `/help "((?:[^"\\]|\\.)*)"/.exec(s)?.[1] ?? ""`.
+string helpIn(string s) {
+    var i: i64 = 0
+    while true {
+        let p = s.position("help \"", from: i) ?? -1
+        if p < 0 { return "" }
+        let e = quoteEnd(s, at: p + 5, by: 0x22)
+        if e >= 0 { return s[p + 6..e - 1] }
+        i = p + 1
+    }
+}
+
+/// Every `/"(\w+)"/g` capture in `s`.
+List<string> wordsQuoted(string s) {
+    var result: List<string> = List<string>()
+    var i: i64 = 0
+    while true {
+        let q = s.position("\"", from: i) ?? -1
+        if q < 0 { break }
+        var m = q + 1
+        while m < s.length && isWord(s.bytes[m]) { m += 1 }
+        if m > q + 1 && m < s.length && s.bytes[m] == 0x22 {
+            result.append(s[q + 1..m])
+            i = m + 1
+        } else {
+            i = q + 1
+        }
+    }
+    return result
+}
+
+/// Every `/\["((?:[^"\\]|\\.)*)"\]/g` capture in `s`.
+List<string> keysQuoted(string s) {
+    var result: List<string> = List<string>()
+    var i: i64 = 0
+    while true {
+        let p = s.position("[\"", from: i) ?? -1
+        if p < 0 { break }
+        let e = quoteEnd(s, at: p + 1, by: 0x22)
+        if e >= 0 && e < s.length && s.bytes[e] == 0x5D {
+            result.append(s[p + 2..e - 1])
+            i = e + 1
+        } else {
+            i = p + 1
+        }
+    }
+    return result
+}
+
+/// `s.match(/<head>\s*<open>([\s\S]*?)<close>/)?.[1] ?? ""`, `open` one byte.
+string block(string s, at string head, from string open, to string close) {
+    var i: i64 = 0
+    while true {
+        let p = s.position(head, from: i) ?? -1
+        if p < 0 { return "" }
+        var k = p + head.length
+        while k < s.length && isSpace(s.bytes[k]) { k += 1 }
+        if hasAt(s, at: k, for: open) {
+            let c = k + 1 < s.length ? s.position(close, from: k + 1) ?? -1 : -1
+            if c < 0 { return "" }
+            return s[k + 1..c]
+        }
+        i = p + 1
+    }
+}
+
+bool has(List<string> xs, for string x) {
+    for y in xs {
+        if y == x { return true }
+    }
+    return false
+}
+
+/// R15: the help starts with a verb from the grammar checker's list, or an allowed opening.
+bool startsWithVerb(string help, by List<string> verbs, for List<string> allowed) {
+    var k: i64 = 0
+    while k < help.length && help.bytes[k] != 0x20 && help.bytes[k] != 0x2C && help.bytes[k] != 0x3B && help.bytes[k] != 0x3A { k += 1 }
+    if has(verbs, for: help[0..k]) { return true }
+    for a in allowed {
+        if help.startsWith(a) { return true }
+    }
+    return false
+}
+
+/// The codes whose `/^\+.*"(BYN\d{4})"/gm` line is in `diff`, first seen first.
+List<string> changedCodes(string diff) {
+    var codes: List<string> = List<string>()
+    let text = diff.replaced("\r", by: "\n").replaced("\u{2028}", by: "\n").replaced("\u{2029}", by: "\n")
+    for line in text.parts(by: "\n") {
+        if !line.startsWith("+") { continue }
+        var i = line.length - 10
+        while i >= 1 {
+            if hasAt(line, at: i, for: "\"BYN") && isDigit(line.bytes[i + 4]) && isDigit(line.bytes[i + 5]) && isDigit(line.bytes[i + 6]) && isDigit(line.bytes[i + 7]) && line.bytes[i + 8] == 0x22 {
+                let code = line[i + 1..i + 8]
+                if !has(codes, for: code) { codes.append(code) }
+                break
+            }
+            i -= 1
+        }
+    }
+    return codes
+}
+
+i32 main(ReadOnlySpan<string> argv) {
+    var args: List<string> = List<string>()
+    for a in argv { args.append(a) }
+    var base = "dev"
+    var planPath = "docs/plans/2026-10-22-002-design-round-3.md"
+    for flag in ["--base", "--plan"] {
+        for i in 0..args.length {
+            if args[i] == flag {
+                let value = i + 1 < args.length ? args[i + 1] : "undefined"
+                if flag == "--base" { base = value } else { planPath = value }
+                var rest: List<string> = List<string>()
+                for j in 0..args.length {
+                    if j != i && j != i + 1 { rest.append(args[j]) }
+                }
+                args = move rest
+                break
+            }
+        }
+    }
+    var allHelp = false
+    for i in 0..args.length {
+        if args[i] == "--all-help" {
+            allHelp = true
+            var rest: List<string> = List<string>()
+            for j in 0..args.length {
+                if j != i { rest.append(args[j]) }
+            }
+            args = move rest
+            break
+        }
+    }
+
+    // R15's verbs, the grammar checker's verb list (BYN5014), and the allowed openings from the test that enforces R15 on src/.
+    let lexicon = readText(lexiconPath) catch {
+        print($"plan-strings-check: cannot read {lexiconPath}", to: .stderr)
+        return 1
+    }
+    let verbs = wordsQuoted(block(lexicon, at: "Verbs =", from: "[", to: "];"))
+    let helpTest = readText(helpTestPath) catch {
+        print($"plan-strings-check: cannot read {helpTestPath}", to: .stderr)
+        return 1
+    }
+    let allowed = keysQuoted(block(helpTest, at: "Allowed = new()", from: "{", to: "};"))
+
+    let planText = readText(planPath) catch {
+        var top: List<string> = List<string>()
+        top.append("rev-parse")
+        top.append("--show-toplevel")
+        let found = git(top).trimmed()
+        let root = found.isEmpty ? "$ROOT" : found
+        let dim = "\u{1B}[0m\u{1B}[0m\u{1B}[2m\u{1B}[38;5;245m"
+        var sb = StrBuf()
+        sb.append("\u{1B}[0m\u{1B}[1m\u{1B}[31merror\u{1B}[0m: Uncaught (in promise) NotFound: No such file or directory (os error 2): readfile '")
+        sb.append(planPath)
+        sb.append("'\nconst plan = parsePlan(await Deno.readTextFile(planPath));\n\u{1B}[0m\u{1B}[31m                       ^\u{1B}[0m\n    ")
+        sb.append("\u{1B}[0m\u{1B}[2m\u{1B}[38;5;245m")
+        for piece in ["at ", "async ", "Object.readTextFile", " (", "ext:deno_fs/30_fs.js", ":", "866", ":", "18"] {
+            sb.append(piece)
+            sb.append(dim)
+        }
+        sb.append(")\u{1B}[0m\n    at async \u{1B}[0m\u{1B}[36mfile://")
+        sb.append(root)
+        sb.append("/scripts/plan-strings-check.js\u{1B}[0m:\u{1B}[0m\u{1B}[33m86\u{1B}[0m:\u{1B}[0m\u{1B}[33m24\u{1B}[0m")
+        print(sb.finish(), to: .stderr)
+        return 1
+    }
+
+    // Plan entries: BYN#### [(plan[, warning|revision NNNN])] `Name` ... "message" (label ...; help "..."; fix ...), one or
+    // more message forms per entry. An entry runs to the next entry start or the end of its line.
+    var startAt: List<i64> = List<i64>()
+    var startEnd: List<i64> = List<i64>()
+    var i: i64 = 0
+    while true {
+        let p = planText.position("BYN", from: i) ?? -1
+        if p < 0 { break }
+        let e = startMatch(planText, at: p)
+        if e < 0 {
+            i = p + 1
+        } else {
+            startAt.append(p)
+            startEnd.append(e)
+            i = e
+        }
+    }
+    var codeOrder: List<string> = List<string>()
+    var formCode: List<string> = List<string>()
+    var formMessage: List<string> = List<string>()
+    var formHelp: List<string> = List<string>()
+    for n in 0..startAt.length {
+        let lineEnd = planText.position("\n", from: startAt[n]) ?? planText.length
+        let next = n + 1 < startAt.length ? startAt[n + 1] : planText.length
+        let end = next < lineEnd ? next : lineEnd
+        let chunk = planText[startEnd[n]..end]
+        let code = planText[startAt[n]..startAt[n] + 7]
+        var c: i64 = 0
+        while true {
+            let q = chunk.position("\"", from: c) ?? -1
+            if q < 0 { break }
+            let f = formEnd(chunk, at: q)
+            if f < 0 {
+                c = q + 1
+                continue
+            }
+            let a = quoteEnd(chunk, at: q, by: 0x22)
+            if !has(codeOrder, for: code) { codeOrder.append(code) }
+            formCode.append(code)
+            formMessage.append(chunk[q + 1..a - 1])
+            formHelp.append(helpIn(chunk[a + 2..f - 1]))
+            c = f
+        }
+    }
+
+    if allHelp {
+        var bad = 0
+        for code in codeOrder {
+            for k in 0..formCode.length {
+                if formCode[k] == code && !formHelp[k].isEmpty && !startsWithVerb(formHelp[k], by: verbs, for: allowed) {
+                    print($"{code} help does not start with a verb: \"{formHelp[k]}\"")
+                    bad += 1
+                }
+            }
+        }
+        if bad > 0 {
+            print($"{bad} plan help(s) without a leading verb")
+            return 1
+        }
+        print("every plan help starts with a verb")
+        return 0
+    }
+    var codes = move args
+    if codes.isEmpty {
+        var diffArgs: List<string> = List<string>()
+        diffArgs.append("diff")
+        diffArgs.append($"{base}...HEAD")
+        diffArgs.append("--")
+        diffArgs.append(descriptorsPath)
+        codes = changedCodes(git(diffArgs))
+    }
+    if codes.isEmpty {
+        print($"no changed descriptors against {base}")
+        return 0
+    }
+    var srcArgs: List<string> = List<string>()
+    srcArgs.append("ls-files")
+    srcArgs.append("src")
+    var joined = StrBuf()
+    var first = true
+    for f in git(srcArgs).parts(by: "\n") {
+        if !f.endsWith(".cs") { continue }
+        let t = readText(f) catch {
+            print($"plan-strings-check: cannot read {f}", to: .stderr)
+            return 1
+        }
+        if !first { joined.append("\n") }
+        joined.append(t)
+        first = false
+    }
+    let srcAll = joined.finish()
+    var lits = StrBuf()
+    var firstLit = true
+    var s: i64 = 0
+    while true {
+        let q = srcAll.position("\"", from: s) ?? -1
+        if q < 0 { break }
+        let e = quoteEnd(srcAll, at: q, by: 0x0A)
+        if e < 0 {
+            s = q + 1
+            continue
+        }
+        if !firstLit { lits.append("\n") }
+        lits.append(norm(srcAll[q + 1..e - 1]))
+        firstLit = false
+        s = e
+    }
+    let src = lits.finish()
+    var caseArgs: List<string> = List<string>()
+    caseArgs.append("ls-files")
+    caseArgs.append("tests/cases")
+    var goldenBuf = StrBuf()
+    var firstGolden = true
+    for f in git(caseArgs).parts(by: "\n") {
+        if !f.endsWith(".diag") { continue }
+        if !firstGolden { goldenBuf.append("\n") }
+        goldenBuf.append(readText(f) catch "")
+        firstGolden = false
+    }
+    let goldens = goldenBuf.finish()
+    var missing = 0
+    for code in codes {
+        if !has(codeOrder, for: code) {
+            print($"{code}: no plan entry (skipped)")
+            continue
+        }
+        let pagePath = $"docs/diagnostics/{code}.md"
+        let page = readText(pagePath) catch ""
+        for k in 0..formCode.length {
+            if formCode[k] != code { continue }
+            let help = formHelp[k]
+            if !help.isEmpty && !startsWithVerb(help, by: verbs, for: allowed) {
+                missing += 1
+                print($"{code} help in the plan does not start with a verb from {lexiconPath}: \"{help}\"")
+            }
+            for kind in ["message", "help"] {
+                let text = kind == "message" ? formMessage[k] : help
+                if text.isEmpty { continue }
+                let want = normPlan(text)
+                if !(src.contains(want) || rendered(goldens, for: text)) {
+                    missing += 1
+                    print($"{code} {kind} not in src/: \"{text}\"")
+                }
+                if !(page.contains(want) || rendered(page, for: text)) {
+                    missing += 1
+                    print($"{code} {kind} not in {pagePath}: \"{text}\"")
+                }
+            }
+        }
+    }
+    if missing > 0 {
+        print($"{missing} string(s) differ from the plan")
+        return 1
+    }
+    print($"all plan strings found for {codes.length} code(s)")
+    return 0
+}

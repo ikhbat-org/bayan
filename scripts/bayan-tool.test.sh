@@ -13,6 +13,9 @@ set +e; out=$(cd "$w" && bash "$root/scripts/bayan-tool.sh" bayan-tool-probe "a 
 [ "$rc" = 3 ] || fail "exit code $rc, expected 3"
 [ "$out" = "$(printf '[a b]\n[--]\n[c]\ntrue')" ] || fail "stdout: $out"
 [ "$(cat "$w/err")" = err ] || fail "stderr: $(cat "$w/err")"
+mkdir -p "$w/bin"; printf '#!/usr/bin/env bash\nexit 1\n' > "$w/bin/git"; chmod +x "$w/bin/git"
+set +e; out=$(cd "$w" && PATH="$w/bin:$PATH" bash "$root/scripts/bayan-tool.sh" bayan-tool-probe 2> /dev/null); rc=$?; set -e
+[ "$rc" = 3 ] || fail "a git stub in the caller's bin/ broke the launcher: exit $rc"
 if bash "$root/scripts/bayan-tool.sh" no-such-tool 2> /dev/null; then fail "a missing tool ran"; fi
 if bash "$root/scripts/bayan-tool.sh" ../x 2> /dev/null; then fail "a path-like name ran"; fi
 echo PASS
