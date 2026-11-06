@@ -424,6 +424,10 @@ internal sealed partial class Binder
                 else if (enforceNames && rule[p.Ordinal].Type.IsBool && ImpliedName(arg.Value) != p.Name)
                     Report(DiagnosticCodes.ArgumentMustBeNamed, arg.Value.Span, [p.Name], help: $"write `{p.Name}: …`; a `bool` argument says nothing at the call site",
                         fix: new Fix(new TextSpan(arg.Span.Start, 0), p.Name + ": "));
+                // `Io.run`'s options after `args` are named only (015 S6).
+                else if (fn?.Builtin == BuiltinFunction.IoRun && p.Ordinal >= 2)
+                    Report(DiagnosticCodes.ArgumentMustBeNamed, arg.Value.Span, [p.Name], help: $"write `{p.Name}: …`; `Io.run`'s options are named",
+                        fix: new Fix(new TextSpan(arg.Span.Start, 0), p.Name + ": "));
             }
             if (result[p.Ordinal] is not null)
             {
@@ -453,6 +457,11 @@ internal sealed partial class Binder
             if (fn?.Builtin == BuiltinFunction.Print && p.Ordinal == 1)
             {
                 result[i] = new BoundEnumMember(c, _c.Builtins.Stream.Find("stdout")!);
+                continue;
+            }
+            if (fn?.Builtin == BuiltinFunction.IoRun && p.Ordinal >= 2)
+            {
+                result[i] = new BoundDefault(c, p.Type);
                 continue;
             }
             missing.Add(Label(p));
