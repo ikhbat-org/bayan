@@ -1,5 +1,5 @@
 # 016 — Standard-library source: `import std.x`
-Status: draft
+Status: approved
 Created: 2026-11-06
 
 ## Problem
@@ -51,10 +51,12 @@ OS. Until a program can `import std.json` and get Bayān source shipped with the
 - For every program in the run/ and diag/ corpus that imports a std module, the C# and selfhost compilers produce the
   same output (an extension of L028's corpus, not a new law).
 
+## Decisions (user, 2026-11-06)
+- Q1 (a) Embedded: std source is compiled into the `bayan` binary at build time, as `selfhost/driver/runtime.byn` embeds
+  the C runtime; nothing is looked up at run time, so the pinned `.cache/bayan/<sha>/bin/bayan` stays one file.
+- Q2 The source lives in `lib/std/<module>/*.byn` (a new root code directory; `lib/kit/` later).
+- Q3 No `extern`: std source calls builtins and other std modules only; revisited when a module needs a new OS call.
+- Q4 The first module after the mechanism is the `std.json` reader (S7), for ports 6 and 8.
+
 ## Open questions
-- Q1 How std ships: (a) embedded in the compiler binary at build time, as `selfhost/driver/runtime.byn` embeds the C
-  runtime (one file, nothing to find at run time); (b) a `lib/std/` directory beside the executable, found from its path.
-- Q2 Repo home for the source: `lib/std/<module>/*.byn` (new root code dir), or `src/std/`.
-- Q3 May std source call the C runtime directly (`extern`), or only builtins and other std modules? (`std.json` and
-  `std.regex` need neither; a later `std.fs` glob needs only `Io.listDir`.)
-- Q4 First module after the mechanism: `std.json` reader (unblocks ports 6 and 8) or glob (ports 5 and 7).
+- None.
