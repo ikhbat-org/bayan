@@ -1,5 +1,6 @@
 CloseHandle
 CommandLineToArgvW
+CompareStringOrdinal
 CreateDirectoryW
 CreatePipe
 CreateProcessW
@@ -8,8 +9,10 @@ DeleteFileW
 FindClose
 FindFirstFileW
 FindNextFileW
+FreeEnvironmentStringsW
 GetCommandLineW
 GetCurrentProcessId
+GetEnvironmentStringsW
 GetEnvironmentVariableW
 GetExitCodeProcess
 GetFileAttributesW
@@ -28,7 +31,9 @@ SetHandleInformation
 SetLastError
 WaitForSingleObject
 WideCharToMultiByte
+WriteFile
 _create_locale
+_exit
 _fileno
 _setmode
 _strtod_l
@@ -38,15 +43,19 @@ _wfopen
 abort
 atoi
 calloc
+chdir
 clock_gettime
 close
 closedir
+dup2
+execvp
 exit
 fclose
 fcntl
 ferror
 fflush
 fopen
+fork
 fprintf
 fputc
 fputs
@@ -78,8 +87,11 @@ readdir
 realloc
 rmdir
 setjmp
+sigaction
+sigemptyset
 snprintf
 stat
+strchr
 strcmp
 strlen
 strtod
@@ -92,3 +104,4 @@ wcscmp
 wcscpy
 wcslen
 wcsrchr
+write

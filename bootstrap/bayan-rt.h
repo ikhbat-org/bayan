@@ -456,6 +456,14 @@ typedef struct byn_process {
  * never through a shell, and waits for it. Both streams are captured into `alloc`. `out` may be NULL.
  * On Windows a batch file (`.bat`, `.cmd`) is refused with `permissionDenied`, since cmd.exe would re-parse the arguments. */
 uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, byn_alloc* alloc);
+/* `Io.run` with its named arguments (015 S6). `directory` (NULL: ours) is where the child runs; one that does not exist
+ * or is not a directory fails before anything starts. `input` (`ninput` < 0: the child shares our stdin) is written to
+ * the child's stdin, which is then closed. The `nenv` entries of `env_keys`/`env_vals` (those with `env_dead[i]` set
+ * skipped) are added over the inherited environment, each replacing a variable of its name. A NUL in the directory, an
+ * empty name, `=` in a name or NUL in a name or value is `invalidInput`. */
+uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, const byn_str* directory, const uint8_t* input,
+                         int64_t ninput, const byn_str* env_keys, const byn_str* env_vals, const bool* env_dead, int64_t nenv,
+                         byn_process* out, byn_alloc* alloc);
 /* `Io.runBatch`'s command line: `cmd.exe /d /e:ON /v:OFF /s /c ""<path>" "<a1>" … "<an>""`, each argument
  * in double quotes as-is. False, with nothing built, when the path or an argument holds NUL, CR, LF, `"` or `%`,
  * or the path does not end in `.bat` or `.cmd` (any case). Otherwise `out` is from malloc. Compiled on every host. */
