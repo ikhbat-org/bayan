@@ -19,32 +19,32 @@ grep -q "allow '[^']*,docs/specs/010-self-hosted-semantics/010-api.md," tmp/010-
 grep -q "allow '[^']*,tests/cases/diag/generic-guard-mutate-rebind.diag," tmp/010-t28/prompt.md || { echo "FAIL: a rooted tests/ path is not kept as is"; exit 1; }
 grep -q "tests/Bayan.Tests/tests/\|selfhost/semantics/tests/" tmp/010-t28/prompt.md && { echo "FAIL: rooted path prefixed"; exit 1; }
 grep -q "^bash scripts/selfhost/guard.sh .*--filter 'FullyQualifiedName~SelfhostSemantics' " tmp/010-t28/prompt.md || { echo "FAIL: T28 guard does not cover every SelfhostSemantics class"; exit 1; }
-python3 -I scripts/selfhost/review-brief.py . T28 > /dev/null
+bash scripts/bayan-tool.sh review-brief . T28 > /dev/null
 grep -q "selfhost/semantics/selfhost/\|selfhost/semantics/tests/\|tests/Bayan.Tests/tests/" tmp/010-t28/review.md && { echo "FAIL: review brief prefixes a rooted path"; exit 1; }
 grep -q '`tests/cases/diag/generic-guard-mutate-rebind.diag`' tmp/010-t28/review.md || { echo "FAIL: review brief drops a rooted tests/ path"; exit 1; }
 grep -q 'filter "FullyQualifiedName~SelfhostSemantics"`' tmp/010-t28/review.md || { echo "FAIL: T28 review runs a test class that does not exist"; exit 1; }
 grep -q "allow '[^']*,work/todo.md," tmp/010-t28/prompt.md || { echo "FAIL: T28 guard does not allow work/todo.md"; exit 1; }
-python3 -I scripts/selfhost/review-brief.py . T17 > /dev/null
+bash scripts/bayan-tool.sh review-brief . T17 > /dev/null
 grep -q '`selfhost/parser/literals.byn`' tmp/010-t17/review.md || { echo "FAIL: review brief does not keep a selfhost/ path as is"; exit 1; }
 grep -q "selfhost/semantics/selfhost/" tmp/010-t17/review.md && { echo "FAIL: review brief prefixes a selfhost/ path twice"; exit 1; }
-python3 -I scripts/selfhost/review-brief.py . T31 > /dev/null
+bash scripts/bayan-tool.sh review-brief . T31 > /dev/null
 grep -q 'filter "FullyQualifiedName~SelfhostSemanticsNoPanicLawTests"`' tmp/010-t31/review.md || { echo "FAIL: T31 review does not run its own test class"; exit 1; }
-python3 -I scripts/selfhost/wave-brief.py . T30 > /dev/null; python3 -I scripts/selfhost/review-brief.py . T30 > /dev/null
+python3 -I scripts/selfhost/wave-brief.py . T30 > /dev/null; bash scripts/bayan-tool.sh review-brief . T30 > /dev/null
 grep -q "guard.sh .* --filter 'Law=L022' --task T30" tmp/010-t30/prompt.md || { echo "FAIL: a law-enact task's guard does not run its law's proof"; exit 1; }
 grep -q 'filter "Law=L022"`' tmp/010-t30/review.md || { echo "FAIL: a law-enact task's review does not run its law's proof"; exit 1; }
 python3 -I scripts/selfhost/wave-brief.py . T33 > /dev/null
 grep -q "guard.sh --base [^ ]* --allow 'docs/bayan-handoff.md,CHANGELOG.md,work/todo.md,docs/specs/010-self-hosted-semantics/010-spec.md,docs/specs/010-self-hosted-semantics/010-tasks.md' --filter 'FullyQualifiedName~SelfhostSemanticsApiTests' --task T33" tmp/010-t33/prompt.md || { echo "FAIL: a docs task's guard lacks its root and spec files once each, or runs no test"; grep guard.sh tmp/010-t33/prompt.md; exit 1; }
-python3 -I scripts/selfhost/review-brief.py . T33 > /dev/null
+bash scripts/bayan-tool.sh review-brief . T33 > /dev/null
 grep -q 'filter "FullyQualifiedName~SelfhostSemanticsApiTests"`' tmp/010-t33/review.md || { echo "FAIL: a docs task's review runs no test"; exit 1; }
 # Row 011 (specs.tsv): bare .byn names resolve under selfhost/emitter/, the guard line takes the row's base, test class and --spec, the brief goes to tmp/011-<t>/.
 python3 -I scripts/selfhost/wave-brief.py . T3 --spec 011 > /dev/null
 grep -q "^bash scripts/selfhost/guard.sh --base feat/011-self-hosted-emitter --allow 'selfhost/emitter/lowerstmt.byn,selfhost/emitter/lower.byn,tests/Bayan.Tests/SelfhostEmitterT3Tests.cs,docs/bayan-handoff.md,docs/specs/011-self-hosted-emitter/011-tasks.md' --filter 'FullyQualifiedName~SelfhostEmitterT3Tests' --task T3 --spec 011\$" tmp/011-t3/prompt.md || { echo "FAIL: the 011 guard line"; grep '^bash scripts/selfhost/guard.sh' tmp/011-t3/prompt.md; exit 1; }
-python3 -I scripts/selfhost/review-brief.py . T3 --spec 011 > /dev/null
+bash scripts/bayan-tool.sh review-brief . T3 --spec 011 > /dev/null
 grep -q 'filter "FullyQualifiedName~SelfhostEmitterT3Tests"`' tmp/011-t3/review.md || { echo "FAIL: the 011 review filter"; exit 1; }
 # every test class a 011 task owns is in its guard and review filter; T21 also runs the SelfhostSemantics* classes (Q870)
 python3 -I scripts/selfhost/wave-brief.py . T6 --spec 011 > /dev/null
 grep '^bash scripts/selfhost/guard.sh' tmp/011-t6/prompt.md | grep -q -- "--filter 'FullyQualifiedName~SelfhostEmitterT6Tests|FullyQualifiedName~SelfhostEmitterT8Tests' " || { echo "FAIL: a second owned test class is not in the guard filter"; grep '^bash scripts/selfhost/guard.sh' tmp/011-t6/prompt.md; exit 1; }
-python3 -I scripts/selfhost/review-brief.py . T6 --spec 011 > /dev/null
+bash scripts/bayan-tool.sh review-brief . T6 --spec 011 > /dev/null
 grep -q 'filter "FullyQualifiedName~SelfhostEmitterT6Tests|FullyQualifiedName~SelfhostEmitterT8Tests"`' tmp/011-t6/review.md || { echo "FAIL: a second owned test class is not in the review filter"; exit 1; }
 python3 -I scripts/selfhost/wave-brief.py . T21 --spec 011 > /dev/null
 grep '^bash scripts/selfhost/guard.sh' tmp/011-t21/prompt.md | grep -q -- "--filter 'FullyQualifiedName~SelfhostEmitterT21Tests|FullyQualifiedName~SelfhostSemantics' " || { echo "FAIL: the T21 guard does not count the SelfhostSemantics tests"; exit 1; }
@@ -55,7 +55,7 @@ grep '^bash scripts/selfhost/guard.sh' tmp/011-t14/prompt.md | grep -q -- "--fil
 # a task naming its test file only as tests/Bayan.Tests/X.cs (012 T4) is gated by that class, not by <prefix><n>Tests (Q945)
 python3 -I scripts/selfhost/wave-brief.py . T4 --spec 012 > /dev/null
 grep '^bash scripts/selfhost/guard.sh' tmp/012-t4/prompt.md | grep -q -- "--filter 'FullyQualifiedName~SelfhostDriverRuntimeTests' " || { echo "FAIL: a test file named with its directory does not gate the task"; exit 1; }
-python3 -I scripts/selfhost/review-brief.py . T14 --spec 011 > /dev/null
+bash scripts/bayan-tool.sh review-brief . T14 --spec 011 > /dev/null
 grep -q 'filter "FullyQualifiedName~SelfhostEmitterEquivalenceLawTests|FullyQualifiedName~SelfhostEmitterNoPanicLawTests|FullyQualifiedName~SelfhostEmitterSpeedTests"`' tmp/011-t14/review.md || { echo "FAIL: the T14 review does not run every test class"; exit 1; }
 # a 011 law-enact task line without covers: (T17) still yields its law's proof as the guard filter.
 python3 -I scripts/selfhost/wave-brief.py . T17 --spec 011 > /dev/null
@@ -69,11 +69,13 @@ old=8dae45cc
 if git cat-file -e $old:scripts/selfhost/wave-brief.py 2> /dev/null; then
   mkdir -p tmp/wave-brief-old
   here="$PWD/scripts/selfhost"
-  git show $old:scripts/selfhost/wave-brief.py | sed "s|^HERE = .*|HERE = '$here'|" > tmp/wave-brief-old/wave-brief.py
-  git show $old:scripts/selfhost/review-brief.py > tmp/wave-brief-old/review-brief.py
-  python3 -I tmp/wave-brief-old/wave-brief.py . T43 > /dev/null; python3 -I tmp/wave-brief-old/review-brief.py . T43 > /dev/null
+  # the reviewer is now the port (spec 015 T3): the old brief names it as this tree's does; the old review brief is the deleted Python script
+  git show $old:scripts/selfhost/wave-brief.py | sed -e "s|^HERE = .*|HERE = '$here'|" -e 's|(`scripts/selfhost/review-brief\.py`)|(`bash scripts/bayan-tool.sh review-brief`)|' > tmp/wave-brief-old/wave-brief.py
+  rb=scripts/selfhost/review-brief
+  git show "$old:$rb.py" > tmp/wave-brief-old/reviewer.py
+  python3 -I tmp/wave-brief-old/wave-brief.py . T43 > /dev/null; python3 -I tmp/wave-brief-old/reviewer.py . T43 > /dev/null
   cp tmp/010-t43/prompt.md tmp/wave-brief-old/prompt.md; cp tmp/010-t43/review.md tmp/wave-brief-old/review.md
-  python3 -I scripts/selfhost/wave-brief.py . T43 > /dev/null; python3 -I scripts/selfhost/review-brief.py . T43 > /dev/null
+  python3 -I scripts/selfhost/wave-brief.py . T43 > /dev/null; bash scripts/bayan-tool.sh review-brief . T43 > /dev/null
   cmp -s tmp/wave-brief-old/prompt.md tmp/010-t43/prompt.md || { echo "FAIL: the 010 T43 writer brief changed"; exit 1; }
   cmp -s tmp/wave-brief-old/review.md tmp/010-t43/review.md || { echo "FAIL: the 010 T43 review brief changed"; exit 1; }
   rm -rf tmp/wave-brief-old
@@ -100,13 +102,13 @@ export BAYAN_QRANGES=$q/tmp/q-ranges.tsv
 python3 -I scripts/selfhost/wave-brief.py "$q" T96 --spec 012 > /dev/null
 grep -q 'Questions Q1100–Q1104 only' "$q/tmp/012-t96/prompt.md" || { echo "FAIL: a range in the task line is not the brief's"; exit 1; }
 [ ! -f "$BAYAN_QRANGES" ] || { echo "FAIL: a range in the task line was recorded"; exit 1; }
-python3 -I scripts/selfhost/review-brief.py "$q" T96 --spec 012 > /dev/null
+bash scripts/bayan-tool.sh review-brief "$q" T96 --spec 012 > /dev/null
 grep -q 'and Questions Q1100–Q1104 in' "$q/tmp/012-t96/review.md" || { echo "FAIL: the review brief does not read a 4-digit range"; exit 1; }
 python3 -I scripts/selfhost/wave-brief.py "$q" T91 --spec 012 > /dev/null
 grep -q 'Questions Q1105–Q1109 only' "$q/tmp/012-t91/prompt.md" || { echo "FAIL: the range is not the block after the highest Question, branch or tasks range"; grep -o 'Questions Q[^ ]* only' "$q/tmp/012-t91/prompt.md"; exit 1; }
 python3 -I scripts/selfhost/wave-brief.py "$q" T91 --spec 012 > /dev/null
 [ "$(grep -c '^012	T91	1105	1109$' "$BAYAN_QRANGES")" = 1 ] && grep -q 'Questions Q1105–Q1109 only' "$q/tmp/012-t91/prompt.md" || { echo "FAIL: a second brief does not reuse the recorded range"; cat "$BAYAN_QRANGES"; exit 1; }
-python3 -I scripts/selfhost/review-brief.py "$q" T91 --spec 012 > /dev/null
+bash scripts/bayan-tool.sh review-brief "$q" T91 --spec 012 > /dev/null
 grep -q 'and Questions Q1105–Q1109 in' "$q/tmp/012-t91/review.md" || { echo "FAIL: the review brief does not read the range from q-ranges.tsv"; exit 1; }
 perl -i -pe 's/ — Questions Q1100–Q1104//' "$q/docs/specs/012-self-hosted-bootstrap/012-tasks.md"
 python3 -I scripts/selfhost/wave-brief.py "$q" T92 --spec 012 > /dev/null
@@ -126,9 +128,9 @@ grep '^bash scripts/selfhost/guard.sh' "$q/tmp/012-t98/prompt.md" | grep -q -- "
 rm -rf "$q"
 # 012 T17 names its test files with their directory: its review runs those classes, not SelfhostDriverT17Tests (no such class);
 # a file declaring another class (SelfhostDriverInventoryTests.cs holds SelfhostDriverT8Tests) is gated by that class
-python3 -I scripts/selfhost/review-brief.py . T17 --spec 012 > /dev/null
+bash scripts/bayan-tool.sh review-brief . T17 --spec 012 > /dev/null
 grep -q 'filter "FullyQualifiedName~SelfhostDriverRuntimeTests|FullyQualifiedName~StdEnvTests|FullyQualifiedName~StdFsTests"`' tmp/012-t17/review.md || { echo "FAIL: the 012 T17 review filter is not its files' classes"; grep -o 'filter "[^"]*"' tmp/012-t17/review.md; exit 1; }
-python3 -I scripts/selfhost/review-brief.py . T8 --spec 012 > /dev/null
+bash scripts/bayan-tool.sh review-brief . T8 --spec 012 > /dev/null
 grep -q 'filter "FullyQualifiedName~SelfhostDriverT8Tests' tmp/012-t8/review.md || { echo "FAIL: the review filter is the file name, not the class it declares"; grep -o 'filter "[^"]*"' tmp/012-t8/review.md; exit 1; }
 python3 -I scripts/selfhost/wave-brief.py . T8 --spec 012 > /dev/null
 grep '^bash scripts/selfhost/guard.sh' tmp/012-t8/prompt.md | grep -q -- "--filter 'FullyQualifiedName~SelfhostDriverT8Tests'" || { echo "FAIL: the guard filter is the file name, not the class it declares"; grep '^bash scripts/selfhost/guard.sh' tmp/012-t8/prompt.md; exit 1; }
