@@ -137,7 +137,7 @@ Easiest first; each New API arrives with the first port that needs it. Group by 
 
 | # | Port (`tools/…`) | Replaces | Introduces |
 | --- | --- | --- | --- |
-| 1 | `mutation-exempt.byn` | `mutation-exempt.py` | nothing new (S13) |
+| 1 | not ported | `mutation-exempt.py` | nothing: dead since Q910, removed by `scripts/cleanup/022-self-hosted-emitter.sh` (Q916 (a), 015 T2) |
 | 2 | `review-brief.byn` | `review-brief.py` | uses `std.path` (014) |
 | 3 | `wave-brief.byn` | `wave-brief.py` | `std.env`, `std.fs` exists |
 | 4 | `plan-strings-check.byn` | `plan-strings-check.js` + test (Deno leaves, R7) | — |
@@ -170,7 +170,7 @@ rule of no abbreviations. Nothing below is built before its first port (R4 now r
 | S10 | `install-textmate.ps1` is ported to Bayān (Windows then needs only `bayan`), using S4. |
 | S11 | `docs/assets/artifact.js` is on the Keep list. |
 | S12 | `Base64` lives in `std.encoding` with `Hex` (settles tiers Q3). |
-| S13 | `mutation-exempt` is ported to Bayān with string members only (`lines`, `position`, slices, `i64.tryParse`), not with `std.regex` and not to awk (user, 2026-11-02). `std.regex` (S3) arrives with the first later port that needs it. |
+| S13 | Superseded by Q916 (a) (015 T2): port 1 is not ported. `mutation-exempt` is ported to Bayān with string members only (`lines`, `position`, slices, `i64.tryParse`), not with `std.regex` and not to awk (user, 2026-11-02). `std.regex` (S3) arrives with the first later port that needs it. |
 | D1 | The macOS 10x timing test stays as it is (green three runs in a row). |
 | D2 | The .NET SDK stays pinned exactly (10.0.403, sha512) with a monthly reminder to bump the patch. |
 | D3 | The `bayan new --ci github` template moves to `actions/checkout@v5` now: the scaffolder is CLI code that 010 does not port, so this is an A1 exception the user granted. |
@@ -189,7 +189,7 @@ every file written.
 
 | Port | Inputs | Compare |
 | --- | --- | --- |
-| mutation-exempt | every `selfhost/**/*.byn` with the current handoff; the `mutation-exempt.test.sh` cases | bytes |
+| mutation-exempt | not ported (Q916 (a)) | none |
 | review-brief, wave-brief | each of the 40 tasks in `010-tasks.md` on the current spec files; `wave-brief.test.sh` cases | bytes |
 | plan-strings-check | the default plan, `--all-help`, each code; the Deno test's fixtures | bytes; exit code |
 | guard-checks | the last 10 landed 010 tasks (`<base> <task> <globs>` from `land.sh` history); `guard-checks.test.sh` | bytes |
