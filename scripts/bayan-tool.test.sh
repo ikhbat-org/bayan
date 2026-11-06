@@ -7,7 +7,7 @@ fail() { echo "FAIL: $1" >&2; exit 1; }
 t="$root/tools/bayan-tool-probe.byn"; w="$root/tmp/bayan-tool-test"
 trap 'rm -f "$t"; rm -rf "$w"' EXIT
 mkdir -p "$w"
-printf 'i32 main(ReadOnlySpan<string> args) {\n    for a in args { print($"[{a}]") }\n    let here = Fs.fileExists("marker")\n    print($"{here}")\n    print("err", to: .stderr)\n    return 3\n}\n' > "$t"
+printf '#!/usr/bin/env bayan\ni32 main(ReadOnlySpan<string> args) {\n    for a in args { print($"[{a}]") }\n    let here = Fs.fileExists("marker")\n    print($"{here}")\n    print("err", to: .stderr)\n    return 3\n}\n' > "$t"
 touch "$w/marker"
 set +e; out=$(cd "$w" && bash "$root/scripts/bayan-tool.sh" bayan-tool-probe "a b" -- c 2> "$w/err"); rc=$?; set -e
 [ "$rc" = 3 ] || fail "exit code $rc, expected 3"

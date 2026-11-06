@@ -15,7 +15,7 @@ Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C
 4. **Oracle tests.** Every ported function has a test whose expected lines come from running the C# implementation in-process on the same input (see `SelfhostDriverHarness`), including a failure/diagnostic path; diagnostics compare as `code line:col message`. Hand-typed expectations, or expectations that hold only because a sibling is a stub, are MEDIUM each (HIGH if they encode behaviour that differs from the C#).
 5. **True docs.** Each Question in the task's range says what the code does; each break-test line citation points at the line it names. A false claim is MEDIUM.
 
-Verify each finding in the code before you write it: name the Bayan `file:line` and the C# `file:line`. Run the task's tests (`dotnet test -v q --filter "FullyQualifiedName~SelfhostDriverT1Tests"`) once; you may add a probe under `tmp/review-t1/` to confirm a behaviour.
+Verify each finding in the code before you write it: name the Bayan `file:line` and the C# `file:line`. Run the task's tests (`dotnet test -v q --filter "FullyQualifiedName~SelfhostDriverTests|FullyQualifiedName~SelfhostDriverApiTests"`) once; you may add a probe under `tmp/review-t1/` to confirm a behaviour.
 
 ## Write `docs/specs/012-self-hosted-bootstrap/reviews/T1.md`, exactly this shape
 ```

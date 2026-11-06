@@ -1,1 +1,2 @@
 BAYAN_BASE=test-base
+BAYAN_QRANGES=$WORK/q-ranges.tsv
