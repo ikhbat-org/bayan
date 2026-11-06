@@ -11,35 +11,42 @@ for t in "$root"/tests/parity/*/; do
   bash "$root/scripts/parity/run.sh" "$(basename "$t")" > /dev/null || fail "$(basename "$t") no longer matches its baseline: $(bash "$root/scripts/parity/run.sh" "$(basename "$t")" | head -3)"
 done
 if PATH=/nonexistent needs "$root/tests/parity/plan-strings-check"; then fail "a missing interpreter was found"; fi
-if out=$(bash "$root/scripts/parity/run.sh" mutation-exempt --impl "printf skip"); then fail "a different implementation passed"; fi
-grep -q 'FAIL mutation-exempt/spans: stdout differs' <<< "$out" || fail "no stdout mismatch reported: $out"
+if out=$(bash "$root/scripts/parity/run.sh" probe --impl "printf skip"); then fail "a different implementation passed"; fi
+grep -q 'FAIL probe/spans: stdout differs' <<< "$out" || fail "no stdout mismatch reported: $out"
 # A left-over file and a changed file both count; an empty directory does not.
 t="$root/tmp/parity-test"; mkdir -p "$t"
 printf '#!/bin/sh\nmkdir -p empty-dir\necho %s > "$1"\n' "$(printf 'x')" > "$t/impl.sh"
-if out=$(bash "$root/scripts/parity/run.sh" mutation-exempt --impl "bash $t/impl.sh" spans); then fail "a changed input file passed"; fi
-grep -q 'FAIL mutation-exempt/spans: files differ' <<< "$out" || fail "no file mismatch reported: $out"
+if out=$(bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" spans); then fail "a changed input file passed"; fi
+grep -q 'FAIL probe/spans: files differ' <<< "$out" || fail "no file mismatch reported: $out"
 printf '#!/bin/sh\ntouch extra\n' > "$t/impl.sh"
-if out=$(bash "$root/scripts/parity/run.sh" mutation-exempt --impl "bash $t/impl.sh" spans); then fail "an extra file passed"; fi
-grep -q 'FAIL mutation-exempt/spans: files differ' <<< "$out" || fail "no extra-file mismatch reported: $out"
+if out=$(bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" spans); then fail "an extra file passed"; fi
+grep -q 'FAIL probe/spans: files differ' <<< "$out" || fail "no extra-file mismatch reported: $out"
 printf '#!/bin/sh\nmkdir -p empty-dir\n' > "$t/impl.sh"
-out=$(bash "$root/scripts/parity/run.sh" mutation-exempt --impl "bash $t/impl.sh" spans || true)
+out=$(bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" spans || true)
 ! grep -q 'files differ' <<< "$out" || fail "an empty directory counted as a file change: $out"
 if bash "$root/scripts/parity/run.sh" no-such-tool 2> /dev/null; then fail "an unknown tool passed"; fi
 # Only a whole path is rewritten: the work directory followed by more name characters stays as it is.
 printf '#!/bin/sh\necho "$PWD/a ${PWD}b"\n' > "$t/impl.sh"
-bash "$root/scripts/parity/run.sh" mutation-exempt --impl "bash $t/impl.sh" spans > /dev/null || true
-got=$(cat "$root/tmp/parity/mutation-exempt/spans/got/stdout")
-[ "$got" = "\$WORK/a \$ROOT/tmp/parity/mutation-exempt/spans/workb" ] || fail "path rewrite went past a path boundary: $got"
+bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" spans > /dev/null || true
+got=$(cat "$root/tmp/parity/probe/spans/got/stdout")
+[ "$got" = "\$WORK/a \$ROOT/tmp/parity/probe/spans/workb" ] || fail "path rewrite went past a path boundary: $got"
 # Traceback caret lines (Python 3.11+ only) are dropped from stderr; other stderr lines stay.
 printf '#!/bin/sh\nprintf "  x = 1\\n      ^^^^^\\n   ~~~^^\\nE: ^ not alone\\n" >&2\n' > "$t/impl.sh"
-bash "$root/scripts/parity/run.sh" mutation-exempt --impl "bash $t/impl.sh" spans > /dev/null || true
-got=$(cat "$root/tmp/parity/mutation-exempt/spans/got/stderr")
+bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" spans > /dev/null || true
+got=$(cat "$root/tmp/parity/probe/spans/got/stderr")
 [ "$got" = "$(printf '  x = 1\nE: ^ not alone')" ] || fail "caret lines not dropped from stderr: $got"
+# A recorded traceback's stderr passes on the exception's message alone; exit code and stdout stay exact.
+bash "$root/scripts/parity/run.sh" probe traceback > /dev/null || fail "a stderr holding the traceback's message failed"
+printf '#!/bin/sh\necho other >&2\nexit 1\n' > "$t/impl.sh"
+if out=$(bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" traceback); then fail "a stderr without the message passed"; fi
+grep -q 'FAIL probe/traceback: stderr differs: no' <<< "$out" || fail "missing message not reported: $out"
+printf '#!/bin/sh\necho "missing.txt: No such file or directory" >&2\nexit 0\n' > "$t/impl.sh"
+if bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" traceback > /dev/null; then fail "a traceback case passed on a different exit code"; fi
 # A case or tool name that leaves its directory is refused before anything is removed.
-out=$(bash "$root/scripts/parity/run.sh" mutation-exempt ..) && fail "case .. passed"
+out=$(bash "$root/scripts/parity/run.sh" probe ..) && fail "case .. passed"
 grep -q 'bad case name' <<< "$out" || fail "case .. was not refused: $out"
 out=$(bash "$root/scripts/parity/run.sh" ../parity 2>&1) && fail "tool ../parity passed"
 grep -q 'bad tool name' <<< "$out" || fail "tool ../parity was not refused: $out"
 # --record reports a case it could not record.
-if bash "$root/scripts/parity/run.sh" mutation-exempt --record no-such-case > /dev/null; then fail "--record of a missing case exited 0"; fi
+if bash "$root/scripts/parity/run.sh" probe --record no-such-case > /dev/null; then fail "--record of a missing case exited 0"; fi
 echo PASS

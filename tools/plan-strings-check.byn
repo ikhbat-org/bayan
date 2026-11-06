@@ -1,3 +1,4 @@
+#!/usr/bin/env bayan
 // Checks that diagnostic messages and help strings are copied verbatim from the
 // round-3 plan's code entries into src/ and docs/diagnostics/BYN####.md.
 //

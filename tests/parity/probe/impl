@@ -1,0 +1,1 @@
+sh $ROOT/tests/parity/probe/tool.sh
