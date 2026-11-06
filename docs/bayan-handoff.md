@@ -366,7 +366,6 @@ Building, testing and shipping Bayan should need nothing but Bayan. Today it nee
 | zig 0.17.0 (or a system cc/clang/gcc, host builds only) | C compiler and cross-target libc (`Toolchain.FindCompiler`) | Bayan emits machine code itself, or ships its own C toolchain; not yet planned |
 | Python 3 | `scripts/ci/known-failures.py`, `scripts/selfhost/*.py`, `scripts/quality/*.py`, `scripts/unicode/gen-lowercase.py` | the scripts are rewritten as Bayan scripts (the interpreter, v0.2) |
 | bash, curl, tar/unzip, sha256sum/shasum | `scripts/**/*.sh`, `scripts/ci/install-zig.sh` | the same |
-| Deno | `scripts/plan-strings-check.js` and its test | the same |
 | PowerShell | `editors/visualstudio/install-textmate.ps1` | the same, or the editor's own installer |
 | Node / VS Code | `editors/vscode/extension.js` (the extension runs inside VS Code) | an LSP server in Bayan leaves only the editor's own host |
 | Node 24 (Actions) | `upload-artifact`/`download-artifact` only; no CI step of ours runs on Node | checkout, the .NET SDK and zig install from shell steps (spec 015 handoff, T4); the artifact actions stay |
