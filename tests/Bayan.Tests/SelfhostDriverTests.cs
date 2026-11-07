@@ -1178,12 +1178,10 @@ public sealed class SelfhostDriverStyleEnvironmentTests
 /// 017 T7, L028: every <c>tests/cases/style/</c> shape of the commands the driver ports (<c>check</c>, <c>build</c>, <c>run</c>, <c>audit</c>), rendered in the
 /// three renderings of <c>StyleTests</c> (colour on a dark truecolor terminal, plain, <c>--ascii</c>) and with <c>--color always</c>, <c>FORCE_COLOR</c>,
 /// <c>NO_COLOR</c> and <c>TERM=dumb</c>, against <c>CliApp.Run</c> in this process under the same environment (no terminal, as the law runs).
-/// Listed skips: <c>build-ok-cache</c> (the cache hit of <c>build</c> is not reported, T9 `build` cache); the diagnostic shapes
-/// <c>build-fail</c> and <c>run-fail</c> under <c>--ascii</c> and <c>TERM=dumb</c> (Q1126); the shapes of commands the driver still refuses are <c>test-ok</c>, <c>test-fail</c>, <c>test-pending</c>, <c>test-verbose</c>,
+/// Listed skips: <c>build-ok-cache</c> (the cache hit of <c>build</c> is not reported, T9 `build` cache); the shapes of commands the driver still refuses are <c>test-ok</c>, <c>test-fail</c>, <c>test-pending</c>, <c>test-verbose</c>,
 /// <c>test-assert-values</c> and <c>test-control-chars</c> (T11 `test`); <c>diag-secondary</c> and <c>build-ice</c> call the renderer and
 /// <c>CliApp.ReportToolchain</c> directly, no command prints them; <c>doctor-ok</c> and <c>doctor-fail</c> render fixed checks, which
-/// <c>SelfhostDefaultT5Tests</c> compares to the same files. The SGR codes are compared for every shape but <c>build-*</c> and <c>run-fail</c>:
-/// those are painted by build.byn, which T19 does not own (Q1126), so there the codes are taken off both sides.
+/// <c>SelfhostDefaultT5Tests</c> compares to the same files. The SGR codes are compared for every shape.
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]
 [Trait("Law", "L028")]
@@ -1201,8 +1199,6 @@ public sealed partial class SelfhostDriverStyleCaseTests
         foreach (var shape in new[] { "diag-error-fix", "diag-removal-fix", "diag-cap", "diag-cap-all", "diag-warning", "types-ok", "types-fail", "check-json", "build-ok", "build-ok-verbose", "build-fail", "check-ok", "run-fail", "audit" })
             foreach (var rendering in new[] { "color", "plain", "ascii", "always", "force", "no-color", "dumb" })
             {
-                // listed skip (Q1126): `build` and `run` build their symbols in build.byn, which T19 does not own, so their diagnostics are drawn plain
-                if (shape is "build-fail" or "run-fail" && rendering is "ascii" or "dumb") continue;
                 data.Add(shape, rendering);
             }
         return data;
@@ -1229,9 +1225,6 @@ public sealed partial class SelfhostDriverStyleCaseTests
 
     [GeneratedRegex(@"\d+\.\d+s")]
     private static partial Regex Seconds();
-
-    [GeneratedRegex("\u001b\\[[0-9;]*m")]
-    private static partial Regex Sgr();
 
     private static string Mask(string text) => Seconds().Replace(text.ReplaceLineEndings("\n"), "0.00s");
 
@@ -1260,9 +1253,7 @@ public sealed partial class SelfhostDriverStyleCaseTests
             "dumb" => [("TERM", "dumb"), ("CI", "1")],
             _ => [("CI", "1")],
         };
-        // listed skip (Q1126): the `build` summary and the diagnostics of `build` and `run` are not painted yet
-        var painted = !(shape.StartsWith("build-", StringComparison.Ordinal) || shape == "run-fail") || rendering is "plain" or "no-color";
-        string Text(string text) => painted ? Mask(text) : Sgr().Replace(Mask(text), "");
+        string Text(string text) => Mask(text);
         // each side builds into a cache of its own, so a hit on one is never a hit on the other
         string Side(bool driver)
         {

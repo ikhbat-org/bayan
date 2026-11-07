@@ -240,7 +240,7 @@ i32 buildCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console,
     let clock = Io.monotonicNanos()
     let args = t2Rest(kept)
     let o = t5ParseBuildOptions(in args, by: true, for: true) ?? return exitUsage
-    let symbols = semantics.t26Symbols(d.styleErr.ascii)
+    let symbols = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
     var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
@@ -275,15 +275,15 @@ i32 buildCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console,
     }
     if o.json { return exitOk }
     if o.verbose {
-        print(t5Phase("parse", by: semantics.t26Seconds(compiled.parseTime)))
-        print(t5Phase("check", by: semantics.t26Seconds(compiled.checkTime)))
-        print(t5Phase("emit", by: semantics.t26Seconds(emitTime)))
-        print(t5Phase("compile", by: semantics.t26Seconds(nativeTime)))
+        print(t5Phase("parse", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(compiled.parseTime))))
+        print(t5Phase("check", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(compiled.checkTime))))
+        print(t5Phase("emit", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(emitTime))))
+        print(t5Phase("compile", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(nativeTime))))
         let shown = compiled.manifest is not null && o.output is null ? Path.relative(compiled.displayRoot, to: output).replaced("\\", by: "/") : output
-        print($"  {shown}")
+        print($"  {t5Paint(.note, by: d.styleOut, for: shown)}")
     }
     let dot = semantics.t26Symbols(d.styleOut.ascii).dot
-    print($"{dot} built {semantics.programName(ref compiled, for: o.path)} ({o.mode}, {target}) in {semantics.t26Seconds(Io.monotonicNanos() - clock)}")
+    print(t5Paint(.success, by: d.styleOut, for: $"{dot} built {semantics.programName(ref compiled, for: o.path)} ({o.mode}, {target}) in {semantics.t26Seconds(Io.monotonicNanos() - clock)}"))
     return exitOk
 }
 
@@ -382,7 +382,7 @@ string t5Phase(string name, by string value) uses alloc {
 /// CliApp.cs:544 `RunProgram`. `args` is what follows `run` (a script run passes `[file, "--", ..rest]`, CliApp.cs:99).
 i32 runProgram(in List<string> args, by in DCtx d) uses alloc, clock, console, env, fs, process {
     let o = t5ParseBuildOptions(in args, by: false, for: false) ?? return exitUsage
-    let symbols = semantics.t26Symbols(d.styleErr.ascii)
+    let symbols = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
     var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
