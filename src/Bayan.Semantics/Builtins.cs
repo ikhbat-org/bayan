@@ -371,13 +371,13 @@ public sealed class Builtins
     /// <summary><c>void Io.writeFile(string path, ReadOnlySpan&lt;u8&gt; bytes) fails IoError</c>.</summary>
     public FunctionSymbol IoWriteFile { get; }
 
-    /// <summary><c>void Io.remove(string path) fails IoError</c> <c>uses fs</c>: as .NET <c>File.Delete</c> (a missing file is not an error; a directory fails).</summary>
+    /// <summary><c>void Io.remove(string path) uses fs fails IoError</c>: as .NET <c>File.Delete</c> (a missing file is not an error; a directory fails).</summary>
     public FunctionSymbol IoRemove { get; }
 
-    /// <summary><c>void Io.createDirectory(string path) fails IoError</c> <c>uses fs</c>: as .NET <c>Directory.CreateDirectory</c> (creates missing parents; an existing directory is not an error, an existing file is).</summary>
+    /// <summary><c>void Io.createDirectory(string path) uses fs fails IoError</c>: as .NET <c>Directory.CreateDirectory</c> (creates missing parents; an existing directory is not an error, an existing file is).</summary>
     public FunctionSymbol IoCreateDirectory { get; }
 
-    /// <summary><c>void Io.removeDirectory(string path) fails IoError</c> <c>uses fs</c>: as .NET <c>Directory.Delete(path)</c> (an empty directory only; a missing path, a file or a non-empty directory fails).</summary>
+    /// <summary><c>void Io.removeDirectory(string path) uses fs fails IoError</c>: as .NET <c>Directory.Delete(path)</c> (an empty directory only; a missing path, a file or a non-empty directory fails).</summary>
     public FunctionSymbol IoRemoveDirectory { get; }
 
     /// <summary><c>List&lt;string&gt; Io.listDir(string path) fails IoError</c>: entry names sorted by byte order.</summary>

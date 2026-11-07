@@ -154,10 +154,10 @@ public static class AstDump
                         var head = $"Function {Mods(d.Modifiers)}{d.Name.Text}{TypeParams(d.TypeParams)}{Params(d.Params, d.RefThis is not null, d.MoveThis is not null, d.ReceiverStates)} -> {Type(d.ReturnType)}";
                         head += Where(d.Where);
                         foreach (var r in d.Requires) head += " expects " + AstDump.Expr(r);
+                        if (d.Uses is not null) head += " uses " + string.Join(", ", d.Uses.Effects.Select(e => e.Text));
                         if (d.Becomes is not null) head += " becomes ." + d.Becomes.Text;
                         if (d.Fails is not null)
                             head += d.Fails.Errors.Length == 0 ? " fails" : " fails " + string.Join(", ", d.Fails.Errors.Select(Type));
-                        if (d.Uses is not null) head += " uses " + string.Join(", ", d.Uses.Effects.Select(e => e.Text));
                         if (d.ExpressionBody is not null) head += " => " + AstDump.Expr(d.ExpressionBody);
                         Line(depth, head);
                         if (d.Body is not null) Stmt(depth + 1, d.Body);
@@ -442,8 +442,8 @@ public static class AstDump
                     else sb.Append('(').Append(string.Join(", ", t.Params.Select(Type))).Append(')');
                     sb.Append(" -> ");
                     Type(sb, t.Return);
-                    if (t.Fails is not null) sb.Append(" fails ").Append(string.Join(", ", t.Fails.Errors.Select(Type)));
                     if (t.Uses is not null) sb.Append(" uses ").Append(string.Join(", ", t.Uses.Effects.Select(e => e.Text)));
+                    if (t.Fails is not null) sb.Append(" fails ").Append(string.Join(", ", t.Fails.Errors.Select(Type)));
                     break;
                 case DynType t:
                     sb.Append(t.IsRef ? t.IsReadOnly ? "dyn ref readonly " : "dyn ref " : "dyn ");

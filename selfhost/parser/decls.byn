@@ -1148,14 +1148,14 @@ TypeSyntax parseRefinement(ref Parser p, from move TypeSyntax type, TextSpan? na
     let typeSpan = typeSpan(in type)
     if states.length == 1 {
         let typeText = p.lexed.source.getText(typeSpan)
-        let stateText = p.lexed.source.getText(states[0])
+        let stateText = nameText(ref p, at: states[0])
         let stateType = $"{typeText}.{stateText}"
         var written = typeText
         var rewrite = stateType
         if name is not null {
-            let nameText = p.lexed.source.getText(name)
-            written = $"{typeText} {nameText}"
-            rewrite = $"{stateType} {nameText}"
+            let named = nameText(ref p, at: name)
+            written = $"{typeText} {named}"
+            rewrite = $"{stateType} {named}"
         }
         let _ = p.reportFix(.singleStateInline, at: spanOf(keyword), through: TextSpan.fromBounds(typeSpan.start, until: p.prevEnd),
             by: rewrite, arg0: written, arg1: stateText, arg2: rewrite, label: "one state", help: $"write the state type `{stateType}`")

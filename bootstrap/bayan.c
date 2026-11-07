@@ -26255,7 +26255,7 @@ byn_parser_TypeSyntax byn_parser__parseRefinement(bynt_parser__Parser* p_p, byn_
     byn_writer t6 = {0};
     byn_str l7_written = {0};
     byn_str l8_rewrite = {0};
-    byn_str l9_nameText = {0};
+    byn_str l9_named = {0};
     byn_writer t10 = {0};
     byn_str t11 = {0};
     byn_writer t12 = {0};
@@ -26280,7 +26280,7 @@ byn_parser_TypeSyntax byn_parser__parseRefinement(bynt_parser__Parser* p_p, byn_
 #line 1150 "parser/decls.byn"
         l3_typeText = byn_lexer__SourceText__getText(&(*p_p).lexed.source, l2_typeSpan);
 #line 1151 "parser/decls.byn"
-        l4_stateText = byn_lexer__SourceText__getText(&(*p_p).lexed.source, (*bynh_at_list_lexer__TextSpan(l1_states, (int64_t)INT64_C(0), false, byn_file_7, 1151)));
+        l4_stateText = byn_parser__nameText(&(*p_p), (*bynh_at_list_lexer__TextSpan(l1_states, (int64_t)INT64_C(0), false, byn_file_7, 1151)));
 #line 1152 "parser/decls.byn"
         t6 = byn_strbuf_grow(byn_context);
 #line 1152 "parser/decls.byn"
@@ -26301,7 +26301,7 @@ byn_parser_TypeSyntax byn_parser__parseRefinement(bynt_parser__Parser* p_p, byn_
 #line 1155 "parser/decls.byn"
         if ((!(!p_name.has))) {
 #line 1156 "parser/decls.byn"
-            l9_nameText = byn_lexer__SourceText__getText(&(*p_p).lexed.source, p_name.value);
+            l9_named = byn_parser__nameText(&(*p_p), p_name.value);
 #line 1157 "parser/decls.byn"
             t10 = byn_strbuf_grow(byn_context);
 #line 1157 "parser/decls.byn"
@@ -26311,7 +26311,7 @@ byn_parser_TypeSyntax byn_parser__parseRefinement(bynt_parser__Parser* p_p, byn_
                 w->line = 1157;
                 byn_w_str(w, l3_typeText);
                 byn_w_str(w, BYN_STR(" ", 1));
-                byn_w_str(w, l9_nameText);
+                byn_w_str(w, l9_named);
             }
 #line 1157 "parser/decls.byn"
             t11 = byn_strbuf_str(t10);
@@ -26326,7 +26326,7 @@ byn_parser_TypeSyntax byn_parser__parseRefinement(bynt_parser__Parser* p_p, byn_
                 w->line = 1158;
                 byn_w_str(w, l5_stateType);
                 byn_w_str(w, BYN_STR(" ", 1));
-                byn_w_str(w, l9_nameText);
+                byn_w_str(w, l9_named);
             }
 #line 1158 "parser/decls.byn"
             t13 = byn_strbuf_str(t12);
@@ -28932,19 +28932,19 @@ void byn_parser__decl(byn_parser_Decl p_node, int64_t p_depth, bynt_parser__Pars
     byn_parser_Expr l23_r = {0};
     bynt_list_parser__Expr t24 = {0};
     int64_t t25 = {0};
-    bynt_opt_lexer__TextSpan t26 = {0};
-    bynt_lexer__TextSpan l27_becomes = {0};
-    bynt_opt_parser__FailsClause t28 = {0};
-    bynt_parser__FailsClause l29_failsClause = {0};
-    bynt_list_str l30_errors = {0};
-    byn_parser_TypeSyntax l31_e = {0};
-    bynt_list_parser__TypeSyntax t32 = {0};
-    int64_t t33 = {0};
-    bynt_opt_parser__UsesClause t34 = {0};
-    bynt_parser__UsesClause l35_usesClause = {0};
-    bynt_list_str l36_effects = {0};
-    bynt_lexer__TextSpan l37_e = {0};
-    bynt_list_lexer__TextSpan t38 = {0};
+    bynt_opt_parser__UsesClause t26 = {0};
+    bynt_parser__UsesClause l27_usesClause = {0};
+    bynt_list_str l28_effects = {0};
+    bynt_lexer__TextSpan l29_e = {0};
+    bynt_list_lexer__TextSpan t30 = {0};
+    int64_t t31 = {0};
+    bynt_opt_lexer__TextSpan t32 = {0};
+    bynt_lexer__TextSpan l33_becomes = {0};
+    bynt_opt_parser__FailsClause t34 = {0};
+    bynt_parser__FailsClause l35_failsClause = {0};
+    bynt_list_str l36_errors = {0};
+    byn_parser_TypeSyntax l37_e = {0};
+    bynt_list_parser__TypeSyntax t38 = {0};
     int64_t t39 = {0};
     byn_parser_Expr t40 = {0};
     byn_writer t41 = {0};
@@ -29238,92 +29238,92 @@ void byn_parser__decl(byn_parser_Decl p_node, int64_t p_depth, bynt_parser__Pars
         }
     break_4:;
 #line 267 "parser/dump.byn"
-        t26 = (*l12_d).becomes;
+        t26 = (*l12_d).usesKeyword;
 #line 267 "parser/dump.byn"
-        if ((t26.has && ((l27_becomes = t26.value), true))) {
-#line 267 "parser/dump.byn"
+        if ((t26.has && ((l27_usesClause = t26.value), true))) {
+#line 268 "parser/dump.byn"
+            l28_effects = ((bynt_list_str){NULL, 0, 0, byn_context});
+#line 269 "parser/dump.byn"
+            t30 = l27_usesClause.effects;
+#line 269 "parser/dump.byn"
+            t31 = INT64_C(0);
+#line 269 "parser/dump.byn"
+            for (;;) {
+#line 269 "parser/dump.byn"
+                if ((!(t31 < t30.len))) {
+#line 269 "parser/dump.byn"
+                    goto break_6;
+                }
+#line 269 "parser/dump.byn"
+                l29_e = t30.ptr[t31];
+#line 269 "parser/dump.byn"
+                (void)bynh_add_list_str(&l28_effects, byn_parser__nameText(&(*p_p), l29_e));
+            continue_7:;
+#line 269 "parser/dump.byn"
+                t31 = byn_addw_i64(t31, INT64_C(1));
+            }
+        break_6:;
+#line 270 "parser/dump.byn"
             {
                 byn_writer* w = &l13_head;
                 w->file = byn_file_9;
-                w->line = 267;
-                byn_w_str(w, BYN_STR(" becomes .", 10));
-                byn_w_str(w, byn_parser__nameText(&(*p_p), l27_becomes));
+                w->line = 270;
+                byn_w_str(w, BYN_STR(" uses ", 6));
+                byn_w_str(w, bynh_joined_list_str(l28_effects, BYN_STR(", ", 2)));
             }
         }
-#line 268 "parser/dump.byn"
-        t28 = (*l12_d).failsKeyword;
-#line 268 "parser/dump.byn"
-        if ((t28.has && ((l29_failsClause = t28.value), true))) {
-#line 269 "parser/dump.byn"
-            if ((l29_failsClause.errors.len == 0)) {
-#line 270 "parser/dump.byn"
+#line 272 "parser/dump.byn"
+        t32 = (*l12_d).becomes;
+#line 272 "parser/dump.byn"
+        if ((t32.has && ((l33_becomes = t32.value), true))) {
+#line 272 "parser/dump.byn"
+            {
+                byn_writer* w = &l13_head;
+                w->file = byn_file_9;
+                w->line = 272;
+                byn_w_str(w, BYN_STR(" becomes .", 10));
+                byn_w_str(w, byn_parser__nameText(&(*p_p), l33_becomes));
+            }
+        }
+#line 273 "parser/dump.byn"
+        t34 = (*l12_d).failsKeyword;
+#line 273 "parser/dump.byn"
+        if ((t34.has && ((l35_failsClause = t34.value), true))) {
+#line 274 "parser/dump.byn"
+            if ((l35_failsClause.errors.len == 0)) {
+#line 275 "parser/dump.byn"
                 (void)byn_w_str(&l13_head, BYN_STR(" fails", 6));
             } else {
-#line 272 "parser/dump.byn"
-                l30_errors = ((bynt_list_str){NULL, 0, 0, byn_context});
-#line 273 "parser/dump.byn"
-                t32 = l29_failsClause.errors;
-#line 273 "parser/dump.byn"
-                t33 = INT64_C(0);
-#line 273 "parser/dump.byn"
+#line 277 "parser/dump.byn"
+                l36_errors = ((bynt_list_str){NULL, 0, 0, byn_context});
+#line 278 "parser/dump.byn"
+                t38 = l35_failsClause.errors;
+#line 278 "parser/dump.byn"
+                t39 = INT64_C(0);
+#line 278 "parser/dump.byn"
                 for (;;) {
-#line 273 "parser/dump.byn"
-                    if ((!(t33 < t32.len))) {
-#line 273 "parser/dump.byn"
-                        goto break_6;
+#line 278 "parser/dump.byn"
+                    if ((!(t39 < t38.len))) {
+#line 278 "parser/dump.byn"
+                        goto break_8;
                     }
-#line 273 "parser/dump.byn"
-                    l31_e = t32.ptr[t33];
-#line 273 "parser/dump.byn"
-                    (void)bynh_add_list_str(&l30_errors, byn_parser__typeText(l31_e, &(*p_p)));
-                continue_7:;
-#line 273 "parser/dump.byn"
-                    t33 = byn_addw_i64(t33, INT64_C(1));
+#line 278 "parser/dump.byn"
+                    l37_e = t38.ptr[t39];
+#line 278 "parser/dump.byn"
+                    (void)bynh_add_list_str(&l36_errors, byn_parser__typeText(l37_e, &(*p_p)));
+                continue_9:;
+#line 278 "parser/dump.byn"
+                    t39 = byn_addw_i64(t39, INT64_C(1));
                 }
-            break_6:;
-#line 274 "parser/dump.byn"
+            break_8:;
+#line 279 "parser/dump.byn"
                 {
                     byn_writer* w = &l13_head;
                     w->file = byn_file_9;
-                    w->line = 274;
+                    w->line = 279;
                     byn_w_str(w, BYN_STR(" fails ", 7));
-                    byn_w_str(w, bynh_joined_list_str(l30_errors, BYN_STR(", ", 2)));
+                    byn_w_str(w, bynh_joined_list_str(l36_errors, BYN_STR(", ", 2)));
                 }
-            }
-        }
-#line 277 "parser/dump.byn"
-        t34 = (*l12_d).usesKeyword;
-#line 277 "parser/dump.byn"
-        if ((t34.has && ((l35_usesClause = t34.value), true))) {
-#line 278 "parser/dump.byn"
-            l36_effects = ((bynt_list_str){NULL, 0, 0, byn_context});
-#line 279 "parser/dump.byn"
-            t38 = l35_usesClause.effects;
-#line 279 "parser/dump.byn"
-            t39 = INT64_C(0);
-#line 279 "parser/dump.byn"
-            for (;;) {
-#line 279 "parser/dump.byn"
-                if ((!(t39 < t38.len))) {
-#line 279 "parser/dump.byn"
-                    goto break_8;
-                }
-#line 279 "parser/dump.byn"
-                l37_e = t38.ptr[t39];
-#line 279 "parser/dump.byn"
-                (void)bynh_add_list_str(&l36_effects, byn_parser__nameText(&(*p_p), l37_e));
-            continue_9:;
-#line 279 "parser/dump.byn"
-                t39 = byn_addw_i64(t39, INT64_C(1));
-            }
-        break_8:;
-#line 280 "parser/dump.byn"
-            {
-                byn_writer* w = &l13_head;
-                w->file = byn_file_9;
-                w->line = 280;
-                byn_w_str(w, BYN_STR(" uses ", 6));
-                byn_w_str(w, bynh_joined_list_str(l36_effects, BYN_STR(", ", 2)));
             }
         }
 #line 282 "parser/dump.byn"
@@ -32374,14 +32374,14 @@ void byn_parser__dumpType(byn_parser_TypeSyntax p_t, bynt_parser__Parser* p_p, b
     byn_parser_TypeSyntax l25_tp = {0};
     bynt_list_parser__TypeSyntax t26 = {0};
     int64_t t27 = {0};
-    bynt_opt_parser__FailsClause t28 = {0};
-    bynt_parser__FailsClause l29_f = {0};
-    bynt_opt_parser__UsesClause t30 = {0};
-    bynt_parser__UsesClause l31_u = {0};
-    bool l32_firstU = {0};
-    bynt_lexer__TextSpan l33_eff = {0};
-    bynt_list_lexer__TextSpan t34 = {0};
-    int64_t t35 = {0};
+    bynt_opt_parser__UsesClause t28 = {0};
+    bynt_parser__UsesClause l29_u = {0};
+    bool l30_firstU = {0};
+    bynt_lexer__TextSpan l31_eff = {0};
+    bynt_list_lexer__TextSpan t32 = {0};
+    int64_t t33 = {0};
+    bynt_opt_parser__FailsClause t34 = {0};
+    bynt_parser__FailsClause l35_f = {0};
     bynt_parser__DynType* l36_n = {0};
     bynt_parser__RefinedType* l37_n = {0};
     bool l38_first = {0};
@@ -32611,49 +32611,49 @@ void byn_parser__dumpType(byn_parser_TypeSyntax p_t, bynt_parser__Parser* p_p, b
 #line 275 "parser/dump2.byn"
         (void)byn_parser__dumpType((*l20_n).returnKeyword, &(*p_p), &(*p_sb));
 #line 276 "parser/dump2.byn"
-        t28 = (*l20_n).failsKeyword;
+        t28 = (*l20_n).usesKeyword;
 #line 276 "parser/dump2.byn"
-        if ((t28.has && ((l29_f = t28.value), true))) {
+        if ((t28.has && ((l29_u = t28.value), true))) {
 #line 277 "parser/dump2.byn"
-            (void)byn_w_str(&(*p_sb), BYN_STR(" fails ", 7));
-#line 278 "parser/dump2.byn"
-            (void)byn_parser__appendTypes(l29_f.errors, &(*p_p), &(*p_sb));
-        }
-#line 280 "parser/dump2.byn"
-        t30 = (*l20_n).usesKeyword;
-#line 280 "parser/dump2.byn"
-        if ((t30.has && ((l31_u = t30.value), true))) {
-#line 281 "parser/dump2.byn"
             (void)byn_w_str(&(*p_sb), BYN_STR(" uses ", 6));
-#line 282 "parser/dump2.byn"
-            l32_firstU = true;
-#line 283 "parser/dump2.byn"
-            t34 = l31_u.effects;
-#line 283 "parser/dump2.byn"
-            t35 = INT64_C(0);
-#line 283 "parser/dump2.byn"
+#line 278 "parser/dump2.byn"
+            l30_firstU = true;
+#line 279 "parser/dump2.byn"
+            t32 = l29_u.effects;
+#line 279 "parser/dump2.byn"
+            t33 = INT64_C(0);
+#line 279 "parser/dump2.byn"
             for (;;) {
-#line 283 "parser/dump2.byn"
-                if ((!(t35 < t34.len))) {
-#line 283 "parser/dump2.byn"
+#line 279 "parser/dump2.byn"
+                if ((!(t33 < t32.len))) {
+#line 279 "parser/dump2.byn"
                     goto break_10;
                 }
-#line 283 "parser/dump2.byn"
-                l33_eff = t34.ptr[t35];
-#line 284 "parser/dump2.byn"
-                if ((!l32_firstU)) {
-#line 284 "parser/dump2.byn"
+#line 279 "parser/dump2.byn"
+                l31_eff = t32.ptr[t33];
+#line 280 "parser/dump2.byn"
+                if ((!l30_firstU)) {
+#line 280 "parser/dump2.byn"
                     (void)byn_w_str(&(*p_sb), BYN_STR(", ", 2));
                 }
-#line 285 "parser/dump2.byn"
-                l32_firstU = false;
-#line 286 "parser/dump2.byn"
-                (void)byn_w_str(&(*p_sb), byn_parser__nameText(&(*p_p), l33_eff));
+#line 281 "parser/dump2.byn"
+                l30_firstU = false;
+#line 282 "parser/dump2.byn"
+                (void)byn_w_str(&(*p_sb), byn_parser__nameText(&(*p_p), l31_eff));
             continue_11:;
-#line 283 "parser/dump2.byn"
-                t35 = byn_addw_i64(t35, INT64_C(1));
+#line 279 "parser/dump2.byn"
+                t33 = byn_addw_i64(t33, INT64_C(1));
             }
         break_10:;
+        }
+#line 285 "parser/dump2.byn"
+        t34 = (*l20_n).failsKeyword;
+#line 285 "parser/dump2.byn"
+        if ((t34.has && ((l35_f = t34.value), true))) {
+#line 286 "parser/dump2.byn"
+            (void)byn_w_str(&(*p_sb), BYN_STR(" fails ", 7));
+#line 287 "parser/dump2.byn"
+            (void)byn_parser__appendTypes(l35_f.errors, &(*p_p), &(*p_sb));
         }
 #line 259 "parser/dump2.byn"
         goto switch_end_1;
