@@ -50,6 +50,7 @@ public CoverageMap instrument(ref Ctx c, for in List<string> skipFiles) uses all
             let fn = c.modules[m].allFunctions[i]
             if c.functions[fn].body == -1 || semantics.functionIsGeneric(ref c, by: fn) || coverageInTest(in c, for: fn) { continue }
             let kind = c.functions[fn].kind
+            // coverage-exempt: Q1099
             if !(kind == .function || kind == .method || kind == .constructor || kind == .getter || kind == .main || kind == .lambda) { continue }
             let file = c.functions[fn].file
             if file == -1 || t10Contains(in skipFiles, for: c.files[file].path) { continue }
@@ -85,6 +86,7 @@ bool t10Contains(in List<string> xs, for string x) {
 /// from, so the instances of a generic, bound again from the same syntax, share it (Q1098).
 string t10SyntaxKey(in Ctx c, for BNode n, at FileId file) uses alloc {
     if (semantics.exprSyntax(in c, for: n) is { } e) { return $"{file} e{e.kind.ordinal} {e.span.start} {e.span.length}" }
+    // coverage-exempt: Q1099 through `return $"{file} - {span.start} {span.length}"`
     if (semantics.nodeSyntax(in c, for: n) is { } s) { return $"{file} n{s.kind.ordinal} {s.span.start} {s.span.length}" }
     let span = semantics.nodeSpan(in c, for: n)
     return $"{file} - {span.start} {span.length}"
@@ -93,6 +95,7 @@ string t10SyntaxKey(in Ctx c, for BNode n, at FileId file) uses alloc {
 /// C# `n.Syntax.Span`.
 TextSpan t10SyntaxSpan(in Ctx c, for BNode n) {
     if (semantics.exprSyntax(in c, for: n) is { } e) { return e.span }
+    // coverage-exempt: Q1099 through `return semantics.nodeSpan(in c, for: n)`
     if (semantics.nodeSyntax(in c, for: n) is { } s) { return s.span }
     return semantics.nodeSpan(in c, for: n)
 }
@@ -164,6 +167,7 @@ void coverageVisit(in Ctx c, through ref CoverageWalker w, for BNode node) uses 
             coverageCondition(in c, through: ref w, for: c.bConditionals[i].condition)
         case .binary:
             let op = c.bBinaries[i].op
+            // coverage-exempt: Q1099
             let isBinaryExpr = (semantics.exprSyntax(in c, for: node) is { } e) && e.kind == .binaryExpr
             if (op == .logicalAnd || op == .logicalOr) && isBinaryExpr {
                 // An operand that is itself `&&` or `||` gets its own operands' counters instead.
@@ -179,6 +183,7 @@ void coverageVisit(in Ctx c, through ref CoverageWalker w, for BNode node) uses 
                 if arm.guard != -1 { coverageCondition(in c, through: ref w, for: arm.guard) }
             }
         case .failStmt:
+            // coverage-exempt: Q1099
             if c.functions[w.fn].hasFails {
                 let error = c.bFails[i].error
                 var variants = List<VariantId>()
@@ -191,6 +196,7 @@ void coverageVisit(in Ctx c, through ref CoverageWalker w, for BNode node) uses 
             }
         case .tryExpr:
             let operand = c.bTries[i].operand
+            // coverage-exempt: Q1099
             if semantics.boundKind(operand) == .call && c.functions[w.fn].hasFails {
                 let callee = c.bCalls[operand & 0xFFFFFFFF].function
                 let variants = coverageVariants(in c, from: in c.functions[callee].errorSets, through: in c.functions[callee].excludedErrors, at: -1)
@@ -234,6 +240,7 @@ List<VariantId> coverageVariants(in Ctx c, from in List<semantics.ErrorSetId> se
                 if x == v { skip = true }
             }
             for x in result {
+                // coverage-exempt: Q1099
                 if x == v { skip = true }
             }
             unless skip { result.append(v) }

@@ -506,6 +506,13 @@ public sealed class SelfhostDefaultT10Tests
             q(i64 code)
         }
 
+        union error N = H except .q
+
+        union error K {
+            m(i64 code)
+            n(string why)
+        }
+
         struct Cell<T> {
             T value
 
@@ -524,6 +531,24 @@ public sealed class SelfhostDefaultT10Tests
             if m > 5 && on { fail H.q (code: m) }
             if !flip { return a }
             return a
+        }
+
+        T? opt<T>(move T a) {
+            return a
+        }
+
+        i64 narrow(i64 n) fails N {
+            fail .p (code: n) if n < 0
+            return n
+        }
+
+        i64 kf(i64 n) fails K {
+            fail .m (code: n) if n < 0
+            return n
+        }
+
+        i64 wide(i64 n) fails H {
+            return try narrow(n)
         }
 
         void setIt(out i64 v) {
@@ -545,6 +570,8 @@ public sealed class SelfhostDefaultT10Tests
 
         const enabled: bool = true
 
+        const limit: i64 = 3
+
         i64 edges(i64 x) fails G {
             var u: i64
             setIt(out u)
@@ -555,9 +582,9 @@ public sealed class SelfhostDefaultT10Tests
             let small: i8 = -128
             let q = 7 / 1
             let d = 7 * -2
-            let arr = [1, 2, 3]
+            let arr: i64[3] = [1, 2, 3]
             let j = 1
-            let a1 = arr[j] + arr[1u]
+            let a1 = arr[j] + arr[1u] + arr[2ul] + -limit
             var n = 0
             do {
                 n += 1
@@ -583,6 +610,11 @@ public sealed class SelfhostDefaultT10Tests
             let v2 = only() catch (G.a) 4
             let e = edges(1) catch 0
             let l = load() catch 0
+            let o1 = opt(1) ?? 0
+            let o2 = opt("s") ?? "n"
+            let nw = wide(1) catch 0
+            let nk = kf(1) catch 0
+            print($"{o1} {o2} {nw} {nk}")
             print($"{k2} {raw()}")
             return r + rt + k1 + v2 + e + l
         }

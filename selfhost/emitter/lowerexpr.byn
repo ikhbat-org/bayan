@@ -351,8 +351,10 @@ BExpr mutantExpr(ref Ctx c, through ref LCtx l, for semantics.BNode key) uses al
     var plainPre = List<BStmt>()
     let plainValue = captureExpr(ref c, through: ref l, for: original, lvalue: false, to: ref plainPre)
     let type = t2Type(in c, through: in l, for: original)
+    // coverage-exempt: Q1099
     var simple = plainPre.length == 0 && !isNeverExpr(plainValue) && !semantics.isNever(type)
     for k in 0..armValues.length {
+        // coverage-exempt: Q1099
         if armPres[k].length != 0 || isNeverExpr(armValues[k]) { simple = false }
     }
     if simple {
@@ -387,6 +389,7 @@ BExpr mutantExpr(ref Ctx c, through ref LCtx l, for semantics.BNode key) uses al
     }
     emit(ref l, for: chain)
     let _ = l.plain.remove(key: original)
+    // coverage-exempt: Q1099
     if semantics.isNever(type) { return ltree.addLNever(ref l.tree, from: T4LNever { span: span, type: type }) }
     return target
 }

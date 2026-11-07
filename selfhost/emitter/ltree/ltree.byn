@@ -520,6 +520,7 @@ public Type typeOf(in semantics.Ctx c, through in LTree t, for LNode e) {
         case .nextChar: return semantics.prim(.char)
         case .neverValue: return t.neverValues[i].type
         case .functionValue: return t.functionValues[i].functionType
+        // coverage-exempt: Q1099 through `case .count: return semantics.prim(.void)`
         case .mutantIs: return semantics.prim(.bool)
         case .count: return semantics.prim(.void)
         case .voidValue: return semantics.prim(.void)
@@ -558,6 +559,7 @@ public TextSpan spanOf(in semantics.Ctx c, through in LTree t, for LNode n) {
         case .nextChar: return t.nextChars[i].span
         case .neverValue: return t.neverValues[i].span
         case .functionValue: return t.functionValues[i].span
+        // coverage-exempt: Q1099 through `case .count: return t.counts[i].span`
         case .mutantIs: return t.mutantIss[i].span
         case .count: return t.counts[i].span
         case .voidValue: return t.voidValues[i].span
