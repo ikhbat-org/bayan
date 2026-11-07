@@ -1,0 +1,29 @@
+// The command `explain` of the self-hosted driver (spec 017 T1). Ports `CliApp.cs` :1089 `Explain` and :1107 `ExplainText`;
+// the embedded `docs/diagnostics/BYN####.md` are the constants of `diagdocs.byn` (plan D2). Takes the arguments `run` kept
+// (the command first).
+
+/// CliApp.cs:1089 `Explain`.
+i32 explainCommand(in List<string> kept) uses alloc, console {
+    let args = t2Rest(kept)
+    if args.length != 1 {
+        Io.stderr.write("bayan: expected one diagnostic code, e.g. `bayan explain BYN0003`\n")
+        return exitUsage
+    }
+    if (explainText(args[0]) is { } text) {
+        Io.stdout.write(text)
+        return exitOk
+    }
+    Io.stderr.write($"bayan: no explanation for `{args[0]}`\n")
+    return exitUsage
+}
+
+/// CliApp.cs:1107 `ExplainText`: the document for a code, matched case-insensitively; null when the code is malformed or has none.
+string? explainText(string code) uses alloc {
+    let name = code.trimmed().uppercased()
+    if name.length != 7 || !name.startsWith("BYN") { return null }
+    for i in 3..7 {
+        let b = name.bytes[i]
+        if b < 0x30 || b > 0x39 { return null }
+    }
+    return diagDoc(name)
+}
