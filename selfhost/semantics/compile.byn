@@ -82,7 +82,36 @@ public Ctx fromProject(string root, for string entryModule, by in CompilationOpt
 // ── Compilation.cs:100 Create ───────────────────────────────────────────────────
 
 /// Compiles `entryFiles` as the entry module; imports resolve under `packageRoot`.
-public Ctx create(from move List<lexer.SourceText> entryFiles, at string packageRoot, by in CompilationOptions options, string? displayRoot = null) uses alloc, clock, fs {
+public Ctx create(from move List<lexer.SourceText> entryFiles, at string packageRoot, by in CompilationOptions options, string? displayRoot = null) uses alloc, clock, fs =>
+    t2Create(from: move entryFiles, at: packageRoot, by: in options, through: [], for: List<string>(), displayRoot: displayRoot)
+
+/// Compilation.cs:129 WithFile: the same program compiled again with `text` in place of the file of the same path,
+/// entry or imported: spec 013 re-binds and ownership-checks each mutant this way.
+public Ctx withFile(in Ctx c, from in lexer.SourceText text) uses alloc, clock, fs {
+    var replaced: Map<string, lexer.SourceText> = []
+    var paths = List<string>()
+    for path in c.replacedPaths {
+        replaced[path] = t2CopySource(in c.replaced[path])
+        paths.append(path)
+    }
+    unless replaced.contains(text.path) { paths.append(text.path) }
+    replaced[text.path] = t2CopySource(in text)
+    var entry = List<lexer.SourceText>()
+    for f in c.entryFiles { entry.append(f.path == text.path ? t2CopySource(in text) : t2CopySource(in f)) }
+    return t2Create(from: move entry, at: c.packageRoot, by: in c.options, through: move replaced, for: move paths, displayRoot: c.displayRoot)
+}
+
+lexer.SourceText t2CopySource(in lexer.SourceText s) uses alloc => lexer.SourceText.create(s.path, from: s.bytes.copy())
+
+/// C# `CompilationOptions` copied, for `withFile`.
+CompilationOptions t2CopyOptions(in CompilationOptions o) uses alloc {
+    var capabilities: List<string>? = null
+    if (o.capabilities is { } caps) { capabilities = copyStrings(in caps) }
+    return CompilationOptions { includeTests: o.includeTests, library: o.library, skipOwnershipCheck: o.skipOwnershipCheck, capabilities: move capabilities, packageName: o.packageName, target: o.target }
+}
+
+/// Compilation.cs:138 Create, with the files `through` read from this text instead of from disk.
+Ctx t2Create(from move List<lexer.SourceText> entryFiles, at string packageRoot, by in CompilationOptions options, through move Map<string, lexer.SourceText> replaced, for move List<string> replacedPaths, string? displayRoot = null) uses alloc, clock, fs {
     var capabilities: List<string>? = null
     if (options.capabilities is { } caps) { capabilities = copyStrings(in caps) }
     var c = Ctx {
@@ -99,6 +128,10 @@ public Ctx create(from move List<lexer.SourceText> entryFiles, at string package
         includeTests: options.includeTests,
         skipOwnershipCheck: options.skipOwnershipCheck,
     }
+    c.options = t2CopyOptions(in options)
+    for f in entryFiles { c.entryFiles.append(t2CopySource(in f)) }
+    c.replaced = move replaced
+    c.replacedPaths = move replacedPaths
     var clock = Io.monotonicNanos()
     c.entryModule = loadModule(ref c, for: "main", at: packageRoot, from: move entryFiles, by: -1)
     t11OrderModules(ref c)
@@ -330,7 +363,15 @@ void resolveImport(ref Ctx c, from FileId file, for in parser.ImportDecl decl) {
             return
         }
         var sources = List<lexer.SourceText>()
-        for f in files { sources.append(lexer.SourceText.create(t11RelativePath(c.displayRoot, to: f).replaced("\\", by: "/"), from: t11ReadAllBytes(f))) }
+        for f in files {
+            let path = t11RelativePath(c.displayRoot, to: f).replaced("\\", by: "/")
+            // C# `_replaced?.GetValueOrDefault(f.Path) ?? new SourceText(…)`: `withFile`'s text before the disk's.
+            if c.replaced.contains(path) {
+                sources.append(t2CopySource(in c.replaced[path]))
+            } else {
+                sources.append(lexer.SourceText.create(path, from: t11ReadAllBytes(f)))
+            }
+        }
         module = loadModule(ref c, for: name, at: dir, from: move sources, by: c.files[file].module)
     }
     if c.files[file].imports.contains(alias) {

@@ -74,7 +74,7 @@ bool checkPayloadGiven(ref Binder b, through ref Ctx c, for BExpr error, from in
 BExpr errorCase(ref Binder b, through ref Ctx c, for in parser.Pattern p, from ErrorSetId set, at TextSpan name) {
     let text = t15Text(in c, from: b.file, at: name)
     let variant = findErrorVariant(ref c, by: set, for: text)
-    if variant != -1 { return addErrorVariant(ref c, from: BErrorVariant { span: parser.patternSpan(in p), variant: variant }) }
+    if variant != -1 { return recordPatternSyntax(ref c, for: addErrorVariant(ref c, from: BErrorVariant { span: parser.patternSpan(in p), variant: variant }), from: in p) }
     var names = List<string>()
     for v in c.errorSets[set].variants { names.append(c.errorVariants[v].name) }
     let close = suggest(text, by: in names)
@@ -84,7 +84,7 @@ BExpr errorCase(ref Binder b, through ref Ctx c, for in parser.Pattern p, from E
     } else {
         report(ref b, through: ref c, for: .unknownVariant, at: name, by: (text, display, "", "", ""))
     }
-    return addErrorExpr(ref c, from: BErrorExpr { span: parser.patternSpan(in p) })
+    return recordPatternSyntax(ref c, for: addErrorExpr(ref c, from: BErrorExpr { span: parser.patternSpan(in p) }), from: in p)
 }
 
 BPattern bindErrorCasePattern(ref Binder b, through ref Ctx c, for in parser.Pattern p, as Type input, by BExpr bound, from in List<parser.Pattern> elements, at TextSpan? binding) {
@@ -110,11 +110,11 @@ BPattern bindErrorCasePattern(ref Binder b, through ref Ctx c, for in parser.Pat
     }
     if (binding is { } name) {
         let local = declareLocal(ref b, through: ref c, at: name, as: variant == -1 ? errorType() : target, for: .patternVariable)
-        if variant == -1 { return addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }) }
+        if variant == -1 { return recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: in p) }
         b.errorNarrowed[local] = variant
-        let left = addErrorPattern(ref c, from: BErrorPattern { span: span, inputType: input, variant: variant })
-        let right = addBindPattern(ref c, from: BBindPattern { span: span, inputType: input, local: local })
-        return addBinaryPattern(ref c, from: BBinaryPattern { span: span, inputType: input, isAnd: true, left: left, right: right })
+        let left = recordPatternSyntax(ref c, for: addErrorPattern(ref c, from: BErrorPattern { span: span, inputType: input, variant: variant }), from: in p)
+        let right = recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input, local: local }), from: in p)
+        return recordPatternSyntax(ref c, for: addBinaryPattern(ref c, from: BBinaryPattern { span: span, inputType: input, isAnd: true, left: left, right: right }), from: in p)
     }
     let fieldCount = variant == -1 ? 0 : c.errorVariants[variant].fields.length
     if variant != -1 && fieldCount == 0 {
@@ -136,6 +136,6 @@ BPattern bindErrorCasePattern(ref Binder b, through ref Ctx c, for in parser.Pat
         let type = ok ? c.locals[c.errorVariants[variant].fields[i]].type : errorType()
         subs.append(bindPattern(ref b, through: ref c, for: in elements[i], as: type))
     }
-    if ok { return addErrorPattern(ref c, from: BErrorPattern { span: span, inputType: input, variant: variant, subpatterns: move subs }) }
-    return addBindPattern(ref c, from: BBindPattern { span: span, inputType: input })
+    if ok { return recordPatternSyntax(ref c, for: addErrorPattern(ref c, from: BErrorPattern { span: span, inputType: input, variant: variant, subpatterns: move subs }), from: in p) }
+    return recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: in p)
 }
