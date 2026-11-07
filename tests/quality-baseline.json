@@ -8,7 +8,7 @@
     },
     "selfhost/driver/build.byn": {
       "mutation": null,
-      "coverage": 0.96,
+      "coverage": 0.962,
       "branches": 0.9868
     },
     "selfhost/driver/cache.byn": {
@@ -38,7 +38,7 @@
     },
     "selfhost/driver/doctor.byn": {
       "mutation": null,
-      "coverage": 0.9663,
+      "coverage": 0.9667,
       "branches": 0.975
     },
     "selfhost/driver/explain.byn": {
@@ -59,6 +59,11 @@
     "selfhost/driver/main.byn": {
       "mutation": null,
       "coverage": 0.9918,
+      "branches": 1.0
+    },
+    "selfhost/driver/progress.byn": {
+      "mutation": null,
+      "coverage": 1.0,
       "branches": 1.0
     },
     "selfhost/driver/scaffold.byn": {
