@@ -31,20 +31,21 @@ const t5ZigUrl: string = "https://ziglang.org"
 /// CliApp.cs:33 `VersionLine`'s commit has no source in the driver (Q1091): the row prints `(commit selfhost)`.
 const t5Commit: string = "selfhost"
 
-/// `Style.Paint` (Style.cs:68) with `Palette.Ansi16` (Style.cs:33) when `style.color`, the only palette the driver has (Q919).
+/// `Style.Paint` (Style.cs:68) with the palette of `style` (`t7Prefix`) when `style.color`.
 string t5Paint(T5Role role, by DStyle style, for string text) uses alloc {
     unless style.color { return $"{text}" }
-    var prefix = "\u{1b}[2m"
+    var index = 4
     switch role {
         case .error:
-            prefix = "\u{1b}[31m"
+            index = 0
         case .help:
-            prefix = "\u{1b}[34m"
+            index = 2
         case .success:
-            prefix = "\u{1b}[32m"
+            index = 3
         case .note:
-            prefix = "\u{1b}[2m"
+            index = 4
     }
+    let prefix = t7Prefix(by: style.palette, for: index)
     return $"{prefix}{text}\u{1b}[0m"
 }
 

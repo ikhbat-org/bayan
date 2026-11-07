@@ -284,4 +284,27 @@ public sealed class SelfhostDriverGoldenTests
         }
         if (failures.Count > 0) Assert.Fail(string.Join("\n", failures));
     }
+
+    public static IEnumerable<object[]> DiagJson() =>
+        from command in new[] { "check", "build" }
+        from file in Directory.GetFiles(Path.Combine(Golden.CasesRoot, "diag-json"), "*.byn").Order(StringComparer.Ordinal)
+        // listed skip (017 T7, Q1118): `build` of `fix-and-help`, which has only a warning, goes on to the native build, which this row does not run
+        where !(command == "build" && Path.GetFileNameWithoutExtension(file) == "fix-and-help")
+        select new object[] { command, Path.GetFileNameWithoutExtension(file) };
+
+    /// <summary>
+    /// 017 T7 (L028): every <c>diag-json/*.byn</c> through stage 2's <c>check --diagnostics json</c> and <c>build --diagnostics json</c>, run in the
+    /// case's directory with `--package` (the file alone, as <c>DiagJsonTests</c> compiles it), against its <c>.jsonl</c> with the directory taken off the file name; <c>build</c> stops at the errors, before a toolchain.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(DiagJson))]
+    public void DiagJsonGolden(string command, string name)
+    {
+        var dir = Path.Combine(Golden.CasesRoot, "diag-json");
+        var failing = File.ReadAllText(Path.Combine(dir, name + ".jsonl")).Contains("\"severity\":\"error\"", StringComparison.Ordinal);
+        var r = Stage2(dir, command, "--package", dir, "--diagnostics", "json", name + ".byn");
+        Assert.Equal(failing ? CliApp.ExitFailure : CliApp.ExitOk, r.Exit);
+        Assert.Equal("", r.Stdout);
+        if (Failure("diag-json/" + name + ".byn", ".jsonl", r.Stderr.Replace((dir + Path.DirectorySeparatorChar).Replace("\\", "\\\\", StringComparison.Ordinal), "")) is { } f) Assert.Fail(f);
+    }
 }

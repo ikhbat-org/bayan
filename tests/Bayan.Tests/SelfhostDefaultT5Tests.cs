@@ -278,7 +278,7 @@ public sealed partial class SelfhostDefaultT5Tests
                 checks.append(T5Check { level: .ok, name: "git", detail: "/usr/bin/git (git version 2.47.0)", fix: null })
                 checks.append(T5Check { level: .broken, name: "cache", detail: "~/.cache/bayan isn't writable: Permission denied", fix: "set BAYAN_CACHE to a writable directory" })
             }
-            let style = DStyle { color: args[1] != "plain", ascii: args[1] == "ascii" }
+            let style = DStyle { color: args[1] != "plain", ascii: args[1] == "ascii", palette: 2 }
             Io.stdout.write(t5Render(in checks, by: style))
             return 0
         }
@@ -324,17 +324,12 @@ public sealed partial class SelfhostDefaultT5Tests
         Assert.Equal(Golden_($"doctor-{shape}.{style}"), RenderedByTheDriver(shape, style));
     }
 
-    /// <summary>The <c>.ascii</c> files are coloured with ASCII symbols and the <c>.color</c> files are truecolor; the driver has the Ansi16 palette only (Q1094), so the four SGR prefixes are swapped.</summary>
+    /// <summary>The <c>.ascii</c> files are coloured with ASCII symbols and the <c>.color</c> files are truecolor, both on a dark terminal (`DPalette.truecolorDark`, Q1117).</summary>
     [Theory]
     [InlineData("ok", "color")]
     [InlineData("fail", "color")]
     [InlineData("ok", "ascii")]
     [InlineData("fail", "ascii")]
-    public void RendersTheColourFilesInAnsi16(string shape, string style)
-    {
-        var expected = Golden_($"doctor-{shape}.{style}")
-            .Replace("\e[38;2;143;214;148m", "\e[32m").Replace("\e[38;2;255;138;128m", "\e[31m")
-            .Replace("\e[38;2;141;184;242m", "\e[34m").Replace("\e[38;2;180;178;169m", "\e[2m");
-        Assert.Equal(expected, RenderedByTheDriver(shape, style));
-    }
+    public void RendersTheColourFiles(string shape, string style) =>
+        Assert.Equal(Golden_($"doctor-{shape}.{style}"), RenderedByTheDriver(shape, style));
 }

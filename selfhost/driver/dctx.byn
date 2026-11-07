@@ -7,6 +7,9 @@ struct DStyle {
     bool color = false
     bool ascii = false
     i64 width = 100
+    // ── T7 state
+    /// The palette `Decide` picks (TerminalStyle.cs:24-27) when `color`: 0 is `Ansi16`, 1 `TruecolorLight`, 2 `TruecolorDark`. An enum would have to be declared above `DStyle`, outside the T7 section.
+    i64 palette = 0
 }
 
 /// Everything the driver reads and writes for one run. Each task adds its fields in its own `// ── Tn state` section.
