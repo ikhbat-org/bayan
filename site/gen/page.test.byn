@@ -106,3 +106,11 @@ test "other code block keeps its text and gets a caption" {
 test "unclosed code block" {
     assert render("<pre><code class=\"byn\">x") == "content/x.page:4: code block has no `</code></pre>`"
 }
+
+test "repeated header key" {
+    assert parsed("title: T\ntemplate: docs\ntitle: U\n---\n").error == "content/x.page:3: duplicate header `title`"
+}
+
+test "empty title is reported at its own line" {
+    assert parsed("template: docs\n\ntitle:\n---\n").error == "content/x.page:3: page has no title"
+}
