@@ -1,7 +1,7 @@
 // T10: CoverageInstrumenter.cs 33-200 (`Instrument`, `InTest`, the `Walker`; spec 013 R9) and the probe records of
 // CoverageProbes.cs. `DeleteStale` and `Read` (60-83) are the driver's (T11). C# keys the probes by `BoundNode`
 // reference, a `BNode` handle here, and the counters the instances of a generic share by `Node` reference, which is
-// `t10SyntaxKey` here (Q1097).
+// `t10SyntaxKey` here (Q1098).
 
 import lexer
 import semantics
@@ -107,7 +107,7 @@ bool t10Contains(in List<string> xs, for string x) {
 }
 
 /// C# `BoundNode.Syntax` as an identity: the file, the record type and the span of the syntax node `n` was bound
-/// from, so the instances of a generic, bound again from the same syntax, share it (Q1097).
+/// from, so the instances of a generic, bound again from the same syntax, share it (Q1098).
 string t10SyntaxKey(in Ctx c, for BNode n, at FileId file) uses alloc {
     if (semantics.exprSyntax(in c, for: n) is { } e) { return $"{file} e{e.kind.ordinal} {e.span.start} {e.span.length}" }
     if (semantics.nodeSyntax(in c, for: n) is { } s) { return $"{file} n{s.kind.ordinal} {s.span.start} {s.span.length}" }

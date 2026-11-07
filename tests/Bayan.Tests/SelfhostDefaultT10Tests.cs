@@ -12,7 +12,10 @@ namespace Bayan.Tests;
 /// </summary>
 public sealed class SelfhostDefaultT10Tests
 {
-    /// <summary>The emitter's <c>main.byn</c>: for every path after the package directory, <c>== name</c>, then <c>errors</c> or one line per counter.</summary>
+    /// <summary>
+    /// The emitter's <c>main.byn</c>: <c>coverage|mutate[-skip] dir paths…</c> (<c>-skip</c>: each path's name is a skip file); for every path, <c>== name</c>, then <c>errors</c>, or one
+    /// line per counter (<c>coverage</c>), or the not-emitted counts, the switch count and the site map (<c>mutate</c>).
+    /// </summary>
     private const string Main = """
         import lexer
         import semantics
@@ -22,8 +25,9 @@ public sealed class SelfhostDefaultT10Tests
         string t10Opt(string? s) => s ?? "-"
 
         i32 main(ReadOnlySpan<string> args) {
-            let dir = args[0]
-            for k in 1..args.length {
+            let mode = args[0]
+            let dir = args[1]
+            for k in 2..args.length {
                 let file = args[k]
                 print($"== {Path.fileName(file)}")
                 let bytes = Io.readFile(file) catch return 1
@@ -39,7 +43,15 @@ public sealed class SelfhostDefaultT10Tests
                     print("errors")
                     continue
                 }
-                let skip = List<string>()
+                var skip = List<string>()
+                if mode.endsWith("-skip") { skip.append(Path.fileName(file)) }
+                if mode.startsWith("mutate") {
+                    let schema = buildSchema(ref c, for: in skip)
+                    for op in mutatorOperators() { print($"notEmitted {op} {schema.notEmitted.tryGet(at: op) ?? 0}") }
+                    print($"switches {schema.switches.length}")
+                    Io.stdout.write(sitesJson(in schema))
+                    continue
+                }
                 let map = instrument(ref c, for: in skip)
                 print($"count {map.probes.count} statements {map.probes.statements.length} branches {map.probes.branches.length} errors {map.probes.errors.length}")
                 for x in map.counters {
@@ -61,7 +73,7 @@ public sealed class SelfhostDefaultT10Tests
             .ToList();
 
     /// <summary>What the generated main prints for <paramref name="inputs"/>, computed by the C# compiler and instrumenter.</summary>
-    private static string Expected(IEnumerable<string> inputs, string dir)
+    private static string Expected(IEnumerable<string> inputs, string dir, bool mutate = false, bool skipped = false)
     {
         var sb = new StringBuilder();
         foreach (var input in inputs)
@@ -73,7 +85,16 @@ public sealed class SelfhostDefaultT10Tests
                 sb.Append("errors\n");
                 continue;
             }
-            var map = CoverageInstrumenter.Instrument(c);
+            var skip = skipped ? new HashSet<string>(StringComparer.Ordinal) { Path.GetFileName(input) } : null;
+            if (mutate)
+            {
+                var schema = Schemata.Build(c, skip);
+                foreach (var op in Mutator.Operators) sb.Append($"notEmitted {op} {schema.NotEmitted[op]}\n");
+                sb.Append($"switches {schema.Switches.Count}\n");
+                sb.Append(schema.SitesJson());
+                continue;
+            }
+            var map = CoverageInstrumenter.Instrument(c, skip);
             var p = map.Probes;
             sb.Append($"count {p.Count} statements {p.Statements.Count} branches {p.Branches.Count} errors {p.Errors.Count}\n");
             foreach (var x in map.Counters)
@@ -87,9 +108,46 @@ public sealed class SelfhostDefaultT10Tests
     {
         var inputs = RunInputs();
         Assert.NotEmpty(inputs);
-        var (exit, output, error) = SelfhostParserTests.Run(Build(), [RunDir, .. inputs]);
+        var (exit, output, error) = SelfhostParserTests.Run(Build(), ["coverage", RunDir, .. inputs]);
         Assert.True(exit == 0, $"exit {exit}\n{error}");
         SelfhostEmitterHarness.AssertSame("coverage counters", Expected(inputs, RunDir), output);
+    }
+
+    [Fact]
+    public void SitesJsonMatchesTheCSharpOnEveryRunInput()
+    {
+        var inputs = RunInputs();
+        Assert.NotEmpty(inputs);
+        var (exit, output, error) = SelfhostParserTests.Run(Build(), ["mutate", RunDir, .. inputs]);
+        Assert.True(exit == 0, $"exit {exit}\n{error}");
+        SelfhostEmitterHarness.AssertSame("sites json", Expected(inputs, RunDir, mutate: true), output);
+    }
+
+    /// <summary>The failure path for <c>--mutate</c>: an input with errors gets no site map, and the fixture's mutants that do not re-bind are not emitted.</summary>
+    [Fact]
+    public void MutateSkipsAnInputWithErrorsAndMarksMutantsThatDoNotRebind()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "bayan-017-t10-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var bad = Path.Combine(dir, "a.byn");
+            File.WriteAllText(bad, "void main() { let x: i64 = \"no\" }\n");
+            var good = Path.Combine(dir, "b.byn");
+            File.WriteAllText(good, FailFixture);
+            string[] inputs = [bad, good];
+            var expected = Expected(inputs, dir, mutate: true);
+            Assert.Contains("errors\n", expected);
+            Assert.Contains("\"variant\"", expected);
+            Assert.Contains("\"emitted\": false", expected);
+            var (exit, output, error) = SelfhostParserTests.Run(Build(), ["mutate", dir, .. inputs]);
+            Assert.True(exit == 0, $"exit {exit}\n{error}");
+            SelfhostEmitterHarness.AssertSame("mutate failure path", expected, output);
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
     }
 
     /// <summary>The failure path: an input that does not compile gets no counters on either side, and the walk goes on to the next input.</summary>
@@ -108,7 +166,7 @@ public sealed class SelfhostDefaultT10Tests
             var expected = Expected(inputs, dir);
             Assert.Contains("errors\n", expected);
             Assert.Contains(" error ", expected);
-            var (exit, output, error) = SelfhostParserTests.Run(Build(), [dir, .. inputs]);
+            var (exit, output, error) = SelfhostParserTests.Run(Build(), ["coverage", dir, .. inputs]);
             Assert.True(exit == 0, $"exit {exit}\n{error}");
             SelfhostEmitterHarness.AssertSame("coverage failure path", expected, output);
         }
@@ -118,7 +176,66 @@ public sealed class SelfhostDefaultT10Tests
         }
     }
 
-    /// <summary>`fail`, `try` and `catch` origins, a guarded statement, `&amp;&amp;`/`||` operands, a switch guard and a generic method.</summary>
+    /// <summary>Constant folds on <c>*</c>, <c>/</c> and <c>%</c> (negative and wide operands), floats, an escaped string, an uninitialized local, <c>do</c>/<c>while</c> and negation, in both modes, and with the input skipped.</summary>
+    [Fact]
+    public void FoldsFloatsAndEscapesMatchTheCSharpInBothModes()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "bayan-017-t10-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var input = Path.Combine(dir, "w.byn");
+            File.WriteAllText(input, WideFixture);
+            string[] inputs = [input];
+            foreach (var mode in new[] { "coverage", "mutate", "coverage-skip", "mutate-skip" })
+            {
+                var expected = Expected(inputs, dir, mutate: mode.StartsWith("mutate"), skipped: mode.EndsWith("-skip"));
+                Assert.DoesNotContain("errors\n", expected);
+                if (mode == "coverage-skip") Assert.Contains("count 0 ", expected);
+                var (exit, output, error) = SelfhostParserTests.Run(Build(), [mode, dir, .. inputs]);
+                Assert.True(exit == 0, $"exit {exit}\n{error}");
+                SelfhostEmitterHarness.AssertSame($"wide {mode}", expected, output);
+            }
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    private const string WideFixture = """
+        i64 folds(i64 x) {
+            let a = 6 * 7
+            let b = 9 / 3
+            let r = 10 % 4
+            let k = 3037000499 * 3037000499
+            let d = -7 / 2
+            let e = -7 % 3
+            let z = 5 - 5
+            let o = 4611686018427387904 / 2
+            var u: i64
+            u = x
+            var n = 0
+            do {
+                n += 1
+            } while n < 3
+            return a + b + r + u + n + -x + d + e + z + k / 3037000499 + -5 + o / 2305843009213693952
+        }
+
+        f64 half(f64 v) => v / 2.0 + 1.5
+
+        f64 twice(f64 v) {
+            return v * 2.0 + -5.0
+        }
+
+        string quoted() => "tab\there \"q\" back\\slash"
+
+        void main() {
+            print($"{folds(2)} {half(3.0)} {twice(1.0)} {quoted()}")
+        }
+        """;
+
+    /// <summary>`fail`, `try` and `catch` origins, a guarded statement, `&amp;&amp;`/`||` operands, a switch guard, a method, and an assignment after a move whose removal does not re-bind.</summary>
     private const string FailFixture = """
         union error E {
             a
@@ -129,9 +246,9 @@ public sealed class SelfhostDefaultT10Tests
             c
         }
 
-        struct Box<T> {
-            T value
-            T get() => value
+        struct Box {
+            i64 value
+            i64 get() => value
         }
 
         i64 f(i64 x) fails E, F {
@@ -156,8 +273,18 @@ public sealed class SelfhostDefaultT10Tests
             }
         }
 
+        i64 consume(move List<i64> xs) => xs.length
+
+        i64 again() {
+            var xs = List<i64>()
+            let n = consume(move xs)
+            xs = List<i64>()
+            return n + xs.length
+        }
+
         void main() {
-            let b = Box<i64> { value: 1 }
+            print($"{again()}")
+            let b = Box { value: 1 }
             let r = g(b.get()) catch 0
             print($"{r}")
         }
