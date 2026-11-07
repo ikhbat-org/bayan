@@ -158,58 +158,23 @@ T5Check t5Git() uses alloc, env, fs, process {
     return T5Check { level: .note, name: "git", detail: $"{git} can't be run", fix: "reinstall git" }
 }
 
-/// Doctor.cs:81 `Cache`: `Directory.CreateDirectory`, a probe file written and deleted, then `Toolchain.Stats`.
+/// Doctor.cs:81 `Cache`: `Directory.CreateDirectory`, a probe file written and deleted, then cache.byn `cacheStats`.
 T5Check t5Cache() uses alloc, clock, env, fs {
-    let dir = t5CacheDirectory()
+    let dir = cacheDirectory()
     Io.createDirectory(dir) catch switch { IoError e => return t5CacheBroken(dir, by: $"{e}") }
     let probe = Path.combine(dir, $".doctor-{Io.monotonicNanos()}")
-    // coverage-exempt: Q1092 a directory that was created but cannot take a file (read-only mount); no portable row stages it
     Io.writeFile(probe, "".bytes) catch switch { IoError e => return t5CacheBroken(dir, by: $"{e}") }
     // coverage-exempt: Q1092 the probe file was written a line earlier; only a race removes it
     Io.remove(probe) catch switch { IoError e => return t5CacheBroken(dir, by: $"{e}") }
-    let programs = Path.combine(Path.combine(dir, "v1"), "programs")
-    var count = 0
-    var bytes = 0
-    if t5DirectoryExists(programs) {
-        // coverage-exempt: Q1092 a cache that listed a moment ago and cannot be read now
-        let entries = Io.listDir(programs) catch return t5CacheBroken(dir, by: "cannot list the programs")
-        for entry in entries {
-            let path = Path.combine(programs, entry)
-            unless t5DirectoryExists(path) { continue }
-            count += 1
-            // coverage-exempt: Q1092 a cache that listed a moment ago and cannot be read now
-            let files = Io.listDir(path) catch return t5CacheBroken(dir, by: "cannot list a program")
-            for file in files {
-                let full = Path.combine(path, file)
-                if t5DirectoryExists(full) { continue }
-                // coverage-exempt: Q1092 a cache that listed a moment ago and cannot be read now
-                let content = Io.readFile(full) catch return t5CacheBroken(dir, by: "cannot read a program")
-                bytes += content.length
-            }
-        }
-    }
-    // `{2:0.0}` of `bytes / 1024.0 / 1024.0`
-    let tenths = i64(f64(bytes) / 1024.0 / 1024.0 * 10.0 + 0.5)
-    return T5Check { level: .ok, name: "cache", detail: $"{dir} (writable, {count} programs, {tenths / 10}.{tenths % 10} MB)" }
+    let stats = cacheStats()
+    // `{2:0.0}` of `Bytes / 1024.0 / 1024.0`: exact in binary, so half-up on the tenths is .NET's rounding (cache.byn `cacheCommand`)
+    let tenths = (stats.bytes * 10 + 524288) / 1048576
+    return T5Check { level: .ok, name: "cache", detail: $"{dir} (writable, {stats.programs} programs, {tenths / 10}.{tenths % 10} MB)" }
 }
 
 /// The `catch` of Doctor.cs:93.
 T5Check t5CacheBroken(string dir, by string message) {
     return T5Check { level: .broken, name: "cache", detail: $"{dir} isn't writable: {message}", fix: "set BAYAN_CACHE to a writable directory" }
-}
-
-/// Toolchain.cs:44 `CacheDirectory`.
-string t5CacheDirectory() uses alloc, env {
-    if ((Env.get("BAYAN_CACHE") ?? "") is { } dir && dir.length > 0) { return $"{dir}" }
-    // coverage-exempt: Q1092 Windows host only
-    if Target.os == "windows" { return Path.combine(Path.combine(Env.get("LOCALAPPDATA") ?? "", "bayan"), "cache") }
-    let home = Env.get("HOME") ?? ""
-    // coverage-exempt: Q1092 macOS host only
-    if Target.os == "macos" { return Path.combine(Path.combine(Path.combine(home, "Library"), "Caches"), "bayan") }
-    // coverage-exempt: Q1092 Linux host only
-    if ((Env.get("XDG_CACHE_HOME") ?? "") is { } xdg && xdg.length > 0 && Path.isRooted(xdg)) { return Path.combine(xdg, "bayan") }
-    // coverage-exempt: Q1092 Linux host only
-    return Path.combine(Path.combine(home, ".cache"), "bayan")
 }
 
 /// Doctor.cs:100 `Version`: the first line `file` prints for `args`, trimmed (stdout, else stderr); null if it can't run or fails.

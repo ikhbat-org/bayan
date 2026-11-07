@@ -1,5 +1,9 @@
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 using Bayan.Cli;
+using Bayan.Semantics;
+using Bayan.Syntax.Diagnostics;
+using Bayan.Syntax.Text;
 
 namespace Bayan.Tests;
 
@@ -190,5 +194,121 @@ public sealed partial class SelfhostDefaultT5Tests
         var home = Fresh("home");
         Same([("BAYAN_CACHE", null), ("HOME", home), ("XDG_CACHE_HOME", Path.Combine(home, "xdg"))], "doctor");
         Same([("BAYAN_CACHE", null), ("HOME", home), ("XDG_CACHE_HOME", "relative")], "doctor");
+    }
+
+    [Fact]
+    public void ACacheDirectoryThatCannotTakeAFile()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var cache = Fresh("readonly");
+        File.SetUnixFileMode(cache, UnixFileMode.UserRead | UnixFileMode.UserExecute);
+        try
+        {
+            foreach (var args in Argvs())
+                Assert.Contains("isn't writable", Same([("BAYAN_CACHE", cache)], args));
+        }
+        finally
+        {
+            File.SetUnixFileMode(cache, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        }
+    }
+
+    [Fact]
+    public void AProgramFileThatCannotBeRead()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var cache = Fresh("unreadable");
+        var program = Path.Combine(cache, "v1", "programs", "a");
+        Directory.CreateDirectory(program);
+        var file = Path.Combine(program, "program");
+        File.WriteAllBytes(file, new byte[10]);
+        File.SetUnixFileMode(file, UnixFileMode.None);
+        try
+        {
+            Assert.Contains("(writable, 1 programs,", Same([("BAYAN_CACHE", cache)], "doctor"));
+        }
+        finally
+        {
+            File.SetUnixFileMode(file, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        }
+    }
+
+    // ── Render on the doctor-ok and doctor-fail shapes of StyleTests (Q1094) ────────────────────────
+
+    private const string ProbeMain = """
+
+        i32 main(ReadOnlySpan<string> args) uses alloc, console {
+            var checks = List<T5Check>()
+            checks.append(T5Check { level: .ok, name: "bayan", detail: "<version> (commit a1b2c3d4e5f6)", fix: null })
+            checks.append(T5Check { level: .ok, name: "host", detail: "<host>", fix: null })
+            if args[0] == "ok" {
+                checks.append(T5Check { level: .ok, name: "C compiler", detail: "zig cc (0.14.1)", fix: null })
+                checks.append(T5Check { level: .ok, name: "zig", detail: "/usr/local/bin/zig (0.14.1)", fix: null })
+                checks.append(T5Check { level: .ok, name: "git", detail: "/usr/bin/git (git version 2.47.0)", fix: null })
+                checks.append(T5Check { level: .ok, name: "cache", detail: "~/.cache/bayan (writable, 3 programs, 1.2 MB)", fix: null })
+            } else {
+                checks.append(T5Check { level: .broken, name: "C compiler", detail: "none found", fix: "install zig (https://ziglang.org), or set BAYAN_CC to a C compiler" })
+                checks.append(T5Check { level: .note, name: "zig", detail: "not found; building for other targets needs it", fix: "install zig (https://ziglang.org)" })
+                checks.append(T5Check { level: .ok, name: "git", detail: "/usr/bin/git (git version 2.47.0)", fix: null })
+                checks.append(T5Check { level: .broken, name: "cache", detail: "~/.cache/bayan isn't writable: Permission denied", fix: "set BAYAN_CACHE to a writable directory" })
+            }
+            let style = DStyle { color: args[1] != "plain", ascii: args[1] == "ascii" }
+            Io.stdout.write(t5Render(in checks, by: style))
+            return 0
+        }
+        """;
+
+    private static readonly Lazy<(string? Path, string Error)> Probe = new(() =>
+    {
+        var sources = Directory.GetFiles(SelfhostDriverHarness.DriverDir, "*.byn").Order(StringComparer.Ordinal)
+            .Select(p => Path.GetFileName(p) == "main.byn"
+                ? SourceText.FromString(p, File.ReadAllText(p).Replace("i32 main(ReadOnlySpan<string> args) {", "i32 driverMain(ReadOnlySpan<string> args) {") + ProbeMain + "\n")
+                : SourceText.FromFile(p)).ToList();
+        Environment.SetEnvironmentVariable("BAYAN_CACHE", Path.Combine(Golden.RepoRoot, "tmp", "cache"));
+        var c = Compilation.Create(sources, packageRoot: SelfhostSemanticsHarness.SelfhostDir);
+        if (c.Diagnostics.HasErrors) return (null, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
+        var build = SelfhostSemanticsHarness.BuildFast(c, new HashSet<string>(StringComparer.Ordinal));
+        return build.Succeeded ? (build.ExecutablePath, "") : (null, build.Errors);
+    });
+
+    private static string RenderedByTheDriver(string shape, string style)
+    {
+        var (path, error) = Probe.Value;
+        if (path is null) Assert.Fail($"selfhost/driver with the render probe did not build:\n{error}");
+        var (exit, stdout, _) = SelfhostParserTests.Run(path!, shape, style);
+        Assert.Equal(0, exit);
+        return stdout.ReplaceLineEndings("\n");
+    }
+
+    /// <summary>The stdout section of a <c>tests/cases/style</c> file.</summary>
+    private static string Golden_(string name)
+    {
+        var text = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "cases", "style", name)).ReplaceLineEndings("\n");
+        const string head = "# Doctor.Render\n--- stdout ---\n";
+        Assert.StartsWith(head, text);
+        var end = text.IndexOf("--- stderr ---\n", StringComparison.Ordinal);
+        return text[head.Length..end];
+    }
+
+    [Theory]
+    [InlineData("ok", "plain")]
+    [InlineData("fail", "plain")]
+    public void RendersThePlainStyleFiles(string shape, string style)
+    {
+        Assert.Equal(Golden_($"doctor-{shape}.{style}"), RenderedByTheDriver(shape, style));
+    }
+
+    /// <summary>The <c>.ascii</c> files are coloured with ASCII symbols and the <c>.color</c> files are truecolor; the driver has the Ansi16 palette only (Q1094), so the four SGR prefixes are swapped.</summary>
+    [Theory]
+    [InlineData("ok", "color")]
+    [InlineData("fail", "color")]
+    [InlineData("ok", "ascii")]
+    [InlineData("fail", "ascii")]
+    public void RendersTheColourFilesInAnsi16(string shape, string style)
+    {
+        var expected = Golden_($"doctor-{shape}.{style}")
+            .Replace("\e[38;2;143;214;148m", "\e[32m").Replace("\e[38;2;255;138;128m", "\e[31m")
+            .Replace("\e[38;2;141;184;242m", "\e[34m").Replace("\e[38;2;180;178;169m", "\e[2m");
+        Assert.Equal(expected, RenderedByTheDriver(shape, style));
     }
 }
