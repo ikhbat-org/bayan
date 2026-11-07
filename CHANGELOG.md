@@ -8,6 +8,7 @@
 - Lint BYN5103: a line starting with a joining token (`.`, `?.`, `??`, `&&`, `||`, `and`, `or`, `catch`, `fails`, …) must be indented deeper than its statement's first line; `bayan format` applies the fix.
 
 ### Changed
+- Signature clause order is now `where`, `expects`, `uses`, `becomes`, `fails` (round 4 §1), for function types too (`() -> T uses alloc fails DbError`); the old order is BYN1065, and `bayan format` reorders it.
 - `ensures` is no longer reserved and can be used as an identifier (revision 0019, round-4 batch 1); BYN0012 no longer fires on it.
 
 ### Security

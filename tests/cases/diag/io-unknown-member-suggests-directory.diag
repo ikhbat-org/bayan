@@ -1,9 +1,6 @@
-error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
-`fails`
+error BYN2003: `removeDirector` is not a member of `Io`
 
-  2 │ public void typo(string p) fails IoError uses fs {
-    │                                          ^^^^ out of order
+  3 │     try Io.removeDirector(p)
+    │            ^^^^^^^^^^^^^^
     │
-  help: move `uses` before `fails`
-    │ 2 │ public void typo(string p) uses fs fails IoError {
-    │   │                            +++++++++++++++++++++
+  help: did you mean `removeDirectory`?

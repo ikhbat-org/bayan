@@ -13,7 +13,7 @@ Style is guidance: never compiler-enforced, configurable per project, applied by
 | Line length | 100 |
 | Trailing commas | Always in multi-line literals and argument lists |
 | Member order | Fields, the `states` block, events, properties, static factories, methods |
-| Signature clauses | `where`, `expects`, `becomes`, `fails`, `uses` (`bayan format` reorders; BYN1065) |
+| Signature clauses | `where`, `expects`, `uses`, `becomes`, `fails` (`bayan format` reorders; BYN1065) |
 | Statements | One per line (postfix guards count as one) |
 | Booleans | One spelling per project, set by `booleans`: `.symbols` (`!` `&&` `\|\|`) or `.words` (`not` `and` `or`) |
 | Primitives | One spelling per project, set by `primitives`: `.sized` (`i32 i64 u8 f64 …`, the default) or `.csharp` (`int long byte double …`); `char`, `decimal` and `object` are not primitives under either |

@@ -15,13 +15,3 @@ CompilationUnit
     Block
       Let f: Pred = isBig
       Let g: i32 -> bool = isBig
-
-error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
-`fails`
-
-  6 │ type Read = () -> Token fails LexError uses fs
-    │                                        ^^^^ out of order
-    │
-  help: move `uses` before `fails`
-    │ 6 │ type Read = () -> Token uses fs fails LexError
-    │   │                         ++++++++++++++++++++++

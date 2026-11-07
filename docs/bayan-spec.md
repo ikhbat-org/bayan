@@ -145,11 +145,11 @@ There is no `;`. `bayan format` strips trailing semicolons and splits same-line 
 - A waṣl line is indented deeper than the line its statement starts on; one that is not draws a warning that `bayan format` fixes (BYN5103), except `catch` after a line ending in `}` and a struct-level `requires`.
 - Comment lines are transparent to continuation. Outside `( )` and `[ ]`, a blank line always ends a statement; inside them, blank lines are ignored like other newlines.
 - A struct literal in a control-flow head takes whole-condition parentheses (§7.2).
-- **Separators:** declarations (fields, union cases, enum entries, states) are separated by newlines; a signature may continue on the next line with a `where`, `expects`, `becomes`, `fails` or `uses` clause. A one-line `union U { a, b }` is rejected and `bayan format` rewrites it (BYN1053). Entries in literals and argument lists are separated by commas, with trailing commas per `docs/bayan-style.md`.
+- **Separators:** declarations (fields, union cases, enum entries, states) are separated by newlines; a signature may continue on the next line with a `where`, `expects`, `uses`, `becomes` or `fails` clause. A one-line `union U { a, b }` is rejected and `bayan format` rewrites it (BYN1053). Entries in literals and argument lists are separated by commas, with trailing commas per `docs/bayan-style.md`.
 
 > Round 3 §3, O1: newline termination removes punctuation that carried no meaning; the unused-value error makes the newline rules safe. Codes: BYN1040, BYN1041, BYN1042, BYN1053, BYN3201.
 
-> Revision 0002 items 1, 25: `expects` joins the clause order (`where` → `expects` → `becomes` → `fails` → `uses`), and `fail` takes its operand like `return`, so it follows the same line rule. Codes: BYN1042, BYN1065.
+> Revision 0002 items 1, 25: `expects` joins the clause order, and `fail` takes its operand like `return`, so it follows the same line rule. Round 4 §1: the order is `where` → `expects` → `uses` → `becomes` → `fails`, the order the clauses apply in (compile time, entry, running, success, failure), for declarations and function types alike. Codes: BYN1042, BYN1065.
 
 ---
 
@@ -554,7 +554,7 @@ type OrderFilter = Order -> bool
 
 - **Lambda forms:** `x => x * 2`, `(a, b) => a + b`, block bodies, and `it` for a one-parameter lambda (`select(toDto(it))`). One parameter takes no parentheses, typed or not (`t => …`, `Token t => …`); two or more take them, and typed parameters are type-first (`(Token a, Token b) => …`). A typed single parameter with a generic type (`List<i32> xs => …`) is told from `<` by lookahead. `it`, `t =>` and `Token t =>` are ellipsis levels of one construct. `it` inside a lambda that already uses `it` is an error; name one lambda.
 - `.member` has one meaning: a member of the **expected type** (`return .notFound`, `color: .red`). It is never lambda shorthand.
-- **One function-type syntax** replaces `Func`/`Action`/`delegate`: `i32 -> i32`, `(i32, i32) -> i32`, `User -> void`, `() -> void`, `() -> T fails DbError`, `Order -> void uses net`. Aliases use `type`. A function type followed by a name is parenthesized, in fields and parameters: `(Line -> Money uses net) pricer`, `by (Token -> bool) p`; an alias avoids the parentheses (`type Pricer = Line -> Money uses net`, then `Pricer pricer`). `delegate` is a teaching error pointing to a function type.
+- **One function-type syntax** replaces `Func`/`Action`/`delegate`: `i32 -> i32`, `(i32, i32) -> i32`, `User -> void`, `() -> void`, `() -> T fails DbError`, `Order -> void uses net`, `() -> T uses alloc fails DbError`. Aliases use `type`. A function type followed by a name is parenthesized, in fields and parameters: `(Line -> Money uses net) pricer`, `by (Token -> bool) p`; an alias avoids the parentheses (`type Pricer = Line -> Money uses net`, then `Pricer pricer`). `delegate` is a teaching error pointing to a function type.
 - `->` marks the return in a function type; a declaration puts its return type first (§3.10), so `->` after a declaration's parameters is an input form (BYN1043). `=>` means "evaluates to" (lambdas, expression bodies, switch arms).
 - A stored function type's `uses` clause is an upper bound (§14). A closure parameter's effects flow to the caller: `map` inherits its closure's effects, so there is no `tryMap` or `mapAsync`.
 - Lambdas passed as parameters are monomorphized and inlined; captures borrow; zero allocation.
@@ -593,7 +593,7 @@ void main() {
 }
 ```
 
-- **Function types** `A -> B`, `(A, B) -> C`, `() -> void`, with `fails E, F` and then `uses e, f` after the return type. `->` is right-associative; `?` and `[N]` bind to the type they follow (`A -> B?` returns `B?`). Two function types are the same type when parameters, return, error sets and effects are equal; there is no variance. A type displays in source form, error sets with their type arguments (`() -> Form fails ValidationError<Form>`); a bare `ValidationError` is BYN2023 and an unknown effect BYN6003.
+- **Function types** `A -> B`, `(A, B) -> C`, `() -> void`, with `uses e, f` and then `fails E, F` after the return type (the other order is BYN1065). `->` is right-associative; `?` and `[N]` bind to the type they follow (`A -> B?` returns `B?`). Two function types are the same type when parameters, return, error sets and effects are equal; there is no variance. A type displays in source form, error sets with their type arguments (`() -> Form fails ValidationError<Form>`); a bare `ValidationError` is BYN2023 and an unknown effect BYN6003.
 - **Placement:** a parameter type (parenthesized before the name, `by (Token -> bool) p`, or through an alias), a `type` alias target and a local's type (`let f: Pred = isBig`). A field, property, return type, constant, union or error payload, type argument, or an optional, span, list, map, array or tuple of a function type is BYN2822, so the stored `(Line -> Money uses net) pricer` above is not in v0.1. Aliases take no type parameters: `type Predicate<T>` is later; spell one alias per type.
 - **Named functions as values:** a module-level, non-generic function whose signature matches exactly. Particles are part of the name, not the type: `i32 clamp(i32 x, to i32 max)` is a `(i32, i32) -> i32`. A built-in, generic function, method, constructor or variant named as a value is BYN2824 (wrap it in a lambda); a signature mismatch is BYN2202 showing both signatures. `Panic.handler` keeps its own rule (§7.6).
 - **Lambdas** are `x => …`, `(a, b) => …` or `() => …` with an expression or block body. Parameters are names only; a typed, modified or particle-labelled parameter is BYN1001. A lambda takes its parameter types, return type and error sets from the function type expected where it appears: none expected is BYN2218, a parameter count that differs is BYN2820. `return`, `break`, `continue` and `defer` in the body are the lambda's own; a non-`void` expression body where `void` is returned is BYN3201.
@@ -637,7 +637,7 @@ struct Order {
 
 type Fulfilled = Order is .paid or .shipped
 
-public void pay(ref this is .placed, Payment p) becomes .paid fails PaymentError uses net {
+public void pay(ref this is .placed, Payment p) uses net becomes .paid fails PaymentError {
     let id = try p.charge(total)
     become .paid(payment: id)
 }
@@ -646,7 +646,7 @@ public Url trackingUrl(this is .shipped) => carrierUrl(tracking)      // `tracki
 public Label label(Order.shipped order) { … }
 public Url receiptUrl(Order order is .paid or .shipped) { … }
 public Order.shipped ship(move Order.paid order, by Carrier carrier)
-    fails CarrierError uses net { … }
+    uses net fails CarrierError { … }
 ```
 
 1. `T.s` is the type of `T` values in state `s`. It is valid anywhere a type is: parameters, returns, fields, locals and generics (`List<Order.paid>`). Passing a value not known to be in that state is an error (BYN7001).
@@ -1171,7 +1171,7 @@ struct SignupForm {
   ```
 - `ValidationError` always takes its type argument: a bare `ValidationError` is BYN2023, since without `T` there is no `T.Field`. A function that validates two types lists both: `fails ValidationError<SignupForm>, ValidationError<Address>` (§3.14), and diagnostics print the type arguments.
 
-- **Decoders collect every violation:** `static T fromJson(Untrusted<string> body) fails DecodeError<T> uses alloc`. A caller matches both: `catch switch { .invalid e => … e.violations, .syntax s => … }`.
+- **Decoders collect every violation:** `static T fromJson(Untrusted<string> body) uses alloc fails DecodeError<T>`. A caller matches both: `catch switch { .invalid e => … e.violations, .syntax s => … }`.
 - Fields of a struct with `requires` cannot be assigned one at a time (BYN3208). Updates go through `with`, which re-checks: `try f with { password: p }`.
 - **Drafts** use `T.Patch` (all fields optional, no `requires`); `patch.complete()` returns `T fails ValidationError<T>`. The two-step flow (`T.Patch.fromJson`, then `complete()`) is a paraphrase of `fromJson`: both report the same errors.
 - **Rules as data:** the derivation exposes `T.rules: List<(T.Field field, Rule rule)>` at compile time, for web frameworks (HTML5 attributes). A recognized expression shape maps to a `Rule` case; anything else is `custom` and is checked only on the server:
@@ -1356,7 +1356,7 @@ Modifiers precede the parameter name: `ref buf: StrBuf`, `move file: File`.
 | `as` | Role |
 
 ```csharp
-public void copy(from Path src, to Path dst) fails FsError uses fs
+public void copy(from Path src, to Path dst) uses fs fails FsError
 public void transfer(Money amount, from Account payer, to Account payee) fails LedgerError
 public void insert(ref this, T item, at Index i) uses alloc
 public void remove(ref this, from Index start, until Index end)
@@ -1590,7 +1590,7 @@ One effect system covers allocation, suspension and package capabilities.
 
 ```csharp
 public ParcelId book(Parcel parcel, by Carrier carrier)
-    fails CarrierError uses net, alloc, suspend { … }
+    uses net, alloc, suspend fails CarrierError { … }
 
 public u32 crc(ReadOnlySpan<u8> data) { … }   // no `uses`: no alloc, no suspend, no I/O
 ```
@@ -1678,9 +1678,9 @@ public u32 crc(ReadOnlySpan<u8> data) { … }   // no `uses`: no alloc, no suspe
 **Layer 1: sinks take dedicated types, never `string`.** Passing a `string` where a sink type is expected is BYN8003, with a fix-it to the literal or escaping constructor. This applies whatever the origin of the data, so it also blocks stored XSS from the program's own database.
 
 ```csharp
-public i64 execute(ref this, Sql sql, rest ReadOnlySpan<ISqlValue> args) fails DbError uses db, suspend
+public i64 execute(ref this, Sql sql, rest ReadOnlySpan<ISqlValue> args) uses db, suspend fails DbError
 public void render(Html h) …
-public void run(Path program, List<Arg> args = []) fails ProcessError uses process   // optional setting
+public void run(Path program, List<Arg> args = []) uses process fails ProcessError   // optional setting
 
 let users = try db.query<User>(sql"SELECT * FROM users WHERE name = $1", term).all()   // literal plus parameters
 let page = Html.escape(name)                                                            // escaping constructor
@@ -1803,7 +1803,7 @@ type OrderPlaced = Event<Order.placed> uses net, alloc, suspend
 struct OrderService {
     public OrderPlaced placed
     public Order.placed place(ref this, move Order.draft order, by IOrders orders)
-        fails OrderError uses net, alloc, suspend {
+        uses net, alloc, suspend fails OrderError {
         let o = try orders.insert(move order)
         placed.raise(o)
         return o
@@ -1860,31 +1860,31 @@ The database layer collapses the C# extension-method explosion (684 `IDbConnecti
 effect db = net, fs
 
 public interface IQuerySource {                    // implemented by Connection and Transaction
-    Command prepare(ref this, Sql sql, Millis timeout = 30s) fails DbError uses db, suspend
+    Command prepare(ref this, Sql sql, Millis timeout = 30s) uses db, suspend fails DbError
     i64 bulkCopy<T>(ref this, ReadOnlySpan<T> rows, bool ignoreConstraints)
-        where T : IEntity fails DbError uses db, suspend
+        where T : IEntity uses db, suspend fails DbError
 
     Rows<T> query<T>(ref this, Sql sql, rest ReadOnlySpan<ISqlValue> args,
                      Millis timeout = 30s, Mapping mapping = .strict)
-        where T : IRow fails DbError uses db, suspend { … }
+        where T : IRow uses db, suspend fails DbError { … }
     i64 execute(ref this, Sql sql, rest ReadOnlySpan<ISqlValue> args, Millis timeout = 30s)
-        fails DbError uses db, suspend { … }
-    T get<T>(ref this, T.Id id) where T : IEntity fails DbError uses db, suspend { … }
-    T? tryGet<T>(ref this, T.Id id) where T : IEntity fails DbError uses db, suspend { … }
-    T.Id insert<T>(ref this, T row) where T : IEntity fails DbError uses db, suspend { … }
-    i64 update<T>(ref this, T row) where T : IEntity fails DbError uses db, suspend { … }
-    i64 delete<T>(ref this, T.Id id) where T : IEntity fails DbError uses db, suspend { … }
+        uses db, suspend fails DbError { … }
+    T get<T>(ref this, T.Id id) where T : IEntity uses db, suspend fails DbError { … }
+    T? tryGet<T>(ref this, T.Id id) where T : IEntity uses db, suspend fails DbError { … }
+    T.Id insert<T>(ref this, T row) where T : IEntity uses db, suspend fails DbError { … }
+    i64 update<T>(ref this, T row) where T : IEntity uses db, suspend fails DbError { … }
+    i64 delete<T>(ref this, T.Id id) where T : IEntity uses db, suspend fails DbError { … }
 }
 
 public struct unique Rows<T> where T : IRow {
-    public bool moveNext(ref this) fails DbError uses db, suspend
+    public bool moveNext(ref this) uses db, suspend fails DbError
     public T current
-    public T first(move this) fails DbError uses db, suspend            // .noRows when empty
-    public T? tryFirst(move this) fails DbError uses db, suspend
-    public T single(move this) fails DbError uses db, suspend           // .noRows, .moreThanOne
-    public T? trySingle(move this) fails DbError uses db, suspend
-    public List<T> all(move this, i64 capacity = 0) fails DbError uses db, suspend, alloc
-    public void readInto(move this, ref List<T> dst) fails DbError uses db, suspend, alloc
+    public T first(move this) uses db, suspend fails DbError            // .noRows when empty
+    public T? tryFirst(move this) uses db, suspend fails DbError
+    public T single(move this) uses db, suspend fails DbError           // .noRows, .moreThanOne
+    public T? trySingle(move this) uses db, suspend fails DbError
+    public List<T> all(move this, i64 capacity = 0) uses db, suspend, alloc fails DbError
+    public void readInto(move this, ref List<T> dst) uses db, suspend, alloc fails DbError
 }
 
 let users = try db.query<User>(sql"SELECT * FROM users WHERE age > $1", 18).all()
@@ -2347,7 +2347,7 @@ Input forms are alternate spellings that the editor and `bayan format` accept an
 | `this` receiver written without a state | Receiver omitted | BYN1061 |
 | `params T[] items`, `params ReadOnlySpan<T> items`, `T... items` | `rest ReadOnlySpan<T> items` | BYN1058 |
 | Interface property `Type name { get }` | `Type name` | BYN1060 |
-| `uses` before `fails`, or any clause out of order | `where`, `expects`, `becomes`, `fails`, `uses` | BYN1065 |
+| `fails` before `uses`, or any clause out of order | `where`, `expects`, `uses`, `becomes`, `fails` | BYN1065 |
 | `{n:hex}`, `{n:binary}`, `{n:octal}`, `{x:.2}`, `{d:iso}`, `{x:debug}` | `{n, as: .hex}`, `{n, as: .binary}`, `{n, as: .octal}`, `{x, digits: 2}`, `{d, as: .iso}`, `{x, as: .debug}` | BYN1068 |
 | `for T x in e` | `for x: T in e` | BYN1043 |
 

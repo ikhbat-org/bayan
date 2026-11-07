@@ -1259,7 +1259,7 @@ public sealed class Parser
             var end = clauses.Count > 0 ? clauses[^1].End : paramsEnd;
             var kept = clauses.Where(c => c.Rank != 4).Select(c => c.End).DefaultIfEmpty(paramsEnd).Max();
             Report(DiagnosticCodes.FailsShorthand, TextSpan.FromBounds(bang.Start, shorthandEnd), label: "the input form",
-                help: plain ? $"write `fails {errors}` after the parameters" : "write the error types in a `fails` clause after the parameters",
+                help: plain ? $"write `fails {errors}` as the last clause of the signature" : "write the error types in a `fails` clause, the last clause of the signature",
                 fix: !plain ? null : new Fix(TextSpan.FromBounds(typeEnd, end), " " + _source.GetText(TextSpan.FromBounds(name.Span.Start, kept)) + " fails " + errors));
             fails = new FailsClause(fails?.Span ?? TextSpan.FromBounds(bang.Start, shorthandEnd), all);
         }
