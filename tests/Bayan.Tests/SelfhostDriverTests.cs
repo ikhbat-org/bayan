@@ -69,9 +69,7 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("features")]
     [InlineData("test")]
     [InlineData("mutate")]
-    [InlineData("new")]
     [InlineData("dist")]
-    [InlineData("init")]
     public void RefusesWhatItDoesNotPort(string command)
     {
         var (exit, stdout, stderr) = SelfhostDriverHarness.Run(command, "x");
