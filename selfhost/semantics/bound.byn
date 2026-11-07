@@ -725,6 +725,7 @@ BNode recordStmtSyntax(ref Ctx c, for BNode n, from in parser.Stmt s) uses alloc
     switch s {
         case .blockStmt(_):
             return recordNodeSyntax(ref c, for: n, as: .blockStmt, at: span)
+        // coverage-exempt: Q1105 through `return n`
         case .localDecl(_):
             return recordNodeSyntax(ref c, for: n, as: .localDecl, at: span)
         case .exprStmt(_):
@@ -778,6 +779,7 @@ BNode recordStmtSyntax(ref Ctx c, for BNode n, from in parser.Stmt s) uses alloc
 
 /// `n`, built with `Syntax = p`.
 BNode recordPatternSyntax(ref Ctx c, for BNode n, from in parser.Pattern p) uses alloc {
+    // coverage-exempt: Q1105 through `return n`
     if (patternSyntax(in p) is { } s) { return recordNodeSyntaxOf(ref c, for: n, from: s) }
     return n
 }
@@ -787,6 +789,7 @@ NodeSyntax? patternSyntax(in parser.Pattern p) {
     let span = parser.patternSpan(in p)
     switch p {
         case .constantPattern(_):
+            // coverage-exempt: Q1105
             return NodeSyntax { kind: .constantPattern, span: span }
         case .relationalPattern(_):
             return NodeSyntax { kind: .relationalPattern, span: span }
@@ -801,16 +804,19 @@ NodeSyntax? patternSyntax(in parser.Pattern p) {
         case .binaryPattern(_):
             return NodeSyntax { kind: .binaryPattern, span: span }
         case .propertyPattern(_):
+            // coverage-exempt: Q1105
             return NodeSyntax { kind: .propertyPattern, span: span }
         case .positionalPattern(_):
             return NodeSyntax { kind: .positionalPattern, span: span }
         case .variantPattern(_):
             return NodeSyntax { kind: .variantPattern, span: span }
         case .slicePattern(_):
+            // coverage-exempt: Q1105
             return NodeSyntax { kind: .slicePattern, span: span }
         case .listPattern(_):
             return NodeSyntax { kind: .listPattern, span: span }
         case .none:
+            // coverage-exempt: Q1105
             return null
     }
 }

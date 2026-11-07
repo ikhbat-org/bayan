@@ -364,6 +364,7 @@ BPattern bindPattern(ref Binder b, through ref Ctx c, for in parser.Pattern p, a
                 default: {}
             }
             report(ref b, through: ref c, for: .unsupported, at: span, by: ("list patterns", "", "", "", ""))
+            // coverage-exempt: Q1105
             return recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: in p)
         case .positionalPattern(let pos):
             let target = unwrap(ref c, for: input)

@@ -333,6 +333,7 @@ void bindFunctionBody(ref Binder b, through ref Ctx c, for in parser.FunctionDec
         c.functions[b.fn].body = recordSyntax(ref c, for: addBlock(ref c, from: BBlock { span: parser.exprSpan(in decl.expressionBody), statements: move checks }), from: in decl.expressionBody)
     } else {
         // The parser already reported the missing body.
+        // coverage-exempt: Q1105
         c.functions[b.fn].body = recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: decl.span }), as: .functionDecl, at: decl.span)
     }
 }

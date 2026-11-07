@@ -33,7 +33,7 @@ public sealed class SelfhostDefaultP2Tests
         import lexer
 
         i32 main(ReadOnlySpan<string> args) {
-            var c = fromPath(args[0], by: in CompilationOptions { includeTests: true })
+            var c = fromPath(args[0], by: in CompilationOptions { includeTests: true, capabilities: ["fs"] })
             var i = 1
             while i + 2 < args.length {
                 let text = lexer.SourceText.create(args[i + 1], from: t11ReadAllBytes(args[i + 2]))
@@ -186,9 +186,18 @@ public sealed class SelfhostDefaultP2Tests
                 i64 x = 0
             }
 
+            @sealed
+            struct S {
+                i64 n = 0
+            }
+
             void g(P p) {
                 p.x++
                 p.x += 1
+            }
+
+            void t(ref S s) {
+                s.n++
             }
 
             void main() {
@@ -222,6 +231,10 @@ public sealed class SelfhostDefaultP2Tests
 
             void k() fails F {
                 fail .withCode
+            }
+
+            void m() fails F {
+                fail F.withCode
             }
 
             void w() fails E {
@@ -283,11 +296,63 @@ public sealed class SelfhostDefaultP2Tests
             void main() {}
             """),
         ("assert.test.byn", """
+            union error E {
+                bad
+            }
+
             i64 g() => 1
+
+            i64 f() fails E => 1
 
             test "t" {
                 assert g() fails i64
+                assert f() fails i64
             }
+            """),
+        ("default.byn", """
+            union error E {
+                bad
+            }
+
+            i64 p() fails E => 1
+
+            i64 d(i64 x = p() catch switch { _ => return 2 }) => x
+
+            i64 e(i64 x = p() catch switch { _ => fail E.bad }) fails E => x
+
+            i64 g() fails E => try e()
+
+            void main() {
+                let a = d()
+                print($"{a}")
+            }
+            """),
+        ("move.byn", """
+            struct Box {
+                i64 v = 0
+            }
+
+            void take(string s) {}
+
+            void main() {
+                let b = Box {}
+                take(move b)
+            }
+            """),
+        ("empty.byn", """
+            union error Z {}
+
+            struct N {
+                requires 1 == 1
+            }
+
+            i64 pz() fails Z => 1
+
+            i64 hz() => pz() catch switch {
+                Z z => 0,
+            }
+
+            void main() {}
             """),
     ];
 
@@ -319,8 +384,8 @@ public sealed class SelfhostDefaultP2Tests
     }
 
     /// <summary>
-    /// Compilation.cs:129 <c>WithFile</c>: an imported file and the entry file replaced in turn, each step from the
-    /// last, so the second keeps the first's text; a broken text reports from the replacement (the failure path), and a
+    /// Compilation.cs:129 <c>WithFile</c>: the entry file and an imported file replaced in turn, each step from the
+    /// last, so the second keeps the first's text (and looks past it for the import); a broken text reports from the replacement (the failure path), and a
     /// path the program does not read changes nothing.
     /// </summary>
     [Fact]
@@ -332,8 +397,8 @@ public sealed class SelfhostDefaultP2Tests
         var entry = File.ReadAllText(main);
         var steps = new (string Name, string Path, string Text)[]
         {
-            ("sub", "sub/sub.byn", sub.Replace("i64 a = 3", "i64 a = 3\n    public string b = \"x\"")),
             ("main broken", main, entry.Replace("h.inner.a", "h.inner.zz")),
+            ("sub", "sub/sub.byn", sub.Replace("i64 a = 3", "i64 a = 3\n    public string b = \"x\"")),
             ("main fixed", main, entry.Replace("h.inner.a", "h.inner.b")),
             ("unread", Path.Combine(dir, "nope.byn"), "this is not Bayan"),
         };
@@ -349,7 +414,7 @@ public sealed class SelfhostDefaultP2Tests
                 args.AddRange([steps[i].Name, steps[i].Path, file]);
             }
             var sections = SelfhostSemanticsHarness.RunSections(WithFileMain, args.ToArray());
-            var c = Compilation.FromPath(dir, new CompilationOptions(IncludeTests: true));
+            var c = Compilation.FromPath(dir, new CompilationOptions(IncludeTests: true, Capabilities: ["fs"]));
             foreach (var step in steps)
             {
                 c = c.WithFile(new SourceText(step.Path, System.Text.Encoding.UTF8.GetBytes(step.Text)));
