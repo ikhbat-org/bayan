@@ -158,7 +158,7 @@ List<string> t5ModuleFiles(string dir, bool includeTests = false) uses alloc, fs
 
 /// CliApp.cs:262 `Compile` (`includeTests` is its parameter): the `--package <root>` branch, else `semantics/cli.byn` `t26Compile` (the project, script and
 /// path branches). Prints diagnostics and adds them to `reported`; `ok` is false where the C# returns null. `ascii`, `width` and `isTty` are
-/// the stderr ones of `StartProgress` (CliApp.cs:306); the callers in commands.byn and features.byn pass none of them, so those draw no line (Q1116).
+/// the stderr ones of `StartProgress` (CliApp.cs:306); the callers in commands.byn, features.byn and build.byn pass the stderr ones of `DCtx`; only `t26Compile`'s project branch clears the line late (Q1116).
 semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to ref List<semantics.T26Reported> reported, through ref bool ok, bool includeTests = false, bool ascii = false, i64 width = 100, bool isTty = false) uses alloc, clock, console, env, fs {
     let style = DStyle { ascii: ascii, width: width }
     var progress = start(in style, by: isTty, through: o.json, for: "compiling")
@@ -344,10 +344,10 @@ void t5Remove(string path) uses fs {
 }
 
 /// CliApp.cs:403 `ReportToolchain`: its `--diagnostics json` branch (:411-415), BYN4001 as one `DiagnosticJson.Render` line;
-/// the plain text is cc.byn `ccReportToolchain`.
+/// the text is cc.byn `ccReportToolchainBy`, in the stderr style.
 void t5ReportToolchain(NativeBuild result, by bool json, for semantics.T26Symbols symbols) uses alloc, console {
     if !(json && result.rejected) {
-        ccReportToolchain(result)
+        ccReportToolchainBy(result, by: in symbols)
         return
     }
     var c = CcCtx {

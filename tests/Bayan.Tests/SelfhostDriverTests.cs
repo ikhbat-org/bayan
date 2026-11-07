@@ -1179,8 +1179,8 @@ public sealed class SelfhostDriverStyleEnvironmentTests
 /// three renderings of <c>StyleTests</c> (colour on a dark truecolor terminal, plain, <c>--ascii</c>) and with <c>--color always</c>, <c>FORCE_COLOR</c>,
 /// <c>NO_COLOR</c> and <c>TERM=dumb</c>, against <c>CliApp.Run</c> in this process under the same environment (no terminal, as the law runs).
 /// Listed skips: <c>build-ok-cache</c> (the cache hit of <c>build</c> is not reported, T9 `build` cache); the shapes of commands the driver still refuses are <c>test-ok</c>, <c>test-fail</c>, <c>test-pending</c>, <c>test-verbose</c>,
-/// <c>test-assert-values</c> and <c>test-control-chars</c> (T11 `test`); <c>diag-secondary</c> and <c>build-ice</c> call the renderer and
-/// <c>CliApp.ReportToolchain</c> directly, no command prints them; <c>doctor-ok</c> and <c>doctor-fail</c> render fixed checks, which
+/// <c>test-assert-values</c> and <c>test-control-chars</c> (T11 `test`); <c>diag-secondary</c> calls the renderer and
+/// <c>CliApp.ReportToolchain</c> directly, no command prints it; <c>doctor-ok</c> and <c>doctor-fail</c> render fixed checks, which
 /// <c>SelfhostDefaultT5Tests</c> compares to the same files. The SGR codes are compared for every shape.
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]
@@ -1196,9 +1196,11 @@ public sealed partial class SelfhostDriverStyleCaseTests
     public static TheoryData<string, string> Rows()
     {
         var data = new TheoryData<string, string>();
-        foreach (var shape in new[] { "diag-error-fix", "diag-removal-fix", "diag-cap", "diag-cap-all", "diag-warning", "types-ok", "types-fail", "check-json", "build-ok", "build-ok-verbose", "build-fail", "check-ok", "run-fail", "audit" })
+        foreach (var shape in new[] { "diag-error-fix", "diag-removal-fix", "diag-cap", "diag-cap-all", "diag-warning", "types-ok", "types-fail", "check-json", "build-ok", "build-ok-verbose", "build-fail", "build-ice", "check-ok", "run-fail", "audit" })
             foreach (var rendering in new[] { "color", "plain", "ascii", "always", "force", "no-color", "dumb" })
             {
+                // listed skip: the fake C compiler of `build-ice` is a shell script
+                if (shape == "build-ice" && OperatingSystem.IsWindows()) continue;
                 data.Add(shape, rendering);
             }
         return data;
@@ -1217,6 +1219,9 @@ public sealed partial class SelfhostDriverStyleCaseTests
         "build-ok" => (Ok, [["build", "-o", output, main]]),
         "build-ok-verbose" => (Ok, [["build", "-v", "-o", output, main]]),
         "build-fail" => (Broken, [["build", "-o", output, main]]),
+        // BYN4001: `PATH` holds only a `cc` script that refuses the C and exits 1, so the toolchain reports `Rejected`
+        // (the driver does not read `BAYAN_CC`, spec Q1)
+        "build-ice" => (Ok, [["build", "-o", output, main]]),
         "check-ok" => (Ok, [["check", main]]),
         "run-fail" => (Broken, [["run", main]]),
         "audit" => ("@allow(BYN2230) because \"kept for the C ABI\"\nvoid toHex() {\n}\n\nunsafe void poke() {\n}\n", [["audit", main]]),
@@ -1238,6 +1243,14 @@ public sealed partial class SelfhostDriverStyleCaseTests
         var main = Path.Combine(dir, "main.byn");
         var (source, runs) = Shape(shape, main, Path.Combine(dir, Targets.ExecutableName("tally", CliApp.HostTarget)));
         File.WriteAllText(main, source);
+        var fakeBin = Path.Combine(dir, "fakebin");
+        var fakeCc = Path.Combine(fakeBin, "cc");
+        if (shape == "build-ice")
+        {
+            Directory.CreateDirectory(fakeBin);
+            File.WriteAllText(fakeCc, "#!/bin/sh\necho \"main.byn:2:5: error: use of undeclared identifier 'l0_y'\" >&2\nexit 1\n");
+            if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(fakeCc, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        }
         string[] flags = rendering switch
         {
             "color" or "always" or "dumb" => ["--color", "always"],
@@ -1268,7 +1281,7 @@ public sealed partial class SelfhostDriverStyleCaseTests
                     var (exit, stdout, stderr) = driver ? SelfhostDriverHarness.Run(args) : Oracle(args);
                     text = $"exit: {exit}\n--- stdout ---\n{Text(stdout)}--- stderr ---\n{Text(stderr)}";
                 }
-            }, [.. env, ("BAYAN_CACHE", cache)]);
+            }, [.. env, ("BAYAN_CACHE", cache), .. shape == "build-ice" ? new (string, string?)[] { ("PATH", fakeBin) } : []]);
             return text;
         }
         Assert.Equal(Side(driver: false), Side(driver: true));
