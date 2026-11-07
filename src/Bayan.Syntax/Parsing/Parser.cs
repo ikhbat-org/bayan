@@ -1229,7 +1229,7 @@ public sealed class Parser
                 rank = 4;
                 var failsStart = Advance().Start;
                 var errors = new List<TypeSyntax>();
-                if (Kind == TokenKind.Identifier && !AtContextual("where") && !AtContextual("expects") && !(AtContextual("becomes") && Peek(1) == TokenKind.Dot))
+                if (Kind == TokenKind.Identifier && !BreaksLine(_pos) && !AtContextual("where") && !AtContextual("expects") && !(AtContextual("becomes") && Peek(1) == TokenKind.Dot))
                 {
                     errors.Add(ParseType());
                     while (Accept(TokenKind.Comma)) errors.Add(ParseType());

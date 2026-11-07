@@ -799,7 +799,7 @@ FunctionDecl parseFunction(ref Parser p, at i64 start, by Modifiers modifiers, b
             rank = 4
             let failsStart = p.advance().start
             var errors = List<TypeSyntax>()
-            if p.kind() == .identifier && !atContextual(ref p, as: "where") && !atContextual(ref p, as: "expects")
+            if p.kind() == .identifier && !breaksLine(ref p, at: p.pos) && !atContextual(ref p, as: "where") && !atContextual(ref p, as: "expects")
                 && !(atContextual(ref p, as: "becomes") && p.peek(1) == .dot) {
                 errors.append(parseType(ref p))
                 while p.accept(.comma) { errors.append(parseType(ref p)) }
