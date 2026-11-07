@@ -20,7 +20,7 @@ public interface ISessions {
 public struct DraftStore {
     public Pool db
 
-    public void save(Untrusted<Address.Patch> patch, for OrderId order) fails DbError uses db, alloc, suspend {
+    public void save(Untrusted<Address.Patch> patch, for OrderId order) uses db, alloc, suspend fails DbError {
         let conn = try db.open()
         try conn.execute(sql"""
             insert into address_drafts (order_id, patch) values ($1, $2)
@@ -28,7 +28,7 @@ public struct DraftStore {
             """, order.value, Json.encode(patch))
     }
 
-    public Untrusted<Address.Patch>? load(for OrderId order) fails DbError, JsonError uses db, alloc, suspend {
+    public Untrusted<Address.Patch>? load(for OrderId order) uses db, alloc, suspend fails DbError, JsonError {
         let conn = try db.open()
         let json = try conn.query<string>(sql"select patch from address_drafts where order_id = $1", order.value).tryFirst() ?? return null
         // Rows we wrote are trusted, but this one holds what the customer typed (F-13).
@@ -61,7 +61,7 @@ public struct unique Storefront {
 
     /// Loads an order only for the customer who owns it. Someone else's order is reported
     /// as not found, so order ids can't be probed.
-    Order? loadOwnOrder(Request req) fails ReadError uses db, alloc, suspend {
+    Order? loadOwnOrder(Request req) uses db, alloc, suspend fails ReadError {
         let customer = sessions.identify(req) ?? return null
         let id = OrderId.tryParse(req.route("id")) ?? return null
         let order = try orders.find(id) ?? return null

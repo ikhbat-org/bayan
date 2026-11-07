@@ -109,11 +109,17 @@ i64 scanType(ref Parser p, at i64 index) => scanTypeNested(ref p, at: index, nes
 bool isTypeArrow(ref Parser p, at i64 index, bool nested) =>
     p.kindAt(index) == .arrow || nested && !p.exprTypeArgs && p.kindAt(index) == .fatArrow
 
-/// Scans `-> R fails E uses e` starting at the arrow; returns the index after it, or -1.
+/// Scans `-> R uses e fails E` starting at the arrow; returns the index after it, or -1.
 (i64 end, bool function) scanFunctionType(ref Parser p, at i64 index, bool nested) {
     var i = scanTypeNested(ref p, at: index + 1, nested: nested).end
-    if i > 0 && p.kindAt(i) == .failsKeyword { i = scanClauseList(ref p, at: i + 1, names: false) }
-    if i > 0 && p.kindAt(i) == .usesKeyword { i = scanClauseList(ref p, at: i + 1, names: true) }
+    // Either order, once each: the parser reports `fails` before `uses` (BYN1065).
+    var seenFails = false
+    var seenUses = false
+    while i > 0 && (p.kindAt(i) == .failsKeyword && !seenFails || p.kindAt(i) == .usesKeyword && !seenUses) {
+        let names = p.kindAt(i) == .usesKeyword
+        if names { seenUses = true } else { seenFails = true }
+        i = scanClauseList(ref p, at: i + 1, names: names)
+    }
     return (end: i, function: true)
 }
 
@@ -290,8 +296,8 @@ bool starsEndType(ref Parser p, bool fatArrow) {
         && p.kindAt(j + 2) == .closeBracket)
 }
 
-/// `-> R fails E uses e` after the parameter types of a function type, right-associative: `A -> B -> C` returns
-/// `B -> C`. `=>` for the arrow is BYN1055, fixed to `->`.
+/// `-> R uses e fails E` after the parameter types of a function type, right-associative: `A -> B -> C` returns
+/// `B -> C`. `=>` for the arrow is BYN1055, fixed to `->`; `fails` before `uses` is BYN1065.
 FunctionTypeSyntax parseFunctionType(ref Parser p, from i64 start, by move List<TupleTypeElement> parameters, bool fatArrow,
     bool lists) {
     for e in parameters {
@@ -309,19 +315,24 @@ FunctionTypeSyntax parseFunctionType(ref Parser p, from i64 start, by move List<
     let result = parseType(ref p, fatArrow: fatArrow, lists: lists)
     var failsClause: FailsClause? = null
     var usesClause: UsesClause? = null
+    var clauses = List<SignatureClause>()
     // The C# takes the clause's span before its list is parsed (argument order), so it covers the keyword only.
-    if p.kind() == .failsKeyword {
-        let failsStart = p.advance().start
-        let span = p.spanFrom(failsStart)
-        let errors = parseClauseTypes(ref p, lists: lists)
-        failsClause = FailsClause { span: span, errors: move errors }
+    while p.kind() == .usesKeyword && usesClause is null || p.kind() == .failsKeyword && failsClause is null {
+        let keyword = p.advance()
+        let span = p.spanFrom(keyword.start)
+        var rank: i64 = 4
+        if keyword.kind == .usesKeyword {
+            rank = 2
+            let effects = parseClauseNames(ref p, lists: lists)
+            usesClause = UsesClause { span: span, effects: move effects }
+        } else {
+            let errors = parseClauseTypes(ref p, lists: lists)
+            failsClause = FailsClause { span: span, errors: move errors }
+        }
+        // The ranks of a declaration's clauses (`parseFunction`).
+        clauses.append(SignatureClause { rank: rank, keyword: keyword, end: p.prevEnd })
     }
-    if p.kind() == .usesKeyword {
-        let usesStart = p.advance().start
-        let span = p.spanFrom(usesStart)
-        let effects = parseClauseNames(ref p, lists: lists)
-        usesClause = UsesClause { span: span, effects: move effects }
-    }
+    reportClauseOrder(ref p, for: in clauses)
     return FunctionTypeSyntax {
         span: p.spanFrom(start),
         params: elementTypes(move parameters),
