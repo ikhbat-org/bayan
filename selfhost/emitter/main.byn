@@ -33,9 +33,21 @@ i32 usage() {
     return exitUsage
 }
 
-/// CliApp.cs:409 `EmitC` on a compiled program.
-public string t12Emit(ref semantics.Ctx c, by string mode) uses alloc {
+/// CliApp.cs:409 `EmitC` on a compiled program; with `coverage` its probes (CliApp.cs:639-640), with `mutate` its
+/// mutant switches (CliApp.cs:840-841).
+public string t12Emit(ref semantics.Ctx c, by string mode, coverage bool covering = false, mutate bool mutating = false) uses alloc, clock, fs {
     var l = LCtx {}
+    let none = List<string>()
+    if covering {
+        var map = instrument(ref c, for: in none)
+        l.covering = true
+        l.coverage = map.probes.take()
+    }
+    if mutating {
+        var schema = buildSchema(ref c, for: in none)
+        l.mutating = true
+        l.mutants = schema.switches.take()
+    }
     let program = lower(ref c, to: ref l)
     return cprint.emit(ref c, from: in l.tree, through: in program, by: mode == "debug")
 }

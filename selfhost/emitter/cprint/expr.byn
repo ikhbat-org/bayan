@@ -1,4 +1,4 @@
-// T10: CEmitter.cs 1617-1944 (`Expr`, `Call`), minus D3's `LMutantIs`/`LCount` cases (:1696-1699).
+// T10: CEmitter.cs 1617-1944 (`Expr`, `Call`) (with `LMutantIs`/`LCount` at :1698-1701).
 
 import semantics
 import emitter.ltree
@@ -19,7 +19,7 @@ string t10LoweredName(ltree.LKind k) uses alloc {
         "LLabel", "LGoto", "LLoop", "LReturn", "LReturnError", "LFailingCall", "LWrite", "LPanic", "LSetContext", "LFreeArena",
         "LPushPanicHandler", "LPopPanicHandler", "LClaim", "LOptionalHas", "LOptionalValue", "LUnionTag", "LUnionField",
         "LErrorCode", "LErrorField", "LAssignExpr", "LSequence", "LIndexUnchecked", "LNextChar", "LNever", "LFunctionValue",
-        "LVoid"
+        "LMutantIs", "LCount", "LVoid"
     ]
     return $"{names[k.ordinal]}"
 }
@@ -110,6 +110,10 @@ public string emitExpr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in 
                 let ctype = cType(ref cc, from: ref c, for: fnType)
                 let thunk = functionThunk(ref cc, from: ref c, for: t.functionValues[i].function, as: fnType)
                 return $"(({ctype}){{{thunk}, NULL}})"
+            case .mutantIs:
+                return $"byn_mutant_is({t.mutantIss[i].id})"
+            case .count:
+                return $"byn_cov[{t.counts[i].id}]++"
             default:
                 panic($"cannot emit {t10LoweredName(ltree.lKindOf(e))}")
         }

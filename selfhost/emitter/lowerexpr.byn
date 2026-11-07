@@ -1,5 +1,5 @@
 // T4: Lowerer.cs 899-1088 (`Expr`, `LowerExpr`), 1173-1375 (`ShortCircuit` .. `Call`), 1729-1794 (failure).
-// D3 skips: Lowerer.cs:910-911 (mutants, branch probes), 1089-1172 and :1760 (`CountError`).
+// T10: Lowerer.cs:910-911 (mutants, branch probes), 1089-1172 (mutant schemata, coverage) and :1760 (`CountError`).
 
 import semantics
 import emitter.ltree
@@ -33,6 +33,9 @@ type T4LOptionalHas = ltree.LOptionalHas
 type T4LOptionalValue = ltree.LOptionalValue
 type T4LReturnError = ltree.LReturnError
 type T4LVoid = ltree.LVoid
+type T10LCount = ltree.LCount
+type T10LMutantIs = ltree.LMutantIs
+type T10LSequence = ltree.LSequence
 type TupleField = semantics.TupleField
 
 /// Lowerer.cs:899 `Expr`: the lowered form of `e`, with its statements appended to the current output list.
@@ -68,6 +71,11 @@ BExpr t4Never(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
 
 /// Lowerer.cs:908 `LowerExpr` (renamed: `lowerExpr` is `Expr`).
 BExpr lowerExprNode(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
+    if mutantSwitch(in l, for: e) { return mutantExpr(ref c, through: ref l, for: e) }
+    if l.covering && l.coverage.branches.contains(e) && !l.probing.contains(e) {
+        l.probing[e] = true
+        return branchProbe(ref c, through: ref l, for: e)
+    }
     if ltree.isLowered(e) { panic($"cannot lower {t4TypeName(e)}") }
     let i = i64(e & 0xFFFFFFFF)
     let span = semantics.nodeSpan(in c, for: e)
@@ -296,6 +304,8 @@ string t4TypeName(BExpr e) {
             case .nextChar: return "LNextChar"
             case .neverValue: return "LNever"
             case .functionValue: return "LFunctionValue"
+            case .mutantIs: return "LMutantIs"
+            case .count: return "LCount"
             case .voidValue: return "LVoid"
             default: return $"{ltree.lKindOf(e)}"
         }
@@ -310,6 +320,126 @@ string t4TypeName(BExpr e) {
         case .variantGroup: return "BoundVariantGroup"
         case .builtinGroup: return "BoundBuiltinGroup"
         default: return $"{semantics.boundKind(e)}"
+    }
+}
+
+// ── Mutant schemata (Lowerer.cs:1091-1141) ────────────────────────────────────
+
+/// Lowerer.cs:1091 `MutantSwitch`: whether `node` has a mutant switch to lower (read it from `l.mutants[node]`).
+bool mutantSwitch(in LCtx l, for semantics.BNode node) => l.mutating && !l.plain.contains(node) && l.mutants.contains(node)
+
+/// Lowerer.cs:1098 `MutantExpr`: `(byn_mutant == id ? mutated : original)` when no arm needs statements first; otherwise,
+/// so only the selected arm's prelude runs, `if (byn_mutant == id) { pre_m; t = m } else { pre_o; t = o }`. The switch is
+/// `l.mutants[key]`.
+BExpr mutantExpr(ref Ctx c, through ref LCtx l, for semantics.BNode key) uses alloc {
+    let span = l.mutants[key].span
+    let original = l.mutants[key].original
+    var ids = List<i64>()
+    var nodes = List<semantics.BNode>()
+    for m in l.mutants[key].mutants {
+        ids.append(m.id)
+        nodes.append(m.node)
+    }
+    l.plain[original] = true
+    var armValues = List<BExpr>()
+    var armPres = List<List<BStmt>>()
+    for k in 0..nodes.length {
+        var pre = List<BStmt>()
+        armValues.append(captureExpr(ref c, through: ref l, for: nodes[k], lvalue: false, to: ref pre))
+        armPres.append(move pre)
+    }
+    var plainPre = List<BStmt>()
+    let plainValue = captureExpr(ref c, through: ref l, for: original, lvalue: false, to: ref plainPre)
+    let type = t2Type(in c, through: in l, for: original)
+    var simple = plainPre.length == 0 && !isNeverExpr(plainValue) && !semantics.isNever(type)
+    for k in 0..armValues.length {
+        if armPres[k].length != 0 || isNeverExpr(armValues[k]) { simple = false }
+    }
+    if simple {
+        var value = plainValue
+        var i = armValues.length - 1
+        while i >= 0 {
+            let probe = ltree.addLMutantIs(ref l.tree, from: T10LMutantIs { span: span, id: ids[i] })
+            value = semantics.addConditional(ref c, from: BConditional { span: span, condition: probe, whenTrue: armValues[i], whenFalse: value, type: type })
+            i -= 1
+        }
+        let _ = l.plain.remove(key: original)
+        return value
+    }
+    let result = newTemp(ref c, through: ref l, for: type)
+    let target = localExpr(ref c, at: span, for: result)
+    captureBegin(ref l)
+    for s in plainPre { emit(ref l, for: s) }
+    emitAssign(ref c, through: ref l, to: target, as: plainValue)
+    let plainArm = captureEnd(ref l)
+    var chain = block(ref c, at: span, for: move plainArm)
+    var i = armValues.length - 1
+    while i >= 0 {
+        captureBegin(ref l)
+        for s in armPres[i] { emit(ref l, for: s) }
+        emitAssign(ref c, through: ref l, to: target, as: armValues[i])
+        let arm = captureEnd(ref l)
+        var rest = List<BStmt>()
+        rest.append(chain)
+        let probe = ltree.addLMutantIs(ref l.tree, from: T10LMutantIs { span: span, id: ids[i] })
+        chain = semantics.addIf(ref c, from: BIf { span: span, condition: probe, then: block(ref c, at: span, for: move arm), elseBranch: block(ref c, at: span, for: move rest) })
+        i -= 1
+    }
+    emit(ref l, for: chain)
+    let _ = l.plain.remove(key: original)
+    if semantics.isNever(type) { return ltree.addLNever(ref l.tree, from: T4LNever { span: span, type: type }) }
+    return target
+}
+
+// ── Coverage (Lowerer.cs:1143-1171) ─────────────────────────────────────────────
+
+/// Lowerer.cs:1146 `BranchProbe`: `(c ? (byn_cov[t]++, true) : (byn_cov[f]++, false))`: the condition counts its outcome.
+BExpr branchProbe(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
+    let whenTrue = l.coverage.branches[e].whenTrue
+    let whenFalse = l.coverage.branches[e].whenFalse
+    let value = lowerExprNode(ref c, through: ref l, for: e)
+    if isNeverExpr(value) {
+        let _ = l.probing.remove(key: e)
+        return value
+    }
+    let span = t2Span(in c, through: in l, for: e)
+    let probe = semantics.addConditional(ref c, from: BConditional {
+        span: span,
+        condition: value,
+        whenTrue: t10Outcome(ref c, through: ref l, at: span, for: whenTrue, by: true),
+        whenFalse: t10Outcome(ref c, through: ref l, at: span, for: whenFalse, by: false),
+        type: semantics.prim(.bool),
+    })
+    let _ = l.probing.remove(key: e)
+    return probe
+}
+
+/// Lowerer.cs:1154 `Outcome` (a local function of `BranchProbe`).
+BExpr t10Outcome(ref Ctx c, through ref LCtx l, at TextSpan span, for i64 id, by bool outcome) uses alloc {
+    var effects = List<BExpr>()
+    effects.append(ltree.addLCount(ref l.tree, from: T10LCount { span: span, id: id }))
+    return ltree.addLSequence(ref l.tree, from: T10LSequence { span: span, effects: move effects, value: boolLiteral(ref c, at: span, by: outcome) })
+}
+
+/// Lowerer.cs:1161 `CountError`: on the error-return edge of `origin`, the counter of the variant in `error`.
+void countError(ref Ctx c, through ref LCtx l, for semantics.BNode origin, by LocalId error) uses alloc {
+    if !l.covering || !l.coverage.errors.contains(origin) { return }
+    let syntax = l.coverage.errors[origin].span
+    var variants = List<VariantId>()
+    var ids = List<i64>()
+    for v in l.coverage.errors[origin].variants {
+        variants.append(v.variant)
+        ids.append(v.id)
+    }
+    for k in 0..variants.length {
+        let code = Constant { kind: .integer, integer: Big { lo: u64(c.errorVariants[variants[k]].code), hi: 0 } }
+        let literal = semantics.addLiteral(ref c, from: BLiteral { span: syntax, type: semantics.prim(.u32), value: code })
+        semantics.setConstant(ref c, for: literal, to: code)
+        let errorCode = ltree.addLErrorCode(ref l.tree, from: T4LErrorCode { span: syntax, error: localExpr(ref c, at: syntax, for: error) })
+        let probe = lowerEqual(ref c, at: syntax, for: errorCode, by: literal)
+        var counted = List<BStmt>()
+        counted.append(semantics.addExprStmt(ref c, from: BExprStmt { span: syntax, expr: ltree.addLCount(ref l.tree, from: T10LCount { span: syntax, id: ids[k] }) }))
+        emit(ref l, for: semantics.addIf(ref c, from: BIf { span: syntax, condition: probe, then: block(ref c, at: syntax, for: move counted), elseBranch: -1 }))
     }
 }
 
@@ -625,11 +755,12 @@ public BExpr lowerFailed(ref Ctx c, through ref LCtx l, at TextSpan span, for Lo
     return semantics.addBinary(ref c, from: BBinary { span: span, op: .ne, left: code, right: zero, type: semantics.prim(.bool) })
 }
 
-/// Lowerer.cs:1756 `Propagate`: runs the cleanups (errdefers included) and fails the function with `error`.
-List<BStmt> lowerPropagate(ref Ctx c, through ref LCtx l, at TextSpan span, for LocalId error) uses alloc {
+/// Lowerer.cs:1756 `Propagate`: runs the cleanups (errdefers included) and fails the function with `error`; `span` is
+/// `origin`'s.
+List<BStmt> lowerPropagate(ref Ctx c, through ref LCtx l, at TextSpan span, for LocalId error, by BExpr origin) uses alloc {
     captureBegin(ref l)
     emitCleanups(ref c, through: ref l, at: 0, for: error)
-    // Lowerer.cs:1760 `CountError` is D3's (coverage counters), not ported.
+    countError(ref c, through: ref l, for: origin, by: error)
     emit(ref l, for: ltree.addLReturnError(ref l.tree, from: T4LReturnError { span: span, code: localExpr(ref c, at: span, for: error) }))
     return captureEnd(ref l)
 }
@@ -639,7 +770,7 @@ BExpr lowerTry(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
     let i = i64(e & 0xFFFFFFFF)
     let span = c.bTries[i].span
     let r = lowerFailingCall(ref c, through: ref l, for: c.bTries[i].operand) ?? return ltree.addLNever(ref l.tree, from: T4LNever { span: span, type: c.bTries[i].type })
-    let propagate = lowerPropagate(ref c, through: ref l, at: span, for: r.error)
+    let propagate = lowerPropagate(ref c, through: ref l, at: span, for: r.error, by: e)
     emit(ref l, for: semantics.addIf(ref c, from: BIf { span: span, condition: lowerFailed(ref c, through: ref l, at: span, for: r.error), then: block(ref c, at: span, for: move propagate), elseBranch: -1 }))
     return r.result
 }
@@ -664,7 +795,7 @@ BExpr lowerCatch(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
     if variant != -1 {
         let caught = semantics.addErrorVariant(ref c, from: BErrorVariant { span: span, variant: variant })
         let other = semantics.addBinary(ref c, from: BBinary { span: span, op: .ne, left: localExpr(ref c, at: span, for: r.error), right: caught, type: semantics.prim(.bool) })
-        let propagate = lowerPropagate(ref c, through: ref l, at: span, for: r.error)
+        let propagate = lowerPropagate(ref c, through: ref l, at: span, for: r.error, by: e)
         var checkedBody = List<BStmt>()
         checkedBody.append(semantics.addIf(ref c, from: BIf { span: span, condition: other, then: block(ref c, at: span, for: move propagate), elseBranch: -1 }))
         for s in handler { checkedBody.append(s) }

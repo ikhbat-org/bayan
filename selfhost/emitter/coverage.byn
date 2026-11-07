@@ -5,6 +5,7 @@
 
 import lexer
 import semantics
+import emitter.ltree
 
 type BNode = semantics.BNode
 type FileId = semantics.FileId
@@ -27,38 +28,12 @@ public struct CoverageCounter {
     public bool? outcome = null
 }
 
-/// C# `BoundProbe`: the `Syntax` (its span) and the counter id.
-public struct BoundProbe {
-    public TextSpan span
-    public i64 id
-}
-
-/// C# `BoundBranchProbe`.
-public struct BoundBranchProbe {
-    public TextSpan span
-    public i64 whenTrue
-    public i64 whenFalse
-}
-
-/// One `(ErrorVariantSymbol Variant, int Id)` of a `BoundErrorProbe`.
-public struct ErrorProbeVariant {
-    public VariantId variant
-    public i64 id
-}
-
-/// C# `BoundErrorProbe`.
-public struct BoundErrorProbe {
-    public TextSpan span
-    public List<ErrorProbeVariant> variants = List<ErrorProbeVariant>()
-}
-
-/// C# `CoverageProbes`, keyed by bound node.
-public struct CoverageProbes {
-    public i64 count = 0
-    public Map<BNode, BoundProbe> statements = []
-    public Map<BNode, BoundBranchProbe> branches = []
-    public Map<BNode, BoundErrorProbe> errors = []
-}
+/// The probe records live in `ltree`, since `LoweredProgram` holds them (CoverageProbes.cs).
+public type BoundProbe = ltree.BoundProbe
+public type BoundBranchProbe = ltree.BoundBranchProbe
+public type ErrorProbeVariant = ltree.ErrorProbeVariant
+public type BoundErrorProbe = ltree.BoundErrorProbe
+public type CoverageProbes = ltree.CoverageProbes
 
 /// C# `CoverageMap`.
 public struct CoverageMap {

@@ -1,4 +1,4 @@
-// T1: Lowerer.cs 37-41 and 48-76 (the lowerer's state: `FunctionLowerer`'s fields, scopes and cleanups; 42-47 are D3's).
+// T1: Lowerer.cs 37-41 and 48-76 (the lowerer's state: `FunctionLowerer`'s fields, scopes and cleanups); T10: 42-47.
 //
 // The lowered tree itself (`LKind`, the `L*` records, `LTree`) is the `ltree` module (`emitter/ltree/`), which the
 // printer reads too. Each task's `LCtx` fields live in its own `// ── Tn state` section.
@@ -78,4 +78,19 @@ public struct LCtx {
     public Map<BExpr, BExpr> shown = Map<BExpr, BExpr>()
     /// `_ran`: the shown sub-expressions that may not run (a lazy side), each with the flag set when it does.
     public Map<BExpr, LocalId> ran = Map<BExpr, LocalId>()
+
+    // ── T10 state: FunctionLowerer (Lowerer.cs:42-47). The caller of `lower` sets `mutating`/`mutants` (a `--mutate`
+    // build) or `covering`/`coverage` (a `--coverage` build) first, C#'s `mutants`/`coverage` arguments of `Lower`.
+    /// `_mutants is not null`.
+    public bool mutating = false
+    /// `_mutants`: the mutant switch of each bound node a mutant replaces.
+    public Map<semantics.BNode, BoundMutantSwitch> mutants = []
+    /// `_plain`: the nodes whose mutant switch is being lowered.
+    public Map<semantics.BNode, bool> plain = []
+    /// `_coverage is not null`.
+    public bool covering = false
+    /// `_coverage`: the probes.
+    public CoverageProbes coverage = CoverageProbes {}
+    /// `_probing`: the conditions whose branch probe is being lowered.
+    public Map<semantics.BNode, bool> probing = []
 }
