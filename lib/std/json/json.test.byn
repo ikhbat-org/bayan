@@ -2,7 +2,7 @@
 // `json.dumps(v, indent=N)`) for `json.loads` of the input, recorded from a run, not written by hand.
 
 /// The tree of `text`, trusted for the test.
-JsonValue tree(string text) fails JsonError uses alloc {
+JsonValue tree(string text) uses alloc fails JsonError {
     return (try Json.parse(text)).trustUnchecked() because "test input is a literal"
 }
 
@@ -42,7 +42,7 @@ JsonValue nested(i64 depth) uses alloc {
 }
 
 /// The tokens of `text`, one word each.
-string tokensOf(string text) fails JsonError uses alloc {
+string tokensOf(string text) uses alloc fails JsonError {
     var reader = JsonReader.over(text)
     var sb = StrBuf()
     while true {

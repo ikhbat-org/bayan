@@ -182,6 +182,9 @@ i64 afterParams(ref Binder b, through ref Ctx c, for in parser.FunctionDecl decl
         let end = parser.exprSpan(in clause).end
         if end > at { at = end }
     }
+    if (decl.usesKeyword is { } uses) {
+        if uses.span.end > at { at = uses.span.end }
+    }
     return at
 }
 

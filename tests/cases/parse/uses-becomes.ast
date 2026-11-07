@@ -3,3 +3,13 @@ CompilationUnit
     Block
       Expr (call print msg)
   Function next(i32 n) -> i32 becomes .done fails ParseError uses allocator => n
+
+error BYN1065: `uses` must come before `becomes`; the order is `where`, `expects`, `uses`,
+`becomes`, `fails`
+
+  4 │ i32 next(i32 n) becomes .done fails ParseError uses allocator => n
+    │                                                ^^^^ out of order
+    │
+  help: move `uses` before `becomes`
+    │ 4 │ i32 next(i32 n) uses allocator becomes .done fails ParseError => n
+    │   │                 +++++++++++++++++++++++++++++++++++++++++++

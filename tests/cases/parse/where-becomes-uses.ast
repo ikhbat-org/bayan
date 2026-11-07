@@ -2,3 +2,13 @@ CompilationUnit
   Function f<T>(T x) -> void where T : I becomes .done fails E uses io
     Block
       Expr (call print x)
+
+error BYN1065: `uses` must come before `becomes`; the order is `where`, `expects`, `uses`,
+`becomes`, `fails`
+
+  1 │ void f<T>(T x) where T : I becomes .done fails E uses io {
+    │                                                  ^^^^ out of order
+    │
+  help: move `uses` before `becomes`
+    │ 1 │ void f<T>(T x) where T : I uses io becomes .done fails E {
+    │   │                            +++++++++++++++++++++++++++++

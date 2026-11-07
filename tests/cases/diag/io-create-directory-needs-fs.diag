@@ -1,8 +1,9 @@
-error BYN6002: `undeclared` uses `fs` but does not declare it
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
 
-  3 │     try Io.createDirectory(p)
-    │         ^^^^^^^^^^^^^^^^^^^^^ uses `fs`
+  6 │ public void declared(string p) fails IoError uses fs {
+    │                                              ^^^^ out of order
     │
-  help: add `fs` to the `uses` clause, or remove the call
-    │ 2 │ public void undeclared(string p) fails IoError uses fs {
-    │   │                                               ++++++++
+  help: move `uses` before `fails`
+    │ 6 │ public void declared(string p) uses fs fails IoError {
+    │   │                                +++++++++++++++++++++

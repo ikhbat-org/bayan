@@ -1218,14 +1218,14 @@ public sealed class Parser
             }
             else if (AtContextual("becomes") && Peek(1) == TokenKind.Dot)
             {
-                rank = 2;
+                rank = 3;
                 Advance();
                 Advance();
                 becomes = ExpectName("a state name");
             }
             else if (Kind == TokenKind.FailsKeyword)
             {
-                rank = 3;
+                rank = 4;
                 var failsStart = Advance().Start;
                 var errors = new List<TypeSyntax>();
                 if (Kind == TokenKind.Identifier && !AtContextual("where") && !AtContextual("expects") && !(AtContextual("becomes") && Peek(1) == TokenKind.Dot))
@@ -1237,7 +1237,7 @@ public sealed class Parser
             }
             else if (Kind == TokenKind.UsesKeyword)
             {
-                rank = 4;
+                rank = 2;
                 var usesStart = Advance().Start;
                 var effects = new List<Name> { ExpectName("an effect name") };
                 while (Accept(TokenKind.Comma)) effects.Add(ExpectName("an effect name"));
@@ -1255,9 +1255,12 @@ public sealed class Parser
             var errors = string.Join(", ", all.Select(t => _source.GetText(t.Span)));
             // `fails` takes error type names (spec §8): `E?` and `Result<E>` get no fix rather than a wrong one.
             var plain = all.All(t => t is NamedType { Args.Length: 0 });
+            // `fails` is the last clause (BYN1065): the header keeps the other clauses before it.
+            var end = clauses.Count > 0 ? clauses[^1].End : paramsEnd;
+            var kept = clauses.Where(c => c.Rank != 4).Select(c => c.End).DefaultIfEmpty(paramsEnd).Max();
             Report(DiagnosticCodes.FailsShorthand, TextSpan.FromBounds(bang.Start, shorthandEnd), label: "the input form",
                 help: plain ? $"write `fails {errors}` after the parameters" : "write the error types in a `fails` clause after the parameters",
-                fix: !plain ? null : new Fix(TextSpan.FromBounds(typeEnd, fails?.Span.End ?? paramsEnd), " " + _source.GetText(TextSpan.FromBounds(name.Span.Start, paramsEnd)) + " fails " + errors));
+                fix: !plain ? null : new Fix(TextSpan.FromBounds(typeEnd, end), " " + _source.GetText(TextSpan.FromBounds(name.Span.Start, kept)) + " fails " + errors));
             fails = new FailsClause(fails?.Span ?? TextSpan.FromBounds(bang.Start, shorthandEnd), all);
         }
         BlockStmt? body = null;
@@ -1288,7 +1291,7 @@ public sealed class Parser
 
     /// <summary>
     /// BYN1065 at the first signature clause that follows one of a later rank (<c>where</c>, <c>expects</c>,
-    /// <c>becomes</c>, <c>fails</c>, <c>uses</c>); the fix sorts the clauses and keeps the gaps between them.
+    /// <c>uses</c>, <c>becomes</c>, <c>fails</c>); the fix sorts the clauses and keeps the gaps between them.
     /// </summary>
     private void ReportClauseOrder(List<(int Rank, Token Keyword, int End)> clauses)
     {
@@ -1932,13 +1935,20 @@ public sealed class Parser
     /// <summary>Whether a function type's arrow is at <paramref name="index"/>: <c>-&gt;</c>, or <c>=&gt;</c> when <paramref name="nested"/>.</summary>
     private bool IsTypeArrow(int index, bool nested) => KindAt(index) == TokenKind.Arrow || nested && !_exprTypeArgs && KindAt(index) == TokenKind.FatArrow;
 
-    /// <summary>Scans <c>-&gt; R fails E uses e</c> starting at the arrow; returns the index after it, or -1.</summary>
+    /// <summary>Scans <c>-&gt; R uses e fails E</c> starting at the arrow; returns the index after it, or -1.</summary>
     private int ScanFunctionType(int index, bool nested, out bool function)
     {
         function = true;
         var i = ScanType(index + 1, nested, out _);
-        if (i > 0 && KindAt(i) == TokenKind.FailsKeyword) i = ScanClauseList(i + 1, names: false);
-        if (i > 0 && KindAt(i) == TokenKind.UsesKeyword) i = ScanClauseList(i + 1, names: true);
+        // Either order, once each: the parser reports `fails` before `uses` (BYN1065).
+        bool fails = false, uses = false;
+        while (i > 0 && (KindAt(i) == TokenKind.FailsKeyword && !fails || KindAt(i) == TokenKind.UsesKeyword && !uses))
+        {
+            var names = KindAt(i) == TokenKind.UsesKeyword;
+            if (names) uses = true;
+            else fails = true;
+            i = ScanClauseList(i + 1, names);
+        }
         return i;
     }
 
@@ -2076,8 +2086,8 @@ public sealed class Parser
     }
 
     /// <summary>
-    /// <c>-&gt; R fails E uses e</c> after the parameter types of a function type, right-associative: <c>A -&gt; B -&gt; C</c>
-    /// returns <c>B -&gt; C</c>. <c>=&gt;</c> for the arrow is BYN1055, fixed to <c>-&gt;</c>.
+    /// <c>-&gt; R uses e fails E</c> after the parameter types of a function type, right-associative: <c>A -&gt; B -&gt; C</c>
+    /// returns <c>B -&gt; C</c>. <c>=&gt;</c> for the arrow is BYN1055, fixed to <c>-&gt;</c>; <c>fails</c> before <c>uses</c> is BYN1065.
     /// </summary>
     private FunctionTypeSyntax ParseFunctionType(int start, List<TupleTypeElement> parameters, bool fatArrow, bool lists)
     {
@@ -2092,16 +2102,18 @@ public sealed class Parser
         var result = ParseType(fatArrow, lists);
         FailsClause? fails = null;
         UsesClause? uses = null;
-        if (Kind == TokenKind.FailsKeyword)
+        var clauses = new List<(int Rank, Token Keyword, int End)>();
+        while (Kind == TokenKind.UsesKeyword && uses is null || Kind == TokenKind.FailsKeyword && fails is null)
         {
-            var failsStart = Advance().Start;
-            fails = new FailsClause(SpanFrom(failsStart), ParseClauseList(lists, () => ParseType()));
+            var keyword = Advance();
+            if (keyword.Kind == TokenKind.UsesKeyword)
+                uses = new UsesClause(SpanFrom(keyword.Start), ParseClauseList(lists, () => ExpectName("an effect name")));
+            else
+                fails = new FailsClause(SpanFrom(keyword.Start), ParseClauseList(lists, () => ParseType()));
+            // The ranks of a declaration's clauses (ParseFunction).
+            clauses.Add((keyword.Kind == TokenKind.UsesKeyword ? 2 : 4, keyword, _prevEnd));
         }
-        if (Kind == TokenKind.UsesKeyword)
-        {
-            var usesStart = Advance().Start;
-            uses = new UsesClause(SpanFrom(usesStart), ParseClauseList(lists, () => ExpectName("an effect name")));
-        }
+        ReportClauseOrder(clauses);
         return new FunctionTypeSyntax(SpanFrom(start), parameters.Select(p => p.Type).ToArray(), result, fails, uses);
     }
 

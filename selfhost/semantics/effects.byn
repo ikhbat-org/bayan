@@ -41,10 +41,9 @@ struct T23Decl {
     List<TextSpan> usesEffects = List<TextSpan>()
     /// `decl.Params[^1].Span.End`, or `decl.ParamsStart` without parameters.
     i64 closeFrom = 0
-    /// `decl.Fails?.Span.End ?? 0`, `decl.Becomes?.Span.End ?? 0`, `decl.Where[^1].Span.End` or 0.
-    i64 failsEnd = 0
-    i64 becomesEnd = 0
+    /// `decl.Where[^1].Span.End` or 0, `decl.Requires[^1].Span.End` or 0.
     i64 whereEnd = 0
+    i64 requiresEnd = 0
 }
 
 /// A C# `Fix?`: `has` is false for null.
@@ -510,7 +509,7 @@ void reportUnknown(ref Ctx c, from FileId f, at TextSpan name) {
     report(ref c, for: .unknownEffect, from: f, at: name, by: (t15Text(in c, from: f, at: name), "", "", "", ""), label: "not an effect or an `effect` alias of this module", help: t23UnknownEffectHelp)
 }
 
-/// C# `DeclareFix`: adds the effects to the `uses` clause, or writes one after the rest of the signature (clause order §5).
+/// C# `DeclareFix`: adds the effects to the `uses` clause, or writes one after `where` and `expects`, before `becomes` and `fails` (BYN1065's order).
 T23Fix t23DeclareFix(ref Ctx c, from FileId f, for in T23Decl decl, by in List<string> effects) {
     let list = t23JoinText(in effects, by: ", ")
     if decl.hasUses { return T23Fix { has: true, span: TextSpan { start: decl.usesSpan.end, length: 0 }, text: $", {list}" } }
@@ -518,9 +517,8 @@ T23Fix t23DeclareFix(ref Ctx c, from FileId f, for in T23Decl decl, by in List<s
     var close = decl.closeFrom
     while close < length && c.files[f].text[close] != 41 { close += 1 }
     var end = close + 1
-    if decl.failsEnd > end { end = decl.failsEnd }
-    if decl.becomesEnd > end { end = decl.becomesEnd }
     if decl.whereEnd > end { end = decl.whereEnd }
+    if decl.requiresEnd > end { end = decl.requiresEnd }
     return T23Fix { has: true, span: TextSpan { start: end, length: 0 }, text: $" uses {list}" }
 }
 
@@ -629,8 +627,7 @@ T23Decl t23FactsOf(in parser.FunctionDecl d, from FileId f) {
         for x in u.effects { r.usesEffects.append(x) }
     }
     r.closeFrom = d.params.length > 0 ? d.params[d.params.length - 1].span.end : d.paramsStart
-    if (d.failsKeyword is { } fk) { r.failsEnd = fk.span.end }
-    if (d.becomes is { } b) { r.becomesEnd = b.end }
     if d.where.length > 0 { r.whereEnd = d.where[d.where.length - 1].span.end }
+    if d.requiresKeyword.length > 0 { r.requiresEnd = parser.exprSpan(in d.requiresKeyword[d.requiresKeyword.length - 1]).end }
     return move r
 }

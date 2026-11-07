@@ -20,7 +20,7 @@ public struct JsonMember {
 /// Parsing JSON text into a tree and writing a tree as text.
 public struct Json {
     /// The value `text` holds, read with `JsonReader`; outside data, so `Untrusted`.
-    public static Untrusted<JsonValue> parse(string text) fails JsonError uses alloc {
+    public static Untrusted<JsonValue> parse(string text) uses alloc fails JsonError {
         var reader = JsonReader.over(text)
         let first = (try reader.next()) ?? panic("std.json: a reader gives a token before its end")
         let value = try treeOf(ref reader, from: first)
@@ -33,7 +33,7 @@ public struct Json {
     /// is a JSON number (RFC 8259 §6), else its value as shortest digits, so a built number never writes invalid JSON or
     /// text outside itself; NaN and ±infinity fail `nonFinite` (spec §6.6). Lists and objects nesting deeper than
     /// `maxDepth` fail `nestedTooDeep`, before the recursion goes past that depth.
-    public static string encode(JsonValue v, i32 indent = 0) fails JsonError uses alloc {
+    public static string encode(JsonValue v, i32 indent = 0) uses alloc fails JsonError {
         var sb = StrBuf()
         try encodeInto(ref sb, from: v, by: i64(indent), at: 0)
         return $"{sb.finish()}"
@@ -41,7 +41,7 @@ public struct Json {
 }
 
 /// The value that starts with `first`; the reader's depth limit bounds the recursion.
-JsonValue treeOf(ref JsonReader reader, from JsonToken first) fails JsonError uses alloc {
+JsonValue treeOf(ref JsonReader reader, from JsonToken first) uses alloc fails JsonError {
     switch first {
         case .startList:
             var items = List<JsonValue>()
@@ -71,7 +71,7 @@ JsonValue treeOf(ref JsonReader reader, from JsonToken first) fails JsonError us
 }
 
 /// `v` at nesting `level` (the number of lists and objects around it); a list or object at `maxDepth` fails.
-void encodeInto(ref StrBuf sb, from JsonValue v, by i64 indent, at i64 level) fails JsonError uses alloc {
+void encodeInto(ref StrBuf sb, from JsonValue v, by i64 indent, at i64 level) uses alloc fails JsonError {
     switch v {
         case .nothing: sb.append("null")
         case .flag(let value): sb.append(value ? "true" : "false")
@@ -110,7 +110,7 @@ void encodeInto(ref StrBuf sb, from JsonValue v, by i64 indent, at i64 level) fa
 
 /// `text` when it is one whole JSON number, else `value`, which fails `nonFinite` when it is not finite (only then is
 /// `value - value` not 0).
-void numberInto(ref StrBuf sb, from f64 value, as string text) fails JsonError uses alloc {
+void numberInto(ref StrBuf sb, from f64 value, as string text) uses alloc fails JsonError {
     if isNumberText(text) {
         sb.append(text)
         return
