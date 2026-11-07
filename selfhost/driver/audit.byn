@@ -1,0 +1,135 @@
+// `bayan audit <path>` of the self-hosted driver (spec 017 T6). Ports `Audit.cs` :1-110: every `because` bypass, `unsafe` and `extern`
+// declaration in a `.byn` file or a directory of them, read from the tokens only.
+
+import lexer
+import semantics
+
+type TokenKind = lexer.TokenKind
+
+/// `Bypass` of Audit.cs:14.
+struct T6Bypass {
+    i64 line
+    i64 column
+    string construct
+    string? reason
+}
+
+/// The `(int Start, string Text)` of Audit.cs:93 `Construct`.
+struct T6Construct {
+    i64 start
+    string text
+}
+
+/// The `Role.Warning` paint (Style.cs:68) with `Palette.Ansi16`; `t5Paint` has no warning role. T28 merges the two.
+string t6PaintWarning(by DStyle style, for string text) uses alloc {
+    unless style.color { return $"{text}" }
+    return $"\u{1b}[33m{text}\u{1b}[0m"
+}
+
+/// The C# `Directory.Exists`: true for a directory whether or not it can be listed. No builtin tests that, so a path that lists, or that
+/// lists with `permissionDenied`, is a directory (Q1108).
+bool t6DirectoryExists(string path) uses alloc, fs {
+    let _ = Io.listDir(path) catch switch {
+        IoError e => return e == .permissionDenied,
+    }
+    return true
+}
+
+/// Audit.cs:16 `Run`. `kept` is the command and its arguments; stdout is painted with `d.styleOut`.
+i32 auditCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
+    let args = t2Rest(in kept)
+    if args.length != 1 || args[0].startsWith("-") {
+        Io.stderr.write("usage: bayan audit <path>\n")
+        return exitUsage
+    }
+    let path = args[0]
+    var exit = exitOk
+    var files = List<string>()
+    if t6DirectoryExists(path) {
+        files = bynFiles(path, through: ref exit)
+    } else if Fs.fileExists(path) {
+        files.append(path)
+    } else {
+        Io.stderr.write($"bayan: not found: {path}\n")
+        return exitUsage
+    }
+    files.sort()
+    var count = 0
+    for file in files {
+        if Path.fileName(file) == "package.byn" { continue }
+        let bytes = Io.readFile(file) catch switch {
+            IoError e => {
+                Io.stderr.write($"bayan: {file}: {e}\n")
+                exit = exitFailure
+                continue
+            }
+        }
+        var lexed = lexer.lex(lexer.SourceText.create(file, from: move bytes), by: lexer.Keywords.build())
+        for b in t6Bypasses(ref lexed) {
+            var reason = t6PaintWarning(by: d.styleOut, for: "no reason given")
+            if (b.reason is { } text) { reason = $"because {text}" }
+            let where = t5Paint(.note, by: d.styleOut, for: $"{file}:{b.line}:{b.column}")
+            Io.stdout.write($"{where}  {b.construct}  {reason}\n")
+            count += 1
+        }
+    }
+    let bypasses = count == 1 ? $"{count} bypass" : $"{count} bypasses"
+    let dot = semantics.t26Symbols(d.styleOut.ascii).dot
+    Io.stdout.write($"{t5Paint(.success, by: d.styleOut, for: $"{dot} {bypasses} in {path}")}\n")
+    return exit
+}
+
+/// Audit.cs:57 `Bypasses`: each `because` with the construct before it and its reason, and each `unsafe` or `extern` with none.
+List<T6Bypass> t6Bypasses(ref lexer.LexResult lexed) uses alloc {
+    var found = List<T6Bypass>()
+    let tokens = lexed.tokens.copy()
+    for i in 0..tokens.length {
+        let token = tokens[i]
+        if token.kind == .becauseKeyword && i > 0 {
+            let construct = t6Construct(ref lexed, from: in tokens, at: i - 1)
+            var reason: string? = null
+            if i + 1 < tokens.length && tokens[i + 1].kind == .stringLiteral {
+                reason = lexed.source.getText(lexer.TextSpan.fromBounds(tokens[i + 1].start, until: tokens[i + 1].end))
+            }
+            let position = lexed.source.getLinePosition(construct.start)
+            found.append(T6Bypass { line: position.line, column: position.column, construct: construct.text, reason: reason })
+        // coverage-exempt: Q1108 `tokens` always ends with the end-of-file token, so `i + 1 < tokens.length` holds for `unsafe` and `extern` as in the C#
+        } else if (token.kind == .unsafeKeyword || token.kind == .externKeyword) && !(i + 1 < tokens.length && tokens[i + 1].kind == .becauseKeyword) {
+            // The declaration's head: up to its body or the end of the line.
+            var last = i
+            while last + 1 < tokens.length && !tokens[last + 1].hasNewlineBefore && tokens[last + 1].kind != .openBrace && tokens[last + 1].kind != .endOfFile {
+                last += 1
+            }
+            let position = lexed.source.getLinePosition(token.start)
+            found.append(T6Bypass { line: position.line, column: position.column, construct: lexed.source.getText(lexer.TextSpan.fromBounds(token.start, until: tokens[last].end)), reason: null })
+        }
+    }
+    return found
+}
+
+/// Audit.cs:93 `Construct`: the construct a `because` follows, ending at token `end`, and where it starts.
+T6Construct t6Construct(ref lexer.LexResult lexed, from in List<lexer.Token> tokens, at i64 end) uses alloc {
+    var name = end
+    if tokens[end].kind == .closeParen {
+        var depth = 0
+        var open = end
+        while open >= 0 {
+            if tokens[open].kind == .closeParen {
+                depth += 1
+            } else if tokens[open].kind == .openParen {
+                depth -= 1
+                if depth == 0 { break }
+            }
+            open -= 1
+        }
+        if open <= 0 {
+            return T6Construct { start: tokens[end].start, text: lexed.source.getText(lexer.TextSpan.fromBounds(tokens[end].start, until: tokens[end].end)) }
+        }
+        name = open - 1
+        if name == 0 || tokens[name - 1].kind != .at {
+            return T6Construct { start: tokens[name].start, text: $"{lexed.source.getText(lexer.TextSpan.fromBounds(tokens[name].start, until: tokens[name].end))}()" }
+        }
+    }
+    let start = name > 0 && tokens[name - 1].kind == .at ? tokens[name - 1].start : tokens[name].start
+    return T6Construct { start: start, text: lexed.source.getText(lexer.TextSpan.fromBounds(start, until: tokens[end].end)) }
+}
