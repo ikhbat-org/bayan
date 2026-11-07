@@ -569,6 +569,10 @@ public struct Ctx {
     // ── T40 state
     /// The C# span of each `for try` synthetic name (Binder.cs:1110-1115, `f.Iterable.Span`), beside `syntheticNames`.
     public List<TextSpan> syntheticSpans = List<TextSpan>()
+    // ── P2 state
+    /// C# `BoundNode.Syntax` when it is not an `Expr` (P2, Q1076): the recorded nodes, and each bound node's handle into them.
+    public List<NodeSyntax> nodeSyntaxNodes = List<NodeSyntax>()
+    public Map<i64, i64> nodeSyntaxOf = []
     // ── T41 state
     /// C# `Compilation.StoreSummaries`: for each template with a body, what it may store from a parameter (or `this`, -1)
     /// into a `ref`/`out` parameter (or its `ref this` receiver), with the first place it does, in insertion order.
