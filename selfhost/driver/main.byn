@@ -132,9 +132,9 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
         case "dist":
             return refuse(command)
         case "cache":
-            return refuse(command)
+            return cacheCommand(kept)
         case "clean":
-            return refuse(command)
+            return cleanCommand(kept)
         case "init":
             return refuse(command)
         default:

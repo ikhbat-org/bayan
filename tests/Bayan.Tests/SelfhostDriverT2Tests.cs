@@ -161,7 +161,7 @@ public sealed class SelfhostDriverT2Tests
     [Fact]
     public void RefusesTheOtherCommands()
     {
-        foreach (var command in new[] { "doctor", "format", "audit", "features", "test", "mutate", "new", "dist", "cache", "clean", "init" })
+        foreach (var command in new[] { "doctor", "format", "audit", "features", "test", "mutate", "new", "dist", "init" })
         {
             var (exit, stdout, stderr) = SelfhostDriverHarness.Run(command);
             Assert.Equal(CliApp.ExitUsage, exit); // no-oracle: Q917 the C# runs these commands; the refusal text is R3's (Q4)

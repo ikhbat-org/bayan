@@ -71,8 +71,6 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("mutate")]
     [InlineData("new")]
     [InlineData("dist")]
-    [InlineData("cache")]
-    [InlineData("clean")]
     [InlineData("init")]
     public void RefusesWhatItDoesNotPort(string command)
     {
