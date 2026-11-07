@@ -1,0 +1,11 @@
+// Template fill tests: values are inserted once and never searched for placeholders.
+
+test "a value that looks like a placeholder is kept" {
+    var keys = List<string>()
+    var values = List<string>()
+    keys.append("{{title}}")
+    values.append("About {{body}}")
+    keys.append("{{body}}")
+    values.append("<p>x</p>")
+    assert fillTemplate("<title>{{title}}</title>{{body}}{{other}}", from: keys.span, by: values.span) == "<title>About {{body}}</title><p>x</p>{{other}}"
+}

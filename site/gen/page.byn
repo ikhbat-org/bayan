@@ -62,6 +62,8 @@ ParsedPage parsePage(string file, from string text) {
     var start: i64 = 0
     var line: i64 = 1
     var navLine: i64 = 1
+    var titleLine: i64 = 1
+    var seen = List<string>()
     var found = false
     while start < n {
         let end = text.position("\n", from: start) ?? n
@@ -77,8 +79,11 @@ ParsedPage parsePage(string file, from string text) {
             let colon = row.position(":") ?? return failed(page, at: line, by: "expected `key: value` or `---`")
             let key = row[0..colon].trimmed()
             let value = row[(colon + 1)..row.length].trimmed()
+            if hasTemplate(seen.span, for: key) { return failed(page, at: line, by: $"duplicate header `{key}`") }
+            seen.append(key)
             if key == "title" {
                 page.title = value
+                titleLine = line
             } else if key == "nav" {
                 page.nav = value
                 navLine = line
@@ -94,7 +99,7 @@ ParsedPage parsePage(string file, from string text) {
         line += 1
     }
     unless found { return failed(page, at: line, by: "no `---` line after the header") }
-    if page.title.isEmpty { return failed(page, at: 1, by: "page has no title") }
+    if page.title.isEmpty { return failed(page, at: titleLine, by: "page has no title") }
     if page.template.isEmpty { return failed(page, at: 1, by: "page has no template") }
     if !page.nav.isEmpty && navIndex(page.nav) < 0 {
         return failed(page, at: navLine, by: $"unknown nav `{page.nav}` (expected Start, Learn, Guides or Reference)")
