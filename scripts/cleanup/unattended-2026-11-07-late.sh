@@ -28,7 +28,8 @@ for w in worker-r4-fix worker-r4-fix2 worker-fix-r4-dev worker-sec-plan-rev1 doc
   wt=".worktrees/$w"
   if [ ! -d "$wt" ]; then printf 'skip:  %s is gone\n' "$wt"; continue; fi
   br="$(git -C "$wt" branch --show-current 2>/dev/null || true)"
-  if [ -n "$br" ] && ! git merge-base --is-ancestor "refs/heads/$br" refs/heads/dev 2>/dev/null; then
+  if [ -z "$br" ]; then printf 'keep:  %s (detached HEAD: no branch to check against dev)\n' "$wt"; continue; fi
+  if ! git merge-base --is-ancestor "refs/heads/$br" refs/heads/dev 2>/dev/null; then
     printf 'keep:  %s (%s not in dev)\n' "$wt" "$br"; continue
   fi
   if [ -n "$(git -C "$wt" status --porcelain)" ]; then printf 'keep:  %s (modified or untracked files)\n' "$wt"; continue; fi
