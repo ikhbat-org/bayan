@@ -296,10 +296,10 @@ i32 featuresCommand(in List<string> kept, by in DCtx d) {
         return exitUsage
     }
     let o = t5ParseBuildOptions(in args, by: false, for: false) ?? return exitUsage
-    let symbols = semantics.t26Symbols(d.styleErr.ascii)
+    let symbols = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
-    let compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, includeTests: true)
+    let compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, includeTests: true, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
     unless ok { return exitFailure }
     Io.stdout.write(t2ToJson(in compiled))
     return exitOk

@@ -158,7 +158,7 @@ List<string> t5ModuleFiles(string dir, bool includeTests = false) uses alloc, fs
 
 /// CliApp.cs:262 `Compile` (`includeTests` is its parameter): the `--package <root>` branch, else `semantics/cli.byn` `t26Compile` (the project, script and
 /// path branches). Prints diagnostics and adds them to `reported`; `ok` is false where the C# returns null. `ascii`, `width` and `isTty` are
-/// the stderr ones of `StartProgress` (CliApp.cs:306); the callers in commands.byn and features.byn pass none of them, so those draw no line (Q1116).
+/// the stderr ones of `StartProgress` (CliApp.cs:306); the callers in commands.byn, features.byn and build.byn pass the stderr ones of `DCtx`; only `t26Compile`'s project branch clears the line late (Q1116).
 semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to ref List<semantics.T26Reported> reported, through ref bool ok, bool includeTests = false, bool ascii = false, i64 width = 100, bool isTty = false) uses alloc, clock, console, env, fs {
     let style = DStyle { ascii: ascii, width: width }
     var progress = start(in style, by: isTty, through: o.json, for: "compiling")
@@ -240,7 +240,7 @@ i32 buildCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console,
     let clock = Io.monotonicNanos()
     let args = t2Rest(kept)
     let o = t5ParseBuildOptions(in args, by: true, for: true) ?? return exitUsage
-    let symbols = semantics.t26Symbols(d.styleErr.ascii)
+    let symbols = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
     var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
@@ -275,15 +275,15 @@ i32 buildCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console,
     }
     if o.json { return exitOk }
     if o.verbose {
-        print(t5Phase("parse", by: semantics.t26Seconds(compiled.parseTime)))
-        print(t5Phase("check", by: semantics.t26Seconds(compiled.checkTime)))
-        print(t5Phase("emit", by: semantics.t26Seconds(emitTime)))
-        print(t5Phase("compile", by: semantics.t26Seconds(nativeTime)))
+        print(t5Phase("parse", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(compiled.parseTime))))
+        print(t5Phase("check", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(compiled.checkTime))))
+        print(t5Phase("emit", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(emitTime))))
+        print(t5Phase("compile", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(nativeTime))))
         let shown = compiled.manifest is not null && o.output is null ? Path.relative(compiled.displayRoot, to: output).replaced("\\", by: "/") : output
-        print($"  {shown}")
+        print($"  {t5Paint(.note, by: d.styleOut, for: shown)}")
     }
     let dot = semantics.t26Symbols(d.styleOut.ascii).dot
-    print($"{dot} built {semantics.programName(ref compiled, for: o.path)} ({o.mode}, {target}) in {semantics.t26Seconds(Io.monotonicNanos() - clock)}")
+    print(t5Paint(.success, by: d.styleOut, for: $"{dot} built {semantics.programName(ref compiled, for: o.path)} ({o.mode}, {target}) in {semantics.t26Seconds(Io.monotonicNanos() - clock)}"))
     return exitOk
 }
 
@@ -344,10 +344,10 @@ void t5Remove(string path) uses fs {
 }
 
 /// CliApp.cs:403 `ReportToolchain`: its `--diagnostics json` branch (:411-415), BYN4001 as one `DiagnosticJson.Render` line;
-/// the plain text is cc.byn `ccReportToolchain`.
+/// the text is cc.byn `ccReportToolchainBy`, in the stderr style.
 void t5ReportToolchain(NativeBuild result, by bool json, for semantics.T26Symbols symbols) uses alloc, console {
     if !(json && result.rejected) {
-        ccReportToolchain(result)
+        ccReportToolchainBy(result, by: in symbols)
         return
     }
     var c = CcCtx {
@@ -382,7 +382,7 @@ string t5Phase(string name, by string value) uses alloc {
 /// CliApp.cs:544 `RunProgram`. `args` is what follows `run` (a script run passes `[file, "--", ..rest]`, CliApp.cs:99).
 i32 runProgram(in List<string> args, by in DCtx d) uses alloc, clock, console, env, fs, process {
     let o = t5ParseBuildOptions(in args, by: false, for: false) ?? return exitUsage
-    let symbols = semantics.t26Symbols(d.styleErr.ascii)
+    let symbols = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
     var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
