@@ -125,11 +125,11 @@ void bindUnobservable(ref Binder b, through ref Ctx c, at TextSpan stmt, for in 
 }
 
 /// C# `UnobservableMark`: one `@unobservable` mark; `op` null means every operator.
-struct UnobservableMark {
-    string file
-    TextSpan span
-    string? op
-    string reason
+public struct UnobservableMark {
+    public string file
+    public TextSpan span
+    public string? op
+    public string reason
 }
 
 /// The C# `Compilation.AddUnobservable`: keeps the first mark per file, span and operator (`*` keys a null operator,

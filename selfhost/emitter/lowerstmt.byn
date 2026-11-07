@@ -1,7 +1,6 @@
 // T3: Lowerer.cs 352-898 (`Statement`, `Provide`, `Assign`, `Return`, `If`, loops, `Switch`, `Lvalue`).
 //
-// D3 skips `:356-362` (coverage probes, mutants) and `:399` (`CountError`). A C# `Capture(() => …)` is
-// `captureBegin` … `captureEnd`; a C# tuple result is a named tuple. `_targets` is keyed by the `target` field of
+// A C# `Capture(() => …)` is `captureBegin` … `captureEnd`; a C# tuple result is a named tuple. `_targets` is keyed by the `target` field of
 // the jump statement, which is the identity of the C# `JumpTarget` (D6).
 
 import parser
@@ -29,6 +28,14 @@ type T3UserIteration = semantics.UserIteration
 public void lowerStatement(ref Ctx c, through ref LCtx l, for BStmt s) uses alloc {
     let i = i64(s & 0xFFFFFFFF)
     let span = semantics.nodeSpan(in c, for: s)
+    if l.covering && l.coverage.statements.contains(s) && !l.plain.contains(s) {
+        let probe = l.coverage.statements[s]
+        emit(ref l, for: semantics.addExprStmt(ref c, from: BExprStmt { span: probe.span, expr: ltree.addLCount(ref l.tree, from: T10LCount { span: probe.span, id: probe.id }) }))
+    }
+    if mutantSwitch(in l, for: s) {
+        mutantStatement(ref c, through: ref l, for: s)
+        return
+    }
     switch semantics.boundKind(s) {
         case .block:
             l.scopes.append(LScope {})
@@ -68,6 +75,7 @@ public void lowerStatement(ref Ctx c, through ref LCtx l, for BStmt s) uses allo
             let target = localExpr(ref c, at: span, for: error)
             emitAssign(ref c, through: ref l, to: target, as: code)
             emitCleanups(ref c, through: ref l, at: 0, for: error)
+            countError(ref c, through: ref l, for: s, by: error)
             let returned = localExpr(ref c, at: span, for: error)
             emit(ref l, for: ltree.addLReturnError(ref l.tree, from: T3LReturnError { span: span, code: returned }))
         case .breakStmt:
