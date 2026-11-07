@@ -1,5 +1,9 @@
 using System.Text;
+using Bayan.Backend.C;
+using Bayan.Cli;
+using Bayan.Lowering;
 using Bayan.Semantics;
+using Bayan.Semantics.Binding;
 using Bayan.Syntax.Diagnostics;
 using Bayan.Syntax.Text;
 using Bayan.Testing;
@@ -13,7 +17,7 @@ namespace Bayan.Tests;
 public sealed class SelfhostDefaultT10Tests
 {
     /// <summary>
-    /// The emitter's <c>main.byn</c>: <c>coverage|mutate[-skip] dir paths…</c> (<c>-skip</c>: each path's name is a skip file); for every path, <c>== name</c>, then <c>errors</c>, or one
+    /// The emitter's <c>main.byn</c>: <c>coverage|mutate[-skip|-tests] dir paths…</c> (<c>-skip</c>: each path's name is a skip file; <c>-tests</c>: compiled with tests); for every path, <c>== name</c>, then <c>errors</c>, or one
     /// line per counter (<c>coverage</c>), or the not-emitted counts, the switch count and the site map (<c>mutate</c>).
     /// </summary>
     private const string Main = """
@@ -33,7 +37,7 @@ public sealed class SelfhostDefaultT10Tests
                 let bytes = Io.readFile(file) catch return 1
                 var sources = List<lexer.SourceText>()
                 sources.append(lexer.SourceText.create(Path.fileName(file), from: move bytes))
-                let options = CompilationOptions {}
+                let options = CompilationOptions { includeTests: mode.contains("-tests") }
                 var c = semantics.create(from: move sources, at: dir, by: in options)
                 var failed = false
                 for d in c.diagnostics {
@@ -73,13 +77,13 @@ public sealed class SelfhostDefaultT10Tests
             .ToList();
 
     /// <summary>What the generated main prints for <paramref name="inputs"/>, computed by the C# compiler and instrumenter.</summary>
-    private static string Expected(IEnumerable<string> inputs, string dir, bool mutate = false, bool skipped = false)
+    private static string Expected(IEnumerable<string> inputs, string dir, bool mutate = false, bool skipped = false, bool tests = false)
     {
         var sb = new StringBuilder();
         foreach (var input in inputs)
         {
             sb.Append("== ").Append(Path.GetFileName(input)).Append('\n');
-            var c = Compilation.Create([Golden.Load(input)], dir);
+            var c = Compilation.Create([Golden.Load(input)], dir, new CompilationOptions(IncludeTests: tests));
             if (c.Diagnostics.HasErrors)
             {
                 sb.Append("errors\n");
@@ -202,6 +206,217 @@ public sealed class SelfhostDefaultT10Tests
             Directory.Delete(dir, recursive: true);
         }
     }
+
+    public static TheoryData<string> RunCases => Golden.Cases("run");
+
+    /// <summary>
+    /// The C a <c>--coverage</c> (CliApp.cs:639-641) or <c>--mutate</c> (CliApp.cs:840-842) build of <paramref name="c"/> emits, less what
+    /// <c>Lowerer.Statement</c> (Lowerer.cs:356-361, 399) adds: its statement probes, the error probes of a <c>fail</c> and the mutant
+    /// switches of a statement, which lowerstmt.byn does not port yet (Q1097).
+    /// </summary>
+    private static string ExpectedC(Compilation c, BuildMode mode, bool mutate)
+    {
+        LoweredProgram program;
+        if (mutate)
+        {
+            var switches = new Dictionary<BoundNode, BoundMutantSwitch>(ReferenceEqualityComparer.Instance);
+            foreach (var (node, s) in Schemata.Build(c).Switches)
+                if (node is not BoundStmt) switches[node] = s;
+            program = Lowerer.Lower(c, switches);
+        }
+        else
+        {
+            var p = CoverageInstrumenter.Instrument(c).Probes;
+            var errors = new Dictionary<BoundNode, BoundErrorProbe>(ReferenceEqualityComparer.Instance);
+            foreach (var (node, e) in p.Errors)
+                if (node is not BoundFail) errors[node] = e;
+            program = Lowerer.Lower(c, coverage: new CoverageProbes(p.Count, new Dictionary<BoundNode, BoundProbe>(), p.Branches, errors));
+        }
+        return CEmitter.Emit(program, mode == BuildMode.Debug);
+    }
+
+    private static void SameC(string input, string flag)
+    {
+        var dir = Path.GetDirectoryName(input)!;
+        var mode = SelfhostEmitterHarness.ModeOf(input);
+        var c = Compilation.Create([Golden.Load(input)], dir);
+        if (c.Diagnostics.HasErrors) return;
+        Toolchain.TryParseMode(mode, out var buildMode);
+        var expected = ExpectedC(c, buildMode, mutate: flag == "--mutate");
+        var (exit, output, error) = SelfhostEmitterHarness.Run(flag, "--mode", mode, "--package", dir, input);
+        Assert.True(exit == 0, $"{input}: exit {exit}\n{error}");
+        SelfhostEmitterHarness.AssertSame($"{Path.GetFileName(input)} {flag}", expected, output);
+    }
+
+    /// <summary><c>bayan-emit --coverage</c> on every <c>run/</c> input emits the C# coverage build's C (statement probes aside, Q1097).</summary>
+    [Theory]
+    [MemberData(nameof(RunCases))]
+    public void CoverageCMatchesTheCSharpOnEveryRunInput(string name)
+    {
+        if (name.EndsWith(".test.byn", StringComparison.Ordinal)) return;
+        SameC(Path.Combine(Golden.CasesRoot, name), "--coverage");
+    }
+
+    /// <summary><c>bayan-emit --mutate</c> on every <c>run/</c> input emits the C# mutate build's C (statement mutants aside, Q1097).</summary>
+    [Theory]
+    [MemberData(nameof(RunCases))]
+    public void MutateCMatchesTheCSharpOnEveryRunInput(string name)
+    {
+        if (name.EndsWith(".test.byn", StringComparison.Ordinal)) return;
+        SameC(Path.Combine(Golden.CasesRoot, name), "--mutate");
+    }
+
+    /// <summary>The fixtures' C in both builds (error probes of <c>try</c>/<c>catch</c>, branch probes, folds), and an input with errors fails as <c>bayan build</c> does.</summary>
+    [Fact]
+    public void FixtureCMatchesAndAnInputWithErrorsFailsAsBuildDoes()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "bayan-017-t10-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var bad = Path.Combine(dir, "a.byn");
+            File.WriteAllText(bad, "void main() { let x: i64 = \"no\" }\n");
+            foreach (var (file, text) in new[] { ("b.byn", FailFixture), ("w.byn", WideFixture) })
+            {
+                var input = Path.Combine(dir, file);
+                File.WriteAllText(input, text);
+                foreach (var flag in new[] { "--coverage", "--mutate" })
+                {
+                    var c = Compilation.Create([Golden.Load(input)], dir);
+                    Assert.False(c.Diagnostics.HasErrors);
+                    var expected = ExpectedC(c, BuildMode.Safe, mutate: flag == "--mutate");
+                    Assert.Contains(flag == "--mutate" ? "byn_mutant_is(" : "byn_cov[", expected);
+                    var (exit, output, error) = SelfhostEmitterHarness.Run(flag, "--package", dir, input);
+                    Assert.True(exit == 0, $"{file} {flag}: exit {exit}\n{error}");
+                    SelfhostEmitterHarness.AssertSame($"{file} {flag}", expected, output);
+                }
+            }
+            foreach (var flag in new[] { "--coverage", "--mutate" })
+                SelfhostEmitterHarness.SameAsCli($"errors {flag}", ["build", "--emit-c", bad], [flag, bad]);
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    /// <summary>
+    /// The rich fixture (compound assignments, <c>while true</c>, <c>unless</c>, payload variants, indexes from the end, a getter, a
+    /// method, a lambda, a generic, control characters in a literal, a <c>try</c> inside a mutated sum and a test): counters, site
+    /// JSON and the C of <c>--coverage</c>, <c>--tests --coverage</c>, <c>--mutate</c> and a plain build, by path and by <c>--package</c>.
+    /// </summary>
+    [Fact]
+    public void RichFixtureMatchesTheCSharpInEveryBuild()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "bayan-017-t10-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var input = Path.Combine(dir, "r.byn");
+            File.WriteAllText(input, RichFixture);
+            string[] inputs = [input];
+            foreach (var mode in new[] { "coverage", "mutate", "coverage-tests", "mutate-tests" })
+            {
+                var (exit, output, error) = SelfhostParserTests.Run(Build(), [mode, dir, .. inputs]);
+                Assert.True(exit == 0, $"exit {exit}\n{error}");
+                var expected = Expected(inputs, dir, mutate: mode.StartsWith("mutate"), tests: mode.EndsWith("-tests"));
+                SelfhostEmitterHarness.AssertSame($"rich {mode}", expected, output);
+            }
+            var c = Compilation.Create([Golden.Load(input)], dir);
+            Assert.False(c.Diagnostics.HasErrors);
+            var tested = Compilation.Create([Golden.Load(input)], dir, new CompilationOptions(IncludeTests: true));
+            Assert.False(tested.Diagnostics.HasErrors);
+            var cases = new (string[] Args, string Expected)[]
+            {
+                (["--coverage", "--package", dir, input], ExpectedC(c, BuildMode.Safe, mutate: false)),
+                (["--coverage", input], ExpectedC(c, BuildMode.Safe, mutate: false)),
+                (["--mutate", input], ExpectedC(c, BuildMode.Safe, mutate: true)),
+                (["--mutate", "--mode", "debug", "--package", dir, input], ExpectedC(c, BuildMode.Debug, mutate: true)),
+                (["--tests", "--coverage", "--package", dir, input], ExpectedC(tested, BuildMode.Safe, mutate: false)),
+                (["--package", dir, input], CliApp.EmitC(c, BuildMode.Safe)),
+            };
+            foreach (var (args, expected) in cases)
+            {
+                var (exit, output, error) = SelfhostEmitterHarness.Run(args);
+                Assert.True(exit == 0, $"{string.Join(' ', args)}: exit {exit}\n{error}");
+                SelfhostEmitterHarness.AssertSame($"rich {string.Join(' ', args[..^1])}", expected, output);
+            }
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    private const string RichFixture = """
+        union error E {
+            a
+            b(i64 code)
+            c(i64 code)
+        }
+
+        struct Point {
+            i64 x
+            i64 y
+
+            i64 sum => x + y
+
+            i64 scaled(i64 k) => x * k + y
+        }
+
+        T pick<T>(move T a) => a
+
+        i64 risky(i64 x) fails E {
+            fail .b(code: x) if x > 10
+            fail .c(code: 1) if x == 3
+            unless x != 4 { fail .a }
+            return x * 2
+        }
+
+        i64 chain(i64 x) fails E {
+            let v = (try risky(x)) + 1
+            return v - 1
+        }
+
+        i64 loops(i64 n) {
+            var total: i64 = 0
+            var i: i64 = 0
+            while true {
+                if i >= n { break }
+                total += i
+                total -= 1
+                total *= 2
+                total /= 2
+                total %= 1000
+                i += 1
+            }
+            var xs = [1, 2, 3]
+            xs[0] = 7
+            xs[^1] = 9
+            do {
+                total += 1
+            } while false
+            var flag = false
+            flag = true
+            if flag && true { total -= 1 }
+            let small: i32 = -5
+            let f: i64 -> i64 = a => a + 1
+            return total + xs[0] + xs[^1] + i64(small) + f(1) + pick(1)
+        }
+
+        string escapes() => "a\rb\u{0C}c\u{08}d\u{01}e"
+
+        void main() {
+            let p = Point { x: 1, y: 2 }
+            let r = chain(2) catch 0
+            let q = risky(20) catch 5
+            print($"{p.sum} {p.scaled(3)} {r} {q} {loops(5)} {escapes()}")
+        }
+
+        test "loops count" {
+            assert loops(3) > -100
+        }
+        """;
 
     private const string WideFixture = """
         i64 folds(i64 x) {
