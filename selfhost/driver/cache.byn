@@ -68,7 +68,7 @@ CacheStats cacheStats() uses alloc, env, fs {
 }
 
 /// CliApp.cs:595 `Cache`. `kept` is the command and its arguments.
-i32 cacheCommand(in List<string> kept) uses alloc, console, env, fs {
+i32 cacheCommand(List<string> kept) uses alloc, console, env, fs {
     if kept.length != 2 || kept[1] != "stats" {
         Io.stderr.write("usage: bayan cache stats   (`bayan clean --cache` empties it)\n")
         return exitUsage
@@ -86,10 +86,10 @@ i32 cacheCommand(in List<string> kept) uses alloc, console, env, fs {
 void t3RemoveTree(string dir) uses alloc, fs {
     for name in t3Entries(dir) {
         let f = Path.combine(dir, name)
-        if t3DirectoryExists(f) {
-            t3RemoveTree(f)
-        } else {
-            Io.remove(f) catch {}
+        // `Io.remove` unlinks a file or a symlink (also one to a directory) and fails on a real directory: the C# removes a link, never its target.
+        Io.remove(f) catch {
+            // coverage-exempt: Q1083
+            if t3DirectoryExists(f) { t3RemoveTree(f) }
         }
     }
     Io.removeDirectory(dir) catch {}
@@ -103,7 +103,7 @@ void t3Remove(string dir, by string name) uses alloc, console, fs {
 }
 
 /// Dist.cs:226 `Clean`. `kept` is the command and its arguments.
-i32 cleanCommand(in List<string> kept) uses alloc, console, env, fs {
+i32 cleanCommand(List<string> kept) uses alloc, console, env, fs {
     var path: string? = null
     var dist = false
     var cache = false

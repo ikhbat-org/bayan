@@ -118,6 +118,14 @@ public sealed class SelfhostDefaultT3Tests
         File_(Path.Combine(root, "other", "keep"), 1);
     }
 
+    private static void LinkedDist(string root)
+    {
+        var app = Path.Combine(root, "app");
+        Project(app);
+        File_(Path.Combine(root, "outside", "keep.txt"), 5);
+        Directory.CreateSymbolicLink(Path.Combine(app, "dist", "link"), Path.Combine("..", "..", "outside"));
+    }
+
     private static void SeededProject(string root) { Project(root); Seeded(root); }
 
     [Fact] public void StatsOfNoCache() => Same("stats-none", Nothing, "cache", "stats");
@@ -131,6 +139,14 @@ public sealed class SelfhostDefaultT3Tests
     [Fact] public void CleanAProjectInTheWorkingDirectory() => Same("clean-cwd", Project, "clean");
     [Fact] public void CleanAProjectKeepsDistWithoutTheFlag() => Same("clean-nodist", Project, "clean", ".");
     [Fact] public void CleanAProjectWithDist() => Same("clean-dist", Project, "clean", "--dist");
+    [Fact]
+    public void CleanDoesNotFollowASymlinkToADirectory()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        Same("clean-link", LinkedDist, "clean", "app", "--dist");
+        Assert.True(File.Exists(Path.Combine(Base, "s2", "clean-link", "outside", "keep.txt")));
+    }
+
     [Fact] public void CleanAProjectWithDistAndCache() => Same("clean-all", SeededProject, "clean", "--dist", "--cache");
     [Fact] public void CleanAProjectByPathWithCache() => Same("clean-path", s => { Project(Path.Combine(s, "app")); Seeded(s); }, "clean", "app", "--cache");
     [Fact] public void CleanAProjectWithNothingBuilt() => Same("clean-nothing", s => File.WriteAllText(Path.Combine(s, "package.byn"), "package demo\n"), "clean", "--dist");
