@@ -109,7 +109,7 @@ Familiar alternatives are **input forms**: the editor and `bayan format` accept 
 | `state x` member lines | One `states { … }` block | [BYN1059](diagnostics/BYN1059.md) |
 | `Order order is .paid` | `Order.paid order` | [BYN7006](diagnostics/BYN7006.md) |
 | Interface property `Type name { get }` | `Type name` | [BYN1060](diagnostics/BYN1060.md) |
-| `uses` before `fails`, or any clause out of order | `where`, `expects`, `becomes`, `fails`, `uses` | [BYN1065](diagnostics/BYN1065.md) |
+| `fails` before `uses`, or any clause out of order | `where`, `expects`, `uses`, `becomes`, `fails` | [BYN1065](diagnostics/BYN1065.md) |
 
 `HashMap<K, V>` is not in the table: it parses as any generic type and the checker reports it, [BYN2830](diagnostics/BYN2830.md), with a fix to `Map<K, V>` that `bayan format` does not apply (SPEC §3.5).
 
@@ -279,7 +279,7 @@ A role in a call is marked by a particle from a closed set (Arabic مِن/إلى
 | `as` | Role |
 
 ```csharp
-public void copy(from Path src, to Path dst) fails FsError uses fs
+public void copy(from Path src, to Path dst) uses fs fails FsError
 public void transfer(Money amount, from Account payer, to Account payee) fails LedgerError
 public void insert(ref this, T item, at Index i) uses alloc
 public void remove(ref this, from Index start, until Index end)
@@ -306,7 +306,7 @@ A function's effects are a `uses` clause from a closed list: `alloc`, `suspend`,
 
 ```csharp
 public ParcelId book(Parcel parcel, by Carrier carrier)
-    fails CarrierError uses net, alloc, suspend { … }
+    uses net, alloc, suspend fails CarrierError { … }
 
 public u32 crc(ReadOnlySpan<u8> data) { … }   // pure
 
@@ -352,7 +352,7 @@ Enforced by [BYN6001](diagnostics/BYN6001.md) (`noalloc`, `nosuspend`), [BYN6002
       }
   }
 
-  public void pay(ref this is .placed, Payment p) becomes .paid fails PaymentError uses net {
+  public void pay(ref this is .placed, Payment p) uses net becomes .paid fails PaymentError {
       let id = try p.charge(total)
       become .paid(payment: id)
   }
