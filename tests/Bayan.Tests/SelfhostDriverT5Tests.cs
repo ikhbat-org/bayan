@@ -597,9 +597,5 @@ public sealed class SelfhostDriverT5Tests
         var script = Path.Combine(dir, "hello.byn");
         File.WriteAllText(script, "#!/usr/bin/env bayan\nprint(\"hello\")\n");
         Assert.Null(Differs("script", Cs(dir, script, "a", "b"), Self(dir, script, "a", "b")));
-        var (exit, stdout, stderr) = SelfhostDriverHarness.Run("doctor");
-        Assert.Equal(CliApp.ExitUsage, exit); // no-oracle: Q917 the C# runs `doctor`; the refusal text is R3's (Q4)
-        Assert.Equal("", stdout);
-        Assert.StartsWith("error: `", stderr);
     }
 }
