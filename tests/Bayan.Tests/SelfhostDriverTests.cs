@@ -64,7 +64,6 @@ public sealed class SelfhostDriverT1Tests
 
     [Theory]
     [InlineData("format")]
-    [InlineData("audit")]
     [InlineData("test")]
     [InlineData("mutate")]
     [InlineData("dist")]
@@ -165,6 +164,319 @@ public sealed class SelfhostDriverT1Tests
         var expected = TerminalStyle.Decide(color, ascii, tty, _ => null, width);
         var actual = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), "decide", color, ascii ? "true" : "false", tty ? "true" : "false", width.ToString()).Out;
         Assert.Equal(Fmt(expected) + "\n", actual);
+    }
+
+    private const string AuditSource = "@allow(BYN2230) because \"kept for the C ABI\"\nvoid toHex() {\n}\n\nunsafe void poke() {\n}\n\n"
+        + "void main() {\n    let k = input.trustUnchecked() because \"a fixture\"\n    unsafe because \"raw write\" {\n    }\n}\n\nextern i32 puts(cstr s)\n";
+
+    /// <summary>The fixture tree of one <c>audit</c> row under <c>tmp/t6-audit/</c> and its arguments, with <c>{D}</c> replaced by the tree.</summary>
+    private static string[] AuditRow(string name)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t6-audit", name);
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        void Write(string relative, string text)
+        {
+            var file = Path.Combine(dir, relative);
+            Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+            File.WriteAllText(file, text);
+        }
+        switch (name)
+        {
+            case "bypasses":
+                Write("main.byn", AuditSource);
+                return ["audit", dir];
+            case "file":
+                Write("main.byn", AuditSource);
+                return ["audit", Path.Combine(dir, "main.byn")];
+            case "ascii":
+                Write("main.byn", AuditSource);
+                return ["--ascii", "audit", dir];
+            case "color":
+                Write("main.byn", AuditSource);
+                return ["--color", "always", "audit", dir];
+            case "edges":
+                // `because` first, after a bare `)`, after a call, a name, a paren group, with no string reason; `unsafe` with `because`, at the end of file, before a brace.
+                Write("a.byn", "because \"first\"\n");
+                Write("b.byn", ") because \"stray\"\n(1) because \"group\"\nfoo(1) because \"call\"\nlet é = bar(2, (3)) because \"unicode\"\nx because y\n@a(1) because \"attr\"\nunsafe because \"b\" {\n}\nunsafe fn f() {\n}\nextern\nunsafe");
+                return ["audit", Path.Combine(dir, "b.byn")];
+            case "edges-two":
+                Write("a.byn", "because \"first\"\n");
+                Write("c.byn", "(1) because \"opens the file\"\n");
+                Write("b.byn", ") because \"stray\"\n(1) because \"group\"\nfoo(1) because \"call\"\nlet é = bar(2, (3)) because \"unicode\"\nx because y\n@a(1) because \"attr\"\nunsafe because \"b\" {\n}\nunsafe fn f() {\n}\nextern\nunsafe");
+                return ["audit", dir];
+            case "tree":
+                // M3: scratch directories are not entered, a nested `bin` is; `package.byn` is not audited; files list in ordinal order.
+                foreach (var f in new[] { "b.byn", "a.byn", "src/bin/x.byn", "src/obj/y.byn", "src/node_modules/z.byn", "src/deep/q.byn", ".worktrees/x/w.byn", "tmp/t.byn", "bin/r.byn", "dist/d.byn", "obj/o.byn", "node_modules/n.byn", "notes.txt", "weird.byn/inner.byn" })
+                    Write(f, "unsafe void " + Path.GetFileNameWithoutExtension(f) + "() {\n}\n");
+                Write("package.byn", "unsafe void pkg() {\n}\n");
+                return ["audit", dir];
+            case "empty":
+                return ["audit", dir];
+            case "one":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                return ["audit", dir];
+            case "unreadable-file":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                Write("a.byn", "unsafe void peek() {\n}\n");
+                return ["audit", dir];
+            case "unreadable-dir":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                Write("locked/b.byn", "unsafe void peek() {\n}\n");
+                return ["audit", dir];
+            case "locked-root-dir":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                return ["audit", dir];
+            case "locked-root-file":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                return ["audit", Path.Combine(dir, "main.byn")];
+            case "uppercase":
+                Write("A.BYN", "unsafe void a() {\n}\n");
+                Write("b.Byn", "unsafe void b() {\n}\n");
+                Write("c.bxn", "unsafe void c() {\n}\n");
+                Write("d.byx", "unsafe void d() {\n}\n");
+                return ["audit", dir];
+            case "dangling-link":
+                Write("main.byn", AuditSource);
+                File.CreateSymbolicLink(Path.Combine(dir, "broken.byn"), "/nonexistent");
+                return ["audit", dir];
+            case "missing":
+                return ["audit", Path.Combine(dir, "nope")];
+            case "no-path":
+                return ["audit"];
+            case "option":
+                return ["audit", "-x"];
+            case "two-paths":
+                return ["audit", dir, dir];
+            default:
+                throw new ArgumentException(name);
+        }
+    }
+
+    /// <summary><c>bayan audit</c> against <see cref="CliApp.Run"/> on the same tree: exit code, stdout and stderr (M3's file list included).</summary>
+    [Theory]
+    [InlineData("bypasses")]
+    [InlineData("file")]
+    [InlineData("ascii")]
+    [InlineData("color")]
+    [InlineData("edges")]
+    [InlineData("edges-two")]
+    [InlineData("tree")]
+    [InlineData("empty")]
+    [InlineData("one")]
+    [InlineData("missing")]
+    [InlineData("no-path")]
+    [InlineData("option")]
+    [InlineData("two-paths")]
+    [InlineData("uppercase")]
+    public void AuditAsCliApp(string name) => AssertSameAsCs(AuditRow(name));
+
+    /// <summary>The commands <c>run</c> hands to a file of their own, by their usage or missing-path paths, against <see cref="CliApp.Run"/>.</summary>
+    [Theory]
+    [InlineData("lex")]
+    [InlineData("parse")]
+    [InlineData("types")]
+    [InlineData("check")]
+    [InlineData("explain")]
+    [InlineData("explain", "BYN0003")]
+    [InlineData("new")]
+    [InlineData("init", "{D}/missing")]
+    [InlineData("cache")]
+    [InlineData("cache", "stats", "extra")]
+    [InlineData("clean", "{D}/missing")]
+    public void DispatchesToTheOtherCommandsAsCliApp(params string[] args)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t6-dispatch");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        AssertSameAsCs([.. args.Select(a => a.Replace("{D}", dir))]);
+    }
+
+    /// <summary><c>doctor</c> reaches the driver's own checks; only the commit of its version row (spec Q1091) is masked.</summary>
+    [Fact]
+    public void DispatchesDoctorAsCliApp()
+    {
+        static string Commit(string text) => Regex.Replace(text, @"\(commit [^)]*\)", "(commit masked)");
+        var expected = Oracle(["doctor"]);
+        var actual = SelfhostDriverHarness.Run("doctor");
+        Assert.Equal(expected.Exit, actual.Exit);
+        SelfhostEmitterHarness.AssertSame("stdout of `doctor`", Commit(expected.Out), Commit(actual.Out));
+        SelfhostEmitterHarness.AssertSame("stderr of `doctor`", expected.Err, actual.Err);
+    }
+
+    /// <summary>An unreadable file or directory is reported and the rest audited; the .NET message after the path differs from the driver's, so stderr is compared up to it.</summary>
+    [Theory]
+    [InlineData("unreadable-file", "a.byn")]
+    [InlineData("unreadable-dir", "locked")]
+    [InlineData("locked-root-dir", "")]
+    [InlineData("locked-root-file", "")]
+    public void AuditReportsWhatItCannotReadAsCliApp(string name, string locked)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var args = AuditRow(name);
+        var target = Path.Combine(args[1], locked);
+        File.SetUnixFileMode(target, UnixFileMode.None);
+        try
+        {
+            try { _ = Directory.Exists(target) ? Directory.GetFiles(target) : [File.ReadAllText(target)]; return; }
+            catch (UnauthorizedAccessException) { }
+            var expected = Oracle(args);
+            var actual = SelfhostDriverHarness.Run(args);
+            Assert.Equal(CliApp.ExitFailure, expected.Exit);
+            Assert.Equal(expected.Exit, actual.Exit);
+            SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
+            var prefix = $"bayan: {target}: ";
+            Assert.StartsWith(prefix, expected.Err);
+            Assert.StartsWith(prefix, actual.Err);
+        }
+        finally { File.SetUnixFileMode(target, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); }
+    }
+
+    /// <summary>
+    /// CliTests.cs:172 <c>AuditReportsALoopingFileLink</c>: a <c>loop.byn</c> that links to itself is reported and the walk goes on; stdout and exit equal the C#'s, stderr up to the message.
+    /// Listed skips (Q1106, no builtin reports a link target): CliTests.cs:146 <c>AuditWalksSymlinkCyclesOnce</c> and CliTests.cs:158 <c>AuditWalksASymlinkToAParentOfTheRootOnce</c>
+    /// (the driver walks a link to a parent 33 times where the C# resolves it and walks once), and CliMemoryBoundsTests.cs:162-200's symlink-outward row.
+    /// </summary>
+    [Fact]
+    public void AuditReportsALoopingFileLinkAsCliApp()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t6-loop");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(Path.Combine(dir, "sub"));
+        File.WriteAllText(Path.Combine(dir, "main.byn"), "void main() {\n}\n");
+        File.WriteAllText(Path.Combine(dir, "sub", "b.byn"), "unsafe void peek() {\n}\n");
+        File.CreateSymbolicLink(Path.Combine(dir, "loop.byn"), "loop.byn");
+        string[] args = ["audit", dir];
+        var expected = Oracle(args);
+        var actual = SelfhostDriverHarness.Run(args);
+        Assert.Equal(CliApp.ExitFailure, expected.Exit);
+        Assert.Equal(expected.Exit, actual.Exit);
+        SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
+        var prefix = $"bayan: {Path.Combine(dir, "loop.byn")}: ";
+        Assert.StartsWith(prefix, expected.Err);
+        Assert.StartsWith(prefix, actual.Err);
+    }
+
+    /// <summary>A dangling <c>broken.byn -> /nonexistent</c>: both report the path and exit 1, by different routes (the C# lists it as a file and fails to read it, the driver takes it for a directory and fails to list it); stderr is compared up to the path's message (Q1106).</summary>
+    [Fact]
+    public void AuditReportsADanglingLinkAsCliApp()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var args = AuditRow("dangling-link");
+        var expected = Oracle(args);
+        var actual = SelfhostDriverHarness.Run(args);
+        Assert.Equal(CliApp.ExitFailure, expected.Exit);
+        Assert.Equal(expected.Exit, actual.Exit);
+        SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
+        var prefix = $"bayan: {Path.Combine(args[1], "broken.byn")}: ";
+        Assert.StartsWith(prefix, expected.Err);
+        Assert.StartsWith(prefix, actual.Err);
+    }
+
+    private static void Chmod(string path, UnixFileMode mode)
+    {
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(path, mode);
+    }
+
+    private static string WalkTree(string name)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t6-walk", name);
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        foreach (var f in new[] { "a.byn", "sub/b.byn", "sub/deep/c.byn", "other/d.byn", "locked/e.byn", "package.byn" })
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(dir, f))!);
+            File.WriteAllText(Path.Combine(dir, f), "// c\n");
+        }
+        return dir;
+    }
+
+    /// <summary><c>bynFiles</c> against <c>Format.BynFiles</c>: the files listed (in ordinal order, .NET's order being unspecified), the exit, and the stderr lines up to the path's message; with each <c>within</c> bound, and silent as <c>PackageNames</c> calls it.</summary>
+    [Theory]
+    [InlineData("", false, false)]
+    [InlineData("", true, false)]
+    [InlineData("{D}", false, false)]
+    [InlineData("{D}/sub", false, false)]
+    [InlineData("{D}/sub/", false, false)]
+    [InlineData("/nonexistent/within", false, false)]
+    [InlineData("{D}", true, true)]
+    [InlineData("", false, true)]
+    public void WalkAsFormatBynFiles(string within, bool silent, bool locked)
+    {
+        if (locked && OperatingSystem.IsWindows()) return;
+        var dir = WalkTree($"{(within == "" ? "none" : "bound")}-{silent}-{locked}");
+        within = within.Replace("{D}", dir);
+        var lockedDir = Path.Combine(dir, "locked");
+        if (locked) Chmod(lockedDir, UnixFileMode.None);
+        try
+        {
+            if (locked) { try { _ = Directory.GetFiles(lockedDir); return; } catch (UnauthorizedAccessException) { } }
+            var exit = CliApp.ExitOk;
+            var err = new StringWriter();
+            var files = Format.BynFiles(dir, silent ? TextWriter.Null : err, ref exit, within == "" ? null : within);
+            var expected = string.Join("", files.Order(StringComparer.Ordinal).Select(f => f + "\n")) + $"exit {exit}\n";
+            var (code, stdout, stderr) = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), "walk", dir, within == "" ? "-" : within, silent ? "true" : "false");
+            Assert.Equal(0, code);
+            var lines = stdout.Split('\n').ToList();
+            var tail = lines.Where(l => l.StartsWith("exit ")).ToList();
+            var got = string.Join("", lines.Where(l => l.EndsWith(".byn")).Order(StringComparer.Ordinal).Select(f => f + "\n")) + string.Join("", tail.Select(t => t + "\n"));
+            SelfhostEmitterHarness.AssertSame("walk", expected, got);
+            var prefix = $"bayan: {lockedDir}: ";
+            Assert.Equal(!silent && locked, err.ToString().StartsWith(prefix));
+            Assert.Equal(!silent && locked, stderr.StartsWith(prefix));
+            if (!locked || silent) Assert.Equal("", stderr);
+        }
+        finally { if (locked) Chmod(lockedDir, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); }
+    }
+
+    /// <summary><c>manifestFor</c> against the private <c>Format.ManifestFor</c>: the directory of the nearest <c>package.byn</c> (or none) for each file, and how many directories the cache holds after, with the second file of a directory answered from the cache. <c>Manifest.Read</c> is a stub (Q1107), so the manifest itself is not compared.</summary>
+    [Fact]
+    public void ManifestForAsFormat()
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t6-manifest");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        foreach (var f in new[] { "pkg/package.byn", "pkg/src/x.byn", "pkg/src/deep/y.byn", "pkg/src/z.byn", "loose/w.byn" })
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(dir, f))!);
+            File.WriteAllText(Path.Combine(dir, f), f.EndsWith("package.byn") ? "Package {\n    name: \"local/p\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .app,\n}\n" : "");
+        }
+        var files = new[] { "pkg/src/x.byn", "pkg/src/deep/y.byn", "pkg/src/z.byn", "loose/w.byn", "pkg/package.byn" }.Select(f => Path.Combine(dir, f)).ToArray();
+        var method = typeof(Format).GetMethod("ManifestFor", BindingFlags.NonPublic | BindingFlags.Static)!;
+        var cache = (System.Collections.IDictionary)Activator.CreateInstance(method.GetParameters()[1].ParameterType)!;
+        var expected = new List<string>();
+        foreach (var f in files)
+        {
+            var found = method.Invoke(null, [f, cache]);
+            expected.Add(found is System.Runtime.CompilerServices.ITuple t ? (string)t[1]! : "none");
+        }
+        expected.Add(cache.Count.ToString());
+        var (code, stdout, _) = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), ["manifest", .. files]);
+        Assert.Equal(0, code);
+        SelfhostEmitterHarness.AssertSame("manifestFor", string.Join("\n", expected) + "\n", stdout);
+    }
+
+    /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (files holding only a comment, an unreadable one, a missing directory); <c>OtherUses</c> is a stub (Q1107), so a set with names is not compared.</summary>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void PackageNamesAsFormat(bool missing)
+    {
+        var dir = WalkTree($"names-{missing}");
+        if (missing) dir = Path.Combine(dir, "nope");
+        var locked = Path.Combine(dir, "a.byn");
+        var lockIt = !missing && !OperatingSystem.IsWindows();
+        if (lockIt) Chmod(locked, UnixFileMode.None);
+        try
+        {
+            var method = typeof(Format).GetMethod("PackageNames", BindingFlags.NonPublic | BindingFlags.Static)!;
+            var expected = (IEnumerable<string>)method.Invoke(null, [dir])!;
+            Assert.Empty(expected);
+            var (code, stdout, stderr) = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), "names", dir);
+            Assert.Equal(0, code);
+            Assert.Equal("", stdout);
+            Assert.Equal("", stderr);
+        }
+        finally { if (lockIt) Chmod(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite); }
     }
 
     [Fact]
