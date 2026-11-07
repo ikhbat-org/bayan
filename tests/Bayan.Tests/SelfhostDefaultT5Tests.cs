@@ -32,6 +32,9 @@ public sealed partial class SelfhostDefaultT5Tests
         return dir;
     }
 
+    /// <summary>The fake tools are shell scripts, which Windows cannot start: there both sides still run through <c>Same</c> (the argument is evaluated), but only Unix asserts what they print.</summary>
+    private static void UnixContains(string expected, string actual) { if (!OperatingSystem.IsWindows()) Assert.Contains(expected, actual); }
+
     private static string Script(string dir, string name, int exit, string output)
     {
         var path = Path.Combine(dir, name);
@@ -110,10 +113,10 @@ public sealed partial class SelfhostDefaultT5Tests
         foreach (var args in Argvs())
         {
             var text = Same([("BAYAN_CC", cc), ("PATH", Path.Combine(dir, "empty"))], args);
-            Assert.Contains("not found; building for other targets needs it", text);
+            UnixContains("not found; building for other targets needs it", text);
         }
         var spaced = Same([("BAYAN_CC", $"  {cc}   -O2 "), ("PATH", Path.Combine(dir, "empty"))], "doctor");
-        Assert.Contains($"{cc} -O2 (fakecc 1.0)", spaced);
+        UnixContains($"{cc} -O2 (fakecc 1.0)", spaced);
     }
 
     [Fact]
@@ -160,26 +163,26 @@ public sealed partial class SelfhostDefaultT5Tests
         Script(dir, "zig", 0, "0.99.0");
         Script(dir, "git", 0, "git version 9.9");
         var text = Same([("BAYAN_CC", null), ("PATH", dir)], "doctor");
-        Assert.Contains($"{Path.Combine(dir, "zig")} cc (0.99.0)", text);
-        Assert.Contains($"git         {Path.Combine(dir, "git")} (git version 9.9)", text);
+        UnixContains($"{Path.Combine(dir, "zig")} cc (0.99.0)", text);
+        UnixContains($"git         {Path.Combine(dir, "git")} (git version 9.9)", text);
         var broken = Fresh("path-broken");
         Script(broken, "zig", 1, "x");
         Script(broken, "git", 1, "x");
         foreach (var args in Argvs())
         {
-            Assert.Contains("can't be run", Same([("BAYAN_CC", null), ("PATH", broken)], args));
-            Assert.Contains("reinstall git", Same([("BAYAN_CC", Path.Combine(broken, "zig")), ("PATH", broken)], args));
+            UnixContains("can't be run", Same([("BAYAN_CC", null), ("PATH", broken)], args));
+            UnixContains("reinstall git", Same([("BAYAN_CC", Path.Combine(broken, "zig")), ("PATH", broken)], args));
         }
         var cc = Fresh("path-cc");
         Script(cc, "cc", 1, "x");
-        Assert.Contains("`" + Path.Combine(cc, "cc") + "` can't be run", Same([("BAYAN_CC", null), ("PATH", cc)], "doctor"));
+        UnixContains("`" + Path.Combine(cc, "cc") + "` can't be run", Same([("BAYAN_CC", null), ("PATH", cc)], "doctor"));
         var good = Fresh("path-gcc");
         Script(good, "gcc", 0, "gcc (GCC) 1.2");
-        Assert.Contains($"{Path.Combine(good, "gcc")} (gcc (GCC) 1.2)", Same([("BAYAN_CC", null), ("PATH", good)], "doctor"));
+        UnixContains($"{Path.Combine(good, "gcc")} (gcc (GCC) 1.2)", Same([("BAYAN_CC", null), ("PATH", good)], "doctor"));
         var stderrOnly = Fresh("path-stderr");
         var script = Path.Combine(stderrOnly, "zig");
         Executable(script, "#!/bin/sh\necho '  on stderr  ' >&2\nexit 0\n");
-        Assert.Contains("(on stderr)", Same([("BAYAN_CC", null), ("PATH", stderrOnly)], "doctor"));
+        UnixContains("(on stderr)", Same([("BAYAN_CC", null), ("PATH", stderrOnly)], "doctor"));
     }
 
     [Fact]
