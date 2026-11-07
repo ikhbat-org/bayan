@@ -19,6 +19,12 @@ public sealed class SelfhostDefaultP2Tests
             for i in 0..args.length {
                 var c = fromPath(args[i], by: in CompilationOptions { includeTests: true }, wholeDirectory: false)
                 Io.stdout.write(p2Print(in c, at: args[i]))
+                print($"== {args[i]} diagnostics")
+                if c.diagnostics.length == 0 { print("(no diagnostics)") }
+                for d in c.diagnostics {
+                    let pos = linePosition(c.files[d.file].text.span, at: d.span.start)
+                    print($"{d.code} {pos.line}:{pos.column} {d.message}")
+                }
             }
             return 0
         }
@@ -74,6 +80,19 @@ public sealed class SelfhostDefaultP2Tests
                 let body = c.functions[fn].body
                 if body == -1 || boundKind(body) != .block { continue }
                 for n in descendants(in c, for: body) { sb.append($"{p2Line(in c, for: n)}\n") }
+            }
+            // Field defaults and constant initializers, bound outside any body.
+            for m in 0..c.modules.length {
+                for s in c.modules[m].structs {
+                    for f in c.structs[s].fields {
+                        let d = c.fields[f].defaultValue
+                        if d != -1 { for n in descendants(in c, for: d) { sb.append($"{p2Line(in c, for: n)}\n") } }
+                    }
+                }
+                for k in c.modules[m].allConstants {
+                    let v = c.consts[k].bound
+                    if v != -1 { for n in descendants(in c, for: v) { sb.append($"{p2Line(in c, for: n)}\n") } }
+                }
             }
             return $"{sb.finish()}"
         }
@@ -136,10 +155,12 @@ public sealed class SelfhostDefaultP2Tests
     private static List<string> Nodes(Compilation c)
     {
         var functions = c.Modules.SelectMany(m => m.AllFunctions.Concat(m.Tests.Select(t => t.Function))).Distinct();
-        return functions.Select(f => f.Body).OfType<BoundBlock>().SelectMany(BoundTree.Descendants).Select(Line).ToList();
+        var outside = c.Modules.SelectMany(m => m.Structs.SelectMany(s => s.Fields).Select(f => (BoundNode?)f.Default)
+            .Concat(m.AllConstants.Select(k => (BoundNode?)k.Bound))).OfType<BoundNode>();
+        return functions.Select(f => f.Body).OfType<BoundBlock>().Concat(outside).SelectMany(BoundTree.Descendants).Select(Line).ToList();
     }
 
-    private static void AssertSameAsCSharp(IReadOnlyList<string> paths)
+    private static Dictionary<string, List<string>> AssertSameAsCSharp(IReadOnlyList<string> paths)
     {
         var sections = SelfhostSemanticsHarness.RunSections(Main, paths.ToArray());
         var compared = 0;
@@ -151,6 +172,7 @@ public sealed class SelfhostDefaultP2Tests
             SelfhostEmitterHarness.AssertSame(path, string.Join("\n", expected), string.Join("\n", actual!));
         }
         Assert.True(compared > 0, "the oracle produced no lines");
+        return sections;
     }
 
     private static List<string> Corpus()
@@ -170,9 +192,9 @@ public sealed class SelfhostDefaultP2Tests
     }
 
     [Fact]
-    public void CorpusBoundNodesRecordTheCSharpSyntax() => AssertSameAsCSharp(Corpus());
+    public void CorpusBoundNodesRecordTheCSharpSyntax() => _ = AssertSameAsCSharp(Corpus());
 
-    /// <summary>Statements and patterns the corpus binds only without error, each in a broken form: the nodes the binder builds on its error paths.</summary>
+    /// <summary>Statements and patterns the corpus binds only without error, each in a broken form: the nodes the binder builds on its error paths, and a field default and a constant initializer, bound outside any body.</summary>
     private static readonly (string Name, string Text)[] ErrorPaths =
     [
         ("unless.byn", """
@@ -339,6 +361,19 @@ public sealed class SelfhostDefaultP2Tests
                 take(move b)
             }
             """),
+        ("outside.byn", """
+            const limit: i64 = 2 + 3
+
+            struct P {
+                i64 x = limit * 2
+                string s = "a"
+            }
+
+            void main() {
+                let p = P {}
+                print($"{p.x} {p.s}")
+            }
+            """),
         ("empty.byn", """
             union error Z {}
 
@@ -372,9 +407,19 @@ public sealed class SelfhostDefaultP2Tests
                     string.Join("\n", Compilation.FromPath(file, new CompilationOptions(IncludeTests: true), wholeDirectory: false).Diagnostics.Items.Select(Diag)));
                 paths.Add(file);
             }
-            AssertSameAsCSharp(paths);
+            var sections = AssertSameAsCSharp(paths);
+            foreach (var path in paths)
+                SelfhostSemanticsHarness.AssertSection(sections, $"{path} diagnostics",
+                    Compilation.FromPath(path, new CompilationOptions(IncludeTests: true), wholeDirectory: false).Diagnostics.Items.Select(ShortDiag).ToList() is { Count: > 0 } d ? d : ["(no diagnostics)"]);
         }
         finally { scratch.Delete(recursive: true); }
+    }
+
+    /// <summary>A diagnostic as the generated main prints it: code, line:col and message.</summary>
+    private static string ShortDiag(Diagnostic d)
+    {
+        var (line, col) = d.Source!.GetLinePosition(d.Span.Start);
+        return $"{d.Code} {line}:{col} {d.Message}";
     }
 
     private static string Diag(Diagnostic d)
