@@ -8,7 +8,8 @@ root=$(cd "$gen/../.." && pwd)
 bayan=${BAYAN:-$root/dist/macos-arm64/latest/bayan}
 mkdir -p "$root/tmp"
 site=$(mktemp -d "$root/tmp/gen-fixture.XXXXXX") || { echo "gen/test.sh: mktemp failed" >&2; exit 1; }
-trap 'rm -rf "$site"' EXIT
+meta=
+trap 'rm -rf "$site" "$meta"' EXIT
 passed=0
 failed=0
 
@@ -88,6 +89,54 @@ expect "missing example" "content/second.page:5: example \`gone\`: $site/example
 fixture
 printf 'title: Second\ntemplate: docs\n---\n\n\n<h2>Title</h2>\n' > "$site/content/second.page"
 expect "h2 with no id" "content/second.page:6: h2 has no id"
+
+if [ -z "${GEN_TEST_META:-}" ]; then
+# The shell scripts, run from copies in a throwaway repo whose compiler only records its arguments.
+# GEN_TEST_META keeps the copies from running this section again.
+export GEN_TEST_META=1
+meta=$(mktemp -d "$root/tmp/gen-meta.XXXXXX") || { echo "gen/test.sh: mktemp failed" >&2; exit 1; }
+repo="$meta/repo"
+latest="$repo/dist/macos-arm64/latest"
+mkdir -p "$latest" "$repo/site/gen" "$repo/site/assets" "$repo/site/examples" "$meta/fakebin"
+printf '#!/bin/sh\necho "$@" >> "$(dirname "$0")/calls"\n' > "$latest/bayan"
+cp "$latest/bayan" "$repo/site/fakebayan"
+printf '#!/bin/sh\nexit 1\n' > "$meta/fakebin/mktemp"
+chmod +x "$latest/bayan" "$repo/site/fakebayan" "$meta/fakebin/mktemp"
+cp "$gen/../build.sh" "$gen/../check-examples.sh" "$repo/site/"
+cp "$gen/test.sh" "$repo/site/gen/"
+: > "$repo/site/examples/x.byn"
+: > "$repo/site/examples/x.out"
+
+# default compiler: each script finds <repo>/dist/macos-arm64/latest/bayan when BAYAN is unset
+for script in check-examples.sh build.sh gen/test.sh; do
+  rm -f "$latest/calls"
+  (cd "$repo" && env -u BAYAN sh "site/$script" > /dev/null 2>&1)
+  if [ -f "$latest/calls" ]; then ok; else bad "$script: default compiler under the repo root not used"; fi
+done
+
+# test.sh: a fixture directory per run, removed at exit
+rm -f "$latest/calls"
+(cd "$repo" && env -u BAYAN sh site/gen/test.sh > /dev/null 2>&1)
+first=$(sed -n '1s/.* //p' "$latest/calls")
+rm -f "$latest/calls"
+(cd "$repo" && env -u BAYAN sh site/gen/test.sh > /dev/null 2>&1)
+second=$(sed -n '1s/.* //p' "$latest/calls")
+if [ -n "$first" ] && [ "$first" != "$second" ]; then ok; else bad "test.sh reuses its fixture directory: $first"; fi
+if ls "$repo/tmp" | grep -q '^gen-fixture'; then bad "test.sh leaves its fixture directory behind"; else ok; fi
+
+# check-examples.sh: a relative BAYAN works
+rm -f "$latest/calls"
+out=$(cd "$repo/site" && BAYAN=./fakebayan sh check-examples.sh 2>&1)
+if [ $? = 0 ] && [ "$out" = "examples: 1 checked" ]; then ok; else bad "relative BAYAN: $out"; fi
+
+# check-examples.sh: a failing mktemp is an error
+out=$(cd "$repo/site" && PATH="$meta/fakebin:$PATH" BAYAN=./fakebayan sh check-examples.sh 2>&1)
+status=$?
+case $out in
+  *"mktemp failed"*) if [ "$status" = 1 ]; then ok; else bad "mktemp failure: exit $status"; fi ;;
+  *) bad "mktemp failure not reported: $out" ;;
+esac
+fi
 
 echo "gen/test.sh: $passed passed, $failed failed"
 [ "$failed" = 0 ]
