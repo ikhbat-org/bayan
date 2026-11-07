@@ -1,0 +1,40 @@
+union error ParseError {
+    empty
+    notNumber(string text)
+}
+
+union error StockError {
+    outOfStock(string item)
+}
+
+union error OrderError = ParseError, StockError
+union error Retryable = OrderError except .notNumber
+
+i64 parseQty(string text) fails ParseError {
+    fail .empty if text.isEmpty
+    return i64.tryParse(text) ?? fail .notNumber(text)
+}
+
+i64 take(ref Map<string, i64> stock, from string item, by string qty) fails OrderError {
+    let n = try parseQty(qty)
+    let have = stock.tryGet(at: item) ?? 0
+    fail .outOfStock(item) if n > have
+    stock[item] = have - n
+    return n
+}
+
+i64 retrying(ref Map<string, i64> stock, from string item, by string qty) fails Retryable {
+    return take(ref stock, from: item, by: qty) catch (ParseError.notNumber) 0
+}
+
+void main() {
+    var stock: Map<string, i64> = ["tea": 5]
+    print($"{take(ref stock, from: "tea", by: "2") catch -1}")
+    let r = take(ref stock, from: "tea", by: "9") catch switch {
+        ParseError e => -1,
+        .outOfStock(let item) => -2,
+    }
+    print($"{r}")
+    print($"{retrying(ref stock, from: "tea", by: "x") catch -3}")
+    print($"{retrying(ref stock, from: "tea", by: "9") catch -3}")
+}

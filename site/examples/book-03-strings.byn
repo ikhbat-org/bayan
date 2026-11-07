@@ -1,0 +1,16 @@
+let word = "héllo"
+print($"{word.length} bytes, {word.runeCount} runes")
+print(word.uppercased())
+print($"{word.contains("ll")} {word.startsWith("h")} {word == "héllo"}")
+print(word[0..1])
+for r in word.runes {
+    print($"{r}")
+}
+let multi = """
+two
+lines
+"""
+print(multi)
+let pair = $"{word}-{word.length}"
+print(pair)
+print($"braces: {{ and }}")

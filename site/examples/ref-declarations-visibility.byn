@@ -1,0 +1,12 @@
+struct Account {
+    private i64 cents = 0
+    string name
+    i64 balance => cents
+    void deposit(ref this, i64 amount) {
+        cents += amount
+    }
+}
+
+var a = Account { name: "savings" }
+a.deposit(250)
+print($"{a.name} {a.balance}")

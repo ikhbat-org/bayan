@@ -1,0 +1,20 @@
+union error InputError {
+    empty
+    tooLong
+}
+
+string clean(string text) fails InputError {
+    fail .empty if text.isEmpty
+    fail .tooLong if text.length > 8
+    return text.trimmed()
+}
+
+void main() {
+    print(clean("  ada  ") catch "bad")
+    print(clean("") catch "bad")
+    print(clean("much too long a name") catch "bad")
+    for i in 1..=6 {
+        continue if i % 2 == 1
+        print($"{i}")
+    }
+}

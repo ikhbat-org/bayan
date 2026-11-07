@@ -1,0 +1,9 @@
+i64 applyTwice(i64 x, by (i64 -> i64) step) => step(step(x))
+
+i64 addOne(i64 x) => x + 1
+
+void main() {
+    print($"{applyTwice(5, by: it * 3)}")
+    print($"{applyTwice(5, by: x => x - 1)}")
+    print($"{applyTwice(5, by: addOne)}")
+}

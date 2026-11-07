@@ -1,0 +1,23 @@
+union error Bad {
+    /// The text is not a number.
+    nan
+    /// The number is negative.
+    neg
+}
+
+i64 parse(string s) fails Bad {
+    let n = i64.tryParse(s) ?? fail Bad.nan
+    fail Bad.neg if n < 0
+    return n
+}
+
+i64 twice(string s) fails Bad => (try parse(s)) * 2
+
+let a = parse("5") catch -1
+let b = parse("x") catch -1
+let c = parse("-3") catch switch {
+    .nan => 0,
+    .neg => 100,
+}
+print($"{a} {b} {c}")
+print($"{twice("4") catch 0}")

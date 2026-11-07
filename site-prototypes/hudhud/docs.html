@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Argument particles: Bayan docs</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14202E">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Noto+Kufi+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html"><img src="../assets/mark-on-night.svg" alt="" width="32" height="32">Bayan <span lang="ar" dir="rtl">بيان</span></a>
+  <nav aria-label="Main">
+    <a href="docs.html" aria-current="page">Docs</a>
+    <a href="tutorial.html">Tutorial</a>
+    <a href="https://github.com/ikhbat-org/bayan">GitHub</a>
+  </nav>
+</div></header>
+<div class="wrap docs">
+  <nav class="side" aria-label="Documentation">
+    <h2>Start</h2>
+    <ul><li><a href="tutorial.html">First program</a></li></ul>
+    <h2>Language</h2>
+    <ul>
+      <li><a href="https://github.com/ikhbat-org/bayan/blob/main/docs/bayan-spec.md">Core on one page</a></li>
+      <li><a href="https://github.com/ikhbat-org/bayan/blob/main/docs/bayan-spec.md">Types</a></li>
+      <li><a href="https://github.com/ikhbat-org/bayan/blob/main/docs/bayan-spec.md">Errors</a></li>
+      <li><a href="docs.html" aria-current="page">Argument particles</a></li>
+      <li><a href="https://github.com/ikhbat-org/bayan/blob/main/docs/bayan-spec.md">Memory</a></li>
+    </ul>
+    <h2>Tools</h2>
+    <ul>
+      <li><a href="https://github.com/ikhbat-org/bayan/blob/main/docs/bayan-terminal-style.md">Terminal output</a></li>
+    </ul>
+  </nav>
+
+  <article id="main">
+    <h1>Argument particles</h1>
+    <p class="lede">Every required parameter after the object takes a small word that names its role. The call site writes the same word, so the call reads as a sentence and cannot be swapped by accident.</p>
+
+    <h2 id="declare">Declaring</h2>
+    <p>A function has at most one unlabelled parameter, the object being acted on. Every other required parameter carries a particle before its type. The particles are part of the function's name: <code>copy(from:to:)</code>.</p>
+    <div class="term">
+      <div class="bar"><i></i>from the language spec</div>
+<pre><span class="k">public</span> <span class="t">void</span> <span class="f">copy</span>(<span class="k">from</span> <span class="t">Path</span> src, <span class="k">to</span> <span class="t">Path</span> dst) <span class="k">fails</span> <span class="t">FsError</span> <span class="k">uses</span> fs
+<span class="k">public</span> <span class="t">void</span> <span class="f">transfer</span>(<span class="t">Money</span> amount, <span class="k">from</span> <span class="t">Account</span> payer, <span class="k">to</span> <span class="t">Account</span> payee) <span class="k">fails</span> <span class="t">LedgerError</span>
+<span class="k">public</span> <span class="t">void</span> <span class="f">remove</span>(<span class="k">ref</span> <span class="k">this</span>, <span class="k">from</span> <span class="t">Index</span> start, <span class="k">until</span> <span class="t">Index</span> end)</pre>
+    </div>
+
+    <h2 id="call">Calling</h2>
+    <div class="term">
+      <div class="bar"><i></i>call sites</div>
+<pre><span class="f">copy</span>(from: a, to: b)
+<span class="k">try</span> ledger.<span class="f">transfer</span>(amount, from: alice, to: bob)
+xs.<span class="f">remove</span>(from: <span class="n">2</span>, until: <span class="n">5</span>)</pre>
+    </div>
+
+    <h2 id="set">The closed set</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th scope="col">Particle</th><th scope="col">Role</th></tr></thead>
+      <tbody>
+        <tr><td>(none)</td><td>The object being acted on</td></tr>
+        <tr><td><code>from</code></td><td>Source or start</td></tr>
+        <tr><td><code>to</code></td><td>Destination or recipient</td></tr>
+        <tr><td><code>until</code></td><td>Exclusive end</td></tr>
+        <tr><td><code>through</code></td><td>Inclusive end</td></tr>
+        <tr><td><code>at</code></td><td>Position or time</td></tr>
+        <tr><td><code>by</code></td><td>Means or replacement</td></tr>
+        <tr><td><code>for</code></td><td>Beneficiary or purpose</td></tr>
+        <tr><td><code>as</code></td><td>Role</td></tr>
+      </tbody>
+    </table></div>
+    <p>The set is closed for user code. A particle may appear at most once per signature (BYN5013); an unknown one is BYN5008.</p>
+
+    <h2 id="forget">When the call leaves one out</h2>
+    <p>Call sites must write the particle. Leaving it out is BYN5005, and the compiler shows the corrected line.</p>
+    <div class="callout">
+      <div class="badge"><img src="../assets/hoopoe-flat-note.svg" alt="The hoopoe delivering an error note" width="80" height="80"></div>
+      <div>
+        <div class="term">
+          <div class="bar"><i></i>width.byn</div>
+<pre><span class="t">i64</span> <span class="f">width</span>(<span class="t">i64</span> start, <span class="k">until</span> <span class="t">i64</span> end) =&gt; end - start
+
+<span class="f">print</span>(<span class="s">$"{width(2, 5)}"</span>)</pre>
+          <div class="bar" style="border-top:1px solid var(--line)"><i></i>bayan check width.byn</div>
+<pre><span class="e">error BYN5005</span>: `end` is passed without its particle `until:`
+
+  4 <span class="g">│</span> print($"{width(2, 5)}")
+    <span class="g">│</span>                   <span class="e">^</span> <span class="e">needs `until:`</span>
+    <span class="g">│</span>
+    <span class="g">│</span> <span class="h">help</span>: add `until:` before the argument
+    <span class="g">│</span> 4 <span class="g">│</span> print($"{width(2, <span class="h">until: </span>5)}")</pre>
+        </div>
+        <p class="muted">Run <code>bayan explain BYN5005</code> for the longer account.</p>
+      </div>
+    </div>
+
+    <div class="pn"><a href="tutorial.html">Tutorial: your first program</a><a href="https://github.com/ikhbat-org/bayan/blob/main/docs/bayan-spec.md">Full specification</a></div>
+  </article>
+
+  <nav class="toc" aria-label="On this page">
+    <h2>On this page</h2>
+    <ul>
+      <li><a href="#declare">Declaring</a></li>
+      <li><a href="#call">Calling</a></li>
+      <li><a href="#set">The closed set</a></li>
+      <li><a href="#forget">When the call leaves one out</a></li>
+    </ul>
+  </nav>
+</div>
+<footer><div class="wrap">
+  <span>Bayan is made by the <a href="https://github.com/ikhbat-org">Ikhbat Foundation</a>. Compiler bootstrap in C# on .NET 10.</span>
+  <span><a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a>, <a href="https://bayan.run">bayan.run</a></span>
+</div></footer>
+</body>
+</html>

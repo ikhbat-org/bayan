@@ -1,0 +1,5 @@
+let text = "hello"
+let part = text[1..3]
+print(part)
+let owned = part.copy()
+print(owned)

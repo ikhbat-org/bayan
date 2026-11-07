@@ -1,0 +1,20 @@
+union Shape {
+    circle(f64 radius)
+    rect(f64 width, f64 height)
+    point
+}
+
+f64 area(Shape shape) => shape switch {
+    .circle(let r) => 3.0 * r * r,
+    .rect(let w, let h) => w * h,
+    .point => 0.0,
+}
+
+void main() {
+    let shapes: List<Shape> = [.circle(2.0), .rect(3.0, 4.0), .point]
+    for shape in shapes {
+        print($"{shape} has area {area(shape)}")
+    }
+    let big = Shape.rect(width: 10.0, height: 2.0)
+    print($"{big}")
+}

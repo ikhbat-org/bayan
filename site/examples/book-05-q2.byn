@@ -1,0 +1,13 @@
+struct Tally {
+    i64 n = 0
+
+    void add(ref this, i64 amount = 1) {
+        n += amount
+    }
+}
+
+var t = Tally {}
+t.add()
+t.add(amount: 4)
+print($"{t.n}")
+print($"{t, as: .debug}")

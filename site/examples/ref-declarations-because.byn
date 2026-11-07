@@ -1,0 +1,3 @@
+let raw: Untrusted<string> = Untrusted("42")
+let s = raw.trustUnchecked() because "demo input"
+print(s)

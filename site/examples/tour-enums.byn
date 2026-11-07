@@ -1,0 +1,16 @@
+enum Color {
+    red
+    green
+    blue
+}
+
+string mood(Color c) => c switch {
+    .red => "warm",
+    .green or .blue => "cool",
+}
+
+void main() {
+    let c: Color = .green
+    print(mood(c))
+    print(mood(.red))
+}

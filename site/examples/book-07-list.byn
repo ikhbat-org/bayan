@@ -1,0 +1,13 @@
+void main() {
+    var scores: List<i64> = [72, 91, 85]
+    scores.append(64)
+    print($"{scores.length} scores")
+    print($"first {scores[0]}, last {scores[scores.length - 1]}")
+    print($"the 9th is {scores.tryGet(at: 9) ?? -1}")
+    scores.sort()
+    for s in scores {
+        print($"{s}")
+    }
+    let last = scores.removeLast()
+    print($"removed {last}, {scores.length} left")
+}

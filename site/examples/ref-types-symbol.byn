@@ -1,0 +1,4 @@
+let keywords: Map<Symbol, i32> = ["let": 1, "var": 2]
+let name: Symbol = "let"
+print($"{keywords[name]} {name}")
+print($"{name == Symbol.intern("let")} {name < Symbol.intern("var")}")

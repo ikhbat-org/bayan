@@ -1,0 +1,21 @@
+// No flag library yet: a loop over the arguments. Try: -- -v --count 3 Bayan
+void main(ReadOnlySpan<string> args) {
+    let demo: string[4] = ["--verbose", "--count", "3", "Bayan"]
+    let list = args.length == 0 ? demo.span : args
+    var verbose = false
+    var count: i64 = 1
+    var name = "world"
+    var i = 0
+    while i < list.length {
+        if list[i] == "-v" || list[i] == "--verbose" {
+            verbose = true
+        } else if list[i] == "--count" && i + 1 < list.length {
+            i++
+            count = i64.tryParse(list[i]) ?? 1
+        } else {
+            name = list[i]
+        }
+        i++
+    }
+    print($"verbose={verbose} count={count} name={name}")
+}

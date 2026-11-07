@@ -1,0 +1,260 @@
+title: Bayan for Python programmers
+nav: Guides
+order: 45
+template: docs
+---
+<p>Bayan reads a little like Python with the types written in: short lines, no ceremony, a <code>for</code> loop over anything. The differences are underneath. Types are checked before the program runs, integers have a size, values are copied or moved on purpose, and a function that can fail says so in its signature. This guide maps what you do in Python to what you write in Bayan, then explains the parts that will surprise you.</p>
+<p>Every Bayan program on this page was run with the compiler, and the output shown is its real output.</p>
+
+<h2 id="table">Common tasks side by side</h2>
+<table>
+<tr><th>Task</th><th>Python</th><th>Bayan</th></tr>
+<tr><td>Print with values</td><td><code>print(f"{n} items")</code></td><td><code>print($"{n} items")</code></td></tr>
+<tr><td>Name a value</td><td><code>x = 1</code></td><td><code>let x = 1</code> (fixed) or <code>var x = 1</code> (can change)</td></tr>
+<tr><td>New list</td><td><code>xs = []</code></td><td><code>var xs = List&lt;i64&gt;()</code></td></tr>
+<tr><td>List literal</td><td><code>[1, 2, 3]</code></td><td><code>let xs: List&lt;i64&gt; = [1, 2, 3]</code></td></tr>
+<tr><td>Append</td><td><code>xs.append(4)</code></td><td><code>xs.append(4)</code></td></tr>
+<tr><td>Length</td><td><code>len(xs)</code></td><td><code>xs.length</code></td></tr>
+<tr><td>Is it empty</td><td><code>if not xs:</code></td><td><code>if xs.isEmpty { … }</code></td></tr>
+<tr><td>New dict</td><td><code>d = {}</code></td><td><code>var m = Map&lt;string, i64&gt;()</code></td></tr>
+<tr><td>Set a key</td><td><code>d["a"] = 1</code></td><td><code>m["a"] = 1</code></td></tr>
+<tr><td>Read with a default</td><td><code>d.get("a", 0)</code></td><td><code>m.tryGet(at: "a") ?? 0</code></td></tr>
+<tr><td>Key present</td><td><code>"a" in d</code></td><td><code>m.contains("a")</code></td></tr>
+<tr><td>Count loop</td><td><code>for i in range(n):</code></td><td><code>for i in 0..n { … }</code></td></tr>
+<tr><td>Index and element</td><td><code>for i, x in enumerate(xs):</code></td><td><code>for i in 0..xs.length { … xs[i] … }</code></td></tr>
+<tr><td>Key and value</td><td><code>for k, v in d.items():</code></td><td><code>for (k, v) in m { … }</code></td></tr>
+<tr><td>No value</td><td><code>None</code></td><td><code>null</code>, in a type that ends in <code>?</code></td></tr>
+<tr><td>Fallback</td><td><code>x if x is not None else 0</code></td><td><code>x ?? 0</code></td></tr>
+<tr><td>Check for none</td><td><code>if x is not None:</code></td><td><code>if x is not null { … }</code></td></tr>
+<tr><td>Fail</td><td><code>raise ValueError</code></td><td><code>fail .notNumber</code></td></tr>
+<tr><td>Handle a failure</td><td><code>try: … except …:</code></td><td><code>f() catch value</code> or <code>f() catch switch { … }</code></td></tr>
+<tr><td>Pass a failure up</td><td>(it propagates by itself)</td><td><code>try f()</code></td></tr>
+<tr><td>Read a file</td><td><code>open(p).read()</code></td><td><code>try Io.readText(p)</code></td></tr>
+<tr><td>Lines of text</td><td><code>text.splitlines()</code></td><td><code>for line in text.lines { … }</code></td></tr>
+<tr><td>Split</td><td><code>s.split(",")</code></td><td><code>s.parts(by: ",")</code></td></tr>
+<tr><td>Join</td><td><code>", ".join(names)</code></td><td><code>names.span.joined(by: ", ")</code></td></tr>
+<tr><td>Trim</td><td><code>s.strip()</code></td><td><code>s.trimmed()</code></td></tr>
+<tr><td>Case</td><td><code>s.upper()</code>, <code>s.lower()</code></td><td><code>s.uppercased()</code>, <code>s.lowercased()</code></td></tr>
+<tr><td>Replace</td><td><code>s.replace("a", "b")</code></td><td><code>s.replaced("a", by: "b")</code></td></tr>
+<tr><td>Starts with</td><td><code>s.startswith("ab")</code></td><td><code>s.startsWith("ab")</code></td></tr>
+<tr><td>Contains</td><td><code>"ab" in s</code></td><td><code>s.contains("ab")</code></td></tr>
+<tr><td>Parse a number</td><td><code>int(s)</code> (raises)</td><td><code>i64.tryParse(s)</code> (a <code>i64?</code>) or <code>i64.parse(s)</code> (fails)</td></tr>
+<tr><td>Sorted copy</td><td><code>sorted(xs)</code></td><td><code>var ys = xs.copy()</code> then <code>ys.sort()</code></td></tr>
+<tr><td>Record type</td><td><code>@dataclass class P: x: int</code></td><td><code>struct P { i64 x }</code></td></tr>
+<tr><td>Copy with a change</td><td><code>replace(p, y=5)</code></td><td><code>p with { y: 5 }</code></td></tr>
+<tr><td>Method that changes self</td><td><code>def bump(self): …</code></td><td><code>void bump(ref this) { … }</code></td></tr>
+<tr><td>Match on a shape</td><td><code>match s: case Circle(r): …</code></td><td><code>s switch { .circle(let r) =&gt; … }</code></td></tr>
+<tr><td>Comprehension</td><td><code>[x * x for x in xs]</code></td><td>a <code>for</code> loop that appends</td></tr>
+<tr><td>Lambda</td><td><code>lambda x: x + 1</code></td><td><code>x =&gt; x + 1</code>, or <code>it + 1</code></td></tr>
+<tr><td>Command-line arguments</td><td><code>sys.argv[1:]</code></td><td><code>void main(ReadOnlySpan&lt;string&gt; args)</code></td></tr>
+<tr><td>A test</td><td><code>def test_sum(): assert …</code></td><td><code>test "sum" { assert … }</code></td></tr>
+</table>
+<p>The sections below show the less obvious rows as programs.</p>
+
+<h2 id="values">Values, lists and maps</h2>
+<p>A Bayan program is a set of typed values. You can leave the type off a local when the right-hand side shows it (<code>let name = "Ada"</code>), and you write it for collections that start empty (<code>List&lt;i64&gt;()</code>). Blocks use braces, not indentation, and a statement ends at the end of the line.</p>
+<pre><code class="other" data-lang="Python">scores = [90, 72, 85]
+total = 0
+for s in scores:
+    total += s
+print(f"{len(scores)} scores, total {total}, mean {total / len(scores)}")
+ages = {"ada": 36, "grace": 45}
+print("ada" in ages, "linus" in ages)
+for name, age in ages.items():
+    print(name, "is", age)</code></pre>
+<example name="guide-py-basics"/>
+<p>The mean is <code>82</code>, not <code>82.33</code>. Dividing two integers gives an integer, rounded toward zero. Python's <code>/</code> always gives a float, and Bayan has no <code>//</code>. To get a fraction, convert first: <code>f64(total) / f64(scores.length)</code>.</p>
+<p>A <code>Map</code> keeps the order in which keys were first inserted, like a Python <code>dict</code>. Reading a key that is not there stops the program (a panic), the way <code>d["x"]</code> raises <code>KeyError</code>. When the key may be missing, use <code>tryGet(at:)</code>, which gives a value that may be <code>null</code>, and finish with <code>??</code>.</p>
+
+<h2 id="structs">Classes become structs</h2>
+<p>Bayan has no classes and no inheritance. Data lives in structs, and a struct is a value. A struct can have default field values, properties (a name with <code>=&gt;</code> and no parentheses) and methods.</p>
+<pre><code class="other" data-lang="Python">@dataclass
+class Account:
+    owner: str
+    balance: int = 0
+
+    @property
+    def is_empty(self):
+        return self.balance == 0
+
+    def deposit(self, amount):
+        self.balance += amount
+
+a = Account("ada")
+a.deposit(50)
+b = replace(a, owner="grace")
+a.deposit(25)</code></pre>
+<example name="guide-py-class"/>
+<p>Two things differ from the Python version.</p>
+<ul>
+<li>A method that changes the struct says <code>ref this</code> as its first parameter. Without it, the method can only read. You cannot call a changing method on a <code>let</code>.</li>
+<li><code>b</code> is a separate value. <code>a with { owner: "grace" }</code> copies <code>a</code> and replaces one field, so the later <code>a.deposit(25)</code> does not touch <code>b</code>. In Python two names can point at one object. In Bayan they cannot, unless you ask for a <code>ref</code>.</li>
+</ul>
+
+<h2 id="none">None becomes an optional</h2>
+<p>A value that may be missing has a type that ends in <code>?</code>. The compiler does not let you use it as if it were there, so there is no <code>AttributeError: 'NoneType'</code>. Test it with <code>is not null</code>, which also narrows the type inside the block, or give a fallback with <code>??</code>.</p>
+<pre><code class="other" data-lang="Python">def find(names, prefix):
+    for n in names:
+        if n.startswith(prefix):
+            return n
+    return None</code></pre>
+<example name="guide-py-none"/>
+<p>The second parameter of <code>find</code> is written <code>by string prefix</code>. When a function takes more than one required parameter, all but the first carry a label, called a particle, and the call writes it: <code>find(names, by: "gr")</code>. The <a href="parameters.html">parameters page</a> lists the particles and when to pick which.</p>
+<note>Planned: <code>?.</code>, as in <code>name?.length</code>. The parser rejects it today (BYN2022). Use <code>is not null</code> or <code>??</code>.</note>
+
+<h2 id="errors">Exceptions become fails and catch</h2>
+<p>Nothing is raised in the dark. A function that can fail lists the error type after its parameters, with <code>fails</code>. The caller must either pass the failure up with <code>try</code> or handle it with <code>catch</code>. Python's <code>except</code> clauses map to the arms of <code>catch switch</code>, and the compiler checks that you covered every case.</p>
+<pre><code class="other" data-lang="Python">class ParseError(Exception): pass
+
+def parse(text):
+    if not text:
+        raise ParseError("empty")
+    return int(text)
+
+try:
+    n = parse("")
+except ParseError:
+    n = 0</code></pre>
+<example name="guide-py-errors"/>
+<p>The three calls cover the three shapes. <code>catch -1</code> gives a fallback for any failure. <code>catch switch</code> picks a value per case. The last one failed with <code>.notNumber</code> and used <code>-2</code>. The <a href="errors.html">Errors guide</a> goes through the rest, including errors that carry data.</p>
+
+<h2 id="files">Files</h2>
+<p>There is no <code>with</code> block. <code>Io.readText</code> reads the whole file and closes it before it returns, so there is nothing to release. Every call that touches the outside world can fail with <code>IoError</code>, so the function that makes the call declares it, or the call is wrapped in <code>catch</code>.</p>
+<pre><code class="other" data-lang="Python">with open(path, "w") as f:
+    f.write("one\ntwo\nthree\n")
+with open(path) as f:
+    for n, line in enumerate(f, 1):
+        print(f"{n}: {line.rstrip()}")</code></pre>
+<example name="guide-py-files"/>
+<p>For cleanup that is not a single call, <code>defer</code> runs a statement when the scope ends. It is the closest thing to a <code>with</code> block or a <code>finally</code>. See <a href="memory.html#defer">Memory and ownership</a>.</p>
+
+<h2 id="lists">Comprehensions, sorting and lambdas</h2>
+<p>There are no comprehensions yet. You accumulate in a loop. <code>sort()</code> sorts in place, so to keep the original you copy first. A copy is always written out (<code>xs.copy()</code>), because lists own their memory.</p>
+<pre><code class="other" data-lang="Python">xs = [3, 1, 2]
+ys = sorted(xs)
+squares = [x * x for x in xs]</code></pre>
+<example name="guide-py-sort"/>
+<note>Planned: <code>where</code>, <code>select</code> and <code>sumBy</code> on lists, which take a lambda written with <code>it</code>. They are in the specification but not in the compiler yet (<code>xs.where(it &gt; 1)</code> gives BYN2003 today).</note>
+<p>A lambda needs a function type to be checked against, so it appears where a function is expected: <code>apply(5, by: it * 3)</code> or <code>apply(5, by: x =&gt; x - 1)</code>. You cannot write <code>let f = x =&gt; x + 1</code> on its own line.</p>
+
+<h2 id="match">match becomes switch</h2>
+<p>A union lists the shapes a value can take. A <code>switch</code> over it must cover every case, and a case can bind the fields it carries. This replaces both a class hierarchy and <code>isinstance</code> chains.</p>
+<pre><code class="other" data-lang="Python">match shape:
+    case Circle(r): return 3.14 * r * r
+    case Rect(w, h): return w * h
+    case Point(): return 0.0</code></pre>
+<example name="guide-py-match"/>
+<p>Add a case to <code>Shape</code> and every <code>switch</code> that forgot it stops compiling. That is the point. The leading dot in <code>.circle(let r)</code> means "the case of the type the compiler expects here". The whole numbers print as <code>6</code> and <code>0</code>, since a float with no fraction prints without a decimal point.</p>
+
+<h2 id="surprises">What will surprise you</h2>
+
+<h3 id="s-types">Everything has a type, and integers have a size</h3>
+<p><code>i64</code> is a 64-bit integer, <code>i32</code> a 32-bit one, <code>u8</code> a byte. Python's <code>int</code> never overflows. Bayan's do, and an overflow stops the program with a panic instead of wrapping around or growing:</p>
+<figure class="diag">
+<pre><span class="err">panic:</span> arithmetic overflow
+  at overflow.byn:3</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p>A smaller integer converts to a wider one on its own, but never the other way. You write <code>i32(a)</code> and you decide that the value fits.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `i32`, found `i64`
+  --&gt; narrow.byn:3:18
+
+  3 │     let b: i32 = a
+    │                  ^
+    │
+  help: convert it if the value always fits; `i64` does not convert to `i32` without loss
+    │ 3 │     let b: i32 = i32(a)
+    │   │                  ++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p><b>Why:</b> a silent wraparound or a silent loss of bits is a bug that shows up far from its cause. Bayan makes the narrowing visible and the overflow loud.</p>
+
+<h3 id="s-truth">There is no truthiness</h3>
+<p>A condition is a <code>bool</code>. Empty lists, zero and <code>null</code> are not false. Write the test you mean: <code>xs.isEmpty</code>, <code>n != 0</code>, <code>x is null</code>.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `bool`, found `i32`
+  --&gt; truthy.byn:3:8
+
+  3 │     if n {
+    │        ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p><b>Why:</b> <code>if items:</code> cannot tell "no items" from "items is None". Spelling the test removes the guess.</p>
+
+<h3 id="s-copy">Assignment does not alias</h3>
+<p>In Python <code>b = a</code> makes two names for one list. A Bayan <code>List</code> owns its memory, so there is no such thing as two names for one. Writing <code>var b = a</code> is an error, and the compiler offers the options: <code>move a</code> to hand the list over (then <code>a</code> is gone), <code>a.copy()</code> for an independent copy, or pass it by <code>ref</code> to share it.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2780:</span> implicit copy of a unique value: `List&lt;i64&gt;` is unique: it owns its storage
+  --&gt; copy.byn:3:13
+
+  3 │     var b = a
+    │             ^
+    │
+  help: hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass
+        it by `ref` to share it instead
+    │ 3 │     var b = move a
+    │   │             +++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2780</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p>Plain values such as numbers and <code>bool</code> copy freely. Only types that own storage, such as lists and maps, must be moved or copied by name.</p>
+<p><b>Why:</b> a copy of a big list costs time and memory, and a shared one can change under you. Bayan makes you choose and shows the choice in the source. See <a href="memory.html">Memory and ownership</a>.</p>
+
+<h3 id="s-let">let is the default</h3>
+<p>A <code>let</code> cannot be assigned twice, and a method that changes a struct cannot be called on one.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2104:</span> `x` is immutable
+  --&gt; immut.byn:3:5
+
+  3 │     x = 2
+    │     ^ declared with `let` on line 2
+    │
+  help: declare it with `var` if it should change
+    │ 2 │     var x = 1
+    │   │     +++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2104</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p>Declare <code>var</code> where a value really changes, and the compiler warns when a <code>var</code> is never reassigned. <b>Why:</b> when you read a function, every <code>let</code> is a fact you do not need to track.</p>
+
+<h3 id="s-strings">Strings are bytes you view, not a sequence you rebuild</h3>
+<p>A <code>string</code> is immutable UTF-8 text. <code>length</code> counts bytes and <code>runeCount</code> counts characters, so <code>"héllo"</code> has length 6 and <code>runeCount</code> 5. You slice with byte offsets, <code>s[0..5]</code> (end excluded), and a cut that splits a character panics. There is no <code>+</code> on strings:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2209:</span> strings cannot be joined with `+`; use interpolation
+  --&gt; concat.byn:3:11
+
+  3 │     print(a + "y")
+    │           ^^^^^^^
+    │
+  help: write the parts as one interpolation: `$"{a}{b}"`, or `buf.append($"{a}{b}")` in a loop
+    │ 3 │     print($"{a}y")
+    │   │           +++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2209</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p>Use interpolation, <code>$"{a}y"</code>, or a <code>StrBuf</code> in a loop. <b>Why:</b> repeated <code>+</code> copies the text each time, and the cost hides in a line that looks free.</p>
+
+<h3 id="s-params">Arguments carry labels</h3>
+<p>Python lets you pass any argument by keyword. Bayan requires a label, a particle, on every required argument after the first, and the particle comes from a fixed list (<code>from</code>, <code>to</code>, <code>until</code>, <code>through</code>, <code>at</code>, <code>by</code>, <code>for</code>, <code>as</code>). A call like <code>find(names, by: "gr")</code> says what the second argument is for. <b>Why:</b> a call site reads as a sentence, and swapped arguments become a compile error. See <a href="parameters.html">Parameters and arguments</a>.</p>
+
+<h3 id="s-no">What is not there</h3>
+<ul>
+<li>No classes, inheritance, decorators, generators or <code>yield</code>, and no <code>None</code> in a type that does not end in <code>?</code>.</li>
+<li>No exceptions. A panic (index out of range, overflow, division by zero) is a bug report, not something you catch.</li>
+<li>No <code>import</code> at the top of a script for the basics. <code>Io</code>, <code>List</code>, <code>Map</code> and <code>print</code> are available as they are. A directory is a module.</li>
+<li>No dynamic features: no <code>getattr</code>, no <code>eval</code>, no adding fields at run time.</li>
+</ul>
+<p>Next: <a href="reading.html">Reading Bayan code</a> explains the forms you will see in other people's programs, and <a href="effective.html">Effective Bayan</a> says which form to choose.</p>

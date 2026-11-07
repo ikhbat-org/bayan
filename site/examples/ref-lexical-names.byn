@@ -1,0 +1,9 @@
+// `error` and `type` are keywords only in a declaration, so they work as names here.
+let error = 3
+let type = 4
+let δ = 5
+struct Box {
+    i64 set
+}
+let b = Box { set: 6 }
+print($"{error} {type} {δ} {b.set}")

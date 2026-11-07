@@ -1,0 +1,263 @@
+title: 13. Memory, ownership and regions
+nav: Learn
+order: 1300
+template: docs
+---
+<p>Bayan has no garbage collector and no hidden allocation. You decide where memory comes from, and the compiler checks who owns each piece and how long a borrow of it can live. This chapter builds the mental model in four steps: where values live, what a copy and a move are, what a borrow is, and how an arena frees many things at once. Each step has a small program and the errors you will meet when you break its rules.</p>
+<p>You need structs, lists and spans from the earlier chapters. The <a href="memory.html">Memory and ownership</a> guide is the short reference for the same rules.</p>
+
+<h2 id="where">Where values live</h2>
+<p>Every value in a running program lives in one of four places.</p>
+<div class="tablewrap">
+<table>
+<tr><th>Place</th><th>What lives there</th><th>When it is freed</th></tr>
+<tr><td>Static</td><td>String literals and <code>const</code> data</td><td>Never. They last as long as the program.</td></tr>
+<tr><td>Stack</td><td>Locals, struct values, fixed-size arrays, <code>stackalloc</code> buffers</td><td>At the end of the scope that made them.</td></tr>
+<tr><td>Heap</td><td>The storage behind a <code>List</code>, <code>Map</code> or <code>StrBuf</code>, taken from an allocator as it grows</td><td>When its single owner goes away.</td></tr>
+<tr><td>Arena</td><td>Everything allocated while an <code>Arena</code> is the current allocator</td><td>When the arena ends or is reset, all at once.</td></tr>
+</table>
+</div>
+<p>Here is a picture of one running <code>main</code>. The boxes on the left are the variables in its stack frame. The arrows are the places where a variable only <em>points</em> at storage somewhere else.</p>
+<svg viewBox="0 0 640 330" role="img" aria-labelledby="memmap-t" style="width:100%;height:auto;max-width:640px" font-family="ui-monospace, Menlo, monospace" font-size="13">
+<title id="memmap-t">Where the variables of main live: the stack frame holds values and pointers, the heap holds a list buffer, the arena holds another, and static memory holds a string literal.</title>
+<rect x="10" y="10" width="190" height="310" fill="#EDE5D3" stroke="#1F3A5F"/>
+<text x="20" y="32" fill="#1F3A5F" font-weight="bold">Stack: frame of main</text>
+<rect x="24" y="44" width="162" height="34" fill="#F6F1E7" stroke="#46586F"/><text x="32" y="66" fill="#1F3A5F">p = Point {3, 4}</text>
+<rect x="24" y="86" width="162" height="34" fill="#F6F1E7" stroke="#46586F"/><text x="32" y="108" fill="#1F3A5F">grid = [10, 20, 30]</text>
+<rect x="24" y="128" width="162" height="34" fill="#F6F1E7" stroke="#46586F"/><text x="32" y="150" fill="#1F3A5F">scratch (4 slots)</text>
+<rect x="24" y="170" width="162" height="34" fill="#F6F1E7" stroke="#46586F"/><text x="32" y="192" fill="#1F3A5F">xs = List (pointer)</text>
+<rect x="24" y="212" width="162" height="34" fill="#F6F1E7" stroke="#46586F"/><text x="32" y="234" fill="#1F3A5F">ys = List (pointer)</text>
+<rect x="24" y="254" width="162" height="34" fill="#F6F1E7" stroke="#46586F"/><text x="32" y="276" fill="#1F3A5F">title = string</text>
+<rect x="290" y="44" width="340" height="86" fill="#EDE5D3" stroke="#1F3A5F"/>
+<text x="300" y="66" fill="#1F3A5F" font-weight="bold">Heap</text>
+<rect x="304" y="78" width="312" height="38" fill="#F6F1E7" stroke="#46586F"/><text x="312" y="102" fill="#1F3A5F">xs buffer: 0 1 4 9 16</text>
+<rect x="290" y="150" width="340" height="86" fill="#EDE5D3" stroke="#1F3A5F"/>
+<text x="300" y="172" fill="#1F3A5F" font-weight="bold">Arena (freed all at once)</text>
+<rect x="304" y="184" width="312" height="38" fill="#F6F1E7" stroke="#46586F"/><text x="312" y="208" fill="#1F3A5F">ys buffer: 0 1 2 ... 99</text>
+<rect x="290" y="256" width="340" height="64" fill="#EDE5D3" stroke="#1F3A5F"/>
+<text x="300" y="278" fill="#1F3A5F" font-weight="bold">Static</text>
+<rect x="304" y="286" width="312" height="26" fill="#F6F1E7" stroke="#46586F"/><text x="312" y="304" fill="#1F3A5F">"report"</text>
+<g stroke="#8A5F12" stroke-width="1.5" fill="none">
+<path d="M186 187 L240 187 L240 97 L304 97"/><path d="M304 97 l-8 -4 m8 4 l-8 4"/>
+<path d="M186 229 L250 229 L250 203 L304 203"/><path d="M304 203 l-8 -4 m8 4 l-8 4"/>
+<path d="M186 271 L304 299"/><path d="M304 299 l-8 -1 m8 1 l-6 -7"/>
+</g>
+</svg>
+<p>Three things follow from the picture.</p>
+<ul>
+<li>A struct, a tuple and a fixed-size array are values. The whole value sits in the frame, and assigning it makes another whole value.</li>
+<li>A <code>List</code>, <code>Map</code> or <code>StrBuf</code> is a small header in the frame plus a buffer somewhere else. That buffer has exactly one owner.</li>
+<li>Where the buffer lives depends on the <em>current allocator</em>, not on the type. The same <code>List</code> code puts its buffer on the heap in one place and in an arena in another.</li>
+</ul>
+<p>This program touches each place once. Read the comments, then the output.</p>
+<example name="book-13-places"/>
+<p><code>stackalloc i64[4]</code> reserves four slots in the frame. They are freed when the scope ends, so a borrow of them cannot leave the scope (you will see that error below). Bounds checks apply in every build mode: indexing past the end stops the program with <code>panic: index out of range</code> and the line number, never reads stray memory.</p>
+
+<h2 id="copy">Copies are values, lists are owned</h2>
+<p>Start with the simple case. A struct is a value, so <code>var q = p</code> makes a second, independent value. A fixed-size array works the same way. A <code>List</code> is different: it owns a buffer, so Bayan never copies it for you.</p>
+<example name="book-13-copies"/>
+<p>Changing <code>q</code> did not change <code>p</code>, and the same for the array. The list copy is explicit: <code>xs.copy()</code> allocates a new buffer from the current allocator and copies the elements. <code>xs.copy(to: arena)</code> allocates from the allocator you name.</p>
+<p>Now try the copy a C# or Python programmer would write, <code>var ys = xs</code>, with no <code>.copy()</code>.</p>
+<pre><code class="byn">void main() {
+    var xs = List&lt;i64&gt;()
+    xs.append(1)
+    var ys = xs
+    ys.append(2)
+    print($"{xs.length}")
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN2780:</span> implicit copy of a unique value: `List&lt;i64&gt;` is unique: it owns its storage
+<span class="gut">  --&gt;</span> copy-list.byn:4:14
+
+<span class="gut">  4 │</span>     var ys = <span class="hl">xs</span>
+<span class="gut">    │</span>              <span class="hl">^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> hand the value over with `move xs`; make an independent copy with `xs.copy(to: alloc)`; pass
+        it by `ref` to share it instead
+<span class="gut">    │ 4 │</span>     var ys = <span class="add">move </span>xs
+<span class="gut">    │   │</span>              <span class="add">+++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2780</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>copy-list.byn</code>.</figcaption>
+    </figure>
+<p>A type that owns storage is called <em>unique</em>: there is exactly one owner at a time. Every <code>List</code>, <code>Map</code>, <code>Set</code> and <code>StrBuf</code> is unique. So is a struct that has a unique field. The error names the type, says why, and offers three fixes. Pick by what you mean:</p>
+<ul>
+<li><code>move xs</code>: <code>ys</code> takes over and <code>xs</code> is gone.</li>
+<li><code>xs.copy(to: alloc)</code>: two independent lists.</li>
+<li>Pass it by <code>ref</code>: share it for the duration of a call.</li>
+</ul>
+
+<h2 id="move">Moving ownership</h2>
+<p><code>move</code> hands a value to a new owner. You write it at the place where the hand-over happens: in a <code>let</code>, in a struct literal, and in a call whose parameter is declared <code>move</code>.</p>
+<example name="book-13-moves"/>
+<p>Step by step: <code>let b = move a</code> gives the list to <code>b</code>. The struct literal moves <code>b</code> into <code>batch.items</code>. <code>batch.items.take()</code> moves the list <em>out</em> of the field and leaves an empty list behind, which is why <code>left</code> is 0. Finally <code>total(move items)</code> gives the list to a function that declares <code>move List&lt;i64&gt; xs</code>; the function owns it and frees it when it returns.</p>
+<p>Only a local variable or a <code>move</code> parameter can be moved from. Moving out of a field or an element would leave a half-emptied value, so use <code>take()</code> there. </p>
+<p>After a move the old name is dead. Using it is an error, and the diagnostic points at the move:</p>
+<pre><code class="byn">void main() {
+    var xs = List&lt;i64&gt;()
+    xs.append(1)
+    let b = move xs
+    print($"{xs.length}")
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN2781:</span> `xs` is used after it was moved
+<span class="gut">  --&gt;</span> use-after-move.byn:5:14
+
+<span class="gut">  5 │</span>     print($"{<span class="hl">xs</span>.length}")
+<span class="gut">    │</span>              <span class="hl">^^ moved on line 4</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> assign `xs` a new value before using it again, or move a `.copy(to: alloc)` of it instead
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2781</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>use-after-move.byn</code>.</figcaption>
+    </figure>
+<p>The fix is in the help line: give the name a new value before you use it again, or move a copy instead.</p>
+
+<h2 id="borrow">Borrowing without owning</h2>
+<p>Most code only wants to read a list or change it for a moment. A borrow lets you do that without taking ownership. There are four ways to borrow.</p>
+<ul>
+<li>A plain parameter, <code>List&lt;i64&gt; xs</code>: the function reads the list and cannot change it.</li>
+<li><code>ReadOnlySpan&lt;i64&gt;</code>: a read-only view of a run of elements, from a list, an array or another span.</li>
+<li><code>ref List&lt;i64&gt;</code>: the function may change the list. The caller writes <code>ref xs</code>.</li>
+<li>A slice, <code>xs.span[1..]</code>, or a string slice such as <code>text[0..5]</code>: a view of part of something.</li>
+</ul>
+<example name="book-13-borrows"/>
+<p>The list is never copied in this program. <code>sum</code> sees a view, <code>doubleAll</code> changes the one list through <code>ref</code>, and <code>count</code> reads it.</p>
+
+<h3 id="borrow-rules">The rules a borrow follows</h3>
+<p>The compiler tracks, for every borrow, what it points into. You do not write lifetimes; it infers them. These are the rules it enforces.</p>
+<ol>
+<li><strong>You cannot change a value while a borrow of it is still in use.</strong> Appending can move the buffer, which would leave the view pointing at freed memory.</li>
+<li><strong>A borrow cannot outlive what it points into.</strong> You cannot return a view of a local, or keep a view of an arena after the arena is gone.</li>
+<li><strong>Literals and <code>const</code> data are static</strong> and can be borrowed anywhere.</li>
+</ol>
+<p>Rule 1 first. <code>first</code> is a view of <code>xs</code>, and it is used again after the <code>append</code>:</p>
+<pre><code class="byn">void main() {
+    var xs = List&lt;i64&gt;()
+    xs.append(1)
+    let first = xs.span
+    xs.append(2)
+    print($"{first[0]}")
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN3004:</span> `xs` is modified while `first` still borrows it
+<span class="gut">  --&gt;</span> modify-borrowed.byn:5:5
+
+<span class="gut">  5 │</span>     <span class="hl">xs.append(2)</span>
+<span class="gut">    │</span>     <span class="hl">^^^^^^^^^^^^ `first` is used again on line 6</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> finish using `first` first, or copy what it needs before changing `xs`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN3004</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>modify-borrowed.byn</code>.</figcaption>
+    </figure>
+<p>Read the label on the caret: it names the later use of the borrow. Two fixes work. Finish with <code>first</code> before the <code>append</code>, or copy the one value you need (<code>let first = xs[0]</code>). Moving the <code>print</code> above the <code>append</code> is enough, because the compiler looks at the last <em>use</em> of the borrow, not at the end of the block.</p>
+<p>The same rule covers a loop. A <code>for</code> loop borrows what it walks. Here a method that changes <code>cart</code> is called while the loop over <code>cart.lines</code> is running:</p>
+<pre><code class="byn">struct Cart {
+    List&lt;i64&gt; lines
+
+    void add(ref this, i64 x) {
+        lines.append(x)
+    }
+}
+
+void main() {
+    var cart = Cart { lines: List&lt;i64&gt;() }
+    cart.add(1)
+    for line in cart.lines {
+        cart.add(line)
+    }
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN3004:</span> `cart` is modified while the `for` loop still borrows it
+<span class="gut">  --&gt;</span> loop-borrow.byn:13:9
+
+<span class="gut">  13 │</span>         <span class="hl">cart.add(line)</span>
+<span class="gut">     │</span>         <span class="hl">^^^^^^^^^^^^^^ the loop over `cart` is still running</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> collect the changes in another list and apply them to `cart` after the loop
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN3004</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>loop-borrow.byn</code>.</figcaption>
+    </figure>
+<p>Loans are tracked per variable, not per field. The method call changes <code>cart</code> as a whole, so it conflicts with a borrow of <code>cart.lines</code>. Do as the help line says: collect the changes in another list, then apply them after the loop.</p>
+
+<h2 id="arenas">Arenas: free many things at once</h2>
+<p>A list that grows keeps asking the allocator for room, and each list frees its own buffer when its owner goes away. When a job makes many small allocations that all die together, an <em>arena</em> is cheaper and simpler: it hands out memory, and you free the whole arena in one step.</p>
+<p>Two pieces of syntax:</p>
+<ul>
+<li><code>using var arena = Arena()</code> makes an arena that is freed at the end of the current scope.</li>
+<li><code>provide allocator: arena { … }</code> makes it the current allocator for the block and for every function the block calls. You do not pass the arena as an argument.</li>
+</ul>
+<example name="book-13-arena-batches"/>
+<p><code>words</code> does not know about arenas. It builds a <code>List</code> with <code>uses alloc</code> (<a href="book-14-effects.html">chapter 14</a> explains that clause), and the list's buffer comes from whichever allocator is current. Inside the block that is the arena, and at the end of each loop pass the arena is freed together with every list made in it. The number <code>longest</code> is a plain value, so it safely leaves the block. A list or a string made inside the block would not.</p>
+<p>That last sentence is rule 2 in action. Copy a string into an arena and try to keep it past the arena's scope:</p>
+<pre><code class="byn">void main() {
+    var kept = ""
+    {
+        using let arena = Arena()
+        kept = "copied".copy(to: arena)
+    }
+    print(kept)
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN3002:</span> arena `arena` does not live as long as `kept`, which borrows it
+<span class="gut">  --&gt;</span> arena-escape.byn:5:16
+
+<span class="gut">  5 │</span>         kept = <span class="hl">"copied".copy(to: arena)</span>
+<span class="gut">    │</span>                <span class="hl">^^^^^^^^^^^^^^^^^^^^^^^^ arena `arena` is freed at the end of its block</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN3002</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>arena-escape.byn</code>.</figcaption>
+    </figure>
+<p>The fix named in the help line is to copy into an allocator that lives long enough: <code>.copy(to: alloc)</code>, with an outer arena or the default allocator. A function cannot return an arena-backed string for the same reason, because the arena dies when the function returns:</p>
+<pre><code class="byn">string label() {
+    using var arena = Arena()
+    let s = "abc".copy(to: arena)
+    return s
+}
+
+void main() {
+    print(label())
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN3003:</span> cannot return a borrow of arena `arena`, which is freed when `label` returns
+<span class="gut">  --&gt;</span> return-arena.byn:4:12
+
+<span class="gut">  4 │</span>     return <span class="hl">s</span>
+<span class="gut">    │</span>            <span class="hl">^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> let the caller pass the buffer or allocator in, and borrow or allocate from that
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN3003</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>return-arena.byn</code>.</figcaption>
+    </figure>
+<p>The usual shape is to let the caller decide. The caller makes the arena (or doesn't) and wraps the call in <code>provide allocator: …</code>, and the function allocates from the current allocator and returns the result. <code>arena.reset()</code> frees everything in an arena but keeps the arena for reuse.</p>
+<note>Planned: not in the compiler yet. Pool and handle allocation, a <code>borrows</code> clause on functions, and <code>unsafe</code> blocks are described in the specification but are not available today.</note>
+
+<h2 id="build">Putting it together</h2>
+<p>Here is how the pieces choose for a real task. A function that reads a big list and returns one number takes a <code>ReadOnlySpan</code> or a plain <code>List</code> parameter and allocates nothing. A function that edits a list takes <code>ref</code>. A function that builds a list allocates from the current allocator and returns it to the caller. A function that stores a list in a longer-lived place takes it as <code>move</code>. A batch job that makes lots of scratch data wraps each batch in an arena. If you find yourself wanting to keep a view of something short-lived, copy the data you need out of it.</p>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>1. In <code>book-13-copies</code>, why does <code>q.x = 10</code> leave <code>p.x</code> equal to 1, while appending to <code>ys</code> leaves <code>xs.length</code> at 1 only because of <code>.copy()</code>?</summary>
+<p>A struct is a value: <code>var q = p</code> makes a second whole value in the stack frame, so <code>p</code> and <code>q</code> are independent. A <code>List</code> owns a buffer, and Bayan never copies a buffer implicitly. Without <code>.copy()</code> the line <code>var ys = xs</code> is error BYN2780. With <code>.copy()</code> the buffer is duplicated, so appending to <code>ys</code> cannot change <code>xs</code>. The output is <code>xs has 1, ys has 2</code>.</p>
+<p>Wrong ideas: "the two names share one list" cannot happen, because the compiler refuses the assignment. "Both would grow" is the aliasing bug that other languages allow and Bayan rules out.</p></details>
+<details class="quiz"><summary>2. After <code>let b = move a</code>, what does <code>print($"{a.length}")</code> do?</summary>
+<p>It does not compile: error BYN2781, "<code>a</code> is used after it was moved". It does not print 0, because <code>a</code> no longer holds an empty list; the name is dead. It does not crash at run time, because the compiler catches it first. You can give <code>a</code> a new value (<code>a = List&lt;i64&gt;()</code>) and then use it again.</p></details>
+<details class="quiz"><summary>3. In <code>book-13-moves</code>, the output has the line <code>taken 3, left 0</code>. Which call produced the 0, and could you write <code>let items = move batch.items</code> instead?</summary>
+<p><code>batch.items.take()</code> moved the list out and left an empty list in the field, so <code>batch.items.length</code> is 0. <code>move batch.items</code> does not compile: only a local or a <code>move</code> parameter can be moved from, because moving out of a field would leave a half-empty struct. <code>take()</code> is the way to take a value out of a field.</p></details>
+<details class="quiz"><summary>4. What is wrong with this loop, and what is a fix?
+<pre><code class="byn">for line in cart.lines {
+    cart.add(line)
+}</code></pre></summary>
+<p>The loop borrows <code>cart.lines</code> while it runs, and <code>cart.add</code> is a <code>ref this</code> method that changes <code>cart</code>. That is BYN3004. A fix is to collect the new lines in a separate list inside the loop and append them after the loop ends. Changing the loop to count with an index does not make the rule go away if the call still changes <code>cart</code> while a borrow of it is alive. Copying the list first (<code>cart.lines.copy()</code>) also works, at the cost of an allocation.</p></details>
+<details class="quiz"><summary>5. A function builds a string inside <code>provide allocator: arena { … }</code> and returns it. Why does the compiler refuse, and what are two ways out?</summary>
+<p>The string's bytes live in the arena, and the arena is freed when the function returns, so the returned string would point at freed memory (BYN3003). One way out: copy the string into an allocator that outlives the call, <code>s.copy(to: alloc)</code>. The other: let the caller own the arena and wrap the call in <code>provide allocator</code>, so the memory lasts as long as the caller's block. Making the string <code>static</code> is not an option for data built at run time; only literals and <code>const</code> data are static.</p></details>

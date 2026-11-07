@@ -1,0 +1,25 @@
+union error ConfigError {
+    /// The file is missing.
+    missing
+    /// The port is not a number.
+    badPort
+}
+
+i64 readPort(string text) fails ConfigError {
+    fail .missing if text.isEmpty
+    return i64.tryParse(text) ?? fail .badPort
+}
+
+i64 doubled(string text) fails ConfigError {
+    let port = try readPort(text)
+    return port * 2
+}
+
+void main() {
+    print($"{doubled("21") catch -1}")
+    let r = doubled("") catch switch {
+        .missing => 0,
+        .badPort => -1,
+    }
+    print($"{r}")
+}

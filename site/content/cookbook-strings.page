@@ -1,0 +1,31 @@
+title: Strings cookbook
+nav: Guides
+order: 50
+template: docs
+---
+<p>How to do everyday string work in Bayan. A <code>string</code> is immutable UTF-8 text, so <code>length</code> counts bytes and <code>runeCount</code> counts characters. Methods that look like edits return a view or a copy; there is no <code>+</code> on strings.</p>
+
+<h2 id="split-join">Split a string and join the parts</h2>
+<p><code>parts(by:)</code> walks the pieces lazily with <code>for</code>; empty pieces are kept. <code>limit:</code> stops splitting early. <code>joined(by:)</code> works on a span of strings, so a list or array goes through <code>.span</code>.</p>
+<example name="cookbook-split-join"/>
+<pre><code class="other" data-lang="Python">parts = "ada,grace,,linus".split(",")
+" / ".join(["ada", "grace", "linus"])</code></pre>
+
+<h2 id="format">Format a string and interpolate values</h2>
+<p>Build text with <code>$"…"</code>; any expression goes between the braces, and <code>{{</code> writes a literal brace. Formatting options are named arguments after a comma (<code>as:</code>, <code>width:</code>, <code>fill:</code>, <code>align:</code>, <code>digits:</code>), not a mini-language like <code>{:>6}</code> (that spelling is rejected).</p>
+<example name="cookbook-format"/>
+<pre><code class="other" data-lang="Python">f"{n:06} {name:>6} {pi:.2f} {n:x}"</code></pre>
+
+<h2 id="substring">Take a substring and trim whitespace</h2>
+<p>Slice with a range, <code>s[a..b]</code>; the bounds are byte offsets and a slice that cuts a character in half panics. <code>trimmed()</code> drops ASCII whitespace from both ends, <code>from:</code> picks one end and <code>by:</code> trims the runes you list. Each result is a view of the original, not a copy. Use <code>runes.take(n)</code> to count characters instead of bytes.</p>
+<example name="cookbook-substring"/>
+
+<h2 id="search-replace">Search, test containment and replace</h2>
+<p><code>contains</code>, <code>startsWith</code> and <code>endsWith</code> return a <code>bool</code>. <code>position</code> and <code>lastPosition</code> return a byte offset or <code>null</code>, so you give the missing case a value with <code>??</code> instead of testing for <code>-1</code>. <code>replaced(_, by:)</code> returns a copy. Case-insensitive comparison is <code>equals(_, as: .caseless)</code>; it folds ASCII letters only for now.</p>
+<example name="cookbook-search"/>
+<pre><code class="other" data-lang="Go">i := strings.Index(s, "one") // -1 when missing</code></pre>
+
+<h2 id="regex">Match a regular expression</h2>
+<p><strong>Planned.</strong> The spec adds <code>std.regex</code> after v0.1 (sections 15.4 and 16.4): <code>s.matches(re)</code> and <code>s.replaced(re, by: y)</code> on strings, and <code>Regex.escape</code> for building a pattern from outside input. Matching runs in linear time, with no backtracking. The compiler has no <code>Regex</code> yet, and the spec gives no capture-group form, so none is shown. Until then, <code>position</code>, <code>startsWith</code> and <code>parts(by:)</code> above cover fixed patterns.</p>
+<pre><code class="byn">s.matches(re)
+s.replaced(re, by: y)</code></pre>

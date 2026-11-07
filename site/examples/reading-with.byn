@@ -1,0 +1,12 @@
+struct Order {
+    string id
+    i64 qty
+    bool paid = false
+}
+
+void main() {
+    let a = Order { id: "A1", qty: 1 }
+    let b = a with { qty: 5, paid: true }
+    print($"{a.qty} {a.paid}")
+    print($"{b.qty} {b.paid} {b.id}")
+}

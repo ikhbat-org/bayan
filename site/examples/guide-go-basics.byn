@@ -1,0 +1,21 @@
+struct Stack {
+    List<i64> items
+
+    void push(ref this, i64 x) {
+        items.append(x)
+    }
+
+    i64? pop(ref this) {
+        if items.length == 0 { return null }
+        let last = items[items.length - 1]
+        items.remove(at: items.length - 1)
+        return last
+    }
+}
+
+void main() {
+    var s = Stack { items: List<i64>() }
+    s.push(1)
+    s.push(2)
+    print($"{s.pop() ?? -1} {s.pop() ?? -1} {s.pop() ?? -1}")
+}

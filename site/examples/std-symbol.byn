@@ -1,0 +1,5 @@
+void main() {
+    let a = Symbol.intern("north")
+    let b = Symbol.intern("north")
+    print($"{a.text} {a == b}")
+}

@@ -1,0 +1,43 @@
+void main() {
+    for i in 0..3 {
+        print($"i = {i}")
+    }
+    for i in 1..=3 {
+        print($"through {i}")
+    }
+
+    var total = 0
+    for n in [4, 8, 15] {
+        total += n
+    }
+    print($"total {total}")
+
+    var count = 3
+    while count > 0 {
+        print($"count {count}")
+        count -= 1
+    }
+
+    var tries = 0
+    do {
+        tries += 1
+    } while tries < 3
+    print($"tries {tries}")
+
+    for i in 0..10 {
+        continue if i % 2 == 1
+        break if i > 6
+        print($"even {i}")
+    }
+
+    outer: for row in 0..3 {
+        for col in 0..3 {
+            continue outer if col > row
+            break outer if row == 2
+            print($"{row},{col}")
+        }
+    }
+    for ch in "héy" {
+        print($"rune {ch}")
+    }
+}

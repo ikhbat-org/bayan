@@ -1,0 +1,6 @@
+/// Adds one to a number.
+///
+/// The first line is the summary. The rest is Markdown.
+i64 inc(i64 x) => x + 1
+
+print($"{inc(41)}")

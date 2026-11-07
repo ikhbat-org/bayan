@@ -1,0 +1,289 @@
+title: 7. Lists, maps, spans and strings
+nav: Learn
+order: 700
+template: docs
+---
+<p>Most programs hold more than one value. This chapter covers the types that do: <code>List&lt;T&gt;</code> for a collection that grows, <code>T[N]</code> for a fixed number of values, <code>Span&lt;T&gt;</code> and <code>ReadOnlySpan&lt;T&gt;</code> for looking at values someone else owns, <code>Map&lt;K, V&gt;</code> for lookup by key, and <code>string</code> for text. You will use them to build a small gradebook that reads <code>name,score</code> lines and prints each student's best score.</p>
+<p>You need the loops, <code>let</code> and <code>var</code> from <a href="book-03-basics.html">chapter 3</a> and the parameter rules from <a href="book-04-functions.html">chapter 4</a>.</p>
+
+<h2 id="lists">Lists</h2>
+<p>A <code>List&lt;T&gt;</code> holds any number of values of one type, in order. You write the element type in angle brackets. A list literal in square brackets takes its type from the declaration.</p>
+<example name="book-07-list"/>
+<p>Here is what the program uses:</p>
+<ul>
+<li><code>append(x)</code> adds to the end.</li>
+<li><code>length</code> is the number of elements. It is an <code>i64</code>.</li>
+<li><code>xs[i]</code> reads the element at index <var>i</var>. Indexes start at 0.</li>
+<li><code>tryGet(at: i)</code> reads an element and gives <code>null</code> when the index is out of range. It returns an optional, so <code>??</code> supplies a fallback. See <a href="book-06-unions.html">chapter 6</a> for optionals.</li>
+<li><code>sort()</code> sorts in place. It works on lists of numbers, strings and runes, and it is stable.</li>
+<li><code>removeLast()</code> removes the last element and returns it.</li>
+<li><code>for s in scores</code> visits each element in order.</li>
+</ul>
+<p>Other members you will want: <code>isEmpty</code>, <code>clear()</code>, <code>remove(at: i)</code>, <code>remove(at: a..b)</code> and <code>replace(at: a..b, by: items)</code>. A range <code>a..b</code> stops before <code>b</code>.</p>
+
+<h3 id="list-mutation">A list you change must be a <code>var</code></h3>
+<p>The methods that change a list (<code>append</code>, <code>sort</code>, <code>remove</code>, <code>clear</code>) need a <code>var</code>. On a <code>let</code> the compiler refuses, and its help line shows the fix.</p>
+<pre><code class="byn">void main() {
+    let xs: List&lt;i64&gt; = [1, 2]
+    xs.append(3)
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2104:</span> `xs` is immutable
+<span class="gut">  --&gt;</span> d1.byn:3:5
+
+<span class="gut">  3 │</span>     xs.append(3)
+<span class="gut">    │</span>     <span class="hl">^^ `append` modifies it; declared with `let` on line 2</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> declare it with `var` if it should change
+<span class="gut">    │</span> 2 │     var xs: List&lt;i64&gt; = [1, 2]
+<span class="gut">    │   │</span>     <span class="add">+++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2104</span></pre>
+</figure>
+<p>Read it from the top: the code, the file and line, the source line with the part at fault underlined, and a <code>help</code> block with the edit that fixes it (the <code>+++</code> marks what to add). The <a href="reading.html">reading page</a> and the <a href="tutorial.html">tutorial</a> show the same layout.</p>
+
+<h3 id="list-ownership">A list is owned by one name</h3>
+<p>A list owns its storage. Assigning it to another name would leave two owners, so Bayan does not copy it silently.</p>
+<pre><code class="byn">void main() {
+    let xs: List&lt;i64&gt; = [1, 2]
+    let ys = xs
+    print($"{xs.length} {ys.length}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2780:</span> implicit copy of a unique value: `List&lt;i64&gt;` is unique: it owns its storage
+<span class="gut">  --&gt;</span> d2.byn:3:14
+
+<span class="gut">  3 │</span>     let ys = xs
+<span class="gut">    │</span>              <span class="hl">^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> hand the value over with `move xs`; make an independent copy with `xs.copy(to: alloc)`; pass
+        it by `ref` to share it instead
+<span class="gut">    │</span> 3 │     let ys = move xs
+<span class="gut">    │   │</span>              <span class="add">+++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2780</span></pre>
+</figure>
+<p>You have two honest choices. <code>move xs</code> hands the list to <code>ys</code> and <code>xs</code> cannot be used afterwards. <code>xs.copy()</code> makes a second, independent list. Chapter 13 covers moves and ownership in full; for now remember that lists, maps and string buffers move instead of copying.</p>
+
+<h3 id="list-bounds">Reading past the end</h3>
+<p><code>xs[5]</code> on a list of two elements compiles. The check happens when the program runs, and a bad index stops it with a panic.</p>
+<pre><code class="byn">void main() {
+    let xs: List&lt;i64&gt; = [1, 2]
+    print($"{xs[5]}")
+}</code></pre>
+<figure class="diag">
+<pre>panic: index out of range
+  at d5.byn:3</pre>
+</figure>
+<p>Use <code>xs[i]</code> when the index is a bug if it is wrong. Use <code>tryGet(at: i)</code> when running past the end is a normal case. <code>removeLast()</code> on an empty list panics too, so test <code>isEmpty</code> first.</p>
+
+<h3 id="list-print">Printing a list</h3>
+<p>You cannot put a whole list in an interpolation hole. Loop over it and print the elements.</p>
+<pre><code class="byn">void main() {
+    let xs: List&lt;i64&gt; = [1, 2]
+    print($"{xs}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2225:</span> `List&lt;i64&gt;` cannot be formatted
+<span class="gut">  --&gt;</span> d3.byn:3:14
+
+<span class="gut">  3 │</span>     print($"{xs}")
+<span class="gut">    │</span>              <span class="hl">^^</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2225</span></pre>
+</figure>
+
+<h2 id="arrays">Fixed arrays</h2>
+<p>When the number of elements is known up front, write the length in the type: <code>i64[3]</code>. An array lives inline where you declare it, with no allocation, and its length never changes. An index that is a constant outside the array is a compile error, not a panic.</p>
+<pre><code class="byn">void main() {
+    let a: i64[3] = [1, 2, 3]
+    print($"{a[5]}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2213:</span> index 5 is out of range for `i64[3]`
+<span class="gut">  --&gt;</span> e3.byn:3:16
+
+<span class="gut">  3 │</span>     print($"{a[5]}")
+<span class="gut">    │</span>                <span class="hl">^</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2213</span></pre>
+</figure>
+<p>An array has <code>length</code>, <code>xs[i]</code> and <code>for</code> like a list, and it can be passed anywhere a span is expected (next section). It cannot grow, so it has no <code>append</code>.</p>
+
+<h2 id="spans">Spans</h2>
+<p>A span is a view of values that live somewhere else: a pointer and a length. It owns nothing, so passing one costs nothing and never copies the data. There are two kinds.</p>
+<ul>
+<li><code>ReadOnlySpan&lt;T&gt;</code> lets you read the elements.</li>
+<li><code>Span&lt;T&gt;</code> lets you read and assign them. It cannot grow or shrink what it views.</li>
+</ul>
+<p>Make a function take a <code>ReadOnlySpan&lt;T&gt;</code> and it accepts a list, an array or a span. This is the usual way to write a function that only looks at its input.</p>
+<example name="book-07-array"/>
+<p><code>sum</code> reads its input, so it takes a <code>ReadOnlySpan&lt;i64&gt;</code>. It works on the array <code>days</code> and on the list <code>scores</code> without conversion. <code>curve</code> changes its input, so it takes a <code>Span&lt;i64&gt;</code>, and the caller must say so by asking the list for <code>scores.mutableSpan()</code>. That call counts as a change to the list, so it needs a <code>var</code>. <code>scores.span</code> is the read-only view and works on a <code>let</code>.</p>
+<p>A range in brackets cuts a view out of a list or span: <code>scores[1..3]</code> is the second and third elements, with no copy. A range past the end panics with <code>slice out of range</code>.</p>
+<p>A fixed array can be a module-level <code>const</code> when its elements are numbers, <code>bool</code>, <code>rune</code> or <code>string</code>. It is stored as static data.</p>
+
+<h2 id="maps">Maps</h2>
+<p>A <code>Map&lt;K, V&gt;</code> finds a value by key. A map remembers insertion order, so a <code>for</code> loop visits entries in the order you added the keys. It is the only hash map in the language; the name <code>HashMap</code> is rejected with a fix to <code>Map</code>.</p>
+<example name="book-07-map"/>
+<ul>
+<li><code>Map&lt;string, i64&gt;()</code> makes an empty map. A literal such as <code>["x": 1, "y": 2]</code> makes a map too; its types come from the declaration, or from the entries when there is none.</li>
+<li><code>m[k] = v</code> adds a key or replaces its value.</li>
+<li><code>m[k]</code> reads a value. A key that is not there panics with <code>key not found in map</code>.</li>
+<li><code>tryGet(at: k) ?? fallback</code> reads without panicking and without inserting. There is no <code>m.get(k, default)</code>: this is the one form.</li>
+<li><code>contains(k)</code> tests for a key. <code>remove(k)</code> removes it and returns <code>true</code> when it was there.</li>
+<li><code>for e in m</code> gives each entry as <code>e.key</code> and <code>e.value</code>.</li>
+</ul>
+<pre><code class="byn">void main() {
+    var m = Map&lt;string, i64&gt;()
+    m["ada"] = 1
+    print($"{m["linus"]}")
+}</code></pre>
+<figure class="diag">
+<pre>panic: key not found in map
+  at d7.byn:4</pre>
+</figure>
+<p>A key must be a type that has a stable meaning for <code>==</code>: an integer type, <code>rune</code>, <code>bool</code>, <code>string</code>, a plain enum, a <code>Symbol</code>, a tuple of those, or a struct whose fields are all keys. A <code>f64</code> is not a key because of rounding.</p>
+<pre><code class="byn">void main() {
+    let f = Map&lt;f64, i64&gt;()
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2760:</span> `f64` cannot be a `Map` key
+<span class="gut">  --&gt;</span> q4.byn:2:17
+
+<span class="gut">  2 │</span>     let f = Map&lt;f64, i64&gt;()
+<span class="gut">    │</span>                 <span class="hl">^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct
+        of those as the key
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2760</span></pre>
+</figure>
+
+<h2 id="strings">Strings</h2>
+<p>A <code>string</code> is text in UTF-8 and never changes after it is made. Two facts shape everything you do with one:</p>
+<ul>
+<li><code>length</code> is the number of <em>bytes</em>, not characters. <code>runeCount</code> counts characters (Unicode scalar values, called runes) and has to scan the string to do it.</li>
+<li>Every position is a byte offset.</li>
+</ul>
+<example name="book-07-strings"/>
+<p>The output has two lessons. <code>"héllo"</code> is 6 bytes but 5 runes, because <code>é</code> takes two bytes. And <code>word[0..3]</code> cut after the two bytes of <code>é</code> and gave <code>hé</code>. A cut in the middle of a rune would split it, so the program stops with a panic instead:</p>
+<pre><code class="byn">void main() {
+    let s = "héllo"
+    print(s[0..2])
+}</code></pre>
+<figure class="diag">
+<pre>panic: string slice splits a code point
+  at e9.byn:3</pre>
+</figure>
+
+<h3 id="no-index">No single-character index</h3>
+<p>Position 0 of a string is a byte, not necessarily a character, so <code>word[0]</code> does not exist. The compiler explains the options.</p>
+<pre><code class="byn">void main() {
+    let word = "hello"
+    print($"{word[0]}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2201:</span> a `string` cannot be indexed
+<span class="gut">  --&gt;</span> d4.byn:3:18
+
+<span class="gut">  3 │</span>     print($"{word[0]}")
+<span class="gut">    │</span>                  <span class="hl">^^^ strings have no indexer</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> read a byte, slice, or take characters; `string` is UTF-8, so position 0 is not a character:
+          `word.bytes[0]`       the byte at offset 0 (applied below)
+          `word[a..b]`          the text between byte offsets a and b
+          `word.runes.take(n)`  the first n runes
+          `word.graphemes`      user-perceived characters
+<span class="gut">    │</span> 3 │     print($"{word.bytes[0]}")
+<span class="gut">    │   │</span>                  <span class="add">++++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2201</span></pre>
+</figure>
+<p>Pick the view that matches what you want: <code>word.bytes[i]</code> for a byte, <code>word[a..b]</code> for a byte range, <code>word.runes.take(n)</code> for the first <var>n</var> runes (<code>skip(n)</code> and <code>takeLast(n)</code> work the same way), and <code>for r in word.runes</code> to visit every rune.</p>
+
+<h3 id="string-members">What a string can do</h3>
+<table>
+<tr><th>Member</th><th>Result</th></tr>
+<tr><td><code>length</code>, <code>runeCount</code>, <code>isEmpty</code>, <code>isAscii</code></td><td>sizes and checks</td></tr>
+<tr><td><code>contains(x)</code>, <code>startsWith(x)</code>, <code>endsWith(x)</code></td><td><code>bool</code></td></tr>
+<tr><td><code>position(x)</code>, <code>position(x, from: i)</code>, <code>lastPosition(x)</code></td><td>byte offset as <code>i64?</code></td></tr>
+<tr><td><code>count(x)</code></td><td>non-overlapping matches</td></tr>
+<tr><td><code>lines</code>, <code>parts(by: sep)</code>, <code>parts(by: sep, limit: n)</code></td><td>views you loop over</td></tr>
+<tr><td><code>trimmed()</code>, <code>trimmed(from: .start)</code>, <code>trimmed(from: .end)</code>, <code>trimmed(by: ['-'])</code></td><td>a view with the edges removed</td></tr>
+<tr><td><code>lowercased()</code>, <code>uppercased()</code>, <code>replaced(a, by: b)</code>, <code>repeated(n)</code>, <code>padded(to: n, by: c)</code></td><td>new text</td></tr>
+<tr><td><code>equals(t, as: .caseless)</code></td><td>case-insensitive comparison</td></tr>
+<tr><td><code>[a, b].joined(by: sep)</code></td><td>one string from a list or span of strings</td></tr>
+</table>
+<p>A result that is part of the original string (<code>trimmed</code>, <code>parts</code>, <code>lines</code>, a range) is a view into it and allocates nothing. A result with new text allocates. <code>==</code> compares bytes and ignores locale, so the same program gives the same answer on every machine.</p>
+<p>You cannot join strings with <code>+</code>. Hidden allocation in a loop is the reason. Write the parts into one interpolation instead.</p>
+<pre><code class="byn">void main() {
+    let a = "ab"
+    let b = "cd"
+    print(a + b)
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2209:</span> strings cannot be joined with `+`; use interpolation
+<span class="gut">  --&gt;</span> e4.byn:4:11
+
+<span class="gut">  4 │</span>     print(a + b)
+<span class="gut">    │</span>           <span class="hl">^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> write the parts as one interpolation: `$"{a}{b}"`, or `buf.append($"{a}{b}")` in a loop
+<span class="gut">    │</span> 4 │     print($"{a}{b}")
+<span class="gut">    │   │</span>           <span class="add">+++++++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2209</span></pre>
+</figure>
+
+<h3 id="parse">Turning text into numbers</h3>
+<p><code>i64.tryParse(text)</code> returns an <code>i64?</code>: the number, or <code>null</code> when the text is not a number. The strings example uses it with <code>??</code>. Format options go inside the hole as named arguments: <code>{7, width: 4, fill: '0'}</code> pads to <code>0007</code>, <code>{"ada", width: 7}</code> pads on the right, <code>{x, digits: 2}</code> rounds a float and <code>{n, as: .hex}</code> prints hexadecimal.</p>
+
+<h2 id="building">Building text with StrBuf</h2>
+<p>Because a string never changes, building a long text piece by piece uses a <code>StrBuf</code>. <code>StrBuf(capacity: n)</code> makes one. <code>append(text)</code> adds to the end, and <code>append($"…")</code> formats straight into the buffer. <code>finish()</code> returns the result as a string. <code>length</code>, <code>clear()</code> and <code>insert(text, at: i)</code> also exist. Like a list, a buffer is owned by one name.</p>
+
+<h2 id="gradebook">Putting it together: the gradebook</h2>
+<p>The program reads lines such as <code>ada, 90</code>, keeps each student's best score in a map, collects every score in a list and prints a report. Bad lines are reported and skipped.</p>
+<example name="book-07-gradebook"/>
+<p>Follow the data through it:</p>
+<ol>
+<li><code>input.lines</code> splits at line ends. The blank line is skipped with <code>continue</code>.</li>
+<li><code>line.position(",") ?? -1</code> finds the comma, or gives <code>-1</code> for a line without one.</li>
+<li><code>line[0..comma]</code> and <code>line[comma + 1..line.length]</code> cut the two fields as views, and <code>trimmed()</code> removes the spaces.</li>
+<li><code>i64.tryParse(text) ?? -1</code> turns <code>x7</code> into <code>-1</code>, which the program treats as a bad line.</li>
+<li><code>record</code> takes the map as <code>ref</code> so it can change the caller's map. Its two extra parameters carry the particles <code>for</code> and <code>at</code> (<a href="book-04-functions.html">chapter 4</a>).</li>
+<li><code>average</code> takes a <code>ReadOnlySpan&lt;i64&gt;</code>, so <code>all.span</code> goes in without a copy.</li>
+</ol>
+<p>The report ends with a blank line because the last row already ends in <code>\n</code> and <code>print</code> adds another.</p>
+
+<h2 id="planned">What is planned</h2>
+<note>Planned: not in the compiler yet. The specification lists these collection members, and the compiler rejects them today: <code>first</code>, <code>last</code>, <code>contains</code>, <code>indexOf</code>, <code>hasItems</code>, <code>removeFirst()</code>, <code>reverse()</code>, <code>sorted()</code>, <code>prepend</code> and <code>insert</code> on lists, <code>Set&lt;T&gt;</code> and <code>Deque&lt;T&gt;</code>, and every member that takes a lambda (<code>where</code>, <code>select</code>, <code>any</code>, <code>all</code>, <code>removeWhere</code>, <code>sort(by)</code>). The specification also gives <code>removeLast()</code> the type <code>T?</code>; today it returns <code>T</code> and panics on an empty list.</note>
+<p>Today you write the loop yourself, as the <a href="cookbook-collections.html">collections cookbook</a> shows. This is what you see if you try one:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2003:</span> `last` is not a member of `List&lt;i64&gt;`
+<span class="gut">  --&gt;</span> d6.byn:3:17
+
+<span class="gut">  3 │</span>     print($"{xs.last ?? 0}")
+<span class="gut">    │</span>                 <span class="hl">^^^^</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2003</span></pre>
+</figure>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>The list example ends with <code>removed 91, 3 left</code>. Why 91?</summary>
+<p>The list was sorted before <code>removeLast()</code>, so the last element is the largest. Before the sort the last element was 64, so "removed 64" would be wrong. Without the <code>sort()</code> call the answer would change.</p></details>
+<details class="quiz"><summary>You write <code>let names: List&lt;string&gt; = []</code> and then <code>names.append("ada")</code>. What happens?</summary>
+<p>It does not compile (BYN2104): <code>append</code> changes the list and the list is declared with <code>let</code>. Use <code>var</code>. It is not a panic, and it is not allowed to "work anyway" because the type says nothing about mutability.</p></details>
+<details class="quiz"><summary>The strings example prints <code>6 bytes, 5 runes</code> for <code>"héllo"</code>. Which member gives the 5?</summary>
+<p><code>runeCount</code>. <code>length</code> is the byte count, 6. There is no <code>charCount</code>, and <code>length</code> never counts characters.</p></details>
+<details class="quiz"><summary>A map has the keys <code>"ada"</code> and <code>"grace"</code>. Which line reads <code>"linus"</code> without stopping the program?</summary>
+<p><code>m.tryGet(at: "linus") ?? 0</code>. <code>m["linus"]</code> panics with <code>key not found in map</code>. <code>m.get("linus", 0)</code> does not exist. <code>m.contains("linus")</code> only tests; it does not read.</p></details>
+<details class="quiz"><summary>What does <code>book-07-map</code> print for <code>totals.remove("grace")</code> and <code>totals.length</code>?</summary>
+<p><code>true 1</code>. <code>remove</code> returns <code>true</code> because the key was there, and one entry (<code>ada</code>) is left. If the key had been missing it would return <code>false</code> and change nothing.</p></details>

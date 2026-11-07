@@ -1,0 +1,29 @@
+enum Color {
+    red
+    green
+    blue
+}
+
+struct Point {
+    i64 x
+    i64 y = 0
+
+    i64 sum => x + y
+
+    void shift(ref this, i64 by) {
+        x += by
+        y += by
+    }
+}
+
+string describe(Color c) => c switch {
+    .red => "warm",
+    Color.green or .blue => "cool",
+}
+
+var p = Point { x: 1, y: 2 }
+p.shift(by: 10)
+print($"{p.x} {p.y} {p.sum}")
+for c in Color.values {
+    print($"{c.ordinal} {c.name} {describe(c)}")
+}

@@ -1,0 +1,4 @@
+void main() {
+    print("before")
+    panic("something that cannot happen")
+}

@@ -1,0 +1,59 @@
+// A word counter: read a text file, count each word, print the most common first.
+// Run it on your own file with: bayan run book-02-words.byn -- notes.txt
+
+struct Entry {
+    string word
+    i64 count
+
+    bool isBefore(Entry other) {
+        if count != other.count { return count > other.count }
+        return word < other.word
+    }
+}
+
+Map<string, i64> countWords(string text) {
+    var counts = Map<string, i64>()
+    for line in text.lines {
+        for part in line.parts(by: " ") {
+            let word = part.trimmed(by: ['.', ',', '!', '?']).lowercased()
+            continue if word.isEmpty
+            counts[word] = (counts.tryGet(at: word) ?? 0) + 1
+        }
+    }
+    return counts
+}
+
+void sortEntries(ref List<Entry> entries) {
+    for i in 1..entries.length {
+        var j = i
+        while j > 0 && entries[j].isBefore(entries[j - 1]) {
+            let tmp = entries[j]
+            entries[j] = entries[j - 1]
+            entries[j - 1] = tmp
+            j -= 1
+        }
+    }
+}
+
+void main(ReadOnlySpan<string> args) fails IoError {
+    var path = "sample.txt"
+    if args.length > 0 {
+        path = args[0]
+    } else {
+        try Io.writeFile(path, "The cat sat.\nThe cat ran, and the dog sat!\n".bytes)
+    }
+
+    let text = try Io.readText(path)
+    let counts = countWords(text)
+
+    var entries = List<Entry>()
+    for e in counts {
+        entries.append(Entry { word: e.key, count: e.value })
+    }
+    sortEntries(ref entries)
+
+    print($"{entries.length} different words in {path}")
+    for e in entries {
+        print($"{e.count} {e.word}")
+    }
+}

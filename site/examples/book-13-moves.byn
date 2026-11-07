@@ -1,0 +1,29 @@
+struct Batch {
+    string name
+    List<i64> items
+}
+
+i64 total(move List<i64> xs) {
+    var sum: i64 = 0
+    for x in xs {
+        sum += x
+    }
+    return sum
+}
+
+void main() {
+    var a = List<i64>()
+    a.append(1)
+    a.append(2)
+    let b = move a
+    print($"b has {b.length}")
+
+    var batch = Batch { name: "first", items: move b }
+    batch.items.append(3)
+    print($"{batch.name} has {batch.items.length}")
+
+    let items = batch.items.take()
+    print($"taken {items.length}, left {batch.items.length}")
+
+    print($"total {total(move items)}")
+}

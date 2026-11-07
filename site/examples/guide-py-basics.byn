@@ -1,0 +1,17 @@
+void main() {
+    let name = "Ada"
+    var scores = List<i64>()
+    scores.append(90)
+    scores.append(72)
+    scores.append(85)
+    var total: i64 = 0
+    for s in scores { total += s }
+    print($"{name}: {scores.length} scores, total {total}, mean {total / scores.length}")
+
+    var ages = Map<string, i64>()
+    ages["ada"] = 36
+    ages["grace"] = 45
+    print($"{ages.contains("ada")} {ages.contains("linus")}")
+    for e in ages { print($"{e.key} is {e.value}") }
+    for i in 0..scores.length { print($"{i}: {scores[i]}") }
+}

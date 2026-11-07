@@ -1,0 +1,17 @@
+void main() fails IoError {
+    let path = "sample.txt"
+    try Io.writeFile(path, "The cat sat.\nThe cat ran, and the dog sat!\n".bytes)
+
+    let text = try Io.readText(path)
+    var counts = Map<string, i64>()
+    for line in text.lines {
+        for part in line.parts(by: " ") {
+            let word = part.trimmed(by: ['.', ',', '!', '?']).lowercased()
+            continue if word.isEmpty
+            counts[word] = (counts.tryGet(at: word) ?? 0) + 1
+        }
+    }
+    for e in counts {
+        print($"{e.key}: {e.value}")
+    }
+}

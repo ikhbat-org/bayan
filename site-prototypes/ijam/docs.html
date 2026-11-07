@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Enums: Bayan documentation</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Amiri:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site">
+  <a class="brand" href="index.html"><img src="../assets/mark.svg" alt="" width="36" height="36">Bayan <span lang="ar" dir="rtl">بيان</span></a>
+  <nav aria-label="Main"><ul>
+    <li><a href="docs.html" aria-current="page">Docs</a></li>
+    <li><a href="tutorial.html">Tutorial</a></li>
+    <li><a href="https://github.com/ikhbat-org/bayan">GitHub</a></li>
+  </ul></nav>
+</header>
+
+<div class="docs">
+  <nav class="side" aria-label="Documentation">
+    <h2><span class="dia"></span>Begin</h2>
+    <ul>
+      <li><a href="index.html">Overview</a></li>
+      <li><a href="tutorial.html">First program</a></li>
+    </ul>
+    <h2><span class="dia"></span>Types</h2>
+    <ul>
+      <li><span class="soon">Structs</span></li>
+      <li><span class="soon">Unions</span></li>
+      <li><a href="docs.html" aria-current="page">Enums</a>
+        <ul>
+          <li><a href="#data">Associated data</a></li>
+          <li><a href="#generated">Generated members</a></li>
+          <li><a href="#switch">Switching</a></li>
+          <li><a href="#diagnostics">Diagnostics</a></li>
+          <li><a href="#limits">Limits</a></li>
+        </ul>
+      </li>
+      <li><span class="soon">Errors</span></li>
+    </ul>
+  </nav>
+
+  <main id="main" class="doc">
+    <h1>Enums</h1>
+    <div class="row">
+      <p class="lead">An enum is a closed set of named values. Each value is a small integer tag, and any data attached to it sits in a constant table.</p>
+      <aside class="hasha"><b>Spec §3.13.</b> Enums (Java-style). This page follows the section and quotes programs from the golden tests.</aside>
+    </div>
+
+    <div class="row">
+      <h2 id="data"><span class="dia"></span>Associated data</h2>
+      <p>List the fields after the enum name, then give each member its values in the same order. The data must be constant, so the compiler can place it in <code>.rodata</code>.</p>
+<pre><code><span class="k">const</span> gravitational: <span class="t">f64</span> = <span class="n">6.67300e-11</span>
+
+<span class="k">enum</span> <span class="t">Planet</span>(<span class="t">f64</span> mass, <span class="t">f64</span> radius, <span class="t">string</span> label) {
+    mercury(<span class="n">3.303e23</span>, <span class="n">2.4397e6</span>, <span class="s">"the swift"</span>)
+    venus(<span class="n">4.869e24</span>, <span class="n">6.0518e6</span>, <span class="s">"the bright"</span>)
+    earth(<span class="n">5.976e24</span>, <span class="n">6.37814e6</span>, <span class="s">"home"</span>)
+}
+
+<span class="t">f64</span> <span class="f">surfaceGravity</span>(<span class="t">Planet</span> p) => gravitational * p.mass / (p.radius * p.radius)</code></pre>
+      <p class="cap">From <code>tests/cases/run/data-enums.byn</code>.</p>
+      <aside class="hasha"><b>Declarations are type-first.</b> <code>f64 surfaceGravity(Planet p)</code> puts the kind first and modifiers after. Bindings do the reverse: <code>let w: Grams</code>. See spec §0, principle 12.</aside>
+    </div>
+
+    <div class="row">
+      <h2 id="generated"><span class="dia"></span>Generated members</h2>
+      <p>Every enum gets these without being asked:</p>
+      <table>
+        <thead><tr><th scope="col">Member</th><th scope="col">Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>length</code></td><td>the number of members (the test below calls it <code>count</code>)</td></tr>
+          <tr><td><code>values</code></td><td>all members, in order</td></tr>
+          <tr><td><code>name</code>, <code>ordinal</code></td><td>the member's name and its position</td></tr>
+          <tr><td><code>parse</code></td><td>name to member, by perfect hash</td></tr>
+          <tr><td><code>fromOrdinal</code></td><td>position to member, returning <code>T?</code></td></tr>
+        </tbody>
+      </table>
+<pre><code><span class="f">print</span>(<span class="s">$"count {Planet.count}"</span>)
+<span class="k">for</span> p <span class="k">in</span> <span class="t">Planet</span>.values {
+    <span class="f">print</span>(<span class="s">$"{p.ordinal} {p.name} {p.label}"</span>)
+}
+<span class="f">print</span>(<span class="s">$"{Planet.fromOrdinal(1)} {Planet.fromOrdinal(3)} {Planet.fromOrdinal(-1)}"</span>)
+<span class="f">print</span>(<span class="s">$"{Planet.parse("earth")} {Planet.parse("Earth")} {Planet.parse("pluto")}"</span>)</code></pre>
+<pre class="out"><code>count 3
+0 mercury the swift
+1 venus the bright
+2 earth home
+venus null null
+earth null null</code></pre>
+      <p class="cap">Adapted from <code>data-enums.byn</code>, which prints more fields per planet. The spec names the member <code>length</code> and the test uses <code>count</code>; the two disagree.</p>
+      <aside class="hasha"><b>Spec §3.6.</b> Optionals. <code>fromOrdinal</code> and <code>parse</code> return an optional, so a missing member is <code>null</code>, never an exception. Spec §3.13 also lists <code>EnumMap&lt;T, V&gt;</code>, an inline array keyed by the enum.</aside>
+    </div>
+
+    <div class="row">
+      <h2 id="switch"><span class="dia"></span>Switching</h2>
+      <p>A <code>switch</code> over an enum names each member once. Members may share an arm with <code>or</code>, and a leading dot lets the target type supply the enum name.</p>
+<pre><code><span class="t">string</span> <span class="f">climate</span>(<span class="t">Planet</span> p) => p <span class="k">switch</span> {
+    .mercury <span class="k">or</span> .venus => <span class="s">"hot"</span>,
+    .earth => <span class="s">"mild"</span>,
+}</code></pre>
+      <aside class="hasha"><b>Spec §6.5.</b> Patterns. <b>§7.5.</b> <code>switch</code> statements.</aside>
+    </div>
+
+    <div class="row">
+      <h2 id="diagnostics"><span class="dia"></span>Diagnostics</h2>
+      <p>Name a member that does not exist and the compiler points at it and suggests the nearest one.</p>
+<pre><code><span class="k">enum</span> <span class="t">Color</span> {
+    red
+    green
+    blue
+}
+
+<span class="k">let</span> c = <span class="t">Color</span>.gren</code></pre>
+<pre class="diag"><code><span class="e">error BYN2720</span>: `gren` is not a member of `Color`
+
+  7 │ let c = Color.gren
+    │               <span class="u">^^^^</span>
+    │
+  <span class="h">help</span>: did you mean `green`?</code></pre>
+      <p class="cap">From <code>tests/cases/diag/unknown-enum-member</code>, first case only.</p>
+      <p>An enum with no members is also an error, <code>BYN2722</code>, with the fix stated: add the members, or remove the enum.</p>
+      <aside class="hasha"><b>Spec §0, principle 6.</b> Errors explain what, where, why and how to fix. <code>bayan explain BYN2720</code> prints the long form.</aside>
+    </div>
+
+    <div class="row">
+      <h2 id="limits"><span class="dia"></span>Limits</h2>
+      <ul class="dots">
+        <li>There is no cast from an integer to an enum. Use <code>fromOrdinal</code>, which can say no.</li>
+        <li>Public enums are closed unless marked <code>extensible</code>, which forces callers to include a fallback case.</li>
+        <li><code>enum open</code> allows unknown values, for C interop only.</li>
+        <li>There is no flags construct. A <code>Set</code> of a payload-free union with at most 64 cases is a single bitmask (not in v0.1).</li>
+      </ul>
+      <aside class="hasha"><b>Spec §3.12.</b> Unions, for cases that carry different data per variant.</aside>
+    </div>
+
+    <nav class="pager" aria-label="Page"><a href="tutorial.html">Previous: first program</a><span class="soft">Next: Errors (not yet written)</span></nav>
+  </main>
+</div>
+
+<footer class="site-foot"><div class="wrap">
+  <span>Bayan is a project of the Ikhbat Foundation.</span>
+  <span><a href="https://bayan.run">bayan.run</a> &nbsp; <a href="https://github.com/ikhbat-org/bayan">Repository</a></span>
+</div></footer>
+</body>
+</html>

@@ -1,0 +1,50 @@
+// Reads "name,score" lines and prints each student's best score.
+
+void record(ref Map<string, i64> best, for string name, at i64 score) {
+    if score > (best.tryGet(at: name) ?? 0) {
+        best[name] = score
+    }
+}
+
+i64 average(ReadOnlySpan<i64> xs) {
+    if xs.isEmpty {
+        return 0
+    }
+    var total = 0
+    for x in xs {
+        total += x
+    }
+    return total / xs.length
+}
+
+void main() {
+    let input = "ada, 90\ngrace,85\n\nada,95\nlinus,x7\ngrace, 70\n"
+    var best = Map<string, i64>()
+    var all: List<i64> = []
+    for line in input.lines {
+        if line.isEmpty {
+            continue
+        }
+        let comma = line.position(",") ?? -1
+        if comma < 0 {
+            print($"skipping bad line: {line}")
+            continue
+        }
+        let name = line[0..comma].trimmed()
+        let text = line[comma + 1..line.length].trimmed()
+        let score = i64.tryParse(text) ?? -1
+        if score < 0 {
+            print($"skipping bad line: {line}")
+            continue
+        }
+        record(ref best, for: name, at: score)
+        all.append(score)
+    }
+    var report = StrBuf(capacity: 64)
+    for e in best {
+        report.append($"{e.key, width: 8}{e.value, width: 4}\n")
+    }
+    print(report.finish())
+    all.sort()
+    print($"{all.length} scores, lowest {all[0]}, average {average(all.span)}")
+}

@@ -1,0 +1,9 @@
+void main() {
+    var scratch = Arena()
+    let a = "region text".copy(to: scratch)
+    let xs: List<i64> = [1, 2, 3]
+    let b = xs.copy(to: scratch)
+    print($"{a} {b.length}")
+    scratch.reset()
+    print("arena reset")
+}

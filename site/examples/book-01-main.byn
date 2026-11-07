@@ -1,0 +1,7 @@
+// A program can also start in `main`. Top-level statements and `main` are two ways in.
+string greeting(string name) => $"Hello, {name}!"
+
+void main() {
+    print(greeting("Bayan"))
+    print(greeting("reader"))
+}

@@ -1,0 +1,13 @@
+void main() {
+    var buf = StrBuf()
+    buf.append("id=")
+    buf.append("7")
+    buf.appendRepeated('-', by: 3)
+    buf.insert(">", at: 0)
+    print($"{buf.length}: {buf.view}")
+    buf.clear()
+    var storage: u8[16] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    var fixed = StrBuf(storage.mutableSpan())
+    fixed.append("fits")
+    print(fixed.finish())
+}

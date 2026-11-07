@@ -1,0 +1,23 @@
+List<string> words(string line) uses alloc {
+    var result = List<string>()
+    for w in line.parts(by: " ") {
+        result.append(w)
+    }
+    return result
+}
+
+void main() {
+    let lines: string[3] = ["a b c", "d e", "f g h i"]
+    var longest: i64 = 0
+    for line in lines {
+        using var arena = Arena()
+        provide allocator: arena {
+            let ws = words(line)
+            print($"{ws.length} words, first {ws[0]}")
+            if ws.length > longest {
+                longest = ws.length
+            }
+        }
+    }
+    print($"longest line: {longest} words")
+}

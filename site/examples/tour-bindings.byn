@@ -1,0 +1,6 @@
+void main() {
+    let name = "Ada"
+    var count = 1
+    count += 1
+    print($"{name} {count}")
+}

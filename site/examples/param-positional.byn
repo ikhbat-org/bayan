@@ -1,0 +1,15 @@
+@positional
+struct Point {
+    i64 x
+    i64 y
+}
+
+struct Date {
+    i64 year
+    i64 month
+    i64 day
+}
+
+let p = Point(3, 4)
+let d = Date { year: 2026, month: 11, day: 5 }
+print($"{p.x},{p.y} {d.year}-{d.month}-{d.day}")

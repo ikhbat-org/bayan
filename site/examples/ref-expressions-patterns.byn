@@ -1,0 +1,19 @@
+enum Level {
+    low
+    high
+}
+
+let code = 503
+let level: Level = .high
+if code is 500..=599 {
+    print("server error")
+}
+if code is not 200 and not 404 {
+    print("neither")
+}
+print($"{level is .high} {level is .low or .high}")
+switch code {
+    case let n when n > 600: print("too big")
+    case 500..=599: print("5xx")
+    default: print("other")
+}

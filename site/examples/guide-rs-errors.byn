@@ -1,0 +1,25 @@
+union error ParseError {
+    empty
+    notNumber
+}
+
+i64 parse(string text) fails ParseError {
+    fail .empty if text.isEmpty
+    return i64.tryParse(text) ?? fail .notNumber
+}
+
+i64 sum(string a, by string b) fails ParseError {
+    let x = try parse(a)
+    let y = try parse(b)
+    return x + y
+}
+
+void main() {
+    print($"{sum("40", by: "2") catch -1}")
+    print($"{sum("40", by: "x") catch -1}")
+    let r = sum("", by: "2") catch switch {
+        .empty => 100,
+        .notNumber => 200,
+    }
+    print($"{r}")
+}

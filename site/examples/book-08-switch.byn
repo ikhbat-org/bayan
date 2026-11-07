@@ -1,0 +1,28 @@
+union error ParseError {
+    empty
+    notNumber(string text)
+    negative(i64 value)
+}
+
+i64 parseQty(string text) fails ParseError {
+    fail .empty if text.isEmpty
+    let n = i64.tryParse(text) ?? fail .notNumber(text)
+    fail .negative(n) if n < 0
+    return n
+}
+
+string describe(string text) {
+    let n = parseQty(text) catch switch {
+        .empty => return "nothing there",
+        .notNumber(let t) => return $"'{t}' is not a number",
+        .negative(let v) => return $"{v} is below zero",
+    }
+    return $"quantity {n}"
+}
+
+void main() {
+    print(describe(""))
+    print(describe("abc"))
+    print(describe("-4"))
+    print(describe("7"))
+}

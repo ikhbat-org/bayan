@@ -1,0 +1,30 @@
+i64 sum(ReadOnlySpan<i64> xs) {
+    var total: i64 = 0
+    for x in xs {
+        total += x
+    }
+    return total
+}
+
+void doubleAll(ref List<i64> xs) {
+    for i in 0..xs.length {
+        xs[i] = xs[i] * 2
+    }
+}
+
+i64 count(List<i64> xs) => xs.length
+
+void main() {
+    var xs = List<i64>()
+    for i in 1..4 {
+        xs.append(i)
+    }
+    print($"sum {sum(xs.span)}")
+    doubleAll(ref xs)
+    print($"sum {sum(xs.span)}")
+    print($"count {count(xs)}")
+    let middle = xs.span[1..]
+    print($"middle {middle.length} first {middle[0]}")
+    xs.append(7)
+    print($"after append {xs.length}")
+}
