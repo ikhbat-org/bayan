@@ -24,7 +24,7 @@ failed=0
 
 printf '== 1. worktrees\n'
 for w in worker-r4-fix worker-r4-fix2 worker-fix-r4-dev worker-sec-plan-rev1 docs-sec-plan-rev1 \
-         fix-review-2026-11-07-6 fix-review-2026-11-07-7; do
+         fix-review-2026-11-07-6 fix-review-2026-11-07-7 chore-cleanup-unattended-2026-11-07 chore-cleanup-2026-11-07-late; do
   wt=".worktrees/$w"
   if [ ! -d "$wt" ]; then printf 'skip:  %s is gone\n' "$wt"; continue; fi
   br="$(git -C "$wt" branch --show-current 2>/dev/null || true)"
