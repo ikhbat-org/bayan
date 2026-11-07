@@ -26,6 +26,8 @@ public struct DCtx {
     // T3 keeps no state: `Targets.Host` is recomputed from `Target` (cc.byn `targetHost`).
     // ── T5 state
     // T5 keeps no state: `build` and `run` read their options per call (build.byn `T5Options`), and `HostTarget` is cc.byn `targetHost`.
+    // ── T9 state
+    // T9 keeps no state yet: `s_swept` (Toolchain.cs:404) goes with `SweepOnce`, which waits for a write-time builtin (Q1112).
 }
 
 /// The state of a run before any option is read. On the base so the coverage report has an entry for this file (Q920).

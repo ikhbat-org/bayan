@@ -152,3 +152,155 @@ i32 cleanCommand(List<string> kept) uses alloc, console, env, fs {
     }
     return exitOk
 }
+
+// ── 017 T9: the build cache. Ports `Toolchain.cs` :71-90 (`TagCacheDirectory`, `Scripts`, `Staging`), :237 (the key of
+// `BuildCached`), :262-310 (`ReplaceFile`, `Lookup`), :361-460 (`Touch`, `Evict`, `SweepStale`, `Discard`), :462-516 (the script
+// cache, `ComputeCompilerBuild`) and :556-562 (`Hash`, `HashFile`). What needs a rename, a write time or an executable bit is a
+// stub (Q1111, Q1112).
+
+/// Toolchain.cs:66 `CacheDirTag`, the CACHEDIR.TAG signature (bford.info/cachedir).
+const cacheDirTag: string = "Signature: 8a477f597d28d172789f06886806bc55\n# This file is a cache directory tag created by bayan.\n# For information about cache directory tags see https://bford.info/cachedir/\n"
+
+/// Toolchain.cs:62 `Programs`.
+string t9Programs() uses alloc, env => Path.combine(cacheData(), "programs")
+
+/// Toolchain.cs:71 `TagCacheDirectory`.
+// stub: T9 tagCacheDirectory (blocked: Q1111) `File.Move(temp, tag, overwrite: false)` has no builtin
+void tagCacheDirectory() uses alloc, env, fs {
+}
+
+/// Toolchain.cs:88 `Scripts`.
+string t9Scripts() uses alloc, env => Path.combine(cacheData(), "scripts")
+
+/// Toolchain.cs:90 `Staging`.
+string t9Staging() uses alloc, env => Path.combine(cacheData(), "tmp")
+
+/// The `BuildMode` name `string.Join` writes (Toolchain.cs:237, :499): `Debug`, `Safe` or `Fast`.
+string t9ModeName(string mode) => mode == "debug" ? "Debug" : mode == "fast" ? "Fast" : "Safe"
+
+/// Toolchain.cs:237: the key of a program, from the compiler version, mode, target, C compiler, flags, runtime and C source.
+/// `target` is `target ?? Targets.Host`, which `string.Join` writes empty when null.
+string t9Key(string mode, for string? target, by in List<string> compiler, through in List<string> flags, from string cSource) uses alloc {
+    var sb = StrBuf()
+    sb.append(version)
+    sb.append("\0")
+    sb.append(t9ModeName(mode))
+    sb.append("\0")
+    sb.append(target ?? "")
+    sb.append("\0")
+    sb.append(ccJoin(in compiler))
+    sb.append("\0")
+    sb.append(ccJoin(in flags))
+    sb.append("\0")
+    sb.append(runtimeHeader)
+    sb.append("\0")
+    sb.append(runtimeSource)
+    sb.append("\0")
+    sb.append(cSource)
+    return t9Hash(sb.finish())
+}
+
+/// Toolchain.cs:262 `ReplaceFile(path, temp => File.Copy(source, temp))`, the one call (:254).
+// stub: T9 replaceFile (blocked: Q1111) `File.Move(temp, path, overwrite: true)` has no builtin, and a copy has no executable bit
+void replaceFile(string path, from string source) uses alloc, fs {
+}
+
+/// Toolchain.cs:289 `Lookup`: the cached executable for `key` if it is intact; a damaged entry is removed. A file that cannot be
+/// read for want of permission fails (the C#'s `UnauthorizedAccessException` is not caught); any other read error is damage.
+string? lookup(string key, by string exeName) fails IoError uses alloc, env, fs {
+    let dir = Path.combine(t9Programs(), key)
+    let exe = Path.combine(dir, exeName)
+    let sum = Path.combine(dir, "program.sha256")
+    unless t3DirectoryExists(dir) { return null }
+    if Fs.fileExists(exe) && Fs.fileExists(sum) {
+        let intact = try t9Intact(exe, by: sum)
+        if intact {
+            touch(dir)
+            return exe
+        }
+    }
+    discard(dir)
+    return null
+}
+
+/// `File.ReadAllText(sum).Trim() == HashFile(exe)` of `Lookup`: false on an `IOException`, a failure on a permission error.
+bool t9Intact(string exe, by string sum) fails IoError uses alloc, fs {
+    let text = Io.readText(sum) catch switch {
+        IoError.permissionDenied => fail .permissionDenied,
+        IoError e => return false,
+    }
+    let hash = t9HashFile(exe) catch switch {
+        IoError.permissionDenied => fail .permissionDenied,
+        // coverage-exempt: Q1113 an executable that exists and cannot be read for another reason (the C#'s `IOException` of `File.OpenRead`)
+        IoError e => return false,
+    }
+    return text.trimmed() == hash
+}
+
+/// Toolchain.cs:361 `Touch`.
+// stub: T9 touch (blocked: Q1112) `Directory.SetLastWriteTimeUtc` has no builtin
+void touch(string dir) uses fs {
+}
+
+/// Toolchain.cs:372 `Evict(keep)`: `$BAYAN_CACHE_MAX_MB` (2048; 0 for no cap) and 4000 entries.
+// stub: T9 evict (blocked: Q1112) the order is by `LastWriteTimeUtc`, which has no builtin
+void evict(string keep) uses alloc, env, fs {
+}
+
+/// Toolchain.cs:418 `SweepStale`.
+// stub: T9 sweepStale (blocked: Q1112) the age is `Directory.GetLastWriteTimeUtc`, which has no builtin
+void sweepStale(string tempRoot, by i64 ageNanos) uses alloc, env, fs {
+}
+
+/// Toolchain.cs:443 `Discard`.
+// stub: T9 discard (blocked: Q1111) `Directory.Move(dir, trash)` has no builtin
+void discard(string dir) uses alloc, env, fs {
+}
+
+/// Toolchain.cs:462 `LookupScript`: the program a script last built to. Any read error is null.
+string? lookupScript(string scriptKey, by string exeName) uses alloc, env, fs {
+    let pointer = Path.combine(t9Scripts(), scriptKey)
+    unless Fs.fileExists(pointer) { return null }
+    let text = Io.readText(pointer) catch return null
+    let exe = lookup(text.trimmed(), by: exeName) catch return null
+    if exe is not null { tagCacheDirectory() }
+    return exe
+}
+
+/// Toolchain.cs:477 `RememberScript`.
+// stub: T9 rememberScript (blocked: Q1111) `File.Move(temp, pointer, overwrite: true)` has no builtin
+void rememberScript(string scriptKey, by string programKey) uses alloc, env, fs {
+}
+
+/// Toolchain.cs:498 `ScriptKey`: compiler version and build, mode, host and the script's bytes. `build` null is `CompilerBuild`.
+string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build) uses alloc, env, fs {
+    var sb = StrBuf()
+    sb.append("script")
+    sb.append("\0")
+    sb.append(version)
+    sb.append("\0")
+    sb.append(build ?? compilerBuild())
+    sb.append("\0")
+    sb.append(t9ModeName(mode))
+    sb.append("\0")
+    sb.append(targetHost() ?? "")
+    sb.append("\0")
+    sb.append(Hex.encode(sha256(script).span))
+    return t9Hash(sb.finish())
+}
+
+/// Toolchain.cs:508 `ComputeCompilerBuild`.
+// stub: T9 compilerBuild (blocked: Q1112) the size and `LastWriteTimeUtc` of `Environment.ProcessPath` have no builtin
+string compilerBuild() uses alloc, env, fs {
+    // coverage-exempt: Q1112 the stub's value; no test asserts it
+    return ""
+}
+
+/// Toolchain.cs:556 `Hash`.
+string t9Hash(string text) uses alloc => Hex.encode(sha256(text.bytes).span)
+
+/// Toolchain.cs:558 `HashFile`.
+string t9HashFile(string path) fails IoError uses alloc, fs {
+    let bytes = try Io.readFile(path)
+    return Hex.encode(sha256(bytes.span).span)
+}
