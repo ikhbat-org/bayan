@@ -7,7 +7,7 @@ import lexer
 import parser
 import semantics
 
-/// Features.cs:14 `Version`.
+/// Features.cs:17 `Version`.
 const featuresVersion: i64 = 1
 
 /// Insertion into the set `items`, kept as a list in first-seen order (sorted by `t2Sorted`).
@@ -134,7 +134,7 @@ string t2NodeName(semantics.NodeSyntaxKind kind) {
     }
 }
 
-/// Features.cs:73 `Declarations` for the attributes of one declaration: each attribute, then its `because` clause.
+/// Features.cs:72 `Declarations` for the attributes of one declaration: each attribute, then its `because` clause.
 void t2Attributes(in List<parser.AttributeSyntax> attributes, to ref List<string> nodes) uses alloc {
     for a in attributes {
         t2Add("AttributeSyntax", to: ref nodes)
@@ -142,7 +142,7 @@ void t2Attributes(in List<parser.AttributeSyntax> attributes, to ref List<string
     }
 }
 
-/// Features.cs:73 `Declarations`: each declaration, nested members included, then its attributes and their `because` clauses.
+/// Features.cs:72 `Declarations`: each declaration, nested members included, then its attributes and their `because` clauses.
 void t2Declarations(in List<parser.Decl> decls, to ref List<string> nodes) uses alloc {
     for decl in decls {
         switch decl {
@@ -213,7 +213,7 @@ void t2Declarations(in List<parser.Decl> decls, to ref List<string> nodes) uses 
     }
 }
 
-/// Features.cs:46-52 for one function: the syntax kinds, builtins of its body (a `BoundBlock`, else nothing).
+/// Features.cs:41-51 for one function: the syntax kinds, builtins of its body (a `BoundBlock`, else nothing).
 void t2Function(in semantics.Ctx c, for semantics.FuncId fn, to ref List<string> nodes, through ref List<string> builtins) uses alloc {
     let body = c.functions[fn].body
     // coverage-exempt: Q1078 every function the C# counts has a block body here: no test row has a bodiless one
@@ -280,47 +280,6 @@ string t2ToJson(in semantics.Ctx c) uses alloc {
     return $"{sb.finish()}"
 }
 
-/// CliApp.cs:259 `Compile` with `includeTests: true` (`t5Compile` has no such parameter).
-semantics.Ctx t2Compile(in T5Options o, by in semantics.T26Symbols symbols, to ref List<semantics.T26Reported> reported, through ref bool ok) uses alloc, clock, console, fs {
-    let o26 = t5T26(in o)
-    let manifestPath = Path.combine(o.path, "package.byn")
-    if (o.package is { } package) {
-        if !(t5DirectoryExists(o.path) && t1FileExists(manifestPath)) {
-            let full = Path.fullPath(o.path)
-            var files = List<string>()
-            if t5DirectoryExists(full) {
-                // coverage-exempt: Q1079 reached only if the directory goes away between `t5DirectoryExists` and this read
-                let names = Io.listDir(full) catch List<string>()
-                for name in names {
-                    let f = Path.combine(full, name)
-                    if name.endsWith(".byn") && t1FileExists(f) { files.append(f) }
-                }
-            } else {
-                files.append(full)
-            }
-            var sources = List<lexer.SourceText>()
-            for f in files {
-                // coverage-exempt: Q1079 an unreadable module file; the C# `SourceText.FromFile` (CliApp.cs:294) throws there, uncaught
-                let bytes = Io.readFile(f) catch List<u8>()
-                sources.append(lexer.SourceText.create(f, from: move bytes))
-            }
-            let options = T5CompilationOptions { includeTests: true, target: o.target }
-            var c = semantics.create(from: move sources, at: Path.fullPath(package), by: in options)
-            semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
-            ok = !t5HasErrors(in c)
-            return c
-        }
-    }
-    if t5DirectoryExists(o.path) && t1FileExists(manifestPath) {
-        return semantics.t26Compile(in o26, by: in symbols, to: ref reported, through: ref ok, includeTests: true)
-    }
-    let options = T5CompilationOptions { includeTests: true, target: o.target }
-    var c = semantics.fromPath(o.path, by: in options, wholeDirectory: !t1IsScript(o.path))
-    semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
-    ok = !t5HasErrors(in c)
-    return c
-}
-
 /// Features.cs:19 `Run`. `kept` is the arguments `run` kept, the command first.
 i32 featuresCommand(in List<string> kept, by in DCtx d) {
     var used = false
@@ -340,7 +299,7 @@ i32 featuresCommand(in List<string> kept, by in DCtx d) {
     let symbols = semantics.t26Symbols(d.styleErr.ascii)
     var reported = List<semantics.T26Reported>()
     var ok = false
-    let compiled = t2Compile(in o, by: in symbols, to: ref reported, through: ref ok)
+    let compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, includeTests: true)
     unless ok { return exitFailure }
     Io.stdout.write(t2ToJson(in compiled))
     return exitOk

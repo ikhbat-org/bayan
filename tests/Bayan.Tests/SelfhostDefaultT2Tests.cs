@@ -130,6 +130,7 @@ public sealed class SelfhostDefaultT2Tests
             new[] { sample, "features", "--used" },
             new[] { "features", "--used", rich },
             new[] { "features", "--used", withTests },
+            new[] { "features", "--used", withTests, "--package", withTests },
             new[] { "features", "--used", warned },
             new[] { "features", "--used", broken },
             new[] { "features", "--used", broken, "--diagnostics", "json" },
@@ -163,24 +164,59 @@ public sealed class SelfhostDefaultT2Tests
     private static IEnumerable<string> Concrete(Type baseType) =>
         typeof(Node).Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && !t.IsAbstract).Select(t => t.Name).Order(StringComparer.Ordinal);
 
-    /// <summary>Every <c>GetType().Name</c> <c>Features.Declarations</c> can yield has an arm in the driver's table.</summary>
+    private static string Pascal(string kind) => char.ToUpperInvariant(kind[0]) + kind[1..];
+
+    private static readonly HashSet<string> AllTypeNames = typeof(Node).Assembly.GetTypes().Select(t => t.Name).ToHashSet(StringComparer.Ordinal);
+
+    /// <summary>The (case, name) pairs of the arms `case .kind: return "Name"` in the body of the function <paramref name="function"/>.</summary>
+    private static List<(string Kind, string Name)> ReturnArms(string function)
+    {
+        var source = File.ReadAllText(FeaturesPath);
+        var start = source.IndexOf($" {function}(", StringComparison.Ordinal);
+        Assert.True(start >= 0, $"features.byn has no {function}");
+        var end = source.IndexOf("\n}\n", start, StringComparison.Ordinal);
+        return System.Text.RegularExpressions.Regex.Matches(source[start..end], "case \\.(\\w+): return \"(\\w+)\"")
+            .Select(m => (m.Groups[1].Value, m.Groups[2].Value)).ToList();
+    }
+
+    /// <summary>The (case, name) pairs of the arms `case .kind(let n):` then `t2Add("Name", ...)` in <c>t2Declarations</c>.</summary>
+    private static List<(string Kind, string Name)> DeclarationArms() =>
+        System.Text.RegularExpressions.Regex.Matches(File.ReadAllText(FeaturesPath), "case \\.(\\w+)\\(let n\\):(?:\\s|//[^\\n]*)+t2Add\\(\"(\\w+)\"")
+            .Select(m => (m.Groups[1].Value, m.Groups[2].Value)).ToList();
+
+    private static void AssertTable(List<(string Kind, string Name)> arms, IEnumerable<string> required, string what)
+    {
+        Assert.True(arms.Count > 10, $"{what}: only {arms.Count} arms found");
+        var wrong = arms.Where(a => Pascal(a.Kind) != a.Name).Select(a => $".{a.Kind} -> \"{a.Name}\"").ToList();
+        Assert.True(wrong.Count == 0, $"{what}: an arm names another kind: {string.Join(", ", wrong)}");
+        var unknown = arms.Where(a => !AllTypeNames.Contains(a.Name)).Select(a => a.Name).ToList();
+        Assert.True(unknown.Count == 0, $"{what}: no C# type is named {string.Join(", ", unknown)}");
+        var duplicate = arms.GroupBy(a => a.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+        Assert.True(duplicate.Count == 0, $"{what}: two arms give {string.Join(", ", duplicate)}");
+        var missing = required.Except(arms.Select(a => a.Name)).ToList();
+        Assert.True(missing.Count == 0, $"{what}: no arm for {string.Join(", ", missing)}");
+    }
+
+    /// <summary>Every <c>GetType().Name</c> <c>Features.Declarations</c> can yield has an arm in the driver's table, and each arm maps its case to that exact name.</summary>
     [Fact]
     public void TheDeclarationNameTableCoversTheCSharpDeclarations()
     {
         var table = File.ReadAllText(FeaturesPath);
-        var names = Concrete(typeof(Decl)).Append(nameof(AttributeSyntax)).Append(nameof(BecauseClause)).ToList();
-        Assert.True(names.Count > 18);
-        var missing = names.Where(n => !table.Contains($"\"{n}\"", StringComparison.Ordinal)).ToList();
-        Assert.True(missing.Count == 0, $"features.byn has no name for {string.Join(", ", missing)}");
+        var names = Concrete(typeof(Decl)).ToList();
+        Assert.True(names.Count > 15);
+        AssertTable(DeclarationArms(), names, "t2Declarations");
+        foreach (var n in new[] { nameof(AttributeSyntax), nameof(BecauseClause) })
+            Assert.Contains($"\"{n}\"", table);
     }
 
-    /// <summary>The bound nodes' syntax kinds: every concrete <c>Expr</c>, <c>Stmt</c> and <c>Pattern</c> record has an arm.</summary>
+    /// <summary>The bound nodes' syntax kinds: every concrete <c>Expr</c>, <c>Stmt</c> and <c>Pattern</c> record has an arm, and each arm maps its kind to that exact name.</summary>
     [Fact]
     public void TheSyntaxNameTablesCoverTheExprStmtAndPatternRecords()
     {
-        var table = File.ReadAllText(FeaturesPath);
+        var exprArms = ReturnArms("t2ExprName");
+        var nodeArms = ReturnArms("t2NodeName");
         var names = Concrete(typeof(Expr)).Concat(Concrete(typeof(Stmt))).Concat(Concrete(typeof(Pattern))).ToList();
-        var missing = names.Where(n => !table.Contains($"\"{n}\"", StringComparison.Ordinal)).ToList();
-        Assert.True(missing.Count == 0, $"features.byn has no name for {string.Join(", ", missing)}");
+        AssertTable(exprArms, names.Where(n => n.EndsWith("Expr", StringComparison.Ordinal)), "t2ExprName");
+        AssertTable(nodeArms, names.Where(n => !n.EndsWith("Expr", StringComparison.Ordinal)), "t2NodeName");
     }
 }
