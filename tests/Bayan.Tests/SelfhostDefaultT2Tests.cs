@@ -64,6 +64,11 @@ public sealed class SelfhostDefaultT2Tests
             let p = Point { x: 1, y: 2 }
             print($"{p.sum} {twice(2)}")
         }
+
+        @cases((1, 2), (3, 4)) because "two pairs"
+        test "pairs" (i64 a, i64 b) {
+            assert(a < b)
+        }
         """;
 
     private const string Rich = """
@@ -112,6 +117,8 @@ public sealed class SelfhostDefaultT2Tests
         Directory.CreateDirectory(Path.GetDirectoryName(project)!);
         Oracle(new[] { "new", project });
         var decls = Fresh("decls", Decls);
+        File.WriteAllText(Path.Combine(decls, "notes.txt"), "not a module\n");
+        Directory.CreateDirectory(Path.Combine(decls, "sub.byn"));
         var driver = SelfhostDriverHarness.DriverDir;
         var selfhost = Path.GetDirectoryName(driver)!;
         return new[]
@@ -132,7 +139,9 @@ public sealed class SelfhostDefaultT2Tests
             new[] { "features", "--used", sample, "-o", "x" },
             new[] { "features", "--used", project },
             new[] { "features", "--used", Path.Combine(project, "src", "app", "main.byn"), "--package", Path.Combine(project, "src", "app") },
+            new[] { "features", "--used", project, "--package", project },
             new[] { "features", "--used", decls },
+            new[] { "features", "--used", decls, "--package", decls },
             new[] { "features", "--used", Path.Combine(decls, "main.byn"), "--package", decls },
             new[] { "features", "--used", driver, "--package", selfhost },
         }.Select(a => new object[] { a });
