@@ -93,7 +93,7 @@ BStmt bindBecome(ref Binder b, through ref Ctx c, for in parser.BecomeStmt s) {
         let name = owner != -1 ? c.structs[owner].name : b.fn != -1 ? c.functions[b.fn].name : "?"
         report(ref b, through: ref c, for: .unknownState, at: s.state, by: (name, stateText, "", "", ""), help: $"check the states declared in `{name}`")
         bindArgumentListForRecovery(ref b, through: ref c, for: in s.args)
-        return addErrorStmt(ref c, from: BErrorStmt { span: s.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: s.span }), as: .becomeStmt, at: s.span)
     }
     let fn = b.fn
     let fnName = c.functions[fn].name
@@ -103,7 +103,7 @@ BStmt bindBecome(ref Binder b, through ref Ctx c, for in parser.BecomeStmt s) {
     // A `becomes` without `ref this` is BYN7010 at the signature; its `become` reports nothing more (revision 0010).
     if !c.functions[fn].isStatic && decl.found && decl.becomes is not null && decl.refThis is null {
         let _ = t21BindArgumentList(ref b, through: ref c, for: in s.args, at: s.span, by: in fields, as: -1, enforceNames: false, displayName: $".{stateName}", syntax: syntaxAppend(ref c, from: ExprSyntax { kind: .callExpr, span: s.span, callee: syntaxLeaf(ref c, as: .nameExpr, at: s.state) }))
-        return addErrorStmt(ref c, from: BErrorStmt { span: s.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: s.span }), as: .becomeStmt, at: s.span)
     }
     let keyword = TextSpan { start: s.span.start, length: "become".length }
     // A static method has no `this` to change; one that takes neither `ref this` nor `move this` is BYN2115 (Question 297).
@@ -111,7 +111,7 @@ BStmt bindBecome(ref Binder b, through ref Ctx c, for in parser.BecomeStmt s) {
         report(ref b, through: ref c, for: .unsupported, at: keyword, by: ("`become` in a static method", "", "", "", ""),
             help: "remove `become`; only an instance method has a `this` to change")
     } else if decl.moveThis is null {
-        let thisExpr = addThis(ref c, from: BThis { span: s.span, type: structTypeOf(owner) })
+        let thisExpr = recordNodeSyntax(ref c, for: addThis(ref c, from: BThis { span: s.span, type: structTypeOf(owner) }), as: .becomeStmt, at: s.span)
         let _ = checkWritable(ref b, through: ref c, for: thisExpr, at: keyword, by: "`become` changes its state")
     }
     if (decl.becomes is { } becomes) {
@@ -137,7 +137,7 @@ BStmt bindBecome(ref Binder b, through ref Ctx c, for in parser.BecomeStmt s) {
     var one = List<VariantId>()
     one.append(state)
     learnState(ref b, for: facts, as: internState(ref c, by: owner, for: in one))
-    return addBecome(ref c, from: BBecome { span: s.span, state: state, payload: move payload })
+    return recordNodeSyntax(ref c, for: addBecome(ref c, from: BBecome { span: s.span, state: state, payload: move payload }), as: .becomeStmt, at: s.span)
 }
 
 void checkBecomesCall(ref Binder b, through ref Ctx c, for in parser.CallExpr call, from FuncId caller, by FuncId fn, to TextSpan state) {

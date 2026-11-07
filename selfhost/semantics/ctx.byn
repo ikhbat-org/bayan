@@ -573,6 +573,11 @@ public struct Ctx {
     /// C# `BoundNode.Syntax` when it is not an `Expr` (P2, Q1076): the recorded nodes, and each bound node's handle into them.
     public List<NodeSyntax> nodeSyntaxNodes = List<NodeSyntax>()
     public Map<i64, i64> nodeSyntaxOf = []
+    /// C# `Options` and `_entryFiles`, which `withFile` compiles again (Compilation.cs:45, 134).
+    public CompilationOptions options = CompilationOptions {}
+    public List<lexer.SourceText> entryFiles = List<lexer.SourceText>()
+    /// C# `_replaced`: files read from this text instead of from disk (Compilation.cs:47, 212); one per path.
+    public List<lexer.SourceText> replaced = List<lexer.SourceText>()
     // ── T41 state
     /// C# `Compilation.StoreSummaries`: for each template with a body, what it may store from a parameter (or `this`, -1)
     /// into a `ref`/`out` parameter (or its `ref this` receiver), with the first place it does, in insertion order.

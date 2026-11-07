@@ -340,8 +340,7 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
         case .assertStmt(let a):
             return bindAssert(ref b, through: ref c, for: in a.value)
         case .becomeStmt(let bcm):
-            // `BindBecome` (states.byn) builds every node from `s`; recorded here, outside P2's files (Q1101).
-            return recordNodeSyntax(ref c, for: bindBecome(ref b, through: ref c, for: in bcm.value), as: .becomeStmt, at: bcm.value.span)
+            return bindBecome(ref b, through: ref c, for: in bcm.value)
         // coverage-exempt: Q765 through `BErrorStmt { span: err.value.span }`
         case .emptyStmt(let em):
             return recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: em.value.span, statements: List<BStmt>() }), as: .emptyStmt, at: em.value.span)
@@ -822,13 +821,13 @@ bool isBorrowedPlace(ref Ctx c, for BExpr e) {
 BPattern bindPresent(ref Binder b, through ref Ctx c, at TextSpan name, as Type input, bool discard = false) {
     let local = discard ? declareDiscard(ref b, through: ref c, at: name, as: unwrap(ref c, for: input), for: .patternVariable) : declareLocal(ref b, through: ref c, at: name, as: unwrap(ref c, for: input), for: .patternVariable)
     c.locals[local].borrowsSubject = true
-    return addPropertyPattern(ref c, from: BPropertyPattern {
+    return recordNodeSyntax(ref c, for: addPropertyPattern(ref c, from: BPropertyPattern {
         span: name,
         inputType: input,
         valueType: unwrap(ref c, for: input),
         subpatterns: List<BSubpattern>(),
         designation: local,
-    })
+    }), as: .name, at: name)
 }
 
 BStmt bindFor(ref Binder b, through ref Ctx c, for in parser.ForStmt f, to JumpTarget target) {

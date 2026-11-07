@@ -358,7 +358,7 @@ BPattern bindPattern(ref Binder b, through ref Ctx c, for in parser.Pattern p, a
                 case .targetMemberExpr(let tm):
                     if kindOf(target) == .errorSet || kindOf(target) == .errorUnion {
                         let bound = bindTargetMember(ref b, through: ref c, for: in tm.value, to: target)
-                        return recordErrorCaseSyntax(ref c, for: bindErrorCasePattern(ref b, through: ref c, for: in p, as: input, by: bound, from: in vp.value.elements, at: vp.value.binding), from: in p)
+                        return bindErrorCasePattern(ref b, through: ref c, for: in p, as: input, by: bound, from: in vp.value.elements, at: vp.value.binding)
                     }
                     return bindUnionPattern(ref b, through: ref c, at: NodeSyntax { kind: .variantPattern, span: span }, as: input, from: -1, by: tm.value.member, for: in vp.value.elements, to: vp.value.binding)
                 default: {}
@@ -394,7 +394,7 @@ BPattern bindPattern(ref Binder b, through ref Ctx c, for in parser.Pattern p, a
                     if path.length == 2 && nt.value.args.length == 0 && (kindOf(target) == .errorSet || kindOf(target) == .errorUnion) {
                         if (c.modules[mod].types.tryGet(at: t15Text(in c, from: b.file, at: path[0])) is { } named) && kindOf(named) == .errorSet {
                             let bound = errorCase(ref b, through: ref c, for: in p, from: typeIndex(named), at: path[1])
-                            return recordErrorCaseSyntax(ref c, for: bindErrorCasePattern(ref b, through: ref c, for: in p, as: input, by: bound, from: in pos.value.elements, at: null), from: in p)
+                            return bindErrorCasePattern(ref b, through: ref c, for: in p, as: input, by: bound, from: in pos.value.elements, at: null)
                         }
                     }
                     if path.length > 1 && nt.value.args.length == 0 {
@@ -732,16 +732,6 @@ BPattern bindUnionPattern(ref Binder b, through ref Ctx c, at NodeSyntax syntax,
     }
     if ok { return recordNodeSyntaxOf(ref c, for: addUnionPattern(ref c, from: BUnionPattern { span: span, inputType: input, variant: variant, subpatterns: move subs }), from: syntax) }
     return recordNodeSyntaxOf(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: syntax)
-}
-
-/// `n` from `bindErrorCasePattern` (errorcases.byn, outside P2's files, Q1101), which builds it and an `and`'s two sides
-/// from `p` (BinderErrors.cs:97-111); recorded here. Its subpatterns came through `bindPattern`.
-BPattern recordErrorCaseSyntax(ref Ctx c, for BPattern n, from in parser.Pattern p) uses alloc {
-    if boundKind(n) == .binaryPattern {
-        let _ = recordPatternSyntax(ref c, for: c.bBinaryPatterns[boundIndex(n)].left, from: in p)
-        let _ = recordPatternSyntax(ref c, for: c.bBinaryPatterns[boundIndex(n)].right, from: in p)
-    }
-    return recordPatternSyntax(ref c, for: n, from: in p)
 }
 
 /// BinderCalls.cs:1439 BindWholeVariant: `.percentOff p`, a tag test that binds the whole value as `p`, whose payload
