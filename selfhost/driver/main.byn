@@ -128,15 +128,17 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
         case "mutate":
             return refuse(command)
         case "new":
-            return refuse(command)
+            let newArgs = t2Rest(kept)
+            return scaffoldNew(newArgs.span)
         case "dist":
             return refuse(command)
         case "cache":
-            return refuse(command)
+            return cacheCommand(kept)
         case "clean":
-            return refuse(command)
+            return cleanCommand(kept)
         case "init":
-            return refuse(command)
+            let initArgs = t2Rest(kept)
+            return scaffoldInit(initArgs.span)
         default:
             // `#!/usr/bin/env bayan` runs `bayan script.byn [args]` (CliApp.cs:97).
             if command.endsWith(".byn") && t1FileExists(command) {
