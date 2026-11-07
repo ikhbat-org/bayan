@@ -913,7 +913,7 @@ public sealed class SelfhostDriverStyleEnvironmentTests
     }
 
     /// <summary>
-    /// The painted output of <c>audit</c> (a warning, a note and a success line; the only ported command that paints, Q1119) under the environment, as <c>CliApp.Run</c>
+    /// The painted output of <c>audit</c> (a warning, a note and a success line) under the environment, as <c>CliApp.Run</c>
     /// prints it in this process. <c>vars</c> is <c>NAME=value</c> pairs separated by <c>|</c>; the driver process inherits them.
     /// </summary>
     [Theory]
@@ -1179,11 +1179,11 @@ public sealed class SelfhostDriverStyleEnvironmentTests
 /// three renderings of <c>StyleTests</c> (colour on a dark truecolor terminal, plain, <c>--ascii</c>) and with <c>--color always</c>, <c>FORCE_COLOR</c>,
 /// <c>NO_COLOR</c> and <c>TERM=dumb</c>, against <c>CliApp.Run</c> in this process under the same environment (no terminal, as the law runs).
 /// Listed skips: <c>build-ok-cache</c> (the cache hit of <c>build</c> is not reported, T9 `build` cache); the diagnostic shapes
-/// (<c>diag-*</c>, <c>build-fail</c>, <c>run-fail</c>) under <c>--ascii</c> and <c>TERM=dumb</c> (Q1119); the shapes of commands the driver still refuses are <c>test-ok</c>, <c>test-fail</c>, <c>test-pending</c>, <c>test-verbose</c>,
+/// <c>build-fail</c> and <c>run-fail</c> under <c>--ascii</c> and <c>TERM=dumb</c> (Q1126); the shapes of commands the driver still refuses are <c>test-ok</c>, <c>test-fail</c>, <c>test-pending</c>, <c>test-verbose</c>,
 /// <c>test-assert-values</c> and <c>test-control-chars</c> (T11 `test`); <c>diag-secondary</c> and <c>build-ice</c> call the renderer and
 /// <c>CliApp.ReportToolchain</c> directly, no command prints them; <c>doctor-ok</c> and <c>doctor-fail</c> render fixed checks, which
-/// <c>SelfhostDefaultT5Tests</c> compares to the same files. Only <c>audit</c> and the plain text of the rest are compared with the paint:
-/// the driver paints no diagnostic and no <c>check</c>, <c>build</c> or <c>run</c> summary line (Q1119), so there the SGR codes are taken off both sides.
+/// <c>SelfhostDefaultT5Tests</c> compares to the same files. The SGR codes are compared for every shape but <c>build-*</c> and <c>run-fail</c>:
+/// those are painted by build.byn, which T19 does not own (Q1126), so there the codes are taken off both sides.
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]
 [Trait("Law", "L028")]
@@ -1198,12 +1198,11 @@ public sealed partial class SelfhostDriverStyleCaseTests
     public static TheoryData<string, string> Rows()
     {
         var data = new TheoryData<string, string>();
-        foreach (var shape in new[] { "diag-error-fix", "diag-removal-fix", "diag-cap", "diag-cap-all", "build-ok", "build-ok-verbose", "build-fail", "check-ok", "run-fail", "audit" })
+        foreach (var shape in new[] { "diag-error-fix", "diag-removal-fix", "diag-cap", "diag-cap-all", "diag-warning", "types-ok", "types-fail", "check-json", "build-ok", "build-ok-verbose", "build-fail", "check-ok", "run-fail", "audit" })
             foreach (var rendering in new[] { "color", "plain", "ascii", "always", "force", "no-color", "dumb" })
             {
-                // listed skip (Q1119): a diagnostic is drawn with `│` whatever the symbols, so `--ascii` and `TERM=dumb` differ on the shapes that print one
-                var diagnostic = shape.StartsWith("diag-", StringComparison.Ordinal) || shape is "build-fail" or "run-fail";
-                if (diagnostic && rendering is "ascii" or "dumb") continue;
+                // listed skip (Q1126): `build` and `run` build their symbols in build.byn, which T19 does not own, so their diagnostics are drawn plain
+                if (shape is "build-fail" or "run-fail" && rendering is "ascii" or "dumb") continue;
                 data.Add(shape, rendering);
             }
         return data;
@@ -1213,6 +1212,10 @@ public sealed partial class SelfhostDriverStyleCaseTests
     {
         "diag-error-fix" => ("void main() {\n    let total = 0\n    total += 1\n    print($\"{total}\")\n}\n", [["check", main]]),
         "diag-removal-fix" => ("i64 twice(i64 x) => x * 2\n\nvoid main() {\n    let n = try twice(2)\n    print($\"{n}\")\n}\n", [["check", main]]),
+        "diag-warning" => ("void main() {\n    var x = 1\n}\n", [["check", main]]),
+        "types-ok" => (Ok, [["types", main]]),
+        "types-fail" => (Broken, [["types", main]]),
+        "check-json" => (Ok, [["check", "--diagnostics", "json", main]]),
         "diag-cap" => (Many, [["check", main]]),
         "diag-cap-all" => (Many, [["check", "--all", main]]),
         "build-ok" => (Ok, [["build", "-o", output, main]]),
@@ -1257,7 +1260,8 @@ public sealed partial class SelfhostDriverStyleCaseTests
             "dumb" => [("TERM", "dumb"), ("CI", "1")],
             _ => [("CI", "1")],
         };
-        var painted = shape == "audit" || rendering is "plain" or "no-color";
+        // listed skip (Q1126): the `build` summary and the diagnostics of `build` and `run` are not painted yet
+        var painted = !(shape.StartsWith("build-", StringComparison.Ordinal) || shape == "run-fail") || rendering is "plain" or "no-color";
         string Text(string text) => painted ? Mask(text) : Sgr().Replace(Mask(text), "");
         // each side builds into a cache of its own, so a hit on one is never a hit on the other
         string Side(bool driver)
