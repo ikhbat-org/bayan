@@ -15,10 +15,12 @@ bool t6IsSkippedDirectory(string name, bool atRoot) =>
     name.startsWith(".") || name.equals("node_modules", as: .caseless) || name.equals("obj", as: .caseless)
         || (atRoot && (name.equals("bin", as: .caseless) || name.equals("dist", as: .caseless) || name.equals("tmp", as: .caseless)))
 
-/// Format.cs:122 `Inside`: `real` is `within` or lies under it; every path is inside without a bound.
+/// Format.cs:121-122 `Inside`: `real` is `within` or lies under it; every path is inside without a bound. The separator is
+/// `Path.DirectorySeparatorChar`, and `Path.EndsInDirectorySeparator` takes `/` or `\` on Windows and `/` elsewhere.
 bool t6Inside(string real, by string? within) {
     if (within is { } bound) {
-        let prefix = bound.endsWith("/") ? bound : $"{bound}/"
+        let windows = Target.os == "windows"
+        let prefix = bound.endsWith("/") || (windows && bound.endsWith("\\")) ? bound : $"{bound}{windows ? "\\" : "/"}"
         return real == bound || real.startsWith(prefix)
     }
     return true
