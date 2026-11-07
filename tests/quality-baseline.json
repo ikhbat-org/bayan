@@ -4,7 +4,7 @@
     "selfhost/driver/build.byn": {
       "mutation": null,
       "coverage": 0.96,
-      "branches": 0.9867
+      "branches": 0.9868
     },
     "selfhost/driver/cache.byn": {
       "mutation": null,
@@ -40,6 +40,11 @@
       "mutation": null,
       "coverage": 1.0,
       "branches": 1.0
+    },
+    "selfhost/driver/features.byn": {
+      "mutation": null,
+      "coverage": 0.9223,
+      "branches": 0.9412
     },
     "selfhost/driver/main.byn": {
       "mutation": null,
