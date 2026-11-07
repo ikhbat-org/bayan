@@ -228,8 +228,8 @@
     },
     "selfhost/semantics/compile.byn": {
       "mutation": null,
-      "coverage": 0.2883,
-      "branches": 0.1867
+      "coverage": 0.8973,
+      "branches": 0.747
     },
     "selfhost/semantics/ctx.byn": {
       "mutation": null,
