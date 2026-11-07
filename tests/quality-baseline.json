@@ -51,6 +51,11 @@
       "coverage": 0.9655,
       "branches": 0.9741
     },
+    "selfhost/driver/sha256.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": 1.0
+    },
     "selfhost/emitter/cprint/builtin.byn": {
       "mutation": null,
       "coverage": 0.9864,
