@@ -26312,7 +26312,7 @@ bynt_parser__FunctionDecl byn_parser__parseFunction(bynt_parser__Parser* p_p, in
 #line 801 "parser/decls.byn"
                         l39_errors = ((bynt_list_parser__TypeSyntax){NULL, 0, 0, byn_context});
 #line 802 "parser/decls.byn"
-                        if (((((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)1)) && (!byn_parser__atContextual(&(*p_p), BYN_STR("where", 5)))) && (!byn_parser__atContextual(&(*p_p), BYN_STR("expects", 7)))) && (!(byn_parser__atContextual(&(*p_p), BYN_STR("becomes", 7)) && (byn_parser__Parser__peek(&(*p_p), INT64_C(1)) == ((byn_lexer_TokenKind)23)))))) {
+                        if ((((((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)1)) && (!byn_parser__breaksLine(&(*p_p), (*p_p).pos))) && (!byn_parser__atContextual(&(*p_p), BYN_STR("where", 5)))) && (!byn_parser__atContextual(&(*p_p), BYN_STR("expects", 7)))) && (!(byn_parser__atContextual(&(*p_p), BYN_STR("becomes", 7)) && (byn_parser__Parser__peek(&(*p_p), INT64_C(1)) == ((byn_lexer_TokenKind)23)))))) {
 #line 804 "parser/decls.byn"
                             (void)bynh_add_list_parser__TypeSyntax(&l39_errors, byn_parser__parseType(&(*p_p), false, false));
 #line 805 "parser/decls.byn"
