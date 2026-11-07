@@ -4,7 +4,7 @@
 # BAYAN names the compiler; the default is the latest local build.
 set -eu
 here=$(cd "$(dirname "$0")" && pwd)
-export BAYAN="${BAYAN:-/Users/sy/Developer/ikhbat.org/bayan/dist/macos-arm64/latest/bayan}"
+export BAYAN="${BAYAN:-$(cd "$here/.." && pwd)/dist/macos-arm64/latest/bayan}"
 
 # The generator writes into out/ but cannot create directories, so start from an empty one.
 rm -rf "$here/out"

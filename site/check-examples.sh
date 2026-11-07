@@ -7,7 +7,12 @@
 # A program that exits non-zero on purpose has <name>.exit holding the expected exit code.
 set -u
 here=$(cd "$(dirname "$0")" && pwd)
-bayan=${BAYAN:-/Users/sy/Developer/ikhbat.org/bayan/dist/macos-arm64/latest/bayan}
+bayan=${BAYAN:-$(cd "$here/.." && pwd)/dist/macos-arm64/latest/bayan}
+# The examples run after a cd, so a relative path to the compiler must be made absolute first.
+case $bayan in
+  */*) dir=$(cd "$(dirname "$bayan")" 2>/dev/null && pwd) || { echo "check-examples.sh: no directory for BAYAN=$bayan" >&2; exit 2; }
+       bayan=$dir/$(basename "$bayan") ;;
+esac
 update=no
 case "${1:-}" in
   --update) update=yes ;;
@@ -16,7 +21,7 @@ case "${1:-}" in
 esac
 
 mkdir -p "$here/../tmp"
-work=$(mktemp -d "$here/../tmp/site-examples.XXXXXX")
+work=$(mktemp -d "$here/../tmp/site-examples.XXXXXX") || { echo "check-examples.sh: mktemp failed" >&2; exit 1; }
 trap 'rm -rf "$work"' EXIT
 failed=0
 count=0

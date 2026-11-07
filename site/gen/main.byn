@@ -135,6 +135,32 @@ string templateError(Page page, from ReadOnlySpan<string> templates, at string s
     return $"{page.file}:{page.templateLine}: unknown template `{page.template}` (no {site}/templates/{page.template}.html)"
 }
 
+/// `shell` with each `keys[k]` replaced by `values[k]` in one left-to-right pass, so a value is never
+/// searched for placeholders. Text that is not a key stays as it is.
+string fillTemplate(string shell, from ReadOnlySpan<string> keys, by ReadOnlySpan<string> values) {
+    var sb = StrBuf()
+    var i: i64 = 0
+    while i < shell.length {
+        let open = shell.position("{{", from: i) ?? shell.length
+        sb.append(shell[i..open])
+        if open == shell.length { break }
+        var matched = false
+        for k in 0..keys.length {
+            if shell[open..shell.length].startsWith(keys[k]) {
+                sb.append(values[k])
+                i = open + keys[k].length
+                matched = true
+                break
+            }
+        }
+        unless matched {
+            sb.append("{")
+            i = open + 1
+        }
+    }
+    return $"{sb.finish()}"
+}
+
 i32 main(ReadOnlySpan<string> args) {
     if args.length != 1 || args[0].startsWith("-") {
         Io.stderr.write("usage: bayan run site/gen -- <site-dir>\n")
@@ -172,16 +198,27 @@ i32 main(ReadOnlySpan<string> args) {
         let problem = renderBody(page, from: $"{site}/examples", to: ref html, for: ref toc)
         unless problem.isEmpty { return report(problem) }
         let shell = Io.readText($"{site}/templates/{page.template}.html") catch return report($"{site}/templates/{page.template}.html: cannot read")
-        let result = shell
-            .replaced("{{title}}", by: escapeHtml(page.title))
-            .replaced("{{name}}", by: page.name)
-            .replaced("{{group}}", by: page.nav)
-            .replaced("{{docs}}", by: docsHref)
-            .replaced("{{headnav}}", by: headNav(pages.span, by: order.span, for: index))
-            .replaced("{{sidebar}}", by: sidebar(pages.span, by: order.span, for: index))
-            .replaced("{{toc}}", by: tocList(toc.span))
-            .replaced("{{pager}}", by: pager(pages.span, by: order.span, for: index))
-            .replaced("{{body}}", by: html.finish())
+        var keys = List<string>()
+        var values = List<string>()
+        keys.append("{{title}}")
+        values.append(escapeHtml(page.title))
+        keys.append("{{name}}")
+        values.append(page.name)
+        keys.append("{{group}}")
+        values.append(page.nav)
+        keys.append("{{docs}}")
+        values.append(docsHref)
+        keys.append("{{headnav}}")
+        values.append(headNav(pages.span, by: order.span, for: index))
+        keys.append("{{sidebar}}")
+        values.append(sidebar(pages.span, by: order.span, for: index))
+        keys.append("{{toc}}")
+        values.append(tocList(toc.span))
+        keys.append("{{pager}}")
+        values.append(pager(pages.span, by: order.span, for: index))
+        keys.append("{{body}}")
+        values.append($"{html.finish()}")
+        let result = fillTemplate(shell, from: keys.span, by: values.span)
         let path = $"{site}/out/{page.name}.html"
         Io.writeFile(path, result.bytes) catch return report($"{path}: cannot write")
         print($"wrote {path}")

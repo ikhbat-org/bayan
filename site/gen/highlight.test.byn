@@ -82,3 +82,11 @@ test "escape and unescape" {
     assert escapeHtml("<a href=\"x\">&</a>") == "&lt;a href=&quot;x&quot;&gt;&amp;&lt;/a&gt;"
     assert unescapeHtml("&lt;b&gt; &amp;lt; &quot;") == "<b> &lt; \""
 }
+
+test "a rune ending in a lone backslash stays inside the input" {
+    assert highlight("'\\") == "<span class=\"str\">'\\</span>"
+}
+
+test "unescapeHtml decodes apostrophe and nbsp entities" {
+    assert unescapeHtml("a&#39;b&apos;c&nbsp;d&amp;#39;") == "a'b'c d&#39;"
+}

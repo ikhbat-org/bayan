@@ -78,8 +78,8 @@ string escapeHtml(string s) {
     return $"{sb.finish()}"
 }
 
-/// Turns `&lt;`, `&gt;`, `&quot;` and `&amp;` back into characters (an inline fragment is written escaped).
-string unescapeHtml(string s) => s.replaced("&lt;", by: "<").replaced("&gt;", by: ">").replaced("&quot;", by: "\"").replaced("&amp;", by: "&")
+/// Turns `&lt;`, `&gt;`, `&quot;`, `&#39;`, `&apos;`, `&nbsp;` (a space) and `&amp;` back into characters (an inline fragment is written escaped).
+string unescapeHtml(string s) => s.replaced("&lt;", by: "<").replaced("&gt;", by: ">").replaced("&quot;", by: "\"").replaced("&#39;", by: "'").replaced("&apos;", by: "'").replaced("&nbsp;", by: " ").replaced("&amp;", by: "&")
 
 void spanInto(string cls, from string text, to ref StrBuf sb) {
     sb.append($"<span class=\"{cls}\">")
@@ -101,6 +101,7 @@ i64 stringEnd(string code, from i64 start) {
         while i < n && code.bytes[i] != '\'' && code.bytes[i] != '\n' {
             i += code.bytes[i] == '\\' ? 2 : 1
         }
+        return n if i >= n
         return i < n && code.bytes[i] == '\'' ? i + 1 : i
     }
     if i + 2 < n && code.bytes[i + 1] == '"' && code.bytes[i + 2] == '"' {
