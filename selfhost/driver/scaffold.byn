@@ -294,7 +294,7 @@ void scaffoldWrite(Map<string, string> files, to string root, for bool listing) 
             var chmod = List<string>()
             chmod.append("a+x")
             chmod.append(path)
-                let _ = Io.run("chmod", chmod.span) catch { panic($"cannot make {path} executable") }
+            let _ = Io.run("chmod", chmod.span) catch { panic($"cannot make {path} executable") }
         }
         if listing { Io.stdout.write($"created {relative}\n") }
     }

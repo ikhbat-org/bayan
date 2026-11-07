@@ -153,7 +153,7 @@ public sealed class SelfhostDefaultT4Tests
             Assert.NotEqual(0, r.Exit);
             Assert.Contains("cannot make", r.Err);
             Assert.True(File.Exists(Path.Combine(dir, "tally.byn")));
-            Assert.Equal((UnixFileMode)0b110_100_100, File.GetUnixFileMode(Path.Combine(dir, "tally.byn")) & (UnixFileMode)0b111_111_111 & ~(UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute));
+            Assert.Equal((UnixFileMode)0, File.GetUnixFileMode(Path.Combine(dir, "tally.byn")) & (UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute));
         }
         finally { TestDirs.Delete(dir); }
     }
