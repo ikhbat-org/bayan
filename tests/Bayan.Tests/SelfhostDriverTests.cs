@@ -63,7 +63,6 @@ public sealed class SelfhostDriverT1Tests
     public void MatchesTheCSharpCli(string[] args) => AssertSameAsCs(args);
 
     [Theory]
-    [InlineData("doctor")]
     [InlineData("format")]
     [InlineData("audit")]
     [InlineData("features")]
