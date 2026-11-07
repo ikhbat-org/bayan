@@ -104,6 +104,54 @@ public sealed class FormatTests
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
     }
 
+    private const string ErrorSets = "union error E {\n    a\n}\nunion error F {\n    b\n}\nunion error G {\n    c\n}\n";
+
+    private static string FormatHeader(string dir, string header)
+    {
+        var file = Path.Combine(Fresh(dir), "main.byn");
+        File.WriteAllText(file, ErrorSets + "interface IShape {\n    i64 area()\n}\n" + header + " {\n    print(\"g\")\n    return 1\n}\n");
+        var (exit, _, stderr) = Run("format", file);
+        Assert.True(exit == CliApp.ExitOk, stderr);
+        return File.ReadAllText(file);
+    }
+
+    [Fact]
+    public void AFailsShorthandKeepsAComment()
+    {
+        var text = FormatHeader("shorthand-comment", "i32!E g() // keep me\n    fails F\n    uses console");
+        Assert.Contains("i32 g()\n    uses console // keep me\n    fails E, F {", text);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
+    }
+
+    [Fact]
+    public void AFailsShorthandKeepsAMultiLineHeader()
+    {
+        var text = FormatHeader("shorthand-lines", "i32!E g()\n    fails F\n    uses console");
+        Assert.Contains("i32 g()\n    uses console\n    fails E, F {", text);
+    }
+
+    [Fact]
+    public void AFailsShorthandCarriesWhereAndExpects()
+    {
+        var text = FormatHeader("shorthand-where", "i64!E g<T>(T x) fails F where T : IShape expects true");
+        Assert.Contains("i64 g<T>(T x) where T : IShape expects true fails E, F {", text);
+    }
+
+    [Fact]
+    public void AFailsShorthandMergesEveryFailsClause()
+    {
+        var text = FormatHeader("shorthand-two-fails", "i32!E g() fails F uses console fails G, E");
+        Assert.Contains("i32 g() uses console fails E, F, G {", text);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
+    }
+
+    [Fact]
+    public void AFailsShorthandKeepsUsesClausesInSourceOrder()
+    {
+        var text = FormatHeader("shorthand-two-uses", "i32!E g() fails F uses console uses fs");
+        Assert.Contains("i32 g() uses console uses fs fails E, F {", text);
+    }
+
     [Fact]
     public void ASecondRunChangesNothing()
     {

@@ -1195,6 +1195,7 @@ public sealed class Parser
         var requires = new List<Expr>();
         Name? becomes = null;
         FailsClause? fails = null;
+        var allFails = new List<TypeSyntax>();
         UsesClause? uses = null;
         var clauses = new List<(int Rank, Token Keyword, int End)>();
         ReportRemovedEffects();
@@ -1234,6 +1235,7 @@ public sealed class Parser
                     while (Accept(TokenKind.Comma)) errors.Add(ParseType());
                 }
                 fails = new FailsClause(SpanFrom(failsStart), errors.ToArray());
+                allFails.AddRange(errors);
             }
             else if (Kind == TokenKind.UsesKeyword)
             {
@@ -1251,17 +1253,24 @@ public sealed class Parser
         if (shorthand.Count > 0)
         {
             // `T!E f() fails F` keeps both sets; the fix rewrites the header through the explicit clause.
-            var all = shorthand.Concat(fails?.Errors ?? []).DistinctBy(t => _source.GetText(t.Span)).ToArray();
+            var all = shorthand.Concat(allFails).DistinctBy(t => _source.GetText(t.Span)).ToArray();
             var errors = string.Join(", ", all.Select(t => _source.GetText(t.Span)));
             // `fails` takes error type names (spec §8): `E?` and `Result<E>` get no fix rather than a wrong one.
             var plain = all.All(t => t is NamedType { Args.Length: 0 });
-            // `fails` is the last clause (BYN1065): the header keeps the other clauses before it.
+            // `fails` is the last clause (BYN1065): the header keeps the other clauses before it, each with the text before it.
             var end = clauses.Count > 0 ? clauses[^1].End : paramsEnd;
+            string Lead(int i) => _source.GetText(TextSpan.FromBounds(i == 0 ? paramsEnd : clauses[i - 1].End, clauses[i].Keyword.Start));
+            var firstFails = clauses.FindIndex(c => c.Rank == 4);
+            // A comment in the shorthand, in a `fails` list or before a later `fails` has no place in the rewrite: no fix rather than a lost comment.
+            var kept = !_source.GetText(TextSpan.FromBounds(typeEnd, name.Span.Start)).Contains('/')
+                && clauses.Select((c, i) => (c, i)).Where(x => x.c.Rank == 4)
+                    .All(x => !_source.GetText(TextSpan.FromBounds(x.c.Keyword.Start, x.c.End)).Contains('/') && (x.i == firstFails || !Lead(x.i).Contains('/')));
             var header = _source.GetText(TextSpan.FromBounds(name.Span.Start, paramsEnd))
-                + string.Concat(clauses.Where(c => c.Rank != 4).OrderBy(c => c.Rank).Select(c => " " + _source.GetText(TextSpan.FromBounds(c.Keyword.Start, c.End))));
+                + string.Concat(clauses.Select((c, i) => (c, i)).Where(x => x.c.Rank != 4).OrderBy(x => x.c.Rank)
+                    .Select(x => Lead(x.i) + _source.GetText(TextSpan.FromBounds(x.c.Keyword.Start, x.c.End))));
             Report(DiagnosticCodes.FailsShorthand, TextSpan.FromBounds(bang.Start, shorthandEnd), label: "the input form",
                 help: plain ? $"write `fails {errors}` as the last clause of the signature" : "write the error types in a `fails` clause, the last clause of the signature",
-                fix: !plain ? null : new Fix(TextSpan.FromBounds(typeEnd, end), " " + header + " fails " + errors));
+                fix: !plain || !kept ? null : new Fix(TextSpan.FromBounds(typeEnd, end), " " + header + (firstFails < 0 ? " " : Lead(firstFails)) + "fails " + errors));
             fails = new FailsClause(fails?.Span ?? TextSpan.FromBounds(bang.Start, shorthandEnd), all);
         }
         BlockStmt? body = null;
