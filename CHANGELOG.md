@@ -3,10 +3,16 @@
 ## [Unreleased]
 
 ### Added
+- Spec 016: `import std.<name>` loads a std module shipped inside the `bayan` binary (`lib/std/`), from a script, a file or a project, in the C# and the self-hosted compiler alike; a package's own `std/` cannot shadow it, an unknown module lists the ones that exist (BYN2032), a std module that imports a package module is BYN2033, and diagnostics inside std source point at `<std>/…` paths.
+- `import std.json`, the first std module: a pull reader (`JsonReader.over`, `next`, `JsonToken`), the tree `JsonValue` from `Json.parse` (`Untrusted`, fails `JsonError` with offset, line and column; nesting past 128 is `tooDeep`) and `Json.encode(v, indent:)` in the layout of Python's `json.dumps`, which fails `JsonError` on an infinite or NaN number (`nonFinite`) and on a tree nested past 128 levels (`nestedTooDeep`).
 - Lint BYN5103: a line starting with a joining token (`.`, `?.`, `??`, `&&`, `||`, `and`, `or`, `catch`, `fails`, …) must be indented deeper than its statement's first line; `bayan format` applies the fix.
 
 ### Changed
+- Signature clause order is now `where`, `expects`, `uses`, `becomes`, `fails` (round 4 §1), for function types too (`() -> T uses alloc fails DbError`); the old order is BYN1065, and `bayan format` reorders it.
 - `ensures` is no longer reserved and can be used as an identifier (revision 0019, round-4 batch 1); BYN0012 no longer fires on it.
+
+### Fixed
+- `bayan test --coverage` no longer counts the lines of an imported std module (`<std>/...`) in the summary, `bayan-quality.json` or the `test: Tests { lines: N }` gate.
 
 ### Security
 
@@ -17,7 +23,8 @@
 - Slice bounds `^n` and inclusive ends reject out-of-range values before computing, with no signed overflow; `replaced`,
   `joined` and list growth check their size arithmetic and panic "too long".
 - `Io.stdin.readAll()` rejects input that is not UTF-8 (`invalidUtf8`), as `Io.readText` does; the new
-  `Io.stdin.readAllBytes()` returns the rest of stdin as `List<u8>`, unvalidated.
+  `Io.stdin.readAllBytes()` returns the rest of stdin as `List<u8>`, unvalidated, and fails with `IoError` like
+  `Io.readFile`.
 
 ## [0.2.0] - 2026-11-06
 

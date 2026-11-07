@@ -1,5 +1,5 @@
 // `Io.removeDirectory` removes an empty directory and fails on a missing path, a non-empty directory and a file.
-void main() fails IoError uses fs, console {
+void main() uses fs, console fails IoError {
     try Io.createDirectory("io-remove-directory.tmp/inner")
     Io.removeDirectory("io-remove-directory.tmp") catch { print("non-empty: failed") }
     try Io.removeDirectory("io-remove-directory.tmp/inner")

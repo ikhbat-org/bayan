@@ -200,6 +200,26 @@ public sealed class ParserTests
     }
 
     [Theory]
+    [InlineData("void f() fails E uses io {\n}\n", "void f() uses io fails E {\n}\n")]
+    [InlineData("void f() becomes .done uses io {\n}\n", "void f() uses io becomes .done {\n}\n")]
+    [InlineData("void f() fails E becomes .done {\n}\n", "void f() becomes .done fails E {\n}\n")]
+    [InlineData("void f() uses io where T : I {\n}\n", "void f() where T : I uses io {\n}\n")]
+    [InlineData("type F = () -> void fails E uses io\n", "type F = () -> void uses io fails E\n")]
+    public void ClauseOrderIsAnInputFormWithAFix(string text, string fixedText)
+    {
+        var tree = Parse(text);
+        var diagnostic = Assert.Single(tree.Diagnostics);
+        Assert.Equal("BYN1065", diagnostic.Code);
+        var fix = diagnostic.Fix!;
+        Assert.Equal(fixedText, text[..fix.Span.Start] + fix.Replacement + text[fix.Span.End..]);
+    }
+
+    [Theory]
+    [InlineData("void f() where T : I expects true uses io becomes .done fails E {\n}\n")]
+    [InlineData("type F = () -> void uses io fails E\n")]
+    public void ClauseOrderAcceptsTheCanonicalOrder(string text) => Assert.Empty(Parse(text).Diagnostics);
+
+    [Theory]
     [InlineData("struct unique S {\n}\n", "Struct unique S")]
     [InlineData("union error E {\n    a\n}\n", "ErrorEnum E")]
     [InlineData("union error S = A, B except .x, .y\n", "ErrorSet S = A, B except .x, .y")]

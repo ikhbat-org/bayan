@@ -84,6 +84,7 @@ public sealed class Builtins
         IoStdout = Make("stdout", BuiltinFunction.IoStdout, BuiltinType.IoStream);
         IoStderr = Make("stderr", BuiltinFunction.IoStderr, BuiltinType.IoStream);
         IoStdin = Make("stdin", BuiltinFunction.IoStdin, BuiltinType.IoInput);
+        IoStdinReadAllBytes = MakeIo("readAllBytes", BuiltinFunction.IoStdinReadAllBytes, new ListType(PrimitiveType.U8));
 
         var utf8Source = SourceText.FromString("<builtin>", Utf8ErrorSource);
         var utf8Decl = (ErrorEnumDecl)SyntaxTree.Parse(utf8Source).Root.Members[0];
@@ -345,7 +346,7 @@ public sealed class Builtins
             notFound,
             /// Permission denied.
             permissionDenied,
-            /// The file is not valid UTF-8.
+            /// The input is not valid UTF-8.
             invalidUtf8,
             /// The path exists but is not a directory.
             notADirectory,
@@ -370,13 +371,13 @@ public sealed class Builtins
     /// <summary><c>void Io.writeFile(string path, ReadOnlySpan&lt;u8&gt; bytes) fails IoError</c>.</summary>
     public FunctionSymbol IoWriteFile { get; }
 
-    /// <summary><c>void Io.remove(string path) fails IoError</c> <c>uses fs</c>: as .NET <c>File.Delete</c> (a missing file is not an error; a directory fails).</summary>
+    /// <summary><c>void Io.remove(string path) uses fs fails IoError</c>: as .NET <c>File.Delete</c> (a missing file is not an error; a directory fails).</summary>
     public FunctionSymbol IoRemove { get; }
 
-    /// <summary><c>void Io.createDirectory(string path) fails IoError</c> <c>uses fs</c>: as .NET <c>Directory.CreateDirectory</c> (creates missing parents; an existing directory is not an error, an existing file is).</summary>
+    /// <summary><c>void Io.createDirectory(string path) uses fs fails IoError</c>: as .NET <c>Directory.CreateDirectory</c> (creates missing parents; an existing directory is not an error, an existing file is).</summary>
     public FunctionSymbol IoCreateDirectory { get; }
 
-    /// <summary><c>void Io.removeDirectory(string path) fails IoError</c> <c>uses fs</c>: as .NET <c>Directory.Delete(path)</c> (an empty directory only; a missing path, a file or a non-empty directory fails).</summary>
+    /// <summary><c>void Io.removeDirectory(string path) uses fs fails IoError</c>: as .NET <c>Directory.Delete(path)</c> (an empty directory only; a missing path, a file or a non-empty directory fails).</summary>
     public FunctionSymbol IoRemoveDirectory { get; }
 
     /// <summary><c>List&lt;string&gt; Io.listDir(string path) fails IoError</c>: entry names sorted by byte order.</summary>
@@ -393,8 +394,11 @@ public sealed class Builtins
 
     public FunctionSymbol IoStderr { get; }
 
-    /// <summary><c>Io.stdin</c>: a stream with <c>Result&lt;string, IoError&gt; readAll()</c>.</summary>
+    /// <summary><c>Io.stdin</c>: a stream with <c>Result&lt;string, IoError&gt; readAll()</c> and <c>List&lt;u8&gt; readAllBytes() fails IoError</c>.</summary>
     public FunctionSymbol IoStdin { get; }
+
+    /// <summary><c>List&lt;u8&gt; Io.stdin.readAllBytes() fails IoError</c>: the binder calls it for the <c>Io.stdin</c> method; not a static member of <c>Io</c>.</summary>
+    public FunctionSymbol IoStdinReadAllBytes { get; }
 
     /// <summary><c>ProcessResult Io.runBatch(string path, ReadOnlySpan&lt;string&gt; args) fails IoError</c>: a <c>.bat</c>/<c>.cmd</c> file through <c>cmd.exe</c>.</summary>
     public FunctionSymbol IoRunBatch { get; }

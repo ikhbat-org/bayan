@@ -233,7 +233,7 @@ public sealed record TupleTypeElement(TextSpan Span, TypeSyntax Type, Name? Name
 
 public sealed record TupleType(TextSpan Span, TupleTypeElement[] Elements) : TypeSyntax(Span);
 
-/// <summary><c>P -&gt; R fails E uses e</c>: <c>P</c> is one type, <c>(A, B)</c> or <c>()</c>.</summary>
+/// <summary><c>P -&gt; R uses e fails E</c>: <c>P</c> is one type, <c>(A, B)</c> or <c>()</c>.</summary>
 public sealed record FunctionTypeSyntax(TextSpan Span, TypeSyntax[] Params, TypeSyntax Return, FailsClause? Fails, UsesClause? Uses) : TypeSyntax(Span);
 
 /// <summary><c>dyn ref I</c>, <c>dyn ref readonly I</c>, or <c>dyn I</c> (not supported yet).</summary>

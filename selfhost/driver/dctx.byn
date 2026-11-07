@@ -26,6 +26,8 @@ public struct DCtx {
     // T3 keeps no state: `Targets.Host` is recomputed from `Target` (cc.byn `targetHost`).
     // ── T5 state
     // T5 keeps no state: `build` and `run` read their options per call (build.byn `T5Options`), and `HostTarget` is cc.byn `targetHost`.
+    // ── T6 state
+    // T6 keeps no state: `audit` reads its path per call, the walk (walk.byn `bynFiles`) keeps its seen sets local, and the `manifestFor` cache is its caller's, as the C# `Format.Run` owns it (Q1107).
     // ── T9 state
     // T9 keeps no state yet: `s_swept` (Toolchain.cs:404) goes with `SweepOnce`, which waits for a write-time builtin (Q1112).
 }

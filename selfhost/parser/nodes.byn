@@ -529,7 +529,7 @@ public struct TupleType {
     public List<TupleTypeElement> elements
 }
 
-/// `P -> R fails E uses e`: `P` is one type, `(A, B)` or `()`.
+/// `P -> R uses e fails E`: `P` is one type, `(A, B)` or `()`.
 public struct FunctionTypeSyntax {
     public TextSpan span
     public List<TypeSyntax> params
