@@ -64,7 +64,6 @@ public sealed class SelfhostDriverT1Tests
 
     [Theory]
     [InlineData("format")]
-    [InlineData("audit")]
     [InlineData("features")]
     [InlineData("test")]
     [InlineData("mutate")]
@@ -166,6 +165,153 @@ public sealed class SelfhostDriverT1Tests
         var expected = TerminalStyle.Decide(color, ascii, tty, _ => null, width);
         var actual = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), "decide", color, ascii ? "true" : "false", tty ? "true" : "false", width.ToString()).Out;
         Assert.Equal(Fmt(expected) + "\n", actual);
+    }
+
+    private const string AuditSource = "@allow(BYN2230) because \"kept for the C ABI\"\nvoid toHex() {\n}\n\nunsafe void poke() {\n}\n\n"
+        + "void main() {\n    let k = input.trustUnchecked() because \"a fixture\"\n    unsafe because \"raw write\" {\n    }\n}\n\nextern i32 puts(cstr s)\n";
+
+    /// <summary>The fixture tree of one <c>audit</c> row under <c>tmp/t6-audit/</c> and its arguments, with <c>{D}</c> replaced by the tree.</summary>
+    private static string[] AuditRow(string name)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t6-audit", name);
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        void Write(string relative, string text)
+        {
+            var file = Path.Combine(dir, relative);
+            Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+            File.WriteAllText(file, text);
+        }
+        switch (name)
+        {
+            case "bypasses":
+                Write("main.byn", AuditSource);
+                return ["audit", dir];
+            case "file":
+                Write("main.byn", AuditSource);
+                return ["audit", Path.Combine(dir, "main.byn")];
+            case "ascii":
+                Write("main.byn", AuditSource);
+                return ["--ascii", "audit", dir];
+            case "color":
+                Write("main.byn", AuditSource);
+                return ["--color", "always", "audit", dir];
+            case "edges":
+                // `because` first, after a bare `)`, after a call, a name, a paren group, with no string reason; `unsafe` with `because`, at the end of file, before a brace.
+                Write("a.byn", "because \"first\"\n");
+                Write("b.byn", ") because \"stray\"\n(1) because \"group\"\nfoo(1) because \"call\"\nlet é = bar(2, (3)) because \"unicode\"\nx because y\n@a(1) because \"attr\"\nunsafe because \"b\" {\n}\nunsafe fn f() {\n}\nextern\nunsafe");
+                return ["audit", Path.Combine(dir, "a.byn"), "x"];
+            case "edges-two":
+                Write("a.byn", "because \"first\"\n");
+                Write("c.byn", "(1) because \"opens the file\"\n");
+                Write("b.byn", ") because \"stray\"\n(1) because \"group\"\nfoo(1) because \"call\"\nlet é = bar(2, (3)) because \"unicode\"\nx because y\n@a(1) because \"attr\"\nunsafe because \"b\" {\n}\nunsafe fn f() {\n}\nextern\nunsafe");
+                return ["audit", dir];
+            case "tree":
+                // M3: scratch directories are not entered, a nested `bin` is; `package.byn` is not audited; files list in ordinal order.
+                foreach (var f in new[] { "b.byn", "a.byn", "src/bin/x.byn", "src/obj/y.byn", "src/node_modules/z.byn", "src/deep/q.byn", ".worktrees/x/w.byn", "tmp/t.byn", "bin/r.byn", "dist/d.byn", "obj/o.byn", "node_modules/n.byn", "notes.txt", "weird.byn/inner.byn" })
+                    Write(f, "unsafe void " + Path.GetFileNameWithoutExtension(f) + "() {\n}\n");
+                Write("package.byn", "unsafe void pkg() {\n}\n");
+                return ["audit", dir];
+            case "empty":
+                return ["audit", dir];
+            case "one":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                return ["audit", dir];
+            case "unreadable-file":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                Write("a.byn", "unsafe void peek() {\n}\n");
+                return ["audit", dir];
+            case "unreadable-dir":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                Write("locked/b.byn", "unsafe void peek() {\n}\n");
+                return ["audit", dir];
+            case "missing":
+                return ["audit", Path.Combine(dir, "nope")];
+            case "no-path":
+                return ["audit"];
+            case "option":
+                return ["audit", "-x"];
+            case "two-paths":
+                return ["audit", dir, dir];
+            default:
+                throw new ArgumentException(name);
+        }
+    }
+
+    /// <summary><c>bayan audit</c> against <see cref="CliApp.Run"/> on the same tree: exit code, stdout and stderr (M3's file list included).</summary>
+    [Theory]
+    [InlineData("bypasses")]
+    [InlineData("file")]
+    [InlineData("ascii")]
+    [InlineData("color")]
+    [InlineData("edges")]
+    [InlineData("edges-two")]
+    [InlineData("tree")]
+    [InlineData("empty")]
+    [InlineData("one")]
+    [InlineData("missing")]
+    [InlineData("no-path")]
+    [InlineData("option")]
+    [InlineData("two-paths")]
+    public void AuditAsCliApp(string name) => AssertSameAsCs(AuditRow(name));
+
+    /// <summary>The commands <c>run</c> hands to a file of their own, by their usage or missing-path paths, against <see cref="CliApp.Run"/>.</summary>
+    [Theory]
+    [InlineData("lex")]
+    [InlineData("parse")]
+    [InlineData("types")]
+    [InlineData("check")]
+    [InlineData("explain")]
+    [InlineData("explain", "BYN0003")]
+    [InlineData("new")]
+    [InlineData("init", "{D}/missing")]
+    [InlineData("cache")]
+    [InlineData("cache", "stats", "extra")]
+    [InlineData("clean", "{D}/missing")]
+    public void DispatchesToTheOtherCommandsAsCliApp(params string[] args)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t6-dispatch");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        AssertSameAsCs([.. args.Select(a => a.Replace("{D}", dir))]);
+    }
+
+    /// <summary><c>doctor</c> reaches the driver's own checks; only the commit of its version row (spec Q1091) is masked.</summary>
+    [Fact]
+    public void DispatchesDoctorAsCliApp()
+    {
+        static string Commit(string text) => Regex.Replace(text, @"\(commit [^)]*\)", "(commit masked)");
+        var expected = Oracle(["doctor"]);
+        var actual = SelfhostDriverHarness.Run("doctor");
+        Assert.Equal(expected.Exit, actual.Exit);
+        SelfhostEmitterHarness.AssertSame("stdout of `doctor`", Commit(expected.Out), Commit(actual.Out));
+        SelfhostEmitterHarness.AssertSame("stderr of `doctor`", expected.Err, actual.Err);
+    }
+
+    /// <summary>An unreadable file or directory is reported and the rest audited; the .NET message after the path differs from the driver's, so stderr is compared up to it.</summary>
+    [Theory]
+    [InlineData("unreadable-file", "a.byn")]
+    [InlineData("unreadable-dir", "locked")]
+    public void AuditReportsWhatItCannotReadAsCliApp(string name, string locked)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var args = AuditRow(name);
+        var target = Path.Combine(args[1], locked);
+        File.SetUnixFileMode(target, UnixFileMode.None);
+        try
+        {
+            try { _ = Directory.Exists(target) ? Directory.GetFiles(target) : [File.ReadAllText(target)]; return; }
+            catch (UnauthorizedAccessException) { }
+            var expected = Oracle(args);
+            var actual = SelfhostDriverHarness.Run(args);
+            Assert.Equal(CliApp.ExitFailure, expected.Exit);
+            Assert.Equal(expected.Exit, actual.Exit);
+            SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
+            var prefix = $"bayan: {target}: ";
+            Assert.StartsWith(prefix, expected.Err);
+            Assert.StartsWith(prefix, actual.Err);
+        }
+        finally { File.SetUnixFileMode(target, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); }
     }
 
     [Fact]
