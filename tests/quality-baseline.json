@@ -71,6 +71,11 @@
       "coverage": 0.9565,
       "branches": 0.9028
     },
+    "selfhost/emitter/coverage.byn": {
+      "mutation": null,
+      "coverage": 0.9615,
+      "branches": 0.9297
+    },
     "selfhost/emitter/cprint/builtin.byn": {
       "mutation": null,
       "coverage": 0.9864,
@@ -146,6 +151,11 @@
       "coverage": 0.9871,
       "branches": 0.939
     },
+    "selfhost/emitter/ltree/ltree.byn": {
+      "mutation": null,
+      "coverage": 0.8679,
+      "branches": 0.875
+    },
     "selfhost/emitter/main.byn": {
       "mutation": null,
       "coverage": 1.0,
@@ -155,6 +165,11 @@
       "mutation": null,
       "coverage": 1.0,
       "branches": 1.0
+    },
+    "selfhost/emitter/schemata.byn": {
+      "mutation": null,
+      "coverage": 0.9777,
+      "branches": 0.9237
     },
     "selfhost/lexer/main.byn": {
       "mutation": null,
