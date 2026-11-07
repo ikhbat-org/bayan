@@ -1257,10 +1257,11 @@ public sealed class Parser
             var plain = all.All(t => t is NamedType { Args.Length: 0 });
             // `fails` is the last clause (BYN1065): the header keeps the other clauses before it.
             var end = clauses.Count > 0 ? clauses[^1].End : paramsEnd;
-            var kept = clauses.Where(c => c.Rank != 4).Select(c => c.End).DefaultIfEmpty(paramsEnd).Max();
+            var header = _source.GetText(TextSpan.FromBounds(name.Span.Start, paramsEnd))
+                + string.Concat(clauses.Where(c => c.Rank != 4).OrderBy(c => c.Rank).Select(c => " " + _source.GetText(TextSpan.FromBounds(c.Keyword.Start, c.End))));
             Report(DiagnosticCodes.FailsShorthand, TextSpan.FromBounds(bang.Start, shorthandEnd), label: "the input form",
                 help: plain ? $"write `fails {errors}` as the last clause of the signature" : "write the error types in a `fails` clause, the last clause of the signature",
-                fix: !plain ? null : new Fix(TextSpan.FromBounds(typeEnd, end), " " + _source.GetText(TextSpan.FromBounds(name.Span.Start, kept)) + " fails " + errors));
+                fix: !plain ? null : new Fix(TextSpan.FromBounds(typeEnd, end), " " + header + " fails " + errors));
             fails = new FailsClause(fails?.Span ?? TextSpan.FromBounds(bang.Start, shorthandEnd), all);
         }
         BlockStmt? body = null;

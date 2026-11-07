@@ -93,6 +93,18 @@ public sealed class FormatTests
     }
 
     [Fact]
+    public void AFailsShorthandBeforeUsesFormatsToOneFailsClause()
+    {
+        var file = Path.Combine(Fresh("shorthand-uses"), "main.byn");
+        File.WriteAllText(file, "union error E {\n    a\n}\nunion error F {\n    b\n}\ni32!E g() fails F uses console {\n    print(\"g\")\n    return 1\n}\n");
+        var (exit, _, stderr) = Run("format", file);
+        Assert.True(exit == CliApp.ExitOk, stderr);
+        var text = File.ReadAllText(file);
+        Assert.Contains("i32 g() uses console fails E, F {", text);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
+    }
+
+    [Fact]
     public void ASecondRunChangesNothing()
     {
         var file = Path.Combine(Fresh("idempotent"), "main.byn");

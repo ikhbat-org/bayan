@@ -858,12 +858,18 @@ FunctionDecl parseFunction(ref Parser p, at i64 start, by Modifiers modifiers, b
         if plain {
             // `fails` is the last clause (BYN1065): the header keeps the other clauses before it.
             let end = clauses.length > 0 ? clauses[clauses.length - 1].end : paramsEnd
-            var kept = paramsEnd
-            for k in 0..clauses.length {
-                if clauses[k].rank != 4 && clauses[k].end > kept { kept = clauses[k].end }
+            var header = StrBuf()
+            header.append(p.lexed.source.getText(TextSpan.fromBounds(name.start, until: paramsEnd)))
+            for rank in 0..4 {
+                for k in 0..clauses.length {
+                    if clauses[k].rank == rank {
+                        header.append(" ")
+                        header.append(p.lexed.source.getText(TextSpan.fromBounds(clauses[k].keyword.start, until: clauses[k].end)))
+                    }
+                }
             }
-            let header = p.lexed.source.getText(TextSpan.fromBounds(name.start, until: kept))
-            let _ = p.reportFix(.failsShorthand, at: at, through: TextSpan.fromBounds(typeEnd, until: end), by: $" {header} fails {errors}",
+            let headerText = header.finish()
+            let _ = p.reportFix(.failsShorthand, at: at, through: TextSpan.fromBounds(typeEnd, until: end), by: $" {headerText} fails {errors}",
                 label: "the input form", help: $"write `fails {errors}` as the last clause of the signature")
         } else {
             let _ = p.report(.failsShorthand, at: at, label: "the input form",
