@@ -105,6 +105,15 @@ public sealed partial class SelfhostDefaultT5Tests
     [Fact]
     public void ExplainStillDispatches() => Same([], "explain", "BYN0003");
 
+    /// <summary>T5 edits `run`, whose `cache` and `clean` arms are T3's: the guard gates every line of a touched function.</summary>
+    [Fact]
+    public void CacheAndCleanStillDispatch()
+    {
+        var cache = Fresh("dispatch");
+        Same([("BAYAN_CACHE", cache)], "cache", "stats");
+        Same([("BAYAN_CACHE", cache)], "clean");
+    }
+
     [Fact]
     public void AWorkingCompilerFromTheEnvironmentAndNoZigOrGit()
     {
