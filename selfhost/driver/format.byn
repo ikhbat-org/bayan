@@ -93,7 +93,6 @@ i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
         var declared: Map<string, bool> = []
         if (package is { } found) {
             unless packageNamesByRoot.contains(found.dir) { packageNamesByRoot[found.dir] = packageNames(found.dir) }
-            // coverage-exempt: Q1124
             for (name, _) in packageNamesByRoot[found.dir] { declared[name] = true }
         }
         // Read and write the file the kernel opens, not the one a lexical `..` collapse names.
@@ -153,7 +152,10 @@ List<u8> applyFixes(in List<u8> bytes, for in List<T8Fix> fixes) uses alloc {
     for f in fixes {
         var seen = false
         for g in ordered {
-            if g.span.start == f.span.start && g.span.length == f.span.length && g.replacement == f.replacement { seen = true }
+            if g.span.start == f.span.start && g.span.length == f.span.length {
+                // coverage-exempt: Q1123
+                if g.replacement == f.replacement { seen = true }
+            }
         }
         if seen { continue }
         ordered.append(f)
@@ -293,7 +295,6 @@ List<u8> restyle(string file, from in List<u8> bytes, by in parser.CompilationUn
     let typeNames = t8TypeNames(in tree)
     let calleeNames = t8CalleeAndReceiverNames(in tree)
     var others = otherUses(file, from: in bytes, by: in tree)
-    // coverage-exempt: Q1124
     for (name, _) in declared { others[name] = true }
     var renames = List<T8Fix>()
     var operators = List<T8Fix>()

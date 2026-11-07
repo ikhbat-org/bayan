@@ -551,6 +551,7 @@ public sealed class SelfhostDriverT1Tests
             "shorthand-uses" => One("union error E {\n    a\n}\nunion error F {\n    b\n}\ni32!E g() fails F uses console {\n    print(\"g\")\n    return 1\n}\n"),
             "shorthand-comment" => One(ErrorSets + "i32!E g() // keep me\n    fails F\n    uses console" + Body),
             "shorthand-lines" => One(ErrorSets + "i32!E g()\n    fails F\n    uses console" + Body),
+            "shorthand-column-0" => One(ErrorSets + "i32 g()\nfails F\nuses console" + Body),
             "shorthand-where" => One(ErrorSets + "i64!E g<T>(T x) fails F where T : IShape expects true" + Body),
             "shorthand-two-fails" => One(ErrorSets + "i32!E g() fails F uses console fails G, E" + Body),
             "shorthand-two-uses" => One(ErrorSets + "i32!E g() fails F uses console uses fs" + Body),
@@ -645,6 +646,7 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("shorthand-uses")]
     [InlineData("shorthand-comment")]
     [InlineData("shorthand-lines")]
+    [InlineData("shorthand-column-0")]
     [InlineData("shorthand-where")]
     [InlineData("shorthand-two-fails")]
     [InlineData("shorthand-two-uses")]
