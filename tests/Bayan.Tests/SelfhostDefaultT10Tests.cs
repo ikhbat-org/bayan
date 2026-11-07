@@ -225,6 +225,7 @@ public sealed class SelfhostDefaultT10Tests
             {
                 var expected = Expected(inputs, dir, mutate: mode.StartsWith("mutate"), skipped: mode.EndsWith("-skip"));
                 Assert.DoesNotContain("errors\n", expected);
+                if (mode == "mutate") Assert.Contains("\"unobservable\": \"x is clamped by the caller\"", expected);
                 var (exit, output, error) = SelfhostParserTests.Run(Build(), [mode, dir, .. inputs]);
                 Assert.True(exit == 0, $"exit {exit}\n{error}");
                 SelfhostEmitterHarness.AssertSame($"edge {mode}", expected, output);
@@ -602,6 +603,10 @@ public sealed class SelfhostDefaultT10Tests
             n += 4 unless false
             n += 5 unless true
             if enabled { n += 1 }
+            @unobservable because "only logged"
+            n += 6
+            @unobservable(boundary) because "x is clamped by the caller"
+            if x < 9 { n += 7 }
             let v = only() catch (G.a) 3
             let ok = x > 0 || panic("negative")
             let odd = x > 0 &&
