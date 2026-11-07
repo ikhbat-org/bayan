@@ -13,7 +13,7 @@ const stdSource0: string = """// Tests of std.json. Expected encodings are pytho
 // `json.dumps(v, indent=N)`) for `json.loads` of the input, recorded from a run, not written by hand.
 
 /// The tree of `text`, trusted for the test.
-JsonValue tree(string text) fails JsonError uses alloc {
+JsonValue tree(string text) uses alloc fails JsonError {
     return (try Json.parse(text)).trustUnchecked() because "test input is a literal"
 }
 
@@ -53,7 +53,7 @@ JsonValue nested(i64 depth) uses alloc {
 }
 
 /// The tokens of `text`, one word each.
-string tokensOf(string text) fails JsonError uses alloc {
+string tokensOf(string text) uses alloc fails JsonError {
     var reader = JsonReader.over(text)
     var sb = StrBuf()
     while true {
@@ -315,7 +315,7 @@ public struct JsonReader {
     }
 
     /// The next token, or `null` once the value has been read and only whitespace follows it.
-    public JsonToken? next(ref this) fails JsonError uses alloc {
+    public JsonToken? next(ref this) uses alloc fails JsonError {
         skipSpace()
         if state is .done {
             fail .syntax(message: "unexpected content after the value", offset: pos, line: line, column: columnAt(pos)) if pos < text.length
@@ -390,7 +390,7 @@ public struct JsonReader {
         return token
     }
 
-    JsonToken openContainer(ref this, bool object) fails JsonError uses alloc {
+    JsonToken openContainer(ref this, bool object) uses alloc fails JsonError {
         fail .tooDeep(offset: pos, line: line, column: columnAt(pos)) if open.length >= maxDepth
         pos += 1
         open.append(object)
@@ -398,7 +398,7 @@ public struct JsonReader {
         return object ? .startObject : .startList
     }
 
-    JsonToken readValue(ref this) fails JsonError uses alloc {
+    JsonToken readValue(ref this) uses alloc fails JsonError {
         let b = peek()
         if b == '{' { return try openContainer(object: true) }
         if b == '[' { return try openContainer(object: false) }
@@ -460,7 +460,7 @@ public struct JsonReader {
     }
 
     /// The string at `pos` (its opening `"`), unescaped; a text without escapes is a slice of the input.
-    string readString(ref this) fails JsonError uses alloc {
+    string readString(ref this) uses alloc fails JsonError {
         let start = pos
         pos += 1
         var sb = StrBuf()
@@ -571,7 +571,7 @@ public struct JsonMember {
 /// Parsing JSON text into a tree and writing a tree as text.
 public struct Json {
     /// The value `text` holds, read with `JsonReader`; outside data, so `Untrusted`.
-    public static Untrusted<JsonValue> parse(string text) fails JsonError uses alloc {
+    public static Untrusted<JsonValue> parse(string text) uses alloc fails JsonError {
         var reader = JsonReader.over(text)
         let first = (try reader.next()) ?? panic("std.json: a reader gives a token before its end")
         let value = try treeOf(ref reader, from: first)
@@ -584,7 +584,7 @@ public struct Json {
     /// is a JSON number (RFC 8259 §6), else its value as shortest digits, so a built number never writes invalid JSON or
     /// text outside itself; NaN and ±infinity fail `nonFinite` (spec §6.6). Lists and objects nesting deeper than
     /// `maxDepth` fail `nestedTooDeep`, before the recursion goes past that depth.
-    public static string encode(JsonValue v, i32 indent = 0) fails JsonError uses alloc {
+    public static string encode(JsonValue v, i32 indent = 0) uses alloc fails JsonError {
         var sb = StrBuf()
         try encodeInto(ref sb, from: v, by: i64(indent), at: 0)
         return $"{sb.finish()}"
@@ -592,7 +592,7 @@ public struct Json {
 }
 
 /// The value that starts with `first`; the reader's depth limit bounds the recursion.
-JsonValue treeOf(ref JsonReader reader, from JsonToken first) fails JsonError uses alloc {
+JsonValue treeOf(ref JsonReader reader, from JsonToken first) uses alloc fails JsonError {
     switch first {
         case .startList:
             var items = List<JsonValue>()
@@ -622,7 +622,7 @@ JsonValue treeOf(ref JsonReader reader, from JsonToken first) fails JsonError us
 }
 
 /// `v` at nesting `level` (the number of lists and objects around it); a list or object at `maxDepth` fails.
-void encodeInto(ref StrBuf sb, from JsonValue v, by i64 indent, at i64 level) fails JsonError uses alloc {
+void encodeInto(ref StrBuf sb, from JsonValue v, by i64 indent, at i64 level) uses alloc fails JsonError {
     switch v {
         case .nothing: sb.append("null")
         case .flag(let value): sb.append(value ? "true" : "false")
@@ -661,7 +661,7 @@ void encodeInto(ref StrBuf sb, from JsonValue v, by i64 indent, at i64 level) fa
 
 /// `text` when it is one whole JSON number, else `value`, which fails `nonFinite` when it is not finite (only then is
 /// `value - value` not 0).
-void numberInto(ref StrBuf sb, from f64 value, as string text) fails JsonError uses alloc {
+void numberInto(ref StrBuf sb, from f64 value, as string text) uses alloc fails JsonError {
     if isNumberText(text) {
         sb.append(text)
         return

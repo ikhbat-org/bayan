@@ -244,14 +244,14 @@ internal static class EffectAnalysis
     internal static void ReportUnknown(Compilation c, SourceText source, Name name) =>
         c.Report(DiagnosticCodes.UnknownEffect, source, name.Span, [name.Text], label: "not an effect or an `effect` alias of this module", help: UnknownEffectHelp);
 
-    /// <summary>Adds <paramref name="effects"/> to the <c>uses</c> clause, or writes one after the rest of the signature (clause order §5).</summary>
+    /// <summary>Adds <paramref name="effects"/> to the <c>uses</c> clause, or writes one after <c>where</c> and <c>expects</c>, before <c>becomes</c> and <c>fails</c> (BYN1065's order).</summary>
     private static Fix DeclareFix(SourceText source, FunctionDecl decl, IEnumerable<string> effects)
     {
         var list = string.Join(", ", effects);
         if (decl.Uses is { } uses) return new Fix(new TextSpan(uses.Span.End, 0), ", " + list);
         var close = decl.Params.Length > 0 ? decl.Params[^1].Span.End : decl.ParamsStart;
         while (close < source.Bytes.Length && source.Bytes.Span[close] != (byte)')') close++;
-        var end = new[] { close + 1, decl.Fails?.Span.End ?? 0, decl.Becomes?.Span.End ?? 0, decl.Where.Length > 0 ? decl.Where[^1].Span.End : 0 }.Max();
+        var end = new[] { close + 1, decl.Where.Length > 0 ? decl.Where[^1].Span.End : 0, decl.Requires.Length > 0 ? decl.Requires[^1].Span.End : 0 }.Max();
         return new Fix(new TextSpan(end, 0), " uses " + list);
     }
 

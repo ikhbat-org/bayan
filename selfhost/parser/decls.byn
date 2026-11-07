@@ -789,12 +789,12 @@ FunctionDecl parseFunction(ref Parser p, at i64 start, by Modifiers modifiers, b
             p.noLambda = saved
             requiresList.append(move condition)
         } else if atContextual(ref p, as: "becomes") && p.peek(1) == .dot {
-            rank = 2
+            rank = 3
             let _ = p.advance()
             let _ = p.advance()
             becomes = expectName(ref p, what: "a state name")
         } else if p.kind() == .failsKeyword {
-            rank = 3
+            rank = 4
             let failsStart = p.advance().start
             var errors = List<TypeSyntax>()
             if p.kind() == .identifier && !atContextual(ref p, as: "where") && !atContextual(ref p, as: "expects")
@@ -805,7 +805,7 @@ FunctionDecl parseFunction(ref Parser p, at i64 start, by Modifiers modifiers, b
             failsSpan = p.spanFrom(failsStart)
             failsErrors = move errors
         } else if p.kind() == .usesKeyword {
-            rank = 4
+            rank = 2
             let usesStart = p.advance().start
             var effects = List<TextSpan>()
             effects.append(expectName(ref p, what: "an effect name"))
@@ -856,15 +856,18 @@ FunctionDecl parseFunction(ref Parser p, at i64 start, by Modifiers modifiers, b
         }
         let at = TextSpan.fromBounds(bang.start, until: shorthandEnd)
         if plain {
-            var end = paramsEnd
-            let explicit = failsSpan
-            if explicit is not null { end = explicit.end }
-            let header = p.lexed.source.getText(TextSpan.fromBounds(name.start, until: paramsEnd))
+            // `fails` is the last clause (BYN1065): the header keeps the other clauses before it.
+            let end = clauses.length > 0 ? clauses[clauses.length - 1].end : paramsEnd
+            var kept = paramsEnd
+            for k in 0..clauses.length {
+                if clauses[k].rank != 4 && clauses[k].end > kept { kept = clauses[k].end }
+            }
+            let header = p.lexed.source.getText(TextSpan.fromBounds(name.start, until: kept))
             let _ = p.reportFix(.failsShorthand, at: at, through: TextSpan.fromBounds(typeEnd, until: end), by: $" {header} fails {errors}",
-                label: "the input form", help: $"write `fails {errors}` after the parameters")
+                label: "the input form", help: $"write `fails {errors}` as the last clause of the signature")
         } else {
             let _ = p.report(.failsShorthand, at: at, label: "the input form",
-                help: "write the error types in a `fails` clause after the parameters")
+                help: "write the error types in a `fails` clause, the last clause of the signature")
         }
         if failsSpan is null { failsSpan = at }
         failsErrors = move all
@@ -906,7 +909,7 @@ FunctionDecl parseFunction(ref Parser p, at i64 start, by Modifiers modifiers, b
 }
 
 /// BYN1065 at the first signature clause that follows one of a later rank (`where`, `expects`,
-/// `becomes`, `fails`, `uses`); the fix sorts the clauses and keeps the gaps between them.
+/// `uses`, `becomes`, `fails`); the fix sorts the clauses and keeps the gaps between them.
 void reportClauseOrder(ref Parser p, for in List<SignatureClause> clauses) {
     for i in 1..clauses.length {
         var before: i64 = -1
@@ -1145,14 +1148,14 @@ TypeSyntax parseRefinement(ref Parser p, from move TypeSyntax type, TextSpan? na
     let typeSpan = typeSpan(in type)
     if states.length == 1 {
         let typeText = p.lexed.source.getText(typeSpan)
-        let stateText = p.lexed.source.getText(states[0])
+        let stateText = nameText(ref p, at: states[0])
         let stateType = $"{typeText}.{stateText}"
         var written = typeText
         var rewrite = stateType
         if name is not null {
-            let nameText = p.lexed.source.getText(name)
-            written = $"{typeText} {nameText}"
-            rewrite = $"{stateType} {nameText}"
+            let named = nameText(ref p, at: name)
+            written = $"{typeText} {named}"
+            rewrite = $"{stateType} {named}"
         }
         let _ = p.reportFix(.singleStateInline, at: spanOf(keyword), through: TextSpan.fromBounds(typeSpan.start, until: p.prevEnd),
             by: rewrite, arg0: written, arg1: stateText, arg2: rewrite, label: "one state", help: $"write the state type `{stateType}`")

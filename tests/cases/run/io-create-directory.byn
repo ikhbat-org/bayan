@@ -1,5 +1,5 @@
 // `Io.createDirectory` makes missing parents, accepts an existing directory and fails on a file.
-void main() fails IoError uses fs, alloc {
+void main() uses fs, alloc fails IoError {
     try Io.createDirectory("io-create-directory.tmp/a/b")
     try Io.createDirectory("io-create-directory.tmp/a/b")
     let names = try Io.listDir("io-create-directory.tmp/a")

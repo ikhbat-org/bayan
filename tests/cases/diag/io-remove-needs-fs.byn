@@ -3,7 +3,7 @@ public void undeclaredRemove(string p) fails IoError {
     try Io.remove(p)
 }
 
-public void declaredRemove(string p) fails IoError uses fs {
+public void declaredRemove(string p) uses fs fails IoError {
     try Io.remove(p)
 }
 
