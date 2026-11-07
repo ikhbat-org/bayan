@@ -219,9 +219,11 @@ DStyle decideStyle(string colorFlag, by bool ascii, through bool isTty, for i64 
             }
     }
     var palette: i64 = 0
-    let term = Env.get("COLORTERM") ?? ""
-    if term == "truecolor" || term == "24bit" {
-        palette = t7Light() ? 1 : 2
+    if color {
+        let term = Env.get("COLORTERM") ?? ""
+        if term == "truecolor" || term == "24bit" {
+            palette = t7Light() ? 1 : 2
+        }
     }
     return DStyle { color: color, ascii: ascii || dumb || !t7Utf8(), width: isTty && width > 0 ? width : 100, palette: palette }
 }
@@ -232,22 +234,27 @@ bool t7Light() uses alloc, env {
     if theme == "light" { return true }
     if theme == "dark" { return false }
     let fgbg = Env.get("COLORFGBG") ?? ""
-    // digits after the last `;`; `int.TryParse` with `NumberStyles.None` rejects an empty or non-digit field
+    // digits after the last `;`; `int.TryParse` with `NumberStyles.None` rejects an empty, non-digit or out-of-range (above int.MaxValue) field
     var bg: i64 = 0
     var digits = 0
+    var bad = false
     for c in fgbg.bytes {
         if c == 0x3b {
             bg = 0
             digits = 0
+            bad = false
         } else if c >= 0x30 && c <= 0x39 {
             bg = bg * 10 + i64(c) - 0x30
             digits += 1
+            if bg > 2147483647 {
+                bad = true
+                bg = 0
+            }
         } else {
-            bg = -1
-            digits = 0
+            bad = true
         }
     }
-    if bg < 0 || digits == 0 { return false }
+    if bad || digits == 0 { return false }
     return bg == 7 || (bg >= 9 && bg <= 15)
 }
 

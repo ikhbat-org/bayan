@@ -664,6 +664,13 @@ public sealed class SelfhostDriverStyleEnvironmentTests
     [InlineData("COLORTERM=truecolor|COLORFGBG=0;1x", "always")]
     [InlineData("COLORTERM=truecolor|COLORFGBG=", "always")]
     [InlineData("COLORTERM=truecolor|COLORFGBG=0;16", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;99999999999999999999", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;2147483647", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;2147483648", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;00000000000000000009", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;x99999999999999999999", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;99999999999999999999", "never")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;2147483648", "never")]
     [InlineData("COLORTERM=truecolor|FORCE_COLOR=1|BAYAN_THEME=light", "auto")]
     public void TheEnvironmentPaintsAsCliAppRun(string vars, string color)
     {
@@ -832,11 +839,13 @@ public sealed class SelfhostDriverStyleEnvironmentTests
     public void LaterTicksAndASecondDoneAsProgressDoes(bool ascii, int extra) =>
         AssertLine("compiling", 100, ascii, true, false, "", extra);
 
-    /// <summary>The timer: a threshold passed (one frame, two frames after a second interval; one for ASCII) or not (nothing), as the C# <c>Timer</c> draws it.</summary>
+    /// <summary>The timer (a zero threshold draws once and starts none, so waiting adds no frame): a threshold passed (one frame, two frames after a second interval; one for ASCII) or not (nothing), as the C# <c>Timer</c> draws it.</summary>
     [Theory]
     [InlineData(false, 1, 150)]
     [InlineData(false, 1, 400)]
     [InlineData(true, 1, 400)]
+    [InlineData(false, 0, 400)]
+    [InlineData(true, 0, 400)]
     [InlineData(false, 10000, 150)]
     [InlineData(true, 10000, 150)]
     public void TheTimerDrawsAsProgressDoes(bool ascii, int afterMs, int waitMs)

@@ -288,6 +288,8 @@ public sealed class SelfhostDriverGoldenTests
     public static IEnumerable<object[]> DiagJson() =>
         from command in new[] { "check", "build" }
         from file in Directory.GetFiles(Path.Combine(Golden.CasesRoot, "diag-json"), "*.byn").Order(StringComparer.Ordinal)
+        // listed skip (017 T7, Q1118): `build` of `fix-and-help`, which has only a warning, goes on to the native build, which this row does not run
+        where !(command == "build" && Path.GetFileNameWithoutExtension(file) == "fix-and-help")
         select new object[] { command, Path.GetFileNameWithoutExtension(file) };
 
     /// <summary>
@@ -300,8 +302,6 @@ public sealed class SelfhostDriverGoldenTests
     {
         var dir = Path.Combine(Golden.CasesRoot, "diag-json");
         var failing = File.ReadAllText(Path.Combine(dir, name + ".jsonl")).Contains("\"severity\":\"error\"", StringComparison.Ordinal);
-        // listed skip: `build` of a case with only warnings (fix-and-help) goes on to the native build, which this row does not run
-        if (command == "build" && !failing) return;
         var r = Stage2(dir, command, "--package", dir, "--diagnostics", "json", name + ".byn");
         Assert.Equal(failing ? CliApp.ExitFailure : CliApp.ExitOk, r.Exit);
         Assert.Equal("", r.Stdout);
