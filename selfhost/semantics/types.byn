@@ -655,18 +655,18 @@ string functionDisplay(ref Ctx c, by i64 idx) {
     } else {
         sb.append(typeDisplay(ref c, by: ret))
     }
-    if flen > 0 {
-        sb.append(" fails ")
-        for i in 0..flen {
-            if i > 0 { sb.append(", ") }
-            sb.append(errorSetDisplayName(ref c, by: c.functionTypes[idx].errorSets[i]))
-        }
-    }
     if ulen > 0 {
         sb.append(" uses ")
         for i in 0..ulen {
             if i > 0 { sb.append(", ") }
             sb.append(c.functionTypes[idx].effects[i])
+        }
+    }
+    if flen > 0 {
+        sb.append(" fails ")
+        for i in 0..flen {
+            if i > 0 { sb.append(", ") }
+            sb.append(errorSetDisplayName(ref c, by: c.functionTypes[idx].errorSets[i]))
         }
     }
     return $"{sb.finish()}"

@@ -273,10 +273,6 @@ void dumpType(in TypeSyntax t, from ref Parser p, to ref StrBuf sb) {
             if paren { sb.append(")") }
             sb.append(" -> ")
             dumpType(in n.value.returnKeyword, from: ref p, to: ref sb)
-            if (n.value.failsKeyword is { } f) {
-                sb.append(" fails ")
-                appendTypes(in f.errors, from: ref p, to: ref sb)
-            }
             if (n.value.usesKeyword is { } u) {
                 sb.append(" uses ")
                 var firstU = true
@@ -285,6 +281,10 @@ void dumpType(in TypeSyntax t, from ref Parser p, to ref StrBuf sb) {
                     firstU = false
                     sb.append(nameText(ref p, at: eff))
                 }
+            }
+            if (n.value.failsKeyword is { } f) {
+                sb.append(" fails ")
+                appendTypes(in f.errors, from: ref p, to: ref sb)
             }
         case .dynType(let n):
             sb.append(n.value.isRef ? (n.value.isReadOnly ? "dyn ref readonly " : "dyn ref ") : "dyn ")
