@@ -463,6 +463,14 @@ public struct ExprSyntax {
     /// `UnaryExpr.Operand` and `UnaryExpr.Op`.
     public i64 operand = -1
     public parser.UnaryOp op = .plus
+    /// P2: `BinaryExpr.Op` and `BinaryExpr.Right.Span` (Mutator.cs:105, :165).
+    public parser.BinaryOp binaryOp = .add
+    public TextSpan right = TextSpan { start: 0, length: 0 }
+    /// P2: `LiteralExpr.Kind` and `LiteralExpr.Suffix.Span`, null when it has none (Mutator.cs:173, :205).
+    public parser.LiteralKind literalKind = .integer
+    public TextSpan? suffix = null
+    /// P2: `CallExpr.Because` is not null (Features.cs:46).
+    public bool becauseKeyword = false
 }
 
 /// C# `n.Syntax` when it is an `Expr`, else null.
@@ -479,7 +487,7 @@ public ExprSyntax exprSyntaxNode(in Ctx c, at i64 node) => c.exprSyntaxNodes[nod
 i64 syntaxNode(ref Ctx c, from in parser.Expr e) uses alloc {
     switch e {
         case .literalExpr(let x):
-            return syntaxLeaf(ref c, as: .literalExpr, at: x.value.span)
+            return syntaxOfLiteral(ref c, from: in x.value)
         case .interpolatedExpr(let x):
             return syntaxLeaf(ref c, as: .interpolatedExpr, at: x.value.span)
         case .nameExpr(let x):
@@ -574,13 +582,16 @@ i64 syntaxOfMember(ref Ctx c, from in parser.MemberExpr x) uses alloc => syntaxA
 /// Records a `CallExpr` and the `Callee` child it walks.
 i64 syntaxOfCall(ref Ctx c, from in parser.CallExpr x) uses alloc {
     let callee = syntaxNode(ref c, from: in x.callee)
-    return syntaxAppend(ref c, from: ExprSyntax { kind: .callExpr, span: x.span, callee: callee })
+    return syntaxAppend(ref c, from: ExprSyntax { kind: .callExpr, span: x.span, callee: callee, becauseKeyword: x.becauseKeyword is not null })
 }
+
+/// Records a `LiteralExpr`, its `Kind` and its `Suffix`.
+i64 syntaxOfLiteral(ref Ctx c, from in parser.LiteralExpr x) uses alloc => syntaxAppend(ref c, from: ExprSyntax { kind: .literalExpr, span: x.span, literalKind: x.kind, suffix: x.suffix })
 
 /// Records a `BinaryExpr` and the `Left` child it walks.
 i64 syntaxOfBinary(ref Ctx c, from in parser.BinaryExpr x) uses alloc {
     let left = syntaxNode(ref c, from: in x.left)
-    return syntaxAppend(ref c, from: ExprSyntax { kind: .binaryExpr, span: x.span, left: left })
+    return syntaxAppend(ref c, from: ExprSyntax { kind: .binaryExpr, span: x.span, left: left, binaryOp: x.op, right: parser.exprSpan(in x.right) })
 }
 
 /// Records an `IsExpr` and the `Value` child it walks.
@@ -617,7 +628,198 @@ BNode recordSyntaxNode(ref Ctx c, for BNode n, at i64 h) uses alloc {
 BNode recordSyntax(ref Ctx c, for BNode n, from in parser.Expr e) uses alloc => recordSyntaxNode(ref c, for: n, at: syntaxNode(ref c, from: in e))
 
 /// `n`, built with `Syntax = value.Syntax`.
-BNode shareSyntax(ref Ctx c, for BNode n, from BNode value) uses alloc => recordSyntaxNode(ref c, for: n, at: c.exprSyntaxOf.tryGet(at: value) ?? -1)
+BNode shareSyntax(ref Ctx c, for BNode n, from BNode value) uses alloc {
+    let h = c.nodeSyntaxOf.tryGet(at: value) ?? -1
+    if h != -1 { c.nodeSyntaxOf[n] = h }
+    return recordSyntaxNode(ref c, for: n, at: c.exprSyntaxOf.tryGet(at: value) ?? -1)
+}
+
+// ── Other syntax nodes (P2, Q1076, Q1096) ──────────────────────────────────────
+
+/// The C# record type of `BoundNode.Syntax` when it is not an `Expr`: every `Stmt` and `Pattern` case, then the
+/// other nodes the binder builds from (a `requires` rule, top-level statements, a struct, a name, a parameter, an argument).
+public enum NodeSyntaxKind {
+    blockStmt
+    localDecl
+    exprStmt
+    assignStmt
+    incDecStmt
+    returnStmt
+    failStmt
+    breakStmt
+    continueStmt
+    becomeStmt
+    ifStmt
+    unlessStmt
+    guardedStmt
+    whileStmt
+    doWhileStmt
+    whileLetStmt
+    forStmt
+    labeledStmt
+    switchStmt
+    deferStmt
+    assertStmt
+    contextStmt
+    emptyStmt
+    errorStmt
+    constantPattern
+    relationalPattern
+    varPattern
+    discardPattern
+    declarationPattern
+    notPattern
+    binaryPattern
+    propertyPattern
+    positionalPattern
+    variantPattern
+    slicePattern
+    listPattern
+    requiresRule
+    globalStatement
+    functionDecl
+    structDecl
+    name
+    param
+    argument
+}
+
+/// A recorded non-`Expr` syntax node: its case and span, and what `Mutator` reads from an `AssignStmt` (`Op`,
+/// `Target.Span`, `Value.Span`) or a `ReturnStmt` (`Value.Span`, null when it has none).
+public struct NodeSyntax {
+    public NodeSyntaxKind kind
+    public TextSpan span
+    public parser.AssignOp assignOp = .assign
+    public TextSpan target = TextSpan { start: 0, length: 0 }
+    public TextSpan? value = null
+}
+
+/// C# `n.Syntax` when it is not an `Expr`, else null.
+public NodeSyntax? nodeSyntax(in Ctx c, for BNode n) {
+    let h = c.nodeSyntaxOf.tryGet(at: n) ?? -1
+    if h == -1 { return null }
+    return c.nodeSyntaxNodes[h]
+}
+
+/// `n`, built with `Syntax` a node of `kind` at `span` that is not an `Expr`.
+BNode recordNodeSyntax(ref Ctx c, for BNode n, as NodeSyntaxKind kind, at TextSpan span) uses alloc => recordNodeSyntaxOf(ref c, for: n, from: NodeSyntax { kind: kind, span: span })
+
+BNode recordNodeSyntaxOf(ref Ctx c, for BNode n, from NodeSyntax node) uses alloc {
+    c.nodeSyntaxNodes.append(node)
+    c.nodeSyntaxOf[n] = c.nodeSyntaxNodes.length - 1
+    return n
+}
+
+/// `n`, built with `Syntax = s`, an `AssignStmt`.
+BNode recordAssignSyntax(ref Ctx c, for BNode n, from in parser.AssignStmt s) uses alloc => recordNodeSyntaxOf(ref c, for: n, from: NodeSyntax { kind: .assignStmt, span: s.span, assignOp: s.op, target: parser.exprSpan(in s.target), value: parser.exprSpan(in s.value) })
+
+/// `n`, built with `Syntax = s`, a `ReturnStmt`.
+BNode recordReturnSyntax(ref Ctx c, for BNode n, from in parser.ReturnStmt s) uses alloc {
+    if s.value is .none { return recordNodeSyntax(ref c, for: n, as: .returnStmt, at: s.span) }
+    return recordNodeSyntaxOf(ref c, for: n, from: NodeSyntax { kind: .returnStmt, span: s.span, value: parser.exprSpan(in s.value) })
+}
+
+/// `n`, built with `Syntax = s`; `.none` records nothing.
+BNode recordStmtSyntax(ref Ctx c, for BNode n, from in parser.Stmt s) uses alloc {
+    let span = parser.stmtSpan(in s)
+    switch s {
+        case .blockStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .blockStmt, at: span)
+        // coverage-exempt: Q1105 through `return n`
+        case .localDecl(_):
+            return recordNodeSyntax(ref c, for: n, as: .localDecl, at: span)
+        case .exprStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .exprStmt, at: span)
+        case .assignStmt(let x):
+            return recordAssignSyntax(ref c, for: n, from: in x.value)
+        case .incDecStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .incDecStmt, at: span)
+        case .returnStmt(let x):
+            return recordReturnSyntax(ref c, for: n, from: in x.value)
+        case .failStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .failStmt, at: span)
+        case .breakStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .breakStmt, at: span)
+        case .continueStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .continueStmt, at: span)
+        case .becomeStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .becomeStmt, at: span)
+        case .ifStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .ifStmt, at: span)
+        case .unlessStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .unlessStmt, at: span)
+        case .guardedStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .guardedStmt, at: span)
+        case .whileStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .whileStmt, at: span)
+        case .doWhileStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .doWhileStmt, at: span)
+        case .whileLetStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .whileLetStmt, at: span)
+        case .forStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .forStmt, at: span)
+        case .labeledStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .labeledStmt, at: span)
+        case .switchStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .switchStmt, at: span)
+        case .deferStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .deferStmt, at: span)
+        case .assertStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .assertStmt, at: span)
+        case .contextStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .contextStmt, at: span)
+        case .emptyStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .emptyStmt, at: span)
+        case .errorStmt(_):
+            return recordNodeSyntax(ref c, for: n, as: .errorStmt, at: span)
+        case .none:
+            return n
+    }
+}
+
+/// `n`, built with `Syntax = p`.
+BNode recordPatternSyntax(ref Ctx c, for BNode n, from in parser.Pattern p) uses alloc {
+    // coverage-exempt: Q1105 through `return n`
+    if (patternSyntax(in p) is { } s) { return recordNodeSyntaxOf(ref c, for: n, from: s) }
+    return n
+}
+
+/// The `Syntax` a pattern node built from `p` records; null for `.none`.
+NodeSyntax? patternSyntax(in parser.Pattern p) {
+    let span = parser.patternSpan(in p)
+    switch p {
+        case .constantPattern(_):
+            // coverage-exempt: Q1105
+            return NodeSyntax { kind: .constantPattern, span: span }
+        case .relationalPattern(_):
+            return NodeSyntax { kind: .relationalPattern, span: span }
+        case .varPattern(_):
+            return NodeSyntax { kind: .varPattern, span: span }
+        case .discardPattern(_):
+            return NodeSyntax { kind: .discardPattern, span: span }
+        case .declarationPattern(_):
+            return NodeSyntax { kind: .declarationPattern, span: span }
+        case .notPattern(_):
+            return NodeSyntax { kind: .notPattern, span: span }
+        case .binaryPattern(_):
+            return NodeSyntax { kind: .binaryPattern, span: span }
+        case .propertyPattern(_):
+            // coverage-exempt: Q1105
+            return NodeSyntax { kind: .propertyPattern, span: span }
+        case .positionalPattern(_):
+            return NodeSyntax { kind: .positionalPattern, span: span }
+        case .variantPattern(_):
+            return NodeSyntax { kind: .variantPattern, span: span }
+        case .slicePattern(_):
+            // coverage-exempt: Q1105
+            return NodeSyntax { kind: .slicePattern, span: span }
+        case .listPattern(_):
+            return NodeSyntax { kind: .listPattern, span: span }
+        case .none:
+            // coverage-exempt: Q1105
+            return null
+    }
+}
 
 // ── Records ────────────────────────────────────────────────────────────────────
 

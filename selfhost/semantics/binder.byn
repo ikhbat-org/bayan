@@ -322,7 +322,7 @@ void bindFunctionBody(ref Binder b, through ref Ctx c, for in parser.FunctionDec
                 c.functions[b.fn].body = block
             } else {
                 checks.append(block)
-                c.functions[b.fn].body = addBlock(ref c, from: BBlock { span: body.value.span, statements: move checks })
+                c.functions[b.fn].body = recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: body.value.span, statements: move checks }), as: .blockStmt, at: body.value.span)
             }
             return
         default:
@@ -333,7 +333,8 @@ void bindFunctionBody(ref Binder b, through ref Ctx c, for in parser.FunctionDec
         c.functions[b.fn].body = recordSyntax(ref c, for: addBlock(ref c, from: BBlock { span: parser.exprSpan(in decl.expressionBody), statements: move checks }), from: in decl.expressionBody)
     } else {
         // The parser already reported the missing body.
-        c.functions[b.fn].body = addBlock(ref c, from: BBlock { span: decl.span })
+        // coverage-exempt: Q1105
+        c.functions[b.fn].body = recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: decl.span }), as: .functionDecl, at: decl.span)
     }
 }
 
@@ -354,13 +355,13 @@ List<BStmt> t15BindRequires(ref Binder b, through ref Ctx c, for in parser.Funct
         }
         conditions.append(condition)
         t15CheckExpects(ref b, through: ref c, for: span, by: condition)
-        let message = literal(ref c, at: span, as: prim(.string), by: Constant { kind: .text, text: $"contract violated: {t15Text(in c, from: b.file, at: span)}" })
+        let message = recordSyntax(ref c, for: literal(ref c, at: span, as: prim(.string), by: Constant { kind: .text, text: $"contract violated: {t15Text(in c, from: b.file, at: span)}" }), from: in r)
         var arguments = List<BExpr>()
         arguments.append(message)
-        let panic = addCall(ref c, from: BCall { span: span, function: t9Function(ref c, for: "panic"), arguments: move arguments, type: prim(.neverKind) })
-        let negated = addUnary(ref c, from: BUnary { span: span, op: .notKeyword, operand: condition, type: prim(.bool) })
-        let then = addExprStmt(ref c, from: BExprStmt { span: span, expr: panic })
-        checks.append(addIf(ref c, from: BIf { span: span, condition: negated, then: then }))
+        let panic = recordSyntax(ref c, for: addCall(ref c, from: BCall { span: span, function: t9Function(ref c, for: "panic"), arguments: move arguments, type: prim(.neverKind) }), from: in r)
+        let negated = recordSyntax(ref c, for: addUnary(ref c, from: BUnary { span: span, op: .notKeyword, operand: condition, type: prim(.bool) }), from: in r)
+        let then = recordSyntax(ref c, for: addExprStmt(ref c, from: BExprStmt { span: span, expr: panic }), from: in r)
+        checks.append(recordSyntax(ref c, for: addIf(ref c, from: BIf { span: span, condition: negated, then: then }), from: in r))
     }
     c.functions[b.fn].requirements = move conditions
     return checks
@@ -432,6 +433,7 @@ void bindChecks(ref Binder b, through ref Ctx c, for in StructChecks checks) {
     let invalid = findErrorVariant(ref c, by: validationErrorOf(ref c, for: structTypeOf(s)), for: "invalid")
     let file = c.structs[s].file
     var node = TextSpan { start: 0, length: 0 }
+    // C# `_struct.Decl` is a `StructDecl` for a distinct type too (Compilation.cs:496 builds one from the alias).
     switch c.files[file].unit.members[c.structs[s].declIndex] {
         case .structDecl(let d): node = d.value.span
         case .typeAliasDecl(let a): node = a.value.span
@@ -445,8 +447,8 @@ void bindChecks(ref Binder b, through ref Ctx c, for in StructChecks checks) {
     }
     var st = T28Checks { list: list, invalid: invalid, node: node }
     if list != -1 {
-        let empty = addCollection(ref c, from: BCollection { span: node, type: c.locals[list].type })
-        st.statements.append(addLocalDecl(ref c, from: BLocalDecl { span: node, local: list, initializer: empty }))
+        let empty = recordNodeSyntax(ref c, for: addCollection(ref c, from: BCollection { span: node, type: c.locals[list].type }), as: .structDecl, at: node)
+        st.statements.append(recordNodeSyntax(ref c, for: addLocalDecl(ref c, from: BLocalDecl { span: node, local: list, initializer: empty }), as: .structDecl, at: node))
     }
     let fields = copyIds(in c.structs[s].fields)
     switch c.files[file].unit.members[c.structs[s].declIndex] {
@@ -484,17 +486,17 @@ void bindChecks(ref Binder b, through ref Ctx c, for in StructChecks checks) {
     }
     for x in st.statements { statements.append(x) }
     if list == -1 {
-        c.functions[b.fn].body = addBlock(ref c, from: BBlock { span: node, statements: move statements })
+        c.functions[b.fn].body = recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: node, statements: move statements }), as: .structDecl, at: node)
         return
     }
     let noArguments = List<BExpr>()
-    let isEmpty = addBuiltinCall(ref c, from: BBuiltinCall { span: node, member: .listIsEmpty, receiver: addLocalNode(ref c, at: node, for: list), arguments: move noArguments, type: prim(.bool) })
-    let any = addUnary(ref c, from: BUnary { span: node, op: .notKeyword, operand: isEmpty, type: prim(.bool) })
+    let isEmpty = recordNodeSyntax(ref c, for: addBuiltinCall(ref c, from: BBuiltinCall { span: node, member: .listIsEmpty, receiver: recordNodeSyntax(ref c, for: addLocalNode(ref c, at: node, for: list), as: .structDecl, at: node), arguments: move noArguments, type: prim(.bool) }), as: .structDecl, at: node)
+    let any = recordNodeSyntax(ref c, for: addUnary(ref c, from: BUnary { span: node, op: .notKeyword, operand: isEmpty, type: prim(.bool) }), as: .structDecl, at: node)
     var payload = List<BExpr>()
-    payload.append(addLocalNode(ref c, at: node, for: list))
-    let error = addErrorVariant(ref c, from: BErrorVariant { span: node, variant: invalid, payload: move payload })
-    statements.append(addIf(ref c, from: BIf { span: node, condition: any, then: addFail(ref c, from: BFail { span: node, error: error }) }))
-    c.functions[b.fn].body = addBlock(ref c, from: BBlock { span: node, statements: move statements })
+    payload.append(recordNodeSyntax(ref c, for: addLocalNode(ref c, at: node, for: list), as: .structDecl, at: node))
+    let error = recordNodeSyntax(ref c, for: addErrorVariant(ref c, from: BErrorVariant { span: node, variant: invalid, payload: move payload }), as: .structDecl, at: node)
+    statements.append(recordNodeSyntax(ref c, for: addIf(ref c, from: BIf { span: node, condition: any, then: recordNodeSyntax(ref c, for: addFail(ref c, from: BFail { span: node, error: error }), as: .structDecl, at: node) }), as: .structDecl, at: node))
+    c.functions[b.fn].body = recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: node, statements: move statements }), as: .structDecl, at: node)
 }
 
 /// `BindChecks`' local `Add(r, field)`; `field` -1 is C#'s null.
@@ -522,12 +524,12 @@ void t28AddRule(ref Binder b, through ref Ctx c, for in parser.RequiresRule r, a
     }
     // `StructRule.span` stands for the C# `Syntax`; its one reader wants `Syntax.Condition.Span` (Q655).
     c.checks[c.checksOf[b.owner]].rules.append(StructRule { span: parser.exprSpan(in r.condition), field: field, condition: condition, reads: copyIds(in reads) })
-    var failing = addUnary(ref c, from: BUnary { span: r.span, op: .notKeyword, operand: condition, type: prim(.bool) })
+    var failing = recordNodeSyntax(ref c, for: addUnary(ref c, from: BUnary { span: r.span, op: .notKeyword, operand: condition, type: prim(.bool) }), as: .requiresRule, at: r.span)
     for read in reads {
         if read == field || !st.broken.contains(read) { continue }
-        let flag = addLocalNode(ref c, at: r.span, for: st.broken[read])
-        let notBroken = addUnary(ref c, from: BUnary { span: r.span, op: .notKeyword, operand: flag, type: prim(.bool) })
-        failing = addBinary(ref c, from: BBinary { span: r.span, op: .logicalAnd, left: notBroken, right: failing, type: prim(.bool) })
+        let flag = recordNodeSyntax(ref c, for: addLocalNode(ref c, at: r.span, for: st.broken[read]), as: .requiresRule, at: r.span)
+        let notBroken = recordNodeSyntax(ref c, for: addUnary(ref c, from: BUnary { span: r.span, op: .notKeyword, operand: flag, type: prim(.bool) }), as: .requiresRule, at: r.span)
+        failing = recordNodeSyntax(ref c, for: addBinary(ref c, from: BBinary { span: r.span, op: .logicalAnd, left: notBroken, right: failing, type: prim(.bool) }), as: .requiresRule, at: r.span)
     }
     // A struct rule is reported at its `at` field, else at the first field it reads.
     var at = field
@@ -538,22 +540,22 @@ void t28AddRule(ref Binder b, through ref Ctx c, for in parser.RequiresRule r, a
     if at == -1 && c.structs[b.owner].fields.length > 0 { at = c.structs[b.owner].fields[0] }
     if st.list == -1 || at == -1 {
         var payload = List<BExpr>()
-        if st.list != -1 { payload.append(addLocalNode(ref c, at: r.span, for: st.list)) }
-        let error = addErrorVariant(ref c, from: BErrorVariant { span: r.span, variant: st.invalid, payload: move payload })
-        st.statements.append(addIf(ref c, from: BIf { span: r.span, condition: failing, then: addFail(ref c, from: BFail { span: r.span, error: error }) }))
+        if st.list != -1 { payload.append(recordNodeSyntax(ref c, for: addLocalNode(ref c, at: r.span, for: st.list), as: .requiresRule, at: r.span)) }
+        let error = recordNodeSyntax(ref c, for: addErrorVariant(ref c, from: BErrorVariant { span: r.span, variant: st.invalid, payload: move payload }), as: .requiresRule, at: r.span)
+        st.statements.append(recordNodeSyntax(ref c, for: addIf(ref c, from: BIf { span: r.span, condition: failing, then: recordNodeSyntax(ref c, for: addFail(ref c, from: BFail { span: r.span, error: error }), as: .requiresRule, at: r.span) }), as: .requiresRule, at: r.span))
         return
     }
     let element = typeIndex(c.listTypes[typeIndex(c.locals[st.list].type)])
     var entryFields = List<BExpr>()
     let atName = c.fields[at].name
     let member = findEnumMember(ref c, by: c.structs[b.owner].fieldEnum, for: atName)
-    entryFields.append(addEnumMember(ref c, from: BEnumMember { span: r.span, member: member }))
+    entryFields.append(recordNodeSyntax(ref c, for: addEnumMember(ref c, from: BEnumMember { span: r.span, member: member }), as: .requiresRule, at: r.span))
     entryFields.append(ruleOf(ref b, through: ref c, for: in r, at: field, by: condition))
-    let entry = addStructLiteral(ref c, from: BStructLiteral { span: r.span, structId: element, fields: move entryFields })
+    let entry = recordNodeSyntax(ref c, for: addStructLiteral(ref c, from: BStructLiteral { span: r.span, structId: element, fields: move entryFields }), as: .requiresRule, at: r.span)
     var arguments = List<BExpr>()
     arguments.append(entry)
-    let add = addBuiltinCall(ref c, from: BBuiltinCall { span: r.span, member: .listAdd, receiver: addLocalNode(ref c, at: r.span, for: st.list), arguments: move arguments, type: prim(.void) })
-    var then = addExprStmt(ref c, from: BExprStmt { span: r.span, expr: add })
+    let add = recordNodeSyntax(ref c, for: addBuiltinCall(ref c, from: BBuiltinCall { span: r.span, member: .listAdd, receiver: recordNodeSyntax(ref c, for: addLocalNode(ref c, at: r.span, for: st.list), as: .requiresRule, at: r.span), arguments: move arguments, type: prim(.void) }), as: .requiresRule, at: r.span)
+    var then = recordNodeSyntax(ref c, for: addExprStmt(ref c, from: BExprStmt { span: r.span, expr: add }), as: .requiresRule, at: r.span)
     if field != -1 {
         var flag: LocalId = -1
         if st.broken.contains(field) {
@@ -562,16 +564,16 @@ void t28AddRule(ref Binder b, through ref Ctx c, for in parser.RequiresRule r, a
             flag = newLocal(ref c, by: LocalSymbol { name: $"broken_{c.fields[field].name}", type: prim(.bool), kind: .varKeyword, id: b.nextLocalId })
             b.nextLocalId += 1
             st.broken[field] = flag
-            let no = addLiteral(ref c, from: BLiteral { span: st.node, type: prim(.bool), value: Constant { kind: .flag, flag: false } })
-            st.flags.append(addLocalDecl(ref c, from: BLocalDecl { span: st.node, local: flag, initializer: no }))
+            let no = recordNodeSyntax(ref c, for: addLiteral(ref c, from: BLiteral { span: st.node, type: prim(.bool), value: Constant { kind: .flag, flag: false } }), as: .structDecl, at: st.node)
+            st.flags.append(recordNodeSyntax(ref c, for: addLocalDecl(ref c, from: BLocalDecl { span: st.node, local: flag, initializer: no }), as: .structDecl, at: st.node))
         }
-        let yes = addLiteral(ref c, from: BLiteral { span: r.span, type: prim(.bool), value: Constant { kind: .flag, flag: true } })
+        let yes = recordNodeSyntax(ref c, for: addLiteral(ref c, from: BLiteral { span: r.span, type: prim(.bool), value: Constant { kind: .flag, flag: true } }), as: .requiresRule, at: r.span)
         var both = List<BStmt>()
         both.append(then)
-        both.append(addAssign(ref c, from: BAssign { span: r.span, target: addLocalNode(ref c, at: r.span, for: flag), value: yes }))
-        then = addBlock(ref c, from: BBlock { span: r.span, statements: move both })
+        both.append(recordNodeSyntax(ref c, for: addAssign(ref c, from: BAssign { span: r.span, target: recordNodeSyntax(ref c, for: addLocalNode(ref c, at: r.span, for: flag), as: .requiresRule, at: r.span), value: yes }), as: .requiresRule, at: r.span))
+        then = recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: r.span, statements: move both }), as: .requiresRule, at: r.span)
     }
-    st.statements.append(addIf(ref c, from: BIf { span: r.span, condition: failing, then: then }))
+    st.statements.append(recordNodeSyntax(ref c, for: addIf(ref c, from: BIf { span: r.span, condition: failing, then: then }), as: .requiresRule, at: r.span))
 }
 
 /// The `Rule` of a field's rule (J23): `it in a..=b` is `range` and `it.runeCount in a..=b` is `length`, with
@@ -607,12 +609,12 @@ BExpr ruleOf(ref Binder b, through ref Ctx c, for in parser.RequiresRule r, at F
                 if start != -1 && end != -1 {
                     var payload = List<BExpr>()
                     payload.append(recordSyntax(ref c, for: addRange(ref c, from: BRange { span: parser.exprSpan(in r.condition), start: start, end: end, inclusive: c.bRangePatterns[p].inclusive, type: internRange(ref c, by: prim(.i64)) }), from: in r.condition))
-                    return addUnionNew(ref c, from: BUnionNew { span: r.span, variant: findUnionVariant(ref c, by: rule, for: sh), payload: move payload })
+                    return recordNodeSyntax(ref c, for: addUnionNew(ref c, from: BUnionNew { span: r.span, variant: findUnionVariant(ref c, by: rule, for: sh), payload: move payload }), as: .requiresRule, at: r.span)
                 }
             }
         }
     }
-    return addUnionNew(ref c, from: BUnionNew { span: r.span, variant: findUnionVariant(ref c, by: rule, for: "custom") })
+    return recordNodeSyntax(ref c, for: addUnionNew(ref c, from: BUnionNew { span: r.span, variant: findUnionVariant(ref c, by: rule, for: "custom") }), as: .requiresRule, at: r.span)
 }
 
 /// `RuleOf`'s local `Bound(e)`: an `i64` literal of `e`'s integer constant when it fits, else -1 (C#'s null).
@@ -745,7 +747,7 @@ void bindMain(ref Binder b, through ref Ctx c, for in List<SyntaxRef> statements
         }
     }
     c.functions[b.fn].infersErrors = true
-    c.functions[b.fn].body = addBlock(ref c, from: BBlock { span: span, statements: move bound })
+    c.functions[b.fn].body = recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: span, statements: move bound }), as: .globalStatement, at: span)
 }
 
 /// A test body; a `@cases` case first binds each parameter as a `let` of its value. The C# `decl` and `values` are
@@ -767,10 +769,10 @@ void bindTest(ref Binder b, through ref Ctx c, for TestBody body) {
                         let type = resolveType(ref b, through: ref c, for: in d.value.params[i].type)
                         let value = t15BindCaseValue(ref b, through: ref c, for: in d.value.attributes[body.values.memberIndex].args[body.values.itemIndex].value, at: i, to: type)
                         let local = declareLocal(ref b, through: ref c, at: d.value.params[i].name, as: type, for: .letKeyword)
-                        statements.append(addLocalDecl(ref c, from: BLocalDecl { span: d.value.params[i].span, local: local, initializer: value }))
+                        statements.append(recordNodeSyntax(ref c, for: addLocalDecl(ref c, from: BLocalDecl { span: d.value.params[i].span, local: local, initializer: value }), as: .param, at: d.value.params[i].span))
                     }
                     statements.append(bindBlock(ref b, through: ref c, for: in block.value))
-                    c.functions[b.fn].body = addBlock(ref c, from: BBlock { span: block.value.span, statements: move statements })
+                    c.functions[b.fn].body = recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: block.value.span, statements: move statements }), as: .blockStmt, at: block.value.span)
                 default:
                     break
             }
