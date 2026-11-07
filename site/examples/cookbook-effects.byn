@@ -1,4 +1,4 @@
-public string load(string path) fails IoError uses fs, alloc {
+public string load(string path) uses fs, alloc fails IoError {
     return try Io.readText(path)
 }
 

@@ -13,7 +13,7 @@ struct Options {
     List<string> files
 }
 
-Options parseArgs(ReadOnlySpan<string> args) fails UsageError uses alloc {
+Options parseArgs(ReadOnlySpan<string> args) uses alloc fails UsageError {
     var opts = Options { pattern: "", ignoreCase: false, numbers: false, countOnly: false, files: List<string>() }
     var havePattern = false
     for arg in args {

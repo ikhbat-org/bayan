@@ -34,7 +34,7 @@ template: docs
   </tbody>
 </table></div>
 <p>The particle comes before the type in a declaration and before the value in a call:</p>
-<pre><code class="byn">public void copy(from Path src, to Path dst) fails FsError uses fs
+<pre><code class="byn">public void copy(from Path src, to Path dst) uses fs fails FsError
 public void insert(ref this, T item, at Index i) uses alloc
 
 copy(from: old, to: backup)

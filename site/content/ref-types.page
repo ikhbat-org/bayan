@@ -339,7 +339,7 @@ print($"{area(.empty)}")</code></pre>
 <note>Planned: retroactive conformance (<code>extension Money : IJsonEncode</code>), <code>static abstract</code> members and generic interface methods are not in the compiler yet.</note>
 
 <h2 id="function-types">Function types</h2>
-<p><code>A -&gt; B</code> is the type of a function from <code>A</code> to <code>B</code>. Write <code>(A, B) -&gt; C</code> for two parameters and <code>() -&gt; void</code> for none. After the return type, <code>fails E</code> and then <code>uses e</code> add error sets and effects. <code>-&gt;</code> is for types. <code>=&gt;</code> is for lambdas and bodies.</p>
+<p><code>A -&gt; B</code> is the type of a function from <code>A</code> to <code>B</code>. Write <code>(A, B) -&gt; C</code> for two parameters and <code>() -&gt; void</code> for none. After the return type, <code>uses e</code> and then <code>fails E</code> add effects and error sets. <code>-&gt;</code> is for types. <code>=&gt;</code> is for lambdas and bodies.</p>
 <ul>
   <li>A function type before a name needs parentheses: <code>by (i64 -&gt; i64) f</code>. An alias avoids that: <code>type Pred = i64 -&gt; bool</code>, then <code>by Pred p</code>.</li>
   <li>Two function types are equal when the parameters, return type, error sets and effects are equal. There is no variance.</li>

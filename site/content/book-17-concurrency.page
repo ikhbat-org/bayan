@@ -47,7 +47,7 @@ async i64 fetch(i64 n) uses suspend {
     return n + 1
 }
 
-i64 total() fails uses suspend {
+i64 total() uses suspend fails {
     let (a, b) = try await (fetch(1), fetch(2))
     return a + b
 }</code></pre>

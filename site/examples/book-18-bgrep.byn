@@ -20,7 +20,7 @@ struct Options {
     }
 }
 
-Options parseArgs(ReadOnlySpan<string> args) fails UsageError uses alloc {
+Options parseArgs(ReadOnlySpan<string> args) uses alloc fails UsageError {
     var opts = Options { pattern: "", ignoreCase: false, numbers: false, countOnly: false, files: List<string>() }
     var havePattern = false
     for arg in args {
@@ -59,7 +59,7 @@ i64 search(string text, by Options opts, as string name, to bool showName) uses 
     return found
 }
 
-i32 main(ReadOnlySpan<string> args) fails UsageError uses console, alloc, fs {
+i32 main(ReadOnlySpan<string> args) uses console, alloc, fs fails UsageError {
     var list = args
     let demo: string[4] = ["-n", "-i", "APPLE", "/tmp/book-18-fruit.txt"]
     if args.length == 0 {

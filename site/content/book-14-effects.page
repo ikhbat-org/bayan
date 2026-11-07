@@ -89,15 +89,15 @@ void main() uses console {
     dist: Dist { targets: [.host], mode: .safe },
 }</code></pre>
 <p>Now add a function that reads a file:</p>
-<pre><code class="byn">public string load(string path) fails IoError uses fs, alloc {
+<pre><code class="byn">public string load(string path) uses fs, alloc fails IoError {
     return try Io.readText(path)
 }</code></pre>
     <figure class="diag">
 <pre><span class="err">error BYN6004:</span> `load` uses `fs`, which package `local/demo` does not declare in `capabilities`
-<span class="gut">  --&gt;</span> main.byn:1:47
+<span class="gut">  --&gt;</span> main.byn:1:33
 
-<span class="gut">  1 │</span> public string load(string path) fails IoError <span class="hl">uses fs, alloc</span> {
-<span class="gut">    │</span>                                               <span class="hl">^^^^^^^^^^^^^^ uses `fs`</span>
+<span class="gut">  1 │</span> public string load(string path) <span class="hl">uses fs, alloc</span> fails IoError {
+<span class="gut">    │</span>                                 <span class="hl">^^^^^^^^^^^^^^ uses `fs`</span>
 <span class="gut">    │</span>
 <span class="gut">  help:</span> add `.fs` to `capabilities`, or remove the use
 

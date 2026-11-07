@@ -17,7 +17,7 @@ if err != nil { return 0, err }</code></pre>
 <example name="cookbook-errors"/>
 
 <h2 id="effects">Effects in signatures</h2>
-<p>Failing is one half of a signature; the other half is what the function touches. A public function that reads a file declares <code>fails IoError uses fs, alloc</code>. If you leave <code>uses</code> out, the compiler stops with BYN6002 and suggests the missing effects, so a caller can tell from the declaration that the function reads files.</p>
+<p>Failing is one half of a signature; the other half is what the function touches. A public function that reads a file declares <code>uses fs, alloc fails IoError</code>. If you leave <code>uses</code> out, the compiler stops with BYN6002 and suggests the missing effects, so a caller can tell from the declaration that the function reads files.</p>
 <example name="cookbook-effects"/>
 
 <h2 id="defer">Clean up when a scope ends</h2>

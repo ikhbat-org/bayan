@@ -2,7 +2,7 @@ union error StepError {
     broken
 }
 
-void step(bool ok) fails StepError uses console {
+void step(bool ok) uses console fails StepError {
     defer print("always runs")
     defer failing print("only when step fails")
     fail .broken if !ok

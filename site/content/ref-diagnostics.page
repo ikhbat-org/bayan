@@ -1400,20 +1400,20 @@ print(trust(name, reason: "checked against the allow list"))</code></pre>
 </figure>
 
 <h3 id="byn1065">BYN1065: function clauses out of order</h3>
-<p><strong>Why.</strong> The clauses after a function's parameters have one order, so every signature reads the same way: <code>where</code>, <code>expects</code>, <code>becomes</code>, <code>fails</code>, <code>uses</code>. The code is raised once, at the first clause out of order.</p>
-<p><strong>Fix.</strong> Put the clauses in order: <code>i64 parse(string s) fails ParseError uses io { … }</code>. The diagnostic carries a machine-applicable fix that sorts the clauses, and <code>bayan format</code> applies it.</p>
+<p><strong>Why.</strong> The clauses after a function's parameters have one order, so every signature reads the same way: <code>where</code>, <code>expects</code>, <code>uses</code>, <code>becomes</code>, <code>fails</code>. The code is raised once, at the first clause out of order.</p>
+<p><strong>Fix.</strong> Put the clauses in order: <code>i64 parse(string s) uses io fails ParseError { … }</code>. The diagnostic carries a machine-applicable fix that sorts the clauses, and <code>bayan format</code> applies it.</p>
 <p>A program that triggers it:</p>
-<pre><code class="byn">i64 parse(string s) uses io fails ParseError { … }</code></pre>
+<pre><code class="byn">i64 parse(string s) fails ParseError uses io { … }</code></pre>
 <figure class="diag">
-<pre><span class="err">error BYN1065:</span> `fails` must come before `uses`; the order is `where`, `expects`, `becomes`, `fails`,
-`uses`
-  --&gt; main.byn:1:29
+<pre><span class="err">error BYN1065:</span> `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+  --&gt; main.byn:1:38
 
-  1 │ i64 parse(string s) uses io fails ParseError { … }
-    │                             ^^^^^ out of order
+  1 │ i64 parse(string s) fails ParseError uses io { … }
+    │                                      ^^^^ out of order
     │
-  help: move `fails` before `uses`
-    │ 1 │ i64 parse(string s) fails ParseError uses io { … }
+  help: move `uses` before `fails`
+    │ 1 │ i64 parse(string s) uses io fails ParseError { … }
     │   │                     ++++++++++++++++++++++++</pre>
   <figcaption>The compiler's message for this program. <code>bayan explain BYN1065</code> prints the long form.</figcaption>
 </figure>
