@@ -21,6 +21,16 @@
       "coverage": 1.0,
       "branches": null
     },
+    "selfhost/driver/diagdocs.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": null
+    },
+    "selfhost/driver/explain.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": 1.0
+    },
     "selfhost/driver/main.byn": {
       "mutation": null,
       "coverage": 0.9914,
