@@ -211,7 +211,7 @@ string? lookup(string key, by string exeName) fails IoError uses alloc, env, fs 
     let dir = Path.combine(t9Programs(), key)
     let exe = Path.combine(dir, exeName)
     let sum = Path.combine(dir, "program.sha256")
-    unless t3DirectoryExists(dir) { return null }
+    unless t9DirectoryExists(dir) { return null }
     if Fs.fileExists(exe) && Fs.fileExists(sum) {
         let intact = try t9Intact(exe, by: sum)
         if intact {
@@ -219,13 +219,42 @@ string? lookup(string key, by string exeName) fails IoError uses alloc, env, fs 
             return exe
         }
     }
-    discard(dir)
+    try discard(dir)
     return null
+}
+
+/// `Directory.Exists`, which has no builtin (`Fs.fileExists` is `File.Exists`): a directory `Io.listDir` reads, or one it may not
+/// read, as a 0300 directory that `Directory.Exists` holds to exist. Unlike `Directory.Exists`, a path under a parent that cannot be
+/// searched counts too (Q1113).
+bool t9DirectoryExists(string dir) uses alloc, fs {
+    let _ = Io.listDir(dir) catch switch {
+        IoError.permissionDenied => return true,
+        IoError e => return false,
+    }
+    return true
+}
+
+/// The `char.IsWhiteSpace` set (as runes) `string.Trim()` removes.
+List<rune> t9Whitespace() uses alloc {
+    let ws: List<rune> = [
+        '\u{9}', '\u{A}', '\u{B}', '\u{C}', '\u{D}', ' ', '\u{85}', '\u{A0}', '\u{1680}', '\u{2000}', '\u{2001}', '\u{2002}',
+        '\u{2003}', '\u{2004}', '\u{2005}', '\u{2006}', '\u{2007}', '\u{2008}', '\u{2009}', '\u{200A}', '\u{2028}', '\u{2029}',
+        '\u{202F}', '\u{205F}', '\u{3000}',
+    ]
+    return ws
+}
+
+/// `File.ReadAllText(path).Trim()`: the text without a leading UTF-8 byte order mark, trimmed of `char.IsWhiteSpace`.
+string t9ReadTrimmed(string path) fails IoError uses alloc, fs {
+    let text = try Io.readText(path)
+    let body = text.startsWith("\u{FEFF}") ? text.runes.skip(1) : text
+    let ws = t9Whitespace()
+    return body.trimmed(by: ws.span).copy()
 }
 
 /// `File.ReadAllText(sum).Trim() == HashFile(exe)` of `Lookup`: false on an `IOException`, a failure on a permission error.
 bool t9Intact(string exe, by string sum) fails IoError uses alloc, fs {
-    let text = Io.readText(sum) catch switch {
+    let text = t9ReadTrimmed(sum) catch switch {
         IoError.permissionDenied => fail .permissionDenied,
         IoError e => return false,
     }
@@ -234,7 +263,14 @@ bool t9Intact(string exe, by string sum) fails IoError uses alloc, fs {
         // coverage-exempt: Q1113 an executable that exists and cannot be read for another reason (the C#'s `IOException` of `File.OpenRead`)
         IoError e => return false,
     }
-    return text.trimmed() == hash
+    return text == hash
+}
+
+/// Toolchain.cs:312 `Compile`: builds into a private directory, then renames it to `programs/<key>`; null on success.
+// stub: T9 t9Compile (blocked: Q1111) the rename into `programs/<key>` is `Directory.Move`, which has no builtin
+string? t9Compile(in List<string> compiler, by in List<string> flags, from string cSource, for string key, as string exeName, at bool windows) fails IoError uses alloc, env, fs {
+    // coverage-exempt: Q1111 the stub fails rather than report a build it did not make; no caller yet
+    fail .unsupported
 }
 
 /// Toolchain.cs:361 `Touch`.
@@ -247,22 +283,43 @@ void touch(string dir) uses fs {
 void evict(string keep) uses alloc, env, fs {
 }
 
+/// Toolchain.cs:379 `Evict(keep, maxBytes, maxEntries, minAge)`.
+// stub: T9 evictWith (blocked: Q1112) the order is by `LastWriteTimeUtc`, which has no builtin
+void evictWith(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos) uses alloc, env, fs {
+}
+
+/// Toolchain.cs:407 `SweepOnce`: `SweepStale(Path.GetTempPath(), TimeSpan.FromHours(1))` once per process.
+// stub: T9 sweepOnce (blocked: Q1112) `SweepStale`'s age is `Directory.GetLastWriteTimeUtc`, which has no builtin
+void sweepOnce() uses alloc, env, fs {
+}
+
 /// Toolchain.cs:418 `SweepStale`.
 // stub: T9 sweepStale (blocked: Q1112) the age is `Directory.GetLastWriteTimeUtc`, which has no builtin
 void sweepStale(string tempRoot, by i64 ageNanos) uses alloc, env, fs {
 }
 
-/// Toolchain.cs:443 `Discard`.
-// stub: T9 discard (blocked: Q1111) `Directory.Move(dir, trash)` has no builtin
-void discard(string dir) uses alloc, env, fs {
+/// Toolchain.cs:443 `Discard`: `Directory.CreateDirectory(Staging)`, whose `UnauthorizedAccessException` the C# does not catch, so
+/// a permission error fails; any other error is the caught `IOException`.
+void discard(string dir) fails IoError uses alloc, env, fs {
+    Io.createDirectory(t9Staging()) catch switch {
+        IoError.permissionDenied => fail .permissionDenied,
+        IoError e => return,
+    }
+    t9MoveAndDelete(dir)
+}
+
+/// `Directory.Move(dir, trash)` and `Directory.Delete(trash, recursive: true)` of `Discard`, `trash` being `trash-<Guid>` in
+/// `Staging`: the entry stays in place.
+// stub: T9 t9MoveAndDelete (blocked: Q1111) `Directory.Move` has no builtin, and `Guid.NewGuid` has none
+void t9MoveAndDelete(string dir) uses alloc, env, fs {
 }
 
 /// Toolchain.cs:462 `LookupScript`: the program a script last built to. Any read error is null.
 string? lookupScript(string scriptKey, by string exeName) uses alloc, env, fs {
     let pointer = Path.combine(t9Scripts(), scriptKey)
     unless Fs.fileExists(pointer) { return null }
-    let text = Io.readText(pointer) catch return null
-    let exe = lookup(text.trimmed(), by: exeName) catch return null
+    let text = t9ReadTrimmed(pointer) catch return null
+    let exe = lookup(text, by: exeName) catch return null
     if exe is not null { tagCacheDirectory() }
     return exe
 }
@@ -292,8 +349,8 @@ string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build) use
 /// Toolchain.cs:508 `ComputeCompilerBuild`.
 // stub: T9 compilerBuild (blocked: Q1112) the size and `LastWriteTimeUtc` of `Environment.ProcessPath` have no builtin
 string compilerBuild() uses alloc, env, fs {
-    // coverage-exempt: Q1112 the stub's value; no test asserts it
-    return ""
+    // coverage-exempt: Q1112 the stub's value, `CompilerVersion` without the file parts; no test asserts it
+    return version
 }
 
 /// Toolchain.cs:556 `Hash`.

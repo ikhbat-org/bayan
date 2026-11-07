@@ -181,8 +181,14 @@ public sealed class SelfhostDefaultT9Tests
         var bytes = Encoding.UTF8.GetBytes("not really a program\n");
         if (shape != "noexe") File.WriteAllBytes(exe, bytes);
         var sum = Path.Combine(entry, "program.sha256");
-        if (shape != "nosum") File.WriteAllText(sum, (shape == "badsum" ? Hex([1, 2]) : Hex(bytes)) + (shape == "spaces" ? "  \r\n" : "\n"));
+        var noSum = shape is "nosum" or "stagingfile" or "readonly";
+        if (!noSum) File.WriteAllText(sum, (shape == "badsum" ? Hex([1, 2]) : Hex(bytes)) + (shape == "spaces" ? "  \r\n" : "\n"));
         if (shape == "badutf8") File.WriteAllBytes(sum, [0xff, 0xfe, 0x0a]);
+        // `File.ReadAllText` drops a UTF-8 byte order mark; `Trim()` removes U+00A0 as `char.IsWhiteSpace`.
+        if (shape == "bom") File.WriteAllBytes(sum, [0xef, 0xbb, 0xbf, .. Encoding.UTF8.GetBytes(Hex(bytes) + "\n")]);
+        if (shape == "nbsp") File.WriteAllText(sum, Hex(bytes) + "\u00a0");
+        // `Discard`'s `Directory.CreateDirectory(Staging)` fails with an `IOException` when `tmp` is a file.
+        if (shape == "stagingfile") File.WriteAllText(Path.Combine(cache, "v1", "tmp"), "");
         if (shape == "unreadablesum" && !OperatingSystem.IsWindows()) File.SetUnixFileMode(sum, UnixFileMode.None);
         return cache;
     }
@@ -201,6 +207,9 @@ public sealed class SelfhostDefaultT9Tests
     [InlineData("nosum")]
     [InlineData("nodir")]
     [InlineData("badutf8")]
+    [InlineData("bom")]
+    [InlineData("nbsp")]
+    [InlineData("stagingfile")]
     public void LookupAsToolchain(string shape)
     {
         var dir = Fresh($"lookup-{shape}");
@@ -230,8 +239,51 @@ public sealed class SelfhostDefaultT9Tests
         }
     }
 
+    /// <summary>
+    /// An entry directory that can be searched but not read (0300) exists for <c>Directory.Exists</c>; with <c>v1/</c> and
+    /// <c>programs/</c> read-only (0555), <c>Discard</c>'s <c>Directory.CreateDirectory(Staging)</c> throws.
+    /// </summary>
+    [Theory]
+    [InlineData("noread")]
+    [InlineData("readonly")]
+    public void LookupWithAModeAsToolchain(string shape)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var dir = Fresh($"lookup-mode-{shape}");
+        var v1 = Path.Combine(dir, "cache", "v1");
+        var programs = Path.Combine(v1, "programs");
+        var entry = Path.Combine(programs, Key);
+        string Layout()
+        {
+            var cache = Entry(dir, shape == "noread" ? "hit" : "readonly");
+            if (shape == "noread") File.SetUnixFileMode(entry, UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+            if (shape == "readonly")
+                foreach (var d in new[] { programs, v1 })
+                    File.SetUnixFileMode(d, UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+            return cache;
+        }
+        void Restore()
+        {
+            foreach (var d in new[] { v1, programs, entry })
+                if (Directory.Exists(d)) File.SetUnixFileMode(d, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        }
+        try
+        {
+            var driver = Driver(Layout(), "lookup", Key, "program");
+            Restore();
+            var cache = Layout();
+            Assert.Equal(CSharpLookup(cache, () => Toolchain.Lookup(Key, "program")), driver);
+        }
+        finally
+        {
+            Restore();
+        }
+    }
+
     [Theory]
     [InlineData("hit", "pointer")]
+    [InlineData("hit", "bompointer")]
+    [InlineData("hit", "nbsppointer")]
     [InlineData("hit", "nopointer")]
     [InlineData("nodir", "pointer")]
     [InlineData("hit", "unreadable")]
@@ -246,7 +298,9 @@ public sealed class SelfhostDefaultT9Tests
             var scripts = Path.Combine(cache, "v1", "scripts");
             Directory.CreateDirectory(scripts);
             var file = Path.Combine(scripts, "skey");
-            if (pointer != "nopointer") File.WriteAllText(file, Key + "\n");
+            if (pointer is "pointer" or "unreadable") File.WriteAllText(file, Key + "\n");
+            if (pointer == "bompointer") File.WriteAllBytes(file, [0xef, 0xbb, 0xbf, .. Encoding.UTF8.GetBytes(Key + "\n")]);
+            if (pointer == "nbsppointer") File.WriteAllText(file, "\u3000" + Key + "\u00a0");
             if (pointer == "unreadable") File.SetUnixFileMode(file, UnixFileMode.None);
             return cache;
         }
