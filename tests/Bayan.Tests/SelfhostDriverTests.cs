@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using Bayan.Backend.C;
 using Bayan.Cli;
 using Bayan.Semantics;
 using Bayan.Syntax.Diagnostics;
@@ -185,51 +186,12 @@ public sealed class SelfhostDriverT1Tests
     }
 
     [Theory]
-    [InlineData("NO_COLOR", "1", "auto", false)]
-    [InlineData("NO_COLOR", "1", "always", false)]
-    [InlineData("NO_COLOR", "", "auto", false)]
-    [InlineData("FORCE_COLOR", "1", "auto", false)]
-    [InlineData("FORCE_COLOR", "0", "auto", false)]
-    [InlineData("FORCE_COLOR", "1", "never", false)]
-    [InlineData("TERM", "dumb", "auto", false)]
-    [InlineData("TERM", "dumb", "always", true)]
-    [InlineData("TERM", "xterm", "auto", false)]
-    [InlineData("COLORTERM", "truecolor", "always", false)]
-    [InlineData("BAYAN_THEME", "light", "always", false)]
-    [InlineData("COLORFGBG", "0;15", "always", false)]
-    [InlineData("LANG", "C", "auto", false)]
-    [InlineData("LANG", "en_US.UTF-8", "auto", false)]
-    [InlineData("LANG", "en_US.utf8", "auto", false)]
-    [InlineData("LC_CTYPE", "POSIX", "auto", false)]
-    [InlineData("LC_ALL", "C", "auto", false)]
-    public void TheEnvironmentDecidesTheStyleAsCliAppRun(string name, string value, string color, bool ascii)
-    {
-        // CliApp.Run reads Environment.GetEnvironmentVariable, so the C# side is `Decide` over the same variable.
-        string? Env(string k) => k == name ? value : "";
-        var expected = TerminalStyle.Decide(color, ascii, false, Env, 0);
-        string[] args = ascii ? ["--ascii", "--color", color, "version"] : ["--color", color, "version"];
-        Assert.Equal(StyleLine(expected, expected, false), ProbeStyle(StyleEnvironment(name, value), args));
-    }
-
-    [Theory]
-    [InlineData("LC_ALL", "C", "LANG", "en_US.UTF-8")]
-    [InlineData("LC_ALL", "", "LANG", "C")]
-    [InlineData("LC_CTYPE", "en_US.UTF-8", "LANG", "C")]
-    [InlineData("LC_ALL", "de_DE.UTF-8", "LC_CTYPE", "C")]
-    public void TheFirstNonEmptyLocaleDecidesTheSymbols(string first, string firstValue, string second, string secondValue)
-    {
-        var env = StyleEnvironment(first, firstValue);
-        env[second] = secondValue;
-        var expected = TerminalStyle.Decide("auto", false, false, k => env.GetValueOrDefault(k), 0);
-        Assert.Equal(StyleLine(expected, expected, false), ProbeStyle(env, ["version"]));
-    }
-
-    [Theory]
     [InlineData("NO_COLOR", "1", "auto", true, 80)]
     [InlineData("FORCE_COLOR", "1", "auto", false, 80)]
     [InlineData("TERM", "dumb", "auto", true, 80)]
     [InlineData("TERM", "xterm", "auto", true, 0)]
     [InlineData("LANG", "C", "auto", true, 80)]
+    // no-oracle: Q919 `CliApp.Run` takes a `Terminal` for the tty arm and the driver cannot be given one, so this row calls `decideStyle` itself against `Decide`; the environment arms are compared through `Run` in `SelfhostDriverStyleEnvironmentTests`
     public void DecideReadsTheEnvironmentOnATerminal(string name, string value, string color, bool tty, int width)
     {
         var expected = TerminalStyle.Decide(color, false, tty, k => k == name ? value : "", width);
@@ -635,25 +597,121 @@ public sealed class SelfhostDriverT1Tests
 [Collection(nameof(ToolchainEnvironment))]
 public sealed class SelfhostDriverStyleEnvironmentTests
 {
-    [Theory]
-    [InlineData("FORCE_COLOR")]
-    [InlineData("NO_COLOR")]
-    public void TheStyleIsDecidedFromTheProcessEnvironment(string name)
+    private const string AuditFixture = "@allow(BYN2230) because \"kept for the C ABI\"\nvoid toHex() {\n}\n\nunsafe void poke() {\n}\n";
+
+    private static readonly string[] s_audit = Fixture("audit", AuditFixture, "audit");
+
+    private static string[] Fixture(string name, string source, params string[] command)
     {
-        var saved = Environment.GetEnvironmentVariable(name);
-        Environment.SetEnvironmentVariable(name, "1");
-        try
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t7-env", name);
+        Directory.CreateDirectory(dir);
+        var file = Path.Combine(dir, "main.byn");
+        File.WriteAllText(file, source);
+        return [.. command, file];
+    }
+
+    /// <summary>What the probe prints for <paramref name="args"/>: the command's own output, without the style line the probe appends.</summary>
+    private static (int Exit, string Out, string Err) Probe(string[] args)
+    {
+        var (exit, stdout, stderr) = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), ["style", .. args]);
+        return (exit, stdout[..stdout.LastIndexOf("\nout ", StringComparison.Ordinal)], stderr);
+    }
+
+    private static (int Exit, string Out, string Err) Oracle(string[] args)
+    {
+        var stdout = new StringWriter();
+        var stderr = new StringWriter();
+        var exit = CliApp.Run(args, stdout, stderr);
+        return (exit, stdout.ToString().ReplaceLineEndings("\n"), stderr.ToString().ReplaceLineEndings("\n"));
+    }
+
+    /// <summary>
+    /// The painted output of <c>audit</c> (a warning, a note and a success line; the only ported command that paints, Q1119) under the environment, as <c>CliApp.Run</c>
+    /// prints it in this process. <c>vars</c> is <c>NAME=value</c> pairs separated by <c>|</c>; the driver process inherits them.
+    /// </summary>
+    [Theory]
+    [InlineData("NO_COLOR=1", "auto")]
+    [InlineData("NO_COLOR=1", "always")]
+    [InlineData("NO_COLOR=", "always")]
+    [InlineData("FORCE_COLOR=1", "auto")]
+    [InlineData("FORCE_COLOR=0", "auto")]
+    [InlineData("FORCE_COLOR=1", "never")]
+    [InlineData("NO_COLOR=1|FORCE_COLOR=1", "auto")]
+    [InlineData("TERM=dumb|FORCE_COLOR=1", "auto")]
+    [InlineData("TERM=dumb", "always")]
+    [InlineData("TERM=xterm", "always")]
+    [InlineData("LANG=C", "always")]
+    [InlineData("LC_ALL=C|LANG=en_US.UTF-8", "always")]
+    [InlineData("LC_ALL=|LC_CTYPE=POSIX", "always")]
+    [InlineData("LC_ALL=de_DE.utf8|LANG=C", "always")]
+    [InlineData("COLORTERM=", "always")]
+    [InlineData("COLORTERM=truecolor", "always")]
+    [InlineData("COLORTERM=24bit", "always")]
+    [InlineData("COLORTERM=256color", "always")]
+    [InlineData("COLORTERM=truecolor|BAYAN_THEME=light", "always")]
+    [InlineData("COLORTERM=truecolor|BAYAN_THEME=dark", "always")]
+    [InlineData("COLORTERM=24bit|BAYAN_THEME=light", "always")]
+    [InlineData("COLORTERM=truecolor|BAYAN_THEME=other|COLORFGBG=0;15", "always")]
+    [InlineData("COLORTERM=truecolor|BAYAN_THEME=light|COLORFGBG=15;0", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;15", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;7", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;8", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;9", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=15;0", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=7", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=default;15", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;1x", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=", "always")]
+    [InlineData("COLORTERM=truecolor|COLORFGBG=0;16", "always")]
+    [InlineData("COLORTERM=truecolor|FORCE_COLOR=1|BAYAN_THEME=light", "auto")]
+    public void TheEnvironmentPaintsAsCliAppRun(string vars, string color)
+    {
+        var pairs = vars.Split('|').Select(v => v.Split('=', 2)).Select(v => (v[0], (string?)v[1])).ToArray();
+        CliEnvironmentTests.WithTerminalEnv(() =>
         {
-            foreach (var args in new[] { new[] { "version" }, ["--color", "auto", "version"], ["--ascii", "version"] })
-                Assert.Equal(SelfhostDriverT1Tests.CsStyle(args, Environment.GetEnvironmentVariable), SelfhostDriverT1Tests.ProbeStyle(new Dictionary<string, string>(), args));
-        }
-        finally { Environment.SetEnvironmentVariable(name, saved); }
+            string[] args = ["--color", color, .. s_audit];
+            var expected = Oracle(args);
+            var actual = Probe(args);
+            Assert.Equal(expected.Exit, actual.Exit);
+            Assert.Equal(expected.Out, actual.Out);
+            Assert.Equal(expected.Err, actual.Err);
+        }, pairs);
+    }
+
+    /// <summary>The oracle rows above only mean something if the environment changes the output: each palette paints its own SGR codes.</summary>
+    [Theory]
+    [InlineData("COLORTERM=", "\u001b[33m")]
+    [InlineData("COLORTERM=truecolor|BAYAN_THEME=light", "\u001b[38;2;138;83;0m")]
+    [InlineData("COLORTERM=truecolor|BAYAN_THEME=dark", "\u001b[38;2;242;193;78m")]
+    [InlineData("COLORTERM=24bit|COLORFGBG=0;15", "\u001b[38;2;138;83;0m")]
+    public void ThePaletteIsTheOneTheEnvironmentNames(string vars, string warning)
+    {
+        var pairs = vars.Split('|').Select(v => v.Split('=', 2)).Select(v => (v[0], (string?)v[1])).ToArray();
+        CliEnvironmentTests.WithTerminalEnv(() => Assert.Contains(warning + "no reason given", Probe(["--color", "always", .. s_audit]).Out), pairs);
     }
 
     /// <summary><c>progress.byn</c> with <c>dctx.byn</c> (its <c>DStyle</c>) and a probe <c>main</c>: <c>fit &lt;phase&gt; &lt;room&gt; &lt;ascii&gt;</c>, <c>visible &lt;text&gt;</c>, <c>line &lt;phase&gt; &lt;width&gt; &lt;ascii&gt; &lt;tty&gt; &lt;json&gt;</c> (start, tick, done on stderr).</summary>
     private const string ProgressProbe = """
 
-        i32 main(ReadOnlySpan<string> args) uses alloc, console, env {
+        i32 main(ReadOnlySpan<string> args) uses alloc, clock, console, env {
+            if args[0] == "timed" {
+                // timed <phase> <after ms> <ascii> <wait ms>: a timer start, a busy wait, done
+                var after: i64 = 0
+                for b in args[2].bytes {
+                    after = after * 10 + i64(b) - 48
+                }
+                var wait: i64 = 0
+                for b in args[4].bytes {
+                    wait = wait * 10 + i64(b) - 48
+                }
+                let timedStyle = DStyle { ascii: args[3] == "true" }
+                var timed = start(in timedStyle, by: true, through: false, for: args[1], after: after * 1000000)
+                let begun = Io.monotonicNanos()
+                while Io.monotonicNanos() - begun < wait * 1000000 {}
+                done(ref timed)
+                return 0
+            }
             if args[0] == "fit" {
                 let ascii = args[3] == "true"
                 var room: i64 = 0
@@ -678,7 +736,7 @@ public sealed class SelfhostDriverStyleEnvironmentTests
                 }
             }
             let style = DStyle { ascii: args[3] == "true", width: width }
-            var p = start(in style, by: args[4] == "true", through: args[5] == "true", for: args[1], immediate: true)
+            var p = start(in style, by: args[4] == "true", through: args[5] == "true", for: args[1], after: 0)
             for _ in 0..extra {
                 tick(ref p)
             }
@@ -774,6 +832,31 @@ public sealed class SelfhostDriverStyleEnvironmentTests
     public void LaterTicksAndASecondDoneAsProgressDoes(bool ascii, int extra) =>
         AssertLine("compiling", 100, ascii, true, false, "", extra);
 
+    /// <summary>The timer: a threshold passed (one frame, two frames after a second interval; one for ASCII) or not (nothing), as the C# <c>Timer</c> draws it.</summary>
+    [Theory]
+    [InlineData(false, 1, 150)]
+    [InlineData(false, 1, 400)]
+    [InlineData(true, 1, 400)]
+    [InlineData(false, 10000, 150)]
+    [InlineData(true, 10000, 150)]
+    public void TheTimerDrawsAsProgressDoes(bool ascii, int afterMs, int waitMs)
+    {
+        var style = Style.Plain with { Symbols = ascii ? Symbols.Ascii : Symbols.Unicode };
+        var writer = new StringWriter();
+        using (var progress = Progress.Start(writer, style, true, false, _ => null, "compiling", TimeSpan.FromMilliseconds(afterMs)))
+        {
+            Thread.Sleep(waitMs);
+            progress.Done();
+        }
+        var (exit, _, stderr) = RunProgress(new Dictionary<string, string> { ["CI"] = "" }, "timed", "compiling", afterMs.ToString(), TrueFalse(ascii), waitMs.ToString());
+        Assert.Equal(0, exit);
+        Assert.Equal(writer.ToString(), stderr);
+        Assert.Equal(afterMs > waitMs, stderr.Length == 0);
+    }
+
+    // listed skip: ProgressTests.cs rows with stderr a terminal. The law runs without one, and the driver has no tty test (Q919), so
+    // `Progress` is never on in a driver run; `TheLineIsDrawnAndClearedAsProgressDoes` and `TheTimerDrawsAsProgressDoes` run `start` with `by: true` directly.
+
     private static void AssertLine(string phase, int width, bool ascii, bool tty, bool json, string ci, int extra)
     {
         var style = Style.Plain with { Symbols = ascii ? Symbols.Ascii : Symbols.Unicode, Width = width };
@@ -792,5 +875,119 @@ public sealed class SelfhostDriverStyleEnvironmentTests
         var (exit, _, stderr) = RunProgress(new Dictionary<string, string> { ["CI"] = ci }, "line", phase, width.ToString(), TrueFalse(ascii), TrueFalse(tty), TrueFalse(json), extra.ToString());
         Assert.Equal(0, exit);
         Assert.Equal(writer.ToString(), stderr);
+    }
+}
+
+/// <summary>
+/// 017 T7, L028: every <c>tests/cases/style/</c> shape of the commands the driver ports (<c>check</c>, <c>build</c>, <c>run</c>, <c>audit</c>), rendered in the
+/// three renderings of <c>StyleTests</c> (colour on a dark truecolor terminal, plain, <c>--ascii</c>) and with <c>--color always</c>, <c>FORCE_COLOR</c>,
+/// <c>NO_COLOR</c> and <c>TERM=dumb</c>, against <c>CliApp.Run</c> in this process under the same environment (no terminal, as the law runs).
+/// Listed skips: <c>build-ok-cache</c> (the cache hit of <c>build</c> is not reported, T9 `build` cache); the diagnostic shapes
+/// (<c>diag-*</c>, <c>build-fail</c>, <c>run-fail</c>) under <c>--ascii</c> and <c>TERM=dumb</c> (Q1119); the shapes of commands the driver still refuses are <c>test-ok</c>, <c>test-fail</c>, <c>test-pending</c>, <c>test-verbose</c>,
+/// <c>test-assert-values</c> and <c>test-control-chars</c> (T11 `test`); <c>diag-secondary</c> and <c>build-ice</c> call the renderer and
+/// <c>CliApp.ReportToolchain</c> directly, no command prints them; <c>doctor-ok</c> and <c>doctor-fail</c> render fixed checks, which
+/// <c>SelfhostDefaultT5Tests</c> compares to the same files. Only <c>audit</c> and the plain text of the rest are compared with the paint:
+/// the driver paints no diagnostic and no <c>check</c>, <c>build</c> or <c>run</c> summary line (Q1119), so there the SGR codes are taken off both sides.
+/// </summary>
+[Collection(nameof(ToolchainEnvironment))]
+[Trait("Law", "L028")]
+public sealed partial class SelfhostDriverStyleCaseTests
+{
+    private const string Ok = "void main() {\n    print(\"hi\")\n}\n";
+
+    private const string Broken = "void main() {\n    let x = 1\n    x = 2\n    print($\"{x}\")\n}\n";
+
+    private static readonly string Many = "void main() {\n    var y = 0\n" + string.Concat(Enumerable.Range(1, 25).Select(i => $"    y = x{i}\n")) + "}\n";
+
+    public static TheoryData<string, string> Rows()
+    {
+        var data = new TheoryData<string, string>();
+        foreach (var shape in new[] { "diag-error-fix", "diag-removal-fix", "diag-cap", "diag-cap-all", "build-ok", "build-ok-verbose", "build-fail", "check-ok", "run-fail", "audit" })
+            foreach (var rendering in new[] { "color", "plain", "ascii", "always", "force", "no-color", "dumb" })
+            {
+                // listed skip (Q1119): a diagnostic is drawn with `│` whatever the symbols, so `--ascii` and `TERM=dumb` differ on the shapes that print one
+                var diagnostic = shape.StartsWith("diag-", StringComparison.Ordinal) || shape is "build-fail" or "run-fail";
+                if (diagnostic && rendering is "ascii" or "dumb") continue;
+                data.Add(shape, rendering);
+            }
+        return data;
+    }
+
+    private static (string Source, string[][] Runs) Shape(string shape, string main, string output) => shape switch
+    {
+        "diag-error-fix" => ("void main() {\n    let total = 0\n    total += 1\n    print($\"{total}\")\n}\n", [["check", main]]),
+        "diag-removal-fix" => ("i64 twice(i64 x) => x * 2\n\nvoid main() {\n    let n = try twice(2)\n    print($\"{n}\")\n}\n", [["check", main]]),
+        "diag-cap" => (Many, [["check", main]]),
+        "diag-cap-all" => (Many, [["check", "--all", main]]),
+        "build-ok" => (Ok, [["build", "-o", output, main]]),
+        "build-ok-verbose" => (Ok, [["build", "-v", "-o", output, main]]),
+        "build-fail" => (Broken, [["build", "-o", output, main]]),
+        "check-ok" => (Ok, [["check", main]]),
+        "run-fail" => (Broken, [["run", main]]),
+        "audit" => ("@allow(BYN2230) because \"kept for the C ABI\"\nvoid toHex() {\n}\n\nunsafe void poke() {\n}\n", [["audit", main]]),
+        _ => throw new ArgumentException($"unknown shape `{shape}`", nameof(shape)),
+    };
+
+    [GeneratedRegex(@"\d+\.\d+s")]
+    private static partial Regex Seconds();
+
+    [GeneratedRegex("\u001b\\[[0-9;]*m")]
+    private static partial Regex Sgr();
+
+    private static string Mask(string text) => Seconds().Replace(text.ReplaceLineEndings("\n"), "0.00s");
+
+    [Theory]
+    [MemberData(nameof(Rows))]
+    public void RendersAsCliAppRun(string shape, string rendering)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t7-style", shape + "-" + rendering, "tally");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        var main = Path.Combine(dir, "main.byn");
+        var (source, runs) = Shape(shape, main, Path.Combine(dir, Targets.ExecutableName("tally", CliApp.HostTarget)));
+        File.WriteAllText(main, source);
+        string[] flags = rendering switch
+        {
+            "color" or "always" or "dumb" => ["--color", "always"],
+            "ascii" => ["--ascii", "--color", "always"],
+            "plain" => ["--color", "never"],
+            _ => [],
+        };
+        (string, string?)[] env = rendering switch
+        {
+            "color" or "ascii" => [("COLORTERM", "truecolor"), ("BAYAN_THEME", "dark"), ("CI", "1")],
+            "force" => [("FORCE_COLOR", "1"), ("COLORTERM", "truecolor"), ("CI", "1")],
+            "no-color" => [("NO_COLOR", "1"), ("FORCE_COLOR", "1"), ("CI", "1")],
+            "dumb" => [("TERM", "dumb"), ("CI", "1")],
+            _ => [("CI", "1")],
+        };
+        var painted = shape == "audit" || rendering is "plain" or "no-color";
+        string Text(string text) => painted ? Mask(text) : Sgr().Replace(Mask(text), "");
+        // each side builds into a cache of its own, so a hit on one is never a hit on the other
+        string Side(bool driver)
+        {
+            var cache = Path.Combine(Golden.RepoRoot, "tmp", "t7-style-cache", shape + "-" + rendering + (driver ? "-driver" : "-csharp"));
+            if (Directory.Exists(cache)) Directory.Delete(cache, recursive: true);
+            var text = "";
+            CliEnvironmentTests.WithTerminalEnv(() =>
+            {
+                foreach (var run in runs)
+                {
+                    string[] args = [.. flags, .. run];
+                    var (exit, stdout, stderr) = driver ? SelfhostDriverHarness.Run(args) : Oracle(args);
+                    text = $"exit: {exit}\n--- stdout ---\n{Text(stdout)}--- stderr ---\n{Text(stderr)}";
+                }
+            }, [.. env, ("BAYAN_CACHE", cache)]);
+            return text;
+        }
+        Assert.Equal(Side(driver: false), Side(driver: true));
+    }
+
+    private static (int Exit, string Out, string Err) Oracle(string[] args)
+    {
+        var stdout = new StringWriter();
+        var stderr = new StringWriter();
+        var exit = CliApp.Run(args, stdout, stderr);
+        return (exit, stdout.ToString(), stderr.ToString());
     }
 }

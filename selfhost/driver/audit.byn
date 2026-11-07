@@ -20,10 +20,10 @@ struct T6Construct {
     string text
 }
 
-/// The `Role.Warning` paint (Style.cs:68) with `Palette.Ansi16`; `t5Paint` has no warning role. T28 merges the two.
+/// The `Role.Warning` paint (Style.cs:68); `t5Paint` has no warning role. T28 merges the two.
 string t6PaintWarning(by DStyle style, for string text) uses alloc {
     unless style.color { return $"{text}" }
-    return $"\u{1b}[33m{text}\u{1b}[0m"
+    return $"{t7Prefix(by: style.palette, for: 1)}{text}\u{1b}[0m"
 }
 
 /// The C# `Directory.Exists`: true for a directory whether or not it can be listed. No builtin tests that, so a path that lists, or that

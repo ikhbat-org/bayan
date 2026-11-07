@@ -85,7 +85,7 @@ string versionLine() => $"bayan {version} (selfhost)"
 i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
     var kept = List<string>()
     unless takeGlobalOptions(args, to: ref kept, through: ref d) { return exitUsage }
-    // no-builtin: Q919 the `Terminal` of CliApp.cs:27 is what `Run(args, stdout, stderr)` gives: neither stream a tty, width 0
+    // no-builtin: Q1117 the `Terminal` of CliApp.cs:27 is what `Run(args, stdout, stderr)` gives: neither stream a tty, width 0
     d.styleOut = decideStyle(d.color, by: d.ascii, through: false, for: 0)
     d.styleErr = decideStyle(d.color, by: d.ascii, through: false, for: 0)
     d.stderrTty = false
@@ -198,8 +198,7 @@ bool takeGlobalOptions(ReadOnlySpan<string> args, to ref List<string> kept, thro
     return true
 }
 
-/// TerminalStyle.cs:13 `Decide`. The palette (`COLORTERM`, `BAYAN_THEME`, `COLORFGBG`, TerminalStyle.cs:25-27, :59-66) has no field in `DStyle`,
-/// which keeps colour as a flag (Q1117); the Windows code page arm of `Utf8` (:75-84) has no builtin.
+/// TerminalStyle.cs:13 `Decide`, palette included (:24-27, `t7Light`); the Windows code page arm of `Utf8` (:75-84) has no builtin (Q1117).
 DStyle decideStyle(string colorFlag, by bool ascii, through bool isTty, for i64 width) uses alloc, env {
     let dumb = Env.get("TERM") == "dumb"
     var color = false
@@ -219,7 +218,51 @@ DStyle decideStyle(string colorFlag, by bool ascii, through bool isTty, for i64 
                 color = isTty
             }
     }
-    return DStyle { color: color, ascii: ascii || dumb || !t7Utf8(), width: isTty && width > 0 ? width : 100 }
+    var palette: i64 = 0
+    let term = Env.get("COLORTERM") ?? ""
+    if term == "truecolor" || term == "24bit" {
+        palette = t7Light() ? 1 : 2
+    }
+    return DStyle { color: color, ascii: ascii || dumb || !t7Utf8(), width: isTty && width > 0 ? width : 100, palette: palette }
+}
+
+/// TerminalStyle.cs:59 `Light`: `BAYAN_THEME`, else the background field of `COLORFGBG` (digits only, 7 or 9 to 15), else dark.
+bool t7Light() uses alloc, env {
+    let theme = Env.get("BAYAN_THEME") ?? ""
+    if theme == "light" { return true }
+    if theme == "dark" { return false }
+    let fgbg = Env.get("COLORFGBG") ?? ""
+    // digits after the last `;`; `int.TryParse` with `NumberStyles.None` rejects an empty or non-digit field
+    var bg: i64 = 0
+    var digits = 0
+    for c in fgbg.bytes {
+        if c == 0x3b {
+            bg = 0
+            digits = 0
+        } else if c >= 0x30 && c <= 0x39 {
+            bg = bg * 10 + i64(c) - 0x30
+            digits += 1
+        } else {
+            bg = -1
+            digits = 0
+        }
+    }
+    if bg < 0 || digits == 0 { return false }
+    return bg == 7 || (bg >= 9 && bg <= 15)
+}
+
+/// `Palette.Prefix` (Style.cs:34) of the roles `error`, `warning`, `help`, `success`, `note` as 0 to 4, for `palette` (0 `Ansi16`, 1 `TruecolorLight`, 2 `TruecolorDark`); the hex rows are `Palette.Hex`.
+string t7Prefix(by i64 palette, for i64 role) uses alloc {
+    if palette == 0 {
+        let rows = ["\u{1b}[31m", "\u{1b}[33m", "\u{1b}[34m", "\u{1b}[32m", "\u{1b}[2m"]
+        return rows[role]
+    }
+    if palette == 1 {
+        let rows = ["\u{1b}[38;2;180;35;24m", "\u{1b}[38;2;138;83;0m", "\u{1b}[38;2;31;58;95m", "\u{1b}[38;2;47;107;31m", "\u{1b}[38;2;95;94;90m"]
+        return rows[role]
+    }
+    let rows = ["\u{1b}[38;2;255;138;128m", "\u{1b}[38;2;242;193;78m", "\u{1b}[38;2;141;184;242m", "\u{1b}[38;2;143;214;148m", "\u{1b}[38;2;180;178;169m"]
+    return rows[role]
 }
 
 /// TerminalStyle.cs:72 `Utf8`: the first non-empty of `LC_ALL`, `LC_CTYPE`, `LANG` names UTF-8 (none set counts as UTF-8).
