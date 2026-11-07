@@ -63,7 +63,6 @@ public sealed class SelfhostDriverT1Tests
     public void MatchesTheCSharpCli(string[] args) => AssertSameAsCs(args);
 
     [Theory]
-    [InlineData("format")]
     [InlineData("test")]
     [InlineData("mutate")]
     [InlineData("dist")]
@@ -518,6 +517,119 @@ public sealed class SelfhostDriverT1Tests
             var expected = ((bool)isScript.Invoke(null, [path])!).ToString().ToLowerInvariant();
             Assert.Equal(expected + "\n", SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), "isscript", path).Out);
         }
+    }
+
+    /// <summary>The files of one <c>format</c> row (FormatTests.cs) and its arguments after <c>format</c>, with <c>{D}</c> the row's tree under <c>tmp/t8-format/</c>.</summary>
+    private static (Dictionary<string, string> Files, string[] Args) FormatRowSpec(string name)
+    {
+        const string Fixable = "let a = true\nif (a) { print(\"x\") }\n";
+        string Diag(string file) => File.ReadAllText(Path.Combine(Golden.CasesRoot, "diag", file));
+        return name switch
+        {
+            "no-path" => (new(), []),
+            "bad-option" => (new(), ["-x", "{D}/main.byn"]),
+            "two-paths" => (new() { ["a.byn"] = Fixable, ["b.byn"] = Fixable }, ["{D}/a.byn", "{D}/b.byn"]),
+            "missing" => (new(), ["{D}/missing.byn"]),
+            "a-fix" => (new() { ["main.byn"] = Fixable }, ["{D}/main.byn"]),
+            "two-fixes" => (new() { ["main.byn"] = "let a = true\nunless !a { print(\"y\") }\nif (a) { print(\"x\") }\n" }, ["{D}/main.byn"]),
+            "words" => (new() { ["main.byn"] = "let a = true\nlet b = false\nif a and not b or b { print(\"x\") }\n" }, ["{D}/main.byn"]),
+            "pattern-not" => (new() { ["main.byn"] = "void main() {\n    let x: i32? = null\n    let a = true\n    if x is not null and not a { print(\"x\") }\n    if a or not\n        a { print(\"y\") }\n}\n" }, ["{D}/main.byn"]),
+            "a-real-error" => (new() { ["main.byn"] = "let a = true\nif (a) { print(\"x\"; }\n" }, ["{D}/main.byn"]),
+            "no-fix" => (new() { ["main.byn"] = "i32!Foo? f() { return 1 }\n" }, ["{D}/main.byn"]),
+            "formatted" => (new() { ["main.byn"] = "let a = true\nif a { print(\"x\") }\n" }, ["{D}/main.byn"]),
+            "check-changed" => (new() { ["main.byn"] = Fixable }, ["--check", "{D}/main.byn"]),
+            "check-formatted" => (new() { ["main.byn"] = "let a = true\nif a { print(\"x\") }\n" }, ["--check", "{D}"]),
+            "directory" => (new() { ["b.byn"] = Fixable, ["a.byn"] = "let a = true\nif a { print(\"x\") }\n", ["sub/c.byn"] = Fixable, ["notes.txt"] = Fixable }, ["{D}"]),
+            "line-join-member" => (new() { ["main.byn"] = Diag("line-join-member.byn") }, ["{D}/main.byn"]),
+            "line-join-and" => (new() { ["main.byn"] = Diag("line-join-and.byn") }, ["{D}/main.byn"]),
+            "line-join-quiet" => (new() { ["main.byn"] = Diag("line-join-quiet.byn") }, ["--check", "{D}/main.byn"]),
+            _ => throw new ArgumentException(name),
+        };
+    }
+
+    /// <summary>Writes the row's tree afresh and returns its arguments.</summary>
+    private static string[] FormatRow(string name, out string dir)
+    {
+        var (files, args) = FormatRowSpec(name);
+        dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-format", name);
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        foreach (var (rel, text) in files)
+        {
+            var path = Path.Combine(dir, rel);
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            File.WriteAllText(path, text);
+        }
+        var d = dir;
+        return ["format", .. args.Select(a => a.Replace("{D}", d))];
+    }
+
+    private static string Tree(string dir) => string.Join("", Directory.GetFiles(dir, "*", SearchOption.AllDirectories)
+        .Order(StringComparer.Ordinal).Select(f => $"== {Path.GetRelativePath(dir, f)}\n{File.ReadAllText(f)}"));
+
+    /// <summary>
+    /// <c>format</c> on a fresh tree per side, at the same path: exit, stdout, stderr and the files after equal the C#'s.
+    /// Rows needing the package style, the collectors (primitive renames) or the C# test hooks are not here (Q1121, Q1122).
+    /// </summary>
+    [Theory]
+    [InlineData("no-path")]
+    [InlineData("bad-option")]
+    [InlineData("two-paths")]
+    [InlineData("missing")]
+    [InlineData("a-fix")]
+    [InlineData("two-fixes")]
+    [InlineData("words")]
+    [InlineData("pattern-not")]
+    [InlineData("a-real-error")]
+    [InlineData("no-fix")]
+    [InlineData("formatted")]
+    [InlineData("check-changed")]
+    [InlineData("check-formatted")]
+    [InlineData("directory")]
+    [InlineData("line-join-member")]
+    [InlineData("line-join-and")]
+    [InlineData("line-join-quiet")]
+    public void FormatAsCliApp(string name)
+    {
+        var args = FormatRow(name, out var dir);
+        var expected = Oracle(args);
+        var expectedTree = Tree(dir);
+        FormatRow(name, out _);
+        var actual = SelfhostDriverHarness.Run(args);
+        Assert.Equal(expected.Exit, actual.Exit);
+        SelfhostEmitterHarness.AssertSame($"stdout of `{name}`", expected.Out, actual.Out);
+        SelfhostEmitterHarness.AssertSame($"stderr of `{name}`", expected.Err, actual.Err);
+        SelfhostEmitterHarness.AssertSame($"files after `{name}`", expectedTree, Tree(dir));
+    }
+
+    /// <summary>An unreadable file is reported and the rest formatted; the .NET message after the path differs, so stderr is compared up to it.</summary>
+    [Fact]
+    public void FormatReportsAnUnreadableFileAsCliApp()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var args = FormatRow("directory", out var dir);
+        var target = Path.Combine(dir, "a.byn");
+        File.SetUnixFileMode(target, UnixFileMode.None);
+        try
+        {
+            try { _ = File.ReadAllText(target); return; }
+            catch (UnauthorizedAccessException) { }
+            var expected = Oracle(args);
+            File.SetUnixFileMode(target, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+            var expectedTree = Tree(dir);
+            FormatRow("directory", out _);
+            File.SetUnixFileMode(target, UnixFileMode.None);
+            var actual = SelfhostDriverHarness.Run(args);
+            File.SetUnixFileMode(target, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+            Assert.Equal(CliApp.ExitFailure, expected.Exit);
+            Assert.Equal(expected.Exit, actual.Exit);
+            SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
+            SelfhostEmitterHarness.AssertSame("files after", expectedTree, Tree(dir));
+            var prefix = $"bayan: {target}: ";
+            Assert.StartsWith(prefix, expected.Err);
+            Assert.StartsWith(prefix, actual.Err);
+        }
+        finally { File.SetUnixFileMode(target, UnixFileMode.UserRead | UnixFileMode.UserWrite); }
     }
 
     /// <summary>`bayan format --check` over `selfhost/driver/` with the pinned `bayan`. Skipped on Windows: `bash scripts/pinned-bayan.sh` exits 127 on wp1 (work/todo.md, 012 T28).</summary>

@@ -110,7 +110,7 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
         case "types":
             return typesCommand(in kept, by: in d)
         case "format":
-            return refuse(command)
+            return formatCommand(in kept, by: in d)
         case "audit":
             return auditCommand(in kept, by: in d)
         case "features":

@@ -9,7 +9,7 @@
 
 import lexer
 
-void dump(in CompilationUnit unit, from ref Parser p, to ref StrBuf sb) {
+public void dump(in CompilationUnit unit, from ref Parser p, to ref StrBuf sb) uses alloc {
     line("CompilationUnit", at: 0, to: ref sb)
     for member in unit.members { decl(in member, at: 1, from: ref p, to: ref sb) }
     if p.lexed.diagnostics.length > 0 {
