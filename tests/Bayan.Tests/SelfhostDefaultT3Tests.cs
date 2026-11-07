@@ -233,6 +233,7 @@ public sealed class SelfhostDefaultT3Tests
     [InlineData("parse", "--ast")]
     [InlineData("types")]
     [InlineData("check")]
+    [InlineData("explain")]
     public void TheCommandsRunBeforeTheCacheArmsStillMatch(string command, string? option = null) =>
         Same("dispatch-" + command, Source, option is null ? [command, "main.byn"] : [command, option, "main.byn"]);
 }
