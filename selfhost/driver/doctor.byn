@@ -1,4 +1,4 @@
-// `bayan doctor` of the self-hosted driver (spec 017 T5): ports `Doctor.cs` 1-122 and `Toolchain.cs` `FindCompiler`'s `$BAYAN_CC` branch (:83),
+// `bayan doctor` of the self-hosted driver (spec 017 T5): ports `Doctor.cs` 1-122 and `Toolchain.cs` `FindCompiler`'s `$BAYAN_CC` branch (:107),
 // which `Doctor` reads; `CacheDirectory` and `Stats` come from cache.byn (`cacheDirectory`, `cacheStats`). `Doctor.Run` ignores its arguments.
 
 import semantics
@@ -116,7 +116,7 @@ T5Check t5CCompiler() uses alloc, env, fs, process {
     return T5Check { level: .broken, name: "C compiler", detail: $"`{command}` can't be run", fix: "reinstall it, or set BAYAN_CC to a working C compiler" }
 }
 
-/// Toolchain.cs:83 `FindCompiler`: `$BAYAN_CC` split on spaces (:109), else cc.byn `ccFindCompiler`; empty is C#'s null.
+/// Toolchain.cs:107 `FindCompiler`: `$BAYAN_CC` split on spaces (:110), else cc.byn `ccFindCompiler`; empty is C#'s null.
 List<string> t5FindCompiler() uses alloc, env, fs {
     if ((Env.get("BAYAN_CC") ?? "") is { } cc && cc.length > 0) {
         var found = List<string>()
