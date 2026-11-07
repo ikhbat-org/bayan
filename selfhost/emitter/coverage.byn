@@ -1,0 +1,326 @@
+// T10: CoverageInstrumenter.cs 33-200 (`Instrument`, `InTest`, the `Walker`; spec 013 R9) and the probe records of
+// CoverageProbes.cs. `DeleteStale` and `Read` (60-83) are the driver's (T11). C# keys the probes by `BoundNode`
+// reference, a `BNode` handle here, and the counters the instances of a generic share by `Node` reference, which is
+// `t10SyntaxKey` here (Q1097).
+
+import lexer
+import semantics
+
+type BNode = semantics.BNode
+type FileId = semantics.FileId
+
+const coverageLine: string = "line"
+const coverageBranch: string = "branch"
+const coverageErrorPath: string = "error"
+
+/// C# `CoverageCounter`: `kind` `line` (a statement started), `branch` (a condition had `outcome`) or `error`
+/// (`function` returned `variant` from the `origin` at the location).
+public struct CoverageCounter {
+    public i64 id
+    public string kind
+    public string file
+    public i64 line
+    public i64 column
+    public string? function = null
+    public string? variant = null
+    public string? origin = null
+    public bool? outcome = null
+}
+
+/// C# `BoundProbe`: the `Syntax` (its span) and the counter id.
+public struct BoundProbe {
+    public TextSpan span
+    public i64 id
+}
+
+/// C# `BoundBranchProbe`.
+public struct BoundBranchProbe {
+    public TextSpan span
+    public i64 whenTrue
+    public i64 whenFalse
+}
+
+/// One `(ErrorVariantSymbol Variant, int Id)` of a `BoundErrorProbe`.
+public struct ErrorProbeVariant {
+    public VariantId variant
+    public i64 id
+}
+
+/// C# `BoundErrorProbe`.
+public struct BoundErrorProbe {
+    public TextSpan span
+    public List<ErrorProbeVariant> variants = List<ErrorProbeVariant>()
+}
+
+/// C# `CoverageProbes`, keyed by bound node.
+public struct CoverageProbes {
+    public i64 count = 0
+    public Map<BNode, BoundProbe> statements = []
+    public Map<BNode, BoundBranchProbe> branches = []
+    public Map<BNode, BoundErrorProbe> errors = []
+}
+
+/// C# `CoverageMap`.
+public struct CoverageMap {
+    public List<CoverageCounter> counters = List<CoverageCounter>()
+    public CoverageProbes probes = CoverageProbes {}
+}
+
+/// CoverageInstrumenter.cs:33 `Instrument`; an empty `skipFiles` is C#'s null.
+public CoverageMap instrument(ref Ctx c, for in List<string> skipFiles) uses alloc {
+    var w = CoverageWalker { source: lexer.SourceText.create("", from: List<u8>()) }
+    for k in 0..c.moduleOrder.length {
+        let m = c.moduleOrder[k]
+        for i in 0..c.modules[m].allFunctions.length {
+            let fn = c.modules[m].allFunctions[i]
+            if c.functions[fn].body == -1 || semantics.functionIsGeneric(ref c, by: fn) || coverageInTest(in c, for: fn) { continue }
+            let kind = c.functions[fn].kind
+            if !(kind == .function || kind == .method || kind == .constructor || kind == .getter || kind == .main || kind == .lambda) { continue }
+            let file = c.functions[fn].file
+            if file == -1 || t10Contains(in skipFiles, for: c.files[file].path) { continue }
+            coverageFunction(in c, through: ref w, for: fn, at: file)
+        }
+    }
+    let count = w.counters.length
+    return CoverageMap {
+        counters: w.counters.take(),
+        probes: CoverageProbes { count: count, statements: w.statements.take(), branches: w.branches.take(), errors: w.errors.take() },
+    }
+}
+
+/// CoverageInstrumenter.cs:49 `InTest`.
+bool coverageInTest(in Ctx c, for FuncId fn) {
+    var f = fn
+    while f != -1 {
+        if c.functions[f].kind == .testKeyword { return true }
+        f = c.functions[f].enclosing
+    }
+    return false
+}
+
+/// C# `HashSet<string>.Contains`, on the list that stands for it.
+bool t10Contains(in List<string> xs, for string x) {
+    for y in xs {
+        if y == x { return true }
+    }
+    return false
+}
+
+/// C# `BoundNode.Syntax` as an identity: the file, the record type and the span of the syntax node `n` was bound
+/// from, so the instances of a generic, bound again from the same syntax, share it (Q1097).
+string t10SyntaxKey(in Ctx c, for BNode n, at FileId file) uses alloc {
+    if (semantics.exprSyntax(in c, for: n) is { } e) { return $"{file} e{e.kind.ordinal} {e.span.start} {e.span.length}" }
+    if (semantics.nodeSyntax(in c, for: n) is { } s) { return $"{file} n{s.kind.ordinal} {s.span.start} {s.span.length}" }
+    let span = semantics.nodeSpan(in c, for: n)
+    return $"{file} - {span.start} {span.length}"
+}
+
+/// C# `n.Syntax.Span`.
+TextSpan t10SyntaxSpan(in Ctx c, for BNode n) {
+    if (semantics.exprSyntax(in c, for: n) is { } e) { return e.span }
+    if (semantics.nodeSyntax(in c, for: n) is { } s) { return s.span }
+    return semantics.nodeSpan(in c, for: n)
+}
+
+/// C# `n.Syntax is Stmt`: one of the 24 `Stmt` records, `blockStmt` to `errorStmt`.
+bool t10SyntaxIsStmt(in Ctx c, for BNode n) {
+    if (semantics.nodeSyntax(in c, for: n) is { } s) { return s.kind.ordinal <= semantics.NodeSyntaxKind.errorStmt.ordinal }
+    return false
+}
+
+/// C# `Syntax is <kind>` for a syntax node that is not an `Expr`.
+bool t10SyntaxIs(in Ctx c, for BNode n, as semantics.NodeSyntaxKind kind) {
+    if (semantics.nodeSyntax(in c, for: n) is { } s) { return s.kind == kind }
+    return false
+}
+
+// ── Walker (CoverageInstrumenter.cs:85-200) ────────────────────────────────────
+
+/// C# `Walker`: the public dictionaries by bound node, the private ones by syntax (`t10SyntaxKey`).
+struct CoverageWalker {
+    List<CoverageCounter> counters = List<CoverageCounter>()
+    Map<BNode, BoundProbe> statements = []
+    Map<BNode, BoundBranchProbe> branches = []
+    Map<BNode, BoundErrorProbe> errors = []
+    Map<string, BoundProbe> syntaxStatements = []
+    Map<string, BoundBranchProbe> syntaxBranches = []
+    /// `_errors`, keyed by the syntax and the variant's `Code`.
+    Map<string, i64> syntaxErrors = []
+    FuncId fn = -1
+    FileId file = -1
+    lexer.SourceText source
+    BNode root = -1
+    /// `_guarded`, as its `t10SyntaxKey`.
+    string? guarded = null
+}
+
+/// CoverageInstrumenter.cs:105 `Function`.
+void coverageFunction(in Ctx c, through ref CoverageWalker w, for FuncId fn, at FileId file) uses alloc {
+    w.fn = fn
+    if w.file != file {
+        var bytes = List<u8>()
+        for b in c.files[file].text { bytes.append(b) }
+        w.source = lexer.SourceText.create(c.files[file].path, from: move bytes)
+        w.file = file
+    }
+    w.root = c.functions[fn].body
+    coverageVisit(in c, through: ref w, for: c.functions[fn].body)
+}
+
+/// CoverageInstrumenter.cs:111 `Visit`.
+void coverageVisit(in Ctx c, through ref CoverageWalker w, for BNode node) uses alloc {
+    let kind = semantics.boundKind(node)
+    let i = node & 0xFFFFFFFF
+    // `s if c` counts as one statement, the condition's outcomes saying whether `s` ran.
+    if kind != .block && semantics.isStmtKind(kind) && t10SyntaxIsStmt(in c, for: node) {
+        let key = t10SyntaxKey(in c, for: node, at: w.file)
+        let guarded = w.guarded ?? ""
+        if w.guarded is null || guarded != key { coverageStatement(in c, through: ref w, for: node) }
+    }
+    if kind == .ifStmt && t10SyntaxIs(in c, for: node, as: .guardedStmt) { w.guarded = t10SyntaxKey(in c, for: c.bIfs[i].then, at: w.file) }
+    switch kind {
+        case .ifStmt:
+            coverageCondition(in c, through: ref w, for: c.bIfs[i].condition)
+        case .whileStmt:
+            coverageCondition(in c, through: ref w, for: c.bWhiles[i].condition)
+        case .doWhile:
+            coverageCondition(in c, through: ref w, for: c.bDoWhiles[i].condition)
+        case .conditional:
+            coverageCondition(in c, through: ref w, for: c.bConditionals[i].condition)
+        case .binary:
+            let op = c.bBinaries[i].op
+            let isBinaryExpr = (semantics.exprSyntax(in c, for: node) is { } e) && e.kind == .binaryExpr
+            if (op == .logicalAnd || op == .logicalOr) && isBinaryExpr {
+                // An operand that is itself `&&` or `||` gets its own operands' counters instead.
+                unless t10IsLogical(in c, for: c.bBinaries[i].left) { coverageCondition(in c, through: ref w, for: c.bBinaries[i].left) }
+                unless t10IsLogical(in c, for: c.bBinaries[i].right) { coverageCondition(in c, through: ref w, for: c.bBinaries[i].right) }
+            }
+        case .switchStmt:
+            for section in c.bSwitches[i].sections {
+                if section.guard != -1 { coverageCondition(in c, through: ref w, for: section.guard) }
+            }
+        case .switchExpr:
+            for arm in c.bSwitchExprs[i].arms {
+                if arm.guard != -1 { coverageCondition(in c, through: ref w, for: arm.guard) }
+            }
+        case .failStmt:
+            if c.functions[w.fn].hasFails {
+                let error = c.bFails[i].error
+                var variants = List<VariantId>()
+                if semantics.boundKind(error) == .errorVariant {
+                    variants.append(c.bErrorVariants[error & 0xFFFFFFFF].variant)
+                } else {
+                    variants = coverageVariants(in c, from: in c.functions[w.fn].errorSets, through: in c.functions[w.fn].excludedErrors, at: -1)
+                }
+                coverageErrorOrigin(in c, through: ref w, for: node, as: "fail", from: in variants)
+            }
+        case .tryExpr:
+            let operand = c.bTries[i].operand
+            if semantics.boundKind(operand) == .call && c.functions[w.fn].hasFails {
+                let callee = c.bCalls[operand & 0xFFFFFFFF].function
+                let variants = coverageVariants(in c, from: in c.functions[callee].errorSets, through: in c.functions[callee].excludedErrors, at: -1)
+                coverageErrorOrigin(in c, through: ref w, for: node, as: "try", from: in variants)
+            }
+        case .catchExpr:
+            let operand = c.bCatches[i].operand
+            let caught = c.bCatches[i].variant
+            if semantics.boundKind(operand) == .call && caught != -1 && c.functions[w.fn].hasFails {
+                let callee = c.bCalls[operand & 0xFFFFFFFF].function
+                let variants = coverageVariants(in c, from: in c.functions[callee].errorSets, through: in c.functions[callee].excludedErrors, at: caught)
+                coverageErrorOrigin(in c, through: ref w, for: node, as: "catch", from: in variants)
+            }
+        default:
+            {}
+    }
+    let span = t10SyntaxSpan(in c, for: node)
+    for child in semantics.children(in c, for: node) {
+        // A child outside its parent's span was made by the binder (a default argument, an inlined constant).
+        // The main program's body has the span of its first statement.
+        let childSpan = t10SyntaxSpan(in c, for: child)
+        if node != w.root && (childSpan.start < span.start || childSpan.end > span.end) { continue }
+        coverageVisit(in c, through: ref w, for: child)
+    }
+}
+
+/// C# `is BoundBinary { Op: BinaryOp.LogicalAnd or BinaryOp.LogicalOr }`.
+bool t10IsLogical(in Ctx c, for BExpr e) {
+    if semantics.boundKind(e) != .binary { return false }
+    let op = c.bBinaries[e & 0xFFFFFFFF].op
+    return op == .logicalAnd || op == .logicalOr
+}
+
+/// CoverageInstrumenter.cs:158 `Variants`: the variants of `sets` not in `excluded` (nor `extra`, -1 for none), each once.
+List<VariantId> coverageVariants(in Ctx c, from in List<semantics.ErrorSetId> sets, through in List<VariantId> excluded, at VariantId extra) uses alloc {
+    var result = List<VariantId>()
+    for s in sets {
+        for v in c.errorSets[s].variants {
+            var skip = v == extra
+            for x in excluded {
+                if x == v { skip = true }
+            }
+            for x in result {
+                if x == v { skip = true }
+            }
+            unless skip { result.append(v) }
+        }
+    }
+    return result
+}
+
+/// CoverageInstrumenter.cs:161 `Statement`.
+void coverageStatement(in Ctx c, through ref CoverageWalker w, for BNode s) uses alloc {
+    let key = t10SyntaxKey(in c, for: s, at: w.file)
+    unless w.syntaxStatements.contains(key) {
+        let span = t10SyntaxSpan(in c, for: s)
+        let id = coverageAdd(ref w, as: coverageLine, at: span)
+        w.syntaxStatements[key] = BoundProbe { span: span, id: id }
+    }
+    w.statements[s] = w.syntaxStatements[key]
+}
+
+/// CoverageInstrumenter.cs:168 `Condition`.
+void coverageCondition(in Ctx c, through ref CoverageWalker w, for BExpr cond) uses alloc {
+    // A constant condition (`while true`) has one outcome, and code the binder made has no source.
+    if semantics.exprConstant(in c, for: cond) is not null || semantics.exprSyntax(in c, for: cond) is null { return }
+    let key = t10SyntaxKey(in c, for: cond, at: w.file)
+    unless w.syntaxBranches.contains(key) {
+        let span = t10SyntaxSpan(in c, for: cond)
+        let whenTrue = coverageAdd(ref w, as: coverageBranch, at: span, outcome: true)
+        let whenFalse = coverageAdd(ref w, as: coverageBranch, at: span, outcome: false)
+        w.syntaxBranches[key] = BoundBranchProbe { span: span, whenTrue: whenTrue, whenFalse: whenFalse }
+    }
+    w.branches[cond] = w.syntaxBranches[key]
+}
+
+/// CoverageInstrumenter.cs:180 `ErrorOrigin`.
+void coverageErrorOrigin(in Ctx c, through ref CoverageWalker w, for BNode origin, as string kind, from in List<VariantId> variants) uses alloc {
+    let template = c.functions[w.fn].template
+    var name = c.functions[template != -1 ? template : w.fn].name
+    let owner = c.functions[w.fn].owner
+    if owner != -1 {
+        let ownerTemplate = c.structs[owner].template
+        name = $"{c.structs[ownerTemplate != -1 ? ownerTemplate : owner].name}.{name}"
+    }
+    let key = t10SyntaxKey(in c, for: origin, at: w.file)
+    let span = t10SyntaxSpan(in c, for: origin)
+    var ids = List<ErrorProbeVariant>()
+    for v in variants {
+        let errorKey = $"{key} {c.errorVariants[v].code}"
+        unless w.syntaxErrors.contains(errorKey) {
+            let variant = $"{c.errorSets[c.errorVariants[v].set].name}.{c.errorVariants[v].name}"
+            w.syntaxErrors[errorKey] = coverageAdd(ref w, as: coverageErrorPath, at: span, function: name, variant: variant, origin: kind)
+        }
+        ids.append(ErrorProbeVariant { variant: v, id: w.syntaxErrors[errorKey] })
+    }
+    if ids.length > 0 { w.errors[origin] = BoundErrorProbe { span: span, variants: move ids } }
+}
+
+/// CoverageInstrumenter.cs:194 `Add`.
+i64 coverageAdd(ref CoverageWalker w, as string kind, at TextSpan span, string? function = null, string? variant = null, string? origin = null, bool? outcome = null) uses alloc {
+    let pos = w.source.getLinePosition(span.start)
+    w.counters.append(CoverageCounter {
+        id: w.counters.length, kind: kind, file: w.source.path, line: pos.line, column: pos.column,
+        function: function, variant: variant, origin: origin, outcome: outcome,
+    })
+    return w.counters.length - 1
+}
