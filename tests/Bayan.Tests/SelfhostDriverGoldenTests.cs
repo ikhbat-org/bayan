@@ -305,6 +305,6 @@ public sealed class SelfhostDriverGoldenTests
         var r = Stage2(dir, command, "--package", dir, "--diagnostics", "json", name + ".byn");
         Assert.Equal(failing ? CliApp.ExitFailure : CliApp.ExitOk, r.Exit);
         Assert.Equal("", r.Stdout);
-        if (Failure("diag-json/" + name + ".byn", ".jsonl", r.Stderr.Replace(dir + Path.DirectorySeparatorChar, "")) is { } f) Assert.Fail(f);
+        if (Failure("diag-json/" + name + ".byn", ".jsonl", r.Stderr.Replace((dir + Path.DirectorySeparatorChar).Replace("\\", "\\\\", StringComparison.Ordinal), "")) is { } f) Assert.Fail(f);
     }
 }

@@ -274,6 +274,11 @@ string t7Prefix(by i64 palette, for i64 role) uses alloc {
 
 /// TerminalStyle.cs:72 `Utf8`: the first non-empty of `LC_ALL`, `LC_CTYPE`, `LANG` names UTF-8 (none set counts as UTF-8).
 bool t7Utf8() uses alloc, env {
+    // coverage-exempt: Q1117 through `return true`
+    if Target.os == "windows" {
+        // no-builtin: Q1117 TerminalStyle.cs:68-77 reads `Console.OutputEncoding.CodePage == 65001` on Windows, never the locale; read as UTF-8
+        return true
+    }
     let names = ["LC_ALL", "LC_CTYPE", "LANG"]
     for name in names {
         let locale = Env.get(name) ?? ""
