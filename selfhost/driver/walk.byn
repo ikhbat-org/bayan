@@ -103,9 +103,9 @@ struct T6Found {
 // stub: T6 `Manifest.Read` (src/Bayan.Syntax/Packages/Manifest.cs:93), `Manifest` and `manifestRead` being private to selfhost/semantics (blocked: Q1107)
 T6Manifest t6ManifestRead(string path) => T6Manifest { path: path }
 
-// stub: T6 `OtherUses` (Format.cs:406), T8's, no `format.byn` yet (blocked: Q1107)
-Map<string, bool> t6OtherUses(string file, from in List<u8> bytes, by in parser.CompilationUnit tree) {
-    return []
+/// Format.cs:407 `OtherUses`, ported by T8 in format.byn.
+Map<string, bool> t6OtherUses(string file, from in List<u8> bytes, by in parser.CompilationUnit tree) uses alloc {
+    return otherUses(file, from: in bytes, by: in tree)
 }
 
 /// Format.cs:230 `ManifestFor`: the `package.byn` in the file's directory or the nearest one above it, with its directory; null when there is none.
@@ -144,7 +144,6 @@ Map<string, bool> packageNames(string dir) uses alloc, console, fs {
         for b in bytes { copy.append(b) }
         var p = parser.Parser.create(lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build()))
         let tree = parser.parseCompilationUnit(ref p)
-        // coverage-blocked: Q1107 T8 otherUses
         for (name, _) in t6OtherUses(file, from: in bytes, by: in tree) { names[name] = true }
     }
     return names
