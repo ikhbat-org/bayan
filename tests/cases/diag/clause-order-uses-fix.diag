@@ -1,0 +1,15 @@
+warning BYN5011: this `expects` reads only `n`; a type with `requires` checks it once
+
+  4 │ public void log(i64 n) expects n > 0 fails E {
+    │                        ^^^^^^^
+    │
+  help: declare a type with `requires` for `n`
+
+error BYN6002: `log` uses `console` but does not declare it
+
+  5 │     print("log")
+    │     ^^^^^^^^^^^^ uses `console`
+    │
+  help: add `console` to the `uses` clause, or remove the call
+    │ 4 │ public void log(i64 n) expects n > 0 uses console fails E {
+    │   │                                     +++++++++++++

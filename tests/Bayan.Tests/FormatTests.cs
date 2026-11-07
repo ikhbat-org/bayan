@@ -93,6 +93,66 @@ public sealed class FormatTests
     }
 
     [Fact]
+    public void AFailsShorthandBeforeUsesFormatsToOneFailsClause()
+    {
+        var file = Path.Combine(Fresh("shorthand-uses"), "main.byn");
+        File.WriteAllText(file, "union error E {\n    a\n}\nunion error F {\n    b\n}\ni32!E g() fails F uses console {\n    print(\"g\")\n    return 1\n}\n");
+        var (exit, _, stderr) = Run("format", file);
+        Assert.True(exit == CliApp.ExitOk, stderr);
+        var text = File.ReadAllText(file);
+        Assert.Contains("i32 g() uses console fails E, F {", text);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
+    }
+
+    private const string ErrorSets = "union error E {\n    a\n}\nunion error F {\n    b\n}\nunion error G {\n    c\n}\n";
+
+    private static string FormatHeader(string dir, string header)
+    {
+        var file = Path.Combine(Fresh(dir), "main.byn");
+        File.WriteAllText(file, ErrorSets + "interface IShape {\n    i64 area()\n}\n" + header + " {\n    print(\"g\")\n    return 1\n}\n");
+        var (exit, _, stderr) = Run("format", file);
+        Assert.True(exit == CliApp.ExitOk, stderr);
+        return File.ReadAllText(file);
+    }
+
+    [Fact]
+    public void AFailsShorthandKeepsAComment()
+    {
+        var text = FormatHeader("shorthand-comment", "i32!E g() // keep me\n    fails F\n    uses console");
+        Assert.Contains("i32 g()\n    uses console // keep me\n    fails E, F {", text);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
+    }
+
+    [Fact]
+    public void AFailsShorthandKeepsAMultiLineHeader()
+    {
+        var text = FormatHeader("shorthand-lines", "i32!E g()\n    fails F\n    uses console");
+        Assert.Contains("i32 g()\n    uses console\n    fails E, F {", text);
+    }
+
+    [Fact]
+    public void AFailsShorthandCarriesWhereAndExpects()
+    {
+        var text = FormatHeader("shorthand-where", "i64!E g<T>(T x) fails F where T : IShape expects true");
+        Assert.Contains("i64 g<T>(T x) where T : IShape expects true fails E, F {", text);
+    }
+
+    [Fact]
+    public void AFailsShorthandMergesEveryFailsClause()
+    {
+        var text = FormatHeader("shorthand-two-fails", "i32!E g() fails F uses console fails G, E");
+        Assert.Contains("i32 g() uses console fails E, F, G {", text);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
+    }
+
+    [Fact]
+    public void AFailsShorthandKeepsUsesClausesInSourceOrder()
+    {
+        var text = FormatHeader("shorthand-two-uses", "i32!E g() fails F uses console uses fs");
+        Assert.Contains("i32 g() uses console uses fs fails E, F {", text);
+    }
+
+    [Fact]
     public void ASecondRunChangesNothing()
     {
         var file = Path.Combine(Fresh("idempotent"), "main.byn");
@@ -528,7 +588,7 @@ public sealed class FormatTests
     }
 
     [Fact]
-    public async Task ASymlinkToAParentOfTheRootIsWalkedOnce()
+    public async Task ASymlinkToAParentOfTheRootIsNotFollowed()
     {
         if (OperatingSystem.IsWindows()) return;
         var dir = Directory.CreateDirectory(Path.Combine(Fresh("parent-link"), "outer", "dir")).FullName;
@@ -538,8 +598,8 @@ public sealed class FormatTests
         var result = await Task.Factory.StartNew(() => Run("format", "--check", dir), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
         Assert.Equal(CliApp.ExitFailure, result.Exit);
         var lines = result.Out.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        Assert.Equal(2, lines.Length);
-        Assert.Single(lines, l => l.Contains("outside.byn"));
+        Assert.Single(lines);
+        Assert.DoesNotContain(lines, l => l.Contains("outside.byn"));
     }
 
     /// <summary>
@@ -583,11 +643,11 @@ public sealed class FormatTests
     }
 
     [Fact]
-    public async Task TheWalkKeepsFilesALexicalResolutionWouldMerge()
+    public async Task TheWalkDoesNotEnterLinksLeavingTheRoot()
     {
         if (OperatingSystem.IsWindows()) return;
         var (proj, real) = LinkThroughALinkedDirectory("walk-through-dir", "let b = true\nif (b) { print(\"y\") }\n");
-        // `up` is `other` to the kernel and `proj` read lexically, which would skip it as already walked.
+        // Every link here leaves `proj`, so only the file in it is walked.
         var other = Directory.CreateDirectory(Path.Combine(real, "..", "other", "deep")).Parent!.FullName;
         File.WriteAllText(Path.Combine(other, "h.byn"), "let c = true\nif (c) { print(\"z\") }\n");
         Directory.CreateSymbolicLink(Path.Combine(proj, "x"), "../other/deep");
@@ -595,10 +655,8 @@ public sealed class FormatTests
         var result = await Task.Factory.StartNew(() => Run("format", "--check", proj), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
         Assert.Equal(CliApp.ExitFailure, result.Exit);
         var lines = result.Out.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        Assert.Equal(3, lines.Length);
-        Assert.Single(lines, l => l.Contains(Path.Combine(proj, "sub", "f.byn")));
-        Assert.Single(lines, l => l.Contains(Path.Combine(proj, "g.byn")));
-        Assert.Single(lines, l => l.Contains(Path.Combine(proj, "up", "h.byn")));
+        Assert.Single(lines);
+        Assert.Contains(Path.Combine(proj, "g.byn"), lines[0]);
     }
 
     [Fact]
@@ -703,5 +761,24 @@ public sealed class FormatTests
         var after = Bayan.Semantics.Compilation.Create([new Bayan.Syntax.Text.SourceText("hashmap-not-supported.byn", fixedBytes)], Path.GetDirectoryName(path)!);
         Assert.Empty(after.Diagnostics.Items);
         Assert.DoesNotContain("HashMap<", System.Text.Encoding.UTF8.GetString(fixedBytes));
+    }
+
+    /// <summary>`bayan format` indents each under-indented joined line, so BYN5103 is quiet on its output; quiet input is left alone.</summary>
+    [Theory]
+    [InlineData("line-join-member", true)]
+    [InlineData("line-join-enum-shorthand", true)]
+    [InlineData("line-join-and", true)]
+    [InlineData("line-join-quiet", false)]
+    public void FormattedCodeQuietsTheLineJoinLint(string name, bool fires)
+    {
+        var source = File.ReadAllBytes(Path.Combine(Golden.CasesRoot, "diag", name + ".byn"));
+        var file = Path.Combine(Fresh("line-join-" + name), "main.byn");
+        File.WriteAllBytes(file, source);
+        Assert.Equal(fires, Bayan.Syntax.Parsing.SyntaxTree.Parse(new Bayan.Syntax.Text.SourceText(file, source)).Lints.Count > 0);
+        var (exit, _, stderr) = Run("format", file);
+        Assert.True(exit == CliApp.ExitOk, stderr);
+        var formatted = File.ReadAllBytes(file);
+        Assert.Empty(Bayan.Syntax.Parsing.SyntaxTree.Parse(new Bayan.Syntax.Text.SourceText(file, formatted)).Lints);
+        if (!fires) Assert.Equal(source, formatted);
     }
 }

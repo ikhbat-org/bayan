@@ -73,8 +73,14 @@ internal sealed partial class Binder
             // `Utf8.decode(bytes, invalid: .replace)` is the lossy form, which never fails.
             case BoundMethodGroup g when g.Function == _c.Builtins.Utf8Decode && c.Args.Any(a => a.Name?.Text == "invalid"):
                 return BindFunctionCall(c, _c.Builtins.Utf8DecodeReplace, null, g.TypeArgs);
+            // `Path.combine(paths)`, one argument, is the span form; `Overload` does not see builtins.
+            case BoundMethodGroup g when g.Function == _c.Builtins.PathCombine && c.Args.Length == 1:
+                return BindFunctionCall(c, _c.Builtins.PathCombineSpan, null, g.TypeArgs);
             case BoundMethodGroup g:
                 return BindFunctionCall(c, Overload(g.Function, c), g.Receiver, g.TypeArgs);
+            // `Io.stdin.readAllBytes()` fails like `Io.readFile`: a call of a failing builtin function, not a builtin member.
+            case BoundBuiltinGroup { Receiver.Type: BuiltinType { Kind: BuiltinKind.IoInput }, Name: "readAllBytes" }:
+                return BindFunctionCall(c, _c.Builtins.IoStdinReadAllBytes, null);
             case BoundBuiltinGroup b:
                 return BindBuiltinMethodCall(c, b.Receiver, b.Name);
             case BoundTypeRef tr:
@@ -849,7 +855,7 @@ internal sealed partial class Binder
                     help: "build the copy with a loop that copies each element, or share the original by `ref`");
         }
         var returns = m.Returns is SpanType span && receiver is BoundStaticArray ? new SpanType(span.Element, readOnly: true)
-            : m.Member == BuiltinMember.IoReadAll ? new ResultType(m.Returns, _c.Builtins.IoError)
+            : m.Member is BuiltinMember.IoReadAll ? new ResultType(m.Returns, _c.Builtins.IoError)
             : m.Returns;
         return new BoundBuiltinCall(c, m.Member, receiver, args, returns);
     }

@@ -1622,6 +1622,8 @@ internal sealed class FunctionEmitter
         {
             case BoundLiteral l:
                 return _c.Constant(l.Value, l.Type);
+            case BoundHostTarget h:
+                return h.IsOs ? "BYN_HOST_OS" : "BYN_HOST_ARCH";
             case BoundSymbolLiteral s:
                 return _c.SymbolLiteral(s.Text);
             case BoundDefault d:
@@ -1782,6 +1784,14 @@ internal sealed class FunctionEmitter
                     $"    if (err == 0 && out) *out = ({list}){{p, n, n, byn_context}};\n    return err;\n}}\n");
                 return $"{name}({Expr(c.Arguments[0])}, {result ?? "NULL"})";
             }
+            case BuiltinFunction.IoStdinReadAllBytes:
+            {
+                var list = _c.CType(fn.ReturnType);
+                var name = _c.Helper("bynh_io_read_all_bytes", $"static uint32_t bynh_io_read_all_bytes({list}* out)", () =>
+                    $"{{\n    uint8_t* p = NULL;\n    int64_t n = 0;\n    uint32_t err = byn_io_read_stdin_bytes(&p, &n, byn_context);\n" +
+                    $"    if (err == 0 && out) *out = ({list}){{p, n, n, byn_context}};\n    return err;\n}}\n");
+                return $"{name}({result ?? "NULL"})";
+            }
             case BuiltinFunction.IoReadText:
                 return $"byn_io_read_text({Expr(c.Arguments[0])}, {result ?? "NULL"}, byn_context)";
             case BuiltinFunction.IoWriteFile:
@@ -1791,6 +1801,12 @@ internal sealed class FunctionEmitter
                     "{\n    return byn_io_write_file(path, bytes.ptr, bytes.len);\n}\n");
                 return $"{name}({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])})";
             }
+            case BuiltinFunction.IoRemove:
+                return $"byn_io_remove({Expr(c.Arguments[0])})";
+            case BuiltinFunction.IoCreateDirectory:
+                return $"byn_io_create_directory({Expr(c.Arguments[0])})";
+            case BuiltinFunction.IoRemoveDirectory:
+                return $"byn_io_remove_directory({Expr(c.Arguments[0])})";
             case BuiltinFunction.IoListDir:
             {
                 var list = _c.CType(fn.ReturnType);
@@ -1864,6 +1880,39 @@ internal sealed class FunctionEmitter
             }
             case BuiltinFunction.SymbolIntern:
                 return _c.SymbolIntern(Expr(c.Arguments[0]));
+            case BuiltinFunction.PathIsRooted:
+                return $"byn_path_is_rooted({Expr(c.Arguments[0])})";
+            case BuiltinFunction.PathRelative:
+                return $"byn_path_relative({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])}, byn_context, {Loc(c.Syntax)})";
+            case BuiltinFunction.PathFileName:
+                return $"byn_path_file_name({Expr(c.Arguments[0])}, byn_context)";
+            case BuiltinFunction.PathDirectoryName:
+            {
+                var opt = _c.CType(fn.ReturnType);
+                var name = _c.Helper("bynh_path_directory_name", $"static {opt} bynh_path_directory_name(byn_str path)", () =>
+                    $"{{\n    {opt} r = {{0}};\n    r.has = byn_path_directory_name(path, &r.value, byn_context);\n    return r;\n}}\n");
+                return $"{name}({Expr(c.Arguments[0])})";
+            }
+            case BuiltinFunction.PathCombine:
+                return $"byn_path_combine({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])}, byn_context)";
+            case BuiltinFunction.PathCombineSpan:
+            {
+                var span = _c.CType(fn.Parameters[0].Type);
+                var name = _c.Helper("bynh_path_combine_span", $"static byn_str bynh_path_combine_span({span} paths)", () =>
+                    "{\n    return byn_path_combine_span(paths.ptr, paths.len, byn_context);\n}\n");
+                return $"{name}({Expr(c.Arguments[0])})";
+            }
+            case BuiltinFunction.PathFullPath:
+                return $"byn_path_full_path({Expr(c.Arguments[0])}, byn_context, {Loc(c.Syntax)})";
+            case BuiltinFunction.EnvGet:
+            {
+                var opt = _c.CType(fn.ReturnType);
+                var name = _c.Helper("bynh_env_get", $"static {opt} bynh_env_get(byn_str name)", () =>
+                    $"{{\n    {opt} r = {{0}};\n    r.has = byn_env_get(name, &r.value, byn_context);\n    return r;\n}}\n");
+                return $"{name}({Expr(c.Arguments[0])})";
+            }
+            case BuiltinFunction.FsFileExists:
+                return $"byn_fs_file_exists({Expr(c.Arguments[0])})";
             case BuiltinFunction.HexEncode:
             {
                 var span = _c.CType(fn.Parameters[0].Type);

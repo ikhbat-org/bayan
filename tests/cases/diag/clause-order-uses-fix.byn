@@ -1,0 +1,6 @@
+union error E {
+    a
+}
+public void log(i64 n) expects n > 0 fails E {
+    print("log")
+}
