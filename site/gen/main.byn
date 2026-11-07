@@ -154,8 +154,8 @@ string fillTemplate(string shell, from ReadOnlySpan<string> keys, by ReadOnlySpa
             }
         }
         unless matched {
-            sb.append("{{")
-            i = open + 2
+            sb.append("{")
+            i = open + 1
         }
     }
     return $"{sb.finish()}"

@@ -9,3 +9,11 @@ test "a value that looks like a placeholder is kept" {
     values.append("<p>x</p>")
     assert fillTemplate("<title>{{title}}</title>{{body}}{{other}}", from: keys.span, by: values.span) == "<title>About {{body}}</title><p>x</p>{{other}}"
 }
+
+test "a slot right after a literal brace is filled" {
+    var keys = List<string>()
+    var values = List<string>()
+    keys.append("{{title}}")
+    values.append("T")
+    assert fillTemplate("{{{title}}}", from: keys.span, by: values.span) == "{T}"
+}

@@ -10,7 +10,8 @@ here=$(cd "$(dirname "$0")" && pwd)
 bayan=${BAYAN:-$(cd "$here/.." && pwd)/dist/macos-arm64/latest/bayan}
 # The examples run after a cd, so a relative path to the compiler must be made absolute first.
 case $bayan in
-  */*) bayan=$(cd "$(dirname "$bayan")" && pwd)/$(basename "$bayan") ;;
+  */*) dir=$(cd "$(dirname "$bayan")" 2>/dev/null && pwd) || { echo "check-examples.sh: no directory for BAYAN=$bayan" >&2; exit 2; }
+       bayan=$dir/$(basename "$bayan") ;;
 esac
 update=no
 case "${1:-}" in

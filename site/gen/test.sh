@@ -129,6 +129,14 @@ rm -f "$latest/calls"
 out=$(cd "$repo/site" && BAYAN=./fakebayan sh check-examples.sh 2>&1)
 if [ $? = 0 ] && [ "$out" = "examples: 1 checked" ]; then ok; else bad "relative BAYAN: $out"; fi
 
+# check-examples.sh: a BAYAN in a missing directory is rejected up front
+out=$(cd "$repo/site" && BAYAN=./nodir/bayan sh check-examples.sh 2>&1)
+status=$?
+case $out in
+  *"no directory for BAYAN=./nodir/bayan"*) if [ "$status" = 2 ]; then ok; else bad "missing BAYAN dir: exit $status"; fi ;;
+  *) bad "missing BAYAN dir not reported: $out" ;;
+esac
+
 # check-examples.sh: a failing mktemp is an error
 out=$(cd "$repo/site" && PATH="$meta/fakebin:$PATH" BAYAN=./fakebayan sh check-examples.sh 2>&1)
 status=$?
