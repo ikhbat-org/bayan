@@ -4,7 +4,7 @@ CompilationUnit
   TypeAlias Tick = () -> void
   TypeAlias Next = () -> Token fails LexError
   TypeAlias Send = Order -> void uses net
-  TypeAlias Read = () -> Token fails LexError uses fs
+  TypeAlias Read = () -> Token uses fs fails LexError
   TypeAlias Curried = A -> B -> C
   TypeAlias MaybeB = A -> B?
   Function any(Token -> bool p, i32 n) -> bool => true

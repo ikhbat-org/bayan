@@ -1,4 +1,4 @@
 CompilationUnit
-  Function f<T>(T x) -> void where T : I becomes .done fails E uses io
+  Function f<T>(T x) -> void where T : I uses io becomes .done fails E
     Block
       Expr (call print x)

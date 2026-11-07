@@ -279,7 +279,7 @@ public sealed class StdFsTests
 
     private static void NeedsFs(string builtin)
     {
-        var src = $"void f(string p) fails IoError uses console {{\n    try Io.{builtin}(p)\n}}\n";
+        var src = $"void f(string p) uses console fails IoError {{\n    try Io.{builtin}(p)\n}}\n";
         var c = Compilation.Create([new SourceText("e.byn", Encoding.UTF8.GetBytes(src))], Root);
         var rendered = Rendered(c).Where(r => r.StartsWith("BYN6002")).Select(r => r.Split(" | ")[0]).ToList();
         Assert.Equal([Expected(DiagnosticCodes.EffectNotDeclared, src, $"Io.{builtin}", "", "f", "fs")], rendered);
@@ -290,7 +290,7 @@ public sealed class StdFsTests
     [Fact]
     public void IoRemoveNeedsFsEffect()
     {
-        var src = "void f(string p) fails IoError uses console {\n    try Io.remove(p)\n}\n";
+        var src = "void f(string p) uses console fails IoError {\n    try Io.remove(p)\n}\n";
         var c = Compilation.Create([new SourceText("e.byn", Encoding.UTF8.GetBytes(src))], Root);
         var rendered = Rendered(c).Where(r => r.StartsWith("BYN6002")).Select(r => r.Split(" | ")[0]).ToList();
         Assert.Equal([Expected(DiagnosticCodes.EffectNotDeclared, src, "Io.remove", "", "f", "fs")], rendered);

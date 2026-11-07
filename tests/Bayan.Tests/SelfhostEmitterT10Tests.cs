@@ -273,7 +273,7 @@ public sealed class SelfhostEmitterT10Tests
             }
         }
 
-        void g(i64 k, from move string s, to ref i64 ys, at (i64 q, i64 r) pair, by i64 -> i64 fv, for bool flag, as ReadOnlySpan<u8> bytes, through ReadOnlySpan<string> argv) fails uses alloc, clock, console, fs, process {
+        void g(i64 k, from move string s, to ref i64 ys, at (i64 q, i64 r) pair, by i64 -> i64 fv, for bool flag, as ReadOnlySpan<u8> bytes, through ReadOnlySpan<string> argv) uses alloc, clock, console, fs, process fails {
             var a = k
             var v = a
             var mv = move s

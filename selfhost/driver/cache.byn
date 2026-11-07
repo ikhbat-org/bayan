@@ -207,7 +207,7 @@ void replaceFile(string path, from string source) uses alloc, fs {
 
 /// Toolchain.cs:289 `Lookup`: the cached executable for `key` if it is intact; a damaged entry is removed. A file that cannot be
 /// read for want of permission fails (the C#'s `UnauthorizedAccessException` is not caught); any other read error is damage.
-string? lookup(string key, by string exeName) fails IoError uses alloc, env, fs {
+string? lookup(string key, by string exeName) uses alloc, env, fs fails IoError {
     let dir = Path.combine(t9Programs(), key)
     let exe = Path.combine(dir, exeName)
     let sum = Path.combine(dir, "program.sha256")
@@ -245,7 +245,7 @@ List<rune> t9Whitespace() uses alloc {
 }
 
 /// `File.ReadAllText(path).Trim()`: the text without a leading UTF-8 byte order mark, trimmed of `char.IsWhiteSpace`.
-string t9ReadTrimmed(string path) fails IoError uses alloc, fs {
+string t9ReadTrimmed(string path) uses alloc, fs fails IoError {
     let text = try Io.readText(path)
     let body = text.startsWith("\u{FEFF}") ? text.runes.skip(1) : text
     let ws = t9Whitespace()
@@ -253,7 +253,7 @@ string t9ReadTrimmed(string path) fails IoError uses alloc, fs {
 }
 
 /// `File.ReadAllText(sum).Trim() == HashFile(exe)` of `Lookup`: false on an `IOException`, a failure on a permission error.
-bool t9Intact(string exe, by string sum) fails IoError uses alloc, fs {
+bool t9Intact(string exe, by string sum) uses alloc, fs fails IoError {
     let text = t9ReadTrimmed(sum) catch switch {
         IoError.permissionDenied => fail .permissionDenied,
         IoError e => return false,
@@ -268,7 +268,7 @@ bool t9Intact(string exe, by string sum) fails IoError uses alloc, fs {
 
 /// Toolchain.cs:312 `Compile`: builds into a private directory, then renames it to `programs/<key>`; null on success.
 // stub: T9 t9Compile (blocked: Q1111) the rename into `programs/<key>` is `Directory.Move`, which has no builtin
-string? t9Compile(in List<string> compiler, by in List<string> flags, from string cSource, for string key, as string exeName, at bool windows) fails IoError uses alloc, env, fs {
+string? t9Compile(in List<string> compiler, by in List<string> flags, from string cSource, for string key, as string exeName, at bool windows) uses alloc, env, fs fails IoError {
     // coverage-exempt: Q1111 the stub fails rather than report a build it did not make; no caller yet
     fail .unsupported
 }
@@ -300,7 +300,7 @@ void sweepStale(string tempRoot, by i64 ageNanos) uses alloc, env, fs {
 
 /// Toolchain.cs:443 `Discard`: `Directory.CreateDirectory(Staging)`, whose `UnauthorizedAccessException` the C# does not catch, so
 /// a permission error fails; any other error is the caught `IOException`.
-void discard(string dir) fails IoError uses alloc, env, fs {
+void discard(string dir) uses alloc, env, fs fails IoError {
     Io.createDirectory(t9Staging()) catch switch {
         IoError.permissionDenied => fail .permissionDenied,
         IoError e => return,
@@ -357,7 +357,7 @@ string compilerBuild() uses alloc, env, fs {
 string t9Hash(string text) uses alloc => Hex.encode(sha256(text.bytes).span)
 
 /// Toolchain.cs:558 `HashFile`.
-string t9HashFile(string path) fails IoError uses alloc, fs {
+string t9HashFile(string path) uses alloc, fs fails IoError {
     let bytes = try Io.readFile(path)
     return Hex.encode(sha256(bytes.span).span)
 }

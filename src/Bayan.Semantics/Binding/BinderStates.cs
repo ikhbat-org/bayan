@@ -71,7 +71,7 @@ internal sealed partial class Binder
 
     /// <summary>
     /// Where a <c>becomes</c> clause goes in <paramref name="decl"/>'s signature: after the <c>)</c> that closes the
-    /// parameters and any <c>where</c> and <c>expects</c> clauses, before <c>fails</c> and <c>uses</c> (BYN1065's order).
+    /// parameters and any <c>where</c>, <c>expects</c> and <c>uses</c> clauses, before <c>fails</c> (BYN1065's order).
     /// </summary>
     private int AfterParams(FunctionDecl decl)
     {
@@ -81,6 +81,7 @@ internal sealed partial class Binder
         at = Math.Min(at + 1, bytes.Length);
         foreach (var clause in decl.Where) at = Math.Max(at, clause.Span.End);
         foreach (var clause in decl.Requires) at = Math.Max(at, clause.Span.End);
+        if (decl.Uses is { } uses) at = Math.Max(at, uses.Span.End);
         return at;
     }
 

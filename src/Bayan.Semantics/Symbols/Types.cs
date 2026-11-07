@@ -403,7 +403,7 @@ public sealed class TupleType(IReadOnlyList<TupleField> fields) : ConstructedTyp
 }
 
 /// <summary>
-/// <c>(A, B) -> R fails E uses net</c>: a (code, environment) pair that borrows the frame that made it.
+/// <c>(A, B) -> R uses net fails E</c>: a (code, environment) pair that borrows the frame that made it.
 /// Error sets compare as a set; <see cref="Uses"/> holds effect names, sorted.
 /// </summary>
 public sealed class FunctionType(IReadOnlyList<TypeSymbol> parameters, TypeSymbol @return, IReadOnlyList<ErrorSetSymbol> fails, IReadOnlyList<string> uses)
@@ -438,8 +438,8 @@ public sealed class FunctionType(IReadOnlyList<TypeSymbol> parameters, TypeSymbo
     public override string DisplayName =>
         (Parameters is [var p] && p is not (TupleType or FunctionType) ? p.DisplayName : "(" + string.Join(", ", Parameters.Select(p => p.DisplayName)) + ")") +
         " -> " + (Return is FunctionType && (Fails.Count > 0 || Uses.Count > 0) ? "(" + Return.DisplayName + ")" : Return.DisplayName) +
-        (Fails.Count > 0 ? " fails " + string.Join(", ", Fails.Select(s => s.DisplayName)) : "") +
-        (Uses.Count > 0 ? " uses " + string.Join(", ", Uses) : "");
+        (Uses.Count > 0 ? " uses " + string.Join(", ", Uses) : "") +
+        (Fails.Count > 0 ? " fails " + string.Join(", ", Fails.Select(s => s.DisplayName)) : "");
 
     public override bool IsBorrow => true;
 }
