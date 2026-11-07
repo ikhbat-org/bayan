@@ -48,7 +48,10 @@ public sealed class SelfhostDefaultT10Tests
                     continue
                 }
                 var skip = List<string>()
-                if mode.endsWith("-skip") { skip.append(Path.fileName(file)) }
+                if mode.endsWith("-skip") {
+                    skip.append("-")
+                    skip.append(Path.fileName(file))
+                }
                 if mode.startsWith("mutate") {
                     let schema = buildSchema(ref c, for: in skip)
                     for op in mutatorOperators() { print($"notEmitted {op} {schema.notEmitted.tryGet(at: op) ?? 0}") }
@@ -89,7 +92,7 @@ public sealed class SelfhostDefaultT10Tests
                 sb.Append("errors\n");
                 continue;
             }
-            var skip = skipped ? new HashSet<string>(StringComparer.Ordinal) { Path.GetFileName(input) } : null;
+            var skip = skipped ? new HashSet<string>(StringComparer.Ordinal) { "-", Path.GetFileName(input) } : null;
             if (mutate)
             {
                 var schema = Schemata.Build(c, skip);
@@ -199,6 +202,41 @@ public sealed class SelfhostDefaultT10Tests
                 var (exit, output, error) = SelfhostParserTests.Run(Build(), [mode, dir, .. inputs]);
                 Assert.True(exit == 0, $"exit {exit}\n{error}");
                 SelfhostEmitterHarness.AssertSame($"wide {mode}", expected, output);
+            }
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    /// <summary>The edge fixture's counters, site JSON (with the input skipped too) and the C of both builds match the C#.</summary>
+    [Fact]
+    public void EdgeFixtureMatchesTheCSharpInBothModes()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "bayan-017-t10-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var input = Path.Combine(dir, "e.byn");
+            File.WriteAllText(input, EdgeText);
+            string[] inputs = [input];
+            foreach (var mode in new[] { "coverage", "mutate", "coverage-skip", "mutate-skip" })
+            {
+                var expected = Expected(inputs, dir, mutate: mode.StartsWith("mutate"), skipped: mode.EndsWith("-skip"));
+                Assert.DoesNotContain("errors\n", expected);
+                var (exit, output, error) = SelfhostParserTests.Run(Build(), [mode, dir, .. inputs]);
+                Assert.True(exit == 0, $"exit {exit}\n{error}");
+                SelfhostEmitterHarness.AssertSame($"edge {mode}", expected, output);
+            }
+            var c = Compilation.Create([Golden.Load(input)], dir);
+            Assert.False(c.Diagnostics.HasErrors);
+            foreach (var flag in new[] { "--coverage", "--mutate" })
+            {
+                var expected = ExpectedC(c, BuildMode.Safe, mutate: flag == "--mutate");
+                var (exit, output, error) = SelfhostEmitterHarness.Run(flag, "--package", dir, input);
+                Assert.True(exit == 0, $"{flag}: exit {exit}\n{error}");
+                SelfhostEmitterHarness.AssertSame($"edge {flag}", expected, output);
             }
         }
         finally
@@ -334,6 +372,7 @@ public sealed class SelfhostDefaultT10Tests
                 (["--mutate", "--mode", "debug", "--package", dir, input], ExpectedC(c, BuildMode.Debug, mutate: true)),
                 (["--tests", "--coverage", "--package", dir, input], ExpectedC(tested, BuildMode.Safe, mutate: false)),
                 (["--package", dir, input], CliApp.EmitC(c, BuildMode.Safe)),
+                ([input], CliApp.EmitC(c, BuildMode.Safe)),
             };
             foreach (var (args, expected) in cases)
             {
@@ -341,6 +380,7 @@ public sealed class SelfhostDefaultT10Tests
                 Assert.True(exit == 0, $"{string.Join(' ', args)}: exit {exit}\n{error}");
                 SelfhostEmitterHarness.AssertSame($"rich {string.Join(' ', args[..^1])}", expected, output);
             }
+            Assert.Equal(2, SelfhostEmitterHarness.Run("--coverage", "--package", dir).Exit); // no-oracle: Q814 `--package` without a file is usage
         }
         finally
         {
@@ -449,6 +489,110 @@ public sealed class SelfhostDefaultT10Tests
             print($"{folds(2)} {half(3.0)} {twice(1.0)} {quoted()}")
         }
         """;
+
+    /// <summary>
+    /// The edge fixture (generic function and method instantiated twice, an <c>out</c> argument to an uninitialized local, <c>k++</c>,
+    /// a suffixed literal, an index by a variable and by a <c>u</c> literal, <c>i8</c> -128, constant conditions, a <c>catch</c> of a
+    /// variant, a <c>try</c> on <c>Io.readFile</c>, a never-typed operand and control characters inside a mutated condition);
+    /// <c>{ctl}</c> and the line break after <c>&amp;&amp;</c> are replaced by <see cref="EdgeText"/>.
+    /// </summary>
+    private const string EdgeFixture = """
+        union error G {
+            a
+        }
+
+        union error H {
+            p(i64 code)
+            q(i64 code)
+        }
+
+        struct Cell<T> {
+            T value
+
+            i64 take(i64 n) fails H {
+                fail .p (code: n) if n < 0
+                return -n
+            }
+        }
+
+        T keep<T>(move T a, by i64 n, as bool flip) fails H {
+            let m = -n
+            let on = true
+            var k = 0
+            k++
+            k += 2
+            if m > 5 && on { fail H.q (code: m) }
+            if !flip { return a }
+            return a
+        }
+
+        void setIt(out i64 v) {
+            v = 4
+        }
+
+        i64 only() fails G {
+            fail .a
+        }
+
+        i64 load() fails IoError {
+            let b = try Io.readFile("none.txt")
+            return b.length
+        }
+
+        string raw() {
+            return "ab"
+        }
+
+        const enabled: bool = true
+
+        i64 edges(i64 x) fails G {
+            var u: i64
+            setIt(out u)
+            var w: i64
+            w = 1
+            w += 2
+            let s = 5u
+            let small: i8 = -128
+            let q = 7 / 1
+            let d = 7 * -2
+            let arr = [1, 2, 3]
+            let j = 1
+            let a1 = arr[j] + arr[1u]
+            var n = 0
+            do {
+                n += 1
+                if n > 3 { break }
+            } while true
+            while false { n += 1 }
+            unless false { n += 2 }
+            if enabled { n += 1 }
+            let v = only() catch (G.a) 3
+            let ok = x > 0 || panic("negative")
+            let odd = x > 0 &&
+                raw() != "{ctl}"
+            return n + u + w + i64(s) + i64(small) + q + d + a1 + v + x + (odd ? 1 : 0) + (ok ? 1 : 0)
+        }
+
+        i64 total() {
+            let c = Cell<i64> { value: 1 }
+            let t = Cell<string> { value: "t" }
+            let r = c.take(2) catch 0
+            let rt = t.take(2) catch 0
+            let k1 = keep(1, by: 2, as: true) catch 0
+            let k2 = keep("s", by: 2, as: false) catch ""
+            let v2 = only() catch (G.a) 4
+            let e = edges(1) catch 0
+            let l = load() catch 0
+            print($"{k2} {raw()}")
+            return r + rt + k1 + v2 + e + l
+        }
+
+        void main() {
+            print($"{total()}")
+        }
+        """;
+
+    private static string EdgeText => EdgeFixture.Replace("&&\n", "&&\r\n").Replace("{ctl}", "a\tb\u0001c\bd\fe");
 
     /// <summary>`fail`, `try` and `catch` origins, a guarded statement, `&amp;&amp;`/`||` operands, a switch guard, a method, and an assignment after a move whose removal does not re-bind.</summary>
     private const string FailFixture = """
