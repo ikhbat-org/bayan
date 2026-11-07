@@ -51,6 +51,11 @@
       "coverage": 0.9223,
       "branches": 0.9412
     },
+    "selfhost/driver/format.byn": {
+      "mutation": null,
+      "coverage": 0.9234,
+      "branches": 0.6959
+    },
     "selfhost/driver/main.byn": {
       "mutation": null,
       "coverage": 0.9918,
@@ -68,7 +73,7 @@
     },
     "selfhost/driver/walk.byn": {
       "mutation": null,
-      "coverage": 0.9565,
+      "coverage": 0.971,
       "branches": 0.9028
     },
     "selfhost/emitter/coverage.byn": {
@@ -190,6 +195,11 @@
       "mutation": null,
       "coverage": 0.9655,
       "branches": 0.7863
+    },
+    "selfhost/parser/dump.byn": {
+      "mutation": null,
+      "coverage": 0.9741,
+      "branches": 0.9367
     },
     "selfhost/parser/main.byn": {
       "mutation": null,

@@ -9,7 +9,7 @@
 
 import lexer
 
-void dump(in CompilationUnit unit, from ref Parser p, to ref StrBuf sb) {
+public void dump(in CompilationUnit unit, from ref Parser p, to ref StrBuf sb) uses alloc {
     line("CompilationUnit", at: 0, to: ref sb)
     for member in unit.members { decl(in member, at: 1, from: ref p, to: ref sb) }
     if p.lexed.diagnostics.length > 0 {
@@ -18,6 +18,7 @@ void dump(in CompilationUnit unit, from ref Parser p, to ref StrBuf sb) {
         for d in p.lexed.diagnostics {
             unless d.code.isEmpty { live.append(d) }
         }
+        // coverage-exempt: Q1123
         if live.length > 0 {
             sb.append("\n")
             lexer.renderAll(live.span, to: ref sb, from: ref p.lexed.source)

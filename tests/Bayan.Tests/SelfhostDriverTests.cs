@@ -99,7 +99,6 @@ public sealed class SelfhostDriverT1Tests
     public void MatchesTheCSharpCli(string[] args) => AssertSameAsCs(args);
 
     [Theory]
-    [InlineData("format")]
     [InlineData("test")]
     [InlineData("mutate")]
     [InlineData("dist")]
@@ -501,7 +500,7 @@ public sealed class SelfhostDriverT1Tests
         SelfhostEmitterHarness.AssertSame("manifestFor", string.Join("\n", expected) + "\n", stdout);
     }
 
-    /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (files holding only a comment, an unreadable one, a missing directory); <c>OtherUses</c> is a stub (Q1107), so a set with names is not compared.</summary>
+    /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (files holding only a comment, an unreadable one, a missing directory); a set with names is not compared while the Q1121 collectors return <c>[]</c> (the guard rejects a skipped test).</summary>
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -566,6 +565,273 @@ public sealed class SelfhostDriverT1Tests
         }
     }
 
+    /// <summary>
+    /// The files of one <c>format</c> row (FormatTests.cs, CliTests.cs, CliMemoryBoundsTests.cs) and its runs, each the arguments after
+    /// <c>format</c>, with <c>{D}</c> the row's tree under <c>tmp/t8-format/</c>.
+    /// </summary>
+    private static (Dictionary<string, string> Files, string[][] Runs) FormatRowSpec(string name)
+    {
+        const string Fixable = "let a = true\nif (a) { print(\"x\") }\n";
+        const string Formatted = "let a = true\nif a { print(\"x\") }\n";
+        const string Unless = "let a = true\nunless !a { print(\"y\") }\n";
+        const string Package = "Package {\n    name: \"local/shop\",\n    version: \"0.1.0\",\n    style: Style {  },\n}\n";
+        const string ErrorSets = "union error E {\n    a\n}\nunion error F {\n    b\n}\nunion error G {\n    c\n}\ninterface IShape {\n    i64 area()\n}\n";
+        const string Body = " {\n    print(\"g\")\n    return 1\n}\n";
+        string Diag(string file) => File.ReadAllText(Path.Combine(Golden.CasesRoot, "diag", file));
+        (Dictionary<string, string>, string[][]) One(string text, params string[] args) => (new() { ["main.byn"] = text }, args.Contains("--check") ? [[.. args, "{D}/main.byn"]] : [[.. args, "--check", "{D}/main.byn"], [.. args, "{D}/main.byn"]]);
+        (Dictionary<string, string>, string[][]) Twice(string text) => (new() { ["main.byn"] = text }, [["{D}/main.byn"], ["--check", "{D}/main.byn"]]);
+        return name switch
+        {
+            "no-path" => (new(), [[]]),
+            "dash" => (new(), [["-x"]]),
+            "bad-option" => (new(), [["-x", "{D}/main.byn"]]),
+            "two-paths" => (new() { ["a.byn"] = Fixable, ["b.byn"] = Fixable }, [["{D}/a.byn", "{D}/b.byn"]]),
+            "missing" => (new(), [["{D}/missing.byn"]]),
+            "a-fix" => One(Fixable),
+            "two-fixes" => One("let a = true\nunless !a { print(\"y\") }\nif (a) { print(\"x\") }\n"),
+            "two-fixes-one-line" => One("let a = true\nlet b = true\nif (a) { if (b) { print(\"x\") } }\n"),
+            "attributes" => One("/* one\n   two */\nbool isA(char c) => c == 'a'\n[Cases(1, 2)]\ntest \"positive\" (i32 n) {\n    assert(n > 0)\n}\n"),
+            "requires" => One("type distinct Percent = i32 requires value in 0..=100\n"),
+            "delegates" => One("struct Order { i64 total }\ndelegate bool OrderFilter(Order order)\ntype F = i32 => bool\n"),
+            "declarations" => One("struct Box { weight: i64 }\nunion Event { timeout(after: i64) }\nadd(a: i64, i64 b) -> i64 { return a + b }\nmain() {\n    i64 t = add(1, 2)\n    i64 u = 0\n    u = t\n    const i64 k = 3\n    print($\"{u}{k}\")\n}\n"),
+            "shorthand-uses" => One("union error E {\n    a\n}\nunion error F {\n    b\n}\ni32!E g() fails F uses console {\n    print(\"g\")\n    return 1\n}\n"),
+            "shorthand-comment" => One(ErrorSets + "i32!E g() // keep me\n    fails F\n    uses console" + Body),
+            "shorthand-lines" => One(ErrorSets + "i32!E g()\n    fails F\n    uses console" + Body),
+            "shorthand-column-0" => One(ErrorSets + "i32 g()\nfails F\nuses console" + Body),
+            "shorthand-where" => One(ErrorSets + "i64!E g<T>(T x) fails F where T : IShape expects true" + Body),
+            "shorthand-two-fails" => One(ErrorSets + "i32!E g() fails F uses console fails G, E" + Body),
+            "shorthand-two-uses" => One(ErrorSets + "i32!E g() fails F uses console uses fs" + Body),
+            "second-run" => (new() { ["main.byn"] = Fixable }, [["{D}/main.byn"], ["{D}/main.byn"]]),
+            "statement-attributes" => Twice("i32 clamp(i32 x) {\n    @unobservable because \"the caller never passes 0\"\n    if x <= 0 {\n        return 0\n    }\n    @unobservable(boundary) because \"x is at most 100\"\n    return x\n}\n"),
+            "round3" => Twice(
+                "/* Shapes. */\nunion Shape { circle(f64 r), square(f64 side) }\nenum Size { /* small */ s, m /* medium */, l }\n" +
+                "unique struct File {\n    i64 fd\n}\nerror enum StockError {\n    outOfStock\n}\n" +
+                "distinct type Percent = i32 requires value in 0..=100\n[Derive(Json)]\nstruct Parcel {\n    weight: i64\n}\n" +
+                "i32 twice(i32 n) noalloc => n * 2\nbool isA(char c) => c == 'a'\n" +
+                "Shape pick(Shape s) {\n    switch s {\n        case _ except .circle: return s\n        default: return s\n    }\n}\n" +
+                "add(a: i64, i64 b) -> i64 {\n    return a + b;\n}\n" +
+                "void run(Arena arena) {\n    context (allocator: arena) {\n        print(\"x\")\n    }\n}\n" +
+                "main() {\n    i64 t = add(1, b: 2); print($\"{t}\")\n    if t > 0 {\n        print(\"pos\")\n    }\n    else {\n        print(\"other\")\n    }\n" +
+                "    let u: Untrusted<string> = Untrusted(\"x\")\n    print(trust(u, reason: \"checked\"))\n}\n"),
+            "words" => One("let a = true\nlet b = false\nif a and not b or b { print(\"x\") }\n"),
+            "not-tab" => One("let b = true\nlet c = not\tb\n"),
+            "pattern-not" => One("void main() {\n    let x: i32? = null\n    let a = true\n    if x is not null and not a { print(\"x\") }\n    if a or not\n        a { print(\"y\") }\n}\n"),
+            "member" => One("i64 f(Box b) => b.long\n"),
+            "question-dot" => One("void main() {\n    let n = b?.size\n}\n"),
+            "a-real-error" => One("let a = true\nif (a) { print(\"x\"; }\n"),
+            "error-dir" => (new() { ["a.byn"] = "let a = true\nif (a) { print(\"x\"; }\n", ["b.byn"] = Fixable }, [["{D}"]]),
+            "no-fix" => One("i32!Foo? f() { return 1 }\n"),
+            "two-no-fix" => One("i32!Foo? f() { return 1 }\ni32!Bar? g() { return 1 }\nlet a = true\nlet b = a and a\n"),
+            "formatted" => One(Formatted),
+            "check-changed" => One(Fixable, "--check"),
+            "check-formatted" => (new() { ["main.byn"] = Formatted }, [["--check", "{D}"]]),
+            "check-clean" => (new() { ["main.byn"] = "bool f(bool a, bool b, i32 n) => a && !b || n is not 0\nvoid main() {\n    let x: isize = 3\n    switch x {\n        case 1 or 2: print(\"a\")\n        default: print(\"b\")\n    }\n    print(\"s\") if !f(true, false, 1) && x > 0\n}\n" }, [["--check", "{D}"]]),
+            "check-broken" => (new() { ["main.byn"] = Unless, ["z.byn"] = "let b = (\nlet c = (\n" }, [["--check", "{D}"]]),
+            "directory" => (new() { ["b.byn"] = Fixable, ["a.byn"] = Formatted, ["sub/c.byn"] = Fixable, ["notes.txt"] = Fixable }, [["{D}"]]),
+            "recursive" => (new() { ["sub/deep/main.byn"] = Fixable }, [["{D}"]]),
+            "package" => (new() { ["package.byn"] = Package, ["a.byn"] = Fixable, ["b.byn"] = "let b = true\nunless !b { print(\"y\") }\n" }, [["{D}"], ["{D}/a.byn"]]),
+            "no-temp-file" => (new() { ["main.byn"] = Fixable }, [["{D}"]]),
+            "executable" => (new() { ["script.byn"] = "#!/usr/bin/env bayan\nlet a = true\nif (a) { print(\"x\") }\n" }, [["{D}/script.byn"]]),
+            "unreadable-dir" => (new() { ["locked/a.byn"] = "let a = true;\n", ["b.byn"] = Fixable }, [["{D}"]]),
+            "nested-bin" => (new() { ["src/bin/x.byn"] = "unsafe void poke() {\n}\n" + Unless }, [["--check", "{D}"]]),
+            "scratch-dirs" => (new() { [".worktrees/x/a.byn"] = Unless, ["tmp/b.byn"] = Unless, ["src/ok.byn"] = Unless }, [["--check", "{D}"]]),
+            "state-lines" => Twice(Diag("state-line-input.byn")),
+            "line-join-member" => One(Diag("line-join-member.byn")),
+            "line-join-enum-shorthand" => One(Diag("line-join-enum-shorthand.byn")),
+            "line-join-and" => One(Diag("line-join-and.byn")),
+            "line-join-quiet" => One(Diag("line-join-quiet.byn"), "--check"),
+            _ => throw new ArgumentException(name),
+        };
+    }
+
+    /// <summary>The <c>executable</c> row's mode (FormatTests.cs:551).</summary>
+    private const UnixFileMode Executable = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute
+        | UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
+
+    /// <summary>Writes the row's tree afresh and returns its runs, each a full argument list.</summary>
+    private static string[][] FormatRow(string name, out string dir)
+    {
+        var (files, runs) = FormatRowSpec(name);
+        dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-format", name);
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        foreach (var (rel, text) in files)
+        {
+            var path = Path.Combine(dir, rel);
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            File.WriteAllText(path, text);
+            if (name == "executable" && !OperatingSystem.IsWindows()) File.SetUnixFileMode(path, Executable);
+        }
+        var d = dir;
+        return [.. runs.Select(args => (string[])["format", .. args.Select(a => a.Replace("{D}", d))])];
+    }
+
+    /// <summary>Every file under <paramref name="dir"/> with its Unix mode and text, in ordinal order; a temp file left behind shows here.</summary>
+    private static string Tree(string dir) => string.Join("", Directory.GetFiles(dir, "*", SearchOption.AllDirectories)
+        .Order(StringComparer.Ordinal)
+        .Select(f => $"== {Path.GetRelativePath(dir, f)} {(OperatingSystem.IsWindows() ? "" : File.GetUnixFileMode(f).ToString())}\n{File.ReadAllText(f)}"));
+
+    /// <summary>
+    /// <c>format</c> on a fresh tree per side, at the same path: each run's exit, stdout and stderr, and the files after, equal the C#'s.
+    /// Not here: rows needing the package style or the collectors (primitive renames, Q1121), the C# test hooks
+    /// <c>Format.MaxPasses</c> and <c>Format.RewriteHook</c> and <c>WriteReplacing</c>'s temp file and rename (Q1111, Q1122).
+    /// </summary>
+    [Theory]
+    [InlineData("no-path")]
+    [InlineData("dash")]
+    [InlineData("bad-option")]
+    [InlineData("two-paths")]
+    [InlineData("missing")]
+    [InlineData("a-fix")]
+    [InlineData("two-fixes")]
+    [InlineData("two-fixes-one-line")]
+    [InlineData("attributes")]
+    [InlineData("requires")]
+    [InlineData("delegates")]
+    [InlineData("declarations")]
+    [InlineData("shorthand-uses")]
+    [InlineData("shorthand-comment")]
+    [InlineData("shorthand-lines")]
+    [InlineData("shorthand-column-0")]
+    [InlineData("shorthand-where")]
+    [InlineData("shorthand-two-fails")]
+    [InlineData("shorthand-two-uses")]
+    [InlineData("second-run")]
+    [InlineData("statement-attributes")]
+    [InlineData("round3")]
+    [InlineData("words")]
+    [InlineData("not-tab")]
+    [InlineData("pattern-not")]
+    [InlineData("member")]
+    [InlineData("question-dot")]
+    [InlineData("a-real-error")]
+    [InlineData("error-dir")]
+    [InlineData("no-fix")]
+    [InlineData("two-no-fix")]
+    [InlineData("formatted")]
+    [InlineData("check-changed")]
+    [InlineData("check-formatted")]
+    [InlineData("check-clean")]
+    [InlineData("check-broken")]
+    [InlineData("directory")]
+    [InlineData("recursive")]
+    [InlineData("package")]
+    [InlineData("no-temp-file")]
+    [InlineData("executable")]
+    [InlineData("nested-bin")]
+    [InlineData("scratch-dirs")]
+    [InlineData("state-lines")]
+    [InlineData("line-join-member")]
+    [InlineData("line-join-enum-shorthand")]
+    [InlineData("line-join-and")]
+    [InlineData("line-join-quiet")]
+    public void FormatAsCliApp(string name)
+    {
+        var runs = FormatRow(name, out var dir);
+        var expected = runs.Select(Oracle).ToList();
+        var expectedTree = Tree(dir);
+        FormatRow(name, out _);
+        for (var i = 0; i < runs.Length; i++)
+        {
+            var actual = SelfhostDriverHarness.Run(runs[i]);
+            Assert.Equal(expected[i].Exit, actual.Exit);
+            SelfhostEmitterHarness.AssertSame($"stdout of `{name}` run {i}", expected[i].Out, actual.Out);
+            SelfhostEmitterHarness.AssertSame($"stderr of `{name}` run {i}", expected[i].Err, actual.Err);
+        }
+        SelfhostEmitterHarness.AssertSame($"files after `{name}`", expectedTree, Tree(dir));
+    }
+
+    /// <summary>
+    /// An unreadable file or directory is reported and the rest formatted (FormatTests.cs:494, :520); the .NET message after the path differs,
+    /// so stderr is compared up to it.
+    /// </summary>
+    [Theory]
+    [InlineData("directory", "a.byn")]
+    [InlineData("unreadable-dir", "locked")]
+    public void FormatReportsAnUnreadablePathAsCliApp(string name, string locked)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var args = FormatRow(name, out var dir)[0];
+        var target = Path.Combine(dir, locked);
+        var isDir = Directory.Exists(target);
+        var open = isDir ? UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute : UnixFileMode.UserRead | UnixFileMode.UserWrite;
+        File.SetUnixFileMode(target, UnixFileMode.None);
+        try
+        {
+            try
+            {
+                if (isDir) _ = Directory.GetFiles(target);
+                else _ = File.ReadAllText(target);
+                return; // root reads it anyway
+            }
+            catch (UnauthorizedAccessException) { }
+            var expected = Oracle(args);
+            File.SetUnixFileMode(target, open);
+            var expectedTree = Tree(dir);
+            FormatRow(name, out _);
+            File.SetUnixFileMode(target, UnixFileMode.None);
+            var actual = SelfhostDriverHarness.Run(args);
+            File.SetUnixFileMode(target, open);
+            Assert.Equal(CliApp.ExitFailure, expected.Exit);
+            Assert.Equal(expected.Exit, actual.Exit);
+            SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
+            SelfhostEmitterHarness.AssertSame("files after", expectedTree, Tree(dir));
+            var prefix = $"bayan: {target}: ";
+            Assert.StartsWith(prefix, expected.Err);
+            Assert.StartsWith(prefix, actual.Err);
+        }
+        finally { File.SetUnixFileMode(target, open); }
+    }
+
+    /// <summary>
+    /// A read-only file in a read-only directory fails to be written on both sides (the C#'s temp file, the driver's in-place write, Q1122)
+    /// and is reported; stderr is compared up to the .NET message.
+    /// </summary>
+    [Fact]
+    public void FormatReportsAnUnwritableFileAsCliApp()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var args = FormatRow("a-fix", out var dir)[^1];
+        var target = Path.Combine(dir, "main.byn");
+        const UnixFileMode Open = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute;
+        void Lock()
+        {
+            File.SetUnixFileMode(target, UnixFileMode.UserRead);
+            File.SetUnixFileMode(dir, UnixFileMode.UserRead | UnixFileMode.UserExecute);
+        }
+        void Unlock()
+        {
+            File.SetUnixFileMode(dir, Open);
+            File.SetUnixFileMode(target, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        }
+        Lock();
+        try
+        {
+            try
+            {
+                File.WriteAllText(Path.Combine(dir, "probe"), "");
+                File.Delete(Path.Combine(dir, "probe"));
+                return; // root writes it anyway
+            }
+            catch (UnauthorizedAccessException) { }
+            var expected = Oracle(args);
+            Unlock();
+            var expectedTree = Tree(dir);
+            FormatRow("a-fix", out _);
+            Lock();
+            var actual = SelfhostDriverHarness.Run(args);
+            Unlock();
+            Assert.Equal(CliApp.ExitFailure, expected.Exit);
+            Assert.Equal(expected.Exit, actual.Exit);
+            SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
+            SelfhostEmitterHarness.AssertSame("files after", expectedTree, Tree(dir));
+            var prefix = $"bayan: {target}: ";
+            Assert.StartsWith(prefix, expected.Err);
+            Assert.StartsWith(prefix, actual.Err);
+        }
+        finally { Unlock(); }
+    }
+
     /// <summary>`bayan format --check` over `selfhost/driver/` with the pinned `bayan`. Skipped on Windows: `bash scripts/pinned-bayan.sh` exits 127 on wp1 (work/todo.md, 012 T28).</summary>
     [Fact]
     public void SourcesAreFormatted()
@@ -576,6 +842,27 @@ public sealed class SelfhostDriverT1Tests
         var bayan = pinned.Out.Trim().Split('\n')[^1].Trim();
         var (exit, stdout, stderr) = Run(bayan, "format", "--check", SelfhostDriverHarness.DriverDir);
         Assert.True(exit == 0, $"bayan format --check selfhost/driver:\n{stdout}{stderr}");
+    }
+
+    /// <summary>
+    /// Stage 2's <c>format --check</c> over <c>selfhost/</c> and <c>tests/cases/run/</c> equals the C#'s, except the C#'s
+    /// <c>would format</c> line for <c>csharp-primitive-names.byn</c>, a primitive rename the stage-2 driver does not make (Q1121).
+    /// </summary>
+    [Theory]
+    [InlineData("selfhost")]
+    [InlineData("tests/cases/run")]
+    public void SourcesFormatCheckAsCliApp(string tree)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var dir = Path.Combine(Golden.RepoRoot, tree);
+        var expected = Oracle(["format", "--check", dir]);
+        var skipped = $"would format {Path.Combine(dir, "csharp-primitive-names.byn")}\n";
+        var expectedOut = expected.Out.Replace(skipped, "");
+        var expectedExit = expected.Exit == CliApp.ExitFailure && expectedOut == "" && expected.Err == "" ? CliApp.ExitOk : expected.Exit;
+        var (exit, stdout, stderr) = Run(BootstrapTests.Stage2Executable(), "format", "--check", dir);
+        Assert.Equal(expectedExit, exit);
+        SelfhostEmitterHarness.AssertSame($"stdout of format --check {tree}", expectedOut, stdout.ReplaceLineEndings("\n"));
+        SelfhostEmitterHarness.AssertSame($"stderr of format --check {tree}", expected.Err, stderr.ReplaceLineEndings("\n"));
     }
 
     private static (int Exit, string Out, string Err) Run(string program, params string[] args)

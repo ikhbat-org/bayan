@@ -622,3 +622,5 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - round-4 LOW (fix 2 re-review): without the shorthand, a second `fails` or `uses` clause keeps only the last one, and the merged clause takes the last clause's Span.
 - round-4 LOW (fix 2 re-review): the BYN1065 reorder swaps comment owners between the swapped clauses.
 - round-4 LOW (fix 2 writer note): `bayan format` adds one extra indent after a multi-line `expects` clause.
+- 017 T7 review 2 row 12 (LOW): `selfhost/driver/dctx.byn` (line 3) `DStyle` comment still says the palette is always Ansi16 and cites Q919; outside the T7 section. Fix in T28.
+- 017 T7 review 3 row 13 (LOW): the project branch of `t5Compile` does not clear the progress line where src/Bayan.Cli/CliApp.cs:272 `progress.Done()` does, and the `check`/`diag`/`features` callers (selfhost/driver/commands.byn, selfhost/driver/features.byn) pass `isTty = false` instead of `d.stderrTty`; unobservable while `stderrTty` is false. Fixing task: 017 T19 (or T28).
