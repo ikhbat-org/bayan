@@ -237,6 +237,10 @@ public sealed class SelfhostDriverT1Tests
                 Write("c.bxn", "unsafe void c() {\n}\n");
                 Write("d.byx", "unsafe void d() {\n}\n");
                 return ["audit", dir];
+            case "dangling-link":
+                Write("main.byn", AuditSource);
+                File.CreateSymbolicLink(Path.Combine(dir, "broken.byn"), "/nonexistent");
+                return ["audit", dir];
             case "missing":
                 return ["audit", Path.Combine(dir, "nope")];
             case "no-path":
@@ -355,6 +359,22 @@ public sealed class SelfhostDriverT1Tests
         Assert.StartsWith(prefix, actual.Err);
     }
 
+    /// <summary>A dangling <c>broken.byn -> /nonexistent</c>: both report the path and exit 1, by different routes (the C# lists it as a file and fails to read it, the driver takes it for a directory and fails to list it); stderr is compared up to the path's message (Q1106).</summary>
+    [Fact]
+    public void AuditReportsADanglingLinkAsCliApp()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var args = AuditRow("dangling-link");
+        var expected = Oracle(args);
+        var actual = SelfhostDriverHarness.Run(args);
+        Assert.Equal(CliApp.ExitFailure, expected.Exit);
+        Assert.Equal(expected.Exit, actual.Exit);
+        SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
+        var prefix = $"bayan: {Path.Combine(args[1], "broken.byn")}: ";
+        Assert.StartsWith(prefix, expected.Err);
+        Assert.StartsWith(prefix, actual.Err);
+    }
+
     private static void Chmod(string path, UnixFileMode mode)
     {
         if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(path, mode);
@@ -367,7 +387,7 @@ public sealed class SelfhostDriverT1Tests
         foreach (var f in new[] { "a.byn", "sub/b.byn", "sub/deep/c.byn", "other/d.byn", "locked/e.byn", "package.byn" })
         {
             Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(dir, f))!);
-            File.WriteAllText(Path.Combine(dir, f), "");
+            File.WriteAllText(Path.Combine(dir, f), "// c\n");
         }
         return dir;
     }
@@ -436,7 +456,7 @@ public sealed class SelfhostDriverT1Tests
         SelfhostEmitterHarness.AssertSame("manifestFor", string.Join("\n", expected) + "\n", stdout);
     }
 
-    /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (empty files, an unreadable one, a missing directory); <c>OtherUses</c> is a stub (Q1107), so a set with names is not compared.</summary>
+    /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (files holding only a comment, an unreadable one, a missing directory); <c>OtherUses</c> is a stub (Q1107), so a set with names is not compared.</summary>
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

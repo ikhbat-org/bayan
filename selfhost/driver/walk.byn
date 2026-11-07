@@ -1,6 +1,9 @@
 // The shared `.byn` walk of the driver (spec 017 T6), used by `audit` and `format`. Ports `Format.cs` :119 `BynFiles`, :183
 // `IsSkippedDirectory`, :193 `RealPath`, :230 `ManifestFor` and :255 `PackageNames`.
 
+import lexer
+import parser
+
 /// A directory still to walk: the path as written and its canonical path (`Format.cs:133` `(string Path, string? Canonical)`).
 struct T6Pending {
     string path
@@ -98,8 +101,8 @@ struct T6Found {
 // stub: T6 `Manifest.Read` (src/Bayan.Syntax/Packages/Manifest.cs:93), `Manifest` and `manifestRead` being private to selfhost/semantics (blocked: Q1107)
 T6Manifest t6ManifestRead(string path) => T6Manifest { path: path }
 
-// stub: T6 `OtherUses` (Format.cs:407), T8's, no `format.byn` yet (blocked: Q1107)
-Map<string, bool> t6OtherUses(string file, from in List<u8> bytes) {
+// stub: T6 `OtherUses` (Format.cs:406), T8's, no `format.byn` yet (blocked: Q1107)
+Map<string, bool> t6OtherUses(string file, from in List<u8> bytes, by in parser.CompilationUnit tree) {
     return []
 }
 
@@ -135,8 +138,12 @@ Map<string, bool> packageNames(string dir) uses alloc, console, fs {
     for file in bynFiles(dir, through: ref ignored, by: root, for: true) {
         if Path.fileName(file) == "package.byn" { continue }
         let bytes = Io.readFile(file) catch continue
+        var copy = List<u8>()
+        for b in bytes { copy.append(b) }
+        var p = parser.Parser.create(lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build()))
+        let tree = parser.parseCompilationUnit(ref p)
         // coverage-blocked: Q1107 T8 otherUses
-        for (name, _) in t6OtherUses(file, from: in bytes) { names[name] = true }
+        for (name, _) in t6OtherUses(file, from: in bytes, by: in tree) { names[name] = true }
     }
     return names
 }
