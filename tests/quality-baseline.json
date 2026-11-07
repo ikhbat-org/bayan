@@ -38,8 +38,13 @@
     },
     "selfhost/driver/main.byn": {
       "mutation": null,
-      "coverage": 0.9914,
+      "coverage": 0.9915,
       "branches": 1.0
+    },
+    "selfhost/driver/scaffold.byn": {
+      "mutation": null,
+      "coverage": 0.9655,
+      "branches": 0.9741
     },
     "selfhost/emitter/cprint/builtin.byn": {
       "mutation": null,
@@ -130,6 +135,11 @@
       "mutation": null,
       "coverage": 0.0678,
       "branches": 0.0167
+    },
+    "selfhost/lexer/tokens.byn": {
+      "mutation": null,
+      "coverage": 0.875,
+      "branches": 0.8333
     },
     "selfhost/parser/decls.byn": {
       "mutation": null,
@@ -265,6 +275,11 @@
       "mutation": null,
       "coverage": 0.875,
       "branches": 0.6667
+    },
+    "selfhost/semantics/manifest.byn": {
+      "mutation": null,
+      "coverage": 0.3972,
+      "branches": 0.3203
     },
     "selfhost/semantics/ownership.byn": {
       "mutation": null,
