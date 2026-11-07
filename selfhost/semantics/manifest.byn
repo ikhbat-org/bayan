@@ -473,7 +473,7 @@ Diag t10CopyDiag(in Diag d) => Diag {
 // ── Names and versions ──────────────────────────────────────────────────────────
 
 /// Manifest.cs:250 `KebabOf`: `linuxX64` → `linux-x64`.
-string kebabOf(string camel) {
+public string kebabOf(string camel) uses alloc {
     var buf = List<u8>()
     for b in camel.bytes {
         if b >= 0x41 && b <= 0x5A {
@@ -489,7 +489,7 @@ string kebabOf(string camel) {
 }
 
 /// Manifest.cs:262 `CamelOf`: `my-lib` → `myLib`.
-string camelOf(string kebab) {
+public string camelOf(string kebab) uses alloc {
     let t = kebab.bytes
     var buf = List<u8>()
     var i: i64 = 0
@@ -525,7 +525,7 @@ bool t10IsAsciiDigit(u8 c) => c >= 0x30 && c <= 0x39
 bool t10IsAsciiLetterOrDigit(u8 c) => t10IsAsciiLower(c) || t10IsAsciiDigit(c) || (c >= 0x41 && c <= 0x5A)
 
 /// Manifest.cs:274 `IsKebabName`: lowercase words joined by `-`.
-bool t10IsKebabName(ReadOnlySpan<u8> text) {
+public bool t10IsKebabName(ReadOnlySpan<u8> text) {
     if text.length == 0 || !t10IsAsciiLower(text[0]) || text[text.length - 1] == 0x2D { return false }
     for i in 0..text.length {
         let c = text[i]

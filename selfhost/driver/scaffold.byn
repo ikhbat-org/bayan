@@ -256,28 +256,19 @@ ScaffoldNames? scaffoldNames(string dirName, for ScaffoldLayout layout) uses all
     for b in t {
         if !((b >= 0x61 && b <= 0x7A) || (b >= 0x41 && b <= 0x5A) || (b >= 0x30 && b <= 0x39)) { camel = false }
     }
-    let kebab = camel ? scaffoldKebabOf(dirName) : dirName
-    unless scaffoldIsKebabName(kebab.bytes) {
+    let kebab = camel ? semantics.kebabOf(dirName) : dirName
+    unless semantics.t10IsKebabName(kebab.bytes) {
         Io.stderr.write($"bayan: `{dirName}` can't be a package name\n")
         Io.stderr.write("  help: use lowercase words joined by `-` (`my-app`) or camelCase (`myApp`); start with a letter\n")
         return null
     }
-    let module = scaffoldCamelOf(kebab)
-    if layout == .lib && scaffoldIsKeyword(module) {
+    let module = semantics.camelOf(kebab)
+    if layout == .lib && lexer.Keywords.build().lookup(module.bytes) != lexer.TokenKind.identifier {
         Io.stderr.write($"bayan: `{module}` is a keyword, so `import {module}` couldn't name the library\n")
         Io.stderr.write($"  help: pick another name, e.g. `{kebab}-lib`\n")
         return null
     }
     return ScaffoldNames { kebab: kebab, module: module }
-}
-
-/// `Keywords.Lookup(UTF8(module)) != TokenKind.Identifier`: `Keywords.lookup` is not public, so `module` is lexed with the public `lex` and its
-/// first token's kind is the lookup (lexer.byn:589 gives an identifier token the kind `lookup` returns) (Q1086).
-bool scaffoldIsKeyword(string module) uses alloc {
-    var bytes = List<u8>()
-    for b in module.bytes { bytes.append(b) }
-    let result = lexer.lex(lexer.SourceText.create("", from: move bytes), by: lexer.Keywords.build())
-    return result.tokens[0].kind != lexer.TokenKind.identifier
 }
 
 /// Scaffold.cs:136 `Write`: writes every file that doesn't exist yet, in ordinal path order; with `listing`, says what it did.
@@ -297,14 +288,13 @@ void scaffoldWrite(Map<string, string> files, to string root, for bool listing) 
         Io.createDirectory(Path.directoryName(path) ?? "") catch { panic($"cannot create the directory of {path}") }
         // coverage-exempt: Q1086 the catch is reached only if the file cannot be written; the C# `File.WriteAllText` throws there
         Io.writeFile(path, contents.bytes) catch { panic($"cannot write {path}") }
-        // `Io.writeFile` has no executable bit and no chmod builtin: `chmod a+x` adds it as `File.SetUnixFileMode` does (Q1086).
+        // `Io.writeFile` has no executable bit and no chmod builtin: `chmod a+x` adds it as `File.SetUnixFileMode` does; with no `chmod` on `PATH` it panics (Q1089).
         // coverage-exempt: Q1086 the Windows branch runs only on a Windows host (`OperatingSystem.IsWindows()`)
         if contents.startsWith("#!") && Target.os != "windows" {
             var chmod = List<string>()
             chmod.append("a+x")
             chmod.append(path)
-            // coverage-exempt: Q1086 the catch is reached only if `chmod` cannot start; the C# `File.SetUnixFileMode` has no such step
-            let _ = Io.run("chmod", chmod.span) catch { panic($"cannot make {path} executable") }
+                let _ = Io.run("chmod", chmod.span) catch { panic($"cannot make {path} executable") }
         }
         if listing { Io.stdout.write($"created {relative}\n") }
     }
@@ -375,56 +365,4 @@ Map<string, string> scaffoldFiles(ScaffoldNames n, for ScaffoldOptions o) uses a
         files[".github/workflows/bayan.yml"] = scaffoldCi.replaced("{command}", by: lib ? "check" : "build")
     }
     return files
-}
-
-/// Manifest.cs:250 `KebabOf`: a copy of `semantics/manifest.byn` `kebabOf`, which is not public (Q1086).
-string scaffoldKebabOf(string camel) {
-    var buf = List<u8>()
-    for b in camel.bytes {
-        if b >= 0x41 && b <= 0x5A {
-            buf.append(0x2D)
-            buf.append(b + 32)
-        } else {
-            buf.append(b)
-        }
-    }
-    var sb = StrBuf()
-    for b in buf { sb.append($"{rune(b)}") }
-    return $"{sb.finish()}"
-}
-
-/// Manifest.cs:262 `CamelOf`: a copy of `semantics/manifest.byn` `camelOf`, which is not public (Q1086).
-string scaffoldCamelOf(string kebab) {
-    let t = kebab.bytes
-    var buf = List<u8>()
-    var i: i64 = 0
-    while i < t.length {
-        // coverage-exempt: Q1086 `camelOf` runs after `IsKebabName`, which refuses a trailing `-`, so `i + 1 < t.length` is always true
-        if t[i] == 0x2D && i + 1 < t.length {
-            i += 1
-            let c = t[i]
-            // coverage-exempt: Q1086 after `IsKebabName` a letter after `-` is a lowercase ASCII letter, so the upper bound is always true
-            buf.append(c >= 0x61 && c <= 0x7A ? c - 32 : c)
-        } else {
-            buf.append(t[i])
-        }
-        i += 1
-    }
-    var sb = StrBuf()
-    for b in buf { sb.append($"{rune(b)}") }
-    return $"{sb.finish()}"
-}
-
-/// Manifest.cs:274 `IsKebabName`: a copy of `semantics/manifest.byn` `t10IsKebabName`, which is not public (Q1086).
-bool scaffoldIsKebabName(ReadOnlySpan<u8> text) {
-    if text.length == 0 || !(text[0] >= 0x61 && text[0] <= 0x7A) || text[text.length - 1] == 0x2D { return false }
-    for i in 0..text.length {
-        let c = text[i]
-        if c == 0x2D {
-            if text[i - 1] == 0x2D { return false }
-        } else if !(c >= 0x61 && c <= 0x7A) && !(c >= 0x30 && c <= 0x39) {
-            return false
-        }
-    }
-    return true
 }

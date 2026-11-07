@@ -119,6 +119,46 @@ public sealed class SelfhostDefaultT4Tests
     public void NewWithoutGitOnThePathSaysSoAsCSharp() => Same(["new", "tally"], path: "");
 
     [Fact]
+    public void RootedNewMatchesTheInProcessCSharp()
+    {
+        var cs = Fresh();
+        var s1 = Fresh();
+        try
+        {
+            var o = new StringWriter();
+            var e = new StringWriter();
+            var exit = CliApp.Run(["new", Path.Combine(cs, "tally"), "--lib", "--vcs", "none", "--ci", "github"], o, e);
+            var actual = Start(SelfhostDriverHarness.Build(), [], s1, ["new", Path.Combine(s1, "tally"), "--lib", "--vcs", "none", "--ci", "github"], null);
+            Assert.Equal(Mask(o.ToString().Replace("\r\n", "\n"), cs), Mask(actual.Out, s1));
+            Assert.Equal(e.ToString(), actual.Err);
+            Assert.Equal(exit, actual.Exit);
+            Assert.Equal(Mask(Tree(cs), cs), Mask(Tree(s1), s1));
+        }
+        finally
+        {
+            TestDirs.Delete(cs);
+            TestDirs.Delete(s1);
+        }
+    }
+
+    [Fact]
+    public void ScriptWithAnEmptyPathPanicsAtChmod()
+    {
+        // no-oracle: Q1089 (the C# sets the mode with File.SetUnixFileMode and succeeds; the driver starts `chmod` and panics)
+        if (OperatingSystem.IsWindows()) return;
+        var dir = Fresh();
+        try
+        {
+            var r = Start(SelfhostDriverHarness.Build(), [], dir, ["new", "tally", "--script"], "");
+            Assert.NotEqual(0, r.Exit);
+            Assert.Contains("cannot make", r.Err);
+            Assert.True(File.Exists(Path.Combine(dir, "tally.byn")));
+            Assert.Equal((UnixFileMode)0b110_100_100, File.GetUnixFileMode(Path.Combine(dir, "tally.byn")) & (UnixFileMode)0b111_111_111 & ~(UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute));
+        }
+        finally { TestDirs.Delete(dir); }
+    }
+
+    [Fact]
     public void NewInsideAGitRepositoryNotesItAsCSharp() =>
         Same(["new", "tally"], setup: dir => Assert.Equal(0, Start("git", [], dir, ["init", "--quiet"], null).Exit));
 
@@ -252,7 +292,7 @@ public sealed class SelfhostDefaultT4Tests
         {
             var r = Start(SelfhostDriverHarness.Build(), [], dir, ["new", Path.Combine(dir, "tally"), "--vcs", "none", .. options.Split(' ')], null);
             Assert.True(r.Exit == CliApp.ExitOk, r.Err);
-            var result = Golden.Compare(Path.Combine(Golden.CasesRoot, "new", layout + ".tree"), Tree(dir, plain: true), Golden.UpdateMode);
+            var result = Golden.Compare(Path.Combine(Golden.CasesRoot, "new", layout + ".tree"), Tree(dir, plain: true), false);
             if (result.Failure is { } failure) Assert.Fail(failure);
         }
         finally { TestDirs.Delete(dir); }
