@@ -98,9 +98,10 @@ public sealed class SelfhostDefaultT3Tests
     {
         var data = Path.Combine(root, cache, "v1");
         Directory.CreateDirectory(Path.Combine(data, "programs", "k1", "nested"));
-        File_(Path.Combine(data, "programs", "k1", "prog"), 1_572_864);
-        File_(Path.Combine(data, "programs", "k1", "prog.sha256"), 64);
-        File_(Path.Combine(data, "programs", "k2", "prog"), 100_000);
+        File_(Path.Combine(data, "CACHEDIR.TAG"), 170);
+        File_(Path.Combine(data, "programs", "k1", "program"), 1_572_864);
+        File_(Path.Combine(data, "programs", "k1", "program.sha256"), 64);
+        File_(Path.Combine(data, "programs", "k2", "program"), 100_000);
         File_(Path.Combine(data, "programs", "stray.txt"), 7);
         File_(Path.Combine(data, "scripts", "a"), 1);
         File_(Path.Combine(data, "scripts", "b"), 1);
@@ -126,6 +127,19 @@ public sealed class SelfhostDefaultT3Tests
         Directory.CreateSymbolicLink(Path.Combine(app, "dist", "link"), Path.Combine("..", "..", "outside"));
     }
 
+    /// <summary>A project whose <c>out</c> (and <c>dist</c>, and the cache's <c>v1</c>) is a symlink to <c>outside/</c>, which holds files.</summary>
+    private static void LinkedTop(string root)
+    {
+        Directory.CreateDirectory(root);
+        File.WriteAllText(Path.Combine(root, "package.byn"), "package demo\n");
+        File_(Path.Combine(root, "outside", "keep.txt"), 5);
+        File_(Path.Combine(root, "outside", "sub", "f"), 6);
+        Directory.CreateSymbolicLink(Path.Combine(root, "out"), "outside");
+        Directory.CreateSymbolicLink(Path.Combine(root, "dist"), "outside");
+        Directory.CreateDirectory(Path.Combine(root, "cache"));
+        Directory.CreateSymbolicLink(Path.Combine(root, "cache", "v1"), Path.Combine("..", "outside"));
+    }
+
     private static void SeededProject(string root) { Project(root); Seeded(root); }
 
     [Fact] public void StatsOfNoCache() => Same("stats-none", Nothing, "cache", "stats");
@@ -145,6 +159,46 @@ public sealed class SelfhostDefaultT3Tests
         if (OperatingSystem.IsWindows()) return;
         Same("clean-link", LinkedDist, "clean", "app", "--dist");
         Assert.True(File.Exists(Path.Combine(Base, "s2", "clean-link", "outside", "keep.txt")));
+    }
+
+    [Fact]
+    public void CleanRemovesATopLevelSymlinkAndKeepsItsTarget()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        Same("clean-top-link", LinkedTop, "clean", "--dist", "--cache");
+        Assert.True(File.Exists(Path.Combine(Base, "s2", "clean-top-link", "outside", "sub", "f")));
+    }
+
+    /// <summary>The C# throws (unhandled exception, exit 134); the driver panics: no `removed`, a non-zero exit, the tree kept (Q1085).</summary>
+    [System.Runtime.Versioning.UnsupportedOSPlatform("windows")]
+    private static void RefusesToReport(string name, Action<string> seed, string locked, string culprit)
+    {
+        var root = Tree(name, "s2", seed);
+        var dir = Path.Combine(root, locked);
+        File.SetUnixFileMode(dir, UnixFileMode.UserRead | UnixFileMode.UserExecute);
+        try
+        {
+            var r = Stage2(root, new Dictionary<string, string?>(), "clean");
+            Assert.NotEqual(0, r.Exit);
+            Assert.DoesNotContain("removed", r.Out); // no-oracle: Q1085
+            Assert.True(Directory.Exists(Path.Combine(root, "out")));
+            Assert.Contains($"cannot remove {Path.Combine(root, culprit)}", r.Err); // no-oracle: Q1085
+        }
+        finally { File.SetUnixFileMode(dir, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); }
+    }
+
+    [Fact]
+    public void CleanDoesNotReportAFileItCannotRemove()
+    {
+        if (OperatingSystem.IsWindows() || Environment.UserName == "root") return;
+        RefusesToReport("clean-locked-file", r => { Project(r); File_(Path.Combine(r, "out", "locked", "f"), 1); }, Path.Combine("out", "locked"), Path.Combine("out", "locked", "f"));
+    }
+
+    [Fact]
+    public void CleanDoesNotReportADirectoryItCannotRemove()
+    {
+        if (OperatingSystem.IsWindows() || Environment.UserName == "root") return;
+        RefusesToReport("clean-locked-dir", r => { Project(r); Directory.CreateDirectory(Path.Combine(r, "out", "locked", "empty")); }, Path.Combine("out", "locked"), Path.Combine("out", "locked", "empty"));
     }
 
     [Fact] public void CleanAProjectWithDistAndCache() => Same("clean-all", SeededProject, "clean", "--dist", "--cache");

@@ -82,23 +82,37 @@ i32 cacheCommand(List<string> kept) uses alloc, console, env, fs {
     return exitOk
 }
 
-/// `Directory.Delete(dir, recursive: true)`.
-void t3RemoveTree(string dir) uses alloc, fs {
-    for name in t3Entries(dir) {
-        let f = Path.combine(dir, name)
-        // `Io.remove` unlinks a file or a symlink (also one to a directory) and fails on a real directory: the C# removes a link, never its target.
-        Io.remove(f) catch {
-            // coverage-exempt: Q1083
-            if t3DirectoryExists(f) { t3RemoveTree(f) }
-        }
+/// `Io.remove` succeeded: it unlinks a file or a symlink (also one to a directory) and fails on a real directory.
+bool t3Unlinked(string path) uses fs {
+    Io.remove(path) catch return false
+    return true
+}
+
+/// One entry of `Directory.Delete(dir, recursive: true)`, or `dir` itself: a link is removed and its target kept, as in the C#. A failure
+/// panics with the `IoError` (the C# throws an unhandled exception, Q1085).
+void t3RemoveEntry(string path) uses alloc, fs {
+    if t3Unlinked(path) { return }
+    if t3DirectoryExists(path) {
+        t3RemoveTree(path)
+        return
     }
-    Io.removeDirectory(dir) catch {}
+    Io.remove(path) catch switch {
+        IoError e => panic($"cannot remove {path}: {e}"),
+    }
+}
+
+/// `Directory.Delete(dir, recursive: true)` of a real directory.
+void t3RemoveTree(string dir) uses alloc, fs {
+    for name in t3Entries(dir) { t3RemoveEntry(Path.combine(dir, name)) }
+    Io.removeDirectory(dir) catch switch {
+        IoError e => panic($"cannot remove {dir}: {e}"),
+    }
 }
 
 /// Dist.cs:259 `Remove`.
 void t3Remove(string dir, by string name) uses alloc, console, fs {
     unless t3DirectoryExists(dir) { return }
-    t3RemoveTree(dir)
+    t3RemoveEntry(dir)
     Io.stdout.write($"removed {name}\n")
 }
 
