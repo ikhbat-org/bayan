@@ -1,25 +1,35 @@
-// The shared `.byn` walk of the driver (spec 017 T6), used by `audit` and `format`. Ports `Format.cs` :119 `BynFiles`, :168
+// The shared `.byn` walk of the driver (spec 017 T6), used by `audit` and `format`. Ports `Format.cs` :119 `BynFiles`, :183
 // `IsSkippedDirectory`, :193 `RealPath`, :230 `ManifestFor` and :255 `PackageNames`.
 
-/// A directory still to walk: the path as written and its canonical path (`Format.cs:131` `(string Path, string? Canonical)`).
+/// A directory still to walk: the path as written and its canonical path (`Format.cs:133` `(string Path, string? Canonical)`).
 struct T6Pending {
     string path
     string canonical
 }
 
-/// Format.cs:164 `IsSkippedDirectory`: dot-directories and `node_modules` or `obj` anywhere, `bin`, `dist` and `tmp` only directly under the walk root.
+/// Format.cs:183 `IsSkippedDirectory`: dot-directories and `node_modules` or `obj` anywhere, `bin`, `dist` and `tmp` only directly under the walk root.
 bool t6IsSkippedDirectory(string name, bool atRoot) =>
     name.startsWith(".") || name.equals("node_modules", as: .caseless) || name.equals("obj", as: .caseless)
         || (atRoot && (name.equals("bin", as: .caseless) || name.equals("dist", as: .caseless) || name.equals("tmp", as: .caseless)))
 
-/// Format.cs:121 `Inside`: `real` is `within` or lies under it; every path is inside without a bound.
+/// Format.cs:122 `Inside`: `real` is `within` or lies under it; every path is inside without a bound.
 bool t6Inside(string real, by string? within) {
-    // coverage-blocked: Q1107 T8 packageNames through `return real == bound`
     if (within is { } bound) {
         let prefix = bound.endsWith("/") ? bound : $"{bound}/"
         return real == bound || real.startsWith(prefix)
     }
     return true
+}
+
+/// `Directory.GetFiles(canonical, "*.byn")`: .NET matches the pattern case-insensitively on macOS and Windows and case-sensitively elsewhere
+/// (ASCII letters only here, Q1106).
+bool t6IsByn(string name) {
+    // coverage-exempt: Q1106 through `return name.endsWith(".byn")`
+    if Target.os == "linux" { return name.endsWith(".byn") }
+    let n = name.length
+    if n < 4 { return false }
+    let b = name.bytes
+    return b[n - 4] == 0x2e && (b[n - 3] | 0x20) == 0x62 && (b[n - 2] | 0x20) == 0x79 && (b[n - 1] | 0x20) == 0x6e
 }
 
 /// Format.cs:193 `RealPath`: the absolute path. The C# resolves every symlink in it, component by component; no builtin reports a link target, so
@@ -45,7 +55,6 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
         seenDirs[canonical] = true
         let names = Io.listDir(canonical) catch switch {
             IoError e => {
-                // coverage-blocked: Q1107 T8 packageNames
                 unless silent { Io.stderr.write($"bayan: {at.path}: {e}\n") }
                 failed = true
                 continue
@@ -53,10 +62,9 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
         }
         // `Directory.GetFiles(canonical, "*.byn")` and `Directory.GetDirectories(canonical)`: an entry that is not a file is a directory.
         for name in names {
-            if !name.endsWith(".byn") || !Fs.fileExists(Path.combine(canonical, name)) { continue }
+            if !t6IsByn(name) || !Fs.fileExists(Path.combine(canonical, name)) { continue }
             let file = Path.combine(at.path, name)
             let real = realPath(Path.combine(canonical, name))
-            // coverage-blocked: Q1107 T8 packageNames through `seenFiles[real] = true`
             // coverage-exempt: Q1106 through `files.append(file)`
             if t6Inside(real, by: within) && !seenFiles.contains(real) {
                 seenFiles[real] = true
@@ -69,7 +77,6 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
             let sub = Path.combine(at.path, name)
             let real = realPath(Path.combine(canonical, name))
             // stub: T6 `new DirectoryInfo(...).LinkTarget is not null`, the bound's refusal to follow any directory link (blocked: Q1106)
-            // coverage-blocked: Q1107 T8 packageNames
             if t6Inside(real, by: within) { pending.append(T6Pending { path: sub, canonical: real }) }
         }
     }
@@ -77,10 +84,59 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
     return files
 }
 
-/// Format.cs:230 `ManifestFor`: the directory of the `package.byn` in the file's directory or the nearest one above it; null when there is none.
-// stub: T6 `Manifest.Read` of the found `package.byn` (blocked: Q1107)
-string? manifestFor(string file) => null
+/// The result of the stub `Manifest.Read` (Q1107): selfhost/semantics/manifest.byn `Manifest` is not `public`, so the driver cannot name it.
+struct T6Manifest {
+    string path
+}
 
-/// Format.cs:255 `PackageNames`: every name the package's `.byn` files under `dir` use other than as a type, callee or receiver.
-// stub: T6 `OtherUses` over a parsed file, T8's (blocked: Q1107)
-List<string> packageNames(string dir) => List<string>()
+/// The C# `(Manifest Manifest, string Dir)`: a manifest and the directory of its `package.byn`.
+struct T6Found {
+    T6Manifest manifest
+    string dir
+}
+
+// stub: T6 `Manifest.Read` (src/Bayan.Syntax/Packages/Manifest.cs:93), `Manifest` and `manifestRead` being private to selfhost/semantics (blocked: Q1107)
+T6Manifest t6ManifestRead(string path) => T6Manifest { path: path }
+
+// stub: T6 `OtherUses` (Format.cs:407), T8's, no `format.byn` yet (blocked: Q1107)
+Map<string, bool> t6OtherUses(string file, from in List<u8> bytes) {
+    return []
+}
+
+/// Format.cs:230 `ManifestFor`: the `package.byn` in the file's directory or the nearest one above it, with its directory; null when there is none.
+/// `cache` is the dictionary the C# caller (`Format.Run`) owns: each directory walked maps to what was found.
+T6Found? manifestFor(string file, through ref Map<string, T6Found?> cache) uses alloc, fs {
+    var dir = Path.directoryName(Path.fullPath(file))
+    var seen = List<string>()
+    var found: T6Found? = null
+    while (dir is { } current) {
+        if cache.contains(current) {
+            found = cache[current]
+            break
+        }
+        seen.append(current)
+        let candidate = Path.combine(current, "package.byn")
+        if Fs.fileExists(candidate) {
+            found = T6Found { manifest: t6ManifestRead(candidate), dir: current }
+            break
+        }
+        dir = Path.directoryName(current)
+    }
+    for d in seen { cache[d] = found }
+    return found
+}
+
+/// Format.cs:255 `PackageNames`: every name the package's `.byn` files under `dir` use other than as a type, callee or receiver (the C#
+/// `HashSet<string>`, as the keys of a map).
+Map<string, bool> packageNames(string dir) uses alloc, console, fs {
+    var names: Map<string, bool> = []
+    var ignored = exitOk
+    let root = realPath(dir)
+    for file in bynFiles(dir, through: ref ignored, by: root, for: true) {
+        if Path.fileName(file) == "package.byn" { continue }
+        let bytes = Io.readFile(file) catch continue
+        // coverage-blocked: Q1107 T8 otherUses
+        for (name, _) in t6OtherUses(file, from: in bytes) { names[name] = true }
+    }
+    return names
+}

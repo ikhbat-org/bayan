@@ -26,6 +26,15 @@ string t6PaintWarning(by DStyle style, for string text) uses alloc {
     return $"\u{1b}[33m{text}\u{1b}[0m"
 }
 
+/// The C# `Directory.Exists`: true for a directory whether or not it can be listed. No builtin tests that, so a path that lists, or that
+/// lists with `permissionDenied`, is a directory (Q1108).
+bool t6DirectoryExists(string path) uses alloc, fs {
+    let _ = Io.listDir(path) catch switch {
+        IoError e => return e == .permissionDenied,
+    }
+    return true
+}
+
 /// Audit.cs:16 `Run`. `kept` is the command and its arguments; stdout is painted with `d.styleOut`.
 i32 auditCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
     let args = t2Rest(in kept)
@@ -36,9 +45,9 @@ i32 auditCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
     let path = args[0]
     var exit = exitOk
     var files = List<string>()
-    if t3DirectoryExists(path) {
+    if t6DirectoryExists(path) {
         files = bynFiles(path, through: ref exit)
-    } else if t1FileExists(path) {
+    } else if Fs.fileExists(path) {
         files.append(path)
     } else {
         Io.stderr.write($"bayan: not found: {path}\n")
