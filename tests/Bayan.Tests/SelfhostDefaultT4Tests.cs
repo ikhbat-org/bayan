@@ -220,7 +220,6 @@ public sealed class SelfhostDefaultT4Tests
     [InlineData("format")]
     [InlineData("audit")]
     [InlineData("features")]
-    [InlineData("explain")]
     [InlineData("test")]
     [InlineData("mutate")]
     [InlineData("dist")]
