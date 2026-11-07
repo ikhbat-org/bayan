@@ -99,7 +99,7 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
             Io.stdout.write($"{versionLine()}\n")
             return exitOk
         case "doctor":
-            return refuse(command)
+            return doctorCommand(by: in d)
         case "--help" or "-h" or "help":
             Io.stdout.write($"{usageText}\n")
             return exitOk
