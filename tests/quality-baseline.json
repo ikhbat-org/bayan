@@ -24,7 +24,7 @@
     "selfhost/driver/commands.byn": {
       "mutation": null,
       "coverage": 0.9643,
-      "branches": 0.9667
+      "branches": 1.0
     },
     "selfhost/driver/dctx.byn": {
       "mutation": null,
@@ -288,8 +288,8 @@
     },
     "selfhost/semantics/diag.byn": {
       "mutation": null,
-      "coverage": 0.941,
-      "branches": 0.8394
+      "coverage": 0.947,
+      "branches": 0.8465
     },
     "selfhost/semantics/effects.byn": {
       "mutation": null,
