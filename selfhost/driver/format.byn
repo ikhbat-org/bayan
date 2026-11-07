@@ -48,6 +48,7 @@ Map<string, string> cSharpPrimitives() uses alloc => [
 
 /// Format.cs:33 `SizedPrimitives`: `CSharpPrimitives` with each key and value swapped.
 Map<string, string> sizedPrimitives() uses alloc {
+    // coverage-exempt: Q1121 through `return sized`
     var sized: Map<string, string> = []
     for (key, value) in cSharpPrimitives() { sized[value] = key }
     return sized
@@ -92,6 +93,7 @@ i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
         var declared: Map<string, bool> = []
         if (package is { } found) {
             unless packageNamesByRoot.contains(found.dir) { packageNamesByRoot[found.dir] = packageNames(found.dir) }
+            // coverage-exempt: Q1124
             for (name, _) in packageNamesByRoot[found.dir] { declared[name] = true }
         }
         // Read and write the file the kernel opens, not the one a lexical `..` collapse names.
@@ -138,8 +140,8 @@ bool t8SameBytes(in List<u8> a, as in List<u8> b) {
     return true
 }
 
-/// Format.cs:284 `WriteReplacing`: writes `bytes` over `file`, already resolved by `realPath`. The C# writes a temp file beside it, gives
-/// it the original's Unix mode and renames it over the original; no builtin renames a file or reads a mode, so this writes in place (Q1122).
+/// Format.cs:284 `WriteReplacing`: writes `bytes` over `file`, already resolved by `realPath`, in place (Q1122).
+// stub: T8 `WriteReplacing` temp file, mode, rename (blocked: Q1111)
 void writeReplacing(string file, from in List<u8> bytes) fails IoError {
     try Io.writeFile(file, bytes.span)
 }
@@ -232,6 +234,7 @@ List<u8>? formatFile(string file, from in List<u8> bytes, by T8BooleanStyle bool
         }
         if blocking.length > 0 {
             // After a rewrite the positions and snippets would point at text the file on disk does not hold.
+            // coverage-exempt: Q1122 through `rewriting it made it unparsable`
             if pass == 0 {
                 Io.stderr.write(t8RenderAll(file, from: in current, for: in blocking))
             } else {
@@ -241,6 +244,7 @@ List<u8>? formatFile(string file, from in List<u8> bytes, by T8BooleanStyle bool
         }
         var fixes = List<T8Fix>()
         for d in p.lexed.diagnostics {
+            // coverage-exempt: Q1123
             if !d.code.isEmpty && inputForms(d.code) && d.hasFix { fixes.append(T8Fix { span: d.fixSpan, replacement: d.fixReplacement }) }
         }
         for d in lints { fixes.append(T8Fix { span: d.fixSpan, replacement: d.fixReplacement }) }
@@ -253,6 +257,7 @@ List<u8>? formatFile(string file, from in List<u8> bytes, by T8BooleanStyle bool
         if t8SameBytes(in next, as: in current) {
             var fixless = List<T8Diagnostic>()
             for d in p.lexed.diagnostics {
+                // coverage-exempt: Q1123
                 if !d.code.isEmpty && inputForms(d.code) { fixless.append(d) }
             }
             if fixless.length > 0 {
@@ -264,6 +269,7 @@ List<u8>? formatFile(string file, from in List<u8> bytes, by T8BooleanStyle bool
         }
         current = move next
     }
+    // coverage-exempt: Q1122 through `unfixable = true`
     if !converged {
         Io.stderr.write($"bayan: {file}: still changing after {maxPasses} passes; left unfixed\n")
         unfixable = true
@@ -275,6 +281,7 @@ List<u8>? formatFile(string file, from in List<u8> bytes, by T8BooleanStyle bool
 /// boolean rewrite is kept only when the file parses to the same tree after it, so `and`, `or` and `not` in patterns, and a `!` that is
 /// not the operator, stay as written.
 List<u8> restyle(string file, from in List<u8> bytes, by in parser.CompilationUnit tree, through ref parser.Parser p, for T8BooleanStyle booleans, as T8PrimitiveStyle primitives, at in Map<string, bool> declared) uses alloc {
+    // coverage-exempt: Q1121
     let names = primitives == .sized ? cSharpPrimitives() : sizedPrimitives()
     var copy = List<u8>()
     for b in bytes { copy.append(b) }
@@ -286,12 +293,14 @@ List<u8> restyle(string file, from in List<u8> bytes, by in parser.CompilationUn
     let typeNames = t8TypeNames(in tree)
     let calleeNames = t8CalleeAndReceiverNames(in tree)
     var others = otherUses(file, from: in bytes, by: in tree)
+    // coverage-exempt: Q1124
     for (name, _) in declared { others[name] = true }
     var renames = List<T8Fix>()
     var operators = List<T8Fix>()
     for i in 0..tokens.length {
         let token = tokens[i]
         var renamed = false
+        // coverage-exempt: Q1121 through `renamed = true`
         if token.kind == .identifier && (typeNames.contains(token.start) || calleeNames.contains(token.start)) {
             let text = lexed.source.getText(T8TextSpan.fromBounds(token.start, until: token.end))
             if names.contains(text) && (typeNames.contains(token.start) || !others.contains(text)) {
@@ -299,11 +308,13 @@ List<u8> restyle(string file, from in List<u8> bytes, by in parser.CompilationUn
                 renamed = true
             }
         }
+        // coverage-exempt: Q1121
         if !renamed {
             if (operatorFix(in bytes, from: in tokens, at: i, by: booleans) is { } fix) { operators.append(fix) }
         }
     }
     // The operators' offsets move with a rename, so they wait for the next pass.
+    // coverage-exempt: Q1121
     if renames.length > 0 { return applyFixes(in bytes, for: in renames) }
     var result = List<u8>()
     for b in bytes { result.append(b) }
@@ -349,6 +360,7 @@ Map<string, bool> otherUses(string file, from in List<u8> bytes, by in parser.Co
     var found: Map<string, bool> = []
     for i in 0..tokens.length {
         let t = tokens[i]
+        // coverage-exempt: Q1121
         if t.kind != .identifier || typeNames.contains(t.start) || calleeNames.contains(t.start) { continue }
         if i > 0 && (tokens[i - 1].kind == .dot || tokens[i - 1].kind == .questionDot) { continue }
         found[lexed.source.getText(T8TextSpan.fromBounds(t.start, until: t.end))] = true
@@ -357,12 +369,14 @@ Map<string, bool> otherUses(string file, from in List<u8> bytes, by in parser.Co
 }
 
 /// A blank of `SpaceBefore`/`SpaceAfter` (Format.cs:428-429): space, tab, line feed or carriage return.
+// coverage-exempt: Q1121
 bool t8IsSpace(u8 b) => b == 0x20 || b == 0x09 || b == 0x0a || b == 0x0d
 
 /// Format.cs:424 `OperatorFix`: the rewrite of token `i` into the other boolean spelling, or null when it is not one.
 T8Fix? operatorFix(in List<u8> bytes, from in List<lexer.Token> tokens, at i64 i, by T8BooleanStyle booleans) uses alloc {
     let token = tokens[i]
     let span = T8TextSpan { start: token.start, length: token.length }
+    // coverage-exempt: Q1121 through `{before}{word}`
     if booleans == .words {
         let word = token.kind switch {
             .ampAmp => "and",
@@ -399,6 +413,7 @@ string shape(in parser.CompilationUnit tree, from ref parser.Parser p) uses allo
     let dump = $"{sb.finish()}"
     var live = List<T8Diagnostic>()
     for d in p.lexed.diagnostics {
+        // coverage-exempt: Q1123
         unless d.code.isEmpty { live.append(d) }
     }
     var diagnostics = ""

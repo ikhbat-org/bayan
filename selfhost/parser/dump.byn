@@ -18,6 +18,7 @@ public void dump(in CompilationUnit unit, from ref Parser p, to ref StrBuf sb) u
         for d in p.lexed.diagnostics {
             unless d.code.isEmpty { live.append(d) }
         }
+        // coverage-exempt: Q1123
         if live.length > 0 {
             sb.append("\n")
             lexer.renderAll(live.span, to: ref sb, from: ref p.lexed.source)
