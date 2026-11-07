@@ -77,6 +77,8 @@ Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C
 
 Verify each finding in the code before you write it: name the Bayan `file:line` and the C# `file:line`. Run the task's tests (`dotnet test -v q --filter "{filt}"`) once; you may add a probe under `tmp/review-{t.lower()}/` to confirm a behaviour.
 
+Cite format (`scripts/selfhost/preflight.sh` checks every `path:N` in the review file before landing): a `path:N` takes, in the same clause, a backticked symbol that is on line N or the 2 lines after it at HEAD. For a line as it was in an earlier commit, or one with no symbol to name, write `path (line N)`. On a re-review your block replaces the whole file: carry every earlier row with its status.
+
 ## Write `{row['dir']}/reviews/{t}.md`, exactly this shape
 ```
 # {t} review
