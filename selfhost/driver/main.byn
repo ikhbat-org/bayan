@@ -272,7 +272,7 @@ string t7Prefix(by i64 palette, for i64 role) uses alloc {
     return rows[role]
 }
 
-/// TerminalStyle.cs:72 `Utf8`: the first non-empty of `LC_ALL`, `LC_CTYPE`, `LANG` names UTF-8 (none set counts as UTF-8).
+/// TerminalStyle.cs:66 `Utf8`: on Windows the console code page, which has no builtin and is read as UTF-8 (Q1117); elsewhere the first non-empty of `LC_ALL`, `LC_CTYPE`, `LANG` names UTF-8 (none set counts as UTF-8).
 bool t7Utf8() uses alloc, env {
     // coverage-exempt: Q1117 through `let names` (the Windows arm)
     if Target.os == "windows" {
