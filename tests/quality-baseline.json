@@ -1,6 +1,11 @@
 {
   "version": 1,
   "files": {
+    "selfhost/driver/audit.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": 0.9844
+    },
     "selfhost/driver/build.byn": {
       "mutation": null,
       "coverage": 0.96,
@@ -60,6 +65,11 @@
       "mutation": null,
       "coverage": 1.0,
       "branches": 1.0
+    },
+    "selfhost/driver/walk.byn": {
+      "mutation": null,
+      "coverage": 0.9565,
+      "branches": 0.9028
     },
     "selfhost/emitter/cprint/builtin.byn": {
       "mutation": null,
