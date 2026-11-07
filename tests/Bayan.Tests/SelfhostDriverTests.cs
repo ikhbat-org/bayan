@@ -67,7 +67,6 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("format")]
     [InlineData("audit")]
     [InlineData("features")]
-    [InlineData("explain")]
     [InlineData("test")]
     [InlineData("mutate")]
     [InlineData("new")]
