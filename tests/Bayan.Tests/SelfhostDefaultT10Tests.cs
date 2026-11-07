@@ -494,7 +494,8 @@ public sealed class SelfhostDefaultT10Tests
     /// <summary>
     /// The edge fixture (generic function and method instantiated twice, an <c>out</c> argument to an uninitialized local, <c>k++</c>,
     /// a suffixed literal, an index by a variable and by a <c>u</c> literal, <c>i8</c> -128, constant conditions, a <c>catch</c> of a
-    /// variant, a <c>try</c> on <c>Io.readFile</c>, a never-typed operand and control characters inside a mutated condition);
+    /// variant, <c>unless</c> and <c>s unless c</c> on a constant (a literal whose value is not its keyword's), a function failing a
+    /// set and its <c>except</c> union, a <c>try</c> on <c>Io.readFile</c>, a never-typed operand and control characters inside a mutated condition);
     /// <c>{ctl}</c> and the line break after <c>&amp;&amp;</c> are replaced by <see cref="EdgeText"/>.
     /// </summary>
     private const string EdgeFixture = """
@@ -552,6 +553,11 @@ public sealed class SelfhostDefaultT10Tests
             return try narrow(n)
         }
 
+        i64 both(i64 n) fails H, N {
+            fail H.p (code: n) if n < 0
+            return n
+        }
+
         void setIt(out i64 v) {
             v = 4
         }
@@ -593,6 +599,8 @@ public sealed class SelfhostDefaultT10Tests
             } while true
             while false { n += 1 }
             unless false { n += 2 }
+            n += 4 unless false
+            n += 5 unless true
             if enabled { n += 1 }
             let v = only() catch (G.a) 3
             let ok = x > 0 || panic("negative")
@@ -615,7 +623,8 @@ public sealed class SelfhostDefaultT10Tests
             let o2 = opt("s") ?? "n"
             let nw = wide(1) catch 0
             let nk = kf(1) catch 0
-            print($"{o1} {o2} {nw} {nk}")
+            let nb = both(1) catch 0
+            print($"{o1} {o2} {nw} {nk} {nb}")
             print($"{k2} {raw()}")
             return r + rt + k1 + v2 + e + l
         }

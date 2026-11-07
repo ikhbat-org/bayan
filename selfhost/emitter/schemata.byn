@@ -405,10 +405,11 @@ void mutatorOnAssign(ref Ctx c, through ref MutatorWalker w, for BStmt a) uses a
     } else {
         mutatorRemove(ref c, through: ref w, for: a)
     }
-    // coverage-exempt: Q1099 through `let valueSpan = s.value ?? return`
+    // coverage-exempt: Q1099
     let s = semantics.nodeSyntax(in c, for: a) ?? return
     if s.kind != .assignStmt { return }
     if !(s.assignOp == .add || s.assignOp == .sub || s.assignOp == .mul || s.assignOp == .div || s.assignOp == .rem) { return }
+    // coverage-exempt: Q1099 through `let valueSpan = s.value ?? return`
     let op = c.bAssigns[i].op ?? return
     let valueSpan = s.value ?? return
     let to: parser.BinaryOp = op == .add ? .sub : op == .sub ? .add : op == .mul ? .div : .mul
