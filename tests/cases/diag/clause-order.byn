@@ -1,6 +1,16 @@
 union error ParseError {
     empty
 }
-i64 parse(string s) uses io fails ParseError {
+i64 parse(string s) fails ParseError uses io {
     return 0
 }
+struct Door {
+    states {
+        open
+        shut
+    }
+    void close(ref this is .open) becomes .shut uses console {
+        become .shut
+    }
+}
+type Read = () -> i64 fails ParseError uses io

@@ -212,7 +212,7 @@ public struct TupleField {
     public Type type
 }
 
-/// The parts of a function type `(A, B) -> R fails E uses net`.
+/// The parts of a function type `(A, B) -> R uses net fails E`.
 public struct FunctionData {
     public List<Type> parameters
     public Type ret

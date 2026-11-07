@@ -1,5 +1,5 @@
 // A misspelt `Io` member suggests the nearest real one, including the directory builtins.
-public void typo(string p) fails IoError uses fs {
+public void typo(string p) uses fs fails IoError {
     try Io.removeDirector(p)
 }
 

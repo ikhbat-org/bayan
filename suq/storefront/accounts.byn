@@ -43,7 +43,7 @@ union error SignupError {
 public struct UsersStore {
     public Pool db
 
-    public i64 insert(NewAccount account) fails DbError, SignupError uses db, alloc, suspend {
+    public i64 insert(NewAccount account) uses db, alloc, suspend fails DbError, SignupError {
         let conn = try db.open()
         return conn.query<i64>(sql"""
             insert into users (email, username, password_hash)

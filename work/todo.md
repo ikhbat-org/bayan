@@ -597,3 +597,11 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (review 2e461a20..9e7660d5 fix gate, 2026-11-07) `tests/Bayan.Tests/RuntimeNativeTests.cs` `IsMusl()` calls `Directory.GetFiles("/lib", ...)`, which throws on a Linux host with no `/lib` instead of skipping.
 - LOW (review 3b0b67bdcb60..bfe9773031bc, 2026-11-07) `lib/std/json/reader.byn:51,108,118` counts `line` in `i32` and builds `column` with `i32(runeCount + 1)`, so input with more than 2^31 newlines (even valid JSON) panics `arithmetic overflow` instead of failing `JsonError`; the fix (i64 or saturating) touches `JsonError` fields that 016-spec.md:69 fixes as `i32`, so it needs a decision.
 - tests/Bayan.Tests/ToolchainSanitizerTests.cs:56 `ProbeKillsAndRejectsACandidateThatHangsAndTakesTheNextOne` fails under heavy machine load (500 ms probe timeouts; full suite with 3 other dotnet runs, 2026-11-07); passes alone. Widen the working candidate's budget or measure the timeout from the hang only.
+- round-4 LOW: `src/Bayan.Syntax/Parsing/Parser.cs:743` `IsNameFirstFunctionStart` recognises `f(…)` only before `{`/`fails`; `g() uses io fails E {` loses the BYN1043 fix (review cr-round4, 2026-11-07).
+- round-4 LOW: `selfhost/parser/decls.byn:1151-1158` `parseRefinement` uses `nameText` (gives `<missing>`) where C# `Parser.cs:1503` uses `states[0].Text`; possible L017 divergence on a missing state name, no golden covers it (review cr-round4).
+- round-4 LOW: `docs/bayan-handoff.md`, `docs/plans/*`, `docs/specs/*`, `docs/revisions/0016-*` still show the old `[fails E] [uses e]` order (historical; review cr-round4).
+- round-4 LOW (fix 2 re-review): the BYN1031 fix-it moves a comment with the clause that follows it, not the one it annotates (`Parser.cs` clause reorder; review 2026-11-07).
+- round-4 LOW (fix 2 re-review): no test covers the BYN1031 no-fix branch (a clause list the fix-it declines to rewrite).
+- round-4 LOW (fix 2 re-review): without the shorthand, a second `fails` or `uses` clause keeps only the last one, and the merged clause takes the last clause's Span.
+- round-4 LOW (fix 2 re-review): the BYN1065 reorder swaps comment owners between the swapped clauses.
+- round-4 LOW (fix 2 writer note): `bayan format` adds one extra indent after a multi-line `expects` clause.

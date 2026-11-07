@@ -3,7 +3,7 @@ type Combine = (i32, string) -> i32
 type Tick = () -> void
 type Next = () -> Token fails LexError
 type Send = Order -> void uses net
-type Read = () -> Token fails LexError uses fs
+type Read = () -> Token uses fs fails LexError
 type Curried = A -> B -> C
 type MaybeB = A -> B?
 

@@ -81,7 +81,7 @@ public Grams shippingWeight(Order order) {
 
 ```csharp
 // function or method
-[modifiers] ReturnType name<T>(params) [where …] [expects …] [becomes .s] [fails E] [uses e, …] { … }   // or => expr
+[modifiers] ReturnType name<T>(params) [where …] [expects …] [becomes .s] [fails E] [uses e, …] { … }   // or => expr; round 4 reordered the clauses: where, expects, uses, becomes, fails
 // parameter
 [particle] [ref | out | const | move] Type name [= default]
 // receiver (first parameter only)
@@ -89,7 +89,7 @@ public Grams shippingWeight(Order order) {
 
 Type name [= default]                 // field, then optional `requires` lines
 Type name => expr | { … }             // computed property
-(A, B) -> R [fails E] [uses …]        // function type
+(A, B) -> R [fails E] [uses …]        // function type   // round 4: uses before fails
 ```
 
 - **Modifiers** (`public`, `static`) lead the declaration.

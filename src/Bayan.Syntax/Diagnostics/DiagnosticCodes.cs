@@ -98,7 +98,7 @@ public static class DiagnosticCodes
     public static readonly DiagnosticDescriptor ReceiverWithoutState = Error("BYN1061", "`this` without a state is the default receiver");
     public static readonly DiagnosticDescriptor RequiresOnFunction = Error("BYN1063", "`requires` on a function is an input form; write `expects`");
     public static readonly DiagnosticDescriptor PayloadNeedsName = Error("BYN1064", "payload `{0}` of `.{1}` needs a name");
-    public static readonly DiagnosticDescriptor ClauseOrder = Error("BYN1065", "`{0}` must come before `{1}`; the order is `where`, `expects`, `becomes`, `fails`, `uses`");
+    public static readonly DiagnosticDescriptor ClauseOrder = Error("BYN1065", "`{0}` must come before `{1}`; the order is `where`, `expects`, `uses`, `becomes`, `fails`");
     public static readonly DiagnosticDescriptor PrefixPointerInput = Error("BYN1066", "`{0}` is an input form; write `{1}`");
     public static readonly DiagnosticDescriptor PointerOutsideExtern = Error("BYN1067", "pointer types are allowed only in `extern` declarations");
     public static readonly DiagnosticDescriptor CompactFormatSpec = Error("BYN1068", "`{0}` is an input form; write `{1}`");

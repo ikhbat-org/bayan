@@ -137,7 +137,7 @@ public sealed class CoverageReportTests
         var app = Project("std", """
             import std.json
 
-            json.JsonValue one() fails json.JsonError uses alloc {
+            json.JsonValue one() uses alloc fails json.JsonError {
                 return (try json.Json.parse("1")).trustUnchecked() because "literal"
             }
 

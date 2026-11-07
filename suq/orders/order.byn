@@ -82,7 +82,7 @@ public struct Order {
         .cancelled => "Cancelled",
     }
 
-    public void addLine(ref this is .draft, Line line) fails OrderError uses alloc {
+    public void addLine(ref this is .draft, Line line) uses alloc fails OrderError {
         fail .tooManyLines(limit: maxLines) if lines.length >= maxLines
         fail .currencyMismatch(expected: currency, got: line.unitPrice.currency) if line.unitPrice.currency != currency
         lines.append(line)
