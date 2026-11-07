@@ -263,8 +263,6 @@ public sealed class SelfhostDefaultT4Tests
     [InlineData("test")]
     [InlineData("mutate")]
     [InlineData("dist")]
-    [InlineData("cache")]
-    [InlineData("clean")]
     public void StillRefusesTheCommandsOfTheOtherTasks(string command)
     {
         var dir = Fresh();

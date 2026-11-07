@@ -1,0 +1,154 @@
+// `bayan cache stats` and `bayan clean` of the self-hosted driver (spec 017 T3). Ports `CliApp.cs` :595 `Cache`,
+// `Toolchain.cs` :21-70 (`CacheDirectory`, `CacheData`, `Programs`, `Scripts`) and :518 `Stats`, and `Dist.cs` :226 `Clean`, :259 `Remove`.
+
+/// What `bayan cache stats` reports (Toolchain.cs:19 `CacheStats`).
+struct CacheStats {
+    string directory = ""
+    i64 programs = 0
+    i64 bytes = 0
+    i64 scripts = 0
+}
+
+/// Toolchain.cs:30 `CacheDirectory`: `$BAYAN_CACHE`; else `%LOCALAPPDATA%\bayan\cache` on Windows, `~/Library/Caches/bayan` on macOS, `$XDG_CACHE_HOME/bayan` or `~/.cache/bayan` elsewhere.
+string cacheDirectory() uses alloc, env {
+    let set = Env.get("BAYAN_CACHE") ?? ""
+    if set.length > 0 { return set }
+    // coverage-exempt: Q1083 through `let home`
+    if Target.os == "windows" {
+        return Path.combine(Path.combine(Env.get("LOCALAPPDATA") ?? "", "bayan"), "cache")
+    }
+    let home = Env.get("HOME") ?? ""
+    // coverage-exempt: Q1083
+    if Target.os == "macos" { return Path.combine(Path.combine(Path.combine(home, "Library"), "Caches"), "bayan") }
+    // coverage-exempt: Q1083 through `return Path.combine(Path.combine(home, ".cache"), "bayan")`
+    let xdg = Env.get("XDG_CACHE_HOME") ?? ""
+    if xdg.length > 0 && Path.isRooted(xdg) { return Path.combine(xdg, "bayan") }
+    return Path.combine(Path.combine(home, ".cache"), "bayan")
+}
+
+/// Toolchain.cs:60 `CacheData`: `<cache>/v1`.
+string cacheData() uses alloc, env => Path.combine(cacheDirectory(), "v1")
+
+/// The C# `Directory.Exists`: `path` lists.
+bool t3DirectoryExists(string path) uses alloc, fs {
+    let _ = Io.listDir(path) catch return false
+    return true
+}
+
+/// `Directory.EnumerateFileSystemEntries`: the names in `dir`, none when it is missing or not a directory.
+List<string> t3Entries(string dir) uses alloc, fs {
+    let names = Io.listDir(dir) catch return List<string>()
+    return names
+}
+
+/// Toolchain.cs:518 `Stats`.
+CacheStats cacheStats() uses alloc, env, fs {
+    var programs = 0
+    var scripts = 0
+    var bytes = 0
+    let data = cacheData()
+    let programsDir = Path.combine(data, "programs")
+    let scriptsDir = Path.combine(data, "scripts")
+    for name in t3Entries(programsDir) {
+        let entry = Path.combine(programsDir, name)
+        unless t3DirectoryExists(entry) { continue }
+        programs += 1
+        for file in t3Entries(entry) {
+            let f = Path.combine(entry, file)
+            unless t1FileExists(f) { continue }
+            // coverage-exempt: Q1083 a file that lists but cannot be read (removed in between, or unreadable); `FileInfo.Length` needs no read
+            let content = Io.readFile(f) catch continue
+            bytes += content.length
+        }
+    }
+    for name in t3Entries(scriptsDir) {
+        if t1FileExists(Path.combine(scriptsDir, name)) && !name.endsWith(".tmp") { scripts += 1 }
+    }
+    return CacheStats { directory: cacheDirectory(), programs: programs, bytes: bytes, scripts: scripts }
+}
+
+/// CliApp.cs:595 `Cache`. `kept` is the command and its arguments.
+i32 cacheCommand(List<string> kept) uses alloc, console, env, fs {
+    if kept.length != 2 || kept[1] != "stats" {
+        Io.stderr.write("usage: bayan cache stats   (`bayan clean --cache` empties it)\n")
+        return exitUsage
+    }
+    let s = cacheStats()
+    Io.stdout.write($"cache:    {s.directory}\n")
+    // `{1:0.0}` of `Bytes / 1024.0 / 1024.0`: exact in binary, so half-up on the tenths is .NET's rounding.
+    let tenths = (s.bytes * 10 + 524288) / 1048576
+    Io.stdout.write($"programs: {s.programs} ({tenths / 10}.{tenths % 10} MB)\n")
+    Io.stdout.write($"scripts:  {s.scripts}\n")
+    return exitOk
+}
+
+/// `Io.remove` succeeded: it unlinks a file or a symlink (also one to a directory) and fails on a real directory.
+bool t3Unlinked(string path) uses fs {
+    Io.remove(path) catch return false
+    return true
+}
+
+/// One entry of `Directory.Delete(dir, recursive: true)`, or `dir` itself: a link is removed and its target kept, as in the C#. A failure
+/// panics with the `IoError` (the C# throws an unhandled exception, Q1085).
+void t3RemoveEntry(string path) uses alloc, fs {
+    if t3Unlinked(path) { return }
+    if t3DirectoryExists(path) {
+        t3RemoveTree(path)
+        return
+    }
+    Io.remove(path) catch switch {
+        IoError e => panic($"cannot remove {path}: {e}"),
+    }
+}
+
+/// `Directory.Delete(dir, recursive: true)` of a real directory.
+void t3RemoveTree(string dir) uses alloc, fs {
+    for name in t3Entries(dir) { t3RemoveEntry(Path.combine(dir, name)) }
+    Io.removeDirectory(dir) catch switch {
+        IoError e => panic($"cannot remove {dir}: {e}"),
+    }
+}
+
+/// Dist.cs:259 `Remove`.
+void t3Remove(string dir, by string name) uses alloc, console, fs {
+    unless t3DirectoryExists(dir) { return }
+    t3RemoveEntry(dir)
+    Io.stdout.write($"removed {name}\n")
+}
+
+/// Dist.cs:226 `Clean`. `kept` is the command and its arguments.
+i32 cleanCommand(List<string> kept) uses alloc, console, env, fs {
+    var path: string? = null
+    var dist = false
+    var cache = false
+    for i in 1..kept.length {
+        let a = kept[i]
+        if a == "--dist" {
+            dist = true
+        } else if a == "--cache" {
+            cache = true
+        } else if a.startsWith("-") || path is not null {
+            Io.stderr.write($"bayan: unexpected argument `{a}`\n")
+            Io.stderr.write("usage: bayan clean [<dir>] [--dist] [--cache]\n")
+            return exitUsage
+        } else {
+            path = a
+        }
+    }
+    let given = path ?? "."
+    let project = t1FileExists(Path.combine(given, "package.byn"))
+    if !project && (path is not null || dist || !cache) {
+        Io.stderr.write($"bayan: `{given}` isn't a project (no `package.byn`), so it has no out/ to clean\n")
+        return exitUsage
+    }
+    if project {
+        let root = Path.fullPath(given)
+        t3Remove(Path.combine(root, "out"), by: "out/")
+        if dist { t3Remove(Path.combine(root, "dist"), by: "dist/") }
+    }
+    if cache {
+        let data = cacheData()
+        t3Remove(data, by: data)
+    }
+    return exitOk
+}
