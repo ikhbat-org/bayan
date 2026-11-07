@@ -1,0 +1,16 @@
+CompilationUnit
+  Interface J
+    Function close() -> void uses io fails
+    Function next() -> Token
+
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+
+  4 │         uses io
+    │         ^^^^ out of order
+    │
+  help: move `uses` before `fails`
+    │ 3 │         uses io
+    │   │         +++++++
+    │ 4 │         fails
+    │   │ +++++++++++++
