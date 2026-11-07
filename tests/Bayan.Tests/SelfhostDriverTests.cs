@@ -454,7 +454,7 @@ public sealed class SelfhostDriverT1Tests
         SelfhostEmitterHarness.AssertSame("manifestFor", string.Join("\n", expected) + "\n", stdout);
     }
 
-    /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (files holding only a comment, an unreadable one, a missing directory); <c>OtherUses</c> is a stub (Q1107), so a set with names is not compared.</summary>
+    /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (files holding only a comment, an unreadable one, a missing directory); a set with names is not compared while the Q1121 collectors return <c>[]</c> (the guard rejects a skipped test).</summary>
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -532,7 +532,7 @@ public sealed class SelfhostDriverT1Tests
         const string ErrorSets = "union error E {\n    a\n}\nunion error F {\n    b\n}\nunion error G {\n    c\n}\ninterface IShape {\n    i64 area()\n}\n";
         const string Body = " {\n    print(\"g\")\n    return 1\n}\n";
         string Diag(string file) => File.ReadAllText(Path.Combine(Golden.CasesRoot, "diag", file));
-        (Dictionary<string, string>, string[][]) One(string text, params string[] args) => (new() { ["main.byn"] = text }, [[.. args, "{D}/main.byn"]]);
+        (Dictionary<string, string>, string[][]) One(string text, params string[] args) => (new() { ["main.byn"] = text }, args.Contains("--check") ? [[.. args, "{D}/main.byn"]] : [[.. args, "--check", "{D}/main.byn"], [.. args, "{D}/main.byn"]]);
         (Dictionary<string, string>, string[][]) Twice(string text) => (new() { ["main.byn"] = text }, [["{D}/main.byn"], ["--check", "{D}/main.byn"]]);
         return name switch
         {
@@ -745,7 +745,7 @@ public sealed class SelfhostDriverT1Tests
     public void FormatReportsAnUnwritableFileAsCliApp()
     {
         if (OperatingSystem.IsWindows()) return;
-        var args = FormatRow("a-fix", out var dir)[0];
+        var args = FormatRow("a-fix", out var dir)[^1];
         var target = Path.Combine(dir, "main.byn");
         const UnixFileMode Open = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute;
         void Lock()
