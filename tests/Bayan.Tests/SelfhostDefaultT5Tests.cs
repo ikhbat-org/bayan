@@ -127,6 +127,20 @@ public sealed partial class SelfhostDefaultT5Tests
         }
     }
 
+    /// <summary>The C# throws IndexOutOfRangeException on <c>compiler[0]</c>; the driver panics (Q1095).</summary>
+    [Fact]
+    public void ACompilerFromTheEnvironmentThatNamesNoProgram()
+    {
+        SelfhostDriverHarness.Build();
+        WithEnv([("BAYAN_CC", "   ")], () =>
+        {
+            Assert.Throws<IndexOutOfRangeException>(() => Oracle(["doctor"]));
+            var actual = SelfhostDriverHarness.Run("doctor");
+            Assert.NotEqual(0, actual.Exit);
+            Assert.Contains("BAYAN_CC is set but names no program", actual.Err); // no-oracle: Q1095
+        });
+    }
+
     [Fact]
     public void ACompilerFromTheEnvironmentThatCannotRun()
     {

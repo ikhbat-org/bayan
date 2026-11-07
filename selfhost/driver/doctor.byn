@@ -1,5 +1,5 @@
-// `bayan doctor` of the self-hosted driver (spec 017 T5): ports `Doctor.cs` 1-122 and `Toolchain.cs` `CacheDirectory` (:44), `FindCompiler`'s
-// `$BAYAN_CC` branch (:83) and `Stats` (:518), which `Doctor` reads. `Doctor.Run` ignores its arguments.
+// `bayan doctor` of the self-hosted driver (spec 017 T5): ports `Doctor.cs` 1-122 and `Toolchain.cs` `FindCompiler`'s `$BAYAN_CC` branch (:83),
+// which `Doctor` reads; `CacheDirectory` and `Stats` come from cache.byn (`cacheDirectory`, `cacheStats`). `Doctor.Run` ignores its arguments.
 
 import semantics
 
@@ -28,7 +28,7 @@ enum T5Role {
 
 const t5ZigUrl: string = "https://ziglang.org"
 
-/// CliApp.cs:33 `VersionLine`'s commit has no source in the driver (Q1091): the row says `selfhost`, as `versionLine`.
+/// CliApp.cs:33 `VersionLine`'s commit has no source in the driver (Q1091): the row prints `(commit selfhost)`.
 const t5Commit: string = "selfhost"
 
 /// `Style.Paint` (Style.cs:68) with `Palette.Ansi16` (Style.cs:33) when `style.color`, the only palette the driver has (Q919).
@@ -123,6 +123,8 @@ List<string> t5FindCompiler() uses alloc, env, fs {
         for part in cc.parts(by: " ") {
             if part.length > 0 { found.append($"{part}") }
         }
+        // the C# `compiler[0]` of Doctor.cs:56 throws IndexOutOfRangeException on no words; the driver panics (Q1095)
+        if found.length == 0 { panic("BAYAN_CC is set but names no program") }
         return found
     }
     return ccFindCompiler()
