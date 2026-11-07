@@ -162,7 +162,10 @@ public sealed class SelfhostDefaultP2Tests
 
     private static Dictionary<string, List<string>> AssertSameAsCSharp(IReadOnlyList<string> paths)
     {
-        var sections = SelfhostSemanticsHarness.RunSections(Main, paths.ToArray());
+        var sections = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach (var chunk in Chunks(paths))
+            foreach (var (path, lines) in SelfhostSemanticsHarness.RunSections(Main, chunk.ToArray()))
+                sections[path] = lines;
         var compared = 0;
         foreach (var path in paths)
         {
@@ -173,6 +176,24 @@ public sealed class SelfhostDefaultP2Tests
         }
         Assert.True(compared > 0, "the oracle produced no lines");
         return sections;
+    }
+
+    /// <summary>Consecutive runs of <paramref name="paths"/>; 29,000 argument characters leave room under Windows' 32,767 limit for the program path.</summary>
+    private static List<List<string>> Chunks(IReadOnlyList<string> paths)
+    {
+        var chunks = new List<List<string>> { new() };
+        var used = 0;
+        foreach (var path in paths)
+        {
+            if (used + path.Length + 3 > 29_000 && chunks[^1].Count > 0)
+            {
+                chunks.Add(new());
+                used = 0;
+            }
+            chunks[^1].Add(path);
+            used += path.Length + 3;
+        }
+        return chunks;
     }
 
     private static List<string> Corpus()
