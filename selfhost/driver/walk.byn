@@ -19,7 +19,7 @@ bool t6IsSkippedDirectory(string name, bool atRoot) =>
 /// `Path.DirectorySeparatorChar`, and `Path.EndsInDirectorySeparator` takes `/` or `\` on Windows and `/` elsewhere.
 bool t6Inside(string real, by string? within) {
     if (within is { } bound) {
-        let windows = Target.os == "windows"
+        let windows = Target.os == "windows" // coverage-exempt: Q1106
         let prefix = bound.endsWith("/") || (windows && bound.endsWith("\\")) ? bound : $"{bound}{windows ? "\\" : "/"}"
         return real == bound || real.startsWith(prefix)
     }
