@@ -4,7 +4,7 @@
     "selfhost/driver/build.byn": {
       "mutation": null,
       "coverage": 0.96,
-      "branches": 0.9867
+      "branches": 0.9868
     },
     "selfhost/driver/cache.byn": {
       "mutation": null,
@@ -41,6 +41,11 @@
       "coverage": 1.0,
       "branches": 1.0
     },
+    "selfhost/driver/features.byn": {
+      "mutation": null,
+      "coverage": 0.9223,
+      "branches": 0.9412
+    },
     "selfhost/driver/main.byn": {
       "mutation": null,
       "coverage": 0.9918,
@@ -50,6 +55,11 @@
       "mutation": null,
       "coverage": 0.9655,
       "branches": 0.9741
+    },
+    "selfhost/driver/sha256.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": 1.0
     },
     "selfhost/emitter/cprint/builtin.byn": {
       "mutation": null,

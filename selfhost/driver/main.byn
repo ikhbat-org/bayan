@@ -114,7 +114,7 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
         case "audit":
             return refuse(command)
         case "features":
-            return refuse(command)
+            return featuresCommand(in kept, by: in d)
         case "explain":
             return explainCommand(kept)
         case "check":

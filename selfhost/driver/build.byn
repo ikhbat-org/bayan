@@ -143,22 +143,22 @@ bool t5HasErrors(in semantics.Ctx c) {
     return false
 }
 
-/// The `*.byn` files of `dir` in ordinal order, without the `*.test.byn` ones (Compilation.cs:155 `ModuleFiles`, `includeTests: false`).
+/// The `*.byn` files of `dir` in ordinal order, without the `*.test.byn` ones unless `includeTests` (Compilation.cs:155 `ModuleFiles`).
 /// `Io.listDir` already returns the names in byte order (`bayan-rt.c` sorts them with `qsort` and `byn_str_order`).
-List<string> t5ModuleFiles(string dir) uses alloc, fs {
+List<string> t5ModuleFiles(string dir, bool includeTests = false) uses alloc, fs {
     var files = List<string>()
     // coverage-exempt: Q1018 reached only if the directory goes away between `t5DirectoryExists` and this read (a race no test can stage)
     let names = Io.listDir(dir) catch return files
     for name in names {
         let f = Path.combine(dir, name)
-        if name.endsWith(".byn") && !name.endsWith(".test.byn") && t1FileExists(f) { files.append(f) }
+        if name.endsWith(".byn") && (includeTests || !name.endsWith(".test.byn")) && t1FileExists(f) { files.append(f) }
     }
     return files
 }
 
-/// CliApp.cs:259 `Compile`: the `--package <root>` branch, else `semantics/cli.byn` `t26Compile` (the project, script and
+/// CliApp.cs:262 `Compile` (`includeTests` is its parameter): the `--package <root>` branch, else `semantics/cli.byn` `t26Compile` (the project, script and
 /// path branches). Prints diagnostics and adds them to `reported`; `ok` is false where the C# returns null.
-semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to ref List<semantics.T26Reported> reported, through ref bool ok) uses alloc, clock, console, fs {
+semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to ref List<semantics.T26Reported> reported, through ref bool ok, bool includeTests = false) uses alloc, clock, console, fs {
     let o26 = t5T26(in o)
     let manifestPath = Path.combine(o.path, "package.byn")
     if (o.package is { } package) {
@@ -166,7 +166,7 @@ semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to r
             let full = Path.fullPath(o.path)
             var files = List<string>()
             if t5DirectoryExists(full) {
-                files = t5ModuleFiles(full)
+                files = t5ModuleFiles(full, includeTests: includeTests)
             } else {
                 files.append(full)
             }
@@ -176,7 +176,7 @@ semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to r
                 let bytes = Io.readFile(f) catch List<u8>()
                 sources.append(lexer.SourceText.create(f, from: move bytes))
             }
-            let options = T5CompilationOptions { target: o.target }
+            let options = T5CompilationOptions { includeTests: includeTests, target: o.target }
             var c = semantics.create(from: move sources, at: Path.fullPath(package), by: in options)
             semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
             ok = !t5HasErrors(in c)
@@ -184,10 +184,10 @@ semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to r
         }
     }
     if t5DirectoryExists(o.path) && t1FileExists(manifestPath) {
-        return semantics.t26Compile(in o26, by: in symbols, to: ref reported, through: ref ok)
+        return semantics.t26Compile(in o26, by: in symbols, to: ref reported, through: ref ok, includeTests: includeTests)
     }
     // The path branch, here rather than in `t26Compile`, so that `--target` reaches `CompilationOptions` (Q1018).
-    let options = T5CompilationOptions { target: o.target }
+    let options = T5CompilationOptions { includeTests: includeTests, target: o.target }
     var c = semantics.fromPath(o.path, by: in options, wholeDirectory: !t1IsScript(o.path))
     semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
     ok = !t5HasErrors(in c)
