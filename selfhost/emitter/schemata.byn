@@ -380,7 +380,7 @@ bool mutatorFoldsInParent(in Ctx c, for BExpr l, by Big value, at BNode parent, 
     if parent == -1 || semantics.boundKind(parent) != .binary { return true }
     let b = c.bBinaries[parent & 0xFFFFFFFF]
     if !(b.op == .add || b.op == .sub || b.op == .mul || b.op == .div || b.op == .rem) { return true }
-    // C# `b.Left == l` is record equality; the handle stands for the node here (Q1100).
+    // C# `b.Left == l` is record equality; the handle stands for the node here (Q1098).
     let other = b.left == l ? b.right : b.left
     let o = t10IntegerConstant(in c, for: other) ?? return true
     return b.left == l ? mutatorFolds(b.op, from: value, to: o, as: type) : mutatorFolds(b.op, from: o, to: value, as: type)

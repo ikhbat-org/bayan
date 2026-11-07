@@ -323,7 +323,7 @@ string t4TypeName(BExpr e) {
     }
 }
 
-// ── Mutant schemata (Lowerer.cs:1091-1141) ────────────────────────────────────
+// ── Mutant schemata (Lowerer.cs:1091-1142) ────────────────────────────────────
 
 /// Lowerer.cs:1091 `MutantSwitch`: whether `node` has a mutant switch to lower (read it from `l.mutants[node]`).
 bool mutantSwitch(in LCtx l, for semantics.BNode node) => l.mutating && !l.plain.contains(node) && l.mutants.contains(node)
@@ -392,6 +392,37 @@ BExpr mutantExpr(ref Ctx c, through ref LCtx l, for semantics.BNode key) uses al
     // coverage-exempt: Q1099
     if semantics.isNever(type) { return ltree.addLNever(ref l.tree, from: T4LNever { span: span, type: type }) }
     return target
+}
+
+/// Lowerer.cs:1128 `MutantStatement`: `if (byn_mutant == id) { mutated } else { original }`, each arm lowered on its own.
+/// The switch is `l.mutants[key]`.
+void mutantStatement(ref Ctx c, through ref LCtx l, for semantics.BNode key) uses alloc {
+    let span = l.mutants[key].span
+    let original = l.mutants[key].original
+    var ids = List<i64>()
+    var nodes = List<semantics.BNode>()
+    for m in l.mutants[key].mutants {
+        ids.append(m.id)
+        nodes.append(m.node)
+    }
+    l.plain[original] = true
+    captureBegin(ref l)
+    lowerStatement(ref c, through: ref l, for: original)
+    let plainArm = captureEnd(ref l)
+    var chain = block(ref c, at: span, for: move plainArm)
+    var i = nodes.length - 1
+    while i >= 0 {
+        captureBegin(ref l)
+        lowerStatement(ref c, through: ref l, for: nodes[i])
+        let arm = captureEnd(ref l)
+        var rest = List<BStmt>()
+        rest.append(chain)
+        let probe = ltree.addLMutantIs(ref l.tree, from: T10LMutantIs { span: span, id: ids[i] })
+        chain = semantics.addIf(ref c, from: BIf { span: span, condition: probe, then: block(ref c, at: span, for: move arm), elseBranch: block(ref c, at: span, for: move rest) })
+        i -= 1
+    }
+    emit(ref l, for: chain)
+    let _ = l.plain.remove(key: original)
 }
 
 // ── Coverage (Lowerer.cs:1143-1171) ─────────────────────────────────────────────

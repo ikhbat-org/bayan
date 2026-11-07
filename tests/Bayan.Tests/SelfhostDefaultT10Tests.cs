@@ -247,29 +247,12 @@ public sealed class SelfhostDefaultT10Tests
 
     public static TheoryData<string> RunCases => Golden.Cases("run");
 
-    /// <summary>
-    /// The C a <c>--coverage</c> (CliApp.cs:639-641) or <c>--mutate</c> (CliApp.cs:840-842) build of <paramref name="c"/> emits, less what
-    /// <c>Lowerer.Statement</c> (Lowerer.cs:356-361, 399) adds: its statement probes, the error probes of a <c>fail</c> and the mutant
-    /// switches of a statement, which lowerstmt.byn does not port yet (Q1097).
-    /// </summary>
+    /// <summary>The C a <c>--coverage</c> (CliApp.cs:639-641) or <c>--mutate</c> (CliApp.cs:840-842) build of <paramref name="c"/> emits.</summary>
     private static string ExpectedC(Compilation c, BuildMode mode, bool mutate)
     {
-        LoweredProgram program;
-        if (mutate)
-        {
-            var switches = new Dictionary<BoundNode, BoundMutantSwitch>(ReferenceEqualityComparer.Instance);
-            foreach (var (node, s) in Schemata.Build(c).Switches)
-                if (node is not BoundStmt) switches[node] = s;
-            program = Lowerer.Lower(c, switches);
-        }
-        else
-        {
-            var p = CoverageInstrumenter.Instrument(c).Probes;
-            var errors = new Dictionary<BoundNode, BoundErrorProbe>(ReferenceEqualityComparer.Instance);
-            foreach (var (node, e) in p.Errors)
-                if (node is not BoundFail) errors[node] = e;
-            program = Lowerer.Lower(c, coverage: new CoverageProbes(p.Count, new Dictionary<BoundNode, BoundProbe>(), p.Branches, errors));
-        }
+        var program = mutate
+            ? Lowerer.Lower(c, Schemata.Build(c).Switches)
+            : Lowerer.Lower(c, coverage: CoverageInstrumenter.Instrument(c).Probes);
         return CEmitter.Emit(program, mode == BuildMode.Debug);
     }
 
@@ -286,7 +269,7 @@ public sealed class SelfhostDefaultT10Tests
         SelfhostEmitterHarness.AssertSame($"{Path.GetFileName(input)} {flag}", expected, output);
     }
 
-    /// <summary><c>bayan-emit --coverage</c> on every <c>run/</c> input emits the C# coverage build's C (statement probes aside, Q1097).</summary>
+    /// <summary><c>bayan-emit --coverage</c> on every <c>run/</c> input emits the C# coverage build's C.</summary>
     [Theory]
     [MemberData(nameof(RunCases))]
     public void CoverageCMatchesTheCSharpOnEveryRunInput(string name)
@@ -295,7 +278,7 @@ public sealed class SelfhostDefaultT10Tests
         SameC(Path.Combine(Golden.CasesRoot, name), "--coverage");
     }
 
-    /// <summary><c>bayan-emit --mutate</c> on every <c>run/</c> input emits the C# mutate build's C (statement mutants aside, Q1097).</summary>
+    /// <summary><c>bayan-emit --mutate</c> on every <c>run/</c> input emits the C# mutate build's C.</summary>
     [Theory]
     [MemberData(nameof(RunCases))]
     public void MutateCMatchesTheCSharpOnEveryRunInput(string name)
@@ -304,7 +287,7 @@ public sealed class SelfhostDefaultT10Tests
         SameC(Path.Combine(Golden.CasesRoot, name), "--mutate");
     }
 
-    /// <summary>The fixtures' C in both builds (error probes of <c>try</c>/<c>catch</c>, branch probes, folds), and an input with errors fails as <c>bayan build</c> does.</summary>
+    /// <summary>The fixtures' C in both builds and with both flags (error probes of <c>try</c>/<c>catch</c>, branch probes, folds), and an input with errors fails as <c>bayan build</c> does.</summary>
     [Fact]
     public void FixtureCMatchesAndAnInputWithErrorsFailsAsBuildDoes()
     {
@@ -328,6 +311,12 @@ public sealed class SelfhostDefaultT10Tests
                     Assert.True(exit == 0, $"{file} {flag}: exit {exit}\n{error}");
                     SelfhostEmitterHarness.AssertSame($"{file} {flag}", expected, output);
                 }
+                // Both flags: `Lowerer.Lower` given the switches and the probes, so a statement under a mutant switch has one probe.
+                var both = Compilation.Create([Golden.Load(input)], dir);
+                var bothC = CEmitter.Emit(Lowerer.Lower(both, Schemata.Build(both).Switches, CoverageInstrumenter.Instrument(both).Probes));
+                var bothRun = SelfhostEmitterHarness.Run("--coverage", "--mutate", "--package", dir, input);
+                Assert.True(bothRun.Exit == 0, $"{file} both: exit {bothRun.Exit}\n{bothRun.Err}");
+                SelfhostEmitterHarness.AssertSame($"{file} --coverage --mutate", bothC, bothRun.Out);
             }
             foreach (var flag in new[] { "--coverage", "--mutate" })
                 SelfhostEmitterHarness.SameAsCli($"errors {flag}", ["build", "--emit-c", bad], [flag, bad]);
@@ -485,8 +474,20 @@ public sealed class SelfhostDefaultT10Tests
 
         string quoted() => "tab\there \"q\" back\\slash"
 
+        i64 plusNever(i64 x) => x + panic("no")
+
+        bool andNever(bool a) => a && panic("no")
+
+        void ifNever(i64 x) {
+            if panic("no") { print("a") }
+        }
+
         void main() {
             print($"{folds(2)} {half(3.0)} {twice(1.0)} {quoted()}")
+            if folds(0) < 0 {
+                print($"{plusNever(1)} {andNever(a: true)}")
+                ifNever(1)
+            }
         }
         """;
 
