@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using Bayan.Cli;
@@ -16,7 +17,7 @@ public sealed class SelfhostDefaultT3Tests
 {
     private static readonly string Base = Path.Combine(Golden.RepoRoot, "tmp", "driver-t3");
 
-    /// <summary>A fresh tree under <c>tmp/driver-t3/&lt;name&gt;/&lt;side&gt;</c>, filled by <paramref name="seed"/> (given the root).</summary>
+    /// <summary>A fresh tree under <c>tmp/driver-t3/&lt;side&gt;/&lt;name&gt;</c>, filled by <paramref name="seed"/> (given the root).</summary>
     private static string Tree(string name, string side, Action<string> seed)
     {
         var root = Path.Combine(Base, side, name);
@@ -45,6 +46,8 @@ public sealed class SelfhostDefaultT3Tests
     {
         var saved = (Environment.CurrentDirectory, Variables.Select(Environment.GetEnvironmentVariable).ToArray());
         Environment.CurrentDirectory = root;
+        var culture = CultureInfo.CurrentCulture;
+        CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
         foreach (var v in Variables) Environment.SetEnvironmentVariable(v, env.GetValueOrDefault(v));
         try
         {
@@ -56,6 +59,7 @@ public sealed class SelfhostDefaultT3Tests
         finally
         {
             Environment.CurrentDirectory = saved.CurrentDirectory;
+            CultureInfo.CurrentCulture = culture;
             for (var i = 0; i < Variables.Length; i++) Environment.SetEnvironmentVariable(Variables[i], saved.Item2[i]);
         }
     }
