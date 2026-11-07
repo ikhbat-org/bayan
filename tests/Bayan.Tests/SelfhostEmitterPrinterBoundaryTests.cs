@@ -14,6 +14,15 @@ public sealed class SelfhostEmitterPrinterBoundaryTests
         "static ", ";\n", "{\n",
     ];
 
+    /// <summary>
+    /// Literals that hold JSON, not C (user 2026-11-08): the schemata site map in <c>schemata.byn</c> <c>sitesJson</c>
+    /// opens a JSON object with <c>{\n</c>. Each entry is a file under <c>selfhost/emitter/</c> and the literal's text as written.
+    /// </summary>
+    private static readonly (string File, string Literal)[] Json =
+    [
+        ("schemata.byn", @"{\n  \""version\"": 1,\n  \""sites\"": ["),
+    ];
+
     [Fact]
     public void OnlyThePrinterWritesCText()
     {
@@ -27,11 +36,20 @@ public sealed class SelfhostEmitterPrinterBoundaryTests
             var lines = File.ReadAllLines(file);
             for (var i = 0; i < lines.Length; i++)
                 foreach (var literal in Literals(lines[i]))
-                    foreach (var word in Forbidden)
-                        if (Unescape(literal).Contains(word, StringComparison.Ordinal))
-                            hits.Add($"{Path.GetRelativePath(SelfhostEmitterHarness.EmitterDir, file)}:{i + 1}: \"{literal}\" has `{word.Replace("\n", "\\n")}`");
+                    if (!Json.Contains((Path.GetRelativePath(SelfhostEmitterHarness.EmitterDir, file).Replace('\\', '/'), literal)))
+                        foreach (var word in Forbidden)
+                            if (Unescape(literal).Contains(word, StringComparison.Ordinal))
+                                hits.Add($"{Path.GetRelativePath(SelfhostEmitterHarness.EmitterDir, file)}:{i + 1}: \"{literal}\" has `{word.Replace("\n", "\\n")}`");
         }
         Assert.True(hits.Count == 0, $"C text outside selfhost/emitter/cprint:\n{string.Join('\n', hits)}");
+    }
+
+    /// <summary>Every JSON entry still names a literal in its file, so a stale entry cannot hide new C text.</summary>
+    [Fact]
+    public void EveryJsonEntryIsALiteralInItsFile()
+    {
+        foreach (var (file, literal) in Json)
+            Assert.Contains(File.ReadAllLines(Path.Combine(SelfhostEmitterHarness.EmitterDir, file)), line => Literals(line).Contains(literal));
     }
 
     /// <summary>The scan itself catches a literal on one line, so the real test goes red on a one-line break.</summary>
