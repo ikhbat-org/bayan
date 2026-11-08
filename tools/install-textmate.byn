@@ -1,0 +1,42 @@
+#!/usr/bin/env bayan
+// Usage: bash scripts/bayan-tool.sh install-textmate — installs Bayan colorization into Visual Studio 2022 (TextMate
+// grammar drop-in): copies the grammar and language configuration of editors/vscode to <USERPROFILE>/.vs/Extensions/bayan.
+// Restart Visual Studio afterwards. No VSIX needed.
+//
+// Port of editors/visualstudio/install-textmate.ps1 (spec 015 T7). The repo root comes from $BAYAN_REPO_ROOT, which
+// scripts/bayan-tool.sh sets. An unset or empty USERPROFILE is an error (the .ps1 would have joined onto an empty path).
+
+/// Copies `from` over `to`.
+void copyFile(string from, to string to) fails {
+    let bytes = try Io.readFile(from)
+    try Io.writeFile(to, bytes)
+}
+
+i32 main(ReadOnlySpan<string> argv) {
+    let profile = Env.get("USERPROFILE") ?? ""
+    if profile.isEmpty {
+        print("install-textmate: USERPROFILE is not set", to: .stderr)
+        return 1
+    }
+    let root = Env.get("BAYAN_REPO_ROOT") ?? ""
+    if root.isEmpty {
+        print("install-textmate: BAYAN_REPO_ROOT is not set (run through scripts/bayan-tool.sh)", to: .stderr)
+        return 1
+    }
+    let dest = Path.combine(profile, ".vs/Extensions/bayan")
+    let src = Path.combine(root, "editors/vscode")
+    Io.createDirectory(Path.combine(dest, "Syntaxes")) catch {
+        print($"install-textmate: cannot create {dest}", to: .stderr)
+        return 1
+    }
+    copyFile(Path.combine(src, "syntaxes/bayan.tmLanguage.json"), to: Path.combine(dest, "Syntaxes/bayan.tmLanguage.json")) catch {
+        print("install-textmate: cannot copy bayan.tmLanguage.json", to: .stderr)
+        return 1
+    }
+    copyFile(Path.combine(src, "language-configuration.json"), to: Path.combine(dest, "language-configuration.json")) catch {
+        print("install-textmate: cannot copy language-configuration.json", to: .stderr)
+        return 1
+    }
+    print($"Installed to {dest}. Restart Visual Studio.")
+    return 0
+}
