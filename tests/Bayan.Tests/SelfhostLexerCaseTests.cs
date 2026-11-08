@@ -17,7 +17,7 @@ public sealed class SelfhostLexerCaseTests(ITestOutputHelper output)
 {
     private static readonly string[] Inputs =
     [
-        "A", "Z", "a", "z", "Å", "Å", "Ω", "ω", "ǅ", "_", "7", "\U0001D400", "\U0001D41A", "Äx", "Δx",
+        "", "A", "Z", "a", "z", "Å", "Å", "Ω", "ω", "ǅ", "_", "7", "\U0001D400", "\U0001D41A", "Äx", "Δx",
     ];
 
     [Fact]
@@ -40,7 +40,7 @@ public sealed class SelfhostLexerCaseTests(ITestOutputHelper output)
         await p.WaitForExitAsync();
         output.WriteLine(text);
         Assert.Equal(0, p.ExitCode);
-        var expected = string.Concat(Inputs.Select(s => $"{(char.IsUpper(s[0]) ? "true" : "false")} {(char.IsLower(s[0]) ? "true" : "false")}\n"));
+        var expected = string.Concat(Inputs.Select(s => $"{(s.Length > 0 && char.IsUpper(s[0]) ? "true" : "false")} {(s.Length > 0 && char.IsLower(s[0]) ? "true" : "false")}\n"));
         Assert.Equal(expected, text);
     }
 }
