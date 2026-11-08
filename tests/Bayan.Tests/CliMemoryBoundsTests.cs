@@ -346,14 +346,15 @@ public sealed class CliMemoryBoundsTests
         var cc = Path.Combine(root, "slowcc");
         File.WriteAllText(cc, "#!/bin/sh\nsleep 1000\n");
         File.SetUnixFileMode(cc, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        var limitSeconds = (TestTime.Scale(2000) + 999) / 1000;
         WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () =>
             WithEnv("BAYAN_CC", cc, () =>
-                WithEnv("BAYAN_CC_TIMEOUT_S", "2", () =>
+                WithEnv("BAYAN_CC_TIMEOUT_S", limitSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture), () =>
                 {
                     var clock = System.Diagnostics.Stopwatch.StartNew();
                     var build = Toolchain.Build("int main(void) { return 0; }\n", BuildMode.Safe);
                     Assert.False(build.Succeeded);
-                    Assert.Contains("timed out after 2 s", build.Errors);
+                    Assert.Contains($"timed out after {limitSeconds} s", build.Errors);
                     Assert.True(clock.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(10)), clock.Elapsed.ToString());
                 })));
     }
