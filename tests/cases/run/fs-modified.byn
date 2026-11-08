@@ -1,0 +1,12 @@
+// `Fs.modified` reads a file's last write time, which is after 2001 for a file just written, and fails on a missing path.
+void main() uses fs, console fails IoError {
+    let data: u8[1] = [0x41]
+    try Io.writeFile("fs-modified.tmp", data.span)
+    let t = try Fs.modified("fs-modified.tmp")
+    print($"recent: {t.nanos > 978307200000000000}")
+    let missing = Fs.modified("fs-modified-missing.tmp") catch switch {
+        _ => Time.fromNanos(-1),
+    }
+    print($"missing: failed {missing.nanos == -1}")
+    try Io.remove("fs-modified.tmp")
+}

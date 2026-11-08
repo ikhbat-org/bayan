@@ -226,6 +226,11 @@ internal sealed class TypeResolver(Compilation compilation, FileContext file, St
                 NoTypeArgs(n);
                 return compilation.Builtins.Utf8Error;
             }
+            if (text == "Time")
+            {
+                NoTypeArgs(n);
+                return BuiltinType.Time;
+            }
             if (text == "ParseError")
             {
                 NoTypeArgs(n);
@@ -494,7 +499,7 @@ internal sealed class TypeResolver(Compilation compilation, FileContext file, St
     private string? Suggest(string text)
     {
         var lower = text.ToLowerInvariant();
-        foreach (var name in file.Module.Types.Keys.Concat(["Span", "ReadOnlySpan", "List", "Map", "HashMap", "Owned", "Untrusted", "Result", "Arena", "StrBuf", "IoError", "Utf8Error", "ParseError", "ValidationError", "Violation", "Rule", "ProcessResult", "Panic", "FormatSpec", "Symbol"]))
+        foreach (var name in file.Module.Types.Keys.Concat(["Span", "ReadOnlySpan", "List", "Map", "HashMap", "Owned", "Untrusted", "Result", "Arena", "StrBuf", "IoError", "Utf8Error", "ParseError", "ValidationError", "Violation", "Rule", "ProcessResult", "Panic", "FormatSpec", "Symbol", "Time"]))
             if (name.Equals(text, StringComparison.OrdinalIgnoreCase)) return name;
         if (PrimitiveType.ByName.ContainsKey(lower)) return lower;
         return lower switch
