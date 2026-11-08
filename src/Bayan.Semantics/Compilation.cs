@@ -1425,6 +1425,8 @@ public sealed partial class Compilation
 
     // ── Bodies ───────────────────────────────────────────────────────────────────
 
+    private readonly HashSet<FieldSymbol> _bindingDefaults = [];
+
     private void BindAll()
     {
         CheckConformances();
@@ -1444,7 +1446,7 @@ public sealed partial class Compilation
             foreach (var s in module.Structs)
             {
                 foreach (var f in s.Fields.Where(f => f.Decl.Default is not null))
-                    f.Default = new Binder(this, s.File, null, s).BindFieldDefault(f);
+                    FieldDefault(s, f, s.File.Source, f.Decl.Name.Span);
             }
         }
         foreach (var module in Modules)
@@ -1734,8 +1736,17 @@ public sealed partial class Compilation
     /// <summary>A field default of a struct; an instance's is bound on first use, as a literal can need it before the worklist drains.</summary>
     internal BoundExpr? FieldDefault(StructSymbol s, FieldSymbol f, SourceText site, TextSpan span)
     {
-        if (f.Default is null && f.HasDefault && s.Template is not null)
+        if (f.Default is not null || !f.HasDefault) return f.Default;
+        if (s.Template is not null)
             Instantiating(site, span, () => f.Default ??= new Binder(this, s.File, null, s).BindFieldDefault(f));
+        else if (!_bindingDefaults.Add(f))
+            Report(DiagnosticCodes.CircularFieldDefault, s.File.Source, f.Decl.Name.Span, [$"{s.Name}.{f.Name}"]);
+        else
+        {
+            // A literal in another default can need this one before the loop in BindAll reaches it (Q1100).
+            f.Default = new Binder(this, s.File, null, s).BindFieldDefault(f);
+            _bindingDefaults.Remove(f);
+        }
         return f.Default;
     }
 
