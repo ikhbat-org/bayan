@@ -64,7 +64,8 @@ i32 golden(in List<string> args) {
     var packageName: string? = null
     let manifestPath = t11Combine(root, by: "package.byn")
     if t26FileExists(manifestPath) {
-        let m = manifestRead(manifestPath)
+        // Q565: an unreadable `package.byn` reads as an empty one (BYN3100).
+        let m = manifestRead(manifestPath) catch manifestParse(lexer.SourceText.create("package.byn", from: List<u8>()))
         if (m.capabilities is { } caps) { capabilities = copyStrings(in caps) }
         packageName = m.name
     }

@@ -14,12 +14,12 @@ enum PackageKind {
     lib
 }
 
-enum BooleanStyle {
+public enum BooleanStyle {
     symbols
     words
 }
 
-enum PrimitiveStyle {
+public enum PrimitiveStyle {
     sized
     csharp
 }
@@ -33,7 +33,7 @@ struct Grammar {
 }
 
 // The C# `Manifest`; `capabilities` is null when the package lists none.
-struct Manifest {
+public struct Manifest {
     string name = ""
     string version = ""
     i64 edition = 2027
@@ -41,10 +41,10 @@ struct Manifest {
     List<string>? capabilities = null
     List<string> distTargets = []
     string distMode = "safe"
-    BooleanStyle booleans = .symbols
-    PrimitiveStyle primitives = .sized
+    public BooleanStyle booleans = .symbols
+    public PrimitiveStyle primitives = .sized
     Grammar grammar = Grammar {}
-    List<Diag> diagnostics = []
+    public List<Diag> diagnostics = []
 }
 
 // ── Values (the C# `Value` records) ─────────────────────────────────────────────
@@ -89,7 +89,7 @@ struct T10Reader {
 // ── Entry points ────────────────────────────────────────────────────────────────
 
 /// Manifest.cs:73 `HasErrors`, as a count.
-i64 manifestErrorCount(in Manifest m) {
+public i64 manifestErrorCount(in Manifest m) {
     var n: i64 = 0
     for d in m.diagnostics {
         unless d.isWarning { n += 1 }
@@ -97,10 +97,10 @@ i64 manifestErrorCount(in Manifest m) {
     return n
 }
 
-/// Manifest.cs:75 `Read`. C# throws when the file cannot be read; here it reads as an empty file, which
-/// reports BYN3100 (Q565).
-Manifest manifestRead(string path) {
-    let bytes = Io.readFile(path) catch return manifestParse(lexer.SourceText.create("package.byn", from: List<u8>()))
+/// Manifest.cs:75 `Read`. Fails as C#'s `File.ReadAllBytes` throws; a caller that keeps Q565's reading of an unreadable file as an empty
+/// one (BYN3100) catches at its call site.
+public Manifest manifestRead(string path) uses alloc, fs fails IoError {
+    let bytes = try Io.readFile(path)
     return manifestParse(lexer.SourceText.create("package.byn", from: move bytes))
 }
 

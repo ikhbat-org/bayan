@@ -6,8 +6,9 @@
 // (T11) calls them for the inline parts of declarations and statements, and calls `assignText`,
 // `binaryText` and `unaryText` directly. The C# `Sexp` has `params Expr?[]`; Bayan has no `params`
 // and the children are move-only unions, so each S-expression is written inline, a `none` child
-// printing `_`. The C# `TypeNames`/`CalleeNames` side collections are not part of the dump text and
-// are not ported. `BlockExpr` flattens a statement dump through T11's `stmt` (the `T12` stand-in
+// printing `_`. The C# `TypeNames`/`CalleeNames` side collections are not part of the dump text; `dumpType`,
+// the `memberExpr` and the `callExpr` arms add to `Parser.collectedTypeNames`/`collectedCalleeNames` while `p.collectNames` is set, and
+// `typeNames` and `calleeAndReceiverNames` below are `AstDump.TypeNames` and `CalleeAndReceiverNames` (Q1143). `BlockExpr` flattens a statement dump through T11's `stmt` (the `T12` stand-in
 // until T11 lands).
 
 import lexer
@@ -207,6 +208,7 @@ void appendFlattened(string text, to ref StrBuf sb) {
 void dumpType(in TypeSyntax t, from ref Parser p, to ref StrBuf sb) {
     switch t {
         case .namedType(let n):
+            if p.collectNames && n.value.path.length == 1 { p.collectedTypeNames.append(n.value.path[0]) }
             if n.value.path.length == 1 && n.value.args.length == 0 {
                 let text = nameText(ref p, at: n.value.path[0])
                 let renamed = cSharpTypeName(text)
@@ -215,6 +217,7 @@ void dumpType(in TypeSyntax t, from ref Parser p, to ref StrBuf sb) {
                 var readOnlySpan = false
                 if n.value.path.length == 1 && n.value.args.length == 1 {
                     let argSpan = typeSpan(in n.value.args[0])
+                    // coverage-exempt: Q1145 through `argSpan.end < n.value.path[0].end`
                     readOnlySpan = argSpan.start == n.value.path[0].start && argSpan.end < n.value.path[0].end
                 }
                 if readOnlySpan {
@@ -337,6 +340,7 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
                             dumpExpr(in h.value.expr, from: ref p, to: ref sb)
                             for spec in h.value.specs {
                                 sb.append(" (")
+                                // coverage-exempt: Q1145 through `spec.name is { } sn`
                                 if (spec.name is { } sn) {
                                     let text = nameText(ref p, at: sn)
                                     sb.append(text == ":" ? (spec.value is .targetMemberExpr(_) ? "as" : "digits") : text)
@@ -362,6 +366,7 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
         case .thisExpr(_):
             sb.append("this")
         case .memberExpr(let n):
+            if p.collectNames && n.value.target is .nameExpr(let receiver) { p.collectedCalleeNames.append(receiver.value.name) }
             sb.append(n.value.nullConditional ? "(?. " : "(. ")
             dumpExpr(in n.value.target, from: ref p, to: ref sb)
             sb.append(" ")
@@ -376,6 +381,7 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
             sb.append(".")
             sb.append(nameText(ref p, at: n.value.member))
         case .callExpr(let n):
+            if p.collectNames && n.value.callee is .nameExpr(let callee) { p.collectedCalleeNames.append(callee.value.name) }
             sb.append("(call ")
             dumpExpr(in n.value.callee, from: ref p, to: ref sb)
             for arg in n.value.args {
@@ -718,3 +724,22 @@ void dumpPattern(in Pattern pattern, from ref Parser p, to ref StrBuf sb) {
 // T11's `dump.byn` owns the `Stmt` switch, which `dumpExpr`'s `BlockExpr` flattens; until T11 lands
 // this stub lets the module build. T15 deletes this struct and drops the `` prefix.
 
+/// AstDump.cs:29 `TypeNames`: the one-part name of every type the tree spells, in dump order.
+public List<TextSpan> typeNames(in CompilationUnit tree, from ref Parser p) uses alloc {
+    p.collectedTypeNames = List<TextSpan>()
+    p.collectNames = true
+    var sb = StrBuf()
+    dump(in tree, from: ref p, to: ref sb)
+    p.collectNames = false
+    return p.collectedTypeNames.copy()
+}
+
+/// AstDump.cs:40 `CalleeAndReceiverNames`: the name of every name expression that is a call's callee or a member access's receiver, in dump order.
+public List<TextSpan> calleeAndReceiverNames(in CompilationUnit tree, from ref Parser p) uses alloc {
+    p.collectedCalleeNames = List<TextSpan>()
+    p.collectNames = true
+    var sb = StrBuf()
+    dump(in tree, from: ref p, to: ref sb)
+    p.collectNames = false
+    return p.collectedCalleeNames.copy()
+}
