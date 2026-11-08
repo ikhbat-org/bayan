@@ -14,6 +14,7 @@ GetCommandLineW
 GetEnvironmentVariableW
 GetExitCodeProcess
 GetFileAttributesW
+GetFileInformationByHandle
 GetFileTime
 GetFinalPathNameByHandleW
 GetFullPathNameW
@@ -22,6 +23,7 @@ GetLongPathNameW
 GetProcAddress
 GetStdHandle
 GetSystemDirectoryW
+GetSystemTimeAsFileTime
 GetSystemTimePreciseAsFileTime
 LoadLibraryExW
 LocalFree
@@ -63,6 +65,7 @@ fputs
 fread
 free
 fstat
+ftruncate
 fwrite
 getcwd
 getenv

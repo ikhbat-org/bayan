@@ -8,6 +8,7 @@ string describe(string path) => Io.readText(path) catch switch {
     .invalidInput => "invalid input",
     .unsupported => "unsupported",
     .crossDevice => "cross device",
+    .isDirectory => "is a directory",
 }
 
 void main() {

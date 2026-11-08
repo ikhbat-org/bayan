@@ -57,7 +57,7 @@ const validationErrorSource: string = "public union error ValidationError {\n   
 
 const ruleSource: string = "public union Rule {\n    /// `it.runeCount in a..=b`.\n    length(Range<i64> bounds)\n    /// `it in a..=b`.\n    range(Range<i64> bounds)\n    /// Any other rule.\n    custom\n}\n\npublic struct Violation {\n    i64 field\n    i64 rule\n}"
 
-const ioErrorSource: string = "public union error IoError {\n    /// The file does not exist.\n    notFound,\n    /// Permission denied.\n    permissionDenied,\n    /// The input is not valid UTF-8.\n    invalidUtf8,\n    /// The path exists but is not a directory.\n    notADirectory,\n    /// An input or output operation failed.\n    other,\n    /// An argument cannot be passed exactly, so nothing was done.\n    invalidInput,\n    /// The operation is not available on this platform.\n    unsupported,\n    /// The source and the destination are on different devices.\n    crossDevice,\n}"
+const ioErrorSource: string = "public union error IoError {\n    /// The file does not exist.\n    notFound,\n    /// Permission denied.\n    permissionDenied,\n    /// The input is not valid UTF-8.\n    invalidUtf8,\n    /// The path exists but is not a directory.\n    notADirectory,\n    /// An input or output operation failed.\n    other,\n    /// An argument cannot be passed exactly, so nothing was done.\n    invalidInput,\n    /// The operation is not available on this platform.\n    unsupported,\n    /// The source and the destination are on different devices.\n    crossDevice,\n    /// The path is a directory where a file is needed.\n    isDirectory,\n}"
 
 /// The builtin module, built on first use (the C# `Builtins.Module`).
 ModId t9Module(ref Ctx c) {

@@ -442,6 +442,7 @@ byn_str* byn_args(int* argc, char** argv);
 #define BYN_IO_INVALID_INPUT 6u
 #define BYN_IO_UNSUPPORTED 7u
 #define BYN_IO_CROSS_DEVICE 8u
+#define BYN_IO_IS_DIRECTORY 9u
 
 /* Reads a whole file into memory from `alloc`. Returns 0 or an `IoError` code. */
 uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc);
@@ -579,7 +580,7 @@ byn_time byn_time_now(void);
 /* `Fs.rename`: POSIX `rename`, Windows `MoveFileExW` replacing an existing file. Across devices it fails `crossDevice`; nothing is copied. */
 uint32_t byn_fs_rename(byn_str path, byn_str dest);
 
-/* `Fs.copy`: a file's bytes and permission bits, not its times; an existing `dest` is replaced, a directory source fails. */
+/* `Fs.copy`: a file's bytes and permission bits, not its times; an existing `dest` is replaced, a directory source fails `isDirectory`, and `dest` that is the source (by file identity) fails `invalidInput`. */
 uint32_t byn_fs_copy(byn_str path, byn_str dest);
 
 /* `Fs.modified`: the last write time. `out` may be NULL. */

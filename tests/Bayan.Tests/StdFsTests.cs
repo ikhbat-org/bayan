@@ -427,7 +427,7 @@ public sealed class StdFsTests
 
     /// <summary>
     /// Q1112: <c>Fs.copy</c> copies the bytes and the permission bits, so a copied script still runs; a directory source and a missing source fail,
-    /// as .NET <c>File.Copy(overwrite: true)</c> does.
+    /// as .NET <c>File.Copy(overwrite: true)</c> does, the directory with <c>isDirectory</c> (Q1131).
     /// </summary>
     [Fact]
     public async Task CopyMatchesDotNet()
@@ -448,9 +448,9 @@ public sealed class StdFsTests
             Directory.CreateDirectory(netDir);
             var expected = rows.Select(r => Net(() => File.Copy(r.From, Path.Combine(netDir, Path.GetFileName(r.To)), overwrite: true))).ToArray();
             var calls = string.Concat(rows.Select(r => $"    print(copied({Literal(r.From)}, to: {Literal(r.To)}))\n"));
-            var program = $"string copied(string path, to string dest) uses fs {{\n    Fs.copy(path, to: dest) catch switch {{\n{Arms}    return \"ok\"\n}}\n\nvoid main() uses console, fs {{\n{calls}}}\n";
-            var actual = await Run(program, Path.Combine(work, "build"));
+            var actual = await Run(CopyProgram(calls), Path.Combine(work, "build"));
             Assert.Equal(["ok", "ok", "fail", "notFound"], expected);
+            expected[2] = "isDirectory";
             Assert.Equal(expected, actual);
             Assert.Equal(File.ReadAllBytes(data), File.ReadAllBytes(Path.Combine(work, "existing.bin")));
             Assert.Equal(File.ReadAllBytes(script), File.ReadAllBytes(copiedScript));
@@ -462,6 +462,59 @@ public sealed class StdFsTests
             Assert.True(proc.WaitForExit(60_000), "copied script timed out");
             Assert.Equal(0, proc.ExitCode);
             Assert.Equal("copied", output.TrimEnd());
+        }
+        finally
+        {
+            if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        }
+    }
+
+    /// <summary>A program whose <c>copied</c> prints what <c>Fs.copy</c> did, as <see cref="Arms"/> and <c>isDirectory</c>; <paramref name="calls"/> is the body of <c>main</c>.</summary>
+    private static string CopyProgram(string calls) =>
+        $"string copied(string path, to string dest) uses fs {{\n    Fs.copy(path, to: dest) catch switch {{\n        .isDirectory => return \"isDirectory\",\n{Arms}    return \"ok\"\n}}\n\nvoid main() uses console, fs {{\n{calls}}}\n";
+
+    /// <summary>Q1131: a copy onto the source by another spelling (<c>dir/../dir/f</c>, a symlink) is found by file identity and fails <c>invalidInput</c>, and the file keeps its bytes.</summary>
+    [Fact]
+    public async Task CopyOntoItselfFailsInvalidInput()
+    {
+        var work = Fresh("std-fs-copy-self");
+        try
+        {
+            var dir = Path.Combine(work, "dir");
+            Directory.CreateDirectory(dir);
+            var file = Path.Combine(dir, "f.txt");
+            var bytes = Enumerable.Range(0, 100_000).Select(i => (byte)(i * 13)).ToArray();
+            File.WriteAllBytes(file, bytes);
+            var link = Path.Combine(work, "link.txt");
+            Link(link, file, directory: false);
+            var dotted = Path.Combine(dir, "..", "dir", "f.txt");
+            var calls = $"    print(copied({Literal(file)}, to: {Literal(dotted)}))\n    print(copied({Literal(link)}, to: {Literal(file)}))\n    print(copied({Literal(file)}, to: {Literal(link)}))\n";
+            var actual = await Run(CopyProgram(calls), Path.Combine(work, "build"));
+            Assert.Equal(["invalidInput", "invalidInput", "invalidInput"], actual);
+            Assert.Equal(bytes, File.ReadAllBytes(file));
+        }
+        finally
+        {
+            if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        }
+    }
+
+    /// <summary>Q1131: a copy is new, on Windows too (where <c>CopyFileW</c> keeps the source's write time): a source last written in 2001 gives a copy written within a minute of now.</summary>
+    [Fact]
+    public async Task CopyHasANewWriteTime()
+    {
+        var work = Fresh("std-fs-copy-time");
+        try
+        {
+            var file = Path.Combine(work, "old.txt");
+            File.WriteAllText(file, "old");
+            File.SetLastWriteTimeUtc(file, new DateTime(2001, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            var copy = Path.Combine(work, "copy.txt");
+            var actual = await Run(CopyProgram($"    print(copied({Literal(file)}, to: {Literal(copy)}))\n"), Path.Combine(work, "build"));
+            Assert.Equal(["ok"], actual);
+            Assert.Equal(2001, File.GetLastWriteTimeUtc(file).Year);
+            var age = DateTime.UtcNow - File.GetLastWriteTimeUtc(copy);
+            Assert.True(age.Duration() < TimeSpan.FromMinutes(1), $"the copy was last written {File.GetLastWriteTimeUtc(copy):O}");
         }
         finally
         {

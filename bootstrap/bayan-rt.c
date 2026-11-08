@@ -3267,17 +3267,20 @@ uint32_t byn_fs_rename(byn_str path, byn_str dest) {
 #ifndef _WIN32
 /* Copies the open file `in` (`st` its stat) to `to`, then gives `to` the permission bits of `st`: 0 or an `IoError` code. */
 static uint32_t byn_fs_copy_to(int in, const struct stat* st, const char* to) {
-    struct stat dst;
-    if (stat(to, &dst) == 0) {
-        /* Truncating the destination would empty the source. */
-        if (dst.st_dev == st->st_dev && dst.st_ino == st->st_ino) return BYN_IO_INVALID_INPUT;
-    } else if (errno != ENOENT) {
-        return byn_io_error(errno);
-    }
-    int out = open(to, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0600);
+    int out = open(to, O_WRONLY | O_CREAT | O_CLOEXEC, 0600);
     if (out < 0) return byn_io_error(errno);
-    uint8_t buf[65536];
+    struct stat dst;
     int e = 0;
+    if (fstat(out, &dst) != 0) {
+        e = errno;
+    } else if (dst.st_dev == st->st_dev && dst.st_ino == st->st_ino) {
+        /* The same file by identity, whatever the spelling: truncating it would empty the source. */
+        if (close(out) != 0) return byn_io_error(errno);
+        return BYN_IO_INVALID_INPUT;
+    } else if (ftruncate(out, 0) != 0) {
+        e = errno;
+    }
+    uint8_t buf[65536];
     while (e == 0) {
         ssize_t n = read(in, buf, sizeof buf);
         if (n < 0) {
@@ -3300,13 +3303,41 @@ static uint32_t byn_fs_copy_to(int in, const struct stat* st, const char* to) {
 uint32_t byn_fs_copy(byn_str path, byn_str dest) {
     if (byn_has_nul(path) || byn_has_nul(dest)) return BYN_IO_INVALID_INPUT;
 #ifdef _WIN32
+    HANDLE in = byn_fs_handle(path, FILE_READ_ATTRIBUTES);
+    if (in == INVALID_HANDLE_VALUE) return byn_win_error(GetLastError());
+    BY_HANDLE_FILE_INFORMATION src;
+    if (!GetFileInformationByHandle(in, &src)) return byn_fs_close(in, byn_win_error(GetLastError()));
+    uint32_t r = (src.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? BYN_IO_IS_DIRECTORY : 0;
+    if (r == 0) {
+        HANDLE out = byn_fs_handle(dest, FILE_READ_ATTRIBUTES);
+        if (out != INVALID_HANDLE_VALUE) {
+            BY_HANDLE_FILE_INFORMATION dst;
+            if (!GetFileInformationByHandle(out, &dst)) r = byn_win_error(GetLastError());
+            /* The same file by identity, whatever the spelling. */
+            else if (dst.dwVolumeSerialNumber == src.dwVolumeSerialNumber && dst.nFileIndexHigh == src.nFileIndexHigh && dst.nFileIndexLow == src.nFileIndexLow) r = BYN_IO_INVALID_INPUT;
+            r = byn_fs_close(out, r);
+        } else {
+            DWORD e = GetLastError();
+            /* A missing destination is created by the copy, which reports a missing directory itself. */
+            if (e != ERROR_FILE_NOT_FOUND && e != ERROR_PATH_NOT_FOUND) r = byn_win_error(e);
+        }
+    }
+    r = byn_fs_close(in, r);
+    if (r != 0) return r;
     wchar_t* wfrom = byn_wide(path.ptr, path.len);
     wchar_t* wto = byn_wide(dest.ptr, dest.len);
     BOOL ok = CopyFileW(wfrom, wto, FALSE);
     DWORD e = ok ? 0 : GetLastError();
     free(wfrom);
     free(wto);
-    return ok ? 0 : byn_win_error(e);
+    if (!ok) return byn_win_error(e);
+    /* `CopyFileW` keeps the source's write time; a copy is new, as on POSIX. */
+    HANDLE h = byn_fs_handle(dest, FILE_WRITE_ATTRIBUTES);
+    if (h == INVALID_HANDLE_VALUE) return byn_win_error(GetLastError());
+    FILETIME now;
+    GetSystemTimeAsFileTime(&now);
+    if (!SetFileTime(h, NULL, NULL, &now)) return byn_fs_close(h, byn_win_error(GetLastError()));
+    return byn_fs_close(h, 0);
 #else
     char* from = byn_cstr(path);
     char* to = byn_cstr(dest);
@@ -3317,8 +3348,8 @@ uint32_t byn_fs_copy(byn_str path, byn_str dest) {
     } else {
         struct stat st;
         if (fstat(in, &st) != 0) r = byn_io_error(errno);
-        /* Files only; a directory source is `permissionDenied`, as `CopyFileW` gives on Windows. */
-        else if ((st.st_mode & S_IFMT) == S_IFDIR) r = BYN_IO_PERMISSION_DENIED;
+        /* Files only. */
+        else if ((st.st_mode & S_IFMT) == S_IFDIR) r = BYN_IO_IS_DIRECTORY;
         else r = byn_fs_copy_to(in, &st, to);
         if (close(in) != 0 && r == 0) r = byn_io_error(errno);
     }

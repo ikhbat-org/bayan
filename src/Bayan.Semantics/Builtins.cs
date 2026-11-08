@@ -181,7 +181,7 @@ public sealed class Builtins
         }
         """;
 
-    /// <summary><c>union error Utf8Error</c>: numbered right after <c>IoError</c>, so <c>invalidSequence</c> is code 9.</summary>
+    /// <summary><c>union error Utf8Error</c>: numbered right after <c>IoError</c>, so <c>invalidSequence</c> is code 10.</summary>
     public ErrorSetSymbol Utf8Error { get; }
 
     // SPEC §8 gives `badDigit(Bytes at)`; units are spec-only, so the position is a plain byte offset (Question 331).
@@ -304,7 +304,7 @@ public sealed class Builtins
     /// <summary><c>void Fs.rename(string path, string to) uses fs fails IoError</c>: POSIX <c>rename</c>, Windows <c>MoveFileExW</c> replacing an existing file; a move across devices fails <c>crossDevice</c> (no copy).</summary>
     public FunctionSymbol FsRename { get; }
 
-    /// <summary><c>void Fs.copy(string path, string to) uses fs fails IoError</c>: a file's contents and permission bits (not its times); a directory source fails.</summary>
+    /// <summary><c>void Fs.copy(string path, string to) uses fs fails IoError</c>: a file's contents and permission bits (not its times); a directory source fails <c>isDirectory</c>, a destination that is the source (by file identity) <c>invalidInput</c>.</summary>
     public FunctionSymbol FsCopy { get; }
 
     /// <summary><c>Time Fs.modified(string path) uses fs fails IoError</c>: the last write time, in nanoseconds where the OS keeps them.</summary>
@@ -399,10 +399,12 @@ public sealed class Builtins
             unsupported,
             /// The source and the destination are on different devices.
             crossDevice,
+            /// The path is a directory where a file is needed.
+            isDirectory,
         }
         """;
 
-    /// <summary><c>union error IoError</c>: its variants are numbered first, so their codes are 1 to 8 (the runtime returns them).</summary>
+    /// <summary><c>union error IoError</c>: its variants are numbered first, so their codes are 1 to 9 (the runtime returns them).</summary>
     public ErrorSetSymbol IoError { get; }
 
     /// <summary><c>List&lt;u8&gt; Io.readFile(string path) fails IoError</c>.</summary>
