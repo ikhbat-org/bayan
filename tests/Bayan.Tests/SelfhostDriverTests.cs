@@ -709,7 +709,7 @@ public sealed class SelfhostDriverT1Tests
 
     /// <summary>
     /// <c>format</c> on a fresh tree per side, at the same path: each run's exit, stdout and stderr, and the files after, equal the C#'s.
-    /// Not here: <c>FormatTests.PackageNamesSkipALinkLeavingThePackage</c> (a link leaving the package; <c>realPath</c> resolves no link, Q1106), the C# test hooks
+    /// Not here: <c>FormatTests.PackageNamesSkipALinkLeavingThePackage</c> (a link leaving the package; <c>realPath</c> resolves no link; blocked by Q1106 (D7 follow-up)), the C# test hooks
     /// <c>Format.MaxPasses</c> and <c>Format.RewriteHook</c> and <c>WriteReplacing</c>'s temp file and rename (Q1111, Q1122).
     /// </summary>
     [Theory]
