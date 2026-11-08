@@ -285,6 +285,21 @@ public sealed class SelfhostDriverT1Tests
                 Write("main.byn", AuditSource);
                 File.CreateSymbolicLink(Path.Combine(dir, "broken.byn"), "/nonexistent");
                 return ["audit", dir];
+            case "cycle":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                Directory.CreateDirectory(Path.Combine(dir, "sub"));
+                Directory.CreateSymbolicLink(Path.Combine(dir, "sub", "up"), "..");
+                Directory.CreateSymbolicLink(Path.Combine(dir, "sub", "up2"), "..");
+                return ["audit", dir];
+            case "parent-link":
+                Write("outside.byn", "unsafe void prod() {\n}\n");
+                Write("dir/main.byn", "unsafe void peek() {\n}\n");
+                Directory.CreateSymbolicLink(Path.Combine(dir, "dir", "link"), "..");
+                return ["audit", Path.Combine(dir, "dir")];
+            case "file-link":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                File.CreateSymbolicLink(Path.Combine(dir, "alias.byn"), "main.byn");
+                return ["audit", dir];
             case "missing":
                 return ["audit", Path.Combine(dir, "nope")];
             case "no-path":
@@ -315,6 +330,22 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("two-paths")]
     [InlineData("uppercase")]
     public void AuditAsCliApp(string name) => AssertSameAsCs(AuditRow(name));
+
+    /// <summary>
+    /// The walk through links against <see cref="CliApp.Run"/>, exit, stdout and stderr: CliTests.cs:146 <c>AuditWalksSymlinkCyclesOnce</c> (<c>cycle</c>),
+    /// CliTests.cs:158 <c>AuditWalksASymlinkToAParentOfTheRootOnce</c> (<c>parent-link</c>) and a file link to a file listed once (<c>file-link</c>);
+    /// bounded in time as the C# tests are, since a walk that does not resolve <c>up -> ..</c> doubles at each level.
+    /// </summary>
+    [Theory]
+    [InlineData("cycle")]
+    [InlineData("parent-link")]
+    [InlineData("file-link")]
+    public async Task AuditWalksLinksAsCliApp(string name)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var args = AuditRow(name);
+        await Task.Factory.StartNew(() => AssertSameAsCs(args), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
+    }
 
     /// <summary>The commands <c>run</c> hands to a file of their own, by their usage or missing-path paths, against <see cref="CliApp.Run"/>.</summary>
     [Theory]
@@ -378,9 +409,8 @@ public sealed class SelfhostDriverT1Tests
     }
 
     /// <summary>
-    /// CliTests.cs:172 <c>AuditReportsALoopingFileLink</c>: a <c>loop.byn</c> that links to itself is reported and the walk goes on; stdout and exit equal the C#'s, stderr up to the message.
-    /// Listed skips (Q1106, no builtin reports a link target): CliTests.cs:146 <c>AuditWalksSymlinkCyclesOnce</c> and CliTests.cs:158 <c>AuditWalksASymlinkToAParentOfTheRootOnce</c>
-    /// (the driver walks a link to a parent 33 times where the C# resolves it and walks once), and CliMemoryBoundsTests.cs:162-200's symlink-outward row.
+    /// CliTests.cs:172 <c>AuditReportsALoopingFileLink</c>: a <c>loop.byn</c> that links to itself is reported and the walk goes on; stdout and exit equal the C#'s, stderr up to the message
+    /// (the C#'s "Too many levels of symbolic links", the driver's <c>IoError</c>, Q1106).
     /// </summary>
     [Fact]
     public void AuditReportsALoopingFileLinkAsCliApp()
@@ -657,6 +687,8 @@ public sealed class SelfhostDriverT1Tests
             "unreadable-dir" => (new() { ["locked/a.byn"] = "let a = true;\n", ["b.byn"] = Fixable }, [["{D}"]]),
             "nested-bin" => (new() { ["src/bin/x.byn"] = "unsafe void poke() {\n}\n" + Unless }, [["--check", "{D}"]]),
             "scratch-dirs" => (new() { [".worktrees/x/a.byn"] = Unless, ["tmp/b.byn"] = Unless, ["src/ok.byn"] = Unless }, [["--check", "{D}"]]),
+            "outward-links" => (new() { ["fixture/.worktrees/x/a.byn"] = Unless, ["fixture/tmp/b.byn"] = Unless, ["fixture/src/ok.byn"] = Unless, ["outside/c.byn"] = Unless }, [["--check", "{D}/fixture"]]),
+            "package-link-outside" => (new() { ["outside/x.byn"] = "long i8(long x) => x\n", ["pkg/package.byn"] = Pkg("primitives: .csharp"), ["pkg/main.byn"] = "void main() {\n    let n = i8(3)\n}\n" }, [["{D}/pkg/main.byn"]]),
             "state-lines" => Twice(Diag("state-line-input.byn")),
             "line-join-member" => One(Diag("line-join-member.byn")),
             "line-join-enum-shorthand" => One(Diag("line-join-enum-shorthand.byn")),
@@ -700,6 +732,12 @@ public sealed class SelfhostDriverT1Tests
             File.WriteAllText(path, text);
             if (name == "executable" && !OperatingSystem.IsWindows()) File.SetUnixFileMode(path, Executable);
         }
+        if (name == "outward-links")
+        {
+            Directory.CreateSymbolicLink(Path.Combine(dir, "fixture", "link"), Path.Combine(dir, "outside"));
+            Directory.CreateSymbolicLink(Path.Combine(dir, "fixture", "inner-link"), Path.Combine(dir, "fixture", "tmp"));
+        }
+        if (name == "package-link-outside") Directory.CreateSymbolicLink(Path.Combine(dir, "pkg", "vendor"), "../outside");
         var d = dir;
         return [.. runs.Select(args => (string[])["format", .. args.Select(a => a.Replace("{D}", d))])];
     }
@@ -711,7 +749,8 @@ public sealed class SelfhostDriverT1Tests
 
     /// <summary>
     /// <c>format</c> on a fresh tree per side, at the same path: each run's exit, stdout and stderr, and the files after, equal the C#'s.
-    /// Not here: <c>FormatTests.PackageNamesSkipALinkLeavingThePackage</c> (a link leaving the package; <c>realPath</c> resolves no link; blocked by Q1106 (D7 follow-up)), the C# test hooks
+    /// <c>outward-links</c> is CliMemoryBoundsTests.cs:162 <c>M3_FormatSkipsScratchDirectoriesAndOutwardLinks</c> and <c>package-link-outside</c> is
+    /// <c>FormatTests.PackageNamesSkipALinkLeavingThePackage</c>; their links are made by <see cref="FormatRow"/>. Not here: the C# test hooks
     /// <c>Format.MaxPasses</c> and <c>Format.RewriteHook</c> and <c>WriteReplacing</c>'s temp file and rename (Q1111, Q1122).
     /// </summary>
     [Theory]
@@ -779,8 +818,11 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("check-style-clean")]
     [InlineData("idempotent-empty")]
     [InlineData("idempotent-package")]
+    [InlineData("outward-links")]
+    [InlineData("package-link-outside")]
     public void FormatAsCliApp(string name)
     {
+        if (OperatingSystem.IsWindows() && name is "outward-links" or "package-link-outside") return;
         var runs = FormatRow(name, out var dir);
         var expected = runs.Select(Oracle).ToList();
         var expectedTree = Tree(dir);
@@ -837,6 +879,26 @@ public sealed class SelfhostDriverT1Tests
             Assert.StartsWith(prefix, actual.Err);
         }
         finally { File.SetUnixFileMode(target, open); }
+    }
+
+    /// <summary><c>format loop.byn</c> with <c>loop.byn -> loop.byn</c>: <c>RealPath(file)</c> fails inside <c>Run</c>'s <c>try</c> on both sides; stderr is compared up to the message (Q1106).</summary>
+    [Fact]
+    public void FormatReportsALoopingFileLinkAsCliApp()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-loop");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        var loop = Path.Combine(dir, "loop.byn");
+        File.CreateSymbolicLink(loop, "loop.byn");
+        string[] args = ["format", loop];
+        var expected = Oracle(args);
+        var actual = SelfhostDriverHarness.Run(args);
+        Assert.Equal(CliApp.ExitFailure, expected.Exit);
+        Assert.Equal(expected.Exit, actual.Exit);
+        SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
+        Assert.StartsWith($"bayan: {loop}: ", expected.Err);
+        Assert.StartsWith($"bayan: {loop}: ", actual.Err);
     }
 
     /// <summary>
