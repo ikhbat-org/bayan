@@ -111,10 +111,11 @@ public sealed class SelfhostDriverGoldenTests
         p.StandardInput.Close();
         var stdout = p.StandardOutput.ReadToEndLfAsync();
         var stderr = p.StandardError.ReadToEndLfAsync();
-        if (!p.WaitForExit(TestTime.Scale(300_000)))
+        var waitMs = TestTime.Scale(300_000);
+        if (!p.WaitForExit(waitMs))
         {
             p.Kill();
-            Assert.Fail($"{program} {string.Join(' ', args)}: timed out after 300 s");
+            Assert.Fail($"{program} {string.Join(' ', args)}: timed out after {waitMs} ms");
         }
         return new Result(p.ExitCode, stdout.Result, stderr.Result);
     }

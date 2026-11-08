@@ -73,7 +73,10 @@ public sealed class ToolchainSanitizerTests : IDisposable
         Assert.True(watch.Elapsed >= Toolchain.ProbeCompileTimeout + Toolchain.ProbeRunTimeout, $"probe took {watch.Elapsed}");
         Assert.True(watch.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(20)), $"probe took {watch.Elapsed}");
         var working = Script("working.sh", "while [ $# -gt 0 ]; do if [ \"$1\" = -o ]; then printf '#!/bin/sh\\nexit 0\\n' > \"$2\"; chmod +x \"$2\"; fi; shift; done");
-        Assert.Equal(working, Assert.Single(Toolchain.ProbeSanitizer([[hanging], [hangingProgram], [working]])!));
+        Toolchain.ProbeCompileTimeout = Toolchain.ProbeRunTimeout = TestTime.Scale(TimeSpan.FromMilliseconds(2000));
+        var found = Toolchain.ProbeSanitizer([[hanging], [hangingProgram], [working]]);
+        Assert.NotNull(found);
+        Assert.Equal(working, Assert.Single(found));
     }
 
     [Fact]

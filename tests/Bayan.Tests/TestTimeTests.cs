@@ -1,5 +1,6 @@
 namespace Bayan.Tests;
 
+[Collection(nameof(ToolchainEnvironment))]
 public sealed class TestTimeTests
 {
     [Fact]
@@ -15,6 +16,22 @@ public sealed class TestTimeTests
         {
             Assert.Equal(1000, TestTime.Scale(400));
             Assert.Equal(TimeSpan.FromSeconds(5), TestTime.Scale(TimeSpan.FromSeconds(2)));
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("BAYAN_TEST_TIME_SCALE", saved);
+        }
+    }
+
+    [Fact]
+    public void AHugeScaleIsCapped()
+    {
+        var saved = Environment.GetEnvironmentVariable("BAYAN_TEST_TIME_SCALE");
+        Environment.SetEnvironmentVariable("BAYAN_TEST_TIME_SCALE", "1e12");
+        try
+        {
+            Assert.Equal(TimeSpan.FromMilliseconds(int.MaxValue), TestTime.Scale(TimeSpan.FromMinutes(10)));
+            Assert.Equal(int.MaxValue, TestTime.Scale(500));
         }
         finally
         {
