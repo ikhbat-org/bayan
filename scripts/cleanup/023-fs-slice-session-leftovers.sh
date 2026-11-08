@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # Cleanup for the 2026-11-08/09 session (fs slice → dev, 017 T20 → dev, review fixes 2026-11-08-1..4, plan 007 prep),
 # written 2026-11-09 by the agent that ran it unattended; never run by that agent.
-# 1. worker keys landed by hand (land refused over ignored build output): `worker.js retire`, which removes the worktree
-#    only when that loses nothing and keeps the branch.
+# 1. worker keys landed by hand (land refused over ignored build output): the worktree is removed here under section 2's
+#    rules, then `worker.js retire` drops the key (it would forget a key whose worktree it keeps, and exits 0 either way).
+#    The branch stays for 019-merged-branches.sh.
 # 2. plain worktrees of this session's branches, and two detached check-outs under tmp/: `git worktree remove`, then
 #    `git branch -d`.
-# 3. untracked scratch: tmp/zig-dl (the zig 0.17.0 download), tmp/sanitizer-debug, a gate checker's mktemp dir.
+# 3. untracked scratch: tmp/zig-dl (the zig 0.17.0 download) and a gate checker's mktemp dir, only when this user owns
+#    it. tmp/sanitizer-debug is kept: it holds the fixtures of the open ToolchainSanitizer flake (work/todo.md).
 # Every item is checked at run time: a target that is gone prints `skip`; a branch not in dev, a dirty worktree or a
 # tracked path is kept. merged-worktree-backlog.sh covers the same worktrees once they are 24 h old; this one does not
 # wait.
@@ -45,15 +47,29 @@ for key in diag-examples 012-anchors review-c1dae2fc-fix review-fix-r2 json-i64 
   if [ -d "$wt" ] && [ -n "$(git -C "$wt" status --porcelain 2>/dev/null)" ]; then
     printf 'keep:  %s (modified or untracked files in %s)\n' "$key" "$wt"; continue
   fi
-  if [ $execute -eq 0 ]; then printf 'would: worker.js retire %s\n' "$key"; continue; fi
-  deno run -A "$worker" retire "$key" || { printf '  refused: retire %s. Left alone.\n' "$key"; failed=1; }
+  if [ -d "$wt" ]; then
+    if [ "$(git -C "$wt" branch --show-current 2>/dev/null)" != "$br" ]; then printf 'keep:  %s (%s not on %s)\n' "$key" "$wt" "$br"; continue; fi
+    other="$(git -C "$wt" status --porcelain --ignored | sed -n 's/^!! //p' \
+      | grep -Ev '(^|/)(bin|obj|TestResults|__pycache__)/$|(^|/)\.DS_Store$' || true)"
+    if [ -n "$other" ] && [ $scratch -eq 0 ]; then
+      printf 'hold:  %s (ignored files beyond build output in %s: %s; needs --delete-scratch)\n' \
+        "$key" "$wt" "$(printf '%s\n' "$other" | head -3 | tr '\n' ' ')"; continue
+    fi
+  fi
+  if [ $execute -eq 0 ]; then
+    [ -d "$wt" ] && printf 'would: git worktree remove %s\n' "$wt"
+    printf 'would: worker.js retire %s\n' "$key"; continue
+  fi
+  if [ -d "$wt" ] && ! git worktree remove "$wt"; then printf '  refused: %s. Key %s kept.\n' "$wt" "$key"; failed=1; continue; fi
+  deno run -A "$worker" retire "$key"
+  if [ -d "$wt" ]; then printf '  refused: %s is still there.\n' "$wt"; failed=1; fi
 done
 
 printf '\n== 2. worktrees of merged branches\n'
 while read -r rel br; do
   if [ ! -d "$rel" ]; then printf 'skip:  %s is gone\n' "$rel"; continue; fi
   if [ "$repo/$rel" = "$here" ]; then printf 'keep:  %s (this script runs from it)\n' "$rel"; continue; fi
-  if tracked "$rel"; then printf 'refuse: %s is tracked by git. Propose it as a commit instead. Left alone.\n' "$rel"; continue; fi
+  if tracked "$rel"; then printf 'refuse: %s is tracked by git. Propose it as a commit instead. Left alone.\n' "$rel"; failed=1; continue; fi
   if [ "$br" = "-" ]; then tip="$(git -C "$rel" rev-parse HEAD 2>/dev/null || true)"; else tip="refs/heads/$br"; fi
   if [ -z "$tip" ] || ! in_dev "$tip"; then printf 'keep:  %s (%s not in dev)\n' "$rel" "$br"; continue; fi
   if [ "$br" != "-" ] && [ "$(git -C "$rel" branch --show-current)" != "$br" ]; then
@@ -96,9 +112,10 @@ EOF
 
 printf '\n== 3. untracked scratch\n'
 gate_tmp="${TMPDIR:-/nonexistent}/tmp.qhKsq0vwnC"; gate_tmp="${gate_tmp//\/\//\/}"
-for p in tmp/zig-dl tmp/sanitizer-debug "$gate_tmp"; do
+for p in tmp/zig-dl "$gate_tmp"; do
   if [ ! -e "$p" ]; then printf 'skip:  %s is gone\n' "$p"; continue; fi
-  if tracked "$p"; then printf 'refuse: %s is tracked by git. Propose it as a commit instead. Left alone.\n' "$p"; continue; fi
+  if [ ! -O "$p" ]; then printf 'keep:  %s (not owned by %s)\n' "$p" "$(id -un)"; continue; fi
+  if tracked "$p"; then printf 'refuse: %s is tracked by git. Propose it as a commit instead. Left alone.\n' "$p"; failed=1; continue; fi
   if [ $scratch -eq 0 ] || [ $execute -eq 0 ]; then printf 'would (with --execute --delete-scratch): rm -rf %s\n' "$p"; continue; fi
   rm -rf -- "$p" && printf 'removed: %s\n' "$p" || { printf '  refused: %s. Left alone.\n' "$p"; failed=1; }
 done
