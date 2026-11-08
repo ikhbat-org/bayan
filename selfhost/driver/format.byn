@@ -61,7 +61,15 @@ i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
     var exit = exitOk
     var files = List<string>()
     if t6DirectoryExists(path) {
-        files = bynFiles(path, through: ref exit, by: realPath(path))
+        // The C#'s `RealPath(path)` (Format.cs:53) is outside its `try`: a directory that exists resolves (Q1106).
+        let root = realPath(path) catch switch {
+            // coverage-exempt: Q1106 through `return exitFailure`
+            IoError e => {
+                Io.stderr.write($"bayan: {path}: {e}\n")
+                return exitFailure
+            }
+        }
+        files = bynFiles(path, through: ref exit, by: root)
     } else if Fs.fileExists(path) {
         files.append(path)
     } else {
@@ -95,7 +103,13 @@ i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
             for (name, _) in packageNamesByRoot[found.dir] { declared[name] = true }
         }
         // Read and write the file the kernel opens, not the one a lexical `..` collapse names.
-        let real = realPath(file)
+        let real = realPath(file) catch switch {
+            IoError e => {
+                Io.stderr.write($"bayan: {file}: {e}\n")
+                exit = exitFailure
+                continue
+            }
+        }
         let original = Io.readFile(real) catch switch {
             IoError e => {
                 Io.stderr.write($"bayan: {file}: {e}\n")
