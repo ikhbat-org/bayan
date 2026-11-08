@@ -443,11 +443,12 @@ public sealed partial class CliEnvironmentTests
     {
         var file = Path.Combine(Fresh("timeout"), "main.byn");
         File.WriteAllText(file, "void main() {\n}\n\ntest \"loops\" {\n    while true {\n    }\n}\n");
-        With("BAYAN_TEST_TIMEOUT_MS", "300", () =>
+        var limit = TestTime.Scale(300);
+        With("BAYAN_TEST_TIMEOUT_MS", limit.ToString(System.Globalization.CultureInfo.InvariantCulture), () =>
         {
             var (exit, stdout, _) = Run(["test", file]);
             Assert.Equal(CliApp.ExitTestFailure, exit);
-            Assert.Contains(" timeout: loops\n      timed out after 0 s\n", stdout);
+            Assert.Contains($" timeout: loops\n      {Messages.TestTimedOut.Text(limit / 1000.0)}\n", stdout);
             Assert.Contains(" 0 passed · ", stdout);
             Assert.Contains(" 1 failed · ", stdout);
         });
