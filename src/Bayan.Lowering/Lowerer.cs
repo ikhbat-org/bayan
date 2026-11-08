@@ -37,7 +37,7 @@ public static class Lowerer
         return new LoweredProgram(c, functions, c.EntryModule.Main, tests, mutants is not null, coverage);
     }
 
-    /// <summary>A BoundErrorExpr implies a reported error; with none reported the compiler is wrong, not the program (Q1100). Covers bodies and field defaults.</summary>
+    /// <summary>A BoundErrorExpr implies a reported error; with none reported the compiler is wrong, not the program (Q1100). Covers bodies and field defaults, instances' too.</summary>
     public static void RequireNoErrorNodes(Compilation c)
     {
         foreach (var module in c.Modules)
@@ -45,9 +45,15 @@ public static class Lowerer
             var roots = module.AllFunctions.Where(f => !f.IsGeneric).Select(f => (BoundNode?)f.Body)
                 .Concat(module.Tests.Select(t => (BoundNode?)t.Function.Body))
                 .Concat(module.Structs.SelectMany(st => st.Fields).Select(f => (BoundNode?)f.Default));
-            foreach (var root in roots)
-                if (root is not null && BoundTree.Descendants(root).Any(n => n is BoundErrorExpr)) throw new InternalCompilerError(ErrorNodeMessage);
+            Check(roots);
         }
+        Check(c.StructInstances.SelectMany(st => st.Fields).Select(f => (BoundNode?)f.Default));
+    }
+
+    private static void Check(IEnumerable<BoundNode?> roots)
+    {
+        foreach (var root in roots)
+            if (root is not null && BoundTree.Descendants(root).Any(n => n is BoundErrorExpr)) throw new InternalCompilerError(ErrorNodeMessage);
     }
 
     /// <summary>The exception for a bound node lowering has no case for; an error node only gets here when binding reported no error.</summary>

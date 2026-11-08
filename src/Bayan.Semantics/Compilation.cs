@@ -1495,6 +1495,9 @@ public sealed partial class Compilation
     private readonly Dictionary<(object Generic, TypeSymbol[] Args), object> _instances = new(new InstanceKeyComparer());
     private readonly Queue<(SourceText Site, TextSpan Span, Action Bind, FunctionSymbol? Instance)> _instantiationWork = new();
     private readonly List<Diagnostic> _instantiationErrors = new();
+
+    /// <summary>The instances of generic structs made so far.</summary>
+    public IEnumerable<StructSymbol> StructInstances => _instances.Values.OfType<StructSymbol>();
     private readonly HashSet<(string, SourceText?, TextSpan)> _instanceAnalysisSeen = new();
     private DiagnosticBag? _scratch;
 
@@ -1553,6 +1556,10 @@ public sealed partial class Compilation
                 || d.Code == DiagnosticCodes.ConstraintNotSatisfied.Code || d.Code == DiagnosticCodes.FunctionTypeNotHere.Code && !Reported(d)
                 || (d.Code == DiagnosticCodes.Unsupported.Code || d.Code == DiagnosticCodes.ImplicitCopy.Code) && !Reported(d))
                 target.Add(d with { Source = site, Span = span, Label = InstantiationLabel });
+            else if (d.Code == DiagnosticCodes.CircularFieldDefault.Code)
+            {
+                if (!Reported(d)) target.Add(d);
+            }
             else if (d.Code == DiagnosticCodes.AssignmentChangesState.Code && instance is not null && !Reported(d))
                 target.Add(d with
                 {
@@ -1738,7 +1745,14 @@ public sealed partial class Compilation
     {
         if (f.Default is not null || !f.HasDefault) return f.Default;
         if (s.Template is not null)
-            Instantiating(site, span, () => f.Default ??= new Binder(this, s.File, null, s).BindFieldDefault(f));
+        {
+            if (!_bindingDefaults.Add(f)) Report(DiagnosticCodes.CircularFieldDefault, s.File.Source, f.Decl.Name.Span, [$"{s.Name}.{f.Name}"]);
+            else
+            {
+                try { Instantiating(site, span, () => f.Default ??= new Binder(this, s.File, null, s).BindFieldDefault(f)); }
+                finally { _bindingDefaults.Remove(f); }
+            }
+        }
         else if (!_bindingDefaults.Add(f))
             Report(DiagnosticCodes.CircularFieldDefault, s.File.Source, f.Decl.Name.Span, [$"{s.Name}.{f.Name}"]);
         else

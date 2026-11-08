@@ -12,5 +12,5 @@ internal static class TestTime
 
     internal static int Scale(int ms) => (int)Math.Min(int.MaxValue, Math.Ceiling(ms * Factor));
 
-    internal static TimeSpan Scale(TimeSpan span) => span * Factor;
+    internal static TimeSpan Scale(TimeSpan span) => TimeSpan.FromMilliseconds(Math.Min(int.MaxValue, span.TotalMilliseconds * Factor));
 }

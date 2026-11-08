@@ -198,10 +198,11 @@ public sealed class L010Utf8DecodeTests(ITestOutputHelper output)
         foreach (var bytes in inputs) stdin.Append(Convert.ToHexStringLower(bytes)).Append('\n');
         p.StandardInput.Write(stdin.ToString());
         p.StandardInput.Close();
-        if (!p.WaitForExit(TestTime.Scale(120_000)))
+        var waitMs = TestTime.Scale(120_000);
+        if (!p.WaitForExit(waitMs))
         {
             p.Kill();
-            Assert.Fail("driver timed out after 120 s");
+            Assert.Fail($"driver timed out after {waitMs} ms");
         }
         Assert.True(p.ExitCode == 0, $"driver exit {p.ExitCode}\n{stderr.Result}");
         return stdout.Result.Split('\n', StringSplitOptions.RemoveEmptyEntries);
