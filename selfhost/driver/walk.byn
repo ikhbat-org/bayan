@@ -108,7 +108,7 @@ Map<string, bool> t6OtherUses(string file, from in List<u8> bytes, by in parser.
 
 /// Format.cs:230 `ManifestFor`: the `package.byn` in the file's directory or the nearest one above it, with its directory; null when there is none.
 /// `cache` is the dictionary the C# caller (`Format.Run`) owns: each directory walked maps to what was found.
-T6Found? manifestFor(string file, through ref Map<string, T6Found?> cache) uses alloc, fs {
+T6Found? manifestFor(string file, through ref Map<string, T6Found?> cache) uses alloc, fs fails IoError {
     var dir = Path.directoryName(Path.fullPath(file))
     var seen = List<string>()
     var found: T6Found? = null
@@ -120,11 +120,8 @@ T6Found? manifestFor(string file, through ref Map<string, T6Found?> cache) uses 
         seen.append(current)
         let candidate = Path.combine(current, "package.byn")
         if Fs.fileExists(candidate) {
-            let manifest = semantics.manifestRead(candidate)
-            var hasErrors = false
-            for diagnostic in manifest.diagnostics {
-                unless diagnostic.isWarning { hasErrors = true }
-            }
+            let manifest = try semantics.manifestRead(candidate)
+            let hasErrors = semantics.manifestErrorCount(in manifest) > 0
             var report = ""
             if hasErrors { report = t8RenderManifest(candidate, from: in manifest.diagnostics) }
             found = T6Found { dir: current, booleans: manifest.booleans, primitives: manifest.primitives, hasErrors: hasErrors, report: report }

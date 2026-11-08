@@ -73,7 +73,13 @@ i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
     var packageNamesByRoot: Map<string, Map<string, bool>> = []
     for file in files {
         if Path.fileName(file) == "package.byn" { continue }
-        let package = manifestFor(file, through: ref manifests)
+        let package = manifestFor(file, through: ref manifests) catch switch {
+            IoError e => {
+                Io.stderr.write($"bayan: {file}: {e}\n")
+                exit = exitFailure
+                continue
+            }
+        }
         var booleans = semantics.BooleanStyle.symbols
         var primitives = semantics.PrimitiveStyle.sized
         var declared: Map<string, bool> = []
@@ -398,7 +404,9 @@ T8Fix? operatorFix(in List<u8> bytes, from in List<lexer.Token> tokens, at i64 i
             _ => "",
         }
         if word.isEmpty { return null }
+        // coverage-exempt: Q1144 through `token.start > 0`
         let spaceBefore = token.start > 0 && t8IsSpace(bytes[token.start - 1])
+        // coverage-exempt: Q1144 through `token.end < bytes.length`
         let spaceAfter = token.end < bytes.length && t8IsSpace(bytes[token.end])
         let before = token.kind != .bang && !spaceBefore ? " " : ""
         return T8Fix { span: span, replacement: $"{before}{word}{spaceAfter ? "" : " "}" }

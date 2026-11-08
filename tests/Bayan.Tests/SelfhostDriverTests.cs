@@ -653,6 +653,7 @@ public sealed class SelfhostDriverT1Tests
             "package" => (new() { ["package.byn"] = Package, ["a.byn"] = Fixable, ["b.byn"] = "let b = true\nunless !b { print(\"y\") }\n" }, [["{D}"], ["{D}/a.byn"]]),
             "no-temp-file" => (new() { ["main.byn"] = Fixable }, [["{D}"]]),
             "executable" => (new() { ["script.byn"] = "#!/usr/bin/env bayan\nlet a = true\nif (a) { print(\"x\") }\n" }, [["{D}/script.byn"]]),
+            "unreadable-package" => (new() { ["package.byn"] = Pkg("booleans: .words"), ["main.byn"] = Fixable }, [["{D}/main.byn"]]),
             "unreadable-dir" => (new() { ["locked/a.byn"] = "let a = true;\n", ["b.byn"] = Fixable }, [["{D}"]]),
             "nested-bin" => (new() { ["src/bin/x.byn"] = "unsafe void poke() {\n}\n" + Unless }, [["--check", "{D}"]]),
             "scratch-dirs" => (new() { [".worktrees/x/a.byn"] = Unless, ["tmp/b.byn"] = Unless, ["src/ok.byn"] = Unless }, [["--check", "{D}"]]),
@@ -664,6 +665,7 @@ public sealed class SelfhostDriverT1Tests
             "defaults" => One(WordsAndCSharp),
             "package-style" => (new() { ["package.byn"] = Pkg("booleans: .words, primitives: .csharp"), ["src/main.byn"] = SymbolsAndSized }, [["{D}"]]),
             "csharp-project" => (new() { ["package.byn"] = Pkg("primitives: .csharp"), ["src/main.byn"] = "long twice(int n) => n * 2\n\nvoid main() {\n    let r: double = 0.5\n    print($\"{twice(3)} {r}\")\n}\n" }, [["{D}"]]),
+            "spacing-blanks" => (new() { ["package.byn"] = Pkg("booleans: .words"), ["main.byn"] = "bool f(bool a, bool b) => a\t&&\tb\nbool g(bool a, bool b) => a ||\n    b\nbool h(bool a, bool b) => a &&\r\n    b\n" }, [["{D}/main.byn"]]),
             "spacing" => (new() { ["package.byn"] = Pkg("booleans: .words"), ["main.byn"] = "bool f(bool a, bool b) => a&&!b||!(a)\n" }, [["{D}/main.byn"]]),
             "primitive-names" => (new() { ["package.byn"] = Pkg("primitives: .csharp"), ["main.byn"] = "struct P { i8: int }\nvoid main() {\n    let u8 = 1\n    let p = P { i8: 3 }\n    let w: i8 = 2\n    print($\"{u8}{p.i8}{w}\")\n}\n" }, [["{D}/main.byn"]]),
             "conv-sized" => One("void main() {\n    let y = 1\n    let z: long = long(y)\n    let a = int.tryFrom(y)\n    let b = long.max\n}\n"),
@@ -765,6 +767,7 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("package-style")]
     [InlineData("csharp-project")]
     [InlineData("spacing")]
+    [InlineData("spacing-blanks")]
     [InlineData("primitive-names")]
     [InlineData("conv-sized")]
     [InlineData("conv-csharp")]
@@ -799,6 +802,7 @@ public sealed class SelfhostDriverT1Tests
     [Theory]
     [InlineData("directory", "a.byn")]
     [InlineData("unreadable-dir", "locked")]
+    [InlineData("unreadable-package", "package.byn")]
     public void FormatReportsAnUnreadablePathAsCliApp(string name, string locked)
     {
         if (OperatingSystem.IsWindows()) return;
@@ -827,7 +831,8 @@ public sealed class SelfhostDriverT1Tests
             Assert.Equal(expected.Exit, actual.Exit);
             SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
             SelfhostEmitterHarness.AssertSame("files after", expectedTree, Tree(dir));
-            var prefix = $"bayan: {target}: ";
+            // An unreadable `package.byn` is reported against the file being formatted, as `FormatIoError` in `Run`.
+            var prefix = $"bayan: {(name == "unreadable-package" ? Path.Combine(dir, "main.byn") : target)}: ";
             Assert.StartsWith(prefix, expected.Err);
             Assert.StartsWith(prefix, actual.Err);
         }

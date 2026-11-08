@@ -89,7 +89,7 @@ struct T10Reader {
 // ── Entry points ────────────────────────────────────────────────────────────────
 
 /// Manifest.cs:73 `HasErrors`, as a count.
-i64 manifestErrorCount(in Manifest m) {
+public i64 manifestErrorCount(in Manifest m) {
     var n: i64 = 0
     for d in m.diagnostics {
         unless d.isWarning { n += 1 }
@@ -97,10 +97,10 @@ i64 manifestErrorCount(in Manifest m) {
     return n
 }
 
-/// Manifest.cs:75 `Read`. C# throws when the file cannot be read; here it reads as an empty file, which
-/// reports BYN3100 (Q565).
-public Manifest manifestRead(string path) uses alloc, fs {
-    let bytes = Io.readFile(path) catch return manifestParse(lexer.SourceText.create("package.byn", from: List<u8>()))
+/// Manifest.cs:75 `Read`. Fails as C#'s `File.ReadAllBytes` throws; a caller that keeps Q565's reading of an unreadable file as an empty
+/// one (BYN3100) catches at its call site.
+public Manifest manifestRead(string path) uses alloc, fs fails IoError {
+    let bytes = try Io.readFile(path)
     return manifestParse(lexer.SourceText.create("package.byn", from: move bytes))
 }
 
