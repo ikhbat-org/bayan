@@ -243,11 +243,9 @@ Stmt parseLocal(ref Parser p, from i64 start) {
     if isNameThenType(ref p, at: p.pos) {
         name = expectName(ref p, "a variable name")
         let _ = p.advance()
-        // C# `ParseType(fatArrow: true, lists: true)`; T6's stub takes no options yet (Q460).
-        type = parseRefinement(ref p, from: parseType(ref p))
+        type = parseRefinement(ref p, from: parseType(ref p, fatArrow: true, lists: true))
     } else if isTypeThenName(ref p, at: p.pos) {
-        // C# `ParseType(lists: true)` (Q460).
-        type = parseType(ref p)
+        type = parseType(ref p, lists: true)
         name = expectName(ref p, "a variable name")
         // A `let` needs a value, so a local declared without one is a `var`.
         if !keyword && !isUsing {
