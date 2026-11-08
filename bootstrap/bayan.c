@@ -46574,7 +46574,7 @@ byn_parser_Stmt byn_parser__parseParenFor(bynt_parser__Parser* p_p, int64_t p_st
 #line 822 "parser/stmts.byn"
         t20 = byn_strbuf_grow(byn_context);
 #line 822 "parser/stmts.byn"
-        t21 = byn_lexer__SourceText__getText(&(*p_p).lexed.source, l4_name);
+        t21 = byn_parser__nameText(&(*p_p), l4_name);
 #line 822 "parser/stmts.byn"
         {
             byn_writer* w = &t20;
