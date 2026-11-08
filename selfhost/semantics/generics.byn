@@ -165,8 +165,7 @@ void bindAll(ref Ctx c) {
             let fields = copyIds(in c.structs[s].fields)
             for f in fields {
                 if c.fields[f].hasDefault {
-                    var b = t13NewBinder(c.structs[s].file, owner: s)
-                    c.fields[f].defaultValue = bindFieldDefault(ref b, through: ref c, for: f)
+                    let _ = fieldDefault(ref c, for: s, by: f, from: c.structs[s].file, at: c.fields[f].nameSpan)
                 }
             }
         }
@@ -747,15 +746,26 @@ Type instantiateType(ref Ctx c, for Type template, by in List<Type> args, from F
 }
 
 /// Compilation.cs:1670 FieldDefault: an instance's default is bound on first use, as a literal can
-/// need it before the worklist drains.
+/// need it before the worklist drains; so is any other struct's (Q1100), with -2 in `defaultValue`
+/// while it binds, and BYN2034 when a default reaches itself.
 BExpr fieldDefault(ref Ctx c, for StructId s, by FieldId f, from FileId site, at TextSpan span) {
-    if c.fields[f].defaultValue == -1 && c.fields[f].hasDefault && c.structs[s].template != -1 {
-        let scope = instantiatingBegin(ref c, from: site, at: span)
-        if c.fields[f].defaultValue == -1 {
+    if c.fields[f].defaultValue == -2 {
+        report(ref c, for: .circularFieldDefault, from: c.structs[s].file, at: c.fields[f].nameSpan, by: ($"{c.structs[s].name}.{c.fields[f].name}", "", "", "", ""))
+        return -1
+    }
+    if c.fields[f].defaultValue == -1 && c.fields[f].hasDefault {
+        if c.structs[s].template != -1 {
+            let scope = instantiatingBegin(ref c, from: site, at: span)
+            if c.fields[f].defaultValue == -1 {
+                var b = t13NewBinder(c.structs[s].file, owner: s)
+                c.fields[f].defaultValue = bindFieldDefault(ref b, through: ref c, for: f)
+            }
+            instantiatingEnd(ref c, by: scope)
+        } else {
+            c.fields[f].defaultValue = -2
             var b = t13NewBinder(c.structs[s].file, owner: s)
             c.fields[f].defaultValue = bindFieldDefault(ref b, through: ref c, for: f)
         }
-        instantiatingEnd(ref c, by: scope)
     }
     return c.fields[f].defaultValue
 }
