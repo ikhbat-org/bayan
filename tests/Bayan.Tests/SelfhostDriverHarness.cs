@@ -66,7 +66,8 @@ public static class SelfhostDriverHarness
             if args[0] == "manifest" {
                 var cache: Map<string, T6Found?> = []
                 for f in args[1..args.length] {
-                    if (manifestFor(f, through: ref cache) is { } found) { Io.stdout.write($"{found.dir}\n") } else { Io.stdout.write("none\n") }
+                    let package = manifestFor(f, through: ref cache) catch null
+                    if (package is { } found) { Io.stdout.write($"{found.dir}\n") } else { Io.stdout.write("none\n") }
                 }
                 Io.stdout.write($"{cache.length}\n")
                 return 0
