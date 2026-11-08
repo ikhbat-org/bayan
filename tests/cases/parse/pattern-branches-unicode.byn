@@ -1,0 +1,29 @@
+let pa = x is .pair(1, 2)
+let pb = x is .
+let pc = x is .5
+let pd = x is _.y
+let pe = x is _(1)
+let pf = x is Text()
+let pg = s is Text name
+switch v {
+    case Money when ok:
+        print("m")
+    case Δ when ok:
+        print("d")
+    default:
+        print("o")
+}
+if x is { }
+}
+let sa = stackalloc
+let sb = stackalloc + 1
+let ta = Order.paid { x = 1 }
+let tb = order.paid { x: 1 }
+if Order.paid { x: 1 }
+}
+switch v {
+    case .paid when ok:
+        print("p")
+    default:
+        print("o")
+}

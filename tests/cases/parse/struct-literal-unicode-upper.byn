@@ -1,0 +1,10 @@
+let a = Åp { x: 1 }
+let b = Ω { }
+let c = Δ { y: 2 }
+let d = Ω.ω { x: 1 }
+let e = Ä.ö { }
+let f = v is Ä { x: 1 }
+let g = v is Δ { y: 2 }
+let h = v is ω { x: 1 }
+let i = ω { x: 1 }
+let j = Åp { x: 1 }
