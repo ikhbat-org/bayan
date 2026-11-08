@@ -26,6 +26,7 @@ done
 here="$(git rev-parse --show-toplevel)"
 repo="$(git rev-parse --path-format=absolute --git-common-dir)"; repo="${repo%/.git}"  # the main checkout: targets are relative to it
 worker="${CLEANUP_WORKER_JS:-$HOME/.claude/tools/worker.js}"
+worker_logs="${CLEANUP_WORKER_LOGS:-$HOME/.claude/workers/logs}"  # <key>.lock holds a running worker's pid
 failed=0
 
 if [ "$(git branch --show-current)" != "dev" ]; then
@@ -47,7 +48,15 @@ for key in diag-examples 012-anchors review-c1dae2fc-fix review-fix-r2 json-i64 
   if [ -d "$wt" ] && [ -n "$(git -C "$wt" status --porcelain 2>/dev/null)" ]; then
     printf 'keep:  %s (modified or untracked files in %s)\n' "$key" "$wt"; continue
   fi
+  lock="$worker_logs/$key.lock"
+  if [ -f "$lock" ] && kill -0 "$(cat "$lock" 2>/dev/null || echo x)" 2>/dev/null; then
+    printf 'keep:  %s (a worker holds its lock)\n' "$key"; continue
+  fi
   if [ -d "$wt" ]; then
+    if tracked "$wt"; then printf 'refuse: %s is tracked by git. Propose it as a commit instead. Left alone.\n' "$wt"; failed=1; continue; fi
+    if [ -n "$(git worktree list --porcelain | sed -n 's/^worktree //p' | grep -F "$repo/$wt/" || true)" ]; then
+      printf 'keep:  %s (%s holds a nested worktree)\n' "$key" "$wt"; continue
+    fi
     if [ "$(git -C "$wt" branch --show-current 2>/dev/null)" != "$br" ]; then printf 'keep:  %s (%s not on %s)\n' "$key" "$wt" "$br"; continue; fi
     other="$(git -C "$wt" status --porcelain --ignored | sed -n 's/^!! //p' \
       | grep -Ev '(^|/)(bin|obj|TestResults|__pycache__)/$|(^|/)\.DS_Store$' || true)"
