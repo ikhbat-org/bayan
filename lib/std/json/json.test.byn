@@ -229,6 +229,10 @@ test "parse refuses broken text" (string input, string expected) {
     assert errorOf(input) == expected
 }
 
+test "line and column are i64 values" {
+    assert errorOf($"[1,\n{" ".repeated(70000)}x") == "syntax expected a value @70004 2:70001"
+}
+
 test "nesting past 128 levels is tooDeep" {
     assert errorOf("[".repeated(128)) == "syntax unexpected end of input @128 1:129"
     assert errorOf("[".repeated(129)) == "tooDeep @128 1:129"
