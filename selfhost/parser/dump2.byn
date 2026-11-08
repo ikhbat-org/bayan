@@ -217,6 +217,7 @@ void dumpType(in TypeSyntax t, from ref Parser p, to ref StrBuf sb) {
                 var readOnlySpan = false
                 if n.value.path.length == 1 && n.value.args.length == 1 {
                     let argSpan = typeSpan(in n.value.args[0])
+                    // coverage-exempt: Q1145 through `argSpan.end < n.value.path[0].end`
                     readOnlySpan = argSpan.start == n.value.path[0].start && argSpan.end < n.value.path[0].end
                 }
                 if readOnlySpan {
@@ -339,6 +340,7 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
                             dumpExpr(in h.value.expr, from: ref p, to: ref sb)
                             for spec in h.value.specs {
                                 sb.append(" (")
+                                // coverage-exempt: Q1145 through `spec.name is { } sn`
                                 if (spec.name is { } sn) {
                                     let text = nameText(ref p, at: sn)
                                     sb.append(text == ":" ? (spec.value is .targetMemberExpr(_) ? "as" : "digits") : text)

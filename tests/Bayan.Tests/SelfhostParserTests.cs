@@ -412,6 +412,10 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
 
         struct Box<T> { T[] items; List<i32>[] more; ReadOnlySpan<i32> view; (i32) -> void uses io, fs run; (i32, string) -> i32 fails A, B twice; dyn ref readonly Shape shape }
 
+        void apply((i32) -> void uses io, fs cb) {
+            let g: (i32) -> void uses io, fs = cb
+        }
+
         void main(Box<i32> xs) {
             for i in 0..3 {
                 let a = f(i) ?? break outer

@@ -1,4 +1,5 @@
 using System.Text;
+using Bayan.Semantics;
 using Bayan.Syntax.Diagnostics;
 using Bayan.Syntax.Packages;
 using SourceText = Bayan.Syntax.Text.SourceText;
@@ -149,7 +150,13 @@ public sealed class SelfhostSemanticsT10Tests
     public void MainReadsAnUnreadablePackageAsAnEmptyOne()
     {
         if (OperatingSystem.IsWindows()) return;
-        var program = SelfhostSemanticsHarness.Build(File.ReadAllText(Path.Combine(SelfhostSemanticsHarness.SemanticsDir, "main.byn")));
+        // Built from the files themselves, not through `Build` (which marks `main.byn` generated, so coverage skips it).
+        Environment.SetEnvironmentVariable("BAYAN_CACHE", Path.Combine(Golden.RepoRoot, "tmp", "cache"));
+        var c = Compilation.Create(Directory.GetFiles(SelfhostSemanticsHarness.SemanticsDir, "*.byn").Order(StringComparer.Ordinal).Select(SourceText.FromFile).ToList(), packageRoot: SelfhostSemanticsHarness.SelfhostDir);
+        Assert.False(c.Diagnostics.HasErrors, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
+        var build = SelfhostSemanticsHarness.BuildFast(c, new HashSet<string>());
+        Assert.True(build.Succeeded, build.Errors);
+        var program = build.ExecutablePath!;
         var dir = Path.Combine(CasesDir, "main-unreadable");
         if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
         Directory.CreateDirectory(dir);
