@@ -550,10 +550,12 @@ public sealed class SelfhostDefaultT9Tests
         }
         foreach (var step in steps)
         {
+            // `<root>` in a variable's value is the tree's root.
+            (string, string?)[] Env(string root) => [.. (step.Env ?? []).Select(e => (e.Name, e.Value?.Replace("<root>", root)))];
             step.Before?.Invoke(a);
-            var expected = Bayan(false, a, step.Env ?? [], step.Args);
+            var expected = Bayan(false, a, Env(a), step.Args);
             step.Before?.Invoke(b);
-            var actual = Bayan(true, b, step.Env ?? [], step.Args);
+            var actual = Bayan(true, b, Env(b), step.Args);
             var label = $"{name}: {string.Join(' ', step.Args)}";
             Assert.True(expected.Exit == actual.Exit, $"exit of `{label}`: C# {expected.Exit}, driver {actual.Exit}\n{expected.Err}\n{actual.Err}");
             SelfhostEmitterHarness.AssertSame($"stdout of `{label}`", Masked(expected.Out, a), Masked(actual.Out, b));
@@ -661,6 +663,46 @@ public sealed class SelfhostDefaultT9Tests
         Assert.Equal(2, Directory.GetDirectories(Path.Combine(dir, "cache", "v1", "programs")).Length);
         Assert.Empty(Directory.EnumerateFileSystemEntries(Path.Combine(dir, "cache", "v1", "tmp")));
         Assert.Empty(Directory.GetFiles(dir, "*.tmp"));
+    }
+
+    /// <summary>
+    /// CliMemoryBoundsTests.M6_StaleTemporaryDirectoriesAreSweptAndFreshOnesKept and F13 through a build: the first build of a
+    /// run sweeps <c>bayan-coverage-</c>/<c>-mutate-</c>/<c>-asan-</c> directories under <c>TMPDIR</c> older than an hour and
+    /// staging entries older than <c>BAYAN_CC_TIMEOUT_S</c> plus ten minutes. <c>TMPDIR</c> is a sibling of the tree
+    /// (<c>&lt;root&gt;-tmp</c>), so what <c>dotnet</c> itself writes there is not compared; the seeded names are.
+    /// </summary>
+    [Theory]
+    [InlineData(null)]
+    [InlineData("7200")]
+    public void ABuildSweepsStaleDirectories(string? timeout)
+    {
+        string[] seeded = ["bayan-coverage-old/", "bayan-coverage-old/inside", "bayan-mutate-old/", "bayan-asan-old/", "bayan-coverage-new/", "other-old/", "bayan-coverage-file"];
+        void Seed(string root)
+        {
+            Arithmetic(root);
+            var temp = root + "-tmp";
+            TestDirs.Delete(temp);
+            foreach (var d in seeded.Where(d => d.EndsWith('/'))) Directory.CreateDirectory(Path.Combine(temp, d));
+            File.WriteAllText(Path.Combine(temp, "bayan-coverage-old", "inside"), "");
+            File.WriteAllText(Path.Combine(temp, "bayan-coverage-file"), "");
+            foreach (var d in new[] { "bayan-coverage-old", "bayan-mutate-old", "bayan-asan-old", "other-old" })
+                Directory.SetLastWriteTimeUtc(Path.Combine(temp, d), DateTime.UtcNow.AddHours(-2));
+            File.SetLastWriteTimeUtc(Path.Combine(temp, "bayan-coverage-file"), DateTime.UtcNow.AddHours(-2));
+            var staging = Path.Combine(root, "cache", "v1", "tmp");
+            foreach (var (key, minutes) in new[] { ("key-old", 180), ("key-running", 125), ("key-new", 0) })
+            {
+                Directory.CreateDirectory(Path.Combine(staging, key));
+                Directory.SetLastWriteTimeUtc(Path.Combine(staging, key), DateTime.UtcNow.AddMinutes(-minutes));
+            }
+        }
+        Same($"sweep-build-{timeout}", Seed,
+            new Step(["build", "arithmetic.byn"], Env: [("TMPDIR", "<root>-tmp"), ("BAYAN_CC_TIMEOUT_S", timeout)]));
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", $"sweep-build-{timeout}");
+        string Left(string side) => string.Join("\n", seeded.Where(n => Path.Exists(Path.Combine(dir, side + "-tmp", n.TrimEnd('/')))));
+        SelfhostEmitterHarness.AssertSame("seeded names left in TMPDIR", Left("cs"), Left("s2"));
+        Assert.Equal("bayan-coverage-new/\nother-old/\nbayan-coverage-file", Left("s2"));
+        Assert.Equal(timeout == "7200", Directory.Exists(Path.Combine(dir, "s2", "cache", "v1", "tmp", "key-running")));
+        Assert.False(Directory.Exists(Path.Combine(dir, "s2", "cache", "v1", "tmp", "key-old")));
     }
 
     // ── still blocked ───────────────────────────────────────────────────────────────────────
