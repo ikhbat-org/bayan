@@ -113,8 +113,10 @@ G6's first task.
 
 ### Byte-exact `Io.run` for replay (U3, Q1141)
 Decided by the user 2026-11-08: no new API now and no one-off bytes form of `Io.run`. Byte-exact output is settled in
-the later process-handle/streaming API, which comes after D6/W0: W0 changes `byn_process_finish`'s status mapping
-first and takes precedence, and the process-handle API builds on that result. Until it exists `replay.py` stays a
+the later process-handle/streaming API, which comes after D6/W0: W0 changes `byn_process_finish` first so that it
+maps the wait status before the output, with the precedence wait/exit-query failure > `.timeout`/`.signaled` >
+`invalidUtf8` > success with the exit code, so a UTF-8 failure never hides a failed wait or a killed child; the
+process-handle API builds on that result. Until it exists `replay.py` stays a
 listed skip (G7, T16) and T17 is gated on that API.
 
 ### Risks (added)
