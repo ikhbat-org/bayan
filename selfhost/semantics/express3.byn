@@ -358,7 +358,7 @@ bool t19IsEquatable(ref Ctx c, for Type t, by ref List<i64> seen) {
         case .owned: return t19IsEquatable(ref c, for: c.ownedTypes[i], by: ref seen)
         case .untrusted: return t19IsEquatable(ref c, for: c.untrustedTypes[i], by: ref seen)
         case .enumType or .typeParam: return true
-        case .builtin: return t == builtinType(.symbol)
+        case .builtin: return t == builtinType(.symbol) || t == builtinType(.millis)
         case .errorSet:
             if listContains(in seen, by: t) { return true }
             seen.append(t)

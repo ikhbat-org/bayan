@@ -284,6 +284,10 @@ Type resolveNamed(ref Ctx c, through in TypeResolver r, for in parser.NamedType 
             noTypeArgs(ref c, through: in r, for: in n, at: name)
             return builtinType(.time)
         }
+        if text == "Millis" {
+            noTypeArgs(ref c, through: in r, for: in n, at: name)
+            return builtinType(.millis)
+        }
         // `ValidationError<T>`: a set per `T`, whose `invalid` carries the violations of a struct with `requires` (J23).
         // Without `T` there is no `T.Field`, so the bare name is BYN2023 (revision 0011).
         if text == "ValidationError" {
@@ -769,7 +773,7 @@ string? suggestType(ref Ctx c, through in TypeResolver r, for string text) {
         if t8Lower(e.key) == lower { return $"{e.key}" }
     }
     let builtins = ["Span", "ReadOnlySpan", "List", "Map", "HashMap", "Owned", "Untrusted", "Result", "Arena", "StrBuf", "IoError", "Utf8Error",
-        "ParseError", "ValidationError", "Violation", "Rule", "ProcessResult", "Panic", "FormatSpec", "Symbol", "Time"]
+        "ParseError", "ValidationError", "Violation", "Rule", "ProcessResult", "Panic", "FormatSpec", "Symbol", "Time", "Millis"]
     for name in builtins {
         if t8Lower(name) == lower { return name }
     }

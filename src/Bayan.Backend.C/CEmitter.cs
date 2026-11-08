@@ -426,6 +426,7 @@ public sealed class CEmitter
         BuiltinType { Kind: BuiltinKind.FormatSpec } => "byn_format_spec",
         BuiltinType { Kind: BuiltinKind.Symbol } => "byn_sym",
         BuiltinType { Kind: BuiltinKind.Time } => "byn_time",
+        BuiltinType { Kind: BuiltinKind.Millis } => "int64_t",
         TextViewType => "byn_text_view",
         // A pointer needs only the forward typedef, so a type may hold an `Owned` of itself.
         OwnedType o => CType(o.Inner) + "*",
@@ -446,7 +447,7 @@ public sealed class CEmitter
     {
         PrimitiveType p => p.Kind == PrimitiveKind.String ? "str" : p.Name,
         ErrorSetSymbol or ErrorUnionType => "err",
-        BuiltinType b => b.Kind switch { BuiltinKind.Arena => "arena", BuiltinKind.StrBuf => "strbuf", BuiltinKind.ProcessResult => "process", BuiltinKind.Panic => "panic", BuiltinKind.FormatSpec => "formatspec", BuiltinKind.Symbol => "sym", BuiltinKind.Time => "time", _ => "iostream" },
+        BuiltinType b => b.Kind switch { BuiltinKind.Arena => "arena", BuiltinKind.StrBuf => "strbuf", BuiltinKind.ProcessResult => "process", BuiltinKind.Panic => "panic", BuiltinKind.FormatSpec => "formatspec", BuiltinKind.Symbol => "sym", BuiltinKind.Time => "time", BuiltinKind.Millis => "millis", _ => "iostream" },
         StructSymbol s => s.Module.CName + "__" + s.Name + TypeArgs(s.TypeArguments),
         EnumSymbol e => e.Module.CName + "__" + e.Name,
         UnionSymbol u => u.Module.CName + "__" + u.Name + TypeArgs(u.TypeArguments),
@@ -783,7 +784,7 @@ public sealed class CEmitter
         {
             case PrimitiveType { IsString: true }:
                 return $"byn_str_eq({a}, {b})";
-            case PrimitiveType or EnumSymbol:
+            case PrimitiveType or EnumSymbol or BuiltinType { Kind: BuiltinKind.Millis }:
                 return $"({a} == {b})";
             case BuiltinType { Kind: BuiltinKind.Symbol }:
                 return $"(({a}).id == ({b}).id)";
@@ -965,6 +966,9 @@ public sealed class CEmitter
                 return $"byn_w_str({w}, {EnumNames(e)}[{v}]);";
             case BuiltinType { Kind: BuiltinKind.Symbol }:
                 return $"byn_w_str({w}, {SymbolText(v)});";
+            // A unit formats as its value plus its symbol (spec §3.4).
+            case BuiltinType { Kind: BuiltinKind.Millis }:
+                return $"byn_w_i64({w}, {v}); byn_w_str({w}, BYN_STR(\" ms\", 3));";
             case OwnedType o:
                 return Format(o.Inner, $"(*{v})", w);
         }

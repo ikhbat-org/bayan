@@ -648,7 +648,7 @@ Work t11CopyWork(in Work w) => Work {
 // ── Compilation.cs:244 DeclareBuiltinVariants ───────────────────────────────────
 
 /// The variants of the builtin error set `name`. `IoError` is numbered first, so the runtime can return its codes 1
-/// to 7 directly; `Utf8Error` follows (8). The C# `_nextErrorCode` is `errorVariants.length + 1`: every
+/// to 11 directly; `Utf8Error` follows (12). The C# `_nextErrorCode` is `errorVariants.length + 1`: every
 /// `ErrorVariantSymbol` takes the next code (Q572).
 void t11DeclareBuiltinVariants(ref Ctx c, for string name) {
     let set = typeIndex(t9Type(ref c, for: name))
@@ -668,12 +668,13 @@ void t11DeclareBuiltinVariants(ref Ctx c, for string name) {
                     code: c.errorVariants.length + 1,
                     doc: decl.value.variants[v].doc,
                 })
-                // A built-in payload is a primitive: `invalidSequence(i64 at)`.
+                // A built-in payload is one primitive or `Millis`: `invalidSequence(i64 at)`, `timeout(Millis after)`.
                 for field in decl.value.variants[v].fields {
                     var type = errorType()
                     switch field.type {
                         case .namedType(let n):
-                            type = primitiveByName(t11Text(in c, from: file, at: n.value.path[0])) ?? panic("a built-in payload is a primitive")
+                            let typeName = t11Text(in c, from: file, at: n.value.path[0])
+                            type = typeName == "Millis" ? builtinType(.millis) : (primitiveByName(typeName) ?? panic("a built-in payload is a primitive or `Millis`"))
                         default:
                             panic("a built-in payload is a named type")
                     }

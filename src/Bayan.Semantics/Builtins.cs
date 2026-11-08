@@ -181,7 +181,7 @@ public sealed class Builtins
         }
         """;
 
-    /// <summary><c>union error Utf8Error</c>: numbered right after <c>IoError</c>, so <c>invalidSequence</c> is code 10.</summary>
+    /// <summary><c>union error Utf8Error</c>: numbered right after <c>IoError</c>, so <c>invalidSequence</c> is code 12.</summary>
     public ErrorSetSymbol Utf8Error { get; }
 
     // SPEC §8 gives `badDigit(Bytes at)`; units are spec-only, so the position is a plain byte offset (Question 331).
@@ -401,11 +401,27 @@ public sealed class Builtins
             crossDevice,
             /// The path is a directory where a file is needed.
             isDirectory,
+            /// The child process was ended by this signal.
+            signaled(i32 signal),
+            /// The child process ran longer than this and was stopped.
+            timeout(Millis after),
         }
         """;
 
-    /// <summary><c>union error IoError</c>: its variants are numbered first, so their codes are 1 to 9 (the runtime returns them).</summary>
+    /// <summary><c>union error IoError</c>: its variants are numbered first, so their codes are 1 to 11 (the runtime returns them).</summary>
     public ErrorSetSymbol IoError { get; }
+
+    /// <summary>
+    /// The built-in cases whose one primitive (or <c>Millis</c>) payload a failing builtin call fills from the general detail slot
+    /// (plan 007 §1): <c>IoError.signaled</c>, <c>IoError.timeout</c>, <c>Utf8Error.invalidSequence</c>, <c>ParseError.badDigit</c>.
+    /// </summary>
+    public IEnumerable<ErrorVariantSymbol> DetailVariants =>
+    [
+        IoError.Variants.Single(v => v.Name == "signaled"),
+        IoError.Variants.Single(v => v.Name == "timeout"),
+        Utf8Error.Variants.Single(v => v.Name == "invalidSequence"),
+        ParseError.Variants.Single(v => v.Name == "badDigit"),
+    ];
 
     /// <summary><c>List&lt;u8&gt; Io.readFile(string path) fails IoError</c>.</summary>
     public FunctionSymbol IoReadFile { get; }
