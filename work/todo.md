@@ -28,8 +28,9 @@ Small, clear, and could be picked up without a design decision.
 - The C# checker throws on a property named like another member: `struct S{\ni8 x\ni8 x=>1}` gives `InvalidOperationException: Sequence contains no matching element` at `Compilation.BindBody` (`src/Bayan.Semantics/Compilation.cs:1820`, `Properties.First(p => p.Getter == fn)`); two same-named properties throw too (first seen as L023 random/08565, Q889). fixing task: own fix/ branch off dev (C# checker crash)
 - Schemata.Rebinds (src/Bayan.Testing/Schemata.cs:69,132) re-binds the whole program per site via Compilation.WithFile; plan 013-plan.md:27 says per enclosing statement. Scaling cost (review 9629643fd1f5..c825a0796a20).
 - Coverage drop check: land.sh only runs quality-baseline.py update because a filtered per-task run can only raise recorded coverage; the drop check waits for a full-suite measurement.
-
 - Hermetic zig (user 2026-11-08): the build fetches the pinned zig into a repo or cache directory (e.g. `tools/zig/0.17.0/`, gitignored, via `scripts/ci/install-zig.sh`) and `Toolchain` prefers it over PATH, so a Homebrew upgrade (0.17.1 on mb1, 2026-11-08) cannot break `ZigVersionPinTests` or the cross builds.
+- C# lowerer (open, found in 017 T10, recorded as the second paragraph of handoff Q1100): `only() catch (G.a) 4` in a non-failing function, where `only` fails `G` whose only variant is `a`, lowers the propagation of the uncaught variants as `return t1;` (`byn_err`) in an `int64_t` function and clang rejects it; repro `tmp/probe/catchv/main.byn`. Conservative fix: a variant catch that covers the whole set drops the propagation (C# `Lowerer`, then the selfhost mirror). Owner: none yet.
+
 ## Later
 
 Real, but needs a decision, a dependency, or more information first. Say which.
