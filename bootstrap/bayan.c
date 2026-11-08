@@ -44898,71 +44898,71 @@ byn_parser_Stmt byn_parser__parseLocal(bynt_parser__Parser* p_p, int64_t p_start
         l4_name = t5;
 #line 245 "parser/stmts.byn"
         l6__ = byn_parser__Parser__advance(&(*p_p));
-#line 247 "parser/stmts.byn"
-        t7 = byn_parser__parseRefinement(&(*p_p), byn_parser__parseType(&(*p_p), false, false), ((bynt_opt_lexer__TextSpan){0}));
-#line 247 "parser/stmts.byn"
+#line 246 "parser/stmts.byn"
+        t7 = byn_parser__parseRefinement(&(*p_p), byn_parser__parseType(&(*p_p), true, true), ((bynt_opt_lexer__TextSpan){0}));
+#line 246 "parser/stmts.byn"
         l3_type = t7;
     } else {
-#line 248 "parser/stmts.byn"
+#line 247 "parser/stmts.byn"
         if (byn_parser__isTypeThenName(&(*p_p), (*p_p).pos)) {
-#line 250 "parser/stmts.byn"
-            t8 = byn_parser__parseType(&(*p_p), false, false);
-#line 250 "parser/stmts.byn"
+#line 248 "parser/stmts.byn"
+            t8 = byn_parser__parseType(&(*p_p), false, true);
+#line 248 "parser/stmts.byn"
             l3_type = t8;
-#line 251 "parser/stmts.byn"
+#line 249 "parser/stmts.byn"
             t9 = byn_parser__expectName(&(*p_p), BYN_STR("a variable name", 15));
-#line 251 "parser/stmts.byn"
+#line 249 "parser/stmts.byn"
             l4_name = t9;
-#line 253 "parser/stmts.byn"
+#line 251 "parser/stmts.byn"
             if (((!l2_keyword) && (!l0_isUsing))) {
-#line 254 "parser/stmts.byn"
+#line 252 "parser/stmts.byn"
                 t10 = (((!(byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)55))) || byn_parser__isWrittenLater(&(*p_p), l4_name)) ? ((byn_parser_BindingKind)1) : ((byn_parser_BindingKind)0));
-#line 254 "parser/stmts.byn"
+#line 252 "parser/stmts.byn"
                 l1_kind = t10;
             }
-#line 256 "parser/stmts.byn"
+#line 254 "parser/stmts.byn"
             (void)byn_parser__reportTypeFirstLocal(&(*p_p), l1_kind, l2_keyword, byn_parser__typeSpan(l3_type), l4_name);
         } else {
-#line 258 "parser/stmts.byn"
+#line 256 "parser/stmts.byn"
             t11 = byn_parser__expectName(&(*p_p), BYN_STR("a variable name", 15));
-#line 258 "parser/stmts.byn"
+#line 256 "parser/stmts.byn"
             l4_name = t11;
         }
     }
-#line 260 "parser/stmts.byn"
+#line 258 "parser/stmts.byn"
     l12_init = ((byn_parser_Expr){.tag = 34});
-#line 261 "parser/stmts.byn"
+#line 259 "parser/stmts.byn"
     if (byn_parser__Parser__accept(&(*p_p), ((byn_lexer_TokenKind)55))) {
-#line 262 "parser/stmts.byn"
+#line 260 "parser/stmts.byn"
         t13 = (((l1_kind == ((byn_parser_BindingKind)2)) && byn_parser__isPatternExprStart(&(*p_p))) ? byn_parser__parsePatternExpr(&(*p_p)) : byn_parser__parseExpression(&(*p_p)));
-#line 262 "parser/stmts.byn"
+#line 260 "parser/stmts.byn"
         l12_init = t13;
     }
-#line 264 "parser/stmts.byn"
+#line 262 "parser/stmts.byn"
     t15 = ((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)102)) || (byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)104)));
-#line 264 "parser/stmts.byn"
+#line 262 "parser/stmts.byn"
     if (t15) {
-#line 264 "parser/stmts.byn"
+#line 262 "parser/stmts.byn"
         t14 = byn_parser__Parser__current(&(*p_p));
-#line 264 "parser/stmts.byn"
+#line 262 "parser/stmts.byn"
         t15 = (!byn_lexer__Token__get_hasNewlineBefore(&t14));
     }
-#line 264 "parser/stmts.byn"
+#line 262 "parser/stmts.byn"
     if (t15) {
-#line 265 "parser/stmts.byn"
+#line 263 "parser/stmts.byn"
         t17 = byn_parser__spanOf(byn_parser__Parser__current(&(*p_p)));
-#line 265 "parser/stmts.byn"
+#line 263 "parser/stmts.byn"
         l16__ = byn_parser__Parser__report(&(*p_p), ((byn_parser_ParseCode)8), t17, byn_parser__Parser__textOf(&(*p_p), byn_parser__Parser__current(&(*p_p))), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("declare the variable, then assign it conditionally; a declaration cannot be conditional", 87));
-#line 267 "parser/stmts.byn"
+#line 265 "parser/stmts.byn"
         l18__ = byn_parser__Parser__advance(&(*p_p));
-#line 268 "parser/stmts.byn"
+#line 266 "parser/stmts.byn"
         l19__ = byn_parser__parseExpression(&(*p_p));
     }
-#line 270 "parser/stmts.byn"
+#line 268 "parser/stmts.byn"
     (void)byn_parser__expectEnd(&(*p_p));
-#line 272 "parser/stmts.byn"
+#line 270 "parser/stmts.byn"
     t20 = byn_parser__statementSpan(&(*p_p), p_start, byn_parser__Parser__spanFrom(&(*p_p), p_start));
-#line 271 "parser/stmts.byn"
+#line 269 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 1, .u.localDecl = {bynh_own_parser__LocalDecl(((bynt_parser__LocalDecl){t20, l1_kind, l0_isUsing, l3_type, l4_name, l12_init, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
 #line 44969 "main.c"
@@ -44984,107 +44984,107 @@ void byn_parser__reportTypeFirstLocal(bynt_parser__Parser* p_p, byn_parser_Bindi
     byn_str t13 = {0};
     byn_str t14 = {0};
     byn_str t15 = {0};
-#line 285 "parser/stmts.byn"
+#line 283 "parser/stmts.byn"
     l0_span = byn_lexer__TextSpan__fromBounds(p_type.start, byn_lexer__TextSpan__get_end(&p_name));
-#line 286 "parser/stmts.byn"
+#line 284 "parser/stmts.byn"
     l1_typeText = byn_lexer__SourceText__getText(&(*p_p).lexed.source, p_type);
-#line 287 "parser/stmts.byn"
+#line 285 "parser/stmts.byn"
     l2_nameText = byn_lexer__SourceText__getText(&(*p_p).lexed.source, p_name);
-#line 289 "parser/stmts.byn"
+#line 287 "parser/stmts.byn"
     if ((p_kind == ((byn_parser_BindingKind)0))) {
-#line 289 "parser/stmts.byn"
+#line 287 "parser/stmts.byn"
         t4 = BYN_STR("let", 3);
+#line 287 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 288 "parser/stmts.byn"
+    if ((p_kind == ((byn_parser_BindingKind)2))) {
+#line 288 "parser/stmts.byn"
+        t4 = BYN_STR("const", 5);
+#line 288 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 289 "parser/stmts.byn"
+    if (true) {
+#line 289 "parser/stmts.byn"
+        t4 = BYN_STR("var", 3);
 #line 289 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 290 "parser/stmts.byn"
-    if ((p_kind == ((byn_parser_BindingKind)2))) {
-#line 290 "parser/stmts.byn"
-        t4 = BYN_STR("const", 5);
-#line 290 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 291 "parser/stmts.byn"
-    if (true) {
-#line 291 "parser/stmts.byn"
-        t4 = BYN_STR("var", 3);
-#line 291 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 288 "parser/stmts.byn"
-    byn_panic("no switch arm matched", byn_file_19, 288);
+#line 286 "parser/stmts.byn"
+    byn_panic("no switch arm matched", byn_file_19, 286);
 switch_end_1:;
-#line 288 "parser/stmts.byn"
+#line 286 "parser/stmts.byn"
     l3_word = t4;
-#line 293 "parser/stmts.byn"
+#line 291 "parser/stmts.byn"
     if (p_keyword) {
-#line 293 "parser/stmts.byn"
+#line 291 "parser/stmts.byn"
         t7 = BYN_STR("", 0);
     } else {
-#line 293 "parser/stmts.byn"
+#line 291 "parser/stmts.byn"
         t6 = byn_strbuf_grow(byn_context);
-#line 293 "parser/stmts.byn"
+#line 291 "parser/stmts.byn"
         {
             byn_writer* w = &t6;
             w->file = byn_file_19;
-            w->line = 293;
+            w->line = 291;
             byn_w_str(w, l3_word);
             byn_w_str(w, BYN_STR(" ", 1));
         }
-#line 293 "parser/stmts.byn"
+#line 291 "parser/stmts.byn"
         t7 = byn_strbuf_str(t6);
     }
-#line 293 "parser/stmts.byn"
+#line 291 "parser/stmts.byn"
     l5_prefix = t7;
-#line 294 "parser/stmts.byn"
+#line 292 "parser/stmts.byn"
     t9 = byn_strbuf_grow(byn_context);
-#line 294 "parser/stmts.byn"
+#line 292 "parser/stmts.byn"
     {
         byn_writer* w = &t9;
         w->file = byn_file_19;
-        w->line = 294;
+        w->line = 292;
         byn_w_str(w, l5_prefix);
         byn_w_str(w, l2_nameText);
         byn_w_str(w, BYN_STR(": ", 2));
         byn_w_str(w, l1_typeText);
     }
-#line 294 "parser/stmts.byn"
+#line 292 "parser/stmts.byn"
     t13 = byn_strbuf_str(t9);
-#line 295 "parser/stmts.byn"
+#line 293 "parser/stmts.byn"
     t10 = byn_strbuf_grow(byn_context);
-#line 295 "parser/stmts.byn"
+#line 293 "parser/stmts.byn"
     {
         byn_writer* w = &t10;
         w->file = byn_file_19;
-        w->line = 295;
+        w->line = 293;
         byn_w_str(w, l1_typeText);
         byn_w_str(w, BYN_STR(" ", 1));
         byn_w_str(w, l2_nameText);
     }
-#line 295 "parser/stmts.byn"
+#line 293 "parser/stmts.byn"
     t14 = byn_strbuf_str(t10);
-#line 295 "parser/stmts.byn"
+#line 293 "parser/stmts.byn"
     t11 = byn_strbuf_grow(byn_context);
-#line 295 "parser/stmts.byn"
+#line 293 "parser/stmts.byn"
     {
         byn_writer* w = &t11;
         w->file = byn_file_19;
-        w->line = 295;
+        w->line = 293;
         byn_w_str(w, l3_word);
         byn_w_str(w, BYN_STR(" ", 1));
         byn_w_str(w, l2_nameText);
         byn_w_str(w, BYN_STR(": ", 2));
         byn_w_str(w, l1_typeText);
     }
-#line 295 "parser/stmts.byn"
+#line 293 "parser/stmts.byn"
     t15 = byn_strbuf_str(t11);
-#line 296 "parser/stmts.byn"
+#line 294 "parser/stmts.byn"
     t12 = byn_strbuf_grow(byn_context);
-#line 296 "parser/stmts.byn"
+#line 294 "parser/stmts.byn"
     {
         byn_writer* w = &t12;
         w->file = byn_file_19;
-        w->line = 296;
+        w->line = 294;
         byn_w_str(w, BYN_STR("write `", 7));
         byn_w_str(w, l3_word);
         byn_w_str(w, BYN_STR(" ", 1));
@@ -45093,7 +45093,7 @@ switch_end_1:;
         byn_w_str(w, l1_typeText);
         byn_w_str(w, BYN_STR("`; local bindings put the name first", 36));
     }
-#line 294 "parser/stmts.byn"
+#line 292 "parser/stmts.byn"
     l8__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)32), l0_span, l0_span, t13, t14, t15, BYN_STR("", 0), BYN_STR("type before name", 16), byn_strbuf_str(t12));
 }
 #line 45100 "main.c"
@@ -45108,106 +45108,106 @@ bool byn_parser__isWrittenLater(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p
     int64_t l6_j = {0};
     int64_t l7_close = {0};
     int64_t t8 = {0};
-#line 303 "parser/stmts.byn"
+#line 301 "parser/stmts.byn"
     l0_depth = INT64_C(0);
-#line 304 "parser/stmts.byn"
+#line 302 "parser/stmts.byn"
     t2 = (*p_p).pos;
-#line 304 "parser/stmts.byn"
+#line 302 "parser/stmts.byn"
     t3 = (*p_p).count;
-#line 304 "parser/stmts.byn"
+#line 302 "parser/stmts.byn"
     for (;;) {
-#line 304 "parser/stmts.byn"
+#line 302 "parser/stmts.byn"
         if ((!(t2 < t3))) {
-#line 304 "parser/stmts.byn"
+#line 302 "parser/stmts.byn"
             goto break_1;
         }
-#line 304 "parser/stmts.byn"
+#line 302 "parser/stmts.byn"
         l1_i = t2;
-#line 305 "parser/stmts.byn"
+#line 303 "parser/stmts.byn"
         l4_kind = byn_parser__Parser__kindAt(&(*p_p), l1_i);
-#line 306 "parser/stmts.byn"
+#line 304 "parser/stmts.byn"
         if ((l4_kind == ((byn_lexer_TokenKind)19))) {
-#line 307 "parser/stmts.byn"
-            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_19, 307);
+#line 305 "parser/stmts.byn"
+            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_19, 305);
         } else {
-#line 308 "parser/stmts.byn"
+#line 306 "parser/stmts.byn"
             if ((l4_kind == ((byn_lexer_TokenKind)20))) {
-#line 309 "parser/stmts.byn"
-                l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_19, 309);
-#line 310 "parser/stmts.byn"
+#line 307 "parser/stmts.byn"
+                l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_19, 307);
+#line 308 "parser/stmts.byn"
                 if ((l0_depth < INT64_C(0))) {
-#line 310 "parser/stmts.byn"
+#line 308 "parser/stmts.byn"
                     return false;
                 }
             } else {
-#line 311 "parser/stmts.byn"
+#line 309 "parser/stmts.byn"
                 if ((l4_kind == ((byn_lexer_TokenKind)0))) {
-#line 312 "parser/stmts.byn"
+#line 310 "parser/stmts.byn"
                     return false;
                 }
             }
         }
-#line 314 "parser/stmts.byn"
-        if ((((!(l4_kind == ((byn_lexer_TokenKind)1))) || (!byn_parser__hasText(&(*p_p), l1_i, p_name))) || ((l1_i > INT64_C(0)) && ((byn_parser__Parser__kindAt(&(*p_p), byn_sub_i64(l1_i, INT64_C(1), byn_file_19, 314)) == ((byn_lexer_TokenKind)23)) || (byn_parser__Parser__kindAt(&(*p_p), byn_sub_i64(l1_i, INT64_C(1), byn_file_19, 314)) == ((byn_lexer_TokenKind)30)))))) {
-#line 315 "parser/stmts.byn"
+#line 312 "parser/stmts.byn"
+        if ((((!(l4_kind == ((byn_lexer_TokenKind)1))) || (!byn_parser__hasText(&(*p_p), l1_i, p_name))) || ((l1_i > INT64_C(0)) && ((byn_parser__Parser__kindAt(&(*p_p), byn_sub_i64(l1_i, INT64_C(1), byn_file_19, 312)) == ((byn_lexer_TokenKind)23)) || (byn_parser__Parser__kindAt(&(*p_p), byn_sub_i64(l1_i, INT64_C(1), byn_file_19, 312)) == ((byn_lexer_TokenKind)30)))))) {
+#line 313 "parser/stmts.byn"
             goto continue_2;
         }
-#line 317 "parser/stmts.byn"
+#line 315 "parser/stmts.byn"
         if ((l1_i > INT64_C(0))) {
-#line 318 "parser/stmts.byn"
-            l5_before = byn_parser__Parser__kindAt(&(*p_p), byn_sub_i64(l1_i, INT64_C(1), byn_file_19, 318));
-#line 319 "parser/stmts.byn"
+#line 316 "parser/stmts.byn"
+            l5_before = byn_parser__Parser__kindAt(&(*p_p), byn_sub_i64(l1_i, INT64_C(1), byn_file_19, 316));
+#line 317 "parser/stmts.byn"
             if (((((l5_before == ((byn_lexer_TokenKind)135)) || (l5_before == ((byn_lexer_TokenKind)136))) || (l5_before == ((byn_lexer_TokenKind)46))) || (l5_before == ((byn_lexer_TokenKind)47)))) {
-#line 319 "parser/stmts.byn"
+#line 317 "parser/stmts.byn"
                 return true;
             }
         }
-#line 321 "parser/stmts.byn"
-        l6_j = byn_add_i64(l1_i, INT64_C(1), byn_file_19, 321);
-#line 322 "parser/stmts.byn"
+#line 319 "parser/stmts.byn"
+        l6_j = byn_add_i64(l1_i, INT64_C(1), byn_file_19, 319);
+#line 320 "parser/stmts.byn"
         for (;;) {
-#line 322 "parser/stmts.byn"
+#line 320 "parser/stmts.byn"
             if ((!true)) {
-#line 322 "parser/stmts.byn"
+#line 320 "parser/stmts.byn"
                 goto break_3;
             }
+#line 321 "parser/stmts.byn"
+            if (((byn_parser__Parser__kindAt(&(*p_p), l6_j) == ((byn_lexer_TokenKind)23)) && byn_parser__isName(byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l6_j, INT64_C(1), byn_file_19, 321))))) {
+#line 322 "parser/stmts.byn"
+                l6_j = byn_add_i64(l6_j, INT64_C(2), byn_file_19, 322);
 #line 323 "parser/stmts.byn"
-            if (((byn_parser__Parser__kindAt(&(*p_p), l6_j) == ((byn_lexer_TokenKind)23)) && byn_parser__isName(byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l6_j, INT64_C(1), byn_file_19, 323))))) {
-#line 324 "parser/stmts.byn"
-                l6_j = byn_add_i64(l6_j, INT64_C(2), byn_file_19, 324);
-#line 325 "parser/stmts.byn"
                 goto continue_4;
             }
-#line 327 "parser/stmts.byn"
+#line 325 "parser/stmts.byn"
             if ((byn_parser__Parser__kindAt(&(*p_p), l6_j) == ((byn_lexer_TokenKind)17))) {
-#line 328 "parser/stmts.byn"
+#line 326 "parser/stmts.byn"
                 l7_close = byn_parser__matchingClose(&(*p_p), l6_j);
-#line 329 "parser/stmts.byn"
+#line 327 "parser/stmts.byn"
                 if ((l7_close > INT64_C(0))) {
-#line 330 "parser/stmts.byn"
-                    t8 = byn_add_i64(l7_close, INT64_C(1), byn_file_19, 330);
-#line 330 "parser/stmts.byn"
+#line 328 "parser/stmts.byn"
+                    t8 = byn_add_i64(l7_close, INT64_C(1), byn_file_19, 328);
+#line 328 "parser/stmts.byn"
                     l6_j = t8;
-#line 331 "parser/stmts.byn"
+#line 329 "parser/stmts.byn"
                     goto continue_4;
                 }
             }
-#line 334 "parser/stmts.byn"
+#line 332 "parser/stmts.byn"
             goto break_3;
         continue_4:;
         }
     break_3:;
+#line 334 "parser/stmts.byn"
+        if ((((byn_parser__isAssignmentKind(byn_parser__Parser__kindAt(&(*p_p), l6_j)) || (byn_parser__Parser__kindAt(&(*p_p), l6_j) == ((byn_lexer_TokenKind)46))) || (byn_parser__Parser__kindAt(&(*p_p), l6_j) == ((byn_lexer_TokenKind)47))) || ((byn_parser__Parser__kindAt(&(*p_p), l6_j) == ((byn_lexer_TokenKind)60)) && (byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l6_j, INT64_C(1), byn_file_19, 335)) == ((byn_lexer_TokenKind)61))))) {
 #line 336 "parser/stmts.byn"
-        if ((((byn_parser__isAssignmentKind(byn_parser__Parser__kindAt(&(*p_p), l6_j)) || (byn_parser__Parser__kindAt(&(*p_p), l6_j) == ((byn_lexer_TokenKind)46))) || (byn_parser__Parser__kindAt(&(*p_p), l6_j) == ((byn_lexer_TokenKind)47))) || ((byn_parser__Parser__kindAt(&(*p_p), l6_j) == ((byn_lexer_TokenKind)60)) && (byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l6_j, INT64_C(1), byn_file_19, 337)) == ((byn_lexer_TokenKind)61))))) {
-#line 338 "parser/stmts.byn"
             return true;
         }
     continue_2:;
-#line 304 "parser/stmts.byn"
+#line 302 "parser/stmts.byn"
         t2 = byn_addw_i64(t2, INT64_C(1));
     }
 break_1:;
-#line 341 "parser/stmts.byn"
+#line 339 "parser/stmts.byn"
     return false;
 }
 #line 45214 "main.c"
@@ -45217,61 +45217,61 @@ bool byn_parser__hasText(bynt_parser__Parser* p_p, int64_t p_index, bynt_lexer__
     int64_t l1_k = {0};
     int64_t t2 = {0};
     int64_t t3 = {0};
-#line 346 "parser/stmts.byn"
-    l0_token = (*bynh_at_list_lexer__Token((*p_p).lexed.tokens, (int64_t)p_index, false, byn_file_19, 346));
-#line 347 "parser/stmts.byn"
+#line 344 "parser/stmts.byn"
+    l0_token = (*bynh_at_list_lexer__Token((*p_p).lexed.tokens, (int64_t)p_index, false, byn_file_19, 344));
+#line 345 "parser/stmts.byn"
     if ((!(l0_token.length == p_name.length))) {
-#line 347 "parser/stmts.byn"
+#line 345 "parser/stmts.byn"
         return false;
     }
-#line 348 "parser/stmts.byn"
+#line 346 "parser/stmts.byn"
     t2 = INT64_C(0);
-#line 348 "parser/stmts.byn"
+#line 346 "parser/stmts.byn"
     t3 = p_name.length;
-#line 348 "parser/stmts.byn"
+#line 346 "parser/stmts.byn"
     for (;;) {
-#line 348 "parser/stmts.byn"
+#line 346 "parser/stmts.byn"
         if ((!(t2 < t3))) {
-#line 348 "parser/stmts.byn"
+#line 346 "parser/stmts.byn"
             goto break_1;
         }
-#line 348 "parser/stmts.byn"
+#line 346 "parser/stmts.byn"
         l1_k = t2;
-#line 349 "parser/stmts.byn"
-        if ((!((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)byn_add_i64(l0_token.start, l1_k, byn_file_19, 349), false, byn_file_19, 349)) == (*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)byn_add_i64(p_name.start, l1_k, byn_file_19, 349), false, byn_file_19, 349))))) {
-#line 349 "parser/stmts.byn"
+#line 347 "parser/stmts.byn"
+        if ((!((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)byn_add_i64(l0_token.start, l1_k, byn_file_19, 347), false, byn_file_19, 347)) == (*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)byn_add_i64(p_name.start, l1_k, byn_file_19, 347), false, byn_file_19, 347))))) {
+#line 347 "parser/stmts.byn"
             return false;
         }
     continue_2:;
-#line 348 "parser/stmts.byn"
+#line 346 "parser/stmts.byn"
         t2 = byn_addw_i64(t2, INT64_C(1));
     }
 break_1:;
-#line 351 "parser/stmts.byn"
+#line 349 "parser/stmts.byn"
     return true;
 }
 #line 45254 "main.c"
 
 bool byn_parser__isAssignmentKind(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
-#line 356 "parser/stmts.byn"
+#line 354 "parser/stmts.byn"
     if ((((((((((((p_kind == ((byn_lexer_TokenKind)55)) || (p_kind == ((byn_lexer_TokenKind)63))) || (p_kind == ((byn_lexer_TokenKind)64))) || (p_kind == ((byn_lexer_TokenKind)65))) || (p_kind == ((byn_lexer_TokenKind)66))) || (p_kind == ((byn_lexer_TokenKind)67))) || (p_kind == ((byn_lexer_TokenKind)68))) || (p_kind == ((byn_lexer_TokenKind)69))) || (p_kind == ((byn_lexer_TokenKind)70))) || (p_kind == ((byn_lexer_TokenKind)71))) || (p_kind == ((byn_lexer_TokenKind)29)))) {
-#line 357 "parser/stmts.byn"
+#line 355 "parser/stmts.byn"
         t0 = true;
+#line 354 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 356 "parser/stmts.byn"
+    if (true) {
+#line 356 "parser/stmts.byn"
+        t0 = false;
 #line 356 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 358 "parser/stmts.byn"
-    if (true) {
-#line 358 "parser/stmts.byn"
-        t0 = false;
-#line 358 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 355 "parser/stmts.byn"
-    byn_panic("no switch arm matched", byn_file_19, 355);
+#line 353 "parser/stmts.byn"
+    byn_panic("no switch arm matched", byn_file_19, 353);
 switch_end_1:;
-#line 355 "parser/stmts.byn"
+#line 353 "parser/stmts.byn"
     return t0;
 }
 #line 45278 "main.c"
@@ -45290,96 +45290,96 @@ byn_parser_Expr byn_parser__parseParenCondition(bynt_parser__Parser* p_p, int64_
     byn_str l10_space = {0};
     byn_writer t11 = {0};
     int64_t t12 = {0};
-#line 363 "parser/stmts.byn"
+#line 361 "parser/stmts.byn"
     (*p_parens) = INT64_C(-1);
-#line 364 "parser/stmts.byn"
+#line 362 "parser/stmts.byn"
     l0_open = byn_parser__Parser__current(&(*p_p));
-#line 365 "parser/stmts.byn"
+#line 363 "parser/stmts.byn"
     l1_keep = byn_parser__inGroup(&(*p_p), (*p_p).pos, ((byn_lexer_TokenKind)19));
-#line 366 "parser/stmts.byn"
+#line 364 "parser/stmts.byn"
     l2_errors = byn_parser__Parser__errorCount(&(*p_p));
-#line 367 "parser/stmts.byn"
+#line 365 "parser/stmts.byn"
     l3__ = byn_parser__Parser__expect(&(*p_p), ((byn_lexer_TokenKind)15), BYN_STR("", 0));
-#line 368 "parser/stmts.byn"
+#line 366 "parser/stmts.byn"
     l4_condition = byn_parser__parseExpression(&(*p_p));
-#line 369 "parser/stmts.byn"
+#line 367 "parser/stmts.byn"
     l5_close = byn_parser__Parser__expect(&(*p_p), ((byn_lexer_TokenKind)16), BYN_STR("", 0));
-#line 370 "parser/stmts.byn"
+#line 368 "parser/stmts.byn"
     if ((((!l1_keep) && (l5_close.length > INT64_C(0))) && (byn_parser__Parser__errorCount(&(*p_p)) == l2_errors))) {
-#line 371 "parser/stmts.byn"
+#line 369 "parser/stmts.byn"
         l6_span = byn_lexer__TextSpan__fromBounds(l0_open.start, byn_lexer__Token__get_end(&l5_close));
-#line 373 "parser/stmts.byn"
+#line 371 "parser/stmts.byn"
         l7_from = byn_lexer__Token__get_end(&l0_open);
-#line 374 "parser/stmts.byn"
+#line 372 "parser/stmts.byn"
         l8_until = l5_close.start;
-#line 375 "parser/stmts.byn"
+#line 373 "parser/stmts.byn"
         for (;;) {
-#line 375 "parser/stmts.byn"
-            if ((!((l7_from < l8_until) && byn_parser__isTrimmed((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)l7_from, false, byn_file_19, 375)))))) {
-#line 375 "parser/stmts.byn"
+#line 373 "parser/stmts.byn"
+            if ((!((l7_from < l8_until) && byn_parser__isTrimmed((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)l7_from, false, byn_file_19, 373)))))) {
+#line 373 "parser/stmts.byn"
                 goto break_1;
             }
-#line 375 "parser/stmts.byn"
-            l7_from = byn_add_i64(l7_from, INT64_C(1), byn_file_19, 375);
+#line 373 "parser/stmts.byn"
+            l7_from = byn_add_i64(l7_from, INT64_C(1), byn_file_19, 373);
         continue_2:;
         }
     break_1:;
-#line 376 "parser/stmts.byn"
+#line 374 "parser/stmts.byn"
         for (;;) {
-#line 376 "parser/stmts.byn"
-            if ((!((l8_until > l7_from) && byn_parser__isTrimmed((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)byn_sub_i64(l8_until, INT64_C(1), byn_file_19, 376), false, byn_file_19, 376)))))) {
-#line 376 "parser/stmts.byn"
+#line 374 "parser/stmts.byn"
+            if ((!((l8_until > l7_from) && byn_parser__isTrimmed((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)byn_sub_i64(l8_until, INT64_C(1), byn_file_19, 374), false, byn_file_19, 374)))))) {
+#line 374 "parser/stmts.byn"
                 goto break_3;
             }
-#line 376 "parser/stmts.byn"
-            l8_until = byn_sub_i64(l8_until, INT64_C(1), byn_file_19, 376);
+#line 374 "parser/stmts.byn"
+            l8_until = byn_sub_i64(l8_until, INT64_C(1), byn_file_19, 374);
         continue_4:;
         }
     break_3:;
-#line 377 "parser/stmts.byn"
+#line 375 "parser/stmts.byn"
         l9_inner = byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_lexer__TextSpan__fromBounds(l7_from, l8_until));
-#line 378 "parser/stmts.byn"
+#line 376 "parser/stmts.byn"
         l10_space = (byn_lexer__Token__get_hasTriviaBefore(&l0_open) ? BYN_STR("", 0) : BYN_STR(" ", 1));
-#line 379 "parser/stmts.byn"
+#line 377 "parser/stmts.byn"
         t11 = byn_strbuf_grow(byn_context);
-#line 379 "parser/stmts.byn"
+#line 377 "parser/stmts.byn"
         {
             byn_writer* w = &t11;
             w->file = byn_file_19;
-            w->line = 379;
+            w->line = 377;
             byn_w_str(w, l10_space);
             byn_w_str(w, l9_inner);
         }
-#line 379 "parser/stmts.byn"
+#line 377 "parser/stmts.byn"
         t12 = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)18), l6_span, l6_span, byn_strbuf_str(t11), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("not needed", 10), BYN_STR("remove the parentheses", 22));
-#line 379 "parser/stmts.byn"
+#line 377 "parser/stmts.byn"
         (*p_parens) = t12;
     }
-#line 382 "parser/stmts.byn"
+#line 380 "parser/stmts.byn"
     return l4_condition;
 }
 #line 45362 "main.c"
 
 bool byn_parser__isTrimmed(uint8_t p_b) {
-#line 386 "parser/stmts.byn"
+#line 384 "parser/stmts.byn"
     return ((((((p_b == ((uint8_t)32)) || (p_b == ((uint8_t)9))) || (p_b == ((uint8_t)10))) || (p_b == ((uint8_t)13))) || (p_b == ((uint8_t)11))) || (p_b == ((uint8_t)12)));
 }
 #line 45368 "main.c"
 
 byn_parser_Stmt byn_parser__parseBody(bynt_parser__Parser* p_p, bynt_lexer__Token p_keyword) {
     int64_t l0_header = {0};
-#line 391 "parser/stmts.byn"
+#line 389 "parser/stmts.byn"
     l0_header = INT64_C(-1);
-#line 392 "parser/stmts.byn"
+#line 390 "parser/stmts.byn"
     return byn_parser__parseBody__o1(&(*p_p), p_keyword, &l0_header);
 }
 #line 45377 "main.c"
 
 byn_parser_Stmt byn_parser__parseBody__o1(bynt_parser__Parser* p_p, bynt_lexer__Token p_keyword, int64_t* p_header) {
     bynt_parser__BracesReport l0_braces = {0};
-#line 398 "parser/stmts.byn"
+#line 396 "parser/stmts.byn"
     l0_braces = ((bynt_parser__BracesReport){INT64_C(-1), false, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), BYN_STR("", 0)});
-#line 399 "parser/stmts.byn"
+#line 397 "parser/stmts.byn"
     return byn_parser__parseBody__o2(&(*p_p), p_keyword, &(*p_header), &l0_braces);
 }
 #line 45386 "main.c"
@@ -45395,61 +45395,61 @@ byn_parser_Stmt byn_parser__parseBody__o2(bynt_parser__Parser* p_p, bynt_lexer__
     int64_t t7 = {0};
     int64_t t8 = {0};
     int64_t t9 = {0};
-#line 404 "parser/stmts.byn"
+#line 402 "parser/stmts.byn"
     if ((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)19))) {
-#line 404 "parser/stmts.byn"
+#line 402 "parser/stmts.byn"
         return byn_parser__parseBlock(&(*p_p), false);
     }
-#line 405 "parser/stmts.byn"
+#line 403 "parser/stmts.byn"
     l0_gapStart = (*p_p).prevEnd;
-#line 406 "parser/stmts.byn"
+#line 404 "parser/stmts.byn"
     l1_errors = byn_parser__Parser__errorCount(&(*p_p));
-#line 407 "parser/stmts.byn"
+#line 405 "parser/stmts.byn"
     l2_seen = (*p_p).lexed.diagnostics.len;
-#line 408 "parser/stmts.byn"
+#line 406 "parser/stmts.byn"
     l3_bodyPos = (*p_p).pos;
-#line 409 "parser/stmts.byn"
+#line 407 "parser/stmts.byn"
     l4_body = byn_parser__parseStatement(&(*p_p));
-#line 410 "parser/stmts.byn"
+#line 408 "parser/stmts.byn"
     if (((!(byn_parser__Parser__errorCount(&(*p_p)) == l1_errors)) && byn_parser__isErrorStmt(l4_body))) {
+#line 408 "parser/stmts.byn"
+        return l4_body;
+    }
+#line 410 "parser/stmts.byn"
+    if ((((*p_p).pos == l3_bodyPos) && (byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)0)))) {
 #line 410 "parser/stmts.byn"
         return l4_body;
     }
 #line 412 "parser/stmts.byn"
-    if ((((*p_p).pos == l3_bodyPos) && (byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)0)))) {
-#line 412 "parser/stmts.byn"
-        return l4_body;
-    }
-#line 414 "parser/stmts.byn"
     l5_clean = true;
-#line 415 "parser/stmts.byn"
+#line 413 "parser/stmts.byn"
     t7 = l2_seen;
-#line 415 "parser/stmts.byn"
+#line 413 "parser/stmts.byn"
     t8 = (*p_p).lexed.diagnostics.len;
-#line 415 "parser/stmts.byn"
+#line 413 "parser/stmts.byn"
     for (;;) {
-#line 415 "parser/stmts.byn"
+#line 413 "parser/stmts.byn"
         if ((!(t7 < t8))) {
-#line 415 "parser/stmts.byn"
+#line 413 "parser/stmts.byn"
             goto break_1;
         }
-#line 415 "parser/stmts.byn"
+#line 413 "parser/stmts.byn"
         l6_i = t7;
-#line 416 "parser/stmts.byn"
-        if (((!((*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l6_i, false, byn_file_19, 416)).code.len == 0)) && (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l6_i, false, byn_file_19, 416)).hasFix)) {
-#line 416 "parser/stmts.byn"
+#line 414 "parser/stmts.byn"
+        if (((!((*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l6_i, false, byn_file_19, 414)).code.len == 0)) && (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l6_i, false, byn_file_19, 414)).hasFix)) {
+#line 414 "parser/stmts.byn"
             l5_clean = false;
         }
     continue_2:;
-#line 415 "parser/stmts.byn"
+#line 413 "parser/stmts.byn"
         t7 = byn_addw_i64(t7, INT64_C(1));
     }
 break_1:;
-#line 418 "parser/stmts.byn"
+#line 416 "parser/stmts.byn"
     t9 = byn_parser__reportBraceless(&(*p_p), p_keyword, l0_gapStart, byn_parser__stmtSpan(l4_body), l5_clean, (*p_header), &(*p_braces));
-#line 418 "parser/stmts.byn"
+#line 416 "parser/stmts.byn"
     (*p_header) = t9;
-#line 419 "parser/stmts.byn"
+#line 417 "parser/stmts.byn"
     return l4_body;
 }
 #line 45456 "main.c"
@@ -45488,70 +45488,70 @@ int64_t byn_parser__reportBraceless(bynt_parser__Parser* p_p, bynt_lexer__Token 
     byn_str l30_keywordText = {0};
     int64_t t31 = {0};
     int64_t t32 = {0};
-#line 427 "parser/stmts.byn"
+#line 425 "parser/stmts.byn"
     l0_start = ((p_body.start < (*p_p).prevEnd) ? p_body.start : (*p_p).prevEnd);
-#line 428 "parser/stmts.byn"
+#line 426 "parser/stmts.byn"
     l1_text = byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_lexer__TextSpan__fromBounds(l0_start, (*p_p).prevEnd));
-#line 429 "parser/stmts.byn"
+#line 427 "parser/stmts.byn"
     l2_gap = byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_lexer__TextSpan__fromBounds(p_gapStart, l0_start));
-#line 430 "parser/stmts.byn"
+#line 428 "parser/stmts.byn"
     l3_gapHasNewline = false;
-#line 431 "parser/stmts.byn"
+#line 429 "parser/stmts.byn"
     t5 = p_gapStart;
-#line 431 "parser/stmts.byn"
+#line 429 "parser/stmts.byn"
     t6 = l0_start;
-#line 431 "parser/stmts.byn"
+#line 429 "parser/stmts.byn"
     for (;;) {
-#line 431 "parser/stmts.byn"
+#line 429 "parser/stmts.byn"
         if ((!(t5 < t6))) {
-#line 431 "parser/stmts.byn"
+#line 429 "parser/stmts.byn"
             goto break_1;
         }
-#line 431 "parser/stmts.byn"
+#line 429 "parser/stmts.byn"
         l4_i = t5;
-#line 432 "parser/stmts.byn"
-        if (((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)l4_i, false, byn_file_19, 432)) == ((uint8_t)10))) {
-#line 432 "parser/stmts.byn"
+#line 430 "parser/stmts.byn"
+        if (((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)l4_i, false, byn_file_19, 430)) == ((uint8_t)10))) {
+#line 430 "parser/stmts.byn"
             l3_gapHasNewline = true;
         }
     continue_2:;
-#line 431 "parser/stmts.byn"
+#line 429 "parser/stmts.byn"
         t5 = byn_addw_i64(t5, INT64_C(1));
     }
 break_1:;
-#line 434 "parser/stmts.byn"
+#line 432 "parser/stmts.byn"
     l7_openBrace = BYN_STR("{", 1);
-#line 435 "parser/stmts.byn"
+#line 433 "parser/stmts.byn"
     l8_closeBrace = BYN_STR("}", 1);
-#line 436 "parser/stmts.byn"
+#line 434 "parser/stmts.byn"
     l9_replacement = BYN_STR("", 0);
-#line 437 "parser/stmts.byn"
+#line 435 "parser/stmts.byn"
     if (l3_gapHasNewline) {
-#line 438 "parser/stmts.byn"
+#line 436 "parser/stmts.byn"
         l10_line = byn_lexer__SourceText__getLineSpan(&(*p_p).lexed.source, byn_lexer__SourceText__getLineIndex(&(*p_p).lexed.source, p_keyword.start));
-#line 439 "parser/stmts.byn"
+#line 437 "parser/stmts.byn"
         l11_end = l10_line.start;
-#line 440 "parser/stmts.byn"
+#line 438 "parser/stmts.byn"
         for (;;) {
-#line 440 "parser/stmts.byn"
-            if ((!((l11_end < byn_lexer__TextSpan__get_end(&l10_line)) && (((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)l11_end, false, byn_file_19, 440)) == ((uint8_t)32)) || ((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)l11_end, false, byn_file_19, 440)) == ((uint8_t)9)))))) {
-#line 440 "parser/stmts.byn"
+#line 438 "parser/stmts.byn"
+            if ((!((l11_end < byn_lexer__TextSpan__get_end(&l10_line)) && (((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)l11_end, false, byn_file_19, 438)) == ((uint8_t)32)) || ((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)l11_end, false, byn_file_19, 438)) == ((uint8_t)9)))))) {
+#line 438 "parser/stmts.byn"
                 goto break_3;
             }
-#line 440 "parser/stmts.byn"
-            l11_end = byn_add_i64(l11_end, INT64_C(1), byn_file_19, 440);
+#line 438 "parser/stmts.byn"
+            l11_end = byn_add_i64(l11_end, INT64_C(1), byn_file_19, 438);
         continue_4:;
         }
     break_3:;
-#line 441 "parser/stmts.byn"
+#line 439 "parser/stmts.byn"
         l12_indent = byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_lexer__TextSpan__fromBounds(l10_line.start, l11_end));
-#line 442 "parser/stmts.byn"
+#line 440 "parser/stmts.byn"
         t13 = byn_strbuf_grow(byn_context);
-#line 442 "parser/stmts.byn"
+#line 440 "parser/stmts.byn"
         {
             byn_writer* w = &t13;
             w->file = byn_file_19;
-            w->line = 442;
+            w->line = 440;
             byn_w_str(w, BYN_STR(" ", 1));
             byn_w_str(w, l7_openBrace);
             byn_w_str(w, l2_gap);
@@ -45560,18 +45560,18 @@ break_1:;
             byn_w_str(w, l12_indent);
             byn_w_str(w, l8_closeBrace);
         }
-#line 442 "parser/stmts.byn"
+#line 440 "parser/stmts.byn"
         t14 = byn_strbuf_str(t13);
-#line 442 "parser/stmts.byn"
+#line 440 "parser/stmts.byn"
         l9_replacement = t14;
     } else {
-#line 444 "parser/stmts.byn"
+#line 442 "parser/stmts.byn"
         t15 = byn_strbuf_grow(byn_context);
-#line 444 "parser/stmts.byn"
+#line 442 "parser/stmts.byn"
         {
             byn_writer* w = &t15;
             w->file = byn_file_19;
-            w->line = 444;
+            w->line = 442;
             byn_w_str(w, BYN_STR(" ", 1));
             byn_w_str(w, l7_openBrace);
             byn_w_str(w, BYN_STR(" ", 1));
@@ -45579,118 +45579,118 @@ break_1:;
             byn_w_str(w, BYN_STR(" ", 1));
             byn_w_str(w, l8_closeBrace);
         }
-#line 444 "parser/stmts.byn"
+#line 442 "parser/stmts.byn"
         t16 = byn_strbuf_str(t15);
-#line 444 "parser/stmts.byn"
+#line 442 "parser/stmts.byn"
         l9_replacement = t16;
     }
-#line 448 "parser/stmts.byn"
+#line 446 "parser/stmts.byn"
     l17_hasFix = p_clean;
-#line 449 "parser/stmts.byn"
+#line 447 "parser/stmts.byn"
     l18_fixSpan = byn_lexer__TextSpan__fromBounds(p_gapStart, (*p_p).prevEnd);
-#line 450 "parser/stmts.byn"
+#line 448 "parser/stmts.byn"
     l19_ownHasFix = l17_hasFix;
+#line 449 "parser/stmts.byn"
+    if (((p_header >= INT64_C(0)) && (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 449)).hasFix)) {
+#line 450 "parser/stmts.byn"
+        l20_hSpan = (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 450)).fixSpan;
 #line 451 "parser/stmts.byn"
-    if (((p_header >= INT64_C(0)) && (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 451)).hasFix)) {
+        l21_hReplacement = (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 451)).fixReplacement;
 #line 452 "parser/stmts.byn"
-        l20_hSpan = (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 452)).fixSpan;
-#line 453 "parser/stmts.byn"
-        l21_hReplacement = (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 453)).fixReplacement;
-#line 454 "parser/stmts.byn"
         l22_merged = byn_lexer__TextSpan__fromBounds(l20_hSpan.start, byn_lexer__TextSpan__get_end(&l18_fixSpan));
-#line 457 "parser/stmts.byn"
+#line 455 "parser/stmts.byn"
         l23_overlaps = false;
-#line 458 "parser/stmts.byn"
+#line 456 "parser/stmts.byn"
         if (l17_hasFix) {
-#line 459 "parser/stmts.byn"
+#line 457 "parser/stmts.byn"
             t25 = INT64_C(0);
-#line 459 "parser/stmts.byn"
+#line 457 "parser/stmts.byn"
             t26 = (*p_p).lexed.diagnostics.len;
-#line 459 "parser/stmts.byn"
+#line 457 "parser/stmts.byn"
             for (;;) {
-#line 459 "parser/stmts.byn"
+#line 457 "parser/stmts.byn"
                 if ((!(t25 < t26))) {
-#line 459 "parser/stmts.byn"
+#line 457 "parser/stmts.byn"
                     goto break_5;
                 }
-#line 459 "parser/stmts.byn"
+#line 457 "parser/stmts.byn"
                 l24_i = t25;
+#line 458 "parser/stmts.byn"
+                if ((((((!(l24_i == p_header)) && (!((*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l24_i, false, byn_file_19, 458)).code.len == 0))) && (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l24_i, false, byn_file_19, 458)).hasFix) && ((*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l24_i, false, byn_file_19, 459)).fixSpan.start < byn_lexer__TextSpan__get_end(&l22_merged))) && (byn_lexer__TextSpan__get_end(&(*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l24_i, false, byn_file_19, 459)).fixSpan) > l22_merged.start))) {
 #line 460 "parser/stmts.byn"
-                if ((((((!(l24_i == p_header)) && (!((*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l24_i, false, byn_file_19, 460)).code.len == 0))) && (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l24_i, false, byn_file_19, 460)).hasFix) && ((*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l24_i, false, byn_file_19, 461)).fixSpan.start < byn_lexer__TextSpan__get_end(&l22_merged))) && (byn_lexer__TextSpan__get_end(&(*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l24_i, false, byn_file_19, 461)).fixSpan) > l22_merged.start))) {
-#line 462 "parser/stmts.byn"
                     l23_overlaps = true;
                 }
             continue_6:;
-#line 459 "parser/stmts.byn"
+#line 457 "parser/stmts.byn"
                 t25 = byn_addw_i64(t25, INT64_C(1));
             }
         break_5:;
         }
-#line 466 "parser/stmts.byn"
+#line 464 "parser/stmts.byn"
         if ((l17_hasFix && (!l23_overlaps))) {
-#line 467 "parser/stmts.byn"
+#line 465 "parser/stmts.byn"
             l27_between = byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_lexer__TextSpan__fromBounds(byn_lexer__TextSpan__get_end(&l20_hSpan), l18_fixSpan.start));
-#line 468 "parser/stmts.byn"
-            (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 468)).fixSpan = l22_merged;
-#line 469 "parser/stmts.byn"
+#line 466 "parser/stmts.byn"
+            (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 466)).fixSpan = l22_merged;
+#line 467 "parser/stmts.byn"
             t28 = byn_strbuf_grow(byn_context);
-#line 469 "parser/stmts.byn"
+#line 467 "parser/stmts.byn"
             {
                 byn_writer* w = &t28;
                 w->file = byn_file_19;
-                w->line = 469;
+                w->line = 467;
                 byn_w_str(w, l21_hReplacement);
                 byn_w_str(w, l27_between);
                 byn_w_str(w, l9_replacement);
             }
-#line 469 "parser/stmts.byn"
+#line 467 "parser/stmts.byn"
             t29 = byn_strbuf_str(t28);
-#line 469 "parser/stmts.byn"
-            (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 469)).fixReplacement = t29;
+#line 467 "parser/stmts.byn"
+            (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 467)).fixReplacement = t29;
         } else {
-#line 471 "parser/stmts.byn"
-            (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 471)).hasFix = false;
+#line 469 "parser/stmts.byn"
+            (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_header, false, byn_file_19, 469)).hasFix = false;
         }
-#line 473 "parser/stmts.byn"
+#line 471 "parser/stmts.byn"
         if ((!l23_overlaps)) {
-#line 473 "parser/stmts.byn"
+#line 471 "parser/stmts.byn"
             l17_hasFix = false;
         }
     }
-#line 475 "parser/stmts.byn"
+#line 473 "parser/stmts.byn"
     l30_keywordText = byn_parser__Parser__textOf(&(*p_p), p_keyword);
-#line 476 "parser/stmts.byn"
+#line 474 "parser/stmts.byn"
     if (l17_hasFix) {
-#line 477 "parser/stmts.byn"
+#line 475 "parser/stmts.byn"
         t31 = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)19), p_body, l18_fixSpan, l9_replacement, l30_keywordText, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("a single statement", 18), BYN_STR("wrap the statement in `{ }`", 27));
-#line 477 "parser/stmts.byn"
+#line 475 "parser/stmts.byn"
         (*p_braces).report = t31;
     } else {
-#line 480 "parser/stmts.byn"
+#line 478 "parser/stmts.byn"
         t32 = byn_parser__Parser__report(&(*p_p), ((byn_parser_ParseCode)19), p_body, l30_keywordText, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("a single statement", 18), BYN_STR("wrap the statement in `{ }`", 27));
-#line 480 "parser/stmts.byn"
+#line 478 "parser/stmts.byn"
         (*p_braces).report = t32;
     }
-#line 483 "parser/stmts.byn"
+#line 481 "parser/stmts.byn"
     (*p_braces).hasFix = l19_ownHasFix;
-#line 484 "parser/stmts.byn"
+#line 482 "parser/stmts.byn"
     (*p_braces).fixSpan = l18_fixSpan;
-#line 485 "parser/stmts.byn"
+#line 483 "parser/stmts.byn"
     (*p_braces).fixReplacement = l9_replacement;
-#line 486 "parser/stmts.byn"
+#line 484 "parser/stmts.byn"
     return p_header;
 }
 #line 45684 "main.c"
 
 byn_parser_Expr byn_parser__parseCondition(bynt_parser__Parser* p_p, bool* p_parenthesized, int64_t* p_parens) {
     bool t0 = {0};
-#line 493 "parser/stmts.byn"
+#line 491 "parser/stmts.byn"
     (*p_parens) = INT64_C(-1);
-#line 494 "parser/stmts.byn"
+#line 492 "parser/stmts.byn"
     t0 = byn_parser__isParenthesizedCondition(&(*p_p));
-#line 494 "parser/stmts.byn"
+#line 492 "parser/stmts.byn"
     (*p_parenthesized) = t0;
-#line 495 "parser/stmts.byn"
+#line 493 "parser/stmts.byn"
     return ((*p_parenthesized) ? byn_parser__parseParenCondition(&(*p_p), &(*p_parens)) : byn_parser__parseBareCondition(&(*p_p)));
 }
 #line 45697 "main.c"
@@ -45698,31 +45698,31 @@ byn_parser_Expr byn_parser__parseCondition(bynt_parser__Parser* p_p, bool* p_par
 bool byn_parser__isParenthesizedCondition(bynt_parser__Parser* p_p) {
     int64_t l0_next = {0};
     byn_lexer_TokenKind l1_kind = {0};
-#line 502 "parser/stmts.byn"
+#line 500 "parser/stmts.byn"
     if (((!(byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)15))) || byn_parser__inGroup(&(*p_p), (*p_p).pos, ((byn_lexer_TokenKind)22)))) {
-#line 502 "parser/stmts.byn"
+#line 500 "parser/stmts.byn"
         return false;
     }
-#line 503 "parser/stmts.byn"
-    l0_next = byn_add_i64(byn_parser__matchingClose(&(*p_p), (*p_p).pos), INT64_C(1), byn_file_19, 503);
-#line 504 "parser/stmts.byn"
+#line 501 "parser/stmts.byn"
+    l0_next = byn_add_i64(byn_parser__matchingClose(&(*p_p), (*p_p).pos), INT64_C(1), byn_file_19, 501);
+#line 502 "parser/stmts.byn"
     l1_kind = byn_parser__Parser__kindAt(&(*p_p), l0_next);
-#line 506 "parser/stmts.byn"
-    if ((((l1_kind == ((byn_lexer_TokenKind)19)) || (l1_kind == ((byn_lexer_TokenKind)21))) || byn_lexer__Token__get_hasNewlineBefore(&(*bynh_at_list_lexer__Token((*p_p).lexed.tokens, (int64_t)((l0_next < (*p_p).count) ? l0_next : byn_sub_i64((*p_p).count, INT64_C(1), byn_file_19, 506)), false, byn_file_19, 506))))) {
-#line 506 "parser/stmts.byn"
+#line 504 "parser/stmts.byn"
+    if ((((l1_kind == ((byn_lexer_TokenKind)19)) || (l1_kind == ((byn_lexer_TokenKind)21))) || byn_lexer__Token__get_hasNewlineBefore(&(*bynh_at_list_lexer__Token((*p_p).lexed.tokens, (int64_t)((l0_next < (*p_p).count) ? l0_next : byn_sub_i64((*p_p).count, INT64_C(1), byn_file_19, 504)), false, byn_file_19, 504))))) {
+#line 504 "parser/stmts.byn"
         return true;
     }
-#line 507 "parser/stmts.byn"
+#line 505 "parser/stmts.byn"
     if ((l1_kind == ((byn_lexer_TokenKind)1))) {
-#line 507 "parser/stmts.byn"
+#line 505 "parser/stmts.byn"
         return true;
     }
-#line 508 "parser/stmts.byn"
+#line 506 "parser/stmts.byn"
     if (byn_lexer__isKeyword(l1_kind)) {
-#line 509 "parser/stmts.byn"
+#line 507 "parser/stmts.byn"
         return (((((!(l1_kind == ((byn_lexer_TokenKind)129))) && (!(l1_kind == ((byn_lexer_TokenKind)90)))) && (!(l1_kind == ((byn_lexer_TokenKind)122)))) && (!(l1_kind == ((byn_lexer_TokenKind)133)))) && (!(l1_kind == ((byn_lexer_TokenKind)109))));
     }
-#line 512 "parser/stmts.byn"
+#line 510 "parser/stmts.byn"
     return (!byn_parser__bodyBraceFirst(&(*p_p), l0_next));
 }
 #line 45729 "main.c"
@@ -45733,71 +45733,71 @@ bool byn_parser__bodyBraceFirst(bynt_parser__Parser* p_p, int64_t p_index) {
     int64_t t2 = {0};
     int64_t t3 = {0};
     byn_lexer_TokenKind l4_kind = {0};
-#line 518 "parser/stmts.byn"
+#line 516 "parser/stmts.byn"
     l0_depth = INT64_C(0);
-#line 519 "parser/stmts.byn"
+#line 517 "parser/stmts.byn"
     t2 = p_index;
-#line 519 "parser/stmts.byn"
+#line 517 "parser/stmts.byn"
     t3 = (*p_p).count;
-#line 519 "parser/stmts.byn"
+#line 517 "parser/stmts.byn"
     for (;;) {
-#line 519 "parser/stmts.byn"
+#line 517 "parser/stmts.byn"
         if ((!(t2 < t3))) {
-#line 519 "parser/stmts.byn"
+#line 517 "parser/stmts.byn"
             goto break_1;
         }
-#line 519 "parser/stmts.byn"
+#line 517 "parser/stmts.byn"
         l1_i = t2;
-#line 520 "parser/stmts.byn"
+#line 518 "parser/stmts.byn"
         if (((((l0_depth == INT64_C(0)) && (l1_i > p_index)) && byn_parser__breaksLine(&(*p_p), l1_i)) && (!byn_parser__lineContinues(&(*p_p), l1_i)))) {
-#line 520 "parser/stmts.byn"
+#line 518 "parser/stmts.byn"
             return false;
         }
-#line 521 "parser/stmts.byn"
+#line 519 "parser/stmts.byn"
         l4_kind = byn_parser__Parser__kindAt(&(*p_p), l1_i);
-#line 523 "parser/stmts.byn"
+#line 521 "parser/stmts.byn"
         if (((l4_kind == ((byn_lexer_TokenKind)15)) || (l4_kind == ((byn_lexer_TokenKind)17)))) {
+#line 522 "parser/stmts.byn"
+            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_19, 522);
+#line 521 "parser/stmts.byn"
+            goto switch_end_3;
+        }
+#line 523 "parser/stmts.byn"
+        if (((l4_kind == ((byn_lexer_TokenKind)16)) || (l4_kind == ((byn_lexer_TokenKind)18)))) {
 #line 524 "parser/stmts.byn"
-            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_19, 524);
+            l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_19, 524);
 #line 523 "parser/stmts.byn"
             goto switch_end_3;
         }
 #line 525 "parser/stmts.byn"
-        if (((l4_kind == ((byn_lexer_TokenKind)16)) || (l4_kind == ((byn_lexer_TokenKind)18)))) {
-#line 526 "parser/stmts.byn"
-            l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_19, 526);
-#line 525 "parser/stmts.byn"
-            goto switch_end_3;
-        }
-#line 527 "parser/stmts.byn"
         if ((l4_kind == ((byn_lexer_TokenKind)19))) {
-#line 528 "parser/stmts.byn"
+#line 526 "parser/stmts.byn"
             if ((l0_depth == INT64_C(0))) {
-#line 528 "parser/stmts.byn"
+#line 526 "parser/stmts.byn"
                 return true;
             }
+#line 525 "parser/stmts.byn"
+            goto switch_end_3;
+        }
+#line 527 "parser/stmts.byn"
+        if ((((l4_kind == ((byn_lexer_TokenKind)21)) || (l4_kind == ((byn_lexer_TokenKind)20))) || (l4_kind == ((byn_lexer_TokenKind)0)))) {
+#line 528 "parser/stmts.byn"
+            return false;
 #line 527 "parser/stmts.byn"
             goto switch_end_3;
         }
-#line 529 "parser/stmts.byn"
-        if ((((l4_kind == ((byn_lexer_TokenKind)21)) || (l4_kind == ((byn_lexer_TokenKind)20))) || (l4_kind == ((byn_lexer_TokenKind)0)))) {
 #line 530 "parser/stmts.byn"
-            return false;
-#line 529 "parser/stmts.byn"
-            goto switch_end_3;
-        }
-#line 532 "parser/stmts.byn"
         if (((l0_depth == INT64_C(0)) && byn_parser__isAssignmentKind(l4_kind))) {
-#line 532 "parser/stmts.byn"
+#line 530 "parser/stmts.byn"
             return false;
         }
     switch_end_3:;
     continue_2:;
-#line 519 "parser/stmts.byn"
+#line 517 "parser/stmts.byn"
         t2 = byn_addw_i64(t2, INT64_C(1));
     }
 break_1:;
-#line 535 "parser/stmts.byn"
+#line 533 "parser/stmts.byn"
     return false;
 }
 #line 45804 "main.c"
@@ -45808,65 +45808,65 @@ int64_t byn_parser__matchingClose(bynt_parser__Parser* p_p, int64_t p_open) {
     int64_t t2 = {0};
     int64_t t3 = {0};
     byn_lexer_TokenKind t4 = {0};
-#line 540 "parser/stmts.byn"
+#line 538 "parser/stmts.byn"
     l0_depth = INT64_C(0);
-#line 541 "parser/stmts.byn"
+#line 539 "parser/stmts.byn"
     t2 = p_open;
-#line 541 "parser/stmts.byn"
+#line 539 "parser/stmts.byn"
     t3 = (*p_p).count;
-#line 541 "parser/stmts.byn"
+#line 539 "parser/stmts.byn"
     for (;;) {
-#line 541 "parser/stmts.byn"
+#line 539 "parser/stmts.byn"
         if ((!(t2 < t3))) {
-#line 541 "parser/stmts.byn"
+#line 539 "parser/stmts.byn"
             goto break_1;
         }
-#line 541 "parser/stmts.byn"
+#line 539 "parser/stmts.byn"
         l1_i = t2;
-#line 542 "parser/stmts.byn"
+#line 540 "parser/stmts.byn"
         t4 = byn_parser__Parser__kindAt(&(*p_p), l1_i);
-#line 543 "parser/stmts.byn"
+#line 541 "parser/stmts.byn"
         if ((((t4 == ((byn_lexer_TokenKind)15)) || (t4 == ((byn_lexer_TokenKind)17))) || (t4 == ((byn_lexer_TokenKind)19)))) {
-#line 544 "parser/stmts.byn"
-            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_19, 544);
-#line 543 "parser/stmts.byn"
+#line 542 "parser/stmts.byn"
+            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_19, 542);
+#line 541 "parser/stmts.byn"
             goto switch_end_3;
         }
-#line 545 "parser/stmts.byn"
+#line 543 "parser/stmts.byn"
         if ((((t4 == ((byn_lexer_TokenKind)16)) || (t4 == ((byn_lexer_TokenKind)18))) || (t4 == ((byn_lexer_TokenKind)20)))) {
-#line 546 "parser/stmts.byn"
-            l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_19, 546);
-#line 547 "parser/stmts.byn"
+#line 544 "parser/stmts.byn"
+            l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_19, 544);
+#line 545 "parser/stmts.byn"
             if ((l0_depth == INT64_C(0))) {
-#line 547 "parser/stmts.byn"
+#line 545 "parser/stmts.byn"
                 return l1_i;
             }
-#line 545 "parser/stmts.byn"
+#line 543 "parser/stmts.byn"
             goto switch_end_3;
         }
-#line 549 "parser/stmts.byn"
+#line 547 "parser/stmts.byn"
         goto continue_2;
     switch_end_3:;
     continue_2:;
-#line 541 "parser/stmts.byn"
+#line 539 "parser/stmts.byn"
         t2 = byn_addw_i64(t2, INT64_C(1));
     }
 break_1:;
-#line 552 "parser/stmts.byn"
-    return byn_sub_i64((*p_p).count, INT64_C(1), byn_file_19, 552);
+#line 550 "parser/stmts.byn"
+    return byn_sub_i64((*p_p).count, INT64_C(1), byn_file_19, 550);
 }
 #line 45859 "main.c"
 
 byn_parser_Expr byn_parser__parseBareCondition(bynt_parser__Parser* p_p) {
     int64_t l0_saved = {0};
     byn_parser_Expr l1_condition = {0};
-#line 557 "parser/stmts.byn"
+#line 555 "parser/stmts.byn"
     l0_saved = byn_parser__Parser__setConditionStart(&(*p_p), (*p_p).pos);
-#line 558 "parser/stmts.byn"
+#line 556 "parser/stmts.byn"
     l1_condition = byn_parser__parseExpression(&(*p_p));
-#line 559 "parser/stmts.byn"
+#line 557 "parser/stmts.byn"
     (*p_p).conditionStart = l0_saved;
-#line 560 "parser/stmts.byn"
+#line 558 "parser/stmts.byn"
     return l1_condition;
 }
 #line 45873 "main.c"
@@ -45877,51 +45877,51 @@ bool byn_parser__braceLiteralAllowed(bynt_parser__Parser* p_p) {
     int64_t t2 = {0};
     int64_t t3 = {0};
     byn_lexer_TokenKind t4 = {0};
-#line 565 "parser/stmts.byn"
+#line 563 "parser/stmts.byn"
     if (((*p_p).conditionStart < INT64_C(0))) {
-#line 565 "parser/stmts.byn"
+#line 563 "parser/stmts.byn"
         return true;
     }
-#line 566 "parser/stmts.byn"
+#line 564 "parser/stmts.byn"
     l0_depth = INT64_C(0);
-#line 567 "parser/stmts.byn"
+#line 565 "parser/stmts.byn"
     t2 = (*p_p).conditionStart;
-#line 567 "parser/stmts.byn"
+#line 565 "parser/stmts.byn"
     t3 = (*p_p).pos;
-#line 567 "parser/stmts.byn"
+#line 565 "parser/stmts.byn"
     for (;;) {
-#line 567 "parser/stmts.byn"
+#line 565 "parser/stmts.byn"
         if ((!(t2 < t3))) {
-#line 567 "parser/stmts.byn"
+#line 565 "parser/stmts.byn"
             goto break_1;
         }
-#line 567 "parser/stmts.byn"
+#line 565 "parser/stmts.byn"
         l1_i = t2;
-#line 568 "parser/stmts.byn"
+#line 566 "parser/stmts.byn"
         t4 = byn_parser__Parser__kindAt(&(*p_p), l1_i);
-#line 569 "parser/stmts.byn"
+#line 567 "parser/stmts.byn"
         if ((((t4 == ((byn_lexer_TokenKind)15)) || (t4 == ((byn_lexer_TokenKind)17))) || (t4 == ((byn_lexer_TokenKind)19)))) {
+#line 568 "parser/stmts.byn"
+            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_19, 568);
+#line 567 "parser/stmts.byn"
+            goto switch_end_3;
+        }
+#line 569 "parser/stmts.byn"
+        if ((((t4 == ((byn_lexer_TokenKind)16)) || (t4 == ((byn_lexer_TokenKind)18))) || (t4 == ((byn_lexer_TokenKind)20)))) {
 #line 570 "parser/stmts.byn"
-            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_19, 570);
+            l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_19, 570);
 #line 569 "parser/stmts.byn"
             goto switch_end_3;
         }
-#line 571 "parser/stmts.byn"
-        if ((((t4 == ((byn_lexer_TokenKind)16)) || (t4 == ((byn_lexer_TokenKind)18))) || (t4 == ((byn_lexer_TokenKind)20)))) {
 #line 572 "parser/stmts.byn"
-            l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_19, 572);
-#line 571 "parser/stmts.byn"
-            goto switch_end_3;
-        }
-#line 574 "parser/stmts.byn"
         goto continue_2;
     switch_end_3:;
     continue_2:;
-#line 567 "parser/stmts.byn"
+#line 565 "parser/stmts.byn"
         t2 = byn_addw_i64(t2, INT64_C(1));
     }
 break_1:;
-#line 577 "parser/stmts.byn"
+#line 575 "parser/stmts.byn"
     return (l0_depth > INT64_C(0));
 }
 #line 45928 "main.c"
@@ -45929,16 +45929,16 @@ break_1:;
 bool byn_parser__atUnlikely(bynt_parser__Parser* p_p) {
     bynt_lexer__Token t0 = {0};
     bool t1 = {0};
-#line 582 "parser/stmts.byn"
+#line 580 "parser/stmts.byn"
     t1 = byn_parser__atContextual(&(*p_p), BYN_STR("unlikely", 8));
-#line 582 "parser/stmts.byn"
+#line 580 "parser/stmts.byn"
     if (t1) {
-#line 582 "parser/stmts.byn"
+#line 580 "parser/stmts.byn"
         t0 = byn_parser__Parser__peekToken(&(*p_p), INT64_C(1));
-#line 582 "parser/stmts.byn"
+#line 580 "parser/stmts.byn"
         t1 = byn_lexer__Token__get_hasTriviaBefore(&t0);
     }
-#line 582 "parser/stmts.byn"
+#line 580 "parser/stmts.byn"
     return ((t1 && (!(byn_parser__Parser__peek(&(*p_p), INT64_C(1)) == ((byn_lexer_TokenKind)19)))) && byn_parser__canStartExpression(byn_parser__Parser__peek(&(*p_p), INT64_C(1))));
 }
 #line 45945 "main.c"
@@ -45961,71 +45961,71 @@ byn_parser_Stmt byn_parser__parseIf(bynt_parser__Parser* p_p, int64_t p_start, b
     byn_parser_Stmt t14 = {0};
     bynt_lexer__TextSpan l15_span = {0};
     bynt_lexer__TextSpan t16 = {0};
-#line 585 "parser/stmts.byn"
+#line 583 "parser/stmts.byn"
     l0_keyword = byn_parser__Parser__advance(&(*p_p));
-#line 586 "parser/stmts.byn"
+#line 584 "parser/stmts.byn"
     l1_likelihood = ((byn_parser_Likelihood)0);
-#line 587 "parser/stmts.byn"
+#line 585 "parser/stmts.byn"
     if ((((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)123)) && (!(byn_parser__Parser__peek(&(*p_p), INT64_C(1)) == ((byn_lexer_TokenKind)19)))) && byn_parser__canStartExpression(byn_parser__Parser__peek(&(*p_p), INT64_C(1))))) {
-#line 588 "parser/stmts.byn"
+#line 586 "parser/stmts.byn"
         l2__ = byn_parser__Parser__advance(&(*p_p));
-#line 589 "parser/stmts.byn"
+#line 587 "parser/stmts.byn"
         l1_likelihood = ((byn_parser_Likelihood)2);
     } else {
-#line 590 "parser/stmts.byn"
+#line 588 "parser/stmts.byn"
         if (byn_parser__atUnlikely(&(*p_p))) {
-#line 591 "parser/stmts.byn"
+#line 589 "parser/stmts.byn"
             l3__ = byn_parser__Parser__advance(&(*p_p));
-#line 592 "parser/stmts.byn"
+#line 590 "parser/stmts.byn"
             l1_likelihood = ((byn_parser_Likelihood)1);
         }
     }
-#line 594 "parser/stmts.byn"
+#line 592 "parser/stmts.byn"
     l4_parenthesized = false;
-#line 595 "parser/stmts.byn"
+#line 593 "parser/stmts.byn"
     l5_parens = INT64_C(-1);
-#line 596 "parser/stmts.byn"
+#line 594 "parser/stmts.byn"
     l6_condition = byn_parser__parseCondition(&(*p_p), &l4_parenthesized, &l5_parens);
-#line 598 "parser/stmts.byn"
+#line 596 "parser/stmts.byn"
     l7_then = (l4_parenthesized ? byn_parser__parseBody__o1(&(*p_p), l0_keyword, &l5_parens) : byn_parser__parseBlock(&(*p_p), false));
-#line 599 "parser/stmts.byn"
+#line 597 "parser/stmts.byn"
     l8_otherwise = ((byn_parser_Stmt){.tag = 24});
-#line 600 "parser/stmts.byn"
+#line 598 "parser/stmts.byn"
     if ((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)103))) {
-#line 601 "parser/stmts.byn"
+#line 599 "parser/stmts.byn"
         t9 = byn_parser__Parser__current(&(*p_p));
-#line 601 "parser/stmts.byn"
-        if (((byn_lexer__Token__get_hasNewlineBefore(&t9) && byn_parser__isBlockStmt(l7_then)) && (byn_parser__Parser__kindAt(&(*p_p), byn_sub_i64((*p_p).pos, INT64_C(1), byn_file_19, 601)) == ((byn_lexer_TokenKind)20)))) {
-#line 602 "parser/stmts.byn"
+#line 599 "parser/stmts.byn"
+        if (((byn_lexer__Token__get_hasNewlineBefore(&t9) && byn_parser__isBlockStmt(l7_then)) && (byn_parser__Parser__kindAt(&(*p_p), byn_sub_i64((*p_p).pos, INT64_C(1), byn_file_19, 599)) == ((byn_lexer_TokenKind)20)))) {
+#line 600 "parser/stmts.byn"
             t11 = byn_parser__spanOf(byn_parser__Parser__current(&(*p_p)));
-#line 602 "parser/stmts.byn"
+#line 600 "parser/stmts.byn"
             l10__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)34), t11, byn_lexer__TextSpan__fromBounds((*p_p).prevEnd, byn_parser__Parser__current(&(*p_p)).start), BYN_STR(" ", 1), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("on a new line", 13), BYN_STR("move `else` up to the line of `}`", 33));
         }
-#line 605 "parser/stmts.byn"
+#line 603 "parser/stmts.byn"
         l12_elseKeyword = byn_parser__Parser__advance(&(*p_p));
-#line 606 "parser/stmts.byn"
+#line 604 "parser/stmts.byn"
         if ((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)102))) {
-#line 607 "parser/stmts.byn"
+#line 605 "parser/stmts.byn"
             t13 = byn_parser__parseIf(&(*p_p), byn_parser__Parser__current(&(*p_p)).start, true, true);
-#line 607 "parser/stmts.byn"
+#line 605 "parser/stmts.byn"
             l8_otherwise = t13;
         } else {
-#line 609 "parser/stmts.byn"
+#line 607 "parser/stmts.byn"
             t14 = (l4_parenthesized ? byn_parser__parseBody__o1(&(*p_p), l12_elseKeyword, &l5_parens) : byn_parser__parseBlock(&(*p_p), false));
-#line 609 "parser/stmts.byn"
+#line 607 "parser/stmts.byn"
             l8_otherwise = t14;
         }
     }
-#line 612 "parser/stmts.byn"
+#line 610 "parser/stmts.byn"
     l15_span = byn_parser__Parser__spanFrom(&(*p_p), p_start);
-#line 613 "parser/stmts.byn"
+#line 611 "parser/stmts.byn"
     if (p_rejectPostfix) {
-#line 613 "parser/stmts.byn"
+#line 611 "parser/stmts.byn"
         (void)byn_parser__rejectPostfixAfterCompound(&(*p_p));
     }
-#line 615 "parser/stmts.byn"
+#line 613 "parser/stmts.byn"
     t16 = byn_parser__statementSpan(&(*p_p), p_start, l15_span);
-#line 614 "parser/stmts.byn"
+#line 612 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 10, .u.ifStmt = {bynh_own_parser__IfStmt(((bynt_parser__IfStmt){t16, l6_condition, l7_then, l8_otherwise, l1_likelihood, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
 #line 46032 "main.c"
@@ -46036,34 +46036,34 @@ bool byn_parser__isNullTest(byn_parser_Expr p_e) {
     bynt_parser__ConstantPattern* l2_c = {0};
     byn_parser_Expr t3 = {0};
     bynt_parser__LiteralExpr* l4_l = {0};
-#line 628 "parser/stmts.byn"
+#line 626 "parser/stmts.byn"
     if (((p_e.tag == ((int32_t)13)) && ((l0_n = p_e.u.isExpr.node), true))) {
-#line 629 "parser/stmts.byn"
+#line 627 "parser/stmts.byn"
         t1 = (*l0_n).pattern;
-#line 630 "parser/stmts.byn"
+#line 628 "parser/stmts.byn"
         if (((t1.tag == ((int32_t)0)) && ((l2_c = t1.u.constantPattern.node), true))) {
-#line 631 "parser/stmts.byn"
+#line 629 "parser/stmts.byn"
             t3 = (*l2_c).value;
-#line 632 "parser/stmts.byn"
+#line 630 "parser/stmts.byn"
             if (((t3.tag == ((int32_t)0)) && ((l4_l = t3.u.literalExpr.node), true))) {
-#line 633 "parser/stmts.byn"
+#line 631 "parser/stmts.byn"
                 return ((*l4_l).kind == ((byn_parser_LiteralKind)9));
-#line 632 "parser/stmts.byn"
+#line 630 "parser/stmts.byn"
                 goto switch_end_3;
             }
-#line 635 "parser/stmts.byn"
+#line 633 "parser/stmts.byn"
             return false;
         switch_end_3:;
-#line 630 "parser/stmts.byn"
+#line 628 "parser/stmts.byn"
             goto switch_end_2;
         }
-#line 638 "parser/stmts.byn"
+#line 636 "parser/stmts.byn"
         return false;
     switch_end_2:;
-#line 628 "parser/stmts.byn"
+#line 626 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 641 "parser/stmts.byn"
+#line 639 "parser/stmts.byn"
     return false;
 switch_end_1:;
 }
@@ -46080,85 +46080,85 @@ int64_t byn_parser__checkUnlessCondition(bynt_parser__Parser* p_p, byn_parser_Ex
     byn_str l7_value = {0};
     bynt_parser__IsExpr* l8_n = {0};
     byn_writer t9 = {0};
-#line 649 "parser/stmts.byn"
+#line 647 "parser/stmts.byn"
     if (((p_condition.tag == ((int32_t)29)) && ((l0_n = p_condition.u.parenExpr.node), true))) {
-#line 650 "parser/stmts.byn"
+#line 648 "parser/stmts.byn"
         return byn_parser__checkUnlessCondition(&(*p_p), (*l0_n).inner, p_fixSpan);
-#line 649 "parser/stmts.byn"
+#line 647 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 651 "parser/stmts.byn"
+#line 649 "parser/stmts.byn"
     if (((p_condition.tag == ((int32_t)8)) && ((l1_n = p_condition.u.unaryExpr.node), true))) {
-#line 652 "parser/stmts.byn"
+#line 650 "parser/stmts.byn"
         if (((*l1_n).op == ((byn_parser_UnaryOp)2))) {
-#line 653 "parser/stmts.byn"
+#line 651 "parser/stmts.byn"
             l2_operand = byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_parser__exprSpan((*l1_n).operand));
-#line 654 "parser/stmts.byn"
+#line 652 "parser/stmts.byn"
             t3 = byn_strbuf_grow(byn_context);
-#line 654 "parser/stmts.byn"
+#line 652 "parser/stmts.byn"
             {
                 byn_writer* w = &t3;
                 w->file = byn_file_19;
-                w->line = 654;
+                w->line = 652;
                 byn_w_str(w, BYN_STR("if ", 3));
                 byn_w_str(w, l2_operand);
             }
-#line 654 "parser/stmts.byn"
+#line 652 "parser/stmts.byn"
             return byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)7), p_fixSpan, p_fixSpan, byn_strbuf_str(t3), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("`unless` already negates", 24), BYN_STR("use `if` with the condition as written", 38));
         }
-#line 651 "parser/stmts.byn"
+#line 649 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 657 "parser/stmts.byn"
+#line 655 "parser/stmts.byn"
     if (((p_condition.tag == ((int32_t)9)) && ((l4_n = p_condition.u.binaryExpr.node), true))) {
-#line 658 "parser/stmts.byn"
+#line 656 "parser/stmts.byn"
         if ((((*l4_n).op == ((byn_parser_BinaryOp)22)) || ((*l4_n).op == ((byn_parser_BinaryOp)23)))) {
-#line 659 "parser/stmts.byn"
+#line 657 "parser/stmts.byn"
             l5_text = byn_lexer__SourceText__getText(&(*p_p).lexed.source, (*l4_n).span);
-#line 660 "parser/stmts.byn"
+#line 658 "parser/stmts.byn"
             t6 = byn_strbuf_grow(byn_context);
-#line 660 "parser/stmts.byn"
+#line 658 "parser/stmts.byn"
             {
                 byn_writer* w = &t6;
                 w->file = byn_file_19;
-                w->line = 660;
+                w->line = 658;
                 byn_w_str(w, BYN_STR("if !(", 5));
                 byn_w_str(w, l5_text);
                 byn_w_str(w, BYN_STR(")", 1));
             }
-#line 660 "parser/stmts.byn"
+#line 658 "parser/stmts.byn"
             return byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)23), p_fixSpan, p_fixSpan, byn_strbuf_str(t6), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("a compound condition", 20), BYN_STR("use `if` with the negated condition", 35));
         }
-#line 657 "parser/stmts.byn"
+#line 655 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 663 "parser/stmts.byn"
+#line 661 "parser/stmts.byn"
     if (((p_condition.tag == ((int32_t)13)) && ((l8_n = p_condition.u.isExpr.node), true))) {
-#line 664 "parser/stmts.byn"
+#line 662 "parser/stmts.byn"
         if (byn_parser__isNullTest(p_condition)) {
-#line 665 "parser/stmts.byn"
+#line 663 "parser/stmts.byn"
             l7_value = byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_parser__exprSpan((*l8_n).value));
-#line 666 "parser/stmts.byn"
+#line 664 "parser/stmts.byn"
             t9 = byn_strbuf_grow(byn_context);
-#line 666 "parser/stmts.byn"
+#line 664 "parser/stmts.byn"
             {
                 byn_writer* w = &t9;
                 w->file = byn_file_19;
-                w->line = 666;
+                w->line = 664;
                 byn_w_str(w, BYN_STR("if ", 3));
                 byn_w_str(w, l7_value);
                 byn_w_str(w, BYN_STR(" is not null", 12));
             }
-#line 666 "parser/stmts.byn"
+#line 664 "parser/stmts.byn"
             return byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)24), p_fixSpan, p_fixSpan, byn_strbuf_str(t9), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("a negated null test", 19), BYN_STR("use `if` with `is not null`", 27));
         }
-#line 663 "parser/stmts.byn"
+#line 661 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 670 "parser/stmts.byn"
+#line 668 "parser/stmts.byn"
     return INT64_C(-1);
 switch_end_1:;
-#line 672 "parser/stmts.byn"
+#line 670 "parser/stmts.byn"
     return INT64_C(-1);
 }
 #line 46165 "main.c"
@@ -46168,18 +46168,18 @@ void byn_parser__skipUnlessLikelihood(bynt_parser__Parser* p_p) {
     int64_t l1__ = {0};
     bynt_lexer__TextSpan t2 = {0};
     bynt_lexer__TextSpan t3 = {0};
-#line 677 "parser/stmts.byn"
+#line 675 "parser/stmts.byn"
     if (((!(((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)123)) && (!(byn_parser__Parser__peek(&(*p_p), INT64_C(1)) == ((byn_lexer_TokenKind)19)))) && byn_parser__canStartExpression(byn_parser__Parser__peek(&(*p_p), INT64_C(1))))) && (!byn_parser__atUnlikely(&(*p_p))))) {
-#line 677 "parser/stmts.byn"
+#line 675 "parser/stmts.byn"
         return;
     }
-#line 678 "parser/stmts.byn"
+#line 676 "parser/stmts.byn"
     l0_word = byn_parser__Parser__advance(&(*p_p));
-#line 679 "parser/stmts.byn"
+#line 677 "parser/stmts.byn"
     t2 = byn_parser__spanOf(l0_word);
-#line 679 "parser/stmts.byn"
+#line 677 "parser/stmts.byn"
     t3 = byn_lexer__TextSpan__fromBounds(l0_word.start, byn_parser__Parser__current(&(*p_p)).start);
-#line 679 "parser/stmts.byn"
+#line 677 "parser/stmts.byn"
     l1__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)31), t2, t3, BYN_STR("", 0), byn_parser__Parser__textOf(&(*p_p), l0_word), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("a likelihood word", 17), BYN_STR("remove the word, or write `if unlikely` with the negated condition", 66));
 }
 #line 46186 "main.c"
@@ -46199,64 +46199,64 @@ byn_parser_Stmt byn_parser__parseUnless(bynt_parser__Parser* p_p, int64_t p_star
     byn_parser_Stmt l11_otherwise = {0};
     bynt_lexer__TextSpan l12_span = {0};
     bynt_lexer__TextSpan t13 = {0};
-#line 684 "parser/stmts.byn"
+#line 682 "parser/stmts.byn"
     l0_keyword = byn_parser__Parser__advance(&(*p_p));
-#line 685 "parser/stmts.byn"
+#line 683 "parser/stmts.byn"
     (void)byn_parser__skipUnlessLikelihood(&(*p_p));
-#line 686 "parser/stmts.byn"
+#line 684 "parser/stmts.byn"
     l1_parenthesized = false;
-#line 687 "parser/stmts.byn"
+#line 685 "parser/stmts.byn"
     l2_parens = INT64_C(-1);
-#line 688 "parser/stmts.byn"
+#line 686 "parser/stmts.byn"
     l3_condition = byn_parser__parseCondition(&(*p_p), &l1_parenthesized, &l2_parens);
-#line 690 "parser/stmts.byn"
+#line 688 "parser/stmts.byn"
     l4_check = byn_parser__checkUnlessCondition(&(*p_p), l3_condition, byn_lexer__TextSpan__fromBounds(l0_keyword.start, (*p_p).prevEnd));
-#line 691 "parser/stmts.byn"
+#line 689 "parser/stmts.byn"
     if ((l4_check >= INT64_C(0))) {
-#line 691 "parser/stmts.byn"
+#line 689 "parser/stmts.byn"
         (void)byn_parser__unreport(&(*p_p), l2_parens);
     }
-#line 692 "parser/stmts.byn"
+#line 690 "parser/stmts.byn"
     l5_header = ((l4_check >= INT64_C(0)) ? l4_check : l2_parens);
-#line 693 "parser/stmts.byn"
+#line 691 "parser/stmts.byn"
     l6_braces = ((bynt_parser__BracesReport){INT64_C(-1), false, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), BYN_STR("", 0)});
-#line 694 "parser/stmts.byn"
+#line 692 "parser/stmts.byn"
     l7_body = (l1_parenthesized ? byn_parser__parseBody__o2(&(*p_p), l0_keyword, &l5_header, &l6_braces) : byn_parser__parseBlock(&(*p_p), false));
-#line 696 "parser/stmts.byn"
+#line 694 "parser/stmts.byn"
     l8_bracesReport = (l1_parenthesized ? l6_braces.report : INT64_C(-1));
-#line 697 "parser/stmts.byn"
+#line 695 "parser/stmts.byn"
     if ((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)103))) {
-#line 698 "parser/stmts.byn"
+#line 696 "parser/stmts.byn"
         l9__ = byn_parser__Parser__report(&(*p_p), ((byn_parser_ParseCode)6), byn_parser__spanOf(byn_parser__Parser__current(&(*p_p))), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("`else` after `unless`", 21), BYN_STR("use `if` with the opposite condition, so both branches read positively", 70));
-#line 700 "parser/stmts.byn"
+#line 698 "parser/stmts.byn"
         l10__ = byn_parser__Parser__advance(&(*p_p));
-#line 702 "parser/stmts.byn"
+#line 700 "parser/stmts.byn"
         l11_otherwise = byn_parser__parseEmbedded(&(*p_p));
-#line 703 "parser/stmts.byn"
-        if (((((!byn_parser__isBlockStmt(l11_otherwise)) && (l4_check >= INT64_C(0))) && (l5_header >= INT64_C(0))) && (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l5_header, false, byn_file_19, 703)).hasFix)) {
+#line 701 "parser/stmts.byn"
+        if (((((!byn_parser__isBlockStmt(l11_otherwise)) && (l4_check >= INT64_C(0))) && (l5_header >= INT64_C(0))) && (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l5_header, false, byn_file_19, 701)).hasFix)) {
+#line 702 "parser/stmts.byn"
+            (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l5_header, false, byn_file_19, 702)).hasFix = false;
 #line 704 "parser/stmts.byn"
-            (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l5_header, false, byn_file_19, 704)).hasFix = false;
+            if ((((l8_bracesReport >= INT64_C(0)) && (!(*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l8_bracesReport, false, byn_file_19, 704)).hasFix)) && l6_braces.hasFix)) {
+#line 705 "parser/stmts.byn"
+                (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l8_bracesReport, false, byn_file_19, 705)).hasFix = true;
 #line 706 "parser/stmts.byn"
-            if ((((l8_bracesReport >= INT64_C(0)) && (!(*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l8_bracesReport, false, byn_file_19, 706)).hasFix)) && l6_braces.hasFix)) {
+                (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l8_bracesReport, false, byn_file_19, 706)).fixSpan = l6_braces.fixSpan;
 #line 707 "parser/stmts.byn"
-                (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l8_bracesReport, false, byn_file_19, 707)).hasFix = true;
-#line 708 "parser/stmts.byn"
-                (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l8_bracesReport, false, byn_file_19, 708)).fixSpan = l6_braces.fixSpan;
-#line 709 "parser/stmts.byn"
-                (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l8_bracesReport, false, byn_file_19, 709)).fixReplacement = l6_braces.fixReplacement;
+                (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)l8_bracesReport, false, byn_file_19, 707)).fixReplacement = l6_braces.fixReplacement;
             }
         }
     }
-#line 713 "parser/stmts.byn"
+#line 711 "parser/stmts.byn"
     l12_span = byn_parser__Parser__spanFrom(&(*p_p), p_start);
-#line 714 "parser/stmts.byn"
+#line 712 "parser/stmts.byn"
     if (p_rejectPostfix) {
-#line 714 "parser/stmts.byn"
+#line 712 "parser/stmts.byn"
         (void)byn_parser__rejectPostfixAfterCompound(&(*p_p));
     }
-#line 716 "parser/stmts.byn"
+#line 714 "parser/stmts.byn"
     t13 = byn_parser__statementSpan(&(*p_p), p_start, l12_span);
-#line 715 "parser/stmts.byn"
+#line 713 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 11, .u.unlessStmt = {bynh_own_parser__UnlessStmt(((bynt_parser__UnlessStmt){t13, l3_condition, l7_body, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
 #line 46263 "main.c"
@@ -46295,169 +46295,169 @@ byn_parser_Stmt byn_parser__parseFor(bynt_parser__Parser* p_p, int64_t p_start) 
     byn_parser_Expr l30_iterable = {0};
     byn_parser_Stmt l31_body = {0};
     bynt_lexer__TextSpan t32 = {0};
-#line 724 "parser/stmts.byn"
+#line 722 "parser/stmts.byn"
     l0_keyword = byn_parser__Parser__advance(&(*p_p));
-#line 725 "parser/stmts.byn"
+#line 723 "parser/stmts.byn"
     l1_isTry = byn_parser__Parser__accept(&(*p_p), ((byn_lexer_TokenKind)121));
-#line 726 "parser/stmts.byn"
+#line 724 "parser/stmts.byn"
     if (((l0_keyword.kind == ((byn_lexer_TokenKind)157)) || ((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)15)) && (!byn_parser__isTupleLoopVariables(&(*p_p)))))) {
-#line 727 "parser/stmts.byn"
+#line 725 "parser/stmts.byn"
         return byn_parser__parseParenFor(&(*p_p), p_start, l0_keyword, l1_isTry);
     }
-#line 730 "parser/stmts.byn"
+#line 728 "parser/stmts.byn"
     l2_type = ((byn_parser_TypeSyntax){.tag = 8});
-#line 731 "parser/stmts.byn"
+#line 729 "parser/stmts.byn"
     l3_variable = ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)});
-#line 732 "parser/stmts.byn"
+#line 730 "parser/stmts.byn"
     l4_names = ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context});
-#line 733 "parser/stmts.byn"
+#line 731 "parser/stmts.byn"
     if ((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)15))) {
-#line 734 "parser/stmts.byn"
+#line 732 "parser/stmts.byn"
         l5_groupStart = byn_parser__Parser__current(&(*p_p)).start;
-#line 735 "parser/stmts.byn"
+#line 733 "parser/stmts.byn"
         l6__ = byn_parser__Parser__advance(&(*p_p));
-#line 736 "parser/stmts.byn"
+#line 734 "parser/stmts.byn"
         (void)bynh_add_list_lexer__TextSpan(&l4_names, byn_parser__expectName(&(*p_p), BYN_STR("a loop variable", 15)));
-#line 737 "parser/stmts.byn"
+#line 735 "parser/stmts.byn"
         for (;;) {
-#line 737 "parser/stmts.byn"
+#line 735 "parser/stmts.byn"
             if ((!byn_parser__Parser__accept(&(*p_p), ((byn_lexer_TokenKind)22)))) {
-#line 737 "parser/stmts.byn"
+#line 735 "parser/stmts.byn"
                 goto break_1;
             }
-#line 737 "parser/stmts.byn"
+#line 735 "parser/stmts.byn"
             (void)bynh_add_list_lexer__TextSpan(&l4_names, byn_parser__expectName(&(*p_p), BYN_STR("a loop variable", 15)));
         continue_2:;
         }
     break_1:;
-#line 738 "parser/stmts.byn"
+#line 736 "parser/stmts.byn"
         l7__ = byn_parser__Parser__expect(&(*p_p), ((byn_lexer_TokenKind)16), BYN_STR("", 0));
-#line 740 "parser/stmts.byn"
+#line 738 "parser/stmts.byn"
         t8 = byn_parser__Parser__spanFrom(&(*p_p), l5_groupStart);
-#line 740 "parser/stmts.byn"
+#line 738 "parser/stmts.byn"
         l3_variable = t8;
-#line 742 "parser/stmts.byn"
+#line 740 "parser/stmts.byn"
         if ((l4_names.len == INT64_C(1))) {
-#line 743 "parser/stmts.byn"
-            t9 = (*bynh_at_list_lexer__TextSpan(l4_names, (int64_t)INT64_C(0), false, byn_file_19, 743));
-#line 743 "parser/stmts.byn"
+#line 741 "parser/stmts.byn"
+            t9 = (*bynh_at_list_lexer__TextSpan(l4_names, (int64_t)INT64_C(0), false, byn_file_19, 741));
+#line 741 "parser/stmts.byn"
             l3_variable = t9;
-#line 744 "parser/stmts.byn"
+#line 742 "parser/stmts.byn"
             t10 = ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context});
-#line 744 "parser/stmts.byn"
+#line 742 "parser/stmts.byn"
             l4_names = t10;
         }
     } else {
-#line 746 "parser/stmts.byn"
+#line 744 "parser/stmts.byn"
         if (byn_parser__isNameThenType(&(*p_p), (*p_p).pos)) {
-#line 747 "parser/stmts.byn"
+#line 745 "parser/stmts.byn"
             t11 = byn_parser__expectName(&(*p_p), BYN_STR("a loop variable", 15));
-#line 747 "parser/stmts.byn"
+#line 745 "parser/stmts.byn"
             l3_variable = t11;
-#line 748 "parser/stmts.byn"
+#line 746 "parser/stmts.byn"
             l12__ = byn_parser__Parser__advance(&(*p_p));
-#line 749 "parser/stmts.byn"
+#line 747 "parser/stmts.byn"
             t13 = byn_parser__parseType(&(*p_p), false, false);
-#line 749 "parser/stmts.byn"
+#line 747 "parser/stmts.byn"
             l2_type = t13;
         } else {
-#line 750 "parser/stmts.byn"
+#line 748 "parser/stmts.byn"
             if (byn_parser__isTypeThenName(&(*p_p), (*p_p).pos)) {
-#line 752 "parser/stmts.byn"
+#line 750 "parser/stmts.byn"
                 t14 = byn_parser__parseType(&(*p_p), false, false);
-#line 752 "parser/stmts.byn"
+#line 750 "parser/stmts.byn"
                 l2_type = t14;
-#line 753 "parser/stmts.byn"
+#line 751 "parser/stmts.byn"
                 t15 = byn_parser__expectName(&(*p_p), BYN_STR("a loop variable", 15));
-#line 753 "parser/stmts.byn"
+#line 751 "parser/stmts.byn"
                 l3_variable = t15;
-#line 754 "parser/stmts.byn"
+#line 752 "parser/stmts.byn"
                 l16_typeSpanOf = byn_parser__typeSpan(l2_type);
-#line 755 "parser/stmts.byn"
+#line 753 "parser/stmts.byn"
                 l17_span = byn_lexer__TextSpan__fromBounds(l16_typeSpanOf.start, byn_lexer__TextSpan__get_end(&l3_variable));
-#line 756 "parser/stmts.byn"
+#line 754 "parser/stmts.byn"
                 l18_typeText = byn_lexer__SourceText__getText(&(*p_p).lexed.source, l16_typeSpanOf);
-#line 757 "parser/stmts.byn"
+#line 755 "parser/stmts.byn"
                 l19_variableText = byn_lexer__SourceText__getText(&(*p_p).lexed.source, l3_variable);
-#line 758 "parser/stmts.byn"
+#line 756 "parser/stmts.byn"
                 t21 = byn_strbuf_grow(byn_context);
-#line 758 "parser/stmts.byn"
+#line 756 "parser/stmts.byn"
                 {
                     byn_writer* w = &t21;
                     w->file = byn_file_19;
-                    w->line = 758;
+                    w->line = 756;
                     byn_w_str(w, l19_variableText);
                     byn_w_str(w, BYN_STR(": ", 2));
                     byn_w_str(w, l18_typeText);
                 }
-#line 758 "parser/stmts.byn"
+#line 756 "parser/stmts.byn"
                 t25 = byn_strbuf_str(t21);
-#line 759 "parser/stmts.byn"
+#line 757 "parser/stmts.byn"
                 t22 = byn_strbuf_grow(byn_context);
-#line 759 "parser/stmts.byn"
+#line 757 "parser/stmts.byn"
                 {
                     byn_writer* w = &t22;
                     w->file = byn_file_19;
-                    w->line = 759;
+                    w->line = 757;
                     byn_w_str(w, BYN_STR("for ", 4));
                     byn_w_str(w, l18_typeText);
                     byn_w_str(w, BYN_STR(" ", 1));
                     byn_w_str(w, l19_variableText);
                 }
-#line 759 "parser/stmts.byn"
+#line 757 "parser/stmts.byn"
                 t26 = byn_strbuf_str(t22);
-#line 759 "parser/stmts.byn"
+#line 757 "parser/stmts.byn"
                 t23 = byn_strbuf_grow(byn_context);
-#line 759 "parser/stmts.byn"
+#line 757 "parser/stmts.byn"
                 {
                     byn_writer* w = &t23;
                     w->file = byn_file_19;
-                    w->line = 759;
+                    w->line = 757;
                     byn_w_str(w, BYN_STR("for ", 4));
                     byn_w_str(w, l19_variableText);
                     byn_w_str(w, BYN_STR(": ", 2));
                     byn_w_str(w, l18_typeText);
                 }
-#line 759 "parser/stmts.byn"
+#line 757 "parser/stmts.byn"
                 t27 = byn_strbuf_str(t23);
-#line 760 "parser/stmts.byn"
+#line 758 "parser/stmts.byn"
                 t24 = byn_strbuf_grow(byn_context);
-#line 760 "parser/stmts.byn"
+#line 758 "parser/stmts.byn"
                 {
                     byn_writer* w = &t24;
                     w->file = byn_file_19;
-                    w->line = 760;
+                    w->line = 758;
                     byn_w_str(w, BYN_STR("write `for ", 11));
                     byn_w_str(w, l19_variableText);
                     byn_w_str(w, BYN_STR(": ", 2));
                     byn_w_str(w, l18_typeText);
                     byn_w_str(w, BYN_STR("`; loop variables put the name first", 36));
                 }
-#line 758 "parser/stmts.byn"
+#line 756 "parser/stmts.byn"
                 l20__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)32), l17_span, l17_span, t25, t26, t27, BYN_STR("", 0), BYN_STR("type before name", 16), byn_strbuf_str(t24));
             } else {
-#line 762 "parser/stmts.byn"
+#line 760 "parser/stmts.byn"
                 t28 = byn_parser__expectName(&(*p_p), BYN_STR("a loop variable", 15));
-#line 762 "parser/stmts.byn"
+#line 760 "parser/stmts.byn"
                 l3_variable = t28;
             }
         }
     }
-#line 764 "parser/stmts.byn"
+#line 762 "parser/stmts.byn"
     l29__ = byn_parser__Parser__expect(&(*p_p), ((byn_lexer_TokenKind)109), BYN_STR("", 0));
-#line 765 "parser/stmts.byn"
+#line 763 "parser/stmts.byn"
     l30_iterable = byn_parser__parseBareCondition(&(*p_p));
-#line 766 "parser/stmts.byn"
+#line 764 "parser/stmts.byn"
     l31_body = byn_parser__parseBlock(&(*p_p), false);
-#line 768 "parser/stmts.byn"
+#line 766 "parser/stmts.byn"
     t32 = byn_parser__statementSpan(&(*p_p), p_start, byn_parser__Parser__spanFrom(&(*p_p), p_start));
-#line 767 "parser/stmts.byn"
+#line 765 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 16, .u.forStmt = {bynh_own_parser__ForStmt(((bynt_parser__ForStmt){t32, ((byn_parser_BindingKind)0), l2_type, l3_variable, l30_iterable, l31_body, l1_isTry, l4_names, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
 #line 46458 "main.c"
 
 bool byn_parser__isTupleLoopVariables(bynt_parser__Parser* p_p) {
-#line 783 "parser/stmts.byn"
+#line 781 "parser/stmts.byn"
     return ((((!byn_parser__inGroup(&(*p_p), (*p_p).pos, ((byn_lexer_TokenKind)97))) && (!byn_parser__inGroup(&(*p_p), (*p_p).pos, ((byn_lexer_TokenKind)98)))) && (!byn_parser__inGroup(&(*p_p), (*p_p).pos, ((byn_lexer_TokenKind)109)))) && (!byn_parser__inGroup(&(*p_p), (*p_p).pos, ((byn_lexer_TokenKind)21))));
 }
 #line 46464 "main.c"
@@ -46494,149 +46494,149 @@ byn_parser_Stmt byn_parser__parseParenFor(bynt_parser__Parser* p_p, int64_t p_st
     byn_parser_Stmt l28_body = {0};
     bynt_lexer__TextSpan t29 = {0};
     bynt_list_lexer__TextSpan t30 = {0};
-#line 789 "parser/stmts.byn"
+#line 787 "parser/stmts.byn"
     l0_open = byn_parser__Parser__expect(&(*p_p), ((byn_lexer_TokenKind)15), BYN_STR("", 0));
-#line 790 "parser/stmts.byn"
+#line 788 "parser/stmts.byn"
     l1_kind = ((byn_parser_BindingKind)0);
-#line 791 "parser/stmts.byn"
+#line 789 "parser/stmts.byn"
     l2_type = ((byn_parser_TypeSyntax){.tag = 8});
-#line 792 "parser/stmts.byn"
+#line 790 "parser/stmts.byn"
     if (byn_parser__Parser__accept(&(*p_p), ((byn_lexer_TokenKind)97))) {
-#line 793 "parser/stmts.byn"
+#line 791 "parser/stmts.byn"
         l1_kind = ((byn_parser_BindingKind)0);
     } else {
-#line 794 "parser/stmts.byn"
+#line 792 "parser/stmts.byn"
         if (byn_parser__Parser__accept(&(*p_p), ((byn_lexer_TokenKind)98))) {
-#line 795 "parser/stmts.byn"
+#line 793 "parser/stmts.byn"
             l1_kind = ((byn_parser_BindingKind)1);
         }
     }
-#line 797 "parser/stmts.byn"
+#line 795 "parser/stmts.byn"
     if (byn_parser__isTypeThenName(&(*p_p), (*p_p).pos)) {
-#line 797 "parser/stmts.byn"
+#line 795 "parser/stmts.byn"
         t3 = byn_parser__parseType(&(*p_p), false, false);
-#line 797 "parser/stmts.byn"
+#line 795 "parser/stmts.byn"
         l2_type = t3;
     }
-#line 798 "parser/stmts.byn"
+#line 796 "parser/stmts.byn"
     l4_name = byn_parser__expectName(&(*p_p), BYN_STR("a loop variable", 15));
-#line 799 "parser/stmts.byn"
+#line 797 "parser/stmts.byn"
     if ((!(byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)109)))) {
-#line 800 "parser/stmts.byn"
+#line 798 "parser/stmts.byn"
         l5__ = byn_parser__Parser__report(&(*p_p), ((byn_parser_ParseCode)15), byn_parser__spanOf(byn_parser__Parser__current(&(*p_p))), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("expected `in`", 13), BYN_STR("loop over a range instead: `for i in 0..n { \342\200\246 }`", 50));
-#line 801 "parser/stmts.byn"
+#line 799 "parser/stmts.byn"
         (void)byn_parser__skipPastCloseParen(&(*p_p));
-#line 802 "parser/stmts.byn"
+#line 800 "parser/stmts.byn"
         l6_body0 = byn_parser__parseEmbedded(&(*p_p));
-#line 804 "parser/stmts.byn"
+#line 802 "parser/stmts.byn"
         t7 = byn_parser__statementSpan(&(*p_p), p_start, byn_parser__Parser__spanFrom(&(*p_p), p_start));
-#line 808 "parser/stmts.byn"
+#line 806 "parser/stmts.byn"
         t8 = ((byn_parser_Expr){.tag = 33, .u.errorExpr = {bynh_own_parser__ErrorExpr(((bynt_parser__ErrorExpr){l4_name}))}});
-#line 538 "parser/stmts.byn"
+#line 539 "parser/stmts.byn"
         t9 = ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context});
-#line 803 "parser/stmts.byn"
+#line 801 "parser/stmts.byn"
         return ((byn_parser_Stmt){.tag = 16, .u.forStmt = {bynh_own_parser__ForStmt(((bynt_parser__ForStmt){t7, l1_kind, l2_type, l4_name, t8, l6_body0, p_tryKeyword, t9, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
     }
-#line 814 "parser/stmts.byn"
+#line 812 "parser/stmts.byn"
     l10__ = byn_parser__Parser__advance(&(*p_p));
-#line 815 "parser/stmts.byn"
+#line 813 "parser/stmts.byn"
     l11_errors = byn_parser__Parser__errorCount(&(*p_p));
-#line 816 "parser/stmts.byn"
+#line 814 "parser/stmts.byn"
     l12_iterable = byn_parser__parseExpression(&(*p_p));
-#line 817 "parser/stmts.byn"
+#line 815 "parser/stmts.byn"
     l13_close = byn_parser__Parser__expect(&(*p_p), ((byn_lexer_TokenKind)16), BYN_STR("", 0));
-#line 818 "parser/stmts.byn"
+#line 816 "parser/stmts.byn"
     l14_input = INT64_C(-1);
-#line 819 "parser/stmts.byn"
+#line 817 "parser/stmts.byn"
     if (((l13_close.length > INT64_C(0)) && (byn_parser__Parser__errorCount(&(*p_p)) == l11_errors))) {
-#line 820 "parser/stmts.byn"
+#line 818 "parser/stmts.byn"
         l15_span = byn_lexer__TextSpan__fromBounds(((p_keyword.kind == ((byn_lexer_TokenKind)157)) ? p_keyword.start : l0_open.start), byn_lexer__Token__get_end(&l13_close));
-#line 821 "parser/stmts.byn"
+#line 819 "parser/stmts.byn"
         if (byn_parser__isNoType(l2_type)) {
-#line 821 "parser/stmts.byn"
+#line 819 "parser/stmts.byn"
             t18 = BYN_STR("", 0);
         } else {
-#line 821 "parser/stmts.byn"
+#line 819 "parser/stmts.byn"
             t17 = byn_strbuf_grow(byn_context);
-#line 821 "parser/stmts.byn"
+#line 819 "parser/stmts.byn"
             {
                 byn_writer* w = &t17;
                 w->file = byn_file_19;
-                w->line = 821;
+                w->line = 819;
                 byn_w_str(w, byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_parser__typeSpan(l2_type)));
                 byn_w_str(w, BYN_STR(" ", 1));
             }
-#line 821 "parser/stmts.byn"
+#line 819 "parser/stmts.byn"
             t18 = byn_strbuf_str(t17);
         }
-#line 821 "parser/stmts.byn"
+#line 819 "parser/stmts.byn"
         l16_typeText = t18;
-#line 822 "parser/stmts.byn"
+#line 820 "parser/stmts.byn"
         t20 = byn_strbuf_grow(byn_context);
-#line 822 "parser/stmts.byn"
+#line 820 "parser/stmts.byn"
         t21 = byn_parser__nameText(&(*p_p), l4_name);
-#line 822 "parser/stmts.byn"
+#line 820 "parser/stmts.byn"
         {
             byn_writer* w = &t20;
             w->file = byn_file_19;
-            w->line = 822;
+            w->line = 820;
             byn_w_str(w, l16_typeText);
             byn_w_str(w, t21);
             byn_w_str(w, BYN_STR(" in ", 4));
             byn_w_str(w, byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_parser__exprSpan(l12_iterable)));
         }
-#line 822 "parser/stmts.byn"
+#line 820 "parser/stmts.byn"
         l19_header = byn_strbuf_str(t20);
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
         if ((p_keyword.kind == ((byn_lexer_TokenKind)157))) {
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
             t23 = byn_strbuf_grow(byn_context);
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
             {
                 byn_writer* w = &t23;
                 w->file = byn_file_19;
-                w->line = 823;
+                w->line = 821;
                 byn_w_str(w, BYN_STR("for ", 4));
                 byn_w_str(w, l19_header);
             }
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
             t26 = byn_strbuf_str(t23);
         } else {
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
             if (byn_lexer__Token__get_hasTriviaBefore(&l0_open)) {
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
                 t25 = l19_header;
             } else {
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
                 t24 = byn_strbuf_grow(byn_context);
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
                 {
                     byn_writer* w = &t24;
                     w->file = byn_file_19;
-                    w->line = 823;
+                    w->line = 821;
                     byn_w_str(w, BYN_STR(" ", 1));
                     byn_w_str(w, l19_header);
                 }
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
                 t25 = byn_strbuf_str(t24);
             }
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
             t26 = t25;
         }
-#line 823 "parser/stmts.byn"
+#line 821 "parser/stmts.byn"
         l22_replacement = t26;
-#line 824 "parser/stmts.byn"
+#line 822 "parser/stmts.byn"
         t27 = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)20), l15_span, l15_span, l22_replacement, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("the input form", 14), BYN_STR("write the loop variable and iterable without parentheses", 56));
-#line 824 "parser/stmts.byn"
+#line 822 "parser/stmts.byn"
         l14_input = t27;
     }
-#line 827 "parser/stmts.byn"
+#line 825 "parser/stmts.byn"
     l28_body = byn_parser__parseBody__o1(&(*p_p), p_keyword, &l14_input);
-#line 829 "parser/stmts.byn"
+#line 827 "parser/stmts.byn"
     t29 = byn_parser__statementSpan(&(*p_p), p_start, byn_parser__Parser__spanFrom(&(*p_p), p_start));
-#line 538 "parser/stmts.byn"
+#line 539 "parser/stmts.byn"
     t30 = ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context});
-#line 828 "parser/stmts.byn"
+#line 826 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 16, .u.forStmt = {bynh_own_parser__ForStmt(((bynt_parser__ForStmt){t29, l1_kind, l2_type, l4_name, l12_iterable, l28_body, p_tryKeyword, t30, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
 #line 46643 "main.c"
@@ -46645,40 +46645,40 @@ void byn_parser__skipPastCloseParen(bynt_parser__Parser* p_p) {
     int64_t l0_depth = {0};
     bynt_lexer__Token l1__ = {0};
     bynt_lexer__Token l2__ = {0};
-#line 841 "parser/stmts.byn"
+#line 839 "parser/stmts.byn"
     l0_depth = INT64_C(0);
-#line 842 "parser/stmts.byn"
+#line 840 "parser/stmts.byn"
     for (;;) {
-#line 842 "parser/stmts.byn"
+#line 840 "parser/stmts.byn"
         if ((!(!byn_parser__Parser__atEnd(&(*p_p))))) {
-#line 842 "parser/stmts.byn"
+#line 840 "parser/stmts.byn"
             goto break_1;
         }
-#line 843 "parser/stmts.byn"
+#line 841 "parser/stmts.byn"
         if ((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)15))) {
-#line 844 "parser/stmts.byn"
-            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_19, 844);
+#line 842 "parser/stmts.byn"
+            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_19, 842);
         } else {
-#line 845 "parser/stmts.byn"
+#line 843 "parser/stmts.byn"
             if ((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)16))) {
-#line 846 "parser/stmts.byn"
+#line 844 "parser/stmts.byn"
                 if ((l0_depth == INT64_C(0))) {
-#line 847 "parser/stmts.byn"
+#line 845 "parser/stmts.byn"
                     l1__ = byn_parser__Parser__advance(&(*p_p));
-#line 848 "parser/stmts.byn"
+#line 846 "parser/stmts.byn"
                     return;
                 }
-#line 850 "parser/stmts.byn"
-                l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_19, 850);
+#line 848 "parser/stmts.byn"
+                l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_19, 848);
             } else {
-#line 851 "parser/stmts.byn"
+#line 849 "parser/stmts.byn"
                 if (((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)19)) || (byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)20)))) {
-#line 852 "parser/stmts.byn"
+#line 850 "parser/stmts.byn"
                     return;
                 }
             }
         }
-#line 854 "parser/stmts.byn"
+#line 852 "parser/stmts.byn"
         l2__ = byn_parser__Parser__advance(&(*p_p));
     continue_2:;
     }
@@ -46687,42 +46687,42 @@ break_1:;
 #line 46688 "main.c"
 
 bool byn_parser__isBlockStmt(byn_parser_Stmt p_s) {
-#line 860 "parser/stmts.byn"
+#line 858 "parser/stmts.byn"
     if ((p_s.tag == ((int32_t)0))) {
-#line 861 "parser/stmts.byn"
+#line 859 "parser/stmts.byn"
         return true;
-#line 860 "parser/stmts.byn"
+#line 858 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 863 "parser/stmts.byn"
+#line 861 "parser/stmts.byn"
     return false;
 switch_end_1:;
 }
 #line 46702 "main.c"
 
 bool byn_parser__isErrorStmt(byn_parser_Stmt p_s) {
-#line 869 "parser/stmts.byn"
+#line 867 "parser/stmts.byn"
     if ((p_s.tag == ((int32_t)23))) {
-#line 870 "parser/stmts.byn"
+#line 868 "parser/stmts.byn"
         return true;
-#line 869 "parser/stmts.byn"
+#line 867 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 872 "parser/stmts.byn"
+#line 870 "parser/stmts.byn"
     return false;
 switch_end_1:;
 }
 #line 46716 "main.c"
 
 bool byn_parser__isNoType(byn_parser_TypeSyntax p_t) {
-#line 878 "parser/stmts.byn"
+#line 876 "parser/stmts.byn"
     if ((p_t.tag == ((int32_t)8))) {
-#line 879 "parser/stmts.byn"
+#line 877 "parser/stmts.byn"
         return true;
-#line 878 "parser/stmts.byn"
+#line 876 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 881 "parser/stmts.byn"
+#line 879 "parser/stmts.byn"
     return false;
 switch_end_1:;
 }
@@ -46754,185 +46754,185 @@ bynt_lexer__TextSpan byn_parser__stmtSpan(byn_parser_Stmt p_s) {
     bynt_parser__ContextStmt* l22_n = {0};
     bynt_parser__EmptyStmt* l23_n = {0};
     bynt_parser__ErrorStmt* l24_n = {0};
-#line 890 "parser/stmts.byn"
+#line 888 "parser/stmts.byn"
     if (((p_s.tag == ((int32_t)0)) && ((l1_n = p_s.u.blockStmt.node), true))) {
-#line 890 "parser/stmts.byn"
+#line 888 "parser/stmts.byn"
         t0 = (*l1_n).span;
+#line 888 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 889 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)1)) && ((l2_n = p_s.u.localDecl.node), true))) {
+#line 889 "parser/stmts.byn"
+        t0 = (*l2_n).span;
+#line 889 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 890 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)2)) && ((l3_n = p_s.u.exprStmt.node), true))) {
+#line 890 "parser/stmts.byn"
+        t0 = (*l3_n).span;
 #line 890 "parser/stmts.byn"
         goto switch_end_1;
     }
 #line 891 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)1)) && ((l2_n = p_s.u.localDecl.node), true))) {
-#line 891 "parser/stmts.byn"
-        t0 = (*l2_n).span;
-#line 891 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 892 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)2)) && ((l3_n = p_s.u.exprStmt.node), true))) {
-#line 892 "parser/stmts.byn"
-        t0 = (*l3_n).span;
-#line 892 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 893 "parser/stmts.byn"
     if (((p_s.tag == ((int32_t)3)) && ((l4_n = p_s.u.assignStmt.node), true))) {
-#line 893 "parser/stmts.byn"
+#line 891 "parser/stmts.byn"
         t0 = (*l4_n).span;
+#line 891 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 892 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)4)) && ((l5_n = p_s.u.incDecStmt.node), true))) {
+#line 892 "parser/stmts.byn"
+        t0 = (*l5_n).span;
+#line 892 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 893 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)5)) && ((l6_n = p_s.u.returnStmt.node), true))) {
+#line 893 "parser/stmts.byn"
+        t0 = (*l6_n).span;
 #line 893 "parser/stmts.byn"
         goto switch_end_1;
     }
 #line 894 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)4)) && ((l5_n = p_s.u.incDecStmt.node), true))) {
-#line 894 "parser/stmts.byn"
-        t0 = (*l5_n).span;
-#line 894 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 895 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)5)) && ((l6_n = p_s.u.returnStmt.node), true))) {
-#line 895 "parser/stmts.byn"
-        t0 = (*l6_n).span;
-#line 895 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 896 "parser/stmts.byn"
     if (((p_s.tag == ((int32_t)6)) && ((l7_n = p_s.u.failStmt.node), true))) {
-#line 896 "parser/stmts.byn"
+#line 894 "parser/stmts.byn"
         t0 = (*l7_n).span;
+#line 894 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 895 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)7)) && ((l8_n = p_s.u.breakStmt.node), true))) {
+#line 895 "parser/stmts.byn"
+        t0 = (*l8_n).span;
+#line 895 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 896 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)8)) && ((l9_n = p_s.u.continueStmt.node), true))) {
+#line 896 "parser/stmts.byn"
+        t0 = (*l9_n).span;
 #line 896 "parser/stmts.byn"
         goto switch_end_1;
     }
 #line 897 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)7)) && ((l8_n = p_s.u.breakStmt.node), true))) {
-#line 897 "parser/stmts.byn"
-        t0 = (*l8_n).span;
-#line 897 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 898 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)8)) && ((l9_n = p_s.u.continueStmt.node), true))) {
-#line 898 "parser/stmts.byn"
-        t0 = (*l9_n).span;
-#line 898 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 899 "parser/stmts.byn"
     if (((p_s.tag == ((int32_t)9)) && ((l10_n = p_s.u.becomeStmt.node), true))) {
-#line 899 "parser/stmts.byn"
+#line 897 "parser/stmts.byn"
         t0 = (*l10_n).span;
+#line 897 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 898 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)10)) && ((l11_n = p_s.u.ifStmt.node), true))) {
+#line 898 "parser/stmts.byn"
+        t0 = (*l11_n).span;
+#line 898 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 899 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)11)) && ((l12_n = p_s.u.unlessStmt.node), true))) {
+#line 899 "parser/stmts.byn"
+        t0 = (*l12_n).span;
 #line 899 "parser/stmts.byn"
         goto switch_end_1;
     }
 #line 900 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)10)) && ((l11_n = p_s.u.ifStmt.node), true))) {
-#line 900 "parser/stmts.byn"
-        t0 = (*l11_n).span;
-#line 900 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 901 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)11)) && ((l12_n = p_s.u.unlessStmt.node), true))) {
-#line 901 "parser/stmts.byn"
-        t0 = (*l12_n).span;
-#line 901 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 902 "parser/stmts.byn"
     if (((p_s.tag == ((int32_t)12)) && ((l13_n = p_s.u.guardedStmt.node), true))) {
-#line 902 "parser/stmts.byn"
+#line 900 "parser/stmts.byn"
         t0 = (*l13_n).span;
+#line 900 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 901 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)13)) && ((l14_n = p_s.u.whileStmt.node), true))) {
+#line 901 "parser/stmts.byn"
+        t0 = (*l14_n).span;
+#line 901 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 902 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)14)) && ((l15_n = p_s.u.doWhileStmt.node), true))) {
+#line 902 "parser/stmts.byn"
+        t0 = (*l15_n).span;
 #line 902 "parser/stmts.byn"
         goto switch_end_1;
     }
 #line 903 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)13)) && ((l14_n = p_s.u.whileStmt.node), true))) {
-#line 903 "parser/stmts.byn"
-        t0 = (*l14_n).span;
-#line 903 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 904 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)14)) && ((l15_n = p_s.u.doWhileStmt.node), true))) {
-#line 904 "parser/stmts.byn"
-        t0 = (*l15_n).span;
-#line 904 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 905 "parser/stmts.byn"
     if (((p_s.tag == ((int32_t)15)) && ((l16_n = p_s.u.whileLetStmt.node), true))) {
-#line 905 "parser/stmts.byn"
+#line 903 "parser/stmts.byn"
         t0 = (*l16_n).span;
+#line 903 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 904 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)16)) && ((l17_n = p_s.u.forStmt.node), true))) {
+#line 904 "parser/stmts.byn"
+        t0 = (*l17_n).span;
+#line 904 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 905 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)17)) && ((l18_n = p_s.u.labeledStmt.node), true))) {
+#line 905 "parser/stmts.byn"
+        t0 = (*l18_n).span;
 #line 905 "parser/stmts.byn"
         goto switch_end_1;
     }
 #line 906 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)16)) && ((l17_n = p_s.u.forStmt.node), true))) {
-#line 906 "parser/stmts.byn"
-        t0 = (*l17_n).span;
-#line 906 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 907 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)17)) && ((l18_n = p_s.u.labeledStmt.node), true))) {
-#line 907 "parser/stmts.byn"
-        t0 = (*l18_n).span;
-#line 907 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 908 "parser/stmts.byn"
     if (((p_s.tag == ((int32_t)18)) && ((l19_n = p_s.u.switchStmt.node), true))) {
-#line 908 "parser/stmts.byn"
+#line 906 "parser/stmts.byn"
         t0 = (*l19_n).span;
+#line 906 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 907 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)19)) && ((l20_n = p_s.u.deferStmt.node), true))) {
+#line 907 "parser/stmts.byn"
+        t0 = (*l20_n).span;
+#line 907 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 908 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)20)) && ((l21_n = p_s.u.assertStmt.node), true))) {
+#line 908 "parser/stmts.byn"
+        t0 = (*l21_n).span;
 #line 908 "parser/stmts.byn"
         goto switch_end_1;
     }
 #line 909 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)19)) && ((l20_n = p_s.u.deferStmt.node), true))) {
-#line 909 "parser/stmts.byn"
-        t0 = (*l20_n).span;
-#line 909 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 910 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)20)) && ((l21_n = p_s.u.assertStmt.node), true))) {
-#line 910 "parser/stmts.byn"
-        t0 = (*l21_n).span;
-#line 910 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 911 "parser/stmts.byn"
     if (((p_s.tag == ((int32_t)21)) && ((l22_n = p_s.u.contextStmt.node), true))) {
-#line 911 "parser/stmts.byn"
+#line 909 "parser/stmts.byn"
         t0 = (*l22_n).span;
+#line 909 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 910 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)22)) && ((l23_n = p_s.u.emptyStmt.node), true))) {
+#line 910 "parser/stmts.byn"
+        t0 = (*l23_n).span;
+#line 910 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 911 "parser/stmts.byn"
+    if (((p_s.tag == ((int32_t)23)) && ((l24_n = p_s.u.errorStmt.node), true))) {
+#line 911 "parser/stmts.byn"
+        t0 = (*l24_n).span;
 #line 911 "parser/stmts.byn"
         goto switch_end_1;
     }
 #line 912 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)22)) && ((l23_n = p_s.u.emptyStmt.node), true))) {
-#line 912 "parser/stmts.byn"
-        t0 = (*l23_n).span;
-#line 912 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 913 "parser/stmts.byn"
-    if (((p_s.tag == ((int32_t)23)) && ((l24_n = p_s.u.errorStmt.node), true))) {
-#line 913 "parser/stmts.byn"
-        t0 = (*l24_n).span;
-#line 913 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 914 "parser/stmts.byn"
     if ((p_s.tag == ((int32_t)24))) {
-#line 914 "parser/stmts.byn"
+#line 912 "parser/stmts.byn"
         t0 = ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)});
-#line 914 "parser/stmts.byn"
+#line 912 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 889 "parser/stmts.byn"
-    byn_panic("no switch arm matched", byn_file_19, 889);
+#line 887 "parser/stmts.byn"
+    byn_panic("no switch arm matched", byn_file_19, 887);
 switch_end_1:;
-#line 889 "parser/stmts.byn"
+#line 887 "parser/stmts.byn"
     return t0;
 }
 #line 46939 "main.c"
@@ -46947,73 +46947,73 @@ bynt_lexer__TextSpan byn_parser__typeSpan(byn_parser_TypeSyntax p_t) {
     bynt_parser__DynType* l6_n = {0};
     bynt_parser__RefinedType* l7_n = {0};
     bynt_parser__PointerType* l8_n = {0};
-#line 918 "parser/stmts.byn"
+#line 916 "parser/stmts.byn"
     if (((p_t.tag == ((int32_t)0)) && ((l1_n = p_t.u.namedType.node), true))) {
-#line 918 "parser/stmts.byn"
+#line 916 "parser/stmts.byn"
         t0 = (*l1_n).span;
+#line 916 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 917 "parser/stmts.byn"
+    if (((p_t.tag == ((int32_t)1)) && ((l2_n = p_t.u.optionalType.node), true))) {
+#line 917 "parser/stmts.byn"
+        t0 = (*l2_n).span;
+#line 917 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 918 "parser/stmts.byn"
+    if (((p_t.tag == ((int32_t)2)) && ((l3_n = p_t.u.arrayType.node), true))) {
+#line 918 "parser/stmts.byn"
+        t0 = (*l3_n).span;
 #line 918 "parser/stmts.byn"
         goto switch_end_1;
     }
 #line 919 "parser/stmts.byn"
-    if (((p_t.tag == ((int32_t)1)) && ((l2_n = p_t.u.optionalType.node), true))) {
-#line 919 "parser/stmts.byn"
-        t0 = (*l2_n).span;
-#line 919 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 920 "parser/stmts.byn"
-    if (((p_t.tag == ((int32_t)2)) && ((l3_n = p_t.u.arrayType.node), true))) {
-#line 920 "parser/stmts.byn"
-        t0 = (*l3_n).span;
-#line 920 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 921 "parser/stmts.byn"
     if (((p_t.tag == ((int32_t)3)) && ((l4_n = p_t.u.tupleType.node), true))) {
-#line 921 "parser/stmts.byn"
+#line 919 "parser/stmts.byn"
         t0 = (*l4_n).span;
+#line 919 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 920 "parser/stmts.byn"
+    if (((p_t.tag == ((int32_t)4)) && ((l5_n = p_t.u.functionTypeSyntax.node), true))) {
+#line 920 "parser/stmts.byn"
+        t0 = (*l5_n).span;
+#line 920 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 921 "parser/stmts.byn"
+    if (((p_t.tag == ((int32_t)5)) && ((l6_n = p_t.u.dynType.node), true))) {
+#line 921 "parser/stmts.byn"
+        t0 = (*l6_n).span;
 #line 921 "parser/stmts.byn"
         goto switch_end_1;
     }
 #line 922 "parser/stmts.byn"
-    if (((p_t.tag == ((int32_t)4)) && ((l5_n = p_t.u.functionTypeSyntax.node), true))) {
-#line 922 "parser/stmts.byn"
-        t0 = (*l5_n).span;
-#line 922 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 923 "parser/stmts.byn"
-    if (((p_t.tag == ((int32_t)5)) && ((l6_n = p_t.u.dynType.node), true))) {
-#line 923 "parser/stmts.byn"
-        t0 = (*l6_n).span;
-#line 923 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 924 "parser/stmts.byn"
     if (((p_t.tag == ((int32_t)6)) && ((l7_n = p_t.u.refinedType.node), true))) {
-#line 924 "parser/stmts.byn"
+#line 922 "parser/stmts.byn"
         t0 = (*l7_n).span;
+#line 922 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 923 "parser/stmts.byn"
+    if (((p_t.tag == ((int32_t)7)) && ((l8_n = p_t.u.pointerType.node), true))) {
+#line 923 "parser/stmts.byn"
+        t0 = (*l8_n).span;
+#line 923 "parser/stmts.byn"
+        goto switch_end_1;
+    }
+#line 924 "parser/stmts.byn"
+    if ((p_t.tag == ((int32_t)8))) {
+#line 924 "parser/stmts.byn"
+        t0 = ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)});
 #line 924 "parser/stmts.byn"
         goto switch_end_1;
     }
-#line 925 "parser/stmts.byn"
-    if (((p_t.tag == ((int32_t)7)) && ((l8_n = p_t.u.pointerType.node), true))) {
-#line 925 "parser/stmts.byn"
-        t0 = (*l8_n).span;
-#line 925 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 926 "parser/stmts.byn"
-    if ((p_t.tag == ((int32_t)8))) {
-#line 926 "parser/stmts.byn"
-        t0 = ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)});
-#line 926 "parser/stmts.byn"
-        goto switch_end_1;
-    }
-#line 917 "parser/stmts.byn"
-    byn_panic("no switch arm matched", byn_file_19, 917);
+#line 915 "parser/stmts.byn"
+    byn_panic("no switch arm matched", byn_file_19, 915);
 switch_end_1:;
-#line 917 "parser/stmts.byn"
+#line 915 "parser/stmts.byn"
     return t0;
 }
 #line 47020 "main.c"
