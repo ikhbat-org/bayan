@@ -12,6 +12,7 @@ public sealed class LoweringInvariantTests
     public void AnErrorNodeReachingLoweringIsAnInternalCompilerError()
     {
         var e = Lowerer.CannotLower(new BoundErrorExpr(new BreakStmt(new TextSpan(0, 0), null)));
+        Assert.IsType<InternalCompilerError>(e);
         Assert.StartsWith("internal compiler error:", e.Message);
     }
 

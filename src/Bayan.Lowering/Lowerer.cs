@@ -7,6 +7,9 @@ using OptionalType = Bayan.Semantics.Symbols.OptionalType;
 
 namespace Bayan.Lowering;
 
+/// <summary>A compiler bug found while lowering; the CLI reports it as BYN4001.</summary>
+public sealed class InternalCompilerError(string message) : Exception(message);
+
 /// <summary>Turns a bound, error-free compilation into a <see cref="LoweredProgram"/>.</summary>
 public static class Lowerer
 {
@@ -18,7 +21,12 @@ public static class Lowerer
     public static LoweredProgram Lower(Compilation c, IReadOnlyDictionary<BoundNode, BoundMutantSwitch>? mutants = null, CoverageProbes? coverage = null)
     {
         if (c.Diagnostics.HasErrors) throw new InvalidOperationException("cannot lower a compilation with errors");
-        // From here a BoundErrorExpr has no reported error behind it: CannotLower makes it an internal compiler error (Q1100).
+        // A BoundErrorExpr implies a reported error; with none reported the compiler is wrong, not the program (Q1100).
+        foreach (var module in c.Modules)
+        {
+            foreach (var body in module.AllFunctions.Where(f => !f.IsGeneric).Select(f => f.Body).Concat(module.Tests.Select(t => t.Function.Body)))
+                if (body is not null && BoundTree.Descendants(body).Any(n => n is BoundErrorExpr)) throw new InternalCompilerError(ErrorNodeMessage);
+        }
         var functions = new List<LoweredFunction>();
         var tests = new List<(TestSymbol, LoweredFunction)>();
         foreach (var module in c.Modules)
@@ -35,9 +43,11 @@ public static class Lowerer
     }
 
     /// <summary>The exception for a bound node lowering has no case for; an error node only gets here when binding reported no error.</summary>
-    public static InvalidOperationException CannotLower(BoundNode n) => n is BoundErrorExpr
-        ? new("internal compiler error: a bound error expression reached lowering with no error reported")
-        : new($"cannot lower {n.GetType().Name}");
+    public static Exception CannotLower(BoundNode n) => n is BoundErrorExpr
+        ? new InternalCompilerError(ErrorNodeMessage)
+        : new InvalidOperationException($"cannot lower {n.GetType().Name}");
+
+    private const string ErrorNodeMessage = "internal compiler error: a bound error expression reached lowering with no error reported; this is a bug in the Bayan compiler";
 }
 
 internal sealed class FunctionLowerer(FunctionSymbol fn, Builtins builtins, IReadOnlyDictionary<BoundNode, BoundMutantSwitch>? mutants = null,
