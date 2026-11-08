@@ -2,6 +2,7 @@
 # Runs a ported tool, tools/<name>.byn, with the pinned bayan (spec 015 R1, decision T2): never the working tree's
 # compiler. The tool's arguments, stdin, stdout, stderr and exit code pass through unchanged.
 # Usage: scripts/bayan-tool.sh <name> [args...]
+# BAYAN_REPO_ROOT is exported for the tool: the repo root, so a tool finds repo files whatever its working directory.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 name="${1:?usage: bayan-tool.sh <name> [args...]}"; shift
@@ -16,4 +17,5 @@ head -c 2 "$src" | grep -q "^#!" || { echo "bayan-tool: tools/$name.byn does not
 path=""; IFS=: read -ra dirs <<< "$PATH"
 for d in "${dirs[@]}"; do case "$d" in "$PWD"|"$PWD"/*) ;; *) path="${path:+$path:}$d" ;; esac; done
 bayan="$(cd "$root" && PATH="$path" bash scripts/pinned-bayan.sh)"
+export BAYAN_REPO_ROOT="$root"
 exec "$bayan" run "$src" -- "$@"
