@@ -6,10 +6,12 @@ namespace Bayan.Syntax.Lexing;
 /// </summary>
 internal static class UnicodeTables
 {
-    public static uint[] IdentStart = [], IdentContinue = [], Ccc = [], DecompIdx = [], Decomp = [], Comp = [];
+    public static uint[] IdentStart = [], IdentContinue = [], Upper = [], Lower = [], Ccc = [], DecompIdx = [], Decomp = [], Comp = [];
 
     public static ReadOnlySpan<uint> IdentStartRanges => IdentStart;
     public static ReadOnlySpan<uint> IdentContinueRanges => IdentContinue;
+    public static ReadOnlySpan<uint> UpperRanges => Upper;
+    public static ReadOnlySpan<uint> LowerRanges => Lower;
     public static ReadOnlySpan<uint> CccRanges => Ccc;
     public static ReadOnlySpan<uint> DecompIndex => DecompIdx;
     public static ReadOnlySpan<uint> DecompData => Decomp;

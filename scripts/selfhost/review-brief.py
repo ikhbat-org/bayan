@@ -11,7 +11,8 @@ if '--spec' in args:
     del args[i:i + 2]
 BRIEF = {'010': dict(desc='the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`', oracle='SelfhostSemanticsT10Tests.Expected'),
          '011': dict(desc='the Bayan lowering and C emitter ported from C# `src/Bayan.Lowering/` and `src/Bayan.Backend.C/` into Bayan under `selfhost/emitter/`', oracle='SelfhostEmitterHarness.AssertSame'),
-         '012': dict(desc='the Bayan compiler driver ported from C# `src/Bayan.Cli/` (`CliApp`) into Bayan under `selfhost/driver/`, compiled with package root `selfhost/` (stage 1 of the bootstrap)', oracle='SelfhostDriverHarness')}
+         '012': dict(desc='the Bayan compiler driver ported from C# `src/Bayan.Cli/` (`CliApp`) into Bayan under `selfhost/driver/`, compiled with package root `selfhost/` (stage 1 of the bootstrap)', oracle='SelfhostDriverHarness'),
+         '017': dict(desc='the remaining `bayan` commands ported from C# `src/Bayan.Cli/` and `src/Bayan.Testing/` into the self-hosted driver under `selfhost/driver/` (spec 017, the self-hosted compiler as the default `bayan`)', oracle='SelfhostDriverHarness')}
 if SPEC not in BRIEF: sys.exit(f'review-brief: no brief text for spec {SPEC}')
 HEAD, *TABLE = [l.split('\t') for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'specs.tsv'), encoding='utf-8').read().splitlines()]
 row = dict(zip(HEAD, next(r for r in TABLE if r[0] == SPEC)))
@@ -75,6 +76,8 @@ Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C
 5. **True docs.** Each Question in the task's range says what the code does; each break-test line citation points at the line it names. A false claim is MEDIUM.
 
 Verify each finding in the code before you write it: name the Bayan `file:line` and the C# `file:line`. Run the task's tests (`dotnet test -v q --filter "{filt}"`) once; you may add a probe under `tmp/review-{t.lower()}/` to confirm a behaviour.
+
+Cite format (`scripts/selfhost/preflight.sh` checks every `path:N` in the review file before landing): a `path:N` takes, in the same clause, a backticked symbol that is on line N or the 2 lines after it at HEAD. For a line as it was in an earlier commit, or one with no symbol to name, write `path (line N)`. On a re-review your block replaces the whole file: carry every earlier row with its status.
 
 ## Write `{row['dir']}/reviews/{t}.md`, exactly this shape
 ```

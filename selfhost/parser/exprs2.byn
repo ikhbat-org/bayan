@@ -154,7 +154,7 @@ Expr parseNameOrStructLiteral(ref Parser p) {
     let start = p.current().start
     let token = p.advance()
     let name = spanOf(token)
-    let upper = isAsciiUpper(p.text(token)[0])
+    let upper = lexer.firstIsUpper(p.text(token))
 
     if lexer.sameBytes(p.text(token), as: "stackalloc".bytes) && isTypeNameToken(p.kind()) {
         let element = parseTypeNameOnly(ref p)
@@ -178,7 +178,7 @@ Expr parseNameOrStructLiteral(ref Parser p) {
         return Expr.structLiteralExpr(Owned(StructLiteralExpr { span: p.spanFrom(start), type: move type, fields: move fields }))
     }
     // A state literal `Order.paid { … }` (spec §3.17).
-    if p.kind() == .dot && p.peek(1) == .identifier && isAsciiLower(p.text(p.peekToken(1))[0]) && p.peek(2) == .openBrace
+    if p.kind() == .dot && p.peek(1) == .identifier && lexer.firstIsLower(p.text(p.peekToken(1))) && p.peek(2) == .openBrace
         && !breaksLine(ref p, at: p.pos + 2) && (p.peek(3) == .closeBrace || (isName(p.peek(3)) && (p.peek(4) == .colon || p.peek(4) == .equals)))
         && upper && braceLiteralAllowed(ref p) {
         let _ = p.advance()
@@ -198,11 +198,6 @@ bool endsExprTypeArgs(TokenKind kind) => kind switch {
     .openParen or .dot or .closeParen or .comma or .semicolon or .closeBracket or .closeBrace or .openBrace => true,
     _ => false,
 }
-
-/// The C# `char.IsUpper`/`char.IsLower` of a name's first character, for ASCII only (Q475).
-bool isAsciiUpper(u8 b) => b >= 'A' && b <= 'Z'
-
-bool isAsciiLower(u8 b) => b >= 'a' && b <= 'z'
 
 /// A type written without array or optional suffixes (for `stackalloc T[n]`).
 TypeSyntax parseTypeNameOnly(ref Parser p) {

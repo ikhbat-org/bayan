@@ -20,6 +20,17 @@ public struct T26Symbols {
     public string dot
     public string cross
     public string ellipsis
+    // ── T19 state
+    /// `Symbols.Bar` (Style.cs:59-60), which the diagnostic renderer draws its gutter with.
+    public string bar = "│"
+    /// Whether `Style.Colors` is set; the four prefixes below are `Palette.Prefix` of `Role.Error`, `Warning`, `Help` and `Note` then.
+    public bool color = false
+    public string error = ""
+    public string warning = ""
+    public string help = ""
+    public string note = ""
+    /// `Style.Width`: where prose in a diagnostic wraps.
+    public i64 width = 100
 }
 
 /// The `BuildOptions` subset `check` and `types` read (CliApp.cs:149).
@@ -40,8 +51,9 @@ public struct T26Reported {
     public bool isWarning
 }
 
-public T26Symbols t26Symbols(bool ascii) =>
-    ascii ? T26Symbols { dot: "*", cross: "x", ellipsis: "..." } : T26Symbols { dot: "◆", cross: "✗", ellipsis: "…" }
+public T26Symbols t26Symbols(bool ascii, bool color = false, i64 width = 100, string error = "", string warning = "", string help = "", string note = "") =>
+    ascii ? T26Symbols { dot: "*", cross: "x", ellipsis: "...", bar: "|", color: color, error: error, warning: warning, help: help, note: note, width: width }
+          : T26Symbols { dot: "◆", cross: "✗", ellipsis: "…", bar: "│", color: color, error: error, warning: warning, help: help, note: note, width: width }
 
 /// The C# `File.Exists`: `path` reads and is not a directory.
 bool t26FileExists(string path) {
@@ -159,7 +171,7 @@ public void t26Report(in T26Options o, by in T26Symbols symbols, for ref Ctx c, 
         return
     }
     var omitted: i64 = 0
-    let rendered = renderAll(in c, from: in c.diagnostics, by: true, until: o.all ? noLimit : errorLimit, to: ref omitted)
+    let rendered = renderAllBy(in c, from: in c.diagnostics, by: true, until: o.all ? noLimit : errorLimit, to: ref omitted, through: in symbols)
     Io.stderr.write(rendered)
     if omitted > 0 { Io.stderr.write($"{capLine(symbols.ellipsis, by: omitted)}\n") }
 }
@@ -241,7 +253,7 @@ public i32 t26Failed(in T26Options o, from in List<T26Reported> reported, by in 
     }
     if first < 0 { return exitFailure }
     Io.stderr.write("\n")
-    Io.stderr.write($"{buildFailed(symbols.cross, by: errors, as: warnings)}\n")
+    Io.stderr.write($"{paint(in symbols, by: symbols.error, for: buildFailed(symbols.cross, by: errors, as: warnings))}\n")
     Io.stderr.write($"{buildExplain(reported[first].code)}\n")
     return exitFailure
 }

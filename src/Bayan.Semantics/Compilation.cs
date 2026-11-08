@@ -304,7 +304,7 @@ public sealed partial class Compilation
         if (EntryModule.Main is { Kind: FunctionKind.Function } main) CheckMainSignature(main);
     }
 
-    /// <summary><c>IoError</c> is numbered first, so the runtime can return its codes 1 to 7 directly; <c>Utf8Error</c> follows (8).</summary>
+    /// <summary><c>IoError</c> is numbered first, so the runtime can return its codes 1 to 9 directly; <c>Utf8Error</c> follows (10).</summary>
     private void DeclareBuiltinVariants(params ErrorSetSymbol[] sets)
     {
         foreach (var set in sets.Length > 0 ? sets : [Builtins.IoError, Builtins.Utf8Error])

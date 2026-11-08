@@ -348,4 +348,247 @@ public sealed class StdFsTests
         Assert.Equal([Expected(DiagnosticCodes.UnknownMember, src, "exists", "", "exists", "Fs")], rendered);
         Assert.Equal([Expected(DiagnosticCodes.UnknownMember, far, "zzzzzzzz", "", "zzzzzzzz", "Fs")], farRendered);
     }
+
+    /// <summary>Runs a program and gives its stdout lines (the last, empty one dropped).</summary>
+    private static async Task<string[]> Run(string program, string build, params string[] args)
+    {
+        var psi = new ProcessStartInfo(Build(program, build)) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, StandardOutputEncoding = Encoding.UTF8 };
+        foreach (var a in args) psi.ArgumentList.Add(a);
+        using var proc = Process.Start(psi)!;
+        var stderr = proc.StandardError.ReadToEndAsync();
+        var stdout = await proc.StandardOutput.ReadToEndAsync();
+        Assert.True(proc.WaitForExit(60_000), "program timed out");
+        Assert.True(proc.ExitCode == 0, await stderr);
+        Assert.EndsWith("\n", stdout);
+        return stdout[..^1].Split('\n');
+    }
+
+    /// <summary>What a .NET call does, in the words the Bayan helpers print: <c>ok</c>, <c>notFound</c>, <c>invalidInput</c> or <c>fail</c>.</summary>
+    private static string Net(Action action)
+    {
+        try { action(); return "ok"; }
+        catch (Exception e) when (e is FileNotFoundException or DirectoryNotFoundException) { return "notFound"; }
+        catch (ArgumentException) { return "invalidInput"; }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return "fail"; }
+    }
+
+    /// <summary>The <c>catch switch</c> arms of the helpers: the codes a test names, every other one <c>fail</c>.</summary>
+    private const string Arms = "        .notFound => return \"notFound\",\n        .invalidInput => return \"invalidInput\",\n        _ => return \"fail\",\n    }\n";
+
+    private static string Fresh(string name)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", name);
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        return dir;
+    }
+
+    /// <summary>
+    /// Q1112: <c>Fs.rename</c> replaces an existing file, fails a directory onto a non-empty directory, a missing source (<c>notFound</c>)
+    /// and a path with a NUL (<c>invalidInput</c>), as .NET <c>File.Move(overwrite: true)</c> and <c>Directory.Move</c> do on a twin fixture.
+    /// </summary>
+    [Fact]
+    public async Task RenameMatchesDotNet()
+    {
+        var work = Path.Combine(Golden.RepoRoot, "tmp", "std-fs-rename");
+        try
+        {
+            Fresh("std-fs-rename");
+            string Fixture(string name)
+            {
+                var dir = Path.Combine(work, name);
+                Directory.CreateDirectory(Path.Combine(dir, "d1"));
+                Directory.CreateDirectory(Path.Combine(dir, "d2"));
+                File.WriteAllText(Path.Combine(dir, "a.txt"), "from a");
+                File.WriteAllText(Path.Combine(dir, "b.txt"), "from b");
+                File.WriteAllText(Path.Combine(dir, "d1", "f.txt"), "x");
+                File.WriteAllText(Path.Combine(dir, "d2", "g.txt"), "x");
+                return dir;
+            }
+            (string From, string To, bool Directory)[] rows = [("a.txt", "b.txt", false), ("d1", "d2", true), ("missing", "c.txt", false), ("a\0b", "c.txt", false), ("b.txt", "c\0d", false)];
+            var net = Fixture("net");
+            var expected = rows.Select(r => Net(() =>
+            {
+                if (r.Directory) Directory.Move(Path.Combine(net, r.From), Path.Combine(net, r.To));
+                else File.Move(Path.Combine(net, r.From), Path.Combine(net, r.To), overwrite: true);
+            })).ToList();
+            expected.Add(File.ReadAllText(Path.Combine(net, "b.txt")));
+            var bayan = Fixture("bayan");
+            var calls = string.Concat(rows.Select(r => $"    print(renamed({Literal(Path.Combine(bayan, r.From))}, to: {Literal(Path.Combine(bayan, r.To))}))\n"));
+            var program = $"string renamed(string path, to string dest) uses fs {{\n    Fs.rename(path, to: dest) catch switch {{\n{Arms}    return \"ok\"\n}}\n\n" +
+                $"void main() uses console, fs, alloc fails IoError {{\n{calls}    print(try Io.readText({Literal(Path.Combine(bayan, "b.txt"))}))\n}}\n";
+            var actual = await Run(program, Path.Combine(work, "build"));
+            Assert.Equal(["ok", "fail", "notFound", "invalidInput", "invalidInput", "from a"], expected);
+            Assert.Equal(expected, actual);
+            Assert.False(File.Exists(Path.Combine(bayan, "a.txt")));
+        }
+        finally
+        {
+            if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        }
+    }
+
+    /// <summary>
+    /// Q1112: <c>Fs.copy</c> copies the bytes and the permission bits, so a copied script still runs; a directory source and a missing source fail,
+    /// as .NET <c>File.Copy(overwrite: true)</c> does, the directory with <c>isDirectory</c> (Q1131).
+    /// </summary>
+    [Fact]
+    public async Task CopyMatchesDotNet()
+    {
+        var work = Fresh("std-fs-copy");
+        try
+        {
+            var script = Path.Combine(work, OperatingSystem.IsWindows() ? "run.cmd" : "run.sh");
+            File.WriteAllText(script, OperatingSystem.IsWindows() ? "@echo copied\r\n" : "#!/bin/sh\necho copied\n");
+            if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(script, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute);
+            var data = Path.Combine(work, "data.bin");
+            File.WriteAllBytes(data, Enumerable.Range(0, 200_000).Select(i => (byte)(i * 7)).ToArray());
+            Directory.CreateDirectory(Path.Combine(work, "dir"));
+            File.WriteAllText(Path.Combine(work, "existing.bin"), "old");
+            var copiedScript = Path.Combine(work, "copy-" + Path.GetFileName(script));
+            (string From, string To)[] rows = [(script, copiedScript), (data, Path.Combine(work, "existing.bin")), (Path.Combine(work, "dir"), Path.Combine(work, "dir-copy")), (Path.Combine(work, "missing"), Path.Combine(work, "missing-copy"))];
+            var netDir = Path.Combine(work, "net");
+            Directory.CreateDirectory(netDir);
+            var expected = rows.Select(r => Net(() => File.Copy(r.From, Path.Combine(netDir, Path.GetFileName(r.To)), overwrite: true))).ToArray();
+            var calls = string.Concat(rows.Select(r => $"    print(copied({Literal(r.From)}, to: {Literal(r.To)}))\n"));
+            var actual = await Run(CopyProgram(calls), Path.Combine(work, "build"));
+            Assert.Equal(["ok", "ok", "fail", "notFound"], expected);
+            expected[2] = "isDirectory";
+            Assert.Equal(expected, actual);
+            Assert.Equal(File.ReadAllBytes(data), File.ReadAllBytes(Path.Combine(work, "existing.bin")));
+            Assert.Equal(File.ReadAllBytes(script), File.ReadAllBytes(copiedScript));
+            Assert.False(Directory.Exists(Path.Combine(work, "dir-copy")) || File.Exists(Path.Combine(work, "dir-copy")));
+            if (!OperatingSystem.IsWindows()) Assert.Equal(File.GetUnixFileMode(script), File.GetUnixFileMode(copiedScript));
+            var run = new ProcessStartInfo(copiedScript) { RedirectStandardOutput = true, UseShellExecute = false };
+            using var proc = Process.Start(run)!;
+            var output = await proc.StandardOutput.ReadToEndAsync();
+            Assert.True(proc.WaitForExit(60_000), "copied script timed out");
+            Assert.Equal(0, proc.ExitCode);
+            Assert.Equal("copied", output.TrimEnd());
+        }
+        finally
+        {
+            if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        }
+    }
+
+    /// <summary>A program whose <c>copied</c> prints what <c>Fs.copy</c> did, as <see cref="Arms"/> and <c>isDirectory</c>; <paramref name="calls"/> is the body of <c>main</c>.</summary>
+    private static string CopyProgram(string calls) =>
+        $"string copied(string path, to string dest) uses fs {{\n    Fs.copy(path, to: dest) catch switch {{\n        .isDirectory => return \"isDirectory\",\n{Arms}    return \"ok\"\n}}\n\nvoid main() uses console, fs {{\n{calls}}}\n";
+
+    /// <summary>Q1131: a copy onto the source by another spelling (<c>dir/../dir/f</c>, a symlink) is found by file identity and fails <c>invalidInput</c>, and the file keeps its bytes.</summary>
+    [Fact]
+    public async Task CopyOntoItselfFailsInvalidInput()
+    {
+        var work = Fresh("std-fs-copy-self");
+        try
+        {
+            var dir = Path.Combine(work, "dir");
+            Directory.CreateDirectory(dir);
+            var file = Path.Combine(dir, "f.txt");
+            var bytes = Enumerable.Range(0, 100_000).Select(i => (byte)(i * 13)).ToArray();
+            File.WriteAllBytes(file, bytes);
+            var link = Path.Combine(work, "link.txt");
+            Link(link, file, directory: false);
+            var dotted = Path.Combine(dir, "..", "dir", "f.txt");
+            var calls = $"    print(copied({Literal(file)}, to: {Literal(dotted)}))\n    print(copied({Literal(link)}, to: {Literal(file)}))\n    print(copied({Literal(file)}, to: {Literal(link)}))\n";
+            var actual = await Run(CopyProgram(calls), Path.Combine(work, "build"));
+            Assert.Equal(["invalidInput", "invalidInput", "invalidInput"], actual);
+            Assert.Equal(bytes, File.ReadAllBytes(file));
+        }
+        finally
+        {
+            if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        }
+    }
+
+    /// <summary>Q1131: a copy is new, on Windows too (where <c>CopyFileW</c> keeps the source's write time): a source last written in 2001 gives a copy written within a minute of now.</summary>
+    [Fact]
+    public async Task CopyHasANewWriteTime()
+    {
+        var work = Fresh("std-fs-copy-time");
+        try
+        {
+            var file = Path.Combine(work, "old.txt");
+            File.WriteAllText(file, "old");
+            File.SetLastWriteTimeUtc(file, new DateTime(2001, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            var copy = Path.Combine(work, "copy.txt");
+            var actual = await Run(CopyProgram($"    print(copied({Literal(file)}, to: {Literal(copy)}))\n"), Path.Combine(work, "build"));
+            Assert.Equal(["ok"], actual);
+            Assert.Equal(2001, File.GetLastWriteTimeUtc(file).Year);
+            var age = DateTime.UtcNow - File.GetLastWriteTimeUtc(copy);
+            Assert.True(age.Duration() < TimeSpan.FromMinutes(1), $"the copy was last written {File.GetLastWriteTimeUtc(copy):O}");
+        }
+        finally
+        {
+            if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        }
+    }
+
+    /// <summary>
+    /// Q1112: <c>Fs.setModified</c> to 2001-01-01 and back through <c>Fs.modified</c> gives the time .NET <c>File.GetLastWriteTimeUtc</c> reads,
+    /// to the second at least; a missing path fails both, as .NET <c>File.SetLastWriteTimeUtc</c> does.
+    /// </summary>
+    [Fact]
+    public async Task WriteTimesMatchDotNet()
+    {
+        var work = Fresh("std-fs-times");
+        try
+        {
+            var file = Path.Combine(work, "file.txt");
+            File.WriteAllText(file, "x");
+            var missing = Path.Combine(work, "missing");
+            var when = new DateTime(2001, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddTicks(1_234_567);
+            var nanos = (when - DateTime.UnixEpoch).Ticks * 100;
+            var program = $"i64 modifiedNanos(string path) uses fs {{\n    let t = Fs.modified(path) catch switch {{\n        _ => return -1,\n    }}\n    return t.nanos\n}}\n\n" +
+                $"string set(string path, to i64 nanos) uses fs {{\n    Fs.setModified(path, to: Time.fromNanos(nanos)) catch switch {{\n{Arms}    return \"ok\"\n}}\n\n" +
+                $"void main() uses console, fs {{\n    print(set({Literal(file)}, to: {nanos}))\n    print($\"{{modifiedNanos({Literal(file)})}}\")\n" +
+                $"    print(set({Literal(missing)}, to: {nanos}))\n    print($\"{{modifiedNanos({Literal(missing)})}}\")\n}}\n";
+            var actual = await Run(program, Path.Combine(work, "build"));
+            var net = File.GetLastWriteTimeUtc(file);
+            Assert.Equal(when.Ticks / TimeSpan.TicksPerSecond, net.Ticks / TimeSpan.TicksPerSecond);
+            Assert.Equal("ok", actual[0]);
+            Assert.Equal((net - DateTime.UnixEpoch).Ticks / TimeSpan.TicksPerSecond, long.Parse(actual[1]) / 1_000_000_000);
+            Assert.Equal(Net(() => File.SetLastWriteTimeUtc(missing, when)), actual[2]);
+            Assert.Equal("-1", actual[3]);
+            Assert.Equal(4, actual.Length);
+        }
+        finally
+        {
+            if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        }
+    }
+
+    /// <summary>
+    /// Q1112: <c>Fs.realPath</c> follows a chain of symlinks to what .NET <c>ResolveLinkTarget(returnFinalTarget: true)</c> gives; a missing path is
+    /// <c>notFound</c> (.NET: <c>File.Exists</c> is false) and a link cycle fails, as .NET's resolution does.
+    /// </summary>
+    [Fact]
+    public async Task RealPathMatchesDotNet()
+    {
+        var work = Fresh("std-fs-real");
+        try
+        {
+            var target = Path.Combine(work, "real.txt");
+            File.WriteAllText(target, "x");
+            Link(Path.Combine(work, "l2"), "real.txt", directory: false);
+            Link(Path.Combine(work, "l1"), "l2", directory: false);
+            Link(Path.Combine(work, "loop"), "loop", directory: false);
+            var chain = Path.Combine(work, "l1");
+            var missing = Path.Combine(work, "missing");
+            var loop = Path.Combine(work, "loop");
+            var program = $"string real(string path) uses fs, alloc {{\n    let r = Fs.realPath(path) catch switch {{\n{Arms}    return r\n}}\n\n" +
+                $"void main() uses console, fs, alloc {{\n    print(real({Literal(chain)}))\n    print(real({Literal(missing)}))\n    print(real({Literal(loop)}))\n}}\n";
+            var actual = await Run(program, Path.Combine(work, "build"));
+            Assert.Equal(new FileInfo(chain).ResolveLinkTarget(returnFinalTarget: true)!.FullName, actual[0]);
+            Assert.False(File.Exists(missing));
+            Assert.Equal("notFound", actual[1]);
+            Assert.Equal(Net(() => new FileInfo(loop).ResolveLinkTarget(returnFinalTarget: true)), actual[2]);
+            Assert.Equal("fail", actual[2]);
+        }
+        finally
+        {
+            if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        }
+    }
 }
