@@ -29,6 +29,7 @@ Small, clear, and could be picked up without a design decision.
 - Schemata.Rebinds (src/Bayan.Testing/Schemata.cs:69,132) re-binds the whole program per site via Compilation.WithFile; plan 013-plan.md:27 says per enclosing statement. Scaling cost (review 9629643fd1f5..c825a0796a20).
 - Coverage drop check: land.sh only runs quality-baseline.py update because a filtered per-task run can only raise recorded coverage; the drop check waits for a full-suite measurement.
 
+- Hermetic zig (user 2026-11-08): the build fetches the pinned zig into a repo or cache directory (e.g. `tools/zig/0.17.0/`, gitignored, via `scripts/ci/install-zig.sh`) and `Toolchain` prefers it over PATH, so a Homebrew upgrade (0.17.1 on mb1, 2026-11-08) cannot break `ZigVersionPinTests` or the cross builds.
 ## Later
 
 Real, but needs a decision, a dependency, or more information first. Say which.
