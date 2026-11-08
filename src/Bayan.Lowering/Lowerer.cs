@@ -18,6 +18,7 @@ public static class Lowerer
     public static LoweredProgram Lower(Compilation c, IReadOnlyDictionary<BoundNode, BoundMutantSwitch>? mutants = null, CoverageProbes? coverage = null)
     {
         if (c.Diagnostics.HasErrors) throw new InvalidOperationException("cannot lower a compilation with errors");
+        // From here a BoundErrorExpr has no reported error behind it: CannotLower makes it an internal compiler error (Q1100).
         var functions = new List<LoweredFunction>();
         var tests = new List<(TestSymbol, LoweredFunction)>();
         foreach (var module in c.Modules)
@@ -32,6 +33,11 @@ public static class Lowerer
         }
         return new LoweredProgram(c, functions, c.EntryModule.Main, tests, mutants is not null, coverage);
     }
+
+    /// <summary>The exception for a bound node lowering has no case for; an error node only gets here when binding reported no error.</summary>
+    public static InvalidOperationException CannotLower(BoundNode n) => n is BoundErrorExpr
+        ? new("internal compiler error: a bound error expression reached lowering with no error reported")
+        : new($"cannot lower {n.GetType().Name}");
 }
 
 internal sealed class FunctionLowerer(FunctionSymbol fn, Builtins builtins, IReadOnlyDictionary<BoundNode, BoundMutantSwitch>? mutants = null,
@@ -452,7 +458,7 @@ internal sealed class FunctionLowerer(FunctionSymbol fn, Builtins builtins, IRea
                 Become(b);
                 break;
             default:
-                throw new InvalidOperationException($"cannot lower {s.GetType().Name}");
+                throw Lowerer.CannotLower(s);
         }
     }
 
@@ -1082,7 +1088,7 @@ internal sealed class FunctionLowerer(FunctionSymbol fn, Builtins builtins, IRea
                 return new BoundBuiltinCall(i.Syntax, BuiltinMember.StrBufAsString, Local(i.Syntax, buf), [], PrimitiveType.String);
             }
             default:
-                throw new InvalidOperationException($"cannot lower {e.GetType().Name}");
+                throw Lowerer.CannotLower(e);
         }
     }
 

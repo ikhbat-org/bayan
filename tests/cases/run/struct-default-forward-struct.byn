@@ -1,0 +1,4 @@
+struct A { B b = B {} }
+struct B { i64 x = 7 }
+let a = A {}
+print($"{a.b.x}")
