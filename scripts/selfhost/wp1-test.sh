@@ -18,7 +18,7 @@ git bundle create "tmp/wp1/$S.bundle" "$BR" > /dev/null 2>&1 || { echo "wp1-test
 # replaces tmp/<short sha> only when tmp/<short sha>.wp1-test, written before the clone, says this script made it; else exit 3
 CMD="Set-Location '$R'; if (Test-Path '$S') { if (-not (Test-Path '$S.wp1-test')) { Write-Output 'wp1-test: $R/$S exists and wp1-test.sh did not create it'; exit 3 }; Remove-Item -Recurse -Force '$S' }; \
 New-Item -ItemType File -Force '$S.wp1-test' | Out-Null; git clone -q -b $BR $S.bundle $S; if (\$LASTEXITCODE) { exit \$LASTEXITCODE }; \
-Set-Location '$S'; if ((git rev-parse HEAD) -ne '$SHA') { Write-Output 'wp1-test: $BR moved after $SHA was resolved; the clone is not $SHA'; exit 4 }; dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q --filter '$FILT'; exit \$LASTEXITCODE"
+Set-Location '$S'; if ((git rev-parse HEAD) -ne '$SHA') { Write-Output 'wp1-test: $BR moved after $SHA was resolved; the clone is not $SHA'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '${BAYAN_TEST_TIME_SCALE:-3}'; dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q --filter '$FILT'; exit \$LASTEXITCODE"
 printf 'branch: %s\nsha: %s\nfilter: %s\ncommand: ssh wp1 "%s"\n' "$BR" "$SHA" "$FILT" "$CMD" > "$OUT"
 scp -q "tmp/wp1/$S.bundle" "wp1:/$R/" >> "$OUT" 2>&1; rc=$?
 [ $rc = 0 ] && { ssh wp1 "$CMD" >> "$OUT" 2>&1; rc=$?; }

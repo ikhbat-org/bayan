@@ -5,6 +5,8 @@ using Bayan.Syntax.Text;
 
 namespace Bayan.Tests;
 
+/// <summary>Runs alone: the allocation test must not share the process with a neighbour's work (GC pauses, tiering).</summary>
+[Collection(nameof(LexerAllocation))]
 public sealed class LexerTests
 {
     public static TheoryData<string> Cases => Golden.Cases("lex");
@@ -117,3 +119,6 @@ public sealed class LexerTests
         Assert.True(result.Count > 100_000);
     }
 }
+
+[CollectionDefinition(nameof(LexerAllocation), DisableParallelization = true)]
+public sealed class LexerAllocation;

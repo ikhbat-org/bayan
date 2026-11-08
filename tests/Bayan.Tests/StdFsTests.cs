@@ -90,7 +90,7 @@ public sealed class StdFsTests
             using var proc = Process.Start(psi)!;
             var stderr = proc.StandardError.ReadToEndAsync();
             var stdout = await proc.StandardOutput.ReadToEndAsync();
-            Assert.True(proc.WaitForExit(60_000), "program timed out");
+            Assert.True(proc.WaitForExit(TestTime.Scale(60_000)), "program timed out");
             Assert.True(proc.ExitCode == 0, await stderr);
             var actual = stdout.Split('\n');
             Assert.Equal(paths.Count + 1, actual.Length);
@@ -167,7 +167,7 @@ public sealed class StdFsTests
             using var proc = Process.Start(psi)!;
             var stderr = proc.StandardError.ReadToEndAsync();
             var stdout = await proc.StandardOutput.ReadToEndAsync();
-            Assert.True(proc.WaitForExit(60_000), "program timed out");
+            Assert.True(proc.WaitForExit(TestTime.Scale(60_000)), "program timed out");
             Assert.True(proc.ExitCode == 0, await stderr);
             var actual = stdout.Split('\n');
             Assert.Equal(rows.Length + 1, actual.Length);
@@ -231,7 +231,7 @@ public sealed class StdFsTests
             using var proc = Process.Start(psi)!;
             var stderr = proc.StandardError.ReadToEndAsync();
             var stdout = await proc.StandardOutput.ReadToEndAsync();
-            Assert.True(proc.WaitForExit(60_000), "program timed out");
+            Assert.True(proc.WaitForExit(TestTime.Scale(60_000)), "program timed out");
             Assert.True(proc.ExitCode == 0, await stderr);
             var actual = stdout.Split('\n');
             Assert.Equal(rows.Length + 1, actual.Length);

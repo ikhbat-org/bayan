@@ -68,7 +68,7 @@ public sealed class ProgressTests
         var writer = new StringWriter();
         using (var progress = Progress.Start(writer, Style.Plain, true, false, _ => null, "compiling", TimeSpan.FromMilliseconds(1)))
         {
-            SpinWait.SpinUntil(() => writer.ToString().Length > 0, TimeSpan.FromSeconds(5));
+            SpinWait.SpinUntil(() => writer.ToString().Length > 0, TestTime.Scale(TimeSpan.FromSeconds(5)));
             progress.Done();
         }
         var text = writer.ToString();

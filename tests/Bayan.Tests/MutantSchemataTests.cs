@@ -69,7 +69,7 @@ public sealed class MutantSchemataTests
         p.StandardInput.Close();
         var stdout = p.StandardOutput.ReadToEndLfAsync();
         var stderr = p.StandardError.ReadToEndLfAsync();
-        if (!p.WaitForExit(120_000))
+        if (!p.WaitForExit(TestTime.Scale(120_000)))
         {
             p.Kill();
             Assert.Fail($"{exe} timed out after 120 s");

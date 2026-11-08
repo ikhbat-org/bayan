@@ -135,7 +135,7 @@ public sealed class LanguageServerLeakTests(ITestOutputHelper output) : IDisposa
     {
         var t = new Thread(() => body(), 1 << 20);
         t.Start();
-        Assert.True(t.Join(TimeSpan.FromSeconds(60)), "did not finish");
+        Assert.True(t.Join(TestTime.Scale(TimeSpan.FromSeconds(60))), "did not finish");
     }
 
     [Fact]

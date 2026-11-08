@@ -150,7 +150,7 @@ public sealed class CliTests
         var sub = Directory.CreateDirectory(Path.Combine(dir, "sub")).FullName;
         Directory.CreateSymbolicLink(Path.Combine(sub, "up"), "..");
         Directory.CreateSymbolicLink(Path.Combine(sub, "up2"), "..");
-        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(1, result.Out.Split("unsafe void poke()").Length - 1);
     }
 
@@ -163,7 +163,7 @@ public sealed class CliTests
         File.WriteAllText(Path.Combine(dir, "main.byn"), "unsafe void peek() {\n}\n");
         File.WriteAllText(Path.Combine(dir, "..", "outside.byn"), "unsafe void prod() {\n}\n");
         Directory.CreateSymbolicLink(Path.Combine(dir, "link"), "..");
-        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(1, result.Out.Split("unsafe void peek()").Length - 1);
         Assert.Equal(1, result.Out.Split("unsafe void prod()").Length - 1);
     }
@@ -176,7 +176,7 @@ public sealed class CliTests
         File.CreateSymbolicLink(Path.Combine(dir, "loop.byn"), "loop.byn");
         var sub = Directory.CreateDirectory(Path.Combine(dir, "sub")).FullName;
         File.WriteAllText(Path.Combine(sub, "b.byn"), "unsafe void peek() {\n}\n");
-        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(CliApp.ExitFailure, result.Exit);
         Assert.Contains("unsafe void peek()", result.Out);
         Assert.Contains(Path.Combine(dir, "loop.byn"), result.Err);
