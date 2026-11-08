@@ -11885,7 +11885,7 @@ bynt_list_u8 byn_main__sha256(bynt_span_u8 p_data);
 bool byn_main__t6IsSkippedDirectory(byn_str p_name, bool p_atRoot);
 bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within);
 bool byn_main__t6IsByn(byn_str p_name);
-byn_str byn_main__realPath(byn_str p_path);
+byn_err byn_main__realPath(byn_str p_path, byn_str* byn_out);
 bynt_list_str byn_main__bynFiles(byn_str p_dir, int32_t* p_exit, bynt_opt_str p_within, bool p_silent);
 bynt_map_str_bool byn_main__t6OtherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p);
 byn_err byn_main__manifestFor(byn_str p_file, bynt_map_str_opt_main__T6Found* p_cache, bynt_opt_main__T6Found* byn_out);
@@ -193772,53 +193772,68 @@ int32_t byn_main__formatCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     byn_str l6_path = {0};
     int32_t l7_exit = {0};
     bynt_list_str l8_files = {0};
-    bynt_list_str t9 = {0};
-    byn_writer t10 = {0};
-    int32_t t11 = {0};
-    bynt_map_str_opt_main__T6Found l12_manifests = {0};
-    bynt_map_str_map_str_bool l13_packageNamesByRoot = {0};
-    byn_str l14_file = {0};
-    bynt_list_str t15 = {0};
-    int64_t t16 = {0};
-    bynt_opt_main__T6Found l17_package = {0};
-    byn_err t18 = {0};
-    bynt_opt_main__T6Found t19 = {0};
-    byn_err t20 = {0};
-    bynt_opt_main__T6Found t21 = {0};
-    byn_err l22_e = {0};
-    byn_writer t23 = {0};
-    int32_t t24 = {0};
-    byn_semantics_BooleanStyle l25_booleans = {0};
-    byn_semantics_PrimitiveStyle l26_primitives = {0};
-    bynt_map_str_bool l27_declared = {0};
-    bynt_main__T6Found l28_found = {0};
-    bynt_map_str_bool t29 = {0};
-    bynt_tup2_str_bool l30__ = {0};
-    bynt_map_str_bool t31 = {0};
-    int64_t t32 = {0};
-    byn_str l33_name = {0};
-    bool l34__ = {0};
-    byn_str l35_real = {0};
-    bynt_list_u8 l36_original = {0};
-    byn_err t37 = {0};
-    bynt_list_u8 t38 = {0};
-    byn_err t39 = {0};
-    bynt_list_u8 t40 = {0};
-    byn_err l41_e = {0};
-    byn_writer t42 = {0};
-    int32_t t43 = {0};
-    bool l44_unfixable = {0};
-    bynt_opt_list_u8 l45_formatted = {0};
-    bynt_list_u8 l46_bytes = {0};
-    byn_writer t47 = {0};
-    int32_t t48 = {0};
-    byn_err t49 = {0};
-    byn_err t50 = {0};
-    byn_err l52_e = {0};
-    byn_writer t53 = {0};
-    int32_t t54 = {0};
-    byn_writer t55 = {0};
-    int32_t t56 = {0};
+    byn_str l9_root = {0};
+    byn_err t10 = {0};
+    byn_str t11 = {0};
+    byn_err t12 = {0};
+    byn_str t13 = {0};
+    byn_err l14_e = {0};
+    byn_writer t15 = {0};
+    int32_t t16 = {0};
+    bynt_list_str t17 = {0};
+    byn_writer t18 = {0};
+    int32_t t19 = {0};
+    bynt_map_str_opt_main__T6Found l20_manifests = {0};
+    bynt_map_str_map_str_bool l21_packageNamesByRoot = {0};
+    byn_str l22_file = {0};
+    bynt_list_str t23 = {0};
+    int64_t t24 = {0};
+    bynt_opt_main__T6Found l25_package = {0};
+    byn_err t26 = {0};
+    bynt_opt_main__T6Found t27 = {0};
+    byn_err t28 = {0};
+    bynt_opt_main__T6Found t29 = {0};
+    byn_err l30_e = {0};
+    byn_writer t31 = {0};
+    int32_t t32 = {0};
+    byn_semantics_BooleanStyle l33_booleans = {0};
+    byn_semantics_PrimitiveStyle l34_primitives = {0};
+    bynt_map_str_bool l35_declared = {0};
+    bynt_main__T6Found l36_found = {0};
+    bynt_map_str_bool t37 = {0};
+    bynt_tup2_str_bool l38__ = {0};
+    bynt_map_str_bool t39 = {0};
+    int64_t t40 = {0};
+    byn_str l41_name = {0};
+    bool l42__ = {0};
+    byn_str l43_real = {0};
+    byn_err t44 = {0};
+    byn_str t45 = {0};
+    byn_err t46 = {0};
+    byn_str t47 = {0};
+    byn_err l48_e = {0};
+    byn_writer t49 = {0};
+    int32_t t50 = {0};
+    bynt_list_u8 l51_original = {0};
+    byn_err t52 = {0};
+    bynt_list_u8 t53 = {0};
+    byn_err t54 = {0};
+    bynt_list_u8 t55 = {0};
+    byn_err l56_e = {0};
+    byn_writer t57 = {0};
+    int32_t t58 = {0};
+    bool l59_unfixable = {0};
+    bynt_opt_list_u8 l60_formatted = {0};
+    bynt_list_u8 l61_bytes = {0};
+    byn_writer t62 = {0};
+    int32_t t63 = {0};
+    byn_err t64 = {0};
+    byn_err t65 = {0};
+    byn_err l67_e = {0};
+    byn_writer t68 = {0};
+    int32_t t69 = {0};
+    byn_writer t70 = {0};
+    int32_t t71 = {0};
 #line 46 "driver/format.byn"
     l0_rest = byn_main__t2Rest(p_kept);
 #line 47 "driver/format.byn"
@@ -193866,351 +193881,427 @@ break_1:;
     l8_files = ((bynt_list_str){NULL, 0, 0, byn_context});
 #line 63 "driver/format.byn"
     if (byn_main__t6DirectoryExists(l6_path)) {
-#line 64 "driver/format.byn"
-        t9 = byn_main__bynFiles(l6_path, &l7_exit, ((bynt_opt_str){true, byn_main__realPath(l6_path)}), false);
-#line 64 "driver/format.byn"
-        l8_files = t9;
-    } else {
 #line 65 "driver/format.byn"
+        t10 = byn_main__realPath(l6_path, &t11);
+#line 65 "driver/format.byn"
+        if ((!(t10.code == ((uint32_t)0)))) {
+#line 65 "driver/format.byn"
+            t12 = t10;
+#line 67 "driver/format.byn"
+            if ((((((((((bynh_eq_err(t12, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t12, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t12, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t12, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t12, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t12, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t12, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t12, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t12, ((byn_err){ .code = UINT32_C(9) }))) && ((l14_e = t12), true))) {
+#line 68 "driver/format.byn"
+                t16 = INT32_C(2);
+#line 68 "driver/format.byn"
+                t15 = byn_strbuf_grow(byn_context);
+#line 68 "driver/format.byn"
+                {
+                    byn_writer* w = &t15;
+                    w->file = byn_file_93;
+                    w->line = 68;
+                    byn_w_str(w, BYN_STR("bayan: ", 7));
+                    byn_w_str(w, l6_path);
+                    byn_w_str(w, BYN_STR(": ", 2));
+                    byn_w_error(w, l14_e.code);
+                    byn_w_str(w, BYN_STR("\012", 1));
+                }
+#line 68 "driver/format.byn"
+                (void)byn_io_write(t16, byn_strbuf_str(t15));
+#line 69 "driver/format.byn"
+                return ((int32_t)1);
+#line 67 "driver/format.byn"
+                goto switch_end_3;
+            }
+#line 65 "driver/format.byn"
+            byn_panic("no switch arm matched", byn_file_93, 65);
+        switch_end_3:;
+#line 65 "driver/format.byn"
+            t11 = t13;
+        }
+#line 65 "driver/format.byn"
+        l9_root = t11;
+#line 72 "driver/format.byn"
+        t17 = byn_main__bynFiles(l6_path, &l7_exit, ((bynt_opt_str){true, l9_root}), false);
+#line 72 "driver/format.byn"
+        l8_files = t17;
+    } else {
+#line 73 "driver/format.byn"
         if (byn_fs_file_exists(l6_path)) {
-#line 66 "driver/format.byn"
+#line 74 "driver/format.byn"
             (void)bynh_add_list_str(&l8_files, l6_path);
         } else {
-#line 68 "driver/format.byn"
-            t11 = INT32_C(2);
-#line 68 "driver/format.byn"
-            t10 = byn_strbuf_grow(byn_context);
-#line 68 "driver/format.byn"
+#line 76 "driver/format.byn"
+            t19 = INT32_C(2);
+#line 76 "driver/format.byn"
+            t18 = byn_strbuf_grow(byn_context);
+#line 76 "driver/format.byn"
             {
-                byn_writer* w = &t10;
+                byn_writer* w = &t18;
                 w->file = byn_file_93;
-                w->line = 68;
+                w->line = 76;
                 byn_w_str(w, BYN_STR("bayan: not found: ", 18));
                 byn_w_str(w, l6_path);
                 byn_w_str(w, BYN_STR("\012", 1));
             }
-#line 68 "driver/format.byn"
-            (void)byn_io_write(t11, byn_strbuf_str(t10));
-#line 69 "driver/format.byn"
+#line 76 "driver/format.byn"
+            (void)byn_io_write(t19, byn_strbuf_str(t18));
+#line 77 "driver/format.byn"
             return ((int32_t)2);
         }
     }
-#line 71 "driver/format.byn"
-    (void)bynh_sort_list_str(&l8_files);
-#line 72 "driver/format.byn"
-    l12_manifests = ((bynt_map_str_opt_main__T6Found){{.alloc = byn_context}, NULL, NULL});
-#line 73 "driver/format.byn"
-    l13_packageNamesByRoot = ((bynt_map_str_map_str_bool){{.alloc = byn_context}, NULL, NULL});
-#line 74 "driver/format.byn"
-    t15 = l8_files;
-#line 74 "driver/format.byn"
-    t16 = INT64_C(0);
-#line 74 "driver/format.byn"
-    for (;;) {
-#line 74 "driver/format.byn"
-        if ((!(t16 < t15.len))) {
-#line 74 "driver/format.byn"
-            goto break_3;
-        }
-#line 74 "driver/format.byn"
-        l14_file = t15.ptr[t16];
-#line 75 "driver/format.byn"
-        if (byn_str_eq(byn_path_file_name(l14_file, byn_context), BYN_STR("package.byn", 11))) {
-#line 75 "driver/format.byn"
-            goto continue_4;
-        }
-#line 76 "driver/format.byn"
-        t18 = byn_main__manifestFor(l14_file, &l12_manifests, &t19);
-#line 76 "driver/format.byn"
-        if ((!(t18.code == ((uint32_t)0)))) {
-#line 76 "driver/format.byn"
-            t20 = t18;
-#line 77 "driver/format.byn"
-            if ((((((((((bynh_eq_err(t20, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t20, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t20, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t20, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t20, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t20, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t20, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t20, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t20, ((byn_err){ .code = UINT32_C(9) }))) && ((l22_e = t20), true))) {
-#line 78 "driver/format.byn"
-                t24 = INT32_C(2);
-#line 78 "driver/format.byn"
-                t23 = byn_strbuf_grow(byn_context);
-#line 78 "driver/format.byn"
-                {
-                    byn_writer* w = &t23;
-                    w->file = byn_file_93;
-                    w->line = 78;
-                    byn_w_str(w, BYN_STR("bayan: ", 7));
-                    byn_w_str(w, l14_file);
-                    byn_w_str(w, BYN_STR(": ", 2));
-                    byn_w_error(w, l22_e.code);
-                    byn_w_str(w, BYN_STR("\012", 1));
-                }
-#line 78 "driver/format.byn"
-                (void)byn_io_write(t24, byn_strbuf_str(t23));
 #line 79 "driver/format.byn"
-                l7_exit = ((int32_t)1);
+    (void)bynh_sort_list_str(&l8_files);
 #line 80 "driver/format.byn"
-                goto continue_4;
-#line 77 "driver/format.byn"
-                goto switch_end_5;
-            }
-#line 76 "driver/format.byn"
-            byn_panic("no switch arm matched", byn_file_93, 76);
-        switch_end_5:;
-#line 76 "driver/format.byn"
-            t19 = t21;
+    l20_manifests = ((bynt_map_str_opt_main__T6Found){{.alloc = byn_context}, NULL, NULL});
+#line 81 "driver/format.byn"
+    l21_packageNamesByRoot = ((bynt_map_str_map_str_bool){{.alloc = byn_context}, NULL, NULL});
+#line 82 "driver/format.byn"
+    t23 = l8_files;
+#line 82 "driver/format.byn"
+    t24 = INT64_C(0);
+#line 82 "driver/format.byn"
+    for (;;) {
+#line 82 "driver/format.byn"
+        if ((!(t24 < t23.len))) {
+#line 82 "driver/format.byn"
+            goto break_4;
         }
-#line 76 "driver/format.byn"
-        l17_package = t19;
+#line 82 "driver/format.byn"
+        l22_file = t23.ptr[t24];
 #line 83 "driver/format.byn"
-        l25_booleans = ((byn_semantics_BooleanStyle)0);
-#line 84 "driver/format.byn"
-        l26_primitives = ((byn_semantics_PrimitiveStyle)0);
-#line 85 "driver/format.byn"
-        l27_declared = ((bynt_map_str_bool){{.alloc = byn_context}, NULL, NULL});
-#line 86 "driver/format.byn"
-        if ((l17_package.has && ((l28_found = l17_package.value), true))) {
-#line 87 "driver/format.byn"
-            if (l28_found.hasErrors) {
-#line 88 "driver/format.byn"
-                (void)byn_io_write(INT32_C(2), l28_found.report);
-#line 89 "driver/format.byn"
-                l7_exit = ((int32_t)1);
-#line 90 "driver/format.byn"
-                goto continue_4;
-            }
-#line 92 "driver/format.byn"
-            l25_booleans = l28_found.booleans;
-#line 93 "driver/format.byn"
-            l26_primitives = l28_found.primitives;
-#line 94 "driver/format.byn"
-            if ((!bynh_has_map_str_map_str_bool(l13_packageNamesByRoot, l28_found.dir))) {
-#line 94 "driver/format.byn"
-                t29 = byn_main__packageNames(l28_found.dir);
-#line 94 "driver/format.byn"
-                (*bynh_slot_map_str_map_str_bool(&l13_packageNamesByRoot, l28_found.dir, ((bynt_map_str_bool){0}))) = t29;
-            }
-#line 95 "driver/format.byn"
-            t31 = bynh_index_map_str_map_str_bool(l13_packageNamesByRoot, l28_found.dir, byn_file_93, 95);
-#line 95 "driver/format.byn"
-            t32 = INT64_C(0);
-#line 95 "driver/format.byn"
-            for (;;) {
-#line 95 "driver/format.byn"
-                if ((!(t32 < t31.h.len))) {
-#line 95 "driver/format.byn"
-                    goto break_6;
-                }
-#line 95 "driver/format.byn"
-                if ((!(!t31.h.dead[t32]))) {
-#line 95 "driver/format.byn"
-                    goto continue_7;
-                }
-#line 95 "driver/format.byn"
-                l30__ = ((bynt_tup2_str_bool){t31.keys[t32], t31.vals[t32]});
-#line 95 "driver/format.byn"
-                l33_name = l30__.item1;
-#line 95 "driver/format.byn"
-                l34__ = l30__.item2;
-#line 95 "driver/format.byn"
-                (*bynh_slot_map_str_bool(&l27_declared, l33_name, ((bool){0}))) = true;
-            continue_7:;
-#line 95 "driver/format.byn"
-                t32 = byn_addw_i64(t32, INT64_C(1));
-            }
-        break_6:;
+        if (byn_str_eq(byn_path_file_name(l22_file, byn_context), BYN_STR("package.byn", 11))) {
+#line 83 "driver/format.byn"
+            goto continue_5;
         }
-#line 98 "driver/format.byn"
-        l35_real = byn_main__realPath(l14_file);
-#line 99 "driver/format.byn"
-        t37 = (byn_err){ .code = bynh_io_read_file(l35_real, &t38) };
-#line 99 "driver/format.byn"
-        if ((!(t37.code == ((uint32_t)0)))) {
-#line 99 "driver/format.byn"
-            t39 = t37;
-#line 100 "driver/format.byn"
-            if ((((((((((bynh_eq_err(t39, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t39, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t39, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t39, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t39, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t39, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t39, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t39, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t39, ((byn_err){ .code = UINT32_C(9) }))) && ((l41_e = t39), true))) {
-#line 101 "driver/format.byn"
-                t43 = INT32_C(2);
-#line 101 "driver/format.byn"
-                t42 = byn_strbuf_grow(byn_context);
-#line 101 "driver/format.byn"
+#line 84 "driver/format.byn"
+        t26 = byn_main__manifestFor(l22_file, &l20_manifests, &t27);
+#line 84 "driver/format.byn"
+        if ((!(t26.code == ((uint32_t)0)))) {
+#line 84 "driver/format.byn"
+            t28 = t26;
+#line 85 "driver/format.byn"
+            if ((((((((((bynh_eq_err(t28, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t28, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t28, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t28, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t28, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t28, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t28, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t28, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t28, ((byn_err){ .code = UINT32_C(9) }))) && ((l30_e = t28), true))) {
+#line 86 "driver/format.byn"
+                t32 = INT32_C(2);
+#line 86 "driver/format.byn"
+                t31 = byn_strbuf_grow(byn_context);
+#line 86 "driver/format.byn"
                 {
-                    byn_writer* w = &t42;
+                    byn_writer* w = &t31;
                     w->file = byn_file_93;
-                    w->line = 101;
+                    w->line = 86;
                     byn_w_str(w, BYN_STR("bayan: ", 7));
-                    byn_w_str(w, l14_file);
+                    byn_w_str(w, l22_file);
                     byn_w_str(w, BYN_STR(": ", 2));
-                    byn_w_error(w, l41_e.code);
+                    byn_w_error(w, l30_e.code);
                     byn_w_str(w, BYN_STR("\012", 1));
                 }
-#line 101 "driver/format.byn"
-                (void)byn_io_write(t43, byn_strbuf_str(t42));
-#line 102 "driver/format.byn"
+#line 86 "driver/format.byn"
+                (void)byn_io_write(t32, byn_strbuf_str(t31));
+#line 87 "driver/format.byn"
                 l7_exit = ((int32_t)1);
-#line 103 "driver/format.byn"
-                goto continue_4;
-#line 100 "driver/format.byn"
-                goto switch_end_8;
+#line 88 "driver/format.byn"
+                goto continue_5;
+#line 85 "driver/format.byn"
+                goto switch_end_6;
             }
-#line 99 "driver/format.byn"
-            byn_panic("no switch arm matched", byn_file_93, 99);
-        switch_end_8:;
-#line 99 "driver/format.byn"
-            t38 = t40;
+#line 84 "driver/format.byn"
+            byn_panic("no switch arm matched", byn_file_93, 84);
+        switch_end_6:;
+#line 84 "driver/format.byn"
+            t27 = t29;
         }
-#line 99 "driver/format.byn"
-        l36_original = t38;
+#line 84 "driver/format.byn"
+        l25_package = t27;
+#line 91 "driver/format.byn"
+        l33_booleans = ((byn_semantics_BooleanStyle)0);
+#line 92 "driver/format.byn"
+        l34_primitives = ((byn_semantics_PrimitiveStyle)0);
+#line 93 "driver/format.byn"
+        l35_declared = ((bynt_map_str_bool){{.alloc = byn_context}, NULL, NULL});
+#line 94 "driver/format.byn"
+        if ((l25_package.has && ((l36_found = l25_package.value), true))) {
+#line 95 "driver/format.byn"
+            if (l36_found.hasErrors) {
+#line 96 "driver/format.byn"
+                (void)byn_io_write(INT32_C(2), l36_found.report);
+#line 97 "driver/format.byn"
+                l7_exit = ((int32_t)1);
+#line 98 "driver/format.byn"
+                goto continue_5;
+            }
+#line 100 "driver/format.byn"
+            l33_booleans = l36_found.booleans;
+#line 101 "driver/format.byn"
+            l34_primitives = l36_found.primitives;
+#line 102 "driver/format.byn"
+            if ((!bynh_has_map_str_map_str_bool(l21_packageNamesByRoot, l36_found.dir))) {
+#line 102 "driver/format.byn"
+                t37 = byn_main__packageNames(l36_found.dir);
+#line 102 "driver/format.byn"
+                (*bynh_slot_map_str_map_str_bool(&l21_packageNamesByRoot, l36_found.dir, ((bynt_map_str_bool){0}))) = t37;
+            }
+#line 103 "driver/format.byn"
+            t39 = bynh_index_map_str_map_str_bool(l21_packageNamesByRoot, l36_found.dir, byn_file_93, 103);
+#line 103 "driver/format.byn"
+            t40 = INT64_C(0);
+#line 103 "driver/format.byn"
+            for (;;) {
+#line 103 "driver/format.byn"
+                if ((!(t40 < t39.h.len))) {
+#line 103 "driver/format.byn"
+                    goto break_7;
+                }
+#line 103 "driver/format.byn"
+                if ((!(!t39.h.dead[t40]))) {
+#line 103 "driver/format.byn"
+                    goto continue_8;
+                }
+#line 103 "driver/format.byn"
+                l38__ = ((bynt_tup2_str_bool){t39.keys[t40], t39.vals[t40]});
+#line 103 "driver/format.byn"
+                l41_name = l38__.item1;
+#line 103 "driver/format.byn"
+                l42__ = l38__.item2;
+#line 103 "driver/format.byn"
+                (*bynh_slot_map_str_bool(&l35_declared, l41_name, ((bool){0}))) = true;
+            continue_8:;
+#line 103 "driver/format.byn"
+                t40 = byn_addw_i64(t40, INT64_C(1));
+            }
+        break_7:;
+        }
 #line 106 "driver/format.byn"
-        l44_unfixable = false;
+        t44 = byn_main__realPath(l22_file, &t45);
+#line 106 "driver/format.byn"
+        if ((!(t44.code == ((uint32_t)0)))) {
+#line 106 "driver/format.byn"
+            t46 = t44;
 #line 107 "driver/format.byn"
-        l45_formatted = byn_main__formatFile(l14_file, l36_original, l25_booleans, l26_primitives, l27_declared, p_d.maxPasses, &l44_unfixable);
+            if ((((((((((bynh_eq_err(t46, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t46, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t46, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t46, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t46, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t46, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t46, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t46, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t46, ((byn_err){ .code = UINT32_C(9) }))) && ((l48_e = t46), true))) {
 #line 108 "driver/format.byn"
-        if ((l45_formatted.has && ((l46_bytes = l45_formatted.value), true))) {
-#line 109 "driver/format.byn"
-            if (l44_unfixable) {
+                t50 = INT32_C(2);
+#line 108 "driver/format.byn"
+                t49 = byn_strbuf_grow(byn_context);
+#line 108 "driver/format.byn"
+                {
+                    byn_writer* w = &t49;
+                    w->file = byn_file_93;
+                    w->line = 108;
+                    byn_w_str(w, BYN_STR("bayan: ", 7));
+                    byn_w_str(w, l22_file);
+                    byn_w_str(w, BYN_STR(": ", 2));
+                    byn_w_error(w, l48_e.code);
+                    byn_w_str(w, BYN_STR("\012", 1));
+                }
+#line 108 "driver/format.byn"
+                (void)byn_io_write(t50, byn_strbuf_str(t49));
 #line 109 "driver/format.byn"
                 l7_exit = ((int32_t)1);
-            }
 #line 110 "driver/format.byn"
-            if ((!byn_main__t8SameBytes(l46_bytes, l36_original))) {
-#line 111 "driver/format.byn"
+                goto continue_5;
+#line 107 "driver/format.byn"
+                goto switch_end_9;
+            }
+#line 106 "driver/format.byn"
+            byn_panic("no switch arm matched", byn_file_93, 106);
+        switch_end_9:;
+#line 106 "driver/format.byn"
+            t45 = t47;
+        }
+#line 106 "driver/format.byn"
+        l43_real = t45;
+#line 113 "driver/format.byn"
+        t52 = (byn_err){ .code = bynh_io_read_file(l43_real, &t53) };
+#line 113 "driver/format.byn"
+        if ((!(t52.code == ((uint32_t)0)))) {
+#line 113 "driver/format.byn"
+            t54 = t52;
+#line 114 "driver/format.byn"
+            if ((((((((((bynh_eq_err(t54, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t54, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t54, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t54, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t54, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t54, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t54, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t54, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t54, ((byn_err){ .code = UINT32_C(9) }))) && ((l56_e = t54), true))) {
+#line 115 "driver/format.byn"
+                t58 = INT32_C(2);
+#line 115 "driver/format.byn"
+                t57 = byn_strbuf_grow(byn_context);
+#line 115 "driver/format.byn"
+                {
+                    byn_writer* w = &t57;
+                    w->file = byn_file_93;
+                    w->line = 115;
+                    byn_w_str(w, BYN_STR("bayan: ", 7));
+                    byn_w_str(w, l22_file);
+                    byn_w_str(w, BYN_STR(": ", 2));
+                    byn_w_error(w, l56_e.code);
+                    byn_w_str(w, BYN_STR("\012", 1));
+                }
+#line 115 "driver/format.byn"
+                (void)byn_io_write(t58, byn_strbuf_str(t57));
+#line 116 "driver/format.byn"
+                l7_exit = ((int32_t)1);
+#line 117 "driver/format.byn"
+                goto continue_5;
+#line 114 "driver/format.byn"
+                goto switch_end_10;
+            }
+#line 113 "driver/format.byn"
+            byn_panic("no switch arm matched", byn_file_93, 113);
+        switch_end_10:;
+#line 113 "driver/format.byn"
+            t53 = t55;
+        }
+#line 113 "driver/format.byn"
+        l51_original = t53;
+#line 120 "driver/format.byn"
+        l59_unfixable = false;
+#line 121 "driver/format.byn"
+        l60_formatted = byn_main__formatFile(l22_file, l51_original, l33_booleans, l34_primitives, l35_declared, p_d.maxPasses, &l59_unfixable);
+#line 122 "driver/format.byn"
+        if ((l60_formatted.has && ((l61_bytes = l60_formatted.value), true))) {
+#line 123 "driver/format.byn"
+            if (l59_unfixable) {
+#line 123 "driver/format.byn"
+                l7_exit = ((int32_t)1);
+            }
+#line 124 "driver/format.byn"
+            if ((!byn_main__t8SameBytes(l61_bytes, l51_original))) {
+#line 125 "driver/format.byn"
                 if (l1_check) {
-#line 112 "driver/format.byn"
-                    t48 = INT32_C(1);
-#line 112 "driver/format.byn"
-                    t47 = byn_strbuf_grow(byn_context);
-#line 112 "driver/format.byn"
+#line 126 "driver/format.byn"
+                    t63 = INT32_C(1);
+#line 126 "driver/format.byn"
+                    t62 = byn_strbuf_grow(byn_context);
+#line 126 "driver/format.byn"
                     {
-                        byn_writer* w = &t47;
+                        byn_writer* w = &t62;
                         w->file = byn_file_93;
-                        w->line = 112;
+                        w->line = 126;
                         byn_w_str(w, BYN_STR("would format ", 13));
-                        byn_w_str(w, l14_file);
+                        byn_w_str(w, l22_file);
                         byn_w_str(w, BYN_STR("\012", 1));
                     }
-#line 112 "driver/format.byn"
-                    (void)byn_io_write(t48, byn_strbuf_str(t47));
-#line 113 "driver/format.byn"
+#line 126 "driver/format.byn"
+                    (void)byn_io_write(t63, byn_strbuf_str(t62));
+#line 127 "driver/format.byn"
                     l7_exit = ((int32_t)1);
                 } else {
-#line 115 "driver/format.byn"
-                    t49 = byn_main__writeReplacing(l35_real, l46_bytes);
-#line 115 "driver/format.byn"
-                    if ((!(t49.code == ((uint32_t)0)))) {
-#line 115 "driver/format.byn"
-                        t50 = t49;
-#line 116 "driver/format.byn"
-                        if ((((((((((bynh_eq_err(t50, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t50, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t50, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t50, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t50, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t50, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t50, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t50, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t50, ((byn_err){ .code = UINT32_C(9) }))) && ((l52_e = t50), true))) {
-#line 117 "driver/format.byn"
-                            t54 = INT32_C(2);
-#line 117 "driver/format.byn"
-                            t53 = byn_strbuf_grow(byn_context);
-#line 117 "driver/format.byn"
+#line 129 "driver/format.byn"
+                    t64 = byn_main__writeReplacing(l43_real, l61_bytes);
+#line 129 "driver/format.byn"
+                    if ((!(t64.code == ((uint32_t)0)))) {
+#line 129 "driver/format.byn"
+                        t65 = t64;
+#line 130 "driver/format.byn"
+                        if ((((((((((bynh_eq_err(t65, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t65, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t65, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t65, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t65, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t65, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t65, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t65, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t65, ((byn_err){ .code = UINT32_C(9) }))) && ((l67_e = t65), true))) {
+#line 131 "driver/format.byn"
+                            t69 = INT32_C(2);
+#line 131 "driver/format.byn"
+                            t68 = byn_strbuf_grow(byn_context);
+#line 131 "driver/format.byn"
                             {
-                                byn_writer* w = &t53;
+                                byn_writer* w = &t68;
                                 w->file = byn_file_93;
-                                w->line = 117;
+                                w->line = 131;
                                 byn_w_str(w, BYN_STR("bayan: ", 7));
-                                byn_w_str(w, l14_file);
+                                byn_w_str(w, l22_file);
                                 byn_w_str(w, BYN_STR(": ", 2));
-                                byn_w_error(w, l52_e.code);
+                                byn_w_error(w, l67_e.code);
                                 byn_w_str(w, BYN_STR("\012", 1));
                             }
-#line 117 "driver/format.byn"
-                            (void)byn_io_write(t54, byn_strbuf_str(t53));
-#line 118 "driver/format.byn"
+#line 131 "driver/format.byn"
+                            (void)byn_io_write(t69, byn_strbuf_str(t68));
+#line 132 "driver/format.byn"
                             l7_exit = ((int32_t)1);
-#line 119 "driver/format.byn"
-                            goto continue_4;
-#line 116 "driver/format.byn"
-                            goto switch_end_9;
+#line 133 "driver/format.byn"
+                            goto continue_5;
+#line 130 "driver/format.byn"
+                            goto switch_end_11;
                         }
-#line 115 "driver/format.byn"
-                        byn_panic("no switch arm matched", byn_file_93, 115);
-                    switch_end_9:;
+#line 129 "driver/format.byn"
+                        byn_panic("no switch arm matched", byn_file_93, 129);
+                    switch_end_11:;
                     }
-#line 122 "driver/format.byn"
-                    t56 = INT32_C(1);
-#line 122 "driver/format.byn"
-                    t55 = byn_strbuf_grow(byn_context);
-#line 122 "driver/format.byn"
+#line 136 "driver/format.byn"
+                    t71 = INT32_C(1);
+#line 136 "driver/format.byn"
+                    t70 = byn_strbuf_grow(byn_context);
+#line 136 "driver/format.byn"
                     {
-                        byn_writer* w = &t55;
+                        byn_writer* w = &t70;
                         w->file = byn_file_93;
-                        w->line = 122;
+                        w->line = 136;
                         byn_w_str(w, BYN_STR("formatted ", 10));
-                        byn_w_str(w, l14_file);
+                        byn_w_str(w, l22_file);
                         byn_w_str(w, BYN_STR("\012", 1));
                     }
-#line 122 "driver/format.byn"
-                    (void)byn_io_write(t56, byn_strbuf_str(t55));
+#line 136 "driver/format.byn"
+                    (void)byn_io_write(t71, byn_strbuf_str(t70));
                 }
             }
         } else {
-#line 126 "driver/format.byn"
+#line 140 "driver/format.byn"
             l7_exit = ((int32_t)1);
         }
-    continue_4:;
-#line 74 "driver/format.byn"
-        t16 = byn_addw_i64(t16, INT64_C(1));
+    continue_5:;
+#line 82 "driver/format.byn"
+        t24 = byn_addw_i64(t24, INT64_C(1));
     }
-break_3:;
-#line 129 "driver/format.byn"
+break_4:;
+#line 143 "driver/format.byn"
     return l7_exit;
 }
-#line 194161 "main.c"
+#line 194252 "main.c"
 
 bool byn_main__t8SameBytes(bynt_list_u8 p_a, bynt_list_u8 p_b) {
     int64_t t0 = {0};
     int64_t l1_i = {0};
     int64_t t2 = {0};
     int64_t t3 = {0};
-#line 134 "driver/format.byn"
+#line 148 "driver/format.byn"
     t0 = p_a.len;
-#line 134 "driver/format.byn"
+#line 148 "driver/format.byn"
     if ((!(t0 == p_b.len))) {
-#line 134 "driver/format.byn"
+#line 148 "driver/format.byn"
         return false;
     }
-#line 135 "driver/format.byn"
+#line 149 "driver/format.byn"
     t2 = INT64_C(0);
-#line 135 "driver/format.byn"
+#line 149 "driver/format.byn"
     t3 = p_a.len;
-#line 135 "driver/format.byn"
+#line 149 "driver/format.byn"
     for (;;) {
-#line 135 "driver/format.byn"
+#line 149 "driver/format.byn"
         if ((!(t2 < t3))) {
-#line 135 "driver/format.byn"
+#line 149 "driver/format.byn"
             goto break_1;
         }
-#line 135 "driver/format.byn"
+#line 149 "driver/format.byn"
         l1_i = t2;
-#line 136 "driver/format.byn"
-        if ((!((*bynh_at_list_u8(p_a, (int64_t)l1_i, false, byn_file_93, 136)) == (*bynh_at_list_u8(p_b, (int64_t)l1_i, false, byn_file_93, 136))))) {
-#line 136 "driver/format.byn"
+#line 150 "driver/format.byn"
+        if ((!((*bynh_at_list_u8(p_a, (int64_t)l1_i, false, byn_file_93, 150)) == (*bynh_at_list_u8(p_b, (int64_t)l1_i, false, byn_file_93, 150))))) {
+#line 150 "driver/format.byn"
             return false;
         }
     continue_2:;
-#line 135 "driver/format.byn"
+#line 149 "driver/format.byn"
         t2 = byn_addw_i64(t2, INT64_C(1));
     }
 break_1:;
-#line 138 "driver/format.byn"
+#line 152 "driver/format.byn"
     return true;
 }
-#line 194201 "main.c"
+#line 194292 "main.c"
 
 byn_err byn_main__writeReplacing(byn_str p_file, bynt_list_u8 p_bytes) {
     byn_err t0 = {0};
-#line 144 "driver/format.byn"
+#line 158 "driver/format.byn"
     t0 = (byn_err){ .code = bynh_io_write_file(p_file, bynh_span_list_u8(p_bytes)) };
-#line 144 "driver/format.byn"
+#line 158 "driver/format.byn"
     if ((!(t0.code == ((uint32_t)0)))) {
-#line 144 "driver/format.byn"
+#line 158 "driver/format.byn"
         return t0;
     }
     return (byn_err){0};
 }
-#line 194214 "main.c"
+#line 194305 "main.c"
 
 bynt_list_u8 byn_main__applyFixes(bynt_list_u8 p_bytes, bynt_list_main__T8Fix p_fixes) {
     bynt_list_main__T8Fix l0_ordered = {0};
@@ -194239,178 +194330,178 @@ bynt_list_u8 byn_main__applyFixes(bynt_list_u8 p_bytes, bynt_list_main__T8Fix p_
     int64_t l23_i = {0};
     int64_t t24 = {0};
     int64_t t25 = {0};
-#line 150 "driver/format.byn"
+#line 164 "driver/format.byn"
     l0_ordered = ((bynt_list_main__T8Fix){NULL, 0, 0, byn_context});
-#line 151 "driver/format.byn"
+#line 165 "driver/format.byn"
     t2 = p_fixes;
-#line 151 "driver/format.byn"
+#line 165 "driver/format.byn"
     t3 = INT64_C(0);
-#line 151 "driver/format.byn"
+#line 165 "driver/format.byn"
     for (;;) {
-#line 151 "driver/format.byn"
+#line 165 "driver/format.byn"
         if ((!(t3 < t2.len))) {
-#line 151 "driver/format.byn"
+#line 165 "driver/format.byn"
             goto break_1;
         }
-#line 151 "driver/format.byn"
+#line 165 "driver/format.byn"
         l1_f = t2.ptr[t3];
-#line 152 "driver/format.byn"
+#line 166 "driver/format.byn"
         l4_seen = false;
-#line 153 "driver/format.byn"
+#line 167 "driver/format.byn"
         t6 = l0_ordered;
-#line 153 "driver/format.byn"
+#line 167 "driver/format.byn"
         t7 = INT64_C(0);
-#line 153 "driver/format.byn"
+#line 167 "driver/format.byn"
         for (;;) {
-#line 153 "driver/format.byn"
+#line 167 "driver/format.byn"
             if ((!(t7 < t6.len))) {
-#line 153 "driver/format.byn"
+#line 167 "driver/format.byn"
                 goto break_3;
             }
-#line 153 "driver/format.byn"
+#line 167 "driver/format.byn"
             l5_g = t6.ptr[t7];
-#line 154 "driver/format.byn"
+#line 168 "driver/format.byn"
             if (((l5_g.span.start == l1_f.span.start) && (l5_g.span.length == l1_f.span.length))) {
-#line 156 "driver/format.byn"
+#line 170 "driver/format.byn"
                 if (byn_str_eq(l5_g.replacement, l1_f.replacement)) {
-#line 156 "driver/format.byn"
+#line 170 "driver/format.byn"
                     l4_seen = true;
                 }
             }
         continue_4:;
-#line 153 "driver/format.byn"
+#line 167 "driver/format.byn"
             t7 = byn_addw_i64(t7, INT64_C(1));
         }
     break_3:;
-#line 159 "driver/format.byn"
+#line 173 "driver/format.byn"
         if (l4_seen) {
-#line 159 "driver/format.byn"
+#line 173 "driver/format.byn"
             goto continue_2;
         }
-#line 160 "driver/format.byn"
+#line 174 "driver/format.byn"
         (void)bynh_add_list_main__T8Fix(&l0_ordered, l1_f);
-#line 161 "driver/format.byn"
-        l8_k = byn_sub_i64(l0_ordered.len, INT64_C(1), byn_file_93, 161);
-#line 162 "driver/format.byn"
+#line 175 "driver/format.byn"
+        l8_k = byn_sub_i64(l0_ordered.len, INT64_C(1), byn_file_93, 175);
+#line 176 "driver/format.byn"
         for (;;) {
-#line 162 "driver/format.byn"
-            if ((!((l8_k > INT64_C(0)) && ((*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)byn_sub_i64(l8_k, INT64_C(1), byn_file_93, 162), false, byn_file_93, 162)).span.start > (*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)l8_k, false, byn_file_93, 162)).span.start)))) {
-#line 162 "driver/format.byn"
+#line 176 "driver/format.byn"
+            if ((!((l8_k > INT64_C(0)) && ((*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)byn_sub_i64(l8_k, INT64_C(1), byn_file_93, 176), false, byn_file_93, 176)).span.start > (*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)l8_k, false, byn_file_93, 176)).span.start)))) {
+#line 176 "driver/format.byn"
                 goto break_5;
             }
-#line 163 "driver/format.byn"
-            l9_moved = (*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)byn_sub_i64(l8_k, INT64_C(1), byn_file_93, 163), false, byn_file_93, 163));
-#line 164 "driver/format.byn"
-            t10 = (*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)l8_k, false, byn_file_93, 164));
-#line 164 "driver/format.byn"
-            (*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)byn_sub_i64(l8_k, INT64_C(1), byn_file_93, 164), false, byn_file_93, 164)) = t10;
-#line 165 "driver/format.byn"
-            (*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)l8_k, false, byn_file_93, 165)) = l9_moved;
-#line 166 "driver/format.byn"
-            l8_k = byn_sub_i64(l8_k, INT64_C(1), byn_file_93, 166);
+#line 177 "driver/format.byn"
+            l9_moved = (*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)byn_sub_i64(l8_k, INT64_C(1), byn_file_93, 177), false, byn_file_93, 177));
+#line 178 "driver/format.byn"
+            t10 = (*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)l8_k, false, byn_file_93, 178));
+#line 178 "driver/format.byn"
+            (*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)byn_sub_i64(l8_k, INT64_C(1), byn_file_93, 178), false, byn_file_93, 178)) = t10;
+#line 179 "driver/format.byn"
+            (*bynh_at_list_main__T8Fix(l0_ordered, (int64_t)l8_k, false, byn_file_93, 179)) = l9_moved;
+#line 180 "driver/format.byn"
+            l8_k = byn_sub_i64(l8_k, INT64_C(1), byn_file_93, 180);
         continue_6:;
         }
     break_5:;
     continue_2:;
-#line 151 "driver/format.byn"
+#line 165 "driver/format.byn"
         t3 = byn_addw_i64(t3, INT64_C(1));
     }
 break_1:;
-#line 169 "driver/format.byn"
+#line 183 "driver/format.byn"
     l11_result = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 170 "driver/format.byn"
+#line 184 "driver/format.byn"
     l12_at = INT64_C(0);
-#line 171 "driver/format.byn"
+#line 185 "driver/format.byn"
     t14 = l0_ordered;
-#line 171 "driver/format.byn"
+#line 185 "driver/format.byn"
     t15 = INT64_C(0);
-#line 171 "driver/format.byn"
+#line 185 "driver/format.byn"
     for (;;) {
-#line 171 "driver/format.byn"
+#line 185 "driver/format.byn"
         if ((!(t15 < t14.len))) {
-#line 171 "driver/format.byn"
+#line 185 "driver/format.byn"
             goto break_7;
         }
-#line 171 "driver/format.byn"
+#line 185 "driver/format.byn"
         l13_fix = t14.ptr[t15];
-#line 172 "driver/format.byn"
+#line 186 "driver/format.byn"
         if ((l13_fix.span.start < l12_at)) {
-#line 172 "driver/format.byn"
+#line 186 "driver/format.byn"
             goto continue_8;
         }
-#line 173 "driver/format.byn"
+#line 187 "driver/format.byn"
         t17 = l12_at;
-#line 173 "driver/format.byn"
+#line 187 "driver/format.byn"
         t18 = l13_fix.span.start;
-#line 173 "driver/format.byn"
+#line 187 "driver/format.byn"
         for (;;) {
-#line 173 "driver/format.byn"
+#line 187 "driver/format.byn"
             if ((!(t17 < t18))) {
-#line 173 "driver/format.byn"
+#line 187 "driver/format.byn"
                 goto break_9;
             }
-#line 173 "driver/format.byn"
+#line 187 "driver/format.byn"
             l16_i = t17;
-#line 173 "driver/format.byn"
-            (void)bynh_add_list_u8(&l11_result, (*bynh_at_list_u8(p_bytes, (int64_t)l16_i, false, byn_file_93, 173)));
+#line 187 "driver/format.byn"
+            (void)bynh_add_list_u8(&l11_result, (*bynh_at_list_u8(p_bytes, (int64_t)l16_i, false, byn_file_93, 187)));
         continue_10:;
-#line 173 "driver/format.byn"
+#line 187 "driver/format.byn"
             t17 = byn_addw_i64(t17, INT64_C(1));
         }
     break_9:;
-#line 174 "driver/format.byn"
+#line 188 "driver/format.byn"
         t20 = bynh_str_bytes(l13_fix.replacement);
-#line 174 "driver/format.byn"
+#line 188 "driver/format.byn"
         t21 = INT64_C(0);
-#line 174 "driver/format.byn"
+#line 188 "driver/format.byn"
         for (;;) {
-#line 174 "driver/format.byn"
+#line 188 "driver/format.byn"
             if ((!(t21 < t20.len))) {
-#line 174 "driver/format.byn"
+#line 188 "driver/format.byn"
                 goto break_11;
             }
-#line 174 "driver/format.byn"
+#line 188 "driver/format.byn"
             l19_b = t20.ptr[t21];
-#line 174 "driver/format.byn"
+#line 188 "driver/format.byn"
             (void)bynh_add_list_u8(&l11_result, l19_b);
         continue_12:;
-#line 174 "driver/format.byn"
+#line 188 "driver/format.byn"
             t21 = byn_addw_i64(t21, INT64_C(1));
         }
     break_11:;
-#line 175 "driver/format.byn"
+#line 189 "driver/format.byn"
         t22 = byn_lexer__TextSpan__get_end(&l13_fix.span);
-#line 175 "driver/format.byn"
+#line 189 "driver/format.byn"
         l12_at = t22;
     continue_8:;
-#line 171 "driver/format.byn"
+#line 185 "driver/format.byn"
         t15 = byn_addw_i64(t15, INT64_C(1));
     }
 break_7:;
-#line 177 "driver/format.byn"
+#line 191 "driver/format.byn"
     t24 = l12_at;
-#line 177 "driver/format.byn"
+#line 191 "driver/format.byn"
     t25 = p_bytes.len;
-#line 177 "driver/format.byn"
+#line 191 "driver/format.byn"
     for (;;) {
-#line 177 "driver/format.byn"
+#line 191 "driver/format.byn"
         if ((!(t24 < t25))) {
-#line 177 "driver/format.byn"
+#line 191 "driver/format.byn"
             goto break_13;
         }
-#line 177 "driver/format.byn"
+#line 191 "driver/format.byn"
         l23_i = t24;
-#line 177 "driver/format.byn"
-        (void)bynh_add_list_u8(&l11_result, (*bynh_at_list_u8(p_bytes, (int64_t)l23_i, false, byn_file_93, 177)));
+#line 191 "driver/format.byn"
+        (void)bynh_add_list_u8(&l11_result, (*bynh_at_list_u8(p_bytes, (int64_t)l23_i, false, byn_file_93, 191)));
     continue_14:;
-#line 177 "driver/format.byn"
+#line 191 "driver/format.byn"
         t24 = byn_addw_i64(t24, INT64_C(1));
     }
 break_13:;
-#line 178 "driver/format.byn"
+#line 192 "driver/format.byn"
     return l11_result;
 }
-#line 194414 "main.c"
+#line 194505 "main.c"
 
 bynt_parser__Parser byn_main__t8Parser(byn_str p_file, bynt_list_u8 p_bytes) {
     bynt_list_u8 l0_copy = {0};
@@ -194418,34 +194509,34 @@ bynt_parser__Parser byn_main__t8Parser(byn_str p_file, bynt_list_u8 p_bytes) {
     bynt_list_u8 t2 = {0};
     int64_t t3 = {0};
     bynt_lexer__SourceText t4 = {0};
-#line 185 "driver/format.byn"
+#line 199 "driver/format.byn"
     l0_copy = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 186 "driver/format.byn"
+#line 200 "driver/format.byn"
     t2 = p_bytes;
-#line 186 "driver/format.byn"
+#line 200 "driver/format.byn"
     t3 = INT64_C(0);
-#line 186 "driver/format.byn"
+#line 200 "driver/format.byn"
     for (;;) {
-#line 186 "driver/format.byn"
+#line 200 "driver/format.byn"
         if ((!(t3 < t2.len))) {
-#line 186 "driver/format.byn"
+#line 200 "driver/format.byn"
             goto break_1;
         }
-#line 186 "driver/format.byn"
+#line 200 "driver/format.byn"
         l1_b = t2.ptr[t3];
-#line 186 "driver/format.byn"
+#line 200 "driver/format.byn"
         (void)bynh_add_list_u8(&l0_copy, l1_b);
     continue_2:;
-#line 186 "driver/format.byn"
+#line 200 "driver/format.byn"
         t3 = byn_addw_i64(t3, INT64_C(1));
     }
 break_1:;
-#line 187 "driver/format.byn"
+#line 201 "driver/format.byn"
     t4 = byn_lexer__SourceText__create(p_file, l0_copy);
-#line 187 "driver/format.byn"
+#line 201 "driver/format.byn"
     return byn_parser__Parser__create(byn_lexer__lex(t4, byn_lexer__Keywords__build()));
 }
-#line 194449 "main.c"
+#line 194540 "main.c"
 
 byn_str byn_main__t8RenderAll(byn_str p_file, bynt_list_u8 p_bytes, bynt_list_lexer__Diagnostic p_diagnostics) {
     bynt_list_u8 l0_empty = {0};
@@ -194462,68 +194553,68 @@ byn_str byn_main__t8RenderAll(byn_str p_file, bynt_list_u8 p_bytes, bynt_list_le
     bynt_list_lexer__Diagnostic t11 = {0};
     int64_t t12 = {0};
     int64_t l13_omitted = {0};
-#line 193 "driver/format.byn"
+#line 207 "driver/format.byn"
     l0_empty = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 194 "driver/format.byn"
+#line 208 "driver/format.byn"
     t2 = byn_lexer__SourceText__create(p_file, l0_empty);
-#line 194 "driver/format.byn"
+#line 208 "driver/format.byn"
     l1_p = byn_parser__Parser__create(byn_lexer__lex(t2, byn_lexer__Keywords__build()));
-#line 195 "driver/format.byn"
+#line 209 "driver/format.byn"
     l3_unit = byn_parser__parseCompilationUnit(&l1_p);
-#line 196 "driver/format.byn"
+#line 210 "driver/format.byn"
     l4_text = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 197 "driver/format.byn"
+#line 211 "driver/format.byn"
     t6 = p_bytes;
-#line 197 "driver/format.byn"
+#line 211 "driver/format.byn"
     t7 = INT64_C(0);
-#line 197 "driver/format.byn"
+#line 211 "driver/format.byn"
     for (;;) {
-#line 197 "driver/format.byn"
+#line 211 "driver/format.byn"
         if ((!(t7 < t6.len))) {
-#line 197 "driver/format.byn"
+#line 211 "driver/format.byn"
             goto break_1;
         }
-#line 197 "driver/format.byn"
+#line 211 "driver/format.byn"
         l5_b = t6.ptr[t7];
-#line 197 "driver/format.byn"
+#line 211 "driver/format.byn"
         (void)bynh_add_list_u8(&l4_text, l5_b);
     continue_2:;
-#line 197 "driver/format.byn"
+#line 211 "driver/format.byn"
         t7 = byn_addw_i64(t7, INT64_C(1));
     }
 break_1:;
-#line 198 "driver/format.byn"
+#line 212 "driver/format.byn"
     l8_c = ((bynt_semantics__Ctx){((bynt_list_semantics__SourceFile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Mod){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context}), ((bynt_list_semantics__DiagBag){NULL, 0, 0, byn_context}), INT64_C(-1), false, false, ((bynt_opt_list_str){0}), BYN_STR("", 0), ((bynt_list_semantics__StructSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FieldSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__PropertySymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FunctionSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__InterfaceSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Conformance){NULL, 0, 0, byn_context}), ((bynt_list_semantics__LocalSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ConstSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorSetSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorVariantSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__TestSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumFieldSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumMemberSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnionSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnionVariantSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__TypeParam){NULL, 0, 0, byn_context}), ((bynt_list_semantics__AliasPlaceholder){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__SpanData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__DynRefData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__MapData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ArrayData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_list_semantics__TupleField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FunctionData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ResultData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__StateData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorUnionData){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__BLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSymbolLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BHostTarget){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDefault){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLocal){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BThis){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTupleElement){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCall){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBuiltinCall){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnary){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBinary){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConversion){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTryFrom){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConditional){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCoalesce){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStructLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BWith){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTuple){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCollection){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSpread){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIndex){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSlice){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRange){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIs){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSwitchExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BInterpolated){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BMove){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTry){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCatch){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BJump){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBlockExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorVariant){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BEnumMember){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionNew){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BEnumValues){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStaticArray){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStackalloc){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTypeRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BModuleRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLambda){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFunctionRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBlock){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLocalDecl){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BExprStmt){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BAssign){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BReturn){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFail){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBecome){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBreak){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BContinue){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIf){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BWhile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDoWhile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFor){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSwitch){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BAssert){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrdefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BPanicDefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSetOnPanic){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BContext){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorStmt){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConstantPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRelationalPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRangePattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBindPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BNotPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBinaryPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BPropertyPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BMethodGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BVariantGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBuiltinGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__JumpTarget){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__Constant){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__ExprSyntax){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__StructChecks){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__ExitCodeRef){NULL, 0, 0, byn_context}), INT64_C(-1), ((bynt_list_semantics__SyntaxRef){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__TestBody){{.alloc = byn_context}, NULL, NULL}), false, false, ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_lexer__TextSpan){{.alloc = byn_context}, NULL, NULL}), INT64_C(-1), INT64_C(-1), BYN_STR("", 0), BYN_STR("", 0), ((bynt_list_i64){NULL, 0, 0, byn_context}), INT64_C(-1), INT64_C(-1), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_semantics__StdLibrary){((bynt_list_semantics__StdModule){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context})}), INT64_C(0), INT64_C(0), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__TestCases){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(0), false, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(-1), ((bynt_list_semantics__FirstPass){NULL, 0, 0, byn_context}), ((bynt_list_semantics__RequiresCheck){NULL, 0, 0, byn_context}), false, ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), false, ((bynt_opt_str){0}), ((bynt_map_i64_lexer__TextSpan){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_semantics__Manifest){0}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnobservableMark){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__MutationCheck){NULL, 0, 0, byn_context}), ((bynt_map_i64_list_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__T39ThisWrite){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context}), ((bynt_list_semantics__NodeSyntax){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_semantics__CompilationOptions){false, false, false, ((bynt_opt_list_str){0}), ((bynt_opt_str){0}), ((bynt_opt_str){0}), ((bynt_opt_list_semantics__StdSource){0})}), ((bynt_list_lexer__SourceText){NULL, 0, 0, byn_context}), ((bynt_map_str_lexer__SourceText){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_map_i64_list_semantics__StorePair){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_list_i64){{.alloc = byn_context}, NULL, NULL})});
-#line 199 "driver/format.byn"
+#line 213 "driver/format.byn"
     (void)bynh_add_list_semantics__SourceFile(&l8_c.files, ((bynt_semantics__SourceFile){p_file, p_file, l4_text, l3_unit, INT64_C(-1), false, false, ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL})}));
-#line 200 "driver/format.byn"
+#line 214 "driver/format.byn"
     l9_diags = ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context});
-#line 201 "driver/format.byn"
+#line 215 "driver/format.byn"
     t11 = p_diagnostics;
-#line 201 "driver/format.byn"
+#line 215 "driver/format.byn"
     t12 = INT64_C(0);
-#line 201 "driver/format.byn"
+#line 215 "driver/format.byn"
     for (;;) {
-#line 201 "driver/format.byn"
+#line 215 "driver/format.byn"
         if ((!(t12 < t11.len))) {
-#line 201 "driver/format.byn"
+#line 215 "driver/format.byn"
             goto break_3;
         }
-#line 201 "driver/format.byn"
+#line 215 "driver/format.byn"
         l10_d = t11.ptr[t12];
-#line 202 "driver/format.byn"
+#line 216 "driver/format.byn"
         (void)bynh_add_list_semantics__Diag(&l9_diags, ((bynt_semantics__Diag){l10_d.code, INT64_C(0), l10_d.span, l10_d.message, l10_d.label, l10_d.help, false, l10_d.hasFix, l10_d.fixSpan, l10_d.fixReplacement, ((bynt_list_semantics__Related){NULL, 0, 0, byn_context})}));
     continue_4:;
-#line 201 "driver/format.byn"
+#line 215 "driver/format.byn"
         t12 = byn_addw_i64(t12, INT64_C(1));
     }
 break_3:;
-#line 216 "driver/format.byn"
+#line 230 "driver/format.byn"
     l13_omitted = INT64_C(0);
-#line 217 "driver/format.byn"
+#line 231 "driver/format.byn"
     return byn_semantics__renderAll(l8_c, l9_diags, true, INT64_C(2147483647), &l13_omitted);
 }
-#line 194527 "main.c"
+#line 194618 "main.c"
 
 byn_str byn_main__t8RenderManifest(byn_str p_path, bynt_list_semantics__Diag p_diagnostics) {
     bynt_list_u8 l0_text = {0};
@@ -194539,55 +194630,55 @@ byn_str byn_main__t8RenderManifest(byn_str p_path, bynt_list_semantics__Diag p_d
     bynt_list_semantics__Diag t10 = {0};
     int64_t t11 = {0};
     int64_t l12_omitted = {0};
-#line 223 "driver/format.byn"
+#line 237 "driver/format.byn"
     t1 = (byn_err){ .code = bynh_io_read_file(p_path, &t2) };
-#line 223 "driver/format.byn"
+#line 237 "driver/format.byn"
     if ((!(t1.code == ((uint32_t)0)))) {
-#line 223 "driver/format.byn"
+#line 237 "driver/format.byn"
         t2 = ((bynt_list_u8){NULL, 0, 0, byn_context});
     }
-#line 223 "driver/format.byn"
+#line 237 "driver/format.byn"
     l0_text = t2;
-#line 224 "driver/format.byn"
+#line 238 "driver/format.byn"
     l3_empty = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 225 "driver/format.byn"
+#line 239 "driver/format.byn"
     t5 = byn_lexer__SourceText__create(BYN_STR("package.byn", 11), l3_empty);
-#line 225 "driver/format.byn"
+#line 239 "driver/format.byn"
     l4_p = byn_parser__Parser__create(byn_lexer__lex(t5, byn_lexer__Keywords__build()));
-#line 226 "driver/format.byn"
+#line 240 "driver/format.byn"
     l6_unit = byn_parser__parseCompilationUnit(&l4_p);
-#line 227 "driver/format.byn"
+#line 241 "driver/format.byn"
     l7_c = ((bynt_semantics__Ctx){((bynt_list_semantics__SourceFile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Mod){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context}), ((bynt_list_semantics__DiagBag){NULL, 0, 0, byn_context}), INT64_C(-1), false, false, ((bynt_opt_list_str){0}), BYN_STR("", 0), ((bynt_list_semantics__StructSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FieldSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__PropertySymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FunctionSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__InterfaceSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Conformance){NULL, 0, 0, byn_context}), ((bynt_list_semantics__LocalSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ConstSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorSetSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorVariantSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__TestSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumFieldSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumMemberSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnionSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnionVariantSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__TypeParam){NULL, 0, 0, byn_context}), ((bynt_list_semantics__AliasPlaceholder){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__SpanData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__DynRefData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__MapData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ArrayData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_list_semantics__TupleField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FunctionData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ResultData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__StateData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorUnionData){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__BLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSymbolLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BHostTarget){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDefault){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLocal){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BThis){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTupleElement){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCall){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBuiltinCall){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnary){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBinary){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConversion){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTryFrom){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConditional){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCoalesce){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStructLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BWith){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTuple){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCollection){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSpread){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIndex){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSlice){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRange){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIs){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSwitchExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BInterpolated){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BMove){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTry){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCatch){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BJump){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBlockExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorVariant){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BEnumMember){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionNew){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BEnumValues){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStaticArray){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStackalloc){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTypeRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BModuleRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLambda){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFunctionRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBlock){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLocalDecl){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BExprStmt){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BAssign){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BReturn){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFail){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBecome){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBreak){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BContinue){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIf){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BWhile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDoWhile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFor){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSwitch){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BAssert){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrdefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BPanicDefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSetOnPanic){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BContext){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorStmt){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConstantPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRelationalPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRangePattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBindPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BNotPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBinaryPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BPropertyPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BMethodGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BVariantGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBuiltinGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__JumpTarget){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__Constant){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__ExprSyntax){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__StructChecks){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__ExitCodeRef){NULL, 0, 0, byn_context}), INT64_C(-1), ((bynt_list_semantics__SyntaxRef){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__TestBody){{.alloc = byn_context}, NULL, NULL}), false, false, ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_lexer__TextSpan){{.alloc = byn_context}, NULL, NULL}), INT64_C(-1), INT64_C(-1), BYN_STR("", 0), BYN_STR("", 0), ((bynt_list_i64){NULL, 0, 0, byn_context}), INT64_C(-1), INT64_C(-1), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_semantics__StdLibrary){((bynt_list_semantics__StdModule){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context})}), INT64_C(0), INT64_C(0), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__TestCases){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(0), false, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(-1), ((bynt_list_semantics__FirstPass){NULL, 0, 0, byn_context}), ((bynt_list_semantics__RequiresCheck){NULL, 0, 0, byn_context}), false, ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), false, ((bynt_opt_str){0}), ((bynt_map_i64_lexer__TextSpan){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_semantics__Manifest){0}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnobservableMark){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__MutationCheck){NULL, 0, 0, byn_context}), ((bynt_map_i64_list_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__T39ThisWrite){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context}), ((bynt_list_semantics__NodeSyntax){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_semantics__CompilationOptions){false, false, false, ((bynt_opt_list_str){0}), ((bynt_opt_str){0}), ((bynt_opt_str){0}), ((bynt_opt_list_semantics__StdSource){0})}), ((bynt_list_lexer__SourceText){NULL, 0, 0, byn_context}), ((bynt_map_str_lexer__SourceText){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_map_i64_list_semantics__StorePair){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_list_i64){{.alloc = byn_context}, NULL, NULL})});
-#line 228 "driver/format.byn"
+#line 242 "driver/format.byn"
     (void)bynh_add_list_semantics__SourceFile(&l7_c.files, ((bynt_semantics__SourceFile){BYN_STR("package.byn", 11), BYN_STR("package.byn", 11), l0_text, l6_unit, INT64_C(-1), false, false, ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL})}));
-#line 229 "driver/format.byn"
+#line 243 "driver/format.byn"
     l8_diags = ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context});
-#line 230 "driver/format.byn"
+#line 244 "driver/format.byn"
     t10 = p_diagnostics;
-#line 230 "driver/format.byn"
+#line 244 "driver/format.byn"
     t11 = INT64_C(0);
-#line 230 "driver/format.byn"
+#line 244 "driver/format.byn"
     for (;;) {
-#line 230 "driver/format.byn"
+#line 244 "driver/format.byn"
         if ((!(t11 < t10.len))) {
-#line 230 "driver/format.byn"
+#line 244 "driver/format.byn"
             goto break_1;
         }
-#line 230 "driver/format.byn"
+#line 244 "driver/format.byn"
         l9_d = t10.ptr[t11];
-#line 231 "driver/format.byn"
+#line 245 "driver/format.byn"
         (void)bynh_add_list_semantics__Diag(&l8_diags, ((bynt_semantics__Diag){l9_d.code, INT64_C(0), l9_d.span, l9_d.message, l9_d.label, l9_d.help, l9_d.isWarning, l9_d.hasFix, l9_d.fixSpan, l9_d.fixReplacement, ((bynt_list_semantics__Related){NULL, 0, 0, byn_context})}));
     continue_2:;
-#line 230 "driver/format.byn"
+#line 244 "driver/format.byn"
         t11 = byn_addw_i64(t11, INT64_C(1));
     }
 break_1:;
-#line 245 "driver/format.byn"
+#line 259 "driver/format.byn"
     l12_omitted = INT64_C(0);
-#line 246 "driver/format.byn"
+#line 260 "driver/format.byn"
     return byn_semantics__renderAll(l7_c, l8_diags, true, INT64_C(2147483647), &l12_omitted);
 }
-#line 194591 "main.c"
+#line 194682 "main.c"
 
 bynt_opt_list_u8 byn_main__formatFile(byn_str p_file, bynt_list_u8 p_bytes, byn_semantics_BooleanStyle p_booleans, byn_semantics_PrimitiveStyle p_primitives, bynt_map_str_bool p_declared, int64_t p_maxPasses, bool* p_unfixable) {
     bool l0_converged = {0};
@@ -194625,237 +194716,237 @@ bynt_opt_list_u8 byn_main__formatFile(byn_str p_file, bynt_list_u8 p_bytes, byn_
     int32_t t32 = {0};
     byn_writer t33 = {0};
     int32_t t34 = {0};
-#line 252 "driver/format.byn"
+#line 266 "driver/format.byn"
     (*p_unfixable) = false;
-#line 253 "driver/format.byn"
+#line 267 "driver/format.byn"
     l0_converged = false;
-#line 254 "driver/format.byn"
+#line 268 "driver/format.byn"
     l1_current = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 255 "driver/format.byn"
+#line 269 "driver/format.byn"
     t3 = p_bytes;
-#line 255 "driver/format.byn"
+#line 269 "driver/format.byn"
     t4 = INT64_C(0);
-#line 255 "driver/format.byn"
+#line 269 "driver/format.byn"
     for (;;) {
-#line 255 "driver/format.byn"
+#line 269 "driver/format.byn"
         if ((!(t4 < t3.len))) {
-#line 255 "driver/format.byn"
+#line 269 "driver/format.byn"
             goto break_1;
         }
-#line 255 "driver/format.byn"
+#line 269 "driver/format.byn"
         l2_b = t3.ptr[t4];
-#line 255 "driver/format.byn"
+#line 269 "driver/format.byn"
         (void)bynh_add_list_u8(&l1_current, l2_b);
     continue_2:;
-#line 255 "driver/format.byn"
+#line 269 "driver/format.byn"
         t4 = byn_addw_i64(t4, INT64_C(1));
     }
 break_1:;
-#line 256 "driver/format.byn"
+#line 270 "driver/format.byn"
     t6 = INT64_C(0);
-#line 256 "driver/format.byn"
+#line 270 "driver/format.byn"
     t7 = p_maxPasses;
-#line 256 "driver/format.byn"
+#line 270 "driver/format.byn"
     for (;;) {
-#line 256 "driver/format.byn"
+#line 270 "driver/format.byn"
         if ((!(t6 < t7))) {
-#line 256 "driver/format.byn"
+#line 270 "driver/format.byn"
             goto break_3;
         }
-#line 256 "driver/format.byn"
+#line 270 "driver/format.byn"
         l5_pass = t6;
-#line 257 "driver/format.byn"
+#line 271 "driver/format.byn"
         l8_p = byn_main__t8Parser(p_file, l1_current);
-#line 258 "driver/format.byn"
+#line 272 "driver/format.byn"
         l9_root = byn_parser__parseCompilationUnit(&l8_p);
-#line 259 "driver/format.byn"
+#line 273 "driver/format.byn"
         l10_lints = byn_parser__lintLineJoins(&l8_p);
-#line 261 "driver/format.byn"
+#line 275 "driver/format.byn"
         l11_blocking = ((bynt_list_lexer__Diagnostic){NULL, 0, 0, byn_context});
-#line 262 "driver/format.byn"
+#line 276 "driver/format.byn"
         t13 = l8_p.lexed.diagnostics;
-#line 262 "driver/format.byn"
+#line 276 "driver/format.byn"
         t14 = INT64_C(0);
-#line 262 "driver/format.byn"
+#line 276 "driver/format.byn"
         for (;;) {
-#line 262 "driver/format.byn"
+#line 276 "driver/format.byn"
             if ((!(t14 < t13.len))) {
-#line 262 "driver/format.byn"
+#line 276 "driver/format.byn"
                 goto break_5;
             }
-#line 262 "driver/format.byn"
+#line 276 "driver/format.byn"
             l12_d = t13.ptr[t14];
-#line 263 "driver/format.byn"
+#line 277 "driver/format.byn"
             if (((!(l12_d.code.len == 0)) && (!byn_main__inputForms(l12_d.code)))) {
-#line 263 "driver/format.byn"
+#line 277 "driver/format.byn"
                 (void)bynh_add_list_lexer__Diagnostic(&l11_blocking, l12_d);
             }
         continue_6:;
-#line 262 "driver/format.byn"
+#line 276 "driver/format.byn"
             t14 = byn_addw_i64(t14, INT64_C(1));
         }
     break_5:;
-#line 265 "driver/format.byn"
+#line 279 "driver/format.byn"
         if ((l11_blocking.len > INT64_C(0))) {
-#line 268 "driver/format.byn"
+#line 282 "driver/format.byn"
             if ((l5_pass == INT64_C(0))) {
-#line 269 "driver/format.byn"
+#line 283 "driver/format.byn"
                 t15 = INT32_C(2);
-#line 269 "driver/format.byn"
+#line 283 "driver/format.byn"
                 (void)byn_io_write(t15, byn_main__t8RenderAll(p_file, l1_current, l11_blocking));
             } else {
-#line 271 "driver/format.byn"
+#line 285 "driver/format.byn"
                 t17 = INT32_C(2);
-#line 271 "driver/format.byn"
+#line 285 "driver/format.byn"
                 t16 = byn_strbuf_grow(byn_context);
-#line 271 "driver/format.byn"
+#line 285 "driver/format.byn"
                 {
                     byn_writer* w = &t16;
                     w->file = byn_file_93;
-                    w->line = 271;
+                    w->line = 285;
                     byn_w_str(w, BYN_STR("bayan: ", 7));
                     byn_w_str(w, p_file);
                     byn_w_str(w, BYN_STR(": rewriting it made it unparsable, so the rewrite was abandoned and the file left unchanged\012", 92));
                 }
-#line 271 "driver/format.byn"
+#line 285 "driver/format.byn"
                 (void)byn_io_write(t17, byn_strbuf_str(t16));
             }
-#line 273 "driver/format.byn"
+#line 287 "driver/format.byn"
             return ((bynt_opt_list_u8){0});
         }
-#line 275 "driver/format.byn"
+#line 289 "driver/format.byn"
         l18_fixes = ((bynt_list_main__T8Fix){NULL, 0, 0, byn_context});
-#line 276 "driver/format.byn"
+#line 290 "driver/format.byn"
         t20 = l8_p.lexed.diagnostics;
-#line 276 "driver/format.byn"
+#line 290 "driver/format.byn"
         t21 = INT64_C(0);
-#line 276 "driver/format.byn"
+#line 290 "driver/format.byn"
         for (;;) {
-#line 276 "driver/format.byn"
+#line 290 "driver/format.byn"
             if ((!(t21 < t20.len))) {
-#line 276 "driver/format.byn"
+#line 290 "driver/format.byn"
                 goto break_7;
             }
-#line 276 "driver/format.byn"
+#line 290 "driver/format.byn"
             l19_d = t20.ptr[t21];
-#line 278 "driver/format.byn"
+#line 292 "driver/format.byn"
             if ((((!(l19_d.code.len == 0)) && byn_main__inputForms(l19_d.code)) && l19_d.hasFix)) {
-#line 278 "driver/format.byn"
+#line 292 "driver/format.byn"
                 (void)bynh_add_list_main__T8Fix(&l18_fixes, ((bynt_main__T8Fix){l19_d.fixSpan, l19_d.fixReplacement}));
             }
         continue_8:;
-#line 276 "driver/format.byn"
+#line 290 "driver/format.byn"
             t21 = byn_addw_i64(t21, INT64_C(1));
         }
     break_7:;
-#line 280 "driver/format.byn"
+#line 294 "driver/format.byn"
         t23 = l10_lints;
-#line 280 "driver/format.byn"
+#line 294 "driver/format.byn"
         t24 = INT64_C(0);
-#line 280 "driver/format.byn"
+#line 294 "driver/format.byn"
         for (;;) {
-#line 280 "driver/format.byn"
+#line 294 "driver/format.byn"
             if ((!(t24 < t23.len))) {
-#line 280 "driver/format.byn"
+#line 294 "driver/format.byn"
                 goto break_9;
             }
-#line 280 "driver/format.byn"
+#line 294 "driver/format.byn"
             l22_d = t23.ptr[t24];
-#line 280 "driver/format.byn"
+#line 294 "driver/format.byn"
             (void)bynh_add_list_main__T8Fix(&l18_fixes, ((bynt_main__T8Fix){l22_d.fixSpan, l22_d.fixReplacement}));
         continue_10:;
-#line 280 "driver/format.byn"
+#line 294 "driver/format.byn"
             t24 = byn_addw_i64(t24, INT64_C(1));
         }
     break_9:;
-#line 281 "driver/format.byn"
+#line 295 "driver/format.byn"
         l25_next = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 282 "driver/format.byn"
+#line 296 "driver/format.byn"
         if ((l18_fixes.len > INT64_C(0))) {
-#line 283 "driver/format.byn"
+#line 297 "driver/format.byn"
             t26 = byn_main__applyFixes(l1_current, l18_fixes);
-#line 283 "driver/format.byn"
+#line 297 "driver/format.byn"
             l25_next = t26;
         } else {
-#line 285 "driver/format.byn"
+#line 299 "driver/format.byn"
             t27 = byn_main__restyle(p_file, l1_current, l9_root, &l8_p, p_booleans, p_primitives, p_declared);
-#line 285 "driver/format.byn"
+#line 299 "driver/format.byn"
             l25_next = t27;
         }
-#line 287 "driver/format.byn"
+#line 301 "driver/format.byn"
         if (byn_main__t8SameBytes(l25_next, l1_current)) {
-#line 288 "driver/format.byn"
+#line 302 "driver/format.byn"
             l28_fixless = ((bynt_list_lexer__Diagnostic){NULL, 0, 0, byn_context});
-#line 289 "driver/format.byn"
+#line 303 "driver/format.byn"
             t30 = l8_p.lexed.diagnostics;
-#line 289 "driver/format.byn"
+#line 303 "driver/format.byn"
             t31 = INT64_C(0);
-#line 289 "driver/format.byn"
+#line 303 "driver/format.byn"
             for (;;) {
-#line 289 "driver/format.byn"
+#line 303 "driver/format.byn"
                 if ((!(t31 < t30.len))) {
-#line 289 "driver/format.byn"
+#line 303 "driver/format.byn"
                     goto break_11;
                 }
-#line 289 "driver/format.byn"
+#line 303 "driver/format.byn"
                 l29_d = t30.ptr[t31];
-#line 291 "driver/format.byn"
+#line 305 "driver/format.byn"
                 if (((!(l29_d.code.len == 0)) && byn_main__inputForms(l29_d.code))) {
-#line 291 "driver/format.byn"
+#line 305 "driver/format.byn"
                     (void)bynh_add_list_lexer__Diagnostic(&l28_fixless, l29_d);
                 }
             continue_12:;
-#line 289 "driver/format.byn"
+#line 303 "driver/format.byn"
                 t31 = byn_addw_i64(t31, INT64_C(1));
             }
         break_11:;
-#line 293 "driver/format.byn"
+#line 307 "driver/format.byn"
             if ((l28_fixless.len > INT64_C(0))) {
-#line 294 "driver/format.byn"
+#line 308 "driver/format.byn"
                 t32 = INT32_C(2);
-#line 294 "driver/format.byn"
+#line 308 "driver/format.byn"
                 (void)byn_io_write(t32, byn_main__t8RenderAll(p_file, l1_current, l28_fixless));
-#line 295 "driver/format.byn"
+#line 309 "driver/format.byn"
                 (*p_unfixable) = true;
             }
-#line 297 "driver/format.byn"
+#line 311 "driver/format.byn"
             l0_converged = true;
-#line 298 "driver/format.byn"
+#line 312 "driver/format.byn"
             goto break_3;
         }
-#line 300 "driver/format.byn"
+#line 314 "driver/format.byn"
         l1_current = l25_next;
     continue_4:;
-#line 256 "driver/format.byn"
+#line 270 "driver/format.byn"
         t6 = byn_addw_i64(t6, INT64_C(1));
     }
 break_3:;
-#line 303 "driver/format.byn"
+#line 317 "driver/format.byn"
     if ((!l0_converged)) {
-#line 304 "driver/format.byn"
+#line 318 "driver/format.byn"
         t34 = INT32_C(2);
-#line 304 "driver/format.byn"
+#line 318 "driver/format.byn"
         t33 = byn_strbuf_grow(byn_context);
-#line 304 "driver/format.byn"
+#line 318 "driver/format.byn"
         {
             byn_writer* w = &t33;
             w->file = byn_file_93;
-            w->line = 304;
+            w->line = 318;
             byn_w_str(w, BYN_STR("bayan: ", 7));
             byn_w_str(w, p_file);
             byn_w_str(w, BYN_STR(": still changing after ", 23));
             byn_w_i64(w, (int64_t)(p_maxPasses));
             byn_w_str(w, BYN_STR(" passes; left unfixed\012", 22));
         }
-#line 304 "driver/format.byn"
+#line 318 "driver/format.byn"
         (void)byn_io_write(t34, byn_strbuf_str(t33));
-#line 305 "driver/format.byn"
+#line 319 "driver/format.byn"
         (*p_unfixable) = true;
     }
-#line 307 "driver/format.byn"
+#line 321 "driver/format.byn"
     return ((bynt_opt_list_u8){true, l1_current});
 }
-#line 194859 "main.c"
+#line 194950 "main.c"
 
 bynt_list_u8 byn_main__restyle(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p, byn_semantics_BooleanStyle p_booleans, byn_semantics_PrimitiveStyle p_primitives, bynt_map_str_bool p_declared) {
     bynt_map_str_str l0_names = {0};
@@ -194897,229 +194988,229 @@ bynt_list_u8 byn_main__restyle(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser
     bynt_list_u8 l36_one = {0};
     bynt_parser__Parser l37_oneParser = {0};
     bynt_parser__CompilationUnit l38_oneRoot = {0};
-#line 314 "driver/format.byn"
+#line 328 "driver/format.byn"
     l0_names = ((p_primitives == ((byn_semantics_PrimitiveStyle)0)) ? byn_main__cSharpPrimitives() : byn_main__sizedPrimitives());
-#line 315 "driver/format.byn"
+#line 329 "driver/format.byn"
     l1_copy = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 316 "driver/format.byn"
+#line 330 "driver/format.byn"
     t3 = p_bytes;
-#line 316 "driver/format.byn"
+#line 330 "driver/format.byn"
     t4 = INT64_C(0);
-#line 316 "driver/format.byn"
+#line 330 "driver/format.byn"
     for (;;) {
-#line 316 "driver/format.byn"
+#line 330 "driver/format.byn"
         if ((!(t4 < t3.len))) {
-#line 316 "driver/format.byn"
+#line 330 "driver/format.byn"
             goto break_1;
         }
-#line 316 "driver/format.byn"
+#line 330 "driver/format.byn"
         l2_b = t3.ptr[t4];
-#line 316 "driver/format.byn"
+#line 330 "driver/format.byn"
         (void)bynh_add_list_u8(&l1_copy, l2_b);
     continue_2:;
-#line 316 "driver/format.byn"
+#line 330 "driver/format.byn"
         t4 = byn_addw_i64(t4, INT64_C(1));
     }
 break_1:;
-#line 317 "driver/format.byn"
+#line 331 "driver/format.byn"
     t6 = byn_lexer__SourceText__create(p_file, l1_copy);
-#line 317 "driver/format.byn"
+#line 331 "driver/format.byn"
     l5_lexed = byn_lexer__lex(t6, byn_lexer__Keywords__build());
-#line 318 "driver/format.byn"
+#line 332 "driver/format.byn"
     l7_tokens = bynh_copy_list_lexer__Token(l5_lexed.tokens, byn_context);
-#line 322 "driver/format.byn"
+#line 336 "driver/format.byn"
     l8_typeNames = byn_main__t8Starts(byn_parser__typeNames(p_tree, &(*p_p)));
-#line 323 "driver/format.byn"
+#line 337 "driver/format.byn"
     l9_calleeNames = byn_main__t8Starts(byn_parser__calleeAndReceiverNames(p_tree, &(*p_p)));
-#line 324 "driver/format.byn"
+#line 338 "driver/format.byn"
     l10_others = byn_main__otherUses(p_file, p_bytes, p_tree, &(*p_p));
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
     t12 = p_declared;
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
     t13 = INT64_C(0);
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
     for (;;) {
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
         if ((!(t13 < t12.h.len))) {
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
             goto break_3;
         }
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
         if ((!(!t12.h.dead[t13]))) {
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
             goto continue_4;
         }
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
         l11__ = ((bynt_tup2_str_bool){t12.keys[t13], t12.vals[t13]});
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
         l14_name = l11__.item1;
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
         l15__ = l11__.item2;
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
         (*bynh_slot_map_str_bool(&l10_others, l14_name, ((bool){0}))) = true;
     continue_4:;
-#line 325 "driver/format.byn"
+#line 339 "driver/format.byn"
         t13 = byn_addw_i64(t13, INT64_C(1));
     }
 break_3:;
-#line 326 "driver/format.byn"
+#line 340 "driver/format.byn"
     l16_renames = ((bynt_list_main__T8Fix){NULL, 0, 0, byn_context});
-#line 327 "driver/format.byn"
+#line 341 "driver/format.byn"
     l17_operators = ((bynt_list_main__T8Fix){NULL, 0, 0, byn_context});
-#line 328 "driver/format.byn"
+#line 342 "driver/format.byn"
     t19 = INT64_C(0);
-#line 328 "driver/format.byn"
+#line 342 "driver/format.byn"
     t20 = l7_tokens.len;
-#line 328 "driver/format.byn"
+#line 342 "driver/format.byn"
     for (;;) {
-#line 328 "driver/format.byn"
+#line 342 "driver/format.byn"
         if ((!(t19 < t20))) {
-#line 328 "driver/format.byn"
+#line 342 "driver/format.byn"
             goto break_5;
         }
-#line 328 "driver/format.byn"
+#line 342 "driver/format.byn"
         l18_i = t19;
-#line 329 "driver/format.byn"
-        l21_token = (*bynh_at_list_lexer__Token(l7_tokens, (int64_t)l18_i, false, byn_file_93, 329));
-#line 330 "driver/format.byn"
+#line 343 "driver/format.byn"
+        l21_token = (*bynh_at_list_lexer__Token(l7_tokens, (int64_t)l18_i, false, byn_file_93, 343));
+#line 344 "driver/format.byn"
         l22_renamed = false;
-#line 331 "driver/format.byn"
+#line 345 "driver/format.byn"
         if (((l21_token.kind == ((byn_lexer_TokenKind)1)) && (bynh_has_map_i64_bool(l8_typeNames, l21_token.start) || bynh_has_map_i64_bool(l9_calleeNames, l21_token.start)))) {
-#line 332 "driver/format.byn"
+#line 346 "driver/format.byn"
             l23_text = byn_lexer__SourceText__getText(&l5_lexed.source, byn_lexer__TextSpan__fromBounds(l21_token.start, byn_lexer__Token__get_end(&l21_token)));
-#line 333 "driver/format.byn"
+#line 347 "driver/format.byn"
             if ((bynh_has_map_str_str(l0_names, l23_text) && (bynh_has_map_i64_bool(l8_typeNames, l21_token.start) || (!bynh_has_map_str_bool(l10_others, l23_text))))) {
-#line 334 "driver/format.byn"
-                (void)bynh_add_list_main__T8Fix(&l16_renames, ((bynt_main__T8Fix){((bynt_lexer__TextSpan){l21_token.start, l21_token.length}), bynh_index_map_str_str(l0_names, l23_text, byn_file_93, 334)}));
-#line 335 "driver/format.byn"
+#line 348 "driver/format.byn"
+                (void)bynh_add_list_main__T8Fix(&l16_renames, ((bynt_main__T8Fix){((bynt_lexer__TextSpan){l21_token.start, l21_token.length}), bynh_index_map_str_str(l0_names, l23_text, byn_file_93, 348)}));
+#line 349 "driver/format.byn"
                 l22_renamed = true;
             }
         }
-#line 338 "driver/format.byn"
+#line 352 "driver/format.byn"
         if ((!l22_renamed)) {
-#line 339 "driver/format.byn"
+#line 353 "driver/format.byn"
             t24 = byn_main__operatorFix(p_bytes, l7_tokens, l18_i, p_booleans);
-#line 339 "driver/format.byn"
+#line 353 "driver/format.byn"
             if ((t24.has && ((l25_fix = t24.value), true))) {
-#line 339 "driver/format.byn"
+#line 353 "driver/format.byn"
                 (void)bynh_add_list_main__T8Fix(&l17_operators, l25_fix);
             }
         }
     continue_6:;
-#line 328 "driver/format.byn"
+#line 342 "driver/format.byn"
         t19 = byn_addw_i64(t19, INT64_C(1));
     }
 break_5:;
-#line 343 "driver/format.byn"
+#line 357 "driver/format.byn"
     if ((l16_renames.len > INT64_C(0))) {
-#line 343 "driver/format.byn"
+#line 357 "driver/format.byn"
         return byn_main__applyFixes(p_bytes, l16_renames);
     }
-#line 344 "driver/format.byn"
+#line 358 "driver/format.byn"
     l26_result = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 345 "driver/format.byn"
+#line 359 "driver/format.byn"
     t28 = p_bytes;
-#line 345 "driver/format.byn"
+#line 359 "driver/format.byn"
     t29 = INT64_C(0);
-#line 345 "driver/format.byn"
+#line 359 "driver/format.byn"
     for (;;) {
-#line 345 "driver/format.byn"
+#line 359 "driver/format.byn"
         if ((!(t29 < t28.len))) {
-#line 345 "driver/format.byn"
+#line 359 "driver/format.byn"
             goto break_7;
         }
-#line 345 "driver/format.byn"
+#line 359 "driver/format.byn"
         l27_b = t28.ptr[t29];
-#line 345 "driver/format.byn"
+#line 359 "driver/format.byn"
         (void)bynh_add_list_u8(&l26_result, l27_b);
     continue_8:;
-#line 345 "driver/format.byn"
+#line 359 "driver/format.byn"
         t29 = byn_addw_i64(t29, INT64_C(1));
     }
 break_7:;
-#line 346 "driver/format.byn"
+#line 360 "driver/format.byn"
     if ((l17_operators.len == INT64_C(0))) {
-#line 346 "driver/format.byn"
+#line 360 "driver/format.byn"
         return l26_result;
     }
-#line 347 "driver/format.byn"
+#line 361 "driver/format.byn"
     l30_before = byn_main__shape(p_tree, &(*p_p));
-#line 348 "driver/format.byn"
+#line 362 "driver/format.byn"
     l31_all = byn_main__applyFixes(p_bytes, l17_operators);
-#line 349 "driver/format.byn"
+#line 363 "driver/format.byn"
     l32_allParser = byn_main__t8Parser(p_file, l31_all);
-#line 350 "driver/format.byn"
+#line 364 "driver/format.byn"
     l33_allRoot = byn_parser__parseCompilationUnit(&l32_allParser);
-#line 351 "driver/format.byn"
+#line 365 "driver/format.byn"
     if (byn_str_eq(byn_main__shape(l33_allRoot, &l32_allParser), l30_before)) {
-#line 351 "driver/format.byn"
+#line 365 "driver/format.byn"
         return l31_all;
     }
-#line 353 "driver/format.byn"
-    l34_i = byn_sub_i64(l17_operators.len, INT64_C(1), byn_file_93, 353);
-#line 354 "driver/format.byn"
+#line 367 "driver/format.byn"
+    l34_i = byn_sub_i64(l17_operators.len, INT64_C(1), byn_file_93, 367);
+#line 368 "driver/format.byn"
     for (;;) {
-#line 354 "driver/format.byn"
+#line 368 "driver/format.byn"
         if ((!(l34_i >= INT64_C(0)))) {
-#line 354 "driver/format.byn"
+#line 368 "driver/format.byn"
             goto break_9;
         }
-#line 355 "driver/format.byn"
+#line 369 "driver/format.byn"
         l35_single = ((bynt_list_main__T8Fix){NULL, 0, 0, byn_context});
-#line 356 "driver/format.byn"
-        (void)bynh_add_list_main__T8Fix(&l35_single, (*bynh_at_list_main__T8Fix(l17_operators, (int64_t)l34_i, false, byn_file_93, 356)));
-#line 357 "driver/format.byn"
+#line 370 "driver/format.byn"
+        (void)bynh_add_list_main__T8Fix(&l35_single, (*bynh_at_list_main__T8Fix(l17_operators, (int64_t)l34_i, false, byn_file_93, 370)));
+#line 371 "driver/format.byn"
         l36_one = byn_main__applyFixes(l26_result, l35_single);
-#line 358 "driver/format.byn"
+#line 372 "driver/format.byn"
         l37_oneParser = byn_main__t8Parser(p_file, l36_one);
-#line 359 "driver/format.byn"
+#line 373 "driver/format.byn"
         l38_oneRoot = byn_parser__parseCompilationUnit(&l37_oneParser);
-#line 360 "driver/format.byn"
+#line 374 "driver/format.byn"
         if (byn_str_eq(byn_main__shape(l38_oneRoot, &l37_oneParser), l30_before)) {
-#line 360 "driver/format.byn"
+#line 374 "driver/format.byn"
             l26_result = l36_one;
         }
-#line 361 "driver/format.byn"
-        l34_i = byn_sub_i64(l34_i, INT64_C(1), byn_file_93, 361);
+#line 375 "driver/format.byn"
+        l34_i = byn_sub_i64(l34_i, INT64_C(1), byn_file_93, 375);
     continue_10:;
     }
 break_9:;
-#line 363 "driver/format.byn"
+#line 377 "driver/format.byn"
     return l26_result;
 }
-#line 195091 "main.c"
+#line 195182 "main.c"
 
 bynt_map_i64_bool byn_main__t8Starts(bynt_list_lexer__TextSpan p_names) {
     bynt_map_i64_bool l0_starts = {0};
     bynt_lexer__TextSpan l1_n = {0};
     bynt_list_lexer__TextSpan t2 = {0};
     int64_t t3 = {0};
-#line 368 "driver/format.byn"
+#line 382 "driver/format.byn"
     l0_starts = ((bynt_map_i64_bool){{.alloc = byn_context}, NULL, NULL});
-#line 369 "driver/format.byn"
+#line 383 "driver/format.byn"
     t2 = p_names;
-#line 369 "driver/format.byn"
+#line 383 "driver/format.byn"
     t3 = INT64_C(0);
-#line 369 "driver/format.byn"
+#line 383 "driver/format.byn"
     for (;;) {
-#line 369 "driver/format.byn"
+#line 383 "driver/format.byn"
         if ((!(t3 < t2.len))) {
-#line 369 "driver/format.byn"
+#line 383 "driver/format.byn"
             goto break_1;
         }
-#line 369 "driver/format.byn"
+#line 383 "driver/format.byn"
         l1_n = t2.ptr[t3];
-#line 369 "driver/format.byn"
+#line 383 "driver/format.byn"
         (*bynh_slot_map_i64_bool(&l0_starts, l1_n.start, ((bool){0}))) = true;
     continue_2:;
-#line 369 "driver/format.byn"
+#line 383 "driver/format.byn"
         t3 = byn_addw_i64(t3, INT64_C(1));
     }
 break_1:;
-#line 370 "driver/format.byn"
+#line 384 "driver/format.byn"
     return l0_starts;
 }
-#line 195123 "main.c"
+#line 195214 "main.c"
 
 bynt_map_str_bool byn_main__otherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
     bynt_list_u8 l0_copy = {0};
@@ -195136,82 +195227,82 @@ bynt_map_str_bool byn_main__otherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt
     int64_t t11 = {0};
     int64_t t12 = {0};
     bynt_lexer__Token l13_t = {0};
-#line 376 "driver/format.byn"
+#line 390 "driver/format.byn"
     l0_copy = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 377 "driver/format.byn"
+#line 391 "driver/format.byn"
     t2 = p_bytes;
-#line 377 "driver/format.byn"
+#line 391 "driver/format.byn"
     t3 = INT64_C(0);
-#line 377 "driver/format.byn"
+#line 391 "driver/format.byn"
     for (;;) {
-#line 377 "driver/format.byn"
+#line 391 "driver/format.byn"
         if ((!(t3 < t2.len))) {
-#line 377 "driver/format.byn"
+#line 391 "driver/format.byn"
             goto break_1;
         }
-#line 377 "driver/format.byn"
+#line 391 "driver/format.byn"
         l1_b = t2.ptr[t3];
-#line 377 "driver/format.byn"
+#line 391 "driver/format.byn"
         (void)bynh_add_list_u8(&l0_copy, l1_b);
     continue_2:;
-#line 377 "driver/format.byn"
+#line 391 "driver/format.byn"
         t3 = byn_addw_i64(t3, INT64_C(1));
     }
 break_1:;
-#line 378 "driver/format.byn"
+#line 392 "driver/format.byn"
     t5 = byn_lexer__SourceText__create(p_file, l0_copy);
-#line 378 "driver/format.byn"
+#line 392 "driver/format.byn"
     l4_lexed = byn_lexer__lex(t5, byn_lexer__Keywords__build());
-#line 379 "driver/format.byn"
+#line 393 "driver/format.byn"
     l6_tokens = bynh_copy_list_lexer__Token(l4_lexed.tokens, byn_context);
-#line 380 "driver/format.byn"
+#line 394 "driver/format.byn"
     l7_typeNames = byn_main__t8Starts(byn_parser__typeNames(p_tree, &(*p_p)));
-#line 381 "driver/format.byn"
+#line 395 "driver/format.byn"
     l8_calleeNames = byn_main__t8Starts(byn_parser__calleeAndReceiverNames(p_tree, &(*p_p)));
-#line 382 "driver/format.byn"
+#line 396 "driver/format.byn"
     l9_found = ((bynt_map_str_bool){{.alloc = byn_context}, NULL, NULL});
-#line 383 "driver/format.byn"
+#line 397 "driver/format.byn"
     t11 = INT64_C(0);
-#line 383 "driver/format.byn"
+#line 397 "driver/format.byn"
     t12 = l6_tokens.len;
-#line 383 "driver/format.byn"
+#line 397 "driver/format.byn"
     for (;;) {
-#line 383 "driver/format.byn"
+#line 397 "driver/format.byn"
         if ((!(t11 < t12))) {
-#line 383 "driver/format.byn"
+#line 397 "driver/format.byn"
             goto break_3;
         }
-#line 383 "driver/format.byn"
+#line 397 "driver/format.byn"
         l10_i = t11;
-#line 384 "driver/format.byn"
-        l13_t = (*bynh_at_list_lexer__Token(l6_tokens, (int64_t)l10_i, false, byn_file_93, 384));
-#line 385 "driver/format.byn"
+#line 398 "driver/format.byn"
+        l13_t = (*bynh_at_list_lexer__Token(l6_tokens, (int64_t)l10_i, false, byn_file_93, 398));
+#line 399 "driver/format.byn"
         if ((((!(l13_t.kind == ((byn_lexer_TokenKind)1))) || bynh_has_map_i64_bool(l7_typeNames, l13_t.start)) || bynh_has_map_i64_bool(l8_calleeNames, l13_t.start))) {
-#line 385 "driver/format.byn"
+#line 399 "driver/format.byn"
             goto continue_4;
         }
-#line 386 "driver/format.byn"
-        if (((l10_i > INT64_C(0)) && (((*bynh_at_list_lexer__Token(l6_tokens, (int64_t)byn_sub_i64(l10_i, INT64_C(1), byn_file_93, 386), false, byn_file_93, 386)).kind == ((byn_lexer_TokenKind)23)) || ((*bynh_at_list_lexer__Token(l6_tokens, (int64_t)byn_sub_i64(l10_i, INT64_C(1), byn_file_93, 386), false, byn_file_93, 386)).kind == ((byn_lexer_TokenKind)30))))) {
-#line 386 "driver/format.byn"
+#line 400 "driver/format.byn"
+        if (((l10_i > INT64_C(0)) && (((*bynh_at_list_lexer__Token(l6_tokens, (int64_t)byn_sub_i64(l10_i, INT64_C(1), byn_file_93, 400), false, byn_file_93, 400)).kind == ((byn_lexer_TokenKind)23)) || ((*bynh_at_list_lexer__Token(l6_tokens, (int64_t)byn_sub_i64(l10_i, INT64_C(1), byn_file_93, 400), false, byn_file_93, 400)).kind == ((byn_lexer_TokenKind)30))))) {
+#line 400 "driver/format.byn"
             goto continue_4;
         }
-#line 387 "driver/format.byn"
+#line 401 "driver/format.byn"
         (*bynh_slot_map_str_bool(&l9_found, byn_lexer__SourceText__getText(&l4_lexed.source, byn_lexer__TextSpan__fromBounds(l13_t.start, byn_lexer__Token__get_end(&l13_t))), ((bool){0}))) = true;
     continue_4:;
-#line 383 "driver/format.byn"
+#line 397 "driver/format.byn"
         t11 = byn_addw_i64(t11, INT64_C(1));
     }
 break_3:;
-#line 389 "driver/format.byn"
+#line 403 "driver/format.byn"
     return l9_found;
 }
-#line 195209 "main.c"
+#line 195300 "main.c"
 
 bool byn_main__t8IsSpace(uint8_t p_b) {
-#line 393 "driver/format.byn"
+#line 407 "driver/format.byn"
     return ((((p_b == ((uint8_t)32)) || (p_b == ((uint8_t)9))) || (p_b == ((uint8_t)10))) || (p_b == ((uint8_t)13)));
 }
-#line 195215 "main.c"
+#line 195306 "main.c"
 
 bynt_opt_main__T8Fix byn_main__operatorFix(bynt_list_u8 p_bytes, bynt_list_lexer__Token p_tokens, int64_t p_i, byn_semantics_BooleanStyle p_booleans) {
     bynt_lexer__Token l0_token = {0};
@@ -195229,144 +195320,144 @@ bynt_opt_main__T8Fix byn_main__operatorFix(bynt_list_u8 p_bytes, bynt_list_lexer
     int64_t l12_at = {0};
     int64_t t13 = {0};
     int64_t t14 = {0};
-#line 397 "driver/format.byn"
-    l0_token = (*bynh_at_list_lexer__Token(p_tokens, (int64_t)p_i, false, byn_file_93, 397));
-#line 398 "driver/format.byn"
+#line 411 "driver/format.byn"
+    l0_token = (*bynh_at_list_lexer__Token(p_tokens, (int64_t)p_i, false, byn_file_93, 411));
+#line 412 "driver/format.byn"
     l1_span = ((bynt_lexer__TextSpan){l0_token.start, l0_token.length});
-#line 399 "driver/format.byn"
+#line 413 "driver/format.byn"
     if ((p_booleans == ((byn_semantics_BooleanStyle)1))) {
-#line 401 "driver/format.byn"
+#line 415 "driver/format.byn"
         if ((l0_token.kind == ((byn_lexer_TokenKind)49))) {
-#line 401 "driver/format.byn"
+#line 415 "driver/format.byn"
             t3 = BYN_STR("and", 3);
-#line 401 "driver/format.byn"
+#line 415 "driver/format.byn"
             goto switch_end_1;
         }
-#line 402 "driver/format.byn"
+#line 416 "driver/format.byn"
         if ((l0_token.kind == ((byn_lexer_TokenKind)51))) {
-#line 402 "driver/format.byn"
+#line 416 "driver/format.byn"
             t3 = BYN_STR("or", 2);
-#line 402 "driver/format.byn"
+#line 416 "driver/format.byn"
             goto switch_end_1;
         }
-#line 403 "driver/format.byn"
+#line 417 "driver/format.byn"
         if ((l0_token.kind == ((byn_lexer_TokenKind)54))) {
-#line 403 "driver/format.byn"
+#line 417 "driver/format.byn"
             t3 = BYN_STR("not", 3);
-#line 403 "driver/format.byn"
+#line 417 "driver/format.byn"
             goto switch_end_1;
         }
-#line 404 "driver/format.byn"
+#line 418 "driver/format.byn"
         if (true) {
-#line 404 "driver/format.byn"
+#line 418 "driver/format.byn"
             t3 = BYN_STR("", 0);
-#line 404 "driver/format.byn"
+#line 418 "driver/format.byn"
             goto switch_end_1;
         }
-#line 400 "driver/format.byn"
-        byn_panic("no switch arm matched", byn_file_93, 400);
+#line 414 "driver/format.byn"
+        byn_panic("no switch arm matched", byn_file_93, 414);
     switch_end_1:;
-#line 400 "driver/format.byn"
+#line 414 "driver/format.byn"
         l2_word = t3;
-#line 406 "driver/format.byn"
+#line 420 "driver/format.byn"
         if ((l2_word.len == 0)) {
-#line 406 "driver/format.byn"
+#line 420 "driver/format.byn"
             return ((bynt_opt_main__T8Fix){0});
         }
-#line 408 "driver/format.byn"
-        l4_spaceBefore = ((l0_token.start > INT64_C(0)) && byn_main__t8IsSpace((*bynh_at_list_u8(p_bytes, (int64_t)byn_sub_i64(l0_token.start, INT64_C(1), byn_file_93, 408), false, byn_file_93, 408))));
-#line 410 "driver/format.byn"
+#line 422 "driver/format.byn"
+        l4_spaceBefore = ((l0_token.start > INT64_C(0)) && byn_main__t8IsSpace((*bynh_at_list_u8(p_bytes, (int64_t)byn_sub_i64(l0_token.start, INT64_C(1), byn_file_93, 422), false, byn_file_93, 422))));
+#line 424 "driver/format.byn"
         t6 = byn_lexer__Token__get_end(&l0_token);
-#line 410 "driver/format.byn"
-        l5_spaceAfter = ((t6 < p_bytes.len) && byn_main__t8IsSpace((*bynh_at_list_u8(p_bytes, (int64_t)byn_lexer__Token__get_end(&l0_token), false, byn_file_93, 410))));
-#line 411 "driver/format.byn"
+#line 424 "driver/format.byn"
+        l5_spaceAfter = ((t6 < p_bytes.len) && byn_main__t8IsSpace((*bynh_at_list_u8(p_bytes, (int64_t)byn_lexer__Token__get_end(&l0_token), false, byn_file_93, 424))));
+#line 425 "driver/format.byn"
         l7_before = (((!(l0_token.kind == ((byn_lexer_TokenKind)54))) && (!l4_spaceBefore)) ? BYN_STR(" ", 1) : BYN_STR("", 0));
-#line 412 "driver/format.byn"
+#line 426 "driver/format.byn"
         t8 = byn_strbuf_grow(byn_context);
-#line 412 "driver/format.byn"
+#line 426 "driver/format.byn"
         {
             byn_writer* w = &t8;
             w->file = byn_file_93;
-            w->line = 412;
+            w->line = 426;
             byn_w_str(w, l7_before);
             byn_w_str(w, l2_word);
             byn_w_str(w, (l5_spaceAfter ? BYN_STR("", 0) : BYN_STR(" ", 1)));
         }
-#line 412 "driver/format.byn"
+#line 426 "driver/format.byn"
         return ((bynt_opt_main__T8Fix){true, ((bynt_main__T8Fix){l1_span, byn_strbuf_str(t8)})});
     }
-#line 415 "driver/format.byn"
+#line 429 "driver/format.byn"
     if ((l0_token.kind == ((byn_lexer_TokenKind)130))) {
-#line 415 "driver/format.byn"
+#line 429 "driver/format.byn"
         t10 = BYN_STR("&&", 2);
-#line 415 "driver/format.byn"
+#line 429 "driver/format.byn"
         goto switch_end_2;
     }
-#line 416 "driver/format.byn"
+#line 430 "driver/format.byn"
     if ((l0_token.kind == ((byn_lexer_TokenKind)131))) {
-#line 416 "driver/format.byn"
+#line 430 "driver/format.byn"
         t10 = BYN_STR("||", 2);
-#line 416 "driver/format.byn"
+#line 430 "driver/format.byn"
         goto switch_end_2;
     }
-#line 417 "driver/format.byn"
+#line 431 "driver/format.byn"
     if ((l0_token.kind == ((byn_lexer_TokenKind)132))) {
-#line 417 "driver/format.byn"
+#line 431 "driver/format.byn"
         t10 = BYN_STR("!", 1);
-#line 417 "driver/format.byn"
+#line 431 "driver/format.byn"
         goto switch_end_2;
     }
-#line 418 "driver/format.byn"
+#line 432 "driver/format.byn"
     if (true) {
-#line 418 "driver/format.byn"
+#line 432 "driver/format.byn"
         t10 = BYN_STR("", 0);
-#line 418 "driver/format.byn"
+#line 432 "driver/format.byn"
         goto switch_end_2;
     }
-#line 414 "driver/format.byn"
-    byn_panic("no switch arm matched", byn_file_93, 414);
+#line 428 "driver/format.byn"
+    byn_panic("no switch arm matched", byn_file_93, 428);
 switch_end_2:;
-#line 414 "driver/format.byn"
+#line 428 "driver/format.byn"
     l9_symbol = t10;
-#line 420 "driver/format.byn"
+#line 434 "driver/format.byn"
     if ((l9_symbol.len == 0)) {
-#line 420 "driver/format.byn"
+#line 434 "driver/format.byn"
         return ((bynt_opt_main__T8Fix){0});
     }
-#line 421 "driver/format.byn"
+#line 435 "driver/format.byn"
     if ((!(l0_token.kind == ((byn_lexer_TokenKind)132)))) {
-#line 421 "driver/format.byn"
+#line 435 "driver/format.byn"
         return ((bynt_opt_main__T8Fix){true, ((bynt_main__T8Fix){l1_span, l9_symbol})});
     }
-#line 423 "driver/format.byn"
-    l11_next = (*bynh_at_list_lexer__Token(p_tokens, (int64_t)byn_add_i64(p_i, INT64_C(1), byn_file_93, 423), false, byn_file_93, 423));
-#line 424 "driver/format.byn"
+#line 437 "driver/format.byn"
+    l11_next = (*bynh_at_list_lexer__Token(p_tokens, (int64_t)byn_add_i64(p_i, INT64_C(1), byn_file_93, 437), false, byn_file_93, 437));
+#line 438 "driver/format.byn"
     t13 = byn_lexer__Token__get_end(&l0_token);
-#line 424 "driver/format.byn"
+#line 438 "driver/format.byn"
     t14 = l11_next.start;
-#line 424 "driver/format.byn"
+#line 438 "driver/format.byn"
     for (;;) {
-#line 424 "driver/format.byn"
+#line 438 "driver/format.byn"
         if ((!(t13 < t14))) {
-#line 424 "driver/format.byn"
+#line 438 "driver/format.byn"
             goto break_3;
         }
-#line 424 "driver/format.byn"
+#line 438 "driver/format.byn"
         l12_at = t13;
-#line 425 "driver/format.byn"
-        if (((!((*bynh_at_list_u8(p_bytes, (int64_t)l12_at, false, byn_file_93, 425)) == ((uint8_t)32))) && (!((*bynh_at_list_u8(p_bytes, (int64_t)l12_at, false, byn_file_93, 425)) == ((uint8_t)9))))) {
-#line 425 "driver/format.byn"
+#line 439 "driver/format.byn"
+        if (((!((*bynh_at_list_u8(p_bytes, (int64_t)l12_at, false, byn_file_93, 439)) == ((uint8_t)32))) && (!((*bynh_at_list_u8(p_bytes, (int64_t)l12_at, false, byn_file_93, 439)) == ((uint8_t)9))))) {
+#line 439 "driver/format.byn"
             return ((bynt_opt_main__T8Fix){0});
         }
     continue_4:;
-#line 424 "driver/format.byn"
+#line 438 "driver/format.byn"
         t13 = byn_addw_i64(t13, INT64_C(1));
     }
 break_3:;
-#line 427 "driver/format.byn"
+#line 441 "driver/format.byn"
     return ((bynt_opt_main__T8Fix){true, ((bynt_main__T8Fix){byn_lexer__TextSpan__fromBounds(l0_token.start, l11_next.start), l9_symbol})});
 }
-#line 195370 "main.c"
+#line 195461 "main.c"
 
 byn_str byn_main__shape(bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
     byn_writer l0_sb = {0};
@@ -195387,114 +195478,114 @@ byn_str byn_main__shape(bynt_parser__CompilationUnit p_tree, bynt_parser__Parser
     byn_writer t15 = {0};
     int64_t t16 = {0};
     byn_str t17 = {0};
-#line 432 "driver/format.byn"
+#line 446 "driver/format.byn"
     l0_sb = byn_strbuf_grow(byn_context);
-#line 433 "driver/format.byn"
+#line 447 "driver/format.byn"
     (void)byn_parser__dump(p_tree, &(*p_p), &l0_sb);
-#line 434 "driver/format.byn"
+#line 448 "driver/format.byn"
     t2 = byn_strbuf_grow(byn_context);
-#line 434 "driver/format.byn"
+#line 448 "driver/format.byn"
     {
         byn_writer* w = &t2;
         w->file = byn_file_93;
-        w->line = 434;
+        w->line = 448;
         byn_w_str(w, byn_strbuf_str(l0_sb));
     }
-#line 434 "driver/format.byn"
+#line 448 "driver/format.byn"
     l1_dump = byn_strbuf_str(t2);
-#line 435 "driver/format.byn"
+#line 449 "driver/format.byn"
     l3_live = ((bynt_list_lexer__Diagnostic){NULL, 0, 0, byn_context});
-#line 436 "driver/format.byn"
+#line 450 "driver/format.byn"
     t5 = (*p_p).lexed.diagnostics;
-#line 436 "driver/format.byn"
+#line 450 "driver/format.byn"
     t6 = INT64_C(0);
-#line 436 "driver/format.byn"
+#line 450 "driver/format.byn"
     for (;;) {
-#line 436 "driver/format.byn"
+#line 450 "driver/format.byn"
         if ((!(t6 < t5.len))) {
-#line 436 "driver/format.byn"
+#line 450 "driver/format.byn"
             goto break_1;
         }
-#line 436 "driver/format.byn"
+#line 450 "driver/format.byn"
         l4_d = t5.ptr[t6];
-#line 438 "driver/format.byn"
+#line 452 "driver/format.byn"
         if ((!(l4_d.code.len == 0))) {
-#line 438 "driver/format.byn"
+#line 452 "driver/format.byn"
             (void)bynh_add_list_lexer__Diagnostic(&l3_live, l4_d);
         }
     continue_2:;
-#line 436 "driver/format.byn"
+#line 450 "driver/format.byn"
         t6 = byn_addw_i64(t6, INT64_C(1));
     }
 break_1:;
-#line 440 "driver/format.byn"
+#line 454 "driver/format.byn"
     l7_diagnostics = BYN_STR("", 0);
-#line 441 "driver/format.byn"
+#line 455 "driver/format.byn"
     if ((l3_live.len > INT64_C(0))) {
-#line 442 "driver/format.byn"
+#line 456 "driver/format.byn"
         l8_rendered = byn_strbuf_grow(byn_context);
-#line 443 "driver/format.byn"
+#line 457 "driver/format.byn"
         (void)byn_lexer__renderAll(bynh_span_list_lexer__Diagnostic(l3_live), &l8_rendered, &(*p_p).lexed.source);
-#line 444 "driver/format.byn"
+#line 458 "driver/format.byn"
         t9 = byn_strbuf_grow(byn_context);
-#line 444 "driver/format.byn"
+#line 458 "driver/format.byn"
         {
             byn_writer* w = &t9;
             w->file = byn_file_93;
-            w->line = 444;
+            w->line = 458;
             byn_w_str(w, BYN_STR("\012", 1));
             byn_w_str(w, byn_strbuf_str(l8_rendered));
         }
-#line 444 "driver/format.byn"
+#line 458 "driver/format.byn"
         t10 = byn_strbuf_str(t9);
-#line 444 "driver/format.byn"
+#line 458 "driver/format.byn"
         l7_diagnostics = t10;
     }
-#line 446 "driver/format.byn"
+#line 460 "driver/format.byn"
     l11_codes = byn_strbuf_grow(byn_context);
-#line 447 "driver/format.byn"
+#line 461 "driver/format.byn"
     t13 = INT64_C(0);
-#line 447 "driver/format.byn"
+#line 461 "driver/format.byn"
     t14 = l3_live.len;
-#line 447 "driver/format.byn"
+#line 461 "driver/format.byn"
     for (;;) {
-#line 447 "driver/format.byn"
+#line 461 "driver/format.byn"
         if ((!(t13 < t14))) {
-#line 447 "driver/format.byn"
+#line 461 "driver/format.byn"
             goto break_3;
         }
-#line 447 "driver/format.byn"
+#line 461 "driver/format.byn"
         l12_k = t13;
-#line 448 "driver/format.byn"
+#line 462 "driver/format.byn"
         if ((l12_k > INT64_C(0))) {
-#line 448 "driver/format.byn"
+#line 462 "driver/format.byn"
             (void)byn_w_str(&l11_codes, BYN_STR(" ", 1));
         }
-#line 449 "driver/format.byn"
-        (void)byn_w_str(&l11_codes, (*bynh_at_list_lexer__Diagnostic(l3_live, (int64_t)l12_k, false, byn_file_93, 449)).code);
+#line 463 "driver/format.byn"
+        (void)byn_w_str(&l11_codes, (*bynh_at_list_lexer__Diagnostic(l3_live, (int64_t)l12_k, false, byn_file_93, 463)).code);
     continue_4:;
-#line 447 "driver/format.byn"
+#line 461 "driver/format.byn"
         t13 = byn_addw_i64(t13, INT64_C(1));
     }
 break_3:;
-#line 451 "driver/format.byn"
+#line 465 "driver/format.byn"
     t15 = byn_strbuf_grow(byn_context);
-#line 451 "driver/format.byn"
+#line 465 "driver/format.byn"
     t16 = l1_dump.len;
-#line 451 "driver/format.byn"
-    t17 = bynh_slice_str(l1_dump, (int64_t)INT64_C(0), 0, (int64_t)byn_sub_i64(t16, l7_diagnostics.len, byn_file_93, 451), 0, false, byn_file_93, 451);
-#line 451 "driver/format.byn"
+#line 465 "driver/format.byn"
+    t17 = bynh_slice_str(l1_dump, (int64_t)INT64_C(0), 0, (int64_t)byn_sub_i64(t16, l7_diagnostics.len, byn_file_93, 465), 0, false, byn_file_93, 465);
+#line 465 "driver/format.byn"
     {
         byn_writer* w = &t15;
         w->file = byn_file_93;
-        w->line = 451;
+        w->line = 465;
         byn_w_str(w, t17);
         byn_w_str(w, byn_strbuf_str(l11_codes));
     }
-#line 451 "driver/format.byn"
+#line 465 "driver/format.byn"
     return byn_strbuf_str(t15);
 }
-#line 195498 "main.c"
+#line 195589 "main.c"
 
 byn_str byn_main__versionLine(void) {
     byn_writer t0 = {0};
@@ -195512,7 +195603,7 @@ byn_str byn_main__versionLine(void) {
 #line 82 "driver/main.byn"
     return byn_strbuf_str(t0);
 }
-#line 195516 "main.c"
+#line 195607 "main.c"
 
 int32_t byn_main__run(bynt_span_str p_args, bynt_main__DCtx* p_d) {
     bynt_list_str l0_kept = {0};
@@ -195814,7 +195905,7 @@ int32_t byn_main__run(bynt_span_str p_args, bynt_main__DCtx* p_d) {
     return ((int32_t)2);
 switch_end_1:;
 }
-#line 195818 "main.c"
+#line 195909 "main.c"
 
 bool byn_main__takeGlobalOptions(bynt_span_str p_args, bynt_list_str* p_kept, bynt_main__DCtx* p_d) {
     byn_str l0_color = {0};
@@ -195956,7 +196047,7 @@ break_1:;
 #line 198 "driver/main.byn"
     return true;
 }
-#line 195960 "main.c"
+#line 196051 "main.c"
 
 bynt_main__DStyle byn_main__decideStyle(byn_str p_colorFlag, bool p_ascii, bool p_isTty, int64_t p_width) {
     bool l0_dumb = {0};
@@ -196029,7 +196120,7 @@ switch_end_1:;
 #line 228 "driver/main.byn"
     return ((bynt_main__DStyle){l1_color, ((p_ascii || l0_dumb) || (!byn_main__t7Utf8())), ((p_isTty && (p_width > INT64_C(0))) ? p_width : INT64_C(100)), l4_palette});
 }
-#line 196033 "main.c"
+#line 196124 "main.c"
 
 bool byn_main__t7Light(void) {
     byn_str l0_theme = {0};
@@ -196122,7 +196213,7 @@ break_1:;
 #line 258 "driver/main.byn"
     return ((l4_bg == INT64_C(7)) || ((l4_bg >= INT64_C(9)) && (l4_bg <= INT64_C(15))));
 }
-#line 196126 "main.c"
+#line 196217 "main.c"
 
 byn_str byn_main__t7Prefix(int64_t p_palette, int64_t p_role) {
     bynt_arr5_str l0_rows = {0};
@@ -196147,7 +196238,7 @@ byn_str byn_main__t7Prefix(int64_t p_palette, int64_t p_role) {
 #line 272 "driver/main.byn"
     return (*bynh_at_arr5_str(&l2_rows, (int64_t)p_role, false, byn_file_94, 272));
 }
-#line 196151 "main.c"
+#line 196242 "main.c"
 
 bool byn_main__t7Utf8(void) {
     bynt_arr3_str l0_names = {0};
@@ -196192,7 +196283,7 @@ break_1:;
 #line 288 "driver/main.byn"
     return true;
 }
-#line 196196 "main.c"
+#line 196287 "main.c"
 
 bool byn_main__t1FileExists(byn_str p_path) {
     bynt_list_str l0__ = {0};
@@ -196222,7 +196313,7 @@ bool byn_main__t1FileExists(byn_str p_path) {
 #line 297 "driver/main.byn"
     return false;
 }
-#line 196226 "main.c"
+#line 196317 "main.c"
 
 bool byn_main__t1IsScript(byn_str p_path) {
     bynt_list_u8 l0_bytes = {0};
@@ -196245,7 +196336,7 @@ bool byn_main__t1IsScript(byn_str p_path) {
 #line 305 "driver/main.byn"
     return (((l0_bytes.len >= INT64_C(2)) && ((*bynh_at_list_u8(l0_bytes, (int64_t)INT64_C(0), false, byn_file_94, 305)) == ((uint8_t)35))) && ((*bynh_at_list_u8(l0_bytes, (int64_t)INT64_C(1), false, byn_file_94, 305)) == ((uint8_t)33)));
 }
-#line 196249 "main.c"
+#line 196340 "main.c"
 
 bool byn_main__refuseLibrary(bynt_semantics__Ctx p_compiled, byn_str p_command) {
     byn_writer t0 = {0};
@@ -196275,7 +196366,7 @@ bool byn_main__refuseLibrary(bynt_semantics__Ctx p_compiled, byn_str p_command) 
 #line 312 "driver/main.byn"
     return true;
 }
-#line 196279 "main.c"
+#line 196370 "main.c"
 
 int32_t byn_main__refuse(byn_str p_what) {
     byn_writer t0 = {0};
@@ -196298,7 +196389,7 @@ int32_t byn_main__refuse(byn_str p_what) {
 #line 318 "driver/main.byn"
     return ((int32_t)2);
 }
-#line 196302 "main.c"
+#line 196393 "main.c"
 
 int32_t byn_main__main(bynt_span_str p_args) {
     bynt_main__DCtx l0_d = {0};
@@ -196307,7 +196398,7 @@ int32_t byn_main__main(bynt_span_str p_args) {
 #line 323 "driver/main.byn"
     return byn_main__run(p_args, &l0_d);
 }
-#line 196311 "main.c"
+#line 196402 "main.c"
 
 int64_t byn_main__t7Utf8Length(int64_t p_scalar) {
 #line 25 "driver/progress.byn"
@@ -196328,13 +196419,13 @@ int64_t byn_main__t7Utf8Length(int64_t p_scalar) {
 #line 28 "driver/progress.byn"
     return INT64_C(4);
 }
-#line 196332 "main.c"
+#line 196423 "main.c"
 
 bool byn_main__t7Hidden(int64_t p_c) {
 #line 33 "driver/progress.byn"
     return (((((((p_c < INT64_C(32)) || ((p_c >= INT64_C(127)) && (p_c <= INT64_C(159)))) || (p_c == INT64_C(1564))) || (p_c == INT64_C(8206))) || (p_c == INT64_C(8207))) || ((p_c >= INT64_C(8234)) && (p_c <= INT64_C(8238)))) || ((p_c >= INT64_C(8294)) && (p_c <= INT64_C(8297))));
 }
-#line 196338 "main.c"
+#line 196429 "main.c"
 
 byn_str byn_main__visible(byn_str p_text) {
     bool l0_any = {0};
@@ -196433,7 +196524,7 @@ break_3:;
 #line 59 "driver/progress.byn"
     return byn_strbuf_str(t12);
 }
-#line 196437 "main.c"
+#line 196528 "main.c"
 
 int64_t byn_main__columns(int64_t p_scalar) {
 #line 64 "driver/progress.byn"
@@ -196449,7 +196540,7 @@ int64_t byn_main__columns(int64_t p_scalar) {
 #line 68 "driver/progress.byn"
     return INT64_C(1);
 }
-#line 196453 "main.c"
+#line 196544 "main.c"
 
 byn_str byn_main__fit(byn_str p_phase, int64_t p_room, byn_str p_ellipsis, int64_t p_length) {
     int64_t l0_width = {0};
@@ -196544,7 +196635,7 @@ break_3:;
 #line 86 "driver/progress.byn"
     return byn_strbuf_str(t14);
 }
-#line 196548 "main.c"
+#line 196639 "main.c"
 
 bynt_main__Progress byn_main__start(bynt_main__DStyle p_style, bool p_isTty, bool p_json, byn_str p_phase, int64_t p_after) {
     bool l0_off = {0};
@@ -196584,7 +196675,7 @@ bynt_main__Progress byn_main__start(bynt_main__DStyle p_style, bool p_isTty, boo
 #line 97 "driver/progress.byn"
     return l5_p;
 }
-#line 196588 "main.c"
+#line 196679 "main.c"
 
 void byn_main__tick(bynt_main__Progress* p_p) {
     bynt_list_str l0_frames = {0};
@@ -196649,7 +196740,7 @@ void byn_main__tick(bynt_main__Progress* p_p) {
 #line 108 "driver/progress.byn"
     (*p_p).shown = true;
 }
-#line 196653 "main.c"
+#line 196744 "main.c"
 
 void byn_main__done(bynt_main__Progress* p_p) {
     int64_t l0_elapsed = {0};
@@ -196705,7 +196796,7 @@ void byn_main__done(bynt_main__Progress* p_p) {
         (void)byn_io_write(INT32_C(2), ((*p_p).ascii ? BYN_STR("\012", 1) : BYN_STR("\015\033[2K", 5)));
     }
 }
-#line 196709 "main.c"
+#line 196800 "main.c"
 
 int32_t byn_main__scaffoldNew(bynt_span_str p_args) {
     bynt_main__ScaffoldOptions l0_o = {0};
@@ -196924,7 +197015,7 @@ int32_t byn_main__scaffoldNew(bynt_span_str p_args) {
 #line 183 "driver/scaffold.byn"
     return ((int32_t)0);
 }
-#line 196928 "main.c"
+#line 197019 "main.c"
 
 int32_t byn_main__scaffoldInit(bynt_span_str p_args) {
     bynt_main__ScaffoldOptions l0_o = {0};
@@ -197001,7 +197092,7 @@ int32_t byn_main__scaffoldInit(bynt_span_str p_args) {
 #line 201 "driver/scaffold.byn"
     return ((int32_t)0);
 }
-#line 197005 "main.c"
+#line 197096 "main.c"
 
 byn_str byn_main__scaffoldTrimEnd(byn_str p_path) {
     byn_str l0_separator = {0};
@@ -197025,7 +197116,7 @@ break_1:;
 #line 210 "driver/scaffold.byn"
     return bynh_slice_str(p_path, (int64_t)INT64_C(0), 0, (int64_t)l1_end, 0, false, byn_file_96, 210);
 }
-#line 197029 "main.c"
+#line 197120 "main.c"
 
 int64_t byn_main__scaffoldEntryCount(byn_str p_full) {
     bynt_list_str l0_names = {0};
@@ -197050,7 +197141,7 @@ int64_t byn_main__scaffoldEntryCount(byn_str p_full) {
 #line 217 "driver/scaffold.byn"
     return l0_names.len;
 }
-#line 197054 "main.c"
+#line 197145 "main.c"
 
 bynt_opt_main__ScaffoldOptions byn_main__scaffoldParseOptions(bynt_span_str p_args, byn_str p_command) {
     bynt_opt_str l0_target = {0};
@@ -197167,7 +197258,7 @@ break_1:;
 #line 248 "driver/scaffold.byn"
     return ((bynt_opt_main__ScaffoldOptions){true, ((bynt_main__ScaffoldOptions){l0_target, l1_layout, l2_git, l3_ci})});
 }
-#line 197171 "main.c"
+#line 197262 "main.c"
 
 bynt_opt_main__ScaffoldNames byn_main__scaffoldNames(byn_str p_dirName, byn_main_ScaffoldLayout p_layout) {
     bynt_span_u8 l0_t = {0};
@@ -197287,7 +197378,7 @@ break_1:;
 #line 271 "driver/scaffold.byn"
     return ((bynt_opt_main__ScaffoldNames){true, ((bynt_main__ScaffoldNames){l5_kebab, l8_module})});
 }
-#line 197291 "main.c"
+#line 197382 "main.c"
 
 void byn_main__scaffoldWrite(bynt_map_str_str p_files, byn_str p_root, bool p_listing) {
     bynt_list_str l0_paths = {0};
@@ -197465,7 +197556,7 @@ break_1:;
     }
 break_3:;
 }
-#line 197469 "main.c"
+#line 197560 "main.c"
 
 void byn_main__scaffoldInitGit(byn_str p_dir, bynt_main__ScaffoldOptions p_o) {
     bynt_opt_str l0_found = {0};
@@ -197508,7 +197599,7 @@ void byn_main__scaffoldInitGit(byn_str p_dir, bynt_main__ScaffoldOptions p_o) {
         (void)byn_io_write(INT32_C(1), BYN_STR("note: `git init` failed, so no repository was created\012", 54));
     }
 }
-#line 197512 "main.c"
+#line 197603 "main.c"
 
 bynt_main__ScaffoldGitResult byn_main__scaffoldGit(byn_str p_git, byn_str p_dir, byn_str p_first, byn_str p_second) {
     bynt_list_str l0_args = {0};
@@ -197547,7 +197638,7 @@ bynt_main__ScaffoldGitResult byn_main__scaffoldGit(byn_str p_git, byn_str p_dir,
 #line 339 "driver/scaffold.byn"
     return ((bynt_main__ScaffoldGitResult){t4, byn_str_trimmed(l1_r.out, 2)});
 }
-#line 197551 "main.c"
+#line 197642 "main.c"
 
 bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main__ScaffoldOptions p_o) {
     bynt_map_str_str l0_files = {0};
@@ -197643,7 +197734,7 @@ bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main
 #line 367 "driver/scaffold.byn"
     return l0_files;
 }
-#line 197647 "main.c"
+#line 197738 "main.c"
 
 bynt_list_u64 byn_main__t9RoundConstants(void) {
     bynt_list_u64 l0_k = {0};
@@ -197783,13 +197874,13 @@ bynt_list_u64 byn_main__t9RoundConstants(void) {
 #line 17 "driver/sha256.byn"
     return l0_k;
 }
-#line 197787 "main.c"
+#line 197878 "main.c"
 
 uint64_t byn_main__t9Rotr(uint64_t p_x, uint64_t p_n) {
 #line 21 "driver/sha256.byn"
     return ((uint64_t)(((uint64_t)(byn_shr_u64(p_x, (int64_t)(p_n)) | byn_shl_u64(p_x, (int64_t)(byn_sub_u64(UINT64_C(32), p_n, byn_file_97, 21))))) & UINT64_C(4294967295)));
 }
-#line 197793 "main.c"
+#line 197884 "main.c"
 
 void byn_main__t9Block(bynt_list_u64* p_h, bynt_span_u8 p_data, int64_t p_start, bynt_list_u64 p_k, bynt_list_u64* p_w) {
     int32_t l0_t = {0};
@@ -197997,7 +198088,7 @@ break_5:;
 #line 65 "driver/sha256.byn"
     (*bynh_at_list_u64((*p_h), (int64_t)INT64_C(7), false, byn_file_97, 65)) = t43;
 }
-#line 198001 "main.c"
+#line 198092 "main.c"
 
 bynt_list_u8 byn_main__sha256(bynt_span_u8 p_data) {
     bynt_list_u64 l0_k = {0};
@@ -198188,13 +198279,13 @@ break_13:;
 #line 99 "driver/sha256.byn"
     return l17_digest;
 }
-#line 198192 "main.c"
+#line 198283 "main.c"
 
 bool byn_main__t6IsSkippedDirectory(byn_str p_name, bool p_atRoot) {
 #line 16 "driver/walk.byn"
     return (((byn_str_starts_with(p_name, BYN_STR(".", 1)) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("node_modules", 12)) : byn_str_eq(p_name, BYN_STR("node_modules", 12)))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("obj", 3)) : byn_str_eq(p_name, BYN_STR("obj", 3)))) || (p_atRoot && (((((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("bin", 3)) : byn_str_eq(p_name, BYN_STR("bin", 3))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("dist", 4)) : byn_str_eq(p_name, BYN_STR("dist", 4)))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("tmp", 3)) : byn_str_eq(p_name, BYN_STR("tmp", 3))))));
 }
-#line 198198 "main.c"
+#line 198289 "main.c"
 
 bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within) {
     byn_str l0_bound = {0};
@@ -198232,7 +198323,7 @@ bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within) {
 #line 27 "driver/walk.byn"
     return true;
 }
-#line 198236 "main.c"
+#line 198327 "main.c"
 
 bool byn_main__t6IsByn(byn_str p_name) {
     int64_t l0_n = {0};
@@ -198254,13 +198345,23 @@ bool byn_main__t6IsByn(byn_str p_name) {
 #line 38 "driver/walk.byn"
     return (((((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(4), byn_file_98, 38), false, byn_file_98, 38)) == ((uint8_t)46)) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(3), byn_file_98, 38), false, byn_file_98, 38)) | ((uint8_t)32))) == ((uint8_t)98))) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(2), byn_file_98, 38), false, byn_file_98, 38)) | ((uint8_t)32))) == ((uint8_t)121))) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(1), byn_file_98, 38), false, byn_file_98, 38)) | ((uint8_t)32))) == ((uint8_t)110)));
 }
-#line 198258 "main.c"
+#line 198349 "main.c"
 
-byn_str byn_main__realPath(byn_str p_path) {
+byn_err byn_main__realPath(byn_str p_path, byn_str* byn_out) {
+    byn_err t0 = {0};
+    byn_str t1 = {0};
 #line 43 "driver/walk.byn"
-    return byn_path_full_path(p_path, byn_context, byn_file_98, 43);
+    t0 = (byn_err){ .code = byn_fs_real_path(p_path, &t1, byn_context) };
+#line 43 "driver/walk.byn"
+    if ((!(t0.code == ((uint32_t)0)))) {
+#line 43 "driver/walk.byn"
+        return t0;
+    }
+#line 43 "driver/walk.byn"
+    *byn_out = t1;
+    return (byn_err){0};
 }
-#line 198264 "main.c"
+#line 198365 "main.c"
 
 bynt_list_str byn_main__bynFiles(byn_str p_dir, int32_t* p_exit, bynt_opt_str p_within, bool p_silent) {
     bynt_list_str l0_files = {0};
@@ -198268,26 +198369,49 @@ bynt_list_str byn_main__bynFiles(byn_str p_dir, int32_t* p_exit, bynt_opt_str p_
     bynt_map_str_bool l2_seenDirs = {0};
     bool l3_failed = {0};
     bynt_list_main__T6Pending l4_pending = {0};
-    bynt_main__T6Pending l5_at = {0};
-    byn_str l6_canonical = {0};
-    bynt_list_str l7_names = {0};
+    byn_str l5_root = {0};
+    byn_err t6 = {0};
+    byn_str t7 = {0};
     byn_err t8 = {0};
-    bynt_list_str t9 = {0};
-    byn_err t10 = {0};
-    bynt_list_str t11 = {0};
-    byn_err l12_e = {0};
-    byn_writer t13 = {0};
-    int32_t t14 = {0};
-    byn_str l15_name = {0};
-    bynt_list_str t16 = {0};
-    int64_t t17 = {0};
-    byn_str l18_file = {0};
-    byn_str l19_real = {0};
-    byn_str l20_name = {0};
-    bynt_list_str t21 = {0};
-    int64_t t22 = {0};
-    byn_str l23_sub = {0};
-    byn_str l24_real = {0};
+    byn_str t9 = {0};
+    byn_err l10_e = {0};
+    byn_writer t11 = {0};
+    int32_t t12 = {0};
+    bynt_main__T6Pending l13_at = {0};
+    byn_str l14_canonical = {0};
+    bynt_list_str l15_names = {0};
+    byn_err t16 = {0};
+    bynt_list_str t17 = {0};
+    byn_err t18 = {0};
+    bynt_list_str t19 = {0};
+    byn_err l20_e = {0};
+    byn_writer t21 = {0};
+    int32_t t22 = {0};
+    byn_str l23_name = {0};
+    bynt_list_str t24 = {0};
+    int64_t t25 = {0};
+    byn_str l26_file = {0};
+    byn_str l27_real = {0};
+    byn_err t28 = {0};
+    byn_str t29 = {0};
+    byn_err t30 = {0};
+    byn_str t31 = {0};
+    byn_err l32_e = {0};
+    byn_writer t33 = {0};
+    int32_t t34 = {0};
+    byn_str l35_name = {0};
+    bynt_list_str t36 = {0};
+    int64_t t37 = {0};
+    byn_str l38_sub = {0};
+    byn_str l39_entry = {0};
+    byn_str l40_real = {0};
+    byn_err t41 = {0};
+    byn_str t42 = {0};
+    byn_err t43 = {0};
+    byn_str t44 = {0};
+    byn_err l45_e = {0};
+    byn_writer t46 = {0};
+    int32_t t47 = {0};
 #line 49 "driver/walk.byn"
     l0_files = ((bynt_list_str){NULL, 0, 0, byn_context});
 #line 50 "driver/walk.byn"
@@ -198299,159 +198423,291 @@ bynt_list_str byn_main__bynFiles(byn_str p_dir, int32_t* p_exit, bynt_opt_str p_
 #line 53 "driver/walk.byn"
     l4_pending = ((bynt_list_main__T6Pending){NULL, 0, 0, byn_context});
 #line 54 "driver/walk.byn"
-    (void)bynh_add_list_main__T6Pending(&l4_pending, ((bynt_main__T6Pending){p_dir, BYN_STR("", 0)}));
-#line 55 "driver/walk.byn"
-    for (;;) {
-#line 55 "driver/walk.byn"
-        if ((!(l4_pending.len > INT64_C(0)))) {
-#line 55 "driver/walk.byn"
-            goto break_1;
-        }
+    t6 = byn_main__realPath(p_dir, &t7);
+#line 54 "driver/walk.byn"
+    if ((!(t6.code == ((uint32_t)0)))) {
+#line 54 "driver/walk.byn"
+        t8 = t6;
 #line 56 "driver/walk.byn"
-        l5_at = (*bynh_at_list_main__T6Pending(l4_pending, (int64_t)byn_sub_i64(l4_pending.len, INT64_C(1), byn_file_98, 56), false, byn_file_98, 56));
+        if ((((((((((bynh_eq_err(t8, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t8, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t8, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t8, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t8, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t8, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t8, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t8, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t8, ((byn_err){ .code = UINT32_C(9) }))) && ((l10_e = t8), true))) {
 #line 57 "driver/walk.byn"
-        (void)bynh_remove_through_list_main__T6Pending(&l4_pending, byn_sub_i64(l4_pending.len, INT64_C(1), byn_file_98, 57), 0, 2, byn_file_98, 57);
+            if ((!p_silent)) {
+#line 57 "driver/walk.byn"
+                t12 = INT32_C(2);
+#line 57 "driver/walk.byn"
+                t11 = byn_strbuf_grow(byn_context);
+#line 57 "driver/walk.byn"
+                {
+                    byn_writer* w = &t11;
+                    w->file = byn_file_98;
+                    w->line = 57;
+                    byn_w_str(w, BYN_STR("bayan: ", 7));
+                    byn_w_str(w, p_dir);
+                    byn_w_str(w, BYN_STR(": ", 2));
+                    byn_w_error(w, l10_e.code);
+                    byn_w_str(w, BYN_STR("\012", 1));
+                }
+#line 57 "driver/walk.byn"
+                (void)byn_io_write(t12, byn_strbuf_str(t11));
+            }
 #line 58 "driver/walk.byn"
-        l6_canonical = (byn_str_eq(l5_at.canonical, BYN_STR("", 0)) ? byn_main__realPath(l5_at.path) : l5_at.canonical);
-#line 60 "driver/walk.byn"
-        if (bynh_has_map_str_bool(l2_seenDirs, l6_canonical)) {
-#line 60 "driver/walk.byn"
-            goto continue_2;
+            (*p_exit) = ((int32_t)1);
+#line 59 "driver/walk.byn"
+            return l0_files;
+#line 56 "driver/walk.byn"
+            goto switch_end_1;
         }
-#line 61 "driver/walk.byn"
-        (*bynh_slot_map_str_bool(&l2_seenDirs, l6_canonical, ((bool){0}))) = true;
+#line 54 "driver/walk.byn"
+        byn_panic("no switch arm matched", byn_file_98, 54);
+    switch_end_1:;
+#line 54 "driver/walk.byn"
+        t7 = t9;
+    }
+#line 54 "driver/walk.byn"
+    l5_root = t7;
 #line 62 "driver/walk.byn"
-        t8 = (byn_err){ .code = bynh_io_list_dir(l6_canonical, &t9) };
-#line 62 "driver/walk.byn"
-        if ((!(t8.code == ((uint32_t)0)))) {
-#line 62 "driver/walk.byn"
-            t10 = t8;
+    (void)bynh_add_list_main__T6Pending(&l4_pending, ((bynt_main__T6Pending){p_dir, l5_root}));
 #line 63 "driver/walk.byn"
-            if ((((((((((bynh_eq_err(t10, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t10, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t10, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t10, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t10, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t10, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t10, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t10, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t10, ((byn_err){ .code = UINT32_C(9) }))) && ((l12_e = t10), true))) {
+    for (;;) {
+#line 63 "driver/walk.byn"
+        if ((!(l4_pending.len > INT64_C(0)))) {
+#line 63 "driver/walk.byn"
+            goto break_2;
+        }
 #line 64 "driver/walk.byn"
+        l13_at = (*bynh_at_list_main__T6Pending(l4_pending, (int64_t)byn_sub_i64(l4_pending.len, INT64_C(1), byn_file_98, 64), false, byn_file_98, 64));
+#line 65 "driver/walk.byn"
+        (void)bynh_remove_through_list_main__T6Pending(&l4_pending, byn_sub_i64(l4_pending.len, INT64_C(1), byn_file_98, 65), 0, 2, byn_file_98, 65);
+#line 66 "driver/walk.byn"
+        l14_canonical = l13_at.canonical;
+#line 67 "driver/walk.byn"
+        if (bynh_has_map_str_bool(l2_seenDirs, l14_canonical)) {
+#line 67 "driver/walk.byn"
+            goto continue_3;
+        }
+#line 68 "driver/walk.byn"
+        (*bynh_slot_map_str_bool(&l2_seenDirs, l14_canonical, ((bool){0}))) = true;
+#line 69 "driver/walk.byn"
+        t16 = (byn_err){ .code = bynh_io_list_dir(l14_canonical, &t17) };
+#line 69 "driver/walk.byn"
+        if ((!(t16.code == ((uint32_t)0)))) {
+#line 69 "driver/walk.byn"
+            t18 = t16;
+#line 70 "driver/walk.byn"
+            if ((((((((((bynh_eq_err(t18, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t18, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t18, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t18, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t18, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t18, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t18, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t18, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t18, ((byn_err){ .code = UINT32_C(9) }))) && ((l20_e = t18), true))) {
+#line 71 "driver/walk.byn"
                 if ((!p_silent)) {
-#line 64 "driver/walk.byn"
-                    t14 = INT32_C(2);
-#line 64 "driver/walk.byn"
-                    t13 = byn_strbuf_grow(byn_context);
-#line 64 "driver/walk.byn"
+#line 71 "driver/walk.byn"
+                    t22 = INT32_C(2);
+#line 71 "driver/walk.byn"
+                    t21 = byn_strbuf_grow(byn_context);
+#line 71 "driver/walk.byn"
                     {
-                        byn_writer* w = &t13;
+                        byn_writer* w = &t21;
                         w->file = byn_file_98;
-                        w->line = 64;
+                        w->line = 71;
                         byn_w_str(w, BYN_STR("bayan: ", 7));
-                        byn_w_str(w, l5_at.path);
+                        byn_w_str(w, l13_at.path);
                         byn_w_str(w, BYN_STR(": ", 2));
-                        byn_w_error(w, l12_e.code);
+                        byn_w_error(w, l20_e.code);
                         byn_w_str(w, BYN_STR("\012", 1));
                     }
-#line 64 "driver/walk.byn"
-                    (void)byn_io_write(t14, byn_strbuf_str(t13));
+#line 71 "driver/walk.byn"
+                    (void)byn_io_write(t22, byn_strbuf_str(t21));
                 }
-#line 65 "driver/walk.byn"
-                l3_failed = true;
-#line 66 "driver/walk.byn"
-                goto continue_2;
-#line 63 "driver/walk.byn"
-                goto switch_end_3;
-            }
-#line 62 "driver/walk.byn"
-            byn_panic("no switch arm matched", byn_file_98, 62);
-        switch_end_3:;
-#line 62 "driver/walk.byn"
-            t9 = t11;
-        }
-#line 62 "driver/walk.byn"
-        l7_names = t9;
-#line 70 "driver/walk.byn"
-        t16 = l7_names;
-#line 70 "driver/walk.byn"
-        t17 = INT64_C(0);
-#line 70 "driver/walk.byn"
-        for (;;) {
-#line 70 "driver/walk.byn"
-            if ((!(t17 < t16.len))) {
-#line 70 "driver/walk.byn"
-                goto break_4;
-            }
-#line 70 "driver/walk.byn"
-            l15_name = t16.ptr[t17];
-#line 71 "driver/walk.byn"
-            if (((!byn_main__t6IsByn(l15_name)) || (!byn_fs_file_exists(byn_path_combine(l6_canonical, l15_name, byn_context))))) {
-#line 71 "driver/walk.byn"
-                goto continue_5;
-            }
 #line 72 "driver/walk.byn"
-            l18_file = byn_path_combine(l5_at.path, l15_name, byn_context);
+                l3_failed = true;
 #line 73 "driver/walk.byn"
-            l19_real = byn_main__realPath(byn_path_combine(l6_canonical, l15_name, byn_context));
-#line 75 "driver/walk.byn"
-            if ((byn_main__t6Inside(l19_real, p_within) && (!bynh_has_map_str_bool(l1_seenFiles, l19_real)))) {
-#line 76 "driver/walk.byn"
-                (*bynh_slot_map_str_bool(&l1_seenFiles, l19_real, ((bool){0}))) = true;
-#line 77 "driver/walk.byn"
-                (void)bynh_add_list_str(&l0_files, l18_file);
-            }
-        continue_5:;
+                goto continue_3;
 #line 70 "driver/walk.byn"
-            t17 = byn_addw_i64(t17, INT64_C(1));
+                goto switch_end_4;
+            }
+#line 69 "driver/walk.byn"
+            byn_panic("no switch arm matched", byn_file_98, 69);
+        switch_end_4:;
+#line 69 "driver/walk.byn"
+            t17 = t19;
         }
-    break_4:;
-#line 80 "driver/walk.byn"
-        t21 = l7_names;
-#line 80 "driver/walk.byn"
-        t22 = INT64_C(0);
-#line 80 "driver/walk.byn"
+#line 69 "driver/walk.byn"
+        l15_names = t17;
+#line 77 "driver/walk.byn"
+        t24 = l15_names;
+#line 77 "driver/walk.byn"
+        t25 = INT64_C(0);
+#line 77 "driver/walk.byn"
         for (;;) {
-#line 80 "driver/walk.byn"
-            if ((!(t22 < t21.len))) {
-#line 80 "driver/walk.byn"
-                goto break_6;
+#line 77 "driver/walk.byn"
+            if ((!(t25 < t24.len))) {
+#line 77 "driver/walk.byn"
+                goto break_5;
             }
+#line 77 "driver/walk.byn"
+            l23_name = t24.ptr[t25];
+#line 78 "driver/walk.byn"
+            if (((!byn_main__t6IsByn(l23_name)) || (!byn_fs_file_exists(byn_path_combine(l14_canonical, l23_name, byn_context))))) {
+#line 78 "driver/walk.byn"
+                goto continue_6;
+            }
+#line 79 "driver/walk.byn"
+            l26_file = byn_path_combine(l13_at.path, l23_name, byn_context);
 #line 80 "driver/walk.byn"
-            l20_name = t21.ptr[t22];
+            t28 = byn_main__realPath(byn_path_combine(l14_canonical, l23_name, byn_context), &t29);
+#line 80 "driver/walk.byn"
+            if ((!(t28.code == ((uint32_t)0)))) {
+#line 80 "driver/walk.byn"
+                t30 = t28;
 #line 81 "driver/walk.byn"
-            if (byn_fs_file_exists(byn_path_combine(l6_canonical, l20_name, byn_context))) {
-#line 81 "driver/walk.byn"
-                goto continue_7;
-            }
+                if ((((((((((bynh_eq_err(t30, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t30, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t30, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t30, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t30, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t30, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t30, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t30, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t30, ((byn_err){ .code = UINT32_C(9) }))) && ((l32_e = t30), true))) {
 #line 82 "driver/walk.byn"
-            if (byn_main__t6IsSkippedDirectory(l20_name, byn_str_eq(l5_at.path, p_dir))) {
+                    if ((!p_silent)) {
 #line 82 "driver/walk.byn"
-                goto continue_7;
-            }
+                        t34 = INT32_C(2);
+#line 82 "driver/walk.byn"
+                        t33 = byn_strbuf_grow(byn_context);
+#line 82 "driver/walk.byn"
+                        {
+                            byn_writer* w = &t33;
+                            w->file = byn_file_98;
+                            w->line = 82;
+                            byn_w_str(w, BYN_STR("bayan: ", 7));
+                            byn_w_str(w, l26_file);
+                            byn_w_str(w, BYN_STR(": ", 2));
+                            byn_w_error(w, l32_e.code);
+                            byn_w_str(w, BYN_STR("\012", 1));
+                        }
+#line 82 "driver/walk.byn"
+                        (void)byn_io_write(t34, byn_strbuf_str(t33));
+                    }
 #line 83 "driver/walk.byn"
-            l23_sub = byn_path_combine(l5_at.path, l20_name, byn_context);
+                    l3_failed = true;
 #line 84 "driver/walk.byn"
-            l24_real = byn_main__realPath(byn_path_combine(l6_canonical, l20_name, byn_context));
-#line 86 "driver/walk.byn"
-            if (byn_main__t6Inside(l24_real, p_within)) {
-#line 86 "driver/walk.byn"
-                (void)bynh_add_list_main__T6Pending(&l4_pending, ((bynt_main__T6Pending){l23_sub, l24_real}));
-            }
-        continue_7:;
+                    goto continue_6;
+#line 81 "driver/walk.byn"
+                    goto switch_end_7;
+                }
 #line 80 "driver/walk.byn"
-            t22 = byn_addw_i64(t22, INT64_C(1));
+                byn_panic("no switch arm matched", byn_file_98, 80);
+            switch_end_7:;
+#line 80 "driver/walk.byn"
+                t29 = t31;
+            }
+#line 80 "driver/walk.byn"
+            l27_real = t29;
+#line 87 "driver/walk.byn"
+            if ((byn_main__t6Inside(l27_real, p_within) && (!bynh_has_map_str_bool(l1_seenFiles, l27_real)))) {
+#line 88 "driver/walk.byn"
+                (*bynh_slot_map_str_bool(&l1_seenFiles, l27_real, ((bool){0}))) = true;
+#line 89 "driver/walk.byn"
+                (void)bynh_add_list_str(&l0_files, l26_file);
+            }
+        continue_6:;
+#line 77 "driver/walk.byn"
+            t25 = byn_addw_i64(t25, INT64_C(1));
         }
-    break_6:;
-    continue_2:;
+    break_5:;
+#line 92 "driver/walk.byn"
+        t36 = l15_names;
+#line 92 "driver/walk.byn"
+        t37 = INT64_C(0);
+#line 92 "driver/walk.byn"
+        for (;;) {
+#line 92 "driver/walk.byn"
+            if ((!(t37 < t36.len))) {
+#line 92 "driver/walk.byn"
+                goto break_8;
+            }
+#line 92 "driver/walk.byn"
+            l35_name = t36.ptr[t37];
+#line 93 "driver/walk.byn"
+            if (byn_fs_file_exists(byn_path_combine(l14_canonical, l35_name, byn_context))) {
+#line 93 "driver/walk.byn"
+                goto continue_9;
+            }
+#line 94 "driver/walk.byn"
+            if (byn_main__t6IsSkippedDirectory(l35_name, byn_str_eq(l13_at.path, p_dir))) {
+#line 94 "driver/walk.byn"
+                goto continue_9;
+            }
+#line 95 "driver/walk.byn"
+            l38_sub = byn_path_combine(l13_at.path, l35_name, byn_context);
+#line 96 "driver/walk.byn"
+            l39_entry = byn_path_combine(l14_canonical, l35_name, byn_context);
+#line 97 "driver/walk.byn"
+            t41 = byn_main__realPath(l39_entry, &t42);
+#line 97 "driver/walk.byn"
+            if ((!(t41.code == ((uint32_t)0)))) {
+#line 97 "driver/walk.byn"
+                t43 = t41;
+#line 98 "driver/walk.byn"
+                if ((((((((((bynh_eq_err(t43, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t43, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t43, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t43, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t43, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t43, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t43, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t43, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t43, ((byn_err){ .code = UINT32_C(9) }))) && ((l45_e = t43), true))) {
+#line 99 "driver/walk.byn"
+                    if ((!p_silent)) {
+#line 99 "driver/walk.byn"
+                        t47 = INT32_C(2);
+#line 99 "driver/walk.byn"
+                        t46 = byn_strbuf_grow(byn_context);
+#line 99 "driver/walk.byn"
+                        {
+                            byn_writer* w = &t46;
+                            w->file = byn_file_98;
+                            w->line = 99;
+                            byn_w_str(w, BYN_STR("bayan: ", 7));
+                            byn_w_str(w, l38_sub);
+                            byn_w_str(w, BYN_STR(": ", 2));
+                            byn_w_error(w, l45_e.code);
+                            byn_w_str(w, BYN_STR("\012", 1));
+                        }
+#line 99 "driver/walk.byn"
+                        (void)byn_io_write(t47, byn_strbuf_str(t46));
+                    }
+#line 100 "driver/walk.byn"
+                    l3_failed = true;
+#line 101 "driver/walk.byn"
+                    goto continue_9;
+#line 98 "driver/walk.byn"
+                    goto switch_end_10;
+                }
+#line 97 "driver/walk.byn"
+                byn_panic("no switch arm matched", byn_file_98, 97);
+            switch_end_10:;
+#line 97 "driver/walk.byn"
+                t42 = t44;
+            }
+#line 97 "driver/walk.byn"
+            l40_real = t42;
+#line 106 "driver/walk.byn"
+            if (((!(!p_within.has)) && (!byn_str_eq(l40_real, l39_entry)))) {
+#line 106 "driver/walk.byn"
+                goto continue_9;
+            }
+#line 107 "driver/walk.byn"
+            if (byn_main__t6Inside(l40_real, p_within)) {
+#line 107 "driver/walk.byn"
+                (void)bynh_add_list_main__T6Pending(&l4_pending, ((bynt_main__T6Pending){l38_sub, l40_real}));
+            }
+        continue_9:;
+#line 92 "driver/walk.byn"
+            t37 = byn_addw_i64(t37, INT64_C(1));
+        }
+    break_8:;
+    continue_3:;
     }
-break_1:;
-#line 89 "driver/walk.byn"
+break_2:;
+#line 110 "driver/walk.byn"
     if (l3_failed) {
-#line 89 "driver/walk.byn"
+#line 110 "driver/walk.byn"
         (*p_exit) = ((int32_t)1);
     }
-#line 90 "driver/walk.byn"
+#line 111 "driver/walk.byn"
     return l0_files;
 }
-#line 198449 "main.c"
+#line 198705 "main.c"
 
 bynt_map_str_bool byn_main__t6OtherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
-#line 106 "driver/walk.byn"
+#line 127 "driver/walk.byn"
     return byn_main__otherUses(p_file, p_bytes, p_tree, &(*p_p));
 }
-#line 198455 "main.c"
+#line 198711 "main.c"
 
 byn_err byn_main__manifestFor(byn_str p_file, bynt_map_str_opt_main__T6Found* p_cache, bynt_opt_main__T6Found* byn_out) {
     bynt_opt_str l0_dir = {0};
@@ -198471,215 +198727,224 @@ byn_err byn_main__manifestFor(byn_str p_file, bynt_map_str_opt_main__T6Found* p_
     byn_str l14_d = {0};
     bynt_list_str t15 = {0};
     int64_t t16 = {0};
-#line 112 "driver/walk.byn"
-    l0_dir = bynh_path_directory_name(byn_path_full_path(p_file, byn_context, byn_file_98, 112));
-#line 113 "driver/walk.byn"
+#line 133 "driver/walk.byn"
+    l0_dir = bynh_path_directory_name(byn_path_full_path(p_file, byn_context, byn_file_98, 133));
+#line 134 "driver/walk.byn"
     l1_seen = ((bynt_list_str){NULL, 0, 0, byn_context});
-#line 114 "driver/walk.byn"
+#line 135 "driver/walk.byn"
     l2_found = ((bynt_opt_main__T6Found){0});
-#line 115 "driver/walk.byn"
+#line 136 "driver/walk.byn"
     for (;;) {
-#line 115 "driver/walk.byn"
+#line 136 "driver/walk.byn"
         if ((!(l0_dir.has && ((l3_current = l0_dir.value), true)))) {
-#line 115 "driver/walk.byn"
+#line 136 "driver/walk.byn"
             goto break_1;
         }
-#line 116 "driver/walk.byn"
+#line 137 "driver/walk.byn"
         if (bynh_has_map_str_opt_main__T6Found((*p_cache), l3_current)) {
-#line 117 "driver/walk.byn"
-            t4 = bynh_index_map_str_opt_main__T6Found((*p_cache), l3_current, byn_file_98, 117);
-#line 117 "driver/walk.byn"
+#line 138 "driver/walk.byn"
+            t4 = bynh_index_map_str_opt_main__T6Found((*p_cache), l3_current, byn_file_98, 138);
+#line 138 "driver/walk.byn"
             l2_found = t4;
-#line 118 "driver/walk.byn"
+#line 139 "driver/walk.byn"
             goto break_1;
         }
-#line 120 "driver/walk.byn"
+#line 141 "driver/walk.byn"
         (void)bynh_add_list_str(&l1_seen, l3_current);
-#line 121 "driver/walk.byn"
+#line 142 "driver/walk.byn"
         l5_candidate = byn_path_combine(l3_current, BYN_STR("package.byn", 11), byn_context);
-#line 122 "driver/walk.byn"
+#line 143 "driver/walk.byn"
         if (byn_fs_file_exists(l5_candidate)) {
-#line 123 "driver/walk.byn"
+#line 144 "driver/walk.byn"
             t7 = byn_semantics__manifestRead(l5_candidate, &t8);
-#line 123 "driver/walk.byn"
+#line 144 "driver/walk.byn"
             if ((!(t7.code == ((uint32_t)0)))) {
-#line 123 "driver/walk.byn"
+#line 144 "driver/walk.byn"
                 return t7;
             }
-#line 123 "driver/walk.byn"
+#line 144 "driver/walk.byn"
             l6_manifest = t8;
-#line 124 "driver/walk.byn"
+#line 145 "driver/walk.byn"
             l9_hasErrors = (byn_semantics__manifestErrorCount(l6_manifest) > INT64_C(0));
-#line 125 "driver/walk.byn"
+#line 146 "driver/walk.byn"
             l10_report = BYN_STR("", 0);
-#line 126 "driver/walk.byn"
+#line 147 "driver/walk.byn"
             if (l9_hasErrors) {
-#line 126 "driver/walk.byn"
+#line 147 "driver/walk.byn"
                 t11 = byn_main__t8RenderManifest(l5_candidate, l6_manifest.diagnostics);
-#line 126 "driver/walk.byn"
+#line 147 "driver/walk.byn"
                 l10_report = t11;
             }
-#line 127 "driver/walk.byn"
+#line 148 "driver/walk.byn"
             t12 = ((bynt_opt_main__T6Found){true, ((bynt_main__T6Found){l3_current, l6_manifest.booleans, l6_manifest.primitives, l9_hasErrors, l10_report})});
-#line 127 "driver/walk.byn"
+#line 148 "driver/walk.byn"
             l2_found = t12;
-#line 128 "driver/walk.byn"
+#line 149 "driver/walk.byn"
             goto break_1;
         }
-#line 130 "driver/walk.byn"
+#line 151 "driver/walk.byn"
         t13 = bynh_path_directory_name(l3_current);
-#line 130 "driver/walk.byn"
+#line 151 "driver/walk.byn"
         l0_dir = t13;
     continue_2:;
     }
 break_1:;
-#line 132 "driver/walk.byn"
+#line 153 "driver/walk.byn"
     t15 = l1_seen;
-#line 132 "driver/walk.byn"
+#line 153 "driver/walk.byn"
     t16 = INT64_C(0);
-#line 132 "driver/walk.byn"
+#line 153 "driver/walk.byn"
     for (;;) {
-#line 132 "driver/walk.byn"
+#line 153 "driver/walk.byn"
         if ((!(t16 < t15.len))) {
-#line 132 "driver/walk.byn"
+#line 153 "driver/walk.byn"
             goto break_3;
         }
-#line 132 "driver/walk.byn"
+#line 153 "driver/walk.byn"
         l14_d = t15.ptr[t16];
-#line 132 "driver/walk.byn"
+#line 153 "driver/walk.byn"
         (*bynh_slot_map_str_opt_main__T6Found(&(*p_cache), l14_d, ((bynt_opt_main__T6Found){0}))) = l2_found;
     continue_4:;
-#line 132 "driver/walk.byn"
+#line 153 "driver/walk.byn"
         t16 = byn_addw_i64(t16, INT64_C(1));
     }
 break_3:;
-#line 133 "driver/walk.byn"
+#line 154 "driver/walk.byn"
     *byn_out = l2_found;
     return (byn_err){0};
 }
-#line 198561 "main.c"
+#line 198817 "main.c"
 
 bynt_map_str_bool byn_main__packageNames(byn_str p_dir) {
     bynt_map_str_bool l0_names = {0};
     int32_t l1_ignored = {0};
     byn_str l2_root = {0};
-    byn_str l3_file = {0};
-    bynt_list_str t4 = {0};
-    int64_t t5 = {0};
-    bynt_list_u8 l6_bytes = {0};
-    byn_err t7 = {0};
-    bynt_list_u8 t8 = {0};
-    bynt_list_u8 l9_copy = {0};
-    uint8_t l10_b = {0};
-    bynt_list_u8 t11 = {0};
-    int64_t t12 = {0};
-    bynt_parser__Parser l13_p = {0};
-    bynt_lexer__SourceText t14 = {0};
-    bynt_parser__CompilationUnit l15_tree = {0};
-    bynt_tup2_str_bool l16__ = {0};
-    bynt_map_str_bool t17 = {0};
-    int64_t t18 = {0};
-    byn_str l19_name = {0};
-    bool l20__ = {0};
-#line 139 "driver/walk.byn"
+    byn_err t3 = {0};
+    byn_str t4 = {0};
+    byn_str l5_file = {0};
+    bynt_list_str t6 = {0};
+    int64_t t7 = {0};
+    bynt_list_u8 l8_bytes = {0};
+    byn_err t9 = {0};
+    bynt_list_u8 t10 = {0};
+    bynt_list_u8 l11_copy = {0};
+    uint8_t l12_b = {0};
+    bynt_list_u8 t13 = {0};
+    int64_t t14 = {0};
+    bynt_parser__Parser l15_p = {0};
+    bynt_lexer__SourceText t16 = {0};
+    bynt_parser__CompilationUnit l17_tree = {0};
+    bynt_tup2_str_bool l18__ = {0};
+    bynt_map_str_bool t19 = {0};
+    int64_t t20 = {0};
+    byn_str l21_name = {0};
+    bool l22__ = {0};
+#line 160 "driver/walk.byn"
     l0_names = ((bynt_map_str_bool){{.alloc = byn_context}, NULL, NULL});
-#line 140 "driver/walk.byn"
+#line 161 "driver/walk.byn"
     l1_ignored = ((int32_t)0);
-#line 141 "driver/walk.byn"
-    l2_root = byn_main__realPath(p_dir);
-#line 142 "driver/walk.byn"
-    t4 = byn_main__bynFiles(p_dir, &l1_ignored, ((bynt_opt_str){true, l2_root}), true);
-#line 142 "driver/walk.byn"
-    t5 = INT64_C(0);
-#line 142 "driver/walk.byn"
+#line 163 "driver/walk.byn"
+    t3 = byn_main__realPath(p_dir, &t4);
+#line 163 "driver/walk.byn"
+    if ((!(t3.code == ((uint32_t)0)))) {
+#line 163 "driver/walk.byn"
+        return l0_names;
+    }
+#line 163 "driver/walk.byn"
+    l2_root = t4;
+#line 164 "driver/walk.byn"
+    t6 = byn_main__bynFiles(p_dir, &l1_ignored, ((bynt_opt_str){true, l2_root}), true);
+#line 164 "driver/walk.byn"
+    t7 = INT64_C(0);
+#line 164 "driver/walk.byn"
     for (;;) {
-#line 142 "driver/walk.byn"
-        if ((!(t5 < t4.len))) {
-#line 142 "driver/walk.byn"
+#line 164 "driver/walk.byn"
+        if ((!(t7 < t6.len))) {
+#line 164 "driver/walk.byn"
             goto break_1;
         }
-#line 142 "driver/walk.byn"
-        l3_file = t4.ptr[t5];
-#line 143 "driver/walk.byn"
-        if (byn_str_eq(byn_path_file_name(l3_file, byn_context), BYN_STR("package.byn", 11))) {
-#line 143 "driver/walk.byn"
+#line 164 "driver/walk.byn"
+        l5_file = t6.ptr[t7];
+#line 165 "driver/walk.byn"
+        if (byn_str_eq(byn_path_file_name(l5_file, byn_context), BYN_STR("package.byn", 11))) {
+#line 165 "driver/walk.byn"
             goto continue_2;
         }
-#line 144 "driver/walk.byn"
-        t7 = (byn_err){ .code = bynh_io_read_file(l3_file, &t8) };
-#line 144 "driver/walk.byn"
-        if ((!(t7.code == ((uint32_t)0)))) {
-#line 144 "driver/walk.byn"
+#line 166 "driver/walk.byn"
+        t9 = (byn_err){ .code = bynh_io_read_file(l5_file, &t10) };
+#line 166 "driver/walk.byn"
+        if ((!(t9.code == ((uint32_t)0)))) {
+#line 166 "driver/walk.byn"
             goto continue_2;
         }
-#line 144 "driver/walk.byn"
-        l6_bytes = t8;
-#line 145 "driver/walk.byn"
-        l9_copy = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 146 "driver/walk.byn"
-        t11 = l6_bytes;
-#line 146 "driver/walk.byn"
-        t12 = INT64_C(0);
-#line 146 "driver/walk.byn"
+#line 166 "driver/walk.byn"
+        l8_bytes = t10;
+#line 167 "driver/walk.byn"
+        l11_copy = ((bynt_list_u8){NULL, 0, 0, byn_context});
+#line 168 "driver/walk.byn"
+        t13 = l8_bytes;
+#line 168 "driver/walk.byn"
+        t14 = INT64_C(0);
+#line 168 "driver/walk.byn"
         for (;;) {
-#line 146 "driver/walk.byn"
-            if ((!(t12 < t11.len))) {
-#line 146 "driver/walk.byn"
+#line 168 "driver/walk.byn"
+            if ((!(t14 < t13.len))) {
+#line 168 "driver/walk.byn"
                 goto break_3;
             }
-#line 146 "driver/walk.byn"
-            l10_b = t11.ptr[t12];
-#line 146 "driver/walk.byn"
-            (void)bynh_add_list_u8(&l9_copy, l10_b);
+#line 168 "driver/walk.byn"
+            l12_b = t13.ptr[t14];
+#line 168 "driver/walk.byn"
+            (void)bynh_add_list_u8(&l11_copy, l12_b);
         continue_4:;
-#line 146 "driver/walk.byn"
-            t12 = byn_addw_i64(t12, INT64_C(1));
+#line 168 "driver/walk.byn"
+            t14 = byn_addw_i64(t14, INT64_C(1));
         }
     break_3:;
-#line 147 "driver/walk.byn"
-        t14 = byn_lexer__SourceText__create(l3_file, l9_copy);
-#line 147 "driver/walk.byn"
-        l13_p = byn_parser__Parser__create(byn_lexer__lex(t14, byn_lexer__Keywords__build()));
-#line 148 "driver/walk.byn"
-        l15_tree = byn_parser__parseCompilationUnit(&l13_p);
-#line 149 "driver/walk.byn"
-        t17 = byn_main__t6OtherUses(l3_file, l6_bytes, l15_tree, &l13_p);
-#line 149 "driver/walk.byn"
-        t18 = INT64_C(0);
-#line 149 "driver/walk.byn"
+#line 169 "driver/walk.byn"
+        t16 = byn_lexer__SourceText__create(l5_file, l11_copy);
+#line 169 "driver/walk.byn"
+        l15_p = byn_parser__Parser__create(byn_lexer__lex(t16, byn_lexer__Keywords__build()));
+#line 170 "driver/walk.byn"
+        l17_tree = byn_parser__parseCompilationUnit(&l15_p);
+#line 171 "driver/walk.byn"
+        t19 = byn_main__t6OtherUses(l5_file, l8_bytes, l17_tree, &l15_p);
+#line 171 "driver/walk.byn"
+        t20 = INT64_C(0);
+#line 171 "driver/walk.byn"
         for (;;) {
-#line 149 "driver/walk.byn"
-            if ((!(t18 < t17.h.len))) {
-#line 149 "driver/walk.byn"
+#line 171 "driver/walk.byn"
+            if ((!(t20 < t19.h.len))) {
+#line 171 "driver/walk.byn"
                 goto break_5;
             }
-#line 149 "driver/walk.byn"
-            if ((!(!t17.h.dead[t18]))) {
-#line 149 "driver/walk.byn"
+#line 171 "driver/walk.byn"
+            if ((!(!t19.h.dead[t20]))) {
+#line 171 "driver/walk.byn"
                 goto continue_6;
             }
-#line 149 "driver/walk.byn"
-            l16__ = ((bynt_tup2_str_bool){t17.keys[t18], t17.vals[t18]});
-#line 149 "driver/walk.byn"
-            l19_name = l16__.item1;
-#line 149 "driver/walk.byn"
-            l20__ = l16__.item2;
-#line 149 "driver/walk.byn"
-            (*bynh_slot_map_str_bool(&l0_names, l19_name, ((bool){0}))) = true;
+#line 171 "driver/walk.byn"
+            l18__ = ((bynt_tup2_str_bool){t19.keys[t20], t19.vals[t20]});
+#line 171 "driver/walk.byn"
+            l21_name = l18__.item1;
+#line 171 "driver/walk.byn"
+            l22__ = l18__.item2;
+#line 171 "driver/walk.byn"
+            (*bynh_slot_map_str_bool(&l0_names, l21_name, ((bool){0}))) = true;
         continue_6:;
-#line 149 "driver/walk.byn"
-            t18 = byn_addw_i64(t18, INT64_C(1));
+#line 171 "driver/walk.byn"
+            t20 = byn_addw_i64(t20, INT64_C(1));
         }
     break_5:;
     continue_2:;
-#line 142 "driver/walk.byn"
-        t5 = byn_addw_i64(t5, INT64_C(1));
+#line 164 "driver/walk.byn"
+        t7 = byn_addw_i64(t7, INT64_C(1));
     }
 break_1:;
-#line 151 "driver/walk.byn"
+#line 173 "driver/walk.byn"
     return l0_names;
 }
-#line 198683 "main.c"
+#line 198948 "main.c"
 
 bynt_main__NativeBuild byn_main__ZigOrCc__compile(bynt_main__ZigOrCc* self, byn_str p_dir, byn_str p_source, byn_str p_output, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_compiler = {0};
@@ -198813,7 +199078,7 @@ break_1:;
 #line 219 "driver/cc.byn"
     return ((bynt_main__NativeBuild){true, BYN_STR("", 0), false});
 }
-#line 198817 "main.c"
+#line 199082 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};
