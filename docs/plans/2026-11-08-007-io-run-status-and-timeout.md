@@ -81,6 +81,8 @@ Done when: no runtime path reports exit code 0 or 259 after a failed wait (nativ
 
 ## Questions (conservative default in brackets)
 
+Decided (user, 2026-11-08): every default below is accepted as stated, and the builtin `Millis` of §3 is approved as a user-visible type.
+
 - **Q-a Timed-out capture.** `fail .timeout(after)` discards the stdout/stderr read before the kill; `CliApp.RunTest` reports them. [Implement as decided; T11 records the gap in `017-plan.md` next to L028.]
 - **Q-b Grace period.** Not decided. [2000 ms SIGTERM → SIGKILL, a `#define` in `bayan-rt.c`; 5 s drain bound after the kill, as the C#.]
 - **Q-c Failed-wait variant.** "fail `IoError`" names no variant and the errno/`GetLastError` value is lost. [`other`; no new variant.]
