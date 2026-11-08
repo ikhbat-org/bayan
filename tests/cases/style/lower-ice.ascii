@@ -1,0 +1,5 @@
+# CliApp.ReportInternalError
+--- stdout ---
+--- stderr ---
+[1m[38;2;255;138;128merror BYN4002[0m: internal compiler error: a bound error expression reached lowering with no error
+reported; this is a bug in the Bayan compiler

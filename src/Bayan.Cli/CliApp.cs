@@ -39,10 +39,16 @@ public static class CliApp
         try { return Dispatch(args, stdout, stderr, terminal); }
         catch (InternalCompilerError e)
         {
-            var ice = new Diagnostic(Severity.Error, DiagnosticCodes.CCompilerRejected.Code, null, default, e.Message);
-            stderr.Write(DiagnosticRenderer.Render(ice, includePath: true, s_styleErr ?? Style.Plain));
-            return ExitFailure;
+            return ReportInternalError(e, stderr, s_styleErr ?? Style.Plain);
         }
+    }
+
+    /// <summary>A compiler invariant failed (BYN4002): the message, no location, exit 1.</summary>
+    internal static int ReportInternalError(InternalCompilerError e, TextWriter stderr, Style style)
+    {
+        var ice = new Diagnostic(Severity.Error, DiagnosticCodes.ErrorNodeReachedLowering.Code, null, default, e.Message);
+        stderr.Write(DiagnosticRenderer.Render(ice, includePath: true, style));
+        return ExitFailure;
     }
 
     private static int Dispatch(string[] args, TextWriter stdout, TextWriter stderr, Terminal terminal)

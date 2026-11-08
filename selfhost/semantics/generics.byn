@@ -328,6 +328,10 @@ void instantiatingEnd(ref Ctx c, by InstantiatingScope scope, FuncId instance = 
             d.help = $"call `{name}` with a type without states; it replaces a value of its type argument whole"
             d.related = move related
             t13Add(ref c, by: move d)
+        } else if code == codeText(.circularFieldDefault) {
+            if !t13Reported(in c, by: in d) {
+                t13Add(ref c, by: move d)
+            }
         } else {
             c.instantiationErrors.append(move d)
         }
@@ -757,6 +761,7 @@ BExpr fieldDefault(ref Ctx c, for StructId s, by FieldId f, from FileId site, at
         if c.structs[s].template != -1 {
             let scope = instantiatingBegin(ref c, from: site, at: span)
             if c.fields[f].defaultValue == -1 {
+                c.fields[f].defaultValue = -2
                 var b = t13NewBinder(c.structs[s].file, owner: s)
                 c.fields[f].defaultValue = bindFieldDefault(ref b, through: ref c, for: f)
             }

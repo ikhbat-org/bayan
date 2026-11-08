@@ -58,7 +58,7 @@ public sealed class OwnershipTableTests
         {
             var clock = Stopwatch.StartNew();
             var e = await Assert.ThrowsAsync<TimeoutException>(() => RunAsync(file, args, dir, timeoutMs: 500));
-            Assert.Contains($"{file} did not exit within 500 ms", e.Message);
+            Assert.Contains($"{file} did not exit within {TestTime.Scale(500)} ms", e.Message);
             Assert.True(clock.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(20)), $"took {clock.Elapsed}");
         }
         finally
@@ -109,14 +109,15 @@ public sealed class OwnershipTableTests
         using var p = Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndLfAsync();
         var stderr = p.StandardError.ReadToEndLfAsync();
-        using var timeout = new CancellationTokenSource(TestTime.Scale(timeoutMs));
+        var waitMs = TestTime.Scale(timeoutMs);
+        using var timeout = new CancellationTokenSource(waitMs);
         try { await p.WaitForExitAsync(timeout.Token); }
         catch (OperationCanceledException)
         {
             // Killed so the finally's Directory.Delete can run: on Windows a live process keeps its directory, and that IOException hid this timeout (CI 41396961495).
             p.Kill(entireProcessTree: true);
             await p.WaitForExitAsync();
-            throw new TimeoutException($"{file} did not exit within {timeoutMs} ms");
+            throw new TimeoutException($"{file} did not exit within {waitMs} ms");
         }
         return (p.ExitCode, await stdout, await stderr);
     }

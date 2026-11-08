@@ -225,6 +225,7 @@ enum SemaCode {
     manifestMissingField
     manifestEquals
     cCompilerRejected
+    errorNodeReachedLowering
     participleChangesThis
     stateMemberMutates
     tryWrongReturn
@@ -486,6 +487,7 @@ string codeText(SemaCode code) => code switch {
     .manifestMissingField => "BYN3103",
     .manifestEquals => "BYN3104",
     .cCompilerRejected => "BYN4001",
+    .errorNodeReachedLowering => "BYN4002",
     .participleChangesThis => "BYN5001",
     .stateMemberMutates => "BYN5002",
     .tryWrongReturn => "BYN5003",
@@ -747,6 +749,7 @@ string messageFormat(SemaCode code) => code switch {
     .manifestMissingField => "`package.byn` has no `{0}`",
     .manifestEquals => "`package.byn` uses `field: value`",
     .cCompilerRejected => "internal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler",
+    .errorNodeReachedLowering => "internal compiler error: a bound error expression reached lowering with no error reported; this is a bug in the Bayan compiler",
     .participleChangesThis => "`{0}` changes `this`; name it `{1}`",
     .stateMemberMutates => "`{0}` reads as state but modifies `this`",
     .tryWrongReturn => "`try{0}` must return `{1}?` or `bool`; it is derived from `{2}() fails`",
