@@ -31,7 +31,7 @@ public sealed class SelfhostLexerCaseTests(ITestOutputHelper output)
         program.Append("}\n");
         var c = Compilation.Create([SourceText.FromString(Path.Combine(selfhost, "t-case.byn"), program.ToString())], packageRoot: selfhost);
         if (c.Diagnostics.HasErrors) Assert.Fail($"did not build:\n{DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true)}");
-        var build = Toolchain.Build(CliApp.EmitC(c, BuildMode.Fast), BuildMode.Fast);
+        var build = SelfhostSemanticsHarness.BuildFast(c, new HashSet<string>(StringComparer.Ordinal));
         if (!build.Succeeded) Assert.Fail($"did not build:\n{build.Errors}");
         var psi = new ProcessStartInfo(build.ExecutablePath!) { RedirectStandardOutput = true, StandardOutputEncoding = Encoding.UTF8, UseShellExecute = false };
         using var p = Process.Start(psi)!;
