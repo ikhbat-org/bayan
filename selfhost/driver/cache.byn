@@ -406,8 +406,8 @@ NativeBuild t9CompileIn(string work, by in List<string> compiler, through in Lis
     try Io.createDirectory(t9Programs())
     var moved = true
     Fs.rename(work, to: Path.combine(t9Programs(), key)) catch switch {
-        IoError.permissionDenied => fail .permissionDenied,
         IoError e => {
+            if t9MoveDenied(e) { fail e }
             // Another build of the same program won the race; its entry is as good as ours.
             let won = try lookup(key, by: exeName, through: ref d)
             if won is null { fail e }
@@ -417,6 +417,11 @@ NativeBuild t9CompileIn(string work, by in List<string> compiler, through in Lis
     if moved { evict(key, through: ref d) }
     return NativeBuild { succeeded: true }
 }
+
+/// Whether `Directory.Move` throws `UnauthorizedAccessException` for `e`, not the `IOException` the C# catches: a permission error,
+/// except on Windows, where .NET throws `IOException` for `MoveFileExW`'s `ERROR_ACCESS_DENIED` (also a directory moved onto an
+/// existing one, which another build of the same program made).
+bool t9MoveDenied(IoError e) => e == .permissionDenied && Target.os != "windows"
 
 /// Toolchain.cs:361 `Touch`: a failure is harmless.
 void touch(string dir) uses clock, fs {
@@ -595,12 +600,14 @@ void discard(string dir, through ref DCtx d) uses alloc, clock, env, fs fails Io
 }
 
 /// `Directory.Move(dir, trash)` and `Directory.Delete(trash, recursive: true)` of `Discard`, `trash` being `trash-<Guid>` in
-/// `Staging`, so a half-deleted entry is never visible. A permission error fails; any other is the caught `IOException`.
+/// `Staging`, so a half-deleted entry is never visible. A `t9MoveDenied` error fails; any other is the caught `IOException`.
 void t9MoveAndDelete(string dir, through ref DCtx d) uses alloc, clock, env, fs fails IoError {
     let trash = Path.combine(t9Staging(), $"trash-{t9Unique(ref d)}")
     Fs.rename(dir, to: trash) catch switch {
-        IoError.permissionDenied => fail .permissionDenied,
-        IoError e => return,
+        IoError e => {
+            if t9MoveDenied(e) { fail e }
+            return
+        }
     }
     t9DeleteTree(trash) catch switch {
         IoError.permissionDenied => fail .permissionDenied,

@@ -40,7 +40,8 @@ public sealed class SelfhostDefaultT9Tests
                 var triple: string? = null
                 if args.length > 3 {
                     target = args[3]
-                    triple = targetTriple(args[3])
+                    // `-target` only when cross (Toolchain.cs:215, :228).
+                    if args[3] != targetHost() { triple = targetTriple(args[3]) }
                 }
                 let flags = ccFlags(args[2], for: triple)
                 Io.stdout.write($"{t9Key(args[2], for: target, by: in compiler, through: in flags, from: source)}\n")
@@ -182,15 +183,20 @@ public sealed class SelfhostDefaultT9Tests
 
     // ── the keys (Toolchain.cs:237, :498) ───────────────────────────────────────────────────
 
-    /// <summary>A cross target (`-target` in the flags, the target in the key) needs zig on <c>PATH</c> for the C# side.</summary>
+    /// <summary>
+    /// A cross target (`-target` in the flags, the target in the key) needs zig on <c>PATH</c> for the C# side; <c>host</c> is
+    /// <c>Targets.Host</c> given by name, which is not cross.
+    /// </summary>
     [Theory]
     [InlineData("arithmetic.byn", "safe", null)]
     [InlineData("arithmetic.byn", "debug", null)]
     [InlineData("arithmetic.byn", "fast", null)]
     [InlineData("arithmetic.byn", "safe", "linux-x64")]
     [InlineData("arithmetic.byn", "debug", "windows-x64")]
+    [InlineData("arithmetic.byn", "debug", "host")]
     public void TheProgramKeyOfARunInputIsTheCSharpKey(string input, string mode, string? target)
     {
+        if (target == "host") target = Targets.Host;
         if (target is not null && With("BAYAN_CC", null, Toolchain.FindCompiler) is not [_, "cc"]) return;
         var dir = Fresh($"key-{mode}-{target}");
         Assert.True(Toolchain.TryParseMode(mode, out var buildMode));
@@ -579,7 +585,7 @@ public sealed class SelfhostDefaultT9Tests
             new Step(["build", "--verbose", "arithmetic.byn"], root =>
             {
                 var entry = Directory.GetDirectories(Path.Combine(root, "cache", "v1", "programs")).Single();
-                File.WriteAllBytes(Path.Combine(entry, "program"), [1, 2, 3]);
+                File.WriteAllBytes(Path.Combine(entry, OperatingSystem.IsWindows() ? "program.exe" : "program"), [1, 2, 3]);
             }));
         Assert.DoesNotContain("from cache", outs[0]);
         Assert.Contains("from cache", outs[1]);
@@ -668,7 +674,7 @@ public sealed class SelfhostDefaultT9Tests
     /// <summary>
     /// CliMemoryBoundsTests.M6_StaleTemporaryDirectoriesAreSweptAndFreshOnesKept and F13 through a build: the first build of a
     /// run sweeps <c>bayan-coverage-</c>/<c>-mutate-</c>/<c>-asan-</c> directories under <c>TMPDIR</c> older than an hour and
-    /// staging entries older than <c>BAYAN_CC_TIMEOUT_S</c> plus ten minutes. <c>TMPDIR</c> is a sibling of the tree
+    /// staging entries older than <c>BAYAN_CC_TIMEOUT_S</c> plus ten minutes. <c>TMPDIR</c> (<c>TMP</c> on Windows) is a sibling of the tree
     /// (<c>&lt;root&gt;-tmp</c>), so what <c>dotnet</c> itself writes there is not compared; the seeded names are.
     /// </summary>
     [Theory]
@@ -696,7 +702,7 @@ public sealed class SelfhostDefaultT9Tests
             }
         }
         Same($"sweep-build-{timeout}", Seed,
-            new Step(["build", "arithmetic.byn"], Env: [("TMPDIR", "<root>-tmp"), ("BAYAN_CC_TIMEOUT_S", timeout)]));
+            new Step(["build", "arithmetic.byn"], Env: [("TMPDIR", "<root>-tmp"), ("TMP", "<root>-tmp"), ("BAYAN_CC_TIMEOUT_S", timeout)]));
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", $"sweep-build-{timeout}");
         string Left(string side) => string.Join("\n", seeded.Where(n => Path.Exists(Path.Combine(dir, side + "-tmp", n.TrimEnd('/')))));
         SelfhostEmitterHarness.AssertSame("seeded names left in TMPDIR", Left("cs"), Left("s2"));
