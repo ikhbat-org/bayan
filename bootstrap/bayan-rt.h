@@ -433,7 +433,7 @@ byn_str byn_utf8_decode_replace(const uint8_t* p, int64_t n, byn_alloc* to);
  * On Windows they come from the UTF-16 command line instead of `argv`, and `*argc` is set to their count. */
 byn_str* byn_args(int* argc, char** argv);
 
-/* `IoError` codes: the compiler numbers its variants first. */
+/* `IoError` codes 1 to 11: the compiler numbers its variants first, then `Utf8Error` (12); user error variants start at 13. */
 #define BYN_IO_NOT_FOUND 1u
 #define BYN_IO_PERMISSION_DENIED 2u
 #define BYN_IO_INVALID_UTF8 3u
@@ -443,6 +443,12 @@ byn_str* byn_args(int* argc, char** argv);
 #define BYN_IO_UNSUPPORTED 7u
 #define BYN_IO_CROSS_DEVICE 8u
 #define BYN_IO_IS_DIRECTORY 9u
+/* detail-carrying: writes *detail (the signal number), the payload of `IoError.signaled(i32 signal)`. */
+#define BYN_IO_SIGNALED 10u
+/* `IoError.timeout(Millis after)`: no runtime detail; the caller knows the timeout. */
+#define BYN_IO_TIMEOUT 11u
+/* `Utf8Error.invalidSequence(i64 at)`: no runtime detail; `bynh_utf8_decode` writes it. */
+#define BYN_UTF8_INVALID_SEQUENCE 12u
 
 /* Reads a whole file into memory from `alloc`. Returns 0 or an `IoError` code. */
 uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc);

@@ -26,6 +26,7 @@ public string equalHelper(ref CCtx cc, from ref Ctx c, for Type t, at string a, 
         case .enumType: return $"({a} == {b})"
         case .builtin:
             if t == semantics.builtinType(.symbol) { return $"(({a}).id == ({b}).id)" }
+            if t == semantics.builtinType(.millis) { return $"({a} == {b})" }
         case .errorSet or .errorUnion:
             // By code, then the payload of a case that has one (Q45, Q28). One helper serves every set, as the
             // `Result`, optional and tuple helpers are keyed without theirs; a case whose payload has no equality is
@@ -259,6 +260,8 @@ public string format(ref CCtx cc, from ref Ctx c, for Type t, at string v, to st
         case .enumType: return $"byn_w_str({w}, {enumNames(ref cc, from: ref c, for: i)}[{v}]);"
         case .builtin:
             if t == semantics.builtinType(.symbol) { return $"byn_w_str({w}, {symbolText(ref cc, for: v)});" }
+            // A unit formats as its value plus its symbol (spec §3.4).
+            if t == semantics.builtinType(.millis) { return $"byn_w_i64({w}, {v}); byn_w_str({w}, BYN_STR(\" ms\", 3));" }
         case .owned: return format(ref cc, from: ref c, for: c.ownedTypes[i], at: $"(*{v})", to: w)
         default: let _ = 0
     }

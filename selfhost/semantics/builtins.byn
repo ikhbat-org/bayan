@@ -57,7 +57,7 @@ const validationErrorSource: string = "public union error ValidationError {\n   
 
 const ruleSource: string = "public union Rule {\n    /// `it.runeCount in a..=b`.\n    length(Range<i64> bounds)\n    /// `it in a..=b`.\n    range(Range<i64> bounds)\n    /// Any other rule.\n    custom\n}\n\npublic struct Violation {\n    i64 field\n    i64 rule\n}"
 
-const ioErrorSource: string = "public union error IoError {\n    /// The file does not exist.\n    notFound,\n    /// Permission denied.\n    permissionDenied,\n    /// The input is not valid UTF-8.\n    invalidUtf8,\n    /// The path exists but is not a directory.\n    notADirectory,\n    /// An input or output operation failed.\n    other,\n    /// An argument cannot be passed exactly, so nothing was done.\n    invalidInput,\n    /// The operation is not available on this platform.\n    unsupported,\n    /// The source and the destination are on different devices.\n    crossDevice,\n    /// The path is a directory where a file is needed.\n    isDirectory,\n}"
+const ioErrorSource: string = "public union error IoError {\n    /// The file does not exist.\n    notFound,\n    /// Permission denied.\n    permissionDenied,\n    /// The input is not valid UTF-8.\n    invalidUtf8,\n    /// The path exists but is not a directory.\n    notADirectory,\n    /// An input or output operation failed.\n    other,\n    /// An argument cannot be passed exactly, so nothing was done.\n    invalidInput,\n    /// The operation is not available on this platform.\n    unsupported,\n    /// The source and the destination are on different devices.\n    crossDevice,\n    /// The path is a directory where a file is needed.\n    isDirectory,\n    /// The child process was ended by this signal.\n    signaled(i32 signal),\n    /// The child process ran longer than this and was stopped.\n    timeout(Millis after),\n}"
 
 /// The builtin module, built on first use (the C# `Builtins.Module`).
 ModId t9Module(ref Ctx c) {
@@ -71,6 +71,26 @@ ModId t9Module(ref Ctx c) {
 Type t9Type(ref Ctx c, for string name) {
     let m = t9Module(ref c)
     return c.modules[m].types.tryGet(at: name) ?? -1
+}
+
+/// The C# `Builtins.DetailVariants`: the built-in cases whose one primitive (or `Millis`) payload a failing builtin call fills
+/// from the general detail slot (plan 007 §1). Call after the declare pass has numbered the builtin sets.
+public List<VariantId> detailVariants(ref Ctx c) uses alloc {
+    var all = List<VariantId>()
+    all.append(t9Variant(ref c, for: "IoError", by: "signaled"))
+    all.append(t9Variant(ref c, for: "IoError", by: "timeout"))
+    all.append(t9Variant(ref c, for: "Utf8Error", by: "invalidSequence"))
+    all.append(t9Variant(ref c, for: "ParseError", by: "badDigit"))
+    return all
+}
+
+/// The variant `name` of the builtin error set `set`.
+VariantId t9Variant(ref Ctx c, for string set, by string name) {
+    let s = typeIndex(t9Type(ref c, for: set))
+    for v in c.errorSets[s].variants {
+        if c.errorVariants[v].name == name { return v }
+    }
+    panic("no such builtin error variant")
 }
 
 /// The builtin function stored under `key`, or -1.
