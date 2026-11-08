@@ -36,6 +36,17 @@ public static class CliApp
 
     public static int Run(string[] args, TextWriter stdout, TextWriter stderr, Terminal terminal)
     {
+        try { return Dispatch(args, stdout, stderr, terminal); }
+        catch (InternalCompilerError e)
+        {
+            var ice = new Diagnostic(Severity.Error, DiagnosticCodes.CCompilerRejected.Code, null, default, e.Message);
+            stderr.Write(DiagnosticRenderer.Render(ice, includePath: true, s_styleErr ?? Style.Plain));
+            return ExitFailure;
+        }
+    }
+
+    private static int Dispatch(string[] args, TextWriter stdout, TextWriter stderr, Terminal terminal)
+    {
         if (TakeGlobalOptions(ref args, stderr) is not var (color, ascii)) return ExitUsage;
         s_styleOut = TerminalStyle.Decide(color, ascii, terminal.Stdout, Environment.GetEnvironmentVariable, terminal.Width);
         s_styleErr = TerminalStyle.Decide(color, ascii, terminal.Stderr, Environment.GetEnvironmentVariable, terminal.Width);
