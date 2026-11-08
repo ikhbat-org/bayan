@@ -120,9 +120,9 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
         case "check":
             return checkCommand(in kept, by: in d)
         case "build":
-            return buildCommand(in kept, by: in d)
+            return buildCommand(in kept, by: ref d)
         case "run":
-            return runProgram(in t2Rest(kept), by: in d)
+            return runProgram(in t2Rest(kept), by: ref d)
         case "test":
             return refuse(command)
         case "mutate":
@@ -146,7 +146,7 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
                 script.append(command)
                 script.append("--")
                 for a in t2Rest(kept) { script.append(a) }
-                return runProgram(in script, by: in d)
+                return runProgram(in script, by: ref d)
             }
             Io.stderr.write($"bayan: unknown command `{command}`\n")
             if command == "fmt" { Io.stderr.write("the formatter is `bayan format`\n") }
