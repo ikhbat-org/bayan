@@ -364,6 +364,47 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
         Assert.Equal(string.Join("", expected.Select(l => l + "\n")), stdout);
     }
 
+    /// <summary>The parser's files with a <c>main</c> that prints <c>typeNames</c> and <c>calleeAndReceiverNames</c> of the file as
+    /// <c>type start length</c> and <c>callee start length</c>.</summary>
+    private const string CollectorsProgram = """
+        import lexer
+
+        i32 main(ReadOnlySpan<string> args) {
+            let keywords = Keywords.build()
+            var bytes = Io.readFile(args[0]) catch return 4
+            var p = Parser.create(lexer.lex(SourceText.create(args[0], from: move bytes), by: keywords))
+            var unit = parseCompilationUnit(ref p)
+            var sb = StrBuf()
+            for n in typeNames(in unit, from: ref p) { sb.append($"type {n.start} {n.length}\n") }
+            for n in calleeAndReceiverNames(in unit, from: ref p) { sb.append($"callee {n.start} {n.length}\n") }
+            Io.stdout.write(sb.finish())
+            return 0
+        }
+        """;
+
+    private static readonly Lazy<(string? Path, string Error)> Collectors = new(() =>
+        BuildParser(Directory.GetFiles(ParserDir, "*.byn").Where(f => Path.GetFileName(f) != "main.byn").Order(StringComparer.Ordinal)
+            .Select(f => SourceText.FromFile(f))
+            .Append(SourceText.FromString(Path.Combine(ParserDir, "collectors-test.byn"), CollectorsProgram)).ToList()));
+
+    /// <summary>017 T20 (Q1121 (b), (c)): <c>typeNames</c> and <c>calleeAndReceiverNames</c> equal <c>AstDump.TypeNames</c> and
+    /// <c>AstDump.CalleeAndReceiverNames</c> (span start and length, in order) on every <c>parse/</c> case.</summary>
+    [Theory]
+    [MemberData(nameof(ParseCases))]
+    public void CollectorsMatchAstDump(string name)
+    {
+        var (path, error) = Collectors.Value;
+        if (path is null) Assert.Fail($"the collectors program did not build:\n{error}");
+        var input = Path.Combine(Golden.CasesRoot, name);
+        var tree = SyntaxTree.Parse(SourceText.FromFile(input));
+        var expected = string.Concat(AstDump.TypeNames(tree).Select(n => $"type {n.Span.Start} {n.Span.Length}\n"))
+            + string.Concat(AstDump.CalleeAndReceiverNames(tree).Select(n => $"callee {n.Span.Start} {n.Span.Length}\n"));
+        var (exit, stdout, stderr) = Run(path!, input);
+        output.WriteLine(stderr);
+        Assert.Equal(0, exit);
+        Assert.Equal(expected, stdout);
+    }
+
     public static TheoryData<string> ParseCases => Golden.Cases("parse");
 
     /// <summary>The <c>diag/</c> cases whose <c>.diag</c> holds a parser diagnostic; each <c>.byn</c> is parsed alone.</summary>

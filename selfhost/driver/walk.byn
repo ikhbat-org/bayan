@@ -3,6 +3,7 @@
 
 import lexer
 import parser
+import semantics
 
 /// A directory still to walk: the path as written and its canonical path (`Format.cs:133` `(string Path, string? Canonical)`).
 struct T6Pending {
@@ -89,23 +90,20 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
     return files
 }
 
-/// The result of the stub `Manifest.Read` (Q1107): selfhost/semantics/manifest.byn `Manifest` is not `public`, so the driver cannot name it.
-struct T6Manifest {
-    string path
-}
-
-/// The C# `(Manifest Manifest, string Dir)`: a manifest and the directory of its `package.byn`.
+/// The C# `(Manifest Manifest, string Dir)`: the directory of a `package.byn` and what `Format.Run` reads of its manifest. A `Manifest` holds
+/// lists and so cannot be copied into the cache for each directory below the one found (BYN2780): `booleans` and `primitives` are its styles,
+/// `hasErrors` is `Manifest.HasErrors` and `report` is `DiagnosticRenderer.RenderAll(manifest.Diagnostics, includePath: true)` when it is set.
 struct T6Found {
-    T6Manifest manifest
     string dir
+    semantics.BooleanStyle booleans
+    semantics.PrimitiveStyle primitives
+    bool hasErrors
+    string report
 }
-
-// stub: T6 `Manifest.Read` (src/Bayan.Syntax/Packages/Manifest.cs:93), `Manifest` and `manifestRead` being private to selfhost/semantics (blocked: Q1107)
-T6Manifest t6ManifestRead(string path) => T6Manifest { path: path }
 
 /// Format.cs:407 `OtherUses`, ported by T8 in format.byn.
-Map<string, bool> t6OtherUses(string file, from in List<u8> bytes, by in parser.CompilationUnit tree) uses alloc {
-    return otherUses(file, from: in bytes, by: in tree)
+Map<string, bool> t6OtherUses(string file, from in List<u8> bytes, by in parser.CompilationUnit tree, through ref parser.Parser p) uses alloc {
+    return otherUses(file, from: in bytes, by: in tree, through: ref p)
 }
 
 /// Format.cs:230 `ManifestFor`: the `package.byn` in the file's directory or the nearest one above it, with its directory; null when there is none.
@@ -122,7 +120,14 @@ T6Found? manifestFor(string file, through ref Map<string, T6Found?> cache) uses 
         seen.append(current)
         let candidate = Path.combine(current, "package.byn")
         if Fs.fileExists(candidate) {
-            found = T6Found { manifest: t6ManifestRead(candidate), dir: current }
+            let manifest = semantics.manifestRead(candidate)
+            var hasErrors = false
+            for diagnostic in manifest.diagnostics {
+                unless diagnostic.isWarning { hasErrors = true }
+            }
+            var report = ""
+            if hasErrors { report = t8RenderManifest(candidate, from: in manifest.diagnostics) }
+            found = T6Found { dir: current, booleans: manifest.booleans, primitives: manifest.primitives, hasErrors: hasErrors, report: report }
             break
         }
         dir = Path.directoryName(current)
@@ -144,7 +149,7 @@ Map<string, bool> packageNames(string dir) uses alloc, console, fs {
         for b in bytes { copy.append(b) }
         var p = parser.Parser.create(lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build()))
         let tree = parser.parseCompilationUnit(ref p)
-        for (name, _) in t6OtherUses(file, from: in bytes, by: in tree) { names[name] = true }
+        for (name, _) in t6OtherUses(file, from: in bytes, by: in tree, through: ref p) { names[name] = true }
     }
     return names
 }

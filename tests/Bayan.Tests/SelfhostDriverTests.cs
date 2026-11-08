@@ -474,7 +474,7 @@ public sealed class SelfhostDriverT1Tests
         finally { if (locked) Chmod(lockedDir, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); }
     }
 
-    /// <summary><c>manifestFor</c> against the private <c>Format.ManifestFor</c>: the directory of the nearest <c>package.byn</c> (or none) for each file, and how many directories the cache holds after, with the second file of a directory answered from the cache. <c>Manifest.Read</c> is a stub (Q1107), so the manifest itself is not compared.</summary>
+    /// <summary><c>manifestFor</c> against the private <c>Format.ManifestFor</c>: the directory of the nearest <c>package.byn</c> (or none) for each file, and how many directories the cache holds after, with the second file of a directory answered from the cache. <c>The manifest itself is not compared.</summary>
     [Fact]
     public void ManifestForAsFormat()
     {
@@ -500,7 +500,7 @@ public sealed class SelfhostDriverT1Tests
         SelfhostEmitterHarness.AssertSame("manifestFor", string.Join("\n", expected) + "\n", stdout);
     }
 
-    /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (files holding only a comment, an unreadable one, a missing directory); a set with names is not compared while the Q1121 collectors return <c>[]</c> (the guard rejects a skipped test).</summary>
+    /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (files holding only a comment, an unreadable one, a missing directory).</summary>
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -522,6 +522,23 @@ public sealed class SelfhostDriverT1Tests
             Assert.Equal("", stderr);
         }
         finally { if (lockIt) Chmod(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite); }
+    }
+
+    /// <summary><c>packageNames</c> over files with names equals the private <c>Format.PackageNames</c> (as sets): the identifiers other than a type, a callee or receiver, or a member after a dot.</summary>
+    [Fact]
+    public void PackageNamesWithNamesAsFormat()
+    {
+        var dir = WalkTree("names-some");
+        File.WriteAllText(Path.Combine(dir, "a.byn"), "struct Box { weight: long }\nlong grow(Box b) => long(b.weight) + int.max\nvoid main() {\n    let w = grow(Box { weight: 1 })\n    let i8 = w\n}\n");
+        File.WriteAllText(Path.Combine(dir, "sub", "b.byn"), "double half(double x) => x / 2\n");
+        var method = typeof(Format).GetMethod("PackageNames", BindingFlags.NonPublic | BindingFlags.Static)!;
+        var expected = ((IEnumerable<string>)method.Invoke(null, [dir])!).Order(StringComparer.Ordinal).ToList();
+        Assert.NotEmpty(expected);
+        var (code, stdout, stderr) = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), "names", dir);
+        Assert.Equal(0, code);
+        Assert.Equal("", stderr);
+        var got = stdout.Split('\n', StringSplitOptions.RemoveEmptyEntries).Order(StringComparer.Ordinal).ToList();
+        SelfhostEmitterHarness.AssertSame("package names", string.Join("\n", expected), string.Join("\n", got));
     }
 
     [Fact]
@@ -579,6 +596,10 @@ public sealed class SelfhostDriverT1Tests
         const string Body = " {\n    print(\"g\")\n    return 1\n}\n";
         string Diag(string file) => File.ReadAllText(Path.Combine(Golden.CasesRoot, "diag", file));
         (Dictionary<string, string>, string[][]) One(string text, params string[] args) => (new() { ["main.byn"] = text }, args.Contains("--check") ? [[.. args, "{D}/main.byn"]] : [[.. args, "--check", "{D}/main.byn"], [.. args, "{D}/main.byn"]]);
+        string Pkg(string style) => $"Package {{\n    name: \"local/shop\",\n    version: \"0.1.0\",\n    style: Style {{ {style} }},\n}}\n";
+        const string WordsAndCSharp = "bool f(bool a, bool b, int n) => a and not b or n is not 0\nvoid main() {\n    let x: nint = 3\n    switch x {\n        case 1 or 2: print(\"a\")\n        default: print(\"b\")\n    }\n    print(\"s\") if not f(true, false, 1) and x > 0\n}\n";
+        const string SymbolsAndSized = "bool f(bool a, bool b, i32 n) => a && !b || n is not 0\nvoid main() {\n    let x: isize = 3\n    switch x {\n        case 1 or 2: print(\"a\")\n        default: print(\"b\")\n    }\n    print(\"s\") if !f(true, false, 1) && x > 0\n}\n";
+        const string IdempotentInput = "struct Box { weight: long }\nadd(a: int, b: i32) -> long { return a + b; }\nvoid main() {\n    let a = true\n    if (a && !false) { print(\"x\") }\n    unless !a { print(\"y\") }\n    int t = add(1, 2)\n    print($\"{t}\") if not a or t is not 0\n}\n";
         (Dictionary<string, string>, string[][]) Twice(string text) => (new() { ["main.byn"] = text }, [["{D}/main.byn"], ["--check", "{D}/main.byn"]]);
         return name switch
         {
@@ -640,6 +661,21 @@ public sealed class SelfhostDriverT1Tests
             "line-join-enum-shorthand" => One(Diag("line-join-enum-shorthand.byn")),
             "line-join-and" => One(Diag("line-join-and.byn")),
             "line-join-quiet" => One(Diag("line-join-quiet.byn"), "--check"),
+            "defaults" => One(WordsAndCSharp),
+            "package-style" => (new() { ["package.byn"] = Pkg("booleans: .words, primitives: .csharp"), ["src/main.byn"] = SymbolsAndSized }, [["{D}"]]),
+            "csharp-project" => (new() { ["package.byn"] = Pkg("primitives: .csharp"), ["src/main.byn"] = "long twice(int n) => n * 2\n\nvoid main() {\n    let r: double = 0.5\n    print($\"{twice(3)} {r}\")\n}\n" }, [["{D}"]]),
+            "spacing" => (new() { ["package.byn"] = Pkg("booleans: .words"), ["main.byn"] = "bool f(bool a, bool b) => a&&!b||!(a)\n" }, [["{D}/main.byn"]]),
+            "primitive-names" => (new() { ["package.byn"] = Pkg("primitives: .csharp"), ["main.byn"] = "struct P { i8: int }\nvoid main() {\n    let u8 = 1\n    let p = P { i8: 3 }\n    let w: i8 = 2\n    print($\"{u8}{p.i8}{w}\")\n}\n" }, [["{D}/main.byn"]]),
+            "conv-sized" => One("void main() {\n    let y = 1\n    let z: long = long(y)\n    let a = int.tryFrom(y)\n    let b = long.max\n}\n"),
+            "conv-csharp" => (new() { ["package.byn"] = Pkg("primitives: .csharp"), ["main.byn"] = "void main() {\n    let y = 1\n    let a = i32.tryFrom(y)\n    let b = i64.max\n    let c = i8(y)\n}\n" }, [["{D}/main.byn"]]),
+            "conv-declared" => (new() { ["package.byn"] = Pkg("primitives: .csharp"), ["main.byn"] = "void main() {\n    let i8 = 1\n    let n = i8.foo\n    let m = i8(2)\n}\n" }, [["{D}/main.byn"]]),
+            "conv-declared-package" => (new() { ["package.byn"] = Pkg("primitives: .csharp"), ["a.byn"] = "long i8(long x) => x + 1000\n", ["main.byn"] = "void main() {\n    let n = i8(3)\n}\n" }, [["{D}"], ["{D}/main.byn"]]),
+            "bad-style" => (new() { ["package.byn"] = Pkg("booleans: .both"), ["main.byn"] = WordsAndCSharp }, [["{D}/main.byn"]]),
+            "bad-style-directory" => (new() { ["package.byn"] = Pkg("booleans: .both"), ["a.byn"] = WordsAndCSharp, ["other/b.byn"] = Fixable }, [["{D}"]]),
+            "check-style" => (new() { ["a.byn"] = WordsAndCSharp, ["b.byn"] = SymbolsAndSized }, [["--check", "{D}"]]),
+            "check-style-clean" => (new() { ["main.byn"] = SymbolsAndSized }, [["--check", "{D}"]]),
+            "idempotent-empty" => (new() { ["main.byn"] = IdempotentInput }, [["{D}/main.byn"], ["--check", "{D}/main.byn"], ["{D}/main.byn"]]),
+            "idempotent-package" => (new() { ["package.byn"] = Pkg("booleans: .words, primitives: .csharp"), ["main.byn"] = IdempotentInput }, [["{D}/main.byn"], ["--check", "{D}/main.byn"], ["{D}/main.byn"]]),
             _ => throw new ArgumentException(name),
         };
     }
@@ -673,7 +709,7 @@ public sealed class SelfhostDriverT1Tests
 
     /// <summary>
     /// <c>format</c> on a fresh tree per side, at the same path: each run's exit, stdout and stderr, and the files after, equal the C#'s.
-    /// Not here: rows needing the package style or the collectors (primitive renames, Q1121), the C# test hooks
+    /// Not here: the C# test hooks
     /// <c>Format.MaxPasses</c> and <c>Format.RewriteHook</c> and <c>WriteReplacing</c>'s temp file and rename (Q1111, Q1122).
     /// </summary>
     [Theory]
@@ -725,6 +761,21 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("line-join-enum-shorthand")]
     [InlineData("line-join-and")]
     [InlineData("line-join-quiet")]
+    [InlineData("defaults")]
+    [InlineData("package-style")]
+    [InlineData("csharp-project")]
+    [InlineData("spacing")]
+    [InlineData("primitive-names")]
+    [InlineData("conv-sized")]
+    [InlineData("conv-csharp")]
+    [InlineData("conv-declared")]
+    [InlineData("conv-declared-package")]
+    [InlineData("bad-style")]
+    [InlineData("bad-style-directory")]
+    [InlineData("check-style")]
+    [InlineData("check-style-clean")]
+    [InlineData("idempotent-empty")]
+    [InlineData("idempotent-package")]
     public void FormatAsCliApp(string name)
     {
         var runs = FormatRow(name, out var dir);
@@ -845,8 +896,7 @@ public sealed class SelfhostDriverT1Tests
     }
 
     /// <summary>
-    /// Stage 2's <c>format --check</c> over <c>selfhost/</c> and <c>tests/cases/run/</c> equals the C#'s, except the C#'s
-    /// <c>would format</c> line for <c>csharp-primitive-names.byn</c>, a primitive rename the stage-2 driver does not make (Q1121).
+    /// Stage 2's <c>format --check</c> over <c>selfhost/</c> and <c>tests/cases/run/</c> equals the C#'s.
     /// </summary>
     [Theory]
     [InlineData("selfhost")]
@@ -856,12 +906,9 @@ public sealed class SelfhostDriverT1Tests
         if (OperatingSystem.IsWindows()) return;
         var dir = Path.Combine(Golden.RepoRoot, tree);
         var expected = Oracle(["format", "--check", dir]);
-        var skipped = $"would format {Path.Combine(dir, "csharp-primitive-names.byn")}\n";
-        var expectedOut = expected.Out.Replace(skipped, "");
-        var expectedExit = expected.Exit == CliApp.ExitFailure && expectedOut == "" && expected.Err == "" ? CliApp.ExitOk : expected.Exit;
         var (exit, stdout, stderr) = Run(BootstrapTests.Stage2Executable(), "format", "--check", dir);
-        Assert.Equal(expectedExit, exit);
-        SelfhostEmitterHarness.AssertSame($"stdout of format --check {tree}", expectedOut, stdout.ReplaceLineEndings("\n"));
+        Assert.Equal(expected.Exit, exit);
+        SelfhostEmitterHarness.AssertSame($"stdout of format --check {tree}", expected.Out, stdout.ReplaceLineEndings("\n"));
         SelfhostEmitterHarness.AssertSame($"stderr of format --check {tree}", expected.Err, stderr.ReplaceLineEndings("\n"));
     }
 
