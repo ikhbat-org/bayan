@@ -219,7 +219,7 @@ public sealed class SelfhostSnapshotTests(ITestOutputHelper output)
         // one mode per run: a guard's coverage run must not reach the recording, or BuildFast refuses both (Q820)
         dotnet.Environment.Remove("BAYAN_COVERAGE");
         dotnet.Environment.Remove("BAYAN_COVERAGE_FILES");
-        var (exit, text) = Exec(dotnet, TimeSpan.FromMinutes(10));
+        var (exit, text) = Exec(dotnet, TestTime.Scale(TimeSpan.FromMinutes(10)));
         Assert.True(exit == 0, $"recording exited {exit}:\n{text}");
         var runs = File.ReadAllLines(Path.Combine(dir, "runs.jsonl")).Select(l => JsonNode.Parse(l)!).ToList();
         Assert.NotEmpty(runs);
@@ -236,7 +236,7 @@ public sealed class SelfhostSnapshotTests(ITestOutputHelper output)
         if (binary is not null) { psi.ArgumentList.Add("--binary"); psi.ArgumentList.Add(binary); }
         psi.ArgumentList.Add(dir);
         psi.Environment["BAYAN_MUTANT"] = mutant.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        return Exec(psi, TimeSpan.FromSeconds(10));
+        return Exec(psi, TestTime.Scale(TimeSpan.FromSeconds(10)));
     }
 
     /// <summary>Runs <paramref name="psi"/>; the exit code (-1 after a kill at <paramref name="limit"/>) and stdout plus stderr.</summary>

@@ -469,6 +469,6 @@ public sealed class ParserTests
         var tree = Parse(Source(shape, shape == "chain" ? 20000 : 10000));
         watch.Stop();
         Assert.Equal(expected, Lints(tree));
-        Assert.True(watch.Elapsed < TimeSpan.FromSeconds(2), $"parsed in {watch.Elapsed}");
+        Assert.True(watch.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(2)), $"parsed in {watch.Elapsed}");
     }
 }

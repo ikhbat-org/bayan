@@ -109,7 +109,7 @@ public sealed class RunTests
         var stdout = p.StandardOutput.ReadToEndLfAsync();
         var stderr = p.StandardError.ReadToEndLfAsync();
         // Generous: after a runtime change every case cold-compiles (Warm, ProcessorCount at a time), and a trivial run can wait 20 s+ for CPU.
-        if (!p.WaitForExit(120_000))
+        if (!p.WaitForExit(TestTime.Scale(120_000)))
         {
             p.Kill();
             return new Outcome("", "", 0, "timed out after 120 s");

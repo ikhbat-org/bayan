@@ -59,7 +59,7 @@ public sealed class StdEnvTests
         using var proc = Process.Start(psi)!;
         var stderr = proc.StandardError.ReadToEndAsync();
         var stdout = await proc.StandardOutput.ReadToEndAsync();
-        Assert.True(proc.WaitForExit(60_000), "program timed out");
+        Assert.True(proc.WaitForExit(TestTime.Scale(60_000)), "program timed out");
         return (proc.ExitCode, stdout, await stderr);
     }
 
@@ -185,7 +185,7 @@ public sealed class StdEnvTests
             using var proc = Process.Start(psi)!;
             var err = proc.StandardError.ReadToEndAsync();
             var o = proc.StandardOutput.ReadToEnd();
-            Assert.True(proc.WaitForExit(120_000), "timed out");
+            Assert.True(proc.WaitForExit(TestTime.Scale(120_000)), "timed out");
             Assert.True(proc.ExitCode == 0, o + err.Result);
             return o;
         }
