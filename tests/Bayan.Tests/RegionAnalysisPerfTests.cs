@@ -22,6 +22,7 @@ public sealed class RegionAnalysisPerfTests
             src.Append("    }\n");
         }
         src.Append("}\n\nvoid main() {\n    var p = P { xs: List<i64>(), n: 0 }\n    p.m0()\n}\n");
+        // Wall clock, minimum of 3 runs, in the serial PerfBounds collection: the minimum drops a one-off stall, and no other class runs meanwhile. No reference workload or CPU-time measure (user decision 2026-11-08: neither is cheap here, and a CPU-time reading also counts the test host's other threads).
         var bound = TimeSpan.FromSeconds(5);
         var times = new TimeSpan[3];
         for (var run = 0; run < times.Length; run++)
