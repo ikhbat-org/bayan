@@ -1,1 +1,1 @@
-pwsh $ROOT/editors/visualstudio/install-textmate.ps1
+bash $ROOT/scripts/bayan-tool.sh install-textmate
