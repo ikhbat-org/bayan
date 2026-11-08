@@ -229,8 +229,13 @@ test "parse refuses broken text" (string input, string expected) {
     assert errorOf(input) == expected
 }
 
-test "line and column are i64 values" {
+test "line and column are reported past one line" {
     assert errorOf($"[1,\n{" ".repeated(70000)}x") == "syntax expected a value @70004 2:70001"
+}
+
+test "line and column hold values past i32" {
+    assert describe(JsonError.syntax(message: "m", offset: 0, line: 3000000000, column: 4000000000)) == "syntax m @0 3000000000:4000000000"
+    assert describe(JsonError.tooDeep(offset: 0, line: 3000000000, column: 4000000000)) == "tooDeep @0 3000000000:4000000000"
 }
 
 test "nesting past 128 levels is tooDeep" {
