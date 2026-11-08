@@ -103,7 +103,7 @@ Pattern parsePrimaryPattern(ref Parser p) {
         let _ = p.expect(.closeParen)
         return Pattern.positionalPattern(Owned(PositionalPattern { span: p.spanFrom(start), type: .none, elements: move elements }))
     }
-    if kind == .identifier && startsUpper(p.text(p.current())) {
+    if kind == .identifier && lexer.firstIsUpper(p.text(p.current())) {
         let after = scanType(ref p, at: p.pos)
         if after > 0 && p.kindAt(after) == .openBrace && braceLiteralAllowed(ref p) {
             let type = parseType(ref p)
@@ -175,9 +175,6 @@ Pattern parseListPattern(ref Parser p, at i64 start) {
     let _ = p.expect(.closeBracket)
     return Pattern.listPattern(Owned(ListPattern { span: p.spanFrom(start), elements: move elements }))
 }
-
-/// C# `char.IsUpper(Text(Current)[0])`, for ASCII only (Q442).
-bool startsUpper(ReadOnlySpan<u8> text) => text.length > 0 && text[0] >= 'A' && text[0] <= 'Z'
 
 // ── Cross-file stand-ins (T3) ────────────────────────────────────────────────────
 // Each stands for a C# helper another task ports in its own file (Q441). T15 replaces each `` call

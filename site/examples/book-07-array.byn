@@ -1,0 +1,25 @@
+i64 sum(ReadOnlySpan<i64> xs) {
+    var total = 0
+    for x in xs {
+        total += x
+    }
+    return total
+}
+
+void curve(Span<i64> xs, by i64 bonus) {
+    for i in 0..xs.length {
+        xs[i] = xs[i] + bonus
+    }
+}
+
+void main() {
+    let days: i64[3] = [4, 8, 15]
+    var scores: List<i64> = [72, 91, 85]
+    print($"{sum(days)} {sum(scores)}")
+    curve(scores.mutableSpan(), by: 5)
+    print($"{sum(scores)}")
+    let view: ReadOnlySpan<i64> = scores.span
+    print($"{view.length} {view[1]}")
+    let middle = scores[1..3]
+    print($"{middle.length}")
+}

@@ -1,0 +1,22 @@
+union error StepError {
+    /// The step was told to fail.
+    told
+}
+
+union Color {
+    red
+    green
+}
+
+Color pick(bool warm) => warm ? .red : .green
+
+i64 step(bool shouldFail) fails StepError {
+    fail .told if shouldFail
+    return 1
+}
+
+void main() {
+    let c = pick(warm: true)
+    print($"{c == .red}")
+    print($"{step(shouldFail: true) catch -1}")
+}

@@ -1,0 +1,9 @@
+void main() {
+    var a = List<i64>()
+    a.append(1)
+    let b = move a
+    print($"{b.length}")
+    var c = b.copy()
+    c.append(2)
+    print($"{b.length} {c.length}")
+}

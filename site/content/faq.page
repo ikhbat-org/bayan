@@ -1,0 +1,77 @@
+title: Frequently asked questions
+nav: Reference
+order: 95
+template: docs
+---
+<p>Short answers to "why does Bayan…". The reasoning behind each one is in <a href="ref-design.html">Settled decisions</a>.</p>
+
+<h2 id="syntax">Syntax</h2>
+
+<h3 id="semicolons">Why does the compiler reject my semicolons?</h3>
+<p>Statements end at the end of the line, so a <code>;</code> adds nothing. The compiler still recognises it as an input form and says so (<a href="ref-diagnostics.html#byn1040">BYN1040</a>). Run <code>bayan format</code> to remove them all.</p>
+
+<h3 id="char">Why is there no <code>char</code>?</h3>
+<p>The name hides whether it means a byte, a 16-bit unit or a character. Bayan's type is <code>rune</code>, a Unicode scalar value (<a href="ref-diagnostics.html#byn1048">BYN1048</a>).</p>
+
+<h3 id="plus">Why can't I join strings with <code>+</code>?</h3>
+<p>Each <code>+</code> would allocate a new string. Use interpolation, or one literal (<a href="ref-diagnostics.html#byn2209">BYN2209</a>).</p>
+
+<h3 id="null">Why is <code>== null</code> an error?</h3>
+<p>Null is tested with <code>is null</code> or <code>is not null</code> (<a href="ref-diagnostics.html#byn2027">BYN2027</a>).</p>
+
+<h3 id="for">Where is the C-style <code>for</code> loop?</h3>
+<p>There isn't one (<a href="ref-diagnostics.html#byn1015">BYN1015</a>). Loop over a range or a collection, or use <code>while</code>.</p>
+
+<h3 id="named">Why must I name my arguments?</h3>
+<p>A call with two same-typed arguments is easy to write backwards. A name or a particle such as <code>from</code> or <code>to</code> makes the call readable (<a href="ref-diagnostics.html#byn2305">BYN2305</a>).</p>
+
+<h3 id="mut">Why do I write <code>ref this</code> instead of <code>mut</code>?</h3>
+<p>A method that changes its receiver has to say so. Without it the compiler refuses (<a href="ref-diagnostics.html#byn2115">BYN2115</a>).</p>
+
+<h2 id="errors">Errors</h2>
+
+<h3 id="exceptions">Why are there no exceptions?</h3>
+<p>Failure is part of a function's signature: <code>fails E</code>. The caller writes <code>try</code> or <code>catch</code>, so every failing call is visible. See <a href="errors.html">Errors</a>.</p>
+
+<h3 id="return-error">Why can't I <code>return .missing</code> from a failing function?</h3>
+<p>Use <code>fail .missing</code> (<a href="ref-diagnostics.html#byn1056">BYN1056</a>). <code>return</code> is for success values.</p>
+
+<h3 id="unused">Why is ignoring a result an error?</h3>
+<p>Ignored results are how failures disappear. Bind it, or write <code>let _ =</code> to say you meant it.</p>
+
+<h3 id="panic">What is the difference between a failure and a panic?</h3>
+<p>A failure is an expected outcome that the type describes. A panic is a bug, such as an out-of-range index. A panic stops the program and exits with status 134. <code>todo</code> exits with status 4. See <a href="ref-cli.html#exit-codes">exit codes</a>.</p>
+
+<h2 id="safety">Safety and memory</h2>
+
+<h3 id="let">Why can't I assign to a <code>let</code>?</h3>
+<p>It is bound once (<a href="ref-diagnostics.html#byn2104">BYN2104</a>). Use <code>var</code> if the value changes.</p>
+
+<h3 id="because">What is <code>because</code> for?</h3>
+<p>Every bypass of a safety rule states its reason, and <code>bayan audit</code> lists them all. See <a href="ref-cli.html#audit">audit</a>.</p>
+
+<h3 id="trust">The spec says <code>trust(value, "reason")</code>. Why does the compiler want something else?</h3>
+<p>The compiler's spelling is <code>x.trustUnchecked() because "…"</code> (<a href="ref-diagnostics.html#byn2787">BYN2787</a>). The spec text lags behind.</p>
+
+<h3 id="gc">Is there a garbage collector?</h3>
+<p>Not today. Memory is managed with owned values and arenas. See <a href="memory.html">Memory</a>.</p>
+
+<h3 id="inheritance">Why is there no inheritance?</h3>
+<p>Not before a GC tier exists. Use interfaces and generics.</p>
+
+<h2 id="tooling">Tooling</h2>
+
+<h3 id="fmt">Why does <code>bayan fmt</code> say "unknown command"?</h3>
+<p>The command is <code>bayan format</code>. The error message says so.</p>
+
+<h3 id="lint">Is there a linter, a REPL or a package manager?</h3>
+<p>Not as commands. <code>lint</code>, <code>repl</code>, <code>lsp</code>, <code>pkg</code> and similar names are rejected with exit status 2. See the <a href="ref-cli.html#planned">planned section</a>.</p>
+
+<h3 id="dir-module">Why do two files in one directory clash?</h3>
+<p>A directory is one module. If two files both have top-level statements the compiler reports <a href="ref-diagnostics.html#byn2015">BYN2015</a>.</p>
+
+<h3 id="list-fn">Why doesn't a List have <code>first</code> or <code>contains</code>?</h3>
+<p>They are not in the compiler yet. <a href="ref-std.html#planned">The planned list</a> names what is missing.</p>
+
+<h3 id="padded">Why does <code>padded</code> pad on the right?</h3>
+<p>It pads at the end: <code>"7".padded(to: 3, by: '0')</code> gives <code>700</code>.</p>

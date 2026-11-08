@@ -1,0 +1,1 @@
+print($"{"fig" < "pear"} {"Zed" < "apple"} {"a" < "ab"} {"b" < "ab"}")

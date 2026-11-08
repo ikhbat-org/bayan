@@ -1,0 +1,5 @@
+// The program's own exit code is the exit code of `bayan run`.
+i32 main() {
+    print("finished with a problem")
+    return 7
+}

@@ -7,8 +7,7 @@
 // tag. One struct per C# record, fields in C# order: `Node Syntax` is `TextSpan span`, a symbol is its
 // semantics handle, `T[]` is a `List<T>`, and a base type computed from a field (`LOptionalValue`'s `Type`)
 // is the field. The records that C# derives from `BoundStmt`/`BoundExpr` only for their `Syntax` and `Type`
-// carry the same two facts: `span` and, where C# passes it, `type`. `LMutantIs` and `LCount` are D3's and
-// not ported.
+// carry the same two facts: `span` and, where C# passes it, `type`.
 
 import semantics
 
@@ -22,6 +21,7 @@ public type BExpr = semantics.BExpr
 public type BStmt = semantics.BStmt
 public type BPattern = semantics.BPattern
 public type BInterpolationPart = semantics.BInterpolationPart
+public type BNode = semantics.BNode
 
 /// A lowered node, or a bound one: `(kind << 32) | index`; -1 is null.
 public type LNode = i64
@@ -31,7 +31,7 @@ public type LNode = i64
 /// The first `LKind` ordinal; `BoundKind` has 77 members (0..76).
 const lKindBase: i64 = 100
 
-/// `LoweredNodes.cs` order, minus D3's `LMutantIs` and `LCount`. The handle's kind is `lKindBase + ordinal`.
+/// `LoweredNodes.cs` order. The handle's kind is `lKindBase + ordinal`.
 public enum LKind {
     label
     gotoStmt
@@ -58,6 +58,8 @@ public enum LKind {
     nextChar
     neverValue
     functionValue
+    mutantIs
+    count
     voidValue
 }
 
@@ -250,9 +252,56 @@ public struct LFunctionValue {
     public Type functionType
 }
 
+/// Whether the process-wide selector `byn_mutant` is `id` (a `--mutate` build).
+public struct LMutantIs {
+    public TextSpan span
+    public i64 id
+}
+
+/// Counts one hit of coverage counter `id` (a `--coverage` build).
+public struct LCount {
+    public TextSpan span
+    public i64 id
+}
+
 /// The value of a `void` expression whose effects were already emitted.
 public struct LVoid {
     public TextSpan span
+}
+
+// ── Coverage probes (CoverageProbes.cs; keyed by bound node, Q1098) ───────────
+
+/// C# `BoundProbe`: the `Syntax` (its span) and the counter id.
+public struct BoundProbe {
+    public TextSpan span
+    public i64 id
+}
+
+/// C# `BoundBranchProbe`.
+public struct BoundBranchProbe {
+    public TextSpan span
+    public i64 whenTrue
+    public i64 whenFalse
+}
+
+/// One `(ErrorVariantSymbol Variant, int Id)` of a `BoundErrorProbe`.
+public struct ErrorProbeVariant {
+    public VariantId variant
+    public i64 id
+}
+
+/// C# `BoundErrorProbe`.
+public struct BoundErrorProbe {
+    public TextSpan span
+    public List<ErrorProbeVariant> variants = List<ErrorProbeVariant>()
+}
+
+/// C# `CoverageProbes`, keyed by bound node.
+public struct CoverageProbes {
+    public i64 count = 0
+    public Map<BNode, BoundProbe> statements = []
+    public Map<BNode, BoundBranchProbe> branches = []
+    public Map<BNode, BoundErrorProbe> errors = []
 }
 
 // ── Program ────────────────────────────────────────────────────────────────────
@@ -266,12 +315,16 @@ public struct LoweredFunction {
     public BStmt body
 }
 
-/// `LoweredProgram`, with a `Ctx` passed alongside instead of `Compilation`; no `mutants`/`coverage` (D3).
+/// `LoweredProgram`, with a `Ctx` passed alongside instead of `Compilation`. C#'s `CoverageProbes? Coverage` is
+/// `covering` and `coverage`: an optional unique value cannot be moved out of the lowerer's state.
 public struct LoweredProgram {
     public List<LoweredFunction> functions
     public FuncId main
     public List<TestId> tests
     public List<LoweredFunction> testFunctions
+    public bool mutants = false
+    public bool covering = false
+    public CoverageProbes coverage = CoverageProbes {}
 }
 
 // ── Arenas ─────────────────────────────────────────────────────────────────────
@@ -303,6 +356,8 @@ public struct LTree {
     public List<LNextChar> nextChars = List<LNextChar>()
     public List<LNever> neverValues = List<LNever>()
     public List<LFunctionValue> functionValues = List<LFunctionValue>()
+    public List<LMutantIs> mutantIss = List<LMutantIs>()
+    public List<LCount> counts = List<LCount>()
     public List<LVoid> voidValues = List<LVoid>()
 }
 
@@ -433,6 +488,16 @@ public LNode addLFunctionValue(ref LTree t, from move LFunctionValue n) uses all
     return lNode(.functionValue, at: t.functionValues.length - 1)
 }
 
+public LNode addLMutantIs(ref LTree t, from move LMutantIs n) uses alloc {
+    t.mutantIss.append(move n)
+    return lNode(.mutantIs, at: t.mutantIss.length - 1)
+}
+
+public LNode addLCount(ref LTree t, from move LCount n) uses alloc {
+    t.counts.append(move n)
+    return lNode(.count, at: t.counts.length - 1)
+}
+
 public LNode addLVoid(ref LTree t, from move LVoid n) uses alloc {
     t.voidValues.append(move n)
     return lNode(.voidValue, at: t.voidValues.length - 1)
@@ -455,6 +520,9 @@ public Type typeOf(in semantics.Ctx c, through in LTree t, for LNode e) {
         case .nextChar: return semantics.prim(.char)
         case .neverValue: return t.neverValues[i].type
         case .functionValue: return t.functionValues[i].functionType
+        // coverage-exempt: Q1099 through `case .count: return semantics.prim(.void)`
+        case .mutantIs: return semantics.prim(.bool)
+        case .count: return semantics.prim(.void)
         case .voidValue: return semantics.prim(.void)
         // coverage-exempt: Q766
         default: return semantics.errorType()
@@ -491,6 +559,9 @@ public TextSpan spanOf(in semantics.Ctx c, through in LTree t, for LNode n) {
         case .nextChar: return t.nextChars[i].span
         case .neverValue: return t.neverValues[i].span
         case .functionValue: return t.functionValues[i].span
+        // coverage-exempt: Q1099 through `case .count: return t.counts[i].span`
+        case .mutantIs: return t.mutantIss[i].span
+        case .count: return t.counts[i].span
         case .voidValue: return t.voidValues[i].span
     }
 }

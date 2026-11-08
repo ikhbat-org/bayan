@@ -1,0 +1,452 @@
+// `bayan format [--check] <path>` of the self-hosted driver (spec 017 T8). Ports `Format.cs` :17 `InputForms`, :41 `Run`, :284
+// `WriteReplacing`, :301 `ApplyFixes`, :320 `FormatFile`, :366 `Restyle`, :407 `OtherUses`, :424 `OperatorFix` and :460 `Shape`, with
+// `Parser.cs:76` `SyntaxTree.Parse` (the tree and its `Lints`, Parser.cs:15).
+
+import lexer
+import parser
+import semantics
+
+type T8Diagnostic = lexer.Diagnostic
+type T8TextSpan = lexer.TextSpan
+type T8Ctx = semantics.Ctx
+type T8SourceFile = semantics.SourceFile
+type T8Diag = semantics.Diag
+
+/// `Fix` of Diagnostic.cs:14: replace `span` with `replacement`.
+struct T8Fix {
+    T8TextSpan span
+    string replacement
+}
+
+/// Format.cs:17 `InputForms`: the input-form codes whose fix the formatter applies.
+bool inputForms(string code) => code switch {
+    "BYN1007" or "BYN1017" or "BYN1018" or "BYN1019" or "BYN1020" or "BYN1021" or "BYN1022" or "BYN1023" or "BYN1025" => true,
+    "BYN1028" or "BYN1029" or "BYN1031" or "BYN1033" => true,
+    "BYN1040" or "BYN1041" or "BYN1042" or "BYN1043" or "BYN1044" or "BYN1045" or "BYN1047" or "BYN1048" or "BYN1050" or "BYN1051" or "BYN1053" or "BYN1055" or "BYN1057" or "BYN1062" => true,
+    "BYN1058" or "BYN1059" or "BYN1060" or "BYN1061" or "BYN1063" or "BYN1065" or "BYN1066" or "BYN1068" => true,
+    "BYN6001" or "BYN6006" or "BYN7006" => true,
+    _ => false,
+}
+
+/// Format.cs:27 `CSharpPrimitives`: C# primitive names and the sized names they mean (spec §3.1).
+Map<string, string> cSharpPrimitives() uses alloc => [
+    "sbyte": "i8", "byte": "u8", "short": "i16", "ushort": "u16", "int": "i32", "uint": "u32",
+    "long": "i64", "ulong": "u64", "nint": "isize", "nuint": "usize", "float": "f32", "double": "f64",
+]
+
+/// Format.cs:33 `SizedPrimitives`: `CSharpPrimitives` with each key and value swapped.
+Map<string, string> sizedPrimitives() uses alloc {
+    var sized: Map<string, string> = []
+    for (key, value) in cSharpPrimitives() { sized[value] = key }
+    return sized
+}
+
+/// Format.cs:41 `Run`. `kept` is the command and its arguments.
+i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
+    let rest = t2Rest(in kept)
+    var check = false
+    var args = List<string>()
+    for a in rest {
+        if a == "--check" {
+            check = true
+        } else {
+            args.append(a)
+        }
+    }
+    if args.length != 1 || args[0].startsWith("-") {
+        Io.stderr.write("usage: bayan format [--check] <path>\n")
+        return exitUsage
+    }
+    let path = args[0]
+    var exit = exitOk
+    var files = List<string>()
+    if t6DirectoryExists(path) {
+        files = bynFiles(path, through: ref exit, by: realPath(path))
+    } else if Fs.fileExists(path) {
+        files.append(path)
+    } else {
+        Io.stderr.write($"bayan: not found: {path}\n")
+        return exitUsage
+    }
+    files.sort()
+    var manifests: Map<string, T6Found?> = []
+    var packageNamesByRoot: Map<string, Map<string, bool>> = []
+    for file in files {
+        if Path.fileName(file) == "package.byn" { continue }
+        let package = manifestFor(file, through: ref manifests) catch switch {
+            IoError e => {
+                Io.stderr.write($"bayan: {file}: {e}\n")
+                exit = exitFailure
+                continue
+            }
+        }
+        var booleans = semantics.BooleanStyle.symbols
+        var primitives = semantics.PrimitiveStyle.sized
+        var declared: Map<string, bool> = []
+        if (package is { } found) {
+            if found.hasErrors {
+                Io.stderr.write(found.report)
+                exit = exitFailure
+                continue
+            }
+            booleans = found.booleans
+            primitives = found.primitives
+            unless packageNamesByRoot.contains(found.dir) { packageNamesByRoot[found.dir] = packageNames(found.dir) }
+            for (name, _) in packageNamesByRoot[found.dir] { declared[name] = true }
+        }
+        // Read and write the file the kernel opens, not the one a lexical `..` collapse names.
+        let real = realPath(file)
+        let original = Io.readFile(real) catch switch {
+            IoError e => {
+                Io.stderr.write($"bayan: {file}: {e}\n")
+                exit = exitFailure
+                continue
+            }
+        }
+        var unfixable = false
+        let formatted = formatFile(file, from: in original, by: booleans, for: primitives, at: in declared, until: d.maxPasses, to: ref unfixable)
+        if (formatted is { } bytes) {
+            if unfixable { exit = exitFailure }
+            if !t8SameBytes(in bytes, as: in original) {
+                if check {
+                    Io.stdout.write($"would format {file}\n")
+                    exit = exitFailure
+                } else {
+                    writeReplacing(real, from: in bytes) catch switch {
+                        IoError e => {
+                            Io.stderr.write($"bayan: {file}: {e}\n")
+                            exit = exitFailure
+                            continue
+                        }
+                    }
+                    Io.stdout.write($"formatted {file}\n")
+                }
+            }
+        } else {
+            exit = exitFailure
+        }
+    }
+    return exit
+}
+
+/// `formatted.AsSpan().SequenceEqual(original)`: the same bytes in the same order.
+bool t8SameBytes(in List<u8> a, as in List<u8> b) {
+    if a.length != b.length { return false }
+    for i in 0..a.length {
+        if a[i] != b[i] { return false }
+    }
+    return true
+}
+
+/// Format.cs:284 `WriteReplacing`: writes `bytes` over `file`, already resolved by `realPath`, in place (Q1122).
+// stub: T8 `WriteReplacing` temp file, mode, rename (blocked: Q1111)
+void writeReplacing(string file, from in List<u8> bytes) fails IoError {
+    try Io.writeFile(file, bytes.span)
+}
+
+/// Format.cs:301 `ApplyFixes`: the bytes with each distinct fix applied in order; a fix overlapping an earlier one is skipped.
+List<u8> applyFixes(in List<u8> bytes, for in List<T8Fix> fixes) uses alloc {
+    // `fixes.Distinct().OrderBy(f => f.Span.Start)`: the first of each equal fix, then a stable sort by start.
+    var ordered = List<T8Fix>()
+    for f in fixes {
+        var seen = false
+        for g in ordered {
+            if g.span.start == f.span.start && g.span.length == f.span.length {
+                // coverage-exempt: Q1123
+                if g.replacement == f.replacement { seen = true }
+            }
+        }
+        if seen { continue }
+        ordered.append(f)
+        var k = ordered.length - 1
+        while k > 0 && ordered[k - 1].span.start > ordered[k].span.start {
+            let moved = ordered[k - 1]
+            ordered[k - 1] = ordered[k]
+            ordered[k] = moved
+            k -= 1
+        }
+    }
+    var result = List<u8>()
+    var at: i64 = 0
+    for fix in ordered {
+        if fix.span.start < at { continue }
+        for i in at..fix.span.start { result.append(bytes[i]) }
+        for b in fix.replacement.bytes { result.append(b) }
+        at = fix.span.end
+    }
+    for i in at..bytes.length { result.append(bytes[i]) }
+    return result
+}
+
+/// The parser of Parser.cs:76 `Parser.Parse` over `bytes`. The C# `SyntaxTree` is that parser (its source, tokens and diagnostics), the
+/// root `parseCompilationUnit` gives and the `Lints` `lintLineJoins` gives after it, kept by the callers as locals: a field of a struct
+/// cannot be passed by `ref` beside its sibling (BYN3005) nor moved out (BYN2782).
+parser.Parser t8Parser(string file, from in List<u8> bytes) uses alloc {
+    var copy = List<u8>()
+    for b in bytes { copy.append(b) }
+    return parser.Parser.create(lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build()))
+}
+
+/// `DiagnosticRenderer.RenderAll(diagnostics, includePath: true)` of the tree's errors: rendered against a `Ctx` holding `bytes` as file 0,
+/// named `file` as the C# `SourceText` names it.
+string t8RenderAll(string file, from in List<u8> bytes, for in List<T8Diagnostic> diagnostics) uses alloc {
+    let empty = List<u8>()
+    var p = parser.Parser.create(lexer.lex(lexer.SourceText.create(file, from: move empty), by: lexer.Keywords.build()))
+    let unit = parser.parseCompilationUnit(ref p)
+    var text = List<u8>()
+    for b in bytes { text.append(b) }
+    var c = T8Ctx { files: List<T8SourceFile>(), modules: List<semantics.Mod>(), diagnostics: List<T8Diag>(), bags: List<semantics.DiagBag>() }
+    c.files.append(T8SourceFile { path: file, displayPath: file, text: move text, unit: move unit, imports: Map<string, i64>() })
+    var diags = List<T8Diag>()
+    for d in diagnostics {
+        diags.append(T8Diag {
+            code: d.code,
+            file: 0,
+            span: d.span,
+            message: d.message,
+            label: d.label,
+            help: d.help,
+            isWarning: false,
+            hasFix: d.hasFix,
+            fixSpan: d.fixSpan,
+            fixReplacement: d.fixReplacement,
+            related: List<semantics.Related>(),
+        })
+    }
+    var omitted: i64 = 0
+    return semantics.renderAll(in c, from: in diags, by: true, until: 2147483647, to: ref omitted)
+}
+
+/// `DiagnosticRenderer.RenderAll(manifest.Diagnostics, includePath: true)` (Format.cs:72): the manifest's diagnostics, which have no file (Q565),
+/// rendered against a `Ctx` holding the text of `path` as file 0, named `package.byn` as the C# `SourceText` names it.
+string t8RenderManifest(string path, from in List<T8Diag> diagnostics) uses alloc, fs {
+    let text = Io.readFile(path) catch List<u8>()
+    let empty = List<u8>()
+    var p = parser.Parser.create(lexer.lex(lexer.SourceText.create("package.byn", from: move empty), by: lexer.Keywords.build()))
+    let unit = parser.parseCompilationUnit(ref p)
+    var c = T8Ctx { files: List<T8SourceFile>(), modules: List<semantics.Mod>(), diagnostics: List<T8Diag>(), bags: List<semantics.DiagBag>() }
+    c.files.append(T8SourceFile { path: "package.byn", displayPath: "package.byn", text: move text, unit: move unit, imports: Map<string, i64>() })
+    var diags = List<T8Diag>()
+    for d in diagnostics {
+        diags.append(T8Diag {
+            code: d.code,
+            file: 0,
+            span: d.span,
+            message: d.message,
+            label: d.label,
+            help: d.help,
+            isWarning: d.isWarning,
+            hasFix: d.hasFix,
+            fixSpan: d.fixSpan,
+            fixReplacement: d.fixReplacement,
+            related: List<semantics.Related>(),
+        })
+    }
+    var omitted: i64 = 0
+    return semantics.renderAll(in c, from: in diags, by: true, until: 2147483647, to: ref omitted)
+}
+
+/// Format.cs:320 `FormatFile`: the file's bytes with every input-form fix applied, then the project's spellings; null after reporting a
+/// blocking error. An input-form diagnostic left with no fix is reported and sets `unfixable`.
+List<u8>? formatFile(string file, from in List<u8> bytes, by semantics.BooleanStyle booleans, for semantics.PrimitiveStyle primitives, at in Map<string, bool> declared, until i64 maxPasses, to ref bool unfixable) uses alloc, console {
+    unfixable = false
+    var converged = false
+    var current = List<u8>()
+    for b in bytes { current.append(b) }
+    for pass in 0..maxPasses {
+        var p = t8Parser(file, from: in current)
+        let root = parser.parseCompilationUnit(ref p)
+        let lints = parser.lintLineJoins(ref p)
+        // `tree.Diagnostics`: a report the parser withdrew (`unreport`, Q440) is gone from the C# bag. Every parser code is an error.
+        var blocking = List<T8Diagnostic>()
+        for d in p.lexed.diagnostics {
+            if !d.code.isEmpty && !inputForms(d.code) { blocking.append(d) }
+        }
+        if blocking.length > 0 {
+            // After a rewrite the positions and snippets would point at text the file on disk does not hold.
+            // coverage-exempt: Q1122 through `rewriting it made it unparsable`
+            if pass == 0 {
+                Io.stderr.write(t8RenderAll(file, from: in current, for: in blocking))
+            } else {
+                Io.stderr.write($"bayan: {file}: rewriting it made it unparsable, so the rewrite was abandoned and the file left unchanged\n")
+            }
+            return null
+        }
+        var fixes = List<T8Fix>()
+        for d in p.lexed.diagnostics {
+            // coverage-exempt: Q1123
+            if !d.code.isEmpty && inputForms(d.code) && d.hasFix { fixes.append(T8Fix { span: d.fixSpan, replacement: d.fixReplacement }) }
+        }
+        for d in lints { fixes.append(T8Fix { span: d.fixSpan, replacement: d.fixReplacement }) }
+        var next = List<u8>()
+        if fixes.length > 0 {
+            next = applyFixes(in current, for: in fixes)
+        } else {
+            next = restyle(file, from: in current, by: in root, through: ref p, for: booleans, as: primitives, at: in declared)
+        }
+        if t8SameBytes(in next, as: in current) {
+            var fixless = List<T8Diagnostic>()
+            for d in p.lexed.diagnostics {
+                // coverage-exempt: Q1123
+                if !d.code.isEmpty && inputForms(d.code) { fixless.append(d) }
+            }
+            if fixless.length > 0 {
+                Io.stderr.write(t8RenderAll(file, from: in current, for: in fixless))
+                unfixable = true
+            }
+            converged = true
+            break
+        }
+        current = move next
+    }
+    // coverage-exempt: Q1122 through `unfixable = true`
+    if !converged {
+        Io.stderr.write($"bayan: {file}: still changing after {maxPasses} passes; left unfixed\n")
+        unfixable = true
+    }
+    return current
+}
+
+/// Format.cs:366 `Restyle`: the bytes with primitive type names and boolean operators in the project's spelling (spec §3.1, §7.2). A
+/// boolean rewrite is kept only when the file parses to the same tree after it, so `and`, `or` and `not` in patterns, and a `!` that is
+/// not the operator, stay as written.
+List<u8> restyle(string file, from in List<u8> bytes, by in parser.CompilationUnit tree, through ref parser.Parser p, for semantics.BooleanStyle booleans, as semantics.PrimitiveStyle primitives, at in Map<string, bool> declared) uses alloc {
+    let names = primitives == .sized ? cSharpPrimitives() : sizedPrimitives()
+    var copy = List<u8>()
+    for b in bytes { copy.append(b) }
+    var lexed = lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build())
+    let tokens = lexed.tokens.copy()
+    // Only a type, or a callee or receiver (`int(x)`, `i64.max`), is renamed: a field, binding, label or member spelled like a primitive
+    // keeps its name. A callee or receiver is kept when the file, or another file of its package, uses the spelling as anything else,
+    // since it may then be that binding.
+    let typeNames = t8Starts(parser.typeNames(in tree, from: ref p))
+    let calleeNames = t8Starts(parser.calleeAndReceiverNames(in tree, from: ref p))
+    var others = otherUses(file, from: in bytes, by: in tree, through: ref p)
+    for (name, _) in declared { others[name] = true }
+    var renames = List<T8Fix>()
+    var operators = List<T8Fix>()
+    for i in 0..tokens.length {
+        let token = tokens[i]
+        var renamed = false
+        if token.kind == .identifier && (typeNames.contains(token.start) || calleeNames.contains(token.start)) {
+            let text = lexed.source.getText(T8TextSpan.fromBounds(token.start, until: token.end))
+            if names.contains(text) && (typeNames.contains(token.start) || !others.contains(text)) {
+                renames.append(T8Fix { span: T8TextSpan { start: token.start, length: token.length }, replacement: names[text] })
+                renamed = true
+            }
+        }
+        if !renamed {
+            if (operatorFix(in bytes, from: in tokens, at: i, by: booleans) is { } fix) { operators.append(fix) }
+        }
+    }
+    // The operators' offsets move with a rename, so they wait for the next pass.
+    if renames.length > 0 { return applyFixes(in bytes, for: in renames) }
+    var result = List<u8>()
+    for b in bytes { result.append(b) }
+    if operators.length == 0 { return result }
+    let before = shape(in tree, from: ref p)
+    let all = applyFixes(in bytes, for: in operators)
+    var allParser = t8Parser(file, from: in all)
+    let allRoot = parser.parseCompilationUnit(ref allParser)
+    if shape(in allRoot, from: ref allParser) == before { return all }
+    // Some operator is not a boolean one: try each alone, last first, so earlier offsets stay valid.
+    var i = operators.length - 1
+    while i >= 0 {
+        var single = List<T8Fix>()
+        single.append(operators[i])
+        let one = applyFixes(in result, for: in single)
+        var oneParser = t8Parser(file, from: in one)
+        let oneRoot = parser.parseCompilationUnit(ref oneParser)
+        if shape(in oneRoot, from: ref oneParser) == before { result = move one }
+        i -= 1
+    }
+    return result
+}
+
+/// The start of each name, as the keys of a map (the C# `Select(n => n.Span.Start).ToHashSet()`).
+Map<i64, bool> t8Starts(in List<T8TextSpan> names) uses alloc {
+    var starts: Map<i64, bool> = []
+    for n in names { starts[n.start] = true }
+    return starts
+}
+
+/// Format.cs:407 `OtherUses`: every identifier the file spells other than as a type, a callee or receiver, or a member after a dot (the C#
+/// `HashSet<string>`, as the keys of a map). The signature is walk.byn `t6OtherUses`'s.
+Map<string, bool> otherUses(string file, from in List<u8> bytes, by in parser.CompilationUnit tree, through ref parser.Parser p) uses alloc {
+    var copy = List<u8>()
+    for b in bytes { copy.append(b) }
+    var lexed = lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build())
+    let tokens = lexed.tokens.copy()
+    let typeNames = t8Starts(parser.typeNames(in tree, from: ref p))
+    let calleeNames = t8Starts(parser.calleeAndReceiverNames(in tree, from: ref p))
+    var found: Map<string, bool> = []
+    for i in 0..tokens.length {
+        let t = tokens[i]
+        if t.kind != .identifier || typeNames.contains(t.start) || calleeNames.contains(t.start) { continue }
+        if i > 0 && (tokens[i - 1].kind == .dot || tokens[i - 1].kind == .questionDot) { continue }
+        found[lexed.source.getText(T8TextSpan.fromBounds(t.start, until: t.end))] = true
+    }
+    return found
+}
+
+/// A blank of `SpaceBefore`/`SpaceAfter` (Format.cs:428-429): space, tab, line feed or carriage return.
+bool t8IsSpace(u8 b) => b == 0x20 || b == 0x09 || b == 0x0a || b == 0x0d
+
+/// Format.cs:424 `OperatorFix`: the rewrite of token `i` into the other boolean spelling, or null when it is not one.
+T8Fix? operatorFix(in List<u8> bytes, from in List<lexer.Token> tokens, at i64 i, by semantics.BooleanStyle booleans) uses alloc {
+    let token = tokens[i]
+    let span = T8TextSpan { start: token.start, length: token.length }
+    if booleans == .words {
+        let word = token.kind switch {
+            .ampAmp => "and",
+            .barBar => "or",
+            .bang => "not",
+            _ => "",
+        }
+        if word.isEmpty { return null }
+        // coverage-exempt: Q1144 through `token.start > 0`
+        let spaceBefore = token.start > 0 && t8IsSpace(bytes[token.start - 1])
+        // coverage-exempt: Q1144 through `token.end < bytes.length`
+        let spaceAfter = token.end < bytes.length && t8IsSpace(bytes[token.end])
+        let before = token.kind != .bang && !spaceBefore ? " " : ""
+        return T8Fix { span: span, replacement: $"{before}{word}{spaceAfter ? "" : " "}" }
+    }
+    let symbol = token.kind switch {
+        .andKeyword => "&&",
+        .orKeyword => "||",
+        .notKeyword => "!",
+        _ => "",
+    }
+    if symbol.isEmpty { return null }
+    if token.kind != .notKeyword { return T8Fix { span: span, replacement: symbol } }
+    // `not x` becomes `!x`: the blanks up to the operand go too, unless a comment or line break is there.
+    let next = tokens[i + 1]
+    for at in token.end..next.start {
+        if bytes[at] != 0x20 && bytes[at] != 0x09 { return null }
+    }
+    return T8Fix { span: T8TextSpan.fromBounds(token.start, until: next.start), replacement: symbol }
+}
+
+/// Format.cs:460 `Shape`: the tree's dump and its diagnostic codes, which a respelling must leave unchanged.
+string shape(in parser.CompilationUnit tree, from ref parser.Parser p) uses alloc {
+    var sb = StrBuf()
+    parser.dump(in tree, from: ref p, to: ref sb)
+    let dump = $"{sb.finish()}"
+    var live = List<T8Diagnostic>()
+    for d in p.lexed.diagnostics {
+        // coverage-exempt: Q1123
+        unless d.code.isEmpty { live.append(d) }
+    }
+    var diagnostics = ""
+    if live.length > 0 {
+        var rendered = StrBuf()
+        lexer.renderAll(live.span, to: ref rendered, from: ref p.lexed.source)
+        diagnostics = $"\n{rendered.finish()}"
+    }
+    var codes = StrBuf()
+    for k in 0..live.length {
+        if k > 0 { codes.append(" ") }
+        codes.append(live[k].code)
+    }
+    return $"{dump[0..dump.length - diagnostics.length]}{codes.finish()}"
+}

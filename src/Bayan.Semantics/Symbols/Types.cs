@@ -403,7 +403,7 @@ public sealed class TupleType(IReadOnlyList<TupleField> fields) : ConstructedTyp
 }
 
 /// <summary>
-/// <c>(A, B) -> R fails E uses net</c>: a (code, environment) pair that borrows the frame that made it.
+/// <c>(A, B) -> R uses net fails E</c>: a (code, environment) pair that borrows the frame that made it.
 /// Error sets compare as a set; <see cref="Uses"/> holds effect names, sorted.
 /// </summary>
 public sealed class FunctionType(IReadOnlyList<TypeSymbol> parameters, TypeSymbol @return, IReadOnlyList<ErrorSetSymbol> fails, IReadOnlyList<string> uses)
@@ -438,8 +438,8 @@ public sealed class FunctionType(IReadOnlyList<TypeSymbol> parameters, TypeSymbo
     public override string DisplayName =>
         (Parameters is [var p] && p is not (TupleType or FunctionType) ? p.DisplayName : "(" + string.Join(", ", Parameters.Select(p => p.DisplayName)) + ")") +
         " -> " + (Return is FunctionType && (Fails.Count > 0 || Uses.Count > 0) ? "(" + Return.DisplayName + ")" : Return.DisplayName) +
-        (Fails.Count > 0 ? " fails " + string.Join(", ", Fails.Select(s => s.DisplayName)) : "") +
-        (Uses.Count > 0 ? " uses " + string.Join(", ", Uses) : "");
+        (Uses.Count > 0 ? " uses " + string.Join(", ", Uses) : "") +
+        (Fails.Count > 0 ? " fails " + string.Join(", ", Fails.Select(s => s.DisplayName)) : "");
 
     public override bool IsBorrow => true;
 }
@@ -511,6 +511,8 @@ public enum BuiltinKind
     Env,
     /// <summary>The static file-system queries <c>Fs</c>; it has no values.</summary>
     Fs,
+    /// <summary>A wall-clock instant: <c>nanos</c>, the nanoseconds since the Unix epoch; <c>Time.now()</c> and <c>Time.fromNanos(i64)</c> make one.</summary>
+    Time,
 }
 
 public sealed class BuiltinType : TypeSymbol
@@ -544,6 +546,7 @@ public sealed class BuiltinType : TypeSymbol
     public static readonly BuiltinType Target = new(BuiltinKind.Target, "Target");
     public static readonly BuiltinType Env = new(BuiltinKind.Env, "Env");
     public static readonly BuiltinType Fs = new(BuiltinKind.Fs, "Fs");
+    public static readonly BuiltinType Time = new(BuiltinKind.Time, "Time");
 }
 
 /// <summary>The type of a caught error when the call can fail with more than one set.</summary>

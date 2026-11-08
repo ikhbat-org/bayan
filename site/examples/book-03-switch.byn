@@ -1,0 +1,31 @@
+string describe(i64 n) => n switch {
+    < 0 => "negative",
+    0 => "zero",
+    1 or 2 => "small",
+    >= 3 and < 10 => "medium",
+    _ => "large",
+}
+
+void main() {
+    for n in [-5, 0, 2, 7, 99] {
+        print($"{n} is {describe(n)}")
+    }
+
+    let command = "stop"
+    switch command {
+        case "go":
+            print("going")
+        case "stop" or "halt":
+            print("stopping")
+        default:
+            print("unknown")
+    }
+
+    let word = "hello"
+    switch word {
+        case let w when w.length > 3:
+            print($"{w} is long")
+        default:
+            print("short")
+    }
+}

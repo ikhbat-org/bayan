@@ -1,0 +1,289 @@
+title: 3. Values, types and control flow
+nav: Learn
+order: 300
+template: docs
+---
+<p class="lede">This chapter covers the small pieces every program is made of: named values, numbers, text, decisions, repeating, and choosing between many cases. Each section has a program you can run.</p>
+
+<p>Chapter 2 used most of these without stopping to explain them. Here you take them one at a time. Some programs below are plain statements that run from the top, as in <a href="book-01-start.html#scripts">chapter 1</a>, and some use <code>main</code>. A file has one entry point, so it uses one style or the other.</p>
+
+<h2 id="bindings">Naming values: <code>let</code>, <code>var</code>, <code>const</code></h2>
+<example name="book-03-bindings"/>
+<ul>
+  <li><code>let</code> names a value that does not change. This is the one you reach for first.</li>
+  <li><code>var</code> names a value you can change later. <code>visits += 1</code> adds one to it.</li>
+  <li><code>const</code> names a value known when the program is compiled. It is for fixed values such as limits and sizes.</li>
+  <li>The type is optional on <code>let</code> and <code>var</code>: the compiler works it out from the value. <code>let age: i64 = 36</code> asks for <code>i64</code>. <code>let n = 3</code> gives you an <code>i32</code>, the default for whole-number literals.</li>
+  <li>Underscores in a number are for you: <code>86_400</code> is 86400.</li>
+</ul>
+<p>Change a <code>let</code> and the compiler stops you, and tells you the fix:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2104:</span> `visits` is immutable
+  <span class="gut">--&gt;</span> immutable.byn:2:1
+
+<span class="gut">  2 │</span> visits += 1
+<span class="gut">    │</span> ^^^^^^ declared with `let` on line 1
+<span class="gut">    │</span>
+<span class="gut">  help: declare it with `var` if it should change</span>
+<span class="gut">    │ 1 │</span> var visits = 0
+<span class="gut">    │   │</span><span class="add"> +++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2104</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check immutable.byn</code>). The path is shortened to <code>immutable.byn</code>.</figcaption>
+</figure>
+<p>The marker under <code>visits</code> points at the use. The label says where the <code>let</code> is. The <code>help</code> block shows the one-word edit.</p>
+<p>Prefer <code>let</code>. When you read a program and see <code>var</code>, you know that value changes somewhere, and you can look for where.</p>
+
+<h3 id="shadowing">Reusing a name</h3>
+<p>Bayan does not let an inner scope hide a name from an outer one. That is a common source of bugs in other languages, so here it is an error:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2007:</span> `input` is already a local here
+  <span class="gut">--&gt;</span> shadow.byn:3:9
+
+<span class="gut">  3 │</span>     let input = "inner"
+<span class="gut">    │</span>         ^^^^^ already declared on line 1
+<span class="gut">    │</span>
+<span class="gut">  help: pick a different name; Bayan does not let a local hide another one</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2007</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check shadow.byn</code>). The path is shortened to <code>shadow.byn</code>.</figcaption>
+</figure>
+<p>In the same scope, you can declare the name again. The new value is a fresh binding, and it can have a different type:</p>
+<example name="book-03-shadow"/>
+<p><code>input</code> was a string. After the second <code>let</code> it is the number 5, so <code>input + 1</code> is 6. The old string is not reachable any more under that name.</p>
+
+<h2 id="numbers">Numbers</h2>
+<p>Bayan has fixed-size integers and two floating-point types:</p>
+<ul>
+  <li>Signed integers: <code>i8</code>, <code>i16</code>, <code>i32</code>, <code>i64</code>.</li>
+  <li>Unsigned integers: <code>u8</code>, <code>u16</code>, <code>u32</code>, <code>u64</code>.</li>
+  <li>Floating point: <code>f32</code> and <code>f64</code>. A literal like <code>1.5</code> is an <code>f64</code>.</li>
+</ul>
+<example name="book-03-numbers"/>
+<p>What to notice, line by line of output:</p>
+<ul>
+  <li><code>22 12 85 3 2</code>: dividing two integers gives an integer, rounded toward zero. <code>17 / 5</code> is 3 and <code>17 % 5</code> is the remainder 2. A negative dividend gives a negative remainder: <code>-7 % 3</code> is <code>-1</code>.</li>
+  <li><code>3.4</code>: with <code>f64</code> operands you get the exact quotient.</li>
+  <li><code>350</code>: <code>i64(small)</code> is a conversion. You write the target type like a function. Widening a <code>u8</code> to an <code>i64</code> cannot lose anything.</li>
+  <li><code>3000000000 true</code>: a value above 2,147,483,647 does not fit in an <code>i32</code>, so it needs <code>i64</code>.</li>
+  <li><code>255 10 1000</code>: hex (<code>0xFF</code>), binary (<code>0b1010</code>) and exponent (<code>1e3</code>) literals.</li>
+  <li><code>8.5 7</code>: converting <code>f64</code> to an integer drops the fraction: <code>i64(7.9)</code> is 7. It does not round.</li>
+  <li><code>300 0</code>: <code>T.tryFrom(x)</code> converts when the value fits and gives <code>null</code> when it does not. 300 fits in an <code>i64</code>. It does not fit in a <code>u8</code>, so the <code>??</code> supplies 0. <a href="book-06-unions.html#optionals">Chapter 6</a> explains <code>?</code> types.</li>
+</ul>
+
+<h3 id="numeric-errors">When a number does not fit or does not match</h3>
+<p>A literal that is too big for its type is a compile error:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2203:</span> 300 does not fit in `u8`
+  <span class="gut">--&gt;</span> range.byn:1:17
+
+<span class="gut">  1 │</span> let small: u8 = 300
+<span class="gut">    │</span>                 ^^^
+<span class="gut">    │</span>
+<span class="gut">  help: use a value from 0 to 255, the range of `u8`</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2203</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check range.byn</code>). The path is shortened to <code>range.byn</code>.</figcaption>
+</figure>
+<p>Different number types never mix silently. Multiplying an <code>i64</code> by an <code>f64</code> is an error:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2208:</span> `*` cannot be applied to `i64` and `f64`
+  <span class="gut">--&gt;</span> mixed.byn:3:10
+
+<span class="gut">  3 │</span> print($"{count * ratio}")
+<span class="gut">    │</span>          ^^^^^^^^^^^^^
+<span class="gut">    │</span>
+<span class="gut">  help: convert one side explicitly, e.g. `(f64)…`; mixed signedness never converts implicitly</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2208</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check mixed.byn</code>). The path is shortened to <code>mixed.byn</code>.</figcaption>
+</figure>
+<p>Read the message, not just the help. It says <code>*</code> cannot be applied to the two types, and the help says to convert one side. You convert with the type name: <code>f64(count) * ratio</code>. (The help text shows <code>(f64)…</code>. That cast form is not the one Bayan uses: write <code>f64(count)</code>.) The same holds for a rune and an integer: <code>let n: i32 = 'x'</code> is refused, with <code>i32(c)</code> as the fix. A <code>f64</code> to <code>f32</code> narrowing needs <code>f32(r)</code> for the same reason.</p>
+
+<h2 id="strings">Strings</h2>
+<p>A <code>string</code> is UTF-8 text. That has two consequences you can see in the program below: <code>length</code> counts bytes, and <code>runeCount</code> counts characters (Unicode code points, called runes).</p>
+<example name="book-03-strings"/>
+<ul>
+  <li><code>"héllo"</code> is 6 bytes and 5 runes, because <code>é</code> takes two bytes.</li>
+  <li><code>word[0..1]</code> slices by byte offsets. The slice <code>0..1</code> is the first byte, <code>h</code>. Slicing in the middle of a multi-byte rune is not what you want.</li>
+  <li><code>word.runes</code> goes through the runes. <code>for ch in "héy"</code> does the same.</li>
+  <li><code>"""…"""</code> is a multi-line string.</li>
+  <li><code>$"…{expr}…"</code> is an interpolated string. Any expression can go in the braces. To write a literal brace, double it: <code>{{</code> and <code>}}</code>.</li>
+</ul>
+<p>There is no <code>+</code> for strings. Interpolation replaces it:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2209:</span> strings cannot be joined with `+`; use interpolation
+  <span class="gut">--&gt;</span> stringplus.byn:3:7
+
+<span class="gut">  3 │</span> print(a + b)
+<span class="gut">    │</span>       ^^^^^
+<span class="gut">    │</span>
+<span class="gut">  help: write the parts as one interpolation: `$"{a}{b}"`, or `buf.append($"{a}{b}")` in a loop</span>
+<span class="gut">    │ 3 │</span> print($"{a}{b}")
+<span class="gut">    │   │</span><span class="add">       +++++++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2209</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check stringplus.byn</code>). The path is shortened to <code>stringplus.byn</code>.</figcaption>
+</figure>
+<p>The compiler writes the correct line for you. Single-character values, such as <code>'x'</code>, use single quotes and have the type <code>rune</code>.</p>
+<p>Indexing a string with one number is refused too, because a position in UTF-8 is not a character:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2201:</span> a `string` cannot be indexed
+  <span class="gut">--&gt;</span> stringindex.byn:2:11
+
+<span class="gut">  2 │</span> print(word[0])
+<span class="gut">    │</span>           ^^^ strings have no indexer
+<span class="gut">    │</span>
+<span class="gut">  help: read a byte, slice, or take characters; `string` is UTF-8, so position 0 is not a character:</span>
+          `word.bytes[0]`       the byte at offset 0 (applied below)
+          `word[a..b]`          the text between byte offsets a and b
+          `word.runes.take(n)`  the first n runes
+          `word.graphemes`      user-perceived characters
+<span class="gut">    │ 2 │</span> print(word.bytes[0])
+<span class="gut">    │   │</span><span class="add">           ++++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2201</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check stringindex.byn</code>). The path is shortened to <code>stringindex.byn</code>.</figcaption>
+</figure>
+<p>The help lists the four things you probably meant. This is the way to read a Bayan diagnostic: the first line says what is wrong, and the help names the choices.</p>
+
+<h2 id="if">Deciding: <code>if</code>, <code>unless</code> and the ternary</h2>
+<example name="book-03-if"/>
+<ul>
+  <li>The condition has no parentheses and the body always has braces.</li>
+  <li><code>else if</code> chains. <code>else</code> must start on the same line as the closing brace.</li>
+  <li><code>cond ? a : b</code> picks one of two values.</li>
+  <li><code>unless cond { … }</code> runs when the condition is false.</li>
+  <li>A single statement can end with <code>if</code> or <code>unless</code>: <code>print("take an umbrella") if raining</code>. The condition is checked first. Use it for guards, such as <code>return if n &lt; 0</code>.</li>
+  <li><code>&amp;&amp;</code>, <code>||</code> and <code>!</code> are and, or, not. They take <code>bool</code> operands.</li>
+</ul>
+<p>The condition must be a <code>bool</code>. A number is not a truth value:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `bool`, found `i32`
+  <span class="gut">--&gt;</span> cond.byn:2:4
+
+<span class="gut">  2 │</span> if n {
+<span class="gut">    │</span>    ^
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2202</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check cond.byn</code>). The path is shortened to <code>cond.byn</code>.</figcaption>
+</figure>
+<p>An <code>else</code> on its own line is refused, and the help shows where to move it:</p>
+<figure class="diag">
+<pre><span class="err">error BYN1041:</span> `else` must follow `}` on the same line
+  <span class="gut">--&gt;</span> elseline.byn:5:1
+
+<span class="gut">  5 │</span> else {
+<span class="gut">    │</span> ^^^^ on a new line
+<span class="gut">    │</span>
+<span class="gut">  help: move `else` up to the line of `}`</span>
+<span class="gut">    │ 4 │</span> } else {
+<span class="gut">    │   │</span><span class="add">  +</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN1041</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check elseline.byn</code>). The path is shortened to <code>elseline.byn</code>.</figcaption>
+</figure>
+<p>A comparison with <code>null</code> uses <code>is null</code>:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2027:</span> compare with `is null` / `is not null`, not `==`
+  <span class="gut">--&gt;</span> nullcmp.byn:2:4
+
+<span class="gut">  2 │</span> if name == null {
+<span class="gut">    │</span>    ^^^^^^^^^^^^
+<span class="gut">    │</span>
+<span class="gut">  help: write `name is null`</span>
+<span class="gut">    │ 2 │</span> if name is null {
+<span class="gut">    │   │</span><span class="add">         ++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2027</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check nullcmp.byn</code>). The path is shortened to <code>nullcmp.byn</code>.</figcaption>
+</figure>
+
+<h2 id="loops">Repeating: <code>for</code>, <code>while</code>, <code>do</code></h2>
+<example name="book-03-loops"/>
+<ul>
+  <li><code>0..3</code> is a range from 0 up to but not including 3. <code>1..=3</code> includes the end.</li>
+  <li><code>for n in [4, 8, 15]</code> goes through a list literal. The same form goes through any list, a map, or a string's runes.</li>
+  <li><code>while</code> tests first. <code>do { … } while cond</code> runs the body once before testing.</li>
+  <li><code>continue</code> skips to the next pass and <code>break</code> leaves the loop. Both accept a trailing <code>if</code>.</li>
+  <li>A label names a loop so an inner loop can act on an outer one: <code>outer: for …</code>, then <code>continue outer</code> or <code>break outer</code>. The output shows it: when <code>col</code> passes <code>row</code> the inner loop is abandoned, and at <code>row == 2</code> both loops end.</li>
+</ul>
+<p>A statement that computes a value and throws it away does nothing, and the compiler says so:</p>
+<figure class="diag">
+<pre><span class="err">error BYN1012:</span> this expression does nothing as a statement
+  <span class="gut">--&gt;</span> unused.byn:2:1
+
+<span class="gut">  2 │</span> total + 1
+<span class="gut">    │</span> ^^^^^^^^^ the value is computed and discarded
+<span class="gut">    │</span>
+<span class="gut">  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand</span>
+        alone
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN1012</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check unused.byn</code>). The path is shortened to <code>unused.byn</code>.</figcaption>
+</figure>
+<p>Only calls, assignments and <code>++</code>/<code>--</code> can stand alone as statements. The help suggests <code>_ = f()</code> to discard a call's result. In the current compiler that form does not work yet. Write <code>let _ = f()</code> instead.</p>
+
+<h2 id="switch">Choosing among many: <code>switch</code></h2>
+<example name="book-03-switch"/>
+<p>There are two forms.</p>
+<ul>
+  <li>The <strong>expression</strong> form, <code>value switch { pattern =&gt; result, … }</code>, produces a value. Patterns can be a literal (<code>0</code>), a comparison (<code>&lt; 0</code>), alternatives (<code>1 or 2</code>), a range of conditions (<code>&gt;= 3 and &lt; 10</code>), or <code>_</code> for everything else. The first match wins. The arms must cover every value, which is why the last arm is <code>_</code>. Without it the compiler says <code>switch</code> does not handle every <code>i64</code> (<code>BYN2410</code>).</li>
+  <li>The <strong>statement</strong> form, <code>switch value { case … : … default: … }</code>, runs code. <code>case "stop" or "halt":</code> matches either. <code>case let w when w.length &gt; 3:</code> binds the value to a name and adds a condition.</li>
+</ul>
+<p>Chapter 6 uses the same <code>switch</code> to take apart unions and enums. There, leaving out a case is a compile error.</p>
+
+<h2 id="recap">What you have now</h2>
+<ul>
+  <li><code>let</code> by default, <code>var</code> when it changes, <code>const</code> for compile-time values.</li>
+  <li>Numbers have sizes, and you convert between them with the type name. <code>T.tryFrom</code> checks.</li>
+  <li>Strings are UTF-8. Join with interpolation, slice by byte offsets, iterate by rune.</li>
+  <li>Conditions are <code>bool</code>. Single statements can end in <code>if</code>/<code>unless</code>.</li>
+  <li>Loops: <code>for</code> over ranges and collections, <code>while</code>, <code>do … while</code>, labels.</li>
+  <li><code>switch</code> as an expression or a statement.</li>
+</ul>
+
+<h2 id="quiz">Check your understanding</h2>
+<example name="book-03-q1" output="no"/>
+<details class="quiz">
+  <summary>What does this program print?</summary>
+  <p>It prints:</p>
+<pre><code>3 2 3.4</code></pre>
+  <p><code>17 / 5</code> with integers is 3, and <code>17 % 5</code> is 2. After converting both to <code>f64</code>, the division is exact: 3.4. A wrong answer of <code>3.4 2</code> comes from thinking the division always keeps the fraction. The type of the operands decides, not the context.</p>
+</details>
+<example name="book-03-q2" output="no"/>
+<details class="quiz">
+  <summary>What does this program print?</summary>
+  <p>It prints:</p>
+<pre><code>8</code></pre>
+  <p>The loop runs <code>i</code> = 0, 1, 2, 3, 4, 5. For 2, <code>continue</code> skips the addition. For 5, <code>break</code> ends the loop before the addition. So <code>n</code> is 0 + 1 + 3 + 4. A common wrong answer is 13: that adds 5 too, but the <code>break if i == 5</code> comes before the <code>+=</code>. Another is 10, which forgets that <code>0..6</code> starts at 0 and ends before 6.</p>
+</details>
+<example name="book-03-q3" output="no"/>
+<details class="quiz">
+  <summary>What does this program print?</summary>
+  <p>It prints:</p>
+<pre><code>medium large small</code></pre>
+  <p>3 matches <code>&gt;= 3 and &lt; 10</code>, so <code>medium</code>. 10 fails that range, and so reaches <code>_</code>: <code>large</code>. 2 matches <code>1 or 2</code>: <code>small</code>. The first matching arm wins, so order matters when patterns overlap.</p>
+</details>
+<details class="quiz">
+  <summary>You write <code>let total = 0</code>, then <code>total += price</code> in a loop. What happens, and what is the fix?</summary>
+  <p>The compiler refuses with <code>BYN2104</code>: <code>total</code> is immutable, declared with <code>let</code>. The help suggests <code>var total = 0</code>. It is not a runtime error, and the program does not run. Changing the loop does not help, because the problem is the declaration.</p>
+</details>
+<details class="quiz">
+  <summary>Which of these lines compiles? (a) <code>let s = "a" + "b"</code> (b) <code>let s = $"{"a"}{"b"}"</code> (c) <code>if count { … }</code> where <code>count</code> is an <code>i32</code></summary>
+  <p>Only (b). (a) is refused: strings have no <code>+</code>, and the diagnostic (<code>BYN2209</code>) tells you to use interpolation. (c) is refused because an <code>if</code> condition must be a <code>bool</code> (<code>BYN2202</code>). Write <code>count != 0</code> to say what you mean.</p>
+</details>
+
+<div class="next-box">
+  <p>Next: <a href="book-04-functions.html">4. Functions and parameters</a> covers how to name your own operations, and why most call arguments carry a word like <code>from:</code> or <code>by:</code>.</p>
+</div>

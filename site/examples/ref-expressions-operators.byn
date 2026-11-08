@@ -1,0 +1,13 @@
+let a: i64 = 7
+print($"{a / 2} {a % 3} {-7 / 2} {-7 % 3} {a << 2} {a & 3} {a | 8} {a ^ 2}")
+print($"{a > 3 && a < 10} {a > 3 and not (a == 7)} {a in 1..=7} {a in 1..7}")
+let size = a > 5 ? "big" : "small"
+print(size)
+var n = 5
+n += 2
+n++
+print($"{n}")
+let x: u8 = 250
+print($"{x +% 10} {x +| 10} {x -| 255} {x *% 2}")
+let xs: List<i64> = [10, 20, 30, 40]
+print($"{xs[^1]} {xs[1..3].length} {xs[..2].length} {xs[2..].length}")

@@ -1,0 +1,11 @@
+void bump(ref i64 n) {
+    n += 1
+}
+
+i64 count(move List<i64> xs) => xs.length
+
+var n: i64 = 1
+bump(ref n)
+bump(ref n)
+let xs: List<i64> = [1, 2, 3]
+print($"{n} {count(move xs)}")

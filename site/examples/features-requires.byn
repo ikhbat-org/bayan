@@ -1,0 +1,19 @@
+type distinct Qty = i32 requires it > 0
+
+struct Box {
+    i32 w
+        requires it > 0
+    i32 h
+    requires w < h at .w
+}
+
+Box build(i32 w, by i32 h) fails ValidationError<Box> => try Box { w: w, h: h }
+
+void main() {
+    let ok = build(1, by: 5) catch Box { w: 1, h: 2 }
+    print($"{ok.w} {ok.h}")
+    let bad = build(9, by: 5) catch Box { w: 1, h: 2 }
+    print($"{bad.w} {bad.h}")
+    let q = Qty(4)
+    print($"{q.value}")
+}

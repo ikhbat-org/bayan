@@ -1,0 +1,20 @@
+union error LookupError {
+    /// No entry has that key.
+    missing
+    /// The key was blank.
+    blank
+}
+
+Result<i64, LookupError> lookup(string key) {
+    return .blank if key.isEmpty
+    return key switch {
+        "one" => 1,
+        "two" => 2,
+        _ => LookupError.missing,
+    }
+}
+
+let a = lookup("two")
+let b = lookup("six")
+print($"{a} {b}")
+print($"{a.isOk} {a.value} {b.isOk} {b.err}")

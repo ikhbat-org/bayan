@@ -1,0 +1,11 @@
+void main() {
+    print($"{i64.parse("42") catch -1}")
+    print($"{i32.parse("12x") catch -1}")
+    print($"{u8.parse("300") catch 0}")
+    print($"{i64.parse("ff", as: .hex) catch -1}")
+    print($"{i64.parse("101", as: .binary) catch 0}")
+    print($"{f64.tryParse("2.5") ?? 0.0}")
+    print($"{i64.tryParse("") ?? -1}")
+    print(string(255, as: .octal))
+    print(string(255, as: .hex))
+}

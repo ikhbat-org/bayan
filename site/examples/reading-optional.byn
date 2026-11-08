@@ -1,0 +1,13 @@
+string label(string? name) {
+    if name is not null {
+        return $"hello {name}"
+    }
+    return "nobody"
+}
+
+void main() {
+    print(label("ada"))
+    print(label(null))
+    let missing: string? = null
+    print(missing ?? "default")
+}

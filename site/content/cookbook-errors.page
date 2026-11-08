@@ -1,0 +1,29 @@
+title: Errors cookbook
+nav: Guides
+order: 54
+template: docs
+---
+<p>Bayan has no exceptions. A function that can fail says so in its signature with <code>fails</code>, and the error is a value from a named set. The caller has to deal with it: propagate with <code>try</code>, or handle it with <code>catch</code>. A <code>panic</code> is for bugs, such as an index out of range, and it aborts the program instead of unwinding.</p>
+
+<h2 id="handle">Return and handle an error</h2>
+<p><code>fail .x</code> leaves the function with an error; <code>return</code> always returns a value. <code>try f()</code> passes the error to your caller, which then needs a matching <code>fails</code>. <code>f() catch value</code> supplies a fallback. <code>f() catch switch { … }</code> handles each case and must list them all.</p>
+<example name="cookbook-errors-try"/>
+<pre><code class="other" data-lang="Go">n, err := parsePort(text)
+if err != nil { return 0, err }</code></pre>
+<p>Compared with Go, you cannot forget the check: ignoring a failing call is a compile error. Compared with Python or Java, nothing is thrown past a function that does not mention it.</p>
+
+<h2 id="custom">Define your own error type</h2>
+<p><code>union error</code> declares a set of cases, and a case can carry data. Cases are named by their set, <code>ConfigError.missing</code>, and a <code>catch switch</code> arm can bind the payload with <code>let</code>. Sets can also be composed from other sets (<code>union error ShipError = CarrierError, StockError</code>) or narrowed with <code>except</code> (spec section 3.14).</p>
+<example name="cookbook-errors"/>
+
+<h2 id="effects">Effects in signatures</h2>
+<p>Failing is one half of a signature; the other half is what the function touches. A public function that reads a file declares <code>uses fs, alloc fails IoError</code>. If you leave <code>uses</code> out, the compiler stops with BYN6002 and suggests the missing effects, so a caller can tell from the declaration that the function reads files.</p>
+<example name="cookbook-effects"/>
+
+<h2 id="defer">Clean up when a scope ends</h2>
+<p><code>defer stmt</code> runs when the scope exits, however it exits, and deferred statements run in reverse order. <code>defer failing stmt</code> runs only when the function exits by failing, which is the place for a rollback. <code>defer panicking</code> runs only during a panic. Deferred bodies cannot fail. A <code>unique</code> value is cleaned up when its single owner goes away, so there is no <code>using</code> for disposal (spec section 7.6).</p>
+<example name="cookbook-defer"/>
+<pre><code class="other" data-lang="Python">try:
+    work()
+finally:
+    close()</code></pre>

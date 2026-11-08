@@ -56,11 +56,15 @@ jobs:
           bash scripts/parity/run.test.sh
       - name: Test
         if: runner.os != 'Windows'
+        env:
+          BAYAN_TEST_TIME_SCALE: 3
         run: dotnet test Bayan.slnx -c Release
       # Windows has known failures until spec 014 (Q743); the next step decides the job.
       - name: Test (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true
+        env:
+          BAYAN_TEST_TIME_SCALE: 3
         run: dotnet test Bayan.slnx -c Release --logger "trx;LogFileName=windows.trx" --results-directory TestResults
       - name: Check known failures (Windows)
         if: runner.os == 'Windows'

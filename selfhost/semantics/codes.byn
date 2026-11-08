@@ -39,6 +39,9 @@ enum SemaCode {
     sameTypeShadowing
     nestedIt
     toStringCall
+    unknownStdModule
+    stdImportsPackage
+    circularFieldDefault
     missingInitializer
     useBeforeAssign
     outNotAssigned
@@ -222,6 +225,7 @@ enum SemaCode {
     manifestMissingField
     manifestEquals
     cCompilerRejected
+    errorNodeReachedLowering
     participleChangesThis
     stateMemberMutates
     tryWrongReturn
@@ -237,6 +241,7 @@ enum SemaCode {
     unknownWord
     nounOnMutator
     boolWithoutPrefix
+    lineJoinIndent
     noallocRemoved
     effectNotDeclared
     unknownEffect
@@ -296,6 +301,9 @@ string codeText(SemaCode code) => code switch {
     .sameTypeShadowing => "BYN2028",
     .nestedIt => "BYN2029",
     .toStringCall => "BYN2031",
+    .unknownStdModule => "BYN2032",
+    .stdImportsPackage => "BYN2033",
+    .circularFieldDefault => "BYN2034",
     .missingInitializer => "BYN2101",
     .useBeforeAssign => "BYN2102",
     .outNotAssigned => "BYN2103",
@@ -479,6 +487,7 @@ string codeText(SemaCode code) => code switch {
     .manifestMissingField => "BYN3103",
     .manifestEquals => "BYN3104",
     .cCompilerRejected => "BYN4001",
+    .errorNodeReachedLowering => "BYN4002",
     .participleChangesThis => "BYN5001",
     .stateMemberMutates => "BYN5002",
     .tryWrongReturn => "BYN5003",
@@ -494,6 +503,7 @@ string codeText(SemaCode code) => code switch {
     .unknownWord => "BYN5014",
     .nounOnMutator => "BYN5101",
     .boolWithoutPrefix => "BYN5102",
+    .lineJoinIndent => "BYN5103",
     .noallocRemoved => "BYN6001",
     .effectNotDeclared => "BYN6002",
     .unknownEffect => "BYN6003",
@@ -553,6 +563,9 @@ string messageFormat(SemaCode code) => code switch {
     .sameTypeShadowing => "`{0}` shadows an earlier `{0}` of the same type `{1}`",
     .nestedIt => "`it` inside a lambda that already uses `it`; name one lambda",
     .toStringCall => "Bayan has no `toString()`; display is `format()` (derived from `formatInto(ref StrBuf)`)",
+    .unknownStdModule => "no std module `{0}`",
+    .stdImportsPackage => "std module `{0}` imports `{1}`, which is not a std module",
+    .circularFieldDefault => "the default of field `{0}` depends on itself",
     .missingInitializer => "`{0} {1}` needs a value",
     .useBeforeAssign => "`{0}` is used before it is assigned",
     .outNotAssigned => "`out` parameter `{0}` is not assigned on every path",
@@ -736,6 +749,7 @@ string messageFormat(SemaCode code) => code switch {
     .manifestMissingField => "`package.byn` has no `{0}`",
     .manifestEquals => "`package.byn` uses `field: value`",
     .cCompilerRejected => "internal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler",
+    .errorNodeReachedLowering => "internal compiler error: a bound error expression reached lowering with no error reported; this is a bug in the Bayan compiler",
     .participleChangesThis => "`{0}` changes `this`; name it `{1}`",
     .stateMemberMutates => "`{0}` reads as state but modifies `this`",
     .tryWrongReturn => "`try{0}` must return `{1}?` or `bool`; it is derived from `{2}() fails`",
@@ -751,6 +765,7 @@ string messageFormat(SemaCode code) => code switch {
     .unknownWord => "`{0}` is not a known verb or noun",
     .nounOnMutator => "`{0}` is a noun on a `ref this` member; name the action",
     .boolWithoutPrefix => "`{0}` is a `bool` state; prefix with `is`, `has` or `can`",
+    .lineJoinIndent => "a line starting with `{0}` joins the statement above; indent it deeper",
     .noallocRemoved => "`{0}` is removed; a function without `uses` is already pure",
     .effectNotDeclared => "`{0}` uses `{1}` but does not declare it",
     .unknownEffect => "`{0}` is not an effect",
@@ -780,7 +795,7 @@ string messageFormat(SemaCode code) => code switch {
 bool isWarning(SemaCode code) => code switch {
     .sameTypeShadowing or .spanParameterNeverWritten or .neverReassignedVar or
     .unreachableCode or .wildcardOnLocalUnion or .expectsSingleParameter or .unknownWord or
-    .nounOnMutator or .boolWithoutPrefix => true,
+    .nounOnMutator or .boolWithoutPrefix or .lineJoinIndent => true,
     _ => false,
 }
 

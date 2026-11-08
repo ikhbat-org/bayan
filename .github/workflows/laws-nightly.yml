@@ -41,4 +41,6 @@ jobs:
       - name: Build
         run: dotnet build Bayan.slnx
       - name: Laws (full tier)
+        env:
+          BAYAN_TEST_TIME_SCALE: 3
         run: bash scripts/selfhost/pre-push-laws.sh

@@ -1,0 +1,4 @@
+error BYN2034: the default of field `G.g` depends on itself
+
+  1 │ struct G<T> { Owned<G<T>>? g = Owned(G<T> {}) }
+    │                            ^

@@ -22,6 +22,7 @@
 #endif
 #ifdef _WIN32
 #include <windows.h>
+#include <bcrypt.h>
 #include <shellapi.h>
 #include <fcntl.h>
 #include <io.h>
@@ -35,6 +36,12 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#ifdef __linux__
+#include <sys/random.h>
+#else
+/* In <stdlib.h>, but hidden by _POSIX_C_SOURCE on macOS. */
+void arc4random_buf(void* buf, size_t n);
+#endif
 extern char** environ;
 #endif
 
@@ -619,7 +626,9 @@ bool byn_str_eq_caseless(byn_str a, byn_str b) {
 
 byn_str byn_str_replaced(byn_str s, byn_str x, byn_str y, byn_alloc* to, const char* file, int line) {
     if (x.len == 0) byn_panic("replaced with an empty string to find", file, line);
-    int64_t len = s.len + byn_str_count(s, x) * (y.len - x.len);
+    int64_t len;
+    if (__builtin_mul_overflow(byn_str_count(s, x), y.len - x.len, &len) || __builtin_add_overflow(s.len, len, &len))
+        byn_panic("replaced text is too long", file, line);
     if (len == 0) return (byn_str){NULL, 0};
     uint8_t* out = to->resize(to, NULL, 0, len);
     int64_t o = 0, i = 0;
@@ -643,8 +652,10 @@ byn_str byn_str_repeated(byn_str s, int64_t n, byn_alloc* to, const char* file, 
 }
 
 byn_str byn_str_joined(const byn_str* xs, int64_t n, byn_str sep, byn_alloc* to) {
-    int64_t len = n > 0 ? (n - 1) * sep.len : 0;
-    for (int64_t i = 0; i < n; i++) len += xs[i].len;
+    int64_t len = 0;
+    if (n > 0 && __builtin_mul_overflow(n - 1, sep.len, &len)) byn_panic("joined text is too long", NULL, 0);
+    for (int64_t i = 0; i < n; i++)
+        if (__builtin_add_overflow(len, xs[i].len, &len)) byn_panic("joined text is too long", NULL, 0);
     if (len == 0) return (byn_str){NULL, 0};
     uint8_t* out = to->resize(to, NULL, 0, len);
     int64_t o = 0;
@@ -1418,11 +1429,13 @@ struct byn_arena {
 };
 
 static void* byn_arena_take(byn_arena* a, int64_t n) {
+    /* Checked before rounding: n near INT64_MAX would round to a negative size and pass the room check. */
+    if (n < 0 || n > INT64_MAX - 15 - (int64_t)sizeof(byn_chunk)) byn_panic("arena allocation is too large", NULL, 0);
     n = (n + 15) & ~(int64_t)15;
     byn_chunk* c = a->chunks;
-    if (!c || c->used + n > c->size) {
+    if (!c || n > c->size - c->used) {
         int64_t size = n > 4096 ? n : 4096;
-        if (c && c->size * 2 > size) size = c->size * 2;
+        if (c && c->size <= (INT64_MAX - (int64_t)sizeof(byn_chunk)) / 2 && c->size * 2 > size) size = c->size * 2;
         c = (byn_chunk*)malloc(sizeof(byn_chunk) + (size_t)size);
         if (!c) byn_panic("out of memory", NULL, 0);
         c->next = a->chunks;
@@ -2301,12 +2314,14 @@ byn_str byn_path_full_path(byn_str s, byn_alloc* to, const char* file, int line)
 
 void byn_list_reserve(void** ptr, int64_t* cap, int64_t need, int64_t elem_size, byn_alloc* alloc) {
     if (need <= *cap) return;
-    int64_t grown = *cap < 4 ? 4 : *cap * 2;
+    int64_t grown = *cap < 4 ? 4 : *cap > INT64_MAX / 2 ? INT64_MAX : *cap * 2;
     if (grown < need) grown = need;
+    int64_t bytes;
+    if (__builtin_mul_overflow(grown, elem_size, &bytes)) byn_panic("list is too long", NULL, 0);
 #ifdef BYN_DEBUG
     void* old = *ptr;
 #endif
-    *ptr = alloc->resize(alloc, *ptr, *cap * elem_size, grown * elem_size);
+    *ptr = alloc->resize(alloc, *ptr, *cap * elem_size, bytes);
 #ifdef BYN_DEBUG
     byn_own_rekey(old, *ptr);
 #endif
@@ -2316,36 +2331,84 @@ void byn_list_reserve(void** ptr, int64_t* cap, int64_t need, int64_t elem_size,
 /* ── Maps ────────────────────────────────────────────────────────────────── */
 
 uint64_t byn_hash_seed;
+uint64_t byn_hash_seed_hi;
+
+/* Fills p with n bytes from the operating system's CSPRNG. */
+static void byn_os_random(void* p, size_t n) {
+#ifdef _WIN32
+    /* Looked up at run time from System32, so programs link without -lbcrypt. */
+    typedef NTSTATUS WINAPI byn_gen_random_fn(BCRYPT_ALG_HANDLE alg, PUCHAR buf, ULONG len, ULONG flags);
+    HMODULE bcrypt = LoadLibraryExW(L"bcrypt.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    byn_gen_random_fn* byn_gen_random = bcrypt ? (byn_gen_random_fn*)(void (*)(void))GetProcAddress(bcrypt, "BCryptGenRandom") : NULL;
+    if (!byn_gen_random || byn_gen_random(NULL, (PUCHAR)p, (ULONG)n, BCRYPT_USE_SYSTEM_PREFERRED_RNG) != 0)
+        byn_panic("cannot read the system random source", NULL, 0);
+#elif defined(__linux__)
+    uint8_t* b = (uint8_t*)p;
+    while (n > 0) {
+        ssize_t got = getrandom(b, n, 0);
+        if (got < 0) {
+            if (errno == EINTR) continue;
+            byn_panic("cannot read the system random source", NULL, 0);
+        }
+        b += got;
+        n -= (size_t)got;
+    }
+#else
+    arc4random_buf(p, n);
+#endif
+}
 
 void byn_hash_seed_init(bool fixed) {
-    if (fixed) {
-        byn_hash_seed = 0;
-        return;
+    uint64_t key[2] = {0, 0};
+    if (!fixed) byn_os_random(key, sizeof key);
+    byn_hash_seed = key[0];
+    byn_hash_seed_hi = key[1];
+}
+
+static inline uint64_t byn_rotl(uint64_t x, int b) {
+    return (x << b) | (x >> (64 - b));
+}
+
+static inline void byn_sip_round(uint64_t* v) {
+    v[0] += v[1], v[1] = byn_rotl(v[1], 13), v[1] ^= v[0], v[0] = byn_rotl(v[0], 32);
+    v[2] += v[3], v[3] = byn_rotl(v[3], 16), v[3] ^= v[2];
+    v[0] += v[3], v[3] = byn_rotl(v[3], 21), v[3] ^= v[0];
+    v[2] += v[1], v[1] = byn_rotl(v[1], 17), v[1] ^= v[2], v[2] = byn_rotl(v[2], 32);
+}
+
+/* SipHash-1-3 (one compression round, three finalization rounds) of n bytes under the key (k0, k1). */
+static uint64_t byn_siphash13(uint64_t k0, uint64_t k1, const uint8_t* b, int64_t n) {
+    uint64_t v[4] = {k0 ^ UINT64_C(0x736f6d6570736575), k1 ^ UINT64_C(0x646f72616e646f6d),
+                     k0 ^ UINT64_C(0x6c7967656e657261), k1 ^ UINT64_C(0x7465646279746573)};
+    int64_t end = n - n % 8;
+    for (int64_t i = 0; i < end; i += 8) {
+        uint64_t m = 0;
+        for (int j = 7; j >= 0; j--) m = m << 8 | b[i + j];
+        v[3] ^= m;
+        byn_sip_round(v);
+        v[0] ^= m;
     }
-#ifdef _WIN32
-    uint64_t pid = (uint64_t)GetCurrentProcessId();
-#else
-    uint64_t pid = (uint64_t)getpid();
-#endif
-    byn_hash_seed = (uint64_t)byn_io_monotonic_nanos() ^ (pid << 32 | pid);
+    uint64_t last = (uint64_t)n << 56;
+    for (int64_t j = n % 8 - 1; j >= 0; j--) last |= (uint64_t)b[end + j] << (8 * j);
+    v[3] ^= last;
+    byn_sip_round(v);
+    v[0] ^= last;
+    v[2] ^= 0xff;
+    for (int i = 0; i < 3; i++) byn_sip_round(v);
+    return v[0] ^ v[1] ^ v[2] ^ v[3];
 }
 
 uint64_t byn_hash_bytes(const void* p, int64_t n) {
-    const uint8_t* b = (const uint8_t*)p;
-    uint64_t h = UINT64_C(14695981039346656037) ^ byn_hash_seed;
-    for (int64_t i = 0; i < n; i++) {
-        h ^= b[i];
-        h *= UINT64_C(1099511628211);
-    }
-    return h;
+    return byn_siphash13(byn_hash_seed, byn_hash_seed_hi, (const uint8_t*)p, n);
 }
 
 uint64_t byn_hash_mix(uint64_t h, uint64_t part) {
+    uint8_t b[16];
     for (int i = 0; i < 8; i++) {
-        h ^= (uint8_t)(part >> (i * 8));
-        h *= UINT64_C(1099511628211);
+        b[i] = (uint8_t)(h >> (i * 8));
+        b[8 + i] = (uint8_t)(part >> (i * 8));
     }
-    return h;
+    return byn_siphash13(byn_hash_seed, byn_hash_seed_hi, b, 16);
 }
 
 int64_t byn_map_find(const byn_map_hdr* h, const void* keys, int64_t ksize, const void* key, uint64_t hash, byn_key_eq eq) {
@@ -2688,7 +2751,10 @@ uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc
     bool failed = ferror(f) != 0;
     int e = errno;
     if (fclose(f) != 0 && !failed) failed = true, e = errno;
-    if (failed) return byn_io_error(e);
+    if (failed) {
+        byn_release(alloc, buf);
+        return byn_io_error(e);
+    }
     *ptr = buf;
     *len = n;
     return 0;
@@ -2699,12 +2765,15 @@ uint32_t byn_io_read_text(byn_str path, byn_str* out, byn_alloc* alloc) {
     int64_t n;
     uint32_t err = byn_io_read(path, &p, &n, alloc);
     if (err != 0) return err;
-    if (!byn_utf8_valid(p, n)) return BYN_IO_INVALID_UTF8;
+    if (!byn_utf8_valid(p, n)) {
+        byn_release(alloc, p);
+        return BYN_IO_INVALID_UTF8;
+    }
     if (out) *out = (byn_str){p, n};
     return 0;
 }
 
-uint32_t byn_io_read_stdin(byn_str* out, byn_alloc* alloc) {
+uint32_t byn_io_read_stdin_bytes(uint8_t** ptr, int64_t* len, byn_alloc* alloc) {
 #ifdef _WIN32
     /* Text mode would turn CRLF into LF and stop at Ctrl-Z. */
     _setmode(_fileno(stdin), _O_BINARY);
@@ -2722,8 +2791,26 @@ uint32_t byn_io_read_stdin(byn_str* out, byn_alloc* alloc) {
         n += (int64_t)got;
         if (got == 0) break;
     }
-    if (ferror(stdin)) return byn_io_error(errno);
-    if (out) *out = (byn_str){buf, n};
+    if (ferror(stdin)) {
+        int e = errno;
+        byn_release(alloc, buf);
+        return byn_io_error(e);
+    }
+    *ptr = buf;
+    *len = n;
+    return 0;
+}
+
+uint32_t byn_io_read_stdin(byn_str* out, byn_alloc* alloc) {
+    uint8_t* p;
+    int64_t n;
+    uint32_t err = byn_io_read_stdin_bytes(&p, &n, alloc);
+    if (err != 0) return err;
+    if (!byn_utf8_valid(p, n)) {
+        byn_release(alloc, p);
+        return BYN_IO_INVALID_UTF8;
+    }
+    if (out) *out = (byn_str){p, n};
     return 0;
 }
 
@@ -3124,6 +3211,251 @@ uint32_t byn_io_remove_directory(byn_str path) {
     }
     free(cpath);
     return rc == 0 ? 0 : byn_io_error(e);
+#endif
+}
+
+/* ── Fs: rename, copy, write times, realPath ─────────────────────────────── */
+
+/* Whether a path holds a NUL byte: such a path fails `invalidInput` before any call is made. */
+static bool byn_has_nul(byn_str s) {
+    return s.len > 0 && memchr(s.ptr, 0, (size_t)s.len) != NULL;
+}
+
+#ifdef _WIN32
+/* 100 ns ticks from 1601-01-01 to 1970-01-01. */
+#define BYN_FILETIME_EPOCH ((int64_t)116444736000000000)
+
+/* A handle to `path`, a file or a directory, opened for `access`; INVALID_HANDLE_VALUE, with the error kept for GetLastError, on failure. */
+static HANDLE byn_fs_handle(byn_str path, DWORD access) {
+    wchar_t* w = byn_wide(path.ptr, path.len);
+    HANDLE h = CreateFileW(w, access, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    DWORD e = h == INVALID_HANDLE_VALUE ? GetLastError() : 0;
+    free(w);
+    if (h == INVALID_HANDLE_VALUE) SetLastError(e);
+    return h;
+}
+
+/* Closes `h`: `r`, or the close's error when `r` is 0 and the close fails. */
+static uint32_t byn_fs_close(HANDLE h, uint32_t r) {
+    if (!CloseHandle(h) && r == 0) return byn_win_error(GetLastError());
+    return r;
+}
+#endif
+
+uint32_t byn_fs_rename(byn_str path, byn_str dest) {
+    if (byn_has_nul(path) || byn_has_nul(dest)) return BYN_IO_INVALID_INPUT;
+#ifdef _WIN32
+    wchar_t* wfrom = byn_wide(path.ptr, path.len);
+    wchar_t* wto = byn_wide(dest.ptr, dest.len);
+    BOOL ok = MoveFileExW(wfrom, wto, MOVEFILE_REPLACE_EXISTING);
+    DWORD e = ok ? 0 : GetLastError();
+    free(wfrom);
+    free(wto);
+    if (ok) return 0;
+    return e == ERROR_NOT_SAME_DEVICE ? BYN_IO_CROSS_DEVICE : byn_win_error(e);
+#else
+    char* from = byn_cstr(path);
+    char* to = byn_cstr(dest);
+    int rc = rename(from, to);
+    int e = rc == 0 ? 0 : errno;
+    free(from);
+    free(to);
+    if (rc == 0) return 0;
+    return e == EXDEV ? BYN_IO_CROSS_DEVICE : byn_io_error(e);
+#endif
+}
+
+#ifndef _WIN32
+/* Copies the open file `in` (`st` its stat) to `to`, then gives `to` the permission bits of `st`: 0 or an `IoError` code. */
+static uint32_t byn_fs_copy_to(int in, const struct stat* st, const char* to) {
+    int out = open(to, O_WRONLY | O_CREAT | O_CLOEXEC, 0600);
+    if (out < 0) return byn_io_error(errno);
+    struct stat dst;
+    int e = 0;
+    if (fstat(out, &dst) != 0) {
+        e = errno;
+    } else if (dst.st_dev == st->st_dev && dst.st_ino == st->st_ino) {
+        /* The same file by identity, whatever the spelling: truncating it would empty the source. */
+        if (close(out) != 0) return byn_io_error(errno);
+        return BYN_IO_INVALID_INPUT;
+    } else if (ftruncate(out, 0) != 0) {
+        e = errno;
+    }
+    uint8_t buf[65536];
+    while (e == 0) {
+        ssize_t n = read(in, buf, sizeof buf);
+        if (n < 0) {
+            if (errno != EINTR) e = errno;
+            continue;
+        }
+        if (n == 0) break;
+        for (ssize_t done = 0; done < n && e == 0;) {
+            ssize_t w = write(out, buf + done, (size_t)(n - done));
+            if (w >= 0) done += w;
+            else if (errno != EINTR) e = errno;
+        }
+    }
+    if (e == 0 && fchmod(out, st->st_mode & 07777) != 0) e = errno;
+    if (close(out) != 0 && e == 0) e = errno;
+    return e == 0 ? 0 : byn_io_error(e);
+}
+#endif
+
+uint32_t byn_fs_copy(byn_str path, byn_str dest) {
+    if (byn_has_nul(path) || byn_has_nul(dest)) return BYN_IO_INVALID_INPUT;
+#ifdef _WIN32
+    HANDLE in = byn_fs_handle(path, FILE_READ_ATTRIBUTES);
+    if (in == INVALID_HANDLE_VALUE) return byn_win_error(GetLastError());
+    BY_HANDLE_FILE_INFORMATION src;
+    if (!GetFileInformationByHandle(in, &src)) return byn_fs_close(in, byn_win_error(GetLastError()));
+    uint32_t r = (src.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? BYN_IO_IS_DIRECTORY : 0;
+    if (r == 0) {
+        HANDLE out = byn_fs_handle(dest, FILE_READ_ATTRIBUTES);
+        if (out != INVALID_HANDLE_VALUE) {
+            BY_HANDLE_FILE_INFORMATION dst;
+            if (!GetFileInformationByHandle(out, &dst)) r = byn_win_error(GetLastError());
+            /* The same file by identity, whatever the spelling. */
+            else if (dst.dwVolumeSerialNumber == src.dwVolumeSerialNumber && dst.nFileIndexHigh == src.nFileIndexHigh && dst.nFileIndexLow == src.nFileIndexLow) r = BYN_IO_INVALID_INPUT;
+            r = byn_fs_close(out, r);
+        } else {
+            DWORD e = GetLastError();
+            /* A missing destination is created by the copy, which reports a missing directory itself. */
+            if (e != ERROR_FILE_NOT_FOUND && e != ERROR_PATH_NOT_FOUND) r = byn_win_error(e);
+        }
+    }
+    r = byn_fs_close(in, r);
+    if (r != 0) return r;
+    wchar_t* wfrom = byn_wide(path.ptr, path.len);
+    wchar_t* wto = byn_wide(dest.ptr, dest.len);
+    BOOL ok = CopyFileW(wfrom, wto, FALSE);
+    DWORD e = ok ? 0 : GetLastError();
+    free(wfrom);
+    free(wto);
+    if (!ok) return byn_win_error(e);
+    /* `CopyFileW` keeps the source's write time; a copy is new, as on POSIX. */
+    HANDLE h = byn_fs_handle(dest, FILE_WRITE_ATTRIBUTES);
+    if (h == INVALID_HANDLE_VALUE) return byn_win_error(GetLastError());
+    FILETIME now;
+    GetSystemTimeAsFileTime(&now);
+    if (!SetFileTime(h, NULL, NULL, &now)) return byn_fs_close(h, byn_win_error(GetLastError()));
+    return byn_fs_close(h, 0);
+#else
+    char* from = byn_cstr(path);
+    char* to = byn_cstr(dest);
+    uint32_t r;
+    int in = open(from, O_RDONLY | O_CLOEXEC);
+    if (in < 0) {
+        r = byn_io_error(errno);
+    } else {
+        struct stat st;
+        if (fstat(in, &st) != 0) r = byn_io_error(errno);
+        /* Files only. */
+        else if ((st.st_mode & S_IFMT) == S_IFDIR) r = BYN_IO_IS_DIRECTORY;
+        else r = byn_fs_copy_to(in, &st, to);
+        if (close(in) != 0 && r == 0) r = byn_io_error(errno);
+    }
+    free(from);
+    free(to);
+    return r;
+#endif
+}
+
+uint32_t byn_fs_modified(byn_str path, byn_time* out) {
+    if (byn_has_nul(path)) return BYN_IO_INVALID_INPUT;
+#ifdef _WIN32
+    HANDLE h = byn_fs_handle(path, FILE_READ_ATTRIBUTES);
+    if (h == INVALID_HANDLE_VALUE) return byn_win_error(GetLastError());
+    FILETIME ft;
+    if (!GetFileTime(h, NULL, NULL, &ft)) return byn_fs_close(h, byn_win_error(GetLastError()));
+    uint32_t r = byn_fs_close(h, 0);
+    int64_t ticks = (int64_t)(((uint64_t)ft.dwHighDateTime << 32) | ft.dwLowDateTime);
+    if (r == 0 && out) out->nanos = (ticks - BYN_FILETIME_EPOCH) * 100;
+    return r;
+#else
+    char* c = byn_cstr(path);
+    struct stat st;
+    int rc = stat(c, &st);
+    int e = rc == 0 ? 0 : errno;
+    free(c);
+    if (rc != 0) return byn_io_error(e);
+#ifdef __APPLE__
+    /* Under _POSIX_C_SOURCE Darwin names the parts `st_mtime` and `st_mtimensec`, not `st_mtimespec`. */
+    int64_t sec = st.st_mtime, nsec = st.st_mtimensec;
+#else
+    int64_t sec = st.st_mtim.tv_sec, nsec = st.st_mtim.tv_nsec;
+#endif
+    if (out) out->nanos = sec * 1000000000 + nsec;
+    return 0;
+#endif
+}
+
+uint32_t byn_fs_set_modified(byn_str path, byn_time t) {
+    if (byn_has_nul(path)) return BYN_IO_INVALID_INPUT;
+    /* Floored, so a time before 1970 keeps a non-negative part below the second. */
+    int64_t sec = t.nanos / 1000000000;
+    int64_t nsec = t.nanos % 1000000000;
+    if (nsec < 0) {
+        sec--;
+        nsec += 1000000000;
+    }
+#ifdef _WIN32
+    /* FILETIME counts 100 ns ticks from 1601; an earlier time has no FILETIME. */
+    if (sec < -BYN_FILETIME_EPOCH / 10000000) return BYN_IO_INVALID_INPUT;
+    int64_t ticks = sec * 10000000 + nsec / 100 + BYN_FILETIME_EPOCH;
+    FILETIME ft = {(DWORD)((uint64_t)ticks & 0xFFFFFFFFu), (DWORD)((uint64_t)ticks >> 32)};
+    HANDLE h = byn_fs_handle(path, FILE_WRITE_ATTRIBUTES);
+    if (h == INVALID_HANDLE_VALUE) return byn_win_error(GetLastError());
+    if (!SetFileTime(h, NULL, NULL, &ft)) return byn_fs_close(h, byn_win_error(GetLastError()));
+    return byn_fs_close(h, 0);
+#else
+    char* c = byn_cstr(path);
+    struct timespec ts[2] = {{0, UTIME_OMIT}, {(time_t)sec, (long)nsec}};
+    int rc = utimensat(AT_FDCWD, c, ts, 0);
+    int e = rc == 0 ? 0 : errno;
+    free(c);
+    return rc == 0 ? 0 : byn_io_error(e);
+#endif
+}
+
+uint32_t byn_fs_real_path(byn_str path, byn_str* out, byn_alloc* alloc) {
+    if (byn_has_nul(path)) return BYN_IO_INVALID_INPUT;
+#ifdef _WIN32
+    HANDLE h = byn_fs_handle(path, 0);
+    if (h == INVALID_HANDLE_VALUE) return byn_win_error(GetLastError());
+    DWORD n = GetFinalPathNameByHandleW(h, NULL, 0, FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
+    if (n == 0) return byn_fs_close(h, byn_win_error(GetLastError()));
+    wchar_t* w = (wchar_t*)malloc(sizeof(wchar_t) * n);
+    if (!w) byn_panic("out of memory", NULL, 0);
+    DWORD got = GetFinalPathNameByHandleW(h, w, n, FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
+    uint32_t r = byn_fs_close(h, got == 0 ? byn_win_error(GetLastError()) : got >= n ? BYN_IO_OTHER : 0);
+    /* `\\?\C:\x` is `C:\x`, and `\\?\UNC\server\share` is `\\server\share`. */
+    const wchar_t* p = w;
+    if (r == 0 && got >= 4 && w[0] == L'\\' && w[1] == L'\\' && w[2] == L'?' && w[3] == L'\\') {
+        if (got >= 8 && w[4] == L'U' && w[5] == L'N' && w[6] == L'C' && w[7] == L'\\') {
+            w[6] = L'\\';
+            p = w + 6;
+        } else {
+            p = w + 4;
+        }
+    }
+    int len = r == 0 ? WideCharToMultiByte(CP_UTF8, 0, p, -1, NULL, 0, NULL, NULL) : 0;
+    if (r == 0 && len <= 0) r = byn_win_error(GetLastError());
+    char* s = r == 0 ? (char*)malloc((size_t)len) : NULL;
+    if (r == 0 && !s) byn_panic("out of memory", NULL, 0);
+    if (r == 0 && WideCharToMultiByte(CP_UTF8, 0, p, -1, s, len, NULL, NULL) != len) r = byn_win_error(GetLastError());
+    free(w);
+    if (r == 0 && out) *out = byn_str_copy((byn_str){(const uint8_t*)s, len - 1}, alloc);
+    free(s);
+    return r;
+#else
+    char* c = byn_cstr(path);
+    char* resolved = realpath(c, NULL);
+    int e = resolved ? 0 : errno;
+    free(c);
+    if (!resolved) return byn_io_error(e);
+    if (out) *out = byn_str_copy((byn_str){(const uint8_t*)resolved, (int64_t)strlen(resolved)}, alloc);
+    free(resolved);
+    return 0;
 #endif
 }
 
@@ -3728,5 +4060,18 @@ int64_t byn_io_monotonic_nanos(void) {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (int64_t)ts.tv_sec * 1000000000 + ts.tv_nsec;
+#endif
+}
+
+byn_time byn_time_now(void) {
+#ifdef _WIN32
+    FILETIME ft;
+    GetSystemTimePreciseAsFileTime(&ft);
+    int64_t ticks = (int64_t)(((uint64_t)ft.dwHighDateTime << 32) | ft.dwLowDateTime);
+    return (byn_time){(ticks - BYN_FILETIME_EPOCH) * 100};
+#else
+    struct timespec ts;
+    if (clock_gettime(CLOCK_REALTIME, &ts) != 0) byn_panic("the wall clock cannot be read", NULL, 0);
+    return (byn_time){(int64_t)ts.tv_sec * 1000000000 + ts.tv_nsec};
 #endif
 }

@@ -1,0 +1,222 @@
+title: Bayan for Rust programmers
+nav: Guides
+order: 47
+template: docs
+---
+<p>If you write Rust, you already like most of Bayan's ideas: values by default, no null, errors in the type, exhaustive matching, no garbage collector. Bayan keeps those and trades some power for less to write. You do not write lifetimes in the common case, there are no traits with operators yet, and the types that own memory are fewer. This guide maps Rust to Bayan and then lists what will surprise you.</p>
+<p>Every Bayan program on this page was run with the compiler, and the output shown is its real output.</p>
+
+<h2 id="table">Common tasks side by side</h2>
+<table>
+<tr><th>Task</th><th>Rust</th><th>Bayan</th></tr>
+<tr><td>Print</td><td><code>println!("{n} items")</code></td><td><code>print($"{n} items")</code></td></tr>
+<tr><td>Fixed value</td><td><code>let x = 1;</code></td><td><code>let x = 1</code></td></tr>
+<tr><td>Changing value</td><td><code>let mut x = 1;</code></td><td><code>var x = 1</code></td></tr>
+<tr><td>Integer types</td><td><code>i64</code>, <code>u8</code>, <code>usize</code></td><td><code>i64</code>, <code>u8</code>; lengths and indexes are <code>i64</code>, not <code>usize</code></td></tr>
+<tr><td>Vector</td><td><code>let mut v: Vec&lt;i64&gt; = Vec::new();</code></td><td><code>var v = List&lt;i64&gt;()</code></td></tr>
+<tr><td>Push</td><td><code>v.push(1)</code></td><td><code>v.append(1)</code></td></tr>
+<tr><td>Length</td><td><code>v.len()</code></td><td><code>v.length</code></td></tr>
+<tr><td>Slice</td><td><code>&amp;v[1..3]</code></td><td><code>v.span[1..3]</code></td></tr>
+<tr><td>Fixed array</td><td><code>[i64; 3]</code></td><td><code>i64[3]</code></td></tr>
+<tr><td>Hash map</td><td><code>HashMap&lt;String, i64&gt;</code></td><td><code>Map&lt;string, i64&gt;</code> (keeps insertion order)</td></tr>
+<tr><td>Map lookup</td><td><code>m.get(k).copied().unwrap_or(0)</code></td><td><code>m.tryGet(at: k) ?? 0</code></td></tr>
+<tr><td>Optional</td><td><code>Option&lt;T&gt;</code>, <code>None</code></td><td><code>T?</code>, <code>null</code></td></tr>
+<tr><td>Default for none</td><td><code>x.unwrap_or(0)</code></td><td><code>x ?? 0</code></td></tr>
+<tr><td>Test for none</td><td><code>if x.is_some()</code></td><td><code>if x is not null { … }</code></td></tr>
+<tr><td>Early exit on none</td><td><code>let Some(v) = x else { return };</code></td><td><code>let v = x ?? return</code></td></tr>
+<tr><td>Result type</td><td><code>fn f() -&gt; Result&lt;T, E&gt;</code></td><td><code>T f() fails E</code></td></tr>
+<tr><td>Return an error</td><td><code>return Err(E::Empty)</code></td><td><code>fail .empty</code></td></tr>
+<tr><td>Propagate</td><td><code>f()?</code></td><td><code>try f()</code></td></tr>
+<tr><td>Handle</td><td><code>f().unwrap_or(0)</code></td><td><code>f() catch 0</code></td></tr>
+<tr><td>Match on an error</td><td><code>match f() { Err(E::Empty) =&gt; … }</code></td><td><code>f() catch switch { .empty =&gt; … }</code></td></tr>
+<tr><td>Struct</td><td><code>struct P { x: i64 }</code></td><td><code>struct P { i64 x }</code></td></tr>
+<tr><td>Method taking <code>&amp;mut self</code></td><td><code>fn push(&amp;mut self, x: i64)</code></td><td><code>void push(ref this, i64 x)</code></td></tr>
+<tr><td>Method taking <code>&amp;self</code></td><td><code>fn total(&amp;self) -&gt; i64</code></td><td><code>i64 total => …</code> or <code>i64 total()</code></td></tr>
+<tr><td>Pass a mutable borrow</td><td><code>bump(&amp;mut a)</code></td><td><code>bump(ref a)</code></td></tr>
+<tr><td>Pass ownership</td><td><code>consume(v)</code></td><td><code>consume(move v)</code></td></tr>
+<tr><td>Clone</td><td><code>v.clone()</code></td><td><code>v.copy()</code> or <code>v.copy(to: arena)</code></td></tr>
+<tr><td>Struct update</td><td><code>P { y: 5, ..p }</code></td><td><code>p with { y: 5 }</code></td></tr>
+<tr><td>Enum with data</td><td><code>enum Shape { Circle(f64), … }</code></td><td><code>union Shape { circle(f64 radius) … }</code></td></tr>
+<tr><td>Plain enum</td><td><code>enum Color { Red, Green }</code></td><td><code>enum Color</code> with one case per line</td></tr>
+<tr><td>Match</td><td><code>match s { Shape::Circle(r) =&gt; … }</code></td><td><code>s switch { .circle(let r) =&gt; … }</code></td></tr>
+<tr><td>Trait</td><td><code>trait Shape { fn area(&amp;self) -&gt; f64; }</code></td><td><code>interface IShape { f64 area() }</code></td></tr>
+<tr><td>Implement a trait</td><td><code>impl Shape for Dog { … }</code></td><td><code>struct Dog : IShape { … }</code></td></tr>
+<tr><td>Trait bound</td><td><code>fn show&lt;T: Shape&gt;(x: T)</code></td><td><code>void show&lt;T&gt;(T x) where T : IShape</code></td></tr>
+<tr><td>Closure</td><td><code>|x| x + 1</code></td><td><code>x =&gt; x + 1</code> or <code>it + 1</code></td></tr>
+<tr><td>Cleanup</td><td><code>impl Drop</code> / scope end</td><td><code>defer</code>, or a <code>unique</code> type</td></tr>
+<tr><td>Arena</td><td><code>bumpalo::Bump::new()</code></td><td><code>using var arena = Arena()</code></td></tr>
+<tr><td>Test</td><td><code>#[test] fn parses() { assert_eq!(…) }</code></td><td><code>test "parses" { assert … }</code></td></tr>
+<tr><td>Build and run</td><td><code>cargo run</code></td><td><code>bayan run file.byn</code></td></tr>
+<tr><td>Manifest</td><td><code>Cargo.toml</code></td><td><code>package.byn</code></td></tr>
+</table>
+
+<h2 id="moves">Moves, copies and ref</h2>
+<p>The rules of ownership are the ones you know, with fewer symbols. A type that owns memory, such as a <code>List</code> or a <code>Map</code>, is <code>unique</code>: it is moved, never copied by accident. A number or a <code>bool</code> copies freely. You mark the three ways to hand a value over where they happen:</p>
+<ul>
+<li><code>f(x)</code> reads <code>x</code>. The compiler chooses whether to copy or borrow, and the callee cannot change it.</li>
+<li><code>f(ref x)</code> lends <code>x</code> for changing. The parameter is declared <code>ref T x</code>.</li>
+<li><code>f(move x)</code> hands <code>x</code> over. The parameter is declared <code>move T x</code>, and <code>x</code> cannot be used afterward.</li>
+</ul>
+<pre><code class="other" data-lang="Rust">fn show(lines: &amp;mut Vec&lt;String&gt;) { lines.push("shown".into()); }
+fn count(lines: Vec&lt;String&gt;) -&gt; usize { lines.len() }
+
+let mut lines = vec!["a".to_string(), "b".to_string()];
+show(&amp;mut lines);
+let copy = lines.clone();
+println!("{} {}", count(lines), copy.len());</code></pre>
+<example name="guide-rs-move"/>
+<p>There is no <code>&amp;</code>. A read-only borrow is the default and needs no mark. Where Rust has <code>&amp;[T]</code>, a Bayan function takes <code>ReadOnlySpan&lt;T&gt;</code>.</p>
+<p>Borrows are checked by regions. A region is a scope that frees memory, and a borrow carries the region of what it points into. The compiler infers this, so you do not write lifetime parameters. A borrow that would outlive its region is an error, and the fix is a <code>.copy()</code>. While a borrow into a list is alive, you cannot change the list's structure, such as appending to a list you are looping over. See <a href="memory.html#borrows">Borrows and regions</a>.</p>
+<note>Planned: a <code>borrows</code> clause to narrow where a returned borrow comes from, and the <code>unsafe because "…"</code> block for raw pointers. Neither is in the compiler yet.</note>
+
+<h2 id="errors">Result and ? become fails and try</h2>
+<p><code>Result&lt;T, E&gt;</code> exists as a type you can store, but functions do not return it. They declare <code>fails E</code> and return <code>T</code>. <code>try</code> is your <code>?</code>, written before the call. <code>catch</code> replaces <code>unwrap_or</code>, <code>unwrap_or_else</code> and <code>match</code> on the result. An error type is a closed list of cases, and a set can be built from other sets, so there is no <code>From</code> impl and no <code>Box&lt;dyn Error&gt;</code>.</p>
+<pre><code class="other" data-lang="Rust">fn parse(text: &amp;str) -&gt; Result&lt;i64, ParseError&gt; {
+    if text.is_empty() { return Err(ParseError::Empty); }
+    text.parse().map_err(|_| ParseError::NotNumber)
+}
+
+fn sum(a: &amp;str, b: &amp;str) -&gt; Result&lt;i64, ParseError&gt; {
+    Ok(parse(a)? + parse(b)?)
+}</code></pre>
+<example name="guide-rs-errors"/>
+<p>The <code>sum</code> function binds each <code>try</code> on its own line. <code>try</code> covers everything to its right, so <code>try parse(a) + parse(b)</code> is an error, with a message that says so:</p>
+<figure class="diag">
+<pre><span class="err">error BYN1054:</span> `try` covers `parse(a) + parse(b)`, which cannot fail
+  --&gt; trycover.byn:4:16
+
+  4 │     return try parse(a) + parse(b)
+    │                ^^^^^^^^^^^^^^^^^^^ cannot fail
+    │
+  help: wrap the part that fails in parentheses: `(try parse(a))`
+    │ 4 │     return (try parse(a)) + parse(b)
+    │   │            +++++++++++++
+
+<span class="err">error BYN2602:</span> `parse` can fail; handle the error or pass it on
+  --&gt; trycover.byn:4:27
+
+  4 │     return try parse(a) + parse(b)
+    │                           ^^^^^^^^
+    │
+  help: propagate the error with `try`, or handle it with `catch`
+    │ 4 │     return try parse(a) + try parse(b)
+    │   │                           ++++
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1054</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p>Wrap the part that fails in parentheses, <code>(try parse(a)) + (try parse(b))</code>, or bind each result as above. In Rust each <code>?</code> binds to one call, and in Bayan one <code>try</code> reaches the end of the expression. <b>Why:</b> a <code>try</code> that quietly covers only one half of an expression is easy to misread, and the compiler tells you when the reach is wrong.</p>
+<p>Bugs are panics: an index out of range, an overflow, a division by zero, a violated <code>expects</code> precondition. A panic prints a message and aborts. There is no unwinding and no <code>catch_unwind</code>. See <a href="errors.html">Errors</a>.</p>
+
+<h2 id="match">Enums and match</h2>
+<p>Rust's <code>enum</code> with data is a Bayan <code>union</code>. A plain list of names is an <code>enum</code>. A <code>switch</code> expression must cover every case. A case binds its fields with <code>let</code>, and the leading dot names a case of the type the compiler expects.</p>
+<pre><code class="other" data-lang="Rust">enum Event { Key(char), Click(i64, i64), Quit }
+
+match e {
+    Event::Key(c) =&gt; format!("key {c}"),
+    Event::Click(x, y) =&gt; format!("click at {x},{y}"),
+    Event::Quit =&gt; "quit".into(),
+}</code></pre>
+<example name="guide-rs-match"/>
+<p>A <code>char</code> in Rust is a Unicode scalar, and Bayan's <code>rune</code> is the same thing. <code>switch</code> also takes ranges and guards: <code>&lt; 0</code>, <code>1 or 2</code>, <code>&gt;= 3 and &lt; 10</code>, <code>case let s when s.length &gt; 3</code>.</p>
+
+<h2 id="traits">Traits become interfaces</h2>
+<p>An interface is declared with <code>I</code> in front of its name, and a type opts in on its declaration line: <code>struct Dog : IDescribe</code>. There is no separate <code>impl</code> block and no blanket impl. Methods are in the struct. An interface method that allocates must say so: <code>string describe() uses alloc</code>. The effect is part of the contract, so an implementation cannot use more than the interface allows.</p>
+<pre><code class="other" data-lang="Rust">trait Describe { fn describe(&amp;self) -&gt; String; }
+impl Describe for Dog { … }
+fn show&lt;T: Describe&gt;(x: T) { println!("{}", x.describe()); }</code></pre>
+<example name="guide-rs-generic"/>
+<p>Generics are monomorphized, as in Rust, and checked at the definition. What a bare <code>T</code> can do is short: copy, compare with <code>==</code> and <code>!=</code>, pass, store, return and format. There is no <code>PartialOrd</code> to ask for, so a generic <code>larger</code> using <code>&gt;</code> does not compile:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2743:</span> `&gt;` cannot be applied to a value of type parameter `T`
+  --&gt; gen.byn:1:29
+
+  1 │ T larger&lt;T&gt;(T a, as T b) =&gt; a &gt; b ? a : b
+    │                             ^^^^^
+    │
+  help: use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type
+        parameters have no constraints
+
+<span class="err">error BYN2780:</span> implicit copy of a unique value: type parameter `T` may stand for a unique type
+  --&gt; gen.byn:1:29
+
+  1 │ T larger&lt;T&gt;(T a, as T b) =&gt; a &gt; b ? a : b
+    │                             ^^^^^^^^^^^^^
+    │
+  help: pass it by `ref` to share it instead
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2743</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+<p>The <code>unique</code> error comes from the same rule: a <code>T</code> might be a type that owns memory, and using it twice would copy it.</p>
+<note>Planned: <code>extension</code> declarations, which add members to an existing type (BYN2022 today), and interfaces for numbers and ordering. Until then, an interface a type implements must be named on the type itself.</note>
+
+<h2 id="memory">Where memory comes from</h2>
+<p>There is no <code>Box</code>, <code>Rc</code> or <code>Arc</code> in your day-to-day code. Locals live on the stack. Collections allocate from <code>context.allocator</code>, which you can swap for a block with <code>provide allocator: arena { … }</code>, and an <code>Arena</code> frees everything at once. A function that allocates declares <code>uses alloc</code> if it is public. This is where Rust's lifetime annotations went: the allocator is the region.</p>
+<p>The effect system extends the idea. A public function lists what it can do beyond computing (<code>alloc</code>, <code>fs</code>, <code>net</code>, <code>process</code>, <code>env</code>, <code>console</code>), and the compiler holds it to that. Rust has no counterpart to this. See <a href="features.html#effects">Effects</a>.</p>
+
+<h2 id="surprises">What will surprise you</h2>
+
+<h3 id="s-semi">No semicolons, and the type goes first</h3>
+<p>A statement ends at the end of the line. Declarations are type first (<code>i64 x</code>, <code>i64 total(List&lt;i64&gt; xs)</code>), and local bindings are name first (<code>let x: i64 = 0</code>). There is no <code>-&gt;</code> in a function header: the return type leads. The arrow is only for function types, <code>i64 -&gt; bool</code>. <b>Why:</b> the name is what you scan for in a local, and the type is what you scan for in an API.</p>
+
+<h3 id="s-params">Arguments carry labels</h3>
+<p>A function with more than one required parameter labels all but the first with a particle from a fixed list: <code>from</code>, <code>to</code>, <code>until</code>, <code>through</code>, <code>at</code>, <code>by</code>, <code>for</code>, <code>as</code>. The call writes the label (<code>sum("40", by: "2")</code>), and each particle appears once per signature. Passing <code>(end, start)</code> where <code>(start, until: end)</code> is meant is a compile error. See <a href="parameters.html">Parameters and arguments</a>.</p>
+
+<h3 id="s-no-lifetimes">No lifetime syntax</h3>
+<p>You will not write <code>'a</code>. A returned borrow is assumed to come from all the borrowed arguments. If that is too coarse, the compiler reports it and you copy. The cost is that some programs Rust accepts are rejected here, and some structures (trees, graphs) are built with typed indices into a list instead of references. See the <code>distinct</code> type below.</p>
+<pre><code class="byn">type distinct NodeId = i64
+type distinct EdgeId = i64</code></pre>
+<p>A <code>NodeId</code> and an <code>EdgeId</code> are different types over the same integer, so the compiler stops you from mixing them up. Make one with <code>NodeId(3)</code> and read it with <code>.value</code>.</p>
+
+<h3 id="s-ints">Integers panic, not wrap</h3>
+<p>Rust panics on overflow in debug builds and wraps in release. A Bayan integer panics. The sizes are <code>i8</code> to <code>i64</code> and <code>u8</code> to <code>u64</code>, and <code>usize</code> exists, but lengths and indexes are plain <code>i64</code>, so you rarely need it. Conversions that could lose bits are written out, <code>i32(a)</code>, and a value widens on its own.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `i32`, found `i64`
+  --&gt; narrow.byn:3:18
+
+  3 │     let b: i32 = a
+    │                  ^
+    │
+  help: convert it if the value always fits; `i64` does not convert to `i32` without loss
+    │ 3 │     let b: i32 = i32(a)
+    │   │                  ++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+
+<h3 id="s-shadow">Shadowing needs a new type</h3>
+<p>Rust encourages <code>let x = x.trim();</code>. Bayan allows shadowing with <code>let</code> only when the type changes. Re-binding with the same type gives a warning (BYN2028). Pick a new name, or change the type: <code>let x = i64.tryParse(x) ?? 0</code> is fine when <code>x</code> was a string.</p>
+
+<h3 id="s-let">A let is also a lock on methods</h3>
+<p>Calling a <code>ref this</code> method on a <code>let</code> is an error that names the method and the line of the <code>let</code>:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2104:</span> `c` is immutable
+  --&gt; classmut.byn:7:5
+
+  7 │     c.bump()
+    │     ^ `bump` modifies it; declared with `let` on line 6
+    │
+  help: declare it with `var` if it should change
+    │ 6 │     var c = C { n: 1 }
+    │   │     +++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2104</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+</figure>
+
+<h3 id="s-strings">One string type</h3>
+<p>There is no <code>String</code> versus <code>&amp;str</code>. A <code>string</code> is an immutable view of UTF-8 bytes. Build text with interpolation or a <code>StrBuf</code>. There is no <code>+</code> on strings (BYN2209). <code>length</code> counts bytes, <code>runeCount</code> counts characters, and slicing takes byte offsets.</p>
+
+<h3 id="s-missing">What is not in the compiler yet</h3>
+<ul>
+<li>Iterator adapters: <code>map</code>, <code>filter</code>, <code>fold</code> and <code>collect</code> are not there. A <code>for</code> loop accumulates. <code>where</code>, <code>select</code> and <code>sumBy</code> are specified for later.</li>
+<li>Macros. Compile-time code is ordinary Bayan run by the compiler (<code>comptime</code>, planned), not a separate macro language.</li>
+<li>Threads and <code>async</code>. The design is structured concurrency with <code>async</code>/<code>await</code> at the call site and no colored functions. The compiler rejects both for now.</li>
+</ul>
+<p>Next: <a href="effective.html">Effective Bayan</a> says which form to choose.</p>

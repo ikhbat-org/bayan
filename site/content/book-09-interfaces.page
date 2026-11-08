@@ -1,0 +1,173 @@
+title: 9. Interfaces and generics
+nav: Learn
+order: 900
+template: docs
+---
+<p>An interface is a list of members that a type promises to have. Generic code uses that list to work on many types without knowing which one it has. In this chapter you will describe shapes with one interface, then write functions and types that work on any shape.</p>
+<p>You need structs from <a href="book-05-structs.html">chapter 5</a>, unions from <a href="book-06-unions.html">chapter 6</a>, spans from <a href="book-07-collections.html">chapter 7</a> and error sets from <a href="book-08-errors.html">chapter 8</a>.</p>
+
+<h2 id="interface">An interface and its conformers</h2>
+<p>An interface name starts with <code>I</code>. It lists methods without bodies. A struct says which interface it follows after a colon.</p>
+<pre><code class="byn">interface IShape {
+    i64 area()
+}
+
+struct Square : IShape {
+    i64 side
+}</code></pre>
+<p>The promise is checked at the struct, not later where it is used. Leave out <code>area</code> and the compiler tells you what to add.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2801:</span> `Square` does not provide `area` required by `IShape`
+<span class="gut">  --&gt;</span> n8.byn:5:17
+
+<span class="gut">  5 │</span> struct Square : IShape {
+<span class="gut">    │</span>                 <span class="hl">^^^^^^ needs `area`</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> add `i64 area()` to `Square`
+<span class="gut">    │</span> 7 │     i64 area() =&gt; todo("area")
+<span class="gut">    │   │</span> <span class="add">++++++++++++++++++++++++++++++</span>
+<span class="gut">    │</span> 8 │ }
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2801</span></pre>
+</figure>
+<p>Conformance is explicit. A struct that happens to have an <code>area</code> method does not follow <code>IShape</code> until it says so.</p>
+
+<h2 id="defaults">Default methods and properties</h2>
+<p>An interface method may have a body. Every conformer gets it for free and may replace it. A member written as a bare <code>Type name</code> is a property that conformers must provide, either as a field or as a computed property. A property may also have a default.</p>
+<example name="book-09-interface"/>
+<p><code>IShape</code> requires <code>area</code>. It gives <code>name</code> a default of <code>"shape"</code>, and <code>describe</code> builds on both. <code>Square</code> replaces <code>name</code>, so it prints <code>square with area 9</code>. <code>Rect</code> keeps the default, so it prints <code>shape with area 10</code>. The last line is <code>9 + 10</code>.</p>
+
+<h2 id="constraints">Constraints on generic functions</h2>
+<p>A function with a type parameter in angle brackets works on any type. On its own, it can do almost nothing with a value of that type. A <code>where</code> clause says which interface the type must follow, and then the interface members are available.</p>
+<example name="book-09-constraint"/>
+<p><code>show</code> and <code>totalArea</code> call <code>describe</code> and <code>area</code> on a <code>T</code>. The compiler builds a copy of each function for each type you call it with, so there is no cost at run time. <code>totalArea</code> takes a span of <code>T</code>, so one call adds up a list of squares. <code>larger</code> takes both values with <code>move</code> and gives one back, for a reason covered below.</p>
+
+<h3 id="constraint-errors">Two mistakes with constraints</h3>
+<p>Asking for a member the constraint does not list is refused inside the generic function.</p>
+<pre><code class="byn">i64 measure&lt;T&gt;(T shape) where T : IShape => shape.grow()</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2806:</span> `T` has no member `grow` in its constraints (`IShape`)
+<span class="gut">  --&gt;</span> n3.byn:12:51
+
+<span class="gut">  12 │</span> i64 measure&lt;T&gt;(T shape) where T : IShape =&gt; shape.grow()
+<span class="gut">     │</span>                                                   <span class="hl">^^^^</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> add an interface declaring `grow` to the `where` clause
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2806</span></pre>
+</figure>
+<p>Calling a constrained function with a type that does not follow the interface is refused at the call.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2807:</span> `Square` does not conform to `IShape`: missing `area`
+<span class="gut">  --&gt;</span> n2.byn:10:14
+
+<span class="gut">  10 │</span>     print($"{measure(Square { side: 2 })}")
+<span class="gut">     │</span>              <span class="hl">^^^^^^^^^^^^^^^^^^^^^^^^^^^ the generic code needs this of its type arguments</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> add `: IShape` to `Square` and provide `area`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2807</span></pre>
+</figure>
+
+<h3 id="unique">Generic code and unique values</h3>
+<p>A type parameter may stand for a type that cannot be copied, such as a <code>List</code> from <a href="book-07-collections.html">chapter 7</a>. So generic code may not copy a <code>T</code> unless you say how.</p>
+<pre><code class="byn">T firstOf&lt;T&gt;(ReadOnlySpan&lt;T&gt; xs) =&gt; xs[0]</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2780:</span> implicit copy of a unique value: type parameter `T` may stand for a unique type
+<span class="gut">  --&gt;</span> n6.byn:1:37
+
+<span class="gut">  1 │</span> T firstOf&lt;T&gt;(ReadOnlySpan&lt;T&gt; xs) =&gt; xs[0]
+<span class="gut">    │</span>                                     <span class="hl">^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> pass it by `ref` to share it instead
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2780</span></pre>
+</figure>
+<p>This is why <code>larger</code> above takes its arguments with <code>move</code>: it hands one of them back, so it must own it.</p>
+
+<h2 id="dyn">Interfaces as parameter types</h2>
+<p>You cannot write an interface name where a type goes.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2816:</span> `IShape` is an interface, not a type
+<span class="gut">  --&gt;</span> n4.byn:4:13
+
+<span class="gut">  4 │</span> i64 measure(IShape shape) =&gt; shape.area()
+<span class="gut">    │</span>             <span class="hl">^^^^^^ an interface</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> write `dyn ref IShape` or add a `where` constraint
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2816</span></pre>
+</figure>
+<p>The help line shows the two ways out. The first is a <code>where</code> constraint, which you have seen. The second is <code>dyn</code>: one compiled function that accepts any conformer and finds its method at run time. <code>dyn ref readonly</code> only reads. <code>dyn ref</code> may call methods that change the value.</p>
+<example name="book-09-dyn"/>
+<p><code>report</code> works on a <code>Square</code> and on a <code>Rect</code>. <code>tick</code> calls <code>bump</code> twice, which adds 1 each time on a <code>Clicks</code> and 10 each time on a <code>Steps</code>. That gives <code>2</code> and <code>20</code>.</p>
+<p>The receiver keeps its mode. A method that takes <code>ref this</code> cannot be called through <code>dyn ref readonly</code>.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2813:</span> `bump` takes `ref this`, but the receiver is `dyn ref readonly ICounter`
+<span class="gut">  --&gt;</span> n7.byn:12:7
+
+<span class="gut">  12 │</span>     c.bump()
+<span class="gut">     │</span>       <span class="hl">^^^^ declared `ref this`</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> take `dyn ref ICounter`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2813</span></pre>
+</figure>
+<p>Use a constraint when you can, because it is resolved at compile time. Use <code>dyn</code> when one function must handle values of different types in one body.</p>
+<p>A list of different shapes is not available. The type argument is still an interface name.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2816:</span> `IShape` is an interface, not a type
+<span class="gut">  --&gt;</span> n5.byn:9:22
+
+<span class="gut">  9 │</span>     let shapes: List&lt;IShape&gt; = []
+<span class="gut">    │</span>                      <span class="hl">^^^^^^ an interface</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> write `dyn ref IShape` or add a `where` constraint
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2816</span></pre>
+</figure>
+
+<h2 id="generic-types">Generic structs and unions</h2>
+<p>Structs and unions take type parameters too. A method of a generic struct may return the same struct with the parameters in another order.</p>
+<example name="book-09-types"/>
+<p>The first line shows <code>Pair&lt;i64, string&gt;</code> before and after <code>swapped</code>. The second line uses a union with a payload. <code>wrap("hi")</code> infers <code>Option&lt;string&gt;</code> from its argument. For <code>.nothing</code> there is nothing to infer from, so <code>let b: Option&lt;i64&gt;</code> names the type. A call with no argument to infer from takes its type in angle brackets, as in <code>same&lt;i64&gt;(2, as: 3)</code>.</p>
+
+<h2 id="fails">Interface methods that can fail</h2>
+<p>An interface method lists the error sets it may fail with, like any function. Every implementation must match. The caller sees the error set whichever type is behind the <code>dyn</code>.</p>
+<example name="book-09-fails"/>
+<p><code>Digits.parse</code> fails with <code>empty</code> for <code>""</code> and <code>notDigit</code> for <code>"x"</code>. <code>attempt</code> knows only <code>IParser</code>, yet its <code>catch switch</code> must name both cases. The three lines are <code>7 gives 17</code> (base 10 plus 7), then the two fallbacks. The first part of the middle line is empty because the input string is empty.</p>
+<p>An implementation that allocates must say so on the interface method with <code>uses alloc</code>. Chapter 14 covers effects.</p>
+
+<h2 id="iterate">Making your own type work with for</h2>
+<p>Two built-in interfaces let <code>for</code> walk your types. <code>IIndexable</code> needs a <code>count</code> and a <code>get</code>. <code>IEnumerator</code> needs <code>moveNext(ref this)</code> and a <code>current</code>. Each names its element type with <code>type Item = …</code>.</p>
+<example name="book-09-iterate"/>
+<p><code>Tens</code> has no storage at all. <code>get</code> computes each element, so the loop prints 0, 10, 20 and 30. <code>Down</code> is an enumerator: <code>moveNext</code> steps and says whether there is a next value, and the loop reads <code>current</code> each time. It prints 2, 1, 0. An enumerator owns its data. It cannot borrow from another collection. If you want to walk a collection of your own, make it an <code>IIndexable</code>.</p>
+
+<h2 id="planned">What is planned</h2>
+<note>Planned: not in the compiler yet. Retroactive conformance, <code>static abstract</code> members, generic methods called through an interface constraint, and generic aliases are in the specification. The compiler rejects each of them.</note>
+<pre><code class="byn">interface IParse&lt;TSelf&gt; where TSelf : IParse&lt;TSelf&gt; {
+    static abstract TSelf parse(string s) fails ParseError
+}
+
+extension Money : IJsonEncode
+
+type Predicate&lt;T&gt; = T -&gt; bool</code></pre>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>Why does <code>book-09-interface</code> print <code>shape with area 10</code> for the <code>Rect</code>?</summary>
+<p><code>Rect</code> does not provide <code>name</code>, so it uses the default <code>"shape"</code> from the interface. <code>describe</code> is also the default. It is not an error to leave a defaulted member out. The area, 10, comes from <code>w * h</code> with 2 and 5.</p></details>
+<details class="quiz"><summary>You write <code>i64 measure(IShape shape)</code>. What does the compiler say, and what are your options?</summary>
+<p>BYN2816: an interface is not a type. Write <code>measure&lt;T&gt;(T shape) where T : IShape</code> for a compile-time copy per type, or <code>measure(dyn ref readonly IShape shape)</code> for one function that finds the method at run time.</p></details>
+<details class="quiz"><summary>What does <code>book-09-dyn</code> print on its last line, and why not <code>2 2</code>?</summary>
+<p><code>2 20</code>. <code>tick</code> calls <code>bump</code> twice on each value. <code>Clicks.bump</code> adds 1 and <code>Steps.bump</code> adds 10, and the call goes to the method of the real type. Both counters are changed in place because <code>tick</code> takes <code>dyn ref</code>, not a copy.</p></details>
+<details class="quiz"><summary>A <code>Square</code> has an <code>area</code> method but its declaration is <code>struct Square</code>, with no <code>: IShape</code>. Can you pass it to <code>show&lt;T&gt;(T) where T : IShape</code>?</summary>
+<p>No. Conformance is explicit, so the call is refused with BYN2807 and a help line to add <code>: IShape</code>. Having the right methods is not enough. The same method with an interface after the colon is what counts.</p></details>
+<details class="quiz"><summary>In <code>book-09-types</code>, why does <code>let b: Option&lt;i64&gt; = .nothing</code> need the type written out?</summary>
+<p><code>.nothing</code> has no payload, so nothing in it says what <code>T</code> is. The leading dot also needs an expected type to look <code>nothing</code> up in. The annotation gives both. <code>wrap("hi")</code> does not need one because the argument is a string.</p></details>

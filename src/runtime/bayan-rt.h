@@ -7,7 +7,7 @@
 #define BAYAN_RT_H
 
 /* Bumped on every change to the runtime source. */
-#define BYN_RUNTIME_VERSION 1
+#define BYN_RUNTIME_VERSION 2
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -270,9 +270,15 @@ static inline void byn_slice_check(int64_t start, int64_t end, int64_t len, cons
 /* Resolves slice bounds: a mode of 0 is an offset from the start, 1 from the end, 2 absent. */
 static inline void byn_slice_range(int64_t len, int64_t start, int start_mode, int64_t end, int end_mode, bool inclusive,
                                    const char* file, int line, int64_t* from, int64_t* to) {
+    /* Out-of-range offsets are rejected before any arithmetic, so `len - start` and `e + 1` cannot overflow. */
+    if (BYN_UNLIKELY((start_mode == 1 && (uint64_t)start > (uint64_t)len) || (end_mode == 1 && (uint64_t)end > (uint64_t)len)))
+        bayan_trap_slice(file, line);
     int64_t s = start_mode == 2 ? 0 : start_mode == 1 ? len - start : start;
     int64_t e = end_mode == 2 ? len : end_mode == 1 ? len - end : end;
-    if (inclusive && end_mode != 2) e += 1;
+    if (inclusive && end_mode != 2) {
+        if (BYN_UNLIKELY(e == INT64_MAX)) bayan_trap_slice(file, line);
+        e += 1;
+    }
     byn_slice_check(s, e, len, file, line);
     *from = s;
     *to = e;
@@ -361,10 +367,11 @@ void byn_list_reserve(void** ptr, int64_t* cap, int64_t need, int64_t elem_size,
 
 /* ── Maps ────────────────────────────────────────────────────────────────── */
 
-/* Seeds every key hash; `main` sets it (0 under `--test`, else time xor pid). */
+/* The 128-bit key of every key hash (low and high halves); `main` sets it (0 under `--test`, else from the OS CSPRNG). */
 extern uint64_t byn_hash_seed;
+extern uint64_t byn_hash_seed_hi;
 void byn_hash_seed_init(bool fixed);
-/* FNV-1a 64 over n bytes, starting from the seed. */
+/* SipHash-1-3 over n bytes, keyed by the seed. */
 uint64_t byn_hash_bytes(const void* p, int64_t n);
 
 /* The untyped part of `Map<K, V>`: entries are dense arrays in insertion order (keys and values live in the
@@ -395,7 +402,7 @@ void byn_map_clear(byn_map_hdr* h);
 void byn_map_copy(const byn_map_hdr* src, const void* keys, int64_t ksize, void** dkeys, const void* vals, int64_t vsize,
                   void** dvals, byn_map_hdr* dst, byn_alloc* to);
 
-/* Folds `part` into the hash `h` (FNV-1a over its 8 bytes), for keys hashed part by part. */
+/* Folds `part` into the hash `h` (keyed SipHash-1-3 over both, 16 bytes), for keys hashed part by part. */
 uint64_t byn_hash_mix(uint64_t h, uint64_t part);
 
 /* ── Symbols ─────────────────────────────────────────────────────────────── */
@@ -434,12 +441,16 @@ byn_str* byn_args(int* argc, char** argv);
 #define BYN_IO_OTHER 5u
 #define BYN_IO_INVALID_INPUT 6u
 #define BYN_IO_UNSUPPORTED 7u
+#define BYN_IO_CROSS_DEVICE 8u
+#define BYN_IO_IS_DIRECTORY 9u
 
 /* Reads a whole file into memory from `alloc`. Returns 0 or an `IoError` code. */
 uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc);
 /* As byn_io_read, and the bytes must be UTF-8. `out` may be NULL. */
 uint32_t byn_io_read_text(byn_str path, byn_str* out, byn_alloc* alloc);
-/* `Io.stdin.readAll`: the rest of standard input, bytes as-is (not checked for UTF-8), from `alloc`. */
+/* `Io.stdin.readAllBytes`: the rest of standard input, bytes as-is (not checked for UTF-8), from `alloc`. */
+uint32_t byn_io_read_stdin_bytes(uint8_t** ptr, int64_t* len, byn_alloc* alloc);
+/* `Io.stdin.readAll`: the same bytes as text; `BYN_IO_INVALID_UTF8` if they are not UTF-8. */
 uint32_t byn_io_read_stdin(byn_str* out, byn_alloc* alloc);
 uint32_t byn_io_write_file(byn_str path, const uint8_t* ptr, int64_t len);
 /* `Io.listDir`: entry names without `.` and `..`, sorted by byte order, allocated from `alloc`. */
@@ -567,5 +578,26 @@ uint32_t byn_io_create_directory(byn_str path);
 
 /* `Io.removeDirectory`: as .NET `Directory.Delete(path)`: an empty directory only; a missing path, a file and a non-empty directory fail. */
 uint32_t byn_io_remove_directory(byn_str path);
+
+/* `Time`: nanoseconds since the Unix epoch, UTC. */
+typedef struct byn_time { int64_t nanos; } byn_time;
+
+/* `Time.now`: the wall clock. */
+byn_time byn_time_now(void);
+
+/* `Fs.rename`: POSIX `rename`, Windows `MoveFileExW` replacing an existing file. Across devices it fails `crossDevice`; nothing is copied. */
+uint32_t byn_fs_rename(byn_str path, byn_str dest);
+
+/* `Fs.copy`: a file's bytes and permission bits, not its times; an existing `dest` is replaced, a directory source fails `isDirectory`, and `dest` that is the source (by file identity) fails `invalidInput`. */
+uint32_t byn_fs_copy(byn_str path, byn_str dest);
+
+/* `Fs.modified`: the last write time. `out` may be NULL. */
+uint32_t byn_fs_modified(byn_str path, byn_time* out);
+
+/* `Fs.setModified`: sets the last write time (and leaves the access time). */
+uint32_t byn_fs_set_modified(byn_str path, byn_time t);
+
+/* `Fs.realPath`: the absolute path with every link resolved, copied into `*out` from `alloc`; a missing path is `notFound`. `out` may be NULL. */
+uint32_t byn_fs_real_path(byn_str path, byn_str* out, byn_alloc* alloc);
 
 #endif

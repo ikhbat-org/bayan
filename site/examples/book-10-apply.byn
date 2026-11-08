@@ -1,0 +1,12 @@
+i64 apply(i64 x, by (i64 -> i64) f) => f(x)
+
+i64 combine(i64 a, to i64 b, by ((i64, i64) -> i64) f) => f(a, b)
+
+void main() {
+    print($"{apply(5, by: it * 2)}")
+    print($"{combine(3, to: 4, by: (a, b) => a * b)}")
+    print($"{apply(5, by: n => {
+        let doubled = n * 2
+        return doubled + 1
+    })}")
+}

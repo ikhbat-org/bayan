@@ -3,6 +3,49 @@
 ## [Unreleased]
 
 ### Added
+- Spec 016: `import std.<name>` loads a std module shipped inside the `bayan` binary (`lib/std/`), from a script, a file or a project, in the C# and the self-hosted compiler alike; a package's own `std/` cannot shadow it, an unknown module lists the ones that exist (BYN2032), a std module that imports a package module is BYN2033, and diagnostics inside std source point at `<std>/…` paths.
+- `import std.json`, the first std module: a pull reader (`JsonReader.over`, `next`, `JsonToken`), the tree `JsonValue` from `Json.parse` (`Untrusted`, fails `JsonError` with offset, line and column; nesting past 128 is `tooDeep`) and `Json.encode(v, indent:)` in the layout of Python's `json.dumps`, which fails `JsonError` on an infinite or NaN number (`nonFinite`) and on a tree nested past 128 levels (`nestedTooDeep`).
+- Lint BYN5103: a line starting with a joining token (`.`, `?.`, `??`, `&&`, `||`, `and`, `or`, `catch`, `fails`, …) must be indented deeper than its statement's first line; `bayan format` applies the fix.
+
+### Changed
+- Signature clause order is now `where`, `expects`, `uses`, `becomes`, `fails` (round 4 §1), for function types too (`() -> T uses alloc fails DbError`); the old order is BYN1065, and `bayan format` reorders it.
+- `ensures` is no longer reserved and can be used as an identifier (revision 0019, round-4 batch 1); BYN0012 no longer fires on it.
+
+### Fixed
+- `bayan test --coverage` no longer counts the lines of an imported std module (`<std>/...`) in the summary, `bayan-quality.json` or the `test: Tests { lines: N }` gate.
+
+### Security
+
+- Runtime (audit `docs/security/2026-11-06-runtime-audit.md`): an arena allocation near `i64.max` bytes panics "arena
+  allocation is too large" instead of rounding to a negative size and returning a short block (heap overflow).
+- Map and `Symbol` hashing is SipHash-1-3 keyed by 128 bits from the OS CSPRNG (`arc4random_buf`, `getrandom`,
+  `BCryptGenRandom`), replacing FNV-1a seeded from the clock and pid; the fixed key under `--test` is zero.
+- Slice bounds `^n` and inclusive ends reject out-of-range values before computing, with no signed overflow; `replaced`,
+  `joined` and list growth check their size arithmetic and panic "too long".
+- `Io.stdin.readAll()` rejects input that is not UTF-8 (`invalidUtf8`), as `Io.readText` does; the new
+  `Io.stdin.readAllBytes()` returns the rest of stdin as `List<u8>`, unvalidated, and fails with `IoError` like
+  `Io.readFile`.
+
+## [0.2.0] - 2026-11-06
+
+Bayan compiles itself: the self-hosted lexer, parser, checker, emitter and driver in `selfhost/` build a `bayan` that
+builds itself again, with byte-identical C at every stage. The released binary is still the C# compiler.
+
+### Known limits
+- The self-hosted driver ports `lex`, `parse`, `types`, `check`, `build`, `run`, `version` and `help`; `test`, `format`,
+  `dist`, `doctor`, `new`/`init`, `clean` and `bayan-lsp` are C# only.
+- The self-hosted `bayan run` fails on a program whose output is not UTF-8 (Q1065, until `Io.run` takes raw output).
+- Windows: one known failure, the 1 MB emitter speed test (`tests/windows-known-failures.txt`).
+- `bayan dist --target all` still fails on wasm32 (WASM is v0.3).
+
+### Added
+
+- Spec 011: the self-hosted C emitter (`selfhost/emitter/`). It emits the same C as the C# backend, byte for byte, on
+  every `run/` golden and on generated programs in each build mode (law L024), and never panics on checked input
+  (L025). One module writes C text, and the C it relies on beyond C11 is listed (`011-c-inventory.md`).
+- Spec 012: the self-hosted driver (`selfhost/driver/`) and the three-stage bootstrap: the C# compiler builds stage 1,
+  stage 1 builds stage 2, stage 2 builds stage 3, and their emitted C is identical. The golden suite runs against stage
+  2 (L028). `bootstrap/bayan.c` and its README build a compiler with only a C compiler, no Zig and no .NET.
 
 - Spec 014: `Path.combine` (two strings or a `span<string>`), `Path.directoryName` (`string?`, null for a root), `Path.fullPath` and the existing `Path.isRooted`, `Path.relative` and `Path.fileName` agree with .NET's `Path.*` on each OS (Law L026, `StdPathLawTests`); the self-hosted checker calls them, so `tests/windows-known-failures.txt` is empty. Questions 900–1006
 

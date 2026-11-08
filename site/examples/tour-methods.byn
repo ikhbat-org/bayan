@@ -1,0 +1,16 @@
+struct Counter {
+    i64 hits = 0
+
+    void bump(ref this) {
+        hits += 1
+    }
+
+    bool isBusy() => hits > 1
+}
+
+void main() {
+    var c = Counter {}
+    c.bump()
+    c.bump()
+    print($"{c.hits} {c.isBusy()}")
+}

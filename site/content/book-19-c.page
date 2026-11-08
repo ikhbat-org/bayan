@@ -1,0 +1,66 @@
+title: 19. Talking to C (FFI) and building for other targets
+nav: Learn
+order: 1900
+template: docs
+---
+<p>This chapter covers two things at the edge of your program: calling C libraries, and producing a binary for a machine other than the one you are on. The second works today. The first is designed but not in the compiler.</p>
+
+<h2 id="build-target">Build for another target</h2>
+<p><code>bayan build</code> compiles for your own machine unless you pass <code>--target</code>. The valid names are <code>host</code>, <code>linux-x64</code>, <code>linux-arm64</code>, <code>macos-x64</code>, <code>macos-arm64</code>, <code>windows-x64</code>, <code>windows-arm64</code> and <code>wasm32</code>. A misspelling lists them for you:</p>
+<pre><code>$ bayan build --target bogus hi.byn
+bayan: unknown target `bogus` (expected host, linux-x64, linux-arm64, macos-x64, macos-arm64, windows-x64, windows-arm64, wasm32)</code></pre>
+<p>On a Mac, this built a Linux program from the <code>bgrep</code> project of the last chapter:</p>
+<pre><code>$ bayan build --target linux-x64
+◆ built bgrep (safe, linux-x64) in 1.06s</code></pre>
+<p>The result is a statically linked Linux executable. For a single file it lands next to the source (<code>hi</code>, checked with <code>file</code>: <code>ELF 64-bit LSB executable, x86-64</code>). For a project, the output goes in <code>out/&lt;mode&gt;/&lt;target&gt;/</code>, for example <code>out/safe/linux-x64/bgrep</code>. Cross-building needs the Zig toolchain, which <code>bayan doctor</code> reports on.</p>
+<p>The target list for a project can also live in <code>package.byn</code>, in the <code>dist</code> field that <code>bayan new</code> writes:</p>
+<pre><code class="byn">dist: Dist { targets: [.host], mode: .safe },</code></pre>
+<note>The <code>wasm32</code> target is listed but does not build yet. Running <code>bayan build --target wasm32</code> failed inside the C runtime with errors such as <code>call to undeclared function 'pipe'</code>. Treat <code>linux-x64</code> and the host target as the tested ones. Other targets were not tried here.</note>
+
+<h2 id="ffi">Calling C</h2>
+<note>Planned: not in the compiler yet. Foreign function declarations, pointer types, and the <code>Target</code> type for choosing code by platform.</note>
+<p>The design is that a C function is declared in an <code>extern</code> block, kept apart from safe code, and wrapped in a Bayan function that checks its arguments. Calls into C are <code>unsafe</code> and need a written reason. Pointers exist only inside those declarations. Today, a pointer type outside such a block is already an error (BYN1067), and so is a plain <code>extern</code>:</p>
+<pre><code class="byn">extern i32 abs(i32 x)
+
+void main() uses console {
+    print($"{abs(-3)}")
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN1016:</span> `extern` is not allowed here
+<span class="gut">  --&gt;</span> extern-try.byn:1:1
+
+<span class="gut">  1 │</span> <span class="hl">extern</span> i32 abs(i32 x)
+<span class="gut">    │</span> <span class="hl">^^^^^^</span>
+
+<span class="err">error BYN1001:</span> expected `{`, found `void`
+<span class="gut">  --&gt;</span> extern-try.byn:3:1
+
+<span class="gut">  3 │</span> <span class="hl">void</span> main() uses console {
+<span class="gut">    │</span> <span class="hl">^^^^</span>
+
+<span class="gut">✗ build failed: 2 errors, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN1016</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>extern-try.byn</code>.</figcaption>
+    </figure>
+<p>This is a sketch of the design, not working code:</p>
+<pre><code class="byn">// planned
+extern c {
+    i32 abs(i32 x)
+}
+
+i32 absolute(i32 x) {
+    return unsafe because "abs has no preconditions" { abs(x) }
+}</code></pre>
+<p>The same holds for a compile-time choice of platform, such as <code>comptime if Target.os == .windows</code>. The compiler does not accept <code>comptime</code> as an expression, and <code>Target</code> is not defined (BYN2001). Until these land, code that must differ per platform needs two builds or a runtime check on arguments.</p>
+<p>Until FFI lands, use a process: <a href="cookbook-processes.html">the processes cookbook</a> shows how to run a program and read its output.</p>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>1. You run <code>bayan build --target linux-x64</code> on a Mac. What do you get?
+<ol type="a"><li>An error, because you cannot cross-build.</li><li>A Linux x64 executable under <code>out/&lt;mode&gt;/linux-x64/</code>.</li><li>A macOS executable that reports it is Linux.</li></ol></summary>
+<p>b. Cross-building worked in the test above and produced an ELF file. It is not (a), and it is not (c): the binary is a real Linux one.</p></details>
+<details class="quiz"><summary>2. What does <code>--target bogus</code> print?</summary>
+<p>It prints that the target is unknown and lists the eight valid names. It does not fall back to the host.</p></details>
+<details class="quiz"><summary>3. Can you declare <code>extern i32 abs(i32 x)</code> today?</summary>
+<p>No. The compiler reports BYN1016, <code>extern</code> is not allowed here. FFI is planned.</p></details>
+<details class="quiz"><summary>4. Is <code>wasm32</code> a working target?</summary>
+<p>It is accepted as a name, but the build fails in the C runtime today, so no.</p></details>

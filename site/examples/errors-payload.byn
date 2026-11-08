@@ -1,0 +1,27 @@
+union error CarrierError {
+    timeout(i64 after)
+    rejected(string reason, i64 code)
+    closed
+}
+
+i64 send(i64 n) fails CarrierError {
+    fail .timeout(after: n * 10) if n > 100
+    fail .rejected("too small", n) if n < 0
+    fail .closed if n == 0
+    return n
+}
+
+void report(i64 n) {
+    let r = send(n) catch switch {
+        .timeout(let after) => after,
+        .rejected(let reason, _) => reason.length,
+        .closed => 0,
+    }
+    print($"report {r}")
+}
+
+void main() {
+    report(500)
+    report(-3)
+    report(0)
+}

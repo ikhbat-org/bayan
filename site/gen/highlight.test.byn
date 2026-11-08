@@ -1,0 +1,92 @@
+// Tokenizer tests: one or more per FORMAT.md class, plus escaping.
+
+test "keyword" {
+    assert highlight("let x = 1") == "<span class=\"kw\">let</span> x = <span class=\"num\">1</span>"
+}
+
+test "contextual keyword" {
+    assert highlight("defer failing") == "<span class=\"kw\">defer</span> <span class=\"kw\">failing</span>"
+}
+
+test "primitive and capitalized types" {
+    assert highlight("i64 n") == "<span class=\"ty\">i64</span> n"
+    assert highlight("Point p") == "<span class=\"ty\">Point</span> p"
+}
+
+test "function name before a parenthesis" {
+    assert highlight("print(x)") == "<span class=\"fn\">print</span>(x)"
+}
+
+test "plain names stay plain" {
+    assert highlight("total") == "total"
+}
+
+test "string" {
+    assert highlight("\"hi\"") == "<span class=\"str\">&quot;hi&quot;</span>"
+}
+
+test "interpolated string is one token" {
+    assert highlight("$\"{a(\"b\")} c\"") == "<span class=\"str\">$&quot;{a(&quot;b&quot;)} c&quot;</span>"
+}
+
+test "rune literal" {
+    assert highlight("'a'") == "<span class=\"str\">'a'</span>"
+}
+
+test "number" {
+    assert highlight("3.5") == "<span class=\"num\">3.5</span>"
+    assert highlight("0xFF") == "<span class=\"num\">0xFF</span>"
+}
+
+test "comment runs to the end of the line" {
+    assert highlight("x // note\ny") == "x <span class=\"com\">// note</span>\ny"
+    assert highlight("/// doc") == "<span class=\"com\">/// doc</span>"
+}
+
+test "attribute" {
+    assert highlight("@positional") == "<span class=\"at\">@positional</span>"
+}
+
+test "particle at a call" {
+    assert highlight("f(a, by: 2)") == "<span class=\"fn\">f</span>(a, <span class=\"pa\">by:</span> <span class=\"num\">2</span>)"
+}
+
+test "particle in a declaration" {
+    assert highlight("(by i64 d)") == "(<span class=\"pa\">by</span> <span class=\"ty\">i64</span> d)"
+}
+
+test "particle word outside parentheses is a keyword" {
+    assert highlight("for x in xs") == "<span class=\"kw\">for</span> x <span class=\"kw\">in</span> xs"
+}
+
+test "named argument label" {
+    assert highlight("f(verbose: true)") == "<span class=\"fn\">f</span>(<span class=\"pa\">verbose:</span> <span class=\"kw\">true</span>)"
+}
+
+test "operators" {
+    assert highlight("=> e") == "<span class=\"op\">=&gt;</span> e"
+    assert highlight("a ?? b") == "a <span class=\"op\">??</span> b"
+    assert highlight("T?") == "<span class=\"ty\">T</span><span class=\"op\">?</span>"
+    assert highlight("!ok") == "<span class=\"op\">!</span>ok"
+}
+
+test "not-equal is not an operator token" {
+    assert highlight("a != b") == "a != b"
+}
+
+test "html is escaped outside tokens" {
+    assert highlight("a < b && c > d") == "a &lt; b &amp;&amp; c &gt; d"
+}
+
+test "escape and unescape" {
+    assert escapeHtml("<a href=\"x\">&</a>") == "&lt;a href=&quot;x&quot;&gt;&amp;&lt;/a&gt;"
+    assert unescapeHtml("&lt;b&gt; &amp;lt; &quot;") == "<b> &lt; \""
+}
+
+test "a rune ending in a lone backslash stays inside the input" {
+    assert highlight("'\\") == "<span class=\"str\">'\\</span>"
+}
+
+test "unescapeHtml decodes apostrophe and nbsp entities" {
+    assert unescapeHtml("a&#39;b&apos;c&nbsp;d&amp;#39;") == "a'b'c d&#39;"
+}

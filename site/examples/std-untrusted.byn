@@ -1,0 +1,9 @@
+i64 port(Untrusted<string> text) {
+    let s: string = text.trustUnchecked() because "the digits are checked by the parse below"
+    return i64.parse(s) catch 80
+}
+
+void main() {
+    print($"{port(Untrusted("8080"))}")
+    print($"{port(Untrusted("http"))}")
+}

@@ -1,0 +1,27 @@
+title: Concurrency cookbook
+nav: Guides
+order: 57
+template: docs
+---
+<p>How do I run work concurrently in Bayan? The spec defines the model in §13. The compiler does not run it yet: <code>async</code> and <code>await</code> are rejected by the parser today, and the spec lists async, futures and deadlines as "Not in v0.1". Every section below is Planned, and none has a runnable example. The code is the spec's own; nothing here compiles yet.</p>
+<note>Functions are never declared <code>async</code>. You mark the call, and the same function works in blocking and concurrent code (§13.2).</note>
+
+<h2 id="spawn">Start a task</h2>
+<p><strong>Planned</strong> (§13.2). <code>async f(args)</code> at the call site schedules <code>f</code> and returns a <code>Future&lt;T&gt;</code>. A future cannot escape its block: leaving the block cancels the futures that have not finished.</p>
+<pre><code class="byn">let f = async fetchCount(user)
+let n = try await f</code></pre>
+<pre><code class="other" data-lang="Go">go fetchCount(user)</code></pre>
+<p>A function that can suspend must say so in its effects (<code>uses suspend</code>), and the compiler reports a suspension point in a function that does not (§13.4, §14).</p>
+
+<h2 id="wait">Wait for tasks to finish</h2>
+<p><strong>Planned</strong> (§13.2, §13.3). <code>await</code> joins one future, <code>await (a, b)</code> joins several, and <code>try await</code> passes the error on, because every await can fail. For a dynamic number of tasks the spec uses a group: <code>let group = Io.group()</code>, then <code>group.spawn(…)</code> and <code>try await group.all()</code>. Leaving the scope cancels the children, and tasks may borrow the caller's stack. The spec shows no longer example of the group than those calls, so this page shows none.</p>
+
+<h2 id="channels">Send messages between tasks</h2>
+<p><strong>Planned, name only</strong> (§13.5). The spec lists <code>Channel&lt;T&gt;</code> and <code>Io.first(…)</code> as the ways to share data between tasks, and gives no methods for either. The standard library defines no send or receive call yet, so this page shows none.</p>
+
+<h2 id="mutex">Share state with a lock</h2>
+<p><strong>Planned, name only</strong> (§13.4, §13.5). Shared mutation goes through <code>Mutex&lt;T&gt;</code>, atomics, or channels. The spec states two rules about the lock: a <code>Mutex</code> guard alive across a suspension point is a compile error, and passing <code>ref x</code> to a spawned task locks <code>x</code> until the group ends. It defines no methods on <code>Mutex</code> yet.</p>
+<pre><code class="other" data-lang="Go">mu.Lock()
+counter++
+mu.Unlock()</code></pre>
+<p>Read-only borrows can be shared by any number of tasks without a lock; a <code>ref</code> borrow belongs to one task at a time (§13.5).</p>

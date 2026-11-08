@@ -12,8 +12,9 @@ namespace Bayan.Semantics;
 /// <param name="Capabilities">The package's <c>capabilities</c>, the upper bound on its effects (§13); null for no bound.</param>
 /// <param name="PackageName">The package's name, for BYN6004.</param>
 /// <param name="Target">The build target <c>Target.os</c>/<c>Target.arch</c> name; null for the compiling host.</param>
+/// <param name="Std">Test-only: the std modules <c>import std.…</c> reads; null for <see cref="StdLibrary.Shipped"/>.</param>
 public sealed record CompilationOptions(bool IncludeTests = false, bool Library = false, bool SkipOwnershipCheck = false,
-    IReadOnlyList<string>? Capabilities = null, string? PackageName = null, string? Target = null);
+    IReadOnlyList<string>? Capabilities = null, string? PackageName = null, string? Target = null, StdLibrary? Std = null);
 
 /// <summary>An <c>@unobservable</c> mark: the attributed statement's span, the operator it narrows to (null for all) and the reason.</summary>
 public sealed record UnobservableMark(string File, TextSpan Span, string? Operator, string Reason);
@@ -169,6 +170,7 @@ public sealed partial class Compilation
         {
             var tree = SyntaxTree.Parse(source);
             Diagnostics.AddRange(tree.Diagnostics);
+            Diagnostics.AddRange(tree.Lints);
             module.Files.Add(new FileContext(module, tree));
         }
         foreach (var file in module.Files.Where(f => !f.Tree.Diagnostics.Any(d => d.IsError)))
@@ -185,7 +187,17 @@ public sealed partial class Compilation
     {
         var name = string.Join(".", import.Path.Select(p => p.Text));
         var span = TextSpan.FromBounds(import.Path[0].Span.Start, import.Path[^1].Span.End);
-        var dir = Path.Combine([PackageRoot, .. import.Path.Select(p => p.Text)]);
+        // `std.a.b` is the shipped module `a/b/` (spec 016); the package's own `std/` is never read for it.
+        var std = import.Path[0].Text == "std";
+        var stdPath = string.Join("/", import.Path.Skip(1).Select(p => p.Text));
+        var dir = std ? "<std>/" + stdPath : Path.Combine([PackageRoot, .. import.Path.Select(p => p.Text)]);
+        // A std module never reads the importing package: its imports are std modules only.
+        if (!std && file.Module.Directory.StartsWith("<std>/", StringComparison.Ordinal))
+        {
+            Diagnostics.Report(DiagnosticCodes.StdImportsPackage, file.Source, span, [file.Module.Name, name],
+                help: "import only `std.…` modules from a std module");
+            return;
+        }
         var alias = (import.Alias ?? import.Path[^1]).Text;
         ModuleSymbol? module;
         if (_modulesByDir.TryGetValue(dir, out module))
@@ -197,6 +209,19 @@ public sealed partial class Compilation
                     help: "move the shared declarations into a module both can import");
                 return;
             }
+        }
+        else if (std)
+        {
+            var library = Options.Std ?? StdLibrary.Shipped;
+            var stdFiles = import.Path.Length > 1 ? library.Module(stdPath) : null;
+            if (stdFiles is null)
+            {
+                Diagnostics.Report(DiagnosticCodes.UnknownStdModule, file.Source, span, [name],
+                    help: library.Names.Count == 0 ? "remove the import: no std modules ship with this build"
+                        : $"import one of {string.Join(", ", library.Names.Select(n => $"`{n}`"))}");
+                return;
+            }
+            module = LoadModule(name, dir, stdFiles.Select(f => new SourceText($"{dir}/{f.File}", f.Bytes)).ToList(), file.Module);
         }
         else
         {
@@ -279,7 +304,7 @@ public sealed partial class Compilation
         if (EntryModule.Main is { Kind: FunctionKind.Function } main) CheckMainSignature(main);
     }
 
-    /// <summary><c>IoError</c> is numbered first, so the runtime can return its codes 1 to 7 directly; <c>Utf8Error</c> follows (8).</summary>
+    /// <summary><c>IoError</c> is numbered first, so the runtime can return its codes 1 to 9 directly; <c>Utf8Error</c> follows (10).</summary>
     private void DeclareBuiltinVariants(params ErrorSetSymbol[] sets)
     {
         foreach (var set in sets.Length > 0 ? sets : [Builtins.IoError, Builtins.Utf8Error])
@@ -1400,6 +1425,8 @@ public sealed partial class Compilation
 
     // ── Bodies ───────────────────────────────────────────────────────────────────
 
+    private readonly HashSet<FieldSymbol> _bindingDefaults = [];
+
     private void BindAll()
     {
         CheckConformances();
@@ -1419,7 +1446,7 @@ public sealed partial class Compilation
             foreach (var s in module.Structs)
             {
                 foreach (var f in s.Fields.Where(f => f.Decl.Default is not null))
-                    f.Default = new Binder(this, s.File, null, s).BindFieldDefault(f);
+                    FieldDefault(s, f, s.File.Source, f.Decl.Name.Span);
             }
         }
         foreach (var module in Modules)
@@ -1468,6 +1495,9 @@ public sealed partial class Compilation
     private readonly Dictionary<(object Generic, TypeSymbol[] Args), object> _instances = new(new InstanceKeyComparer());
     private readonly Queue<(SourceText Site, TextSpan Span, Action Bind, FunctionSymbol? Instance)> _instantiationWork = new();
     private readonly List<Diagnostic> _instantiationErrors = new();
+
+    /// <summary>The instances of generic structs made so far.</summary>
+    public IEnumerable<StructSymbol> StructInstances => _instances.Values.OfType<StructSymbol>();
     private readonly HashSet<(string, SourceText?, TextSpan)> _instanceAnalysisSeen = new();
     private DiagnosticBag? _scratch;
 
@@ -1526,6 +1556,10 @@ public sealed partial class Compilation
                 || d.Code == DiagnosticCodes.ConstraintNotSatisfied.Code || d.Code == DiagnosticCodes.FunctionTypeNotHere.Code && !Reported(d)
                 || (d.Code == DiagnosticCodes.Unsupported.Code || d.Code == DiagnosticCodes.ImplicitCopy.Code) && !Reported(d))
                 target.Add(d with { Source = site, Span = span, Label = InstantiationLabel });
+            else if (d.Code == DiagnosticCodes.CircularFieldDefault.Code)
+            {
+                if (!Reported(d)) target.Add(d);
+            }
             else if (d.Code == DiagnosticCodes.AssignmentChangesState.Code && instance is not null && !Reported(d))
                 target.Add(d with
                 {
@@ -1709,8 +1743,24 @@ public sealed partial class Compilation
     /// <summary>A field default of a struct; an instance's is bound on first use, as a literal can need it before the worklist drains.</summary>
     internal BoundExpr? FieldDefault(StructSymbol s, FieldSymbol f, SourceText site, TextSpan span)
     {
-        if (f.Default is null && f.HasDefault && s.Template is not null)
-            Instantiating(site, span, () => f.Default ??= new Binder(this, s.File, null, s).BindFieldDefault(f));
+        if (f.Default is not null || !f.HasDefault) return f.Default;
+        if (s.Template is not null)
+        {
+            if (!_bindingDefaults.Add(f)) Report(DiagnosticCodes.CircularFieldDefault, s.File.Source, f.Decl.Name.Span, [$"{s.Name}.{f.Name}"]);
+            else
+            {
+                try { Instantiating(site, span, () => f.Default ??= new Binder(this, s.File, null, s).BindFieldDefault(f)); }
+                finally { _bindingDefaults.Remove(f); }
+            }
+        }
+        else if (!_bindingDefaults.Add(f))
+            Report(DiagnosticCodes.CircularFieldDefault, s.File.Source, f.Decl.Name.Span, [$"{s.Name}.{f.Name}"]);
+        else
+        {
+            // A literal in another default can need this one before the loop in BindAll reaches it (Q1100).
+            f.Default = new Binder(this, s.File, null, s).BindFieldDefault(f);
+            _bindingDefaults.Remove(f);
+        }
         return f.Default;
     }
 

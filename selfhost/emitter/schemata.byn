@@ -1,0 +1,895 @@
+// T10: Mutator.cs 49-342 (`Find`, `InTest`, the `Walker`, `Constant`, `OpText`, `Fits`, `Folds`; spec 013 R2, R4-R6) and
+// Schemata.cs 23-162 (`SitesJson`, `SitesPath`, `Build`, `MarkOf`, `Rebinds`, `Offset`, `Transfer`). C# keys by `Node`
+// reference where this keys by `t10SyntaxKey` (coverage.byn, Q1098), and computes on `Int128` where this computes on
+// `Big` with the private `t10Big*` helpers below (Q1099).
+
+import lexer
+import parser
+import semantics
+
+const mutatorBoundary: string = "boundary"
+const mutatorRelational: string = "relational"
+const mutatorLogical: string = "logical"
+const mutatorCondition: string = "condition"
+const mutatorBool: string = "bool"
+const mutatorArithmetic: string = "arithmetic"
+const mutatorLiteral: string = "literal"
+const mutatorNegation: string = "negation"
+const mutatorStatement: string = "statement"
+const mutatorEmptyReturn: string = "emptyReturn"
+const mutatorVariant: string = "variant"
+
+/// Mutator.cs:46 `Operators`, in the order of the table in SPEC §20.
+public List<string> mutatorOperators() uses alloc {
+    var ops = List<string>()
+    ops.append(mutatorBoundary)
+    ops.append(mutatorRelational)
+    ops.append(mutatorLogical)
+    ops.append(mutatorCondition)
+    ops.append(mutatorBool)
+    ops.append(mutatorArithmetic)
+    ops.append(mutatorLiteral)
+    ops.append(mutatorNegation)
+    ops.append(mutatorStatement)
+    ops.append(mutatorEmptyReturn)
+    ops.append(mutatorVariant)
+    return ops
+}
+
+/// C# `MutationSite`: where the mutant is, what changes, and the bound node that replaces `originalNode`.
+public struct MutationSite {
+    public string file
+    public i64 line
+    public i64 column
+    public string op
+    public string original
+    public string mutated
+    public FuncId function
+    public BNode originalNode
+    public BNode mutatedNode
+}
+
+/// C# `Mutations`.
+public struct Mutations {
+    public List<MutationSite> sites = List<MutationSite>()
+    public Map<string, i64> notEmitted = []
+}
+
+/// C# `SchemaSite`.
+public struct SchemaSite {
+    public i64 id
+    public MutationSite site
+    public bool emitted
+    public string? unobservable = null
+}
+
+/// C# `BoundMutant`.
+public struct BoundMutant {
+    public i64 id
+    public BNode node
+}
+
+/// C# `BoundMutantSwitch`: the `Syntax` (its span), the original node and the mutants.
+public struct BoundMutantSwitch {
+    public TextSpan span
+    public BNode original
+    public List<BoundMutant> mutants = List<BoundMutant>()
+}
+
+/// C# `Schema`.
+public struct Schema {
+    public List<SchemaSite> sites = List<SchemaSite>()
+    public Map<string, i64> notEmitted = []
+    public Map<BNode, BoundMutantSwitch> switches = []
+}
+
+// ── Mutator (Mutator.cs:49-342) ────────────────────────────────────────────────
+
+/// Mutator.cs:49 `Find`; an empty `skipFiles` is C#'s null.
+public Mutations find(ref Ctx c, for in List<string> skipFiles) uses alloc {
+    var w = MutatorWalker { source: lexer.SourceText.create("", from: List<u8>()) }
+    for op in mutatorOperators() { w.notEmitted[op] = 0 }
+    var walked: Map<string, bool> = []
+    for k in 0..c.moduleOrder.length {
+        let m = c.moduleOrder[k]
+        for i in 0..c.modules[m].allFunctions.length {
+            let fn = c.modules[m].allFunctions[i]
+            if c.functions[fn].body == -1 || semantics.functionIsGeneric(ref c, by: fn) || coverageInTest(in c, for: fn) { continue }
+            let kind = c.functions[fn].kind
+            // coverage-exempt: Q1099
+            if !(kind == .function || kind == .method || kind == .constructor || kind == .getter || kind == .main || kind == .lambda) { continue }
+            let file = c.functions[fn].file
+            if file == -1 || t10Contains(in skipFiles, for: c.files[file].path) { continue }
+            // Instances of one template share its body syntax, and so its sites.
+            let key = t10SyntaxKey(in c, for: c.functions[fn].body, at: file)
+            if walked.contains(key) { continue }
+            walked[key] = true
+            mutatorFunction(ref c, through: ref w, for: fn, at: file)
+        }
+    }
+    return Mutations { sites: w.sites.take(), notEmitted: w.notEmitted.take() }
+}
+
+/// An integer literal indexing a fixed array: the array's length and whether the index counts from the end.
+struct ArrayIndex {
+    i64 length
+    bool fromEnd
+}
+
+/// C# `Mutator.Walker`.
+struct MutatorWalker {
+    List<MutationSite> sites = List<MutationSite>()
+    Map<string, i64> notEmitted = []
+    FuncId fn = -1
+    FileId file = -1
+    lexer.SourceText source
+    /// `_arrayIndexes`, by literal.
+    Map<BNode, ArrayIndex> arrayIndexes = []
+    /// `_uninitialized`.
+    Map<LocalId, bool> uninitialized = []
+}
+
+/// Mutator.cs:87 `Function`.
+void mutatorFunction(ref Ctx c, through ref MutatorWalker w, for FuncId fn, at FileId file) uses alloc {
+    w.fn = fn
+    if w.file != file {
+        w.source = lexer.SourceText.create(c.files[file].path, from: c.files[file].text.copy())
+        w.file = file
+    }
+    w.uninitialized = []
+    w.arrayIndexes = []
+    let body = c.functions[fn].body
+    for d in semantics.descendants(in c, for: body) {
+        if semantics.boundKind(d) == .localDecl && c.bLocalDecls[d & 0xFFFFFFFF].initializer == -1 { w.uninitialized[c.bLocalDecls[d & 0xFFFFFFFF].local] = true }
+    }
+    // An `out` parameter must be assigned before every return (BYN2103).
+    for p in c.functions[fn].parameters {
+        if c.locals[p].modifier == .outKeyword { w.uninitialized[p] = true }
+    }
+    mutatorVisit(ref c, through: ref w, for: body, at: -1)
+}
+
+/// The literal of `BoundIndex.Index` as Mutator.cs:110 reads it: the index itself or the operand of its conversion; -1 for none.
+BNode t10IndexLiteral(in Ctx c, for BExpr index) {
+    if semantics.boundKind(index) == .literal { return index }
+    if semantics.boundKind(index) == .conversion {
+        let operand = c.bConversions[index & 0xFFFFFFFF].operand
+        if semantics.boundKind(operand) == .literal { return operand }
+    }
+    return -1
+}
+
+/// Mutator.cs:99 `Visit`; `parent` -1 is C#'s null.
+void mutatorVisit(ref Ctx c, through ref MutatorWalker w, for BNode node, at BNode parent) uses alloc {
+    let kind = semantics.boundKind(node)
+    // Patterns hold constants the switch checks for overlap and exhaustiveness; they are not mutated.
+    if semantics.isPatternKind(kind) { return }
+    let i = node & 0xFFFFFFFF
+    let syntax = semantics.nodeSyntax(in c, for: node)
+    var syntaxKind: semantics.NodeSyntaxKind? = null
+    if (syntax is { } sx) { syntaxKind = sx.kind }
+    switch kind {
+        case .binary:
+            if (semantics.exprSyntax(in c, for: node) is { } be) {
+                // coverage-exempt: Q1099
+                if be.kind == .binaryExpr && be.binaryOp == c.bBinaries[i].op { mutatorOnBinary(ref c, through: ref w, for: node, as: be) }
+            }
+        case .unary:
+            if (semantics.exprSyntax(in c, for: node) is { } ue) {
+                // coverage-exempt: Q1099
+                if c.bUnaries[i].op == .negate && ue.kind == .unaryExpr && ue.op == .negate {
+                    let operand = semantics.exprSyntaxNode(in c, at: ue.operand).span
+                    mutatorAdd(through: ref w, as: mutatorNegation, at: ue.span, to: w.source.getText(operand), for: node, by: c.bUnaries[i].operand)
+                }
+            }
+        case .literal:
+            mutatorOnLiteral(ref c, through: ref w, for: node, at: parent)
+        case .index:
+            let target = semantics.exprType(in c, for: c.bIndexes[i].target)
+            let index = t10IndexLiteral(in c, for: c.bIndexes[i].index)
+            if semantics.kindOf(target) == .array && index != -1 {
+                w.arrayIndexes[index] = ArrayIndex { length: c.arrayTypes[target & 0xFFFFFFFF].length, fromEnd: c.bIndexes[i].fromEnd }
+            }
+        case .exprStmt:
+            let expr = c.bExprStmts[i].expr
+            let exprKind = semantics.boundKind(expr)
+            if syntaxKind == .exprStmt && (exprKind == .call || exprKind == .builtinCall) && semantics.isVoid(semantics.exprType(in c, for: expr)) {
+                // A call's `out` argument is that variable's assignment (BYN2102, BYN2103).
+                if exprKind == .call && t10AssignsUninitialized(in c, through: in w, for: expr) {
+                    w.notEmitted[mutatorStatement] += 1
+                } else {
+                    mutatorRemove(ref c, through: ref w, for: node)
+                }
+            }
+        case .assign:
+            if syntaxKind == .assignStmt || syntaxKind == .incDecStmt { mutatorOnAssign(ref c, through: ref w, for: node) }
+        case .returnStmt:
+            let value = c.bReturns[i].value
+            if syntaxKind == .returnStmt && value != -1 {
+                // coverage-exempt: Q1099 through `if (rx.value is { } valueSyntax)`
+                if (syntax is { } rx) {
+                    if (rx.value is { } valueSyntax) { mutatorOnReturn(ref c, through: ref w, for: value, at: valueSyntax) }
+                }
+            }
+        case .failStmt:
+            if syntaxKind == .failStmt { mutatorOnFail(ref c, through: ref w, for: node) }
+        case .ifStmt:
+            if syntaxKind == .ifStmt || syntaxKind == .unlessStmt || syntaxKind == .guardedStmt { mutatorOnCondition(ref c, through: ref w, for: c.bIfs[i].condition, as: false) }
+        case .whileStmt:
+            if syntaxKind == .whileStmt { mutatorOnCondition(ref c, through: ref w, for: c.bWhiles[i].condition, as: true) }
+        case .doWhile:
+            // coverage-exempt: Q1099
+            if syntaxKind == .doWhileStmt { mutatorOnCondition(ref c, through: ref w, for: c.bDoWhiles[i].condition, as: true) }
+        case .switchStmt:
+            var guards = List<BExpr>()
+            for section in c.bSwitches[i].sections {
+                if section.guard != -1 { guards.append(section.guard) }
+            }
+            for g in guards { mutatorOnCondition(ref c, through: ref w, for: g, as: false) }
+        case .switchExpr:
+            var guards = List<BExpr>()
+            for arm in c.bSwitchExprs[i].arms {
+                if arm.guard != -1 { guards.append(arm.guard) }
+            }
+            for g in guards { mutatorOnCondition(ref c, through: ref w, for: g, as: false) }
+        default:
+            {}
+    }
+    let span = t10SyntaxSpan(in c, for: node)
+    for child in semantics.children(in c, for: node) {
+        // A child outside its parent's span was made by the binder (a default argument, an inlined constant).
+        let childSpan = t10SyntaxSpan(in c, for: child)
+        if childSpan.start < span.start || childSpan.end > span.end { continue }
+        mutatorVisit(ref c, through: ref w, for: child, at: node)
+    }
+}
+
+/// Mutator.cs:115: whether an `out` argument of `call` is an uninitialized local.
+bool t10AssignsUninitialized(in Ctx c, through in MutatorWalker w, for BExpr call) {
+    let ci = call & 0xFFFFFFFF
+    let callee = c.bCalls[ci].function
+    for k in 0..c.bCalls[ci].arguments.length {
+        // coverage-exempt: Q1099
+        if k >= c.functions[callee].parameters.length { continue }
+        if c.locals[c.functions[callee].parameters[k]].modifier != .outKeyword { continue }
+        let arg = c.bCalls[ci].arguments[k]
+        if semantics.boundKind(arg) == .local && w.uninitialized.contains(c.bLocals[arg & 0xFFFFFFFF].local) { return true }
+    }
+    return false
+}
+
+/// Mutator.cs:145 `OnBinary`.
+void mutatorOnBinary(ref Ctx c, through ref MutatorWalker w, for BExpr b, as semantics.ExprSyntax be) uses alloc {
+    let i = b & 0xFFFFFFFF
+    let op = c.bBinaries[i].op
+    if op == .lt || op == .le || op == .gt || op == .ge {
+        let boundary: parser.BinaryOp = op == .lt ? .le : op == .le ? .lt : op == .gt ? .ge : .gt
+        mutatorChangeOp(ref c, through: ref w, as: mutatorBoundary, for: b, by: be, to: boundary)
+        let relational: parser.BinaryOp = op == .lt ? .ge : op == .ge ? .lt : op == .gt ? .le : .gt
+        mutatorChangeOp(ref c, through: ref w, as: mutatorRelational, for: b, by: be, to: relational)
+    } else if op == .eq || op == .ne {
+        mutatorChangeOp(ref c, through: ref w, as: mutatorRelational, for: b, by: be, to: op == .eq ? .ne : .eq)
+    } else if op == .logicalAnd || op == .logicalOr {
+        // `x is T t && t.f` reads what the left side proved; with `||` the right side would not bind.
+        if t10HasIs(in c, for: c.bBinaries[i].left) {
+            w.notEmitted[mutatorLogical] += 1
+        } else {
+            mutatorChangeOp(ref c, through: ref w, as: mutatorLogical, for: b, by: be, to: op == .logicalAnd ? .logicalOr : .logicalAnd)
+        }
+    } else if op == .add || op == .sub || op == .mul || op == .div || op == .rem {
+        let to: parser.BinaryOp = op == .add ? .sub : op == .sub ? .add : op == .mul ? .div : .mul
+        // Two constant operands fold at compile time, where overflow and division by zero are errors.
+        let type = c.bBinaries[i].type
+        var folds = true
+        if (t10IntegerConstant(in c, for: c.bBinaries[i].left) is { } l) {
+            if (t10IntegerConstant(in c, for: c.bBinaries[i].right) is { } r) {
+                if semantics.kindOf(type) == .primitive && !mutatorFolds(to, from: l, to: r, as: type) { folds = false }
+            }
+        }
+        if folds {
+            mutatorChangeOp(ref c, through: ref w, as: mutatorArithmetic, for: b, by: be, to: to)
+        } else {
+            w.notEmitted[mutatorArithmetic] += 1
+        }
+    }
+}
+
+/// C# `e.Constant is { Value: Int128 n }`.
+Big? t10IntegerConstant(in Ctx c, for BExpr e) {
+    if (semantics.exprConstant(in c, for: e) is { } k) {
+        if k.kind == .integer { return k.integer }
+    }
+    return null
+}
+
+/// C# `BoundTree.Descendants(n).Any(n => n is BoundIs)`.
+bool t10HasIs(in Ctx c, for BNode n) uses alloc {
+    for d in semantics.descendants(in c, for: n) {
+        if semantics.boundKind(d) == .isExpr { return true }
+    }
+    return false
+}
+
+/// Mutator.cs:172 `ChangeOp`: replaces the operator token between the operands, keeping the source around it.
+void mutatorChangeOp(ref Ctx c, through ref MutatorWalker w, as string op, for BExpr b, by semantics.ExprSyntax be, to parser.BinaryOp to) uses alloc {
+    let i = b & 0xFFFFFFFF
+    let leftEnd = semantics.exprSyntaxNode(in c, at: be.left).span.end
+    let between = TextSpan.fromBounds(leftEnd, until: be.right.start)
+    let from = mutatorOpText(c.bBinaries[i].op)
+    let at = leftEnd + t10IndexOf(w.source.getText(between), for: from)
+    let mutated = $"{w.source.getText(TextSpan.fromBounds(be.span.start, until: at))}{mutatorOpText(to)}{w.source.getText(TextSpan.fromBounds(at + from.length, until: be.span.end))}"
+    let n = c.bBinaries[i]
+    let replacement = semantics.addBinary(ref c, from: BBinary { span: n.span, op: to, left: n.left, right: n.right, type: n.type })
+    mutatorAdd(through: ref w, as: op, at: be.span, to: mutated, for: b, by: replacement)
+}
+
+/// Mutator.cs:180 `OnLiteral`.
+void mutatorOnLiteral(ref Ctx c, through ref MutatorWalker w, for BExpr l, at BNode parent) uses alloc {
+    let i = l & 0xFFFFFFFF
+    let value = c.bLiterals[i].value
+    let le = semantics.exprSyntax(in c, for: l)
+    if value.kind == .flag {
+        if (le is { } e) {
+            // coverage-exempt: Q1099
+            if e.kind == .literalExpr && (e.literalKind == .trueKeyword || e.literalKind == .falseKeyword) && (e.literalKind == .trueKeyword) == value.flag {
+                let flag = value.flag
+                // coverage-exempt: Q1099
+                let parentKind = parent == -1 ? semantics.BoundKind.literal : semantics.boundKind(parent)
+                // `while true` is how a loop says it ends only by `break` or `return`; `while false` leaves code after it reachable.
+                if flag && (parentKind == .whileStmt || parentKind == .doWhile) {
+                    w.notEmitted[mutatorBool] += 1
+                } else {
+                    let replacement = mutatorConstant(ref c, at: c.bLiterals[i].span, as: semantics.prim(.bool), by: Constant { kind: .flag, flag: !flag })
+                    mutatorAdd(through: ref w, as: mutatorBool, at: e.span, to: flag ? "false" : "true", for: l, by: replacement)
+                }
+                return
+            }
+        }
+    }
+    let type = c.bLiterals[i].type
+    // coverage-exempt: Q1099
+    if !semantics.isInteger(type) || value.kind != .integer { return }
+    let n = value.integer
+    let e = le ?? return
+    var literal: semantics.ExprSyntax? = null
+    if e.kind == .literalExpr && e.literalKind == .integer {
+        literal = e
+    // coverage-exempt: Q1099 through `if operand.kind == .literalExpr && operand.literalKind == .integer { literal = operand }`
+    } else if e.kind == .unaryExpr && e.op == .negate && e.operand != -1 {
+        let operand = semantics.exprSyntaxNode(in c, at: e.operand)
+        if operand.kind == .literalExpr && operand.literalKind == .integer { literal = operand }
+    }
+    let lit = literal ?? return
+    var suffix = ""
+    if (lit.suffix is { } s) { suffix = w.source.getText(s) }
+    var candidates = List<Big>()
+    candidates.append(t10BigAdd(n, to: t10Big(1)))
+    candidates.append(t10BigSub(n, by: t10Big(1)))
+    for m in candidates {
+        if !mutatorFits(m, as: type) || !mutatorFoldsInParent(in c, for: l, by: m, at: parent, as: type) || !mutatorInBounds(through: in w, for: l, by: m) {
+            w.notEmitted[mutatorLiteral] += 1
+            continue
+        }
+        let replacement = mutatorConstant(ref c, at: c.bLiterals[i].span, as: type, by: Constant { kind: .integer, integer: m })
+        mutatorAdd(through: ref w, as: mutatorLiteral, at: e.span, to: $"{semantics.bigText(m)}{suffix}", for: l, by: replacement)
+    }
+}
+
+/// Mutator.cs:210 `FoldsInParent`: a literal operand of a constant arithmetic expression changes the folded value, which must still fold.
+bool mutatorFoldsInParent(in Ctx c, for BExpr l, by Big value, at BNode parent, as Type type) {
+    if parent == -1 || semantics.boundKind(parent) != .binary { return true }
+    let b = c.bBinaries[parent & 0xFFFFFFFF]
+    if !(b.op == .add || b.op == .sub || b.op == .mul || b.op == .div || b.op == .rem) { return true }
+    // C# `b.Left == l` is record equality; the handle stands for the node here (Q1098).
+    let other = b.left == l ? b.right : b.left
+    let o = t10IntegerConstant(in c, for: other) ?? return true
+    return b.left == l ? mutatorFolds(b.op, from: value, to: o, as: type) : mutatorFolds(b.op, from: o, to: value, as: type)
+}
+
+/// Mutator.cs:219 `InBounds`: a constant index into a fixed array must stay inside it.
+bool mutatorInBounds(through in MutatorWalker w, for BExpr l, by Big value) {
+    let a = w.arrayIndexes.tryGet(at: l) ?? return true
+    let length = t10Big(a.length)
+    let effective = a.fromEnd ? t10BigSub(length, by: value) : value
+    let zero = t10Big(0)
+    // coverage-exempt: Q1099
+    return semantics.bigCmp(effective, as: zero) >= 0 && semantics.bigCmp(effective, as: length) < 0 && !(a.fromEnd && semantics.bigCmp(value, as: zero) == 0)
+}
+
+/// Mutator.cs:226 `OnAssign`.
+void mutatorOnAssign(ref Ctx c, through ref MutatorWalker w, for BStmt a) uses alloc {
+    let i = a & 0xFFFFFFFF
+    let target = c.bAssigns[i].target
+    if semantics.boundKind(target) == .local && w.uninitialized.contains(c.bLocals[target & 0xFFFFFFFF].local) && c.bAssigns[i].op is null {
+        w.notEmitted[mutatorStatement] += 1
+    } else {
+        mutatorRemove(ref c, through: ref w, for: a)
+    }
+    // coverage-exempt: Q1099
+    let s = semantics.nodeSyntax(in c, for: a) ?? return
+    if s.kind != .assignStmt { return }
+    if !(s.assignOp == .add || s.assignOp == .sub || s.assignOp == .mul || s.assignOp == .div || s.assignOp == .rem) { return }
+    // coverage-exempt: Q1099 through `let valueSpan = s.value ?? return`
+    let op = c.bAssigns[i].op ?? return
+    let valueSpan = s.value ?? return
+    let to: parser.BinaryOp = op == .add ? .sub : op == .sub ? .add : op == .mul ? .div : .mul
+    let between = TextSpan.fromBounds(s.target.end, until: valueSpan.start)
+    let opText = $"{mutatorOpText(op)}="
+    let at = s.target.end + t10IndexOf(w.source.getText(between), for: opText)
+    let mutated = $"{w.source.getText(TextSpan.fromBounds(s.span.start, until: at))}{mutatorOpText(to)}={w.source.getText(TextSpan.fromBounds(at + opText.length, until: s.span.end))}"
+    let n = c.bAssigns[i]
+    let replacement = semantics.addAssign(ref c, from: BAssign { span: n.span, target: n.target, value: n.value, op: to })
+    mutatorAdd(through: ref w, as: mutatorArithmetic, at: s.span, to: mutated, for: a, by: replacement)
+}
+
+/// Mutator.cs:239 `Remove`.
+void mutatorRemove(ref Ctx c, through ref MutatorWalker w, for BStmt s) uses alloc {
+    let replacement = semantics.addBlock(ref c, from: BBlock { span: semantics.nodeSpan(in c, for: s) })
+    mutatorAdd(through: ref w, as: mutatorStatement, at: t10SyntaxSpan(in c, for: s), to: "", for: s, by: replacement)
+}
+
+/// Mutator.cs:241 `OnReturn`.
+void mutatorOnReturn(ref Ctx c, through ref MutatorWalker w, for BExpr value, at TextSpan syntax) uses alloc {
+    let type = semantics.exprType(in c, for: value)
+    let empty = mutatorEmptyText(type) ?? ""
+    if mutatorEmptyText(type) is null {
+        w.notEmitted[mutatorEmptyReturn] += 1
+        return
+    }
+    // Already the empty value: the mutant would be the program itself.
+    if semantics.boundKind(value) == .defaultValue || w.source.getText(syntax) == empty { return }
+    let replacement = semantics.addDefault(ref c, from: BDefault { span: semantics.nodeSpan(in c, for: value), type: type })
+    mutatorAdd(through: ref w, as: mutatorEmptyReturn, at: syntax, to: empty, for: value, by: replacement)
+}
+
+/// Mutator.cs:255 `EmptyText`: the empty value of `t` as source, or null when the type has none.
+string? mutatorEmptyText(Type t) {
+    if semantics.isInteger(t) { return "0" }
+    if semantics.isFloat(t) { return "0.0" }
+    if semantics.isBool(t) { return "false" }
+    if semantics.isString(t) { return "\"\"" }
+    if semantics.kindOf(t) == .optional { return "null" }
+    return null
+}
+
+/// Mutator.cs:265 `OnFail`.
+void mutatorOnFail(ref Ctx c, through ref MutatorWalker w, for BStmt f) uses alloc {
+    var error = c.bFails[f & 0xFFFFFFFF].error
+    // coverage-exempt: Q1099
+    if semantics.boundKind(error) == .conversion { error = c.bConversions[error & 0xFFFFFFFF].operand }
+    if semantics.boundKind(error) != .errorVariant { return }
+    let ei = error & 0xFFFFFFFF
+    let v = c.bErrorVariants[ei].variant
+    let span = t10SyntaxSpan(in c, for: error)
+    let text = w.source.getText(span)
+    let paren = t10IndexOf(text, for: "(")
+    let vName = c.errorVariants[v].name
+    let name = t10LastIndexOf(text, for: $".{vName}", at: paren < 0 ? text.length - 1 : paren - 1) + 1
+    let set = c.errorVariants[v].set
+    for k in 0..c.errorSets[set].variants.length {
+        let other = c.errorSets[set].variants[k]
+        if other == v { continue }
+        if !t10SameFields(in c, for: other, as: v) || t10Has(in c.functions[w.fn].excludedErrors, for: other) {
+            w.notEmitted[mutatorVariant] += 1
+            continue
+        }
+        let mutated = $"{text[0..name]}{c.errorVariants[other].name}{text[(name + vName.length)..text.length]}"
+        let replacement = semantics.addErrorVariant(ref c, from: BErrorVariant { span: c.bErrorVariants[ei].span, variant: other, payload: c.bErrorVariants[ei].payload.copy() })
+        mutatorAdd(through: ref w, as: mutatorVariant, at: span, to: mutated, for: error, by: replacement)
+    }
+}
+
+/// Mutator.cs:275: the same number of fields, of the same types.
+bool t10SameFields(in Ctx c, for VariantId a, as VariantId b) {
+    if c.errorVariants[a].fields.length != c.errorVariants[b].fields.length { return false }
+    for k in 0..c.errorVariants[a].fields.length {
+        if c.locals[c.errorVariants[a].fields[k]].type != c.locals[c.errorVariants[b].fields[k]].type { return false }
+    }
+    return true
+}
+
+/// C# `List<ErrorVariantSymbol>.Contains`.
+bool t10Has(in List<VariantId> xs, for VariantId x) {
+    for y in xs {
+        if y == x { return true }
+    }
+    return false
+}
+
+/// Mutator.cs:287 `OnCondition`.
+void mutatorOnCondition(ref Ctx c, through ref MutatorWalker w, for BExpr cond, as bool loop) uses alloc {
+    // Negating a pattern test would leave what it binds or narrows unproved where it is read.
+    var constantTrue = false
+    // coverage-exempt: Q1099
+    if (semantics.exprConstant(in c, for: cond) is { } k) { constantTrue = k.kind == .flag && k.flag }
+    if t10HasIs(in c, for: cond) || loop && constantTrue {
+        w.notEmitted[mutatorCondition] += 1
+        return
+    }
+    let span = t10SyntaxSpan(in c, for: cond)
+    let replacement = semantics.addUnary(ref c, from: BUnary { span: semantics.nodeSpan(in c, for: cond), op: .notKeyword, operand: cond, type: semantics.prim(.bool) })
+    mutatorAdd(through: ref w, as: mutatorCondition, at: span, to: $"!({w.source.getText(span)})", for: cond, by: replacement)
+}
+
+/// Mutator.cs:300 `Add`: a site at the start of `span`, the expression or statement the mutant replaces.
+void mutatorAdd(through ref MutatorWalker w, as string op, at TextSpan span, to string mutated, for BNode original, by BNode replacement) uses alloc {
+    let pos = w.source.getLinePosition(span.start)
+    w.sites.append(MutationSite {
+        file: w.source.path, line: pos.line, column: pos.column, op: op, original: w.source.getText(span), mutated: mutated,
+        function: w.fn, originalNode: original, mutatedNode: replacement,
+    })
+}
+
+/// Mutator.cs:309 `Constant`: a literal whose `Constant` is its value.
+BExpr mutatorConstant(ref Ctx c, at TextSpan span, as Type type, by Constant value) uses alloc {
+    let n = semantics.addLiteral(ref c, from: BLiteral { span: span, type: type, value: value })
+    c.constants[n] = value
+    return n
+}
+
+/// Mutator.cs:315 `OpText`.
+string mutatorOpText(parser.BinaryOp op) {
+    switch op {
+        case .add: return "+"
+        case .sub: return "-"
+        case .mul: return "*"
+        case .div: return "/"
+        case .rem: return "%"
+        case .lt: return "<"
+        case .gt: return ">"
+        case .le: return "<="
+        case .ge: return ">="
+        case .eq: return "=="
+        case .ne: return "!="
+        case .logicalAnd: return "&&"
+        case .logicalOr: return "||"
+        // coverage-exempt: Q1099
+        default: panic($"no operator text for {op}")
+    }
+}
+
+/// Mutator.cs:323 `Fits`.
+bool mutatorFits(Big n, as Type t) {
+    let bits = semantics.primitiveBits(semantics.primKindOf(t & 0xFFFFFFFF))
+    if semantics.isSignedInteger(t) {
+        let top = t10BigPow2(bits - 1)
+        return semantics.bigCmp(n, as: t10BigNeg(top)) >= 0 && semantics.bigCmp(n, as: top) < 0
+    }
+    return semantics.bigCmp(n, as: t10Big(0)) >= 0 && semantics.bigCmp(n, as: t10BigPow2(bits)) < 0
+}
+
+/// Mutator.cs:328 `Folds`: whether `l op r` folds without the binder's overflow or division-by-zero error.
+bool mutatorFolds(parser.BinaryOp op, from Big l, to Big r, as Type t) {
+    let zero = t10Big(0)
+    if (op == .div || op == .rem) && semantics.bigCmp(r, as: zero) == 0 { return false }
+    var result = zero
+    switch op {
+        case .add: result = t10BigAdd(l, to: r)
+        case .sub: result = t10BigSub(l, by: r)
+        case .mul: result = t10BigMul(l, by: r)
+        case .div: result = t10BigDiv(l, by: r, as: false)
+        case .rem: result = t10BigDiv(l, by: r, as: true)
+        default: {}
+    }
+    return mutatorFits(result, as: t)
+}
+
+// ── Int128 on Big (semantics/bigint.byn keeps its own private; Q1099) ─────────
+
+Big t10Big(i64 v) {
+    // coverage-exempt: Q1099 through `return Big { lo: v >= 0 ? u64(v) : ~u64(-(v + 1)), hi: hi }`
+    let hi: u64 = v >= 0 ? 0 : 0xFFFFFFFFFFFFFFFF
+    return Big { lo: v >= 0 ? u64(v) : ~u64(-(v + 1)), hi: hi }
+}
+
+/// 2^k for 0 <= k <= 64.
+Big t10BigPow2(i64 k) => k < 64 ? Big { lo: u64(1) << u64(k), hi: 0 } : Big { lo: 0, hi: 1 }
+
+bool t10BigIsNeg(Big a) => (a.hi & 0x8000000000000000) != 0
+
+Big t10BigAdd(Big a, to Big b) {
+    let lo = a.lo +% b.lo
+    let carry: u64 = lo < a.lo ? 1 : 0
+    return Big { lo: lo, hi: a.hi +% b.hi +% carry }
+}
+
+Big t10BigNeg(Big a) => t10BigAdd(Big { lo: ~a.lo, hi: ~a.hi }, to: t10Big(1))
+
+Big t10BigSub(Big a, by Big b) => t10BigAdd(a, to: t10BigNeg(b))
+
+/// The full 128-bit product of two u64.
+Big t10BigMulU64(u64 x, by u64 y) {
+    let x0 = x & 0xFFFFFFFF
+    let x1 = x >> 32
+    let y0 = y & 0xFFFFFFFF
+    let y1 = y >> 32
+    let p00 = x0 * y0
+    let p01 = x0 * y1
+    let p10 = x1 * y0
+    let p11 = x1 * y1
+    let mid = (p00 >> 32) + (p01 & 0xFFFFFFFF) + (p10 & 0xFFFFFFFF)
+    return Big { lo: (p00 & 0xFFFFFFFF) | ((mid & 0xFFFFFFFF) << 32), hi: p11 +% (p01 >> 32) +% (p10 >> 32) +% (mid >> 32) }
+}
+
+/// C# `Int128` `*`: the product modulo 2^128.
+Big t10BigMul(Big a, by Big b) {
+    let low = t10BigMulU64(a.lo, by: b.lo)
+    return Big { lo: low.lo, hi: low.hi +% a.lo *% b.hi +% a.hi *% b.lo }
+}
+
+/// C# `Int128` `/` (truncating) or `%` (the sign of `a`); `b` is not zero.
+Big t10BigDiv(Big a, by Big b, as bool remainder) {
+    let na = t10BigIsNeg(a)
+    let nb = t10BigIsNeg(b)
+    let ua = na ? t10BigNeg(a) : a
+    let ub = nb ? t10BigNeg(b) : b
+    var q = Big { lo: 0, hi: 0 }
+    var r = Big { lo: 0, hi: 0 }
+    var bit: i64 = 127
+    while bit >= 0 {
+        let top = bit >= 64 ? (ua.hi >> u64(bit - 64)) & 1 : (ua.lo >> u64(bit)) & 1
+        r = Big { lo: (r.lo << 1) | top, hi: (r.hi << 1) | (r.lo >> 63) }
+        // coverage-exempt: Q1099 through `if bit >= 64 { q.hi`
+        if r.hi > ub.hi || r.hi == ub.hi && r.lo >= ub.lo {
+            r = t10BigSub(r, by: ub)
+            if bit >= 64 { q.hi = q.hi | (u64(1) << u64(bit - 64)) } else { q.lo = q.lo | (u64(1) << u64(bit)) }
+        }
+        bit -= 1
+    }
+    if remainder { return na ? t10BigNeg(r) : r }
+    return na != nb ? t10BigNeg(q) : q
+}
+
+// ── Strings (C# `IndexOf` and `LastIndexOf`, ordinal) ──────────────────────────
+
+/// The first byte offset of `needle` in `text`, or -1.
+i64 t10IndexOf(string text, for string needle) {
+    let t = text.bytes
+    let n = needle.bytes
+    var p: i64 = 0
+    while p + n.length <= t.length {
+        var same = true
+        for k in 0..n.length {
+            if t[p + k] != n[k] {
+                same = false
+                break
+            }
+        }
+        if same { return p }
+        p += 1
+    }
+    return -1
+}
+
+/// C# `LastIndexOf(needle, start)`: the last offset of `needle` that ends at or before `start`, or -1.
+i64 t10LastIndexOf(string text, for string needle, at i64 start) {
+    let t = text.bytes
+    let n = needle.bytes
+    var p = start - n.length + 1
+    // coverage-exempt: Q1099 through `return -1`
+    while p >= 0 {
+        var same = p + n.length <= t.length
+        if same {
+            for k in 0..n.length {
+                if t[p + k] != n[k] {
+                    same = false
+                    break
+                }
+            }
+        }
+        if same { return p }
+        p -= 1
+    }
+    return -1
+}
+
+// ── Schemata (Schemata.cs:23-162) ──────────────────────────────────────────────
+
+/// Schemata.cs:60 `SitesPath`: where a `--mutate` build writes its site map.
+public string sitesPath(string binary) uses alloc => $"{binary}.sites.json"
+
+/// Schemata.cs:23 `SitesJson`: `Utf8JsonWriter` indented (two spaces, `\n`) with the relaxed encoder, and a final `\n`.
+public string sitesJson(in Schema s) uses alloc {
+    var sb = StrBuf()
+    sb.append("{\n  \"version\": 1,\n  \"sites\": [")
+    for k in 0..s.sites.length {
+        let x = s.sites[k]
+        sb.append(k == 0 ? "\n" : ",\n")
+        sb.append("    {")
+        sb.append($"\n      \"id\": {x.id},\n      \"file\": {t10Json(x.site.file)},\n      \"line\": {x.site.line},\n      \"column\": {x.site.column},")
+        sb.append($"\n      \"operator\": {t10Json(x.site.op)},\n      \"original\": {t10Json(x.site.original)},\n      \"mutated\": {t10Json(x.site.mutated)}")
+        if !x.emitted { sb.append(",\n      \"emitted\": false") }
+        if (x.unobservable is { } u) { sb.append($",\n      \"unobservable\": {t10Json(u)}") }
+        sb.append("\n    }")
+    }
+    if s.sites.length > 0 { sb.append("\n  ") }
+    sb.append("]\n}\n")
+    return $"{sb.finish()}"
+}
+
+/// A JSON string as `JavaScriptEncoder.UnsafeRelaxedJsonEscaping` writes it: `"` and `\` escaped, the control characters
+/// as `\b \t \n \f \r` or `\u00XX`, everything else as is.
+string t10Json(string s) uses alloc {
+    var sb = StrBuf()
+    sb.append("\"")
+    let hex = "0123456789ABCDEF"
+    var run: i64 = 0
+    let b = s.bytes
+    for k in 0..b.length {
+        let ch = b[k]
+        if ch >= 0x20 && ch != 0x22 && ch != 0x5C { continue }
+        sb.append(s[run..k])
+        run = k + 1
+        if ch == 0x22 {
+            sb.append("\\\"")
+        } else if ch == 0x5C {
+            sb.append("\\\\")
+        } else if ch == 0x08 {
+            sb.append("\\b")
+        } else if ch == 0x09 {
+            sb.append("\\t")
+        } else if ch == 0x0A {
+            sb.append("\\n")
+        } else if ch == 0x0C {
+            sb.append("\\f")
+        } else if ch == 0x0D {
+            sb.append("\\r")
+        } else {
+            sb.append($"\\u00{hex[i64(ch >> 4)..i64(ch >> 4) + 1]}{hex[i64(ch & 15)..i64(ch & 15) + 1]}")
+        }
+    }
+    sb.append(s[run..b.length])
+    sb.append("\"")
+    return $"{sb.finish()}"
+}
+
+/// Schemata.cs:62 `Build`; an empty `skipFiles` is C#'s null.
+public Schema buildSchema(ref Ctx c, for in List<string> skipFiles) uses alloc, clock, fs {
+    var found = find(ref c, for: in skipFiles)
+    var notEmitted = found.notEmitted.take()
+    var sites = List<SchemaSite>()
+    for k in 0..found.sites.length {
+        let site = found.sites[k]
+        let emitted = schemataRebinds(in c, for: in site)
+        if !emitted { notEmitted[site.op] = (notEmitted.tryGet(at: site.op) ?? 0) + 1 }
+        sites.append(SchemaSite { id: sites.length + 1, site: site, emitted: emitted, unobservable: schemataMarkOf(in c, for: in site) })
+    }
+    // `bySyntax`: the emitted sites of each syntax, in order, as a chain through `next` from `heads[key]`.
+    var heads: Map<string, i64> = []
+    var tails: Map<string, i64> = []
+    var next = List<i64>()
+    for k in 0..sites.length {
+        next.append(-1)
+        if !sites[k].emitted { continue }
+        let s = sites[k].site
+        let key = t10SyntaxKey(in c, for: s.originalNode, at: c.functions[s.function].file)
+        if (tails.tryGet(at: key) is { } tail) {
+            next[tail] = k
+        } else {
+            heads[key] = k
+        }
+        tails[key] = k
+    }
+    var switches: Map<BNode, BoundMutantSwitch> = []
+    for m in 0..c.moduleOrder.length {
+        let mod = c.moduleOrder[m]
+        for i in 0..c.modules[mod].allFunctions.length {
+            let fn = c.modules[mod].allFunctions[i]
+            if c.functions[fn].body == -1 || c.functions[fn].kind == .testKeyword || semantics.functionIsGeneric(ref c, by: fn) { continue }
+            let file = c.functions[fn].file
+            for node in semantics.descendants(in c, for: c.functions[fn].body) {
+                // coverage-exempt: Q1099
+                if switches.contains(node) { continue }
+                let key = t10SyntaxKey(in c, for: node, at: file)
+                var k = heads.tryGet(at: key) ?? continue
+                var arms = List<BoundMutant>()
+                while k != -1 {
+                    let at = k
+                    k = next[at]
+                    let s = sites[at].site
+                    if semantics.boundKind(s.originalNode) != semantics.boundKind(node) { continue }
+                    let mutant = node == s.originalNode ? s.mutatedNode : schemataTransfer(ref c, for: in s, at: node)
+                    if mutant != -1 { arms.append(BoundMutant { id: sites[at].id, node: mutant }) }
+                }
+                if arms.length > 0 { switches[node] = BoundMutantSwitch { span: t10SyntaxSpan(in c, for: node), original: node, mutants: move arms } }
+            }
+        }
+    }
+    return Schema { sites: move sites, notEmitted: move notEmitted, switches: move switches }
+}
+
+/// Schemata.cs:101 `MarkOf`: the reason of the first `@unobservable` mark whose statement holds the site and whose operator argument, if any, is the site's.
+string? schemataMarkOf(in Ctx c, for in MutationSite site) uses alloc {
+    if c.unobservable.length == 0 { return null }
+    let file = c.functions[site.function].file
+    var source = lexer.SourceText.create(c.files[file].path, from: c.files[file].text.copy())
+    let start = schemataOffset(ref source, at: site.line, by: site.column)
+    let end = start + site.original.bytes.length
+    for m in c.unobservable {
+        if m.file == site.file && (m.op is null || m.op == site.op) && m.span.start <= start && end <= m.span.start + m.span.length { return m.reason }
+    }
+    return null
+}
+
+/// Schemata.cs:116 `Rebinds`: whether the program still compiles, ownership included, with the mutation applied to its source.
+bool schemataRebinds(in Ctx c, for in MutationSite site) uses alloc, clock, fs {
+    let file = c.functions[site.function].file
+    var source = lexer.SourceText.create(c.files[file].path, from: c.files[file].text.copy())
+    var start = schemataOffset(ref source, at: site.line, by: site.column)
+    var length = site.original.bytes.length
+    // coverage-exempt: Q1099 through `panic($"internal error: mutation site`
+    if source.getText(TextSpan { start: start, length: length }) != site.original {
+        panic($"internal error: mutation site {site.file}:{site.line}:{site.column} is not `{site.original}`")
+    }
+    // `x = 1 if c` less its statement is ` if c`, which does not parse: the guarded statement goes whole.
+    if site.op == mutatorStatement {
+        let key = t10SyntaxKey(in c, for: site.originalNode, at: file)
+        for n in semantics.descendants(in c, for: c.functions[site.function].body) {
+            if semantics.boundKind(n) != .ifStmt || !t10SyntaxIs(in c, for: n, as: .guardedStmt) { continue }
+            if t10SyntaxKey(in c, for: c.bIfs[n & 0xFFFFFFFF].then, at: file) != key { continue }
+            let guarded = t10SyntaxSpan(in c, for: n)
+            start = guarded.start
+            length = guarded.length
+            break
+        }
+    }
+    var text = List<u8>()
+    for k in 0..start { text.append(source.bytes[k]) }
+    for b in site.mutated.bytes { text.append(b) }
+    for k in (start + length)..source.bytes.length { text.append(source.bytes[k]) }
+    let mutant = semantics.withFile(in c, from: in lexer.SourceText.create(source.path, from: move text))
+    for d in mutant.diagnostics {
+        if !d.isWarning { return false }
+    }
+    return true
+}
+
+/// Schemata.cs:136 `Offset`: the byte offset of a one-based line and column, the column counting Unicode scalars.
+i64 schemataOffset(ref lexer.SourceText source, at i64 line, by i64 column) uses alloc {
+    var offset = source.getLineSpan(line - 1).start
+    for col in 1..column {
+        offset += 1
+        while offset < source.bytes.length && (source.bytes[offset] & 0xC0) == 0x80 { offset += 1 }
+    }
+    return offset
+}
+
+/// Schemata.cs:146 `Transfer`: the mutant of `site` at `node`, a generic instance's twin of its original node; -1 where its type differs.
+BNode schemataTransfer(ref Ctx c, for in MutationSite site, at BNode node) uses alloc {
+    let kind = semantics.boundKind(node)
+    let isExpr = semantics.isExprKind(kind)
+    // coverage-exempt: Q1099
+    let sameType = isExpr && semantics.isExprKind(semantics.boundKind(site.originalNode)) && semantics.exprType(in c, for: node) == semantics.exprType(in c, for: site.originalNode)
+    let mutatedKind = semantics.boundKind(site.mutatedNode)
+    let i = node & 0xFFFFFFFF
+    // coverage-exempt: Q1099 through `if mutatedKind == .assign && kind == .assign {`
+    if site.op == mutatorNegation && kind == .unary { return c.bUnaries[i].operand }
+    if site.op == mutatorCondition && isExpr {
+        return semantics.addUnary(ref c, from: BUnary { span: semantics.nodeSpan(in c, for: node), op: .notKeyword, operand: node, type: semantics.prim(.bool) })
+    }
+    if site.op == mutatorStatement && semantics.isStmtKind(kind) { return semantics.addBlock(ref c, from: BBlock { span: semantics.nodeSpan(in c, for: node) }) }
+    if (site.op == mutatorBool || site.op == mutatorLiteral) && mutatedKind == .literal && isExpr && sameType {
+        // A mutated literal is a `bool` or an integer (Mutator.cs:187, :205).
+        let span = semantics.nodeSpan(in c, for: node)
+        let type = semantics.exprType(in c, for: node)
+        let m = site.mutatedNode & 0xFFFFFFFF
+        let value = Constant { kind: c.bLiterals[m].value.kind, integer: c.bLiterals[m].value.integer, flag: c.bLiterals[m].value.flag }
+        return mutatorConstant(ref c, at: span, as: type, by: value)
+    }
+    if site.op == mutatorEmptyReturn && isExpr && sameType {
+        return semantics.addDefault(ref c, from: BDefault { span: semantics.nodeSpan(in c, for: node), type: semantics.exprType(in c, for: node) })
+    }
+    if site.op == mutatorVariant && mutatedKind == .errorVariant && kind == .errorVariant {
+        let variant = c.bErrorVariants[site.mutatedNode & 0xFFFFFFFF].variant
+        return semantics.addErrorVariant(ref c, from: BErrorVariant { span: c.bErrorVariants[i].span, variant: variant, payload: c.bErrorVariants[i].payload.copy() })
+    }
+    if mutatedKind == .binary && kind == .binary {
+        let b = c.bBinaries[i]
+        return semantics.addBinary(ref c, from: BBinary { span: b.span, op: c.bBinaries[site.mutatedNode & 0xFFFFFFFF].op, left: b.left, right: b.right, type: b.type })
+    }
+    if mutatedKind == .assign && kind == .assign {
+        let a = c.bAssigns[i]
+        return semantics.addAssign(ref c, from: BAssign { span: a.span, target: a.target, value: a.value, op: c.bAssigns[site.mutatedNode & 0xFFFFFFFF].op })
+    }
+    return -1
+}

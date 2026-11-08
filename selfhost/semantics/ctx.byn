@@ -212,7 +212,7 @@ public struct TupleField {
     public Type type
 }
 
-/// The parts of a function type `(A, B) -> R fails E uses net`.
+/// The parts of a function type `(A, B) -> R uses net fails E`.
 public struct FunctionData {
     public List<Type> parameters
     public Type ret
@@ -484,6 +484,8 @@ public struct Ctx {
     /// C# `_modulesByDir` and `_loading`.
     public Map<string, ModId> modulesByDir = []
     public List<ModId> loading = List<ModId>()
+    /// C# `Options.Std ?? StdLibrary.Shipped`: the std modules `import std.…` reads, built once in `create`.
+    public StdLibrary std = StdLibrary {}
     /// C# `ParseTime` and `CheckTime`, in nanoseconds.
     public i64 parseTime = 0
     public i64 checkTime = 0
@@ -569,6 +571,17 @@ public struct Ctx {
     // ── T40 state
     /// The C# span of each `for try` synthetic name (Binder.cs:1110-1115, `f.Iterable.Span`), beside `syntheticNames`.
     public List<TextSpan> syntheticSpans = List<TextSpan>()
+    // ── P2 state
+    /// C# `BoundNode.Syntax` when it is not an `Expr` (P2, Q1076): the recorded nodes, and each bound node's handle into them.
+    public List<NodeSyntax> nodeSyntaxNodes = List<NodeSyntax>()
+    public Map<i64, i64> nodeSyntaxOf = []
+    /// C# `Options` and `_entryFiles`, which `withFile` compiles again (Compilation.cs:61, 45).
+    public CompilationOptions options = CompilationOptions {}
+    public List<lexer.SourceText> entryFiles = List<lexer.SourceText>()
+    /// C# `_replaced`: files read from this text instead of from disk, by path (Compilation.cs:47, 212).
+    public Map<string, lexer.SourceText> replaced = []
+    /// The keys of `replaced`, for `withFile` to copy it: a map of unique values is neither copied nor iterated (Q1103).
+    public List<string> replacedPaths = List<string>()
     // ── T41 state
     /// C# `Compilation.StoreSummaries`: for each template with a body, what it may store from a parameter (or `this`, -1)
     /// into a `ref`/`out` parameter (or its `ref this` receiver), with the first place it does, in insertion order.

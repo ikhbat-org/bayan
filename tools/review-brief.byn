@@ -237,6 +237,9 @@ i32 main(ReadOnlySpan<string> argv) {
     } else if spec == "012" {
         desc = "the Bayan compiler driver ported from C# `src/Bayan.Cli/` (`CliApp`) into Bayan under `selfhost/driver/`, compiled with package root `selfhost/` (stage 1 of the bootstrap)"
         oracle = "SelfhostDriverHarness"
+    } else if spec == "017" {
+        desc = "the remaining `bayan` commands ported from C# `src/Bayan.Cli/` and `src/Bayan.Testing/` into the self-hosted driver under `selfhost/driver/` (spec 017, the self-hosted compiler as the default `bayan`)"
+        oracle = "SelfhostDriverHarness"
     } else {
         print($"review-brief: no brief text for spec {spec}", to: .stderr)
         return 1
@@ -410,6 +413,8 @@ i32 main(ReadOnlySpan<string> argv) {
         s.append("5. **True docs.** Each Question in the task's range says what the code does; each break-test line citation points at the line it names. A false claim is MEDIUM.\n")
         s.append("\n")
         s.append($"Verify each finding in the code before you write it: name the Bayan `file:line` and the C# `file:line`. Run the task's tests (`dotnet test -v q --filter \"{filt}\"`) once; you may add a probe under `tmp/review-{t.lowercased()}/` to confirm a behaviour.\n")
+        s.append("\n")
+        s.append("Cite format (`scripts/selfhost/preflight.sh` checks every `path:N` in the review file before landing): a `path:N` takes, in the same clause, a backticked symbol that is on line N or the 2 lines after it at HEAD. For a line as it was in an earlier commit, or one with no symbol to name, write `path (line N)`. On a re-review your block replaces the whole file: carry every earlier row with its status.\n")
         s.append("\n")
         s.append($"## Write `{dir}/reviews/{t}.md`, exactly this shape\n")
         s.append("```\n")

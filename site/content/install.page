@@ -1,0 +1,101 @@
+title: Install Bayan
+nav: Start
+order: 15
+template: docs
+---
+<p class="lede">Bayan has no installer or download page yet. You get the compiler by building it from the repository, or by using a release binary that someone built with the repository's scripts. Either way you also need a C compiler.</p>
+
+<h2 id="requirements">What you need</h2>
+<ul>
+<li>A machine running macOS, Linux or Windows, on x64 or arm64.</li>
+<li>A C compiler. Bayan turns your program into C and hands the C to <code>zig cc</code>, so install <a href="https://ziglang.org/download/">zig</a> and put it on your <code>PATH</code>. To use another compiler, set the <code>BAYAN_CC</code> environment variable to it. The compiler looks for <code>zig cc</code>, then <code>BAYAN_CC</code>, then <code>cc</code>.</li>
+<li>To build the compiler yourself: the .NET 10 SDK and <code>git</code>. A release binary needs neither.</li>
+</ul>
+
+<h2 id="build">Build the compiler from source</h2>
+<p>The compiler is written in C# and published as a native executable. From a clone of the repository:</p>
+<pre><code>git clone https://github.com/ikhbat-org/bayan
+cd bayan
+dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
+./tmp/publish/bayan --version</code></pre>
+<p>Use your own runtime identifier in place of <code>osx-arm64</code>, for example <code>linux-x64</code> or <code>win-x64</code>. Copy <code>tmp/publish/bayan</code> to a directory on your <code>PATH</code>.</p>
+
+<h2 id="dist">Release binaries under dist/</h2>
+<p><code>scripts/dist.sh</code> builds the compiler and keeps it in <code>dist/</code>, one directory per target and version, plus a <code>latest</code> directory per target that every build replaces:</p>
+<pre><code>scripts/dist.sh                 # this machine
+scripts/dist.sh --rid osx-x64   # another architecture of the same OS
+dist/macos-arm64/latest/bayan --version</code></pre>
+<p>The targets are <code>linux-x64</code>, <code>linux-arm64</code>, <code>macos-x64</code>, <code>macos-arm64</code>, <code>windows-x64</code> and <code>windows-arm64</code>. Each version directory holds the <code>bayan</code> executable (<code>bayan.exe</code> on Windows) and a <code>BUILD-INFO</code> file with the version, target, commit and build time. A native build cannot cross-compile between operating systems, so the Linux and Windows binaries are built on those systems and imported with <code>--from</code>.</p>
+<p>Do not confuse these with <code>bayan dist</code>, a compiler command that builds release binaries of <em>your</em> program into <code>dist/&lt;version&gt;/</code>.</p>
+
+<h2 id="check">Check the install</h2>
+<pre><code>bayan --version
+bayan doctor</code></pre>
+<p><code>--version</code> prints the compiler version and the commit it was built from. <code>doctor</code> checks the C compiler, zig, git and the build cache, and says how to fix what is missing. On a working machine every line starts with a diamond and names a path. If the C compiler is missing, <code>bayan run</code> and <code>bayan build</code> exit with code 4.</p>
+<p>Then run the first program:</p>
+<example name="hello"/>
+<pre><code>bayan run hello.byn</code></pre>
+<p>Your next stop is <a href="tutorial.html">Your first Bayan program</a>.</p>
+
+<h2 id="commands">The commands</h2>
+<p>This is the output of <code>bayan --help</code>, as the compiler prints it.</p>
+<pre><code>usage: bayan &lt;command&gt; [args]
+
+commands:
+  new &lt;name&gt;           create an app in a new directory [--lib|--script] [--vcs git|none] [--ci github|none]
+  init [&lt;dir&gt;]         add a project's missing files to a directory (same options as new)
+  lex [--json] &lt;file&gt;  print the token stream [--json: as one JSON object] (`-` reads stdin)
+  parse [--ast] &lt;file&gt; check syntax; with --ast print the syntax tree
+  types &lt;path&gt;         print each function's parameter and local types as JSON
+  check &lt;path&gt;         report diagnostics for a program (a file or directory)
+  build &lt;path&gt;         compile to an executable [-o &lt;file&gt;] [--mode debug|safe|fast] [--target &lt;t&gt;] [--emit-c]
+                       [-v: print each phase's time and the output path]
+  run &lt;path&gt;           compile and run [--mode debug|safe|fast] [-- &lt;program args&gt;]
+  test &lt;path&gt;          compile and run the tests, each in its own process [--mode debug|safe|fast]
+                       [--json: print the results as JSON instead]
+                       [--changed [--base &lt;ref&gt;]: only modules with files changed since HEAD or &lt;ref&gt;]
+                       [--only &lt;text&gt;: only tests whose name contains &lt;text&gt;; repeatable]
+                       [-v: also list the passing and pending tests]
+                       [--mutate: run every mutant against the tests that reach it; with --run &lt;cmd&gt;, run &lt;cmd&gt; once
+                       per mutant instead, with BAYAN_MUTANT set (exit 0 survived, non-zero killed)]
+  mutate --binary &lt;exe&gt; --sites &lt;map.json&gt; -- &lt;cmd&gt;
+                       run &lt;cmd&gt; once per mutant site of a prebuilt --mutate binary, as test --mutate --run does
+  dist [&lt;dir&gt;]         build release binaries into dist/&lt;version&gt;/ [--target &lt;t&gt;|all] [--mode m]
+                       [--force: rebuild an existing version] [--allow-dirty: build from a dirty git tree]
+  clean [&lt;dir&gt;]        remove out/ [--dist: also dist/] [--cache: also the global build cache]
+  cache stats          show the shared build cache's location and size
+  format &lt;path&gt;        rewrite input forms (those with a fix-it) in a `.byn` file or a directory of them,
+                       and booleans and primitives to `style` in `package.byn` [--check: list, don't write]
+  audit &lt;path&gt;         list every `because` bypass and `unsafe` or `extern` declaration, with its reason
+  features --used &lt;path&gt;
+                       print the syntax node kinds, builtins and diagnostics a build touched, as JSON
+  explain &lt;code&gt;       explain a diagnostic, e.g. `bayan explain BYN0003`
+  &lt;script&gt;.byn         run a script, so `#!/usr/bin/env bayan` works
+  doctor               check the C compiler, zig, git and the build cache, with fixes
+  --version            print the compiler version and the commit it was built from
+  --help               print this message
+
+check, types, build, run, test and features take a project directory (one with `package.byn`; the
+default inside a project), a script (a file starting with `#!`), or a file or directory of `.byn` files.
+
+options for every command:
+  --color auto|always|never
+                       color for terminals (auto: on unless piped or NO_COLOR is set;
+                       FORCE_COLOR turns it on, TERM=dumb off)
+  --ascii              use ASCII symbols instead of ◆ ✗ │ (also with TERM=dumb or a non-UTF-8 locale)
+
+options for check, types, build, run and test:
+  --all                show every error instead of the first 20 (JSON is never capped)
+  --diagnostics json   print each diagnostic to stderr as one JSON object per line
+                       (code, severity, file, span, message, label, help, fixes)
+
+exit codes:
+  0  success
+  1  compile errors
+  2  usage errors (unknown command or option, missing path)
+  3  test failures, or a coverage or mutation score below its minimum
+  4  toolchain problems (no C compiler, unwritable cache, C compiler failure)
+
+`bayan run` exits 1 when compilation fails and otherwise passes the program's own exit code
+through unchanged, so it cannot tell a build failure from a program that exits 1. When that
+matters, run `bayan build` first or read `--diagnostics json`.</code></pre>

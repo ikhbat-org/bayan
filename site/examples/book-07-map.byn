@@ -1,0 +1,16 @@
+void main() {
+    var totals = Map<string, i64>()
+    totals["ada"] = 90
+    totals["grace"] = 85
+    totals["ada"] = (totals.tryGet(at: "ada") ?? 0) + 5
+    print($"{totals.length} students")
+    print($"ada has {totals["ada"]}")
+    print($"linus has {totals.tryGet(at: "linus") ?? 0}")
+    print($"{totals.contains("grace")}")
+    for e in totals {
+        print($"{e.key} -> {e.value}")
+    }
+    print($"{totals.remove("grace")} {totals.length}")
+    let seeded: Map<string, i64> = ["x": 1, "y": 2]
+    print($"{seeded.length}")
+}

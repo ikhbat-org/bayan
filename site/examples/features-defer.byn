@@ -1,0 +1,16 @@
+union error StepError {
+    /// The step was told to fail.
+    told
+}
+
+i64 work(bool shouldFail) fails StepError {
+    defer print("always")
+    defer failing print("rollback")
+    fail .told if shouldFail
+    return 1
+}
+
+void main() {
+    print($"{work(shouldFail: false) catch -1}")
+    print($"{work(shouldFail: true) catch -1}")
+}

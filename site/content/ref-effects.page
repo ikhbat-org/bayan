@@ -1,0 +1,185 @@
+title: Effects and capabilities
+nav: Reference
+order: 65
+template: docs
+---
+<p>An effect says what a function may touch. Functions are pure unless they say otherwise.</p>
+
+<h2 id="effects">The effects</h2>
+<p>There are nine: <code>alloc</code>, <code>suspend</code>, <code>net</code>, <code>fs</code>, <code>clock</code>, <code>random</code>, <code>env</code>, <code>process</code> and <code>console</code>. Write them after the signature: <code>uses console</code>. An unknown name is BYN6003.</p>
+<pre><code class="byn">public void bad() uses teleport { }</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6003:</span> `teleport` is not an effect
+  --&gt; ef-unknown.byn:1:24
+
+<span class="gut">  1 │</span> public void bad() uses teleport { }
+<span class="gut">    │</span>                        <span class="hl">^^^^^^^^ not an effect or an `effect` alias of this module</span>
+<span class="gut">    │</span>
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="declared">Declared and inferred</h2>
+<ul>
+  <li>A <code>public</code> function must declare every effect it has. Missing one is BYN6002. This includes printing and allocating.</li>
+  <li>A private function infers its effects. Nothing to write.</li>
+  <li>A public function that calls a <code>uses console</code> function must declare <code>console</code> too.</li>
+  <li>An interface method whose implementation allocates must declare <code>uses alloc</code> on the interface (BYN6005).</li>
+</ul>
+<example name="ref-effects-declared"/>
+<pre><code class="byn">public void say(string s) {
+    print(s)
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6002:</span> `say` uses `console` but does not declare it
+  --&gt; ef-undeclared.byn:2:5
+
+<span class="gut">  2 │</span>     print(s)
+<span class="gut">    │</span>     <span class="hl">^^^^^^^^ uses `console`</span>
+<span class="gut">    │</span>
+  help: add `console` to the `uses` clause, or remove the call
+<span class="gut">    │</span> 1 │ public void say(string s) uses console {
+<span class="gut">    │</span>   │                          +++++++++++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">public i64 grow() {
+    let xs: List&lt;i64&gt; = [1]
+    return xs.length
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6002:</span> `grow` uses `alloc` but does not declare it
+  --&gt; ef-alloc.byn:2:25
+
+<span class="gut">  2 │</span>     let xs: List&lt;i64&gt; = [1]
+<span class="gut">    │</span>                         <span class="hl">^^^ uses `alloc`</span>
+<span class="gut">    │</span>
+  help: add `alloc` to the `uses` clause, or remove the call
+<span class="gut">    │</span> 1 │ public i64 grow() uses alloc {
+<span class="gut">    │</span>   │                  +++++++++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="provide">Provide</h2>
+<ul>
+  <li><code>provide name: value { … }</code> supplies a capability for a block. Only <code>allocator</code> handlers work today. See <a href="ref-memory.html#allocators">Memory model</a> for an example.</li>
+  <li>Any other handler is BYN2022.</li>
+  <li>The old <code>context (…) { }</code> form is BYN6006 and the fix is <code>provide</code>.</li>
+</ul>
+<pre><code class="byn">provide clock: 1 {
+    print("x")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2022:</span> the `clock` handler is not supported in v0.1
+  --&gt; ef-handler.byn:1:9
+
+<span class="gut">  1 │</span> provide clock: 1 {
+<span class="gut">    │</span>         <span class="hl">^^^^^</span></pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">context (allocator: Arena()) { print("x") }</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6006:</span> `context (…) { }` is now `provide … { }`
+  --&gt; ef-context.byn:1:1
+
+<span class="gut">  1 │</span> context (allocator: Arena()) { print("x") }
+<span class="gut">    │</span> <span class="hl">^^^^^^^ the input form</span>
+<span class="gut">    │</span>
+  help: write `provide allocator: Arena() { }` without the parentheses
+<span class="gut">    │</span> 1 │ provide allocator: Arena() { print("x") }
+<span class="gut">    │</span>   │ +++++++++++++++++++++++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<note>Planned: handlers for <code>clock</code>, <code>random</code> and the other effects, and <code>provide log: … { }</code>.</note>
+
+<h2 id="function-params">Function-typed parameters</h2>
+<ul>
+  <li>A function that takes a function value does not carry that function’s effects. Calling <code>f(x)</code> inside <code>apply</code> adds nothing to <code>apply</code>.</li>
+  <li>The effects are charged to the call that passes the value. A public function that passes a <code>uses console</code> function must declare <code>console</code> (BYN6002).</li>
+  <li>Passing a parameter on, as in <code>each(xs, by: f)</code>, adds nothing at that point.</li>
+  <li>Anywhere else (a <code>let</code> with a function type), the type’s <code>uses</code> clause is an upper bound. Without one, the bound is pure. A function that exceeds it is BYN6005.</li>
+</ul>
+<example name="ref-effects-callback"/>
+<pre><code class="byn">public i64 apply(i64 x, by (i64 -&gt; i64) f) =&gt; f(x)
+
+i64 loud(i64 x) {
+    print("called")
+    return x + 1
+}
+
+public i64 run() =&gt; apply(1, by: loud)</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6002:</span> `run` uses `console` but does not declare it
+  --&gt; ec3.byn:8:21
+
+<span class="gut">  8 │</span> public i64 run() =&gt; <span class="hl">apply(1, by: loud)</span>
+<span class="gut">    │</span>                     <span class="hl">^^^^^^^^^^^^^^^^^^ uses `console`</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> add `console` to the `uses` clause, or remove the call
+<span class="gut">    │ 8 │</span> public i64 run() <span class="add">uses console </span>=&gt; apply(1, by: loud)
+<span class="gut">    │   │</span>                 <span class="add">+++++++++++++</span></pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">i64 loud(i64 x) {
+    print("called")
+    return x + 1
+}
+
+void main() {
+    let f: i64 -&gt; i64 = loud
+    print($"{f(1)}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6005:</span> `loud` uses `console`, beyond the bound `pure` declared by `i64 -&gt; i64`
+  --&gt; e4.byn:7:25
+
+<span class="gut">  7 │</span>     let f: i64 -&gt; i64 = <span class="hl">loud</span>
+<span class="gut">    │</span>                         <span class="hl">^^^^ uses `console`</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> add `console` to the function type’s `uses`, or pass a function without it</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<p>Write the bound in the type to allow it: <code>let f: i64 -&gt; i64 uses console = loud</code> compiles.</p>
+
+<h2 id="logging">Logging</h2>
+<p><code>log</code> writes a diagnostic line to standard error, so it never mixes with what the program prints. It needs no <code>uses</code> clause, so pure functions may log. The level is a particle argument: <code>as: .debug</code>, <code>.warn</code> or <code>.error</code>. The default is <code>.info</code>. Any other level is BYN2720. <code>print</code> is program output and <code>uses console</code>.</p>
+<pre><code class="byn">log("starting")
+log("detail", as: .debug)
+let n: i64 = 3
+log($"count {n}", as: .warn)
+print("done")</code></pre>
+<figure class="diag">
+<pre>info: starting
+debug: detail
+warn: count 3</pre>
+  <figcaption>Standard error of this program. Standard output holds only <code>done</code>. The check script reads standard output, so this is not an example.</figcaption>
+</figure>
+<note>Planned: <code>provide log: sink { }</code> to intercept log lines, as the specification describes. Only allocator handlers work today.</note>
+
+<h2 id="capabilities">Package capabilities</h2>
+<p>The <code>capabilities</code> list in <code>package.byn</code> is an upper bound on what the whole package may do. A function that uses an effect the list does not name is BYN6004, even when the function declares the effect itself. This package allows only <code>.net</code>:</p>
+<pre><code class="byn">Package {
+    name:         "local/report",
+    version:      "0.1.0",
+    edition:      2027,
+    kind:         .app,
+    capabilities: [.net],
+}</code></pre>
+<pre><code class="byn">void save(string text) uses fs {
+    Io.writeFile("report.txt", text) catch { return }
+}
+
+void main() {
+    save("x")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN6004:</span> `save` uses `fs`, which package `local/report` does not declare in `capabilities`
+  --&gt; src/app/main.byn:1:24
+
+<span class="gut">  1 │</span> void save(string text) <span class="hl">uses fs</span> {
+<span class="gut">    │</span>                        <span class="hl">^^^^^^^ uses `fs`</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> add `.fs` to `capabilities`, or remove the use</pre>
+  <figcaption>The output of <code>bayan run</code> in a project with that manifest, with this program in <code>src/app/main.byn</code>.</figcaption>
+</figure>
+<p>The check is transitive: a function that only calls <code>save</code> is charged too. The capabilities in the specification are <code>.fs</code>, <code>.net</code>, <code>.process</code>, <code>.env</code> and <code>.ffi</code>.</p>

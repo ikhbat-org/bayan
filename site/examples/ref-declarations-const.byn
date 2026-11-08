@@ -1,0 +1,5 @@
+const limit = 10
+
+i64 clampTo(i64 x) => x > limit ? limit : x
+
+print($"{clampTo(25)} {clampTo(4)}")

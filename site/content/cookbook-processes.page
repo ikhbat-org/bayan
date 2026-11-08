@@ -1,0 +1,21 @@
+title: Processes and environment cookbook
+nav: Guides
+order: 53
+template: docs
+---
+<p>Anything that reaches outside the program is an effect, and the effect shows in the function's signature: <code>fs</code> for files, <code>env</code> for environment variables, <code>process</code> for child processes. Public functions declare them with <code>uses</code>; private functions and <code>main</code> infer them. A package can also cap which effects it may use at all (spec section 14).</p>
+
+<h2 id="env">Read and set environment variables</h2>
+<p><strong>Not in the standard library yet.</strong> The effect name <code>env</code> exists ("environment variables and process-wide settings", spec section 14), but no function for reading or setting a variable is defined in the spec or implemented in the compiler, so none is shown. The spec treats startup environment as trusted input, unlike command-line arguments, which arrive as <code>Untrusted</code> (section 15.1). The arguments passed to a program are available today as <code>main(ReadOnlySpan&lt;string&gt; args)</code>.</p>
+
+<h2 id="run">Run a command and capture its output</h2>
+<p><code>Io.run(program, args)</code> starts a program found on <code>PATH</code> with an argument vector, waits for it and returns a <code>ProcessResult</code> with <code>exitCode</code>, <code>stdout</code> and <code>stderr</code>. It never goes through a shell, so spaces and quotes in an argument cannot change the command. A program that exits non-zero is still a result; only a failure to start it is an <code>IoError</code>. The arguments are a span of strings, so a fixed array goes through <code>.span</code>.</p>
+<example name="cookbook-run"/>
+<pre><code class="other" data-lang="Python">r = subprocess.run(["echo", "-n", "hello"], capture_output=True, text=True)
+r.returncode, r.stdout, r.stderr</code></pre>
+<note>The example starts <code>echo</code> and <code>sh</code>, so it runs on macOS and Linux. On Windows, <code>Io.runBatch</code> runs a <code>.bat</code> or <code>.cmd</code> file; elsewhere it fails with <code>unsupported</code>.</note>
+
+<h2 id="exit">Exit with a status code</h2>
+<p>Declare <code>main</code> to return <code>i32</code> and the value becomes the process exit status. The spec defines no call that exits from deep inside a program, so return the code up to <code>main</code>. A <code>main</code> that <code>fails</code> exits with status 1 by default, and the spec lets a variant carry its own code with <code>@exitCode(n)</code> (section 8).</p>
+<example name="cookbook-exit"/>
+<pre><code class="other" data-lang="Go">os.Exit(3)</code></pre>

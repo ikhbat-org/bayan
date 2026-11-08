@@ -1,0 +1,16 @@
+string? find(List<string> names, by string prefix) {
+    for n in names {
+        if n.startsWith(prefix) { return n }
+    }
+    return null
+}
+
+void main() {
+    let names: List<string> = ["ada", "grace", "linus"]
+    print(find(names, by: "gr") ?? "nobody")
+    print(find(names, by: "x") ?? "nobody")
+    let hit = find(names, by: "li")
+    if hit is not null {
+        print($"found {hit}")
+    }
+}

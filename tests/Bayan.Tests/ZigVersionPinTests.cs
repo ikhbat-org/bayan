@@ -32,9 +32,19 @@ public sealed class ZigVersionPinTests
     [Fact]
     public void HostZigIsThePinnedZig()
     {
-        using var p = Process.Start(new ProcessStartInfo("zig", "version") { RedirectStandardOutput = true, RedirectStandardError = true })!;
+        var zig = Bayan.Backend.C.Toolchain.FindOnPath("zig");
+        Assert.True(zig is not null, $"expected zig {Pinned} (.zig-version), found no zig on PATH; install it with scripts/ci/install-zig.sh DEST");
+        using var p = Process.Start(new ProcessStartInfo(zig!, "version") { RedirectStandardOutput = true, RedirectStandardError = true })!;
         var version = p.StandardOutput.ReadToEnd().Trim();
         p.WaitForExit();
-        Assert.True(Pinned == version, $"this host's zig is {version}, the repo pins {Pinned} (.zig-version); install {Pinned}");
+        Assert.True(Pinned == version, PinMessage(Pinned, version, zig!));
     }
+
+    [Fact]
+    public void AMismatchNamesBothVersionsAndThePath() =>
+        Assert.Equal("expected zig 0.17.0 (.zig-version), found 0.17.1 at /opt/homebrew/bin/zig; install 0.17.0 with scripts/ci/install-zig.sh DEST and put it first on PATH",
+            PinMessage("0.17.0", "0.17.1", "/opt/homebrew/bin/zig"));
+
+    private static string PinMessage(string pinned, string found, string path) =>
+        $"expected zig {pinned} (.zig-version), found {found} at {path}; install {pinned} with scripts/ci/install-zig.sh DEST and put it first on PATH";
 }

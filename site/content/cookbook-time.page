@@ -1,0 +1,31 @@
+title: Time cookbook
+nav: Guides
+order: 56
+template: docs
+---
+<p>How do I work with time in Bayan? Today the standard library has one clock: a monotonic one, for measuring how long something took. Wall-clock time, date formatting and sleeping are not there yet.</p>
+
+<h2 id="elapsed">Measure elapsed time</h2>
+<p><strong>Runnable.</strong> <code>Io.monotonicNanos()</code> returns an <code>i64</code> count of nanoseconds from a clock that never goes backwards. Subtract two readings to get a duration. The value means nothing on its own, so do not store it or compare it across runs.</p>
+<example name="cookbook-time-elapsed"/>
+<pre><code class="other" data-lang="Python">start = time.monotonic_ns()
+work()
+elapsed = time.monotonic_ns() - start</code></pre>
+
+<h2 id="now">Get the current time and the epoch timestamp</h2>
+<p><strong>Not in the standard library yet.</strong> There is no call that returns the wall-clock time or Unix seconds. The spec reserves a <code>clock</code> effect, "Reading the time" (§14), so a function that reads the clock will have to say <code>uses clock</code> in its signature, and tests will be able to replace the clock with a fake one (§7.7). The reading function itself is not defined yet.</p>
+
+<h2 id="parse-format">Parse and format dates</h2>
+<p><strong>Not in the standard library yet.</strong> Neither the spec nor the compiler defines a date type with parsing or layout strings. A date will have to come from a library or from your own code.</p>
+
+<h2 id="sleep">Sleep and run something on a timer</h2>
+<p><strong>Not in the standard library yet.</strong> There is no <code>sleep</code> and no ticker. The spec describes a deadline for a block of suspending work, <code>provide timeout: d { … }</code> (§13.2), and marks async, futures and deadlines "Not in v0.1".</p>
+<p><strong>Planned: durations as units.</strong> The spec makes durations a typed unit, so you cannot add seconds to a bare number and a coarser conversion names its rounding (§3.4). The <code>unit</code> declaration does not compile today. The spec's form:</p>
+<pre><code class="byn">unit Seconds(s): i64
+unit Millis(ms) = Seconds / 1000
+
+let wait: Millis = 2s + 500ms          // Millis 2500
+let whole: Seconds = wait.floor()      // 2s
+let billed: Seconds = wait.ceiling()   // 3s</code></pre>
+<pre><code class="other" data-lang="Go">time.Sleep(2500 * time.Millisecond)</code></pre>
+<note>Bayan has no exceptions. Anything that can fail says so in its signature with <code>fails</code>, and anything that touches the outside world, such as the clock, declares an effect with <code>uses</code>.</note>

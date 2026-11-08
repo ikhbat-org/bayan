@@ -1,0 +1,24 @@
+type Pred = i64 -> bool
+
+i64 count(ReadOnlySpan<i64> xs, by Pred check) {
+    var n = 0
+    for x in xs {
+        if check(x) {
+            n += 1
+        }
+    }
+    return n
+}
+
+bool isEven(i64 x) => x % 2 == 0
+
+void main() {
+    let xs: List<i64> = [1, 2, 3, 4, 5, 6]
+    print($"{count(xs.span, by: it > 3)}")
+    print($"{count(xs.span, by: x => x % 3 == 0)}")
+    print($"{count(xs.span, by: isEven)}")
+    let limit = 4
+    print($"{count(xs.span, by: it > limit)}")
+    let small: Pred = x => x < 3
+    print($"{small(2)} {small(7)}")
+}

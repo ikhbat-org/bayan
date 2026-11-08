@@ -1,0 +1,7 @@
+void main() {
+    let age: i64 = 36
+    let ratio: f64 = 0.5
+    let ready: bool = true
+    let word: string = "bayan"
+    print($"{age} {ratio} {ready} {word} {word.length}")
+}

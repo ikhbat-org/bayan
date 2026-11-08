@@ -1,0 +1,30 @@
+struct Tens : IIndexable {
+    type Item = i64
+
+    i64 count => 4
+    i64 get(i64 index) => index * 10
+}
+
+struct Down : IEnumerator {
+    type Item = i64
+
+    i64 left
+
+    bool moveNext(ref this) {
+        left -= 1
+        return left >= 0
+    }
+
+    i64 current => left
+}
+
+void main() {
+    let tens = Tens {}
+    for x in tens {
+        print($"{x}")
+    }
+    var d = Down { left: 3 }
+    for k in d {
+        print($"{k}")
+    }
+}

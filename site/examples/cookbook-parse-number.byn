@@ -1,0 +1,16 @@
+void main() {
+    print($"{i64.tryParse("42") ?? -1} {i64.tryParse("4x2") ?? -1} {u8.tryParse("300") ?? 0}")
+    print($"{i64.tryParse("ff", as: .hex) ?? -1}")
+    print($"{f64.tryParse("2.5e-3") ?? 0.0} {f64.tryParse("abc") ?? 0.0}")
+    let n = i8.parse("200") catch switch {
+        .badDigit(let at) => {
+            print($"bad digit at byte {at}")
+            return
+        },
+        .overflow => {
+            print("does not fit in an i8")
+            return
+        },
+    }
+    print($"{n}")
+}

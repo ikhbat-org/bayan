@@ -101,7 +101,7 @@ public sealed class CoverageReportTests
     {
         var app = Project("timeout", Main + "\ntest \"spin\" {\n    while true {\n    }\n}\n");
         var saved = Environment.GetEnvironmentVariable("BAYAN_TEST_TIMEOUT_MS");
-        Environment.SetEnvironmentVariable("BAYAN_TEST_TIMEOUT_MS", "2000");
+        Environment.SetEnvironmentVariable("BAYAN_TEST_TIMEOUT_MS", TestTime.Scale(2000).ToString());
         try
         {
             Run("test", "--coverage", app);
@@ -129,6 +129,32 @@ public sealed class CoverageReportTests
         Assert.True(r.Exit == CliApp.ExitOk, r.Out + r.Err);
         using var json = JsonDocument.Parse(r.Out);
         Assert.Equal(JsonValueKind.Object, json.RootElement.ValueKind);
+    }
+
+    [Fact]
+    public void StdModuleLinesAreNeitherReportedNorGated()
+    {
+        var app = Project("std", """
+            import std.json
+
+            json.JsonValue one() uses alloc fails json.JsonError {
+                return (try json.Json.parse("1")).trustUnchecked() because "literal"
+            }
+
+            test "one" {
+                let v = try one()
+                assert(v is .number(_, _))
+            }
+
+            """);
+        var manifest = Path.Combine(app, "package.byn");
+        var text = File.ReadAllText(manifest);
+        var at = text.LastIndexOf('}');
+        File.WriteAllText(manifest, text[..at].TrimEnd().TrimEnd(',') + ",\n    test: Tests { lines: 50 }\n}\n");
+        var r = Run("test", "--coverage", app);
+        Assert.True(r.Exit == CliApp.ExitOk, r.Out + r.Err);
+        Assert.DoesNotContain("<std>", r.Out);
+        Assert.DoesNotContain("<std>", File.ReadAllText(Path.Combine(app, "out", "test", "bayan-quality.json")));
     }
 
     [Fact]

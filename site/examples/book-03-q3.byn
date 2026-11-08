@@ -1,0 +1,9 @@
+string size(i64 n) => n switch {
+    < 0 => "negative",
+    0 => "zero",
+    1 or 2 => "small",
+    >= 3 and < 10 => "medium",
+    _ => "large",
+}
+
+print($"{size(3)} {size(10)} {size(2)}")

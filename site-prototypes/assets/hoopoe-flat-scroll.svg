@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Flat hoopoe reading a small open scroll</title>
+  <path d="M96.5 75.7 L73.9 62.0 L52.4 56.0 L68.4 71.6 L91.5 84.3 Z" fill="#D9A05B"/>
+  <path d="M52.4 49.0 L59.4 56.0 L52.4 63.0 L45.4 56.0 Z" fill="#1F3A5F"/>
+  <path d="M98.2 77.4 L84.7 54.7 L68.6 39.3 L75.3 60.5 L89.8 82.6 Z" fill="#D9A05B"/>
+  <path d="M68.6 32.3 L75.6 39.3 L68.6 46.3 L61.6 39.3 Z" fill="#1F3A5F"/>
+  <path d="M99.0 79.6 L97.2 53.2 L89.8 32.2 L86.2 54.2 L89.0 80.4 Z" fill="#D9A05B"/>
+  <path d="M89.8 25.2 L96.8 32.2 L89.8 39.2 L82.8 32.2 Z" fill="#1F3A5F"/>
+  <path d="M98.6 81.9 L109.0 57.6 L112.0 35.5 L98.8 53.5 L89.4 78.1 Z" fill="#D9A05B"/>
+  <path d="M112.0 28.5 L119.0 35.5 L112.0 42.5 L105.0 35.5 Z" fill="#1F3A5F"/>
+  <path d="M97.3 83.7 L117.3 66.4 L129.7 47.9 L109.9 58.2 L90.7 76.3 Z" fill="#D9A05B"/>
+  <path d="M129.7 40.9 L136.7 47.9 L129.7 54.9 L122.7 47.9 Z" fill="#1F3A5F"/>
+  <clipPath id="tail"><path d="M176 146 L196 132 L240 190 L216 208 Z"/></clipPath>
+  <path d="M176 146 L196 132 L240 190 L216 208 Z" fill="#1F3A5F"/>
+  <g clip-path="url(#tail)">
+    <path d="M162.6 178.0 L168.1 185.2 L231.8 136.8 L226.3 129.6 Z" fill="#EDE6D6"/>
+    <path d="M174.7 193.9 L180.2 201.1 L243.9 152.8 L238.4 145.6 Z" fill="#EDE6D6"/>
+    <path d="M186.8 209.9 L192.3 217.1 L256.0 168.7 L250.5 161.5 Z" fill="#EDE6D6"/>
+  </g>
+  <path d="M74.0 112.0 C58.0 148.0 70.0 170.0 108.0 184.0 C140.0 194.0 176.0 176.0 192.0 148.0 L180.0 120.0 C150.0 104.0 120.0 112.0 102.0 114.0 Z" fill="#D9A05B"/>
+  <circle cx="88" cy="98" r="23" fill="#D9A05B"/>
+  
+  <clipPath id="wing"><path d="M104 112 C138 104 176 122 200 160 C164 184 120 176 100 142 Z"/></clipPath>
+  <path d="M104 112 C138 104 176 122 200 160 C164 184 120 176 100 142 Z" fill="#1F3A5F"/>
+  <g clip-path="url(#wing)">
+    <path d="M91.5 180.9 L100.9 184.4 L143.0 72.1 L133.7 68.5 Z" fill="#EDE6D6"/>
+    <path d="M113.0 188.9 L122.3 192.5 L164.5 80.1 L155.1 76.6 Z" fill="#EDE6D6"/>
+    <path d="M134.4 197.0 L143.8 200.5 L185.9 88.1 L176.5 84.6 Z" fill="#EDE6D6"/>
+    <path d="M155.9 205.0 L165.2 208.5 L207.3 96.2 L198.0 92.7 Z" fill="#EDE6D6"/>
+  </g>
+  <path d="M40 146 H106 V186 H40 Z" fill="#EDE6D6"/>
+  <path d="M50 155 H88" stroke="#1F3A5F" stroke-width="4" stroke-linecap="round"/>
+  <path d="M50 166 H88" stroke="#1F3A5F" stroke-width="4" stroke-linecap="round"/>
+  <path d="M50 177 H74" stroke="#1F3A5F" stroke-width="4" stroke-linecap="round"/>
+  <path class="dot" d="M93.0 171.0 L98.0 176.0 L93.0 181.0 L88.0 176.0 Z" fill="#C08A2E"/>
+  <rect x="33" y="143" width="14" height="46" rx="7" fill="#1F3A5F"/>
+  <rect x="99" y="143" width="14" height="46" rx="7" fill="#1F3A5F"/>
+  <path d="M112.0 184.0 L106.0 222.0 L96.0 222.0" fill="none" stroke="#8A6F3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M134.0 186.0 L134.0 222.0 L124.0 222.0" fill="none" stroke="#8A6F3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,3 @@
+total: 333332833333500000
+elapsed is positive: true
+elapsed milliseconds fit in an i64: true

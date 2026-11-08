@@ -1,0 +1,17 @@
+union error ConfigError {
+    badValue
+}
+
+i64 parsePort(string text) fails ConfigError {
+    return i64.tryParse(text) ?? fail .badValue
+}
+
+i64 doubled(string text) fails ConfigError {
+    let n = try parsePort(text)
+    return n * 2
+}
+
+void main() {
+    print($"{doubled("21") catch -1}")
+    print($"{doubled("x") catch -1}")
+}

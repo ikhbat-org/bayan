@@ -1,0 +1,4 @@
+string label(string text, as string style = "plain") => $"[{style}] {text}"
+
+print(label("a"))
+print(label("b", as: "bold"))

@@ -1,0 +1,14 @@
+struct User {
+    string name
+    string email
+    i64 age
+}
+
+void main() {
+    let ada = User { name: "Ada", email: "ada@example.com", age: 36 }
+    let older = ada with { age: 37 }
+    let renamed = ada with { name: "Ada L.", email: "al@example.com" }
+    print($"{ada.name} {ada.age}")
+    print($"{older.name} {older.age}")
+    print($"{renamed.name} {renamed.email} {renamed.age}")
+}

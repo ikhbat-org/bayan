@@ -36,6 +36,23 @@ public static class CliApp
 
     public static int Run(string[] args, TextWriter stdout, TextWriter stderr, Terminal terminal)
     {
+        try { return Dispatch(args, stdout, stderr, terminal); }
+        catch (InternalCompilerError e)
+        {
+            return ReportInternalError(e, stderr, s_styleErr ?? Style.Plain);
+        }
+    }
+
+    /// <summary>A compiler invariant failed (BYN4002): the message, no location, exit 1.</summary>
+    internal static int ReportInternalError(InternalCompilerError e, TextWriter stderr, Style style)
+    {
+        var ice = new Diagnostic(Severity.Error, DiagnosticCodes.ErrorNodeReachedLowering.Code, null, default, e.Message);
+        stderr.Write(DiagnosticRenderer.Render(ice, includePath: true, style));
+        return ExitFailure;
+    }
+
+    private static int Dispatch(string[] args, TextWriter stdout, TextWriter stderr, Terminal terminal)
+    {
         if (TakeGlobalOptions(ref args, stderr) is not var (color, ascii)) return ExitUsage;
         s_styleOut = TerminalStyle.Decide(color, ascii, terminal.Stdout, Environment.GetEnvironmentVariable, terminal.Width);
         s_styleErr = TerminalStyle.Decide(color, ascii, terminal.Stderr, Environment.GetEnvironmentVariable, terminal.Width);

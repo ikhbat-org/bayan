@@ -1,0 +1,12 @@
+public List<i64> squares(i64 n) uses alloc {
+    var xs = List<i64>()
+    for i in 0..n {
+        xs.append(i * i)
+    }
+    return xs
+}
+
+void main() {
+    let xs = squares(4)
+    print($"{xs.length} {xs[3]}")
+}

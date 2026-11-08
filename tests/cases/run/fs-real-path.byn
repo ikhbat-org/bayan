@@ -1,0 +1,13 @@
+// `Fs.realPath` gives a rooted path ending in the same name, and fails `notFound` on a missing path.
+void main() uses fs, console, alloc fails IoError {
+    try Io.createDirectory("fs-real-path.tmp")
+    let real = try Fs.realPath("fs-real-path.tmp/../fs-real-path.tmp")
+    print($"rooted: {Path.isRooted(real)}")
+    print(Path.fileName(real))
+    let missing = Fs.realPath("fs-real-path-missing.tmp") catch switch {
+        .notFound => "missing: not found",
+        _ => "missing: other",
+    }
+    print(missing)
+    try Io.removeDirectory("fs-real-path.tmp")
+}

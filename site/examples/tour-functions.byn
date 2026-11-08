@@ -1,0 +1,7 @@
+string greeting(string name) {
+    return $"Hello, {name}!"
+}
+
+void main() {
+    print(greeting("Ada"))
+}

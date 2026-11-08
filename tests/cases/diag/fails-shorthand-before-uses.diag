@@ -1,0 +1,18 @@
+error BYN1031: `T!E` is an input form; write `T f() fails E`
+
+  7 │ i32!E g() fails F uses console {
+    │    ^^ the input form
+    │
+  help: write `fails E, F` as the last clause of the signature
+    │ 7 │ i32 g() uses console fails E, F {
+    │   │    ++++++++++++++++++++++++++++
+
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+
+  7 │ i32!E g() fails F uses console {
+    │                   ^^^^ out of order
+    │
+  help: move `uses` before `fails`
+    │ 7 │ i32!E g() uses console fails F {
+    │   │           ++++++++++++++++++++

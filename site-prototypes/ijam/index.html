@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bayan: one form, one meaning</title>
+<meta name="description" content="Bayan is a value-oriented, natively compiled language derived from C#. No runtime, no GC, no exceptions.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Amiri:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site">
+  <a class="brand" href="index.html"><img src="../assets/mark.svg" alt="" width="36" height="36">Bayan <span lang="ar" dir="rtl">بيان</span></a>
+  <nav aria-label="Main"><ul>
+    <li><a href="docs.html">Docs</a></li>
+    <li><a href="tutorial.html">Tutorial</a></li>
+    <li><a href="https://github.com/ikhbat-org/bayan">GitHub</a></li>
+  </ul></nav>
+</header>
+
+<main id="main">
+<div class="wrap">
+  <section class="hero" aria-labelledby="h">
+    <svg viewBox="30 62 200 130" role="img" aria-label="The mark: the word بين drawn as one stroke with four gold diamond dots">
+      <g transform="translate(-2.5 -6)">
+        <path class="m-stroke" pathLength="1" d="M212 82 C212 108 210 126 198 126 L180 126 C174 126 172 86 162 86 C154 86 156 126 146 126 L134 126 C130 168 108 186 84 186 C60 186 44 166 44 138" fill="none" stroke="#1F3A5F" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+        <path class="m-dot" style="animation-delay:2.5s" d="M212 166 L222 176 L212 186 L202 176 Z" fill="#C08A2E"/>
+        <path class="m-dot" style="animation-delay:2.9s" d="M171 166 L181 176 L171 186 L161 176 Z" fill="#C08A2E"/>
+        <path class="m-dot" style="animation-delay:3.3s" d="M147 166 L157 176 L147 186 L137 176 Z" fill="#C08A2E"/>
+        <path class="m-dot" style="animation-delay:3.7s" d="M88 86 L98 96 L88 106 L78 96 Z" fill="#C08A2E"/>
+      </g>
+    </svg>
+    <div class="tag">
+      <h1 id="h" class="m-line">One form, one meaning.</h1>
+      <p class="lead m-line">Bayan <span lang="ar" dir="rtl">(بيان)</span> is a value-oriented language that compiles to native code. No runtime, no garbage collector, no exceptions.</p>
+      <p class="go m-line"><a class="btn" href="tutorial.html">Compile your first program</a> <a href="docs.html">Read the docs</a></p>
+    </div>
+  </section>
+
+  <section class="band two" aria-labelledby="what">
+    <div>
+      <h2 id="what">Familiar to C#, answerable to C</h2>
+      <p>Bayan is derived from C#, with the parts that need a runtime taken out. Data is structs, values live on the stack, in arenas or in <code>.rodata</code>, and every cost is visible in the source.</p>
+      <ul class="dots">
+        <li>The compiler writes C, then <code>zig cc</code> makes the native executable.</li>
+        <li>Failure is a value: <code>fails E</code> in a signature, <code>try</code> and <code>catch</code> at the call.</li>
+        <li>Memory safety is not a build mode. Bounds and region checks apply in every build.</li>
+        <li>The bootstrap compiler is C# on .NET 10, NativeAOT. Self-hosting is in progress.</li>
+      </ul>
+    </div>
+    <div>
+<pre><code><span class="k">enum</span> <span class="t">Kind</span> {
+    word
+    symbol
+}
+
+<span class="k">enum</span> <span class="t">Token</span>(<span class="t">string</span> text, <span class="t">i32</span> precedence, <span class="t">rune</span> first, <span class="t">bool</span> keyword, <span class="t">Kind</span> kind) {
+    ifKeyword(<span class="s">"if"</span>, <span class="n">0</span>, <span class="s">'i'</span>, true, .word)
+    plus(<span class="s">"+"</span>, <span class="n">2</span> * <span class="n">3</span>, <span class="s">'+'</span>, false, <span class="t">Kind</span>.symbol)
+    star(<span class="s">"*"</span>, -(<span class="n">1</span> - <span class="n">8</span>), <span class="s">'*'</span>, false, .symbol)
+}
+
+<span class="k">for</span> t <span class="k">in</span> <span class="t">Token</span>.values {
+    <span class="f">print</span>(<span class="s">$"{t} '{t.text}' {t.precedence} {t.first} {t.keyword} {t.kind}"</span>)
+}</code></pre>
+      <pre class="out" aria-label="Output"><code>ifKeyword 'if' 0 i true word
+plus '+' 6 + false symbol
+star '*' 7 * false symbol</code></pre>
+      <p class="cap">From <code>tests/cases/run/data-enums.byn</code>, trimmed to the Token enum.</p>
+    </div>
+  </section>
+
+  <section class="band two" aria-labelledby="why">
+    <div>
+      <h2 id="why">Why the dots</h2>
+      <p>Early Arabic script was ambiguous: one shape could stand for several letters. The dots, <i>iʿjām</i>, were added so that each shape means one thing.</p>
+      <p>Bayan holds itself to the same rule. A construct has one spelling and one meaning. A second spelling is rejected, and <code>bayan format</code> rewrites it with a fix-it.</p>
+    </div>
+    <div>
+      <p>The hoopoe of Sūrat an-Naml (27:20–22) returns with news that is certain and clear. The compiler aims to do the same: what went wrong, where, why, and how to fix it.</p>
+<pre class="diag"><code><span class="e">error BYN2001</span>: `cout` is not defined
+
+  2 │ print($"{cout}")
+    │          <span class="u">^^^^</span>
+    │
+  <span class="h">help</span>: did you mean `count`?
+    │ 2 │ print($"{count}")
+    │   │             +</code></pre>
+      <p class="cap">Real output, from <code>tests/cases/diag/undefined-name</code>.</p>
+    </div>
+  </section>
+
+  <section class="band install" aria-labelledby="go">
+    <h2 id="go">From nothing to a running program</h2>
+    <p>The tutorial builds the compiler, writes <code>hello.byn</code>, runs it, then breaks it on purpose and reads the error.</p>
+<pre><code><span class="prompt">$ </span>bayan run hello.byn
+<span class="out">Hello, world!</span></code></pre>
+    <p><a href="tutorial.html">Start the tutorial</a>, or read the <a href="docs.html">reference page on enums</a>. Source and issues are at <a href="https://github.com/ikhbat-org/bayan">github.com/ikhbat-org/bayan</a>.</p>
+  </section>
+</div>
+</main>
+
+<footer class="site-foot"><div class="wrap">
+  <span>Bayan is a project of the Ikhbat Foundation.</span>
+  <span><a href="https://bayan.run">bayan.run</a> &nbsp; <a href="https://github.com/ikhbat-org/bayan">Repository</a></span>
+</div></footer>
+</body>
+</html>

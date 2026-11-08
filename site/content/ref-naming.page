@@ -1,0 +1,215 @@
+title: Naming rules and derived names
+nav: Reference
+order: 35
+template: docs
+---
+<p>Bayan checks names. A name tells you what a member does, so the compiler holds a member to what its name promises. This page lists the rules the compiler enforces today, each with its diagnostic, and the ones that are planned.</p>
+
+<h2 id="casing">Casing</h2>
+<ul>
+  <li>Types (structs, unions, enums, interfaces, error sets, aliases) are <code>PascalCase</code>. A lowercase type name is BYN2008.</li>
+  <li>Everything else is <code>camelCase</code>: functions, methods, properties, fields, locals, parameters, enum values, union cases and error cases. A capitalized one is BYN2009.</li>
+  <li>An acronym of more than two letters is written like a word: <code>HttpClient</code>. Two letters stay uppercase: <code>IO</code>.</li>
+  <li>An interface name starts with <code>I</code>.</li>
+</ul>
+<pre><code class="byn">struct box {
+    i64 n
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2008:</span> type name `box` must be PascalCase
+  --&gt; n-case.byn:1:8
+
+<span class="gut">  1 │</span> struct box {
+<span class="gut">    │</span>        <span class="hl">^^^</span>
+<span class="gut">    │</span>
+  help: rename it `Box`
+<span class="gut">    │</span> 1 │ struct Box {
+<span class="gut">    │</span>   │        +</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">struct Box {
+    i64 Size
+}
+print("x")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2009:</span> `Size` must be camelCase
+  --&gt; n-casefield.byn:2:9
+
+<span class="gut">  2 │</span>     i64 Size
+<span class="gut">    │</span>         <span class="hl">^^^^</span>
+<span class="gut">    │</span>
+  help: rename it `size`; only types are PascalCase
+<span class="gut">    │</span> 2 │     i64 size
+<span class="gut">    │</span>   │         +</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="words">Words in names</h2>
+<p>The checker sorts the words of a name into verbs, nouns and adjectives. A method is named with a verb, a property with a noun. A word the checker does not know is a warning (BYN5014). Add domain words such as <code>upsert</code> or <code>sku</code> once to the <code>grammar</code> section of <code>package.byn</code>, and they are known everywhere in the project.</p>
+<pre><code class="byn">struct Box {
+    i64 n
+    void upsert(ref this) { n += 1 }
+}
+print("x")</code></pre>
+<figure class="diag">
+<pre>◆ checked n-unknown in 0.02s
+<span class="err">warning BYN5014:</span> `upsert` is not a known verb or noun
+  --&gt; n-unknown.byn:3:10
+
+<span class="gut">  3 │</span>     void upsert(ref this) { n += 1 }
+<span class="gut">    │</span>          <span class="hl">^^^^^^</span>
+<span class="gut">    │</span>
+  help: add it to `grammar` in package.byn: `verbs: ["upsert"]`, `nouns: ["upsert"]` or
+        `adjectives: ["upsert"]`</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="patterns">Name patterns</h2>
+<p>Some name shapes have a fixed meaning, and the compiler checks that a member with that shape keeps to it. You can write members with these names yourself, as long as you keep the contract.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Shape</th><th scope="col">Meaning</th><th scope="col">Contract</th><th scope="col">Code</th></tr></thead>
+  <tbody>
+    <tr><td><code>verb(ref this)</code></td><td>Changes the value.</td><td>Named with a verb.</td><td>BYN5101 (warning)</td></tr>
+    <tr><td><code>verbed()</code></td><td>A changed copy or a view.</td><td>Never takes <code>ref this</code>. The changing form is the plain verb.</td><td>BYN5001</td></tr>
+    <tr><td><code>isX</code>, <code>hasX</code>, <code>canX</code></td><td>A state.</td><td>Returns <code>bool</code>, reads only, takes no <code>ref this</code>.</td><td>BYN5002</td></tr>
+    <tr><td><code>tryX()</code></td><td>An attempt at <code>x()</code>.</td><td>Returns <code>T?</code> or <code>bool</code> when <code>x() fails</code> exists.</td><td>BYN5003</td></tr>
+    <tr><td>a <code>bool</code> property</td><td>A state.</td><td>Starts with <code>is</code>, <code>has</code> or <code>can</code>. Only checked on <code>public</code> members.</td><td>BYN5102 (warning)</td></tr>
+  </tbody>
+</table></div>
+<example name="ref-naming-patterns"/>
+<pre><code class="byn">struct Box {
+    i64 n
+    Box doubled(ref this) { n *= 2 }
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5001:</span> `doubled` changes `this`; name it `double`
+  --&gt; n-ed.byn:3:9
+
+<span class="gut">  3 │</span>     Box doubled(ref this) { n *= 2 }
+<span class="gut">    │</span>         <span class="hl">^^^^^^^</span>
+<span class="gut">    │</span>
+  help: name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">struct Box {
+    i64 n
+    bool isBig(ref this) {
+        n += 1
+        return n &gt; 3
+    }
+}
+print("x")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5002:</span> `isBig` reads as state but modifies `this`
+  --&gt; n-isx.byn:3:10
+
+<span class="gut">  3 │</span>     bool isBig(ref this) {
+<span class="gut">    │</span>          <span class="hl">^^^^^ declared `ref this`</span>
+<span class="gut">    │</span>
+  help: remove `ref this` so it only reads, or name the action with a verb</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">union error Bad {
+    oops
+}
+struct Box {
+    i64 n
+    i64 parse(string s) fails Bad { fail .oops }
+    i64 tryParse(string s) =&gt; 0
+}
+print("x")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5003:</span> `tryParse` must return `i64?` or `bool`; it is derived from `parse() fails`
+  --&gt; n-tryx.byn:7:5
+
+<span class="gut">  7 │</span>     i64 tryParse(string s) =&gt; 0
+<span class="gut">    │</span>     <span class="hl">^^^ returns `i64`</span>
+<span class="gut">    │</span>
+  help: change it to return `i64?` or `bool`, or remove `tryParse` and call `try parse()`</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<note>The help text of BYN5001 suggests the plain verb. If the plain verb is a reserved word, as <code>double</code> is, the suggestion does not compile (BYN0012). Choose another verb.</note>
+<note>Planned: the checker has no rule yet for <code>ensureX</code> (idempotent), <code>xWith(other)</code> (with another value), <code>xInto(ref dst)</code> (write into a destination, with an allocating <code>x()</code> derived from it), <code>xOp</code> (the act as a value), <code>xUnchecked()</code> (needs a checked sibling), or for the noun types <code>T.Builder</code>, <code>T.Patch</code>, <code>T.Id</code>, <code>T.Field</code> and <code>T.Shipped</code>-style events. The derivation mechanism that would generate them is not in the compiler. The warning BYN5101 and the <code>bool</code>-prefix warning BYN5102 exist, but did not fire in a small test program.</note>
+
+<h2 id="particles">Particle words</h2>
+<ul>
+  <li>The particles are <code>from to until through at by for as</code>. Any other word before a parameter type is BYN5008.</li>
+  <li>A parameter list uses each particle at most once (BYN5013).</li>
+  <li>A particle is never a member name. <code>at(k)</code>, <code>to(x)</code> and <code>by(f)</code> are BYN5009. Name the member with a verb or a noun and put the particle on the parameter: <code>tryGet(at: k)</code>.</li>
+</ul>
+<pre><code class="byn">struct Box {
+    i64 n
+    i64 at(i64 k) =&gt; n + k
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5009:</span> `at` is a particle; name the member with a verb or a noun
+  --&gt; n-particle.byn:3:9
+
+<span class="gut">  3 │</span>     i64 at(i64 k) =&gt; n + k
+<span class="gut">    │</span>         <span class="hl">^^</span>
+<span class="gut">    │</span>
+  help: rename the member, for example `tryGet(at:)` instead of `at(…)`</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">void move2(i64 x, from i64 a, from i64 b) { }
+print("x")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5013:</span> `move2` uses the particle `from` twice
+  --&gt; n-particle2.byn:1:31
+
+<span class="gut">  1 │</span> void move2(i64 x, from i64 a, from i64 b) { }
+<span class="gut">    │</span>                               <span class="hl">^^^^ used again</span>
+<span class="gut">    │</span>
+  help: group the values in a struct, or choose another particle</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">void move2(i64 x, near i64 a) { }
+print("x")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5008:</span> `near` is not a particle
+  --&gt; n-particle3.byn:1:19
+
+<span class="gut">  1 │</span> void move2(i64 x, near i64 a) { }
+<span class="gut">    │</span>                   <span class="hl">^^^^ not a particle</span>
+<span class="gut">    │</span>
+  help: choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<p>How a call uses a particle is on the <a href="parameters.html">Parameters</a> page.</p>
+
+<h2 id="conversions">No toX and asX members</h2>
+<p>A conversion already has a form, so a member that spells one is BYN5009. A view is a noun (<code>xs.span</code>), an owned copy is <code>copy()</code>, a conversion is <code>T(x)</code>, and text is <code>$"{x}"</code> or <code>string(x)</code>. There is no <code>toString()</code>.</p>
+<pre><code class="byn">struct Box {
+    i64 n
+    i64 toList() =&gt; n
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5009:</span> `toList` spells a conversion with `to`; write `List(box)`
+  --&gt; n-toX.byn:3:9
+
+<span class="gut">  3 │</span>     i64 toList() =&gt; n
+<span class="gut">    │</span>         <span class="hl">^^^^^^</span>
+<span class="gut">    │</span>
+  help: use a view noun, `copy()`, or a `T(x)` conversion</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="logging">Logging</h2>
+<p><code>log</code> is the verb, and the level is a particle argument: <code>log(msg, as: .debug)</code>. <code>Log.debug(…)</code> names a level, not the act, and is BYN5007.</p>
+<pre><code class="byn">Log.debug("x")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5007:</span> `Log.debug` names a level, not the act; write `log(…, as: .debug)`
+  --&gt; n-log.byn:1:1
+
+<span class="gut">  1 │</span> Log.debug("x")
+<span class="gut">    │</span> <span class="hl">^^^^^^^^^</span>
+<span class="gut">    │</span>
+  help: call `log` and pass the level `as: .debug`
+<span class="gut">    │</span> 1 │ log("x", as: .debug)
+<span class="gut">    │</span>   │ +++++++++++++++++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="scope">Where the rules apply</h2>
+<p>The pattern rules (BYN50xx) apply to all code, because derived forms depend on them. The style rules (BYN51xx) apply to <code>public</code> declarations only. A name forced by an outside system, such as a JSON field or a C symbol, is meant to use a rename attribute or <code>@allow(…) because "…"</code> (see <a href="ref-declarations.html#because">Declarations</a>).</p>
+<note>Planned: <code>@allow</code> and the rename attributes (<code>@json(name: …)</code>, <code>@column(…)</code>) are not in the compiler. The <code>on</code> prefix for event names (<code>onChange</code>, BYN5010) is in the specification but a method with that name compiles today.</note>

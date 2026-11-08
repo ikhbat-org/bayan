@@ -14,7 +14,7 @@ public sealed class WarmUpTests
             var now = Interlocked.Increment(ref running);
             InterlockedMax(ref peak, now);
             if (now == 3) full.Set();
-            if (!full.Wait(TimeSpan.FromSeconds(10))) full.Set(); // the first builds hold their slots until the gate is full; a serial Start times out once and shows peak 1
+            if (!full.Wait(TestTime.Scale(TimeSpan.FromSeconds(10)))) full.Set(); // the first builds hold their slots until the gate is full; a serial Start times out once and shows peak 1
             built.Add(name);
             Interlocked.Decrement(ref running);
         }, new SemaphoreSlim(3));

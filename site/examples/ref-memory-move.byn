@@ -1,0 +1,24 @@
+struct Ledger {
+    List<i64> items
+}
+
+i64 total(List<i64> xs) {
+    var sum = 0
+    for x in xs {
+        sum += x
+    }
+    return sum
+}
+
+i64 consume(move List<i64> xs) => xs.length
+
+let a: List<i64> = [1, 2, 3]
+print($"{total(a)}")
+let n = consume(move a)
+print($"{n}")
+
+var ledger = Ledger { items: [4, 5] }
+let taken = ledger.items.take()
+print($"{taken.length} {ledger.items.length}")
+let copy = taken.copy()
+print($"{copy.length}")

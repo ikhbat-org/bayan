@@ -1,0 +1,12 @@
+// `apply` is pure: it charges the effects of `f` to whoever passes `f`.
+public i64 apply(i64 x, by (i64 -> i64) f) => f(x)
+
+i64 loud(i64 x) {
+    print("called")
+    return x + 1
+}
+
+public i64 run() uses console => apply(1, by: loud)
+
+print($"{run()}")
+print($"{apply(5, by: it * 2)}")

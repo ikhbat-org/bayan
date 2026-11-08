@@ -243,11 +243,9 @@ Stmt parseLocal(ref Parser p, from i64 start) {
     if isNameThenType(ref p, at: p.pos) {
         name = expectName(ref p, "a variable name")
         let _ = p.advance()
-        // C# `ParseType(fatArrow: true, lists: true)`; T6's stub takes no options yet (Q460).
-        type = parseRefinement(ref p, from: parseType(ref p))
+        type = parseRefinement(ref p, from: parseType(ref p, fatArrow: true, lists: true))
     } else if isTypeThenName(ref p, at: p.pos) {
-        // C# `ParseType(lists: true)` (Q460).
-        type = parseType(ref p)
+        type = parseType(ref p, lists: true)
         name = expectName(ref p, "a variable name")
         // A `let` needs a value, so a local declared without one is a `var`.
         if !keyword && !isUsing {
@@ -819,7 +817,7 @@ Stmt parseParenFor(ref Parser p, from i64 start, by Token keyword, bool tryKeywo
     if close.length > 0 && p.errorCount() == errors {
         let span = TextSpan.fromBounds(keyword.kind == .foreachKeyword ? keyword.start : open.start, until: close.end)
         let typeText = isNoType(in type) ? "" : $"{p.lexed.source.getText(typeSpan(in type))} "
-        let header = $"{typeText}{p.lexed.source.getText(name)} in {p.lexed.source.getText(exprSpan(in iterable))}"
+        let header = $"{typeText}{nameText(ref p, at: name)} in {p.lexed.source.getText(exprSpan(in iterable))}"
         let replacement = keyword.kind == .foreachKeyword ? $"for {header}" : open.hasTriviaBefore ? header : $" {header}"
         input = p.reportFix(.forInputForm, at: span, through: span, by: replacement, label: "the input form",
             help: "write the loop variable and iterable without parentheses")
