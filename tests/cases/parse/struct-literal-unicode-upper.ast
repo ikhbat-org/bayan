@@ -1,0 +1,60 @@
+CompilationUnit
+  Let a = (struct Åp (x 1))
+  Let b = (struct Ω)
+  Let c = (struct Δ (y 2))
+  Let d = (struct Ω.ω (x 1))
+  Let e = (struct Ä.ö)
+  Let f = (is v (props Ä (x: 1)))
+  Let g = (is v (props Δ (y: 2)))
+  Let h = (is v ω)
+  Block
+    Label x
+      Expr 1
+  Let i = ω
+  Block
+    Label x
+      Expr 1
+  Let j = (struct Åp (x 1))
+
+error BYN1005: expected a line break after the statement
+
+  8 │ let h = v is ω { x: 1 }
+    │               ^ found `{`
+    │
+  help: put the next statement on its own line
+    │ 8 │ let h = v is ω
+    │ 9 │ { x: 1 }
+
+error BYN1012: this expression does nothing as a statement
+
+  8 │ let h = v is ω { x: 1 }
+    │                     ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+
+   9 │ let i = ω { x: 1 }
+     │          ^ found `{`
+     │
+  help: put the next statement on its own line
+     │  9 │ let i = ω
+     │ 10 │ { x: 1 }
+
+error BYN1012: this expression does nothing as a statement
+
+  9 │ let i = ω { x: 1 }
+    │                ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN0005: identifier `Åp` is not in Unicode normalization form C
+
+  10 │ let j = Åp { x: 1 }
+     │         ^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 10 │ let j = Åp { x: 1 }
+     │    │         +

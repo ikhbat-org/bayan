@@ -1,0 +1,96 @@
+CompilationUnit
+  Let pa = (is x (variant .pair 1 2))
+  Let pb = (is x <error>)
+  Let pc = (is x <error>)
+  Let pd = (is x (. _ y))
+  Let pe = (is x (call _ 1))
+  Let pf = (is x (pos Text))
+  Let pg = (is s (decl Text name))
+  Switch v
+    Case Money when ok
+      Expr (call print "m")
+    Case Δ when ok
+      Expr (call print "d")
+    Default
+      Expr (call print "o")
+  If (is x <error>)
+    Block
+  Let sa = stackalloc
+  Let sb = (+ stackalloc 1)
+  Let ta = (struct Order.paid (x 1))
+  Let tb = (. order paid)
+  Block
+    Label x
+      Expr 1
+  If (. Order paid)
+    Block
+      Label x
+        Expr 1
+  Switch v
+    Case .paid when ok
+      Expr (call print "p")
+    Default
+      Expr (call print "o")
+
+error BYN1002: expected an expression, found `.`
+
+  2 │ let pb = x is .
+    │               ^
+
+error BYN1002: expected an expression, found `.`
+
+  3 │ let pc = x is .5
+    │               ^
+
+error BYN1002: expected an expression, found `{`
+
+  16 │ if x is { }
+     │         ^
+
+error BYN1001: expected a declaration or statement, found `}`
+
+  17 │ }
+     │ ^
+     │
+  help: remove this `}`; it has no matching `{`
+
+error BYN1021: `x = …` in a literal is an input form; write `x: …`
+
+  20 │ let ta = Order.paid { x = 1 }
+     │                         ^ the input form
+     │
+  help: write `:` after the field name
+     │ 20 │ let ta = Order.paid { x: 1 }
+     │    │                        +
+
+error BYN1005: expected a line break after the statement
+
+  21 │ let tb = order.paid { x: 1 }
+     │                    ^ found `{`
+     │
+  help: put the next statement on its own line
+     │ 21 │ let tb = order.paid
+     │ 22 │ { x: 1 }
+
+error BYN1012: this expression does nothing as a statement
+
+  21 │ let tb = order.paid { x: 1 }
+     │                          ^ the value is computed and discarded
+     │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1012: this expression does nothing as a statement
+
+  22 │ if Order.paid { x: 1 }
+     │                    ^ the value is computed and discarded
+     │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1001: expected a declaration or statement, found `}`
+
+  23 │ }
+     │ ^
+     │
+  help: remove this `}`; it has no matching `{`
