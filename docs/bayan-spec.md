@@ -139,7 +139,7 @@ There is no `;`. `bayan format` strips trailing semicolons and splits same-line 
 | وصل waṣl (joining) | The next line continues the statement if it starts with `.`, `?.`, `??`, `except`, `requires`, `expects`, `where`, `becomes`, `fails`, `uses`, `catch`, `&&`, `\|\|`, `and` or `or` |
 | Never-join | A line starting with `(`, `[` or `-` always begins a new statement |
 
-- **An unused non-void value is a compile error** (BYN3201), so every mis-split line is a diagnostic (`let x = a` newline `-b`). Discard on purpose with `_ = f()`.
+- **An unused non-void value is a compile error** (BYN3201), so every mis-split line is a diagnostic (`let x = a` newline `-b`). Discard on purpose with `let _ = f()`.
 - `return`, `break`, `continue` and `fail` take their operand on the same line. A postfix modifier (`if`, `unless`) is on the same line as its statement (BYN1042).
 - `else` follows `}` on the same line; `else` on a new line is rejected with a fix-it (BYN1041).
 - A waṣl line is indented deeper than the line its statement starts on; one that is not draws a warning that `bayan format` fixes (BYN5103), except `catch` after a line ending in `}` and a struct-level `requires`.
@@ -2154,7 +2154,7 @@ bench "parse ledger" { measure Ledger.read(sample) }
 property "balances sum to zero" (Span<Expense> xs) { … }
 
 @nightly
-fuzz "reader never crashes" (string text) { _ = Ledger.read(text) catch return }
+fuzz "reader never crashes" (string text) { let _ = Ledger.read(text) catch return }
 
 model test "cart behaves like a list" {
     real = …

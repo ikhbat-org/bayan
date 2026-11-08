@@ -176,7 +176,22 @@ Gate: before merging, run it over `lib/` and `selfhost/` and report the hit coun
 
 The sshd bug would have been L029's counterexample: a hash function whose error is a valid hash.
 
-## 3. Needs decision
+## 3. Decisions (user, 2026-11-08)
+
+- **W0** lands now, in the same change as 017 plan D6 (`Io.run` `env:`/`timeout`): a failed `waitpid` (other than EINTR), `WaitForSingleObject` or `GetExitCodeProcess` is `fail IoError`, never exit code 0 or 259; a signal-killed child fails with a distinct `.signaled(i32 signal)` (the 128+n convention is dropped); one status-mapping function serves both platform paths, and the D6 timeout and kill path goes through it, so a killed child reports `.timeout`, never a stale or zeroed status. L031 is enacted with it; W0's injected-failure unit test is its proof, run on musl, macOS and wp1.
+- **W1's rules apply now to the new fs slice** (`Fs.rename`, `copy`, `modified`, `setModified`, `realPath`): every libc/OS return checked, errno read only after a return that signals failure, an interior `\0` in a path rejected with `IoError`, `libc-uses.txt` rows in the same commit.
+- **D2:** warning, shipped only if W2b's dry run over `lib/` and `selfhost/` shows a low false-positive rate; the 10-hit sample is attached to that change.
+- **D4:** BYN49xx; descriptor names only until the A2 renumbering in round 4.
+- **D5:** after parity and L027, in its own spec.
+- **D6:** `bayan pkg diff`.
+- **D7:** infer from the type now; add `@cReturns` with `CImport`.
+- **D8:** the runtime libc audit is its own small spec, before any `std.crypto` work. It owns W1, W2a, W2b, W3 and the W5 checklist; W0 is no longer part of it.
+- **D9:** L031 now (with W0); L029 and L030 after W1's tables exist.
+- **W2a:** the discard spelling is `let _ = f()`; the spec (`:142`, and the fuzz example at `:2157`) now says so.
+- **W1 libc version pin:** kept. Still to confirm: whether the Windows target links UCRT or msvcrt, which decides the `snprintf` row.
+- **`Fs.fileExists`:** recorded only, as W3 says. No `Fs.stat` until a caller needs to tell "missing" from "cannot tell".
+
+## 3a. Options as proposed (revision 1)
 
 | # | Choice | Options | Recommendation |
 |---|---|---|---|
