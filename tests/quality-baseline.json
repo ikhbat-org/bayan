@@ -1,10 +1,20 @@
 {
   "version": 1,
   "files": {
+    "selfhost/driver/audit.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": 0.9844
+    },
     "selfhost/driver/build.byn": {
       "mutation": null,
-      "coverage": 0.96,
-      "branches": 0.9867
+      "coverage": 0.962,
+      "branches": 0.9868
+    },
+    "selfhost/driver/cache.byn": {
+      "mutation": null,
+      "coverage": 0.9367,
+      "branches": 0.88
     },
     "selfhost/driver/cc.byn": {
       "mutation": null,
@@ -14,17 +24,67 @@
     "selfhost/driver/commands.byn": {
       "mutation": null,
       "coverage": 0.9643,
-      "branches": 0.9667
+      "branches": 1.0
     },
     "selfhost/driver/dctx.byn": {
       "mutation": null,
       "coverage": 1.0,
       "branches": null
     },
+    "selfhost/driver/diagdocs.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": null
+    },
+    "selfhost/driver/doctor.byn": {
+      "mutation": null,
+      "coverage": 0.9667,
+      "branches": 0.975
+    },
+    "selfhost/driver/explain.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": 1.0
+    },
+    "selfhost/driver/features.byn": {
+      "mutation": null,
+      "coverage": 0.9223,
+      "branches": 0.9412
+    },
+    "selfhost/driver/format.byn": {
+      "mutation": null,
+      "coverage": 0.9234,
+      "branches": 0.6959
+    },
     "selfhost/driver/main.byn": {
       "mutation": null,
-      "coverage": 0.9914,
+      "coverage": 0.9918,
       "branches": 1.0
+    },
+    "selfhost/driver/progress.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": 1.0
+    },
+    "selfhost/driver/scaffold.byn": {
+      "mutation": null,
+      "coverage": 0.9655,
+      "branches": 0.9741
+    },
+    "selfhost/driver/sha256.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": 1.0
+    },
+    "selfhost/driver/walk.byn": {
+      "mutation": null,
+      "coverage": 0.971,
+      "branches": 0.9028
+    },
+    "selfhost/emitter/coverage.byn": {
+      "mutation": null,
+      "coverage": 0.9615,
+      "branches": 0.9297
     },
     "selfhost/emitter/cprint/builtin.byn": {
       "mutation": null,
@@ -101,6 +161,11 @@
       "coverage": 0.9871,
       "branches": 0.939
     },
+    "selfhost/emitter/ltree/ltree.byn": {
+      "mutation": null,
+      "coverage": 0.8679,
+      "branches": 0.875
+    },
     "selfhost/emitter/main.byn": {
       "mutation": null,
       "coverage": 1.0,
@@ -111,10 +176,20 @@
       "coverage": 1.0,
       "branches": 1.0
     },
+    "selfhost/emitter/schemata.byn": {
+      "mutation": null,
+      "coverage": 0.9777,
+      "branches": 0.9237
+    },
     "selfhost/lexer/main.byn": {
       "mutation": null,
       "coverage": 0.0678,
       "branches": 0.0167
+    },
+    "selfhost/lexer/tokens.byn": {
+      "mutation": null,
+      "coverage": 0.875,
+      "branches": 0.8333
     },
     "selfhost/parser/decls.byn": {
       "mutation": null,
@@ -125,6 +200,11 @@
       "mutation": null,
       "coverage": 0.9655,
       "branches": 0.7863
+    },
+    "selfhost/parser/dump.byn": {
+      "mutation": null,
+      "coverage": 0.9741,
+      "branches": 0.9367
     },
     "selfhost/parser/main.byn": {
       "mutation": null,
@@ -198,8 +278,8 @@
     },
     "selfhost/semantics/compile.byn": {
       "mutation": null,
-      "coverage": 0.2883,
-      "branches": 0.1867
+      "coverage": 0.8973,
+      "branches": 0.747
     },
     "selfhost/semantics/ctx.byn": {
       "mutation": null,
@@ -208,8 +288,8 @@
     },
     "selfhost/semantics/diag.byn": {
       "mutation": null,
-      "coverage": 0.941,
-      "branches": 0.8394
+      "coverage": 0.947,
+      "branches": 0.8465
     },
     "selfhost/semantics/effects.byn": {
       "mutation": null,
@@ -250,6 +330,11 @@
       "mutation": null,
       "coverage": 0.875,
       "branches": 0.6667
+    },
+    "selfhost/semantics/manifest.byn": {
+      "mutation": null,
+      "coverage": 0.3972,
+      "branches": 0.3203
     },
     "selfhost/semantics/ownership.byn": {
       "mutation": null,

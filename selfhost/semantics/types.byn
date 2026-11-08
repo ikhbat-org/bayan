@@ -98,6 +98,7 @@ public enum BuiltinKind {
     target
     env
     fs
+    time
 }
 
 // ── Handles ─────────────────────────────────────────────────────────────────────
@@ -182,6 +183,7 @@ public BuiltinKind builtinKindOf(i64 i) {
         case 12: return .target
         case 13: return .env
         case 14: return .fs
+        case 15: return .time
         default: return .path
     }
 }
@@ -612,6 +614,7 @@ string builtinName(BuiltinKind k) {
         case .target: return "Target"
         case .env: return "Env"
         case .fs: return "Fs"
+        case .time: return "Time"
         default: return "Path"
     }
 }

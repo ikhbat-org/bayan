@@ -258,11 +258,12 @@ internal static class EffectAnalysis
     private static string[] Builtin(BuiltinFunction f) => f switch
     {
         BuiltinFunction.Print or BuiltinFunction.IoStdout or BuiltinFunction.IoStderr or BuiltinFunction.IoStdin => ["console"],
-        BuiltinFunction.IoReadFile or BuiltinFunction.IoReadText or BuiltinFunction.IoListDir => ["fs", "alloc"],
-        BuiltinFunction.IoWriteFile or BuiltinFunction.IoRemove or BuiltinFunction.IoCreateDirectory or BuiltinFunction.IoRemoveDirectory or BuiltinFunction.FsFileExists => ["fs"],
+        BuiltinFunction.IoReadFile or BuiltinFunction.IoReadText or BuiltinFunction.IoListDir or BuiltinFunction.FsRealPath => ["fs", "alloc"],
+        BuiltinFunction.IoWriteFile or BuiltinFunction.IoRemove or BuiltinFunction.IoCreateDirectory or BuiltinFunction.IoRemoveDirectory or BuiltinFunction.FsFileExists
+            or BuiltinFunction.FsRename or BuiltinFunction.FsCopy or BuiltinFunction.FsModified or BuiltinFunction.FsSetModified => ["fs"],
         BuiltinFunction.IoRun or BuiltinFunction.IoRunBatch => ["process", "alloc"],
         BuiltinFunction.IoStdinReadAllBytes => ["console", "alloc"],
-        BuiltinFunction.IoMonotonicNanos => ["clock"],
+        BuiltinFunction.IoMonotonicNanos or BuiltinFunction.TimeNow => ["clock"],
         BuiltinFunction.EnvGet => ["env", "alloc"],
         BuiltinFunction.ListNew or BuiltinFunction.OwnedNew or BuiltinFunction.StrBufGrow or BuiltinFunction.StrBufOver or BuiltinFunction.ArenaNew
             or BuiltinFunction.Utf8Decode or BuiltinFunction.Utf8TryDecode or BuiltinFunction.Utf8DecodeReplace or BuiltinFunction.HexEncode or BuiltinFunction.HexDecode

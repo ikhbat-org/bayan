@@ -287,12 +287,12 @@ BStmt bindAssign(ref Binder b, through ref Ctx c, for in parser.AssignStmt a) {
     let valueSpan = parser.exprSpan(in a.value)
     if isError(exprType(in c, for: target)) {
         let _ = bindExpr(ref b, through: ref c, for: in a.value)
-        return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+        return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
     }
     target = mapWriteTarget(ref c, for: target)
     if !t39CheckFieldWrite(ref b, through: ref c, for: target, at: a.span) {
         let _ = bindExpr(ref b, through: ref c, for: in a.value)
-        return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+        return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
     }
     let _ = checkWritable(ref b, through: ref c, for: target, at: targetSpan, by: "")
     let targetType = exprType(in c, for: target)
@@ -321,7 +321,7 @@ BStmt bindAssign(ref Binder b, through ref Ctx c, for in parser.AssignStmt a) {
                 let name = tk == .local ? c.locals[c.bLocals[boundIndex(target)].local].name : "this"
                 report(ref b, through: ref c, for: .assignmentChangesState, at: a.span, by: (name, "", "", "", ""),
                     help: "assign a value in the same state, or move the transition into a `becomes` method")
-                return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+                return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
             }
         }
         if tk == .local {
@@ -334,26 +334,26 @@ BStmt bindAssign(ref Binder b, through ref Ctx c, for in parser.AssignStmt a) {
         }
         let pending = isPending(ref b, through: ref c, for: target)
         let converted = convert(ref b, through: ref c, for: assigned, to: targetType, at: valueSpan, constrains: !pending)
-        return addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted })
+        return recordAssignSyntax(ref c, for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted }), from: in a)
     }
     let bop = op
     if bop == .coalesce {
         if kindOf(targetType) != .optional {
             report(ref b, through: ref c, for: .coalesceNotOptional, at: targetSpan, by: (typeDisplay(ref c, by: targetType), "", "", "", ""))
-            return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+            return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
         }
         let converted = bindConverted(ref b, through: ref c, for: in a.value, to: c.optionalTypes[typeIndex(targetType)])
-        return addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted, op: bop })
+        return recordAssignSyntax(ref c, for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted, op: bop }), from: in a)
     }
     let value = bindExpr(ref b, through: ref c, for: in a.value, to: bop == .shl || bop == .shr ? prim(.i32) : targetType)
     let valueType = exprType(in c, for: value)
-    if isError(valueType) { return addErrorStmt(ref c, from: BErrorStmt { span: a.span }) }
+    if isError(valueType) { return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a) }
     if bop == .shl || bop == .shr {
         if !isInteger(targetType) || !isInteger(valueType) {
             report(ref b, through: ref c, for: .badBinaryOperands, at: a.span, by: (binaryText(bop), typeDisplay(ref c, by: targetType), typeDisplay(ref c, by: valueType), "", ""))
-            return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+            return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
         }
-        return addAssign(ref c, from: BAssign { span: a.span, target: target, value: value, op: bop })
+        return recordAssignSyntax(ref c, for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: value, op: bop }), from: in a)
     }
     constrain(ref b, through: ref c, for: target, as: value, from: in a.value)
     if isString(targetType) && bop == .add {
@@ -368,31 +368,31 @@ BStmt bindAssign(ref Binder b, through ref Ctx c, for in parser.AssignStmt a) {
         report(ref b, through: ref c, for: .stringConcatenation, at: a.span, by: ("", "", "", "", ""),
             help: "write the parts as one interpolation: `s = $\"{s}{x}\"`, or build text in a `StrBuf`: `buf.append($\"{a}{b}\")`",
             hasFix: true, fixSpan: a.span, fixReplacement: $"{fix.finish()}")
-        return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+        return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
     }
     if !operatorApplies(ref c, for: bop, as: targetType) {
         report(ref b, through: ref c, for: .badBinaryOperands, at: a.span, by: (binaryText(bop), typeDisplay(ref c, by: targetType), typeDisplay(ref c, by: valueType), "", ""))
-        return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+        return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
     }
     let pending = isPending(ref b, through: ref c, for: target)
     let converted = convert(ref b, through: ref c, for: value, to: targetType, at: valueSpan, constrains: !pending)
-    return addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted, op: bop })
+    return recordAssignSyntax(ref c, for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted, op: bop }), from: in a)
 }
 
 BStmt bindIncDec(ref Binder b, through ref Ctx c, for in parser.IncDecStmt i) {
     var target = bindExpr(ref b, through: ref c, for: in i.target)
     let targetType = exprType(in c, for: target)
-    if isError(targetType) { return addErrorStmt(ref c, from: BErrorStmt { span: i.span }) }
+    if isError(targetType) { return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: i.span }), as: .incDecStmt, at: i.span) }
     if !isInteger(targetType) {
         report(ref b, through: ref c, for: .badUnaryOperand, at: i.span, by: (i.increment ? "++" : "--", typeDisplay(ref c, by: targetType), "", "", ""))
-        return addErrorStmt(ref c, from: BErrorStmt { span: i.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: i.span }), as: .incDecStmt, at: i.span)
     }
     target = mapWriteTarget(ref c, for: target)
-    if !t39CheckFieldWrite(ref b, through: ref c, for: target, at: i.span) { return addErrorStmt(ref c, from: BErrorStmt { span: i.span }) }
+    if !t39CheckFieldWrite(ref b, through: ref c, for: target, at: i.span) { return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: i.span }), as: .incDecStmt, at: i.span) }
     let _ = checkWritable(ref b, through: ref c, for: target, at: parser.exprSpan(in i.target), by: "")
-    let one = literal(ref c, at: i.span, as: exprType(in c, for: target), by: in Constant { kind: .integer, integer: bigFromI64(1) })
+    let one = recordNodeSyntax(ref c, for: literal(ref c, at: i.span, as: exprType(in c, for: target), by: in Constant { kind: .integer, integer: bigFromI64(1) }), as: .incDecStmt, at: i.span)
     let op: parser.BinaryOp = i.increment ? .add : .sub
-    return addAssign(ref c, from: BAssign { span: i.span, target: target, value: one, op: op })
+    return recordNodeSyntax(ref c, for: addAssign(ref c, from: BAssign { span: i.span, target: target, value: one, op: op }), as: .incDecStmt, at: i.span)
 }
 
 /// J78 (O11, revision 0007): a field of a struct with `requires`, states or `@sealed` is written only by its own

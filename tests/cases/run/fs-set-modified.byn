@@ -1,0 +1,10 @@
+// `Fs.setModified` sets a file's last write time, which `Fs.modified` reads back, and fails on a missing path.
+void main() uses fs, console fails IoError {
+    let data: u8[1] = [0x41]
+    try Io.writeFile("fs-set-modified.tmp", data.span)
+    try Fs.setModified("fs-set-modified.tmp", to: Time.fromNanos(978307200123456700))
+    let t = try Fs.modified("fs-set-modified.tmp")
+    print($"seconds: {t.nanos / 1000000000}")
+    Fs.setModified("fs-set-modified-missing.tmp", to: t) catch { print("missing: failed") }
+    try Io.remove("fs-set-modified.tmp")
+}

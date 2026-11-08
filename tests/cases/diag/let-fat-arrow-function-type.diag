@@ -1,0 +1,8 @@
+error BYN1055: `=>` in a type is an input form; write `->`
+
+  2 │     let f: i32 => bool = x => x > 0
+    │                ^^ the input form
+    │
+  help: write the function type with `->`
+    │ 2 │     let f: i32 -> bool = x => x > 0
+    │   │                +

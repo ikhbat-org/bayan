@@ -1,0 +1,368 @@
+// bayan: `bayan new` and `bayan init` (Scaffold.cs:18-322, spec 017 T4): an app, library or script that builds and passes its tests with
+// no edits. Git use is `git init` only, and only outside an existing work tree.
+//
+// The C# `Files` table interpolates raw strings; Bayan raw strings do not interpolate, so each template is a constant with `{kebab}`,
+// `{module}`, `{kind}` or `{command}` placeholders that `scaffoldFiles` replaces.
+
+import lexer
+import semantics
+
+enum ScaffoldLayout {
+    app
+    lib
+    script
+}
+
+/// Scaffold.cs:16 `Options`.
+struct ScaffoldOptions {
+    string? target
+    ScaffoldLayout layout
+    bool git
+    bool ciGithub
+}
+
+/// Scaffold.cs:109 `ProjectNames`: the package name in kebab-case and the library's module name in camelCase.
+struct ScaffoldNames {
+    string kebab
+    string module
+}
+
+const scaffoldScript: string = """
+    #!/usr/bin/env bayan
+    #:io threaded
+
+    print("Hello, world!")
+
+    """
+
+const scaffoldPackage: string = """
+    Package {
+        name: "local/{kebab}",      // `local/` until published under a verified namespace
+        version: "0.1.0",
+        edition: 2027,
+        kind: .{kind},
+        capabilities: [],
+        deps: [],
+        dist: Dist {
+            targets: [.host],        // the machine that builds it
+            mode: .safe,
+        },
+    }
+
+    """
+
+const scaffoldReadmeLib: string = """
+    # {kebab}
+
+    A Bayan library. Its code is in `src/{module}/`; other packages use it with `import {module}`.
+
+    ## Test
+
+    ```
+    bayan test
+    ```
+
+    """
+
+const scaffoldReadmeApp: string = """
+    # {kebab}
+
+    A Bayan app. Its code is in `src/app/`.
+
+    ## Run
+
+    ```
+    bayan run
+    ```
+
+    ## Test
+
+    ```
+    bayan test
+    ```
+
+    """
+
+const scaffoldEditorconfig: string = """
+    root = true
+
+    [*]
+    charset = utf-8
+    end_of_line = lf
+    indent_style = space
+    indent_size = 4
+    insert_final_newline = true
+    trim_trailing_whitespace = true
+
+    """
+
+const scaffoldLibSource: string = """
+    /// Returns twice `x`.
+    public i64 twice(i64 x) {
+        return x * 2
+    }
+
+    """
+
+const scaffoldLibTest: string = """
+    test "twice doubles" {
+        assert(twice(21) == 42)
+    }
+
+    """
+
+const scaffoldAppSource: string = """
+    /// The line this app prints.
+    string greeting() {
+        return "Hello, world!"
+    }
+
+    print(greeting())
+
+    """
+
+const scaffoldAppTest: string = """
+    test "greets the world" {
+        assert(greeting() == "Hello, world!")
+    }
+
+    """
+
+const scaffoldCi: string = """
+    name: bayan
+
+    on: [push, pull_request]
+
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v5
+          # Install zig and bayan here; neither has an official setup action yet.
+          - run: bayan {command}
+          - run: bayan test
+
+    """
+
+/// Scaffold.cs:18 `New`.
+i32 scaffoldNew(ReadOnlySpan<string> args) uses alloc, console, env, fs, process {
+    let o = scaffoldParseOptions(args, for: "new") ?? return exitUsage
+    if o.target is null {
+        Io.stderr.write("bayan: expected a name, e.g. `bayan new tally`\n")
+        return exitUsage
+    }
+    let target = o.target ?? ""
+    let full = scaffoldTrimEnd(Path.fullPath(target))
+    let dirName = Path.fileName(full)
+    let names = scaffoldNames(dirName, for: o.layout) ?? return exitUsage
+    if o.layout == .script {
+        let file = Path.combine(Path.directoryName(full) ?? "", $"{names.kebab}.byn")
+        let shown = Path.isRooted(target) ? file : Path.relative(Path.fullPath("."), to: file)
+        if Fs.fileExists(file) {
+            Io.stderr.write($"bayan: `{shown}` already exists\n")
+            return exitUsage
+        }
+        scaffoldWrite(scaffoldFiles(names, for: o), to: Path.directoryName(file) ?? "", for: false)
+        Io.stdout.write($"created script `{shown}`; run it with `bayan {shown}`\n")
+        return exitOk
+    }
+    if t5DirectoryExists(full) && scaffoldEntryCount(full) > 0 {
+        Io.stderr.write($"bayan: `{target}` already exists and isn't empty\n")
+        Io.stderr.write("  help: run `bayan init` inside it to add only the missing files\n")
+        return exitUsage
+    }
+    // coverage-exempt: Q1086 the catch is reached only if `full` cannot be made after the checks above; the C# `Directory.CreateDirectory` throws there
+    Io.createDirectory(full) catch { panic($"cannot create the directory {full}") }
+    scaffoldWrite(scaffoldFiles(names, for: o), to: full, for: false)
+    Io.stdout.write($"created {o.layout == .lib ? "library" : "app"} `local/{names.kebab}` in `{target}`\n")
+    scaffoldInitGit(full, for: o)
+    Io.stdout.write("\n")
+    Io.stdout.write($"  cd {target}\n")
+    if o.layout == .app { Io.stdout.write("  bayan run\n") }
+    Io.stdout.write("  bayan test\n")
+    return exitOk
+}
+
+/// Scaffold.cs:59 `Init`.
+i32 scaffoldInit(ReadOnlySpan<string> args) uses alloc, console, env, fs, process {
+    let o = scaffoldParseOptions(args, for: "init") ?? return exitUsage
+    let dir = scaffoldTrimEnd(Path.fullPath(o.target ?? "."))
+    unless t5DirectoryExists(dir) {
+        Io.stderr.write($"bayan: `{o.target ?? ""}` doesn't exist; `bayan new {o.target ?? ""}` creates it\n")
+        return exitUsage
+    }
+    if Fs.fileExists(Path.combine(dir, "package.byn")) {
+        Io.stderr.write("bayan: this directory already has a `package.byn`\n")
+        return exitUsage
+    }
+    let names = scaffoldNames(Path.fileName(dir), for: o.layout) ?? return exitUsage
+    scaffoldWrite(scaffoldFiles(names, for: o), to: dir, for: true)
+    if o.layout != .script { scaffoldInitGit(dir, for: o) }
+    return exitOk
+}
+
+/// `TrimEnd(Path.DirectorySeparatorChar)`: `\` on Windows, `/` elsewhere.
+string scaffoldTrimEnd(string path) {
+    // coverage-exempt: Q1086 the Windows branch runs only on a Windows host
+    let separator = Target.os == "windows" ? "\\" : "/"
+    var end = path.length
+    while end > 0 && path[end - 1..end] == separator { end -= 1 }
+    return path[0..end]
+}
+
+/// `Directory.EnumerateFileSystemEntries(full).Any()` counts the entries of `full`, a directory (`t5DirectoryExists`), so the listing succeeds.
+i64 scaffoldEntryCount(string full) uses alloc, fs {
+    // coverage-exempt: Q1086 the catch is reached only if the directory vanishes after `t5DirectoryExists`; the C# would throw
+    let names = Io.listDir(full) catch { panic($"cannot list {full}") }
+    return names.length
+}
+
+/// Scaffold.cs:79 `ParseOptions`: null after reporting.
+ScaffoldOptions? scaffoldParseOptions(ReadOnlySpan<string> args, for string command) uses alloc, console {
+    var target: string? = null
+    var layout = ScaffoldLayout.app
+    var git = true
+    var ci = false
+    var i: i64 = 0
+    while i < args.length {
+        let a = args[i]
+        if a == "--lib" {
+            layout = .lib
+        } else if a == "--script" {
+            layout = .script
+        } else if a == "--vcs" && i + 1 < args.length && (args[i + 1] == "git" || args[i + 1] == "none") {
+            i += 1
+            git = args[i] == "git"
+        } else if a == "--ci" && i + 1 < args.length && (args[i + 1] == "github" || args[i + 1] == "none") {
+            i += 1
+            ci = args[i] == "github"
+        } else if a.startsWith("-") || target is not null {
+            Io.stderr.write($"bayan: unexpected argument `{a}`\n")
+            Io.stderr.write($"usage: bayan {command} {command == "new" ? "<name>" : "[<dir>]"} [--lib|--script] [--vcs git|none] [--ci github|none]\n")
+            return null
+        } else {
+            target = a
+        }
+        i += 1
+    }
+    return ScaffoldOptions { target: target, layout: layout, git: git, ciGithub: ci }
+}
+
+/// Scaffold.cs:115 `Names`: a directory name may be kebab-case (`my-app`) or camelCase (`myApp`); the package name is its kebab-case
+/// form and a library's module its camelCase form. Null after reporting.
+ScaffoldNames? scaffoldNames(string dirName, for ScaffoldLayout layout) uses alloc, console {
+    let t = dirName.bytes
+    var camel = t.length > 0 && t[0] >= 0x61 && t[0] <= 0x7A
+    for b in t {
+        if !((b >= 0x61 && b <= 0x7A) || (b >= 0x41 && b <= 0x5A) || (b >= 0x30 && b <= 0x39)) { camel = false }
+    }
+    let kebab = camel ? semantics.kebabOf(dirName) : dirName
+    unless semantics.t10IsKebabName(kebab.bytes) {
+        Io.stderr.write($"bayan: `{dirName}` can't be a package name\n")
+        Io.stderr.write("  help: use lowercase words joined by `-` (`my-app`) or camelCase (`myApp`); start with a letter\n")
+        return null
+    }
+    let module = semantics.camelOf(kebab)
+    if layout == .lib && lexer.Keywords.build().lookup(module.bytes) != lexer.TokenKind.identifier {
+        Io.stderr.write($"bayan: `{module}` is a keyword, so `import {module}` couldn't name the library\n")
+        Io.stderr.write($"  help: pick another name, e.g. `{kebab}-lib`\n")
+        return null
+    }
+    return ScaffoldNames { kebab: kebab, module: module }
+}
+
+/// Scaffold.cs:136 `Write`: writes every file that doesn't exist yet, in ordinal path order; with `listing`, says what it did.
+void scaffoldWrite(Map<string, string> files, to string root, for bool listing) uses alloc, console, fs, process {
+    var paths = List<string>()
+    for (relative, contents) in files { paths.append(relative) }
+    paths.sort()
+    for relative in paths {
+        let contents = files[relative]
+        let path = Path.combine(root, relative)
+        if Fs.fileExists(path) {
+            // coverage-exempt: Q1086 `Write` skips an existing file without listing only when `stdout` is null, and `New` writes into an empty directory or a new script path
+            if listing { Io.stdout.write($"skipped {relative} (already exists)\n") }
+            continue
+        }
+        // coverage-exempt: Q1086 the catch is reached only if a parent directory cannot be made; the C# `Directory.CreateDirectory` throws there
+        Io.createDirectory(Path.directoryName(path) ?? "") catch { panic($"cannot create the directory of {path}") }
+        // coverage-exempt: Q1086 the catch is reached only if the file cannot be written; the C# `File.WriteAllText` throws there
+        Io.writeFile(path, contents.bytes) catch { panic($"cannot write {path}") }
+        // `Io.writeFile` has no executable bit and no chmod builtin: `chmod a+x` adds it as `File.SetUnixFileMode` does; with no `chmod` on `PATH` it panics (Q1089).
+        // coverage-exempt: Q1086 the Windows branch runs only on a Windows host (`OperatingSystem.IsWindows()`)
+        if contents.startsWith("#!") && Target.os != "windows" {
+            var chmod = List<string>()
+            chmod.append("a+x")
+            chmod.append(path)
+            let _ = Io.run("chmod", chmod.span) catch { panic($"cannot make {path} executable") }
+        }
+        if listing { Io.stdout.write($"created {relative}\n") }
+    }
+}
+
+/// Scaffold.cs:154 `InitGit`.
+void scaffoldInitGit(string dir, for ScaffoldOptions o) uses alloc, console, env, fs, process {
+    unless o.git { return }
+    let found = ccFindOnPath("git", for: Target.os)
+    if found is null {
+        Io.stdout.write("note: git isn't installed, so no repository was created\n")
+        return
+    }
+    let git = found
+    let inside = scaffoldGit(git, at: dir, for: "rev-parse", through: "--is-inside-work-tree")
+    if inside.code == 0 && inside.stdout == "true" {
+        Io.stdout.write("note: already inside a git repository, so no new one was created\n")
+        return
+    }
+    let init = scaffoldGit(git, at: dir, for: "init", through: "--quiet")
+    if init.code == 0 {
+        Io.stdout.write("initialized a git repository (nothing committed)\n")
+    } else {
+        Io.stdout.write("note: `git init` failed, so no repository was created\n")
+    }
+}
+
+struct ScaffoldGitResult {
+    i32 code
+    string stdout
+}
+
+/// Scaffold.cs:171 `Git`: `Io.run` has no working directory (Q1009), so `git -C <dir>` stands for `WorkingDirectory = dir`; stdout trimmed.
+ScaffoldGitResult scaffoldGit(string git, at string dir, for string first, through string second) uses alloc, process {
+    var args = List<string>()
+    args.append("-C")
+    args.append(dir)
+    args.append(first)
+    args.append(second)
+    // coverage-exempt: Q1086 the catch is reached only if the `git` that was just found cannot start; the C# `Process.Start` throws there
+    let r = Io.run(git, args.span) catch { panic($"cannot run {git}") }
+    return ScaffoldGitResult { code: r.exitCode, stdout: r.stdout.trimmed() }
+}
+
+/// Scaffold.cs:191 `Files`: path to contents; `scaffoldWrite` sorts the paths.
+Map<string, string> scaffoldFiles(ScaffoldNames n, for ScaffoldOptions o) uses alloc {
+    var files: Map<string, string> = []
+    if o.layout == .script {
+        files[$"{n.kebab}.byn"] = scaffoldScript
+        return files
+    }
+    let lib = o.layout == .lib
+    files["package.byn"] = scaffoldPackage.replaced("{kebab}", by: n.kebab).replaced("{kind}", by: lib ? "lib" : "app")
+    files["README.md"] = (lib ? scaffoldReadmeLib : scaffoldReadmeApp).replaced("{kebab}", by: n.kebab).replaced("{module}", by: n.module)
+    files[".gitignore"] = "/out/\n/dist/\n/gen/\n"
+    files[".gitattributes"] = "* text=auto eol=lf\n*.byn linguist-language=C#\n"
+    files[".editorconfig"] = scaffoldEditorconfig
+    if lib {
+        files[$"src/{n.module}/{n.module}.byn"] = scaffoldLibSource
+        files[$"tests/{n.module}.test.byn"] = scaffoldLibTest
+    } else {
+        files["src/app/main.byn"] = scaffoldAppSource
+        files["tests/app.test.byn"] = scaffoldAppTest
+    }
+    files["testdata/.gitkeep"] = ""
+    files["docs/.gitkeep"] = ""
+    if o.ciGithub {
+        files[".github/workflows/bayan.yml"] = scaffoldCi.replaced("{command}", by: lib ? "check" : "build")
+    }
+    return files
+}
