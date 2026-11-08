@@ -60,10 +60,11 @@ decisions of 2026-11-08 (below, U1–U5). The section above stays as history; wh
   `.timeout(Millis)`/`.signaled(i32)`) follows it.
 - Q1065 is still open: `byn_io_run_with` captures through `byn_process_finish` (`src/runtime/bayan-rt.c:3174`), which
   fails `invalidUtf8` on non-UTF-8 output and drops the exit code. A byte-exact `replay` needs a bytes-returning
-  `Io.run`, which is new API (R4): Q1067.
+  `Io.run`, which is new API (R4): Q1141, decided 2026-11-08 as no new API now, settled in the later
+  process-handle/streaming API after D6/W0.
 - `Io.createDirectory` is idempotent (`Builtins.cs:378`, as .NET `Directory.CreateDirectory`; `byn_mkdir_all`,
   `src/runtime/bayan-rt.c:3050`, returns 0 on an existing directory), so "atomic creation of a lock directory" cannot
-  be built on it as is: Q1066.
+  be built on it as is: Q1140.
 - Spec inventory was stale (line counts, a missing inline block, two deleted originals, `scripts/cleanup/` vs R2); fixed
   in the spec in this revision.
 
@@ -89,23 +90,32 @@ but the last says "none".
 | G3 json-only | off `dev` after G0 | `manifest-builds` (inline `mutation-step.sh:25`), `stryker-to-quality` (S8), the inline JSON test probes (`quality-baseline.test.sh` ×7, `mutate-batch.test.sh` ×3, `guard.test.sh` ×2, `land.test.sh` ×1, `converters.test.sh` ×1) | `std.json` on `dev` (S7 layers: reader and `JsonValue`, `Json.encode(v, indent)`); S8 is measured, no new API | `scripts/quality/fixtures/` plus one real Stryker report (S8: parsed-equal on float fields); the manifest line: bytes | `scripts/quality/mutate.sh:57`, `mutation-step.sh:25`, `converters.test.sh`, each probe with the port it tests | none |
 | G4 S4 realPath | off `dev` after G3 | `quality-baseline`, `report-paths` (inline `mutate-batch.sh:100-111`), `coverage-missing` (inline `guard.sh:80`) | `Fs.realPath` (G0); `std.json` (G3). First step: read each `realpath` call and record whether its path can be missing (`quality-baseline.py:21` resolves report entries and `root`; `guard.sh:80` resolves report paths; `mutate-batch.sh:100` rewrites report paths). Only if one can be missing does G4 add a pure lexical `normalize` to `std.path` (R4: its shape goes to the user first) | `check` and `update` over the last mutation run's reports; `quality-baseline.test.sh`; the two inline blocks: bytes, recorded at the port | `guard.sh:80,122`, `land.sh:92,99`, `mutate-batch.sh:100,126,133`, `mutation.yml:96-97`, the 4 tests, handoff | none |
 | G5 S5 glob | off `dev` after G4 | `mutate-plan` (inline `mutate-batch.sh:26-84`) | S5: `List<string> glob(pattern) uses fs` in `std.fs`, pure `Glob.matches` in `std.path` (shapes settled, S5) | `--shard k/4` for k=1..4, `--files` cases from `mutate-batch.test.sh`: bytes | `mutate-batch.sh:26`; `mutate-batch.sh` is then sequencing only | none |
-| G6 S3 regex | off `dev` after G5 | `std.regex` (S3), then `guard-checks`, `coverage-gate`, `wave-brief` | S3 as settled (no lookaround). coverage-gate's `(?<!\w)…(?!\w)` (`coverage-gate.py:46`) becomes `Regex.escaped(text)` found with `findAll`, each match then checked by hand for a `\w` byte before and after; `os.walk` (`:63`) uses S5 `glob`. guard-checks' `fnmatch` uses `Glob.matches` (G5). wave-brief's `fcntl.flock` on `a+` (`wave-brief.py:106-116`) becomes the Q1066 lock plus writeReplacing of `q-ranges.tsv` (temp file in the same directory, so no `crossDevice`); needs `Fs.modified`, `Fs.rename` (G0) and `.alreadyExists` if Q1066 keeps it | guard-checks: the last 10 landed 010 tasks and `guard-checks.test.sh`; coverage-gate: merge bases of the last 10 landings with their reports; wave-brief: each 010 task and `wave-brief.test.sh`; all bytes | `guard.sh:91,109`, `land.sh:32`, `preflight.sh`, `land-rows`, `parity/run.sh`, the three `.test.sh`, handoff | none |
-| G7 replay | off `dev`, last | `Base64` in `std.encoding` (S12) now; `replay` only when Q1067 is answered | (a) `Base64.decode` (spec-only J83, small; built here with `std.test` tests, R3); (b) a bytes-returning `Io.run` form: Q1067, conservative answer = `replay.py` stays a listed skip and `mutation-step.sh:33,36` keep calling Python | a recorded snapshot from `guard.test.sh`, with and without a mutant: exit code, stdout, stderr per record | `mutation-step.sh:33,36`, `guard.test.sh:132-133` | Python, together with the S9 deletions (`known-failures.py`, `cobertura_to_quality.py` go with the C# suite) and `mutation-exempt.py` (cleanup 022, Q916 (a)) |
+| G6 S3 regex | off `dev` after G5 | `std.regex` (S3), then `guard-checks`, `coverage-gate`, `wave-brief` | S3 as settled (no lookaround). coverage-gate's `(?<!\w)…(?!\w)` (`coverage-gate.py:46`) becomes `Regex.escaped(text)` found with `findAll`, each match then checked by hand for a `\w` byte before and after; `os.walk` (`:63`) uses S5 `glob`. guard-checks' `fnmatch` uses `Glob.matches` (G5). wave-brief's `fcntl.flock` on `a+` (`wave-brief.py:106-116`) becomes the Q1140 lock plus writeReplacing of `q-ranges.tsv` (temp file in the same directory, so no `crossDevice`); needs `Fs.modified`, `Fs.rename` (G0) and `.alreadyExists` (Q1140 (a), decided) | guard-checks: the last 10 landed 010 tasks and `guard-checks.test.sh`; coverage-gate: merge bases of the last 10 landings with their reports; wave-brief: each 010 task and `wave-brief.test.sh`; all bytes | `guard.sh:91,109`, `land.sh:32`, `preflight.sh`, `land-rows`, `parity/run.sh`, the three `.test.sh`, handoff | none |
+| G7 replay | off `dev`, last | `Base64` in `std.encoding` (S12) now; `replay` only once the process-handle/streaming API exists | (a) `Base64.decode` (spec-only J83, small; built here with `std.test` tests, R3); (b) byte-exact `Io.run` output: Q1141 (decided: no new API now, settled in the later process-handle/streaming API after D6/W0), so `replay.py` stays a listed skip and `mutation-step.sh:33,36` keep calling Python | a recorded snapshot from `guard.test.sh`, with and without a mutant: exit code, stdout, stderr per record | `mutation-step.sh:33,36`, `guard.test.sh:132-133` | Python, together with the S9 deletions (`known-failures.py`, `cobertura_to_quality.py` go with the C# suite) and `mutation-exempt.py` (cleanup 022, Q916 (a)) |
 
 Not ported, unchanged: `known-failures.py`, `cobertura_to_quality.py` (S9), `mutation-exempt.py` (S13/Q916 (a)),
 `scripts/cleanup/022-self-hosted-emitter-wp1.ps1` (out of scope; R2 now says so).
 
-### The wave-brief lock (U4, Q1066)
-Planned as the conservative default until the user answers Q1066: make a temp directory beside the lock path holding a
-`pid` file, then `Fs.rename(temp, to: lockPath)`. On POSIX and Windows the rename fails when `lockPath` is a non-empty
-directory (ENOTEMPTY/EEXIST), which is the "taken" signal; a lock older than a fixed age by `Fs.modified` is stale and
-is renamed away then removed, after which the taker retries. Release: rename the lock away, then remove it. Caveat,
-stated in Q1066: POSIX `rename` onto an *empty* directory succeeds, so the lock is only safe while the `pid` file is
-written before the rename, which this order guarantees. Error mapping today: the runtime's `IoError` codes are
+### The wave-brief lock (U4, Q1140)
+Decided by the user 2026-11-08 (Q1140, option (a)). Acquire: make a temp directory beside the lock path holding a `pid`
+file, then `Fs.rename(temp, to: lockPath)`. On POSIX and Windows the rename fails when `lockPath` is a non-empty
+directory (ENOTEMPTY/EEXIST), surfaced as `.alreadyExists`, which is the "taken" signal. Release: rename the lock
+directory away to a fresh temp name, then delete it (never emptied in place). Stale takeover: when `Fs.modified` of the
+lock is older than a fixed age (measured in minutes), read its `pid`, rename the lock away, read the `pid` from the
+renamed directory and verify it matches; if so, delete it and retry the acquire; if not, rename it back and retry from
+the start. The directory always holds `pid` before its first rename and is only moved whole, so no empty lock directory
+ever exists. Four tests, run on Linux and on wp1 (Q1140 lists them): contended acquire, release, stale takeover, live
+lock not taken over with a failed verify renamed back. Error mapping today: the runtime's `IoError` codes are
 `notFound`, `permissionDenied`, `invalidUtf8`, `notADirectory`, `other`, `invalidInput`, `unsupported`
-(`src/runtime/bayan-rt.h:430-436`), so a failed rename onto an existing directory would surface as `.other`, which the
-lock cannot tell from a real failure; `.alreadyExists` (U4) is therefore still needed, mapped from EEXIST and
-ENOTEMPTY on `Fs.rename`, and its addition is an approved R4 shape (U4), built in G6's first task.
+(`src/runtime/bayan-rt.h:430-436`), so a failed rename onto an existing directory would surface as `.other`;
+`.alreadyExists` (U4) is added, mapped from EEXIST and ENOTEMPTY on `Fs.rename`, an approved R4 shape (U4), built in
+G6's first task.
+
+### Byte-exact `Io.run` for replay (U3, Q1141)
+Decided by the user 2026-11-08: no new API now and no one-off bytes form of `Io.run`. Byte-exact output is settled in
+the later process-handle/streaming API, which comes after D6/W0: W0 changes `byn_process_finish`'s status mapping
+first and takes precedence, and the process-handle API builds on that result. Until it exists `replay.py` stays a
+listed skip (G7, T16) and T17 is gated on that API.
 
 ### Risks (added)
 - G0 may produce two `Io.run` shapes (T5's named arguments here, D6's on `dev`); the merge keeps one signature (U1)
@@ -118,5 +128,5 @@ ENOTEMPTY on `Fs.rename`, and its addition is an approved R4 shape (U4), built i
 
 ### Coverage check (revision)
 R1 holds (every port runs through `scripts/bayan-tool.sh`); R2/R7 at G7 with the S9 deletions; R3/R4 at `Base64`
-(G7), `std.regex` (G6), `glob`/`Glob.matches` (G5), `.alreadyExists` and any `normalize` (G6, G4; Q1066, G4's first
+(G7), `std.regex` (G6), `glob`/`Glob.matches` (G5), `.alreadyExists` and any `normalize` (G6, G4; Q1140, G4's first
 step); R5/R6 per port in the table; R8 at G2; R9 by U2's branch flow.

@@ -36,7 +36,7 @@ exist) and every workflow step. `scripts/cleanup/` (19 one-off scripts, written 
 | `scripts/selfhost/mutation-exempt.py` | 26 | lines a `// mutation-exempt: Qnnn` marker skips, checked against the handoff | `guard.sh` |
 | `scripts/selfhost/review-brief.py` | 68 | the reviewer brief for a 010 task (task text, C# ranges, files) — **done**: ported (T3) and deleted | `land.sh` |
 | `scripts/selfhost/wave-brief.py` | 198 | the writer brief for a 010 task; reads `BAYAN_BASE`; records `q-ranges.tsv` under a lock | `land.sh`, by hand |
-| `scripts/selfhost/guard-checks.py` | 124 | guard checks A–D (oracle, stubs, ctx sections, gating Questions) over `git diff` | `guard.sh` |
+| `scripts/selfhost/guard-checks.py` | 124 | guard checks A–E (oracle, stubs, ctx sections, gating Questions) over `git diff` | `guard.sh` |
 | `scripts/selfhost/coverage-gate.py` | 186 | changed-function coverage gate over `git diff -U0` and two JSON files | `guard.sh` |
 | `scripts/selfhost/quality-baseline.py` | 74 | `check`/`update` of `tests/quality-baseline.json` | `mutate-batch.sh`, `land.sh`, `mutation.yml` |
 | `scripts/selfhost/replay.py` | 68 | replays recorded runs (`runs.jsonl`: program, args, cwd, base64 stdin) under a mutant | `mutation-step.sh` (as `bayan mutate`'s test command) |
@@ -44,9 +44,9 @@ exist) and every workflow step. `scripts/cleanup/` (19 one-off scripts, written 
 | `scripts/quality/cobertura_to_quality.py` | 105 | Cobertura XML → `bayan-quality` JSON | `scripts/quality/coverage.sh` |
 | `scripts/ci/known-failures.py` | 59 | failed tests in `.trx` files vs `tests/windows-known-failures.txt` | `ci.yml` (Windows) |
 | `scripts/unicode/gen-lowercase.py` | 76 | downloads `UnicodeData.txt`, regenerates the case tables in `src/runtime/bayan-rt.c` (rev 0015) | by hand |
-| inline in `scripts/selfhost/mutate-batch.sh:24` | ~60 | the group/file/filter plan: glob `selfhost/**/*.byn`, brace-expand and match task patterns, shard | `mutate-batch.sh` |
-| inline in `scripts/selfhost/mutate-batch.sh:91` | 12 | rewrites report paths repo-relative | `mutate-batch.sh` |
-| inline in `scripts/selfhost/mutation-step.sh:24` | 1 | lists `binary<TAB>sites` from `manifest.json` | `mutation-step.sh` |
+| inline in `scripts/selfhost/mutate-batch.sh:26` | ~60 | the group/file/filter plan: glob `selfhost/**/*.byn`, brace-expand and match task patterns, shard | `mutate-batch.sh` |
+| inline in `scripts/selfhost/mutate-batch.sh:100` | 12 | rewrites report paths repo-relative | `mutate-batch.sh` |
+| inline in `scripts/selfhost/mutation-step.sh:25` | 1 | lists `binary<TAB>sites` from `manifest.json` | `mutation-step.sh` |
 | inline in `scripts/selfhost/guard.sh:80` | 1 | coverage-report files missing from the changed list (`realpath` over the report's paths); found by the 2026-11-08 inventory | `guard.sh` |
 
 ### Deno, PowerShell, JavaScript, other
@@ -157,7 +157,7 @@ Easiest first; each New API arrives with the first port that needs it. Group by 
 
 The order of the remaining rows was revised on 2026-11-08 (plan *Revision 2026-11-08*, groups G1–G7): 14 first (S10),
 then 13, then 9 and the manifest block, then 6 with the report-paths and `guard.sh:80` blocks, then `mutate-plan`, then
-5, 8 and 3 together with `std.regex`, and 10 last, gated on Q1067.
+5, 8 and 3 together with `std.regex`, and 10 last, gated on Q1141.
 
 ## Decisions (user, 2026-11-02)
 The questions S1–S12 and D1–D4 were answered on 2026-11-02. Signatures are the approved shapes; names follow the house
@@ -168,7 +168,7 @@ rule of no abbreviations. Nothing below is built before its first port (R4 now r
 | S1 | **Wait for self-hosting (option B).** Library source, `import std.x` and new runtime builtins land after 012 passes (A1). Prep now: this spec, the CI chore (handoff §5.1), shell-only ports, parity baselines (`tests/parity/`). Revisit option A (a narrow A1 exception) if 011 + 012 run past 4 weeks; see *Timing* below. |
 | S2 | `Untrusted<string>? Env.get(string name) uses env` (absent → `none`); no `set`. `run` takes `env:` (S6). |
 | S3 | `std.regex`, RE2-style: classes, `\d\s\w`, anchors, groups, `?*+{m,n}`, alternation, lazy quantifiers; no backreferences or lookaround; linear time. Members as proposed: `Regex.parse(pattern) fails RegexError`, `matches`, `find → Match?`, `findAll`, `replaced(text, by:)`, `Match.group(i)`, `Match.span`, `Regex.escaped(text)`. |
-| S4 | Path strings now, under `uses fs`. Aligned 2026-11-08 to the fs slice decided on `feat/017`: `Fs.fileExists` and `Io.createDirectory` already exist (`createDirectory` is idempotent, as .NET `Directory.CreateDirectory`); the slice adds `Fs.rename(path, to: dest)`, `Fs.copy`, `Fs.modified`/`Fs.setModified` (a builtin `Time` struct, i64 ns since the Unix epoch), `Fs.realPath(path)` (symlinks resolved; fails if the path is missing) and `IoError.crossDevice`. `canonical` is `Fs.realPath`; a pure lexical `normalize` in std path (not a builtin) is added only if a port canonicalizes a path that may not exist (plan G4, T11). `IoError.alreadyExists` is added for the wave-brief lock (plan U4, Q1066). The same verbs later on capability `Dir` handles. Supersedes the 2026-11-02 shapes `rename(string from, string to)` and `canonical`. |
+| S4 | Path strings now, under `uses fs`. Aligned 2026-11-08 to the fs slice decided on `feat/017`: `Fs.fileExists` and `Io.createDirectory` already exist (`createDirectory` is idempotent, as .NET `Directory.CreateDirectory`); the slice adds `Fs.rename(path, to: dest)`, `Fs.copy`, `Fs.modified`/`Fs.setModified` (a builtin `Time` struct, i64 ns since the Unix epoch), `Fs.realPath(path)` (symlinks resolved; fails if the path is missing) and `IoError.crossDevice`. `canonical` is `Fs.realPath`; a pure lexical `normalize` in std path (not a builtin) is added only if a port canonicalizes a path that may not exist (plan G4, T11). `IoError.alreadyExists` is added for the wave-brief lock (plan U4, Q1140). The same verbs later on capability `Dir` handles. Supersedes the 2026-11-02 shapes `rename(string from, string to)` and `canonical`. |
 | S5 | `List<string> glob(string pattern) uses fs` in `std.fs` (`**`, `*`, `?`, `[…]`, `{a,b}`; sorted; `/` separators); pure `bool Glob.matches(string pattern, string path)` in `std.path`. |
 | S6 | Named arguments on `run`: `run(program, args, directory: string? = none, input: ReadOnlySpan<u8>? = none, env: Map<string, string>? = none)`. The environment is inherited; `env:` entries are added over it (user, 2026-11-02). A clean-environment switch (`inheritEnv: false`) is added only when a port needs one. No `Command` builder. |
 | S7 | `std.json` in layers: a pull reader first, the tree (`JsonValue`: null, bool, number as `f64` plus its text, string, list, object in key order) built on the reader, `Json.encode(JsonValue v, i32 indent = 0)`; struct derivation later, on the reader. Decoded values are `Untrusted`. |
