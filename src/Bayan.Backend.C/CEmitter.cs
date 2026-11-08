@@ -425,6 +425,7 @@ public sealed class CEmitter
         BuiltinType { Kind: BuiltinKind.Panic } => "byn_panic_info",
         BuiltinType { Kind: BuiltinKind.FormatSpec } => "byn_format_spec",
         BuiltinType { Kind: BuiltinKind.Symbol } => "byn_sym",
+        BuiltinType { Kind: BuiltinKind.Time } => "byn_time",
         TextViewType => "byn_text_view",
         // A pointer needs only the forward typedef, so a type may hold an `Owned` of itself.
         OwnedType o => CType(o.Inner) + "*",
@@ -445,7 +446,7 @@ public sealed class CEmitter
     {
         PrimitiveType p => p.Kind == PrimitiveKind.String ? "str" : p.Name,
         ErrorSetSymbol or ErrorUnionType => "err",
-        BuiltinType b => b.Kind switch { BuiltinKind.Arena => "arena", BuiltinKind.StrBuf => "strbuf", BuiltinKind.ProcessResult => "process", BuiltinKind.Panic => "panic", BuiltinKind.FormatSpec => "formatspec", BuiltinKind.Symbol => "sym", _ => "iostream" },
+        BuiltinType b => b.Kind switch { BuiltinKind.Arena => "arena", BuiltinKind.StrBuf => "strbuf", BuiltinKind.ProcessResult => "process", BuiltinKind.Panic => "panic", BuiltinKind.FormatSpec => "formatspec", BuiltinKind.Symbol => "sym", BuiltinKind.Time => "time", _ => "iostream" },
         StructSymbol s => s.Module.CName + "__" + s.Name + TypeArgs(s.TypeArguments),
         EnumSymbol e => e.Module.CName + "__" + e.Name,
         UnionSymbol u => u.Module.CName + "__" + u.Name + TypeArgs(u.TypeArguments),
@@ -1913,6 +1914,20 @@ internal sealed class FunctionEmitter
             }
             case BuiltinFunction.FsFileExists:
                 return $"byn_fs_file_exists({Expr(c.Arguments[0])})";
+            case BuiltinFunction.FsRename:
+                return $"byn_fs_rename({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])})";
+            case BuiltinFunction.FsCopy:
+                return $"byn_fs_copy({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])})";
+            case BuiltinFunction.FsModified:
+                return $"byn_fs_modified({Expr(c.Arguments[0])}, {result ?? "NULL"})";
+            case BuiltinFunction.FsSetModified:
+                return $"byn_fs_set_modified({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])})";
+            case BuiltinFunction.FsRealPath:
+                return $"byn_fs_real_path({Expr(c.Arguments[0])}, {result ?? "NULL"}, byn_context)";
+            case BuiltinFunction.TimeNow:
+                return "byn_time_now()";
+            case BuiltinFunction.TimeFromNanos:
+                return $"((byn_time){{{Expr(c.Arguments[0])}}})";
             case BuiltinFunction.HexEncode:
             {
                 var span = _c.CType(fn.Parameters[0].Type);
@@ -2294,6 +2309,8 @@ internal sealed class FunctionEmitter
                 return $"{Expr(r)}.message";
             case BuiltinMember.ProcessExitCode:
                 return $"{Expr(r)}.exit_code";
+            case BuiltinMember.TimeNanos:
+                return $"{Expr(r)}.nanos";
             case BuiltinMember.FormatSpecRadix or BuiltinMember.FormatSpecDebug or BuiltinMember.FormatSpecWidth
                 or BuiltinMember.FormatSpecFill or BuiltinMember.FormatSpecAlign or BuiltinMember.FormatSpecDigits:
                 return $"{Expr(r)}.{b.Member.ToString()[10..].ToLowerInvariant()}";

@@ -36,6 +36,7 @@ internal static class BuiltinMembers
         (BuiltinType { Kind: BuiltinKind.ProcessResult }, "stdout") => (BuiltinMember.ProcessStdout, PrimitiveType.String),
         (BuiltinType { Kind: BuiltinKind.ProcessResult }, "stderr") => (BuiltinMember.ProcessStderr, PrimitiveType.String),
         (BuiltinType { Kind: BuiltinKind.Panic }, "message") => (BuiltinMember.PanicMessage, PrimitiveType.String),
+        (BuiltinType { Kind: BuiltinKind.Time }, "nanos") => (BuiltinMember.TimeNanos, PrimitiveType.I64),
         // The binder gives `radix` the builtin `Radix` and `align` the builtin `Align`; `digits` is -1 when the hole gives none.
         (BuiltinType { Kind: BuiltinKind.FormatSpec }, "radix") => (BuiltinMember.FormatSpecRadix, PrimitiveType.I32),
         (BuiltinType { Kind: BuiltinKind.FormatSpec }, "debug") => (BuiltinMember.FormatSpecDebug, PrimitiveType.Bool),

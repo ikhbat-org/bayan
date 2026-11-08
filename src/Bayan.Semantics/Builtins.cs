@@ -127,6 +127,13 @@ public sealed class Builtins
         PathFullPath = Make("fullPath", BuiltinFunction.PathFullPath, PrimitiveType.String, ("path", PrimitiveType.String));
         EnvGet = Make("get", BuiltinFunction.EnvGet, new OptionalType(PrimitiveType.String), ("name", PrimitiveType.String));
         FsFileExists = Make("fileExists", BuiltinFunction.FsFileExists, PrimitiveType.Bool, ("path", PrimitiveType.String));
+        FsRename = MakeIo("rename", BuiltinFunction.FsRename, PrimitiveType.Void, ("path", PrimitiveType.String), ("to", PrimitiveType.String));
+        FsCopy = MakeIo("copy", BuiltinFunction.FsCopy, PrimitiveType.Void, ("path", PrimitiveType.String), ("to", PrimitiveType.String));
+        FsModified = MakeIo("modified", BuiltinFunction.FsModified, BuiltinType.Time, ("path", PrimitiveType.String));
+        FsSetModified = MakeIo("setModified", BuiltinFunction.FsSetModified, PrimitiveType.Void, ("path", PrimitiveType.String), ("to", BuiltinType.Time));
+        FsRealPath = MakeIo("realPath", BuiltinFunction.FsRealPath, PrimitiveType.String, ("path", PrimitiveType.String));
+        TimeNow = Make("now", BuiltinFunction.TimeNow, BuiltinType.Time);
+        TimeFromNanos = Make("fromNanos", BuiltinFunction.TimeFromNanos, BuiltinType.Time, ("nanos", PrimitiveType.I64));
 
         // The iteration interfaces are declared from source too; `Compilation` declares their members like a user interface's.
         var iterationFile = new FileContext(Module, SyntaxTree.Parse(SourceText.FromString("<builtin>", IterationSource)));
@@ -174,7 +181,7 @@ public sealed class Builtins
         }
         """;
 
-    /// <summary><c>union error Utf8Error</c>: numbered right after <c>IoError</c>, so <c>invalidSequence</c> is code 8.</summary>
+    /// <summary><c>union error Utf8Error</c>: numbered right after <c>IoError</c>, so <c>invalidSequence</c> is code 9.</summary>
     public ErrorSetSymbol Utf8Error { get; }
 
     // SPEC §8 gives `badDigit(Bytes at)`; units are spec-only, so the position is a plain byte offset (Question 331).
@@ -294,10 +301,44 @@ public sealed class Builtins
     /// <summary><c>bool Fs.fileExists(string path)</c> <c>uses fs</c>: as .NET <c>File.Exists</c> (false for a directory, a missing entry, an empty path and a path ending in a separator).</summary>
     public FunctionSymbol FsFileExists { get; }
 
+    /// <summary><c>void Fs.rename(string path, string to) uses fs fails IoError</c>: POSIX <c>rename</c>, Windows <c>MoveFileExW</c> replacing an existing file; a move across devices fails <c>crossDevice</c> (no copy).</summary>
+    public FunctionSymbol FsRename { get; }
+
+    /// <summary><c>void Fs.copy(string path, string to) uses fs fails IoError</c>: a file's contents and permission bits (not its times); a directory source fails.</summary>
+    public FunctionSymbol FsCopy { get; }
+
+    /// <summary><c>Time Fs.modified(string path) uses fs fails IoError</c>: the last write time, in nanoseconds where the OS keeps them.</summary>
+    public FunctionSymbol FsModified { get; }
+
+    /// <summary><c>void Fs.setModified(string path, Time to) uses fs fails IoError</c>: sets the last write time.</summary>
+    public FunctionSymbol FsSetModified { get; }
+
+    /// <summary><c>string Fs.realPath(string path) uses fs, alloc fails IoError</c>: the path with every link resolved, a fresh copy from <c>context.allocator</c>; a missing path is <c>notFound</c>.</summary>
+    public FunctionSymbol FsRealPath { get; }
+
     /// <summary>A static member of <c>Fs</c>, or null.</summary>
     public FunctionSymbol? FindFs(string name) => name switch
     {
         "fileExists" => FsFileExists,
+        "rename" => FsRename,
+        "copy" => FsCopy,
+        "modified" => FsModified,
+        "setModified" => FsSetModified,
+        "realPath" => FsRealPath,
+        _ => null,
+    };
+
+    /// <summary><c>Time Time.now()</c> <c>uses clock</c>: the wall-clock time.</summary>
+    public FunctionSymbol TimeNow { get; }
+
+    /// <summary><c>Time Time.fromNanos(i64 nanos)</c>: the instant <paramref name="nanos"/> nanoseconds after the Unix epoch.</summary>
+    public FunctionSymbol TimeFromNanos { get; }
+
+    /// <summary>A static member of <c>Time</c>, or null.</summary>
+    public FunctionSymbol? FindTime(string name) => name switch
+    {
+        "now" => TimeNow,
+        "fromNanos" => TimeFromNanos,
         _ => null,
     };
 
@@ -356,10 +397,12 @@ public sealed class Builtins
             invalidInput,
             /// The operation is not available on this platform.
             unsupported,
+            /// The source and the destination are on different devices.
+            crossDevice,
         }
         """;
 
-    /// <summary><c>union error IoError</c>: its variants are numbered first, so their codes are 1 to 7 (the runtime returns them).</summary>
+    /// <summary><c>union error IoError</c>: its variants are numbered first, so their codes are 1 to 8 (the runtime returns them).</summary>
     public ErrorSetSymbol IoError { get; }
 
     /// <summary><c>List&lt;u8&gt; Io.readFile(string path) fails IoError</c>.</summary>
