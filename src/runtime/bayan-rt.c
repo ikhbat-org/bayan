@@ -3222,7 +3222,7 @@ static bool byn_has_nul(byn_str s) {
 
 #ifdef _WIN32
 /* 100 ns ticks from 1601-01-01 to 1970-01-01. */
-#define BYN_FILETIME_EPOCH INT64_C(116444736000000000)
+#define BYN_FILETIME_EPOCH ((int64_t)116444736000000000)
 
 /* A handle to `path`, a file or a directory, opened for `access`; INVALID_HANDLE_VALUE, with the error kept for GetLastError, on failure. */
 static HANDLE byn_fs_handle(byn_str path, DWORD access) {

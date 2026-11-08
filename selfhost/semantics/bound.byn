@@ -201,6 +201,7 @@ public enum BuiltinMember {
     formatSpecAlign
     formatSpecDigits
     floatTryParse
+    timeNanos
 }
 
 /// C# `ConversionKind`, in C# order.
