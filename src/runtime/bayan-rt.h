@@ -462,17 +462,28 @@ uint32_t byn_io_write_file(byn_str path, const uint8_t* ptr, int64_t len);
 /* `Io.listDir`: entry names without `.` and `..`, sorted by byte order, allocated from `alloc`. */
 uint32_t byn_io_list_dir(byn_str path, byn_str** ptr, int64_t* len, byn_alloc* alloc);
 
-/* `ProcessResult`: a child killed by a signal reports 128 + the signal number. */
+/* `ProcessResult`: a child that exited; a signal-killed child is `BYN_IO_SIGNALED` instead. */
 typedef struct byn_process {
     int32_t exit_code;
     byn_str out;
     byn_str err;
 } byn_process;
 
+/* How the wait for a child ended, for byn_wait_status. */
+#define BYN_WAIT_DONE 0
+#define BYN_WAIT_FAILED 1       /* waitpid failed (not EINTR), or WaitForSingleObject did */
+#define BYN_WAIT_QUERY_FAILED 2 /* GetExitCodeProcess failed */
+#define BYN_WAIT_TIMED_OUT 3
+/* Maps a wait to 0 (with `*code`, the exit code) or an `IoError` code. A failed wait or query is `BYN_IO_OTHER`
+ * and `raw` is ignored, so no exit code is made up; a timeout is `BYN_IO_TIMEOUT` (`*detail` untouched); off Windows
+ * a signal-killed child (`raw` is the waitpid status) is `BYN_IO_SIGNALED` with `*detail` = the signal; on Windows
+ * `raw` is the exit code. `detail` may be NULL. Compiled on every host. */
+uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* detail);
 /* `Io.run`: spawns `program` (looked up on PATH when it has no path separator) with `args`,
  * never through a shell, and waits for it. Both streams are captured into `alloc`. `out` may be NULL.
+ * A failed wait is `other`, a signal-killed child `signaled` with the signal in `*detail` (`detail` may be NULL).
  * On Windows a batch file (`.bat`, `.cmd`) is refused with `permissionDenied`, since cmd.exe would re-parse the arguments. */
-uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, byn_alloc* alloc);
+uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc);
 /* `Io.runBatch`'s command line: `cmd.exe /d /e:ON /v:OFF /s /c ""<path>" "<a1>" … "<an>""`, each argument
  * in double quotes as-is. False, with nothing built, when the path or an argument holds NUL, CR, LF, `"` or `%`,
  * or the path does not end in `.bat` or `.cmd` (any case). Otherwise `out` is from malloc. Compiled on every host. */
