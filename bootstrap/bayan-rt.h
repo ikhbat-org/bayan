@@ -441,6 +441,8 @@ byn_str* byn_args(int* argc, char** argv);
 #define BYN_IO_OTHER 5u
 #define BYN_IO_INVALID_INPUT 6u
 #define BYN_IO_UNSUPPORTED 7u
+#define BYN_IO_CROSS_DEVICE 8u
+#define BYN_IO_IS_DIRECTORY 9u
 
 /* Reads a whole file into memory from `alloc`. Returns 0 or an `IoError` code. */
 uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc);
@@ -568,5 +570,26 @@ uint32_t byn_io_create_directory(byn_str path);
 
 /* `Io.removeDirectory`: as .NET `Directory.Delete(path)`: an empty directory only; a missing path, a file and a non-empty directory fail. */
 uint32_t byn_io_remove_directory(byn_str path);
+
+/* `Time`: nanoseconds since the Unix epoch, UTC. */
+typedef struct byn_time { int64_t nanos; } byn_time;
+
+/* `Time.now`: the wall clock. */
+byn_time byn_time_now(void);
+
+/* `Fs.rename`: POSIX `rename`, Windows `MoveFileExW` replacing an existing file. Across devices it fails `crossDevice`; nothing is copied. */
+uint32_t byn_fs_rename(byn_str path, byn_str dest);
+
+/* `Fs.copy`: a file's bytes and permission bits, not its times; an existing `dest` is replaced, a directory source fails `isDirectory`, and `dest` that is the source (by file identity) fails `invalidInput`. */
+uint32_t byn_fs_copy(byn_str path, byn_str dest);
+
+/* `Fs.modified`: the last write time. `out` may be NULL. */
+uint32_t byn_fs_modified(byn_str path, byn_time* out);
+
+/* `Fs.setModified`: sets the last write time (and leaves the access time). */
+uint32_t byn_fs_set_modified(byn_str path, byn_time t);
+
+/* `Fs.realPath`: the absolute path with every link resolved, copied into `*out` from `alloc`; a missing path is `notFound`. `out` may be NULL. */
+uint32_t byn_fs_real_path(byn_str path, byn_str* out, byn_alloc* alloc);
 
 #endif

@@ -511,6 +511,8 @@ public enum BuiltinKind
     Env,
     /// <summary>The static file-system queries <c>Fs</c>; it has no values.</summary>
     Fs,
+    /// <summary>A wall-clock instant: <c>nanos</c>, the nanoseconds since the Unix epoch; <c>Time.now()</c> and <c>Time.fromNanos(i64)</c> make one.</summary>
+    Time,
 }
 
 public sealed class BuiltinType : TypeSymbol
@@ -544,6 +546,7 @@ public sealed class BuiltinType : TypeSymbol
     public static readonly BuiltinType Target = new(BuiltinKind.Target, "Target");
     public static readonly BuiltinType Env = new(BuiltinKind.Env, "Env");
     public static readonly BuiltinType Fs = new(BuiltinKind.Fs, "Fs");
+    public static readonly BuiltinType Time = new(BuiltinKind.Time, "Time");
 }
 
 /// <summary>The type of a caught error when the call can fail with more than one set.</summary>

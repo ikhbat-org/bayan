@@ -104,6 +104,13 @@ public enum BuiltinFunction {
     pathFullPath
     envGet
     fsFileExists
+    fsRename
+    fsCopy
+    fsModified
+    fsSetModified
+    fsRealPath
+    timeNow
+    timeFromNanos
 }
 
 // ── Symbols ─────────────────────────────────────────────────────────────────────

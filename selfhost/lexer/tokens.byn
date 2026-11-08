@@ -329,7 +329,8 @@ public struct Keywords {
     }
 
     /// The keyword kind for an ASCII identifier, or `identifier`.
-    TokenKind lookup(ReadOnlySpan<u8> text) {
+    public TokenKind lookup(ReadOnlySpan<u8> text) {
+        // coverage-exempt: Q1086 scaffold passes a module name from `camelOf` (a lowercase first byte), so the `> 0x7A` branch is not reached through `new`
         if text.length < 2 || text[0] < 0x61 || text[0] > 0x7A { return .identifier }
         let letter = text[0] - 0x61
         for i in bucketStart[letter]..bucketStart[letter + 1] {

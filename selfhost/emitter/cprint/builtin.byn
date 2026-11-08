@@ -280,6 +280,8 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             return $"{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}.message"
         case .processExitCode:
             return $"{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}.exit_code"
+        case .timeNanos:
+            return $"{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}.nanos"
         case .formatSpecRadix or .formatSpecDebug or .formatSpecWidth or .formatSpecFill or .formatSpecAlign or .formatSpecDigits:
             let field = $"{member}"[10..].lowercased()
             return $"{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}.{field}"
