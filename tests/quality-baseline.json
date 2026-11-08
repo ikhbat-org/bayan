@@ -53,8 +53,8 @@
     },
     "selfhost/driver/format.byn": {
       "mutation": null,
-      "coverage": 0.9234,
-      "branches": 0.6959
+      "coverage": 0.9877,
+      "branches": 0.94
     },
     "selfhost/driver/main.byn": {
       "mutation": null,
@@ -78,8 +78,8 @@
     },
     "selfhost/driver/walk.byn": {
       "mutation": null,
-      "coverage": 0.971,
-      "branches": 0.9028
+      "coverage": 0.9726,
+      "branches": 0.9054
     },
     "selfhost/emitter/coverage.byn": {
       "mutation": null,
@@ -206,6 +206,11 @@
       "coverage": 0.9741,
       "branches": 0.9367
     },
+    "selfhost/parser/dump2.byn": {
+      "mutation": null,
+      "coverage": 0.9936,
+      "branches": 0.9375
+    },
     "selfhost/parser/main.byn": {
       "mutation": null,
       "coverage": 0.1333,
@@ -331,10 +336,15 @@
       "coverage": 0.875,
       "branches": 0.6667
     },
+    "selfhost/semantics/main.byn": {
+      "mutation": null,
+      "coverage": 0.4717,
+      "branches": 0.3571
+    },
     "selfhost/semantics/manifest.byn": {
       "mutation": null,
-      "coverage": 0.3972,
-      "branches": 0.3203
+      "coverage": 0.8723,
+      "branches": 0.8568
     },
     "selfhost/semantics/ownership.byn": {
       "mutation": null,

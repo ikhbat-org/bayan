@@ -452,6 +452,12 @@ public sealed class ParserTests
             Parse(string.Join(' ', parts));
         }
     }
+}
+
+[Collection(nameof(PerfBounds))]
+public sealed class ParserPerfTests
+{
+    private static SyntaxTree Parse(string text) => SyntaxTree.Parse(SourceText.FromString("t.byn", text));
 
     /// <summary>BYN5103 finds each joined line's statement start once, so a long chain or a long switch lints in linear time.</summary>
     [Theory]
@@ -465,10 +471,17 @@ public sealed class ParserTests
         static string Lints(SyntaxTree tree) => string.Join("\n", tree.Lints.Select(d => $"{d.Code} {d.Fix!.Replacement.Length} {d.Label}"));
         var expected = shape == "chain" ? "BYN5103 4 joins the statement on line 1" : "BYN5103 8 joins the statement on line 2";
         Assert.Equal(expected, Lints(Parse(Source(shape, 100))));
-        var watch = System.Diagnostics.Stopwatch.StartNew();
-        var tree = Parse(Source(shape, shape == "chain" ? 20000 : 10000));
-        watch.Stop();
-        Assert.Equal(expected, Lints(tree));
-        Assert.True(watch.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(2)), $"parsed in {watch.Elapsed}");
+        // Wall clock, minimum of 3 runs, in the serial PerfBounds collection: the minimum drops a one-off stall, and no other class runs meanwhile. No reference workload or CPU-time measure: neither is cheap here, and process CPU time also counts the test host's other threads.
+        var bound = TimeSpan.FromSeconds(2);
+        var times = new TimeSpan[3];
+        for (var run = 0; run < times.Length; run++)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            var tree = Parse(Source(shape, shape == "chain" ? 20000 : 10000));
+            watch.Stop();
+            times[run] = watch.Elapsed;
+            Assert.Equal(expected, Lints(tree));
+        }
+        Assert.True(times.Min() < bound, $"parsed in {string.Join(", ", times)} (bound {bound})");
     }
 }

@@ -101,6 +101,7 @@ public sealed class DiagnosticCodesTests
         ["BYN3215"] = "not reported yet: reserved code with no example",
         ["BYN3217"] = "not reported yet: reserved code with no example",
         ["BYN4001"] = "backend error from the C compiler, not reachable from source",
+        ["BYN4002"] = "internal compiler error, not reachable from source",
         ["BYN6004"] = "project-level: needs a package.byn and a second file",
     };
 
@@ -108,7 +109,7 @@ public sealed class DiagnosticCodesTests
     private static readonly HashSet<string> StructuralExamples =
     [
         "BYN0001", "BYN0005", "BYN0015", "BYN0016", "BYN2005", "BYN2010", "BYN2015", "BYN2033",
-        "BYN3100", "BYN3101", "BYN3102", "BYN3103", "BYN3104", "BYN3213", "BYN3215", "BYN3217", "BYN4001", "BYN6004",
+        "BYN3100", "BYN3101", "BYN3102", "BYN3103", "BYN3104", "BYN3213", "BYN3215", "BYN3217", "BYN4001", "BYN4002", "BYN6004",
     ];
 
     // Error codes an example may report besides its own ("doc/extra"), each with the reason.

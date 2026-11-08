@@ -331,6 +331,7 @@ public static class DiagnosticCodes
 
     // ── Backend 4000–4999 ────────────────────────────────────────────────────────────
     public static readonly DiagnosticDescriptor CCompilerRejected = Error("BYN4001", "internal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler");
+    public static readonly DiagnosticDescriptor ErrorNodeReachedLowering = Error("BYN4002", "internal compiler error: a bound error expression reached lowering with no error reported; this is a bug in the Bayan compiler");
     // ── Grammar (naming patterns, spec §5.2) 5000–5999: errors 50xx, lints 51xx ────
     public static readonly DiagnosticDescriptor ParticipleChangesThis = Error("BYN5001", "`{0}` changes `this`; name it `{1}`");
     public static readonly DiagnosticDescriptor StateMemberMutates = Error("BYN5002", "`{0}` reads as state but modifies `this`");
