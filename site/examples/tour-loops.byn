@@ -1,0 +1,10 @@
+void main() {
+    for i in 1..=3 {
+        print($"for {i}")
+    }
+    var n = 3
+    while n > 0 {
+        print($"while {n}")
+        n -= 1
+    }
+}

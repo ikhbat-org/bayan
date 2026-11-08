@@ -1,0 +1,10 @@
+i64 square(i64 x) => x * x
+
+i64 clamp(i64 x, to i64 max) => x > max ? max : x
+
+void main() {
+    print($"{square(7)}")
+    print($"{clamp(12, to: 10)}")
+    let name = "bayan"
+    print($"{name} has {name.length} bytes")
+}

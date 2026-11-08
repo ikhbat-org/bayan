@@ -1,0 +1,9 @@
+void split(i64 total, by i64 size, to out i64 whole, as out i64 left) {
+    whole = total / size
+    left = total % size
+}
+
+var w: i64 = 0
+var r: i64 = 0
+split(17, by: 5, to: out w, as: out r)
+print($"{w} remainder {r}")

@@ -1,0 +1,16 @@
+let flag = true
+let done = false
+unless done { print("u") }
+print("a") if flag
+print("b") unless flag
+if flag {
+    print("1")
+} else if not flag {
+    print("2")
+} else {
+    print("3")
+}
+switch 2 {
+    case 1 or 2: print("low")
+    default: print("high")
+}

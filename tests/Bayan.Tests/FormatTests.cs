@@ -93,6 +93,66 @@ public sealed class FormatTests
     }
 
     [Fact]
+    public void AFailsShorthandBeforeUsesFormatsToOneFailsClause()
+    {
+        var file = Path.Combine(Fresh("shorthand-uses"), "main.byn");
+        File.WriteAllText(file, "union error E {\n    a\n}\nunion error F {\n    b\n}\ni32!E g() fails F uses console {\n    print(\"g\")\n    return 1\n}\n");
+        var (exit, _, stderr) = Run("format", file);
+        Assert.True(exit == CliApp.ExitOk, stderr);
+        var text = File.ReadAllText(file);
+        Assert.Contains("i32 g() uses console fails E, F {", text);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
+    }
+
+    private const string ErrorSets = "union error E {\n    a\n}\nunion error F {\n    b\n}\nunion error G {\n    c\n}\n";
+
+    private static string FormatHeader(string dir, string header)
+    {
+        var file = Path.Combine(Fresh(dir), "main.byn");
+        File.WriteAllText(file, ErrorSets + "interface IShape {\n    i64 area()\n}\n" + header + " {\n    print(\"g\")\n    return 1\n}\n");
+        var (exit, _, stderr) = Run("format", file);
+        Assert.True(exit == CliApp.ExitOk, stderr);
+        return File.ReadAllText(file);
+    }
+
+    [Fact]
+    public void AFailsShorthandKeepsAComment()
+    {
+        var text = FormatHeader("shorthand-comment", "i32!E g() // keep me\n    fails F\n    uses console");
+        Assert.Contains("i32 g()\n    uses console // keep me\n    fails E, F {", text);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
+    }
+
+    [Fact]
+    public void AFailsShorthandKeepsAMultiLineHeader()
+    {
+        var text = FormatHeader("shorthand-lines", "i32!E g()\n    fails F\n    uses console");
+        Assert.Contains("i32 g()\n    uses console\n    fails E, F {", text);
+    }
+
+    [Fact]
+    public void AFailsShorthandCarriesWhereAndExpects()
+    {
+        var text = FormatHeader("shorthand-where", "i64!E g<T>(T x) fails F where T : IShape expects true");
+        Assert.Contains("i64 g<T>(T x) where T : IShape expects true fails E, F {", text);
+    }
+
+    [Fact]
+    public void AFailsShorthandMergesEveryFailsClause()
+    {
+        var text = FormatHeader("shorthand-two-fails", "i32!E g() fails F uses console fails G, E");
+        Assert.Contains("i32 g() uses console fails E, F, G {", text);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
+    }
+
+    [Fact]
+    public void AFailsShorthandKeepsUsesClausesInSourceOrder()
+    {
+        var text = FormatHeader("shorthand-two-uses", "i32!E g() fails F uses console uses fs");
+        Assert.Contains("i32 g() uses console uses fs fails E, F {", text);
+    }
+
+    [Fact]
     public void ASecondRunChangesNothing()
     {
         var file = Path.Combine(Fresh("idempotent"), "main.byn");
@@ -522,7 +582,7 @@ public sealed class FormatTests
         Directory.CreateSymbolicLink(Path.Combine(sub, "up"), "..");
         Directory.CreateSymbolicLink(Path.Combine(sub, "up2"), "..");
         File.CreateSymbolicLink(Path.Combine(dir, "alias.byn"), "main.byn");
-        var result = await Task.Factory.StartNew(() => Run("format", "--check", dir), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("format", "--check", dir), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(CliApp.ExitFailure, result.Exit);
         Assert.Single(result.Out.Split('\n', StringSplitOptions.RemoveEmptyEntries));
     }
@@ -535,7 +595,7 @@ public sealed class FormatTests
         File.WriteAllText(Path.Combine(dir, "main.byn"), "let a = true\nif (a) { print(\"x\") }\n");
         File.WriteAllText(Path.Combine(dir, "..", "outside.byn"), "let a = true\nif (a) { print(\"x\") }\n");
         Directory.CreateSymbolicLink(Path.Combine(dir, "link"), "..");
-        var result = await Task.Factory.StartNew(() => Run("format", "--check", dir), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("format", "--check", dir), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(CliApp.ExitFailure, result.Exit);
         var lines = result.Out.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         Assert.Single(lines);
@@ -565,7 +625,7 @@ public sealed class FormatTests
         if (OperatingSystem.IsWindows()) return;
         const string Decoy = "decoy, not Bayan\n";
         var (proj, real) = LinkThroughALinkedDirectory("link-through-dir", Decoy);
-        var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(proj, "sub", "f.byn")), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(proj, "sub", "f.byn")), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.True(result.Exit == CliApp.ExitOk, result.Err);
         Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(Path.Combine(real, "g.byn")));
         Assert.Equal(Decoy, File.ReadAllText(Path.Combine(proj, "g.byn")));
@@ -576,7 +636,7 @@ public sealed class FormatTests
     {
         if (OperatingSystem.IsWindows()) return;
         var (proj, real) = LinkThroughALinkedDirectory("link-through-dir-nodecoy", null);
-        var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(proj, "sub", "f.byn")), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(proj, "sub", "f.byn")), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.True(result.Exit == CliApp.ExitOk, result.Err);
         Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(Path.Combine(real, "g.byn")));
         Assert.False(File.Exists(Path.Combine(proj, "g.byn")));
@@ -592,7 +652,7 @@ public sealed class FormatTests
         File.WriteAllText(Path.Combine(other, "h.byn"), "let c = true\nif (c) { print(\"z\") }\n");
         Directory.CreateSymbolicLink(Path.Combine(proj, "x"), "../other/deep");
         Directory.CreateSymbolicLink(Path.Combine(proj, "up"), "x/..");
-        var result = await Task.Factory.StartNew(() => Run("format", "--check", proj), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("format", "--check", proj), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(CliApp.ExitFailure, result.Exit);
         var lines = result.Out.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         Assert.Single(lines);
@@ -608,7 +668,7 @@ public sealed class FormatTests
         File.CreateSymbolicLink(Path.Combine(dir, "loop.byn"), "loop.byn");
         var sub = Directory.CreateDirectory(Path.Combine(dir, "sub")).FullName;
         File.WriteAllText(Path.Combine(sub, "b.byn"), "let a = true\nif (a) { print(\"x\") }\n");
-        var result = await Task.Factory.StartNew(() => Run("format", "--check", dir), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("format", "--check", dir), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(CliApp.ExitFailure, result.Exit);
         Assert.Contains(Path.Combine(dir, "a.byn"), result.Out);
         Assert.Contains(Path.Combine(sub, "b.byn"), result.Out);
@@ -635,7 +695,7 @@ public sealed class FormatTests
         if (OperatingSystem.IsWindows()) return;
         const string Other = "let b = true\nif b { print(\"y\") }\n";
         var dir = LinkToADeeperDirectory("link-dotdot-file", Other);
-        var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(dir, "link", "..", "a.byn")), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(dir, "link", "..", "a.byn")), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.True(result.Exit == CliApp.ExitOk, result.Err);
         Assert.Equal(Other, File.ReadAllText(Path.Combine(dir, "other", "a.byn")));
         Assert.Equal("let a = true\nif (a) { print(\"x\") }\n", File.ReadAllText(Path.Combine(dir, "a.byn")));
@@ -646,7 +706,7 @@ public sealed class FormatTests
     {
         if (OperatingSystem.IsWindows()) return;
         var dir = LinkToADeeperDirectory("link-dotdot-dir", "let b = true\nif (b) { print(\"y\") }\n");
-        var result = await Task.Factory.StartNew(() => Run("format", "--check", Path.Combine(dir, "link", "..")), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("format", "--check", Path.Combine(dir, "link", "..")), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(CliApp.ExitFailure, result.Exit);
         Assert.Equal("", result.Err);
         var line = Assert.Single(result.Out.Split('\n', StringSplitOptions.RemoveEmptyEntries));
@@ -665,7 +725,7 @@ public sealed class FormatTests
         Directory.CreateSymbolicLink(Path.Combine(pkg, "vendor"), "../outside");
         var main = Path.Combine(pkg, "main.byn");
         File.WriteAllText(main, "void main() {\n    let n = i8(3)\n}\n");
-        var result = await Task.Factory.StartNew(() => Run("format", main), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("format", main), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.True(result.Exit == CliApp.ExitOk, result.Err);
         Assert.Equal("void main() {\n    let n = sbyte(3)\n}\n", File.ReadAllText(main));
     }
@@ -701,5 +761,24 @@ public sealed class FormatTests
         var after = Bayan.Semantics.Compilation.Create([new Bayan.Syntax.Text.SourceText("hashmap-not-supported.byn", fixedBytes)], Path.GetDirectoryName(path)!);
         Assert.Empty(after.Diagnostics.Items);
         Assert.DoesNotContain("HashMap<", System.Text.Encoding.UTF8.GetString(fixedBytes));
+    }
+
+    /// <summary>`bayan format` indents each under-indented joined line, so BYN5103 is quiet on its output; quiet input is left alone.</summary>
+    [Theory]
+    [InlineData("line-join-member", true)]
+    [InlineData("line-join-enum-shorthand", true)]
+    [InlineData("line-join-and", true)]
+    [InlineData("line-join-quiet", false)]
+    public void FormattedCodeQuietsTheLineJoinLint(string name, bool fires)
+    {
+        var source = File.ReadAllBytes(Path.Combine(Golden.CasesRoot, "diag", name + ".byn"));
+        var file = Path.Combine(Fresh("line-join-" + name), "main.byn");
+        File.WriteAllBytes(file, source);
+        Assert.Equal(fires, Bayan.Syntax.Parsing.SyntaxTree.Parse(new Bayan.Syntax.Text.SourceText(file, source)).Lints.Count > 0);
+        var (exit, _, stderr) = Run("format", file);
+        Assert.True(exit == CliApp.ExitOk, stderr);
+        var formatted = File.ReadAllBytes(file);
+        Assert.Empty(Bayan.Syntax.Parsing.SyntaxTree.Parse(new Bayan.Syntax.Text.SourceText(file, formatted)).Lints);
+        if (!fires) Assert.Equal(source, formatted);
     }
 }

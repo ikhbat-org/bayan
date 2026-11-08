@@ -1,0 +1,18 @@
+union error Bad {
+    nope
+}
+
+void work(bool bad) fails Bad {
+    defer print("always")
+    defer failing print("failed")
+    print("body")
+    fail Bad.nope if bad
+}
+
+work(bad: false) catch { }
+work(bad: true) catch { }
+{
+    defer print("c")
+    defer print("b")
+    print("a")
+}

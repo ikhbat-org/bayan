@@ -1,0 +1,16 @@
+let a: i64 = 17
+let b: i64 = 5
+print($"{a + b} {a - b} {a * b} {a / b} {a % b}")
+
+let ratio: f64 = 17.0 / 5.0
+print($"{ratio}")
+
+let small: u8 = 250
+let wide = i64(small) + 100
+print($"{wide}")
+
+let big: i64 = 3_000_000_000
+print($"{big} {big > 2_147_483_647}")
+print($"{0xFF} {0b1010} {1e3}")
+print($"{f64(a) / 2.0} {i64(7.9)}")
+print($"{i64.tryFrom(300)} {u8.tryFrom(300) ?? 0}")

@@ -1,0 +1,25 @@
+interface IDescribe {
+    string describe() uses alloc
+}
+
+struct Dog : IDescribe {
+    string name
+    string describe() => $"dog {name}"
+}
+
+struct Cat : IDescribe {
+    i64 lives
+    string describe() => $"cat with {lives} lives"
+}
+
+bool same<T>(T a, as T b) => a == b
+
+void show<T>(T x) where T : IDescribe {
+    print(x.describe())
+}
+
+void main() {
+    print($"{same(3, as: 9)} {same("a", as: "a")}")
+    show(Dog { name: "rex" })
+    show(Cat { lives: 9 })
+}

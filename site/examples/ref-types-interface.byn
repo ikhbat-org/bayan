@@ -1,0 +1,20 @@
+interface IShape {
+    i64 area()
+    string describe() => $"area {area()}"
+}
+
+struct Square : IShape {
+    i64 side
+    i64 area() => side * side
+}
+
+i64 twice<T>(T s) where T : IShape => s.area() * 2
+
+void show(dyn ref IShape s) {
+    print(s.describe())
+}
+
+var sq = Square { side: 3 }
+print(sq.describe())
+print($"{twice(sq)}")
+show(sq)

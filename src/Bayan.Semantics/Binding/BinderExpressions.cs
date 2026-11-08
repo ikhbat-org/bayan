@@ -552,6 +552,7 @@ internal sealed partial class Binder
         if (name == "Target") return new BoundTypeRef(n, BuiltinType.Target);
         if (name == "Env") return new BoundTypeRef(n, BuiltinType.Env);
         if (name == "Fs") return new BoundTypeRef(n, BuiltinType.Fs);
+        if (name == "Time") return new BoundTypeRef(n, BuiltinType.Time);
         ReportUndefined(n.Name);
         return new BoundErrorExpr(n);
     }
@@ -718,7 +719,11 @@ internal sealed partial class Binder
                 return new BoundErrorExpr(m);
             case BoundTypeRef { Referenced: BuiltinType { Kind: BuiltinKind.Fs } fs }:
                 if (_c.Builtins.FindFs(name) is { } fsMember) return new BoundMethodGroup(m, null, fsMember);
-                Report(DiagnosticCodes.UnknownMember, m.Member.Span, [name, fs.Name], help: Suggest(name, ["fileExists"]) is { } nearFs ? $"did you mean `{nearFs}`?" : null);
+                Report(DiagnosticCodes.UnknownMember, m.Member.Span, [name, fs.Name], help: Suggest(name, ["fileExists", "rename", "copy", "modified", "setModified", "realPath"]) is { } nearFs ? $"did you mean `{nearFs}`?" : null);
+                return new BoundErrorExpr(m);
+            case BoundTypeRef { Referenced: BuiltinType { Kind: BuiltinKind.Time } time }:
+                if (_c.Builtins.FindTime(name) is { } timeMember) return new BoundMethodGroup(m, null, timeMember);
+                Report(DiagnosticCodes.UnknownMember, m.Member.Span, [name, time.Name], help: Suggest(name, ["now", "fromNanos"]) is { } nearTime ? $"did you mean `{nearTime}`?" : null);
                 return new BoundErrorExpr(m);
             case BoundTypeRef { Referenced: BuiltinType { Kind: BuiltinKind.Target } targetType }:
             {

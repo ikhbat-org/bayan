@@ -1,0 +1,6 @@
+void main() {
+    var stock = Map<string, i64>()
+    stock["apples"] = 3
+    print($"{stock["apples"]}")
+    print($"{stock.tryGet(at: "kiwis") ?? 0}")
+}

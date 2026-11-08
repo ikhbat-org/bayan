@@ -1,0 +1,8 @@
+void bump(ref i64 n) {
+    n += 10
+}
+
+let a: i64 = 1
+var b = a
+bump(ref b)
+print($"{a} {b}")

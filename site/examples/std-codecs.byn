@@ -1,0 +1,19 @@
+void main() fails Utf8Error, ParseError {
+    let bytes: u8[3] = [104, 105, 33]
+    print(try Utf8.decode(bytes.span))
+    let bad: u8[2] = [104, 255]
+    print(Utf8.tryDecode(bad.span) ?? "not valid UTF-8")
+    print(Utf8.decode(bad.span, invalid: .replace))
+    print($"{string.invalidUtf8At(bad.span) ?? -1}")
+    print(Hex.encode(bytes.span))
+    let back = try Hex.decode("4869")
+    print(try Utf8.decode(back.span))
+    let r = Hex.decode("4g") catch switch {
+        .badDigit(let at) => {
+            print($"bad digit at byte {at}")
+            return
+        },
+        .overflow => return,
+    }
+    print($"{r.length}")
+}

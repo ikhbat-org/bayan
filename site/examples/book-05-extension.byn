@@ -1,0 +1,11 @@
+bool isBlank(string s) => s.trimmed().isEmpty
+
+string shout(string s) => s.uppercased()
+
+bool isEven(i64 n) => n % 2 == 0
+
+void main() {
+    print($"{isBlank("   ")} {isBlank("hi")}")
+    print(shout("quiet"))
+    print($"{isEven(4)} {isEven(7)}")
+}

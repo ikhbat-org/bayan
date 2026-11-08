@@ -106,7 +106,8 @@ public sealed class InstrumentedRunLawTests(ITestOutputHelper output)
         p.StandardInput.Close();
         var stdout = p.StandardOutput.ReadToEndLfAsync();
         var stderr = p.StandardError.ReadToEndLfAsync();
-        if (!p.WaitForExit(120_000))
+        var waitMs = TestTime.Scale(120_000);
+        if (!p.WaitForExit(waitMs))
         {
             p.Kill();
             return new Outcome("", "", -1);

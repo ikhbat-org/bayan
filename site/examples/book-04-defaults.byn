@@ -1,0 +1,9 @@
+string greet(string name, string greeting = "Hello") => $"{greeting}, {name}!"
+
+i64 repeatCount(string text, i64 times = 2) => text.length * times
+
+void main() {
+    print(greet("Ada"))
+    print(greet("Ada", greeting: "Welcome"))
+    print($"{repeatCount("abc")} {repeatCount("abc", times: 5)}")
+}

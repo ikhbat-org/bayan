@@ -1,0 +1,10 @@
+struct Order {
+    string id
+    i64 qty
+}
+
+void main() {
+    let a = Order { id: "A1", qty: 1 }
+    let b = a with { qty: 5 }
+    print($"{a.qty} {b.qty} {b.id}")
+}

@@ -322,7 +322,7 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
             {
                 // the program died before reading everything; its exit code says so
             }
-            var done = p.WaitForExit(timeoutMs);
+            var done = p.WaitForExit(TestTime.Scale(timeoutMs));
             if (!done) p.Kill(entireProcessTree: true);
             p.WaitForExit();
             copy.Wait();

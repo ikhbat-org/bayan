@@ -1,0 +1,266 @@
+title: 12. Testing
+nav: Learn
+order: 1200
+template: docs
+---
+<p class="lede">Testing is part of the language and the <code>bayan</code> command. A <code>test</code> block holds the check, <code>assert</code> makes it, and <code>bayan test</code> runs every test in its own process. This chapter tests one function, <code>grade</code>, from a first passing test to coverage.</p>
+
+<h2 id="first">The function and its first test</h2>
+<p>Here is the function. It turns a score into a letter and fails on a score that cannot exist. Its error type has two cases.</p>
+<pre><code class="byn">union error GradeError {
+    negative
+    tooHigh
+}
+
+string grade(i64 score) fails GradeError {
+    fail GradeError.negative if score &lt; 0
+    fail GradeError.tooHigh if score &gt; 100
+    return "A" if score &gt;= 90
+    return "B" if score &gt;= 80
+    return "C"
+}</code></pre>
+<p>A test is a <code>test</code> block with a name in quotes. It goes in the same file as the code. Add this below <code>grade</code>:</p>
+<pre><code class="byn">test "ninety is an A" {
+    assert (try grade(90)) == "A"
+}</code></pre>
+<p><code>grade</code> can fail, so calling it needs <code>try</code>, as anywhere else. The parentheses around <code>try grade(90)</code> matter, and the next section shows why.</p>
+<p><code>bayan run</code> ignores tests and runs the program. <code>bayan test</code> ignores the program and runs the tests. The complete file below has the tests from this chapter, a <code>print</code> at the top, and one <code>bayan run</code> output:</p>
+<example name="book-12-grade"/>
+<p>Test it:</p>
+<pre><code>bayan test grade.byn</code></pre>
+<pre><code class="other" data-lang="bayan test">running 5 tests in 1 module
+
+◆ 5 passed · 0.26s</code></pre>
+<p>Five, not three: the last test is a table, and each of its three rows counts. The exit code is 0 when every test passes.</p>
+
+<h2 id="assert">assert</h2>
+<p><code>assert</code> is a statement, not a function: <code>assert x == 1</code>, with parentheses allowed but not needed. There is no assertion library to learn. You write the comparison in plain code. What you get in return is the failure message. Change <code>&gt;=</code> to <code>&gt;</code> in the <code>grade</code> function so that 90 is no longer an A, and run again:</p>
+<pre><code class="other" data-lang="bayan test">running 5 tests in 1 module
+
+  ✗ grade: ninety is an A
+      assert (try grade(90)) == "A"
+              │              │
+              │              false
+              B
+      grade.byn:17
+
+◆ 4 passed · ✗ 1 failed · 0 pending · 0.17s
+  rerun the failure: bayan test --only "ninety is an A"</code></pre>
+<p>Read the tree from the bottom. The whole comparison is <code>false</code>. Its left side, <code>try grade(90)</code>, produced <code>B</code>. Every sub-expression that was evaluated shows its value, so you see the cause without adding a <code>print</code>. The last line is the command that runs only that test. After a failure the exit code is 3.</p>
+<p>The name before each test is the module, which here is the directory <code>grade</code>. Then comes the test's name, so make names say what is checked: "negative scores fail" reads well in a failure list, "test2" does not.</p>
+
+<h2 id="fallible">Testing code that fails</h2>
+<p>To check the happy path you call a fallible function with <code>try</code>. Two mistakes are easy, and both come with a fix in the message. First, calling it with no <code>try</code> at all:</p>
+<pre><code class="byn">test "ninety is an A" {
+    assert grade(90) == "A"
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2602:</span> `grade` can fail; handle the error or pass it on
+  --&gt; grade.byn:17:12
+
+  17 │     assert grade(90) == "A"
+     │            ^^^^^^^^^
+     │
+  help: propagate the error with `try`, or handle it with `catch`
+     │ 17 │     assert try grade(90) == "A"
+     │    │            ++++</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened to <code>grade.byn</code>.</figcaption>
+</figure>
+<p>The suggestion is half right. Put <code>try</code> in front of the whole comparison and the compiler objects, because the comparison itself cannot fail:</p>
+<figure class="diag">
+<pre><span class="err">error BYN1054:</span> `try` covers `grade(90) == "A"`, which cannot fail
+  --&gt; grade.byn:17:16
+
+  17 │     assert try grade(90) == "A"
+     │                ^^^^^^^^^^^^^^^^ cannot fail
+     │
+  help: wrap the part that fails in parentheses: `(try grade(90))`
+     │ 17 │     assert (try grade(90)) == "A"
+     │    │            ++++++++++++++</pre>
+<figcaption>Real output from the v0.1 compiler. The path is shortened to <code>grade.byn</code>.</figcaption>
+</figure>
+<p>That is the form used above: <code>assert (try grade(90)) == "A"</code>.</p>
+<p>To check the <em>error</em> path you do not write a <code>catch</code>. <code>assert f() fails E.case</code> passes when the call fails with exactly that case. <code>assert f() fails E</code> accepts any case of <code>E</code>.</p>
+<pre><code class="byn">test "negative scores fail" {
+    assert grade(-1) fails GradeError.negative
+}</code></pre>
+<p>When the call fails with another case, or does not fail, the test fails and says which. These two failures come from the compiler's own tests, so the module name carries a <code>run_</code> prefix:</p>
+<pre><code class="other" data-lang="bayan test">  ✗ run_assert-fails.test: wrong case
+      assert check(11) fails E.bad
+             │
+             failed with E.worse
+      assert-fails.test.byn:25
+
+  ✗ run_assert-fails.test: does not fail
+      assert check(3) fails E
+             │
+             returned 3
+      assert-fails.test.byn:29</code></pre>
+<p>The call must be able to fail. Asserting <code>fails</code> on a function that cannot fail is rejected at compile time with BYN2605, <code>`assert … fails` needs a call that can fail</code>.</p>
+
+<h2 id="cases">One test, many inputs</h2>
+<p>A table is a test with parameters and an <code>@cases</code> attribute above it. Each row is a tuple, or a single value when the test takes one parameter. Every row runs as its own test.</p>
+<pre><code class="byn">@cases((100, "A"), (89, "B"), (79, "C"))
+test "grade table" (i64 score, string expected) {
+    assert (try grade(score)) == expected
+}</code></pre>
+<p>With <code>-v</code> the passing tests are listed, and each row carries its values:</p>
+<pre><code class="other" data-lang="bayan test -v">running 5 tests in 1 module
+  ◆ grade: ninety is an A
+  ◆ grade: negative scores fail
+  ◆ grade: grade table (score: 100, expected: "A")
+  ◆ grade: grade table (score: 89, expected: "B")
+  ◆ grade: grade table (score: 79, expected: "C")
+
+◆ 5 passed · 0.07s</code></pre>
+<p>A failing row names itself the same way, for example <code>quantity bounds (input: 101, valid: true)</code>, and the rerun hint carries the full name. The values must be constants, and each must match the type of its parameter. A row that does not is a compile error:</p>
+<pre><code class="byn">@cases((1, "yes"), (2, true))
+test "flags" (i32 n, bool ok) {
+    assert(ok)
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `bool`, found `string`
+
+  1 │ @cases((1, "yes"), (2, true))
+    │            ^^^^^</pre>
+<figcaption>Real output from the v0.1 compiler, from <code>tests/cases/diag/cases-type-mismatch.test</code>.</figcaption>
+</figure>
+<note>Planned: not in the compiler yet. <code>@cases(someConstList)</code> takes its rows from a constant list; today it is error BYN2774, "cases from a const list are not supported yet". Write each row out.</note>
+
+<h2 id="where">Where tests live</h2>
+<p>Tests can sit beside the code in the same file, as above, or in a file whose name ends in <code>.test.byn</code>. A sibling <code>grade.test.byn</code> is part of the same module and sees <code>grade</code> and <code>GradeError</code> with no import. A module's own file stays free of test code:</p>
+<pre><code>grading/
+  grade.byn           union error GradeError and string grade(…)
+  grade.test.byn      the tests</code></pre>
+<p>Give <code>bayan test</code> the directory:</p>
+<pre><code>bayan test .</code></pre>
+<pre><code class="other" data-lang="bayan test">running 2 tests in 1 module
+
+◆ 2 passed · 0.06s</code></pre>
+<p>In a project (chapter 11), <code>bayan test</code> with no path runs every module's tests: sibling test files in <code>src/</code> and the files in <code>tests/</code>. A <code>tests/*.test.byn</code> file joins the entry module and needs its own imports. A project made by <code>bayan new</code> already has one passing test, so a fresh project passes with no edits.</p>
+<note>The specification says tests in <code>tests/</code> see only a module's public API and that tests beside the code can read private members. Today a test in a sibling file cannot read a <code>private</code> field either (BYN2005). Test through the public methods.</note>
+
+<h2 id="running">Running and filtering</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>bayan test</code></td><td>runs the tests of the project in the current directory</td></tr>
+<tr><td><code>bayan test file.byn</code> or <code>bayan test dir</code></td><td>runs the tests of that file or directory</td></tr>
+<tr><td><code>-v</code></td><td>also lists passing and pending tests</td></tr>
+<tr><td><code>--only "text"</code></td><td>runs only tests whose name contains the text; repeat the flag for more</td></tr>
+<tr><td><code>--changed</code></td><td>only modules with a file that differs from <code>HEAD</code> (<code>--base ref</code> compares with another ref)</td></tr>
+<tr><td><code>--mode debug|safe|fast</code></td><td>the build mode for the test program</td></tr>
+<tr><td><code>--json</code></td><td>prints the results as JSON instead of text</td></tr>
+<tr><td><code>--coverage</code>, <code>--mutate</code></td><td>the last two sections</td></tr>
+</table>
+<p>The first, failing line of a failure is also the command to repeat it, so a long test run never makes you retype a name. <code>bayan test</code> also writes the JSON to <code>out/test/results.json</code> in a project.</p>
+<p>The exit code tells a script what happened.</p>
+<table>
+<tr><th>Code</th><th>Meaning</th></tr>
+<tr><td>0</td><td>every test passed</td></tr>
+<tr><td>1</td><td>the program or a test did not compile</td></tr>
+<tr><td>3</td><td>a test failed, or coverage or mutation score is under its minimum</td></tr>
+<tr><td>4</td><td>toolchain problem (no C compiler, unwritable cache)</td></tr>
+</table>
+
+<h3 id="output">Output, pending and failures</h3>
+<p>The output of a passing test is hidden. It shows under the test's name with <code>-v</code>, and always for a failing test. A test that is not written yet calls <code>todo("reason")</code>. It is reported as <em>pending</em>, never as passing, so a plan cannot hide in a green run. Take these two tests, in a file next to <code>grade</code>:</p>
+<pre><code class="byn">test "wip" {
+    todo("cover tooHigh")
+}
+
+test "chatty" {
+    print("checking five")
+    assert (try grade(5)) == "B"
+}</code></pre>
+<pre><code class="other" data-lang="bayan test">running 2 tests in 1 module
+
+  ✗ grading: chatty
+      checking five
+      assert (try grade(5)) == "B"
+              │             │
+              │             false
+              C
+      todo.test.byn:7
+
+◆ 0 passed · ✗ 1 failed · 1 pending · 0.49s
+  rerun the failure: bayan test --only "chatty"</code></pre>
+<p>The failing test shows its printed line above the assertion. The summary counts <code>wip</code> as pending.</p>
+<p>Each test runs in its own process, so a crash in one is one failed test, not a dead run.</p>
+
+<h2 id="coverage">Coverage</h2>
+<p>Passing tests do not say what they touched. <code>bayan test --coverage</code> counts three things: <strong>lines</strong> that ran, <strong>branches</strong> (each side of a condition) that were taken both ways, and <strong>error paths</strong>: a case of a <code>fails</code> type that some test made the function return. Run it on <code>grade</code> with only the two tests from the previous section, <code>ninety is an A</code> and <code>negative scores fail</code>:</p>
+<pre><code class="other" data-lang="bayan test --coverage">running 2 tests in 1 module
+
+◆ 2 passed · 0.25s
+coverage: lines 3/5 (60%), branches 4/8 (50%), error paths 1/2 (50%)
+  grade.byn: lines 3/5, branches 4/8, error paths 1/2
+uncovered branch: grade.byn:8:32 never true
+uncovered branch: grade.byn:9:19 never false
+uncovered branch: grade.byn:10:19 never true
+uncovered branch: grade.byn:10:19 never false
+uncovered error path: grade.byn: grade GradeError.tooHigh</code></pre>
+<p>The report names what is missing. Line 8, column 32 is <code>score &gt; 100</code>, which no test made true: that is the <code>tooHigh</code> error path. The conditions on lines 9 and 10 were only ever seen one way, because only the score 90 reached them. Add a test with 101, one with 85 and one with 70, and all three counts reach 100%. The paths in the report are shortened here; the compiler prints the path it was given.</p>
+<p>Without <code>--coverage</code>, <code>bayan test --mode debug</code> prints the one-line summary after the pass count,. <code>--coverage</code> also writes <code>out/test/bayan-quality.json</code> in a project, for tools to read.</p>
+<p>To make coverage a gate, set minimums in <code>package.byn</code>:</p>
+<pre><code class="byn">Package {
+    name: "local/gate",
+    version: "0.1.0",
+    edition: 2027,
+    kind: .lib,
+    capabilities: [],
+    deps: [],
+    test: Tests { lines: 100, errorPaths: 100 },
+    // …
+}</code></pre>
+<p>The gate is checked when you run <code>bayan test --coverage</code>. Under a minimum, the run fails with exit code 3 and lists what to cover:</p>
+<pre><code class="other" data-lang="bayan test --coverage">bayan: lines 60% &lt; 100%
+uncovered line: src/gate/grade.byn:10
+uncovered line: src/gate/grade.byn:11
+bayan: error paths 50% &lt; 100%
+uncovered error path: grade GradeError.tooHigh (src/gate/grade.byn)</code></pre>
+<p>A test that is killed on timeout leaves its coverage unknown, not uncovered. The manifest's <code>Tests</code> also has <code>branches</code>; the example above sets two, and a minimum you leave out is not enforced.</p>
+
+<h2 id="mutation">Do the tests notice a change?</h2>
+<p>Coverage says a line ran, not that a test would notice if it were wrong. <code>bayan test --mutate</code> makes small changes to your code, one at a time (<code>&lt;</code> to <code>&lt;=</code>, <code>90</code> to <code>91</code>, one error case swapped for another) and runs the tests against each. A change a test fails on is <em>killed</em>. A change nothing notices <em>survived</em>. A change no test reaches is <em>not reached</em>. The two-test run ends:</p>
+<pre><code class="other" data-lang="bayan test --mutate">grade.byn:7:33 condition `score &lt; 0` -&gt; `!(score &lt; 0)`: killed
+grade.byn:7:33 boundary `score &lt; 0` -&gt; `score &lt;= 0`: survived
+grade.byn:7:41 literal `0` -&gt; `1`: survived
+…
+grade.byn:10:28 literal `80` -&gt; `79`: not reached
+11 killed, 6 survived, 0 timeout, 8 not reached, 0 marked, 0 not emitted</code></pre>
+<p>The survivor at <code>score &lt; 0</code> to <code>score &lt;= 0</code> says no test tries a score of exactly 0. A boundary test would kill it. Each line gives the position, the kind of change, the old and new text, and the result.</p>
+
+<h2 id="planned">Planned test features</h2>
+<note>Planned: not in the compiler yet. Each fragment below comes from the specification (§20). The compiler rejects them today: <code>@pairwise</code> is "unknown attribute", and <code>property</code>, <code>bench</code> and <code>snapshot</code> are not recognised.</note>
+<pre><code class="byn">@pairwise
+test "parses across currencies" (Currency c, bool negative) { … }
+
+property "balances sum to zero" (Span&lt;Expense&gt; xs) { … }
+
+bench "parse ledger" { measure Ledger.read(sample) }
+
+@nightly
+fuzz "reader never crashes" (string text) { … }</code></pre>
+<p>These are the intended shapes. <code>@pairwise</code> runs a test over pairs of parameter values rather than every combination. <code>property</code> generates inputs from the parameter types and shrinks a failure to a small one. <code>bench</code> reports time and allocations per operation. <code>fuzz</code> feeds random input, and failures are saved under <code>testdata/</code>. The same section describes tests that run the code in <code>///</code> doc comments (not run today) and <code>snapshot(x)</code> with <code>bayan test --update</code>. For benchmarking now, see the <a href="cookbook-testing.html">testing cookbook</a>, which times a loop by hand.</p>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>You write <code>assert try grade(90) == "A"</code> where <code>grade</code> fails. What does the compiler say?</summary>
+<p>BYN1054: <code>try</code> covers the whole comparison, which cannot fail, so it suggests <code>(try grade(90)) == "A"</code>. Leaving <code>try</code> out entirely is a different error, BYN2602, whose suggestion is the form that then fails with BYN1054.</p>
+</details>
+<details class="quiz"><summary>The failure below is from a real run. What did <code>grade(90)</code> return?
+<pre><code class="other" data-lang="bayan test">  ✗ grade: ninety is an A
+      assert (try grade(90)) == "A"
+              │              │
+              │              false
+              B</code></pre></summary>
+<p>It returned <code>"B"</code>. The tree shows the value under the expression that made it: <code>B</code> is under <code>(try grade(90))</code>, and <code>false</code> is under <code>==</code>. It did not fail with an error (the message would say <code>failed with</code>), and "A" is the expected value, not the one found.</p>
+</details>
+<details class="quiz"><summary>A test body is only <code>todo("later")</code>. How does <code>bayan test</code> report it?</summary>
+<p>As pending: it adds to the "0 pending" counter in the summary and is listed with <code>(pending)</code> under <code>-v</code>. It is not reported as passed, because that would hide unfinished work, and it does not fail the run, because the plan is not a bug.</p>
+</details>
+<details class="quiz"><summary>The coverage report ends with <code>uncovered error path: grade GradeError.tooHigh</code>. What do you write?</summary>
+<p>A test that makes <code>grade</code> fail with that case, for example <code>assert grade(101) fails GradeError.tooHigh</code>. A test with a score of 100 would not do: it takes the branch the other way and returns a letter. A test for <code>negative</code> does not cover <code>tooHigh</code>, because error paths are counted by case.</p>
+</details>
+<details class="quiz"><summary><code>package.byn</code> has <code>test: Tests { lines: 100 }</code>, and your tests cover 90% of lines. Which command fails, and with which exit code?</summary>
+<p><code>bayan test --coverage</code> fails with exit code 3 and lists the uncovered lines. A plain <code>bayan test</code> passes with 0 in this version, because it does not check the gate. Code 1 means a compile error, and code 4 is for toolchain problems, so neither applies.</p>
+</details>

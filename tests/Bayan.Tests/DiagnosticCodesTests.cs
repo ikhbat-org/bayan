@@ -82,6 +82,7 @@ public sealed class DiagnosticCodesTests
         ["BYN2011"] = "circular alias example reports no diagnostic standalone",
         ["BYN2015"] = "multi-file: the module's file is imported elsewhere",
         ["BYN2026"] = "retired: the example now reports BYN1017 and BYN1018",
+        ["BYN2033"] = "multi-file: needs a std module, and no shipped one imports a package module",
         ["BYN2113"] = "superseded by BYN2761",
         ["BYN2116"] = "not reported yet: operator declarations are spec-only",
         ["BYN2224"] = "no longer reported since M14",
@@ -100,14 +101,15 @@ public sealed class DiagnosticCodesTests
         ["BYN3215"] = "not reported yet: reserved code with no example",
         ["BYN3217"] = "not reported yet: reserved code with no example",
         ["BYN4001"] = "backend error from the C compiler, not reachable from source",
+        ["BYN4002"] = "internal compiler error, not reachable from source",
         ["BYN6004"] = "project-level: needs a package.byn and a second file",
     };
 
     // Skipped docs whose example is not compilable text, or that have no example block (the rest must still fail to report their own code).
     private static readonly HashSet<string> StructuralExamples =
     [
-        "BYN0001", "BYN0005", "BYN0015", "BYN0016", "BYN2005", "BYN2010", "BYN2015",
-        "BYN3100", "BYN3101", "BYN3102", "BYN3103", "BYN3104", "BYN3213", "BYN3215", "BYN3217", "BYN4001", "BYN6004",
+        "BYN0001", "BYN0005", "BYN0015", "BYN0016", "BYN2005", "BYN2010", "BYN2015", "BYN2033",
+        "BYN3100", "BYN3101", "BYN3102", "BYN3103", "BYN3104", "BYN3213", "BYN3215", "BYN3217", "BYN4001", "BYN4002", "BYN6004",
     ];
 
     // Error codes an example may report besides its own ("doc/extra"), each with the reason.

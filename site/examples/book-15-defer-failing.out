@@ -1,0 +1,5 @@
+step ok
+always runs
+only when step fails
+always runs
+caught

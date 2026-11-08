@@ -1,0 +1,25 @@
+type distinct Count = i64 requires it > 0
+
+struct User {
+    string name
+        requires it.runeCount in 3..=8
+    i64 age
+        requires it in 13..=120
+}
+
+User make(string n, at i64 a) fails ValidationError<User> {
+    return try User { name: n, age: a }
+}
+
+Count count(i64 raw) fails ValidationError<Count> => try Count(raw)
+
+let u = make("abc", at: 20) catch { return }
+print(u.name)
+let c = count(0) catch Count(1)
+print($"{c.value}")
+let d = count(0) catch switch {
+    .invalid e => Count(9),
+}
+print($"{d.value}")
+let bad = make("ab", at: 5) catch { return }
+print("not reached")

@@ -9,7 +9,7 @@
 
 import lexer
 
-void dump(in CompilationUnit unit, from ref Parser p, to ref StrBuf sb) {
+public void dump(in CompilationUnit unit, from ref Parser p, to ref StrBuf sb) uses alloc {
     line("CompilationUnit", at: 0, to: ref sb)
     for member in unit.members { decl(in member, at: 1, from: ref p, to: ref sb) }
     if p.lexed.diagnostics.length > 0 {
@@ -18,6 +18,7 @@ void dump(in CompilationUnit unit, from ref Parser p, to ref StrBuf sb) {
         for d in p.lexed.diagnostics {
             unless d.code.isEmpty { live.append(d) }
         }
+        // coverage-exempt: Q1123
         if live.length > 0 {
             sb.append("\n")
             lexer.renderAll(live.span, to: ref sb, from: ref p.lexed.source)
@@ -264,6 +265,11 @@ void decl(in Decl node, at i64 depth, from ref Parser p, to ref StrBuf sb) {
             }
             head.append(whereText(in d.value.where, from: ref p))
             for r in d.value.requiresKeyword { head.append($" expects {exprText(in r, from: ref p)}") }
+            if (d.value.usesKeyword is { } usesClause) {
+                var effects = List<string>()
+                for e in usesClause.effects { effects.append(nameText(ref p, at: e)) }
+                head.append($" uses {effects.joined(by: ", ")}")
+            }
             if (d.value.becomes is { } becomes) { head.append($" becomes .{nameText(ref p, at: becomes)}") }
             if (d.value.failsKeyword is { } failsClause) {
                 if failsClause.errors.isEmpty {
@@ -273,11 +279,6 @@ void decl(in Decl node, at i64 depth, from ref Parser p, to ref StrBuf sb) {
                     for e in failsClause.errors { errors.append(typeText(in e, from: ref p)) }
                     head.append($" fails {errors.joined(by: ", ")}")
                 }
-            }
-            if (d.value.usesKeyword is { } usesClause) {
-                var effects = List<string>()
-                for e in usesClause.effects { effects.append(nameText(ref p, at: e)) }
-                head.append($" uses {effects.joined(by: ", ")}")
             }
             unless d.value.expressionBody is .none { head.append($" => {exprText(in d.value.expressionBody, from: ref p)}") }
             line($"{head.finish()}", at: depth, to: ref sb)

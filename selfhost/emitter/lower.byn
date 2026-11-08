@@ -1,7 +1,7 @@
 // T2: Lowerer.cs 11-35 (`Lowerer.Lower`), 78-93 (`FunctionLowerer.Lower`), 95-351 (helpers, cleanup).
 //
 // `FunctionLowerer` is not an object: its fields are `LCtx`'s, reset by `lowerFunction` as `new FunctionLowerer`
-// would (D3: no `mutants`/`coverage`). A lowered handle has no `Type`/`Syntax` the semantics accessors know, so
+// would. A lowered handle has no `Type`/`Syntax` the semantics accessors know, so
 // `t2Type`/`t2Span` answer for both trees (Q763).
 
 import semantics
@@ -28,7 +28,8 @@ type Big = semantics.Big
 type Constant = semantics.Constant
 type LocalSymbol = semantics.LocalSymbol
 
-/// Lowerer.cs:18 `Lowerer.Lower` (D3: no `mutants`/`coverage`). The arenas of the lowered nodes are on `l`.
+/// Lowerer.cs:18 `Lowerer.Lower`. The arenas of the lowered nodes are on `l`; C#'s `mutants`/`coverage` arguments are
+/// `l.mutating`/`l.mutants` and `l.covering`/`l.coverage`, set by the caller.
 public LoweredProgram lower(ref Ctx c, to ref LCtx l) uses alloc {
     for d in c.diagnostics {
         if !d.isWarning { panic("cannot lower a compilation with errors") }
@@ -49,7 +50,21 @@ public LoweredProgram lower(ref Ctx c, to ref LCtx l) uses alloc {
             testFunctions.append(lowerFunction(ref c, through: ref l, for: c.tests[t].function))
         }
     }
-    return LoweredProgram { functions: move functions, main: c.modules[c.entryModule].main, tests: move tests, testFunctions: move testFunctions }
+    let coverage = CoverageProbes {
+        count: l.coverage.count,
+        statements: l.coverage.statements.take(),
+        branches: l.coverage.branches.take(),
+        errors: l.coverage.errors.take(),
+    }
+    return LoweredProgram {
+        functions: move functions,
+        main: c.modules[c.entryModule].main,
+        tests: move tests,
+        testFunctions: move testFunctions,
+        mutants: l.mutating,
+        covering: l.covering,
+        coverage: move coverage,
+    }
 }
 
 /// Lowerer.cs:78 `FunctionLowerer.Lower`, after resetting `l`'s per-function fields (`new FunctionLowerer(fn, …)`).
@@ -67,6 +82,8 @@ LoweredFunction lowerFunction(ref Ctx c, through ref LCtx l, for FuncId fn) uses
     l.showing = false
     l.shown = Map<BExpr, BExpr>()
     l.ran = Map<BExpr, LocalId>()
+    l.plain = Map<semantics.BNode, bool>()
+    l.probing = Map<semantics.BNode, bool>()
     let body = c.functions[fn].body
     let bodySpan = semantics.nodeSpan(in c, for: body)
     l.scopes.append(LScope {})

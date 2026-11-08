@@ -1,0 +1,25 @@
+struct Point {
+    i64 x
+    i64 y
+}
+
+void main() {
+    // A struct is a value: assignment copies it.
+    let p = Point { x: 1, y: 2 }
+    var q = p
+    q.x = 10
+    print($"p.x = {p.x}, q.x = {q.x}")
+
+    // So is a fixed-size array.
+    let a: i64[3] = [1, 2, 3]
+    var b = a
+    b[0] = 99
+    print($"a[0] = {a[0]}, b[0] = {b[0]}")
+
+    // A List owns its storage. A copy is something you ask for.
+    var xs = List<i64>()
+    xs.append(1)
+    var ys = xs.copy()
+    ys.append(2)
+    print($"xs has {xs.length}, ys has {ys.length}")
+}

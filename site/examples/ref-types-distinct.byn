@@ -1,0 +1,10 @@
+type distinct Qty = i32 requires it > 0
+
+Qty doubled(i32 raw) fails ValidationError<Qty> {
+    let q = try Qty(raw)
+    return try Qty(q.value * 2)
+}
+
+let ok = doubled(4) catch Qty(1)
+let bad = doubled(-4) catch Qty(7)
+print($"{ok.value} {bad.value}")

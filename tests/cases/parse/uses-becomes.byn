@@ -1,4 +1,4 @@
 void log(string msg) uses allocator, io {
     print(msg)
 }
-i32 next(i32 n) becomes .done fails ParseError uses allocator => n
+i32 next(i32 n) uses allocator becomes .done fails ParseError => n

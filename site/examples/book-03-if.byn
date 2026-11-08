@@ -1,0 +1,27 @@
+void main() {
+    let temperature = 31
+    if temperature > 30 {
+        print("hot")
+    } else if temperature > 15 {
+        print("mild")
+    } else {
+        print("cold")
+    }
+
+    let label = temperature > 30 ? "shorts" : "jacket"
+    print(label)
+
+    let raining = false
+    unless raining {
+        print("no umbrella")
+    }
+    print("take an umbrella") if raining
+    print("sunglasses") unless raining
+
+    if temperature > 20 && !raining {
+        print("picnic")
+    }
+    if temperature < 0 || temperature > 40 {
+        print("stay in")
+    }
+}

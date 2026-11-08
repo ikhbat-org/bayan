@@ -1,0 +1,12 @@
+never stop(string why) {
+    panic(why)
+}
+
+i64 pick(i64 x) {
+    if x > 0 {
+        return x
+    }
+    stop("x must be positive")
+}
+
+print($"{pick(2)}")

@@ -84,7 +84,7 @@ public sealed class MutationRunnerTests
         var wrapper = Path.Combine(dir, "wrapper.sh");
         File.WriteAllText(wrapper, $"#!/bin/sh\necho \"$BAYAN_MUTANT $2\" >> '{log}'\nexec '{build.ExecutablePath}' \"$@\"\n");
         File.SetUnixFileMode(wrapper, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
-        var result = MutationRunner.Run(wrapper, schema, Enumerable.Range(0, 5).ToList(), dir, TimeSpan.FromSeconds(60));
+        var result = MutationRunner.Run(wrapper, schema, Enumerable.Range(0, 5).ToList(), dir, TestTime.Scale(TimeSpan.FromSeconds(60)));
         return new Run(schema, result, File.ReadAllLines(log));
     }
 
@@ -105,7 +105,7 @@ public sealed class MutationRunnerTests
         Assert.NotEmpty(schema.Sites);
         var old = DateTime.UtcNow.AddHours(-3);
         Directory.SetLastWriteTimeUtc(dir, old);
-        MutationRunner.Run("none", schema, [], dir, TimeSpan.FromSeconds(1));
+        MutationRunner.Run("none", schema, [], dir, TestTime.Scale(TimeSpan.FromSeconds(1)));
         Assert.True(Directory.GetLastWriteTimeUtc(dir) > DateTime.UtcNow.AddMinutes(-5), Directory.GetLastWriteTimeUtc(dir).ToString("o"));
     }
 

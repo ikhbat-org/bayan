@@ -1,0 +1,35 @@
+const title: string = "report"
+
+struct Point {
+    i64 x
+    i64 y
+}
+
+void main() {
+    // Static: the literal and the const live for the whole run.
+    print(title)
+
+    // Stack: plain values and fixed-size arrays live in the frame of `main`.
+    let p = Point { x: 3, y: 4 }
+    let grid: i64[3] = [10, 20, 30]
+    let scratch = stackalloc i64[4]
+    scratch[0] = p.x + p.y
+    print($"{p.x} {grid[1]} {scratch[0]} {scratch.length}")
+
+    // Heap: a List asks the current allocator for room as it grows.
+    var xs = List<i64>()
+    for i in 0..5 {
+        xs.append(i * i)
+    }
+    print($"{xs.length} {xs[4]}")
+
+    // Arena: everything allocated inside the block is freed together.
+    using var arena = Arena()
+    provide allocator: arena {
+        var ys = List<i64>()
+        for i in 0..100 {
+            ys.append(i)
+        }
+        print($"{ys.length} {ys[99]}")
+    }
+}

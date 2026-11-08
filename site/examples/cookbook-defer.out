@@ -1,0 +1,8 @@
+open
+work
+close
+--
+open
+undo
+close
+step failed

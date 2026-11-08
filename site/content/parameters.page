@@ -1,0 +1,185 @@
+title: Parameters and arguments
+nav: Reference
+order: 50
+template: docs
+---
+<p>A parameter says how a function may use a value. A call says in what role each value takes part. Bayan makes both explicit, so a call site reads as a sentence and a swapped pair of arguments is a compile error rather than a bug.</p>
+
+<h2 id="modifiers">Parameter modifiers</h2>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Modifier</th><th scope="col">Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><em>none</em></td><td>Read-only. The compiler passes by value or by reference based on size.</td></tr>
+    <tr><td><code>ref</code></td><td>Mutable borrow.</td></tr>
+    <tr><td><code>move</code></td><td>Ownership transfer. Required for <code>unique</code> values.</td></tr>
+    <tr><td><code>out</code></td><td>Output parameter. Prefer returning <code>T?</code> or a tuple.</td></tr>
+    <tr><td><code>in</code></td><td>Accepted, redundant. Removed by the formatter.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="particles">Argument particles</h2>
+<p>A closed set of role particles labels every required parameter after the object.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Particle</th><th scope="col">Role</th></tr></thead>
+  <tbody>
+    <tr><td><em>none</em></td><td>The object being acted on</td></tr>
+    <tr><td><code>from</code></td><td>Source or start</td></tr>
+    <tr><td><code>to</code></td><td>Destination or recipient</td></tr>
+    <tr><td><code>until</code></td><td>Exclusive end</td></tr>
+    <tr><td><code>through</code></td><td>Inclusive end</td></tr>
+    <tr><td><code>at</code></td><td>Position or time</td></tr>
+    <tr><td><code>by</code></td><td>Means or replacement</td></tr>
+    <tr><td><code>for</code></td><td>Beneficiary or purpose</td></tr>
+    <tr><td><code>as</code></td><td>Role</td></tr>
+  </tbody>
+</table></div>
+<p>The particle comes before the type in a declaration and before the value in a call:</p>
+<pre><code class="byn">public void copy(from Path src, to Path dst) uses fs fails FsError
+public void insert(ref this, T item, at Index i) uses alloc
+
+copy(from: old, to: backup)
+xs.insert(item, at: 0)</code></pre>
+<ul>
+  <li>A function has at most one unlabeled parameter, the object (BYN5004). The receiver does not count as the object.</li>
+  <li>Every other required parameter takes a particle (BYN5006), and call sites must write it (BYN5005).</li>
+  <li>The particles are part of the function’s name: <code>copy(from:to:)</code>.</li>
+  <li><code>bool</code> parameters must be passed by name.</li>
+</ul>
+
+<h2 id="overloads">Overloading by particle set</h2>
+<p>Overloads may differ by particle set or by parameter type. The checks run at the declaration, so a call never needs ambiguity resolution: the labels a call writes select the overload.</p>
+<example name="overloads"/>
+<p>Two overloads that one call could match are rejected where the second is declared (BYN2006), and the second is dropped. Here <code>shift(1, by: 2)</code> would fit both:</p>
+<pre><code class="byn">void shift(i64 a, by i64 d) { print("by") }
+void shift(i64 a, by i64 d, to i64 e = 0) { print("by2") }</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2006:</span> `shift` is declared twice
+  --&gt; d6.byn:2:6
+
+<span class="gut">  2 │</span> void <span class="hl">shift</span>(i64 a, by i64 d, to i64 e = 0) { print("by2") }
+<span class="gut">    │</span>      <span class="hl">^^^^^ already declared on line 1</span></pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<p>Overloads that differ only by parameter type, with the same particles, are also BYN2006 today: give them different particles. Overloads may not differ only by <code>ref</code> or <code>out</code>.</p>
+<note>Planned: not in the compiler yet. The rule that overloads differing only by type must not overlap through an implicit conversion (BYN3213) is described in the specification, for example <code>void f(Grams g)</code> beside <code>void f(Kilograms k)</code> when <code>Kilograms</code> converts to <code>Grams</code>. The code is reserved and never reported. Likewise a reference to an overloaded name needs a target type (BYN3215), and overloads may not differ only by function-type parameters.</note>
+
+<h2 id="repeat">A particle once per function</h2>
+<p>A particle may appear only once in a signature. Two parameters with the same role would make a label ambiguous. Group the values in a struct, or pick another particle (BYN5013).</p>
+<pre><code class="byn">void move2(from i64 a, from i64 b) {
+    print($"{a} {b}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5013:</span> `move2` uses the particle `from` twice
+  --&gt; d5013.byn:1:24
+
+<span class="gut">  1 │</span> void move2(from i64 a, <span class="hl">from</span> i64 b) {
+<span class="gut">    │</span>                        <span class="hl">^^^^ used again</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> group the values in a struct, or choose another particle</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<p>The set is closed. A word that is not one of the eight is BYN5008, and the message lists the eight:</p>
+<pre><code class="byn">void shift(i64 a, over i64 b) {
+    print($"{a} {b}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5008:</span> `over` is not a particle
+  --&gt; d5008.byn:1:19
+
+<span class="gut">  1 │</span> void shift(i64 a, <span class="hl">over</span> i64 b) {
+<span class="gut">    │</span>                   <span class="hl">^^^^ not a particle</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="diagnostic">When a particle is missing</h2>
+<p>Write the argument without its particle and the compiler names the particle, points at the argument and shows the fix. A swapped pair of arguments of the same type lands here too, which is why Bayan needs no separate same-type naming rule.</p>
+<pre><code class="byn">// A swapped pair is a particle mismatch (BYN5005).
+i64 width(i64 start, until i64 end) =&gt; end - start
+
+let start: i64 = 2
+let end: i64 = 5
+print($"{width(end, start)}")
+print($"{width(start, until: end)}")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN5005:</span> `end` is passed without its particle `until:`
+
+<span class="gut">  6 │</span> print($"{width(end, <span class="hl">start</span>)}")
+<span class="gut">    │</span>                     <span class="hl">^^^^^ needs `until:`</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> add `until:` before the argument
+<span class="gut">    │ 6 │</span> print($"{width(end, <span class="add">until: </span>start)}")
+<span class="gut">    │   │</span>                     <span class="add">+++++++</span></pre>
+  <figcaption>The compiler’s message for this program, as recorded in <code>tests/cases/diag/arguments-swapped.diag</code>. Run <code>bayan explain BYN5005</code> for the long form.</figcaption>
+</figure>
+
+<h2 id="ref-move">ref and move</h2>
+<p>A <code>ref</code> parameter borrows the caller’s variable and may change it. The call must say <code>ref</code> too, and the variable must be a <code>var</code>. A <code>move</code> parameter takes ownership: the caller writes <code>move</code> and cannot use the value afterwards.</p>
+<example name="param-refmove"/>
+<p>Leaving out the keyword at the call is an error, with the fix shown.</p>
+<pre><code class="byn">void bump(ref i64 n) {
+    n += 1
+}
+var n: i64 = 1
+bump(n)</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2306:</span> argument for `n` must be passed as `ref`
+  --&gt; dref.byn:5:6
+
+<span class="gut">  5 │</span> bump(<span class="hl">n</span>)
+<span class="gut">    │</span>      <span class="hl">^</span>
+<span class="gut">    │</span>
+<span class="gut">    │ 5 │</span> bump(<span class="add">ref </span>n)
+<span class="gut">    │   │</span>      <span class="add">++++</span></pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">i64 count(move List&lt;i64&gt; xs) =&gt; xs.length
+let xs: List&lt;i64&gt; = [1]
+print($"{count(xs)}")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2780:</span> implicit copy of a unique value: `List&lt;i64&gt;` is unique: it owns its storage
+  --&gt; dmove.byn:3:16
+
+<span class="gut">  3 │</span> print($"{count(<span class="hl">xs</span>)}")
+<span class="gut">    │</span>                <span class="hl">^^</span>
+<span class="gut">    │</span>
+  help: hand the value over with `move xs`; make an independent copy with `xs.copy(to: alloc)`; pass
+        it by `ref` to share it instead
+<span class="gut">    │ 3 │</span> print($"{count(<span class="add">move </span>xs)}")
+<span class="gut">    │   │</span>                <span class="add">+++++</span></pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<p>See <a href="ref-memory.html#ownership">Memory model</a> for what moving does to the original.</p>
+
+<h2 id="out">out parameters</h2>
+<p>An <code>out</code> parameter hands a value back through the argument. The call writes <code>out</code> before the variable, after its particle. An <code>out</code> parameter is a required parameter like any other, so it takes a particle unless it is the object. Prefer returning an optional or a tuple; <code>out</code> exists for interop with code that uses it. <code>in</code> is accepted and means nothing; the formatter removes it.</p>
+<example name="param-out"/>
+
+<h2 id="rest">Variable argument lists: rest</h2>
+<p>A <code>rest</code> parameter collects any number of trailing arguments into a read-only span. It must be the last positional parameter, and a function has one. Write the span type out in full.</p>
+<example name="param-rest"/>
+<ul>
+  <li>Call it with no arguments and the span is empty.</li>
+  <li><code>..xs</code> in an argument position passes an existing list or span without copying.</li>
+  <li>The span is borrowed for the call. Returning it or storing it is BYN3214. Call <code>items.copy()</code> to keep the values.</li>
+  <li>Named optional parameters may follow the <code>rest</code> parameter, and are passed by name.</li>
+  <li>A second <code>rest</code> parameter is BYN1001.</li>
+</ul>
+<example name="param-restopt"/>
+<pre><code class="byn">ReadOnlySpan&lt;i64&gt; keep(rest ReadOnlySpan&lt;i64&gt; items) =&gt; items</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN3214:</span> `items` is borrowed for the call and cannot be stored
+  --&gt; d3214.byn:1:57
+
+<span class="gut">  1 │</span> ReadOnlySpan&lt;i64&gt; keep(rest ReadOnlySpan&lt;i64&gt; items) =&gt; <span class="hl">items</span>
+<span class="gut">    │</span>                                                         <span class="hl">^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> copy it first: `items.copy()`</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<note><code>params</code> from other languages is not accepted. Today the compiler reports it as BYN5008 (“`params` is not a particle”), not as the BYN1058 hint the specification describes (section 10).</note>
+
+<h2 id="positional">@positional structs</h2>
+<p>The constructor of a struct marked <code>@positional</code> takes its fields in order with no particles or names. Use it only when the fields are the same kind and their order is universal, such as a point. A struct without the attribute has no constructor call at all (BYN2112): build it with a struct literal. The struct literal form works on both.</p>
+<example name="param-positional"/>

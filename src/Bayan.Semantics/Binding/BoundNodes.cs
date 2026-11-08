@@ -95,6 +95,8 @@ public enum BuiltinMember
     FormatSpecRadix, FormatSpecDebug, FormatSpecWidth, FormatSpecFill, FormatSpecAlign, FormatSpecDigits,
     /// <summary><c>f64.tryParse(text)</c> / <c>f32.tryParse(text)</c> (the receiver is the text; revision 0015).</summary>
     FloatTryParse,
+    /// <summary><c>t.nanos</c> of a <c>Time</c>: the nanoseconds since the Unix epoch.</summary>
+    TimeNanos,
 }
 
 public sealed record BoundBuiltinCall(Node Syntax, BuiltinMember Member, BoundExpr Receiver, BoundExpr[] Arguments, TypeSymbol Type)

@@ -36,6 +36,7 @@ internal static class BuiltinMembers
         (BuiltinType { Kind: BuiltinKind.ProcessResult }, "stdout") => (BuiltinMember.ProcessStdout, PrimitiveType.String),
         (BuiltinType { Kind: BuiltinKind.ProcessResult }, "stderr") => (BuiltinMember.ProcessStderr, PrimitiveType.String),
         (BuiltinType { Kind: BuiltinKind.Panic }, "message") => (BuiltinMember.PanicMessage, PrimitiveType.String),
+        (BuiltinType { Kind: BuiltinKind.Time }, "nanos") => (BuiltinMember.TimeNanos, PrimitiveType.I64),
         // The binder gives `radix` the builtin `Radix` and `align` the builtin `Align`; `digits` is -1 when the hole gives none.
         (BuiltinType { Kind: BuiltinKind.FormatSpec }, "radix") => (BuiltinMember.FormatSpecRadix, PrimitiveType.I32),
         (BuiltinType { Kind: BuiltinKind.FormatSpec }, "debug") => (BuiltinMember.FormatSpecDebug, PrimitiveType.Bool),
@@ -126,16 +127,18 @@ internal static class BuiltinMembers
         (BuiltinType { Kind: BuiltinKind.StrBuf } s, "take") => new(BuiltinMember.StrBufTake, [], s, Mutating: true),
         (OptionalType o, "take") when TypeFacts.IsUnique(o.Inner) => new(BuiltinMember.OptionalTake, [], o, Mutating: true),
         (BuiltinType { Kind: BuiltinKind.IoStream }, "write") => new(BuiltinMember.IoWrite, [("text", PrimitiveType.String)], PrimitiveType.Void),
-        // The binder wraps the result in `Result<string, IoError>`.
+        // The binder wraps the result in `Result<string, IoError>`; it binds `readAllBytes()` as `Builtins.IoStdinReadAllBytes`, which fails.
         (BuiltinType { Kind: BuiltinKind.IoInput }, "readAll") => new(BuiltinMember.IoReadAll, [], PrimitiveType.String),
         _ => null,
     };
 
-    public static bool HasMethod(TypeSymbol type, string name) => Method(type, name) is not null;
+    // `Io.stdin.readAllBytes` is bound by the binder as a failing builtin function, so `Method` has no entry for it.
+    public static bool HasMethod(TypeSymbol type, string name) =>
+        Method(type, name) is not null || (type is BuiltinType { Kind: BuiltinKind.IoInput } && name == "readAllBytes");
 
     private static readonly string[] Candidates =
         ["length", "bytes", "isEmpty", "runeCount", "isAscii", "runes", "utf16", "lines", "value", "copy", "startsWith", "endsWith", "contains",
-         "position", "lastPosition", "count", "trimmed", "equals", "lowercased", "uppercased", "replaced", "repeated", "padded", "parts", "skip", "takeLast", "joined", "span", "mutableSpan", "clear", "removeLast", "replace", "sort", "tryGet", "slot", "remove", "reset", "append", "appendRepeated", "insert", "finish", "view", "take", "write", "readAll", "name", "ordinal", "exitCode", "stdout", "stderr", "message", "radix", "debug", "width", "fill", "align", "digits"];
+         "position", "lastPosition", "count", "trimmed", "equals", "lowercased", "uppercased", "replaced", "repeated", "padded", "parts", "skip", "takeLast", "joined", "span", "mutableSpan", "clear", "removeLast", "replace", "sort", "tryGet", "slot", "remove", "reset", "append", "appendRepeated", "insert", "finish", "view", "take", "write", "readAll", "readAllBytes", "name", "ordinal", "exitCode", "stdout", "stderr", "message", "radix", "debug", "width", "fill", "align", "digits"];
 
     /// <summary>Every member name of <paramref name="type"/>, for suggestions.</summary>
     public static IEnumerable<string> Names(TypeSymbol type) =>

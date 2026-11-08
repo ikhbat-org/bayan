@@ -365,6 +365,7 @@ public enum BuiltinFunction
     IoStdout,
     IoStderr,
     IoStdin,
+    IoStdinReadAllBytes,
     Utf8Decode,
     Utf8TryDecode,
     Utf8DecodeReplace,
@@ -384,6 +385,13 @@ public enum BuiltinFunction
     PathFullPath,
     EnvGet,
     FsFileExists,
+    FsRename,
+    FsCopy,
+    FsModified,
+    FsSetModified,
+    FsRealPath,
+    TimeNow,
+    TimeFromNanos,
 }
 
 public enum LocalKind { Let, Var, Const, Parameter, ForVariable, PatternVariable, Temp }

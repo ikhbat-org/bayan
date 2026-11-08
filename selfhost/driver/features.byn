@@ -1,0 +1,306 @@
+// The command `features` of the self-hosted driver (spec 017 T2). Ports `Features.cs`: `Run` :19, `ToJson` :33 and
+// `Declarations` :73. The C# `GetType().Name` of a syntax node comes from the name tables below (one arm per node kind of the
+// selfhost parser, `SelfhostDefaultT2Tests` checks them against the C# types); a builtin's name is its case with the first
+// letter raised, as `BuiltinMember.ToString()` writes it.
+
+import lexer
+import parser
+import semantics
+
+/// Features.cs:17 `Version`.
+const featuresVersion: i64 = 1
+
+/// Insertion into the set `items`, kept as a list in first-seen order (sorted by `t2Sorted`).
+void t2Add(string item, to ref List<string> items) uses alloc {
+    for x in items {
+        if x == item { return }
+    }
+    items.append(item)
+}
+
+/// The `SortedSet<string>(StringComparer.Ordinal)` order of `items`.
+void t2Sorted(through ref List<string> items) {
+    for i in 1..items.length {
+        var j = i
+        while j > 0 && items[j] < items[j - 1] {
+            let above = items[j - 1]
+            items[j - 1] = items[j]
+            items[j] = above
+            j -= 1
+        }
+    }
+}
+
+/// `ToString()` of a `BuiltinMember` or `BuiltinFunction` case: the case name with its first letter raised.
+string t2Pascal(string name) => $"{name[0..1].uppercased()}{name[1..name.length]}"
+
+/// The `GetType().Name` of the syntax node an `Expr` is (`ExprSyntaxKind` is one case per `Expr` record).
+string t2ExprName(semantics.ExprSyntaxKind kind) {
+    switch kind {
+        case .literalExpr: return "LiteralExpr"
+        case .interpolatedExpr: return "InterpolatedExpr"
+        case .nameExpr: return "NameExpr"
+        case .thisExpr: return "ThisExpr"
+        case .memberExpr: return "MemberExpr"
+        case .targetMemberExpr: return "TargetMemberExpr"
+        case .callExpr: return "CallExpr"
+        case .indexExpr: return "IndexExpr"
+        case .unaryExpr: return "UnaryExpr"
+        case .binaryExpr: return "BinaryExpr"
+        case .rangeExpr: return "RangeExpr"
+        case .conditionalExpr: return "ConditionalExpr"
+        // coverage-exempt: Q1078 a cast reports BYN1062 at parse, so the compile fails before the walk (tried)
+        case .castExpr: return "CastExpr"
+        case .isExpr: return "IsExpr"
+        // coverage-exempt: Q1078 `except` is BYN2022 in v0.1, so the compile fails before the walk (tried)
+        case .exceptExpr: return "ExceptExpr"
+        case .inExpr: return "InExpr"
+        case .switchExpr: return "SwitchExpr"
+        case .tryExpr: return "TryExpr"
+        case .moveExpr: return "MoveExpr"
+        case .catchExpr: return "CatchExpr"
+        case .caughtErrorExpr: return "CaughtErrorExpr"
+        case .jumpExpr: return "JumpExpr"
+        case .blockExpr: return "BlockExpr"
+        case .structLiteralExpr: return "StructLiteralExpr"
+        case .withExpr: return "WithExpr"
+        case .spreadExpr: return "SpreadExpr"
+        // coverage-exempt: Q1078 a map literal binds without an entry node of this syntax kind: the walk never sees it (tried, `["a": 1]`)
+        case .mapEntryExpr: return "MapEntryExpr"
+        case .collectionExpr: return "CollectionExpr"
+        case .tupleExpr: return "TupleExpr"
+        case .parenExpr: return "ParenExpr"
+        case .lambdaExpr: return "LambdaExpr"
+        case .stackallocExpr: return "StackallocExpr"
+        // coverage-exempt: Q1078 a named pattern is BYN2022 in v0.1, so the compile fails before the walk (tried)
+        case .patternExpr: return "PatternExpr"
+        // coverage-exempt: Q1078 a parse error stops the compile before the walk, so the C# never sees an error node here
+        case .errorExpr: return "ErrorExpr"
+    }
+}
+
+/// The `GetType().Name` of a syntax node that is not an `Expr` (`NodeSyntaxKind`).
+string t2NodeName(semantics.NodeSyntaxKind kind) {
+    switch kind {
+        case .blockStmt: return "BlockStmt"
+        case .localDecl: return "LocalDecl"
+        case .exprStmt: return "ExprStmt"
+        case .assignStmt: return "AssignStmt"
+        case .incDecStmt: return "IncDecStmt"
+        case .returnStmt: return "ReturnStmt"
+        case .failStmt: return "FailStmt"
+        case .breakStmt: return "BreakStmt"
+        case .continueStmt: return "ContinueStmt"
+        case .becomeStmt: return "BecomeStmt"
+        case .ifStmt: return "IfStmt"
+        case .unlessStmt: return "UnlessStmt"
+        case .guardedStmt: return "GuardedStmt"
+        case .whileStmt: return "WhileStmt"
+        case .doWhileStmt: return "DoWhileStmt"
+        case .whileLetStmt: return "WhileLetStmt"
+        case .forStmt: return "ForStmt"
+        // coverage-exempt: Q1078 a loop label binds into the loop, with no node of this syntax kind (tried, `area: for`)
+        case .labeledStmt: return "LabeledStmt"
+        case .switchStmt: return "SwitchStmt"
+        case .deferStmt: return "DeferStmt"
+        case .assertStmt: return "AssertStmt"
+        case .contextStmt: return "ContextStmt"
+        // coverage-exempt: Q1078 a `;` reports a semicolon error at parse, so the compile fails before the walk
+        case .emptyStmt: return "EmptyStmt"
+        // coverage-exempt: Q1078 a parse error stops the compile before the walk, so the C# never sees an error node here
+        case .errorStmt: return "ErrorStmt"
+        case .constantPattern: return "ConstantPattern"
+        case .relationalPattern: return "RelationalPattern"
+        case .varPattern: return "VarPattern"
+        case .discardPattern: return "DiscardPattern"
+        case .declarationPattern: return "DeclarationPattern"
+        case .notPattern: return "NotPattern"
+        case .binaryPattern: return "BinaryPattern"
+        case .propertyPattern: return "PropertyPattern"
+        case .positionalPattern: return "PositionalPattern"
+        case .variantPattern: return "VariantPattern"
+        // coverage-exempt: Q1078 list patterns are BYN2022 in v0.1, so the compile fails before the walk (tried)
+        case .slicePattern: return "SlicePattern"
+        // coverage-exempt: Q1078 list patterns are BYN2022 in v0.1, so the compile fails before the walk (tried)
+        case .listPattern: return "ListPattern"
+        case .requiresRule: return "RequiresRule"
+        case .globalStatement: return "GlobalStatement"
+        // coverage-exempt: Q1078 no bound node carries a function declaration as its syntax node: the guard run missed it
+        case .functionDecl: return "FunctionDecl"
+        case .structDecl: return "StructDecl"
+        case .name: return "Name"
+        case .param: return "Param"
+        case .argument: return "Argument"
+    }
+}
+
+/// Features.cs:72 `Declarations` for the attributes of one declaration: each attribute, then its `because` clause.
+void t2Attributes(in List<parser.AttributeSyntax> attributes, to ref List<string> nodes) uses alloc {
+    for a in attributes {
+        t2Add("AttributeSyntax", to: ref nodes)
+        if a.becauseKeyword is not null { t2Add("BecauseClause", to: ref nodes) }
+    }
+}
+
+/// Features.cs:72 `Declarations`: each declaration, nested members included, then its attributes and their `because` clauses.
+void t2Declarations(in List<parser.Decl> decls, to ref List<string> nodes) uses alloc {
+    for decl in decls {
+        switch decl {
+            case .importDecl(let n):
+                t2Add("ImportDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .globalStatement(let n):
+                t2Add("GlobalStatement", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .functionDecl(let n):
+                t2Add("FunctionDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .structDecl(let n):
+                t2Add("StructDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+                t2Declarations(in n.value.members, to: ref nodes)
+            case .interfaceDecl(let n):
+                t2Add("InterfaceDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+                t2Declarations(in n.value.members, to: ref nodes)
+            case .getterDecl(let n):
+                t2Add("GetterDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .associatedTypeDecl(let n):
+                t2Add("AssociatedTypeDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .extensionDecl(let n):
+                // coverage-exempt: Q1078 `extension` is BYN2022 in v0.1, so the compile fails before the walk
+                t2Add("ExtensionDecl", to: ref nodes)
+                // coverage-exempt: Q1078 `extension` is BYN2022 in v0.1, so the compile fails before the walk
+                t2Attributes(in n.value.attributes, to: ref nodes)
+                // coverage-exempt: Q1078 `extension` is BYN2022 in v0.1, so the compile fails before the walk
+                t2Declarations(in n.value.members, to: ref nodes)
+            case .fieldDecl(let n):
+                t2Add("FieldDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .propertyDecl(let n):
+                t2Add("PropertyDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .constructorDecl(let n):
+                t2Add("ConstructorDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .errorEnumDecl(let n):
+                t2Add("ErrorEnumDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .errorSetDecl(let n):
+                t2Add("ErrorSetDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .enumDecl(let n):
+                t2Add("EnumDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .unionDecl(let n):
+                t2Add("UnionDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .typeAliasDecl(let n):
+                t2Add("TypeAliasDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .effectDecl(let n):
+                t2Add("EffectDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .testDecl(let n):
+                t2Add("TestDecl", to: ref nodes)
+                t2Attributes(in n.value.attributes, to: ref nodes)
+            case .none:
+                // coverage-exempt: Q1078 the `.none` declaration is never in a parsed list (the C# switch has no such arm)
+                continue
+        }
+    }
+}
+
+/// Features.cs:41-51 for one function: the syntax kinds, builtins of its body (a `BoundBlock`, else nothing).
+void t2Function(in semantics.Ctx c, for semantics.FuncId fn, to ref List<string> nodes, through ref List<string> builtins) uses alloc {
+    let body = c.functions[fn].body
+    // coverage-exempt: Q1078 every function the C# counts has a block body here: no test row has a bodiless one
+    if body == -1 || semantics.boundKind(body) != .block { return }
+    for node in semantics.descendants(in c, for: body) {
+        if (semantics.exprSyntax(in c, for: node) is { } e) {
+            t2Add(t2ExprName(e.kind), to: ref nodes)
+            if e.kind == .callExpr && e.becauseKeyword { t2Add("BecauseClause", to: ref nodes) }
+        // coverage-exempt: Q1078 a bound node with neither syntax is not reached by the rows; the C# `else if` has no else
+        } else if (semantics.nodeSyntax(in c, for: node) is { } s) {
+            t2Add(t2NodeName(s.kind), to: ref nodes)
+        }
+        let index = node & 0xFFFFFFFF
+        switch semantics.boundKind(node) {
+            case .builtinCall:
+                t2Add(t2Pascal($"{c.bBuiltinCalls[index].member}"), to: ref builtins)
+            case .call:
+                let builtin = c.functions[c.bCalls[index].function].builtin
+                if builtin != .none { t2Add(t2Pascal($"{builtin}"), to: ref builtins) }
+            default:
+                continue
+        }
+    }
+}
+
+/// Features.cs:61-66: `"name": [` items `]`, an empty array as `[]`, Utf8JsonWriter's indented layout.
+void t2Array(string name, to ref StrBuf sb, from in List<string> items, at bool last) {
+    if items.length == 0 {
+        sb.append($"  \"{name}\": []")
+    } else {
+        sb.append($"  \"{name}\": [\n")
+        for i in 0..items.length {
+            sb.append($"    \"{items[i]}\"")
+            sb.append(i + 1 < items.length ? ",\n" : "\n")
+        }
+        sb.append("  ]")
+    }
+    sb.append(last ? "\n" : ",\n")
+}
+
+/// Features.cs:33 `ToJson`.
+string t2ToJson(in semantics.Ctx c) uses alloc {
+    var nodes = List<string>()
+    var builtins = List<string>()
+    for m in c.modules {
+        for f in m.files { t2Declarations(in c.files[f].unit.members, to: ref nodes) }
+    }
+    for m in c.modules {
+        for fn in m.allFunctions { t2Function(in c, for: fn, to: ref nodes, through: ref builtins) }
+        for t in m.tests { t2Function(in c, for: c.tests[t].function, to: ref nodes, through: ref builtins) }
+    }
+    var diagnostics = List<string>()
+    for d in c.diagnostics { t2Add(d.code, to: ref diagnostics) }
+    t2Sorted(through: ref nodes)
+    t2Sorted(through: ref builtins)
+    t2Sorted(through: ref diagnostics)
+    var sb = StrBuf()
+    sb.append("{\n")
+    sb.append($"  \"version\": {featuresVersion},\n")
+    t2Array("nodes", to: ref sb, from: in nodes, at: false)
+    t2Array("builtins", to: ref sb, from: in builtins, at: false)
+    t2Array("diagnostics", to: ref sb, from: in diagnostics, at: true)
+    sb.append("}\n")
+    return $"{sb.finish()}"
+}
+
+/// Features.cs:19 `Run`. `kept` is the arguments `run` kept, the command first.
+i32 featuresCommand(in List<string> kept, by in DCtx d) {
+    var used = false
+    var args = List<string>()
+    for i in 1..kept.length {
+        if kept[i] == "--used" {
+            used = true
+        } else {
+            args.append(kept[i])
+        }
+    }
+    unless used {
+        Io.stderr.write("usage: bayan features --used <path>\n")
+        return exitUsage
+    }
+    let o = t5ParseBuildOptions(in args, by: false, for: false) ?? return exitUsage
+    let symbols = t19Symbols(in d.styleErr)
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    let compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, includeTests: true, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
+    unless ok { return exitFailure }
+    Io.stdout.write(t2ToJson(in compiled))
+    return exitOk
+}

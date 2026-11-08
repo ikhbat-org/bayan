@@ -1,0 +1,116 @@
+// Page parser tests: a valid page, each failure message with its line, and body expansion.
+
+const good: string = "title: Hello\nnav: Learn\norder: 3\ntemplate: docs\n---\n<p>Hi</p>\n"
+
+ParsedPage parsed(string text) => parsePage("content/x.page", from: text)
+
+/// The rendered body of `body`, or its error, for a page whose body starts on line 2.
+string render(string body) {
+    let page = parsed($"title: T\ntemplate: docs\n---\n{body}").page
+    var html = StrBuf()
+    var toc = List<Heading>()
+    let problem = renderBody(page, from: "no-such-dir", to: ref html, for: ref toc)
+    unless problem.isEmpty { return problem }
+    return $"{html.finish()}"
+}
+
+test "a valid page" {
+    let p = parsed(good)
+    assert p.error == ""
+    assert p.page.name == "x"
+    assert p.page.title == "Hello"
+    assert p.page.nav == "Learn"
+    assert p.page.order == 3
+    assert p.page.template == "docs"
+    assert p.page.templateLine == 4
+    assert p.page.body == "<p>Hi</p>\n"
+    assert p.page.bodyLine == 6
+}
+
+test "page name drops the directory and extension" {
+    assert pageName("site/content/guide.page") == "guide"
+}
+
+test "no title" {
+    assert parsed("template: docs\n---\n").error == "content/x.page:1: page has no title"
+}
+
+test "no template" {
+    assert parsed("title: T\n---\n").error == "content/x.page:1: page has no template"
+}
+
+test "no separator" {
+    assert parsed("title: T\ntemplate: docs\n").error == "content/x.page:3: no `---` line after the header"
+}
+
+test "bad order" {
+    assert parsed("title: T\norder: two\n---\n").error == "content/x.page:2: order `two` is not an integer"
+}
+
+test "unknown nav group" {
+    assert parsed("title: T\nnav: Misc\ntemplate: docs\n---\n").error == "content/x.page:2: unknown nav `Misc` (expected Start, Learn, Guides or Reference)"
+}
+
+test "unknown header key" {
+    assert parsed("title: T\nauthor: me\n---\n").error == "content/x.page:2: unknown header `author` (expected title, nav, order or template)"
+}
+
+test "header line without a colon" {
+    assert parsed("title: T\nnonsense\n---\n").error == "content/x.page:2: expected `key: value` or `---`"
+}
+
+test "unknown template" {
+    var templates = List<string>()
+    templates.append("docs")
+    templates.append("landing")
+    let page = parsed("title: T\n\ntemplate: wiki\n---\n").page
+    assert templateError(page, from: templates.span, at: "site") == "content/x.page:3: unknown template `wiki` (no site/templates/wiki.html)"
+    assert templateError(parsed(good).page, from: templates.span, at: "site") == ""
+}
+
+test "h2 ids go to the toc" {
+    let page = parsed("title: T\ntemplate: docs\n---\n<h2 id=\"a\">One <code>x</code></h2>\n<h2 id=\"b\">Two</h2>\n").page
+    var html = StrBuf()
+    var toc = List<Heading>()
+    assert renderBody(page, from: "no-such-dir", to: ref html, for: ref toc) == ""
+    assert toc.length == 2
+    assert toc[0].id == "a"
+    assert toc[0].html == "One <code>x</code>"
+    assert toc[1].id == "b"
+}
+
+test "h2 with no id" {
+    assert render("<p>x</p>\n<h2>Two</h2>\n") == "content/x.page:5: h2 has no id"
+}
+
+test "missing example" {
+    assert render("<example name=\"gone\"/>\n") == "content/x.page:4: example `gone`: no-such-dir/gone.byn not found"
+}
+
+test "example with no name" {
+    assert render("\n<example/>\n") == "content/x.page:5: example has no name"
+}
+
+test "note becomes an aside" {
+    assert render("<note>Hi</note>") == "<aside class=\"note\">Hi</aside>"
+}
+
+test "byn code block is highlighted" {
+    assert render("<pre><code class=\"byn\">a =&gt; b</code></pre>") == "<pre class=\"byn\"><code>a <span class=\"op\">=&gt;</span> b</code></pre>"
+}
+
+test "other code block keeps its text and gets a caption" {
+    assert render("<pre><code class=\"other\" data-lang=\"Python\">x = 1</code></pre>") == "<figure class=\"other\"><figcaption class=\"label\">Python</figcaption>\n<pre class=\"other\"><code>x = 1</code></pre></figure>"
+}
+
+test "unclosed code block" {
+    assert render("<pre><code class=\"byn\">x") == "content/x.page:4: code block has no `</code></pre>`"
+}
+
+test "repeated header key" {
+    assert parsed("title: T\ntemplate: docs\ntitle: U\n---\n").error == "content/x.page:3: duplicate header `title`"
+}
+
+test "empty title is reported at its own line" {
+    assert parsed("template: docs\n\ntitle:\n---\n").error == "content/x.page:3: page has no title"
+}

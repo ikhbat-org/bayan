@@ -310,26 +310,26 @@ BPattern bindPattern(ref Binder b, through ref Ctx c, for in parser.Pattern p, a
     let span = parser.patternSpan(in p)
     switch p {
         case .discardPattern(_):
-            let n = addBindPattern(ref c, from: BBindPattern { span: span, inputType: input })
+            let n = recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: in p)
             setSyntaxFlags(ref c, for: n, to: syntaxDiscard)
             return n
         case .varPattern(let v):
             let local = declareLocal(ref b, through: ref c, at: v.value.name, as: input, for: v.value.isLet ? .patternVariable : .varKeyword)
             c.locals[local].borrowsSubject = !b.patternOwns
             if !v.value.isLet { c.locals[local].keywordSpan = TextSpan { start: v.value.span.start, length: 3 } }
-            return addBindPattern(ref c, from: BBindPattern { span: span, inputType: input, local: local })
+            return recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input, local: local }), from: in p)
         case .constantPattern(let k):
             return bindConstantPattern(ref b, through: ref c, for: in k.value, as: input)
         case .declarationPattern(let d):
             let declared = resolveType(ref b, through: ref c, for: in d.value.type)
-            if kindOf(declared) == .errorSet { return bindErrorSetPattern(ref b, through: ref c, at: span, as: input, from: typeIndex(declared), by: d.value.name) }
+            if kindOf(declared) == .errorSet { return bindErrorSetPattern(ref b, through: ref c, at: NodeSyntax { kind: .declarationPattern, span: span }, as: input, from: typeIndex(declared), by: d.value.name) }
             if !isError(declared) {
                 report(ref b, through: ref c, for: .patternMismatch, at: parser.typeSpan(in d.value.type),
                     by: ($"`{typeDisplay(ref c, by: declared)}`", typeDisplay(ref c, by: unwrap(ref c, for: input)), "", "", ""),
                     help: "match by type only on an error set, in a `catch switch`")
             }
             let _ = declareLocal(ref b, through: ref c, at: d.value.name, as: errorType(), for: .patternVariable)
-            return addBindPattern(ref c, from: BBindPattern { span: span, inputType: input })
+            return recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: in p)
         case .relationalPattern(let r):
             let target = unwrap(ref c, for: input)
             let value = bindConverted(ref b, through: ref c, for: in r.value.value, to: target)
@@ -339,17 +339,17 @@ BPattern bindPattern(ref Binder b, through ref Ctx c, for in parser.Pattern p, a
             } else {
                 requireConstant(ref b, through: ref c, for: value, at: parser.exprSpan(in r.value.value))
             }
-            return addRelationalPattern(ref c, from: BRelationalPattern { span: span, inputType: input, op: r.value.op, value: value })
+            return recordPatternSyntax(ref c, for: addRelationalPattern(ref c, from: BRelationalPattern { span: span, inputType: input, op: r.value.op, value: value }), from: in p)
         case .notPattern(let n):
             let operand = bindPattern(ref b, through: ref c, for: in n.value.operand, as: input)
-            return addNotPattern(ref c, from: BNotPattern { span: span, inputType: input, operand: operand })
+            return recordPatternSyntax(ref c, for: addNotPattern(ref c, from: BNotPattern { span: span, inputType: input, operand: operand }), from: in p)
         case .binaryPattern(let bp):
             let left = bindPattern(ref b, through: ref c, for: in bp.value.left, as: input)
             let right = bindPattern(ref b, through: ref c, for: in bp.value.right, as: input)
             if !bp.value.isAnd && (hasBindings(ref c, for: left) || hasBindings(ref c, for: right)) {
                 report(ref b, through: ref c, for: .unsupported, at: span, by: ("variables inside `or` patterns", "", "", "", ""))
             }
-            return addBinaryPattern(ref c, from: BBinaryPattern { span: span, inputType: input, isAnd: bp.value.isAnd, left: left, right: right })
+            return recordPatternSyntax(ref c, for: addBinaryPattern(ref c, from: BBinaryPattern { span: span, inputType: input, isAnd: bp.value.isAnd, left: left, right: right }), from: in p)
         case .propertyPattern(let pp):
             return bindPropertyPattern(ref b, through: ref c, for: in pp.value, as: input)
         case .variantPattern(let vp):
@@ -360,11 +360,12 @@ BPattern bindPattern(ref Binder b, through ref Ctx c, for in parser.Pattern p, a
                         let bound = bindTargetMember(ref b, through: ref c, for: in tm.value, to: target)
                         return bindErrorCasePattern(ref b, through: ref c, for: in p, as: input, by: bound, from: in vp.value.elements, at: vp.value.binding)
                     }
-                    return bindUnionPattern(ref b, through: ref c, at: span, as: input, from: -1, by: tm.value.member, for: in vp.value.elements, to: vp.value.binding)
+                    return bindUnionPattern(ref b, through: ref c, at: NodeSyntax { kind: .variantPattern, span: span }, as: input, from: -1, by: tm.value.member, for: in vp.value.elements, to: vp.value.binding)
                 default: {}
             }
             report(ref b, through: ref c, for: .unsupported, at: span, by: ("list patterns", "", "", "", ""))
-            return addBindPattern(ref c, from: BBindPattern { span: span, inputType: input })
+            // coverage-exempt: Q1105
+            return recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: in p)
         case .positionalPattern(let pos):
             let target = unwrap(ref c, for: input)
             var untyped = false
@@ -376,7 +377,7 @@ BPattern bindPattern(ref Binder b, through ref Ctx c, for in parser.Pattern p, a
                         let count = c.tupleTypes[tt].length
                         if pos.value.elements.length != count {
                             report(ref b, through: ref c, for: .patternMismatch, at: span, by: ($"{pos.value.elements.length} elements", typeDisplay(ref c, by: target), "", "", ""))
-                            return addBindPattern(ref c, from: BBindPattern { span: span, inputType: input })
+                            return recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: in p)
                         }
                         var subs = List<BSubpattern>()
                         for i in 0..count {
@@ -386,7 +387,7 @@ BPattern bindPattern(ref Binder b, through ref Ctx c, for in parser.Pattern p, a
                             let sub = bindPattern(ref b, through: ref c, for: in pos.value.elements[i], as: fieldType)
                             subs.append(BSubpattern { path: move path, pattern: sub })
                         }
-                        return addPropertyPattern(ref c, from: BPropertyPattern { span: span, inputType: input, valueType: target, subpatterns: move subs })
+                        return recordPatternSyntax(ref c, for: addPropertyPattern(ref c, from: BPropertyPattern { span: span, inputType: input, valueType: target, subpatterns: move subs }), from: in p)
                     }
                 case .namedType(let nt):
                     let path = nt.value.path.copy()
@@ -413,19 +414,19 @@ BPattern bindPattern(ref Binder b, through ref Ctx c, for in parser.Pattern p, a
                             owner = resolveType(ref b, through: ref c, for: in parser.TypeSyntax.namedType(Owned(NamedType { span: at, path: move prefix, args: List<parser.TypeSyntax>() })))
                         }
                         if kindOf(owner) == .unionType || kindOf(owner) == .error {
-                            return bindUnionPattern(ref b, through: ref c, at: span, as: input, from: owner, by: path[path.length - 1], for: in pos.value.elements)
+                            return bindUnionPattern(ref b, through: ref c, at: NodeSyntax { kind: .positionalPattern, span: span }, as: input, from: owner, by: path[path.length - 1], for: in pos.value.elements)
                         }
                         report(ref b, through: ref c, for: .unsupported, at: span, by: ("deconstruction patterns", "", "", "", ""))
-                        return addBindPattern(ref c, from: BBindPattern { span: span, inputType: input })
+                        return recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: in p)
                     }
                 default: {}
             }
             let what = untyped ? $"positional patterns on `{typeDisplay(ref c, by: input)}`" : "deconstruction patterns"
             report(ref b, through: ref c, for: .unsupported, at: span, by: (what, "", "", "", ""))
-            return addBindPattern(ref c, from: BBindPattern { span: span, inputType: input })
+            return recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: in p)
         default:
             report(ref b, through: ref c, for: .unsupported, at: span, by: ("list patterns", "", "", "", ""))
-            return addBindPattern(ref c, from: BBindPattern { span: span, inputType: input })
+            return recordPatternSyntax(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: in p)
     }
 }
 
@@ -672,7 +673,8 @@ bool hasBindings(ref Ctx c, for BPattern p) {
 
 /// BinderCalls.cs:1396 BindUnionPattern: `.Circle(let r)` or `Shape.Circle(let r)` at `span`; `owner` is the written
 /// union, or -1. `binding` is the `c` of `.Circle c`: the whole value, narrowed to the variant.
-BPattern bindUnionPattern(ref Binder b, through ref Ctx c, at TextSpan span, as Type input, from Type owner, by TextSpan name, for in List<parser.Pattern> elements, to TextSpan? binding = null) {
+BPattern bindUnionPattern(ref Binder b, through ref Ctx c, at NodeSyntax syntax, as Type input, from Type owner, by TextSpan name, for in List<parser.Pattern> elements, to TextSpan? binding = null) {
+    let span = syntax.span
     let text = t15Text(in c, from: b.file, at: name)
     var target = unwrap(ref c, for: input)
     var own = owner
@@ -703,7 +705,7 @@ BPattern bindUnionPattern(ref Binder b, through ref Ctx c, at TextSpan span, as 
                 report(ref b, through: ref c, for: .unknownUnionVariant, at: name, by: (text, c.unions[u].name, "", "", ""))
             }
         } else if (binding is { } whole) {
-            return bindWholeVariant(ref b, through: ref c, at: span, as: input, from: target, by: variant, to: whole)
+            return bindWholeVariant(ref b, through: ref c, at: syntax, as: input, from: target, by: variant, to: whole)
         } else if c.unionVariants[variant].fields.length == 0 {
             let vn = c.unionVariants[variant].name
             report(ref b, through: ref c, for: .variantHasNoPayload, at: span, by: (vn, "", "", "", ""), help: $"match it with `.{vn}`")
@@ -729,13 +731,14 @@ BPattern bindUnionPattern(ref Binder b, through ref Ctx c, at TextSpan span, as 
         let type = ok ? c.locals[c.unionVariants[variant].fields[i]].type : errorType()
         subs.append(bindPattern(ref b, through: ref c, for: in elements[i], as: type))
     }
-    if ok { return addUnionPattern(ref c, from: BUnionPattern { span: span, inputType: input, variant: variant, subpatterns: move subs }) }
-    return addBindPattern(ref c, from: BBindPattern { span: span, inputType: input })
+    if ok { return recordNodeSyntaxOf(ref c, for: addUnionPattern(ref c, from: BUnionPattern { span: span, inputType: input, variant: variant, subpatterns: move subs }), from: syntax) }
+    return recordNodeSyntaxOf(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: syntax)
 }
 
 /// BinderCalls.cs:1439 BindWholeVariant: `.percentOff p`, a tag test that binds the whole value as `p`, whose payload
 /// fields read as `p.rate`.
-BPattern bindWholeVariant(ref Binder b, through ref Ctx c, at TextSpan span, as Type input, from Type unionType, by VariantId variant, to TextSpan binding) {
+BPattern bindWholeVariant(ref Binder b, through ref Ctx c, at NodeSyntax syntax, as Type input, from Type unionType, by VariantId variant, to TextSpan binding) {
+    let span = syntax.span
     // A state binds as its state type, `Order.paid`, whose payload fields read without a further check.
     let s = stateStruct(ref c, for: unwrap(ref c, for: input))
     let states = kindOf(unionType) == .unionType && s != -1 && statesOf(ref c, for: s) == typeIndex(unionType)
@@ -748,7 +751,7 @@ BPattern bindWholeVariant(ref Binder b, through ref Ctx c, at TextSpan span, as 
     let local = declareLocal(ref b, through: ref c, at: binding, as: type, for: .patternVariable)
     c.locals[local].borrowsSubject = !b.patternOwns
     if !states { b.narrowed[local] = variant }
-    return addUnionPattern(ref c, from: BUnionPattern { span: span, inputType: input, variant: variant, subpatterns: List<BPattern>(), designation: local })
+    return recordNodeSyntaxOf(ref c, for: addUnionPattern(ref c, from: BUnionPattern { span: span, inputType: input, variant: variant, subpatterns: List<BPattern>(), designation: local }), from: syntax)
 }
 
 /// BinderCalls.cs:1449 RequireConstant.
@@ -761,6 +764,7 @@ void requireConstant(ref Binder b, through ref Ctx c, for BExpr value, at TextSp
 
 /// BinderCalls.cs:1455 BindConstantPattern.
 BPattern bindConstantPattern(ref Binder b, through ref Ctx c, for in parser.ConstantPattern k, as Type input) {
+    let syntax = NodeSyntax { kind: .constantPattern, span: k.span }
     let target = unwrap(ref c, for: input)
     switch k.value {
         case .rangeExpr(let r):
@@ -781,15 +785,15 @@ BPattern bindConstantPattern(ref Binder b, through ref Ctx c, for in parser.Cons
                 }
                 requireConstant(ref b, through: ref c, for: start, at: parser.exprSpan(in r.value.start))
                 requireConstant(ref b, through: ref c, for: end, at: parser.exprSpan(in r.value.end))
-                return addRangePattern(ref c, from: BRangePattern { span: k.span, inputType: input, start: start, end: end, inclusive: r.value.inclusive })
+                return recordNodeSyntaxOf(ref c, for: addRangePattern(ref c, from: BRangePattern { span: k.span, inputType: input, start: start, end: end, inclusive: r.value.inclusive }), from: syntax)
             }
         case .literalExpr(let lit):
             if lit.value.kind == .nullKeyword {
                 if kindOf(input) != .optional && !isError(input) {
                     report(ref b, through: ref c, for: .patternMismatch, at: k.span, by: ("`null`", typeDisplay(ref c, by: input), "", "", ""))
                 }
-                let value = recordSyntaxNode(ref c, for: addDefault(ref c, from: BDefault { span: lit.value.span, type: input }), at: syntaxLeaf(ref c, as: .literalExpr, at: lit.value.span))
-                return addConstantPattern(ref c, from: BConstantPattern { span: k.span, inputType: input, value: value })
+                let value = recordSyntaxNode(ref c, for: addDefault(ref c, from: BDefault { span: lit.value.span, type: input }), at: syntaxOfLiteral(ref c, from: in lit.value))
+                return recordNodeSyntaxOf(ref c, for: addConstantPattern(ref c, from: BConstantPattern { span: k.span, inputType: input, value: value }), from: syntax)
             }
         case .targetMemberExpr(let tm):
             let states = statesUnion(ref c, for: input)
@@ -797,10 +801,10 @@ BPattern bindConstantPattern(ref Binder b, through ref Ctx c, for in parser.Cons
                 // `.paid` on a value with states: a tag test, whatever the state's payload.
                 let text = t15Text(in c, from: b.file, at: tm.value.member)
                 let state = findUnionVariant(ref c, by: states, for: text)
-                if state != -1 { return addUnionPattern(ref c, from: BUnionPattern { span: k.span, inputType: input, variant: state, subpatterns: List<BPattern>() }) }
+                if state != -1 { return recordNodeSyntaxOf(ref c, for: addUnionPattern(ref c, from: BUnionPattern { span: k.span, inputType: input, variant: state, subpatterns: List<BPattern>() }), from: syntax) }
                 let of = stateStruct(ref c, for: target)
                 report(ref b, through: ref c, for: .unknownState, at: tm.value.member, by: (c.structs[of].name, text, "", "", ""), help: $"check the states declared in `{c.structs[of].name}`")
-                return addBindPattern(ref c, from: BBindPattern { span: k.span, inputType: input })
+                return recordNodeSyntaxOf(ref c, for: addBindPattern(ref c, from: BBindPattern { span: k.span, inputType: input }), from: syntax)
             }
         default: {}
     }
@@ -817,11 +821,11 @@ BPattern bindConstantPattern(ref Binder b, through ref Ctx c, for in parser.Cons
         value = bindExpr(ref b, through: ref c, for: in k.value, to: target)
     }
     if boundKind(value) == .typeRef && kindOf(c.bTypeRefs[boundIndex(value)].referenced) == .errorSet {
-        return bindErrorSetPattern(ref b, through: ref c, at: k.span, as: input, from: typeIndex(c.bTypeRefs[boundIndex(value)].referenced), by: null)
+        return bindErrorSetPattern(ref b, through: ref c, at: syntax, as: input, from: typeIndex(c.bTypeRefs[boundIndex(value)].referenced), by: null)
     }
     if boundKind(value) == .typeRef { value = bindExpr(ref b, through: ref c, for: in k.value, to: target) }
     if boundKind(value) == .unionNew && c.bUnionNews[boundIndex(value)].payload.length == 0 && (isError(target) || exprType(in c, for: value) == target) {
-        return addUnionPattern(ref c, from: BUnionPattern { span: k.span, inputType: input, variant: c.bUnionNews[boundIndex(value)].variant, subpatterns: List<BPattern>() })
+        return recordNodeSyntaxOf(ref c, for: addUnionPattern(ref c, from: BUnionPattern { span: k.span, inputType: input, variant: c.bUnionNews[boundIndex(value)].variant, subpatterns: List<BPattern>() }), from: syntax)
     }
     let isVariant = boundKind(value) == .errorVariant
     var foreign = false
@@ -839,12 +843,13 @@ BPattern bindConstantPattern(ref Binder b, through ref Ctx c, for in parser.Cons
         value = convert(ref b, through: ref c, for: value, to: target, at: parser.exprSpan(in k.value))
     }
     requireConstant(ref b, through: ref c, for: value, at: parser.exprSpan(in k.value))
-    return addConstantPattern(ref c, from: BConstantPattern { span: k.span, inputType: input, value: value })
+    return recordNodeSyntaxOf(ref c, for: addConstantPattern(ref c, from: BConstantPattern { span: k.span, inputType: input, value: value }), from: syntax)
 }
 
 /// BinderCalls.cs:1499 BindErrorSetPattern: `DbError` or `DbError e` (at `span`) in a `catch switch`: matches every
 /// variant of `set` (an `or` of its variants), then binds the error as that set.
-BPattern bindErrorSetPattern(ref Binder b, through ref Ctx c, at TextSpan span, as Type input, from ErrorSetId set, by TextSpan? name) {
+BPattern bindErrorSetPattern(ref Binder b, through ref Ctx c, at NodeSyntax syntax, as Type input, from ErrorSetId set, by TextSpan? name) {
+    let span = syntax.span
     let target = unwrap(ref c, for: input)
     let setType = errorSetTypeOf(set)
     var inUnion = false
@@ -858,19 +863,19 @@ BPattern bindErrorSetPattern(ref Binder b, through ref Ctx c, at TextSpan span, 
     var tested: BPattern = -1
     let variants = copyIds(in c.errorSets[set].variants)
     if variants.length == 0 {
-        let none = addBindPattern(ref c, from: BBindPattern { span: span, inputType: input })
-        tested = addNotPattern(ref c, from: BNotPattern { span: span, inputType: input, operand: none })
+        let none = recordNodeSyntaxOf(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input }), from: syntax)
+        tested = recordNodeSyntaxOf(ref c, for: addNotPattern(ref c, from: BNotPattern { span: span, inputType: input, operand: none }), from: syntax)
     } else {
         for v in variants {
-            let ev = addErrorVariant(ref c, from: BErrorVariant { span: span, variant: v, type: setType })
-            let one = addConstantPattern(ref c, from: BConstantPattern { span: span, inputType: input, value: ev })
-            tested = tested == -1 ? one : addBinaryPattern(ref c, from: BBinaryPattern { span: span, inputType: input, isAnd: false, left: tested, right: one })
+            let ev = recordNodeSyntaxOf(ref c, for: addErrorVariant(ref c, from: BErrorVariant { span: span, variant: v, type: setType }), from: syntax)
+            let one = recordNodeSyntaxOf(ref c, for: addConstantPattern(ref c, from: BConstantPattern { span: span, inputType: input, value: ev }), from: syntax)
+            tested = tested == -1 ? one : recordNodeSyntaxOf(ref c, for: addBinaryPattern(ref c, from: BBinaryPattern { span: span, inputType: input, isAnd: false, left: tested, right: one }), from: syntax)
         }
     }
     if (name is { } n) {
         let local = declareLocal(ref b, through: ref c, at: n, as: setType, for: .patternVariable)
-        let bind = addBindPattern(ref c, from: BBindPattern { span: span, inputType: input, local: local })
-        return addBinaryPattern(ref c, from: BBinaryPattern { span: span, inputType: input, isAnd: true, left: tested, right: bind })
+        let bind = recordNodeSyntaxOf(ref c, for: addBindPattern(ref c, from: BBindPattern { span: span, inputType: input, local: local }), from: syntax)
+        return recordNodeSyntaxOf(ref c, for: addBinaryPattern(ref c, from: BBinaryPattern { span: span, inputType: input, isAnd: true, left: tested, right: bind }), from: syntax)
     }
     return tested
 }
@@ -907,7 +912,7 @@ BPattern bindPropertyPattern(ref Binder b, through ref Ctx c, for in parser.Prop
     var designation: LocalId = -1
     if (pp.designation is { } d) { designation = declareLocal(ref b, through: ref c, at: d, as: valueType, for: .patternVariable) }
     if designation != -1 { c.locals[designation].borrowsSubject = !b.patternOwns }
-    return addPropertyPattern(ref c, from: BPropertyPattern { span: pp.span, inputType: input, valueType: valueType, subpatterns: move subs, designation: designation })
+    return recordNodeSyntax(ref c, for: addPropertyPattern(ref c, from: BPropertyPattern { span: pp.span, inputType: input, valueType: valueType, subpatterns: move subs, designation: designation }), as: .propertyPattern, at: pp.span)
 }
 
 /// BinderCalls.cs:1547 ResolveStep.

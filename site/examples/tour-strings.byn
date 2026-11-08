@@ -1,0 +1,6 @@
+void main() {
+    let who = "Ada"
+    let n = 3
+    print($"{who} has {n} books and {n * 2} pages")
+    print($"{255, as: .hex}")
+}

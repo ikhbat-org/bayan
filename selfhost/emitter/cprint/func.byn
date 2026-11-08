@@ -622,7 +622,7 @@ string debug(ref CCtx cc, from ref Ctx c, for Type type, at string v, to string 
 const t9BoundStmtCount: i64 = 21
 
 /// `s.GetType().Name` for `Statement`'s throw (CEmitter.cs:1461): the C# class of each bound statement kind, `block`
-/// through `errorStmt`, then of each lowered kind (D3's `LMutantIs`/`LCount` have no kind).
+/// through `errorStmt`, then of each lowered kind.
 List<string> t9StmtNames() uses alloc {
     var r = List<string>()
     for n in ["BoundBlock", "BoundLocalDecl", "BoundExprStmt", "BoundAssign", "BoundReturn", "BoundFail", "BoundBecome", "BoundBreak",
@@ -630,7 +630,8 @@ List<string> t9StmtNames() uses alloc {
         "BoundPanicDefer", "BoundSetOnPanic", "BoundContext", "BoundErrorStmt",
         "LLabel", "LGoto", "LLoop", "LReturn", "LReturnError", "LFailingCall", "LWrite", "LPanic", "LSetContext", "LFreeArena",
         "LPushPanicHandler", "LPopPanicHandler", "LClaim", "LOptionalHas", "LOptionalValue", "LUnionTag", "LUnionField", "LErrorCode",
-        "LErrorField", "LAssignExpr", "LSequence", "LIndexUnchecked", "LNextChar", "LNever", "LFunctionValue", "LVoid"] {
+        "LErrorField", "LAssignExpr", "LSequence", "LIndexUnchecked", "LNextChar", "LNever", "LFunctionValue", "LMutantIs", "LCount",
+        "LVoid"] {
         r.append(n)
     }
     return r

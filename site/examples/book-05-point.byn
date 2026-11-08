@@ -1,0 +1,13 @@
+struct Point {
+    i64 x
+    i64 y
+}
+
+let p = Point { x: 3, y: 4 }
+print($"{p.x}, {p.y}")
+
+var q = p
+q.x = 10
+print($"p.x is {p.x}, q.x is {q.x}")
+print($"{p == Point { x: 3, y: 4 }} {p == q}")
+print($"{p, as: .debug}")

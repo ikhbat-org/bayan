@@ -1,0 +1,10 @@
+void main() {
+    let s = "  hello, world  "
+    let t = s.trimmed()
+    print($"[{t}]")
+    print($"[{s.trimmed(from: .start)}] [{s.trimmed(from: .end)}]")
+    print($"[{"--x--".trimmed(by: ['-'])}]")
+    print($"[{t[0..5]}] [{t[7..t.length]}]")
+    print($"{t.length} bytes, {"héllo".length} bytes, {"héllo".runeCount} runes")
+    print($"[{"héllo".runes.take(2)}]")
+}

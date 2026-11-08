@@ -1,0 +1,4 @@
+error BYN2202: expected `i64 -> i64 uses console fails IoError`, found `i32`
+
+  2 │     let f: (i64) -> i64 uses console fails IoError = 1
+    │                                                      ^

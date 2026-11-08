@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Bayan: a native language whose compiler tells you exactly what is wrong</title>
+<meta name="description" content="Bayan is a value-oriented, natively compiled language derived from C#. No runtime, no GC, no exceptions. One form, one meaning.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14202E">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Noto+Kufi+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html"><img src="../assets/mark-on-night.svg" alt="" width="32" height="32">Bayan <span lang="ar" dir="rtl">بيان</span></a>
+  <nav aria-label="Main">
+    <a href="docs.html">Docs</a>
+    <a href="tutorial.html">Tutorial</a>
+    <a href="https://github.com/ikhbat-org/bayan">GitHub</a>
+  </nav>
+</div></header>
+<main id="main">
+<section class="hero"><div class="wrap">
+  <div class="hero-head">
+    <h1>A compiler that says what, where, why and how to fix it.</h1>
+    <p>Bayan is a value-oriented language that compiles to a native executable. No runtime, no garbage collector, no exceptions. Every form has one meaning, so every message can be exact.</p>
+    <div class="cta">
+      <a class="btn" href="tutorial.html">Compile your first program</a>
+      <a href="docs.html">Read the docs</a>
+    </div>
+  </div>
+  <div class="term" data-type role="img" aria-label="Compiler output: error BYN5005, end is passed without its particle until, with a suggested fix.">
+    <div class="bar"><i></i>$ bayan run width.byn</div>
+<pre aria-hidden="true"><span class="ln"><span class="e">error BYN5005</span>: `end` is passed without its particle `until:`</span>
+<span class="ln g">  --&gt; width.byn:4:19</span>
+<span class="ln">&nbsp;</span>
+<span class="ln">  4 <span class="g">│</span> print($"{width(2, 5)}")</span>
+<span class="ln">    <span class="g">│</span>                   <span class="e">^</span> <span class="e">needs `until:`</span></span>
+<span class="ln">    <span class="g">│</span></span>
+<span class="ln">    <span class="g">│</span> <span class="h">help</span>: add `until:` before the argument</span>
+<span class="ln">    <span class="g">│</span> 4 <span class="g">│</span> print($"{width(2, <span class="h">until: </span>5)}")</span>
+<span class="ln">&nbsp;</span>
+<span class="ln"><span class="e">✗</span> build failed: 1 error, 0 warnings</span>
+<span class="ln g">  explain: bayan explain BYN5005</span></pre>
+  </div>
+  <div class="bird"><img src="hoopoe-night.svg" alt="The Bayan hoopoe, drawn from the letters of بيان, with four gold dots as its crest tips." width="480" height="480"></div>
+</div></section>
+
+<section class="band"><div class="wrap split">
+  <header>
+    <h2>Four answers, every time</h2>
+    <p>In the Qur'an the hoopoe (<span lang="ar" dir="rtl">هدهد</span>, hudhud) returns with news that is certain and clear (27:20–22). Bayan's diagnostics aim at the same.</p>
+  </header>
+  <dl class="answers">
+    <div><dt>What</dt><dd>The message names the rule that broke: <code>`end` is passed without its particle `until:`</code>.</dd></div>
+    <div><dt>Where</dt><dd>File, line and column, then the source line with a marker under the exact span.</dd></div>
+    <div><dt>Why</dt><dd>A short label on the marker. Each code has a longer account: <code>bayan explain BYN5005</code>.</dd></div>
+    <div><dt>How</dt><dd>A <code>help:</code> line, and where the fix is mechanical, the corrected line with the change marked. Add <code>--diagnostics json</code> and tools get the same fix as data.</dd></div>
+  </dl>
+</div></section>
+
+<section class="band"><div class="wrap split">
+  <header>
+    <h2>Derived from C#, with the ambiguity taken out</h2>
+    <p>Structs and enums, <code>switch</code> expressions, <code>$"…"</code> interpolation. Newlines end statements. Output below is the program's own, from the compiler's test suite.</p>
+  </header>
+  <div>
+    <div class="term">
+      <div class="bar"><i></i>enums.byn (excerpt)</div>
+<pre><span class="k">enum</span> <span class="t">Color</span> {
+    red
+    green
+    blue
+}
+
+<span class="t">string</span> <span class="f">describe</span>(<span class="t">Color</span> c) =&gt; c <span class="k">switch</span> {
+    .red =&gt; <span class="s">"warm"</span>,
+    <span class="t">Color</span>.green <span class="k">or</span> .blue =&gt; <span class="s">"cool"</span>,
+}
+
+<span class="k">for</span> c <span class="k">in</span> <span class="t">Color</span>.values {
+    <span class="f">print</span>(<span class="s">$"{c.ordinal} {c.name} {c} {describe(c)}"</span>)
+}</pre>
+    </div>
+    <div class="term">
+      <div class="bar"><i></i>output</div>
+<pre>0 red red warm
+1 green green cool
+2 blue blue cool</pre>
+    </div>
+  </div>
+</div></section>
+
+<section class="band"><div class="wrap split">
+  <header><h2>What you get</h2></header>
+  <dl class="facts">
+    <div><dt>Value-oriented</dt><dd>Structs, no classes, no inheritance. Values live on the stack, in arenas, or in owned handles.</dd></div>
+    <div><dt>Native</dt><dd>Bayan compiles to C, then to an executable through <code>zig cc</code>. Nothing ships with your program.</dd></div>
+    <div><dt>No exceptions</dt><dd>Failure is in the signature: <code>T f() fails E</code>. Handle it with <code>try</code> or <code>catch</code>.</dd></div>
+    <div><dt>Self-hosting under way</dt><dd>The bootstrap compiler is C# on .NET 10 with NativeAOT. Bayan is being rewritten in Bayan.</dd></div>
+  </dl>
+</div></section>
+
+<section class="band"><div class="wrap">
+  <div class="dots">
+    <img src="../assets/mark-on-night.svg" alt="The Bayan mark: the connected stroke of بين with four gold diamond dots." width="112" height="112">
+    <div>
+      <p class="ar" lang="ar" dir="rtl">بيان</p>
+      <h2>One form, one meaning</h2>
+      <p class="muted" style="max-width:40rem;margin-top:.75rem">Arabic scribes added dots (<i>iʿjām</i>) to letters so a reader could not mistake one for another. Bayan holds its syntax to the same rule: a call spells its particles, a name tells you its part of speech, and a mistake gets one precise message.</p>
+    </div>
+  </div>
+</div></section>
+</main>
+<footer><div class="wrap">
+  <span>Bayan is made by the <a href="https://github.com/ikhbat-org">Ikhbat Foundation</a>. Compiler bootstrap in C# on .NET 10.</span>
+  <span><a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a>, <a href="https://bayan.run">bayan.run</a></span>
+</div></footer>
+<script src="script.js"></script>
+</body>
+</html>

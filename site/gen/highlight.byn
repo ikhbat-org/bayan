@@ -1,0 +1,232 @@
+// Bayan syntax highlighting at build time. `highlight` takes raw source and returns HTML: the text
+// escaped, and each token wrapped in `<span class="…">` with the classes of FORMAT.md §Highlighting.
+
+const keywords: string[80] = [
+    "struct", "unique", "union", "enum", "open", "extensible", "interface", "extension", "derivation",
+    "attribute", "error", "unit", "distinct", "type", "effect", "law", "import", "as", "public", "private",
+    "static", "readonly", "required", "const", "let", "var", "embed", "extern", "unsafe", "rest",
+    "if", "else", "unless", "switch", "case", "default", "for", "in", "while", "do", "break", "continue",
+    "return", "yield", "defer", "using", "context", "provide", "become",
+    "fails", "fail", "try", "catch", "requires", "uses", "because", "expects",
+    "async", "await",
+    "is", "and", "or", "not", "except", "with", "move", "ref", "out", "this", "null", "true", "false",
+    "comptime", "checked",
+    "test", "property", "fuzz", "assert", "failing", "panicking",
+]
+
+const primitives: string[20] = [
+    "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "isize", "usize", "f32", "f64",
+    "bool", "rune", "string", "never", "dec", "void", "c_int", "c_char",
+]
+
+const particles: string[8] = ["from", "to", "until", "through", "at", "by", "for", "as"]
+
+bool isDigit(u8 c) => c >= '0' && c <= '9'
+
+bool isUpper(u8 c) => c >= 'A' && c <= 'Z'
+
+bool isIdentStart(u8 c) => (c >= 'a' && c <= 'z') || isUpper(c) || c == '_' || c >= 0x80
+
+bool isIdentPart(u8 c) => isIdentStart(c) || isDigit(c)
+
+bool isKeyword(string word) {
+    for k in keywords {
+        return true if k == word
+    }
+    return false
+}
+
+bool isPrimitive(string word) {
+    for k in primitives {
+        return true if k == word
+    }
+    return false
+}
+
+bool isParticle(string word) {
+    for k in particles {
+        return true if k == word
+    }
+    return false
+}
+
+/// Appends `s` with `<`, `>`, `&` and `"` escaped.
+void escapeInto(string s, to ref StrBuf sb) {
+    var start: i64 = 0
+    for i in 0..s.length {
+        let c = s.bytes[i]
+        if c == '<' || c == '>' || c == '&' || c == '"' {
+            sb.append(s[start..i])
+            if c == '<' {
+                sb.append("&lt;")
+            } else if c == '>' {
+                sb.append("&gt;")
+            } else if c == '&' {
+                sb.append("&amp;")
+            } else {
+                sb.append("&quot;")
+            }
+            start = i + 1
+        }
+    }
+    sb.append(s[start..s.length])
+}
+
+string escapeHtml(string s) {
+    var sb = StrBuf()
+    escapeInto(s, to: ref sb)
+    return $"{sb.finish()}"
+}
+
+/// Turns `&lt;`, `&gt;`, `&quot;`, `&#39;`, `&apos;`, `&nbsp;` (a space) and `&amp;` back into characters (an inline fragment is written escaped).
+string unescapeHtml(string s) => s.replaced("&lt;", by: "<").replaced("&gt;", by: ">").replaced("&quot;", by: "\"").replaced("&#39;", by: "'").replaced("&apos;", by: "'").replaced("&nbsp;", by: " ").replaced("&amp;", by: "&")
+
+void spanInto(string cls, from string text, to ref StrBuf sb) {
+    sb.append($"<span class=\"{cls}\">")
+    escapeInto(text, to: ref sb)
+    sb.append("</span>")
+}
+
+/// The end of the string or char literal starting at `start` (`"`, `"""`, `$"` or `'`).
+i64 stringEnd(string code, from i64 start) {
+    let n = code.length
+    var i = start
+    var interpolated = false
+    if code.bytes[i] == '$' {
+        interpolated = true
+        i += 1
+    }
+    if code.bytes[i] == '\'' {
+        i += 1
+        while i < n && code.bytes[i] != '\'' && code.bytes[i] != '\n' {
+            i += code.bytes[i] == '\\' ? 2 : 1
+        }
+        return n if i >= n
+        return i < n && code.bytes[i] == '\'' ? i + 1 : i
+    }
+    if i + 2 < n && code.bytes[i + 1] == '"' && code.bytes[i + 2] == '"' {
+        let close = code.position("\"\"\"", from: i + 3) ?? (n - 3)
+        return close + 3
+    }
+    i += 1
+    var depth: i64 = 0
+    while i < n {
+        let c = code.bytes[i]
+        if c == '\\' {
+            i += 2
+            continue
+        }
+        if depth == 0 {
+            return i + 1 if c == '"'
+            return i if c == '\n'
+            if interpolated && c == '{' {
+                if i + 1 < n && code.bytes[i + 1] == '{' {
+                    i += 2
+                    continue
+                }
+                depth = 1
+            }
+        } else if c == '"' {
+            i = stringEnd(code, from: i) - 1
+        } else if c == '{' {
+            depth += 1
+        } else if c == '}' {
+            depth -= 1
+        }
+        i += 1
+    }
+    return n
+}
+
+i64 numberEnd(string code, from i64 start) {
+    let n = code.length
+    var i = start + 1
+    while i < n && (isIdentPart(code.bytes[i]) || (code.bytes[i] == '.' && i + 1 < n && isDigit(code.bytes[i + 1]))) {
+        let c = code.bytes[i]
+        i += 1
+        if (c == 'e' || c == 'E') && i + 1 < n && (code.bytes[i] == '-' || code.bytes[i] == '+') && isDigit(code.bytes[i + 1]) { i += 1 }
+    }
+    return i
+}
+
+i64 identEnd(string code, from i64 start) {
+    var i = start
+    while i < code.length && isIdentPart(code.bytes[i]) { i += 1 }
+    return i
+}
+
+/// The index of the first byte at or after `i` that is not a space or tab.
+i64 skipBlanks(string code, from i64 i) {
+    var j = i
+    while j < code.length && (code.bytes[j] == ' ' || code.bytes[j] == '\t') { j += 1 }
+    return j
+}
+
+/// The HTML of `code` (raw Bayan source), with every token wrapped in its class.
+string highlight(string code) {
+    var sb = StrBuf()
+    var brackets = List<u8>()
+    let n = code.length
+    var i: i64 = 0
+    var plain: i64 = 0
+    while i < n {
+        let c = code.bytes[i]
+        let next: u8 = i + 1 < n ? code.bytes[i + 1] : 0
+        var cls = ""
+        var end = i + 1
+        if c == '/' && next == '/' {
+            cls = "com"
+            end = code.position("\n", from: i) ?? n
+        } else if c == '"' || c == '\'' || (c == '$' && next == '"') {
+            cls = "str"
+            end = stringEnd(code, from: i)
+        } else if isDigit(c) {
+            cls = "num"
+            end = numberEnd(code, from: i)
+        } else if c == '@' && isIdentStart(next) {
+            cls = "at"
+            end = identEnd(code, from: i + 1)
+        } else if isIdentStart(c) {
+            end = identEnd(code, from: i)
+            let word = code[i..end]
+            let after: u8 = end < n ? code.bytes[end] : 0
+            let inParens = brackets.length > 0 && brackets[brackets.length - 1] == '('
+            let afterBlanks = skipBlanks(code, from: end)
+            if after == '"' && (word == "b" || word == "c" || word == "u16") {
+                cls = "str"
+                end = stringEnd(code, from: end)
+            } else if inParens && after == ':' && !(end + 1 < n && code.bytes[end + 1] == ':') {
+                cls = "pa"
+                end += 1
+            } else if inParens && isParticle(word) && afterBlanks > end && afterBlanks < n && isIdentStart(code.bytes[afterBlanks]) {
+                cls = "pa"
+            } else if isKeyword(word) {
+                cls = "kw"
+            } else if isPrimitive(word) || isUpper(c) {
+                cls = "ty"
+            } else if after == '(' {
+                cls = "fn"
+            }
+        } else if c == '=' && next == '>' {
+            cls = "op"
+            end = i + 2
+        } else if c == '?' {
+            cls = "op"
+            end = next == '?' ? i + 2 : i + 1
+        } else if c == '!' && next != '=' {
+            cls = "op"
+        } else if c == '(' || c == '[' || c == '{' {
+            brackets.append(c)
+        } else if c == ')' || c == ']' || c == '}' {
+            if brackets.length > 0 { brackets.remove(at: brackets.length - 1) }
+        }
+        if cls != "" {
+            escapeInto(code[plain..i], to: ref sb)
+            spanInto(cls, from: code[i..end], to: ref sb)
+            plain = end
+        }
+        i = end
+    }
+    escapeInto(code[plain..n], to: ref sb)
+    return $"{sb.finish()}"
+}

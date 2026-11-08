@@ -1,0 +1,12 @@
+enum Color {
+    red
+    green
+}
+
+void main() {
+    let c = Color.green
+    print($"{c.name} {c.ordinal}")
+    let r: Result<i64, IoError> = 5
+    print($"{r.isOk}")
+    print($"{'A'.value}")
+}

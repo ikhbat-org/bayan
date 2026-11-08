@@ -70,6 +70,7 @@ public sealed class SelfhostDriverGoldenTests
     {
         ["diag/cases-type-mismatch.test.byn"] = "Q1052", // BYN2202 needs IncludeTests: `check` never sets it; C# `test --all` does, stage 2 refuses `test`
         ["diag/capability-exceeded/main.byn"] = "Q1052", // BYN6004 needs the manifest's capabilities; `check .` stops at the missing src/app, `--package` ignores package.byn
+        ["diag/std-imports-package/main.byn"] = "Q1052", // BYN2033 needs the case's stdlib/ as the std library: the CLI reads only the shipped std and stops at BYN2032
     };
     /// <summary>
     /// <c>BAYAN_GOLDEN_SHARD=i/n</c> (0 &lt;= i &lt; n) keeps the <c>run/</c> cases whose index among the in-scope ones is i modulo n, so the slow
@@ -110,10 +111,11 @@ public sealed class SelfhostDriverGoldenTests
         p.StandardInput.Close();
         var stdout = p.StandardOutput.ReadToEndLfAsync();
         var stderr = p.StandardError.ReadToEndLfAsync();
-        if (!p.WaitForExit(300_000))
+        var waitMs = TestTime.Scale(300_000);
+        if (!p.WaitForExit(waitMs))
         {
             p.Kill();
-            Assert.Fail($"{program} {string.Join(' ', args)}: timed out after 300 s");
+            Assert.Fail($"{program} {string.Join(' ', args)}: timed out after {waitMs} ms");
         }
         return new Result(p.ExitCode, stdout.Result, stderr.Result);
     }
@@ -282,5 +284,28 @@ public sealed class SelfhostDriverGoldenTests
             return;
         }
         if (failures.Count > 0) Assert.Fail(string.Join("\n", failures));
+    }
+
+    public static IEnumerable<object[]> DiagJson() =>
+        from command in new[] { "check", "build" }
+        from file in Directory.GetFiles(Path.Combine(Golden.CasesRoot, "diag-json"), "*.byn").Order(StringComparer.Ordinal)
+        // listed skip (017 T7, Q1118): `build` of `fix-and-help`, which has only a warning, goes on to the native build, which this row does not run
+        where !(command == "build" && Path.GetFileNameWithoutExtension(file) == "fix-and-help")
+        select new object[] { command, Path.GetFileNameWithoutExtension(file) };
+
+    /// <summary>
+    /// 017 T7 (L028): every <c>diag-json/*.byn</c> through stage 2's <c>check --diagnostics json</c> and <c>build --diagnostics json</c>, run in the
+    /// case's directory with `--package` (the file alone, as <c>DiagJsonTests</c> compiles it), against its <c>.jsonl</c> with the directory taken off the file name; <c>build</c> stops at the errors, before a toolchain.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(DiagJson))]
+    public void DiagJsonGolden(string command, string name)
+    {
+        var dir = Path.Combine(Golden.CasesRoot, "diag-json");
+        var failing = File.ReadAllText(Path.Combine(dir, name + ".jsonl")).Contains("\"severity\":\"error\"", StringComparison.Ordinal);
+        var r = Stage2(dir, command, "--package", dir, "--diagnostics", "json", name + ".byn");
+        Assert.Equal(failing ? CliApp.ExitFailure : CliApp.ExitOk, r.Exit);
+        Assert.Equal("", r.Stdout);
+        if (Failure("diag-json/" + name + ".byn", ".jsonl", r.Stderr.Replace((dir + Path.DirectorySeparatorChar).Replace("\\", "\\\\", StringComparison.Ordinal), "")) is { } f) Assert.Fail(f);
     }
 }

@@ -1,0 +1,35 @@
+union error ParseError {
+    /// The text is not a number.
+    notNumber
+}
+
+struct Counter {
+    i64 n
+
+    /// Changes this value, so it is a plain verb.
+    void negate(ref this) {
+        n = -n
+    }
+
+    /// A copy with the change applied, so it ends in -ed.
+    Counter negated() => Counter { n: -n }
+
+    /// A state: a bool with an is prefix, and it only reads.
+    bool isLarge => n > 10
+
+    /// The act can fail, so it has a `try` form.
+    i64 read(string text) fails ParseError {
+        return i64.tryParse(text) ?? fail .notNumber
+    }
+
+    /// The `try` form returns an optional.
+    i64? tryRead(string text) => i64.tryParse(text)
+}
+
+var c = Counter { n: 40 }
+let bigger = c.negated()
+c.negate()
+print($"{c.n} {bigger.n} {c.isLarge}")
+print($"{c.tryRead("12")} {c.tryRead("x")}")
+let r = c.read("7") catch -1
+print($"{r}")

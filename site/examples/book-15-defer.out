@@ -1,0 +1,9 @@
+open a
+using a
+close a
+pass 0
+end of pass 0
+pass 1
+end of pass 1
+t1 has 1 mark
+main done

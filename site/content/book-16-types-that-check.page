@@ -1,0 +1,207 @@
+title: 16. Types that check for you (units, distinct types, `requires`, typestate)
+nav: Learn
+order: 1600
+template: docs
+---
+<p>Most bugs that reach production are not exotic. A user id passed where an order id was expected. A zero where the code assumed a positive number. A parcel that was shipped twice. This chapter shows four ways to make the compiler reject those programs for you, from the cheapest to the most precise.</p>
+
+<h2 id="distinct">Distinct types: same number, different meaning</h2>
+<p>An <code>i64</code> is an <code>i64</code> whether it is a user id, an order id or a count of bananas. A <em>distinct type</em> gives the same representation a new identity:</p>
+<pre><code class="byn">type distinct UserId = i64</code></pre>
+<p>You build one with the type's name, <code>UserId(7)</code>, and read the number back with <code>.value</code>. Nothing converts silently in either direction.</p>
+<example name="book-16-distinct"/>
+<p>Both ids hold 7, and <code>same number: true</code> shows that comparing the raw values still works. What you cannot do is pass one where the other is expected.</p>
+<pre><code class="byn">type distinct UserId = i64
+type distinct OrderId = i64
+
+string describe(UserId u) =&gt; $"user {u.value}"
+
+void main() uses console {
+    let o = OrderId(7)
+    print(describe(o))
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `UserId`, found `OrderId`
+<span class="gut">  --&gt;</span> mix-ids.byn:8:20
+
+<span class="gut">  8 │</span>     print(describe(<span class="hl">o</span>))
+<span class="gut">    │</span>                    <span class="hl">^</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2202</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>mix-ids.byn</code>.</figcaption>
+    </figure>
+<p>A bare number does not convert either. The fix-it shows the wrapping:</p>
+<pre><code class="byn">type distinct UserId = i64
+
+void main() {
+    let bad: UserId = 0
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN3204:</span> `0` is not a `UserId`
+<span class="gut">  --&gt;</span> raw-int.byn:4:23
+
+<span class="gut">  4 │</span>     let bad: UserId = <span class="hl">0</span>
+<span class="gut">    │</span>                       <span class="hl">^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> wrap it: `UserId(0)`
+<span class="gut">    │ 4 │</span>     let bad: UserId = <span class="add">UserId(0)</span>
+<span class="gut">    │   │</span>                       <span class="add">+++++++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN3204</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>raw-int.byn</code>.</figcaption>
+    </figure>
+<p>Arithmetic and comparison across a distinct type are also closed off. <code>u + u</code> is BYN2208, and so is <code>u &lt; v</code>. A cast such as <code>i64(u)</code> is BYN2206, and <code>{u}</code> in an interpolation is BYN2225 because the type has no text form. Go through <code>.value</code> when you mean the number. That is on purpose: it makes each place where an id turns back into a plain number visible in the source.</p>
+
+<h2 id="requires">Values that must satisfy a rule</h2>
+<p>Add <code>requires</code> to a distinct type and its constructor checks the rule. <code>it</code> is the value being checked.</p>
+<pre><code class="byn">type distinct Grams = i64 requires it &gt; 0</code></pre>
+<p>When the argument is a constant, the compiler checks it while compiling:</p>
+<pre><code class="byn">type distinct Grams = i64 requires it &gt; 0
+
+void main() {
+    let g = Grams(0)
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN2321:</span> `0` violates `requires it &gt; 0` of `Grams`
+<span class="gut">  --&gt;</span> zero-grams.byn:4:19
+
+<span class="gut">  4 │</span>     let g = Grams(<span class="hl">0</span>)
+<span class="gut">    │</span>                   <span class="hl">^ fails the contract</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> pass a value that meets `requires it &gt; 0`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2321</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>zero-grams.byn</code>.</figcaption>
+    </figure>
+<p>When the argument is only known at run time, the check happens when the program runs, and it can fail. The constructor then fails with <code>ValidationError&lt;Grams&gt;</code>, and the caller has to handle that, like any other error. Calling it without handling is BYN2602:</p>
+<pre><code class="byn">type distinct Grams = i64 requires it &gt; 0
+
+Grams make(i64 raw) fails ValidationError&lt;Grams&gt; {
+    return Grams(raw)
+}
+
+void main() fails ValidationError&lt;Grams&gt; {
+    let g = make(5)
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN2602:</span> `Grams` can fail; handle the error or pass it on
+<span class="gut">  --&gt;</span> no-try.byn:4:12
+
+<span class="gut">  4 │</span>     return <span class="hl">Grams(raw)</span>
+<span class="gut">    │</span>            <span class="hl">^^^^^^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> propagate the error with `try`, or handle it with `catch`
+<span class="gut">    │ 4 │</span>     return <span class="add">try </span>Grams(raw)
+<span class="gut">    │   │</span>            <span class="add">++++</span>
+
+<span class="err">error BYN2602:</span> `make` can fail; handle the error or pass it on
+<span class="gut">  --&gt;</span> no-try.byn:8:13
+
+<span class="gut">  8 │</span>     let g = <span class="hl">make(5)</span>
+<span class="gut">    │</span>             <span class="hl">^^^^^^^</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> propagate the error with `try`, or handle it with `catch`
+<span class="gut">    │ 8 │</span>     let g = <span class="add">try </span>make(5)
+<span class="gut">    │   │</span>             <span class="add">++++</span>
+
+<span class="gut">✗ build failed: 2 errors, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2602</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>no-try.byn</code>.</figcaption>
+    </figure>
+<p>Use <code>try</code> to pass the error on, or <code>catch</code> to deal with it. <code>parse</code> in <code>book-16-distinct</code> does the first, and <code>main</code> does the second: <code>parse(40) catch Grams(1)</code> gives a fallback value and <code>catch switch { .invalid e =&gt; … }</code> picks a branch. The call with 0 took the second branch, so <code>bad</code> is 2. The result is that a <code>Grams</code> anywhere in your program is known to be positive. You checked it once, at the door.</p>
+<p>The same <code>requires</code> clause works on a struct to state a rule about its fields. Functions can state rules about their arguments with <code>expects</code>. See <a href="features.html">the feature tour</a> for both.</p>
+
+<h2 id="typestate">Typestate: the order of operations in the type</h2>
+<p>Some bugs come from calling the right method at the wrong time: sending a parcel twice, reading a signature before delivery. A <em>typestate</em> struct lists its states and the methods that move between them. The compiler tracks which state a variable is in.</p>
+<example name="book-16-typestate"/>
+<p>Read it from the top.</p>
+<ul>
+<li>The <code>states</code> block lists <code>packed</code>, <code>sent</code> and <code>delivered</code>. A state can carry its own fields, such as <code>carrier</code>, that exist only in that state.</li>
+<li><code>send</code> takes <code>ref this is .packed</code>: it may only be called on a parcel in the packed state. <code>becomes .sent</code> says where it ends up, and <code>become .sent(carrier: carrier)</code> does the move.</li>
+<li><code>receipt</code> takes <code>Parcel.delivered p</code>, so it cannot be called on any other state.</li>
+<li>After <code>deliver</code>, <code>main</code> reads <code>p.carrier</code>, a field of the delivered state.</li>
+</ul>
+<p>The output is <code>parcel 1 signed by Sam</code>, then <code>DHL</code>. Now send twice:</p>
+<pre><code class="byn">type distinct Id = i64
+
+struct Parcel {
+    Id id
+    states {
+        packed
+        sent(string carrier)
+    }
+
+    void send(ref this is .packed, by string carrier) becomes .sent {
+        become .sent(carrier: carrier)
+    }
+}
+
+void main() uses console {
+    var p = Parcel.packed { id: Id(1) }
+    p.send(by: "DHL")
+    p.send(by: "UPS")
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN7001:</span> `send` needs `p` to be `.packed`, but it is `Parcel.sent`
+<span class="gut">  --&gt;</span> wrong-state.byn:18:5
+
+<span class="gut">  18 │</span>     <span class="hl">p</span>.send(by: "UPS")
+<span class="gut">     │</span>     <span class="hl">^</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> check the state with `is` or `switch` first
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN7001</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>wrong-state.byn</code>.</figcaption>
+    </figure>
+<p>After the first <code>send</code> the compiler knows <code>p</code> is <code>.sent</code>. The second call needs <code>.packed</code>, so it is rejected. The program that ships a parcel twice does not compile. State fields are protected in the same way: reading a field that exists in only one state, when you have not shown the variable is in it, is an error.</p>
+<pre><code class="byn">struct Parcel {
+    states {
+        packed
+        sent(string carrier)
+    }
+}
+
+void main() uses console {
+    let p = Parcel.packed {}
+    print(p.carrier)
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN7002:</span> `carrier` is a payload of `.sent`; `p` is not known to be `.sent`
+<span class="gut">  --&gt;</span> payload-early.byn:10:11
+
+<span class="gut">  10 │</span>     print(<span class="hl">p.carrier</span>)
+<span class="gut">     │</span>           <span class="hl">^^^^^^^^^</span>
+<span class="gut">     │</span>
+<span class="gut">  help:</span> match `.sent` with `is` or `switch` before reading `carrier`
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN7002</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>payload-early.byn</code>.</figcaption>
+    </figure>
+<p>Other typestate errors you may see: BYN7003, a <code>become</code> in a method that has no <code>becomes</code>; BYN7004, a <code>switch</code> over the states that misses one; BYN7005, a struct literal that does not name its state, such as <code>Parcel {…}</code> instead of <code>Parcel.packed {…}</code>.</p>
+
+<h2 id="units">Units of measure</h2>
+<note>Planned: not in the compiler yet. A <code>unit</code> declaration, so that <code>3.0 m</code> and <code>2.0 s</code> carry their dimension and adding metres to seconds is a compile error, while <code>m / s</code> gives a speed. The compiler does not parse <code>unit</code> declarations today. Until then, use a distinct type for each quantity, with the checks above.</note>
+<pre><code class="byn">// planned
+unit m
+unit s
+let d = 100.0 m
+let t = 9.58 s
+let v = d / t        // m / s</code></pre>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>1. <code>describe(o)</code> takes a <code>UserId</code> and is given an <code>OrderId</code> holding the same number. What happens?
+<ol type="a"><li>It works, since both are <code>i64</code>.</li><li>BYN2202, expected <code>UserId</code>, found <code>OrderId</code>.</li><li>It panics at run time.</li></ol></summary>
+<p>b. Distinct types have separate identities even with the same representation, so (a) is wrong. The check is at compile time, so (c) is wrong. The output of the working program shows what remains: <code>u.value == o.value</code> is <code>true</code>.</p></details>
+<details class="quiz"><summary>2. What does <code>Grams(0)</code> do when <code>Grams</code> requires <code>it &gt; 0</code>?</summary>
+<p>It is a compile error, BYN2321, because the argument is a constant that breaks the rule. It is not a run-time failure. For a value known only at run time, <code>Grams(raw)</code> fails with <code>ValidationError&lt;Grams&gt;</code> and needs <code>try</code> or <code>catch</code>.</p></details>
+<details class="quiz"><summary>3. In <code>book-16-distinct</code>, why is <code>bad</code> equal to 2?</summary>
+<p><code>parse(0)</code> fails the <code>requires</code> check, so its error reaches the <code>catch switch</code>, whose <code>.invalid</code> branch gives <code>Grams(2)</code>. <code>ok</code> is 40 because 40 passed the check and the <code>catch</code> fallback was not used.</p></details>
+<details class="quiz"><summary>4. Why does the second <code>p.send(by: "UPS")</code> not compile?</summary>
+<p>The first <code>send</code> moved <code>p</code> to <code>.sent</code>, and <code>send</code> needs <code>.packed</code> (BYN7001). It is not a move error: <code>p</code> is still a valid variable. It is also not a run-time check: the program is rejected before it runs.</p></details>
+<details class="quiz"><summary>5. Can you declare <code>unit m</code> today?</summary>
+<p>No, units are planned. Use <code>type distinct</code> per quantity.</p></details>

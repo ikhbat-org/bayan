@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="brand/favicon/favicon.ico" sizes="48x48">
+<link rel="icon" href="brand/favicon/favicon-auto.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Amiri:wght@400;700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<title>Parameters and arguments - Bayan docs</title>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="brand/wordmark/bayan-wordmark-en-header.svg" alt="bayān" width="560" height="330"><span lang="ar" dir="rtl">بيان</span></a>
+    <nav aria-label="Main">
+      <a href="docs.html" aria-current="page">Docs</a>
+      <a href="tutorial.html">Tutorial</a>
+      <a href="https://github.com/ikhbat-org/bayan">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+
+<div class="wrap docs" id="docs">
+  <aside class="side" aria-label="Documentation">
+    <details open>
+      <summary>Language reference</summary>
+      <ul>
+        <li class="grp" style="list-style:none">Basics</li>
+        <li><a href="#">The core on one page</a></li>
+        <li><a href="#">Lexical structure</a></li>
+        <li><a href="#">Types</a></li>
+        <li><a href="#">Declarations and modules</a></li>
+        <li class="grp" style="list-style:none">Code</li>
+        <li><a href="#">Expressions</a></li>
+        <li><a href="#">Statements</a></li>
+        <li><a href="#">Errors</a></li>
+        <li><a href="#">Memory</a></li>
+        <li><a href="docs.html" aria-current="page">Parameters and arguments</a></li>
+        <li><a href="#">Generics</a></li>
+        <li class="grp" style="list-style:none">Beyond</li>
+        <li><a href="#">Comptime</a></li>
+        <li><a href="#">Concurrency</a></li>
+      </ul>
+    </details>
+  </aside>
+
+  <main id="main">
+    <div class="crumbs-row">
+      <p class="crumbs"><a href="docs.html">Language reference</a> / Parameters and arguments</p>
+      <button type="button" class="toc-btn" id="toc-btn" aria-controls="toc" aria-expanded="true">On this page</button>
+    </div>
+    <article class="prose">
+      <h1>Parameters and arguments</h1>
+      <p>A parameter says how a function may use a value. A call says in what role each value takes part. Bayan makes both explicit, so a call site reads as a sentence and a swapped pair of arguments is a compile error rather than a bug.</p>
+
+      <h2 id="modifiers">Parameter modifiers</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th scope="col">Modifier</th><th scope="col">Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><em>none</em></td><td>Read-only. The compiler passes by value or by reference based on size.</td></tr>
+          <tr><td><code>ref</code></td><td>Mutable borrow.</td></tr>
+          <tr><td><code>move</code></td><td>Ownership transfer. Required for <code>unique</code> values.</td></tr>
+          <tr><td><code>out</code></td><td>Output parameter. Prefer returning <code>T?</code> or a tuple.</td></tr>
+          <tr><td><code>in</code></td><td>Accepted, redundant. Removed by the formatter.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="particles">Argument particles</h2>
+      <p>A closed set of role particles labels every required parameter after the object.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th scope="col">Particle</th><th scope="col">Role</th></tr></thead>
+        <tbody>
+          <tr><td><em>none</em></td><td>The object being acted on</td></tr>
+          <tr><td><code>from</code></td><td>Source or start</td></tr>
+          <tr><td><code>to</code></td><td>Destination or recipient</td></tr>
+          <tr><td><code>until</code></td><td>Exclusive end</td></tr>
+          <tr><td><code>through</code></td><td>Inclusive end</td></tr>
+          <tr><td><code>at</code></td><td>Position or time</td></tr>
+          <tr><td><code>by</code></td><td>Means or replacement</td></tr>
+          <tr><td><code>for</code></td><td>Beneficiary or purpose</td></tr>
+          <tr><td><code>as</code></td><td>Role</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>A function has at most one unlabeled parameter, the object (BYN5004). The receiver does not count as the object.</li>
+        <li>Every other required parameter takes a particle (BYN5006), and call sites must write it (BYN5005).</li>
+        <li>The particles are part of the function’s name: <code>copy(from:to:)</code>.</li>
+        <li><code>bool</code> parameters must be passed by name.</li>
+      </ul>
+
+      <h2 id="overloads">Overloading by particle set</h2>
+      <p>Overloads may differ by particle set or by parameter type. The checks run at the declaration, so a call never needs ambiguity resolution: the labels a call writes select the overload.</p>
+      <p class="label">tests/cases/run/overloads.byn</p>
+<pre><code><span class="c">// Overloads differ by particle set; a call picks the one its labels fit.</span>
+
+<span class="k">struct</span> <span class="t">Pos</span> {
+    <span class="t">i64</span> x
+
+    <span class="t">Pos</span> <span class="f">plus</span>(<span class="p">by</span> <span class="t">i64</span> d) => <span class="t">Pos</span> { x: x + d }
+    <span class="t">Pos</span> <span class="f">plus</span>(<span class="p">from</span> <span class="t">i64</span> a, <span class="p">to</span> <span class="t">i64</span> b) => <span class="t">Pos</span> { x: x - a + b }
+}
+
+<span class="t">i64</span> <span class="f">shift</span>(<span class="t">i64</span> x, <span class="p">by</span> <span class="t">i64</span> d) => x + d
+<span class="t">i64</span> <span class="f">shift</span>(<span class="t">i64</span> x, <span class="p">from</span> <span class="t">i64</span> a, <span class="p">to</span> <span class="t">i64</span> b) => x - a + b
+
+<span class="k">let</span> p = <span class="t">Pos</span> { x: <span class="n">1</span> }
+<span class="f">print</span>(<span class="s">$"{p.plus(by: 2).x} {p.plus(from: 1, to: 9).x}"</span>)
+<span class="f">print</span>(<span class="s">$"{shift(1, by: 2)} {shift(1, from: 2, to: 5)}"</span>)</code></pre>
+      <p class="label">output</p>
+<pre><code>3 9
+3 4</code></pre>
+
+      <h2 id="diagnostic">When a particle is missing</h2>
+      <p>Write the argument without its particle and the compiler names the particle, points at the argument and shows the fix. A swapped pair of arguments of the same type lands here too, which is why Bayan needs no separate same-type naming rule.</p>
+      <p class="label">tests/cases/diag/arguments-swapped.byn</p>
+<pre><code><span class="c">// A swapped pair is a particle mismatch (BYN5005); BYN2307 is retired.</span>
+<span class="t">i64</span> <span class="f">width</span>(<span class="t">i64</span> start, <span class="p">until</span> <span class="t">i64</span> end) => end - start
+
+<span class="k">let</span> start: <span class="t">i64</span> = <span class="n">2</span>
+<span class="k">let</span> end: <span class="t">i64</span> = <span class="n">5</span>
+<span class="f">print</span>(<span class="s">$"{width(end, start)}"</span>)
+<span class="f">print</span>(<span class="s">$"{width(start, until: end)}"</span>)</code></pre>
+      <figure class="diag">
+<pre><span class="err">error BYN5005:</span> `end` is passed without its particle `until:`
+
+<span class="gut">  6 │</span> print($"{width(<span class="hl">end, start</span>)}")
+<span class="gut">    │</span>                     <span class="hl">^^^^^ needs `until:`</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> add `until:` before the argument
+<span class="gut">    │ 6 │</span> print($"{width(end, <span class="add">until: </span>start)}")</pre>
+        <figcaption>Output of the compiler’s diagnostic test, as recorded in <code>arguments-swapped.diag</code>. Run <code>bayan explain BYN5005</code> for the long form.</figcaption>
+      </figure>
+
+      <h2 id="rest">Related</h2>
+      <p>Variadic parameters use <code>rest</code>, and the generated constructor of an <code>@positional</code> struct is exempt from particles. Both are covered in the specification, section 10.</p>
+
+      <nav class="pager" aria-label="Previous and next">
+        <a class="prev" href="#"><small>Previous</small><strong>Memory</strong></a>
+        <a class="next" href="#"><small>Next</small><strong>Generics</strong></a>
+      </nav>
+    </article>
+  </main>
+
+  <nav class="toc" id="toc" aria-label="On this page">
+    <h2>On this page</h2>
+    <ul>
+      <li><a href="#modifiers">Parameter modifiers</a></li>
+      <li><a href="#particles">Argument particles</a></li>
+      <li><a href="#overloads">Overloading by particle set</a></li>
+      <li><a href="#diagnostic">When a particle is missing</a></li>
+      <li><a href="#rest">Related</a></li>
+    </ul>
+  </nav>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Bayan is made by the Ikhbat Foundation.</span>
+    <span><a href="index.html">Home</a> &nbsp; <a href="tutorial.html">Tutorial</a> &nbsp; <a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a></span>
+  </div>
+</footer>
+<script>
+(function () {
+  var docs = document.getElementById('docs'), btn = document.getElementById('toc-btn'), toc = document.getElementById('toc');
+  function set(open) {
+    toc.hidden = !open;
+    docs.classList.toggle('toc-off', !open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('bayan-toc'); } catch (e) {}
+  set(saved !== 'closed');
+  btn.addEventListener('click', function () {
+    var open = btn.getAttribute('aria-expanded') !== 'true';
+    set(open);
+    try { localStorage.setItem('bayan-toc', open ? 'open' : 'closed'); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>

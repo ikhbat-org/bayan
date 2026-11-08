@@ -1,0 +1,3 @@
+42
+unknown subcommand
+usage: tool <greet|add>

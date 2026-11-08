@@ -1,0 +1,25 @@
+union error FetchError {
+    /// The user does not exist.
+    notFound
+    /// The name was empty.
+    badName
+}
+
+string load(string name) fails FetchError {
+    fail .badName if name.isEmpty
+    fail .notFound if name != "ada"
+    return $"profile of {name}"
+}
+
+string show(string name) {
+    return load(name) catch switch {
+        .notFound => "no such user",
+        .badName => "name required",
+    }
+}
+
+void main() {
+    print(show("ada"))
+    print(show("bob"))
+    print(show(""))
+}

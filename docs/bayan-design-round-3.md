@@ -81,7 +81,7 @@ public Grams shippingWeight(Order order) {
 
 ```csharp
 // function or method
-[modifiers] ReturnType name<T>(params) [where …] [expects …] [becomes .s] [fails E] [uses e, …] { … }   // or => expr
+[modifiers] ReturnType name<T>(params) [where …] [expects …] [becomes .s] [fails E] [uses e, …] { … }   // or => expr; round 4 reordered the clauses: where, expects, uses, becomes, fails
 // parameter
 [particle] [ref | out | const | move] Type name [= default]
 // receiver (first parameter only)
@@ -89,11 +89,11 @@ public Grams shippingWeight(Order order) {
 
 Type name [= default]                 // field, then optional `requires` lines
 Type name => expr | { … }             // computed property
-(A, B) -> R [fails E] [uses …]        // function type
+(A, B) -> R [fails E] [uses …]        // function type   // round 4: uses before fails
 ```
 
 - **Modifiers** (`public`, `static`) lead the declaration.
-- **Clause order** is fixed: `where` → `expects` → `becomes` → `fails` → `uses` (success outcome, then failure, then effects). A signature may continue on the next line with any of these clauses (§3).
+- **Clause order** is fixed: `where` → `expects` → `becomes` → `fails` → `uses` (success outcome, then failure, then effects); round 4 reordered it to `where` → `expects` → `uses` → `becomes` → `fails`. A signature may continue on the next line with any of these clauses (§3).
 - **A particle comes before the passing mode:** `to ref Span<u8> dst`.
 - **Function types are parenthesized when a name follows them**, in fields and parameters: `(Line -> Money uses net) pricer`, `by (Token -> bool) p`. An alias avoids the parentheses: `type Pricer = Line -> Money uses net`, then `Pricer pricer`.
 - **State types** are written `Order.paid` (one state) or `Order order is .paid or .shipped` (several, inline after the name). Details in §14.

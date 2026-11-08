@@ -1,0 +1,13 @@
+void main() fails IoError {
+    let path = "sample.txt"
+    try Io.writeFile(path, "The cat sat.\nThe cat ran, and the dog sat!\n".bytes)
+
+    let text = try Io.readText(path)
+    for line in text.lines {
+        for part in line.parts(by: " ") {
+            let word = part.trimmed(by: ['.', ',', '!', '?']).lowercased()
+            continue if word.isEmpty
+            print(word)
+        }
+    }
+}

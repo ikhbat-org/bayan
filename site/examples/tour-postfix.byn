@@ -1,0 +1,10 @@
+string grade(i64 score) {
+    return "fail" if score < 50
+    return "pass"
+}
+
+void main() {
+    print(grade(30))
+    print(grade(80))
+    print("late") unless grade(80) == "pass"
+}

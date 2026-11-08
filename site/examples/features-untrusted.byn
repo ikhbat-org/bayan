@@ -1,0 +1,10 @@
+void greet(string name) {
+    print($"hello {name}")
+}
+
+void main() {
+    let typed: Untrusted<string> = Untrusted("ada")
+    print($"{typed.length}")
+    let name: string = typed.trustUnchecked() because "demo input"
+    greet(name)
+}

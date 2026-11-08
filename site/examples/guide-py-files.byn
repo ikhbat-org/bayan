@@ -1,0 +1,12 @@
+void main() fails IoError {
+    let path = "/tmp/guide-py-files.txt"
+    try Io.writeFile(path, "one\ntwo\nthree\n".bytes)
+    let text = try Io.readText(path)
+    var n = 0
+    for line in text.lines {
+        n += 1
+        print($"{n}: {line}")
+    }
+    let missing = Io.readText("/tmp/guide-no-such-file") catch "(missing)"
+    print(missing)
+}

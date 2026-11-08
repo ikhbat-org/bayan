@@ -1,0 +1,36 @@
+title: Collections cookbook
+nav: Guides
+order: 51
+template: docs
+---
+<p>Lists, arrays and maps. <code>List&lt;T&gt;</code> grows; <code>T[N]</code> is a fixed array on the stack; <code>Map&lt;K, V&gt;</code> keeps insertion order. Reading a missing index or key panics, so the safe reads are <code>tryGet(at:)</code> (a <code>T?</code>) and <code>contains</code>.</p>
+
+<h2 id="iterate">Iterate with indices and elements</h2>
+<p><code>for x in list</code> visits elements. For the index, loop over the range <code>0..list.length</code>; <code>a..b</code> excludes <code>b</code> and <code>a..=b</code> includes it. <code>tryGet(at:)</code> returns <code>null</code> out of range, and <code>??</code> supplies the fallback.</p>
+<example name="cookbook-iterate"/>
+<pre><code class="other" data-lang="Python">for i, lang in enumerate(langs):
+    print(i, lang)</code></pre>
+
+<h2 id="map-filter-fold">Map, filter and fold</h2>
+<p><strong>Runnable today as a loop.</strong> Accumulate into a <code>var</code> and append to a new list.</p>
+<example name="cookbook-fold"/>
+<p><strong>Planned.</strong> The spec lists lazy <code>where</code>, <code>select</code> and <code>sumBy</code> that take a lambda with the implicit name <code>it</code> (section 16), and marks them "Not in v0.1". The compiler reserves <code>select</code> and has no <code>where</code> on lists yet. The spec's form:</p>
+<pre><code class="byn">let valid = events.where(it.isValid)</code></pre>
+<pre><code class="other" data-lang="Python">total = sum(x for x in xs if x % 2 == 0)</code></pre>
+
+<h2 id="map">Insert, look up and check a key in a map</h2>
+<p>Assign with <code>m[k] = v</code>. <code>m[k]</code> panics when the key is missing, so read with <code>tryGet(at: k) ?? fallback</code>, which does not insert. <code>contains</code> tests a key, <code>remove</code> returns whether it was there, and <code>for e in m</code> gives <code>e.key</code> and <code>e.value</code>. There is no <code>getOr</code> and no <code>m.get(k, default)</code>; the <code>??</code> form replaces both.</p>
+<example name="cookbook-map"/>
+<pre><code class="other" data-lang="Python">n = stock.get("kiwis", -1)
+"pears" in stock</code></pre>
+
+<h2 id="sort">Sort a list</h2>
+<p><code>sort()</code> sorts in place and is stable. Numbers, runes and strings sort by value; strings compare by bytes, so <code>"Apple"</code> comes before <code>"fig"</code>.</p>
+<example name="cookbook-sort"/>
+<p><strong>Planned.</strong> A custom comparator, <code>sort(by)</code>, and the copying <code>sorted()</code> and <code>reverse()</code> are in the spec's collection conventions (section 16, "Not in v0.1" for the lambda forms and <code>sorted</code>). The compiler has none of them yet: sorting by a key means writing your own loop for now.</p>
+
+<h2 id="remove">Remove an item by index or by value</h2>
+<p><code>remove(at: i)</code> removes one element, <code>remove(at: a..b)</code> a range, and <code>remove(from: a, through: b)</code> an inclusive range. They act on the list in place (a plain verb mutates; see section 16). There is no remove-by-value call yet: find the index in a loop, then remove it. The spec also lists <code>indexOf</code> and <code>removeWhere</code>, which the compiler does not have yet.</p>
+<example name="cookbook-remove"/>
+<pre><code class="other" data-lang="Python">xs.remove(60)  # by value
+del xs[0]      # by index</code></pre>

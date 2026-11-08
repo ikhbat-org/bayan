@@ -43,6 +43,12 @@ bool inRanges(ReadOnlySpan<u32> ranges, for u32 cp) {
 /// `_` and the letter categories Lu Ll Lt Lm Lo Nl.
 bool isIdentifierStart(u32 cp) => inRanges(identStartRanges, for: cp)
 
+/// C# `char.IsUpper(text[0])`: whether the first scalar is Lu. Above U+FFFF C# sees a high surrogate, and the tables are BMP only, so it is false.
+public bool firstIsUpper(ReadOnlySpan<u8> text) => text.length > 0 && inRanges(upperRanges, for: decodeAt(text, at: 0).value)
+
+/// C# `char.IsLower(text[0])`: whether the first scalar is Ll; false above U+FFFF like `firstIsUpper`.
+public bool firstIsLower(ReadOnlySpan<u8> text) => text.length > 0 && inRanges(lowerRanges, for: decodeAt(text, at: 0).value)
+
 /// Identifier starts plus U+200C U+200D and Mn Mc Nd Pc.
 bool isIdentifierContinue(u32 cp) => isIdentifierStart(cp) || inRanges(identContinueRanges, for: cp)
 

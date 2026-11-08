@@ -1,0 +1,12 @@
+void main() {
+    let a = Io.readText("/tmp/std-io-missing.txt") catch switch {
+        .notFound => "no such file",
+        _ => "other failure",
+    }
+    print(a)
+    let b = Io.listDir("/etc/hosts") catch switch {
+        .notADirectory => ["a file, not a directory"],
+        _ => [],
+    }
+    print(b[0])
+}

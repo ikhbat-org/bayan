@@ -1,4 +1,4 @@
-// T10: CEmitter.cs 1617-1944 (`Expr`, `Call`), minus D3's `LMutantIs`/`LCount` cases (:1696-1699).
+// T10: CEmitter.cs 1617-1944 (`Expr`, `Call`) (with `LMutantIs`/`LCount` at :1698-1701).
 
 import semantics
 import emitter.ltree
@@ -19,7 +19,7 @@ string t10LoweredName(ltree.LKind k) uses alloc {
         "LLabel", "LGoto", "LLoop", "LReturn", "LReturnError", "LFailingCall", "LWrite", "LPanic", "LSetContext", "LFreeArena",
         "LPushPanicHandler", "LPopPanicHandler", "LClaim", "LOptionalHas", "LOptionalValue", "LUnionTag", "LUnionField",
         "LErrorCode", "LErrorField", "LAssignExpr", "LSequence", "LIndexUnchecked", "LNextChar", "LNever", "LFunctionValue",
-        "LVoid"
+        "LMutantIs", "LCount", "LVoid"
     ]
     return $"{names[k.ordinal]}"
 }
@@ -110,6 +110,10 @@ public string emitExpr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in 
                 let ctype = cType(ref cc, from: ref c, for: fnType)
                 let thunk = functionThunk(ref cc, from: ref c, for: t.functionValues[i].function, as: fnType)
                 return $"(({ctype}){{{thunk}, NULL}})"
+            case .mutantIs:
+                return $"byn_mutant_is({t.mutantIss[i].id})"
+            case .count:
+                return $"byn_cov[{t.counts[i].id}]++"
             default:
                 panic($"cannot emit {t10LoweredName(ltree.lKindOf(e))}")
         }
@@ -317,6 +321,11 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
             let name = helper(ref cc, for: "bynh_io_read_file", from: $"static uint32_t bynh_io_read_file(byn_str path, {list}* out)",
                 as: $"{{\n    uint8_t* p = NULL;\n    int64_t n = 0;\n    uint32_t err = byn_io_read(path, &p, &n, byn_context);\n    if (err == 0 && out) *out = ({list}){{p, n, n, byn_context}};\n    return err;\n}}\n")
             return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
+        case .ioStdinReadAllBytes:
+            let list = cType(ref cc, from: ref c, for: c.functions[fn].returnType)
+            let name = helper(ref cc, for: "bynh_io_read_all_bytes", from: $"static uint32_t bynh_io_read_all_bytes({list}* out)",
+                as: $"{{\n    uint8_t* p = NULL;\n    int64_t n = 0;\n    uint32_t err = byn_io_read_stdin_bytes(&p, &n, byn_context);\n    if (err == 0 && out) *out = ({list}){{p, n, n, byn_context}};\n    return err;\n}}\n")
+            return $"{name}({outArg})"
         case .ioReadText:
             return $"byn_io_read_text({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg}, byn_context)"
         case .ioWriteFile:
@@ -438,6 +447,23 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
             return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])})"
         case .fsFileExists:
             return $"byn_fs_file_exists({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])})"
+        case .fsRename:
+            let path = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
+            return $"byn_fs_rename({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])})"
+        case .fsCopy:
+            let path = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
+            return $"byn_fs_copy({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])})"
+        case .fsModified:
+            return $"byn_fs_modified({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
+        case .fsSetModified:
+            let path = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
+            return $"byn_fs_set_modified({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])})"
+        case .fsRealPath:
+            return $"byn_fs_real_path({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg}, byn_context)"
+        case .timeNow:
+            return "byn_time_now()"
+        case .timeFromNanos:
+            return $"((byn_time){{{emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}}})"
         case .hexEncode:
             let span = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[0]].type)
             let name = helper(ref cc, for: "bynh_hex_encode", from: $"static byn_str bynh_hex_encode({span} bytes)",

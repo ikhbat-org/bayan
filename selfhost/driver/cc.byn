@@ -220,8 +220,14 @@ struct ZigOrCc : ICCompiler {
     }
 }
 
-/// CliApp.cs:390 `ReportToolchain` without `--diagnostics json` (refused, R3) and plain (no style, Q947): why the toolchain could not build.
+/// `ccReportToolchainBy` in the plain style (`Style.Plain`, the C# `style ?? s_styleErr ?? Style.Plain` with neither given).
 void ccReportToolchain(in NativeBuild result) uses alloc, console {
+    let plain = semantics.t26Symbols(ascii: false)
+    ccReportToolchainBy(result, by: in plain)
+}
+
+/// CliApp.cs:403 `ReportToolchain` without `--diagnostics json` (`t5ReportToolchain` has it): why the toolchain could not build; the ICE renders in `symbols`, the stderr style (CliApp.cs:417).
+void ccReportToolchainBy(in NativeBuild result, by in semantics.T26Symbols symbols) uses alloc, console {
     if !result.rejected {
         Io.stderr.write($"bayan: {result.errors}\n")
         return
@@ -243,6 +249,6 @@ void ccReportToolchain(in NativeBuild result) uses alloc, console {
     }
     c.diagnostics.append(move ice)
     var omitted: i64 = 0
-    Io.stderr.write(semantics.renderAll(in c, from: in c.diagnostics, by: true, until: 2147483647, to: ref omitted))
+    Io.stderr.write(semantics.renderAllBy(in c, from: in c.diagnostics, by: true, until: 2147483647, to: ref omitted, through: in symbols))
     Io.stderr.write(result.errors.endsWith("\n") ? result.errors : $"{result.errors}\n")
 }

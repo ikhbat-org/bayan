@@ -1,0 +1,28 @@
+let grid: i32[3] = [1, 2, 3]
+print($"{grid.length} {grid[2]}")
+
+var xs: List<i64> = []
+xs.append(4)
+xs.append(5)
+xs.append(6)
+
+i64 total(ReadOnlySpan<i64> items) {
+    var sum = 0
+    for x in items {
+        sum += x
+    }
+    return sum
+}
+print($"{total(xs)}")
+let view = xs.span
+print($"{view.length} {view[0]} {view[^1]}")
+
+xs.remove(from: 0, until: 1)
+print($"{xs.length}")
+
+var ages: Map<string, i64> = ["bea": 31, "al": 29]
+ages["cy"] = 40
+for (name, age) in ages {
+    print($"{name}={age}")
+}
+print($"{ages.contains("al")} {ages.length} {ages["cy"]}")

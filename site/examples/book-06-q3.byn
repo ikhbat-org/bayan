@@ -1,0 +1,7 @@
+enum Level {
+    low
+    mid
+    high
+}
+
+print($"{Level.high.ordinal} {Level.mid}")

@@ -1,4 +1,5 @@
 using System.Text;
+using Bayan.Semantics;
 using Bayan.Syntax.Diagnostics;
 using Bayan.Syntax.Packages;
 using SourceText = Bayan.Syntax.Text.SourceText;
@@ -143,6 +144,40 @@ public sealed class SelfhostSemanticsT10Tests
         return cases;
     }
 
+    /// <summary>017 T20: <c>selfhost/semantics/main.byn</c> keeps Q565 for the unreadable <c>package.byn</c> that <c>manifestRead</c> now fails on:
+    /// it reads as an empty one, so the run prints what it prints for an empty <c>package.byn</c>.</summary>
+    [Fact]
+    public void MainReadsAnUnreadablePackageAsAnEmptyOne()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        // Built from the files themselves, not through `Build` (which marks `main.byn` generated, so coverage skips it).
+        Environment.SetEnvironmentVariable("BAYAN_CACHE", Path.Combine(Golden.RepoRoot, "tmp", "cache"));
+        var c = Compilation.Create(Directory.GetFiles(SelfhostSemanticsHarness.SemanticsDir, "*.byn").Order(StringComparer.Ordinal).Select(SourceText.FromFile).ToList(), packageRoot: SelfhostSemanticsHarness.SelfhostDir);
+        Assert.False(c.Diagnostics.HasErrors, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
+        var build = SelfhostSemanticsHarness.BuildFast(c, new HashSet<string>());
+        Assert.True(build.Succeeded, build.Errors);
+        var program = build.ExecutablePath!;
+        var dir = Path.Combine(CasesDir, "main-unreadable");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        var manifest = Path.Combine(dir, "package.byn");
+        var source = Path.Combine(dir, "main.byn");
+        File.WriteAllText(source, "void main() {\n}\n");
+        File.WriteAllText(manifest, "");
+        var (emptyExit, emptyOut, emptyErr) = SelfhostParserTests.Run(program, "--golden", "--package", dir, source);
+        File.SetUnixFileMode(manifest, UnixFileMode.None);
+        try
+        {
+            try { _ = File.ReadAllBytes(manifest); return; } // root reads it anyway
+            catch (UnauthorizedAccessException) { }
+            var (exit, stdout, stderr) = SelfhostParserTests.Run(program, "--golden", "--package", dir, source);
+            Assert.Equal(emptyExit, exit);
+            Assert.Equal(emptyOut, stdout);
+            Assert.Equal(emptyErr, stderr);
+        }
+        finally { File.SetUnixFileMode(manifest, UnixFileMode.UserRead | UnixFileMode.UserWrite); }
+    }
+
     private static string Literal(string s)
     {
         var sb = new StringBuilder("\"");
@@ -249,7 +284,7 @@ public sealed class SelfhostSemanticsT10Tests
         }
 
         void showCase(string name, at string path) {
-            let m = manifestRead(path)
+            let m = manifestRead(path) catch manifestParse(lexer.SourceText.create("package.byn", from: List<u8>()))
             print($"== case {name}")
             print($"errors {manifestErrorCount(in m)}")
             if m.diagnostics.length > 0 {
