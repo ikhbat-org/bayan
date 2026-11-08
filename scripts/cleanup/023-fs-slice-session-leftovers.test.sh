@@ -16,7 +16,7 @@ printf 'tmp/\n.worktrees/\n' > .gitignore && mkdir -p tmp/sanitizer-debug && ech
 git add .gitignore && g commit -q -m base && g branch dev
 for b in fix/zig-pin-message fix/review-2026-11-08-4 fix/review-2026-11-08-3 docs/w0-d6-plan chore/017-t20-into-dev \
          chore/worker-q1100 chore/worker-json-i64 chore/worker-015-t7 chore/worker-w0-d6-plan chore/worker-q1100-x \
-         chore/worker-review-tts-fix; do g branch "$b" dev; done
+         chore/worker-review-tts-fix chore/worker-012-anchors chore/worker-test-time-scale; do g branch "$b" dev; done
 g switch -q fix/zig-pin-message && g commit -q --allow-empty -m z && g switch -q dev && g merge -q --no-ff fix/zig-pin-message -m mz
 g switch -q fix/review-2026-11-08-4 && g commit -q --allow-empty -m u && g switch -q main
 g switch -q chore/worker-015-t7 && g commit -q --allow-empty -m w && g switch -q main
@@ -36,12 +36,15 @@ g worktree add -q .worktrees/worker-w0-d6-plan/.worktrees/x chore/worker-q1100-x
 g worktree add -q .worktrees/worker-review-tts-fix chore/worker-review-tts-fix
 mkdir -p "$r/logs"; sleep 600 >/dev/null 2>&1 </dev/null & live=$!; echo "$live" > "$r/logs/review-tts-fix.lock"
 trap 'kill "$live" 2>/dev/null || true' EXIT
+echo junk > "$r/logs/012-anchors.lock"; echo 999999 > "$r/logs/test-time-scale.lock"
+mkdir -p .worktrees/worker-l017-fatarrow && echo x > .worktrees/worker-l017-fatarrow/f
+git add -f .worktrees/worker-l017-fatarrow/f && g commit -q -m tracked-worker-dir
 mkdir -p "$r/tmpdir/tmp.qhKsq0vwnC" && echo x > "$r/tmpdir/tmp.qhKsq0vwnC/f"
 mkdir -p .worktrees/fix-review-2026-11-08-3/tmp && echo x > .worktrees/fix-review-2026-11-08-3/tmp/run.log
 echo x > .worktrees/docs-w0-d6-plan/new.txt
 mkdir -p tmp/zig-dl && echo x > tmp/zig-dl/z && git add -f tmp/zig-dl/z && g commit -q -m tracked-scratch
 printf 'console.log("retired " + Deno.args.slice(1).join(" "));\n' > "$r/worker.js"
-export CLEANUP_WORKER_JS="$r/worker.js" TMPDIR="$r/tmpdir" CLEANUP_WORKER_LOGS="$r/logs"
+export CLEANUP_WORKER_JS="$r/worker.js" TMPDIR="$r/tmpdir" WORKER_STATE_DIR="$r"  # locks then live in $r/logs
 fail() { echo "FAIL: $1"; echo "$out"; cd "$root"; exit 1; }
 has() { printf '%s\n' "$out" | grep -qF -- "$1" || fail "missing: $1"; }
 
@@ -61,7 +64,8 @@ has 'hold:  q1100 (ignored files beyond build output in .worktrees/worker-q1100'
 has 'keep:  json-i64 (.worktrees/worker-json-i64 not on chore/worker-json-i64)'
 has 'keep:  015-t7 (chore/worker-015-t7 not in dev)'; has 'skip:  diag-examples'
 has 'keep:  w0-d6-plan (.worktrees/worker-w0-d6-plan holds a nested worktree)'
-has 'keep:  review-tts-fix (a worker holds its lock)'
+has 'keep:  review-tts-fix (a worker holds its lock)'; has 'keep:  012-anchors (a worker holds its lock)'
+has 'would: worker.js retire test-time-scale'; has 'refuse: .worktrees/worker-l017-fatarrow is tracked by git'
 [ "$before" = "$(git -C "$r/repo" worktree list; git -C "$r/repo" branch)" ] || fail 'dry run changed state'
 
 st=0; out="$(bash "$script" --execute 2>&1)" || st=$?

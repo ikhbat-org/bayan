@@ -26,7 +26,8 @@ done
 here="$(git rev-parse --show-toplevel)"
 repo="$(git rev-parse --path-format=absolute --git-common-dir)"; repo="${repo%/.git}"  # the main checkout: targets are relative to it
 worker="${CLEANUP_WORKER_JS:-$HOME/.claude/tools/worker.js}"
-worker_logs="${CLEANUP_WORKER_LOGS:-$HOME/.claude/workers/logs}"  # <key>.lock holds a running worker's pid
+# <key>.lock holds a running worker's pid; worker.js keeps it under WORKER_STATE_DIR when that is set.
+worker_logs="${CLEANUP_WORKER_LOGS:-${WORKER_STATE_DIR:-$HOME/.claude/workers}/logs}"
 failed=0
 
 if [ "$(git branch --show-current)" != "dev" ]; then
@@ -49,7 +50,10 @@ for key in diag-examples 012-anchors review-c1dae2fc-fix review-fix-r2 json-i64 
     printf 'keep:  %s (modified or untracked files in %s)\n' "$key" "$wt"; continue
   fi
   lock="$worker_logs/$key.lock"
-  if [ -f "$lock" ] && kill -0 "$(cat "$lock" 2>/dev/null || echo x)" 2>/dev/null; then
+  # As worker.js's tryKeyLock: an unreadable or non-numeric owner counts as held, and so does a pid that is alive
+  # under another user (ps, not kill -0, which fails with EPERM there).
+  owner="$( [ -f "$lock" ] && cat "$lock" 2>/dev/null || true)"
+  if [ -e "$lock" ] && { ! [[ "$owner" =~ ^[0-9]+$ ]] || ps -p "$owner" >/dev/null 2>&1; }; then
     printf 'keep:  %s (a worker holds its lock)\n' "$key"; continue
   fi
   if [ -d "$wt" ]; then
