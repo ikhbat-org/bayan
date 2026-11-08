@@ -19,7 +19,7 @@ public sealed class NotEmittedLawTests(ITestOutputHelper output)
 {
     private static string? Report(Schema schema)
     {
-        var result = MutationRunner.Run("none", schema, [], Path.GetTempPath(), TimeSpan.FromSeconds(1));
+        var result = MutationRunner.Run("none", schema, [], Path.GetTempPath(), TestTime.Scale(TimeSpan.FromSeconds(1)));
         if (result.Mutants.Count != schema.Sites.Count) return $"{result.Mutants.Count} results for {schema.Sites.Count} sites";
         foreach (var m in result.Mutants)
         {

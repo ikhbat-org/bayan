@@ -66,13 +66,13 @@ public sealed class CliMemoryBoundsTests
         var capture = BoundedCapture.Start(client, 1024);
         server.Write(Enumerable.Repeat((byte)'z', 10_000).ToArray());
         server.Flush();
-        var deadline = DateTime.UtcNow.AddSeconds(10);
+        var deadline = DateTime.UtcNow.AddSeconds(TestTime.Scale(10));
         while (!capture.Snapshot().Contains("… 7952 bytes elided …") && DateTime.UtcNow < deadline) Thread.Sleep(20);
         Assert.False(capture.Completion.IsCompleted);
         Assert.Equal(new string('z', 1024) + "\n… 7952 bytes elided …\n" + new string('z', 1024), capture.Snapshot());
         // Closing the write end ends the read; the read end is disposed only once nothing reads it.
         server.Dispose();
-        await capture.Completion.WaitAsync(TimeSpan.FromSeconds(10));
+        await capture.Completion.WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(10)));
         client.Dispose();
     }
 
@@ -124,13 +124,13 @@ public sealed class CliMemoryBoundsTests
         psi.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "bayan.dll"));
         psi.ArgumentList.Add("test");
         psi.ArgumentList.Add(file);
-        psi.Environment["BAYAN_TEST_TIMEOUT_MS"] = "3000";
+        psi.Environment["BAYAN_TEST_TIMEOUT_MS"] = TestTime.Scale(3000).ToString();
         psi.Environment["BAYAN_CACHE"] = Path.Combine(dir, "cache");
         using var p = System.Diagnostics.Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndAsync();
         var stderr = p.StandardError.ReadToEndAsync();
         long peak = 0;
-        while (!p.WaitForExit(100))
+        while (!p.WaitForExit(TestTime.Scale(100)))
         {
             try
             {
@@ -354,7 +354,7 @@ public sealed class CliMemoryBoundsTests
                     var build = Toolchain.Build("int main(void) { return 0; }\n", BuildMode.Safe);
                     Assert.False(build.Succeeded);
                     Assert.Contains("timed out after 2 s", build.Errors);
-                    Assert.True(clock.Elapsed < TimeSpan.FromSeconds(10), clock.Elapsed.ToString());
+                    Assert.True(clock.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(10)), clock.Elapsed.ToString());
                 })));
     }
 
@@ -379,7 +379,7 @@ public sealed class CliMemoryBoundsTests
             }
         });
         var exit = 0;
-        WithEnv("TMPDIR", temp, () => WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () => WithEnv("BAYAN_TEST_TIMEOUT_MS", "2000", () =>
+        WithEnv("TMPDIR", temp, () => WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () => WithEnv("BAYAN_TEST_TIMEOUT_MS", TestTime.Scale(2000).ToString(), () =>
             exit = Run([.. args, file]).Exit)));
         stop.Cancel();
         watcher.Wait();

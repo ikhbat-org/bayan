@@ -47,14 +47,28 @@ public sealed class ToolchainSanitizerTests : IDisposable
         if (OperatingSystem.IsWindows()) return;
         // The machine's own probe runs first, with the real timeouts.
         _ = Toolchain.SanitizerCompiler;
-        Toolchain.ProbeCompileTimeout = Toolchain.ProbeRunTimeout = TimeSpan.FromMilliseconds(500);
+        Toolchain.ProbeCompileTimeout = Toolchain.ProbeRunTimeout = TestTime.Scale(TimeSpan.FromMilliseconds(500));
         var hanging = Script("hanging.sh", "sleep 30");
         // A "compiler" whose program hangs is rejected too.
         var hangingProgram = Script("hanging-program.sh", "while [ $# -gt 0 ]; do if [ \"$1\" = -o ]; then printf '#!/bin/sh\\nsleep 30\\n' > \"$2\"; chmod +x \"$2\"; fi; shift; done");
         var working = Script("working.sh", "while [ $# -gt 0 ]; do if [ \"$1\" = -o ]; then printf '#!/bin/sh\\nexit 0\\n' > \"$2\"; chmod +x \"$2\"; fi; shift; done");
         var watch = System.Diagnostics.Stopwatch.StartNew();
-        Assert.Equal(working, Assert.Single(Toolchain.ProbeSanitizer([[hanging], [hangingProgram], [working]])!));
-        Assert.True(watch.Elapsed < TimeSpan.FromSeconds(10), $"probe took {watch.Elapsed}");
+        var found = Toolchain.ProbeSanitizer([[hanging], [hangingProgram], [working]]);
+        Assert.NotNull(found);
+        Assert.Equal(working, Assert.Single(found));
+        Assert.True(watch.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(10)), $"probe took {watch.Elapsed}");
+    }
+
+    [Fact]
+    public void ProbeRejectsEveryCandidateWhenAllOfThemHangAndReturnsNull()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        Toolchain.ProbeCompileTimeout = Toolchain.ProbeRunTimeout = TestTime.Scale(TimeSpan.FromMilliseconds(300));
+        var hanging = Script("hanging.sh", "sleep 30");
+        var hangingProgram = Script("hanging-program.sh", "while [ $# -gt 0 ]; do if [ \"$1\" = -o ]; then printf '#!/bin/sh\\nsleep 30\\n' > \"$2\"; chmod +x \"$2\"; fi; shift; done");
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        Assert.Null(Toolchain.ProbeSanitizer([[hanging], [hangingProgram]]));
+        Assert.True(watch.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(10)), $"probe took {watch.Elapsed}");
     }
 
     [Fact]

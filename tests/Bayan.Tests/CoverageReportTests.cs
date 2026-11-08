@@ -101,7 +101,7 @@ public sealed class CoverageReportTests
     {
         var app = Project("timeout", Main + "\ntest \"spin\" {\n    while true {\n    }\n}\n");
         var saved = Environment.GetEnvironmentVariable("BAYAN_TEST_TIMEOUT_MS");
-        Environment.SetEnvironmentVariable("BAYAN_TEST_TIMEOUT_MS", "2000");
+        Environment.SetEnvironmentVariable("BAYAN_TEST_TIMEOUT_MS", TestTime.Scale(2000).ToString());
         try
         {
             Run("test", "--coverage", app);

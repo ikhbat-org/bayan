@@ -47,7 +47,7 @@ public sealed class SelfhostEmitterNoPanicLawTests(ITestOutputHelper output)
         using var p = Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndAsync();
         var stderr = p.StandardError.ReadToEndLfAsync();
-        var done = p.WaitForExit(boundMs);
+        var done = p.WaitForExit(TestTime.Scale(boundMs));
         if (!done) p.Kill(entireProcessTree: true);
         p.WaitForExit();
         Assert.True(done, $"{batch} ({mode}): bayan-emit --many did not finish within {boundMs} ms and was killed");

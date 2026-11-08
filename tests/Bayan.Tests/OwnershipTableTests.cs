@@ -59,7 +59,7 @@ public sealed class OwnershipTableTests
             var clock = Stopwatch.StartNew();
             var e = await Assert.ThrowsAsync<TimeoutException>(() => RunAsync(file, args, dir, timeoutMs: 500));
             Assert.Contains($"{file} did not exit within 500 ms", e.Message);
-            Assert.True(clock.Elapsed < TimeSpan.FromSeconds(20), $"took {clock.Elapsed}");
+            Assert.True(clock.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(20)), $"took {clock.Elapsed}");
         }
         finally
         {
@@ -109,7 +109,7 @@ public sealed class OwnershipTableTests
         using var p = Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndLfAsync();
         var stderr = p.StandardError.ReadToEndLfAsync();
-        using var timeout = new CancellationTokenSource(timeoutMs);
+        using var timeout = new CancellationTokenSource(TestTime.Scale(timeoutMs));
         try { await p.WaitForExitAsync(timeout.Token); }
         catch (OperationCanceledException)
         {

@@ -37,7 +37,7 @@ public sealed class StdPathLawTests
         using var proc = Process.Start(psi)!;
         var stderr = proc.StandardError.ReadToEndAsync();
         var stdout = await proc.StandardOutput.ReadToEndAsync();
-        Assert.True(proc.WaitForExit(120_000), "program timed out after 120 s");
+        Assert.True(proc.WaitForExit(TestTime.Scale(120_000)), "program timed out after 120 s");
         return (proc.ExitCode, stdout, await stderr);
     }
 

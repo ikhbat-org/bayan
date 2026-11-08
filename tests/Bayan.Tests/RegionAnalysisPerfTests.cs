@@ -25,6 +25,6 @@ public sealed class RegionAnalysisPerfTests
         var c = Compilation.Create([new SourceText("perf.byn", Encoding.UTF8.GetBytes(src.ToString()))], ".");
         watch.Stop();
         Assert.DoesNotContain(c.Diagnostics.Items, d => d.IsError);
-        Assert.True(watch.Elapsed < TimeSpan.FromSeconds(5), $"took {watch.Elapsed}");
+        Assert.True(watch.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(5)), $"took {watch.Elapsed}");
     }
 }

@@ -168,7 +168,7 @@ public sealed class StdPathTests
         using var proc = Process.Start(psi)!;
         var stderr = proc.StandardError.ReadToEndAsync();
         var stdout = await proc.StandardOutput.ReadToEndAsync();
-        Assert.True(proc.WaitForExit(120_000), "program timed out after 120 s");
+        Assert.True(proc.WaitForExit(TestTime.Scale(120_000)), "program timed out after 120 s");
         Assert.True(proc.ExitCode == 0, await stderr);
         var actual = stdout.Split('\n');
         Assert.Equal(expected.Count + 1, actual.Length);
@@ -211,7 +211,7 @@ public sealed class StdPathTests
             using var proc = Process.Start(psi)!;
             var stderr = proc.StandardError.ReadToEndAsync();
             var stdout = await proc.StandardOutput.ReadToEndAsync();
-            Assert.True(proc.WaitForExit(120_000), "program timed out after 120 s");
+            Assert.True(proc.WaitForExit(TestTime.Scale(120_000)), "program timed out after 120 s");
             var err = (await stderr).ReplaceLineEndings("\n");
             if (full is null)
             {
@@ -330,7 +330,7 @@ public sealed class StdPathTests
         proc.StandardInput.Write(input);
         proc.StandardInput.Close();
         var output = await stdout;
-        Assert.True(proc.WaitForExit(120_000), "driver timed out after 120 s");
+        Assert.True(proc.WaitForExit(TestTime.Scale(120_000)), "driver timed out after 120 s");
         Assert.True(proc.ExitCode == 0, await stderr);
         return output.Split('\n');
     }
