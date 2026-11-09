@@ -649,3 +649,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - review 8d5e5c71..ce5d3cb3: the docs generators are unverified under mawk (ubuntu CI is the first run).
 - rev 0021: `docs/diagnostics/BYN2225.md` and `selfhost/driver/diagdocs.byn:152`, and `docs/bayan-library-tiers.md:73`, still show `formatInto(ref StrBuf out)`; rename to `buffer` (the page is generated into diagdocs.byn).
 - std.time: parked design handoff `docs/handoffs/2026-11-09-std-time.md`; phases 1a/1b (docs) after revision 0021 docs land, code phases wait for gates G1–G6 (2026-11-09).
+- rev 0021 Part 5: the BYN7001 help starts with a backtick, so `HelpLanguageTests.Allowed` gained a `\`` prefix; narrow it or reword the help (T1 2026-11-10).
