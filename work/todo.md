@@ -649,3 +649,11 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - review 8d5e5c71..ce5d3cb3: `scripts/release/set-version.sh:31` rewrites every `^Version: … (matches` line while `scripts/docs/check.sh:31` reads the first 10.
 - review 8d5e5c71..ce5d3cb3: `scripts/release/cut.sh:24-34` leaves a half-bumped tree when a generator fails.
 - review 8d5e5c71..ce5d3cb3: the docs generators are unverified under mawk (ubuntu CI is the first run).
+- rev 0021: `docs/diagnostics/BYN2225.md` and `selfhost/driver/diagdocs.byn:152`, and `docs/bayan-library-tiers.md:73`, still show `formatInto(ref StrBuf out)`; rename to `buffer` (the page is generated into diagdocs.byn).
+- std.time: parked design handoff `docs/handoffs/2026-11-09-std-time.md`; phases 1a/1b (docs) after revision 0021 docs land, code phases wait for gates G1–G6 (2026-11-09).
+- rev 0021 Part 5: the BYN7001 help starts with a backtick, so `HelpLanguageTests.Allowed` gained a `\`` prefix; narrow it or reword the help (T1 2026-11-10).
+- 018 T1 gate LOW (fix in both compilers after T2, 018 T9 or a follow-up): `src/Bayan.Semantics/Binding/BinderStates.cs` `StateTestHelp` matches the receiver by source text, so a shadowing `let order = …` in the then-branch still gets the "doesn't narrow" help.
+- 018 T1 gate LOW (same follow-up): `BinderStates.cs` `ReportWrongState` passes `Source.GetText(span)` for a `BoundThis` value, so an implicit-receiver call inside `if this.p { … }` never gets the new help.
+- 018 T1 gate LOW (same follow-up): `Binder.cs` IfStmt `_thenOf` push/pop is not in `try`/`finally`; a forwarded BYN2034 exception from `BindBody` leaves a stale `if` on the stack.
+- `scripts/selfhost/wave-brief.test.sh` fails on feat/018 at 4a83744d (before 018's wave-brief entry): "FAIL: the 010 T43 review brief changed"; fixture or brief drift, owner unknown (found 2026-11-10 during 018 T2 land).
+- GRAMMAR §15 `out` row says "mainly for C"; SPEC §10 modifier table says "C# compatibility" (review 78d3f0dfc020..b976a798, finding 3): decide which, from revision 0021 Part 2. Also revision 0021 Part 2.5 cites "GRAMMAR §6 source rows"; the rows are in §12 (finding 5, revision text left as written).

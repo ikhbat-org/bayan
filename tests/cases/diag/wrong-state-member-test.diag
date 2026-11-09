@@ -1,0 +1,13 @@
+error BYN7001: `ship` needs `order` to be `.paid`, but it is `Order`
+
+  14 │         return order.ship()
+     │                ^^^^^
+     │
+  help: `isPaid` doesn't narrow; write `if order is .paid`
+
+error BYN7001: `ship` needs `order` to be `.paid`, but it is `Order`
+
+  17 │         return order.ship()
+     │                ^^^^^
+     │
+  help: check the state with `is` or `switch` first
