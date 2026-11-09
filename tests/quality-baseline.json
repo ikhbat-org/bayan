@@ -36,6 +36,11 @@
       "coverage": 1.0,
       "branches": null
     },
+    "selfhost/driver/dist.byn": {
+      "mutation": null,
+      "coverage": 0.9923,
+      "branches": 0.973
+    },
     "selfhost/driver/doctor.byn": {
       "mutation": null,
       "coverage": 0.9667,
