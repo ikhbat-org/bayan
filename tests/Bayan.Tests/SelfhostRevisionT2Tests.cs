@@ -129,6 +129,183 @@ public sealed class SelfhostRevisionT2Tests
                 return 0
             }
             """),
+        ("receiver-and-conversions", """
+            struct Order {
+                i64 id
+                states {
+                    draft
+                    paid(i64 payment)
+                    shipped
+                }
+                i64 receipt(this is .paid) => id
+                i64 total(this is .draft) => receipt()
+                i64 plain() => receipt()
+            }
+
+            struct Other {
+                i64 n
+            }
+
+            i64 refund(Order.paid order) => order.id
+
+            i64 archive(Order order is .paid or .shipped) => order.id
+
+            i64 run(Order any, Order.paid sure, Other other) {
+                let a = refund(sure)
+                let b = refund(other)
+                let c = archive(any)
+                return a + b + c
+            }
+            """),
+        ("not-this-bodies", """
+            struct Gate {
+                i64 id
+                states {
+                    open
+                    shut
+                }
+                bool a => id is 5
+                bool b => this is not .open
+                bool c => this is Gate.open
+                bool d => this is var g
+                i64 go(this is .open) => 1
+            }
+
+            i64 run(Gate g) {
+                if g.a {
+                    return g.go()
+                }
+                if g.b {
+                    return g.go()
+                }
+                if g.c {
+                    return g.go()
+                }
+                if g.d {
+                    return g.go()
+                }
+                return 0
+            }
+            """),
+        ("panic-handler", """
+            void onCrash(Panic p) {
+                print(p.message, to: .stderr)
+            }
+
+            void main() {
+                Panic.handler = onCrash
+            }
+            """),
+        ("panic-on-panic", """
+            void onCrash(Panic p) {
+                print(p.message, to: .stderr)
+            }
+
+            void main() {
+                Panic.onPanic = onCrash
+            }
+            """),
+        ("guarded-statements", """
+            void main() {
+                let flag = true
+                print("a") if flag
+                print("b") unless flag
+            }
+            """),
+        ("defer-kinds", """
+            union error E {
+                bad
+            }
+
+            void f() fails E {
+                defer print("always")
+                defer failing print("failing")
+                defer panicking print("panicking")
+                fail .bad
+            }
+
+            void main() {
+                f() catch { print("caught") }
+            }
+            """),
+        ("statements", """
+            struct Order {
+                i64 id
+                states {
+                    draft
+                    paid(i64 payment)
+                }
+                void pay(ref this is .draft, i64 amount) becomes .paid {
+                    become .paid(amount)
+                }
+                i64 trackingNumber() {
+                    switch this {
+                        case .paid:
+                            return 1
+                        default:
+                            return -1
+                    }
+                }
+            }
+
+            struct Counter {
+                i64 n
+            }
+
+            i64? half(i64 n) => n % 2 == 0 ? n / 2 : null
+
+            void main() {
+                var n = 3
+                var o = Counter { n: 0 }
+                o.n = 1
+                n = 2
+                n += 1
+                n++
+                while n > 0 {
+                    n -= 1
+                    continue if n == 1
+                    break if n == 0
+                }
+                do {
+                    n += 1
+                } while n < 4
+                outer: for i in 0..4 {
+                    for j in 0..4 {
+                        continue outer if j > i
+                        break outer if i == 3
+                    }
+                }
+                var m = 40
+                while let h = half(m) {
+                    m = h
+                }
+                {
+                    n = 0
+                }
+                assert n == 0
+                using let arena = Arena()
+                provide allocator: arena {
+                    print("x")
+                }
+            }
+            """),
+        ("panic-lookalike", """
+            struct Wrap {
+                i64 handler
+            }
+
+            void main() {
+                var Panic = Wrap { handler: 0 }
+                Panic.handler = 1
+                var other = Wrap { handler: 0 }
+                other.handler = 2
+            }
+            """),
+        ("panic-other-member", """
+            void main() {
+                Panic.other = 1
+            }
+            """),
     ];
 
     public static TheoryData<string> Names() => new(Programs.Select(p => p.Name));
@@ -143,7 +320,9 @@ public sealed class SelfhostRevisionT2Tests
         var section = $"diags.{name}";
         var expected = Expected(Dir(name));
         var actual = new Dictionary<string, List<string>> { [section] = Sections.Value[section] };
-        SelfhostSemanticsHarness.AssertSection(actual, section, expected);
+        // A program with no diagnostic prints nothing on either side; it is here for the code it runs.
+        if (expected.Count == 0) Assert.Empty(actual[section]);
+        else SelfhostSemanticsHarness.AssertSection(actual, section, expected);
     }
 
     /// <summary>The program's directory under <c>tmp/revision-t2/</c>, written on each call (the same text each time).</summary>

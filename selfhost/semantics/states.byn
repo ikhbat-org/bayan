@@ -224,30 +224,26 @@ bool reportWrongState(ref Binder b, through ref Ctx c, for string callee, by BEx
     return true
 }
 
+/// The member of `.s`, or null for any other expression.
+TextSpan? targetMemberOf(parser.Expr e) {
+    if e is .targetMemberExpr(let t) { return t.value.member }
+    return null
+}
+
 /// The state a property body `this is .s` tests, or null for any other body: a constant pattern, or a variant pattern without payload or binding.
 TextSpan? testedState(parser.Expr body) {
     switch body {
         case .isExpr(let x):
-            switch x.value.value {
-                case .thisExpr(_): {}
-                default: return null
-            }
+            if !(x.value.value is .thisExpr(_)) { return null }
             switch x.value.pattern {
-                case .constantPattern(let k):
-                    switch k.value.value {
-                        case .targetMemberExpr(let t): return t.value.member
-                        default: return null
-                    }
+                case .constantPattern(let k): return targetMemberOf(k.value.value)
                 case .variantPattern(let v):
-                    if v.value.elements.length != 0 || v.value.binding is not null { return null }
-                    switch v.value.variant {
-                        case .targetMemberExpr(let t): return t.value.member
-                        default: return null
-                    }
-                default: return null
+                    if v.value.elements.length == 0 && v.value.binding is null { return targetMemberOf(v.value.variant) }
+                default: {}
             }
-        default: return null
+        default: {}
     }
+    return null
 }
 
 /// C# `StateTestHelp` (BinderStates.cs:117). Revision 0021 Part 5: inside `if x.p { … }`, when property `p` is exactly
@@ -255,8 +251,8 @@ TextSpan? testedState(parser.Expr body) {
 string? stateTestHelp(ref Binder b, through ref Ctx c, for string value, as Type wanted) {
     let s = c.stateTypes[typeIndex(wanted)].s
     for k in 0..b.thenOf.length {
-        if !b.thenOf[k].isMember || t9Text(ref c, for: b.file, at: b.thenOf[k].target) != value { continue }
-        let memberName = t9Text(ref c, for: b.file, at: b.thenOf[k].member)
+        if !b.thenOf[k].item1 || t9Text(ref c, for: b.file, at: b.thenOf[k].item2) != value { continue }
+        let memberName = t9Text(ref c, for: b.file, at: b.thenOf[k].item3)
         let p = findProperty(ref c, by: s, for: memberName)
         if p == -1 { continue }
         var tested: TextSpan? = null

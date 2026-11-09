@@ -238,10 +238,10 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
             return bindContinue(ref b, through: ref c, for: in cont.value)
         case .ifStmt(let i):
             let cond = bindCondition(ref b, through: ref c, for: in i.value.condition)
-            var thenCond = ThenCond {}
+            var thenCond = (false, TextSpan { start: 0, length: 0 }, TextSpan { start: 0, length: 0 })
             switch i.value.condition {
                 case .memberExpr(let me):
-                    thenCond = ThenCond { isMember: true, target: parser.exprSpan(me.value.target), member: me.value.member }
+                    thenCond = (true, parser.exprSpan(me.value.target), me.value.member)
                 default: {}
             }
             b.thenOf.append(thenCond)

@@ -624,14 +624,6 @@ CalleeOf calleeOfCall(parser.CallExpr call) {
     return r
 }
 
-/// An entry of the C# `_thenOf` (BinderStates.cs:97): the `if` whose condition `stateTestHelp` reads. A parser node is
-/// unique, so the binder keeps the condition's spans instead; `isMember` is false for any other condition.
-public struct ThenCond {
-    public bool isMember = false
-    public TextSpan target = TextSpan { start: 0, length: 0 }
-    public TextSpan member = TextSpan { start: 0, length: 0 }
-}
-
 /// C# `_covered` entry (BinderCalls.cs:14), as what ReportUnhandled (BinderCalls.cs:944) reads (Q731).
 public struct CoveredCall {
     public TextSpan span
@@ -725,7 +717,8 @@ public struct Binder {
     // ── T38 state
     // ── T39 state
     // ── T40 state
-    // ── 018 T2: revision 0021 help
+    // ── T2 state (spec 018, revision 0021 help)
     /// The C# `_thenOf` (BinderStates.cs:97): the `if` statements whose then-branch is being bound, innermost last; `stateTestHelp` reads them.
-    public List<ThenCond> thenOf = []
+    /// A parser node is unique, so each entry is (the condition is a member access, its target span, its member span); spans are zero-length otherwise.
+    public List<(bool, TextSpan, TextSpan)> thenOf = []
 }
