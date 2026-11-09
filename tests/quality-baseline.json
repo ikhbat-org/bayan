@@ -8,8 +8,8 @@
     },
     "selfhost/driver/build.byn": {
       "mutation": null,
-      "coverage": 0.962,
-      "branches": 0.9868
+      "coverage": 0.9809,
+      "branches": 0.9932
     },
     "selfhost/driver/cache.byn": {
       "mutation": null,
