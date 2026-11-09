@@ -269,7 +269,7 @@ void t10BindStyle(ref Manifest m, from in T10Reader r, at i64 style) {
     }
 }
 
-/// The `grammar` part of Manifest.cs:96 `Bind`.
+/// The `grammar` part of Manifest.cs:114 `Bind`.
 void t10BindGrammar(ref Manifest m, from in T10Reader r, at i64 grammar) {
     if r.values[grammar].kind != .objectValue || r.values[grammar].text != "Grammar" {
         t10Invalid(ref m, from: in r, at: grammar, for: "grammar", as: "a `Grammar { … }`")
@@ -295,7 +295,7 @@ void t10BindGrammar(ref Manifest m, from in T10Reader r, at i64 grammar) {
     }
 }
 
-/// One of `verbs`, `nouns`, `adjectives`, `collectives` in Manifest.cs:176: the words join the set, duplicates once.
+/// One of `verbs`, `nouns`, `adjectives`, `collectives` in Manifest.cs:214 `Grammar.Collectives`: the words join the set, duplicates once.
 void t10BindWords(ref Manifest m, from in T10Reader r, for in Map<string, i64> fields, by string field) {
     unless fields.contains(field) { return }
     let list = fields[field]
@@ -312,36 +312,6 @@ void t10BindWords(ref Manifest m, from in T10Reader r, for in Map<string, i64> f
             default: t10AddWord(ref m.grammar.collectives, by: word)
         }
     }
-}
-
-/// Ports `Manifest.CheckOverlap`: a word in two classes is an error, except a verb that is also a noun; the
-/// words compare in lowercase and a word repeated within one list is no overlap.
-void t10CheckOverlap(ref Manifest m, from T10Reader r, for Map<string, i64> fields) {
-    var seen: Map<string, string> = []
-    let classes: List<string> = ["verbs", "nouns", "adjectives", "collectives"]
-    for field in classes {
-        unless fields.contains(field) { continue }
-        let list = fields[field]
-        if r.values[list].kind != .listValue { continue }
-        for item in r.values[list].items {
-            if r.values[item].kind != .stringValue { continue }
-            let word = lowerAscii(r.values[item].text)
-            if seen.contains(word) && seen[word] != field && !(seen[word] == "verbs" && field == "nouns") {
-                let other = seen[word]
-                t10Invalid(ref m, from: in r, at: item, for: $"grammar.{field}", as: $"free of `{r.values[item].text}`, which `grammar.{other}` lists; only a verb that is also a noun may be in two lists")
-            } else if !seen.contains(word) {
-                seen[word] = field
-            }
-        }
-    }
-}
-
-/// `HashSet.Add`: `word` joins `words` unless it is there.
-void t10AddWord(ref List<string> words, by string word) {
-    for w in words {
-        if w == word { return }
-    }
-    words.append(word)
 }
 
 /// The `dist` part of Manifest.cs:96 `Bind`.
@@ -420,6 +390,36 @@ string? t10Text(ref Manifest m, from in T10Reader r, at i64 value, for string fi
     if r.values[value].kind == .stringValue { return r.values[value].text }
     t10Invalid(ref m, from: in r, at: value, for: field, as: expected)
     return null
+}
+
+/// Manifest.cs:291 `CheckOverlap`: a word in two classes is an error, except a verb that is also a noun; the
+/// words compare in lowercase and a word repeated within one list is no overlap.
+void t10CheckOverlap(ref Manifest m, from T10Reader r, for Map<string, i64> fields) {
+    var seen: Map<string, string> = []
+    let classes: List<string> = ["verbs", "nouns", "adjectives", "collectives"]
+    for field in classes {
+        unless fields.contains(field) { continue }
+        let list = fields[field]
+        if r.values[list].kind != .listValue { continue }
+        for item in r.values[list].items {
+            if r.values[item].kind != .stringValue { continue }
+            let word = lowerAscii(r.values[item].text)
+            if seen.contains(word) && seen[word] != field && !(seen[word] == "verbs" && field == "nouns") {
+                let other = seen[word]
+                t10Invalid(ref m, from: in r, at: item, for: $"grammar.{field}", as: $"free of `{r.values[item].text}`, which `grammar.{other}` lists; only a verb that is also a noun may be in two lists")
+            } else if !seen.contains(word) {
+                seen[word] = field
+            }
+        }
+    }
+}
+
+/// `HashSet.Add`: `word` joins `words` unless it is there.
+void t10AddWord(ref List<string> words, by string word) {
+    for w in words {
+        if w == word { return }
+    }
+    words.append(word)
 }
 
 /// Manifest.cs:243 `Invalid`: BYN3102 at the value.
