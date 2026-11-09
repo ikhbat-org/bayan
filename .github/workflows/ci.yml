@@ -49,9 +49,12 @@ jobs:
           bash scripts/ci/known-failures.test.sh
           bash scripts/release/package.test.sh
           bash scripts/release/memory-gate.test.sh
+          bash scripts/parity/run.test.sh
+      - name: Docs and release script tests
+        if: runner.os == 'Linux'
+        run: |
           bash scripts/release/set-version.test.sh
           bash scripts/release/cut.test.sh
-          bash scripts/parity/run.test.sh
           for f in scripts/docs/*.test.sh; do bash "$f"; done
           bash scripts/docs/check.sh
       - name: Test
