@@ -647,4 +647,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - review 8d5e5c71..ce5d3cb3: `scripts/release/set-version.sh:31` rewrites every `^Version: … (matches` line while `scripts/docs/check.sh:31` reads the first 10.
 - review 8d5e5c71..ce5d3cb3: `scripts/release/cut.sh:24-34` leaves a half-bumped tree when a generator fails.
 - review 8d5e5c71..ce5d3cb3: the docs generators are unverified under mawk (ubuntu CI is the first run).
-- rev 0021: `docs/diagnostics/BYN2225.md` and `selfhost/driver/diagdocs.byn:152` still show `formatInto(ref StrBuf out)`; rename to `buffer` (the page is generated into diagdocs.byn).
+- rev 0021: `docs/diagnostics/BYN2225.md` and `selfhost/driver/diagdocs.byn:152`, and `docs/bayan-library-tiers.md:73`, still show `formatInto(ref StrBuf out)`; rename to `buffer` (the page is generated into diagdocs.byn).
