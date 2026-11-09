@@ -20,6 +20,9 @@ public sealed class SelfhostRevisionT2Tests
             bool isPaid => this is .paid
             bool isDraft => this is .draft
             bool isBig => id > 10
+            bool isPaidEmpty => this is .paid()
+            bool isPaidBound => this is .paid p
+            bool ready
             i64 ship(this is .paid) => id
         }
 
@@ -68,6 +71,59 @@ public sealed class SelfhostRevisionT2Tests
         ("unless", Order + """
             i64 run(Order order) {
                 unless order.isPaid {
+                    return order.ship()
+                }
+                return 0
+            }
+            """),
+        ("variant-no-payload", Order + """
+            i64 run(Order order) {
+                if order.isPaidEmpty {
+                    return order.ship()
+                }
+                return 0
+            }
+            """),
+        ("variant-binding", Order + """
+            i64 run(Order order) {
+                if order.isPaidBound {
+                    return order.ship()
+                }
+                return 0
+            }
+            """),
+        ("bool-field", Order + """
+            i64 run(Order order) {
+                if order.ready {
+                    return order.ship()
+                }
+                return 0
+            }
+            """),
+        ("non-member", Order + """
+            i64 run(Order order, bool flag) {
+                if flag {
+                    return order.ship()
+                }
+                return 0
+            }
+            """),
+        ("interface-default", """
+            interface Gate {
+                bool isPaid => this is .paid
+            }
+
+            struct Order : Gate {
+                i64 id
+                states {
+                    draft
+                    paid(i64 payment)
+                }
+                i64 ship(this is .paid) => id
+            }
+
+            i64 run(Order order) {
+                if order.isPaid {
                     return order.ship()
                 }
                 return 0

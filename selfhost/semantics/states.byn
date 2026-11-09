@@ -225,7 +225,7 @@ bool reportWrongState(ref Binder b, through ref Ctx c, for string callee, by BEx
 }
 
 /// The state a property body `this is .s` tests, or null for any other body: a constant pattern, or a variant pattern without payload or binding.
-TextSpan? t22TestedState(parser.Expr body) {
+TextSpan? testedState(parser.Expr body) {
     switch body {
         case .isExpr(let x):
             switch x.value.value {
@@ -263,7 +263,12 @@ string? stateTestHelp(ref Binder b, through ref Ctx c, for string value, as Type
         switch c.files[c.properties[p].file].unit.members[c.properties[p].declIndex] {
             case .structDecl(let n):
                 switch n.value.members[c.properties[p].memberIndex] {
-                    case .propertyDecl(let d): tested = t22TestedState(d.value.body)
+                    case .propertyDecl(let d): tested = testedState(d.value.body)
+                    default: {}
+                }
+            case .interfaceDecl(let n):
+                switch n.value.members[c.properties[p].memberIndex] {
+                    case .propertyDecl(let d): tested = testedState(d.value.body)
                     default: {}
                 }
             default: {}
