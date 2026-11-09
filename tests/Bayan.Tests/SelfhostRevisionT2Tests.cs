@@ -119,7 +119,7 @@ public sealed class SelfhostRevisionT2Tests
         import lexer
         import parser
 
-        string t2At(in Ctx c, for FileId file, at i64 offset) {
+        string t2At(Ctx c, for FileId file, at i64 offset) {
             if file < 0 { return "?" }
             let p = linePosition(c.files[file].text.span, at: offset)
             return $"{p.line}:{p.column}"
@@ -133,13 +133,13 @@ public sealed class SelfhostRevisionT2Tests
                 var sources = List<lexer.SourceText>()
                 sources.append(lexer.SourceText.create("main.byn", from: t11ReadAllBytes($"{dir}/main.byn")))
                 let options = CompilationOptions { includeTests: false, library: false, skipOwnershipCheck: false, capabilities: null, packageName: null }
-                var c = create(from: move sources, at: dir, by: in options)
+                var c = create(from: move sources, at: dir, by: options)
                 print($"== diags.{name}")
                 for d in c.diagnostics {
-                    print($"{d.code} {t2At(in c, for: d.file, at: d.span.start)} {d.message}")
+                    print($"{d.code} {t2At(c, for: d.file, at: d.span.start)} {d.message}")
                     if d.label.length > 0 { print($"  label {d.label}") }
                     if d.help.length > 0 { print($"  help {d.help}") }
-                    if d.hasFix { print($"  fix {t2At(in c, for: d.file, at: d.fixSpan.start)}-{t2At(in c, for: d.file, at: d.fixSpan.end)} {d.fixReplacement}") }
+                    if d.hasFix { print($"  fix {t2At(c, for: d.file, at: d.fixSpan.start)}-{t2At(c, for: d.file, at: d.fixSpan.end)} {d.fixReplacement}") }
                 }
                 i += 2
             }

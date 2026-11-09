@@ -241,7 +241,7 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
             var thenCond = ThenCond {}
             switch i.value.condition {
                 case .memberExpr(let me):
-                    thenCond = ThenCond { isMember: true, target: parser.exprSpan(in me.value.target), member: me.value.member }
+                    thenCond = ThenCond { isMember: true, target: parser.exprSpan(me.value.target), member: me.value.member }
                 default: {}
             }
             b.thenOf.append(thenCond)
