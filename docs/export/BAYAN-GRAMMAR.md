@@ -1,6 +1,9 @@
 Commit 8d5e5c71, 2026-11-09. GRAMMAR (`docs/bayan-grammar.md`) followed by STYLE (`docs/bayan-style.md`) as Part 2, revisions 0001-0019 applied; changed rules are tagged (rev NNNN). Diagnostic page links point at `docs/diagnostics/`.
 
-# Bayān grammar guide and style guide (rev 0016)
+# Bayān grammar guide and style guide
+
+Version: 0.2.0 (matches `bayan --version`)
+Revisions applied: 0001–0020
 
 How to name things the way the standard library does. This is the developer-facing companion to [SPEC §5](BAYAN-SPEC.md) (naming and morphology). SPEC §5.2 holds the full pattern table and contracts; this guide tells you which pattern to pick.
 
@@ -425,7 +428,7 @@ The built-in checker (`BYN5xxx`) runs on the members of every struct. Errors (`B
 
 # Part 2: Bayān style guide
 
-*Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.* (rev 0016)
+*Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.* (revision 0016)
 
 Style is guidance: never compiler-enforced, configurable per project, applied by `bayan format`. Grammar rules ([GRAMMAR](#bayan-grammar-guide-and-style-guide)) are not style and cannot be configured away.
 

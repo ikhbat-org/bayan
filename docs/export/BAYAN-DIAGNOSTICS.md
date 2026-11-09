@@ -377,7 +377,7 @@ Evidence for live is the first file that uses the descriptor plus the number of 
 | BYN8003 | SinkNeedsType | `{0}` takes `{1}`, not `string` | Error | plan round-3; docs/bayan-spec.md:1678 |
 | BYN8005 | SqlArgumentCount | `sql"…"` has {0} placeholders but {1} arguments follow it | Error | plan round-3 J40; docs/suq-round3-review-response.md:92 (reserved) |
 
-Revision 0005 counts 12 SPEC allocations that no v0.1 compiler step raises; this table lists the 10 that could be found by grep. The other 2 are unverified.
+Revision 0005's spec-only row names 11 codes after BYN1055 left it (revision 0012; `docs/plans/2026-10-22-002-design-round-3.md:467`): BYN3203, BYN3205, BYN3210, BYN3211, BYN5010, BYN8002, BYN8003 and BYN8005 are plan rows in this table; BYN3213 and BYN3215 are reserved descriptors in `DiagnosticCodes.cs` (:314, :317); BYN8004 is in the Reserved table below. None is missing (rev 0020).
 
 ### Reserved
 
@@ -409,7 +409,7 @@ Grep of `BYN[0-9]{4}` over the whole tree (`docs/`, `src/`, `selfhost/`, `tests/
 | BYN2817 | docs/specs/007-lambdas/007-plan.md | "unused" (BYN2817-2819 were skipped) |
 | BYN3405 | docs/bayan-handoff-addendum-002.md:154; docs/bayan-design-round-4-inventory.md:68 | parallel-closure example; inventory says it "needs a renumbered code" |
 | BYN5012 | docs/bayan-design-round-3-addendum-1.md; docs/bayan-design-round-3.md; docs/plans/2026-10-22-002-design-round-3.md | `@allow(BYN5012)` example; plan says "skipped" |
-| BYN5100 | docs/bayan-design-round-4-draft.md:269; docs/bayan-design-round-4-inventory.md (2) | "Naming rules BYN5100/5101", a v0.2 proposal; no name or message. BYN5101 is the existing `NounOnMutator` lint |
+| BYN5100 | docs/bayan-design-round-4-draft.md:269; docs/bayan-design-round-4-inventory.md (2) | "Naming rules BYN5100/5101", a v0.2 proposal; no name or message, so BYN5100 is unallocated. BYN5101 is the existing `NounOnMutator` lint |
 | BYN1237 | work/todo.md:154 | wrong number for `NoTargetType`, which is BYN2218 (`DiagnosticCodes.cs:175`) |
 
 The 10 plan codes above are also cited without a descriptor; they are allocated, so they are not listed here.

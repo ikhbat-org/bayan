@@ -1,5 +1,8 @@
 # Bayān grammar guide
 
+Version: 0.2.0 (matches `bayan --version`)
+Revisions applied: 0001–0020
+
 How to name things the way the standard library does. This is the developer-facing companion to [SPEC §5](bayan-spec.md) (naming and morphology). SPEC §5.2 holds the full pattern table and contracts; this guide tells you which pattern to pick.
 
 Grammar rules are not style (see [STYLE](bayan-style.md)): they cannot be configured away. Compiler errors enforce pattern contracts; lints enforce word-class heuristics and never block builds (`BYN5xxx`, SPEC §5.2; §13 below).
@@ -29,7 +32,7 @@ Composition order: `[try] verb [Into] [Op]`: `tryFormatInto`, `parseOp`. Other r
 Further rules that sit beside the tree:
 - **Nouns with no arguments are properties** (`xs.span`, `order.total`), not calls. The exception is a noun member that needs `ref this`: it is a call (`xs.mutableSpan()`), because mutable access must be visible at the call site.
 - **No instance `toX` or `asX` members.** `to` and `as` are particles, and such a member spells a conversion that already has a form: a view is a noun (`xs.span`), an owned copy is `xs.copy()`, a conversion is `T(x)` (`List(seq)`, `string(x)`). Static `fromX` factories stay (`T.fromJson(…)`, `fromBounds(start, until:)`): a factory names the source a `T` is built from. Enforced by [BYN5009](diagnostics/BYN5009.md).
-- **A stored function field is a role noun** (`handler`, `pricer`, `formatter`), never `onX`. Events are past participles or adjectives (`placed`, `low`); there is no `on` prefix. Particle words (`at`, `by`, `from`) are not member names (`tryGet(at:)`, not `at(…)`). Enforced by [BYN5009](diagnostics/BYN5009.md) and [BYN5010](diagnostics/BYN5010.md).
+- **A stored function field is a role noun** (`handler`, `pricer`, `formatter`), never `onX`. Events are past participles or adjectives (`placed`, `low`); there is no `on` prefix. Particle words (`at`, `by`, `from`) are not member names (`tryGet(at:)`, not `at(…)`). Enforced by [BYN5009](diagnostics/BYN5009.md); BYN5010 is plan (no descriptor, no page): nothing rejects an `onX` name yet.
 - **A static factory that names its result is a noun or adjective** (`Money.zero(c)`, `Outbox.empty()`), not a verb: it names the value built, not an act on `this`. No checker rejects a verb here yet; [BYN5101](diagnostics/BYN5101.md) looks only at `ref this` members.
 - **`Untrusted<T>` is a status,** the same value with a different standing (`X<T>`, §10), not a different shape.
 - **Math vocabulary is exempt** from the `-ed` rule (`abs`, `sqrt`, `floor`, `ceiling`, `pow`, `rounded`): scalars have nouns and `-ed` copies only. Tool names are full words too (`bayan format`, not `fmt`).
@@ -58,7 +61,7 @@ Enforced by:
 - `errdefer` is an input form for `defer failing`: [BYN1020](diagnostics/BYN1020.md).
 - `defer failing` in a function that cannot fail: [BYN2606](diagnostics/BYN2606.md).
 - `try` in a `defer` body: [BYN2601](diagnostics/BYN2601.md).
-- Panic handler restrictions: [BYN2612](diagnostics/BYN2612.md) (statement not allowed), [BYN2613](diagnostics/BYN2613.md) (reads only `let` bindings and parameters), [BYN2614](diagnostics/BYN2614.md) (`Panic.handler` placement). The process-wide hook is a role noun, `Panic.handler`, of type `Panic -> void uses console`; it replaces `Panic.onPanic` ([BYN2230](diagnostics/BYN2230.md), [BYN5010](diagnostics/BYN5010.md)).
+- Panic handler restrictions: [BYN2612](diagnostics/BYN2612.md) (statement not allowed), [BYN2613](diagnostics/BYN2613.md) (reads only `let` bindings and parameters), [BYN2614](diagnostics/BYN2614.md) (`Panic.handler` placement). The process-wide hook is a role noun, `Panic.handler`, of type `Panic -> void uses console`; it replaces `Panic.onPanic` ([BYN2230](diagnostics/BYN2230.md); BYN5010, plan).
 
 The shape itself (head verb, then participle) has no checker code; new modifiers are reviewed against it.
 
@@ -413,7 +416,7 @@ The built-in checker (`BYN5xxx`) runs on the members of every struct. Errors (`B
 | [BYN5004](diagnostics/BYN5004.md), [BYN5005](diagnostics/BYN5005.md), [BYN5006](diagnostics/BYN5006.md) | Particles (§8) | Parameter lists and call sites; `rest` tails, `@positional` constructors, `extern`, operators and payloads are exempt. |
 | [BYN5007](diagnostics/BYN5007.md) | A level is not the act (§10) | `Log.{level}` member access. |
 | [BYN5009](diagnostics/BYN5009.md) | A particle word is not a member name, and no instance member spells a conversion with `to` or `as` (§1) | Member names equal to a particle (`at`, `by`, `from`), and instance members named `toX` or `asX` (`toList`, `asSpan`); static `fromX` factories are not checked. |
-| [BYN5010](diagnostics/BYN5010.md) | An event or stored function field has no `on` prefix (§1) | Fields of type `Event<T>` or a function type whose name starts with `on` and a capital. |
+| BYN5010 (plan) | An event or stored function field has no `on` prefix (§1) | Fields of type `Event<T>` or a function type whose name starts with `on` and a capital. |
 | [BYN5013](diagnostics/BYN5013.md) | A particle appears at most once per signature (§8) | The particle labels of one parameter list. |
 | [BYN5014](diagnostics/BYN5014.md) (warning, fix-it) | Every word of a member name is a known verb or noun (§7) | Each word against the built-in word list and `grammar` in `package.byn`. |
 | [BYN5101](diagnostics/BYN5101.md) (lint) | A `ref this` member is named with a verb (tree 1) | The first word of the name against a built-in noun list: `size`, `length`, `total`, `sum`, `value`, `values`, `data`, `item`, `items`, `element`, `elements`, `result`, `results`, `name`, `id`, `state`, `status`, `info`, `content`, `contents`, `capacity`, `amount`, `number`, `key`, `keys`, `entry`, `entries`, `node`, `nodes`. |

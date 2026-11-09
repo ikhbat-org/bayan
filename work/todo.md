@@ -151,7 +151,7 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - `ref this` on a constructor falls through to the `ref` modifier with type `this` instead of a targeted error (round 2 §9).
 - Postfix `break if (x);` parentheses are not reported as an input form; BYN1030 omits `sbyte`, `ushort`, `nint`, `nuint`; `RecoverIfNeeded` can resync into follow-on errors after an input-form error; the dangling-`else` case of BYN1017 is unchecked (round 2 §15).
 - The binder keeps `c.Binding` / `IsCatch` paths for `catch (e)` that only erroneous input reaches now (round 2 §15).
-- No golden covers the BYN1237 `NoTargetType` help (round 2 §15).
+- No golden covers the BYN2218 `NoTargetType` help (round 2 §15).
 - `tests/cases/run/condition-cast.byn` line 10 prints "parenthesized if" but is now `if flag { … }`; only the cast lines cover paren-vs-cast (round 2 §15).
 - Scaffold templates and `tests/cases/new/*.tree` still use `assert(...)`; move to `assert x;` (round 2 §16).
 - Power-assert: string values print unquoted; column math ignores tabs and wide characters; guarded pieces emit one `if` each, so C size grows with the square of the lazy-column count (round 2 §16).
