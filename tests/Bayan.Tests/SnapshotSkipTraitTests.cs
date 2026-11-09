@@ -17,4 +17,25 @@ public sealed class SnapshotSkipTraitTests
             .Select(a => (Name: a.ConstructorArguments[0].Value as string, Value: a.ConstructorArguments[1].Value as string));
         Assert.Contains(("Snapshot", "skip"), traits);
     }
+
+    /// <summary>
+    /// Single tests that cannot record: <c>format</c> rewrites its input in place, so two recorded runs differ; <c>--time</c>
+    /// prints timings; a 1 ms bound is skipped under a snapshot, so no kill is seen. Each failed every emitter or driver
+    /// file of the 2026-11-09 nightly at recording.
+    /// </summary>
+    public static TheoryData<Type, string> UnreplayableMethods => new()
+    {
+        { typeof(SelfhostDriverT1Tests), nameof(SelfhostDriverT1Tests.FormatAsCliApp) },
+        { typeof(SelfhostEmitterSpeedTests), nameof(SelfhostEmitterSpeedTests.OneMegabyteLowerAndEmitWithinTenTimes) },
+        { typeof(SelfhostEmitterNoPanicLawTests), nameof(SelfhostEmitterNoPanicLawTests.ARunPastItsBoundIsKilledAndNamed) },
+    };
+
+    [Theory]
+    [MemberData(nameof(UnreplayableMethods))]
+    public void MethodIsSkippedBySnapshotRecording(Type type, string method)
+    {
+        var traits = type.GetMethod(method)!.GetCustomAttributesData().Where(a => a.AttributeType == typeof(TraitAttribute))
+            .Select(a => (Name: a.ConstructorArguments[0].Value as string, Value: a.ConstructorArguments[1].Value as string));
+        Assert.Contains(("Snapshot", "skip"), traits);
+    }
 }
