@@ -74,7 +74,7 @@ or by luck; LOW = small or one-shot. Source reports: `tmp/leak-audit/*.out` (scr
 | Sev | Leak | Status |
 |---|---|---|
 | HIGH | `General` allocator never frees (Q31); selfhost stage1 reached 2.4 GB | open: decision (arenas per phase, or a freeing General) |
-| MEDIUM | 012 driver `.bayan-staging-*` left beside output; dSYM, non-recursive remove | open: 012 flow |
+| MEDIUM | 012 driver `.bayan-staging-*` left beside output; dSYM, non-recursive remove | fixed, 017 T9: the driver stages under the cache's `v1/tmp/` and `sweepStale` removes what a dead build left |
 | MEDIUM | `Io.run` buffers child output whole, then copies (2× peak) | open: 012 flow |
 | MEDIUM | `StrBuf` growth abandons old blocks (Q745 by design); ~2× under `General` | follows the allocator decision |
 | MEDIUM | `Symbol` intern table never shrinks (spec 008 R10, by design) | accepted |
