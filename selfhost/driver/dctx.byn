@@ -34,7 +34,7 @@ public struct DCtx {
     // ── T8 state
     /// `Format.MaxPasses` (Format.cs:36): the passes `formatFile` makes before it gives up.
     i64 maxPasses = 10
-    // ── 017 T9 state
+    // ── T9 state
     /// `s_swept` (Toolchain.cs:404): `SweepOnce` has swept.
     bool swept = false
     /// The names made so far for `Guid.NewGuid`, which has no builtin (cache.byn `t9Unique`, Q1149).
