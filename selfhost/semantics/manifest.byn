@@ -35,12 +35,12 @@ struct Grammar {
 // The C# `Manifest`; `capabilities` is null when the package lists none.
 public struct Manifest {
     string name = ""
-    string version = ""
+    public string version = ""
     i64 edition = 2027
     PackageKind kind = .app
     List<string>? capabilities = null
-    List<string> distTargets = []
-    string distMode = "safe"
+    public List<string> distTargets = []
+    public string distMode = "safe"
     public BooleanStyle booleans = .symbols
     public PrimitiveStyle primitives = .sized
     Grammar grammar = Grammar {}
@@ -549,7 +549,7 @@ bool t10IsPackageName(string text) {
 
 /// Manifest.cs:292 `IsSemanticVersion`: `MAJOR.MINOR.PATCH`, each 1–18 digits without a leading zero,
 /// then optional `-pre` and `+build` dot-separated identifiers of `[0-9A-Za-z-]`.
-bool t10IsSemanticVersion(string text) {
+public bool t10IsSemanticVersion(string text) {
     let t = text.bytes
     let plus = t10IndexOf(t, for: 0x2B)
     let main = plus < 0 ? t : t[0..plus]
@@ -571,6 +571,64 @@ bool t10IsSemanticVersion(string text) {
         start = i + 1
     }
     return parts == 3
+}
+
+/// The numeric core and the prerelease of a version, as `SplitVersion` returns them.
+struct VersionParts {
+    List<i64> core
+    string? pre
+}
+
+/// Manifest.cs:368 `SplitVersion`: the three numbers of `v` and its prerelease (null without one); the build metadata after `+` is dropped.
+/// `v` is a valid semantic version (each number 1-18 digits), so a number fits `i64`.
+VersionParts splitVersion(string v) uses alloc {
+    let t = v.bytes
+    let plus = t10IndexOf(t, for: 0x2B)
+    let main = plus < 0 ? t : t[0..plus]
+    let dash = t10IndexOf(main, for: 0x2D)
+    let core = dash < 0 ? main : main[0..dash]
+    var numbers = List<i64>()
+    var value: i64 = 0
+    for i in 0..core.length + 1 {
+        if i < core.length && core[i] != 0x2E {
+            value = value * 10 + (i64(core[i]) - 0x30)
+            continue
+        }
+        numbers.append(value)
+        value = 0
+    }
+    var pre: string? = null
+    if dash >= 0 {
+        var sb = StrBuf()
+        appendUtf8(main[dash + 1..main.length], to: ref sb)
+        pre = $"{sb.finish()}"
+    }
+    return VersionParts { core: move numbers, pre: pre }
+}
+
+/// Manifest.cs:355 `CompareVersions`: the numeric core, then a release above its prereleases, then the prerelease text ordinally;
+/// negative, zero or positive. Both are valid semantic versions.
+public i64 compareVersions(string a, to string b) uses alloc {
+    let pa = splitVersion(a)
+    let pb = splitVersion(b)
+    for i in 0..3 {
+        if pa.core[i] != pb.core[i] { return pa.core[i] < pb.core[i] ? -1 : 1 }
+    }
+    if (pa.pre is { } x) {
+        // A prerelease is below a release.
+        let y = pb.pre ?? return -1
+        let u = x.bytes
+        let w = y.bytes
+        var k: i64 = 0
+        while k < u.length && k < w.length {
+            // coverage-exempt: Q1152 the only caller visits names in `Io.listDir` order (ordinal), so a name never sorts below the best so far inside a prerelease
+            if u[k] != w[k] { return u[k] < w[k] ? -1 : 1 }
+            k += 1
+        }
+        return u.length - w.length
+    }
+    // coverage-exempt: Q1152 a release sorts before its prereleases, so `a` is never a release against a prerelease `b` (see above)
+    return pb.pre is null ? 0 : 1
 }
 
 /// The local `Identifiers` of Manifest.cs:301: non-empty dot-separated runs of `[0-9A-Za-z-]`.

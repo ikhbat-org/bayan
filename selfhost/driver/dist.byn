@@ -1,0 +1,331 @@
+// The command `dist` of the self-hosted driver (spec 017 T12). Ports `Dist.cs` :18 `Run`, :110 `ResolveTargets`, :135 `ReadSource`, :147
+// `InputsHash`, :164 `BuildInfo`, :196 `RefreshLatest` and :214 `CopyDirectory`. `clean` is cache.byn `cleanCommand` (spec 017 T3). An IO
+// failure the C# lets escape (an unhandled exception) panics here (Q1151).
+
+import semantics
+
+/// Dist.cs:132 `SourceState`: the commit (null without one) and dirtiness of the work tree.
+struct DistSource {
+    string? commit
+    bool dirty
+}
+
+/// Scaffold.cs:171 `Git` with any number of arguments (scaffold.byn `scaffoldGit` takes two): `git -C <dir>` stands for
+/// `WorkingDirectory = dir` (Q1009); stdout trimmed.
+ScaffoldGitResult distGit(string git, at string dir, by in List<string> args) uses alloc, process {
+    var all = List<string>()
+    all.append("-C")
+    all.append(dir)
+    for a in args { all.append(a) }
+    // coverage-exempt: Q1151 the catch is reached only if the `git` that was just found cannot start; the C# `Process.Start` throws there (Scaffold.cs:177)
+    let r = Io.run(git, all.span) catch { panic($"cannot run {git}") }
+    return ScaffoldGitResult { code: r.exitCode, stdout: r.stdout.trimmed() }
+}
+
+/// Dist.cs:18 `Run`. `kept` is the command and its arguments.
+i32 distCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process {
+    var path: string? = null
+    var targetArg: string? = null
+    var modeArg: string? = null
+    var force = false
+    var allowDirty = false
+    var json = false
+    let args = t2Rest(kept)
+    var i: i64 = 0
+    while i < args.length {
+        let a = args[i]
+        if a == "--target" && i + 1 < args.length {
+            i += 1
+            targetArg = args[i]
+        } else if a == "--mode" && i + 1 < args.length {
+            i += 1
+            modeArg = args[i]
+        } else if a == "--force" {
+            force = true
+        } else if a == "--allow-dirty" {
+            allowDirty = true
+        } else if a == "--diagnostics" && i + 1 < args.length && (args[i + 1] == "json" || args[i + 1] == "text") {
+            i += 1
+            json = args[i] == "json"
+        } else if a.startsWith("-") || path is not null {
+            Io.stderr.write($"bayan: unexpected argument `{a}`\n")
+            Io.stderr.write("usage: bayan dist [<dir>] [--target <t>|all] [--mode debug|safe|fast] [--force] [--allow-dirty]\n")
+            return exitUsage
+        } else {
+            path = a
+        }
+        i += 1
+    }
+    let dir = path ?? "."
+    unless t1FileExists(Path.combine(dir, "package.byn")) {
+        Io.stderr.write($"bayan: `{dir}` isn't a project (no `package.byn`); scripts and loose files have no dist\n")
+        return exitUsage
+    }
+    var mode = modeArg ?? "safe"
+    if mode != "debug" && mode != "safe" && mode != "fast" {
+        Io.stderr.write($"bayan: unknown mode `{mode}` (expected debug, safe or fast)\n")
+        return exitUsage
+    }
+
+    let o = T5Options { path: dir, mode: mode, json: json }
+    let symbols = t19Symbols(in d.styleErr)
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
+    unless ok { return exitFailure }
+    if compiled.library {
+        Io.stderr.write($"bayan: `{compiled.packageName}` is a library; library distribution arrives later, with FFI export\n")
+        return exitUsage
+    }
+    var version = ""
+    var distTargets = List<string>()
+    // coverage-exempt: Q1151 a project has a manifest (`package.byn` exists, checked above); the C# `compiled.Manifest!` (Dist.cs:55) has no null branch
+    if (compiled.manifest is { } manifest) {
+        version = manifest.version
+        if modeArg is null { mode = manifest.distMode }
+        for t in manifest.distTargets { distTargets.append(t) }
+    }
+    let targets = distResolveTargets(targetArg, by: in distTargets) ?? return exitUsage
+
+    let root = Path.fullPath(compiled.displayRoot)
+    let source = distReadSource(root)
+    var dirty = false
+    if (source is { } found) { dirty = found.dirty }
+    if dirty && !allowDirty {
+        Io.stderr.write("bayan: the git tree has uncommitted changes, so this build couldn't be traced to a commit\n")
+        Io.stderr.write("  help: commit first, or pass `--allow-dirty` (recorded in BUILDINFO.json)\n")
+        return exitUsage
+    }
+
+    let distDir = Path.combine(root, "dist")
+    let versionDir = Path.combine(distDir, version)
+    if t5DirectoryExists(versionDir) && !force {
+        Io.stderr.write($"bayan: `dist/{version}/` already exists, and a released version never changes\n")
+        Io.stderr.write("  help: bump `version` in package.byn, or pass `--force` to rebuild this one\n")
+        return exitUsage
+    }
+
+    let cSource = t5EmitC(ref compiled, by: mode)
+    let plan = DistPlan { name: compiled.packageName, program: semantics.programName(ref compiled, for: dir), root: root, version: version, mode: mode, json: json }
+    let code = distBuild(cSource, by: in plan, for: in targets, from: source, through: ref d, at: in symbols) catch switch {
+        // coverage-exempt: Q1151 an IO failure the C# lets escape as an unhandled exception (Dist.cs:85-102)
+        IoError e => panic($"bayan: {e}"),
+    }
+    return code
+}
+
+/// What `Run` has settled when it reaches the builds: the package name and its short name, the project root, the version, the mode and `--diagnostics json`.
+struct DistPlan {
+    string name
+    string program
+    string root
+    string version
+    string mode
+    bool json
+}
+
+/// Dist.cs:83-106 from `EmitC` on: the builds into the staging directory, `SHA256SUMS`, `BUILDINFO.json`, the move into place and `latest/`.
+i32 distBuild(string cSource, by in DistPlan plan, for in List<string> targets, from DistSource? source, through ref DCtx d, at in semantics.T26Symbols symbols) uses alloc, clock, console, env, fs, process fails IoError {
+    let distDir = Path.combine(plan.root, "dist")
+    let versionDir = Path.combine(distDir, plan.version)
+    let staging = Path.combine(distDir, $".{plan.version}.tmp")
+    if t5DirectoryExists(staging) { t3RemoveEntry(staging) }
+    var exes = List<string>()
+    var hashes: Map<string, string> = []
+    for target in targets {
+        let exe = $"{target}/{targetExecutableName(plan.program, for: target)}"
+        let output = Path.combine(staging, exe)
+        try Io.createDirectory(Path.combine(staging, target))
+        var progress = start(in d.styleErr, by: d.stderrTty, through: plan.json, for: "building")
+        let built = t9Build(cSource, by: plan.mode, to: output, for: target, through: ref d)
+        done(ref progress)
+        unless built.result.succeeded {
+            t5ReportToolchain(built.result, by: plan.json, for: symbols)
+            t3RemoveEntry(staging)
+            return exitToolchain
+        }
+        let bytes = try Io.readFile(output)
+        exes.append(exe)
+        hashes[exe] = Hex.encode(sha256(bytes.span).span)
+    }
+    exes.sort()
+    var sums = StrBuf()
+    for exe in exes { sums.append($"{hashes[exe]}  {exe}\n") }
+    try Io.writeFile(Path.combine(staging, "SHA256SUMS"), $"{sums.finish()}".bytes)
+    let inputs = try distInputsHash(plan.root)
+    try Io.writeFile(Path.combine(staging, "BUILDINFO.json"), distBuildInfo(plan.name, by: plan.version, for: plan.mode, to: in targets, from: source, through: inputs).bytes)
+    if t5DirectoryExists(versionDir) { t3RemoveEntry(versionDir) }
+    try t9MoveDirectory(staging, to: versionDir)
+    let latest = try distRefreshLatest(distDir)
+    Io.stdout.write($"built {plan.name} {plan.version} ({plan.mode}) for {t5Join(in targets)} in dist/{plan.version}/\n")
+    // coverage-exempt: Q1153 `RefreshLatest` returns null only when `dist/` holds no semantic-version directory, and the one just published is named by a validated version (Dist.cs:201)
+    if (latest is { } newest) { Io.stdout.write($"dist/latest/ is {newest}\n") }
+    return exitOk
+}
+
+/// Dist.cs:110 `ResolveTargets`: `--target` (a name, `host` or `all`), else `dist.targets`, else the host. Null after reporting.
+List<string>? distResolveTargets(string? arg, by in List<string> manifestTargets) uses alloc, console {
+    var names = List<string>()
+    if arg == "all" {
+        names = targetNames()
+    } else if (arg is { } given) {
+        names.append(given)
+    } else if manifestTargets.length > 0 {
+        for t in manifestTargets { names.append(t) }
+    } else {
+        names.append("host")
+    }
+    var targets = List<string>()
+    for name in names {
+        let target = name == "host" ? t5HostTarget() : name
+        unless targetIsKnown(target) {
+            Io.stderr.write($"bayan: unknown target `{name}` (expected host, all, {t5Join(in targetNames())})\n")
+            return null
+        }
+        var seen = false
+        for t in targets {
+            if t == target { seen = true }
+        }
+        unless seen { targets.append(target) }
+    }
+    return targets
+}
+
+/// Dist.cs:135 `ReadSource`: the commit and dirtiness of the git work tree holding `root`; null outside one or when it ignores the project.
+DistSource? distReadSource(string root) uses alloc, env, fs, process {
+    let git = ccFindOnPath("git", for: Target.os) ?? return null
+    let inside = scaffoldGit(git, at: root, for: "rev-parse", through: "--is-inside-work-tree")
+    if !(inside.code == 0 && inside.stdout == "true") { return null }
+    // A project the enclosing repository ignores isn't in any of its commits.
+    var ignored = List<string>()
+    ignored.append("check-ignore")
+    ignored.append("-q")
+    ignored.append("package.byn")
+    if distGit(git, at: root, by: in ignored).code == 0 { return null }
+    let head = scaffoldGit(git, at: root, for: "rev-parse", through: "HEAD")
+    var commit: string? = null
+    if head.code == 0 { commit = head.stdout }
+    var status = List<string>()
+    status.append("status")
+    status.append("--porcelain")
+    status.append("--")
+    status.append(".")
+    let porcelain = distGit(git, at: root, by: in status)
+    return DistSource { commit: commit, dirty: !(porcelain.code == 0 && porcelain.stdout == "") }
+}
+
+/// `AttributesToSkip = ReparsePoint` (Dist.cs:151) without `lstat`: `path` is under a resolved directory, so it is a link exactly when its
+/// real path differs from it; a link whose target is missing does not resolve and is one too (Q1150).
+bool distIsLink(string path) uses alloc, fs {
+    let real = realPath(path) catch return true
+    return real != path
+}
+
+/// The `.byn` files under `dir` (a resolved directory), by their name relative to the project (`rel` is `dir`'s), links skipped.
+void distCollect(string dir, by string rel, to ref List<string> names, through ref Map<string, string> files) uses alloc, fs fails IoError {
+    let entries = try Io.listDir(dir)
+    for name in entries {
+        let path = Path.combine(dir, name)
+        if distIsLink(path) { continue }
+        let relative = $"{rel}/{name}"
+        if t5DirectoryExists(path) {
+            try distCollect(path, by: relative, to: ref names, through: ref files)
+        } else if t6IsByn(name) {
+            names.append(relative)
+            files[relative] = path
+        }
+    }
+}
+
+/// Dist.cs:147 `InputsHash`: SHA-256 over `package.byn` and every `.byn` under `src/`, by relative path. The C# feeds `IncrementalHash`; one digest
+/// over the concatenation is the same value (Q1150).
+string distInputsHash(string root) uses alloc, fs fails IoError {
+    var names = List<string>()
+    var files: Map<string, string> = []
+    names.append("package.byn")
+    files["package.byn"] = Path.combine(root, "package.byn")
+    let src = Path.combine(root, "src")
+    // coverage-exempt: Q1151 an app compiles only with `src/app/`, so `src/` exists (Dist.cs:150 `Directory.Exists(src)` has no false arm here either)
+    if t5DirectoryExists(src) { try distCollect(try realPath(src), by: "src", to: ref names, through: ref files) }
+    names.sort()
+    var all = List<u8>()
+    for name in names {
+        for b in name.bytes { all.append(b) }
+        all.append(0)
+        let bytes = try Io.readFile(files[name])
+        for b in bytes { all.append(b) }
+        all.append(0)
+    }
+    return $"sha256:{Hex.encode(sha256(all.span).span)}"
+}
+
+/// Dist.cs:164 `BuildInfo`: `Utf8JsonWriter` indented by two spaces, ending in a newline. The values (a kebab package name, a semantic version, a
+/// mode, target names, a commit hash and a hex digest) hold no character the writer escapes.
+string distBuildInfo(string name, by string release, for string mode, to in List<string> targets, from DistSource? source, through string inputs) uses alloc {
+    var sb = StrBuf()
+    sb.append("{\n")
+    sb.append($"  \"package\": \"{name}\",\n")
+    sb.append($"  \"version\": \"{release}\",\n")
+    sb.append($"  \"compiler\": \"bayan {version}\",\n")
+    sb.append($"  \"mode\": \"{mode}\",\n")
+    sb.append("  \"targets\": [\n")
+    for i in 0..targets.length {
+        sb.append($"    \"{targets[i]}\"{i + 1 < targets.length ? "," : ""}\n")
+    }
+    sb.append("  ],\n")
+    if (source is { } s) {
+        sb.append("  \"source\": {\n")
+        if (s.commit is { } commit) {
+            sb.append($"    \"commit\": \"{commit}\",\n")
+        } else {
+            sb.append("    \"commit\": null,\n")
+        }
+        sb.append($"    \"dirty\": {s.dirty ? "true" : "false"}\n")
+        sb.append("  },\n")
+    } else {
+        sb.append("  \"source\": null,\n")
+    }
+    sb.append($"  \"inputs\": \"{inputs}\"\n")
+    sb.append("}\n")
+    return $"{sb.finish()}"
+}
+
+/// Dist.cs:196 `RefreshLatest`: `dist/latest/` rebuilt as a copy of the highest version present (by semantic version, not build time), staged
+/// in `dist/.latest.tmp/` and renamed into place; that version, or null when `dist/` holds none.
+string? distRefreshLatest(string distDir) uses alloc, fs fails IoError {
+    var newest = ""
+    var found = false
+    let entries = try Io.listDir(distDir)
+    for name in entries {
+        if !(semantics.t10IsSemanticVersion(name) && t5DirectoryExists(Path.combine(distDir, name))) { continue }
+        if !found || semantics.compareVersions(name, to: newest) > 0 {
+            newest = name
+            found = true
+        }
+    }
+    // coverage-exempt: Q1153 no version directory at all (Dist.cs:201); the caller has just published one
+    unless found { return null }
+    let staging = Path.combine(distDir, ".latest.tmp")
+    if t5DirectoryExists(staging) { t3RemoveEntry(staging) }
+    try distCopyDirectory(Path.combine(distDir, newest), to: staging)
+    try Io.writeFile(Path.combine(staging, "VERSION"), $"{newest}\n".bytes)
+    let latest = Path.combine(distDir, "latest")
+    if t5DirectoryExists(latest) { t3RemoveEntry(latest) }
+    try t9MoveDirectory(staging, to: latest)
+    return newest
+}
+
+/// Dist.cs:214 `CopyDirectory`: the files with their mode bits (`Fs.copy`), then each subdirectory.
+void distCopyDirectory(string from, to string dest) uses alloc, fs fails IoError {
+    try Io.createDirectory(dest)
+    let entries = try Io.listDir(from)
+    var subdirectories = List<string>()
+    for name in entries {
+        if t5DirectoryExists(Path.combine(from, name)) {
+            subdirectories.append(name)
+        } else {
+            try Fs.copy(Path.combine(from, name), to: Path.combine(dest, name))
+        }
+    }
+    for name in subdirectories { try distCopyDirectory(Path.combine(from, name), to: Path.combine(dest, name)) }
+}
