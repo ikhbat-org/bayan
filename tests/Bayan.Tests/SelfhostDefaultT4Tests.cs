@@ -9,6 +9,7 @@ namespace Bayan.Tests;
 /// Each row runs the same argv under the C# process and the stage-1 driver in two fresh directories and compares stdout, stderr,
 /// the exit code and the written tree (names, bytes, executable bit); the directory is masked as <c>&lt;D&gt;</c>.
 /// </summary>
+[Trait("Snapshot", "skip")]  // runs need cwd, PATH, closed stdin and change the tree (review 233d35d finding 7)
 public sealed class SelfhostDefaultT4Tests
 {
     private sealed record Result(int Exit, string Out, string Err);
