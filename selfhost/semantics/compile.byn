@@ -607,6 +607,7 @@ void declare(ref Ctx c) {
                     panic("a free function is declared by a `FunctionDecl`")
             }
         }
+        checkSignatures(ref c, for: m)
         checkOverloads(ref c, for: m)
     }
     c.membersDeclared = true
