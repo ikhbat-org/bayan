@@ -609,7 +609,9 @@ internal sealed partial class Binder
             case IfStmt i:
             {
                 var cond = BindCondition(i.Condition);
+                _thenOf.Add(i);
                 var then = Narrowed(cond, true, () => BindBody(i.Then));
+                _thenOf.RemoveAt(_thenOf.Count - 1);
                 var els = i.Else is { } e ? Narrowed(cond, false, () => BindBody(e)) : null;
                 return NarrowAfter(new BoundIf(i, cond, then, els) { Never = i.Likelihood == Likelihood.Never });
             }

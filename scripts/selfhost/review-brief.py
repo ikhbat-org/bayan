@@ -12,6 +12,7 @@ if '--spec' in args:
 BRIEF = {'010': dict(desc='the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`', oracle='SelfhostSemanticsT10Tests.Expected'),
          '011': dict(desc='the Bayan lowering and C emitter ported from C# `src/Bayan.Lowering/` and `src/Bayan.Backend.C/` into Bayan under `selfhost/emitter/`', oracle='SelfhostEmitterHarness.AssertSame'),
          '012': dict(desc='the Bayan compiler driver ported from C# `src/Bayan.Cli/` (`CliApp`) into Bayan under `selfhost/driver/`, compiled with package root `selfhost/` (stage 1 of the bootstrap)', oracle='SelfhostDriverHarness'),
+         '018': dict(desc='revision 0021 checker changes (help texts, fix-its, new diagnostics) made in C# `src/Bayan.Semantics/` and ported into the self-hosted checker under `selfhost/semantics/` (spec 018), with messages and fix-its byte-identical in both compilers', oracle='SelfhostSemanticsT10Tests.Expected'),
          '017': dict(desc='the remaining `bayan` commands ported from C# `src/Bayan.Cli/` and `src/Bayan.Testing/` into the self-hosted driver under `selfhost/driver/` (spec 017, the self-hosted compiler as the default `bayan`)', oracle='SelfhostDriverHarness')}
 if SPEC not in BRIEF: sys.exit(f'review-brief: no brief text for spec {SPEC}')
 HEAD, *TABLE = [l.split('\t') for l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'specs.tsv'), encoding='utf-8').read().splitlines()]
