@@ -292,6 +292,7 @@ public sealed partial class Compilation
             foreach (var s in module.Structs) Naming.CheckMembers(this, s);
             foreach (var f in module.AllFunctions.Where(f => f.Owner is null && !f.IsInstance && f.Kind != FunctionKind.Main && f.Kind != FunctionKind.Test).ToList())
                 DeclareSignature(f, f.Decl!, f.File!);
+            Naming.CheckSignatures(this, module);
             CheckOverloads(module);
         }
         MembersDeclared = true;

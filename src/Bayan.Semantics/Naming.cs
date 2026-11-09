@@ -101,6 +101,49 @@ public static class Naming
                 if (p.Syntax is { } syntax) CheckNumber(c, grammar, source, syntax.Name, p.Type);
     }
 
+    /// <summary>
+    /// BYN5104 and BYN5105 on the rest of a module's public API, once top-level signatures are declared: the parameters of
+    /// public top-level functions, a public interface's getters and its methods' parameters, and the payload fields of a
+    /// public union or error set (the struct members are <see cref="CheckMembers"/>'s).
+    /// </summary>
+    internal static void CheckSignatures(Compilation c, ModuleSymbol module)
+    {
+        var grammar = GrammarOf(c);
+        foreach (var fn in module.AllFunctions.Where(f => f is { Kind: FunctionKind.Function, Owner: null, Interface: null, IsInstance: false, Access: Accessibility.Public }))
+            foreach (var p in fn.Parameters)
+                if (p.Syntax is { } syntax) CheckNumber(c, grammar, fn.File!.Source, syntax.Name, p.Type);
+        foreach (var i in module.Interfaces.Where(i => i.Access == Accessibility.Public))
+        {
+            var source = i.File.Source;
+            foreach (var member in i.Decl.Members)
+            {
+                var (decl, name) = member switch { GetterDecl g => ((Decl?)g, g.Name), PropertyDecl p => (p, p.Name), _ => (null, null!) };
+                if (decl is null || IsRenamed(decl) || i.Properties.FirstOrDefault(g => g.Location?.Span == name.Span) is not { } getter) continue;
+                if (!CheckCount(c, grammar, source, name, getter.ReturnType)) CheckNumber(c, grammar, source, name, getter.ReturnType);
+            }
+            foreach (var fn in i.Methods)
+                foreach (var p in fn.Parameters)
+                    if (p.Syntax is { } syntax) CheckNumber(c, grammar, source, syntax.Name, p.Type);
+        }
+        foreach (var u in module.Unions.Where(u => u.Access == Accessibility.Public))
+            foreach (var v in u.Decl.Variants)
+                CheckPayload(c, grammar, u.File.Source, v.Fields, u.Find(v.Name.Text)?.Fields);
+        foreach (var set in module.ErrorSets.Where(s => s.Access == Accessibility.Public))
+        {
+            var source = module.Files.First(f => f.Tree.Root.Members.Contains(set.Decl)).Source;
+            foreach (var v in set.Decl.Variants)
+                CheckPayload(c, grammar, source, v.Fields, set.Find(v.Name.Text)?.Fields);
+        }
+    }
+
+    private static void CheckPayload(Compilation c, Grammar grammar, SourceText source, UnionField[] fields, List<ParameterSymbol>? declared)
+    {
+        foreach (var f in fields)
+            if (declared?.FirstOrDefault(p => p.Location?.Span == f.Name.Span) is { } field
+                && !CheckCount(c, grammar, source, f.Name, field.Type))
+                CheckNumber(c, grammar, source, f.Name, field.Type);
+    }
+
     /// <summary>A name under a rename attribute (<c>@json(name: …)</c>, <c>@column(…)</c>) is forced from outside and exempt from BYN5104 and BYN5105 (grammar guide §1).</summary>
     private static bool IsRenamed(Decl decl) => decl.Attributes.Any(a => a.Name.Text is "json" or "column");
 
