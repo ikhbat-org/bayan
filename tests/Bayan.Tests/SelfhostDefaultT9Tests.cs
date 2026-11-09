@@ -684,13 +684,14 @@ public sealed class SelfhostDefaultT9Tests
     }
 
     /// <summary>
-    /// The root, the elapsed seconds, the OS message of a failed write or a C compiler that does not start, and a script key
-    /// masked: <c>Toolchain.CompilerBuild</c> is a hash of the C# assembly, the driver's is its version (Q1148).
+    /// The root, the elapsed seconds, the OS message of a failed write or a C compiler that does not start, a script key and the
+    /// commit of <c>doctor</c> masked: <c>Toolchain.CompilerBuild</c> is a hash of the C# assembly, the driver's is its version (Q1148),
+    /// and the driver's commit is <c>selfhost</c> (SelfhostDefaultT5Tests' mask).
     /// </summary>
     private static string Masked(string text, string root) =>
-        Regex.Replace(Regex.Replace(Regex.Replace(Regex.Replace(text.Replace(root, "<root>"), @"[0-9]+\.[0-9]{2}s", "<t>s"),
+        Regex.Replace(Regex.Replace(Regex.Replace(Regex.Replace(Regex.Replace(text.Replace(root, "<root>"), @"[0-9]+\.[0-9]{2}s", "<t>s"),
             @"(cannot write the build output or cache \(<root>[^)]*\)): .*", "$1: <message>"), @"(cannot run the C compiler `[^`]*`): .*", "$1: <message>"),
-            @"scripts/[0-9a-f]{64}", "scripts/<skey>");
+            @"scripts/[0-9a-f]{64}", "scripts/<skey>"), @"\(commit [^)]*\)", "(commit <c>)");
 
     /// <summary>
     /// The steps on two trees seeded alike (the C#'s first); exit code and masked streams compared per step, the names of both trees
@@ -793,34 +794,29 @@ public sealed class SelfhostDefaultT9Tests
     }
 
     /// <summary>
-    /// <c>BAYAN_CC</c> naming what <c>Compile</c> does not expect: a program that does not exist (<c>cannot run the C compiler</c>),
-    /// and off Windows one that exits 0 and writes no executable (<c>true</c>), and a script that writes the executable and a directory
-    /// beside it, which <c>EnumerateFiles</c> keeps in the entry and <c>Evict</c> does not count.
+    /// A C compiler <c>Compile</c> does not expect, found as <c>cc</c> on a <c>PATH</c> of one directory (the driver reads no
+    /// <c>BAYAN_CC</c>, spec Q1): a file that cannot be run (<c>cannot run the C compiler</c>), a script that exits 0 and writes no
+    /// executable, and one that writes the executable and a directory beside it, which <c>EnumerateFiles</c> keeps in the entry and
+    /// <c>Evict</c> does not count. The directory is shared by both trees, since the program key hashes the compiler's path.
     /// </summary>
     [Theory]
-    [InlineData("missing")]
+    [InlineData("notexecutable")]
     [InlineData("noexe")]
     [InlineData("subdir")]
     public void AnOddCCompiler(string shape)
     {
-        if (shape != "missing" && OperatingSystem.IsWindows()) return;
-        void Seed(string root)
+        if (OperatingSystem.IsWindows()) return;
+        var bin = Fresh($"cc-bin-{shape}");
+        var cc = Path.Combine(bin, "cc");
+        File.WriteAllText(cc, shape switch
         {
-            Arithmetic(root);
-            if (shape != "subdir") return;
-            var bin = Path.Combine(root, "bin");
-            Directory.CreateDirectory(bin);
-            var cc = Path.Combine(bin, "fakecc");
-            File.WriteAllText(cc, "#!/bin/sh\nout=\nwhile [ $# -gt 0 ]; do\n  if [ \"$1\" = -o ]; then out=$2; fi\n  shift\ndone\nprintf x > \"$out\"\ncase $out in */*) dir=${out%/*};; *) dir=.;; esac\nmkdir \"$dir/sub\"\n");
-            if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(cc, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
-        }
-        (string, string?)[] env = shape switch
-        {
-            "missing" => [("BAYAN_CC", "bayan-no-such-cc")],
-            "noexe" => [("BAYAN_CC", "true")],
-            _ => [("BAYAN_CC", "fakecc"), ("PATH", "<root>/bin" + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH"))],
-        };
-        Same($"cc-{shape}", Seed, new Step(["build", "arithmetic.byn"], Env: env));
+            "notexecutable" => "",
+            "noexe" => "#!/bin/sh\nexit 0\n",
+            _ => "#!/bin/sh\nout=\nwhile [ $# -gt 0 ]; do\n  if [ \"$1\" = -o ]; then out=$2; fi\n  shift\ndone\nprintf x > \"$out\"\ncase $out in */*) dir=${out%/*};; *) dir=.;; esac\n/bin/mkdir \"$dir/sub\"\n",
+        });
+        File.SetUnixFileMode(cc, shape == "notexecutable" ? UnixFileMode.UserRead | UnixFileMode.UserWrite : UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        var outs = Same($"cc-{shape}", Arithmetic, new Step(["build", "arithmetic.byn"], Env: [("PATH", bin)]));
+        if (shape == "subdir") Assert.Contains("built arithmetic", outs[0]);
     }
 
     /// <summary>CliMemoryBoundsTests.M5_ABuildTagsTheCacheDataItOwnsAsACacheDirectory: a build writes the tag, a hit writes it again.</summary>
