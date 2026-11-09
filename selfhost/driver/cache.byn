@@ -247,7 +247,7 @@ T9Built t9BuildCached(string cSource, by string mode, to string? output, for str
     let compiler = ccFindCompiler()
     let refusal = ccRefusal(in compiler, for: target)
     if refusal != "" { return T9Built { result: NativeBuild { errors: refusal } } }
-    // coverage-exempt: Q1158 `target` is null only when `targetHost()` is, on a host no target names (Toolchain.cs:225's host build)
+    // coverage-exempt: Q1114 `target` is null only when `targetHost()` is, on a host no target names (Toolchain.cs:225's host build)
     let targetOs = target ?? (Target.os == "windows" ? "windows" : "")
     let exeName = targetExecutableName("program", for: targetOs)
     var triple: string? = null
@@ -420,7 +420,7 @@ NativeBuild t9CompileIn(string work, by in List<string> compiler, through in Lis
 
 /// `Directory.Move(dir, dest)`: .NET throws `IOException` ("Cannot create '<dest>' because a file or directory with the same name
 /// already exists") when `dest` exists as a file or a directory, on every OS, before it renames; `Fs.rename` would replace a file
-/// on Windows and an empty directory on Unix. An existing `dest` fails `.other`, the C#'s `IOException` (Q1158).
+/// on Windows and an empty directory on Unix. An existing `dest` fails `.other`, the C#'s `IOException` (Q1114).
 void t9MoveDirectory(string dir, to string dest) uses alloc, fs fails IoError {
     if Fs.fileExists(dest) || t9DirectoryExists(dest) { fail .other }
     try Fs.rename(dir, to: dest)
@@ -604,13 +604,13 @@ void discard(string dir, through ref DCtx d) uses alloc, clock, env, fs fails Io
 
 /// `Directory.Move(dir, trash)` and `Directory.Delete(trash, recursive: true)` of `Discard`, `trash` being `trash-<Guid>` in
 /// `Staging`, so a half-deleted entry is never visible. A failed move is the caught `IOException`: .NET's `Directory.Move` throws
-/// `IOException` for `EACCES` on Unix and `ERROR_ACCESS_DENIED` on Windows (Q1158).
+/// `IOException` for `EACCES` on Unix and `ERROR_ACCESS_DENIED` on Windows (Q1114).
 void t9MoveAndDelete(string dir, through ref DCtx d) uses alloc, clock, env, fs fails IoError {
     let trash = Path.combine(t9Staging(), $"trash-{t9Unique(ref d)}")
     t9MoveDirectory(dir, to: trash) catch return
     t9DeleteTree(trash) catch switch {
         IoError.permissionDenied => fail .permissionDenied,
-        // coverage-exempt: Q1158 a delete that fails for another reason than permission: `trash` changed in between (Toolchain.cs:450, :452)
+        // coverage-exempt: Q1114 a delete that fails for another reason than permission: `trash` changed in between (Toolchain.cs:450, :452)
         IoError e => return,
     }
 }
