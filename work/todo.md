@@ -647,3 +647,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - review 8d5e5c71..ce5d3cb3: `scripts/release/set-version.sh:31` rewrites every `^Version: … (matches` line while `scripts/docs/check.sh:31` reads the first 10.
 - review 8d5e5c71..ce5d3cb3: `scripts/release/cut.sh:24-34` leaves a half-bumped tree when a generator fails.
 - review 8d5e5c71..ce5d3cb3: the docs generators are unverified under mawk (ubuntu CI is the first run).
+- std.time: parked design handoff `docs/handoffs/2026-11-09-std-time.md`; phases 1a/1b (docs) after revision 0021 docs land, code phases wait for gates G1–G6 (2026-11-09).
