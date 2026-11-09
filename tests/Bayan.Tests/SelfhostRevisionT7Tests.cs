@@ -142,14 +142,151 @@ public sealed class SelfhostRevisionT7Tests
 
             print("ok")
             """),
+        ("members-older", null, """
+            public union error ParseError { empty }
+
+            public struct Reader {
+                i64 n
+                string text
+
+                public static Reader make() => Reader { n: 0, text: "" }
+
+                public void total(ref this, i64 by) {
+                    n += by
+                }
+
+                public void sizeUp(ref this) {
+                    n *= 2
+                }
+
+                void sizeDown(ref this) {
+                    n /= 2
+                }
+
+                public void sorted(ref this) {
+                    text = text
+                }
+
+                public bool isEmpty(ref this) {
+                    n = 0
+                    return true
+                }
+
+                public bool hasRoomFor(ref this, i64 k) {
+                    n += k
+                    return true
+                }
+
+                public bool empty() => n == 0
+
+                public i64 parse() fails ParseError {
+                    return 0
+                }
+
+                public i64 tryParse() => 0
+
+                public i64 load() fails ParseError {
+                    return 0
+                }
+
+                public i64? tryLoad() => null
+
+                public i64 read() fails ParseError {
+                    return 0
+                }
+
+                public bool tryRead() => false
+
+                public i64 tryFind() => 0
+
+                public i64 scan() fails ParseError {
+                    return 0
+                }
+
+                public Missing tryScan() => 0
+
+                public i64 trying() => 0
+
+
+                public bool ready => n > 0
+
+                bool hidden => n > 0
+
+                public i64 size => n
+
+                public List<Reader> reader => List<Reader>()
+
+                @json(name: "item")
+                public List<Reader> item => List<Reader>()
+
+                public i64 numLines => n
+            }
+
+            struct Quiet {
+                i64 n
+
+                bool ready => n > 0
+
+                void reset(ref this) {
+                    n = 0
+                }
+            }
+
+            print("ok")
+            """),
+        ("kinds", null, """
+            public struct Line {
+                public i64 grams
+            }
+
+            public type distinct Qty = i64 requires it > 0
+
+            public struct Holder<T> {
+                public T items
+            }
+
+            public struct Order {
+                public Owned<Line> lines
+                public Line? entries
+                public List<Line> lines2
+                public List<Line> lines
+                public List<Line> widgets
+                public List<Line> address
+                public List<Line> status
+                public List<Line> analysis
+                public string address2
+                public string status2
+                public string analysis2
+                public string addresses
+                public i64 totalLineWeight
+                public i64 numberAnyLines
+                public string numLines
+                public Missing lines3
+                public List<Line> línea
+                public i64 númLines
+                @allow(unusedValue) because "kept"
+                public List<Line> line
+            }
+
+            public i64 first(Span<Line> line) => line.length
+
+            public i64 second(i64 _) => 0
+
+            public i64 third(Line __) => 0
+
+            public i64 fourth(Line[4] line) => 0
+
+            print("ok")
+            """),
         ("project-forms", """
             Package {
                 name: "local/shop",
                 version: "0.1.0",
                 grammar: Grammar {
-                    nouns: ["criterion", "sku", "box"],
+                    nouns: ["criterion", "sku", "box", "quiz", "batch", "wish", "story", "tray", "torch"],
+                    verbs: ["ship"],
                     collectives: ["Ledger"],
-                    forms: ["criterion": "criteria", "sku": "skus"],
+                    forms: ["criterion": "criteria", "sku": "skus", "ship": "shipped"],
                 },
             }
             """, """
@@ -168,6 +305,18 @@ public sealed class SelfhostRevisionT7Tests
                 public i64 numCriteria
                 public i64 skusCount
                 public i64 numberOfBoxes
+                public List<Box> quiz
+                public List<Box> batch
+                public List<Box> wish
+                public List<Box> story
+                public List<Box> tray
+                public List<Box> torch
+                public Box stories
+                public Box batches
+                public Box quizzes
+                public Box trays
+                public string shipped
+                public i64 numStories
             }
 
             print("ok")
