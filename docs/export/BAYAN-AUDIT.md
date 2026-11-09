@@ -163,7 +163,7 @@ Contradictions, stale examples, grammar-rule violations, wrong code references a
 - Fix: mark the addendum-002 contracts item superseded for `ensures`.
 
 **A26. BYN2787 against BYN1062 and BYN8001**
-- Location: `DiagnosticCodes.cs` BYN2787 `TrustReason`; `docs/diagnostics/BYN2787.md`; `tests/Bayan.Tests/DiagnosticCodesTests.cs:98`.
+- Location: `DiagnosticCodes.cs` BYN2787 `TrustReason`; `docs/diagnostics/BYN2787.md`; `tests/Bayan.Tests/DiagnosticCodesTests.cs:93`.
 - Problem: the descriptor still reads "`trust` needs a reason: a non-empty string literal". The `trust(x, reason:)` form is now the input form BYN1062, and BYN8001 `MissingBecause` covers the reason for `x.trustUnchecked() because "…"`.
 - Rule: round 3 §17 (later).
 - Fix: undecided. Either update the page and message, or retire BYN2787 in favour of BYN8001.
@@ -171,7 +171,7 @@ Contradictions, stale examples, grammar-rule violations, wrong code references a
 ## Stale examples and unapplied revisions
 
 **A27. BYN2006 page example reports other codes**
-- Location: `docs/diagnostics/BYN2006.md`; `DiagnosticCodesTests.cs:81`.
+- Location: `docs/diagnostics/BYN2006.md`; `DiagnosticCodesTests.cs:80`.
 - Problem: the test marks it "stale: the example now reports BYN5004 and BYN5006".
 - Rule: a page's example reports its code.
 - Fix: rewrite the example so it reports BYN2006 (for example the same-name, different-type pair in golden `diag/duplicate-overload-types`).
