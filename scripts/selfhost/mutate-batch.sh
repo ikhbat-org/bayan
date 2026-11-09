@@ -10,14 +10,22 @@
 # driver: SelfhostDriver* and SelfhostDefault*, whose tests build selfhost/driver through SelfhostDriverHarness: another build does not contain the file);
 # a file with none left uses SelfhostSemantics, SelfhostParser, SelfhostLexer, SelfhostEmitter or SelfhostDriver; another directory fails. One group per family and shard (Q910):
 # its filter is the union of its files' filters, so the tests are recorded once per (shard, family); selfhost/emitter/ and its subdirectories are one family.
-# --list prints file -> group filter and runs nothing; --shard k/n gives file i of each family to shard (i mod n)+1.
+# --list prints file -> group filter and runs nothing; --shard k/n gives file i of each family to shard (i mod n)+1; --files narrows
+# which files are mutated (BAYAN_SNAPSHOT_FILES) but each group keeps the union filter of all its (shard's) files, the one a full run
+# raised the baseline with.
 # Per group: reports and logs in tmp/mutate-batch/<group>/ (quality-<n>-<binary>.json), bayan mutate's summary printed. A group
 # whose CLI, recording or mutant 0 fails is named and fails the run. Then quality-baseline.py check over the reports: a score
 # below the baseline names the file with old and new score and exits 1 with the baseline untouched; else `update` raises it.
 # MUTATE_BASELINE names another baseline file to check and raise instead (mutate-nightly.sh's scratch copy).
 # Each copied report's `path`s are rewritten relative to the repo root (a path outside it fails the group, naming the report);
 # a relative path that is no file under the root is an imported module's, relative to the harness builds' packageRoot selfhost/
-# (Compilation.DisplayRoot; SelfhostLexerCaseTests imports `lexer`), and is resolved there;
+# (Compilation.DisplayRoot; SelfhostLexerCaseTests imports `lexer`), and is resolved there; a path that is no file there either fails the group;
+# one run at a time: tmp/mutate-batch.lock (a directory holding the holder's pid) is taken for the run, a lock whose pid is gone is taken over;
+# exit codes: 0 done and the baseline raised; 1 a score fell below the baseline (nothing raised); 2 usage or plan error;
+# 3 setup-class failure that says nothing about the file (the lock is held, no pinned bayan, the test build/recording failed,
+# quality-baseline.py check/update crashed or could not read the baseline); 4 a group failed for its files (mutant 0 does not replay,
+# no or unreadable manifest, no report, a report path that is no file): rerunning the same file fails the same way;
+# a lock without a pid file is held for 60 s (its holder may be between mkdir and the pid write), then stale;
 # CI shards (.github/workflows/mutation.yml) upload only the reports, and a final job runs one `update` over all of them.
 set -u
 export MSBUILDDISABLENODEREUSE=1 DOTNET_CLI_USE_MSBUILD_SERVER=0  # no MSBuild worker or build server outlives the run
@@ -83,10 +91,10 @@ if only:
             sys.exit(f'mutate-batch: --files {w}: not a selfhost .byn file')
 for d, fl in fams.items():
     mine = fl[k - 1::n] if shard else fl  # file i goes to shard (i mod n)+1
-    mine = [x for x in mine if not only or x[0] in want]  # --files narrows the group before its union filter is built
+    flt = '|'.join(sorted({c for _, x in mine for c in x.split('|')}))  # the union of the whole group, as a full run builds it
+    mine = [x for x in mine if not only or x[0] in want]  # --files narrows only which files are mutated
     if not mine:
         continue
-    flt = '|'.join(sorted({c for _, x in mine for c in x.split('|')}))
     name = d.split('/')[-1] + (f'-shard{k}of{n}' if shard else '')
     for f, _ in mine:
         print(f'{name}\t{f}\t{flt}')
@@ -95,9 +103,17 @@ PY
 
 if [ $LIST = 1 ]; then while IFS=$'\t' read -r g f flt; do echo "$f -> $flt"; done <<< "$PLAN"; exit 0; fi
 [ -n "$PLAN" ] || { echo "mutate-batch: no file selected"; exit 2; }
+mkdir -p "$(dirname "$OUT")"; LOCK=$OUT.lock
+if ! mkdir "$LOCK" 2>/dev/null; then
+  pid=$(cat "$LOCK/pid" 2>/dev/null)
+  if [ -n "$pid" ]; then kill -0 "$pid" 2>/dev/null && held=1; else [ -z "$(find "$LOCK" -maxdepth 0 -mmin +1 2>/dev/null)" ] && held=1; fi
+  if [ "${held:-0}" = 1 ]; then echo "mutate-batch: $OUT is in use by another run (lock $LOCK, pid ${pid:-unknown})"; exit 3; fi
+  rm -r "$LOCK"; mkdir "$LOCK" 2>/dev/null || { echo "mutate-batch: $OUT is in use by another run (lock $LOCK)"; exit 3; }
+fi
+echo $$ > "$LOCK/pid"; trap 'rm -r "$LOCK"' EXIT
 FAIL=(); note() { FAIL+=("$1"); }
 . "$HERE/mutation-step.sh"
-BAD=0; OK=()
+BAD=0; SETUP=0; OK=()
 while IFS= read -r g <&3; do
   flt=$(awk -F'\t' -v g="$g" '$1==g{print $3; exit}' <<< "$PLAN")
   mut=$(awk -F'\t' -v g="$g" '$1==g{print $2}' <<< "$PLAN" | paste -sd, -)
@@ -118,6 +134,8 @@ for e in report['files']:
     rel = os.path.relpath(os.path.realpath(p), root)
     if rel == '..' or rel.startswith('../'):
         sys.exit(f'{rp}: path {e["path"]} is not under the repo root {root}')
+    if not os.path.isfile(p):
+        sys.exit(f'{rp}: path {e["path"]} is no file under the repo root {root} or its selfhost/')
     e['path'] = rel
 open(rp, 'w', encoding='utf-8').write(json.dumps(report, indent=2) + '\n')
 PY
@@ -126,7 +144,8 @@ PY
     OK+=("$g")
   else
     BAD=1
-    for x in "${FAIL[@]}"; do echo "group $g: $x"; done
+    for x in "${FAIL[@]}"; do echo "group $g: $x"
+      case $x in "mutation: no pinned bayan"*|"mutation: recording the tests under BAYAN_SNAPSHOT failed"*) SETUP=1;; esac; done
     mkdir -p "$LOG/rejected"
     for rp in "$LOG"/quality-*.json; do
       [ -f "$rp" ] && mv "$rp" "$LOG/rejected/rejected-$(basename "$rp")"
@@ -141,8 +160,8 @@ if [ ${#REPORTS[@]} -gt 0 ]; then
     # a refused shard uploads no accepted report: every report it would have applied moves to its group's rejected/
     for g in "${OK[@]}"; do mkdir -p "$OUT/$g/rejected"
       for rp in "$OUT/$g"/quality-*.json; do [ -f "$rp" ] && mv "$rp" "$OUT/$g/rejected/rejected-$(basename "$rp")"; done; done
-    echo "mutate-batch: baseline not updated"; exit 1; fi
-  python3 -I "$HERE/quality-baseline.py" update "$BASELINE" . "${REPORTS[@]}" || { echo "mutate-batch: baseline update failed"; exit 1; }
+    echo "mutate-batch: baseline not updated"; [ $BX = 1 ] && [ -n "$out" ] && exit 1; exit 3; fi
+  python3 -I "$HERE/quality-baseline.py" update "$BASELINE" . "${REPORTS[@]}" || { echo "mutate-batch: baseline update failed"; exit 3; }
   echo "baseline: $BASELINE updated from ${#REPORTS[@]} report(s)"
 fi
-exit $BAD
+[ $SETUP = 1 ] && exit 3; [ $BAD = 1 ] && exit 4; exit 0
