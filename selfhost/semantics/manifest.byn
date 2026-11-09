@@ -29,6 +29,7 @@ struct Grammar {
     List<string> verbs = []
     List<string> nouns = []
     List<string> adjectives = []
+    List<string> collectives = []
     Map<string, string> forms = []
 }
 
@@ -268,7 +269,7 @@ void t10BindStyle(ref Manifest m, from in T10Reader r, at i64 style) {
     }
 }
 
-/// The `grammar` part of Manifest.cs:96 `Bind`.
+/// The `grammar` part of Manifest.cs:114 `Bind`.
 void t10BindGrammar(ref Manifest m, from in T10Reader r, at i64 grammar) {
     if r.values[grammar].kind != .objectValue || r.values[grammar].text != "Grammar" {
         t10Invalid(ref m, from: in r, at: grammar, for: "grammar", as: "a `Grammar { … }`")
@@ -278,6 +279,8 @@ void t10BindGrammar(ref Manifest m, from in T10Reader r, at i64 grammar) {
     t10BindWords(ref m, from: in r, for: in fields, by: "verbs")
     t10BindWords(ref m, from: in r, for: in fields, by: "nouns")
     t10BindWords(ref m, from: in r, for: in fields, by: "adjectives")
+    t10BindWords(ref m, from: in r, for: in fields, by: "collectives")
+    t10CheckOverlap(ref m, from: r, for: fields)
     if fields.contains("forms") {
         let forms = fields["forms"]
         if t10IsStringMap(in r, at: forms) {
@@ -292,7 +295,7 @@ void t10BindGrammar(ref Manifest m, from in T10Reader r, at i64 grammar) {
     }
 }
 
-/// One of `verbs`, `nouns`, `adjectives` in Manifest.cs:176: the words join the set, duplicates once.
+/// One of `verbs`, `nouns`, `adjectives`, `collectives` in Manifest.cs:214 `Grammar.Collectives`: the words join the set, duplicates once.
 void t10BindWords(ref Manifest m, from in T10Reader r, for in Map<string, i64> fields, by string field) {
     unless fields.contains(field) { return }
     let list = fields[field]
@@ -305,7 +308,8 @@ void t10BindWords(ref Manifest m, from in T10Reader r, for in Map<string, i64> f
         switch field {
             case "verbs": t10AddWord(ref m.grammar.verbs, by: word)
             case "nouns": t10AddWord(ref m.grammar.nouns, by: word)
-            default: t10AddWord(ref m.grammar.adjectives, by: word)
+            case "adjectives": t10AddWord(ref m.grammar.adjectives, by: word)
+            default: t10AddWord(ref m.grammar.collectives, by: word)
         }
     }
 }
@@ -351,7 +355,7 @@ List<string> t10DistFields() => ["targets", "mode"]
 
 List<string> t10StyleFields() => ["indent", "braces", "maxLine", "trailingCommas", "booleans", "primitives"]
 
-List<string> t10GrammarFields() => ["verbs", "nouns", "adjectives", "forms"]
+List<string> t10GrammarFields() => ["verbs", "nouns", "adjectives", "collectives", "forms"]
 
 /// Manifest.cs:216 `Fields`: the known fields by name; unknown and repeated ones are reported.
 Map<string, i64> t10Fields(ref Manifest m, from in T10Reader r, at i64 obj, by in List<string> known) {
@@ -394,6 +398,28 @@ string? t10Text(ref Manifest m, from in T10Reader r, at i64 value, for string fi
     if r.values[value].kind == .stringValue { return r.values[value].text }
     t10Invalid(ref m, from: in r, at: value, for: field, as: expected)
     return null
+}
+
+/// Manifest.cs:291 `CheckOverlap`: a word in two classes is an error, except a verb that is also a noun; the
+/// words compare in lowercase and a word repeated within one list is no overlap.
+void t10CheckOverlap(ref Manifest m, from T10Reader r, for Map<string, i64> fields) {
+    var seen: Map<string, string> = []
+    let classes: List<string> = ["verbs", "nouns", "adjectives", "collectives"]
+    for field in classes {
+        unless fields.contains(field) { continue }
+        let list = fields[field]
+        if r.values[list].kind != .listValue { continue }
+        for item in r.values[list].items {
+            if r.values[item].kind != .stringValue { continue }
+            let word = lowerAscii(r.values[item].text)
+            if seen.contains(word) && seen[word] != field && !(seen[word] == "verbs" && field == "nouns") {
+                let other = seen[word]
+                t10Invalid(ref m, from: in r, at: item, for: $"grammar.{field}", as: $"free of `{r.values[item].text}`, which `grammar.{other}` lists; only a verb that is also a noun may be in two lists")
+            } else if !seen.contains(word) {
+                seen[word] = field
+            }
+        }
+    }
 }
 
 /// Manifest.cs:243 `Invalid`: BYN3102 at the value.

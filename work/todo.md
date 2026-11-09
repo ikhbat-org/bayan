@@ -12,6 +12,7 @@ wish list; the value is in recording the ones nobody has got to yet.
 Small, clear, and could be picked up without a design decision.
 
 - ~~CI: install zig (or set `BAYAN_CC`) on all three runners so `run/` goldens execute there.~~ (done: ci.yml:40-42 installs zig; triage 2026-11-09)
+- `docs/export/BAYAN-DIAGNOSTICS.md` and `BAYAN-GRAMMAR.md` still say BYN5014 is "not a known verb or noun"; regenerate the export snapshot.
 - `#line`: function signatures and prologues map to `main.c`, so a debugger breakpoint on a function names generated code until its first statement; mapping the signature to the declaration line would fix it.
 - `CliToolchainTests.GeneratedCTheCCompilerRejectsIsAnInternalCompilerError` uses a `/bin/sh` fake compiler and returns early on Windows.
 - `Lexer.cs:571` help still says "wrap it with a cast to the unit type"; casts are BYN1057 since 5.3f, so it should say `T(x)`.
@@ -666,3 +667,5 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (review 233d35d loop 3) `scripts/selfhost/mutate-batch.test.sh`: no case for a failed recording giving exit 3 (second setup pattern, line 148).
 - LOW (review 233d35d loop 2, deferred) `scripts/selfhost/mutate-batch.sh` stale-lock takeover is check-then-act (two takers can both win); `mutate-nightly.sh` checks the batch lock before `rm -rf tmp/mutate-batch` without taking it.
 - MEDIUM (review 233d35d loop 2, trade-off of criterion 2) a per-file nightly run records the whole family's union filter, so one file costs a whole-family recording and a night covers ~1–2 files; measure on the VM before the cron goes back on.
+- 018 T4 review note: `selfhost/semantics/manifest.byn` `t10Invalid` doc comment cites "Manifest.cs:243 `Invalid`"; `Invalid` is now at Manifest.cs:308 (predates T4; fix in T28 or the next manifest.byn task).
+- Flaky: `tests/Bayan.Tests/SelfhostDriverTests.cs` `DispatchesDoctorAsCliApp` compares the C# and .byn `doctor` outputs whose cache row counts programs in the shared `tmp/cache`; a program built between the two runs (parallel test, or the first build) changes it ("1 programs, 1.8 MB" vs "2 programs, 4.6 MB"). Failed once on wp1 full at c44424f8 and once locally, passed on rerun (wp1 SelfhostDriverT1Tests 165/165). Mask the cache row's counts or give the test its own cache dir (found 2026-11-10, 018 Part 3).
