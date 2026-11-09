@@ -152,11 +152,18 @@ i32 distBuild(string cSource, by in DistPlan plan, for in List<string> targets, 
     var sums = StrBuf()
     for exe in exes { sums.append($"{hashes[exe]}  {exe}\n") }
     try Io.writeFile(Path.combine(staging, "SHA256SUMS"), $"{sums.finish()}".bytes)
-    let inputs = try distInputsHash(plan.root)
+    let hashed = try distInputsHash(plan.root)
+    if hashed is null {
+        t3RemoveEntry(staging)
+        return exitFailure
+    }
+    let inputs = hashed
     try Io.writeFile(Path.combine(staging, "BUILDINFO.json"), distBuildInfo(plan.name, by: plan.version, for: plan.mode, to: in targets, from: source, through: inputs).bytes)
     if t5DirectoryExists(versionDir) { t3RemoveEntry(versionDir) }
     try t9MoveDirectory(staging, to: versionDir)
-    let latest = try distRefreshLatest(distDir)
+    var copied = DistWalk {}
+    let latest = try distRefreshLatest(distDir, through: ref copied)
+    if copied.over { return exitFailure }
     Io.stdout.write($"built {plan.name} {plan.version} ({plan.mode}) for {t5Join(in targets)} in dist/{plan.version}/\n")
     // coverage-exempt: Q1153 `RefreshLatest` returns null only when `dist/` holds no semantic-version directory, and the one just published is named by a validated version (Dist.cs:201)
     if (latest is { } newest) { Io.stdout.write($"dist/latest/ is {newest}\n") }
@@ -214,6 +221,28 @@ DistSource? distReadSource(string root) uses alloc, env, fs, process {
     return DistSource { commit: commit, dirty: !(porcelain.code == 0 && porcelain.stdout == "") }
 }
 
+/// What a walk keeps and what it has spent (docs/memory-leaks.md rules 1 and 5): the collected names with their paths, the counts of
+/// files and directories, the bytes read, and whether a budget was crossed. A walk that crosses a budget stops, after one line (Q1154).
+struct DistWalk {
+    List<string> names = []
+    Map<string, string> paths = []
+    i64 fileCount = 0
+    i64 dirCount = 0
+    i64 bytes = 0
+    bool over = false
+}
+
+const distMaxFiles: i64 = 20000
+const distMaxDirs: i64 = 4000
+const distMaxDepth: i64 = 64
+const distMaxBytes: i64 = 67108864
+
+/// The one line of a crossed budget (every caller returns at once, so a walk says it once).
+void distStop(string what, through ref DistWalk w) uses alloc, console {
+    w.over = true
+    Io.stderr.write($"bayan: dist: {what}; stopped (docs/memory-leaks.md rule 1)\n")
+}
+
 /// `AttributesToSkip = ReparsePoint` (Dist.cs:151) without `lstat`: `path` is under a resolved directory, so it is a link exactly when its
 /// real path differs from it; a link whose target is missing does not resolve and is one too (Q1150).
 bool distIsLink(string path) uses alloc, fs {
@@ -221,38 +250,61 @@ bool distIsLink(string path) uses alloc, fs {
     return real != path
 }
 
-/// The `.byn` files under `dir` (a resolved directory), by their name relative to the project (`rel` is `dir`'s), links skipped.
-void distCollect(string dir, by string rel, to ref List<string> names, through ref Map<string, string> files) uses alloc, fs fails IoError {
+/// The `.byn` files under `dir` (a resolved directory), by their name relative to the project (`rel` is `dir`'s), links skipped. Bounded by the
+/// depth, directory and file budgets.
+void distCollect(string dir, by string rel, through ref DistWalk w, at i64 depth) uses alloc, console, fs fails IoError {
+    if depth > distMaxDepth {
+        distStop("the sources are nested deeper than 64 directories", through: ref w)
+        return
+    }
+    w.dirCount += 1
+    if w.dirCount > distMaxDirs {
+        distStop("the sources hold more than 4000 directories", through: ref w)
+        return
+    }
     let entries = try Io.listDir(dir)
     for name in entries {
+        if w.over { return }
         let path = Path.combine(dir, name)
         if distIsLink(path) { continue }
         let relative = $"{rel}/{name}"
         if t5DirectoryExists(path) {
-            try distCollect(path, by: relative, to: ref names, through: ref files)
+            try distCollect(path, by: relative, through: ref w, at: depth + 1)
         } else if t6IsByn(name) {
-            names.append(relative)
-            files[relative] = path
+            w.fileCount += 1
+            if w.fileCount > distMaxFiles {
+                distStop("the sources hold more than 20000 .byn files", through: ref w)
+                return
+            }
+            w.names.append(relative)
+            w.paths[relative] = path
         }
     }
 }
 
-/// Dist.cs:147 `InputsHash`: SHA-256 over `package.byn` and every `.byn` under `src/`, by relative path. The C# feeds `IncrementalHash`; one digest
-/// over the concatenation is the same value (Q1150).
-string distInputsHash(string root) uses alloc, fs fails IoError {
-    var names = List<string>()
-    var files: Map<string, string> = []
-    names.append("package.byn")
-    files["package.byn"] = Path.combine(root, "package.byn")
+/// Dist.cs:147 `InputsHash`: SHA-256 over `package.byn` and every `.byn` under `src/`, by relative path; null after the line of a crossed budget
+/// (at most 64 MiB of input is held at once, the digest being one-shot). The C# feeds `IncrementalHash`; one digest over the concatenation is the
+/// same value (Q1150).
+string? distInputsHash(string root) uses alloc, console, fs fails IoError {
+    var w = DistWalk {}
+    w.names.append("package.byn")
+    w.paths["package.byn"] = Path.combine(root, "package.byn")
     let src = Path.combine(root, "src")
     // coverage-exempt: Q1151 an app compiles only with `src/app/`, so `src/` exists (Dist.cs:150 `Directory.Exists(src)` has no false arm here either)
-    if t5DirectoryExists(src) { try distCollect(try realPath(src), by: "src", to: ref names, through: ref files) }
-    names.sort()
+    if t5DirectoryExists(src) { try distCollect(try realPath(src), by: "src", through: ref w, at: 0) }
+    if w.over { return null }
+    w.names.sort()
     var all = List<u8>()
-    for name in names {
+    for i in 0..w.names.length {
+        let name = w.names[i]
         for b in name.bytes { all.append(b) }
         all.append(0)
-        let bytes = try Io.readFile(files[name])
+        let bytes = try Io.readFile(w.paths[name])
+        w.bytes += bytes.length
+        if w.bytes > distMaxBytes {
+            distStop("the sources hold more than 64 MiB", through: ref w)
+            return null
+        }
         for b in bytes { all.append(b) }
         all.append(0)
     }
@@ -292,12 +344,12 @@ string distBuildInfo(string name, by string release, for string mode, to in List
 
 /// Dist.cs:196 `RefreshLatest`: `dist/latest/` rebuilt as a copy of the highest version present (by semantic version, not build time), staged
 /// in `dist/.latest.tmp/` and renamed into place; that version, or null when `dist/` holds none.
-string? distRefreshLatest(string distDir) uses alloc, fs fails IoError {
+string? distRefreshLatest(string distDir, through ref DistWalk w) uses alloc, console, fs fails IoError {
     var newest = ""
     var found = false
     let entries = try Io.listDir(distDir)
     for name in entries {
-        if !(semantics.t10IsSemanticVersion(name) && t5DirectoryExists(Path.combine(distDir, name))) { continue }
+        if !(distIsVersion(name) && t5DirectoryExists(Path.combine(distDir, name))) { continue }
         if !found || semantics.compareVersions(name, to: newest) > 0 {
             newest = name
             found = true
@@ -307,7 +359,11 @@ string? distRefreshLatest(string distDir) uses alloc, fs fails IoError {
     unless found { return null }
     let staging = Path.combine(distDir, ".latest.tmp")
     if t5DirectoryExists(staging) { t3RemoveEntry(staging) }
-    try distCopyDirectory(Path.combine(distDir, newest), to: staging)
+    try distCopyDirectory(Path.combine(distDir, newest), to: staging, through: ref w, at: 0)
+    if w.over {
+        t3RemoveEntry(staging)
+        return null
+    }
     try Io.writeFile(Path.combine(staging, "VERSION"), $"{newest}\n".bytes)
     let latest = Path.combine(distDir, "latest")
     if t5DirectoryExists(latest) { t3RemoveEntry(latest) }
@@ -315,8 +371,18 @@ string? distRefreshLatest(string distDir) uses alloc, fs fails IoError {
     return newest
 }
 
-/// Dist.cs:214 `CopyDirectory`: the files with their mode bits (`Fs.copy`), then each subdirectory.
-void distCopyDirectory(string from, to string dest) uses alloc, fs fails IoError {
+/// Dist.cs:214 `CopyDirectory`: the files with their mode bits (`Fs.copy`), then each subdirectory. Bounded by the depth, directory and file
+/// budgets of `w`: past one it says so and stops.
+void distCopyDirectory(string from, to string dest, through ref DistWalk w, at i64 depth) uses alloc, console, fs fails IoError {
+    if depth > distMaxDepth {
+        distStop("a release is nested deeper than 64 directories", through: ref w)
+        return
+    }
+    w.dirCount += 1
+    if w.dirCount > distMaxDirs {
+        distStop("a release holds more than 4000 directories", through: ref w)
+        return
+    }
     try Io.createDirectory(dest)
     let entries = try Io.listDir(from)
     var subdirectories = List<string>()
@@ -324,8 +390,65 @@ void distCopyDirectory(string from, to string dest) uses alloc, fs fails IoError
         if t5DirectoryExists(Path.combine(from, name)) {
             subdirectories.append(name)
         } else {
+            w.fileCount += 1
+            if w.fileCount > distMaxFiles {
+                distStop("a release holds more than 20000 files", through: ref w)
+                return
+            }
             try Fs.copy(Path.combine(from, name), to: Path.combine(dest, name))
         }
     }
-    for name in subdirectories { try distCopyDirectory(Path.combine(from, name), to: Path.combine(dest, name)) }
+    for name in subdirectories {
+        if w.over { return }
+        try distCopyDirectory(Path.combine(from, name), to: Path.combine(dest, name), through: ref w, at: depth + 1)
+    }
+}
+
+/// Manifest.cs:338 `IsSemanticVersion` (manifest.byn keeps `t10IsSemanticVersion` private to its module, T12 may make public only the fields and
+/// `compareVersions`): `MAJOR.MINOR.PATCH`, each 1-18 digits without a leading zero, then optional `-pre` and `+build` identifiers.
+bool distIsVersion(string text) uses alloc {
+    let t = text.bytes
+    let plus = distIndexOf(t, for: 0x2B)
+    let main = plus < 0 ? t : t[0..plus]
+    if plus >= 0 && !distIdentifiers(t[plus + 1..t.length]) { return false }
+    let dash = distIndexOf(main, for: 0x2D)
+    let core = dash < 0 ? main : main[0..dash]
+    if dash >= 0 && !distIdentifiers(main[dash + 1..main.length]) { return false }
+    var parts: i64 = 0
+    var start: i64 = 0
+    for i in 0..core.length + 1 {
+        if i < core.length && core[i] != 0x2E { continue }
+        let p = core[start..i]
+        if p.length == 0 || p.length > 18 { return false }
+        for c in p {
+            if c < 0x30 || c > 0x39 { return false }
+        }
+        if p.length > 1 && p[0] == 0x30 { return false }
+        parts += 1
+        start = i + 1
+    }
+    return parts == 3
+}
+
+/// The `Identifiers` of Manifest.cs:347: non-empty dot-separated runs of `[0-9A-Za-z-]`.
+bool distIdentifiers(ReadOnlySpan<u8> t) {
+    var length: i64 = 0
+    for c in t {
+        if c == 0x2E {
+            if length == 0 { return false }
+            length = 0
+            continue
+        }
+        let ok = (c >= 0x30 && c <= 0x39) || (c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A) || c == 0x2D
+        if !ok { return false }
+        length += 1
+    }
+    return length > 0
+}
+
+i64 distIndexOf(ReadOnlySpan<u8> t, for u8 b) {
+    for i in 0..t.length {
+        if t[i] == b { return i }
+    }
+    return -1
 }

@@ -393,6 +393,29 @@ public sealed class SelfhostDefaultT12Tests
         }, DistStep());
     }
 
+    /// <summary>OutputTests.DistWritesAVersionDirectoryAndLatest: three targets named in the manifest.</summary>
+    [Fact]
+    public void ThreeManifestTargetsAreBuilt()
+    {
+        var r = Same("targets-three", root =>
+        {
+            NewApp()(root);
+            var manifest = Path.Combine(Project(root), "package.byn");
+            File.WriteAllText(manifest, File.ReadAllText(manifest).Replace("[.host]", "[.linuxX64, .macosArm64, .windowsX64]"));
+        }, DistStep());
+        Assert.Equal(0, r[0].Exit);
+    }
+
+    /// <summary>OutputTests.CleanRemovesOutAndOnRequestDist.</summary>
+    [Fact]
+    public void CleanRemovesOutAndOnRequestDist()
+    {
+        var r = Same("clean", NewApp(), new Step(["build", "tally"]), DistStep(), new Step(["clean", "tally"]), new Step(["clean", "tally", "--dist"]), new Step(["clean", Path.Combine("tally", "src")]));
+        Assert.Equal("removed out/\n", r[2].Out);
+        Assert.Equal("removed dist/\n", r[3].Out);
+        Assert.Equal(CliApp.ExitUsage, r[4].Exit);
+    }
+
     [Fact]
     public void SeveralManifestTargetsAreBuiltInOrder()
     {
@@ -428,6 +451,8 @@ public sealed class SelfhostDefaultT12Tests
             NewApp()(root);
             Directory.CreateDirectory(Path.Combine(Project(root), "dist"));
             File.WriteAllText(Path.Combine(Project(root), "dist", "7.7.7"), "x");
+            foreach (var bad in new[] { "1.0", "01.0.0", "1.0.0-", "1.0.0+", "1.0.0-a..b", "1.0.0-a$", "1.2.3.4", "1.x.0", "1234567890123456789.0.0", ".0.0", "1.0.0+b.1", "1.0.0-a.-b", "1.0.0-a:b", "1.0.0-a_b", "1.0.0-a{", "1.0.0-A.Z-9", "1.0.0-a@" })
+                Directory.CreateDirectory(Path.Combine(Project(root), "dist", bad));
         }, DistStep());
     }
 
@@ -526,15 +551,11 @@ public sealed class SelfhostDefaultT12Tests
     public void TheInputsHashDoesNotFollowLinks()
     {
         if (OperatingSystem.IsWindows()) return;
-        var dir = Fresh("inputs-links");
         var inputs = new List<string>();
         foreach (var variant in new[] { "plain", "links" })
         {
-            var cs = Path.Combine(dir, variant, "cs");
-            var s2 = Path.Combine(dir, variant, "s2");
-            foreach (var root in new[] { cs, s2 })
+            Same($"inputs-{variant}", root =>
             {
-                Directory.CreateDirectory(root);
                 NewApp()(root);
                 var src = Path.Combine(Project(root), "src");
                 Directory.CreateDirectory(Path.Combine(src, ".hidden"));
@@ -549,13 +570,8 @@ public sealed class SelfhostDefaultT12Tests
                     Directory.CreateSymbolicLink(Path.Combine(src, "link.byn"), Path.Combine("util", "u.byn"));
                     Directory.CreateSymbolicLink(Path.Combine(src, "dangling.byn"), "nowhere.byn");
                 }
-            }
-            var expected = Bayan(false, cs, [], ["dist", "tally"]);
-            var actual = Bayan(true, s2, [], ["dist", "tally"]);
-            Assert.True(expected.Exit == 0 && actual.Exit == 0, expected.Err + actual.Err);
-            Assert.Equal(Inputs(cs), Inputs(s2));
-            Assert.EndsWith(Dist.InputsHash(Project(s2)), Inputs(s2));
-            inputs.Add(Inputs(s2));
+            }, DistStep());
+            inputs.Add(Inputs(Path.Combine(Golden.RepoRoot, "tmp", "t12", $"inputs-{variant}", "s2")));
         }
         Assert.Equal(inputs[0], inputs[1]);
     }
@@ -584,6 +600,74 @@ public sealed class SelfhostDefaultT12Tests
         }, DistStep());
         Assert.NotEqual(0, r[0].Exit);
     }
+
+    // ── the budgets of docs/memory-leaks.md rules 1 and 5 (the C# has none: the driver alone, one line and a failure) ──
+
+    private static void Overflow(string name, Action<string> seed, string message, bool noDist = false)
+    {
+        var dir = Fresh(name);
+        NewApp()(dir);
+        seed(Project(dir));
+        var (exit, stdout, stderr) = Bayan(true, dir, [], ["dist", "tally"]);
+        Assert.Equal(CliApp.ExitFailure, exit);
+        Assert.Equal("", stdout);
+        Assert.Equal($"bayan: dist: {message}; stopped (docs/memory-leaks.md rule 1)\n", stderr.Replace(dir, "<root>"));
+        Assert.False(Directory.Exists(Path.Combine(Project(dir), "dist", ".0.1.0.tmp")));
+        if (noDist) Assert.False(Directory.Exists(Path.Combine(Project(dir), "dist", "latest")));
+    }
+
+    private static string Nest(string root, int depth)
+    {
+        var path = root;
+        for (var i = 0; i < depth; i++) path = Path.Combine(path, "d");
+        Directory.CreateDirectory(path);
+        return path;
+    }
+
+    [Fact]
+    public void SourcesNestedTooDeepStopTheWalk() =>
+        Overflow("budget-depth", p => File.WriteAllText(Path.Combine(Nest(Path.Combine(p, "src"), 65), "x.byn"), ""), "the sources are nested deeper than 64 directories");
+
+    [Fact]
+    public void TooManySourceDirectoriesStopTheWalk() =>
+        Overflow("budget-dirs", p =>
+        {
+            for (var i = 0; i < 4001; i++) Directory.CreateDirectory(Path.Combine(p, "src", $"d{i}"));
+        }, "the sources hold more than 4000 directories");
+
+    [Fact]
+    public void TooManySourceFilesStopTheWalk() =>
+        Overflow("budget-files", p =>
+        {
+            for (var i = 0; i < 20001; i++) File.WriteAllText(Path.Combine(p, "src", $"f{i}.byn"), "");
+        }, "the sources hold more than 20000 .byn files");
+
+    [Fact]
+    public void TooManySourceBytesStopTheHash() =>
+        Overflow("budget-bytes", p =>
+        {
+            using var f = File.Create(Path.Combine(p, "src", "big.byn"));
+            f.SetLength(64 * 1024 * 1024 + 1);
+        }, "the sources hold more than 64 MiB");
+
+    [Fact]
+    public void AReleaseNestedTooDeepStopsTheCopy() =>
+        Overflow("budget-copy-depth", p => File.WriteAllText(Path.Combine(Nest(Path.Combine(p, "dist", "9.9.9"), 65), "x"), ""), "a release is nested deeper than 64 directories", noDist: true);
+
+    [Fact]
+    public void AReleaseWithTooManyDirectoriesStopsTheCopy() =>
+        Overflow("budget-copy-dirs", p =>
+        {
+            for (var i = 0; i < 4001; i++) Directory.CreateDirectory(Path.Combine(p, "dist", "9.9.9", $"d{i}"));
+        }, "a release holds more than 4000 directories", noDist: true);
+
+    [Fact]
+    public void AReleaseWithTooManyFilesStopsTheCopy() =>
+        Overflow("budget-copy-files", p =>
+        {
+            Directory.CreateDirectory(Path.Combine(p, "dist", "9.9.9"));
+            for (var i = 0; i < 20001; i++) File.WriteAllText(Path.Combine(p, "dist", "9.9.9", $"f{i}"), "");
+        }, "a release holds more than 20000 files", noDist: true);
 
     // ── main.byn `run`: the arms around `dist` (the function is touched by the `dist` arm, so every arm runs here) ──
 
@@ -644,8 +728,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void TheDistArmRoutesToTheCommand()
     {
-        var (exit, _, stderr) = SelfhostDriverHarness.Run("dist", "--bogus");
-        Assert.Equal(CliApp.ExitUsage, exit);
-        Assert.Equal("bayan: unexpected argument `--bogus`\nusage: bayan dist [<dir>] [--target <t>|all] [--mode debug|safe|fast] [--force] [--allow-dirty]\n", stderr);
+        var r = Same("arm", NewApp(), new Step(["dist", "--bogus"]));
+        Assert.Equal(CliApp.ExitUsage, r[0].Exit);
     }
 }

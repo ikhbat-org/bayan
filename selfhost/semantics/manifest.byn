@@ -549,7 +549,7 @@ bool t10IsPackageName(string text) {
 
 /// Manifest.cs:292 `IsSemanticVersion`: `MAJOR.MINOR.PATCH`, each 1–18 digits without a leading zero,
 /// then optional `-pre` and `+build` dot-separated identifiers of `[0-9A-Za-z-]`.
-public bool t10IsSemanticVersion(string text) {
+bool t10IsSemanticVersion(string text) {
     let t = text.bytes
     let plus = t10IndexOf(t, for: 0x2B)
     let main = plus < 0 ? t : t[0..plus]
