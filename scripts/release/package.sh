@@ -15,7 +15,7 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 . "$root/scripts/release/version.sh"
 die() { echo "package: $*" >&2; exit 1; }
-version() { bayan_version "$root" 2>/dev/null || true; }
+version() { bayan_version "$root"; }
 
 # docs <dir>: the shipped docs into <dir>/share/doc/bayan/.
 docs() {
@@ -31,7 +31,6 @@ docs() {
 case "${1:-}" in
   check-tag)
     tag="${2:?usage: package.sh check-tag <tag>}"; v="$(version)"
-    [ -n "$v" ] || die "no version in VERSION"
     [ "$tag" = "v$v" ] || die "tag $tag does not match VERSION $v (expected v$v)"
     case "$v" in *-*) die "VERSION $v is a prerelease; set the release version before tagging" ;; esac
     echo "$v" ;;
@@ -63,7 +62,7 @@ case "${1:-}" in
     echo "$out/$name.$ext" ;;
   docs)
     out="${2:?usage: package.sh docs <out>}"
-    v="$(version)"; [ -n "$v" ] || die "no version in VERSION"; name="bayan-$v-docs"
+    v="$(version)"; name="bayan-$v-docs"
     mkdir -p "$out"; out="$(cd "$out" && pwd)"
     stage="$out/.stage-docs"; rm -rf "$stage"; mkdir -p "$stage/$name"
     docs "$stage/$name"

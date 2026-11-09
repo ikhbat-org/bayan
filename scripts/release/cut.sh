@@ -3,8 +3,8 @@
 #   cut.sh <X.Y.Z>
 # Sets VERSION, its mirrors and every header to X.Y.Z (set-version.sh), each `Revisions applied:` line to the highest
 # revision, regenerates docs/DIAGNOSTICS.md and docs/STATUS.md, and turns CHANGELOG.md's `## [Unreleased]` body into
-# `## [X.Y.Z] - <today>` with two more lists: the revisions added since the previous v* tag (git diff --diff-filter=A
-# <tag>..HEAD -- docs/revisions/) and the hand-kept docs/STATUS.md rows whose status cell changed since that tag.
+# `## [X.Y.Z] - <today>` with two more lists: the revisions added since the previous v* tag (the highest v<A.B.C>
+# below X.Y.Z, reachable from HEAD or not; git diff --diff-filter=A <tag> HEAD -- docs/revisions/) and the hand-kept docs/STATUS.md rows whose status cell changed since that tag.
 # Prints each file it changed and the new CHANGELOG section.
 set -euo pipefail
 
@@ -33,10 +33,18 @@ for g in diagnostics:DIAGNOSTICS status:STATUS; do
   cmp -s "$t/before" "$root/docs/${g#*:}.md" || echo "changed docs/${g#*:}.md"
 done
 
-prev="$(git -C "$root" tag --list 'v*' --sort=-v:refname --merged HEAD 2>/dev/null | head -n 1 || true)"
+# Git is used only when $root is itself a work tree's top level, never an enclosing repo.
+prev=""
+if [ "$(git -C "$root" rev-parse --show-toplevel 2>/dev/null || true)" = "$(cd -P "$root" && pwd -P)" ]; then
+  # Release tags sit on main's merge commits, which dev does not descend from: pick by version, not ancestry.
+  prev="$(git -C "$root" tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -Ex 'v[0-9]+\.[0-9]+\.[0-9]+' \
+    | awk -F'[v.]' -v c="$v" 'BEGIN { split(c, w, ".") }
+        { for (i = 1; i <= 3; i++) { if ($(i + 1) + 0 < w[i] + 0) { print; exit } if ($(i + 1) + 0 > w[i] + 0) next } }' \
+    | head -n 1 || true)"
+fi
 
 # The revisions added since $prev (all of them with no previous tag), as `- <title> (`path`)`.
-if [ -n "$prev" ]; then git -C "$root" diff --name-only --diff-filter=A "$prev..HEAD" -- docs/revisions/
+if [ -n "$prev" ]; then git -C "$root" diff --name-only --diff-filter=A "$prev" HEAD -- docs/revisions/
 else (cd "$root" && ls docs/revisions/*.md); fi | grep -E '^docs/revisions/[0-9]{4}-[^/]*\.md$' | LC_ALL=C sort > "$t/revs" || true
 : > "$t/revlist"
 while read -r f; do
