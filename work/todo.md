@@ -12,6 +12,7 @@ wish list; the value is in recording the ones nobody has got to yet.
 Small, clear, and could be picked up without a design decision.
 
 - ~~CI: install zig (or set `BAYAN_CC`) on all three runners so `run/` goldens execute there.~~ (done: ci.yml:40-42 installs zig; triage 2026-11-09)
+- `docs/export/BAYAN-DIAGNOSTICS.md` and `BAYAN-GRAMMAR.md` still say BYN5014 is "not a known verb or noun"; regenerate the export snapshot.
 - `#line`: function signatures and prologues map to `main.c`, so a debugger breakpoint on a function names generated code until its first statement; mapping the signature to the declaration line would fix it.
 - `CliToolchainTests.GeneratedCTheCCompilerRejectsIsAnInternalCompilerError` uses a `/bin/sh` fake compiler and returns early on Windows.
 - `Lexer.cs:571` help still says "wrap it with a cast to the unit type"; casts are BYN1057 since 5.3f, so it should say `T(x)`.

@@ -18,4 +18,4 @@ error BYN3101: `rules` is not a field of `Grammar`
   8 │         rules: [],
     │         ^^^^^
     │
-  help: use one of the fields `verbs`, `nouns`, `adjectives`, `forms`
+  help: use one of the fields `verbs`, `nouns`, `adjectives`, `collectives`, `forms`

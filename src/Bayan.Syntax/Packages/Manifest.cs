@@ -35,7 +35,7 @@ public sealed class Manifest
     private static readonly string[] StyleFields = ["indent", "braces", "maxLine", "trailingCommas", "booleans", "primitives"];
 
     /// <summary>Fields of <c>Grammar</c>, the grammar checker's project dictionary (HANDOFF round 3 §12, J85).</summary>
-    private static readonly string[] GrammarFields = ["verbs", "nouns", "adjectives", "forms"];
+    private static readonly string[] GrammarFields = ["verbs", "nouns", "adjectives", "collectives", "forms"];
 
     private Manifest(SourceText source) => Source = source;
 
@@ -211,7 +211,7 @@ public sealed class Manifest
             else
             {
                 var grammarFields = Fields(g, GrammarFields);
-                foreach (var (field, words) in new[] { ("verbs", Grammar.Verbs), ("nouns", Grammar.Nouns), ("adjectives", Grammar.Adjectives) })
+                foreach (var (field, words) in new[] { ("verbs", Grammar.Verbs), ("nouns", Grammar.Nouns), ("adjectives", Grammar.Adjectives), ("collectives", Grammar.Collectives) })
                 {
                     if (!grammarFields.TryGetValue(field, out var list)) continue;
                     if (list is ListValue l && l.Items.All(w => w is StringValue))
@@ -219,6 +219,7 @@ public sealed class Manifest
                     else
                         Invalid(list, $"grammar.{field}", "a list of words, e.g. `[\"upsert\"]`");
                 }
+                CheckOverlap(grammarFields);
                 if (grammarFields.TryGetValue("forms", out var forms))
                 {
                     if (forms is MapValue map && map.Entries.All(e => e is (StringValue, StringValue)))
@@ -284,6 +285,23 @@ public sealed class Manifest
         if (value is StringValue s) return s.Value;
         Invalid(value, field, expected);
         return null;
+    }
+
+    /// <summary>A word in two classes is an error, except a verb that is also a noun (<c>record</c>); revision 0021 Part 3.</summary>
+    private void CheckOverlap(Dictionary<string, Value> grammarFields)
+    {
+        var seen = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var field in new[] { "verbs", "nouns", "adjectives", "collectives" })
+        {
+            if (!grammarFields.TryGetValue(field, out var list) || list is not ListValue l) continue;
+            foreach (var item in l.Items.OfType<StringValue>())
+            {
+                if (seen.TryGetValue(item.Value, out var other) && !(other == "verbs" && field == "nouns"))
+                    Invalid(item, $"grammar.{field}", $"free of `{item.Value}`, which `grammar.{other}` lists; only a verb that is also a noun may be in two lists");
+                else
+                    seen.TryAdd(item.Value, field);
+            }
+        }
     }
 
     private void Invalid(Value value, string field, string expected) =>
@@ -508,7 +526,7 @@ public sealed class Manifest
     }
 }
 
-/// <summary><c>grammar: Grammar { verbs, nouns, adjectives, forms }</c> in <c>package.byn</c>, merged with the built-in word list.</summary>
+/// <summary><c>grammar: Grammar { verbs, nouns, adjectives, collectives, forms }</c> in <c>package.byn</c>, merged with the built-in word list.</summary>
 public sealed class Grammar
 {
     public HashSet<string> Verbs { get; } = new(StringComparer.Ordinal);
@@ -517,6 +535,11 @@ public sealed class Grammar
 
     public HashSet<string> Adjectives { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>Irregular derived spellings, a word to its form: <c>"upsert": "upserted"</c>.</summary>
+    public HashSet<string> Collectives { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Irregular derived spellings, a word to its form, read by the word's class: <c>"upsert": "upserted"</c> for a verb,
+    /// <c>"criterion": "criteria"</c> for a noun. A word that is both a verb and a noun cannot have a form for each.
+    /// </summary>
     public Dictionary<string, string> Forms { get; } = new(StringComparer.Ordinal);
 }
