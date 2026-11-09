@@ -17,7 +17,7 @@ public sealed class SelfhostLexerCaseTests(ITestOutputHelper output)
 {
     private static readonly string[] Inputs =
     [
-        "", "A", "Z", "a", "z", "Å", "Å", "Ω", "ω", "ǅ", "_", "7", "\U0001D400", "\U0001D41A", "Äx", "Δx",
+        "", "A", "Z", "a", "z", "Å", "Å", "Ω", "ω", "ǅ", "_", "7", "\U0001D400", "\U0001D41A", "Äx", "Δx",
     ];
 
     [Fact]
