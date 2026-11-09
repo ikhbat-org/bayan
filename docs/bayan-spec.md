@@ -2050,13 +2050,15 @@ Time units live in `core` and require no import:
 ```csharp
 unit Nanoseconds(ns): i64
 unit Microseconds(us) = 1000 ns
-unit Millis(ms) = 1000 us [^millis-footnote]
+unit Millis(ms) = 1000 us
 unit Seconds(s) = 1000 ms
 unit Minutes(min) = 60 s
 unit Hours(h) = 60 min
 ```
 
-[^millis-footnote]: `Millis` is renamed to `Milliseconds` in Phase 1b.
+The millisecond unit is `Millis`.[^millis-footnote]
+
+[^millis-footnote]: Renamed `Milliseconds` in Phase 1b.
 
 - **Conversion:** conversion toward finer units is implicit. Conversion toward coarser units is explicit and names the rounding: `rounded<U>()`, `floor<U>()` or `ceiling<U>()`. Bare numeric literals are rejected, including `0` (write `0s`).
 - **Input forms:** `µs` (both U+00B5 and U+03BC) is an input form for `us`.
@@ -2119,10 +2121,10 @@ Calling a mutating verb on a `let` raises the mutation diagnostic with help "wri
 #### Differences, ranges, queries
 
 - **Differences:** `Days(from: a, until: b)`, `Months(from: a, until: b)`, `Period(from: a, until: b)`, `Seconds(from: a, until: b)`. Differences count from the start and truncate toward zero.
-- **Recurrence:** `start.series(by: 1mo, until: end)` yields `start + n * step`. Steps are never chained from prior results, preventing month-end drift. Inclusive recurrence uses `through:`.
+- **Recurrence:** `start.series(by: 1mo, until: end)` yields `start + n * step`. Steps are never chained from prior results, preventing month-end drift. `series` takes `until:` only; there is no `through:` form (Q1160).
 - **Ranges:** half-open ranges use `from: … until:`; inclusive ranges use `through:`.
 - **Queries:** `weekday`, `dayOfYear`, `daysInMonth`, `isLeapYear`, `startOfMonth`, `endOfMonth`, `startOfIsoWeek`.
-- **Next and previous:** `today.next(.friday)` (strictly after, never today), `today.next(.friday, inclusive: true)` (today if it is Friday), `today.previous(.monday)`. Both `next` and `previous` are vocabulary exemptions under the naming rules (J70 precedent).
+- **Next and previous:** `today.next(.friday)` (strictly after, never today), `today.next(.friday, inclusive: true)` (today if it is Friday), `today.previous(.monday)`. Neither word ends in `-ed`, so BYN5001 does not apply and no exemption is needed.
 - **Start of day:** `d.startOfDay(at: zone)` returns `ZonedDateTime` and fails `LocalTimeError.skipped` if midnight was skipped by a DST transition.
 
 #### Clocks
@@ -2153,7 +2155,7 @@ let meeting = ZonedDateTime(local, at: kl) catch switch {
 - **Comparison:** `==` and hashing are structural (instant plus canonical zone ID). There is no `<`; ordering is done through `.instant`.
 - **Offsets:** there is no DST flag. Values expose `offset` and `standardOffset`; their difference may be negative.
 - **Standard library scope:** `std.time` contains `TimeZone.utc` and fixed offsets (`Offset`) only. Full IANA database rules live in `kit.tz`.
-- **Parsing:** `TimeZone.parse(id)` fails `TimeParseError` and `TimeZone.tryParse(id)` returns `TimeZone?`. Both reject `Etc/GMT±n`, POSIX TZ strings and abbreviations with help pointing to `+08:00` or an IANA ID (`LegacyZoneName`).
+- **Parsing:** `TimeZone.parse(id)` fails and `TimeZone.tryParse(id)` returns `TimeZone?`. Both reject `Etc/GMT±n`, POSIX TZ strings and abbreviations with help pointing to `+08:00` or an IANA ID (`LegacyZoneName`).
 - **Zone IDs:** preserved as written, compared canonically, resolved only through the database index (never as file paths), and serialized as text.
 
 #### Format and parse
@@ -2189,7 +2191,7 @@ let meeting = ZonedDateTime(local, at: kl) catch switch {
 | `Date` | `date` |
 | `Time` | `time` (never `timetz`) |
 | `Duration` | `bigint` ns |
-| `Period` | months and days columns (`months integer`, `days integer`) |
+| `Period` | two integer columns (`months integer`, `days integer`); see Q1161 |
 
 - **C ABI:** `std.c` maps `time_t` with an integer width check.
 
