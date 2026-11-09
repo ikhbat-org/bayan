@@ -1,7 +1,7 @@
 # Bayān — Language Specification (draft 0.1)
 
 Version: 0.3.0-dev (matches `bayan --version`)
-Revisions applied: 0001–0020
+Revisions applied: 0001–0021
 
 > **Status:** design complete enough to build v0.1. This document is normative unless a section says otherwise.
 > **Source files:** `.byn` · **CLI:** `bayan` · **Manifest:** `package.byn` · **Build script:** `build.byn`
