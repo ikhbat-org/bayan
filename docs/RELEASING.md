@@ -55,8 +55,9 @@ cell when that feature's status changes; `cut.sh` lists those changes in the CHA
 
 ## What CI checks
 
-The Linux and macOS jobs of `.github/workflows/ci.yml` (step "Script tests") run the script tests and
-`bash scripts/docs/check.sh`. That script prints one line per failure and fails when:
+The Linux job of `.github/workflows/ci.yml` (step "Docs and release script tests") runs `set-version.test.sh`,
+`cut.test.sh`, `scripts/docs/*.test.sh` and `bash scripts/docs/check.sh`; `package.test.sh` runs in step "Script
+tests" on Linux and macOS. `check.sh` prints one line per failure and fails when:
 
 - (a) a header doc's `Version:` line is not `Version: <VERSION> (matches \`bayan --version\`)`;
 - (b) the revision files do not run 0001 to the highest with no gap or repeat, or a `Revisions applied:` line does
