@@ -1,0 +1,21 @@
+# Diagnostic codes allocated outside src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs, read by
+# scripts/docs/gen-diagnostics.sh into docs/DIAGNOSTICS.md: plan codes, reservations with no descriptor, and descriptors
+# retired or reserved only in their docs/diagnostics/ page. A code with a `// BYNnnnn is retired|reserved` or round-4
+# comment there is not listed here. One code per line: status (plan, reserved or retired), code, name (- when none),
+# note.
+# Seeded from docs/export/BAYAN-DIAGNOSTICS.md (commit 8d5e5c71). When a code gets a descriptor, delete its line.
+plan BYN2233 UnlikelyOnErrorReturn Warning: `unlikely` on an error return is redundant. Plan 2026-10-21-001-design-round-2.md; cited in docs/bayan-spec.md.
+plan BYN3203 BareLiteralForUnit Error: `{0}` has no unit; `{1}` needs a unit literal. Plan 2026-10-22-002-design-round-3.md; docs/bayan-spec.md; revision 0005.
+plan BYN3205 CoarserUnitImplicit Error: `{0}` to `{1}` loses precision. Plan round 3; docs/bayan-spec.md.
+plan BYN3210 IndexTypeMismatch Error: `{0}` indexes `{1}`, which uses `{2}`. Plan round 3 §9; docs/bayan-spec.md; docs/bayan-style.md; revision 0005.
+plan BYN3211 RowNotFlat Error: `Row` needs flat fields; `{0}` is a `{1}`. Plan round 3; docs/bayan-spec.md.
+plan BYN3212 ExceptOnNonSequence Error: `except` needs a sequence, set or error set; `{0}` is neither. Plan round 3; docs/bayan-design-round-4-draft.md.
+plan BYN5010 EventOnPrefix Error: a stored function field or event named with `on` (message not quoted). docs/bayan-design-round-3-addendum-1.md; docs/bayan-spec.md.
+plan BYN8002 SecretInDerivation Error: `{0}` derives `{1}`, which would read the secret field `{2}`. Plan round 3; docs/bayan-spec.md; revision 0005.
+plan BYN8003 SinkNeedsType Error: `{0}` takes `{1}`, not `string`. Plan round 3; docs/bayan-spec.md.
+plan BYN8005 SqlArgumentCount Error: `sql"…"` has {0} placeholders but {1} arguments follow it. Plan round 3 J40; docs/suq-round3-review-response.md (reserved there).
+reserved BYN8004 - `Untrusted<T>` reaching a layer-2 sink (spec §15.1); the round-3 plan says "reserved". No round-4 target given.
+retired BYN2113 RecursiveStruct Superseded by BYN2761 since M21, which names the whole cycle and covers unions too (docs/diagnostics/BYN2113.md); the descriptor stays.
+retired BYN2224 InterpolationNotAllowed `$"…"` is an expression anywhere since M14 (docs/diagnostics/BYN2224.md); the descriptor stays.
+retired BYN2707 RecursiveUnion Superseded by BYN2761 since M21 (docs/diagnostics/BYN2707.md); the descriptor stays.
+reserved BYN2116 RefThisOnOperator Not reported yet: operator declarations are spec-only (spec §2); the code is reserved for when they arrive (docs/diagnostics/BYN2116.md).
