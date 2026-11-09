@@ -24,8 +24,8 @@ Edits are anchored on text and section, not line numbers.
 | 5 | Part 2.3, A30 (revision 0002 item 26) | SPEC §19.2 `grammar` dictionary | `adjectives: ["idempotent"]` beside `verbs` and `nouns`; the text names all three. The BYN5014 message and fix-it change is queued in `work/todo.md` |
 | 6 | Part 2.4 | SPEC, GRAMMAR, STYLE under the H1; `docs/export/BAYAN-GRAMMAR.md` | `Version: 0.2.0 (matches \`bayan --version\`)` and `Revisions applied: 0001–0020`. The export GRAMMAR title loses "(rev 0016)"; its header says `Revisions applied: 0001–0019`, since its body is the 8d5e5c71 snapshot. Its body tag "(rev 0016)" on the doer row reads "(revision 0016)" |
 | 7 | Part 4.3 | SPEC, throughout | Status tags; full list under "Status tags" |
-| 8 | A2 | `work/todo.md:154` | BYN1237 → BYN2218 (`NoTargetType`, `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs:175`) |
-| 9 | A3 | `docs/revisions/0016-addendum-a1-midflight.md:80` | Supersedes revision 0016:80: "`final` states and BYN7010" reads "`final` states and BYN7013" (round-4 draft `docs/bayan-design-round-4-draft.md:228`, `:252`); BYN7010 is the live `BecomesNeedsRef`. The stale "draft says" comments at `DiagnosticCodes.cs:387`, `:390` are a queued code task |
+| 8 | A2 | `work/todo.md:162` | BYN1237 → BYN2218 (`NoTargetType`, `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs:175`) |
+| 9 | A3 | `docs/revisions/0016-addendum-a1-midflight.md:79` | Supersedes revision 0016:79: "`final` states and BYN7010" reads "`final` states and BYN7013" (round-4 draft `docs/bayan-design-round-4-draft.md:228`, `:252`); BYN7010 is the live `BecomesNeedsRef`. The stale "draft says" comments at `DiagnosticCodes.cs:387`, `:390` are a queued code task |
 | 10 | A4 | SPEC §3.4 (BYN3203), §3.5 (BYN3210), §5.3 (BYN8002, BYN3211), §7.4 note (BYN2232), §15.1 (BYN8003, BYN8004), §15.2 (BYN8002); STYLE "Trees and graphs" (BYN3210) | BYN3203, BYN3210, BYN3211, BYN8002, BYN8003, BYN8004 tagged `(spec-only)` (revision 0005); BYN2232 dropped from the §7.4 note (round-2 plan: "not added") |
 | 11 | A5 | SPEC §3.10, §5.2, §7.6, §16.1 (seven sites); GRAMMAR §1, §2 and §13 (three sites) | BYN5010 `EventOnPrefix` marked "(plan)"; GRAMMAR's links to the nonexistent `docs/diagnostics/BYN5010.md` removed. Supersedes `docs/bayan-design-round-3-addendum-1.md:70`: BYN5010 is a plan code with no descriptor, so it "would cover" stored function fields once added, not "now also covers" |
 | 12 | A6 | SPEC §15.4 | `Regex.escape` cites `(§15.1)`, not `(§15.2)` |
@@ -35,7 +35,7 @@ Edits are anchored on text and section, not line numbers.
 | 16 | A11 | SPEC §2.4 | `rest` moves from the declaration keywords to the contextual words; `expects` and `when` are added there (`src/Bayan.Syntax/Parsing/Parser.cs:250`, `:1211`, `:1436`, `:2955`) |
 | 17 | A13 | SPEC §2.4 | `flags`, `errdefer`, `delegate`, `set`, `noalloc`, `nosuspend`, `suspends`, `foreach` are lexed only for the teaching errors (BYN1019, BYN1020, BYN1028, BYN6001; §21.5); `flags` and `set` are contextual, the others cannot be identifiers |
 | 18 | A14 | SPEC §5.2 | `tryX` row: "(partial in 0.2: a hand-written `tryX` is checked; none is derived)" (`src/Bayan.Semantics/Naming.cs:75`) |
-| 19 | A15 | SPEC §6.8 heading | "(partial in 0.2: only the error-set form; sequence `except` parses but is reported as unsupported, BYN2022)". Checked: `for l in lines except "a"` gives BYN2022 "this expression is not supported" (`src/Bayan.Semantics/Binding/BinderExpressions.cs:387`); the error-set form binds (`src/Bayan.Semantics/Binding/TypeResolver.cs:433`) |
+| 19 | A15 | SPEC §6.8 heading | "(partial in 0.2: only the error-set form; sequence `except` parses but is reported as unsupported, BYN2022)". Checked: `for l in lines except "a"` gives BYN2022 "this expression is not supported" (`src/Bayan.Semantics/Binding/BinderExpressions.cs:387`); the error-set form binds (`src/Bayan.Semantics/TypeResolver.cs:433`) |
 | 20 | A16 | SPEC §3.4 heading | "(partial in 0.2: `type distinct` only; `unit` declarations and unit suffixes are not in 0.2)" (`src/Bayan.Semantics/Builtins.cs:187` "units are spec-only"; `BinderExpressions.cs:415` reports a unit suffix as BYN2022; `type distinct` has BYN3204 and run golden `tests/cases/run/struct-requires.byn`) |
 | 21 | A17 | `docs/revisions/0016-addendum-a1-midflight.md:78` | Supersedes revision 0016:78 "subjectless `switch` and `when` guards": `when` guards are built (SPEC §6.5; `Parser.cs:2955`; golden `tests/cases/diag/non-exhaustive-union-guard.byn:8`); only the subjectless `switch` waits for round 4 (`Parser.cs:2907` requires a subject; BYN1071 reserved, `DiagnosticCodes.cs:388`) |
 | 22 | A18 | `docs/revisions/0019-round-4-batches-1-8-consistency.md:75` | Supersedes revision 0019:75: applied. `src/Bayan.Syntax/Lexing/Keywords.cs` has no `ensures`, and `tests/cases/run/ensures-identifier.byn:1` uses it as a name |
@@ -124,3 +124,89 @@ None affected: no Sūq source is changed by a docs revision. `package.byn` files
 
 - `work/todo.md` gains the queued code tasks: BYN5014 message and fix-it, A3, A7, A9, A12, A27, A32, and the manifest style knobs.
 - The goldens are unchanged; no test reads SPEC text.
+
+## Diff
+
+The frozen documents below are not edited (dispatcher D13); this diff records how items 2, 9, 11, 21, 22, 24, 26 and 32 supersede them. Where this diff and the frozen text differ, this revision wins. SPEC, GRAMMAR, STYLE and the export files carry their changes directly (items 3-33).
+
+### Item 2 (A1): `docs/bayan-design-round-4-draft.md`, `docs/bayan-design-round-4-inventory.md`
+```diff
+--- a/docs/bayan-design-round-4-draft.md
++++ b/docs/bayan-design-round-4-draft.md
+@@ -269 +269 @@
+-| Naming rules BYN5100/5101 | Consistent public APIs | More policing; wait for the friction count in section 3 |
++| Naming rules (BYN5100 unallocated; BYN5101 is `NounOnMutator`) | Consistent public APIs | More policing; wait for the friction count in section 3 |
+--- a/docs/bayan-design-round-4-inventory.md
++++ b/docs/bayan-design-round-4-inventory.md
+@@ -13 +13 @@
+-| R4D §3 row 2 + §7 v0.2 BYN5100/5101 | Particles/naming rules on public API (friction count) | diag | evidence after 012 | M | open |
++| R4D §3 row 2 + §7 v0.2 naming rules (BYN5100 unallocated; BYN5101 is `NounOnMutator`) | Particles/naming rules on public API (friction count) | diag | evidence after 012 | M | open |
+@@ -240 +240 @@
+-- **Row 2 naming/particle rules (BYN5100/5101):** kept with the >5 `@allow`/renames per 10k lines trigger, measured on
++- **Row 2 naming/particle rules (BYN5100 unallocated; BYN5101 is `NounOnMutator`):** kept with the >5 `@allow`/renames per 10k lines trigger, measured on
+```
+
+### Item 9 (A3) and item 21 (A17): `docs/revisions/0016-addendum-a1-midflight.md`
+```diff
+--- a/docs/revisions/0016-addendum-a1-midflight.md
++++ b/docs/revisions/0016-addendum-a1-midflight.md
+@@ -78,2 +78,2 @@
+-- subjectless `switch` and `when` guards
+-- `final` states and BYN7010
++- subjectless `switch` (`when` guards are built: SPEC §6.5)
++- `final` states and BYN7013
+```
+
+### Item 11 (A5): `docs/bayan-design-round-3-addendum-1.md`
+```diff
+--- a/docs/bayan-design-round-3-addendum-1.md
++++ b/docs/bayan-design-round-3-addendum-1.md
+@@ -70 +70 @@
+-- (c) Reused: BYN2230 (renamed member) for `onPanic` → `handler`; BYN5010 `EventOnPrefix` now also covers stored function fields (message unchanged, help "name the field for its role, such as `handler`").
++- (c) Reused: BYN2230 (renamed member) for `onPanic` → `handler`; BYN5010 `EventOnPrefix` (plan, no descriptor yet) would also cover stored function fields once added (message unchanged, help "name the field for its role, such as `handler`").
+```
+
+### Item 22 (A18): `docs/revisions/0019-round-4-batches-1-8-consistency.md`
+```diff
+--- a/docs/revisions/0019-round-4-batches-1-8-consistency.md
++++ b/docs/revisions/0019-round-4-batches-1-8-consistency.md
+@@ -75 +75 @@
+-- Lexer still reserves `ensures` (`Keywords.cs:41`, `selfhost/lexer/tokens.byn:186`); batch 1 unreserves it (line added to `work/todo.md`).
++- Applied (revision 0020): the lexer no longer reserves `ensures` (`tests/cases/run/ensures-identifier.byn:1` uses it as a name); batch 1 unreserves it.
+```
+
+### Item 24 (A21): `docs/revisions/0002-round-3-consistency-review.md`
+```diff
+--- a/docs/revisions/0002-round-3-consistency-review.md
++++ b/docs/revisions/0002-round-3-consistency-review.md
+@@ -11 +11 @@
+-1. **Clause order includes `expects`:** `where` → `expects` → `becomes` → `fails` → `uses`. Update HANDOFF:83 (shape), HANDOFF:95 (order sentence), and the BYN1065 message at plan:18.
++1. **Clause order includes `expects`:** `where` → `expects` → `uses` → `becomes` → `fails` (revision 0020 item 24). Update HANDOFF:83 (shape), HANDOFF:95 (order sentence), and the BYN1065 message at plan:18.
+```
+
+### Item 26 (A23): `docs/bayan-handoff.md`
+```diff
+--- a/docs/bayan-handoff.md
++++ b/docs/bayan-handoff.md
+@@ -239 +239 @@
+-Lockfile policy: `bayan.lock` is committed for apps and libraries alike (reproducible builds); do not ignore it.
++Lockfile policy: `package.lock.byn` is committed for apps and libraries alike (reproducible builds); do not ignore it.
+```
+
+### Item 32 (A33): `docs/bayan-handoff-addendum-002.md`
+```diff
+--- a/docs/bayan-handoff-addendum-002.md
++++ b/docs/bayan-handoff-addendum-002.md
+@@ -61 +61 @@
+-- Attributes: `[Exhaustive(...)]` (bounds for exhaustive checking), `[Prove]` (request the `proved` level, §3), `[Cases(n)]` (number of generated cases; default 10,000).
++- Attributes: `[Exhaustive(...)]` (bounds for exhaustive checking), `@prove` (request the `proved` level, §3), `[Cases(n)]` (number of generated cases; default 10,000).
+@@ -137 +137 @@
+-- `bayan verify` (v1.x) sends contracts and `[Prove]` laws in the decidable subset (integer arithmetic, arrays, enums, unions) to Z3. Results: proved, counterexample, or unknown (timeout). Unknown falls back to `tested`.
++- `bayan verify` (v1.x) sends contracts and `@prove` laws in the decidable subset (integer arithmetic, arrays, enums, unions) to Z3. Results: proved, counterexample, or unknown (timeout). Unknown falls back to `tested`.
+@@ -146 +146 @@
+-let revenue = orders.par().where(o => o.isPaid).sum(o => o.total);
++let revenue = orders.par().where(o => o.isPaid).sum(o => o.total)
+@@ -155 +155 @@
+-  help: use a reduction (`orders.par().count(o => …)`) or an Atomic<int>
++  help: use a reduction (`orders.par().count(o => …)`) or an Atomic<i32>
+```
