@@ -457,7 +457,7 @@ public sealed class SelfhostSemanticsT2Tests
     private static List<DiagnosticDescriptor> SemanticTable()
     {
         var table = DiagnosticCodes.All.Where(d => IsT2Code(d.Code)).ToList();
-        foreach (var name in new[] { "ConversionMember", "BecomeOtherState", "BecomesCallUndeclared" })
+        foreach (var name in new[] { "ConversionMember", "BecomeOtherState", "BecomesCallUndeclared", "NumberAgreementOne" })
         {
             var field = typeof(DiagnosticCodes).GetField(name, BindingFlags.Public | BindingFlags.Static)!;
             var extra = (DiagnosticDescriptor)field.GetValue(null)!;

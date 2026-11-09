@@ -145,11 +145,11 @@ public sealed class SelfhostRevisionT7Tests
         ("members-older", null, """
             public union error ParseError { empty }
 
-            public struct Reader {
+            public struct Notebook {
                 i64 n
                 string text
 
-                public static Reader make() => Reader { n: 0, text: "" }
+                public static Notebook make() => Notebook { n: 0, text: "" }
 
                 public void total(ref this, i64 by) {
                     n += by
@@ -214,10 +214,10 @@ public sealed class SelfhostRevisionT7Tests
 
                 public i64 size => n
 
-                public List<Reader> reader => List<Reader>()
+                public List<Notebook> notebook => List<Notebook>()
 
                 @json(name: "item")
-                public List<Reader> item => List<Reader>()
+                public List<Notebook> item => List<Notebook>()
 
                 public i64 numLines => n
             }
@@ -241,7 +241,7 @@ public sealed class SelfhostRevisionT7Tests
 
             public type distinct Qty = i64 requires it > 0
 
-            public struct Holder<T> {
+            public struct Crate<T> {
                 public T items
             }
 
@@ -275,6 +275,45 @@ public sealed class SelfhostRevisionT7Tests
             public i64 third(Line __) => 0
 
             public i64 fourth(Line[4] line) => 0
+
+            print("ok")
+            """),
+        ("declare", null, """
+            public struct Key {
+                public i64 id
+            }
+
+            public struct Shelf<T> {
+                public Map<Key, T> byKey
+            }
+
+            public struct Store {
+                public Map<Key, i64> byKey
+                public Shelf<i64> shelf
+                public List<Key> key
+            }
+
+            public interface IScore<T> {
+                i64 score(T other)
+            }
+
+            public i64 best<T>(List<T> item) where T : IScore<T> => item.length
+
+            public union error ParseError { empty }
+
+            public union error IoError { lost }
+
+            public union error LoadError = ParseError, IoError
+
+            type Amount = i64
+
+            public enum Shade {
+                light
+                dark
+            }
+
+            test "runs" {
+            }
 
             print("ok")
             """),
@@ -353,7 +392,7 @@ public sealed class SelfhostRevisionT7Tests
 
     private static List<string> ExpectedProgram(string dir)
     {
-        var c = Compilation.Create([Golden.Load(Path.Combine(dir, "main.byn"))], dir, new CompilationOptions());
+        var c = Compilation.Create([Golden.Load(Path.Combine(dir, "main.byn"))], dir, new CompilationOptions(IncludeTests: true));
         var lines = new List<string>();
         foreach (var d in c.Diagnostics.Items)
         {
@@ -379,7 +418,7 @@ public sealed class SelfhostRevisionT7Tests
         void showProgram(string name, at string dir) {
             var sources = List<lexer.SourceText>()
             sources.append(lexer.SourceText.create("main.byn", from: t11ReadAllBytes($"{dir}/main.byn")))
-            let options = CompilationOptions { includeTests: false, library: false, skipOwnershipCheck: false, capabilities: null, packageName: null }
+            let options = CompilationOptions { includeTests: true, library: false, skipOwnershipCheck: false, capabilities: null, packageName: null }
             var c = create(from: move sources, at: dir, by: options)
             print($"== diags.{name}")
             for d in c.diagnostics {
