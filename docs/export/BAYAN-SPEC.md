@@ -661,7 +661,7 @@ public Order.shipped ship(move Order.paid order, by Carrier carrier)
 8. Runtime: `T.s` has the same layout as `T` (a `u8` tag plus a payload union) and is erased in C. Widening is a no-op; the checks are compile-time only.
 9. Canonical spelling: one state is always written `T.s`. `bayan format` rewrites `Order order is .paid` → `Order.paid order` and `type X = Order is .paid` → `type X = Order.paid` (BYN7006). The receiver is exempt.
 10. State names are camelCase and may not equal a static member name of `T`, otherwise `Order.empty` would name both a type and a factory (BYN7008).
-11. `becomes .state` declares a transition; `become .state(…)` performs it. Only a `ref this` method may declare `becomes`: a `move this` or `this` receiver leaves the caller with no value whose state could change (BYN7010; rev 0010). A method that calls a `becomes .t` method on `this` declares `becomes` including `.t` itself, and the call counts as `become .t` (BYN7003). A `becomes` method can't be called on a `ref` parameter (BYN7011). A whole-value assignment to `this` or to a `ref` parameter keeps its state: allowed only when the target's type names one state and the new value is in it (BYN7012). A `become` to a state the signature does not declare is an error (BYN7003). **A failed transition leaves the state unchanged.** A method that declares `becomes .s` must `become` on every path that returns normally; a path that fails leaves the state unchanged (BYN7009). After a `becomes` call on a `var` (with no live borrows), the variable's static type changes: after `try order.pay(card)`, `order` is `Order.paid`. A `let` cannot call `ref this` methods, so it needs no tracking.
+11. `becomes .state` declares a transition; `become .state(…)` performs it. Only a `ref this` method may declare `becomes`: a `move this` or `this` receiver leaves the caller with no value whose state could change (BYN7010; rev 0010). A method that calls a `becomes .t` method on `this` declares `becomes` including `.t` itself, and the call counts as `become .t` (BYN7003). A `becomes` method can't be called on a `ref` parameter (BYN7011). A whole-value assignment to `this` or to a `ref` parameter keeps its state: allowed only when the target's type names one state and the new value is in it (BYN7012). A `become` to a state the signature does not declare is an error (BYN7003). **A failed transition leaves the state unchanged.** A method that declares `becomes .s` must `become` on every path that returns normally; a path that fails leaves the state unchanged (BYN7009; rev 0004). After a `becomes` call on a `var` (with no live borrows), the variable's static type changes: after `try order.pay(card)`, `order` is `Order.paid`. A `let` cannot call `ref this` methods, so it needs no tracking.
 12. A state switch is exhaustive, so adding a state is a compile error at every non-exhaustive switch (BYN7004).
 13. `states` is a contextual keyword at the start of a member declaration when followed by `{`, so fields named `state` or `states` still work. At most one `states` block per struct. The per-line `state x` form is an input form (BYN1059). `becomes` is contextual after a parameter list.
 14. States are named as participles or adjectives (`paid`, `shipped`) and are exempt from the `-ed` copy-pattern rule (§5.2), which applies only to members.
@@ -740,7 +740,7 @@ Users may create roots, never patterns. Derived members are generated only when 
 |---|---|---|---|---|
 | `x()` | Form I | Base act | Returns a value, may `fails` | |
 | `x(ref this)` | Form V | Reflexive: mutates self | Named with a verb | BYN5101 (lint) |
-| `xed()` | mafʿūl (participle) | Result of the act: **a view if possible, otherwise a copy** | Names a changed copy or a view; never takes `ref this` and does not need a plain verb to exist | BYN5001 |
+| `xed()` | mafʿūl (participle) | Result of the act: **a view if possible, otherwise a copy** | Names a changed copy or a view; never takes `ref this` and does not need a plain verb to exist (rev 0004); BYN5001 fires on an `-ed` member that takes `ref this` (rev 0005) | BYN5001 |
 | `tryX()` | Form X | Attempt | Returns `bool` or `T?`; derived from `x() fails` | BYN5003 |
 | `ensureX()` | Form II | Causative, idempotent | Returns `void` or `fails` | |
 | `xWith(T other)` | Form III | Act with another | Takes `T other` | |
@@ -1825,7 +1825,7 @@ let mail = service.placed.subscribe(by: o => mailer.sendConfirmation(for: o))
 5. A `Subscription` borrows its event and cannot outlive it. Dropping it unsubscribes through `dispose(move this)`; `cancel(move this)` is the explicit early form on the same code path, with no second meaning. This closes C#'s `+=`-without-`-=` leak at compile time.
 6. The handler effect bound is part of the event's type (§14). `subscribe` stores the handler, so its parameter takes this bound rather than the polymorphic parameter rule, and `raise` has the bound's effects. No bound means pure handlers.
 7. Events are named for what happened (`placed`, `changed`, `low`); there is no `on` prefix (BYN5010).
-8. `subscriberCount` is read-only (a getter). The subscribed lambda must own its captures (move captures); a borrowing handler is BYN2825.
+8. `subscriberCount` is read-only (a getter). The subscribed lambda must own its captures (move captures); a borrowing handler is BYN2825 (reserved, rev 0016).
 9. A `Subscription` stores the allocator it was made with, so unsubscribing frees with that allocator even if it is dropped under another. `Event` is in `std.event` (`uses alloc`).
 
 Cross-process pub/sub is not an `Event`: it is a stream iterated on its own fiber, `for try msg in bus.messages(from: "orders.placed") { … }`.
@@ -2520,12 +2520,12 @@ Each revision is applied in place above and tagged (rev NNNN). Sections touched,
 | (rev 0008) | §4.4 `@sealed` / `@positional`, `with` precedence, BYN2780 |
 | (rev 0009) | §21.2 `bayan format` in v0.1, `--check` |
 | (rev 0010) | §3.17 `becomes` needs `ref this` (BYN7010), BYN7003 third form, BYN7011, BYN7012 |
-| (rev 0011) | §15.4 regex after v0.1, §7.8 `ValidationError<T>` always takes a type argument (BYN2023) |
+| (rev 0011) | §15.4 regex after v0.1, §7.9 `ValidationError<T>` always takes a type argument (BYN2023) |
 | (rev 0012) | §3.16 lambdas shipped subset, BYN1055, BYN2820-2824 |
 | (rev 0013) | §3.3, §3.5 Symbol and Map keys, HashMap BYN2830, BYN2831, BYN2832 |
 | (rev 0014) | §20 coverage, mutation operators, `@unobservable`, BYN1069, `Tests` fields |
 | (rev 0015) | §6.2 float `tryParse`, §16.4 Unicode simple case mapping |
-| (rev 0016), (rev 0017) | Reserved round-4 codes BYN1070, BYN1071, BYN2825, BYN7013; lockfile name |
+| (rev 0016), (rev 0017) | Reserved round-4 codes BYN1070, BYN1071, BYN2825, BYN7013 |
 | (rev 0018) | §3.5, §16.4 `StrBuf.finish()` returns a loan |
 | (rev 0019) | No GC tier, `scope` / `spawn` replacing `async` / `await`, `dispose(move this)`, `@deprecated(by:, until:)`, type overloads not in v0.1 (BYN2006), `ensures` unreserved, `Event<T>` is `struct unique`, TinyCC wording |
 
