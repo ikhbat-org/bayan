@@ -131,7 +131,7 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
             let newArgs = t2Rest(kept)
             return scaffoldNew(newArgs.span)
         case "dist":
-            return refuse(command)
+            return distCommand(in kept, by: ref d)
         case "cache":
             return cacheCommand(kept)
         case "clean":

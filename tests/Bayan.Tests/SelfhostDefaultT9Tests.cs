@@ -975,7 +975,6 @@ public sealed class SelfhostDefaultT9Tests
     [Theory]
     [InlineData("test")]
     [InlineData("mutate")]
-    [InlineData("dist")]
     public void ARefusedCommandReachesItsArm(string command)
     {
         var (exit, stdout, stderr) = SelfhostDriverHarness.Run(command);

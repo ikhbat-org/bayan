@@ -39,6 +39,8 @@ public struct DCtx {
     bool swept = false
     /// The names made so far for `Guid.NewGuid`, which has no builtin (cache.byn `t9Unique`, Q1149).
     i64 uniques = 0
+    // ── T12 state
+    // T12 keeps no state: `dist` reads its options per call (dist.byn `distCommand`) and the unique names it needs are none.
 }
 
 /// The state of a run before any option is read. On the base so the coverage report has an entry for this file (Q920).
