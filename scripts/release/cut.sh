@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# Prepares release <X.Y.Z> in the working tree (docs/RELEASING.md); edits files only, never commits, tags or pushes.
+#   cut.sh <X.Y.Z>
+# Sets VERSION, its mirrors and every header to X.Y.Z (set-version.sh), each `Revisions applied:` line to the highest
+# revision, regenerates docs/DIAGNOSTICS.md and docs/STATUS.md, and turns CHANGELOG.md's `## [Unreleased]` body into
+# `## [X.Y.Z] - <today>` with two more lists: the revisions added since the previous v* tag (git diff --diff-filter=A
+# <tag>..HEAD -- docs/revisions/) and the hand-kept docs/STATUS.md rows whose status cell changed since that tag.
+# Prints each file it changed and the new CHANGELOG section.
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+. "$root/scripts/release/version.sh"
+die() { echo "cut: $*" >&2; exit 1; }
+
+v="${1:?usage: cut.sh <X.Y.Z>}"
+echo "$v" | grep -Eqx '[0-9]+\.[0-9]+\.[0-9]+' || die "'$v' is not X.Y.Z"
+cur="$(bayan_version "$root")"
+case "$cur" in "$v"|"$v"-*) ;; *) die "VERSION is $cur, not $v or $v-…; set it with next-dev.sh or set-version.sh first" ;; esac
+cl="$root/CHANGELOG.md"
+grep -qx '## \[Unreleased\]' "$cl" || die "CHANGELOG.md has no '## [Unreleased]' line"
+! grep -q "^## \[$v\]" "$cl" || die "CHANGELOG.md already has a ## [$v] section"
+t="$(mktemp -d)"; trap 'rm -rf "$t"' EXIT
+
+bash "$root/scripts/release/set-version.sh" "$v"
+rev="$(bayan_latest_revision "$root")"
+for doc in $bayan_header_docs; do
+  sed -E "1,10s/^Revisions applied: 0001–[0-9]+\$/Revisions applied: 0001–$rev/" "$root/$doc" > "$t/doc"
+  if ! cmp -s "$t/doc" "$root/$doc"; then cat "$t/doc" > "$root/$doc"; echo "changed $doc"; fi
+done
+for g in diagnostics:DIAGNOSTICS status:STATUS; do
+  cp "$root/docs/${g#*:}.md" "$t/before"
+  bash "$root/scripts/docs/gen-${g%%:*}.sh" --write
+  cmp -s "$t/before" "$root/docs/${g#*:}.md" || echo "changed docs/${g#*:}.md"
+done
+
+prev="$(git -C "$root" tag --list 'v*' --sort=-v:refname --merged HEAD 2>/dev/null | head -n 1 || true)"
+
+# The revisions added since $prev (all of them with no previous tag), as `- <title> (`path`)`.
+if [ -n "$prev" ]; then git -C "$root" diff --name-only --diff-filter=A "$prev..HEAD" -- docs/revisions/
+else (cd "$root" && ls docs/revisions/*.md); fi | grep -E '^docs/revisions/[0-9]{4}-[^/]*\.md$' | LC_ALL=C sort > "$t/revs" || true
+: > "$t/revlist"
+while read -r f; do
+  title="$(grep -m 1 '^# ' "$root/$f" | sed 's/^# //' || true)"
+  printf -- '- %s (`%s`)\n' "${title:-${f##*/}}" "$f" >> "$t/revlist"
+done < "$t/revs"
+[ -s "$t/revlist" ] || echo "- none" > "$t/revlist"
+
+# rows <STATUS.md>: section TAB name TAB status for each row of a hand-kept table (sections not marked generated).
+rows() {
+  LC_ALL=C awk -F'|' '
+    /^## / { sec = substr($0, 4); gen = sec ~ /\(generated\)$/; next }
+    { gsub(/\\\|/, "\001"); $0 = $0 }
+    gen || !/^\| / || /^\|---/ || NF < 5 { next }
+    { name = $2; st = $4; gsub(/^ +| +$/, "", name); gsub(/^ +| +$/, "", st)
+      if (name == "name" && st == "status") next
+      gsub(/\001/, "\\|", name); print sec "\t" name "\t" st }' "$1" | LC_ALL=C sort -t "$(printf '\t')" -k1,2
+}
+rows "$root/docs/STATUS.md" > "$t/new"
+if [ -z "$prev" ]; then echo "- no previous v* tag; nothing to compare" > "$t/stlist"
+elif ! git -C "$root" show "$prev:docs/STATUS.md" > "$t/old-status" 2>/dev/null; then
+  echo "- docs/STATUS.md is new since $prev; every row is new" > "$t/stlist"
+else
+  rows "$t/old-status" > "$t/old"
+  LC_ALL=C awk -F'\t' 'NR == FNR { old[$1 "\t" $2] = $3; next }
+    !(($1 "\t" $2) in old) { printf "- %s (%s): new, %s\n", $2, $1, $3; next }
+    old[$1 "\t" $2] != $3 { printf "- %s (%s): %s → %s\n", $2, $1, old[$1 "\t" $2], $3 }' "$t/old" "$t/new" > "$t/stlist"
+  [ -s "$t/stlist" ] || echo "- none" > "$t/stlist"
+fi
+
+# The new section: the Unreleased body (blank edges trimmed), then the two lists; Unreleased is left empty.
+awk '/^## \[Unreleased\]$/ { on = 1; next } on && /^## \[/ { exit } on' "$cl" \
+  | awk 'NF { last = NR } { l[NR] = $0 } END { for (i = 1; i <= last; i++) if (s || l[i] != "") { s = 1; print l[i] } }' > "$t/body"
+{ printf '## [%s] - %s\n\n' "$v" "$(date +%Y-%m-%d)"
+  if [ -s "$t/body" ]; then cat "$t/body"; echo; fi
+  printf '### Revisions\n'; cat "$t/revlist"
+  printf '\n### Status changes\n'; cat "$t/stlist"; } > "$t/section"
+awk -v sec="$t/section" '
+  /^## \[Unreleased\]$/ { print; print ""; while ((getline l < sec) > 0) print l; print ""; skip = 1; next }
+  skip && /^## \[/ { skip = 0 }
+  !skip' "$cl" > "$t/cl"
+cat "$t/cl" > "$cl"
+echo "changed CHANGELOG.md"
+cat "$t/section"

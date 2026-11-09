@@ -1,5 +1,8 @@
 # Bayān — Language Specification (draft 0.1)
 
+Version: 0.2.0 (matches `bayan --version`)
+Revisions applied: 0001–0020
+
 > **Status:** design complete enough to build v0.1. This document is normative unless a section says otherwise.
 > **Source files:** `.byn` · **CLI:** `bayan` · **Manifest:** `package.byn` · **Build script:** `build.byn`
 > Code samples use C#-style highlighting because Bayan's surface syntax is C#-derived.
@@ -38,7 +41,7 @@ Bayan (بيان, "clarity, eloquent exposition") is a value-oriented, natively c
 
 | Area | Rule |
 |---|---|
-| Data | Structs only (value types). No classes, no inheritance, no `object`, no GC in v1. |
+| Data | Structs only (value types). No classes, no inheritance, no `object`; there is no GC tier (revision 0019). |
 | Syntax | Newlines end statements (no `;`). Attributes use `@`. Declaration keywords are head-first; declarations are type-first, local bindings name-first. |
 | Strings | `string` is an immutable, validated UTF-8 slice. `rune` is a 32-bit Unicode scalar. |
 | Errors | `T f() fails E` in signatures; `Result<T, E>` as a type; `try` / `catch`; panics abort. |
@@ -83,14 +86,14 @@ print("Hello, world!")
 |---|---|---|
 | Integer | `42`, `1_000_000`, `0xFF`, `0b1010` | **Untyped** until context gives a type; out-of-range is a compile error |
 | Float | `3.14`, `1e5`, `2.5e-3` | `e` followed by a digit or sign is an exponent |
-| Unit-suffixed | `5s`, `250ms`, `4KiB`, `100m` | Suffix must be an imported unit symbol; not allowed on hex/binary literals |
+| Unit-suffixed | `5s`, `250ms`, `4KiB`, `100m` | Suffix must be an imported unit symbol; not allowed on hex/binary literals (not in 0.2, §3.4) |
 | Built-in suffixes | `u`, `l`, `ul`, `f` | Reserved. C#'s `m`/`d` suffixes are retired; decimal is `1.50dec` |
 | Rune | `'a'`, `'\n'`, `'\u{1F600}'` | 32-bit scalar; ASCII rune literals narrow to `u8` in comparisons |
 | String | `"text"`, `"""raw multi-line"""` | Stored in `.rodata` |
 | Interpolated | `$"total {x}"`, `$"{n, as: .hex}"` | Allocates, except when passed directly to a formatting sink (`print`, `log`, `panic`, `StrBuf.append`); specs are named arguments in the hole (§16.4) |
 | Bytes | `b"text"` | Bytes, not text (§16.4) |
-| C string | `c"text"` | NUL-terminated, in `.rodata` |
-| UTF-16 | `u16"text"` | For Windows `…W` APIs |
+| C string | `c"text"` | NUL-terminated, in `.rodata` (not in 0.2) |
+| UTF-16 | `u16"text"` | For Windows `…W` APIs (not in 0.2) |
 | Collection | `[1, 2, 3]`, `[]`, `[..a, ..b, 4]` | Target-typed (§6.3); with no target type, `[1, 2, 3]` is `i32[3]` on the stack |
 | Map | `["alice": 500]`, `[]` | Target-typed; with no target type, `["k": "v"]` is `Map<string, string>` |
 | Struct | `{ x: 1, y: 2 }` | Target-typed; only where a type is expected |
@@ -104,7 +107,7 @@ An integer literal (or a negated one) that initializes an unannotated `var` take
 
 ### 2.4 Keywords
 
-**Declarations:** `struct unique union enum open extensible interface extension derivation attribute error unit distinct type effect law import as public private static readonly required const let var embed extern unsafe rest`
+**Declarations:** `struct unique union enum open extensible interface extension derivation attribute error unit distinct type effect law import as public private static readonly required const let var embed extern unsafe`
 
 The declaration-only keywords `error unit distinct open extensible type effect law derivation attribute embed` are **contextual**: they act as keywords only where a declaration form needs them (`union error E { … }`, `type X = …`) and are names everywhere else (locals, parameters, fields, functions, members, error variants, argument names): `let error = 3` and `struct S { i64 set }` are valid. Every other keyword, including all control-flow and expression keywords, is reserved and cannot be an identifier.
 
@@ -118,11 +121,11 @@ The declaration-only keywords `error unit distinct open extensible type effect l
 
 **Tests:** `test property fuzz model assert`
 
-**Contextual words** (keywords only in one position, names everywhere else): `failing`, `panicking` after `defer` (§7.6); `unlikely`, `never` after `if` (§7.2); `it` inside a lambda argument (§3.16) and a `requires` clause (§7.9); `bench`, `measure` in benchmarks (§20); `states` at the start of a member declaration when followed by `{`, and `becomes` after a parameter list (§3.17); `pattern` after `=` in a `const` declaration (§6.5); the effect names `alloc suspend net fs clock random env process console` inside a `uses` clause (§14). The particles `from to until through at by for as` (§10) are labels, not keywords; `for` and `as` stay reserved and are allowed only in label position (`for:`). The C# primitive names `sbyte byte short ushort int uint long ulong nint nuint float double` are reserved in every project, whatever its `style.primitives` (§3.1).
+**Contextual words** (keywords only in one position, names everywhere else): `failing`, `panicking` after `defer` (§7.6); `unlikely`, `never` after `if` (§7.2); `it` inside a lambda argument (§3.16) and a `requires` clause (§7.9); `bench`, `measure` in benchmarks (§20); `states` at the start of a member declaration when followed by `{`, and `becomes` after a parameter list (§3.17); `pattern` after `=` in a `const` declaration (§6.5); the effect names `alloc suspend net fs clock random env process console` inside a `uses` clause (§14); `rest` before a parameter's type (§8, §10); `expects` after a parameter list (§2.5, §7.9); `when` after a `switch` arm pattern (§6.5). The particles `from to until through at by for as` (§10) are labels, not keywords; `for` and `as` stay reserved and are allowed only in label position (`for:`). The C# primitive names `sbyte byte short ushort int uint long ulong nint nuint float double` are reserved in every project, whatever its `style.primitives` (§3.1).
 
 **Reserved (no meaning yet; may not be used as identifiers):** `actor macro select` (`ensures` is unreserved and `Gc`/`gc` are gone: no GC tier, revision 0019, round-4 batch 1; `law`, for v0.2 laws, and `effect`, for effect aliases (§14), left this list for the contextual declaration keywords; `become` left it for typestate, §3.17)
 
-`flags`, `errdefer` and `delegate` are not keywords. `foreach`, `errdefer` and `delegate` in source get a teaching error with a fix (§21.5). `new` is accepted and removed by the formatter. `goto` does not exist.
+`flags`, `errdefer` and `delegate` are not keywords of the language, and `set`, `noalloc`, `nosuspend` and `suspends` left the list (note below). The lexer still reads each of them, and `foreach`, as a keyword token, only so the parser can give the teaching error (BYN1019, BYN1020, BYN1028, BYN6001; §21.5): `flags` and `set` are contextual, so they are names everywhere else; `errdefer`, `delegate`, `noalloc`, `nosuspend`, `suspends` and `foreach` are not, so none of them can be an identifier. `foreach`, `errdefer` and `delegate` in source get a teaching error with a fix (§21.5). `new` is accepted and removed by the formatter. `goto` does not exist.
 
 > Round 2 §1, §6, §7, §8, §16, carried over: `flags`, `errdefer` and `delegate` are gone; `requires` and `assert` are keywords; the new statement words are contextual. Codes: BYN0012, BYN1019, BYN1020, BYN1028.
 
@@ -149,7 +152,7 @@ There is no `;`. `bayan format` strips trailing semicolons and splits same-line 
 
 > Round 3 §3, O1: newline termination removes punctuation that carried no meaning; the unused-value error makes the newline rules safe. Codes: BYN1040, BYN1041, BYN1042, BYN1053, BYN3201.
 
-> Revision 0002 items 1, 25: `expects` joins the clause order, and `fail` takes its operand like `return`, so it follows the same line rule. Round 4 §1: the order is `where` → `expects` → `uses` → `becomes` → `fails`, the order the clauses apply in (compile time, entry, running, success, failure), for declarations and function types alike. Codes: BYN1042, BYN1065.
+> Revision 0002 items 1, 25: `expects` joins the clause order, and `fail` takes its operand like `return`, so it follows the same line rule. Round 4 §1, recorded by revision 0020 item 24: the order is `where` → `expects` → `uses` → `becomes` → `fails`, the order the clauses apply in (compile time, entry, running, success, failure), for declarations and function types alike. Codes: BYN1042, BYN1065.
 
 ---
 
@@ -167,7 +170,7 @@ There is no `;`. `bayan format` strips trailing semicolons and splits same-line 
 | `rune` | | **32-bit Unicode scalar** (differs from C#); `char` is an input form |
 | `string` | | UTF-8 slice, 16 bytes (pointer, length) |
 | `never` | | Bottom type; see §3.9 |
-| `dec` | | Decimal arithmetic type; `decimal` is not accepted |
+| `dec` | | Decimal arithmetic type; `decimal` is not accepted (not in 0.2) |
 
 C# primitive names are accepted per project (`style.primitives: .sized | .csharp`, default `.sized`, §19.2), the second documented synonym exception (§0). The pairs map one to one; `bool` and `string` are shared. `char` (16-bit in C#; it stays the input form for `rune`), `decimal` and `object` have no equivalent and are not accepted. The compiler accepts both spellings and raises no diagnostic; `bayan format` normalizes each project to its spelling, and tooling (diagnostics, hover, generated docs, `bayan explain`, and `bayan expand` once it lands, §21.2) renders types in the reader's project style. The standard library, this spec's examples and the self-hosted compiler are written in `.sized`. Conversions read the same in both styles: `int(x)`, `int.tryFrom(x)`.
 
@@ -177,7 +180,7 @@ C# primitive names are accepted per project (`style.primitives: .sized | .csharp
 
 > Round 3 §10: `char` suggests C#'s 16-bit unit; `rune` names the scalar, and the `Runes` unit and `runeCount` follow it. Codes: BYN1048.
 
-Lowercase type names are reserved for the language. C interop types: `c_int`, `c_long`, `c_char`, … (`c_long` follows the platform).
+Lowercase type names are reserved for the language. C interop types: `c_int`, `c_long`, `c_char`, … (`c_long` follows the platform). BYN1030 is retired; the C# primitive names stay reserved words, so none can be declared as an identifier (revision 0001).
 
 ### 3.2 Strings
 - Always **valid UTF-8** and immutable; a string borrows its bytes (a literal, a request body, a slice) or owns them. Decoding is a codec (§16.4): `Utf8.tryDecode(bytes)` returns `string?`; `try Utf8.decode(bytes)` fails `Utf8Error`. There is no `fromUtf8`, and `string(bytes)` formats the bytes (`[104, 105]`), it never decodes.
@@ -244,7 +247,7 @@ void main() {
 - **Text:** `sym.text` is a `string` that borrows nothing and allocates nothing; `$"{sym}"` writes the text, and a `Map` holding symbols formats them as their texts. There is no other conversion: no cast between `Symbol` and `string` or an integer, and no ID member (BYN2003). IDs are not observable, so they may change between versions.
 - **Keys:** a `Symbol` hashes its ID; `Map<Symbol, V>` and composite keys with `Symbol` parts are §3.5's keys. A program that uses no `Symbol` emits and links none of the table.
 - Not in v0.1: freeing interned text, several independent tables, `const` arrays of `Symbol` and `Symbol` in static data beyond literals (BYN2229), interning from several threads (the table is single-threaded, §13).
-- Laws: L015 "Interning is identity on text". Codes: BYN2832. HANDOFF Questions 371–381.
+- Laws: L015 "Interning is identity on text", L016 "Equal keys are one entry" (revision 0013 item 6). Codes: BYN2832. HANDOFF Questions 371–381.
 
 **Self-hosting gaps** (what spec 009's port must work around):
 - No `const` symbol arrays: a keyword table is a `Map<Symbol, TokenKind>` literal built at start-up.
@@ -252,7 +255,7 @@ void main() {
 - No stored lambdas keyed by symbol (`Map<Symbol, () -> void>` is BYN2822, §3.16): key a `Map<Symbol, i32>` and switch on the value.
 - A lambda cannot capture a `Map` (BYN2780): pass the symbol table as a parameter.
 
-### 3.4 Units and distinct types
+### 3.4 Units and distinct types (partial in 0.2: `type distinct` only; `unit` declarations and unit suffixes are not in 0.2)
 
 ```csharp
 unit Seconds(s): i64             // name, literal symbol, storage
@@ -267,7 +270,7 @@ type distinct UserId = i64       // a unit without arithmetic
 
 - The unit name is the type; the symbol is the literal suffix.
 - Mismatched units are compile errors. Conversion is implicit **only toward finer units** (`2s + 500ms` is `Millis 2500`). Converting to a coarser unit is explicit and names the rounding with a type argument: `t.floor<Seconds>()`, `t.ceiling<Seconds>()`, `t.rounded<Seconds>()` (nearest, ties away from zero). A typed target fills the argument in: `let billed: Minutes = duration.ceiling()`. An implicit coarser conversion is BYN3205.
-- Wrap and unwrap with conversions: `Seconds(raw)`, `i64(t)` (§6.2). **A bare literal never takes a unit, `0` included:** `let w: Grams = 0` is an error with a fix-it to `0g` (BYN3203). Likewise for distinct types: `let id: ParcelId = 0` is an error; write `ParcelId(0)` (BYN3204).
+- Wrap and unwrap with conversions: `Seconds(raw)`, `i64(t)` (§6.2). **A bare literal never takes a unit, `0` included:** `let w: Grams = 0` is an error with a fix-it to `0g` (BYN3203, spec-only). Likewise for distinct types: `let id: ParcelId = 0` is an error; write `ParcelId(0)` (BYN3204).
 - A unit formats as its value plus its symbol (`524288 B`); `size.rounded<KiB>()` converts for display (`512 KiB`). There is no separate `convert` member.
 - Quantities are dimensionless: `i32 qty`, and `i32 × Grams → Grams`.
 - Units are erased at runtime.
@@ -298,7 +301,7 @@ type distinct UserId = i64       // a unit without arithmetic
   }
   ```
 
-  Plain `List<T>` keeps plain `Index`, and `0..xs.length` works as before. Typed collections expose `.indices`; `xs[^1]` resolves against the collection's own index type. Indexing with another index type is an error (BYN3210).
+  Plain `List<T>` keeps plain `Index`, and `0..xs.length` works as before. Typed collections expose `.indices`; `xs[^1]` resolves against the collection's own index type. Indexing with another index type is an error (BYN3210, spec-only).
 
 > Round 3 §9: typed indices catch mixed-up indices in parallel arrays without imposing a type per element type. Codes: BYN3210.
 - **`StrBuf`** is the string builder and the target of every `xInto(ref StrBuf)` (§5.2): `StrBuf(capacity: n)` allocates from `context.allocator`; `StrBuf.over(stackalloc u8[n] uninit)` uses the stack first and spills to the allocator only if outgrown; `append(x)`, `append($"…")` (interpolation writes straight into the buffer), `appendRepeated(c, by: n)`; `buf.view` is a borrowed string view, no allocation; `buf.finish()` returns the text as a loan on the buffer, without copying (revision 0018). The buffer stays usable: `append` and `appendRepeated` keep text taken earlier valid, because growth moves to a fresh block and leaves the old one. While a string from `view` or `finish()` is live, `clear` and `insert` (BYN3004) and `take` (BYN3006) are refused. `StrBuf.over` is not in v0.1.
@@ -308,7 +311,7 @@ type distinct UserId = i64       // a unit without arithmetic
 - Hashing is **seeded** by default (hash-flooding resistance); tests use a fixed seed.
 
 ### 3.6 Optionals
-`T?` for any type. References are non-null; `null` is the literal for "none" of an optional. `??`, `?.`, `is null` / `is not null` (with narrowing, §7.2) and `?? return/break/continue` apply. A call's non-null result is bound with `let order = db.find(id) ?? return .notFound`, not `is { } order`.
+`T?` for any type. References are non-null; `null` is the literal for "none" of an optional. `??`, `?.` (not in 0.2), `is null` / `is not null` (with narrowing, §7.2) and `?? return/break/continue` apply. A call's non-null result is bound with `let order = db.find(id) ?? return .notFound`, not `is { } order`.
 
 > Round 2 §4: one null-check spelling; `x == null` is an input form. Codes: BYN2027.
 
@@ -365,7 +368,7 @@ public struct Order : IEquatable<Order>, IJsonEncode {
   | Interface property `{ get; }` | Bare `Type name` (§3.15) |
 
 - **Field visibility (O11).** A public field is readable anywhere. A field of a struct that has a `requires` rule, a `states` block or the `@sealed` attribute (§4.4) is writable only from the struct's own `ref this` methods or through `with` (§6.4), which re-checks `requires`. This matches `{ get; private set; }` and keeps `requires` and typestate invariants in one place. Writing it elsewhere is BYN3216, whose message names the reason. A plain data struct allows direct field writes everywhere (`modes[depth].braceDepth += 1`).
-- **A stored function field is named with a noun for its role** (`handler`, `pricer`, `formatter`), never `onX`. Events are past participles or adjectives (`placed`, `low`, §16). BYN5010.
+- **A stored function field is named with a noun for its role** (`handler`, `pricer`, `formatter`), never `onX`. Events are past participles or adjectives (`placed`, `low`, §16). BYN5010 (plan).
 - **Type first.** Fields, parameters and return types put the type first (`Sku sku`, `Grams weight(Order order)`); `void` marks a function that returns nothing; visibility (`public`, `static`) leads the whole declaration. A computed property takes a type like a field: `public bool isEmpty => lines.isEmpty`. Union and state payloads follow the same order (`timeout(Millis after)`). The name-first forms `f() -> T`, `f(x: T)`, field `x: T` and payload `case(x: T)` are input forms (BYN1043). Local bindings are the exception: they put the name first (§7.1).
 - **The receiver.** `this` is the receiver parameter's name; its type is the enclosing struct and is elided. Not written: read-only, any state. `this is .shipped`: read-only, only in that state (§3.17). `ref this`: mutating, any state. `ref this is .placed`: mutating, only in that state.
 - **Members are read-only by default.** A member that modifies `this` declares `ref this` as its first parameter (Form V, §5.2); see §10 for the call-site rules.
@@ -378,7 +381,7 @@ public struct Order : IEquatable<Order>, IJsonEncode {
 
 > Round 3 §2, revised 2026-10-22: names first was meant only for local bindings (§7.1), where `let`/`var` lead; declarations keep round 2's type-first order. Codes: BYN1043.
 
-> Round 3 §26, §12, O11: a field-shaped member needs no `{ get }`, events are `Event<T>` fields named for what happened, and a public field writable from anywhere would bypass `requires` and state checks. Revision 0007: plain data has no invariant to protect, so only structs with `requires`, states or `@sealed` restrict writes. Codes: BYN3216, BYN5010.
+> Round 3 §26, §12, O11: a field-shaped member needs no `{ get }`, events are `Event<T>` fields named for what happened, and a public field writable from anywhere would bypass `requires` and state checks. Revision 0007: plain data has no invariant to protect, so only structs with `requires`, states or `@sealed` restrict writes. Codes: BYN3216, BYN5010 (plan).
 - `embed T` promotes the embedded struct's fields and methods; the embedded value sits at offset 0.
 - No implementation inheritance (there is no GC tier).
 
@@ -541,7 +544,7 @@ interface IEnumerator {
 - No borrowed enumerators: an `IEnumerator` either owns its data or a collection conforms to `IIndexable`.
 - No associated-type bounds: `type Item;` only.
 
-### 3.16 Lambdas and function types
+### 3.16 Lambdas and function types (partial in 0.2: a lambda outside a function body is not supported)
 
 ```csharp
 users.where(it.isActive)
@@ -686,11 +689,11 @@ Lint: a type with `@noDefault` or a constructor-like pattern (`parse`, `validate
 - A mutable module-level `var` must be `Atomic<T>`, `Mutex<T>` or `@threadLocal`.
 - **No runtime static initializers.** Runtime setup uses `static let x = lazy load()` (thread-safe, runs once on first use).
 
-### 4.3 Extensions
+### 4.3 Extensions (not in 0.2: `extension` declarations are reported as unsupported, BYN2022)
 
 ```csharp
 extension string {
-    public bool isBlank => trim().isEmpty
+    public bool isBlank => trimmed().isEmpty
 }
 extension<T> Span<T> where T : INumber<T> {
     public T sum() { … }
@@ -739,11 +742,11 @@ Users may create roots, never patterns. Derived members are generated only when 
 | `x()` | Form I | Base act | Returns a value, may `fails` | |
 | `x(ref this)` | Form V | Reflexive: mutates self | Named with a verb | BYN5101 (lint) |
 | `xed()` | mafʿūl (participle) | Result of the act: **a view if possible, otherwise a copy** | Names a changed copy or a view; never takes `ref this` and does not need a plain verb to exist | BYN5001 |
-| `tryX()` | Form X | Attempt | Returns `bool` or `T?`; derived from `x() fails` | BYN5003 |
+| `tryX()` | Form X | Attempt | Returns `bool` or `T?`; derived from `x() fails` (partial in 0.2: a hand-written `tryX` is checked; none is derived) | BYN5003 |
 | `ensureX()` | Form II | Causative, idempotent | Returns `void` or `fails` | |
 | `xWith(T other)` | Form III | Act with another | Takes `T other` | |
-| `xInto(ref dst)` | particle إلى | Write into a destination | Takes `ref StrBuf` or `Span<T>`; `x()` allocating form derived from it (adds `alloc`) | |
-| `xOp(…)` | maṣdar | The act as a value | Derived; type `Op<T, E>` | |
+| `xInto(ref dst)` | particle إلى | Write into a destination | Takes `ref StrBuf` or `Span<T>`; `x()` allocating form derived from it (adds `alloc`) (partial in 0.2: only `formatInto` → `format`) | |
+| `xOp(…)` | maṣdar | The act as a value | Derived; type `Op<T, E>` (not in 0.2) | |
 | `isX` / `hasX` / `canX` | ṣifa | State | `bool`, no arguments, no `ref this`; a `bool` property takes one of these prefixes | BYN5002, BYN5102 (lint) |
 | `xUnchecked()` | — | Skips validation | Requires a checked sibling `x()`; calls take `because "…"` (§4.4) | BYN8001 |
 
@@ -753,7 +756,7 @@ Users may create roots, never patterns. Derived members are generated only when 
 
 **Derived effects:** `-ed` adds `alloc` only for types that own heap memory (`xs.sorted()` on a list allocates; `v.normalized()` on a `Vec3` and `x.clamped(…)` on a scalar copy without allocating), the allocating form derived from `xInto` adds `alloc`, and `tryX` keeps the original's effects (§14). `bayan expand` will show them (§21.2).
 
-**Noun patterns (types, `PascalCase`):**
+**Noun patterns (types, `PascalCase`)** (not in 0.2: no noun type is derived; the `derivation` mechanism is not in 0.2, §5.3):
 
 | Pattern | Arabic source | Meaning |
 |---|---|---|
@@ -766,7 +769,7 @@ Users may create roots, never patterns. Derived members are generated only when 
 
 - **`T.X` vs `X<T>`:** `T.X` with a PascalCase `X` is a different shape derived from `T` (`Builder`, `Patch`, `Field`, `Id`). `T.x` with a camelCase `x` is `T` in state `x` (`Order.paid`, §3.17). `X<T>` is the same value with a different status (`Untrusted`, `Secret`).
 - **States** (§3.17) are participles or adjectives and are exempt from the `-ed` copy-pattern rule, which applies only to members.
-- **Events** (§16) are named for what happened: a past participle (`placed`, `changed`) or an adjective (`low`). The `on` prefix (`onChange`, `onPaid`) is rejected, and so is any stored function field named with it: a member is named with a verb or a noun, a stored function field with a noun for its role (`handler`, `pricer`, `formatter`), and subscribing is spelled `subscribe(by:)` (BYN5010).
+- **Events** (§16) are named for what happened: a past participle (`placed`, `changed`) or an adjective (`low`). The `on` prefix (`onChange`, `onPaid`) is rejected, and so is any stored function field named with it: a member is named with a verb or a noun, a stored function field with a noun for its role (`handler`, `pricer`, `formatter`), and subscribing is spelled `subscribe(by:)` (BYN5010, plan).
 - **Particle words are not member names.** `at(k)`, `to(x)`, `by(f)` fail the grammar check; members are verbs or nouns (BYN5009).
 - **No `toX` or `asX` instance members.** `as` and `to` are particles, and a member named `asSpan` or `toList` spells a conversion that already has a form: a view is a noun (`xs.span`), an owned copy is `copy()`, a conversion is `T(x)` (§16, §6.2) (BYN5009).
 - **Nouns with no arguments are properties** (`x.abs`, `v.magnitude`, `rows.isEmpty`); with arguments or type arguments they are calls (`x.pow(2)`, `t.floor<Seconds>()`). A generic member stays a call when its type argument is inferred (`let s: Seconds = t.floor()`). A noun member that needs `ref this` is a call (`xs.mutableSpan()`), because mutable access must be visible at the call site. Static factories keep `from` (`T.fromJson(…)`, `T.tryFrom(x)`, `fromBounds(start, until:)`): a factory names the source a `T` is built from.
@@ -774,7 +777,7 @@ Users may create roots, never patterns. Derived members are generated only when 
 - **No abbreviations** applies to tools as well: the formatter is `bayan format` (§21.2).
 - **Logging:** `log` is the verb and the level is a particle argument (`log(msg, as: .debug)`, §14). `Log.debug` fails the grammar check, because `debug` is a level, not the act (BYN5007).
 
-> Round 3 §11, §12, §27: `T.Validated` is gone because `requires` makes every value valid at construction; the new rules name what `T.X`, states, events, particles, conversions and logging mean, so a name never hides which of them it is. Codes: BYN5001, BYN5007, BYN5009, BYN5010.
+> Round 3 §11, §12, §27: `T.Validated` is gone because `requires` makes every value valid at construction; the new rules name what `T.X`, states, events, particles, conversions and logging mean, so a name never hides which of them it is. Codes: BYN5001, BYN5007, BYN5009, BYN5010 (plan).
 
 > Revision 0002 item 17: `bayan expand` is deferred until after v0.1, so this text says what it will show. Codes: none.
 
@@ -785,10 +788,10 @@ Users may create roots, never patterns. Derived members are generated only when 
 > Round 3 §12, O15: pattern rules are what derived forms depend on, so they hold everywhere, while naming style matters where others read the names; domain words are declared once instead of suppressed per member, and a reader needs no Arabic to act on a diagnostic. Codes: BYN5014.
 
 ### 5.3 Derivations
-Open set, written in Bayan with `derivation Name for T { … }` (§12.5). Standard derivations: automatic equality/hash/debug, `Order`, `Id`, `Builder`, `Patch`, `Events`, `Observable`, `Json`, `Csv`, `Row` (generates `readRow(ref Reader)`), `CopyIn` (generates binary COPY writers), `Binary` (CBOR), `Proto`, `Query`, `Config`, `Args`, `Gen`, `Diff`, `Ts`. Derivations only add members; they never change existing ones. The `derivation` mechanism is not in v0.1.
+Open set, written in Bayan with `derivation Name for T { … }` (§12.5). Standard derivations: automatic equality/hash/debug, `Order`, `Id`, `Builder`, `Patch`, `Events`, `Observable`, `Json`, `Csv`, `Row` (generates `readRow(ref Reader)`), `CopyIn` (generates binary COPY writers), `Binary` (CBOR), `Proto`, `Query`, `Config`, `Args`, `Gen`, `Diff`, `Ts`. Derivations only add members; they never change existing ones. The `derivation` mechanism is not in v0.1 (not in 0.2: no `@derive` is implemented).
 
-- A derivation that would read a `Secret<T>` field is a compile error unless the field opts in with `@json(expose) because "…"` (BYN8002). `debug` still prints `***`.
-- `@derive(Row)` rejects non-flat fields (nested structs, lists) (BYN3211).
+- A derivation that would read a `Secret<T>` field is a compile error unless the field opts in with `@json(expose) because "…"` (BYN8002, spec-only). `debug` still prints `***`.
+- `@derive(Row)` rejects non-flat fields (nested structs, lists) (BYN3211, spec-only).
 - Decoders (`fromJson`) check `requires` at construction and collect every violation (§7.9). The derivation also exposes `T.rules` (§7.9).
 - Form-encoded decoding (`@derive(Form)`) belongs to the future web framework, not the standard library.
 
@@ -838,6 +841,7 @@ No user-defined operator symbols. Operator implementations must not allocate, su
 | Text | `string(x)` or `$"{x}"` formats through `Display`, for every type, including byte spans (`[104, 105]`); there is no `x.toString()` (§6.6, §16.4) |
 | Integer → text in a radix | `string(n, as: .hex)`; `as:` takes a `Radix` and defaults to `.decimal`; output is lowercase with no prefix (§3.2). Integers only |
 | Text → integer | `u64.tryParse(text)` returns `u64?`; `tryParse(text, as: .hex)` accepts the same `Radix` |
+| Text → float | `f64.tryParse(text)` returns `f64?` (`f32.tryParse` likewise; no `as:`): the float literal form without `_`, an optional leading `-`, no spaces, no `inf`/`nan`/hex; correctly rounded; out of range gives `±∞` (revision 0015) |
 | Bytes → text | A codec: `try Utf8.decode(bytes)` (fails `Utf8Error`), `Utf8.tryDecode(bytes)` (`string?`), `Utf8.decode(bytes, invalid: .replace)` (lossy, never fails); `try Latin1.decode(bytes)` (`kit`), `try Utf16.decode(units)` (`std.text`) (§3.2). Hex and base64 are codecs too: `Hex.encode(bytes)`, `try Hex.decode(text)` |
 | User-defined implicit conversions | Not allowed |
 
@@ -874,7 +878,7 @@ Field initialization uses `:` everywhere: `Money { cents: 250 }`, nested `unitPr
 
 > Round 2 §10, §19: user decision 2026-10-21; two forms for one meaning broke "one form, one meaning". Codes: BYN1021.
 
-### 6.5 Patterns
+### 6.5 Patterns (partial in 0.2: no list patterns, no deconstruction (positional) patterns, no variables inside `or` patterns, no named patterns)
 All C# patterns: constant, relational, `and`/`or`/`not`, property and extended property, positional, list patterns with slices (`[var first, .. var rest]`), `var`, `_`, `when` guards. A binding is `let x` (immutable) or `var x` (mutable), as for locals, and the lint that suggests `let` for a never-reassigned `var` (§7.1) applies to pattern bindings too. An arm whose whole pattern is irrefutable (`_`, `let x`, `var x`) covers every case, like `default:`; an arm with a `when` guard never counts toward exhaustiveness. Additions:
 
 ```csharp
@@ -941,7 +945,7 @@ for line in order.lines except inactive { … }
 
 > Round 2 §2: a small fixed overload set with derived relatives keeps operators cheap and predictable. Codes: BYN2116.
 
-### 6.8 `except` (istithnāʾ)
+### 6.8 `except` (istithnāʾ) (partial in 0.2: only the error-set form; sequence `except` parses but is reported as unsupported, BYN2022)
 
 ```csharp
 for line in lines except inactive { … }
@@ -1055,7 +1059,7 @@ do { … } while try socket.hasMore()
 - A fallible sequence is a value with the `moveNext`/`current` pattern; `for try` steps it until `moveNext()` returns `false`. Iterating one without `for try` reports BYN2221 with a fix-it inserting `try`.
 - Not in v0.1: lazy queries and readers.
 
-> Round 2 §4: one `for x in xs` form with no parentheses; fallibility is marked once, at the loop head. Codes: BYN1017, BYN1018, BYN1019, BYN2022, BYN2232, BYN2234.
+> Round 2 §4: one `for x in xs` form with no parentheses; fallibility is marked once, at the loop head. Codes: BYN1017, BYN1018, BYN1019, BYN2022, BYN2234.
 
 > Round 3 §25, §7: a loop binding is a local, so the name leads; `except` removes a filter loop for the common case. Codes: BYN1043, BYN1051, BYN1052.
 
@@ -1105,7 +1109,7 @@ void main() {
 
 > Revision 0002 items 5, 28: the entry function is written `void main()`, and stderr goes through `print`'s `to:` stream (§10), so a panic is formatted like any other output. Codes: none.
 
-> Round 3 §12, §13: `onPanic` broke the rule against the `on` prefix and repeated the type's name; `handler` names the role, and `uses console` states the old restriction as an effect bound. Codes: BYN2230, BYN2614, BYN5010.
+> Round 3 §12, §13: `onPanic` broke the rule against the `on` prefix and repeated the type's name; `handler` names the role, and `uses console` states the old restriction as an effect bound. Codes: BYN2230, BYN2614, BYN5010 (plan).
 
 > Round 3 §19: capturing the modifier at registration means the cleanup decision matches the state the scope was entered with.
 
@@ -1132,7 +1136,7 @@ provide log: logs { … }
 ### 7.8 `goto`
 Does not exist. `become` performs typestate transitions (§3.17); the spelling of guaranteed tail calls is deferred.
 
-### 7.9 Validation: `requires`
+### 7.9 Validation: `requires` (partial in 0.2: not on a plain `type` alias or a generic struct)
 On types and fields, `requires` has one meaning: **checked at construction.** A value of a type with `requires` cannot exist in an invalid state.
 
 ```csharp
@@ -1156,7 +1160,7 @@ struct SignupForm {
 
 - `it` is the value being checked; `requires value…` is an input form (BYN1050).
 - Each `requires` line is a separate rule and reports its own violation.
-- **Field or struct level is decided by content:** a `requires` that refers only to `it` belongs to the field above it; one that refers to other fields is struct-level wherever it appears. A struct-level rule attaches to a field with `at .field` (target-typed to `T.Field`).
+- **Field or struct level is decided by content:** a `requires` that refers only to `it` belongs to the field above it; one that refers to other fields is struct-level wherever it appears. A struct-level rule attaches to a field with `at .field` (target-typed to `T.Field`). A `requires` that reads `it` and other fields is an error (BYN3218); split it into an `it` rule under the field and a struct-level rule with `at .field` (revisions 0002 item 27, 0004 item 1).
 - **Struct literals of a type with `requires` are fallible:** `try SignupForm { … }` (BYN3207). A distinct type with `requires` is built with `try Email(raw)`; a constant argument is checked at compile time. Construction fails with `ValidationError<T>`, a generic `union error` with one case; decoders report malformed input in the same set:
 
   ```csharp
@@ -1312,7 +1316,7 @@ let resp = signUp(form) catch switch {
 
 > Round 2 §15: C# type names are accepted in type positions (BYN1030 is retired). Codes: none.
 
-### 9.6 Handles
+### 9.6 Handles (not in 0.2)
 `Pool<T>` + `Handle<T>` (index + generation, 8 bytes) for graphs and long-lived data; stale handles are detected.
 
 Trees and graphs use typed indices first (§3.5; the idiom is in `docs/bayan-style.md`), with no per-access cost. Generational handles, which catch a stale index after deletion at the cost of one compare per access, are added only when the selfhost AST or Sūq shows the need.
@@ -1383,10 +1387,10 @@ xs.remove(from: 2, until: 5)
 **Overloading.** Overloads may differ by particle set (`move(from:to:)` vs `move(_, by:)`) ; type-based overloads are not in v0.1 (rule 1, BYN2006). The checks run at the **declaration**, so a call never needs C#-style ambiguity resolution:
 
 1. Not in v0.1: until overloads exist, two same-name functions with different parameter types are a BYN2006 duplicate declaration, never first- or last-wins. Overloads that differ only by type must not overlap through any implicit conversion (finer units, integer widening, state widening). `void f(Grams g)` beside `void f(Kilograms k)` is an error, because `Kilograms` converts to `Grams` (BYN3213).
-2. Overloads may not differ only by function-type parameters, since `it` lambdas need one target type.
-3. Defaults may not make two overloads accept the same argument list.
-4. A reference to an overloaded name needs a target type: `let f: i32 -> i32 = abs` (BYN3215).
-5. Type variation over number families uses generics, not overloads: `public T abs<T>(T x) where T : ISignedNumber<T>`.
+2. (not in 0.2: type overloads, rule 1) Overloads may not differ only by function-type parameters, since `it` lambdas need one target type.
+3. (not in 0.2: type overloads, rule 1) Defaults may not make two overloads accept the same argument list.
+4. (not in 0.2: type overloads, rule 1) A reference to an overloaded name needs a target type: `let f: i32 -> i32 = abs` (BYN3215, reserved).
+5. (not in 0.2: type overloads, rule 1) Type variation over number families uses generics, not overloads: `public T abs<T>(T x) where T : ISignedNumber<T>`.
 
 ```csharp
 public void remove(ref this, at Index i)
@@ -1432,7 +1436,7 @@ public bool isEmpty => lines.isEmpty          // read-only: the default
 
 ---
 
-## 11. Generics
+## 11. Generics (partial in 0.2: no generic methods on types, no calls to generic interface methods)
 
 ```csharp
 T max<T>(ReadOnlySpan<T> xs) where T : IOrder<T> { … }
@@ -1471,7 +1475,7 @@ interface IRepository<T, K = T.Id> where T : IEntity<T> { … }
 
 ---
 
-## 12. Comptime
+## 12. Comptime (not in 0.2)
 
 ### 12.1 Where it runs
 `const` declarations, `comptime { }` blocks, `const` parameters, type-returning `comptime` functions, derivations, program queries.
@@ -1531,7 +1535,7 @@ Packages reserve a code prefix in `package.byn`; the registry enforces uniquenes
 
 ---
 
-## 13. Concurrency
+## 13. Concurrency (not in 0.2: no `async`/`await`, `Io` implementations or fibers; revision 0019 replaces this section with `scope`/`spawn`, not yet written)
 
 ### 13.1 I/O model
 All I/O goes through `context.Io`:
@@ -1675,7 +1679,7 @@ public u32 crc(ReadOnlySpan<u8> data) { … }   // no `uses`: no alloc, no suspe
 
 ### 15.1 Trust: two layers
 
-**Layer 1: sinks take dedicated types, never `string`.** Passing a `string` where a sink type is expected is BYN8003, with a fix-it to the literal or escaping constructor. This applies whatever the origin of the data, so it also blocks stored XSS from the program's own database.
+**Layer 1: sinks take dedicated types, never `string`.** Passing a `string` where a sink type is expected is BYN8003 (spec-only), with a fix-it to the literal or escaping constructor. This applies whatever the origin of the data, so it also blocks stored XSS from the program's own database.
 
 ```csharp
 public i64 execute(ref this, Sql sql, rest ReadOnlySpan<ISqlValue> args) uses db, suspend fails DbError
@@ -1688,7 +1692,7 @@ let page = Html.escape(name)                                                    
 
 Only parameterized `sql"…"` literals with `$n` placeholders are in scope now; interpolating prefixed literals (`sql"…{x}…"`, `html"…"`) stay deferred.
 
-**Layer 2: `Untrusted<T>` for values from outside**, where escaping is impossible. An `Untrusted<T>` reaching one of these sinks without the required type is BYN8004:
+**Layer 2: `Untrusted<T>` for values from outside**, where escaping is impossible. An `Untrusted<T>` reaching one of these sinks without the required type is BYN8004 (spec-only):
 
 | Sink | Required |
 |---|---|
@@ -1715,8 +1719,8 @@ Only parameterized `sql"…"` literals with `$n` placeholders are in scope now; 
 
 > Round 3 §17, O10: a dedicated sink type stops injection regardless of where the text came from; `Untrusted<T>` covers the sinks escaping cannot protect; an `expects` that trapped on outside data would let a request crash the program. Codes: BYN1062, BYN8003, BYN8004, BYN8005, BYN8006.
 
-### 15.2 Secrets
-`Secret<T>` and `@secret` fields: excluded from debug output, logs, `dbg`, `Json`, `Diff` and every derivation (formatted as `***`); no `==`, only `equalsConstantTime(other)`; zeroed on dispose. A derivation that would read one is a compile error unless the field opts in with `@json(expose) because "…"` (BYN8002); `debug` still prints `***`.
+### 15.2 Secrets (not in 0.2)
+`Secret<T>` and `@secret` fields: excluded from debug output, logs, `dbg`, `Json`, `Diff` and every derivation (formatted as `***`); no `==`, only `equalsConstantTime(other)`; zeroed on dispose. A derivation that would read one is a compile error unless the field opts in with `@json(expose) because "…"` (BYN8002, spec-only); `debug` still prints `***`.
 
 > Round 2 §2, §13: constant-time comparison is a named method so `==` cannot leak timing.
 
@@ -1726,7 +1730,7 @@ Only parameterized `sql"…"` literals with `$n` placeholders are in scope now; 
 `Random` (seeded, reproducible) and `CryptoRandom` are separate types; token, key and nonce APIs accept only `CryptoRandom`. Cryptography APIs are misuse-resistant (AEAD with nonce management; no ECB; raw block ciphers only in `unsafe`).
 
 ### 15.4 Resource limits
-Decoders default to safe limits (JSON nesting depth 128, maximum size). Per-request arenas have a memory cap. Regexes (`std.regex`, after v0.1) run in linear time with no backtracking (no ReDoS); a pattern built from `Untrusted` input still needs `Regex.escape` (§15.2).
+Decoders default to safe limits (JSON nesting depth 128, maximum size). Per-request arenas have a memory cap. Regexes (`std.regex`, after v0.1) run in linear time with no backtracking (no ReDoS); a pattern built from `Untrusted` input still needs `Regex.escape` (§15.1).
 
 ### 15.5 Invariants versus validation
 Function `expects` contracts (§7.9) detect bugs and panic in every build mode. **Construction of a type with `requires` is the security boundary:** it is checked in every build, reports every violation, and is the only way to remove taint (§15.1).
@@ -1782,7 +1786,7 @@ let headers = ["Accept": "*/*"]                      // no target type: Map<stri
 - Maps: reading `map[k]` panics if missing; `map.tryGet(at: k) ?? fallback` reads without inserting; `ref map.slot(k)` gets or inserts a default (requires `V : default`). Keys are §3.5's: scalars, `string`, plain enums, `Symbol`, and tuples and structs of those; every member works the same on each, and a map literal's string keys become symbols where the key type is `Symbol`.
 - `Grid<T>`-style types accept multi-dimensional ranges: `grid[1..^1, 1..^1]`.
 
-### 16.1 Events
+### 16.1 Events (not in 0.2)
 
 `Event<T>` is in-process notification: the raising code doesn't know who listens.
 
@@ -1819,13 +1823,13 @@ let mail = service.placed.subscribe(by: o => mailer.sendConfirmation(for: o))
 4. `raise` never allocates; `subscribe` allocates one slot.
 5. A `Subscription` borrows its event and cannot outlive it. Dropping it unsubscribes through `dispose(move this)`; `cancel(move this)` is the explicit early form on the same code path, with no second meaning. This closes C#'s `+=`-without-`-=` leak at compile time.
 6. The handler effect bound is part of the event's type (§14). `subscribe` stores the handler, so its parameter takes this bound rather than the polymorphic parameter rule, and `raise` has the bound's effects. No bound means pure handlers.
-7. Events are named for what happened (`placed`, `changed`, `low`); there is no `on` prefix (BYN5010).
+7. Events are named for what happened (`placed`, `changed`, `low`); there is no `on` prefix (BYN5010, plan).
 8. `subscriberCount` is read-only (a getter). The subscribed lambda must own its captures (move captures); a borrowing handler is BYN2825.
 9. A `Subscription` stores the allocator it was made with, so unsubscribing frees with that allocator even if it is dropped under another. `Event` is in `std.event` (`uses alloc`).
 
 Cross-process pub/sub is not an `Event`: it is a stream iterated on its own fiber, `for try msg in bus.messages(from: "orders.placed") { … }`.
 
-> Round 3 §26: an event is a field of a library type, not a language feature, and its handler bound is checked like any stored function type. Codes: BYN5010, BYN6005.
+> Round 3 §26: an event is a field of a library type, not a language feature, and its handler bound is checked like any stored function type. Codes: BYN5010 (plan), BYN6005.
 
 ### 16.2 `std.math` and numeric members
 
@@ -1957,7 +1961,7 @@ buf.clear()
 let text = buf.finish()                  // a loan on the buffer, no copy (revision 0018)
 ```
 
-**Conversions:** `string(x)` (`Display`), `string(n, as: .hex / .binary / .octal / .decimal)`, `T.parse(text)` / `T.tryParse(text)` with the same `as:`, and the codecs. Every binary-to-text conversion is a codec, like `Hex` and `Base64`; `string(x)` is only the `Display` conversion, for every type, including byte spans (`[104, 105]`):
+**Conversions:** `string(x)` (`Display`), `string(n, as: .hex / .binary / .octal / .decimal)`, `T.parse(text)` / `T.tryParse(text)` with the same `as:`, `f32.tryParse(text)` / `f64.tryParse(text)` (§6.2; revision 0015), and the codecs. Every binary-to-text conversion is a codec, like `Hex` and `Base64`; `string(x)` is only the `Display` conversion, for every type, including byte spans (`[104, 105]`):
 
 ```csharp
 let s = try Utf8.decode(bytes)                   // fails Utf8Error with the position of the bad byte
@@ -2009,7 +2013,7 @@ public interface Display {
 Compact input forms, expanded by `bayan format` (BYN1068): `{n:hex}`, `{n:binary}`, `{n:octal}`, `{x:.2}`, `{d:iso}`, `{x:debug}` (§21.5).
 
 **Scope.**
-- v0.1: the model; `length`, `isEmpty`, `isAscii`, `runeCount`, `bytes`, `runes`, `utf16`, `lines`, `parts`, slices, `position`, `lastPosition`, `count`; the assertions (`equals(as: .caseless)` ASCII-only until `std.text`); `trimmed`, ASCII `lowercased`/`uppercased`, `replaced` (literal), `joined`, `repeated`; `StrBuf`; `string(x)`, `string(n, as:)`, `parse`/`tryParse`; `Utf8` and `Hex`; `Display.formatInto` and the specs `as`, `width`, `fill`, `align`, `digits`, `debug`; BYN1068.
+- v0.1: the model; `length`, `isEmpty`, `isAscii`, `runeCount`, `bytes`, `runes`, `utf16`, `lines`, `parts`, slices, `position`, `lastPosition`, `count`; the assertions (`equals(as: .caseless)` ASCII-only until `std.text`); `trimmed`, `lowercased`/`uppercased` (Unicode simple case mapping; U+0130 and U+0131 map to themselves, as .NET's invariant casing; revision 0015), `replaced` (literal), `joined`, `repeated`; `StrBuf`; `string(x)`, `string(n, as:)`, `parse`/`tryParse`; `Utf8` and `Hex`; `Display.formatInto` and the specs `as`, `width`, `fill`, `align`, `digits`, `debug`; BYN1068.
 - After v0.1 (`std.text`): `words`, `graphemes`, full Unicode case mapping and folding, `normalized`, `truncated` (needs graphemes), `wrapped`, the identifier-case members, `slugged`, `escaped`, `Utf16.decode`, `Base64`, regex `replaced`, `grouping`, date specs.
 - `kit`: `kit.intl` (`Culture`, `Collator`, `for:` on case, formatting and sorting, `titlecased`), `Latin1` and other encodings.
 
@@ -2092,27 +2096,34 @@ Package {
     test: Tests { lines: 100, branches: 100, errorPaths: 100, mutation: 75, nightly: [.fuzz] },
     style: Style {
         indent: 4,
-        braces: .sameLine,        // or .nextLine
-        maxLine: 100,
-        trailingCommas: true,
-        booleans: .symbols,       // or .words: `and or not`
-        primitives: .sized,       // or .csharp: `int`, `long`, `byte`, …
+        width: 120,
+        align: .runs,                // or .none
+        trailingCommas: .multiline,  // or .never
+        booleans: .symbols,          // or .words: `and or not`
+        primitives: .sized,          // or .csharp: `int`, `long`, `byte`, …
+        lints: [
+            "guards.postfix": .warning,
+            "functions.length": .none,
+        ],
     },
     grammar: Grammar {
         verbs: ["upsert", "reindex"],
         nouns: ["sku", "kyc"],
+        adjectives: ["idempotent"],
         forms: ["upsert": "upserted"],
     },
 }
 ```
 
-`capabilities` is an upper bound on the effects of every function in the package (§14). `Tests` holds the CI gates (§20): `lines` and `branches` (minimum percentages), `errorPaths`, `mutation`, `nightly`, and `summary` (bool, default `true`; `false` turns off the default coverage summary). `diffCoverage` is accepted and not enforced yet. A run below a minimum fails and names what is missing. `style` holds the project's formatting choices (defaults in `docs/bayan-style.md`); `bayan format` reads it. Style is never compiler-enforced, and grammar rules (§5) cannot be configured here. `grammar` is the project dictionary (§5.2): domain words the checker does not know, as `verbs` and `nouns`, with irregular derived spellings in `forms`; it is merged with the built-in word list and adds words, never exemptions. The `bayan new` templates use the same `:` syntax. Formatter behaviour is not in v0.1.
+`capabilities` is an upper bound on the effects of every function in the package (§14). `Tests` holds the CI gates (§20): `lines` and `branches` (minimum percentages), `errorPaths`, `mutation`, `nightly`, and `summary` (bool, default `true`; `false` turns off the default coverage summary). `diffCoverage` is accepted and not enforced yet. A run below a minimum fails and names what is missing. `style` holds the project's formatting choices (defaults in `docs/bayan-style.md`); `bayan format` reads it. Layout is never compiler-enforced; idiom lints are diagnostics, `.suggestion` by default, with severity set per lint in `lints`. Grammar rules (§5) cannot be configured here. The `style` knobs are a closed set: `indent`, `width`, `align`, `trailingCommas`, `booleans`, `primitives` and `lints` (partial in 0.2: the manifest check accepts only the pre-2026-11-04 knob set (`indent`, `braces`, a line-length knob, `trailingCommas` as a bool, `booleans`, `primitives`), and no style lint exists; `src/Bayan.Syntax/Packages/Manifest.cs:35`). `grammar` is the project dictionary (§5.2): domain words the checker does not know, as `verbs`, `nouns` and `adjectives`, with irregular derived spellings in `forms`; it is merged with the built-in word list and adds words, never exemptions. The `bayan new` templates use the same `:` syntax. Formatter behaviour is not in v0.1.
 
 > Round 2 §10, §18: `package.byn` is a Bayan struct literal, so it uses `:` like every literal; style is per-project data. Codes: BYN3104.
 
 > Round 3 §8, §13, §28: both boolean spellings and both primitive spellings are canonical; `style.booleans` and `style.primitives` pick one per project and `bayan format` rewrites the other; capabilities bound effects instead of standing beside them. Codes: BYN6004.
 
 > Round 3 §12, O15: domain words are declared once per project rather than suppressed member by member. Codes: BYN5014.
+
+> Revision 0020 items 3, 5: the 2026-11-04 style standard (`docs/bayan-style-proposal.md` §4.2, §5, review rows C8, C9) replaces `braces`, the 100-column line knob and `trailingCommas: true`; revision 0002 item 26 adds `adjectives`. Codes: none.
 
 The registry publishes JSON metadata, and `bayan pkg export --json` exists, so outside tools never parse Bayan.
 
@@ -2279,9 +2290,16 @@ The language server runs inside the compiler process. Display-only views (inferr
 
 > Revision 0002 item 17: `bayan expand` is deferred until after v0.1, so the text that relies on it says it will show derived members and effects; language-server inlay hints cover them meanwhile. Codes: none.
 
+### 21.3 Performance targets
+Incremental rebuild under 100 ms on a reference project; cold-build budget tracked in CI.
+
+**Runtime.** Bayan targets Rust and Zig speed, and the safe default stays on the fast path. Checks (bounds, overflow, `expects`) stay in every build mode and are emitted in a form the C compiler optimizes: a compare and a branch to a shared `noreturn`, cold trap function per check kind, and overflow through `__builtin_add_overflow` and its family (v0.0.1). Generics are monomorphized (§11). Typestate, effects, capabilities, units, `rest` spans, `Event.raise` and derivations cost nothing at run time. After v0.0.1: range analysis that proves an index in bounds and hoists the check out of a loop, zipped iteration (`for (p, w) in zip(pixels, weights)`) as the idiom that needs no index checks, and Sūq benchmark budgets against Rust and Zig as well as the C# baseline.
+
+> Round 3 §30: keeping checks in release builds is affordable only if they are cheap to emit and easy for the C compiler to remove; v0.0.1 implements only the emission form.
+
 ### 21.4 Projects, outputs and VCS
 
-**Projects.** `bayan new <name>` creates an app: `package.byn`, `README.md`, `.gitignore` (`/out/`, `/dist/`, `/gen/`; `bayan.lock` stays committed), `.gitattributes` (LF; `*.byn linguist-language=C#`), `.editorconfig`, `src/app/main.byn`, `tests/app.test.byn`, `testdata/` and `docs/`. `--lib` puts the code in `src/<name>/<name>.byn` and tests in `tests/<name>.test.byn`; `--script` writes a single `<name>.byn` starting with `#!/usr/bin/env bayan` and `#:io threaded`, with no manifest and no git. `bayan init` does the same in an existing directory, adding only missing files and listing the ones it skipped; it refuses a directory that has a `package.byn`. `--ci github` adds `.github/workflows/bayan.yml`. A fresh project builds and passes its tests with no edits.
+**Projects.** `bayan new <name>` creates an app: `package.byn`, `README.md`, `.gitignore` (`/out/`, `/dist/`, `/gen/`; `package.lock.byn` stays committed; not in 0.2: no lockfile is written), `.gitattributes` (LF; `*.byn linguist-language=C#`), `.editorconfig`, `src/app/main.byn`, `tests/app.test.byn`, `testdata/` and `docs/`. `--lib` puts the code in `src/<name>/<name>.byn` and tests in `tests/<name>.test.byn`; `--script` writes a single `<name>.byn` starting with `#!/usr/bin/env bayan` and `#:io threaded`, with no manifest and no git. `bayan init` does the same in an existing directory, adding only missing files and listing the ones it skipped; it refuses a directory that has a `package.byn`. `--ci github` adds `.github/workflows/bayan.yml`. A fresh project builds and passes its tests with no edits.
 
 **Names.** A project directory is named in kebab-case (`my-app`) or camelCase (`myApp`). The package name is `local/<kebab-case>` until published; a library's module is the camelCase form, so it can be imported.
 
@@ -2292,13 +2310,6 @@ The language server runs inside the compiler process. Display-only views (inferr
 **Cache.** Compiled programs live in one cache per machine, shared by every project, worktree and process: `$BAYAN_CACHE`, else `%LOCALAPPDATA%\bayan\cache` (Windows), `~/Library/Caches/bayan` (macOS), `$XDG_CACHE_HOME/bayan` or `~/.cache/bayan` (elsewhere). Keys hash the compiler version, mode, target, C compiler, flags and the emitted C, and the emitted C names files relative to the project root, so a second worktree or a moved project compiles nothing. An entry is built in a private directory and renamed into place with no lock; one whose executable no longer matches its recorded SHA-256 is rebuilt. `bayan run script.byn` remembers the program for the script's exact bytes, mode and compiler version and starts it directly next time. `out/` stays per worktree. `bayan cache stats` reports the location, entry count and size; `bayan clean --cache` empties it.
 
 **Version control.** Bayan reads git and never writes history: `bayan new` and `bayan init` run `git init` only when git is installed, `--vcs none` isn't given, and the directory isn't already inside a work tree; they never commit, branch or configure.
-
-### 21.3 Performance targets
-Incremental rebuild under 100 ms on a reference project; cold-build budget tracked in CI.
-
-**Runtime.** Bayan targets Rust and Zig speed, and the safe default stays on the fast path. Checks (bounds, overflow, `expects`) stay in every build mode and are emitted in a form the C compiler optimizes: a compare and a branch to a shared `noreturn`, cold trap function per check kind, and overflow through `__builtin_add_overflow` and its family (v0.0.1). Generics are monomorphized (§11). Typestate, effects, capabilities, units, `rest` spans, `Event.raise` and derivations cost nothing at run time. After v0.0.1: range analysis that proves an index in bounds and hoists the check out of a loop, zipped iteration (`for (p, w) in zip(pixels, weights)`) as the idiom that needs no index checks, and Sūq benchmark budgets against Rust and Zig as well as the C# baseline.
-
-> Round 3 §30: keeping checks in release builds is affordable only if they are cheap to emit and easy for the C compiler to remove; v0.0.1 implements only the emission form.
 
 ### 21.5 Input forms
 Input forms are alternate spellings that the editor and `bayan format` accept and rewrite, one way, into canonical syntax. The compiler rejects them in source with a machine-applicable fix. This is the only list.
@@ -2401,7 +2412,7 @@ DIR → C → TinyCC per target where a CI probe passes, system cc elsewhere (de
 DIR → LLVM (later) | WASM via clang wasm32 (+ generated .d.ts)
 ```
 
-DIR: typed SSA, generics resolved, allocation and cleanup explicit, content-hashed per function for incremental builds. Packages are distributed as source. The C emitter defines all behavior C leaves undefined (`-fwrapv`/explicit checks, `-ffp-contract=off`, `#line` for debuggers).
+DIR: typed SSA, generics resolved, allocation and cleanup explicit, content-hashed per function for incremental builds. Packages are distributed as source. The C emitter defines all behavior C leaves undefined (`-fwrapv`/explicit checks, `-ffp-contract=off`, `#line` for debuggers). The emitter writes `#line N "file.byn"` before each statement's code; generated helpers carry none; a C compiler diagnostic in a user build is an internal compiler error with the C text attached (revision 0001).
 
 Roadmap: v0.3 WASM + `.d.ts`; v0.4 `bayan gen ts`; post-v1 portable JS backend (JS + `.d.ts`, no `unsafe`, `i32`).
 

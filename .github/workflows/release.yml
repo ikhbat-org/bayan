@@ -105,7 +105,9 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           v="$(bash scripts/release/package.sh check-tag "$GITHUB_REF_NAME")"
+          bash scripts/release/package.sh docs dist
           bash scripts/release/package.sh sums dist
+          # dist/bayan-* is the six compiler archives and bayan-$v-docs.tar.gz.
           mkdir -p tmp && bash scripts/release/package.sh notes "$v" > tmp/notes.md
           gh release create "$GITHUB_REF_NAME" dist/bayan-* dist/SHA256SUMS --draft --verify-tag \
             --title "Bayān $v" --notes-file tmp/notes.md

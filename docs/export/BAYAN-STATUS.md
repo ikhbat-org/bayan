@@ -22,8 +22,8 @@ Status values:
 |---|---|---|---|
 | `then` | round-4 draft `docs/bayan-design-round-4-draft.md:270` | proposed | Not in `Keywords.cs` |
 | `ensures` | Not adopted in the round-4 draft (:348); unreserved by rev 0019 (:33) | rejected | Not in `Keywords.cs`; `run/ensures-identifier.byn:1` uses it as a name; see AUDIT A18, A25 |
-| `-er` doer rule (criteria: BYN5101) | SPEC §5.2 (:760) | spec-only | No checker (GRAMMAR:25, "No dedicated code yet"). BYN5101 is `NounOnMutator` (`DiagnosticCodes.cs:350`, `Naming.cs:79`, `diag/noun-on-mutator.diag`); see AUDIT A1 |
-| iḍāfa naming rule (criteria: BYN5100) | Only in round-4 draft :269 ("Naming rules BYN5100/5101") | not found | No descriptor for BYN5100; no document states an iḍāfa rule; see AUDIT A1 |
+| `-er` doer pattern | SPEC §5.2 (:760) | spec-only | SPEC §5.2's pattern, with no checker (GRAMMAR:25, "No dedicated code yet"); no code is allocated for it (rev 0020). BYN5101 is `NounOnMutator` (`DiagnosticCodes.cs:350`, `Naming.cs:79`, `diag/noun-on-mutator.diag`); see AUDIT A1 |
+| BYN5100 | Only in round-4 draft :269 ("Naming rules BYN5100/5101") | not found | BYN5100 is unallocated (rev 0020): no descriptor; no document states an iḍāfa rule; see AUDIT A1 |
 | `Secret<T>` | SPEC §15.2 | unverified | unverified |
 | `Untrusted<T>` | SPEC §15.1 | built | `TypeResolver.cs:128`, `Types.cs:341`, `BinderCalls.cs:753`; `diag/run-untrusted.diag`, `diag/expects-reads-untrusted.byn:1` |
 | `xOp` | SPEC §5.2 (:746) | spec-only | `Op<T, E>` is defined nowhere; see AUDIT A34 |
