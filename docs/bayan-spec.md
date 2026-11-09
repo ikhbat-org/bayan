@@ -917,7 +917,7 @@ for line in order.lines except inactive { … }
 
 **Floats** (`f64`, `f32`) format as the shortest digits that round-trip to the same value. Fixed notation when `1e-5 ≤ |x| < 1e15`, exponential outside it, spelled lowercase with no `+` and no leading zeros (`1e15`, `1.5e-7`, `-2.25e20`), so the text is a valid Bayan literal and valid JSON. Integral values print without a decimal point (`42`); `-0.0` prints `-0`; special values print `nan`, `inf`, `-inf` (`Json.encode` rejects them with `JsonError.nonFinite`).
 
-**`format()` replaces `toString()`.** There is no `toString()`. A type displays through `Display.formatInto(ref StrBuf out, as FormatSpec spec)` (§16.4); the allocating `format()` is derived from it (§5.2). Interpolation calls `formatInto` directly. Calling `toString()` / `ToString()` is a teaching error pointing to `format()`. The conversion spelling is `string(x)` (or `$"{x}"`): a conversion is `T(x)`, never an instance `toX` member (§5.2).
+**`format()` replaces `toString()`.** There is no `toString()`. A type displays through `Display.formatInto(ref StrBuf buffer, as FormatSpec spec)` (§16.4); the allocating `format()` is derived from it (§5.2). Interpolation calls `formatInto` directly. Calling `toString()` / `ToString()` is a teaching error pointing to `format()`. The conversion spelling is `string(x)` (or `$"{x}"`): a conversion is `T(x)`, never an instance `toX` member (§5.2).
 
 - **Specs** are named arguments inside the hole, replacing the C#-style specifiers: `{n, as: .hex}`, `{x, digits: 2}`, `{id, width: 6, fill: '0'}`, `align:`, `grouping:`, `case:`, `as: .debug`; `for: culture` exists only in `kit.intl` (§16.4). The compact forms `{n:hex}`, `{x:.2}`, `{d:iso}`, `{x:debug}` are input forms (BYN1068).
 - Distinct types format as their underlying value; payload-free union cases as their name; error unions as their doc comment; `Secret<T>` as `***`.
@@ -1300,7 +1300,7 @@ let resp = signUp(form) catch switch {
 3. **A borrow cannot be stored anywhere that outlives its region.** Fix: `.copy()` or `.copy(to: alloc)` (strings, §3.2; collections, §16) or `move` into an `Owned`.
 4. A returned borrow derives from **all** borrowed arguments unless narrowed: `string head(string s, at string sep) borrows s`.
 5. **While any borrow into a value is alive, the value cannot be structurally modified.** Passing `x` and `ref x` in one call is an error. A call to a `ref this` method modifies its receiver's root local, so `lexer.push(t)` is an error while a borrow of `lexer` is alive. Loans are tracked per root local, not per field.
-   A method whose return type is a span may return a borrow of its own receiver's fields: in `struct Lexer` with a field `List<Token> toks`, a method `ReadOnlySpan<Token> tokens() => toks.span`. At the call site the result borrows the receiver, and rules 3 and 5 apply to it as to any borrow of the receiver. A `string` view of an own field, a span inside a returned tuple, and a borrow of a local's storage are still rejected (BYN3003).
+   A method whose return type is a span may return a borrow of its own receiver's fields: in `struct Lexer` with a field `List<Token> tokenList`, a property `ReadOnlySpan<Token> tokens => tokenList.span`. At the call site the result borrows the receiver, and rules 3 and 5 apply to it as to any borrow of the receiver. A `string` view of an own field, a span inside a returned tuple, and a borrow of a local's storage are still rejected (BYN3003).
 6. `arena.reset()` requires exclusive access.
 7. Literals and `const` data are static and may go anywhere.
 8. **A borrow stored in a struct field binds the struct to the referent's region.** A struct that holds a reference (a `Span<T>`, a `ReadOnlySpan<T>`, a borrowed field) never outlives the referent, cannot be returned past its owner, and its owner cannot be modified while it is alive (rules 3 and 5). `Rows<T>`, `Subscription` and the span views rely on this.
@@ -1343,7 +1343,7 @@ There is no GC tier and no `Gc<T>` handle (revision 0019, round-4 batch 1).
 | `out` | C# compatibility; prefer returning `T?` or a tuple |
 | `in` | Accepted, redundant; removed by the formatter |
 
-Modifiers precede the parameter name: `ref buf: StrBuf`, `move file: File`.
+Modifiers precede the parameter name: `ref StrBuf buffer`, `move File file`.
 
 **Argument particles.** A closed set of role particles (Arabic مِن/إلى/بِ) labels every required parameter after the object:
 
@@ -1993,7 +1993,7 @@ let raw = try Base64.decode(text)
 
 ```csharp
 public interface Display {
-    void formatInto(ref StrBuf out, as FormatSpec spec)
+    void formatInto(ref StrBuf buffer, as FormatSpec spec)
 }
 ```
 
