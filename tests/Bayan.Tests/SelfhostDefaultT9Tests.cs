@@ -798,11 +798,14 @@ public sealed class SelfhostDefaultT9Tests
     /// <c>BAYAN_CC</c>, spec Q1): a file that cannot be run (<c>cannot run the C compiler</c>), a script that exits 0 and writes no
     /// executable, and one that writes the executable and a directory beside it, which <c>EnumerateFiles</c> keeps in the entry and
     /// <c>Evict</c> does not count. The directory is shared by both trees, since the program key hashes the compiler's path.
+    /// <c>racedir</c>: a second build whose compiler makes an empty directory where the entry goes (named in <c>v1/racedir</c>), as
+    /// another build would; <c>Directory.Move</c> refuses an existing destination, and the empty entry is no winner.
     /// </summary>
     [Theory]
     [InlineData("notexecutable")]
     [InlineData("noexe")]
     [InlineData("subdir")]
+    [InlineData("racedir")]
     public void AnOddCCompiler(string shape)
     {
         if (OperatingSystem.IsWindows()) return;
@@ -812,11 +815,22 @@ public sealed class SelfhostDefaultT9Tests
         {
             "notexecutable" => "",
             "noexe" => "#!/bin/sh\nexit 0\n",
-            _ => "#!/bin/sh\nout=\nwhile [ $# -gt 0 ]; do\n  if [ \"$1\" = -o ]; then out=$2; fi\n  shift\ndone\nprintf x > \"$out\"\ncase $out in */*) dir=${out%/*};; *) dir=.;; esac\n/bin/mkdir \"$dir/sub\"\n",
+            "subdir" => "#!/bin/sh\nout=\nwhile [ $# -gt 0 ]; do\n  if [ \"$1\" = -o ]; then out=$2; fi\n  shift\ndone\nprintf x > \"$out\"\ncase $out in */*) dir=${out%/*};; *) dir=.;; esac\n/bin/mkdir \"$dir/sub\"\n",
+            _ => "#!/bin/sh\nout=\nwhile [ $# -gt 0 ]; do\n  if [ \"$1\" = -o ]; then out=$2; fi\n  shift\ndone\nprintf x > \"$out\"\ncase $out in */*) dir=${out%/*};; *) dir=.;; esac\nif [ -f \"$dir/../../racedir\" ]; then /bin/mkdir \"$(/bin/cat \"$dir/../../racedir\")\"; fi\n",
         });
         File.SetUnixFileMode(cc, shape == "notexecutable" ? UnixFileMode.UserRead | UnixFileMode.UserWrite : UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
-        var outs = Same($"cc-{shape}", Arithmetic, new Step(["build", "arithmetic.byn"], Env: [("PATH", bin)]));
-        if (shape == "subdir") Assert.Contains("built arithmetic", outs[0]);
+        static void Race(string root)
+        {
+            var entry = Directory.GetDirectories(Path.Combine(root, "cache", "v1", "programs")).Single();
+            Directory.Delete(entry, recursive: true);
+            File.WriteAllText(Path.Combine(root, "cache", "v1", "racedir"), entry);
+        }
+        var build = new Step(["build", "arithmetic.byn"], Env: [("PATH", bin)]);
+        var outs = shape == "racedir"
+            ? Same($"cc-{shape}", Arithmetic, build, build with { Before = Race })
+            : Same($"cc-{shape}", Arithmetic, build);
+        if (shape is "subdir" or "racedir") Assert.Contains("built arithmetic", outs[0]);
+        if (shape == "racedir") Assert.Equal("", outs[1]);
     }
 
     /// <summary>CliMemoryBoundsTests.M5_ABuildTagsTheCacheDataItOwnsAsACacheDirectory: a build writes the tag, a hit writes it again.</summary>

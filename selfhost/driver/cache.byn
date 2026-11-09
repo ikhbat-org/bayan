@@ -406,7 +406,7 @@ NativeBuild t9CompileIn(string work, by in List<string> compiler, through in Lis
     try Io.writeFile(Path.combine(work, "program.sha256"), $"{try t9HashFile(exe)}\n".bytes)
     try Io.createDirectory(t9Programs())
     var moved = true
-    Fs.rename(work, to: Path.combine(t9Programs(), key)) catch switch {
+    t9MoveDirectory(work, to: Path.combine(t9Programs(), key)) catch switch {
         IoError e => {
             // Another build of the same program won the race; its entry is as good as ours.
             let won = try lookup(key, by: exeName, through: ref d)
@@ -416,6 +416,14 @@ NativeBuild t9CompileIn(string work, by in List<string> compiler, through in Lis
     }
     if moved { evict(key, through: ref d) }
     return NativeBuild { succeeded: true }
+}
+
+/// `Directory.Move(dir, dest)`: .NET throws `IOException` ("Cannot create '<dest>' because a file or directory with the same name
+/// already exists") when `dest` exists as a file or a directory, on every OS, before it renames; `Fs.rename` would replace a file
+/// on Windows and an empty directory on Unix. An existing `dest` fails `.other`, the C#'s `IOException` (Q1158).
+void t9MoveDirectory(string dir, to string dest) uses alloc, fs fails IoError {
+    if Fs.fileExists(dest) || t9DirectoryExists(dest) { fail .other }
+    try Fs.rename(dir, to: dest)
 }
 
 /// Toolchain.cs:361 `Touch`: a failure is harmless.
@@ -599,7 +607,7 @@ void discard(string dir, through ref DCtx d) uses alloc, clock, env, fs fails Io
 /// `IOException` for `EACCES` on Unix and `ERROR_ACCESS_DENIED` on Windows (Q1158).
 void t9MoveAndDelete(string dir, through ref DCtx d) uses alloc, clock, env, fs fails IoError {
     let trash = Path.combine(t9Staging(), $"trash-{t9Unique(ref d)}")
-    Fs.rename(dir, to: trash) catch return
+    t9MoveDirectory(dir, to: trash) catch return
     t9DeleteTree(trash) catch switch {
         IoError.permissionDenied => fail .permissionDenied,
         // coverage-exempt: Q1158 a delete that fails for another reason than permission: `trash` changed in between (Toolchain.cs:450, :452)
