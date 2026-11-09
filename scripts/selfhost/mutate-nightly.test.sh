@@ -23,6 +23,7 @@ mkdir -p tmp/mutate-batch/g; echo "{\"file\": \"$f\"}" > tmp/mutate-batch/g/qual
 echo "mutation: 3 of 4 killed"
 [ -f "$AUX/two" ] && echo "mutation: 1 of 2 killed"
 [ -f "$AUX/setup" ] && exit 3
+[ -f "$AUX/group" ] && exit 4
 [ "$f" = selfhost/a/y.byn ] && exit 1
 exit 0
 STUB
@@ -74,6 +75,14 @@ rc=0; night || rc=$?
 log | grep -q 'stop: setup failure (rc=3) on selfhost/a/x.byn, cursor not moved' || fail "night 5 log lacks the setup failure: $(log)"
 rm "$t/aux/setup"
 
+# night 6: rc 4 (the file's own group failed) is logged and the cursor passes the file, every night
+: > "$t/aux/ran.txt"; touch "$t/aux/group"; echo selfhost/b/z.byn > "$state/cursor"
+night || fail "night 6 (group failures) exited $?: $(cat "$t/out.txt")"
+[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn,selfhost/a/y.byn,selfhost/b/z.byn ] || fail "night 6 stopped on a failing group: ran $(paste -sd, "$t/aux/ran.txt")"
+log | grep -q '^selfhost/a/x.byn rc=4 ' || fail "night 6 log lacks the rc=4 line: $(log)"
+[ "$(cat "$state/cursor")" = selfhost/b/z.byn ] || fail "night 6 cursor $(cat "$state/cursor")"
+rm "$t/aux/group"
+
 # a live lock on the state, a live mutate-batch.sh lock on tmp/mutate-batch, a stale lock taken over
 : > "$t/aux/ran.txt"; sleep 60 & holder=$!
 mkdir "$state/lock"; echo $holder > "$state/lock/pid"
@@ -87,6 +96,13 @@ kill $holder; wait $holder 2>/dev/null || true
 mkdir "$state/lock"; echo $holder > "$state/lock/pid"; rm -r tmp/mutate-batch.lock
 night || fail "a stale state lock stopped the nightly: $(cat "$t/out.txt")"
 [ -s "$t/aux/ran.txt" ] && [ ! -e "$state/lock" ] || fail "a stale lock was not taken over, or the lock outlived the run"
+# a lock without a pid file: held while young, stale once older than 60 s
+: > "$t/aux/ran.txt"; mkdir "$state/lock"
+rc=0; night || rc=$?
+[ $rc = 2 ] && [ ! -s "$t/aux/ran.txt" ] || fail "a young pid-less lock did not stop the nightly (rc=$rc)"
+touch -t 200001010000 "$state/lock"
+night || fail "an old pid-less lock stopped the nightly: $(cat "$t/out.txt")"
+[ -s "$t/aux/ran.txt" ] || fail "an old pid-less lock was not taken over"
 
 set +e
 bash "$root/scripts/selfhost/mutate-nightly.sh" --deadline 25:00 --state "$state" > "$t/out.txt" 2>&1; [ $? = 2 ] || fail "a bad --deadline did not exit 2"

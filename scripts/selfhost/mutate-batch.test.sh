@@ -57,6 +57,8 @@ print(json.dumps({"version": 1, "kind": "mutation", "files": [{"path": os.enviro
 rep_all() { rep selfhost/semantics/a.byn "$@"; rep selfhost/semantics/b.byn "$@"; rep selfhost/parser/p.byn "$@"; rep selfhost/emitter/e.byn "$@"; rep selfhost/emitter/cprint/cp.byn "$@"; }
 # a family's group is recorded as one build named after its first recorded file
 b() { PATH="$aux:$PATH" bash "$root/scripts/selfhost/mutate-batch.sh" --tasks tasks.md "$@" 2>&1 || true; }
+# brc: the same, output in $aux/brc.txt, exit code in $BRC
+brc() { set +e; PATH="$aux:$PATH" bash "$root/scripts/selfhost/mutate-batch.sh" --tasks tasks.md "$@" > $aux/brc.txt 2>&1; BRC=$?; set -e; }
 score() { python3 -I -c 'import json, sys; print(json.load(open("tests/quality-baseline.json"))["files"].get(sys.argv[1], {}).get("mutation"))' "$1"; }
 list=$(b --list)
 all_files=$(echo "$list" | cut -d' ' -f1 | sort)
@@ -93,7 +95,7 @@ fail_matches=$(find tmp/mutate-batch/semantics -name 'quality-[0-9]*.json')
 fail_rej=$(find tmp/mutate-batch/semantics/rejected -name 'rejected-quality-[0-9]*.json' 2>/dev/null || true)
 REPPATH=/elsewhere/p.byn rep selfhost/parser/p.byn 1 0 0; outside=$(b --files selfhost/parser/p.byn); rep selfhost/parser/p.byn 1 0 0
 # an imported module's path is relative to the packageRoot selfhost/ (SelfhostLexerCaseTests' build of `import lexer`)
-REPPATH=parser/nope.byn rep selfhost/parser/p.byn 1 0 0; missing=$(b --files selfhost/parser/p.byn); rep selfhost/parser/p.byn 1 0 0
+REPPATH=parser/nope.byn rep selfhost/parser/p.byn 1 0 0; brc --files selfhost/parser/p.byn; missing=$(cat $aux/brc.txt); missingx=$BRC; rep selfhost/parser/p.byn 1 0 0
 REPPATH=parser/p.byn rep selfhost/parser/p.byn 1 0 0; pkgrel=$(b --files selfhost/parser/p.byn); rep selfhost/parser/p.byn 1 0 0
 pkgpath=$(python3 -I -c 'import json; print(json.load(open("tmp/mutate-batch/parser/quality-1-prog.json"))["files"][0]["path"])')
 # MUTATE_BASELINE: the scratch baseline is raised, the repo's is not touched
@@ -105,8 +107,13 @@ mkdir -p tmp/mutate-batch.lock; echo $$ > tmp/mutate-batch.lock/pid; rm -f $aux/
 PATH="$aux:$PATH" bash "$root/scripts/selfhost/mutate-batch.sh" --tasks tasks.md --files selfhost/parser/p.byn > $aux/lock.txt 2>&1; lockx=$?; set -e
 lockout=$(cat $aux/lock.txt); [ -f $aux/record.txt ] && lockran=1 || lockran=0; [ -f tmp/mutate-batch.lock/pid ] && lockkept=1 || lockkept=0
 echo 999999 > tmp/mutate-batch.lock/pid; stale=$(b --files selfhost/parser/p.byn); [ -e tmp/mutate-batch.lock ] && released=0 || released=1
-touch $aux/nomanifest; nomanifest=$(b --files selfhost/parser/p.byn); rm $aux/nomanifest
-mv src/Bayan.Cli/bin/Debug/net10.0/bayan $aux/bayan; nocli=$(b --files selfhost/parser/p.byn); cd "$root"
+# a lock without a pid file is held while young (its holder may be between mkdir and the pid write), stale after 60 s
+mkdir tmp/mutate-batch.lock; brc --files selfhost/parser/p.byn; pidlessx=$BRC; pidlessout=$(cat $aux/brc.txt)
+touch -t 200001010000 tmp/mutate-batch.lock; brc --files selfhost/parser/p.byn; oldx=$BRC
+# a baseline the check cannot read is setup (3), not a score result (1)
+echo garbage > $aux/bad.json; MUTATE_BASELINE=$aux/bad.json brc --files selfhost/parser/p.byn; crashx=$BRC
+touch $aux/nomanifest; brc --files selfhost/parser/p.byn; nomanifest=$(cat $aux/brc.txt); nomanifestx=$BRC; rm $aux/nomanifest
+mv src/Bayan.Cli/bin/Debug/net10.0/bayan $aux/bayan; brc --files selfhost/parser/p.byn; nocli=$(cat $aux/brc.txt); noclix=$BRC; cd "$root"
 wf=$(cat .github/workflows/mutation.yml)
 rm -rf "$r" "$aux"
 fail() { echo "FAIL: $1"; echo "$2"; exit 1; }
@@ -139,8 +146,11 @@ echo "$drop" | grep -q '^baseline: mutation score of selfhost/semantics/a.byn fe
 echo "$missing" | grep -q '^group parser: report: .*quality-1-prog.json: path parser/nope.byn is no file under the repo root' || fail "a report path that is no file under the root or selfhost/ did not fail the group" "$missing"
 [ "$lockx" = 3 ] && echo "$lockout" | grep -q "mutate-batch: .*tmp/mutate-batch is in use by another run (lock .*, pid $$)" && [ $lockran = 0 ] && [ $lockkept = 1 ] || fail "a live lock did not stop the run with exit 3 (rc=$lockx, ran=$lockran, kept=$lockkept)" "$lockout"
 echo "$stale" | grep -q '^== group parser' && [ $released = 1 ] || fail "a stale lock was not taken over, or the lock outlived the run (released=$released)" "$stale"
+[ "$missingx" = 4 ] && [ "$nomanifestx" = 4 ] || fail "a group failing for its files exited $missingx / $nomanifestx, not 4" "$missing"
+[ "$noclix" = 3 ] && [ "$crashx" = 3 ] || fail "a setup failure (no pinned bayan / unreadable baseline) exited $noclix / $crashx, not 3" "$nocli"
+[ "$pidlessx" = 3 ] && [ "$oldx" = 0 ] || fail "a pid-less lock exited $pidlessx while young (want 3) and $oldx when old (want 0)" "$pidlessout"
 echo "$badshard" | grep -q 'want k/n' || fail "a bad --shard was accepted" "$badshard"
-[ "$m0x" = 3 ] && [ "$m0p" = 1.0 ] && [ "$m0a" = None ] || fail "a failed mutant 0 exited $m0x (a=$m0a p=$m0p)" "$m0"
+[ "$m0x" = 4 ] && [ "$m0p" = 1.0 ] && [ "$m0a" = None ] || fail "a failed mutant 0 exited $m0x (a=$m0a p=$m0p)" "$m0"
 echo "$m0" | grep -q '^group semantics: mutation: the recording does not replay on the unmutated build' || fail "a failed mutant 0 did not name its group" "$m0"
 echo "$nomanifest" | grep -q '^group parser: mutation: the recording wrote no tmp/mutate-batch/parser/snap/manifest.json' || fail "a manifest-less recording did not name its group" "$nomanifest"
 echo "$nocli" | grep -q '^group parser: mutation: no pinned bayan — pinned-bayan: PINNED_BAYAN=.*/src/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not name its group" "$nocli"

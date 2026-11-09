@@ -9,9 +9,10 @@
 # Before each file it stops when less than `slowest` remains before the deadline (the next HH:MM after the start), and it
 # stops after one pass over the queue; the next night resumes after the cursor and wraps to the first file after the last.
 # Per night <state>/<YYYY-MM-DD>.log gets one line per file (file, rc, seconds, every build's score line) and the stop reason; the group's
-# reports and per-site logs are copied to <state>/reports/<file-slug>/. A file that fails its score (rc 1) is logged and the next one runs;
-# a setup-class rc (mutate-batch.sh: 2 or 3, e.g. no pinned bayan, a build failure, its lock held) stops the night with the cursor
-# unmoved and the reason logged, exit 2. Exit 0 after a deadline stop or a full pass, 2 on a setup error. MUTATE_BATCH overrides the mutate-batch.sh path (tests).
+# reports and per-site logs are copied to <state>/reports/<file-slug>/. A file that fails its score (rc 1) or whose group fails
+# for it (rc 4: mutant 0 does not replay, no manifest ...) is logged and the next one runs; a setup-class rc (mutate-batch.sh: 2 or 3,
+# e.g. no pinned bayan, a build failure, its lock held, a baseline crash) stops the night with the cursor unmoved and the reason
+# logged, exit 2. Exit 0 after a deadline stop or a full pass, 2 on a setup error. MUTATE_BATCH overrides the mutate-batch.sh path (tests).
 set -u
 DEADLINE=""; STATE=$HOME/mutate-nightly; TASKS=()
 while [ $# -gt 0 ]; do case "$1" in
@@ -22,7 +23,9 @@ BATCH=${MUTATE_BATCH:-$(dirname "$0")/mutate-batch.sh}
 [ -f tests/quality-baseline.json ] || { echo "mutate-nightly: no tests/quality-baseline.json: run from the repo root"; exit 2; }
 mkdir -p "$STATE/reports" "$STATE/secs" || { echo "mutate-nightly: cannot create $STATE"; exit 2; }
 # one nightly per state, and none while a mutate-batch.sh run holds tmp/mutate-batch (the per-file clean-up below would delete its files)
-holder() { local pid; pid=$(cat "$1/pid" 2>/dev/null); if [ -d "$1" ] && { [ -z "$pid" ] || kill -0 "$pid" 2>/dev/null; }; then echo "${pid:-unknown}"; fi; }
+# a lock without a pid file is held for 60 s (its holder may be between mkdir and the pid write), then stale
+holder() { local pid; pid=$(cat "$1/pid" 2>/dev/null); [ -d "$1" ] || return 0
+  if [ -n "$pid" ]; then kill -0 "$pid" 2>/dev/null && echo "$pid"; else [ -z "$(find "$1" -maxdepth 0 -mmin +1 2>/dev/null)" ] && echo unknown; fi; return 0; }
 if ! mkdir "$STATE/lock" 2>/dev/null; then
   pid=$(holder "$STATE/lock")
   [ -z "$pid" ] || { echo "mutate-nightly: $STATE is in use by another nightly (pid $pid)"; exit 2; }
@@ -69,7 +72,7 @@ while [ "$done_n" -lt "$total" ]; do
     [ -d "$g"rejected ] && cp -R "$g"rejected "$STATE/reports/$slug/"
   done
   echo "$secs" > "$STATE/secs/$slug"
-  case $rc in 0|1) ;; *)  # not a score result (mutate-batch.sh: 1 is a score below the baseline): the night is wasted, not the file
+  case $rc in 0|1|4) ;; *)  # 1: score below the baseline, 4: this file's group failed; anything else: the night is wasted, not the file
     echo "== $(date '+%F %T') stop: setup failure (rc=$rc) on $f, cursor not moved: $(tail -1 <<< "$out")" >> "$LOG"; exit 2;; esac
   echo "$f" > "$STATE/cursor"
   done_n=$((done_n + 1))
