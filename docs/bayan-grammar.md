@@ -400,7 +400,7 @@ For error doc comments: the first line of a `///` comment on an error case is it
 | Purpose clauses (§7) | Arabic mafʿūl li-ajlihi (object of purpose) | [BYN8001](diagnostics/BYN8001.md) |
 | Argument particles (§8) | Arabic prepositions (مِن, إلى, بِ) | see §8 |
 | States and transitions (§10) | Arabic kāna / ṣāra ("was" / "became") | [BYN7001](diagnostics/BYN7001.md)–[BYN7008](diagnostics/BYN7008.md) |
-| Number agreement (§14) | Arabic muṭābaqa (agreement of number between related words) | BYN5104 (planned, revision 0021) |
+| Number agreement (§14) | Arabic muṭābaqa (agreement of number between related words) | BYN5104–BYN5107 (planned, revision 0021) |
 | Role marks (§15) | Arabic ʾiʿrāb (case marking: rafʿ, naṣb, jarr) | [BYN2306](diagnostics/BYN2306.md) |
 | Error-message voice (§11) | The hudhud in Sūrat an-Naml (27:20–22), whose news is certain and clear: exact about what went wrong, where, why and how to fix it (brand brief §4) | none |
 
@@ -432,7 +432,7 @@ Status: planned (revision 0021). No checker enforces this section yet; the lints
 - **Counts are singular noun + `Count`.** `lineCount`, not `linesCount`, `numLines` or `numberOfLines`. `length` stays the size name. Planned as BYN5105 (revision 0021).
 - **A doer name needs its verb.** A public struct or interface named for a doer or tool (`CsvParser`) has a public member named for the act (`parse`, `tryParse`, `parseInto`, `parseOp`); a static or instance member counts. The doer nouns are `parser`, `builder`, `reader`, `writer`, `recorder`, `encoder`, `decoder`, `scanner`, `loader`, `scheduler`, `renderer`, `formatter`, `handler`, `hasher` and `comparer`, each mapped to its verb; `codec` maps to `encode` and `decode`, and either counts. A noun derived from a project verb by regular spelling (`upsert` → `upserter`) counts too; irregular agent nouns are not checked. Not covered: function-type aliases, stored function fields and other words ending in "-er" (`Carrier`, `Ledger`, `Pointer`, `User`). Planned as BYN5106 (revision 0021).
 - **A tool does not change `this`.** A type named for a tool (`Hasher`, `Comparer`, `Codec`) has no `ref this` member; a type fed data step by step is a doer and is named like one. Planned as BYN5107 (revision 0021).
-- **Dictionary keys.** `grammar` in `package.byn` gains `adjectives` (for example `overdue`) and `collectives` (for example `ledger`) next to `verbs` and `nouns`. A `forms` entry is read by the word's class: the `-ed` spelling for a verb, the plural for a noun. A word in both `verbs` and `nouns` with irregular forms both ways cannot be declared. A word may be in more than one list only as verb plus noun (`record`); any other overlap is a manifest error. The set of keys, and BYN5014 offering all three classes, are planned (revision 0021).
+- **Dictionary keys.** `grammar` in `package.byn` already has `verbs`, `nouns` and `adjectives` (for example `overdue`; SPEC §19.2) and gains `collectives` (for example `ledger`). A `forms` entry is read by the word's class: the `-ed` spelling for a verb, the plural for a noun. A word in both `verbs` and `nouns` with irregular forms both ways cannot be declared. A word may be in more than one list only as verb plus noun (`record`); any other overlap is a manifest error. `collectives`, the overlap rule, the class-aware `forms` reading and BYN5014's message naming all three classes are planned (revision 0021); its help already offers all three.
 
 ```csharp
 grammar: Grammar {
@@ -465,7 +465,7 @@ A mark at the call site says what the callee may do with the argument.
 
 Source notes: no mark is rafʿ (the unmarked base case). `ref` and `out` are naṣb (the case of the object acted on). Particles are jarr (the case after a preposition, §8). `move` is Bayān's own and has no Arabic source.
 
-A call that leaves out a mark the parameter declares is [BYN2306](diagnostics/BYN2306.md). Particles are enforced by the codes in §8.
+A call that leaves out a `ref` or `out` mark the parameter declares is [BYN2306](diagnostics/BYN2306.md); `move` at the call is optional, and a plain argument to a `move` parameter is handed over. Particles are enforced by the codes in §8.
 
 ## 16. Exempt words
 
@@ -473,7 +473,7 @@ These existing exemptions are collected here; this section adds no rules.
 
 - **States** are exempt from the `-ed` rule (§10, SPEC §3.17).
 - **Math vocabulary** is exempt from the `-ed` rule: `abs`, `sqrt`, `floor`, `ceiling`, `pow`, `rounded` (§1, SPEC §5.2).
-- **Particles** are reserved words and are not member names ([BYN5009](diagnostics/BYN5009.md), §1).
+- **Particles** are not member names ([BYN5009](diagnostics/BYN5009.md), §1).
 - **Names under rename attributes** (`@json(name: …)`, `@column(…)`) are exempt from `BYN51xx` (§1).
 - **Codecs and algorithms are types**, so their verbs take the data: `Sha256.hash(d)`, `Base64.encode(d)`.
 
