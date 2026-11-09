@@ -65,7 +65,7 @@ public static class Naming
             var isPublic = s.Access == Accessibility.Public && fn.Access == Accessibility.Public;
             if (fn.IsMutating && !fn.ReturnType.IsBool) CheckParticiple(c, grammar, source, name);
             CheckParticleName(c, s, source, name, fn.IsStatic);
-            CheckWords(c, grammar, source, name);
+            CheckWords(c, grammar, source, name, fn.IsMutating ? "verbs" : fn.ReturnType.IsBool ? "adjectives" : "nouns");
             if (noArgs && fn.IsMutating && IsStateName(fn.Name))
                 c.Report(DiagnosticCodes.StateMemberMutates, source, name.Span, [fn.Name], label: "declared `ref this`",
                     help: "remove `ref this` so it only reads, or name the action with a verb");
@@ -84,7 +84,7 @@ public static class Naming
         foreach (var p in s.Properties)
         {
             CheckParticleName(c, s, source, p.Decl.Name, isStatic: false);
-            CheckWords(c, grammar, source, p.Decl.Name);
+            CheckWords(c, grammar, source, p.Decl.Name, p.Type.IsBool ? "adjectives" : "nouns");
             if (p.Type.IsBool && s.Access == Accessibility.Public && p.Access == Accessibility.Public) CheckBoolState(c, source, p.Decl.Name);
         }
     }
@@ -92,7 +92,10 @@ public static class Naming
     /// <summary>BYN5001: an <c>-ed</c> name is a changed copy or a view, so a member that takes <c>ref this</c> is a plain verb (revision 0005).</summary>
     private static void CheckParticiple(Compilation c, Grammar grammar, SourceText source, Name name)
     {
-        var stems = grammar.Forms.Where(f => f.Value == name.Text).Select(f => f.Key).ToList();
+        // A form is read by its word's class: the -ed spelling for a verb, the plural for a noun (revision 0021 Part 3).
+        bool IsNounOnly(string w) => (Lexicon.Nouns.Contains(w) || grammar.Nouns.Contains(w))
+            && !Lexicon.Verbs.Contains(w) && !grammar.Verbs.Contains(w);
+        var stems = grammar.Forms.Where(f => f.Value == name.Text && !IsNounOnly(f.Key)).Select(f => f.Key).ToList();
         if (stems.Count == 0) stems = ParticipleStems(name.Text);
         if (stems.Count == 0) return;
         var stem = stems.FirstOrDefault(w => Lexicon.Verbs.Contains(w) || grammar.Verbs.Contains(w)) ?? stems[0];
@@ -131,9 +134,11 @@ public static class Naming
     /// <summary>
     /// BYN5014: every word of a member name is a word the checker knows, from <see cref="Lexicon"/> or the
     /// project's <c>grammar</c> (J85), directly or by a regular ending (<see cref="Bases"/>). Names with letters
-    /// outside ASCII, single letters and math names are not checked.
+    /// outside ASCII, single letters and math names are not checked. The help offers the three classes, the best guess
+    /// first: <paramref name="guess"/> is <c>verbs</c> for a member that changes <c>this</c>, <c>adjectives</c> for a
+    /// <c>bool</c> member (a state or condition), else <c>nouns</c>.
     /// </summary>
-    private static void CheckWords(Compilation c, Grammar grammar, SourceText source, Name name)
+    private static void CheckWords(Compilation c, Grammar grammar, SourceText source, Name name, string guess)
     {
         if (Lexicon.Math.Contains(name.Text) || !name.Text.All(char.IsAscii)) return;
         foreach (var (start, text) in WordSpans(name.Text))
@@ -142,15 +147,19 @@ public static class Naming
             if (word.Length < 2 || !word.All(char.IsAsciiLetterLower) || Lexicon.Math.Contains(text.ToLowerInvariant())) continue;
             if (IsKnown(word, grammar)) continue;
             c.Report(DiagnosticCodes.UnknownWord, source, new TextSpan(name.Span.Start + start, text.Length), [word],
-                help: $"add it to `grammar` in package.byn: `verbs: [\"{word}\"]`, `nouns: [\"{word}\"]` or `adjectives: [\"{word}\"]`");
+                help: $"add it to `grammar` in package.byn: {Offer(guess, word)}, {Offer(guess == "verbs" ? "nouns" : "verbs", word)} or {Offer(guess == "adjectives" ? "nouns" : "adjectives", word)}");
         }
     }
+
+    private static string Offer(string field, string word) => $"`{field}: [\"{word}\"]`";
 
     private static bool IsKnown(string word, Grammar grammar)
     {
         bool Listed(string w) => Lexicon.Verbs.Contains(w) || Lexicon.Nouns.Contains(w) || Lexicon.Adjectives.Contains(w)
+            || Lexicon.Collectives.Contains(w) || Lexicon.IrregularPlurals.Contains(w)
             || Lexicon.Particles.Contains(w) || Lexicon.FunctionWords.Contains(w)
-            || grammar.Verbs.Contains(w) || grammar.Nouns.Contains(w) || grammar.Adjectives.Contains(w);
+            || grammar.Verbs.Contains(w) || grammar.Nouns.Contains(w) || grammar.Adjectives.Contains(w)
+            || grammar.Collectives.Contains(w);
         return Listed(word) || grammar.Forms.ContainsValue(word) || Bases(word).Any(Listed);
     }
 
@@ -192,6 +201,7 @@ public static class Naming
         lower.Verbs.UnionWith(grammar.Verbs.Select(w => w.ToLowerInvariant()));
         lower.Nouns.UnionWith(grammar.Nouns.Select(w => w.ToLowerInvariant()));
         lower.Adjectives.UnionWith(grammar.Adjectives.Select(w => w.ToLowerInvariant()));
+        lower.Collectives.UnionWith(grammar.Collectives.Select(w => w.ToLowerInvariant()));
         foreach (var (word, form) in grammar.Forms) lower.Forms[word.ToLowerInvariant()] = form.ToLowerInvariant();
         return lower;
     });
