@@ -314,6 +314,14 @@ void t10BindWords(ref Manifest m, from in T10Reader r, for in Map<string, i64> f
     }
 }
 
+/// `HashSet.Add`: `word` joins `words` unless it is there.
+void t10AddWord(ref List<string> words, by string word) {
+    for w in words {
+        if w == word { return }
+    }
+    words.append(word)
+}
+
 /// The `dist` part of Manifest.cs:96 `Bind`.
 void t10BindDist(ref Manifest m, from in T10Reader r, at i64 dist) {
     if r.values[dist].kind != .objectValue || r.values[dist].text != "Dist" {
@@ -412,14 +420,6 @@ void t10CheckOverlap(ref Manifest m, from T10Reader r, for Map<string, i64> fiel
             }
         }
     }
-}
-
-/// `HashSet.Add`: `word` joins `words` unless it is there.
-void t10AddWord(ref List<string> words, by string word) {
-    for w in words {
-        if w == word { return }
-    }
-    words.append(word)
 }
 
 /// Manifest.cs:243 `Invalid`: BYN3102 at the value.
