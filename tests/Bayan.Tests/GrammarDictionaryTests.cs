@@ -61,6 +61,7 @@ public sealed class GrammarDictionaryTests
 
     [Fact]
     public void WordClassesAreLowercaseWords() =>
-        Assert.All(Lexicon.Verbs.Concat(Lexicon.Nouns).Concat(Lexicon.Adjectives).Concat(Lexicon.FunctionWords),
+        Assert.All(Lexicon.Verbs.Concat(Lexicon.Nouns).Concat(Lexicon.Adjectives).Concat(Lexicon.FunctionWords)
+            .Concat(Lexicon.Collectives).Concat(Lexicon.IrregularPlurals),
             w => Assert.Matches("^[a-z]+$", w));
 }
