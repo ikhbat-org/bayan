@@ -1,6 +1,6 @@
 Commit 8d5e5c71, 2026-11-09. GRAMMAR (`docs/bayan-grammar.md`) followed by STYLE (`docs/bayan-style.md`) as Part 2, revisions 0001-0019 applied; changed rules are tagged (rev NNNN). Diagnostic page links point at `docs/diagnostics/`.
 
-# Bayān grammar guide and style guide
+# Bayān grammar guide and style guide (rev 0016)
 
 How to name things the way the standard library does. This is the developer-facing companion to [SPEC §5](BAYAN-SPEC.md) (naming and morphology). SPEC §5.2 holds the full pattern table and contracts; this guide tells you which pattern to pick.
 
@@ -75,7 +75,7 @@ Bayan follows its own principles. C# familiarity is a benefit, never a deciding 
 | Ellipsis (ḥadhf) | Omitting a part recoverable from local context: `it`, inferred types, target-typed `.member` | Allowed |
 
 Guards against drift:
-1. No synonyms in the lexicon. Two documented exceptions, both chosen per project and normalized by `bayan format`: the boolean spellings (§4) and the primitive spellings (`i32` or `int`; `style.primitives`). The standard library has one more deliberate pair, `remove(at: 2..5)` and `remove(from: 2, until: 5)`, kept because `until` and `through` read well at call sites; it is not a precedent.
+1. No synonyms in the lexicon. Two documented exceptions, both chosen per project and normalized by `bayan format`: the boolean spellings (§4) and the primitive spellings (`i32` or `int`; `style.primitives`). The standard library has one more deliberate pair, `remove(at: 2..5)` and `remove(from: 2, until: 5)`, kept because `until` and `through` read well at call sites; it is not a precedent. (rev 0002)
 2. New syntax must have its own job; it may not only re-spell an existing construct.
 3. Paraphrases must be truly equivalent: same narrowing, cost and effects. Where two forms are not equivalent, the difference is a style note with no diagnostic code (`0..=n - 1` vs `0..n`, `p == Point { … }` vs `p is Point { … }`).
 
@@ -383,7 +383,7 @@ For error doc comments: the first line of a `///` comment on an error case is it
 |---|---|---|
 | Plain verb returns a new value (tree 2) | Arabic Form I (base verb) | |
 | Verb on `ref this` mutates (tree 1) | Arabic Form V (tafaʿʿala, reflexive) | [BYN2115](diagnostics/BYN2115.md), [BYN5101](diagnostics/BYN5101.md) (lint) |
-| `-ed` changed copy or view (tree 2) | Arabic mafʿūl (passive participle) | [BYN5001](diagnostics/BYN5001.md) |
+| `-ed` changed copy or view (tree 2) | Arabic mafʿūl (passive participle) | [BYN5001](diagnostics/BYN5001.md) (rev 0005) |
 | `is` / `has` / `can` property (tree 3) | Arabic ṣifa (attribute) | [BYN5002](diagnostics/BYN5002.md), [BYN5102](diagnostics/BYN5102.md) (lint) |
 | `tryX` (tree 4) | Arabic Form X (istafʿala, attempt) | [BYN5003](diagnostics/BYN5003.md) |
 | `xInto(ref dst)` (tree 5) | Arabic particle إلى (ilā, "into") | none yet |
@@ -409,7 +409,7 @@ The built-in checker (`BYN5xxx`) runs on the members of every struct. Errors (`B
 
 | Code | Rule | What the checker looks at |
 |---|---|---|
-| [BYN5001](diagnostics/BYN5001.md) | An `-ed` member does not take `ref this`: "`{0}` changes `this`; name it `{1}`" (tree 1, 2) | One lowercase word of five letters or more ending in `-ed`, on a member that takes `ref this` and does not return `bool`. The suggested name is the plain verb: the name minus `-ed` (`sorted` → `sort`), minus `d` (`reversed` → `reverse`), with a doubled consonant undone (`trimmed` → `trim`) or `-ied` → `-y` (`copied` → `copy`). Not participles: `-eed` words (`need`, `speed`, `seed`), shorter words (`red`, `bed`, `used`), and `hundred`, `embed`, `shred`, `naked`, `wicked`, `sacred`, `kindred`. Typestate `state` names are not members and are not checked (§10). |
+| [BYN5001](diagnostics/BYN5001.md) | An `-ed` member does not take `ref this`: "`{0}` changes `this`; name it `{1}`" (tree 1, 2) | One lowercase word of five letters or more ending in `-ed`, on a member that takes `ref this` and does not return `bool`. The suggested name is the plain verb: the name minus `-ed` (`sorted` → `sort`), minus `d` (`reversed` → `reverse`), with a doubled consonant undone (`trimmed` → `trim`) or `-ied` → `-y` (`copied` → `copy`). Not participles: `-eed` words (`need`, `speed`, `seed`), shorter words (`red`, `bed`, `used`), and `hundred`, `embed`, `shred`, `naked`, `wicked`, `sacred`, `kindred`. Typestate `state` names are not members and are not checked (§10). (rev 0005) |
 | [BYN5002](diagnostics/BYN5002.md) | A boolean property does not modify `this` (tree 3) | A `ref this` member with no arguments named `is`, `has` or `can` followed by a capital. |
 | [BYN5003](diagnostics/BYN5003.md) | A hand-written `tryX` returns `T?` or `bool` (tree 4) | `tryX` on a type with an `x()` that `fails`. |
 | [BYN5004](diagnostics/BYN5004.md), [BYN5005](diagnostics/BYN5005.md), [BYN5006](diagnostics/BYN5006.md) | Particles (§8) | Parameter lists and call sites; `rest` tails, `@positional` constructors, `extern`, operators and payloads are exempt. |
@@ -425,7 +425,7 @@ The built-in checker (`BYN5xxx`) runs on the members of every struct. Errors (`B
 
 # Part 2: Bayān style guide
 
-*Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.*
+*Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.* (rev 0016)
 
 Style is guidance: never compiler-enforced, configurable per project, applied by `bayan format`. Grammar rules ([GRAMMAR](#bayan-grammar-guide-and-style-guide)) are not style and cannot be configured away.
 
@@ -438,7 +438,7 @@ Style is guidance: never compiler-enforced, configurable per project, applied by
 | Line length | 100 |
 | Trailing commas | Always in multi-line literals and argument lists |
 | Member order | Fields, the `states` block, events, properties, static factories, methods |
-| Signature clauses | `where`, `expects`, `uses`, `becomes`, `fails` (`bayan format` reorders; BYN1065) |
+| Signature clauses | `where`, `expects`, `uses`, `becomes`, `fails` (`bayan format` reorders; BYN1065) (rev 0002) |
 | Statements | One per line (postfix guards count as one) |
 | Booleans | One spelling per project, set by `booleans`: `.symbols` (`!` `&&` `\|\|`) or `.words` (`not` `and` `or`) |
 | Primitives | One spelling per project, set by `primitives`: `.sized` (`i32 i64 u8 f64 …`, the default) or `.csharp` (`int long byte double …`); `char`, `decimal` and `object` are not primitives under either |
