@@ -6,7 +6,7 @@ Routing (Gemini quota week): writers `gem-code` (Argon), `codegen-lite` when agy
 Questions: Q1168–Q1175.
 
 - [x] P1 Landing row — files: `scripts/selfhost/specs.tsv` (row 018: bydir `selfhost/semantics`, shared `selfhost/semantics/ctx.byn`, prefix `SelfhostRevisionT`, base `feat/018-rev-0021-checker`), `scripts/selfhost/land-rows.test.sh`, `018-api.md` — done when: `bash scripts/selfhost/land-rows.test.sh` passes.
-- [ ] T1 BYN7001 help, C# — files: `src/Bayan.Semantics/Binding/BinderStates.cs`, `tests/cases/diag/wrong-state-member-test.diag` (new) — covers: R1 — done when: the new golden shows the help, every other golden is unchanged, `dotnet test` green.
+- [x] T1 BYN7001 help, C# — files: `src/Bayan.Semantics/Binding/BinderStates.cs`, `tests/cases/diag/wrong-state-member-test.diag` (new) — covers: R1 — done when: the new golden shows the help, every other golden is unchanged, `dotnet test` green.
 - [ ] T2 BYN7001 help, `.byn` — files: `selfhost/semantics/states.byn`, `tests/Bayan.Tests/SelfhostRevisionT2Tests.cs` — covers: R1, R8 — done when: land.sh lands it; the T1 golden's lines match the C# output.
 - [ ] T3 Word classes, C# — files: `Manifest.cs`, `Lexicon.cs`, `Naming.cs`, `DiagnosticCodes.cs`, BYN5014 goldens and `docs/diagnostics/BYN5014.md` (+ diagdocs regen), a manifest-overlap golden — covers: R2–R5 — done when: goldens rewritten from the C# run, only BYN5014 goldens changed, `dotnet test` green.
 - [ ] T4 Word classes, `.byn` — files: `selfhost/semantics/manifest.byn`, `naming.byn`, `tests/Bayan.Tests/SelfhostRevisionT4Tests.cs` (whole-set lexicon parity: verbs, nouns, adjectives, collectives, irregular plurals) — covers: R2–R5, R8 — done when: land.sh lands it.
