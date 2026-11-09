@@ -78,7 +78,8 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
    - turns the `## [Unreleased]` body of `CHANGELOG.md` into `## [X.Y.Z] - <today>`, leaving `[Unreleased]` empty.
 
    The new section gets two lists:
-   - `### Revisions`: the revision files added since the previous `v*` tag;
+   - `### Revisions`: the revision files added since the previous `v*` tag (the highest `vA.B.C` below `X.Y.Z`, reachable from HEAD
+     or not);
    - `### Status changes`: the hand-kept `docs/STATUS.md` rows whose status cell changed or that are new since that
      tag.
 
@@ -90,7 +91,8 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
 4. **Commit** the release as one commit, and merge it to `main`.
 5. **Tag** that commit `vX.Y.Z` and push the tag.
 6. **The workflow.** The tag starts `.github/workflows/release.yml`:
-   - `package.sh check-tag` refuses a tag that is not `v` + `VERSION`, or a prerelease `VERSION`;
+   - `package.sh check-tag` refuses a tag that is not `v` + `VERSION`, or a prerelease `VERSION`, and
+     `scripts/docs/check.sh` refuses a `VERSION` its mirrors do not match;
    - each target builds the NativeAOT compiler, smoke-tests `--version` and packs
      `bayan-X.Y.Z-<target>.tar.gz` (`.zip` on Windows). The binary, `README.md` and the docs go under
      `share/doc/bayan/`: `SPEC.md`, `GRAMMAR.md`, `STYLE.md`, `DIAGNOSTICS.md`, `STATUS.md` and `CHANGELOG.md`;

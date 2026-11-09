@@ -30,9 +30,11 @@ jobs:
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
-      - name: Check tag against CompilerVersion
+      - name: Check tag against VERSION and its mirrors
         shell: bash
-        run: bash scripts/release/package.sh check-tag "$GITHUB_REF_NAME"
+        run: |
+          bash scripts/release/package.sh check-tag "$GITHUB_REF_NAME"
+          bash scripts/docs/check.sh
       - name: Install .NET SDK
         shell: bash
         env:

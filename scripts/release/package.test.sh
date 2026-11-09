@@ -23,6 +23,9 @@ echo "$out" | grep -q "does not match VERSION 1.2.3" || fail "no mismatch messag
 setv 1.3.0-dev
 out="$(bash "$s" check-tag v1.3.0-dev 2>&1)" && fail "prerelease version accepted"
 echo "$out" | grep -q "is a prerelease" || fail "no prerelease message: $out"
+setv x
+out="$(bash "$s" check-tag v1.2.3 2>&1)" && fail "malformed VERSION accepted"
+echo "$out" | grep -q "VERSION holds 'x'" || fail "no malformed-VERSION message: $out"
 setv 1.2.3
 
 mkdir -p "$t/pub/unix" "$t/pub/win"
