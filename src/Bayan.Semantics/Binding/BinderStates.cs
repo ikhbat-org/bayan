@@ -93,12 +93,13 @@ internal sealed partial class Binder
         return found.Count == 0 ? null : new StateType(owner, found);
     }
 
+    /// <summary>The <c>if</c> statements whose then-branch is being bound, innermost last; <see cref="StateTestHelp"/> reads them.</summary>
+    private readonly List<IfStmt> _thenOf = [];
+
     /// <summary>
     /// BYN7001: <paramref name="value"/>, passed to <paramref name="callee"/> where <paramref name="wanted"/> is needed, is of the same
     /// struct but not known to be in one of its states. Inside a method, <c>this</c> is in the states its receiver declares.
     /// </summary>
-    private readonly List<IfStmt> _thenOf = [];
-
     private bool ReportWrongState(string callee, BoundExpr value, StateType wanted, TextSpan span)
     {
         var known = value is BoundThis ? (TypeSymbol?)ThisStates() ?? value.Type : value.Type;
