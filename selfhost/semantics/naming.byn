@@ -319,7 +319,7 @@ struct T7Getter {
     bool renamed = false
 }
 
-/// The getter and property members of interface `i`'s declaration, in member order.
+/// The getter and property members of interface `i`'s declaration, in member order. Ports the `foreach (var member in i.Decl.Members)` `GetterDecl`/`PropertyDecl` switch of `Naming.CheckSignatures`.
 List<T7Getter> t7InterfaceGetters(ref Ctx c, for InterfaceId i) {
     var found = List<T7Getter>()
     let f = c.interfaces[i].file
@@ -348,7 +348,7 @@ struct T7Payload {
     List<TextSpan> fields = List<TextSpan>()
 }
 
-/// The variants of the `UnionDecl` or `ErrorEnumDecl` at `declIndex` of file `f`, in declaration order.
+/// The variants of the `UnionDecl` or `ErrorEnumDecl` at `declIndex` of file `f`, in declaration order. Ports the `UnionDecl`/`ErrorEnumDecl` variant walk of `Naming.CheckSignatures`.
 List<T7Payload> t7Payloads(ref Ctx c, from FileId f, at i64 declIndex) {
     var found = List<T7Payload>()
     switch c.files[f].unit.members[declIndex] {
