@@ -99,6 +99,9 @@ public static class Naming
         foreach (var fn in s.Methods.Where(fn => fn.Access == Accessibility.Public))
             foreach (var p in fn.Parameters)
                 if (p.Syntax is { } syntax) CheckNumber(c, grammar, source, syntax.Name, p.Type);
+        CheckDoer(c, grammar, source, s.Module, s.Decl, s.Decl.Name, s.Methods.Where(fn => fn.Access == Accessibility.Public),
+            s.Fields.Where(f => f.Access == Accessibility.Public).Select(f => f.Decl.Name.Text)
+                .Concat(s.Properties.Where(p => p.Access == Accessibility.Public).Select(p => p.Decl.Name.Text)));
     }
 
     /// <summary>
@@ -124,6 +127,7 @@ public static class Naming
             foreach (var fn in i.Methods)
                 foreach (var p in fn.Parameters)
                     if (p.Syntax is { } syntax) CheckNumber(c, grammar, source, syntax.Name, p.Type);
+            CheckDoer(c, grammar, source, i.Module, i.Decl, i.Decl.Name, i.Methods, i.Properties.Select(g => g.Name));
         }
         foreach (var u in module.Unions.Where(u => u.Access == Accessibility.Public))
             foreach (var v in u.Decl.Variants)
@@ -142,6 +146,55 @@ public static class Naming
             if (declared?.FirstOrDefault(p => p.Location?.Span == f.Name.Span) is { } field
                 && !CheckCount(c, grammar, source, f.Name, field.Type))
                 CheckNumber(c, grammar, source, f.Name, field.Type);
+    }
+
+    /// <summary>
+    /// BYN5106 and BYN5107 on a public struct or interface named for a doer or a tool by its last word (revision 0021 Part 4):
+    /// a built-in doer (<see cref="Doers"/>), <c>codec</c> (<c>encode</c> or <c>decode</c>), or a project verb's regular doer
+    /// noun (<c>upsert</c> → <c>upserter</c>, <c>scan</c> → <c>scanner</c>). BYN5106: a public member, static or instance, is
+    /// named its verb or a derived form (<c>tryX</c>, <c>xInto</c>, <c>xOp</c>). BYN5107: a tool (<see cref="Tools"/>) has no
+    /// public <c>ref this</c> member. Other "-er" words (<c>Carrier</c>, <c>User</c>), function-type aliases and stored function
+    /// fields are not types named for a doer here and are not checked, nor is the standard library.
+    /// </summary>
+    private static void CheckDoer(Compilation c, Grammar grammar, SourceText source, ModuleSymbol module, Decl decl, Name name, IEnumerable<FunctionSymbol> methods, IEnumerable<string> others)
+    {
+        // The standard library is not checked (Q1191): `std.json`'s `JsonReader` reads with `next`.
+        if (module.Directory.StartsWith("<std>/", StringComparison.Ordinal) || IsRenamed(decl) || !name.Text.All(char.IsAscii) || Words(name.Text) is not [.., var last]) return;
+        var noun = last.ToLowerInvariant();
+        string[] verbs = noun == "codec" ? ["encode", "decode"]
+            : Doers.TryGetValue(noun, out var verb) ? [verb]
+            : grammar.Verbs.Where(v => DoerNouns(v).Contains(noun)).Order(StringComparer.Ordinal).Take(1).ToArray();
+        if (verbs.Length == 0) return;
+        var members = methods.ToList();
+        bool Acts(string m) => verbs.Any(v => m == v || m == "try" + char.ToUpperInvariant(v[0]) + v[1..] || m == v + "Into" || m == v + "Op");
+        if (!members.Select(m => m.Name).Concat(others).Any(Acts))
+            c.Report(DiagnosticCodes.DoerWithoutVerb, source, name.Span, [name.Text, verbs[0]],
+                help: $"add a member named {string.Join(" or ", verbs.Select(v => $"`{v}`"))}, or rename the type for what it is");
+        if (!Tools.Contains(noun)) return;
+        foreach (var m in members.Where(m => m.IsMutating && m.Decl is not null))
+            c.Report(DiagnosticCodes.InstrumentChangesThis, source, m.Decl!.Name.Span, [name.Text, m.Name],
+                help: "remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step");
+    }
+
+    /// <summary>The built-in doer and tool nouns and their verbs (revision 0021 Part 4); <c>codec</c> is <see cref="CheckDoer"/>'s.</summary>
+    private static readonly Dictionary<string, string> Doers = new()
+    {
+        ["parser"] = "parse", ["builder"] = "build", ["reader"] = "read", ["writer"] = "write", ["recorder"] = "record",
+        ["encoder"] = "encode", ["decoder"] = "decode", ["scanner"] = "scan", ["loader"] = "load", ["scheduler"] = "schedule",
+        ["renderer"] = "render", ["formatter"] = "format", ["handler"] = "handle", ["hasher"] = "hash", ["comparer"] = "compare",
+    };
+
+    /// <summary>The tool nouns of BYN5107: a tool keeps fixed settings and does not change <c>this</c>.</summary>
+    private static readonly HashSet<string> Tools = ["hasher", "comparer", "codec"];
+
+    /// <summary>A verb's doer noun by regular spelling: <c>-er</c>, <c>-r</c> after <c>e</c>, <c>-ier</c> after a consonant and <c>y</c>, and a doubled final consonant (<c>scanner</c>).</summary>
+    private static IEnumerable<string> DoerNouns(string verb)
+    {
+        if (verb.Length < 2) yield break;
+        if (verb[^1] == 'e') { yield return verb + "r"; yield break; }
+        if (verb[^1] == 'y' && !IsVowel(verb[^2])) { yield return verb[..^1] + "ier"; yield break; }
+        yield return verb + "er";
+        if (!IsVowel(verb[^1]) && !"wxy".Contains(verb[^1]) && IsVowel(verb[^2])) yield return verb + verb[^1] + "er";
     }
 
     /// <summary>A name under a rename attribute (<c>@json(name: …)</c>, <c>@column(…)</c>) is forced from outside and exempt from BYN5104 and BYN5105 (grammar guide §1).</summary>
@@ -244,6 +297,8 @@ public static class Naming
 
     private static bool IsNoun(string word, Grammar grammar) => Lexicon.Nouns.Contains(word) || grammar.Nouns.Contains(word);
 
+    private static bool IsVerb(string word, Grammar grammar) => Lexicon.Verbs.Contains(word) || grammar.Verbs.Contains(word);
+
     /// <summary><paramref name="word"/> spelled with the first letter's case of <paramref name="like"/>: <c>Line</c>, <c>lines</c> → <c>Lines</c>.</summary>
     private static string MatchCase(string like, string word) =>
         word.Length > 0 && char.IsUpper(like[0]) ? char.ToUpperInvariant(word[0]) + word[1..] : word;
@@ -251,13 +306,11 @@ public static class Naming
     /// <summary>BYN5001: an <c>-ed</c> name is a changed copy or a view, so a member that takes <c>ref this</c> is a plain verb (revision 0005).</summary>
     private static void CheckParticiple(Compilation c, Grammar grammar, SourceText source, Name name)
     {
-        // A form is read by its word's class: the -ed spelling for a verb, the plural for a noun (revision 0021 Part 3).
-        bool IsNounOnly(string w) => (Lexicon.Nouns.Contains(w) || grammar.Nouns.Contains(w))
-            && !Lexicon.Verbs.Contains(w) && !grammar.Verbs.Contains(w);
-        var stems = grammar.Forms.Where(f => f.Value == name.Text && !IsNounOnly(f.Key)).Select(f => f.Key).ToList();
+        // A form is read by its word's class: the -ed spelling for a verb only, the plural for a noun (revision 0021 Part 3).
+        var stems = grammar.Forms.Where(f => f.Value == name.Text && IsVerb(f.Key, grammar)).Select(f => f.Key).ToList();
         if (stems.Count == 0) stems = ParticipleStems(name.Text);
         if (stems.Count == 0) return;
-        var stem = stems.FirstOrDefault(w => Lexicon.Verbs.Contains(w) || grammar.Verbs.Contains(w)) ?? stems[0];
+        var stem = stems.FirstOrDefault(w => IsVerb(w, grammar)) ?? stems[0];
         c.Report(DiagnosticCodes.ParticipleChangesThis, source, name.Span, [name.Text, stem],
             help: "name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view");
     }

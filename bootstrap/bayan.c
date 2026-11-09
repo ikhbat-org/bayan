@@ -189442,2321 +189442,2335 @@ bynt_main__DCtx byn_main__newDCtx(void) {
 #line 189443 "main.c"
 
 bynt_opt_str byn_main__diagDoc(byn_str p_name) {
-#line 337 "driver/diagdocs.byn"
+#line 339 "driver/diagdocs.byn"
     if (byn_str_eq(p_name, BYN_STR("BYN0001", 7))) {
-#line 338 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0001: bidirectional control character outside a string literal\012\012**Why.** Bidi controls (U+202A\342\200\223U+202E, U+2066\342\200\223U+2069) are invisible and reorder how text displays. In code or comments they can make source read differently from how it compiles (\042Trojan Source\042, CVE-2021-42574). Bayan allows them only inside string literals, where they are data.\012\012**Example.**\012\012```\012// comment <U+202E> hidden\012```\012\012**Fix.** Delete the character. If you need it in text, put it in a string literal, ideally as an escape: `\042\134u{202E}\042`.\012", 524)});
-#line 337 "driver/diagdocs.byn"
-        goto switch_end_1;
-    }
-#line 339 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0002", 7))) {
 #line 340 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0002: unexpected character\012\012**Why.** The character cannot start any token: it is not an operator, punctuation, digit, quote or identifier letter.\012\012**Example.**\012\012```\012let a = 1 `\012```\012\012**Fix.** Remove the character, or put it inside a string or comment.\012", 256)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0001: bidirectional control character outside a string literal\012\012**Why.** Bidi controls (U+202A\342\200\223U+202E, U+2066\342\200\223U+2069) are invisible and reorder how text displays. In code or comments they can make source read differently from how it compiles (\042Trojan Source\042, CVE-2021-42574). Bayan allows them only inside string literals, where they are data.\012\012**Example.**\012\012```\012// comment <U+202E> hidden\012```\012\012**Fix.** Delete the character. If you need it in text, put it in a string literal, ideally as an escape: `\042\134u{202E}\042`.\012", 524)});
 #line 339 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 341 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0003", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0002", 7))) {
 #line 342 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0003: unterminated string literal\012\012**Why.** A regular string must close on the line it opens. A raw `\042\042\042` string must close before the end of the file. An interpolated string's `{` must be closed before the string ends.\012\012**Example.**\012\012```\012let a = \042open\012```\012\012**Fix.** Add the closing `\042`. For text spanning lines use a raw string:\012\012```\012let a = \042\042\042\012    several\012    lines\012    \042\042\042\012```\012", 386)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0002: unexpected character\012\012**Why.** The character cannot start any token: it is not an operator, punctuation, digit, quote or identifier letter.\012\012**Example.**\012\012```\012let a = 1 `\012```\012\012**Fix.** Remove the character, or put it inside a string or comment.\012", 256)});
 #line 341 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 343 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0004", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0003", 7))) {
 #line 344 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0004: unterminated block comment\012\012**Why.** A `/*` comment runs until `*/`. Without one it swallows the rest of the file.\012\012**Example.**\012\012```\012/* started here\012let a = 1\012```\012\012**Fix.** Add `*/` where the comment should end, or use `//` line comments.\012", 251)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0003: unterminated string literal\012\012**Why.** A regular string must close on the line it opens. A raw `\042\042\042` string must close before the end of the file. An interpolated string's `{` must be closed before the string ends.\012\012**Example.**\012\012```\012let a = \042open\012```\012\012**Fix.** Add the closing `\042`. For text spanning lines use a raw string:\012\012```\012let a = \042\042\042\012    several\012    lines\012    \042\042\042\012```\012", 386)});
 #line 343 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 345 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0005", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0004", 7))) {
 #line 346 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0005: identifier not in normalization form C\012\012**Why.** Unicode can encode the same visible letter in more than one way (`\303\251` as one scalar or as `e` + combining accent). Two identifiers that look identical but differ in bytes would be different names. Bayan requires NFC so that names that look the same are the same.\012\012**Example.**\012\012```\012let caf\303\251 = 1   // `e` followed by U+0301\012```\012\012**Fix.** Use the composed form. The diagnostic carries a machine-applicable fix; most editors also have a \042normalize to NFC\042 command.\012", 523)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0004: unterminated block comment\012\012**Why.** A `/*` comment runs until `*/`. Without one it swallows the rest of the file.\012\012**Example.**\012\012```\012/* started here\012let a = 1\012```\012\012**Fix.** Add `*/` where the comment should end, or use `//` line comments.\012", 251)});
 #line 345 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 347 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0006", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0005", 7))) {
 #line 348 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0006: invalid escape sequence\012\012**Why.** Only a fixed set of escapes exists, so a typo cannot silently become a different character.\012\012**Example.**\012\012```\012let s = \042bad \134q escape\042\012```\012\012**Fix.** Use one of `\134n \134r \134t \1340 \134\134 \134\042 \134'` or `\134u{\342\200\246}` with a hex scalar value. To write a backslash, use `\134\134` or a raw `\042\042\042` string.\012", 320)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0005: identifier not in normalization form C\012\012**Why.** Unicode can encode the same visible letter in more than one way (`\303\251` as one scalar or as `e` + combining accent). Two identifiers that look identical but differ in bytes would be different names. Bayan requires NFC so that names that look the same are the same.\012\012**Example.**\012\012```\012let caf\303\251 = 1   // `e` followed by U+0301\012```\012\012**Fix.** Use the composed form. The diagnostic carries a machine-applicable fix; most editors also have a \042normalize to NFC\042 command.\012", 523)});
 #line 347 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 349 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0007", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0006", 7))) {
 #line 350 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0007: empty char literal\012\012**Why.** A `rune` is one Unicode scalar; `''` holds none.\012\012**Example.**\012\012```\012let c = ''\012```\012\012**Fix.** Put the character between the quotes, e.g. `' '`, or use an empty string `\042\042`.\012", 212)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0006: invalid escape sequence\012\012**Why.** Only a fixed set of escapes exists, so a typo cannot silently become a different character.\012\012**Example.**\012\012```\012let s = \042bad \134q escape\042\012```\012\012**Fix.** Use one of `\134n \134r \134t \1340 \134\134 \134\042 \134'` or `\134u{\342\200\246}` with a hex scalar value. To write a backslash, use `\134\134` or a raw `\042\042\042` string.\012", 320)});
 #line 349 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 351 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0008", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0007", 7))) {
 #line 352 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0008: unterminated char literal\012\012**Why.** A char literal must close with `'` on the same line.\012\012**Example.**\012\012```\012let c = 'x\012```\012\012**Fix.** Add the closing `'`.\012", 165)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0007: empty char literal\012\012**Why.** A `rune` is one Unicode scalar; `''` holds none.\012\012**Example.**\012\012```\012let c = ''\012```\012\012**Fix.** Put the character between the quotes, e.g. `' '`, or use an empty string `\042\042`.\012", 212)});
 #line 351 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 353 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0009", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0008", 7))) {
 #line 354 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0009: char literal holds more than one scalar\012\012**Why.** A `rune` is exactly one Unicode scalar value. Text with several characters, including letters built from combining marks or emoji sequences, is a string.\012\012**Example.**\012\012```\012let c = 'ab'\012```\012\012**Fix.** Use a string literal: `\042ab\042`.\012", 291)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0008: unterminated char literal\012\012**Why.** A char literal must close with `'` on the same line.\012\012**Example.**\012\012```\012let c = 'x\012```\012\012**Fix.** Add the closing `'`.\012", 165)});
 #line 353 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 355 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0010", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0009", 7))) {
 #line 356 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0010: invalid numeric literal\012\012**Why.** The literal breaks one of the number rules: `_` separators must sit between digits; `0x` and `0b` need at least one digit of the right base; an exponent needs digits.\012\012**Example.**\012\012```\012let a = 1__000\012let b = 0x\012let c = 1e\012```\012\012**Fix.** Write `1_000`, `0x0`, `1e3`.\012", 311)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0009: char literal holds more than one scalar\012\012**Why.** A `rune` is exactly one Unicode scalar value. Text with several characters, including letters built from combining marks or emoji sequences, is a string.\012\012**Example.**\012\012```\012let c = 'ab'\012```\012\012**Fix.** Use a string literal: `\042ab\042`.\012", 291)});
 #line 355 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 357 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0011", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0010", 7))) {
 #line 358 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0011: unit suffix on a hex or binary literal\012\012**Why.** Unit suffixes such as `dec` or `s` attach meaning to a decimal quantity. Hex and binary literals are bit patterns, so only the built-in width suffixes `u`, `l`, `ul` are allowed on them.\012\012**Example.**\012\012```\012let a = 0xFFs\012```\012\012**Fix.** Write the value in decimal (`255s`), or drop the suffix.\012", 351)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0010: invalid numeric literal\012\012**Why.** The literal breaks one of the number rules: `_` separators must sit between digits; `0x` and `0b` need at least one digit of the right base; an exponent needs digits.\012\012**Example.**\012\012```\012let a = 1__000\012let b = 0x\012let c = 1e\012```\012\012**Fix.** Write `1_000`, `0x0`, `1e3`.\012", 311)});
 #line 357 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 359 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0012", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0011", 7))) {
 #line 360 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0012: reserved word used as identifier\012\012**Why.** Every keyword is reserved, including those kept for future features (`actor`, `macro`, `select`, `become`), so adding a feature later cannot break existing code. The C# primitive type names (`sbyte`, `byte`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `nint`, `nuint`, `float`, `double`) are reserved too: they name the sized types in every project, so none can be declared as a name (`i32 int`, `let long = 4`).\012\012**Example.**\012\012```\012let actor = 1\012```\012\012**Fix.** Choose another name, e.g. `actorId`.\012", 558)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0011: unit suffix on a hex or binary literal\012\012**Why.** Unit suffixes such as `dec` or `s` attach meaning to a decimal quantity. Hex and binary literals are bit patterns, so only the built-in width suffixes `u`, `l`, `ul` are allowed on them.\012\012**Example.**\012\012```\012let a = 0xFFs\012```\012\012**Fix.** Write the value in decimal (`255s`), or drop the suffix.\012", 351)});
 #line 359 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 361 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0013", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0012", 7))) {
 #line 362 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0013: escape is not a Unicode scalar value\012\012**Why.** `\134u{\342\200\246}` must name a Unicode scalar: U+0000\342\200\223U+D7FF or U+E000\342\200\223U+10FFFF. Surrogates and values above U+10FFFF cannot be encoded in UTF-8.\012\012**Example.**\012\012```\012let c = '\134u{D800}'\012```\012\012**Fix.** Use the scalar value you meant. For characters outside the BMP write the code point directly (`\134u{1F600}`), not a surrogate pair.\012", 381)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0012: reserved word used as identifier\012\012**Why.** Every keyword is reserved, including those kept for future features (`actor`, `macro`, `select`, `become`), so adding a feature later cannot break existing code. The C# primitive type names (`sbyte`, `byte`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `nint`, `nuint`, `float`, `double`) are reserved too: they name the sized types in every project, so none can be declared as a name (`i32 int`, `let long = 4`).\012\012**Example.**\012\012```\012let actor = 1\012```\012\012**Fix.** Choose another name, e.g. `actorId`.\012", 558)});
 #line 361 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 363 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0014", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0013", 7))) {
 #line 364 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0014: single `}` in an interpolated string\012\012**Why.** In `$\042\342\200\246\042` strings `{` opens an expression and `}` closes it. A lone `}` in the text is ambiguous, so literal braces are written doubled.\012\012**Example.**\012\012```\012let s = $\042stray } here\042\012```\012\012**Fix.** Write `}}` (and `{{` for a literal `{`). The diagnostic carries this fix.\012", 328)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0013: escape is not a Unicode scalar value\012\012**Why.** `\134u{\342\200\246}` must name a Unicode scalar: U+0000\342\200\223U+D7FF or U+E000\342\200\223U+10FFFF. Surrogates and values above U+10FFFF cannot be encoded in UTF-8.\012\012**Example.**\012\012```\012let c = '\134u{D800}'\012```\012\012**Fix.** Use the scalar value you meant. For characters outside the BMP write the code point directly (`\134u{1F600}`), not a surrogate pair.\012", 381)});
 #line 363 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 365 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0015", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0014", 7))) {
 #line 366 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0015: source is not valid UTF-8\012\012**Why.** Bayan source files are UTF-8. An invalid byte sequence usually means the file was saved in another encoding (ISO-8859-1, Windows-1252, UTF-16).\012\012**Fix.** Re-save the file as UTF-8. The byte offset in the diagnostic shows the first bad byte on each line.\012", 301)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0014: single `}` in an interpolated string\012\012**Why.** In `$\042\342\200\246\042` strings `{` opens an expression and `}` closes it. A lone `}` in the text is ambiguous, so literal braces are written doubled.\012\012**Example.**\012\012```\012let s = $\042stray } here\042\012```\012\012**Fix.** Write `}}` (and `{{` for a literal `{`). The diagnostic carries this fix.\012", 328)});
 #line 365 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 367 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN0016", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0015", 7))) {
 #line 368 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN0016: interpolated strings nested too deeply\012\012**Why.** An interpolated string may contain an expression that is itself an interpolated string. The lexer bounds this nesting (16 levels) so pathological input cannot exhaust it. Only the first occurrence in a file is reported.\012\012**Fix.** Build the inner text in a local first:\012\012```\012let inner = $\042{a}-{b}\042\012let outer = $\042[{inner}]\042\012```\012", 386)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0015: source is not valid UTF-8\012\012**Why.** Bayan source files are UTF-8. An invalid byte sequence usually means the file was saved in another encoding (ISO-8859-1, Windows-1252, UTF-16).\012\012**Fix.** Re-save the file as UTF-8. The byte offset in the diagnostic shows the first bad byte on each line.\012", 301)});
 #line 367 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 369 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1001", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN0016", 7))) {
 #line 370 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1001: expected token\012\012**Why.** The parser needed a specific token at this point (a closing brace, a parenthesis, a name) and found something else. When a block is not closed, the help line names the line where it was opened.\012\012**Example.**\012\012```\012void f() {\012    let x = 1\012\012void g() {}\012```\012\012**Fix.** Insert the missing token. For an unclosed block, add `}` where the block should end.\012", 386)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN0016: interpolated strings nested too deeply\012\012**Why.** An interpolated string may contain an expression that is itself an interpolated string. The lexer bounds this nesting (16 levels) so pathological input cannot exhaust it. Only the first occurrence in a file is reported.\012\012**Fix.** Build the inner text in a local first:\012\012```\012let inner = $\042{a}-{b}\042\012let outer = $\042[{inner}]\042\012```\012", 386)});
 #line 369 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 371 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1002", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1001", 7))) {
 #line 372 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1002: expected an expression\012\012**Why.** An operator, initializer or argument list needs a value here, but the next token cannot start an expression.\012\012**Example.**\012\012```\012let a = \012```\012\012**Fix.** Supply the missing value, or remove the operator that expects one.\012", 262)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1001: expected token\012\012**Why.** The parser needed a specific token at this point (a closing brace, a parenthesis, a name) and found something else. When a block is not closed, the help line names the line where it was opened.\012\012**Example.**\012\012```\012void f() {\012    let x = 1\012\012void g() {}\012```\012\012**Fix.** Insert the missing token. For an unclosed block, add `}` where the block should end.\012", 386)});
 #line 371 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 373 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1003", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1002", 7))) {
 #line 374 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1003: expected a type\012\012**Why.** A declaration, cast or generic argument needs a type here, but the next token cannot start one.\012\012**Example.**\012\012```\012void f(, i32 x) {}\012```\012\012**Fix.** Write the type, such as `i32`, `string` or a struct name.\012", 243)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1002: expected an expression\012\012**Why.** An operator, initializer or argument list needs a value here, but the next token cannot start an expression.\012\012**Example.**\012\012```\012let a = \012```\012\012**Fix.** Supply the missing value, or remove the operator that expects one.\012", 262)});
 #line 373 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 375 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1004", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1003", 7))) {
 #line 376 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1004: expected a struct member\012\012**Why.** Inside a struct body, only fields, properties, constructors and methods may appear. The token shown cannot start any of them.\012\012**Example.**\012\012```\012struct S {\012    i64 a\012    + \012}\012```\012\012**Fix.** Remove the stray tokens, or complete the member declaration.\012", 296)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1003: expected a type\012\012**Why.** A declaration, cast or generic argument needs a type here, but the next token cannot start one.\012\012**Example.**\012\012```\012void f(, i32 x) {}\012```\012\012**Fix.** Write the type, such as `i32`, `string` or a struct name.\012", 243)});
 #line 375 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 377 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1005", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1004", 7))) {
 #line 378 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1005: expected a line break after the statement\012\012**Why.** A statement ends at the end of its line, at `}` or at the end of the file. A second statement on the same line has nothing to end the first, so the two would read as one.\012\012**Example.**\012\012```\012let a = 1 let b = 2\012```\012\012**Fix.** Put the next statement on its own line, at the same indent. The diagnostic carries a machine-applicable fix.\012", 396)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1004: expected a struct member\012\012**Why.** Inside a struct body, only fields, properties, constructors and methods may appear. The token shown cannot start any of them.\012\012**Example.**\012\012```\012struct S {\012    i64 a\012    + \012}\012```\012\012**Fix.** Remove the stray tokens, or complete the member declaration.\012", 296)});
 #line 377 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 379 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1006", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1005", 7))) {
 #line 380 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1006: `unless` cannot have an `else`\012\012**Why.** `unless c A else B` reads as a double negative. When both branches matter, the positive form says the same thing directly.\012\012**Example.**\012\012```\012unless ready { wait() } else { go() }\012```\012\012**Fix.** Write `if ready { go(); } else { wait(); }`. The diagnostic offers this rewrite.\012", 327)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1005: expected a line break after the statement\012\012**Why.** A statement ends at the end of its line, at `}` or at the end of the file. A second statement on the same line has nothing to end the first, so the two would read as one.\012\012**Example.**\012\012```\012let a = 1 let b = 2\012```\012\012**Fix.** Put the next statement on its own line, at the same indent. The diagnostic carries a machine-applicable fix.\012", 396)});
 #line 379 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 381 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1007", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1006", 7))) {
 #line 382 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1007: `unless` with a negated condition\012\012**Why.** `unless (!x)` is a double negative and means `if (x)`. Bayan rejects it so conditions read directly. From design round 3 the same holds for the word spelling `not`, in both the block and the postfix form; BYN1007 covers both spellings (it absorbed the retired [BYN1049](BYN1049.md)).\012\012**Example.**\012\012```\012unless !done { step() }\012return 0 unless !ok\012return 0 unless not ok\012```\012\012**Fix.** Use `if` with the condition un-negated (`return 0 if ok`). The diagnostic carries the rewrite.\012", 534)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1006: `unless` cannot have an `else`\012\012**Why.** `unless c A else B` reads as a double negative. When both branches matter, the positive form says the same thing directly.\012\012**Example.**\012\012```\012unless ready { wait() } else { go() }\012```\012\012**Fix.** Write `if ready { go(); } else { wait(); }`. The diagnostic offers this rewrite.\012", 327)});
 #line 381 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 383 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1008", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1007", 7))) {
 #line 384 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1008: postfix condition on a compound statement\012\012**Why.** A postfix `if` or `unless` (`return x if c;`) is meant for one short simple statement: a return, break, continue, assignment or call. On a block, loop or declaration it hides control flow at the end of a long construct, and on a declaration it would leave the name unassigned.\012\012**Example.**\012\012```\012let y = 2 if ready\012```\012\012**Fix.** Use a prefix `if ready { \342\200\246 }`, or declare the variable first and assign it conditionally.\012", 484)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1007: `unless` with a negated condition\012\012**Why.** `unless (!x)` is a double negative and means `if (x)`. Bayan rejects it so conditions read directly. From design round 3 the same holds for the word spelling `not`, in both the block and the postfix form; BYN1007 covers both spellings (it absorbed the retired [BYN1049](BYN1049.md)).\012\012**Example.**\012\012```\012unless !done { step() }\012return 0 unless !ok\012return 0 unless not ok\012```\012\012**Fix.** Use `if` with the condition un-negated (`return 0 if ok`). The diagnostic carries the rewrite.\012", 534)});
 #line 383 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 385 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1009", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1008", 7))) {
 #line 386 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1009: chained postfix conditions\012\012**Why.** `x if a if b;` is ambiguous to readers (which condition is checked first\077) and adds nothing over `&&`.\012\012**Example.**\012\012```\012return 0 if a if b\012```\012\012**Fix.** Combine the conditions: `return 0 if a && b;`.\012", 250)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1008: postfix condition on a compound statement\012\012**Why.** A postfix `if` or `unless` (`return x if c;`) is meant for one short simple statement: a return, break, continue, assignment or call. On a block, loop or declaration it hides control flow at the end of a long construct, and on a declaration it would leave the name unassigned.\012\012**Example.**\012\012```\012let y = 2 if ready\012```\012\012**Fix.** Use a prefix `if ready { \342\200\246 }`, or declare the variable first and assign it conditionally.\012", 484)});
 #line 385 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 387 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1010", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1009", 7))) {
 #line 388 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1010: `goto` is not supported\012\012**Why.** Bayan has no `goto`. Structured exits cover its legitimate uses: labeled `break` and `continue` leave nested loops, and `defer` handles cleanup. `goto case` is not supported either; switch sections never fall through.\012\012**Example.**\012\012```\012goto done\012```\012\012**Fix.** Label the loop and use `break label;` or `continue label;`. For shared switch code, move it into a function.\012", 415)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1009: chained postfix conditions\012\012**Why.** `x if a if b;` is ambiguous to readers (which condition is checked first\077) and adds nothing over `&&`.\012\012**Example.**\012\012```\012return 0 if a if b\012```\012\012**Fix.** Combine the conditions: `return 0 if a && b;`.\012", 250)});
 #line 387 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 389 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1011", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1010", 7))) {
 #line 390 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1011: invalid assignment target\012\012**Why.** Only variables, fields, properties and indexed elements can be assigned. Calls, literals and operator results are values, not storage.\012\012**Example.**\012\012```\012f() = 3\012a + b += 1\012```\012\012**Fix.** Assign to a variable or member instead.\012", 274)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1010: `goto` is not supported\012\012**Why.** Bayan has no `goto`. Structured exits cover its legitimate uses: labeled `break` and `continue` leave nested loops, and `defer` handles cleanup. `goto case` is not supported either; switch sections never fall through.\012\012**Example.**\012\012```\012goto done\012```\012\012**Fix.** Label the loop and use `break label;` or `continue label;`. For shared switch code, move it into a function.\012", 415)});
 #line 389 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 391 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1012", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1011", 7))) {
 #line 392 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1012: expression has no effect as a statement\012\012**Why.** A statement that is only an expression must do something: call a function, `try` or `catch`, or jump with `\077\077 return`. Expressions such as `a + b;` compute a value and throw it away, which is almost always a mistake.\012\012**Example.**\012\012```\012let x = 1\012x + 1\012```\012\012**Fix.** Assign the value (`y = x + 1;`), use it, or remove the statement.\012", 393)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1011: invalid assignment target\012\012**Why.** Only variables, fields, properties and indexed elements can be assigned. Calls, literals and operator results are values, not storage.\012\012**Example.**\012\012```\012f() = 3\012a + b += 1\012```\012\012**Fix.** Assign to a variable or member instead.\012", 274)});
 #line 391 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 393 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1013", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1012", 7))) {
 #line 394 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1013: conditional expression in a collection literal\012\012**Why.** Inside `[ \342\200\246 ]`, a bare `c \077 a : b` is easy to misread as several elements. Bayan asks for parentheses so element boundaries stay obvious.\012\012**Example.**\012\012```\012let xs = [1, ready \077 2 : 3]\012```\012\012**Fix.** Parenthesize it: `[1, (ready \077 2 : 3)]`. The diagnostic carries this fix.\012", 343)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1012: expression has no effect as a statement\012\012**Why.** A statement that is only an expression must do something: call a function, `try` or `catch`, or jump with `\077\077 return`. Expressions such as `a + b;` compute a value and throw it away, which is almost always a mistake.\012\012**Example.**\012\012```\012let x = 1\012x + 1\012```\012\012**Fix.** Assign the value (`y = x + 1;`), use it, or remove the statement.\012", 393)});
 #line 393 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 395 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1014", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1013", 7))) {
 #line 396 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1014: stacked case labels\012\012**Why.** C-style `case a: case b:` relies on fall-through, which Bayan switch sections do not have. One label with an `or` pattern states the intent directly.\012\012**Example.**\012\012```\012switch day {\012    case .sat:\012    case .sun:\012        rest()\012        break\012}\012```\012\012**Fix.** Write `case .sat or .sun:`. The parser merges stacked labels this way to keep checking the rest of the file.\012", 407)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1013: conditional expression in a collection literal\012\012**Why.** Inside `[ \342\200\246 ]`, a bare `c \077 a : b` is easy to misread as several elements. Bayan asks for parentheses so element boundaries stay obvious.\012\012**Example.**\012\012```\012let xs = [1, ready \077 2 : 3]\012```\012\012**Fix.** Parenthesize it: `[1, (ready \077 2 : 3)]`. The diagnostic carries this fix.\012", 343)});
 #line 395 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 397 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1015", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1014", 7))) {
 #line 398 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1015: C-style `for` loop\012\012**Why.** Bayan's `for` iterates over a range or collection; there is no `for (init; cond; step)` form. Ranges cover counting loops and make off-by-one bounds explicit.\012\012**Example.**\012\012```\012let n = 3\012for (i32 i = 0; i < n; i++) { }\012```\012\012**Fix.** Write `for i in 0..n { \342\200\246 }`, or use `while` for anything else.\012", 339)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1014: stacked case labels\012\012**Why.** C-style `case a: case b:` relies on fall-through, which Bayan switch sections do not have. One label with an `or` pattern states the intent directly.\012\012**Example.**\012\012```\012switch day {\012    case .sat:\012    case .sun:\012        rest()\012        break\012}\012```\012\012**Fix.** Write `case .sat or .sun:`. The parser merges stacked labels this way to keep checking the rest of the file.\012", 407)});
 #line 397 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 399 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1016", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1015", 7))) {
 #line 400 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1016: modifier not allowed here\012\012**Message.** \042`{0}` is not allowed here\042\012\012**Help.** \042put `@sealed` on a struct\042 (on anything but a struct); \042write `@sealed` with no arguments and no `because`\042 (with arguments or `because`); \042put `@positional` on a struct\042 (on anything but a struct); \042write `@positional` with no arguments and no `because`\042 (with arguments or `because`); \042remove `@positional`: a struct with states is built with state literals\042 (on a struct with a `states` block).\012\012**Why.** Each modifier applies to certain declarations only: `public` to functions, structs and members, `readonly` to fields and structs, `static` to members, and so on. An import, local or top-level function cannot take the modifier shown. `@sealed` and `@positional` belong on a struct and take no arguments and no `because`; a struct with states is built with state literals, so it cannot be `@positional`.\012\012**Example.**\012\012```\012public import money\012readonly void f() {}\012\012@sealed\012void run() {}\012\012@positional(strict)\012struct Point {\012    i64 x\012    i64 y\012}\012```\012\012**Fix.** Remove the modifier, or put `@sealed` or `@positional`, bare, on a struct without states.\012", 1146)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1015: C-style `for` loop\012\012**Why.** Bayan's `for` iterates over a range or collection; there is no `for (init; cond; step)` form. Ranges cover counting loops and make off-by-one bounds explicit.\012\012**Example.**\012\012```\012let n = 3\012for (i32 i = 0; i < n; i++) { }\012```\012\012**Fix.** Write `for i in 0..n { \342\200\246 }`, or use `while` for anything else.\012", 339)});
 #line 399 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 401 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1017", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1016", 7))) {
 #line 402 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1017: parenthesized condition\012\012**What.** Parentheses around the whole condition of `if`, `unless`, `while`, `switch` or `do \342\200\246 while`.\012\012**Why.** Bayan conditions are bare and their bodies are blocks, so the parentheses carry nothing. One spelling keeps code uniform. They are still allowed when the condition has a struct literal at its top level, where the `{` would otherwise open the body.\012\012**Example.**\012\012```\012if (count > 0) {\012    print(\042some\042)\012}\012```\012\012**Fix.** Remove the parentheses (the machine fix does this):\012\012```\012if count > 0 {\012    print(\042some\042)\012}\012```\012", 565)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1016: modifier not allowed here\012\012**Message.** \042`{0}` is not allowed here\042\012\012**Help.** \042put `@sealed` on a struct\042 (on anything but a struct); \042write `@sealed` with no arguments and no `because`\042 (with arguments or `because`); \042put `@positional` on a struct\042 (on anything but a struct); \042write `@positional` with no arguments and no `because`\042 (with arguments or `because`); \042remove `@positional`: a struct with states is built with state literals\042 (on a struct with a `states` block).\012\012**Why.** Each modifier applies to certain declarations only: `public` to functions, structs and members, `readonly` to fields and structs, `static` to members, and so on. An import, local or top-level function cannot take the modifier shown. `@sealed` and `@positional` belong on a struct and take no arguments and no `because`; a struct with states is built with state literals, so it cannot be `@positional`.\012\012**Example.**\012\012```\012public import money\012readonly void f() {}\012\012@sealed\012void run() {}\012\012@positional(strict)\012struct Point {\012    i64 x\012    i64 y\012}\012```\012\012**Fix.** Remove the modifier, or put `@sealed` or `@positional`, bare, on a struct without states.\012", 1146)});
 #line 401 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 403 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1018", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1017", 7))) {
 #line 404 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1018: body needs braces\012\012**What.** A single statement as the body of `if`, `else`, `unless`, `while`, `for` or `do`, or a declaration as the body of `defer` (`defer stmt;` is otherwise legal, spec \302\2477.6; `defer let x = 1;` declares a local nothing can see).\012\012**Why.** A braceless body invites the classic bug where a second indented line looks guarded but is not. Every body is a block.\012\012**Example.**\012\012```\012void f() {\012    defer let x = 1\012}\012```\012\012**Fix.** Wrap the statement in `{ }` (the machine fix does this):\012\012```\012defer { let x = 1 }\012```\012\012When the header has its own fix (BYN1017, BYN1007, BYN1019, \342\200\246), that fix also adds the braces, so it is valid applied alone.\012", 672)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1017: parenthesized condition\012\012**What.** Parentheses around the whole condition of `if`, `unless`, `while`, `switch` or `do \342\200\246 while`.\012\012**Why.** Bayan conditions are bare and their bodies are blocks, so the parentheses carry nothing. One spelling keeps code uniform. They are still allowed when the condition has a struct literal at its top level, where the `{` would otherwise open the body.\012\012**Example.**\012\012```\012if (count > 0) {\012    print(\042some\042)\012}\012```\012\012**Fix.** Remove the parentheses (the machine fix does this):\012\012```\012if count > 0 {\012    print(\042some\042)\012}\012```\012", 565)});
 #line 403 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 405 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1019", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1018", 7))) {
 #line 406 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1019: parenthesized `for`\012\012**What.** `for (let x in xs)`, `for (var x in xs)` or `foreach (var x in xs)`.\012\012**Why.** Bayan has one loop over a sequence: `for x in xs { \342\200\246 }`. The loop variable is a fresh binding each iteration, so `let`/`var` adds nothing. A `(` after `for` followed by a top-level `let`, `var` or `in` is this input form; `for (a, b) in pairs` is a tuple destructure.\012\012**Example.**\012\012```\012foreach (var order in orders) {\012    ship(order)\012}\012```\012\012**Fix.** Write the bare form (the machine fix does this):\012\012```\012for order in orders {\012    ship(order)\012}\012```\012", 572)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1018: body needs braces\012\012**What.** A single statement as the body of `if`, `else`, `unless`, `while`, `for` or `do`, or a declaration as the body of `defer` (`defer stmt;` is otherwise legal, spec \302\2477.6; `defer let x = 1;` declares a local nothing can see).\012\012**Why.** A braceless body invites the classic bug where a second indented line looks guarded but is not. Every body is a block.\012\012**Example.**\012\012```\012void f() {\012    defer let x = 1\012}\012```\012\012**Fix.** Wrap the statement in `{ }` (the machine fix does this):\012\012```\012defer { let x = 1 }\012```\012\012When the header has its own fix (BYN1017, BYN1007, BYN1019, \342\200\246), that fix also adds the braces, so it is valid applied alone.\012", 672)});
 #line 405 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 407 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1020", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1019", 7))) {
 #line 408 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1020: `errdefer`\012\012**What.** The keyword `errdefer`.\012\012**Why.** Cleanup kinds are spelled after `defer`: `defer`, `defer failing`, `defer panicking`. `errdefer` was the old spelling of `defer failing`.\012\012**Example.**\012\012```\012errdefer (e) log($\042rolled back: {e}\042)\012```\012\012**Fix.** Write `defer failing`; the `(e)` binding stays (the machine fix does this):\012\012```\012defer failing (e) log($\042rolled back: {e}\042)\012```\012", 404)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1019: parenthesized `for`\012\012**What.** `for (let x in xs)`, `for (var x in xs)` or `foreach (var x in xs)`.\012\012**Why.** Bayan has one loop over a sequence: `for x in xs { \342\200\246 }`. The loop variable is a fresh binding each iteration, so `let`/`var` adds nothing. A `(` after `for` followed by a top-level `let`, `var` or `in` is this input form; `for (a, b) in pairs` is a tuple destructure.\012\012**Example.**\012\012```\012foreach (var order in orders) {\012    ship(order)\012}\012```\012\012**Fix.** Write the bare form (the machine fix does this):\012\012```\012for order in orders {\012    ship(order)\012}\012```\012", 572)});
 #line 407 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 409 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1021", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1020", 7))) {
 #line 410 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1021: `=` in a literal\012\012**What.** `name = value` inside a struct literal or a `with` literal.\012\012**Why.** A literal names its fields with `:`, the same as a manifest and a property pattern. `=` is assignment, which a literal does not do.\012\012**Example.**\012\012```\012let p = Point { x = 1, y = 2 }\012let q = p with { y = 3 }\012```\012\012**Fix.** Write `:` (the machine fix does this):\012\012```\012let p = Point { x: 1, y: 2 }\012let q = p with { y: 3 }\012```\012", 431)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1020: `errdefer`\012\012**What.** The keyword `errdefer`.\012\012**Why.** Cleanup kinds are spelled after `defer`: `defer`, `defer failing`, `defer panicking`. `errdefer` was the old spelling of `defer failing`.\012\012**Example.**\012\012```\012errdefer (e) log($\042rolled back: {e}\042)\012```\012\012**Fix.** Write `defer failing`; the `(e)` binding stays (the machine fix does this):\012\012```\012defer failing (e) log($\042rolled back: {e}\042)\012```\012", 404)});
 #line 409 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 411 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1022", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1021", 7))) {
 #line 412 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1022: compound `unless`\012\012**What.** `unless` with a condition joined by `&&` or `||`.\012\012**Why.** `unless a && b` means \042if not (a and b)\042, which readers get wrong. `unless` is for one plain condition.\012\012**Example.**\012\012```\012unless ready && open {\012    wait()\012}\012```\012\012**Fix.** Use `if` with the negated condition in parentheses (the machine fix does this), and simplify it if you like:\012\012```\012if !(ready && open) {\012    wait()\012}\012```\012", 426)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1021: `=` in a literal\012\012**What.** `name = value` inside a struct literal or a `with` literal.\012\012**Why.** A literal names its fields with `:`, the same as a manifest and a property pattern. `=` is assignment, which a literal does not do.\012\012**Example.**\012\012```\012let p = Point { x = 1, y = 2 }\012let q = p with { y = 3 }\012```\012\012**Fix.** Write `:` (the machine fix does this):\012\012```\012let p = Point { x: 1, y: 2 }\012let q = p with { y: 3 }\012```\012", 431)});
 #line 411 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 413 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1023", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1022", 7))) {
 #line 414 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1023: `unless x is null`\012\012**What.** `unless x is null`.\012\012**Why.** It is a double negative; `if x is not null` says the same thing directly.\012\012**Example.**\012\012```\012unless user is null {\012    greet(user)\012}\012```\012\012**Fix.** Write `if \342\200\246 is not null` (the machine fix does this):\012\012```\012if user is not null {\012    greet(user)\012}\012```\012", 323)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1022: compound `unless`\012\012**What.** `unless` with a condition joined by `&&` or `||`.\012\012**Why.** `unless a && b` means \042if not (a and b)\042, which readers get wrong. `unless` is for one plain condition.\012\012**Example.**\012\012```\012unless ready && open {\012    wait()\012}\012```\012\012**Fix.** Use `if` with the negated condition in parentheses (the machine fix does this), and simplify it if you like:\012\012```\012if !(ready && open) {\012    wait()\012}\012```\012", 426)});
 #line 413 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 415 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1025", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1023", 7))) {
 #line 416 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1025: `catch (e)` binding\012\012**What.** A `(name)` binding after `catch`.\012\012**Why.** A handler that needs the error matches it: each `catch switch` arm binds the error at the type it matched, so the binding always has a precise type.\012\012**Example.**\012\012```\012let n = parse(s) catch (e) switch {\012    .empty => 0,\012    _ => fallback(e),\012}\012```\012\012**Fix.** Remove `(e)` (the machine fix does this when `switch` follows) and bind the error in the arms that need it:\012\012```\012let n = parse(s) catch switch {\012    .empty => 0,\012    ParseError e => fallback(e),\012}\012```\012", 546)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1023: `unless x is null`\012\012**What.** `unless x is null`.\012\012**Why.** It is a double negative; `if x is not null` says the same thing directly.\012\012**Example.**\012\012```\012unless user is null {\012    greet(user)\012}\012```\012\012**Fix.** Write `if \342\200\246 is not null` (the machine fix does this):\012\012```\012if user is not null {\012    greet(user)\012}\012```\012", 323)});
 #line 415 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 417 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1028", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1025", 7))) {
 #line 418 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1028: `delegate`\012\012**Why.** Bayan writes function types directly: `Order -> bool`. A name for one is a type alias. The C# `delegate` declaration is an input form.\012\012**Message.** `delegate` is not Bayan; write a function type `type {0} = {1}`\012\012**Help.** declare it as `type {0} = {1}`\012\012**Example.**\012\012```\012struct Order { i64 total }\012\012delegate bool OrderFilter(Order order)\012```\012\012**Fix.** Write a type alias for the function type:\012\012```\012struct Order { i64 total }\012\012type OrderFilter = Order -> bool\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it. A generic delegate (`delegate bool F<T>(T x)`) gets no fix: aliases take no type parameters.\012", 673)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1025: `catch (e)` binding\012\012**What.** A `(name)` binding after `catch`.\012\012**Why.** A handler that needs the error matches it: each `catch switch` arm binds the error at the type it matched, so the binding always has a precise type.\012\012**Example.**\012\012```\012let n = parse(s) catch (e) switch {\012    .empty => 0,\012    _ => fallback(e),\012}\012```\012\012**Fix.** Remove `(e)` (the machine fix does this when `switch` follows) and bind the error in the arms that need it:\012\012```\012let n = parse(s) catch switch {\012    .empty => 0,\012    ParseError e => fallback(e),\012}\012```\012", 546)});
 #line 417 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 419 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1029", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1028", 7))) {
 #line 420 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1029: `error set` in place of `union error`\012\012**What.** The round-2 `error set S = A | B`, or `|` between the members of a `union error` composition.\012\012**Why.** `union error` declares, composes and narrows error sets with one head-first spelling, so `set` is gone. A composition lists its members like any other list, separated by `,`.\012\012**Example.**\012\012```\012error set SignupError = EmailError | DbError\012```\012\012**Fix.** Write `union error`, with `,` between the members (the machine fix does this):\012\012```\012union error SignupError = EmailError, DbError\012```\012", 551)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1028: `delegate`\012\012**Why.** Bayan writes function types directly: `Order -> bool`. A name for one is a type alias. The C# `delegate` declaration is an input form.\012\012**Message.** `delegate` is not Bayan; write a function type `type {0} = {1}`\012\012**Help.** declare it as `type {0} = {1}`\012\012**Example.**\012\012```\012struct Order { i64 total }\012\012delegate bool OrderFilter(Order order)\012```\012\012**Fix.** Write a type alias for the function type:\012\012```\012struct Order { i64 total }\012\012type OrderFilter = Order -> bool\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it. A generic delegate (`delegate bool F<T>(T x)`) gets no fix: aliases take no type parameters.\012", 673)});
 #line 419 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 421 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1030", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1029", 7))) {
 #line 422 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1030: retired: the rewrite moved to `bayan format` `style.primitives`; never reuse\012\012**No longer reported.** BYN1030 reported `int`, `long`, `short`, `byte`, `uint`, `ulong`, `float` and `double` written as a type. Since design round 3 \302\24728 the compiler accepts both spellings and resolves the C# names to `i32 i64 i16 u8 u32 u64 f32 f64` with no diagnostic. Which spelling a project stores is `style.primitives`, and `bayan format` rewrites to it. The code stays reserved: never reuse it.\012\012**Example.**\012\012```\012long twice(int n) => n * 2\012```\012\012**Fix.** None needed. Run `bayan format` to respell the primitives to the project's `style.primitives`.\012", 649)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1029: `error set` in place of `union error`\012\012**What.** The round-2 `error set S = A | B`, or `|` between the members of a `union error` composition.\012\012**Why.** `union error` declares, composes and narrows error sets with one head-first spelling, so `set` is gone. A composition lists its members like any other list, separated by `,`.\012\012**Example.**\012\012```\012error set SignupError = EmailError | DbError\012```\012\012**Fix.** Write `union error`, with `,` between the members (the machine fix does this):\012\012```\012union error SignupError = EmailError, DbError\012```\012", 551)});
 #line 421 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 423 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1031", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1030", 7))) {
 #line 424 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1031: `T!E` return type\012\012**What.** A function declared `T!E name(\342\200\246)` or `T!(A, B) name(\342\200\246)`.\012\012**Why.** What a function can fail with is written once, after the parameters, with `fails`.\012\012**Example.**\012\012```\012i64!ParseError parse(string s) { return 0 }\012```\012\012**Fix.** Move the errors to a `fails` clause (the machine fix does this):\012\012```\012i64 parse(string s) fails ParseError { return 0 }\012```\012", 395)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1030: retired: the rewrite moved to `bayan format` `style.primitives`; never reuse\012\012**No longer reported.** BYN1030 reported `int`, `long`, `short`, `byte`, `uint`, `ulong`, `float` and `double` written as a type. Since design round 3 \302\24728 the compiler accepts both spellings and resolves the C# names to `i32 i64 i16 u8 u32 u64 f32 f64` with no diagnostic. Which spelling a project stores is `style.primitives`, and `bayan format` rewrites to it. The code stays reserved: never reuse it.\012\012**Example.**\012\012```\012long twice(int n) => n * 2\012```\012\012**Fix.** None needed. Run `bayan format` to respell the primitives to the project's `style.primitives`.\012", 649)});
 #line 423 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 425 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1032", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1031", 7))) {
 #line 426 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1032: retired, `if !x` is no longer rewritten\012\012**No longer reported.** BYN1032 asked for `if !x { \342\200\246 }` with no `else` to be written `unless x { \342\200\246 }`. Design round 3 \302\2475 dropped it: the rewrite replaced one paraphrase with another for no gain, and each boolean spelling reads well in some code. `!`/`&&`/`||` and `not`/`and`/`or` are both allowed. The code stays reserved: never reuse it.\012\012**Example.** Both are accepted:\012\012```\012if !done {\012    work()\012}\012if not done {\012    work()\012}\012```\012\012**Fix.** None needed.\012", 513)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1031: `T!E` return type\012\012**What.** A function declared `T!E name(\342\200\246)` or `T!(A, B) name(\342\200\246)`.\012\012**Why.** What a function can fail with is written once, after the parameters, with `fails`.\012\012**Example.**\012\012```\012i64!ParseError parse(string s) { return 0 }\012```\012\012**Fix.** Move the errors to a `fails` clause (the machine fix does this):\012\012```\012i64 parse(string s) fails ParseError { return 0 }\012```\012", 395)});
 #line 425 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 427 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1033", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1032", 7))) {
 #line 428 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1033: likelihood word after `unless`\012\012**What.** `unless unlikely \342\200\246` or `unless never \342\200\246`.\012\012**Why.** A likelihood word belongs to `if`, where it describes the branch that is written. After `unless` it would describe the negation.\012\012**Example.**\012\012```\012unless unlikely ok {\012    recover()\012}\012```\012\012**Fix.** Drop the word (the machine fix does this), or write `if unlikely` with the negated condition:\012\012```\012if unlikely !ok {\012    recover()\012}\012```\012", 444)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1032: retired, `if !x` is no longer rewritten\012\012**No longer reported.** BYN1032 asked for `if !x { \342\200\246 }` with no `else` to be written `unless x { \342\200\246 }`. Design round 3 \302\2475 dropped it: the rewrite replaced one paraphrase with another for no gain, and each boolean spelling reads well in some code. `!`/`&&`/`||` and `not`/`and`/`or` are both allowed. The code stays reserved: never reuse it.\012\012**Example.** Both are accepted:\012\012```\012if !done {\012    work()\012}\012if not done {\012    work()\012}\012```\012\012**Fix.** None needed.\012", 513)});
 #line 427 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 429 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1040", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1033", 7))) {
 #line 430 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1040: `;` is an input form\012\012**Why.** A statement ends at the newline, so `;` adds nothing. The waqf rules decide where a statement ends: a line ending in a binary operator, `,`, `=`, `=>` or `{` continues on the next line, and so does a line starting with `.`, `\077.`, `\077\077`, `catch`, `&&`, `||`, `and` or `or`. A declaration header continues onto lines starting with its clauses: `fails`, `where`, `requires`. A line starting with `(`, `[` or `-` always starts a new statement, and outside brackets a blank line always ends one.\012\012**Example.**\012\012```\012let a = 1;\012let b = 2; print(a + b);\012```\012\012**Fix.** Remove the `;`. When another statement follows on the same line, the fix puts it on its own line instead. `bayan format` applies the fix.\012", 739)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1033: likelihood word after `unless`\012\012**What.** `unless unlikely \342\200\246` or `unless never \342\200\246`.\012\012**Why.** A likelihood word belongs to `if`, where it describes the branch that is written. After `unless` it would describe the negation.\012\012**Example.**\012\012```\012unless unlikely ok {\012    recover()\012}\012```\012\012**Fix.** Drop the word (the machine fix does this), or write `if unlikely` with the negated condition:\012\012```\012if unlikely !ok {\012    recover()\012}\012```\012", 444)});
 #line 429 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 431 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1041", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1040", 7))) {
 #line 432 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1041: `else` on a new line\012\012**Why.** A newline after the `}` of an `if` ends the statement, so an `else` on the next line has no `if` to belong to. Keeping `else` on the line of `}` makes the two branches read as one statement.\012\012**Example.**\012\012```\012if a > 0 {\012    print(\042pos\042)\012}\012else {\012    print(\042other\042)\012}\012```\012\012**Fix.** Move `else` up to the line of `}`: `} else {`. The diagnostic carries a machine-applicable fix.\012", 420)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1040: `;` is an input form\012\012**Why.** A statement ends at the newline, so `;` adds nothing. The waqf rules decide where a statement ends: a line ending in a binary operator, `,`, `=`, `=>` or `{` continues on the next line, and so does a line starting with `.`, `\077.`, `\077\077`, `catch`, `&&`, `||`, `and` or `or`. A declaration header continues onto lines starting with its clauses: `fails`, `where`, `requires`. A line starting with `(`, `[` or `-` always starts a new statement, and outside brackets a blank line always ends one.\012\012**Example.**\012\012```\012let a = 1;\012let b = 2; print(a + b);\012```\012\012**Fix.** Remove the `;`. When another statement follows on the same line, the fix puts it on its own line instead. `bayan format` applies the fix.\012", 739)});
 #line 431 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 433 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1042", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1041", 7))) {
 #line 434 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1042: a value or modifier on the next line\012\012**Why.** `return`, `break`, `continue` and `fail` take their operand on the same line, and a postfix `if` or `unless` sits on the line of its statement. A newline ends the statement, so a value or condition left on the next line would otherwise be a separate statement. One code covers both forms: \042`{0}` takes its value on the same line\042 for an operand, and \042a postfix `{0}` must be on the line of its statement\042 for a modifier. `fail` is in scope (revision 0002), but `fail` statements do not parse yet (step 5.3f), so only `return`, `break` and `continue` raise it today.\012\012**Example.**\012\012```\012i64 f(i64 x) {\012    return\012        x + 1\012}\012\012void g(bool done) {\012    stop()\012        if done\012}\012```\012\012**Fix.** Move the value to the line of `return`, or the `if` clause up to the statement's line. The diagnostic carries a machine-applicable fix that joins the lines.\012", 906)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1041: `else` on a new line\012\012**Why.** A newline after the `}` of an `if` ends the statement, so an `else` on the next line has no `if` to belong to. Keeping `else` on the line of `}` makes the two branches read as one statement.\012\012**Example.**\012\012```\012if a > 0 {\012    print(\042pos\042)\012}\012else {\012    print(\042other\042)\012}\012```\012\012**Fix.** Move `else` up to the line of `}`: `} else {`. The diagnostic carries a machine-applicable fix.\012", 420)});
 #line 433 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 435 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1043", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1042", 7))) {
 #line 436 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1043: declaration and local binding in the wrong order\012\012**Why.** Declarations put the type first (`Sku sku`, `Grams weight(Order order)`); local bindings put the name first (`let w: Grams = 0g`). One code covers both directions, with one message form each. A name-first declaration reads \042`{0}: {1}` is an input form; write `{1} {0}`\042, and a name-first return reads \042`{0}(\342\200\246) -> {1}` is an input form; write `{1} {0}(\342\200\246)`\042. A type-first local reads \042`{0} {1}` is an input form; write `let {1}: {0}`\042. A typed loop variable follows the local rule: `for T x in e` reads \042`for {0} {1}` is an input form; write `for {1}: {0}`\042.\012\012**Message.** `{0}: {1}` is an input form; write `{1} {0}` (a name-first declaration); `{0}(\342\200\246) -> {1}` is an input form; write `{1} {0}(\342\200\246)` (a name-first return); `{0} {1}` is an input form; write `let {1}: {0}` (a type-first local).\012\012**Help.** put the type before the name; declarations are type-first (declaration); put the return type before the name (return); write `{2} {1}: {0}`; local bindings put the name first (local, `{2}` is `let` or `var`).\012\012**Example.**\012\012```\012f() -> i32 { return 0 }\012f(x: i32) { }\012struct P { name: string }\012union Event { timeout(after: Millis) }\012void run() {\012    Grams w = 0g\012}\012```\012\012**Fix.** For a declaration, write the type first: `i32 f()`, `f(i32 x)`, `string name`, `timeout(Millis after)`. A missing return type becomes `void`. For a loop variable, write `for x: T in e`. For a local binding, write `let w: Grams = 0g`; the local gains `let`, or `var` when it has no value or is assigned later in its block. A `let`, `var` or `const` already written is kept: `const i32 n = 1` becomes `const n: i32 = 1`. A function type used as a field or parameter type is parenthesized so the name follows it: `(Order -> void uses net) onPaid`. The diagnostic carries the rewrite, and `bayan format` applies it.\012", 1869)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1042: a value or modifier on the next line\012\012**Why.** `return`, `break`, `continue` and `fail` take their operand on the same line, and a postfix `if` or `unless` sits on the line of its statement. A newline ends the statement, so a value or condition left on the next line would otherwise be a separate statement. One code covers both forms: \042`{0}` takes its value on the same line\042 for an operand, and \042a postfix `{0}` must be on the line of its statement\042 for a modifier. `fail` is in scope (revision 0002), but `fail` statements do not parse yet (step 5.3f), so only `return`, `break` and `continue` raise it today.\012\012**Example.**\012\012```\012i64 f(i64 x) {\012    return\012        x + 1\012}\012\012void g(bool done) {\012    stop()\012        if done\012}\012```\012\012**Fix.** Move the value to the line of `return`, or the `if` clause up to the statement's line. The diagnostic carries a machine-applicable fix that joins the lines.\012", 906)});
 #line 435 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 437 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1044", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1043", 7))) {
 #line 438 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1044: declaration keywords in the wrong order\012\012**Why.** A declaration names its kind first and its modifier after it, as Arabic puts the head before what describes it: `struct unique`, `type distinct`, `union error`. The modifier-first spellings `unique struct`, `distinct type`, `error enum` and `error union` are input forms. The round-2 `error set` is BYN1029.\012\012**Example.**\012\012```\012unique struct File {\012    i64 fd\012}\012error enum StockError {\012    outOfStock\012}\012distinct type Sku = string\012```\012\012**Fix.** Put the kind first:\012\012```\012struct unique File {\012    i64 fd\012}\012union error StockError {\012    outOfStock\012}\012type distinct Sku = string\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 717)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1043: declaration and local binding in the wrong order\012\012**Why.** Declarations put the type first (`Sku sku`, `Grams weight(Order order)`); local bindings put the name first (`let w: Grams = 0g`). One code covers both directions, with one message form each. A name-first declaration reads \042`{0}: {1}` is an input form; write `{1} {0}`\042, and a name-first return reads \042`{0}(\342\200\246) -> {1}` is an input form; write `{1} {0}(\342\200\246)`\042. A type-first local reads \042`{0} {1}` is an input form; write `let {1}: {0}`\042. A typed loop variable follows the local rule: `for T x in e` reads \042`for {0} {1}` is an input form; write `for {1}: {0}`\042.\012\012**Message.** `{0}: {1}` is an input form; write `{1} {0}` (a name-first declaration); `{0}(\342\200\246) -> {1}` is an input form; write `{1} {0}(\342\200\246)` (a name-first return); `{0} {1}` is an input form; write `let {1}: {0}` (a type-first local).\012\012**Help.** put the type before the name; declarations are type-first (declaration); put the return type before the name (return); write `{2} {1}: {0}`; local bindings put the name first (local, `{2}` is `let` or `var`).\012\012**Example.**\012\012```\012f() -> i32 { return 0 }\012f(x: i32) { }\012struct P { name: string }\012union Event { timeout(after: Millis) }\012void run() {\012    Grams w = 0g\012}\012```\012\012**Fix.** For a declaration, write the type first: `i32 f()`, `f(i32 x)`, `string name`, `timeout(Millis after)`. A missing return type becomes `void`. For a loop variable, write `for x: T in e`. For a local binding, write `let w: Grams = 0g`; the local gains `let`, or `var` when it has no value or is assigned later in its block. A `let`, `var` or `const` already written is kept: `const i32 n = 1` becomes `const n: i32 = 1`. A function type used as a field or parameter type is parenthesized so the name follows it: `(Order -> void uses net) onPaid`. The diagnostic carries the rewrite, and `bayan format` applies it.\012", 1869)});
 #line 437 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 439 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1045", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1044", 7))) {
 #line 440 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1045: bracket attribute\012\012**Why.** Bayan writes an attribute as `@name` or `@name(args)` before the declaration, with a camelCase name, so `[` only ever opens a list or an index. The C# spelling `[Name(args)]` is an input form.\012\012**Example.**\012\012```\012[Cases(1, 2, 3)]\012test \042positive\042 (i32 n) {\012    assert(n > 0)\012}\012```\012\012**Fix.** Write the attribute with `@` and a camelCase name:\012\012```\012@cases(1, 2, 3)\012test \042positive\042 (i32 n) {\012    assert(n > 0)\012}\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 531)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1044: declaration keywords in the wrong order\012\012**Why.** A declaration names its kind first and its modifier after it, as Arabic puts the head before what describes it: `struct unique`, `type distinct`, `union error`. The modifier-first spellings `unique struct`, `distinct type`, `error enum` and `error union` are input forms. The round-2 `error set` is BYN1029.\012\012**Example.**\012\012```\012unique struct File {\012    i64 fd\012}\012error enum StockError {\012    outOfStock\012}\012distinct type Sku = string\012```\012\012**Fix.** Put the kind first:\012\012```\012struct unique File {\012    i64 fd\012}\012union error StockError {\012    outOfStock\012}\012type distinct Sku = string\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 717)});
 #line 439 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 441 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1046", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1045", 7))) {
 #line 442 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1046: `pattern` outside a `const`\012\012**Why.** A named pattern is a `const` value of pattern type, so `except`, `is` and `switch` can share it (spec \302\2476.5). `pattern` is a contextual keyword, valid only after `=` in a `const` declaration; anywhere else it is an ordinary name.\012\012**Example.**\012\012```\012void main() {\012    let inactive = pattern Line { status: .removed or .backordered }\012}\012```\012\012**Fix.** Declare the pattern as a `const`:\012\012```\012const inactive = pattern Line { status: .removed or .backordered }\012```\012\012There is no machine fix: the `const` may need to move out of the function.\012", 583)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1045: bracket attribute\012\012**Why.** Bayan writes an attribute as `@name` or `@name(args)` before the declaration, with a camelCase name, so `[` only ever opens a list or an index. The C# spelling `[Name(args)]` is an input form.\012\012**Example.**\012\012```\012[Cases(1, 2, 3)]\012test \042positive\042 (i32 n) {\012    assert(n > 0)\012}\012```\012\012**Fix.** Write the attribute with `@` and a camelCase name:\012\012```\012@cases(1, 2, 3)\012test \042positive\042 (i32 n) {\012    assert(n > 0)\012}\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 531)});
 #line 441 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 443 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1047", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1046", 7))) {
 #line 444 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1047: block comment\012\012**Why.** Bayan has one comment form, `//` to the end of the line (and `///` for documentation), so a comment never hides code across lines and never nests. `/* */` is an input form. An unclosed `/*` is BYN0004.\012\012**Example.**\012\012```\012/* Prices are in cents.\012   Discounts round down. */\012i64 total(i64 price) => price\012```\012\012**Fix.** Write each line with `//`:\012\012```\012// Prices are in cents.\012// Discounts round down.\012i64 total(i64 price) => price\012```\012\012The diagnostic carries a machine-applicable fix (one `//` line per comment line, at the indent of the `/*` line), and `bayan format` applies it.\012", 613)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1046: `pattern` outside a `const`\012\012**Why.** A named pattern is a `const` value of pattern type, so `except`, `is` and `switch` can share it (spec \302\2476.5). `pattern` is a contextual keyword, valid only after `=` in a `const` declaration; anywhere else it is an ordinary name.\012\012**Example.**\012\012```\012void main() {\012    let inactive = pattern Line { status: .removed or .backordered }\012}\012```\012\012**Fix.** Declare the pattern as a `const`:\012\012```\012const inactive = pattern Line { status: .removed or .backordered }\012```\012\012There is no machine fix: the `const` may need to move out of the function.\012", 583)});
 #line 443 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 445 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1048", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1047", 7))) {
 #line 446 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1048: `char` is now `rune`\012\012**Why.** A Bayan character is a Unicode scalar value, not a UTF-16 unit as in C#, so it is named `rune`. `char` is an input form; a character literal such as `'a'` is a `rune`.\012\012**Example.**\012\012```\012bool isVowel(char c) => c == 'a' or c == 'e'\012```\012\012**Fix.** Rename the type to `rune`:\012\012```\012bool isVowel(rune c) => c == 'a' or c == 'e'\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 450)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1047: block comment\012\012**Why.** Bayan has one comment form, `//` to the end of the line (and `///` for documentation), so a comment never hides code across lines and never nests. `/* */` is an input form. An unclosed `/*` is BYN0004.\012\012**Example.**\012\012```\012/* Prices are in cents.\012   Discounts round down. */\012i64 total(i64 price) => price\012```\012\012**Fix.** Write each line with `//`:\012\012```\012// Prices are in cents.\012// Discounts round down.\012i64 total(i64 price) => price\012```\012\012The diagnostic carries a machine-applicable fix (one `//` line per comment line, at the indent of the `/*` line), and `bayan format` applies it.\012", 613)});
 #line 445 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 447 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1049", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1048", 7))) {
 #line 448 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1049: retired, merged into BYN1007\012\012**No longer reported.** BYN1049 was never raised. A round-3 draft gave `stmt unless not cond` this code, but that is the double negative [BYN1007](BYN1007.md) already reports, so the two were merged into BYN1007. An earlier draft of the round-3 plan used BYN1049 for a return type written before the name (`void f()`). Since the 2026-10-22 revert (plan J54) that order is canonical again, and BYN1043 reports the opposite, a return written after the parameters (`f() -> T`, fix `T f()`). The code stays reserved: never reuse it.\012\012**Example.** See [BYN1007](BYN1007.md):\012\012```\012return 0 unless not ok\012```\012\012**Fix.** Write the condition with `if`: `return 0 if ok`.\012", 702)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1048: `char` is now `rune`\012\012**Why.** A Bayan character is a Unicode scalar value, not a UTF-16 unit as in C#, so it is named `rune`. `char` is an input form; a character literal such as `'a'` is a `rune`.\012\012**Example.**\012\012```\012bool isVowel(char c) => c == 'a' or c == 'e'\012```\012\012**Fix.** Rename the type to `rune`:\012\012```\012bool isVowel(rune c) => c == 'a' or c == 'e'\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 450)});
 #line 447 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 449 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1050", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1049", 7))) {
 #line 450 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1050: `value` in `requires` is now `it`\012\012**Why.** In a `requires` rule the value being checked is `it`, as in a lambda argument (spec \302\2477.9). `requires value\342\200\246` is an input form.\012\012**Example.**\012\012```\012type distinct Percent = i32 requires value in 0..=100\012```\012\012**Fix.** Rename `value` to `it`:\012\012```\012type distinct Percent = i32 requires it in 0..=100\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 437)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1049: retired, merged into BYN1007\012\012**No longer reported.** BYN1049 was never raised. A round-3 draft gave `stmt unless not cond` this code, but that is the double negative [BYN1007](BYN1007.md) already reports, so the two were merged into BYN1007. An earlier draft of the round-3 plan used BYN1049 for a return type written before the name (`void f()`). Since the 2026-10-22 revert (plan J54) that order is canonical again, and BYN1043 reports the opposite, a return written after the parameters (`f() -> T`, fix `T f()`). The code stays reserved: never reuse it.\012\012**Example.** See [BYN1007](BYN1007.md):\012\012```\012return 0 unless not ok\012```\012\012**Fix.** Write the condition with `if`: `return 0 if ok`.\012", 702)});
 #line 449 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 451 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1051", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1050", 7))) {
 #line 452 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1051: `except` is not allowed in a `case` pattern\012\012**Why.** `except` removes cases from a value ([grammar guide](../bayan-grammar.md)); it is an expression, not part of a pattern. A `case` label or a `switch` arm takes a pattern, and `not` already says \042anything but this\042.\012\012**Example.**\012\012```\012Shape pick(Shape s) {\012    switch s {\012        case _ except .circle: return s\012        default: return s\012    }\012}\012```\012\012**Fix.** Write `not` before the pattern:\012\012```\012        not .circle => return s\012```\012\012`_ except p` carries a machine-applicable fix, and `bayan format` applies it. Any other left side has no fix: the parser reads it as `left and not p`.\012", 648)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1050: `value` in `requires` is now `it`\012\012**Why.** In a `requires` rule the value being checked is `it`, as in a lambda argument (spec \302\2477.9). `requires value\342\200\246` is an input form.\012\012**Example.**\012\012```\012type distinct Percent = i32 requires value in 0..=100\012```\012\012**Fix.** Rename `value` to `it`:\012\012```\012type distinct Percent = i32 requires it in 0..=100\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 437)});
 #line 451 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 453 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1052", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1051", 7))) {
 #line 454 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1052: `except` takes a pattern, not a condition\012\012**Why.** The right side of `except` is a pattern (`.timeout`, `\042if\042`, `0..=9`). A comparison, `and`, `or`, `is` or `in` after a constant makes it a condition, which `except` does not accept.\012\012**Example.**\012\012```\012void check(i32 n) {\012    if n is 0 except n > 3 {\012        print(\042x\042)\012    }\012}\012```\012\012**Fix.** Move the condition to `where`, or write the pattern alone:\012\012```\012    if n is 0 where n > 3 {\012```\012\012The diagnostic has no machine-applicable fix.\012", 497)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1051: `except` is not allowed in a `case` pattern\012\012**Why.** `except` removes cases from a value ([grammar guide](../bayan-grammar.md)); it is an expression, not part of a pattern. A `case` label or a `switch` arm takes a pattern, and `not` already says \042anything but this\042.\012\012**Example.**\012\012```\012Shape pick(Shape s) {\012    switch s {\012        case _ except .circle: return s\012        default: return s\012    }\012}\012```\012\012**Fix.** Write `not` before the pattern:\012\012```\012        not .circle => return s\012```\012\012`_ except p` carries a machine-applicable fix, and `bayan format` applies it. Any other left side has no fix: the parser reads it as `left and not p`.\012", 648)});
 #line 453 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 455 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1053", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1052", 7))) {
 #line 456 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1053: cases separated by commas\012\012**Why.** Declarations are separated by newlines: each case of an `enum`, `union` or `union error` sits on its own line, like a field. Commas separate entries of literals and argument lists only.\012\012**Example.**\012\012```\012union Shape { circle(f64 r), square(f64 side) }\012```\012\012**Fix.** Write each case on its own line, without commas:\012\012```\012union Shape {\012    circle(f64 r)\012    square(f64 side)\012}\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 508)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1052: `except` takes a pattern, not a condition\012\012**Why.** The right side of `except` is a pattern (`.timeout`, `\042if\042`, `0..=9`). A comparison, `and`, `or`, `is` or `in` after a constant makes it a condition, which `except` does not accept.\012\012**Example.**\012\012```\012void check(i32 n) {\012    if n is 0 except n > 3 {\012        print(\042x\042)\012    }\012}\012```\012\012**Fix.** Move the condition to `where`, or write the pattern alone:\012\012```\012    if n is 0 where n > 3 {\012```\012\012The diagnostic has no machine-applicable fix.\012", 497)});
 #line 455 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 457 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1054", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1053", 7))) {
 #line 458 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1054: `try` covers more than the call that fails\012\012**Why.** `try` covers the whole expression to its right, down to `\077\077` (spec \302\2478): one scope rule, with no exceptions to memorize. When the part that can fail is only a piece of that expression, the reader would take `try` to apply to the whole, so the compiler asks for parentheses around the failing piece.\012\012**Example.**\012\012```\012i64 parse(string s) fails ParseError { return 0 }\012i64 total(string s) fails ParseError {\012    return try parse(s) + 1\012}\012```\012\012**Fix.** Wrap the part that fails in parentheses, with `try` inside:\012\012```\012i64 total(string s) fails ParseError {\012    return (try parse(s)) + 1\012}\012```\012\012The diagnostic carries a machine-applicable fix. `bayan format` does not apply it: the code is a binder error, not an input form.\012", 786)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1053: cases separated by commas\012\012**Why.** Declarations are separated by newlines: each case of an `enum`, `union` or `union error` sits on its own line, like a field. Commas separate entries of literals and argument lists only.\012\012**Example.**\012\012```\012union Shape { circle(f64 r), square(f64 side) }\012```\012\012**Fix.** Write each case on its own line, without commas:\012\012```\012union Shape {\012    circle(f64 r)\012    square(f64 side)\012}\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 508)});
 #line 457 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 459 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1055", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1054", 7))) {
 #line 460 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1055: `=>` in a function type\012\012**Why.** A function type is written with `->`: `i32 -> bool`, `(i32, string) -> i32`, `() -> void`. `=>` is the lambda arrow and the expression-body arrow (`bool isBig(i32 x) => x > 2`); in a parameter type, a `type` alias target, a local annotation or a type argument it is the older spelling and an input form.\012\012**Message.** `=>` in a type is an input form; write `->`\012\012**Help.** write the function type with `->`\012\012**Example.**\012\012```\012type Pred = i32 => bool\012\012bool check((i32 => bool) p) => p(3)\012```\012\012**Fix.** Write `->`:\012\012```\012type Pred = i32 -> bool\012\012bool check((i32 -> bool) p) => p(3)\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 709)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1054: `try` covers more than the call that fails\012\012**Why.** `try` covers the whole expression to its right, down to `\077\077` (spec \302\2478): one scope rule, with no exceptions to memorize. When the part that can fail is only a piece of that expression, the reader would take `try` to apply to the whole, so the compiler asks for parentheses around the failing piece.\012\012**Example.**\012\012```\012i64 parse(string s) fails ParseError { return 0 }\012i64 total(string s) fails ParseError {\012    return try parse(s) + 1\012}\012```\012\012**Fix.** Wrap the part that fails in parentheses, with `try` inside:\012\012```\012i64 total(string s) fails ParseError {\012    return (try parse(s)) + 1\012}\012```\012\012The diagnostic carries a machine-applicable fix. `bayan format` does not apply it: the code is a binder error, not an input form.\012", 786)});
 #line 459 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 461 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1056", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1055", 7))) {
 #line 462 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1056: `return .x` where `.x` is an error\012\012**Why.** `return` always returns a value and `fail` always leaves with an error (spec \302\2478), so a reader tells the two exits apart by the keyword alone. In a function that fails, `return .x` where the return type has no case `.x` but the `fails` clause does reads as a value and is an error; it is the older spelling and an input form. When the return type has a case `.x`, `return .x` returns that value and no diagnostic is raised.\012\012**Message.** `return .{0}` returns an error; write `fail .{0}`\012\012**Help.** leave with the error: `fail .{0}`\012\012**Example.**\012\012```\012union error LookupError {\012    missing\012}\012\012i64 find(string key) fails LookupError {\012    return .missing if key.isEmpty\012    return 1\012}\012```\012\012**Fix.** Write `fail` in place of `return`:\012\012```\012i64 find(string key) fails LookupError {\012    fail .missing if key.isEmpty\012    return 1\012}\012```\012\012The diagnostic carries a machine-applicable fix. `bayan format` does not apply it: the code is a binder error, not an input form the parser sees.\012", 1034)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1055: `=>` in a function type\012\012**Why.** A function type is written with `->`: `i32 -> bool`, `(i32, string) -> i32`, `() -> void`. `=>` is the lambda arrow and the expression-body arrow (`bool isBig(i32 x) => x > 2`); in a parameter type, a `type` alias target, a local annotation or a type argument it is the older spelling and an input form.\012\012**Message.** `=>` in a type is an input form; write `->`\012\012**Help.** write the function type with `->`\012\012**Example.**\012\012```\012type Pred = i32 => bool\012\012bool check((i32 => bool) p) => p(3)\012```\012\012**Fix.** Write `->`:\012\012```\012type Pred = i32 -> bool\012\012bool check((i32 -> bool) p) => p(3)\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 709)});
 #line 461 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 463 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1057", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1056", 7))) {
 #line 464 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1057: `(T)x` is an input form\012\012**Why.** A conversion is a call on the target type: `u8(x)` is checked and traps in every build mode when `x` is out of range, and `u8.tryFrom(x)` returns `u8\077` (spec \302\2476.2). The C-style cast `(u8)x` is the older spelling and an input form; it also made `if (i32)big > 3 {` ambiguous with a parenthesized condition.\012\012**Message.** `({0})x` is an input form; write `{0}(x)`\012\012**Help.** call the conversion: `{0}(x)`\012\012**Example.**\012\012```\012let big: i64 = 300\012let small = (u8)big\012```\012\012**Fix.** Call the type with the value:\012\012```\012let big: i64 = 300\012let small = u8(big)\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 680)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1056: `return .x` where `.x` is an error\012\012**Why.** `return` always returns a value and `fail` always leaves with an error (spec \302\2478), so a reader tells the two exits apart by the keyword alone. In a function that fails, `return .x` where the return type has no case `.x` but the `fails` clause does reads as a value and is an error; it is the older spelling and an input form. When the return type has a case `.x`, `return .x` returns that value and no diagnostic is raised.\012\012**Message.** `return .{0}` returns an error; write `fail .{0}`\012\012**Help.** leave with the error: `fail .{0}`\012\012**Example.**\012\012```\012union error LookupError {\012    missing\012}\012\012i64 find(string key) fails LookupError {\012    return .missing if key.isEmpty\012    return 1\012}\012```\012\012**Fix.** Write `fail` in place of `return`:\012\012```\012i64 find(string key) fails LookupError {\012    fail .missing if key.isEmpty\012    return 1\012}\012```\012\012The diagnostic carries a machine-applicable fix. `bayan format` does not apply it: the code is a binder error, not an input form the parser sees.\012", 1034)});
 #line 463 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 465 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1058", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1057", 7))) {
 #line 466 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1058: `params` or `T...` for a variadic parameter\012\012**Why.** A variadic parameter is written `rest ReadOnlySpan<T> name`: the caller's extra arguments arrive as a read-only span. C#'s `params T[]` and C's `T...` are input forms.\012\012**Example.**\012\012```\012i32 sum(params i32[] xs) { return 0 }\012i32 total(i32... xs) { return 0 }\012```\012\012**Fix.** Write `rest ReadOnlySpan<T>`:\012\012```\012i32 sum(rest ReadOnlySpan<i32> xs) { return 0 }\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 506)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1057: `(T)x` is an input form\012\012**Why.** A conversion is a call on the target type: `u8(x)` is checked and traps in every build mode when `x` is out of range, and `u8.tryFrom(x)` returns `u8\077` (spec \302\2476.2). The C-style cast `(u8)x` is the older spelling and an input form; it also made `if (i32)big > 3 {` ambiguous with a parenthesized condition.\012\012**Message.** `({0})x` is an input form; write `{0}(x)`\012\012**Help.** call the conversion: `{0}(x)`\012\012**Example.**\012\012```\012let big: i64 = 300\012let small = (u8)big\012```\012\012**Fix.** Call the type with the value:\012\012```\012let big: i64 = 300\012let small = u8(big)\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 680)});
 #line 465 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 467 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1059", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1058", 7))) {
 #line 468 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1059: `state x` member lines\012\012**Why.** A struct declares its typestates in one `states { \342\200\246 }` block after its fields, one state per line, each with an optional named payload. Per-line `state x` members are an input form.\012\012**Example.**\012\012```\012struct Order {\012    i64 total\012    state draft\012    state paid(i64 payment)\012}\012```\012\012**Fix.** Gather the states into one block:\012\012```\012struct Order {\012    i64 total\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012```\012\012Every `state` line carries the same machine-applicable fix, and `bayan format` applies it: the lines leave their places and the block takes the place of the last one. There is no fix when the struct already has a `states` block (move the state into it by hand), or when a `state` line shares its line with other code or a comment.\012", 801)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1058: `params` or `T...` for a variadic parameter\012\012**Why.** A variadic parameter is written `rest ReadOnlySpan<T> name`: the caller's extra arguments arrive as a read-only span. C#'s `params T[]` and C's `T...` are input forms.\012\012**Example.**\012\012```\012i32 sum(params i32[] xs) { return 0 }\012i32 total(i32... xs) { return 0 }\012```\012\012**Fix.** Write `rest ReadOnlySpan<T>`:\012\012```\012i32 sum(rest ReadOnlySpan<i32> xs) { return 0 }\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 506)});
 #line 467 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 469 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1060", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1059", 7))) {
 #line 470 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1060: `{ get }` on an interface member\012\012**Why.** A field-shaped interface member, `Type name`, is already a read-only property requirement. C#'s `Type name { get }` is an input form.\012\012**Example.**\012\012```\012interface Sized {\012    i64 length { get }\012}\012```\012\012**Fix.** Remove `{ get }`: `i64 length`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 376)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1059: `state x` member lines\012\012**Why.** A struct declares its typestates in one `states { \342\200\246 }` block after its fields, one state per line, each with an optional named payload. Per-line `state x` members are an input form.\012\012**Example.**\012\012```\012struct Order {\012    i64 total\012    state draft\012    state paid(i64 payment)\012}\012```\012\012**Fix.** Gather the states into one block:\012\012```\012struct Order {\012    i64 total\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012```\012\012Every `state` line carries the same machine-applicable fix, and `bayan format` applies it: the lines leave their places and the block takes the place of the last one. There is no fix when the struct already has a `states` block (move the state into it by hand), or when a `state` line shares its line with other code or a comment.\012", 801)});
 #line 469 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 471 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1061", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1060", 7))) {
 #line 472 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1061: `this` receiver without a state\012\012**Why.** A method reads its receiver by default, so a bare `this` first parameter says nothing. Write `this` only with a state (`this is .placed`), or as `ref this` or `move this`.\012\012**Example.**\012\012```\012struct Counter {\012    i64 n\012\012    i64 read(this) => n\012}\012```\012\012**Fix.** Remove `this`: `i64 read() => n`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 426)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1060: `{ get }` on an interface member\012\012**Why.** A field-shaped interface member, `Type name`, is already a read-only property requirement. C#'s `Type name { get }` is an input form.\012\012**Example.**\012\012```\012interface Sized {\012    i64 length { get }\012}\012```\012\012**Fix.** Remove `{ get }`: `i64 length`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 376)});
 #line 471 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 473 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1062", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1061", 7))) {
 #line 474 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1062: `trust(x, reason: \342\200\246)` is now `x.trustUnchecked() because \042\342\200\246\042`\012\012**Why.** Clearing the `Untrusted` mark bypasses a safety rule, and every bypass in Bayan states its reason in a `because` clause, so a reviewer finds them all with one search. `trust(x, reason: \042\342\200\246\042)` is the older spelling and an input form.\012\012**Example.**\012\012```\012let name: Untrusted<string> = Untrusted(\042x\042)\012print(trust(name, reason: \042checked against the allow list\042))\012```\012\012**Fix.** Call `trustUnchecked()` on the value and give the reason in `because`:\012\012```\012let name: Untrusted<string> = Untrusted(\042x\042)\012print(name.trustUnchecked() because \042checked against the allow list\042)\012```\012\012The diagnostic carries a machine-applicable fix when the reason is a string literal, and `bayan format` applies it.\012", 772)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1061: `this` receiver without a state\012\012**Why.** A method reads its receiver by default, so a bare `this` first parameter says nothing. Write `this` only with a state (`this is .placed`), or as `ref this` or `move this`.\012\012**Example.**\012\012```\012struct Counter {\012    i64 n\012\012    i64 read(this) => n\012}\012```\012\012**Fix.** Remove `this`: `i64 read() => n`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 426)});
 #line 473 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 475 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1063", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1062", 7))) {
 #line 476 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1063: `requires` on a function\012\012**Why.** A function's precondition is written `expects condition`; `requires` belongs to field and type rules. `requires` on a function is an input form.\012\012**Example.**\012\012```\012i64 half(i64 n) requires n >= 0 { return n / 2 }\012```\012\012**Fix.** Write `expects`: `i64 half(i64 n) expects n >= 0 { return n / 2 }`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 421)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1062: `trust(x, reason: \342\200\246)` is now `x.trustUnchecked() because \042\342\200\246\042`\012\012**Why.** Clearing the `Untrusted` mark bypasses a safety rule, and every bypass in Bayan states its reason in a `because` clause, so a reviewer finds them all with one search. `trust(x, reason: \042\342\200\246\042)` is the older spelling and an input form.\012\012**Example.**\012\012```\012let name: Untrusted<string> = Untrusted(\042x\042)\012print(trust(name, reason: \042checked against the allow list\042))\012```\012\012**Fix.** Call `trustUnchecked()` on the value and give the reason in `because`:\012\012```\012let name: Untrusted<string> = Untrusted(\042x\042)\012print(name.trustUnchecked() because \042checked against the allow list\042)\012```\012\012The diagnostic carries a machine-applicable fix when the reason is a string literal, and `bayan format` applies it.\012", 772)});
 #line 475 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 477 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1064", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1063", 7))) {
 #line 478 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1064: payload without a name\012\012**Why.** Each payload of a union variant or a state is a named field, read as `shape.radius` once the variant is matched. A type alone gives the field no name.\012\012**Example.**\012\012```\012union Shape {\012    circle(f64)\012}\012```\012\012**Fix.** Name the payload: `circle(f64 radius)`. There is no automatic fix, because the name is yours to choose.\012", 364)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1063: `requires` on a function\012\012**Why.** A function's precondition is written `expects condition`; `requires` belongs to field and type rules. `requires` on a function is an input form.\012\012**Example.**\012\012```\012i64 half(i64 n) requires n >= 0 { return n / 2 }\012```\012\012**Fix.** Write `expects`: `i64 half(i64 n) expects n >= 0 { return n / 2 }`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 421)});
 #line 477 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 479 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1065", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1064", 7))) {
 #line 480 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1065: function clauses out of order\012\012**Why.** The clauses after a function's parameters have one order, so every signature reads the same way: `where`, `expects`, `uses`, `becomes`, `fails`. The code is raised once, at the first clause out of order.\012\012**Example.**\012\012```\012i64 parse(string s) fails ParseError uses io { return 0 }\012```\012\012**Fix.** Put the clauses in order: `i64 parse(string s) uses io fails ParseError { return 0 }`. The diagnostic carries a machine-applicable fix that sorts the clauses, and `bayan format` applies it.\012", 536)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1064: payload without a name\012\012**Why.** Each payload of a union variant or a state is a named field, read as `shape.radius` once the variant is matched. A type alone gives the field no name.\012\012**Example.**\012\012```\012union Shape {\012    circle(f64)\012}\012```\012\012**Fix.** Name the payload: `circle(f64 radius)`. There is no automatic fix, because the name is yours to choose.\012", 364)});
 #line 479 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 481 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1066", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1065", 7))) {
 #line 482 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1066: prefix pointer type\012\012**Why.** A pointer type is written after its pointee, as in C#: `T*`, and `readonly T*` for a pointee that cannot be written through it. Rust's `*const T` and `*mut T`, and a bare `*T`, are input forms.\012\012**Example.**\012\012```\012extern void copy(*const u8 from, *mut u8 to) { }\012```\012\012**Fix.** Write the pointer after the type: `readonly u8* from`, `u8* to`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it; a nested `**T` is fixed from the inside out. Pointer types are allowed only in `extern` declarations (BYN1067).\012", 574)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1065: function clauses out of order\012\012**Why.** The clauses after a function's parameters have one order, so every signature reads the same way: `where`, `expects`, `uses`, `becomes`, `fails`. The code is raised once, at the first clause out of order.\012\012**Example.**\012\012```\012i64 parse(string s) fails ParseError uses io { return 0 }\012```\012\012**Fix.** Put the clauses in order: `i64 parse(string s) uses io fails ParseError { return 0 }`. The diagnostic carries a machine-applicable fix that sorts the clauses, and `bayan format` applies it.\012", 536)});
 #line 481 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 483 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1067", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1066", 7))) {
 #line 484 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1067: pointer type outside `extern`\012\012**Why.** Pointers exist only to call C. A pointer type may appear only in an `extern` declaration; everywhere else, use a reference (`ref`), a span or an index.\012\012**Example.**\012\012```\012void fill(u8* buffer) { }\012```\012\012**Fix.** Pass a `ref` or a span, or wrap the C call in an `extern` declaration. There is no automatic fix.\012", 360)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1066: prefix pointer type\012\012**Why.** A pointer type is written after its pointee, as in C#: `T*`, and `readonly T*` for a pointee that cannot be written through it. Rust's `*const T` and `*mut T`, and a bare `*T`, are input forms.\012\012**Example.**\012\012```\012extern void copy(*const u8 from, *mut u8 to) { }\012```\012\012**Fix.** Write the pointer after the type: `readonly u8* from`, `u8* to`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it; a nested `**T` is fixed from the inside out. Pointer types are allowed only in `extern` declarations (BYN1067).\012", 574)});
 #line 483 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 485 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1068", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1067", 7))) {
 #line 486 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1068: compact format spec in an interpolation hole\012\012**Why.** An interpolation hole takes its format specs as named arguments after the value: `{n, as: .hex}`, `{x, digits: 2}`, `{id, width: 6, fill: '0'}`. The C#-style compact forms `{n:hex}`, `{n:binary}`, `{n:octal}`, `{x:.2}`, `{d:iso}` and `{x:debug}` are input forms.\012\012**Example.**\012\012```\012print($\042{n:hex} {x:.2}\042)\012```\012\012**Fix.** Write the spec as named arguments: `print($\042{n, as: .hex} {x, digits: 2}\042)`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it. Other compact specs (`{x:N2}`) are not recognized and are a syntax error.\012", 618)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1067: pointer type outside `extern`\012\012**Why.** Pointers exist only to call C. A pointer type may appear only in an `extern` declaration; everywhere else, use a reference (`ref`), a span or an index.\012\012**Example.**\012\012```\012void fill(u8* buffer) { }\012```\012\012**Fix.** Pass a `ref` or a span, or wrap the C call in an `extern` declaration. There is no automatic fix.\012", 360)});
 #line 485 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 487 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN1069", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1068", 7))) {
 #line 488 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN1069: attribute not allowed before a statement\012\012**Why.** A statement may carry attributes from a short allow-list, written on the line before it and applying to that statement only. The list holds one attribute: `@unobservable because \042\342\200\246\042` or `@unobservable(operator) because \042\342\200\246\042`, which tells mutation testing that a change there cannot be observed. Every other attribute belongs on a declaration.\012\012**Example.**\012\012```\012i32 f(i32 x) {\012    @inline\012    return x\012}\012```\012\012**Fix.** Remove the attribute, or move it to the declaration it was meant for. There is no automatic fix.\012", 580)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1068: compact format spec in an interpolation hole\012\012**Why.** An interpolation hole takes its format specs as named arguments after the value: `{n, as: .hex}`, `{x, digits: 2}`, `{id, width: 6, fill: '0'}`. The C#-style compact forms `{n:hex}`, `{n:binary}`, `{n:octal}`, `{x:.2}`, `{d:iso}` and `{x:debug}` are input forms.\012\012**Example.**\012\012```\012print($\042{n:hex} {x:.2}\042)\012```\012\012**Fix.** Write the spec as named arguments: `print($\042{n, as: .hex} {x, digits: 2}\042)`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it. Other compact specs (`{x:N2}`) are not recognized and are a syntax error.\012", 618)});
 #line 487 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 489 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2001", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN1069", 7))) {
 #line 490 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2001: undefined name\012\012**Why.** A name must be declared before it can be used: as a local, parameter, function, type, constant or imported module. Bayan has no implicit globals.\012\012**Example.**\012\012```\012let total = cout + 1\012```\012\012**Fix.** Check the spelling (the help line suggests a close match), declare the name, or `import` the module it lives in.\012", 349)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN1069: attribute not allowed before a statement\012\012**Why.** A statement may carry attributes from a short allow-list, written on the line before it and applying to that statement only. The list holds one attribute: `@unobservable because \042\342\200\246\042` or `@unobservable(operator) because \042\342\200\246\042`, which tells mutation testing that a change there cannot be observed. Every other attribute belongs on a declaration.\012\012**Example.**\012\012```\012i32 f(i32 x) {\012    @inline\012    return x\012}\012```\012\012**Fix.** Remove the attribute, or move it to the declaration it was meant for. There is no automatic fix.\012", 580)});
 #line 489 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 491 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2002", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2001", 7))) {
 #line 492 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2002: unknown type\012\012**Why.** Types are primitives, built-ins (`Span<T>`, `List<T>`, `Arena`, `StrBuf`), and structs, error enums and aliases declared in the module or an imported one.\012\012**Example.**\012\012```\012let price: Mony = 0\012```\012\012**Fix.** Check the spelling, or import the module that declares the type and qualify it: `money.Money`.\012", 337)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2001: undefined name\012\012**Why.** A name must be declared before it can be used: as a local, parameter, function, type, constant or imported module. Bayan has no implicit globals.\012\012**Example.**\012\012```\012let total = cout + 1\012```\012\012**Fix.** Check the spelling (the help line suggests a close match), declare the name, or `import` the module it lives in.\012", 349)});
 #line 491 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 493 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2003", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2002", 7))) {
 #line 494 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2003: unknown member\012\012**Why.** Members are fixed by the type's declaration; Bayan has no dynamic members or extension methods in v0.1.\012\012**Example.**\012\012```\012let name = \042x\042\012let n = name.size\012```\012\012**Fix.** Use a member the type has. For strings, spans and lists the size is always `length`.\012", 291)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2002: unknown type\012\012**Why.** Types are primitives, built-ins (`Span<T>`, `List<T>`, `Arena`, `StrBuf`), and structs, error enums and aliases declared in the module or an imported one.\012\012**Example.**\012\012```\012let price: Mony = 0\012```\012\012**Fix.** Check the spelling, or import the module that declares the type and qualify it: `money.Money`.\012", 337)});
 #line 493 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 495 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2004", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2003", 7))) {
 #line 496 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2004: unknown module\012\012**Why.** A module is a directory of `.byn` files under the package root (the entry file's directory); `import a.b;` reads `a/b/`.\012\012**Example.**\012\012```\012import mony\012```\012\012**Fix.** Check the directory name, or create the directory next to the entry file.\012", 276)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2003: unknown member\012\012**Why.** Members are fixed by the type's declaration; Bayan has no dynamic members or extension methods in v0.1.\012\012**Example.**\012\012```\012let name = \042x\042\012let n = name.size\012```\012\012**Fix.** Use a member the type has. For strings, spans and lists the size is always `length`.\012", 291)});
 #line 495 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 497 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2005", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2004", 7))) {
 #line 498 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2005: not visible\012\012**Why.** Declarations are module-private by default; `private` members are visible only inside their struct. Other modules see only `public` declarations.\012\012**Example.**\012\012```\012import money\012let c = money.round(1)   // `round` is not public\012```\012\012**Fix.** Mark the declaration `public` if other modules should use it, or call a public API instead.\012", 367)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2004: unknown module\012\012**Why.** A module is a directory of `.byn` files under the package root (the entry file's directory); `import a.b;` reads `a/b/`.\012\012**Example.**\012\012```\012import mony\012```\012\012**Fix.** Check the directory name, or create the directory next to the entry file.\012", 276)});
 #line 497 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 499 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2006", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2005", 7))) {
 #line 500 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2006: duplicate declaration\012\012**Why.** Every name in a module, struct, parameter list or import list must be unique. Bayan has no overloading.\012\012**Example.**\012\012```\012i64 area(i64 w) => w\012i64 area(i64 w, i64 h) => w * h\012```\012\012**Fix.** Rename one of them; for variants of a function, give each a descriptive name (`areaOfSquare`).\012", 328)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2005: not visible\012\012**Why.** Declarations are module-private by default; `private` members are visible only inside their struct. Other modules see only `public` declarations.\012\012**Example.**\012\012```\012import money\012let c = money.round(1)   // `round` is not public\012```\012\012**Fix.** Mark the declaration `public` if other modules should use it, or call a public API instead.\012", 367)});
 #line 499 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 501 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2007", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2006", 7))) {
 #line 502 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2007: local shadows another local\012\012**Why.** A local hiding another local of the same name makes code ambiguous to read, so Bayan forbids it in nested scopes too. The one exception is a `let` in the same scope that gives the name a new type (`let count = count.length;`); with the same type it is warning BYN2028.\012\012**Example.**\012\012```\012let ok = true\012let total = 0\012if ok { let total = 1 }\012```\012\012**Fix.** Pick a different name.\012", 426)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2006: duplicate declaration\012\012**Why.** Every name in a module, struct, parameter list or import list must be unique. Bayan has no overloading.\012\012**Example.**\012\012```\012i64 area(i64 w) => w\012i64 area(i64 w, i64 h) => w * h\012```\012\012**Fix.** Rename one of them; for variants of a function, give each a descriptive name (`areaOfSquare`).\012", 328)});
 #line 501 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 503 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2008", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2007", 7))) {
 #line 504 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2008: type casing\012\012**Why.** Casing carries meaning (spec \302\2475.1): types are PascalCase, values and functions camelCase. Acronyms are capitalized like words (`HttpClient`, not `HTTPClient`).\012\012**Example.**\012\012```\012struct point { i64 x }\012```\012\012**Fix.** Use the suggested name from the fix.\012", 287)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2007: local shadows another local\012\012**Why.** A local hiding another local of the same name makes code ambiguous to read, so Bayan forbids it in nested scopes too. The one exception is a `let` in the same scope that gives the name a new type (`let count = count.length;`); with the same type it is warning BYN2028.\012\012**Example.**\012\012```\012let ok = true\012let total = 0\012if ok { let total = 1 }\012```\012\012**Fix.** Pick a different name.\012", 426)});
 #line 503 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 505 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2009", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2008", 7))) {
 #line 506 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2009: value casing\012\012**Why.** Casing carries meaning (spec \302\2475.1): locals, parameters, fields, functions and error variants are camelCase.\012\012**Example.**\012\012```\012let Total = 0\012```\012\012**Fix.** Use the suggested name from the fix.\012", 227)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2008: type casing\012\012**Why.** Casing carries meaning (spec \302\2475.1): types are PascalCase, values and functions camelCase. Acronyms are capitalized like words (`HttpClient`, not `HTTPClient`).\012\012**Example.**\012\012```\012struct point { i64 x }\012```\012\012**Fix.** Use the suggested name from the fix.\012", 287)});
 #line 505 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 507 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2010", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2009", 7))) {
 #line 508 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2010: import cycle\012\012**Why.** Modules form a tree of dependencies so each can be compiled and understood on its own terms.\012\012**Example.**\012\012```\012// a/a.byn\012import b\012// b/b.byn\012import a\012```\012\012**Fix.** Move the declarations both modules need into a third module that both import.\012", 278)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2009: value casing\012\012**Why.** Casing carries meaning (spec \302\2475.1): locals, parameters, fields, functions and error variants are camelCase.\012\012**Example.**\012\012```\012let Total = 0\012```\012\012**Fix.** Use the suggested name from the fix.\012", 227)});
 #line 507 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 509 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2011", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2010", 7))) {
 #line 510 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2011: circular type alias\012\012**Why.** An alias is another name for an existing type; one defined in terms of itself names no type.\012\012**Example.**\012\012```\012type A = B\012type B = A\012```\012\012**Fix.** Point one of the aliases at a concrete type.\012", 234)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2010: import cycle\012\012**Why.** Modules form a tree of dependencies so each can be compiled and understood on its own terms.\012\012**Example.**\012\012```\012// a/a.byn\012import b\012// b/b.byn\012import a\012```\012\012**Fix.** Move the declarations both modules need into a third module that both import.\012", 278)});
 #line 509 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 511 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2012", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2011", 7))) {
 #line 512 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2012: circular constant\012\012**Why.** Constants are evaluated at compile time; a cycle has no value.\012\012**Example.**\012\012```\012const a: i64 = b + 1\012const b: i64 = a\012```\012\012**Fix.** Break the cycle by giving one constant a literal value.\012", 229)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2011: circular type alias\012\012**Why.** An alias is another name for an existing type; one defined in terms of itself names no type.\012\012**Example.**\012\012```\012type A = B\012type B = A\012```\012\012**Fix.** Point one of the aliases at a concrete type.\012", 234)});
 #line 511 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 513 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2013", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2012", 7))) {
 #line 514 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2013: two entry points\012\012**Why.** Top-level statements in the entry file are the program's `main`; a separate `void main()` would be a second one.\012\012**Example.**\012\012```\012print(\042a\042)\012void main() { print(\042b\042) }\012```\012\012**Fix.** Keep one: move the statements into `main`, or delete `main` and keep the top-level statements.\012", 317)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2012: circular constant\012\012**Why.** Constants are evaluated at compile time; a cycle has no value.\012\012**Example.**\012\012```\012const a: i64 = b + 1\012const b: i64 = a\012```\012\012**Fix.** Break the cycle by giving one constant a literal value.\012", 229)});
 #line 513 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 515 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2014", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2013", 7))) {
 #line 516 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2014: no entry point\012\012**Why.** A program starts at the top-level statements of the entry file, or at `void main()`.\012\012**Example.**\012\012```\012i64 twice(i64 x) => x * 2\012```\012\012**Fix.** Add top-level statements or a `main` function. To check a library, run `bayan test` on it.\012", 271)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2013: two entry points\012\012**Why.** Top-level statements in the entry file are the program's `main`; a separate `void main()` would be a second one.\012\012**Example.**\012\012```\012print(\042a\042)\012void main() { print(\042b\042) }\012```\012\012**Fix.** Keep one: move the statements into `main`, or delete `main` and keep the top-level statements.\012", 317)});
 #line 515 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 517 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2015", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2014", 7))) {
 #line 518 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2015: statement outside the entry module\012\012**Why.** Top-level statements form the program's `main`, so only the entry module may have them. Other modules contain declarations only.\012\012**Example.**\012\012```\012// money/money.byn\012print(\042loaded\042)\012```\012\012**Fix.** Move the statements into a function and call it from the entry module.\012", 324)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2014: no entry point\012\012**Why.** A program starts at the top-level statements of the entry file, or at `void main()`.\012\012**Example.**\012\012```\012i64 twice(i64 x) => x * 2\012```\012\012**Fix.** Add top-level statements or a `main` function. To check a library, run `bayan test` on it.\012", 271)});
 #line 517 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 519 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2017", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2015", 7))) {
 #line 520 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2017: instance member without an instance\012\012**Why.** Fields, properties and non-static methods belong to a value. Static methods have no `this`.\012\012**Example.**\012\012```\012struct Counter {\012    i64 count\012    static i64 twice() => count * 2\012}\012```\012\012**Fix.** Make the method an instance method, or pass the value as a parameter.\012", 321)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2015: statement outside the entry module\012\012**Why.** Top-level statements form the program's `main`, so only the entry module may have them. Other modules contain declarations only.\012\012**Example.**\012\012```\012// money/money.byn\012print(\042loaded\042)\012```\012\012**Fix.** Move the statements into a function and call it from the entry module.\012", 324)});
 #line 519 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 521 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2018", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2017", 7))) {
 #line 522 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2018: `this` outside a method\012\012**Why.** `this` is the value a method was called on. Functions and static methods are not called on a value.\012\012**Example.**\012\012```\012i64 f() => this.x\012```\012\012**Fix.** Take the value as a parameter.\012", 227)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2017: instance member without an instance\012\012**Why.** Fields, properties and non-static methods belong to a value. Static methods have no `this`.\012\012**Example.**\012\012```\012struct Counter {\012    i64 count\012    static i64 twice() => count * 2\012}\012```\012\012**Fix.** Make the method an instance method, or pass the value as a parameter.\012", 321)});
 #line 521 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 523 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2019", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2018", 7))) {
 #line 524 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2019: not a value\012\012**Why.** Types and modules name things at compile time; they cannot be stored or passed. Neither can a function or method named without its call parentheses: there are no function values yet.\012\012**Example.**\012\012```\012struct Money { i64 cents }\012let t = Money\012```\012\012**Fix.** Construct a value (`Money { cents: 0 }`) or call a function from the module (`money.parse(s)`). For a method, add the parentheses: `items.copy()`.\012", 437)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2018: `this` outside a method\012\012**Why.** `this` is the value a method was called on. Functions and static methods are not called on a value.\012\012**Example.**\012\012```\012i64 f() => this.x\012```\012\012**Fix.** Take the value as a parameter.\012", 227)});
 #line 523 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 525 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2020", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2019", 7))) {
 #line 526 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2020: unknown label\012\012**Why.** `break label;` and `continue label;` leave the enclosing loop with that label.\012\012**Example.**\012\012```\012for i in 0..3 { break outer }\012```\012\012**Fix.** Label the loop (`outer: for (\342\200\246)`) or fix the label's spelling.\012", 242)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2019: not a value\012\012**Why.** Types and modules name things at compile time; they cannot be stored or passed. Neither can a function or method named without its call parentheses: there are no function values yet.\012\012**Example.**\012\012```\012struct Money { i64 cents }\012let t = Money\012```\012\012**Fix.** Construct a value (`Money { cents: 0 }`) or call a function from the module (`money.parse(s)`). For a method, add the parentheses: `items.copy()`.\012", 437)});
 #line 525 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 527 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2021", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2020", 7))) {
 #line 528 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2021: unknown parameter\012\012**Why.** A named argument must match a parameter name of the function being called.\012\012**Example.**\012\012```\012void resize(i64 width) { }\012resize(widht: 3)\012```\012\012**Fix.** Use the parameter's name (the fix suggests the closest one).\012", 252)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2020: unknown label\012\012**Why.** `break label;` and `continue label;` leave the enclosing loop with that label.\012\012**Example.**\012\012```\012for i in 0..3 { break outer }\012```\012\012**Fix.** Label the loop (`outer: for (\342\200\246)`) or fix the label's spelling.\012", 242)});
 #line 527 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 529 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2022", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2021", 7))) {
 #line 530 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2022: not supported in v0.1\012\012**Why.** The syntax is part of Bayan, but this version of the compiler does not implement it yet. Reporting it keeps programs from silently meaning something else.\012\012**Example.**\012\012```\012let x = a\077.b\012```\012\012**Fix.** Rewrite without the feature; the help line suggests an alternative when one exists.\012", 328)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2021: unknown parameter\012\012**Why.** A named argument must match a parameter name of the function being called.\012\012**Example.**\012\012```\012void resize(i64 width) { }\012resize(widht: 3)\012```\012\012**Fix.** Use the parameter's name (the fix suggests the closest one).\012", 252)});
 #line 529 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 531 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2023", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2022", 7))) {
 #line 532 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2023: wrong number of type arguments\012\012**Why.** Generic types have a fixed arity: `List<T>` and `Span<T>` take one type argument, and a `struct Pair<A, B>` takes two. `ValidationError` takes one too: a bare `ValidationError` names no type, so there is no `T.Field` for its violations (revision 0011).\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012}\012var xs: List<i64, i64>\012void check(Order o) fails ValidationError { }\012```\012\012**Fix.** Pass exactly the type arguments the type takes: `fails ValidationError<Order>`.\012", 515)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2022: not supported in v0.1\012\012**Why.** The syntax is part of Bayan, but this version of the compiler does not implement it yet. Reporting it keeps programs from silently meaning something else.\012\012**Example.**\012\012```\012let x = a\077.b\012```\012\012**Fix.** Rewrite without the feature; the help line suggests an alternative when one exists.\012", 328)});
 #line 531 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 533 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2024", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2023", 7))) {
 #line 534 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2024: nested optional\012\012**Why.** `T\077\077` would need two kinds of null, which hides a missing case. Use an error or a small struct to tell them apart.\012\012**Example.**\012\012```\012type MaybeCount = i64\077\012let x: MaybeCount\077 = null\012```\012\012**Fix.** Drop the extra `\077`.\012", 254)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2023: wrong number of type arguments\012\012**Why.** Generic types have a fixed arity: `List<T>` and `Span<T>` take one type argument, and a `struct Pair<A, B>` takes two. `ValidationError` takes one too: a bare `ValidationError` names no type, so there is no `T.Field` for its violations (revision 0011).\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012}\012var xs: List<i64, i64>\012void check(Order o) fails ValidationError { }\012```\012\012**Fix.** Pass exactly the type arguments the type takes: `fails ValidationError<Order>`.\012", 515)});
 #line 533 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 535 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2025", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2024", 7))) {
 #line 536 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2025: void used as a value\012\012**Why.** `void` means a function returns nothing. It cannot be the type of a local, a field or a parameter.\012\012**Example.**\012\012```\012var x: void\012```\012\012**Fix.** Remove the declaration, or give it a real type.\012", 234)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2024: nested optional\012\012**Why.** `T\077\077` would need two kinds of null, which hides a missing case. Use an error or a small struct to tell them apart.\012\012**Example.**\012\012```\012type MaybeCount = i64\077\012let x: MaybeCount\077 = null\012```\012\012**Fix.** Drop the extra `\077`.\012", 254)});
 #line 535 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 537 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2026", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2025", 7))) {
 #line 538 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2026: declaration as a statement body\012\012**No longer reported.** Retired in design round 2: a statement body is always a block, so a braceless body is BYN1018 before binding, and a declaration can no longer be the whole body. The code stays reserved.\012\012**Why (before round 2).** `if (c) let x = 1;` declares a local that no code can see.\012\012**Example.**\012\012```\012if (ready) let x = 1\012```\012\012**Fix.** Use a block: `if ready { let x = 1; \342\200\246 }`, or declare the local before the `if`.\012", 476)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2025: void used as a value\012\012**Why.** `void` means a function returns nothing. It cannot be the type of a local, a field or a parameter.\012\012**Example.**\012\012```\012var x: void\012```\012\012**Fix.** Remove the declaration, or give it a real type.\012", 234)});
 #line 537 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 539 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2027", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2026", 7))) {
 #line 540 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2027: `==` with `null`\012\012**What.** `x == null`, `x != null` or `null == x`.\012\012**Why.** Absence is tested with a pattern: `x is null`, `x is not null`. The pattern also narrows `x` in the branch where it is present.\012\012**Example.**\012\012```\012let name: string\077 = null\012void greet(string\077 name) { }\012if name != null {\012    greet(name)\012}\012```\012\012**Fix.** Write the pattern (the machine fix does this):\012\012```\012let name: string\077 = null\012void greet(string name) { }\012if name is not null {\012    greet(name)\012}\012```\012", 490)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2026: declaration as a statement body\012\012**No longer reported.** Retired in design round 2: a statement body is always a block, so a braceless body is BYN1018 before binding, and a declaration can no longer be the whole body. The code stays reserved.\012\012**Why (before round 2).** `if (c) let x = 1;` declares a local that no code can see.\012\012**Example.**\012\012```\012if (ready) let x = 1\012```\012\012**Fix.** Use a block: `if ready { let x = 1; \342\200\246 }`, or declare the local before the `if`.\012", 476)});
 #line 539 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 541 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2028", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2027", 7))) {
 #line 542 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2028: `let` shadows a local of the same type\012\012**What.** A `let` redeclares a local in the same scope, and the new value has the same type as the old one (warning).\012\012**Why.** Redeclaring a name with `let` is for changing its type as a value moves through steps: `let count = count.length;` turns a `string` into an `i32`. When the type stays the same, the second `let` hides the first value without saying how it differs, and a reader cannot tell which one a later line means (HANDOFF \302\2474).\012\012**Example.**\012\012```\012i64 readSize() => 1\012let size = readSize()\012let size = size * 2\012```\012\012**Fix.** Reuse the first one, or name the second one for what it is:\012\012```\012let size = readSize()\012let doubled = size * 2\012```\012", 704)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2027: `==` with `null`\012\012**What.** `x == null`, `x != null` or `null == x`.\012\012**Why.** Absence is tested with a pattern: `x is null`, `x is not null`. The pattern also narrows `x` in the branch where it is present.\012\012**Example.**\012\012```\012let name: string\077 = null\012void greet(string\077 name) { }\012if name != null {\012    greet(name)\012}\012```\012\012**Fix.** Write the pattern (the machine fix does this):\012\012```\012let name: string\077 = null\012void greet(string name) { }\012if name is not null {\012    greet(name)\012}\012```\012", 490)});
 #line 541 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 543 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2029", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2028", 7))) {
 #line 544 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2029: nested `it`\012\012**Why.** `it` names the parameter of the one-parameter lambda being written. Inside a lambda that already uses `it`, a second `it` could mean either parameter, so the shorthand stops at one level. A `requires` rule counts as that level, since its `it` is the field.\012\012**Example.**\012\012```\012bool any(List<i64> xs, by (i64 -> bool) p) => false\012bool first(List<List<i64>> xss, by (List<i64> -> bool) p) => p(xss[0])\012\012void main() {\012    let xss: List<List<i64>> = [[1, 2], [3]]\012    let found = first(xss, by: any(it, by: it > 1))\012}\012```\012\012**Fix.** Name the inner lambda's parameter:\012\012```\012let found = first(xss, by: any(it, by: x => x > 1))\012```\012", 656)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2028: `let` shadows a local of the same type\012\012**What.** A `let` redeclares a local in the same scope, and the new value has the same type as the old one (warning).\012\012**Why.** Redeclaring a name with `let` is for changing its type as a value moves through steps: `let count = count.length;` turns a `string` into an `i32`. When the type stays the same, the second `let` hides the first value without saying how it differs, and a reader cannot tell which one a later line means (HANDOFF \302\2474).\012\012**Example.**\012\012```\012i64 readSize() => 1\012let size = readSize()\012let size = size * 2\012```\012\012**Fix.** Reuse the first one, or name the second one for what it is:\012\012```\012let size = readSize()\012let doubled = size * 2\012```\012", 704)});
 #line 543 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 545 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2031", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2029", 7))) {
 #line 546 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2031: `toString()` call\012\012**What.** A call to `toString()` or `ToString()`. Bayan has no such method.\012\012**Why.** Display has one protocol (HANDOFF \302\24713): a type writes itself with `formatInto(ref StrBuf)`, and the allocating `format()` is derived from it. Interpolation calls `formatInto` directly, so `$\042{x}\042` never builds a temporary string. A `toString()` beside them would be a second, allocating way to do the same thing.\012\012**Example.**\012\012```\012let total = 1\012let text = total.toString()\012```\012\012**Fix.** Call `format()` (the machine fix renames the call), or interpolate the value where it is written:\012\012```\012let text = total.format()\012print($\042{total}\042)\012```\012", 656)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2029: nested `it`\012\012**Why.** `it` names the parameter of the one-parameter lambda being written. Inside a lambda that already uses `it`, a second `it` could mean either parameter, so the shorthand stops at one level. A `requires` rule counts as that level, since its `it` is the field.\012\012**Example.**\012\012```\012bool any(List<i64> xs, by (i64 -> bool) p) => false\012bool first(List<List<i64>> xss, by (List<i64> -> bool) p) => p(xss[0])\012\012void main() {\012    let xss: List<List<i64>> = [[1, 2], [3]]\012    let found = first(xss, by: any(it, by: it > 1))\012}\012```\012\012**Fix.** Name the inner lambda's parameter:\012\012```\012let found = first(xss, by: any(it, by: x => x > 1))\012```\012", 656)});
 #line 545 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 547 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2032", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2031", 7))) {
 #line 548 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2032: unknown std module\012\012**Why.** `import std.a.b;` reads the std module `a/b/` shipped with the compiler (`lib/std/`), never a directory of the package; this build ships no module of that name.\012\012**Example.**\012\012```\012import std.nope\012```\012\012**Fix.** Check the module name against the list in the help line.\012", 307)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2031: `toString()` call\012\012**What.** A call to `toString()` or `ToString()`. Bayan has no such method.\012\012**Why.** Display has one protocol (HANDOFF \302\24713): a type writes itself with `formatInto(ref StrBuf)`, and the allocating `format()` is derived from it. Interpolation calls `formatInto` directly, so `$\042{x}\042` never builds a temporary string. A `toString()` beside them would be a second, allocating way to do the same thing.\012\012**Example.**\012\012```\012let total = 1\012let text = total.toString()\012```\012\012**Fix.** Call `format()` (the machine fix renames the call), or interpolate the value where it is written:\012\012```\012let text = total.format()\012print($\042{total}\042)\012```\012", 656)});
 #line 547 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 549 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2033", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2032", 7))) {
 #line 550 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2033: std module imports a package module\012\012**Why.** A std module (`lib/std/`, shipped with the compiler) is the same source in every package, so it can import only other std modules; a plain `import util` in it would read whatever `util/` the importing package happens to have.\012\012**Example.**\012\012```\012// lib/std/a/a.byn\012import util\012```\012\012**Fix.** Import `std.\342\200\246` modules only, or move the code into the package.\012", 413)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2032: unknown std module\012\012**Why.** `import std.a.b;` reads the std module `a/b/` shipped with the compiler (`lib/std/`), never a directory of the package; this build ships no module of that name.\012\012**Example.**\012\012```\012import std.nope\012```\012\012**Fix.** Check the module name against the list in the help line.\012", 307)});
 #line 549 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 551 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2034", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2033", 7))) {
 #line 552 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2034: circular field default\012\012**Why.** A field default is bound once, and a struct literal copies it. A default that builds a struct whose own default builds the first again has no end.\012\012**Example.**\012\012```\012struct A { Owned<B>\077 b = Owned(B {}) }\012struct B { Owned<A>\077 a = Owned(A {}) }\012```\012\012**Fix.** Give one of the fields a default that does not build the other struct, such as `null`, or make it `required`.\012", 412)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2033: std module imports a package module\012\012**Why.** A std module (`lib/std/`, shipped with the compiler) is the same source in every package, so it can import only other std modules; a plain `import util` in it would read whatever `util/` the importing package happens to have.\012\012**Example.**\012\012```\012// lib/std/a/a.byn\012import util\012```\012\012**Fix.** Import `std.\342\200\246` modules only, or move the code into the package.\012", 413)});
 #line 551 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 553 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2101", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2034", 7))) {
 #line 554 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2101: missing initializer\012\012**Why.** `let` and `const` never change, so they must be given their value where they are declared.\012\012**Example.**\012\012```\012let total\012```\012\012**Fix.** Give it a value, or declare it with `var` (or a type, `i64 total;`) and assign it on every path before use.\012", 283)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2034: circular field default\012\012**Why.** A field default is bound once, and a struct literal copies it. A default that builds a struct whose own default builds the first again has no end.\012\012**Example.**\012\012```\012struct A { Owned<B>\077 b = Owned(B {}) }\012struct B { Owned<A>\077 a = Owned(A {}) }\012```\012\012**Fix.** Give one of the fields a default that does not build the other struct, such as `null`, or make it `required`.\012", 412)});
 #line 553 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 555 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2102", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2101", 7))) {
 #line 556 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2102: use before assignment\012\012**Why.** A local declared without a value has none until it is assigned. Bayan checks every path, so reading it early is a compile error rather than garbage at run time.\012\012**Example.**\012\012```\012let ok = true\012var total: i64\012if ok { total = 1 }\012print($\042{total}\042)\012```\012\012**Fix.** Assign it on every path before the read, or give the declaration a value.\012", 378)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2101: missing initializer\012\012**Why.** `let` and `const` never change, so they must be given their value where they are declared.\012\012**Example.**\012\012```\012let total\012```\012\012**Fix.** Give it a value, or declare it with `var` (or a type, `i64 total;`) and assign it on every path before use.\012", 283)});
 #line 555 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 557 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2103", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2102", 7))) {
 #line 558 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2103: `out` parameter not assigned\012\012**Why.** The caller reads an `out` argument after the call, so the function must assign it before returning normally.\012\012**Example.**\012\012```\012bool parse(string s, at out i64 value) { return false }\012```\012\012**Fix.** Assign the parameter before each `return` and before the end of the body.\012", 322)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2102: use before assignment\012\012**Why.** A local declared without a value has none until it is assigned. Bayan checks every path, so reading it early is a compile error rather than garbage at run time.\012\012**Example.**\012\012```\012let ok = true\012var total: i64\012if ok { total = 1 }\012print($\042{total}\042)\012```\012\012**Fix.** Assign it on every path before the read, or give the declaration a value.\012", 378)});
 #line 557 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 559 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2104", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2103", 7))) {
 #line 560 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2104: assignment to an immutable value\012\012**Why.** `let` locals, parameters, loop variables and pattern variables never change after they are bound; this makes data flow easy to follow.\012\012**Example.**\012\012```\012let total = 0\012total += 1\012```\012\012Calling a `ref this` member on a `let` value, or on an element of a `let` collection (`list[0].record()`), is the same error: the call changes the value.\012\012**Fix.** Declare it with `var` if it should change. For parameters, copy into a local `var`, or take the parameter by `ref`.\012", 518)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2103: `out` parameter not assigned\012\012**Why.** The caller reads an `out` argument after the call, so the function must assign it before returning normally.\012\012**Example.**\012\012```\012bool parse(string s, at out i64 value) { return false }\012```\012\012**Fix.** Assign the parameter before each `return` and before the end of the body.\012", 322)});
 #line 559 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 561 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2105", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2104", 7))) {
 #line 562 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2105: readonly field\012\012**Why.** A `readonly` field keeps the value it is given in a constructor or struct literal.\012\012**Example.**\012\012```\012struct Id { readonly i64 value }\012let id = Id { value: 1 }\012id.value = 2\012```\012\012**Fix.** Create a new value (`id with { value: 2 }`), or drop `readonly` from the field.\012", 303)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2104: assignment to an immutable value\012\012**Why.** `let` locals, parameters, loop variables and pattern variables never change after they are bound; this makes data flow easy to follow.\012\012**Example.**\012\012```\012let total = 0\012total += 1\012```\012\012Calling a `ref this` member on a `let` value, or on an element of a `let` collection (`list[0].record()`), is the same error: the call changes the value.\012\012**Fix.** Declare it with `var` if it should change. For parameters, copy into a local `var`, or take the parameter by `ref`.\012", 518)});
 #line 561 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 563 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2106", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2105", 7))) {
 #line 564 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2106: modifying a temporary or read-only value\012\012**Why.** Only variables, fields of variables, and elements of lists, arrays and spans can be written. A call result is a temporary copy, and the bytes of a string are read-only.\012\012**Example.**\012\012```\012let s = \042abc\042\012s.bytes[0] = 65\012```\012\012**Fix.** Store the value in a `var` first, or copy the bytes into a buffer you own.\012", 369)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2105: readonly field\012\012**Why.** A `readonly` field keeps the value it is given in a constructor or struct literal.\012\012**Example.**\012\012```\012struct Id { readonly i64 value }\012let id = Id { value: 1 }\012id.value = 2\012```\012\012**Fix.** Create a new value (`id with { value: 2 }`), or drop `readonly` from the field.\012", 303)});
 #line 563 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 565 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2107", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2106", 7))) {
 #line 566 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2107: getter modifies its value\012\012**Why.** Reading a property must not change the value; otherwise `x.count` in a `let` would be an error at a distance.\012\012**Example.**\012\012```\012struct Counter {\012    i64 n\012    i64 next => record()\012    i64 record(ref this) {\012        n += 1\012        return n\012    }\012}\012```\012\012**Fix.** Make it a method: `i64 next() { \342\200\246 }`.\012", 349)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2106: modifying a temporary or read-only value\012\012**Why.** Only variables, fields of variables, and elements of lists, arrays and spans can be written. A call result is a temporary copy, and the bytes of a string are read-only.\012\012**Example.**\012\012```\012let s = \042abc\042\012s.bytes[0] = 65\012```\012\012**Fix.** Store the value in a `var` first, or copy the bytes into a buffer you own.\012", 369)});
 #line 565 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 567 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2108", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2107", 7))) {
 #line 568 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2108: required field with a default\012\012**Why.** `required` means every struct literal must set the field; a default would never be used.\012\012**Example.**\012\012```\012struct User { required string name = \042\042 }\012```\012\012**Fix.** Remove `required` or remove the default.\012", 256)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2107: getter modifies its value\012\012**Why.** Reading a property must not change the value; otherwise `x.count` in a `let` would be an error at a distance.\012\012**Example.**\012\012```\012struct Counter {\012    i64 n\012    i64 next => record()\012    i64 record(ref this) {\012        n += 1\012        return n\012    }\012}\012```\012\012**Fix.** Make it a method: `i64 next() { \342\200\246 }`.\012", 349)});
 #line 567 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 569 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2109", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2108", 7))) {
 #line 570 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2109: missing fields\012\012**Why.** A struct literal must set every field that is `required` or has no default, so no value is ever half-built.\012\012**Example.**\012\012```\012struct Point {\012    i64 x\012    i64 y\012}\012let p = Point { x: 1 }\012```\012\012**Fix.** Set the missing fields, or give them defaults in the struct.\012", 298)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2108: required field with a default\012\012**Why.** `required` means every struct literal must set the field; a default would never be used.\012\012**Example.**\012\012```\012struct User { required string name = \042\042 }\012```\012\012**Fix.** Remove `required` or remove the default.\012", 256)});
 #line 569 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 571 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2110", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2109", 7))) {
 #line 572 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2110: field set twice\012\012**Why.** Each field gets one value in a struct literal; a second one would silently win.\012\012**Example.**\012\012```\012struct Point {\012    i64 x\012}\012let p = Point { x: 1, x: 2 }\012```\012\012**Fix.** Remove one of them.\012", 226)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2109: missing fields\012\012**Why.** A struct literal must set every field that is `required` or has no default, so no value is ever half-built.\012\012**Example.**\012\012```\012struct Point {\012    i64 x\012    i64 y\012}\012let p = Point { x: 1 }\012```\012\012**Fix.** Set the missing fields, or give them defaults in the struct.\012", 298)});
 #line 571 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 573 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2111", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2110", 7))) {
 #line 574 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2111: struct literal bypasses a constructor\012\012**Why.** A constructor establishes invariants; a struct literal from outside the struct would skip them.\012\012**Example.**\012\012```\012struct Ratio {\012    i64 num\012    i64 den\012\012    public Ratio(i64 num, to i64 den) {\012        this.num = num\012        this.den = den\012    }\012}\012\012let r = Ratio { num: 1, den: 0 }\012```\012\012**Fix.** Call the constructor: `Ratio(1, 2)`.\012", 393)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2110: field set twice\012\012**Why.** Each field gets one value in a struct literal; a second one would silently win.\012\012**Example.**\012\012```\012struct Point {\012    i64 x\012}\012let p = Point { x: 1, x: 2 }\012```\012\012**Fix.** Remove one of them.\012", 226)});
 #line 573 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 575 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2112", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2111", 7))) {
 #line 576 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2112: no constructor\012\012**Why.** Structs without a constructor are built with a struct literal, which names each field.\012\012**Example.**\012\012```\012struct Point {\012    i64 x\012    i64 y\012}\012let p = Point(1, 2)\012```\012\012**Fix.** Use a struct literal: `Point { x: 1, y: 2 }`.\012", 259)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2111: struct literal bypasses a constructor\012\012**Why.** A constructor establishes invariants; a struct literal from outside the struct would skip them.\012\012**Example.**\012\012```\012struct Ratio {\012    i64 num\012    i64 den\012\012    public Ratio(i64 num, to i64 den) {\012        this.num = num\012        this.den = den\012    }\012}\012\012let r = Ratio { num: 1, den: 0 }\012```\012\012**Fix.** Call the constructor: `Ratio(1, 2)`.\012", 393)});
 #line 575 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 577 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2113", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2112", 7))) {
 #line 578 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2113: recursive struct\012\012**No longer reported since M21.** A struct that contains itself by value is now BYN2761, which names the whole cycle and covers unions too. The code stays reserved.\012\012**Why (before M21).** Structs are stored by value, so a struct that contains itself (directly or through other structs) would be infinitely large.\012\012**Example.**\012\012```\012struct Node {\012    i64 value\012    Node\077 next\012}\012```\012\012**Fix.** Store the next node as `Owned<Node>\077`, the children in a `List<Node>`, or refer to them by index.\012", 518)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2112: no constructor\012\012**Why.** Structs without a constructor are built with a struct literal, which names each field.\012\012**Example.**\012\012```\012struct Point {\012    i64 x\012    i64 y\012}\012let p = Point(1, 2)\012```\012\012**Fix.** Use a struct literal: `Point { x: 1, y: 2 }`.\012", 259)});
 #line 577 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 579 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2114", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2113", 7))) {
 #line 580 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2114: not a struct\012\012**Why.** Struct literals and `with` expressions build struct values; other types have no fields to set.\012\012**Example.**\012\012```\012let n = 5\012let m = n with { value: 1 }\012```\012\012**Fix.** Use a struct type.\012", 219)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2113: recursive struct\012\012**No longer reported since M21.** A struct that contains itself by value is now BYN2761, which names the whole cycle and covers unions too. The code stays reserved.\012\012**Why (before M21).** Structs are stored by value, so a struct that contains itself (directly or through other structs) would be infinitely large.\012\012**Example.**\012\012```\012struct Node {\012    i64 value\012    Node\077 next\012}\012```\012\012**Fix.** Store the next node as `Owned<Node>\077`, the children in a `List<Node>`, or refer to them by index.\012", 518)});
 #line 579 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 581 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2115", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2114", 7))) {
 #line 582 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2115: method modifies `this` without `ref this`\012\012**What.** A method assigns to a field of `this`, or calls a `ref this` member on `this`, but does not declare `ref this` as its first parameter.\012\012**Why.** Members are read-only by default (spec \302\2479). `ref this` in the signature tells the reader, and the compiler, that a call changes its receiver, so calling it on a `let` is an error at the call site instead of a surprise inside the body. The compiler checks the declaration; it does not infer it.\012\012**Example.**\012\012```\012struct Counter {\012    i64 n\012\012    void bump() {\012        n += 1\012    }\012}\012```\012\012**Fix.** Declare `ref this` as the first parameter (the machine fix inserts it):\012\012```\012struct Counter {\012    i64 n\012\012    void bump(ref this) {\012        n += 1\012    }\012}\012```\012\012If the method should not change the value, return a new value instead of writing to `this`.\012", 857)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2114: not a struct\012\012**Why.** Struct literals and `with` expressions build struct values; other types have no fields to set.\012\012**Example.**\012\012```\012let n = 5\012let m = n with { value: 1 }\012```\012\012**Fix.** Use a struct type.\012", 219)});
 #line 581 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 583 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2116", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2115", 7))) {
 #line 584 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2116: operator with `ref this`\012\012**Not reported yet.** Operator declarations are spec-only (spec \302\2472); the code is reserved for when they arrive.\012\012**What.** An operator (`+ - * / %`, unary `-`, `[]` or `compare`) declares `ref this`.\012\012**Why.** Operators are `static` and build a result from their operands; `a + b` must not change `a`. A mutating form such as `+=` is derived from the operator, not written by hand.\012\012**Example.**\012\012```\012struct Version {\012    i64 major\012    i64 minor\012\012    static Ordering compare(ref this, Version other) { }\012}\012```\012\012**Fix.** Take both operands as parameters:\012\012```\012struct Version {\012    i64 major\012    i64 minor\012\012    static Ordering compare(Version a, Version b) { \342\200\246 }\012}\012```\012", 707)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2115: method modifies `this` without `ref this`\012\012**What.** A method assigns to a field of `this`, or calls a `ref this` member on `this`, but does not declare `ref this` as its first parameter.\012\012**Why.** Members are read-only by default (spec \302\2479). `ref this` in the signature tells the reader, and the compiler, that a call changes its receiver, so calling it on a `let` is an error at the call site instead of a surprise inside the body. The compiler checks the declaration; it does not infer it.\012\012**Example.**\012\012```\012struct Counter {\012    i64 n\012\012    void bump() {\012        n += 1\012    }\012}\012```\012\012**Fix.** Declare `ref this` as the first parameter (the machine fix inserts it):\012\012```\012struct Counter {\012    i64 n\012\012    void bump(ref this) {\012        n += 1\012    }\012}\012```\012\012If the method should not change the value, return a new value instead of writing to `this`.\012", 857)});
 #line 583 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 585 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2117", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2116", 7))) {
 #line 586 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2117: `ref this` is not the first parameter\012\012**What.** `ref this` appears in a parameter list after another parameter, or twice.\012\012**Why.** `ref this` is not an ordinary parameter: it marks the member as mutating (spec \302\2479) and stands for the receiver, which is written before the `.` at the call site. Keeping it first makes every mutating signature read the same way.\012\012**Example.**\012\012```\012void add(i64 by, ref this) { n += by }\012```\012\012**Fix.** Move `ref this` to the start of the parameter list:\012\012```\012void add(ref this, i64 by) { n += by }\012```\012", 546)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2116: operator with `ref this`\012\012**Not reported yet.** Operator declarations are spec-only (spec \302\2472); the code is reserved for when they arrive.\012\012**What.** An operator (`+ - * / %`, unary `-`, `[]` or `compare`) declares `ref this`.\012\012**Why.** Operators are `static` and build a result from their operands; `a + b` must not change `a`. A mutating form such as `+=` is derived from the operator, not written by hand.\012\012**Example.**\012\012```\012struct Version {\012    i64 major\012    i64 minor\012\012    static Ordering compare(ref this, Version other) { }\012}\012```\012\012**Fix.** Take both operands as parameters:\012\012```\012struct Version {\012    i64 major\012    i64 minor\012\012    static Ordering compare(Version a, Version b) { \342\200\246 }\012}\012```\012", 707)});
 #line 585 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 587 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2201", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2117", 7))) {
 #line 588 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2201: string indexer\012\012**Why.** A `string` is UTF-8. `s[i]` would have to pick between a byte, a code point and a grapheme, and either be wrong for some text or hide an O(n) scan. Bayan makes you choose.\012\012**Example.**\012\012```\012let name = \042Ali\042\012let first = name[0]\012```\012\012**Fix.** Read a byte, slice, or take characters: `s.bytes[i]` for the byte at offset `i` (the machine fix), `s[a..b]` for the text between byte offsets, `s.runes.take(n)` for the first `n` runes, or `s.graphemes` for user-perceived characters.\012", 513)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2117: `ref this` is not the first parameter\012\012**What.** `ref this` appears in a parameter list after another parameter, or twice.\012\012**Why.** `ref this` is not an ordinary parameter: it marks the member as mutating (spec \302\2479) and stands for the receiver, which is written before the `.` at the call site. Keeping it first makes every mutating signature read the same way.\012\012**Example.**\012\012```\012void add(i64 by, ref this) { n += by }\012```\012\012**Fix.** Move `ref this` to the start of the parameter list:\012\012```\012void add(ref this, i64 by) { n += by }\012```\012", 546)});
 #line 587 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 589 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2202", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2201", 7))) {
 #line 590 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2202: type mismatch\012\012**Why.** Bayan converts implicitly only when nothing can be lost: widening integers, `T` to `T\077`. Everything else needs an explicit cast.\012\012**Example.**\012\012```\012let big: i64 = 3\012let small: i32 = big\012```\012\012**Fix.** Convert explicitly with a cast (the fix inserts one), or change the declared type.\012", 318)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2201: string indexer\012\012**Why.** A `string` is UTF-8. `s[i]` would have to pick between a byte, a code point and a grapheme, and either be wrong for some text or hide an O(n) scan. Bayan makes you choose.\012\012**Example.**\012\012```\012let name = \042Ali\042\012let first = name[0]\012```\012\012**Fix.** Read a byte, slice, or take characters: `s.bytes[i]` for the byte at offset `i` (the machine fix), `s[a..b]` for the text between byte offsets, `s.runes.take(n)` for the first `n` runes, or `s.graphemes` for user-perceived characters.\012", 513)});
 #line 589 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 591 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2203", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2202", 7))) {
 #line 592 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2203: literal out of range\012\012**Why.** An integer literal takes its type from the context; a value outside that type's range would silently wrap.\012\012**Example.**\012\012```\012let b: u8 = 300\012```\012\012**Fix.** Use a wider type or a smaller value.\012", 235)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2202: type mismatch\012\012**Why.** Bayan converts implicitly only when nothing can be lost: widening integers, `T` to `T\077`. Everything else needs an explicit cast.\012\012**Example.**\012\012```\012let big: i64 = 3\012let small: i32 = big\012```\012\012**Fix.** Convert explicitly with a cast (the fix inserts one), or change the declared type.\012", 318)});
 #line 591 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 593 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2204", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2203", 7))) {
 #line 594 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2204: constant overflow\012\012**Why.** The compiler evaluates constant expressions; one that overflows would panic every time it runs.\012\012**Example.**\012\012```\012const big: i32 = 2_000_000_000 * 2\012```\012\012**Fix.** Use a wider type, or the wrapping operators (`*%`) if wrapping is intended.\012", 279)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2203: literal out of range\012\012**Why.** An integer literal takes its type from the context; a value outside that type's range would silently wrap.\012\012**Example.**\012\012```\012let b: u8 = 300\012```\012\012**Fix.** Use a wider type or a smaller value.\012", 235)});
 #line 593 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 595 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2205", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2204", 7))) {
 #line 596 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2205: division by zero\012\012**Why.** Integer division by zero traps at run time; a constant divisor of zero always does.\012\012**Example.**\012\012```\012let x = 10 / 0\012```\012\012**Fix.** Divide by a non-zero value.\012", 198)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2204: constant overflow\012\012**Why.** The compiler evaluates constant expressions; one that overflows would panic every time it runs.\012\012**Example.**\012\012```\012const big: i32 = 2_000_000_000 * 2\012```\012\012**Fix.** Use a wider type, or the wrapping operators (`*%`) if wrapping is intended.\012", 279)});
 #line 595 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 597 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2206", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2205", 7))) {
 #line 598 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2206: invalid cast\012\012**Why.** Casts convert between numeric types and between `rune` and integers. Other conversions are functions (`parse`, `formatInto`).\012\012**Example.**\012\012```\012let n = i64(\04242\042)\012```\012\012**Fix.** Call a conversion function instead.\012", 247)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2205: division by zero\012\012**Why.** Integer division by zero traps at run time; a constant divisor of zero always does.\012\012**Example.**\012\012```\012let x = 10 / 0\012```\012\012**Fix.** Divide by a non-zero value.\012", 198)});
 #line 597 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 599 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2207", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2206", 7))) {
 #line 600 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2207: bad unary operand\012\012**Why.** Each operator works on specific types: `-` on signed numbers, `!` on `bool`, `~` on integers, `++`/`--` on integer variables.\012\012**Example.**\012\012```\012let n: u32 = 5\012let x = -n\012```\012\012**Fix.** Use an operand of a type the operator supports, or cast first.\012", 287)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2206: invalid cast\012\012**Why.** Casts convert between numeric types and between `rune` and integers. Other conversions are functions (`parse`, `formatInto`).\012\012**Example.**\012\012```\012let n = i64(\04242\042)\012```\012\012**Fix.** Call a conversion function instead.\012", 247)});
 #line 599 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 601 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2208", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2207", 7))) {
 #line 602 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2208: bad binary operands\012\012**Why.** Arithmetic needs two numbers of compatible types; mixing signed and unsigned, or numbers and `bool`, needs an explicit cast so the intended type is visible.\012\012**Example.**\012\012```\012let a: i64 = 1\012let b: u64 = 2\012let c = a + b\012```\012\012**Fix.** Cast one operand so both have the same type.\012", 320)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2207: bad unary operand\012\012**Why.** Each operator works on specific types: `-` on signed numbers, `!` on `bool`, `~` on integers, `++`/`--` on integer variables.\012\012**Example.**\012\012```\012let n: u32 = 5\012let x = -n\012```\012\012**Fix.** Use an operand of a type the operator supports, or cast first.\012", 287)});
 #line 601 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 603 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2209", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2208", 7))) {
 #line 604 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2209: string concatenation\012\012**What.** `+` (or `+=`) with `string` operands. Strings cannot be joined with `+`, not even constants.\012\012**Why.** `+` on strings would allocate behind your back, and in a loop it is quadratic. Bayan keeps allocation visible: interpolation writes straight into its output or a buffer. One rule for every operand, constant or not, keeps the language small (HANDOFF \302\24712). A string pattern such as `\042/api/\042 + var rest` is not concatenation and stays legal.\012\012**Example.**\012\012```\012let name = \042x\042\012let greeting = \042Hello, \042 + name\012let path = \042/usr\042 + \042/lib\042\012```\012\012**Fix.** Interpolate the parts (the machine fix rewrites `a + b` to `$\042{a}{b}\042`, inlining literal text). Two literals become one literal, which stays a constant:\012\012```\012let greeting = $\042Hello, {name}\042\012let path = \042/usr/lib\042\012```\012\012To build text in a loop, append to a `StrBuf`: `buf.append($\042{a}{b}\042)`.\012", 882)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2208: bad binary operands\012\012**Why.** Arithmetic needs two numbers of compatible types; mixing signed and unsigned, or numbers and `bool`, needs an explicit cast so the intended type is visible.\012\012**Example.**\012\012```\012let a: i64 = 1\012let b: u64 = 2\012let c = a + b\012```\012\012**Fix.** Cast one operand so both have the same type.\012", 320)});
 #line 603 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 605 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2210", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2209", 7))) {
 #line 606 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2210: `\077\077` on a non-optional value\012\012**Why.** `a \077\077 b` uses `b` when `a` is null; a value that cannot be null never uses `b`.\012\012**Example.**\012\012```\012let n = 5 \077\077 0\012```\012\012**Fix.** Remove `\077\077 \342\200\246`.\012", 195)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2209: string concatenation\012\012**What.** `+` (or `+=`) with `string` operands. Strings cannot be joined with `+`, not even constants.\012\012**Why.** `+` on strings would allocate behind your back, and in a loop it is quadratic. Bayan keeps allocation visible: interpolation writes straight into its output or a buffer. One rule for every operand, constant or not, keeps the language small (HANDOFF \302\24712). A string pattern such as `\042/api/\042 + var rest` is not concatenation and stays legal.\012\012**Example.**\012\012```\012let name = \042x\042\012let greeting = \042Hello, \042 + name\012let path = \042/usr\042 + \042/lib\042\012```\012\012**Fix.** Interpolate the parts (the machine fix rewrites `a + b` to `$\042{a}{b}\042`, inlining literal text). Two literals become one literal, which stays a constant:\012\012```\012let greeting = $\042Hello, {name}\042\012let path = \042/usr/lib\042\012```\012\012To build text in a loop, append to a `StrBuf`: `buf.append($\042{a}{b}\042)`.\012", 882)});
 #line 605 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 607 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2211", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2210", 7))) {
 #line 608 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2211: member of an optional value\012\012**Why.** An optional value must be checked before its members are used, so a null is handled where it can occur.\012\012**Example.**\012\012```\012struct Point {\012    i64 x\012}\012let p: Point\077 = null\012let x = p.x\012```\012\012**Fix.** Check it first: `if (p is { } point) { \342\200\246 point.x \342\200\246 }`, or supply a default: `(p \077\077 origin).x`.\012", 345)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2210: `\077\077` on a non-optional value\012\012**Why.** `a \077\077 b` uses `b` when `a` is null; a value that cannot be null never uses `b`.\012\012**Example.**\012\012```\012let n = 5 \077\077 0\012```\012\012**Fix.** Remove `\077\077 \342\200\246`.\012", 195)});
 #line 607 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 609 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2212", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2211", 7))) {
 #line 610 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2212: not indexable\012\012**Why.** Indexing works on arrays, spans and lists.\012\012**Example.**\012\012```\012let n = 5\012let d = n[0]\012```\012\012**Fix.** Index a collection instead.\012", 162)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2211: member of an optional value\012\012**Why.** An optional value must be checked before its members are used, so a null is handled where it can occur.\012\012**Example.**\012\012```\012struct Point {\012    i64 x\012}\012let p: Point\077 = null\012let x = p.x\012```\012\012**Fix.** Check it first: `if (p is { } point) { \342\200\246 point.x \342\200\246 }`, or supply a default: `(p \077\077 origin).x`.\012", 345)});
 #line 609 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 611 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2213", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2212", 7))) {
 #line 612 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2213: constant index out of range\012\012**Why.** A fixed array's length is known at compile time, so a constant index past the end is always a bug.\012\012**Example.**\012\012```\012let xs: i64[3] = [1, 2, 3]\012let x = xs[3]\012```\012\012**Fix.** Use an index from 0 to length \342\210\222 1.\012", 259)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2212: not indexable\012\012**Why.** Indexing works on arrays, spans and lists.\012\012**Example.**\012\012```\012let n = 5\012let d = n[0]\012```\012\012**Fix.** Index a collection instead.\012", 162)});
 #line 611 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 613 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2214", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2213", 7))) {
 #line 614 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2214: `^` outside an index\012\012**Why.** `^n` means \042n from the end\042 of the collection being indexed; outside an index there is no end to count from.\012\012**Example.**\012\012```\012let i = ^1\012```\012\012**Fix.** Use it as `xs[^1]`, or compute `xs.length - 1`.\012", 243)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2213: constant index out of range\012\012**Why.** A fixed array's length is known at compile time, so a constant index past the end is always a bug.\012\012**Example.**\012\012```\012let xs: i64[3] = [1, 2, 3]\012let x = xs[3]\012```\012\012**Fix.** Use an index from 0 to length \342\210\222 1.\012", 259)});
 #line 613 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 615 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2215", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2214", 7))) {
 #line 616 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2215: open range\012\012**Why.** Open ranges (`a..`, `..b`) are only meaningful as slices, where the collection supplies the missing end.\012\012**Example.**\012\012```\012for i in 0.. { }\012```\012\012**Fix.** Give both ends: `0..n`.\012", 211)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2214: `^` outside an index\012\012**Why.** `^n` means \042n from the end\042 of the collection being indexed; outside an index there is no end to count from.\012\012**Example.**\012\012```\012let i = ^1\012```\012\012**Fix.** Use it as `xs[^1]`, or compute `xs.length - 1`.\012", 243)});
 #line 615 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 617 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2216", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2215", 7))) {
 #line 618 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2216: branch type mismatch\012\012**Why.** Both branches of `\077:` (and every arm of a `switch` expression) produce the expression's value, so they need a common type.\012\012**Example.**\012\012```\012let ok = true\012let x = ok \077 1 : \042no\042\012```\012\012**Fix.** Make the branches agree, converting one of them explicitly if needed.\012", 304)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2215: open range\012\012**Why.** Open ranges (`a..`, `..b`) are only meaningful as slices, where the collection supplies the missing end.\012\012**Example.**\012\012```\012for i in 0.. { }\012```\012\012**Fix.** Give both ends: `0..n`.\012", 211)});
 #line 617 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 619 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2217", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2216", 7))) {
 #line 620 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2217: cannot infer type\012\012**Why.** A local's type comes from its value; `null`, `[]`, and a declaration with no value say nothing about the type.\012\012**Example.**\012\012```\012let x = null\012```\012\012**Fix.** Write the type: `i64\077 x = null;`.\012", 230)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2216: branch type mismatch\012\012**Why.** Both branches of `\077:` (and every arm of a `switch` expression) produce the expression's value, so they need a common type.\012\012**Example.**\012\012```\012let ok = true\012let x = ok \077 1 : \042no\042\012```\012\012**Fix.** Make the branches agree, converting one of them explicitly if needed.\012", 304)});
 #line 619 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 621 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2218", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2217", 7))) {
 #line 622 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2218: no target type\012\012**Why.** `.variant`, `{ \342\200\246 }` and `[ \342\200\246 ]` take their type from where they are used: a declared local, a parameter or a return type.\012\012**Example.**\012\012```\012let e = .invalid\012```\012\012**Fix.** Write the type out: `MoneyError.invalid`, `Point { \342\200\246 }`, or declare the local's type.\012", 300)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2217: cannot infer type\012\012**Why.** A local's type comes from its value; `null`, `[]`, and a declaration with no value say nothing about the type.\012\012**Example.**\012\012```\012let x = null\012```\012\012**Fix.** Write the type: `i64\077 x = null;`.\012", 230)});
 #line 621 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 623 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2219", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2218", 7))) {
 #line 624 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2219: not a constant\012\012**Why.** Constants, array lengths, parameter defaults and patterns are evaluated by the compiler. A spread `..xs` into a fixed array or `Span` literal must also have a compile-time length, because the literal's storage is sized on the stack.\012\012**Example.**\012\012```\012i64 compute() => 1\012const n: i64 = compute()\012```\012\012**Fix.** Use literals and other constants, or make it a `let`. For a spread, spread a fixed array `T[N]`, or make the target a `List<T>`.\012", 475)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2218: no target type\012\012**Why.** `.variant`, `{ \342\200\246 }` and `[ \342\200\246 ]` take their type from where they are used: a declared local, a parameter or a return type.\012\012**Example.**\012\012```\012let e = .invalid\012```\012\012**Fix.** Write the type out: `MoneyError.invalid`, `Point { \342\200\246 }`, or declare the local's type.\012", 300)});
 #line 623 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 625 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2220", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2219", 7))) {
 #line 626 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2220: not callable\012\012**Why.** Only functions, methods and types with a constructor (or built-ins such as `List<T>()`) can be called. Bayan has no function values in v0.1.\012\012**Example.**\012\012```\012let n = 5\012n()\012```\012\012**Fix.** Call a function, or for numbers convert with a cast: `(i64)x`.\012", 285)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2219: not a constant\012\012**Why.** Constants, array lengths, parameter defaults and patterns are evaluated by the compiler. A spread `..xs` into a fixed array or `Span` literal must also have a compile-time length, because the literal's storage is sized on the stack.\012\012**Example.**\012\012```\012i64 compute() => 1\012const n: i64 = compute()\012```\012\012**Fix.** Use literals and other constants, or make it a `let`. For a spread, spread a fixed array `T[N]`, or make the target a `List<T>`.\012", 475)});
 #line 625 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 627 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2221", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2220", 7))) {
 #line 628 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2221: not iterable\012\012**Why.** `for` walks ranges, arrays, spans, lists, the characters of a string, and user types conforming to `IIndexable` or `IEnumerator`.\012\012**Example.**\012\012```\012for x in 5 { }\012```\012\012**Fix.** Iterate a range (`0..n`) or a collection, or make the type conform to `IIndexable` (`i64 count { get; }` and `Item get(i64 index)`) or `IEnumerator` (`bool moveNext(ref this)` and `Item current { get; }`).\012", 418)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2220: not callable\012\012**Why.** Only functions, methods and types with a constructor (or built-ins such as `List<T>()`) can be called. Bayan has no function values in v0.1.\012\012**Example.**\012\012```\012let n = 5\012n()\012```\012\012**Fix.** Call a function, or for numbers convert with a cast: `(i64)x`.\012", 285)});
 #line 627 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 629 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2222", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2221", 7))) {
 #line 630 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2222: array length mismatch\012\012**Why.** A fixed array `T[N]` holds exactly N elements; the literal must provide all of them.\012\012**Example.**\012\012```\012let xs: i64[3] = [1, 2]\012```\012\012**Fix.** Provide every element, or change the length.\012", 230)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2221: not iterable\012\012**Why.** `for` walks ranges, arrays, spans, lists, the characters of a string, and user types conforming to `IIndexable` or `IEnumerator`.\012\012**Example.**\012\012```\012for x in 5 { }\012```\012\012**Fix.** Iterate a range (`0..n`) or a collection, or make the type conform to `IIndexable` (`i64 count { get; }` and `Item get(i64 index)`) or `IEnumerator` (`bool moveNext(ref this)` and `Item current { get; }`).\012", 418)});
 #line 629 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 631 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2223", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2222", 7))) {
 #line 632 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2223: tuple name mismatch\012\012**Why.** Tuple element names are part of the type; a mismatched name usually means swapped values.\012\012**Example.**\012\012```\012let p: (i64 x, i64 y) = (y: 1, x: 2)\012```\012\012**Fix.** Use the names of the target type, in order.\012", 245)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2222: array length mismatch\012\012**Why.** A fixed array `T[N]` holds exactly N elements; the literal must provide all of them.\012\012**Example.**\012\012```\012let xs: i64[3] = [1, 2]\012```\012\012**Fix.** Provide every element, or change the length.\012", 230)});
 #line 631 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 633 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2224", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2223", 7))) {
 #line 634 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2224: interpolation not allowed here\012\012**No longer reported since M14.** `$\042\342\200\246\042` is now an expression of type `string` anywhere: outside `print`, `panic` and `StrBuf.append` it formats into a temporary growable `StrBuf` from `context.allocator`, and the result borrows that allocator's region. The code stays reserved.\012\012**Why (before M14).** `$\042\342\200\246\042` wrote straight into its output (standard output, a panic message, a `StrBuf`) without allocating. Storing it would have needed a hidden allocation.\012\012**Example.**\012\012```\012let n = 1\012let msg = $\042total {n}\042\012```\012\012**Fix.** None needed today. To keep text past a `using` arena, build it outside the arena's `context` or `.copy(to: alloc)` it into a longer-lived allocator.\012", 719)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2223: tuple name mismatch\012\012**Why.** Tuple element names are part of the type; a mismatched name usually means swapped values.\012\012**Example.**\012\012```\012let p: (i64 x, i64 y) = (y: 1, x: 2)\012```\012\012**Fix.** Use the names of the target type, in order.\012", 245)});
 #line 633 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 635 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2225", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2224", 7))) {
 #line 636 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2225: not formattable\012\012**What.** An interpolation hole holds a value with no textual form.\012\012**Why.** Interpolation formats primitives, errors, enums, optionals and tuples of them, and structs that define `formatInto(ref StrBuf)`. Structs have no default display (HANDOFF \302\24713): the compiler will not guess a format for you. Spans, lists and arenas have no single textual form.\012\012**Example.**\012\012```\012struct Q {\012    List<i64> xs\012}\012let q = Q { xs: List<i64>() }\012print($\042{q}\042)\012```\012\012**Fix.** Add `formatInto(ref StrBuf)` to the struct, or use `{x, as: .debug}` for the debug form (the struct-literal form, when every field formats):\012\012```\012struct Point {\012    i64 x\012    i64 y\012\012    void formatInto(ref StrBuf out) {\012        out.append($\042({x}, {y})\042)\012    }\012}\012```\012\012For a collection, format the elements in a loop, or a summary such as `xs.length`.\012", 839)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2224: interpolation not allowed here\012\012**No longer reported since M14.** `$\042\342\200\246\042` is now an expression of type `string` anywhere: outside `print`, `panic` and `StrBuf.append` it formats into a temporary growable `StrBuf` from `context.allocator`, and the result borrows that allocator's region. The code stays reserved.\012\012**Why (before M14).** `$\042\342\200\246\042` wrote straight into its output (standard output, a panic message, a `StrBuf`) without allocating. Storing it would have needed a hidden allocation.\012\012**Example.**\012\012```\012let n = 1\012let msg = $\042total {n}\042\012```\012\012**Fix.** None needed today. To keep text past a `using` arena, build it outside the arena's `context` or `.copy(to: alloc)` it into a longer-lived allocator.\012", 719)});
 #line 635 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 637 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2226", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2225", 7))) {
 #line 638 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2226: not disposable\012\012**Why.** `using` releases a value's memory at the end of the scope; only `Arena` and `List<T>` own memory in v0.1.\012\012**Example.**\012\012```\012using let n = 5\012```\012\012**Fix.** Remove `using`.\012", 207)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2225: not formattable\012\012**What.** An interpolation hole holds a value with no textual form.\012\012**Why.** Interpolation formats primitives, errors, enums, optionals and tuples of them, and structs that define `formatInto(ref StrBuf)`. Structs have no default display (HANDOFF \302\24713): the compiler will not guess a format for you. Spans, lists and arenas have no single textual form.\012\012**Example.**\012\012```\012struct Q {\012    List<i64> xs\012}\012let q = Q { xs: List<i64>() }\012print($\042{q}\042)\012```\012\012**Fix.** Add `formatInto(ref StrBuf)` to the struct, or use `{x, as: .debug}` for the debug form (the struct-literal form, when every field formats):\012\012```\012struct Point {\012    i64 x\012    i64 y\012\012    void formatInto(ref StrBuf out) {\012        out.append($\042({x}, {y})\042)\012    }\012}\012```\012\012For a collection, format the elements in a loop, or a summary such as `xs.length`.\012", 839)});
 #line 637 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 639 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2227", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2226", 7))) {
 #line 640 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2227: ambiguous variant\012\012**Why.** When a function can fail with several error sets, a bare `.variant` must name exactly one variant.\012\012**Example.**\012\012```\012union error MoneyError {\012    invalid\012}\012union error ParseError {\012    invalid\012}\012void check(i64 n) fails MoneyError, ParseError {\012    fail .invalid if n < 0   // both MoneyError and ParseError have `invalid`\012}\012```\012\012**Fix.** Qualify it: `MoneyError.invalid`.\012", 412)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2226: not disposable\012\012**Why.** `using` releases a value's memory at the end of the scope; only `Arena` and `List<T>` own memory in v0.1.\012\012**Example.**\012\012```\012using let n = 5\012```\012\012**Fix.** Remove `using`.\012", 207)});
 #line 639 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 641 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2228", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2227", 7))) {
 #line 642 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2228: unknown variant\012\012**Why.** An error enum lists its variants; others do not exist.\012\012**Example.**\012\012```\012union error MoneyError {\012    invalid\012}\012void check() fails MoneyError {\012    fail MoneyError.overflow\012}\012```\012\012**Fix.** Use one of the declared variants, or add the variant to the error enum.\012", 299)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2227: ambiguous variant\012\012**Why.** When a function can fail with several error sets, a bare `.variant` must name exactly one variant.\012\012**Example.**\012\012```\012union error MoneyError {\012    invalid\012}\012union error ParseError {\012    invalid\012}\012void check(i64 n) fails MoneyError, ParseError {\012    fail .invalid if n < 0   // both MoneyError and ParseError have `invalid`\012}\012```\012\012**Fix.** Qualify it: `MoneyError.invalid`.\012", 412)});
 #line 641 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 643 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2229", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2228", 7))) {
 #line 644 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2229: invalid const array\012\012**Why.** A module-level `const` array is stored once as static data, so its element type must be a number type, `bool`, `rune` or `string`, its type a fixed-size `T[N]`, and every element a literal or constant. Structs, `List`s and computed elements have no static form.\012\012**Example.**\012\012```\012i64 twice(i64 x) => x * 2\012const table: i64[3] = [1, twice(2), 3]\012```\012\012**Fix.** Use only literals and constants, or build the collection at run time with `let`.\012", 482)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2228: unknown variant\012\012**Why.** An error enum lists its variants; others do not exist.\012\012**Example.**\012\012```\012union error MoneyError {\012    invalid\012}\012void check() fails MoneyError {\012    fail MoneyError.overflow\012}\012```\012\012**Fix.** Use one of the declared variants, or add the variant to the error enum.\012", 299)});
 #line 643 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 645 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2230", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2229", 7))) {
 #line 646 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2230: renamed member\012\012**What.** A built-in member is used under its old name: `add` on a `List`, `asString()` on a `StrBuf`, `onPanic` on `Panic`, or a round-3 rename that changes the call's shape.\012\012**Why.** Round 2 gives each idea one name (HANDOFF \302\24711, \302\24712). Ordered collections `append` (unordered ones `add`). A `StrBuf` hands back its text with `finish()`, or lends it with `view`. The old names stay recognised so the compiler can tell you the new one. Sizes keep `length` (round 3 keeps length). Round 3 names the panic hook for its role, `Panic.handler`; spells ranges and lookups with particles (`remove(from:until:)`, `tryGet(at:)`); and drops the `toX`/`asX` members for a view noun (`span`) and the `string(x, as:)` conversion. Decoding bytes is a codec, `Utf8.decode`, and `string(x)` only formats.\012\012| Old | New |\012|---|---|\012| `list.add(x)` | `list.append(x)` |\012| `buf.asString()` | `buf.finish()` |\012| `Panic.onPanic = f` | `Panic.handler = f` |\012| `list.removeRange(a, b)` | `list.remove(from: a, until: b)` |\012| `list.replaceRange(r, items)` | `list.replace(at: r, by: items)` |\012| `map.getOr(k, d)` | `(map.tryGet(at: k) \077\077 d)` |\012| `xs.asSpan()` | `xs.span` |\012| `n.toHex()`, `n.toBinary()`, `n.toOctal()` | `string(n, as: .hex)`, `.binary`, `.octal` |\012| `s.offset(x)` | `s.position(x)` |\012| `s.toUtf16()` | `s.utf16` |\012| `xs.toList()` | `xs.copy()` |\012| `array.toList()` | `array.span.copy()` |\012| `string.from(bytes)`, `string.fromUtf8(bytes)` | `Utf8.decode(bytes)` |\012| `string.tryFrom(bytes)` | `Utf8.tryDecode(bytes)` |\012| `try string(bytes)` | `try Utf8.decode(bytes)` |\012\012**Example.**\012\012```\012var xs = List<i64>()\012xs.add(1)\012var buf = StrBuf()\012print(buf.asString())\012```\012\012**Fix.** Write the new name (the machine fix does it):\012\012```\012var xs = List<i64>()\012xs.append(1)\012print(buf.finish())\012```\012", 1805)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2229: invalid const array\012\012**Why.** A module-level `const` array is stored once as static data, so its element type must be a number type, `bool`, `rune` or `string`, its type a fixed-size `T[N]`, and every element a literal or constant. Structs, `List`s and computed elements have no static form.\012\012**Example.**\012\012```\012i64 twice(i64 x) => x * 2\012const table: i64[3] = [1, twice(2), 3]\012```\012\012**Fix.** Use only literals and constants, or build the collection at run time with `let`.\012", 482)});
 #line 645 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 647 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2234", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2230", 7))) {
 #line 648 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2234: `while let` on a value that cannot be null\012\012**What.** `while let x = e { \342\200\246 }` loops while `e` is non-null and binds `x` to its value. Here `e` is not an optional (`T\077`), so the loop would never stop on its own.\012\012**Why.** The loop's only exit test is \042is the value null\077\042; a value that cannot be null makes the test meaningless and the loop endless.\012\012**Example.**\012\012```\012i64 next() => 1\012while let n = next() { print($\042{n}\042) }\012```\012\012**Fix.** Return `T\077` from the source (`i64\077 next()`) so the loop ends at `null`, or loop with a condition: `while n < 10 { \342\200\246 }`. To bind a value once, write `let n = next();`.\012", 619)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2230: renamed member\012\012**What.** A built-in member is used under its old name: `add` on a `List`, `asString()` on a `StrBuf`, `onPanic` on `Panic`, or a round-3 rename that changes the call's shape.\012\012**Why.** Round 2 gives each idea one name (HANDOFF \302\24711, \302\24712). Ordered collections `append` (unordered ones `add`). A `StrBuf` hands back its text with `finish()`, or lends it with `view`. The old names stay recognised so the compiler can tell you the new one. Sizes keep `length` (round 3 keeps length). Round 3 names the panic hook for its role, `Panic.handler`; spells ranges and lookups with particles (`remove(from:until:)`, `tryGet(at:)`); and drops the `toX`/`asX` members for a view noun (`span`) and the `string(x, as:)` conversion. Decoding bytes is a codec, `Utf8.decode`, and `string(x)` only formats.\012\012| Old | New |\012|---|---|\012| `list.add(x)` | `list.append(x)` |\012| `buf.asString()` | `buf.finish()` |\012| `Panic.onPanic = f` | `Panic.handler = f` |\012| `list.removeRange(a, b)` | `list.remove(from: a, until: b)` |\012| `list.replaceRange(r, items)` | `list.replace(at: r, by: items)` |\012| `map.getOr(k, d)` | `(map.tryGet(at: k) \077\077 d)` |\012| `xs.asSpan()` | `xs.span` |\012| `n.toHex()`, `n.toBinary()`, `n.toOctal()` | `string(n, as: .hex)`, `.binary`, `.octal` |\012| `s.offset(x)` | `s.position(x)` |\012| `s.toUtf16()` | `s.utf16` |\012| `xs.toList()` | `xs.copy()` |\012| `array.toList()` | `array.span.copy()` |\012| `string.from(bytes)`, `string.fromUtf8(bytes)` | `Utf8.decode(bytes)` |\012| `string.tryFrom(bytes)` | `Utf8.tryDecode(bytes)` |\012| `try string(bytes)` | `try Utf8.decode(bytes)` |\012\012**Example.**\012\012```\012var xs = List<i64>()\012xs.add(1)\012var buf = StrBuf()\012print(buf.asString())\012```\012\012**Fix.** Write the new name (the machine fix does it):\012\012```\012var xs = List<i64>()\012xs.append(1)\012print(buf.finish())\012```\012", 1805)});
 #line 647 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 649 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2235", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2234", 7))) {
 #line 650 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2235: spread of something that is not a sequence\012\012**What.** `..x` inside a collection literal adds every element of `x`, so `x` must be a `List<T>`, a `Span<T>` or a fixed array `T[N]`. A number, a string or a map has no elements to add this way.\012\012**Why.** A spread copies a sequence's elements into the literal in order; anything else has no order or no elements of the literal's element type.\012\012**Example.**\012\012```\012let n = 5\012let xs: List<i32> = [..n, 1]\012```\012\012**Fix.** To add one value, drop the `..`; to add several, spread a list, span or fixed array.\012\012```\012let n = 5\012let xs: List<i32> = [n, 1]\012```\012", 603)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2234: `while let` on a value that cannot be null\012\012**What.** `while let x = e { \342\200\246 }` loops while `e` is non-null and binds `x` to its value. Here `e` is not an optional (`T\077`), so the loop would never stop on its own.\012\012**Why.** The loop's only exit test is \042is the value null\077\042; a value that cannot be null makes the test meaningless and the loop endless.\012\012**Example.**\012\012```\012i64 next() => 1\012while let n = next() { print($\042{n}\042) }\012```\012\012**Fix.** Return `T\077` from the source (`i64\077 next()`) so the loop ends at `null`, or loop with a condition: `while n < 10 { \342\200\246 }`. To bind a value once, write `let n = next();`.\012", 619)});
 #line 649 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 651 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2236", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2235", 7))) {
 #line 652 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2236: map literal with an element that is not `key: value`\012\012**What.** A collection literal with a `key: value` element is a map literal, and then every element needs a key. An element without one (a plain value or a `..` spread) has no key to store it under.\012\012**Why.** `[\042a\042: 1, 2]` is neither a list nor a map; the compiler does not guess which one was meant.\012\012**Example.**\012\012```\012let stock: Map<string, i32> = [\042A-1\042: 12, 3]\012```\012\012**Fix.** Give every element a key, or remove the keys to make a list.\012\012```\012let stock: Map<string, i32> = [\042A-1\042: 12, \042B-2\042: 3]\012```\012", 566)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2235: spread of something that is not a sequence\012\012**What.** `..x` inside a collection literal adds every element of `x`, so `x` must be a `List<T>`, a `Span<T>` or a fixed array `T[N]`. A number, a string or a map has no elements to add this way.\012\012**Why.** A spread copies a sequence's elements into the literal in order; anything else has no order or no elements of the literal's element type.\012\012**Example.**\012\012```\012let n = 5\012let xs: List<i32> = [..n, 1]\012```\012\012**Fix.** To add one value, drop the `..`; to add several, spread a list, span or fixed array.\012\012```\012let n = 5\012let xs: List<i32> = [n, 1]\012```\012", 603)});
 #line 651 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 653 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2301", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2236", 7))) {
 #line 654 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2301: missing argument\012\012**Why.** Every parameter without a default needs an argument.\012\012**Example.**\012\012```\012i64 area(i64 width, by i64 height) => width * height\012let a = area(3)\012```\012\012**Fix.** Pass the missing argument, or give the parameter a default.\012", 253)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2236: map literal with an element that is not `key: value`\012\012**What.** A collection literal with a `key: value` element is a map literal, and then every element needs a key. An element without one (a plain value or a `..` spread) has no key to store it under.\012\012**Why.** `[\042a\042: 1, 2]` is neither a list nor a map; the compiler does not guess which one was meant.\012\012**Example.**\012\012```\012let stock: Map<string, i32> = [\042A-1\042: 12, 3]\012```\012\012**Fix.** Give every element a key, or remove the keys to make a list.\012\012```\012let stock: Map<string, i32> = [\042A-1\042: 12, \042B-2\042: 3]\012```\012", 566)});
 #line 653 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 655 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2302", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2301", 7))) {
 #line 656 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2302: too many arguments\012\012**Why.** A call passes at most one argument per parameter.\012\012**Example.**\012\012```\012i64 twice(i64 n) => n * 2\012let a = twice(1, 2)\012```\012\012**Fix.** Remove the extra arguments.\012", 197)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2301: missing argument\012\012**Why.** Every parameter without a default needs an argument.\012\012**Example.**\012\012```\012i64 area(i64 width, by i64 height) => width * height\012let a = area(3)\012```\012\012**Fix.** Pass the missing argument, or give the parameter a default.\012", 253)});
 #line 655 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 657 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2303", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2302", 7))) {
 #line 658 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2303: argument passed twice\012\012**Why.** Each parameter receives one argument.\012\012**Example.**\012\012```\012i64 area(i64 width, by i64 height) => width * height\012let a = area(3, by: 1, by: 2)\012```\012\012**Fix.** Remove one of them.\012", 217)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2302: too many arguments\012\012**Why.** A call passes at most one argument per parameter.\012\012**Example.**\012\012```\012i64 twice(i64 n) => n * 2\012let a = twice(1, 2)\012```\012\012**Fix.** Remove the extra arguments.\012", 197)});
 #line 657 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 659 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2304", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2303", 7))) {
 #line 660 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2304: positional after named\012\012**Why.** After a named argument, positions no longer line up with parameters.\012\012**Example.**\012\012```\012i64 f(i64 x, by i64 y) => x + y\012let a = f(by: 1, 2)\012```\012\012**Fix.** Name the remaining arguments too.\012", 232)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2303: argument passed twice\012\012**Why.** Each parameter receives one argument.\012\012**Example.**\012\012```\012i64 area(i64 width, by i64 height) => width * height\012let a = area(3, by: 1, by: 2)\012```\012\012**Fix.** Remove one of them.\012", 217)});
 #line 659 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 661 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2305", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2304", 7))) {
 #line 662 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2305: argument must be named\012\012**Why.** `f(true)` doesn't say what the argument means. Bayan requires the parameter name for `bool` parameters. An argument that is a variable or field with the parameter's name (`verbose` or `options.verbose` for `verbose`) counts as named. Parameters that share a type no longer need names: since design round 3 every required parameter besides the object carries a particle, and the call writes it (BYN5005).\012\012**Example.**\012\012```\012void show(bool verbose) {\012}\012\012show(true)\012```\012\012**Fix.** Name it: `show(verbose: true)`.\012", 553)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2304: positional after named\012\012**Why.** After a named argument, positions no longer line up with parameters.\012\012**Example.**\012\012```\012i64 f(i64 x, by i64 y) => x + y\012let a = f(by: 1, 2)\012```\012\012**Fix.** Name the remaining arguments too.\012", 232)});
 #line 661 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 663 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2306", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2305", 7))) {
 #line 664 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2306: argument modifier mismatch\012\012**Why.** `ref` and `out` show at the call site that the callee may change the caller's variable; they must match the parameter.\012\012**Example.**\012\012```\012void bump(ref i64 total) { }\012var total: i64 = 0\012bump(total)   // void bump(ref i64 total)\012```\012\012**Fix.** Write the modifier the parameter declares: `bump(ref total)`.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 407)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2305: argument must be named\012\012**Why.** `f(true)` doesn't say what the argument means. Bayan requires the parameter name for `bool` parameters. An argument that is a variable or field with the parameter's name (`verbose` or `options.verbose` for `verbose`) counts as named. Parameters that share a type no longer need names: since design round 3 every required parameter besides the object carries a particle, and the call writes it (BYN5005).\012\012**Example.**\012\012```\012void show(bool verbose) {\012}\012\012show(true)\012```\012\012**Fix.** Name it: `show(verbose: true)`.\012", 553)});
 #line 663 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 665 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2307", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2306", 7))) {
 #line 666 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2307: arguments in the wrong order\012\012**No longer reported.** Retired in design round 3 (\302\24715): particles replace the same-type naming rule. Every required parameter besides the object carries a particle, and the call writes it, so a swapped pair is a missing particle (BYN5005), with the missing particle as the fix. The code stays reserved.\012\012**Why (before design round 3).** An argument written as a variable or field named like a parameter (`start`, `tok.start`) said which parameter it was for. When every unnamed argument did that and they didn't line up with the parameters, the call had them swapped.\012\012**Example (before design round 3).**\012\012```\012i64 width(i64 start, i64 end) => end - start\012width(end, start)\012```\012\012**Now.** The second parameter takes a particle, and the call writes it:\012\012```\012i64 width(i64 start, until i64 end) => end - start\012width(start, until: end)\012```\012", 879)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2306: argument modifier mismatch\012\012**Why.** `ref` and `out` show at the call site that the callee may change the caller's variable; they must match the parameter.\012\012**Example.**\012\012```\012void bump(ref i64 total) { }\012var total: i64 = 0\012bump(total)   // void bump(ref i64 total)\012```\012\012**Fix.** Write the modifier the parameter declares: `bump(ref total)`.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 407)});
 #line 665 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 667 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2310", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2307", 7))) {
 #line 668 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2310: span parameter is never written through\012\012**Why.** A `Span<T>` parameter promises the function may change the caller's elements, so callers can't pass a `string`, `string.bytes` or another read-only view. A function that only reads should say so with `ReadOnlySpan<T>`; a `Span<T>` still converts to it implicitly.\012\012**Example.**\012\012```\012i64 total(Span<i64> values) {\012    var sum: i64 = 0\012    for v in values {\012        sum += v\012    }\012    return sum\012}\012```\012\012**Fix.** Declare the parameter `ReadOnlySpan<i64> values`.\012", 521)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2307: arguments in the wrong order\012\012**No longer reported.** Retired in design round 3 (\302\24715): particles replace the same-type naming rule. Every required parameter besides the object carries a particle, and the call writes it, so a swapped pair is a missing particle (BYN5005), with the missing particle as the fix. The code stays reserved.\012\012**Why (before design round 3).** An argument written as a variable or field named like a parameter (`start`, `tok.start`) said which parameter it was for. When every unnamed argument did that and they didn't line up with the parameters, the call had them swapped.\012\012**Example (before design round 3).**\012\012```\012i64 width(i64 start, i64 end) => end - start\012width(end, start)\012```\012\012**Now.** The second parameter takes a particle, and the call writes it:\012\012```\012i64 width(i64 start, until i64 end) => end - start\012width(start, until: end)\012```\012", 879)});
 #line 667 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 669 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2311", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2310", 7))) {
 #line 670 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2311: `var` is never reassigned\012\012**Why.** A `var` says the value will change; a reader has to look for where. When nothing ever assigns it, increments it, passes it by `ref` or `out`, or mutates through it, the `var` is noise, and `let` says what is true. This applies to locals and to `var` pattern bindings alike (spec \302\2477.1, \302\2476.5). Parameters, `for` loop variables and `let` bindings are never reported.\012\012**Example.**\012\012```\012union Shape {\012    circle(i64 radius)\012    empty\012}\012let prices = List<i64>()\012let shape = Shape.empty\012var total = prices.length\012print($\042{total}\042)\012\012if shape is .circle(var r) { print($\042{r}\042) }\012```\012\012**Fix.** Declare them with `let`: `let total = prices.length;` and `.circle(let r)`.\012", 710)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2310: span parameter is never written through\012\012**Why.** A `Span<T>` parameter promises the function may change the caller's elements, so callers can't pass a `string`, `string.bytes` or another read-only view. A function that only reads should say so with `ReadOnlySpan<T>`; a `Span<T>` still converts to it implicitly.\012\012**Example.**\012\012```\012i64 total(Span<i64> values) {\012    var sum: i64 = 0\012    for v in values {\012        sum += v\012    }\012    return sum\012}\012```\012\012**Fix.** Declare the parameter `ReadOnlySpan<i64> values`.\012", 521)});
 #line 669 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 671 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2320", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2311", 7))) {
 #line 672 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2320: `requires` or `expects` condition is not `bool`\012\012**What.** A condition has a type other than `bool`. The condition is either a struct field's `requires` rule or a function's `expects` clause. The message reads \042a `requires` clause must be `bool`, got `i64`\042 for both.\012\012**Why.** A `requires` rule checks a field value and an `expects` clause checks the arguments on entry; each panics in every build mode when it is false. Only a `bool` can be true or false (HANDOFF \302\2477).\012\012**Example.**\012\012```\012struct P { i64 low requires it }\012```\012\012The same code is reported for a function:\012\012```\012i32 half(i32 n) expects n {\012    return n / 2\012}\012```\012\012**Fix.** Write the condition the value must meet, such as `it > 0` for a field or `count > 0` for a parameter:\012\012```\012struct P { i64 low requires it >= 0 }\012```\012\012For the function:\012\012```\012i32 half(i32 n) expects n >= 0 {\012    return n / 2\012}\012```\012", 877)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2311: `var` is never reassigned\012\012**Why.** A `var` says the value will change; a reader has to look for where. When nothing ever assigns it, increments it, passes it by `ref` or `out`, or mutates through it, the `var` is noise, and `let` says what is true. This applies to locals and to `var` pattern bindings alike (spec \302\2477.1, \302\2476.5). Parameters, `for` loop variables and `let` bindings are never reported.\012\012**Example.**\012\012```\012union Shape {\012    circle(i64 radius)\012    empty\012}\012let prices = List<i64>()\012let shape = Shape.empty\012var total = prices.length\012print($\042{total}\042)\012\012if shape is .circle(var r) { print($\042{r}\042) }\012```\012\012**Fix.** Declare them with `let`: `let total = prices.length;` and `.circle(let r)`.\012", 710)});
 #line 671 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 673 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2321", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2320", 7))) {
 #line 674 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2321: constant value violates a `requires` or `expects` contract\012\012**What.** A constant makes a contract false. The contract is either a struct field's `requires` rule, when a struct literal sets the field to a constant that fails it, or a function's `expects` clause, when a call passes a constant argument that fails it. The message names the value and the contract, for example \042`-1` violates `requires it >= 0` of `P`\042.\012\012**Why.** A `requires` rule or an `expects` clause is an obligation on the value. A violation is a bug and panics at run time in every build mode; when the value is a constant, the compiler already knows it would panic, so it reports it here instead (HANDOFF \302\2477).\012\012**Example.**\012\012```\012struct P { i64 low requires it >= 0 }\012\012let p = P { low: -1 }\012```\012\012The same code is reported for a function:\012\012```\012i32 discount(i32 total, by i32 percent)\012    expects percent in 0..=100 && total >= 0\012    => total - total * percent / 100\012\012let price = discount(200, by: 150)\012```\012\012**Fix.** Pass a value that meets the rule or clause (the help reads \042pass a value that meets `requires \342\200\246`\042):\012\012```\012struct P { i64 low requires it >= 0 }\012\012let p = P { low: 1 }\012```\012\012For the function:\012\012```\012i32 discount(i32 total, by i32 percent)\012    expects percent in 0..=100 && total >= 0\012    => total - total * percent / 100\012\012let price = discount(200, by: 50)\012```\012", 1353)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2320: `requires` or `expects` condition is not `bool`\012\012**What.** A condition has a type other than `bool`. The condition is either a struct field's `requires` rule or a function's `expects` clause. The message reads \042a `requires` clause must be `bool`, got `i64`\042 for both.\012\012**Why.** A `requires` rule checks a field value and an `expects` clause checks the arguments on entry; each panics in every build mode when it is false. Only a `bool` can be true or false (HANDOFF \302\2477).\012\012**Example.**\012\012```\012struct P { i64 low requires it }\012```\012\012The same code is reported for a function:\012\012```\012i32 half(i32 n) expects n {\012    return n / 2\012}\012```\012\012**Fix.** Write the condition the value must meet, such as `it > 0` for a field or `count > 0` for a parameter:\012\012```\012struct P { i64 low requires it >= 0 }\012```\012\012For the function:\012\012```\012i32 half(i32 n) expects n >= 0 {\012    return n / 2\012}\012```\012", 877)});
 #line 673 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 675 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2322", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2321", 7))) {
 #line 676 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2322: retired, `requires` is checked at construction\012\012**No longer reported.** BYN2322 rejected `requires` on fields and distinct types while their checks were not built. Round 3 step 5.3b checks those rules at construction (revision 0006): a struct literal, `with` or `X(raw)` of a type with `requires` fails with `ValidationError` when a rule is broken. The code stays reserved: never reuse it.\012\012**Example.** Accepted; the literal is fallible:\012\012```\012struct OrderForm {\012    i32 quantity\012        requires it > 0\012}\012\012let form = try OrderForm { quantity: n }\012```\012\012**Fix.** None needed.\012", 586)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2321: constant value violates a `requires` or `expects` contract\012\012**What.** A constant makes a contract false. The contract is either a struct field's `requires` rule, when a struct literal sets the field to a constant that fails it, or a function's `expects` clause, when a call passes a constant argument that fails it. The message names the value and the contract, for example \042`-1` violates `requires it >= 0` of `P`\042.\012\012**Why.** A `requires` rule or an `expects` clause is an obligation on the value. A violation is a bug and panics at run time in every build mode; when the value is a constant, the compiler already knows it would panic, so it reports it here instead (HANDOFF \302\2477).\012\012**Example.**\012\012```\012struct P { i64 low requires it >= 0 }\012\012let p = P { low: -1 }\012```\012\012The same code is reported for a function:\012\012```\012i32 discount(i32 total, by i32 percent)\012    expects percent in 0..=100 && total >= 0\012    => total - total * percent / 100\012\012let price = discount(200, by: 150)\012```\012\012**Fix.** Pass a value that meets the rule or clause (the help reads \042pass a value that meets `requires \342\200\246`\042):\012\012```\012struct P { i64 low requires it >= 0 }\012\012let p = P { low: 1 }\012```\012\012For the function:\012\012```\012i32 discount(i32 total, by i32 percent)\012    expects percent in 0..=100 && total >= 0\012    => total - total * percent / 100\012\012let price = discount(200, by: 50)\012```\012", 1353)});
 #line 675 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 677 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2401", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2322", 7))) {
 #line 678 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2401: missing return\012\012**Why.** A function with a return type must produce a value; falling off the end would return garbage.\012\012**Example.**\012\012```\012i64 sign(i64 n) { if n > 0 { return 1 } }\012```\012\012**Fix.** Add a `return` (or `panic(\342\200\246)`) on the paths that reach the end.\012", 271)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2322: retired, `requires` is checked at construction\012\012**No longer reported.** BYN2322 rejected `requires` on fields and distinct types while their checks were not built. Round 3 step 5.3b checks those rules at construction (revision 0006): a struct literal, `with` or `X(raw)` of a type with `requires` fails with `ValidationError` when a rule is broken. The code stays reserved: never reuse it.\012\012**Example.** Accepted; the literal is fallible:\012\012```\012struct OrderForm {\012    i32 quantity\012        requires it > 0\012}\012\012let form = try OrderForm { quantity: n }\012```\012\012**Fix.** None needed.\012", 586)});
 #line 677 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 679 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2402", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2401", 7))) {
 #line 680 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2402: missing return value\012\012**Why.** A function with a return type must produce a value on every `return`.\012\012**Example.**\012\012```\012i64 f() { return }\012```\012\012**Fix.** Return a value.\012", 180)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2401: missing return\012\012**Why.** A function with a return type must produce a value; falling off the end would return garbage.\012\012**Example.**\012\012```\012i64 sign(i64 n) { if n > 0 { return 1 } }\012```\012\012**Fix.** Add a `return` (or `panic(\342\200\246)`) on the paths that reach the end.\012", 271)});
 #line 679 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 681 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2403", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2402", 7))) {
 #line 682 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2403: return value in a void function\012\012**Why.** A `void` function produces no value, so a returned value would be lost.\012\012**Example.**\012\012```\012void log() { return 1 }\012```\012\012**Fix.** Declare a return type, or remove the value.\012", 226)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2402: missing return value\012\012**Why.** A function with a return type must produce a value on every `return`.\012\012**Example.**\012\012```\012i64 f() { return }\012```\012\012**Fix.** Return a value.\012", 180)});
 #line 681 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 683 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2404", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2403", 7))) {
 #line 684 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2404: `never` function can return\012\012**Why.** `never` promises the function does not return (it panics, exits or loops forever).\012\012**Example.**\012\012```\012never halt() {\012    print(\042x\042)\012}\012```\012\012**Fix.** End every path with `panic(\342\200\246)` or a call to another `never` function.\012", 269)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2403: return value in a void function\012\012**Why.** A `void` function produces no value, so a returned value would be lost.\012\012**Example.**\012\012```\012void log() { return 1 }\012```\012\012**Fix.** Declare a return type, or remove the value.\012", 226)});
 #line 683 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 685 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2405", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2404", 7))) {
 #line 686 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2405: unreachable code\012\012**Why.** Code after `return`, `break`, `continue`, a failure or a call that returns `never` cannot run; it is usually a mistake.\012\012**Example.**\012\012```\012void f() {\012    return\012    print(\042done\042)\012}\012```\012\012**Fix.** Remove the code or move it before the jump.\012", 277)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2404: `never` function can return\012\012**Why.** `never` promises the function does not return (it panics, exits or loops forever).\012\012**Example.**\012\012```\012never halt() {\012    print(\042x\042)\012}\012```\012\012**Fix.** End every path with `panic(\342\200\246)` or a call to another `never` function.\012", 269)});
 #line 685 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 687 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2406", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2405", 7))) {
 #line 688 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2406: jump outside a loop\012\012**Why.** `break` leaves a loop or a `switch`; `continue` starts a loop's next iteration.\012\012**Example.**\012\012```\012let done = true\012if done { break }\012```\012\012**Fix.** Use `return` to leave the function.\012", 224)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2405: unreachable code\012\012**Why.** Code after `return`, `break`, `continue`, a failure or a call that returns `never` cannot run; it is usually a mistake.\012\012**Example.**\012\012```\012void f() {\012    return\012    print(\042done\042)\012}\012```\012\012**Fix.** Remove the code or move it before the jump.\012", 277)});
 #line 687 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 689 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2407", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2406", 7))) {
 #line 690 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2407: continue targets a switch\012\012**Why.** `continue` starts the next iteration of a loop; a `switch` has no iterations.\012\012**Example.**\012\012```\012let x = 1\012s: switch x { case 1: continue s }\012```\012\012**Fix.** Label the enclosing loop and continue that.\012", 247)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2406: jump outside a loop\012\012**Why.** `break` leaves a loop or a `switch`; `continue` starts a loop's next iteration.\012\012**Example.**\012\012```\012let done = true\012if done { break }\012```\012\012**Fix.** Use `return` to leave the function.\012", 224)});
 #line 689 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 691 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2408", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2407", 7))) {
 #line 692 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2408: label not on a loop\012\012**Why.** Labels exist only for `break label;` and `continue label;`, which target loops and `switch` statements.\012\012**Example.**\012\012```\012done: print(\042x\042)\012```\012\012**Fix.** Remove the label, or move it to a loop.\012", 235)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2407: continue targets a switch\012\012**Why.** `continue` starts the next iteration of a loop; a `switch` has no iterations.\012\012**Example.**\012\012```\012let x = 1\012s: switch x { case 1: continue s }\012```\012\012**Fix.** Label the enclosing loop and continue that.\012", 247)});
 #line 691 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 693 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2409", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2408", 7))) {
 #line 694 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2409: duplicate default\012\012**Why.** Only one section can handle the values that no other section matches.\012\012**Example.**\012\012```\012let x = 1\012switch x {\012    default: break\012    default: break\012}\012```\012\012**Fix.** Remove one of them.\012", 223)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2408: label not on a loop\012\012**Why.** Labels exist only for `break label;` and `continue label;`, which target loops and `switch` statements.\012\012**Example.**\012\012```\012done: print(\042x\042)\012```\012\012**Fix.** Remove the label, or move it to a loop.\012", 235)});
 #line 693 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 695 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2410", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2409", 7))) {
 #line 696 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2410: non-exhaustive switch\012\012**Why.** A `switch` expression must produce a value for every input, and a `switch` over an enum, an error enum or `bool` must name every case so adding a variant shows every place that needs updating.\012\012**Example.**\012\012```\012let ok = true\012let n = ok switch { true => 1 }\012```\012\012**Fix.** Add the missing cases (listed in the label), or `_ => \342\200\246` / `default:` for the rest. For a union declared in this package, the help names the missing arms and does not suggest `_`, since a `_` arm on such a union is the BYN2712 warning.\012", 553)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2409: duplicate default\012\012**Why.** Only one section can handle the values that no other section matches.\012\012**Example.**\012\012```\012let x = 1\012switch x {\012    default: break\012    default: break\012}\012```\012\012**Fix.** Remove one of them.\012", 223)});
 #line 695 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 697 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2411", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2410", 7))) {
 #line 698 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2411: pattern cannot match\012\012**Why.** A pattern that can never match its input's type is always a bug.\012\012**Example.**\012\012```\012let n = 5\012if n is null { }\012```\012\012**Fix.** Remove the pattern, or match against the right type.\012", 220)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2410: non-exhaustive switch\012\012**Why.** A `switch` expression must produce a value for every input, and a `switch` over an enum, an error enum or `bool` must name every case so adding a variant shows every place that needs updating.\012\012**Example.**\012\012```\012let ok = true\012let n = ok switch { true => 1 }\012```\012\012**Fix.** Add the missing cases (listed in the label), or `_ => \342\200\246` / `default:` for the rest. For a union declared in this package, the help names the missing arms and does not suggest `_`, since a `_` arm on such a union is the BYN2712 warning.\012", 553)});
 #line 697 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 699 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2601", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2411", 7))) {
 #line 700 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2601: `try` is not allowed in `defer`\012\012**Why.** Cleanup runs while the function is already returning, possibly because of another error. A failure there would have to replace or drop the first error, so cleanup must not fail. This covers `defer` and `defer failing`.\012\012**Example.**\012\012```\012void flush(string file) fails IoError { }\012defer try flush(\042log\042)\012```\012\012**Fix.** Handle the error inside the cleanup:\012\012```\012defer flush(\042log\042) catch log(\042flush failed\042)\012```\012", 461)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2411: pattern cannot match\012\012**Why.** A pattern that can never match its input's type is always a bug.\012\012**Example.**\012\012```\012let n = 5\012if n is null { }\012```\012\012**Fix.** Remove the pattern, or match against the right type.\012", 220)});
 #line 699 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 701 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2602", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2601", 7))) {
 #line 702 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2602: unhandled failure\012\012**Why.** Errors are values that must be dealt with where they occur: passed on with `try`, or handled with `catch`. Ignoring one silently is not possible.\012\012**Example.**\012\012```\012union error ParseError {\012    bad\012}\012i64 parse(string s) fails ParseError => 1\012let text = \0421\042\012let m = parse(text)\012```\012\012**Fix.** Write `try parse(text)` in a function that `fails`, or `parse(text) catch \342\200\246` to handle it.\012", 423)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2601: `try` is not allowed in `defer`\012\012**Why.** Cleanup runs while the function is already returning, possibly because of another error. A failure there would have to replace or drop the first error, so cleanup must not fail. This covers `defer` and `defer failing`.\012\012**Example.**\012\012```\012void flush(string file) fails IoError { }\012defer try flush(\042log\042)\012```\012\012**Fix.** Handle the error inside the cleanup:\012\012```\012defer flush(\042log\042) catch log(\042flush failed\042)\012```\012", 461)});
 #line 701 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 703 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2603", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2602", 7))) {
 #line 704 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2603: undeclared error\012\012**Why.** A function's signature lists every error set it can fail with, so callers know what to handle.\012\012**Example.**\012\012```\012union error MoneyError {\012    bad\012}\012union error ParseError {\012    bad\012}\012i64 parse(string s) fails ParseError => 1\012i64 total(string s) fails MoneyError { return try parse(s) }   // parse fails ParseError\012```\012\012The message and the help name each set with its type arguments: a function that validates two types gets `` help: add it to the signature: `fails ValidationError<Address>, ValidationError<Signup>` ``.\012\012**Fix.** Add the set to the `fails` clause, or handle the error with `catch`.\012", 638)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2602: unhandled failure\012\012**Why.** Errors are values that must be dealt with where they occur: passed on with `try`, or handled with `catch`. Ignoring one silently is not possible.\012\012**Example.**\012\012```\012union error ParseError {\012    bad\012}\012i64 parse(string s) fails ParseError => 1\012let text = \0421\042\012let m = parse(text)\012```\012\012**Fix.** Write `try parse(text)` in a function that `fails`, or `parse(text) catch \342\200\246` to handle it.\012", 423)});
 #line 703 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 705 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2604", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2603", 7))) {
 #line 706 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2604: `try` in a function that cannot fail\012\012**Why.** `try` passes an error to the caller, which needs a `fails` clause to say so.\012\012**Example.**\012\012```\012union error ParseError {\012    bad\012}\012i64 parse(string s) fails ParseError => 1\012i64 total(string s) { return try parse(s) }\012```\012\012**Fix.** Handle the error with `catch`, or add `fails \342\200\246` to the signature.\012", 357)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2603: undeclared error\012\012**Why.** A function's signature lists every error set it can fail with, so callers know what to handle.\012\012**Example.**\012\012```\012union error MoneyError {\012    bad\012}\012union error ParseError {\012    bad\012}\012i64 parse(string s) fails ParseError => 1\012i64 total(string s) fails MoneyError { return try parse(s) }   // parse fails ParseError\012```\012\012The message and the help name each set with its type arguments: a function that validates two types gets `` help: add it to the signature: `fails ValidationError<Address>, ValidationError<Signup>` ``.\012\012**Fix.** Add the set to the `fails` clause, or handle the error with `catch`.\012", 638)});
 #line 705 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 707 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2605", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2604", 7))) {
 #line 708 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2605: nothing to handle\012\012**Why.** `try` and `catch` apply to a call of a function that `fails`; on anything else they do nothing.\012\012**Example.**\012\012```\012i64 twice(i64 n) => n * 2\012let n = try twice(2)\012```\012\012**Fix.** Remove `try` / `catch`.\012", 239)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2604: `try` in a function that cannot fail\012\012**Why.** `try` passes an error to the caller, which needs a `fails` clause to say so.\012\012**Example.**\012\012```\012union error ParseError {\012    bad\012}\012i64 parse(string s) fails ParseError => 1\012i64 total(string s) { return try parse(s) }\012```\012\012**Fix.** Handle the error with `catch`, or add `fails \342\200\246` to the signature.\012", 357)});
 #line 707 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 709 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2606", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2605", 7))) {
 #line 710 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2606: `defer failing` in a function that cannot fail\012\012**Why.** `defer failing` runs only when the function fails. In a function without a `fails` clause it would never run.\012\012**Example.**\012\012```\012void cleanup() { }\012void f() {\012    defer failing cleanup()\012}\012```\012\012**Fix.** Remove `failing` so the cleanup runs on every exit, or add a `fails` clause if the function can fail:\012\012```\012void f() {\012    defer cleanup()\012}\012```\012", 415)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2605: nothing to handle\012\012**Why.** `try` and `catch` apply to a call of a function that `fails`; on anything else they do nothing.\012\012**Example.**\012\012```\012i64 twice(i64 n) => n * 2\012let n = try twice(2)\012```\012\012**Fix.** Remove `try` / `catch`.\012", 239)});
 #line 709 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 711 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2607", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2606", 7))) {
 #line 712 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2607: public function with inferred errors\012\012**Why.** A public function's error sets are part of its API; inferring them would let a change inside the body silently change what callers must handle.\012\012**Example.**\012\012```\012public i64 parse(string s) fails { return 0 }\012```\012\012**Fix.** List the sets: `fails ParseError`.\012", 316)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2606: `defer failing` in a function that cannot fail\012\012**Why.** `defer failing` runs only when the function fails. In a function without a `fails` clause it would never run.\012\012**Example.**\012\012```\012void cleanup() { }\012void f() {\012    defer failing cleanup()\012}\012```\012\012**Fix.** Remove `failing` so the cleanup runs on every exit, or add a `fails` clause if the function can fail:\012\012```\012void f() {\012    defer cleanup()\012}\012```\012", 415)});
 #line 711 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 713 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2608", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2607", 7))) {
 #line 714 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2608: not an error set\012\012**Why.** A `fails` clause lists `error enum` types.\012\012**Example.**\012\012```\012i64 f() fails i64 { return 0 }\012```\012\012**Fix.** Name an error enum.\012", 165)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2607: public function with inferred errors\012\012**Why.** A public function's error sets are part of its API; inferring them would let a change inside the body silently change what callers must handle.\012\012**Example.**\012\012```\012public i64 parse(string s) fails { return 0 }\012```\012\012**Fix.** List the sets: `fails ParseError`.\012", 316)});
 #line 713 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 715 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2609", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2608", 7))) {
 #line 716 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2609: empty error set\012\012**Why.** An error enum with no variants can never be produced, so failing with it means nothing.\012\012**Example.**\012\012```\012union error NoError { }\012```\012\012**Fix.** Add the variants, or remove the enum.\012", 220)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2608: not an error set\012\012**Why.** A `fails` clause lists `error enum` types.\012\012**Example.**\012\012```\012i64 f() fails i64 { return 0 }\012```\012\012**Fix.** Name an error enum.\012", 165)});
 #line 715 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 717 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2610", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2609", 7))) {
 #line 718 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2610: jump out of defer\012\012**Why.** Cleanup must run to completion; jumping out of a `defer` or `defer failing` body would skip the rest of the cleanup.\012\012**Example.**\012\012```\012defer { return }\012```\012\012**Fix.** Restructure the cleanup so it ends normally.\012", 251)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2609: empty error set\012\012**Why.** An error enum with no variants can never be produced, so failing with it means nothing.\012\012**Example.**\012\012```\012union error NoError { }\012```\012\012**Fix.** Add the variants, or remove the enum.\012", 220)});
 #line 717 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 719 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2611", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2610", 7))) {
 #line 720 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2611: catch block completes\012\012**Why.** When the call fails there is no value to use, so a `catch { \342\200\246 }` block on a call that returns a value has to leave: the code after it would otherwise read a value that was never produced. A call returning `void` has no value, so its block may simply end.\012\012**Example.**\012\012```\012union error ParseError {\012    bad\012}\012i64 parse(string s) fails ParseError => 1\012void log(string s) { }\012let s = \0421\042\012let n = parse(s) catch { log(\042x\042) }\012```\012\012**Fix.** End the block with `return`, `break`, `continue` or a panic, or give a value with the expression form: `parse(s) catch -1`.\012", 605)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2610: jump out of defer\012\012**Why.** Cleanup must run to completion; jumping out of a `defer` or `defer failing` body would skip the rest of the cleanup.\012\012**Example.**\012\012```\012defer { return }\012```\012\012**Fix.** Restructure the cleanup so it ends normally.\012", 251)});
 #line 719 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 721 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2612", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2611", 7))) {
 #line 722 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2612: not allowed in a panic handler\012\012**What.** A `defer panicking` body, or the function named by `Panic.handler`, uses `try`, `return`, `break`, `continue`, an assignment or an allocation.\012\012**Why.** A panic means the program is in a state it cannot trust, and handlers run on the way to aborting it (spec \302\2477.6). Panic handlers can't recover: they cannot resume normal flow, fail, change state, or ask an allocator that may itself be broken for memory. They can only report, flush and release outside resources.\012\012**Example.**\012\012```\012struct Db {\012    i64 id\012    string name\012}\012void log(string s) { }\012void save(Db db) {\012    var saved = 0\012    let id = db.id\012    defer panicking {\012        saved = -1\012        let note = $\042save {id} failed\042\012        log(note)\012    }\012}\012```\012\012**Fix.** Write the report straight to `print`, `panic` or a `StrBuf` the handler was given, and read only `let` values:\012\012```\012struct Db {\012    i64 id\012    string name\012}\012void save(Db db) {\012    let name = db.name\012    defer panicking (p) print($\042save to {name} failed: {p.message}\042)\012}\012```\012", 1052)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2611: catch block completes\012\012**Why.** When the call fails there is no value to use, so a `catch { \342\200\246 }` block on a call that returns a value has to leave: the code after it would otherwise read a value that was never produced. A call returning `void` has no value, so its block may simply end.\012\012**Example.**\012\012```\012union error ParseError {\012    bad\012}\012i64 parse(string s) fails ParseError => 1\012void log(string s) { }\012let s = \0421\042\012let n = parse(s) catch { log(\042x\042) }\012```\012\012**Fix.** End the block with `return`, `break`, `continue` or a panic, or give a value with the expression form: `parse(s) catch -1`.\012", 605)});
 #line 721 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 723 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2613", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2612", 7))) {
 #line 724 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2613: panic handler reads a `var`\012\012**What.** A `defer panicking` body, or the function named by `Panic.handler`, reads a `var` declared outside it. `let` bindings, `is let` and `for` loop variables, and parameters are fine.\012\012**Why.** A panic can happen half way through an update, so a `var` may hold a torn or stale value when the handler runs. A `let` binding, a loop or pattern variable, or a parameter was fixed before the handler was registered, so the handler sees what it was written against (spec \302\2477.6).\012\012**Example.**\012\012```\012var done = 0\012defer panicking print($\042{done} items written\042)\012```\012\012**Fix.** Copy the value into a `let` before the handler and read that, or leave it out of the report:\012\012```\012let total = items.length\012defer panicking print($\042writing {total} items failed\042)\012```\012", 793)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2612: not allowed in a panic handler\012\012**What.** A `defer panicking` body, or the function named by `Panic.handler`, uses `try`, `return`, `break`, `continue`, an assignment or an allocation.\012\012**Why.** A panic means the program is in a state it cannot trust, and handlers run on the way to aborting it (spec \302\2477.6). Panic handlers can't recover: they cannot resume normal flow, fail, change state, or ask an allocator that may itself be broken for memory. They can only report, flush and release outside resources.\012\012**Example.**\012\012```\012struct Db {\012    i64 id\012    string name\012}\012void log(string s) { }\012void save(Db db) {\012    var saved = 0\012    let id = db.id\012    defer panicking {\012        saved = -1\012        let note = $\042save {id} failed\042\012        log(note)\012    }\012}\012```\012\012**Fix.** Write the report straight to `print`, `panic` or a `StrBuf` the handler was given, and read only `let` values:\012\012```\012struct Db {\012    i64 id\012    string name\012}\012void save(Db db) {\012    let name = db.name\012    defer panicking (p) print($\042save to {name} failed: {p.message}\042)\012}\012```\012", 1052)});
 #line 723 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 725 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2614", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2613", 7))) {
 #line 726 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2614: `Panic.handler` set outside the start of `main`\012\012**What.** `Panic.handler = f;` appears somewhere other than the first statement of the program's entry function, appears a second time, or appears in a library package.\012\012**Why.** The hook runs for every panic in the process, after the `defer panicking` handlers and before the trace is printed (spec \302\2477.6). Setting it once, before anything else runs, means every panic sees the same hook and no library can replace the program's choice.\012\012**Example.**\012\012```\012void report(Panic p) { }\012void main() {\012    print(\042starting\042)\012    Panic.handler = report\012}\012```\012\012**Fix.** Make it the first statement of `main`, and set it only there:\012\012```\012void main() {\012    Panic.handler = report\012    print(\042starting\042)\012}\012```\012\012A library cannot set it; the program that uses the library does.\012", 823)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2613: panic handler reads a `var`\012\012**What.** A `defer panicking` body, or the function named by `Panic.handler`, reads a `var` declared outside it. `let` bindings, `is let` and `for` loop variables, and parameters are fine.\012\012**Why.** A panic can happen half way through an update, so a `var` may hold a torn or stale value when the handler runs. A `let` binding, a loop or pattern variable, or a parameter was fixed before the handler was registered, so the handler sees what it was written against (spec \302\2477.6).\012\012**Example.**\012\012```\012var done = 0\012defer panicking print($\042{done} items written\042)\012```\012\012**Fix.** Copy the value into a `let` before the handler and read that, or leave it out of the report:\012\012```\012let total = items.length\012defer panicking print($\042writing {total} items failed\042)\012```\012", 793)});
 #line 725 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 727 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2615", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2614", 7))) {
 #line 728 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2615: panic handler reads a local moved after it\012\012**What.** A `defer panicking` body reads a local that is moved, on some path, after the handler is registered.\012\012**Why.** A panic handler runs at a panic anywhere in its scope, not only at the scope's exit. A panic after the move would run the handler on a value that has already been handed away and may be freed (spec \302\2477.6).\012\012**Example.**\012\012```\012void sink(move List<i64> xs) { }\012let ys = List<i64>()\012defer panicking print($\042handler sees {ys.length}\042)\012sink(move ys)\012```\012\012**Fix.** Move the value before registering the handler, or read a `let` copied from it there:\012\012```\012let ys = List<i64>()\012let n = ys.length\012defer panicking print($\042handler sees {n}\042)\012sink(move ys)\012```\012", 724)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2614: `Panic.handler` set outside the start of `main`\012\012**What.** `Panic.handler = f;` appears somewhere other than the first statement of the program's entry function, appears a second time, or appears in a library package.\012\012**Why.** The hook runs for every panic in the process, after the `defer panicking` handlers and before the trace is printed (spec \302\2477.6). Setting it once, before anything else runs, means every panic sees the same hook and no library can replace the program's choice.\012\012**Example.**\012\012```\012void report(Panic p) { }\012void main() {\012    print(\042starting\042)\012    Panic.handler = report\012}\012```\012\012**Fix.** Make it the first statement of `main`, and set it only there:\012\012```\012void main() {\012    Panic.handler = report\012    print(\042starting\042)\012}\012```\012\012A library cannot set it; the program that uses the library does.\012", 823)});
 #line 727 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 729 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2700", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2615", 7))) {
 #line 730 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2700: unknown union variant\012\012**Why.** The name after the union, or after a target-typed `.`, must be one of the union's variants.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    none\012}\012\012let s = Shape.square(1)\012```\012\012**Fix.** Use a declared variant, or add the variant to the union.\012", 293)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2615: panic handler reads a local moved after it\012\012**What.** A `defer panicking` body reads a local that is moved, on some path, after the handler is registered.\012\012**Why.** A panic handler runs at a panic anywhere in its scope, not only at the scope's exit. A panic after the move would run the handler on a value that has already been handed away and may be freed (spec \302\2477.6).\012\012**Example.**\012\012```\012void sink(move List<i64> xs) { }\012let ys = List<i64>()\012defer panicking print($\042handler sees {ys.length}\042)\012sink(move ys)\012```\012\012**Fix.** Move the value before registering the handler, or read a `let` copied from it there:\012\012```\012let ys = List<i64>()\012let n = ys.length\012defer panicking print($\042handler sees {n}\042)\012sink(move ys)\012```\012", 724)});
 #line 729 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 731 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2701", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2700", 7))) {
 #line 732 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2701: duplicate union variant\012\012**Why.** Each variant names one tag; two variants with the same name could not be told apart.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    circle(f32 radius)\012}\012```\012\012**Fix.** Rename or remove one of the variants.\012", 258)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2700: unknown union variant\012\012**Why.** The name after the union, or after a target-typed `.`, must be one of the union's variants.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    none\012}\012\012let s = Shape.square(1)\012```\012\012**Fix.** Use a declared variant, or add the variant to the union.\012", 293)});
 #line 731 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 733 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2702", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2701", 7))) {
 #line 734 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2702: empty union\012\012**Why.** A union with no variants has no values, so nothing can ever have its type.\012\012**Example.**\012\012```\012union Nothing { }\012```\012\012**Fix.** Add the variants, or remove the union.\012", 198)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2701: duplicate union variant\012\012**Why.** Each variant names one tag; two variants with the same name could not be told apart.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    circle(f32 radius)\012}\012```\012\012**Fix.** Rename or remove one of the variants.\012", 258)});
 #line 733 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 735 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2703", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2702", 7))) {
 #line 736 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2703: variant pattern arity\012\012**Why.** A variant pattern lists one subpattern per payload field, in declaration order.\012\012**Example.**\012\012```\012union Shape {\012    rect(f32 w, f32 h)\012}\012\012f32 width(Shape s) => s switch { .rect(let w) => w }\012```\012\012**Fix.** List every field, with `_` for the ones you do not need: `.rect(let w, _)`.\012", 325)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2702: empty union\012\012**Why.** A union with no variants has no values, so nothing can ever have its type.\012\012**Example.**\012\012```\012union Nothing { }\012```\012\012**Fix.** Add the variants, or remove the union.\012", 198)});
 #line 735 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 737 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2704", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2703", 7))) {
 #line 738 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2704: payload read without a pattern\012\012**Why.** A union value may hold any of its variants, so a payload field is read only after matching the variant.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    none\012}\012\012let s = Shape.circle(1)\012print(s.r)\012```\012\012**Fix.** Match the variant and bind the field: `if s is .circle(let r) { \342\200\246 }`.\012", 340)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2703: variant pattern arity\012\012**Why.** A variant pattern lists one subpattern per payload field, in declaration order.\012\012**Example.**\012\012```\012union Shape {\012    rect(f32 w, f32 h)\012}\012\012f32 width(Shape s) => s switch { .rect(let w) => w }\012```\012\012**Fix.** List every field, with `_` for the ones you do not need: `.rect(let w, _)`.\012", 325)});
 #line 737 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 739 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2705", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2704", 7))) {
 #line 740 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2705: variant used without its payload\012\012**Why.** A variant with payload fields is constructed by calling it with a value for each field. The same holds for a `union error` case in `fail`.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    none\012}\012\012let s = Shape.circle\012\012union error CarrierError {\012    timeout(i64 after)\012    closed\012}\012\012void send() fails CarrierError { fail .timeout }\012```\012\012**Fix.** Pass the payload: `Shape.circle(1)`, `fail .timeout(after: 30)`.\012", 470)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2704: payload read without a pattern\012\012**Why.** A union value may hold any of its variants, so a payload field is read only after matching the variant.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    none\012}\012\012let s = Shape.circle(1)\012print(s.r)\012```\012\012**Fix.** Match the variant and bind the field: `if s is .circle(let r) { \342\200\246 }`.\012", 340)});
 #line 739 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 741 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2706", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2705", 7))) {
 #line 742 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2706: unit variant called\012\012**Why.** A variant without payload fields is a value on its own; it takes no arguments, and its pattern has no parentheses. The same holds for a `union error` case.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    none\012}\012\012let s = Shape.none()\012\012union error CarrierError {\012    timeout(i64 after)\012    closed\012}\012\012void send() fails CarrierError { fail .closed() }\012```\012\012**Fix.** Drop the parentheses: `Shape.none`, `fail .closed`, or `.none` in a pattern.\012", 487)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2705: variant used without its payload\012\012**Why.** A variant with payload fields is constructed by calling it with a value for each field. The same holds for a `union error` case in `fail`.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    none\012}\012\012let s = Shape.circle\012\012union error CarrierError {\012    timeout(i64 after)\012    closed\012}\012\012void send() fails CarrierError { fail .timeout }\012```\012\012**Fix.** Pass the payload: `Shape.circle(1)`, `fail .timeout(after: 30)`.\012", 470)});
 #line 741 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 743 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2707", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2706", 7))) {
 #line 744 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2707: recursive union\012\012**No longer reported since M21.** A union that contains itself by value is now BYN2761, which names the whole cycle and covers structs too. The code stays reserved.\012\012**Why (before M21).** Unions are stored inline, so a union that contains itself by value would have infinite size.\012\012**Example.**\012\012```\012union Expr {\012    number(i64 value)\012    negate(Expr operand)\012}\012```\012\012**Fix.** Store the inner value as `Owned<Expr>`, in a `List` of the union, or as an index into one.\012", 495)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2706: unit variant called\012\012**Why.** A variant without payload fields is a value on its own; it takes no arguments, and its pattern has no parentheses. The same holds for a `union error` case.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    none\012}\012\012let s = Shape.none()\012\012union error CarrierError {\012    timeout(i64 after)\012    closed\012}\012\012void send() fails CarrierError { fail .closed() }\012```\012\012**Fix.** Drop the parentheses: `Shape.none`, `fail .closed`, or `.none` in a pattern.\012", 487)});
 #line 743 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 745 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2708", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2707", 7))) {
 #line 746 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2708: borrowed union payload\012\012**Why.** A union payload is stored by value; a span would borrow memory the union may outlive.\012\012**Example.**\012\012```\012union Chunk {\012    bytes(ReadOnlySpan<u8> data)\012    empty\012}\012```\012\012**Fix.** Store an owned `List` copied with `.copy(to: alloc)` instead.\012", 284)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2707: recursive union\012\012**No longer reported since M21.** A union that contains itself by value is now BYN2761, which names the whole cycle and covers structs too. The code stays reserved.\012\012**Why (before M21).** Unions are stored inline, so a union that contains itself by value would have infinite size.\012\012**Example.**\012\012```\012union Expr {\012    number(i64 value)\012    negate(Expr operand)\012}\012```\012\012**Fix.** Store the inner value as `Owned<Expr>`, in a `List` of the union, or as an index into one.\012", 495)});
 #line 745 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 747 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2709", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2708", 7))) {
 #line 748 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2709: union case value is not an integer constant\012\012**Why.** A payload-free case may declare the integer it is stored as, for C interop: `union Mode { read = 1, write = 2 }`. The value becomes the case's tag, an `i32`, so it must be an integer literal (optionally negated) that fits in `i32`.\012\012**Example.**\012\012```\012union Mode {\012    read = 1.5\012    write = \042w\042\012}\012```\012\012**Fix.** Write the value as an integer literal, or remove it:\012\012```\012union Mode { read = 1, write = 2 }\012```\012", 473)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2708: borrowed union payload\012\012**Why.** A union payload is stored by value; a span would borrow memory the union may outlive.\012\012**Example.**\012\012```\012union Chunk {\012    bytes(ReadOnlySpan<u8> data)\012    empty\012}\012```\012\012**Fix.** Store an owned `List` copied with `.copy(to: alloc)` instead.\012", 284)});
 #line 747 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 749 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2710", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2709", 7))) {
 #line 750 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2710: union case with data has a value\012\012**Why.** Only payload-free cases can declare an integer value; a case that carries data is not a plain integer on the C side.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r) = 1\012    none = 2\012}\012```\012\012**Fix.** Remove the value from the case that carries data:\012\012```\012union Shape { circle(f32 r), none = 2 }\012```\012", 354)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2709: union case value is not an integer constant\012\012**Why.** A payload-free case may declare the integer it is stored as, for C interop: `union Mode { read = 1, write = 2 }`. The value becomes the case's tag, an `i32`, so it must be an integer literal (optionally negated) that fits in `i32`.\012\012**Example.**\012\012```\012union Mode {\012    read = 1.5\012    write = \042w\042\012}\012```\012\012**Fix.** Write the value as an integer literal, or remove it:\012\012```\012union Mode { read = 1, write = 2 }\012```\012", 473)});
 #line 749 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 751 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2711", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2710", 7))) {
 #line 752 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2711: two union cases share a value\012\012**Why.** A case's value is its tag; two cases with the same tag could not be told apart. A case without a value takes one more than the case before it, so it can collide with a later explicit value.\012\012**Example.**\012\012```\012union Mode {\012    read = 1\012    write = 1\012}\012union Level {\012    low = 1\012    mid\012    high = 2\012}\012```\012\012**Fix.** Give each case its own value:\012\012```\012union Mode { read = 1, write = 2 }\012union Level { low = 1, mid, high = 3 }\012```\012", 478)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2710: union case with data has a value\012\012**Why.** Only payload-free cases can declare an integer value; a case that carries data is not a plain integer on the C side.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r) = 1\012    none = 2\012}\012```\012\012**Fix.** Remove the value from the case that carries data:\012\012```\012union Shape { circle(f32 r), none = 2 }\012```\012", 354)});
 #line 751 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 753 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2712", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2711", 7))) {
 #line 754 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2712: `_` arm on a union declared in this package (warning)\012\012**Why.** A `switch` on a union is exhaustive: when a case is added, every `switch` that does not handle it is an error, which points at the code to update. A `_` arm matches every case, including the ones added later, so it hides those errors. For a union declared in the same package, you can list its cases instead.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    rect(f32 w, f32 h)\012    none\012}\012\012f32 area(Shape s) => s switch {\012    .circle(let r) => r * r,\012    _ => 0,\012}\012```\012\012**Fix.** List the remaining cases instead of `_` (the help lists them):\012\012```\012f32 area(Shape s) => s switch {\012    .circle(let r) => r * r,\012    .rect(_, _) or .none => 0,\012}\012```\012", 725)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2711: two union cases share a value\012\012**Why.** A case's value is its tag; two cases with the same tag could not be told apart. A case without a value takes one more than the case before it, so it can collide with a later explicit value.\012\012**Example.**\012\012```\012union Mode {\012    read = 1\012    write = 1\012}\012union Level {\012    low = 1\012    mid\012    high = 2\012}\012```\012\012**Fix.** Give each case its own value:\012\012```\012union Mode { read = 1, write = 2 }\012union Level { low = 1, mid, high = 3 }\012```\012", 478)});
 #line 753 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 755 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2720", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2712", 7))) {
 #line 756 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2720: unknown enum member\012\012**Why.** An enum lists its members; others do not exist. Besides its members, an enum type has only `count`, `values`, `fromOrdinal` and `parse`.\012\012**Example.**\012\012```\012enum Color {\012    red\012    green\012    blue\012}\012\012let c = Color.gren\012```\012\012**Fix.** Use one of the declared members, or add the member to the enum.\012", 337)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2712: `_` arm on a union declared in this package (warning)\012\012**Why.** A `switch` on a union is exhaustive: when a case is added, every `switch` that does not handle it is an error, which points at the code to update. A `_` arm matches every case, including the ones added later, so it hides those errors. For a union declared in the same package, you can list its cases instead.\012\012**Example.**\012\012```\012union Shape {\012    circle(f32 r)\012    rect(f32 w, f32 h)\012    none\012}\012\012f32 area(Shape s) => s switch {\012    .circle(let r) => r * r,\012    _ => 0,\012}\012```\012\012**Fix.** List the remaining cases instead of `_` (the help lists them):\012\012```\012f32 area(Shape s) => s switch {\012    .circle(let r) => r * r,\012    .rect(_, _) or .none => 0,\012}\012```\012", 725)});
 #line 755 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 757 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2721", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2720", 7))) {
 #line 758 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2721: duplicate enum member\012\012**Why.** Each member of an enum names one value, so a name can appear only once.\012\012**Example.**\012\012```\012enum Color {\012    red\012    green\012    red\012}\012```\012\012**Fix.** Remove the repeated member, or rename it.\012", 231)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2720: unknown enum member\012\012**Why.** An enum lists its members; others do not exist. Besides its members, an enum type has only `count`, `values`, `fromOrdinal` and `parse`.\012\012**Example.**\012\012```\012enum Color {\012    red\012    green\012    blue\012}\012\012let c = Color.gren\012```\012\012**Fix.** Use one of the declared members, or add the member to the enum.\012", 337)});
 #line 757 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 759 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2722", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2721", 7))) {
 #line 760 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2722: empty enum\012\012**Why.** An enum with no members has no values, so nothing can ever have its type.\012\012**Example.**\012\012```\012enum Nothing { }\012```\012\012**Fix.** Add the members, or remove the enum.\012", 193)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2721: duplicate enum member\012\012**Why.** Each member of an enum names one value, so a name can appear only once.\012\012**Example.**\012\012```\012enum Color {\012    red\012    green\012    red\012}\012```\012\012**Fix.** Remove the repeated member, or rename it.\012", 231)});
 #line 759 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 761 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2723", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2722", 7))) {
 #line 762 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2723: enum argument is not constant\012\012**Why.** The data of an enum member is stored once in a static table, indexed by ordinal, so every argument must be known at compile time: a literal, a `const`, an expression of those, or a member of a plain enum.\012\012**Example.**\012\012```\012i64 twice(i64 n) => n * 2\012enum Size(i64 bytes) {\012    small(1)\012    large(twice(512))\012}\012```\012\012**Fix.** Write the value as a literal or a `const` (`large(1024)`), or compute it at run time from the member, for example in a function taking the enum.\012", 520)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2722: empty enum\012\012**Why.** An enum with no members has no values, so nothing can ever have its type.\012\012**Example.**\012\012```\012enum Nothing { }\012```\012\012**Fix.** Add the members, or remove the enum.\012", 193)});
 #line 761 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 763 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2724", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2723", 7))) {
 #line 764 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2724: invalid enum parameter\012\012**Why.** Each parameter of a data enum becomes a static table with one entry per member, so its type must have a static form: a number type, `bool`, `rune`, `string` or a plain enum (one without data). Parameters are read-only values, so `ref`, `out`, `in`, `move` and default values are not allowed either.\012\012**Example.**\012\012```\012struct Point { i64 x }\012enum Shape(Point corner) {\012    square(Point { x: 0 })\012}\012```\012\012**Fix.** Store the parts as separate scalar parameters (`enum Shape(i64 cornerX)`), and pass every argument explicitly.\012", 566)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2723: enum argument is not constant\012\012**Why.** The data of an enum member is stored once in a static table, indexed by ordinal, so every argument must be known at compile time: a literal, a `const`, an expression of those, or a member of a plain enum.\012\012**Example.**\012\012```\012i64 twice(i64 n) => n * 2\012enum Size(i64 bytes) {\012    small(1)\012    large(twice(512))\012}\012```\012\012**Fix.** Write the value as a literal or a `const` (`large(1024)`), or compute it at run time from the member, for example in a function taking the enum.\012", 520)});
 #line 763 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 765 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2740", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2724", 7))) {
 #line 766 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2740: cannot infer a type argument\012\012**Why.** A call of a generic function reads its type arguments from the types of its arguments. When no argument mentions a type parameter (or every such argument is `null`), there is nothing to read it from; Bayan does not infer type arguments from the expected type of the call.\012\012**Example.**\012\012```\012T\077 none<T>() => null\012var x = none()\012```\012\012**Fix.** Write the type arguments out, as in `none<i64>()`, or pass an argument the type can be read from.\012", 489)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2724: invalid enum parameter\012\012**Why.** Each parameter of a data enum becomes a static table with one entry per member, so its type must have a static form: a number type, `bool`, `rune`, `string` or a plain enum (one without data). Parameters are read-only values, so `ref`, `out`, `in`, `move` and default values are not allowed either.\012\012**Example.**\012\012```\012struct Point { i64 x }\012enum Shape(Point corner) {\012    square(Point { x: 0 })\012}\012```\012\012**Fix.** Store the parts as separate scalar parameters (`enum Shape(i64 cornerX)`), and pass every argument explicitly.\012", 566)});
 #line 765 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 767 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2741", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2740", 7))) {
 #line 768 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2741: conflicting type arguments\012\012**Why.** Every argument whose parameter mentions a type parameter fixes that type parameter. When two of them fix it to different types and neither converts to the other, the call has no single instantiation.\012\012**Example.**\012\012```\012void both<T>(T a, by T b) { }\012both(1, by: \042one\042)\012```\012\012**Fix.** Make the arguments agree, convert one of them, or write the type arguments out, as in `both<string>(\342\200\246)`.\012", 437)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2740: cannot infer a type argument\012\012**Why.** A call of a generic function reads its type arguments from the types of its arguments. When no argument mentions a type parameter (or every such argument is `null`), there is nothing to read it from; Bayan does not infer type arguments from the expected type of the call.\012\012**Example.**\012\012```\012T\077 none<T>() => null\012var x = none()\012```\012\012**Fix.** Write the type arguments out, as in `none<i64>()`, or pass an argument the type can be read from.\012", 489)});
 #line 767 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 769 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2742", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2741", 7))) {
 #line 770 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2742: wrong number of type arguments in a call\012\012**Why.** A generic function takes exactly as many type arguments as it declares type parameters; a function that is not generic takes none.\012\012**Example.**\012\012```\012void both<T>(T a, by T b) { }\012both<i64, string>(1, by: 2)\012```\012\012**Fix.** Pass one type argument per type parameter, or leave them all out and let the arguments decide.\012", 379)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2741: conflicting type arguments\012\012**Why.** Every argument whose parameter mentions a type parameter fixes that type parameter. When two of them fix it to different types and neither converts to the other, the call has no single instantiation.\012\012**Example.**\012\012```\012void both<T>(T a, by T b) { }\012both(1, by: \042one\042)\012```\012\012**Fix.** Make the arguments agree, convert one of them, or write the type arguments out, as in `both<string>(\342\200\246)`.\012", 437)});
 #line 769 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 771 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2743", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2742", 7))) {
 #line 772 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2743: operator on a type parameter\012\012**Why.** Type parameters have no constraints, so the body of a generic function or type must be valid for every type it could be instantiated with. A value of a type parameter `T` can only be copied, compared with `==` and `!=`, passed, stored, returned and formatted; arithmetic, ordering (`<`, `<=`, `>`, `>=`), logic and bitwise operators are not available on every type.\012\012**Example.**\012\012```\012T add<T>(T a, by T b) => a + b\012```\012\012**Fix.** Write the function for the concrete type (`i64 add(i64 a, by i64 b)`), or pass the operation in as data the caller computes.\012", 605)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2742: wrong number of type arguments in a call\012\012**Why.** A generic function takes exactly as many type arguments as it declares type parameters; a function that is not generic takes none.\012\012**Example.**\012\012```\012void both<T>(T a, by T b) { }\012both<i64, string>(1, by: 2)\012```\012\012**Fix.** Pass one type argument per type parameter, or leave them all out and let the arguments decide.\012", 379)});
 #line 771 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 773 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2744", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2743", 7))) {
 #line 774 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2744: member of a type parameter\012\012**Why.** A type parameter with no `where` clause has no known members: a field, property or method that one type argument has, another lacks. (With a `where T : I` clause, a missing member is [BYN2806](BYN2806.md).)\012\012**Example.**\012\012```\012i64 size<T>(T x) => x.length\012```\012\012**Fix.** Add `where T : I` naming an interface that declares the member, or take the concrete type the member belongs to.\012", 430)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2743: operator on a type parameter\012\012**Why.** Type parameters have no constraints, so the body of a generic function or type must be valid for every type it could be instantiated with. A value of a type parameter `T` can only be copied, compared with `==` and `!=`, passed, stored, returned and formatted; arithmetic, ordering (`<`, `<=`, `>`, `>=`), logic and bitwise operators are not available on every type.\012\012**Example.**\012\012```\012T add<T>(T a, by T b) => a + b\012```\012\012**Fix.** Write the function for the concrete type (`i64 add(i64 a, by i64 b)`), or pass the operation in as data the caller computes.\012", 605)});
 #line 773 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 775 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2760", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2744", 7))) {
 #line 776 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2760: invalid `Map` key\012\012**Why.** A `Map` hashes and compares its keys by their value, so a key must be a type with one obvious equality: an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum (one without data), or a tuple or struct whose parts are all keys. Floats (where `0.0 == -0.0` and `NaN != NaN`), optionals, enums with data, unions, collections and `@noEquality` structs are not keys. A tuple or struct with a part that is not a key is [BYN2831](BYN2831.md), which names the part.\012\012**Example.**\012\012```\012let byWeight = Map<f64, string>()\012```\012\012**Fix.** Key by a value of one of the allowed types, such as an integer id, a `string` or `Symbol` name, a plain enum, or a tuple or struct of those.\012", 715)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2744: member of a type parameter\012\012**Why.** A type parameter with no `where` clause has no known members: a field, property or method that one type argument has, another lacks. (With a `where T : I` clause, a missing member is [BYN2806](BYN2806.md).)\012\012**Example.**\012\012```\012i64 size<T>(T x) => x.length\012```\012\012**Fix.** Add `where T : I` naming an interface that declares the member, or take the concrete type the member belongs to.\012", 430)});
 #line 775 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 777 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2761", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2760", 7))) {
 #line 778 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2761: type contains itself by value\012\012**Why.** Structs and unions are stored inline: a field or payload of type `T` holds a whole `T`. A type that contains itself by value, directly or through other structs, unions, optionals, arrays or tuples, would be infinitely large. The message lists the cycle, starting and ending at the reported type. `Owned<T>` is a pointer into an allocator and `List<T>` holds its elements elsewhere, so either breaks the cycle.\012\012**Example.**\012\012```\012union Expr {\012    lit(i64 v)\012    add(Expr l, Expr r)\012}\012\012struct Tree {\012    i64 value\012    Forest children\012}\012struct Forest { Tree first }\012```\012\012**Fix.** Refer to the inner value through `Owned<\342\200\246>`, built with `Owned(value)` from `context.allocator`:\012\012```\012union Expr {\012    lit(i64 v),\012    add(Owned<Expr> l, Owned<Expr> r),\012}\012```\012\012or keep the children in a `List<\342\200\246>`, or refer to them by index.\012", 873)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2760: invalid `Map` key\012\012**Why.** A `Map` hashes and compares its keys by their value, so a key must be a type with one obvious equality: an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum (one without data), or a tuple or struct whose parts are all keys. Floats (where `0.0 == -0.0` and `NaN != NaN`), optionals, enums with data, unions, collections and `@noEquality` structs are not keys. A tuple or struct with a part that is not a key is [BYN2831](BYN2831.md), which names the part.\012\012**Example.**\012\012```\012let byWeight = Map<f64, string>()\012```\012\012**Fix.** Key by a value of one of the allowed types, such as an integer id, a `string` or `Symbol` name, a plain enum, or a tuple or struct of those.\012", 715)});
 #line 777 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 779 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2762", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2761", 7))) {
 #line 780 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2762: a `Map` cannot be copied\012\012**No longer reported.** Retired in spec 002: replaced by BYN2780. Every collection, `StrBuf`, `Owned` and `unique struct` is now unique, and any implicit copy of one is BYN2780, with `move` or `.copy(to: alloc)` as the fix. The code stays reserved.\012\012**Why (before spec 002).** A `Map` (and a growable `StrBuf`) is a small header over storage on the heap. Copying the header would leave two values sharing that storage: a `set` through one can rehash, free the old arrays and leave the other pointing at freed memory. Until maps can be copied safely, storing an existing map anywhere else is rejected: in a `let` or `var`, an assignment, a struct, union or tuple, an array literal, a `for` loop variable declared with `var` (each iteration copies the element; `let` loop variables are immutable, so they are fine), a `with` that leaves a map field in place (a field it replaces is not copied), `List.add` or `Map.set`, or a `return` of anything but a local that is going out of scope. The same holds for a value that contains a map by value, through struct fields, union payloads, tuples, arrays, optionals or `Result`s. Reading the map in place is fine: calling its members, looping over it with `for`, formatting it, or passing it as an argument (read-only or by `ref`). A fresh map, from `Map<K, V>()` or any call, can be stored anywhere.\012\012**Example.**\012\012```\012var a = Map<i64, i64>()\012a.set(1, 10)\012var b = a\012b.set(2, 20)\012```\012\012**Fix.** Keep one map and pass it by `ref` where it is changed:\012\012```\012void addTwenty(ref Map<i64, i64> m) {\012    m.set(2, 20)\012}\012\012var a = Map<i64, i64>()\012a.set(1, 10)\012addTwenty(ref a)\012```\012\012or build a new map and copy the entries into it with a `for` loop.\012", 1715)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2761: type contains itself by value\012\012**Why.** Structs and unions are stored inline: a field or payload of type `T` holds a whole `T`. A type that contains itself by value, directly or through other structs, unions, optionals, arrays or tuples, would be infinitely large. The message lists the cycle, starting and ending at the reported type. `Owned<T>` is a pointer into an allocator and `List<T>` holds its elements elsewhere, so either breaks the cycle.\012\012**Example.**\012\012```\012union Expr {\012    lit(i64 v)\012    add(Expr l, Expr r)\012}\012\012struct Tree {\012    i64 value\012    Forest children\012}\012struct Forest { Tree first }\012```\012\012**Fix.** Refer to the inner value through `Owned<\342\200\246>`, built with `Owned(value)` from `context.allocator`:\012\012```\012union Expr {\012    lit(i64 v),\012    add(Owned<Expr> l, Owned<Expr> r),\012}\012```\012\012or keep the children in a `List<\342\200\246>`, or refer to them by index.\012", 873)});
 #line 779 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 781 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2770", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2762", 7))) {
 #line 782 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2770: unknown attribute\012\012**Why.** Attributes change how a declaration compiles, so a misspelled or unsupported one is an error instead of being ignored. The attributes are `[ExitCode(n)]`, on an error variant, and `[Cases(...)]`, on a test that takes parameters.\012\012**Example.**\012\012```\012@inlin\012void step() { }\012```\012\012**Fix.** Remove the attribute, or correct its name.\012", 367)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2762: a `Map` cannot be copied\012\012**No longer reported.** Retired in spec 002: replaced by BYN2780. Every collection, `StrBuf`, `Owned` and `unique struct` is now unique, and any implicit copy of one is BYN2780, with `move` or `.copy(to: alloc)` as the fix. The code stays reserved.\012\012**Why (before spec 002).** A `Map` (and a growable `StrBuf`) is a small header over storage on the heap. Copying the header would leave two values sharing that storage: a `set` through one can rehash, free the old arrays and leave the other pointing at freed memory. Until maps can be copied safely, storing an existing map anywhere else is rejected: in a `let` or `var`, an assignment, a struct, union or tuple, an array literal, a `for` loop variable declared with `var` (each iteration copies the element; `let` loop variables are immutable, so they are fine), a `with` that leaves a map field in place (a field it replaces is not copied), `List.add` or `Map.set`, or a `return` of anything but a local that is going out of scope. The same holds for a value that contains a map by value, through struct fields, union payloads, tuples, arrays, optionals or `Result`s. Reading the map in place is fine: calling its members, looping over it with `for`, formatting it, or passing it as an argument (read-only or by `ref`). A fresh map, from `Map<K, V>()` or any call, can be stored anywhere.\012\012**Example.**\012\012```\012var a = Map<i64, i64>()\012a.set(1, 10)\012var b = a\012b.set(2, 20)\012```\012\012**Fix.** Keep one map and pass it by `ref` where it is changed:\012\012```\012void addTwenty(ref Map<i64, i64> m) {\012    m.set(2, 20)\012}\012\012var a = Map<i64, i64>()\012a.set(1, 10)\012addTwenty(ref a)\012```\012\012or build a new map and copy the entries into it with a `for` loop.\012", 1715)});
 #line 781 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 783 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2771", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2770", 7))) {
 #line 784 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2771: invalid `main` signature\012\012**Why.** The runtime calls `main` itself, so it accepts only the shapes it knows how to call: return `void` or `i32` (the exit code), take nothing or `ReadOnlySpan<string> args` (the command-line arguments without the program name), with or without `fails`.\012\012**Example.**\012\012```\012string main(i64 count) { return \042done\042 }\012```\012\012**Fix.** Use one of `void main()`, `i32 main()`, `void main(ReadOnlySpan<string> args)` or `i32 main(ReadOnlySpan<string> args)`, optionally followed by `fails E`.\012", 524)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2770: unknown attribute\012\012**Why.** Attributes change how a declaration compiles, so a misspelled or unsupported one is an error instead of being ignored. The attributes are `[ExitCode(n)]`, on an error variant, and `[Cases(...)]`, on a test that takes parameters.\012\012**Example.**\012\012```\012@inlin\012void step() { }\012```\012\012**Fix.** Remove the attribute, or correct its name.\012", 367)});
 #line 783 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 785 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2772", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2771", 7))) {
 #line 786 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2772: invalid exit code\012\012**Why.** `@exitCode(n)` sets the process exit code when a failing `main` ends with that variant. Exit codes outside 1 to 255 are truncated or mean success on common systems, and the code must be known at compile time.\012\012**Example.**\012\012```\012union error ConfigError {\012    @exitCode(300)\012    malformed\012}\012```\012\012**Fix.** Pass one integer constant from 1 to 255, such as `@exitCode(3)`.\012", 407)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2771: invalid `main` signature\012\012**Why.** The runtime calls `main` itself, so it accepts only the shapes it knows how to call: return `void` or `i32` (the exit code), take nothing or `ReadOnlySpan<string> args` (the command-line arguments without the program name), with or without `fails`.\012\012**Example.**\012\012```\012string main(i64 count) { return \042done\042 }\012```\012\012**Fix.** Use one of `void main()`, `i32 main()`, `void main(ReadOnlySpan<string> args)` or `i32 main(ReadOnlySpan<string> args)`, optionally followed by `fails E`.\012", 524)});
 #line 785 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 787 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2773", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2772", 7))) {
 #line 788 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2773: `@cases` value count does not match the parameters\012\012**What.** One case of a `@cases(...)` attribute gives a different number of values than the test has parameters.\012\012**Why.** Each case runs the test once with its values bound to the parameters in order (spec \302\24720). A missing or extra value has no parameter to go to, so the case cannot run.\012\012**Example.**\012\012```\012@cases((0, false), (1, true, 2))\012test \042quantity bounds\042 (i32 input, bool valid) {\012    assert(valid == (input > 0))\012}\012```\012\012**Fix.** Give every case one value per parameter, in parameter order:\012\012```\012@cases((0, false), (1, true))\012test \042quantity bounds\042 (i32 input, bool valid) {\012    assert(valid == (input > 0))\012}\012```\012\012A test with one parameter takes bare values: `@cases(1, 2, 3)`.\012", 752)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2772: invalid exit code\012\012**Why.** `@exitCode(n)` sets the process exit code when a failing `main` ends with that variant. Exit codes outside 1 to 255 are truncated or mean success on common systems, and the code must be known at compile time.\012\012**Example.**\012\012```\012union error ConfigError {\012    @exitCode(300)\012    malformed\012}\012```\012\012**Fix.** Pass one integer constant from 1 to 255, such as `@exitCode(3)`.\012", 407)});
 #line 787 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 789 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2774", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2773", 7))) {
 #line 790 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2774: `@cases` value is not a constant\012\012**What.** A value in `@cases(...)` is not a constant literal: an integer, float, string, rune, `true`, `false`, `null` or a `.case` value.\012\012**Why.** Cases are fixed when the test is compiled and shown in its title, such as `quantity bounds (input: 101, valid: false)`, so each value must be known without running code. Cases from a named const list (`@cases(discountCases)`) are not supported yet.\012\012**Example.**\012\012```\012@cases(limit(), 2)\012test \042positive\042 (i32 n) {\012    assert(n > 0)\012}\012```\012\012**Fix.** Write each value as a literal, one tuple literal per case when the test takes more than one parameter:\012\012```\012@cases(1, 2)\012test \042positive\042 (i32 n) {\012    assert(n > 0)\012}\012```\012", 712)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2773: `@cases` value count does not match the parameters\012\012**What.** One case of a `@cases(...)` attribute gives a different number of values than the test has parameters.\012\012**Why.** Each case runs the test once with its values bound to the parameters in order (spec \302\24720). A missing or extra value has no parameter to go to, so the case cannot run.\012\012**Example.**\012\012```\012@cases((0, false), (1, true, 2))\012test \042quantity bounds\042 (i32 input, bool valid) {\012    assert(valid == (input > 0))\012}\012```\012\012**Fix.** Give every case one value per parameter, in parameter order:\012\012```\012@cases((0, false), (1, true))\012test \042quantity bounds\042 (i32 input, bool valid) {\012    assert(valid == (input > 0))\012}\012```\012\012A test with one parameter takes bare values: `@cases(1, 2, 3)`.\012", 752)});
 #line 789 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 791 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2775", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2774", 7))) {
 #line 792 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2775: `assert` needs a `bool`\012\012**What.** The expression after `assert` is not a `bool`.\012\012**Why.** `assert expr;` checks that `expr` is `true` and panics otherwise, showing the value of each sub-expression (spec \302\24720). There is no truthiness in Bayan: a number, a string or an optional is not true or false by itself, so the comparison must be written out.\012\012**Example.**\012\012```\012let items = List<i64>()\012let count = items.length\012assert count\012```\012\012**Fix.** Compare the value with what you expect:\012\012```\012let count = items.length\012assert count == 3\012```\012\012For an optional, test it with `is not null`: `assert found is not null;`.\012", 623)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2774: `@cases` value is not a constant\012\012**What.** A value in `@cases(...)` is not a constant literal: an integer, float, string, rune, `true`, `false`, `null` or a `.case` value.\012\012**Why.** Cases are fixed when the test is compiled and shown in its title, such as `quantity bounds (input: 101, valid: false)`, so each value must be known without running code. Cases from a named const list (`@cases(discountCases)`) are not supported yet.\012\012**Example.**\012\012```\012@cases(limit(), 2)\012test \042positive\042 (i32 n) {\012    assert(n > 0)\012}\012```\012\012**Fix.** Write each value as a literal, one tuple literal per case when the test takes more than one parameter:\012\012```\012@cases(1, 2)\012test \042positive\042 (i32 n) {\012    assert(n > 0)\012}\012```\012", 712)});
 #line 791 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 793 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2780", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2775", 7))) {
 #line 794 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2780: implicit copy of a unique value\012\012**Message.** \042implicit copy of a unique value: {0}\042\012\012**Help.** \042write `move {0} with { \342\200\246 }` to give up `{0}`\042 (on a `with` that copies a `unique` value, `{0}` the copied variable).\012\012**Why.** A unique value owns storage: a `List`, `Map`, `StrBuf` or `Owned`, a `unique struct`, a type parameter inside a generic body, or anything that holds one of these by value (a struct field, a union payload, a tuple, array, optional, `Untrusted` or `Result`). Copying it would leave two values sharing that storage, and growing or freeing one would leave the other pointing at freed memory. So storing an existing place of a unique type is rejected: a `let` or `var` initializer, an assignment, a field in a struct literal or `with`, an element added to a collection, a tuple, array or optional, an argument to a `move` parameter, or a `return` of anything but a local or `move` parameter (returning those moves them). A plain parameter of unique type is a read-only borrow, so storing it is a copy too. Fresh values (calls, constructors, literals, `copy(to:)`, `move x`) are never copies, and reading in place (members, indexing, `for`, `switch`, comparison, formatting, passing to a plain or `ref` parameter) is fine. A field of unique type cannot stand for an interface getter either: the getter's result belongs to the caller, so reading the field in its place would copy it.\012\012**Example.**\012\012```\012var a = List<i64>()\012a.append(1)\012var b = a\012```\012\012**Fix.** Hand the value over with `move`, after which `a` cannot be used until it is assigned again:\012\012```\012var b = move a\012```\012\012or make an independent copy with `a.copy(to: alloc)` (for a `List`, `Map` or `StrBuf`), or share the original by passing it by `ref`. In a function that should own a parameter, declare it `move p`.\012\012A `with` that copies a unique value from a local hands it over the same way: `let copy = move tx with { label: \042copy\042 }` is `(move tx) with { \342\200\246 }`, since `with` binds looser than every prefix operator. `x = x with { \342\200\246 }` is already a move and needs no `move`.\012", 2069)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2775: `assert` needs a `bool`\012\012**What.** The expression after `assert` is not a `bool`.\012\012**Why.** `assert expr;` checks that `expr` is `true` and panics otherwise, showing the value of each sub-expression (spec \302\24720). There is no truthiness in Bayan: a number, a string or an optional is not true or false by itself, so the comparison must be written out.\012\012**Example.**\012\012```\012let items = List<i64>()\012let count = items.length\012assert count\012```\012\012**Fix.** Compare the value with what you expect:\012\012```\012let count = items.length\012assert count == 3\012```\012\012For an optional, test it with `is not null`: `assert found is not null;`.\012", 623)});
 #line 793 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 795 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2781", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2780", 7))) {
 #line 796 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2781: use after move\012\012**Why.** `move x` (or passing `x` to a `move` parameter) hands its value to a new owner, so `x` no longer holds anything. Reading it, calling a member on it or moving it again on any path after the move would touch storage that now belongs to someone else. A move in one branch of an `if` or `switch` makes the local unusable after the branches join, and a move inside a loop of a local declared outside it fails on the next iteration.\012\012**Example.**\012\012```\012var a = List<i64>()\012var b = move a\012a.append(2)\012```\012\012**Fix.** Assign a fresh value before using the local again:\012\012```\012var b = move a\012a = List<i64>()\012a.append(2)\012```\012\012or move a copy instead, `move a.copy(to: alloc)`, and keep the original. In a loop, reassign the local before the next iteration.\012", 777)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2780: implicit copy of a unique value\012\012**Message.** \042implicit copy of a unique value: {0}\042\012\012**Help.** \042write `move {0} with { \342\200\246 }` to give up `{0}`\042 (on a `with` that copies a `unique` value, `{0}` the copied variable).\012\012**Why.** A unique value owns storage: a `List`, `Map`, `StrBuf` or `Owned`, a `unique struct`, a type parameter inside a generic body, or anything that holds one of these by value (a struct field, a union payload, a tuple, array, optional, `Untrusted` or `Result`). Copying it would leave two values sharing that storage, and growing or freeing one would leave the other pointing at freed memory. So storing an existing place of a unique type is rejected: a `let` or `var` initializer, an assignment, a field in a struct literal or `with`, an element added to a collection, a tuple, array or optional, an argument to a `move` parameter, or a `return` of anything but a local or `move` parameter (returning those moves them). A plain parameter of unique type is a read-only borrow, so storing it is a copy too. Fresh values (calls, constructors, literals, `copy(to:)`, `move x`) are never copies, and reading in place (members, indexing, `for`, `switch`, comparison, formatting, passing to a plain or `ref` parameter) is fine. A field of unique type cannot stand for an interface getter either: the getter's result belongs to the caller, so reading the field in its place would copy it.\012\012**Example.**\012\012```\012var a = List<i64>()\012a.append(1)\012var b = a\012```\012\012**Fix.** Hand the value over with `move`, after which `a` cannot be used until it is assigned again:\012\012```\012var b = move a\012```\012\012or make an independent copy with `a.copy(to: alloc)` (for a `List`, `Map` or `StrBuf`), or share the original by passing it by `ref`. In a function that should own a parameter, declare it `move p`.\012\012A `with` that copies a unique value from a local hands it over the same way: `let copy = move tx with { label: \042copy\042 }` is `(move tx) with { \342\200\246 }`, since `with` binds looser than every prefix operator. `x = x with { \342\200\246 }` is already a move and needs no `move`.\012", 2069)});
 #line 795 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 797 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2782", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2781", 7))) {
 #line 798 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2782: cannot move out of this\012\012**Why.** `move` takes the value from an owner that then holds nothing, and the compiler has to know that owner is not used again. It can track that only for a local variable or a `move` parameter. Moving out of a field, an element, a plain or `ref` parameter would leave a hole that someone else still reads, and a call result or literal is already fresh, so there is nothing to move.\012\012**Example.**\012\012```\012struct Bag {\012    List<i64> items\012}\012\012void take(Bag bag) {\012    var items = move bag.items\012}\012```\012\012**Fix.** When `bag` can be written (a `var` local or a `ref` parameter), take the value with `bag.items.take()`, which leaves an empty list in the field (it works for a `List`, `Map`, `StrBuf` or an optional of a unique type), copy it with `bag.items.copy(to: alloc)`, or read it in place through the field. For a parameter, declare it `move p` so the function owns it. For a fresh value, remove `move`.\012", 939)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2781: use after move\012\012**Why.** `move x` (or passing `x` to a `move` parameter) hands its value to a new owner, so `x` no longer holds anything. Reading it, calling a member on it or moving it again on any path after the move would touch storage that now belongs to someone else. A move in one branch of an `if` or `switch` makes the local unusable after the branches join, and a move inside a loop of a local declared outside it fails on the next iteration.\012\012**Example.**\012\012```\012var a = List<i64>()\012var b = move a\012a.append(2)\012```\012\012**Fix.** Assign a fresh value before using the local again:\012\012```\012var b = move a\012a = List<i64>()\012a.append(2)\012```\012\012or move a copy instead, `move a.copy(to: alloc)`, and keep the original. In a loop, reassign the local before the next iteration.\012", 777)});
 #line 797 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 799 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2783", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2782", 7))) {
 #line 800 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2783: a borrowed binding cannot be changed or moved\012\012**Why.** A `for` loop variable and a `switch` or `is` pattern binding of a unique type borrow from the value they were bound to: they name storage that the list, union or other subject still owns. This holds for `var` bindings too. Changing the binding (a mutating member call, an assignment to it or to its fields) or moving it would change or take storage behind the owner's back.\012\012**Example.**\012\012```\012var lists = List<List<i64>>()\012lists.append(List<i64>())\012for xs in lists { xs.append(1) }\012```\012\012**Fix.** Change the element through its owner:\012\012```\012for i in 0..lists.length { lists[i].append(1) }\012```\012\012or copy the binding into a local of its own with `xs.copy(to: alloc)`.\012", 730)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2782: cannot move out of this\012\012**Why.** `move` takes the value from an owner that then holds nothing, and the compiler has to know that owner is not used again. It can track that only for a local variable or a `move` parameter. Moving out of a field, an element, a plain or `ref` parameter would leave a hole that someone else still reads, and a call result or literal is already fresh, so there is nothing to move.\012\012**Example.**\012\012```\012struct Bag {\012    List<i64> items\012}\012\012void take(Bag bag) {\012    var items = move bag.items\012}\012```\012\012**Fix.** When `bag` can be written (a `var` local or a `ref` parameter), take the value with `bag.items.take()`, which leaves an empty list in the field (it works for a `List`, `Map`, `StrBuf` or an optional of a unique type), copy it with `bag.items.copy(to: alloc)`, or read it in place through the field. For a parameter, declare it `move p` so the function owns it. For a fresh value, remove `move`.\012", 939)});
 #line 799 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 801 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2784", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2783", 7))) {
 #line 802 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2784: a collection holding a unique value cannot be copied\012\012**Why.** `copy(to:)` on a `List` or `Map` copies the elements, keys and values as they are. When those are themselves a `List`, `Map`, `StrBuf` or `Owned` (or a struct, union, tuple, array or optional holding one), the copy would share their storage with the original, and growing one would free memory the other still points to.\012\012**Example.**\012\012```\012void run(Arena arena) {\012    let lists = List<List<i64>>()\012    let copy = lists.copy(to: arena)\012}\012```\012\012**Fix.** Build the copy with a loop that copies each element:\012\012```\012var copy = List<List<i64>>()\012for inner in lists { copy.append(inner.copy(to: arena)) }\012```\012\012or share the original by `ref`.\012", 707)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2783: a borrowed binding cannot be changed or moved\012\012**Why.** A `for` loop variable and a `switch` or `is` pattern binding of a unique type borrow from the value they were bound to: they name storage that the list, union or other subject still owns. This holds for `var` bindings too. Changing the binding (a mutating member call, an assignment to it or to its fields) or moving it would change or take storage behind the owner's back.\012\012**Example.**\012\012```\012var lists = List<List<i64>>()\012lists.append(List<i64>())\012for xs in lists { xs.append(1) }\012```\012\012**Fix.** Change the element through its owner:\012\012```\012for i in 0..lists.length { lists[i].append(1) }\012```\012\012or copy the binding into a local of its own with `xs.copy(to: alloc)`.\012", 730)});
 #line 801 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 803 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2785", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2784", 7))) {
 #line 804 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2785: `slot` needs a default value\012\012**Why.** `map.slot(key)` returns a reference to the key's value, inserting a default value first when the key is missing. That needs a default for the value type: numbers, `bool`, `rune`, `string`, optionals, and structs whose every field has an initializer. Enums, unions, lists, maps and other types have no default, so the inserted value would be made up.\012\012**Example.**\012\012```\012enum Color {\012    red\012    green\012}\012\012var colors = Map<string, Color>()\012colors.slot(\042sky\042) = .red\012```\012\012**Fix.** Write with `map[key] = value`, which inserts or updates, and read with `map[key]` (panics when missing) or `map.tryGet(at: key) \077\077 fallback`:\012\012```\012colors[\042sky\042] = .red\012let sky = colors.tryGet(at: \042sky\042) \077\077 .green\012```\012\012or give every field of a struct value type an initializer.\012", 804)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2784: a collection holding a unique value cannot be copied\012\012**Why.** `copy(to:)` on a `List` or `Map` copies the elements, keys and values as they are. When those are themselves a `List`, `Map`, `StrBuf` or `Owned` (or a struct, union, tuple, array or optional holding one), the copy would share their storage with the original, and growing one would free memory the other still points to.\012\012**Example.**\012\012```\012void run(Arena arena) {\012    let lists = List<List<i64>>()\012    let copy = lists.copy(to: arena)\012}\012```\012\012**Fix.** Build the copy with a loop that copies each element:\012\012```\012var copy = List<List<i64>>()\012for inner in lists { copy.append(inner.copy(to: arena)) }\012```\012\012or share the original by `ref`.\012", 707)});
 #line 803 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 805 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2786", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2785", 7))) {
 #line 806 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2786: an `Untrusted` value reaches a sink\012\012**Why.** `Io.run` and `Io.runBatch` run commands. `Io.run` involves no shell, but an untrusted program path runs whatever the attacker names, and an untrusted argument can inject an option (`--upload-pack=\342\200\246` to `git`, `-oProxyCommand=\342\200\246` to `ssh`) that makes the program run attacker-chosen commands. `Io.runBatch` runs a batch file through `cmd.exe`, which interprets its arguments again. A value that came from outside the program (`Untrusted<T>`, or a list, span or array of them) must not reach either unchecked: the program or path and every argument must be ordinary values.\012\012**Example.**\012\012```\012void main() fails IoError {\012    let name: Untrusted<string> = Untrusted(\042x\042)\012    let args: Untrusted<string>[1] = [name]\012    let a = try Io.runBatch(\042./build.cmd\042, args.span)\012    let b = try Io.run(\042git\042, [name])\012}\012```\012\012**Fix.** Check the value, then clear the mark with `name.trustUnchecked() because \042checked against the allow list\042`.\012", 988)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2785: `slot` needs a default value\012\012**Why.** `map.slot(key)` returns a reference to the key's value, inserting a default value first when the key is missing. That needs a default for the value type: numbers, `bool`, `rune`, `string`, optionals, and structs whose every field has an initializer. Enums, unions, lists, maps and other types have no default, so the inserted value would be made up.\012\012**Example.**\012\012```\012enum Color {\012    red\012    green\012}\012\012var colors = Map<string, Color>()\012colors.slot(\042sky\042) = .red\012```\012\012**Fix.** Write with `map[key] = value`, which inserts or updates, and read with `map[key]` (panics when missing) or `map.tryGet(at: key) \077\077 fallback`:\012\012```\012colors[\042sky\042] = .red\012let sky = colors.tryGet(at: \042sky\042) \077\077 .green\012```\012\012or give every field of a struct value type an initializer.\012", 804)});
 #line 805 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 807 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2787", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2786", 7))) {
 #line 808 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2787: `trust` needs a reason\012\012**Why.** `trust(x, reason: \042\342\200\246\042)` clears the `Untrusted` mark on a value, so the reason is the audit trail for why that is safe. It must be written at the call site as a non-empty string literal; a missing, empty, interpolated or variable reason says nothing a reviewer can search for.\012\012**Example.**\012\012```\012Untrusted<string> name = Untrusted(\042x\042)\012print(trust(name, reason: \042\042))\012```\012\012**Fix.** Pass a literal that explains why the value is safe, such as `reason: \042checked against the allow list\042`.\012", 530)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2786: an `Untrusted` value reaches a sink\012\012**Why.** `Io.run` and `Io.runBatch` run commands. `Io.run` involves no shell, but an untrusted program path runs whatever the attacker names, and an untrusted argument can inject an option (`--upload-pack=\342\200\246` to `git`, `-oProxyCommand=\342\200\246` to `ssh`) that makes the program run attacker-chosen commands. `Io.runBatch` runs a batch file through `cmd.exe`, which interprets its arguments again. A value that came from outside the program (`Untrusted<T>`, or a list, span or array of them) must not reach either unchecked: the program or path and every argument must be ordinary values.\012\012**Example.**\012\012```\012void main() fails IoError {\012    let name: Untrusted<string> = Untrusted(\042x\042)\012    let args: Untrusted<string>[1] = [name]\012    let a = try Io.runBatch(\042./build.cmd\042, args.span)\012    let b = try Io.run(\042git\042, [name])\012}\012```\012\012**Fix.** Check the value, then clear the mark with `name.trustUnchecked() because \042checked against the allow list\042`.\012", 988)});
 #line 807 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 809 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2788", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2787", 7))) {
 #line 810 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2788: `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type\012\012**Why.** `x.take()` moves the value out of a place and leaves that type's empty value behind, so the place stays usable. Only types with an obvious empty value support it: an empty `List`, `Map` or `StrBuf`, and `null` for an optional holding a unique type. Other types have no empty value to leave, and a plain value needs no `take()` because it is copied.\012\012**Example.**\012\012```\012var count = 3\012let n = count.take()\012```\012\012**Fix.** Copy a plain value, `let n = count;`. For a unique struct, move the whole local with `move x`, or `take()` the collection fields inside it.\012", 651)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2787: `trust` needs a reason\012\012**Why.** `trust(x, reason: \042\342\200\246\042)` clears the `Untrusted` mark on a value, so the reason is the audit trail for why that is safe. It must be written at the call site as a non-empty string literal; a missing, empty, interpolated or variable reason says nothing a reviewer can search for.\012\012**Example.**\012\012```\012Untrusted<string> name = Untrusted(\042x\042)\012print(trust(name, reason: \042\042))\012```\012\012**Fix.** Pass a literal that explains why the value is safe, such as `reason: \042checked against the allow list\042`.\012", 530)});
 #line 809 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 811 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2789", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2788", 7))) {
 #line 812 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2789: `switch move \342\200\246` needs a local or a `move` parameter\012\012**Why.** `switch move x` moves `x` into the switch so its pattern bindings own the parts they bind, and `x` is moved from afterwards. Only a value this function owns outright can be moved that way: a local or a `move` parameter. A field or element belongs to its owner, and a plain parameter is borrowed from the caller, so moving it into the switch would leave a half-moved value behind.\012\012**Example.**\012\012```\012union Slot {\012    empty\012    full(List<i64> items)\012}\012struct Box {\012    Slot slot\012}\012void show(List<i64> xs) { }\012void inspect() {\012    let box = Box { slot: Slot.empty }\012    switch move box.slot {\012        case .full(let items): show(items)\012        default:\012    }\012}\012```\012\012**Fix.** Drop `move` and the bindings borrow, as in `switch box.slot`. Declare a parameter `move` to own it. For a collection field, take it into a local first, `let items = box.items.take();`, and switch on that local.\012", 958)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2788: `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type\012\012**Why.** `x.take()` moves the value out of a place and leaves that type's empty value behind, so the place stays usable. Only types with an obvious empty value support it: an empty `List`, `Map` or `StrBuf`, and `null` for an optional holding a unique type. Other types have no empty value to leave, and a plain value needs no `take()` because it is copied.\012\012**Example.**\012\012```\012var count = 3\012let n = count.take()\012```\012\012**Fix.** Copy a plain value, `let n = count;`. For a unique struct, move the whole local with `move x`, or `take()` the collection fields inside it.\012", 651)});
 #line 811 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 813 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2790", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2789", 7))) {
 #line 814 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2790: pattern binds the same storage more than once in `switch move \342\200\246`\012\012**Why.** In `switch move x` each pattern binding owns the part it binds. A binding for a whole value and another for a part of it, two bindings on both sides of an `and`, or two bindings of the same field in one property pattern (`{ items: let x, items: let y }`, at any nesting) would own the same storage twice, and a unique value may have only one owner (L006).\012\012**Example.**\012\012```\012struct Ledger {\012    List<i64> items\012}\012void keep(move List<i64> xs) { }\012void drop(move Ledger l) { }\012void inspect() {\012    let a = Ledger { items: List<i64>() }\012    switch move a {\012        case let x and let y:\012            drop(move x)\012            drop(move y)\012        case Ledger { items: let it } whole:\012            keep(move it)\012            drop(move whole)\012        case { items: let x, items: let y }:\012            keep(move x)\012            keep(move y)\012        default:\012    }\012}\012```\012\012**Fix.** Bind the whole value or its parts, not both: `case let x:` or `case Ledger { items: let it }:`, and each field once. Bindings over disjoint parts, such as `{ items: let a, other: let b }` or `.pair(let a, let b)`, are accepted. Without `move`, bindings borrow and any of these patterns is fine.\012", 1251)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2789: `switch move \342\200\246` needs a local or a `move` parameter\012\012**Why.** `switch move x` moves `x` into the switch so its pattern bindings own the parts they bind, and `x` is moved from afterwards. Only a value this function owns outright can be moved that way: a local or a `move` parameter. A field or element belongs to its owner, and a plain parameter is borrowed from the caller, so moving it into the switch would leave a half-moved value behind.\012\012**Example.**\012\012```\012union Slot {\012    empty\012    full(List<i64> items)\012}\012struct Box {\012    Slot slot\012}\012void show(List<i64> xs) { }\012void inspect() {\012    let box = Box { slot: Slot.empty }\012    switch move box.slot {\012        case .full(let items): show(items)\012        default:\012    }\012}\012```\012\012**Fix.** Drop `move` and the bindings borrow, as in `switch box.slot`. Declare a parameter `move` to own it. For a collection field, take it into a local first, `let items = box.items.take();`, and switch on that local.\012", 958)});
 #line 813 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 815 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2791", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2790", 7))) {
 #line 816 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2791: binding is mutated in the guard of `switch move \342\200\246`\012\012**Why.** In `switch move x` each pattern binding owns the part it binds, but only once its arm is selected. A `when` guard runs before that: when it fails, the value goes back to the switch and a later arm binds the same storage. A guard that changed the binding (grew a list, took a field, passed it by `ref` or `out`, moved it) would leave that later arm with a stale or freed copy. So inside the guard the arm's bindings and their parts are read-only.\012\012**Example.**\012\012```\012struct Bag {\012    List<i64> items\012\012    public i64 grow(ref this) uses alloc {\012        this.items.append(1)\012        return this.items.length\012    }\012}\012union Slot {\012    full(Bag b)\012    empty\012}\012bool bump(ref List<i64> xs) {\012    xs.append(7)\012    return true\012}\012bool keep(move Bag b) => true\012void consume(move Bag b) { }\012void inspect(move Slot s) {\012    switch move s {\012        case .full(var x) when x.grow() > 50: print(\042big\042)\012        case .full(var x) when bump(ref x.items): print(\042bumped\042)\012        case .full(let x) when keep(move x): print(\042kept\042)\012        case .full(var y):\012            let n = y.grow()\012            consume(move y)\012        default:\012    }\012}\012```\012\012**Fix.** Read the binding in the guard and change it in the arm's body: `case .full(var x) when x.items.length > 49: x.grow(); \342\200\246`. Without `move`, bindings borrow and this rule does not apply.\012", 1392)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2790: pattern binds the same storage more than once in `switch move \342\200\246`\012\012**Why.** In `switch move x` each pattern binding owns the part it binds. A binding for a whole value and another for a part of it, two bindings on both sides of an `and`, or two bindings of the same field in one property pattern (`{ items: let x, items: let y }`, at any nesting) would own the same storage twice, and a unique value may have only one owner (L006).\012\012**Example.**\012\012```\012struct Ledger {\012    List<i64> items\012}\012void keep(move List<i64> xs) { }\012void drop(move Ledger l) { }\012void inspect() {\012    let a = Ledger { items: List<i64>() }\012    switch move a {\012        case let x and let y:\012            drop(move x)\012            drop(move y)\012        case Ledger { items: let it } whole:\012            keep(move it)\012            drop(move whole)\012        case { items: let x, items: let y }:\012            keep(move x)\012            keep(move y)\012        default:\012    }\012}\012```\012\012**Fix.** Bind the whole value or its parts, not both: `case let x:` or `case Ledger { items: let it }:`, and each field once. Bindings over disjoint parts, such as `{ items: let a, other: let b }` or `.pair(let a, let b)`, are accepted. Without `move`, bindings borrow and any of these patterns is fine.\012", 1251)});
 #line 815 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 817 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2800", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2791", 7))) {
 #line 818 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2800: interface name must start with `I`\012\012**What.** An `interface` is named without the `I` prefix, or the `I` is not followed by an uppercase letter.\012\012**Why.** An interface is not a type on its own: it is listed after `:`, named in a `where` bound or used as `dyn ref I`. The `I` prefix tells the reader which names are interfaces at every one of those places (spec \302\2475.1).\012\012**Example.**\012\012```\012interface Shape {\012    f32 area()\012}\012```\012\012**Fix.** Rename it to `I` followed by the PascalCase name (the machine fix does):\012\012```\012interface IShape {\012    f32 area()\012}\012```\012", 566)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2791: binding is mutated in the guard of `switch move \342\200\246`\012\012**Why.** In `switch move x` each pattern binding owns the part it binds, but only once its arm is selected. A `when` guard runs before that: when it fails, the value goes back to the switch and a later arm binds the same storage. A guard that changed the binding (grew a list, took a field, passed it by `ref` or `out`, moved it) would leave that later arm with a stale or freed copy. So inside the guard the arm's bindings and their parts are read-only.\012\012**Example.**\012\012```\012struct Bag {\012    List<i64> items\012\012    public i64 grow(ref this) uses alloc {\012        this.items.append(1)\012        return this.items.length\012    }\012}\012union Slot {\012    full(Bag b)\012    empty\012}\012bool bump(ref List<i64> xs) {\012    xs.append(7)\012    return true\012}\012bool keep(move Bag b) => true\012void consume(move Bag b) { }\012void inspect(move Slot s) {\012    switch move s {\012        case .full(var x) when x.grow() > 50: print(\042big\042)\012        case .full(var x) when bump(ref x.items): print(\042bumped\042)\012        case .full(let x) when keep(move x): print(\042kept\042)\012        case .full(var y):\012            let n = y.grow()\012            consume(move y)\012        default:\012    }\012}\012```\012\012**Fix.** Read the binding in the guard and change it in the arm's body: `case .full(var x) when x.items.length > 49: x.grow(); \342\200\246`. Without `move`, bindings borrow and this rule does not apply.\012", 1392)});
 #line 817 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 819 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2801", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2800", 7))) {
 #line 820 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2801: missing interface member\012\012**What.** A struct lists an interface after `:` but does not provide one of the interface's members that has no default body. A field can provide a getter (`i64 count { get; }`) but not a method: a field named like a required method is reported here.\012\012**Why.** Code written against the interface may call any of its members on the struct; a member without a body has nothing to run unless the struct provides it.\012\012**Example.**\012\012```\012interface IShape {\012    i64 area()\012}\012\012struct Square : IShape {\012    i64 side\012}\012```\012\012**Fix.** Add the member with the signature the interface declares:\012\012```\012struct Square : IShape {\012    i64 side\012\012    i64 area() => side * side\012}\012```\012", 698)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2800: interface name must start with `I`\012\012**What.** An `interface` is named without the `I` prefix, or the `I` is not followed by an uppercase letter.\012\012**Why.** An interface is not a type on its own: it is listed after `:`, named in a `where` bound or used as `dyn ref I`. The `I` prefix tells the reader which names are interfaces at every one of those places (spec \302\2475.1).\012\012**Example.**\012\012```\012interface Shape {\012    f32 area()\012}\012```\012\012**Fix.** Rename it to `I` followed by the PascalCase name (the machine fix does):\012\012```\012interface IShape {\012    f32 area()\012}\012```\012", 566)});
 #line 819 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 821 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2802", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2801", 7))) {
 #line 822 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2802: interface member does not match\012\012**What.** A struct provides a member an interface requires, but its signature differs: the return type, a parameter's type or modifier, the kind (method or property), `static`, or the `fails` clause. A field standing for a getter must have the getter's type. It is also reported when a default from one base would stand for a member of the same name in another base: add the member to the struct to choose.\012\012**Why.** Callers use the interface's signature. A witness that returns another type, takes other parameters or fails differently cannot stand in for it.\012\012**Example.**\012\012```\012union error ParseError {\012    empty\012}\012interface IParser {\012    i64 parse(string text) fails ParseError\012}\012struct Digits : IParser {\012    i64 parse(string text) => 0\012}\012```\012\012**Fix.** Change the member's signature to the interface's:\012\012```\012struct Digits : IParser {\012    i64 parse(string text) fails ParseError => 0\012}\012```\012", 937)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2801: missing interface member\012\012**What.** A struct lists an interface after `:` but does not provide one of the interface's members that has no default body. A field can provide a getter (`i64 count { get; }`) but not a method: a field named like a required method is reported here.\012\012**Why.** Code written against the interface may call any of its members on the struct; a member without a body has nothing to run unless the struct provides it.\012\012**Example.**\012\012```\012interface IShape {\012    i64 area()\012}\012\012struct Square : IShape {\012    i64 side\012}\012```\012\012**Fix.** Add the member with the signature the interface declares:\012\012```\012struct Square : IShape {\012    i64 side\012\012    i64 area() => side * side\012}\012```\012", 698)});
 #line 821 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 823 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2803", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2802", 7))) {
 #line 824 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2803: missing associated type\012\012**What.** An interface declares `type Item;`, and a struct listing it does not bind `type Item = \342\200\246;`.\012\012**Why.** The interface's members mention `Item`; without a binding the struct's members cannot be checked against them, and generic code cannot know what `T.Item` is.\012\012**Example.**\012\012```\012struct Digits : IIndexable {\012    i64 count => 3\012\012    i64 get(i64 index) => index * 10\012}\012```\012\012**Fix.** Bind the associated type to the type the members use:\012\012```\012struct Digits : IIndexable {\012    type Item = i64\012\012    i64 count => 3\012\012    i64 get(i64 index) => index * 10\012}\012```\012", 601)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2802: interface member does not match\012\012**What.** A struct provides a member an interface requires, but its signature differs: the return type, a parameter's type or modifier, the kind (method or property), `static`, or the `fails` clause. A field standing for a getter must have the getter's type. It is also reported when a default from one base would stand for a member of the same name in another base: add the member to the struct to choose.\012\012**Why.** Callers use the interface's signature. A witness that returns another type, takes other parameters or fails differently cannot stand in for it.\012\012**Example.**\012\012```\012union error ParseError {\012    empty\012}\012interface IParser {\012    i64 parse(string text) fails ParseError\012}\012struct Digits : IParser {\012    i64 parse(string text) => 0\012}\012```\012\012**Fix.** Change the member's signature to the interface's:\012\012```\012struct Digits : IParser {\012    i64 parse(string text) fails ParseError => 0\012}\012```\012", 937)});
 #line 823 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 825 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2804", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2803", 7))) {
 #line 826 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2804: not an interface\012\012**What.** A struct's base list (after `:`) or a `where` bound names a type that is not an `interface`: a struct, union, enum or other type.\012\012**Why.** Only interfaces can be conformed to or used as constraints. There is no struct inheritance; a struct that needs another struct's data holds it as a field.\012\012**Example.**\012\012```\012struct Point {\012    i64 x\012}\012\012struct Circle : Point {\012    i64 r\012}\012```\012\012**Fix.** List an interface, or hold the other type as a field:\012\012```\012struct Circle {\012    Point center\012    i64 r\012}\012```\012", 539)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2803: missing associated type\012\012**What.** An interface declares `type Item;`, and a struct listing it does not bind `type Item = \342\200\246;`.\012\012**Why.** The interface's members mention `Item`; without a binding the struct's members cannot be checked against them, and generic code cannot know what `T.Item` is.\012\012**Example.**\012\012```\012struct Digits : IIndexable {\012    i64 count => 3\012\012    i64 get(i64 index) => index * 10\012}\012```\012\012**Fix.** Bind the associated type to the type the members use:\012\012```\012struct Digits : IIndexable {\012    type Item = i64\012\012    i64 count => 3\012\012    i64 get(i64 index) => index * 10\012}\012```\012", 601)});
 #line 825 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 827 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2805", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2804", 7))) {
 #line 828 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2805: interface listed twice\012\012**What.** A struct lists the same interface more than once after `:`.\012\012**Why.** A struct conforms to an interface once; the second entry adds nothing and usually means another interface was meant.\012\012**Example.**\012\012```\012interface IShape {\012    i64 area()\012}\012struct Square : IShape, IShape {\012    i64 side\012    i64 area() => side * side\012}\012```\012\012**Fix.** Remove the second entry, or replace it with the interface that was meant:\012\012```\012struct Square : IShape {\012    i64 side\012\012    i64 area() => side * side\012}\012```\012", 533)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2804: not an interface\012\012**What.** A struct's base list (after `:`) or a `where` bound names a type that is not an `interface`: a struct, union, enum or other type.\012\012**Why.** Only interfaces can be conformed to or used as constraints. There is no struct inheritance; a struct that needs another struct's data holds it as a field.\012\012**Example.**\012\012```\012struct Point {\012    i64 x\012}\012\012struct Circle : Point {\012    i64 r\012}\012```\012\012**Fix.** List an interface, or hold the other type as a field:\012\012```\012struct Circle {\012    Point center\012    i64 r\012}\012```\012", 539)});
 #line 827 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 829 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2806", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2805", 7))) {
 #line 830 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2806: member not found in the constraints\012\012**What.** Generic code uses a member on a type parameter, and no interface in the parameter's `where` clause declares it. Inside a default method, `this` stands for the interface's `Self`, whose only constraint is that interface.\012\012**Why.** Generic code is checked once, at its definition, not separately for each type it is called with. It can rely only on what its constraints promise. Otherwise a call with a new type could break code that has no error of its own.\012\012**Example.**\012\012```\012interface IShape {\012    i64 area()\012}\012\012void show<T>(ref T shape) where T : IShape {\012    print($\042{shape.perimeter()}\042)\012}\012```\012\012**Fix.** Declare the member in a constraining interface, or add an interface that declares it to the `where` clause:\012\012```\012interface IShape {\012    i64 area()\012    i64 perimeter()\012}\012\012void show<T>(ref T shape) where T : IShape {\012    print($\042{shape.perimeter()}\042)\012}\012```\012", 921)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2805: interface listed twice\012\012**What.** A struct lists the same interface more than once after `:`.\012\012**Why.** A struct conforms to an interface once; the second entry adds nothing and usually means another interface was meant.\012\012**Example.**\012\012```\012interface IShape {\012    i64 area()\012}\012struct Square : IShape, IShape {\012    i64 side\012    i64 area() => side * side\012}\012```\012\012**Fix.** Remove the second entry, or replace it with the interface that was meant:\012\012```\012struct Square : IShape {\012    i64 side\012\012    i64 area() => side * side\012}\012```\012", 533)});
 #line 829 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 831 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2807", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2806", 7))) {
 #line 832 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2807: type argument does not conform\012\012**What.** A call or a type names a type argument that does not meet its parameter's `where` constraint. The error is reported where the type is chosen: at the call, or at a generic's own call when it passes one of its type parameters along.\012\012**Why.** The generic code was checked against its constraints, so it may call any member they declare. A type that does not conform has no such member to call. Only structs conform to interfaces, and a type parameter conforms only to the interfaces in its own `where` clause.\012\012**Example.**\012\012```\012interface IShape {\012    i64 area()\012}\012struct Square {\012    i64 side\012}\012i64 measure<T>(ref T shape) where T : IShape => shape.area()\012void main() {\012    var s = Square { side: 2 }\012    print($\042{measure(ref s)}\042)\012}\012```\012\012**Fix.** Conform the type to the interface, or pass one that does. For a type parameter, add the interface to its `where` clause:\012\012```\012struct Square : IShape {\012    i64 side\012\012    i64 area() => side * side\012}\012```\012", 1001)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2806: member not found in the constraints\012\012**What.** Generic code uses a member on a type parameter, and no interface in the parameter's `where` clause declares it. Inside a default method, `this` stands for the interface's `Self`, whose only constraint is that interface.\012\012**Why.** Generic code is checked once, at its definition, not separately for each type it is called with. It can rely only on what its constraints promise. Otherwise a call with a new type could break code that has no error of its own.\012\012**Example.**\012\012```\012interface IShape {\012    i64 area()\012}\012\012void show<T>(ref T shape) where T : IShape {\012    print($\042{shape.perimeter()}\042)\012}\012```\012\012**Fix.** Declare the member in a constraining interface, or add an interface that declares it to the `where` clause:\012\012```\012interface IShape {\012    i64 area()\012    i64 perimeter()\012}\012\012void show<T>(ref T shape) where T : IShape {\012    print($\042{shape.perimeter()}\042)\012}\012```\012", 921)});
 #line 831 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 833 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2808", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2807", 7))) {
 #line 834 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2808: interface cannot be used with `dyn`\012\012**What.** `dyn ref I` names an interface that has a generic method or an associated type (`type Item;`). The diagnostic names the first such member.\012\012**Why.** A `dyn ref` call goes through a table with one entry per member, built once for each conforming type. A generic method has no single entry (each type argument is a different function), and an associated type has no single type for callers to use: both depend on information only a constraint provides (spec 006, handoff Q93).\012\012**Example.**\012\012```\012interface ICursor {\012    type Item\012    Item peek()\012}\012\012void walk(dyn ref ICursor c) { }\012```\012\012**Fix.** Use a `where` constraint, which keeps the conforming type known at compile time:\012\012```\012void walk<T>(ref T c) where T : ICursor { }\012```\012", 786)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2807: type argument does not conform\012\012**What.** A call or a type names a type argument that does not meet its parameter's `where` constraint. The error is reported where the type is chosen: at the call, or at a generic's own call when it passes one of its type parameters along.\012\012**Why.** The generic code was checked against its constraints, so it may call any member they declare. A type that does not conform has no such member to call. Only structs conform to interfaces, and a type parameter conforms only to the interfaces in its own `where` clause.\012\012**Example.**\012\012```\012interface IShape {\012    i64 area()\012}\012struct Square {\012    i64 side\012}\012i64 measure<T>(ref T shape) where T : IShape => shape.area()\012void main() {\012    var s = Square { side: 2 }\012    print($\042{measure(ref s)}\042)\012}\012```\012\012**Fix.** Conform the type to the interface, or pass one that does. For a type parameter, add the interface to its `where` clause:\012\012```\012struct Square : IShape {\012    i64 side\012\012    i64 area() => side * side\012}\012```\012", 1001)});
 #line 833 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 835 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2809", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2808", 7))) {
 #line 836 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2809: `dyn I` by value is not supported yet\012\012**What.** A type is written `dyn I` without `ref`.\012\012**Why.** An owned dynamic value would need its size at run time and an allocation to hold it. Only the borrowed form `dyn ref I` is supported: it points at a value that lives elsewhere and never allocates (spec 006, non-goals).\012\012**Example.**\012\012```\012interface IShape {\012    f32 area()\012}\012\012void show(dyn IShape s) { }\012```\012\012**Fix.** Borrow the value with `dyn ref` (or `dyn ref readonly` when only members without `ref this` are called):\012\012```\012void show(dyn ref IShape s) { }\012```\012", 574)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2808: interface cannot be used with `dyn`\012\012**What.** `dyn ref I` names an interface that has a generic method or an associated type (`type Item;`). The diagnostic names the first such member.\012\012**Why.** A `dyn ref` call goes through a table with one entry per member, built once for each conforming type. A generic method has no single entry (each type argument is a different function), and an associated type has no single type for callers to use: both depend on information only a constraint provides (spec 006, handoff Q93).\012\012**Example.**\012\012```\012interface ICursor {\012    type Item\012    Item peek()\012}\012\012void walk(dyn ref ICursor c) { }\012```\012\012**Fix.** Use a `where` constraint, which keeps the conforming type known at compile time:\012\012```\012void walk<T>(ref T c) where T : ICursor { }\012```\012", 786)});
 #line 835 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 837 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2810", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2809", 7))) {
 #line 838 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2810: `static` interface member\012\012**What.** An interface member is declared `static`.\012\012**Why.** A `static` interface member (`static T parse(string text)`, called as `T.parse(\342\200\246)` through a constraint) is not supported yet: no part of the compiler port needs it, so it is left out of the first interface subset (spec 006).\012\012**Example.**\012\012```\012interface IParse {\012    static i64 parse(string text)\012}\012```\012\012**Fix.** Remove `static` and call the member on a value, or make it a free function:\012\012```\012i64 parse(string text) {\012    // \342\200\246\012}\012```\012", 539)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2809: `dyn I` by value is not supported yet\012\012**What.** A type is written `dyn I` without `ref`.\012\012**Why.** An owned dynamic value would need its size at run time and an allocation to hold it. Only the borrowed form `dyn ref I` is supported: it points at a value that lives elsewhere and never allocates (spec 006, non-goals).\012\012**Example.**\012\012```\012interface IShape {\012    f32 area()\012}\012\012void show(dyn IShape s) { }\012```\012\012**Fix.** Borrow the value with `dyn ref` (or `dyn ref readonly` when only members without `ref this` are called):\012\012```\012void show(dyn ref IShape s) { }\012```\012", 574)});
 #line 837 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 839 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2811", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2810", 7))) {
 #line 840 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2811: `extension` conformance\012\012**What.** An `extension T : I` declaration adds a conformance to a type after the type is declared.\012\012**Why.** Retroactive conformance is not supported yet. A type's conformances are listed on its own declaration, so they are all in one place and a conformance cannot appear or disappear depending on which module is imported.\012\012**Example.**\012\012```\012struct Money {\012    i64 cents\012}\012\012extension Money : IShape {\012    i64 area() => 0\012}\012```\012\012**Fix.** List the interface on the type's declaration and move the members into it:\012\012```\012struct Money : IShape {\012    i64 cents\012\012    i64 area() => 0\012}\012```\012\012If the type is not yours to change, wrap it in a struct that conforms.\012", 693)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2810: `static` interface member\012\012**What.** An interface member is declared `static`.\012\012**Why.** A `static` interface member (`static T parse(string text)`, called as `T.parse(\342\200\246)` through a constraint) is not supported yet: no part of the compiler port needs it, so it is left out of the first interface subset (spec 006).\012\012**Example.**\012\012```\012interface IParse {\012    static i64 parse(string text)\012}\012```\012\012**Fix.** Remove `static` and call the member on a value, or make it a free function:\012\012```\012i64 parse(string text) {\012    // \342\200\246\012}\012```\012", 539)});
 #line 839 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 841 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2812", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2811", 7))) {
 #line 842 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2812: `where` names an unknown type parameter\012\012**What.** A `where` clause constrains a name that is not one of the declaration's own type parameters.\012\012**Why.** A `where T : I` clause restricts the types that can be passed for `T`, so `T` must be declared in the `<\342\200\246>` of the same function, struct, union or interface. A misspelled parameter would otherwise leave the real one unconstrained.\012\012**Example.**\012\012```\012void show<T>(ref T shape) where U : IShape { }\012```\012\012**Fix.** Name one of the declaration's type parameters, or remove the clause if there are none:\012\012```\012void show<T>(ref T shape) where T : IShape { }\012```\012", 621)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2811: `extension` conformance\012\012**What.** An `extension T : I` declaration adds a conformance to a type after the type is declared.\012\012**Why.** Retroactive conformance is not supported yet. A type's conformances are listed on its own declaration, so they are all in one place and a conformance cannot appear or disappear depending on which module is imported.\012\012**Example.**\012\012```\012struct Money {\012    i64 cents\012}\012\012extension Money : IShape {\012    i64 area() => 0\012}\012```\012\012**Fix.** List the interface on the type's declaration and move the members into it:\012\012```\012struct Money : IShape {\012    i64 cents\012\012    i64 area() => 0\012}\012```\012\012If the type is not yours to change, wrap it in a struct that conforms.\012", 693)});
 #line 841 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 843 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2813", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2812", 7))) {
 #line 844 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2813: `ref this` member through `dyn ref readonly`\012\012**What.** A member that takes `ref this` is called through a `dyn ref readonly` value. This includes default methods declared `ref this`.\012\012**Why.** `ref this` means the call may modify the value. A `dyn ref readonly` borrow promises that the value is not modified through it.\012\012**Example.**\012\012```\012interface ICounter {\012    i64 next(ref this)\012}\012\012void show(dyn ref readonly ICounter c) {\012    print($\042{c.next()}\042)\012}\012```\012\012**Fix.** Take a writable `dyn ref`:\012\012```\012void show(dyn ref ICounter c) {\012    print($\042{c.next()}\042)\012}\012```\012", 576)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2812: `where` names an unknown type parameter\012\012**What.** A `where` clause constrains a name that is not one of the declaration's own type parameters.\012\012**Why.** A `where T : I` clause restricts the types that can be passed for `T`, so `T` must be declared in the `<\342\200\246>` of the same function, struct, union or interface. A misspelled parameter would otherwise leave the real one unconstrained.\012\012**Example.**\012\012```\012void show<T>(ref T shape) where U : IShape { }\012```\012\012**Fix.** Name one of the declaration's type parameters, or remove the clause if there are none:\012\012```\012void show<T>(ref T shape) where T : IShape { }\012```\012", 621)});
 #line 843 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 845 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2814", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2813", 7))) {
 #line 846 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2814: `ref this` does not match the interface\012\012**What.** A struct's member and the interface member it provides disagree on `ref this`: one takes it and the other does not.\012\012**Why.** `ref this` decides whether a call may modify the value it is called on. Callers through the interface rely on the interface's choice: a read-only member must not change the value, and a `ref this` member needs a mutable one.\012\012**Example.**\012\012```\012interface ICounter {\012    i64 next(ref this)\012    i64 peek()\012}\012\012struct Counter : ICounter {\012    i64 value\012\012    i64 next() => value\012\012    i64 peek(ref this) => value\012}\012```\012\012**Fix.** Add or remove `ref this` to match the interface:\012\012```\012struct Counter : ICounter {\012    i64 value\012\012    i64 next(ref this) {\012        value += 1\012        return value\012    }\012\012    i64 peek() => value\012}\012```\012", 809)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2813: `ref this` member through `dyn ref readonly`\012\012**What.** A member that takes `ref this` is called through a `dyn ref readonly` value. This includes default methods declared `ref this`.\012\012**Why.** `ref this` means the call may modify the value. A `dyn ref readonly` borrow promises that the value is not modified through it.\012\012**Example.**\012\012```\012interface ICounter {\012    i64 next(ref this)\012}\012\012void show(dyn ref readonly ICounter c) {\012    print($\042{c.next()}\042)\012}\012```\012\012**Fix.** Take a writable `dyn ref`:\012\012```\012void show(dyn ref ICounter c) {\012    print($\042{c.next()}\042)\012}\012```\012", 576)});
 #line 845 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 847 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2815", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2814", 7))) {
 #line 848 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2815: only structs can conform\012\012**What.** A union or an enum lists interfaces after `:`.\012\012**Why.** Conformance is for structs only for now. Union and enum members are not in the language yet, so a union or enum has nowhere to provide an interface's members (spec 006, handoff Q100).\012\012**Example.**\012\012```\012union Shape : IShape {\012    circle(i64 r)\012    none\012}\012```\012\012**Fix.** Wrap the union or enum in a struct that conforms, and switch on it inside the members:\012\012```\012union Shape {\012    circle(i64 r),\012    none,\012}\012\012struct AnyShape : IShape {\012    Shape shape\012\012    i64 area() => shape switch {\012        .circle(let r) => 3 * r * r,\012        .none => 0,\012    }\012}\012```\012", 657)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2814: `ref this` does not match the interface\012\012**What.** A struct's member and the interface member it provides disagree on `ref this`: one takes it and the other does not.\012\012**Why.** `ref this` decides whether a call may modify the value it is called on. Callers through the interface rely on the interface's choice: a read-only member must not change the value, and a `ref this` member needs a mutable one.\012\012**Example.**\012\012```\012interface ICounter {\012    i64 next(ref this)\012    i64 peek()\012}\012\012struct Counter : ICounter {\012    i64 value\012\012    i64 next() => value\012\012    i64 peek(ref this) => value\012}\012```\012\012**Fix.** Add or remove `ref this` to match the interface:\012\012```\012struct Counter : ICounter {\012    i64 value\012\012    i64 next(ref this) {\012        value += 1\012        return value\012    }\012\012    i64 peek() => value\012}\012```\012", 809)});
 #line 847 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 849 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2816", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2815", 7))) {
 #line 850 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2816: an interface is not a type\012\012**What.** An interface name is used as a type on its own: a parameter, local, field, return or type argument.\012\012**Why.** An interface describes what a type provides; it has no size or layout of its own, so there is no value of type `IShape`. An interface may appear in a base list (`struct Circle : IShape`), in a `where` bound, or after `dyn ref`.\012\012**Example.**\012\012```\012interface IShape {\012    f32 area()\012}\012\012void show(IShape s) { }\012```\012\012**Fix.** Borrow any conforming value with `dyn ref`, or make the function generic with a constraint:\012\012```\012void show(dyn ref IShape s) { }\012\012void draw<T>(ref T s) where T : IShape { }\012```\012", 658)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2815: only structs can conform\012\012**What.** A union or an enum lists interfaces after `:`.\012\012**Why.** Conformance is for structs only for now. Union and enum members are not in the language yet, so a union or enum has nowhere to provide an interface's members (spec 006, handoff Q100).\012\012**Example.**\012\012```\012union Shape : IShape {\012    circle(i64 r)\012    none\012}\012```\012\012**Fix.** Wrap the union or enum in a struct that conforms, and switch on it inside the members:\012\012```\012union Shape {\012    circle(i64 r),\012    none,\012}\012\012struct AnyShape : IShape {\012    Shape shape\012\012    i64 area() => shape switch {\012        .circle(let r) => 3 * r * r,\012        .none => 0,\012    }\012}\012```\012", 657)});
 #line 849 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 851 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2820", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2816", 7))) {
 #line 852 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2820: lambda parameter count\012\012**Why.** A lambda takes its parameter types from the function type it is passed or assigned to, so it must name exactly as many parameters as that type has.\012\012**Example.**\012\012```\012i64 apply((i64, i64) -> i64 f) => f(1, 2)\012\012void main() {\012    let sum = apply(x => x)\012}\012```\012\012**Fix.** Name one parameter per parameter of the function type:\012\012```\012let sum = apply((a, b) => a + b)\012```\012", 409)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2816: an interface is not a type\012\012**What.** An interface name is used as a type on its own: a parameter, local, field, return or type argument.\012\012**Why.** An interface describes what a type provides; it has no size or layout of its own, so there is no value of type `IShape`. An interface may appear in a base list (`struct Circle : IShape`), in a `where` bound, or after `dyn ref`.\012\012**Example.**\012\012```\012interface IShape {\012    f32 area()\012}\012\012void show(IShape s) { }\012```\012\012**Fix.** Borrow any conforming value with `dyn ref`, or make the function generic with a constraint:\012\012```\012void show(dyn ref IShape s) { }\012\012void draw<T>(ref T s) where T : IShape { }\012```\012", 658)});
 #line 851 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 853 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2821", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2820", 7))) {
 #line 854 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2821: value a lambda cannot capture\012\012**Why.** A lambda copies what it captures when it is made, so it captures only values that cannot change under it: `let` locals, `let` pattern bindings and plain parameters. A `var` could be reassigned after the copy, a `ref`, `mut` or `move` parameter is a borrow of the caller's storage, and `this` (with the fields read through it) is not captured at all.\012\012**Example.**\012\012```\012i64 apply((i64 -> i64) f) => f(1)\012\012void main() {\012    var step = 2\012    step = 3\012    let a = apply(x => x + step)\012}\012```\012\012**Fix.** Copy the value into a `let` first and capture that:\012\012```\012let current = step\012let a = apply(x => x + current)\012```\012", 660)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2820: lambda parameter count\012\012**Why.** A lambda takes its parameter types from the function type it is passed or assigned to, so it must name exactly as many parameters as that type has.\012\012**Example.**\012\012```\012i64 apply((i64, i64) -> i64 f) => f(1, 2)\012\012void main() {\012    let sum = apply(x => x)\012}\012```\012\012**Fix.** Name one parameter per parameter of the function type:\012\012```\012let sum = apply((a, b) => a + b)\012```\012", 409)});
 #line 853 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 855 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2822", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2821", 7))) {
 #line 856 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2822: function type not supported here\012\012**Why.** A function value borrows the frame that made it, so in 007 it lives only where that frame outlives it: a parameter, a local, or the target of a `type` alias naming one of those. A struct field, a return type, a type argument, or the element of an optional, span, list, map, array or tuple would carry it out of that frame.\012\012**Example.**\012\012```\012struct Line {\012    i32 qty\012}\012struct Money {\012    i64 cents\012}\012type Pricer = Line -> Money uses net\012struct Shop {\012    Pricer pricer\012}\012```\012\012**Fix.** Take the function as a parameter of the function that calls it: `Money total(Line line, Pricer pricer)`.\012", 645)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2821: value a lambda cannot capture\012\012**Why.** A lambda copies what it captures when it is made, so it captures only values that cannot change under it: `let` locals, `let` pattern bindings and plain parameters. A `var` could be reassigned after the copy, a `ref`, `mut` or `move` parameter is a borrow of the caller's storage, and `this` (with the fields read through it) is not captured at all.\012\012**Example.**\012\012```\012i64 apply((i64 -> i64) f) => f(1)\012\012void main() {\012    var step = 2\012    step = 3\012    let a = apply(x => x + step)\012}\012```\012\012**Fix.** Copy the value into a `let` first and capture that:\012\012```\012let current = step\012let a = apply(x => x + current)\012```\012", 660)});
 #line 855 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 857 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2823", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2822", 7))) {
 #line 858 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2823: member where a lambda is expected\012\012**Why.** A leading `.name` picks a member of the expected type, such as an enum member or an error variant. A function type has no such members, and `.name` never stands for a lambda that reads the member of its parameter.\012\012**Example.**\012\012```\012struct User {\012    string name\012}\012\012string label(User u, by (User -> string) key) => key(u)\012\012void main() {\012    let user = User { name: \042a\042 }\012    let text = label(user, by: .name)\012}\012```\012\012**Fix.** Read the member through `it`:\012\012```\012let text = label(user, by: it.name)\012```\012", 555)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2822: function type not supported here\012\012**Why.** A function value borrows the frame that made it, so in 007 it lives only where that frame outlives it: a parameter, a local, or the target of a `type` alias naming one of those. A struct field, a return type, a type argument, or the element of an optional, span, list, map, array or tuple would carry it out of that frame.\012\012**Example.**\012\012```\012struct Line {\012    i32 qty\012}\012struct Money {\012    i64 cents\012}\012type Pricer = Line -> Money uses net\012struct Shop {\012    Pricer pricer\012}\012```\012\012**Fix.** Take the function as a parameter of the function that calls it: `Money total(Line line, Pricer pricer)`.\012", 645)});
 #line 857 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 859 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2824", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2823", 7))) {
 #line 860 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2824: not a function value\012\012**Why.** Only a module-level, non-generic function is a value of a function type, and only when its signature matches the type exactly. A built-in, a generic function, a method (static or instance), a constructor and a union variant are not values: a built-in has no single signature, a generic function has none until its type arguments are known, a method needs its receiver, and a constructor or variant builds a value rather than being one.\012\012**Example.**\012\012```\012struct Order {\012    i64 total\012\012    i64 doubled() => total * 2\012}\012\012i64 measure((() -> i64) f) => f()\012\012i64 twice(Order o) => measure(o.doubled)\012```\012\012**Fix.** Wrap it in a lambda that calls it: `measure(() => o.doubled())`.\012", 716)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2823: member where a lambda is expected\012\012**Why.** A leading `.name` picks a member of the expected type, such as an enum member or an error variant. A function type has no such members, and `.name` never stands for a lambda that reads the member of its parameter.\012\012**Example.**\012\012```\012struct User {\012    string name\012}\012\012string label(User u, by (User -> string) key) => key(u)\012\012void main() {\012    let user = User { name: \042a\042 }\012    let text = label(user, by: .name)\012}\012```\012\012**Fix.** Read the member through `it`:\012\012```\012let text = label(user, by: it.name)\012```\012", 555)});
 #line 859 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 861 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2830", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2824", 7))) {
 #line 862 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2830: `HashMap` is not supported yet\012\012**Why.** Bayan has one hash map, `Map<K, V>`. It hashes its keys like an unordered map would, and it also keeps insertion order, so iteration is the same on every run and every build. An unordered `HashMap` would iterate in an order that depends on the hash seed, which deterministic output cannot tolerate. `HashMap` is reported once and then read as `Map`, so nothing else is reported for it.\012\012**Example.**\012\012```\012struct Counter {\012    HashMap<string, i32> counts\012}\012```\012\012**Fix.** Write `Map` with the same type arguments: `Map<string, i32> counts`. The fix does this; `bayan format` does not apply it, since the type checker reports it.\012", 679)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2824: not a function value\012\012**Why.** Only a module-level, non-generic function is a value of a function type, and only when its signature matches the type exactly. A built-in, a generic function, a method (static or instance), a constructor and a union variant are not values: a built-in has no single signature, a generic function has none until its type arguments are known, a method needs its receiver, and a constructor or variant builds a value rather than being one.\012\012**Example.**\012\012```\012struct Order {\012    i64 total\012\012    i64 doubled() => total * 2\012}\012\012i64 measure((() -> i64) f) => f()\012\012i64 twice(Order o) => measure(o.doubled)\012```\012\012**Fix.** Wrap it in a lambda that calls it: `measure(() => o.doubled())`.\012", 716)});
 #line 861 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 863 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2831", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2830", 7))) {
 #line 864 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2831: a part of a `Map` key is not a key\012\012**Why.** A tuple or struct is a `Map` key when every element or field is one: an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those. The map hashes and compares a composite key part by part, so one part that cannot be hashed (a float, an optional, an enum with data, a collection, a `@noEquality` struct) rules out the whole key. The diagnostic names the first such part and its type. In generic code it is reported where the type argument is chosen.\012\012**Example.**\012\012```\012struct Weight {\012    f64 grams\012}\012\012let byWeight = Map<Weight, string>()\012```\012\012**Fix.** Key by a field that identifies the value, such as an integer id or a `Symbol` name, or change the part to a key type.\012", 762)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2830: `HashMap` is not supported yet\012\012**Why.** Bayan has one hash map, `Map<K, V>`. It hashes its keys like an unordered map would, and it also keeps insertion order, so iteration is the same on every run and every build. An unordered `HashMap` would iterate in an order that depends on the hash seed, which deterministic output cannot tolerate. `HashMap` is reported once and then read as `Map`, so nothing else is reported for it.\012\012**Example.**\012\012```\012struct Counter {\012    HashMap<string, i32> counts\012}\012```\012\012**Fix.** Write `Map` with the same type arguments: `Map<string, i32> counts`. The fix does this; `bayan format` does not apply it, since the type checker reports it.\012", 679)});
 #line 863 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 865 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN2832", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2831", 7))) {
 #line 866 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2832: a `string` value is not a `Symbol`\012\012**Why.** Only a string literal becomes a `Symbol` by itself: its text is known when the program is compiled, so it is an entry of the program's literal table. Any other `string` (a local, a parameter, a slice, an interpolated string, a call result) is known only at run time, and turning it into a `Symbol` interns it, which allocates. Bayan keeps that visible.\012\012**Example.**\012\012```\012void main() {\012    let name: string = \042total\042\012    let s: Symbol = name\012}\012```\012\012**Fix.** Intern it: `let s: Symbol = Symbol.intern(name)`. A function that calls it declares `uses alloc`; `main` needs none.\012", 631)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2831: a part of a `Map` key is not a key\012\012**Why.** A tuple or struct is a `Map` key when every element or field is one: an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those. The map hashes and compares a composite key part by part, so one part that cannot be hashed (a float, an optional, an enum with data, a collection, a `@noEquality` struct) rules out the whole key. The diagnostic names the first such part and its type. In generic code it is reported where the type argument is chosen.\012\012**Example.**\012\012```\012struct Weight {\012    f64 grams\012}\012\012let byWeight = Map<Weight, string>()\012```\012\012**Fix.** Key by a field that identifies the value, such as an integer id or a `Symbol` name, or change the part to a key type.\012", 762)});
 #line 865 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 867 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3001", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN2832", 7))) {
 #line 868 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3001: borrowed value in a struct field\012\012**Why.** A `string`, `Span<T>` or `StrBuf` points into memory owned elsewhere. Storing it in a struct would let the struct outlive that memory; v0.1 has no way to check that, so it is not allowed.\012\012**Example.**\012\012```\012struct Window { Span<u8> bytes }\012```\012\012**Fix.** Storing borrows in structs arrives in a later version; copy the data instead (for example into a `List<u8>`), or store an index.\012", 437)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2832: a `string` value is not a `Symbol`\012\012**Why.** Only a string literal becomes a `Symbol` by itself: its text is known when the program is compiled, so it is an entry of the program's literal table. Any other `string` (a local, a parameter, a slice, an interpolated string, a call result) is known only at run time, and turning it into a `Symbol` interns it, which allocates. Bayan keeps that visible.\012\012**Example.**\012\012```\012void main() {\012    let name: string = \042total\042\012    let s: Symbol = name\012}\012```\012\012**Fix.** Intern it: `let s: Symbol = Symbol.intern(name)`. A function that calls it declares `uses alloc`; `main` needs none.\012", 631)});
 #line 867 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 869 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3002", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3001", 7))) {
 #line 870 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3002: borrow outlives its source\012\012**Why.** A `string`, `Span<T>` or `List<T>` that points into a stack buffer, a local array or an arena is only valid until that storage is freed at the end of its block. Storing it in a variable (or list) declared in an outer block would leave the variable pointing at freed memory.\012\012**Example.**\012\012```\012var view = \042\042\012{\012    let bytes = stackalloc u8[16]\012    var sb = StrBuf(bytes)\012    sb.append(\042scratch\042)\012    view = sb.finish()\012}\012print(view)\012```\012\012**Fix.** Move the storage out to the block where the value is used, or copy the data with `.copy(to: alloc)` into an allocator that lives long enough.\012", 636)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3001: borrowed value in a struct field\012\012**Why.** A `string`, `Span<T>` or `StrBuf` points into memory owned elsewhere. Storing it in a struct would let the struct outlive that memory; v0.1 has no way to check that, so it is not allowed.\012\012**Example.**\012\012```\012struct Window { Span<u8> bytes }\012```\012\012**Fix.** Storing borrows in structs arrives in a later version; copy the data instead (for example into a `List<u8>`), or store an index.\012", 437)});
 #line 869 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 871 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3003", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3002", 7))) {
 #line 872 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3003: returning a borrow of local storage\012\012**Why.** A function's locals, by-value parameters and `stackalloc` buffers are freed when it returns, so a span or string pointing into them would dangle. A returned borrow may only point into what the caller passed in (spec \302\2479.4 rule 4).\012\012**Example.**\012\012```\012Span<i64> scratch() {\012    let buf = stackalloc i64[4]\012    return buf[1..]\012}\012```\012\012**Fix.** Let the caller pass the buffer (a `Span<T>` parameter) or an allocator in, and borrow or allocate from that.\012", 506)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3002: borrow outlives its source\012\012**Why.** A `string`, `Span<T>` or `List<T>` that points into a stack buffer, a local array or an arena is only valid until that storage is freed at the end of its block. Storing it in a variable (or list) declared in an outer block would leave the variable pointing at freed memory.\012\012**Example.**\012\012```\012var view = \042\042\012{\012    let bytes = stackalloc u8[16]\012    var sb = StrBuf(bytes)\012    sb.append(\042scratch\042)\012    view = sb.finish()\012}\012print(view)\012```\012\012**Fix.** Move the storage out to the block where the value is used, or copy the data with `.copy(to: alloc)` into an allocator that lives long enough.\012", 636)});
 #line 871 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 873 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3004", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3003", 7))) {
 #line 874 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3004: modified while borrowed\012\012**Why.** Adding to or clearing a `List` can move its elements, clearing a `StrBuf` overwrites its text, and resetting an `Arena` frees everything allocated from it. A span, string or loop that still points into the old storage would read freed or changed memory (spec \302\2479.4 rules 5 and 6).\012\012**Example.**\012\012```\012var xs = List<i64>()\012xs.append(1)\012let view = xs.span\012xs.append(2)\012print($\042{view[0]}\042)\012```\012\012**Fix.** Finish using the borrow before the change, or copy what it needs first. To grow a list you are iterating over, collect the new items in another list and add them after the loop.\012", 623)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3003: returning a borrow of local storage\012\012**Why.** A function's locals, by-value parameters and `stackalloc` buffers are freed when it returns, so a span or string pointing into them would dangle. A returned borrow may only point into what the caller passed in (spec \302\2479.4 rule 4).\012\012**Example.**\012\012```\012Span<i64> scratch() {\012    let buf = stackalloc i64[4]\012    return buf[1..]\012}\012```\012\012**Fix.** Let the caller pass the buffer (a `Span<T>` parameter) or an allocator in, and borrow or allocate from that.\012", 506)});
 #line 873 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 875 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3005", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3004", 7))) {
 #line 876 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3005: `ref` and another use in one call\012\012**Why.** A `ref` argument may be changed by the callee while the callee also reads the same value through another argument, for example a list it is growing and a span over that list (spec \302\2479.4 rule 5).\012\012**Example.**\012\012```\012var xs = List<i64>()\012void grow(ref List<i64> items, from ReadOnlySpan<i64> source) { }\012grow(items: ref xs, from: xs)\012```\012\012**Fix.** Copy the value into a local first and pass the copy, or split the work into two calls.\012", 487)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3004: modified while borrowed\012\012**Why.** Adding to or clearing a `List` can move its elements, clearing a `StrBuf` overwrites its text, and resetting an `Arena` frees everything allocated from it. A span, string or loop that still points into the old storage would read freed or changed memory (spec \302\2479.4 rules 5 and 6).\012\012**Example.**\012\012```\012var xs = List<i64>()\012xs.append(1)\012let view = xs.span\012xs.append(2)\012print($\042{view[0]}\042)\012```\012\012**Fix.** Finish using the borrow before the change, or copy what it needs first. To grow a list you are iterating over, collect the new items in another list and add them after the loop.\012", 623)});
 #line 875 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 877 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3006", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3005", 7))) {
 #line 878 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3006: moved while borrowed\012\012**Why.** Moving a value (`move s`, a `move` argument, `return move s`, `switch move s`, or `.take()` on a `List`, `Map`, `StrBuf` or optional) hands its storage to a new owner, which may grow, change or free it. A span or `dyn ref` that still points into the moved value would read freed or changed memory (spec \302\2479.4 rules 5 and 6).\012\012**Example.**\012\012```\012struct S {\012    List<i64> xs\012}\012var s = S { xs: List<i64>() }\012let view = s.xs.mutableSpan()\012var t = move s\012print($\042{view[0]}\042)\012```\012\012**Fix.** Finish using the borrow before the move, or copy what it needs first.\012", 595)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3005: `ref` and another use in one call\012\012**Why.** A `ref` argument may be changed by the callee while the callee also reads the same value through another argument, for example a list it is growing and a span over that list (spec \302\2479.4 rule 5).\012\012**Example.**\012\012```\012var xs = List<i64>()\012void grow(ref List<i64> items, from ReadOnlySpan<i64> source) { }\012grow(items: ref xs, from: xs)\012```\012\012**Fix.** Copy the value into a local first and pass the copy, or split the work into two calls.\012", 487)});
 #line 877 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 879 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3100", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3006", 7))) {
 #line 880 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3100: `package.byn` is data only\012\012**Why.** The manifest is read by tools that never run Bayan code, so it holds values only: strings, integers, `.names`, `[lists]` and `Type { field: value }`. Calls, operators, `comptime` and statements are not allowed.\012\012**Example.**\012\012```\012Package {\012    name: \042local/\042 + \042tally\042,\012}\012```\012\012**Fix.** Write the value out: `name = \042local/tally\042`.\012", 379)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3006: moved while borrowed\012\012**Why.** Moving a value (`move s`, a `move` argument, `return move s`, `switch move s`, or `.take()` on a `List`, `Map`, `StrBuf` or optional) hands its storage to a new owner, which may grow, change or free it. A span or `dyn ref` that still points into the moved value would read freed or changed memory (spec \302\2479.4 rules 5 and 6).\012\012**Example.**\012\012```\012struct S {\012    List<i64> xs\012}\012var s = S { xs: List<i64>() }\012let view = s.xs.mutableSpan()\012var t = move s\012print($\042{view[0]}\042)\012```\012\012**Fix.** Finish using the borrow before the move, or copy what it needs first.\012", 595)});
 #line 879 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 881 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3101", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3100", 7))) {
 #line 882 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3101: unknown manifest field\012\012**Why.** `package.byn` is checked against the `Package` type (and `Dist` for `dist: Dist { \342\200\246 }`). A misspelled field would otherwise be ignored silently.\012\012**Example.**\012\012```\012Package {\012    name: \042local/tally\042,\012    version: \0420.1.0\042,\012    verison: \0420.2.0\042,\012}\012```\012\012**Fix.** Use one of the listed fields, or remove the line.\012", 355)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3100: `package.byn` is data only\012\012**Why.** The manifest is read by tools that never run Bayan code, so it holds values only: strings, integers, `.names`, `[lists]` and `Type { field: value }`. Calls, operators, `comptime` and statements are not allowed.\012\012**Example.**\012\012```\012Package {\012    name: \042local/\042 + \042tally\042,\012}\012```\012\012**Fix.** Write the value out: `name = \042local/tally\042`.\012", 379)});
 #line 881 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 883 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3102", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3101", 7))) {
 #line 884 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3102: invalid manifest value\012\012**Why.** Each manifest field has a fixed shape: `name` is `namespace/name` in lowercase words joined by `-`, `version` is a semantic version, `edition` is `2027`, `kind` is `.app` or `.lib`, `dist.targets` is a list like `[.host]` and `dist.mode` is `.debug`, `.safe` or `.fast`.\012\012**Example.**\012\012```\012Package {\012    name: \042Tally\042,\012    version: \0421.0\042,\012}\012```\012\012**Fix.** `name = \042local/tally\042`, `version = \0421.0.0\042`.\012", 444)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3101: unknown manifest field\012\012**Why.** `package.byn` is checked against the `Package` type (and `Dist` for `dist: Dist { \342\200\246 }`). A misspelled field would otherwise be ignored silently.\012\012**Example.**\012\012```\012Package {\012    name: \042local/tally\042,\012    version: \0420.1.0\042,\012    verison: \0420.2.0\042,\012}\012```\012\012**Fix.** Use one of the listed fields, or remove the line.\012", 355)});
 #line 883 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 885 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3103", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3102", 7))) {
 #line 886 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3103: missing manifest field\012\012**Why.** Every package needs a `name` and a `version`: outputs, `dist/` directories and provenance records are named after them.\012\012**Example.**\012\012```\012Package {\012    name: \042local/tally\042,\012}\012```\012\012**Fix.** Add `version = \0420.1.0\042`.\012", 259)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3102: invalid manifest value\012\012**Why.** Each manifest field has a fixed shape: `name` is `namespace/name` in lowercase words joined by `-`, `version` is a semantic version, `edition` is `2027`, `kind` is `.app` or `.lib`, `dist.targets` is a list like `[.host]` and `dist.mode` is `.debug`, `.safe` or `.fast`.\012\012**Example.**\012\012```\012Package {\012    name: \042Tally\042,\012    version: \0421.0\042,\012}\012```\012\012**Fix.** `name = \042local/tally\042`, `version = \0421.0.0\042`.\012", 444)});
 #line 885 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 887 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3104", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3103", 7))) {
 #line 888 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3104: `=` in `package.byn`\012\012**What.** `field = value` in `package.byn`.\012\012**Why.** The manifest is Bayan data, and Bayan literals name their fields with `:`.\012\012**Example.**\012\012```\012Package {\012    name = \042local/shop\042,\012}\012```\012\012**Fix.** Write `:` (the machine fix does this):\012\012```\012Package {\012    name: \042local/shop\042,\012}\012```\012", 316)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3103: missing manifest field\012\012**Why.** Every package needs a `name` and a `version`: outputs, `dist/` directories and provenance records are named after them.\012\012**Example.**\012\012```\012Package {\012    name: \042local/tally\042,\012}\012```\012\012**Fix.** Add `version = \0420.1.0\042`.\012", 259)});
 #line 887 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 889 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3201", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3104", 7))) {
 #line 890 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3201: an unused value\012\012**Why.** A statement ends at the newline (spec \302\2472.5), so a line split in the wrong place can leave a value on a line of its own: `let x = a` followed by `-b` is two statements, and `-b` does nothing. Making an unused non-`void` value an error turns every such mis-split line into a diagnostic.\012\012**Example.**\012\012```\012void main() {\012    let a = 1\012    let x = a\012        -2\012    print(x)\012}\012```\012\012**Fix.** Join the lines, assign the value, or remove the expression:\012\012```\012void main() {\012    let a = 1\012    let x = a - 2\012    print(x)\012}\012```\012\012There is no automatic fix: whether the value belongs to the line above or is not needed is a choice.\012", 656)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3104: `=` in `package.byn`\012\012**What.** `field = value` in `package.byn`.\012\012**Why.** The manifest is Bayan data, and Bayan literals name their fields with `:`.\012\012**Example.**\012\012```\012Package {\012    name = \042local/shop\042,\012}\012```\012\012**Fix.** Write `:` (the machine fix does this):\012\012```\012Package {\012    name: \042local/shop\042,\012}\012```\012", 316)});
 #line 889 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 891 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3202", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3201", 7))) {
 #line 892 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3202: duplicate error case in a composition\012\012**Why.** A composed `union error` is flattened: `union error ShipError = CarrierError, StockError` has every case of both sets. When two of them have a case with the same name, `.rejected` in a `fails ShipError` function or a `catch switch` arm could mean either.\012\012**Example.**\012\012```\012union error CarrierError {\012    timeout\012    rejected\012}\012union error StockError {\012    outOfStock\012    rejected\012}\012union error ShipError = CarrierError, StockError\012```\012\012Different instantiations of one generic set are not a clash: `union error FormError = ValidationError<Signup>, ValidationError<Address>` is valid, and a `catch switch` matches them by type (`ValidationError<Signup> e => \342\200\246`). The message names each set with its type arguments: `` `ValidationError<Signup>` and `SignupError` both have a case `invalid` ``.\012\012**Fix.** Rename one of the cases (`carrierRejected`), or compose fewer sets.\012", 931)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3201: an unused value\012\012**Why.** A statement ends at the newline (spec \302\2472.5), so a line split in the wrong place can leave a value on a line of its own: `let x = a` followed by `-b` is two statements, and `-b` does nothing. Making an unused non-`void` value an error turns every such mis-split line into a diagnostic.\012\012**Example.**\012\012```\012void main() {\012    let a = 1\012    let x = a\012        -2\012    print(x)\012}\012```\012\012**Fix.** Join the lines, assign the value, or remove the expression:\012\012```\012void main() {\012    let a = 1\012    let x = a - 2\012    print(x)\012}\012```\012\012There is no automatic fix: whether the value belongs to the line above or is not needed is a choice.\012", 656)});
 #line 891 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 893 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3204", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3202", 7))) {
 #line 894 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3204: bare literal for a distinct type\012\012**Message.** \042`{0}` is not a `{1}`\042\012\012**Help.** \042wrap it: `{1}({0})`\042\012\012**What.** A bare literal is used where a distinct type is expected.\012\012**Why.** A distinct type is a new type, not an alias: its `requires` are checked when a value is built with `T(raw)`, and a bare literal would skip that check.\012\012**Example.**\012\012```\012type distinct Id = i64 requires it > 0\012\012void main() {\012    let i: Id = 7\012}\012```\012\012**Fix.** Wrap the literal (the machine fix does this):\012\012```\012    let i: Id = Id(7)\012```\012", 528)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3202: duplicate error case in a composition\012\012**Why.** A composed `union error` is flattened: `union error ShipError = CarrierError, StockError` has every case of both sets. When two of them have a case with the same name, `.rejected` in a `fails ShipError` function or a `catch switch` arm could mean either.\012\012**Example.**\012\012```\012union error CarrierError {\012    timeout\012    rejected\012}\012union error StockError {\012    outOfStock\012    rejected\012}\012union error ShipError = CarrierError, StockError\012```\012\012Different instantiations of one generic set are not a clash: `union error FormError = ValidationError<Signup>, ValidationError<Address>` is valid, and a `catch switch` matches them by type (`ValidationError<Signup> e => \342\200\246`). The message names each set with its type arguments: `` `ValidationError<Signup>` and `SignupError` both have a case `invalid` ``.\012\012**Fix.** Rename one of the cases (`carrierRejected`), or compose fewer sets.\012", 931)});
 #line 893 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 895 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3206", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3204", 7))) {
 #line 896 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3206: rule target is not a field\012\012**Message.** \042`at .{0}` names no field of `{1}`\042\012\012**Help.** \042name a field of `{1}`\042\012\012**What.** A struct-level `requires \342\200\246 at .name` names something that is not a field of the struct.\012\012**Why.** `at .field` says which field a failed rule is reported against; it must name a field the struct declares.\012\012**Example.**\012\012```\012struct Range {\012    i64 low\012    i64 high\012    requires low <= high at .top\012}\012```\012\012**Fix.** Name a field of the struct:\012\012```\012    requires low <= high at .high\012```\012", 519)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3204: bare literal for a distinct type\012\012**Message.** \042`{0}` is not a `{1}`\042\012\012**Help.** \042wrap it: `{1}({0})`\042\012\012**What.** A bare literal is used where a distinct type is expected.\012\012**Why.** A distinct type is a new type, not an alias: its `requires` are checked when a value is built with `T(raw)`, and a bare literal would skip that check.\012\012**Example.**\012\012```\012type distinct Id = i64 requires it > 0\012\012void main() {\012    let i: Id = 7\012}\012```\012\012**Fix.** Wrap the literal (the machine fix does this):\012\012```\012    let i: Id = Id(7)\012```\012", 528)});
 #line 895 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 897 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3207", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3206", 7))) {
 #line 898 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3207: literal of a checked struct needs `try`\012\012**Message.** \042a literal of `{0}` can fail its `requires`; write `try {0} { \342\200\246 }`\042\012\012**Help.** \042add `try` before the literal and handle the `ValidationError<Order>`\042\012\012**What.** A struct literal builds a struct whose `requires` the compiler cannot decide, and nothing handles the failure.\012\012**Why.** A struct's `requires` are checked when the value is built. A literal that may break them fails with `ValidationError`, which must be propagated or caught like any other error.\012\012**Example.**\012\012```\012struct Order {\012    i64 quantity requires it > 0\012}\012\012Order order(i64 n) fails ValidationError<Order> => Order { quantity: n }\012```\012\012**Fix.** Add `try` (the machine fix does this), or `catch` the error:\012\012```\012Order order(i64 n) fails ValidationError<Order> => try Order { quantity: n }\012```\012", 829)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3206: rule target is not a field\012\012**Message.** \042`at .{0}` names no field of `{1}`\042\012\012**Help.** \042name a field of `{1}`\042\012\012**What.** A struct-level `requires \342\200\246 at .name` names something that is not a field of the struct.\012\012**Why.** `at .field` says which field a failed rule is reported against; it must name a field the struct declares.\012\012**Example.**\012\012```\012struct Range {\012    i64 low\012    i64 high\012    requires low <= high at .top\012}\012```\012\012**Fix.** Name a field of the struct:\012\012```\012    requires low <= high at .high\012```\012", 519)});
 #line 897 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 899 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3208", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3207", 7))) {
 #line 900 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3208: field of a checked struct assigned one at a time\012\012**Message.** \042fields of `{0}` cannot be assigned one at a time; its `requires` are checked at construction\042\012\012**Help.** \042build a new value with `with`: `try x with { f: v }`\042\012\012**What.** A method of a struct with `requires` assigns one of its fields.\012\012**Why.** The rules are checked when the value is built. Writing a field afterwards could break them unseen, so a checked struct changes only by building a new value.\012\012**Example.**\012\012```\012struct Range {\012    i64 low\012    i64 high\012    requires low <= high at .high\012\012    void widen(ref this) {\012        this.high = this.high + 1\012    }\012}\012```\012\012**Fix.** Build a new value with `with`, which checks the rules again:\012\012```\012    Range widen() fails ValidationError<Range> => try this with { high: this.high + 1 }\012```\012", 812)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3207: literal of a checked struct needs `try`\012\012**Message.** \042a literal of `{0}` can fail its `requires`; write `try {0} { \342\200\246 }`\042\012\012**Help.** \042add `try` before the literal and handle the `ValidationError<Order>`\042\012\012**What.** A struct literal builds a struct whose `requires` the compiler cannot decide, and nothing handles the failure.\012\012**Why.** A struct's `requires` are checked when the value is built. A literal that may break them fails with `ValidationError`, which must be propagated or caught like any other error.\012\012**Example.**\012\012```\012struct Order {\012    i64 quantity requires it > 0\012}\012\012Order order(i64 n) fails ValidationError<Order> => Order { quantity: n }\012```\012\012**Fix.** Add `try` (the machine fix does this), or `catch` the error:\012\012```\012Order order(i64 n) fails ValidationError<Order> => try Order { quantity: n }\012```\012", 829)});
 #line 899 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 901 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3209", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3208", 7))) {
 #line 902 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3209: `unique` value declared `const`\012\012**Why.** A `const` is a compile-time value that every use copies, while a `unique` type has exactly one owner and is never copied (spec \302\2473.11). A `struct unique`, or a struct holding one, therefore cannot be `const`.\012\012**Example.**\012\012```\012struct unique File {\012    i64 fd\012}\012void main() {\012    const f = File { fd: 1 }\012}\012```\012\012**Fix.** Declare it with `let` (the machine fix does this):\012\012```\012    let f = File { fd: 1 }\012```\012", 461)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3208: field of a checked struct assigned one at a time\012\012**Message.** \042fields of `{0}` cannot be assigned one at a time; its `requires` are checked at construction\042\012\012**Help.** \042build a new value with `with`: `try x with { f: v }`\042\012\012**What.** A method of a struct with `requires` assigns one of its fields.\012\012**Why.** The rules are checked when the value is built. Writing a field afterwards could break them unseen, so a checked struct changes only by building a new value.\012\012**Example.**\012\012```\012struct Range {\012    i64 low\012    i64 high\012    requires low <= high at .high\012\012    void widen(ref this) {\012        this.high = this.high + 1\012    }\012}\012```\012\012**Fix.** Build a new value with `with`, which checks the rules again:\012\012```\012    Range widen() fails ValidationError<Range> => try this with { high: this.high + 1 }\012```\012", 812)});
 #line 901 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 903 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3213", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3209", 7))) {
 #line 904 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3213: overlapping overloads\012\012**Not reported yet.** v0.1 overloads differ by particle set only, and two with the same particles are reported as BYN2006; the code is reserved for overloads that differ by parameter type.\012\012**Message.** \042`{0}` and `{1}` both accept `{2}`\042\012\012**Help.** \042change a parameter type or particle so the overloads cannot overlap\042\012\012**What.** Two overloads that differ only by parameter type accept the same argument through an implicit conversion, as `void f(Grams g)` beside `void f(Kilograms k)` does when `Kilograms` converts to `Grams`.\012\012**Why.** The overload rules are checked at the declaration so that a call never needs ambiguity resolution. Overlapping overloads would make the choice depend on conversion ranking.\012\012**Fix.** Change a parameter type or a particle so that no argument list fits both.\012", 831)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3209: `unique` value declared `const`\012\012**Why.** A `const` is a compile-time value that every use copies, while a `unique` type has exactly one owner and is never copied (spec \302\2473.11). A `struct unique`, or a struct holding one, therefore cannot be `const`.\012\012**Example.**\012\012```\012struct unique File {\012    i64 fd\012}\012void main() {\012    const f = File { fd: 1 }\012}\012```\012\012**Fix.** Declare it with `let` (the machine fix does this):\012\012```\012    let f = File { fd: 1 }\012```\012", 461)});
 #line 903 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 905 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3214", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3213", 7))) {
 #line 906 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3214: `rest` parameter stored\012\012**Message.** \042`{0}` is borrowed for the call and cannot be stored\042\012\012**Help.** \042copy it first: `{0}.copy()`\042\012\012**What.** A `rest` parameter is returned, or stored somewhere that outlives the call: a `ref` or `out` parameter, or a field of `this`.\012\012**Why.** The values of a `rest` tail live in the caller's stack frame for the one call, so passing them allocates nothing. Once the call returns, the slots are reused, and a stored span would point at whatever comes next.\012\012**Example.**\012\012```\012ReadOnlySpan<i64> keep(rest ReadOnlySpan<i64> xs) {\012    return xs\012}\012```\012\012**Fix.** Copy the values into a list that owns them. In v0.1, `copy` takes the allocator to copy into:\012\012```\012List<i64> keep(ref Arena arena, rest ReadOnlySpan<i64> xs) {\012    return xs.copy(to: arena)\012}\012```\012\012Reading `xs` and binding it to a local inside the function are fine. The diagnostic has no machine-applicable fix.\012", 917)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3213: overlapping overloads\012\012**Not reported yet.** v0.1 overloads differ by particle set only, and two with the same particles are reported as BYN2006; the code is reserved for overloads that differ by parameter type.\012\012**Message.** \042`{0}` and `{1}` both accept `{2}`\042\012\012**Help.** \042change a parameter type or particle so the overloads cannot overlap\042\012\012**What.** Two overloads that differ only by parameter type accept the same argument through an implicit conversion, as `void f(Grams g)` beside `void f(Kilograms k)` does when `Kilograms` converts to `Grams`.\012\012**Why.** The overload rules are checked at the declaration so that a call never needs ambiguity resolution. Overlapping overloads would make the choice depend on conversion ranking.\012\012**Fix.** Change a parameter type or a particle so that no argument list fits both.\012", 831)});
 #line 905 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 907 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3215", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3214", 7))) {
 #line 908 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3215: reference to an overloaded name\012\012**Not reported yet.** v0.1 overloads differ by particle set only, and a function reference does not pick among them; the code is reserved for overloads that differ by parameter type.\012\012**Message.** \042`{0}` is overloaded; give the reference a function type\042\012\012**Help.** \042annotate it: `let f: A -> B = {0}`\042\012\012**What.** An overloaded function's name is used as a value without a function type to choose the overload.\012\012**Why.** Each overload is a different function. Without a target type there is no way to tell which one the reference means.\012\012**Fix.** Give the reference a function type, as in `let f: i32 -> i32 = abs`.\012", 660)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3214: `rest` parameter stored\012\012**Message.** \042`{0}` is borrowed for the call and cannot be stored\042\012\012**Help.** \042copy it first: `{0}.copy()`\042\012\012**What.** A `rest` parameter is returned, or stored somewhere that outlives the call: a `ref` or `out` parameter, or a field of `this`.\012\012**Why.** The values of a `rest` tail live in the caller's stack frame for the one call, so passing them allocates nothing. Once the call returns, the slots are reused, and a stored span would point at whatever comes next.\012\012**Example.**\012\012```\012ReadOnlySpan<i64> keep(rest ReadOnlySpan<i64> xs) {\012    return xs\012}\012```\012\012**Fix.** Copy the values into a list that owns them. In v0.1, `copy` takes the allocator to copy into:\012\012```\012List<i64> keep(ref Arena arena, rest ReadOnlySpan<i64> xs) {\012    return xs.copy(to: arena)\012}\012```\012\012Reading `xs` and binding it to a local inside the function are fine. The diagnostic has no machine-applicable fix.\012", 917)});
 #line 907 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 909 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3216", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3215", 7))) {
 #line 910 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3216: field written from outside its struct\012\012**Message.** \042`{0}.{1}` can be written only by `{0}`'s own methods or with `with`: `{0}` {2}\042\012\012`{2}` is \042has `requires`\042, \042has states\042 or \042is `@sealed`\042.\012\012**Help.** \042add a `ref this` method to `{0}`, or build a new value with `with`\042\012\012**What.** Code outside a struct assigns one of its fields, and the struct has a `requires` rule, a `states` block or `@sealed`. Plain data structs allow direct field writes everywhere.\012\012**Why.** Such a struct owns its fields: only its own methods change them, so it can keep its rules and states, and a `@sealed` struct can change its representation without breaking callers. Other code builds a new value instead; for a struct with `requires`, `with` checks the rules again.\012\012**Example.**\012\012```\012@sealed\012public struct HttpClientOptions {\012    i64 timeout\012    i32 retries\012}\012\012void tune(ref HttpClientOptions options) {\012    options.retries = 5\012}\012```\012\012**Fix.** Build a new value with `with`, or move the write into a `ref this` method of `HttpClientOptions`:\012\012```\012void tune(ref HttpClientOptions options) {\012    options = options with { retries: 5 }\012}\012```\012", 1134)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3215: reference to an overloaded name\012\012**Not reported yet.** v0.1 overloads differ by particle set only, and a function reference does not pick among them; the code is reserved for overloads that differ by parameter type.\012\012**Message.** \042`{0}` is overloaded; give the reference a function type\042\012\012**Help.** \042annotate it: `let f: A -> B = {0}`\042\012\012**What.** An overloaded function's name is used as a value without a function type to choose the overload.\012\012**Why.** Each overload is a different function. Without a target type there is no way to tell which one the reference means.\012\012**Fix.** Give the reference a function type, as in `let f: i32 -> i32 = abs`.\012", 660)});
 #line 909 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 911 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3217", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3216", 7))) {
 #line 912 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3217: borrow crosses a fiber\012\012**Not reported yet.** v0.1 has no fibers; the code is reserved for when they arrive.\012\012**Message.** \042`{0}` holds a reference into `{1}` and cannot be passed to a fiber that may outlive it\042\012\012**Help.** \042copy the data first, or spawn the fiber in a scope that ends before `{1}`\042\012\012**What.** A value that borrows from another is passed to a fiber that may run longer than the value it borrows from.\012\012**Why.** When the owner goes away, the fiber would read freed memory.\012\012**Fix.** Copy the data into the fiber, or spawn it in a scope that ends before the owner does.\012", 595)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3216: field written from outside its struct\012\012**Message.** \042`{0}.{1}` can be written only by `{0}`'s own methods or with `with`: `{0}` {2}\042\012\012`{2}` is \042has `requires`\042, \042has states\042 or \042is `@sealed`\042.\012\012**Help.** \042add a `ref this` method to `{0}`, or build a new value with `with`\042\012\012**What.** Code outside a struct assigns one of its fields, and the struct has a `requires` rule, a `states` block or `@sealed`. Plain data structs allow direct field writes everywhere.\012\012**Why.** Such a struct owns its fields: only its own methods change them, so it can keep its rules and states, and a `@sealed` struct can change its representation without breaking callers. Other code builds a new value instead; for a struct with `requires`, `with` checks the rules again.\012\012**Example.**\012\012```\012@sealed\012public struct HttpClientOptions {\012    i64 timeout\012    i32 retries\012}\012\012void tune(ref HttpClientOptions options) {\012    options.retries = 5\012}\012```\012\012**Fix.** Build a new value with `with`, or move the write into a `ref this` method of `HttpClientOptions`:\012\012```\012void tune(ref HttpClientOptions options) {\012    options = options with { retries: 5 }\012}\012```\012", 1134)});
 #line 911 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 913 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3218", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3217", 7))) {
 #line 914 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3218: rule under a field reads other fields\012\012**Message.** \042this `requires` reads `it` and other fields\042\012\012**Help.** \042split it: an `it` rule under the field, and a struct-level rule with `at .field`\042\012\012**What.** A `requires` written under a field reads both `it` and another field of the struct.\012\012**Why.** A rule under a field checks that field alone. A rule that relates several fields is a struct-level rule, and `at .field` says which field a failure is reported against.\012\012**Example.**\012\012```\012struct Range {\012    i64 low\012    i64 high requires it > 0 && it >= low\012}\012```\012\012**Fix.** Split the rule:\012\012```\012struct Range {\012    i64 low\012    i64 high requires it > 0\012    requires low <= high at .high\012}\012```\012", 698)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3217: borrow crosses a fiber\012\012**Not reported yet.** v0.1 has no fibers; the code is reserved for when they arrive.\012\012**Message.** \042`{0}` holds a reference into `{1}` and cannot be passed to a fiber that may outlive it\042\012\012**Help.** \042copy the data first, or spawn the fiber in a scope that ends before `{1}`\042\012\012**What.** A value that borrows from another is passed to a fiber that may run longer than the value it borrows from.\012\012**Why.** When the owner goes away, the fiber would read freed memory.\012\012**Fix.** Copy the data into the fiber, or spawn it in a scope that ends before the owner does.\012", 595)});
 #line 913 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 915 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN3219", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3218", 7))) {
 #line 916 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN3219: not a mutation operator\012\012**Message.** \042`{0}` is not a mutation operator\042\012\012**Help.** \042use one of `boundary`, `relational`, `logical`, `condition`, `bool`, `arithmetic`, `literal`, `negation`, `statement`, `emptyReturn`, `variant`, or no argument for all\042\012\012**What.** The argument of `@unobservable(operator)` names no mutation operator.\012\012**Why.** An operator argument narrows a mark to one kind of mutant. The names are the operators of the mutation-testing table; a misspelled one would silently mark nothing.\012\012**Example.**\012\012```\012i32 f(i32 x) {\012    @unobservable(bogus) because \042x is clamped by the caller\042\012    return x\012}\012```\012\012**Fix.** Use one of the listed operators, or drop the argument to cover every operator in the statement.\012", 741)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3218: rule under a field reads other fields\012\012**Message.** \042this `requires` reads `it` and other fields\042\012\012**Help.** \042split it: an `it` rule under the field, and a struct-level rule with `at .field`\042\012\012**What.** A `requires` written under a field reads both `it` and another field of the struct.\012\012**Why.** A rule under a field checks that field alone. A rule that relates several fields is a struct-level rule, and `at .field` says which field a failure is reported against.\012\012**Example.**\012\012```\012struct Range {\012    i64 low\012    i64 high requires it > 0 && it >= low\012}\012```\012\012**Fix.** Split the rule:\012\012```\012struct Range {\012    i64 low\012    i64 high requires it > 0\012    requires low <= high at .high\012}\012```\012", 698)});
 #line 915 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 917 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN4001", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN3219", 7))) {
 #line 918 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN4001: internal compiler error, the C compiler rejected the generated C\012\012**What.** `bayan build`, `run`, `test` or `dist` produced C that the C compiler (zig cc, `$BAYAN_CC` or `cc`) refused. The C compiler's own messages follow the error.\012\012**Why.** A program that `bayan check` accepts must compile; a C compiler error that reaches you is a bug in the Bayan compiler, not in your code (spec \302\24724). The generated C carries `#line` directives, so the C compiler's messages name the `.byn` file and line of the statement it rejected.\012\012**Fix.** Report it with the C text and the `.byn` lines it names. `bayan build --emit-c` prints the generated C; a project's last build keeps it in `out/<mode>/<target>/c/main.c`. Meanwhile, rewriting the named statement differently may avoid the bug.\012", 789)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN3219: not a mutation operator\012\012**Message.** \042`{0}` is not a mutation operator\042\012\012**Help.** \042use one of `boundary`, `relational`, `logical`, `condition`, `bool`, `arithmetic`, `literal`, `negation`, `statement`, `emptyReturn`, `variant`, or no argument for all\042\012\012**What.** The argument of `@unobservable(operator)` names no mutation operator.\012\012**Why.** An operator argument narrows a mark to one kind of mutant. The names are the operators of the mutation-testing table; a misspelled one would silently mark nothing.\012\012**Example.**\012\012```\012i32 f(i32 x) {\012    @unobservable(bogus) because \042x is clamped by the caller\042\012    return x\012}\012```\012\012**Fix.** Use one of the listed operators, or drop the argument to cover every operator in the statement.\012", 741)});
 #line 917 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 919 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN4002", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN4001", 7))) {
 #line 920 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN4002: internal compiler error, a bound error expression reached lowering\012\012**What.** `bayan build`, `run`, `test` or `dist` found an error expression in the bound program, a body or a field default, although the checker reported no error. The compiler stops before generating any C and exits 1.\012\012**Why.** An error expression stands for a construct the checker rejected, and a rejection is always reported. With none reported, the checker is wrong, not your program (spec \302\24724).\012\012**Fix.** Report it with the program, or the smallest part of it that still fails. `bayan check` on the same program may show where.\012", 615)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN4001: internal compiler error, the C compiler rejected the generated C\012\012**What.** `bayan build`, `run`, `test` or `dist` produced C that the C compiler (zig cc, `$BAYAN_CC` or `cc`) refused. The C compiler's own messages follow the error.\012\012**Why.** A program that `bayan check` accepts must compile; a C compiler error that reaches you is a bug in the Bayan compiler, not in your code (spec \302\24724). The generated C carries `#line` directives, so the C compiler's messages name the `.byn` file and line of the statement it rejected.\012\012**Fix.** Report it with the C text and the `.byn` lines it names. `bayan build --emit-c` prints the generated C; a project's last build keeps it in `out/<mode>/<target>/c/main.c`. Meanwhile, rewriting the named statement differently may avoid the bug.\012", 789)});
 #line 919 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 921 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5001", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN4002", 7))) {
 #line 922 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5001: `-ed` member that takes `ref this`\012\012**What.** A member is named with the `-ed` form of a verb (`sorted`, `trimmed`, `joined`) but takes `ref this`, so it changes `this`.\012\012**Why.** The `-ed` name is reserved (spec \302\2475.2, [grammar guide](../bayan-grammar.md) tree 1 and 2): it names a changed copy or a view of `this` and never changes it. A member that acts on `this` is a plain verb on `ref this` (`sort`, `trim`). The `-ed` form does not need a plain verb to exist: an immutable type such as `string` has `trimmed()` with no `trim`.\012\012**Message.** `{0}` changes `this`; name it `{1}`\012\012**Help.** name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view\012\012**What counts as `-ed`.** One lowercase word of five letters or more ending in `-ed`, on a member that takes `ref this` and does not return `bool`. The plain verb offered in the message is found by dropping `-ed` (`sorted` \342\206\222 `sort`), dropping only the `d` (`reversed` \342\206\222 `reverse`), undoing a doubled consonant (`trimmed` \342\206\222 `trim`) or `-ied` (`copied` \342\206\222 `copy`). Not participles: words ending in `-eed` (`need`, `speed`, `seed`), shorter words (`red`, `bed`, `used`), and `hundred`, `embed`, `shred`, `naked`, `wicked`, `sacred`, `kindred`. An irregular form declared in `forms` in the project dictionary counts too (`forms: [\042regrind\042: \042reground\042]`; see [BYN5014](BYN5014.md)). Not checked: math vocabulary (`sqrt`, `radians`, \342\200\246), and typestate states (`states { paid, shipped }`), which are not members. A `bool` member named `closed` is a state: see [BYN5102](BYN5102.md).\012\012**Example.**\012\012```\012struct Words {\012    string text\012    void sorted(ref this) { }\012}\012```\012\012**Fix.** Name the member that changes `this` with the plain verb, and keep `-ed` for the copy or the view:\012\012```\012struct Words {\012    string text\012\012    void sort(ref this) { \342\200\246 }\012}\012```\012\012**Where this comes from.** The `-ed` copy follows the Arabic passive participle (maf\312\277\305\253l), which names the result of an act, not the act. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 2045)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN4002: internal compiler error, a bound error expression reached lowering\012\012**What.** `bayan build`, `run`, `test` or `dist` found an error expression in the bound program, a body or a field default, although the checker reported no error. The compiler stops before generating any C and exits 1.\012\012**Why.** An error expression stands for a construct the checker rejected, and a rejection is always reported. With none reported, the checker is wrong, not your program (spec \302\24724).\012\012**Fix.** Report it with the program, or the smallest part of it that still fails. `bayan check` on the same program may show where.\012", 615)});
 #line 921 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 923 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5002", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5001", 7))) {
 #line 924 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5002: state member modifies `this`\012\012**What.** A member with no arguments named `isX`, `hasX` or `canX` is declared `ref this`.\012\012**Why.** `is`, `has` and `can` name a state (spec \302\2475.2, [grammar guide](../bayan-grammar.md) tree 3): a reader expects `if q.isEmpty` to look, not to change `q`, and a state member is callable on a `let`. A member that changes `this` is an action, named with a verb on `ref this` (tree 1). A member with arguments (`hasRoomFor(n)`) is not checked.\012\012**Example.**\012\012```\012struct Queue {\012    i64 count\012\012    bool isEmpty(ref this) {\012        count = 0\012        return true\012    }\012}\012```\012\012**Fix.** Remove `ref this` so the member only reads:\012\012```\012struct Queue {\012    i64 count\012\012    bool isEmpty() => count == 0\012}\012```\012\012If it must change `this`, name the action with a verb: `bool drain(ref this)`.\012\012**Where this comes from.** The `is` / `has` / `can` state follows the Arabic attribute (\341\271\243ifa), which describes a thing without acting on it. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 1013)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5001: `-ed` member that takes `ref this`\012\012**What.** A member is named with the `-ed` form of a verb (`sorted`, `trimmed`, `joined`) but takes `ref this`, so it changes `this`.\012\012**Why.** The `-ed` name is reserved (spec \302\2475.2, [grammar guide](../bayan-grammar.md) tree 1 and 2): it names a changed copy or a view of `this` and never changes it. A member that acts on `this` is a plain verb on `ref this` (`sort`, `trim`). The `-ed` form does not need a plain verb to exist: an immutable type such as `string` has `trimmed()` with no `trim`.\012\012**Message.** `{0}` changes `this`; name it `{1}`\012\012**Help.** name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view\012\012**What counts as `-ed`.** One lowercase word of five letters or more ending in `-ed`, on a member that takes `ref this` and does not return `bool`. The plain verb offered in the message is found by dropping `-ed` (`sorted` \342\206\222 `sort`), dropping only the `d` (`reversed` \342\206\222 `reverse`), undoing a doubled consonant (`trimmed` \342\206\222 `trim`) or `-ied` (`copied` \342\206\222 `copy`). Not participles: words ending in `-eed` (`need`, `speed`, `seed`), shorter words (`red`, `bed`, `used`), and `hundred`, `embed`, `shred`, `naked`, `wicked`, `sacred`, `kindred`. An irregular form declared in `forms` in the project dictionary counts too (`forms: [\042regrind\042: \042reground\042]`; see [BYN5014](BYN5014.md)). Not checked: math vocabulary (`sqrt`, `radians`, \342\200\246), and typestate states (`states { paid, shipped }`), which are not members. A `bool` member named `closed` is a state: see [BYN5102](BYN5102.md).\012\012**Example.**\012\012```\012struct Words {\012    string text\012    void sorted(ref this) { }\012}\012```\012\012**Fix.** Name the member that changes `this` with the plain verb, and keep `-ed` for the copy or the view:\012\012```\012struct Words {\012    string text\012\012    void sort(ref this) { \342\200\246 }\012}\012```\012\012**Where this comes from.** The `-ed` copy follows the Arabic passive participle (maf\312\277\305\253l), which names the result of an act, not the act. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 2045)});
 #line 923 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 925 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5003", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5002", 7))) {
 #line 926 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5003: `tryX` with the wrong return type\012\012**What.** A hand-written `tryX` returns something other than `T\077` or `bool`, and the type has an `x()` that `fails`.\012\012**Why.** `tryX` is reserved (spec \302\2475.2, [grammar guide](../bayan-grammar.md) tree 4): it is the attempt form of `x() fails`, derived from it, and it returns `T\077` (the value or `null`) or `bool` (whether it worked). A `tryX` with another return type reads as an attempt but does not report failure the way every other `tryX` does.\012\012**Example.**\012\012```\012union error ParseError {\012    empty\012}\012struct Reader {\012    string text\012    i64 parse() fails ParseError {\012        return 0\012    }\012    i64 tryParse() => 0\012}\012```\012\012**Fix.** Remove `tryParse` and call `try parse()`, or return `i64\077`:\012\012```\012    i64\077 tryParse() => null\012```\012\012**Where this comes from.** `tryX` follows Arabic verb Form X (istaf\312\277ala), which adds the sense of attempting the act. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 949)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5002: state member modifies `this`\012\012**What.** A member with no arguments named `isX`, `hasX` or `canX` is declared `ref this`.\012\012**Why.** `is`, `has` and `can` name a state (spec \302\2475.2, [grammar guide](../bayan-grammar.md) tree 3): a reader expects `if q.isEmpty` to look, not to change `q`, and a state member is callable on a `let`. A member that changes `this` is an action, named with a verb on `ref this` (tree 1). A member with arguments (`hasRoomFor(n)`) is not checked.\012\012**Example.**\012\012```\012struct Queue {\012    i64 count\012\012    bool isEmpty(ref this) {\012        count = 0\012        return true\012    }\012}\012```\012\012**Fix.** Remove `ref this` so the member only reads:\012\012```\012struct Queue {\012    i64 count\012\012    bool isEmpty() => count == 0\012}\012```\012\012If it must change `this`, name the action with a verb: `bool drain(ref this)`.\012\012**Where this comes from.** The `is` / `has` / `can` state follows the Arabic attribute (\341\271\243ifa), which describes a thing without acting on it. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 1013)});
 #line 925 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 927 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5004", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5003", 7))) {
 #line 928 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5004: too many unlabeled parameters\012\012**Why.** A particle is part of a function's name: `copy(from: a, to: b)` says what each argument is for, where `copy(a, b)` leaves the reader to guess. A function has at most one unlabeled required parameter, the object; every other one starts with a particle (`from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`). The receiver of a method never counts as the object. `bool` parameters, parameters with a default, `extern` declarations, operators, union and state payloads and laws are exempt.\012\012**Message.** `{0}` has {1} unlabeled parameters; give each but one a particle\012\012**Help.** keep one unlabeled parameter, the object\012\012**Example.**\012\012```\012void transfer(i64 amount, i64 payer, i64 payee) {\012    return\012}\012```\012\012Each parameter besides the object is also reported as BYN5006.\012\012**Fix.** Keep the object unlabeled and give the others a particle by meaning:\012\012```\012void transfer(i64 amount, from i64 payer, to i64 payee) {\012    return\012}\012```\012\012The diagnostic has no machine-applicable fix.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 1086)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5003: `tryX` with the wrong return type\012\012**What.** A hand-written `tryX` returns something other than `T\077` or `bool`, and the type has an `x()` that `fails`.\012\012**Why.** `tryX` is reserved (spec \302\2475.2, [grammar guide](../bayan-grammar.md) tree 4): it is the attempt form of `x() fails`, derived from it, and it returns `T\077` (the value or `null`) or `bool` (whether it worked). A `tryX` with another return type reads as an attempt but does not report failure the way every other `tryX` does.\012\012**Example.**\012\012```\012union error ParseError {\012    empty\012}\012struct Reader {\012    string text\012    i64 parse() fails ParseError {\012        return 0\012    }\012    i64 tryParse() => 0\012}\012```\012\012**Fix.** Remove `tryParse` and call `try parse()`, or return `i64\077`:\012\012```\012    i64\077 tryParse() => null\012```\012\012**Where this comes from.** `tryX` follows Arabic verb Form X (istaf\312\277ala), which adds the sense of attempting the act. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 949)});
 #line 927 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 929 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5005", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5004", 7))) {
 #line 930 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5005: argument passed without its particle\012\012**Why.** A particle is part of the function's name, so the call writes it: `width(2, until: 5)` reads as the declaration does. An argument for a parameter with a particle, passed without it, is reported; this also catches a swapped pair, which the same-type naming rule (BYN2307, retired) used to.\012\012**Message.** `{0}` is passed without its particle `{1}:`\012\012**Help.** add `{1}:` before the argument\012\012**Example.**\012\012```\012i64 width(i64 start, until i64 end) => end - start\012\012print($\042{width(2, 5)}\042)\012```\012\012**Fix.** Add the particle: `width(2, until: 5)`. The diagnostic carries this fix.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 684)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5004: too many unlabeled parameters\012\012**Why.** A particle is part of a function's name: `copy(from: a, to: b)` says what each argument is for, where `copy(a, b)` leaves the reader to guess. A function has at most one unlabeled required parameter, the object; every other one starts with a particle (`from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`). The receiver of a method never counts as the object. `bool` parameters, parameters with a default, `extern` declarations, operators, union and state payloads and laws are exempt.\012\012**Message.** `{0}` has {1} unlabeled parameters; give each but one a particle\012\012**Help.** keep one unlabeled parameter, the object\012\012**Example.**\012\012```\012void transfer(i64 amount, i64 payer, i64 payee) {\012    return\012}\012```\012\012Each parameter besides the object is also reported as BYN5006.\012\012**Fix.** Keep the object unlabeled and give the others a particle by meaning:\012\012```\012void transfer(i64 amount, from i64 payer, to i64 payee) {\012    return\012}\012```\012\012The diagnostic has no machine-applicable fix.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 1086)});
 #line 929 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 931 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5006", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5005", 7))) {
 #line 932 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5006: parameter needs a particle\012\012**Why.** A function has one unlabeled required parameter, the object; every other required parameter starts with a particle that names its role (BYN5004). This code marks each parameter that needs one. The receiver of a method is not the object, so `record(ref this, i64 amount, i64 fee)` has two unlabeled parameters.\012\012**Message.** `{0}` is a required parameter besides the object and needs a particle\012\012**Help.** label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`\012\012**Example.**\012\012```\012struct Ledger {\012    i64 total\012\012    void record(ref this, i64 amount, i64 fee) {\012        total += amount - fee\012    }\012}\012```\012\012**Fix.** Choose the particle by meaning: a source or start takes `from`, a destination `to`, an exclusive end `until`, an inclusive end `through`, a position `at`, a replacement `by`:\012\012```\012    void record(ref this, i64 amount, by i64 fee) {\012        total += amount - fee\012    }\012```\012\012The diagnostic has no machine-applicable fix.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 1052)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5005: argument passed without its particle\012\012**Why.** A particle is part of the function's name, so the call writes it: `width(2, until: 5)` reads as the declaration does. An argument for a parameter with a particle, passed without it, is reported; this also catches a swapped pair, which the same-type naming rule (BYN2307, retired) used to.\012\012**Message.** `{0}` is passed without its particle `{1}:`\012\012**Help.** add `{1}:` before the argument\012\012**Example.**\012\012```\012i64 width(i64 start, until i64 end) => end - start\012\012print($\042{width(2, 5)}\042)\012```\012\012**Fix.** Add the particle: `width(2, until: 5)`. The diagnostic carries this fix.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 684)});
 #line 931 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 933 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5007", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5006", 7))) {
 #line 934 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5007: a log level used as the verb\012\012**Message.** `Log.{0}` names a level, not the act; write `log(\342\200\246, as: .{0})`\012\012**Help.** call `log` and pass the level `as: .{0}`\012\012**What.** A call such as `Log.debug(\042cache miss\042)` names the level where the act should be.\012\012**Why.** `log` is the verb; the level says how the message is logged, so it is an argument with the particle `as` ([grammar guide](../bayan-grammar.md) \302\24710): `log(\042cache miss\042, as: .debug)`.\012\012**Example.**\012\012```\012Log.debug(\042cache miss\042)\012```\012\012**Fix.** Call `log` and pass the level:\012\012```\012log(\042cache miss\042, as: .debug)\012```\012\012**Where this comes from.** The level describes the act the way the Arabic \341\270\245\304\201l (circumstantial accusative) describes the state in which a verb is done, so it follows the verb instead of replacing it. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 838)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5006: parameter needs a particle\012\012**Why.** A function has one unlabeled required parameter, the object; every other required parameter starts with a particle that names its role (BYN5004). This code marks each parameter that needs one. The receiver of a method is not the object, so `record(ref this, i64 amount, i64 fee)` has two unlabeled parameters.\012\012**Message.** `{0}` is a required parameter besides the object and needs a particle\012\012**Help.** label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`\012\012**Example.**\012\012```\012struct Ledger {\012    i64 total\012\012    void record(ref this, i64 amount, i64 fee) {\012        total += amount - fee\012    }\012}\012```\012\012**Fix.** Choose the particle by meaning: a source or start takes `from`, a destination `to`, an exclusive end `until`, an inclusive end `through`, a position `at`, a replacement `by`:\012\012```\012    void record(ref this, i64 amount, by i64 fee) {\012        total += amount - fee\012    }\012```\012\012The diagnostic has no machine-applicable fix.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 1052)});
 #line 933 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 935 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5008", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5007", 7))) {
 #line 936 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5008: not a particle\012\012**Why.** A parameter may start with a particle that names its role: `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`. Any other word in that position, followed by a passing mode or a type and a name, is not one.\012\012**Message.** `{0}` is not a particle\012\012**Help.** choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`\012\012**Example.**\012\012```\012void copy(over Buf src, to Buf dst) {\012    return\012}\012```\012\012**Fix.** Choose one of the eight particles, or remove the word:\012\012```\012void copy(from Buf src, to Buf dst) {\012    return\012}\012```\012\012The diagnostic has no machine-applicable fix.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 672)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5007: a log level used as the verb\012\012**Message.** `Log.{0}` names a level, not the act; write `log(\342\200\246, as: .{0})`\012\012**Help.** call `log` and pass the level `as: .{0}`\012\012**What.** A call such as `Log.debug(\042cache miss\042)` names the level where the act should be.\012\012**Why.** `log` is the verb; the level says how the message is logged, so it is an argument with the particle `as` ([grammar guide](../bayan-grammar.md) \302\24710): `log(\042cache miss\042, as: .debug)`.\012\012**Example.**\012\012```\012Log.debug(\042cache miss\042)\012```\012\012**Fix.** Call `log` and pass the level:\012\012```\012log(\042cache miss\042, as: .debug)\012```\012\012**Where this comes from.** The level describes the act the way the Arabic \341\270\245\304\201l (circumstantial accusative) describes the state in which a verb is done, so it follows the verb instead of replacing it. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 838)});
 #line 935 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 937 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5009", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5008", 7))) {
 #line 938 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5009: a particle as a member name\012\012**What.** A member is named with a particle (`at`, `to`, `by`, `from`, `until`, `through`, `for`, `as`), or an instance member spells a conversion with `to` or `as` (`toList`, `toString`, `asSpan`). The checker runs on all code, public or not.\012\012**Message.** `{0}` is a particle; name the member with a verb or a noun\012\012**Help.** rename the member, for example `tryGet(at:)` instead of `at(\342\200\246)`\012\012For an instance `toX` or `asX` member:\012\012**Message.** `{0}` spells a conversion with `{1}`; write `{2}`\012\012**Help.** use a view noun, `copy()`, or a `T(x)` conversion\012\012`{2}` is the form to write instead: the view noun for `asX` (`asCount` \342\206\222 `count`), and the conversion `X(x)` for `toX`, with a primitive type in lowercase (`toString` \342\206\222 `string(shelf)`, `toList` \342\206\222 `List(shelf)`).\012\012**Why.** Members are verbs or nouns ([grammar guide](../bayan-grammar.md) \302\2471); a particle labels an argument (`tryGet(at: k)`) and says nothing on its own. A conversion already has a form: a view is a noun (`xs.span`), an owned copy is `copy()`, and a conversion is `T(x)` (`List(seq)`, `string(x)`). Static factories keep `from` (`T.fromJson(\342\200\246)`, `T.tryFrom(x)`) and are not checked, nor is any static member.\012\012**Example.**\012\012```\012struct Shelf {\012    i64 count\012\012    i64 at(i64 index) => count + index\012\012    string toString() => \042\042\012}\012```\012\012**Fix.** Name the member with a verb or a noun, and write a conversion as `T(x)`:\012\012```\012struct Shelf {\012    i64 count\012\012    i64 tryGet(at i64 index) => count + index\012}\012\012let text = string(shelf)\012```\012\012The diagnostic has no machine-applicable fix.\012\012**Where this comes from.** Arabic grammar sorts every word into three classes: ism (noun), fi\312\277l (verb) and \341\270\245arf (particle). A \341\270\245arf has meaning only beside another word, so it cannot name a thing or an act on its own. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 1874)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5008: not a particle\012\012**Why.** A parameter may start with a particle that names its role: `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`. Any other word in that position, followed by a passing mode or a type and a name, is not one.\012\012**Message.** `{0}` is not a particle\012\012**Help.** choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`\012\012**Example.**\012\012```\012void copy(over Buf src, to Buf dst) {\012    return\012}\012```\012\012**Fix.** Choose one of the eight particles, or remove the word:\012\012```\012void copy(from Buf src, to Buf dst) {\012    return\012}\012```\012\012The diagnostic has no machine-applicable fix.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 672)});
 #line 937 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 939 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5011", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5009", 7))) {
 #line 940 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5011: `expects` reads one parameter\012\012**Message.** \042this `expects` reads only `{0}`; a type with `requires` checks it once\042\012\012**Help.** \042declare a type with `requires` for `{0}`\042\012\012**What.** A function's `expects` clause tests a single parameter and nothing else. This is a warning.\012\012**Why.** A condition on one value is a fact about that value, not about the call. A type with `requires` checks it once, when the value is built, and every function that takes the type can rely on it; an `expects` checks it again at each call and leaves other functions unprotected.\012\012**Example.**\012\012```\012i64 percent(i64 value) expects value in 0..=100 {\012    return value\012}\012```\012\012**Fix.** Declare a type that carries the rule, and take it:\012\012```\012type distinct Percent = i64 requires it in 0..=100\012\012i64 percent(Percent value) => value.value\012```\012\012An `expects` that relates two parameters (`lo <= hi`) is not reported. The diagnostic has no machine-applicable fix.\012", 943)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5009: a particle as a member name\012\012**What.** A member is named with a particle (`at`, `to`, `by`, `from`, `until`, `through`, `for`, `as`), or an instance member spells a conversion with `to` or `as` (`toList`, `toString`, `asSpan`). The checker runs on all code, public or not.\012\012**Message.** `{0}` is a particle; name the member with a verb or a noun\012\012**Help.** rename the member, for example `tryGet(at:)` instead of `at(\342\200\246)`\012\012For an instance `toX` or `asX` member:\012\012**Message.** `{0}` spells a conversion with `{1}`; write `{2}`\012\012**Help.** use a view noun, `copy()`, or a `T(x)` conversion\012\012`{2}` is the form to write instead: the view noun for `asX` (`asCount` \342\206\222 `count`), and the conversion `X(x)` for `toX`, with a primitive type in lowercase (`toString` \342\206\222 `string(shelf)`, `toList` \342\206\222 `List(shelf)`).\012\012**Why.** Members are verbs or nouns ([grammar guide](../bayan-grammar.md) \302\2471); a particle labels an argument (`tryGet(at: k)`) and says nothing on its own. A conversion already has a form: a view is a noun (`xs.span`), an owned copy is `copy()`, and a conversion is `T(x)` (`List(seq)`, `string(x)`). Static factories keep `from` (`T.fromJson(\342\200\246)`, `T.tryFrom(x)`) and are not checked, nor is any static member.\012\012**Example.**\012\012```\012struct Shelf {\012    i64 count\012\012    i64 at(i64 index) => count + index\012\012    string toString() => \042\042\012}\012```\012\012**Fix.** Name the member with a verb or a noun, and write a conversion as `T(x)`:\012\012```\012struct Shelf {\012    i64 count\012\012    i64 tryGet(at i64 index) => count + index\012}\012\012let text = string(shelf)\012```\012\012The diagnostic has no machine-applicable fix.\012\012**Where this comes from.** Arabic grammar sorts every word into three classes: ism (noun), fi\312\277l (verb) and \341\270\245arf (particle). A \341\270\245arf has meaning only beside another word, so it cannot name a thing or an act on its own. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 1874)});
 #line 939 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 941 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5013", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5011", 7))) {
 #line 942 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5013: particle used twice\012\012**Why.** A particle names one role in a signature, and a call is read by its particles: with two `from` parameters, `copy(from: a, from: b)` no longer says which is which. A particle appears at most once per declaration. Calls need no check, since such a declaration cannot exist.\012\012**Message.** `{0}` uses the particle `{1}` twice\012\012**Help.** group the values in a struct, or choose another particle\012\012**Example.**\012\012```\012void copy(from string src, from string backup) {\012    return\012}\012```\012\012**Fix.** Group the values in a struct, or choose another particle for one of them:\012\012```\012struct Sources {\012    string src\012    string backup\012}\012\012void copy(from Sources sources) {\012    return\012}\012```\012\012The diagnostic has no machine-applicable fix.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 811)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5011: `expects` reads one parameter\012\012**Message.** \042this `expects` reads only `{0}`; a type with `requires` checks it once\042\012\012**Help.** \042declare a type with `requires` for `{0}`\042\012\012**What.** A function's `expects` clause tests a single parameter and nothing else. This is a warning.\012\012**Why.** A condition on one value is a fact about that value, not about the call. A type with `requires` checks it once, when the value is built, and every function that takes the type can rely on it; an `expects` checks it again at each call and leaves other functions unprotected.\012\012**Example.**\012\012```\012i64 percent(i64 value) expects value in 0..=100 {\012    return value\012}\012```\012\012**Fix.** Declare a type that carries the rule, and take it:\012\012```\012type distinct Percent = i64 requires it in 0..=100\012\012i64 percent(Percent value) => value.value\012```\012\012An `expects` that relates two parameters (`lo <= hi`) is not reported. The diagnostic has no machine-applicable fix.\012", 943)});
 #line 941 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 943 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5014", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5013", 7))) {
 #line 944 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5014: unknown word in a member name\012\012A warning: it never blocks a build.\012\012**What.** A word of a member name is not in the checker's built-in word list or in the project dictionary, so the checker cannot tell whether it is a verb, a noun or an adjective. Each word of a name is checked (`upsertRow` \342\206\222 `upsert`, `row`), on all code, public or not.\012\012**Message.** `{0}` is not a known verb, noun or adjective\012\012**Help.** add it to `grammar` in package.byn: `verbs: [\042{0}\042]`, `nouns: [\042{0}\042]` or `adjectives: [\042{0}\042]`. The three classes are always offered; the checker's best guess comes first: `verbs` in a member that takes `ref this`, `adjectives` in a member that returns `bool`, `nouns` otherwise.\012\012**What counts as known.** A word in the built-in list (`src/Bayan.Semantics/Lexicon.cs`; its verbs are also the verbs a help text may start with), a particle, or a word declared in `grammar` in `package.byn`, compared in lowercase. Regular forms of a known word are known too: `-s`, `-es`, `-ies`, `-ed`, `-ing`, `-er`, `-or`, `-est`, `-ly`, with a doubled consonant undone, and `un-` or `re-` before a known word. An irregular form is declared in `forms`, read by the word's class: the `-ed` spelling for a verb, the plural for a noun (a word that is both a verb and a noun cannot declare a form for each). Collectives (`ledger`) go in `collectives`. A word may be in only one of `verbs`, `nouns`, `adjectives` and `collectives`, except a verb that is also a noun (`record`); any other overlap is a manifest error (BYN3102). Not checked: math vocabulary (`sqrt`, `log2`, `radians`, \342\200\246), single letters and digits (`x`, `v2`), names with letters outside ASCII, and typestate states.\012\012**Why.** The grammar rules ([grammar guide](../bayan-grammar.md) \302\2471) depend on the class of each word: a `ref this` member is named with a verb, a property with a noun. A domain word (`upsert`, `sku`, `kyc`) is declared once for the project rather than suppressed member by member.\012\012**Example.**\012\012```\012struct Catalog {\012    i64 count\012\012    void upsertRow(ref this) {\012        count += 1\012    }\012}\012```\012\012**Fix.** Declare the word in `package.byn`:\012\012```\012grammar: Grammar {\012    verbs: [\042upsert\042],\012}\012```\012\012The fix that adds the word to `package.byn` is not offered yet: a fix edits the file of the diagnostic, and this one edits another file (handoff Question 272).\012\012**Where this comes from.** Arabic grammar sorts every word into ism (noun), fi\312\277l (verb) and \341\270\245arf (particle), and each rule applies to one class. The checker needs the class of a word before it can apply a rule. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 2611)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5013: particle used twice\012\012**Why.** A particle names one role in a signature, and a call is read by its particles: with two `from` parameters, `copy(from: a, from: b)` no longer says which is which. A particle appears at most once per declaration. Calls need no check, since such a declaration cannot exist.\012\012**Message.** `{0}` uses the particle `{1}` twice\012\012**Help.** group the values in a struct, or choose another particle\012\012**Example.**\012\012```\012void copy(from string src, from string backup) {\012    return\012}\012```\012\012**Fix.** Group the values in a struct, or choose another particle for one of them:\012\012```\012struct Sources {\012    string src\012    string backup\012}\012\012void copy(from Sources sources) {\012    return\012}\012```\012\012The diagnostic has no machine-applicable fix.\012\012See GRAMMAR: Role marks (docs/bayan-grammar.md \302\24715).\012", 811)});
 #line 943 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 945 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5101", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5014", 7))) {
 #line 946 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5101: noun on a `ref this` member\012\012A lint: it never blocks a build. It checks the public API only, a `public` member of a `public` struct; a name the module keeps to itself is not checked (grammar guide \302\2471, checker scope).\012\012**What.** A `ref this` member's name starts with a noun from the built-in word list: `size`, `length`, `total`, `sum`, `value`, `values`, `data`, `item`, `items`, `element`, `elements`, `result`, `results`, `name`, `id`, `state`, `status`, `info`, `content`, `contents`, `capacity`, `amount`, `number`, `key`, `keys`, `entry`, `entries`, `node`, `nodes`. Only the first word of the name is checked (`sizeUp` \342\206\222 `size`). The list holds words that are rarely verbs; `count`, `list` and `set` are not on it.\012\012**Why.** A member that changes `this` is an act, named with a verb (spec \302\2475.2, [grammar guide](../bayan-grammar.md) tree 1): `c.add(2)` says what happens to `c`; `c.total(2)` does not.\012\012**Example.**\012\012```\012public struct Counter {\012    i64 n\012\012    public void total(ref this, i64 by) {\012        n += by\012    }\012}\012```\012\012**Fix.** Name the action:\012\012```\012public struct Counter {\012    i64 n\012\012    public void add(ref this, i64 by) {\012        n += by\012    }\012}\012```\012\012**Where this comes from.** A verb on `ref this` follows Arabic verb Form V (tafa\312\277\312\277ala), the reflexive form: the act falls on its own subject. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 1378)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5014: unknown word in a member name\012\012A warning: it never blocks a build.\012\012**What.** A word of a member name is not in the checker's built-in word list or in the project dictionary, so the checker cannot tell whether it is a verb, a noun or an adjective. Each word of a name is checked (`upsertRow` \342\206\222 `upsert`, `row`), on all code, public or not.\012\012**Message.** `{0}` is not a known verb, noun or adjective\012\012**Help.** add it to `grammar` in package.byn: `verbs: [\042{0}\042]`, `nouns: [\042{0}\042]` or `adjectives: [\042{0}\042]`. The three classes are always offered; the checker's best guess comes first: `verbs` in a member that takes `ref this`, `adjectives` in a member that returns `bool`, `nouns` otherwise.\012\012**What counts as known.** A word in the built-in list (`src/Bayan.Semantics/Lexicon.cs`; its verbs are also the verbs a help text may start with), a particle, or a word declared in `grammar` in `package.byn`, compared in lowercase. Regular forms of a known word are known too: `-s`, `-es`, `-ies`, `-ed`, `-ing`, `-er`, `-or`, `-est`, `-ly`, with a doubled consonant undone, and `un-` or `re-` before a known word. An irregular form is declared in `forms`, read by the word's class: the `-ed` spelling for a verb, the plural for a noun (a word that is both a verb and a noun cannot declare a form for each). Collectives (`ledger`) go in `collectives`. A word may be in only one of `verbs`, `nouns`, `adjectives` and `collectives`, except a verb that is also a noun (`record`); any other overlap is a manifest error (BYN3102). Not checked: math vocabulary (`sqrt`, `log2`, `radians`, \342\200\246), single letters and digits (`x`, `v2`), names with letters outside ASCII, and typestate states.\012\012**Why.** The grammar rules ([grammar guide](../bayan-grammar.md) \302\2471) depend on the class of each word: a `ref this` member is named with a verb, a property with a noun. A domain word (`upsert`, `sku`, `kyc`) is declared once for the project rather than suppressed member by member.\012\012**Example.**\012\012```\012struct Catalog {\012    i64 count\012\012    void upsertRow(ref this) {\012        count += 1\012    }\012}\012```\012\012**Fix.** Declare the word in `package.byn`:\012\012```\012grammar: Grammar {\012    verbs: [\042upsert\042],\012}\012```\012\012The fix that adds the word to `package.byn` is not offered yet: a fix edits the file of the diagnostic, and this one edits another file (handoff Question 272).\012\012**Where this comes from.** Arabic grammar sorts every word into ism (noun), fi\312\277l (verb) and \341\270\245arf (particle), and each rule applies to one class. The checker needs the class of a word before it can apply a rule. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 2611)});
 #line 945 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 947 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5102", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5101", 7))) {
 #line 948 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5102: `bool` state without `is`, `has` or `can`\012\012A lint: it never blocks a build. It checks the public API only, a `public` member of a `public` struct; a name the module keeps to itself is not checked (grammar guide \302\2471, checker scope).\012\012**What.** A `bool` property, or a `bool` method with no arguments that is not `ref this`, is named without the `is`, `has` or `can` prefix. Not reported: names starting with `contains`, `equals`, `matches`, `startsWith`, `endsWith` (verbs that ask a question) or `try` (an attempt, tree 4); `ref this` members (an action that reports success, such as `bool advance(ref this)`); fields.\012\012**Why.** A boolean state reads as a question with `is` / `has` / `can` (spec \302\2475.2, [grammar guide](../bayan-grammar.md) tree 3): `if door.isLocked` says what is asked; `if door.locked` could be an action or a copy.\012\012**Example.**\012\012```\012public struct Door {\012    bool open\012\012    public bool locked() => !open\012}\012```\012\012**Fix.** Add the prefix (the machine fix renames the declaration to `isX`; rename the callers with it):\012\012```\012public struct Door {\012    bool open\012\012    public bool isLocked() => !open\012}\012```\012\012**Where this comes from.** The `is` / `has` / `can` state follows the Arabic attribute (\341\271\243ifa), which describes a thing without acting on it. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 1325)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5101: noun on a `ref this` member\012\012A lint: it never blocks a build. It checks the public API only, a `public` member of a `public` struct; a name the module keeps to itself is not checked (grammar guide \302\2471, checker scope).\012\012**What.** A `ref this` member's name starts with a noun from the built-in word list: `size`, `length`, `total`, `sum`, `value`, `values`, `data`, `item`, `items`, `element`, `elements`, `result`, `results`, `name`, `id`, `state`, `status`, `info`, `content`, `contents`, `capacity`, `amount`, `number`, `key`, `keys`, `entry`, `entries`, `node`, `nodes`. Only the first word of the name is checked (`sizeUp` \342\206\222 `size`). The list holds words that are rarely verbs; `count`, `list` and `set` are not on it.\012\012**Why.** A member that changes `this` is an act, named with a verb (spec \302\2475.2, [grammar guide](../bayan-grammar.md) tree 1): `c.add(2)` says what happens to `c`; `c.total(2)` does not.\012\012**Example.**\012\012```\012public struct Counter {\012    i64 n\012\012    public void total(ref this, i64 by) {\012        n += by\012    }\012}\012```\012\012**Fix.** Name the action:\012\012```\012public struct Counter {\012    i64 n\012\012    public void add(ref this, i64 by) {\012        n += by\012    }\012}\012```\012\012**Where this comes from.** A verb on `ref this` follows Arabic verb Form V (tafa\312\277\312\277ala), the reflexive form: the act falls on its own subject. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 1378)});
 #line 947 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 949 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5103", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5102", 7))) {
 #line 950 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5103: line join not indented\012\012A lint: it never blocks a build. `bayan format` applies its fix.\012\012**What.** A line starting with a joining token (wa\341\271\243l: `.`, `\077.`, `\077\077`, `&&`, `||`, `and`, `or`, `catch`, `except`, `fails`, `uses`, `where`, `becomes`, `expects`) is indented no deeper than the line its statement starts on. Not reported: `catch` after a line ending in `}` (`} catch`), a struct-level `requires` at a field's indentation, and a line after one that already continues (ending in an operator, `,`, `=`, `=>` or an opening bracket).\012\012**Why.** The joining token makes the line part of the statement above (spec \302\2472.5), but at the same indentation it reads as a new statement. Indenting it deeper shows the join.\012\012**Example.**\012\012```\012let name = \042bayan\042\012let n = name\012.length\012print($\042{n}\042)\012```\012\012**Fix.** Indent the line deeper than the line its statement starts on:\012\012```\012let name = \042bayan\042\012let n = name\012    .length\012print($\042{n}\042)\012```\012", 942)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5102: `bool` state without `is`, `has` or `can`\012\012A lint: it never blocks a build. It checks the public API only, a `public` member of a `public` struct; a name the module keeps to itself is not checked (grammar guide \302\2471, checker scope).\012\012**What.** A `bool` property, or a `bool` method with no arguments that is not `ref this`, is named without the `is`, `has` or `can` prefix. Not reported: names starting with `contains`, `equals`, `matches`, `startsWith`, `endsWith` (verbs that ask a question) or `try` (an attempt, tree 4); `ref this` members (an action that reports success, such as `bool advance(ref this)`); fields.\012\012**Why.** A boolean state reads as a question with `is` / `has` / `can` (spec \302\2475.2, [grammar guide](../bayan-grammar.md) tree 3): `if door.isLocked` says what is asked; `if door.locked` could be an action or a copy.\012\012**Example.**\012\012```\012public struct Door {\012    bool open\012\012    public bool locked() => !open\012}\012```\012\012**Fix.** Add the prefix (the machine fix renames the declaration to `isX`; rename the callers with it):\012\012```\012public struct Door {\012    bool open\012\012    public bool isLocked() => !open\012}\012```\012\012**Where this comes from.** The `is` / `has` / `can` state follows the Arabic attribute (\341\271\243ifa), which describes a thing without acting on it. See the [grammar guide](../bayan-grammar.md) \302\24712.\012", 1325)});
 #line 949 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 951 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5104", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5103", 7))) {
 #line 952 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5104: a name that does not agree in number\012\012A lint: it never blocks a build. It checks the public API only: a `public` field or property of a `public` struct and a parameter of its `public` methods, a parameter of a `public` function, a getter of a `public` interface and a parameter of its methods, and a payload field of a `public` union or `union error`; a name the module keeps to itself is not checked (grammar guide \302\2471, checker scope). A name under a rename attribute (`@json(name: \342\200\246)`, `@column(\342\200\246)`) is forced from outside and not checked.\012\012**What.** Two messages, one rule: a collection is named with a plural or a collective, anything else with a singular (grammar guide \302\24714).\012\012- \042`{0}` holds a collection; name it with a plural, `{1}`\042: the type is a `List`, `Map`, `Span`, `ReadOnlySpan`, fixed array or text view, with `Untrusted`, `Owned` and `\077` looked through (`Untrusted<List<Line>>` is a collection), and the name's last word is a known singular noun.\012- \042`{0}` holds one `{1}`; name it with a singular noun\042: the type is not a collection or a number and the name's last word is a plural the checker knows (an irregular plural, a project noun's `forms` entry, or a regular plural of a known noun). `string` is never a collection.\012\012The last word of the name decides (`firstLine`, `lineItems`), or the word before the first particle or function word (`linesByName` is decided by `lines`); a name that starts with one (`byPath`) is not checked. Collectives (`buffer`, `history`, `data`, \342\200\246 and the project's `grammar.collectives`) name a collection without a plural. Not checked: `bool` names (states, BYN5102), numbers named with a plural (a quantity in units: `cents`, `grams`), type parameters, and a collection whose last word is not a known noun (`covered`, `distinct`). A count named like `numLines` is BYN5105, not this.\012\012**Why.** The name tells the reader how many: `for line in order.lines` reads right, `order.line.append(x)` and `order.lines.price` do not (revision 0021 Part 4, [grammar guide](../bayan-grammar.md) \302\24714).\012\012**Example.**\012\012```\012public struct Line {\012    public i64 grams\012}\012\012public struct Order {\012    public List<Line> line\012    public Line lines\012}\012```\012\012**Fix.** Make the number agree (the machine fix renames the declaration when a plural or singular is known; rename the callers with it):\012\012```\012public struct Order {\012    public List<Line> lines\012    public Line firstLine\012    public List<u8> buffer        // collective: no warning\012}\012```\012\012**Where this comes from.** Arabic nouns agree in number with what they name (al-mu\341\271\255\304\201baqa f\304\253 al-\312\277adad); a collective (ism al-jam\312\277) is singular in form and names a group. See the [grammar guide](../bayan-grammar.md) \302\24714.\012", 2712)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5103: line join not indented\012\012A lint: it never blocks a build. `bayan format` applies its fix.\012\012**What.** A line starting with a joining token (wa\341\271\243l: `.`, `\077.`, `\077\077`, `&&`, `||`, `and`, `or`, `catch`, `except`, `fails`, `uses`, `where`, `becomes`, `expects`) is indented no deeper than the line its statement starts on. Not reported: `catch` after a line ending in `}` (`} catch`), a struct-level `requires` at a field's indentation, and a line after one that already continues (ending in an operator, `,`, `=`, `=>` or an opening bracket).\012\012**Why.** The joining token makes the line part of the statement above (spec \302\2472.5), but at the same indentation it reads as a new statement. Indenting it deeper shows the join.\012\012**Example.**\012\012```\012let name = \042bayan\042\012let n = name\012.length\012print($\042{n}\042)\012```\012\012**Fix.** Indent the line deeper than the line its statement starts on:\012\012```\012let name = \042bayan\042\012let n = name\012    .length\012print($\042{n}\042)\012```\012", 942)});
 #line 951 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 953 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN5105", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5104", 7))) {
 #line 954 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN5105: a count not named singular noun + `Count`\012\012A lint: it never blocks a build. It checks the public API only, a `public` integer field or property of a `public` struct, an integer getter of a `public` interface, and an integer payload field of a `public` union or `union error`; a name the module keeps to itself is not checked (grammar guide \302\2471, checker scope). A name under a rename attribute (`@json(name: \342\200\246)`, `@column(\342\200\246)`) is forced from outside and not checked.\012\012**What.** An integer that counts items is named `<plural>Count` (`linesCount`), `num<Plural>` (`numLines`) or `numberOf<Plural>` (`numberOfLines`). The plural is one the checker knows: an irregular plural, a project noun's `forms` entry, or a regular plural of a known noun. Words before it stay (`totalLinesCount` \342\206\222 `totalLineCount`). `length` is the size name and is not a count.\012\012**Why.** One spelling for every count: `lineCount` reads as \042the count of lines\042, the way `lineItem` reads as \042an item of the line\042 (revision 0021 Part 4, [grammar guide](../bayan-grammar.md) \302\24714).\012\012**Example.**\012\012```\012public struct Order {\012    public i64 linesCount\012    public i64 numLines\012}\012```\012\012**Fix.** Singular noun, then `Count` (the machine fix renames the declaration; rename the callers with it):\012\012```\012public struct Order {\012    public i64 lineCount\012}\012```\012\012**Where this comes from.** A counted noun after a number word is singular in Arabic (tamy\304\253z al-\312\277adad, from eleven up), as in English \042line count\042. See the [grammar guide](../bayan-grammar.md) \302\24714.\012", 1531)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5104: a name that does not agree in number\012\012A lint: it never blocks a build. It checks the public API only: a `public` field or property of a `public` struct and a parameter of its `public` methods, a parameter of a `public` function, a getter of a `public` interface and a parameter of its methods, and a payload field of a `public` union or `union error`; a name the module keeps to itself is not checked (grammar guide \302\2471, checker scope). A name under a rename attribute (`@json(name: \342\200\246)`, `@column(\342\200\246)`) is forced from outside and not checked.\012\012**What.** Two messages, one rule: a collection is named with a plural or a collective, anything else with a singular (grammar guide \302\24714).\012\012- \042`{0}` holds a collection; name it with a plural, `{1}`\042: the type is a `List`, `Map`, `Span`, `ReadOnlySpan`, fixed array or text view, with `Untrusted`, `Owned` and `\077` looked through (`Untrusted<List<Line>>` is a collection), and the name's last word is a known singular noun.\012- \042`{0}` holds one `{1}`; name it with a singular noun\042: the type is not a collection or a number and the name's last word is a plural the checker knows (an irregular plural, a project noun's `forms` entry, or a regular plural of a known noun). `string` is never a collection.\012\012The last word of the name decides (`firstLine`, `lineItems`), or the word before the first particle or function word (`linesByName` is decided by `lines`); a name that starts with one (`byPath`) is not checked. Collectives (`buffer`, `history`, `data`, \342\200\246 and the project's `grammar.collectives`) name a collection without a plural. Not checked: `bool` names (states, BYN5102), numbers named with a plural (a quantity in units: `cents`, `grams`), type parameters, and a collection whose last word is not a known noun (`covered`, `distinct`). A count named like `numLines` is BYN5105, not this.\012\012**Why.** The name tells the reader how many: `for line in order.lines` reads right, `order.line.append(x)` and `order.lines.price` do not (revision 0021 Part 4, [grammar guide](../bayan-grammar.md) \302\24714).\012\012**Example.**\012\012```\012public struct Line {\012    public i64 grams\012}\012\012public struct Order {\012    public List<Line> line\012    public Line lines\012}\012```\012\012**Fix.** Make the number agree (the machine fix renames the declaration when a plural or singular is known; rename the callers with it):\012\012```\012public struct Order {\012    public List<Line> lines\012    public Line firstLine\012    public List<u8> buffer        // collective: no warning\012}\012```\012\012**Where this comes from.** Arabic nouns agree in number with what they name (al-mu\341\271\255\304\201baqa f\304\253 al-\312\277adad); a collective (ism al-jam\312\277) is singular in form and names a group. See the [grammar guide](../bayan-grammar.md) \302\24714.\012", 2712)});
 #line 953 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 955 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN6001", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5105", 7))) {
 #line 956 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN6001: `noalloc`, `nosuspend` and `suspends` are removed\012\012**Why.** A function without `uses` is already pure: it cannot allocate or suspend. What a function needs is named in `uses`, so the marker words add nothing. Writing one is an input form.\012\012**Example.**\012\012```\012i32 twice(i32 n) noalloc => n * 2\012```\012\012**Fix.** Remove the word:\012\012```\012i32 twice(i32 n) => n * 2\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it. It is reported in signature position only: right after the parameters and again after `uses`.\012", 544)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5105: a count not named singular noun + `Count`\012\012A lint: it never blocks a build. It checks the public API only, a `public` integer field or property of a `public` struct, an integer getter of a `public` interface, and an integer payload field of a `public` union or `union error`; a name the module keeps to itself is not checked (grammar guide \302\2471, checker scope). A name under a rename attribute (`@json(name: \342\200\246)`, `@column(\342\200\246)`) is forced from outside and not checked.\012\012**What.** An integer that counts items is named `<plural>Count` (`linesCount`), `num<Plural>` (`numLines`) or `numberOf<Plural>` (`numberOfLines`). The plural is one the checker knows: an irregular plural, a project noun's `forms` entry, or a regular plural of a known noun. Words before it stay (`totalLinesCount` \342\206\222 `totalLineCount`). `length` is the size name and is not a count.\012\012**Why.** One spelling for every count: `lineCount` reads as \042the count of lines\042, the way `lineItem` reads as \042an item of the line\042 (revision 0021 Part 4, [grammar guide](../bayan-grammar.md) \302\24714).\012\012**Example.**\012\012```\012public struct Order {\012    public i64 linesCount\012    public i64 numLines\012}\012```\012\012**Fix.** Singular noun, then `Count` (the machine fix renames the declaration; rename the callers with it):\012\012```\012public struct Order {\012    public i64 lineCount\012}\012```\012\012**Where this comes from.** A counted noun after a number word is singular in Arabic (tamy\304\253z al-\312\277adad, from eleven up), as in English \042line count\042. See the [grammar guide](../bayan-grammar.md) \302\24714.\012", 1531)});
 #line 955 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 957 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN6002", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5106", 7))) {
 #line 958 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN6002: a function uses an effect it does not declare\012\012**Why.** A public function's signature is a contract: callers in other packages read its effects there, and no `uses` clause means pure. A function with a `uses` clause, public or not, promises the same. Private functions without `uses` infer their effects, and so do tests and scripts. The entry function is exempt whatever its visibility, because nothing calls it.\012\012**Example.**\012\012```\012public void greet(string name) {\012    print($\042hello {name}\042)\012}\012```\012\012**Fix.** Declare the effect:\012\012```\012public void greet(string name) uses console {\012    print($\042hello {name}\042)\012}\012```\012\012The effects come from `print` and the `Io` streams (`console`), `Io.readFile`, `Io.readText`, `Io.writeFile` and `Io.listDir` (`fs`), `Io.run` and `Io.runBatch` (`process`), `Io.monotonicNanos` (`clock`), and the allocating built-ins (`alloc`), and from calls of other functions. `log`, `panic` and `todo` are not effects.\012", 948)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5106: a doer type without its verb\012\012A lint: it never blocks a build. It checks the public API only, a `public` struct or interface; a type the module keeps to itself is not checked (grammar guide \302\2471, checker scope). A type under a rename attribute (`@json(name: \342\200\246)`, `@column(\342\200\246)`) is forced from outside and not checked, and neither is the standard library.\012\012**What.** The last word of the type name is a doer or tool noun (`CsvParser` \342\206\222 `parser`), and no public member, static or instance, is named its verb or a derived form of it: `tryX`, `xInto` or `xOp`. The nouns are the built-in `parser`, `builder`, `reader`, `writer`, `recorder`, `encoder`, `decoder`, `scanner`, `loader`, `scheduler`, `renderer`, `formatter`, `handler`, `hasher` and `comparer`, each with its verb; `codec`, whose verb is `encode` or `decode` (either counts); and a noun derived from a project verb in `package.byn` by regular spelling (`upsert` \342\206\222 `upserter`). Irregular doer nouns, other words ending in \042-er\042 (`Carrier`, `Ledger`, `Pointer`, `User`), function-type aliases and stored function fields are not checked.\012\012**Why.** A type named for an act promises that act: a reader of `CsvParser` looks for `parse` (revision 0021 Part 4, [grammar guide](../bayan-grammar.md) \302\24714).\012\012**Example.**\012\012```\012public struct Table {\012    public i64 rowCount\012}\012\012public struct CsvParser {\012    public Table read(ref this) => Table { rowCount: 0 }\012}\012```\012\012**Fix.** Name the member for the act, or rename the type for what it is:\012\012```\012public struct Table {\012    public i64 rowCount\012}\012\012public struct CsvParser {\012    public Table parse(ref this) => Table { rowCount: 0 }\012}\012```\012\012**Where this comes from.** An agent noun (ism al-f\304\201\312\277il, `k\304\201tib` from `kataba`) names the one who does the act of its root, as \042parser\042 names the one who parses. See the [grammar guide](../bayan-grammar.md) \302\24714.\012", 1864)});
 #line 957 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 959 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN6003", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN5107", 7))) {
 #line 960 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN6003: not an effect\012\012**Why.** The effect list is closed: `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process` and `console`. A `uses` clause may also name an `effect` alias declared in the same module. An alias that refers to itself is reported here too.\012\012**Example.**\012\012```\012void save() uses disk { }\012```\012\012**Fix.** Name the primitive effect, or declare an alias:\012\012```\012effect disk = fs\012\012void save() uses disk { }\012```\012", 436)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN5107: a tool that changes `this`\012\012A lint: it never blocks a build. It checks the public API only, a `public` member of a `public` struct or interface; a name the module keeps to itself is not checked (grammar guide \302\2471, checker scope). A type under a rename attribute (`@json(name: \342\200\246)`, `@column(\342\200\246)`) is forced from outside and not checked, and neither is the standard library.\012\012**What.** The last word of the type name is a tool noun, `hasher`, `comparer` or `codec`, and a public member takes `ref this`.\012\012**Why.** A tool does the same thing every time it is used: fixed settings in fields are fine, but a call does not change it. A type fed data step by step is a doer and should be named like one (revision 0021 Part 4, [grammar guide](../bayan-grammar.md) \302\24714).\012\012**Example.**\012\012```\012public struct Order {\012    public i64 total\012}\012\012public struct OrderHasher {\012    u64 seed\012    public u64 hash(ref this, Order order) {\012        seed += 1\012        return seed\012    }\012}\012```\012\012**Fix.** Remove `ref this`, or rename the type as a doer if it is fed data step by step:\012\012```\012public struct Order {\012    public i64 total\012}\012\012public struct OrderHasher {\012    u64 seed\012    public u64 hash(Order order) => seed + u64(order.total)\012}\012```\012\012**Where this comes from.** A noun of instrument (ism al-\304\201la, `mift\304\201\341\270\245` \042key\042 from `fata\341\270\245a`) names the thing an act is done with, not the one who does it. See the [grammar guide](../bayan-grammar.md) \302\24714.\012", 1437)});
 #line 959 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 961 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN6004", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN6001", 7))) {
 #line 962 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN6004: the package does not declare the capability\012\012**Why.** `capabilities` in `package.byn` is an upper bound on what the package may do. A package without `.net` cannot contain a function that uses `net`, directly or through a call. Only `net`, `fs`, `process` and `env` need a capability; the other effects are always allowed. A manifest with no `capabilities` field has no bound.\012\012**Example.**\012\012```\012// package.byn\012Package {\012    name:         \042local/report\042,\012    version:      \0420.1.0\042,\012    edition:      2027,\012    kind:         .app,\012    capabilities: [.net],\012}\012\012// src/main/main.byn\012void main() {\012    let text = try Io.readText(\042report.txt\042)\012    print(text)\012}\012```\012\012**Fix.** Add the capability, or remove the use:\012\012```\012    capabilities: [.net, .fs],\012```\012\012It is reported where the effect starts: at the built-in call, not at each function that calls it.\012", 860)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN6001: `noalloc`, `nosuspend` and `suspends` are removed\012\012**Why.** A function without `uses` is already pure: it cannot allocate or suspend. What a function needs is named in `uses`, so the marker words add nothing. Writing one is an input form.\012\012**Example.**\012\012```\012i32 twice(i32 n) noalloc => n * 2\012```\012\012**Fix.** Remove the word:\012\012```\012i32 twice(i32 n) => n * 2\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it. It is reported in signature position only: right after the parameters and again after `uses`.\012", 544)});
 #line 961 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 963 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN6005", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN6002", 7))) {
 #line 964 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN6005: an implementation uses more than its interface allows\012\012**Why.** An interface method's `uses` clause is an upper bound for every implementation, and no clause means pure. Code that calls through the interface relies on the bound, so an implementation may use fewer effects but not more.\012\012The `uses` clause of a function type works the same way for a lambda or function stored in a local of that type: the call through the local relies on the bound. (A function-typed parameter is different: its effects are those of whatever the caller passes.)\012\012**Example.**\012\012```\012interface IPricer {\012    i64 price(i64 cents)\012}\012\012struct Logged : IPricer {\012    public i64 price(i64 cents) uses console {\012        print($\042pricing {cents}\042)\012        return cents\012    }\012}\012```\012\012**Fix.** Remove the use, or widen the bound on the interface:\012\012```\012interface IPricer {\012    i64 price(i64 cents) uses console\012}\012```\012\012A lambda stored in a local of a function type:\012\012```\012void stored() uses console {\012    let f: i64 -> void = x => print($\042{x}\042)\012    f(1)\012}\012```\012\012Widen the function type's bound to match:\012\012```\012let f: i64 -> void uses console = x => print($\042{x}\042)\012```\012", 1140)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN6002: a function uses an effect it does not declare\012\012**Why.** A public function's signature is a contract: callers in other packages read its effects there, and no `uses` clause means pure. A function with a `uses` clause, public or not, promises the same. Private functions without `uses` infer their effects, and so do tests and scripts. The entry function is exempt whatever its visibility, because nothing calls it.\012\012**Example.**\012\012```\012public void greet(string name) {\012    print($\042hello {name}\042)\012}\012```\012\012**Fix.** Declare the effect:\012\012```\012public void greet(string name) uses console {\012    print($\042hello {name}\042)\012}\012```\012\012The effects come from `print` and the `Io` streams (`console`), `Io.readFile`, `Io.readText`, `Io.writeFile` and `Io.listDir` (`fs`), `Io.run` and `Io.runBatch` (`process`), `Io.monotonicNanos` (`clock`), and the allocating built-ins (`alloc`), and from calls of other functions. `log`, `panic` and `todo` are not effects.\012", 948)});
 #line 963 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 965 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN6006", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN6003", 7))) {
 #line 966 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN6006: `context (\342\200\246) { }` is now `provide \342\200\246 { }`\012\012**Why.** A block that supplies a value to the code inside it is written `provide name: value { }`, without parentheses. `context (\342\200\246) { }` is an input form.\012\012**Example.**\012\012```\012void run(Arena arena) {\012    context (allocator: arena) {\012        print(\042x\042)\012    }\012}\012```\012\012**Fix.** Write `provide` and drop the parentheses:\012\012```\012    provide allocator: arena {\012        print(\042x\042)\012    }\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 520)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN6003: not an effect\012\012**Why.** The effect list is closed: `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process` and `console`. A `uses` clause may also name an `effect` alias declared in the same module. An alias that refers to itself is reported here too.\012\012**Example.**\012\012```\012void save() uses disk { }\012```\012\012**Fix.** Name the primitive effect, or declare an alias:\012\012```\012effect disk = fs\012\012void save() uses disk { }\012```\012", 436)});
 #line 965 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 967 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN6007", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN6004", 7))) {
 #line 968 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN6007: not a handler\012\012**Why.** `provide` installs handlers, and the handler names are the effects plus `log`: `alloc`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console` and `log`. `suspend` parks the fiber itself and has nothing to intercept, so it has no handler.\012\012**Example.**\012\012```\012void run(Arena arena) {\012    provide memory: arena {\012        print(\042x\042)\012    }\012}\012```\012\012**Fix.** Name the handler:\012\012```\012    provide alloc: arena {\012        print(\042x\042)\012    }\012```\012\012`allocator` is still accepted for `alloc`. v0.1 lowers only `alloc`; the other handler names are BYN2022.\012", 577)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN6004: the package does not declare the capability\012\012**Why.** `capabilities` in `package.byn` is an upper bound on what the package may do. A package without `.net` cannot contain a function that uses `net`, directly or through a call. Only `net`, `fs`, `process` and `env` need a capability; the other effects are always allowed. A manifest with no `capabilities` field has no bound.\012\012**Example.**\012\012```\012// package.byn\012Package {\012    name:         \042local/report\042,\012    version:      \0420.1.0\042,\012    edition:      2027,\012    kind:         .app,\012    capabilities: [.net],\012}\012\012// src/main/main.byn\012void main() {\012    let text = try Io.readText(\042report.txt\042)\012    print(text)\012}\012```\012\012**Fix.** Add the capability, or remove the use:\012\012```\012    capabilities: [.net, .fs],\012```\012\012It is reported where the effect starts: at the built-in call, not at each function that calls it.\012", 860)});
 #line 967 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 969 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7001", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN6005", 7))) {
 #line 970 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7001: value not known to be in the state\012\012**Message.** `{0}` needs `{1}` to be `.{2}`, but it is `{3}`\012\012**Help.** check the state with `is` or `switch` first. Inside `if x.p { \342\200\246 }`, when `p` is exactly `this is .s` and `.s` is the state the call needs: `p` doesn't narrow; write `if x is .s`\012\012**Why.** A method with `this is .s`, or a parameter of a state type `T.s`, may run only on a value known to be in that state. Widening is free (`Order.paid` passes where `Order` is wanted), but the struct itself, or a state type listing other states, is not known to be in the one the callee needs.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012i64 refund(Order.paid order) => order.id\012let order = Order.draft { id: 1 }\012let any: Order = order\012let refunded = refund(any)\012```\012\012**Fix.** Match the state with `is` or `switch` before the call, or pass a value whose type already names the state.\012", 951)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN6005: an implementation uses more than its interface allows\012\012**Why.** An interface method's `uses` clause is an upper bound for every implementation, and no clause means pure. Code that calls through the interface relies on the bound, so an implementation may use fewer effects but not more.\012\012The `uses` clause of a function type works the same way for a lambda or function stored in a local of that type: the call through the local relies on the bound. (A function-typed parameter is different: its effects are those of whatever the caller passes.)\012\012**Example.**\012\012```\012interface IPricer {\012    i64 price(i64 cents)\012}\012\012struct Logged : IPricer {\012    public i64 price(i64 cents) uses console {\012        print($\042pricing {cents}\042)\012        return cents\012    }\012}\012```\012\012**Fix.** Remove the use, or widen the bound on the interface:\012\012```\012interface IPricer {\012    i64 price(i64 cents) uses console\012}\012```\012\012A lambda stored in a local of a function type:\012\012```\012void stored() uses console {\012    let f: i64 -> void = x => print($\042{x}\042)\012    f(1)\012}\012```\012\012Widen the function type's bound to match:\012\012```\012let f: i64 -> void uses console = x => print($\042{x}\042)\012```\012", 1140)});
 #line 969 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 971 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7002", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN6006", 7))) {
 #line 972 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7002: payload read without knowing the state\012\012**Message.** `{0}` is a payload of `.{1}`; `{2}` is not known to be `.{1}`\012\012**Help.** match `.{1}` with `is` or `switch` before reading `{0}`\012\012**Why.** A payload field exists only while the value is in a state that declares it. Reading it from a value that may be in another state would read storage that holds something else. A read is allowed when the value's type, an `is` test, a `switch` arm or a `becomes` call guarantees a state that has the field; with several states, each must have it with the same type.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012\012i64 paidAmount(Order order) => order.payment\012```\012\012**Fix.** Test the state first: `if order is .paid { \342\200\246 order.payment \342\200\246 }`, or take the state type `Order.paid` as the parameter.\012", 855)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN6006: `context (\342\200\246) { }` is now `provide \342\200\246 { }`\012\012**Why.** A block that supplies a value to the code inside it is written `provide name: value { }`, without parentheses. `context (\342\200\246) { }` is an input form.\012\012**Example.**\012\012```\012void run(Arena arena) {\012    context (allocator: arena) {\012        print(\042x\042)\012    }\012}\012```\012\012**Fix.** Write `provide` and drop the parentheses:\012\012```\012    provide allocator: arena {\012        print(\042x\042)\012    }\012```\012\012The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 520)});
 #line 971 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 973 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7003", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN6007", 7))) {
 #line 974 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7003: `become` the signature does not declare\012\012**Message.** `become` needs `becomes .{0}` on `{1}` (with another target: `become .{0}` is not declared; `{1}` becomes `.{2}`; for a `becomes` call on `this`: `{0}` calls `{1}`, which changes the state; declare `becomes` on `{0}`)\012\012**Help.** add `becomes .{0}` to the signature of `{1}` (with another target: change the target to `.{2}`, or declare `becomes .{0}`; for a `becomes` call on `this`: add `becomes .{2}` to the signature of `{0}`)\012\012**Why.** A transition is part of the method's signature: callers rely on `becomes .s` to know the state after the call. A `become` the signature does not declare would change the state behind their back. The same holds for a call on `this` to a method that `becomes .t`: it changes the caller's state, so the caller declares `becomes .t` too, and the call counts as its `become .t`.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012    void pay(ref this is .draft, i64 amount) {\012        become .paid(amount)\012    }\012}\012```\012\012**Fix.** Declare the transition: `void pay(ref this is .draft, i64 amount) becomes .paid { \342\200\246 }`. With no `becomes`, the diagnostic carries a machine-applicable fix that adds the clause. With another target, change the `become` or the `becomes` so they agree. For a `becomes` call on `this` (`void erase(ref this) { reset() }`), declare the callee's target on the caller: `void erase(ref this) becomes .draft { reset() }`; the fix adds the clause when the caller has no `becomes`. On a `move this` or plain `this` method, the fix also makes the receiver `ref this`, since BYN7010 rejects `becomes` without it.\012", 1683)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN6007: not a handler\012\012**Why.** `provide` installs handlers, and the handler names are the effects plus `log`: `alloc`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console` and `log`. `suspend` parks the fiber itself and has nothing to intercept, so it has no handler.\012\012**Example.**\012\012```\012void run(Arena arena) {\012    provide memory: arena {\012        print(\042x\042)\012    }\012}\012```\012\012**Fix.** Name the handler:\012\012```\012    provide alloc: arena {\012        print(\042x\042)\012    }\012```\012\012`allocator` is still accepted for `alloc`. v0.1 lowers only `alloc`; the other handler names are BYN2022.\012", 577)});
 #line 973 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 975 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7004", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7001", 7))) {
 #line 976 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7004: switch over states misses a state\012\012**Message.** the switch does not handle state `.{0}`\012\012**Help.** add a `case .{0}` arm\012\012**Why.** A `switch` on a value with states must handle every state the value may be in, as a `switch` on a union must handle every variant. A state type such as `Order is .paid or .shipped` needs only the states it lists. A `default` section or an irrefutable arm covers the rest.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012        shipped\012    }\012}\012\012void show(Order order) {\012    switch order {\012        case .draft:\012            print(\042draft\042)\012        case .paid:\012            print(\042paid\042)\012    }\012}\012```\012\012**Fix.** Add a section for each missing state. In a statement `switch` the fix-it inserts an empty `case .s:` section after the last one.\012", 826)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7001: value not known to be in the state\012\012**Message.** `{0}` needs `{1}` to be `.{2}`, but it is `{3}`\012\012**Help.** check the state with `is` or `switch` first. Inside `if x.p { \342\200\246 }`, when `p` is exactly `this is .s` and `.s` is the state the call needs: `p` doesn't narrow; write `if x is .s`\012\012**Why.** A method with `this is .s`, or a parameter of a state type `T.s`, may run only on a value known to be in that state. Widening is free (`Order.paid` passes where `Order` is wanted), but the struct itself, or a state type listing other states, is not known to be in the one the callee needs.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012i64 refund(Order.paid order) => order.id\012let order = Order.draft { id: 1 }\012let any: Order = order\012let refunded = refund(any)\012```\012\012**Fix.** Match the state with `is` or `switch` before the call, or pass a value whose type already names the state.\012", 951)});
 #line 975 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 977 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7005", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7002", 7))) {
 #line 978 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7005: literal of a struct with states names no state\012\012**Message.** `{0}` has states; a literal must name one: `{0}.{1} { \342\200\246 }`\012\012**Help.** name the state the value starts in\012\012**Why.** A struct with states is built as `T.state { fields\342\200\246, payload\342\200\246 }`. No state is a safe default, so a plain `T { \342\200\246 }` or `T()` does not say which state the value starts in.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012let order = Order { id: 1 }\012```\012\012**Fix.** Name the state: `let order = Order.draft { id: 1 }`.\012", 566)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7002: payload read without knowing the state\012\012**Message.** `{0}` is a payload of `.{1}`; `{2}` is not known to be `.{1}`\012\012**Help.** match `.{1}` with `is` or `switch` before reading `{0}`\012\012**Why.** A payload field exists only while the value is in a state that declares it. Reading it from a value that may be in another state would read storage that holds something else. A read is allowed when the value's type, an `is` test, a `switch` arm or a `becomes` call guarantees a state that has the field; with several states, each must have it with the same type.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012\012i64 paidAmount(Order order) => order.payment\012```\012\012**Fix.** Test the state first: `if order is .paid { \342\200\246 order.payment \342\200\246 }`, or take the state type `Order.paid` as the parameter.\012", 855)});
 #line 977 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 979 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7006", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7003", 7))) {
 #line 980 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7006: one state written inline\012\012**Message.** `{0} {1} is .{2}` is an input form; write `{0}.{2} {1}` (without a name, in a local annotation or an alias: `{0} is .{2}` is an input form; write `{0}.{2}`)\012\012**Help.** write the state type `{0}.{2}`\012\012**Why.** A value known to be in one state has the state type `T.s`. The inline form `T name is .a or .b` is for two or more states; with one state it is an input form.\012\012**Example.**\012\012```\012void ship(Order order is .paid) { }\012```\012\012**Fix.** Write the state type: `void ship(Order.paid order) { }`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 624)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7003: `become` the signature does not declare\012\012**Message.** `become` needs `becomes .{0}` on `{1}` (with another target: `become .{0}` is not declared; `{1}` becomes `.{2}`; for a `becomes` call on `this`: `{0}` calls `{1}`, which changes the state; declare `becomes` on `{0}`)\012\012**Help.** add `becomes .{0}` to the signature of `{1}` (with another target: change the target to `.{2}`, or declare `becomes .{0}`; for a `becomes` call on `this`: add `becomes .{2}` to the signature of `{0}`)\012\012**Why.** A transition is part of the method's signature: callers rely on `becomes .s` to know the state after the call. A `become` the signature does not declare would change the state behind their back. The same holds for a call on `this` to a method that `becomes .t`: it changes the caller's state, so the caller declares `becomes .t` too, and the call counts as its `become .t`.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012    void pay(ref this is .draft, i64 amount) {\012        become .paid(amount)\012    }\012}\012```\012\012**Fix.** Declare the transition: `void pay(ref this is .draft, i64 amount) becomes .paid { \342\200\246 }`. With no `becomes`, the diagnostic carries a machine-applicable fix that adds the clause. With another target, change the `become` or the `becomes` so they agree. For a `becomes` call on `this` (`void erase(ref this) { reset() }`), declare the callee's target on the caller: `void erase(ref this) becomes .draft { reset() }`; the fix adds the clause when the caller has no `becomes`. On a `move this` or plain `this` method, the fix also makes the receiver `ref this`, since BYN7010 rejects `becomes` without it.\012", 1683)});
 #line 979 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 981 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7007", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7004", 7))) {
 #line 982 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7007: unknown state\012\012**Message.** `{0}` has no state `.{1}`\012\012**Help.** check the states declared in `{0}`\012\012**Why.** A state type `T.s`, a receiver `this is .s`, a `becomes .s` clause, a `become .s` or a state literal `T.s { \342\200\246 }` must name a state from the struct's `states { \342\200\246 }` block.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012void refund(Order.refunded order) { }\012```\012\012**Fix.** Use one of the declared states, or add the state to the struct's `states` block.\012", 535)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7004: switch over states misses a state\012\012**Message.** the switch does not handle state `.{0}`\012\012**Help.** add a `case .{0}` arm\012\012**Why.** A `switch` on a value with states must handle every state the value may be in, as a `switch` on a union must handle every variant. A state type such as `Order is .paid or .shipped` needs only the states it lists. A `default` section or an irrefutable arm covers the rest.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012        shipped\012    }\012}\012\012void show(Order order) {\012    switch order {\012        case .draft:\012            print(\042draft\042)\012        case .paid:\012            print(\042paid\042)\012    }\012}\012```\012\012**Fix.** Add a section for each missing state. In a statement `switch` the fix-it inserts an empty `case .s:` section after the last one.\012", 826)});
 #line 981 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 983 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7008", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7005", 7))) {
 #line 984 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7008: state with the name of a static member\012\012**Message.** state `.{0}` has the same name as static member `{1}.{0}`\012\012**Help.** rename the state or the static member\012\012**Why.** `T.s` names a state of `T`, and `T.m` names a static member of `T`. A state and a static member with the same name would make `T.empty` mean two things.\012\012**Example.**\012\012```\012struct Cart {\012    i64 count\012    states {\012        empty\012        full\012    }\012    static Cart.empty empty() => Cart.empty { count: 0 }\012}\012```\012\012**Fix.** Rename one of them, for example the static member to `makeEmpty`.\012", 566)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7005: literal of a struct with states names no state\012\012**Message.** `{0}` has states; a literal must name one: `{0}.{1} { \342\200\246 }`\012\012**Help.** name the state the value starts in\012\012**Why.** A struct with states is built as `T.state { fields\342\200\246, payload\342\200\246 }`. No state is a safe default, so a plain `T { \342\200\246 }` or `T()` does not say which state the value starts in.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012let order = Order { id: 1 }\012```\012\012**Fix.** Name the state: `let order = Order.draft { id: 1 }`.\012", 566)});
 #line 983 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 985 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7009", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7006", 7))) {
 #line 986 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7009: return without `become`\012\012**Message.** `{0}` declares `becomes .{1}` but returns here without `become`\012\012**Help.** add `become .{1}(\342\200\246)` before returning, or fail\012\012**Why.** A signature with `becomes .s` promises that the receiver is in state `.s` when the function returns normally, and callers rely on that state after the call. A `return`, or the end of the body, reached on a path that ran no `become` would leave the receiver in its old state. Only a failure (`fail`, a propagated error) or a call that never returns may leave without `become`.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012    void pay(ref this is .draft, i64 amount) becomes .paid {\012        if amount <= 0 {\012            return\012        }\012        become .paid(amount)\012    }\012}\012```\012\012**Fix.** Run `become .paid(\342\200\246)` on every path before the return, or fail on the paths that cannot make the transition: declare `fails` and `fail` instead of `return`.\012", 988)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7006: one state written inline\012\012**Message.** `{0} {1} is .{2}` is an input form; write `{0}.{2} {1}` (without a name, in a local annotation or an alias: `{0} is .{2}` is an input form; write `{0}.{2}`)\012\012**Help.** write the state type `{0}.{2}`\012\012**Why.** A value known to be in one state has the state type `T.s`. The inline form `T name is .a or .b` is for two or more states; with one state it is an input form.\012\012**Example.**\012\012```\012void ship(Order order is .paid) { }\012```\012\012**Fix.** Write the state type: `void ship(Order.paid order) { }`. The diagnostic carries a machine-applicable fix, and `bayan format` applies it.\012", 624)});
 #line 985 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 987 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7010", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7007", 7))) {
 #line 988 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7010: `becomes` without `ref this`\012\012**Message.** `{0}` declares `becomes .{1}` but takes `{2}`; a transition needs `ref this`\012\012**Help.** change the receiver of `{0}` to `ref this`, or return the new state as a value\012\012**Why.** A transition only means something to a caller that still holds the value afterwards. A `move this` receiver ends the caller's ownership, and a plain `this` is a copy the caller never sees again, so `becomes` on either would change a state nobody can observe. `move this is .s` and `this is .s` stay valid for methods without `becomes`: they read or consume a value in a known state. A `become` in a method rejected here reports nothing more.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012    void pay(move this is .draft, i64 amount) becomes .paid {\012        become .paid(amount)\012    }\012}\012```\012\012**Fix.** Take the receiver as `ref this`, keeping its state: `void pay(ref this is .draft, i64 amount) becomes .paid { \342\200\246 }`. The diagnostic carries a machine-applicable fix that replaces `move` (or adds `ref` before a plain `this`). A method that ends the value's life should drop `becomes` instead.\012", 1183)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7007: unknown state\012\012**Message.** `{0}` has no state `.{1}`\012\012**Help.** check the states declared in `{0}`\012\012**Why.** A state type `T.s`, a receiver `this is .s`, a `becomes .s` clause, a `become .s` or a state literal `T.s { \342\200\246 }` must name a state from the struct's `states { \342\200\246 }` block.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012void refund(Order.refunded order) { }\012```\012\012**Fix.** Use one of the declared states, or add the state to the struct's `states` block.\012", 535)});
 #line 987 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 989 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7011", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7008", 7))) {
 #line 990 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7011: `becomes` call on a `ref` parameter\012\012**Message.** `{0}` changes the state of `{1}`, a `ref` parameter; a state changes in place only through `ref this`\012\012**Help.** take `{1}` by `move` and return the new state as a value\012\012**Why.** Every place a value's state can change is visible in a signature, so a caller trusts what it knows about a value's state without reading any method body. A function that calls a `becomes` method on one of its `ref` parameters changes the caller's value behind a signature that says nothing about states. A transition in place happens only through the receiver of a `ref this` method that declares `becomes`.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012    void pay(ref this is .draft, i64 amount) becomes .paid {\012        become .paid(amount)\012    }\012}\012\012void charge(ref Order.draft order) {\012    order.pay(2)\012}\012```\012\012**Fix.** Consume the value and return the new state, with the transition in the signature (`Order.paid charge(move Order.draft order)`), or make the transition a `becomes` method of `Order` and call it on the caller's value.\012", 1138)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7008: state with the name of a static member\012\012**Message.** state `.{0}` has the same name as static member `{1}.{0}`\012\012**Help.** rename the state or the static member\012\012**Why.** `T.s` names a state of `T`, and `T.m` names a static member of `T`. A state and a static member with the same name would make `T.empty` mean two things.\012\012**Example.**\012\012```\012struct Cart {\012    i64 count\012    states {\012        empty\012        full\012    }\012    static Cart.empty empty() => Cart.empty { count: 0 }\012}\012```\012\012**Fix.** Rename one of them, for example the static member to `makeEmpty`.\012", 566)});
 #line 989 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 991 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN7012", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7009", 7))) {
 #line 992 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN7012: assignment that changes the state\012\012**Message.** `{0}` would change state here; a state changes only through `become`\012\012**Help.** assign a value in the same state, or move the transition into a `becomes` method\012\012**Why.** A state changes in place only through `become`, so every change shows in a `becomes` signature. A whole-value assignment to a `ref` parameter (or to `this`) whose type has states could swap the caller's value for one in another state without the caller knowing. It is allowed only when the target's type names exactly one state and the new value is in that state: `ref Order o` and `ref Order o is .paid or .shipped` can't be reassigned, since the callee does not know which state the caller had; `ref Order.paid o` can take another `Order.paid`.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012void wipe(ref Order o) {\012    o = Order.draft { id: o.id }\012}\012```\012\012**Fix.** Assign a value in the state the parameter names (`ref Order.paid o` takes `Order.paid { \342\200\246 }`), write fields through a `ref this` method of the struct, or move the transition into a `ref this` method that declares `becomes .draft` and runs `become .draft`.\012", 1215)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7009: return without `become`\012\012**Message.** `{0}` declares `becomes .{1}` but returns here without `become`\012\012**Help.** add `become .{1}(\342\200\246)` before returning, or fail\012\012**Why.** A signature with `becomes .s` promises that the receiver is in state `.s` when the function returns normally, and callers rely on that state after the call. A `return`, or the end of the body, reached on a path that ran no `become` would leave the receiver in its old state. Only a failure (`fail`, a propagated error) or a call that never returns may leave without `become`.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012    void pay(ref this is .draft, i64 amount) becomes .paid {\012        if amount <= 0 {\012            return\012        }\012        become .paid(amount)\012    }\012}\012```\012\012**Fix.** Run `become .paid(\342\200\246)` on every path before the return, or fail on the paths that cannot make the transition: declare `fails` and `fail` instead of `return`.\012", 988)});
 #line 991 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 993 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN8001", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7010", 7))) {
 #line 994 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN8001: a safety bypass without `because`\012\012**Why.** Some constructs switch off a check the compiler would otherwise make: `@allow`, `@json(expose)`, a call to a member ending in `Unchecked`, and `unsafe`. Each one names its reason in a `because \042\342\200\246\042` clause on its line, so a reviewer and `bayan audit` can see why (spec \302\2474.4). An empty reason is rejected too.\012\012**Example.**\012\012```\012@allow(unusedValue)\012void warm(Cache cache) {\012    cache.load()\012}\012```\012\012**Fix.** Explain the bypass in a `because` clause:\012\012```\012@allow(unusedValue) because \042warming only fills the cache\042\012void warm(Cache cache) {\012    cache.load()\012}\012```\012\012There is no automatic fix: the reason is human text. This version reports `@allow`, `@json(expose)` and calls to a member ending in `Unchecked` without a reason, and any empty reason; `unsafe` is checked once `unsafe` blocks parse.\012", 850)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7010: `becomes` without `ref this`\012\012**Message.** `{0}` declares `becomes .{1}` but takes `{2}`; a transition needs `ref this`\012\012**Help.** change the receiver of `{0}` to `ref this`, or return the new state as a value\012\012**Why.** A transition only means something to a caller that still holds the value afterwards. A `move this` receiver ends the caller's ownership, and a plain `this` is a copy the caller never sees again, so `becomes` on either would change a state nobody can observe. `move this is .s` and `this is .s` stay valid for methods without `becomes`: they read or consume a value in a known state. A `become` in a method rejected here reports nothing more.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012    void pay(move this is .draft, i64 amount) becomes .paid {\012        become .paid(amount)\012    }\012}\012```\012\012**Fix.** Take the receiver as `ref this`, keeping its state: `void pay(ref this is .draft, i64 amount) becomes .paid { \342\200\246 }`. The diagnostic carries a machine-applicable fix that replaces `move` (or adds `ref` before a plain `this`). A method that ends the value's life should drop `becomes` instead.\012", 1183)});
 #line 993 "driver/diagdocs.byn"
         goto switch_end_1;
     }
 #line 995 "driver/diagdocs.byn"
-    if (byn_str_eq(p_name, BYN_STR("BYN8006", 7))) {
+    if (byn_str_eq(p_name, BYN_STR("BYN7011", 7))) {
 #line 996 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN8006: `expects` reads untrusted data\012\012**Message.** \042`expects` reads `{0}`, which is `Untrusted`; a violation would trap on outside data\042\012\012**Help.** \042validate `{0}` with a type that has `requires` before the call\042\012\012**What.** A function's `expects` clause reads a parameter of type `Untrusted<T>`.\012\012**Why.** A violated `expects` traps in every build mode. Outside data can break any rule, so checking it with `expects` lets whoever sends the data stop the program. Outside data is validated where it enters, with a `requires` type whose construction fails with a `ValidationError` the caller handles.\012\012**Example.**\012\012```\012i64 fit(Untrusted<string> name, by i64 limit) expects name.length <= limit {\012    return limit\012}\012```\012\012**Fix.** Validate the value into a type with `requires` before the call, and take that type:\012\012```\012type distinct Name = string requires it.length <= 64\012\012i64 fit(Name name, by i64 limit) => limit\012```\012\012The diagnostic has no machine-applicable fix.\012", 969)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN7011: `becomes` call on a `ref` parameter\012\012**Message.** `{0}` changes the state of `{1}`, a `ref` parameter; a state changes in place only through `ref this`\012\012**Help.** take `{1}` by `move` and return the new state as a value\012\012**Why.** Every place a value's state can change is visible in a signature, so a caller trusts what it knows about a value's state without reading any method body. A function that calls a `becomes` method on one of its `ref` parameters changes the caller's value behind a signature that says nothing about states. A transition in place happens only through the receiver of a `ref this` method that declares `becomes`.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012    void pay(ref this is .draft, i64 amount) becomes .paid {\012        become .paid(amount)\012    }\012}\012\012void charge(ref Order.draft order) {\012    order.pay(2)\012}\012```\012\012**Fix.** Consume the value and return the new state, with the transition in the signature (`Order.paid charge(move Order.draft order)`), or make the transition a `becomes` method of `Order` and call it on the caller's value.\012", 1138)});
 #line 995 "driver/diagdocs.byn"
         goto switch_end_1;
     }
+#line 997 "driver/diagdocs.byn"
+    if (byn_str_eq(p_name, BYN_STR("BYN7012", 7))) {
 #line 998 "driver/diagdocs.byn"
+        return ((bynt_opt_str){true, BYN_STR("# BYN7012: assignment that changes the state\012\012**Message.** `{0}` would change state here; a state changes only through `become`\012\012**Help.** assign a value in the same state, or move the transition into a `becomes` method\012\012**Why.** A state changes in place only through `become`, so every change shows in a `becomes` signature. A whole-value assignment to a `ref` parameter (or to `this`) whose type has states could swap the caller's value for one in another state without the caller knowing. It is allowed only when the target's type names exactly one state and the new value is in that state: `ref Order o` and `ref Order o is .paid or .shipped` can't be reassigned, since the callee does not know which state the caller had; `ref Order.paid o` can take another `Order.paid`.\012\012**Example.**\012\012```\012struct Order {\012    i64 id\012    states {\012        draft\012        paid(i64 payment)\012    }\012}\012void wipe(ref Order o) {\012    o = Order.draft { id: o.id }\012}\012```\012\012**Fix.** Assign a value in the state the parameter names (`ref Order.paid o` takes `Order.paid { \342\200\246 }`), write fields through a `ref this` method of the struct, or move the transition into a `ref this` method that declares `becomes .draft` and runs `become .draft`.\012", 1215)});
+#line 997 "driver/diagdocs.byn"
+        goto switch_end_1;
+    }
+#line 999 "driver/diagdocs.byn"
+    if (byn_str_eq(p_name, BYN_STR("BYN8001", 7))) {
+#line 1000 "driver/diagdocs.byn"
+        return ((bynt_opt_str){true, BYN_STR("# BYN8001: a safety bypass without `because`\012\012**Why.** Some constructs switch off a check the compiler would otherwise make: `@allow`, `@json(expose)`, a call to a member ending in `Unchecked`, and `unsafe`. Each one names its reason in a `because \042\342\200\246\042` clause on its line, so a reviewer and `bayan audit` can see why (spec \302\2474.4). An empty reason is rejected too.\012\012**Example.**\012\012```\012@allow(unusedValue)\012void warm(Cache cache) {\012    cache.load()\012}\012```\012\012**Fix.** Explain the bypass in a `because` clause:\012\012```\012@allow(unusedValue) because \042warming only fills the cache\042\012void warm(Cache cache) {\012    cache.load()\012}\012```\012\012There is no automatic fix: the reason is human text. This version reports `@allow`, `@json(expose)` and calls to a member ending in `Unchecked` without a reason, and any empty reason; `unsafe` is checked once `unsafe` blocks parse.\012", 850)});
+#line 999 "driver/diagdocs.byn"
+        goto switch_end_1;
+    }
+#line 1001 "driver/diagdocs.byn"
+    if (byn_str_eq(p_name, BYN_STR("BYN8006", 7))) {
+#line 1002 "driver/diagdocs.byn"
+        return ((bynt_opt_str){true, BYN_STR("# BYN8006: `expects` reads untrusted data\012\012**Message.** \042`expects` reads `{0}`, which is `Untrusted`; a violation would trap on outside data\042\012\012**Help.** \042validate `{0}` with a type that has `requires` before the call\042\012\012**What.** A function's `expects` clause reads a parameter of type `Untrusted<T>`.\012\012**Why.** A violated `expects` traps in every build mode. Outside data can break any rule, so checking it with `expects` lets whoever sends the data stop the program. Outside data is validated where it enters, with a `requires` type whose construction fails with a `ValidationError` the caller handles.\012\012**Example.**\012\012```\012i64 fit(Untrusted<string> name, by i64 limit) expects name.length <= limit {\012    return limit\012}\012```\012\012**Fix.** Validate the value into a type with `requires` before the call, and take that type:\012\012```\012type distinct Name = string requires it.length <= 64\012\012i64 fit(Name name, by i64 limit) => limit\012```\012\012The diagnostic has no machine-applicable fix.\012", 969)});
+#line 1001 "driver/diagdocs.byn"
+        goto switch_end_1;
+    }
+#line 1004 "driver/diagdocs.byn"
     return ((bynt_opt_str){0});
 switch_end_1:;
 }
-#line 191760 "main.c"
+#line 191774 "main.c"
 
 byn_str byn_main__t5Paint(byn_main_T5Role p_role, bynt_main__DStyle p_style, byn_str p_text) {
     byn_writer t0 = {0};
@@ -191824,7 +191838,7 @@ switch_end_1:;
 #line 49 "driver/doctor.byn"
     return byn_strbuf_str(t3);
 }
-#line 191828 "main.c"
+#line 191842 "main.c"
 
 int32_t byn_main__doctorCommand(bynt_main__DCtx p_d) {
     bynt_list_main__T5Check l0_checks = {0};
@@ -191909,7 +191923,7 @@ break_1:;
 #line 72 "driver/doctor.byn"
     return ((int32_t)0);
 }
-#line 191913 "main.c"
+#line 191927 "main.c"
 
 byn_str byn_main__t5Render(bynt_list_main__T5Check p_checks, bynt_main__DStyle p_style) {
     bynt_semantics__T26Symbols l0_symbols = {0};
@@ -192076,7 +192090,7 @@ break_3:;
 #line 97 "driver/doctor.byn"
     return byn_strbuf_str(t18);
 }
-#line 192080 "main.c"
+#line 192094 "main.c"
 
 bynt_main__T5Check byn_main__t5CCompiler(void) {
     bool l0_fromEnv = {0};
@@ -192190,7 +192204,7 @@ break_1:;
 #line 117 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)2), BYN_STR("C compiler", 10), byn_strbuf_str(t13), ((bynt_opt_str){true, BYN_STR("reinstall it, or set BAYAN_CC to a working C compiler", 53)})});
 }
-#line 192194 "main.c"
+#line 192208 "main.c"
 
 bynt_list_str byn_main__t5FindCompiler(void) {
     bynt_opt_str t0 = {0};
@@ -192250,7 +192264,7 @@ bynt_list_str byn_main__t5FindCompiler(void) {
 #line 131 "driver/doctor.byn"
     return byn_main__ccFindCompiler();
 }
-#line 192254 "main.c"
+#line 192268 "main.c"
 
 bynt_main__T5Check byn_main__t5Zig(void) {
     bynt_opt_str l0_found = {0};
@@ -192332,7 +192346,7 @@ bynt_main__T5Check byn_main__t5Zig(void) {
 #line 146 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)2), BYN_STR("zig", 3), t9, ((bynt_opt_str){true, byn_strbuf_str(t8)})});
 }
-#line 192336 "main.c"
+#line 192350 "main.c"
 
 bynt_main__T5Check byn_main__t5Git(void) {
     bynt_opt_str l0_found = {0};
@@ -192387,7 +192401,7 @@ bynt_main__T5Check byn_main__t5Git(void) {
 #line 161 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)1), BYN_STR("git", 3), byn_strbuf_str(t6), ((bynt_opt_str){true, BYN_STR("reinstall git", 13)})});
 }
-#line 192391 "main.c"
+#line 192405 "main.c"
 
 bynt_main__T5Check byn_main__t5Cache(void) {
     byn_str l0_dir = {0};
@@ -192523,7 +192537,7 @@ bynt_main__T5Check byn_main__t5Cache(void) {
 #line 175 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)0), BYN_STR("cache", 5), byn_strbuf_str(t17), ((bynt_opt_str){0})});
 }
-#line 192527 "main.c"
+#line 192541 "main.c"
 
 bynt_main__T5Check byn_main__t5CacheBroken(byn_str p_dir, byn_str p_message) {
     byn_writer t0 = {0};
@@ -192541,7 +192555,7 @@ bynt_main__T5Check byn_main__t5CacheBroken(byn_str p_dir, byn_str p_message) {
 #line 180 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)2), BYN_STR("cache", 5), byn_strbuf_str(t0), ((bynt_opt_str){true, BYN_STR("set BAYAN_CACHE to a writable directory", 39)})});
 }
-#line 192545 "main.c"
+#line 192559 "main.c"
 
 bynt_opt_str byn_main__t5Version(byn_str p_file, bynt_list_str p_args) {
     byn_process l0_r = {0};
@@ -192598,7 +192612,7 @@ break_1:;
 #line 190 "driver/doctor.byn"
     return ((bynt_opt_str){0});
 }
-#line 192602 "main.c"
+#line 192616 "main.c"
 
 int32_t byn_main__explainCommand(bynt_list_str p_kept) {
     bynt_list_str l0_args = {0};
@@ -192642,7 +192656,7 @@ int32_t byn_main__explainCommand(bynt_list_str p_kept) {
 #line 17 "driver/explain.byn"
     return ((int32_t)2);
 }
-#line 192646 "main.c"
+#line 192660 "main.c"
 
 bynt_opt_str byn_main__explainText(byn_str p_code) {
     byn_str l0_name = {0};
@@ -192685,7 +192699,7 @@ break_1:;
 #line 28 "driver/explain.byn"
     return byn_main__diagDoc(l0_name);
 }
-#line 192689 "main.c"
+#line 192703 "main.c"
 
 bool byn_main__t1IsWhiteSpace(int64_t p_cp) {
 #line 33 "driver/explain.byn"
@@ -192701,7 +192715,7 @@ bool byn_main__t1IsWhiteSpace(int64_t p_cp) {
 #line 35 "driver/explain.byn"
     return (((((((((p_cp == INT64_C(32)) || (p_cp == INT64_C(133))) || (p_cp == INT64_C(160))) || (p_cp == INT64_C(5760))) || (p_cp == INT64_C(8232))) || (p_cp == INT64_C(8233))) || (p_cp == INT64_C(8239))) || (p_cp == INT64_C(8287))) || (p_cp == INT64_C(12288)));
 }
-#line 192705 "main.c"
+#line 192719 "main.c"
 
 bynt_tup2_i64_i64 byn_main__t1Decode(byn_str p_text, int64_t p_i) {
     int64_t l0_b = {0};
@@ -192769,7 +192783,7 @@ break_1:;
 #line 53 "driver/explain.byn"
     return ((bynt_tup2_i64_i64){l2_cp, l1_size});
 }
-#line 192773 "main.c"
+#line 192787 "main.c"
 
 byn_str byn_main__t1Trim(byn_str p_text) {
     int64_t l0_start = {0};
@@ -192836,7 +192850,7 @@ break_3:;
 #line 72 "driver/explain.byn"
     return bynh_slice_str(p_text, (int64_t)l0_start, 0, (int64_t)l1_end, 0, false, byn_file_91, 72);
 }
-#line 192840 "main.c"
+#line 192854 "main.c"
 
 void byn_main__t2Add(byn_str p_item, bynt_list_str* p_items) {
     byn_str l0_x = {0};
@@ -192868,7 +192882,7 @@ break_1:;
 #line 18 "driver/features.byn"
     (void)bynh_add_list_str(&(*p_items), p_item);
 }
-#line 192872 "main.c"
+#line 192886 "main.c"
 
 void byn_main__t2Sorted(bynt_list_str* p_items) {
     int64_t l0_i = {0};
@@ -192918,7 +192932,7 @@ void byn_main__t2Sorted(bynt_list_str* p_items) {
     }
 break_1:;
 }
-#line 192922 "main.c"
+#line 192936 "main.c"
 
 byn_str byn_main__t2Pascal(byn_str p_name) {
     byn_writer t0 = {0};
@@ -192938,7 +192952,7 @@ byn_str byn_main__t2Pascal(byn_str p_name) {
 #line 35 "driver/features.byn"
     return byn_strbuf_str(t0);
 }
-#line 192942 "main.c"
+#line 192956 "main.c"
 
 byn_str byn_main__t2ExprName(byn_semantics_ExprSyntaxKind p_kind) {
 #line 40 "driver/features.byn"
@@ -193181,7 +193195,7 @@ byn_str byn_main__t2ExprName(byn_semantics_ExprSyntaxKind p_kind) {
     }
 switch_end_1:;
 }
-#line 193185 "main.c"
+#line 193199 "main.c"
 
 byn_str byn_main__t2NodeName(byn_semantics_NodeSyntaxKind p_kind) {
 #line 85 "driver/features.byn"
@@ -193487,7 +193501,7 @@ byn_str byn_main__t2NodeName(byn_semantics_NodeSyntaxKind p_kind) {
     }
 switch_end_1:;
 }
-#line 193491 "main.c"
+#line 193505 "main.c"
 
 void byn_main__t2Attributes(bynt_list_parser__AttributeSyntax p_attributes, bynt_list_str* p_nodes) {
     bynt_parser__AttributeSyntax l0_a = {0};
@@ -193519,7 +193533,7 @@ void byn_main__t2Attributes(bynt_list_parser__AttributeSyntax p_attributes, bynt
     }
 break_1:;
 }
-#line 193523 "main.c"
+#line 193537 "main.c"
 
 void byn_main__t2Declarations(bynt_list_parser__Decl p_decls, bynt_list_str* p_nodes) {
     byn_parser_Decl l0_decl = {0};
@@ -193738,7 +193752,7 @@ void byn_main__t2Declarations(bynt_list_parser__Decl p_decls, bynt_list_str* p_n
     }
 break_1:;
 }
-#line 193742 "main.c"
+#line 193756 "main.c"
 
 void byn_main__t2Function(bynt_semantics__Ctx p_c, int64_t p_fn, bynt_list_str* p_nodes, bynt_list_str* p_builtins) {
     int64_t l0_body = {0};
@@ -193844,7 +193858,7 @@ void byn_main__t2Function(bynt_semantics__Ctx p_c, int64_t p_fn, bynt_list_str* 
     }
 break_1:;
 }
-#line 193848 "main.c"
+#line 193862 "main.c"
 
 void byn_main__t2Array(byn_str p_name, byn_writer* p_sb, bynt_list_str p_items, bool p_last) {
     int64_t l0_i = {0};
@@ -193906,7 +193920,7 @@ void byn_main__t2Array(byn_str p_name, byn_writer* p_sb, bynt_list_str p_items, 
 #line 254 "driver/features.byn"
     (void)byn_w_str(&(*p_sb), (p_last ? BYN_STR("\012", 1) : BYN_STR(",\012", 2)));
 }
-#line 193910 "main.c"
+#line 193924 "main.c"
 
 byn_str byn_main__t2ToJson(bynt_semantics__Ctx p_c) {
     bynt_list_str l0_nodes = {0};
@@ -194093,7 +194107,7 @@ break_11:;
 #line 280 "driver/features.byn"
     return byn_strbuf_str(t22);
 }
-#line 194097 "main.c"
+#line 194111 "main.c"
 
 int32_t byn_main__featuresCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bool l0_used = {0};
@@ -194178,7 +194192,7 @@ break_1:;
 #line 305 "driver/features.byn"
     return ((int32_t)0);
 }
-#line 194182 "main.c"
+#line 194196 "main.c"
 
 bool byn_main__inputForms(byn_str p_code) {
     bool t0 = {0};
@@ -194230,7 +194244,7 @@ switch_end_1:;
 #line 22 "driver/format.byn"
     return t0;
 }
-#line 194234 "main.c"
+#line 194248 "main.c"
 
 bynt_map_str_str byn_main__cSharpPrimitives(void) {
     bynt_map_str_str t0 = {0};
@@ -194263,7 +194277,7 @@ bynt_map_str_str byn_main__cSharpPrimitives(void) {
 #line 32 "driver/format.byn"
     return t0;
 }
-#line 194267 "main.c"
+#line 194281 "main.c"
 
 bynt_map_str_str byn_main__sizedPrimitives(void) {
     bynt_map_str_str l0_sized = {0};
@@ -194306,7 +194320,7 @@ break_1:;
 #line 41 "driver/format.byn"
     return l0_sized;
 }
-#line 194310 "main.c"
+#line 194324 "main.c"
 
 int32_t byn_main__formatCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bynt_list_str l0_rest = {0};
@@ -194703,7 +194717,7 @@ break_3:;
 #line 129 "driver/format.byn"
     return l7_exit;
 }
-#line 194707 "main.c"
+#line 194721 "main.c"
 
 bool byn_main__t8SameBytes(bynt_list_u8 p_a, bynt_list_u8 p_b) {
     int64_t t0 = {0};
@@ -194743,7 +194757,7 @@ break_1:;
 #line 138 "driver/format.byn"
     return true;
 }
-#line 194747 "main.c"
+#line 194761 "main.c"
 
 byn_err byn_main__writeReplacing(byn_str p_file, bynt_list_u8 p_bytes) {
     byn_err t0 = {0};
@@ -194756,7 +194770,7 @@ byn_err byn_main__writeReplacing(byn_str p_file, bynt_list_u8 p_bytes) {
     }
     return (byn_err){0};
 }
-#line 194760 "main.c"
+#line 194774 "main.c"
 
 bynt_list_u8 byn_main__applyFixes(bynt_list_u8 p_bytes, bynt_list_main__T8Fix p_fixes) {
     bynt_list_main__T8Fix l0_ordered = {0};
@@ -194956,7 +194970,7 @@ break_13:;
 #line 178 "driver/format.byn"
     return l11_result;
 }
-#line 194960 "main.c"
+#line 194974 "main.c"
 
 bynt_parser__Parser byn_main__t8Parser(byn_str p_file, bynt_list_u8 p_bytes) {
     bynt_list_u8 l0_copy = {0};
@@ -194991,7 +195005,7 @@ break_1:;
 #line 187 "driver/format.byn"
     return byn_parser__Parser__create(byn_lexer__lex(t4, byn_lexer__Keywords__build()));
 }
-#line 194995 "main.c"
+#line 195009 "main.c"
 
 byn_str byn_main__t8RenderAll(byn_str p_file, bynt_list_u8 p_bytes, bynt_list_lexer__Diagnostic p_diagnostics) {
     bynt_list_u8 l0_empty = {0};
@@ -195069,7 +195083,7 @@ break_3:;
 #line 217 "driver/format.byn"
     return byn_semantics__renderAll(l8_c, l9_diags, true, INT64_C(2147483647), &l13_omitted);
 }
-#line 195073 "main.c"
+#line 195087 "main.c"
 
 byn_str byn_main__t8RenderManifest(byn_str p_path, bynt_list_semantics__Diag p_diagnostics) {
     bynt_list_u8 l0_text = {0};
@@ -195133,7 +195147,7 @@ break_1:;
 #line 246 "driver/format.byn"
     return byn_semantics__renderAll(l7_c, l8_diags, true, INT64_C(2147483647), &l12_omitted);
 }
-#line 195137 "main.c"
+#line 195151 "main.c"
 
 bynt_opt_list_u8 byn_main__formatFile(byn_str p_file, bynt_list_u8 p_bytes, byn_semantics_BooleanStyle p_booleans, byn_semantics_PrimitiveStyle p_primitives, bynt_map_str_bool p_declared, int64_t p_maxPasses, bool* p_unfixable) {
     bool l0_converged = {0};
@@ -195401,7 +195415,7 @@ break_3:;
 #line 307 "driver/format.byn"
     return ((bynt_opt_list_u8){true, l1_current});
 }
-#line 195405 "main.c"
+#line 195419 "main.c"
 
 bynt_list_u8 byn_main__restyle(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p, byn_semantics_BooleanStyle p_booleans, byn_semantics_PrimitiveStyle p_primitives, bynt_map_str_bool p_declared) {
     bynt_map_str_str l0_names = {0};
@@ -195633,7 +195647,7 @@ break_9:;
 #line 363 "driver/format.byn"
     return l26_result;
 }
-#line 195637 "main.c"
+#line 195651 "main.c"
 
 bynt_map_i64_bool byn_main__t8Starts(bynt_list_lexer__TextSpan p_names) {
     bynt_map_i64_bool l0_starts = {0};
@@ -195665,7 +195679,7 @@ break_1:;
 #line 370 "driver/format.byn"
     return l0_starts;
 }
-#line 195669 "main.c"
+#line 195683 "main.c"
 
 bynt_map_str_bool byn_main__otherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
     bynt_list_u8 l0_copy = {0};
@@ -195751,13 +195765,13 @@ break_3:;
 #line 389 "driver/format.byn"
     return l9_found;
 }
-#line 195755 "main.c"
+#line 195769 "main.c"
 
 bool byn_main__t8IsSpace(uint8_t p_b) {
 #line 393 "driver/format.byn"
     return ((((p_b == ((uint8_t)32)) || (p_b == ((uint8_t)9))) || (p_b == ((uint8_t)10))) || (p_b == ((uint8_t)13)));
 }
-#line 195761 "main.c"
+#line 195775 "main.c"
 
 bynt_opt_main__T8Fix byn_main__operatorFix(bynt_list_u8 p_bytes, bynt_list_lexer__Token p_tokens, int64_t p_i, byn_semantics_BooleanStyle p_booleans) {
     bynt_lexer__Token l0_token = {0};
@@ -195912,7 +195926,7 @@ break_3:;
 #line 427 "driver/format.byn"
     return ((bynt_opt_main__T8Fix){true, ((bynt_main__T8Fix){byn_lexer__TextSpan__fromBounds(l0_token.start, l11_next.start), l9_symbol})});
 }
-#line 195916 "main.c"
+#line 195930 "main.c"
 
 byn_str byn_main__shape(bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
     byn_writer l0_sb = {0};
@@ -196040,7 +196054,7 @@ break_3:;
 #line 451 "driver/format.byn"
     return byn_strbuf_str(t15);
 }
-#line 196044 "main.c"
+#line 196058 "main.c"
 
 byn_str byn_main__versionLine(void) {
     byn_writer t0 = {0};
@@ -196058,7 +196072,7 @@ byn_str byn_main__versionLine(void) {
 #line 82 "driver/main.byn"
     return byn_strbuf_str(t0);
 }
-#line 196062 "main.c"
+#line 196076 "main.c"
 
 int32_t byn_main__run(bynt_span_str p_args, bynt_main__DCtx* p_d) {
     bynt_list_str l0_kept = {0};
@@ -196360,7 +196374,7 @@ int32_t byn_main__run(bynt_span_str p_args, bynt_main__DCtx* p_d) {
     return ((int32_t)2);
 switch_end_1:;
 }
-#line 196364 "main.c"
+#line 196378 "main.c"
 
 bool byn_main__takeGlobalOptions(bynt_span_str p_args, bynt_list_str* p_kept, bynt_main__DCtx* p_d) {
     byn_str l0_color = {0};
@@ -196502,7 +196516,7 @@ break_1:;
 #line 198 "driver/main.byn"
     return true;
 }
-#line 196506 "main.c"
+#line 196520 "main.c"
 
 bynt_main__DStyle byn_main__decideStyle(byn_str p_colorFlag, bool p_ascii, bool p_isTty, int64_t p_width) {
     bool l0_dumb = {0};
@@ -196575,7 +196589,7 @@ switch_end_1:;
 #line 228 "driver/main.byn"
     return ((bynt_main__DStyle){l1_color, ((p_ascii || l0_dumb) || (!byn_main__t7Utf8())), ((p_isTty && (p_width > INT64_C(0))) ? p_width : INT64_C(100)), l4_palette});
 }
-#line 196579 "main.c"
+#line 196593 "main.c"
 
 bool byn_main__t7Light(void) {
     byn_str l0_theme = {0};
@@ -196668,7 +196682,7 @@ break_1:;
 #line 258 "driver/main.byn"
     return ((l4_bg == INT64_C(7)) || ((l4_bg >= INT64_C(9)) && (l4_bg <= INT64_C(15))));
 }
-#line 196672 "main.c"
+#line 196686 "main.c"
 
 byn_str byn_main__t7Prefix(int64_t p_palette, int64_t p_role) {
     bynt_arr5_str l0_rows = {0};
@@ -196693,7 +196707,7 @@ byn_str byn_main__t7Prefix(int64_t p_palette, int64_t p_role) {
 #line 272 "driver/main.byn"
     return (*bynh_at_arr5_str(&l2_rows, (int64_t)p_role, false, byn_file_94, 272));
 }
-#line 196697 "main.c"
+#line 196711 "main.c"
 
 bool byn_main__t7Utf8(void) {
     bynt_arr3_str l0_names = {0};
@@ -196738,7 +196752,7 @@ break_1:;
 #line 288 "driver/main.byn"
     return true;
 }
-#line 196742 "main.c"
+#line 196756 "main.c"
 
 bool byn_main__t1FileExists(byn_str p_path) {
     bynt_list_str l0__ = {0};
@@ -196768,7 +196782,7 @@ bool byn_main__t1FileExists(byn_str p_path) {
 #line 297 "driver/main.byn"
     return false;
 }
-#line 196772 "main.c"
+#line 196786 "main.c"
 
 bool byn_main__t1IsScript(byn_str p_path) {
     bynt_list_u8 l0_bytes = {0};
@@ -196791,7 +196805,7 @@ bool byn_main__t1IsScript(byn_str p_path) {
 #line 305 "driver/main.byn"
     return (((l0_bytes.len >= INT64_C(2)) && ((*bynh_at_list_u8(l0_bytes, (int64_t)INT64_C(0), false, byn_file_94, 305)) == ((uint8_t)35))) && ((*bynh_at_list_u8(l0_bytes, (int64_t)INT64_C(1), false, byn_file_94, 305)) == ((uint8_t)33)));
 }
-#line 196795 "main.c"
+#line 196809 "main.c"
 
 bool byn_main__refuseLibrary(bynt_semantics__Ctx p_compiled, byn_str p_command) {
     byn_writer t0 = {0};
@@ -196821,7 +196835,7 @@ bool byn_main__refuseLibrary(bynt_semantics__Ctx p_compiled, byn_str p_command) 
 #line 312 "driver/main.byn"
     return true;
 }
-#line 196825 "main.c"
+#line 196839 "main.c"
 
 int32_t byn_main__refuse(byn_str p_what) {
     byn_writer t0 = {0};
@@ -196844,7 +196858,7 @@ int32_t byn_main__refuse(byn_str p_what) {
 #line 318 "driver/main.byn"
     return ((int32_t)2);
 }
-#line 196848 "main.c"
+#line 196862 "main.c"
 
 int32_t byn_main__main(bynt_span_str p_args) {
     bynt_main__DCtx l0_d = {0};
@@ -196853,7 +196867,7 @@ int32_t byn_main__main(bynt_span_str p_args) {
 #line 323 "driver/main.byn"
     return byn_main__run(p_args, &l0_d);
 }
-#line 196857 "main.c"
+#line 196871 "main.c"
 
 int64_t byn_main__t7Utf8Length(int64_t p_scalar) {
 #line 25 "driver/progress.byn"
@@ -196874,13 +196888,13 @@ int64_t byn_main__t7Utf8Length(int64_t p_scalar) {
 #line 28 "driver/progress.byn"
     return INT64_C(4);
 }
-#line 196878 "main.c"
+#line 196892 "main.c"
 
 bool byn_main__t7Hidden(int64_t p_c) {
 #line 33 "driver/progress.byn"
     return (((((((p_c < INT64_C(32)) || ((p_c >= INT64_C(127)) && (p_c <= INT64_C(159)))) || (p_c == INT64_C(1564))) || (p_c == INT64_C(8206))) || (p_c == INT64_C(8207))) || ((p_c >= INT64_C(8234)) && (p_c <= INT64_C(8238)))) || ((p_c >= INT64_C(8294)) && (p_c <= INT64_C(8297))));
 }
-#line 196884 "main.c"
+#line 196898 "main.c"
 
 byn_str byn_main__visible(byn_str p_text) {
     bool l0_any = {0};
@@ -196979,7 +196993,7 @@ break_3:;
 #line 59 "driver/progress.byn"
     return byn_strbuf_str(t12);
 }
-#line 196983 "main.c"
+#line 196997 "main.c"
 
 int64_t byn_main__columns(int64_t p_scalar) {
 #line 64 "driver/progress.byn"
@@ -196995,7 +197009,7 @@ int64_t byn_main__columns(int64_t p_scalar) {
 #line 68 "driver/progress.byn"
     return INT64_C(1);
 }
-#line 196999 "main.c"
+#line 197013 "main.c"
 
 byn_str byn_main__fit(byn_str p_phase, int64_t p_room, byn_str p_ellipsis, int64_t p_length) {
     int64_t l0_width = {0};
@@ -197090,7 +197104,7 @@ break_3:;
 #line 86 "driver/progress.byn"
     return byn_strbuf_str(t14);
 }
-#line 197094 "main.c"
+#line 197108 "main.c"
 
 bynt_main__Progress byn_main__start(bynt_main__DStyle p_style, bool p_isTty, bool p_json, byn_str p_phase, int64_t p_after) {
     bool l0_off = {0};
@@ -197130,7 +197144,7 @@ bynt_main__Progress byn_main__start(bynt_main__DStyle p_style, bool p_isTty, boo
 #line 97 "driver/progress.byn"
     return l5_p;
 }
-#line 197134 "main.c"
+#line 197148 "main.c"
 
 void byn_main__tick(bynt_main__Progress* p_p) {
     bynt_list_str l0_frames = {0};
@@ -197195,7 +197209,7 @@ void byn_main__tick(bynt_main__Progress* p_p) {
 #line 108 "driver/progress.byn"
     (*p_p).shown = true;
 }
-#line 197199 "main.c"
+#line 197213 "main.c"
 
 void byn_main__done(bynt_main__Progress* p_p) {
     int64_t l0_elapsed = {0};
@@ -197251,7 +197265,7 @@ void byn_main__done(bynt_main__Progress* p_p) {
         (void)byn_io_write(INT32_C(2), ((*p_p).ascii ? BYN_STR("\012", 1) : BYN_STR("\015\033[2K", 5)));
     }
 }
-#line 197255 "main.c"
+#line 197269 "main.c"
 
 int32_t byn_main__scaffoldNew(bynt_span_str p_args) {
     bynt_main__ScaffoldOptions l0_o = {0};
@@ -197470,7 +197484,7 @@ int32_t byn_main__scaffoldNew(bynt_span_str p_args) {
 #line 183 "driver/scaffold.byn"
     return ((int32_t)0);
 }
-#line 197474 "main.c"
+#line 197488 "main.c"
 
 int32_t byn_main__scaffoldInit(bynt_span_str p_args) {
     bynt_main__ScaffoldOptions l0_o = {0};
@@ -197547,7 +197561,7 @@ int32_t byn_main__scaffoldInit(bynt_span_str p_args) {
 #line 201 "driver/scaffold.byn"
     return ((int32_t)0);
 }
-#line 197551 "main.c"
+#line 197565 "main.c"
 
 byn_str byn_main__scaffoldTrimEnd(byn_str p_path) {
     byn_str l0_separator = {0};
@@ -197571,7 +197585,7 @@ break_1:;
 #line 210 "driver/scaffold.byn"
     return bynh_slice_str(p_path, (int64_t)INT64_C(0), 0, (int64_t)l1_end, 0, false, byn_file_96, 210);
 }
-#line 197575 "main.c"
+#line 197589 "main.c"
 
 int64_t byn_main__scaffoldEntryCount(byn_str p_full) {
     bynt_list_str l0_names = {0};
@@ -197596,7 +197610,7 @@ int64_t byn_main__scaffoldEntryCount(byn_str p_full) {
 #line 217 "driver/scaffold.byn"
     return l0_names.len;
 }
-#line 197600 "main.c"
+#line 197614 "main.c"
 
 bynt_opt_main__ScaffoldOptions byn_main__scaffoldParseOptions(bynt_span_str p_args, byn_str p_command) {
     bynt_opt_str l0_target = {0};
@@ -197713,7 +197727,7 @@ break_1:;
 #line 248 "driver/scaffold.byn"
     return ((bynt_opt_main__ScaffoldOptions){true, ((bynt_main__ScaffoldOptions){l0_target, l1_layout, l2_git, l3_ci})});
 }
-#line 197717 "main.c"
+#line 197731 "main.c"
 
 bynt_opt_main__ScaffoldNames byn_main__scaffoldNames(byn_str p_dirName, byn_main_ScaffoldLayout p_layout) {
     bynt_span_u8 l0_t = {0};
@@ -197833,7 +197847,7 @@ break_1:;
 #line 271 "driver/scaffold.byn"
     return ((bynt_opt_main__ScaffoldNames){true, ((bynt_main__ScaffoldNames){l5_kebab, l8_module})});
 }
-#line 197837 "main.c"
+#line 197851 "main.c"
 
 void byn_main__scaffoldWrite(bynt_map_str_str p_files, byn_str p_root, bool p_listing) {
     bynt_list_str l0_paths = {0};
@@ -198011,7 +198025,7 @@ break_1:;
     }
 break_3:;
 }
-#line 198015 "main.c"
+#line 198029 "main.c"
 
 void byn_main__scaffoldInitGit(byn_str p_dir, bynt_main__ScaffoldOptions p_o) {
     bynt_opt_str l0_found = {0};
@@ -198054,7 +198068,7 @@ void byn_main__scaffoldInitGit(byn_str p_dir, bynt_main__ScaffoldOptions p_o) {
         (void)byn_io_write(INT32_C(1), BYN_STR("note: `git init` failed, so no repository was created\012", 54));
     }
 }
-#line 198058 "main.c"
+#line 198072 "main.c"
 
 bynt_main__ScaffoldGitResult byn_main__scaffoldGit(byn_str p_git, byn_str p_dir, byn_str p_first, byn_str p_second) {
     bynt_list_str l0_args = {0};
@@ -198093,7 +198107,7 @@ bynt_main__ScaffoldGitResult byn_main__scaffoldGit(byn_str p_git, byn_str p_dir,
 #line 339 "driver/scaffold.byn"
     return ((bynt_main__ScaffoldGitResult){t4, byn_str_trimmed(l1_r.out, 2)});
 }
-#line 198097 "main.c"
+#line 198111 "main.c"
 
 bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main__ScaffoldOptions p_o) {
     bynt_map_str_str l0_files = {0};
@@ -198189,7 +198203,7 @@ bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main
 #line 367 "driver/scaffold.byn"
     return l0_files;
 }
-#line 198193 "main.c"
+#line 198207 "main.c"
 
 bynt_list_u64 byn_main__t9RoundConstants(void) {
     bynt_list_u64 l0_k = {0};
@@ -198329,13 +198343,13 @@ bynt_list_u64 byn_main__t9RoundConstants(void) {
 #line 17 "driver/sha256.byn"
     return l0_k;
 }
-#line 198333 "main.c"
+#line 198347 "main.c"
 
 uint64_t byn_main__t9Rotr(uint64_t p_x, uint64_t p_n) {
 #line 21 "driver/sha256.byn"
     return ((uint64_t)(((uint64_t)(byn_shr_u64(p_x, (int64_t)(p_n)) | byn_shl_u64(p_x, (int64_t)(byn_sub_u64(UINT64_C(32), p_n, byn_file_97, 21))))) & UINT64_C(4294967295)));
 }
-#line 198339 "main.c"
+#line 198353 "main.c"
 
 void byn_main__t9Block(bynt_list_u64* p_h, bynt_span_u8 p_data, int64_t p_start, bynt_list_u64 p_k, bynt_list_u64* p_w) {
     int32_t l0_t = {0};
@@ -198543,7 +198557,7 @@ break_5:;
 #line 65 "driver/sha256.byn"
     (*bynh_at_list_u64((*p_h), (int64_t)INT64_C(7), false, byn_file_97, 65)) = t43;
 }
-#line 198547 "main.c"
+#line 198561 "main.c"
 
 bynt_list_u8 byn_main__sha256(bynt_span_u8 p_data) {
     bynt_list_u64 l0_k = {0};
@@ -198734,13 +198748,13 @@ break_13:;
 #line 99 "driver/sha256.byn"
     return l17_digest;
 }
-#line 198738 "main.c"
+#line 198752 "main.c"
 
 bool byn_main__t6IsSkippedDirectory(byn_str p_name, bool p_atRoot) {
 #line 16 "driver/walk.byn"
     return (((byn_str_starts_with(p_name, BYN_STR(".", 1)) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("node_modules", 12)) : byn_str_eq(p_name, BYN_STR("node_modules", 12)))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("obj", 3)) : byn_str_eq(p_name, BYN_STR("obj", 3)))) || (p_atRoot && (((((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("bin", 3)) : byn_str_eq(p_name, BYN_STR("bin", 3))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("dist", 4)) : byn_str_eq(p_name, BYN_STR("dist", 4)))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("tmp", 3)) : byn_str_eq(p_name, BYN_STR("tmp", 3))))));
 }
-#line 198744 "main.c"
+#line 198758 "main.c"
 
 bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within) {
     byn_str l0_bound = {0};
@@ -198778,7 +198792,7 @@ bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within) {
 #line 27 "driver/walk.byn"
     return true;
 }
-#line 198782 "main.c"
+#line 198796 "main.c"
 
 bool byn_main__t6IsByn(byn_str p_name) {
     int64_t l0_n = {0};
@@ -198800,13 +198814,13 @@ bool byn_main__t6IsByn(byn_str p_name) {
 #line 38 "driver/walk.byn"
     return (((((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(4), byn_file_98, 38), false, byn_file_98, 38)) == ((uint8_t)46)) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(3), byn_file_98, 38), false, byn_file_98, 38)) | ((uint8_t)32))) == ((uint8_t)98))) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(2), byn_file_98, 38), false, byn_file_98, 38)) | ((uint8_t)32))) == ((uint8_t)121))) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(1), byn_file_98, 38), false, byn_file_98, 38)) | ((uint8_t)32))) == ((uint8_t)110)));
 }
-#line 198804 "main.c"
+#line 198818 "main.c"
 
 byn_str byn_main__realPath(byn_str p_path) {
 #line 43 "driver/walk.byn"
     return byn_path_full_path(p_path, byn_context, byn_file_98, 43);
 }
-#line 198810 "main.c"
+#line 198824 "main.c"
 
 bynt_list_str byn_main__bynFiles(byn_str p_dir, int32_t* p_exit, bynt_opt_str p_within, bool p_silent) {
     bynt_list_str l0_files = {0};
@@ -198991,13 +199005,13 @@ break_1:;
 #line 90 "driver/walk.byn"
     return l0_files;
 }
-#line 198995 "main.c"
+#line 199009 "main.c"
 
 bynt_map_str_bool byn_main__t6OtherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
 #line 106 "driver/walk.byn"
     return byn_main__otherUses(p_file, p_bytes, p_tree, &(*p_p));
 }
-#line 199001 "main.c"
+#line 199015 "main.c"
 
 byn_err byn_main__manifestFor(byn_str p_file, bynt_map_str_opt_main__T6Found* p_cache, bynt_opt_main__T6Found* byn_out) {
     bynt_opt_str l0_dir = {0};
@@ -199103,7 +199117,7 @@ break_3:;
     *byn_out = l2_found;
     return (byn_err){0};
 }
-#line 199107 "main.c"
+#line 199121 "main.c"
 
 bynt_map_str_bool byn_main__packageNames(byn_str p_dir) {
     bynt_map_str_bool l0_names = {0};
@@ -199225,7 +199239,7 @@ break_1:;
 #line 151 "driver/walk.byn"
     return l0_names;
 }
-#line 199229 "main.c"
+#line 199243 "main.c"
 
 bynt_main__NativeBuild byn_main__ZigOrCc__compile(bynt_main__ZigOrCc* self, byn_str p_dir, byn_str p_source, byn_str p_output, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_compiler = {0};
@@ -199359,7 +199373,7 @@ break_1:;
 #line 219 "driver/cc.byn"
     return ((bynt_main__NativeBuild){true, BYN_STR("", 0), false});
 }
-#line 199363 "main.c"
+#line 199377 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};

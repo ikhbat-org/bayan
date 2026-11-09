@@ -11,8 +11,6 @@ plan BYN3210 IndexTypeMismatch Error: `{0}` indexes `{1}`, which uses `{2}`. Pla
 plan BYN3211 RowNotFlat Error: `Row` needs flat fields; `{0}` is a `{1}`. Plan round 3; docs/bayan-spec.md.
 plan BYN3212 ExceptOnNonSequence Error: `except` needs a sequence, set or error set; `{0}` is neither. Plan round 3; docs/bayan-design-round-4-draft.md.
 plan BYN5010 EventOnPrefix Error: a stored function field or event named with `on` (message not quoted). docs/bayan-design-round-3-addendum-1.md; docs/bayan-spec.md.
-plan BYN5106 DoerWithoutVerb Warning: `{0}` is named for the act `{1}` but has no `{1}` member. Revision 0021 Part 4; docs/bayan-grammar.md §14.
-plan BYN5107 InstrumentChangesThis Warning: `{0}` is a tool; `{1}` must not change `this`. Revision 0021 Part 4; docs/bayan-grammar.md §14.
 plan BYN8002 SecretInDerivation Error: `{0}` derives `{1}`, which would read the secret field `{2}`. Plan round 3; docs/bayan-spec.md; revision 0005.
 plan BYN8003 SinkNeedsType Error: `{0}` takes `{1}`, not `string`. Plan round 3; docs/bayan-spec.md.
 plan BYN8005 SqlArgumentCount Error: `sql"…"` has {0} placeholders but {1} arguments follow it. Plan round 3 J40; docs/suq-round3-review-response.md (reserved there).
