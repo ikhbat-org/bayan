@@ -179,7 +179,7 @@ C# primitive names are accepted per project (`style.primitives: .sized | .csharp
 
 > Round 3 §10: `char` suggests C#'s 16-bit unit; `rune` names the scalar, and the `Runes` unit and `runeCount` follow it. Codes: BYN1048.
 
-Lowercase type names are reserved for the language. C interop types: `c_int`, `c_long`, `c_char`, … (`c_long` follows the platform). (rev 0001)
+Lowercase type names are reserved for the language. C interop types: `c_int`, `c_long`, `c_char`, … (`c_long` follows the platform). BYN1030 is retired; the C# primitive names stay reserved words. (rev 0001)
 
 ### 3.2 Strings
 - Always **valid UTF-8** and immutable; a string borrows its bytes (a literal, a request body, a slice) or owns them. Decoding is a codec (§16.4): `Utf8.tryDecode(bytes)` returns `string?`; `try Utf8.decode(bytes)` fails `Utf8Error`. There is no `fromUtf8`, and `string(bytes)` formats the bytes (`[104, 105]`), it never decodes. (rev 0003)
@@ -246,7 +246,7 @@ void main() {
 - **Text:** `sym.text` is a `string` that borrows nothing and allocates nothing; `$"{sym}"` writes the text, and a `Map` holding symbols formats them as their texts. There is no other conversion: no cast between `Symbol` and `string` or an integer, and no ID member (BYN2003). IDs are not observable, so they may change between versions. (rev 0013)
 - **Keys:** a `Symbol` hashes its ID; `Map<Symbol, V>` and composite keys with `Symbol` parts are §3.5's keys. A program that uses no `Symbol` emits and links none of the table. (rev 0013)
 - Not in v0.1: freeing interned text, several independent tables, `const` arrays of `Symbol` and `Symbol` in static data beyond literals (BYN2229), interning from several threads (the table is single-threaded, §13).
-- Laws: L015 "Interning is identity on text". Codes: BYN2832. HANDOFF Questions 371–381. (rev 0013)
+- Laws: L015 "Interning is identity on text". Codes: BYN2832. HANDOFF Questions 371–381. L016 "Equal keys are one entry": for every key type from the key generator, two keys that are `==` but built separately are one entry (`length` counts them once and the last write wins), and two keys that differ are two entries. (rev 0013)
 
 **Self-hosting gaps** (what spec 009's port must work around):
 - No `const` symbol arrays: a keyword table is a `Map<Symbol, TokenKind>` literal built at start-up.
@@ -2408,7 +2408,7 @@ DIR → C → TinyCC per target where a CI probe passes, system cc elsewhere (de
 DIR → LLVM (later) | WASM via clang wasm32 (+ generated .d.ts)
 ```
 
-DIR: typed SSA, generics resolved, allocation and cleanup explicit, content-hashed per function for incremental builds. Packages are distributed as source. The C emitter defines all behavior C leaves undefined (`-fwrapv`/explicit checks, `-ffp-contract=off`, `#line` for debuggers). (rev 0001)
+DIR: typed SSA, generics resolved, allocation and cleanup explicit, content-hashed per function for incremental builds. Packages are distributed as source. The C emitter defines all behavior C leaves undefined (`-fwrapv`/explicit checks, `-ffp-contract=off`, `#line` for debuggers). The emitter writes `#line N "file.byn"` before each statement's code; generated helpers carry none; a C compiler diagnostic in a user build is an internal compiler error with the C text attached. (rev 0001)
 
 Roadmap: v0.3 WASM + `.d.ts`; v0.4 `bayan gen ts`; post-v1 portable JS backend (JS + `.d.ts`, no `unsafe`, `i32`).
 
