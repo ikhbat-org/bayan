@@ -284,7 +284,7 @@ type distinct UserId = i64       // a unit without arithmetic
 - `Span<T>`: a borrowed view (pointer, length) whose elements may be assigned.
 - `ReadOnlySpan<T>`: a borrowed view whose elements cannot be assigned. `Span<T>` → `ReadOnlySpan<T>` is implicit. `string.bytes` is a `ReadOnlySpan<u8>`, so strings stay immutable and valid UTF-8. A `Span<T>` parameter never written through gets lint BYN2310 ("use `ReadOnlySpan<T>`").
 - `List<T>`, `Deque<T>`, `Map<K, V>`, `Set<T>`, `Pool<T>`, `Ring<T, const i32 N>`, `NonEmpty<T>`: standard library, allocator-backed (API: §16).
-- `Map` **preserves insertion order** and is the only hash map. `HashMap<K, V>` is BYN2830 with a fix to `Map<K, V>`, wherever a type is written; the type is then read as `Map<K, V>`, so it is reported once (spec 008). An unordered `HashMap` would iterate in seed order; whether to add one later is HANDOFF Question 371.
+- `Map` **preserves insertion order** and is the only hash map. `HashMap<K, V>` is BYN2830 with a fix to `Map<K, V>`, wherever a type is written; the type is then read as `Map<K, V>`, so it is reported once (spec 008, rev 0013). An unordered `HashMap` would iterate in seed order; whether to add one later is HANDOFF Question 371.
 - **`Map` keys:** an integer type, `rune`, `bool`, `string`, a plain enum, `Symbol` (§3.3), a tuple whose elements are all keys, or a struct whose fields are all keys and which is not `@noEquality`. Two keys are equal when `==` says so (§6.7). A struct or tuple that is not a key is BYN2831, naming the first field or element that rules it out and its type; any other key type (a float, an optional, an enum with data, a collection) is BYN2760. A type parameter used as a key is checked at each instantiation. A key hashes its value only: a `Symbol` its ID, a `string` its text, a tuple or struct its parts in declaration order, never padding bytes, so two `==` keys built apart are one entry.
 - `xs.remove(from: start, until: end)` removes the elements in `[start, end)` and keeps the order of the rest; `xs.remove(from: start, through: end)` includes `end`; `xs.remove(at: range)` takes a range. `start > end` or `end > xs.length` panics (`slice out of range`). Like `append` and `removeLast`, they are structural modifications (§9.4 rule 5).
 - A module-level `const T[N]` with literal or constant elements is static data in `.rodata` when `T` is a number type, `bool`, `rune` or `string` (`const names: string[2] = ["a", "b"]`); it can be indexed, iterated and asked its `.length`. Any other module-level `const` array is BYN2229.
@@ -595,16 +595,16 @@ void main() {
 }
 ```
 
-- **Function types** `A -> B`, `(A, B) -> C`, `() -> void`, with `uses e, f` and then `fails E, F` after the return type (the other order is BYN1065). `->` is right-associative; `?` and `[N]` bind to the type they follow (`A -> B?` returns `B?`). Two function types are the same type when parameters, return, error sets and effects are equal; there is no variance. A type displays in source form, error sets with their type arguments (`() -> Form fails ValidationError<Form>`); a bare `ValidationError` is BYN2023 and an unknown effect BYN6003.
-- **Placement:** a parameter type (parenthesized before the name, `by (Token -> bool) p`, or through an alias), a `type` alias target and a local's type (`let f: Pred = isBig`). A field, property, return type, constant, union or error payload, type argument, or an optional, span, list, map, array or tuple of a function type is BYN2822, so the stored `(Line -> Money uses net) pricer` above is not in v0.1. Aliases take no type parameters: `type Predicate<T>` is later; spell one alias per type.
-- **Named functions as values:** a module-level, non-generic function whose signature matches exactly. Particles are part of the name, not the type: `i32 clamp(i32 x, to i32 max)` is a `(i32, i32) -> i32`. A built-in, generic function, method, constructor or variant named as a value is BYN2824 (wrap it in a lambda); a signature mismatch is BYN2202 showing both signatures. `Panic.handler` keeps its own rule (§7.6).
+- **Function types (rev 0012)** `A -> B`, `(A, B) -> C`, `() -> void`, with `uses e, f` and then `fails E, F` after the return type (the other order is BYN1065). `->` is right-associative; `?` and `[N]` bind to the type they follow (`A -> B?` returns `B?`). Two function types are the same type when parameters, return, error sets and effects are equal; there is no variance. A type displays in source form, error sets with their type arguments (`() -> Form fails ValidationError<Form>`); a bare `ValidationError` is BYN2023 and an unknown effect BYN6003.
+- **Placement (rev 0012):** a parameter type (parenthesized before the name, `by (Token -> bool) p`, or through an alias), a `type` alias target and a local's type (`let f: Pred = isBig`). A field, property, return type, constant, union or error payload, type argument, or an optional, span, list, map, array or tuple of a function type is BYN2822, so the stored `(Line -> Money uses net) pricer` above is not in v0.1. Aliases take no type parameters: `type Predicate<T>` is later; spell one alias per type.
+- **Named functions as values (rev 0012):** a module-level, non-generic function whose signature matches exactly. Particles are part of the name, not the type: `i32 clamp(i32 x, to i32 max)` is a `(i32, i32) -> i32`. A built-in, generic function, method, constructor or variant named as a value is BYN2824 (wrap it in a lambda); a signature mismatch is BYN2202 showing both signatures. `Panic.handler` keeps its own rule (§7.6).
 - **Lambdas** are `x => …`, `(a, b) => …` or `() => …` with an expression or block body. Parameters are names only; a typed, modified or particle-labelled parameter is BYN1001. A lambda takes its parameter types, return type and error sets from the function type expected where it appears: none expected is BYN2218, a parameter count that differs is BYN2820. `return`, `break`, `continue` and `defer` in the body are the lambda's own; a non-`void` expression body where `void` is returned is BYN3201.
 - **`it`:** an argument that mentions `it`, where a one-parameter function type is expected, is a lambda with the parameter `it`. A second `it` shorthand inside it, or one inside a `requires` rule (where `it` is the checked value), is BYN2029; name one lambda. `.member` where a function type is expected is BYN2823 with a fix to `it.member`.
 - **Captures are by copy**, not by borrow: a lambda may read the enclosing `let`, `const`, `for`, pattern and `catch` bindings and parameters without a modifier, copied when the lambda is created. A `var`, a `var` pattern binding, a `ref`/`out`/`in` parameter and `this` (explicit or through a field) are BYN2821; a `unique` value is BYN2780. A captured borrow keeps its source borrowed while the lambda lives (BYN3004 on a structural change).
 - **Lifetime:** a function value is a borrow of the frame that made it: a local, an argument or a callee, never stored or returned. A capturing lambda held into the next loop iteration is BYN3002; one returned from a lambda is BYN3003. The value is a code and environment pointer pair; the environment lives in the creating frame, and nothing is allocated.
 - **Calls through a value** are positional; a named or particle-labelled argument is the missing-parameter diagnostic. A call through a `fails` type is handled with `try` or `catch` like any failing call (BYN2602).
 - **Effects:** a function-typed parameter is effect-polymorphic: a call through it adds nothing to the function that declares it, and the call that passes a function or lambda carries that argument's effects (BYN6002 on a public caller that does not declare them). A function-typed local's `uses` is an upper bound: a function or lambda beyond it is BYN6005, and a call through the local has the declared effects. Function types match exactly, so a local with a `uses` bound passed to a parameter without one is BYN2202.
-- **Input forms:** `A => B` in a type is BYN1055 with a fix to `A -> B`; `delegate bool F(Order o)` is BYN1028 with the fix `type F = Order -> bool`. `bayan format` applies both.
+- **Input forms:** `A => B` in a type is BYN1055 (rev 0012) with a fix to `A -> B`; `delegate bool F(Order o)` is BYN1028 with the fix `type F = Order -> bool`. `bayan format` applies both.
 - Not in v0.1: generic aliases, typed lambda parameters, `ref` captures of `var`, `move () => …` (BYN2782), function values that outlive their frame, `dyn (A -> B)`, built-in collection methods that take a lambda (`where`, `select`, `sumBy`; §16), effect variables.
 - Laws: L013 "Direct and indirect calls agree", L014 "Capture by copy never aliases the source". Codes: BYN1028, BYN1055, BYN2029, BYN2820–BYN2824. HANDOFF Questions 345–369.
 
@@ -661,7 +661,7 @@ public Order.shipped ship(move Order.paid order, by Carrier carrier)
 8. Runtime: `T.s` has the same layout as `T` (a `u8` tag plus a payload union) and is erased in C. Widening is a no-op; the checks are compile-time only.
 9. Canonical spelling: one state is always written `T.s`. `bayan format` rewrites `Order order is .paid` → `Order.paid order` and `type X = Order is .paid` → `type X = Order.paid` (BYN7006). The receiver is exempt.
 10. State names are camelCase and may not equal a static member name of `T`, otherwise `Order.empty` would name both a type and a factory (BYN7008).
-11. `becomes .state` declares a transition; `become .state(…)` performs it. Only a `ref this` method may declare `becomes`: a `move this` or `this` receiver leaves the caller with no value whose state could change (BYN7010). A method that calls a `becomes .t` method on `this` declares `becomes` including `.t` itself, and the call counts as `become .t` (BYN7003). A `becomes` method can't be called on a `ref` parameter (BYN7011). A whole-value assignment to `this` or to a `ref` parameter keeps its state: allowed only when the target's type names one state and the new value is in it (BYN7012). A `become` to a state the signature does not declare is an error (BYN7003). **A failed transition leaves the state unchanged.** A method that declares `becomes .s` must `become` on every path that returns normally; a path that fails leaves the state unchanged (BYN7009). After a `becomes` call on a `var` (with no live borrows), the variable's static type changes: after `try order.pay(card)`, `order` is `Order.paid`. A `let` cannot call `ref this` methods, so it needs no tracking.
+11. `becomes .state` declares a transition; `become .state(…)` performs it. Only a `ref this` method may declare `becomes`: a `move this` or `this` receiver leaves the caller with no value whose state could change (BYN7010; rev 0010). A method that calls a `becomes .t` method on `this` declares `becomes` including `.t` itself, and the call counts as `become .t` (BYN7003). A `becomes` method can't be called on a `ref` parameter (BYN7011). A whole-value assignment to `this` or to a `ref` parameter keeps its state: allowed only when the target's type names one state and the new value is in it (BYN7012). A `become` to a state the signature does not declare is an error (BYN7003). **A failed transition leaves the state unchanged.** A method that declares `becomes .s` must `become` on every path that returns normally; a path that fails leaves the state unchanged (BYN7009). After a `becomes` call on a `var` (with no live borrows), the variable's static type changes: after `try order.pay(card)`, `order` is `Order.paid`. A `let` cannot call `ref this` methods, so it needs no tracking.
 12. A state switch is exhaustive, so adding a state is a compile error at every non-exhaustive switch (BYN7004).
 13. `states` is a contextual keyword at the start of a member declaration when followed by `{`, so fields named `state` or `states` still work. At most one `states` block per struct. The per-line `state x` form is an input form (BYN1059). `becomes` is contextual after a parameter list.
 14. States are named as participles or adjectives (`paid`, `shipped`) and are exempt from the `-ed` copy-pattern rule (§5.2), which applies only to members.
@@ -692,7 +692,7 @@ Lint: a type with `@noDefault` or a constructor-like pattern (`parse`, `validate
 
 ```csharp
 extension string {
-    public bool isBlank => trim().isEmpty
+    public bool isBlank => trimmed().isEmpty
 }
 extension<T> Span<T> where T : INumber<T> {
     public T sum() { … }
@@ -1172,7 +1172,7 @@ struct SignupForm {
   }
   union error DecodeError<T> = JsonError, ValidationError<T>
   ```
-- `ValidationError` always takes its type argument: a bare `ValidationError` is BYN2023, since without `T` there is no `T.Field`. A function that validates two types lists both: `fails ValidationError<SignupForm>, ValidationError<Address>` (§3.14), and diagnostics print the type arguments.
+- `ValidationError` always takes its type argument: a bare `ValidationError` is BYN2023, since without `T` there is no `T.Field` (rev 0011). A function that validates two types lists both: `fails ValidationError<SignupForm>, ValidationError<Address>` (§3.14), and diagnostics print the type arguments.
 
 - **Decoders collect every violation:** `static T fromJson(Untrusted<string> body) uses alloc fails DecodeError<T>`. A caller matches both: `catch switch { .invalid e => … e.violations, .syntax s => … }`.
 - Fields of a struct with `requires` cannot be assigned one at a time (BYN3208). Updates go through `with`, which re-checks: `try f with { password: p }`.
@@ -1383,13 +1383,13 @@ xs.remove(from: 2, until: 5)
 
 > Round 3 §15, O6, O12: a particle names the argument's role, so call sites read as sentences and swapped arguments become label mismatches; `until` and `through` name the two ends of a range, and a repeated particle would make a label ambiguous. Codes: BYN5004, BYN5005, BYN5006, BYN5008, BYN5013.
 
-**Overloading.** Overloads may differ by particle set (`move(from:to:)` vs `move(_, by:)`) ; type-based overloads are not in v0.1 (rule 1, BYN2006). The checks run at the **declaration**, so a call never needs C#-style ambiguity resolution:
+**Overloading.** Overloads may differ by particle set (`move(from:to:)` vs `move(_, by:)`) ; type-based overloads are not in v0.1 (rule 1, BYN2006; rev 0019). The checks run at the **declaration**, so a call never needs C#-style ambiguity resolution:
 
-1. Not in v0.1: until overloads exist, two same-name functions with different parameter types are a BYN2006 duplicate declaration, never first- or last-wins. Overloads that differ only by type must not overlap through any implicit conversion (finer units, integer widening, state widening). `void f(Grams g)` beside `void f(Kilograms k)` is an error, because `Kilograms` converts to `Grams` (BYN3213).
-2. Overloads may not differ only by function-type parameters, since `it` lambdas need one target type.
-3. Defaults may not make two overloads accept the same argument list.
-4. A reference to an overloaded name needs a target type: `let f: i32 -> i32 = abs` (BYN3215).
-5. Type variation over number families uses generics, not overloads: `public T abs<T>(T x) where T : ISignedNumber<T>`.
+1. (rev 0019) Not in v0.1: until overloads exist, two same-name functions with different parameter types are a BYN2006 duplicate declaration, never first- or last-wins. Overloads that differ only by type must not overlap through any implicit conversion (finer units, integer widening, state widening). `void f(Grams g)` beside `void f(Kilograms k)` is an error, because `Kilograms` converts to `Grams` (BYN3213).
+2. (not in v0.1, rev 0019: type overloads do not exist) Overloads may not differ only by function-type parameters, since `it` lambdas need one target type.
+3. (not in v0.1, rev 0019) Defaults may not make two overloads accept the same argument list.
+4. (not in v0.1, rev 0019) A reference to an overloaded name needs a target type: `let f: i32 -> i32 = abs` (BYN3215).
+5. (not in v0.1, rev 0019) Type variation over number families uses generics, not overloads: `public T abs<T>(T x) where T : ISignedNumber<T>`.
 
 ```csharp
 public void remove(ref this, at Index i)
@@ -1536,6 +1536,8 @@ Packages reserve a code prefix in `package.byn`; the registry enforces uniquenes
 
 ## 13. Concurrency
 
+> Superseded in part, rewrite pending (rev 0019; audit N18): round 4 replaces call-site `async`/`await`, `Io.group` and `provide timeout:` with `scope`/`spawn` (user decision 2026-11-04), but no revision has rewritten §13. Sections 13.2 and 13.3 below are the pre-rev-0019 text, kept unchanged and not normative where they conflict with `scope`/`spawn`. The replacement rules are not yet written, so this snapshot states none.
+
 ### 13.1 I/O model
 All I/O goes through `context.Io`:
 
@@ -1550,7 +1552,7 @@ Libraries never choose an implementation. Blocking work is offloaded automatical
 
 ### 13.2 Async
 - No coloring: functions are never declared `async`. `async` as a function modifier is a teaching error showing the call-site form.
-- `async f(args)` is a call-site expression that schedules `f` on `context.io` and returns a `Future<T>` (a `ref struct`); `await` joins; `try await` propagates errors. `await (a, b)` awaits several. Implementation: `async f(x)` hands `fOp(x)` (the maṣdar, §5.2) to `context.io`.
+- (superseded by rev 0019, rewrite pending) `async f(args)` is a call-site expression that schedules `f` on `context.io` and returns a `Future<T>` (a `ref struct`); `await` joins; `try await` propagates errors. `await (a, b)` awaits several. Implementation: `async f(x)` hands `fOp(x)` (the maṣdar, §5.2) to `context.io`.
 - Under `Io.Blocking`, `async` runs the call eagerly (same code, sequential).
 - **Every await can fail**; `Canceled` is in every I/O error set.
 - A function without `suspend` in its effects cannot suspend (§14); a violation names the suspending call chain.
@@ -1567,7 +1569,7 @@ Libraries never choose an implementation. Blocking work is offloaded automatical
 > Round 2 §14: functions stay colorless; scoped futures and block deadlines give cancellation without plumbing. Codes: BYN1016.
 
 ### 13.3 Structured concurrency
-`let group = Io.group()`, then `group.spawn(…)` and `try await group.all()`. Futures cannot outlive the scope that started them; leaving the scope cancels children; tasks may borrow the caller's stack.
+(superseded by rev 0019, rewrite pending) `let group = Io.group()`, then `group.spawn(…)` and `try await group.all()`. Futures cannot outlive the scope that started them; leaving the scope cancels children; tasks may borrow the caller's stack.
 
 ### 13.4 Suspension inference
 The compiler infers which functions may suspend (calls through `dyn` are bounded by the function type's `uses` clause). The language server marks such calls with inlay hints (`uses suspend`). Public functions declare `suspend` in their `uses` clause (§14). Errors:
@@ -2248,7 +2250,7 @@ Every diagnostic states **what**, **where**, **why** and a **fix** (machine-appl
 | `bayan cache stats` | Location, entries and size of the shared build cache (§21.4) |
 | `bayan doctor` | Check the compiler, host target, C compiler, `zig`, git and cache; every failure prints a fix; exits 4 on any failure |
 | `bayan --version` | Compiler version and the commit it was built from |
-| `bayan format` | Format to canonical form and rewrite input forms (§21.5); reads `style` from `package.byn` (§19.2). `--check` writes nothing, prints each file that would change and exits 1 if any would. `--prose`, `--from-prose`, `--check-prose` are prose translation (§22), not in v0.1 |
+| `bayan format` | Format to canonical form and rewrite input forms (§21.5); reads `style` from `package.byn` (§19.2). `--check` writes nothing, prints each file that would change and exits 1 if any would (rev 0009). `--prose`, `--from-prose`, `--check-prose` are prose translation (§22), not in v0.1 |
 | `bayan lint`, `bayan doc`, `bayan repl`, `bayan lsp` | |
 | `bayan pkg` | Packages (`add`, `audit`, `export --json`) |
 | `bayan expand X` | Show every derived member and the derived effects of each function; deferred (after v0.1) |
