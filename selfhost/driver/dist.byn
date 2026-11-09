@@ -262,7 +262,8 @@ void distCollect(string dir, by string rel, through ref DistWalk w, at i64 depth
         distStop("the sources hold more than 4000 directories", through: ref w)
         return
     }
-    let entries = try Io.listDir(dir)
+    // `EnumerationOptions.IgnoreInaccessible` (Dist.cs:151, on by default): a directory that cannot be listed is skipped (Q1155)
+    let entries = Io.listDir(dir) catch return
     for name in entries {
         if w.over { return }
         let path = Path.combine(dir, name)
@@ -349,7 +350,7 @@ string? distRefreshLatest(string distDir, through ref DistWalk w) uses alloc, co
     var found = false
     let entries = try Io.listDir(distDir)
     for name in entries {
-        if !(distIsVersion(name) && t5DirectoryExists(Path.combine(distDir, name))) { continue }
+        if !(semantics.t10IsSemanticVersion(name) && t5DirectoryExists(Path.combine(distDir, name))) { continue }
         if !found || semantics.compareVersions(name, to: newest) > 0 {
             newest = name
             found = true
@@ -402,53 +403,4 @@ void distCopyDirectory(string from, to string dest, through ref DistWalk w, at i
         if w.over { return }
         try distCopyDirectory(Path.combine(from, name), to: Path.combine(dest, name), through: ref w, at: depth + 1)
     }
-}
-
-/// Manifest.cs:338 `IsSemanticVersion` (manifest.byn keeps `t10IsSemanticVersion` private to its module, T12 may make public only the fields and
-/// `compareVersions`): `MAJOR.MINOR.PATCH`, each 1-18 digits without a leading zero, then optional `-pre` and `+build` identifiers.
-bool distIsVersion(string text) uses alloc {
-    let t = text.bytes
-    let plus = distIndexOf(t, for: 0x2B)
-    let main = plus < 0 ? t : t[0..plus]
-    if plus >= 0 && !distIdentifiers(t[plus + 1..t.length]) { return false }
-    let dash = distIndexOf(main, for: 0x2D)
-    let core = dash < 0 ? main : main[0..dash]
-    if dash >= 0 && !distIdentifiers(main[dash + 1..main.length]) { return false }
-    var parts: i64 = 0
-    var start: i64 = 0
-    for i in 0..core.length + 1 {
-        if i < core.length && core[i] != 0x2E { continue }
-        let p = core[start..i]
-        if p.length == 0 || p.length > 18 { return false }
-        for c in p {
-            if c < 0x30 || c > 0x39 { return false }
-        }
-        if p.length > 1 && p[0] == 0x30 { return false }
-        parts += 1
-        start = i + 1
-    }
-    return parts == 3
-}
-
-/// The `Identifiers` of Manifest.cs:347: non-empty dot-separated runs of `[0-9A-Za-z-]`.
-bool distIdentifiers(ReadOnlySpan<u8> t) {
-    var length: i64 = 0
-    for c in t {
-        if c == 0x2E {
-            if length == 0 { return false }
-            length = 0
-            continue
-        }
-        let ok = (c >= 0x30 && c <= 0x39) || (c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A) || c == 0x2D
-        if !ok { return false }
-        length += 1
-    }
-    return length > 0
-}
-
-i64 distIndexOf(ReadOnlySpan<u8> t, for u8 b) {
-    for i in 0..t.length {
-        if t[i] == b { return i }
-    }
-    return -1
 }

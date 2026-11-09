@@ -49,7 +49,7 @@ public sealed class SelfhostDefaultT12Tests
     /// <summary>The root, the OS message of a failed cache write the elapsed time and the staging directory of a compiler diagnostic (the driver cannot set the compiler's working directory, so it prints the path the C# prints bare) masked.</summary>
     private static string Masked(string text, string root)
     {
-        var masked = Regex.Replace(text.Replace(root, "<root>"), @"<root>/cache/v1/tmp/[^/\s]+/", "");
+        var masked = Regex.Replace(text.Replace(root, "<root>"), @"<root>[/\\]cache[/\\]v1[/\\]tmp[/\\][^/\\\s]+[/\\]", "");
         masked = Regex.Replace(masked, @"(cannot write the build output or cache \(<root>[^)]*\)): .*", "$1: <message>");
         return Regex.Replace(masked, @" in \d+\.\d+s", " in <time>");
     }
@@ -451,9 +451,34 @@ public sealed class SelfhostDefaultT12Tests
             NewApp()(root);
             Directory.CreateDirectory(Path.Combine(Project(root), "dist"));
             File.WriteAllText(Path.Combine(Project(root), "dist", "7.7.7"), "x");
-            foreach (var bad in new[] { "1.0", "01.0.0", "1.0.0-", "1.0.0+", "1.0.0-a..b", "1.0.0-a$", "1.2.3.4", "1.x.0", "1234567890123456789.0.0", ".0.0", "1.0.0+b.1", "1.0.0-a.-b", "1.0.0-a:b", "1.0.0-a_b", "1.0.0-a{", "1.0.0-A.Z-9", "1.0.0-a@" })
+            foreach (var bad in new[] { "1.0", "01.0.0", "1.0.0-", "1.0.0+", "1.0.0-a..b", "1.0.0-a$", "1.2.3.4", "1.x.0", "1234567890123456789.0.0", ".0.0", "1.0.0+b.1", "1.0.0-a.-b", "1.0.0-a%b", "1.0.0-a_b", "1.0.0-a{", "1.0.0-A.Z-9", "1.0.0-a@" })
                 Directory.CreateDirectory(Path.Combine(Project(root), "dist", bad));
         }, DistStep());
+    }
+
+    /// <summary><c>EnumerationOptions.IgnoreInaccessible</c> (Dist.cs:151, Q1155): a source directory that cannot be listed is left out of the hash.</summary>
+    [Fact]
+    public void AnUnreadableSourceDirectoryIsSkipped()
+    {
+        if (OperatingSystem.IsWindows() || Environment.UserName == "root") return;
+        string[] locked = [];
+        try
+        {
+            Same("unreadable", root =>
+            {
+                NewApp()(root);
+                var dir = Path.Combine(Project(root), "src", "locked");
+                Directory.CreateDirectory(dir);
+                File.WriteAllText(Path.Combine(dir, "x.byn"), "");
+                if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(dir, UnixFileMode.None);
+                locked = [.. locked, dir];
+            }, DistStep());
+        }
+        finally
+        {
+            foreach (var dir in locked)
+                if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(dir, (UnixFileMode)Convert.ToInt32("755", 8));
+        }
     }
 
     /// <summary>With no <c>git</c> on the path nothing is traced: the compiler is the only tool left there.</summary>
@@ -601,7 +626,7 @@ public sealed class SelfhostDefaultT12Tests
         Assert.NotEqual(0, r[0].Exit);
     }
 
-    // ── the budgets of docs/memory-leaks.md rules 1 and 5 (the C# has none: the driver alone, one line and a failure) ──
+    // ── the budgets of docs/memory-leaks.md rules 1 and 5 (the C# has none: the driver alone, one line and a failure; Q1154) ──
 
     private static void Overflow(string name, Action<string> seed, string message, bool noDist = false)
     {
@@ -624,10 +649,12 @@ public sealed class SelfhostDefaultT12Tests
         return path;
     }
 
+    /// <summary>A budget the C# does not have (Q1154).</summary>
     [Fact]
     public void SourcesNestedTooDeepStopTheWalk() =>
         Overflow("budget-depth", p => File.WriteAllText(Path.Combine(Nest(Path.Combine(p, "src"), 65), "x.byn"), ""), "the sources are nested deeper than 64 directories");
 
+    /// <summary>A budget the C# does not have (Q1154).</summary>
     [Fact]
     public void TooManySourceDirectoriesStopTheWalk() =>
         Overflow("budget-dirs", p =>
@@ -635,6 +662,7 @@ public sealed class SelfhostDefaultT12Tests
             for (var i = 0; i < 4001; i++) Directory.CreateDirectory(Path.Combine(p, "src", $"d{i}"));
         }, "the sources hold more than 4000 directories");
 
+    /// <summary>A budget the C# does not have (Q1154).</summary>
     [Fact]
     public void TooManySourceFilesStopTheWalk() =>
         Overflow("budget-files", p =>
@@ -642,6 +670,7 @@ public sealed class SelfhostDefaultT12Tests
             for (var i = 0; i < 20001; i++) File.WriteAllText(Path.Combine(p, "src", $"f{i}.byn"), "");
         }, "the sources hold more than 20000 .byn files");
 
+    /// <summary>A budget the C# does not have (Q1154).</summary>
     [Fact]
     public void TooManySourceBytesStopTheHash() =>
         Overflow("budget-bytes", p =>
@@ -650,10 +679,12 @@ public sealed class SelfhostDefaultT12Tests
             f.SetLength(64 * 1024 * 1024 + 1);
         }, "the sources hold more than 64 MiB");
 
+    /// <summary>A budget the C# does not have (Q1154).</summary>
     [Fact]
     public void AReleaseNestedTooDeepStopsTheCopy() =>
         Overflow("budget-copy-depth", p => File.WriteAllText(Path.Combine(Nest(Path.Combine(p, "dist", "9.9.9"), 65), "x"), ""), "a release is nested deeper than 64 directories", noDist: true);
 
+    /// <summary>A budget the C# does not have (Q1154).</summary>
     [Fact]
     public void AReleaseWithTooManyDirectoriesStopsTheCopy() =>
         Overflow("budget-copy-dirs", p =>
@@ -661,6 +692,7 @@ public sealed class SelfhostDefaultT12Tests
             for (var i = 0; i < 4001; i++) Directory.CreateDirectory(Path.Combine(p, "dist", "9.9.9", $"d{i}"));
         }, "a release holds more than 4000 directories", noDist: true);
 
+    /// <summary>A budget the C# does not have (Q1154).</summary>
     [Fact]
     public void AReleaseWithTooManyFilesStopsTheCopy() =>
         Overflow("budget-copy-files", p =>
