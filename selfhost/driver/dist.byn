@@ -262,7 +262,8 @@ void distCollect(string dir, by string rel, through ref DistWalk w, at i64 depth
         distStop("the sources hold more than 4000 directories", through: ref w)
         return
     }
-    // `EnumerationOptions.IgnoreInaccessible` (Dist.cs:151, on by default): a directory that cannot be listed is skipped (Q1155)
+    // `EnumerationOptions.IgnoreInaccessible` (Dist.cs:151, on by default): a directory that cannot be listed is skipped
+    // coverage-exempt: Q1155 `t5DirectoryExists` (listDir succeeds) has just passed for every directory below the first, so the catch is a race; the first is the resolved `src/`
     let entries = Io.listDir(dir) catch return
     for name in entries {
         if w.over { return }

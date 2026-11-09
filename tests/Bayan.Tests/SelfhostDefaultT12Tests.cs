@@ -464,7 +464,7 @@ public sealed class SelfhostDefaultT12Tests
         string[] locked = [];
         try
         {
-            Same("unreadable", root =>
+            var r = Same("unreadable", root =>
             {
                 NewApp()(root);
                 var dir = Path.Combine(Project(root), "src", "locked");
@@ -473,6 +473,7 @@ public sealed class SelfhostDefaultT12Tests
                 if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(dir, UnixFileMode.None);
                 locked = [.. locked, dir];
             }, DistStep());
+            Assert.True(r[0].Exit == 0, r[0].Err);
         }
         finally
         {
