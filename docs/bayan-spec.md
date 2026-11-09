@@ -41,7 +41,7 @@ Bayan (بيان, "clarity, eloquent exposition") is a value-oriented, natively c
 
 | Area | Rule |
 |---|---|
-| Data | Structs only (value types). No classes, no inheritance, no `object`, no GC in v1. |
+| Data | Structs only (value types). No classes, no inheritance, no `object`; there is no GC tier (revision 0019). |
 | Syntax | Newlines end statements (no `;`). Attributes use `@`. Declaration keywords are head-first; declarations are type-first, local bindings name-first. |
 | Strings | `string` is an immutable, validated UTF-8 slice. `rune` is a 32-bit Unicode scalar. |
 | Errors | `T f() fails E` in signatures; `Result<T, E>` as a type; `try` / `catch`; panics abort. |
@@ -86,14 +86,14 @@ print("Hello, world!")
 |---|---|---|
 | Integer | `42`, `1_000_000`, `0xFF`, `0b1010` | **Untyped** until context gives a type; out-of-range is a compile error |
 | Float | `3.14`, `1e5`, `2.5e-3` | `e` followed by a digit or sign is an exponent |
-| Unit-suffixed | `5s`, `250ms`, `4KiB`, `100m` | Suffix must be an imported unit symbol; not allowed on hex/binary literals |
+| Unit-suffixed | `5s`, `250ms`, `4KiB`, `100m` | Suffix must be an imported unit symbol; not allowed on hex/binary literals (not in 0.2, §3.4) |
 | Built-in suffixes | `u`, `l`, `ul`, `f` | Reserved. C#'s `m`/`d` suffixes are retired; decimal is `1.50dec` |
 | Rune | `'a'`, `'\n'`, `'\u{1F600}'` | 32-bit scalar; ASCII rune literals narrow to `u8` in comparisons |
 | String | `"text"`, `"""raw multi-line"""` | Stored in `.rodata` |
 | Interpolated | `$"total {x}"`, `$"{n, as: .hex}"` | Allocates, except when passed directly to a formatting sink (`print`, `log`, `panic`, `StrBuf.append`); specs are named arguments in the hole (§16.4) |
 | Bytes | `b"text"` | Bytes, not text (§16.4) |
-| C string | `c"text"` | NUL-terminated, in `.rodata` |
-| UTF-16 | `u16"text"` | For Windows `…W` APIs |
+| C string | `c"text"` | NUL-terminated, in `.rodata` (not in 0.2) |
+| UTF-16 | `u16"text"` | For Windows `…W` APIs (not in 0.2) |
 | Collection | `[1, 2, 3]`, `[]`, `[..a, ..b, 4]` | Target-typed (§6.3); with no target type, `[1, 2, 3]` is `i32[3]` on the stack |
 | Map | `["alice": 500]`, `[]` | Target-typed; with no target type, `["k": "v"]` is `Map<string, string>` |
 | Struct | `{ x: 1, y: 2 }` | Target-typed; only where a type is expected |
@@ -152,7 +152,7 @@ There is no `;`. `bayan format` strips trailing semicolons and splits same-line 
 
 > Round 3 §3, O1: newline termination removes punctuation that carried no meaning; the unused-value error makes the newline rules safe. Codes: BYN1040, BYN1041, BYN1042, BYN1053, BYN3201.
 
-> Revision 0002 items 1, 25: `expects` joins the clause order, and `fail` takes its operand like `return`, so it follows the same line rule. Round 4 §1: the order is `where` → `expects` → `uses` → `becomes` → `fails`, the order the clauses apply in (compile time, entry, running, success, failure), for declarations and function types alike. Codes: BYN1042, BYN1065.
+> Revision 0002 items 1, 25: `expects` joins the clause order, and `fail` takes its operand like `return`, so it follows the same line rule. Round 4 §1, recorded by revision 0020 item 24: the order is `where` → `expects` → `uses` → `becomes` → `fails`, the order the clauses apply in (compile time, entry, running, success, failure), for declarations and function types alike. Codes: BYN1042, BYN1065.
 
 ---
 
@@ -170,7 +170,7 @@ There is no `;`. `bayan format` strips trailing semicolons and splits same-line 
 | `rune` | | **32-bit Unicode scalar** (differs from C#); `char` is an input form |
 | `string` | | UTF-8 slice, 16 bytes (pointer, length) |
 | `never` | | Bottom type; see §3.9 |
-| `dec` | | Decimal arithmetic type; `decimal` is not accepted |
+| `dec` | | Decimal arithmetic type; `decimal` is not accepted (not in 0.2) |
 
 C# primitive names are accepted per project (`style.primitives: .sized | .csharp`, default `.sized`, §19.2), the second documented synonym exception (§0). The pairs map one to one; `bool` and `string` are shared. `char` (16-bit in C#; it stays the input form for `rune`), `decimal` and `object` have no equivalent and are not accepted. The compiler accepts both spellings and raises no diagnostic; `bayan format` normalizes each project to its spelling, and tooling (diagnostics, hover, generated docs, `bayan explain`, and `bayan expand` once it lands, §21.2) renders types in the reader's project style. The standard library, this spec's examples and the self-hosted compiler are written in `.sized`. Conversions read the same in both styles: `int(x)`, `int.tryFrom(x)`.
 
@@ -180,7 +180,7 @@ C# primitive names are accepted per project (`style.primitives: .sized | .csharp
 
 > Round 3 §10: `char` suggests C#'s 16-bit unit; `rune` names the scalar, and the `Runes` unit and `runeCount` follow it. Codes: BYN1048.
 
-Lowercase type names are reserved for the language. C interop types: `c_int`, `c_long`, `c_char`, … (`c_long` follows the platform).
+Lowercase type names are reserved for the language. C interop types: `c_int`, `c_long`, `c_char`, … (`c_long` follows the platform). BYN1030 is retired; the C# primitive names stay reserved words, so none can be declared as an identifier (revision 0001).
 
 ### 3.2 Strings
 - Always **valid UTF-8** and immutable; a string borrows its bytes (a literal, a request body, a slice) or owns them. Decoding is a codec (§16.4): `Utf8.tryDecode(bytes)` returns `string?`; `try Utf8.decode(bytes)` fails `Utf8Error`. There is no `fromUtf8`, and `string(bytes)` formats the bytes (`[104, 105]`), it never decodes.
@@ -247,7 +247,7 @@ void main() {
 - **Text:** `sym.text` is a `string` that borrows nothing and allocates nothing; `$"{sym}"` writes the text, and a `Map` holding symbols formats them as their texts. There is no other conversion: no cast between `Symbol` and `string` or an integer, and no ID member (BYN2003). IDs are not observable, so they may change between versions.
 - **Keys:** a `Symbol` hashes its ID; `Map<Symbol, V>` and composite keys with `Symbol` parts are §3.5's keys. A program that uses no `Symbol` emits and links none of the table.
 - Not in v0.1: freeing interned text, several independent tables, `const` arrays of `Symbol` and `Symbol` in static data beyond literals (BYN2229), interning from several threads (the table is single-threaded, §13).
-- Laws: L015 "Interning is identity on text". Codes: BYN2832. HANDOFF Questions 371–381.
+- Laws: L015 "Interning is identity on text", L016 "Equal keys are one entry" (revision 0013 item 6). Codes: BYN2832. HANDOFF Questions 371–381.
 
 **Self-hosting gaps** (what spec 009's port must work around):
 - No `const` symbol arrays: a keyword table is a `Map<Symbol, TokenKind>` literal built at start-up.
@@ -255,7 +255,7 @@ void main() {
 - No stored lambdas keyed by symbol (`Map<Symbol, () -> void>` is BYN2822, §3.16): key a `Map<Symbol, i32>` and switch on the value.
 - A lambda cannot capture a `Map` (BYN2780): pass the symbol table as a parameter.
 
-### 3.4 Units and distinct types
+### 3.4 Units and distinct types (partial in 0.2: `type distinct` only; `unit` declarations and unit suffixes are not in 0.2)
 
 ```csharp
 unit Seconds(s): i64             // name, literal symbol, storage
@@ -311,7 +311,7 @@ type distinct UserId = i64       // a unit without arithmetic
 - Hashing is **seeded** by default (hash-flooding resistance); tests use a fixed seed.
 
 ### 3.6 Optionals
-`T?` for any type. References are non-null; `null` is the literal for "none" of an optional. `??`, `?.`, `is null` / `is not null` (with narrowing, §7.2) and `?? return/break/continue` apply. A call's non-null result is bound with `let order = db.find(id) ?? return .notFound`, not `is { } order`.
+`T?` for any type. References are non-null; `null` is the literal for "none" of an optional. `??`, `?.` (not in 0.2), `is null` / `is not null` (with narrowing, §7.2) and `?? return/break/continue` apply. A call's non-null result is bound with `let order = db.find(id) ?? return .notFound`, not `is { } order`.
 
 > Round 2 §4: one null-check spelling; `x == null` is an input form. Codes: BYN2027.
 
@@ -544,7 +544,7 @@ interface IEnumerator {
 - No borrowed enumerators: an `IEnumerator` either owns its data or a collection conforms to `IIndexable`.
 - No associated-type bounds: `type Item;` only.
 
-### 3.16 Lambdas and function types
+### 3.16 Lambdas and function types (partial in 0.2: a lambda outside a function body is not supported)
 
 ```csharp
 users.where(it.isActive)
@@ -689,11 +689,11 @@ Lint: a type with `@noDefault` or a constructor-like pattern (`parse`, `validate
 - A mutable module-level `var` must be `Atomic<T>`, `Mutex<T>` or `@threadLocal`.
 - **No runtime static initializers.** Runtime setup uses `static let x = lazy load()` (thread-safe, runs once on first use).
 
-### 4.3 Extensions
+### 4.3 Extensions (not in 0.2: `extension` declarations are reported as unsupported, BYN2022)
 
 ```csharp
 extension string {
-    public bool isBlank => trim().isEmpty
+    public bool isBlank => trimmed().isEmpty
 }
 extension<T> Span<T> where T : INumber<T> {
     public T sum() { … }
@@ -841,6 +841,7 @@ No user-defined operator symbols. Operator implementations must not allocate, su
 | Text | `string(x)` or `$"{x}"` formats through `Display`, for every type, including byte spans (`[104, 105]`); there is no `x.toString()` (§6.6, §16.4) |
 | Integer → text in a radix | `string(n, as: .hex)`; `as:` takes a `Radix` and defaults to `.decimal`; output is lowercase with no prefix (§3.2). Integers only |
 | Text → integer | `u64.tryParse(text)` returns `u64?`; `tryParse(text, as: .hex)` accepts the same `Radix` |
+| Text → float | `f64.tryParse(text)` returns `f64?` (`f32.tryParse` likewise; no `as:`): the float literal form without `_`, an optional leading `-`, no spaces, no `inf`/`nan`/hex; correctly rounded; out of range gives `±∞` (revision 0015) |
 | Bytes → text | A codec: `try Utf8.decode(bytes)` (fails `Utf8Error`), `Utf8.tryDecode(bytes)` (`string?`), `Utf8.decode(bytes, invalid: .replace)` (lossy, never fails); `try Latin1.decode(bytes)` (`kit`), `try Utf16.decode(units)` (`std.text`) (§3.2). Hex and base64 are codecs too: `Hex.encode(bytes)`, `try Hex.decode(text)` |
 | User-defined implicit conversions | Not allowed |
 
@@ -877,7 +878,7 @@ Field initialization uses `:` everywhere: `Money { cents: 250 }`, nested `unitPr
 
 > Round 2 §10, §19: user decision 2026-10-21; two forms for one meaning broke "one form, one meaning". Codes: BYN1021.
 
-### 6.5 Patterns
+### 6.5 Patterns (partial in 0.2: no list patterns, no deconstruction (positional) patterns, no variables inside `or` patterns, no named patterns)
 All C# patterns: constant, relational, `and`/`or`/`not`, property and extended property, positional, list patterns with slices (`[var first, .. var rest]`), `var`, `_`, `when` guards. A binding is `let x` (immutable) or `var x` (mutable), as for locals, and the lint that suggests `let` for a never-reassigned `var` (§7.1) applies to pattern bindings too. An arm whose whole pattern is irrefutable (`_`, `let x`, `var x`) covers every case, like `default:`; an arm with a `when` guard never counts toward exhaustiveness. Additions:
 
 ```csharp
@@ -944,7 +945,7 @@ for line in order.lines except inactive { … }
 
 > Round 2 §2: a small fixed overload set with derived relatives keeps operators cheap and predictable. Codes: BYN2116.
 
-### 6.8 `except` (istithnāʾ)
+### 6.8 `except` (istithnāʾ) (partial in 0.2: only the error-set form; sequence `except` parses but is reported as unsupported, BYN2022)
 
 ```csharp
 for line in lines except inactive { … }
@@ -1135,7 +1136,7 @@ provide log: logs { … }
 ### 7.8 `goto`
 Does not exist. `become` performs typestate transitions (§3.17); the spelling of guaranteed tail calls is deferred.
 
-### 7.9 Validation: `requires`
+### 7.9 Validation: `requires` (partial in 0.2: not on a plain `type` alias or a generic struct)
 On types and fields, `requires` has one meaning: **checked at construction.** A value of a type with `requires` cannot exist in an invalid state.
 
 ```csharp
@@ -1159,7 +1160,7 @@ struct SignupForm {
 
 - `it` is the value being checked; `requires value…` is an input form (BYN1050).
 - Each `requires` line is a separate rule and reports its own violation.
-- **Field or struct level is decided by content:** a `requires` that refers only to `it` belongs to the field above it; one that refers to other fields is struct-level wherever it appears. A struct-level rule attaches to a field with `at .field` (target-typed to `T.Field`).
+- **Field or struct level is decided by content:** a `requires` that refers only to `it` belongs to the field above it; one that refers to other fields is struct-level wherever it appears. A struct-level rule attaches to a field with `at .field` (target-typed to `T.Field`). A `requires` that reads `it` and other fields is an error (BYN3218); split it into an `it` rule under the field and a struct-level rule with `at .field` (revisions 0002 item 27, 0004 item 1).
 - **Struct literals of a type with `requires` are fallible:** `try SignupForm { … }` (BYN3207). A distinct type with `requires` is built with `try Email(raw)`; a constant argument is checked at compile time. Construction fails with `ValidationError<T>`, a generic `union error` with one case; decoders report malformed input in the same set:
 
   ```csharp
@@ -1315,7 +1316,7 @@ let resp = signUp(form) catch switch {
 
 > Round 2 §15: C# type names are accepted in type positions (BYN1030 is retired). Codes: none.
 
-### 9.6 Handles
+### 9.6 Handles (not in 0.2)
 `Pool<T>` + `Handle<T>` (index + generation, 8 bytes) for graphs and long-lived data; stale handles are detected.
 
 Trees and graphs use typed indices first (§3.5; the idiom is in `docs/bayan-style.md`), with no per-access cost. Generational handles, which catch a stale index after deletion at the cost of one compare per access, are added only when the selfhost AST or Sūq shows the need.
@@ -1386,10 +1387,10 @@ xs.remove(from: 2, until: 5)
 **Overloading.** Overloads may differ by particle set (`move(from:to:)` vs `move(_, by:)`) ; type-based overloads are not in v0.1 (rule 1, BYN2006). The checks run at the **declaration**, so a call never needs C#-style ambiguity resolution:
 
 1. Not in v0.1: until overloads exist, two same-name functions with different parameter types are a BYN2006 duplicate declaration, never first- or last-wins. Overloads that differ only by type must not overlap through any implicit conversion (finer units, integer widening, state widening). `void f(Grams g)` beside `void f(Kilograms k)` is an error, because `Kilograms` converts to `Grams` (BYN3213).
-2. Overloads may not differ only by function-type parameters, since `it` lambdas need one target type.
-3. Defaults may not make two overloads accept the same argument list.
-4. A reference to an overloaded name needs a target type: `let f: i32 -> i32 = abs` (BYN3215).
-5. Type variation over number families uses generics, not overloads: `public T abs<T>(T x) where T : ISignedNumber<T>`.
+2. (not in 0.2: type overloads, rule 1) Overloads may not differ only by function-type parameters, since `it` lambdas need one target type.
+3. (not in 0.2: type overloads, rule 1) Defaults may not make two overloads accept the same argument list.
+4. (not in 0.2: type overloads, rule 1) A reference to an overloaded name needs a target type: `let f: i32 -> i32 = abs` (BYN3215, reserved).
+5. (not in 0.2: type overloads, rule 1) Type variation over number families uses generics, not overloads: `public T abs<T>(T x) where T : ISignedNumber<T>`.
 
 ```csharp
 public void remove(ref this, at Index i)
@@ -1435,7 +1436,7 @@ public bool isEmpty => lines.isEmpty          // read-only: the default
 
 ---
 
-## 11. Generics
+## 11. Generics (partial in 0.2: no generic methods on types, no calls to generic interface methods)
 
 ```csharp
 T max<T>(ReadOnlySpan<T> xs) where T : IOrder<T> { … }
@@ -1474,7 +1475,7 @@ interface IRepository<T, K = T.Id> where T : IEntity<T> { … }
 
 ---
 
-## 12. Comptime
+## 12. Comptime (not in 0.2)
 
 ### 12.1 Where it runs
 `const` declarations, `comptime { }` blocks, `const` parameters, type-returning `comptime` functions, derivations, program queries.
@@ -1534,7 +1535,7 @@ Packages reserve a code prefix in `package.byn`; the registry enforces uniquenes
 
 ---
 
-## 13. Concurrency
+## 13. Concurrency (not in 0.2: no `async`/`await`, `Io` implementations or fibers; revision 0019 replaces this section with `scope`/`spawn`, not yet written)
 
 ### 13.1 I/O model
 All I/O goes through `context.Io`:
@@ -1718,7 +1719,7 @@ Only parameterized `sql"…"` literals with `$n` placeholders are in scope now; 
 
 > Round 3 §17, O10: a dedicated sink type stops injection regardless of where the text came from; `Untrusted<T>` covers the sinks escaping cannot protect; an `expects` that trapped on outside data would let a request crash the program. Codes: BYN1062, BYN8003, BYN8004, BYN8005, BYN8006.
 
-### 15.2 Secrets
+### 15.2 Secrets (not in 0.2)
 `Secret<T>` and `@secret` fields: excluded from debug output, logs, `dbg`, `Json`, `Diff` and every derivation (formatted as `***`); no `==`, only `equalsConstantTime(other)`; zeroed on dispose. A derivation that would read one is a compile error unless the field opts in with `@json(expose) because "…"` (BYN8002, spec-only); `debug` still prints `***`.
 
 > Round 2 §2, §13: constant-time comparison is a named method so `==` cannot leak timing.
@@ -1785,7 +1786,7 @@ let headers = ["Accept": "*/*"]                      // no target type: Map<stri
 - Maps: reading `map[k]` panics if missing; `map.tryGet(at: k) ?? fallback` reads without inserting; `ref map.slot(k)` gets or inserts a default (requires `V : default`). Keys are §3.5's: scalars, `string`, plain enums, `Symbol`, and tuples and structs of those; every member works the same on each, and a map literal's string keys become symbols where the key type is `Symbol`.
 - `Grid<T>`-style types accept multi-dimensional ranges: `grid[1..^1, 1..^1]`.
 
-### 16.1 Events
+### 16.1 Events (not in 0.2)
 
 `Event<T>` is in-process notification: the raising code doesn't know who listens.
 
@@ -1960,7 +1961,7 @@ buf.clear()
 let text = buf.finish()                  // a loan on the buffer, no copy (revision 0018)
 ```
 
-**Conversions:** `string(x)` (`Display`), `string(n, as: .hex / .binary / .octal / .decimal)`, `T.parse(text)` / `T.tryParse(text)` with the same `as:`, and the codecs. Every binary-to-text conversion is a codec, like `Hex` and `Base64`; `string(x)` is only the `Display` conversion, for every type, including byte spans (`[104, 105]`):
+**Conversions:** `string(x)` (`Display`), `string(n, as: .hex / .binary / .octal / .decimal)`, `T.parse(text)` / `T.tryParse(text)` with the same `as:`, `f32.tryParse(text)` / `f64.tryParse(text)` (§6.2; revision 0015), and the codecs. Every binary-to-text conversion is a codec, like `Hex` and `Base64`; `string(x)` is only the `Display` conversion, for every type, including byte spans (`[104, 105]`):
 
 ```csharp
 let s = try Utf8.decode(bytes)                   // fails Utf8Error with the position of the bad byte
@@ -2012,7 +2013,7 @@ public interface Display {
 Compact input forms, expanded by `bayan format` (BYN1068): `{n:hex}`, `{n:binary}`, `{n:octal}`, `{x:.2}`, `{d:iso}`, `{x:debug}` (§21.5).
 
 **Scope.**
-- v0.1: the model; `length`, `isEmpty`, `isAscii`, `runeCount`, `bytes`, `runes`, `utf16`, `lines`, `parts`, slices, `position`, `lastPosition`, `count`; the assertions (`equals(as: .caseless)` ASCII-only until `std.text`); `trimmed`, ASCII `lowercased`/`uppercased`, `replaced` (literal), `joined`, `repeated`; `StrBuf`; `string(x)`, `string(n, as:)`, `parse`/`tryParse`; `Utf8` and `Hex`; `Display.formatInto` and the specs `as`, `width`, `fill`, `align`, `digits`, `debug`; BYN1068.
+- v0.1: the model; `length`, `isEmpty`, `isAscii`, `runeCount`, `bytes`, `runes`, `utf16`, `lines`, `parts`, slices, `position`, `lastPosition`, `count`; the assertions (`equals(as: .caseless)` ASCII-only until `std.text`); `trimmed`, `lowercased`/`uppercased` (Unicode simple case mapping; U+0130 and U+0131 map to themselves, as .NET's invariant casing; revision 0015), `replaced` (literal), `joined`, `repeated`; `StrBuf`; `string(x)`, `string(n, as:)`, `parse`/`tryParse`; `Utf8` and `Hex`; `Display.formatInto` and the specs `as`, `width`, `fill`, `align`, `digits`, `debug`; BYN1068.
 - After v0.1 (`std.text`): `words`, `graphemes`, full Unicode case mapping and folding, `normalized`, `truncated` (needs graphemes), `wrapped`, the identifier-case members, `slugged`, `escaped`, `Utf16.decode`, `Base64`, regex `replaced`, `grouping`, date specs.
 - `kit`: `kit.intl` (`Culture`, `Collator`, `for:` on case, formatting and sorting, `titlecased`), `Latin1` and other encodings.
 
@@ -2289,9 +2290,16 @@ The language server runs inside the compiler process. Display-only views (inferr
 
 > Revision 0002 item 17: `bayan expand` is deferred until after v0.1, so the text that relies on it says it will show derived members and effects; language-server inlay hints cover them meanwhile. Codes: none.
 
+### 21.3 Performance targets
+Incremental rebuild under 100 ms on a reference project; cold-build budget tracked in CI.
+
+**Runtime.** Bayan targets Rust and Zig speed, and the safe default stays on the fast path. Checks (bounds, overflow, `expects`) stay in every build mode and are emitted in a form the C compiler optimizes: a compare and a branch to a shared `noreturn`, cold trap function per check kind, and overflow through `__builtin_add_overflow` and its family (v0.0.1). Generics are monomorphized (§11). Typestate, effects, capabilities, units, `rest` spans, `Event.raise` and derivations cost nothing at run time. After v0.0.1: range analysis that proves an index in bounds and hoists the check out of a loop, zipped iteration (`for (p, w) in zip(pixels, weights)`) as the idiom that needs no index checks, and Sūq benchmark budgets against Rust and Zig as well as the C# baseline.
+
+> Round 3 §30: keeping checks in release builds is affordable only if they are cheap to emit and easy for the C compiler to remove; v0.0.1 implements only the emission form.
+
 ### 21.4 Projects, outputs and VCS
 
-**Projects.** `bayan new <name>` creates an app: `package.byn`, `README.md`, `.gitignore` (`/out/`, `/dist/`, `/gen/`; `bayan.lock` stays committed), `.gitattributes` (LF; `*.byn linguist-language=C#`), `.editorconfig`, `src/app/main.byn`, `tests/app.test.byn`, `testdata/` and `docs/`. `--lib` puts the code in `src/<name>/<name>.byn` and tests in `tests/<name>.test.byn`; `--script` writes a single `<name>.byn` starting with `#!/usr/bin/env bayan` and `#:io threaded`, with no manifest and no git. `bayan init` does the same in an existing directory, adding only missing files and listing the ones it skipped; it refuses a directory that has a `package.byn`. `--ci github` adds `.github/workflows/bayan.yml`. A fresh project builds and passes its tests with no edits.
+**Projects.** `bayan new <name>` creates an app: `package.byn`, `README.md`, `.gitignore` (`/out/`, `/dist/`, `/gen/`; `package.lock.byn` stays committed; not in 0.2: no lockfile is written), `.gitattributes` (LF; `*.byn linguist-language=C#`), `.editorconfig`, `src/app/main.byn`, `tests/app.test.byn`, `testdata/` and `docs/`. `--lib` puts the code in `src/<name>/<name>.byn` and tests in `tests/<name>.test.byn`; `--script` writes a single `<name>.byn` starting with `#!/usr/bin/env bayan` and `#:io threaded`, with no manifest and no git. `bayan init` does the same in an existing directory, adding only missing files and listing the ones it skipped; it refuses a directory that has a `package.byn`. `--ci github` adds `.github/workflows/bayan.yml`. A fresh project builds and passes its tests with no edits.
 
 **Names.** A project directory is named in kebab-case (`my-app`) or camelCase (`myApp`). The package name is `local/<kebab-case>` until published; a library's module is the camelCase form, so it can be imported.
 
@@ -2302,13 +2310,6 @@ The language server runs inside the compiler process. Display-only views (inferr
 **Cache.** Compiled programs live in one cache per machine, shared by every project, worktree and process: `$BAYAN_CACHE`, else `%LOCALAPPDATA%\bayan\cache` (Windows), `~/Library/Caches/bayan` (macOS), `$XDG_CACHE_HOME/bayan` or `~/.cache/bayan` (elsewhere). Keys hash the compiler version, mode, target, C compiler, flags and the emitted C, and the emitted C names files relative to the project root, so a second worktree or a moved project compiles nothing. An entry is built in a private directory and renamed into place with no lock; one whose executable no longer matches its recorded SHA-256 is rebuilt. `bayan run script.byn` remembers the program for the script's exact bytes, mode and compiler version and starts it directly next time. `out/` stays per worktree. `bayan cache stats` reports the location, entry count and size; `bayan clean --cache` empties it.
 
 **Version control.** Bayan reads git and never writes history: `bayan new` and `bayan init` run `git init` only when git is installed, `--vcs none` isn't given, and the directory isn't already inside a work tree; they never commit, branch or configure.
-
-### 21.3 Performance targets
-Incremental rebuild under 100 ms on a reference project; cold-build budget tracked in CI.
-
-**Runtime.** Bayan targets Rust and Zig speed, and the safe default stays on the fast path. Checks (bounds, overflow, `expects`) stay in every build mode and are emitted in a form the C compiler optimizes: a compare and a branch to a shared `noreturn`, cold trap function per check kind, and overflow through `__builtin_add_overflow` and its family (v0.0.1). Generics are monomorphized (§11). Typestate, effects, capabilities, units, `rest` spans, `Event.raise` and derivations cost nothing at run time. After v0.0.1: range analysis that proves an index in bounds and hoists the check out of a loop, zipped iteration (`for (p, w) in zip(pixels, weights)`) as the idiom that needs no index checks, and Sūq benchmark budgets against Rust and Zig as well as the C# baseline.
-
-> Round 3 §30: keeping checks in release builds is affordable only if they are cheap to emit and easy for the C compiler to remove; v0.0.1 implements only the emission form.
 
 ### 21.5 Input forms
 Input forms are alternate spellings that the editor and `bayan format` accept and rewrite, one way, into canonical syntax. The compiler rejects them in source with a machine-applicable fix. This is the only list.
@@ -2411,7 +2412,7 @@ DIR → C → TinyCC per target where a CI probe passes, system cc elsewhere (de
 DIR → LLVM (later) | WASM via clang wasm32 (+ generated .d.ts)
 ```
 
-DIR: typed SSA, generics resolved, allocation and cleanup explicit, content-hashed per function for incremental builds. Packages are distributed as source. The C emitter defines all behavior C leaves undefined (`-fwrapv`/explicit checks, `-ffp-contract=off`, `#line` for debuggers).
+DIR: typed SSA, generics resolved, allocation and cleanup explicit, content-hashed per function for incremental builds. Packages are distributed as source. The C emitter defines all behavior C leaves undefined (`-fwrapv`/explicit checks, `-ffp-contract=off`, `#line` for debuggers). The emitter writes `#line N "file.byn"` before each statement's code; generated helpers carry none; a C compiler diagnostic in a user build is an internal compiler error with the C text attached (revision 0001).
 
 Roadmap: v0.3 WASM + `.d.ts`; v0.4 `bayan gen ts`; post-v1 portable JS backend (JS + `.d.ts`, no `unsafe`, `i32`).
 

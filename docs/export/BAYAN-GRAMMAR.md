@@ -3,7 +3,7 @@ Commit 8d5e5c71, 2026-11-09. GRAMMAR (`docs/bayan-grammar.md`) followed by STYLE
 # Bayān grammar guide and style guide
 
 Version: 0.2.0 (matches `bayan --version`)
-Revisions applied: 0001–0020
+Revisions applied: 0001–0019
 
 How to name things the way the standard library does. This is the developer-facing companion to [SPEC §5](BAYAN-SPEC.md) (naming and morphology). SPEC §5.2 holds the full pattern table and contracts; this guide tells you which pattern to pick.
 

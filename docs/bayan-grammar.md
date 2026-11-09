@@ -80,7 +80,7 @@ Guards against drift:
 2. New syntax must have its own job; it may not only re-spell an existing construct.
 3. Paraphrases must be truly equivalent: same narrowing, cost and effects. Where two forms are not equivalent, the difference is a style note with no diagnostic code (`0..=n - 1` vs `0..n`, `p == Point { … }` vs `p is Point { … }`).
 
-Familiar alternatives are **input forms**: the editor and `bayan format` accept them and rewrite them one way into canonical syntax; the compiler rejects them in source with a machine-applicable fix.
+Familiar alternatives are **input forms**: the editor and `bayan format` accept them and rewrite them one way into canonical syntax; the compiler rejects them in source with a machine-applicable fix. The complete list is [SPEC §21.5](bayan-spec.md); the tables below are a selection.
 
 | Input form | Canonical | Code |
 |---|---|---|
