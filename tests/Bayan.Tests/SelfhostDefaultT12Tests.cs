@@ -467,11 +467,14 @@ public sealed class SelfhostDefaultT12Tests
             var r = Same("unreadable", root =>
             {
                 NewApp()(root);
-                var dir = Path.Combine(Project(root), "src", "locked");
-                Directory.CreateDirectory(dir);
-                File.WriteAllText(Path.Combine(dir, "x.byn"), "");
-                if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(dir, UnixFileMode.None);
-                locked = [.. locked, dir];
+                foreach (var name in new[] { "locked", "locked.byn" })
+                {
+                    var dir = Path.Combine(Project(root), "src", name);
+                    Directory.CreateDirectory(dir);
+                    File.WriteAllText(Path.Combine(dir, "x.byn"), "");
+                    if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(dir, UnixFileMode.None);
+                    locked = [.. locked, dir];
+                }
             }, DistStep());
             Assert.True(r[0].Exit == 0, r[0].Err);
         }
