@@ -1,0 +1,3 @@
+selfhost/driver/x.byn -> FullyQualifiedName~SelfhostDefaultT4Tests|FullyQualifiedName~SelfhostDriver|FullyQualifiedName~SelfhostDriverT2Tests
+selfhost/driver/y.byn -> FullyQualifiedName~SelfhostDefaultT4Tests|FullyQualifiedName~SelfhostDriver|FullyQualifiedName~SelfhostDriverT2Tests
+selfhost/semantics/a.byn -> FullyQualifiedName~SelfhostSemanticsATests

@@ -90,6 +90,13 @@ m0_2x=$?; set -e; m0_2=$(cat $aux/m0_2.txt); rm -f $aux/twobuilds $aux/rep/b.byn
 fail_matches=$(find tmp/mutate-batch/semantics -name 'quality-[0-9]*.json')
 fail_rej=$(find tmp/mutate-batch/semantics/rejected -name 'rejected-quality-[0-9]*.json' 2>/dev/null || true)
 REPPATH=/elsewhere/p.byn rep selfhost/parser/p.byn 1 0 0; outside=$(b --files selfhost/parser/p.byn); rep selfhost/parser/p.byn 1 0 0
+# an imported module's path is relative to the packageRoot selfhost/ (SelfhostLexerCaseTests' build of `import lexer`)
+REPPATH=parser/p.byn rep selfhost/parser/p.byn 1 0 0; pkgrel=$(b --files selfhost/parser/p.byn); rep selfhost/parser/p.byn 1 0 0
+pkgpath=$(python3 -I -c 'import json; print(json.load(open("tmp/mutate-batch/parser/quality-1-prog.json"))["files"][0]["path"])')
+# MUTATE_BASELINE: the scratch baseline is raised, the repo's is not touched
+cp $aux/empty.json tests/quality-baseline.json; cp $aux/empty.json $aux/scratch.json
+MUTATE_BASELINE=$aux/scratch.json b --files selfhost/parser/p.byn > /dev/null
+cmp -s tests/quality-baseline.json $aux/empty.json && grep -q '"selfhost/parser/p.byn"' $aux/scratch.json && scratch=1 || scratch=0
 touch $aux/nomanifest; nomanifest=$(b --files selfhost/parser/p.byn); rm $aux/nomanifest
 mv src/Bayan.Cli/bin/Debug/net10.0/bayan $aux/bayan; nocli=$(b --files selfhost/parser/p.byn); cd "$root"
 wf=$(cat .github/workflows/mutation.yml)
@@ -127,6 +134,8 @@ echo "$nomanifest" | grep -q '^group parser: mutation: the recording wrote no tm
 echo "$nocli" | grep -q '^group parser: mutation: no pinned bayan — pinned-bayan: PINNED_BAYAN=.*/src/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not name its group" "$nocli"
 [ "$relpath" = selfhost/semantics/a.byn ] || fail "the copied report's path was not rewritten repo-root-relative (got $relpath)" "$fill"
 echo "$outside" | grep -q '^group parser: report: .*quality-1-prog.json: path /elsewhere/p.byn is not under the repo root' || fail "a report path outside the repo root did not fail the group naming the report" "$outside"
+[ "$pkgpath" = selfhost/parser/p.byn ] || fail "a path relative to the packageRoot selfhost/ was not resolved there (got $pkgpath)" "$pkgrel"
+[ $scratch = 1 ] || fail "MUTATE_BASELINE did not take the place of tests/quality-baseline.json" ""
 [ "$m0_2x" != 0 ] && [ -z "$fail_matches" ] && [ -n "$fail_rej" ] || fail "a failed group's report was matched by the merge job's glob ($fail_matches)" "$m0_2"
 has() { echo "$wf" | grep -qE "$1" || fail "mutation.yml: $2" ""; }
 has '^permissions:' "no workflow-level permissions"; has '^  contents: read$' "permissions are not contents: read"
