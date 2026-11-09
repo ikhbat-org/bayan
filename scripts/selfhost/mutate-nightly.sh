@@ -2,14 +2,16 @@
 # mutate-nightly.sh — the batch mutation run spread over nights, one selfhost .byn file at a time. Run from the repo root after `dotnet build`.
 #   bash scripts/selfhost/mutate-nightly.sh --deadline HH:MM [--state <dir>] [--tasks <tasks.md>]...
 # The queue is every file of `mutate-batch.sh --list` (--tasks passed through), in path order; <state> (default
-# $HOME/mutate-nightly) keeps `cursor` (the last file run) and `slowest` (the longest file run so far, in seconds; 900 before
-# the first). Each file runs as `mutate-batch.sh --files <file>` against a scratch copy of tests/quality-baseline.json
+# $HOME/mutate-nightly) keeps `cursor` (the last file run) and `secs/<file-slug>` (the last run time of each file; the slowest
+# is the largest of them, 900 before the first, so an outlier is replaced when its file runs again) and holds `lock` (a directory
+# with its pid, taken over when the pid is gone; a second nightly on the state exits 2). Each file runs as `mutate-batch.sh --files <file>` against a scratch copy of tests/quality-baseline.json
 # (MUTATE_BASELINE=<state>/baseline.json), so the repo is never edited; the runner never commits or pushes.
 # Before each file it stops when less than `slowest` remains before the deadline (the next HH:MM after the start), and it
 # stops after one pass over the queue; the next night resumes after the cursor and wraps to the first file after the last.
-# Per night <state>/<YYYY-MM-DD>.log gets one line per file (file, rc, seconds, score line) and the stop reason; the group's
-# reports and per-site logs are copied to <state>/reports/<file-slug>/. A failing file is logged and the next one runs.
-# Exit 0 after a deadline stop or a full pass, 2 on a setup error. MUTATE_BATCH overrides the mutate-batch.sh path (tests).
+# Per night <state>/<YYYY-MM-DD>.log gets one line per file (file, rc, seconds, every build's score line) and the stop reason; the group's
+# reports and per-site logs are copied to <state>/reports/<file-slug>/. A file that fails its score (rc 1) is logged and the next one runs;
+# a setup-class rc (mutate-batch.sh: 2 or 3, e.g. no pinned bayan, a build failure, its lock held) stops the night with the cursor
+# unmoved and the reason logged, exit 2. Exit 0 after a deadline stop or a full pass, 2 on a setup error. MUTATE_BATCH overrides the mutate-batch.sh path (tests).
 set -u
 DEADLINE=""; STATE=$HOME/mutate-nightly; TASKS=()
 while [ $# -gt 0 ]; do case "$1" in
@@ -18,7 +20,15 @@ while [ $# -gt 0 ]; do case "$1" in
 BATCH=${MUTATE_BATCH:-$(dirname "$0")/mutate-batch.sh}
 [[ $DEADLINE =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]] || { echo "mutate-nightly: --deadline HH:MM is required (got '$DEADLINE')"; exit 2; }
 [ -f tests/quality-baseline.json ] || { echo "mutate-nightly: no tests/quality-baseline.json: run from the repo root"; exit 2; }
-mkdir -p "$STATE/reports" || { echo "mutate-nightly: cannot create $STATE"; exit 2; }
+mkdir -p "$STATE/reports" "$STATE/secs" || { echo "mutate-nightly: cannot create $STATE"; exit 2; }
+# one nightly per state, and none while a mutate-batch.sh run holds tmp/mutate-batch (the per-file clean-up below would delete its files)
+holder() { local pid; pid=$(cat "$1/pid" 2>/dev/null); if [ -d "$1" ] && { [ -z "$pid" ] || kill -0 "$pid" 2>/dev/null; }; then echo "${pid:-unknown}"; fi; }
+if ! mkdir "$STATE/lock" 2>/dev/null; then
+  pid=$(holder "$STATE/lock")
+  [ -z "$pid" ] || { echo "mutate-nightly: $STATE is in use by another nightly (pid $pid)"; exit 2; }
+  rm -r "$STATE/lock"; mkdir "$STATE/lock" 2>/dev/null || { echo "mutate-nightly: $STATE is in use by another nightly"; exit 2; }
+fi
+echo $$ > "$STATE/lock/pid"; trap 'rm -r "$STATE/lock"' EXIT
 END=$(python3 -I -c '
 import datetime, sys
 h, m = map(int, sys.argv[1].split(":"))
@@ -33,7 +43,7 @@ total=$(wc -l <<< "$QUEUE" | tr -d ' ')
 echo "== $(date '+%F %T') start: deadline $DEADLINE, $total files, cursor $(cat "$STATE/cursor" 2>/dev/null || echo none)" >> "$LOG"
 done_n=0
 while [ "$done_n" -lt "$total" ]; do
-  slowest=$(cat "$STATE/slowest" 2>/dev/null || echo 900)
+  slowest=$(cat "$STATE"/secs/* 2>/dev/null | sort -n | tail -1); slowest=${slowest:-900}
   left=$(( END - $(date +%s) ))
   if [ "$left" -lt "$slowest" ]; then
     echo "== $(date '+%F %T') stop: ${left}s left before $DEADLINE, slowest file ${slowest}s" >> "$LOG"; exit 0; fi
@@ -41,12 +51,15 @@ while [ "$done_n" -lt "$total" ]; do
   # the first file after the cursor in path order, the first file when none is (wrap): a file added or removed since keeps the order
   f=$(awk -v c="$cursor" '$0 > c { print; exit }' <<< "$QUEUE"); [ -n "$f" ] || f=$(head -1 <<< "$QUEUE")
   slug=$(sed 's|/|-|g; s|\.byn$||' <<< "$f")
+  pid=$(holder tmp/mutate-batch.lock)
+  if [ -n "$pid" ]; then echo "== $(date '+%F %T') stop: mutate-batch.sh (pid $pid) holds tmp/mutate-batch, cursor not moved" >> "$LOG"; exit 2; fi
   cp tests/quality-baseline.json "$STATE/baseline.json"
   rm -rf tmp/mutate-batch
   start=$(date +%s)
   out=$(MUTATE_BASELINE=$STATE/baseline.json bash "$BATCH" --files "$f" ${TASKS[@]+"${TASKS[@]}"} 2>&1); rc=$?
   secs=$(( $(date +%s) - start ))
-  score=$(grep -m1 '^mutation: [0-9]' <<< "$out" || echo "no score: $(tail -1 <<< "$out")")
+  score=$(grep '^mutation: [0-9]' <<< "$out" | awk 'NR > 1 { printf " | " } { printf "%s", $0 } END { print "" }')
+  [ -n "$score" ] || score="no score: $(tail -1 <<< "$out")"
   echo "$f rc=$rc secs=$secs $score" >> "$LOG"
   rm -rf "$STATE/reports/$slug"; mkdir -p "$STATE/reports/$slug"
   printf '%s\n' "$out" > "$STATE/reports/$slug/batch.txt"
@@ -55,8 +68,10 @@ while [ "$done_n" -lt "$total" ]; do
     cp "$g"quality-*.json "$g"mutate-*.txt "$STATE/reports/$slug/" 2>/dev/null
     [ -d "$g"rejected ] && cp -R "$g"rejected "$STATE/reports/$slug/"
   done
+  echo "$secs" > "$STATE/secs/$slug"
+  case $rc in 0|1) ;; *)  # not a score result (mutate-batch.sh: 1 is a score below the baseline): the night is wasted, not the file
+    echo "== $(date '+%F %T') stop: setup failure (rc=$rc) on $f, cursor not moved: $(tail -1 <<< "$out")" >> "$LOG"; exit 2;; esac
   echo "$f" > "$STATE/cursor"
-  [ "$secs" -gt "$slowest" ] && echo "$secs" > "$STATE/slowest"
   done_n=$((done_n + 1))
 done
 echo "== $(date '+%F %T') stop: the queue of $total files ran once" >> "$LOG"

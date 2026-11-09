@@ -7,8 +7,9 @@
 # one, a drop fails naming the file with old and new score and leaves the baseline unchanged; a failed mutant 0, a missing CLI
 # and a manifest-less recording fail naming the group, the other groups still raise the baseline; a failed group's reports are
 # moved to rejected/ (a score drop moves every OK group's reports there too) and not matched by the merge job's glob; the copied reports' absolute
-# paths (as bayan mutate writes them) are rewritten repo-root-relative, a path outside the root fails the group naming the
-# report; .github/workflows/mutation.yml: read-only permissions, no persisted credentials, a concurrency group, shards upload
+# paths (as bayan mutate writes them) are rewritten repo-root-relative, a path outside the root or one that is no file under the
+# root or selfhost/ fails the group naming the report; --files keeps the group's union filter; a score drop exits 1 and a failed group
+# 3; a live tmp/mutate-batch.lock stops a second run (exit 3) and leaves it alone, a stale one is taken over, the lock is released; .github/workflows/mutation.yml: read-only permissions, no persisted credentials, a concurrency group, shards upload
 # reports and not the baseline, a final job needing the shards merges all reports in one update, uploads the accepted reports, and documents applying the run.
 set -e
 root="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -63,6 +64,7 @@ sh_files=$(for k in 1 2 3; do b --shard $k/3 --list; done | cut -d' ' -f1 | sort
 sh_two=$(b --shard 2/2 --list | cut -d' ' -f1 | tr '\n' ' '); sh_only=$(b --shard 1/2 --files selfhost/semantics/a.byn,selfhost/semantics/b.byn --list | cut -d' ' -f1 | tr '\n' ' ')
 A='FullyQualifiedName~SelfhostSemanticsATests'; B="$A|FullyQualifiedName~SelfhostSemanticsBTests|FullyQualifiedName~SelfhostSemanticsCTests"
 touch selfhost/semantics/z.byn; mkdir selfhost/other; echo > selfhost/other/z.byn; badlist=$(b --list); rm -r selfhost/other selfhost/semantics/z.byn
+list_one=$(b --files selfhost/semantics/a.byn --list)
 [ -f $aux/record.txt ] && listran=1 || listran=0
 # fill: an empty baseline gets an entry for every file
 rep_all 3 1 1; fill=$(b); rec=$(sort $aux/record.txt); fa=$(score selfhost/semantics/a.byn); fp=$(score selfhost/parser/p.byn)
@@ -91,12 +93,18 @@ fail_matches=$(find tmp/mutate-batch/semantics -name 'quality-[0-9]*.json')
 fail_rej=$(find tmp/mutate-batch/semantics/rejected -name 'rejected-quality-[0-9]*.json' 2>/dev/null || true)
 REPPATH=/elsewhere/p.byn rep selfhost/parser/p.byn 1 0 0; outside=$(b --files selfhost/parser/p.byn); rep selfhost/parser/p.byn 1 0 0
 # an imported module's path is relative to the packageRoot selfhost/ (SelfhostLexerCaseTests' build of `import lexer`)
+REPPATH=parser/nope.byn rep selfhost/parser/p.byn 1 0 0; missing=$(b --files selfhost/parser/p.byn); rep selfhost/parser/p.byn 1 0 0
 REPPATH=parser/p.byn rep selfhost/parser/p.byn 1 0 0; pkgrel=$(b --files selfhost/parser/p.byn); rep selfhost/parser/p.byn 1 0 0
 pkgpath=$(python3 -I -c 'import json; print(json.load(open("tmp/mutate-batch/parser/quality-1-prog.json"))["files"][0]["path"])')
 # MUTATE_BASELINE: the scratch baseline is raised, the repo's is not touched
 cp $aux/empty.json tests/quality-baseline.json; cp $aux/empty.json $aux/scratch.json
 MUTATE_BASELINE=$aux/scratch.json b --files selfhost/parser/p.byn > /dev/null
 cmp -s tests/quality-baseline.json $aux/empty.json && grep -q '"selfhost/parser/p.byn"' $aux/scratch.json && scratch=1 || scratch=0
+# one run at a time: a live lock (this shell's pid) stops the run before anything is written, a stale one is taken over
+mkdir -p tmp/mutate-batch.lock; echo $$ > tmp/mutate-batch.lock/pid; rm -f $aux/record.txt; set +e
+PATH="$aux:$PATH" bash "$root/scripts/selfhost/mutate-batch.sh" --tasks tasks.md --files selfhost/parser/p.byn > $aux/lock.txt 2>&1; lockx=$?; set -e
+lockout=$(cat $aux/lock.txt); [ -f $aux/record.txt ] && lockran=1 || lockran=0; [ -f tmp/mutate-batch.lock/pid ] && lockkept=1 || lockkept=0
+echo 999999 > tmp/mutate-batch.lock/pid; stale=$(b --files selfhost/parser/p.byn); [ -e tmp/mutate-batch.lock ] && released=0 || released=1
 touch $aux/nomanifest; nomanifest=$(b --files selfhost/parser/p.byn); rm $aux/nomanifest
 mv src/Bayan.Cli/bin/Debug/net10.0/bayan $aux/bayan; nocli=$(b --files selfhost/parser/p.byn); cd "$root"
 wf=$(cat .github/workflows/mutation.yml)
@@ -118,17 +126,21 @@ echo "$fill" | grep -q '^mutation: 3 killed, 1 survived, 0 timeout, 1 marked' ||
 [ "$fa" = 0.75 ] && [ "$fp" = 0.75 ] || fail "an empty baseline was not filled (a=$fa p=$fp)" "$fill"
 [ $report = 1 ] || fail "the report was not written to tmp/mutate-batch/semantics/quality-1-prog.json" "$fill"
 [ "$ra" = 1.0 ] || fail "a higher score did not replace the baseline (a=$ra)" "$rise"
-[ "$rrec" = "selfhost/semantics/a.byn ($A)&Snapshot!=skip" ] || fail "--files a.byn did not record a with the union filter of the selected files only" "$rrec"
+[ "$rrec" = "selfhost/semantics/a.byn ($B)&Snapshot!=skip" ] || fail "--files a.byn did not record a with the union filter of its whole group" "$rrec"
 echo "$drop" | grep -q '^baseline: mutation score of selfhost/semantics/a.byn fell from 1.0 to 0.5 ' || fail "a drop did not name the file with old and new score" "$drop"
-[ $dropx != 0 ] && [ $dropsame = 1 ] || fail "a drop exited $dropx or changed the baseline" "$drop"
+[ $dropx = 1 ] && [ $dropsame = 1 ] || fail "a drop exited $dropx or changed the baseline" "$drop"
 [ -z "$dropleft" ] && [ "$droprej" = 3 ] || fail "a refused check left accepted reports ($dropleft) or rejected $droprej, not 3 (one per group)" "$drop"
 [ "$s1" = "emitter-shard1of2 parser-shard1of2 semantics-shard1of2 " ] && [ "$s2" = "emitter-shard2of2 semantics-shard2of2 " ] || fail "--shard named the groups '$s1' / '$s2'" ""
 [ "$shreport" = 1 ] || fail "a sharded group's report was not written to tmp/mutate-batch/semantics-shard2of2/" ""
 [ "$sh_files" = "$all_files" ] || fail "the union of --shard 1..3/3 differs from the unsharded files (a file lost or placed twice)" "$sh_files"
 [ "$sh_one" = "selfhost/emitter/cprint/cp.byn selfhost/parser/p.byn selfhost/semantics/a.byn selfhost/semantics/c.byn " ] && [ "$sh_two" = "selfhost/emitter/e.byn selfhost/semantics/b.byn " ] || fail "--shard i mod n split: '$sh_one' / '$sh_two'" ""
 [ "$sh_only" = "selfhost/semantics/a.byn " ] || fail "--files with --shard did not restrict after sharding ('$sh_only')" ""
+[ "$list_one" = "selfhost/semantics/a.byn -> $B" ] || fail "--files a.byn --list did not show the group's union filter" "$list_one"
+echo "$missing" | grep -q '^group parser: report: .*quality-1-prog.json: path parser/nope.byn is no file under the repo root' || fail "a report path that is no file under the root or selfhost/ did not fail the group" "$missing"
+[ "$lockx" = 3 ] && echo "$lockout" | grep -q "mutate-batch: .*tmp/mutate-batch is in use by another run (lock .*, pid $$)" && [ $lockran = 0 ] && [ $lockkept = 1 ] || fail "a live lock did not stop the run with exit 3 (rc=$lockx, ran=$lockran, kept=$lockkept)" "$lockout"
+echo "$stale" | grep -q '^== group parser' && [ $released = 1 ] || fail "a stale lock was not taken over, or the lock outlived the run (released=$released)" "$stale"
 echo "$badshard" | grep -q 'want k/n' || fail "a bad --shard was accepted" "$badshard"
-[ "$m0x" != 0 ] && [ "$m0p" = 1.0 ] && [ "$m0a" = None ] || fail "a failed mutant 0 exited $m0x (a=$m0a p=$m0p)" "$m0"
+[ "$m0x" = 3 ] && [ "$m0p" = 1.0 ] && [ "$m0a" = None ] || fail "a failed mutant 0 exited $m0x (a=$m0a p=$m0p)" "$m0"
 echo "$m0" | grep -q '^group semantics: mutation: the recording does not replay on the unmutated build' || fail "a failed mutant 0 did not name its group" "$m0"
 echo "$nomanifest" | grep -q '^group parser: mutation: the recording wrote no tmp/mutate-batch/parser/snap/manifest.json' || fail "a manifest-less recording did not name its group" "$nomanifest"
 echo "$nocli" | grep -q '^group parser: mutation: no pinned bayan — pinned-bayan: PINNED_BAYAN=.*/src/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not name its group" "$nocli"
