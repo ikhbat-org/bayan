@@ -1,0 +1,23 @@
+warning BYN5107: `OrderHasher` is a tool; `hash` must not change `this`
+
+  8 │     public u64 hash(ref this, Order order) {
+    │                ^^^^
+    │
+  help: remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is
+        fed data step by step
+
+warning BYN5107: `OrderComparer` is a tool; `compare` must not change `this`
+
+  15 │     public i64 compare(ref this, Order order) => order.total
+     │                ^^^^^^^
+     │
+  help: remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is
+        fed data step by step
+
+warning BYN5107: `IOrderCodec` is a tool; `encode` must not change `this`
+
+  19 │     string encode(ref this, Order order)
+     │            ^^^^^^
+     │
+  help: remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is
+        fed data step by step
