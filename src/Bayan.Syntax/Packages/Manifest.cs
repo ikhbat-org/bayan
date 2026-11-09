@@ -296,10 +296,11 @@ public sealed class Manifest
             if (!grammarFields.TryGetValue(field, out var list) || list is not ListValue l) continue;
             foreach (var item in l.Items.OfType<StringValue>())
             {
-                if (seen.TryGetValue(item.Value, out var other) && !(other == "verbs" && field == "nouns"))
+                var word = item.Value.ToLowerInvariant();  // the checker compares lowercase (Naming.GrammarOf)
+                if (seen.TryGetValue(word, out var other) && other != field && !(other == "verbs" && field == "nouns"))
                     Invalid(item, $"grammar.{field}", $"free of `{item.Value}`, which `grammar.{other}` lists; only a verb that is also a noun may be in two lists");
                 else
-                    seen.TryAdd(item.Value, field);
+                    seen.TryAdd(word, field);
             }
         }
     }
