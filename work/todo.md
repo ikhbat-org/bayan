@@ -653,3 +653,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - 018 T1 gate LOW (fix in both compilers after T2, 018 T9 or a follow-up): `src/Bayan.Semantics/Binding/BinderStates.cs` `StateTestHelp` matches the receiver by source text, so a shadowing `let order = …` in the then-branch still gets the "doesn't narrow" help.
 - 018 T1 gate LOW (same follow-up): `BinderStates.cs` `ReportWrongState` passes `Source.GetText(span)` for a `BoundThis` value, so an implicit-receiver call inside `if this.p { … }` never gets the new help.
 - 018 T1 gate LOW (same follow-up): `Binder.cs` IfStmt `_thenOf` push/pop is not in `try`/`finally`; a forwarded BYN2034 exception from `BindBody` leaves a stale `if` on the stack.
+- `scripts/selfhost/wave-brief.test.sh` fails on feat/018 at 4a83744d (before 018's wave-brief entry): "FAIL: the 010 T43 review brief changed"; fixture or brief drift, owner unknown (found 2026-11-10 during 018 T2 land).
