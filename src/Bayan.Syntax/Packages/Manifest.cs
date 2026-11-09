@@ -293,7 +293,8 @@ public sealed class Manifest
         var seen = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var field in new[] { "verbs", "nouns", "adjectives", "collectives" })
         {
-            if (!grammarFields.TryGetValue(field, out var list) || list is not ListValue l) continue;
+            // A list already reported as not a list of words is not read again (one BYN3102 per mistake).
+            if (!grammarFields.TryGetValue(field, out var list) || list is not ListValue l || !l.Items.All(w => w is StringValue)) continue;
             foreach (var item in l.Items.OfType<StringValue>())
             {
                 var word = item.Value.ToLowerInvariant();  // the checker compares lowercase (Naming.GrammarOf)

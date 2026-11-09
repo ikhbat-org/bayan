@@ -354,6 +354,8 @@ public static class DiagnosticCodes
     /// <summary>BYN5104's second message form, for a plural name on one value; registered once, as <see cref="NumberAgreement"/>.</summary>
     public static readonly DiagnosticDescriptor NumberAgreementOne = new("BYN5104", Severity.Warning, "`{0}` holds one `{1}`; name it with a singular noun");
     public static readonly DiagnosticDescriptor CountName = Warning("BYN5105", "`{0}` counts items; name it `{1}`");
+    public static readonly DiagnosticDescriptor DoerWithoutVerb = Warning("BYN5106", "`{0}` is named for the act `{1}` but has no `{1}` member");
+    public static readonly DiagnosticDescriptor InstrumentChangesThis = Warning("BYN5107", "`{0}` is a tool; `{1}` must not change `this`");
 
     // ── Effects 6000–6999 ────────────────────────────────────────────────────────────
     public static readonly DiagnosticDescriptor NoallocRemoved = Error("BYN6001", "`{0}` is removed; a function without `uses` is already pure");
