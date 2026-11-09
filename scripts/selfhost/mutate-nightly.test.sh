@@ -6,7 +6,7 @@
 # stub writes the baseline it is given; the stand-in for an empty `git status --porcelain`, with no git repo to set up);
 # a bad --deadline and a run outside a repo root are setup errors (exit 2); every build's score line is logged; the slowest time is
 # the largest per-file last time (an outlier is replaced when its file runs again); a setup-class rc (not 0 or 1) stops the night
-# without moving the cursor; a live lock on the state or on tmp/mutate-batch stops it (exit 2), a stale lock is taken over.
+# without moving the cursor; a recording with failed tests skips the rest of its family that night and records no time; a live lock on the state or on tmp/mutate-batch stops it (exit 2), a stale lock is taken over.
 set -e
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 t="$root/tmp/mutate-nightly-test"; repo="$t/repo"; state="$t/state"
@@ -24,6 +24,7 @@ echo "mutation: 3 of 4 killed"
 [ -f "$AUX/two" ] && echo "mutation: 1 of 2 killed"
 [ -f "$AUX/setup" ] && exit 3
 [ -f "$AUX/group" ] && exit 4
+[ -f "$AUX/recfail" ] && [ "$f" != selfhost/b/z.byn ] && { echo "group a: mutation: recording under BAYAN_SNAPSHOT: 1 test(s) failed (tmp/mutate-batch/a/record.txt): T.X — first: differs"; exit 4; }
 [ "$f" = selfhost/a/y.byn ] && exit 1
 exit 0
 STUB
@@ -82,6 +83,16 @@ night || fail "night 6 (group failures) exited $?: $(cat "$t/out.txt")"
 log | grep -q '^selfhost/a/x.byn rc=4 ' || fail "night 6 log lacks the rc=4 line: $(log)"
 [ "$(cat "$state/cursor")" = selfhost/b/z.byn ] || fail "night 6 cursor $(cat "$state/cursor")"
 rm "$t/aux/group"
+
+# night 7: a recording with failed tests (rc 4) records no time and skips the rest of its family; the other family runs
+: > "$t/aux/ran.txt"; touch "$t/aux/recfail"; rm -f "$state"/secs/*; echo selfhost/b/z.byn > "$state/cursor"
+night || fail "night 7 (recording failure) exited $?: $(cat "$t/out.txt")"
+[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn,selfhost/b/z.byn ] || fail "night 7 ran $(paste -sd, "$t/aux/ran.txt"), not x then z (y skipped)"
+log | grep -q '^selfhost/a/y.byn rc=skip secs=0 no score: the recording of selfhost/a failed earlier tonight$' || fail "night 7 log lacks y's skip: $(log)"
+log | grep -q 'skip: the tests of selfhost/a fail under BAYAN_SNAPSHOT, .*1 test(s) failed .*T.X' || fail "night 7 log lacks the failed tests: $(log)"
+[ ! -e "$state/secs/selfhost-a-x" ] && [ -e "$state/secs/selfhost-b-z" ] || fail "night 7: a failed recording's time was kept, or z's was not"
+[ "$(cat "$state/cursor")" = selfhost/b/z.byn ] || fail "night 7 cursor $(cat "$state/cursor")"
+rm "$t/aux/recfail"
 
 # a live lock on the state, a live mutate-batch.sh lock on tmp/mutate-batch, a stale lock taken over
 : > "$t/aux/ran.txt"; sleep 60 & holder=$!
