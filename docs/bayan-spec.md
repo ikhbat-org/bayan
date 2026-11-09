@@ -2019,6 +2019,227 @@ Compact input forms, expanded by `bayan format` (BYN1068): `{n:hex}`, `{n:binary
 
 > Revision 0003 §3–§6: one place for the string model, the API, culture and formatting (round 2's pending `format()` item); no operation depends on the machine's locale, and specs are named arguments like every other option. Codes: BYN1068, BYN2230.
 
+### 16.5 `std.time`
+
+> **Status:** specified, not implemented (std.time Phase 2+)
+
+The `std.time` module provides value types, units, arithmetic, clocks, zones, formatting and parsing for points on the timeline and civil calendar dates. Every type is a `Copy` value; accessors and operations are pure and never allocate.
+
+#### Types
+
+| Type | Meaning | Layout | Range |
+|---|---|---|---|
+| `Instant` | Point on the UTC timeline | i64 s + i32 ns (16) | Years −9999 to 9999 |
+| `Duration` | `type Duration = Nanoseconds`, signed | i64 (8) | ±292 years |
+| `Date` | Civil date, proleptic Gregorian, has year 0 | i16 year, u8 month, u8 day (4) | −9999 to 9999 |
+| `Time` | Time of day | i64 ns since midnight (8) | 00:00 to 23:59:59.999999999 |
+| `DateTime` | `Date` + `Time` | 16 | Same as `Date` |
+| `Offset` | Fixed UTC offset, east positive | i32 s (4) | ±25:59:59 |
+| `TimeZone` | Interned handle into immutable rule data | u32 (4) | |
+| `ZonedDateTime` | `Instant` + zone + cached offset | 24 | |
+| `Period` | Calendar amount, normalized | `Months` + `Days` (8) | Normalized calendar amounts |
+| `Uptime` | Monotonic reading that includes suspend | i64 ns (8) | |
+| `Weekday` | `enum`, `.monday` … `.sunday`; `isoNumber` is 1–7 | | |
+
+Months are plain `i32` 1–12 everywhere; only `Weekday` is an enum. The proleptic calendar has year 0. `Time.midnight` (00:00:00), `Time.noon` (12:00:00), and `TimeZone.utc` are provided as static constants.
+
+#### Time units
+
+Time units live in `core` and require no import:
+
+```csharp
+unit Nanoseconds(ns): i64
+unit Microseconds(us) = 1000 ns
+unit Millis(ms) = 1000 us [^millis-footnote]
+unit Seconds(s) = 1000 ms
+unit Minutes(min) = 60 s
+unit Hours(h) = 60 min
+```
+
+[^millis-footnote]: `Millis` is renamed to `Milliseconds` in Phase 1b.
+
+- **Conversion:** conversion toward finer units is implicit. Conversion toward coarser units is explicit and names the rounding: `rounded<U>()`, `floor<U>()` or `ceiling<U>()`. Bare numeric literals are rejected, including `0` (write `0s`).
+- **Input forms:** `µs` (both U+00B5 and U+03BC) is an input form for `us`.
+- **Suffix rules:** no time unit uses `d`. Minutes use `min`; `5m` without a meters import draws help indicating minutes are `min`.
+
+#### Calendar units
+
+Calendar units arrive only with `import std.time`:
+
+```csharp
+unit Days(d): i32
+unit Weeks(w) = 7 d
+unit Months(mo): i32
+unit Years(y) = 12 mo
+```
+
+- Days and months never convert into each other or into time units.
+- `Period(months:days:)` combines them. Equality is normalized, so `1y == 12mo` and `1w == 7d`.
+
+#### Time of day
+
+- **Construction:** `Time(hour:minute:)`, with optional `second:` and `nanosecond:`. There is no `24:00`.
+- **Conversions:** `Duration(t)` converts time of day to a duration since midnight; `Time(d)` constructs time from duration (traps if outside `0..24h`); `Time.tryFrom(d)` returns `Time?`.
+- **Arithmetic:** `t ± time unit` wraps around midnight; `t.tryAdded(d)` returns `null` instead of wrapping. `b - a` gives a signed `Duration`.
+
+#### Arithmetic
+
+| Left | Right | Result | Rule |
+|---|---|---|---|
+| `Instant` | ± time unit | `Instant` | Exact |
+| `Instant` | − `Instant` | `Duration` | May be negative; traps past ±292 y |
+| `Instant` | ± calendar unit | error | Compile error (`CalendarUnitOnInstant`) |
+| `Date` | ± calendar unit or `Period` | `Date` | Clamps at month end |
+| `Date` | − `Date` | `Days` | Exact day difference |
+| `Date` | ± time unit | error | Compile error (`TimeUnitOnDate`) |
+| `Time` | ± time unit | `Time` | Wraps around midnight |
+| `Time` | − `Time` | `Duration` | Signed duration |
+| `DateTime` | ± calendar unit or `Period` | `DateTime` | Clamps at month end |
+| `DateTime` | ± time unit | `DateTime` | Carries into days |
+| `DateTime` | − `DateTime` | `Duration` | Civil, no DST |
+| `ZonedDateTime` | ± time unit | `ZonedDateTime` | Exact timeline step |
+| `ZonedDateTime` | ± calendar unit | `ZonedDateTime` | Civil step, then `.compatible` resolution |
+| `ZonedDateTime` | − `ZonedDateTime` | `Duration` | Timeline difference |
+
+- **Clamping:** month steps clamp to month end: Jan 31 + `1mo` is Feb 28 (Feb 29 in a leap year), and Feb 29 + `1y` is Feb 28. Clamping is not reversible, and two steps can differ from one (Jan 31 + `1mo` is Feb 28, Feb 28 + `1mo` is Mar 28; whereas Jan 31 + `2mo` is Mar 31).
+- **Strict forms:** `tryAdded` / `trySubtracted` return `T?`, giving `null` instead of clamping or wrapping.
+- **DST failure:** typed DST failure takes the civil route: `ZonedDateTime(z.dateTime + 1d, at: z.zone)`.
+
+#### Method forms
+
+| Form | Use |
+|---|---|
+| `a + 1d`, `a - 1d` | Canonical |
+| `a.added(1mo)`, `a.subtracted(1w)` | `-ed` copies, for chains |
+| `a.tryAdded(1mo)`, `a.trySubtracted(1mo)` | Strict forms, returns `T?` |
+| `x += 1w`, `x.add(1w)` | Mutate a `var` |
+
+Calling a mutating verb on a `let` raises the mutation diagnostic with help "write `a + 1w`".
+
+#### Differences, ranges, queries
+
+- **Differences:** `Days(from: a, until: b)`, `Months(from: a, until: b)`, `Period(from: a, until: b)`, `Seconds(from: a, until: b)`. Differences count from the start and truncate toward zero.
+- **Recurrence:** `start.series(by: 1mo, until: end)` yields `start + n * step`. Steps are never chained from prior results, preventing month-end drift. Inclusive recurrence uses `through:`.
+- **Ranges:** half-open ranges use `from: … until:`; inclusive ranges use `through:`.
+- **Queries:** `weekday`, `dayOfYear`, `daysInMonth`, `isLeapYear`, `startOfMonth`, `endOfMonth`, `startOfIsoWeek`.
+- **Next and previous:** `today.next(.friday)` (strictly after, never today), `today.next(.friday, inclusive: true)` (today if it is Friday), `today.previous(.monday)`. Both `next` and `previous` are vocabulary exemptions under the naming rules (J70 precedent).
+- **Start of day:** `d.startOfDay(at: zone)` returns `ZonedDateTime` and fails `LocalTimeError.skipped` if midnight was skipped by a DST transition.
+
+#### Clocks
+
+- **Effects:** readings use the `clock` effect: `Instant.now()`, `Uptime.now()`, `ZonedDateTime.now(at: zone)`, `Date.today(at: zone)`.
+- **No ambient zone:** `Date.now()` is a compile error (`DateHasNoNow`).
+- **Durations and serialization:** `start.elapsed` returns `Duration`. `Uptime` does not mix with `Instant`, and deriving a serializer for `Uptime` is a compile error (`UptimeSerialized`).
+- **Platform clocks:** `Uptime` monotonic readings include suspend on every platform (Linux `CLOCK_BOOTTIME`, macOS `mach_continuous_time`, Windows QPC). No `AwakeTime` clock exists. A compilation target lacking such a clock produces a compile error.
+- **Fakes:** `provide clock: FixedClock(at: t) { }` and `ManualClock` with `advance(by:)`.
+- **Smearing:** `Instant.now()` may be smeared or stepped across leap seconds.
+- **Sleep:** `sleep(for: duration)` uses `Uptime`; `sleep(until: Instant)` is a wall-clock deadline that re-checks after clock steps.
+
+#### Zones
+
+```csharp
+union error LocalTimeError {
+    skipped(ZonedDateTime before, ZonedDateTime after)
+    ambiguous(ZonedDateTime earlier, ZonedDateTime later)
+}
+
+let meeting = ZonedDateTime(local, at: kl) catch switch {
+    .skipped s => s.after
+    .ambiguous a => a.earlier
+}
+```
+
+- **Construction:** `ZonedDateTime(local, at: zone)` fails `LocalTimeError`. Supplying `resolution: .earlier | .later | .compatible` makes construction infallible.
+- **Comparison:** `==` and hashing are structural (instant plus canonical zone ID). There is no `<`; ordering is done through `.instant`.
+- **Offsets:** there is no DST flag. Values expose `offset` and `standardOffset`; their difference may be negative.
+- **Standard library scope:** `std.time` contains `TimeZone.utc` and fixed offsets (`Offset`) only. Full IANA database rules live in `kit.tz`.
+- **Parsing:** `TimeZone.parse(id)` fails `TimeParseError` and `TimeZone.tryParse(id)` returns `TimeZone?`. Both reject `Etc/GMT±n`, POSIX TZ strings and abbreviations with help pointing to `+08:00` or an IANA ID (`LegacyZoneName`).
+- **Zone IDs:** preserved as written, compared canonically, resolved only through the database index (never as file paths), and serialized as text.
+
+#### Format and parse
+
+- **Standards:** `Display` and `.iso` follow RFC 3339 and RFC 9557. `.rfc3339` is strict and fails for years outside 0000–9999; `.iso` uses expanded `±YYYYYY` representation for those years.
+- **Durations and periods:** durations format with exact ISO units (`PT1H30M`, `-PT5S`); `Period` formats as `P1Y2M3D`.
+- **Custom output:** formatted via interpolation specs, `$"{d.year}-{d.month, as: .digits(2)}"`, written into the caller's buffer.
+- **Custom input:**
+  - Layouts are compile-time constants: `const DateLayout(.day(digits: 2), "/", .month(digits: 2), "/", .year)`. Invalid layouts fail at compile time (`InvalidDateLayout`).
+  - `Date.tryParse(text, as: layout)` parses custom layouts.
+  - A two-digit year layout requires `pivot:`.
+- **Parsing rules:**
+  - `T.parse` fails `TimeParseError`; `T.tryParse` returns `T?`.
+  - Parsing is strict, rejecting more than 9 fraction digits and input exceeding maximum length.
+  - Taint is preserved (`Untrusted<string>` input yields `Untrusted<Date>` output).
+- **Offset requirements:** `Instant` parsing requires an offset; `Instant.parse("2026-01-01")` fails.
+- **Leap seconds:** `:60` fails by default; passing `leapSecond: .clamped` accepts it.
+- **Offset mismatch:** a stored offset that disagrees with zone rules fails `.offsetMismatch` unless resolved by `offsetConflict: .keepZone | .keepOffset`.
+- **Weeks:** ISO weeks only in `std.time`; localized culture weeks live in `kit.intl` with `for:`. Localized output cannot be parsed back.
+
+#### Interop
+
+- **Named epochs:** `Instant(unixSeconds: s)` and `Instant(unixMilliseconds: ms)` require explicit labels; bare epoch numbers are rejected.
+- **Floats:** no float constructors exist except `Duration(seconds: f64, rounding:)`.
+- **Codecs and serialization:** codecs and `@derive(Row)` declare precision. Silent truncation produces a compile error (`ImplicitTruncation`); truncation must be written explicitly as `rounded<U>()`.
+- **Database mapping:**
+
+| Bayān | Postgres |
+|---|---|
+| `Instant` | `timestamptz` |
+| `DateTime` | `timestamp` |
+| `ZonedDateTime` | `timestamptz` + zone ID column, or RFC 9557 text |
+| `Date` | `date` |
+| `Time` | `time` (never `timetz`) |
+| `Duration` | `bigint` ns |
+| `Period` | months and days columns (`months integer`, `days integer`) |
+
+- **C ABI:** `std.c` maps `time_t` with an integer width check.
+
+#### Testing
+
+- **`@timeSensitive`:** tests marked with `@timeSensitive` rerun under `provide clock` across a fixed corpus:
+  - ISO week-year flips (Dec 28 – Jan 4);
+  - Feb 28 and 29 in leap and non-leap years;
+  - Dec 31 of a leap year;
+  - DST gap and overlap in several zones;
+  - Samoa's skipped 2011-12-30;
+  - Brazil's missing midnight;
+  - a backwards clock step.
+- **Lints:** reading the real clock in a test without `@timeSensitive` or an explicit `provide clock` triggers lint `UntestedClockUse`.
+
+#### Non-ISO calendars
+
+Hijri and other non-ISO calendars are out of scope for `std.time` and live in `kit.calendar`.
+
+#### Placement
+
+| Module | Contents |
+|---|---|
+| `std.time` | Core date and time types, time and calendar units, civil arithmetic, clocks, formatting and parsing, fixed offsets, `TimeZone.utc` |
+| `kit.tz` | IANA timezone database, system or bundled; runtime reload into immutable tables; Windows ID mapping; system-zone lookup (`uses env, fs`); `TimeZone.database.version` |
+| `kit.intl` | Localized names, culture-sensitive formatting, locale weeks |
+| `kit.calendar` | Non-ISO calendars, converting through `Date` |
+
+#### Planned diagnostics
+
+Diagnostic numbers are allocated at merge:
+
+| Name | Rule | Fires on |
+|---|---|---|
+| `CalendarUnitOnInstant` | types/units | `instant + 1d` |
+| `TimeUnitOnDate` | types/units | `date + 3h` |
+| `TimeIsNotDuration` | types | `Time` used where a `Duration` is expected, or the reverse |
+| `MinutesNotMeters` | spelling | `5m` with no meters unit imported |
+| `RetiredDoubleSuffix` | spelling | C# `1d` meant as a double |
+| `DuplicateUnitSymbol` | imports | Two imported units with one symbol |
+| `AbbreviatedUnitName` | naming | `Millis` |
+| `DateHasNoNow` | spelling | `Date.now()` |
+| `ReassembledDate` | patterns | `Date(year: d.year + 1, …)` |
+| `WallClockMeasurement` | patterns | Timing with `Instant.now()` |
+| `UptimeSerialized` | derivation | Serializing `Uptime` |
+| `ImplicitTruncation` | derivation | Precision lost in a codec or row |
+| `LegacyZoneName` | patterns | `Etc/GMT±n` or POSIX TZ in a literal |
+| `InvalidDateLayout` | types | A bad `const DateLayout` |
+| `UntestedClockUse` | tests | A test reading the real clock without `@timeSensitive` |
+
 ---
 
 ## 17. Numerics
