@@ -393,7 +393,7 @@ BYN1070, BYN1071, BYN2825 and BYN7013 sit in the `// Reserved: round 4` block at
 
 ## Cited but never allocated
 
-Grep of `BYN[0-9]{4}` over `docs/`, `src/`, `selfhost/`, `tests/`, minus every code above. The first five are placeholders or test fixtures, not codes.
+Grep of `BYN[0-9]{4}` over the whole tree (`docs/`, `src/`, `selfhost/`, `tests/`, `work/`, and every other path), minus every code above. The first five are placeholders or test fixtures, not codes.
 
 | Code | Cited in | What the citation means |
 |---|---|---|
@@ -410,5 +410,6 @@ Grep of `BYN[0-9]{4}` over `docs/`, `src/`, `selfhost/`, `tests/`, minus every c
 | BYN3405 | docs/bayan-handoff-addendum-002.md:154; docs/bayan-design-round-4-inventory.md:68 | parallel-closure example; inventory says it "needs a renumbered code" |
 | BYN5012 | docs/bayan-design-round-3-addendum-1.md; docs/bayan-design-round-3.md; docs/plans/2026-10-22-002-design-round-3.md | `@allow(BYN5012)` example; plan says "skipped" |
 | BYN5100 | docs/bayan-design-round-4-draft.md:269; docs/bayan-design-round-4-inventory.md (2) | "Naming rules BYN5100/5101", a v0.2 proposal; no name or message. BYN5101 is the existing `NounOnMutator` lint |
+| BYN1237 | work/todo.md:154 | wrong number for `NoTargetType`, which is BYN2218 (`DiagnosticCodes.cs:175`) |
 
 The 10 plan codes above are also cited without a descriptor; they are allocated, so they are not listed here.
