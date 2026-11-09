@@ -588,6 +588,10 @@ public struct Ctx {
     public Map<FuncId, List<StorePair>> storeSummaries = []
     /// C# `Compilation.ReturnSummaries`: for each template with a body, the parameters (or `this`, -1) its result may borrow.
     public Map<FuncId, List<i64>> returnSummaries = []
+    // ── T4 state (spec 018, revision 0021 word classes)
+    /// C# `Lexicon.Collectives` and `Lexicon.IrregularPlurals`, filled by `buildLexicon`.
+    public List<string> lexiconCollectives = List<string>()
+    public List<string> lexiconIrregularPlurals = List<string>()
 }
 
 // ── The binder's cursors ──────────────────────────────────────────────────────
