@@ -1,7 +1,7 @@
 # Bayān grammar guide
 
 Version: 0.3.0-dev (matches `bayan --version`)
-Revisions applied: 0001–0020
+Revisions applied: 0001–0021
 
 How to name things the way the standard library does. This is the developer-facing companion to [SPEC §5](bayan-spec.md) (naming and morphology). SPEC §5.2 holds the full pattern table and contracts; this guide tells you which pattern to pick.
 
@@ -400,6 +400,8 @@ For error doc comments: the first line of a `///` comment on an error case is it
 | Purpose clauses (§7) | Arabic mafʿūl li-ajlihi (object of purpose) | [BYN8001](diagnostics/BYN8001.md) |
 | Argument particles (§8) | Arabic prepositions (مِن, إلى, بِ) | see §8 |
 | States and transitions (§10) | Arabic kāna / ṣāra ("was" / "became") | [BYN7001](diagnostics/BYN7001.md)–[BYN7008](diagnostics/BYN7008.md) |
+| Number agreement (§14) | Arabic muṭābaqa (agreement of number between related words) | BYN5104 (planned, revision 0021) |
+| Role marks (§15) | Arabic ʾiʿrāb (case marking: rafʿ, naṣb, jarr) | [BYN2306](diagnostics/BYN2306.md) |
 | Error-message voice (§11) | The hudhud in Sūrat an-Naml (27:20–22), whose news is certain and clear: exact about what went wrong, where, why and how to fix it (brand brief §4) | none |
 
 ## 13. Diagnostics
@@ -421,3 +423,58 @@ The built-in checker (`BYN5xxx`) runs on the members of every struct. Errors (`B
 | [BYN5014](diagnostics/BYN5014.md) (warning, fix-it) | Every word of a member name is a known verb or noun (§7) | Each word against the built-in word list and `grammar` in `package.byn`. |
 | [BYN5101](diagnostics/BYN5101.md) (lint) | A `ref this` member is named with a verb (tree 1) | The first word of the name against a built-in noun list: `size`, `length`, `total`, `sum`, `value`, `values`, `data`, `item`, `items`, `element`, `elements`, `result`, `results`, `name`, `id`, `state`, `status`, `info`, `content`, `contents`, `capacity`, `amount`, `number`, `key`, `keys`, `entry`, `entries`, `node`, `nodes`. |
 | [BYN5102](diagnostics/BYN5102.md) (lint, fix-it) | A `bool` property takes `is`, `has` or `can` (tree 3) | `bool` properties and `bool` methods with no arguments that are not `ref this`; fields are not checked. Names starting with `contains`, `equals`, `matches`, `startsWith`, `endsWith` or `try` are verbs, not states. |
+
+## 14. Number agreement
+
+Status: planned (revision 0021). No checker enforces this section yet; the lints below are marked "planned (revision 0021)" until it lands. When they land they are warnings that never block a build, and they apply to the public API only, like the other `BYN51xx` lints. A rename attribute exempts a name forced from outside (§1).
+
+- **Collections are plural or collective.** A public field, property or parameter whose type is a collection (`List`, `Set`, `Map`, `T[]`, `var T[]`, `Span<T>`, `ReadOnlySpan<T>`, sequences; status wrappers such as `Untrusted<List<T>>` are looked through) is named with a plural or a collective noun. Anything else is named with a singular. `string`, `StrBuf` and `Range` are never collections. The last word of the name decides (`firstLine`, `lineItems`). Planned as BYN5104 (revision 0021).
+- **Counts are singular noun + `Count`.** `lineCount`, not `linesCount`, `numLines` or `numberOfLines`. `length` stays the size name. Planned as BYN5105 (revision 0021).
+- **A doer name needs its verb.** A public struct or interface named for a doer or tool (`CsvParser`) has a public member named for the act (`parse`, `tryParse`, `parseInto`, `parseOp`); a static or instance member counts. The doer nouns are `parser`, `builder`, `reader`, `writer`, `recorder`, `encoder`, `decoder`, `scanner`, `loader`, `scheduler`, `renderer`, `formatter`, `handler`, `hasher` and `comparer`, each mapped to its verb; `codec` maps to `encode` and `decode`, and either counts. A noun derived from a project verb by regular spelling (`upsert` → `upserter`) counts too; irregular agent nouns are not checked. Not covered: function-type aliases, stored function fields and other words ending in "-er" (`Carrier`, `Ledger`, `Pointer`, `User`). Planned as BYN5106 (revision 0021).
+- **A tool does not change `this`.** A type named for a tool (`Hasher`, `Comparer`, `Codec`) has no `ref this` member; a type fed data step by step is a doer and is named like one. Planned as BYN5107 (revision 0021).
+- **Dictionary keys.** `grammar` in `package.byn` gains `adjectives` (for example `overdue`) and `collectives` (for example `ledger`) next to `verbs` and `nouns`. A `forms` entry is read by the word's class: the `-ed` spelling for a verb, the plural for a noun. A word in both `verbs` and `nouns` with irregular forms both ways cannot be declared. A word may be in more than one list only as verb plus noun (`record`); any other overlap is a manifest error. The set of keys, and BYN5014 offering all three classes, are planned (revision 0021).
+
+```csharp
+grammar: Grammar {
+    verbs: ["upsert", "reindex"],
+    nouns: ["sku", "kyc", "criterion"],
+    adjectives: ["overdue", "refundable"],
+    collectives: ["ledger"],
+    forms: ["upsert": "upserted", "criterion": "criteria"],
+}
+```
+
+Local loop variables are not checked. Name them like this:
+
+```
+for line in lines { … }        // one element: singular
+for batch in batches { … }     // each element is itself a list: name it for the element
+```
+
+## 15. Role marks
+
+A mark at the call site says what the callee may do with the argument.
+
+| Mark                               | Meaning                                                      |
+| ---------------------------------- | ------------------------------------------------------------ |
+| none                               | read only                                                    |
+| `ref`                              | the callee may change it                                     |
+| `out`                              | the callee must write it; mainly for C, and returning `T?` or a tuple is preferred |
+| `move`                             | handed over; the caller can't use it afterwards              |
+| particle (`from:`, `to:`, `by:` …) | names the argument's role; no effect on memory               |
+
+Source notes: no mark is rafʿ (the unmarked base case). `ref` and `out` are naṣb (the case of the object acted on). Particles are jarr (the case after a preposition, §8). `move` is Bayān's own and has no Arabic source.
+
+A call that leaves out a mark the parameter declares is [BYN2306](diagnostics/BYN2306.md). Particles are enforced by the codes in §8.
+
+## 16. Exempt words
+
+These existing exemptions are collected here; this section adds no rules.
+
+- **States** are exempt from the `-ed` rule (§10, SPEC §3.17).
+- **Math vocabulary** is exempt from the `-ed` rule: `abs`, `sqrt`, `floor`, `ceiling`, `pow`, `rounded` (§1, SPEC §5.2).
+- **Particles** are reserved words and are not member names ([BYN5009](diagnostics/BYN5009.md), §1).
+- **Names under rename attributes** (`@json(name: …)`, `@column(…)`) are exempt from `BYN51xx` (§1).
+- **Codecs and algorithms are types**, so their verbs take the data: `Sha256.hash(d)`, `Base64.encode(d)`.
+
+**State properties.** An `isX` property such as `bool isPaid => this is .paid` is allowed and useful (interfaces, generic code, output), but it doesn't narrow. Use `order is .paid` when the block needs the state.
