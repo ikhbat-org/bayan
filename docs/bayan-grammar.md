@@ -400,7 +400,7 @@ For error doc comments: the first line of a `///` comment on an error case is it
 | Purpose clauses (§7) | Arabic mafʿūl li-ajlihi (object of purpose) | [BYN8001](diagnostics/BYN8001.md) |
 | Argument particles (§8) | Arabic prepositions (مِن, إلى, بِ) | see §8 |
 | States and transitions (§10) | Arabic kāna / ṣāra ("was" / "became") | [BYN7001](diagnostics/BYN7001.md)–[BYN7008](diagnostics/BYN7008.md) |
-| Number agreement (§14) | Arabic muṭābaqa (agreement of number between related words) | BYN5104 (planned, revision 0019) |
+| Number agreement (§14) | Arabic muṭābaqa (agreement of number between related words) | BYN5104 (planned, revision 0021) |
 | Role marks (§15) | Arabic ʾiʿrāb (case marking: rafʿ, naṣb, jarr) | [BYN2306](diagnostics/BYN2306.md) |
 | Error-message voice (§11) | The hudhud in Sūrat an-Naml (27:20–22), whose news is certain and clear: exact about what went wrong, where, why and how to fix it (brand brief §4) | none |
 
@@ -426,13 +426,13 @@ The built-in checker (`BYN5xxx`) runs on the members of every struct. Errors (`B
 
 ## 14. Number agreement
 
-Status: planned (revision 0019). No checker enforces this section yet; the lints below are marked "planned (revision 0019)" until it lands. When they land they are warnings that never block a build, and they apply to the public API only, like the other `BYN51xx` lints. A rename attribute exempts a name forced from outside (§10).
+Status: planned (revision 0021). No checker enforces this section yet; the lints below are marked "planned (revision 0021)" until it lands. When they land they are warnings that never block a build, and they apply to the public API only, like the other `BYN51xx` lints. A rename attribute exempts a name forced from outside (§10).
 
-- **Collections are plural or collective.** A public field, property or parameter whose type is a collection (`List`, `Set`, `Map`, `T[]`, `Span<T>`, `ReadOnlySpan<T>`, sequences; status wrappers such as `Untrusted<List<T>>` are looked through) is named with a plural or a collective noun. Anything else is named with a singular. `string`, `StrBuf` and `Range` are never collections. The last word of the name decides (`firstLine`, `lineItems`). Planned as BYN5104 (revision 0019).
-- **Counts are singular noun + `Count`.** `lineCount`, not `linesCount`, `numLines` or `numberOfLines`. `length` stays the size name. Planned as BYN5105 (revision 0019).
-- **A doer name needs its verb.** A public struct or interface named for a doer or tool (`CsvParser`) has a public member named for the act (`parse`, `tryParse`, `parseInto`, `parseOp`). Planned as BYN5106 (revision 0019).
-- **A tool does not change `this`.** A type named for a tool (`Hasher`, `Comparer`, `Codec`) has no `ref this` member; a type fed data step by step is a doer and is named like one. Planned as BYN5107 (revision 0019).
-- **Dictionary keys.** `grammar` in `package.byn` gains `adjectives` (for example `overdue`) and `collectives` (for example `ledger`) next to `verbs` and `nouns`. A `forms` entry is read by the word's class: the `-ed` spelling for a verb, the plural for a noun. A word in both `verbs` and `nouns` with irregular forms both ways cannot be declared. A word may be in more than one list only as verb plus noun (`record`); any other overlap is a manifest error. The set of keys, and BYN5014 offering all three classes, are planned (revision 0019).
+- **Collections are plural or collective.** A public field, property or parameter whose type is a collection (`List`, `Set`, `Map`, `T[]`, `Span<T>`, `ReadOnlySpan<T>`, sequences; status wrappers such as `Untrusted<List<T>>` are looked through) is named with a plural or a collective noun. Anything else is named with a singular. `string`, `StrBuf` and `Range` are never collections. The last word of the name decides (`firstLine`, `lineItems`). Planned as BYN5104 (revision 0021).
+- **Counts are singular noun + `Count`.** `lineCount`, not `linesCount`, `numLines` or `numberOfLines`. `length` stays the size name. Planned as BYN5105 (revision 0021).
+- **A doer name needs its verb.** A public struct or interface named for a doer or tool (`CsvParser`) has a public member named for the act (`parse`, `tryParse`, `parseInto`, `parseOp`). Planned as BYN5106 (revision 0021).
+- **A tool does not change `this`.** A type named for a tool (`Hasher`, `Comparer`, `Codec`) has no `ref this` member; a type fed data step by step is a doer and is named like one. Planned as BYN5107 (revision 0021).
+- **Dictionary keys.** `grammar` in `package.byn` gains `adjectives` (for example `overdue`) and `collectives` (for example `ledger`) next to `verbs` and `nouns`. A `forms` entry is read by the word's class: the `-ed` spelling for a verb, the plural for a noun. A word in both `verbs` and `nouns` with irregular forms both ways cannot be declared. A word may be in more than one list only as verb plus noun (`record`); any other overlap is a manifest error. The set of keys, and BYN5014 offering all three classes, are planned (revision 0021).
 
 ```csharp
 grammar: Grammar {
