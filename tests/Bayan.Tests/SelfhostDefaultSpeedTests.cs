@@ -29,6 +29,7 @@ public sealed class SelfhostDefaultSpeedTests(ITestOutputHelper output)
     }
 
     [Fact]
+    [Trait("Snapshot", "skip")]
     public void Stage2BuildsDriverWithinTwoTimesCliAppRun()
     {
         if (Environment.GetEnvironmentVariable("BAYAN_SKIP_TIMING") == "1") return;
