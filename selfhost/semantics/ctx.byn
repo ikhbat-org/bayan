@@ -624,6 +624,14 @@ CalleeOf calleeOfCall(parser.CallExpr call) {
     return r
 }
 
+/// An entry of the C# `_thenOf` (BinderStates.cs:97): the `if` whose condition `stateTestHelp` reads. A parser node is
+/// unique, so the binder keeps the condition's spans instead; `isMember` is false for any other condition.
+public struct ThenCond {
+    public bool isMember = false
+    public TextSpan target = TextSpan { start: 0, length: 0 }
+    public TextSpan member = TextSpan { start: 0, length: 0 }
+}
+
 /// C# `_covered` entry (BinderCalls.cs:14), as what ReportUnhandled (BinderCalls.cs:944) reads (Q731).
 public struct CoveredCall {
     public TextSpan span
@@ -707,6 +715,8 @@ public struct Binder {
     /// The C# `_patternOwns` (BinderCalls.cs:906): the patterns being bound are on a `switch move x` subject, so their bindings own their parts.
     public bool patternOwns = false
     // ── T22 state
+    /// The C# `_thenOf` (BinderStates.cs:97): the `if` statements whose then-branch is being bound, innermost last; `stateTestHelp` reads them.
+    public List<ThenCond> thenOf = []
     // ── T23 state
     // ── T24 state
     // ── T25 state
