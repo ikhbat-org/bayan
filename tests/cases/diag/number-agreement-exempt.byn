@@ -1,0 +1,35 @@
+public struct Line {
+    public i64 grams
+}
+
+public struct Order {
+    // Collectives read as singular and name a collection.
+    public List<u8> buffer
+    public List<Line> history
+    public Map<string, i64> data
+
+    // A status wrapper is looked through: `Untrusted<List<Line>>` is a collection.
+    public Untrusted<List<Line>> draft
+    public Untrusted<List<Line>> drafts
+
+    // `string` is never a collection.
+    public string titles
+
+    // A number named with a plural is a quantity in units.
+    public i64 cents
+
+    // A name forced from outside keeps its spelling.
+    @json(name: "line")
+    public List<Line> line
+
+    // A lint on the public API only: a member the module keeps to itself is not checked.
+    List<Line> item
+    Line others
+}
+
+// A struct the module keeps to itself is not checked.
+struct Draft {
+    public List<Line> line
+}
+
+print("ok")
