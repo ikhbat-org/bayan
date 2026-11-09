@@ -649,3 +649,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - review 8d5e5c71..ce5d3cb3: the docs generators are unverified under mawk (ubuntu CI is the first run).
 - rev 0021: `docs/diagnostics/BYN2225.md` and `selfhost/driver/diagdocs.byn:152`, and `docs/bayan-library-tiers.md:73`, still show `formatInto(ref StrBuf out)`; rename to `buffer` (the page is generated into diagdocs.byn).
 - std.time: parked design handoff `docs/handoffs/2026-11-09-std-time.md`; phases 1a/1b (docs) after revision 0021 docs land, code phases wait for gates G1–G6 (2026-11-09).
+- GRAMMAR §15 `out` row says "mainly for C"; SPEC §10 modifier table says "C# compatibility" (review 78d3f0dfc020..b976a798, finding 3): decide which, from revision 0021 Part 2. Also revision 0021 Part 2.5 cites "GRAMMAR §6 source rows"; the rows are in §12 (finding 5, revision text left as written).
