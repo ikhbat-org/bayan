@@ -228,7 +228,7 @@ void checkMembersWith(ref Ctx c, for StructId s, by in Grammar grammar) {
 }
 
 /// Ports the local `IsNounOnly` of `Naming.CheckParticiple`: `w` is a noun and not a verb, in the lexicon or the project's `grammar`.
-bool isNounOnly(ref Ctx c, for string w, by in Grammar grammar) =>
+bool isNounOnly(ref Ctx c, for string w, by Grammar grammar) =>
     (listContainsString(c.lexiconNouns, by: w) || listContainsString(grammar.nouns, by: w))
     && !listContainsString(c.lexiconVerbs, by: w) && !listContainsString(grammar.verbs, by: w)
 

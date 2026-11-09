@@ -280,7 +280,7 @@ void t10BindGrammar(ref Manifest m, from in T10Reader r, at i64 grammar) {
     t10BindWords(ref m, from: in r, for: in fields, by: "nouns")
     t10BindWords(ref m, from: in r, for: in fields, by: "adjectives")
     t10BindWords(ref m, from: in r, for: in fields, by: "collectives")
-    t10CheckOverlap(ref m, from: in r, for: in fields)
+    t10CheckOverlap(ref m, from: r, for: fields)
     if fields.contains("forms") {
         let forms = fields["forms"]
         if t10IsStringMap(in r, at: forms) {
@@ -316,7 +316,7 @@ void t10BindWords(ref Manifest m, from in T10Reader r, for in Map<string, i64> f
 
 /// Ports `Manifest.CheckOverlap`: a word in two classes is an error, except a verb that is also a noun; the
 /// words compare in lowercase and a word repeated within one list is no overlap.
-void t10CheckOverlap(ref Manifest m, from in T10Reader r, for in Map<string, i64> fields) {
+void t10CheckOverlap(ref Manifest m, from T10Reader r, for Map<string, i64> fields) {
     var seen: Map<string, string> = []
     let classes: List<string> = ["verbs", "nouns", "adjectives", "collectives"]
     for field in classes {

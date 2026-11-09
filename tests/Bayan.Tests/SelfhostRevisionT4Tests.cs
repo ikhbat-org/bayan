@@ -371,7 +371,7 @@ public sealed class SelfhostRevisionT4Tests
             return x.length < y.length
         }
 
-        string t4Words(string kind, by in List<string> words) {
+        string t4Words(string kind, by List<string> words) {
             var sorted = List<string>()
             for w in words { sorted.append(w) }
             for i in 1..sorted.length {
@@ -399,10 +399,10 @@ public sealed class SelfhostRevisionT4Tests
                 if d.label.length > 0 { print($"  label {d.label}") }
                 if d.help.length > 0 { print($"  help {d.help}") }
             }
-            print(t4Words("verbs", by: in m.grammar.verbs))
-            print(t4Words("nouns", by: in m.grammar.nouns))
-            print(t4Words("adjectives", by: in m.grammar.adjectives))
-            print(t4Words("collectives", by: in m.grammar.collectives))
+            print(t4Words("verbs", by: m.grammar.verbs))
+            print(t4Words("nouns", by: m.grammar.nouns))
+            print(t4Words("adjectives", by: m.grammar.adjectives))
+            print(t4Words("collectives", by: m.grammar.collectives))
         }
 
         void showProgram(string name, at string dir) {
