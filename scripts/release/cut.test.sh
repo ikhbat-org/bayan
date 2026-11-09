@@ -16,9 +16,14 @@ commit() { g add -A && g commit -qm "$1"; }
 check() { bash "$r/scripts/docs/check.sh" || fail "check.sh fails after $1"; }
 
 g init -q -b fixture
+mv "$r/docs/revisions/0002-second.md" "$t/0002-second.md"   # added between v1.0.0 and v1.2.2: a cut must not list it
 commit one && g tag v1.0.0
+mv "$t/0002-second.md" "$r/docs/revisions/0002-second.md"
 bash "$r/scripts/release/set-version.sh" 1.2.2 >/dev/null
-commit "release 1.2.2" && g tag v1.2.2
+commit "release 1.2.2"
+# Like main's merge commits: v1.2.2 sits on a child of the release point that the working branch never descends from.
+g checkout -q --detach && g commit -q --allow-empty -m "Merge branch 'fixture'" && g tag v1.2.2 && g checkout -q fixture
+! g merge-base --is-ancestor v1.2.2 HEAD || fail "fixture: v1.2.2 is an ancestor of HEAD"
 
 out="$(bash "$nd" 1.2.3)"
 echo "$out" | grep -qx "changed VERSION" || fail "next-dev output: $out"
@@ -69,8 +74,12 @@ bash "$nd" 1.2.4 >/dev/null
 cmp -s "$t/cl" "$r/CHANGELOG.md" || fail "next-dev changed CHANGELOG.md"
 check "next-dev 1.2.4"
 
-# No previous tag: every revision is listed and the status note says so.
+# No previous tag: every revision is listed and the status note says so. An enclosing repo holding a lower v* tag
+# must not be consulted (git finds it once $r/.git is gone).
 rm -rf "$r/.git"
+(cd "$t" && git init -q -b outer \
+  && git -c user.name=test -c user.email=test@example.invalid -c commit.gpgsign=false -c core.hooksPath=/dev/null commit -q --allow-empty -m outer \
+  && git -c user.name=test -c user.email=test@example.invalid -c tag.gpgsign=false tag v1.0.0)
 bash "$r/scripts/release/set-version.sh" 1.2.4-dev >/dev/null
 sed -i.bak 's/^## \[1.2.3\]/## [1.2.3x]/' "$r/CHANGELOG.md"
 out="$(bash "$cut" 1.2.4)"
