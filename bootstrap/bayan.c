@@ -92356,54 +92356,54 @@ bynt_semantics__CalleeOf byn_semantics__calleeOfCall(bynt_parser__CallExpr p_cal
     bynt_opt_lexer__TextSpan t7 = {0};
     bool t8 = {0};
     bool t9 = {0};
-#line 617 "semantics/ctx.byn"
+#line 618 "semantics/ctx.byn"
     l0_r = ((bynt_semantics__CalleeOf){p_call.span, false, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), p_call.args.len, false, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)})});
-#line 619 "semantics/ctx.byn"
-    if (((p_call.callee.tag == ((int32_t)4)) && ((l1_me = p_call.callee.u.memberExpr.node), true))) {
 #line 620 "semantics/ctx.byn"
+    if (((p_call.callee.tag == ((int32_t)4)) && ((l1_me = p_call.callee.u.memberExpr.node), true))) {
+#line 621 "semantics/ctx.byn"
         l0_r.isMember = true;
-#line 621 "semantics/ctx.byn"
+#line 622 "semantics/ctx.byn"
         t2 = (*l1_me).member;
-#line 621 "semantics/ctx.byn"
+#line 622 "semantics/ctx.byn"
         l0_r.member = t2;
-#line 622 "semantics/ctx.byn"
+#line 623 "semantics/ctx.byn"
         t3 = byn_parser__exprSpan((*l1_me).target);
-#line 622 "semantics/ctx.byn"
+#line 623 "semantics/ctx.byn"
         l0_r.target = t3;
-#line 619 "semantics/ctx.byn"
+#line 620 "semantics/ctx.byn"
         goto switch_end_1;
     }
 switch_end_1:;
-#line 625 "semantics/ctx.byn"
+#line 626 "semantics/ctx.byn"
     if ((p_call.args.len > INT64_C(0))) {
-#line 625 "semantics/ctx.byn"
-        t4 = byn_parser__exprSpan((*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(0), false, byn_file_37, 625)).value);
-#line 625 "semantics/ctx.byn"
+#line 626 "semantics/ctx.byn"
+        t4 = byn_parser__exprSpan((*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(0), false, byn_file_37, 626)).value);
+#line 626 "semantics/ctx.byn"
         l0_r.arg0 = t4;
     }
-#line 626 "semantics/ctx.byn"
+#line 627 "semantics/ctx.byn"
     if ((p_call.args.len > INT64_C(1))) {
-#line 627 "semantics/ctx.byn"
-        t5 = byn_parser__exprSpan((*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(1), false, byn_file_37, 627)).value);
-#line 627 "semantics/ctx.byn"
+#line 628 "semantics/ctx.byn"
+        t5 = byn_parser__exprSpan((*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(1), false, byn_file_37, 628)).value);
+#line 628 "semantics/ctx.byn"
         l0_r.arg1 = t5;
-#line 628 "semantics/ctx.byn"
-        t6 = (*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(0), false, byn_file_37, 628)).name;
-#line 628 "semantics/ctx.byn"
-        t8 = ((!t6.has) && ((*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(0), false, byn_file_37, 628)).modifier == ((byn_parser_ArgModifier)0)));
-#line 628 "semantics/ctx.byn"
+#line 629 "semantics/ctx.byn"
+        t6 = (*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(0), false, byn_file_37, 629)).name;
+#line 629 "semantics/ctx.byn"
+        t8 = ((!t6.has) && ((*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(0), false, byn_file_37, 629)).modifier == ((byn_parser_ArgModifier)0)));
+#line 629 "semantics/ctx.byn"
         if (t8) {
-#line 628 "semantics/ctx.byn"
-            t7 = (*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(1), false, byn_file_37, 628)).name;
-#line 628 "semantics/ctx.byn"
+#line 629 "semantics/ctx.byn"
+            t7 = (*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(1), false, byn_file_37, 629)).name;
+#line 629 "semantics/ctx.byn"
             t8 = (!t7.has);
         }
-#line 628 "semantics/ctx.byn"
-        t9 = (t8 && ((*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(1), false, byn_file_37, 628)).modifier == ((byn_parser_ArgModifier)0)));
-#line 628 "semantics/ctx.byn"
+#line 629 "semantics/ctx.byn"
+        t9 = (t8 && ((*bynh_at_list_parser__Argument(p_call.args, (int64_t)INT64_C(1), false, byn_file_37, 629)).modifier == ((byn_parser_ArgModifier)0)));
+#line 629 "semantics/ctx.byn"
         l0_r.firstTwoPlain = t9;
     }
-#line 630 "semantics/ctx.byn"
+#line 631 "semantics/ctx.byn"
     return l0_r;
 }
 #line 92410 "main.c"
