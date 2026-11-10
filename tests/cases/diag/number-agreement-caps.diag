@@ -1,0 +1,62 @@
+error BYN2009: `URL` must be camelCase
+
+  6 │     public List<string> URL
+    │                         ^^^
+    │
+  help: rename it `url`; only types are PascalCase
+    │ 6 │     public List<string> url
+    │   │                         +++
+
+warning BYN5104: `URL` holds a collection; name it with a plural, `URLS`
+
+  6 │     public List<string> URL
+    │                         ^^^
+    │
+  help: rename it `URLS`
+    │ 6 │     public List<string> URLS
+    │   │                            +
+
+error BYN2009: `ID` must be camelCase
+
+  7 │     public List<Link> ID
+    │                       ^^
+    │
+  help: rename it `id`; only types are PascalCase
+    │ 7 │     public List<Link> id
+    │   │                       ++
+
+warning BYN5104: `ID` holds a collection; name it with a plural, `IDS`
+
+  7 │     public List<Link> ID
+    │                       ^^
+    │
+  help: rename it `IDS`
+    │ 7 │     public List<Link> IDS
+    │   │                         +
+
+error BYN2009: `numOrderLINES` must be camelCase
+
+  8 │     public i64 numOrderLINES
+    │                ^^^^^^^^^^^^^
+    │
+  help: rename it `numOrderLines`
+    │ 8 │     public i64 numOrderLines
+    │   │                         ++++
+
+warning BYN5105: `numOrderLINES` counts items; name it `orderLINECount`
+
+  8 │     public i64 numOrderLINES
+    │                ^^^^^^^^^^^^^
+    │
+  help: rename it `orderLINECount`
+    │ 8 │     public i64 orderLINECount
+    │   │                ++++++++++++++
+
+warning BYN5105: `numOrderLines` counts items; name it `orderLineCount`
+
+  9 │     public i64 numOrderLines
+    │                ^^^^^^^^^^^^^
+    │
+  help: rename it `orderLineCount`
+    │ 9 │     public i64 orderLineCount
+    │   │                ++++++++++++++

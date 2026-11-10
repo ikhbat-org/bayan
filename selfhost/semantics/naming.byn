@@ -704,9 +704,20 @@ bool isNoun(ref Ctx c, for string word, by Grammar grammar) =>
 bool isVerb(ref Ctx c, for string word, by Grammar grammar) =>
     listContainsString(c.lexiconVerbs, by: word) || listContainsString(grammar.verbs, by: word)
 
-/// Ports `Naming.MatchCase`: `word` spelled with the first letter's case of `like`: `Line`, `lines` → `Lines`.
-string matchCase(string like, as string word) =>
-    word.length > 0 && isUpperAscii(like.bytes[0]) ? $"{upperAscii(word[0..1])}{word[1..word.length]}" : word
+/// Ports `Naming.MatchCase`: `word` spelled with the first letter's case of `like`: `Line`, `lines` → `Lines`; an all-caps `like` of two or more letters keeps `word` all caps: `URL`, `urls` → `URLS`.
+string matchCase(string like, as string word) {
+    if word.length == 0 || !isUpperAscii(like.bytes[0]) { return word }
+    if like.length >= 2 && isAllCaps(like) { return upperAscii(word) }
+    return $"{upperAscii(word[0..1])}{word[1..word.length]}"
+}
+
+/// True when every letter of `text` is an uppercase ASCII letter (`URL`, `ID2`).
+bool isAllCaps(string text) {
+    for b in text.bytes {
+        if isLowerAscii(b) { return false }
+    }
+    return true
+}
 
 /// BYN5001: an `-ed` name is a changed copy or a view, so a member that takes `ref this` is a plain verb (revision 0005).
 void checkParticiple(ref Ctx c, by in Grammar grammar, from FileId f, at TextSpan name, for string text) {
@@ -830,8 +841,16 @@ List<string> endingReplacements(string ending) => ending switch {
 }
 
 /// Naming.cs:187 GrammarOf: the project dictionary from `package.byn` beside the package's sources (`displayRoot`),
-/// lowered; empty without one. The C# caches it per compilation; this reads it per `checkMembers` (Q657).
+/// lowered; empty without one. Read once per compilation and kept in `c.grammarRead`, as the C# caches it (a copy is returned: `Grammar` is unique).
 Grammar grammarOf(ref Ctx c) {
+    if !c.grammarKnown {
+        c.grammarRead = readGrammar(ref c)
+        c.grammarKnown = true
+    }
+    return lowerGrammar(in c.grammarRead)
+}
+
+Grammar readGrammar(ref Ctx c) {
     let path = t11Combine(c.displayRoot, by: "package.byn")
     // `File.Exists(path) ? Manifest.Read(path)`: a directory or a missing path is no file; a file `Manifest.Read`
     // cannot read throws out of the C# compiler, a panic here (as `t11ReadAllBytes`, Q571).

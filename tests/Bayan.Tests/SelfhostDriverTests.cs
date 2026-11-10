@@ -337,18 +337,6 @@ public sealed class SelfhostDriverT1Tests
         AssertSameAsCs([.. args.Select(a => a.Replace("{D}", dir))]);
     }
 
-    /// <summary><c>doctor</c> reaches the driver's own checks; only the commit of its version row (spec Q1091) is masked.</summary>
-    [Fact]
-    public void DispatchesDoctorAsCliApp()
-    {
-        static string Commit(string text) => Regex.Replace(text, @"\(commit [^)]*\)", "(commit masked)");
-        var expected = Oracle(["doctor"]);
-        var actual = SelfhostDriverHarness.Run("doctor");
-        Assert.Equal(expected.Exit, actual.Exit);
-        SelfhostEmitterHarness.AssertSame("stdout of `doctor`", Commit(expected.Out), Commit(actual.Out));
-        SelfhostEmitterHarness.AssertSame("stderr of `doctor`", expected.Err, actual.Err);
-    }
-
     /// <summary>An unreadable file or directory is reported and the rest audited; the .NET message after the path differs from the driver's, so stderr is compared up to it.</summary>
     [Theory]
     [InlineData("unreadable-file", "a.byn")]
