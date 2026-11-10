@@ -1,0 +1,80 @@
+warning BYN5104: `line` holds a collection; name it with a plural, `lines`
+
+  5 │ public i64 total(List<Line> line) => line.length
+    │                             ^^^^
+    │
+  help: rename it `lines`
+    │ 5 │ public i64 total(List<Line> lines) => line.length
+    │   │                                 +
+
+warning BYN5104: `lines` holds one `Line`; name it with a singular noun
+
+  7 │ public i64 weigh(Line lines) => lines.grams
+    │                       ^^^^^
+    │
+  help: rename it `line`
+    │ 7 │ public i64 weigh(Line lines) => lines.grams
+    │   │                           -
+
+warning BYN5104: `item` holds a collection; name it with a plural, `items`
+
+  10 │     List<Line> item
+     │                ^^^^
+     │
+  help: rename it `items`
+     │ 10 │     List<Line> items
+     │    │                    +
+
+warning BYN5105: `linesCount` counts items; name it `lineCount`
+
+  11 │     i64 linesCount
+     │         ^^^^^^^^^^
+     │
+  help: rename it `lineCount`
+     │ 11 │     i64 linesCount
+     │    │             -
+
+warning BYN5104: `line` holds a collection; name it with a plural, `lines`
+
+  12 │     i64 weigh(List<Line> line)
+     │                          ^^^^
+     │
+  help: rename it `lines`
+     │ 12 │     i64 weigh(List<Line> lines)
+     │    │                              +
+
+warning BYN5104: `item` holds a collection; name it with a plural, `items`
+
+  16 │     shipped(List<Line> item, i64 numBoxes)
+     │                        ^^^^
+     │
+  help: rename it `items`
+     │ 16 │     shipped(List<Line> items, i64 numBoxes)
+     │    │                            +
+
+warning BYN5105: `numBoxes` counts items; name it `boxCount`
+
+  16 │     shipped(List<Line> item, i64 numBoxes)
+     │                                  ^^^^^^^^
+     │
+  help: rename it `boxCount`
+     │ 16 │     shipped(List<Line> item, i64 boxCount)
+     │    │                                  ++++++++
+
+warning BYN5104: `reasons` holds one `string`; name it with a singular noun
+
+  17 │     held(string reasons)
+     │                 ^^^^^^^
+     │
+  help: rename it `reason`
+     │ 17 │     held(string reasons)
+     │    │                       -
+
+warning BYN5104: `line` holds a collection; name it with a plural, `lines`
+
+  21 │     rejected(List<Line> line)
+     │                         ^^^^
+     │
+  help: rename it `lines`
+     │ 21 │     rejected(List<Line> lines)
+     │    │                             +

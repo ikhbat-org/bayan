@@ -104,6 +104,13 @@ public static class Lexicon
     /// <summary>Plurals that are not a regular ending of their singular (revision 0021 Part 3).</summary>
     public static readonly HashSet<string> IrregularPlurals = ["people", "children", "criteria", "indices", "matrices", "data"];
 
+    /// <summary>The singular of each of <see cref="IrregularPlurals"/> (Q1208).</summary>
+    public static readonly Dictionary<string, string> IrregularSingulars = new()
+    {
+        ["people"] = "person", ["children"] = "child", ["criteria"] = "criterion", ["indices"] = "index", ["matrices"] = "matrix",
+        ["data"] = "datum",
+    };
+
     /// <summary>Particles (spec §10), the prefixes of derived names, and function words a name may join with.</summary>
     public static readonly HashSet<string> Particles = ["from", "to", "until", "through", "at", "by", "for", "as"];
 

@@ -87,18 +87,232 @@ public static class Naming
             CheckWords(c, grammar, source, p.Decl.Name, p.Type.IsBool ? "adjectives" : "nouns");
             if (p.Type.IsBool && s.Access == Accessibility.Public && p.Access == Accessibility.Public) CheckBoolState(c, source, p.Decl.Name);
         }
+        if (s.Access != Accessibility.Public) return;
+        foreach (var f in s.Fields.Where(f => f.Access == Accessibility.Public && !IsRenamed(f.Decl)))
+        {
+            if (!CheckCount(c, grammar, source, f.Decl.Name, f.Type)) CheckNumber(c, grammar, source, f.Decl.Name, f.Type);
+        }
+        foreach (var p in s.Properties.Where(p => p.Access == Accessibility.Public && !IsRenamed(p.Decl)))
+        {
+            if (!CheckCount(c, grammar, source, p.Decl.Name, p.Type)) CheckNumber(c, grammar, source, p.Decl.Name, p.Type);
+        }
+        foreach (var fn in s.Methods.Where(fn => fn.Access == Accessibility.Public))
+            foreach (var p in fn.Parameters)
+                if (p.Syntax is { } syntax) CheckNumber(c, grammar, source, syntax.Name, p.Type);
+        CheckDoer(c, grammar, source, s.Module, s.Decl, s.Decl.Name, s.Methods.Where(fn => fn.Access == Accessibility.Public),
+            s.Fields.Where(f => f.Access == Accessibility.Public).Select(f => f.Decl.Name.Text)
+                .Concat(s.Properties.Where(p => p.Access == Accessibility.Public).Select(p => p.Decl.Name.Text)));
     }
+
+    /// <summary>
+    /// BYN5104 and BYN5105 on the rest of a module's public API, once top-level signatures are declared: the parameters of
+    /// public top-level functions, a public interface's getters and its methods' parameters, and the payload fields of a
+    /// public union or error set (the struct members are <see cref="CheckMembers"/>'s).
+    /// </summary>
+    internal static void CheckSignatures(Compilation c, ModuleSymbol module)
+    {
+        var grammar = GrammarOf(c);
+        foreach (var fn in module.AllFunctions.Where(f => f is { Kind: FunctionKind.Function, Owner: null, Interface: null, IsInstance: false, Access: Accessibility.Public }))
+            foreach (var p in fn.Parameters)
+                if (p.Syntax is { } syntax) CheckNumber(c, grammar, fn.File!.Source, syntax.Name, p.Type);
+        foreach (var i in module.Interfaces.Where(i => i.Access == Accessibility.Public))
+        {
+            var source = i.File.Source;
+            foreach (var member in i.Decl.Members)
+            {
+                var (decl, name) = member switch { GetterDecl g => ((Decl?)g, g.Name), PropertyDecl p => (p, p.Name), _ => (null, null!) };
+                if (decl is null || IsRenamed(decl) || i.Properties.FirstOrDefault(g => g.Location?.Span == name.Span) is not { } getter) continue;
+                if (!CheckCount(c, grammar, source, name, getter.ReturnType)) CheckNumber(c, grammar, source, name, getter.ReturnType);
+            }
+            foreach (var fn in i.Methods)
+                foreach (var p in fn.Parameters)
+                    if (p.Syntax is { } syntax) CheckNumber(c, grammar, source, syntax.Name, p.Type);
+            CheckDoer(c, grammar, source, i.Module, i.Decl, i.Decl.Name, i.Methods, i.Properties.Select(g => g.Name));
+        }
+        foreach (var u in module.Unions.Where(u => u.Access == Accessibility.Public))
+            foreach (var v in u.Decl.Variants)
+                CheckPayload(c, grammar, u.File.Source, v.Fields, u.Find(v.Name.Text)?.Fields);
+        foreach (var set in module.ErrorSets.Where(s => s.Access == Accessibility.Public))
+        {
+            var source = module.Files.First(f => f.Tree.Root.Members.Contains(set.Decl)).Source;
+            foreach (var v in set.Decl.Variants)
+                CheckPayload(c, grammar, source, v.Fields, set.Find(v.Name.Text)?.Fields);
+        }
+    }
+
+    private static void CheckPayload(Compilation c, Grammar grammar, SourceText source, UnionField[] fields, List<ParameterSymbol>? declared)
+    {
+        foreach (var f in fields)
+            if (declared?.FirstOrDefault(p => p.Location?.Span == f.Name.Span) is { } field
+                && !CheckCount(c, grammar, source, f.Name, field.Type))
+                CheckNumber(c, grammar, source, f.Name, field.Type);
+    }
+
+    /// <summary>
+    /// BYN5106 and BYN5107 on a public struct or interface named for a doer or a tool by its last word (revision 0021 Part 4):
+    /// a built-in doer (<see cref="Doers"/>), <c>codec</c> (<c>encode</c> or <c>decode</c>), or a project verb's regular doer
+    /// noun (<c>upsert</c> → <c>upserter</c>, <c>scan</c> → <c>scanner</c>). BYN5106: a public member, static or instance, is
+    /// named its verb or a derived form (<c>tryX</c>, <c>xInto</c>, <c>xOp</c>). BYN5107: a tool (<see cref="Tools"/>) has no
+    /// public <c>ref this</c> member. Other "-er" words (<c>Carrier</c>, <c>User</c>), function-type aliases and stored function
+    /// fields are not types named for a doer here and are not checked, nor is the standard library.
+    /// </summary>
+    private static void CheckDoer(Compilation c, Grammar grammar, SourceText source, ModuleSymbol module, Decl decl, Name name, IEnumerable<FunctionSymbol> methods, IEnumerable<string> others)
+    {
+        // The standard library is not checked (Q1191): `std.json`'s `JsonReader` reads with `next`.
+        if (module.Directory.StartsWith("<std>/", StringComparison.Ordinal) || IsRenamed(decl) || !name.Text.All(char.IsAscii) || Words(name.Text) is not [.., var last]) return;
+        var noun = last.ToLowerInvariant();
+        string[] verbs = noun == "codec" ? ["encode", "decode"]
+            : Doers.TryGetValue(noun, out var verb) ? [verb]
+            : grammar.Verbs.Where(v => DoerNouns(v).Contains(noun)).Order(StringComparer.Ordinal).Take(1).ToArray();
+        if (verbs.Length == 0) return;
+        var members = methods.ToList();
+        bool Acts(string m) => verbs.Any(v => m == v || m == "try" + char.ToUpperInvariant(v[0]) + v[1..] || m == v + "Into" || m == v + "Op");
+        if (!members.Select(m => m.Name).Concat(others).Any(Acts))
+            c.Report(DiagnosticCodes.DoerWithoutVerb, source, name.Span, [name.Text, verbs[0]],
+                help: $"add a member named {string.Join(" or ", verbs.Select(v => $"`{v}`"))}, or rename the type for what it is");
+        if (!Tools.Contains(noun)) return;
+        foreach (var m in members.Where(m => m.IsMutating && m.Decl is not null))
+            c.Report(DiagnosticCodes.InstrumentChangesThis, source, m.Decl!.Name.Span, [name.Text, m.Name],
+                help: "remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step");
+    }
+
+    /// <summary>The built-in doer and tool nouns and their verbs (revision 0021 Part 4); <c>codec</c> is <see cref="CheckDoer"/>'s.</summary>
+    private static readonly Dictionary<string, string> Doers = new()
+    {
+        ["parser"] = "parse", ["builder"] = "build", ["reader"] = "read", ["writer"] = "write", ["recorder"] = "record",
+        ["encoder"] = "encode", ["decoder"] = "decode", ["scanner"] = "scan", ["loader"] = "load", ["scheduler"] = "schedule",
+        ["renderer"] = "render", ["formatter"] = "format", ["handler"] = "handle", ["hasher"] = "hash", ["comparer"] = "compare",
+    };
+
+    /// <summary>The tool nouns of BYN5107: a tool keeps fixed settings and does not change <c>this</c>.</summary>
+    private static readonly HashSet<string> Tools = ["hasher", "comparer", "codec"];
+
+    /// <summary>A verb's doer noun by regular spelling: <c>-er</c>, <c>-r</c> after <c>e</c>, <c>-ier</c> after a consonant and <c>y</c>, and a doubled final consonant (<c>scanner</c>).</summary>
+    private static IEnumerable<string> DoerNouns(string verb)
+    {
+        if (verb.Length < 2) yield break;
+        if (verb[^1] == 'e') { yield return verb + "r"; yield break; }
+        if (verb[^1] == 'y' && !IsVowel(verb[^2])) { yield return verb[..^1] + "ier"; yield break; }
+        yield return verb + "er";
+        if (!IsVowel(verb[^1]) && !"wxy".Contains(verb[^1]) && IsVowel(verb[^2])) yield return verb + verb[^1] + "er";
+    }
+
+    /// <summary>A name under a rename attribute (<c>@json(name: …)</c>, <c>@column(…)</c>) is forced from outside and exempt from BYN5104 and BYN5105 (grammar guide §1).</summary>
+    private static bool IsRenamed(Decl decl) => decl.Attributes.Any(a => a.Name.Text is "json" or "column");
+
+    /// <summary>
+    /// BYN5104: a collection (<c>List</c>, <c>Map</c>, spans, arrays, text views; <c>Untrusted</c>, <c>Owned</c> and
+    /// <c>?</c> looked through) is named with a plural or a collective, anything else with a singular; the last word decides
+    /// (revision 0021 Part 4), or the word before the first particle or function word. A <c>bool</c> is a state, not a noun, and a type parameter may be either; neither is checked.
+    /// A collection is reported only when its last word is a known noun, so the plural in the message is always known; a number is never reported as plural.
+    /// </summary>
+    private static void CheckNumber(Compilation c, Grammar grammar, SourceText source, Name name, TypeSymbol type)
+    {
+        if (type.IsBool || type is TypeParameterType or ErrorType || name.Text == "_" || !name.Text.All(char.IsAscii)
+            || WordSpans(name.Text) is not [_, ..] spans) return;
+        // A particle or function word ends the head noun: `modulesByDir` is decided by `modules`; `byPath` and `inGroup` by none.
+        bool IsLink(string w) => Lexicon.Particles.Contains(w.ToLowerInvariant()) || Lexicon.FunctionWords.Contains(w.ToLowerInvariant());
+        if (IsLink(spans[0].Text)) return;
+        var head = spans.FindIndex(1, w => IsLink(w.Text));
+        var (start, text) = spans[head < 0 ? ^1 : head - 1];
+        var word = text.ToLowerInvariant();
+        if (Lexicon.Collectives.Contains(word) || grammar.Collectives.Contains(word)) return;
+        var inner = type;
+        while (inner is UntrustedType or OwnedType or OptionalType)
+            inner = inner switch { UntrustedType u => u.Inner, OwnedType o => o.Inner, _ => ((OptionalType)inner).Inner };
+        if (inner is ListType or MapType or SpanType or ArrayType or TextViewType)
+        {
+            // Only a noun has a plural: `covered`, `distinct` and `byKey` name a collection by what it holds or how it is keyed.
+            if (LooksPlural(word, grammar) || !IsNoun(word, grammar)) return;
+            var plural = name.Text[..start] + MatchCase(text, Plural(word, grammar)) + name.Text[(start + text.Length)..];
+            c.Report(DiagnosticCodes.NumberAgreement, source, name.Span, [name.Text, plural],
+                help: $"rename it `{plural}`", fix: new Fix(name.Span, plural));
+        }
+        // A number named with a plural is a quantity in units (`cents`, `grams`); a count is BYN5105's.
+        else if (!inner.IsNumeric && IsPlural(word, grammar))
+        {
+            var singular = Singular(word, grammar) is { } one ? name.Text[..start] + MatchCase(text, one) + name.Text[(start + text.Length)..] : null;
+            c.Report(DiagnosticCodes.NumberAgreementOne, source, name.Span, [name.Text, type.DisplayName],
+                help: singular is null ? null : $"rename it `{singular}`", fix: singular is null ? null : new Fix(name.Span, singular));
+        }
+    }
+
+    /// <summary>
+    /// BYN5105: an integer that counts items is singular noun + <c>Count</c>; <c>&lt;plural&gt;Count</c>,
+    /// <c>num&lt;Plural&gt;</c> and <c>numberOf&lt;Plural&gt;</c> are renamed (revision 0021 Part 4). <c>length</c> is not a count name. True when it reports, so BYN5104 does not report the name again.
+    /// </summary>
+    private static bool CheckCount(Compilation c, Grammar grammar, SourceText source, Name name, TypeSymbol type)
+    {
+        if (!type.IsInteger || !name.Text.All(char.IsAscii)) return false;
+        var words = Words(name.Text);
+        List<string> counted = words switch
+        {
+            [.. var rest, "Count"] when rest.Count > 0 => rest,
+            ["num", .. var rest] when rest.Count > 0 => rest,
+            ["number", "Of", .. var rest] when rest.Count > 0 => rest,
+            _ => [],
+        };
+        if (counted.Count == 0) return false;
+        var last = counted[^1].ToLowerInvariant();
+        if (!IsPlural(last, grammar) || Singular(last, grammar) is not { } one) return false;
+        var head = string.Concat(counted.SkipLast(1));
+        var fixedName = head.Length == 0 ? one + "Count" : char.ToLowerInvariant(head[0]) + head[1..] + MatchCase(counted[^1], one) + "Count";
+        c.Report(DiagnosticCodes.CountName, source, name.Span, [name.Text, fixedName],
+            help: $"rename it `{fixedName}`", fix: new Fix(name.Span, fixedName));
+        return true;
+    }
+
+    /// <summary>A plural the checker knows: an irregular plural, a project noun's <c>forms</c> entry (not a verb's, Q1207), or a regular plural of a known noun.</summary>
+    private static bool IsPlural(string word, Grammar grammar) =>
+        Lexicon.IrregularPlurals.Contains(word) || Singular(word, grammar) is not null;
+
+    /// <summary>A word that may be a plural, for a collection's name: <see cref="IsPlural"/>, or any word ending in <c>s</c> but <c>ss</c>, <c>us</c> or <c>is</c>.</summary>
+    private static bool LooksPlural(string word, Grammar grammar) =>
+        IsPlural(word, grammar) || word.EndsWith('s') && !word.EndsWith("ss", StringComparison.Ordinal)
+            && !word.EndsWith("us", StringComparison.Ordinal) && !word.EndsWith("is", StringComparison.Ordinal);
+
+    /// <summary>The singular of <paramref name="word"/>: the project noun whose <c>forms</c> entry it is, else an irregular plural's singular (<see cref="Lexicon.IrregularSingulars"/>), else the first regular base (<see cref="Endings"/>) that is a known noun; null when none is known.</summary>
+    private static string? Singular(string word, Grammar grammar)
+    {
+        if (grammar.Forms.FirstOrDefault(f => f.Value == word && IsNoun(f.Key, grammar)).Key is { } listed) return listed;
+        if (Lexicon.IrregularSingulars.TryGetValue(word, out var irregular)) return irregular;
+        if (word.EndsWith("ss", StringComparison.Ordinal) || word.EndsWith("us", StringComparison.Ordinal) || word.EndsWith("is", StringComparison.Ordinal)) return null;
+        foreach (var (ending, replacements) in Endings.Where(e => e.Ending is "ies" or "es" or "s"))
+        {
+            if (word.Length <= ending.Length + 1 || !word.EndsWith(ending, StringComparison.Ordinal)) continue;
+            foreach (var r in replacements)
+                if (IsNoun(word[..^ending.Length] + r, grammar)) return word[..^ending.Length] + r;
+        }
+        return null;
+    }
+
+    /// <summary>The plural of <paramref name="word"/>: a project noun's <c>forms</c> entry, else the irregular plural whose singular it is (<see cref="Lexicon.IrregularSingulars"/>), else the regular spelling (<c>-s</c>, <c>-es</c>, <c>-ies</c>).</summary>
+    private static string Plural(string word, Grammar grammar)
+    {
+        if (IsNoun(word, grammar) && grammar.Forms.TryGetValue(word, out var form)) return form;
+        if (Lexicon.IrregularSingulars.FirstOrDefault(p => p.Value == word).Key is { } irregular) return irregular;
+        if (word.Length > 1 && word[^1] == 'y' && !IsVowel(word[^2])) return word[..^1] + "ies";
+        if (word.EndsWith('s') || word.EndsWith('x') || word.EndsWith('z') || word.EndsWith("ch", StringComparison.Ordinal) || word.EndsWith("sh", StringComparison.Ordinal))
+            return word + "es";
+        return word + "s";
+    }
+
+    private static bool IsNoun(string word, Grammar grammar) => Lexicon.Nouns.Contains(word) || grammar.Nouns.Contains(word);
+
+    private static bool IsVerb(string word, Grammar grammar) => Lexicon.Verbs.Contains(word) || grammar.Verbs.Contains(word);
+
+    /// <summary><paramref name="word"/> spelled with the first letter's case of <paramref name="like"/>: <c>Line</c>, <c>lines</c> → <c>Lines</c>.</summary>
+    private static string MatchCase(string like, string word) =>
+        word.Length > 0 && char.IsUpper(like[0]) ? char.ToUpperInvariant(word[0]) + word[1..] : word;
 
     /// <summary>BYN5001: an <c>-ed</c> name is a changed copy or a view, so a member that takes <c>ref this</c> is a plain verb (revision 0005).</summary>
     private static void CheckParticiple(Compilation c, Grammar grammar, SourceText source, Name name)
     {
-        // A form is read by its word's class: the -ed spelling for a verb, the plural for a noun (revision 0021 Part 3).
-        bool IsNounOnly(string w) => (Lexicon.Nouns.Contains(w) || grammar.Nouns.Contains(w))
-            && !Lexicon.Verbs.Contains(w) && !grammar.Verbs.Contains(w);
-        var stems = grammar.Forms.Where(f => f.Value == name.Text && !IsNounOnly(f.Key)).Select(f => f.Key).ToList();
+        // A form is read by its word's class: the -ed spelling for a verb only, the plural for a noun (revision 0021 Part 3).
+        var stems = grammar.Forms.Where(f => f.Value == name.Text && IsVerb(f.Key, grammar)).Select(f => f.Key).ToList();
         if (stems.Count == 0) stems = ParticipleStems(name.Text);
         if (stems.Count == 0) return;
-        var stem = stems.FirstOrDefault(w => Lexicon.Verbs.Contains(w) || grammar.Verbs.Contains(w)) ?? stems[0];
+        var stem = stems.FirstOrDefault(w => IsVerb(w, grammar)) ?? stems[0];
         c.Report(DiagnosticCodes.ParticipleChangesThis, source, name.Span, [name.Text, stem],
             help: "name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view");
     }

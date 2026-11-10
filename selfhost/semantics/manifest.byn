@@ -409,7 +409,14 @@ void t10CheckOverlap(ref Manifest m, from T10Reader r, for Map<string, i64> fiel
         unless fields.contains(field) { continue }
         let list = fields[field]
         if r.values[list].kind != .listValue { continue }
+        // A list already reported as not a list of words is not read again (one BYN3102 per mistake).
+        var allWords = true
         for item in r.values[list].items {
+            if r.values[item].kind != .stringValue { allWords = false }
+        }
+        unless allWords { continue }
+        for item in r.values[list].items {
+            // coverage-exempt: Q1203
             if r.values[item].kind != .stringValue { continue }
             let word = lowerAscii(r.values[item].text)
             if seen.contains(word) && seen[word] != field && !(seen[word] == "verbs" && field == "nouns") {

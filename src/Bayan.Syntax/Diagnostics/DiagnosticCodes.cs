@@ -350,6 +350,12 @@ public static class DiagnosticCodes
     public static readonly DiagnosticDescriptor NounOnMutator = Warning("BYN5101", "`{0}` is a noun on a `ref this` member; name the action");
     public static readonly DiagnosticDescriptor BoolWithoutPrefix = Warning("BYN5102", "`{0}` is a `bool` state; prefix with `is`, `has` or `can`");
     public static readonly DiagnosticDescriptor LineJoinIndent = Warning("BYN5103", "a line starting with `{0}` joins the statement above; indent it deeper");
+    public static readonly DiagnosticDescriptor NumberAgreement = Warning("BYN5104", "`{0}` holds a collection; name it with a plural, `{1}`");
+    /// <summary>BYN5104's second message form, for a plural name on one value; registered once, as <see cref="NumberAgreement"/>.</summary>
+    public static readonly DiagnosticDescriptor NumberAgreementOne = new("BYN5104", Severity.Warning, "`{0}` holds one `{1}`; name it with a singular noun");
+    public static readonly DiagnosticDescriptor CountName = Warning("BYN5105", "`{0}` counts items; name it `{1}`");
+    public static readonly DiagnosticDescriptor DoerWithoutVerb = Warning("BYN5106", "`{0}` is named for the act `{1}` but has no `{1}` member");
+    public static readonly DiagnosticDescriptor InstrumentChangesThis = Warning("BYN5107", "`{0}` is a tool; `{1}` must not change `this`");
 
     // ── Effects 6000–6999 ────────────────────────────────────────────────────────────
     public static readonly DiagnosticDescriptor NoallocRemoved = Error("BYN6001", "`{0}` is removed; a function without `uses` is already pure");

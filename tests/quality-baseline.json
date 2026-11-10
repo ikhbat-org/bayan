@@ -283,13 +283,13 @@
     },
     "selfhost/semantics/codes.byn": {
       "mutation": null,
-      "coverage": 0.7143,
-      "branches": 0.6071
+      "coverage": 1.0,
+      "branches": 0.8571
     },
     "selfhost/semantics/compile.byn": {
       "mutation": null,
       "coverage": 0.8973,
-      "branches": 0.747
+      "branches": 0.765
     },
     "selfhost/semantics/ctx.byn": {
       "mutation": null,
@@ -353,8 +353,8 @@
     },
     "selfhost/semantics/naming.byn": {
       "mutation": null,
-      "coverage": 0.7815,
-      "branches": 0.6762
+      "coverage": 0.9404,
+      "branches": 0.8856
     },
     "selfhost/semantics/ownership.byn": {
       "mutation": null,

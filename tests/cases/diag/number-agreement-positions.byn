@@ -1,0 +1,40 @@
+public struct Line {
+    public i64 grams
+}
+
+public i64 total(List<Line> line) => line.length
+
+public i64 weigh(Line lines) => lines.grams
+
+public interface IOrder {
+    List<Line> item
+    i64 linesCount
+    i64 weigh(List<Line> line)
+}
+
+public union Delivery {
+    shipped(List<Line> item, i64 numBoxes)
+    held(string reasons)
+}
+
+public union error OrderError {
+    rejected(List<Line> line)
+}
+
+i64 hidden(List<Line> line) => line.length
+
+interface IHidden {
+    List<Line> item
+}
+
+union Hidden {
+    kept(List<Line> item)
+}
+
+union error HiddenError {
+    lost(List<Line> line)
+}
+
+void main() {
+    print($"{hidden(List<Line>())}")
+}
