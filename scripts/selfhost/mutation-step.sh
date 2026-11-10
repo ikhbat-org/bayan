@@ -21,7 +21,8 @@ mutation_step() {
     if ! BAYAN_SNAPSHOT=$SNAP BAYAN_SNAPSHOT_FILES=$MUTATE dotnet test --no-build -p:UseSharedCompilation=false --filter "($FILTER)&Snapshot!=skip" --logger "console;verbosity=normal" > "$LOG/record.txt" 2>&1; then
       # tests that ran and failed fail the same way on every file of the group (a test that cannot record: tag it
       # [Trait("Snapshot", "skip")]); every one is named, as the first alone hid the other two on 2026-11-09
-      failed=$(awk '{ sub(/^[ \t]+/, "") } /^Failed [^ !:]/ { l = substr($0, 8); sub(/ \[[^]]*\]$/, "", l); if (!s[l]++) print l }' "$LOG/record.txt")
+      # only vstest result lines count: `  Failed <name> [<duration>]`, not `Failed to start test host`
+      failed=$(awk '/^[ \t]+Failed .* \[[^]]*\]$/ { sub(/^[ \t]+Failed /, ""); l = $0; sub(/ \[[^]]*\]$/, "", l); if (!s[l]++) print l }' "$LOG/record.txt")
       first=$(awk '/Error Message/ { on = 1; n = 0; next } on && (/^[ \t]*(Failed |Failed!|Passed |Stack Trace:)/ || ++n > 8) { exit } on { sub(/^[ \t]+/, ""); if ($0 != "") printf "%s ", $0 }' "$LOG/record.txt" | sed 's/ $//' | cut -c1-400)
       if [ -n "$failed" ]; then
         note "mutation: recording under BAYAN_SNAPSHOT: $(wc -l <<< "$failed" | tr -d ' ') test(s) failed ($REL/record.txt): $(awk 'NR > 1 { printf "; " } { printf "%s", $0 }' <<< "$failed") — first: $first"

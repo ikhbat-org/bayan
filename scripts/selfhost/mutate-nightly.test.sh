@@ -6,7 +6,9 @@
 # stub writes the baseline it is given; the stand-in for an empty `git status --porcelain`, with no git repo to set up);
 # a bad --deadline and a run outside a repo root are setup errors (exit 2); every build's score line is logged; the slowest time is
 # the largest per-file last time (an outlier is replaced when its file runs again); a setup-class rc (not 0 or 1) stops the night
-# without moving the cursor; a recording with failed tests skips the rest of its family that night and records no time; a live lock on the state or on tmp/mutate-batch stops it (exit 2), a stale lock is taken over.
+# without moving the cursor; a recording with failed tests skips the rest of its family that night and records no time; the failed file and the skipped ones
+# go to <state>/retry and run first the next night (a night with the failure still there keeps them, one without empties it), and the
+# night's skipped families persist in <state>/skip, so a restart of the same night does not record the family again; a live lock on the state or on tmp/mutate-batch stops it (exit 2), a stale lock is taken over.
 set -e
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 t="$root/tmp/mutate-nightly-test"; repo="$t/repo"; state="$t/state"
@@ -92,7 +94,26 @@ log | grep -q '^selfhost/a/y.byn rc=skip secs=0 no score: the recording of selfh
 log | grep -q 'skip: the tests of selfhost/a fail under BAYAN_SNAPSHOT, .*1 test(s) failed .*T.X' || fail "night 7 log lacks the failed tests: $(log)"
 [ ! -e "$state/secs/selfhost-a-x" ] && [ -e "$state/secs/selfhost-b-z" ] || fail "night 7: a failed recording's time was kept, or z's was not"
 [ "$(cat "$state/cursor")" = selfhost/b/z.byn ] || fail "night 7 cursor $(cat "$state/cursor")"
-rm "$t/aux/recfail"
+[ "$(paste -sd, "$state/retry")" = selfhost/a/x.byn,selfhost/a/y.byn ] || fail "night 7 retry is $(paste -sd, "$state/retry")"
+
+# night 7b: a restart of the same night (same deadline) loads the skip set: x and y are logged rc=skip, the batch is not called for them
+: > "$t/aux/ran.txt"
+night || fail "night 7b exited $?: $(cat "$t/out.txt")"
+[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/b/z.byn ] || fail "night 7b ran $(paste -sd, "$t/aux/ran.txt"), not z only"
+[ "$(log | grep -c '^selfhost/a/x.byn rc=skip ')" = 1 ] || fail "night 7b log lacks x's rc=skip: $(log)"
+
+# night 7c: another night with the failure still there: the retry files run first, fail again and stay in retry
+: > "$t/aux/ran.txt"; rm "$state/skip"
+night || fail "night 7c exited $?: $(cat "$t/out.txt")"
+[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn,selfhost/b/z.byn ] || fail "night 7c ran $(paste -sd, "$t/aux/ran.txt")"
+[ "$(paste -sd, "$state/retry")" = selfhost/a/x.byn,selfhost/a/y.byn ] || fail "night 7c retry is $(paste -sd, "$state/retry")"
+
+# night 7d: the failure is gone: x and y run first (in path order), then the rest after the cursor; retry ends empty
+: > "$t/aux/ran.txt"; rm "$state/skip" "$t/aux/recfail"
+night || fail "night 7d exited $?: $(cat "$t/out.txt")"
+[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn,selfhost/a/y.byn,selfhost/b/z.byn ] || fail "night 7d ran $(paste -sd, "$t/aux/ran.txt")"
+[ ! -s "$state/retry" ] || fail "night 7d retry is $(paste -sd, "$state/retry")"
+rm "$state/skip"
 
 # a live lock on the state, a live mutate-batch.sh lock on tmp/mutate-batch, a stale lock taken over
 : > "$t/aux/ran.txt"; sleep 60 & holder=$!

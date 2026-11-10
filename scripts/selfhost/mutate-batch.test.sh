@@ -31,7 +31,7 @@ cat > $aux/dotnet <<'STUB'
 [ "$1" = test ] || exit 0
 echo "Total tests: 1  Passed: 1"
 echo "$BAYAN_SNAPSHOT_FILES ${@: -3:1}" >> $AUX/record.txt
-[ -f $AUX/testfail ] && { printf '  Failed Bayan.Tests.D.Format(name: "round3", x: 1) [12 ms]\n  Error Message:\n   two runs differ\n  Failed Bayan.Tests.E.Time [3 s]\nFailed!  - Failed:     2, Passed: 1\n'; exit 1; }
+[ -f $AUX/testfail ] && { printf '  Failed to start test host\nFailed to start the host\n  Failed Bayan.Tests.D.Format(name: "round3", x: 1) [12 ms]\n  Error Message:\n   two runs differ\n  Failed Bayan.Tests.E.Time [3 s]\nFailed!  - Failed:     2, Passed: 1\n'; exit 1; }
 [ -f $AUX/hostcrash ] && { printf 'The active test run was aborted. Reason: Test host process crashed\n'; exit 1; }
 bn=$(basename "${BAYAN_SNAPSHOT_FILES%%,*}")
 [ -f $AUX/nomanifest ] || { mkdir -p "$BAYAN_SNAPSHOT" $AUX/bin/$bn; b=$(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin/$bn/prog $AUX/bin/$bn/prog.sites.json)
