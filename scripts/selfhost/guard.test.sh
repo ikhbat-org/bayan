@@ -36,7 +36,7 @@ cat > $aux/dotnet <<'STUB'
 echo "Total tests: 1  Passed: 1"
 if [ -n "${BAYAN_SNAPSHOT:-}" ]; then
   echo "$BAYAN_SNAPSHOT_FILES ${@: -3:1}" > $AUX/record.txt
-  [ -f $AUX/recordfail ] && { printf '  Failed T99\n  Error Message:\n   recording broke\n'; exit 1; }
+  [ -f $AUX/recordfail ] && { printf '  Failed T99 [1 ms]\n  Error Message:\n   recording broke\n'; exit 1; }
   b=$(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin/prog $AUX/bin/prog.sites.json)
   [ -f $AUX/two ] && b="$b, $(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin2/prog2 $AUX/bin2/prog2.sites.json)"
   [ -f $AUX/nomanifest ] || { mkdir -p "$BAYAN_SNAPSHOT"; echo "{\"version\": 1, \"builds\": [$b]}" > "$BAYAN_SNAPSHOT/manifest.json"; }
