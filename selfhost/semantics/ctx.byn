@@ -592,6 +592,9 @@ public struct Ctx {
     /// C# `Lexicon.Collectives` and `Lexicon.IrregularPlurals`, filled by `buildLexicon`.
     public List<string> lexiconCollectives = List<string>()
     public List<string> lexiconIrregularPlurals = List<string>()
+    // ── T10 state (spec 018, branch-review fixes)
+    /// C# `Lexicon.IrregularSingulars`: the singular of `lexiconIrregularPlurals[k]` at `k` (Q1208).
+    public List<string> lexiconIrregularSingulars = List<string>()
 }
 
 // ── The binder's cursors ──────────────────────────────────────────────────────

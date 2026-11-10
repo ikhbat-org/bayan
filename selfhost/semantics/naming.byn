@@ -10,7 +10,7 @@ import parser
 
 // ── Lexicon.cs ──────────────────────────────────────────────────────────────────
 
-/// Fills `c.lexiconVerbs`/`lexiconNouns`/`lexiconAdjectives`/`lexiconCollectives`/`lexiconIrregularPlurals` with the built-in word list
+/// Fills `c.lexiconVerbs`/`lexiconNouns`/`lexiconAdjectives`/`lexiconCollectives`/`lexiconIrregularPlurals`/`lexiconIrregularSingulars` with the built-in word list
 /// (docs/bayan-grammar.md §7, §13); a second call does nothing. Inflected forms are derived, not listed.
 void buildLexicon(ref Ctx c) {
     if c.lexiconVerbs.length > 0 { return }
@@ -99,6 +99,7 @@ void buildLexicon(ref Ctx c) {
         "metadata",
     ]
     c.lexiconIrregularPlurals = ["people", "children", "criteria", "indices", "matrices", "data"]
+    c.lexiconIrregularSingulars = ["person", "child", "criterion", "index", "matrix", "datum"]
 }
 
 /// Particles (spec §10), the prefixes of derived names, and function words a name may join with.
@@ -642,13 +643,10 @@ bool checkCount(ref Ctx c, by Grammar grammar, from FileId f, at TextSpan name, 
     return true
 }
 
-/// Ports `Naming.IsPlural`: a plural the checker knows: an irregular plural, a project noun's `forms` entry, or a
-/// regular plural of a known noun.
+/// Ports `Naming.IsPlural`: a plural the checker knows: an irregular plural, a project noun's `forms` entry (not a
+/// verb's, Q1207), or a regular plural of a known noun.
 bool isPlural(ref Ctx c, for string word, by Grammar grammar) {
     if listContainsString(c.lexiconIrregularPlurals, by: word) { return true }
-    for (_, form) in grammar.forms {
-        if form == word { return true }
-    }
     return singular(ref c, for: word, by: grammar) is not null
 }
 
@@ -657,11 +655,15 @@ bool isPlural(ref Ctx c, for string word, by Grammar grammar) {
 bool looksPlural(ref Ctx c, for string word, by Grammar grammar) =>
     isPlural(ref c, for: word, by: grammar) || word.endsWith("s") && !word.endsWith("ss") && !word.endsWith("us") && !word.endsWith("is")
 
-/// Ports `Naming.Singular`: the singular of `word`: the project noun whose `forms` entry it is, else the first regular
-/// base (`-ies`, `-es`, `-s` of the `Endings` table) that is a known noun; null when none is known.
+/// Ports `Naming.Singular`: the singular of `word`: the project noun whose `forms` entry it is, else an irregular
+/// plural's singular (`Lexicon.IrregularSingulars`), else the first regular base (`-ies`, `-es`, `-s` of the `Endings`
+/// table) that is a known noun; null when none is known.
 string? singular(ref Ctx c, for string word, by Grammar grammar) {
     for (key, form) in grammar.forms {
         if form == word && isNoun(ref c, for: key, by: grammar) { return key }
+    }
+    for k in 0..c.lexiconIrregularPlurals.length {
+        if c.lexiconIrregularPlurals[k] == word { return c.lexiconIrregularSingulars[k] }
     }
     if word.endsWith("ss") || word.endsWith("us") || word.endsWith("is") { return null }
     let endings: List<string> = ["ies", "es", "s"]
@@ -676,12 +678,15 @@ string? singular(ref Ctx c, for string word, by Grammar grammar) {
     return null
 }
 
-/// Ports `Naming.Plural`: the plural of `word`: a project noun's `forms` entry, else the regular spelling (`-s`,
-/// `-es`, `-ies`).
+/// Ports `Naming.Plural`: the plural of `word`: a project noun's `forms` entry, else the irregular plural whose
+/// singular it is (`Lexicon.IrregularSingulars`), else the regular spelling (`-s`, `-es`, `-ies`).
 string plural(ref Ctx c, for string word, by Grammar grammar) {
     // coverage-exempt: Q1200
     if isNoun(ref c, for: word, by: grammar) {
         if (grammar.forms.tryGet(at: word) is { } form) { return form }
+    }
+    for k in 0..c.lexiconIrregularSingulars.length {
+        if c.lexiconIrregularSingulars[k] == word { return c.lexiconIrregularPlurals[k] }
     }
     let n = word.length
     if n > 1 && word.bytes[n - 1] == 0x79 && !isVowel(word.bytes[n - 2]) { return $"{word[0..n - 1]}ies" }

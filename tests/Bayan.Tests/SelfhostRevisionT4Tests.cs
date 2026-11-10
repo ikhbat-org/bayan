@@ -292,6 +292,7 @@ public sealed class SelfhostRevisionT4Tests
             ("collective", Lexicon.Collectives), ("irregular", Lexicon.IrregularPlurals),
         })
             expected.AddRange(words.Select(w => $"{kind} {w}"));
+        expected.AddRange(Lexicon.IrregularSingulars.Select(p => $"singular {p.Key} {p.Value}"));
         var actual = Sections.Value["lexicon"];
         Assert.Equal(expected.Count, actual.Count);
         SelfhostSemanticsHarness.AssertSection(new() { ["lexicon"] = actual.Order(StringComparer.Ordinal).ToList() }, "lexicon",
@@ -433,6 +434,9 @@ public sealed class SelfhostRevisionT4Tests
             for w in lex.lexiconAdjectives { print($"adjective {w}") }
             for w in lex.lexiconCollectives { print($"collective {w}") }
             for w in lex.lexiconIrregularPlurals { print($"irregular {w}") }
+            for k in 0..lex.lexiconIrregularPlurals.length {
+                print($"singular {lex.lexiconIrregularPlurals[k]} {lex.lexiconIrregularSingulars[k]}")
+            }
             var i: i64 = 0
             while i + 1 < args.length {
                 if args[i].startsWith("m-") {
