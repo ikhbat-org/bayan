@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Bayan.Tests;
 
 /// <summary>
@@ -64,18 +66,58 @@ public sealed class SnapshotSkipTraitTests
         Assert.True(unmarked.Count == 0, "untagged --time runs: " + string.Join(", ", unmarked));
     }
 
-    /// <summary>The method holding line <paramref name="at"/> (or its class) carries <c>[Trait("Snapshot", "skip")]</c>.</summary>
-    private static bool IsSkipped(string[] lines, int at)
+    private const string Tag = "[Trait(\"Snapshot\", \"skip\")]";
+
+    private static readonly Regex Member = new(@"^(?!(?:return|await|throw|new|else|yield)\b)(?:[\w<>\[\],.?()]+\s+)+\w+\s*\(.*\)\s*(?:=>.*|\{.*|where .*)?$");
+
+    private static readonly Regex Class = new(@"\b(?:class|record|struct)\s+\w+");
+
+    private static string[] Attributes(string[] lines, int decl)
     {
-        var tag = "[Trait(\"Snapshot\", \"skip\")]";
-        foreach (var kind in new[] { " void ", " class " })
+        var found = new List<string>();
+        for (var j = decl - 1; j >= 0 && (lines[j].TrimStart().StartsWith('[') || lines[j].TrimStart().StartsWith("///")); j--) found.Add(lines[j]);
+        return [.. found];
+    }
+
+    private static int Indent(string line) => line.Length - line.TrimStart().Length;
+
+    /// <summary>
+    /// The member holding line <paramref name="at"/> (the next member below when it is an attribute line) or one of its
+    /// enclosing classes carries <c>[Trait("Snapshot", "skip")]</c>. A member is the nearest line above ending a signature
+    /// <c>(...)</c> that is no attribute, of any access, return type and modifiers.
+    /// </summary>
+    internal static bool IsSkipped(string[] lines, int at)
+    {
+        while (at < lines.Length - 1 && lines[at].TrimStart().StartsWith('[')) at++;
+        var decl = at;
+        while (decl >= 0 && !(Member.IsMatch(lines[decl].Trim()) && !lines[decl].TrimStart().StartsWith('['))) decl--;
+        if (decl < 0) return false;
+        if (Attributes(lines, decl).Any(a => a.Contains(Tag))) return true;
+        for (var (j, indent) = (decl - 1, Indent(lines[decl])); j >= 0; j--)
         {
-            var decl = at;
-            while (decl >= 0 && !(lines[decl].TrimStart().StartsWith("public") && lines[decl].Contains(kind))) decl--;
-            for (var j = decl - 1; j >= 0 && (lines[j].TrimStart().StartsWith('[') || lines[j].TrimStart().StartsWith("///")); j--)
-                if (lines[j].Contains(tag)) return true;
-            if (decl < 0) break;
+            if (!Class.IsMatch(lines[j]) || lines[j].TrimStart().StartsWith("///") || Indent(lines[j]) >= indent) continue;
+            if (Attributes(lines, j).Any(a => a.Contains(Tag))) return true;
+            indent = Indent(lines[j]);
         }
         return false;
+    }
+
+    [Fact]
+    public void IsSkippedFindsTheNearestEnclosingMember()
+    {
+        string[] Wrap(params string[] body) => ["public class C", "{", .. body, "}"];
+        var tagged = new[] { "    [Fact, Trait(\"x\", \"y\")]", "    " + Tag, "    public void A()", "    {", "        Run(\"--time\");", "    }" };
+        var a = Wrap(tagged);
+        Assert.True(IsSkipped(a, 6), "(a) tagged public void method");
+        var b = Wrap([.. tagged, "    private static string H(string x)", "    {", "        return Run(\"--time\");", "    }"]);
+        Assert.False(IsSkipped(b, 10), "(b) untagged private static helper below a tagged method");
+        var c = Wrap([.. tagged, "    [Fact]", "    public async Task B()", "    {", "        await Run(\"--time\");", "    }"]);
+        Assert.False(IsSkipped(c, 11), "(c) untagged public async Task below a tagged method");
+        var d = new[] { Tag, "public class C", "{", "    [Fact]", "    public async Task B()", "    {", "        await Run(\"--time\");", "    }", "}" };
+        Assert.True(IsSkipped(d, 6), "(d) tagged class");
+        var e = Wrap([.. tagged, "    [Theory]", "    [InlineData(\"--time\")]", "    public void T(string x)", "    {", "    }"]);
+        Assert.False(IsSkipped(e, 10), "(e) InlineData on an untagged method below a tagged one");
+        var f = Wrap("    [Theory]", "    " + Tag, "    [InlineData(\"--time\")]", "    public void T(string x)", "    {", "    }");
+        Assert.True(IsSkipped(f, 5), "(f) InlineData on a tagged method");
     }
 }
