@@ -360,7 +360,12 @@ public sealed class SelfhostRevisionT7Tests
 
             print("ok")
             """),
+        // The goldens of T10 (Q1207, Q1208), read from tests/cases/diag/.
+        ("number-agreement-forms", Case("number-agreement-forms/package.byn"), Case("number-agreement-forms/main.byn")),
+        ("number-agreement-irregular", null, Case("number-agreement-irregular.byn")),
     ];
+
+    private static string Case(string path) => File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "cases", "diag", path));
 
     public static TheoryData<string> Names() => new(Programs.Select(p => p.Name));
 

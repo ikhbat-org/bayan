@@ -262,19 +262,20 @@ public static class Naming
         return true;
     }
 
-    /// <summary>A plural the checker knows: an irregular plural, a project noun's <c>forms</c> entry, or a regular plural of a known noun.</summary>
+    /// <summary>A plural the checker knows: an irregular plural, a project noun's <c>forms</c> entry (not a verb's, Q1207), or a regular plural of a known noun.</summary>
     private static bool IsPlural(string word, Grammar grammar) =>
-        Lexicon.IrregularPlurals.Contains(word) || grammar.Forms.ContainsValue(word) || Singular(word, grammar) is not null;
+        Lexicon.IrregularPlurals.Contains(word) || Singular(word, grammar) is not null;
 
     /// <summary>A word that may be a plural, for a collection's name: <see cref="IsPlural"/>, or any word ending in <c>s</c> but <c>ss</c>, <c>us</c> or <c>is</c>.</summary>
     private static bool LooksPlural(string word, Grammar grammar) =>
         IsPlural(word, grammar) || word.EndsWith('s') && !word.EndsWith("ss", StringComparison.Ordinal)
             && !word.EndsWith("us", StringComparison.Ordinal) && !word.EndsWith("is", StringComparison.Ordinal);
 
-    /// <summary>The singular of <paramref name="word"/>: the project noun whose <c>forms</c> entry it is, else the first regular base (<see cref="Endings"/>) that is a known noun; null when none is known.</summary>
+    /// <summary>The singular of <paramref name="word"/>: the project noun whose <c>forms</c> entry it is, else an irregular plural's singular (<see cref="Lexicon.IrregularSingulars"/>), else the first regular base (<see cref="Endings"/>) that is a known noun; null when none is known.</summary>
     private static string? Singular(string word, Grammar grammar)
     {
         if (grammar.Forms.FirstOrDefault(f => f.Value == word && IsNoun(f.Key, grammar)).Key is { } listed) return listed;
+        if (Lexicon.IrregularSingulars.TryGetValue(word, out var irregular)) return irregular;
         if (word.EndsWith("ss", StringComparison.Ordinal) || word.EndsWith("us", StringComparison.Ordinal) || word.EndsWith("is", StringComparison.Ordinal)) return null;
         foreach (var (ending, replacements) in Endings.Where(e => e.Ending is "ies" or "es" or "s"))
         {
@@ -285,10 +286,11 @@ public static class Naming
         return null;
     }
 
-    /// <summary>The plural of <paramref name="word"/>: a project noun's <c>forms</c> entry, else the regular spelling (<c>-s</c>, <c>-es</c>, <c>-ies</c>).</summary>
+    /// <summary>The plural of <paramref name="word"/>: a project noun's <c>forms</c> entry, else the irregular plural whose singular it is (<see cref="Lexicon.IrregularSingulars"/>), else the regular spelling (<c>-s</c>, <c>-es</c>, <c>-ies</c>).</summary>
     private static string Plural(string word, Grammar grammar)
     {
         if (IsNoun(word, grammar) && grammar.Forms.TryGetValue(word, out var form)) return form;
+        if (Lexicon.IrregularSingulars.FirstOrDefault(p => p.Value == word).Key is { } irregular) return irregular;
         if (word.Length > 1 && word[^1] == 'y' && !IsVowel(word[^2])) return word[..^1] + "ies";
         if (word.EndsWith('s') || word.EndsWith('x') || word.EndsWith('z') || word.EndsWith("ch", StringComparison.Ordinal) || word.EndsWith("sh", StringComparison.Ordinal))
             return word + "es";
