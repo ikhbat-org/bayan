@@ -244,6 +244,19 @@ void checkMembersWith(ref Ctx c, for StructId s, by in Grammar grammar) {
         if c.functions[fn].access != .publicKeyword { continue }
         t7CheckParameters(ref c, by: grammar, from: f, for: fn)
     }
+    var publicMethods = List<FuncId>()
+    for fn in copyIds(in c.structs[s].methods) {
+        if c.functions[fn].access == .publicKeyword { publicMethods.append(fn) }
+    }
+    var others = List<string>()
+    for field in copyIds(in c.structs[s].fields) {
+        if c.fields[field].access == .publicKeyword { others.append($"{c.fields[field].name}") }
+    }
+    for p in copyIds(in c.structs[s].properties) {
+        if c.properties[p].access == .publicKeyword { others.append($"{c.properties[p].name}") }
+    }
+    checkDoer(ref c, by: grammar, from: f, for: c.structs[s].module, at: c.structs[s].declIndex, as: c.structs[s].nameSpan,
+        through: move publicMethods, until: move others)
 }
 
 /// Ports `Naming.CheckSignatures`: BYN5104 and BYN5105 on the rest of a module's public API, once top-level signatures
@@ -277,6 +290,10 @@ void checkSignatures(ref Ctx c, for ModId module) {
             unless checkCount(ref c, by: grammar, from: source, at: member.name, for: text, as: type) { checkNumber(ref c, by: grammar, from: source, at: member.name, for: text, as: type) }
         }
         for fn in copyIds(in c.interfaces[i].methods) { t7CheckParameters(ref c, by: grammar, from: source, for: fn) }
+        var getters = List<string>()
+        for g in copyIds(in c.interfaces[i].properties) { getters.append($"{c.functions[g].name}") }
+        checkDoer(ref c, by: grammar, from: source, for: c.interfaces[i].module, at: c.interfaces[i].declIndex, as: c.interfaces[i].nameSpan,
+            through: copyIds(in c.interfaces[i].methods), until: move getters)
     }
     for u in copyIds(in c.modules[module].unions) {
         if c.unions[u].access != .publicKeyword { continue }
@@ -388,6 +405,127 @@ void checkPayload(ref Ctx c, by Grammar grammar, from FileId f, at List<TextSpan
         let type = c.locals[field].type
         unless checkCount(ref c, by: grammar, from: f, at: name, for: text, as: type) { checkNumber(ref c, by: grammar, from: f, at: name, for: text, as: type) }
     }
+}
+
+/// Ports `Naming.CheckDoer`: BYN5106 and BYN5107 on a public struct or interface named for a doer or a tool by its last
+/// word (revision 0021 Part 4): a built-in doer (`doerVerb`), `codec` (`encode` or `decode`), or a project verb's regular
+/// doer noun (`upsert` → `upserter`, `scan` → `scanner`). BYN5106: a public member, static or instance, is named its verb
+/// or a derived form (`tryX`, `xInto`, `xOp`). BYN5107: a tool (`isTool`) has no public `ref this` member. Other "-er"
+/// words (`Carrier`, `User`), function-type aliases and stored function fields are not types named for a doer here and
+/// are not checked, nor is the standard library. `declIndex` is the declaration `IsRenamed` reads; every method in
+/// `methods` has a declaration (`m.Decl is not null` holds: struct and interface methods are declared from a `FunctionDecl`).
+void checkDoer(ref Ctx c, by Grammar grammar, from FileId f, for ModId module, at i64 declIndex, as TextSpan name, through List<FuncId> methods, until List<string> others) {
+    let text = $"{getText(c.files[f].text.span, at: name)}"
+    // The standard library is not checked (Q1191): `std.json`'s `JsonReader` reads with `next`.
+    if c.modules[module].directory.startsWith("<std>/") || t8DeclRenamed(ref c, from: f, at: declIndex) || !isAllAscii(text) { return }
+    let words = wordSpans(text)
+    if words.length == 0 { return }
+    let noun = lowerAscii(words[words.length - 1].text)
+    var verbs = List<string>()
+    if noun == "codec" {
+        verbs.append("encode")
+        verbs.append("decode")
+    } else if (doerVerb(noun) is { } verb) {
+        verbs.append(verb)
+    } else {
+        var matches = List<string>()
+        for v in grammar.verbs {
+            if listContainsString(doerNouns(v), by: noun) { matches.append(v) }
+        }
+        t11SortOrdinal(ref matches)
+        if matches.length > 0 { verbs.append(matches[0]) }
+    }
+    if verbs.length == 0 { return }
+    var acted = false
+    for m in methods {
+        for v in verbs {
+            if actsAs(c.functions[m].name, for: v) { acted = true }
+        }
+    }
+    for m in others {
+        for v in verbs {
+            if actsAs(m, for: v) { acted = true }
+        }
+    }
+    unless acted {
+        var named = StrBuf()
+        for k in 0..verbs.length {
+            if k > 0 { named.append(" or ") }
+            named.append($"`{verbs[k]}`")
+        }
+        report(ref c, for: .doerWithoutVerb, from: f, at: name, by: (a0: text, a1: verbs[0], a2: "", a3: "", a4: ""),
+            help: $"add a member named {named.finish()}, or rename the type for what it is")
+    }
+    unless isTool(noun) { return }
+    for m in methods {
+        if c.functions[m].isMutating {
+            report(ref c, for: .instrumentChangesThis, from: f, at: c.functions[m].nameSpan, by: (a0: text, a1: $"{c.functions[m].name}", a2: "", a3: "", a4: ""),
+                help: "remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step")
+        }
+    }
+}
+
+/// The local `Acts` of `Naming.CheckDoer` for one verb `v`: `m` is `v`, `tryV`, `vInto` or `vOp`.
+bool actsAs(string m, for string v) =>
+    m == v || m == $"try{upperAscii(v[0..1])}{v[1..v.length]}" || m == $"{v}Into" || m == $"{v}Op"
+
+/// `IsRenamed(decl)` for `CheckDoer`: the struct or interface declaration at `declIndex` of file `f`. A `type distinct`'s
+/// struct is declared from its alias here; its C# `StructDecl` is built without attributes, so it is not renamed.
+bool t8DeclRenamed(ref Ctx c, from FileId f, at i64 declIndex) {
+    switch c.files[f].unit.members[declIndex] {
+        case .structDecl(let n):
+            return isRenamed(n.value.attributes, from: c.files[f].text.span)
+        case .interfaceDecl(let n):
+            return isRenamed(n.value.attributes, from: c.files[f].text.span)
+        default:
+            return false
+    }
+}
+
+/// Ports `Naming.Doers`: the built-in doer and tool nouns and their verbs (revision 0021 Part 4); `codec` is `checkDoer`'s.
+string? doerVerb(string noun) => noun switch {
+    "parser" => "parse",
+    "builder" => "build",
+    "reader" => "read",
+    "writer" => "write",
+    "recorder" => "record",
+    "encoder" => "encode",
+    "decoder" => "decode",
+    "scanner" => "scan",
+    "loader" => "load",
+    "scheduler" => "schedule",
+    "renderer" => "render",
+    "formatter" => "format",
+    "handler" => "handle",
+    "hasher" => "hash",
+    "comparer" => "compare",
+    _ => null,
+}
+
+/// Ports `Naming.Tools`: the tool nouns of BYN5107: a tool keeps fixed settings and does not change `this`.
+bool isTool(string noun) => noun switch {
+    "hasher" or "comparer" or "codec" => true,
+    _ => false,
+}
+
+/// Ports `Naming.DoerNouns`: a verb's doer noun by regular spelling: `-er`, `-r` after `e`, `-ier` after a consonant and
+/// `y`, and a doubled final consonant (`scanner`).
+List<string> doerNouns(string verb) {
+    var nouns = List<string>()
+    let n = verb.length
+    if n < 2 { return nouns }
+    let last = verb.bytes[n - 1]
+    if last == 0x65 {
+        nouns.append($"{verb}r")
+        return nouns
+    }
+    if last == 0x79 && !isVowel(verb.bytes[n - 2]) {
+        nouns.append($"{verb[0..n - 1]}ier")
+        return nouns
+    }
+    nouns.append($"{verb}er")
+    if !isVowel(last) && last != 0x77 && last != 0x78 && last != 0x79 && isVowel(verb.bytes[n - 2]) { nouns.append($"{verb}{verb[n - 1..n]}er") }
+    return nouns
 }
 
 /// Ports `Naming.IsRenamed`: a name under a rename attribute (`@json(name: …)`, `@column(…)`) is forced from outside
@@ -557,27 +695,26 @@ string plural(ref Ctx c, for string word, by Grammar grammar) {
 bool isNoun(ref Ctx c, for string word, by Grammar grammar) =>
     listContainsString(c.lexiconNouns, by: word) || listContainsString(grammar.nouns, by: word)
 
+/// Ports `Naming.IsVerb`.
+bool isVerb(ref Ctx c, for string word, by Grammar grammar) =>
+    listContainsString(c.lexiconVerbs, by: word) || listContainsString(grammar.verbs, by: word)
+
 /// Ports `Naming.MatchCase`: `word` spelled with the first letter's case of `like`: `Line`, `lines` → `Lines`.
 string matchCase(string like, as string word) =>
     word.length > 0 && isUpperAscii(like.bytes[0]) ? $"{upperAscii(word[0..1])}{word[1..word.length]}" : word
 
-/// Ports the local `IsNounOnly` of `Naming.CheckParticiple`: `w` is a noun and not a verb, in the lexicon or the project's `grammar`.
-bool isNounOnly(ref Ctx c, for string w, by Grammar grammar) =>
-    (listContainsString(c.lexiconNouns, by: w) || listContainsString(grammar.nouns, by: w))
-    && !listContainsString(c.lexiconVerbs, by: w) && !listContainsString(grammar.verbs, by: w)
-
 /// BYN5001: an `-ed` name is a changed copy or a view, so a member that takes `ref this` is a plain verb (revision 0005).
 void checkParticiple(ref Ctx c, by in Grammar grammar, from FileId f, at TextSpan name, for string text) {
     var stems = List<string>()
-    // A form is read by its word's class: the -ed spelling for a verb, the plural for a noun (revision 0021 Part 3).
+    // A form is read by its word's class: the -ed spelling for a verb only, the plural for a noun (revision 0021 Part 3).
     for (word, form) in grammar.forms {
-        if form == text && !isNounOnly(ref c, for: word, by: grammar) { stems.append(word) }
+        if form == text && isVerb(ref c, for: word, by: grammar) { stems.append(word) }
     }
     if stems.length == 0 { stems = participleStems(text) }
     if stems.length == 0 { return }
     var stem = stems[0]
     for w in stems {
-        if listContainsString(c.lexiconVerbs, by: w) || listContainsString(grammar.verbs, by: w) {
+        if isVerb(ref c, for: w, by: grammar) {
             stem = w
             break
         }
