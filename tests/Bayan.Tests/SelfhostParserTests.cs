@@ -597,6 +597,7 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
 
     /// <summary>R8: <c>bayan-parse</c>, built in fast mode, parses and dumps 1 MB within 10x the C# parser.</summary>
     [Fact]
+    [Trait("Snapshot", "skip")]
     public void OneMegabyteWithinTenTimes()
     {
         if (Environment.GetEnvironmentVariable("BAYAN_SKIP_TIMING") == "1")
