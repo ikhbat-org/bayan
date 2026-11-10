@@ -595,6 +595,10 @@ public struct Ctx {
     // ── T10 state (spec 018, branch-review fixes)
     /// C# `Lexicon.IrregularSingulars`: the singular of `lexiconIrregularPlurals[k]` at `k` (Q1208).
     public List<string> lexiconIrregularSingulars = List<string>()
+    // ── 018 Part 4 follow-up state
+    /// The C# `Naming.Grammars` cache (one `Grammar` per `Compilation`): the project dictionary `grammarOf` read, once `grammarKnown`. `Grammar` is unique, so `grammarOf` hands out copies.
+    public Grammar grammarRead = Grammar {}
+    public bool grammarKnown = false
 }
 
 // ── The binder's cursors ──────────────────────────────────────────────────────

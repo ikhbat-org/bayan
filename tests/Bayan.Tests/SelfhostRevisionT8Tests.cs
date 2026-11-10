@@ -259,7 +259,7 @@ public sealed class SelfhostRevisionT8Tests
                 name: "local/shop",
                 version: "0.1.0",
                 grammar: Grammar {
-                    verbs: ["upsert", "reindex", "stage", "tally", "ship", "shipp", "plow", "relay", "fix", "a", "go", "tax"],
+                    verbs: ["upsert", "reindex", "stage", "tally", "shipp", "ship", "plow", "relay", "fix", "a", "go", "tax"],
                 },
             }
             """, """
@@ -289,6 +289,8 @@ public sealed class SelfhostRevisionT8Tests
 
             public struct RowShipper {
                 i64 n
+
+                public Row ship() => Row { id: n }
             }
 
             public struct RowPlower {

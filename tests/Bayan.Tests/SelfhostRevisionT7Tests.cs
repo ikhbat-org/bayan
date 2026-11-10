@@ -363,6 +363,7 @@ public sealed class SelfhostRevisionT7Tests
         // The goldens of T10 (Q1207, Q1208), read from tests/cases/diag/.
         ("number-agreement-forms", Case("number-agreement-forms/package.byn"), Case("number-agreement-forms/main.byn")),
         ("number-agreement-irregular", null, Case("number-agreement-irregular.byn")),
+        ("number-agreement-caps", null, Case("number-agreement-caps.byn")),
     ];
 
     private static string Case(string path) => File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "cases", "diag", path));
@@ -381,6 +382,14 @@ public sealed class SelfhostRevisionT7Tests
         // Every program reports at least one BYN5104 or BYN5105, so a dropped check fails here.
         Assert.Contains(expected, l => l.StartsWith("BYN5104 ", StringComparison.Ordinal) || l.StartsWith("BYN5105 ", StringComparison.Ordinal));
         SelfhostSemanticsHarness.AssertSection(new() { [section] = Sections.Value[section] }, section, expected);
+    }
+
+    /// <summary>The project dictionary is read once and kept in the <c>Ctx</c> (the C# caches it per <c>Compilation</c>); reverting the cache leaves it unset.</summary>
+    [Fact]
+    public void GrammarIsCachedInTheCtx()
+    {
+        var section = "grammar.number-agreement-caps";
+        SelfhostSemanticsHarness.AssertSection(new() { [section] = Sections.Value[section] }, section, ["true"]);
     }
 
     /// <summary>The program's directory under <c>tmp/revision-t7/</c>, written on each call (the same text each time).</summary>
@@ -432,6 +441,8 @@ public sealed class SelfhostRevisionT7Tests
                 if d.help.length > 0 { print($"  help {d.help}") }
                 if d.hasFix { print($"  fix {t7At(c, for: d.file, at: d.fixSpan.start)}-{t7At(c, for: d.file, at: d.fixSpan.end)} {d.fixReplacement}") }
             }
+            print($"== grammar.{name}")
+            print($"{c.grammarKnown}")
         }
 
         i32 main(ReadOnlySpan<string> args) {

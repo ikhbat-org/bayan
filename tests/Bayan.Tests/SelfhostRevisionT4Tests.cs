@@ -6,7 +6,7 @@ namespace Bayan.Tests;
 
 /// <summary>
 /// Spec 018 T4: the word classes of revision 0021 Part 3, ported to naming.byn (<c>buildLexicon</c>, <c>checkWords</c>,
-/// <c>isNounOnly</c>, <c>offer</c>, <c>lowerGrammar</c>), manifest.byn (<c>t10CheckOverlap</c>, the <c>collectives</c> key) and codes.byn
+/// <c>isVerb</c>, <c>offer</c>, <c>lowerGrammar</c>), manifest.byn (<c>t10CheckOverlap</c>, the <c>collectives</c> key) and codes.byn
 /// (the BYN5014 text) against the C# <c>Lexicon</c>, <c>Naming</c> and <c>Manifest</c>. The built lexicon is compared as sets; programs
 /// and manifests as <c>code line:col message</c> with label and help. Every expected line is computed from the C#.
 /// </summary>
