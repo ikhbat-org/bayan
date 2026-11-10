@@ -33,3 +33,30 @@ warning BYN5104: `ID` holds a collection; name it with a plural, `IDS`
   help: rename it `IDS`
     │ 7 │     public List<Link> IDS
     │   │                         +
+
+error BYN2009: `numOrderLINES` must be camelCase
+
+  8 │     public i64 numOrderLINES
+    │                ^^^^^^^^^^^^^
+    │
+  help: rename it `numOrderLines`
+    │ 8 │     public i64 numOrderLines
+    │   │                         ++++
+
+warning BYN5105: `numOrderLINES` counts items; name it `orderLINECount`
+
+  8 │     public i64 numOrderLINES
+    │                ^^^^^^^^^^^^^
+    │
+  help: rename it `orderLINECount`
+    │ 8 │     public i64 orderLINECount
+    │   │                ++++++++++++++
+
+warning BYN5105: `numOrderLines` counts items; name it `orderLineCount`
+
+  9 │     public i64 numOrderLines
+    │                ^^^^^^^^^^^^^
+    │
+  help: rename it `orderLineCount`
+    │ 9 │     public i64 orderLineCount
+    │   │                ++++++++++++++

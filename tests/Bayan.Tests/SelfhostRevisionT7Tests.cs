@@ -384,6 +384,14 @@ public sealed class SelfhostRevisionT7Tests
         SelfhostSemanticsHarness.AssertSection(new() { [section] = Sections.Value[section] }, section, expected);
     }
 
+    /// <summary>The project dictionary is read once and kept in the <c>Ctx</c> (the C# caches it per <c>Compilation</c>); reverting the cache leaves it unset.</summary>
+    [Fact]
+    public void GrammarIsCachedInTheCtx()
+    {
+        var section = "grammar.number-agreement-caps";
+        SelfhostSemanticsHarness.AssertSection(new() { [section] = Sections.Value[section] }, section, ["true"]);
+    }
+
     /// <summary>The program's directory under <c>tmp/revision-t7/</c>, written on each call (the same text each time).</summary>
     private static string Dir(string name)
     {
@@ -433,6 +441,8 @@ public sealed class SelfhostRevisionT7Tests
                 if d.help.length > 0 { print($"  help {d.help}") }
                 if d.hasFix { print($"  fix {t7At(c, for: d.file, at: d.fixSpan.start)}-{t7At(c, for: d.file, at: d.fixSpan.end)} {d.fixReplacement}") }
             }
+            print($"== grammar.{name}")
+            print($"{c.grammarKnown}")
         }
 
         i32 main(ReadOnlySpan<string> args) {
