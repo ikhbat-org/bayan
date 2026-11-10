@@ -5,6 +5,7 @@ public struct Link {
 public struct Page {
     public List<string> URL
     public List<Link> ID
+    public List<Link> userID
     public i64 numOrderLINES
     public i64 numOrderLines
 }

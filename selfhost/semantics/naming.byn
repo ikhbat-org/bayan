@@ -704,19 +704,10 @@ bool isNoun(ref Ctx c, for string word, by Grammar grammar) =>
 bool isVerb(ref Ctx c, for string word, by Grammar grammar) =>
     listContainsString(c.lexiconVerbs, by: word) || listContainsString(grammar.verbs, by: word)
 
-/// Ports `Naming.MatchCase`: `word` spelled with the first letter's case of `like`: `Line`, `lines` → `Lines`; an all-caps `like` of two or more letters keeps `word` all caps: `URL`, `urls` → `URLS`.
+/// Ports `Naming.MatchCase`: `word` spelled with the first letter's case of `like`: `Line`, `lines` → `Lines`; there is no all-caps branch, because spec §5.1 keeps only a two-letter acronym uppercase, so `URLS` would fail BYN2009 (`URL`, `urls` → `Urls`).
 string matchCase(string like, as string word) {
     if word.length == 0 || !isUpperAscii(like.bytes[0]) { return word }
-    if like.length >= 2 && isAllCaps(like) { return upperAscii(word) }
     return $"{upperAscii(word[0..1])}{word[1..word.length]}"
-}
-
-/// True when every letter of `text` is an uppercase ASCII letter (`URL`, `ID2`).
-bool isAllCaps(string text) {
-    for b in text.bytes {
-        if isLowerAscii(b) { return false }
-    }
-    return true
 }
 
 /// BYN5001: an `-ed` name is a changed copy or a view, so a member that takes `ref this` is a plain verb (revision 0005).
