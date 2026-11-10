@@ -12,7 +12,10 @@
 # reports and per-site logs are copied to <state>/reports/<file-slug>/. A file that fails its score (rc 1) or whose group fails
 # for it (rc 4: mutant 0 does not replay, no manifest ...) is logged and the next one runs; a setup-class rc (mutate-batch.sh: 2 or 3,
 # e.g. no pinned bayan, a build failure, its lock held, a baseline crash) stops the night with the cursor unmoved and the reason
-# logged, exit 2. Exit 0 after a deadline stop or a full pass, 2 on a setup error. MUTATE_BATCH overrides the mutate-batch.sh path (tests).
+# logged, exit 2. A file whose recording failed with failed tests (rc 4, `mutation: recording under BAYAN_SNAPSHOT: N test(s)
+# failed`) records no time, and the rest of its family (selfhost/<dir>, the batch's recording group) is logged `rc=skip` and
+# passed that night: each would re-record the same failing tests (30–95 min a file on 2026-11-09).
+# Exit 0 after a deadline stop or a full pass, 2 on a setup error. MUTATE_BATCH overrides the mutate-batch.sh path (tests).
 set -u
 DEADLINE=""; STATE=$HOME/mutate-nightly; TASKS=()
 while [ $# -gt 0 ]; do case "$1" in
@@ -44,7 +47,7 @@ QUEUE=$(sed -n 's/ -> .*//p' <<< "$QUEUE" | LC_ALL=C sort)
 [ -n "$QUEUE" ] || { echo "mutate-nightly: mutate-batch.sh --list gave no file"; exit 2; }
 total=$(wc -l <<< "$QUEUE" | tr -d ' ')
 echo "== $(date '+%F %T') start: deadline $DEADLINE, $total files, cursor $(cat "$STATE/cursor" 2>/dev/null || echo none)" >> "$LOG"
-done_n=0
+done_n=0; SKIP=""  # families (selfhost/<dir>) whose recording failed tonight: their tests fail the same way for every file
 while [ "$done_n" -lt "$total" ]; do
   slowest=$(cat "$STATE"/secs/* 2>/dev/null | sort -n | tail -1); slowest=${slowest:-900}
   left=$(( END - $(date +%s) ))
@@ -54,6 +57,10 @@ while [ "$done_n" -lt "$total" ]; do
   # the first file after the cursor in path order, the first file when none is (wrap): a file added or removed since keeps the order
   f=$(awk -v c="$cursor" '$0 > c { print; exit }' <<< "$QUEUE"); [ -n "$f" ] || f=$(head -1 <<< "$QUEUE")
   slug=$(sed 's|/|-|g; s|\.byn$||' <<< "$f")
+  fam=$(cut -d/ -f1-2 <<< "$f")
+  if grep -qxF "$fam" <<< "$SKIP"; then
+    echo "$f rc=skip secs=0 no score: the recording of $fam failed earlier tonight" >> "$LOG"
+    echo "$f" > "$STATE/cursor"; done_n=$((done_n + 1)); continue; fi
   pid=$(holder tmp/mutate-batch.lock)
   if [ -n "$pid" ]; then echo "== $(date '+%F %T') stop: mutate-batch.sh (pid $pid) holds tmp/mutate-batch, cursor not moved" >> "$LOG"; exit 2; fi
   cp tests/quality-baseline.json "$STATE/baseline.json"
@@ -71,7 +78,13 @@ while [ "$done_n" -lt "$total" ]; do
     cp "$g"quality-*.json "$g"mutate-*.txt "$STATE/reports/$slug/" 2>/dev/null
     [ -d "$g"rejected ] && cp -R "$g"rejected "$STATE/reports/$slug/"
   done
-  echo "$secs" > "$STATE/secs/$slug"
+  # a failed recording runs no mutant: its time would only push the deadline stop earlier
+  if [ $rc = 4 ] && grep -q 'mutation: recording under BAYAN_SNAPSHOT: ' <<< "$out"; then
+    SKIP=$(printf '%s\n%s' "$SKIP" "$fam")
+    echo "== $(date '+%F %T') skip: the tests of $fam fail under BAYAN_SNAPSHOT, its other files wait for the next pass: $(grep -m1 -o 'recording under BAYAN_SNAPSHOT: .*' <<< "$out" | cut -c1-600)" >> "$LOG"
+  else
+    echo "$secs" > "$STATE/secs/$slug"
+  fi
   case $rc in 0|1|4) ;; *)  # 1: score below the baseline, 4: this file's group failed; anything else: the night is wasted, not the file
     echo "== $(date '+%F %T') stop: setup failure (rc=$rc) on $f, cursor not moved: $(tail -1 <<< "$out")" >> "$LOG"; exit 2;; esac
   echo "$f" > "$STATE/cursor"

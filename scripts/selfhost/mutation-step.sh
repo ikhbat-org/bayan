@@ -5,10 +5,12 @@
 # `bayan mutate --binary` runs every site of each build, replaying the recording per mutant (replay.py); sites under
 # `@unobservable because "…"` come back marked, not survived. The reports are copied to <log dir>/quality-<n>-<binary>.json.
 # Problems go to the caller's note() (which fills its FAIL array: the step runs only while FAIL is empty). Returns 0 when it
-# reached the per-build runs, 1 when the CLI, the recording or the manifest stopped it before.
+# reached the per-build runs, 1 when the CLI, the recording or the manifest stopped it before. A recording whose tests ran and
+# failed is noted as `mutation: recording under BAYAN_SNAPSHOT: N test(s) failed`, naming each; any other recording failure
+# (no test ran, the host crashed) as `mutation: recording the tests under BAYAN_SNAPSHOT failed`.
 export MSBUILDDISABLENODEREUSE=1 DOTNET_CLI_USE_MSBUILD_SERVER=0  # no MSBuild worker or build server outlives the run
 mutation_step() {
-  local LOG=$1 FILTER=$2 MUTATE=$3 SURV=$4 REL=${1#$PWD/} n name bin sites l MX
+  local LOG=$1 FILTER=$2 MUTATE=$3 SURV=$4 REL=${1#$PWD/} n name bin sites l MX failed first
   local BAYAN SNAP=$1/snap REPLAY
   REPLAY=$(dirname "${BASH_SOURCE[0]}")/replay.py
   # `bayan mutate` is tooling: it runs from the pinned build of dev (scripts/pinned-bayan.sh), never the branch under test
@@ -16,8 +18,17 @@ mutation_step() {
     note "mutation: no pinned bayan — $(tail -1 "$LOG/pinned-bayan.txt")"
   else
     rm -f "$SNAP/manifest.json" "$SNAP/runs.jsonl"
-    BAYAN_SNAPSHOT=$SNAP BAYAN_SNAPSHOT_FILES=$MUTATE dotnet test --no-build -p:UseSharedCompilation=false --filter "($FILTER)&Snapshot!=skip" --logger "console;verbosity=normal" > "$LOG/record.txt" 2>&1 \
-      || note "mutation: recording the tests under BAYAN_SNAPSHOT failed ($REL/record.txt) — $(grep -m1 -A8 'Error Message' "$LOG/record.txt" | grep -v '^\s*$' | tr '\n' ' ' | cut -c1-400)"
+    if ! BAYAN_SNAPSHOT=$SNAP BAYAN_SNAPSHOT_FILES=$MUTATE dotnet test --no-build -p:UseSharedCompilation=false --filter "($FILTER)&Snapshot!=skip" --logger "console;verbosity=normal" > "$LOG/record.txt" 2>&1; then
+      # tests that ran and failed fail the same way on every file of the group (a test that cannot record: tag it
+      # [Trait("Snapshot", "skip")]); every one is named, as the first alone hid the other two on 2026-11-09
+      failed=$(awk '{ sub(/^[ \t]+/, "") } /^Failed [^ !:]/ { l = substr($0, 8); sub(/ \[[^]]*\]$/, "", l); if (!s[l]++) print l }' "$LOG/record.txt")
+      first=$(awk '/Error Message/ { on = 1; n = 0; next } on && (/^[ \t]*(Failed |Failed!|Passed |Stack Trace:)/ || ++n > 8) { exit } on { sub(/^[ \t]+/, ""); if ($0 != "") printf "%s ", $0 }' "$LOG/record.txt" | sed 's/ $//' | cut -c1-400)
+      if [ -n "$failed" ]; then
+        note "mutation: recording under BAYAN_SNAPSHOT: $(wc -l <<< "$failed" | tr -d ' ') test(s) failed ($REL/record.txt): $(awk 'NR > 1 { printf "; " } { printf "%s", $0 }' <<< "$failed") — first: $first"
+      else
+        note "mutation: recording the tests under BAYAN_SNAPSHOT failed ($REL/record.txt) — $first"
+      fi
+    fi
     if [ ${#FAIL[@]} = 0 ] && [ ! -f "$SNAP/manifest.json" ]; then
       note "mutation: the recording wrote no $REL/snap/manifest.json: no test under --filter '$FILTER' builds a selfhost program"; fi
   fi

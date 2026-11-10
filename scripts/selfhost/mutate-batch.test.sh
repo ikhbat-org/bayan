@@ -8,8 +8,8 @@
 # and a manifest-less recording fail naming the group, the other groups still raise the baseline; a failed group's reports are
 # moved to rejected/ (a score drop moves every OK group's reports there too) and not matched by the merge job's glob; the copied reports' absolute
 # paths (as bayan mutate writes them) are rewritten repo-root-relative, a path outside the root or one that is no file under the
-# root or selfhost/ fails the group naming the report; --files keeps the group's union filter; a score drop exits 1 and a failed group
-# 3; a live tmp/mutate-batch.lock stops a second run (exit 3) and leaves it alone, a stale one is taken over, the lock is released; .github/workflows/mutation.yml: read-only permissions, no persisted credentials, a concurrency group, shards upload
+# root or selfhost/ fails the group naming the report; --files keeps the group's union filter; a score drop exits 1, a recording
+# whose tests fail exits 4 naming every failed test, one that fails with none failed (a host crash) 3; a live tmp/mutate-batch.lock stops a second run (exit 3) and leaves it alone, a stale one is taken over, the lock is released; .github/workflows/mutation.yml: read-only permissions, no persisted credentials, a concurrency group, shards upload
 # reports and not the baseline, a final job needing the shards merges all reports in one update, uploads the accepted reports, and documents applying the run.
 set -e
 root="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -31,6 +31,8 @@ cat > $aux/dotnet <<'STUB'
 [ "$1" = test ] || exit 0
 echo "Total tests: 1  Passed: 1"
 echo "$BAYAN_SNAPSHOT_FILES ${@: -3:1}" >> $AUX/record.txt
+[ -f $AUX/testfail ] && { printf '  Failed Bayan.Tests.D.Format(name: "round3", x: 1) [12 ms]\n  Error Message:\n   two runs differ\n  Failed Bayan.Tests.E.Time [3 s]\nFailed!  - Failed:     2, Passed: 1\n'; exit 1; }
+[ -f $AUX/hostcrash ] && { printf 'The active test run was aborted. Reason: Test host process crashed\n'; exit 1; }
 bn=$(basename "${BAYAN_SNAPSHOT_FILES%%,*}")
 [ -f $AUX/nomanifest ] || { mkdir -p "$BAYAN_SNAPSHOT" $AUX/bin/$bn; b=$(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin/$bn/prog $AUX/bin/$bn/prog.sites.json)
   [ -f $AUX/twobuilds ] && b="$b, $(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin/$bn/prog2 $AUX/bin/$bn/prog2.sites.json)"
@@ -113,6 +115,8 @@ touch -t 200001010000 tmp/mutate-batch.lock; brc --files selfhost/parser/p.byn; 
 # a baseline the check cannot read is setup (3), not a score result (1)
 echo garbage > $aux/bad.json; MUTATE_BASELINE=$aux/bad.json brc --files selfhost/parser/p.byn; crashx=$BRC
 touch $aux/nomanifest; brc --files selfhost/parser/p.byn; nomanifest=$(cat $aux/brc.txt); nomanifestx=$BRC; rm $aux/nomanifest
+touch $aux/testfail; brc --files selfhost/parser/p.byn; testfail=$(cat $aux/brc.txt); testfailx=$BRC; rm $aux/testfail
+touch $aux/hostcrash; brc --files selfhost/parser/p.byn; hostcrash=$(cat $aux/brc.txt); hostcrashx=$BRC; rm $aux/hostcrash
 mv src/Bayan.Cli/bin/Debug/net10.0/bayan $aux/bayan; brc --files selfhost/parser/p.byn; nocli=$(cat $aux/brc.txt); noclix=$BRC; cd "$root"
 wf=$(cat .github/workflows/mutation.yml)
 rm -rf "$r" "$aux"
@@ -153,6 +157,8 @@ echo "$badshard" | grep -q 'want k/n' || fail "a bad --shard was accepted" "$bad
 [ "$m0x" = 4 ] && [ "$m0p" = 1.0 ] && [ "$m0a" = None ] || fail "a failed mutant 0 exited $m0x (a=$m0a p=$m0p)" "$m0"
 echo "$m0" | grep -q '^group semantics: mutation: the recording does not replay on the unmutated build' || fail "a failed mutant 0 did not name its group" "$m0"
 echo "$nomanifest" | grep -q '^group parser: mutation: the recording wrote no tmp/mutate-batch/parser/snap/manifest.json' || fail "a manifest-less recording did not name its group" "$nomanifest"
+[ "$testfailx" = 4 ] && echo "$testfail" | grep -qF 'group parser: mutation: recording under BAYAN_SNAPSHOT: 2 test(s) failed (tmp/mutate-batch/parser/record.txt): Bayan.Tests.D.Format(name: "round3", x: 1); Bayan.Tests.E.Time — first: two runs differ' || fail "failed tests in the recording exited $testfailx (want 4) or did not name both" "$testfail"
+[ "$hostcrashx" = 3 ] && echo "$hostcrash" | grep -q '^group parser: mutation: recording the tests under BAYAN_SNAPSHOT failed (tmp/mutate-batch/parser/record.txt)' || fail "a recording with no failed test (host crash) exited $hostcrashx, not 3" "$hostcrash"
 echo "$nocli" | grep -q '^group parser: mutation: no pinned bayan — pinned-bayan: PINNED_BAYAN=.*/src/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not name its group" "$nocli"
 [ "$relpath" = selfhost/semantics/a.byn ] || fail "the copied report's path was not rewritten repo-root-relative (got $relpath)" "$fill"
 echo "$outside" | grep -q '^group parser: report: .*quality-1-prog.json: path /elsewhere/p.byn is not under the repo root' || fail "a report path outside the repo root did not fail the group naming the report" "$outside"

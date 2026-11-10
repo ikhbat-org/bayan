@@ -22,8 +22,8 @@
 # (Compilation.DisplayRoot; SelfhostLexerCaseTests imports `lexer`), and is resolved there; a path that is no file there either fails the group;
 # one run at a time: tmp/mutate-batch.lock (a directory holding the holder's pid) is taken for the run, a lock whose pid is gone is taken over;
 # exit codes: 0 done and the baseline raised; 1 a score fell below the baseline (nothing raised); 2 usage or plan error;
-# 3 setup-class failure that says nothing about the file (the lock is held, no pinned bayan, the test build/recording failed,
-# quality-baseline.py check/update crashed or could not read the baseline); 4 a group failed for its files (mutant 0 does not replay,
+# 3 setup-class failure that says nothing about the file (the lock is held, no pinned bayan, the recording failed with no failed test,
+# quality-baseline.py check/update crashed or could not read the baseline); 4 a group failed for its files (tests failed in the recording, mutant 0 does not replay,
 # no or unreadable manifest, no report, a report path that is no file): rerunning the same file fails the same way;
 # a lock without a pid file is held for 60 s (its holder may be between mkdir and the pid write), then stale;
 # CI shards (.github/workflows/mutation.yml) upload only the reports, and a final job runs one `update` over all of them.

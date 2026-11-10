@@ -714,6 +714,7 @@ public sealed class SelfhostDriverT1Tests
     /// Not here: <c>FormatTests.PackageNamesSkipALinkLeavingThePackage</c> (a link leaving the package; <c>realPath</c> resolves no link; blocked by Q1106 (D7 follow-up)), the C# test hooks
     /// <c>Format.MaxPasses</c> and <c>Format.RewriteHook</c> and <c>WriteReplacing</c>'s temp file and rename (Q1111, Q1122).
     /// </summary>
+    [Trait("Snapshot", "skip")]
     [Theory]
     [InlineData("no-path")]
     [InlineData("dash")]

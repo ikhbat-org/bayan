@@ -115,6 +115,7 @@ public sealed class SelfhostEmitterNoPanicLawTests(ITestOutputHelper output)
     }
 
     /// <summary>A run past its bound is killed and fails naming the batch and mode.</summary>
+    [Trait("Snapshot", "skip")]
     [Fact]
     public void ARunPastItsBoundIsKilledAndNamed()
     {

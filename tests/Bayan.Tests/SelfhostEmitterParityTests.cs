@@ -229,7 +229,7 @@ public sealed class SelfhostEmitterHarnessTests
     {
         var copy = SelfhostEmitterHarness.Isolate("diag/goto.byn");
         SelfhostEmitterHarness.SameAsCli("--mode fast", ["build", "--mode", "fast", "--emit-c", copy], ["--mode", "fast", copy]);
-        SelfhostEmitterHarness.SameAsCli("--time", ["build", "--emit-c", copy], ["--time", copy]);
+        SelfhostEmitterHarness.SameAsCli("--time", ["build", "--emit-c", copy], ["--time", copy]);  // snapshot: deterministic (error input, no timing)
     }
 
     /// <summary>A flag with no value, or a stray argument beside <c>--many</c>, <c>--time</c> or <c>--package</c>, is usage (exit 2).</summary>
@@ -237,7 +237,7 @@ public sealed class SelfhostEmitterHarnessTests
     public void ModeFlagsWantTheirArguments()
     {
         // no-oracle: Q814
-        foreach (var args in new[] { new[] { "--many", "/tmp", "x" }, ["--time", "/tmp", "x"], ["--package", "/tmp"], ["--package", "/tmp", "a", "b"] })
+        foreach (var args in new[] { new[] { "--many", "/tmp", "x" }, ["--time", "/tmp", "x"], ["--package", "/tmp"], ["--package", "/tmp", "a", "b"] })  // snapshot: deterministic (usage errors)
         {
             var (exit, output, error) = SelfhostEmitterHarness.Run(args);
             Assert.True(exit == 2 && output.Length == 0 && error.StartsWith("usage: bayan-emit"), $"{string.Join(' ', args)}: exit {exit}\n{error}");
@@ -267,6 +267,7 @@ public sealed class SelfhostEmitterHarnessTests
     /// is compared in <see cref="SelfhostEmitterParityTests.RunInputsEmitTheSameC"/> and the other emission rows.
     /// </summary>
     [Fact]
+    [Trait("Snapshot", "skip")]
     public void CleanInputsExitLikeBuild()
     {
         var input = SelfhostEmitterHarness.Isolate("run/arithmetic.byn");
@@ -300,12 +301,12 @@ public sealed class SelfhostEmitterHarnessTests
     public void BadArgumentsFailLikeBuild()
     {
         var copy = SelfhostEmitterHarness.Isolate("diag/goto.byn");
-        foreach (var flag in new[] { "--mode", "--color", "--package", "--many", "--time" })
+        foreach (var flag in new[] { "--mode", "--color", "--package", "--many", "--time" })  // snapshot: deterministic (flag without a value: usage)
             SelfhostEmitterHarness.SameAsCli(flag, ["build", "--emit-c", copy, flag], [copy, flag]);
         SelfhostEmitterHarness.SameAsCli("--mode turbo", ["build", "--mode", "turbo", "--emit-c", copy], ["--mode", "turbo", copy]);
         var missing = Path.Combine(Path.GetDirectoryName(copy)!, "missing.byn");
         SelfhostEmitterHarness.SameAsCli("missing", ["build", "--emit-c", missing], [missing]);
-        SelfhostEmitterHarness.SameAsCli("missing --time", ["build", "--emit-c", missing], ["--time", missing]);
+        SelfhostEmitterHarness.SameAsCli("missing --time", ["build", "--emit-c", missing], ["--time", missing]);  // snapshot: deterministic (missing input)
     }
 
     /// <summary>A warning alone does not stop emission: stderr, stdout and exit as <c>build --emit-c</c> by default and under <c>--package</c>.</summary>

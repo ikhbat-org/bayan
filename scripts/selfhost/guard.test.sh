@@ -164,7 +164,7 @@ echo "$nullbase" | grep -q '^- mutation survived' || fail "the null-baseline run
 echo "$nomanifest" | grep -q '^- mutation: the recording wrote no tmp/guard-run/snap/manifest.json' || fail "a missing manifest did not fail with a message" "$nomanifest"
 echo "$badmanifest" | grep -q '^GUARD FAIL' && echo "$badmanifest" | grep -q '^- mutation: tmp/guard-run/snap/manifest.json is unreadable — ' || fail "a malformed manifest did not fail naming it" "$badmanifest"
 echo "$badbase" | grep -q '^GUARD FAIL' && echo "$badbase" | grep -q '^- baseline: quality-baseline.py check failed on tests/quality-baseline.json and tmp/guard-run/quality-\*.json — ' || fail "a malformed baseline did not fail naming it" "$badbase"
-echo "$recordfail" | grep -q '^- mutation: recording the tests under BAYAN_SNAPSHOT failed (tmp/guard-run/record.txt) — .*recording broke' || fail "a failed recording did not fail with its message" "$recordfail"
+echo "$recordfail" | grep -q '^- mutation: recording under BAYAN_SNAPSHOT: 1 test(s) failed (tmp/guard-run/record.txt): T99 — first: .*recording broke' || fail "a failed recording did not fail with its message" "$recordfail"
 echo "$nocli" | grep -q '^- mutation: no pinned bayan — pinned-bayan: PINNED_BAYAN=.*/src/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not fail with a message" "$nocli"
 echo "$plain" | grep -q '^GUARD PASS$' && [ $plainrec = 0 ] && [ $plainrep = 0 ] || fail "a guard without --mutate recorded or left a report" "$plain"
 L='(listing: tmp/guard-run/coverage/selfhost/semantics/a.byn.cov.txt)'
