@@ -242,6 +242,11 @@ enum SemaCode {
     nounOnMutator
     boolWithoutPrefix
     lineJoinIndent
+    numberAgreement
+    numberAgreementOne
+    countName
+    doerWithoutVerb
+    instrumentChangesThis
     noallocRemoved
     effectNotDeclared
     unknownEffect
@@ -504,6 +509,11 @@ string codeText(SemaCode code) => code switch {
     .nounOnMutator => "BYN5101",
     .boolWithoutPrefix => "BYN5102",
     .lineJoinIndent => "BYN5103",
+    .numberAgreement => "BYN5104",
+    .numberAgreementOne => "BYN5104",
+    .countName => "BYN5105",
+    .doerWithoutVerb => "BYN5106",
+    .instrumentChangesThis => "BYN5107",
     .noallocRemoved => "BYN6001",
     .effectNotDeclared => "BYN6002",
     .unknownEffect => "BYN6003",
@@ -766,6 +776,11 @@ string messageFormat(SemaCode code) => code switch {
     .nounOnMutator => "`{0}` is a noun on a `ref this` member; name the action",
     .boolWithoutPrefix => "`{0}` is a `bool` state; prefix with `is`, `has` or `can`",
     .lineJoinIndent => "a line starting with `{0}` joins the statement above; indent it deeper",
+    .numberAgreement => "`{0}` holds a collection; name it with a plural, `{1}`",
+    .numberAgreementOne => "`{0}` holds one `{1}`; name it with a singular noun",
+    .countName => "`{0}` counts items; name it `{1}`",
+    .doerWithoutVerb => "`{0}` is named for the act `{1}` but has no `{1}` member",
+    .instrumentChangesThis => "`{0}` is a tool; `{1}` must not change `this`",
     .noallocRemoved => "`{0}` is removed; a function without `uses` is already pure",
     .effectNotDeclared => "`{0}` uses `{1}` but does not declare it",
     .unknownEffect => "`{0}` is not an effect",
@@ -795,7 +810,8 @@ string messageFormat(SemaCode code) => code switch {
 bool isWarning(SemaCode code) => code switch {
     .sameTypeShadowing or .spanParameterNeverWritten or .neverReassignedVar or
     .unreachableCode or .wildcardOnLocalUnion or .expectsSingleParameter or .unknownWord or
-    .nounOnMutator or .boolWithoutPrefix or .lineJoinIndent => true,
+    .nounOnMutator or .boolWithoutPrefix or .lineJoinIndent or .numberAgreement or .numberAgreementOne or .countName or
+    .doerWithoutVerb or .instrumentChangesThis => true,
     _ => false,
 }
 
