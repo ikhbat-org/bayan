@@ -301,9 +301,11 @@ public static class Naming
 
     private static bool IsVerb(string word, Grammar grammar) => Lexicon.Verbs.Contains(word) || grammar.Verbs.Contains(word);
 
-    /// <summary><paramref name="word"/> spelled with the first letter's case of <paramref name="like"/>: <c>Line</c>, <c>lines</c> → <c>Lines</c>.</summary>
+    /// <summary><paramref name="word"/> spelled with the first letter's case of <paramref name="like"/>: <c>Line</c>, <c>lines</c> → <c>Lines</c>; an all-caps <paramref name="like"/> of two or more letters keeps it all caps: <c>URL</c>, <c>urls</c> → <c>URLS</c>.</summary>
     private static string MatchCase(string like, string word) =>
-        word.Length > 0 && char.IsUpper(like[0]) ? char.ToUpperInvariant(word[0]) + word[1..] : word;
+        word.Length == 0 || !char.IsUpper(like[0]) ? word
+        : like.Length >= 2 && !like.Any(char.IsLower) ? word.ToUpperInvariant()
+        : char.ToUpperInvariant(word[0]) + word[1..];
 
     /// <summary>BYN5001: an <c>-ed</c> name is a changed copy or a view, so a member that takes <c>ref this</c> is a plain verb (revision 0005).</summary>
     private static void CheckParticiple(Compilation c, Grammar grammar, SourceText source, Name name)

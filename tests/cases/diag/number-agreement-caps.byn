@@ -1,0 +1,12 @@
+public struct Link {
+    public i64 id
+}
+
+public struct Page {
+    public List<string> URL
+    public List<Link> ID
+    public i64 numURLs
+    public i64 numIDs
+}
+
+print("ok")
