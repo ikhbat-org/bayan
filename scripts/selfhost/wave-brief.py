@@ -49,7 +49,7 @@ def owned_files(block):
     head = block[0]
     files = re.search(r'files: (.*?) — (?:covers|after|done when)', head).group(1).split(' — C#:')[0]  # 011 names the C# range after the files
     files = re.sub(r'\([^()]*(\([^()]*\)[^()]*)*\)', '', files)
-    names = re.findall(r'`([^`]+\.(?:byn|cs|md|c|h|diag|txt|stdout|stderr|exitcode|sha256))`', files)  # golden expected files too (014 T6)
+    names = re.findall(r'`([^`]+\.(?:byn|cs|md|c|h|diag|txt|stdout|stderr|exitcode|sha256|sh))`', files)  # golden expected files too (014 T6)
     return [x for n in names for x in braces(n)]
 
 
@@ -125,7 +125,7 @@ for t in args[1:]:
     files = owned_files(block)
     # a root file (CHANGELOG.md) and a bare spec file (010-spec.md) are docs this spec owns too
     files = [f"{row['dir']}/{f}" if re.fullmatch(rf'{SPEC}-[a-z]+\.md', f) else f for f in files]
-    rooted = [f for f in files if f.startswith(('tests/', 'docs/', 'src/', 'work/', 'bootstrap/')) or re.fullmatch(r'[A-Z]+\.md', f)]
+    rooted = [f for f in files if f.startswith(('tests/', 'docs/', 'src/', 'work/', 'bootstrap/', 'scripts/')) or re.fullmatch(r'[A-Z]+\.md', f)]
     byns = [f for f in files if f.endswith('.byn') and f not in rooted]
     tests = [f for f in files if f.endswith('.cs') and f not in rooted]
     # a task naming its test files only with their directory (`tests/Bayan.Tests/X.cs`, 012 T4) is gated by those classes,
