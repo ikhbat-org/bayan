@@ -8,3 +8,5 @@ After round 3's documentation deliverables, `docs/bayan-spec.md`, `docs/bayan-gr
 - The agent never changes the frozen documents on its own: a conflict it finds becomes a draft revision (`Status: draft`) for the user to accept.
 - New features are built from the current design documents; a revision's diff drives the changes to features already built.
 - An erratum (a counting or wording error that leaves the decision's meaning unchanged) is fixed in place, with a line in the status: `Erratum (YYYY-MM-DD): …` saying what was corrected. Keep the original text beside the correction only when the meaning changes; then it is a new revision, not an erratum.
+- Precedence (revision 0022): an unapplied revision outranks the SPEC text it changes. Addenda, drafts, plans and owner decisions take effect when a revision records them. Between two revisions, the later one wins. Addenda folded before revision 0022 (handoff addenda 001 and 002, design round 3 addendum 1) stay as applied.
+- Compatibility (revision 0022): adding or narrowing an `expects` or `requires` on a released public function or type is a breaking change (SPEC §19.4).
