@@ -42,6 +42,9 @@ jobs:
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
       - name: Script tests
         if: runner.os != 'Windows'
+        # Ported tools run on the pinned bayan; a CI checkout has no local `dev`, so pin the commit under test.
+        env:
+          PINNED_BAYAN_REF: HEAD
         run: |
           bash scripts/ci/install-zig.test.sh
           bash scripts/ci/install-dotnet.test.sh
@@ -49,6 +52,7 @@ jobs:
           bash scripts/ci/known-failures.test.sh
           bash scripts/release/package.test.sh
           bash scripts/release/memory-gate.test.sh
+          bash scripts/bayan-tool.test.sh
           bash scripts/parity/run.test.sh
       - name: Docs and release script tests
         if: runner.os == 'Linux'

@@ -1,0 +1,17 @@
+// os: unix
+// A child that closes its stdout and stderr and runs on is still killed when `timeout:` passes: the reap keeps the
+// deadline the capture loop had (plan 007, Q1244).
+void main() fails IoError {
+    let script: string[2] = ["-c", "exec >/dev/null 2>&1; sleep 30"]
+    let r = Io.run("sh", script.span, timeout: Millis(200)) catch switch {
+        .timeout(let after) => {
+            print($"timeout {i64(after)}")
+            return
+        },
+        IoError e => {
+            print($"io {e}")
+            return
+        },
+    }
+    print($"exit {r.exitCode}")
+}

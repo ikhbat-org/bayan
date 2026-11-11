@@ -1,1 +1,1 @@
-deno run -A $ROOT/scripts/plan-strings-check.js
+bash $ROOT/scripts/bayan-tool.sh plan-strings-check

@@ -894,6 +894,9 @@ public sealed class SelfhostSemanticsT23Tests
                     Line($"let {id} = addFunctionRef(ref c, from: BFunctionRef {{ span: {sp}, function: {fn}, functionType: {Ty(r.FunctionType)} }})");
                     break;
                 }
+                case BoundDefault d:
+                    Line($"let {id} = addDefault(ref c, from: BDefault {{ span: {sp}, type: {Ty(d.Type)} }})");
+                    break;
                 default:
                     throw new NotSupportedException(e.GetType().Name);
             }
