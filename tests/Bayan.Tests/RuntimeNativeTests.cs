@@ -99,6 +99,58 @@ public sealed class RuntimeNativeTests
     }
 
     /// <summary>
+    /// The timeout also holds when the child ends in time but a background grandchild in its Job object keeps the pipes open
+    /// (<c>start /b</c>): the drains get the same deadline, then the job is terminated.
+    /// </summary>
+    [Fact]
+    public void RunTimeoutKillsTheJobAfterTheChildExits()
+    {
+        var work = Path.Combine(Golden.RepoRoot, "tmp", "native", "run-timeout-exited");
+        if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        Directory.CreateDirectory(work);
+        var program = """
+            void main() {
+                let args: string[2] = ["/c", "start /b ping -n 30 127.0.0.1"]
+                let r = Io.run("cmd", args.span, timeout: Millis(200)) catch switch {
+                    .timeout(let after) => {
+                        print($"timeout {i64(after)}")
+                        return
+                    },
+                    IoError e => {
+                        print($"io {e}")
+                        return
+                    },
+                }
+                print($"exit {r.exitCode}")
+            }
+            """;
+        var c = Compilation.Create([SourceText.FromString("run-timeout-exited.byn", program)], work);
+        Assert.False(c.Diagnostics.HasErrors, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
+        if (!OperatingSystem.IsWindows()) return;
+        var exe = Build(CliApp.EmitC(c, BuildMode.Debug));
+        var clock = Stopwatch.StartNew();
+        Assert.Equal("timeout 200\n", Run(exe, []).Replace("\r\n", "\n"));
+        Assert.True(clock.Elapsed < TimeSpan.FromSeconds(20), $"took {clock.Elapsed}");
+    }
+
+    /// <summary>
+    /// POSIX <c>Io.run</c> edges (<c>tests/native/io-run-posix.c</c>): a child that leaves its process group is signalled
+    /// itself, so a 300 ms timeout ends in time; <c>timeout: Millis(i64.max)</c> never passes, so a child that exits at once
+    /// reports exit 0; a deleted working directory does not stop <c>sh</c> on an absolute PATH.
+    /// </summary>
+    [Fact]
+    public void RunPosixEdges()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "io-run-posix.c"));
+        Assert.Equal(
+            "left group: 11 in time 1\n" +
+            "longest timeout: 0 code 0\n" +
+            "deleted directory: 0 code 0\n",
+            Run(Build(driver), []));
+    }
+
+    /// <summary>
     /// L031: <c>byn_wait_status</c> never makes up an exit code. A failed wait or exit-code query is <c>other</c> whatever the raw
     /// status (0, or 259 = <c>STILL_ACTIVE</c>); a timeout is <c>timeout</c> with the detail untouched; a real SIGKILL status
     /// (POSIX only) is <c>signaled</c> with detail 9; exit 3 is 0 with code 3.
