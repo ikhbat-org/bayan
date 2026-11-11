@@ -100,7 +100,7 @@ The **015** column marks modules the tooling ports are expected to need first; t
 | `std.env` | environment variables, args | `env` | spec | yes |
 | `std.cli` | argument parsing derived at comptime from a struct | `env` | spec | yes |
 | `std.config` | binds env, files and args to a struct at comptime; dependencies come from effects, not a container | `env`, `fs` | Proposed | |
-| `std.time` | `Instant`, `Duration` as units, `DateTime`, UTC and offsets; all immutable values | `clock` | spec | yes |
+| `std.time` | `Instant`, `Duration`, `Date`, `Time`, `DateTime`, `Offset`, `ZonedDateTime`, `Period`, `Uptime`; time units (`core`), calendar units (`std.time`); arithmetic, differences, ranges, series, queries; clocks (`clock` effect); UTC and fixed offsets; format and parse; db/C interop (Phase 2 v0.1 core, Phase 3 civil, Phase 4 zones: `TimeZone`, `ZonedDateTime`, Phase 5 interop) | `clock` | spec | yes |
 | `std.fiber` (and sync types) | fibers, `scope`/`spawn` runtime (`limit:`, `timeout:`/`until:`, `policy: .collectAll`, `workers: .compute`), `Channel`, `select`, timers, `Fiber.yieldNow()`, `Fiber.checkCanceled()`, `shield(timeout:)`, `Mutex` guards (`lock()`, `unlock(move this)`), `AsyncMutex`, `Arc`, `Atomic`, blocking pool for `@blocking` externs, compute pool, debug watchdog, data-parallel `par` query | `suspend` | Decided, v0.2 | |
 | `std.net` | TCP, UDP, DNS, Unix sockets, named pipes; timeouts or deadlines required in signatures | `net` | spec | |
 | `std.codec` | the shared codec interface so JSON, TOML, CSV and binary formats use one comptime derivation | none | Proposed | |
@@ -139,7 +139,8 @@ The **015** column marks modules the tooling ports are expected to need first; t
 | `kit.csv` | CSV reader and writer; `@derive(Csv)` with columns matched by header name | `std.codec` | spec | maybe |
 | `kit.toml`, `kit.yaml` | interop formats only (`package.byn` uses Bayān struct literals); safe loading only, no arbitrary types | `std.codec` | spec | maybe |
 | `kit.xml` | pull reader and writer; no DTDs, only the five predefined entities, external entities off; decoded output `Untrusted` | `std` | **Proposed (new, Nov 2)** | yes (.trx, Cobertura) |
-| `kit.tz` | the IANA timezone database | `std.time` | spec | |
+| `kit.tz` | the IANA timezone database, system or bundled, behind the same API; runtime reload into immutable tables; Windows ID mapping; system-zone lookup (Phase 4 zones) | `std.time` | spec | |
+| `kit.calendar` | non-ISO calendars (such as Hijri), converting through `Date` (Phase 4+ / parked) | `std.time` | Proposed | |
 | `kit.intl` | culture-sensitive formatting and parsing through an explicit `for:` argument; CLDR data; no ambient culture anywhere | `std.text` | Decided (rev 0003) | |
 | Legacy encodings | `Latin1.decode` and other non-UTF encodings | `std` | spec-only; module Open (Q5) | |
 | `kit.term` | colors, prompts, progress bars, basic TUI; a markup target (terminal buffer) | `std.io` | spec | maybe |
