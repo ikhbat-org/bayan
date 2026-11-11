@@ -411,6 +411,17 @@ public sealed class SelfhostDriverT3Tests
     }
 
     [Fact]
+    public void ACompilerKilledBySignalIsAFailure()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var bin = Bin("bin-killed", "kill -9 $$\n", "cc");
+        var r = Both(bin, "safe", "", "killed");
+        Assert.Equal(4, r.Cs.Exit);
+        Assert.Contains("C compiler failed (exit ", r.Cs.Err);
+        SelfhostEmitterHarness.AssertSame("stderr of a compiler killed by a signal", r.Cs.Err, r.Byn.Err);
+    }
+
+    [Fact]
     public void AnUnwritableScratchDirectoryIsAToolchainProblem()
     {
         // no-oracle: Q955 the C# writes into a cache directory it creates; no C# path writes into a missing directory

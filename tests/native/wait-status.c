@@ -1,5 +1,6 @@
 /* Prints `byn_wait_status` for each case, one line each: the result, then `*code` and `*detail` (-1 when left untouched). */
 #include "bayan-rt.h"
+#include <errno.h>
 #include <stdio.h>
 #ifndef _WIN32
 #include <signal.h>
@@ -24,7 +25,9 @@ static uint32_t child_status(int exit_code) {
         _exit(exit_code < 0 ? 0 : exit_code);
     }
     int status = 0;
-    while (waitpid(pid, &status, 0) < 0) {}
+    pid_t waited;
+    while ((waited = waitpid(pid, &status, 0)) < 0 && errno == EINTR) {}
+    if (waited != pid) return 0xFFFFFFFFu;
     return (uint32_t)status;
 }
 #endif
