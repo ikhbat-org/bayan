@@ -1,0 +1,27 @@
+warning BYN5106: `CsvParser` is named for the act `parse` but has no `parse` member
+
+  6 │ public struct CsvParser {
+    │               ^^^^^^^^^
+    │
+  help: add a member named `parse`, or rename the type for what it is
+
+warning BYN5106: `RowBuilder` is named for the act `build` but has no `build` member
+
+  11 │ public struct RowBuilder {
+     │               ^^^^^^^^^^
+     │
+  help: add a member named `build`, or rename the type for what it is
+
+warning BYN5106: `ITableWriter` is named for the act `write` but has no `write` member
+
+  15 │ public interface ITableWriter {
+     │                  ^^^^^^^^^^^^
+     │
+  help: add a member named `write`, or rename the type for what it is
+
+warning BYN5106: `TableCodec` is named for the act `encode` but has no `encode` member
+
+  20 │ public struct TableCodec {
+     │               ^^^^^^^^^^
+     │
+  help: add a member named `encode` or `decode`, or rename the type for what it is

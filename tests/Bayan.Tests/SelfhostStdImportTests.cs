@@ -61,6 +61,36 @@ public sealed class SelfhostStdImportTests
         ("cycle/main.byn", "import std.a\nprint(\"hi\")"),
         ("package/main.byn", "import std.a\nprint(\"hi\")"),
         ("package/util/util.byn", "public i64 one() {\n    return 1\n}"),
+        // A std module is not checked by BYN5104 to BYN5107 (Q1191): the positions of `number-agreement-positions.diag`, all in std.
+        ("stds/lint/lint/lint.byn", """
+            public struct Line {
+                public i64 grams
+                public List<Line> line
+                public i64 linesCount
+            }
+
+            public i64 total(List<Line> line) => line.length
+
+            public interface IOrder {
+                List<Line> item
+                i64 linesCount
+                i64 weigh(List<Line> line)
+            }
+
+            public union Delivery {
+                shipped(List<Line> item, i64 numBoxes)
+            }
+
+            public union error OrderError {
+                rejected(List<Line> line)
+            }
+
+            public struct CsvParser {
+                i64 n
+            }
+            """),
+        ("lint/main.byn", "import std.lint\nprint(\"hi\")"),
+        ("lintuser/main.byn", "public struct Line {\n    public i64 grams\n    public List<Line> line\n    public i64 linesCount\n}\n\npublic i64 total(List<Line> line) => line.length\n\npublic interface IOrder {\n    List<Line> item\n}\n\npublic union Delivery {\n    shipped(List<Line> item, i64 numBoxes)\n}\n\npublic union error OrderError {\n    rejected(List<Line> line)\n}\n\npublic struct CsvParser {\n    i64 n\n}\n"),
         ("hidden/main.byn", "import std.probe\nprint(probe.hidden())"),
         ("effect/main.byn", "import std.probe\n\npublic void store() {\n    probe.save(\"x\")\n}\n\nvoid main() {\n    store()\n}"),
         ("capability/main.byn", "import std.probe\n\nvoid main() {\n    probe.save(\"x\")\n}"),
@@ -84,6 +114,8 @@ public sealed class SelfhostStdImportTests
         ("path", "chain", "chain", "stds/chain", ""),
         ("path", "cycle", "cycle", "stds/cycle", ""),
         ("path", "std-imports-package", "package", "stds/package", ""),
+        ("path", "lint-std", "lint", "stds/lint", ""),
+        ("path", "lint-user", "lintuser", "stds/probe", ""),
         ("path", "hidden", "hidden", "stds/probe", ""),
         ("path", "effect", "effect", "stds/probe", ""),
         ("path", "capability", "capability", "stds/probe", "c"),
@@ -124,6 +156,15 @@ public sealed class SelfhostStdImportTests
         var sections = Run.Value;
         var run = Runs.Single(r => $"{r.Kind} {r.Name}" == section);
         SelfhostSemanticsHarness.AssertSection(sections, section, Expected(run.Kind, Path.Combine(CasesDir, run.Path), Path.Combine(CasesDir, run.Std), run.Flags));
+    }
+
+    [Fact]
+    public void StdIsNotCheckedByTheNamingLints()
+    {
+        var std = Run.Value["path lint-std"];
+        Assert.DoesNotContain(std, l => l.Contains(" BYN510"));
+        var user = Run.Value["path lint-user"];
+        foreach (var code in new[] { "BYN5104", "BYN5105", "BYN5106" }) Assert.Contains(user, l => l.StartsWith("diag " + code + " ", StringComparison.Ordinal));
     }
 
     // ── The C# oracle ───────────────────────────────────────────────────────────

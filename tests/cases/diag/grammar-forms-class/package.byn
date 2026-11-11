@@ -1,0 +1,11 @@
+Package {
+    name:    "local/crew",
+    version: "0.1.0",
+    grammar: Grammar {
+        verbs:       ["regrind"],
+        nouns:       ["criterion"],
+        adjectives:  ["good"],
+        collectives: ["staff"],
+        forms:       ["regrind": "reground", "criterion": "criteria", "good": "better", "staff": "staves"],
+    },
+}

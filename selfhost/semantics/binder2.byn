@@ -238,9 +238,17 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
             return bindContinue(ref b, through: ref c, for: in cont.value)
         case .ifStmt(let i):
             let cond = bindCondition(ref b, through: ref c, for: in i.value.condition)
+            var thenCond = (false, TextSpan { start: 0, length: 0 }, TextSpan { start: 0, length: 0 })
+            switch i.value.condition {
+                case .memberExpr(let me):
+                    thenCond = (true, parser.exprSpan(me.value.target), me.value.member)
+                default: {}
+            }
+            b.thenOf.append(thenCond)
             let sThen = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: true)
             let thenBranch = bindBody(ref b, through: ref c, for: in i.value.then)
             narrowedEnd(ref b, through: ref c, by: move sThen)
+            let _ = b.thenOf.removeLast()
             var elseBranch: BStmt = -1
             switch i.value.elseKeyword {
                 case .none:

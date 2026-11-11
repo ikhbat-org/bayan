@@ -18,6 +18,7 @@ public sealed class SelfhostEmitterSpeedTests(ITestOutputHelper output)
 
     private static double Median(IEnumerable<double> times) => times.Order().ElementAt(2);
 
+    [Trait("Snapshot", "skip")]
     [Fact]
     public void OneMegabyteLowerAndEmitWithinTenTimes()
     {

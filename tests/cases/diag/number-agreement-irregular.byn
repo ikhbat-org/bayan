@@ -1,0 +1,15 @@
+public struct Line {
+    public i64 grams
+}
+
+public struct Roster {
+    public List<Line> person
+    public Line people
+    public List<Line> child
+    public i64 peopleCount
+    public i64 childrenCount
+    public i64 numIndices
+    public i64 numberOfMatrices
+}
+
+print("ok")

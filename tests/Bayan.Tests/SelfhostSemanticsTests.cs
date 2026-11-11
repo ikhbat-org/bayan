@@ -380,7 +380,7 @@ public sealed class SelfhostSemanticsTests
         static bool Checker(string code) =>
             int.Parse(code.AsSpan(3), CultureInfo.InvariantCulture) is >= 2000 and <= 8999 || code is "BYN1016" or "BYN1054" or "BYN1056";
         var table = DiagnosticCodes.All.Where(d => Checker(d.Code)).ToList();
-        foreach (var name in new[] { "ConversionMember", "BecomeOtherState", "BecomesCallUndeclared" })
+        foreach (var name in new[] { "ConversionMember", "BecomeOtherState", "BecomesCallUndeclared", "NumberAgreementOne" })
         {
             var extra = (DiagnosticDescriptor)typeof(DiagnosticCodes).GetField(name, BindingFlags.Public | BindingFlags.Static)!.GetValue(null)!;
             table.Insert(table.FindLastIndex(d => d.Code == extra.Code) + 1, extra);

@@ -580,6 +580,7 @@ void declare(ref Ctx c) {
                 c.unions[rule].variants.append(sym)
             }
         default:
+            // coverage-exempt: Q1197
             panic("the builtin `Rule` is a union")
     }
     for m in copyIds(in c.moduleOrder) {
@@ -594,6 +595,7 @@ void declare(ref Ctx c) {
         for s in copyIds(in c.modules[m].structs) { checkMembers(ref c, for: s) }
         var free = List<FuncId>()
         for f in copyIds(in c.modules[m].allFunctions) {
+            // coverage-exempt: Q1197
             if c.functions[f].owner < 0 && !functionIsInstance(ref c, by: f) && c.functions[f].kind != .main && c.functions[f].kind != .testKeyword {
                 free.append(f)
             }
@@ -604,9 +606,11 @@ void declare(ref Ctx c) {
                 case .functionDecl(let decl):
                     declareSignature(ref c, for: f, from: in decl.value, by: file)
                 default:
+                    // coverage-exempt: Q1197
                     panic("a free function is declared by a `FunctionDecl`")
             }
         }
+        checkSignatures(ref c, for: m)
         checkOverloads(ref c, for: m)
     }
     c.membersDeclared = true

@@ -10,7 +10,7 @@ import parser
 
 // ── Lexicon.cs ──────────────────────────────────────────────────────────────────
 
-/// Fills `c.lexiconVerbs`/`lexiconNouns`/`lexiconAdjectives` with the built-in word list
+/// Fills `c.lexiconVerbs`/`lexiconNouns`/`lexiconAdjectives`/`lexiconCollectives`/`lexiconIrregularPlurals`/`lexiconIrregularSingulars` with the built-in word list
 /// (docs/bayan-grammar.md §7, §13); a second call does nothing. Inflected forms are derived, not listed.
 void buildLexicon(ref Ctx c) {
     if c.lexiconVerbs.length > 0 { return }
@@ -90,10 +90,16 @@ void buildLexicon(ref Ctx c) {
         "deep", "default", "dirty", "due", "early", "empty", "even", "exact", "external", "fast", "final", "fresh", "full",
         "global", "good", "high", "idle", "inner", "internal", "invalid", "large", "late", "lazy", "light", "live", "long",
         "low", "main", "many", "maximum", "minimum", "mutable", "native", "negative", "net", "new", "next", "odd", "old",
-        "open", "other", "outer", "own", "paid", "pending", "positive", "previous", "prime", "private", "public", "raw",
+        "open", "other", "outer", "overdue", "own", "paid", "pending", "positive", "previous", "prime", "private", "public", "raw",
         "ready", "real", "red", "safe", "same", "short", "simple", "single", "slow", "small", "stale", "static", "strict",
         "unique", "upper", "valid", "visible", "whole", "zero",
     ]
+    c.lexiconCollectives = [
+        "span", "list", "map", "set", "array", "buffer", "queue", "stack", "batch", "history", "inventory", "catalog", "data",
+        "metadata",
+    ]
+    c.lexiconIrregularPlurals = ["people", "children", "criteria", "indices", "matrices", "data"]
+    c.lexiconIrregularSingulars = ["person", "child", "criterion", "index", "matrix", "datum"]
 }
 
 /// Particles (spec §10), the prefixes of derived names, and function words a name may join with.
@@ -177,7 +183,7 @@ void checkMembersWith(ref Ctx c, for StructId s, by in Grammar grammar) {
         let isPublic = structPublic && c.functions[fn].access == .publicKeyword
         if isMutating && !isBool(ret) { checkParticiple(ref c, by: grammar, from: f, at: name, for: text) }
         checkParticleName(ref c, for: s, from: f, at: name, by: text, isStatic: isStatic)
-        checkWords(ref c, by: grammar, from: f, at: name, for: text)
+        checkWords(ref c, by: grammar, from: f, at: name, for: text, as: isMutating ? "verbs" : isBool(ret) ? "adjectives" : "nouns")
         if noArgs && isMutating && isStateName(text) {
             report(ref c, for: .stateMemberMutates, from: f, at: name, by: (a0: text, a1: "", a2: "", a3: "", a4: ""), label: "declared `ref this`",
                 help: "remove `ref this` so it only reads, or name the action with a verb")
@@ -215,24 +221,510 @@ void checkMembersWith(ref Ctx c, for StructId s, by in Grammar grammar) {
         let name = c.properties[p].nameSpan
         let text = $"{c.properties[p].name}"
         checkParticleName(ref c, for: s, from: f, at: name, by: text, isStatic: false)
-        checkWords(ref c, by: grammar, from: f, at: name, for: text)
+        checkWords(ref c, by: grammar, from: f, at: name, for: text, as: isBool(c.properties[p].type) ? "adjectives" : "nouns")
         if isBool(c.properties[p].type) && structPublic && c.properties[p].access == .publicKeyword {
             checkBoolState(ref c, from: f, at: name, for: text)
         }
     }
+    // BYN5104 to BYN5107 do not check the standard library (Q1191; all four, user 2026-11-11).
+    if !structPublic || c.modules[c.structs[s].module].directory.startsWith("<std>/") { return }
+    for field in copyIds(in c.structs[s].fields) {
+        if c.fields[field].access != .publicKeyword || t7MemberRenamed(ref c, from: f, at: c.fields[field].declIndex, by: c.fields[field].memberIndex) { continue }
+        let name = c.fields[field].nameSpan
+        let text = $"{c.fields[field].name}"
+        let type = c.fields[field].type
+        unless checkCount(ref c, by: grammar, from: f, at: name, for: text, as: type) { checkNumber(ref c, by: grammar, from: f, at: name, for: text, as: type) }
+    }
+    for p in copyIds(in c.structs[s].properties) {
+        if c.properties[p].access != .publicKeyword || t7MemberRenamed(ref c, from: f, at: c.properties[p].declIndex, by: c.properties[p].memberIndex) { continue }
+        let name = c.properties[p].nameSpan
+        let text = $"{c.properties[p].name}"
+        let type = c.properties[p].type
+        unless checkCount(ref c, by: grammar, from: f, at: name, for: text, as: type) { checkNumber(ref c, by: grammar, from: f, at: name, for: text, as: type) }
+    }
+    for fn in copyIds(in c.structs[s].methods) {
+        if c.functions[fn].access != .publicKeyword { continue }
+        t7CheckParameters(ref c, by: grammar, from: f, for: fn)
+    }
+    var publicMethods = List<FuncId>()
+    for fn in copyIds(in c.structs[s].methods) {
+        if c.functions[fn].access == .publicKeyword { publicMethods.append(fn) }
+    }
+    var others = List<string>()
+    for field in copyIds(in c.structs[s].fields) {
+        if c.fields[field].access == .publicKeyword { others.append($"{c.fields[field].name}") }
+    }
+    for p in copyIds(in c.structs[s].properties) {
+        if c.properties[p].access == .publicKeyword { others.append($"{c.properties[p].name}") }
+    }
+    checkDoer(ref c, by: grammar, from: f, for: c.structs[s].module, at: c.structs[s].declIndex, as: c.structs[s].nameSpan,
+        through: move publicMethods, until: move others)
+}
+
+/// Ports `Naming.CheckSignatures`: BYN5104 and BYN5105 on the rest of a module's public API, once top-level signatures
+/// are declared: the parameters of public top-level functions, a public interface's getters and its methods' parameters,
+/// and the payload fields of a public union or error set (the struct members are `checkMembers`'s).
+void checkSignatures(ref Ctx c, for ModId module) {
+    // The standard library is not checked (Q1191; user 2026-11-11), as in `checkMembersWith` and `checkDoer`.
+    if c.modules[module].directory.startsWith("<std>/") { return }
+    let grammar = grammarOf(ref c)
+    buildLexicon(ref c)
+    for fn in copyIds(in c.modules[module].allFunctions) {
+        // coverage-exempt: Q1200 through `|| functionIsInstance`
+        if c.functions[fn].kind != .function || c.functions[fn].owner >= 0 || c.functions[fn].iface >= 0
+            || functionIsInstance(ref c, by: fn) || c.functions[fn].access != .publicKeyword { continue }
+        t7CheckParameters(ref c, by: grammar, from: c.functions[fn].file, for: fn)
+    }
+    for i in copyIds(in c.modules[module].interfaces) {
+        if c.interfaces[i].access != .publicKeyword { continue }
+        let source = c.interfaces[i].file
+        for member in t7InterfaceGetters(ref c, for: i) {
+            if member.renamed { continue }
+            var getter: FuncId = -1
+            for g in c.interfaces[i].properties {
+                if c.functions[g].nameSpan == member.name {
+                    getter = g
+                    break
+                }
+            }
+            // coverage-exempt: Q1200
+            if getter < 0 { continue }
+            let text = $"{getText(c.files[source].text.span, at: member.name)}"
+            let type = c.functions[getter].returnType
+            unless checkCount(ref c, by: grammar, from: source, at: member.name, for: text, as: type) { checkNumber(ref c, by: grammar, from: source, at: member.name, for: text, as: type) }
+        }
+        for fn in copyIds(in c.interfaces[i].methods) { t7CheckParameters(ref c, by: grammar, from: source, for: fn) }
+        var getters = List<string>()
+        for g in copyIds(in c.interfaces[i].properties) { getters.append($"{c.functions[g].name}") }
+        checkDoer(ref c, by: grammar, from: source, for: c.interfaces[i].module, at: c.interfaces[i].declIndex, as: c.interfaces[i].nameSpan,
+            through: copyIds(in c.interfaces[i].methods), until: move getters)
+    }
+    for u in copyIds(in c.modules[module].unions) {
+        if c.unions[u].access != .publicKeyword { continue }
+        let source = c.unions[u].file
+        for v in t7Payloads(ref c, from: source, at: c.unions[u].declIndex) {
+            let declared = findUnionVariant(ref c, by: u, for: v.variant)
+            // coverage-exempt: Q1200
+            if declared >= 0 { checkPayload(ref c, by: grammar, from: source, at: v.fields, for: copyIds(in c.unionVariants[declared].fields)) }
+        }
+    }
+    for set in copyIds(in c.modules[module].errorSets) {
+        if c.errorSets[set].access != .publicKeyword { continue }
+        let source = c.errorSets[set].file
+        for v in t7Payloads(ref c, from: source, at: c.errorSets[set].declIndex) {
+            let declared = findErrorVariant(ref c, by: set, for: v.variant)
+            // coverage-exempt: Q1200
+            if declared >= 0 { checkPayload(ref c, by: grammar, from: source, at: v.fields, for: copyIds(in c.errorVariants[declared].fields)) }
+        }
+    }
+}
+
+/// The `foreach (var p in fn.Parameters) if (p.Syntax is { } syntax) CheckNumber(…, syntax.Name, p.Type)` loop of
+/// `Naming.CheckMembers` and `Naming.CheckSignatures`: the parameters with syntax are read from the tree in
+/// `fn.parameters` order, as `checkParticles` reads them (Q552), and reported in `f`.
+void t7CheckParameters(ref Ctx c, by Grammar grammar, from FileId f, for FuncId fn) {
+    let facts = paramFacts(ref c, for: fn)
+    let params = copyIds(in c.functions[fn].parameters)
+    for k in 0..params.length {
+        // coverage-exempt: Q1200
+        if k >= facts.length { break }
+        let name = facts[k].name
+        let text = $"{getText(c.files[c.functions[fn].file].text.span, at: name)}"
+        checkNumber(ref c, by: grammar, from: f, at: name, for: text, as: c.locals[params[k]].type)
+    }
+}
+
+/// One `GetterDecl` or `PropertyDecl` of an interface's `Decl.Members`: its name and whether `IsRenamed` holds.
+struct T7Getter {
+    TextSpan name
+    bool renamed = false
+}
+
+/// The getter and property members of interface `i`'s declaration, in member order. Ports the `foreach (var member in i.Decl.Members)` `GetterDecl`/`PropertyDecl` switch of `Naming.CheckSignatures`.
+List<T7Getter> t7InterfaceGetters(ref Ctx c, for InterfaceId i) {
+    var found = List<T7Getter>()
+    let f = c.interfaces[i].file
+    switch c.files[f].unit.members[c.interfaces[i].declIndex] {
+        case .interfaceDecl(let n):
+            for m in n.value.members {
+                switch m {
+                    case .getterDecl(let g):
+                        found.append(T7Getter { name: g.value.name, renamed: isRenamed(g.value.attributes, from: c.files[f].text.span) })
+                    case .propertyDecl(let p):
+                        found.append(T7Getter { name: p.value.name, renamed: isRenamed(p.value.attributes, from: c.files[f].text.span) })
+                    default:
+                        continue
+                }
+            }
+        default:
+            // coverage-exempt: Q1200
+            return found
+    }
+    return found
+}
+
+/// One variant of a union or error set declaration: its name and its payload fields' name spans.
+struct T7Payload {
+    string variant
+    List<TextSpan> fields = List<TextSpan>()
+}
+
+/// The variants of the `UnionDecl` or `ErrorEnumDecl` at `declIndex` of file `f`, in declaration order. Ports the `UnionDecl`/`ErrorEnumDecl` variant walk of `Naming.CheckSignatures`.
+List<T7Payload> t7Payloads(ref Ctx c, from FileId f, at i64 declIndex) {
+    var found = List<T7Payload>()
+    switch c.files[f].unit.members[declIndex] {
+        case .unionDecl(let n):
+            for v in n.value.variants {
+                var fields = List<TextSpan>()
+                for field in v.fields { fields.append(field.name) }
+                found.append(T7Payload { variant: $"{getText(c.files[f].text.span, at: v.name)}", fields: move fields })
+            }
+        case .errorEnumDecl(let n):
+            for v in n.value.variants {
+                var fields = List<TextSpan>()
+                for field in v.fields { fields.append(field.name) }
+                found.append(T7Payload { variant: $"{getText(c.files[f].text.span, at: v.name)}", fields: move fields })
+            }
+        default:
+            // coverage-exempt: Q1200
+            return found
+    }
+    return found
+}
+
+/// Ports `Naming.CheckPayload`: each payload field whose declared parameter has its name's span is checked,
+/// BYN5105 first, then BYN5104.
+void checkPayload(ref Ctx c, by Grammar grammar, from FileId f, at List<TextSpan> fields, for List<LocalId> declared) {
+    for name in fields {
+        var field: LocalId = -1
+        for p in declared {
+            if c.locals[p].nameSpan == name {
+                field = p
+                break
+            }
+        }
+        // coverage-exempt: Q1200
+        if field < 0 { continue }
+        let text = $"{getText(c.files[f].text.span, at: name)}"
+        let type = c.locals[field].type
+        unless checkCount(ref c, by: grammar, from: f, at: name, for: text, as: type) { checkNumber(ref c, by: grammar, from: f, at: name, for: text, as: type) }
+    }
+}
+
+/// Ports `Naming.CheckDoer`: BYN5106 and BYN5107 on a public struct or interface named for a doer or a tool by its last
+/// word (revision 0021 Part 4): a built-in doer (`doerVerb`), `codec` (`encode` or `decode`), or a project verb's regular
+/// doer noun (`upsert` → `upserter`, `scan` → `scanner`). BYN5106: a public member, static or instance, is named its verb
+/// or a derived form (`tryX`, `xInto`, `xOp`). BYN5107: a tool (`isTool`) has no public `ref this` member. Other "-er"
+/// words (`Carrier`, `User`), function-type aliases and stored function fields are not types named for a doer here and
+/// are not checked, nor is the standard library. `declIndex` is the declaration `IsRenamed` reads; every method in
+/// `methods` has a declaration (`m.Decl is not null` holds: struct and interface methods are declared from a `FunctionDecl`).
+void checkDoer(ref Ctx c, by Grammar grammar, from FileId f, for ModId module, at i64 declIndex, as TextSpan name, through List<FuncId> methods, until List<string> others) {
+    let text = $"{getText(c.files[f].text.span, at: name)}"
+    // The standard library is not checked (Q1191): `std.json`'s `JsonReader` reads with `next`.
+    if c.modules[module].directory.startsWith("<std>/") || t8DeclRenamed(ref c, from: f, at: declIndex) || !isAllAscii(text) { return }
+    let words = wordSpans(text)
+    if words.length == 0 { return }
+    let noun = lowerAscii(words[words.length - 1].text)
+    var verbs = List<string>()
+    if noun == "codec" {
+        verbs.append("encode")
+        verbs.append("decode")
+    } else if (doerVerb(noun) is { } verb) {
+        verbs.append(verb)
+    } else {
+        var matches = List<string>()
+        for v in grammar.verbs {
+            if listContainsString(doerNouns(v), by: noun) { matches.append(v) }
+        }
+        t11SortOrdinal(ref matches)
+        if matches.length > 0 { verbs.append(matches[0]) }
+    }
+    if verbs.length == 0 { return }
+    var acted = false
+    for m in methods {
+        for v in verbs {
+            if actsAs(c.functions[m].name, for: v) { acted = true }
+        }
+    }
+    for m in others {
+        for v in verbs {
+            if actsAs(m, for: v) { acted = true }
+        }
+    }
+    unless acted {
+        var named = StrBuf()
+        for k in 0..verbs.length {
+            if k > 0 { named.append(" or ") }
+            named.append($"`{verbs[k]}`")
+        }
+        report(ref c, for: .doerWithoutVerb, from: f, at: name, by: (a0: text, a1: verbs[0], a2: "", a3: "", a4: ""),
+            help: $"add a member named {named.finish()}, or rename the type for what it is")
+    }
+    unless isTool(noun) { return }
+    for m in methods {
+        if c.functions[m].isMutating {
+            report(ref c, for: .instrumentChangesThis, from: f, at: c.functions[m].nameSpan, by: (a0: text, a1: $"{c.functions[m].name}", a2: "", a3: "", a4: ""),
+                help: "remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step")
+        }
+    }
+}
+
+/// The local `Acts` of `Naming.CheckDoer` for one verb `v`: `m` is `v`, `tryV`, `vInto` or `vOp`.
+bool actsAs(string m, for string v) =>
+    m == v || m == $"try{upperAscii(v[0..1])}{v[1..v.length]}" || m == $"{v}Into" || m == $"{v}Op"
+
+/// `IsRenamed(decl)` for `CheckDoer`: the struct or interface declaration at `declIndex` of file `f`. A `type distinct`'s
+/// struct is declared from its alias here; its C# `StructDecl` is built without attributes, so it is not renamed.
+bool t8DeclRenamed(ref Ctx c, from FileId f, at i64 declIndex) {
+    switch c.files[f].unit.members[declIndex] {
+        case .structDecl(let n):
+            return isRenamed(n.value.attributes, from: c.files[f].text.span)
+        case .interfaceDecl(let n):
+            return isRenamed(n.value.attributes, from: c.files[f].text.span)
+        default:
+            return false
+    }
+}
+
+/// Ports `Naming.Doers`: the built-in doer and tool nouns and their verbs (revision 0021 Part 4); `codec` is `checkDoer`'s.
+string? doerVerb(string noun) => noun switch {
+    "parser" => "parse",
+    "builder" => "build",
+    "reader" => "read",
+    "writer" => "write",
+    "recorder" => "record",
+    "encoder" => "encode",
+    "decoder" => "decode",
+    "scanner" => "scan",
+    "loader" => "load",
+    "scheduler" => "schedule",
+    "renderer" => "render",
+    "formatter" => "format",
+    "handler" => "handle",
+    "hasher" => "hash",
+    "comparer" => "compare",
+    _ => null,
+}
+
+/// Ports `Naming.Tools`: the tool nouns of BYN5107: a tool keeps fixed settings and does not change `this`.
+bool isTool(string noun) => noun switch {
+    "hasher" or "comparer" or "codec" => true,
+    _ => false,
+}
+
+/// Ports `Naming.DoerNouns`: a verb's doer noun by regular spelling: `-er`, `-r` after `e`, `-ier` after a consonant and
+/// `y`, and a doubled final consonant (`scanner`).
+List<string> doerNouns(string verb) {
+    var nouns = List<string>()
+    let n = verb.length
+    if n < 2 { return nouns }
+    let last = verb.bytes[n - 1]
+    if last == 0x65 {
+        nouns.append($"{verb}r")
+        return nouns
+    }
+    if last == 0x79 && !isVowel(verb.bytes[n - 2]) {
+        nouns.append($"{verb[0..n - 1]}ier")
+        return nouns
+    }
+    nouns.append($"{verb}er")
+    if !isVowel(last) && last != 0x77 && last != 0x78 && last != 0x79 && isVowel(verb.bytes[n - 2]) { nouns.append($"{verb}{verb[n - 1..n]}er") }
+    return nouns
+}
+
+/// Ports `Naming.IsRenamed`: a name under a rename attribute (`@json(name: …)`, `@column(…)`) is forced from outside
+/// and exempt from BYN5104 and BYN5105 (grammar guide §1). `text` is the source the attribute names are read from.
+bool isRenamed(List<parser.AttributeSyntax> attributes, from ReadOnlySpan<u8> text) {
+    for a in attributes {
+        let name = getText(text, at: a.name)
+        if name == "json" || name == "column" { return true }
+    }
+    return false
+}
+
+/// `IsRenamed(f.Decl)` for a struct field or property: the `FieldDecl` or `PropertyDecl` at `memberIndex` of the
+/// struct declaration at `declIndex`. A `type distinct`'s `value` field has no member (`memberIndex` -1), as its C#
+/// `FieldDecl` is built without attributes.
+bool t7MemberRenamed(ref Ctx c, from FileId f, at i64 declIndex, by i64 memberIndex) {
+    if memberIndex < 0 { return false }
+    switch c.files[f].unit.members[declIndex] {
+        case .structDecl(let n):
+            switch n.value.members[memberIndex] {
+                case .fieldDecl(let d):
+                    return isRenamed(d.value.attributes, from: c.files[f].text.span)
+                case .propertyDecl(let d):
+                    return isRenamed(d.value.attributes, from: c.files[f].text.span)
+                default:
+                    // coverage-exempt: Q1200
+                    return false
+            }
+        default:
+            // coverage-exempt: Q1200
+            return false
+    }
+}
+
+/// Ports the local `IsLink` of `Naming.CheckNumber`: a particle or function word ends the head noun.
+bool isLink(string w) => isParticleWord(lowerAscii(w)) || isFunctionWord(lowerAscii(w))
+
+/// Ports `Naming.CheckNumber`. BYN5104: a collection (`List`, `Map`, spans, arrays, text views; `Untrusted`, `Owned`
+/// and `?` looked through) is named with a plural or a collective, anything else with a singular; the last word decides
+/// (revision 0021 Part 4), or the word before the first particle or function word. A `bool` is a state, not a noun,
+/// and a type parameter may be either; neither is checked. A collection is reported only when its last word is a
+/// known noun, so the plural in the message is always known; a number is never reported as plural.
+void checkNumber(ref Ctx c, by Grammar grammar, from FileId f, at TextSpan name, for string text, as Type type) {
+    if isBool(type) || kindOf(type) == .typeParam || kindOf(type) == .error || text == "_" || !isAllAscii(text) { return }
+    let spans = wordSpans(text)
+    if spans.length == 0 { return }
+    // A particle or function word ends the head noun: `modulesByDir` is decided by `modules`; `byPath` and `inGroup` by none.
+    if isLink(spans[0].text) { return }
+    var head: i64 = -1
+    for k in 1..spans.length {
+        if isLink(spans[k].text) {
+            head = k
+            break
+        }
+    }
+    let at = head < 0 ? spans.length - 1 : head - 1
+    let start = spans[at].start
+    let headText = spans[at].text
+    let word = lowerAscii(headText)
+    if listContainsString(c.lexiconCollectives, by: word) || listContainsString(grammar.collectives, by: word) { return }
+    var inner = type
+    while kindOf(inner) == .untrusted || kindOf(inner) == .owned || kindOf(inner) == .optional {
+        inner = kindOf(inner) == .untrusted ? c.untrustedTypes[typeIndex(inner)]
+            : kindOf(inner) == .owned ? c.ownedTypes[typeIndex(inner)] : c.optionalTypes[typeIndex(inner)]
+    }
+    let kind = kindOf(inner)
+    // coverage-exempt: Q1200
+    if kind == .list || kind == .map || kind == .span || kind == .array || kind == .textView {
+        // Only a noun has a plural: `covered`, `distinct` and `byKey` name a collection by what it holds or how it is keyed.
+        if looksPlural(ref c, for: word, by: grammar) || !isNoun(ref c, for: word, by: grammar) { return }
+        let pluralName = $"{text[0..start]}{matchCase(headText, as: plural(ref c, for: word, by: grammar))}{text[start + headText.length..text.length]}"
+        report(ref c, for: .numberAgreement, from: f, at: name, by: (a0: text, a1: pluralName, a2: "", a3: "", a4: ""),
+            help: $"rename it `{pluralName}`", hasFix: true, fixSpan: name, fixReplacement: pluralName)
+    } else if !isNumeric(inner) && isPlural(ref c, for: word, by: grammar) {
+        // A number named with a plural is a quantity in units (`cents`, `grams`); a count is BYN5105's.
+        let display = typeDisplay(ref c, by: type)
+        if (singular(ref c, for: word, by: grammar) is { } one) {
+            let singularName = $"{text[0..start]}{matchCase(headText, as: one)}{text[start + headText.length..text.length]}"
+            report(ref c, for: .numberAgreementOne, from: f, at: name, by: (a0: text, a1: display, a2: "", a3: "", a4: ""),
+                help: $"rename it `{singularName}`", hasFix: true, fixSpan: name, fixReplacement: singularName)
+        } else {
+            report(ref c, for: .numberAgreementOne, from: f, at: name, by: (a0: text, a1: display, a2: "", a3: "", a4: ""))
+        }
+    }
+}
+
+/// Ports `Naming.CheckCount`. BYN5105: an integer that counts items is singular noun + `Count`; `<plural>Count`,
+/// `num<Plural>` and `numberOf<Plural>` are renamed (revision 0021 Part 4). `length` is not a count name. True when it
+/// reports, so BYN5104 does not report the name again.
+bool checkCount(ref Ctx c, by Grammar grammar, from FileId f, at TextSpan name, for string text, as Type type) {
+    if !isInteger(type) || !isAllAscii(text) { return false }
+    var words = List<string>()
+    for w in wordSpans(text) { words.append(w.text) }
+    var counted = List<string>()
+    let n = words.length
+    if n > 1 && words[n - 1] == "Count" {
+        for k in 0..n - 1 { counted.append(words[k]) }
+    } else if n > 1 && words[0] == "num" {
+        for k in 1..n { counted.append(words[k]) }
+    } else if n > 2 && words[0] == "number" && words[1] == "Of" {
+        for k in 2..n { counted.append(words[k]) }
+    }
+    if counted.length == 0 { return false }
+    let last = lowerAscii(counted[counted.length - 1])
+    unless isPlural(ref c, for: last, by: grammar) { return false }
+    let one = singular(ref c, for: last, by: grammar) ?? return false
+    var head = StrBuf()
+    for k in 0..counted.length - 1 { head.append(counted[k]) }
+    let headText = $"{head.finish()}"
+    let fixedName = headText.length == 0 ? $"{one}Count"
+        : $"{lowerAscii(headText[0..1])}{headText[1..headText.length]}{matchCase(counted[counted.length - 1], as: one)}Count"
+    report(ref c, for: .countName, from: f, at: name, by: (a0: text, a1: fixedName, a2: "", a3: "", a4: ""),
+        help: $"rename it `{fixedName}`", hasFix: true, fixSpan: name, fixReplacement: fixedName)
+    return true
+}
+
+/// Ports `Naming.IsPlural`: a plural the checker knows: an irregular plural, a project noun's `forms` entry (not a
+/// verb's, Q1207), or a regular plural of a known noun.
+bool isPlural(ref Ctx c, for string word, by Grammar grammar) {
+    if listContainsString(c.lexiconIrregularPlurals, by: word) { return true }
+    return singular(ref c, for: word, by: grammar) is not null
+}
+
+/// Ports `Naming.LooksPlural`: a word that may be a plural, for a collection's name: `isPlural`, or any word ending
+/// in `s` but `ss`, `us` or `is`.
+bool looksPlural(ref Ctx c, for string word, by Grammar grammar) =>
+    isPlural(ref c, for: word, by: grammar) || word.endsWith("s") && !word.endsWith("ss") && !word.endsWith("us") && !word.endsWith("is")
+
+/// Ports `Naming.Singular`: the singular of `word`: the project noun whose `forms` entry it is, else an irregular
+/// plural's singular (`Lexicon.IrregularSingulars`), else the first regular base (`-ies`, `-es`, `-s` of the `Endings`
+/// table) that is a known noun; null when none is known.
+string? singular(ref Ctx c, for string word, by Grammar grammar) {
+    for (key, form) in grammar.forms {
+        if form == word && isNoun(ref c, for: key, by: grammar) { return key }
+    }
+    for k in 0..c.lexiconIrregularPlurals.length {
+        if c.lexiconIrregularPlurals[k] == word { return c.lexiconIrregularSingulars[k] }
+    }
+    if word.endsWith("ss") || word.endsWith("us") || word.endsWith("is") { return null }
+    let endings: List<string> = ["ies", "es", "s"]
+    for ending in endings {
+        if word.length <= ending.length + 1 || !word.endsWith(ending) { continue }
+        let bare = word[0..word.length - ending.length]
+        for r in endingReplacements(ending) {
+            let candidate = $"{bare}{r}"
+            if isNoun(ref c, for: candidate, by: grammar) { return candidate }
+        }
+    }
+    return null
+}
+
+/// Ports `Naming.Plural`: the plural of `word`: a project noun's `forms` entry, else the irregular plural whose
+/// singular it is (`Lexicon.IrregularSingulars`), else the regular spelling (`-s`, `-es`, `-ies`).
+string plural(ref Ctx c, for string word, by Grammar grammar) {
+    // coverage-exempt: Q1200
+    if isNoun(ref c, for: word, by: grammar) {
+        if (grammar.forms.tryGet(at: word) is { } form) { return form }
+    }
+    for k in 0..c.lexiconIrregularSingulars.length {
+        if c.lexiconIrregularSingulars[k] == word { return c.lexiconIrregularPlurals[k] }
+    }
+    let n = word.length
+    if n > 1 && word.bytes[n - 1] == 0x79 && !isVowel(word.bytes[n - 2]) { return $"{word[0..n - 1]}ies" }
+    if word.endsWith("s") || word.endsWith("x") || word.endsWith("z") || word.endsWith("ch") || word.endsWith("sh") {
+        return $"{word}es"
+    }
+    return $"{word}s"
+}
+
+/// Ports `Naming.IsNoun`.
+bool isNoun(ref Ctx c, for string word, by Grammar grammar) =>
+    listContainsString(c.lexiconNouns, by: word) || listContainsString(grammar.nouns, by: word)
+
+/// Ports `Naming.IsVerb`.
+bool isVerb(ref Ctx c, for string word, by Grammar grammar) =>
+    listContainsString(c.lexiconVerbs, by: word) || listContainsString(grammar.verbs, by: word)
+
+/// Ports `Naming.MatchCase`: `word` spelled with the first letter's case of `like`: `Line`, `lines` → `Lines`; there is no all-caps branch, because spec §5.1 keeps only a two-letter acronym uppercase, so `URLS` would fail BYN2009 (`URL`, `urls` → `Urls`).
+string matchCase(string like, as string word) {
+    if word.length == 0 || !isUpperAscii(like.bytes[0]) { return word }
+    return $"{upperAscii(word[0..1])}{word[1..word.length]}"
 }
 
 /// BYN5001: an `-ed` name is a changed copy or a view, so a member that takes `ref this` is a plain verb (revision 0005).
 void checkParticiple(ref Ctx c, by in Grammar grammar, from FileId f, at TextSpan name, for string text) {
     var stems = List<string>()
+    // A form is read by its word's class: the -ed spelling for a verb only, the plural for a noun (revision 0021 Part 3).
     for (word, form) in grammar.forms {
-        if form == text { stems.append(word) }
+        if form == text && isVerb(ref c, for: word, by: grammar) { stems.append(word) }
     }
     if stems.length == 0 { stems = participleStems(text) }
     if stems.length == 0 { return }
     var stem = stems[0]
     for w in stems {
-        if listContainsString(c.lexiconVerbs, by: w) || listContainsString(grammar.verbs, by: w) {
+        if isVerb(ref c, for: w, by: grammar) {
             stem = w
             break
         }
@@ -273,8 +765,9 @@ bool isPrimitiveWord(string w) => w switch {
 
 /// BYN5014: every word of a member name is a word the checker knows, from the lexicon or the project's
 /// `grammar` (J85), directly or by a regular ending (`bases`). Names with letters outside ASCII, single
-/// letters and math names are not checked.
-void checkWords(ref Ctx c, by in Grammar grammar, from FileId f, at TextSpan name, for string text) {
+/// letters and math names are not checked. The help offers the three classes, the best guess first: `guess` is
+/// `verbs` for a member that changes `this`, `adjectives` for a `bool` member, else `nouns`.
+void checkWords(ref Ctx c, by in Grammar grammar, from FileId f, at TextSpan name, for string text, as string guess) {
     if isMathWord(text) || !isAllAscii(text) { return }
     for w in wordSpans(text) {
         let word = trimDigits(lowerAscii(w.text))
@@ -282,9 +775,12 @@ void checkWords(ref Ctx c, by in Grammar grammar, from FileId f, at TextSpan nam
         if isKnown(ref c, for: word, by: grammar) { continue }
         report(ref c, for: .unknownWord, from: f, at: TextSpan { start: name.start + w.start, length: w.text.length },
             by: (a0: word, a1: "", a2: "", a3: "", a4: ""),
-            help: $"add it to `grammar` in package.byn: `verbs: [\"{word}\"]`, `nouns: [\"{word}\"]` or `adjectives: [\"{word}\"]`")
+            help: $"add it to `grammar` in package.byn: {offer(guess, for: word)}, {offer(guess == "verbs" ? "nouns" : "verbs", for: word)} or {offer(guess == "adjectives" ? "nouns" : "adjectives", for: word)}")
     }
 }
+
+/// Ports `Naming.Offer`.
+string offer(string field, for string word) => $"`{field}: [\"{word}\"]`"
 
 bool isKnown(ref Ctx c, for string word, by in Grammar grammar) {
     if isListed(ref c, for: word, by: grammar) { return true }
@@ -299,8 +795,10 @@ bool isKnown(ref Ctx c, for string word, by in Grammar grammar) {
 
 bool isListed(ref Ctx c, for string w, by in Grammar grammar) =>
     listContainsString(c.lexiconVerbs, by: w) || listContainsString(c.lexiconNouns, by: w) || listContainsString(c.lexiconAdjectives, by: w)
+    || listContainsString(c.lexiconCollectives, by: w) || listContainsString(c.lexiconIrregularPlurals, by: w)
     || isParticleWord(w) || isFunctionWord(w)
     || listContainsString(grammar.verbs, by: w) || listContainsString(grammar.nouns, by: w) || listContainsString(grammar.adjectives, by: w)
+    || listContainsString(grammar.collectives, by: w)
 
 /// The words `word` may be a regular form of: plurals and third person (`-s`, `-es`, `-ies`), `-ed`, `-ing`,
 /// doers (`-er`, `-or`), `-est`, `-ly`, and `un-`/`re-`; a doubled final consonant is undone (`runner` → `run`).
@@ -337,15 +835,22 @@ List<string> endingReplacements(string ending) => ending switch {
 }
 
 /// Naming.cs:187 GrammarOf: the project dictionary from `package.byn` beside the package's sources (`displayRoot`),
-/// lowered; empty without one. The C# caches it per compilation; this reads it per `checkMembers` (Q657).
+/// lowered; empty without one. Read once per compilation and kept in `c.grammarRead`, as the C# caches it (a copy is returned: `Grammar` is unique).
 Grammar grammarOf(ref Ctx c) {
+    if !c.grammarKnown {
+        c.grammarRead = readGrammar(ref c)
+        c.grammarKnown = true
+    }
+    return lowerGrammar(in c.grammarRead)
+}
+
+Grammar readGrammar(ref Ctx c) {
     let path = t11Combine(c.displayRoot, by: "package.byn")
-    // `File.Exists(path) ? Manifest.Read(path)`: a directory or a missing path is no file; a file `Manifest.Read`
-    // cannot read throws out of the C# compiler, a panic here (as `t11ReadAllBytes`, Q571).
+    // `File.Exists(path) ? Manifest.Read(path)`: a directory or a missing path is no file; a file that exists but cannot
+    // be read is an empty grammar too (user 2026-11-11; Q565: an unreadable manifest reads as an empty one).
     if t11DirectoryExists(path) { return Grammar {} }
     let bytes = Io.readFile(path) catch switch {
-        IoError.notFound => return Grammar {},
-        IoError e => panic($"cannot read `{path}`"),
+        IoError e => return Grammar {},
     }
     let manifest = manifestParse(lexer.SourceText.create("package.byn", from: move bytes))
     return lowerGrammar(in manifest.grammar)
@@ -365,6 +870,7 @@ Grammar lowerGrammar(in Grammar grammar) {
     for w in grammar.verbs { lower.verbs.append(lowerAscii(w)) }
     for w in grammar.nouns { lower.nouns.append(lowerAscii(w)) }
     for w in grammar.adjectives { lower.adjectives.append(lowerAscii(w)) }
+    for w in grammar.collectives { lower.collectives.append(lowerAscii(w)) }
     for (word, form) in grammar.forms { lower.forms[lowerAscii(word)] = lowerAscii(form) }
     return lower
 }

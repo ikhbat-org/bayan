@@ -1,0 +1,22 @@
+public struct Order {
+    public i64 total
+}
+
+// A tool keeps fixed settings and does not change `this`.
+public struct OrderHasher {
+    u64 seed
+    public u64 hash(ref this, Order order) {
+        seed += 1
+        return seed
+    }
+}
+
+public struct OrderComparer {
+    public i64 compare(ref this, Order order) => order.total
+}
+
+public interface IOrderCodec {
+    string encode(ref this, Order order)
+}
+
+print("ok")

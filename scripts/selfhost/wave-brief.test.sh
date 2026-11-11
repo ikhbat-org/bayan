@@ -75,7 +75,11 @@ if git cat-file -e $old:scripts/selfhost/wave-brief.py 2> /dev/null; then
   cp tmp/010-t43/prompt.md tmp/wave-brief-old/prompt.md; cp tmp/010-t43/review.md tmp/wave-brief-old/review.md
   python3 -I scripts/selfhost/wave-brief.py . T43 > /dev/null; python3 -I scripts/selfhost/review-brief.py . T43 > /dev/null
   cmp -s tmp/wave-brief-old/prompt.md tmp/010-t43/prompt.md || { echo "FAIL: the 010 T43 writer brief changed"; exit 1; }
-  cmp -s tmp/wave-brief-old/review.md tmp/010-t43/review.md || { echo "FAIL: the 010 T43 review brief changed"; exit 1; }
+  # the one intended change since: the cite-format paragraph (50d0eed7), which preflight.sh checks on every spec's land, 010 too
+  grep -v '^Cite format (`scripts/selfhost/preflight.sh`' tmp/010-t43/review.md | cat -s > tmp/wave-brief-old/review-now.md
+  cat -s tmp/wave-brief-old/review.md > tmp/wave-brief-old/review-then.md
+  grep -q '^Cite format (`scripts/selfhost/preflight.sh`' tmp/010-t43/review.md || { echo "FAIL: the 010 T43 review brief lost the cite format"; exit 1; }
+  cmp -s tmp/wave-brief-old/review-then.md tmp/wave-brief-old/review-now.md || { echo "FAIL: the 010 T43 review brief changed"; exit 1; }
   rm -rf tmp/wave-brief-old
 fi
 # a C runtime source named in a task line (012 T16, src/runtime/bayan-rt.c) is in its guard --allow
