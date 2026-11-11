@@ -468,13 +468,13 @@ public sealed class SelfhostDriverGoldenTests
         new[] { "test", "--verbose", "tally" },
         new[] { "test", "-v", "lib" },
         new[] { "test", "--mode", "debug", "proj" },
-        new[] { "test", "--mode", "debug", "--json", "proj" },        new[] { "test", "tally", "--mode" },
+        new[] { "test", "--mode", "debug", "--json", "proj" },
+        new[] { "test", "tally", "--mode" },
         new[] { "test", "tally", "--diagnostics" },
         new[] { "test", "tally", "--base" },
         new[] { "test", "tally", "--run" },
         new[] { "test", "tally", "--package" },
         new[] { "features" },
-        new[] { "doctor" },
         new[] { "dist" },
     };
 

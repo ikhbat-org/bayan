@@ -140,6 +140,7 @@ T5Options t11T5(in T11Options o) uses alloc => T5Options { path: o.path, mode: o
 
 /// CliApp.cs:627 `DeleteWorkDir`: errors are ignored.
 void deleteWorkDir(string dir) uses alloc, fs {
+    // coverage-exempt: Q1219 an IO failure the C# ignores
     t9DeleteTree(dir) catch return
 }
 
@@ -150,7 +151,7 @@ i64 testTimeout() uses alloc, env {
 }
 
 /// `Paint` (CliApp.cs:385) with the stdout style: `role` is a `t7Prefix` role, `bold` puts `Palette.Bold` before it. build.byn
-/// `t5Paint` has neither the warning role nor bold (Q1251).
+/// `t5Paint` has neither the warning role nor bold (Q1217).
 string t11Paint(i64 role, by in DStyle style, for string text, bool bold = false) uses alloc {
     unless style.color { return $"{text}" }
     return $"{bold ? "\u{1b}[1m" : ""}{t7Prefix(by: style.palette, for: role)}{text}\u{1b}[0m"
@@ -189,6 +190,7 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     var ok = false
     var compiled = t5Compile(in t11T5(in o), by: in symbolsErr, to: ref reported, through: ref ok, includeTests: true, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
     unless ok { return exitFailure }
+    // coverage-blocked: Q1220 T13 mutateTests through `if o.mutate { return refuse("test --mutate") }`
     if o.run is not null && !o.mutate {
         Io.stderr.write("bayan: unexpected argument `--run`\n")
         return exitUsage
@@ -197,9 +199,9 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         Io.stderr.write($"bayan: unexpected argument `{o.coverage ? "--coverage" : "--json"}`\n")
         return exitUsage
     }
-    // stub: T11 `MutateTests` (CliApp.cs:855) is T13's (blocked: Q1254)
+    // stub: T11 `MutateTests` (CliApp.cs:855) is T13's (blocked: Q1220)
     if o.mutate { return refuse("test --mutate") }
-    // `compiled.Manifest?.Summary ?? true`: the manifest keeps no `summary` (Q1251).
+    // `compiled.Manifest?.Summary ?? true`: the manifest keeps no `summary` (Q1217).
     let probes = o.coverage || o.mode == "debug"
     let host = t5HostTarget()
     var map = T11CoverageMap {}
@@ -268,6 +270,7 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     if probes {
         let temp = Path.combine(t9TempPath(), $"bayan-coverage-{t9Unique(ref d)}")
         // `Directory.CreateTempSubdirectory` throws, uncaught, when the temporary directory cannot be written.
+        // coverage-exempt: Q1219 an IO failure the C# lets escape
         Io.createDirectory(temp) catch { panic($"cannot create the directory {temp}") }
         coverageDir = temp
         let prefix = Path.combine(temp, "BAYAN_COVERAGE")
@@ -299,6 +302,7 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         let outcome = runTest(executable, at: i, by: coveragePrefix, for: timeout)
         done(ref progress)
         if (coveragePrefix is { } prefix) {
+            // coverage-exempt: Q1219 an unreadable counter file
             if outcome.timedOut || !mergeCounters($"{prefix}.{i}", to: ref hits) { unknown = true }
         }
         var status = TestStatus.panicked
@@ -314,11 +318,13 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         let captured = $"{outcome.stdout}{outcome.stderr}".trimmed(from: .end)
         var details = captured
         if outcome.timedOut {
+            // coverage-exempt: Q1216 a timed-out test keeps no output
             details = $"timed out after {(timeout + 500) / 1000} s{captured.length > 0 ? $"\n{captured}" : ""}"
         }
         var file = ""
         var line: i64 = 0
         let f = compiled.tests[t].file
+        // coverage-exempt: Q1219 every test has a location
         if f != -1 {
             file = compiled.files[f].path
             line = t11Line(in compiled.files[f].text, at: compiled.tests[t].span.start)
@@ -388,32 +394,35 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     if compiled.manifest is not null {
         let testDir = Path.combine(Path.combine(compiled.displayRoot, "out"), "test")
         // `Directory.CreateDirectory` and `Toolchain.ReplaceFile` throw, uncaught, on an IO error.
+        // coverage-exempt: Q1219 through `t11ReplaceText(resultsPath` IO failures the C# lets escape
         Io.createDirectory(testDir) catch { panic($"cannot create the directory {testDir}") }
         let resultsPath = Path.combine(testDir, "results.json")
         t11ReplaceText(resultsPath, from: json, through: ref d) catch { panic($"cannot write {resultsPath}") }
     }
+    // coverage-exempt: Q1217 through `return failed > 0 || gated` no coverage gate applies
     let gated = probes && writeCoverage(in o, by: in compiled, from: in map, through: in hits, for: unknown, as: partial, to: buildNanos, at: totalNanos, quiet: !human)
     if (coverageDir is { } cd) { deleteWorkDir(cd) }
     return failed > 0 || gated ? exitTestFailure : exitOk
 }
 
 /// Toolchain.cs:262 `ReplaceFile(path, temp => File.WriteAllText(temp, json))` (CliApp.cs:775): cache.byn's `replaceFile` with the text
-/// written instead of a file copied (Q1251).
+/// written instead of a file copied (Q1217).
 void t11ReplaceText(string path, from string text, through ref DCtx d) uses alloc, clock, fs fails IoError {
     let temp = $"{path}.{t9Unique(ref d)}.tmp"
     defer t9DeleteFile(temp)
     try Io.writeFile(temp, text.bytes)
     for _ in 1..50 {
-        // coverage-exempt: Q1251 a rename that fails and then succeeds (another process holds `path`, Windows)
+        // coverage-exempt: Q1217 a rename that fails and then succeeds (another process holds `path`, Windows)
         Fs.rename(temp, to: path) catch continue
         return
     }
-    // coverage-exempt: Q1251 the 50th try, after 49 failed renames
+    // coverage-exempt: Q1217 the 50th try, after 49 failed renames
     try Fs.rename(temp, to: path)
 }
 
 /// CliApp.cs:790 `MergeCounters`: a test's counter file added to `hits`; false when it is unreadable. A missing file adds nothing.
 bool mergeCounters(string counterFile, to ref Map<i64, u64> hits) uses alloc, fs {
+    // coverage-exempt: Q1219 through `?? return false` a missing or unreadable counter file
     unless t1FileExists(counterFile) { return true }
     let counts = readCounters(counterFile) ?? return false
     for (id, n) in counts {
@@ -438,11 +447,13 @@ bool writeCoverage(in T11Options o, by in semantics.Ctx compiled, from in emitte
     let root = compiled.manifest is not null ? compiled.displayRoot : Path.directoryName(full) ?? ""
     let dir = Path.combine(Path.combine(root, "out"), "test")
     // `Directory.CreateDirectory` and `File.WriteAllText` throw, uncaught, on an IO error.
+    // coverage-exempt: Q1219 through `qualityJson(in report)` IO failures the C# lets escape
     Io.createDirectory(dir) catch { panic($"cannot create the directory {dir}") }
     let quality = Path.combine(dir, "bayan-quality.json")
     Io.writeFile(quality, qualityJson(in report).bytes) catch { panic($"cannot write {quality}") }
     for f in report.files {
         let path = Path.isRooted(f.path) ? f.path : Path.fullPath(Path.combine(root, f.path))
+        // coverage-exempt: Q1219 through `qualityListing(in f` a listed file deleted during the run, and IO failures the C# lets escape
         unless t1FileExists(path) { continue }
         let listing = Path.combine(dir, $"{listingName(Path.relative(root, to: path))}.cov.txt")
         let parent = Path.directoryName(listing) ?? dir
@@ -451,7 +462,8 @@ bool writeCoverage(in T11Options o, by in semantics.Ctx compiled, from in emitte
         let lines = t11ReadAllLines(text)
         Io.writeFile(listing, qualityListing(in f, from: in lines).bytes) catch { panic($"cannot write {listing}") }
     }
-    // `m.MinLines`, `MinBranches` and `MinErrorPaths`: the manifest keeps none of them, so no gate applies (Q1251).
+    // `m.MinLines`, `MinBranches` and `MinErrorPaths`: the manifest keeps none of them, so no gate applies (Q1217).
+    // coverage-exempt: Q1217 no coverage gate applies
     return !partial && compiled.manifest is not null && t11ReportGates(gatesCoverage(in report, by: null, for: null, through: null))
 }
 
@@ -468,6 +480,7 @@ List<string> t11ReadAllLines(string text) uses alloc {
 
 /// CliApp.cs:846 `ListingName`: each `..` segment becomes `_`; a rooted path keeps only its file name.
 string listingName(string relative) uses alloc {
+    // coverage-exempt: Q1219 through `s == ".."` a rooted, Windows or `..` path
     if Path.isRooted(relative) { return Path.fileName(relative) }
     let windows = Target.os == "windows"
     let separator = windows ? "\\" : "/"
@@ -484,6 +497,7 @@ string listingName(string relative) uses alloc {
 
 /// CliApp.cs:951 `ReportGates`: a line per failed gate, then what it misses; whether any failed.
 bool t11ReportGates(in List<GateFailure> failures) uses alloc, console {
+    // coverage-exempt: Q1217 through `for line in f.missing` no coverage gate applies
     for f in failures {
         Io.stderr.write($"bayan: {f.name} {gatesFmt(f.covered, by: f.total)}% < {f.min}%\n")
         for line in f.missing { Io.stderr.write($"{line}\n") }
@@ -562,6 +576,7 @@ T11ChangedSet? changedModules(in semantics.Ctx compiled, by in T11Options o, for
     var lsArgs = List<string>()
     for a in ["ls-files", "-z", "--others", "--exclude-standard", "--", "."] { lsArgs.append(a) }
     let ls = distGit(git, at: dir, by: in lsArgs)
+    // coverage-exempt: Q1219 `git ls-files` failing after `git diff` succeeded
     let untracked = ls.code == 0 ? ls.stdout : ""
     var set = T11ChangedSet {}
     for relative in $"{diff.stdout}\u{0}{untracked}".parts(by: "\u{0}") {
@@ -579,6 +594,7 @@ T11ChangedSet? changedModules(in semantics.Ctx compiled, by in T11Options o, for
 /// CliApp.cs:1061 `ModuleOf`: the module directory of test `testIndex`; empty without a location.
 string moduleOf(in semantics.Ctx compiled, for i64 testIndex, by string entry) uses alloc, fs {
     let f = compiled.tests[testIndex].file
+    // coverage-exempt: Q1219 every test has a location
     if f == -1 { return "" }
     let path = compiled.files[f].path
     return moduleDirectory(in compiled, for: Path.isRooted(path) ? path : Path.fullPath(Path.combine(compiled.displayRoot, path)), by: entry)
@@ -593,7 +609,7 @@ string moduleDirectory(in semantics.Ctx compiled, for string file, by string ent
     return dir
 }
 
-/// CliApp.cs:389 `EntryModule` (private in semantics, Q1251): `app`, or a library's short name in camelCase.
+/// CliApp.cs:389 `EntryModule` (private in semantics, Q1217): `app`, or a library's short name in camelCase.
 string t11EntryModule(ref semantics.Ctx compiled, for string path) uses alloc, fs {
     return compiled.library ? semantics.camelOf(semantics.programName(ref compiled, for: path)) : "app"
 }
@@ -608,7 +624,7 @@ struct T11Outcome {
 }
 
 /// CliApp.cs:1077 `RunTest`: `executable --test <index>` with `$BAYAN_COVERAGE` set to `coveragePrefix`, killed after `timeoutMs`.
-/// A timed-out test's output is lost: `Io.run` fails with `.timeout` and keeps none of it (Q1250). A signal-killed test is exit
+/// A timed-out test's output is lost: `Io.run` fails with `.timeout` and keeps none of it (Q1216). A signal-killed test is exit
 /// 128 + the signal, as `Process.ExitCode` reports it.
 T11Outcome runTest(string executable, at i64 index, by string? coveragePrefix, for i64 timeoutMs) uses alloc, clock, process {
     var args = List<string>()
@@ -621,6 +637,7 @@ T11Outcome runTest(string executable, at i64 index, by string? coveragePrefix, f
         .timeout(let _) => return T11Outcome { exitCode: -1, timedOut: true, elapsedNanos: Io.monotonicNanos() - clock },
         .signaled(let s, let streamOut, let streamErr) => return T11Outcome { exitCode: 128 + s, stdout: boundedCapture(streamOut), stderr: boundedCapture(streamErr), elapsedNanos: Io.monotonicNanos() - clock },
         // `Process.Start` of the just-built executable throws, uncaught, when it cannot start.
+        // coverage-exempt: Q1219 the executable just built cannot start
         IoError e => { panic($"cannot run {executable}") },
     }
     return T11Outcome { exitCode: r.exitCode, stdout: boundedCapture(r.stdout), stderr: boundedCapture(r.stderr), elapsedNanos: Io.monotonicNanos() - clock }
@@ -640,6 +657,7 @@ string boundedCapture(string text) uses alloc {
 /// CoverageInstrumenter.cs:60 `DeleteStale`: every `<prefix>.*` file is deleted.
 void deleteStale(string prefix) uses alloc, fs {
     let dir = Path.directoryName(Path.fullPath(prefix)) ?? ""
+    // coverage-exempt: Q1219 through `if name.startsWith(start)` the coverage directory is fresh, so it holds no stale file
     unless t5DirectoryExists(dir) { return }
     let start = $"{Path.fileName(prefix)}."
     let names = Io.listDir(dir) catch return
@@ -652,7 +670,8 @@ void deleteStale(string prefix) uses alloc, fs {
 /// CoverageInstrumenter.cs:72 `Read`: `bayan-coverage 1`, then `<counter id> <hits>` per line; null where the C# throws
 /// `InvalidDataException`, `IndexOutOfRangeException`, `FormatException` or `OverflowException`.
 Map<i64, u64>? readCounters(string path) uses alloc, fs {
-    // no-oracle: Q1253 `File.ReadAllLines` throws an `IOException` MergeCounters does not catch; an unreadable file is unknown here
+    // coverage-exempt: Q1219 through `counts[id] = u64(n)` an unreadable or malformed counter file
+    // no-oracle: Q1219 `File.ReadAllLines` throws an `IOException` MergeCounters does not catch; an unreadable file is unknown here
     let text = Io.readText(path) catch return null
     let lines = t11ReadAllLines(text)
     if lines.length == 0 || lines[0] != "bayan-coverage 1" { return null }

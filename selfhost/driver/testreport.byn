@@ -99,6 +99,7 @@ string t11JsonSeconds(i64 nanos) uses alloc {
     let ticks = nanos / 100
     let whole = ticks / 10000000
     let rest = ticks % 10000000
+    // coverage-exempt: Q1218 a run that takes a whole number of seconds to the 100 ns tick
     if rest == 0 { return $"{whole}" }
     var digits = $"{rest}"
     while digits.length < 7 { digits = $"0{digits}" }
@@ -150,7 +151,7 @@ void t11JsonValue(ref T11Json w, for string? name, by string value) uses alloc {
     w.first = false
 }
 
-/// A JSON string as `JavaScriptEncoder.UnsafeRelaxedJsonEscaping` writes it; semantics/typed.byn `t26JsonString` (private there, Q1252).
+/// A JSON string as `JavaScriptEncoder.UnsafeRelaxedJsonEscaping` writes it; semantics/typed.byn `t26JsonString` (private there, Q1218).
 string t11JsonString(string s) uses alloc {
     var sb = StrBuf()
     sb.append("\"")
