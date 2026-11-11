@@ -47,7 +47,8 @@ public sealed class NamingPackageGrammarTests : IDisposable
     {
         (string Code, string File, string Name)[] known = [("BYN5106", "lib/std/json/reader.byn", "JsonReader")];
         var actual = new List<(string Code, string File, string Name)>();
-        var modules = Directory.GetDirectories(Path.Combine(Golden.RepoRoot, "lib", "std"));
+        var modules = Directory.GetDirectories(Path.Combine(Golden.RepoRoot, "lib", "std"), "*", SearchOption.AllDirectories)
+            .Where(d => Directory.EnumerateFiles(d, "*.byn").Any());
         Assert.NotEmpty(modules);
         foreach (var dir in modules)
         {
