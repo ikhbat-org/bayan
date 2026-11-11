@@ -433,20 +433,20 @@ T20DeclFacts t20DeclFacts(Ctx c, for FuncId fn) {
     let m = c.functions[fn].memberIndex
     if d < 0 { return T20DeclFacts {} }
     switch c.files[f].unit.members[d] {
-        case .functionDecl(let n): return T20DeclFacts { expects: n.value.requiresKeyword.length > 0, becomes: n.value.becomes }
+        case .functionDecl(let n): return T20DeclFacts { expects: n.value.requiresClauses.length > 0, becomes: n.value.becomes }
         case .structDecl(let n):
             switch n.value.members[m] {
-                case .functionDecl(let x): return T20DeclFacts { expects: x.value.requiresKeyword.length > 0, becomes: x.value.becomes }
+                case .functionDecl(let x): return T20DeclFacts { expects: x.value.requiresClauses.length > 0, becomes: x.value.becomes }
                 default: break
             }
         case .interfaceDecl(let n):
             switch n.value.members[m] {
-                case .functionDecl(let x): return T20DeclFacts { expects: x.value.requiresKeyword.length > 0, becomes: x.value.becomes }
+                case .functionDecl(let x): return T20DeclFacts { expects: x.value.requiresClauses.length > 0, becomes: x.value.becomes }
                 default: break
             }
         case .extensionDecl(let n):
             switch n.value.members[m] {
-                case .functionDecl(let x): return T20DeclFacts { expects: x.value.requiresKeyword.length > 0, becomes: x.value.becomes }
+                case .functionDecl(let x): return T20DeclFacts { expects: x.value.requiresClauses.length > 0, becomes: x.value.becomes }
                 default: break
             }
         default:

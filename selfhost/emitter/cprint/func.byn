@@ -338,14 +338,50 @@ void statement(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.LTree
                 line(ref sb, by: in f, for: $"return {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: t.returnErrors[i].code)};")
             case .failingCall:
                 let result: string? = t.failingCalls[i].result == -1 ? null : $"&{f.names[t.failingCalls[i].result]}"
-                // Built-in failing calls return the runtime's bare code, except the ones whose errors carry a payload.
-                let callText = call(ref cc, for: ref f, from: ref c, through: t, at: t.failingCalls[i].call, to: result)
-                let builtin = c.functions[c.bCalls[t.failingCalls[i].call & 0xFFFFFFFF].function].builtin
+                let callee = c.bCalls[t.failingCalls[i].call & 0xFFFFFFFF].function
+                let builtin = c.functions[callee].builtin
                 let error = f.names[t.failingCalls[i].error]
-                if builtin == .none || builtin == .utf8Decode || builtin == .hexDecode || builtin == .intParse {
-                    line(ref sb, by: in f, for: $"{error} = {callText};")
+                if builtin == .none {
+                    line(ref sb, by: in f, for: $"{error} = {call(ref cc, for: ref f, from: ref c, through: t, at: t.failingCalls[i].call, to: result)};")
+                } else if builtin != .ioRun && builtin != .utf8Decode && builtin != .hexDecode && builtin != .intParse {
+                    // A built-in failing call returns the runtime's bare code.
+                    line(ref sb, by: in f, for: $"{error} = ({errorCType(ref cc, from: ref c)}){{ .code = {call(ref cc, for: ref f, from: ref c, through: t, at: t.failingCalls[i].call, to: result)} }};")
                 } else {
+                    // One that can carry a payload also writes the detail slot, which fills the payload of each
+                    // detail-carrying variant of its error sets (plan 007 §1).
+                    // Io.run captures into a local, so a signal-killed child's streams fill `.signaled` (Q1157).
+                    let run = builtin == .ioRun
+                    line(ref sb, by: in f, for: "{")
+                    f.indent += 1
+                    line(ref sb, by: in f, for: "int64_t detail = 0;")
+                    if run {
+                        line(ref sb, by: in f, for: "byn_process proc = {0};")
+                    }
+                    let callText = call(ref cc, for: ref f, from: ref c, through: t, at: t.failingCalls[i].call, to: run ? "&proc" : result, by: "&detail")
                     line(ref sb, by: in f, for: $"{error} = ({errorCType(ref cc, from: ref c)}){{ .code = {callText} }};")
+                    if run && t.failingCalls[i].result != -1 {
+                        line(ref sb, by: in f, for: $"if ({error}.code == 0) {f.names[t.failingCalls[i].result]} = proc;")
+                    }
+                    for v in semantics.detailVariants(ref c) {
+                        var held = false
+                        for set in c.functions[callee].errorSets {
+                            for w in c.errorSets[set].variants {
+                                if w == v { held = true }
+                            }
+                        }
+                        if held {
+                            let code = c.errorVariants[v].code
+                            let field = c.errorVariants[v].fields[0]
+                            line(ref sb, by: in f, for: $"if ({error}.code == UINT32_C({code})) {error}.p.e{code}.{fieldName(c.locals[field].name)} = ({cType(ref cc, from: ref c, for: c.locals[field].type)})detail;")
+                            if run && c.errorVariants[v].fields.length == 3 {
+                                let outField = fieldName(c.locals[c.errorVariants[v].fields[1]].name)
+                                let errField = fieldName(c.locals[c.errorVariants[v].fields[2]].name)
+                                line(ref sb, by: in f, for: $"if ({error}.code == UINT32_C({code})) {{ {error}.p.e{code}.{outField} = proc.out; {error}.p.e{code}.{errField} = proc.err; }}")
+                            }
+                        }
+                    }
+                    f.indent -= 1
+                    line(ref sb, by: in f, for: "}")
                 }
             case .write:
                 write(ref cc, for: ref f, from: ref c, through: t, to: ref sb, at: s)

@@ -553,6 +553,7 @@ internal sealed partial class Binder
         if (name == "Env") return new BoundTypeRef(n, BuiltinType.Env);
         if (name == "Fs") return new BoundTypeRef(n, BuiltinType.Fs);
         if (name == "Time") return new BoundTypeRef(n, BuiltinType.Time);
+        if (name == "Millis") return new BoundTypeRef(n, BuiltinType.Millis);
         ReportUndefined(n.Name);
         return new BoundErrorExpr(n);
     }
@@ -1399,7 +1400,7 @@ internal sealed partial class Binder
         ResultType r => IsEquatable(r.Value, seen) && IsEquatable(r.Error, seen),
         OwnedType o => IsEquatable(o.Inner, seen),
         UntrustedType u => IsEquatable(u.Inner, seen),
-        EnumSymbol or TypeParameterType or BuiltinType { Kind: BuiltinKind.Symbol } => true,
+        EnumSymbol or TypeParameterType or BuiltinType { Kind: BuiltinKind.Symbol or BuiltinKind.Millis } => true,
         ErrorSetSymbol s => !seen.Add(s) || s.Variants.All(v => v.Fields.All(f => IsEquatable(f.Type, seen))),
         ErrorUnionType u => u.Sets.All(s => IsEquatable(s, seen)),
         StructSymbol s => !seen.Add(s) || s.Fields.All(f => IsEquatable(f.Type, seen)),
@@ -2126,7 +2127,7 @@ internal sealed partial class Binder
     private static string? WhyNotFormattable(TypeSymbol t, HashSet<TypeSymbol> seen) => t switch
     {
         PrimitiveType p => p.Kind is not (PrimitiveKind.Void or PrimitiveKind.Never) ? null : "",
-        ErrorSetSymbol or ErrorUnionType or EnumSymbol or TypeParameterType or BuiltinType { Kind: BuiltinKind.Symbol } => null,
+        ErrorSetSymbol or ErrorUnionType or EnumSymbol or TypeParameterType or BuiltinType { Kind: BuiltinKind.Symbol or BuiltinKind.Millis } => null,
         OptionalType o => Part("the value", o.Inner, seen),
         ResultType r => Part("the value", r.Value, seen),
         OwnedType o => WhyNotFormattable(o.Inner, seen),

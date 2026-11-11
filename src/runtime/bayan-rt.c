@@ -3502,12 +3502,33 @@ bool byn_batch_cmdline(byn_str path, const byn_str* args, int64_t nargs, byn_str
     return true;
 }
 
-/* Checks both captured streams are UTF-8 and copies them into `alloc`; frees them either way. */
-static uint32_t byn_process_finish(byn_bytes* streams, int32_t code, byn_process* out, byn_alloc* alloc) {
-    uint32_t result = 0;
-    if (!byn_utf8_valid(streams[0].ptr, streams[0].len) || !byn_utf8_valid(streams[1].ptr, streams[1].len))
+uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* detail) {
+    if (outcome == BYN_WAIT_FAILED || outcome == BYN_WAIT_QUERY_FAILED) return BYN_IO_OTHER;
+    if (outcome == BYN_WAIT_TIMED_OUT) return BYN_IO_TIMEOUT;
+#ifdef _WIN32
+    (void)detail;
+    *code = (int32_t)raw;
+#else
+    int status = (int)raw;
+    if (WIFSIGNALED(status)) {
+        if (detail) *detail = WTERMSIG(status);
+        return BYN_IO_SIGNALED;
+    }
+    *code = WEXITSTATUS(status);
+#endif
+    return 0;
+}
+
+/* Maps the wait first (byn_wait_status), then checks both captured streams are UTF-8 and copies them into `alloc`,
+ * for an exited child and for a signal-killed one (which keeps its streams; non-UTF-8 ones are dropped, not
+ * `invalidUtf8`); frees them on every path. */
+static uint32_t byn_process_finish(byn_bytes* streams, int outcome, uint32_t raw, byn_process* out, int64_t* detail, byn_alloc* alloc) {
+    int32_t code = 0;
+    uint32_t result = byn_wait_status(outcome, raw, &code, detail);
+    bool valid = byn_utf8_valid(streams[0].ptr, streams[0].len) && byn_utf8_valid(streams[1].ptr, streams[1].len);
+    if (result == 0 && !valid)
         result = BYN_IO_INVALID_UTF8;
-    else if (out)
+    else if ((result == 0 || result == BYN_IO_SIGNALED) && valid && out)
         *out = (byn_process){code, byn_str_copy((byn_str){streams[0].ptr, streams[0].len}, alloc),
                              byn_str_copy((byn_str){streams[1].ptr, streams[1].len}, alloc)};
     free(streams[0].ptr);
@@ -3612,6 +3633,7 @@ static DWORD WINAPI byn_drain_pipe(LPVOID arg) {
     return 0;
 }
 
+<<<<<<< HEAD
 typedef struct byn_feed {
     HANDLE h;
     const uint8_t* ptr;
@@ -3692,6 +3714,14 @@ static wchar_t* byn_env_block(const byn_str* keys, const byn_str* vals, const bo
  * is its working directory, `env` (NULL: ours) its environment block, and `input` (`ninput` < 0: our stdin) its stdin. */
 static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, wchar_t* env, const uint8_t* input, int64_t ninput,
                               byn_bytes* streams, int32_t* code) {
+||||||| 8e16a9ab
+/* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`. */
+static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, byn_bytes* streams, int32_t* code) {
+=======
+/* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`;
+ * `*outcome` and `*raw` (the exit code) are for byn_process_finish. */
+static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, byn_bytes* streams, int* outcome, uint32_t* raw) {
+>>>>>>> dev
     SECURITY_ATTRIBUTES sa = {sizeof sa, NULL, TRUE};
     HANDLE reads[3] = {NULL, NULL, NULL};
     HANDLE writes[3] = {NULL, NULL, NULL};
@@ -3754,17 +3784,19 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, 
     }
     CloseHandle(reads[0]);
     CloseHandle(reads[1]);
-    WaitForSingleObject(pi.hProcess, INFINITE);
     DWORD status = 0;
-    GetExitCodeProcess(pi.hProcess, &status);
+    *outcome = BYN_WAIT_DONE;
+    if (WaitForSingleObject(pi.hProcess, INFINITE) != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
+    else if (!GetExitCodeProcess(pi.hProcess, &status)) *outcome = BYN_WAIT_QUERY_FAILED;
     CloseHandle(pi.hProcess);
-    *code = (int32_t)status;
+    *raw = (uint32_t)status;
     streams[0] = drains[0].bytes;
     streams[1] = drains[1].bytes;
     return 0;
 }
 #endif
 
+<<<<<<< HEAD
 #ifndef _WIN32
 /* `environ` with each live `keys[i]` set to `vals[i]`, replacing a variable of that name, as a NULL-terminated array from
  * malloc; the strings from index `*kept` on are from malloc too. */
@@ -3844,6 +3876,11 @@ uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_pro
 uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, const byn_str* directory, const uint8_t* input,
                          int64_t ninput, const byn_str* env_keys, const byn_str* env_vals, const bool* env_dead, int64_t nenv,
                          byn_process* out, byn_alloc* alloc) {
+||||||| 8e16a9ab
+uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, byn_alloc* alloc) {
+=======
+uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc) {
+>>>>>>> dev
     if (program.len == 0 || memchr(program.ptr, 0, (size_t)program.len)) return BYN_IO_NOT_FOUND;
     for (int64_t i = 0; i < nargs; i++)
         if (memchr(args[i].ptr, 0, (size_t)args[i].len)) return BYN_IO_OTHER;
@@ -3856,7 +3893,8 @@ uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, co
             return BYN_IO_INVALID_INPUT;
     }
     byn_bytes streams[2] = {{NULL, 0, 0}, {NULL, 0, 0}};
-    int32_t code;
+    int outcome = BYN_WAIT_DONE;
+    uint32_t raw = 0;
 #ifdef _WIN32
     wchar_t* wdir = NULL;
     if (directory) {
@@ -3881,10 +3919,16 @@ uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, co
     for (int64_t i = 0; i < nargs; i++) byn_quote_arg(&line, args[i]);
     wchar_t* wline = byn_wide(line.ptr, line.len);
     free(line.ptr);
+<<<<<<< HEAD
     wchar_t* env = env_keys ? byn_env_block(env_keys, env_vals, env_dead, nenv) : NULL;
     uint32_t err = byn_win_spawn(app, wline, wdir, env, input, ninput, streams, &code);
     free(wdir);
     free(env);
+||||||| 8e16a9ab
+    uint32_t err = byn_win_spawn(app, wline, streams, &code);
+=======
+    uint32_t err = byn_win_spawn(app, wline, streams, &outcome, &raw);
+>>>>>>> dev
     if (err != 0) return err;
 #else
     char* dir = NULL;
@@ -4003,10 +4047,15 @@ uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, co
         if (fds[i].fd >= 0) close(fds[i].fd);
     if (npipes == 3 && ninput > 0) sigaction(SIGPIPE, &previous, NULL);
     int status = 0;
-    while (waitpid(pid, &status, 0) < 0 && errno == EINTR) {}
-    code = WIFSIGNALED(status) ? 128 + WTERMSIG(status) : WEXITSTATUS(status);
+    while (waitpid(pid, &status, 0) < 0) {
+        if (errno != EINTR) {
+            outcome = BYN_WAIT_FAILED;
+            break;
+        }
+    }
+    raw = (uint32_t)status;
 #endif
-    return byn_process_finish(streams, code, out, alloc);
+    return byn_process_finish(streams, outcome, raw, out, detail, alloc);
 }
 
 uint32_t byn_io_run_batch(byn_str path, const byn_str* args, int64_t nargs, byn_process* out, byn_alloc* alloc) {
@@ -4027,10 +4076,19 @@ uint32_t byn_io_run_batch(byn_str path, const byn_str* args, int64_t nargs, byn_
     wchar_t* wline = byn_wide(line.ptr, line.len);
     free((void*)line.ptr);
     byn_bytes streams[2] = {{NULL, 0, 0}, {NULL, 0, 0}};
+<<<<<<< HEAD
     int32_t code;
     uint32_t err = byn_win_spawn(app, wline, NULL, NULL, NULL, -1, streams, &code);
+||||||| 8e16a9ab
+    int32_t code;
+    uint32_t err = byn_win_spawn(app, wline, streams, &code);
+=======
+    int outcome;
+    uint32_t raw;
+    uint32_t err = byn_win_spawn(app, wline, streams, &outcome, &raw);
+>>>>>>> dev
     if (err != 0) return err;
-    return byn_process_finish(streams, code, out, alloc);
+    return byn_process_finish(streams, outcome, raw, out, NULL, alloc);
 #else
     (void)path, (void)args, (void)nargs, (void)out, (void)alloc;
     return BYN_IO_UNSUPPORTED;

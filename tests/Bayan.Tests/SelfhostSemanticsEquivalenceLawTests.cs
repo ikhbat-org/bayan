@@ -23,7 +23,13 @@ public sealed class SelfhostSemanticsEquivalenceLawTests(ITestOutputHelper outpu
         SelfhostSemanticsHarness.Build(File.ReadAllText(Path.Combine(SelfhostSemanticsHarness.SemanticsDir, "main.byn")));
 
     /// <summary>The measured domain: diag cases that parse clean, and those outside L022 (Q658).</summary>
+<<<<<<< HEAD
     private const int PinnedClean = 509;
+||||||| 8e16a9ab
+    private const int PinnedClean = 508;
+=======
+    private const int PinnedClean = 527;
+>>>>>>> dev
 
     private const int PinnedExcluded = 95;
 

@@ -2,7 +2,7 @@ namespace Bayan.Semantics;
 
 /// <summary>
 /// The grammar checker's built-in word list (docs/bayan-grammar.md §7, §13): the words of a member name it knows
-/// as verbs, nouns and adjectives (BYN5014). <see cref="Verbs"/> is also R15's list of the verbs a help may start
+/// as verbs, nouns, adjectives, collectives and irregular plurals (BYN5014). <see cref="Verbs"/> is also R15's list of the verbs a help may start
 /// with (<c>HelpLanguageTests</c>, <c>scripts/plan-strings-check.js</c>), so both agree on what a verb is.
 /// Inflected forms (<c>-s</c>, <c>-ed</c>, <c>-ing</c>, <c>-er</c>) are derived, not listed.
 /// </summary>
@@ -89,10 +89,30 @@ public static class Lexicon
         "deep", "default", "dirty", "due", "early", "empty", "even", "exact", "external", "fast", "final", "fresh", "full",
         "global", "good", "high", "idle", "inner", "internal", "invalid", "large", "late", "lazy", "light", "live", "long",
         "low", "main", "many", "maximum", "minimum", "mutable", "native", "negative", "net", "new", "next", "odd", "old",
-        "open", "other", "outer", "own", "paid", "pending", "positive", "previous", "prime", "private", "public", "raw",
+        "open", "other", "outer", "overdue", "own", "paid", "pending", "positive", "previous", "prime", "private", "public", "raw",
         "ready", "real", "red", "safe", "same", "short", "simple", "single", "slow", "small", "stale", "static", "strict",
         "unique", "upper", "valid", "visible", "whole", "zero",
     ];
+
+    /// <summary>
+    /// Nouns for a group of things that read as singular (revision 0021 Part 3): <c>buffer</c>, <c>history</c>; and nouns
+    /// for one whole made of parts (Q1190): <c>path</c>, <c>text</c>, <c>order</c>.
+    /// </summary>
+    public static readonly HashSet<string> Collectives =
+    [
+        "span", "list", "map", "set", "array", "buffer", "queue", "stack", "batch", "history", "inventory", "catalog", "data",
+        "metadata", "path", "text", "payload", "body", "order", "work",
+    ];
+
+    /// <summary>Plurals that are not a regular ending of their singular (revision 0021 Part 3).</summary>
+    public static readonly HashSet<string> IrregularPlurals = ["people", "children", "criteria", "indices", "matrices", "data"];
+
+    /// <summary>The singular of each of <see cref="IrregularPlurals"/> (Q1208).</summary>
+    public static readonly Dictionary<string, string> IrregularSingulars = new()
+    {
+        ["people"] = "person", ["children"] = "child", ["criteria"] = "criterion", ["indices"] = "index", ["matrices"] = "matrix",
+        ["data"] = "datum",
+    };
 
     /// <summary>Particles (spec §10), the prefixes of derived names, and function words a name may join with.</summary>
     public static readonly HashSet<string> Particles = ["from", "to", "until", "through", "at", "by", "for", "as"];

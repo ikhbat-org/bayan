@@ -240,6 +240,9 @@ i32 main(ReadOnlySpan<string> argv) {
     } else if spec == "017" {
         desc = "the remaining `bayan` commands ported from C# `src/Bayan.Cli/` and `src/Bayan.Testing/` into the self-hosted driver under `selfhost/driver/` (spec 017, the self-hosted compiler as the default `bayan`)"
         oracle = "SelfhostDriverHarness"
+    } else if spec == "018" {
+        desc = "revision 0021 checker changes (help texts, fix-its, new diagnostics) made in C# `src/Bayan.Semantics/` and ported into the self-hosted checker under `selfhost/semantics/` (spec 018), with messages and fix-its byte-identical in both compilers"
+        oracle = "SelfhostSemanticsT10Tests.Expected"
     } else {
         print($"review-brief: no brief text for spec {spec}", to: .stderr)
         return 1

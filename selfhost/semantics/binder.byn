@@ -342,7 +342,7 @@ void bindFunctionBody(ref Binder b, through ref Ctx c, for in parser.FunctionDec
 List<BStmt> t15BindRequires(ref Binder b, through ref Ctx c, for in parser.FunctionDecl decl) {
     var conditions = List<BExpr>()
     var checks = List<BStmt>()
-    for r in decl.requiresKeyword {
+    for r in decl.requiresClauses {
         let span = parser.exprSpan(in r)
         let condition = bindExpr(ref b, through: ref c, for: in r, to: prim(.bool))
         let type = exprType(in c, for: condition)
@@ -456,7 +456,7 @@ void bindChecks(ref Binder b, through ref Ctx c, for in StructChecks checks) {
             for field in fields {
                 switch d.value.members[c.fields[field].memberIndex] {
                     case .fieldDecl(let fd):
-                        for r in fd.value.requiresKeyword { t28AddRule(ref b, through: ref c, for: in r, at: field, to: ref st) }
+                        for r in fd.value.requiresClauses { t28AddRule(ref b, through: ref c, for: in r, at: field, to: ref st) }
                     default:
                         break
                 }
@@ -474,7 +474,7 @@ void bindChecks(ref Binder b, through ref Ctx c, for in StructChecks checks) {
             }
         case .typeAliasDecl(let a):
             // The struct's one field `value` carries the alias's `requires`; the struct has no rules of its own.
-            for r in a.value.requiresKeyword { t28AddRule(ref b, through: ref c, for: in r, at: fields[0], to: ref st) }
+            for r in a.value.requiresClauses { t28AddRule(ref b, through: ref c, for: in r, at: fields[0], to: ref st) }
         default:
             break
     }
@@ -751,7 +751,7 @@ void bindMain(ref Binder b, through ref Ctx c, for in List<SyntaxRef> statements
 }
 
 /// A test body; a `@cases` case first binds each parameter as a `let` of its value. The C# `decl` and `values` are
-/// `c.testBodies[fn]`'s refs (Q718): `hasValues` false is C#'s null `values` (Q593), and `body.values` names an
+/// `c.testBodies[fn]`'s refs (Q718): `hasValues` false is C#'s null `values` (Q593), and `body.caseArgument` names an
 /// argument of `body.decl`'s own `@cases`.
 void bindTest(ref Binder b, through ref Ctx c, for TestBody body) {
     t15CaptureTypes(ref b, through: ref c)
@@ -767,7 +767,7 @@ void bindTest(ref Binder b, through ref Ctx c, for TestBody body) {
                     var statements = List<BStmt>()
                     for i in 0..d.value.params.length {
                         let type = resolveType(ref b, through: ref c, for: in d.value.params[i].type)
-                        let value = t15BindCaseValue(ref b, through: ref c, for: in d.value.attributes[body.values.memberIndex].args[body.values.itemIndex].value, at: i, to: type)
+                        let value = t15BindCaseValue(ref b, through: ref c, for: in d.value.attributes[body.caseArgument.memberIndex].args[body.caseArgument.itemIndex].value, at: i, to: type)
                         let local = declareLocal(ref b, through: ref c, at: d.value.params[i].name, as: type, for: .letKeyword)
                         statements.append(recordNodeSyntax(ref c, for: addLocalDecl(ref c, from: BLocalDecl { span: d.value.params[i].span, local: local, initializer: value }), as: .param, at: d.value.params[i].span))
                     }

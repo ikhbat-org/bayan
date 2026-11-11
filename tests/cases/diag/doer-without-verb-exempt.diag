@@ -1,0 +1,13 @@
+error BYN2822: a function type is not supported as a field yet
+
+  10 │     public i64 -> i64 parser
+     │            ^^^^^^^^^^
+     │
+  help: take the function as a parameter instead
+
+error BYN2770: unknown attribute `json`
+
+  14 │ @json(name: "csv_parser")
+     │  ^^^^
+     │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test
