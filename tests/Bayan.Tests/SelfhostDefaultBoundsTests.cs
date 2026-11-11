@@ -10,6 +10,7 @@ namespace Bayan.Tests;
 /// bound itself (peak memory, names kept, names swept) is asserted on the driver's tree. A row with no driver entry point is a
 /// skip that names the Question; no bound is weakened.
 /// </summary>
+[Collection(nameof(ToolchainEnvironment))]  // the M4/M5 rows delegate to the T9 and T12 classes, which set BAYAN_CACHE in this process
 public sealed class SelfhostDefaultBoundsTests
 {
     private static string Fresh(string name)
@@ -161,9 +162,6 @@ public sealed class SelfhostDefaultBoundsTests
         Assert.Contains("unsafe void poke()", audit.Out);
     }
 
-    // ── M4 ───────────────────────────────────────────────────────────────────────
-
-
     // ── M5 ───────────────────────────────────────────────────────────────────────
 
     private static void Arithmetic(string root) => File.Copy(Path.Combine(Golden.CasesRoot, "run", "arithmetic.byn"), Path.Combine(root, "arithmetic.byn"));
@@ -184,15 +182,24 @@ public sealed class SelfhostDefaultBoundsTests
                 Directory.SetLastWriteTimeUtc(entry, DateTime.UtcNow.AddHours(-3 + i));
             }
         }
-        var (cs, s2, _, b) = Same("evict-build", Seed, [("BAYAN_CACHE_MAX_MB", "1")], ["build", "arithmetic.byn"]);
+        var (cs, s2, a, b) = Same("evict-build", Seed, [("BAYAN_CACHE_MAX_MB", "1")], ["build", "arithmetic.byn"]);
         Assert.Equal(0, cs.Exit);
-        var left = Directory.GetDirectories(Path.Combine(b, "cache", "v1", "programs")).Select(d => Path.GetFileName(d)!).ToArray();
-        Assert.DoesNotContain("old0", left);
-        Assert.DoesNotContain("old1", left);
         Assert.Equal(0, s2.Exit);
+        foreach (var root in new[] { a, b })
+        {
+            var left = Directory.GetDirectories(Path.Combine(root, "cache", "v1", "programs")).Select(d => Path.GetFileName(d)!).ToArray();
+            // CliMemoryBoundsTests.cs:290 `Assert.Contains(build.Key!, left)`: the entry just built is the one directory that is not an old one.
+            Assert.Single(left, n => !n.StartsWith("old", StringComparison.Ordinal));
+            Assert.DoesNotContain("old0", left);
+            Assert.DoesNotContain("old1", left);
+        }
     }
 
-    /// <summary>CliMemoryBoundsTests.M5_ABuildTagsTheCacheDataItOwnsAsACacheDirectory: <c>v1/CACHEDIR.TAG</c> with the signature, nothing loose in the cache root, written again after a delete on a hit.</summary>
+    /// <summary>
+    /// CliMemoryBoundsTests.M5_ABuildTagsTheCacheDataItOwnsAsACacheDirectory: <c>v1/CACHEDIR.TAG</c> with the signature, nothing loose in the
+    /// cache root, <c>v1/</c> holding that one file after a script is remembered (a <c>#!</c> script through <c>run</c>), and the tag written
+    /// again after a delete on a build hit and on a remembered-script lookup.
+    /// </summary>
     [Fact]
     public void M5_ABuildTagsTheCacheDataItOwnsAsACacheDirectory()
     {
@@ -202,21 +209,50 @@ public sealed class SelfhostDefaultBoundsTests
         {
             Directory.CreateDirectory(root);
             Arithmetic(root);
+            Directory.CreateDirectory(Path.Combine(root, "sh"));
+            File.WriteAllText(Path.Combine(root, "sh", "script.byn"), "#!/usr/bin/env bayan\nprint(\"hi\")\n");
         }
         for (var side = 0; side < 2; side++)
         {
             var root = roots[side];
-            var tag = Path.Combine(root, "cache", "v1", "CACHEDIR.TAG");
+            var v1 = Path.Combine(root, "cache", "v1");
+            var tag = Path.Combine(v1, "CACHEDIR.TAG");
             Assert.Equal(0, Start(side == 1, root, NoEnv, "build", "arithmetic.byn").Exit);
             Assert.StartsWith("Signature: 8a477f597d28d172789f06886806bc55\n", File.ReadAllText(tag));
             Assert.Empty(Directory.GetFiles(Path.Combine(root, "cache")));
+            var remembered = Start(side == 1, root, NoEnv, "run", "sh/script.byn");
+            Assert.Equal(0, remembered.Exit);
+            Assert.Empty(Directory.GetFiles(Path.Combine(root, "cache")));
+            Assert.Single(Directory.GetFiles(v1));
             File.Delete(tag);
             var again = Start(side == 1, root, NoEnv, "build", "--verbose", "arithmetic.byn");
             Assert.Contains("from cache", again.Out + again.Err);
             Assert.True(File.Exists(tag));
+            File.Delete(tag);
+            Assert.Equal(0, Start(side == 1, root, NoEnv, "run", "sh/script.byn").Exit);
+            Assert.True(File.Exists(tag));
         }
-        SelfhostEmitterHarness.AssertSame("names", Names(roots[0]), Names(roots[1]));
+        // The script key hashes the compiler build, which differs by design (Q1148); the rest of the names are compared.
+        string Unkeyed(string root) => Regex.Replace(Names(root), @"scripts/[0-9a-f]{64}", "scripts/<key>");
+        SelfhostEmitterHarness.AssertSame("names", Unkeyed(roots[0]), Unkeyed(roots[1]));
     }
+
+    /// <summary>CliMemoryBoundsTests.M5_TheProgramCacheIsTrimmedLeastRecentlyUsedFirst, through the T9 row that compares the driver's <c>evict</c> with <see cref="Toolchain.Evict"/> on the same layout.</summary>
+    [Fact]
+    public void M5_TheProgramCacheIsTrimmedLeastRecentlyUsedFirst() => new SelfhostDefaultT9Tests().EvictTrimsTheOldestFirstAsToolchain();
+
+    /// <summary>CliMemoryBoundsTests.M5_AnEntryUsedJustNowIsNotEvicted, through the T9 rows that compare the driver's <c>evict</c> with <see cref="Toolchain.Evict"/>.</summary>
+    [Theory]
+    [InlineData("1", 0)]
+    [InlineData("1", 120)]
+    [InlineData("2", 120)]
+    public void M5_AnEntryUsedJustNowIsNotEvicted(string maxBytes, int minutes) => new SelfhostDefaultT9Tests().EvictKeepsAnEntryUsedJustNowAsToolchain(maxBytes, minutes);
+
+    // ── M4 ───────────────────────────────────────────────────────────────────────
+
+    /// <summary>CliMemoryBoundsTests.M4_InputsHashDoesNotFollowLinks, through the T12 row that runs <c>dist</c> on both sides and compares the printed inputs hash with and without links.</summary>
+    [Fact]
+    public void M4_InputsHashDoesNotFollowLinks() => new SelfhostDefaultT12Tests().TheInputsHashDoesNotFollowLinks();
 
     // ── M6, F13 ──────────────────────────────────────────────────────────────────
 
@@ -246,7 +282,7 @@ public sealed class SelfhostDefaultBoundsTests
                 Directory.SetLastWriteTimeUtc(Path.Combine(staging, key), DateTime.UtcNow.AddMinutes(-minutes));
             }
         }
-        var (_, _, a, b) = Same($"sweep-{timeout}", Seed, [("TMPDIR", "<root>-tmp"), ("BAYAN_CC_TIMEOUT_S", timeout)], ["build", "arithmetic.byn"], names: false);
+        var (_, _, a, b) = Same($"sweep-{timeout}", Seed, [("TMPDIR", "<root>-tmp"), ("TMP", "<root>-tmp"), ("TEMP", "<root>-tmp"), ("BAYAN_CC_TIMEOUT_S", timeout)], ["build", "arithmetic.byn"], names: false);
         foreach (var root in new[] { a, b })
         {
             Assert.All(new[] { "bayan-coverage-old", "bayan-mutate-old", "bayan-asan-old" }, n => Assert.False(Directory.Exists(Path.Combine(root + "-tmp", n)), n));
@@ -304,6 +340,5 @@ public sealed class SelfhostDefaultBoundsTests
     // - CliMemoryBoundsTests.M1_ATestPrintingUntilKilledStaysSmallAndReportsTheElidedBytes on the driver: peak 4684 MB against the
     //   300 MB bound, no output kept on a timeout; `Spam(driver: true)` is the row to enable once Q1227 is fixed.
     // - CliMemoryBoundsTests.M2_DiscardedOutputIsDrainedWithoutBuffering and F2_AMutateWorkDirectory...: test --mutate is T13's (Q1220).
-    // - CliMemoryBoundsTests.M4_InputsHashDoesNotFollowLinks: InputsHash is not an argv; SelfhostDefaultT12Tests compares distIsLink (Q1150).
     // - CliMemoryBoundsTests.M7_AHungCCompilerIsKilledAndTheBuildFails: cache.byn runs the C compiler with Io.run and no timeout (Q1149).
 }

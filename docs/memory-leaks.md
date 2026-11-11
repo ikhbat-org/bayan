@@ -114,7 +114,7 @@ extension and `bayan-lsp` have no release workflow: run the script by hand befor
 `scripts/release/memory-gate.test.sh` fails when the script and this block drift apart.
 
 plus, for a release that changes the runtime or selfhost: `leaks --atExit` over the run goldens
-on macOS (2026-11-06: ≤ 3.6 KB per golden; 2026-11-12 through stage 2: median 16 B, max 1.1 MB in `io-run-input.byn` from `main` locals not freed on return, handoff Q1228 and Q1229) and peak RSS of a selfhost build of `selfhost/`
+on macOS (2026-11-06: ≤ 3.6 KB per golden; 2026-11-12 through stage 2: median 16 B, max 1.1 MB in `io-run-input.byn`; probes show a `List`'s last buffer left allocated at exit, in any function, handoff Q1228 and Q1229) and peak RSS of a selfhost build of `selfhost/`
 (2026-11-12: 2.94 GB for `selfhost/driver`, handoff Q1228; record the number in the release notes; a rise over 20 % blocks until explained).
 
 A new long-running component, cache, walk or watcher adds its bound test to this list in the
