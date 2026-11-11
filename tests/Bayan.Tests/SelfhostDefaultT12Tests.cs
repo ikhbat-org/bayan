@@ -739,7 +739,6 @@ public sealed class SelfhostDefaultT12Tests
     /// <summary>The commands the driver does not port refuse by name (spec Q4); the C# runs them, so the streams differ by design.</summary>
     [Theory]
     [InlineData("parse", "tally/src/app/main.byn")]
-    [InlineData("test")]
     [InlineData("mutate")]
     public void ARefusedArmNamesItsCommand(params string[] args)
     {
