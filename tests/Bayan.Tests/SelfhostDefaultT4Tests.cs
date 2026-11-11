@@ -160,6 +160,21 @@ public sealed class SelfhostDefaultT4Tests
     }
 
     [Fact]
+    public void NewWithAGitKilledBySignalIsAsCSharp()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var bin = Directory.CreateTempSubdirectory("bayan-t4-git-").FullName;
+        try
+        {
+            var git = Path.Combine(bin, "git");
+            File.WriteAllText(git, "#!/bin/sh\nkill -9 $$\n");
+            File.SetUnixFileMode(git, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+            Same(["new", "tally"], path: bin);
+        }
+        finally { TestDirs.Delete(bin); }
+    }
+
+    [Fact]
     public void NewInsideAGitRepositoryNotesItAsCSharp() =>
         Same(["new", "tally"], setup: dir => Assert.Equal(0, Start("git", [], dir, ["init", "--quiet"], null).Exit));
 

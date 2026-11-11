@@ -192101,9 +192101,9 @@ break_3:;
 
 void byn_main__ccReportToolchain(bynt_main__NativeBuild p_result) {
     bynt_semantics__T26Symbols l0_plain = {0};
-#line 225 "driver/cc.byn"
+#line 229 "driver/cc.byn"
     l0_plain = byn_semantics__t26Symbols(false, false, INT64_C(100), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0));
-#line 226 "driver/cc.byn"
+#line 230 "driver/cc.byn"
     (void)byn_main__ccReportToolchainBy(p_result, l0_plain);
 }
 #line 192110 "main.c"
@@ -192118,59 +192118,59 @@ void byn_main__ccReportToolchainBy(bynt_main__NativeBuild p_result, bynt_semanti
     byn_writer t6 = {0};
     byn_str t7 = {0};
     int32_t t8 = {0};
-#line 231 "driver/cc.byn"
+#line 235 "driver/cc.byn"
     if ((!p_result.rejected)) {
-#line 232 "driver/cc.byn"
+#line 236 "driver/cc.byn"
         t1 = INT32_C(2);
-#line 232 "driver/cc.byn"
+#line 236 "driver/cc.byn"
         t0 = byn_strbuf_grow(byn_context);
-#line 232 "driver/cc.byn"
+#line 236 "driver/cc.byn"
         {
             byn_writer* w = &t0;
             w->file = byn_file_86;
-            w->line = 232;
+            w->line = 236;
             byn_w_str(w, BYN_STR("bayan: ", 7));
             byn_w_str(w, p_result.errors);
             byn_w_str(w, BYN_STR("\012", 1));
         }
-#line 232 "driver/cc.byn"
+#line 236 "driver/cc.byn"
         (void)byn_io_write(t1, byn_strbuf_str(t0));
-#line 233 "driver/cc.byn"
+#line 237 "driver/cc.byn"
         return;
     }
-#line 235 "driver/cc.byn"
+#line 239 "driver/cc.byn"
     l2_c = ((bynt_semantics__Ctx){((bynt_list_semantics__SourceFile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Mod){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context}), ((bynt_list_semantics__DiagBag){NULL, 0, 0, byn_context}), INT64_C(-1), false, false, ((bynt_opt_list_str){0}), BYN_STR("", 0), ((bynt_list_semantics__StructSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FieldSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__PropertySymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FunctionSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__InterfaceSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Conformance){NULL, 0, 0, byn_context}), ((bynt_list_semantics__LocalSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ConstSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorSetSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorVariantSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__TestSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumFieldSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumMemberSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnionSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnionVariantSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__TypeParam){NULL, 0, 0, byn_context}), ((bynt_list_semantics__AliasPlaceholder){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__SpanData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__DynRefData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__MapData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ArrayData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_list_semantics__TupleField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FunctionData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ResultData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__StateData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorUnionData){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__BLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSymbolLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BHostTarget){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDefault){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLocal){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BThis){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTupleElement){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCall){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBuiltinCall){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnary){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBinary){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConversion){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTryFrom){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConditional){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCoalesce){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStructLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BWith){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTuple){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCollection){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSpread){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIndex){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSlice){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRange){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIs){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSwitchExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BInterpolated){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BMove){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTry){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCatch){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BJump){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBlockExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorVariant){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BEnumMember){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionNew){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BEnumValues){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStaticArray){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStackalloc){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTypeRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BModuleRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLambda){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFunctionRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBlock){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLocalDecl){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BExprStmt){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BAssign){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BReturn){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFail){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBecome){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBreak){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BContinue){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIf){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BWhile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDoWhile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFor){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSwitch){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BAssert){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrdefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BPanicDefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSetOnPanic){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BContext){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorStmt){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConstantPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRelationalPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRangePattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBindPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BNotPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBinaryPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BPropertyPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BMethodGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BVariantGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBuiltinGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__JumpTarget){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__Constant){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__ExprSyntax){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__StructChecks){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__ExitCodeRef){NULL, 0, 0, byn_context}), INT64_C(-1), ((bynt_list_semantics__SyntaxRef){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__TestBody){{.alloc = byn_context}, NULL, NULL}), false, false, ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_lexer__TextSpan){{.alloc = byn_context}, NULL, NULL}), INT64_C(-1), INT64_C(-1), BYN_STR("", 0), BYN_STR("", 0), ((bynt_list_i64){NULL, 0, 0, byn_context}), INT64_C(-1), INT64_C(-1), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_semantics__StdLibrary){((bynt_list_semantics__StdModule){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context})}), INT64_C(0), INT64_C(0), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__TestCases){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(0), false, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(-1), ((bynt_list_semantics__FirstPass){NULL, 0, 0, byn_context}), ((bynt_list_semantics__RequiresCheck){NULL, 0, 0, byn_context}), false, ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), false, ((bynt_opt_str){0}), ((bynt_map_i64_lexer__TextSpan){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_semantics__Manifest){0}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnobservableMark){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__MutationCheck){NULL, 0, 0, byn_context}), ((bynt_map_i64_list_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__T39ThisWrite){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context}), ((bynt_list_semantics__NodeSyntax){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_semantics__CompilationOptions){false, false, false, ((bynt_opt_list_str){0}), ((bynt_opt_str){0}), ((bynt_opt_str){0}), ((bynt_opt_list_semantics__StdSource){0})}), ((bynt_list_lexer__SourceText){NULL, 0, 0, byn_context}), ((bynt_map_str_lexer__SourceText){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_map_i64_list_semantics__StorePair){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_list_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_semantics__Grammar){((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_map_str_str){{.alloc = byn_context}, NULL, NULL})}), false});
-#line 242 "driver/cc.byn"
+#line 246 "driver/cc.byn"
     l3_ice = ((bynt_semantics__Diag){BYN_STR("BYN4001", 7), INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), BYN_STR("internal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler", 101), BYN_STR("", 0), p_result.errors, false, false, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), BYN_STR("", 0), ((bynt_list_semantics__Related){NULL, 0, 0, byn_context})});
-#line 250 "driver/cc.byn"
+#line 254 "driver/cc.byn"
     (void)bynh_add_list_semantics__Diag(&l2_c.diagnostics, l3_ice);
-#line 251 "driver/cc.byn"
+#line 255 "driver/cc.byn"
     l4_omitted = INT64_C(0);
-#line 252 "driver/cc.byn"
+#line 256 "driver/cc.byn"
     t5 = INT32_C(2);
-#line 252 "driver/cc.byn"
+#line 256 "driver/cc.byn"
     (void)byn_io_write(t5, byn_semantics__renderAllBy(l2_c, l2_c.diagnostics, true, INT64_C(2147483647), &l4_omitted, p_symbols));
-#line 253 "driver/cc.byn"
+#line 257 "driver/cc.byn"
     t8 = INT32_C(2);
-#line 253 "driver/cc.byn"
+#line 257 "driver/cc.byn"
     if (byn_str_ends_with(p_result.errors, BYN_STR("\012", 1))) {
-#line 253 "driver/cc.byn"
+#line 257 "driver/cc.byn"
         t7 = p_result.errors;
     } else {
-#line 253 "driver/cc.byn"
+#line 257 "driver/cc.byn"
         t6 = byn_strbuf_grow(byn_context);
-#line 253 "driver/cc.byn"
+#line 257 "driver/cc.byn"
         {
             byn_writer* w = &t6;
             w->file = byn_file_86;
-            w->line = 253;
+            w->line = 257;
             byn_w_str(w, p_result.errors);
             byn_w_str(w, BYN_STR("\012", 1));
         }
-#line 253 "driver/cc.byn"
+#line 257 "driver/cc.byn"
         t7 = byn_strbuf_str(t6);
     }
-#line 253 "driver/cc.byn"
+#line 257 "driver/cc.byn"
     (void)byn_io_write(t8, t7);
 }
 #line 192177 "main.c"
@@ -201158,7 +201158,13 @@ bynt_main__ScaffoldGitResult byn_main__scaffoldGit(byn_str p_git, byn_str p_dir,
     byn_process l1_r = {0};
     byn_err t2 = {0};
     byn_process t3 = {0};
-    int32_t t4 = {0};
+    byn_err t4 = {0};
+    byn_process t5 = {0};
+    int32_t l6_s = {0};
+    byn_str l7_output = {0};
+    byn_str l8_errors = {0};
+    byn_err l9_e = {0};
+    int32_t t10 = {0};
 #line 332 "driver/scaffold.byn"
     l0_args = ((bynt_list_str){NULL, 0, 0, byn_context});
 #line 333 "driver/scaffold.byn"
@@ -201182,23 +201188,42 @@ bynt_main__ScaffoldGitResult byn_main__scaffoldGit(byn_str p_git, byn_str p_dir,
 #line 338 "driver/scaffold.byn"
     if ((!(t2.code == ((uint32_t)0)))) {
 #line 338 "driver/scaffold.byn"
-        {
-            uint8_t wb[1024];
-            byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_96, 338};
-            byn_writer* w = &wv;
-            byn_w_str(w, BYN_STR("cannot run ", 11));
-            byn_w_str(w, p_git);
-            byn_panic_str((byn_str){wb, wv.len}, byn_file_96, 338);
+        t4 = t2;
+#line 339 "driver/scaffold.byn"
+        if (((((t4.code == ((uint32_t)10)) && ((l6_s = t4.p.e10.signal), true)) && ((l7_output = t4.p.e10.stdout_), true)) && ((l8_errors = t4.p.e10.stderr_), true))) {
+#line 339 "driver/scaffold.byn"
+            return ((bynt_main__ScaffoldGitResult){byn_add_i32(((int32_t)128), l6_s, byn_file_96, 339), byn_str_trimmed(l7_output, 2)});
+#line 339 "driver/scaffold.byn"
+            goto switch_end_1;
         }
+#line 341 "driver/scaffold.byn"
+        if ((((((((((((bynh_eq_err(t4, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t4, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t4, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t4, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t4, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t4, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t4, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t4, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t4, ((byn_err){ .code = UINT32_C(9) }))) || (t4.code == ((byn_err){ .code = UINT32_C(10) }).code)) || (t4.code == ((byn_err){ .code = UINT32_C(11) }).code)) && ((l9_e = t4), true))) {
+#line 341 "driver/scaffold.byn"
+            {
+                uint8_t wb[1024];
+                byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_96, 341};
+                byn_writer* w = &wv;
+                byn_w_str(w, BYN_STR("cannot run ", 11));
+                byn_w_str(w, p_git);
+                byn_panic_str((byn_str){wb, wv.len}, byn_file_96, 341);
+            }
+#line 341 "driver/scaffold.byn"
+            goto switch_end_1;
+        }
+#line 338 "driver/scaffold.byn"
+        byn_panic("no switch arm matched", byn_file_96, 338);
+    switch_end_1:;
+#line 338 "driver/scaffold.byn"
+        t3 = t5;
     }
 #line 338 "driver/scaffold.byn"
     l1_r = t3;
-#line 339 "driver/scaffold.byn"
-    t4 = l1_r.exit_code;
-#line 339 "driver/scaffold.byn"
-    return ((bynt_main__ScaffoldGitResult){t4, byn_str_trimmed(l1_r.out, 2)});
+#line 343 "driver/scaffold.byn"
+    t10 = l1_r.exit_code;
+#line 343 "driver/scaffold.byn"
+    return ((bynt_main__ScaffoldGitResult){t10, byn_str_trimmed(l1_r.out, 2)});
 }
-#line 201202 "main.c"
+#line 201227 "main.c"
 
 bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main__ScaffoldOptions p_o) {
     bynt_map_str_str l0_files = {0};
@@ -201209,92 +201234,92 @@ bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main
     byn_writer t5 = {0};
     byn_writer t6 = {0};
     byn_str t7 = {0};
-#line 344 "driver/scaffold.byn"
+#line 348 "driver/scaffold.byn"
     l0_files = ((bynt_map_str_str){{.alloc = byn_context}, NULL, NULL});
-#line 345 "driver/scaffold.byn"
+#line 349 "driver/scaffold.byn"
     if ((p_o.layout == ((byn_main_ScaffoldLayout)2))) {
-#line 346 "driver/scaffold.byn"
+#line 350 "driver/scaffold.byn"
         t1 = byn_strbuf_grow(byn_context);
-#line 346 "driver/scaffold.byn"
+#line 350 "driver/scaffold.byn"
         {
             byn_writer* w = &t1;
             w->file = byn_file_96;
-            w->line = 346;
+            w->line = 350;
             byn_w_str(w, p_n.kebab);
             byn_w_str(w, BYN_STR(".byn", 4));
         }
-#line 346 "driver/scaffold.byn"
+#line 350 "driver/scaffold.byn"
         (*bynh_slot_map_str_str(&l0_files, byn_strbuf_str(t1), ((byn_str){0}))) = BYN_STR("#!/usr/bin/env bayan\012#:io threaded\012\012print(\042Hello, world!\042)\012", 59);
-#line 347 "driver/scaffold.byn"
+#line 351 "driver/scaffold.byn"
         return l0_files;
     }
-#line 349 "driver/scaffold.byn"
-    l2_lib = (p_o.layout == ((byn_main_ScaffoldLayout)1));
-#line 350 "driver/scaffold.byn"
-    t3 = byn_str_replaced(byn_str_replaced(BYN_STR("Package {\012    name: \042local/{kebab}\042,      // `local/` until published under a verified namespace\012    version: \0420.1.0\042,\012    edition: 2027,\012    kind: .{kind},\012    capabilities: [],\012    deps: [],\012    dist: Dist {\012        targets: [.host],        // the machine that builds it\012        mode: .safe,\012    },\012}\012", 303), BYN_STR("{kebab}", 7), p_n.kebab, byn_context, byn_file_96, 350), BYN_STR("{kind}", 6), (l2_lib ? BYN_STR("lib", 3) : BYN_STR("app", 3)), byn_context, byn_file_96, 350);
-#line 350 "driver/scaffold.byn"
-    (*bynh_slot_map_str_str(&l0_files, BYN_STR("package.byn", 11), ((byn_str){0}))) = t3;
-#line 351 "driver/scaffold.byn"
-    t4 = byn_str_replaced(byn_str_replaced((l2_lib ? BYN_STR("# {kebab}\012\012A Bayan library. Its code is in `src/{module}/`; other packages use it with `import {module}`.\012\012## Test\012\012```\012bayan test\012```\012", 135) : BYN_STR("# {kebab}\012\012A Bayan app. Its code is in `src/app/`.\012\012## Run\012\012```\012bayan run\012```\012\012## Test\012\012```\012bayan test\012```\012", 107)), BYN_STR("{kebab}", 7), p_n.kebab, byn_context, byn_file_96, 351), BYN_STR("{module}", 8), p_n.module, byn_context, byn_file_96, 351);
-#line 351 "driver/scaffold.byn"
-    (*bynh_slot_map_str_str(&l0_files, BYN_STR("README.md", 9), ((byn_str){0}))) = t4;
-#line 352 "driver/scaffold.byn"
-    (*bynh_slot_map_str_str(&l0_files, BYN_STR(".gitignore", 10), ((byn_str){0}))) = BYN_STR("/out/\012/dist/\012/gen/\012", 19);
 #line 353 "driver/scaffold.byn"
-    (*bynh_slot_map_str_str(&l0_files, BYN_STR(".gitattributes", 14), ((byn_str){0}))) = BYN_STR("* text=auto eol=lf\012*.byn linguist-language=C#\012", 46);
+    l2_lib = (p_o.layout == ((byn_main_ScaffoldLayout)1));
 #line 354 "driver/scaffold.byn"
-    (*bynh_slot_map_str_str(&l0_files, BYN_STR(".editorconfig", 13), ((byn_str){0}))) = BYN_STR("root = true\012\012[*]\012charset = utf-8\012end_of_line = lf\012indent_style = space\012indent_size = 4\012insert_final_newline = true\012trim_trailing_whitespace = true\012", 147);
+    t3 = byn_str_replaced(byn_str_replaced(BYN_STR("Package {\012    name: \042local/{kebab}\042,      // `local/` until published under a verified namespace\012    version: \0420.1.0\042,\012    edition: 2027,\012    kind: .{kind},\012    capabilities: [],\012    deps: [],\012    dist: Dist {\012        targets: [.host],        // the machine that builds it\012        mode: .safe,\012    },\012}\012", 303), BYN_STR("{kebab}", 7), p_n.kebab, byn_context, byn_file_96, 354), BYN_STR("{kind}", 6), (l2_lib ? BYN_STR("lib", 3) : BYN_STR("app", 3)), byn_context, byn_file_96, 354);
+#line 354 "driver/scaffold.byn"
+    (*bynh_slot_map_str_str(&l0_files, BYN_STR("package.byn", 11), ((byn_str){0}))) = t3;
 #line 355 "driver/scaffold.byn"
+    t4 = byn_str_replaced(byn_str_replaced((l2_lib ? BYN_STR("# {kebab}\012\012A Bayan library. Its code is in `src/{module}/`; other packages use it with `import {module}`.\012\012## Test\012\012```\012bayan test\012```\012", 135) : BYN_STR("# {kebab}\012\012A Bayan app. Its code is in `src/app/`.\012\012## Run\012\012```\012bayan run\012```\012\012## Test\012\012```\012bayan test\012```\012", 107)), BYN_STR("{kebab}", 7), p_n.kebab, byn_context, byn_file_96, 355), BYN_STR("{module}", 8), p_n.module, byn_context, byn_file_96, 355);
+#line 355 "driver/scaffold.byn"
+    (*bynh_slot_map_str_str(&l0_files, BYN_STR("README.md", 9), ((byn_str){0}))) = t4;
+#line 356 "driver/scaffold.byn"
+    (*bynh_slot_map_str_str(&l0_files, BYN_STR(".gitignore", 10), ((byn_str){0}))) = BYN_STR("/out/\012/dist/\012/gen/\012", 19);
+#line 357 "driver/scaffold.byn"
+    (*bynh_slot_map_str_str(&l0_files, BYN_STR(".gitattributes", 14), ((byn_str){0}))) = BYN_STR("* text=auto eol=lf\012*.byn linguist-language=C#\012", 46);
+#line 358 "driver/scaffold.byn"
+    (*bynh_slot_map_str_str(&l0_files, BYN_STR(".editorconfig", 13), ((byn_str){0}))) = BYN_STR("root = true\012\012[*]\012charset = utf-8\012end_of_line = lf\012indent_style = space\012indent_size = 4\012insert_final_newline = true\012trim_trailing_whitespace = true\012", 147);
+#line 359 "driver/scaffold.byn"
     if (l2_lib) {
-#line 356 "driver/scaffold.byn"
+#line 360 "driver/scaffold.byn"
         t5 = byn_strbuf_grow(byn_context);
-#line 356 "driver/scaffold.byn"
+#line 360 "driver/scaffold.byn"
         {
             byn_writer* w = &t5;
             w->file = byn_file_96;
-            w->line = 356;
+            w->line = 360;
             byn_w_str(w, BYN_STR("src/", 4));
             byn_w_str(w, p_n.module);
             byn_w_str(w, BYN_STR("/", 1));
             byn_w_str(w, p_n.module);
             byn_w_str(w, BYN_STR(".byn", 4));
         }
-#line 356 "driver/scaffold.byn"
+#line 360 "driver/scaffold.byn"
         (*bynh_slot_map_str_str(&l0_files, byn_strbuf_str(t5), ((byn_str){0}))) = BYN_STR("/// Returns twice `x`.\012public i64 twice(i64 x) {\012    return x * 2\012}\012", 68);
-#line 357 "driver/scaffold.byn"
+#line 361 "driver/scaffold.byn"
         t6 = byn_strbuf_grow(byn_context);
-#line 357 "driver/scaffold.byn"
+#line 361 "driver/scaffold.byn"
         {
             byn_writer* w = &t6;
             w->file = byn_file_96;
-            w->line = 357;
+            w->line = 361;
             byn_w_str(w, BYN_STR("tests/", 6));
             byn_w_str(w, p_n.module);
             byn_w_str(w, BYN_STR(".test.byn", 9));
         }
-#line 357 "driver/scaffold.byn"
+#line 361 "driver/scaffold.byn"
         (*bynh_slot_map_str_str(&l0_files, byn_strbuf_str(t6), ((byn_str){0}))) = BYN_STR("test \042twice doubles\042 {\012    assert(twice(21) == 42)\012}\012", 53);
     } else {
-#line 359 "driver/scaffold.byn"
+#line 363 "driver/scaffold.byn"
         (*bynh_slot_map_str_str(&l0_files, BYN_STR("src/app/main.byn", 16), ((byn_str){0}))) = BYN_STR("/// The line this app prints.\012string greeting() {\012    return \042Hello, world!\042\012}\012\012print(greeting())\012", 98);
-#line 360 "driver/scaffold.byn"
+#line 364 "driver/scaffold.byn"
         (*bynh_slot_map_str_str(&l0_files, BYN_STR("tests/app.test.byn", 18), ((byn_str){0}))) = BYN_STR("test \042greets the world\042 {\012    assert(greeting() == \042Hello, world!\042)\012}\012", 70);
     }
-#line 362 "driver/scaffold.byn"
+#line 366 "driver/scaffold.byn"
     (*bynh_slot_map_str_str(&l0_files, BYN_STR("testdata/.gitkeep", 17), ((byn_str){0}))) = BYN_STR("", 0);
-#line 363 "driver/scaffold.byn"
+#line 367 "driver/scaffold.byn"
     (*bynh_slot_map_str_str(&l0_files, BYN_STR("docs/.gitkeep", 13), ((byn_str){0}))) = BYN_STR("", 0);
-#line 364 "driver/scaffold.byn"
+#line 368 "driver/scaffold.byn"
     if (p_o.ciGithub) {
-#line 365 "driver/scaffold.byn"
-        t7 = byn_str_replaced(BYN_STR("name: bayan\012\012on: [push, pull_request]\012\012jobs:\012  build:\012    runs-on: ubuntu-latest\012    steps:\012      - uses: actions/checkout@v5\012      # Install zig and bayan here; neither has an official setup action yet.\012      - run: bayan {command}\012      - run: bayan test\012", 257), BYN_STR("{command}", 9), (l2_lib ? BYN_STR("check", 5) : BYN_STR("build", 5)), byn_context, byn_file_96, 365);
-#line 365 "driver/scaffold.byn"
+#line 369 "driver/scaffold.byn"
+        t7 = byn_str_replaced(BYN_STR("name: bayan\012\012on: [push, pull_request]\012\012jobs:\012  build:\012    runs-on: ubuntu-latest\012    steps:\012      - uses: actions/checkout@v5\012      # Install zig and bayan here; neither has an official setup action yet.\012      - run: bayan {command}\012      - run: bayan test\012", 257), BYN_STR("{command}", 9), (l2_lib ? BYN_STR("check", 5) : BYN_STR("build", 5)), byn_context, byn_file_96, 369);
+#line 369 "driver/scaffold.byn"
         (*bynh_slot_map_str_str(&l0_files, BYN_STR(".github/workflows/bayan.yml", 27), ((byn_str){0}))) = t7;
     }
-#line 367 "driver/scaffold.byn"
+#line 371 "driver/scaffold.byn"
     return l0_files;
 }
-#line 201298 "main.c"
+#line 201323 "main.c"
 
 bynt_list_u64 byn_main__t9RoundConstants(void) {
     bynt_list_u64 l0_k = {0};
@@ -201434,13 +201459,13 @@ bynt_list_u64 byn_main__t9RoundConstants(void) {
 #line 17 "driver/sha256.byn"
     return l0_k;
 }
-#line 201438 "main.c"
+#line 201463 "main.c"
 
 uint64_t byn_main__t9Rotr(uint64_t p_x, uint64_t p_n) {
 #line 21 "driver/sha256.byn"
     return ((uint64_t)(((uint64_t)(byn_shr_u64(p_x, (int64_t)(p_n)) | byn_shl_u64(p_x, (int64_t)(byn_sub_u64(UINT64_C(32), p_n, byn_file_97, 21))))) & UINT64_C(4294967295)));
 }
-#line 201444 "main.c"
+#line 201469 "main.c"
 
 void byn_main__t9Block(bynt_list_u64* p_h, bynt_span_u8 p_data, int64_t p_start, bynt_list_u64 p_k, bynt_list_u64* p_w) {
     int32_t l0_t = {0};
@@ -201648,7 +201673,7 @@ break_5:;
 #line 65 "driver/sha256.byn"
     (*bynh_at_list_u64((*p_h), (int64_t)INT64_C(7), false, byn_file_97, 65)) = t43;
 }
-#line 201652 "main.c"
+#line 201677 "main.c"
 
 bynt_list_u8 byn_main__sha256(bynt_span_u8 p_data) {
     bynt_list_u64 l0_k = {0};
@@ -201839,13 +201864,13 @@ break_13:;
 #line 99 "driver/sha256.byn"
     return l17_digest;
 }
-#line 201843 "main.c"
+#line 201868 "main.c"
 
 bool byn_main__t6IsSkippedDirectory(byn_str p_name, bool p_atRoot) {
 #line 16 "driver/walk.byn"
     return (((byn_str_starts_with(p_name, BYN_STR(".", 1)) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("node_modules", 12)) : byn_str_eq(p_name, BYN_STR("node_modules", 12)))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("obj", 3)) : byn_str_eq(p_name, BYN_STR("obj", 3)))) || (p_atRoot && (((((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("bin", 3)) : byn_str_eq(p_name, BYN_STR("bin", 3))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("dist", 4)) : byn_str_eq(p_name, BYN_STR("dist", 4)))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("tmp", 3)) : byn_str_eq(p_name, BYN_STR("tmp", 3))))));
 }
-#line 201849 "main.c"
+#line 201874 "main.c"
 
 bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within) {
     byn_str l0_bound = {0};
@@ -201883,7 +201908,7 @@ bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within) {
 #line 27 "driver/walk.byn"
     return true;
 }
-#line 201887 "main.c"
+#line 201912 "main.c"
 
 bool byn_main__t6IsByn(byn_str p_name) {
     int64_t l0_n = {0};
@@ -201905,13 +201930,13 @@ bool byn_main__t6IsByn(byn_str p_name) {
 #line 38 "driver/walk.byn"
     return (((((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(4), byn_file_98, 38), false, byn_file_98, 38)) == ((uint8_t)46)) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(3), byn_file_98, 38), false, byn_file_98, 38)) | ((uint8_t)32))) == ((uint8_t)98))) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(2), byn_file_98, 38), false, byn_file_98, 38)) | ((uint8_t)32))) == ((uint8_t)121))) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(1), byn_file_98, 38), false, byn_file_98, 38)) | ((uint8_t)32))) == ((uint8_t)110)));
 }
-#line 201909 "main.c"
+#line 201934 "main.c"
 
 byn_str byn_main__realPath(byn_str p_path) {
 #line 43 "driver/walk.byn"
     return byn_path_full_path(p_path, byn_context, byn_file_98, 43);
 }
-#line 201915 "main.c"
+#line 201940 "main.c"
 
 bynt_list_str byn_main__bynFiles(byn_str p_dir, int32_t* p_exit, bynt_opt_str p_within, bool p_silent) {
     bynt_list_str l0_files = {0};
@@ -202096,13 +202121,13 @@ break_1:;
 #line 90 "driver/walk.byn"
     return l0_files;
 }
-#line 202100 "main.c"
+#line 202125 "main.c"
 
 bynt_map_str_bool byn_main__t6OtherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
 #line 106 "driver/walk.byn"
     return byn_main__otherUses(p_file, p_bytes, p_tree, &(*p_p));
 }
-#line 202106 "main.c"
+#line 202131 "main.c"
 
 byn_err byn_main__manifestFor(byn_str p_file, bynt_map_str_opt_main__T6Found* p_cache, bynt_opt_main__T6Found* byn_out) {
     bynt_opt_str l0_dir = {0};
@@ -202208,7 +202233,7 @@ break_3:;
     *byn_out = l2_found;
     return (byn_err){0};
 }
-#line 202212 "main.c"
+#line 202237 "main.c"
 
 bynt_map_str_bool byn_main__packageNames(byn_str p_dir) {
     bynt_map_str_bool l0_names = {0};
@@ -202330,7 +202355,7 @@ break_1:;
 #line 151 "driver/walk.byn"
     return l0_names;
 }
-#line 202334 "main.c"
+#line 202359 "main.c"
 
 bynt_main__NativeBuild byn_main__ZigOrCc__compile(bynt_main__ZigOrCc* self, byn_str p_dir, byn_str p_source, byn_str p_output, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_compiler = {0};
@@ -202348,10 +202373,17 @@ bynt_main__NativeBuild byn_main__ZigOrCc__compile(bynt_main__ZigOrCc* self, byn_
     byn_process l12_r = {0};
     byn_err t13 = {0};
     byn_process t14 = {0};
-    byn_writer t15 = {0};
-    byn_writer t16 = {0};
-    int32_t t17 = {0};
-    byn_str t18 = {0};
+    byn_err t15 = {0};
+    byn_process t16 = {0};
+    int32_t l17_s = {0};
+    byn_str l18_streamOut = {0};
+    byn_str l19_streamErr = {0};
+    byn_writer t20 = {0};
+    byn_err l21_e = {0};
+    byn_writer t22 = {0};
+    byn_writer t23 = {0};
+    int32_t t24 = {0};
+    byn_str t25 = {0};
 #line 198 "driver/cc.byn"
     l0_compiler = byn_main__ccFindCompiler();
 #line 199 "driver/cc.byn"
@@ -202419,60 +202451,92 @@ bynt_main__NativeBuild byn_main__ZigOrCc__compile(bynt_main__ZigOrCc* self, byn_
         t7 = byn_addw_i64(t7, INT64_C(1));
     }
 break_1:;
-#line 215 "driver/cc.byn"
+#line 216 "driver/cc.byn"
     {
         int64_t detail = 0;
         byn_process proc = {0};
-        t13 = (byn_err){ .code = bynh_io_run((*bynh_at_list_str(l0_compiler, (int64_t)INT64_C(0), false, byn_file_86, 215)), bynh_span_list_str(l3_args), &proc, &detail) };
+        t13 = (byn_err){ .code = bynh_io_run((*bynh_at_list_str(l0_compiler, (int64_t)INT64_C(0), false, byn_file_86, 216)), bynh_span_list_str(l3_args), &proc, &detail) };
         if (t13.code == 0) t14 = proc;
         if (t13.code == UINT32_C(10)) t13.p.e10.signal = (int32_t)detail;
         if (t13.code == UINT32_C(10)) { t13.p.e10.stdout_ = proc.out; t13.p.e10.stderr_ = proc.err; }
         if (t13.code == UINT32_C(11)) t13.p.e11.after = (int64_t)detail;
     }
-#line 215 "driver/cc.byn"
-    if ((!(t13.code == ((uint32_t)0)))) {
-#line 215 "driver/cc.byn"
-        t15 = byn_strbuf_grow(byn_context);
-#line 215 "driver/cc.byn"
-        {
-            byn_writer* w = &t15;
-            w->file = byn_file_86;
-            w->line = 215;
-            byn_w_str(w, BYN_STR("cannot run the C compiler `", 27));
-            byn_w_str(w, byn_main__ccJoin(l0_compiler));
-            byn_w_str(w, BYN_STR("`", 1));
-        }
-#line 215 "driver/cc.byn"
-        return ((bynt_main__NativeBuild){false, byn_strbuf_str(t15), false});
-    }
-#line 215 "driver/cc.byn"
-    l12_r = t14;
 #line 216 "driver/cc.byn"
+    if ((!(t13.code == ((uint32_t)0)))) {
+#line 216 "driver/cc.byn"
+        t15 = t13;
+#line 217 "driver/cc.byn"
+        if (((((t15.code == ((uint32_t)10)) && ((l17_s = t15.p.e10.signal), true)) && ((l18_streamOut = t15.p.e10.stdout_), true)) && ((l19_streamErr = t15.p.e10.stderr_), true))) {
+#line 217 "driver/cc.byn"
+            t20 = byn_strbuf_grow(byn_context);
+#line 217 "driver/cc.byn"
+            {
+                byn_writer* w = &t20;
+                w->file = byn_file_86;
+                w->line = 217;
+                byn_w_str(w, BYN_STR("C compiler failed (exit ", 24));
+                byn_w_i64(w, (int64_t)(byn_add_i32(((int32_t)128), l17_s, byn_file_86, 217)));
+                byn_w_str(w, BYN_STR("):\012", 3));
+                byn_w_str(w, l18_streamOut);
+                byn_w_str(w, l19_streamErr);
+            }
+#line 217 "driver/cc.byn"
+            return ((bynt_main__NativeBuild){false, byn_strbuf_str(t20), true});
+#line 217 "driver/cc.byn"
+            goto switch_end_3;
+        }
+#line 218 "driver/cc.byn"
+        if ((((((((((((bynh_eq_err(t15, ((byn_err){ .code = UINT32_C(1) })) || bynh_eq_err(t15, ((byn_err){ .code = UINT32_C(2) }))) || bynh_eq_err(t15, ((byn_err){ .code = UINT32_C(3) }))) || bynh_eq_err(t15, ((byn_err){ .code = UINT32_C(4) }))) || bynh_eq_err(t15, ((byn_err){ .code = UINT32_C(5) }))) || bynh_eq_err(t15, ((byn_err){ .code = UINT32_C(6) }))) || bynh_eq_err(t15, ((byn_err){ .code = UINT32_C(7) }))) || bynh_eq_err(t15, ((byn_err){ .code = UINT32_C(8) }))) || bynh_eq_err(t15, ((byn_err){ .code = UINT32_C(9) }))) || (t15.code == ((byn_err){ .code = UINT32_C(10) }).code)) || (t15.code == ((byn_err){ .code = UINT32_C(11) }).code)) && ((l21_e = t15), true))) {
+#line 218 "driver/cc.byn"
+            t22 = byn_strbuf_grow(byn_context);
+#line 218 "driver/cc.byn"
+            {
+                byn_writer* w = &t22;
+                w->file = byn_file_86;
+                w->line = 218;
+                byn_w_str(w, BYN_STR("cannot run the C compiler `", 27));
+                byn_w_str(w, byn_main__ccJoin(l0_compiler));
+                byn_w_str(w, BYN_STR("`", 1));
+            }
+#line 218 "driver/cc.byn"
+            return ((bynt_main__NativeBuild){false, byn_strbuf_str(t22), false});
+#line 218 "driver/cc.byn"
+            goto switch_end_3;
+        }
+#line 216 "driver/cc.byn"
+        byn_panic("no switch arm matched", byn_file_86, 216);
+    switch_end_3:;
+#line 216 "driver/cc.byn"
+        t14 = t16;
+    }
+#line 216 "driver/cc.byn"
+    l12_r = t14;
+#line 220 "driver/cc.byn"
     if (((!(l12_r.exit_code == ((int32_t)0))) || (!byn_main__t1FileExists(p_output)))) {
-#line 217 "driver/cc.byn"
-        t16 = byn_strbuf_grow(byn_context);
-#line 217 "driver/cc.byn"
-        t17 = l12_r.exit_code;
-#line 217 "driver/cc.byn"
-        t18 = l12_r.out;
-#line 217 "driver/cc.byn"
+#line 221 "driver/cc.byn"
+        t23 = byn_strbuf_grow(byn_context);
+#line 221 "driver/cc.byn"
+        t24 = l12_r.exit_code;
+#line 221 "driver/cc.byn"
+        t25 = l12_r.out;
+#line 221 "driver/cc.byn"
         {
-            byn_writer* w = &t16;
+            byn_writer* w = &t23;
             w->file = byn_file_86;
-            w->line = 217;
+            w->line = 221;
             byn_w_str(w, BYN_STR("C compiler failed (exit ", 24));
-            byn_w_i64(w, (int64_t)(t17));
+            byn_w_i64(w, (int64_t)(t24));
             byn_w_str(w, BYN_STR("):\012", 3));
-            byn_w_str(w, t18);
+            byn_w_str(w, t25);
             byn_w_str(w, l12_r.err);
         }
-#line 217 "driver/cc.byn"
-        return ((bynt_main__NativeBuild){false, byn_strbuf_str(t16), true});
+#line 221 "driver/cc.byn"
+        return ((bynt_main__NativeBuild){false, byn_strbuf_str(t23), true});
     }
-#line 219 "driver/cc.byn"
+#line 223 "driver/cc.byn"
     return ((bynt_main__NativeBuild){true, BYN_STR("", 0), false});
 }
-#line 202476 "main.c"
+#line 202540 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};
