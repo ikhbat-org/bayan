@@ -71,6 +71,11 @@
       "coverage": 1.0,
       "branches": 1.0
     },
+    "selfhost/driver/quality.byn": {
+      "mutation": null,
+      "coverage": 1.0,
+      "branches": 1.0
+    },
     "selfhost/driver/scaffold.byn": {
       "mutation": null,
       "coverage": 0.9655,
@@ -80,6 +85,16 @@
       "mutation": null,
       "coverage": 1.0,
       "branches": 1.0
+    },
+    "selfhost/driver/test.byn": {
+      "mutation": null,
+      "coverage": 0.9366,
+      "branches": 0.9333
+    },
+    "selfhost/driver/testreport.byn": {
+      "mutation": null,
+      "coverage": 0.9915,
+      "branches": 0.9821
     },
     "selfhost/driver/walk.byn": {
       "mutation": null,
