@@ -29,8 +29,11 @@ if [ "$(git branch --show-current)" != "dev" ]; then
 fi
 # A replay, or any writer or gate it started, works with its cwd inside the scratch; deleting it then pulls the tree
 # out from under a live process. The replay's own process is checked by name as well, in case it is between tasks.
-busy="$(pgrep -f "${CLEANUP_REPLAY_PATTERN:-deno .*route-replay\.js run}" || true)"
+busy="$(pgrep -f "${CLEANUP_REPLAY_PATTERN:-route-replay\.js run}" || true)"
 if [ -e "$main/$rel" ]; then
+  if ! command -v lsof >/dev/null 2>&1; then
+    printf 'refuse: lsof is not on PATH, so processes using the scratch cannot be checked.\n'; [ "$execute" = 1 ] && exit 1 || exit 0
+  fi
   busy="$busy $(lsof -a -d cwd -Fpn 2>/dev/null | awk -v d="$main/$rel" '/^p/{p=substr($0,2)} /^n/{n=substr($0,2); if (n==d || index(n, d "/")==1) print p}' || true)"
 fi
 busy="$(printf '%s' "$busy" | tr -s ' \n' ' ' | sed 's/^ //; s/ $//')"
