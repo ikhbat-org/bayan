@@ -3633,7 +3633,6 @@ static DWORD WINAPI byn_drain_pipe(LPVOID arg) {
     return 0;
 }
 
-<<<<<<< HEAD
 typedef struct byn_feed {
     HANDLE h;
     const uint8_t* ptr;
@@ -3711,17 +3710,10 @@ static wchar_t* byn_env_block(const byn_str* keys, const byn_str* vals, const bo
 }
 
 /* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`. `dir` (NULL: ours)
- * is its working directory, `env` (NULL: ours) its environment block, and `input` (`ninput` < 0: our stdin) its stdin. */
-static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, wchar_t* env, const uint8_t* input, int64_t ninput,
-                              byn_bytes* streams, int32_t* code) {
-||||||| 8e16a9ab
-/* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`. */
-static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, byn_bytes* streams, int32_t* code) {
-=======
-/* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`;
+ * is its working directory, `env` (NULL: ours) its environment block, and `input` (`ninput` < 0: our stdin) its stdin;
  * `*outcome` and `*raw` (the exit code) are for byn_process_finish. */
-static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, byn_bytes* streams, int* outcome, uint32_t* raw) {
->>>>>>> dev
+static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, wchar_t* env, const uint8_t* input, int64_t ninput,
+                              byn_bytes* streams, int* outcome, uint32_t* raw) {
     SECURITY_ATTRIBUTES sa = {sizeof sa, NULL, TRUE};
     HANDLE reads[3] = {NULL, NULL, NULL};
     HANDLE writes[3] = {NULL, NULL, NULL};
@@ -3796,7 +3788,6 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, byn_bytes* streams, 
 }
 #endif
 
-<<<<<<< HEAD
 #ifndef _WIN32
 /* `environ` with each live `keys[i]` set to `vals[i]`, replacing a variable of that name, as a NULL-terminated array from
  * malloc; the strings from index `*kept` on are from malloc too. */
@@ -3869,18 +3860,13 @@ static int byn_fork_exec(char** argv, char** envp, const char* dir, int in, int 
 }
 #endif
 
-uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, byn_alloc* alloc) {
-    return byn_io_run_with(program, args, nargs, NULL, NULL, -1, NULL, NULL, NULL, 0, out, alloc);
+uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc) {
+    return byn_io_run_with(program, args, nargs, NULL, NULL, -1, NULL, NULL, NULL, 0, out, detail, alloc);
 }
 
 uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, const byn_str* directory, const uint8_t* input,
                          int64_t ninput, const byn_str* env_keys, const byn_str* env_vals, const bool* env_dead, int64_t nenv,
-                         byn_process* out, byn_alloc* alloc) {
-||||||| 8e16a9ab
-uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, byn_alloc* alloc) {
-=======
-uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc) {
->>>>>>> dev
+                         byn_process* out, int64_t* detail, byn_alloc* alloc) {
     if (program.len == 0 || memchr(program.ptr, 0, (size_t)program.len)) return BYN_IO_NOT_FOUND;
     for (int64_t i = 0; i < nargs; i++)
         if (memchr(args[i].ptr, 0, (size_t)args[i].len)) return BYN_IO_OTHER;
@@ -3919,16 +3905,10 @@ uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_pro
     for (int64_t i = 0; i < nargs; i++) byn_quote_arg(&line, args[i]);
     wchar_t* wline = byn_wide(line.ptr, line.len);
     free(line.ptr);
-<<<<<<< HEAD
     wchar_t* env = env_keys ? byn_env_block(env_keys, env_vals, env_dead, nenv) : NULL;
-    uint32_t err = byn_win_spawn(app, wline, wdir, env, input, ninput, streams, &code);
+    uint32_t err = byn_win_spawn(app, wline, wdir, env, input, ninput, streams, &outcome, &raw);
     free(wdir);
     free(env);
-||||||| 8e16a9ab
-    uint32_t err = byn_win_spawn(app, wline, streams, &code);
-=======
-    uint32_t err = byn_win_spawn(app, wline, streams, &outcome, &raw);
->>>>>>> dev
     if (err != 0) return err;
 #else
     char* dir = NULL;
@@ -4076,17 +4056,9 @@ uint32_t byn_io_run_batch(byn_str path, const byn_str* args, int64_t nargs, byn_
     wchar_t* wline = byn_wide(line.ptr, line.len);
     free((void*)line.ptr);
     byn_bytes streams[2] = {{NULL, 0, 0}, {NULL, 0, 0}};
-<<<<<<< HEAD
-    int32_t code;
-    uint32_t err = byn_win_spawn(app, wline, NULL, NULL, NULL, -1, streams, &code);
-||||||| 8e16a9ab
-    int32_t code;
-    uint32_t err = byn_win_spawn(app, wline, streams, &code);
-=======
     int outcome;
     uint32_t raw;
-    uint32_t err = byn_win_spawn(app, wline, streams, &outcome, &raw);
->>>>>>> dev
+    uint32_t err = byn_win_spawn(app, wline, NULL, NULL, NULL, -1, streams, &outcome, &raw);
     if (err != 0) return err;
     return byn_process_finish(streams, outcome, raw, out, NULL, alloc);
 #else
