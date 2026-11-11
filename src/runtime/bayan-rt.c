@@ -3543,17 +3543,19 @@ static uint32_t byn_process_finish(byn_bytes* streams, int outcome, uint32_t raw
 #define BYN_RUN_DRAIN_MS 5000
 
 #ifndef _WIN32
-/* One expiry of a POSIX run's deadline moves `*stage` on: SIGTERM to the child's group (to the child alone when the group
- * cannot be signalled, as when the child left it), then SIGKILL after the grace period, then BYN_RUN_DRAIN_MS more to
+/* One expiry of a POSIX run's deadline moves `*stage` on: SIGTERM to the child's group and to the child itself (it may have
+ * left the group, which a helper keeps alive), delivered when either succeeds, then SIGKILL after the grace period, then BYN_RUN_DRAIN_MS more to
  * drain and reap; a SIGTERM that fails moves on at once, and a SIGKILL that fails ends the drain and the reap at once
  * (nothing was killed, so waiting longer would not help). Returns the new deadline. */
 static int64_t byn_run_expire(pid_t pid, int* stage, int64_t now) {
     if (*stage == 0) {
         *stage = 1;
-        if (kill(-pid, SIGTERM) == 0 || kill(pid, SIGTERM) == 0) return now + (int64_t)BYN_RUN_GRACE_MS * 1000000;
+        int group = kill(-pid, SIGTERM), self = kill(pid, SIGTERM);
+        if (group == 0 || self == 0) return now + (int64_t)BYN_RUN_GRACE_MS * 1000000;
     }
     *stage = 2;
-    if (kill(-pid, SIGKILL) != 0 && kill(pid, SIGKILL) != 0) return now;
+    int group = kill(-pid, SIGKILL), self = kill(pid, SIGKILL);
+    if (group != 0 && self != 0) return now;
     return now + (int64_t)BYN_RUN_DRAIN_MS * 1000000;
 }
 #endif
@@ -3947,8 +3949,14 @@ static int byn_resolve_program(const char* name, char** path) {
         bool relative = elen == 0 || entry[0] != '/';
         if (relative && !cwd) {
             cwd = getcwd(NULL, 0);
-            if (!cwd) return errno;
-            clen = strlen(cwd);
+            if (cwd) clen = strlen(cwd);
+        }
+        if (relative && !cwd) {
+            /* execvp skips an entry it cannot resolve; the errno is the result only when no entry finds the program. */
+            if (found == ENOENT) found = errno;
+            if (!end) break;
+            entry = end;
+            continue;
         }
         char* full = (char*)malloc(clen + elen + nlen + 3);
         if (!full) byn_panic("out of memory", NULL, 0);

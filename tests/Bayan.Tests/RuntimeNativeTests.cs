@@ -169,7 +169,8 @@ public sealed class RuntimeNativeTests
     /// <summary>
     /// POSIX <c>Io.run</c> edges (<c>tests/native/io-run-posix.c</c>): a child that leaves its process group is signalled
     /// itself, so a 300 ms timeout ends in time; <c>timeout: Millis(i64.max)</c> never passes, so a child that exits at once
-    /// reports exit 0; a deleted working directory does not stop <c>sh</c> on an absolute PATH.
+    /// reports exit 0; a deleted working directory does not stop <c>sh</c> on an absolute PATH, even after an empty entry;
+    /// a child that leaves its group while a helper keeps the group alive is still signalled and reaped.
     /// </summary>
     [Fact]
     public void RunPosixEdges()
@@ -178,8 +179,10 @@ public sealed class RuntimeNativeTests
         var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "io-run-posix.c"));
         Assert.Equal(
             "left group: 11 in time 1\n" +
+            "left group with helper: 11 in time 1 child gone 1\n" +
             "longest timeout: 0 code 0\n" +
-            "deleted directory: 0 code 0\n",
+            "deleted directory: 0 code 0\n" +
+            "deleted directory, empty PATH entry: 0 code 0\n",
             Run(Build(driver), []));
     }
 
