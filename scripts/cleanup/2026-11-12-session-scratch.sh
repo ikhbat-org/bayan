@@ -27,7 +27,7 @@ if git show-ref --verify --quiet "refs/heads/$b"; then
   else printf 'keep: %s (not in dev)\n' "$b"; fi
 fi
 
-b=chore/017-preflight-sh; w=.worktrees/chore-017-preflight-sh
+b=chore/017-preflight-sh; w="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/.worktrees/chore-017-preflight-sh"
 if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
   [ -d "$w" ] && run git worktree remove "$w"
   run git branch -d "$b"
