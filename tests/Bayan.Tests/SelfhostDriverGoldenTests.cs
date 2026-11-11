@@ -233,8 +233,13 @@ public sealed class SelfhostDriverGoldenTests
         from flag in new[] { "", "-v", "--json", "--coverage" }
         select new object[] { name, flag };
 
-    /// <summary>L028's mask for <c>test</c>: the elapsed seconds, and the timings of <c>results.json</c> and <c>bayan-quality.json</c>.</summary>
-    private static string MaskTest(string text) => Regex.Replace(Mask(text), @"""(durationMs|build_s|total_s)"": [0-9.E+-]+", "\"$1\": <t>");
+    /// <summary>
+    /// L028's mask for <c>test</c>: the elapsed seconds, the timings of <c>results.json</c> and <c>bayan-quality.json</c>, and the
+    /// <c>timing:</c> line of a mutation summary (017 T13).
+    /// </summary>
+    private static string MaskTest(string text) =>
+        Regex.Replace(Regex.Replace(Mask(text), @"""(durationMs|build_s|total_s|mean_mutant_s|max_mutant_s|mutant_share_of_build)"": [0-9.E+-]+", "\"$1\": <t>"),
+            @"^timing: build .*$", "timing: <t>", RegexOptions.Multiline);
 
     /// <summary>
     /// 017 T11 (L028): the C# CLI (<c>dotnet bayan.dll</c>) and the driver's harness build run <paramref name="args"/> one after the other in
@@ -271,6 +276,72 @@ public sealed class SelfhostDriverGoldenTests
         Directory.CreateDirectory(Path.Combine(work, stem));
         File.Copy(Path_(name), Path.Combine(work, stem, Path.GetFileName(name)));
         AssertTestAsCSharp(work, flag.Length == 0 ? ["test", stem] : ["test", flag, stem]);
+    }
+
+    private const string MutateInc = "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n\ntest \"later\" {\n    todo(\"x\")\n}\n";
+
+    /// <summary>
+    /// 017 T13 (L028): <c>test --mutate</c> as ExternalModeTests.cs and CliMemoryBoundsTests.cs run it: a one-function directory with a
+    /// pending test, alone, with <c>--run</c> (its <c>out/test/bayan-quality.json</c> compared), and with <c>--coverage</c>.
+    /// </summary>
+    [Fact]
+    public void TestMutateAsCSharpCli()
+    {
+        var work = Work("test/mutate");
+        Directory.CreateDirectory(Path.Combine(work, "inc"));
+        File.WriteAllText(Path.Combine(work, "inc", "a.test.byn"), MutateInc);
+        AssertTestAsCSharp(work, ["test", "--mutate", "inc"]);
+        AssertTestAsCSharp(work, ["test", "--mutate", "--coverage", "inc"]);
+        AssertTestAsCSharp(work, ["test", "--mutate", "--json", "inc"]);
+        AssertTestAsCSharp(work, ["test", "--run", "true", "inc"]);
+        if (OperatingSystem.IsWindows()) return;
+        AssertTestAsCSharp(work, ["test", "--mutate", "--run", "\"$BAYAN_BINARY\" --test 0 >/dev/null", "inc"]);
+    }
+
+    /// <summary>
+    /// 017 T13 (L028): <c>mutate --binary</c> as ExternalModeTests.cs runs it, against the C# CLI: usage errors, a site map it refuses, a
+    /// baseline that fails, and a run whose <c>bayan-quality.json</c> (beside the binary) is compared with timings masked.
+    /// </summary>
+    [Fact]
+    public void MutateBinaryAsCSharpCli()
+    {
+        var work = Work("test/mutate-binary");
+        var bin = Path.Combine(work, "prog");
+        var sites = bin + ".sites.json";
+        var report = Path.Combine(work, "bayan-quality.json");
+        File.WriteAllText(bin, "");
+        void Same(params string[] args)
+        {
+            Result Once(Func<Result> run, out string json)
+            {
+                File.Delete(report);
+                var r = run();
+                json = File.Exists(report) ? MaskTest(File.ReadAllText(report)) : "(none)";
+                return r;
+            }
+            var expected = Once(() => CSharp(work, args), out var expectedJson);
+            var actual = Once(() => Start(SelfhostDriverHarness.Build(), [], work, args), out var actualJson);
+            Assert.True(expected.Exit == actual.Exit, $"{string.Join(' ', args)}: exit {actual.Exit}, the C# CLI's {expected.Exit}\n{actual.Stdout}{actual.Stderr}");
+            Assert.Equal(MaskTest(expected.Stdout), MaskTest(actual.Stdout));
+            Assert.Equal(expected.Stderr, actual.Stderr);
+            Assert.Equal(expectedJson, actualJson);
+        }
+        Same("mutate");
+        Same("mutate", "--binary", bin, "--sites");
+        File.WriteAllText(sites, "{ \"version\": 1, \"sites\": [{ \"id\": \"one\" }] }");
+        Same("mutate", "--binary", bin, "--sites", sites, "--", "true");
+        File.WriteAllText(sites, """
+            { "version": 1, "sites": [
+              { "id": 1, "file": "a.byn", "line": 1, "column": 1, "operator": "arithmetic", "original": "a + b", "mutated": "a - b" },
+              { "id": 2, "file": "a.byn", "line": 2, "column": 1, "operator": "bool", "original": "true", "mutated": "false", "emitted": false },
+              { "id": 3, "file": "a.byn", "line": 3, "column": 1, "operator": "statement", "original": "i += 1", "mutated": "", "unobservable": "no test can see it" }
+            ] }
+            """);
+        Same("mutate", "--binary", bin, "--sites", sites, "--", "nosuchcmd-xyz");
+        if (OperatingSystem.IsWindows()) return;
+        Same("mutate", "--binary", bin, "--sites", sites, "--", "/bin/sh", "-c", "exit 3");
+        Same("mutate", "--binary", bin, "--sites", sites, "--", "/bin/sh", "-c", "[ \"$BAYAN_MUTANT\" = 1 ] && exit 1; exit 0");
+        Same("mutate", "--binary", bin, "--sites", sites, "--", "/bin/sh", "-c", "exit 0");
     }
 
     private static (int Code, string Out) Git(string dir, params string[] args) =>
@@ -379,6 +450,26 @@ public sealed class SelfhostDriverGoldenTests
             + "test \"plain\" {\n    panic(\"assert this\\nnext\")\n}\n\n"
             + "test \"esc \\\\ \\u{8}\\t\\u{c}\\r\\u{7f}\\u{85}\\u{2028}\\u{2029}\\u{1F600}\\\"\" {\n}\n");
         AssertTestAsCSharp(work, ["test", .. flags.Split(' ', StringSplitOptions.RemoveEmptyEntries), "fails"]);
+    }
+
+    /// <summary>
+    /// 017 T13 (L028): the rerun line's CliApp.cs:986 <c>ShellQuote</c> of a failing test whose name holds a <c>"</c> and a <c>'</c>, beside a
+    /// failing name with a tab (not selectable) and a pending test; under <c>-v --json</c>, <c>--diagnostics json</c>, <c>--mode debug --json</c>
+    /// and <c>--coverage</c> outside a project.
+    /// </summary>
+    [Fact]
+    public void TestRerunQuotesAsCSharpCli()
+    {
+        var work = Work("test/quotes");
+        Directory.CreateDirectory(Path.Combine(work, "q"));
+        File.WriteAllText(Path.Combine(work, "q", "main.byn"), "void main() {\n}\n\ntest \"it's \\\"q\\\"\" {\n    assert(false)\n}\n\n"
+            + "test \"tab\\there\" {\n    assert(false)\n}\n\ntest \"later\" {\n    todo(\"x\")\n}\n");
+        AssertTestAsCSharp(work, ["test", "q"]);
+        AssertTestAsCSharp(work, ["test", "--only", "tab", "q"]);
+        AssertTestAsCSharp(work, ["test", "-v", "--json", "q"]);
+        AssertTestAsCSharp(work, ["test", "--diagnostics", "json", "q"]);
+        AssertTestAsCSharp(work, ["test", "--mode", "debug", "--json", "q"]);
+        AssertTestAsCSharp(work, ["test", "--coverage", "q"]);
     }
 
     /// <summary>
