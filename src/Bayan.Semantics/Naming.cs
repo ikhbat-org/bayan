@@ -87,7 +87,8 @@ public static class Naming
             CheckWords(c, grammar, source, p.Decl.Name, p.Type.IsBool ? "adjectives" : "nouns");
             if (p.Type.IsBool && s.Access == Accessibility.Public && p.Access == Accessibility.Public) CheckBoolState(c, source, p.Decl.Name);
         }
-        if (s.Access != Accessibility.Public) return;
+        // BYN5104 to BYN5107 do not check the standard library (Q1191; all four, user 2026-11-11): `std` is held to them by a test instead.
+        if (s.Access != Accessibility.Public || s.Module.Directory.StartsWith("<std>/", StringComparison.Ordinal)) return;
         foreach (var f in s.Fields.Where(f => f.Access == Accessibility.Public && !IsRenamed(f.Decl)))
         {
             if (!CheckCount(c, grammar, source, f.Decl.Name, f.Type)) CheckNumber(c, grammar, source, f.Decl.Name, f.Type);
@@ -111,6 +112,8 @@ public static class Naming
     /// </summary>
     internal static void CheckSignatures(Compilation c, ModuleSymbol module)
     {
+        // The standard library is not checked (Q1191; user 2026-11-11), as in `CheckMembers` and `CheckDoer`.
+        if (module.Directory.StartsWith("<std>/", StringComparison.Ordinal)) return;
         var grammar = GrammarOf(c);
         foreach (var fn in module.AllFunctions.Where(f => f is { Kind: FunctionKind.Function, Owner: null, Interface: null, IsInstance: false, Access: Accessibility.Public }))
             foreach (var p in fn.Parameters)
@@ -411,7 +414,7 @@ public static class Naming
     private static Grammar GrammarOf(Compilation c) => Grammars.GetValue(c, _ =>
     {
         var path = Path.Combine(c.DisplayRoot, "package.byn");
-        var grammar = File.Exists(path) ? Manifest.Read(path).Grammar : new Grammar();
+        var grammar = ReadGrammar(path);
         var lower = new Grammar();
         lower.Verbs.UnionWith(grammar.Verbs.Select(w => w.ToLowerInvariant()));
         lower.Nouns.UnionWith(grammar.Nouns.Select(w => w.ToLowerInvariant()));
@@ -420,6 +423,14 @@ public static class Naming
         foreach (var (word, form) in grammar.Forms) lower.Forms[word.ToLowerInvariant()] = form.ToLowerInvariant();
         return lower;
     });
+
+    /// <summary>A <c>package.byn</c> that exists but cannot be read is an empty grammar, as a missing one is (user 2026-11-11; Q565: an unreadable manifest reads as an empty one).</summary>
+    private static Grammar ReadGrammar(string path)
+    {
+        if (!File.Exists(path)) return new Grammar();
+        try { return Manifest.Read(path).Grammar; }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return new Grammar(); }
+    }
 
     private static readonly ConditionalWeakTable<Compilation, Grammar> Grammars = new();
 
