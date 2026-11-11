@@ -697,3 +697,6 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - [ ] LOW selfhost/semantics/compile.byn:675 comment still says "one primitive or `Millis`" after 007 Q1157 widened the set (found 2026-11-11 landing 007).
 - [ ] LOW (Q1190 follow-up) `tests/Bayan.Tests/SelfhostParserT6Tests.cs:148` BYN5104 filter for `decodeChar` is stale after Q1190; `decodeString`/`decodeRawString` still take `token`; `hasValues` kept after the `values` rename.
 - [ ] LOW selfhost/driver/scaffold.byn chmod call (~l.297): a chmod killed by a signal still panics; the C# sets the mode with `File.SetUnixFileMode` and runs no process, so no C# behaviour exists to match (review e764490431e8..7319225d).
+- LOW tests/Bayan.Tests/SelfhostDefaultT4Tests.cs:172 NewWithAGitKilledBySignalIsAsCSharp: pass `contains: "note: \`git init\` failed"` so the test proves the signal branch ran (review e764490431e8..7319225d, fix/review-2026-11-11-3).
+- LOW tests/Bayan.Tests/SelfhostDriverT3Tests.cs:420 ACompilerKilledBySignalIsAFailure: pin `exit 137` (128+9) from the C# run, not the "C compiler failed (exit " prefix (review e764490431e8..7319225d).
+- LOW selfhost/driver/cc.byn:217, scaffold.byn:339: a signaled child with non-UTF-8 output gets empty streams where .NET decodes with U+FFFD; same gap as the exitCode path, not a regression (review e764490431e8..7319225d).
