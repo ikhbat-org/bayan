@@ -22,12 +22,12 @@ static uint32_t run(const char* program, const char* script, const byn_str* dir,
 
 int main(int argc, char** argv) {
     if (argc == 4 && strcmp(argv[1], "helper") == 0) {
-        /* forks a helper that stays in the original group, records its pid, then leaves the group */
+        /* forks a helper that stays in the original group, records its pid, then leaves the group; the fixed path takes about 2.3 s (SIGTERM, then SIGKILL after the grace), a child left unsignalled about 7.3 s */
         pid_t h = fork();
         if (h < 0) return 1;
         if (h == 0) {
             signal(SIGTERM, SIG_IGN); /* survives the group's SIGTERM, so the group stays signalable until SIGKILL */
-            sleep(6);
+            sleep(30);
             _exit(0);
         }
         FILE* f = fopen(argv[3], "w");
@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
         fprintf(f, "%ld", (long)getpid());
         fclose(f);
         if (setpgid(0, (pid_t)atol(argv[2])) != 0) return 1;
-        sleep(6);
+        sleep(30); /* past timeout + grace + BYN_RUN_DRAIN_MS, so only a signal ends it */
         return 0;
     }
     if (argc == 3 && strcmp(argv[1], "child") == 0) {
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
         fclose(pf);
     }
     remove(pidfile);
-    printf("left group with helper: %u in time %d child gone %d\n", (unsigned)r, ms < 3000,
+    printf("left group with helper: %u in time %d child gone %d\n", (unsigned)r, ms < 5000,
            cpid > 0 && kill((pid_t)cpid, 0) != 0 && errno == ESRCH);
 
     out = (byn_process){0};
