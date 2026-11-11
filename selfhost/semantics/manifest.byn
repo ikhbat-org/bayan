@@ -42,6 +42,10 @@ public struct Manifest {
     List<string>? capabilities = null
     public List<string> distTargets = []
     public string distMode = "safe"
+    public i64? minLines = null
+    public i64? minBranches = null
+    public i64? minErrorPaths = null
+    public bool summary = true
     public BooleanStyle booleans = .symbols
     public PrimitiveStyle primitives = .sized
     Grammar grammar = Grammar {}
@@ -67,7 +71,7 @@ struct T10Field {
     i64 value
 }
 
-/// A C# `Value`: `text` is a string's contents, an enum's name or an object's type; a list's items and a
+/// A C# `Value`: `text` is a string's contents, an enum's name or an object's type; `number` an int, or a bool as 1 or 0; a list's items and a
 /// map's values are in `items`, a map's keys in `keys`, all indexes into `T10Reader.values`.
 struct T10Value {
     T10ValueKind kind
@@ -193,27 +197,36 @@ void t10Bind(ref Manifest m, from in T10Reader r, at i64 package) {
     }
 }
 
-/// The `test` part of `Bind`: the values are checked, nothing is kept yet.
+/// The `test` part of `Bind` (Manifest.cs:157-163): `lines`, `branches`, `errorPaths` and `summary` are kept; `mutation` is checked
+/// only (Q1217).
 void t10BindTests(ref Manifest m, from in T10Reader r, at i64 tests) {
     if r.values[tests].kind != .objectValue || r.values[tests].text != "Tests" {
         t10Invalid(ref m, from: in r, at: tests, for: "test", as: "a `Tests { … }`")
         return
     }
     let fields = t10Fields(ref m, from: in r, at: tests, by: t10TestsFields())
-    for name in ["lines", "branches", "errorPaths", "mutation"] {
-        if fields.contains(name) {
-            let value = fields[name]
-            if r.values[value].kind != .intValue || r.values[value].number < 0 || r.values[value].number > 100 {
-                t10Invalid(ref m, from: in r, at: value, for: $"test.{name}", as: "a percentage from 0 to 100, e.g. `80`")
-            }
-        }
-    }
+    m.minLines = t10Percent(ref m, from: r, at: fields, for: "lines")
+    m.minBranches = t10Percent(ref m, from: r, at: fields, for: "branches")
+    m.minErrorPaths = t10Percent(ref m, from: r, at: fields, for: "errorPaths")
+    let _ = t10Percent(ref m, from: r, at: fields, for: "mutation")
     if fields.contains("summary") {
         let summary = fields["summary"]
-        if r.values[summary].kind != .boolValue {
+        if r.values[summary].kind == .boolValue {
+            m.summary = r.values[summary].number != 0
+        } else {
             t10Invalid(ref m, from: in r, at: summary, for: "test.summary", as: "`true` or `false`")
         }
     }
+}
+
+/// Manifest.cs:268 `Percent`: the field's value from 0 to 100, null when absent or invalid (reported).
+i64? t10Percent(ref Manifest m, from T10Reader r, at Map<string, i64> fields, for string name) uses alloc {
+    unless fields.contains(name) { return null }
+    let value = fields[name]
+    // coverage-exempt: Q1217 an int value is an integer literal, never below 0 (Manifest.cs:451 `IntValue` too)
+    if r.values[value].kind == .intValue && r.values[value].number >= 0 && r.values[value].number <= 100 { return r.values[value].number }
+    t10Invalid(ref m, from: in r, at: value, for: $"test.{name}", as: "a percentage from 0 to 100, e.g. `80`")
+    return null
 }
 
 /// The `style` part of Manifest.cs:96 `Bind`.
@@ -759,7 +772,7 @@ i64 t10ReadValue(ref T10Reader r, to ref List<Diag> diags) {
     }
     if t.kind == .trueKeyword || t.kind == .falseKeyword {
         r.pos += 1
-        let val = T10Value { kind: .boolValue, span: t10SpanOf(t) }
+        let val = T10Value { kind: .boolValue, span: t10SpanOf(t), number: t.kind == .trueKeyword ? 1 : 0 }
         return t10Add(ref r, by: move val)
     }
     if t.kind == .dot && t10IsName(r.tokens[r.pos + 1].kind) {

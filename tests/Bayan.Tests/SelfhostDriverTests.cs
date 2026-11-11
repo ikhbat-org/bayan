@@ -99,7 +99,6 @@ public sealed class SelfhostDriverT1Tests
     public void MatchesTheCSharpCli(string[] args) => AssertSameAsCs(args);
 
     [Theory]
-    [InlineData("test")]
     [InlineData("mutate")]
     public void RefusesWhatItDoesNotPort(string command)
     {
@@ -117,6 +116,16 @@ public sealed class SelfhostDriverT1Tests
         var missing = Path.Combine(Golden.RepoRoot, "tmp", "t1-driver", "missing.byn");
         AssertSameAsCs("build", missing);
         AssertSameAsCs("run", missing);
+    }
+
+    /// <summary>`test` reaches its command (017 T11): a missing path, an unknown argument and `--run` without `--mutate` fail as the C# does.</summary>
+    [Fact]
+    public void DispatchesTest()
+    {
+        var missing = Path.Combine(Golden.RepoRoot, "tmp", "t1-driver", "missing.byn");
+        AssertSameAsCs("test", missing);
+        AssertSameAsCs("test", "--bogus");
+        AssertSameAsCs("test", "--only");
     }
 
     [Fact]
@@ -1277,11 +1286,10 @@ public sealed class SelfhostDriverStyleEnvironmentTests
 }
 
 /// <summary>
-/// 017 T7, L028: every <c>tests/cases/style/</c> shape of the commands the driver ports (<c>check</c>, <c>build</c>, <c>run</c>, <c>audit</c>), rendered in the
+/// 017 T7, L028: every <c>tests/cases/style/</c> shape of the commands the driver ports (<c>check</c>, <c>build</c>, <c>run</c>, <c>audit</c>, <c>test</c> (T11)), rendered in the
 /// three renderings of <c>StyleTests</c> (colour on a dark truecolor terminal, plain, <c>--ascii</c>) and with <c>--color always</c>, <c>FORCE_COLOR</c>,
 /// <c>NO_COLOR</c> and <c>TERM=dumb</c>, against <c>CliApp.Run</c> in this process under the same environment (no terminal, as the law runs).
-/// Listed skips: <c>build-ok-cache</c> (the cache hit of <c>build</c> is not reported, T9 `build` cache); the shapes of commands the driver still refuses are <c>test-ok</c>, <c>test-fail</c>, <c>test-pending</c>, <c>test-verbose</c>,
-/// <c>test-assert-values</c> and <c>test-control-chars</c> (T11 `test`); <c>diag-secondary</c> calls the renderer and
+/// Listed skips: <c>build-ok-cache</c> (the cache hit of <c>build</c> is not reported, T9 `build` cache); <c>diag-secondary</c> calls the renderer and
 /// <c>CliApp.ReportToolchain</c> directly, no command prints it; <c>doctor-ok</c> and <c>doctor-fail</c> render fixed checks, which
 /// <c>SelfhostDefaultT5Tests</c> compares to the same files. The SGR codes are compared for every shape.
 /// </summary>
@@ -1298,7 +1306,7 @@ public sealed partial class SelfhostDriverStyleCaseTests
     public static TheoryData<string, string> Rows()
     {
         var data = new TheoryData<string, string>();
-        foreach (var shape in new[] { "diag-error-fix", "diag-removal-fix", "diag-cap", "diag-cap-all", "diag-warning", "types-ok", "types-fail", "check-json", "build-ok", "build-ok-verbose", "build-fail", "build-ice", "check-ok", "run-fail", "audit" })
+        foreach (var shape in new[] { "diag-error-fix", "diag-removal-fix", "diag-cap", "diag-cap-all", "diag-warning", "types-ok", "types-fail", "check-json", "build-ok", "build-ok-verbose", "build-fail", "build-ice", "check-ok", "run-fail", "audit", "test-ok", "test-fail", "test-pending", "test-verbose", "test-assert-values", "test-control-chars" })
             foreach (var rendering in new[] { "color", "plain", "ascii", "always", "force", "no-color", "dumb" })
             {
                 // listed skip: the fake C compiler of `build-ice` is a shell script
@@ -1327,7 +1335,21 @@ public sealed partial class SelfhostDriverStyleCaseTests
         "check-ok" => (Ok, [["check", main]]),
         "run-fail" => (Broken, [["run", main]]),
         "audit" => ("@allow(BYN2230) because \"kept for the C ABI\"\nvoid toHex() {\n}\n\nunsafe void poke() {\n}\n", [["audit", main]]),
+        "test-verbose" or "test-control-chars" => (Ok, [["test", "-v", Path.GetDirectoryName(main)!]]),
+        _ when Tests.ContainsKey(shape) => (Ok, [["test", Path.GetDirectoryName(main)!]]),
         _ => throw new ArgumentException($"unknown shape `{shape}`", nameof(shape)),
+    };
+
+    /// <summary>The <c>main.test.byn</c> of each <c>test-*</c> shape, as <c>StyleTests.Produce</c> writes it.</summary>
+    private static readonly Dictionary<string, string> Tests = new()
+    {
+        ["test-ok"] = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"compares\" {\n    assert(\"a\" != \"b\")\n}\n",
+        ["test-fail"] = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"is false\" {\n    assert(false)\n}\n\ntest \"panics\" {\n    panic(\"boom\")\n}\n",
+        ["test-pending"] = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"later\" {\n    todo(\"split by weight\")\n}\n",
+        ["test-verbose"] = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"later\" {\n    todo(\"split by weight\")\n}\n\ntest \"is false\" {\n    assert(false)\n}\n",
+        ["test-assert-values"] = "i64 cents(i64 units) {\n    return units * 100\n}\n\ntest \"leftover cents\" {\n    let net = cents(2) - 1\n    assert(net == cents(2))\n}\n",
+        ["test-control-chars"] = "test \"ok\\u{1b}]0;PWNED\\u{7}\" {\n    assert(true);\n}\n\ntest \"later\\u{1b}[2J\" {\n    todo(\"soon\");\n}\n\n"
+            + "test \"y\\u{1b}]0;PWNED\\u{7}\\u{1b}[2J\" {\n    panic(\"boom\\u{1b}[2J\\u{9b}31m\");\n}\n",
     };
 
     [GeneratedRegex(@"\d+\.\d+s")]
@@ -1345,6 +1367,7 @@ public sealed partial class SelfhostDriverStyleCaseTests
         var main = Path.Combine(dir, "main.byn");
         var (source, runs) = Shape(shape, main, Path.Combine(dir, Targets.ExecutableName("tally", CliApp.HostTarget)));
         File.WriteAllText(main, source);
+        if (Tests.TryGetValue(shape, out var tests)) File.WriteAllText(Path.Combine(dir, "main.test.byn"), tests);
         var fakeBin = Path.Combine(dir, "fakebin");
         var fakeCc = Path.Combine(fakeBin, "cc");
         if (shape == "build-ice")

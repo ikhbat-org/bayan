@@ -1,0 +1,317 @@
+// The coverage half of the quality report of the self-hosted driver (spec 017 T11). Ports `QualityReport.cs` :109 `Coverage`,
+// :150 `Json` with :228 `WriteCoverage` (the coverage form), :332 `Listing`, :344 `Percent`, :347 `CoverageSummary`, and
+// `Gates.cs` :15 `Coverage`, :43 `Add`, :51 `Fmt`. The JSON is `Utf8JsonWriter`'s indented form (testreport.byn `T11Json`).
+
+import emitter
+
+/// `ReportBranch` (QualityReport.cs:18): `status` is hit, missed or unknown.
+struct QualityBranch {
+    i64 line
+    i64 column
+    bool outcome
+    string status
+}
+
+/// `ReportErrorPath` (QualityReport.cs:21).
+struct QualityErrorPath {
+    string function
+    string variant
+    bool hit = false
+    bool unknown = false
+    List<string> origins = List<string>()
+}
+
+/// `FileCoverage` (QualityReport.cs:24) with the `ReportFile` path (:34).
+struct QualityFile {
+    string path
+    List<i64> coveredLines = List<i64>()
+    List<i64> missedLines = List<i64>()
+    List<i64> unknownLines = List<i64>()
+    List<QualityBranch> branches = List<QualityBranch>()
+    List<QualityErrorPath> errorPaths = List<QualityErrorPath>()
+}
+
+/// `Tally` (QualityReport.cs:28).
+struct QualityTally {
+    i64 covered = 0
+    i64 total = 0
+}
+
+/// A coverage `QualityReport` (QualityReport.cs:40, `Kind` "coverage"): the timing in nanoseconds (`ReportTiming.BuildSeconds`, `TotalSeconds`).
+struct QualityReport {
+    string tool
+    i64 buildNanos = 0
+    i64 totalNanos = 0
+    List<QualityFile> files = List<QualityFile>()
+    QualityTally lines = QualityTally {}
+    QualityTally branches = QualityTally {}
+    QualityTally errorPaths = QualityTally {}
+}
+
+/// `GateFailure` (Gates.cs:6): `Percent` is `100.0 * covered / total`.
+struct GateFailure {
+    string name
+    i64 covered
+    i64 total
+    i64 min
+    List<string> missing = List<string>()
+}
+
+/// QualityReport.cs:109 `Coverage`: `hits` merged over every test; when `timedOut` a counter nobody hit is unknown, never missed.
+QualityReport qualityCoverage(string tool, by in emitter.CoverageMap map, from in Map<i64, u64> hits, for bool timedOut, through i64 buildNanos, as i64 totalNanos) uses alloc {
+    let unhit = timedOut ? "unknown" : "missed"
+    var report = QualityReport { tool: tool, buildNanos: buildNanos, totalNanos: totalNanos }
+    // `GroupBy(c => c.File)`: the files in first-appearance order.
+    var fileIndex: Map<string, i64> = []
+    for c in map.counters {
+        // std modules (`<std>/...`) are the compiler's own source: they are no part of the package's coverage or its gate
+        if c.file.startsWith("<std>/") { continue }
+        unless fileIndex.contains(c.file) {
+            fileIndex[c.file] = report.files.length
+            report.files.append(QualityFile { path: c.file })
+        }
+    }
+    for f in 0..report.files.length {
+        let path = report.files[f].path
+        // `GroupBy(c => c.Line).OrderBy(g => g.Key)`: a line is covered when every counter on it was hit.
+        var lineHit: Map<i64, bool> = []
+        for c in map.counters {
+            if c.file != path || c.kind != "line" { continue }
+            let hit = hits.contains(c.id)
+            lineHit[c.line] = (lineHit.tryGet(at: c.line) ?? true) && hit
+        }
+        var lineKeys = List<i64>()
+        for (line, _) in lineHit { lineKeys.append(line) }
+        lineKeys.sort()
+        for line in lineKeys {
+            if lineHit[line] {
+                report.files[f].coveredLines.append(line)
+            } else if timedOut {
+                report.files[f].unknownLines.append(line)
+            } else {
+                report.files[f].missedLines.append(line)
+            }
+        }
+        for c in map.counters {
+            if c.file != path || c.kind != "branch" { continue }
+            report.files[f].branches.append(QualityBranch { line: c.line, column: c.column, outcome: c.outcome == true, status: hits.contains(c.id) ? "hit" : unhit })
+        }
+        // `GroupBy(c => (c.Function!, c.Variant!))`, in first-appearance order.
+        var errorIndex: Map<string, i64> = []
+        for c in map.counters {
+            if c.file != path || c.kind != "error" { continue }
+            let function = c.function ?? ""
+            let variant = c.variant ?? ""
+            let key = $"{function}\u{0}{variant}"
+            unless errorIndex.contains(key) {
+                errorIndex[key] = report.files[f].errorPaths.length
+                report.files[f].errorPaths.append(QualityErrorPath { function: function, variant: variant })
+            }
+            let e = errorIndex[key]
+            if hits.contains(c.id) {
+                report.files[f].errorPaths[e].hit = true
+                report.files[f].errorPaths[e].origins.append($"{c.origin ?? ""} {c.line}:{c.column}")
+            }
+        }
+        for e in 0..report.files[f].errorPaths.length {
+            report.files[f].errorPaths[e].unknown = timedOut && !report.files[f].errorPaths[e].hit
+        }
+    }
+    for f in report.files {
+        report.lines.covered += f.coveredLines.length
+        report.lines.total += f.coveredLines.length + f.missedLines.length + f.unknownLines.length
+        report.branches.covered += qualityHitBranches(in f)
+        report.branches.total += f.branches.length
+        report.errorPaths.covered += qualityHitErrorPaths(in f)
+        report.errorPaths.total += f.errorPaths.length
+    }
+    return report
+}
+
+/// `f.Branches.Count(b => b.Status == "hit")`.
+i64 qualityHitBranches(in QualityFile f) {
+    var n: i64 = 0
+    for b in f.branches {
+        if b.status == "hit" { n += 1 }
+    }
+    return n
+}
+
+/// `f.ErrorPaths.Count(e => e.Hit)`.
+i64 qualityHitErrorPaths(in QualityFile f) {
+    var n: i64 = 0
+    for e in f.errorPaths {
+        if e.hit { n += 1 }
+    }
+    return n
+}
+
+/// QualityReport.cs:150 `Json` of a coverage report: `bayan-quality.json`.
+string qualityJson(in QualityReport r) uses alloc {
+    var w = T11Json {}
+    t11JsonOpen(ref w, for: null, by: "{")
+    t11JsonValue(ref w, for: "version", by: "1")
+    t11JsonValue(ref w, for: "kind", by: t11JsonString("coverage"))
+    t11JsonValue(ref w, for: "tool", by: t11JsonString(r.tool))
+    t11JsonOpen(ref w, for: "timing", by: "{")
+    t11JsonValue(ref w, for: "build_s", by: t11JsonSeconds(r.buildNanos))
+    t11JsonValue(ref w, for: "total_s", by: t11JsonSeconds(r.totalNanos))
+    t11JsonClose(ref w, by: "}")
+    t11JsonOpen(ref w, for: "files", by: "[")
+    for f in r.files {
+        t11JsonOpen(ref w, for: null, by: "{")
+        t11JsonValue(ref w, for: "path", by: t11JsonString(f.path))
+        qualityWriteCoverage(ref w, for: in f)
+        t11JsonClose(ref w, by: "}")
+    }
+    t11JsonClose(ref w, by: "]")
+    t11JsonOpen(ref w, for: "totals", by: "{")
+    t11JsonTally(ref w, for: "lines", by: in r.lines)
+    t11JsonTally(ref w, for: "branches", by: in r.branches)
+    t11JsonTally(ref w, for: "errorPaths", by: in r.errorPaths)
+    t11JsonClose(ref w, by: "}")
+    t11JsonClose(ref w, by: "}")
+    return $"{t11JsonText(in w)}\n"
+}
+
+/// QualityReport.cs:207-213: one tally of `totals`.
+void t11JsonTally(ref T11Json w, for string name, by in QualityTally tally) uses alloc {
+    t11JsonOpen(ref w, for: name, by: "{")
+    t11JsonValue(ref w, for: "covered", by: $"{tally.covered}")
+    t11JsonValue(ref w, for: "total", by: $"{tally.total}")
+    t11JsonClose(ref w, by: "}")
+}
+
+/// QualityReport.cs:228 `WriteCoverage`.
+void qualityWriteCoverage(ref T11Json w, for in QualityFile f) uses alloc {
+    t11JsonOpen(ref w, for: "lines", by: "{")
+    t11JsonValue(ref w, for: "covered", by: $"{f.coveredLines.length}")
+    t11JsonValue(ref w, for: "total", by: $"{f.coveredLines.length + f.missedLines.length + f.unknownLines.length}")
+    t11JsonOpen(ref w, for: "missed", by: "[")
+    for l in f.missedLines { t11JsonValue(ref w, for: null, by: $"{l}") }
+    t11JsonClose(ref w, by: "]")
+    t11JsonOpen(ref w, for: "unknown", by: "[")
+    for l in f.unknownLines { t11JsonValue(ref w, for: null, by: $"{l}") }
+    t11JsonClose(ref w, by: "]")
+    t11JsonClose(ref w, by: "}")
+    t11JsonOpen(ref w, for: "branches", by: "{")
+    t11JsonValue(ref w, for: "covered", by: $"{qualityHitBranches(in f)}")
+    t11JsonValue(ref w, for: "total", by: $"{f.branches.length}")
+    for status in ["missed", "unknown"] {
+        t11JsonOpen(ref w, for: status, by: "[")
+        for b in f.branches {
+            if b.status != status { continue }
+            t11JsonOpen(ref w, for: null, by: "{")
+            t11JsonValue(ref w, for: "line", by: $"{b.line}")
+            t11JsonValue(ref w, for: "column", by: $"{b.column}")
+            t11JsonValue(ref w, for: "outcome", by: b.outcome ? "true" : "false")
+            t11JsonClose(ref w, by: "}")
+        }
+        t11JsonClose(ref w, by: "]")
+    }
+    t11JsonClose(ref w, by: "}")
+    t11JsonOpen(ref w, for: "errorPaths", by: "[")
+    for e in f.errorPaths {
+        t11JsonOpen(ref w, for: null, by: "{")
+        t11JsonValue(ref w, for: "function", by: t11JsonString(e.function))
+        t11JsonValue(ref w, for: "variant", by: t11JsonString(e.variant))
+        t11JsonValue(ref w, for: "hit", by: e.hit ? "true" : "false")
+        if e.unknown { t11JsonValue(ref w, for: "unknown", by: "true") }
+        t11JsonOpen(ref w, for: "origins", by: "[")
+        for o in e.origins { t11JsonValue(ref w, for: null, by: t11JsonString(o)) }
+        t11JsonClose(ref w, by: "]")
+        t11JsonClose(ref w, by: "}")
+    }
+    t11JsonClose(ref w, by: "]")
+}
+
+/// QualityReport.cs:332 `Listing`: `+` hit, `-` missed, `~` unknown, blank for no counter, then the source line.
+string qualityListing(in QualityFile f, from in List<string> sourceLines) uses alloc {
+    var sb = StrBuf()
+    for i in 0..sourceLines.length {
+        let n = i + 1
+        let gutter = t11Has(in f.coveredLines, for: n) ? "+" : t11Has(in f.missedLines, for: n) ? "-" : t11Has(in f.unknownLines, for: n) ? "~" : " "
+        sb.append($"{gutter} {sourceLines[i]}\n")
+    }
+    return $"{sb.finish()}"
+}
+
+/// QualityReport.cs:344 `Percent`.
+string qualityPercent(in QualityTally t) uses alloc => t.total == 0 ? "100%" : $"{gatesFmt(t.covered, by: t.total)}%"
+
+/// QualityReport.cs:347 `CoverageSummary`.
+string qualityCoverageSummary(in QualityReport r) uses alloc {
+    var sb = StrBuf()
+    sb.append($"coverage: lines {r.lines.covered}/{r.lines.total} ({qualityPercent(in r.lines)}), branches {r.branches.covered}/{r.branches.total} ({qualityPercent(in r.branches)}), error paths {r.errorPaths.covered}/{r.errorPaths.total} ({qualityPercent(in r.errorPaths)})\n")
+    for f in r.files {
+        let lines = f.coveredLines.length + f.missedLines.length + f.unknownLines.length
+        sb.append($"  {f.path}: lines {f.coveredLines.length}/{lines}, branches {qualityHitBranches(in f)}/{f.branches.length}, error paths {qualityHitErrorPaths(in f)}/{f.errorPaths.length}\n")
+        for b in f.branches {
+            if b.status == "hit" { continue }
+            sb.append($"{b.status == "missed" ? "uncovered" : "unknown"} branch: {f.path}:{b.line}:{b.column} never {b.outcome ? "true" : "false"}\n")
+        }
+        for e in f.errorPaths {
+            if e.hit { continue }
+            sb.append($"{e.unknown ? "unknown" : "uncovered"} error path: {f.path}: {e.function} {e.variant}\n")
+        }
+    }
+    return $"{sb.finish()}"
+}
+
+/// Gates.cs:15 `Coverage`: the measures below their minimum percentages (null: no minimum).
+List<GateFailure> gatesCoverage(in QualityReport report, by i64? minLines, for i64? minBranches, through i64? minErrorPaths) uses alloc {
+    var failures = List<GateFailure>()
+    var covered: i64 = 0
+    var missing = List<string>()
+    for f in report.files {
+        covered += f.coveredLines.length
+        for l in f.missedLines { missing.append($"uncovered line: {f.path}:{l}") }
+    }
+    gatesAdd(ref failures, for: "lines", by: minLines, through: covered, from: move missing)
+    covered = 0
+    var branches = List<string>()
+    for f in report.files {
+        covered += qualityHitBranches(in f)
+        for b in f.branches {
+            if b.status == "missed" { branches.append($"uncovered branch: {f.path}:{b.line}:{b.column} never {b.outcome ? "true" : "false"}") }
+        }
+    }
+    gatesAdd(ref failures, for: "branches", by: minBranches, through: covered, from: move branches)
+    covered = 0
+    var errors = List<string>()
+    for f in report.files {
+        covered += qualityHitErrorPaths(in f)
+        for e in f.errorPaths {
+            if !e.hit && !e.unknown { errors.append($"uncovered error path: {e.function} {e.variant} ({f.path})") }
+        }
+    }
+    gatesAdd(ref failures, for: "error paths", by: minErrorPaths, through: covered, from: move errors)
+    return failures
+}
+
+/// Gates.cs:43 `Add` without `missingCount` (the mutation gate's, T13).
+void gatesAdd(ref List<GateFailure> failures, for string name, by i64? min, through i64 covered, from move List<string> missing) uses alloc {
+    let total = covered + missing.length
+    let m = min ?? return
+    if covered * 100 >= m * total { return }
+    failures.append(GateFailure { name: name, covered: covered, total: total, min: m, missing: move missing })
+}
+
+/// Gates.cs:51 `Fmt` of `100.0 * covered / total` (`0.###`): rounded to thousandths, half away from zero, trailing zeros dropped.
+string gatesFmt(i64 covered, by i64 total) uses alloc {
+    let thousandths = (200000 * covered + total) / (2 * total)
+    let whole = thousandths / 1000
+    let rest = thousandths % 1000
+    if rest == 0 { return $"{whole}" }
+    var digits = rest < 10 ? $"00{rest}" : rest < 100 ? $"0{rest}" : $"{rest}"
+    while digits.endsWith("0") { digits = digits[0..digits.length - 1] }
+    return $"{whole}.{digits}"
+}
+
+/// `IReadOnlyList<int>.Contains` (QualityReport.cs:338).
+bool t11Has(in List<i64> xs, for i64 x) {
+    for y in xs {
+        if y == x { return true }
+    }
+    return false
+}

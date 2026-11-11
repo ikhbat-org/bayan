@@ -99,6 +99,7 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
             Io.stdout.write($"{versionLine()}\n")
             return exitOk
         case "doctor":
+            // coverage-exempt: Q1219 the C# `doctor` prints its own version line (Q1112), so no row compares it
             return doctorCommand(by: in d)
         case "--help" or "-h" or "help":
             Io.stdout.write($"{usageText}\n")
@@ -124,7 +125,7 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
         case "run":
             return runProgram(in t2Rest(kept), by: ref d)
         case "test":
-            return refuse(command)
+            return testCommand(in kept, by: ref d)
         case "mutate":
             return refuse(command)
         case "new":

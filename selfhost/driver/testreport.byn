@@ -1,0 +1,220 @@
+// `out/test/results.json` and `bayan test --json` of the self-hosted driver (spec 017 T11): `TestReport.cs` :7 `TestStatus`,
+// :9 `TestResult`, :17 `TestReport` with :19 `Count` and :21 `ToJson`, and the `Utf8JsonWriter` (indented, `NewLine = "\n"`,
+// `UnsafeRelaxedJsonEscaping`) it and `QualityReport.Json` write through, as `T11Json`.
+
+/// `TestStatus` (TestReport.cs:7), each case its past participle (`fail` and `panic` are keywords).
+enum TestStatus {
+    passed
+    failed
+    panicked
+    timedOut
+    pending
+}
+
+/// `TestResult` (TestReport.cs:9): `elapsedNanos` is `Elapsed`.
+struct TestResult {
+    string name
+    string file
+    i64 line
+    TestStatus status
+    i64 elapsedNanos
+    string output
+}
+
+/// `TestReport` (TestReport.cs:17): `package` null outside a project, `elapsedNanos` is `Elapsed`, `skipped` the tests `--changed` left out.
+struct TestReport {
+    string? package
+    string mode
+    string target
+    List<TestResult> tests = List<TestResult>()
+    i64 elapsedNanos = 0
+    i64 skipped = 0
+}
+
+/// TestReport.cs:19 `Count`.
+i64 testReportCount(in TestReport r, for TestStatus status) {
+    var n: i64 = 0
+    for t in r.tests {
+        if t.status == status { n += 1 }
+    }
+    return n
+}
+
+/// `t.Status.ToString().ToLowerInvariant()` (TestReport.cs:38).
+string testStatusName(TestStatus status) {
+    switch status {
+        case .passed: return "pass"
+        case .failed: return "fail"
+        case .panicked: return "panic"
+        case .timedOut: return "timeout"
+        case .pending: return "pending"
+    }
+}
+
+/// TestReport.cs:21 `ToJson`.
+string testReportJson(in TestReport r) uses alloc {
+    var w = T11Json {}
+    t11JsonOpen(ref w, for: null, by: "{")
+    if (r.package is { } package) {
+        t11JsonValue(ref w, for: "package", by: t11JsonString(package))
+    } else {
+        t11JsonValue(ref w, for: "package", by: "null")
+    }
+    t11JsonValue(ref w, for: "mode", by: t11JsonString(r.mode))
+    t11JsonValue(ref w, for: "target", by: t11JsonString(r.target))
+    t11JsonOpen(ref w, for: "tests", by: "[")
+    for t in r.tests {
+        t11JsonOpen(ref w, for: null, by: "{")
+        t11JsonValue(ref w, for: "name", by: t11JsonString(t.name))
+        t11JsonValue(ref w, for: "file", by: t11JsonString(t.file))
+        t11JsonValue(ref w, for: "line", by: $"{t.line}")
+        t11JsonValue(ref w, for: "status", by: t11JsonString(testStatusName(t.status)))
+        t11JsonValue(ref w, for: "durationMs", by: t11JsonMilliseconds(t.elapsedNanos))
+        t11JsonValue(ref w, for: "output", by: t11JsonString(t.output))
+        t11JsonClose(ref w, by: "}")
+    }
+    t11JsonClose(ref w, by: "]")
+    t11JsonOpen(ref w, for: "summary", by: "{")
+    t11JsonValue(ref w, for: "total", by: $"{r.tests.length}")
+    t11JsonValue(ref w, for: "passed", by: $"{testReportCount(in r, for: .passed)}")
+    t11JsonValue(ref w, for: "failed", by: $"{testReportCount(in r, for: .failed)}")
+    t11JsonValue(ref w, for: "panicked", by: $"{testReportCount(in r, for: .panicked)}")
+    t11JsonValue(ref w, for: "timedOut", by: $"{testReportCount(in r, for: .timedOut)}")
+    t11JsonValue(ref w, for: "pending", by: $"{testReportCount(in r, for: .pending)}")
+    t11JsonValue(ref w, for: "skipped", by: $"{r.skipped}")
+    t11JsonValue(ref w, for: "durationMs", by: t11JsonMilliseconds(r.elapsedNanos))
+    t11JsonClose(ref w, by: "}")
+    t11JsonClose(ref w, by: "}")
+    return $"{t11JsonText(in w)}\n"
+}
+
+/// `Math.Round(elapsed.TotalMilliseconds, 1)` as `Utf8JsonWriter` writes the double: tenths of the whole 100 ns ticks, half to even
+/// (`MidpointRounding.ToEven`), no `.0`. A tie is any tick count ending in 500; .NET rounds `TotalMilliseconds * 10` as a double,
+/// which this does not model when that product is an ulp off the tie.
+string t11JsonMilliseconds(i64 nanos) uses alloc {
+    let ticks = nanos / 100
+    var tenths = ticks / 1000
+    let rest = ticks % 1000
+    // coverage-exempt: Q1218 a test that takes a tick count ending in 500 (a tie)
+    if rest > 500 || rest == 500 && tenths % 2 == 1 { tenths += 1 }
+    return tenths % 10 == 0 ? $"{tenths / 10}" : $"{tenths / 10}.{tenths % 10}"
+}
+
+/// `TimeSpan.TotalSeconds` (whole ticks of 100 ns) as `Utf8JsonWriter` writes the double: trailing zeros dropped.
+string t11JsonSeconds(i64 nanos) uses alloc {
+    let ticks = nanos / 100
+    let whole = ticks / 10000000
+    let rest = ticks % 10000000
+    // coverage-exempt: Q1218 a run that takes a whole number of seconds to the 100 ns tick
+    if rest == 0 { return $"{whole}" }
+    var digits = $"{rest}"
+    while digits.length < 7 { digits = $"0{digits}" }
+    while digits.endsWith("0") { digits = digits[0..digits.length - 1] }
+    return $"{whole}.{digits}"
+}
+
+/// The `Utf8JsonWriter` of TestReport.cs:24 and QualityReport.cs:153 with `Indented = true` and `NewLine = "\n"`: two spaces a
+/// level, `"name": value`, and an empty container closed on its own line (`[]`, `{}`). `first` is no item yet in the open container.
+struct T11Json {
+    List<string> parts = List<string>()
+    i64 depth = 0
+    bool first = true
+}
+
+/// The separator, new line and indent before an item, then its property name.
+void t11JsonItem(ref T11Json w, for string? name) uses alloc {
+    if w.depth > 0 {
+        unless w.first { w.parts.append(",") }
+        w.parts.append("\n")
+        for _ in 0..w.depth { w.parts.append("  ") }
+    }
+    if (name is { } n) { w.parts.append($"{t11JsonString(n)}: ") }
+}
+
+/// `WriteStartObject`/`WriteStartArray`: `bracket` is `{` or `[`.
+void t11JsonOpen(ref T11Json w, for string? name, by string bracket) uses alloc {
+    t11JsonItem(ref w, for: name)
+    w.parts.append(bracket)
+    w.depth += 1
+    w.first = true
+}
+
+/// `WriteEndObject`/`WriteEndArray`: `bracket` is `}` or `]`.
+void t11JsonClose(ref T11Json w, by string bracket) uses alloc {
+    w.depth -= 1
+    unless w.first {
+        w.parts.append("\n")
+        for _ in 0..w.depth { w.parts.append("  ") }
+    }
+    w.parts.append(bracket)
+    w.first = false
+}
+
+/// A property or array value already in JSON form.
+void t11JsonValue(ref T11Json w, for string? name, by string value) uses alloc {
+    t11JsonItem(ref w, for: name)
+    w.parts.append(value)
+    w.first = false
+}
+
+/// A JSON string as `JavaScriptEncoder.UnsafeRelaxedJsonEscaping` writes it; semantics/typed.byn `t26JsonString` (private there, Q1218).
+string t11JsonString(string s) uses alloc {
+    var sb = StrBuf()
+    sb.append("\"")
+    var from: i64 = 0
+    var at: i64 = 0
+    for r in s.runes {
+        let v = i64(u32(r))
+        let next = at + t7Utf8Length(v)
+        var escaped = ""
+        if v == 0x22 {
+            escaped = "\\\""
+        } else if v == 0x5C {
+            escaped = "\\\\"
+        } else if v == 0x08 {
+            escaped = "\\b"
+        } else if v == 0x09 {
+            escaped = "\\t"
+        } else if v == 0x0A {
+            escaped = "\\n"
+        } else if v == 0x0C {
+            escaped = "\\f"
+        } else if v == 0x0D {
+            escaped = "\\r"
+        } else if v < 0x20 || (v >= 0x7F && v <= 0x9F) || v == 0x2028 || v == 0x2029 {
+            escaped = $"\\u{t11Hex4(v)}"
+        } else if v > 0xFFFF {
+            let u = v - 0x10000
+            escaped = $"\\u{t11Hex4(0xD800 + (u >> 10))}\\u{t11Hex4(0xDC00 + (u & 0x3FF))}"
+        }
+        if escaped.length > 0 {
+            sb.append(s[from..at])
+            sb.append(escaped)
+            from = next
+        }
+        at = next
+    }
+    sb.append(s[from..s.length])
+    sb.append("\"")
+    return $"{sb.finish()}"
+}
+
+/// semantics/typed.byn `t26Hex4`: `v` (below 0x10000) as four upper-case hex digits.
+string t11Hex4(i64 v) uses alloc {
+    let digits = "0123456789ABCDEF"
+    var sb = StrBuf()
+    var shift: i64 = 12
+    while shift >= 0 {
+        let d = (v >> shift) & 0xF
+        sb.append(digits[d..d + 1])
+        shift -= 4
+    }
+    return $"{sb.finish()}"
+}
+
+/// The text written so far (`Encoding.UTF8.GetString(buffer.WrittenSpan)`).
+string t11JsonText(in T11Json w) uses alloc {
+    var sb = StrBuf()
+    for p in w.parts { sb.append(p) }
+    return $"{sb.finish()}"
+}
