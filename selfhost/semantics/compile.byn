@@ -922,9 +922,9 @@ void t11DeclareTest(ref Ctx c, from FileId file, at i64 declIndex, by TextSpan s
     c.modules[module].tests.append(testId)
     c.modules[module].allFunctions.append(fn)
     if attribute < 0 {
-        c.testBodies[fn] = TestBody { decl: SyntaxRef { file: file, declIndex: declIndex }, hasValues: false, values: SyntaxRef {} }
+        c.testBodies[fn] = TestBody { decl: SyntaxRef { file: file, declIndex: declIndex }, hasValues: false, caseArgument: SyntaxRef {} }
     } else {
-        c.testBodies[fn] = TestBody { decl: SyntaxRef { file: file, declIndex: declIndex }, hasValues: true, values: SyntaxRef { file: file, declIndex: declIndex, memberIndex: attribute, itemIndex: arg } }
+        c.testBodies[fn] = TestBody { decl: SyntaxRef { file: file, declIndex: declIndex }, hasValues: true, caseArgument: SyntaxRef { file: file, declIndex: declIndex, memberIndex: attribute, itemIndex: arg } }
     }
 }
 
@@ -977,7 +977,7 @@ void declareFile(ref Ctx c, for FileId file) {
                 for m in s.value.members {
                     switch m {
                         case .fieldDecl(let f):
-                            if f.value.requiresKeyword.length > 0 { needsFields = true }
+                            if f.value.requiresClauses.length > 0 { needsFields = true }
                         default:
                             continue
                     }
@@ -1112,8 +1112,8 @@ void declareFile(ref Ctx c, for FileId file) {
                     }
                     checkType(ref c, from: file, at: a.value.name)
                 } else {
-                    if a.value.requiresKeyword.length > 0 {
-                        report(ref c, for: .unsupported, from: file, at: a.value.requiresKeyword[0].span, by: ("`requires` on a plain `type` alias", "", "", "", ""))
+                    if a.value.requiresClauses.length > 0 {
+                        report(ref c, for: .unsupported, from: file, at: a.value.requiresClauses[0].span, by: ("`requires` on a plain `type` alias", "", "", "", ""))
                     }
                     let sym = newAlias(ref c, by: AliasPlaceholder { name: name, nameSpan: a.value.name, span: a.value.name, file: file, declIndex: d, modifiers: i64(a.value.modifiers) })
                     if addType(ref c, from: file, at: a.value.name, as: t8AliasType(sym)) { c.aliasOrder.append(sym) }

@@ -262,7 +262,7 @@ public struct ExitCodeRef {
 public struct TestBody {
     public SyntaxRef decl
     public bool hasValues = false
-    public SyntaxRef values
+    public SyntaxRef caseArgument
 }
 
 public struct Ctx {
@@ -672,7 +672,7 @@ public struct Binder {
     public Map<i64, i64> constraints
     public Map<i64, i64> peers
     /// Locals known to be non-null, and their span start.
-    public List<(i64, LocalId)> nonNull
+    public List<(i64, LocalId)> nonNullLocals
     public List<(i64, LocalId, Type)> stateFacts
     /// The variant a local's error value was narrowed to.
     public Map<LocalId, VariantId> errorNarrowed

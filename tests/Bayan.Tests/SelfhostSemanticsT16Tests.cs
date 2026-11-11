@@ -1163,7 +1163,7 @@ public sealed class SelfhostSemanticsT16Tests
             pending: [],
             constraints: [],
             peers: [],
-            nonNull: [],
+            nonNullLocals: [],
             stateFacts: [],
             errorNarrowed: [],
         }

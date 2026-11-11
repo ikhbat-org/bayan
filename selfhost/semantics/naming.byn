@@ -96,7 +96,7 @@ void buildLexicon(ref Ctx c) {
     ]
     c.lexiconCollectives = [
         "span", "list", "map", "set", "array", "buffer", "queue", "stack", "batch", "history", "inventory", "catalog", "data",
-        "metadata",
+        "metadata", "path", "text", "payload", "body", "order", "work",
     ]
     c.lexiconIrregularPlurals = ["people", "children", "criteria", "indices", "matrices", "data"]
     c.lexiconIrregularSingulars = ["person", "child", "criterion", "index", "matrix", "datum"]
@@ -603,8 +603,10 @@ void checkNumber(ref Ctx c, by Grammar grammar, from FileId f, at TextSpan name,
         let pluralName = $"{text[0..start]}{matchCase(headText, as: plural(ref c, for: word, by: grammar))}{text[start + headText.length..text.length]}"
         report(ref c, for: .numberAgreement, from: f, at: name, by: (a0: text, a1: pluralName, a2: "", a3: "", a4: ""),
             help: $"rename it `{pluralName}`", hasFix: true, fixSpan: name, fixReplacement: pluralName)
-    } else if !isNumeric(inner) && isPlural(ref c, for: word, by: grammar) {
-        // A number named with a plural is a quantity in units (`cents`, `grams`); a count is BYN5105's.
+    } else if !isNumeric(inner) && !isString(inner) && isPlural(ref c, for: word, by: grammar) && !namesItsType(ref c, for: word, as: inner) {
+        // A number named with a plural is a quantity in units (`cents`, `grams`); a count is BYN5105's. A string is one text
+        // that may describe several things (`errors`), and a name that repeats its type's last word (`Keywords keywords`) is
+        // named for its type (Q1190).
         let display = typeDisplay(ref c, by: type)
         if (singular(ref c, for: word, by: grammar) is { } one) {
             let singularName = $"{text[0..start]}{matchCase(headText, as: one)}{text[start + headText.length..text.length]}"
@@ -614,6 +616,20 @@ void checkNumber(ref Ctx c, by Grammar grammar, from FileId f, at TextSpan name,
             report(ref c, for: .numberAgreementOne, from: f, at: name, by: (a0: text, a1: display, a2: "", a3: "", a4: ""))
         }
     }
+}
+
+/// Ports `Naming.NamesItsType`: the last word of `type`'s name (before any `<`) is `word`, case aside: `CompilationOptions options`.
+bool namesItsType(ref Ctx c, for string word, as Type type) {
+    let display = typeDisplay(ref c, by: type)
+    var cut = display.length
+    for i in 0..display.length {
+        if display.bytes[i] == 0x3C {
+            cut = i
+            break
+        }
+    }
+    let words = wordSpans(display[0..cut])
+    return words.length > 0 && lowerAscii(words[words.length - 1].text) == lowerAscii(word)
 }
 
 /// Ports `Naming.CheckCount`. BYN5105: an integer that counts items is singular noun + `Count`; `<plural>Count`,

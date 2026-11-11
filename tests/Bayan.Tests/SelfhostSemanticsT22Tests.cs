@@ -625,7 +625,7 @@ public sealed class SelfhostSemanticsT22Tests
                 pending: [],
                 constraints: [],
                 peers: [],
-                nonNull: [],
+                nonNullLocals: [],
                 stateFacts: [],
                 errorNarrowed: [],
             }
