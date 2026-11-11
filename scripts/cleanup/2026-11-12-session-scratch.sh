@@ -2,7 +2,8 @@
 # Cleanup for the 2026-11-12 session (plan 007 Phase B, review fix 2026-11-12-2). Worktrees whose work dev holds are
 # left to merged-worktree-backlog.sh; this removes what that script does not reach:
 #   - branch tmp-probe-review-2026-11-12 (a probe, already in dev);
-#   - worktree .worktrees/chore-017-preflight-sh and branch chore/017-preflight-sh (merged into feat/017-selfhost-default);
+#   - worktrees .worktrees/chore-017-preflight-sh, .worktrees/chore-017-t11-refusal-tests and their branches
+#     chore/017-preflight-sh, chore/017-t11-refusal-tests (merged into feat/017-selfhost-default);
 #   - /tmp scratch: /tmp/w015t8.py, /tmp/pt.out, /tmp/rt_new_51494.c;
 #   - on the ghosthive VM bayan-test01: /root/work-007b, /root/007b.bundle, /root/rv007b*.bundle, /root/run-*.sh.
 # ~/.claude/.worktrees/dev-land belongs to the ~/.claude repo (route-replay pilot P2); clean it with that repo's tooling
@@ -27,11 +28,13 @@ if git show-ref --verify --quiet "refs/heads/$b"; then
   else printf 'keep: %s (not in dev)\n' "$b"; fi
 fi
 
-b=chore/017-preflight-sh; w="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/.worktrees/chore-017-preflight-sh"
-if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
-  [ -d "$w" ] && run git worktree remove "$w"
-  run git branch -d "$b"
-else printf 'keep: %s (missing or not merged)\n' "$b"; fi
+for n in 017-preflight-sh 017-t11-refusal-tests; do
+  b=chore/$n; w="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/.worktrees/chore-$n"
+  if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
+    [ -d "$w" ] && run git worktree remove "$w"
+    run git branch -d "$b"
+  else printf 'keep: %s (missing or not merged)\n' "$b"; fi
+done
 
 for f in /tmp/w015t8.py /tmp/pt.out /tmp/rt_new_51494.c; do
   [ -e "$f" ] && run rm -f "$f"
