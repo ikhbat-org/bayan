@@ -125,6 +125,11 @@ BExpr bindConstruction(ref Binder b, through ref Ctx c, for in parser.CallExpr c
                 let args = bindArguments(ref b, through: ref c, for: in call, by: in ps, as: fn, enforceNames: false, displayName: "StrBuf")
                 return recordSyntaxNode(ref c, for: addCall(ref c, from: BCall { span: call.span, function: fn, receiver: -1, arguments: move args, type: type }), at: syntaxOfCall(ref c, from: in call))
             }
+            // `Millis(n)`: an `i64` as a duration; `i64(t)` reads it back (`explicit`).
+            if type == builtinType(.millis) && call.args.length == 1 && call.args[0].name is null {
+                let operand = bindConverted(ref b, through: ref c, for: in call.args[0].value, to: prim(.i64))
+                return recordSyntaxNode(ref c, for: addConversion(ref c, from: BConversion { span: call.span, operand: operand, type: type, kind: .widen }), at: syntaxOfCall(ref c, from: in call))
+            }
         case .error:
             bindArgumentsForRecovery(ref b, through: ref c, for: in call)
             return recordSyntaxNode(ref c, for: addErrorExpr(ref c, from: BErrorExpr { span: call.span }), at: syntaxOfCall(ref c, from: in call))

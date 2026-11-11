@@ -96,6 +96,11 @@ public sealed partial class SelfhostDefaultT5Tests
 
     private static string[][] Argvs() => [["doctor"], ["--color", "always", "doctor"], ["--ascii", "doctor"]];
 
+    /// <summary><c>doctor</c> reaches the driver's own checks (moved from <c>SelfhostDriverT1Tests</c>, which runs in parallel with this collection's
+    /// <c>BAYAN_CC</c>/<c>BAYAN_CACHE</c> changes and with tests that fill the shared cache whose program count <c>doctor</c> prints).</summary>
+    [Fact]
+    public void DispatchesDoctorAsCliApp() => Same([("BAYAN_CACHE", Fresh("dispatch"))], "doctor");
+
     [Fact]
     public void ADoctorOfThisMachine()
     {

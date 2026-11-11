@@ -523,7 +523,7 @@ public sealed class SelfhostSemanticsT35Tests
                 pending: [],
                 constraints: [],
                 peers: [],
-                nonNull: [],
+                nonNullLocals: [],
                 stateFacts: [],
                 errorNarrowed: [],
             }

@@ -262,7 +262,7 @@ public struct ExitCodeRef {
 public struct TestBody {
     public SyntaxRef decl
     public bool hasValues = false
-    public SyntaxRef values
+    public SyntaxRef caseArgument
 }
 
 public struct Ctx {
@@ -588,6 +588,17 @@ public struct Ctx {
     public Map<FuncId, List<StorePair>> storeSummaries = []
     /// C# `Compilation.ReturnSummaries`: for each template with a body, the parameters (or `this`, -1) its result may borrow.
     public Map<FuncId, List<i64>> returnSummaries = []
+    // ── T4 state (spec 018, revision 0021 word classes)
+    /// C# `Lexicon.Collectives` and `Lexicon.IrregularPlurals`, filled by `buildLexicon`.
+    public List<string> lexiconCollectives = List<string>()
+    public List<string> lexiconIrregularPlurals = List<string>()
+    // ── T10 state (spec 018, branch-review fixes)
+    /// C# `Lexicon.IrregularSingulars`: the singular of `lexiconIrregularPlurals[k]` at `k` (Q1208).
+    public List<string> lexiconIrregularSingulars = List<string>()
+    // ── 018 Part 4 follow-up state
+    /// The C# `Naming.Grammars` cache (one `Grammar` per `Compilation`): the project dictionary `grammarOf` read, once `grammarKnown`. `Grammar` is unique, so `grammarOf` hands out copies.
+    public Grammar grammarRead = Grammar {}
+    public bool grammarKnown = false
 }
 
 // ── The binder's cursors ──────────────────────────────────────────────────────
@@ -661,7 +672,7 @@ public struct Binder {
     public Map<i64, i64> constraints
     public Map<i64, i64> peers
     /// Locals known to be non-null, and their span start.
-    public List<(i64, LocalId)> nonNull
+    public List<(i64, LocalId)> nonNullLocals
     public List<(i64, LocalId, Type)> stateFacts
     /// The variant a local's error value was narrowed to.
     public Map<LocalId, VariantId> errorNarrowed
@@ -717,4 +728,8 @@ public struct Binder {
     // ── T38 state
     // ── T39 state
     // ── T40 state
+    // ── T2 state (spec 018, revision 0021 help)
+    /// The C# `_thenOf` (BinderStates.cs:97): the `if` statements whose then-branch is being bound, innermost last; `stateTestHelp` reads them.
+    /// A parser node is unique, so each entry is (the condition is a member access, its target span, its member span); spans are zero-length otherwise.
+    public List<(bool, TextSpan, TextSpan)> thenOf = []
 }

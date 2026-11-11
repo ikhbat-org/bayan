@@ -13,6 +13,7 @@ namespace Bayan.Tests;
 /// it sets <c>BAYAN_CACHE</c> and the working directory of the test process (hence the collection).
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]
+[Trait("Snapshot", "skip")]  // runs need cwd + BAYAN_CACHE, which RunRecorded/replay.py cannot replay (review 233d35d finding 7)
 public sealed class SelfhostDefaultT3Tests
 {
     private static readonly string Base = Path.Combine(Golden.RepoRoot, "tmp", "driver-t3");

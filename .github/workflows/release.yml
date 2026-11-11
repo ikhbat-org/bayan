@@ -30,9 +30,14 @@ jobs:
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
-      - name: Check tag against CompilerVersion
+      - name: Check tag against VERSION
         shell: bash
         run: bash scripts/release/package.sh check-tag "$GITHUB_REF_NAME"
+      # The mirrors and generated docs are checked on the Linux runners only, as in ci.yml (check.sh is untested on Windows Git Bash).
+      - name: Check VERSION mirrors and generated docs
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bash scripts/docs/check.sh
       - name: Install .NET SDK
         shell: bash
         env:
@@ -105,7 +110,9 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           v="$(bash scripts/release/package.sh check-tag "$GITHUB_REF_NAME")"
+          bash scripts/release/package.sh docs dist
           bash scripts/release/package.sh sums dist
+          # dist/bayan-* is the six compiler archives and bayan-$v-docs.tar.gz.
           mkdir -p tmp && bash scripts/release/package.sh notes "$v" > tmp/notes.md
           gh release create "$GITHUB_REF_NAME" dist/bayan-* dist/SHA256SUMS --draft --verify-tag \
             --title "Bayān $v" --notes-file tmp/notes.md

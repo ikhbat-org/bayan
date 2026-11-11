@@ -50,7 +50,7 @@ public sealed class SelfhostSemanticsHostTests
                 pending: [],
                 constraints: [],
                 peers: [],
-                nonNull: [],
+                nonNullLocals: [],
                 stateFacts: [],
                 errorNarrowed: [],
             }

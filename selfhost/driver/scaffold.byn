@@ -334,8 +334,12 @@ ScaffoldGitResult scaffoldGit(string git, at string dir, for string first, throu
     args.append(dir)
     args.append(first)
     args.append(second)
-    // coverage-exempt: Q1086 the catch is reached only if the `git` that was just found cannot start; the C# `Process.Start` throws there
-    let r = Io.run(git, args.span) catch { panic($"cannot run {git}") }
+    // A git killed by signal n is exit 128+n to the C# `Process.ExitCode` (Scaffold.cs:186), its stdout trimmed.
+    let r = Io.run(git, args.span) catch switch {
+        .signaled(let s, let output, let errors) => return ScaffoldGitResult { code: 128 + s, stdout: output.trimmed() },
+        // coverage-exempt: Q1086 reached only if the `git` that was just found cannot start; the C# `Process.Start` throws there
+        IoError e => panic($"cannot run {git}"),
+    }
     return ScaffoldGitResult { code: r.exitCode, stdout: r.stdout.trimmed() }
 }
 

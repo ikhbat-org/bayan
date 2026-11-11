@@ -513,6 +513,8 @@ public enum BuiltinKind
     Fs,
     /// <summary>A wall-clock instant: <c>nanos</c>, the nanoseconds since the Unix epoch; <c>Time.now()</c> and <c>Time.fromNanos(i64)</c> make one.</summary>
     Time,
+    /// <summary>A duration in milliseconds, stored as an <c>i64</c>: <c>Millis(n)</c> makes one, <c>i64(t)</c> reads it; no literal suffix and no arithmetic (plan 007 §3).</summary>
+    Millis,
 }
 
 public sealed class BuiltinType : TypeSymbol
@@ -547,6 +549,7 @@ public sealed class BuiltinType : TypeSymbol
     public static readonly BuiltinType Env = new(BuiltinKind.Env, "Env");
     public static readonly BuiltinType Fs = new(BuiltinKind.Fs, "Fs");
     public static readonly BuiltinType Time = new(BuiltinKind.Time, "Time");
+    public static readonly BuiltinType Millis = new(BuiltinKind.Millis, "Millis");
 }
 
 /// <summary>The type of a caught error when the call can fail with more than one set.</summary>

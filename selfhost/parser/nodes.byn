@@ -12,9 +12,9 @@
 // struct, a nullable array a `List<…>?`. The base `Decl`'s `Doc` and `Attributes` are the last two
 // fields of each declaration struct. Every C# `{ get; init; }` property keeps its default as a field
 // default. A C# name that is a Bayan keyword gets the suffix `Keyword` (as `ParseCode.gotoKeyword`):
-// fields `defaultKeyword`, `failsKeyword`, `usesKeyword`, `requiresKeyword`, `becauseKeyword`,
-// `exceptKeyword`, `returnKeyword`, `usingKeyword`, `elseKeyword`, `tryKeyword`, `unlessKeyword`,
-// and the enum members so marked below. `Modifiers` is a `u16` with one `modifier…` const per flag.
+// fields `defaultKeyword`, `failsKeyword`, `usesKeyword`, `becauseKeyword`, `returnKeyword`,
+// `usingKeyword`, `elseKeyword`, `tryKeyword`, `unlessKeyword`, and the enum members so marked below;
+// a list keeps a plural instead (BYN5104, Q1190): `Requires` is `requiresClauses`, `Except` `exceptNames`. `Modifiers` is a `u16` with one `modifier…` const per flag.
 //
 // Checklist, C# record → Bayan (T11 dump, T12 dump and spans walker):
 //   Node                   (no node of its own; every struct starts with `span`)
@@ -274,7 +274,7 @@ public struct FunctionDecl {
     /// Where a `ref this` would go: just after the `(`.
     public i64 paramsStart = 0
     /// The `expects` clauses after the signature (and the `requires` input form, BYN1063).
-    public List<Expr> requiresKeyword = List<Expr>()
+    public List<Expr> requiresClauses = List<Expr>()
     public List<WhereClause> where = List<WhereClause>()
     public TextSpan? becomes = null
     public UsesClause? usesKeyword = null
@@ -347,7 +347,7 @@ public struct FieldDecl {
     public TypeSyntax type
     public TextSpan name
     public Expr defaultKeyword
-    public List<RequiresRule> requiresKeyword = List<RequiresRule>()
+    public List<RequiresRule> requiresClauses = List<RequiresRule>()
     public string? doc = null
     public List<AttributeSyntax> attributes = List<AttributeSyntax>()
 }
@@ -399,7 +399,7 @@ public struct ErrorSetDecl {
     public List<TypeSyntax> members
     /// The two declaration keywords, as written.
     public TextSpan head = TextSpan { start: 0, length: 0 }
-    public List<TextSpan> exceptKeyword = List<TextSpan>()
+    public List<TextSpan> exceptNames = List<TextSpan>()
     public string? doc = null
     public List<AttributeSyntax> attributes = List<AttributeSyntax>()
 }
@@ -460,7 +460,7 @@ public struct TypeAliasDecl {
     public TextSpan name
     public TypeSyntax target
     public bool distinct = false
-    public List<RequiresRule> requiresKeyword = List<RequiresRule>()
+    public List<RequiresRule> requiresClauses = List<RequiresRule>()
     public string? doc = null
     public List<AttributeSyntax> attributes = List<AttributeSyntax>()
 }

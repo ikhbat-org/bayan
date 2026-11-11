@@ -1,0 +1,15 @@
+warning BYN5104: `draft` holds a collection; name it with a plural, `drafts`
+
+  12 │     public Untrusted<List<Line>> draft
+     │                                  ^^^^^
+     │
+  help: rename it `drafts`
+     │ 12 │     public Untrusted<List<Line>> drafts
+     │    │                                       +
+
+error BYN2770: unknown attribute `json`
+
+  22 │     @json(name: "line")
+     │      ^^^^
+     │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test

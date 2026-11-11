@@ -515,7 +515,7 @@ StructDecl parseStruct(ref Parser p, at i64 start, by Modifiers modifiers) {
     for slot in fieldSlots {
         var field = fieldsLeft.removeLast()
         var pending = List<RequiresRule>()
-        while field.requiresKeyword.length > 0 { pending.append(field.requiresKeyword.removeLast()) }
+        while field.requiresClauses.length > 0 { pending.append(field.requiresClauses.removeLast()) }
         while pending.length > 0 {
             let rule = pending.removeLast()
             let names = namesAny(ref p, for: in rule, from: in fields)
@@ -523,7 +523,7 @@ StructDecl parseStruct(ref Parser p, at i64 start, by Modifiers modifiers) {
                 let _ = p.report(.requiresMixesFields, at: rule.span,
                     help: "split it: an `it` rule under the field, and a struct-level rule with `at .field`")
             } else if rule.at is null && !names {
-                field.requiresKeyword.append(move rule)
+                field.requiresClauses.append(move rule)
             } else {
                 rules.append(move rule)
             }
@@ -935,7 +935,7 @@ FunctionDecl parseFunction(ref Parser p, at i64 start, by Modifiers modifiers, b
         moveThis: moveThis,
         receiverStates: move receiverStates,
         paramsStart: paramsStart,
-        requiresKeyword: move requiresList,
+        requiresClauses: move requiresList,
         where: move where,
         becomes: becomes,
         usesKeyword: move usesClause,

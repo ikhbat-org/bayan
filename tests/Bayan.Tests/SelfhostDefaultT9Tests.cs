@@ -21,6 +21,7 @@ namespace Bayan.Tests;
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]
 [Trait("Law", "L028")]
+[Trait("Snapshot", "skip")]  // the probe runs unrecorded with BAYAN_CACHE set, BAYAN_CC removed (review 233d35d finding 7)
 public sealed class SelfhostDefaultT9Tests
 {
     private const string ProbeMain = """

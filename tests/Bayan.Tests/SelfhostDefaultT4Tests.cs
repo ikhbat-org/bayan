@@ -9,6 +9,7 @@ namespace Bayan.Tests;
 /// Each row runs the same argv under the C# process and the stage-1 driver in two fresh directories and compares stdout, stderr,
 /// the exit code and the written tree (names, bytes, executable bit); the directory is masked as <c>&lt;D&gt;</c>.
 /// </summary>
+[Trait("Snapshot", "skip")]  // runs need cwd, PATH, closed stdin and change the tree (review 233d35d finding 7)
 public sealed class SelfhostDefaultT4Tests
 {
     private sealed record Result(int Exit, string Out, string Err);
@@ -156,6 +157,21 @@ public sealed class SelfhostDefaultT4Tests
             Assert.Equal((UnixFileMode)0, File.GetUnixFileMode(Path.Combine(dir, "tally.byn")) & (UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute));
         }
         finally { TestDirs.Delete(dir); }
+    }
+
+    [Fact]
+    public void NewWithAGitKilledBySignalIsAsCSharp()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var bin = Directory.CreateTempSubdirectory("bayan-t4-git-").FullName;
+        try
+        {
+            var git = Path.Combine(bin, "git");
+            File.WriteAllText(git, "#!/bin/sh\nkill -9 $$\n");
+            File.SetUnixFileMode(git, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+            Same(["new", "tally"], path: bin);
+        }
+        finally { TestDirs.Delete(bin); }
     }
 
     [Fact]

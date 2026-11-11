@@ -457,7 +457,7 @@ public sealed class SelfhostSemanticsT17Tests
             var local = (LocalSymbol)Call(binder, "DeclareLocal", decl.Name, k.Op == "var" ? PrimitiveType.I32 : Sig(o, "o"), LocalKind.Var)!;
             if (k.Op == "nonnull")
             {
-                var nonNull = BinderType.GetField("_nonNull", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(binder)!;
+                var nonNull = BinderType.GetField("_nonNullLocals", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(binder)!;
                 var scope = BinderType.GetField("_scope", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(binder);
                 nonNull.GetType().GetMethod("Add")!.Invoke(nonNull, [Activator.CreateInstance(nonNull.GetType().GetGenericArguments()[0], scope, local)]);
             }
@@ -657,7 +657,7 @@ public sealed class SelfhostSemanticsT17Tests
                 var decl = (LocalDecl)Fn(o, "qKDecl").Body!.Statements[0];
                 var type = k.Op == "var" ? "prim(.i32)" : BayanType(sb, Sig(o, "o"), ref n);
                 sb.AppendLine($"    let kl = declareLocal(ref b, through: ref c, at: {Span(decl.Name.Span)}, as: {type}, for: .varKeyword)");
-                if (k.Op == "nonnull") sb.AppendLine("    b.nonNull.append((t16ScopeId(ref b), kl))");
+                if (k.Op == "nonnull") sb.AppendLine("    b.nonNullLocals.append((t16ScopeId(ref b), kl))");
             }
             var target = k.Target is null ? "-1" : BayanType(sb, Sig(o, k.Target), ref n);
             sb.AppendLine($"    let target = {target}");
@@ -1139,7 +1139,7 @@ public sealed class SelfhostSemanticsT17Tests
             pending: [],
             constraints: [],
             peers: [],
-            nonNull: [],
+            nonNullLocals: [],
             stateFacts: [],
             errorNarrowed: [],
         }

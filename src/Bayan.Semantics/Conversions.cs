@@ -77,6 +77,7 @@ public static class Conversions
         if (from.IsNumeric && to.IsNumeric) return ConversionKind.NumericCast;
         if (from == PrimitiveType.Char && to.IsInteger) return ConversionKind.CharToInteger;
         if (from.IsInteger && to == PrimitiveType.Char) return ConversionKind.IntegerToChar;
+        if (from == BuiltinType.Millis && to == PrimitiveType.I64) return ConversionKind.Widen;
         return null;
     }
 

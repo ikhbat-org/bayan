@@ -162,15 +162,19 @@ public sealed class SelfhostSemanticsT10Tests
         Directory.CreateDirectory(dir);
         var manifest = Path.Combine(dir, "package.byn");
         var source = Path.Combine(dir, "main.byn");
-        File.WriteAllText(source, "void main() {\n}\n");
+        File.WriteAllText(source, "public struct Order {\n    public List<string> item\n}\n\nvoid main() {\n}\n"); // BYN5104 reads the grammar
         File.WriteAllText(manifest, "");
-        var (emptyExit, emptyOut, emptyErr) = SelfhostParserTests.Run(program, "--golden", "--package", dir, source);
+        var (emptyExit, emptyOut, emptyErr) = SelfhostParserTests.Run(program, "--golden", "--package", dir, "--include-path", source);
         File.SetUnixFileMode(manifest, UnixFileMode.None);
         try
         {
             try { _ = File.ReadAllBytes(manifest); return; } // root reads it anyway
             catch (UnauthorizedAccessException) { }
-            var (exit, stdout, stderr) = SelfhostParserTests.Run(program, "--golden", "--package", dir, source);
+            var (exit, stdout, stderr) = SelfhostParserTests.Run(program, "--golden", "--package", dir, "--include-path", source);
+            // The C# compiler on the same unreadable package (Naming.GrammarOf), rendered as `--golden --include-path` does.
+            var expected = DiagnosticRenderer.RenderAll(Compilation.Create([Golden.Load(source)], dir, new CompilationOptions()).Diagnostics.Items, includePath: true);
+            Assert.Contains("BYN5104", expected);
+            Assert.Equal(expected.TrimEnd(), stdout.TrimEnd());
             Assert.Equal(emptyExit, exit);
             Assert.Equal(emptyOut, stdout);
             Assert.Equal(emptyErr, stderr);

@@ -433,7 +433,7 @@ byn_str byn_utf8_decode_replace(const uint8_t* p, int64_t n, byn_alloc* to);
  * On Windows they come from the UTF-16 command line instead of `argv`, and `*argc` is set to their count. */
 byn_str* byn_args(int* argc, char** argv);
 
-/* `IoError` codes: the compiler numbers its variants first. */
+/* `IoError` codes 1 to 11: the compiler numbers its variants first, then `Utf8Error` (12); user error variants start at 13. */
 #define BYN_IO_NOT_FOUND 1u
 #define BYN_IO_PERMISSION_DENIED 2u
 #define BYN_IO_INVALID_UTF8 3u
@@ -443,6 +443,12 @@ byn_str* byn_args(int* argc, char** argv);
 #define BYN_IO_UNSUPPORTED 7u
 #define BYN_IO_CROSS_DEVICE 8u
 #define BYN_IO_IS_DIRECTORY 9u
+/* detail-carrying: writes *detail (the signal number), field 0 of `IoError.signaled(i32 signal, string stdout, string stderr)`. */
+#define BYN_IO_SIGNALED 10u
+/* `IoError.timeout(Millis after)`: no runtime detail; the caller knows the timeout. */
+#define BYN_IO_TIMEOUT 11u
+/* `Utf8Error.invalidSequence(i64 at)`: no runtime detail; `bynh_utf8_decode` writes it. */
+#define BYN_UTF8_INVALID_SEQUENCE 12u
 
 /* Reads a whole file into memory from `alloc`. Returns 0 or an `IoError` code. */
 uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc);
@@ -456,17 +462,30 @@ uint32_t byn_io_write_file(byn_str path, const uint8_t* ptr, int64_t len);
 /* `Io.listDir`: entry names without `.` and `..`, sorted by byte order, allocated from `alloc`. */
 uint32_t byn_io_list_dir(byn_str path, byn_str** ptr, int64_t* len, byn_alloc* alloc);
 
-/* `ProcessResult`: a child killed by a signal reports 128 + the signal number. */
+/* `ProcessResult`: a child that exited; a signal-killed child is `BYN_IO_SIGNALED` instead. */
 typedef struct byn_process {
     int32_t exit_code;
     byn_str out;
     byn_str err;
 } byn_process;
 
+/* How the wait for a child ended, for byn_wait_status. */
+#define BYN_WAIT_DONE 0
+#define BYN_WAIT_FAILED 1       /* waitpid failed (not EINTR), or WaitForSingleObject did */
+#define BYN_WAIT_QUERY_FAILED 2 /* GetExitCodeProcess failed */
+#define BYN_WAIT_TIMED_OUT 3
+/* Maps a wait to 0 (with `*code`, the exit code) or an `IoError` code. A failed wait or query is `BYN_IO_OTHER`
+ * and `raw` is ignored, so no exit code is made up; a timeout is `BYN_IO_TIMEOUT` (`*detail` untouched); off Windows
+ * a signal-killed child (`raw` is the waitpid status) is `BYN_IO_SIGNALED` with `*detail` = the signal; on Windows
+ * `raw` is the exit code. `detail` may be NULL. Compiled on every host. */
+uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* detail);
 /* `Io.run`: spawns `program` (looked up on PATH when it has no path separator) with `args`,
  * never through a shell, and waits for it. Both streams are captured into `alloc`. `out` may be NULL.
+ * A failed wait is `other`, a signal-killed child `signaled` with the signal in `*detail` (`detail` may be NULL)
+ * and its captured streams still in `*out` (the payload of `.signaled`); if they are not UTF-8 it stays `signaled`
+ * with `*out` untouched (empty streams).
  * On Windows a batch file (`.bat`, `.cmd`) is refused with `permissionDenied`, since cmd.exe would re-parse the arguments. */
-uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, byn_alloc* alloc);
+uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc);
 /* `Io.runBatch`'s command line: `cmd.exe /d /e:ON /v:OFF /s /c ""<path>" "<a1>" … "<an>""`, each argument
  * in double quotes as-is. False, with nothing built, when the path or an argument holds NUL, CR, LF, `"` or `%`,
  * or the path does not end in `.bat` or `.cmd` (any case). Otherwise `out` is from malloc. Compiled on every host. */
