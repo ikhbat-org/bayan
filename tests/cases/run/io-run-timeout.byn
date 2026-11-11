@@ -1,0 +1,20 @@
+// os: unix
+// A child still running when `timeout:` passes is killed with its whole process group and the call fails with
+// `.timeout`, whose payload is the timeout given; the grandchild dies too, so it never writes its mark (plan 007).
+void main() fails IoError {
+    let script: string[2] = ["-c", "sh -c \"sleep 2; echo alive > io-run-timeout.mark\" & sleep 30"]
+    let r = Io.run("sh", script.span, timeout: Millis(200)) catch switch {
+        .timeout(let after) => {
+            print($"timeout {i64(after)}")
+            let wait: string[1] = ["3"]
+            let _ = try Io.run("sleep", wait.span)
+            print($"grandchild wrote: {Fs.fileExists("io-run-timeout.mark")}")
+            return
+        },
+        IoError e => {
+            print($"io {e}")
+            return
+        },
+    }
+    print($"exit {r.exitCode}")
+}

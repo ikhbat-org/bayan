@@ -79,7 +79,8 @@ public sealed class Builtins
         IoRun = MakeIo("run", BuiltinFunction.IoRun, BuiltinType.ProcessResult,
             ("program", PrimitiveType.String), ("args", new SpanType(PrimitiveType.String, readOnly: true)),
             ("directory", new OptionalType(PrimitiveType.String)), ("input", new OptionalType(new SpanType(PrimitiveType.U8, readOnly: true))),
-            ("env", new OptionalType(new MapType(PrimitiveType.String, PrimitiveType.String))));
+            ("env", new OptionalType(new MapType(PrimitiveType.String, new OptionalType(PrimitiveType.String)))),
+            ("timeout", new OptionalType(BuiltinType.Millis)));
         IoRunBatch = MakeIo("runBatch", BuiltinFunction.IoRunBatch, BuiltinType.ProcessResult,
             ("path", PrimitiveType.String), ("args", new SpanType(PrimitiveType.String, readOnly: true)));
         IoMonotonicNanos = Make("monotonicNanos", BuiltinFunction.IoMonotonicNanos, PrimitiveType.I64);
@@ -450,7 +451,8 @@ public sealed class Builtins
 
     /// <summary>
     /// <c>ProcessResult Io.run(string program, ReadOnlySpan&lt;string&gt; args, directory: string? = null, input: ReadOnlySpan&lt;u8&gt;? = null,
-    /// env: Map&lt;string, string&gt;? = null) fails IoError</c>; the three options are named only (015 S6).
+    /// env: Map&lt;string, string?&gt;? = null, timeout: Millis? = null) fails IoError</c>; the four options are named only (015 S6).
+    /// A null `env:` value unsets that inherited variable; a child still running after `timeout:` is killed (`.timeout`, plan 007).
     /// </summary>
     public FunctionSymbol IoRun { get; }
 

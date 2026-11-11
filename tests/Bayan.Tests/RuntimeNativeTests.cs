@@ -64,6 +64,41 @@ public sealed class RuntimeNativeTests
     }
 
     /// <summary>
+    /// Plan 007 step 8: <c>Io.run(…, timeout:)</c> on Windows terminates the child's Job object, so a background grandchild that
+    /// holds the pipes (<c>start /b</c>) dies with it and the call returns <c>.timeout</c> long before either ping ends.
+    /// </summary>
+    [Fact]
+    public void RunTimeoutKillsTheJob()
+    {
+        var work = Path.Combine(Golden.RepoRoot, "tmp", "native", "run-timeout");
+        if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        Directory.CreateDirectory(work);
+        var program = """
+            void main() {
+                let args: string[2] = ["/c", "start /b ping -n 30 127.0.0.1 & ping -n 30 127.0.0.1"]
+                let r = Io.run("cmd", args.span, timeout: Millis(200)) catch switch {
+                    .timeout(let after) => {
+                        print($"timeout {i64(after)}")
+                        return
+                    },
+                    IoError e => {
+                        print($"io {e}")
+                        return
+                    },
+                }
+                print($"exit {r.exitCode}")
+            }
+            """;
+        var c = Compilation.Create([SourceText.FromString("run-timeout.byn", program)], work);
+        Assert.False(c.Diagnostics.HasErrors, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
+        if (!OperatingSystem.IsWindows()) return;
+        var exe = Build(CliApp.EmitC(c, BuildMode.Debug));
+        var clock = Stopwatch.StartNew();
+        Assert.Equal("timeout 200\n", Run(exe, []).Replace("\r\n", "\n"));
+        Assert.True(clock.Elapsed < TimeSpan.FromSeconds(20), $"took {clock.Elapsed}");
+    }
+
+    /// <summary>
     /// L031: <c>byn_wait_status</c> never makes up an exit code. A failed wait or exit-code query is <c>other</c> whatever the raw
     /// status (0, or 259 = <c>STILL_ACTIVE</c>); a timeout is <c>timeout</c> with the detail untouched; a real SIGKILL status
     /// (POSIX only) is <c>signaled</c> with detail 9; exit 3 is 0 with code 3.

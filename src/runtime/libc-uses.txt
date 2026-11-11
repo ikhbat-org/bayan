@@ -1,9 +1,11 @@
+AssignProcessToJobObject
 CloseHandle
 CommandLineToArgvW
 CompareStringOrdinal
 CopyFileW
 CreateDirectoryW
 CreateFileW
+CreateJobObjectW
 CreatePipe
 CreateProcessW
 CreateThread
@@ -36,9 +38,13 @@ QueryPerformanceCounter
 QueryPerformanceFrequency
 ReadFile
 RemoveDirectoryW
+ResumeThread
 SetFileTime
 SetHandleInformation
+SetInformationJobObject
 SetLastError
+TerminateJobObject
+TerminateProcess
 WaitForSingleObject
 WideCharToMultiByte
 WriteFile
@@ -51,6 +57,7 @@ _strtof_l
 _wcsnicmp
 _wfopen
 abort
+access
 arc4random_buf
 atoi
 calloc
@@ -79,6 +86,7 @@ fwrite
 getcwd
 getenv
 getrandom
+kill
 longjmp
 lstat
 malloc
@@ -95,6 +103,10 @@ poll
 posix_spawn_file_actions_adddup2
 posix_spawn_file_actions_destroy
 posix_spawn_file_actions_init
+posix_spawnattr_destroy
+posix_spawnattr_init
+posix_spawnattr_setflags
+posix_spawnattr_setpgroup
 posix_spawnp
 qsort
 read
@@ -104,6 +116,7 @@ realpath
 rename
 rmdir
 setjmp
+setpgid
 sigaction
 sigemptyset
 snprintf
