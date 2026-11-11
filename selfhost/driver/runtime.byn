@@ -445,7 +445,7 @@ byn_str* byn_args(int* argc, char** argv);
 #define BYN_IO_UNSUPPORTED 7u
 #define BYN_IO_CROSS_DEVICE 8u
 #define BYN_IO_IS_DIRECTORY 9u
-/* detail-carrying: writes *detail (the signal number), the payload of `IoError.signaled(i32 signal)`. */
+/* detail-carrying: writes *detail (the signal number), field 0 of `IoError.signaled(i32 signal, string stdout, string stderr)`. */
 #define BYN_IO_SIGNALED 10u
 /* `IoError.timeout(Millis after)`: no runtime detail; the caller knows the timeout. */
 #define BYN_IO_TIMEOUT 11u
@@ -483,7 +483,9 @@ typedef struct byn_process {
 uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* detail);
 /* `Io.run`: spawns `program` (looked up on PATH when it has no path separator) with `args`,
  * never through a shell, and waits for it. Both streams are captured into `alloc`. `out` may be NULL.
- * A failed wait is `other`, a signal-killed child `signaled` with the signal in `*detail` (`detail` may be NULL).
+ * A failed wait is `other`, a signal-killed child `signaled` with the signal in `*detail` (`detail` may be NULL)
+ * and its captured streams still in `*out` (the payload of `.signaled`); if they are not UTF-8 it stays `signaled`
+ * with `*out` untouched (empty streams).
  * On Windows a batch file (`.bat`, `.cmd`) is refused with `permissionDenied`, since cmd.exe would re-parse the arguments. */
 uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc);
 /* `Io.runBatch`'s command line: `cmd.exe /d /e:ON /v:OFF /s /c ""<path>" "<a1>" … "<an>""`, each argument
@@ -4134,14 +4136,16 @@ uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* deta
     return 0;
 }
 
-/* Maps the wait first (byn_wait_status), then checks both captured streams are UTF-8 and copies them into `alloc`;
- * frees them on every path. */
+/* Maps the wait first (byn_wait_status), then checks both captured streams are UTF-8 and copies them into `alloc`,
+ * for an exited child and for a signal-killed one (which keeps its streams; non-UTF-8 ones are dropped, not
+ * `invalidUtf8`); frees them on every path. */
 static uint32_t byn_process_finish(byn_bytes* streams, int outcome, uint32_t raw, byn_process* out, int64_t* detail, byn_alloc* alloc) {
     int32_t code = 0;
     uint32_t result = byn_wait_status(outcome, raw, &code, detail);
-    if (result == 0 && (!byn_utf8_valid(streams[0].ptr, streams[0].len) || !byn_utf8_valid(streams[1].ptr, streams[1].len)))
+    bool valid = byn_utf8_valid(streams[0].ptr, streams[0].len) && byn_utf8_valid(streams[1].ptr, streams[1].len);
+    if (result == 0 && !valid)
         result = BYN_IO_INVALID_UTF8;
-    else if (result == 0 && out)
+    else if ((result == 0 || result == BYN_IO_SIGNALED) && valid && out)
         *out = (byn_process){code, byn_str_copy((byn_str){streams[0].ptr, streams[0].len}, alloc),
                              byn_str_copy((byn_str){streams[1].ptr, streams[1].len}, alloc)};
     free(streams[0].ptr);

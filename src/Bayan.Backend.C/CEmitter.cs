@@ -1431,12 +1431,22 @@ internal sealed class FunctionEmitter
                     break;
                 }
                 var variants = _c.DetailVariants.Where(v => f.Call.Function.ErrorSets.Any(s => s.Variants.Contains(v)));
+                // Io.run captures into a local, so a signal-killed child's streams fill `.signaled` (Q1157).
+                var run = f.Call.Function.Builtin is BuiltinFunction.IoRun;
                 Line("{");
                 _indent++;
                 Line("int64_t detail = 0;");
-                Line($"{error} = ({_c.ErrorCType}){{ .code = {Call(f.Call, result, "&detail")} }};");
+                if (run)
+                    Line("byn_process proc = {0};");
+                Line($"{error} = ({_c.ErrorCType}){{ .code = {Call(f.Call, run ? "&proc" : result, "&detail")} }};");
+                if (run && f.Result is not null)
+                    Line($"if ({error}.code == 0) {_names[f.Result]} = proc;");
                 foreach (var v in variants)
+                {
                     Line($"if ({error}.code == UINT32_C({v.Code})) {error}.p.e{v.Code}.{CEmitter.FieldName(v.Fields[0].Name)} = ({_c.CType(v.Fields[0].Type)})detail;");
+                    if (run && v.Fields.Count == 3)
+                        Line($"if ({error}.code == UINT32_C({v.Code})) {{ {error}.p.e{v.Code}.{CEmitter.FieldName(v.Fields[1].Name)} = proc.out; {error}.p.e{v.Code}.{CEmitter.FieldName(v.Fields[2].Name)} = proc.err; }}");
+                }
                 _indent--;
                 Line("}");
                 break;

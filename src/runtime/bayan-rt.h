@@ -443,7 +443,7 @@ byn_str* byn_args(int* argc, char** argv);
 #define BYN_IO_UNSUPPORTED 7u
 #define BYN_IO_CROSS_DEVICE 8u
 #define BYN_IO_IS_DIRECTORY 9u
-/* detail-carrying: writes *detail (the signal number), the payload of `IoError.signaled(i32 signal)`. */
+/* detail-carrying: writes *detail (the signal number), field 0 of `IoError.signaled(i32 signal, string stdout, string stderr)`. */
 #define BYN_IO_SIGNALED 10u
 /* `IoError.timeout(Millis after)`: no runtime detail; the caller knows the timeout. */
 #define BYN_IO_TIMEOUT 11u
@@ -481,7 +481,9 @@ typedef struct byn_process {
 uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* detail);
 /* `Io.run`: spawns `program` (looked up on PATH when it has no path separator) with `args`,
  * never through a shell, and waits for it. Both streams are captured into `alloc`. `out` may be NULL.
- * A failed wait is `other`, a signal-killed child `signaled` with the signal in `*detail` (`detail` may be NULL).
+ * A failed wait is `other`, a signal-killed child `signaled` with the signal in `*detail` (`detail` may be NULL)
+ * and its captured streams still in `*out` (the payload of `.signaled`); if they are not UTF-8 it stays `signaled`
+ * with `*out` untouched (empty streams).
  * On Windows a batch file (`.bat`, `.cmd`) is refused with `permissionDenied`, since cmd.exe would re-parse the arguments. */
 uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc);
 /* `Io.runBatch`'s command line: `cmd.exe /d /e:ON /v:OFF /s /c ""<path>" "<a1>" … "<an>""`, each argument

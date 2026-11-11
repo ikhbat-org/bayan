@@ -312,7 +312,8 @@ public sealed partial class Compilation
             foreach (var v in set.Decl.Variants)
             {
                 var sym = new ErrorVariantSymbol(v.Name.Text, new Location(set.Location.Source, v.Name.Span), set, _nextErrorCode++, v.Doc);
-                // A built-in payload is one primitive or `Millis`: `invalidSequence(i64 at)`, `timeout(Millis after)`.
+                // A built-in payload field is a primitive or `Millis`: `invalidSequence(i64 at)`, `timeout(Millis after)`,
+                // `signaled(i32 signal, string stdout, string stderr)`.
                 foreach (var f in v.Fields)
                 {
                     var name = ((NamedType)f.Type).Path[0].Text;

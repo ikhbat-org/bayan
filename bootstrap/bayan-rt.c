@@ -3518,14 +3518,16 @@ uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* deta
     return 0;
 }
 
-/* Maps the wait first (byn_wait_status), then checks both captured streams are UTF-8 and copies them into `alloc`;
- * frees them on every path. */
+/* Maps the wait first (byn_wait_status), then checks both captured streams are UTF-8 and copies them into `alloc`,
+ * for an exited child and for a signal-killed one (which keeps its streams; non-UTF-8 ones are dropped, not
+ * `invalidUtf8`); frees them on every path. */
 static uint32_t byn_process_finish(byn_bytes* streams, int outcome, uint32_t raw, byn_process* out, int64_t* detail, byn_alloc* alloc) {
     int32_t code = 0;
     uint32_t result = byn_wait_status(outcome, raw, &code, detail);
-    if (result == 0 && (!byn_utf8_valid(streams[0].ptr, streams[0].len) || !byn_utf8_valid(streams[1].ptr, streams[1].len)))
+    bool valid = byn_utf8_valid(streams[0].ptr, streams[0].len) && byn_utf8_valid(streams[1].ptr, streams[1].len);
+    if (result == 0 && !valid)
         result = BYN_IO_INVALID_UTF8;
-    else if (result == 0 && out)
+    else if ((result == 0 || result == BYN_IO_SIGNALED) && valid && out)
         *out = (byn_process){code, byn_str_copy((byn_str){streams[0].ptr, streams[0].len}, alloc),
                              byn_str_copy((byn_str){streams[1].ptr, streams[1].len}, alloc)};
     free(streams[0].ptr);
