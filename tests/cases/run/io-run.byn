@@ -9,8 +9,6 @@ void main() fails IoError {
     show(try Io.run("sh", script.span), as: "script")
     let quoted: string[4] = ["-c", "printf '%s|' \"$@\"", "sh", "a \"b\" c"]
     show(try Io.run("/bin/sh", quoted.span), as: "vector")
-    let killed: string[2] = ["-c", "kill -9 $$"]
-    show(try Io.run("sh", killed.span), as: "signal")
     // Both pipes are drained together: 300 KB on each stream does not deadlock.
     let big: string[2] = ["-c", "yes 2>/dev/null | head -c 300000; yes e 2>/dev/null | head -c 300000 >&2"]
     let r = try Io.run("sh", big.span)

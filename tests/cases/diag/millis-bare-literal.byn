@@ -1,0 +1,4 @@
+// A bare literal never initializes `Millis`: the value goes through `Millis(n)`.
+void main() {
+    let t: Millis = 5
+}

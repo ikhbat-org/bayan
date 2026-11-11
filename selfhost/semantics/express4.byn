@@ -616,7 +616,7 @@ string? whyNotFormattable(ref Ctx c, for Type t, by ref List<Type> seen) {
     switch kindOf(t) {
         case .primitive: return !(isVoid(t) || isNever(t)) ? null : ""
         case .errorSet or .errorUnion or .enumType or .typeParam: return null
-        case .builtin: return builtinKindOf(i) == .symbol ? null : ""
+        case .builtin: return builtinKindOf(i) == .symbol || builtinKindOf(i) == .millis ? null : ""
         case .optional: return t35Part(ref c, for: "the value", as: c.optionalTypes[i], by: ref seen)
         case .result: return t35Part(ref c, for: "the value", as: c.resultTypes[i].value, by: ref seen)
         case .owned: return whyNotFormattable(ref c, for: c.ownedTypes[i], by: ref seen)

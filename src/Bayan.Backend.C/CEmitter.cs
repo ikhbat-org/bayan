@@ -426,6 +426,7 @@ public sealed class CEmitter
         BuiltinType { Kind: BuiltinKind.FormatSpec } => "byn_format_spec",
         BuiltinType { Kind: BuiltinKind.Symbol } => "byn_sym",
         BuiltinType { Kind: BuiltinKind.Time } => "byn_time",
+        BuiltinType { Kind: BuiltinKind.Millis } => "int64_t",
         TextViewType => "byn_text_view",
         // A pointer needs only the forward typedef, so a type may hold an `Owned` of itself.
         OwnedType o => CType(o.Inner) + "*",
@@ -440,13 +441,14 @@ public sealed class CEmitter
 
     /// <summary>The C type of every error, and of what a failing function returns.</summary>
     internal string ErrorCType => CType(ErrorUnionType.Of([]));
+    internal IEnumerable<ErrorVariantSymbol> DetailVariants => _program.Compilation.Builtins.DetailVariants;
 
     /// <summary>An identifier fragment naming a type, for generated type and helper names.</summary>
     internal string Key(TypeSymbol t) => t switch
     {
         PrimitiveType p => p.Kind == PrimitiveKind.String ? "str" : p.Name,
         ErrorSetSymbol or ErrorUnionType => "err",
-        BuiltinType b => b.Kind switch { BuiltinKind.Arena => "arena", BuiltinKind.StrBuf => "strbuf", BuiltinKind.ProcessResult => "process", BuiltinKind.Panic => "panic", BuiltinKind.FormatSpec => "formatspec", BuiltinKind.Symbol => "sym", BuiltinKind.Time => "time", _ => "iostream" },
+        BuiltinType b => b.Kind switch { BuiltinKind.Arena => "arena", BuiltinKind.StrBuf => "strbuf", BuiltinKind.ProcessResult => "process", BuiltinKind.Panic => "panic", BuiltinKind.FormatSpec => "formatspec", BuiltinKind.Symbol => "sym", BuiltinKind.Time => "time", BuiltinKind.Millis => "millis", _ => "iostream" },
         StructSymbol s => s.Module.CName + "__" + s.Name + TypeArgs(s.TypeArguments),
         EnumSymbol e => e.Module.CName + "__" + e.Name,
         UnionSymbol u => u.Module.CName + "__" + u.Name + TypeArgs(u.TypeArguments),
@@ -783,7 +785,7 @@ public sealed class CEmitter
         {
             case PrimitiveType { IsString: true }:
                 return $"byn_str_eq({a}, {b})";
-            case PrimitiveType or EnumSymbol:
+            case PrimitiveType or EnumSymbol or BuiltinType { Kind: BuiltinKind.Millis }:
                 return $"({a} == {b})";
             case BuiltinType { Kind: BuiltinKind.Symbol }:
                 return $"(({a}).id == ({b}).id)";
@@ -965,6 +967,9 @@ public sealed class CEmitter
                 return $"byn_w_str({w}, {EnumNames(e)}[{v}]);";
             case BuiltinType { Kind: BuiltinKind.Symbol }:
                 return $"byn_w_str({w}, {SymbolText(v)});";
+            // A unit formats as its value plus its symbol (spec §3.4).
+            case BuiltinType { Kind: BuiltinKind.Millis }:
+                return $"byn_w_i64({w}, {v}); byn_w_str({w}, BYN_STR(\" ms\", 3));";
             case OwnedType o:
                 return Format(o.Inner, $"(*{v})", w);
         }
@@ -1412,11 +1417,38 @@ internal sealed class FunctionEmitter
             case LFailingCall f:
             {
                 var result = f.Result is null ? null : "&" + _names[f.Result];
-                // Built-in failing calls return the runtime's bare code, except the ones whose errors carry a payload.
-                var call = Call(f.Call, result);
-                Line(f.Call.Function.Builtin is BuiltinFunction.None or BuiltinFunction.Utf8Decode or BuiltinFunction.HexDecode or BuiltinFunction.IntParse
-                    ? $"{_names[f.Error]} = {call};"
-                    : $"{_names[f.Error]} = ({_c.ErrorCType}){{ .code = {call} }};");
+                var error = _names[f.Error];
+                if (f.Call.Function.Builtin is BuiltinFunction.None)
+                {
+                    Line($"{error} = {Call(f.Call, result)};");
+                    break;
+                }
+                // A built-in failing call returns the runtime's bare code; one that can carry a payload also writes the
+                // detail slot, which fills the payload of each detail-carrying variant of its error sets (plan 007 §1).
+                if (f.Call.Function.Builtin is not (BuiltinFunction.IoRun or BuiltinFunction.Utf8Decode or BuiltinFunction.HexDecode or BuiltinFunction.IntParse))
+                {
+                    Line($"{error} = ({_c.ErrorCType}){{ .code = {Call(f.Call, result)} }};");
+                    break;
+                }
+                var variants = _c.DetailVariants.Where(v => f.Call.Function.ErrorSets.Any(s => s.Variants.Contains(v)));
+                // Io.run captures into a local, so a signal-killed child's streams fill `.signaled` (Q1157).
+                var run = f.Call.Function.Builtin is BuiltinFunction.IoRun;
+                Line("{");
+                _indent++;
+                Line("int64_t detail = 0;");
+                if (run)
+                    Line("byn_process proc = {0};");
+                Line($"{error} = ({_c.ErrorCType}){{ .code = {Call(f.Call, run ? "&proc" : result, "&detail")} }};");
+                if (run && f.Result is not null)
+                    Line($"if ({error}.code == 0) {_names[f.Result]} = proc;");
+                foreach (var v in variants)
+                {
+                    Line($"if ({error}.code == UINT32_C({v.Code})) {error}.p.e{v.Code}.{CEmitter.FieldName(v.Fields[0].Name)} = ({_c.CType(v.Fields[0].Type)})detail;");
+                    if (run && v.Fields.Count == 3)
+                        Line($"if ({error}.code == UINT32_C({v.Code})) {{ {error}.p.e{v.Code}.{CEmitter.FieldName(v.Fields[1].Name)} = proc.out; {error}.p.e{v.Code}.{CEmitter.FieldName(v.Fields[2].Name)} = proc.err; }}");
+                }
+                _indent--;
+                Line("}");
                 break;
             }
             case LWrite w:
@@ -1726,7 +1758,8 @@ internal sealed class FunctionEmitter
         }
     }
 
-    private string Call(BoundCall c, string? result)
+    /// <summary>The C call; <paramref name="detail"/> is the detail slot a payload-carrying builtin writes (plan 007 §1).</summary>
+    private string Call(BoundCall c, string? result, string detail = "NULL")
     {
         var fn = c.Function;
         var args = new List<string>();
@@ -1819,9 +1852,9 @@ internal sealed class FunctionEmitter
             case BuiltinFunction.IoRun:
             {
                 var span = _c.CType(fn.Parameters[1].Type);
-                var name = _c.Helper("bynh_io_run", $"static uint32_t bynh_io_run(byn_str program, {span} args, byn_process* out)", () =>
-                    "{\n    return byn_io_run(program, args.ptr, args.len, out, byn_context);\n}\n");
-                return $"{name}({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])}, {result ?? "NULL"})";
+                var name = _c.Helper("bynh_io_run", $"static uint32_t bynh_io_run(byn_str program, {span} args, byn_process* out, int64_t* detail)", () =>
+                    "{\n    return byn_io_run(program, args.ptr, args.len, out, detail, byn_context);\n}\n");
+                return $"{name}({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])}, {result ?? "NULL"}, {detail})";
             }
             case BuiltinFunction.IoRunBatch:
             {
@@ -1833,12 +1866,11 @@ internal sealed class FunctionEmitter
             case BuiltinFunction.Utf8Decode:
             {
                 var span = _c.CType(fn.Parameters[0].Type);
-                var code = fn.ErrorSets[0].Variants[0].Code;
-                var name = _c.Helper("bynh_utf8_decode", $"static {_c.ErrorCType} bynh_utf8_decode({span} bytes, byn_str* out)", () =>
-                    $"{{\n    int64_t at = byn_utf8_invalid_at(bytes.ptr, bytes.len);\n" +
-                    $"    if (at >= 0) return ({_c.ErrorCType}){{ .code = UINT32_C({code}), .p.e{code} = {{ at }} }};\n" +
-                    $"    if (out) *out = byn_str_copy((byn_str){{bytes.ptr, bytes.len}}, byn_context);\n    return ({_c.ErrorCType}){{0}};\n}}\n");
-                return $"{name}({Expr(c.Arguments[0])}, {result ?? "NULL"})";
+                var name = _c.Helper("bynh_utf8_decode", $"static uint32_t bynh_utf8_decode({span} bytes, byn_str* out, int64_t* detail)", () =>
+                    "{\n    int64_t at = byn_utf8_invalid_at(bytes.ptr, bytes.len);\n" +
+                    "    if (at >= 0) {\n        if (detail) *detail = at;\n        return BYN_UTF8_INVALID_SEQUENCE;\n    }\n" +
+                    "    if (out) *out = byn_str_copy((byn_str){bytes.ptr, bytes.len}, byn_context);\n    return 0;\n}\n");
+                return $"{name}({Expr(c.Arguments[0])}, {result ?? "NULL"}, {detail})";
             }
             case BuiltinFunction.Utf8TryDecode:
             {
@@ -1861,23 +1893,23 @@ internal sealed class FunctionEmitter
             {
                 var list = _c.CType(fn.ReturnType);
                 var code = fn.ErrorSets[0].Variants[0].Code;
-                var name = _c.Helper("bynh_hex_decode", $"static {_c.ErrorCType} bynh_hex_decode(byn_str text, {list}* out)", () =>
+                var name = _c.Helper("bynh_hex_decode", $"static uint32_t bynh_hex_decode(byn_str text, {list}* out, int64_t* detail)", () =>
                     $"{{\n    uint8_t* p = NULL;\n    int64_t at = byn_hex_decode(text, &p, byn_context);\n" +
-                    $"    if (at >= 0) return ({_c.ErrorCType}){{ .code = UINT32_C({code}), .p.e{code} = {{ at }} }};\n" +
-                    $"    if (out) *out = ({list}){{p, text.len / 2, text.len / 2, byn_context}};\n    return ({_c.ErrorCType}){{0}};\n}}\n");
-                return $"{name}({Expr(c.Arguments[0])}, {result ?? "NULL"})";
+                    $"    if (at >= 0) {{\n        if (detail) *detail = at;\n        return UINT32_C({code});\n    }}\n" +
+                    $"    if (out) *out = ({list}){{p, text.len / 2, text.len / 2, byn_context}};\n    return 0;\n}}\n");
+                return $"{name}({Expr(c.Arguments[0])}, {result ?? "NULL"}, {detail})";
             }
             case BuiltinFunction.IntParse:
             {
                 var t = (PrimitiveType)fn.ReturnType;
                 var (bad, overflow) = (fn.ErrorSets[0].Variants[0].Code, fn.ErrorSets[0].Variants[1].Code);
                 var name = "bynh_parse_" + _c.Key(t);
-                _c.Helper(name, $"static {_c.ErrorCType} {name}(byn_str s, byn_builtin_Radix radix, {_c.CType(t)}* out)", () =>
+                _c.Helper(name, $"static uint32_t {name}(byn_str s, byn_builtin_Radix radix, {_c.CType(t)}* out, int64_t* detail)", () =>
                     $"{{\n    int64_t v = 0;\n    int64_t at = byn_int_parse_at(s, {t.Bits}, {(t.IsSignedInteger ? "true" : "false")}, radix, &v);\n" +
-                    $"    if (at == -2) return ({_c.ErrorCType}){{ .code = UINT32_C({overflow}) }};\n" +
-                    $"    if (at >= 0) return ({_c.ErrorCType}){{ .code = UINT32_C({bad}), .p.e{bad} = {{ at }} }};\n" +
-                    $"    if (out) *out = ({_c.CType(t)})v;\n    return ({_c.ErrorCType}){{0}};\n}}\n");
-                return $"{name}({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])}, {result ?? "NULL"})";
+                    $"    if (at == -2) return UINT32_C({overflow});\n" +
+                    $"    if (at >= 0) {{\n        if (detail) *detail = at;\n        return UINT32_C({bad});\n    }}\n" +
+                    $"    if (out) *out = ({_c.CType(t)})v;\n    return 0;\n}}\n");
+                return $"{name}({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])}, {result ?? "NULL"}, {detail})";
             }
             case BuiltinFunction.SymbolIntern:
                 return _c.SymbolIntern(Expr(c.Arguments[0]));
