@@ -3,7 +3,7 @@
 # left to merged-worktree-backlog.sh; this removes what that script does not reach:
 #   - branch tmp-probe-review-2026-11-12 (a probe, already in dev);
 #   - /tmp scratch: /tmp/w015t8.py, /tmp/pt.out, /tmp/rt_new_51494.c;
-#   - on the ghosthive VM bayan-test01: /root/work-007b, /root/007b.bundle, /root/rv007b.bundle, /root/run-*.sh.
+#   - on the ghosthive VM bayan-test01: /root/work-007b, /root/007b.bundle, /root/rv007b*.bundle, /root/run-*.sh.
 # ~/.claude/.worktrees/dev-land belongs to the ~/.claude repo (route-replay pilot P2); clean it with that repo's tooling
 # once P2 has finished.
 # Dry run by default. --execute / -e acts. The VM step also needs --delete-vm-scratch (it reaches another host).
@@ -31,7 +31,7 @@ for f in /tmp/w015t8.py /tmp/pt.out /tmp/rt_new_51494.c; do
 done
 
 if [ "$vm" = 1 ]; then
-  run ssh ghosthive 'incus exec bayan-test01 -- sh -c "rm -rf /root/work-007b /root/007b.bundle /root/rv007b.bundle /root/run-*.sh"'
+  run ssh ghosthive 'incus exec bayan-test01 -- sh -c "rm -rf /root/work-007b /root/007b.bundle /root/rv007b*.bundle /root/run-*.sh"'
 else
   printf 'skip: VM scratch on bayan-test01 (needs --delete-vm-scratch)\n'
 fi
