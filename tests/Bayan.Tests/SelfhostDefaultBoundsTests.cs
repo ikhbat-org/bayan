@@ -5,10 +5,11 @@ using Bayan.Cli;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 017 T16 (R7): the rows of <c>CliMemoryBoundsTests</c> run through the stage-2 driver, with the C# bounds. Each row that has an
+/// 017 T16 (R7): the rows of <c>CliMemoryBoundsTests</c> run through the bootstrap stage-2 driver (<c>BootstrapTests.Stage2Executable</c>), with the C# bounds. Each row that has an
 /// argv runs it on the C# <c>bayan</c> and on the driver in two trees and compares exit, stdout, stderr and the files left; the
 /// bound itself (peak memory, names kept, names swept) is asserted on the driver's tree. A row with no driver entry point is a
-/// skip that names the Question; no bound is weakened.
+/// skip that names the Question; no bound is weakened. The three delegated rows (M4, the two M5 evict rows) run the T12 and T9 classes,
+/// which use the stage-1 <c>SelfhostDriverHarness</c> driver (Q1228).
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]  // the M4/M5 rows delegate to the T9 and T12 classes, which set BAYAN_CACHE in this process
 public sealed class SelfhostDefaultBoundsTests
@@ -23,10 +24,10 @@ public sealed class SelfhostDefaultBoundsTests
 
     private sealed record Run(int Exit, string Out, string Err, long Peak);
 
-    /// <summary>The C# <c>bayan</c> (its assembly under <c>dotnet</c>) or the stage-2 driver in <paramref name="cwd"/>, <c>BAYAN_CACHE</c> = <c>&lt;cwd&gt;/cache</c>, sampling the peak working set.</summary>
+    /// <summary>The C# <c>bayan</c> (its assembly under <c>dotnet</c>) or the bootstrap stage-2 driver in <paramref name="cwd"/>, <c>BAYAN_CACHE</c> = <c>&lt;cwd&gt;/cache</c>, sampling the peak working set.</summary>
     private static Run Start(bool driver, string cwd, (string Name, string? Value)[] env, params string[] args)
     {
-        var psi = new ProcessStartInfo(driver ? SelfhostDriverHarness.Build() : "dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, WorkingDirectory = cwd };
+        var psi = new ProcessStartInfo(driver ? BootstrapTests.Stage2Executable() : "dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, WorkingDirectory = cwd };
         if (!driver) psi.ArgumentList.Add(typeof(CliApp).Assembly.Location);
         psi.Environment["BAYAN_CACHE"] = Path.Combine(cwd, "cache");
         psi.Environment.Remove("BAYAN_CC");
@@ -229,7 +230,12 @@ public sealed class SelfhostDefaultBoundsTests
             Assert.Contains("from cache", again.Out + again.Err);
             Assert.True(File.Exists(tag));
             File.Delete(tag);
+            // A build hit writes the tag too; only a lookup hit leaves the script pointer alone (a miss remembers it again).
+            var pointer = Directory.GetFiles(Path.Combine(v1, "scripts")).Single();
+            var old = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            File.SetLastWriteTimeUtc(pointer, old);
             Assert.Equal(0, Start(side == 1, root, NoEnv, "run", "sh/script.byn").Exit);
+            Assert.Equal(old, File.GetLastWriteTimeUtc(pointer));
             Assert.True(File.Exists(tag));
         }
         // The script key hashes the compiler build, which differs by design (Q1148); the rest of the names are compared.
@@ -337,7 +343,7 @@ public sealed class SelfhostDefaultBoundsTests
     // listed skips (no xunit skip: the guard rejects them), each with its Question:
     // - CliMemoryBoundsTests.M1_* stream rows (uneven writes, a pipe held open, a split character, an endless stream, under the cap):
     //   no driver entry point reads a Stream (Q1226).
-    // - CliMemoryBoundsTests.M1_ATestPrintingUntilKilledStaysSmallAndReportsTheElidedBytes on the driver: peak 4684 MB against the
+    // - CliMemoryBoundsTests.M1_ATestPrintingUntilKilledStaysSmallAndReportsTheElidedBytes on the driver: peak 4619 MB on stage 2 (4684 MB on stage 1) against the
     //   300 MB bound, no output kept on a timeout; `Spam(driver: true)` is the row to enable once Q1227 is fixed.
     // - CliMemoryBoundsTests.M2_DiscardedOutputIsDrainedWithoutBuffering and F2_AMutateWorkDirectory...: test --mutate is T13's (Q1220).
     // - CliMemoryBoundsTests.M7_AHungCCompilerIsKilledAndTheBuildFails: cache.byn runs the C compiler with Io.run and no timeout (Q1149).
