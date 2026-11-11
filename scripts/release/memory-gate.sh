@@ -11,6 +11,7 @@ run() { echo "memory-gate: $*" >&2; "$@" || failed+=("$*"); }
 
 run dotnet test -v q --filter "FullyQualifiedName~LanguageServer"
 run dotnet test -v q --filter "FullyQualifiedName~CliMemoryBounds"
+run dotnet test -v q --filter "FullyQualifiedName~SelfhostDefaultBounds"
 run bash scripts/pinned-bayan.test.sh
 
 if [ ${#failed[@]} -gt 0 ]; then

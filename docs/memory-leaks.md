@@ -75,7 +75,7 @@ or by luck; LOW = small or one-shot. Source reports: `tmp/leak-audit/*.out` (scr
 |---|---|---|
 | HIGH | `General` allocator never frees (Q31); selfhost stage1 reached 2.4 GB | open: decision (arenas per phase, or a freeing General) |
 | MEDIUM | 012 driver `.bayan-staging-*` left beside output; dSYM, non-recursive remove | fixed, 017 T9: the driver stages under the cache's `v1/tmp/` and `sweepStale` removes what a dead build left |
-| MEDIUM | `Io.run` buffers child output whole, then copies (2× peak) | open: 012 flow |
+| MEDIUM | `Io.run` buffers child output whole, then copies (2× peak) | open: 017 T11's `runTest` keeps it whole, so a test printing until killed peaks at 4684 MB through the driver (bound 300 MB; `SelfhostDefaultBoundsTests` M1 on the driver, a listed skip, Q1227) |
 | MEDIUM | `StrBuf` growth abandons old blocks (Q745 by design); ~2× under `General` | follows the allocator decision |
 | MEDIUM | `Symbol` intern table never shrinks (spec 008 R10, by design) | accepted |
 | LOW | Error paths in `byn_io_read*`/`list_dir` skip frees; `io_read` buffer not shrunk | open, todo |
@@ -104,6 +104,7 @@ these fail:
 ```sh
 dotnet test -v q --filter "FullyQualifiedName~LanguageServer"     # LSP walk, budgets, retention, depth, buffers
 dotnet test -v q --filter "FullyQualifiedName~CliMemoryBounds"    # CLI capture, cache eviction, walks, timeouts
+dotnet test -v q --filter "FullyQualifiedName~SelfhostDefaultBounds" # the same bounds through the self-hosted driver
 bash scripts/pinned-bayan.test.sh                                  # pinned build cache eviction
 ```
 
