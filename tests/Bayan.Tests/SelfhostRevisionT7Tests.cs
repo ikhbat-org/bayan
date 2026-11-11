@@ -364,6 +364,9 @@ public sealed class SelfhostRevisionT7Tests
         ("number-agreement-forms", Case("number-agreement-forms/package.byn"), Case("number-agreement-forms/main.byn")),
         ("number-agreement-irregular", null, Case("number-agreement-irregular.byn")),
         ("number-agreement-caps", null, Case("number-agreement-caps.byn")),
+        // Q1190: whole nouns, a name repeating its type's last word, and `string` are not reported.
+        ("number-agreement-whole", null, Case("number-agreement-whole.byn")),
+        ("number-agreement-exempt", null, Case("number-agreement-exempt.byn")),
     ];
 
     private static string Case(string path) => File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "cases", "diag", path));

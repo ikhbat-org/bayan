@@ -91,7 +91,7 @@ void walkDecl(in Decl d, through TextSpan parent, until i64 length, to ref StrBu
             if (n.value.refThis is { } r) { childSpan(r, for: "functionDecl refThis", through: s, to: ref sb) }
             if (n.value.moveThis is { } m) { childSpan(m, for: "functionDecl moveThis", through: s, to: ref sb) }
             childSpans(in n.value.receiverStates, for: "functionDecl receiverStates", through: s, to: ref sb)
-            for e in n.value.requiresKeyword { walkExpr(in e, through: s, until: length, to: ref sb) }
+            for e in n.value.requiresClauses { walkExpr(in e, through: s, until: length, to: ref sb) }
             for w in n.value.where { walkWhereClause(in w, through: s, until: length, to: ref sb) }
             if (n.value.becomes is { } b) { childSpan(b, for: "functionDecl becomes", through: s, to: ref sb) }
             if (n.value.usesKeyword is { } u) { walkUsesClause(in u, through: s, until: length, to: ref sb) }
@@ -137,7 +137,7 @@ void walkDecl(in Decl d, through TextSpan parent, until i64 length, to ref StrBu
             walkType(in n.value.type, through: s, until: length, to: ref sb)
             childSpan(n.value.name, for: "fieldDecl name", through: s, to: ref sb)
             walkExpr(in n.value.defaultKeyword, through: s, until: length, to: ref sb)
-            for r in n.value.requiresKeyword { walkRequiresRule(in r, through: s, until: length, to: ref sb) }
+            for r in n.value.requiresClauses { walkRequiresRule(in r, through: s, until: length, to: ref sb) }
             for a in n.value.attributes { walkAttribute(in a, through: s, until: length, to: ref sb) }
         case .propertyDecl(let n):
             enter(n.value.span, for: "propertyDecl", through: parent, until: length, to: ref sb)
@@ -166,7 +166,7 @@ void walkDecl(in Decl d, through TextSpan parent, until i64 length, to ref StrBu
             childSpan(n.value.name, for: "errorSetDecl name", through: s, to: ref sb)
             for t in n.value.members { walkType(in t, through: s, until: length, to: ref sb) }
             childSpan(n.value.head, for: "errorSetDecl head", through: s, to: ref sb)
-            childSpans(in n.value.exceptKeyword, for: "errorSetDecl except", through: s, to: ref sb)
+            childSpans(in n.value.exceptNames, for: "errorSetDecl except", through: s, to: ref sb)
             for a in n.value.attributes { walkAttribute(in a, through: s, until: length, to: ref sb) }
         case .enumDecl(let n):
             enter(n.value.span, for: "enumDecl", through: parent, until: length, to: ref sb)
@@ -191,7 +191,7 @@ void walkDecl(in Decl d, through TextSpan parent, until i64 length, to ref StrBu
             let s = n.value.span
             childSpan(n.value.name, for: "typeAliasDecl name", through: s, to: ref sb)
             walkType(in n.value.target, through: s, until: length, to: ref sb)
-            for r in n.value.requiresKeyword { walkRequiresRule(in r, through: s, until: length, to: ref sb) }
+            for r in n.value.requiresClauses { walkRequiresRule(in r, through: s, until: length, to: ref sb) }
             for a in n.value.attributes { walkAttribute(in a, through: s, until: length, to: ref sb) }
         case .effectDecl(let n):
             enter(n.value.span, for: "effectDecl", through: parent, until: length, to: ref sb)

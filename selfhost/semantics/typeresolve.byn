@@ -76,7 +76,7 @@ Binder t8Binder(in TypeResolver r) => Binder {
     pending: [],
     constraints: [],
     peers: [],
-    nonNull: [],
+    nonNullLocals: [],
     stateFacts: [],
     errorNarrowed: [],
 }
@@ -619,7 +619,7 @@ Type errorSet(ref Ctx c, through in TypeResolver r, for in parser.ErrorSetDecl d
         }
     }
     if sets.length == 0 { return errorType() }
-    for name in decl.exceptKeyword {
+    for name in decl.exceptNames {
         let text = t8Text(in c, from: r.file, at: name)
         var matched = false
         for set in sets {

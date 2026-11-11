@@ -664,7 +664,7 @@ public sealed class SelfhostSemanticsT18Tests
                 pending: [],
                 constraints: [],
                 peers: [],
-                nonNull: [],
+                nonNullLocals: [],
                 stateFacts: [],
                 errorNarrowed: [],
             }

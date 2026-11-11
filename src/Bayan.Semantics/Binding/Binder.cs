@@ -42,7 +42,7 @@ internal sealed partial class Binder
     private readonly Dictionary<LocalDecl, TypeSymbol> _constraints = new();
     private readonly Dictionary<LocalDecl, LocalDecl> _peers = new();
     /// <summary>Let locals and parameters a null check proved present, each valid while its scope is open (spec §7.2).</summary>
-    private readonly List<(Scope Scope, LocalSymbol Local)> _nonNull = new();
+    private readonly List<(Scope Scope, LocalSymbol Local)> _nonNullLocals = new();
 
     public Binder(Compilation c, FileContext file, FunctionSymbol? fn, StructSymbol? container,
         IReadOnlyDictionary<string, TypeSymbol>? typeArgs = null, IReadOnlyDictionary<LocalDecl, TypeSymbol>? seeds = null)
@@ -752,7 +752,7 @@ internal sealed partial class Binder
 
     private bool IsNonNull(LocalSymbol local)
     {
-        foreach (var (scope, l) in _nonNull)
+        foreach (var (scope, l) in _nonNullLocals)
         {
             if (l != local) continue;
             for (var s = _scope; s is not null; s = s.Parent)
@@ -764,12 +764,12 @@ internal sealed partial class Binder
     /// <summary>Binds code that runs only when <paramref name="cond"/> is <paramref name="whenTrue"/>.</summary>
     private T Narrowed<T>(BoundExpr cond, bool whenTrue, Func<T> bind)
     {
-        var mark = _nonNull.Count;
-        foreach (var l in NonNullWhen(cond, whenTrue)) _nonNull.Add((_scope, l));
+        var mark = _nonNullLocals.Count;
+        foreach (var l in NonNullWhen(cond, whenTrue)) _nonNullLocals.Add((_scope, l));
         var before = _stateFacts.ToHashSet();
         var learned = LearnStates(cond, whenTrue);
         var result = bind();
-        _nonNull.RemoveRange(mark, _nonNull.Count - mark);
+        _nonNullLocals.RemoveRange(mark, _nonNullLocals.Count - mark);
         // What the branch learned holds only when it ran.
         _stateFacts.RemoveAll(f => !before.Contains(f));
         UnlearnStates(learned);
@@ -783,7 +783,7 @@ internal sealed partial class Binder
         var elseExits = i.Else is { } e && Exits(e);
         if (thenExits != elseExits)
         {
-            foreach (var l in NonNullWhen(i.Condition, elseExits)) _nonNull.Add((_scope, l));
+            foreach (var l in NonNullWhen(i.Condition, elseExits)) _nonNullLocals.Add((_scope, l));
             LearnStates(i.Condition, elseExits);
         }
         return i;

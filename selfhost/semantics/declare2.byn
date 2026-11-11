@@ -127,7 +127,7 @@ void declareCheck(ref Ctx c, for StructId s) {
             for m in node.value.members {
                 switch m {
                     case .fieldDecl(let f):
-                        for r in f.value.requiresKeyword {
+                        for r in f.value.requiresClauses {
                             if !hasFirst || r.span.start < first.start {
                                 first = r.span
                                 hasFirst = true
@@ -144,7 +144,7 @@ void declareCheck(ref Ctx c, for StructId s) {
                 }
             }
         case .typeAliasDecl(let a):
-            for r in a.value.requiresKeyword {
+            for r in a.value.requiresClauses {
                 if !hasFirst || r.span.start < first.start {
                     first = r.span
                     hasFirst = true
