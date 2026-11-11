@@ -2,14 +2,14 @@
 // `Io.run(…, env:)` adds or overrides variables over the inherited environment; the others stay visible.
 void main() fails IoError {
     let show: string[2] = ["-c", "printf '%s|%s|%s\\n' \"$BAYAN_T5_ADDED\" \"$HOME\" \"${PATH:+path inherited}\""]
-    var env = Map<string, string>()
+    var env = Map<string, string?>()
     env["BAYAN_T5_ADDED"] = "added"
     env["HOME"] = "/overridden"
     print((try Io.run("sh", show.span, env: env)).stdout)
     // The map is only read: it is still ours after the call.
     print($"{env.length} entries")
     // An empty map changes nothing.
-    let empty = Map<string, string>()
+    let empty = Map<string, string?>()
     let added: string[2] = ["-c", "printf '[%s]\\n' \"$BAYAN_T5_ADDED\""]
     print((try Io.run("sh", added.span, env: empty)).stdout)
 }

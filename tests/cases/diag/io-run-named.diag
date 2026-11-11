@@ -22,7 +22,7 @@ error BYN2202: expected `ReadOnlySpan<u8>?`, found `string`
   7 │     let _ = try Io.run("sh", a.span, input: "x")
     │                                             ^^^
 
-error BYN2202: expected `string`, found `i32`
+error BYN2202: expected `string?`, found `i32`
 
   8 │     let _ = try Io.run("sh", a.span, env: ["A": 1])
     │                                                 ^
