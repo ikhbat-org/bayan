@@ -2041,7 +2041,7 @@ The `std.time` module provides value types, units, arithmetic, clocks, zones, fo
 | `Uptime` | Monotonic reading that includes suspend | i64 ns (8) | |
 | `Weekday` | `enum`, `.monday` … `.sunday`; `isoNumber` is 1–7 | | |
 
-Months are plain `i32` 1–12 everywhere; only `Weekday` is an enum. The proleptic calendar has year 0. `Time.midnight` (00:00:00), `Time.noon` (12:00:00), and `TimeZone.utc` are provided as static constants.
+Month accessors return a plain `i32` 1–12 everywhere (`Date` stores the month as `u8`); only `Weekday` is an enum. The proleptic calendar has year 0. `Time.midnight` (00:00:00), `Time.noon` (12:00:00), and `TimeZone.utc` are provided as static constants.
 
 #### Time units
 
@@ -2050,17 +2050,15 @@ Time units live in `core` and require no import:
 ```csharp
 unit Nanoseconds(ns): i64
 unit Microseconds(us) = 1000 ns
-unit Millis(ms) = 1000 us
+unit Milliseconds(ms) = 1000 us
 unit Seconds(s) = 1000 ms
 unit Minutes(min) = 60 s
 unit Hours(h) = 60 min
 ```
 
-The millisecond unit is `Millis`.[^millis-footnote]
+The millisecond unit is `Milliseconds`. Other documents that still write `Millis` are renamed in the Phase 1b doc sweep.
 
-[^millis-footnote]: Renamed `Milliseconds` in Phase 1b.
-
-- **Conversion:** conversion toward finer units is implicit. Conversion toward coarser units is explicit and names the rounding: `rounded<U>()`, `floor<U>()` or `ceiling<U>()`. Bare numeric literals are rejected, including `0` (write `0s`).
+- **Conversion:** conversion toward finer units is implicit. Conversion toward coarser units is explicit and names the rounding: `rounded<U>()`, `floor<U>()` or `ceiling<U>()`. Where a unit type is expected, bare numeric literals are rejected, including `0` (write `0s`).
 - **Input forms:** `µs` (both U+00B5 and U+03BC) is an input form for `us`.
 - **Suffix rules:** no time unit uses `d`. Minutes use `min`; `5m` without a meters import draws help indicating minutes are `min`.
 
@@ -2081,7 +2079,7 @@ unit Years(y) = 12 mo
 #### Time of day
 
 - **Construction:** `Time(hour:minute:)`, with optional `second:` and `nanosecond:`. There is no `24:00`.
-- **Conversions:** `Duration(t)` converts time of day to a duration since midnight; `Time(d)` constructs time from duration (traps if outside `0..24h`); `Time.tryFrom(d)` returns `Time?`.
+- **Conversions:** `Duration(t)` converts time of day to a duration since midnight; `Time(d)` constructs time from duration (traps outside [`0s`, `24h`)); `Time.tryFrom(d)` returns `Time?`.
 - **Arithmetic:** `t ± time unit` wraps around midnight; `t.tryAdded(d)` returns `null` instead of wrapping. `b - a` gives a signed `Duration`.
 
 #### Arithmetic
@@ -2101,11 +2099,12 @@ unit Years(y) = 12 mo
 | `DateTime` | − `DateTime` | `Duration` | Civil, no DST |
 | `ZonedDateTime` | ± time unit | `ZonedDateTime` | Exact timeline step |
 | `ZonedDateTime` | ± calendar unit | `ZonedDateTime` | Civil step, then `.compatible` resolution |
+| `ZonedDateTime` | ± `Period` | `ZonedDateTime` | Civil step, then `.compatible` resolution (Q1240) |
 | `ZonedDateTime` | − `ZonedDateTime` | `Duration` | Timeline difference |
 
 - **Clamping:** month steps clamp to month end: Jan 31 + `1mo` is Feb 28 (Feb 29 in a leap year), and Feb 29 + `1y` is Feb 28. Clamping is not reversible, and two steps can differ from one (Jan 31 + `1mo` is Feb 28, Feb 28 + `1mo` is Mar 28; whereas Jan 31 + `2mo` is Mar 31).
-- **Strict forms:** `tryAdded` / `trySubtracted` return `T?`, giving `null` instead of clamping or wrapping.
-- **DST failure:** typed DST failure takes the civil route: `ZonedDateTime(z.dateTime + 1d, at: z.zone)`.
+- **Strict forms:** `tryAdded` / `trySubtracted` return `T?`, giving `null` instead of clamping or wrapping. They are the strict forms of a total operation, not the attempt form of a failing `added` (GRAMMAR item 4).
+- **DST failure:** `ZonedDateTime` arithmetic never fails; it resolves a skipped or ambiguous local time with `.compatible`. For a typed `LocalTimeError` instead, step the civil value and rebuild it: `ZonedDateTime(z.dateTime + 1d, at: z.zone)` fails `LocalTimeError`.
 
 #### Method forms
 
@@ -2116,24 +2115,24 @@ unit Years(y) = 12 mo
 | `a.tryAdded(1mo)`, `a.trySubtracted(1mo)` | Strict forms, returns `T?` |
 | `x += 1w`, `x.add(1w)` | Mutate a `var` |
 
-Calling a mutating verb on a `let` raises the mutation diagnostic with help "write `a + 1w`".
+Calling a mutating verb on a `let` raises [BYN2104](diagnostics/BYN2104.md); for time values its help is planned to read "write `a + 1w`" (Q1243; BYN2104's doc and the binder are unchanged in Phase 1a).
 
 #### Differences, ranges, queries
 
 - **Differences:** `Days(from: a, until: b)`, `Months(from: a, until: b)`, `Period(from: a, until: b)`, `Seconds(from: a, until: b)`. Differences count from the start and truncate toward zero.
 - **Recurrence:** `start.series(by: 1mo, until: end)` yields `start + n * step`. Steps are never chained from prior results, preventing month-end drift. `series` takes `until:` only; there is no `through:` form (Q1160).
-- **Ranges:** half-open ranges use `from: … until:`; inclusive ranges use `through:`.
+- **Ranges:** half-open ranges use `from: … until:`; inclusive ranges use `through:`. Which functions take these labels, beyond the differences and `series` above, is open (Q1242).
 - **Queries:** `weekday`, `dayOfYear`, `daysInMonth`, `isLeapYear`, `startOfMonth`, `endOfMonth`, `startOfIsoWeek`.
 - **Next and previous:** `today.next(.friday)` (strictly after, never today), `today.next(.friday, inclusive: true)` (today if it is Friday), `today.previous(.monday)`. Neither word ends in `-ed`, so BYN5001 does not apply and no exemption is needed.
-- **Start of day:** `d.startOfDay(at: zone)` returns `ZonedDateTime` and fails `LocalTimeError.skipped` if midnight was skipped by a DST transition.
+- **Start of day:** `d.startOfDay(at: zone)` returns `ZonedDateTime` and fails `LocalTimeError.skipped` if midnight was skipped by a DST transition. If midnight is ambiguous, it returns the earlier one, the first instant of that day (Q1241).
 
 #### Clocks
 
 - **Effects:** readings use the `clock` effect: `Instant.now()`, `Uptime.now()`, `ZonedDateTime.now(at: zone)`, `Date.today(at: zone)`.
 - **No ambient zone:** `Date.now()` is a compile error (`DateHasNoNow`).
-- **Durations and serialization:** `start.elapsed` returns `Duration`. `Uptime` does not mix with `Instant`, and deriving a serializer for `Uptime` is a compile error (`UptimeSerialized`).
+- **Durations and serialization:** time elapsed since an `Uptime` reading is `Uptime.now() - start`, a `Duration`. `Uptime` does not mix with `Instant`, and deriving a serializer for `Uptime` is a compile error (`UptimeSerialized`).
 - **Platform clocks:** `Uptime` monotonic readings include suspend on every platform (Linux `CLOCK_BOOTTIME`, macOS `mach_continuous_time`, Windows QPC). No `AwakeTime` clock exists. A compilation target lacking such a clock produces a compile error.
-- **Fakes:** `provide clock: FixedClock(at: t) { }` and `ManualClock` with `advance(by:)`.
+- **Fakes:** `provide clock: FakeClock(at: t) { }` and `ManualClock` with `advance(by:)`.
 - **Smearing:** `Instant.now()` may be smeared or stepped across leap seconds.
 - **Sleep:** `sleep(for: duration)` uses `Uptime`; `sleep(until: Instant)` is a wall-clock deadline that re-checks after clock steps.
 
@@ -2218,7 +2217,7 @@ Hijri and other non-ISO calendars are out of scope for `std.time` and live in `k
 | `std.time` | Core date and time types, time and calendar units, civil arithmetic, clocks, formatting and parsing, fixed offsets, `TimeZone.utc` |
 | `kit.tz` | IANA timezone database, system or bundled; runtime reload into immutable tables; Windows ID mapping; system-zone lookup (`uses env, fs`); `TimeZone.database.version` |
 | `kit.intl` | Localized names, culture-sensitive formatting, locale weeks |
-| `kit.calendar` | Non-ISO calendars, converting through `Date` |
+| `kit.calendar` | Non-ISO calendars, converting through `Date` (proposed) |
 
 #### Planned diagnostics
 
@@ -2232,7 +2231,7 @@ Diagnostic numbers are allocated at merge:
 | `MinutesNotMeters` | spelling | `5m` with no meters unit imported |
 | `RetiredDoubleSuffix` | spelling | C# `1d` meant as a double |
 | `DuplicateUnitSymbol` | imports | Two imported units with one symbol |
-| `AbbreviatedUnitName` | naming | `Millis` |
+| `AbbreviatedUnitName` | naming | `Millis` (Phase 1a uses `Milliseconds`) |
 | `DateHasNoNow` | spelling | `Date.now()` |
 | `ReassembledDate` | patterns | `Date(year: d.year + 1, …)` |
 | `WallClockMeasurement` | patterns | Timing with `Instant.now()` |

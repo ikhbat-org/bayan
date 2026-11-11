@@ -15,14 +15,14 @@ For any new member, take the first question that answers yes.
 
 1. **Acts on `this`?** Plain verb on `ref this`: `void sort(ref this)`. The `-ed` form (`sorted`) names a changed copy or a view and never takes `ref this` (item 2). Mutating time variables follows the same rule: `x += 1w`, `x.add(1w)` on a `var`.
    - A body that modifies `this` without `ref this`: [BYN2115](diagnostics/BYN2115.md).
-   - Calling a `ref this` member on a `let`: [BYN2104](diagnostics/BYN2104.md) (fix: `var`; for time values, help says "write `a + 1w`").
+   - Calling a `ref this` member on a `let`: [BYN2104](diagnostics/BYN2104.md) (fix: `var`; for time values the help is planned to say "write `a + 1w`", Q1243).
    - `-ed` member that takes `ref this` (`void sorted(ref this)`): [BYN5001](diagnostics/BYN5001.md).
    - A noun on a `ref this` member: [BYN5101](diagnostics/BYN5101.md) (lint).
 2. **Returns a changed copy or a view of `this`?** `-ed` form: `trimmed`, `sorted`, `lowercased`. The `-ed` form does not require a mutating verb to exist: an immutable type (`string`) has `trimmed()` and `lowercased()` with no `trim` or `lowercase`. A mutable type with both forms keeps both (`xs.sort()` / `xs.sorted()`). A result that is not a changed copy of the receiver is a noun or a plain static verb (`join`, `split`). For `std.time` values, canonical arithmetic uses operators (`a + 1d`, `a - 1d`), while `-ed` copies (`a.added(1mo)`, `a.subtracted(1w)`) serve method chains. Strict forms returning `T?` rather than clamping or wrapping use `tryAdded` / `trySubtracted` (`a.tryAdded(1mo)`, item 4).
 3. **Boolean property, no arguments?** `is` / `has` / `can`: `isEmpty`, `hasItems`, `canRetry`. Never a `?` suffix.
    - A boolean property that modifies `this`: [BYN5002](diagnostics/BYN5002.md).
    - A `bool` property without the prefix: [BYN5102](diagnostics/BYN5102.md) (lint, fix-it).
-4. **Can fail, and callers may want `bool` or `T?`?** Write `x() fails E`; `tryX` is derived. A hand-written `tryX` must return `T?` or `bool`: [BYN5003](diagnostics/BYN5003.md).
+4. **Can fail, and callers may want `bool` or `T?`?** Write `x() fails E`; `tryX` is derived. A hand-written `tryX` must return `T?` or `bool`: [BYN5003](diagnostics/BYN5003.md). `tryX` may also be the strict form of a total `x` that clamps, wraps or traps, returning `T?` where `x` would clamp, wrap or trap (`std.time` `tryAdded`, `Time.tryFrom`).
 5. **Writes into the caller's buffer?** `xInto(ref dst)` taking `ref StrBuf` or `Span<T>`; the allocating `x()` is derived (`formatInto` → `format`). No dedicated code yet.
 6. **The act as a value?** `xOp` (derived; type `Op<T, E>`). Do not write it. No dedicated code yet.
 7. **A thing that performs the act?** Noun type: `Parser`, `Builder` (stateful doer), `Hasher`, `Comparer` (stateless instrument). No dedicated code yet.
@@ -37,7 +37,7 @@ Further rules that sit beside the tree:
 - **`Untrusted<T>` is a status,** the same value with a different standing (`X<T>`, §10), not a different shape.
 - **Math vocabulary is exempt** from the `-ed` rule (`abs`, `sqrt`, `floor`, `ceiling`, `pow`, `rounded`): scalars have nouns and `-ed` copies only. Tool names are full words too (`bayan format`, not `fmt`).
 - **Date queries and recurrence:** `today.next(.friday)` (strictly after, never today), `today.next(.friday, inclusive: true)` (today if it is Friday), `today.previous(.monday)`. Neither word ends in `-ed`, so BYN5001 does not apply and no exemption is needed. Recurrences use `start.series(by: 1mo, until: end)`.
-- **Unit literals:** time units live in `core` (`5s`, `250ms`, `30s`), while calendar units require `import std.time` (`1d`, `1w`, `1mo`, `1y`). Bare numeric literals are rejected (`0` is an error; write `0s`).
+- **Unit literals:** time units live in `core` (`5s`, `250ms`, `2min`, `1h`), while calendar units require `import std.time` (`1d`, `1w`, `1mo`, `1y`). Where a unit type is expected, bare numeric literals are rejected (`0` is an error there; write `0s`).
 - **Checker scope.** The pattern rules that make derived forms work (`tryX`, `-ed`, `xInto`, particles; `BYN50xx`) apply to all code. The naming-style rules (`BYN51xx`) apply to the public API only. A name forced by an outside system (a JSON field, a C symbol, a database column) uses the derivation's rename attribute (`@json(name: …)`, `@column(…)`), which exempts it from `BYN51xx`, or `@allow(…) because "…"` (§7).
 - **What names stand for (revision 0003).** On an instance member, a noun or an adjective names a result (`s.length`, `s.position("x")`, `s.isEmpty`); a verb names an act on the receiver and takes `ref this` (`buf.append(x)`); `-ed` names a changed copy (`s.trimmed()`).
 - **Assertion verbs are queries:** third-person verbs that state a fact about the receiver and return `bool`. The group is closed: `contains`, `startsWith`, `endsWith`, `matches`, `equals`. Adding one is a GRAMMAR change.
