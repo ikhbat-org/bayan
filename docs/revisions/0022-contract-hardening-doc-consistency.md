@@ -41,6 +41,18 @@ Edits are anchored on text and section, not line numbers. Changed SPEC rules car
 
 Every sample below was compiled with the C# compiler (`bayan check`, and `bayan test` for the test). Wrapped heads end the last clause line with `{` (`docs/bayan-style.md:14`); there is no own-line `{`.
 
+Commands and exit codes (run from the repo root with `bayan` = `src/Bayan.Cli/bin/Debug/net10.0/bayan`; each file is the sample plus the stubs named below and an empty `void main() {}`, kept in the gitignored `tmp/`):
+
+| Sample | File | Command | Exit |
+| --- | --- | --- | --- |
+| `transfer`, before | `tmp/s1/main.byn` | `bayan check tmp/s1/main.byn` | 0 |
+| `transfer`, after | `tmp/s2/main.byn` | `bayan check tmp/s2/main.byn` | 0 |
+| `wrapIndex` and its `@cases` test | `tmp/s3/main.byn` | `bayan check tmp/s3/main.byn` | 0 |
+| `wrapIndex` test run | `tmp/s3/main.byn` | `bayan test tmp/s3/main.byn` | 0 (3 passed) |
+| `clamp` with `@unobservable` | `tmp/s4/main.byn` | `bayan check tmp/s4/main.byn` | 0 |
+| layout of the first three | `tmp/s1`, `tmp/s2`, `tmp/s3` | `bayan format --check tmp/<dir>/main.byn` | 0 each |
+| range golden | `tests/cases/run/range-binds-looser-than-arithmetic.byn` | `dotnet test tests/Bayan.Tests -v q --filter "FullyQualifiedName~RunTests&DisplayName~range-binds"` | 0 (1 passed) |
+
 The `transfer` pair from the drop, rewritten. The drop's version had an interface-typed field, which reports BYN2816, and an own-line `{`. The point is kept: a network lookup in `expects` runs on every call in every build, so it moves into the body as a business outcome.
 
 ```csharp
@@ -59,7 +71,7 @@ public void transfer(ref this, Money amount, from Account payer, to Account paye
 }
 ```
 
-Both live in `struct Ledger { List<Account> accounts … }` with `struct Account { i64 id }`, `type distinct Money = i64`, `union error LedgerError { unknownAccount insufficientFunds }` and `bool lookup(Account account) uses net, suspend`. "Before" compiles today (no effect check on `expects` yet), which is why Part C matters.
+Both live in `struct Ledger { List<Account> accounts … }` with `struct Account { i64 id }`, `type distinct Money = i64`, `union error LedgerError { unknownAccount insufficientFunds }` `bool lookup(Account account) uses net, suspend` and `bool contains(Account account)` on `Ledger` (a `for a in this.accounts` loop returning `true` when `a.id == account.id`, else `false`). "Before" compiles today (no effect check on `expects` yet), which is why Part C matters.
 
 Postconditions without `ensures` (item 5). `ensures` and `result` are plain identifiers, so the first form is not Bayān:
 
