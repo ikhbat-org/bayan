@@ -1,4 +1,7 @@
 /* Prints `byn_wait_status` for each case, one line each: the result, then `*code` and `*detail` (-1 when left untouched). */
+#if !defined(_WIN32) && !defined(_POSIX_C_SOURCE)
+#define _POSIX_C_SOURCE 200809L /* kill under -std=c11 on glibc */
+#endif
 #include "bayan-rt.h"
 #include <errno.h>
 #include <stdio.h>

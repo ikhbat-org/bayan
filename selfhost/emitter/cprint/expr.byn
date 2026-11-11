@@ -358,15 +358,18 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
                 let dir = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[2]].type)
                 let input = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[3]].type)
                 let env = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[4]].type)
+                let timeout = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[5]].type)
+                // CEmitter.cs: the live map entries are repacked (a null value unsets); `.timeout`'s payload is the caller's `timeout`.
                 let name = helper(ref cc, for: "bynh_io_run_with",
-                    from: $"static uint32_t bynh_io_run_with(byn_str program, {span} args, {dir} directory, {input} input, {env} env, byn_process* out, int64_t* detail)",
-                    as: "{\n    return byn_io_run_with(program, args.ptr, args.len, directory.has ? &directory.value : NULL,\n        input.has ? input.value.ptr : NULL, input.has ? input.value.len : -1,\n        env.has ? env.value.keys : NULL, env.has ? env.value.vals : NULL, env.has ? env.value.h.dead : NULL,\n        env.has ? env.value.h.len : 0, out, detail, byn_context);\n}\n")
+                    from: $"static uint32_t bynh_io_run_with(byn_str program, {span} args, {dir} directory, {input} input, {env} env, {timeout} timeout, byn_process* out, int64_t* detail)",
+                    as: "{\n    int64_t n = 0;\n    byn_str* keys = NULL;\n    byn_str* vals = NULL;\n    bool* unset = NULL;\n    if (env.has && env.value.h.len > 0) {\n        keys = (byn_str*)malloc(sizeof(byn_str) * (size_t)env.value.h.len);\n        vals = (byn_str*)malloc(sizeof(byn_str) * (size_t)env.value.h.len);\n        unset = (bool*)malloc(sizeof(bool) * (size_t)env.value.h.len);\n        if (!keys || !vals || !unset) byn_panic(\"out of memory\", NULL, 0);\n        for (int64_t i = 0; i < env.value.h.len; i++) {\n            if (env.value.h.dead[i]) continue;\n            keys[n] = env.value.keys[i];\n            unset[n] = !env.value.vals[i].has;\n            vals[n] = env.value.vals[i].has ? env.value.vals[i].value : (byn_str){NULL, 0};\n            n++;\n        }\n    }\n    uint32_t err = byn_io_run_with(program, args.ptr, args.len, directory.has ? &directory.value : NULL,\n        input.has ? input.value.ptr : NULL, input.has ? input.value.len : -1,\n        keys, vals, unset, n, timeout.has ? timeout.value : -1, out, detail, byn_context);\n    free(keys);\n    free(vals);\n    free(unset);\n    if (err == BYN_IO_TIMEOUT && detail) *detail = timeout.value;\n    return err;\n}\n")
                 let program = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
                 let runArgs = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])
                 let directory = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[2])
                 let bytes = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[3])
                 let vars = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[4])
-                return $"{name}({program}, {runArgs}, {directory}, {bytes}, {vars}, {outArg}, {detail})"
+                let limit = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[5])
+                return $"{name}({program}, {runArgs}, {directory}, {bytes}, {vars}, {limit}, {outArg}, {detail})"
             }
             let name = helper(ref cc, for: "bynh_io_run", from: $"static uint32_t bynh_io_run(byn_str program, {span} args, byn_process* out, int64_t* detail)",
                 as: "{\n    return byn_io_run(program, args.ptr, args.len, out, detail, byn_context);\n}\n")

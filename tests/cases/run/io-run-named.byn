@@ -7,7 +7,7 @@ void main() fails IoError {
     try Io.writeFile("sub/in-sub", mark.span)
     let script: string[2] = ["-c", "if [ -f in-sub ]; then printf sub; else printf here; fi; printf ':%s:' \"$BAYAN_T5_NAMED\"; cat; echo"]
     let input: u8[2] = [105, 110]
-    var env = Map<string, string>()
+    var env = Map<string, string?>()
     env["BAYAN_T5_NAMED"] = "env"
     let none: List<u8> = List<u8>()
     print((try Io.run("sh", script.span, input: none.span)).stdout)
