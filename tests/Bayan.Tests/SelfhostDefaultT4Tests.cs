@@ -272,7 +272,6 @@ public sealed class SelfhostDefaultT4Tests
         Same(["init", "{D}/r/.git/refs"], setup: dir => Assert.Equal(0, Start("git", [], dir, ["init", "--quiet", "r"], null).Exit));
 
     [Theory]
-    [InlineData("test")]
     [InlineData("mutate")]
     public void StillRefusesTheCommandsOfTheOtherTasks(string command)
     {

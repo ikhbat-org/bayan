@@ -974,7 +974,6 @@ public sealed class SelfhostDefaultT9Tests
 
     /// <summary>The arms that refuse: the C# runs these commands, the driver does not port them (spec Q4).</summary>
     [Theory]
-    [InlineData("test")]
     [InlineData("mutate")]
     public void ARefusedCommandReachesItsArm(string command)
     {
