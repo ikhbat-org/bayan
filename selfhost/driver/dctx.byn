@@ -39,7 +39,7 @@ public struct DCtx {
     bool swept = false
     /// The names made so far for `Guid.NewGuid`, which has no builtin (cache.byn `t9Unique`, Q1149).
     i64 uniques = 0
-    // ── 017 T11 state
+    // ── T11 state
     // T11 keeps no state: `test` reads its options per call (test.byn `T11Options`), and its coverage directory is named by T9's `uniques` (cache.byn `t9Unique`).
     // ── T12 state
     // T12 keeps no state: `dist` reads its options per call (dist.byn `distCommand`) and the unique names it needs are none.

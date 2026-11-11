@@ -326,6 +326,75 @@ public sealed class SelfhostDriverGoldenTests
         AssertTestAsCSharp(work, ["test", "main.byn"], [("BAYAN_TEST_TIMEOUT_MS", "300")]);
     }
 
+    /// <summary>
+    /// 017 T11 (L028): each status of CliApp.cs:715 (<c>pass</c>, <c>pending</c> from <c>todo</c>, <c>panic</c> from a failed assert, <c>fail</c>
+    /// from an error a test lets through <c>try</c>, exit 1), which the <c>run/*.test.byn</c> rows never reach for <c>fail</c> and <c>pending</c>.
+    /// </summary>
+    [Theory]
+    [InlineData("")]
+    [InlineData("-v")]
+    [InlineData("--json")]
+    public void TestStatusesAsCSharpCli(string flag)
+    {
+        var work = Work($"test/statuses{flag}");
+        var app = Path.Combine(work, "tally");
+        Directory.CreateDirectory(app);
+        File.WriteAllText(Path.Combine(app, "main.byn"), "void main() {\n    print(\"hi\")\n}\n");
+        File.WriteAllText(Path.Combine(app, "main.test.byn"), "union error E {\n    /// Below zero.\n    bad\n}\n\ni64 check(i64 n) fails E {\n    fail .bad if n < 0\n    return n\n}\n\n"
+            + "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"later\" {\n    todo(\"split by weight\")\n}\n\ntest \"is false\" {\n    assert(false)\n}\n\n"
+            + "test \"throws\" {\n    let n = try check(-1)\n    assert(n == 0)\n}\n");
+        AssertTestAsCSharp(work, flag.Length == 0 ? ["test", "tally"] : ["test", flag, "tally"]);
+    }
+
+    /// <summary>The argument lists of <see cref="TestArgumentsAsCSharpCli"/>: each flag of CliApp.cs:610 (<c>ParseBuild</c> for <c>test</c>) and its errors.</summary>
+    public static TheoryData<string[]> TestArguments() => new()
+    {
+        new[] { "test", "tally", "--", "x" },
+        new[] { "test", "--mode", "safe", "tally" },
+        new[] { "test", "--mode", "fast", "tally" },
+        new[] { "test", "--mode", "bad", "tally" },
+        new[] { "test", "--diagnostics", "json", "tally" },
+        new[] { "test", "--diagnostics", "text", "tally" },
+        new[] { "test", "--diagnostics", "xml", "tally" },
+        new[] { "test", "-o", "out", "tally" },
+        new[] { "test", "--emit-c", "tally" },
+        new[] { "test", "--target", "host", "tally" },
+        new[] { "test", "--target", "nope", "tally" },
+        new[] { "test", "--all", "tally" },
+        new[] { "test", "--mutate", "--coverage", "tally" },
+        new[] { "test", "--mutate", "--json", "tally" },
+        new[] { "test", "--run", "x", "tally" },
+        new[] { "test", "--package", "tally", "tally" },
+        new[] { "test", "tally", "extra" },
+        new[] { "test", "--bogus" },
+        new[] { "test" },
+        new[] { "test", "missing" },
+        new[] { "test", "--json", "-v", "tally" },
+        new[] { "test", "--coverage", "tally" },
+        new[] { "test", "--coverage", "proj" },
+        new[] { "test", "--coverage", "-v", "proj" },
+        new[] { "test", "--json", "proj" },
+        new[] { "test", "--mode", "safe", "proj" },
+    };
+
+    /// <summary>
+    /// 017 T11 (L028): <c>test</c> with each of its flags, against the C# CLI, on <c>tally</c> (the <c>test-control-chars</c> tests of
+    /// <c>StyleTests</c>, whose names exercise the JSON escapes) and <c>proj</c> (a fresh <c>bayan new</c> app, so <c>out/test/</c> is written).
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(TestArguments))]
+    public void TestArgumentsAsCSharpCli(string[] args)
+    {
+        var work = Work($"test/args-{string.Join('_', args.Skip(1)).Replace("-", "").Replace(".", "")}");
+        var tally = Path.Combine(work, "tally");
+        Directory.CreateDirectory(tally);
+        File.WriteAllText(Path.Combine(tally, "main.byn"), "void main() {\n    print(\"hi\")\n}\n");
+        File.WriteAllText(Path.Combine(tally, "main.test.byn"), "test \"ok\\u{1b}]0;PWNED\\u{7}\" {\n    assert(true);\n}\n\ntest \"later\\u{1b}[2J\" {\n    todo(\"soon\");\n}\n\n"
+            + "test \"y\\u{1b}]0;PWNED\\u{7}\\u{1b}[2J\" {\n    panic(\"boom\\u{1b}[2J\\u{9b}31m\");\n}\n");
+        Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", Path.Combine(work, "proj"), "--vcs", "none"], new StringWriter(), new StringWriter()));
+        AssertTestAsCSharp(work, args);
+    }
+
     /// <summary>BAYAN_UPDATE=1 must not make a comparison write its expected file (R10).</summary>
     [Fact]
     public void ComparisonsNeverWriteGoldens()
