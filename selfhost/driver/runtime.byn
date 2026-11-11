@@ -4172,15 +4172,20 @@ static uint32_t byn_process_finish(byn_bytes* streams, int outcome, uint32_t raw
 #define BYN_RUN_DRAIN_MS 5000
 
 #ifndef _WIN32
-/* One expiry of a POSIX run's deadline moves `*stage` on: SIGTERM to the child's group, then SIGKILL after the grace
- * period, then BYN_RUN_DRAIN_MS more before we stop draining; a kill that fails moves on at once. Returns the new deadline. */
+/* One expiry of a POSIX run's deadline moves `*stage` on: SIGTERM to the child's group and to the child itself (it may have
+ * left the group, which a helper keeps alive), delivered when either succeeds, then SIGKILL after the grace period, then BYN_RUN_DRAIN_MS more to
+ * drain and reap; a SIGTERM that fails moves on at once, and a SIGKILL that fails ends the drain and the reap at once
+ * (nothing was killed, so waiting longer would not help). Returns the new deadline. */
 static int64_t byn_run_expire(pid_t pid, int* stage, int64_t now) {
     if (*stage == 0) {
         *stage = 1;
-        if (kill(-pid, SIGTERM) == 0) return now + (int64_t)BYN_RUN_GRACE_MS * 1000000;
+        int group = kill(-pid, SIGTERM), self = kill(pid, SIGTERM);
+        if (group == 0 || self == 0) return now + (int64_t)BYN_RUN_GRACE_MS * 1000000;
     }
     *stage = 2;
-    return kill(-pid, SIGKILL) == 0 ? now + (int64_t)BYN_RUN_DRAIN_MS * 1000000 : now;
+    int group = kill(-pid, SIGKILL), self = kill(pid, SIGKILL);
+    if (group != 0 && self != 0) return now;
+    return now + (int64_t)BYN_RUN_DRAIN_MS * 1000000;
 }
 #endif
 
@@ -4360,9 +4365,9 @@ static wchar_t* byn_env_block(const byn_str* keys, const byn_str* vals, const bo
 
 /* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`. `dir` (NULL: ours)
  * is its working directory, `env` (NULL: ours) its environment block, and `input` (`ninput` < 0: our stdin) its stdin.
- * With `timeout_ms` >= 0 the child starts suspended inside a Job object, which is terminated once the timeout passes;
- * the process is waited for before the drain threads are joined, and after a timeout the joins wait BYN_RUN_DRAIN_MS
- * at most (a thread still running then keeps its block, which is leaked). `*outcome` and `*raw` (the exit code) are
+ * With `timeout_ms` >= 0 the child starts suspended inside a Job object, which is terminated once the timeout passes
+ * with the process or a drain still running; the process is waited for before the drain threads are joined, and after
+ * the timeout the joins wait BYN_RUN_DRAIN_MS at most (a thread still running then keeps its block, which is leaked). `*outcome` and `*raw` (the exit code) are
  * for byn_process_finish. */
 static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, wchar_t* env, const uint8_t* input, int64_t ninput,
                               int64_t timeout_ms, byn_bytes* streams, int* outcome, uint32_t* raw) {
@@ -4461,17 +4466,29 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, 
     if (!threads[0]) byn_drain_pipe(&io->drains[0]);
     DWORD status = 0;
     *outcome = BYN_WAIT_DONE;
-    DWORD waited = WaitForSingleObject(pi.hProcess, job ? (timeout_ms >= (int64_t)INFINITE ? INFINITE - 1 : (DWORD)timeout_ms) : INFINITE);
-    if (waited == WAIT_TIMEOUT) {
+    DWORD limit = job ? (timeout_ms >= (int64_t)INFINITE ? INFINITE - 1 : (DWORD)timeout_ms) : INFINITE;
+    int64_t start = byn_io_monotonic_nanos();
+    DWORD waited = WaitForSingleObject(pi.hProcess, limit);
+    bool expired = waited == WAIT_TIMEOUT;
+    if (!expired && waited != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
+    else if (!expired && !GetExitCodeProcess(pi.hProcess, &status)) *outcome = BYN_WAIT_QUERY_FAILED;
+    HANDLE joins[3] = {threads[0], threads[1], ft};
+    /* A descendant in the job can hold the pipes after the child ended in time, so the joins get what is left of the
+     * timeout; once it passes the job is terminated as if the child had run on. */
+    for (int i = 0; i < 3 && job && waited == WAIT_OBJECT_0 && !expired; i++) {
+        if (!joins[i]) continue;
+        int64_t spent = (byn_io_monotonic_nanos() - start) / 1000000;
+        expired = WaitForSingleObject(joins[i], spent >= (int64_t)limit ? 0 : (DWORD)(limit - spent)) == WAIT_TIMEOUT;
+    }
+    if (expired) {
         *outcome = BYN_WAIT_TIMED_OUT;
         if (!TerminateJobObject(job, 1) || WaitForSingleObject(pi.hProcess, INFINITE) != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
-    } else if (waited != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
-    else if (!GetExitCodeProcess(pi.hProcess, &status)) *outcome = BYN_WAIT_QUERY_FAILED;
+    }
     CloseHandle(pi.hProcess);
-    /* The job's kill closed every holder of the pipes, so the joins end; the bound is for one that did not. */
-    DWORD bound = *outcome == BYN_WAIT_TIMED_OUT ? BYN_RUN_DRAIN_MS : INFINITE;
+    /* After the deadline the job's kill closed every holder of the pipes, so the joins end; the bound is for one that
+     * did not, and for a terminate that failed. */
+    DWORD bound = expired ? BYN_RUN_DRAIN_MS : INFINITE;
     bool abandoned = false;
-    HANDLE joins[3] = {threads[0], threads[1], ft};
     for (int i = 0; i < 3; i++) {
         if (!joins[i]) continue;
         if (WaitForSingleObject(joins[i], bound) != WAIT_OBJECT_0) abandoned = true;
@@ -4536,10 +4553,13 @@ static int byn_resolve_program(const char* name, char** path) {
         *path = full;
         return 0;
     }
-    char* cwd = getcwd(NULL, 0);
-    if (!cwd) return errno;
-    size_t clen = strlen(cwd);
+    /* Our directory only when a relative name or PATH entry needs it, so a deleted one fails only those. */
+    char* cwd = NULL;
+    size_t clen = 0;
     if (strchr(name, '/')) {
+        cwd = getcwd(NULL, 0);
+        if (!cwd) return errno;
+        clen = strlen(cwd);
         char* full = (char*)malloc(clen + nlen + 2);
         if (!full) byn_panic("out of memory", NULL, 0);
         memcpy(full, cwd, clen);
@@ -4556,6 +4576,17 @@ static int byn_resolve_program(const char* name, char** path) {
         const char* end = strchr(entry, ':');
         size_t elen = end ? (size_t)(end - entry) : strlen(entry);
         bool relative = elen == 0 || entry[0] != '/';
+        if (relative && !cwd) {
+            cwd = getcwd(NULL, 0);
+            if (cwd) clen = strlen(cwd);
+        }
+        if (relative && !cwd) {
+            /* execvp skips an entry it cannot resolve; the errno is the result only when no entry finds the program. */
+            if (found == ENOENT) found = errno;
+            if (!end) break;
+            entry = end;
+            continue;
+        }
         char* full = (char*)malloc(clen + elen + nlen + 3);
         if (!full) byn_panic("out of memory", NULL, 0);
         size_t at = 0;
@@ -4788,13 +4819,18 @@ uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, co
     /* With a timeout, each expiry of the deadline moves one stage on (byn_run_expire); after the last we stop draining,
      * so a process that escaped the group cannot hold us. */
     int stage = 0;
-    int64_t deadline = timeout_ms >= 0 ? byn_io_monotonic_nanos() + timeout_ms * 1000000 : 0;
+    int64_t deadline = 0;
+    if (timeout_ms >= 0) {
+        /* Saturated: a timeout too long to count in nanoseconds never passes. */
+        int64_t now = byn_io_monotonic_nanos();
+        deadline = timeout_ms > (INT64_MAX - now) / 1000000 ? INT64_MAX : now + timeout_ms * 1000000;
+    }
     int open = 2;
     while (open > 0 || fds[2].fd >= 0) {
         int wait = -1;
         if (timeout_ms >= 0) {
             int64_t left = deadline - byn_io_monotonic_nanos();
-            int64_t ms = left <= 0 ? 0 : (left + 999999) / 1000000;
+            int64_t ms = left <= 0 ? 0 : (left - 1) / 1000000 + 1;
             wait = ms > INT_MAX ? INT_MAX : (int)ms;
         }
         int ready = wait == 0 ? 0 : poll(fds, 3, wait);
@@ -4832,31 +4868,28 @@ uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, co
         if (fds[i].fd >= 0) close(fds[i].fd);
     if (npipes == 3 && ninput > 0) sigaction(SIGPIPE, &previous, NULL);
     /* A child can close both streams and run on, so with a timeout the reap keeps the same deadline: poll for its exit
-     * every few milliseconds, expiring as above until SIGKILL has been sent, after which a blocking wait reaps it. */
+     * every few milliseconds, expiring as above; once the last deadline passes the child is left unreaped (it could not
+     * be killed) and the call is still `timeout`. Without a timeout a blocking wait reaps it. */
     int status = 0;
-    bool reaped = false;
-    while (timeout_ms >= 0 && stage < 2) {
+    while (timeout_ms >= 0) {
         pid_t done = waitpid(pid, &status, WNOHANG);
-        if (done == pid) {
-            reaped = true;
-            break;
-        }
+        if (done == pid) break;
         if (done < 0 && errno != EINTR) {
             outcome = BYN_WAIT_FAILED;
-            reaped = true;
             break;
         }
         int64_t now = byn_io_monotonic_nanos();
         if (now >= deadline) {
+            if (stage == 2) break;
             deadline = byn_run_expire(pid, &stage, now);
             continue;
         }
-        int64_t ms = (deadline - now + 999999) / 1000000;
+        int64_t ms = (deadline - now - 1) / 1000000 + 1;
         /* A sleep: no descriptors, so it returns 0 when the time is up or -1 (EINTR) earlier, and either way we look again. */
         (void)poll(NULL, 0, ms > 10 ? 10 : (int)ms);
     }
     if (stage > 0 && outcome != BYN_WAIT_FAILED) outcome = BYN_WAIT_TIMED_OUT;
-    while (!reaped && waitpid(pid, &status, 0) < 0) {
+    while (timeout_ms < 0 && waitpid(pid, &status, 0) < 0) {
         if (errno != EINTR) {
             outcome = BYN_WAIT_FAILED;
             break;
