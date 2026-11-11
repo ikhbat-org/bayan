@@ -19,15 +19,20 @@ Standing rule: a C# private helper needed outside its owner task is ported early
 
 Never: edit files outside the brief's list (record the need as a Question instead); leave output files in the repo root; use tuple destructuring or `.0` fields; run commands in the background; run `git commit/merge/checkout <branch>/reset`.
 
-Fast check: `dotnet build -v q 2>&1 | grep -E " error | warning " | head -20; dotnet test -v q --no-build --filter "FullyQualifiedName~SelfhostDriverT1Tests" 2>&1 | tail -3` (~15 s).
+Fast check: `dotnet build -v q 2>&1 | grep -E " error | warning " | head -20; dotnet test -v q --no-build --filter "FullyQualifiedName~SelfhostDriverTests" 2>&1 | tail -3` (~15 s).
 
 
 
 
 Guard (run before you finish):
 ```
-bash scripts/selfhost/guard.sh --base test-base --allow 'selfhost/driver/main.byn,selfhost/driver/dctx.byn,tests/Bayan.Tests/SelfhostDriverHarness.cs,tests/Bayan.Tests/SelfhostDriverTests.cs,tests/Bayan.Tests/SelfhostDriverApiTests.cs,docs/specs/012-self-hosted-bootstrap/012-api.md,docs/bayan-handoff.md,docs/specs/012-self-hosted-bootstrap/012-tasks.md' --filter 'FullyQualifiedName~SelfhostDriverT1Tests' --task T1 --spec 012
+bash scripts/selfhost/guard.sh --base test-base --allow 'selfhost/driver/main.byn,selfhost/driver/dctx.byn,tests/Bayan.Tests/SelfhostDriverTests.cs,tests/Bayan.Tests/SelfhostDriverApiTests.cs,tests/Bayan.Tests/SelfhostDriverHarness.cs,docs/specs/012-self-hosted-bootstrap/012-api.md,docs/bayan-handoff.md,docs/specs/012-self-hosted-bootstrap/012-tasks.md' --filter 'FullyQualifiedName~SelfhostDriverTests|FullyQualifiedName~SelfhostDriverApiTests' --task T1 --spec 012
 ```
+Preflight (after the guard passes, before you return; `land.sh` runs it again and refuses on any FAIL):
+```
+bash scripts/selfhost/preflight.sh 012 T1 "$(git rev-parse --abbrev-ref HEAD)"
+```
+Every line must say `ok` except `wp1`, which the dispatcher runs after your commit. It checks that each `file:line` you added cites the line as it stands after your last edit and that the backticked code you quote with it is on that line, that every file you changed is in your files list (if not, put the addition it prints in your final message; do not edit the tasks file), that your Questions are new numbers inside Q1244–Q1248, and that your test classes and the cross-cutting ones (`CInventoryTests`, `SelfhostDriverT8Tests`, `SelfhostDriverRuntimeTests`, `plan-strings-check`) pass, none matching zero tests. Paste its output into your summary.
 Do not commit, merge, checkout, reset or stash; the dispatcher commits for you.
 
 **Order of work:** turns 1–6 read; by turn 15 your file(s) compile with every function stubbed and the test file has one passing test; then port in C# order, ~80 lines per compile; tests for each function as you go; guard; docs. If you reach turn 100 with tests unwritten, stop porting and write tests: the dispatcher resumes you for the rest.
@@ -50,7 +55,7 @@ Landed and callable: see `docs/specs/012-self-hosted-bootstrap/012-api.md` and t
 Not landed yet: `tests/Bayan.Tests/SelfhostDriverHarness.cs` is created by T1, as `012-tasks.md` T1 and `012-plan.md` define it. It builds stage 1 once with `Compilation.Create(sources, packageRoot: selfhost/)` like `SelfhostEmitterHarness.cs:28-36` and runs it as a process. Expected values come from `CliApp.Run`/`CliApp.EmitC` or the C# golden tests. Every ported function gets a compared case including a failure path.
 
 ## Files you own
-`selfhost/driver/main.byn`, `selfhost/driver/dctx.byn`, `tests/Bayan.Tests/SelfhostDriverHarness.cs`, `tests/Bayan.Tests/SelfhostDriverTests.cs`, `tests/Bayan.Tests/SelfhostDriverApiTests.cs`, `docs/specs/012-self-hosted-bootstrap/012-api.md`, `docs/bayan-handoff.md` (Questions in your range only, inserted in number order), your own `// ── T1 state` sections of `selfhost/driver/dctx.byn` (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`scripts/selfhost/review-brief.py`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.
+`selfhost/driver/main.byn`, `selfhost/driver/dctx.byn`, `tests/Bayan.Tests/SelfhostDriverTests.cs`, `tests/Bayan.Tests/SelfhostDriverApiTests.cs`, `tests/Bayan.Tests/SelfhostDriverHarness.cs`, `tests/Bayan.Tests/SelfhostDriverTests.cs`, `tests/Bayan.Tests/SelfhostDriverApiTests.cs`, `docs/specs/012-self-hosted-bootstrap/012-api.md`, `docs/bayan-handoff.md` (Questions Q1244–Q1248 only, inserted in number order), your own `// ── T1 state` sections of `selfhost/driver/dctx.byn` (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`bash scripts/bayan-tool.sh review-brief`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.
 
 ## Bayan cheat sheet (compiler-checked)
 # Bayan cheat sheet for porters (compiler-checked 2026-10-26)
@@ -326,7 +331,7 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 | string `+`, `s[i]` indexer, `Substring`, `ToString()`, `Length` capital, `string.Format` | `docs/bayan-spec.md:190` (no indexer), `:195` (no `+`), `:1749` (slice for Substring), `:915` (no `toString`), `:188` (`length`) | `$"{a}{b}"`, `StrBuf`, `s[a..b]`, `string(x)`, `.length` |
 | `s.Contains` case-insensitive ambient culture | §16.4:1970-1971 no ambient culture, ordinal only | `equals(t, as: .caseless)`; culture via `kit.intl` |
 | current working directory / `Environment.CurrentDirectory` builtin | **Unverified — I found no cwd builtin** in §16 or the selfhost; the CLI takes explicit paths (`selfhost/parser/main.byn:5-9`) | pass paths explicitly; `Io.listDir`/`Io.readFile` take a path |
-| ASCII-only casing assumptions in the ported compiler | Q442: `char.IsUpper` is Unicode in C#, `startsUpper` is `A`–`Z` because Bayan has no case table | check `A`–`Z` explicitly; don't port Unicode casing |
+| ASCII-only casing in the ported compiler (`A`–`Z` for `char.IsUpper`) | Q442 is superseded by Q1142: `char.IsUpper`/`IsLower` are Unicode Lu/Ll in C#, and law L017 caught the parser diverging on `Åp { x: 1 }` | `lexer.firstIsUpper`/`firstIsLower` (the generated `upperRanges`/`lowerRanges`, BMP); never `A`–`Z` for a C# `char.IsUpper` |
 | tuple-typed struct field `(i8, i64) f1` | `work/todo.md:24` BYN1001 (parsed as function type) | use a named struct |
 | `List<T>` element removal by index in the port's first cut | Q440 "`List` has no `removeAt`" (a tombstone workaround); spec has `remove(at:)` §16:1743 | set `code = ""` and skip, or `remove(at:)` where built |
 | `HashSet<T>` | Q449(c): replaced by `List` searched in order; `Set` is not in v0.1 (§16:1774) | `List` + linear search, or `Map<K,bool>` |

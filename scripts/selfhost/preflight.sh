@@ -10,7 +10,7 @@
 #   questions  every Question number the branch adds is new to the handoff (the branch's and the base's) and inside the task's
 #              range (its task line, else $BAYAN_QRANGES or <main checkout>/tmp/q-ranges.tsv, written by wave-brief.py)
 #   tests      the classes declared in the task's tests/Bayan.Tests/*.cs and CInventoryTests, SelfhostDriverT8Tests,
-#              SelfhostDriverRuntimeTests pass, each running at least one test; scripts/plan-strings-check.js passes (deno)
+#              SelfhostDriverRuntimeTests pass, each running at least one test; plan-strings-check passes (scripts/bayan-tool.sh)
 #   wp1        tmp/wp1/<sha>.out (wp1-test.sh) exists for the branch's HEAD, ends in `exit 0`, ran tests, and its filter names every class above
 # On a checkout of <branch> the working tree is checked (a writer before its commit), else the branch's commit in a temporary worktree.
 # Logs go to tmp/preflight/<t>/.
@@ -166,9 +166,8 @@ else
   if grep -qE '^ *Failed [A-Za-z0-9_.]+' "$L/test.txt" || [ $TX != 0 ]; then F=1; bad=1; [ $TX = 0 ] || echo "FAIL tests: dotnet test exited $TX (tmp/preflight/$t/test.txt)"; fi
   [ $bad = 1 ] || ok "tests ($(grep -cE '^ *Passed ' "$L/test.txt") passed: ${CLASSES[*]})"
 fi
-if ! command -v deno > /dev/null; then fail "tests: deno is not installed, so scripts/plan-strings-check.js cannot run"
-elif deno run -A scripts/plan-strings-check.js --base "$BASE" > "$L/plan-strings.txt" 2>&1; then ok "plan-strings"
-else fail "tests: scripts/plan-strings-check.js --base $BASE failed — $(tail -1 "$L/plan-strings.txt")"; fi
+if bash "$HERE/../bayan-tool.sh" plan-strings-check --base "$BASE" > "$L/plan-strings.txt" 2>&1; then ok "plan-strings"
+else fail "tests: plan-strings-check --base $BASE failed — $(tail -1 "$L/plan-strings.txt")"; fi
 
 # wp1
 W=$OUT/tmp/wp1/$SHA.out; RUN="bash scripts/selfhost/wp1-test.sh $BR '$FILT'"

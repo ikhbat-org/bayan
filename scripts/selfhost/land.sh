@@ -60,7 +60,7 @@ if [ $CHECK = 1 ]; then
   echo "SCOPE OK $T"; exit 0
 fi
 ( cd "$WT"
-  [ -f "$REVIEW" ] || { echo "LAND REFUSED: $REVIEW is missing; run the reviewer (scripts/selfhost/review-brief.py) first"; exit 1; }
+  [ -f "$REVIEW" ] || { echo "LAND REFUSED: $REVIEW is missing; run the reviewer (bash scripts/bayan-tool.sh review-brief) first"; exit 1; }
   # earlier review rounds may touch the file; the last commit is the PASS round alone (writer auto-commits are chore(worker))
   [ "$(git diff --name-only "$SHA^" "$SHA")" = "$REVIEW" ] && case "$(git log -1 --format=%s "$SHA")" in "$REVSUB $T review (PASS"*) ;; *) false;; esac \
     || { echo "LAND REFUSED: the branch's last commit must touch only $REVIEW, with the subject '$REVSUB $T review (PASS, …)'"; exit 1; }

@@ -1,0 +1,440 @@
+#!/usr/bin/env bayan
+// Usage: bash scripts/bayan-tool.sh review-brief <repo-or-worktree> T13 [--spec 011] — writes tmp/010-<t>/review.md, the brief for the
+// independent reviewer that must pass a task before scripts/selfhost/land.sh merges it. The reviewer is a fresh agent that
+// did not write the code: it gets the task, the C# it ports, the files, and the bar; never the writer's summary.
+// The spec is a row of specs.tsv (without --spec, 010).
+//
+// Port of scripts/selfhost/review-brief.py (spec 015 T3). The repo root (for scripts/selfhost/specs.tsv) is the git
+// top level of the working directory. The regexes are re-done with string members, matching as Python's re does.
+
+/// Python's text-mode read: `\r\n` and a lone `\r` become `\n`.
+string readText(string path) fails {
+    let bytes = try Io.readFile(path)
+    let text = try Utf8.decode(bytes)
+    return text.replaced("\r\n", by: "\n").replaced("\r", by: "\n")
+}
+
+/// `text.split(sep)`.
+List<string> split(string text, by string sep) {
+    var result: List<string> = List<string>()
+    for p in text.parts(by: sep) { result.append(p) }
+    return result
+}
+
+/// `text.splitlines()` on text already read in text mode.
+List<string> splitLines(string text) {
+    var result = split(text, by: "\n")
+    if result[result.length - 1].isEmpty { let _ = result.removeLast() }
+    return result
+}
+
+/// The value of column `name` in `r`, as `dict(zip(head, r))[name]`.
+string field(List<string> head, at List<string> r, for string name) {
+    for i in 0..head.length {
+        if head[i] == name && i < r.length { return r[i] }
+    }
+    return ""
+}
+
+bool isDigit(u8 b) { return b >= 0x30 && b <= 0x39 }
+
+bool isAlnum(u8 b) { return isDigit(b) || (b >= 0x41 && b <= 0x5A) || (b >= 0x61 && b <= 0x7A) }
+
+bool isWord(u8 b) { return isAlnum(b) || b == 0x5F }
+
+bool isSpace(u8 b) { return (b >= 0x09 && b <= 0x0D) || (b >= 0x1C && b <= 0x20) }
+
+/// The first byte at or after `i` that is `(` or `)`, or the end.
+i64 skipPlain(string s, from i64 i) {
+    var k = i
+    while k < s.length && s.bytes[k] != 0x28 && s.bytes[k] != 0x29 { k += 1 }
+    return k
+}
+
+/// The end of a `\([^()]*(\([^()]*\)[^()]*)*\)` match starting at the `(` at `i`, or -1.
+i64 parenEnd(string s, at i64 i) {
+    var k = skipPlain(s, from: i + 1)
+    while k < s.length && s.bytes[k] == 0x28 {
+        let m = skipPlain(s, from: k + 1)
+        if !(m < s.length && s.bytes[m] == 0x29) { return -1 }
+        k = skipPlain(s, from: m + 1)
+    }
+    return k < s.length && s.bytes[k] == 0x29 ? k + 1 : -1
+}
+
+/// `re.sub(r'\([^()]*(\([^()]*\)[^()]*)*\)', '', s)`.
+string withoutParens(string s) {
+    var buf = StrBuf(capacity: s.length)
+    var start: i64 = 0
+    var i: i64 = 0
+    while i < s.length {
+        if s.bytes[i] == 0x28 {
+            let e = parenEnd(s, at: i)
+            if e >= 0 {
+                buf.append(s[start..i])
+                start = e
+                i = e
+                continue
+            }
+        }
+        i += 1
+    }
+    buf.append(s[start..])
+    return buf.finish()
+}
+
+/// `re.findall(r'`([^`]+\.(?:byn|cs))`', s)`.
+List<string> codeFiles(string s) {
+    var found: List<string> = List<string>()
+    var i: i64 = 0
+    while i < s.length {
+        if s.bytes[i] == 0x60 {
+            let k = s.position("`", from: i + 1) ?? -1
+            if k > i + 1 {
+                let c = s[i + 1..k]
+                if (c.length > 4 && c.endsWith(".byn")) || (c.length > 3 && c.endsWith(".cs")) {
+                    found.append(c)
+                    i = k + 1
+                    continue
+                }
+            }
+        }
+        i += 1
+    }
+    return found
+}
+
+/// `re.findall(r'`docs/laws/(\d{3})-[^`]*\.md`', s)`.
+List<string> lawNumbers(string s) {
+    var found: List<string> = List<string>()
+    var i: i64 = 0
+    while i < s.length {
+        if s.bytes[i] == 0x60 {
+            let k = s.position("`", from: i + 1) ?? -1
+            if k > i {
+                let c = s[i + 1..k]
+                if c.length >= 17 && c.startsWith("docs/laws/") && isDigit(c.bytes[10]) && isDigit(c.bytes[11]) && isDigit(c.bytes[12]) && c.bytes[13] == 0x2D && c.endsWith(".md") {
+                    found.append(c[10..13])
+                    i = k + 1
+                    continue
+                }
+            }
+        }
+        i += 1
+    }
+    return found
+}
+
+/// `re.fullmatch(r'tests/Bayan\.Tests/[A-Za-z0-9]+Tests\.cs', f)`.
+bool isTestPath(string f) {
+    if !(f.length > 26 && f.startsWith("tests/Bayan.Tests/") && f.endsWith("Tests.cs")) { return false }
+    for i in 18..f.length - 8 {
+        unless isAlnum(f.bytes[i]) { return false }
+    }
+    return true
+}
+
+/// `re.findall(r'\bclass\s+(\w+Tests)\b', t)` (ASCII word and space bytes).
+List<string> testClasses(string t) {
+    var found: List<string> = List<string>()
+    var i: i64 = 0
+    while true {
+        let p = t.position("class", from: i) ?? -1
+        if p < 0 { break }
+        i = p + 1
+        if p > 0 && isWord(t.bytes[p - 1]) { continue }
+        var k = p + 5
+        while k < t.length && isSpace(t.bytes[k]) { k += 1 }
+        if k == p + 5 { continue }
+        let w = k
+        while k < t.length && isWord(t.bytes[k]) { k += 1 }
+        let word = t[w..k]
+        if word.length > 5 && word.endsWith("Tests") {
+            found.append(word)
+            i = k
+        }
+    }
+    return found
+}
+
+/// The number of ASCII digits from `i` on.
+i64 digitRun(string s, from i64 i) {
+    var k = i
+    while k < s.length && isDigit(s.bytes[k]) { k += 1 }
+    return k - i
+}
+
+/// `re.search(r'Q(\d{3,4})–Q(\d{3,4})', s)`: its two groups, or an empty list.
+List<string> questionRange(string s) {
+    var q: List<string> = List<string>()
+    var i: i64 = 0
+    while true {
+        let p = s.position("Q", from: i) ?? -1
+        if p < 0 { break }
+        i = p + 1
+        let n1 = digitRun(s, from: p + 1)
+        if n1 != 3 && n1 != 4 { continue }
+        let e = p + 1 + n1
+        unless s[e..].startsWith("–Q") { continue }
+        let n2 = digitRun(s, from: e + 4)
+        if n2 < 3 { continue }
+        q.append(s[p + 1..e])
+        q.append(s[e + 4..e + 4 + (n2 > 4 ? 4 : n2)])
+        break
+    }
+    return q
+}
+
+/// `'`a`, `b`'`: each name in backticks, joined by `sep`.
+string ticked(List<string> names, by string sep) {
+    var buf = StrBuf(capacity: 64)
+    for i in 0..names.length {
+        if i > 0 { buf.append(sep) }
+        buf.append($"`{names[i]}`")
+    }
+    return buf.finish()
+}
+
+string joinLines(List<string> lines) {
+    var buf = StrBuf(capacity: 256)
+    for i in 0..lines.length {
+        if i > 0 { buf.append("\n") }
+        buf.append(lines[i])
+    }
+    return buf.finish()
+}
+
+bool has(List<string> xs, for string x) {
+    for y in xs {
+        if y == x { return true }
+    }
+    return false
+}
+
+i32 main(ReadOnlySpan<string> argv) {
+    var args: List<string> = List<string>()
+    for a in argv { args.append(a) }
+    var spec = "010"
+    for i in 0..args.length {
+        if args[i] == "--spec" {
+            spec = args[i + 1]
+            var rest: List<string> = List<string>()
+            for j in 0..args.length {
+                if j != i && j != i + 1 { rest.append(args[j]) }
+            }
+            args = move rest
+            break
+        }
+    }
+    var desc = ""
+    var oracle = ""
+    if spec == "010" {
+        desc = "the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`"
+        oracle = "SelfhostSemanticsT10Tests.Expected"
+    } else if spec == "011" {
+        desc = "the Bayan lowering and C emitter ported from C# `src/Bayan.Lowering/` and `src/Bayan.Backend.C/` into Bayan under `selfhost/emitter/`"
+        oracle = "SelfhostEmitterHarness.AssertSame"
+    } else if spec == "012" {
+        desc = "the Bayan compiler driver ported from C# `src/Bayan.Cli/` (`CliApp`) into Bayan under `selfhost/driver/`, compiled with package root `selfhost/` (stage 1 of the bootstrap)"
+        oracle = "SelfhostDriverHarness"
+    } else if spec == "017" {
+        desc = "the remaining `bayan` commands ported from C# `src/Bayan.Cli/` and `src/Bayan.Testing/` into the self-hosted driver under `selfhost/driver/` (spec 017, the self-hosted compiler as the default `bayan`)"
+        oracle = "SelfhostDriverHarness"
+    } else if spec == "018" {
+        desc = "revision 0021 checker changes (help texts, fix-its, new diagnostics) made in C# `src/Bayan.Semantics/` and ported into the self-hosted checker under `selfhost/semantics/` (spec 018), with messages and fix-its byte-identical in both compilers"
+        oracle = "SelfhostSemanticsT10Tests.Expected"
+    } else {
+        print($"review-brief: no brief text for spec {spec}", to: .stderr)
+        return 1
+    }
+    var top: List<string> = List<string>()
+    top.append("rev-parse")
+    top.append("--show-toplevel")
+    let topRun = Io.run("git", top.span) catch return 1
+    let root = topRun.exitCode == 0 ? topRun.stdout.trimmed() : Path.fullPath(".")
+    let table = readText(Path.combine(root, "scripts/selfhost/specs.tsv")) catch return 1
+    var head: List<string> = List<string>()
+    var row: List<string> = List<string>()
+    let tableLines = splitLines(table)
+    for i in 0..tableLines.length {
+        let r = split(tableLines[i], by: "\t")
+        if i == 0 {
+            head = move r
+        } else if r[0] == spec && row.isEmpty {
+            row = move r
+        }
+    }
+    let wt = Path.fullPath(args[0])
+    let specDir = Path.combine(wt, field(head, at: row, for: "dir"))
+    let tasksText = readText(Path.combine(specDir, field(head, at: row, for: "tasks"))) catch return 1
+    let tasks = split(tasksText, by: "\n")
+    // the Question ranges wave-brief.py assigned: $BAYAN_QRANGES, else tmp/q-ranges.tsv of the main checkout (as preflight.sh reads them)
+    var gitArgs: List<string> = List<string>()
+    gitArgs.append("-C")
+    gitArgs.append(wt)
+    gitArgs.append("rev-parse")
+    gitArgs.append("--path-format=absolute")
+    gitArgs.append("--git-common-dir")
+    let commonRun = Io.run("git", gitArgs.span) catch return 1
+    let common = commonRun.stdout.trimmed()
+    var qranges = Env.get("BAYAN_QRANGES") ?? ""
+    if qranges.isEmpty { qranges = Path.combine(common.isEmpty ? wt : Path.directoryName(common) ?? "", "tmp/q-ranges.tsv") }
+    var qrows: List<List<string>> = List<List<string>>()
+    if Fs.fileExists(qranges) {
+        let qtext = readText(qranges) catch return 1
+        let qlines = splitLines(qtext)
+        for i in 1..qlines.length { qrows.append(split(qlines[i], by: "\t")) }
+    }
+    let apiPath = Path.combine(specDir, field(head, at: row, for: "api"))
+    var api: List<string> = List<string>()
+    if Fs.fileExists(apiPath) {
+        let apiText = readText(apiPath) catch return 1
+        api = split(apiText, by: "\n")
+    }
+    for ti in 1..args.length {
+        let t = args[ti]
+        var block: List<string> = List<string>()
+        var on = false
+        for line in tasks {
+            if line.length > 4 && line.startsWith("- [") && (line.bytes[3] == 0x20 || line.bytes[3] == 0x78) && line[4..].startsWith($"] {t} ") {
+                on = true
+            } else if on && line.startsWith("- [") {
+                break
+            }
+            if on { block.append(line) }
+        }
+        if block.isEmpty {
+            print($"Traceback (most recent call last):\n  File \"{root}/scripts/selfhost/review-brief.py\", line 34, in <module>\n    assert block, t\nAssertionError: {t}", to: .stderr)
+            return 1
+        }
+        let first = block[0]
+        let fp = first.position("files: ") ?? -1
+        let cp = fp < 0 ? -1 : first.position(" — covers", from: fp + 7) ?? -1
+        if cp < 0 {
+            print($"Traceback (most recent call last):\n  File \"{root}/scripts/selfhost/review-brief.py\", line 35, in <module>\n    head = re.sub(r'\\([^()]*(\\([^()]*\\)[^()]*)*\\)', '', re.search(r'files: (.*?) — covers', block[0]).group(1).split(' — C#:')[0])\nAttributeError: 'NoneType' object has no attribute 'group'", to: .stderr)
+            return 1
+        }
+        let filesText = first[fp + 7..cp]
+        let csCut = filesText.position(" — C#:") ?? filesText.length
+        let head2 = withoutParens(filesText[0..csCut])
+        let files = codeFiles(head2)
+        // tests/, docs/ and src/ paths are written from the repo root; selfhost/ paths keep their own directory
+        var rooted: List<string> = List<string>()
+        for f in files {
+            if f.startsWith("tests/") || f.startsWith("docs/") || f.startsWith("src/") || f.startsWith("work/") { rooted.append(f) }
+        }
+        var byns: List<string> = List<string>()
+        var tests: List<string> = List<string>()
+        var ownTests: List<string> = List<string>()
+        for f in files {
+            if f.endsWith(".byn") && !has(rooted, for: f) { byns.append(f.startsWith("selfhost/") ? f : $"{field(head, at: row, for: "bydir")}/{f}") }
+        }
+        for f in files {
+            if f.endsWith(".cs") && !has(rooted, for: f) {
+                tests.append($"tests/Bayan.Tests/{f}")
+                ownTests.append(f)
+            }
+        }
+        for f in rooted { tests.append(f) }
+        let testClass = spec == "010" && t == "T28" ? "SelfhostSemantics" : !ownTests.isEmpty ? ownTests[0][0..ownTests[0].length - 3] : $"{field(head, at: row, for: "prefix")}{t[1..]}Tests"
+        let law = lawNumbers(head2)  // a law-enact task's gate is its law's proof
+        var filt = !law.isEmpty && ownTests.isEmpty ? $"Law=L{law[0]}" : $"FullyQualifiedName~{testClass}"
+        if spec == "010" && law.isEmpty && ownTests.isEmpty && byns.isEmpty { filt = "FullyQualifiedName~SelfhostSemanticsApiTests" }  // a docs-only task
+        // 011: every test class the task owns gates it (a task with a law page and tests too, T14), and T21 also counts the SelfhostSemantics* tests (Q867, Q870)
+        // the classes are those the task's tests/Bayan.Tests/*.cs files declare, bare names or with their directory (SelfhostDriverInventoryTests.cs
+        // holds SelfhostDriverT8Tests); a file not written yet counts by its name; never a `<prefix><n>Tests` class the task does not have (012 T17).
+        // As in wave-brief.py, a task with bare test names keeps them alone (011 T14 re-pins the rooted ones)
+        var testPaths: List<string> = List<string>()
+        for f in ownTests { testPaths.append($"tests/Bayan.Tests/{f}") }
+        if testPaths.isEmpty {
+            for f in rooted {
+                if isTestPath(f) { testPaths.append(f) }
+            }
+        }
+        if spec != "010" && (!testPaths.isEmpty || law.isEmpty) {
+            var classes: List<string> = List<string>()
+            for p in testPaths {
+                let full = Path.combine(wt, p)
+                var found: List<string> = List<string>()
+                if Fs.fileExists(full) {
+                    let text = readText(full) catch return 1
+                    found = testClasses(text)
+                }
+                if found.isEmpty {
+                    let name = Path.fileName(p)
+                    found.append(name[0..name.length - 3])
+                }
+                for c in found {
+                    unless has(classes, for: c) { classes.append(c) }
+                }
+            }
+            var joined = StrBuf(capacity: 128)
+            for i in 0..classes.length {
+                if i > 0 { joined.append("|") }
+                joined.append($"FullyQualifiedName~{classes[i]}")
+            }
+            let fromClasses = joined.finish()
+            unless fromClasses.isEmpty { filt = fromClasses }
+            if spec == "011" && t == "T21" { filt = $"{filt}|FullyQualifiedName~SelfhostSemantics" }
+            if spec == "011" && t == "T13" { filt = $"{filt}|FullyQualifiedName~SelfhostEmitter" }  // integration: every emitter class (Q886)
+        }
+        var sharedList: List<string> = List<string>()
+        for c in field(head, at: row, for: "shared").parts(by: ",") { sharedList.append(c) }
+        let shared = spec == "010" ? "`ctx.byn`" : ticked(sharedList, by: " and ")
+        var ownApi: List<string> = List<string>()
+        for l in api {
+            if l.startsWith($"- {t} ") { ownApi.append(l) }
+        }
+        var q = questionRange(joinLines(block).replaced("\n", by: " "))
+        if q.isEmpty {
+            for r in qrows {  // else the range wave-brief.py assigned
+                if r.length >= 2 && r[0] == spec && r[1] == t {
+                    for k in 2..(r.length < 4 ? r.length : 4) { q.append(r[k]) }
+                    break
+                }
+            }
+        }
+        let questions = q.isEmpty ? "for this task" : $"Q{q[0]}–Q{q[1]}"
+        let entryPoints = ownApi.isEmpty ? "(file-private only)" : joinLines(ownApi)
+        let dir = field(head, at: row, for: "dir")
+        var s = StrBuf(capacity: 8192)
+        s.append($"You are the independent reviewer for task {t} of spec {spec} ({desc}). You did not write this code. Your job is to find where the port is not the C#. Do not edit any file except the review file below; do not run git commands that change state.\n")
+        s.append("\n")
+        s.append($"Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port {ticked(byns, by: ", ")}, the tests {ticked(tests, by: ", ")}, and Questions {questions} in `docs/bayan-handoff.md`.\n")
+        s.append("\n")
+        s.append("## Task (verbatim)\n")
+        s.append($"{joinLines(block)}\n")
+        s.append("\n")
+        s.append("## Entry points\n")
+        s.append($"{entryPoints}\n")
+        s.append("\n")
+        s.append("## The bar (a task fails if any of these is not met)\n")
+        s.append("1. **Method for method.** Every C# method in the task's range exists, in C# order, with every branch, diagnostic code, message, label, help, fix span and report order. Logic that is not in the C# is a finding, however reasonable it looks.\n")
+        s.append("2. **No stand-ins.** A call to a sibling's entry point goes to that entry point even while it is a stub. A fallback for when the sibling returns a default (`-1`, `false`, empty), a re-implementation of a sibling's function, a fake handle (`body = 0`), or a guard that skips a sibling call is HIGH.\n")
+        s.append($"3. **No silent gaps.** A C# field or state with no home in `Ctx`/`Binder` goes in the task's own `// ── {t} state` section of {shared}. Dropping it, approximating it (scope depth for scope identity, a path prefix for a loading list, a field scan for a dictionary), or leaving a function empty without `(blocked: Qnnn)` is HIGH.\n")
+        s.append($"4. **Oracle tests.** Every ported function has a test whose expected lines come from running the C# implementation in-process on the same input (see `{oracle}`), including a failure/diagnostic path; diagnostics compare as `code line:col message`. Hand-typed expectations, or expectations that hold only because a sibling is a stub, are MEDIUM each (HIGH if they encode behaviour that differs from the C#).\n")
+        s.append("5. **True docs.** Each Question in the task's range says what the code does; each break-test line citation points at the line it names. A false claim is MEDIUM.\n")
+        s.append("\n")
+        s.append($"Verify each finding in the code before you write it: name the Bayan `file:line` and the C# `file:line`. Run the task's tests (`dotnet test -v q --filter \"{filt}\"`) once; you may add a probe under `tmp/review-{t.lowercased()}/` to confirm a behaviour.\n")
+        s.append("\n")
+        s.append("Cite format (`scripts/selfhost/preflight.sh` checks every `path:N` in the review file before landing): a `path:N` takes, in the same clause, a backticked symbol that is on line N or the 2 lines after it at HEAD. For a line as it was in an earlier commit, or one with no symbol to name, write `path (line N)`. On a re-review your block replaces the whole file: carry every earlier row with its status.\n")
+        s.append("\n")
+        s.append($"## Write `{dir}/reviews/{t}.md`, exactly this shape\n")
+        s.append("```\n")
+        s.append($"# {t} review\n")
+        s.append("Commit: <git rev-parse HEAD>\n")
+        s.append("Verdict: PASS | FAIL\n")
+        s.append("\n")
+        s.append("| # | Severity | Finding (Bayan file:line — C# file:line) | Status |\n")
+        s.append("|---|---|---|---|\n")
+        s.append("| 1 | HIGH | … | open |\n")
+        s.append("```\n")
+        s.append("Status is `open`, `fixed` (only for a re-review that saw the fix) or `resolved: Qnnn` (a Question records a dispatcher decision that accepts it). `Verdict: PASS` only when no HIGH and no MEDIUM row is `open`. End your final message with the verdict and the counts per severity.\n")
+        let d = Path.combine(wt, $"{field(head, at: row, for: "tmp")}{t.lowercased()}")
+        Io.createDirectory(d) catch return 1
+        let path = Path.combine(d, "review.md")
+        Io.writeFile(path, s.finish().bytes) catch return 1
+        print(path)
+    }
+    return 0
+}

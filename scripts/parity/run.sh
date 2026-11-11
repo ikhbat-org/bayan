@@ -78,7 +78,15 @@ for c in "${cases[@]}"; do
     continue
   fi
   [ -d "$case_dir/expected" ] || { echo "FAIL $tool/$c: no expected/ (record it with --record)"; bad=1; continue; }
+  # A recorded Python traceback is not a contract: its frames move with every edit and a port cannot print one. Such a
+  # case's stderr passes when it holds the exception's message (the last line, after `Name: `); exit and stdout stay exact.
+  if [ "$(head -1 "$case_dir/expected/stderr")" = "Traceback (most recent call last):" ]; then
+    msg="$(tail -1 "$case_dir/expected/stderr")"; msg="${msg#*: }"
+    grep -qF -- "$msg" "$got/stderr" || { echo "FAIL $tool/$c: stderr differs: no \`$msg\` in: $(head -2 "$got/stderr" | tr '\n' ' ' | cut -c1-200)"; bad=1; }
+    cp "$case_dir/expected/stderr" "$got/stderr.checked"
+  fi
   for f in exit stdout stderr; do
+    [ $f = stderr ] && [ -f "$got/stderr.checked" ] && continue
     cmp -s "$case_dir/expected/$f" "$got/$f" || { echo "FAIL $tool/$c: $f differs: $(diff "$case_dir/expected/$f" "$got/$f" | sed -n 2,3p | tr '\n' ' ' | cut -c1-300)"; bad=1; }
   done
   same_files "$case_dir/expected/files" "$got/files" > "$got/files.diff" 2>&1 \

@@ -1,5 +1,6 @@
 CloseHandle
 CommandLineToArgvW
+CompareStringOrdinal
 CopyFileW
 CreateDirectoryW
 CreateFileW
@@ -10,7 +11,9 @@ DeleteFileW
 FindClose
 FindFirstFileW
 FindNextFileW
+FreeEnvironmentStringsW
 GetCommandLineW
+GetEnvironmentStringsW
 GetEnvironmentVariableW
 GetExitCodeProcess
 GetFileAttributesW
@@ -38,7 +41,9 @@ SetHandleInformation
 SetLastError
 WaitForSingleObject
 WideCharToMultiByte
+WriteFile
 _create_locale
+_exit
 _fileno
 _setmode
 _strtod_l
@@ -49,9 +54,12 @@ abort
 arc4random_buf
 atoi
 calloc
+chdir
 clock_gettime
 close
 closedir
+dup2
+execvp
 exit
 fchmod
 fclose
@@ -59,6 +67,7 @@ fcntl
 ferror
 fflush
 fopen
+fork
 fprintf
 fputc
 fputs
@@ -95,8 +104,11 @@ realpath
 rename
 rmdir
 setjmp
+sigaction
+sigemptyset
 snprintf
 stat
+strchr
 strcmp
 strlen
 strtod

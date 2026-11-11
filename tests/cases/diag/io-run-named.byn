@@ -1,0 +1,9 @@
+// `Io.run`'s options are named only, with exactly the labels `directory:`, `input:` and `env:` and their types (015 S6).
+void main() fails IoError {
+    let a: string[1] = ["x"]
+    let _ = try Io.run("sh", a.span, "/tmp")
+    let _ = try Io.run("sh", a.span, dir: "/tmp")
+    let _ = try Io.run("sh", a.span, directory: 3)
+    let _ = try Io.run("sh", a.span, input: "x")
+    let _ = try Io.run("sh", a.span, env: ["A": 1])
+}

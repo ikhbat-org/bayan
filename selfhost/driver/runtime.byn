@@ -488,6 +488,14 @@ uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* deta
  * with `*out` untouched (empty streams).
  * On Windows a batch file (`.bat`, `.cmd`) is refused with `permissionDenied`, since cmd.exe would re-parse the arguments. */
 uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc);
+/* `Io.run` with its named arguments (015 S6). `directory` (NULL: ours) is where the child runs; one that does not exist
+ * or is not a directory fails before anything starts. `input` (`ninput` < 0: the child shares our stdin) is written to
+ * the child's stdin, which is then closed. The `nenv` entries of `env_keys`/`env_vals` (those with `env_dead[i]` set
+ * skipped) are added over the inherited environment, each replacing a variable of its name. A NUL in the directory, an
+ * empty name, `=` in a name or NUL in a name or value is `invalidInput`. */
+uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, const byn_str* directory, const uint8_t* input,
+                         int64_t ninput, const byn_str* env_keys, const byn_str* env_vals, const bool* env_dead, int64_t nenv,
+                         byn_process* out, int64_t* detail, byn_alloc* alloc);
 /* `Io.runBatch`'s command line: `cmd.exe /d /e:ON /v:OFF /s /c ""<path>" "<a1>" … "<an>""`, each argument
  * in double quotes as-is. False, with nothing built, when the path or an argument holds NUL, CR, LF, `"` or `%`,
  * or the path does not end in `.bat` or `.cmd` (any case). Otherwise `out` is from malloc. Compiled on every host. */
@@ -648,6 +656,7 @@ const runtimeSource: string = """/* Bayan runtime implementation. See bayan-rt.h
 #include <dirent.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <signal.h>
 #include <spawn.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -4250,47 +4259,135 @@ static DWORD WINAPI byn_drain_pipe(LPVOID arg) {
     return 0;
 }
 
-/* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`;
+typedef struct byn_feed {
+    HANDLE h;
+    const uint8_t* ptr;
+    int64_t len;
+} byn_feed;
+
+/* Writes the input to the child's stdin, then closes it; stops early when the child closes its end. */
+static DWORD WINAPI byn_feed_pipe(LPVOID arg) {
+    byn_feed* f = (byn_feed*)arg;
+    while (f->len > 0) {
+        DWORD put = 0;
+        if (!WriteFile(f->h, f->ptr, f->len > 65536 ? 65536 : (DWORD)f->len, &put, NULL)) break;
+        f->ptr += put;
+        f->len -= put;
+    }
+    CloseHandle(f->h);
+    return 0;
+}
+
+/* Orders `NAME=value` entries by name, case-insensitively, as an environment block wants; a leading `=` is part of the name. */
+static int byn_env_order(const void* a, const void* b) {
+    const wchar_t* x = *(const wchar_t* const*)a;
+    const wchar_t* y = *(const wchar_t* const*)b;
+    const wchar_t* xe = wcschr(x + 1, L'=');
+    const wchar_t* ye = wcschr(y + 1, L'=');
+    int xn = xe ? (int)(xe - x) : (int)wcslen(x);
+    int yn = ye ? (int)(ye - y) : (int)wcslen(y);
+    return CompareStringOrdinal(x, xn, y, yn, TRUE) - CSTR_EQUAL;
+}
+
+/* The inherited environment with `keys[i]=vals[i]` added over it (entries with `dead[i]` skipped), as a sorted
+ * CREATE_UNICODE_ENVIRONMENT block from malloc. */
+static wchar_t* byn_env_block(const byn_str* keys, const byn_str* vals, const bool* dead, int64_t n) {
+    wchar_t* inherited = GetEnvironmentStringsW();
+    size_t count = 0;
+    for (wchar_t* p = inherited; p && *p; p += wcslen(p) + 1) count++;
+    wchar_t** made = (wchar_t**)malloc(sizeof(wchar_t*) * (size_t)(n + 1));
+    wchar_t** list = (wchar_t**)malloc(sizeof(wchar_t*) * (count + (size_t)n + 1));
+    if (!made || !list) byn_panic("out of memory", NULL, 0);
+    size_t nmade = 0;
+    for (int64_t i = 0; i < n; i++) {
+        if (dead && dead[i]) continue;
+        byn_bytes kv = {NULL, 0, 0};
+        byn_bytes_add(&kv, keys[i].ptr, keys[i].len);
+        byn_bytes_add(&kv, "=", 1);
+        byn_bytes_add(&kv, vals[i].ptr, vals[i].len);
+        made[nmade++] = byn_wide(kv.ptr, kv.len);
+        free(kv.ptr);
+    }
+    size_t len = 0;
+    for (wchar_t* p = inherited; p && *p; p += wcslen(p) + 1) {
+        bool replaced = false;
+        for (size_t k = 0; k < nmade && !replaced; k++) replaced = byn_env_order(&p, &made[k]) == 0;
+        if (!replaced) list[len++] = p;
+    }
+    for (size_t k = 0; k < nmade; k++) list[len++] = made[k];
+    qsort(list, len, sizeof *list, byn_env_order);
+    size_t total = 1;
+    for (size_t i = 0; i < len; i++) total += wcslen(list[i]) + 1;
+    wchar_t* block = (wchar_t*)malloc(sizeof(wchar_t) * (total + 1));
+    if (!block) byn_panic("out of memory", NULL, 0);
+    size_t at = 0;
+    for (size_t i = 0; i < len; i++) {
+        size_t k = wcslen(list[i]) + 1;
+        memcpy(block + at, list[i], sizeof(wchar_t) * k);
+        at += k;
+    }
+    block[at++] = 0;
+    if (len == 0) block[at] = 0;
+    for (size_t k = 0; k < nmade; k++) free(made[k]);
+    free(made);
+    free(list);
+    if (inherited) FreeEnvironmentStringsW(inherited);
+    return block;
+}
+
+/* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`. `dir` (NULL: ours)
+ * is its working directory, `env` (NULL: ours) its environment block, and `input` (`ninput` < 0: our stdin) its stdin;
  * `*outcome` and `*raw` (the exit code) are for byn_process_finish. */
-static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, byn_bytes* streams, int* outcome, uint32_t* raw) {
+static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, wchar_t* env, const uint8_t* input, int64_t ninput,
+                              byn_bytes* streams, int* outcome, uint32_t* raw) {
     SECURITY_ATTRIBUTES sa = {sizeof sa, NULL, TRUE};
-    HANDLE reads[2];
-    HANDLE writes[2];
-    if (!CreatePipe(&reads[0], &writes[0], &sa, 0)) {
-        free(app);
-        free(wline);
-        return byn_win_error(GetLastError());
+    HANDLE reads[3] = {NULL, NULL, NULL};
+    HANDLE writes[3] = {NULL, NULL, NULL};
+    int npipes = ninput >= 0 ? 3 : 2;
+    for (int i = 0; i < npipes; i++) {
+        if (!CreatePipe(&reads[i], &writes[i], &sa, 0)) {
+            DWORD e = GetLastError();
+            for (int k = 0; k < i; k++) {
+                CloseHandle(reads[k]);
+                CloseHandle(writes[k]);
+            }
+            free(app);
+            free(wline);
+            return byn_win_error(e);
+        }
     }
-    if (!CreatePipe(&reads[1], &writes[1], &sa, 0)) {
-        DWORD e = GetLastError();
-        CloseHandle(reads[0]);
-        CloseHandle(writes[0]);
-        free(app);
-        free(wline);
-        return byn_win_error(e);
-    }
+    /* Our ends are not inherited: the read ends of stdout and stderr, the write end of stdin. */
     SetHandleInformation(reads[0], HANDLE_FLAG_INHERIT, 0);
     SetHandleInformation(reads[1], HANDLE_FLAG_INHERIT, 0);
+    if (npipes == 3) SetHandleInformation(writes[2], HANDLE_FLAG_INHERIT, 0);
     STARTUPINFOW si;
     memset(&si, 0, sizeof si);
     si.cb = sizeof si;
     si.dwFlags = STARTF_USESTDHANDLES;
-    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    si.hStdInput = npipes == 3 ? reads[2] : GetStdHandle(STD_INPUT_HANDLE);
     si.hStdOutput = writes[0];
     si.hStdError = writes[1];
     PROCESS_INFORMATION pi;
-    BOOL started = CreateProcessW(app, wline, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi);
+    BOOL started = CreateProcessW(app, wline, NULL, NULL, TRUE, env ? CREATE_UNICODE_ENVIRONMENT : 0, env, dir, &si, &pi);
     DWORD e = GetLastError();
     free(app);
     free(wline);
     CloseHandle(writes[0]);
     CloseHandle(writes[1]);
+    if (npipes == 3) CloseHandle(reads[2]);
     if (!started) {
         CloseHandle(reads[0]);
         CloseHandle(reads[1]);
+        if (npipes == 3) CloseHandle(writes[2]);
         return byn_win_error(e);
     }
     CloseHandle(pi.hThread);
+    byn_feed feed = {writes[2], input, ninput};
+    HANDLE ft = NULL;
+    if (npipes == 3) {
+        ft = CreateThread(NULL, 0, byn_feed_pipe, &feed, 0, NULL);
+        if (!ft) byn_feed_pipe(&feed);
+    }
     byn_drain drains[2] = {{reads[0], {NULL, 0, 0}}, {reads[1], {NULL, 0, 0}}};
     HANDLE t = CreateThread(NULL, 0, byn_drain_pipe, &drains[1], 0, NULL);
     if (!t) byn_drain_pipe(&drains[1]);
@@ -4298,6 +4395,10 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, byn_bytes* streams, 
     if (t) {
         WaitForSingleObject(t, INFINITE);
         CloseHandle(t);
+    }
+    if (ft) {
+        WaitForSingleObject(ft, INFINITE);
+        CloseHandle(ft);
     }
     CloseHandle(reads[0]);
     CloseHandle(reads[1]);
@@ -4313,70 +4414,217 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, byn_bytes* streams, 
 }
 #endif
 
+#ifndef _WIN32
+/* `environ` with each live `keys[i]` set to `vals[i]`, replacing a variable of that name, as a NULL-terminated array from
+ * malloc; the strings from index `*kept` on are from malloc too. */
+static char** byn_env_with(const byn_str* keys, const byn_str* vals, const bool* dead, int64_t n, int64_t* kept) {
+    int64_t count = 0;
+    while (environ[count]) count++;
+    char** envp = (char**)malloc(sizeof(char*) * (size_t)(count + n + 1));
+    if (!envp) byn_panic("out of memory", NULL, 0);
+    int64_t len = 0;
+    for (int64_t e = 0; e < count; e++) {
+        const char* eq = strchr(environ[e], '=');
+        int64_t nn = eq ? (int64_t)(eq - environ[e]) : (int64_t)strlen(environ[e]);
+        bool replaced = false;
+        for (int64_t i = 0; i < n && !replaced; i++)
+            replaced = !(dead && dead[i]) && keys[i].len == nn && memcmp(keys[i].ptr, environ[e], (size_t)nn) == 0;
+        if (!replaced) envp[len++] = environ[e];
+    }
+    *kept = len;
+    for (int64_t i = 0; i < n; i++) {
+        if (dead && dead[i]) continue;
+        char* kv = (char*)malloc((size_t)(keys[i].len + vals[i].len + 2));
+        if (!kv) byn_panic("out of memory", NULL, 0);
+        memcpy(kv, keys[i].ptr, (size_t)keys[i].len);
+        kv[keys[i].len] = '=';
+        memcpy(kv + keys[i].len + 1, vals[i].ptr, (size_t)vals[i].len);
+        kv[keys[i].len + vals[i].len + 1] = 0;
+        envp[len++] = kv;
+    }
+    envp[len] = NULL;
+    return envp;
+}
+
+/* posix_spawn has no portable working-directory action (`addchdir_np` is missing under -std=c11 on macOS and before
+ * glibc 2.29), so a child with a directory is forked: it moves its streams into place, changes directory and execs,
+ * reporting a failure before exec through a close-on-exec pipe. Returns 0 (`*pid` set) or an errno value. */
+static int byn_fork_exec(char** argv, char** envp, const char* dir, int in, int out, int err, pid_t* pid) {
+    int report[2];
+    if (pipe(report) != 0) return errno;
+    fcntl(report[0], F_SETFD, FD_CLOEXEC);
+    fcntl(report[1], F_SETFD, FD_CLOEXEC);
+    pid_t p = fork();
+    if (p < 0) {
+        int e = errno;
+        close(report[0]);
+        close(report[1]);
+        return e;
+    }
+    if (p == 0) {
+        if ((in < 0 || dup2(in, 0) >= 0) && dup2(out, 1) >= 0 && dup2(err, 2) >= 0 && chdir(dir) == 0) {
+            environ = envp;
+            execvp(argv[0], argv);
+        }
+        int e = errno;
+        ssize_t put = write(report[1], &e, sizeof e);
+        (void)put;
+        _exit(127);
+    }
+    close(report[1]);
+    int e = 0;
+    ssize_t got;
+    while ((got = read(report[0], &e, sizeof e)) < 0 && errno == EINTR) {}
+    close(report[0]);
+    if (got == (ssize_t)sizeof e) {
+        int status;
+        while (waitpid(p, &status, 0) < 0 && errno == EINTR) {}
+        return e;
+    }
+    *pid = p;
+    return 0;
+}
+#endif
+
 uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc) {
+    return byn_io_run_with(program, args, nargs, NULL, NULL, -1, NULL, NULL, NULL, 0, out, detail, alloc);
+}
+
+uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, const byn_str* directory, const uint8_t* input,
+                         int64_t ninput, const byn_str* env_keys, const byn_str* env_vals, const bool* env_dead, int64_t nenv,
+                         byn_process* out, int64_t* detail, byn_alloc* alloc) {
     if (program.len == 0 || memchr(program.ptr, 0, (size_t)program.len)) return BYN_IO_NOT_FOUND;
     for (int64_t i = 0; i < nargs; i++)
         if (memchr(args[i].ptr, 0, (size_t)args[i].len)) return BYN_IO_OTHER;
+    /* A directory or variable that cannot be passed exactly starts nothing. */
+    if (directory && memchr(directory->ptr, 0, (size_t)directory->len)) return BYN_IO_INVALID_INPUT;
+    for (int64_t i = 0; env_keys && i < nenv; i++) {
+        if (env_dead && env_dead[i]) continue;
+        if (env_keys[i].len == 0 || memchr(env_keys[i].ptr, '=', (size_t)env_keys[i].len) || memchr(env_keys[i].ptr, 0, (size_t)env_keys[i].len)
+            || memchr(env_vals[i].ptr, 0, (size_t)env_vals[i].len))
+            return BYN_IO_INVALID_INPUT;
+    }
     byn_bytes streams[2] = {{NULL, 0, 0}, {NULL, 0, 0}};
     int outcome = BYN_WAIT_DONE;
     uint32_t raw = 0;
 #ifdef _WIN32
+    wchar_t* wdir = NULL;
+    if (directory) {
+        wdir = byn_wide(directory->ptr, directory->len);
+        DWORD attrs = GetFileAttributesW(wdir);
+        uint32_t bad = attrs == INVALID_FILE_ATTRIBUTES ? byn_win_error(GetLastError())
+            : !(attrs & FILE_ATTRIBUTE_DIRECTORY) ? BYN_IO_NOT_A_DIRECTORY : 0;
+        if (bad != 0) {
+            free(wdir);
+            return bad;
+        }
+    }
     wchar_t* app = byn_find_program(program);
-    if (!app) return BYN_IO_NOT_FOUND;
     /* CreateProcessW runs a batch file through cmd.exe, which re-parses the arguments (BatBadBut). */
-    if (byn_is_batch(app, wcslen(app))) {
+    if (!app || byn_is_batch(app, wcslen(app))) {
+        free(wdir);
         free(app);
-        return BYN_IO_PERMISSION_DENIED;
+        return app ? BYN_IO_PERMISSION_DENIED : BYN_IO_NOT_FOUND;
     }
     byn_bytes line = {NULL, 0, 0};
     byn_quote_arg(&line, program);
     for (int64_t i = 0; i < nargs; i++) byn_quote_arg(&line, args[i]);
     wchar_t* wline = byn_wide(line.ptr, line.len);
     free(line.ptr);
-    uint32_t err = byn_win_spawn(app, wline, streams, &outcome, &raw);
+    wchar_t* env = env_keys ? byn_env_block(env_keys, env_vals, env_dead, nenv) : NULL;
+    uint32_t err = byn_win_spawn(app, wline, wdir, env, input, ninput, streams, &outcome, &raw);
+    free(wdir);
+    free(env);
     if (err != 0) return err;
 #else
+    char* dir = NULL;
+    if (directory) {
+        dir = byn_cstr(*directory);
+        struct stat st;
+        uint32_t bad = stat(dir, &st) != 0 ? byn_io_error(errno) : !S_ISDIR(st.st_mode) ? BYN_IO_NOT_A_DIRECTORY : 0;
+        if (bad != 0) {
+            free(dir);
+            return bad;
+        }
+    }
     char** argv = (char**)malloc(sizeof(char*) * (size_t)(nargs + 2));
     if (!argv) byn_panic("out of memory", NULL, 0);
     argv[0] = byn_cstr(program);
     for (int64_t i = 0; i < nargs; i++) argv[i + 1] = byn_cstr(args[i]);
     argv[nargs + 1] = NULL;
-    int pipes[2][2];
+    int64_t kept = 0;
+    char** envp = env_keys ? byn_env_with(env_keys, env_vals, env_dead, nenv, &kept) : environ;
+    /* stdout, stderr, and with `input` stdin; [i][0] reads, [i][1] writes. */
+    int npipes = ninput >= 0 ? 3 : 2;
+    int pipes[3][2];
     uint32_t err = 0;
-    if (pipe(pipes[0]) != 0) err = byn_io_error(errno);
-    else if (pipe(pipes[1]) != 0) {
-        err = byn_io_error(errno);
-        close(pipes[0][0]);
-        close(pipes[0][1]);
-    }
+    int made = 0;
+    for (; made < npipes; made++)
+        if (pipe(pipes[made]) != 0) {
+            err = byn_io_error(errno);
+            break;
+        }
+    if (err != 0)
+        for (int i = 0; i < made; i++) {
+            close(pipes[i][0]);
+            close(pipes[i][1]);
+        }
     pid_t pid = 0;
     if (err == 0) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < npipes; i++) {
             fcntl(pipes[i][0], F_SETFD, FD_CLOEXEC);
             fcntl(pipes[i][1], F_SETFD, FD_CLOEXEC);
         }
-        posix_spawn_file_actions_t actions;
-        posix_spawn_file_actions_init(&actions);
-        posix_spawn_file_actions_adddup2(&actions, pipes[0][1], 1);
-        posix_spawn_file_actions_adddup2(&actions, pipes[1][1], 2);
-        int rc = posix_spawnp(&pid, argv[0], &actions, NULL, argv, environ);
-        posix_spawn_file_actions_destroy(&actions);
+        int in = npipes == 3 ? pipes[2][0] : -1;
+        int rc;
+        if (dir) rc = byn_fork_exec(argv, envp, dir, in, pipes[0][1], pipes[1][1], &pid);
+        else {
+            posix_spawn_file_actions_t actions;
+            posix_spawn_file_actions_init(&actions);
+            if (in >= 0) posix_spawn_file_actions_adddup2(&actions, in, 0);
+            posix_spawn_file_actions_adddup2(&actions, pipes[0][1], 1);
+            posix_spawn_file_actions_adddup2(&actions, pipes[1][1], 2);
+            rc = posix_spawnp(&pid, argv[0], &actions, NULL, argv, envp);
+            posix_spawn_file_actions_destroy(&actions);
+        }
         close(pipes[0][1]);
         close(pipes[1][1]);
+        if (in >= 0) close(in);
         if (rc != 0) {
             err = byn_io_error(rc);
             close(pipes[0][0]);
             close(pipes[1][0]);
+            if (npipes == 3) close(pipes[2][1]);
         }
     }
     for (int64_t i = 0; i <= nargs; i++) free(argv[i]);
     free(argv);
+    if (envp != environ) {
+        for (int64_t i = kept; envp[i]; i++) free(envp[i]);
+        free(envp);
+    }
+    free(dir);
     if (err != 0) return err;
-    /* Drain both pipes together, so a child that fills one while we block on the other cannot deadlock. */
-    struct pollfd fds[2] = {{pipes[0][0], POLLIN, 0}, {pipes[1][0], POLLIN, 0}};
+    /* Drain both pipes and feed stdin together, so a child that fills one while we block on another cannot deadlock.
+     * A child that exits without reading all its input must not kill us with SIGPIPE: the write fails instead. */
+    struct pollfd fds[3] = {{pipes[0][0], POLLIN, 0}, {pipes[1][0], POLLIN, 0}, {-1, POLLOUT, 0}};
+    struct sigaction ignore;
+    struct sigaction previous;
+    int64_t sent = 0;
+    if (npipes == 3) {
+        if (ninput == 0) close(pipes[2][1]);
+        else {
+            fds[2].fd = pipes[2][1];
+            fcntl(fds[2].fd, F_SETFL, fcntl(fds[2].fd, F_GETFL) | O_NONBLOCK);
+            memset(&ignore, 0, sizeof ignore);
+            ignore.sa_handler = SIG_IGN;
+            sigemptyset(&ignore.sa_mask);
+            sigaction(SIGPIPE, &ignore, &previous);
+        }
+    }
     int open = 2;
-    while (open > 0) {
-        if (poll(fds, 2, -1) < 0) {
+    while (open > 0 || fds[2].fd >= 0) {
+        if (poll(fds, 3, -1) < 0) {
             if (errno == EINTR) continue;
             break;
         }
@@ -4391,9 +4639,19 @@ uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_pro
                 open--;
             }
         }
+        if (fds[2].fd >= 0 && (fds[2].revents & (POLLOUT | POLLHUP | POLLERR))) {
+            int64_t want = ninput - sent > 65536 ? 65536 : ninput - sent;
+            ssize_t put = write(fds[2].fd, input + sent, (size_t)want);
+            if (put > 0) sent += put;
+            if (sent == ninput || (put < 0 && errno != EINTR && errno != EAGAIN)) {
+                close(fds[2].fd);
+                fds[2].fd = -1;
+            }
+        }
     }
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 3; i++)
         if (fds[i].fd >= 0) close(fds[i].fd);
+    if (npipes == 3 && ninput > 0) sigaction(SIGPIPE, &previous, NULL);
     int status = 0;
     while (waitpid(pid, &status, 0) < 0) {
         if (errno != EINTR) {
@@ -4426,7 +4684,7 @@ uint32_t byn_io_run_batch(byn_str path, const byn_str* args, int64_t nargs, byn_
     byn_bytes streams[2] = {{NULL, 0, 0}, {NULL, 0, 0}};
     int outcome;
     uint32_t raw;
-    uint32_t err = byn_win_spawn(app, wline, streams, &outcome, &raw);
+    uint32_t err = byn_win_spawn(app, wline, NULL, NULL, NULL, -1, streams, &outcome, &raw);
     if (err != 0) return err;
     return byn_process_finish(streams, outcome, raw, out, NULL, alloc);
 #else

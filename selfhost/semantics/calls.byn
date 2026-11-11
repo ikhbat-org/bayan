@@ -685,6 +685,11 @@ List<BExpr> t21BindArgumentList(ref Binder b, through ref Ctx c, for in List<par
                 report(ref b, through: ref c, for: .argumentMustBeNamed, at: parser.exprSpan(in args[ai].value), by: (pname, "", "", "", ""),
                     help: $"write `{pname}: …`; a `bool` argument says nothing at the call site",
                     hasFix: true, fixSpan: TextSpan { start: argSpan.start, length: 0 }, fixReplacement: $"{pname}: ")
+            } else if fn != -1 && c.functions[fn].builtin == .ioRun && c.locals[p].ordinal >= 2 {
+                // `Io.run`'s options after `args` are named only (015 S6).
+                report(ref b, through: ref c, for: .argumentMustBeNamed, at: parser.exprSpan(in args[ai].value), by: (pname, "", "", "", ""),
+                    help: $"write `{pname}: …`; `Io.run`'s options are named",
+                    hasFix: true, fixSpan: TextSpan { start: argSpan.start, length: 0 }, fixReplacement: $"{pname}: ")
             }
         }
         let o = c.locals[p].ordinal
@@ -716,6 +721,10 @@ List<BExpr> t21BindArgumentList(ref Binder b, through ref Ctx c, for in List<par
         if fn != -1 && c.functions[fn].builtin == .print && c.locals[p].ordinal == 1 {
             let stdout = findEnumMember(ref c, by: typeIndex(t9Type(ref c, for: "Stream")), for: "stdout")
             result[i] = recordSyntaxNode(ref c, for: addEnumMember(ref c, from: BEnumMember { span: span, member: stdout }), at: syntax)
+            continue
+        }
+        if fn != -1 && c.functions[fn].builtin == .ioRun && c.locals[p].ordinal >= 2 {
+            result[i] = recordSyntaxNode(ref c, for: addDefault(ref c, from: BDefault { span: span, type: c.locals[p].type }), at: syntax)
             continue
         }
         missing.append(label(ref c, for: p))

@@ -77,7 +77,9 @@ public sealed class Builtins
         IoRemoveDirectory = MakeIo("removeDirectory", BuiltinFunction.IoRemoveDirectory, PrimitiveType.Void, ("path", PrimitiveType.String));
         IoListDir = MakeIo("listDir", BuiltinFunction.IoListDir, new ListType(PrimitiveType.String), ("path", PrimitiveType.String));
         IoRun = MakeIo("run", BuiltinFunction.IoRun, BuiltinType.ProcessResult,
-            ("program", PrimitiveType.String), ("args", new SpanType(PrimitiveType.String, readOnly: true)));
+            ("program", PrimitiveType.String), ("args", new SpanType(PrimitiveType.String, readOnly: true)),
+            ("directory", new OptionalType(PrimitiveType.String)), ("input", new OptionalType(new SpanType(PrimitiveType.U8, readOnly: true))),
+            ("env", new OptionalType(new MapType(PrimitiveType.String, PrimitiveType.String))));
         IoRunBatch = MakeIo("runBatch", BuiltinFunction.IoRunBatch, BuiltinType.ProcessResult,
             ("path", PrimitiveType.String), ("args", new SpanType(PrimitiveType.String, readOnly: true)));
         IoMonotonicNanos = Make("monotonicNanos", BuiltinFunction.IoMonotonicNanos, PrimitiveType.I64);
@@ -446,7 +448,10 @@ public sealed class Builtins
     /// <summary><c>List&lt;string&gt; Io.listDir(string path) fails IoError</c>: entry names sorted by byte order.</summary>
     public FunctionSymbol IoListDir { get; }
 
-    /// <summary><c>ProcessResult Io.run(string program, ReadOnlySpan&lt;string&gt; args) fails IoError</c>.</summary>
+    /// <summary>
+    /// <c>ProcessResult Io.run(string program, ReadOnlySpan&lt;string&gt; args, directory: string? = null, input: ReadOnlySpan&lt;u8&gt;? = null,
+    /// env: Map&lt;string, string&gt;? = null) fails IoError</c>; the three options are named only (015 S6).
+    /// </summary>
     public FunctionSymbol IoRun { get; }
 
     /// <summary><c>i64 Io.monotonicNanos()</c>.</summary>

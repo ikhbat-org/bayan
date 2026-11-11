@@ -49,7 +49,7 @@ Test status of the redo branches at the stop: see *Test status at handoff* at th
 python3 -I scripts/selfhost/wave-brief.py <worktree> T13      # writer brief -> <wt>/tmp/010-t13/prompt.md
 # writer agent works in the worktree, never commits; ends on GUARD PASS
 git -C <wt> add -A selfhost tests docs && git -C <wt> commit -m "feat(010): T13 …"
-python3 -I scripts/selfhost/review-brief.py <worktree> T13    # reviewer brief -> <wt>/tmp/010-t13/review.md
+bash scripts/bayan-tool.sh review-brief <worktree> T13    # reviewer brief -> <wt>/tmp/010-t13/review.md
 # a DIFFERENT, fresh agent writes docs/specs/010-self-hosted-semantics/reviews/T13.md (Commit/Verdict/table)
 # FAIL -> dispatcher rules on each finding, writer fixes, commit, review again. Commit every review file (history of why).
 git switch feat/010-self-hosted-semantics && bash scripts/selfhost/land.sh T13 feat/010-t13-redo

@@ -1849,6 +1849,19 @@ internal sealed class FunctionEmitter
                     $"    if (err == 0 && out) *out = ({list}){{p, n, n, byn_context}};\n    return err;\n}}\n");
                 return $"{name}({Expr(c.Arguments[0])}, {result ?? "NULL"})";
             }
+            // With a named argument (015 S6); a call without one keeps the plain helper, so its C is unchanged.
+            case BuiltinFunction.IoRun when c.Arguments.Skip(2).Any(a => a is not BoundDefault):
+            {
+                var span = _c.CType(fn.Parameters[1].Type);
+                var (dir, input, env) = (_c.CType(fn.Parameters[2].Type), _c.CType(fn.Parameters[3].Type), _c.CType(fn.Parameters[4].Type));
+                var name = _c.Helper("bynh_io_run_with",
+                    $"static uint32_t bynh_io_run_with(byn_str program, {span} args, {dir} directory, {input} input, {env} env, byn_process* out, int64_t* detail)", () =>
+                    "{\n    return byn_io_run_with(program, args.ptr, args.len, directory.has ? &directory.value : NULL,\n"
+                    + "        input.has ? input.value.ptr : NULL, input.has ? input.value.len : -1,\n"
+                    + "        env.has ? env.value.keys : NULL, env.has ? env.value.vals : NULL, env.has ? env.value.h.dead : NULL,\n"
+                    + "        env.has ? env.value.h.len : 0, out, detail, byn_context);\n}\n");
+                return $"{name}({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])}, {Expr(c.Arguments[2])}, {Expr(c.Arguments[3])}, {Expr(c.Arguments[4])}, {result ?? "NULL"}, {detail})";
+            }
             case BuiltinFunction.IoRun:
             {
                 var span = _c.CType(fn.Parameters[1].Type);
