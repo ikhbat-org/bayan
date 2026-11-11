@@ -57,6 +57,7 @@ _strtof_l
 _wcsnicmp
 _wfopen
 abort
+access
 arc4random_buf
 atoi
 calloc

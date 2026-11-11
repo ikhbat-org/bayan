@@ -3542,6 +3542,19 @@ static uint32_t byn_process_finish(byn_bytes* streams, int outcome, uint32_t raw
 #define BYN_RUN_GRACE_MS 2000
 #define BYN_RUN_DRAIN_MS 5000
 
+#ifndef _WIN32
+/* One expiry of a POSIX run's deadline moves `*stage` on: SIGTERM to the child's group, then SIGKILL after the grace
+ * period, then BYN_RUN_DRAIN_MS more before we stop draining; a kill that fails moves on at once. Returns the new deadline. */
+static int64_t byn_run_expire(pid_t pid, int* stage, int64_t now) {
+    if (*stage == 0) {
+        *stage = 1;
+        if (kill(-pid, SIGTERM) == 0) return now + (int64_t)BYN_RUN_GRACE_MS * 1000000;
+    }
+    *stage = 2;
+    return kill(-pid, SIGKILL) == 0 ? now + (int64_t)BYN_RUN_DRAIN_MS * 1000000 : now;
+}
+#endif
+
 #ifdef _WIN32
 
 /* Appends one argument quoted so that CommandLineToArgvW and the MSVC runtime read it back unchanged. */
@@ -3882,13 +3895,82 @@ static char** byn_env_with(const byn_str* keys, const byn_str* vals, const bool*
     return envp;
 }
 
+/* The file `name` runs, found the way `posix_spawnp` finds it from here, so a child that changes directory or gets its own
+ * PATH runs the same program: a name with a `/` against our directory, a bare name in our PATH (an empty entry is our
+ * directory; without PATH, /usr/bin:/bin). Returns 0 (`*path` set, from malloc) or an errno value. */
+static int byn_resolve_program(const char* name, char** path) {
+    size_t nlen = strlen(name);
+    if (name[0] == '/') {
+        char* full = (char*)malloc(nlen + 1);
+        if (!full) byn_panic("out of memory", NULL, 0);
+        memcpy(full, name, nlen + 1);
+        *path = full;
+        return 0;
+    }
+    char* cwd = getcwd(NULL, 0);
+    if (!cwd) return errno;
+    size_t clen = strlen(cwd);
+    if (strchr(name, '/')) {
+        char* full = (char*)malloc(clen + nlen + 2);
+        if (!full) byn_panic("out of memory", NULL, 0);
+        memcpy(full, cwd, clen);
+        full[clen] = '/';
+        memcpy(full + clen + 1, name, nlen + 1);
+        free(cwd);
+        *path = full;
+        return 0;
+    }
+    const char* search = getenv("PATH");
+    if (!search) search = "/usr/bin:/bin";
+    int found = ENOENT;
+    for (const char* entry = search;; entry++) {
+        const char* end = strchr(entry, ':');
+        size_t elen = end ? (size_t)(end - entry) : strlen(entry);
+        bool relative = elen == 0 || entry[0] != '/';
+        char* full = (char*)malloc(clen + elen + nlen + 3);
+        if (!full) byn_panic("out of memory", NULL, 0);
+        size_t at = 0;
+        if (relative) {
+            memcpy(full, cwd, clen);
+            full[clen] = '/';
+            at = clen + 1;
+        }
+        memcpy(full + at, entry, elen);
+        at += elen;
+        full[at++] = '/';
+        memcpy(full + at, name, nlen + 1);
+        struct stat st;
+        if (stat(full, &st) == 0 && !S_ISDIR(st.st_mode)) {
+            if (access(full, X_OK) == 0) {
+                free(cwd);
+                *path = full;
+                return 0;
+            }
+            found = EACCES;
+        }
+        free(full);
+        if (!end) break;
+        entry = end;
+    }
+    free(cwd);
+    return found;
+}
+
 /* posix_spawn has no portable working-directory action (`addchdir_np` is missing under -std=c11 on macOS and before
- * glibc 2.29), so a child with a directory is forked: it moves its streams into place, changes directory and execs,
+ * glibc 2.29), so a child with a directory is forked: the program is resolved here first (byn_resolve_program), then
+ * the child moves its streams into place, changes directory and execs the resolved path,
  * reporting a failure before exec through a close-on-exec pipe; with `group` it first starts its own process group.
  * Returns 0 (`*pid` set) or an errno value. */
 static int byn_fork_exec(char** argv, char** envp, const char* dir, bool group, int in, int out, int err, pid_t* pid) {
+    char* file = NULL;
+    int resolved = byn_resolve_program(argv[0], &file);
+    if (resolved != 0) return resolved;
     int report[2];
-    if (pipe(report) != 0) return errno;
+    if (pipe(report) != 0) {
+        int e = errno;
+        free(file);
+        return e;
+    }
     fcntl(report[0], F_SETFD, FD_CLOEXEC);
     fcntl(report[1], F_SETFD, FD_CLOEXEC);
     pid_t p = fork();
@@ -3896,12 +3978,14 @@ static int byn_fork_exec(char** argv, char** envp, const char* dir, bool group, 
         int e = errno;
         close(report[0]);
         close(report[1]);
+        free(file);
         return e;
     }
     if (p == 0) {
         if ((!group || setpgid(0, 0) == 0) && (in < 0 || dup2(in, 0) >= 0) && dup2(out, 1) >= 0 && dup2(err, 2) >= 0 && chdir(dir) == 0) {
             environ = envp;
-            execvp(argv[0], argv);
+            /* `file` has a `/`, so execvp searches nothing; it still runs a script without `#!` through sh. */
+            execvp(file, argv);
         }
         int e = errno;
         ssize_t put = write(report[1], &e, sizeof e);
@@ -3909,6 +3993,7 @@ static int byn_fork_exec(char** argv, char** envp, const char* dir, bool group, 
         _exit(127);
     }
     close(report[1]);
+    free(file);
     int e = 0;
     ssize_t got;
     while ((got = read(report[0], &e, sizeof e)) < 0 && errno == EINTR) {}
@@ -4071,9 +4156,8 @@ uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, co
             sigaction(SIGPIPE, &ignore, &previous);
         }
     }
-    /* With a timeout, each expiry of the deadline moves one stage on: SIGTERM to the group, then SIGKILL after the grace
-     * period, then (after BYN_RUN_DRAIN_MS more) we stop draining, so a process that escaped the group cannot hold us. A
-     * kill that fails moves on at once. */
+    /* With a timeout, each expiry of the deadline moves one stage on (byn_run_expire); after the last we stop draining,
+     * so a process that escaped the group cannot hold us. */
     int stage = 0;
     int64_t deadline = timeout_ms >= 0 ? byn_io_monotonic_nanos() + timeout_ms * 1000000 : 0;
     int open = 2;
@@ -4091,17 +4175,7 @@ uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, co
         }
         if (ready == 0) {
             if (stage == 2) break;
-            int64_t now = byn_io_monotonic_nanos();
-            if (stage == 0) {
-                stage = 1;
-                if (kill(-pid, SIGTERM) == 0) {
-                    deadline = now + (int64_t)BYN_RUN_GRACE_MS * 1000000;
-                    continue;
-                }
-            }
-            stage = 2;
-            deadline = now + (int64_t)BYN_RUN_DRAIN_MS * 1000000;
-            if (kill(-pid, SIGKILL) != 0) deadline = now;
+            deadline = byn_run_expire(pid, &stage, byn_io_monotonic_nanos());
             continue;
         }
         for (int i = 0; i < 2; i++) {
@@ -4128,9 +4202,32 @@ uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, co
     for (int i = 0; i < 3; i++)
         if (fds[i].fd >= 0) close(fds[i].fd);
     if (npipes == 3 && ninput > 0) sigaction(SIGPIPE, &previous, NULL);
+    /* A child can close both streams and run on, so with a timeout the reap keeps the same deadline: poll for its exit
+     * every few milliseconds, expiring as above until SIGKILL has been sent, after which a blocking wait reaps it. */
     int status = 0;
-    if (stage > 0) outcome = BYN_WAIT_TIMED_OUT;
-    while (waitpid(pid, &status, 0) < 0) {
+    bool reaped = false;
+    while (timeout_ms >= 0 && stage < 2) {
+        pid_t done = waitpid(pid, &status, WNOHANG);
+        if (done == pid) {
+            reaped = true;
+            break;
+        }
+        if (done < 0 && errno != EINTR) {
+            outcome = BYN_WAIT_FAILED;
+            reaped = true;
+            break;
+        }
+        int64_t now = byn_io_monotonic_nanos();
+        if (now >= deadline) {
+            deadline = byn_run_expire(pid, &stage, now);
+            continue;
+        }
+        int64_t ms = (deadline - now + 999999) / 1000000;
+        /* A sleep: no descriptors, so it returns 0 when the time is up or -1 (EINTR) earlier, and either way we look again. */
+        (void)poll(NULL, 0, ms > 10 ? 10 : (int)ms);
+    }
+    if (stage > 0 && outcome != BYN_WAIT_FAILED) outcome = BYN_WAIT_TIMED_OUT;
+    while (!reaped && waitpid(pid, &status, 0) < 0) {
         if (errno != EINTR) {
             outcome = BYN_WAIT_FAILED;
             break;
