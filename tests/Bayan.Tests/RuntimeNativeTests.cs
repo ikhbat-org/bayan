@@ -134,6 +134,39 @@ public sealed class RuntimeNativeTests
     }
 
     /// <summary>
+    /// After the deadline the drain joins are bounded even when <c>TerminateJobObject</c> fails and the tree runs on: the runtime
+    /// is built with that call failing (<c>tests/native/run-terminate-fails.c</c>), and the call is <c>other</c> (5) well before
+    /// the pings end. Windows only; elsewhere only the replaced text is checked.
+    /// </summary>
+    [Fact]
+    public void RunTimeoutBoundsTheJoinsWhenTerminateFails()
+    {
+        const string terminate = "if (!TerminateJobObject(job, 1) ||";
+        var runtime = Toolchain.RuntimeSource;
+        Assert.Equal(1, runtime.Split(terminate).Length - 1);
+        if (!OperatingSystem.IsWindows()) return;
+        var compiler = Toolchain.FindCompiler();
+        Assert.NotNull(compiler);
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "native", "run-terminate-fails");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        File.Copy(Path.Combine(Golden.RepoRoot, "tests", "native", "run-terminate-fails.c"), Path.Combine(dir, "main.c"));
+        File.WriteAllText(Path.Combine(dir, "bayan-rt.c"), runtime.Replace(terminate, "if (true ||"));
+        File.WriteAllText(Path.Combine(dir, "bayan-rt.h"), Toolchain.RuntimeHeader);
+        var cc = new ProcessStartInfo(compiler[0]) { WorkingDirectory = dir, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
+        foreach (var a in compiler[1..]) cc.ArgumentList.Add(a);
+        foreach (var a in new[] { "-std=c11", "-w", "-O0", "-I.", "main.c", "bayan-rt.c", "-o", "program.exe", "-lshell32" }) cc.ArgumentList.Add(a);
+        using (var p = Process.Start(cc)!)
+        {
+            var stdout = p.StandardOutput.ReadToEndLf();
+            var stderr = p.StandardError.ReadToEndLf();
+            p.WaitForExit();
+            Assert.True(p.ExitCode == 0, stdout + stderr);
+        }
+        Assert.Equal("result 5 in time 1\n", Run(Path.Combine(dir, "program.exe"), []).Replace("\r\n", "\n"));
+    }
+
+    /// <summary>
     /// POSIX <c>Io.run</c> edges (<c>tests/native/io-run-posix.c</c>): a child that leaves its process group is signalled
     /// itself, so a 300 ms timeout ends in time; <c>timeout: Millis(i64.max)</c> never passes, so a child that exits at once
     /// reports exit 0; a deleted working directory does not stop <c>sh</c> on an absolute PATH.
