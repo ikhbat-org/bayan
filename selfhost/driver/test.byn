@@ -32,13 +32,11 @@ struct T11Options {
     string? package = null
 }
 
-/// CliApp.cs:168 `ParseBuildOptions`. Null after reporting.
-T11Options? t11ParseBuildOptions(in List<string> args, by bool allowOutput, for bool allowTestJson, through bool allowVerbose) uses alloc, console, fs {
+/// CliApp.cs:168 `ParseBuildOptions` as `Test` calls it (CliApp.cs:641: `allowOutput: false, allowTestJson: true, allowVerbose:
+/// true`), so `-o`, `--emit-c` and `--target` are unexpected arguments here. Null after reporting.
+T11Options? t11ParseBuildOptions(in List<string> args) uses alloc, console, fs {
     var path: string? = null
-    var output: string? = null
-    var target: string? = null
     var mode = "safe"
-    var emitC = false
     var json = false
     var testJson = false
     var changed = false
@@ -74,41 +72,27 @@ T11Options? t11ParseBuildOptions(in List<string> args, by bool allowOutput, for 
                 Io.stderr.write($"bayan: unknown diagnostics format `{args[i]}` (expected json or text)\n")
                 return null
             }
-        } else if a == "-o" && allowOutput && i + 1 < args.length {
-            i += 1
-            output = args[i]
-        } else if a == "--emit-c" && allowOutput {
-            emitC = true
-        } else if a == "--target" && allowOutput && i + 1 < args.length {
-            i += 1
-            target = args[i]
-            if args[i] == "host" {
-                target = null
-            } else if !targetIsKnown(args[i]) {
-                Io.stderr.write($"bayan: unknown target `{args[i]}` (expected host, {t5Join(in targetNames())})\n")
-                return null
-            }
         } else if a == "--all" {
             all = true
-        } else if a == "--changed" && allowTestJson {
+        } else if a == "--changed" {
             changed = true
-        } else if a == "--base" && allowTestJson && i + 1 < args.length {
+        } else if a == "--base" && i + 1 < args.length {
             i += 1
             baseRef = args[i]
             changed = true
-        } else if a == "--json" && allowTestJson {
+        } else if a == "--json" {
             testJson = true
-        } else if a == "--mutate" && allowTestJson {
+        } else if a == "--mutate" {
             mutate = true
-        } else if a == "--run" && allowTestJson && i + 1 < args.length {
+        } else if a == "--run" && i + 1 < args.length {
             i += 1
             run = args[i]
-        } else if a == "--coverage" && allowTestJson {
+        } else if a == "--coverage" {
             coverage = true
-        } else if a == "--only" && allowTestJson && i + 1 < args.length {
+        } else if a == "--only" && i + 1 < args.length {
             i += 1
             only.append(args[i])
-        } else if (a == "-v" || a == "--verbose") && allowVerbose {
+        } else if a == "-v" || a == "--verbose" {
             verbose = true
         } else if a == "--package" && i + 1 < args.length {
             i += 1
@@ -136,11 +120,8 @@ T11Options? t11ParseBuildOptions(in List<string> args, by bool allowOutput, for 
     return T11Options {
         path: p,
         mode: mode,
-        output: output,
-        emitC: emitC,
         json: json,
         programArgs: move programArgs,
-        target: target,
         testJson: testJson,
         changed: changed,
         baseRef: baseRef,
@@ -202,7 +183,7 @@ i64 t11Line(in List<u8> text, at i64 offset) {
 /// CliApp.cs:639 `Test`. `kept` is the command and its arguments.
 i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process {
     let args = t2Rest(kept)
-    let o = t11ParseBuildOptions(in args, by: false, for: true, through: true) ?? return exitUsage
+    let o = t11ParseBuildOptions(in args) ?? return exitUsage
     let symbolsErr = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
@@ -423,11 +404,11 @@ void t11ReplaceText(string path, from string text, through ref DCtx d) uses allo
     defer t9DeleteFile(temp)
     try Io.writeFile(temp, text.bytes)
     for _ in 1..50 {
-        // coverage-exempt: Q1149 a rename that fails and then succeeds (another process holds `path`, Windows)
+        // coverage-exempt: Q1251 a rename that fails and then succeeds (another process holds `path`, Windows)
         Fs.rename(temp, to: path) catch continue
         return
     }
-    // coverage-exempt: Q1149 the 50th try, after 49 failed renames
+    // coverage-exempt: Q1251 the 50th try, after 49 failed renames
     try Fs.rename(temp, to: path)
 }
 
@@ -481,7 +462,7 @@ string t11Part(in QualityTally x) uses alloc => $"{x.covered}/{x.total} ({x.tota
 List<string> t11ReadAllLines(string text) uses alloc {
     var lines = List<string>()
     for line in text.replaced("\r\n", by: "\n").replaced("\r", by: "\n").parts(by: "\n") { lines.append(line) }
-    if lines.length > 0 && lines[lines.length - 1].length == 0 { let _ = lines.removeLast() }
+    if lines[lines.length - 1].length == 0 { let _ = lines.removeLast() }
     return lines
 }
 

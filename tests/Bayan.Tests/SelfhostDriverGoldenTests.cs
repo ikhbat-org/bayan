@@ -248,7 +248,7 @@ public sealed class SelfhostDriverGoldenTests
             foreach (var dir in Directory.GetDirectories(cwd, "out", SearchOption.AllDirectories)) Directory.Delete(dir, recursive: true);
             var r = run();
             files = Directory.GetDirectories(cwd, "out", SearchOption.AllDirectories).Select(d => Path.Combine(d, "test")).Where(Directory.Exists)
-                .SelectMany(d => Directory.GetFiles(d, "*.json")).ToDictionary(f => Path.GetRelativePath(cwd, f), f => MaskTest(File.ReadAllText(f)));
+                .SelectMany(d => Directory.GetFiles(d, "*", SearchOption.AllDirectories)).Where(f => f.EndsWith(".json") || f.EndsWith(".cov.txt")).ToDictionary(f => Path.GetRelativePath(cwd, f), f => MaskTest(File.ReadAllText(f)));
             return r;
         }
         var expected = Once(() => Start("dotnet", [typeof(CliApp).Assembly.Location], cwd, args, env), out var expectedFiles);
@@ -315,6 +315,15 @@ public sealed class SelfhostDriverGoldenTests
         Directory.CreateDirectory(loose);
         File.WriteAllText(Path.Combine(loose, "main.byn"), "void main() {\n}\n\ntest \"t\" {\n    assert(true)\n}\n");
         AssertTestAsCSharp(work, ["test", "loose", "--changed"], [("GIT_CEILING_DIRECTORIES", work)]);
+        AssertTestAsCSharp(work, ["test", Path.Combine("loose", "main.byn"), "--changed"], [("GIT_CEILING_DIRECTORIES", work)]);
+
+        File.WriteAllText(Path.Combine(app, "notes.txt"), "not a module\n");
+        AssertTestAsCSharp(work, ["test", "-v", "tally", "--changed"]);
+        File.AppendAllText(Path.Combine(app, "package.byn"), "\n");
+        AssertTestAsCSharp(work, ["test", "-v", "tally", "--changed"]);
+        var noGit = Path.Combine(work, "no-git");
+        Directory.CreateDirectory(noGit);
+        AssertTestAsCSharp(work, ["test", "tally", "--changed"], [("PATH", noGit)]);
     }
 
     /// <summary>017 T11 (L028): <c>CliEnvironmentTests.ATestThatRunsTooLongIsReportedAsTimedOut</c>, the text C# prints at CliApp.cs:723.</summary>
@@ -346,6 +355,87 @@ public sealed class SelfhostDriverGoldenTests
         AssertTestAsCSharp(work, flag.Length == 0 ? ["test", "tally"] : ["test", flag, "tally"]);
     }
 
+    /// <summary>
+    /// 017 T11 (L028): the failure details of CliApp.cs:994 <c>FailureDetail</c> (a <c>\r</c> line end, more than three <c>  at </c> lines, a
+    /// <c>panic: assert </c> message with an unindented line after it), a passing test's output under <c>-v</c>, more than three failures (no
+    /// rerun line), an output over BoundedCapture's 128 KiB, and a name with each JSON escape of TestReport.cs.
+    /// </summary>
+    [Theory]
+    [InlineData("")]
+    [InlineData("-v")]
+    [InlineData("-v --json")]
+    public void TestFailuresAsCSharpCli(string flags)
+    {
+        var work = Work($"test/failures{flags.Replace(" ", "").Replace("-", "_")}");
+        var app = Path.Combine(work, "fails");
+        Directory.CreateDirectory(app);
+        File.WriteAllText(Path.Combine(app, "main.byn"), "void main() {\n}\n\n"
+            + "test \"out\" {\n    print(\"one\\r\")\n    print(\"two\")\n}\n\n"
+            + "test \"cr\" {\n    print(\"cr\\r\")\n    let x = 1\n    assert(x == 2)\n}\n\n"
+            + "test \"frames\" {\n    for i in 0..4 {\n        print($\"  at f{i}\")\n    }\n    panic(\"deep\")\n}\n\n"
+            + "test \"big\" {\n    for i in 0..3000 {\n        print(\"0123456789012345678901234567890123456789012345678901234567890123456789\")\n    }\n    panic(\"big\")\n}\n\n"
+            + "test \"plain\" {\n    panic(\"assert this\\nnext\")\n}\n\n"
+            + "test \"esc \\\\ \\u{8}\\t\\u{c}\\r\\u{7f}\\u{85}\\u{2028}\\u{2029}\\u{1F600}\\\"\" {\n}\n");
+        AssertTestAsCSharp(work, ["test", .. flags.Split(' ', StringSplitOptions.RemoveEmptyEntries), "fails"]);
+    }
+
+    /// <summary>
+    /// 017 T11 (L028): <c>--coverage</c> and <c>--mode debug</c> (CliApp.cs:812 <c>WriteCoverage</c>, QualityReport.cs:109 <c>Coverage</c>, its
+    /// listing and summary, Gates.cs:15 <c>Coverage</c>) on an app with a missed line, branch and error path, whole and partial (<c>--only</c>),
+    /// then with a test past <c>BAYAN_TEST_TIMEOUT_MS</c> (unknown counters); <c>test</c> with no path inside the project; a build with no C
+    /// compiler on <c>PATH</c>.
+    /// </summary>
+    [Fact]
+    public void TestCoverageAsCSharpCli()
+    {
+        var work = Work("test/coverage");
+        var app = Path.Combine(work, "cov");
+        Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", app, "--vcs", "none"], new StringWriter(), new StringWriter()));
+        File.Delete(Path.Combine(app, "tests", "app.test.byn"));
+        var main = Path.Combine(app, "src", "app", "main.byn");
+        File.WriteAllText(main, "import std.json\n\nunion error DigitError {\n    empty\n    bad\n}\n\n"
+            + "i64 digit(string s) fails DigitError {\n    fail .empty if s.length == 0\n    fail .empty if s == \" \"\n    fail .bad if s == \"x\"\n    return s.length\n}\n\n"
+            + "i64 sign(i64 n) {\n    if n < 0 {\n        return -1\n    }\n    return 1\n}\n\n"
+            + "i64 unused(i64 n) {\n    if n > 0 { return 1 }\n    return 0\n}\n\n"
+            + "test \"digit\" {\n    let d = try digit(\"ab\")\n    assert(d == 2)\n    let e = digit(\"\") catch -1\n    assert(e == -1)\n}\n\n"
+            + "test \"sign\" {\n    assert(sign(3) == 1)\n}\n\n"
+            + "test \"parse\" {\n    let p = json.Json.parse(\"1\") catch { return }\n}\n\n"
+            + "print($\"{sign(1)}\")\n\ntest \"tail\" {\n    assert(sign(2) == 1)\n}");
+        AssertTestAsCSharp(work, ["test", "--coverage", "cov"]);
+        AssertTestAsCSharp(work, ["test", "--coverage", "--json", "cov"]);
+        AssertTestAsCSharp(work, ["test", "--coverage", "--only", "sign", "cov"]);
+        AssertTestAsCSharp(work, ["test", "--mode", "debug", "cov"]);
+        AssertTestAsCSharp(work, ["test", "--mode", "debug", "--only", "sign", "cov"]);
+        AssertTestAsCSharp(app, ["test"]);
+        var noCc = Path.Combine(work, "no-cc");
+        Directory.CreateDirectory(noCc);
+        AssertTestAsCSharp(work, ["test", "cov"], [("PATH", noCc), ("BAYAN_CACHE", Path.Combine(work, "cc-cache"))]);
+        AssertTestAsCSharp(work, ["test", "--json", "cov"], [("PATH", noCc), ("BAYAN_CACHE", Path.Combine(work, "cc-cache"))]);
+        AssertTestAsCSharp(work, ["test", "--diagnostics", "json", "cov"], [("PATH", noCc), ("BAYAN_CACHE", Path.Combine(work, "cc-cache"))]);
+        File.AppendAllText(main, "\n\ntest \"loops\" {\n    while true {\n    }\n}\n");
+        AssertTestAsCSharp(work, ["test", "--coverage", "cov"], [("BAYAN_TEST_TIMEOUT_MS", "5000")]);
+        AssertTestAsCSharp(work, ["test", "--mode", "debug", "cov"], [("BAYAN_TEST_TIMEOUT_MS", "5000")]);
+    }
+
+    /// <summary>
+    /// 017 T11 (L028): Gates.cs:51 <c>Fmt</c> with one and two leading zeros in the thousandths (lines 10/111, 9.009%; branches 2/22, 9.091%)
+    /// and an empty tally (error paths 0/0), in the <c>--coverage</c> summary and the <c>--mode debug</c> line.
+    /// </summary>
+    [Fact]
+    public void TestPercentagesAsCSharpCli()
+    {
+        var work = Work("test/percentages");
+        var app = Path.Combine(work, "fmt");
+        Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", app, "--vcs", "none"], new StringWriter(), new StringWriter()));
+        File.Delete(Path.Combine(app, "tests", "app.test.byn"));
+        File.WriteAllText(Path.Combine(app, "src", "app", "main.byn"), "void main() {\n}\n\ni64 hit(i64 k) {\n    var n = k\n    if n > 0 { n += 1 }\n"
+            + string.Concat(Enumerable.Repeat("    n += 1\n", 7)) + "    return n\n}\n\ni64 miss(i64 k) {\n    var n = k\n"
+            + string.Concat(Enumerable.Repeat("    if n > 0 { n += 1 }\n", 10)) + string.Concat(Enumerable.Repeat("    n += 1\n", 89))
+            + "    return n\n}\n\ntest \"hit\" {\n    assert(hit(1) + hit(-1) > 0)\n}\n");
+        AssertTestAsCSharp(work, ["test", "--coverage", "fmt"]);
+        AssertTestAsCSharp(work, ["test", "--mode", "debug", "fmt"]);
+    }
+
     /// <summary>The argument lists of <see cref="TestArgumentsAsCSharpCli"/>: each flag of CliApp.cs:610 (<c>ParseBuild</c> for <c>test</c>) and its errors.</summary>
     public static TheoryData<string[]> TestArguments() => new()
     {
@@ -375,6 +465,17 @@ public sealed class SelfhostDriverGoldenTests
         new[] { "test", "--coverage", "-v", "proj" },
         new[] { "test", "--json", "proj" },
         new[] { "test", "--mode", "safe", "proj" },
+        new[] { "test", "--verbose", "tally" },
+        new[] { "test", "-v", "lib" },
+        new[] { "test", "--mode", "debug", "proj" },
+        new[] { "test", "--mode", "debug", "--json", "proj" },        new[] { "test", "tally", "--mode" },
+        new[] { "test", "tally", "--diagnostics" },
+        new[] { "test", "tally", "--base" },
+        new[] { "test", "tally", "--run" },
+        new[] { "test", "tally", "--package" },
+        new[] { "features" },
+        new[] { "doctor" },
+        new[] { "dist" },
     };
 
     /// <summary>
@@ -385,13 +486,14 @@ public sealed class SelfhostDriverGoldenTests
     [MemberData(nameof(TestArguments))]
     public void TestArgumentsAsCSharpCli(string[] args)
     {
-        var work = Work($"test/args-{string.Join('_', args.Skip(1)).Replace("-", "").Replace(".", "")}");
+        var work = Work($"test/args-{string.Join('_', args).Replace("-", "").Replace(".", "")}");
         var tally = Path.Combine(work, "tally");
         Directory.CreateDirectory(tally);
         File.WriteAllText(Path.Combine(tally, "main.byn"), "void main() {\n    print(\"hi\")\n}\n");
-        File.WriteAllText(Path.Combine(tally, "main.test.byn"), "test \"ok\\u{1b}]0;PWNED\\u{7}\" {\n    assert(true);\n}\n\ntest \"later\\u{1b}[2J\" {\n    todo(\"soon\");\n}\n\n"
-            + "test \"y\\u{1b}]0;PWNED\\u{7}\\u{1b}[2J\" {\n    panic(\"boom\\u{1b}[2J\\u{9b}31m\");\n}\n");
+        File.WriteAllText(Path.Combine(tally, "main.test.byn"), "test \"ok\\u{1b}]0;PWNED\\u{7}\" {\n    assert(true)\n}\n\ntest \"later\\u{1b}[2J\" {\n    todo(\"soon\")\n}\n\n"
+            + "test \"y\\u{1b}]0;PWNED\\u{7}\\u{1b}[2J\" {\n    panic(\"boom\\u{1b}[2J\\u{9b}31m\")\n}\n");
         Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", Path.Combine(work, "proj"), "--vcs", "none"], new StringWriter(), new StringWriter()));
+        Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", Path.Combine(work, "lib"), "--lib", "--vcs", "none"], new StringWriter(), new StringWriter()));
         AssertTestAsCSharp(work, args);
     }
 
