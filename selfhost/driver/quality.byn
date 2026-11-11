@@ -1,6 +1,6 @@
 // The coverage half of the quality report of the self-hosted driver (spec 017 T11). Ports `QualityReport.cs` :109 `Coverage`,
 // :150 `Json` with :228 `WriteCoverage` (the coverage form), :332 `Listing`, :344 `Percent`, :347 `CoverageSummary`, and
-// `Gates.cs` :15 `Coverage`, :45 `Add`, :51 `Fmt`. The JSON is `Utf8JsonWriter`'s indented form (testreport.byn `T11Json`).
+// `Gates.cs` :15 `Coverage`, :43 `Add`, :51 `Fmt`. The JSON is `Utf8JsonWriter`'s indented form (testreport.byn `T11Json`).
 
 import emitter
 
@@ -289,11 +289,10 @@ List<GateFailure> gatesCoverage(in QualityReport report, by i64? minLines, for i
     return failures
 }
 
-/// Gates.cs:45 `Add` without `missingCount` (the mutation gate's, T13).
+/// Gates.cs:43 `Add` without `missingCount` (the mutation gate's, T13).
 void gatesAdd(ref List<GateFailure> failures, for string name, by i64? min, through i64 covered, from move List<string> missing) uses alloc {
     let total = covered + missing.length
     let m = min ?? return
-    // coverage-exempt: Q1217 through `failures.append(GateFailure` no manifest field sets a minimum, so no gate applies
     if covered * 100 >= m * total { return }
     failures.append(GateFailure { name: name, covered: covered, total: total, min: m, missing: move missing })
 }

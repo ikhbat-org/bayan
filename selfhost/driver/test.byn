@@ -201,8 +201,9 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     }
     // stub: T11 `MutateTests` (CliApp.cs:855) is T13's (blocked: Q1220)
     if o.mutate { return refuse("test --mutate") }
-    // `compiled.Manifest?.Summary ?? true`: the manifest keeps no `summary` (Q1217).
-    let probes = o.coverage || o.mode == "debug"
+    var summary = true
+    if (compiled.manifest is { } manifest) { summary = manifest.summary }
+    let probes = o.coverage || o.mode == "debug" && summary
     let host = t5HostTarget()
     var map = T11CoverageMap {}
     var l = T11LCtx {}
@@ -337,7 +338,8 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
             if human { print($"  {t11Paint(3, by: d.styleOut, for: symbols.dot)} {module}: {name}") }
             if details.length > 0 {
                 for detail in details.parts(by: "\n") {
-                    let trimmed = detail.endsWith("\r") ? detail[0..detail.length - 1] : detail
+                    var trimmed = detail
+                    while trimmed.endsWith("\r") { trimmed = trimmed[0..trimmed.length - 1] }
                     if human { print($"      {visible(trimmed)}") }
                 }
             }
@@ -399,7 +401,6 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         let resultsPath = Path.combine(testDir, "results.json")
         t11ReplaceText(resultsPath, from: json, through: ref d) catch { panic($"cannot write {resultsPath}") }
     }
-    // coverage-exempt: Q1217 through `return failed > 0 || gated` no coverage gate applies
     let gated = probes && writeCoverage(in o, by: in compiled, from: in map, through: in hits, for: unknown, as: partial, to: buildNanos, at: totalNanos, quiet: !human)
     if (coverageDir is { } cd) { deleteWorkDir(cd) }
     return failed > 0 || gated ? exitTestFailure : exitOk
@@ -462,9 +463,11 @@ bool writeCoverage(in T11Options o, by in semantics.Ctx compiled, from in emitte
         let lines = t11ReadAllLines(text)
         Io.writeFile(listing, qualityListing(in f, from: in lines).bytes) catch { panic($"cannot write {listing}") }
     }
-    // `m.MinLines`, `MinBranches` and `MinErrorPaths`: the manifest keeps none of them, so no gate applies (Q1217).
-    // coverage-exempt: Q1217 no coverage gate applies
-    return !partial && compiled.manifest is not null && t11ReportGates(gatesCoverage(in report, by: null, for: null, through: null))
+    if partial { return false }
+    if (compiled.manifest is { } m) {
+        return t11ReportGates(gatesCoverage(in report, by: m.minLines, for: m.minBranches, through: m.minErrorPaths))
+    }
+    return false
 }
 
 /// `Part` of CliApp.cs:821.
@@ -497,7 +500,6 @@ string listingName(string relative) uses alloc {
 
 /// CliApp.cs:951 `ReportGates`: a line per failed gate, then what it misses; whether any failed.
 bool t11ReportGates(in List<GateFailure> failures) uses alloc, console {
-    // coverage-exempt: Q1217 through `for line in f.missing` no coverage gate applies
     for f in failures {
         Io.stderr.write($"bayan: {f.name} {gatesFmt(f.covered, by: f.total)}% < {f.min}%\n")
         for line in f.missing { Io.stderr.write($"{line}\n") }
@@ -522,7 +524,8 @@ List<string> failureDetail(string details, by bool verbose, for in semantics.T26
     var frames: i64 = 0
     var diagram = false
     for raw in details.parts(by: "\n") {
-        var l = raw.endsWith("\r") ? raw[0..raw.length - 1] : raw
+        var l = raw
+        while l.endsWith("\r") { l = l[0..l.length - 1] }
         if l.startsWith("  at ") {
             if verbose || frames < 3 { lines.append(l[5..l.length]) }
             frames += 1

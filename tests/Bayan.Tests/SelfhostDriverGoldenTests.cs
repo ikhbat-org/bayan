@@ -356,8 +356,8 @@ public sealed class SelfhostDriverGoldenTests
     }
 
     /// <summary>
-    /// 017 T11 (L028): the failure details of CliApp.cs:994 <c>FailureDetail</c> (a <c>\r</c> line end, more than three <c>  at </c> lines, a
-    /// <c>panic: assert </c> message with an unindented line after it), a passing test's output under <c>-v</c>, more than three failures (no
+    /// 017 T11 (L028): the failure details of CliApp.cs:994 <c>FailureDetail</c> (a <c>\r</c> line end and two, more than three <c>  at </c> lines, a
+    /// <c>panic: assert </c> message with an unindented line after it), a passing test's output under <c>-v</c> (two <c>\r</c> included), more than three failures (no
     /// rerun line), an output over BoundedCapture's 128 KiB, and a name with each JSON escape of TestReport.cs.
     /// </summary>
     [Theory]
@@ -372,6 +372,8 @@ public sealed class SelfhostDriverGoldenTests
         File.WriteAllText(Path.Combine(app, "main.byn"), "void main() {\n}\n\n"
             + "test \"out\" {\n    print(\"one\\r\")\n    print(\"two\")\n}\n\n"
             + "test \"cr\" {\n    print(\"cr\\r\")\n    let x = 1\n    assert(x == 2)\n}\n\n"
+            + "test \"crs\" {\n    print(\"a\\r\\r\")\n    panic(\"crs\")\n}\n\n"
+            + "test \"crs out\" {\n    print(\"a\\r\\r\")\n    print(\"b\")\n}\n\n"
             + "test \"frames\" {\n    for i in 0..4 {\n        print($\"  at f{i}\")\n    }\n    panic(\"deep\")\n}\n\n"
             + "test \"big\" {\n    for i in 0..3000 {\n        print(\"0123456789012345678901234567890123456789012345678901234567890123456789\")\n    }\n    panic(\"big\")\n}\n\n"
             + "test \"plain\" {\n    panic(\"assert this\\nnext\")\n}\n\n"
@@ -382,7 +384,8 @@ public sealed class SelfhostDriverGoldenTests
     /// <summary>
     /// 017 T11 (L028): <c>--coverage</c> and <c>--mode debug</c> (CliApp.cs:812 <c>WriteCoverage</c>, QualityReport.cs:109 <c>Coverage</c>, its
     /// listing and summary, Gates.cs:15 <c>Coverage</c>) on an app with a missed line, branch and error path, whole and partial (<c>--only</c>),
-    /// then with a test past <c>BAYAN_TEST_TIMEOUT_MS</c> (unknown counters); <c>test</c> with no path inside the project; a build with no C
+    /// then with a test past <c>BAYAN_TEST_TIMEOUT_MS</c> (unknown counters); <c>test</c> with no path inside the project; the manifest's
+    /// <c>test: Tests { … }</c> minimums below and above the coverage (Gates.cs:15 with CliApp.cs:839), <c>summary</c> (CliApp.cs:655) and invalid values (Manifest.cs:268); a build with no C
     /// compiler on <c>PATH</c>.
     /// </summary>
     [Fact]
@@ -407,6 +410,15 @@ public sealed class SelfhostDriverGoldenTests
         AssertTestAsCSharp(work, ["test", "--mode", "debug", "cov"]);
         AssertTestAsCSharp(work, ["test", "--mode", "debug", "--only", "sign", "cov"]);
         AssertTestAsCSharp(app, ["test"]);
+        var manifest = Path.Combine(app, "package.byn");
+        var package = File.ReadAllText(manifest);
+        foreach (var tests in new[] { "lines: 100", "branches: 100, errorPaths: 100", "lines: 0, branches: 50", "summary: false", "summary: true, lines: 101", "lines: \"x\", summary: 1" })
+        {
+            File.WriteAllText(manifest, package[..package.LastIndexOf('}')].TrimEnd().TrimEnd(',') + $",\n    test: Tests {{ {tests} }}\n}}\n");
+            AssertTestAsCSharp(work, ["test", "--coverage", "cov"]);
+            AssertTestAsCSharp(work, ["test", "--mode", "debug", "cov"]);
+        }
+        File.WriteAllText(manifest, package);
         var noCc = Path.Combine(work, "no-cc");
         Directory.CreateDirectory(noCc);
         AssertTestAsCSharp(work, ["test", "cov"], [("PATH", noCc), ("BAYAN_CACHE", Path.Combine(work, "cc-cache"))]);
