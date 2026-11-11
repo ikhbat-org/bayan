@@ -74,6 +74,8 @@ int main(int argc, char** argv) {
     r = run("sh", "exit 0", NULL, INT64_MAX, &out);
     printf("longest timeout: %u code %d\n", (unsigned)r, (int)out.exit_code);
 
+    const char* path_env = getenv("PATH");
+    char* saved_path = path_env ? strdup(path_env) : NULL;
     char gone[64];
     snprintf(gone, sizeof gone, "/tmp/byn-cwd-%ld", (long)getpid());
     if (mkdir(gone, 0700) != 0 || chdir(gone) != 0 || rmdir(gone) != 0 || setenv("PATH", "/usr/bin:/bin", 1) != 0) return 1;
@@ -85,5 +87,7 @@ int main(int argc, char** argv) {
     out = (byn_process){0};
     r = run("sh", "exit 0", &tmp, -1, &out);
     printf("deleted directory, empty PATH entry: %u code %d\n", (unsigned)r, (int)out.exit_code);
+    if (saved_path ? setenv("PATH", saved_path, 1) : unsetenv("PATH")) return 1;
+    free(saved_path);
     return 0;
 }
