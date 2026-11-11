@@ -1,0 +1,9 @@
+Package {
+    name:    "local/shipping",
+    version: "0.1.0",
+    grammar: Grammar {
+        verbs: ["ship", "stamp"],
+        nouns: ["criterion", "stamp"],
+        forms: ["ship": "shipped", "criterion": "criteria"],
+    },
+}

@@ -1,10 +1,10 @@
-// `IoError.signaled(i32 signal)` and `IoError.timeout(Millis after)` (plan 007): a catch binds each payload.
+// `IoError.signaled(i32 signal, string stdout, string stderr)` and `IoError.timeout(Millis after)` (plan 007): a catch binds each payload.
 union error JobError {
     lost
 }
 
 i64 job(i64 n) fails IoError, JobError {
-    fail .signaled(signal: 9) if n == 1
+    fail .signaled(signal: 9, stdout: "", stderr: "") if n == 1
     fail .timeout(after: Millis(200)) if n == 2
     fail .lost if n == 3
     return n
@@ -12,7 +12,7 @@ i64 job(i64 n) fails IoError, JobError {
 
 void report(i64 n) {
     let r = job(n) catch switch {
-        .signaled(let s) => {
+        .signaled(let s, _, _) => {
             print($"signaled {s}")
             return
         },

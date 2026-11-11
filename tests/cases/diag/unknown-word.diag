@@ -1,4 +1,4 @@
-warning BYN5014: `upsert` is not a known verb or noun
+warning BYN5014: `upsert` is not a known verb, noun or adjective
 
   4 │     void upsertRow(ref this) {
     │          ^^^^^^
@@ -6,10 +6,10 @@ warning BYN5014: `upsert` is not a known verb or noun
   help: add it to `grammar` in package.byn: `verbs: ["upsert"]`, `nouns: ["upsert"]` or
         `adjectives: ["upsert"]`
 
-warning BYN5014: `sku` is not a known verb or noun
+warning BYN5014: `sku` is not a known verb, noun or adjective
 
   8 │     i64 skuCount => count
     │         ^^^
     │
-  help: add it to `grammar` in package.byn: `verbs: ["sku"]`, `nouns: ["sku"]` or
+  help: add it to `grammar` in package.byn: `nouns: ["sku"]`, `verbs: ["sku"]` or
         `adjectives: ["sku"]`

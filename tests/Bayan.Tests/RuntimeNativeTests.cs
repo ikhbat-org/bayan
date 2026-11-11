@@ -63,6 +63,26 @@ public sealed class RuntimeNativeTests
         Assert.Equal("exit 0\n\"a b\"\n\"\"\n\"^&|<>()!\"\n\"a\\\"\n", Run(Build(CliApp.EmitC(c, BuildMode.Debug)), []).Replace("\r\n", "\n"));
     }
 
+    /// <summary>
+    /// L031: <c>byn_wait_status</c> never makes up an exit code. A failed wait or exit-code query is <c>other</c> whatever the raw
+    /// status (0, or 259 = <c>STILL_ACTIVE</c>); a timeout is <c>timeout</c> with the detail untouched; a real SIGKILL status
+    /// (POSIX only) is <c>signaled</c> with detail 9; exit 3 is 0 with code 3.
+    /// </summary>
+    [Fact]
+    [Trait("Law", "L031")]
+    public void WaitStatusMapping()
+    {
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "wait-status.c"));
+        Assert.Equal(
+            "failed raw 0: 5 code -1 detail -1\n" +
+            "query failed raw 259: 5 code -1 detail -1\n" +
+            "failed raw 259: 5 code -1 detail -1\n" +
+            "timed out: 11 code -1 detail -1\n" +
+            (OperatingSystem.IsWindows() ? "" : "signaled: 10 code -1 detail 9\n") +
+            "exit 3: 0 code 3 detail -1\n",
+            Run(Build(driver), []).Replace("\r\n", "\n"));
+    }
+
     /// <summary>A 0-byte request is out of memory to an allocator whose <c>realloc</c> returns NULL for it.</summary>
     [Fact]
     public void EmptyInputAsksNoZeroByteBlock()

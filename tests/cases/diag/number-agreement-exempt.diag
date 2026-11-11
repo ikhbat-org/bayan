@@ -1,0 +1,24 @@
+warning BYN5104: `draft` holds a collection; name it with a plural, `drafts`
+
+  12 │     public Untrusted<List<Line>> draft
+     │                                  ^^^^^
+     │
+  help: rename it `drafts`
+     │ 12 │     public Untrusted<List<Line>> drafts
+     │    │                                       +
+
+warning BYN5104: `titles` holds one `string`; name it with a singular noun
+
+  16 │     public string titles
+     │                   ^^^^^^
+     │
+  help: rename it `title`
+     │ 16 │     public string titles
+     │    │                        -
+
+error BYN2770: unknown attribute `json`
+
+  22 │     @json(name: "line")
+     │      ^^^^
+     │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test

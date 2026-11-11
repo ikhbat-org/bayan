@@ -1,0 +1,71 @@
+error BYN2009: `URL` must be camelCase
+
+  6 │     public List<string> URL
+    │                         ^^^
+    │
+  help: rename it `url`; only types are PascalCase
+    │ 6 │     public List<string> url
+    │   │                         +++
+
+warning BYN5104: `URL` holds a collection; name it with a plural, `Urls`
+
+  6 │     public List<string> URL
+    │                         ^^^
+    │
+  help: rename it `Urls`
+    │ 6 │     public List<string> Urls
+    │   │                          +++
+
+error BYN2009: `ID` must be camelCase
+
+  7 │     public List<Link> ID
+    │                       ^^
+    │
+  help: rename it `id`; only types are PascalCase
+    │ 7 │     public List<Link> id
+    │   │                       ++
+
+warning BYN5104: `ID` holds a collection; name it with a plural, `Ids`
+
+  7 │     public List<Link> ID
+    │                       ^^
+    │
+  help: rename it `Ids`
+    │ 7 │     public List<Link> Ids
+    │   │                        ++
+
+warning BYN5104: `userID` holds a collection; name it with a plural, `userIds`
+
+  8 │     public List<Link> userID
+    │                       ^^^^^^
+    │
+  help: rename it `userIds`
+    │ 8 │     public List<Link> userIds
+    │   │                            ++
+
+error BYN2009: `numOrderLINES` must be camelCase
+
+  9 │     public i64 numOrderLINES
+    │                ^^^^^^^^^^^^^
+    │
+  help: rename it `numOrderLines`
+    │ 9 │     public i64 numOrderLines
+    │   │                         ++++
+
+warning BYN5105: `numOrderLINES` counts items; name it `orderLineCount`
+
+  9 │     public i64 numOrderLINES
+    │                ^^^^^^^^^^^^^
+    │
+  help: rename it `orderLineCount`
+    │ 9 │     public i64 orderLineCount
+    │   │                ++++++++++++++
+
+warning BYN5105: `numOrderLines` counts items; name it `orderLineCount`
+
+  10 │     public i64 numOrderLines
+     │                ^^^^^^^^^^^^^
+     │
+  help: rename it `orderLineCount`
+     │ 10 │     public i64 orderLineCount
+     │    │                ++++++++++++++

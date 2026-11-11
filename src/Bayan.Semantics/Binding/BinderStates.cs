@@ -93,6 +93,9 @@ internal sealed partial class Binder
         return found.Count == 0 ? null : new StateType(owner, found);
     }
 
+    /// <summary>The <c>if</c> statements whose then-branch is being bound, innermost last; <see cref="StateTestHelp"/> reads them.</summary>
+    private readonly List<IfStmt> _thenOf = [];
+
     /// <summary>
     /// BYN7001: <paramref name="value"/>, passed to <paramref name="callee"/> where <paramref name="wanted"/> is needed, is of the same
     /// struct but not known to be in one of its states. Inside a method, <c>this</c> is in the states its receiver declares.
@@ -103,8 +106,29 @@ internal sealed partial class Binder
         var of = known is StateType ks ? ks.Struct : known;
         if (!of.Equals(wanted.Struct) || Conversions.Implicit(known, wanted) is not null) return false;
         Report(DiagnosticCodes.WrongState, span, [callee, value is BoundThis ? "this" : Source.GetText(span), string.Join(" or .", wanted.States.Select(v => v.Name)), known.DisplayName],
-            help: "check the state with `is` or `switch` first");
+            help: StateTestHelp(Source.GetText(span), wanted) ?? "check the state with `is` or `switch` first");
         return true;
+    }
+
+    /// <summary>
+    /// Revision 0021 Part 5: inside <c>if x.p { … }</c>, when property <c>p</c> is exactly <c>this is .s</c> and <c>.s</c> is wanted, the
+    /// help says to test <c>x</c> itself. The help may read a member's body; narrowing must never do so.
+    /// </summary>
+    private string? StateTestHelp(string value, StateType wanted)
+    {
+        foreach (var i in _thenOf)
+        {
+            if (i.Condition is not MemberExpr { Target: var target, Member: var member } || Source.GetText(target.Span) != value) continue;
+            if (wanted.Struct.FindProperty(member.Text)?.Decl.Body is not IsExpr { Value: ThisExpr, Pattern: var pattern }) continue;
+            var state = pattern switch
+            {
+                ConstantPattern { Value: TargetMemberExpr t } => t.Member.Text,
+                VariantPattern { Variant: var t, Elements.Length: 0, Binding: null } => t.Member.Text,
+                _ => null,
+            };
+            if (state is not null && wanted.States.Any(v => v.Name == state)) return $"`{member.Text}` doesn't narrow; write `if {value} is .{state}`";
+        }
+        return null;
     }
 
     /// <summary>The states union of a struct with states, or of a state type, through an optional; null for any other type.</summary>

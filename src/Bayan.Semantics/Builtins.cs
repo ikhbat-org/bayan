@@ -401,8 +401,9 @@ public sealed class Builtins
             crossDevice,
             /// The path is a directory where a file is needed.
             isDirectory,
-            /// The child process was ended by this signal.
-            signaled(i32 signal),
+            /// The child process was ended by this signal; what it wrote to stdout and stderr before then is kept
+            /// (empty if either stream is not UTF-8).
+            signaled(i32 signal, string stdout, string stderr),
             /// The child process ran longer than this and was stopped.
             timeout(Millis after),
         }
@@ -412,8 +413,9 @@ public sealed class Builtins
     public ErrorSetSymbol IoError { get; }
 
     /// <summary>
-    /// The built-in cases whose one primitive (or <c>Millis</c>) payload a failing builtin call fills from the general detail slot
+    /// The built-in cases whose first primitive (or <c>Millis</c>) payload field a failing builtin call fills from the general detail slot
     /// (plan 007 §1): <c>IoError.signaled</c>, <c>IoError.timeout</c>, <c>Utf8Error.invalidSequence</c>, <c>ParseError.badDigit</c>.
+    /// <c>Io.run</c> fills the streams of <c>IoError.signaled</c> (fields 1 and 2) from its captured process.
     /// </summary>
     public IEnumerable<ErrorVariantSymbol> DetailVariants =>
     [

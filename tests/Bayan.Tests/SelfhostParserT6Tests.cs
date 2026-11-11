@@ -145,7 +145,8 @@ public sealed class SelfhostParserT6Tests(ITestOutputHelper output)
             .Append(SourceText.FromString(Path.Combine(ParserDir, "t6-test.byn"), Program)).ToList();
         var c = Compilation.Create(sources, packageRoot: SelfhostDir);
         if (c.Diagnostics.HasErrors) return (null, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
-        var mine = c.Diagnostics.Items.Where(d => d.Source?.Path is { } p && (p.EndsWith("types.byn") || p.EndsWith("literals.byn"))).ToList();
+        // BYN5104 on `decodeChar(ReadOnlySpan<u8> token)` stays a warning until Q1190 is decided (Q1206).
+        var mine = c.Diagnostics.Items.Where(d => d.Source?.Path is { } p && (p.EndsWith("types.byn") || p.EndsWith("literals.byn")) && d.Code != "BYN5104").ToList();
         if (mine.Count > 0) return (null, DiagnosticRenderer.RenderAll(mine, includePath: true));
         var build = Toolchain.Build(CliApp.EmitC(c, BuildMode.Fast), BuildMode.Fast);
         return build.Succeeded ? (build.ExecutablePath, "") : (null, build.Errors);
