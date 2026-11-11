@@ -1,7 +1,7 @@
 # Bayān grammar guide
 
 Version: 0.3.0-dev (matches `bayan --version`)
-Revisions applied: 0001–0021
+Revisions applied: 0001–0022
 
 How to name things the way the standard library does. This is the developer-facing companion to [SPEC §5](bayan-spec.md) (naming and morphology). SPEC §5.2 holds the full pattern table and contracts; this guide tells you which pattern to pick.
 

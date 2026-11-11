@@ -1,7 +1,7 @@
 # Bayān — Language Specification (draft 0.1)
 
 Version: 0.3.0-dev (matches `bayan --version`)
-Revisions applied: 0001–0021
+Revisions applied: 0001–0022
 
 > **Status:** design complete enough to build v0.1. This document is normative unless a section says otherwise.
 > **Source files:** `.byn` · **CLI:** `bayan` · **Manifest:** `package.byn` · **Build script:** `build.byn`
@@ -28,7 +28,7 @@ Bayan (بيان, "clarity, eloquent exposition") is a value-oriented, natively c
 6. **Kind to the programmer.** Errors explain what, where, why and how to fix (§21).
 7. **Instant feedback.** REPL, scripts and incremental builds under 100 ms.
 8. **Joy is a requirement.**
-9. **Memory safety is never a build-mode option.** Bounds checks and region checks apply in every build.
+9. **Checks are never a build-mode option.** Bounds, region, overflow, `if never`, `expects` and `requires` checks apply in every build. (rev 0022)
 10. **Promise as little as possible.** Anything specified exactly is permanent; leave room where it costs nothing (§19.4).
 11. **Bayan follows its own principles.** C# familiarity is a benefit, never a deciding reason.
 12. **Head-first word order** (Arabic). Statements: the verb comes first and ḥāl modifiers follow (`defer failing`). Declarations: the kind comes first and modifiers follow (`struct unique`, `type distinct`, `union error`). Local bindings: the name comes first and the type follows (`let w: Grams`); declarations keep the type first (`Grams weight(Order order)`, §3.10).
@@ -804,7 +804,7 @@ Open set, written in Bayan with `derivation Name for T { … }` (§12.5). Standa
 ## 6. Expressions
 
 ### 6.1 Operators
-C# operators and precedence, plus:
+C# operators and precedence, plus the operators below, with one exception: `a..b` and `a..=b` bind looser than every arithmetic and shift operator and tighter than comparison, `is`, `in` and `??`. So `0..=n - 1` is `0..=(n - 1)` and `a + 1..b` is `(a + 1)..b`, where C# would read `(0..=n) - 1`. (rev 0022)
 
 | Operator | Meaning |
 |---|---|
@@ -1210,6 +1210,8 @@ struct SignupForm {
   | Checked | Once, at construction; the proof travels with the value | Every call, in every build mode |
 
   - The clause must be `bool`, a violation is a bug that **panics in every build mode** (`contract violated: <text>`), and a constant argument that violates it is a compile error. When the caller has proven it (for example, the argument's type carries the rule), the check is removed.
+  - The clause is pure (not in 0.2: BYN6008 is not checked yet): it calls only functions whose declared or inferred effects are empty. Ambient `log` and `panic` are allowed. For an effect-polymorphic call (§14), the effects of the function passed at that call site count. How many times the check runs, and on which side of the call, is unspecified. (rev 0022)
+  - An outside-world fact is a business outcome, not a bug: check it in the body with `fail .x unless …`. (rev 0022)
   - `requires` on a function is an input form for `expects` (BYN1063).
   - An `expects` that reads an `Untrusted<T>` value is a compile error (BYN8006): trapping on outside data would let a request crash the program.
   - A lint flags an `expects` that reads only one parameter and suggests a type with `requires` (BYN5011).
@@ -1343,7 +1345,7 @@ There is no GC tier and no `Gc<T>` handle (revision 0019, round-4 batch 1).
 | `out` | C# compatibility; prefer returning `T?` or a tuple |
 | `in` | Accepted, redundant; removed by the formatter |
 
-Modifiers precede the parameter name: `ref StrBuf buffer`, `move File file`.
+Modifiers precede the parameter's type: `ref StrBuf buffer`, `move File file`.
 
 **Argument particles.** A closed set of role particles (Arabic مِن/إلى/بِ) labels every required parameter after the object:
 
@@ -1733,7 +1735,7 @@ Only parameterized `sql"…"` literals with `$n` placeholders are in scope now; 
 Decoders default to safe limits (JSON nesting depth 128, maximum size). Per-request arenas have a memory cap. Regexes (`std.regex`, after v0.1) run in linear time with no backtracking (no ReDoS); a pattern built from `Untrusted` input still needs `Regex.escape` (§15.1).
 
 ### 15.5 Invariants versus validation
-Function `expects` contracts (§7.9) detect bugs and panic in every build mode. **Construction of a type with `requires` is the security boundary:** it is checked in every build, reports every violation, and is the only way to remove taint (§15.1).
+Function `expects` contracts (§7.9) detect bugs and panic in every build mode (§0). **Construction of a type with `requires` is the security boundary:** it is checked in every build, reports every violation, and is the only way to remove taint (§15.1).
 
 > Round 2 §7: contracts are no longer skipped in `fast`. Round 3 §11 makes construction the validation boundary and `expects` the contract word.
 
@@ -2357,7 +2359,7 @@ The registry publishes JSON metadata, and `bayan pkg export --json` exists, so o
 - `bayan audit`: advisories, plus every `unsafe` block, `extern` declaration and C source per dependency, and every `because` bypass (§4.4) with its reason.
 
 ### 19.4 Editions and stability
-`edition: 2027`. Editions change syntax and lints, never the ABI; packages on different editions link together. `core` follows the Fundamento rule: once released it only grows. Unproven APIs live in `std.experimental`.
+`edition: 2027`. Editions change syntax and lints, never the ABI; packages on different editions link together. `core` follows the Fundamento rule: once released it only grows. Unproven APIs live in `std.experimental`. Adding or narrowing an `expects` or `requires` on a released public function or type is a breaking change: `core` never does it, and other packages do it only in a new major version. Loosening one is not breaking. (rev 0022)
 
 > Round 2 §10: manifest fields use `:`.
 
@@ -2439,7 +2441,7 @@ model test "cart behaves like a list" {
 - `@unobservable because "…"` on a statement marks that statement's mutants as ones no test can observe; an operator argument narrows it to one operator. Marked mutants still run: a marked mutant a test kills, or a mark with no mutant in its statement, is a warning in the report. The reason is required (BYN8001).
 
   ```csharp
-  i32 clamp(i32 x, i32 lo, i32 hi)
+  i32 clamp(i32 x, from i32 lo, through i32 hi)
       expects lo <= hi {
       @unobservable(boundary) because "x == hi returns hi either way"
       return hi if x >= hi
@@ -2515,7 +2517,7 @@ The language server runs inside the compiler process. Display-only views (inferr
 ### 21.3 Performance targets
 Incremental rebuild under 100 ms on a reference project; cold-build budget tracked in CI.
 
-**Runtime.** Bayan targets Rust and Zig speed, and the safe default stays on the fast path. Checks (bounds, overflow, `expects`) stay in every build mode and are emitted in a form the C compiler optimizes: a compare and a branch to a shared `noreturn`, cold trap function per check kind, and overflow through `__builtin_add_overflow` and its family (v0.0.1). Generics are monomorphized (§11). Typestate, effects, capabilities, units, `rest` spans, `Event.raise` and derivations cost nothing at run time. After v0.0.1: range analysis that proves an index in bounds and hoists the check out of a loop, zipped iteration (`for (p, w) in zip(pixels, weights)`) as the idiom that needs no index checks, and Sūq benchmark budgets against Rust and Zig as well as the C# baseline.
+**Runtime.** Bayan targets Rust and Zig speed, and the safe default stays on the fast path. Checks (bounds, overflow, `expects`) stay in every build mode (§0) and are emitted in a form the C compiler optimizes: a compare and a branch to a shared `noreturn`, cold trap function per check kind, and overflow through `__builtin_add_overflow` and its family (v0.0.1). Generics are monomorphized (§11). Typestate, effects, capabilities, units, `rest` spans, `Event.raise` and derivations cost nothing at run time. After v0.0.1: range analysis that proves an index in bounds and hoists the check out of a loop, zipped iteration (`for (p, w) in zip(pixels, weights)`) as the idiom that needs no index checks, and Sūq benchmark budgets against Rust and Zig as well as the C# baseline.
 
 > Round 3 §30: keeping checks in release builds is affordable only if they are cheap to emit and easy for the C compiler to remove; v0.0.1 implements only the emission form.
 
@@ -2686,6 +2688,7 @@ Roadmap: v0.3 WASM + `.d.ts`; v0.4 `bayan gen ts`; post-v1 portable JS backend (
 - No language-level JSON; JSON is a first-class standard-library feature.
 - `Op` suffix; `fails`; `.byn`; Bayan. `async`/`await` was settled here; user decision 2026-11-04 supersedes it with `scope`/`spawn` (revision 0019).
 - One copy-with-changes form: `x with { f: v }`. No derived `withF(v)`.
+- No `ensures`: postconditions are `@cases` tests, `property` tests and laws (§20). Re-propose only with a Sūq or selfhost case that none of them can express. (rev 0022)
 
 - **Round 3 (2026-10-22):**
   - One spelling per construct: synonyms are banned, paraphrase and ellipsis are allowed (§0).
