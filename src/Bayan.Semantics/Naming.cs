@@ -231,13 +231,23 @@ public static class Naming
             c.Report(DiagnosticCodes.NumberAgreement, source, name.Span, [name.Text, plural],
                 help: $"rename it `{plural}`", fix: new Fix(name.Span, plural));
         }
-        // A number named with a plural is a quantity in units (`cents`, `grams`); a count is BYN5105's.
-        else if (!inner.IsNumeric && IsPlural(word, grammar))
+        // A number named with a plural is a quantity in units (`cents`, `grams`); a count is BYN5105's. A string is one text
+        // that may describe several things (`errors`), and a name that repeats its type's last word (`Keywords keywords`) is
+        // named for its type (Q1190).
+        else if (!inner.IsNumeric && !inner.IsString && IsPlural(word, grammar) && !NamesItsType(word, inner))
         {
             var singular = Singular(word, grammar) is { } one ? name.Text[..start] + MatchCase(text, one) + name.Text[(start + text.Length)..] : null;
             c.Report(DiagnosticCodes.NumberAgreementOne, source, name.Span, [name.Text, type.DisplayName],
                 help: singular is null ? null : $"rename it `{singular}`", fix: singular is null ? null : new Fix(name.Span, singular));
         }
+    }
+
+    /// <summary>The last word of <paramref name="type"/>'s name (before any <c>&lt;</c>) is <paramref name="word"/>, case aside: <c>CompilationOptions options</c>.</summary>
+    private static bool NamesItsType(string word, TypeSymbol type)
+    {
+        var display = type.DisplayName;
+        var cut = display.IndexOf('<');
+        return Words(cut < 0 ? display : display[..cut]) is [.., var last] && last.Equals(word, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

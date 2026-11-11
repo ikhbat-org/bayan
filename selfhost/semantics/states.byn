@@ -178,7 +178,7 @@ i64 afterParams(ref Binder b, through ref Ctx c, for in parser.FunctionDecl decl
     for clause in decl.where {
         if clause.span.end > at { at = clause.span.end }
     }
-    for clause in decl.requiresKeyword {
+    for clause in decl.requiresClauses {
         let end = parser.exprSpan(in clause).end
         if end > at { at = end }
     }

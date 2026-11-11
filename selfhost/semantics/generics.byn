@@ -103,7 +103,7 @@ Binder t13NewBinder(FileId file, FuncId fn = -1, StructId owner = -1) => Binder 
     pending: [],
     constraints: [],
     peers: [],
-    nonNull: [],
+    nonNullLocals: [],
     stateFacts: [],
     errorNarrowed: [],
 }

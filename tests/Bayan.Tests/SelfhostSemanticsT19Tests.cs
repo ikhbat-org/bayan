@@ -642,7 +642,7 @@ public sealed class SelfhostSemanticsT19Tests
                 pending: [],
                 constraints: [],
                 peers: [],
-                nonNull: [],
+                nonNullLocals: [],
                 stateFacts: [],
                 errorNarrowed: [],
             }

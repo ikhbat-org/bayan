@@ -94,11 +94,14 @@ public static class Lexicon
         "unique", "upper", "valid", "visible", "whole", "zero",
     ];
 
-    /// <summary>Nouns for a group of things that read as singular (revision 0021 Part 3): <c>buffer</c>, <c>history</c>.</summary>
+    /// <summary>
+    /// Nouns for a group of things that read as singular (revision 0021 Part 3): <c>buffer</c>, <c>history</c>; and nouns
+    /// for one whole made of parts (Q1190): <c>path</c>, <c>text</c>, <c>order</c>.
+    /// </summary>
     public static readonly HashSet<string> Collectives =
     [
         "span", "list", "map", "set", "array", "buffer", "queue", "stack", "batch", "history", "inventory", "catalog", "data",
-        "metadata",
+        "metadata", "path", "text", "payload", "body", "order", "work",
     ];
 
     /// <summary>Plurals that are not a regular ending of their singular (revision 0021 Part 3).</summary>

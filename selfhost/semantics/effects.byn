@@ -629,6 +629,6 @@ T23Decl t23FactsOf(in parser.FunctionDecl d, from FileId f) {
     }
     r.closeFrom = d.params.length > 0 ? d.params[d.params.length - 1].span.end : d.paramsStart
     if d.where.length > 0 { r.whereEnd = d.where[d.where.length - 1].span.end }
-    if d.requiresKeyword.length > 0 { r.requiresEnd = parser.exprSpan(in d.requiresKeyword[d.requiresKeyword.length - 1]).end }
+    if d.requiresClauses.length > 0 { r.requiresEnd = parser.exprSpan(in d.requiresClauses[d.requiresClauses.length - 1]).end }
     return move r
 }

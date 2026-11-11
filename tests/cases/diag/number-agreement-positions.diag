@@ -61,15 +61,6 @@ warning BYN5105: `numBoxes` counts items; name it `boxCount`
      │ 16 │     shipped(List<Line> item, i64 boxCount)
      │    │                                  ++++++++
 
-warning BYN5104: `reasons` holds one `string`; name it with a singular noun
-
-  17 │     held(string reasons)
-     │                 ^^^^^^^
-     │
-  help: rename it `reason`
-     │ 17 │     held(string reasons)
-     │    │                       -
-
 warning BYN5104: `line` holds a collection; name it with a plural, `lines`
 
   21 │     rejected(List<Line> line)
