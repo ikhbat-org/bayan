@@ -1,0 +1,688 @@
+// The command `test` of the self-hosted driver (spec 017 T11). Ports `CliApp.cs` :168 `ParseBuildOptions` (all its arms), :627
+// `DeleteWorkDir`, :634 `TestTimeout`, :639 `Test`, :790 `MergeCounters`, :812 `WriteCoverage`, :846 `ListingName`, :951
+// `ReportGates`, :986 `ShellQuote`, :994 `FailureDetail`, :1029 `ChangedModules`, :1061 `ModuleOf`, :1069 `ModuleDirectory` and
+// :1077 `RunTest`, with `BoundedCapture.cs` (applied to what `Io.run` returns) and `CoverageInstrumenter.cs` :60 `DeleteStale` and
+// :72 `Read`. The report and its JSON are testreport.byn; the coverage report and gates are quality.byn.
+
+import semantics
+import emitter
+import emitter.cprint
+
+type T11CoverageMap = emitter.CoverageMap
+type T11LCtx = emitter.LCtx
+
+/// `BuildOptions` (CliApp.cs:166) with every field `test` reads; `only` is null when no `--only` was given.
+struct T11Options {
+    string path
+    string mode = "safe"
+    string? output = null
+    bool emitC = false
+    bool json = false
+    List<string> programArgs = List<string>()
+    string? target = null
+    bool testJson = false
+    bool changed = false
+    string? baseRef = null
+    bool verbose = false
+    bool all = false
+    List<string>? only = null
+    bool mutate = false
+    bool coverage = false
+    string? run = null
+    string? package = null
+}
+
+/// CliApp.cs:168 `ParseBuildOptions`. Null after reporting.
+T11Options? t11ParseBuildOptions(in List<string> args, by bool allowOutput, for bool allowTestJson, through bool allowVerbose) uses alloc, console, fs {
+    var path: string? = null
+    var output: string? = null
+    var target: string? = null
+    var mode = "safe"
+    var emitC = false
+    var json = false
+    var testJson = false
+    var changed = false
+    var all = false
+    var verbose = false
+    var mutate = false
+    var coverage = false
+    var baseRef: string? = null
+    var run: string? = null
+    var package: string? = null
+    var only = List<string>()
+    var programArgs = List<string>()
+    var i: i64 = 0
+    while i < args.length {
+        let a = args[i]
+        if a == "--" {
+            for k in (i + 1)..args.length { programArgs.append(args[k]) }
+            i = args.length
+        } else if a == "--mode" && i + 1 < args.length {
+            i += 1
+            mode = args[i]
+            if mode != "debug" && mode != "safe" && mode != "fast" {
+                Io.stderr.write($"bayan: unknown mode `{args[i]}` (expected debug, safe or fast)\n")
+                return null
+            }
+        } else if a == "--diagnostics" && i + 1 < args.length {
+            i += 1
+            if args[i] == "json" {
+                json = true
+            } else if args[i] == "text" {
+                json = false
+            } else {
+                Io.stderr.write($"bayan: unknown diagnostics format `{args[i]}` (expected json or text)\n")
+                return null
+            }
+        } else if a == "-o" && allowOutput && i + 1 < args.length {
+            i += 1
+            output = args[i]
+        } else if a == "--emit-c" && allowOutput {
+            emitC = true
+        } else if a == "--target" && allowOutput && i + 1 < args.length {
+            i += 1
+            target = args[i]
+            if args[i] == "host" {
+                target = null
+            } else if !targetIsKnown(args[i]) {
+                Io.stderr.write($"bayan: unknown target `{args[i]}` (expected host, {t5Join(in targetNames())})\n")
+                return null
+            }
+        } else if a == "--all" {
+            all = true
+        } else if a == "--changed" && allowTestJson {
+            changed = true
+        } else if a == "--base" && allowTestJson && i + 1 < args.length {
+            i += 1
+            baseRef = args[i]
+            changed = true
+        } else if a == "--json" && allowTestJson {
+            testJson = true
+        } else if a == "--mutate" && allowTestJson {
+            mutate = true
+        } else if a == "--run" && allowTestJson && i + 1 < args.length {
+            i += 1
+            run = args[i]
+        } else if a == "--coverage" && allowTestJson {
+            coverage = true
+        } else if a == "--only" && allowTestJson && i + 1 < args.length {
+            i += 1
+            only.append(args[i])
+        } else if (a == "-v" || a == "--verbose") && allowVerbose {
+            verbose = true
+        } else if a == "--package" && i + 1 < args.length {
+            i += 1
+            package = args[i]
+        } else {
+            if path is not null || a.startsWith("-") {
+                Io.stderr.write($"bayan: unexpected argument `{a}`\n")
+                return null
+            }
+            path = a
+        }
+        i += 1
+    }
+    if path is null && t1FileExists("package.byn") { path = "." }
+    if (path is not { } p) {
+        Io.stderr.write("bayan: expected a file or directory (or run inside a project with a `package.byn`)\n")
+        return null
+    }
+    if !t1FileExists(p) && !t5DirectoryExists(p) {
+        Io.stderr.write($"bayan: not found: {p}\n")
+        return null
+    }
+    var wanted: List<string>? = null
+    if only.length > 0 { wanted = move only }
+    return T11Options {
+        path: p,
+        mode: mode,
+        output: output,
+        emitC: emitC,
+        json: json,
+        programArgs: move programArgs,
+        target: target,
+        testJson: testJson,
+        changed: changed,
+        baseRef: baseRef,
+        verbose: verbose,
+        all: all,
+        only: move wanted,
+        mutate: mutate,
+        coverage: coverage,
+        run: run,
+        package: package,
+    }
+}
+
+/// The `BuildOptions` build.byn `t5Compile` reads.
+T5Options t11T5(in T11Options o) uses alloc => T5Options { path: o.path, mode: o.mode, output: o.output, emitC: o.emitC, json: o.json, target: o.target, verbose: o.verbose, all: o.all, package: o.package }
+
+/// CliApp.cs:627 `DeleteWorkDir`: errors are ignored.
+void deleteWorkDir(string dir) uses alloc, fs {
+    t9DeleteTree(dir) catch return
+}
+
+/// CliApp.cs:634 `TestTimeout`: `$BAYAN_TEST_TIMEOUT_MS` when it is a positive `int`, else 60 s; milliseconds.
+i64 testTimeout() uses alloc, env {
+    let ms = t9Digits(Env.get("BAYAN_TEST_TIMEOUT_MS") ?? "", until: 2147483647) ?? 0
+    return ms > 0 ? ms : 60000
+}
+
+/// `Paint` (CliApp.cs:385) with the stdout style: `role` is a `t7Prefix` role, `bold` puts `Palette.Bold` before it. build.byn
+/// `t5Paint` has neither the warning role nor bold (Q1251).
+string t11Paint(i64 role, by in DStyle style, for string text, bool bold = false) uses alloc {
+    unless style.color { return $"{text}" }
+    return $"{bold ? "\u{1b}[1m" : ""}{t7Prefix(by: style.palette, for: role)}{text}\u{1b}[0m"
+}
+
+/// `Messages.TestSeconds` of `TimeSpan.TotalSeconds.ToString("0.00")`: hundredths, half away from zero.
+string t11Seconds(i64 nanos) uses alloc {
+    let hundredths = (nanos + 5000000) / 10000000
+    let rest = hundredths % 100
+    return rest < 10 ? $"{hundredths / 100}.0{rest}s" : $"{hundredths / 100}.{rest}s"
+}
+
+/// `TestSymbol.Name` contains one of `wanted` (`string.Contains`, ordinal).
+bool t11Matches(string name, by in List<string> wanted) {
+    for s in wanted {
+        if name.contains(s) { return true }
+    }
+    return false
+}
+
+/// `GetLinePosition(span.Start).Line` (SourceText.cs:54): one plus the `\n` bytes before `offset`.
+i64 t11Line(in List<u8> text, at i64 offset) {
+    var line: i64 = 1
+    for k in 0..offset {
+        if text[k] == 10 { line += 1 }
+    }
+    return line
+}
+
+/// CliApp.cs:639 `Test`. `kept` is the command and its arguments.
+i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process {
+    let args = t2Rest(kept)
+    let o = t11ParseBuildOptions(in args, by: false, for: true, through: true) ?? return exitUsage
+    let symbolsErr = t19Symbols(in d.styleErr)
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    var compiled = t5Compile(in t11T5(in o), by: in symbolsErr, to: ref reported, through: ref ok, includeTests: true, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
+    unless ok { return exitFailure }
+    if o.run is not null && !o.mutate {
+        Io.stderr.write("bayan: unexpected argument `--run`\n")
+        return exitUsage
+    }
+    if o.mutate && (o.coverage || o.testJson) {
+        Io.stderr.write($"bayan: unexpected argument `{o.coverage ? "--coverage" : "--json"}`\n")
+        return exitUsage
+    }
+    // stub: T11 `MutateTests` (CliApp.cs:855) is T13's (blocked: Q1254)
+    if o.mutate { return refuse("test --mutate") }
+    // `compiled.Manifest?.Summary ?? true`: the manifest keeps no `summary` (Q1251).
+    let probes = o.coverage || o.mode == "debug"
+    let host = t5HostTarget()
+    var map = T11CoverageMap {}
+    var l = T11LCtx {}
+    if probes {
+        let none = List<string>()
+        map = emitter.instrument(ref compiled, for: in none)
+        l.covering = true
+        l.coverage.count = map.probes.count
+        l.coverage.statements = map.probes.statements.take()
+        l.coverage.branches = map.probes.branches.take()
+        l.coverage.errors = map.probes.errors.take()
+    }
+    let program = emitter.lower(ref compiled, to: ref l)
+    let source = cprint.emit(ref compiled, from: in l.tree, through: in program, by: o.mode == "debug")
+    var output: string? = null
+    if (t5PrepareOut(in compiled, by: o.mode, for: host, from: source) is { } dir) {
+        output = Path.combine(dir, targetExecutableName($"{semantics.programName(ref compiled, for: o.path)}-test", for: host))
+    }
+    let entry = t11EntryModule(ref compiled, for: o.path)
+    var selected = List<i64>()
+    for i in 0..program.tests.length { selected.append(i) }
+    if (o.only is { } wanted) {
+        var any = false
+        for t in program.tests {
+            if t11Matches(compiled.tests[t].title, by: in wanted) { any = true }
+        }
+        unless any {
+            var quoted = List<string>()
+            for s in wanted { quoted.append($"`{s}`") }
+            Io.stderr.write($"bayan: no test name contains {t5Join(in quoted)}\n")
+            return exitUsage
+        }
+    }
+    if o.changed {
+        let changed = changedModules(in compiled, by: in o, for: entry) ?? return exitUsage
+        var kept2 = List<i64>()
+        for i in selected {
+            if changed.all || changed.directories.contains(moduleOf(in compiled, for: program.tests[i], by: entry)) { kept2.append(i) }
+        }
+        selected = move kept2
+    }
+    let unchanged = program.tests.length - selected.length
+    if (o.only is { } only) {
+        var kept3 = List<i64>()
+        for i in selected {
+            if t11Matches(compiled.tests[program.tests[i]].title, by: in only) { kept3.append(i) }
+        }
+        selected = move kept3
+    }
+    let built = Io.monotonicNanos()
+    var building = start(in d.styleErr, by: d.stderrTty, through: o.json || o.testJson, for: "building")
+    let native = t9Build(source, by: o.mode, to: output, for: null, through: ref d)
+    done(ref building)
+    unless native.result.succeeded {
+        t5ReportToolchain(native.result, by: o.json || o.testJson, for: symbolsErr)
+        return exitToolchain
+    }
+    let executable = native.exe
+    let buildNanos = Io.monotonicNanos() - built
+    var coverageDir: string? = null
+    var coveragePrefix: string? = null
+    var hits: Map<i64, u64> = []
+    let partial = selected.length < program.tests.length
+    var unknown = partial
+    if probes {
+        let temp = Path.combine(t9TempPath(), $"bayan-coverage-{t9Unique(ref d)}")
+        // `Directory.CreateTempSubdirectory` throws, uncaught, when the temporary directory cannot be written.
+        Io.createDirectory(temp) catch { panic($"cannot create the directory {temp}") }
+        coverageDir = temp
+        let prefix = Path.combine(temp, "BAYAN_COVERAGE")
+        coveragePrefix = prefix
+        deleteStale(prefix)
+    }
+    let count = selected.length
+    let human = !o.testJson
+    let symbols = semantics.t26Symbols(d.styleOut.ascii)
+    let separator = d.styleOut.ascii ? "-" : "·"
+    var moduleSet: Map<string, bool> = []
+    for i in selected { moduleSet[moduleOf(in compiled, for: program.tests[i], by: entry)] = true }
+    var modules: i64 = 0
+    for (_, _) in moduleSet { modules += 1 }
+    if human {
+        let tests = count == 1 ? $"{count} test" : $"{count} tests"
+        let mods = modules == 1 ? $"{modules} module" : $"{modules} modules"
+        print($"running {tests} in {mods}{o.changed ? $" ({unchanged} in unchanged modules skipped)" : ""}")
+    }
+    let timeout = testTimeout()
+    var results = List<TestResult>()
+    var failureNames = List<string>()
+    var failureSelectable = List<bool>()
+    let total = Io.monotonicNanos()
+    for i in selected {
+        let t = program.tests[i]
+        let title = compiled.tests[t].title
+        var progress = start(in d.styleErr, by: d.stderrTty, through: o.json || o.testJson, for: $"testing {title}")
+        let outcome = runTest(executable, at: i, by: coveragePrefix, for: timeout)
+        done(ref progress)
+        if (coveragePrefix is { } prefix) {
+            if outcome.timedOut || !mergeCounters($"{prefix}.{i}", to: ref hits) { unknown = true }
+        }
+        var status = TestStatus.panicked
+        if outcome.timedOut {
+            status = .timedOut
+        } else if outcome.exitCode == 0 {
+            status = .passed
+        } else if outcome.exitCode == 1 {
+            status = .failed
+        } else if outcome.exitCode == 4 {
+            status = .pending
+        }
+        let captured = $"{outcome.stdout}{outcome.stderr}".trimmed(from: .end)
+        var details = captured
+        if outcome.timedOut {
+            details = $"timed out after {(timeout + 500) / 1000} s{captured.length > 0 ? $"\n{captured}" : ""}"
+        }
+        var file = ""
+        var line: i64 = 0
+        let f = compiled.tests[t].file
+        if f != -1 {
+            file = compiled.files[f].path
+            line = t11Line(in compiled.files[f].text, at: compiled.tests[t].span.start)
+        }
+        results.append(TestResult { name: title, file: file, line: line, status: status, elapsedNanos: outcome.elapsedNanos, output: status == .passed ? "" : details })
+        let module = Path.fileName(moduleOf(in compiled, for: t, by: entry))
+        let name = visible(title)
+        if status == .passed {
+            unless o.verbose { continue }
+            if human { print($"  {t11Paint(3, by: d.styleOut, for: symbols.dot)} {module}: {name}") }
+            if details.length > 0 {
+                for detail in details.parts(by: "\n") {
+                    let trimmed = detail.endsWith("\r") ? detail[0..detail.length - 1] : detail
+                    if human { print($"      {visible(trimmed)}") }
+                }
+            }
+            continue
+        }
+        if status == .pending {
+            if o.verbose && human { print($"  {t11Paint(1, by: d.styleOut, for: symbols.dot)} {module}: {name} (pending)") }
+            continue
+        }
+        failureNames.append(name)
+        failureSelectable.append(name == title)
+        if human {
+            print("")
+            print($"  {t11Paint(0, by: d.styleOut, for: symbols.cross, bold: true)} {module}: {name}")
+            for detail in failureDetail(details, by: o.verbose, for: in symbols, through: d.styleOut.width - 6) {
+                print($"      {visible(detail)}")
+            }
+        }
+    }
+    let totalNanos = Io.monotonicNanos() - total
+    var report = TestReport { package: compiled.manifest is not null ? compiled.packageName : null, mode: o.mode, target: host, elapsedNanos: totalNanos, skipped: unchanged }
+    report.tests = move results
+    let passed = testReportCount(in report, for: .passed)
+    let pending = testReportCount(in report, for: .pending)
+    let failed = count - passed - pending
+    let seconds = t11Seconds(totalNanos)
+    let dot = t11Paint(3, by: d.styleOut, for: symbols.dot)
+    if human {
+        print("")
+        if failed > 0 {
+            print($"{dot} {passed} passed {separator} {t11Paint(0, by: d.styleOut, for: symbols.cross)} {failed} failed {separator} {pending} pending {separator} {seconds}")
+        } else if pending > 0 {
+            print($"{dot} {passed} passed {separator} {pending} pending {separator} {seconds}")
+        } else {
+            print($"{dot} {passed} passed {separator} {seconds}")
+        }
+        if failureNames.length > 0 && failureNames.length <= 3 {
+            var command = StrBuf()
+            command.append("bayan test")
+            var selectable: i64 = 0
+            for k in 0..failureNames.length {
+                if failureSelectable[k] {
+                    command.append($" --only {shellQuote(failureNames[k])}")
+                    selectable += 1
+                }
+            }
+            let rerun = command.finish()
+            if selectable > 0 { print(selectable == 1 ? $"  rerun the failure: {rerun}" : $"  rerun the failures: {rerun}") }
+            if selectable < failureNames.length { print("  a failing test's name contains control characters and cannot be selected from a shell") }
+        }
+    }
+    let json = testReportJson(in report)
+    if o.testJson { Io.stdout.write(json) }
+    if compiled.manifest is not null {
+        let testDir = Path.combine(Path.combine(compiled.displayRoot, "out"), "test")
+        // `Directory.CreateDirectory` and `Toolchain.ReplaceFile` throw, uncaught, on an IO error.
+        Io.createDirectory(testDir) catch { panic($"cannot create the directory {testDir}") }
+        let resultsPath = Path.combine(testDir, "results.json")
+        t11ReplaceText(resultsPath, from: json, through: ref d) catch { panic($"cannot write {resultsPath}") }
+    }
+    let gated = probes && writeCoverage(in o, by: in compiled, from: in map, through: in hits, for: unknown, as: partial, to: buildNanos, at: totalNanos, quiet: !human)
+    if (coverageDir is { } cd) { deleteWorkDir(cd) }
+    return failed > 0 || gated ? exitTestFailure : exitOk
+}
+
+/// Toolchain.cs:262 `ReplaceFile(path, temp => File.WriteAllText(temp, json))` (CliApp.cs:775): cache.byn's `replaceFile` with the text
+/// written instead of a file copied (Q1251).
+void t11ReplaceText(string path, from string text, through ref DCtx d) uses alloc, clock, fs fails IoError {
+    let temp = $"{path}.{t9Unique(ref d)}.tmp"
+    defer t9DeleteFile(temp)
+    try Io.writeFile(temp, text.bytes)
+    for _ in 1..50 {
+        // coverage-exempt: Q1149 a rename that fails and then succeeds (another process holds `path`, Windows)
+        Fs.rename(temp, to: path) catch continue
+        return
+    }
+    // coverage-exempt: Q1149 the 50th try, after 49 failed renames
+    try Fs.rename(temp, to: path)
+}
+
+/// CliApp.cs:790 `MergeCounters`: a test's counter file added to `hits`; false when it is unreadable. A missing file adds nothing.
+bool mergeCounters(string counterFile, to ref Map<i64, u64> hits) uses alloc, fs {
+    unless t1FileExists(counterFile) { return true }
+    let counts = readCounters(counterFile) ?? return false
+    for (id, n) in counts {
+        hits[id] = (hits.tryGet(at: id) ?? 0) + n
+    }
+    return true
+}
+
+/// CliApp.cs:812 `WriteCoverage`: the one-line summary, or with `--coverage` the summary, `out/test/bayan-quality.json` and a
+/// `<file>.cov.txt` per file; whether a gate failed. `quiet` is `--json`'s `TextWriter.Null` for `human`.
+bool writeCoverage(in T11Options o, by in semantics.Ctx compiled, from in emitter.CoverageMap map, through in Map<i64, u64> hits, for bool unknown, as bool partial, to i64 buildNanos, at i64 totalNanos, bool quiet = false) uses alloc, console, fs {
+    let report = qualityCoverage("bayan test --coverage", by: in map, from: in hits, for: unknown, through: buildNanos, as: totalNanos)
+    if !o.coverage {
+        if partial { return false }
+        unless quiet {
+            print($"coverage: lines {t11Part(in report.lines)}, branches {t11Part(in report.branches)}, error paths {t11Part(in report.errorPaths)}")
+        }
+        return false
+    }
+    if !partial && !quiet { Io.stdout.write(qualityCoverageSummary(in report)) }
+    let full = Path.fullPath(o.path)
+    let root = compiled.manifest is not null ? compiled.displayRoot : Path.directoryName(full) ?? ""
+    let dir = Path.combine(Path.combine(root, "out"), "test")
+    // `Directory.CreateDirectory` and `File.WriteAllText` throw, uncaught, on an IO error.
+    Io.createDirectory(dir) catch { panic($"cannot create the directory {dir}") }
+    let quality = Path.combine(dir, "bayan-quality.json")
+    Io.writeFile(quality, qualityJson(in report).bytes) catch { panic($"cannot write {quality}") }
+    for f in report.files {
+        let path = Path.isRooted(f.path) ? f.path : Path.fullPath(Path.combine(root, f.path))
+        unless t1FileExists(path) { continue }
+        let listing = Path.combine(dir, $"{listingName(Path.relative(root, to: path))}.cov.txt")
+        let parent = Path.directoryName(listing) ?? dir
+        Io.createDirectory(parent) catch { panic($"cannot create the directory {parent}") }
+        let text = Io.readText(path) catch { panic($"cannot read {path}") }
+        let lines = t11ReadAllLines(text)
+        Io.writeFile(listing, qualityListing(in f, from: in lines).bytes) catch { panic($"cannot write {listing}") }
+    }
+    // `m.MinLines`, `MinBranches` and `MinErrorPaths`: the manifest keeps none of them, so no gate applies (Q1251).
+    return !partial && compiled.manifest is not null && t11ReportGates(gatesCoverage(in report, by: null, for: null, through: null))
+}
+
+/// `Part` of CliApp.cs:821.
+string t11Part(in QualityTally x) uses alloc => $"{x.covered}/{x.total} ({x.total == 0 ? "100" : gatesFmt(x.covered, by: x.total)}%)"
+
+/// `File.ReadAllLines`: lines ended by `\r\n`, `\n` or `\r`, no empty last line after a final ending.
+List<string> t11ReadAllLines(string text) uses alloc {
+    var lines = List<string>()
+    for line in text.replaced("\r\n", by: "\n").replaced("\r", by: "\n").parts(by: "\n") { lines.append(line) }
+    if lines.length > 0 && lines[lines.length - 1].length == 0 { let _ = lines.removeLast() }
+    return lines
+}
+
+/// CliApp.cs:846 `ListingName`: each `..` segment becomes `_`; a rooted path keeps only its file name.
+string listingName(string relative) uses alloc {
+    if Path.isRooted(relative) { return Path.fileName(relative) }
+    let windows = Target.os == "windows"
+    let separator = windows ? "\\" : "/"
+    let normal = windows ? relative.replaced("/", by: "\\") : relative
+    var sb = StrBuf()
+    var first = true
+    for s in normal.parts(by: separator) {
+        unless first { sb.append(separator) }
+        first = false
+        sb.append(s == ".." ? "_" : s)
+    }
+    return $"{sb.finish()}"
+}
+
+/// CliApp.cs:951 `ReportGates`: a line per failed gate, then what it misses; whether any failed.
+bool t11ReportGates(in List<GateFailure> failures) uses alloc, console {
+    for f in failures {
+        Io.stderr.write($"bayan: {f.name} {gatesFmt(f.covered, by: f.total)}% < {f.min}%\n")
+        for line in f.missing { Io.stderr.write($"{line}\n") }
+    }
+    return failures.length > 0
+}
+
+/// CliApp.cs:986 `ShellQuote`: double quotes when nothing in `text` expands there, else single quotes with `'` as `'\''`.
+string shellQuote(string text) uses alloc {
+    for c in ["$", "`", "\\", "\"", "!"] {
+        if text.contains(c) { return $"'{text.replaced("'", by: "'\\''")}'" }
+    }
+    return $"\"{text}\""
+}
+
+/// CliApp.cs:994 `FailureDetail`: `panic: ` dropped, the diagram under a failed `assert` moved left, drawn with `symbols` and cut
+/// to `width` columns, and `at file:line` frames as `file:line`, the top three unless `verbose`.
+List<string> failureDetail(string details, by bool verbose, for in semantics.T26Symbols symbols, through i64 width) uses alloc {
+    // `PowerAssert.Indent` and `PowerAssert.Bar` (PowerAssert.cs:10-13).
+    let indent = "       "
+    var lines = List<string>()
+    var frames: i64 = 0
+    var diagram = false
+    for raw in details.parts(by: "\n") {
+        var l = raw.endsWith("\r") ? raw[0..raw.length - 1] : raw
+        if l.startsWith("  at ") {
+            if verbose || frames < 3 { lines.append(l[5..l.length]) }
+            frames += 1
+            diagram = false
+            continue
+        }
+        if l.startsWith("panic: ") {
+            l = l[7..l.length]
+            diagram = l.startsWith("assert ") || l.startsWith("assert(")
+        } else if diagram && l.startsWith(indent) {
+            l = fit(l[indent.length..l.length].replaced("│", by: symbols.bar), to: width, by: symbols.ellipsis, for: symbols.ellipsis == "…" ? 1 : symbols.ellipsis.length)
+        }
+        lines.append(l)
+    }
+    return lines
+}
+
+/// `ChangedSet` (CliApp.cs:1022): `directories` as a set.
+struct T11ChangedSet {
+    bool all = false
+    Map<string, bool> directories = []
+}
+
+/// CliApp.cs:1029 `ChangedModules`: the module directories with files that differ from `HEAD` (or `--base`), untracked files
+/// included; a changed `package.byn` selects everything. Null after reporting why git could not answer.
+T11ChangedSet? changedModules(in semantics.Ctx compiled, by in T11Options o, for string entry) uses alloc, console, env, fs, process {
+    var dir = compiled.displayRoot
+    if compiled.manifest is null {
+        let full = Path.fullPath(o.path)
+        dir = t5DirectoryExists(o.path) ? full : Path.directoryName(full) ?? ""
+    }
+    if (ccFindOnPath("git", for: Target.os) is not { } git) {
+        Io.stderr.write("bayan: `--changed` needs git, which isn't installed\n")
+        return null
+    }
+    var top = List<string>()
+    top.append("rev-parse")
+    top.append("--show-toplevel")
+    if distGit(git, at: dir, by: in top).code != 0 {
+        Io.stderr.write($"bayan: `--changed` needs a git repository, and `{o.path}` isn't in one\n")
+        return null
+    }
+    let baseRef = o.baseRef ?? "HEAD"
+    var diffArgs = List<string>()
+    for a in ["diff", "--name-only", "-z", "--relative", baseRef, "--", "."] { diffArgs.append(a) }
+    let diff = distGit(git, at: dir, by: in diffArgs)
+    if diff.code != 0 {
+        Io.stderr.write($"bayan: git can't compare the working tree with `{baseRef}`\n")
+        return null
+    }
+    var lsArgs = List<string>()
+    for a in ["ls-files", "-z", "--others", "--exclude-standard", "--", "."] { lsArgs.append(a) }
+    let ls = distGit(git, at: dir, by: in lsArgs)
+    let untracked = ls.code == 0 ? ls.stdout : ""
+    var set = T11ChangedSet {}
+    for relative in $"{diff.stdout}\u{0}{untracked}".parts(by: "\u{0}") {
+        if relative.length == 0 { continue }
+        let full = Path.fullPath(Path.combine(dir, relative))
+        if compiled.manifest is not null && full == Path.combine(compiled.displayRoot, "package.byn") {
+            set.all = true
+            return set
+        }
+        if full.endsWith(".byn") { set.directories[moduleDirectory(in compiled, for: full, by: entry)] = true }
+    }
+    return set
+}
+
+/// CliApp.cs:1061 `ModuleOf`: the module directory of test `testIndex`; empty without a location.
+string moduleOf(in semantics.Ctx compiled, for i64 testIndex, by string entry) uses alloc, fs {
+    let f = compiled.tests[testIndex].file
+    if f == -1 { return "" }
+    let path = compiled.files[f].path
+    return moduleDirectory(in compiled, for: Path.isRooted(path) ? path : Path.fullPath(Path.combine(compiled.displayRoot, path)), by: entry)
+}
+
+/// CliApp.cs:1069 `ModuleDirectory`: a project's `tests/` files belong to the entry module `entry`.
+string moduleDirectory(in semantics.Ctx compiled, for string file, by string entry) uses alloc {
+    let dir = Path.directoryName(file) ?? ""
+    if compiled.manifest is not null && dir == Path.combine(compiled.displayRoot, "tests") {
+        return Path.combine(Path.combine(compiled.displayRoot, "src"), entry)
+    }
+    return dir
+}
+
+/// CliApp.cs:389 `EntryModule` (private in semantics, Q1251): `app`, or a library's short name in camelCase.
+string t11EntryModule(ref semantics.Ctx compiled, for string path) uses alloc, fs {
+    return compiled.library ? semantics.camelOf(semantics.programName(ref compiled, for: path)) : "app"
+}
+
+/// `TestOutcome` (CliApp.cs:1020): `elapsedNanos` is `Elapsed`.
+struct T11Outcome {
+    i32 exitCode = 0
+    bool timedOut = false
+    string stdout = ""
+    string stderr = ""
+    i64 elapsedNanos = 0
+}
+
+/// CliApp.cs:1077 `RunTest`: `executable --test <index>` with `$BAYAN_COVERAGE` set to `coveragePrefix`, killed after `timeoutMs`.
+/// A timed-out test's output is lost: `Io.run` fails with `.timeout` and keeps none of it (Q1250). A signal-killed test is exit
+/// 128 + the signal, as `Process.ExitCode` reports it.
+T11Outcome runTest(string executable, at i64 index, by string? coveragePrefix, for i64 timeoutMs) uses alloc, clock, process {
+    var args = List<string>()
+    args.append("--test")
+    args.append($"{index}")
+    var env: Map<string, string?> = []
+    if (coveragePrefix is { } prefix) { env["BAYAN_COVERAGE"] = prefix }
+    let clock = Io.monotonicNanos()
+    let r = Io.run(executable, args.span, env: env, timeout: Millis(timeoutMs)) catch switch {
+        .timeout(let _) => return T11Outcome { exitCode: -1, timedOut: true, elapsedNanos: Io.monotonicNanos() - clock },
+        .signaled(let s, let streamOut, let streamErr) => return T11Outcome { exitCode: 128 + s, stdout: boundedCapture(streamOut), stderr: boundedCapture(streamErr), elapsedNanos: Io.monotonicNanos() - clock },
+        // `Process.Start` of the just-built executable throws, uncaught, when it cannot start.
+        IoError e => { panic($"cannot run {executable}") },
+    }
+    return T11Outcome { exitCode: r.exitCode, stdout: boundedCapture(r.stdout), stderr: boundedCapture(r.stderr), elapsedNanos: Io.monotonicNanos() - clock }
+}
+
+/// BoundedCapture.cs `Snapshot` of a whole stream: the first and the last 64 KiB, with `\n… N bytes elided …\n` between when
+/// anything lies between them; each part decoded with replacement, as `Encoding.UTF8.GetString`.
+string boundedCapture(string text) uses alloc {
+    let keep: i64 = 65536
+    let bytes = text.bytes
+    if bytes.length <= 2 * keep { return text }
+    let head = Utf8.decode(bytes[0..keep], invalid: .replace)
+    let tail = Utf8.decode(bytes[bytes.length - keep..bytes.length], invalid: .replace)
+    return $"{head}\n… {bytes.length - 2 * keep} bytes elided …\n{tail}"
+}
+
+/// CoverageInstrumenter.cs:60 `DeleteStale`: every `<prefix>.*` file is deleted.
+void deleteStale(string prefix) uses alloc, fs {
+    let dir = Path.directoryName(Path.fullPath(prefix)) ?? ""
+    unless t5DirectoryExists(dir) { return }
+    let start = $"{Path.fileName(prefix)}."
+    let names = Io.listDir(dir) catch return
+    for name in names {
+        let path = Path.combine(dir, name)
+        if name.startsWith(start) && t1FileExists(path) { Io.remove(path) catch { panic($"cannot delete {path}") } }
+    }
+}
+
+/// CoverageInstrumenter.cs:72 `Read`: `bayan-coverage 1`, then `<counter id> <hits>` per line; null where the C# throws
+/// `InvalidDataException`, `IndexOutOfRangeException`, `FormatException` or `OverflowException`.
+Map<i64, u64>? readCounters(string path) uses alloc, fs {
+    // no-oracle: Q1253 `File.ReadAllLines` throws an `IOException` MergeCounters does not catch; an unreadable file is unknown here
+    let text = Io.readText(path) catch return null
+    let lines = t11ReadAllLines(text)
+    if lines.length == 0 || lines[0] != "bayan-coverage 1" { return null }
+    var counts: Map<i64, u64> = []
+    for k in 1..lines.length {
+        var parts = List<string>()
+        for part in lines[k].parts(by: " ") { parts.append(part) }
+        if parts.length < 2 { return null }
+        let id = t9Digits(parts[0], until: 2147483647) ?? return null
+        let n = t9Digits(parts[1], until: 9223372036854775807) ?? return null
+        counts[id] = u64(n)
+    }
+    return counts
+}

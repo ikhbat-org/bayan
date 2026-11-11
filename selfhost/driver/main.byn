@@ -124,7 +124,7 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
         case "run":
             return runProgram(in t2Rest(kept), by: ref d)
         case "test":
-            return refuse(command)
+            return testCommand(in kept, by: ref d)
         case "mutate":
             return refuse(command)
         case "new":

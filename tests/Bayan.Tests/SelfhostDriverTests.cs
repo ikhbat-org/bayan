@@ -99,7 +99,6 @@ public sealed class SelfhostDriverT1Tests
     public void MatchesTheCSharpCli(string[] args) => AssertSameAsCs(args);
 
     [Theory]
-    [InlineData("test")]
     [InlineData("mutate")]
     public void RefusesWhatItDoesNotPort(string command)
     {
@@ -117,6 +116,16 @@ public sealed class SelfhostDriverT1Tests
         var missing = Path.Combine(Golden.RepoRoot, "tmp", "t1-driver", "missing.byn");
         AssertSameAsCs("build", missing);
         AssertSameAsCs("run", missing);
+    }
+
+    /// <summary>`test` reaches its command (017 T11): a missing path, an unknown argument and `--run` without `--mutate` fail as the C# does.</summary>
+    [Fact]
+    public void DispatchesTest()
+    {
+        var missing = Path.Combine(Golden.RepoRoot, "tmp", "t1-driver", "missing.byn");
+        AssertSameAsCs("test", missing);
+        AssertSameAsCs("test", "--bogus");
+        AssertSameAsCs("test", "--only");
     }
 
     [Fact]

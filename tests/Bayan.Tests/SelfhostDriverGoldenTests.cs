@@ -18,6 +18,7 @@ namespace Bayan.Tests;
 /// stderr: stage 2's equals the C# CLI's on the case, since both print the compile warnings before the program's own output.
 /// A <c>run/</c> input is left out when its file name ends in <c>.test.byn</c> (<c>RunTests</c> runs those with <c>bayan test -v</c>) or a
 /// <c>.stdin</c> file with the same name beside it exists (spec Q5: stage 2's <c>run</c> feeds no stdin). The only skips are the two <c>diag/</c> cases in <see cref="DiagSkips"/> (Q1052).
+/// The <c>.test.byn</c> cases go through <c>test</c> instead (017 T11): <see cref="TestAsCSharpCli"/> and <see cref="CasesTypeMismatchAsCSharpTest"/>.
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]
 [Trait("Law", "L028")]
@@ -68,7 +69,6 @@ public sealed class SelfhostDriverGoldenTests
     /// </summary>
     private static readonly Dictionary<string, string> DiagSkips = new()
     {
-        ["diag/cases-type-mismatch.test.byn"] = "Q1052", // BYN2202 needs IncludeTests: `check` never sets it; C# `test --all` does, stage 2 refuses `test`
         ["diag/capability-exceeded/main.byn"] = "Q1052", // BYN6004 needs the manifest's capabilities; `check .` stops at the missing src/app, `--package` ignores package.byn
         ["diag/std-imports-package/main.byn"] = "Q1052", // BYN2033 needs the case's stdlib/ as the std library: the CLI reads only the shipped std and stops at BYN2032
     };
@@ -93,7 +93,7 @@ public sealed class SelfhostDriverGoldenTests
 
     private sealed record Result(int Exit, string Stdout, string Stderr);
 
-    private static Result Start(string program, string[] prefix, string cwd, string[] args)
+    private static Result Start(string program, string[] prefix, string cwd, string[] args, (string Name, string? Value)[]? env = null)
     {
         var psi = new ProcessStartInfo(program)
         {
@@ -107,6 +107,7 @@ public sealed class SelfhostDriverGoldenTests
         };
         foreach (var a in prefix) psi.ArgumentList.Add(a);
         foreach (var a in args) psi.ArgumentList.Add(a);
+        foreach (var (name, value) in env ?? []) psi.Environment[name] = value;
         using var p = Process.Start(psi)!;
         p.StandardInput.Close();
         var stdout = p.StandardOutput.ReadToEndLfAsync();
@@ -206,14 +207,123 @@ public sealed class SelfhostDriverGoldenTests
             var expected = CSharp(cwd, args);
             Assert.NotEmpty(Codes(File.ReadAllText(Path.ChangeExtension(Path_(name), ".diag"))).Except(Codes(expected.Stdout + expected.Stderr)));
         }
-        // The C# `test --all` (CliApp.cs:618, IncludeTests) does print cases-type-mismatch's BYN2202, but stage 2 refuses `test` (main.byn:126 `case "test":`).
+    }
+
+    /// <summary>
+    /// 017 T11: cases-type-mismatch's BYN2202 needs IncludeTests, which <c>check</c> never sets; the C# <c>test --all</c> (CliApp.cs:618) does,
+    /// and so does the driver's <c>test</c> (test.byn <c>testCommand</c>), so the case is compared through <c>test</c> instead of skipped.
+    /// </summary>
+    [Fact]
+    public void CasesTypeMismatchAsCSharpTest()
+    {
         var tests = Path_("diag/cases-type-mismatch.test.byn");
         var dir = Path.GetDirectoryName(tests)!;
-        string[] testArgs = ["test", "--all", "--package", dir, Path.GetFileName(tests)];
-        var cs = CSharp(dir, testArgs);
+        string[] args = ["test", "--all", "--package", dir, Path.GetFileName(tests)];
+        var cs = CSharp(dir, args);
         Assert.Empty(Codes(File.ReadAllText(Path.ChangeExtension(tests, ".diag"))).Except(Codes(cs.Stdout + cs.Stderr)));
-        var s2 = Stage2(dir, testArgs);
-        Assert.Equal("error: `test` is not available in the self-hosted compiler; use the C# `bayan`\n", s2.Stderr);
+        var actual = Start(SelfhostDriverHarness.Build(), [], dir, args);
+        Assert.Equal(cs.Exit, actual.Exit);
+        Assert.Equal(Mask(cs.Stdout), Mask(actual.Stdout));
+        Assert.Equal(Mask(cs.Stderr), Mask(actual.Stderr));
+    }
+
+    /// <summary>The <c>test</c> runs this class compares: every <c>run/*.test.byn</c> alone in a directory, with each of these flags.</summary>
+    public static IEnumerable<object[]> TestRuns() =>
+        from name in Golden.Cases("run").Cast<object[]>().Select(r => (string)r[0]).Where(n => n.EndsWith(".test.byn", StringComparison.Ordinal))
+        from flag in new[] { "", "-v", "--json", "--coverage" }
+        select new object[] { name, flag };
+
+    /// <summary>L028's mask for <c>test</c>: the elapsed seconds, and the timings of <c>results.json</c> and <c>bayan-quality.json</c>.</summary>
+    private static string MaskTest(string text) => Regex.Replace(Mask(text), @"""(durationMs|build_s|total_s)"": [0-9.E+-]+", "\"$1\": <t>");
+
+    /// <summary>
+    /// 017 T11 (L028): the C# CLI (<c>dotnet bayan.dll</c>) and the driver's harness build run <paramref name="args"/> one after the other in
+    /// <paramref name="cwd"/>, each after its <c>out/</c> directories are removed, and agree on exit code, stdout, stderr and every file under an
+    /// <c>out/test</c> (seconds and timings masked).
+    /// </summary>
+    private static void AssertTestAsCSharp(string cwd, string[] args, (string Name, string? Value)[]? env = null)
+    {
+        Result Once(Func<Result> run, out Dictionary<string, string> files)
+        {
+            foreach (var dir in Directory.GetDirectories(cwd, "out", SearchOption.AllDirectories)) Directory.Delete(dir, recursive: true);
+            var r = run();
+            files = Directory.GetDirectories(cwd, "out", SearchOption.AllDirectories).Select(d => Path.Combine(d, "test")).Where(Directory.Exists)
+                .SelectMany(d => Directory.GetFiles(d, "*.json")).ToDictionary(f => Path.GetRelativePath(cwd, f), f => MaskTest(File.ReadAllText(f)));
+            return r;
+        }
+        var expected = Once(() => Start("dotnet", [typeof(CliApp).Assembly.Location], cwd, args, env), out var expectedFiles);
+        var actual = Once(() => Start(SelfhostDriverHarness.Build(), [], cwd, args, env), out var actualFiles);
+        var what = string.Join(' ', args);
+        Assert.True(expected.Exit == actual.Exit, $"{what}: exit {actual.Exit}, the C# CLI's {expected.Exit}\n{actual.Stdout}{actual.Stderr}");
+        Assert.Equal(MaskTest(expected.Stdout), MaskTest(actual.Stdout));
+        Assert.Equal(MaskTest(expected.Stderr), MaskTest(actual.Stderr));
+        Assert.Equal(expectedFiles.Keys.Order(StringComparer.Ordinal), actualFiles.Keys.Order(StringComparer.Ordinal));
+        foreach (var (file, text) in expectedFiles) Assert.Equal(text, actualFiles[file]);
+    }
+
+    /// <summary>017 T11 (L028): <c>test</c> on each <c>run/*.test.byn</c> (the cases <c>RunTests</c> runs with <c>bayan test -v</c>), its directory named as the case.</summary>
+    [Theory]
+    [MemberData(nameof(TestRuns))]
+    public void TestAsCSharpCli(string name, string flag)
+    {
+        var stem = Path.GetFileName(name)[..^".test.byn".Length];
+        var work = Work($"test/{stem}{flag}.byn");
+        Directory.CreateDirectory(Path.Combine(work, stem));
+        File.Copy(Path_(name), Path.Combine(work, stem, Path.GetFileName(name)));
+        AssertTestAsCSharp(work, flag.Length == 0 ? ["test", stem] : ["test", flag, stem]);
+    }
+
+    private static (int Code, string Out) Git(string dir, params string[] args) =>
+        Scaffold.Git(Toolchain.FindOnPath("git")!, dir, ["-c", "core.hooksPath=" + Path.Combine(dir, ".no-hooks"), "-c", "user.name=test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", .. args]);
+
+    /// <summary>
+    /// 017 T11 (L028): the project rows of <c>CliEnvironmentTests</c> (<c>TestChanged*</c>, <c>TestOnly*</c>): an app whose entry module imports
+    /// <c>money</c>, each with a test, committed to a fresh repository, then <c>--changed</c>, <c>--base</c> and <c>--only</c> as those tests run them.
+    /// </summary>
+    [Fact]
+    public void TestChangedAndOnlyAsCSharpCli()
+    {
+        if (Toolchain.FindOnPath("git") is null) return;
+        var work = Work("test/changed");
+        var app = Path.Combine(work, "tally");
+        Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", app, "--vcs", "none"], new StringWriter(), new StringWriter()));
+        Directory.CreateDirectory(Path.Combine(app, "src", "money"));
+        File.WriteAllText(Path.Combine(app, "src", "money", "money.byn"), "public i64 cents(i64 units) {\n    return units * 100\n}\n\ntest \"cents\" {\n    assert(cents(2) == 200)\n}\n");
+        File.WriteAllText(Path.Combine(app, "src", "app", "main.byn"), "import money\n\nstring greeting() {\n    return \"Hello, world!\"\n}\n\ntest \"in main\" {\n    assert(money.cents(1) == 100)\n}\n\nprint(greeting())\n");
+        Assert.Equal(0, Git(app, "init", "--quiet", "-b", "work").Code);
+        Assert.Equal(0, Git(app, "add", "-A").Code);
+        Assert.Equal(0, Git(app, "commit", "--quiet", "-m", "start").Code);
+
+        AssertTestAsCSharp(work, ["test", "-v", "tally"]);
+        AssertTestAsCSharp(work, ["test", "tally", "--changed"]);
+        AssertTestAsCSharp(work, ["test", "tally", "--base", "no-such-ref"]);
+        AssertTestAsCSharp(work, ["test", "-v", "tally", "--only", "cent"]);
+        AssertTestAsCSharp(work, ["test", "-v", "tally", "--only", " "]);
+        AssertTestAsCSharp(work, ["test", "tally", "--only", "nothing", "--only", "else"]);
+        AssertTestAsCSharp(work, ["test", "tally", "--only", "nothing", "--changed"]);
+        File.AppendAllText(Path.Combine(app, "src", "money", "money.byn"), "\n");
+        AssertTestAsCSharp(work, ["test", "-v", "tally", "--changed"]);
+        AssertTestAsCSharp(work, ["test", "-v", "tally", "--changed", "--only", "cents", "--only", "main"]);
+        File.WriteAllText(Path.Combine(app, "tests", "extra.test.byn"), "test \"extra\" {\n    assert(false)\n}\n");
+        AssertTestAsCSharp(work, ["test", "tally", "--changed", "--json"]);
+        AssertTestAsCSharp(work, ["test", "tally", "--changed"]);
+        Assert.Equal(0, Git(app, "add", "-A").Code);
+        Assert.Equal(0, Git(app, "commit", "--quiet", "-m", "more").Code);
+        AssertTestAsCSharp(work, ["test", "-v", "tally", "--base", "HEAD~1"]);
+
+        var loose = Path.Combine(work, "loose");
+        Directory.CreateDirectory(loose);
+        File.WriteAllText(Path.Combine(loose, "main.byn"), "void main() {\n}\n\ntest \"t\" {\n    assert(true)\n}\n");
+        AssertTestAsCSharp(work, ["test", "loose", "--changed"], [("GIT_CEILING_DIRECTORIES", work)]);
+    }
+
+    /// <summary>017 T11 (L028): <c>CliEnvironmentTests.ATestThatRunsTooLongIsReportedAsTimedOut</c>, the text C# prints at CliApp.cs:723.</summary>
+    [Fact]
+    public void TestTimeoutAsCSharpCli()
+    {
+        var work = Work("test/timeout");
+        File.WriteAllText(Path.Combine(work, "main.byn"), "void main() {\n}\n\ntest \"loops\" {\n    while true {\n    }\n}\n");
+        AssertTestAsCSharp(work, ["test", "main.byn"], [("BAYAN_TEST_TIMEOUT_MS", "300")]);
     }
 
     /// <summary>BAYAN_UPDATE=1 must not make a comparison write its expected file (R10).</summary>
