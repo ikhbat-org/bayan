@@ -1,17 +1,21 @@
 # Bayān style guide
 
+Version: 0.3.0-dev (matches `bayan --version`)
+Revisions applied: 0001–0021
+
 *Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.*
 
-Style is guidance: never compiler-enforced, configurable per project, applied by `bayan format`. Grammar rules ([GRAMMAR](bayan-grammar.md)) are not style and cannot be configured away.
+Style is guidance, configurable per project. Layout is never compiler-enforced: `bayan format` applies it and it produces no diagnostic. Idiom lints are diagnostics, `.suggestion` by default, with severity set per lint in `package.byn` (`lints`). Grammar rules ([GRAMMAR](bayan-grammar.md)) are not style and cannot be configured away.
 
 ## Defaults
 
 | Choice | Default |
 |---|---|
-| Braces | Same line |
-| Indent | 4 spaces |
-| Line length | 100 |
-| Trailing commas | Always in multi-line literals and argument lists |
+| Braces | `{` always ends the line; a wrapped parameter list closes with `) {`. There is no own-line `{` and no `braces` knob |
+| Indent | 4 spaces; header clauses and wrapped conditions continue at two levels (8) |
+| Line width | 120 (`width`) |
+| Alignment | `.runs` (`align`): consecutive lines of the same shape align their name and `=>` columns; a blank line or comment line ends the run. `.none` turns it off |
+| Trailing commas | `.multiline` (`trailingCommas`): always in multi-line literals, argument lists and parameter lists; `.never` drops them |
 | Member order | Fields, the `states` block, events, properties, static factories, methods |
 | Signature clauses | `where`, `expects`, `uses`, `becomes`, `fails` (`bayan format` reorders; BYN1065) |
 | Statements | One per line (postfix guards count as one) |
@@ -53,7 +57,7 @@ struct Tree {
 }
 ```
 
-A `NodeId` cannot index a list with another index type (BYN3210). Generational handles (`Handle<T>`, SPEC §9.6) wait until the selfhost AST or Sūq shows the need.
+A `NodeId` cannot index a list with another index type (BYN3210, spec-only; not in 0.2). Generational handles (`Handle<T>`, SPEC §9.6) wait until the selfhost AST or Sūq shows the need.
 
 ## Configuration
 
@@ -69,11 +73,42 @@ Package {
     deps: [],
     style: Style {
         indent: 4,
-        braces: .sameLine,        // or .nextLine
-        maxLine: 100,
-        trailingCommas: true,
-        booleans: .symbols,       // or .words
-        primitives: .sized,       // or .csharp
+        width: 120,
+        align: .runs,                // or .none
+        trailingCommas: .multiline,  // or .never
+        booleans: .symbols,          // or .words
+        primitives: .sized,          // or .csharp
+        lints: [
+            "guards.postfix": .warning,
+            "functions.length": .none,
+        ],
     },
 }
 ```
+
+Not in 0.2: the manifest check (`src/Bayan.Syntax/Packages/Manifest.cs:35`) still takes the pre-2026-11-04 knobs (`braces`, a 100-column line knob, a bool `trailingCommas`) and rejects `width`, `align` and `lints`; `bayan format` reads only `booleans` and `primitives`.
+
+## Style lints
+
+Idioms are lints, `.suggestion` by default; `lints` in `style` sets the severity of each by name. Each takes a code in the `x900–x999` range of its area (revision 0017), assigned at the round-4 renumbering; none is allocated yet. Not in 0.2.
+
+| Lint | Flags |
+|---|---|
+| `guards.postfix` | an `if` block whose only statement is `return`, `fail`, `break` or `continue`: write `fail .x if c` |
+| `lambdas.it` | `x => x.f` with one parameter: write `it.f` |
+| `nesting.depth` | blocks nested more than 4 deep: exit early |
+| `functions.length` | a body over N lines (off by default) |
+| `conditions.named` | a control head that wraps: name the condition with a `let` |
+
+## Opting out
+
+```csharp
+@unformatted because "rotation matrix laid out by hand"
+const rotation = [
+    1, 0,  0,
+    0, c, -s,
+    0, s,  c,
+]
+```
+
+`@unformatted because "…"` is the only opt-out. It applies to declarations only; there are no comment toggles, and `bayan audit` lists every use. Not in 0.2.

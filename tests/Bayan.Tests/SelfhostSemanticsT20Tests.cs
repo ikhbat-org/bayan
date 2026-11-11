@@ -591,7 +591,7 @@ public sealed class SelfhostSemanticsT20Tests
                 pending: [],
                 constraints: [],
                 peers: [],
-                nonNull: [],
+                nonNullLocals: [],
                 stateFacts: [],
                 errorNarrowed: [],
             }

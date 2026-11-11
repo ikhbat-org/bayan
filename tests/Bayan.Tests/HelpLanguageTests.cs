@@ -14,6 +14,7 @@ public sealed partial class HelpLanguageTests
     private static readonly Dictionary<string, string> Allowed = new()
     {
         ["did you mean `"] = "question",
+        ["`"] = "BYN7001's fixed text names the property first (revision 0021 Part 5)",
     };
 
     [GeneratedRegex(@"^\s*help: (.*)$")]

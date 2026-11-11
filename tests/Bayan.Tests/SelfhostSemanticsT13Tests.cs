@@ -876,7 +876,7 @@ public sealed class SelfhostSemanticsT13Tests
             var a = Array.FindIndex(decl.Attributes, x => x.Name.Text == "cases");
             var k = Array.FindIndex(decl.Attributes[a].Args, x => ReferenceEquals(((TupleExpr)x.Value).Elements[0].Value, values[0]));
             w.Function(t, d);
-            w.Emit($"c.testBodies[{w.Vars[t]}] = TestBody {{ decl: SyntaxRef {{ file: 0, declIndex: {d} }}, hasValues: true, values: SyntaxRef {{ file: 0, declIndex: {d}, memberIndex: {a}, itemIndex: {k} }} }}");
+            w.Emit($"c.testBodies[{w.Vars[t]}] = TestBody {{ decl: SyntaxRef {{ file: 0, declIndex: {d} }}, hasValues: true, caseArgument: SyntaxRef {{ file: 0, declIndex: {d}, memberIndex: {a}, itemIndex: {k} }} }}");
         }
         return BindFunctions(c, w, tests.Prepend(main).ToList());
     }
@@ -1047,7 +1047,7 @@ public sealed class SelfhostSemanticsT13Tests
         lines.Add($"test body {(tFn.Body is null ? "no" : "yes")}");
         w.Emit("let fnTest = newFunction(ref c, by: FunctionSymbol { name: \"test_t\", module: 0, file: 0, kind: .testKeyword })");
         w.Emit("c.modules[0].allFunctions.append(fnTest)");
-        w.Emit("c.testBodies[fnTest] = TestBody { decl: SyntaxRef { file: 0, declIndex: 2 }, values: SyntaxRef {} }");
+        w.Emit("c.testBodies[fnTest] = TestBody { decl: SyntaxRef { file: 0, declIndex: 2 }, caseArgument: SyntaxRef {} }");
         w.Emit("bindAll(ref c)");
         w.Emit("print($\"exitCode {c.errorVariants[ev].exitCode}\")");
         w.Emit("print($\"test body {(c.functions[fnTest].body != -1 ? \"yes\" : \"no\")}\")");

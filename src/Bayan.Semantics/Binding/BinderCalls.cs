@@ -690,6 +690,9 @@ internal sealed partial class Binder
                 return new BoundErrorExpr(c);
             case PrimitiveType p when (p.IsNumeric || p == PrimitiveType.Char) && c.Args is [{ Name: null } arg]:
                 return BindConversion(c, p, arg.Value);
+            // `Millis(n)`: an `i64` as a duration; `i64(t)` reads it back (`Conversions.Explicit`).
+            case BuiltinType { Kind: BuiltinKind.Millis } when c.Args is [{ Name: null } ms]:
+                return new BoundConversion(c, BindConverted(ms.Value, PrimitiveType.I64), type, ConversionKind.Widen);
             case PrimitiveType { IsString: true } when c.Args is [{ Name: null }, ..]:
                 return BindIntegerText(c);
             default:

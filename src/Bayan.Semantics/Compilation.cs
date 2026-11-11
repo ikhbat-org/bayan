@@ -292,6 +292,7 @@ public sealed partial class Compilation
             foreach (var s in module.Structs) Naming.CheckMembers(this, s);
             foreach (var f in module.AllFunctions.Where(f => f.Owner is null && !f.IsInstance && f.Kind != FunctionKind.Main && f.Kind != FunctionKind.Test).ToList())
                 DeclareSignature(f, f.Decl!, f.File!);
+            Naming.CheckSignatures(this, module);
             CheckOverloads(module);
         }
         MembersDeclared = true;
@@ -304,17 +305,21 @@ public sealed partial class Compilation
         if (EntryModule.Main is { Kind: FunctionKind.Function } main) CheckMainSignature(main);
     }
 
-    /// <summary><c>IoError</c> is numbered first, so the runtime can return its codes 1 to 9 directly; <c>Utf8Error</c> follows (10).</summary>
+    /// <summary><c>IoError</c> is numbered first, so the runtime can return its codes 1 to 11 directly; <c>Utf8Error</c> follows (12).</summary>
     private void DeclareBuiltinVariants(params ErrorSetSymbol[] sets)
     {
         foreach (var set in sets.Length > 0 ? sets : [Builtins.IoError, Builtins.Utf8Error])
             foreach (var v in set.Decl.Variants)
             {
                 var sym = new ErrorVariantSymbol(v.Name.Text, new Location(set.Location.Source, v.Name.Span), set, _nextErrorCode++, v.Doc);
-                // A built-in payload is a primitive: `invalidSequence(i64 at)`.
+                // A built-in payload field is a primitive or `Millis`: `invalidSequence(i64 at)`, `timeout(Millis after)`,
+                // `signaled(i32 signal, string stdout, string stderr)`.
                 foreach (var f in v.Fields)
+                {
+                    var name = ((NamedType)f.Type).Path[0].Text;
                     sym.Fields.Add(new ParameterSymbol(f.Name.Text, new Location(set.Location.Source, f.Name.Span),
-                        PrimitiveType.ByName[((NamedType)f.Type).Path[0].Text], ParamModifier.None, sym.Fields.Count));
+                        name == "Millis" ? BuiltinType.Millis : PrimitiveType.ByName[name], ParamModifier.None, sym.Fields.Count));
+                }
                 set.Variants.Add(sym);
                 ErrorVariants.Add(sym);
             }

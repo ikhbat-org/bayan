@@ -204,7 +204,7 @@ Decl parseFieldOrProperty(ref Parser p, at i64 start, by Modifiers modifiers, th
         type: move type,
         name: name,
         defaultKeyword: move init,
-        requiresKeyword: move rules,
+        requiresClauses: move rules,
         doc: doc,
         attributes: move attributes,
     }
@@ -314,7 +314,7 @@ ErrorSetDecl parseErrorComposition(ref Parser p, at i64 start, by Modifiers modi
         name: name,
         members: move members,
         head: TextSpan.fromBounds(first.start, until: second.end),
-        exceptKeyword: move exceptNames,
+        exceptNames: move exceptNames,
     }
 }
 
@@ -533,7 +533,7 @@ TypeAliasDecl parseTypeAlias(ref Parser p, at i64 start, by Modifiers modifiers)
         name: name,
         target: move target,
         distinct: isDistinct,
-        requiresKeyword: move rules,
+        requiresClauses: move rules,
     }
 }
 

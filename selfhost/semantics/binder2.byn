@@ -4,7 +4,7 @@ import parser
 import lexer
 
 // What `narrowedBegin` saved for `narrowedEnd`: the C# `Narrowed`'s `Func` split in two around the
-// caller's bind. `mark` is the `nonNull` length to cut back to, `before` the state facts to keep and
+// caller's bind. `mark` is the `nonNullLocals` length to cut back to, `before` the state facts to keep and
 // `learned` what `learnStates` added.
 struct NarrowedScope {
     i64 mark
@@ -238,9 +238,17 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
             return bindContinue(ref b, through: ref c, for: in cont.value)
         case .ifStmt(let i):
             let cond = bindCondition(ref b, through: ref c, for: in i.value.condition)
+            var thenCond = (false, TextSpan { start: 0, length: 0 }, TextSpan { start: 0, length: 0 })
+            switch i.value.condition {
+                case .memberExpr(let me):
+                    thenCond = (true, parser.exprSpan(me.value.target), me.value.member)
+                default: {}
+            }
+            b.thenOf.append(thenCond)
             let sThen = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: true)
             let thenBranch = bindBody(ref b, through: ref c, for: in i.value.then)
             narrowedEnd(ref b, through: ref c, by: move sThen)
+            let _ = b.thenOf.removeLast()
             var elseBranch: BStmt = -1
             switch i.value.elseKeyword {
                 case .none:
@@ -477,7 +485,7 @@ BStmt bindAssertFails(ref Binder b, through ref Ctx c, for in parser.AssertStmt 
 
 /// A fact holds while its scope is open: the C# walk from `_scope` up its parents (Q715).
 bool isNonNull(ref Binder b, for LocalId local) {
-    for pair in b.nonNull {
+    for pair in b.nonNullLocals {
         if pair.item2 != local { continue }
         for s in b.scopeIds {
             if s == pair.item1 { return true }
@@ -488,10 +496,10 @@ bool isNonNull(ref Binder b, for LocalId local) {
 
 /// Binds code that runs only when `cond` is `whenTrue`: the C# `Narrowed` before `bind()`.
 NarrowedScope narrowedBegin(ref Binder b, through ref Ctx c, for BExpr cond, bool whenTrue) {
-    let mark = b.nonNull.length
+    let mark = b.nonNullLocals.length
     let scope = t16ScopeId(ref b)
     for l in nonNullWhen(in c, for: cond, whenTrue: whenTrue) {
-        b.nonNull.append((scope, l))
+        b.nonNullLocals.append((scope, l))
     }
     var before = List<(i64, LocalId, Type)>()
     for f in b.stateFacts { before.append(f) }
@@ -505,8 +513,8 @@ NarrowedScope narrowedBegin(ref Binder b, through ref Ctx c, for BExpr cond, boo
 
 /// The C# `Narrowed` after `bind()`.
 void narrowedEnd(ref Binder b, through ref Ctx c, by move NarrowedScope scope) {
-    while b.nonNull.length > scope.mark {
-        b.nonNull.remove(at: b.nonNull.length - 1)
+    while b.nonNullLocals.length > scope.mark {
+        b.nonNullLocals.remove(at: b.nonNullLocals.length - 1)
     }
     // What the branch learned holds only when it ran.
     var kept = List<(i64, LocalId, Type)>()
@@ -530,7 +538,7 @@ BStmt narrowAfter(ref Binder b, through ref Ctx c, for BStmt i) {
     if thenExits != elseExits {
         let scope = t16ScopeId(ref b)
         for l in nonNullWhen(in c, for: node.condition, whenTrue: elseExits) {
-            b.nonNull.append((scope, l))
+            b.nonNullLocals.append((scope, l))
         }
         let _ = learnStates(ref b, through: ref c, for: node.condition, whenTrue: elseExits)
     }

@@ -1,0 +1,62 @@
+warning BYN5104: `person` holds a collection; name it with a plural, `people`
+
+  6 │     public List<Line> person
+    │                       ^^^^^^
+    │
+  help: rename it `people`
+    │ 6 │     public List<Line> people
+    │   │                         ++++
+
+warning BYN5104: `people` holds one `Line`; name it with a singular noun
+
+  7 │     public Line people
+    │                 ^^^^^^
+    │
+  help: rename it `person`
+    │ 7 │     public Line person
+    │   │                   ++++
+
+warning BYN5104: `child` holds a collection; name it with a plural, `children`
+
+  8 │     public List<Line> child
+    │                       ^^^^^
+    │
+  help: rename it `children`
+    │ 8 │     public List<Line> children
+    │   │                            +++
+
+warning BYN5105: `peopleCount` counts items; name it `personCount`
+
+  9 │     public i64 peopleCount
+    │                ^^^^^^^^^^^
+    │
+  help: rename it `personCount`
+    │ 9 │     public i64 personCount
+    │   │                  ++++
+
+warning BYN5105: `childrenCount` counts items; name it `childCount`
+
+  10 │     public i64 childrenCount
+     │                ^^^^^^^^^^^^^
+     │
+  help: rename it `childCount`
+     │ 10 │     public i64 childrenCount
+     │    │                     ---
+
+warning BYN5105: `numIndices` counts items; name it `indexCount`
+
+  11 │     public i64 numIndices
+     │                ^^^^^^^^^^
+     │
+  help: rename it `indexCount`
+     │ 11 │     public i64 indexCount
+     │    │                ++++++++++
+
+warning BYN5105: `numberOfMatrices` counts items; name it `matrixCount`
+
+  12 │     public i64 numberOfMatrices
+     │                ^^^^^^^^^^^^^^^^
+     │
+  help: rename it `matrixCount`
+     │ 12 │     public i64 matrixCount
+     │    │                +++++++++++

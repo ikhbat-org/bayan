@@ -264,7 +264,7 @@ void decl(in Decl node, at i64 depth, from ref Parser p, to ref StrBuf sb) {
                 head.append(typeText(in d.value.returnType, from: ref p))
             }
             head.append(whereText(in d.value.where, from: ref p))
-            for r in d.value.requiresKeyword { head.append($" expects {exprText(in r, from: ref p)}") }
+            for r in d.value.requiresClauses { head.append($" expects {exprText(in r, from: ref p)}") }
             if (d.value.usesKeyword is { } usesClause) {
                 var effects = List<string>()
                 for e in usesClause.effects { effects.append(nameText(ref p, at: e)) }
@@ -336,7 +336,7 @@ void decl(in Decl node, at i64 depth, from ref Parser p, to ref StrBuf sb) {
             var head = StrBuf()
             head.append($"Field {mods(d.value.modifiers)}{typeText(in d.value.type, from: ref p)} {nameText(ref p, at: d.value.name)}")
             unless d.value.defaultKeyword is .none { head.append($" = {exprText(in d.value.defaultKeyword, from: ref p)}") }
-            head.append(rulesText(in d.value.requiresKeyword, from: ref p))
+            head.append(rulesText(in d.value.requiresClauses, from: ref p))
             line($"{head.finish()}", at: depth, to: ref sb)
         case .propertyDecl(let d):
             doc(d.value.doc, at: depth, to: ref sb)
@@ -376,9 +376,9 @@ void decl(in Decl node, at i64 depth, from ref Parser p, to ref StrBuf sb) {
             var members = List<string>()
             for m in d.value.members { members.append(typeText(in m, from: ref p)) }
             var head = $"ErrorSet {mods(d.value.modifiers)}{nameText(ref p, at: d.value.name)} = {members.joined(by: ", ")}"
-            unless d.value.exceptKeyword.isEmpty {
+            unless d.value.exceptNames.isEmpty {
                 var exceptParts = List<string>()
-                for n in d.value.exceptKeyword { exceptParts.append($".{nameText(ref p, at: n)}") }
+                for n in d.value.exceptNames { exceptParts.append($".{nameText(ref p, at: n)}") }
                 head = $"{head} except {exceptParts.joined(by: ", ")}"
             }
             line(head, at: depth, to: ref sb)
@@ -448,7 +448,7 @@ void decl(in Decl node, at i64 depth, from ref Parser p, to ref StrBuf sb) {
             head.append($"TypeAlias {mods(d.value.modifiers)}")
             if d.value.distinct { head.append("distinct ") }
             head.append($"{nameText(ref p, at: d.value.name)} = {typeText(in d.value.target, from: ref p)}")
-            head.append(rulesText(in d.value.requiresKeyword, from: ref p))
+            head.append(rulesText(in d.value.requiresClauses, from: ref p))
             line($"{head.finish()}", at: depth, to: ref sb)
         case .effectDecl(let d):
             doc(d.value.doc, at: depth, to: ref sb)

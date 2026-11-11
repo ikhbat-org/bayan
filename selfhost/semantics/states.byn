@@ -178,7 +178,7 @@ i64 afterParams(ref Binder b, through ref Ctx c, for in parser.FunctionDecl decl
     for clause in decl.where {
         if clause.span.end > at { at = clause.span.end }
     }
-    for clause in decl.requiresKeyword {
+    for clause in decl.requiresClauses {
         let end = parser.exprSpan(in clause).end
         if end > at { at = end }
     }
@@ -220,8 +220,65 @@ bool reportWrongState(ref Binder b, through ref Ctx c, for string callee, by BEx
     }
     let what = isThis ? "this" : t15Text(in c, from: b.file, at: span)
     report(ref b, through: ref c, for: .wrongState, at: span, by: (callee, what, $"{names.finish()}", typeDisplay(ref c, by: known), ""),
-        help: "check the state with `is` or `switch` first")
+        help: stateTestHelp(ref b, through: ref c, for: t9Text(ref c, for: b.file, at: span), as: wanted) ?? "check the state with `is` or `switch` first")
     return true
+}
+
+/// The member of `.s`, or null for any other expression.
+TextSpan? targetMemberOf(parser.Expr e) {
+    if e is .targetMemberExpr(let t) { return t.value.member }
+    return null
+}
+
+/// The state a property body `this is .s` tests, or null for any other body: a constant pattern, or a variant pattern without payload or binding.
+TextSpan? testedState(parser.Expr body) {
+    switch body {
+        case .isExpr(let x):
+            if !(x.value.value is .thisExpr(_)) { return null }
+            switch x.value.pattern {
+                case .constantPattern(let k): return targetMemberOf(k.value.value)
+                case .variantPattern(let v):
+                    if v.value.elements.length == 0 && v.value.binding is null { return targetMemberOf(v.value.variant) }
+                default: {}
+            }
+        default: {}
+    }
+    return null
+}
+
+/// C# `StateTestHelp` (BinderStates.cs:117). Revision 0021 Part 5: inside `if x.p { … }`, when property `p` is exactly
+/// `this is .s` and `.s` is wanted, the help says to test `x` itself. The help may read a member's body; narrowing must never do so.
+string? stateTestHelp(ref Binder b, through ref Ctx c, for string value, as Type wanted) {
+    let s = c.stateTypes[typeIndex(wanted)].s
+    for k in 0..b.thenOf.length {
+        if !b.thenOf[k].item1 || t9Text(ref c, for: b.file, at: b.thenOf[k].item2) != value { continue }
+        let memberName = t9Text(ref c, for: b.file, at: b.thenOf[k].item3)
+        let p = findProperty(ref c, by: s, for: memberName)
+        if p == -1 { continue }
+        var tested: TextSpan? = null
+        switch c.files[c.properties[p].file].unit.members[c.properties[p].declIndex] {
+            case .structDecl(let n):
+                switch n.value.members[c.properties[p].memberIndex] {
+                    case .propertyDecl(let d): tested = testedState(d.value.body)
+                    default: {}
+                }
+            case .interfaceDecl(let n):
+                switch n.value.members[c.properties[p].memberIndex] {
+                    case .propertyDecl(let d): tested = testedState(d.value.body)
+                    default: {}
+                }
+            default: {}
+        }
+        if (tested is { } at) {
+            let name = t9Text(ref c, for: c.properties[p].file, at: at)
+            for v in c.stateTypes[typeIndex(wanted)].states {
+                if c.unionVariants[v].name == name {
+                    return $"`{memberName}` doesn't narrow; write `if {value} is .{name}`"
+                }
+            }
+        }
+    }
+    return null
 }
 
 UnionId statesUnion(ref Ctx c, for Type t) {

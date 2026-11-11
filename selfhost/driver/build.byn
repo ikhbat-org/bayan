@@ -427,10 +427,18 @@ string t5RunDir(string path) uses alloc, fs {
 }
 
 /// CliApp.cs:573 `Start`: runs `executable` with `programArgs`; `Io.run` captures its output, written stdout then stderr
-/// after it ends (spec Q5).
+/// after it ends (spec Q5). A signal-killed program (a panic aborts) writes what it captured the same way and exits 128 + the
+/// signal, as the C# shell reports it (Q1157).
 i32 t5Start(string executable, by in List<string> programArgs) uses alloc, console, process {
-    // coverage-exempt: Q1018 the catch is reached only if the just-built executable cannot be started; the C# `Process.Start` throws there
-    let r = Io.run(executable, programArgs.span) catch return exitFailure
+    let r = Io.run(executable, programArgs.span) catch switch {
+        .signaled(let s, let output, let errors) => {
+            Io.stdout.write(output)
+            Io.stderr.write(errors)
+            return 128 + s
+        },
+        // coverage-exempt: Q1018 reached only if the just-built executable cannot be started; the C# `Process.Start` throws there
+        IoError e => return exitFailure,
+    }
     Io.stdout.write(r.stdout)
     Io.stderr.write(r.stderr)
     return r.exitCode

@@ -232,12 +232,16 @@ public sealed class SelfhostSemanticsT7Tests
                 text: move textBytes,
                 unit: move unit,
                 imports: Map<string, i64>(),
+                module: 0,
             }
         }
 
         Ctx newCtx(string text) {
             var c = Ctx { files: List<SourceFile>(), modules: List<Mod>(), diagnostics: List<Diag>(), bags: List<DiagBag>() }
             c.files.append(makeFile("main.byn", by: text))
+            var files = List<FileId>()
+            files.append(0)
+            c.modules.append(Mod { name: "main", files: move files, directory: ".", cName: "main" })
             return c
         }
 
@@ -313,7 +317,7 @@ public sealed class SelfhostSemanticsT7Tests
         {
             var s = structs[i];
             ids[s] = $"s{i}";
-            body.AppendLine($"    let s{i} = newStruct(ref c, by: StructSymbol {{ name: \"{s.Name}\", nameSpan: {Span(s.Decl.Name.Span)}, file: 0, " +
+            body.AppendLine($"    let s{i} = newStruct(ref c, by: StructSymbol {{ name: \"{s.Name}\", nameSpan: {Span(s.Decl.Name.Span)}, file: 0, module: 0, " +
                 $"declIndex: {Array.IndexOf(root.Members, s.Decl)}, access: {Access(s.Access)} }})");
         }
         var fnIds = new List<string>();

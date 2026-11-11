@@ -433,7 +433,7 @@ string? t39Invariant(ref Ctx c, for StructId s) {
             for m in n.value.members {
                 switch m {
                     case .fieldDecl(let f):
-                        if f.value.requiresKeyword.length > 0 { hasRequires = true }
+                        if f.value.requiresClauses.length > 0 { hasRequires = true }
                     default: {}
                 }
             }

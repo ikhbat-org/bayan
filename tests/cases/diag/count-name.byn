@@ -1,0 +1,10 @@
+public struct Order {
+    public i64 linesCount
+    public i64 numLines
+    public i64 numberOfItems
+    public i64 lineCount
+    public i64 length
+    public i64 totalLinesCount
+}
+
+print("ok")

@@ -99,6 +99,7 @@ public enum BuiltinKind {
     env
     fs
     time
+    millis
 }
 
 // ── Handles ─────────────────────────────────────────────────────────────────────
@@ -184,6 +185,7 @@ public BuiltinKind builtinKindOf(i64 i) {
         case 13: return .env
         case 14: return .fs
         case 15: return .time
+        case 16: return .millis
         default: return .path
     }
 }
@@ -615,6 +617,7 @@ string builtinName(BuiltinKind k) {
         case .env: return "Env"
         case .fs: return "Fs"
         case .time: return "Time"
+        case .millis: return "Millis"
         default: return "Path"
     }
 }
