@@ -60,6 +60,11 @@ Not defects: `SourcesAreFormatted` needs a `dev` branch (`scripts/pinned-bayan.s
 
 `scripts/selfhost/shard-test.sh` splits the full suite by test class into weighted slices, using the last recorded per-class times. It runs the slices at once on bayan-test01 (on extrode-fleet01, via `ssh ghosthive incus exec …`, started for the job and stopped after) and on wp1 (and wlt1 when idle), then merges the results. bayan-test01's two root-only failures run on wp1. Its slice is sized to its measured speed. Done when one full run's wall time is reported against the 36.6 min single-host baseline.
 
+Dispatcher notes (2026-11-12, after the C writer's PLAN-CHANGE):
+- The measured run (wall time against 36.6 min, and the VM speed checked by it) is the dispatcher's, after landing; a writer cannot reach the hosts. The script takes the measured speeds as `--host vm=<x> --host wp1=1.0`.
+- The VM slice runs as the non-root user `bt` with a local `dev` branch (`shard-test.sh` creates both), so the two root-only failures do not occur there (rerun as `bt` on 2026-11-12: both passed). No pin list is needed.
+- wlt1 is left out for now: it fails 118 T17 and 3 Snapshot tests under full-suite load (memory `test-offload-hosts`), so it takes no unfiltered slice. vm + wp1 meets C.
+
 ## Not in this plan (after 0.3.0, decided)
 
 Q1229, Q1272, Q1273, Q31 arenas (with a stated phase-handoff rule), parser/ownership depth BYN1xxx, rev 0024 text (Q1274 open), T28 helper merge (Q1217/Q1218). Drift items 3 (symbol anchors as files are touched) and 4 (generated counts) follow the existing rules.
