@@ -7,6 +7,7 @@
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+vsce=4.1.0  # exact: the packager is not part of the lockfile
 max="${VSIX_MAX_BYTES:-2097152}"
 failed=()
 run() { echo "editor-gate: $*" >&2; "$@" || failed+=("$*"); }
@@ -17,7 +18,7 @@ run dotnet test -v q --filter "FullyQualifiedName~LanguageServer"
 out="$(mktemp -d)"; trap 'rm -rf "$out"' EXIT
 cd "$root/editors/vscode"
 run npm ci --ignore-scripts
-run npx --yes @vscode/vsce package -o "$out/bayan.vsix"
+run npx --yes @vscode/vsce@$vsce package -o "$out/bayan.vsix"
 if [ -f "$out/bayan.vsix" ]; then
   size="$(wc -c < "$out/bayan.vsix" | tr -d ' ')"
   echo "editor-gate: bayan.vsix is $size bytes (bound $max)" >&2

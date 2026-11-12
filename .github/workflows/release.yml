@@ -9,7 +9,7 @@ on:
   # never drafts a release: with dry_run false the release job starts and refuses (refuse-draft.sh).
   workflow_dispatch:
     inputs:
-      version: { description: 'Dry-run version (e.g. 0.3.0)', required: true }
+      version: { description: 'Dry-run version (e.g. 0.3.0-rc.1)', required: true }
       dry_run: { description: 'Dry run (no release job)', type: boolean, default: true }
 
 permissions:
@@ -40,8 +40,14 @@ jobs:
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
       - name: Check tag against VERSION
+        if: github.event_name != 'workflow_dispatch'
         shell: bash
         run: bash scripts/release/package.sh check-tag "$RELEASE_TAG"
+      # A dry run takes vX.Y.Z-rc.N, X.Y.Z being VERSION without -dev.
+      - name: Check dry-run version against VERSION
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: bash scripts/release/package.sh check-dry-run-tag "$RELEASE_TAG"
       # The mirrors and generated docs are checked on the Linux runners only, as in ci.yml (check.sh is untested on Windows Git Bash).
       - name: Check VERSION mirrors and generated docs
         if: runner.os == 'Linux'
@@ -72,7 +78,7 @@ jobs:
           "$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package selfhost -o publish/${{ matrix.exe }} selfhost/driver
       - name: Smoke test
         shell: bash
-        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan ${RELEASE_TAG#v} (selfhost)"
+        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan $(cat VERSION) (selfhost)"
       - name: Package
         shell: bash
         run: bash scripts/release/package.sh pack ${{ matrix.rid }} publish dist

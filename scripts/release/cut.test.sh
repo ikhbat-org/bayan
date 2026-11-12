@@ -36,6 +36,10 @@ printf '# 0003 — Third\n' > "$r/docs/revisions/0003-third.md"
 printf 'edited\n' >> "$r/docs/revisions/0001-first.md"
 sed -i.bak 's/| units | SPEC | spec-only | none |/| units | SPEC | built | `a.cs:1` |\n| `x` | SPEC | proposed | none |/' "$r/docs/STATUS.md"
 rm "$r/docs/STATUS.md.bak"
+# Files that may keep the previous -dev version: history, and the bootstrap that land.sh regenerates after the cut.
+for f in docs/bayan-handoff.md docs/plans/p.md docs/specs/s/s.md docs/revisions/r.txt docs/handoffs/h.md work/todo.md bootstrap/bayan.c; do
+  mkdir -p "$r/$(dirname "$f")"; printf 'was 1.2.3-dev\n' > "$r/$f"
+done
 commit "work"
 head="$(g rev-parse HEAD)"
 
