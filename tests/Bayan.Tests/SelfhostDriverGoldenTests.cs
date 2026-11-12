@@ -71,6 +71,7 @@ public sealed class SelfhostDriverGoldenTests
     {
         ["diag/capability-exceeded/main.byn"] = "Q1052", // BYN6004 needs the manifest's capabilities; `check .` stops at the missing src/app, `--package` ignores package.byn
         ["diag/std-imports-package/main.byn"] = "Q1052", // BYN2033 needs the case's stdlib/ as the std library: the CLI reads only the shipped std and stops at BYN2032
+        ["diag/cases-type-mismatch.test.byn"] = "Q1221", // BYN2202 needs IncludeTests, which `check` never sets; compared through `test` by CasesTypeMismatchAsCSharpTest (017 T11)
     };
     /// <summary>
     /// <c>BAYAN_GOLDEN_SHARD=i/n</c> (0 &lt;= i &lt; n) keeps the <c>run/</c> cases whose index among the in-scope ones is i modulo n, so the slow
@@ -686,6 +687,228 @@ public sealed class SelfhostDriverGoldenTests
         Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", Path.Combine(work, "proj"), "--vcs", "none"], new StringWriter(), new StringWriter()));
         Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", Path.Combine(work, "lib"), "--lib", "--vcs", "none"], new StringWriter(), new StringWriter()));
         AssertTestAsCSharp(work, args);
+    }
+
+    /// <summary>A row of the 017 corpus: <see cref="Args"/> run in a work directory holding the tree <see cref="Plant"/> makes for <see cref="Tree"/>.</summary>
+    private sealed record CommandRow(string Command, string Tree, string[] Args);
+
+    /// <summary>
+    /// 017 T14 (R3): the command lines of the C# CLI tests, per command (<c>CliTests.cs</c> explain, features, audit; <c>CacheTests.cs</c> clean,
+    /// cache; <c>ScaffoldTests.cs</c>/<c>CliEnvironmentTests.cs</c> new, init, doctor; <c>FormatTests.cs</c> format; <c>SelfhostDefaultT12Tests.cs</c> dist;
+    /// <c>ExternalModeTests.cs</c> test, mutate), with each command's usage and failure lines. Paths are relative to the work directory, so both runs see the same argv.
+    /// </summary>
+    private static readonly CommandRow[] Commands =
+    [
+        new("explain", "empty", ["explain", "BYN0003"]),
+        new("explain", "empty", ["explain", "byn0003"]),
+        new("explain", "empty", ["explain", "BYN9999"]),
+        new("explain", "empty", ["explain", "BYN00"]),
+        new("explain", "empty", ["explain", "../BYN0001"]),
+        new("explain", "empty", ["explain"]),
+        new("features", "features", ["features", "--used", "."]),
+        new("features", "features", ["features", "--used", "main.byn"]),
+        new("features", "features", ["features", "."]),
+        new("features", "empty", ["features"]),
+        new("clean", "app-out", ["clean", "tally"]),
+        new("clean", "app-out", ["clean", "--cache", "tally"]),
+        new("clean", "app-out", ["clean", "--cache"]),
+        new("clean", "empty", ["clean", "missing"]),
+        new("cache", "empty", ["cache", "stats"]),
+        new("cache", "empty", ["cache"]),
+        new("cache", "empty", ["cache", "bogus"]),
+        new("new", "empty", ["new", "tally", "--vcs", "none"]),
+        new("new", "empty", ["new", "util", "--lib", "--vcs", "none"]),
+        new("new", "empty", ["new", "hi", "--script"]),
+        new("new", "empty", ["new", "Bad_Name", "--vcs", "none"]),
+        new("new", "app", ["new", "tally", "--vcs", "none"]),
+        new("new", "empty", ["new"]),
+        new("init", "script", ["init", ".", "--vcs", "none"]),
+        new("init", "app", ["init", "tally", "--vcs", "none"]),
+        new("init", "empty", ["init", "missing", "--vcs", "none"]),
+        new("doctor", "empty", ["doctor"]),
+        new("doctor", "empty", ["doctor", "extra"]),
+        new("audit", "audit", ["audit", "."]),
+        new("audit", "script", ["audit", "main.byn"]),
+        new("audit", "empty", ["audit"]),
+        new("format", "fix", ["format", "main.byn"]),
+        new("format", "fix", ["format", "--check", "main.byn"]),
+        new("format", "fix", ["format", "--check", "."]),
+        new("format", "script", ["format", "--check", "main.byn"]),
+        new("format", "empty", ["format", "missing.byn"]),
+        new("dist", "app", ["dist", "tally"]),
+        new("dist", "app", ["dist", "tally", "--target", "bogus"]),
+        new("dist", "script", ["dist", "main.byn"]),
+        new("dist", "empty", ["dist", "missing"]),
+        new("test", "inc", ["test", "inc"]),
+        new("test", "inc", ["test", "--mutate", "inc"]),
+        new("test", "empty", ["test", "missing"]),
+        new("mutate", "prog", ["mutate"]),
+        new("mutate", "prog", ["mutate", "--binary", "prog", "--sites"]),
+    ];
+
+    private static string Label(CommandRow row) => $"{row.Tree}: {string.Join(' ', row.Args)}";
+
+    /// <summary>The seeded subset picks per command (<see cref="Pick"/>), so the quick tier has at least one row of each.</summary>
+    public static TheoryData<string, string> CommandRows
+    {
+        get
+        {
+            var data = new TheoryData<string, string>();
+            foreach (var group in Commands.GroupBy(r => r.Command))
+                foreach (var label in Pick([.. group.Select(Label)]))
+                    data.Add(group.Key, label);
+            return data;
+        }
+    }
+
+    /// <summary>The trees the rows start from; <c>app</c> is a <c>new</c> app made by the C# in-process, as <c>SelfhostDefaultT12Tests</c> seeds it.</summary>
+    private static void Plant(string tree, string root)
+    {
+        void Write(string name, string text)
+        {
+            var path = Path.Combine(root, name);
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            File.WriteAllText(path, text);
+        }
+        switch (tree)
+        {
+            case "empty":
+                break;
+            case "script":
+                Write("main.byn", "void main() {\n    print(\"hi\")\n}\n");
+                break;
+            case "features": // CliTests.cs FeaturesUsedListsNodesBuiltinsAndDiagnostics
+                Write("main.byn", "void main() {\n    var s = \"abc\"\n    if s.length > 1 {\n        print(s)\n    }\n}\n");
+                break;
+            case "audit": // CliTests.cs AuditListsEveryBypassWithItsReason
+                Write("main.byn", "@allow(BYN2230) because \"kept for the C ABI\"\nvoid toHex() {\n}\n\nunsafe void poke() {\n}\n\n"
+                    + "void main() {\n    let k = input.trustUnchecked() because \"a fixture\"\n    unsafe because \"raw write\" {\n    }\n}\n\nextern i32 puts(cstr s)\n");
+                break;
+            case "fix": // FormatTests.cs AFixIsApplied
+                Write("main.byn", "let a = true\nunless !a { print(\"y\") }\n");
+                break;
+            case "inc": // TestMutateAsCSharpCli
+                Write(Path.Combine("inc", "a.test.byn"), MutateInc);
+                break;
+            case "prog": // MutateBinaryAsCSharpCli
+                Write("prog", "");
+                break;
+            case "app":
+            case "app-out":
+                Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", Path.Combine(root, "tally"), "--vcs", "none"], new StringWriter(), new StringWriter()));
+                if (tree == "app-out") Write(Path.Combine("tally", "out", "stale.txt"), "stale\n");
+                break;
+            default:
+                throw new ArgumentException(tree);
+        }
+    }
+
+    /// <summary>The written-files view of <paramref name="root"/>: every entry by its relative path, a directory as null, a file as its bytes.</summary>
+    private static SortedDictionary<string, byte[]?> Files(string root)
+    {
+        var files = new SortedDictionary<string, byte[]?>(StringComparer.Ordinal);
+        foreach (var entry in Directory.EnumerateFileSystemEntries(root, "*", SearchOption.AllDirectories))
+            files[Path.GetRelativePath(root, entry).Replace('\\', '/')] = Directory.Exists(entry) ? null : File.ReadAllBytes(entry);
+        return files;
+    }
+
+    private static readonly UTF8Encoding StrictUtf8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+
+    /// <summary>The bytes as text when they are UTF-8 without a NUL (the law's masks apply to text files only), else null.</summary>
+    private static string? Text(byte[] bytes)
+    {
+        if (bytes.Contains((byte)0)) return null;
+        try { return StrictUtf8.GetString(bytes); }
+        catch (DecoderFallbackException) { return null; }
+    }
+
+    /// <summary>
+    /// L028's masks as amended by 017 T14: elapsed seconds and the timings (<see cref="MaskTest"/>), the version line's parenthesised part (012 Q3;
+    /// <c>version</c> and <c>doctor</c>'s <c>bayan</c> line), the cache directory, and the hash of a <c>SHA256SUMS</c> line (Q1222: a native executable is not reproducible).
+    /// </summary>
+    private static string LawMask(string text, string cache)
+    {
+        text = MaskTest(text.Replace(cache, "<cache>"));
+        text = Regex.Replace(text, @"^[0-9a-f]{64}(  \S)", "<sha256>$1", RegexOptions.Multiline);
+        return Regex.Replace(text, @"^(.*\bbayan\s+\S+) \(.*\)$", "$1 (masked)", RegexOptions.Multiline);
+    }
+
+    /// <summary>
+    /// Compares the written files of two runs: the same entry names, then each text file with <see cref="LawMask"/> applied. A file that
+    /// is not text (a native executable: two C# builds of one program already differ, Q1222) is compared by name only.
+    /// Null when equal, else the first difference.
+    /// </summary>
+    internal static string? WrittenFilesDiffer(SortedDictionary<string, byte[]?> expected, SortedDictionary<string, byte[]?> actual, string cache)
+    {
+        var missing = expected.Keys.Except(actual.Keys).ToList();
+        var extra = actual.Keys.Except(expected.Keys).ToList();
+        if (missing.Count > 0 || extra.Count > 0) return $"written files differ: C# only [{string.Join(", ", missing)}], stage 2 only [{string.Join(", ", extra)}]";
+        foreach (var (name, bytes) in expected)
+        {
+            var other = actual[name];
+            if (bytes is null || other is null)
+            {
+                if ((bytes is null) != (other is null)) return $"{name}: a directory on one side only";
+                continue;
+            }
+            var a = Text(bytes);
+            var b = Text(other);
+            if ((a is null) != (b is null)) return $"{name}: text on one side only";
+            if (a is not null && LawMask(a, cache) != LawMask(b!, cache)) return $"{name} differs\n--- C#\n{LawMask(a, cache)}\n--- stage 2\n{LawMask(b!, cache)}";
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 017 T14 (L028, R3): one row of <see cref="Commands"/> through the C# CLI and then stage 2, each in the same freshly planted work
+    /// directory with <c>BAYAN_CACHE</c> a fresh sibling directory and <c>CI</c> set; exit code, stdout, stderr and the written files compared masked.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(CommandRows))]
+    public void CommandAsCSharpCli(string command, string label)
+    {
+        var row = Commands.Single(r => r.Command == command && Label(r) == label);
+        var work = Path.Combine(Golden.RepoRoot, "tmp", "golden", "017", $"{command}-{Array.IndexOf(Commands, row)}");
+        var cache = work + "-cache";
+        (string, string?)[] env = [("BAYAN_CACHE", cache), ("CI", "1")];
+        (Result Result, SortedDictionary<string, byte[]?> Files) Once(Func<Result> run)
+        {
+            TestDirs.Delete(work);
+            TestDirs.Delete(cache);
+            Directory.CreateDirectory(work);
+            Plant(row.Tree, work);
+            return (run(), Files(work));
+        }
+        var expected = Once(() => Start("dotnet", [typeof(CliApp).Assembly.Location], work, row.Args, env));
+        var actual = Once(() => Start(BootstrapTests.Stage2Executable(), [], work, row.Args, env));
+        Assert.True(expected.Result.Exit == actual.Result.Exit, $"exit of `{label}`: C# {expected.Result.Exit}, stage 2 {actual.Result.Exit}\n{expected.Result.Stderr}\n{actual.Result.Stderr}");
+        SelfhostEmitterHarness.AssertSame($"stdout of `{label}`", LawMask(expected.Result.Stdout, cache), LawMask(actual.Result.Stdout, cache));
+        SelfhostEmitterHarness.AssertSame($"stderr of `{label}`", LawMask(expected.Result.Stderr, cache), LawMask(actual.Result.Stderr, cache));
+        if (WrittenFilesDiffer(expected.Files, actual.Files, cache) is { } f) Assert.Fail($"`{label}`: {f}");
+    }
+
+    /// <summary>The written-files comparison sees a changed text, an extra file, a directory-for-file swap and a text-for-binary swap; it masks the cache path, elapsed time and a SHA256SUMS hash, and takes a binary by name.</summary>
+    [Fact]
+    public void WrittenFilesComparisonSeesEveryKindOfDifference()
+    {
+        SortedDictionary<string, byte[]?> Tree(params (string Name, byte[]? Bytes)[] entries)
+        {
+            var t = new SortedDictionary<string, byte[]?>(StringComparer.Ordinal);
+            foreach (var (name, bytes) in entries) t[name] = bytes;
+            return t;
+        }
+        var cache = "/c/cache";
+        var a = Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2]));
+        Assert.Null(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 9.00s\n")), ("bin", [0, 1, 2])), cache));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/other in 1.25s\n")), ("bin", [0, 1, 2])), cache));
+        Assert.Null(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.25s\n")), ("bin", [0, 1, 3])), cache));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.25s\n")), ("bin", [1])), cache));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.26s!\n")), ("bin", [0, 1, 2])), cache));
+        var sums = Tree(("SHA256SUMS", Encoding.UTF8.GetBytes(new string('a', 64) + "  macos-arm64/tally\n")));
+        Assert.Null(WrittenFilesDiffer(sums, Tree(("SHA256SUMS", Encoding.UTF8.GetBytes(new string('b', 64) + "  macos-arm64/tally\n"))), cache));
+        Assert.NotNull(WrittenFilesDiffer(sums, Tree(("SHA256SUMS", Encoding.UTF8.GetBytes(new string('b', 64) + "  linux-x64/tally\n"))), cache));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2]), ("x", [])), cache));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", [1]), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2])), cache));
     }
 
     /// <summary>BAYAN_UPDATE=1 must not make a comparison write its expected file (R10).</summary>
