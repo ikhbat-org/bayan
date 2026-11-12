@@ -9,6 +9,7 @@
 - Versioned docs (`docs/RELEASING.md`). `VERSION` holds the version and `scripts/release/set-version.sh` sets its mirrors and the `Version:` header of SPEC, GRAMMAR, STYLE, DIAGNOSTICS and STATUS. The generated `docs/DIAGNOSTICS.md` (every code: live, plan, reserved, retired) and `docs/STATUS.md` (hand-kept feature rows, generated keyword and stdlib rows) come from `scripts/docs/gen-diagnostics.sh` and `gen-status.sh`. `scripts/docs/check.sh` (in CI) fails on a stale header, revision range, generated doc or mirror. `cut.sh` and `next-dev.sh` prepare a release and the next `-dev`. Every release archive carries the six docs under `share/doc/bayan/`, and the release adds `bayan-X.Y.Z-docs.tar.gz`.
 
 ### Changed
+- Releases now ship the self-hosted compiler (stage 2, built by the C# compiler's stage 1) as `bayan`; `bayan version` prints `bayan X.Y.Z (selfhost)`. `bayan-lsp` stays the C# build.
 - Signature clause order is now `where`, `expects`, `uses`, `becomes`, `fails` (round 4 §1), for function types too (`() -> T uses alloc fails DbError`); the old order is BYN1065, and `bayan format` reorders it.
 - `ensures` is no longer reserved and can be used as an identifier (revision 0019, round-4 batch 1); BYN0012 no longer fires on it.
 

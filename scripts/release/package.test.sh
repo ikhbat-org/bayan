@@ -64,4 +64,11 @@ mkdir -p "$t/empty"; bash "$s" sums "$t/empty" 2>/dev/null && fail "sums over no
 
 [ "$(bash "$s" notes 1.2.3)" = "$(printf '\n### Added\n- one\n')" ] || fail "notes: $(bash "$s" notes 1.2.3)"
 bash "$s" notes 9.9.9 2>/dev/null && fail "missing CHANGELOG section accepted"
+
+# release.yml builds the shipped bayan as stage 2 and smoke-tests the "(selfhost)" version line (spec 017 R5).
+y="$root/.github/workflows/release.yml"
+grep -qF -- 'build --mode safe --package selfhost -o "$RUNNER_TEMP/stage1-${{ matrix.exe }}" selfhost/driver' "$y" || fail "release.yml lacks the stage 1 build"
+grep -qF -- '"$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package selfhost -o publish/${{ matrix.exe }} selfhost/driver' "$y" || fail "release.yml lacks the stage 2 build"
+grep -qF -- 'grep -F "bayan ${GITHUB_REF_NAME#v} (selfhost)"' "$y" || fail "release.yml smoke test lacks (selfhost)"
+grep -qF -- 'needs: [build, memory-gate]' "$y" || fail "release job no longer needs memory-gate"
 echo PASS

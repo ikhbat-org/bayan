@@ -48,9 +48,22 @@ jobs:
           echo "$dotnet_root" >> "$GITHUB_PATH"
       - name: Publish (NativeAOT)
         run: dotnet publish src/Bayan.Cli -c Release -r ${{ matrix.rid }} -o publish
+      # The shipped `bayan` is the self-hosted compiler (spec 017): the C# build above only bootstraps it. Stage 1 is
+      # the driver built by the C# compiler, stage 2 the driver built by stage 1, native for this runner (no --target).
+      # The C# `build` needs a C compiler; zig is the one the memory-gate job installs.
+      - name: Install zig
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      - name: Build stage 1
+        shell: bash
+        run: ./publish/${{ matrix.exe }} build --mode safe --package selfhost -o "$RUNNER_TEMP/stage1-${{ matrix.exe }}" selfhost/driver
+      - name: Build stage 2 (the shipped bayan)
+        shell: bash
+        run: |
+          "$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package selfhost -o publish/${{ matrix.exe }} selfhost/driver
       - name: Smoke test
         shell: bash
-        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan ${GITHUB_REF_NAME#v} "
+        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan ${GITHUB_REF_NAME#v} (selfhost)"
       - name: Package
         shell: bash
         run: bash scripts/release/package.sh pack ${{ matrix.rid }} publish dist
