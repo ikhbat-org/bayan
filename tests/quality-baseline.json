@@ -66,6 +66,11 @@
       "coverage": 0.9918,
       "branches": 1.0
     },
+    "selfhost/driver/mutate.byn": {
+      "mutation": null,
+      "coverage": 0.9761,
+      "branches": 0.9845
+    },
     "selfhost/driver/progress.byn": {
       "mutation": null,
       "coverage": 1.0,
@@ -88,8 +93,8 @@
     },
     "selfhost/driver/test.byn": {
       "mutation": null,
-      "coverage": 0.9366,
-      "branches": 0.9333
+      "coverage": 0.9403,
+      "branches": 0.9421
     },
     "selfhost/driver/testreport.byn": {
       "mutation": null,
