@@ -96,7 +96,7 @@ test "wrapIndex stays in range" (i64 i, i64 lo, i64 hi) {
 
 ## Verified findings (no change)
 
-- **D-1.** A non-bool `expects x` reports BYN2320, "a `requires` clause must be `bool`, got `i32`". A constant argument that violates a clause, `width(5, until: 2)`, reports BYN2321, "`5` violates `requires start <= end` of `width`", with the help "pass a value that meets `requires start <= end`". SPEC §7.9 cites both for `expects`; the messages say `requires`. Rewording them changes `.diag` goldens and is Q1244 in the handoff.
+- **D-1.** A non-bool `expects x` reports BYN2320, "a `requires` clause must be `bool`, got `i32`". A constant argument that violates a clause, `width(5, until: 2)`, reports BYN2321, "`5` violates `requires start <= end` of `width`", with the help "pass a value that meets `requires start <= end`". SPEC §7.9 cites both for `expects`; the messages say `requires`. Rewording them changes `.diag` goldens and is Q1272 in the handoff.
 - **B1** (an `expects` trap golden) is skipped: `tests/cases/run/requires.byn` and `tests/cases/run/requires-block.byn` already cover the trap ("panic: contract violated: …", exit 134).
 - **Clause order and lockfile (D6).** Already recorded: revision 0020 items 24 and 26.
 - **A21 and A23** in `docs/export/BAYAN-AUDIT.md` are closed by revision 0020. **A25** is closed by items 5 and 13. AUDIT A31's `.par()` and `bayan verify` items stay open.
@@ -107,7 +107,7 @@ SPEC §0, §6.1, §7.9, §10, §15.5, §19.4, §20, §21.3, Appendix A; `docs/re
 
 ## Codes
 
-None allocated, changed or retired. `BYN6008` (effects family, error) is free (`DiagnosticCodes.cs` ends the 6xxx family at BYN6007) and is named by SPEC §7.9 as not built.
+`BYN6008` (effects family, error) is allocated as a plan code in `docs/diagnostics-allocated.txt`: `DiagnosticCodes.cs` ends the 6xxx family at BYN6007, and SPEC §7.9 names BYN6008 as not built (Part C, Q1273 in the handoff). None changed or retired.
 
 ## Part C: not in this revision
 
