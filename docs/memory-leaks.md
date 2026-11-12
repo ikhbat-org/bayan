@@ -75,7 +75,7 @@ or by luck; LOW = small or one-shot. Source reports: `tmp/leak-audit/*.out` (scr
 |---|---|---|
 | HIGH | `General` allocator never frees (Q31); selfhost stage1 reached 2.4 GB | open: decision (arenas per phase, or a freeing General) |
 | MEDIUM | 012 driver `.bayan-staging-*` left beside output; dSYM, non-recursive remove | fixed, 017 T9: the driver stages under the cache's `v1/tmp/` and `sweepStale` removes what a dead build left |
-| MEDIUM | `Io.run` buffers child output whole, then copies (2× peak) | open: 012 flow |
+| MEDIUM | `Io.run` buffers child output whole, then copies (2× peak) | open: 017 T11's `runTest` keeps it whole, so a test printing until killed peaks at 4619 MB through the stage-2 driver (bound 300 MB; `SelfhostDefaultBoundsTests` M1 on the driver, a listed skip, Q1227) |
 | MEDIUM | `StrBuf` growth abandons old blocks (Q745 by design); ~2× under `General` | follows the allocator decision |
 | MEDIUM | `Symbol` intern table never shrinks (spec 008 R10, by design) | accepted |
 | LOW | Error paths in `byn_io_read*`/`list_dir` skip frees; `io_read` buffer not shrunk | open, todo |
@@ -104,6 +104,7 @@ these fail:
 ```sh
 dotnet test -v q --filter "FullyQualifiedName~LanguageServer"     # LSP walk, budgets, retention, depth, buffers
 dotnet test -v q --filter "FullyQualifiedName~CliMemoryBounds"    # CLI capture, cache eviction, walks, timeouts
+dotnet test -v q --filter "FullyQualifiedName~SelfhostDefaultBounds" # the same bounds through the self-hosted driver
 bash scripts/pinned-bayan.test.sh                                  # pinned build cache eviction
 ```
 
@@ -113,8 +114,8 @@ extension and `bayan-lsp` have no release workflow: run the script by hand befor
 `scripts/release/memory-gate.test.sh` fails when the script and this block drift apart.
 
 plus, for a release that changes the runtime or selfhost: `leaks --atExit` over the run goldens
-on macOS (2026-11-06: ≤ 3.6 KB per golden) and peak RSS of a selfhost build of `selfhost/`
-(record the number in the release notes; a rise over 20 % blocks until explained).
+on macOS (2026-11-06: ≤ 3.6 KB per golden; 2026-11-12 through stage 2: median 16 B, max 1.1 MB in `io-run-input.byn`; probes show a `List`'s last buffer left allocated at exit, in any function, handoff Q1228 and Q1229) and peak RSS of a selfhost build of `selfhost/`
+(2026-11-12: 2.94 GB for `selfhost/driver`, handoff Q1228; record the number in the release notes; a rise over 20 % blocks until explained).
 
 A new long-running component, cache, walk or watcher adds its bound test to this list in the
 same branch.
