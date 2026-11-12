@@ -101,11 +101,12 @@ public sealed class SelfhostDriverT1Tests
     public void MatchesTheCSharpCli(string[] args) => AssertSameAsCs(args);
 
     /// <summary>
-    /// 017 T13: the mutation report's measured timing (in the summary line and the JSON's seconds) masked; a value that is exactly 0
-    /// (`mutate --binary`'s build time and share, no mutant run) is deterministic and compared, as is the rest.
+    /// 017 T13: the mutation report's measured timing masked: every value on the summary's <c>timing:</c> line, 0 included (a fast
+    /// host rounds a mean to 0 on one side and not the other, 008 W6), and the JSON's seconds but an exact 0 (`mutate --binary`'s
+    /// build time and share, no mutant run), which is deterministic and compared, as is the rest.
     /// </summary>
     private static string MaskMutation(string text) =>
-        Regex.Replace(Regex.Replace(text, @"^timing: .*$", m => Regex.Replace(m.Value, @"(?<= )(?!0 |0%)[0-9.E+-]+(?= s|%)", "<t>"), RegexOptions.Multiline),
+        Regex.Replace(Regex.Replace(text, @"^timing: .*$", m => Regex.Replace(m.Value, @"(?<= )[0-9.E+-]+(?= s|%)", "<t>"), RegexOptions.Multiline),
             "\"(build_s|mean_mutant_s|max_mutant_s|total_s|mutant_share_of_build)\": (?!0[,\\n])[^,\\n]+", "\"$1\": <t>");
 
     /// <summary>
