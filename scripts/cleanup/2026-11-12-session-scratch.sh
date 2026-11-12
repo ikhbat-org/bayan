@@ -5,6 +5,7 @@
 #   - worktrees .worktrees/chore-017-preflight-sh, .worktrees/chore-017-t11-refusal-tests and their branches
 #     chore/017-preflight-sh, chore/017-t11-refusal-tests (merged into feat/017-selfhost-default);
 #   - worktree .worktrees/worker-017-t14, branch chore/worker-017-t14 and key 017-t14 (first T14 attempt, superseded);
+#   - worktree .worktrees/worker-017-t14b, branch chore/worker-017-t14b, keys 017-t14b, 017-t14b-review, 017-t14--gate-review (T14, landed);
 #   - /tmp scratch: /tmp/w015t8.py, /tmp/pt.out, /tmp/rt_new_51494.c;
 #   - on the ghosthive VM bayan-test01: /root/work-007b, /root/007b.bundle, /root/rv007b*.bundle, /root/run-*.sh.
 # ~/.claude/.worktrees/dev-land belongs to the ~/.claude repo (route-replay pilot P2); clean it with that repo's tooling
@@ -48,6 +49,15 @@ if git show-ref --verify --quiet "refs/heads/$b" && [ "$(git rev-parse "$b")" = 
   if [ "$dropt14" = 1 ]; then run git branch -D "$b"
   else printf 'skip: git branch -D %s (unmerged; needs --drop-unmerged-t14)\n' "$b"; fi
 else printf 'keep: %s (missing or moved past 8a7ea54e)\n' "$b"; fi
+
+# the second T14 attempt, landed into feat/017-selfhost-default by land.sh (7d9e7aa6); land.sh keeps the worker
+# worktree and keys, so retire them here. The branch is merged, so -d.
+b=chore/worker-017-t14b; w="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/.worktrees/worker-017-t14b"
+if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
+  for k in 017-t14b 017-t14b-review 017-t14--gate-review; do run deno run -A "$HOME/.claude/tools/worker.js" retire "$k"; done
+  [ -d "$w" ] && run git worktree remove "$w"
+  run git branch -d "$b"
+else printf 'keep: %s (missing or not merged)\n' "$b"; fi
 
 for f in /tmp/w015t8.py /tmp/pt.out /tmp/rt_new_51494.c; do
   [ -e "$f" ] && run rm -f "$f"
