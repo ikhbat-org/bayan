@@ -1,7 +1,7 @@
 #!/bin/bash
 # preflight.sh on a fixture repo under tmp/, run by /bin/bash (3.2 on macOS), with a fake dotnet on PATH and a fake pinned bayan: a clean branch is
 # all `ok` but wp1 until tmp/wp1/<sha>.out holds a passing run of every class, then exits 0; each check fails on its own fixture:
-# cites (past the end, a quoted symbol not on a single cited line or the 2 after it, nor in a cited range, a missing file; a bare name resolves), files (a brace list is one name each; prints the addition),
+# cites (past the end, a quoted symbol not on a single cited line or the 2 after it, nor in a cited range, a missing file; a bare name resolves), files (a brace list is one name each; a listed .github/ workflow passes; prints the addition),
 # questions (a number twice, one already on the base, one outside the range, a task with no range; a range from the task line or
 # BAYAN_QRANGES), tests (a class from the file's declaration, not its name; a class that matches no test, a failed test, a build
 # error, plan-strings-check), wp1 (missing, not `exit 0`, no tests, a filter without a class, uncommitted changes); on a checkout of
@@ -14,7 +14,7 @@ rm -rf "$r" "$aux" && mkdir -p "$r/docs/specs/012-self-hosted-bootstrap" "$r/src
 git init -q -b base && git config user.email t@t && git config user.name t
 printf 'tmp/\n' > .gitignore
 cat > docs/specs/012-self-hosted-bootstrap/012-tasks.md <<'EOF'
-- [ ] T99 fixture — files: `src/a.c`, `src/{d,e}.c`, `bootstrap/r.c`, `scripts/r.sh`, `tests/Bayan.Tests/FooInventoryTests.cs` (declares `FooT8Tests`, not `x.cs`) — covers: R1 — done when: x
+- [ ] T99 fixture — files: `src/a.c`, `.github/workflows/r.yml`, `src/{d,e}.c`, `bootstrap/r.c`, `scripts/r.sh`, `tests/Bayan.Tests/FooInventoryTests.cs` (declares `FooT8Tests`, not `x.cs`) — covers: R1 — done when: x
 - [ ] T98 fixture — files: `src/a.c` — covers: R1 — Questions Q300–Q304
 - [ ] T97 fixture — files: `src/a.c` — covers: R1
 EOF
@@ -44,7 +44,7 @@ REV=docs/specs/012-self-hosted-bootstrap/reviews/T99.md
 br good src/a.c 'int delta;' docs/bayan-handoff.md '200. **T99.** `src/a.c:2` `beta` and `a.c:1-2` (bare name) hold it; `src/a.c:3`, then `gamma` elsewhere; `src/a.c:1` `gamma` is 2 lines on.' \
   $REV '| 1 | LOW | `src/a.c:4` `delta` | open |'
 br stale src/a.c 'int delta;' docs/bayan-handoff.md '201. `src/a.c:9` is past the end; `src/a.c:1` `delta` is 3 lines on; `src/a.c:1-2` `gamma` ends short; `nope.c:1` does not exist; `src/a.c:3` `gamma` holds.'
-br outside src/b.c 'int b;' scripts/r.sh 'true' scripts/s.sh 'true' bootstrap/r.c "int r;" src/d.c 'int d;' src/e.c 'int e;' tests/Bayan.Tests/BarTests.cs 'class BarTests {}' work/todo.md '- x'
+br outside .github/workflows/r.yml 'on: push' .github/workflows/s.yml 'on: push' src/b.c 'int b;' scripts/r.sh 'true' scripts/s.sh 'true' bootstrap/r.c "int r;" src/d.c 'int d;' src/e.c 'int e;' tests/Bayan.Tests/BarTests.cs 'class BarTests {}' work/todo.md '- x'
 br qdup docs/bayan-handoff.md '101. again'
 br qout docs/bayan-handoff.md '205. out of range'
 br qbase docs/bayan-handoff.md '202. mine'
@@ -89,7 +89,7 @@ has "$stale" 'FAIL cites: docs/bayan-handoff.md Q201 `src/a.c:1`: `delta` is not
 has "$stale" 'FAIL cites: docs/bayan-handoff.md Q201 `nope.c:1`: no such file' || fail "a citation of a missing file passed" "$stale"
 has "$stale" 'FAIL cites: docs/bayan-handoff.md Q201 `src/a.c:1-2`: `gamma` is not on src/a.c:1-2' || fail "a range ending short of its quoted symbol passed" "$stale"
 [ "$(grep -c '^FAIL cites' <<< "$stale")" = 4 ] || fail "a citation that holds was reported" "$stale"
-has "$outside" 'FAIL files: 3 changed outside T99'"'"'s files list; append to its files: in docs/specs/012-self-hosted-bootstrap/012-tasks.md: `scripts/s.sh`, `src/b.c`, `tests/Bayan.Tests/BarTests.cs`' || fail "files outside the list are not reported with the addition" "$outside"
+has "$outside" 'FAIL files: 4 changed outside T99'"'"'s files list; append to its files: in docs/specs/012-self-hosted-bootstrap/012-tasks.md: `.github/workflows/s.yml`, `scripts/s.sh`, `src/b.c`, `tests/Bayan.Tests/BarTests.cs`' || fail "files outside the list are not reported with the addition" "$outside"
 has "$qdup" "FAIL questions: Q101 is in docs/bayan-handoff.md 2 times" || fail "a duplicate Question number passed" "$qdup"
 has "$qout" "FAIL questions: Q205 is outside T99's range Q200–Q204" || fail "a Question outside the range passed" "$qout"
 has "$qbase" "FAIL questions: Q202 is already on base (another task took it)" || fail "a Question the base took meanwhile passed" "$qbase"
