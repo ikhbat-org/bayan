@@ -168,6 +168,31 @@ public sealed class CliTests
         Assert.Equal(1, result.Out.Split("unsafe void prod()").Length - 1);
     }
 
+    /// <summary>
+    /// 008 W6: of a file and its links, the walk lists the name first in ordinal order, whatever the file system's directory order
+    /// (ext4 hashes it, APFS sorts it): links that sort before and after their target, each created before and after it.
+    /// </summary>
+    [Fact]
+    public void AuditListsTheOrdinalFirstOfAFileAndItsLinks()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var dir = Fresh("audit-link-order", "unsafe void poke() {\n}\n");
+        File.CreateSymbolicLink(Path.Combine(dir, "alias.byn"), "main.byn");
+        File.CreateSymbolicLink(Path.Combine(dir, "zz.byn"), "main.byn");
+        File.CreateSymbolicLink(Path.Combine(dir, "c.byn"), "m.byn");
+        File.WriteAllText(Path.Combine(dir, "m.byn"), "unsafe void peek() {\n}\n");
+        File.CreateSymbolicLink(Path.Combine(dir, "y.byn"), "m.byn");
+        var groups = new[] { new[] { "main.byn", "alias.byn", "zz.byn" }, ["m.byn", "c.byn", "y.byn"] };
+        var (exit, stdout, _) = Run("audit", dir);
+        Assert.Equal(CliApp.ExitOk, exit);
+        foreach (var group in groups)
+        {
+            var first = group.Min(StringComparer.Ordinal)!;
+            foreach (var name in group)
+                Assert.Equal(name == first, stdout.Contains(Path.Combine(dir, name) + ":1:1"));
+        }
+    }
+
     [Fact]
     public async Task AuditReportsALoopingFileLinkAndGoesOn()
     {

@@ -242,11 +242,12 @@ public sealed class SelfhostDriverGoldenTests
 
     /// <summary>
     /// L028's mask for <c>test</c>: the elapsed seconds, the timings of <c>results.json</c> and <c>bayan-quality.json</c>, and the
-    /// <c>timing:</c> line of a mutation summary (017 T13); a timing that is exactly 0 (<c>mutate --binary</c>'s build and share) is compared.
+    /// <c>timing:</c> line of a mutation summary (017 T13), every value on it, 0 included (a fast host rounds a mean to 0 on one side and
+    /// not the other, 008 W6); a JSON timing that is exactly 0 (<c>mutate --binary</c>'s build and share) is compared.
     /// </summary>
     private static string MaskTest(string text) =>
         Regex.Replace(Regex.Replace(Mask(text), @"""(durationMs|build_s|total_s|mean_mutant_s|max_mutant_s|mutant_share_of_build)"": (?!0[,\r\n])[0-9.E+-]+", "\"$1\": <t>"),
-            @"^timing: build .*$", m => Regex.Replace(m.Value, @"(?<= )(?!0 |0%)[0-9.]+(?= s|%)", "<t>"), RegexOptions.Multiline);
+            @"^timing: build .*$", m => Regex.Replace(m.Value, @"(?<= )[0-9.]+(?= s|%)", "<t>"), RegexOptions.Multiline);
 
     /// <summary>
     /// 017 T11 (L028): the C# CLI (<c>dotnet bayan.dll</c>) and the driver's harness build run <paramref name="args"/> one after the other in
