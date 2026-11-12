@@ -789,11 +789,11 @@ public sealed class SelfhostDriverGoldenTests
     }
 
     /// <summary>The written-files view of <paramref name="root"/>: every entry by its relative path, a directory as null, a file as its bytes.</summary>
-    private static SortedDictionary<string, byte[]?> Files(string root)
+    private static SortedDictionary<string, (byte[]? Bytes, UnixFileMode Mode)> Files(string root)
     {
-        var files = new SortedDictionary<string, byte[]?>(StringComparer.Ordinal);
+        var files = new SortedDictionary<string, (byte[]? Bytes, UnixFileMode Mode)>(StringComparer.Ordinal);
         foreach (var entry in Directory.EnumerateFileSystemEntries(root, "*", SearchOption.AllDirectories))
-            files[Path.GetRelativePath(root, entry).Replace('\\', '/')] = Directory.Exists(entry) ? null : File.ReadAllBytes(entry);
+            files[Path.GetRelativePath(root, entry).Replace('\\', '/')] = Directory.Exists(entry) ? (null, default) : (File.ReadAllBytes(entry), OperatingSystem.IsWindows() ? default : File.GetUnixFileMode(entry));
         return files;
     }
 
@@ -835,38 +835,41 @@ public sealed class SelfhostDriverGoldenTests
     }
 
     /// <summary>
-    /// Compares the written files of two runs: the same entry names, then each text file with <see cref="MaskFile"/> applied. A file that
-    /// is not text (a native executable: two C# builds of one program already differ, Q1222) is compared by name only.
+    /// Compares the written files of two runs: the same entry names, the owner executable bit of each file, then each text file with
+    /// <see cref="MaskFile"/> applied and each other file byte for byte. The one exception is a non-text file of a <c>dist</c> row (the
+    /// executable or archive: two C# builds of one program already differ, Q1222), and a non-text file in a <c>.git/</c> directory (git's own index, which git refreshes from the file times that <see cref="Restore"/> changes) are compared by name and mode only.
     /// Null when equal, else the first difference.
     /// </summary>
-    internal static string? WrittenFilesDiffer(SortedDictionary<string, byte[]?> expected, SortedDictionary<string, byte[]?> actual, string cache, string command)
+    internal static string? WrittenFilesDiffer(SortedDictionary<string, (byte[]? Bytes, UnixFileMode Mode)> expected, SortedDictionary<string, (byte[]? Bytes, UnixFileMode Mode)> actual, string cache, string command)
     {
         var missing = expected.Keys.Except(actual.Keys).ToList();
         var extra = actual.Keys.Except(expected.Keys).ToList();
         if (missing.Count > 0 || extra.Count > 0) return $"written files differ: C# only [{string.Join(", ", missing)}], stage 2 only [{string.Join(", ", extra)}]";
-        foreach (var (name, bytes) in expected)
+        foreach (var (name, (bytes, mode)) in expected)
         {
-            var other = actual[name];
+            var (other, otherMode) = actual[name];
             if (bytes is null || other is null)
             {
                 if ((bytes is null) != (other is null)) return $"{name}: a directory on one side only";
                 continue;
             }
+            if ((mode & UnixFileMode.UserExecute) != (otherMode & UnixFileMode.UserExecute)) return $"{name}: the owner executable bit differs (C# {mode}, stage 2 {otherMode})";
             var a = Text(bytes);
             var b = Text(other);
             if ((a is null) != (b is null)) return $"{name}: text on one side only";
+            if (a is null && command != "dist" && !("/" + name).Contains("/.git/", StringComparison.Ordinal) && !bytes.AsSpan().SequenceEqual(other)) return $"{name}: the bytes differ ({bytes.Length} bytes in C#, {other.Length} in stage 2)";
             if (a is not null && MaskFile(name, a, cache, command) != MaskFile(name, b!, cache, command))
                 return $"{name} differs\n--- C#\n{MaskFile(name, a, cache, command)}\n--- stage 2\n{MaskFile(name, b!, cache, command)}";
         }
         return null;
     }
 
-    /// <summary>Makes <paramref name="root"/> hold exactly <paramref name="files"/> again (a directory as null).</summary>
-    private static void Restore(string root, SortedDictionary<string, byte[]?> files)
+    /// <summary>Makes <paramref name="root"/> hold exactly <paramref name="files"/> again (a directory as null), each file with its Unix mode.</summary>
+    private static void Restore(string root, SortedDictionary<string, (byte[]? Bytes, UnixFileMode Mode)> files)
     {
         foreach (var entry in Directory.GetFileSystemEntries(root))
             if (Directory.Exists(entry)) Directory.Delete(entry, recursive: true); else File.Delete(entry);
-        foreach (var (name, bytes) in files)
+        foreach (var (name, (bytes, mode)) in files)
         {
             var path = Path.Combine(root, name);
             if (bytes is null) Directory.CreateDirectory(path);
@@ -874,6 +877,7 @@ public sealed class SelfhostDriverGoldenTests
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 File.WriteAllBytes(path, bytes);
+                if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(path, mode);
             }
         }
     }
@@ -882,12 +886,14 @@ public sealed class SelfhostDriverGoldenTests
     /// Runs <paramref name="csharp"/> and then <paramref name="stage2"/> from the same contents of <paramref name="root"/> (put back between the
     /// two), and fails when the written files differ (<see cref="WrittenFilesDiffer"/>). Returns both results for the stream comparison.
     /// </summary>
-    private static (Result Expected, Result Actual) RunBoth(string root, string command, string cache, Func<Result> csharp, Func<Result> stage2)
+    private static (Result Expected, Result Actual) RunBoth(string root, string command, string cache, Func<Result> csharp, Func<Result> stage2, Action? resetCache = null)
     {
         var before = Files(root);
+        resetCache?.Invoke();
         var expected = csharp();
         var expectedFiles = Files(root);
         Restore(root, before);
+        resetCache?.Invoke();
         var actual = stage2();
         if (WrittenFilesDiffer(expectedFiles, Files(root), cache, command) is { } f) Assert.Fail($"`{command}`: {f}");
         return (expected, actual);
@@ -906,12 +912,12 @@ public sealed class SelfhostDriverGoldenTests
         var cache = work + "-cache";
         (string, string?)[] env = [("BAYAN_CACHE", cache), ("CI", "1")];
         TestDirs.Delete(work);
-        TestDirs.Delete(cache);
         Directory.CreateDirectory(work);
         Plant(row.Tree, work);
         var (expected, actual) = RunBoth(work, command, cache,
             () => Start("dotnet", [typeof(CliApp).Assembly.Location], work, row.Args, env),
-            () => Start(BootstrapTests.Stage2Executable(), [], work, row.Args, env));
+            () => Start(BootstrapTests.Stage2Executable(), [], work, row.Args, env),
+            () => { TestDirs.Delete(cache); Directory.CreateDirectory(cache); });
         Assert.True(expected.Exit == actual.Exit, $"exit of `{label}`: C# {expected.Exit}, stage 2 {actual.Exit}\n{expected.Stderr}\n{actual.Stderr}");
         SelfhostEmitterHarness.AssertSame($"stdout of `{label}`", MaskStream(expected.Stdout, cache, command), MaskStream(actual.Stdout, cache, command));
         SelfhostEmitterHarness.AssertSame($"stderr of `{label}`", MaskStream(expected.Stderr, cache, command), MaskStream(actual.Stderr, cache, command));
@@ -919,16 +925,16 @@ public sealed class SelfhostDriverGoldenTests
 
     /// <summary>
     /// The written-files comparison sees a changed text, a file only the C# wrote, a file only stage 2 wrote, a renamed file, a directory-for-file
-    /// swap and a text-for-binary swap; it takes a binary by name, masks the cache path everywhere, timings only in the test report files and the
+    /// swap, a text-for-binary swap, a changed binary and a dropped owner executable bit; it takes a binary by name in a dist row only, masks the cache path everywhere, timings only in the test report files and the
     /// hash only in a dist row's SHA256SUMS, and masks nothing in any other file.
     /// </summary>
     [Fact]
     public void WrittenFilesComparisonSeesEveryKindOfDifference()
     {
-        SortedDictionary<string, byte[]?> Tree(params (string Name, byte[]? Bytes)[] entries)
+        SortedDictionary<string, (byte[]? Bytes, UnixFileMode Mode)> Tree(params (string Name, byte[]? Bytes)[] entries)
         {
-            var t = new SortedDictionary<string, byte[]?>(StringComparer.Ordinal);
-            foreach (var (name, bytes) in entries) t[name] = bytes;
+            var t = new SortedDictionary<string, (byte[]? Bytes, UnixFileMode Mode)>(StringComparer.Ordinal);
+            foreach (var (name, bytes) in entries) t[name] = (bytes, UnixFileMode.UserRead | UnixFileMode.UserWrite);
             return t;
         }
         byte[] T(string text) => Encoding.UTF8.GetBytes(text);
@@ -938,7 +944,18 @@ public sealed class SelfhostDriverGoldenTests
         Assert.Null(WrittenFilesDiffer(Tree(("f", T("/c/cache/x\n"))), Tree(("f", T("<cache>/x\n"))), cache, "new"));
         Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 9.00s\n")), ("bin", [0, 1, 2])), cache, "new"));
         Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/other in 1.25s\n")), ("bin", [0, 1, 2])), cache, "new"));
-        Assert.Null(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 3])), cache, "new"));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 3])), cache, "new"));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 3])), cache, "init"));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 3])), cache, "test"));
+        Assert.Null(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 3])), cache, "dist"));
+        var exec = Tree(("bin", [0, 1, 2]));
+        exec["bin"] = ([0, 1, 2], UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        Assert.NotNull(WrittenFilesDiffer(exec, Tree(("bin", [0, 1, 2])), cache, "dist"));
+        Assert.NotNull(WrittenFilesDiffer(exec, Tree(("bin", [0, 1, 2])), cache, "new"));
+        Assert.Null(WrittenFilesDiffer(exec, exec, cache, "dist"));
+        Assert.Null(WrittenFilesDiffer(Tree((".git/index", [1, 0])), Tree((".git/index", [2, 0])), cache, "test"));
+        Assert.Null(WrittenFilesDiffer(Tree(("sub/.git/index", [1, 0])), Tree(("sub/.git/index", [2, 0])), cache, "test"));
+        Assert.NotNull(WrittenFilesDiffer(Tree(("sub/.gitx/index", [1, 0])), Tree(("sub/.gitx/index", [2, 0])), cache, "test"));
         Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [1])), cache, "new"));
         Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2]), ("x", [])), cache, "new"));
         Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("bin", [0, 1, 2])), cache, "new"));
@@ -1018,7 +1035,9 @@ public sealed class SelfhostDriverGoldenTests
         args.Add(input);
         var argsFile = Path.ChangeExtension(input, ".args");
         if (File.Exists(argsFile)) args.AddRange(["--", .. File.ReadAllLines(argsFile)]);
-        var r = Stage2(Work(name), [.. args]);
+        var work = Work(name);
+        // the C# side first, then the stage 2 side from the same restored directory; the written files are compared (Q1225)
+        var (expected, r) = RunBoth(work, "run", "", () => CSharp(work, [.. args]), () => Stage2(work, [.. args]));
         var pending = File.Exists(Path.ChangeExtension(input, ".pending"));
         var code = PanicExit.Portable(r.Exit);
         var failures = new[]
@@ -1027,7 +1046,6 @@ public sealed class SelfhostDriverGoldenTests
             Failure(name, ".exitcode", code == 0 ? "" : code + "\n", optional: true),
         }.Where(f => f is not null).ToList();
         // The stderr ruling (Q1052): the C# CLI's `run` on the same case.
-        var expected = CSharp(Work(name), [.. args]);
         if (expected.Stderr != r.Stderr) failures.Add($"{name}: stderr differs from the C# CLI's\n--- C#\n{expected.Stderr}\n--- stage 2\n{r.Stderr}");
         if (pending)
         {
