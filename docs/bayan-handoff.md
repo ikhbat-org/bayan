@@ -1601,6 +1601,34 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 1272. **`expects` messages say `requires` (BYN2320, BYN2321).** SPEC §7.9 cites BYN2320 and BYN2321 for `expects`, but a non-bool `expects x` reports "a `requires` clause must be `bool`, got `i32`" and a constant argument that violates a clause reports "`5` violates `requires start <= end` of `width`" (revision 0022, D-1). Rewording changes the `.diag` goldens in both compilers. *Conservative option:* the messages stay; the user decides whether they say `expects` for an `expects` clause.
 1273. **BYN6008 and the purity of `expects` and `requires` (revision 0022 Part C).** SPEC §7.9 records that an `expects` clause is pure, tagged not in 0.2. The check needs `EffectAnalysis.cs` to analyze `expects` and `requires` expressions, which it ignores today, so it is more than a small change. *Conservative option:* no compiler change; the user schedules the task (code, `docs/diagnostics/BYN6008.md`, `docs/DIAGNOSTICS.md`, four goldens listed in revision 0022). The purity sentence for `requires` rules waits for it.
 
+**Decided by the user (2026-11-12), on the release list and Q1216–Q1273.** Plan: `docs/plans/2026-11-12-008-release-prep-and-process.md`.
+- Before 0.3.0:
+  - **Q1270 (b).** The fast tier runs on merges. The full tier runs nightly and is a required check on the release tag, so "before release" cannot be skipped. The full tier's L028 timeout is `3600`.
+  - **Q1264 accepted.** The release workflow refuses to publish when the version contains `-rc` or a `dry_run` input is set.
+  - **Q1262 accepted.** `cut.sh` does the version bump. It fails when any `0.3.0-dev` string is left over.
+  - **Q1263 accepted.** The zig version is pinned on every runner.
+  - **Q1265 accepted.** RELEASING.md gets the dry-run step.
+  - **Q1267 accepted.** The spec drops the json test count. A test asserts that the self-hosted `bayan test lib/std/json` count equals the C# CLI's.
+  - **Q1216 and Q1227 (a), done together.** Bounded capture in `Io.run` keeps the first and last N KB with a `… N bytes omitted …` marker between them. `IoError.timeout` carries the captured output. This blocks 0.3.0.
+  - **xunit parallelism limit:** now.
+  - **The LSP parser gets a depth guard now.** A crash there happens while the user types.
+  - **A CI job runs the memory gate for the VS Code extension and `bayan-lsp`.**
+- **After 0.3.0:**
+  - Q1229.
+  - Q1272.
+  - Q1273.
+  - The General allocator (Q31) gets option (a), an arena per phase, with a stated handoff rule between phases, for example: the AST arena lives until the typed IR is built. The 0.3.0 release notes name the 2.94 GB stage-2 build as a known limit.
+  - Parser/ownership depth (a BYN1xxx "nested too deep" in both compilers).
+- **Q1217 and Q1218:** merge in T28.
+- **Q1226:** left as is. 7+8 resolve it.
+- **Q1257 and Q1258:** kept as is.
+- **Q1247 confirmed.** Docs state that `directory` does not affect program lookup either.
+- **Q1245, Q1246, Q1255 and Q1256:** confirmed as implemented.
+- **Rev 0024: Q2–Q4 and Q6 accepted.** Q1 is refined: `dec(0.1)` on a float literal is an error with a fix-it to `0.1dec`, and runtime values convert through an explicit, named `dec.fromF64(x, digits)`. Open point: Q1274.
+- **Tooling decision 5 (wp1 results by tree hash): yes.**
+
+1274. **Rev 0024 Q1: is `dec(x)` on a runtime `f64` an error?** The user's 2026-11-12 note keeps `dec.fromF64(x, digits)` and says "only error on literals". Read literally, a plain `dec(x)` stays legal for a runtime `f64`, which reintroduces the silent binary-to-decimal rounding that Q1 (a) removed. Conservative option, written into rev 0024 for now: `dec(x)` on any `f32`/`f64` operand is BYN2206. The fix-it is `0.1dec` for a literal and `dec.fromF64(x, digits)` otherwise. Loosening this later breaks no code; tightening it would.
+
 ## Progress log
 
 - **2026-11-12 — Revision 0022: contract hardening and doc consistency (docs and one golden).** `docs/revisions/0022-contract-hardening-doc-consistency.md`: SPEC principle 9 covers every check (§15.5, §21.3 cite §0); §7.9 records that an `expects` clause is pure (not in 0.2) and that outside facts use `fail … unless`; §19.4 makes narrowing a released contract breaking; Appendix A records "No `ensures`"; §20 `clamp` takes `from`/`through`; §10 says "the parameter's type"; §6.1 states that ranges bind looser than arithmetic, as `Parser.cs:3270-3285` has it, with golden `run/range-binds-looser-than-arithmetic`. `docs/revisions/README.md` holds the precedence rule; `docs/STATUS.md` has a Build modes row; `AGENTS.md` lists the 5xxx–8xxx code areas; headers read 0001–0022. Addendum 002:136 and :167 are superseded in the revision, not edited. Part C (BYN6008) and B1 are not done (Q1272, Q1273; B1 is covered by `run/requires` and `run/requires-block`). `scripts/docs/check.sh` passes; the new golden passes.
