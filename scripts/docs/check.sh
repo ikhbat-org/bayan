@@ -7,7 +7,11 @@
 #   (c) docs/DIAGNOSTICS.md and docs/STATUS.md equal what scripts/docs/gen-diagnostics.sh and gen-status.sh print;
 #   (d) every code and test mirror of VERSION (version.sh `bayan_mirrors`) holds VERSION;
 #   (e) every BYNnnnn cited in the spec, grammar and style has a row in docs/DIAGNOSTICS.md (a descriptor, a code comment
-#       or a docs/diagnostics-allocated.txt line; revision 0023).
+#       or a docs/diagnostics-allocated.txt line; revision 0023);
+#   (f) every `SPEC §N` / `spec §N.M` cited in docs/ and in code comments under src/, selfhost/ and lib/ names a numbered
+#       heading of docs/bayan-spec.md. Not checked: historical text that cites the spec as it was (docs/revisions, plans,
+#       specs, handoffs, export, bayan-handoff*, CHANGELOG, suq-round3-review-response.md, and bayan-concurrency.md, which
+#       cites the removed §13.1–13.5 on purpose), and a bare `§N` (it may cite the grammar or the handoff).
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -66,6 +70,19 @@ if [ -f "$root/docs/DIAGNOSTICS.md" ]; then
         || fail "$doc cites $code, which has no row in docs/DIAGNOSTICS.md; add it to docs/diagnostics-allocated.txt"
     done
   done
+fi
+
+# (f) cited spec sections
+if [ -f "$root/docs/bayan-spec.md" ]; then
+  heads="$(sed -nE 's/^#{2,3} ([0-9]+(\.[0-9]+)?)\.? .*/\1/p' "$root/docs/bayan-spec.md")"
+  while IFS=: read -r file line text; do
+    for c in $(grep -oiE "spec('s)? §[0-9]+(\.[0-9]+)?" <<< "$text" | grep -oE '[0-9]+(\.[0-9]+)?$'); do
+      grep -qxF "$c" <<< "$heads" || fail "${file#"$root"/}:$line cites spec §$c, which is not a heading of docs/bayan-spec.md"
+    done
+  done < <(cd "$root" && grep -rnIiE "spec('s)? §[0-9]+" $(for d in docs src selfhost lib; do [ -d "$d" ] && echo "$d"; done) \
+    --exclude-dir=revisions --exclude-dir=plans --exclude-dir=specs --exclude-dir=handoffs --exclude-dir=export \
+    --exclude-dir=bin --exclude-dir=obj --exclude='bayan-handoff*' --exclude='CHANGELOG*' --exclude=bayan-concurrency.md \
+    --exclude=suq-round3-review-response.md --exclude=bayan-spec.md | sed "s#^#$root/#")
 fi
 
 exit "$failed"
