@@ -51,8 +51,10 @@ bash "$s" >/dev/null || fail "(e) codes with a descriptor or an allocated line f
 printf 'A planned BYN6008.\n' >> "$t/repo/docs/bayan-spec.md"
 expect "(e) cited code" "docs/bayan-spec.md cites BYN6008, which has no row in docs/DIAGNOSTICS.md"
 printf 'Merged like BYN1002 into BYN0001; see BYN3004.\n' >> "$t/repo/docs/bayan-grammar.md"
+bash "$s" >/dev/null || fail "(e) retired and reserved codes fail the check"
 grep -qF 'BYN0001' "$t/repo/docs/DIAGNOSTICS.md" || fail "fixture has no BYN0001 text"
 printf 'Only in prose: BYN7777.\n' >> "$t/repo/docs/bayan-style.md"
 sed -i.bak 's/^\(| \[BYN0001\].*\)$/\1 see BYN7777/' "$t/repo/docs/DIAGNOSTICS.md"
+grep -qF 'see BYN7777' "$t/repo/docs/DIAGNOSTICS.md" || fail "fixture edit did not apply"
 expect "(e) code only in another row's text" "docs/bayan-style.md cites BYN7777, which has no row in docs/DIAGNOSTICS.md"
 echo PASS

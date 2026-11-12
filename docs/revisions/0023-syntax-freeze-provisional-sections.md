@@ -40,7 +40,7 @@ The seven `BYN51xx` rules (BYN5101–BYN5107) are lints already, and BYN5011 and
 
 ## Sections
 
-- SPEC header (status note), §7.7 and §14 (`Io.evented()` and fiber wording tagged `not in 0.x`), §9 (BYN3217 line), §13.
+- SPEC header (status note), §7.7 (`io:` tagged `not in 0.x`) and §14 (`suspend`: fiber parking not in 0.x; the effect itself is checked), §9 (BYN3217 line), §13.
 - `docs/revisions/README.md`: the freeze rule.
 
 ## Codes
