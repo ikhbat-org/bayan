@@ -400,14 +400,14 @@ public sealed class SelfhostDriverGoldenTests
 
     /// <summary>
     /// 017 T13 (L028): CliMemoryBoundsTests.cs:400 <c>F2_AMutateWorkDirectoryAnotherProcessSweptDoesNotChangeTheExitCode</c> against the
-    /// driver: <c>test --mutate</c> while another process deletes every <c>bayan-mutate-*</c> directory under <c>TMPDIR</c>, its exit code
-    /// the C# CLI's under the same sweep.
+    /// driver: <c>test --mutate</c> while another process deletes every <c>bayan-mutate-*</c> directory under <c>TMPDIR</c>: the C# CLI and
+    /// the driver each exit <c>CliApp.ExitOk</c>, F2's expected value (two racing runs are not compared with each other).
     /// </summary>
     [Fact]
     public void MutateSweptWorkDirectoryAsCSharpCli()
     {
         if (OperatingSystem.IsWindows()) return;
-        int Swept(string program, string[] prefix, string name)
+        void Swept(string program, string[] prefix, string name)
         {
             var root = Work(name);
             File.WriteAllText(Path.Combine(root, "main.byn"), "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n");
@@ -427,10 +427,10 @@ public sealed class SelfhostDriverGoldenTests
                 [("TMPDIR", temp), ("BAYAN_CACHE", Path.Combine(root, "cache")), ("BAYAN_TEST_TIMEOUT_MS", TestTime.Scale(2000).ToString())]);
             stop.Cancel();
             watcher.Wait();
-            return r.Exit;
+            Assert.True(r.Exit == CliApp.ExitOk, $"{name}: exit {r.Exit}, F2's CliApp.ExitOk\n{r.Stdout}{r.Stderr}");
         }
-        var expected = Swept("dotnet", [typeof(CliApp).Assembly.Location], "test/swept-mutate-cs");
-        Assert.Equal(expected, Swept(SelfhostDriverHarness.Build(), [], "test/swept-mutate"));
+        Swept("dotnet", [typeof(CliApp).Assembly.Location], "test/swept-mutate-cs");
+        Swept(SelfhostDriverHarness.Build(), [], "test/swept-mutate");
     }
 
     private static (int Code, string Out) Git(string dir, params string[] args) =>

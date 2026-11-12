@@ -209,7 +209,10 @@ public sealed class SelfhostDriverT1Tests
 
     /// <summary>
     /// 017 T13: CliApp.cs:918 `File.ReadAllText` on a site map in each encoding its byte order mark names (UTF-16 and UTF-32, each byte
-    /// order), and on bytes it decodes with U+FFFD: invalid UTF-8 (each maximal subpart, and a sequence cut off by the end), a lone UTF-16 surrogate, an odd trailing byte, a UTF-32 value past U+10FFFF or a surrogate, a partial last unit; a one-byte map.
+    /// order), and on bytes it decodes with U+FFFD: invalid UTF-8 (each maximal subpart, and a sequence cut off by the end); lone UTF-16
+    /// surrogates in each byte order, an odd trailing byte and a high surrogate as the last unit; UTF-32 values past U+10FFFF or in the
+    /// surrogate range in each byte order, and a partial last unit. Also a UTF-16 map without a byte order mark and a one-byte map, which
+    /// the C# refuses as a site map.
     /// </summary>
     [Theory]
     [InlineData("utf16le")]
@@ -221,8 +224,10 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("utf8-overlong")]
     [InlineData("utf8-end")]
     [InlineData("utf16le-lone")]
+    [InlineData("utf16be-lone")]
     [InlineData("utf16be-odd")]
     [InlineData("utf32le-invalid")]
+    [InlineData("utf32be-invalid")]
     [InlineData("utf16le-high-end")]
     [InlineData("utf32le-partial")]
     [InlineData("utf16le-nobom")]
@@ -256,11 +261,13 @@ public sealed class SelfhostDriverT1Tests
             "utf8-overlong" => Split(System.Text.Encoding.UTF8.GetBytes(Map("a.byn")), ".byn", [0xC0, 0x80, 0xED, 0xA0, 0x80, 0xE0, 0x80, 0xF0, 0x80, 0xF4, 0x90, 0xE2, 0x82, 0xAC, 0xF4, 0x8F, 0xBF, 0xBF]),
             "utf8-end" => [.. System.Text.Encoding.UTF8.GetPreamble(), .. System.Text.Encoding.UTF8.GetBytes(Map("a.byn")), 0xE2],
             "utf16le-lone" => [.. utf16le.GetPreamble(), .. Split(utf16le.GetBytes(Map("a.byn")), ".\0b\0", [0x00, 0xD8, 0x41, 0x00, 0x00, 0xD8, 0x21, 0xFF, 0x00, 0xDC])],
+            "utf16be-lone" => [.. utf16be.GetPreamble(), .. Split(utf16be.GetBytes(Map("a.byn")), "\0.\0b", [0xD8, 0x00, 0x00, 0x41, 0xD8, 0x00, 0xFF, 0x21, 0xDC, 0x00])],
             "utf16le-high-end" => [.. With(utf16le, good), 0x00, 0xD8],
             "utf32le-partial" => [.. With(utf32le, good), 0x41],
             "short" => [0x31],
             "utf16be-odd" => [.. With(utf16be, good), 0x41],
             "utf32le-invalid" => [.. utf32le.GetPreamble(), .. Split(utf32le.GetBytes(Map("a.byn")), ".\0\0\0b", [0x00, 0x00, 0x11, 0x00, 0x00, 0xD8, 0x00, 0x00])],
+            "utf32be-invalid" => [.. utf32be.GetPreamble(), .. Split(utf32be.GetBytes(Map("a.byn")), "\0\0\0.\0\0\0b", [0x00, 0x11, 0x00, 0x00, 0x00, 0x00, 0xD8, 0x00])],
             _ => utf16le.GetBytes(good),
         });
         AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], "mutate", "--binary", bin, "--sites", sites, "--", "true");
