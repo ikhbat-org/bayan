@@ -5,6 +5,10 @@ name: release
 on:
   push:
     tags: ['v*']
+  # A dry run of the build job on a branch: it checks `version` the way the tag is checked and skips the release job.
+  workflow_dispatch:
+    inputs:
+      version: { description: 'Dry-run version (e.g. 0.3.0)', required: true }
 
 permissions:
   contents: read
@@ -22,6 +26,9 @@ jobs:
           - { os: windows-2025, rid: win-x64, exe: bayan.exe }
           - { os: windows-11-arm, rid: win-arm64, exe: bayan.exe }
     runs-on: ${{ matrix.os }}
+    # The tag being released: the pushed tag, or v + the dry run's input. Steps read it from here, never from the input.
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}
     steps:
       # Same shell checkout as ci.yml: the exact commit at depth 1. The repo is public, so no token.
       - name: Checkout
@@ -32,7 +39,7 @@ jobs:
           git checkout -q --detach FETCH_HEAD
       - name: Check tag against VERSION
         shell: bash
-        run: bash scripts/release/package.sh check-tag "$GITHUB_REF_NAME"
+        run: bash scripts/release/package.sh check-tag "$RELEASE_TAG"
       # The mirrors and generated docs are checked on the Linux runners only, as in ci.yml (check.sh is untested on Windows Git Bash).
       - name: Check VERSION mirrors and generated docs
         if: runner.os == 'Linux'
@@ -63,7 +70,7 @@ jobs:
           "$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package selfhost -o publish/${{ matrix.exe }} selfhost/driver
       - name: Smoke test
         shell: bash
-        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan ${GITHUB_REF_NAME#v} (selfhost)"
+        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan ${RELEASE_TAG#v} (selfhost)"
       - name: Package
         shell: bash
         run: bash scripts/release/package.sh pack ${{ matrix.rid }} publish dist
@@ -102,6 +109,7 @@ jobs:
 
   release:
     needs: [build, memory-gate]
+    if: github.event_name == 'push'
     runs-on: ubuntu-24.04
     permissions:
       contents: write

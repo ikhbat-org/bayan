@@ -94,7 +94,7 @@ l_pub="$(yline '      - name: Publish (NativeAOT)')"; l_pkg="$(yline '      - na
 l_zig="$(yline '        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"')"
 l_s1="$(yline '        run: ./publish/${{ matrix.exe }} build --mode safe --package selfhost -o "$RUNNER_TEMP/stage1-${{ matrix.exe }}" selfhost/driver')"
 l_s2="$(yline '          "$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package selfhost -o publish/${{ matrix.exe }} selfhost/driver')"
-l_sm="$(yline '        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan ${GITHUB_REF_NAME#v} (selfhost)"')"
+l_sm="$(yline '        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan ${RELEASE_TAG#v} (selfhost)"')"
 [ -n "$l_pub" ] && [ -n "$l_pkg" ] && [ -n "$l_mg" ] || fail "release.yml lacks the Publish or Package step or the memory-gate job"
 [ -n "$l_zig" ] && [ "$l_zig" -gt "$l_pub" ] && [ "$l_zig" -lt "$l_mg" ] || fail "release.yml: no Install zig run in the build job after Publish"
 [ -n "$l_s1" ] || fail "release.yml lacks the stage 1 build"
@@ -102,4 +102,12 @@ l_sm="$(yline '        run: ./publish/${{ matrix.exe }} --version | grep -F "bay
 [ -n "$l_sm" ] || fail "release.yml smoke test lacks (selfhost)"
 [ "$l_zig" -lt "$l_s1" ] && [ "$l_s1" -lt "$l_s2" ] && [ "$l_s2" -lt "$l_sm" ] && [ "$l_sm" -lt "$l_pkg" ] || fail "release.yml: zig, stage 1, stage 2, smoke test and Package are out of order"
 grep -qxF -- '    needs: [build, memory-gate]' "$y" || fail "release job no longer needs memory-gate"
+# The dry run: workflow_dispatch with a version input, one tag value per job, the release job only on a tag push.
+for line in '  workflow_dispatch:' "      version: { description: 'Dry-run version (e.g. 0.3.0)', required: true }" \
+  "      RELEASE_TAG: \${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}" \
+  '        run: bash scripts/release/package.sh check-tag "$RELEASE_TAG"' "    if: github.event_name == 'push'"; do
+  [ -n "$(yline "$line")" ] || fail "release.yml lacks the line: $line"
+done
+[ "$(yline "    if: github.event_name == 'push'")" -gt "$(yline '  release:')" ] || fail "the push-only if: is not in the release job"
+! grep -q 'inputs.version' <(grep -v '^      RELEASE_TAG:' "$y" | grep -v 'description:') || fail "release.yml reads inputs.version outside the RELEASE_TAG env"
 echo PASS
