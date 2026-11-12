@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # check.sh on a fixture repo (test-fixture.sh): passes clean, then each check fails on its own breakage:
 # (a) a header version, (b) a new revision and a gap, (c) a new descriptor and a hand-edited generated row,
-# (d) a mirror that disagrees with VERSION, (e) a cited code with no entry.
+# (d) a mirror that disagrees with VERSION, (e) a cited code with no entry, (f) a cited spec section with no heading.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 t="$root/tmp/docs-check-test"
@@ -57,4 +57,16 @@ printf 'Only in prose: BYN7777.\n' >> "$t/repo/docs/bayan-style.md"
 sed -i.bak 's/^\(| \[BYN0001\].*\)$/\1 see BYN7777/' "$t/repo/docs/DIAGNOSTICS.md"
 grep -qF 'see BYN7777' "$t/repo/docs/DIAGNOSTICS.md" || fail "fixture edit did not apply"
 expect "(e) code only in another row's text" "docs/bayan-style.md cites BYN7777, which has no row in docs/DIAGNOSTICS.md"
+
+# (f) the spec gets headings; a bare §N, a historical doc and a good cite pass, a missing heading fails with file:line
+printf '\n## 6. Expressions\n\n### 6.6 Interpolation\n' >> "$t/repo/docs/bayan-spec.md"
+printf 'Display is in SPEC §6.6 and (spec §6). A bare §9.9 may cite the grammar.\n' >> "$t/repo/docs/bayan-style.md"
+printf '// Display (spec §6.6).\n' >> "$t/repo/src/Bayan.Semantics/Binding/Fixture.cs"
+printf 'Historical: spec §9.9.\n' >> "$t/repo/docs/revisions/0002-second.md"
+bash "$s" >/dev/null || fail "(f) good cites, a bare cite and a historical doc fail the check"
+printf 'See SPEC §6.9.\n' >> "$t/repo/docs/bayan-style.md"
+expect "(f) missing heading in docs" "docs/bayan-style.md:$(wc -l < "$t/repo/docs/bayan-style.md" | tr -d ' ') cites spec §6.9, which is not a heading of docs/bayan-spec.md"
+printf '## 13. Concurrency\n' >> "$t/repo/docs/bayan-spec.md"
+printf '// Display (spec §13).\n// Locks (spec §13.4).\n' >> "$t/repo/src/Bayan.Semantics/Binding/Fixture.cs"
+expect "(f) missing heading in a code comment" "src/Bayan.Semantics/Binding/Fixture.cs:2 cites spec §13.4, which is not a heading of docs/bayan-spec.md"
 echo PASS
