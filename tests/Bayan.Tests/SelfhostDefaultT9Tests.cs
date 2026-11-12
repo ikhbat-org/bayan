@@ -966,21 +966,11 @@ public sealed class SelfhostDefaultT9Tests
     [InlineData("cache")]
     [InlineData("clean --bogus")]
     [InlineData("init --bogus")]
+    [InlineData("mutate")]
     public void ACommandReachesItsArm(string argv)
     {
         var args = argv.Split(' ');
         Same($"arm-{args[0]}", _ => { }, new Step(args));
-    }
-
-    /// <summary>The arms that refuse: the C# runs these commands, the driver does not port them (spec Q4).</summary>
-    [Theory]
-    [InlineData("mutate")]
-    public void ARefusedCommandReachesItsArm(string command)
-    {
-        var (exit, stdout, stderr) = SelfhostDriverHarness.Run(command);
-        Assert.Equal(CliApp.ExitUsage, exit); // no-oracle: Q917 the C# runs these commands; the refusal text is R3's (Q4)
-        Assert.Equal("", stdout);
-        Assert.Equal($"error: `{command}` is not available in the self-hosted compiler; use the C# `bayan`\n", stderr);
     }
 
     // listed skips, still blocked:
