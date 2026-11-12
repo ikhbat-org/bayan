@@ -319,7 +319,9 @@ public sealed class SelfhostDriverT5Tests
             foreach (var name in names)
             {
                 Assert.False(Path.IsPathRooted(name), $"{dir}: rooted #line name {name}");
-                Assert.True(File.Exists(Path.Combine(root, name)), $"{dir}: #line name {name} is not relative to {root}");
+                // an imported std module is named `<std>/<path>` (Compilation.cs `ResolveImport`), its file under lib/std
+                var file = name.StartsWith("<std>/", StringComparison.Ordinal) ? Path.Combine(Golden.RepoRoot, "lib", "std", name["<std>/".Length..]) : Path.Combine(root, name);
+                Assert.True(File.Exists(file), $"{dir}: #line name {name} is not relative to {root} or a <std>/ file");
             }
         }
     }

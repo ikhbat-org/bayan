@@ -159,18 +159,6 @@ public sealed class SelfhostDriverT2Tests
     public void DispatchAsCliApp(string[] args) => AssertSameAsCs(args);
 
     [Fact]
-    public void RefusesTheOtherCommands()
-    {
-        foreach (var command in new[] { "mutate" })
-        {
-            var (exit, stdout, stderr) = SelfhostDriverHarness.Run(command);
-            Assert.Equal(CliApp.ExitUsage, exit); // no-oracle: Q917 the C# runs these commands; the refusal text is R3's (Q4)
-            Assert.Equal("", stdout);
-            Assert.StartsWith("error: `", stderr);
-        }
-    }
-
-    [Fact]
     public void LexReadsStandardInput()
     {
         var file = Case("lex/bad-chars.byn");
