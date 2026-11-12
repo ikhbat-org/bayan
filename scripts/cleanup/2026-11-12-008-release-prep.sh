@@ -27,8 +27,12 @@ done
 root="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)"
 cd "$root"
 run() { if [ "$execute" = 1 ]; then printf 'run:  %s\n' "$*"; "$@"; else printf 'would: %s\n' "$*"; fi; }
-# `git branch -d` judges "merged" against HEAD; report a refusal and go on.
-del() { if [ "$execute" = 1 ]; then printf 'run:  git branch -d %s\n' "$1"; git branch -d "$1" || printf 'keep: %s (git branch -d refused; rerun from the dev checkout)\n' "$1"
+# `git branch -d` judges "merged" against HEAD, and $root may have another branch checked out:
+# run it in the worktree that has dev checked out. Report a refusal and go on.
+del() { if [ "$execute" = 1 ]; then
+    dw=$(wt_of dev)
+    if [ -z "$dw" ]; then printf 'keep: %s (no worktree has dev checked out)\n' "$1"; return 0; fi
+    printf 'run:  git -C %s branch -d %s\n' "$dw" "$1"; git -C "$dw" branch -d "$1" || printf 'keep: %s (git branch -d refused)\n' "$1"
   else printf 'would: git branch -d %s\n' "$1"; fi; }
 in_dev() { git show-ref --verify --quiet "refs/heads/$1" && git merge-base --is-ancestor "$1" refs/heads/dev; }
 # the worktree path that has branch $1 checked out, if any
