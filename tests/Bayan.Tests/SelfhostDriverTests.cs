@@ -100,10 +100,13 @@ public sealed class SelfhostDriverT1Tests
     [MemberData(nameof(Corpus))]
     public void MatchesTheCSharpCli(string[] args) => AssertSameAsCs(args);
 
-    /// <summary>017 T13: the mutation report's timing (the summary line and the JSON's seconds) masked; the rest is compared.</summary>
+    /// <summary>
+    /// 017 T13: the mutation report's measured timing (in the summary line and the JSON's seconds) masked; a value that is exactly 0
+    /// (`mutate --binary`'s build time and share, no mutant run) is deterministic and compared, as is the rest.
+    /// </summary>
     private static string MaskMutation(string text) =>
-        Regex.Replace(Regex.Replace(text, @"^timing: .*$", "timing: (masked)", RegexOptions.Multiline),
-            "\"(build_s|mean_mutant_s|max_mutant_s|total_s|mutant_share_of_build)\": [^,\\n]+", "\"$1\": 0");
+        Regex.Replace(Regex.Replace(text, @"^timing: .*$", m => Regex.Replace(m.Value, @"(?<= )(?!0 |0%)[0-9.E+-]+(?= s|%)", "<t>"), RegexOptions.Multiline),
+            "\"(build_s|mean_mutant_s|max_mutant_s|total_s|mutant_share_of_build)\": (?!0[,\\n])[^,\\n]+", "\"$1\": <t>");
 
     /// <summary>
     /// 017 T13: <paramref name="args"/> through <c>CliApp.Run</c> and the driver with <paramref name="env"/> and a cache of each
@@ -192,6 +195,7 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": 99999999999, \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\" }] }")]
     [InlineData("{ \"version\": -1, \"sites\": [] }")]
     [InlineData("{ \"version\": 1, \"version\": 2, \"sites\": [] }")]
+    [InlineData("\uFEFF{ \"version\": 1, \"sites\": [] }")]
     [InlineData("{ \"version\": 2, \"version\": 1, \"sites\": [{ \"id\": -3, \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\", \"unobservable\": null, \"emitted\": false }] }")]
     public void MutateSiteMapsAsCliAppDoes(string map)
     {
@@ -200,6 +204,23 @@ public sealed class SelfhostDriverT1Tests
         var sites = bin + ".sites.json";
         File.WriteAllText(bin, "");
         File.WriteAllText(sites, map);
+        AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], "mutate", "--binary", bin, "--sites", sites, "--", "true");
+    }
+
+    /// <summary>
+    /// 017 T13: `JsonDocument.Parse`'s depth limit (ExternalSite.cs:18): a site map nested <paramref name="depth"/> deep (the root object,
+    /// then arrays in an extra member), at the limit and one past it.
+    /// </summary>
+    [Theory]
+    [InlineData(64)]
+    [InlineData(65)]
+    public void MutateDeepSiteMapsAsCliAppDoes(int depth)
+    {
+        var dir = MutateDir($"deep-{depth}");
+        var bin = Path.Combine(dir, "prog");
+        var sites = bin + ".sites.json";
+        File.WriteAllText(bin, "");
+        File.WriteAllText(sites, "{ \"version\": 1, \"sites\": [], \"x\": " + new string('[', depth - 1) + new string(']', depth - 1) + " }");
         AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], "mutate", "--binary", bin, "--sites", sites, "--", "true");
     }
 
@@ -287,18 +308,184 @@ public sealed class SelfhostDriverT1Tests
         File.WriteAllText(Path.Combine(project, "src", "inc", "a.test.byn"), "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n");
         AssertMutateAsCs(Path.Combine(project, "out", "test", "bayan-quality.json"), [], "test", "--mutate", "--run", "exit 1", project);
         AssertMutateAsCs(null, [], "test", "--mutate", project);
+        // CliApp.cs:878-879: the mutation gate under a manifest minimum, missed (a survivor) and met.
+        var gated = MutateDir("gated");
+        Directory.CreateDirectory(Path.Combine(gated, "src", "inc"));
+        File.WriteAllText(Path.Combine(gated, "src", "inc", "a.test.byn"), "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) > 0\n}\n");
+        foreach (var min in new[] { 100, 0 })
+        {
+            File.WriteAllText(Path.Combine(gated, "package.byn"), $"Package {{\n    name: \"local/inc\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .lib,\n    test: Tests {{ mutation: {min} }},\n}}\n");
+            AssertMutateAsCs(null, [], "test", "--mutate", gated);
+        }
         var noCc = MutateDir("no-cc");
         AssertMutateAsCs(null, [("PATH", noCc), ("BAYAN_CACHE", noCc)], "test", "--mutate", loose);
     }
 
     /// <summary>
+    /// The driver with its own <c>main</c> renamed <c>driverMain</c> and a probe <c>main</c> in a file of its own:
+    /// <c>numbers</c> prints <c>qualityJsonNumber</c> of each of <see cref="JsonNumbers"/>; <c>&lt;variant&gt; &lt;file&gt;…</c> compiles the files as
+    /// <c>Compilation.Create(sources, ".", Library: true)</c> does, gives each site the status <see cref="QualityOutcome"/> gives it, and prints
+    /// the report of <c>QualityReport.Mutation(…, 20, [0.5, 1.5], 25)</c> as JSON, then its summary with <c>Warnings</c>.
+    /// </summary>
+    private const string QualityProbe = """
+
+        import emitter
+        import lexer
+        import semantics
+
+        i32 main(ReadOnlySpan<string> args) uses alloc, clock, console, fs {
+            if args[0] == "numbers" {
+                for v in [0.0, 0.05, 1.5, 100.0, 1e-7, 1.2345678e-5, 1e20, 1.5e17, 1e-100, 0.1 + 0.2, 12345.678, 1e16, 0.00012, 4.5e-5] {
+                    Io.stdout.write($"{qualityJsonNumber(v)}\n")
+                }
+                return 0
+            }
+            let variant = args[0]
+            var files = List<lexer.SourceText>()
+            var given = List<lexer.SourceText>()
+            for f in args[1..args.length] {
+                let bytes = Io.readFile(f) catch List<u8>()
+                if variant != "nosources" { given.append(lexer.SourceText.create(f, from: bytes.copy())) }
+                files.append(lexer.SourceText.create(f, from: move bytes))
+            }
+            let options = T5CompilationOptions { library: true }
+            var c = semantics.create(from: move files, at: ".", by: in options)
+            let none = List<string>()
+            let schema = emitter.buildSchema(ref c, for: in none)
+            var mutants = List<MutantResult>()
+            for s in schema.sites {
+                let site = externalSiteFrom(in s)
+                if s.unobservable is not null && s.emitted && variant == "killed" {
+                    mutants.append(MutantResult { site: site, status: .killed, runs: 1, killedBy: 3 })
+                } else if s.unobservable is not null && s.emitted && variant == "timeout" {
+                    mutants.append(MutantResult { site: site, status: .timeout, runs: 1, killedBy: 3 })
+                } else if s.site.op == "boundary" {
+                    mutants.append(MutantResult { site: site, status: .survived, runs: 2 })
+                } else if s.site.op == "relational" {
+                    mutants.append(MutantResult { site: site, status: .killed, runs: 1, killedBy: 0 })
+                } else if !s.emitted {
+                    mutants.append(MutantResult { site: site, status: .notEmitted })
+                } else if s.unobservable is not null {
+                    mutants.append(MutantResult { site: site, status: .marked })
+                } else {
+                    mutants.append(MutantResult { site: site, status: .notReached })
+                }
+            }
+            let result = MutationResult { mutants: move mutants }
+            var seconds = List<f64>()
+            seconds.append(0.5)
+            seconds.append(1.5)
+            let report = qualityMutationResult("bayan test --mutate", from: in result, by: in schema, through: 20000000000, for: in seconds, as: 25000000000)
+            Io.stdout.write(qualityMutationJson(in report))
+            let warnings = qualityWarnings(in result, by: in schema, for: in c, from: in given)
+            Io.stdout.write(qualitySummary(in report, by: in warnings))
+            return 0
+        }
+        """;
+
+    /// <summary>The values the probe's <c>numbers</c> prints, in its order: plain, <c>E</c> notation each way, and the bounds between.</summary>
+    private static readonly double[] JsonNumbers = [0.0, 0.05, 1.5, 100.0, 1e-7, 1.2345678e-5, 1e20, 1.5e17, 1e-100, 0.1 + 0.2, 12345.678, 1e16, 0.00012, 4.5e-5];
+
+    private static readonly Lazy<(string? Path, string Error)> QualityBuilt = new(() =>
+    {
+        var sources = Directory.GetFiles(SelfhostDriverHarness.DriverDir, "*.byn").Order(StringComparer.Ordinal)
+            .Select(p => Path.GetFileName(p) == "main.byn"
+                ? SourceText.FromString(p, File.ReadAllText(p).Replace("i32 main(ReadOnlySpan<string> args) {", "i32 driverMain(ReadOnlySpan<string> args) {"))
+                : SourceText.FromFile(p)).ToList();
+        sources.Add(SourceText.FromString(Path.Combine(SelfhostDriverHarness.DriverDir, "qualityprobe.byn"), QualityProbe + "\n"));
+        var c = Compilation.Create(sources, packageRoot: SelfhostSemanticsHarness.SelfhostDir);
+        if (c.Diagnostics.HasErrors) return (null, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
+        var build = SelfhostSemanticsHarness.BuildFast(c, new HashSet<string>(StringComparer.Ordinal));
+        return build.Succeeded ? (build.ExecutablePath, "") : (null, build.Errors);
+    });
+
+    private static string RunQuality(string cwd, params string[] args)
+    {
+        var (path, error) = QualityBuilt.Value;
+        if (path is null) Assert.Fail($"selfhost/driver with the quality probe did not build:\n{error}");
+        var psi = new ProcessStartInfo(path!) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, WorkingDirectory = cwd };
+        foreach (var a in args) psi.ArgumentList.Add(a);
+        using var p = Process.Start(psi)!;
+        var stdout = p.StandardOutput.ReadToEndAsync();
+        var stderr = p.StandardError.ReadToEndAsync();
+        p.WaitForExit();
+        Assert.True(p.ExitCode == 0, $"quality probe {string.Join(' ', args)}: exit {p.ExitCode}\n{stderr.Result}");
+        return stdout.Result;
+    }
+
+    /// <summary>QualityReportTests.cs `Outcome`, with a marked emitted site killed (<c>killed</c>) or timed out (<c>timeout</c>) by test 3 as `AKilledMarkedMutantIsAWarning` makes it.</summary>
+    private static Bayan.Testing.MutantResult QualityOutcome(string variant, Bayan.Testing.SchemaSite s) => s switch
+    {
+        _ when s.Unobservable is not null && s.Emitted && variant == "killed" => new(s, Bayan.Testing.MutantStatus.Killed, 1, 3),
+        _ when s.Unobservable is not null && s.Emitted && variant == "timeout" => new(s, Bayan.Testing.MutantStatus.Timeout, 1, 3),
+        _ when s.Site.Operator == Bayan.Testing.Mutator.Boundary => new(s, Bayan.Testing.MutantStatus.Survived, 2, null),
+        _ when s.Site.Operator == Bayan.Testing.Mutator.Relational => new(s, Bayan.Testing.MutantStatus.Killed, 1, 0),
+        _ when !s.Emitted => new(s, Bayan.Testing.MutantStatus.NotEmitted, 0, null),
+        _ when s.Unobservable is not null => new(s, Bayan.Testing.MutantStatus.Marked, 0, null),
+        _ => new(s, Bayan.Testing.MutantStatus.NotReached, 0, null),
+    };
+
+    /// <summary>
+    /// 017 T13: QualityReportTests.cs over its fixture (the one <c>tests/cases/quality/mutation-report.json</c> is the report of) and
+    /// <c>MarksAreMatchedBySpanNotByReason</c>'s, plus two files with operator marks: <c>QualityReport.Mutation</c> (the
+    /// <c>MutationResult</c> form, timings unmasked), <c>Json</c>, <c>Warnings</c> (killed and timed-out marked mutants, marks that cover no
+    /// mutant, no sources) and <c>Summary</c> with them, in-process C# against the driver on the same files.
+    /// </summary>
+    [Fact]
+    public void QualityReportAsCSharpDoes()
+    {
+        var fixture = (string)typeof(QualityReportTests).GetField("Fixture", BindingFlags.NonPublic | BindingFlags.Static)!.GetRawConstantValue()!;
+        var span = "i64 f(i64 n) {\n    @unobservable because \"same\"\n    var a = n\n    var m = n\n    @unobservable because \"same\"\n    m += 1\n    return m\n}\n";
+        var ops = "i64 f(i64 n) {\n    @unobservable(negation) because \"no site of this operator\"\n    if n > 5 { return 1 }\n    @unobservable(boundary) because \"this operator\"\n    if \"é\" != \"\" && n > 7 { return 2 }\n    return 0\n}\n";
+        var other = "i64 g(i64 n) {\n    return n + 1\n}\n";
+        var cases = new (string Variant, (string Name, string Text)[] Files)[]
+        {
+            ("outcome", [("lib.test.byn", fixture)]), ("killed", [("lib.test.byn", fixture)]), ("timeout", [("lib.test.byn", fixture)]),
+            ("nosources", [("lib.test.byn", fixture)]), ("outcome", [("lib.test.byn", span)]), ("killed", [("a.byn", ops), ("b.byn", other)]),
+            ("outcome", [("b.byn", other), ("a.byn", ops)]),
+        };
+        var golden = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "cases", "quality", "mutation-report.json"));
+        for (var i = 0; i < cases.Length; i++)
+        {
+            var (variant, files) = cases[i];
+            var dir = MutateDir($"quality-{i}");
+            foreach (var (name, text) in files) File.WriteAllText(Path.Combine(dir, name), text);
+            var sources = files.Select(f => SourceText.FromString(f.Name, f.Text)).ToList();
+            var c = Compilation.Create(sources, ".", new CompilationOptions(Library: true));
+            Assert.False(c.Diagnostics.HasErrors, string.Join("\n", c.Diagnostics.Items.Select(d => d.Message)));
+            var schema = Bayan.Testing.Schemata.Build(c);
+            var result = new Bayan.Testing.MutationResult(schema.Sites.Select(s => QualityOutcome(variant, s)).ToList(), [], 0);
+            var report = Bayan.Testing.QualityReport.Mutation("bayan test --mutate", result, schema, 20, [0.5, 1.5], 25);
+            var expected = report.Json() + report.Summary(Bayan.Testing.QualityReport.Warnings(result, schema, c, variant == "nosources" ? [] : sources));
+            var actual = RunQuality(dir, [variant, .. files.Select(f => f.Name)]);
+            SelfhostEmitterHarness.AssertSame($"{variant} {string.Join(' ', files.Select(f => f.Name))}", expected, actual);
+            if (i == 0) Assert.StartsWith(golden, actual);
+        }
+    }
+
+    /// <summary>017 T13: the JSON text of a timing (QualityReport.cs:157 `WriteNumber`), <c>Utf8JsonWriter</c>'s, in-process.</summary>
+    [Fact]
+    public void JsonNumbersAsUtf8JsonWriterWrites()
+    {
+        var expected = new System.Text.StringBuilder();
+        foreach (var v in JsonNumbers)
+        {
+            var ms = new MemoryStream();
+            using (var w = new System.Text.Json.Utf8JsonWriter(ms)) w.WriteNumberValue(v);
+            expected.Append(System.Text.Encoding.UTF8.GetString(ms.ToArray())).Append('\n');
+        }
+        Assert.Equal(expected.ToString(), RunQuality(MutateDir("numbers"), "numbers"));
+    }
+
+    /// <summary>
     /// 017 T13: `test`'s statuses, failures, rerun line, `--coverage` and its gates through T11's C# CLI rows
-    /// (SelfhostDriverGoldenTests), since `testCommand` and `writeCoverage` now call `mutateTests` and `reportGates`.
+    /// (SelfhostDriverGoldenTests), since `testCommand` and `writeCoverage` now call `mutateTests` and `reportGates`; and T13's own rows
+    /// there. Each runs in a work directory of its own (<c>t13-</c> before its name), never the one the Golden class's run of it uses.
     /// </summary>
     [Fact]
     public void TestPathsAsCSharpCli()
     {
-        var golden = new SelfhostDriverGoldenTests();
+        var golden = new SelfhostDriverGoldenTests { WorkPrefix = "t13-" };
         foreach (var flag in new[] { "", "-v", "--json" }) golden.TestStatusesAsCSharpCli(flag);
         foreach (var flags in new[] { "", "-v", "-v --json" }) golden.TestFailuresAsCSharpCli(flags);
         golden.TestRerunQuotesAsCSharpCli();
@@ -309,6 +496,8 @@ public sealed class SelfhostDriverT1Tests
         golden.TestCoverageAsCSharpCli();
         golden.TestPercentagesAsCSharpCli();
         golden.TestMutateAsCSharpCli();
+        golden.MutationGatesAsCSharpCli();
+        golden.MutateSweptWorkDirectoryAsCSharpCli();
     }
 
     /// <summary>`build` and `run` reach their commands (T5, T6): a missing path fails as the C# does.</summary>

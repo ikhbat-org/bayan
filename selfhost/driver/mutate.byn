@@ -93,8 +93,7 @@ i32 mutateTests(in T11Options o, through ref semantics.Ctx compiled, by ref DCtx
         let full = Path.fullPath(o.path)
         let root = compiled.manifest is not null ? compiled.displayRoot : t5DirectoryExists(o.path) ? full : Path.directoryName(full) ?? ""
         let map = externalSiteReadAll(sites) ?? panic("the site map just written is not one")
-        // stub: T13 `compiled.Manifest?.MinMutation` (blocked: Q1257)
-        return runExternal(in map, by: in shellCommand(run), for: executable, through: "bayan test --mutate --run", to: Path.combine(Path.combine(root, "out"), "test"), as: Io.monotonicNanos() - built)
+        return runExternal(in map, by: in shellCommand(run), for: executable, through: "bayan test --mutate --run", to: Path.combine(Path.combine(root, "out"), "test"), as: Io.monotonicNanos() - built, minMutation: t13MinMutation(in compiled))
     }
     let work = Path.combine(t9TempPath(), $"bayan-mutate-{t9Unique(ref d)}")
     // `Directory.CreateTempSubdirectory` throws, uncaught, when the temporary directory cannot be written.
@@ -107,9 +106,20 @@ i32 mutateTests(in T11Options o, through ref semantics.Ctx compiled, by ref DCtx
     var counts = [0, 0, 0, 0, 0, 0]
     for m in result.mutants { counts[t13Index(m.status)] += 1 }
     print($"{counts[0]} killed, {counts[1]} survived, {counts[2]} timeout, {counts[3]} not reached, {counts[4]} marked, {counts[5]} not emitted")
+    // CliApp.cs:878-879, inside the `try` whose `finally` deletes the work directory.
+    var failed = false
+    if (t13MinMutation(in compiled) is { } min) {
+        let noSeconds = List<f64>()
+        failed = reportGates(in gatesMutation(in qualityMutationResult("bayan test --mutate", from: in result, by: in schema, through: 0, for: in noSeconds, as: 0), by: min))
+    }
     deleteWorkDir(work)
-    // stub: T13 `compiled.Manifest?.MinMutation` and the gate after it (blocked: Q1257)
-    return exitOk
+    return failed ? exitTestFailure : exitOk
+}
+
+/// `compiled.Manifest?.MinMutation`.
+i64? t13MinMutation(in semantics.Ctx compiled) {
+    if (compiled.manifest is { } manifest) { return manifest.minMutation }
+    return null
 }
 
 /// The position of `s` in `MutantStatus`'s declaration order (`Enum.GetValues`).
@@ -165,13 +175,20 @@ i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, proc
             return exitUsage
         }
     }
-    // `File.ReadAllText` throws, uncaught, when the existing site map cannot be read.
+    // `File.ReadAllText` throws, uncaught, when the existing site map cannot be read; it drops a leading UTF-8 byte order mark.
     // coverage-exempt: Q1258 an IO failure the C# lets escape
-    let text = Io.readText(s) catch { panic($"cannot read {s}") }
+    let read = Io.readText(s) catch { panic($"cannot read {s}") }
+    let text = read.startsWith("\u{FEFF}") ? read[3..read.length] : read
     let map = externalSiteReadAll(text) ?? return t13BadSites(s)
     let full = Path.fullPath(b)
-    // stub: T13 `Manifest.Read("package.byn").MinMutation` (blocked: Q1257)
-    return runExternal(in map, by: in command, for: full, through: "bayan mutate", to: Path.directoryName(full) ?? "", as: 0)
+    var min: i64? = null
+    if Fs.fileExists("package.byn") {
+        // `Manifest.Read` throws, uncaught, when the existing manifest cannot be read.
+        // coverage-exempt: Q1258 an IO failure the C# lets escape
+        let manifest = semantics.manifestRead("package.byn") catch { panic("cannot read package.byn") }
+        min = manifest.minMutation
+    }
+    return runExternal(in map, by: in command, for: full, through: "bayan mutate", to: Path.directoryName(full) ?? "", as: 0, minMutation: min)
 }
 
 /// CliApp.cs:911-913: `Messages.MutateBadSites`, exit 2.
@@ -188,18 +205,18 @@ List<string> shellCommand(string command) uses alloc {
 }
 
 /// CliApp.cs:932 `RunExternal`: the command over `sites`, a line per site and the report summary, and `bayan-quality.json` written
-/// to `reportDir`. `minMutation` is always null here (Q1257).
-i32 runExternal(in List<ExternalSite> sites, by in List<string> command, for string binary, through string tool, to string reportDir, as i64 buildNanos) uses alloc, clock, console, env, fs, process {
+/// to `reportDir`.
+i32 runExternal(in List<ExternalSite> sites, by in List<string> command, for string binary, through string tool, to string reportDir, as i64 buildNanos, i64? minMutation = null) uses alloc, clock, console, env, fs, process {
     let total = Io.monotonicNanos()
     let results = mutationRunExternal(in sites, by: in command, for: binary, as: testTimeout()) ?? return t13BaselineFailed()
     let report = qualityMutation(tool, from: in results, by: buildNanos, as: Io.monotonicNanos() - total)
-    Io.stdout.write(qualitySummary(in report))
+    let none = List<string>()
+    Io.stdout.write(qualitySummary(in report, by: in none))
     // coverage-exempt: Q1258 through `Io.writeFile(path, qualityMutationJson` an IO failure the C# lets escape
     Io.createDirectory(reportDir) catch { panic($"cannot create the directory {reportDir}") }
     let path = Path.combine(reportDir, "bayan-quality.json")
     Io.writeFile(path, qualityMutationJson(in report).bytes) catch { panic($"cannot write {path}") }
-    // coverage-exempt: Q1257 with no minimum (`MinMutation`) no gate fails
-    return reportGates(in gatesMutation(in report, by: null)) ? exitTestFailure : exitOk
+    return reportGates(in gatesMutation(in report, by: minMutation)) ? exitTestFailure : exitOk
 }
 
 /// CliApp.cs:939-941: `Messages.MutateBaselineFailed`, exit 1.
@@ -318,12 +335,12 @@ MutantResult t13Mutant(string executable, by in emitter.SchemaSite site, for in 
     return MutantResult { site: s, status: runs == 0 ? .notReached : .survived, runs: runs }
 }
 
-/// `TimeSpan.FromTicks(Math.Max(TimeSpan.TicksPerSecond, 5 * elapsed.Ticks))` in milliseconds, rounded up so the limit is never
-/// shorter than the C#'s (`Io.run` takes whole milliseconds, Q1258).
+/// `TimeSpan.FromTicks(Math.Max(TimeSpan.TicksPerSecond, 5 * elapsed.Ticks))` in whole milliseconds, truncated as
+/// `WaitForExit(limit)` (MutationRunner.cs:161) truncates it (Q1258).
 i64 t13Limit(i64 elapsedNanos) {
     let ticks = elapsedNanos / 100
     let limit = ticks * 5 > 10000000 ? ticks * 5 : 10000000
-    return (limit + 9999) / 10000
+    return limit / 10000
 }
 
 /// MutationRunner.cs:85 `RunExternal`: `command` once per emitted site with `BAYAN_MUTANT` set to its id and `BAYAN_BINARY` to
@@ -337,6 +354,8 @@ List<ExternalResult>? mutationRunExternal(in List<ExternalSite> sites, by in Lis
     for site in sites {
         var result = ExternalResult { site: site, status: .notEmitted }
         if site.emitted {
+            // `Process.Start` throws, uncaught, when the command the baseline ran cannot start for a site (MutationRunner.cs:120).
+            // coverage-exempt: Q1258 a command that started for the baseline cannot start for a site
             let outcome = t13RunCommand(in command, at: site.id, by: binary, as: timeout) ?? panic($"cannot run {command[0]}")
             let status: MutantStatus = outcome.timedOut ? .timeout : outcome.exitCode != 0 ? .killed : site.unobservable is not null ? .marked : .survived
             result = ExternalResult { site: site, status: status, seconds: f64(outcome.elapsedNanos / 100) / 1e7 }
@@ -388,10 +407,11 @@ ExternalSite externalSiteFrom(in emitter.SchemaSite s) uses alloc {
 }
 
 /// ExternalSite.cs:14 `ReadAll`: a site map; null when it is not one this version understands. `JsonDocument.Parse` is
-/// `std.json`'s reader (Q1258).
+/// `std.json`'s reader with `JsonReaderOptions`' default depth limit, 64 (Q1258).
 List<ExternalSite>? externalSiteReadAll(string text) uses alloc {
     let parsed = json.Json.parse(text) catch return null
     let root = (move parsed).trustUnchecked() because "a site map only names sites; each field is checked below"
+    if t13Depth(in root) > 64 { return null }
     switch root {
         case .object(let members):
             let version = t13Find(in members, for: "version")
@@ -410,6 +430,27 @@ List<ExternalSite>? externalSiteReadAll(string text) uses alloc {
             return list
         default:
             return null
+    }
+}
+
+/// The nesting depth of `v` as `Utf8JsonReader` counts it against `MaxDepth`: one per object or array.
+i64 t13Depth(in json.JsonValue v) {
+    var deepest: i64 = 0
+    switch v {
+        case .object(let members):
+            for m in members {
+                let d = t13Depth(in m.value)
+                if d > deepest { deepest = d }
+            }
+            return deepest + 1
+        case .list(let items):
+            for x in items {
+                let d = t13Depth(in x)
+                if d > deepest { deepest = d }
+            }
+            return deepest + 1
+        default:
+            return 0
     }
 }
 

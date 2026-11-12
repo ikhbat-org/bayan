@@ -1,10 +1,13 @@
 // The coverage half of the quality report of the self-hosted driver (spec 017 T11). Ports `QualityReport.cs` :109 `Coverage`,
 // :150 `Json` with :228 `WriteCoverage` (the coverage form), :332 `Listing`, :344 `Percent`, :347 `CoverageSummary`, and
-// `Gates.cs` :15 `Coverage`, :43 `Add`, :51 `Fmt`. The mutation half (T13): `QualityReport.cs` :47 `Suggest`, :70 and :77
-// `Mutation` (the external form and the shared one), :150 `Json` (the mutation form), :314 `Summary`, and `Gates.cs` :32
-// `Mutation`. The JSON is `Utf8JsonWriter`'s indented form (testreport.byn `T11Json`).
+// `Gates.cs` :15 `Coverage`, :43 `Add`, :51 `Fmt`. The mutation half (T13): `QualityReport.cs` :47 `Suggest`, :64, :70 and :77
+// `Mutation` (the `MutationResult` form, the external form and the shared one), :150 `Json` (the mutation form), :281
+// `Warnings` with :297 `InMark` and :307 `Where`, :314 `Summary`, and `Gates.cs` :32 `Mutation`. The JSON is
+// `Utf8JsonWriter`'s indented form (testreport.byn `T11Json`).
 
 import emitter
+import lexer
+import semantics
 
 /// `ReportBranch` (QualityReport.cs:18): `status` is hit, missed or unknown.
 struct QualityBranch {
@@ -398,11 +401,24 @@ string qualitySuggest(string op) {
     }
 }
 
+/// QualityReport.cs:64 `Mutation` of a `MutationResult`: the schema's not-emitted counts, and each mutant's killing test.
+MutationReport qualityMutationResult(string tool, from in MutationResult result, by in emitter.Schema schema, through i64 buildNanos, for in List<f64> mutantSeconds, as i64 totalNanos) uses alloc {
+    var notEmitted = List<MutationOperator>()
+    // `Schema.NotEmitted` has every operator of `Mutator.Operators`, in that order, and no other (schemata.byn `find`).
+    for op in emitter.mutatorOperators() {
+        let k = qualityOperator(ref notEmitted, for: op)
+        notEmitted[k].counts[5] = schema.notEmitted[op]
+    }
+    return qualityMutationOf(tool, from: in result.mutants, by: in notEmitted, through: buildNanos, for: in mutantSeconds, as: totalNanos)
+}
+
 /// QualityReport.cs:70 `Mutation` of an external-mode run (R3): the candidates not emitted are the results with that status.
 MutationReport qualityMutation(string tool, from in List<ExternalResult> results, by i64 buildNanos, as i64 totalNanos) uses alloc {
     var notEmitted = List<MutationOperator>()
     var seconds = List<f64>()
+    var mutants = List<MutantResult>()
     for r in results {
+        mutants.append(MutantResult { site: r.site, status: r.status })
         if r.status != .notEmitted {
             seconds.append(r.seconds)
             continue
@@ -410,11 +426,11 @@ MutationReport qualityMutation(string tool, from in List<ExternalResult> results
         let k = qualityOperator(ref notEmitted, for: r.site.op)
         notEmitted[k].counts[5] += 1
     }
-    return qualityMutationOf(tool, from: in results, by: in notEmitted, through: buildNanos, for: in seconds, as: totalNanos)
+    return qualityMutationOf(tool, from: in mutants, by: in notEmitted, through: buildNanos, for: in seconds, as: totalNanos)
 }
 
 /// QualityReport.cs:77 `Mutation`; `notEmitted` carries each operator's count in its `not_emitted` slot.
-MutationReport qualityMutationOf(string tool, from in List<ExternalResult> mutants, by in List<MutationOperator> notEmitted, through i64 buildNanos, for in List<f64> mutantSeconds, as i64 totalNanos) uses alloc {
+MutationReport qualityMutationOf(string tool, from in List<MutantResult> mutants, by in List<MutationOperator> notEmitted, through i64 buildNanos, for in List<f64> mutantSeconds, as i64 totalNanos) uses alloc {
     var report = MutationReport { tool: tool, buildNanos: buildNanos, totalNanos: totalNanos }
     var sum = 0.0
     for x in mutantSeconds {
@@ -442,7 +458,7 @@ MutationReport qualityMutationOf(string tool, from in List<ExternalResult> mutan
             f = report.files.length
             report.files.append(MutationFile { path: m.site.file })
         }
-        report.files[f].mutants.append(ReportMutant { site: m.site, status: qualityCounts()[slot], suggestion: m.status == .survived ? qualitySuggest(m.site.op) : null })
+        report.files[f].mutants.append(ReportMutant { site: m.site, status: qualityCounts()[slot], killedBy: m.killedBy, suggestion: m.status == .survived ? qualitySuggest(m.site.op) : null })
     }
     for o in report.operators {
         for c in 0..6 { report.totals[c] += o.counts[c] }
@@ -470,7 +486,6 @@ i64 qualitySlot(MutantStatus s) {
             return 2
         case .marked:
             return 3
-        // coverage-exempt: Q1258 through `return 4` an external run's results are never not-reached
         case .notReached:
             return 4
         case .notEmitted:
@@ -488,10 +503,10 @@ string qualityMutationJson(in MutationReport r) uses alloc {
     t11JsonValue(ref w, for: "tool", by: t11JsonString(r.tool))
     t11JsonOpen(ref w, for: "timing", by: "{")
     t11JsonValue(ref w, for: "build_s", by: r.buildNanos == 0 ? "0" : t11JsonSeconds(r.buildNanos))
-    t11JsonValue(ref w, for: "mean_mutant_s", by: $"{r.mean}")
-    t11JsonValue(ref w, for: "max_mutant_s", by: $"{r.max}")
+    t11JsonValue(ref w, for: "mean_mutant_s", by: qualityJsonNumber(r.mean))
+    t11JsonValue(ref w, for: "max_mutant_s", by: qualityJsonNumber(r.max))
     t11JsonValue(ref w, for: "total_s", by: t11JsonSeconds(r.totalNanos))
-    t11JsonValue(ref w, for: "mutant_share_of_build", by: $"{r.share}")
+    t11JsonValue(ref w, for: "mutant_share_of_build", by: qualityJsonNumber(r.share))
     t11JsonClose(ref w, by: "}")
     t11JsonOpen(ref w, for: "files", by: "[")
     for f in r.files {
@@ -511,7 +526,6 @@ string qualityMutationJson(in MutationReport r) uses alloc {
             if (m.site.unobservable is { } u) { t11JsonValue(ref w, for: "unobservable", by: t11JsonString(u)) }
             t11JsonClose(ref w, by: "}")
             t11JsonValue(ref w, for: "status", by: t11JsonString(m.status))
-            // coverage-exempt: Q1257 only the blocked `MutationResult` form sets `killedBy`
             if (m.killedBy is { } k) { t11JsonValue(ref w, for: "killedBy", by: $"{k}") }
             if (m.suggestion is { } s) { t11JsonValue(ref w, for: "suggestion", by: t11JsonString(s)) }
             t11JsonClose(ref w, by: "}")
@@ -536,9 +550,8 @@ void qualityWriteCounts(ref T11Json w, for string name, by in List<i64> counts) 
     t11JsonClose(ref w, by: "}")
 }
 
-/// QualityReport.cs:314 `Summary` with no warnings (its one caller, CliApp.cs:944, passes none; Q1258): totals, each survivor
-/// with its suggestion, per-operator counts and timing.
-string qualitySummary(in MutationReport r) uses alloc {
+/// QualityReport.cs:314 `Summary`: totals, each survivor with its suggestion, per-operator counts, timing and the warnings.
+string qualitySummary(in MutationReport r, by in List<string> warnings) uses alloc {
     var sb = StrBuf()
     sb.append($"mutation: {r.totals[0]} killed, {r.totals[1]} survived, {r.totals[2]} timeout, {r.totals[3]} marked, {r.totals[4]} not reached, {r.totals[5]} not emitted\n")
     for f in r.files {
@@ -558,6 +571,7 @@ string qualitySummary(in MutationReport r) uses alloc {
     let build = f64(r.buildNanos / 100) / 1e7
     let total = f64(r.totalNanos / 100) / 1e7
     sb.append($"timing: build {qualityFmt(build)} s, mean {qualityFmt(r.mean)} s and max {qualityFmt(r.max)} s per mutant, total {qualityFmt(total)} s, mutant share of build {qualityFmt(r.share * 100.0)}%\n")
+    for w in warnings { sb.append($"{w}\n") }
     return $"{sb.finish()}"
 }
 
@@ -571,3 +585,100 @@ string qualityFmt(f64 v) uses alloc {
     while digits.endsWith("0") { digits = digits[0..digits.length - 1] }
     return $"{whole}.{digits}"
 }
+
+/// `Utf8JsonWriter.WriteNumberValue(double)` of a non-negative value: the shortest round-trip digits, in `E` notation (`1E-05`,
+/// `1.5E+17`) when the decimal exponent is below -4 or above 16, else in plain digits.
+string qualityJsonNumber(f64 v) uses alloc {
+    let text = $"{v}"
+    // `text` as `0.<digits> × 10^point`: digits without the point, leading zeros dropped.
+    var digits = ""
+    var point: i64 = 0
+    var seenPoint = false
+    var exponent: i64 = 0
+    var negative = false
+    var inExponent = false
+    for i in 0..text.length {
+        let c = text[i..i + 1]
+        if inExponent {
+            if c == "-" {
+                negative = true
+            } else {
+                exponent = exponent * 10 + i64(text.bytes[i]) - 48
+            }
+        } else if c == "e" {
+            inExponent = true
+        } else if c == "." {
+            seenPoint = true
+        } else if c == "0" && digits.length == 0 {
+            if seenPoint { point -= 1 }
+        } else {
+            digits = $"{digits}{c}"
+            unless seenPoint { point += 1 }
+        }
+    }
+    while digits.endsWith("0") { digits = digits[0..digits.length - 1] }
+    if digits.length == 0 { return "0" }
+    point += negative ? -exponent : exponent
+    let scientific = point - 1
+    if scientific < -4 || scientific > 16 {
+        let mantissa = digits.length > 1 ? $"{digits[0..1]}.{digits[1..digits.length]}" : digits
+        let size = scientific < 0 ? -scientific : scientific
+        return $"{mantissa}E{scientific < 0 ? "-" : "+"}{size < 10 ? "0" : ""}{size}"
+    }
+    if point <= 0 {
+        var zeros = ""
+        for _ in 0..-point { zeros = $"{zeros}0" }
+        return $"0.{zeros}{digits}"
+    }
+    if point >= digits.length {
+        var whole = digits
+        for _ in 0..point - digits.length { whole = $"{whole}0" }
+        return whole
+    }
+    return $"{digits[0..point]}.{digits[point..digits.length]}"
+}
+
+/// QualityReport.cs:281 `Warnings`: the marked mutants a test killed, and the marks that cover no mutant (R7), each a one-line
+/// warning; a mark whose file is not among `sources` is at 0:0.
+List<string> qualityWarnings(in MutationResult result, by in emitter.Schema schema, for in semantics.Ctx c, from in List<lexer.SourceText> sources) uses alloc {
+    var warnings = List<string>()
+    for m in result.mutants {
+        if (m.site.unobservable is { } u) {
+            if m.status == .killed || m.status == .timeout { warnings.append($"warning: {qualityWhere(in m.site)}: the mark is wrong: a test sees this ({m.site.original} → {m.site.mutated}, `{u}`)") }
+        }
+    }
+    for mark in c.unobservable {
+        var found: i64 = -1
+        for i in 0..sources.length {
+            if found < 0 && sources[i].path == mark.file { found = i }
+        }
+        if found < 0 {
+            warnings.append($"warning: {mark.file}:0:0: the mark covers no mutant (`{mark.reason}`)")
+            continue
+        }
+        var source = lexer.SourceText.create(sources[found].path, from: sources[found].bytes.copy())
+        var covered = false
+        for s in schema.sites {
+            if qualityInMark(in mark, for: in s.site, through: ref source) { covered = true }
+        }
+        if covered { continue }
+        let at = source.getLinePosition(mark.span.start)
+        warnings.append($"warning: {mark.file}:{at.line}:{at.column}: the mark covers no mutant (`{mark.reason}`)")
+    }
+    return warnings
+}
+
+/// QualityReport.cs:297 `InMark`: whether the site lies inside the mark's statement and the mark's operator argument, if any, is the
+/// site's.
+bool qualityInMark(in semantics.UnobservableMark mark, for in emitter.MutationSite site, through ref lexer.SourceText source) uses alloc {
+    if site.file != mark.file || (mark.op is not null && mark.op != site.op) { return false }
+    var offset = source.getLineSpan(site.line - 1).start
+    for _ in 1..site.column {
+        offset += 1
+        while offset < source.bytes.length && (source.bytes[offset] & 0xC0) == 0x80 { offset += 1 }
+    }
+    return mark.span.start <= offset && offset + site.original.bytes.length <= mark.span.start + mark.span.length
+}
+
+/// QualityReport.cs:307 `Where`.
+string qualityWhere(in ExternalSite s) uses alloc => $"{s.file}:{s.line}:{s.column}"
