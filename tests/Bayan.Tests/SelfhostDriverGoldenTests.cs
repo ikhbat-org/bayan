@@ -141,7 +141,7 @@ public sealed class SelfhostDriverGoldenTests
     private string Work(string name)
     {
         var work = Path.Combine(Golden.RepoRoot, "tmp", "golden", WorkPrefix + Path.ChangeExtension(name, null).Replace('/', '_'));
-        if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        TestDirs.Delete(work);
         Directory.CreateDirectory(work);
         return work;
     }
@@ -868,7 +868,7 @@ public sealed class SelfhostDriverGoldenTests
     private static void Restore(string root, SortedDictionary<string, (byte[]? Bytes, UnixFileMode Mode)> files)
     {
         foreach (var entry in Directory.GetFileSystemEntries(root))
-            if (Directory.Exists(entry)) Directory.Delete(entry, recursive: true); else File.Delete(entry);
+            if (Directory.Exists(entry)) TestDirs.Delete(entry); else { File.SetAttributes(entry, FileAttributes.Normal); File.Delete(entry); }
         foreach (var (name, (bytes, mode)) in files)
         {
             var path = Path.Combine(root, name);
