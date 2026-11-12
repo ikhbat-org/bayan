@@ -1,0 +1,32 @@
+# The memory gate of bayan-lsp and the VS Code extension (docs/memory-leaks.md, Release gate): on every push to dev, and
+# called by release.yml, which waits for it. scripts/release/editor-gate.sh does the work.
+name: editor-gate
+
+on:
+  push:
+    branches: [dev]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  editor-gate:
+    timeout-minutes: 30
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        shell: bash
+        run: |
+          git init -q .
+          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q --detach FETCH_HEAD
+      - name: Install .NET SDK
+        shell: bash
+        run: |
+          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
+          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
+          echo "$dotnet_root" >> "$GITHUB_PATH"
+      - name: Editor memory gate
+        shell: bash
+        run: bash scripts/release/editor-gate.sh
