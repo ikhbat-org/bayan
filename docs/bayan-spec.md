@@ -1,9 +1,11 @@
 # Bayān — Language Specification (draft 0.1)
 
 Version: 0.3.0-dev (matches `bayan --version`)
-Revisions applied: 0001–0022
+Revisions applied: 0001–0023
 
 > **Status:** design complete enough to build v0.1. This document is normative unless a section says otherwise.
+> **Provisional text (rev 0023):** a section or item tagged `(not in 0.2)`, `(not in 0.x)`, `(partial in 0.2: …)` or `spec-only` describes a design, not a promise: building it may change it by revision at no compatibility cost (§19.4), and a conflict between provisional texts is resolved when the feature is built.
+> **Syntax freeze (rev 0023):** no keyword, operator, clause or grammar form changes until 0.3.0 is released; revision 0024 (numeric conversions) is the last syntax change admitted.
 > **Source files:** `.byn` · **CLI:** `bayan` · **Manifest:** `package.byn` · **Build script:** `build.byn`
 > Code samples use C#-style highlighting because Bayan's surface syntax is C#-derived.
 
@@ -1307,7 +1309,7 @@ let resp = signUp(form) catch switch {
 7. Literals and `const` data are static and may go anywhere.
 8. **A borrow stored in a struct field binds the struct to the referent's region.** A struct that holds a reference (a `Span<T>`, a `ReadOnlySpan<T>`, a borrowed field) never outlives the referent, cannot be returned past its owner, and its owner cannot be modified while it is alive (rules 3 and 5). `Rows<T>`, `Subscription` and the span views rely on this.
    - A struct holding a mutable reference (`Span<T>`, a `ref` field) is implicitly `unique` (§3.11): it cannot be copied, so two mutable aliases cannot exist. Copying one is the use-after-move error of any `unique` value. Read-only references (`ReadOnlySpan<T>`) copy freely.
-   - A struct holding a reference cannot be passed to a fiber that may outlive the referent (BYN3217); within a structured scope that ends first (§13.3), it can.
+   - A struct holding a reference cannot be passed to a fiber that may outlive the referent (BYN3217); within a structured scope that ends first (`docs/bayan-concurrency.md`, not in 0.x), it can.
 
 > Round 2 §9: mutation is declared with `ref this`, not inferred. Codes: BYN2115.
 
@@ -1537,56 +1539,9 @@ Packages reserve a code prefix in `package.byn`; the registry enforces uniquenes
 
 ---
 
-## 13. Concurrency (not in 0.2: no `async`/`await`, `Io` implementations or fibers; revision 0019 replaces this section with `scope`/`spawn`, not yet written)
+## 13. Concurrency (not in 0.x)
 
-### 13.1 I/O model
-All I/O goes through `context.Io`:
-
-| Implementation | Use |
-|---|---|
-| `Io.Blocking` | Simple tools |
-| `Io.Threaded` | **Default for scripts**; the pool starts on the first `async` |
-| `Io.Evented` | Servers (io_uring / IOCP / kqueue + fibers) |
-| `Io.Simulated` | Tests: fake clock, seeded scheduling, fault injection, simulated files |
-
-Libraries never choose an implementation. Blocking work is offloaded automatically (DNS, file I/O on epoll, `@blocking` externs). Debug builds warn when a fiber runs over 50 ms without yielding. Scripts may override with `#:io evented`.
-
-### 13.2 Async
-- No coloring: functions are never declared `async`. `async` as a function modifier is a teaching error showing the call-site form.
-- `async f(args)` is a call-site expression that schedules `f` on `context.io` and returns a `Future<T>` (a `ref struct`); `await` joins; `try await` propagates errors. `await (a, b)` awaits several. Implementation: `async f(x)` hands `fOp(x)` (the maṣdar, §5.2) to `context.io`.
-- Under `Io.Blocking`, `async` runs the call eagerly (same code, sequential).
-- **Every await can fail**; `Canceled` is in every I/O error set.
-- A function without `suspend` in its effects cannot suspend (§14); a violation names the suspending call chain.
-- **Futures are scoped:** a future cannot escape its block; leaving the block cancels unfinished futures, which runs their `defer failing` handlers (§7.6).
-- v1 uses **fibers** (stackful, lazily committed stacks, guard pages). The stackless transform arrives with the WASM target.
-
-**Deadlines: `provide timeout: d { … }`.**
-- Sets a deadline for every suspending operation inside the block, including in called functions, with no parameter plumbing.
-- A nested `provide timeout: …` can only shorten the remaining time (the effective deadline is the minimum of the remaining and the new one).
-- Expiry fails the suspended operation with `TimeoutError`.
-- CPU-bound loops check explicitly: `try context.checkDeadline()`.
-- Not in v0.1: async, futures and deadlines (no fibers).
-
-> Round 2 §14: functions stay colorless; scoped futures and block deadlines give cancellation without plumbing. Codes: BYN1016.
-
-### 13.3 Structured concurrency
-`let group = Io.group()`, then `group.spawn(…)` and `try await group.all()`. Futures cannot outlive the scope that started them; leaving the scope cancels children; tasks may borrow the caller's stack.
-
-### 13.4 Suspension inference
-The compiler infers which functions may suspend (calls through `dyn` are bounded by the function type's `uses` clause). The language server marks such calls with inlay hints (`uses suspend`). Public functions declare `suspend` in their `uses` clause (§14). Errors:
-- a suspension point in a function whose effects do not include `suspend` (BYN6002);
-- a **`Mutex` guard alive across a suspension point**;
-- a **`@threadLocal` borrow alive across a suspension point**.
-
-> Round 2 §15: `bayan format --explicit` is gone; inferred effects are inlay hints, never a stored form.
-
-### 13.5 Data sharing
-- `ref` borrows: one task at a time; passing `ref x` to a spawned task locks `x` until the group ends.
-- Read-only borrows: any number of tasks.
-- Shared mutation: `Mutex<T>`, atomics (sequentially consistent by default; weaker orderings explicit), channels (`Channel<T>`, `Io.first(…)`).
-- Types containing raw pointers cannot cross threads without an explicit `unsafe` marker.
-
-`Io.offload(op)` runs CPU-heavy work on the thread pool.
+0.x programs are single-threaded: there is no `async`/`await`, `Io` implementation choice, fiber, thread or task, and `async` and `await` stay reserved words. The planned design, `scope`/`spawn` with `scope(timeout:)` deadlines (user decision 2026-11-04, revision 0019), is `docs/bayan-concurrency.md`. That document is a design, not normative text; a later revision turns it into this section. (rev 0023)
 
 ---
 
