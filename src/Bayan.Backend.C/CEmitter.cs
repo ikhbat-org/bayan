@@ -1614,7 +1614,7 @@ internal sealed class FunctionEmitter
     }
 
     /// <summary>
-    /// The debug view (spec §13): strings, <c>Symbol</c>s and runes quoted, a struct in its literal form <c>P { x: 1, name: "a" }</c>
+    /// The debug view (SPEC §6.6): strings, <c>Symbol</c>s and runes quoted, a struct in its literal form <c>P { x: 1, name: "a" }</c>
     /// (one whose <c>formatInto</c> takes the <c>FormatSpec</c> formats itself), everything else as it displays.
     /// </summary>
     private string Debug(TypeSymbol t, string v, string w)

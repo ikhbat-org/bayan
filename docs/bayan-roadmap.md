@@ -34,7 +34,7 @@ The 0.1.0 release also holds specs 001–010 and 013 (see the table below). Arch
 
 | Item | Measured result | Source |
 |---|---|---|
-| Spec 011, self-hosted emitter (`selfhost/emitter/`, `bayan-emit`) | Parity 290 of 290 `run/` goldens; speed ratio against the C# from 120 to 1.26 (asserted at most 10); L024 made 2,632 comparisons quick and 9,544 full; 8,860 tests passed in the full run | `docs/bayan-handoff.md` (spec table, row 011) |
+| Spec 011, self-hosted emitter (`selfhost/emitter/`, `bayan-emit`) | Parity 290 of 290 `run/` goldens; speed ratio against the C# from 120 to 1.26 (asserted at most 10); L024 made 2,632 comparisons quick and 9,544 full; the full run passed | `docs/bayan-handoff.md` (spec table, row 011) |
 | Spec 012, self-hosted driver and bootstrap (`selfhost/driver/`, `bootstrap/bayan.c`) | Stage 2 C equals stage 3 C in `safe` and `debug` on one host; `cc` alone builds the compiler; L027 and L028 enacted | `docs/bayan-handoff.md` (Road to self-hosting, Bootstrap from `bootstrap/`) |
 | Spec 014, `Path` module | `combine`, `directoryName`, `fullPath` agree with .NET (L026); `tests/windows-known-failures.txt` lists 1 test, down from 78 failures of 6,051 | `CHANGELOG.md`, `tests/windows-known-failures.txt` |
 | `bayan-lsp` memory bounds | A repo with 2.3 million `.byn` copies drove it past 200 GB; it now peaks at 81 MB; about 10 bytes per character for closed documents | `CHANGELOG.md` (Unreleased, Fixed) |

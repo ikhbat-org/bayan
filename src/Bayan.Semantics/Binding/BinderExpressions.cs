@@ -2047,7 +2047,7 @@ internal sealed partial class Binder
             }
             var hole = (InterpolationHole)part;
             var value = BindExpr(hole.Expr);
-            // `as: .debug` shows a struct without `formatInto` in its literal form (spec §13).
+            // `as: .debug` shows a struct without `formatInto` in its literal form (SPEC §6.6).
             var debug = hole.Specs.Any(a => a is { Name.Text: "as", Value: TargetMemberExpr { Member.Text: "debug" } });
             if (!value.Type.IsError && (debug ? WhyNotDebugFormattable(value.Type, []) : WhyNotFormattable(value.Type, [])) is { } why)
                 Report(DiagnosticCodes.NotFormattable, hole.Expr.Span, [value.Type.DisplayName], label: why == "" ? null : why,
@@ -2131,7 +2131,7 @@ internal sealed partial class Binder
         OptionalType o => Part("the value", o.Inner, seen),
         ResultType r => Part("the value", r.Value, seen),
         OwnedType o => WhyNotFormattable(o.Inner, seen),
-        // Structs have no default display (HANDOFF §13): only `formatInto` formats one.
+        // Structs have no default display (SPEC §6.6): only `formatInto` formats one.
         StructSymbol s => HasFormatInto(s) ? null : "",
         UnionSymbol u => !seen.Add(u) ? null
             : u.Variants.SelectMany(v => v.Fields.Select(f => Part($"`{v.Name}` field `{f.Name}`", f.Type, seen))).FirstOrDefault(w => w is not null),
