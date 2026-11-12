@@ -1,7 +1,7 @@
 // The command `test` of the self-hosted driver (spec 017 T11). Ports `CliApp.cs` :168 `ParseBuildOptions` (all its arms), :627
 // `DeleteWorkDir`, :634 `TestTimeout`, :639 `Test`, :790 `MergeCounters`, :812 `WriteCoverage`, :846 `ListingName`, :994
 // `FailureDetail`, :1029 `ChangedModules`, :1061 `ModuleOf`, :1069 `ModuleDirectory` and
-// :1077 `RunTest`, with `BoundedCapture.cs` (applied to what `Io.run` returns) and `CoverageInstrumenter.cs` :60 `DeleteStale` and
+// :1077 `RunTest` (`Io.run` with `timeout:` keeps a stream as `BoundedCapture.cs` does) and `CoverageInstrumenter.cs` :60 `DeleteStale` and
 // :72 `Read`. The report and its JSON are testreport.byn; the coverage report and gates are quality.byn.
 
 import semantics
@@ -317,7 +317,6 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         let captured = $"{outcome.stdout}{outcome.stderr}".trimmed(from: .end)
         var details = captured
         if outcome.timedOut {
-            // coverage-exempt: Q1216 a timed-out test keeps no output
             details = $"timed out after {(timeout + 500) / 1000} s{captured.length > 0 ? $"\n{captured}" : ""}"
         }
         var file = ""
@@ -608,8 +607,8 @@ struct T11Outcome {
 }
 
 /// CliApp.cs:1077 `RunTest`: `executable --test <index>` with `$BAYAN_COVERAGE` set to `coveragePrefix`, killed after `timeoutMs`.
-/// A timed-out test's output is lost: `Io.run` fails with `.timeout` and keeps none of it (Q1216). A signal-killed test is exit
-/// 128 + the signal, as `Process.ExitCode` reports it.
+/// `Io.run` with `timeout:` keeps each stream's first and last 64 KiB, as `BoundedCapture.cs`, and a timed-out test keeps what it
+/// printed before the kill (Q1216). A signal-killed test is exit 128 + the signal, as `Process.ExitCode` reports it.
 T11Outcome runTest(string executable, at i64 index, by string? coveragePrefix, for i64 timeoutMs) uses alloc, clock, process {
     var args = List<string>()
     args.append("--test")
@@ -618,24 +617,13 @@ T11Outcome runTest(string executable, at i64 index, by string? coveragePrefix, f
     if (coveragePrefix is { } prefix) { env["BAYAN_COVERAGE"] = prefix }
     let clock = Io.monotonicNanos()
     let r = Io.run(executable, args.span, env: env, timeout: Millis(timeoutMs)) catch switch {
-        .timeout(let _) => return T11Outcome { exitCode: -1, timedOut: true, elapsedNanos: Io.monotonicNanos() - clock },
-        .signaled(let s, let streamOut, let streamErr) => return T11Outcome { exitCode: 128 + s, stdout: boundedCapture(streamOut), stderr: boundedCapture(streamErr), elapsedNanos: Io.monotonicNanos() - clock },
+        .timeout(_, let streamOut, let streamErr) => return T11Outcome { exitCode: -1, timedOut: true, stdout: streamOut, stderr: streamErr, elapsedNanos: Io.monotonicNanos() - clock },
+        .signaled(let s, let streamOut, let streamErr) => return T11Outcome { exitCode: 128 + s, stdout: streamOut, stderr: streamErr, elapsedNanos: Io.monotonicNanos() - clock },
         // `Process.Start` of the just-built executable throws, uncaught, when it cannot start.
         // coverage-exempt: Q1219 the executable just built cannot start
         IoError e => { panic($"cannot run {executable}") },
     }
-    return T11Outcome { exitCode: r.exitCode, stdout: boundedCapture(r.stdout), stderr: boundedCapture(r.stderr), elapsedNanos: Io.monotonicNanos() - clock }
-}
-
-/// BoundedCapture.cs `Snapshot` of a whole stream: the first and the last 64 KiB, with `\n… N bytes elided …\n` between when
-/// anything lies between them; each part decoded with replacement, as `Encoding.UTF8.GetString`.
-string boundedCapture(string text) uses alloc {
-    let keep: i64 = 65536
-    let bytes = text.bytes
-    if bytes.length <= 2 * keep { return text }
-    let head = Utf8.decode(bytes[0..keep], invalid: .replace)
-    let tail = Utf8.decode(bytes[bytes.length - keep..bytes.length], invalid: .replace)
-    return $"{head}\n… {bytes.length - 2 * keep} bytes elided …\n{tail}"
+    return T11Outcome { exitCode: r.exitCode, stdout: r.stdout, stderr: r.stderr, elapsedNanos: Io.monotonicNanos() - clock }
 }
 
 /// CoverageInstrumenter.cs:60 `DeleteStale`: every `<prefix>.*` file is deleted.

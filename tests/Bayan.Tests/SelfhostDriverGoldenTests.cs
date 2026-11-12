@@ -480,6 +480,23 @@ public sealed class SelfhostDriverGoldenTests
     }
 
     /// <summary>
+    /// Q1216, Q1227: a timed-out test's output follows the <c>timed out after N s</c> line as C# prints it, both when it is short and when it
+    /// is longer than <c>BoundedCapture.Keep</c> twice over (head, <c>… N bytes omitted …</c>, tail). The tests print to stderr, which is
+    /// flushed at each <c>print</c>: stdout waits in the runtime's buffer, which a kill drops.
+    /// </summary>
+    [Fact]
+    public void TestTimeoutOutputAsCSharpCli()
+    {
+        var work = Work("test/timeout-output-short");
+        File.WriteAllText(Path.Combine(work, "short.byn"), "void main() {\n}\n\ntest \"prints then loops\" {\n    print(\"before the loop\", to: .stderr)\n    while true {\n    }\n}\n");
+        AssertTestAsCSharp(work, ["test", "short.byn"], [("BAYAN_TEST_TIMEOUT_MS", "2000")]);
+        work = Work("test/timeout-output-flood");
+        File.WriteAllText(Path.Combine(work, "flood.byn"), "void main() {\n}\n\ntest \"floods then loops\" {\n    for i in 0..3000 {\n"
+            + "        print($\"{i} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", to: .stderr)\n    }\n    while true {\n    }\n}\n");
+        AssertTestAsCSharp(work, ["test", "flood.byn"], [("BAYAN_TEST_TIMEOUT_MS", "3000")]);
+    }
+
+    /// <summary>
     /// 017 T11 (L028): each status of CliApp.cs:715 (<c>pass</c>, <c>pending</c> from <c>todo</c>, <c>panic</c> from a failed assert, <c>fail</c>
     /// from an error a test lets through <c>try</c>, exit 1), which the <c>run/*.test.byn</c> rows never reach for <c>fail</c> and <c>pending</c>.
     /// </summary>

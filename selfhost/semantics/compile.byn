@@ -672,7 +672,8 @@ void t11DeclareBuiltinVariants(ref Ctx c, for string name) {
                     code: c.errorVariants.length + 1,
                     doc: decl.value.variants[v].doc,
                 })
-                // A built-in payload is one primitive or `Millis`: `invalidSequence(i64 at)`, `timeout(Millis after)`.
+                // A built-in payload field is a primitive or `Millis`: `invalidSequence(i64 at)`,
+                // `timeout(Millis after, string stdout, string stderr)`, `signaled(i32 signal, string stdout, string stderr)`.
                 for field in decl.value.variants[v].fields {
                     var type = errorType()
                     switch field.type {

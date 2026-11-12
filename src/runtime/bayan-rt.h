@@ -7,7 +7,7 @@
 #define BAYAN_RT_H
 
 /* Bumped on every change to the runtime source. */
-#define BYN_RUNTIME_VERSION 2
+#define BYN_RUNTIME_VERSION 3
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -445,7 +445,8 @@ byn_str* byn_args(int* argc, char** argv);
 #define BYN_IO_IS_DIRECTORY 9u
 /* detail-carrying: writes *detail (the signal number), field 0 of `IoError.signaled(i32 signal, string stdout, string stderr)`. */
 #define BYN_IO_SIGNALED 10u
-/* `IoError.timeout(Millis after)`: no runtime detail; the caller knows the timeout. */
+/* `IoError.timeout(Millis after, string stdout, string stderr)`: no runtime detail (the caller knows the timeout); the
+ * captured streams are in `*out`, as for `BYN_IO_SIGNALED`. */
 #define BYN_IO_TIMEOUT 11u
 /* `Utf8Error.invalidSequence(i64 at)`: no runtime detail; `bynh_utf8_decode` writes it. */
 #define BYN_UTF8_INVALID_SEQUENCE 12u
@@ -493,7 +494,11 @@ uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_pro
  * in the directory, an empty name, `=` in a name or NUL in a name or set value is `invalidInput`. With `timeout_ms` >= 0
  * the child runs in its own process group (a Job object on Windows); once `timeout_ms` passes the group gets SIGTERM,
  * then SIGKILL after a grace period (the job is terminated), and the call is `timeout` with `*detail` untouched (the
- * caller knows the timeout) and the captured streams dropped. `timeout_ms` < 0 waits as long as the child runs. */
+ * caller knows the timeout) and what was captured before then in `*out` (empty streams if either is not UTF-8). With
+ * `timeout_ms` >= 0 each stream also keeps only its first and its last BYN_RUN_KEEP bytes: when more was written, the
+ * stream is its head and its tail, each decoded with U+FFFD for a cut or invalid sequence, around one
+ * `\n… N bytes omitted …\n` line (N the bytes dropped), as the C# test runner's `BoundedCapture` keeps a test's output.
+ * `timeout_ms` < 0 waits as long as the child runs and keeps every byte. */
 uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, const byn_str* directory, const uint8_t* input,
                          int64_t ninput, const byn_str* env_keys, const byn_str* env_vals, const bool* env_unset, int64_t nenv,
                          int64_t timeout_ms, byn_process* out, int64_t* detail, byn_alloc* alloc);
