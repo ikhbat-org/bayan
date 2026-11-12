@@ -17,6 +17,32 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 die() { echo "package: $*" >&2; exit 1; }
 version() { bayan_version "$root"; }
 
+# hexat <file> <offset> <n>: n bytes from offset as lowercase hex, in file order; le <hex>: the bytes reversed (a little-endian field).
+hexat() { od -An -v -tx1 -j "$2" -N "$3" "$1" | tr -d ' \n'; }
+le() { local h="$1" r=""; while [ -n "$h" ]; do r="${h:0:2}$r"; h="${h:2}"; done; printf '%s' "$r"; }
+
+# check-machine <file> <rid>: the executable's header must name the machine of <rid> (the zig installed on a runner builds for
+# its own host, so a wrong-arch bayan would still pass the smoke test on an emulated one).
+check_machine() {
+  local f="$1" rid="$2" want got magic pe
+  case "$rid" in
+    linux-x64) want=elf:003e ;; linux-arm64) want=elf:00b7 ;;
+    osx-x64) want=macho:01000007 ;; osx-arm64) want=macho:0100000c ;;
+    win-x64) want=pe:8664 ;; win-arm64) want=pe:aa64 ;;
+  esac
+  magic="$(hexat "$f" 0 4)"
+  case "$magic" in
+    7f454c46) got="elf:$(le "$(hexat "$f" 18 2)")" ;;
+    cffaedfe) got="macho:$(le "$(hexat "$f" 4 4)")" ;;
+    4d5a*)
+      pe=$((16#$(le "$(hexat "$f" 60 4)")))
+      [ "$(hexat "$f" "$pe" 4)" = 50450000 ] || die "$f has no PE signature at $pe"
+      got="pe:$(le "$(hexat "$f" $((pe + 4)) 2)")" ;;
+    *) die "$f is not an ELF, 64-bit Mach-O or PE executable (starts with $magic)" ;;
+  esac
+  [ "$got" = "$want" ] || die "$f is $got but $rid needs $want"
+}
+
 # docs <dir>: the shipped docs into <dir>/share/doc/bayan/.
 docs() {
   local d="$1/share/doc/bayan" pair
@@ -43,6 +69,7 @@ case "${1:-}" in
       *) die "unknown rid $rid" ;;
     esac
     [ -f "$pub/$exe" ] || die "$pub/$exe not found"
+    check_machine "$pub/$exe" "$rid"
     v="$(version)"; name="bayan-$v-$target"
     mkdir -p "$out"; out="$(cd "$out" && pwd)"
     stage="$out/.stage-$target"; rm -rf "$stage"; mkdir -p "$stage/$name"
