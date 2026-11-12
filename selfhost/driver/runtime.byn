@@ -9,7 +9,7 @@ const runtimeHeader: string = """/* Bayan runtime: the C support every compiled 
 #define BAYAN_RT_H
 
 /* Bumped on every change to the runtime source. */
-#define BYN_RUNTIME_VERSION 2
+#define BYN_RUNTIME_VERSION 3
 
 #include <stdbool.h>
 #include <stddef.h>
