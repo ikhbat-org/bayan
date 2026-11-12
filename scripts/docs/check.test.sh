@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # check.sh on a fixture repo (test-fixture.sh): passes clean, then each check fails on its own breakage:
 # (a) a header version, (b) a new revision and a gap, (c) a new descriptor and a hand-edited generated row,
-# (d) a mirror that disagrees with VERSION.
+# (d) a mirror that disagrees with VERSION, (e) a cited code with no entry.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 t="$root/tmp/docs-check-test"
@@ -46,4 +46,8 @@ sed -i.bak 's/"1.2.3-dev"/"1.2.4-dev"/' "$t/repo/src/Bayan.Backend.C/Toolchain.c
 expect "(d) Toolchain.cs" "src/Bayan.Backend.C/Toolchain.cs says 1.2.4-dev, VERSION says 1.2.3-dev"
 sed -i.bak '6s/bayan 1.2.3-dev/bayan 1.2.2/' "$t/repo/tests/cases/out/dist.tree"
 expect "(d) second dist.tree line" "tests/cases/out/dist.tree says 1.2.2, VERSION says 1.2.3-dev"
+printf 'Uses BYN0001 and BYN2233.\n' >> "$t/repo/docs/bayan-style.md"
+bash "$s" >/dev/null || fail "(e) codes with a descriptor or an allocated line fail the check"
+printf 'A planned BYN6008.\n' >> "$t/repo/docs/bayan-spec.md"
+expect "(e) cited code" "docs/bayan-spec.md cites BYN6008, which docs/DIAGNOSTICS.md does not list"
 echo PASS

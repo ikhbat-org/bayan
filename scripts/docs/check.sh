@@ -5,7 +5,9 @@
 #   (b) docs/revisions/NNNN-*.md runs 0001..highest with no gap or repeat, and each header doc's
 #       `Revisions applied:` line is `0001–<highest>`;
 #   (c) docs/DIAGNOSTICS.md and docs/STATUS.md equal what scripts/docs/gen-diagnostics.sh and gen-status.sh print;
-#   (d) every code and test mirror of VERSION (version.sh `bayan_mirrors`) holds VERSION.
+#   (d) every code and test mirror of VERSION (version.sh `bayan_mirrors`) holds VERSION;
+#   (e) every BYNnnnn cited in the spec, grammar and style is in docs/DIAGNOSTICS.md (a descriptor, a code comment
+#       or a docs/diagnostics-allocated.txt line; revision 0023).
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -54,5 +56,16 @@ while IFS=$'\t' read -r file pre suf; do
     [ "$got" = "$v" ] || fail "$file says $got, VERSION says $v; run bash scripts/release/set-version.sh $v"
   done
 done < <(bayan_mirrors)
+
+# (e) cited codes
+if [ -f "$root/docs/DIAGNOSTICS.md" ]; then
+  for doc in docs/bayan-spec.md docs/bayan-grammar.md docs/bayan-style.md; do
+    [ -f "$root/$doc" ] || continue
+    for code in $(grep -oE 'BYN[0-9]{4}' "$root/$doc" | sort -u); do
+      grep -qF "$code" "$root/docs/DIAGNOSTICS.md" \
+        || fail "$doc cites $code, which docs/DIAGNOSTICS.md does not list; add it to docs/diagnostics-allocated.txt"
+    done
+  done
+fi
 
 exit "$failed"
