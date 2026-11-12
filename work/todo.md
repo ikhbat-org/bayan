@@ -743,3 +743,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (plan 008 review): `scripts/ci/install-zig.test.sh` `zig_ok` fails any workflow line naming zig outside `scripts/ci/install-zig` (a future `zig version` / `zig cc` step would fail the check).
 - LOW (plan 008 review): `scripts/selfhost/wp1-test.sh` caches a pass by tree + filter only; `BAYAN_TEST_TIME_SCALE` (sent to wp1) is not in the key.
 - LOW (plan 008 fix review): `scripts/release/cut.sh` leftover -dev check runs only while VERSION differs from the target; if set-version.sh succeeds and a later step fails (gen-diagnostics, CHANGELOG), a rerun skips the check.
+- LOW (review 06a856e7..9b7ff220): `scripts/cleanup/2026-11-12-008-release-prep.test.sh` runs the script with `-e`, which also removes the real `/tmp/w1-flood-*.txt` (a cleanup target, but a test should touch only its fixture).
