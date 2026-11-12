@@ -1,0 +1,4 @@
+# test-map.tsv: path glob TAB test classes (space separated). preflight.sh adds the classes of every row whose glob matches a file the branch changes to the per-task wp1 filter.
+# Globs are bash patterns on repo-relative paths (* also crosses /). The row for `*` is the smoke set: it always runs.
+*	CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests
+selfhost/driver/main.byn	SelfhostDriverT2Tests SelfhostDefaultT4Tests SelfhostDriverT5Tests

@@ -13,14 +13,18 @@ git branch feat/x
 printf '#!/bin/bash\necho "$*" > "$AUX/scp-args"; [ -f "$AUX/scp-fail" ] && { echo "scp: lost"; exit 3; }; exit 0\n' > "$aux/bin/scp"
 printf '#!/bin/bash\necho "$*" > "$AUX/ssh-args"; cat "$AUX/ssh-out"; exit "$(cat "$AUX/ssh-rc")"\n' > "$aux/bin/ssh"
 chmod +x "$aux/bin/scp" "$aux/bin/ssh"; export AUX=$aux
-w() { PATH="$aux/bin:$PATH" /bin/bash "$root/scripts/selfhost/wp1-test.sh" "$@" 2>&1 && echo "rc=0" || echo "rc=$?"; }
-sha=$(git rev-parse feat/x); s=${sha:0:8}; R=C:/home/code/extrode.com/bayan/tmp
+w() { [ -n "${CACHE_KEEP:-}" ] || rm -rf tmp/wp1/cache; PATH="$aux/bin:$PATH" /bin/bash "$root/scripts/selfhost/wp1-test.sh" "$@" 2>&1 && echo "rc=0" || echo "rc=$?"; }
+sha=$(git rev-parse feat/x); tree=$(git rev-parse 'feat/x^{tree}'); s=${sha:0:8}; R=C:/home/code/extrode.com/bayan/tmp
 F='FullyQualifiedName~ATests|FullyQualifiedName~BTests'
 printf 'Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3\n' > "$aux/ssh-out"; echo 0 > "$aux/ssh-rc"
 good=$(w feat/x "$F"); gout=$(cat "tmp/wp1/$sha.out"); scpa=$(cat "$aux/scp-args"); ssha=$(cat "$aux/ssh-args")
 bundled=$(git bundle list-heads "tmp/wp1/$s.bundle")
+# a passing run is cached by tree + filter: the same again reuses it (no ssh), another filter runs, a failed run is not cached
+rm "$aux/ssh-args"; hit=$(CACHE_KEEP=1 w feat/x "$F"); hout=$(cat "tmp/wp1/$sha.out"); [ ! -f "$aux/ssh-args" ] && nossh2=1 || nossh2=0
+git branch feat/y feat/x; hity=$(CACHE_KEEP=1 w feat/y "$F")
+rm -f "$aux/ssh-args"; CACHE_KEEP=1 w feat/x "$F|FullyQualifiedName~CTests" > /dev/null; [ -f "$aux/ssh-args" ] && other=1 || other=0
 : > "$aux/ssh-out"; none=$(w feat/x "$F"); nout=$(cat "tmp/wp1/$sha.out")
-printf 'Failed!  - Failed:     1, Passed:     2, Skipped:     0, Total:     3\n' > "$aux/ssh-out"; echo 1 > "$aux/ssh-rc"; red=$(w feat/x "$F"); rout=$(cat "tmp/wp1/$sha.out")
+printf 'Failed!  - Failed:     1, Passed:     2, Skipped:     0, Total:     3\n' > "$aux/ssh-out"; echo 1 > "$aux/ssh-rc"; red=$(w feat/x "$F"); rout=$(cat "tmp/wp1/$sha.out"); [ -z "$(ls tmp/wp1/cache)" ] && rednc=1 || rednc=0
 rm "$aux/ssh-args"; touch "$aux/scp-fail"; lost=$(w feat/x "$F"); lout=$(cat "tmp/wp1/$sha.out"); [ ! -f "$aux/ssh-args" ] && noss=1 || noss=0
 usage=$(w feat/x); nobr=$(w feat/none "$F"); quote=$(w feat/x "A'B")
 # the remote command itself, run by pwsh with wp1's tmp/ at $aux/remote and a fake dotnet: a re-run replaces the clone it made,
@@ -54,6 +58,11 @@ grep -q "^$sha refs/heads/feat/x$" <<< "$bundled" || fail "the bundle does not h
 [ "$(head -4 <<< "$gout")" = "$(printf 'branch: feat/x\nsha: %s\nfilter: %s\ncommand: ssh wp1 "%s"' "$sha" "$F" "$CMD")" ] || fail "the .out header is wrong" "$gout"
 [ "$(tail -2 <<< "$gout")" = "$(printf 'Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3\nexit 0')" ] || fail "the .out does not end in the output and 'exit 0'" "$gout"
 has "$good" "rc=0" || fail "a passing run failed" "$good"
+cres="tmp/wp1/cache/$tree-$(printf '%s' "$F" | shasum | cut -c1-16).out"
+has "$hit" "rc=0" && [ $nossh2 = 1 ] && grep -qF "reusing the cached result $cres (run for $sha), wp1 not run" <<< "$hit" && [ "$(head -1 <<< "$hout")" = "cached: $cres" ] && [ "$(tail -1 <<< "$hout")" = "exit 0" ] || fail "a passing run was not reused for the same tree and filter" "$hit"
+grep -qF "reusing the cached result $cres" <<< "$hity" || fail "the same tree on another branch did not hit the cache" "$hity"
+[ $other = 1 ] || fail "a different filter reused the cache" "$hit"
+[ $rednc = 1 ] || fail "a failed run was cached" "$red"
 has "$none" "wp1-test: the run matched no tests (tmp/wp1/$sha.out)" && has "$none" "rc=1" && [ "$(tail -1 <<< "$nout")" = "exit 0" ] || fail "a run of no tests passed" "$none"
 has "$red" "rc=1" && [ "$(tail -1 <<< "$rout")" = "exit 1" ] || fail "a remote failure did not keep its code" "$red"
 has "$lost" "rc=3" && [ "$(tail -2 <<< "$lout")" = "$(printf 'scp: lost\nexit 3')" ] && [ $noss = 1 ] || fail "a failed scp did not stop before ssh" "$lost"
