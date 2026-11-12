@@ -417,7 +417,7 @@ public sealed class SelfhostDriverGoldenTests
     }
 
     private static (int Code, string Out) Git(string dir, params string[] args) =>
-        Scaffold.Git(Toolchain.FindOnPath("git")!, dir, ["-c", "core.hooksPath=" + Path.Combine(dir, ".no-hooks"), "-c", "user.name=test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", .. args]);
+        Scaffold.Git(Toolchain.FindOnPath("git")!, dir, ["-c", "core.hooksPath=" + Path.Combine(dir, ".no-hooks"), "-c", "user.name=test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", "-c", "maintenance.auto=false", "-c", "gc.auto=0", .. args]);
 
     /// <summary>
     /// 017 T11 (L028): the project rows of <c>CliEnvironmentTests</c> (<c>TestChanged*</c>, <c>TestOnly*</c>): an app whose entry module imports
