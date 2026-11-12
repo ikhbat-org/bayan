@@ -175,10 +175,10 @@ i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, proc
             return exitUsage
         }
     }
-    // `File.ReadAllText` throws, uncaught, when the existing site map cannot be read; it drops a leading UTF-8 byte order mark.
+    // `File.ReadAllText` throws, uncaught, when the existing site map cannot be read.
     // coverage-exempt: Q1258 an IO failure the C# lets escape
-    let read = Io.readText(s) catch { panic($"cannot read {s}") }
-    let text = read.startsWith("\u{FEFF}") ? read[3..read.length] : read
+    let bytes = Io.readFile(s) catch { panic($"cannot read {s}") }
+    let text = t13ReadAllText(in bytes)
     let map = externalSiteReadAll(text) ?? return t13BadSites(s)
     let full = Path.fullPath(b)
     var min: i64? = null
@@ -195,6 +195,122 @@ i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, proc
 i32 t13BadSites(string sites) uses alloc, console {
     Io.stderr.write($"bayan: `{sites}` is not a version 1 site map\n")
     return exitUsage
+}
+
+/// CliApp.cs:918 `File.ReadAllText`: the bytes decoded in the encoding their byte order mark names, as `StreamReader`'s
+/// `DetectEncoding` reads it (UTF-16 or UTF-32, either byte order, or UTF-8), else as UTF-8; the mark dropped, each invalid
+/// sequence decoded as U+FFFD.
+string t13ReadAllText(in List<u8> b) uses alloc {
+    if t13Starts(in b, for: [0xFE, 0xFF]) { return t13DecodeWide(in b, from: 2, by: 2, as: true) }
+    if t13Starts(in b, for: [0xFF, 0xFE, 0x00, 0x00]) { return t13DecodeWide(in b, from: 4, by: 4, as: false) }
+    if t13Starts(in b, for: [0xFF, 0xFE]) { return t13DecodeWide(in b, from: 2, by: 2, as: false) }
+    if t13Starts(in b, for: [0xEF, 0xBB, 0xBF]) { return t13DecodeUtf8(in b, from: 3) }
+    if t13Starts(in b, for: [0x00, 0x00, 0xFE, 0xFF]) { return t13DecodeWide(in b, from: 4, by: 4, as: true) }
+    return t13DecodeUtf8(in b, from: 0)
+}
+
+/// `UTF8Encoding` decoding of `b` from `start`, with `Encoding`'s replacement fallback: each maximal subpart of an
+/// ill-formed sequence (a lead byte and the continuation bytes that can follow it) becomes one U+FFFD.
+string t13DecodeUtf8(in List<u8> b, from i64 start) uses alloc {
+    var utf8 = List<u8>()
+    var i = start
+    while i < b.length {
+        let c = i64(b[i])
+        if c < 0x80 {
+            utf8.append(b[i])
+            i += 1
+            continue
+        }
+        var need: i64 = 0
+        var lo: i64 = 0x80
+        var hi: i64 = 0xBF
+        if c >= 0xC2 && c <= 0xDF {
+            need = 1
+        } else if c >= 0xE0 && c <= 0xEF {
+            need = 2
+            if c == 0xE0 { lo = 0xA0 }
+            if c == 0xED { hi = 0x9F }
+        } else if c >= 0xF0 && c <= 0xF4 {
+            need = 3
+            if c == 0xF0 { lo = 0x90 }
+            if c == 0xF4 { hi = 0x8F }
+        }
+        var k: i64 = 1
+        while k <= need && i + k < b.length && i64(b[i + k]) >= lo && i64(b[i + k]) <= hi {
+            k += 1
+            lo = 0x80
+            hi = 0xBF
+        }
+        if need > 0 && k > need {
+            for j in i..i + k { utf8.append(b[j]) }
+        } else {
+            t13AppendUtf8(ref utf8, for: 0xFFFD)
+        }
+        i += k
+    }
+    return Utf8.decode(utf8, invalid: .replace)
+}
+
+/// Whether `b` starts with `prefix`.
+bool t13Starts(in List<u8> b, for ReadOnlySpan<u8> prefix) {
+    if b.length < prefix.length { return false }
+    for i in 0..prefix.length {
+        if b[i] != prefix[i] { return false }
+    }
+    return true
+}
+
+/// `UnicodeEncoding` (`width` 2) or `UTF32Encoding` (`width` 4) decoding of `b` from `start`, with `Encoding`'s replacement
+/// fallback: an unpaired surrogate, a value past U+10FFFF and a trailing partial unit each become U+FFFD.
+string t13DecodeWide(in List<u8> b, from i64 start, by i64 width, as bool bigEndian) uses alloc {
+    var utf8 = List<u8>()
+    var i = start
+    while i + width <= b.length {
+        let u = t13Unit(in b, at: i, by: width, as: bigEndian)
+        i += width
+        var cp = u
+        if width == 2 && u >= 0xD800 && u <= 0xDBFF {
+            cp = 0xFFFD
+            if i + 2 <= b.length {
+                let low = t13Unit(in b, at: i, by: 2, as: bigEndian)
+                if low >= 0xDC00 && low <= 0xDFFF {
+                    cp = 0x10000 + (u - 0xD800) * 1024 + (low - 0xDC00)
+                    i += 2
+                }
+            }
+        } else if (u >= 0xD800 && u <= 0xDFFF) || u > 0x10FFFF {
+            cp = 0xFFFD
+        }
+        t13AppendUtf8(ref utf8, for: cp)
+    }
+    if i < b.length { t13AppendUtf8(ref utf8, for: 0xFFFD) }
+    return Utf8.decode(utf8, invalid: .replace)
+}
+
+/// The `width`-byte unit of `b` at `i`, in the byte order `bigEndian` names.
+i64 t13Unit(in List<u8> b, at i64 i, by i64 width, as bool bigEndian) {
+    var u: i64 = 0
+    for k in 0..width { u = u * 256 + i64(b[bigEndian ? i + k : i + width - 1 - k]) }
+    return u
+}
+
+/// `cp` appended to `utf8` as UTF-8.
+void t13AppendUtf8(ref List<u8> utf8, for i64 cp) uses alloc {
+    if cp < 0x80 {
+        utf8.append(u8(cp))
+    } else if cp < 0x800 {
+        utf8.append(u8(0xC0 | (cp >> 6)))
+        utf8.append(u8(0x80 | (cp & 0x3F)))
+    } else if cp < 0x10000 {
+        utf8.append(u8(0xE0 | (cp >> 12)))
+        utf8.append(u8(0x80 | ((cp >> 6) & 0x3F)))
+        utf8.append(u8(0x80 | (cp & 0x3F)))
+    } else {
+        utf8.append(u8(0xF0 | (cp >> 18)))
+        utf8.append(u8(0x80 | ((cp >> 12) & 0x3F)))
+        utf8.append(u8(0x80 | ((cp >> 6) & 0x3F)))
+        utf8.append(u8(0x80 | (cp & 0x3F)))
+    }
 }
 
 /// CliApp.cs:928 `ShellCommand`.
