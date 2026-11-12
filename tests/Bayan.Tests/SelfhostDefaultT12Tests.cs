@@ -731,6 +731,7 @@ public sealed class SelfhostDefaultT12Tests
     [InlineData("new", "other", "--vcs", "none")]
     [InlineData("frob")]
     [InlineData("fmt")]
+    [InlineData("mutate")]
     public void EveryOtherArmOfRunIsTheCSharps(params string[] args)
     {
         Same($"run-{string.Join('-', args).Replace('/', '_')}", NewApp(), new Step(args));
@@ -739,7 +740,6 @@ public sealed class SelfhostDefaultT12Tests
     /// <summary>The commands the driver does not port refuse by name (spec Q4); the C# runs them, so the streams differ by design.</summary>
     [Theory]
     [InlineData("parse", "tally/src/app/main.byn")]
-    [InlineData("mutate")]
     public void ARefusedArmNamesItsCommand(params string[] args)
     {
         var dir = Fresh($"refused-{args[0]}");
