@@ -95,13 +95,17 @@ public sealed class SelfhostDefaultBoundsTests
         Assert.True(run.Peak > 0, "no sample");
         Assert.True(run.Peak < 300L * 1024 * 1024, $"peak working set {run.Peak / 1024 / 1024} MB");
         Assert.Equal(CliApp.ExitTestFailure, run.Exit);
-        Assert.Matches(@"… \d+ bytes elided …", run.Out);
+        Assert.Matches(@"… \d+ bytes omitted …", run.Out);
         return run;
     }
 
     /// <summary>The C# side of the row, the oracle the driver row is held to.</summary>
     [Fact]
     public void M1_TheCSharpTestPrintingUntilKilledStaysSmallAndReportsTheElidedBytes() => Spam(driver: false);
+
+    /// <summary>The driver row (Q1227): stage 2's <c>Io.run</c> keeps a head and a tail, so a test printing until killed stays under the bound.</summary>
+    [Fact]
+    public void M1_ATestPrintingUntilKilledStaysSmallAndReportsTheElidedBytes() => Spam(driver: true);
 
 
     // ── M2 ───────────────────────────────────────────────────────────────────────
@@ -343,8 +347,6 @@ public sealed class SelfhostDefaultBoundsTests
     // listed skips (no xunit skip: the guard rejects them), each with its Question:
     // - CliMemoryBoundsTests.M1_* stream rows (uneven writes, a pipe held open, a split character, an endless stream, under the cap):
     //   no driver entry point reads a Stream (Q1226).
-    // - CliMemoryBoundsTests.M1_ATestPrintingUntilKilledStaysSmallAndReportsTheElidedBytes on the driver: peak 4619 MB on stage 2 (4684 MB on stage 1) against the
-    //   300 MB bound, no output kept on a timeout; `Spam(driver: true)` is the row to enable once Q1227 is fixed.
     // - CliMemoryBoundsTests.M2_DiscardedOutputIsDrainedWithoutBuffering and F2_AMutateWorkDirectory...: test --mutate is T13's (Q1220).
     // - CliMemoryBoundsTests.M7_AHungCCompilerIsKilledAndTheBuildFails: cache.byn runs the C compiler with Io.run and no timeout (Q1149).
 }

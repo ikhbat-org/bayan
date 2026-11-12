@@ -53,7 +53,7 @@ public sealed class CliMemoryBoundsTests
         const int keep = 10;
         var bytes = Enumerable.Range(0, 1000).Select(i => (byte)('a' + i % 26)).ToArray();
         var text = await BoundedCapture.ReadAsync(new Chunked(bytes, [3, 7, 1, 13, 25, 2]), keep);
-        var expected = System.Text.Encoding.ASCII.GetString(bytes, 0, keep) + $"\n… {1000 - 2 * keep} bytes elided …\n"
+        var expected = System.Text.Encoding.ASCII.GetString(bytes, 0, keep) + $"\n… {1000 - 2 * keep} bytes omitted …\n"
             + System.Text.Encoding.ASCII.GetString(bytes, 1000 - keep, keep);
         Assert.Equal(expected, text);
     }
@@ -67,9 +67,9 @@ public sealed class CliMemoryBoundsTests
         server.Write(Enumerable.Repeat((byte)'z', 10_000).ToArray());
         server.Flush();
         var deadline = DateTime.UtcNow.AddSeconds(TestTime.Scale(10));
-        while (!capture.Snapshot().Contains("… 7952 bytes elided …") && DateTime.UtcNow < deadline) Thread.Sleep(20);
+        while (!capture.Snapshot().Contains("… 7952 bytes omitted …") && DateTime.UtcNow < deadline) Thread.Sleep(20);
         Assert.False(capture.Completion.IsCompleted);
-        Assert.Equal(new string('z', 1024) + "\n… 7952 bytes elided …\n" + new string('z', 1024), capture.Snapshot());
+        Assert.Equal(new string('z', 1024) + "\n… 7952 bytes omitted …\n" + new string('z', 1024), capture.Snapshot());
         // Closing the write end ends the read; the read end is disposed only once nothing reads it.
         server.Dispose();
         await capture.Completion.WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(10)));
@@ -88,7 +88,19 @@ public sealed class CliMemoryBoundsTests
     {
         var text = await BoundedCapture.ReadAsync(new Endless(50_000_000));
         Assert.True(text.Length < 2 * BoundedCapture.Keep + 100, text.Length.ToString());
-        Assert.Contains($"\n… {50_000_000 - 2 * BoundedCapture.Keep} bytes elided …\n", text);
+        Assert.Contains($"\n… {50_000_000 - 2 * BoundedCapture.Keep} bytes omitted …\n", text);
+    }
+
+    /// <summary>Q1227: the runtime's <c>Io.run</c> capture uses the same bound and marker as <see cref="BoundedCapture"/>.</summary>
+    [Fact]
+    public void M1_TheRuntimeKeepsTheSameBoundAndMarker()
+    {
+        foreach (var file in new[] { "src/runtime/bayan-rt.c", "bootstrap/bayan-rt.c" })
+        {
+            var source = File.ReadAllText(Path.Combine(Golden.RepoRoot, file));
+            Assert.Contains($"#define BYN_RUN_KEEP {BoundedCapture.Keep}\n", source);
+            Assert.Contains("\"\\n\\xE2\\x80\\xA6 %lld bytes omitted \\xE2\\x80\\xA6\\n\"", source);
+        }
     }
 
     [Fact]
@@ -142,7 +154,7 @@ public sealed class CliMemoryBoundsTests
         Assert.True(peak > 0, "no sample");
         Assert.True(peak < 300L * 1024 * 1024, $"peak working set {peak / 1024 / 1024} MB");
         Assert.Equal(CliApp.ExitTestFailure, p.ExitCode);
-        Assert.Matches(@"… \d+ bytes elided …", await stdout);
+        Assert.Matches(@"… \d+ bytes omitted …", await stdout);
     }
 
     // ── M2 ───────────────────────────────────────────────────────────────────────

@@ -557,6 +557,7 @@ public sealed class SelfhostDriverT1Tests
         golden.TestRerunQuotesAsCSharpCli();
         golden.TestChangedAndOnlyAsCSharpCli();
         golden.TestTimeoutAsCSharpCli();
+        golden.TestTimeoutOutputAsCSharpCli();
         foreach (var args in SelfhostDriverGoldenTests.TestArguments()) golden.TestArgumentsAsCSharpCli(args);
         foreach (var row in SelfhostDriverGoldenTests.TestRuns()) golden.TestAsCSharpCli((string)row[0], (string)row[1]);
         golden.TestCoverageAsCSharpCli();

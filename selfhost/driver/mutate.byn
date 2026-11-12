@@ -510,7 +510,7 @@ T13Outcome t13Exec(string executable, at i64 index, by i64 mutant, for string? r
 T13Outcome? t13Run(string program, by in List<string> args, for in Map<string, string?> env, as i64 limitMs) uses alloc, clock, process {
     let clock = Io.monotonicNanos()
     let r = Io.run(program, args.span, env: env, timeout: Millis(limitMs)) catch switch {
-        .timeout(let _) => return T13Outcome { exitCode: -1, timedOut: true, elapsedNanos: Io.monotonicNanos() - clock },
+        .timeout(_, _, _) => return T13Outcome { exitCode: -1, timedOut: true, elapsedNanos: Io.monotonicNanos() - clock },
         .signaled(let s, let _, let _) => return T13Outcome { exitCode: 128 + s, elapsedNanos: Io.monotonicNanos() - clock },
         IoError e => return null,
     }
