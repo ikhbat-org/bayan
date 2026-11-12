@@ -5,6 +5,7 @@
 # revision, regenerates docs/DIAGNOSTICS.md and docs/STATUS.md, and turns CHANGELOG.md's `## [Unreleased]` body into
 # `## [X.Y.Z] - <today>` with two more lists: the revisions added since the previous v* tag (the highest v<A.B.C>
 # below X.Y.Z, reachable from HEAD or not; git diff --diff-filter=A <tag> HEAD -- docs/revisions/) and the hand-kept docs/STATUS.md rows whose status cell changed since that tag.
+# Refuses, before the CHANGELOG is touched, when a tracked file still contains the previous -dev version.
 # Prints each file it changed and the new CHANGELOG section.
 set -euo pipefail
 
@@ -22,6 +23,12 @@ grep -qx '## \[Unreleased\]' "$cl" || die "CHANGELOG.md has no '## [Unreleased]'
 t="$(mktemp -d)"; trap 'rm -rf "$t"' EXIT
 
 bash "$root/scripts/release/set-version.sh" "$v"
+# Nothing may still say the previous -dev version once the bump is done (a mirror set-version.sh does not know).
+if [ "$cur" != "$v" ] && [ "$(git -C "$root" rev-parse --show-toplevel 2>/dev/null || true)" = "$(cd -P "$root" && pwd -P)" ]; then
+  left="$(git -C "$root" grep -IlF -- "$cur" || true)"
+  [ -z "$left" ] || die "tracked files still contain $cur after the bump (nothing is committed or tagged):
+$left"
+fi
 rev="$(bayan_latest_revision "$root")"
 for doc in $bayan_header_docs; do
   sed -E "1,10s/^Revisions applied: 0001–[0-9]+\$/Revisions applied: 0001–$rev/" "$root/$doc" > "$t/doc"

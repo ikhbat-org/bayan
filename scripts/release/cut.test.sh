@@ -39,6 +39,15 @@ rm "$r/docs/STATUS.md.bak"
 commit "work"
 head="$(g rev-parse HEAD)"
 
+# A tracked file that still says the previous -dev version stops the cut, naming the file; the bump is undone here.
+printf 'version 1.2.3-dev\n' > "$r/stray.txt"; g add stray.txt
+out="$(bash "$cut" 1.2.3 2>&1)" && fail "cut accepted a leftover 1.2.3-dev"
+echo "$out" | grep -q "still contain 1.2.3-dev" || fail "no leftover message: $out"
+echo "$out" | grep -qx "stray.txt" || fail "leftover file not named: $out"
+grep -q '^## \[1.2.3\]' "$r/CHANGELOG.md" && fail "a refused cut wrote the CHANGELOG section"
+g rm -qf stray.txt; g checkout -q HEAD -- . ; g clean -qfd -- . 2>/dev/null || true
+[ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "fixture not restored after the refused cut: $(cat "$r/VERSION")"
+
 out="$(bash "$cut" 1.2.3)"
 for f in VERSION src/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md; do
   echo "$out" | grep -qx "changed $f" || fail "no 'changed $f' in: $out"

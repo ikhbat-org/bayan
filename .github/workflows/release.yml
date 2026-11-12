@@ -5,10 +5,12 @@ name: release
 on:
   push:
     tags: ['v*']
-  # A dry run of the build job on a branch: it checks `version` the way the tag is checked and skips the release job.
+  # A dry run on a branch: it checks `version` the way the tag is checked and runs every job but the draft. A dispatch
+  # never drafts a release: with dry_run false the release job starts and refuses (refuse-draft.sh).
   workflow_dispatch:
     inputs:
       version: { description: 'Dry-run version (e.g. 0.3.0)', required: true }
+      dry_run: { description: 'Dry run (no release job)', type: boolean, default: true }
 
 permissions:
   contents: read
@@ -107,19 +109,34 @@ jobs:
         shell: bash
         run: bash scripts/release/memory-gate.sh
 
+  # The memory gate of the VS Code extension and bayan-lsp (editor-gate.yml, also run on every push to dev).
+  editor-gate:
+    uses: ./.github/workflows/editor-gate.yml
+
+  # The full tier of every enacted law (laws-nightly.yml, also its nightly schedule): 37 min on wp1, 180 min allowed.
+  laws:
+    uses: ./.github/workflows/laws-nightly.yml
+
   release:
-    needs: [build, memory-gate]
-    if: github.event_name == 'push'
+    needs: [build, memory-gate, editor-gate, laws]
+    if: github.event_name == 'push' || !inputs.dry_run
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}
     steps:
+
       - name: Checkout
         shell: bash
         run: |
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
+      # In a step, not only the job's `if:`: a release candidate tag and a dispatch run both stop here.
+      - name: Refuse a release candidate or a dispatch run
+        shell: bash
+        run: bash scripts/release/refuse-draft.sh "$RELEASE_TAG" "$GITHUB_EVENT_NAME"
       - uses: actions/download-artifact@v8
         with:
           path: dist

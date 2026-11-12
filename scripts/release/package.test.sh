@@ -84,7 +84,7 @@ grep -q " bayan-1.2.3-docs.tar.gz$" "$t/out/SHA256SUMS" || fail "SHA256SUMS lack
 (cd "$t/out" && if command -v sha256sum >/dev/null; then sha256sum -c --quiet SHA256SUMS; else shasum -a 256 -c --quiet SHA256SUMS; fi) || fail "sums do not verify"
 mkdir -p "$t/empty"; bash "$s" sums "$t/empty" 2>/dev/null && fail "sums over no archives accepted"
 
-[ "$(bash "$s" notes 1.2.3)" = "$(printf '\n### Added\n- one\n')" ] || fail "notes: $(bash "$s" notes 1.2.3)"
+[ "$(bash "$s" notes 1.2.3)" = "$(printf '\n### Added\n- one\n\nKnown limit: the stage-2 build of `selfhost/driver` peaks at 2.94 GB of memory.')" ] || fail "notes: $(bash "$s" notes 1.2.3)"
 bash "$s" notes 9.9.9 2>/dev/null && fail "missing CHANGELOG section accepted"
 
 # release.yml builds the shipped bayan as stage 2 and smoke-tests the "(selfhost)" version line (spec 017 R5).
@@ -101,13 +101,13 @@ l_sm="$(yline '        run: ./publish/${{ matrix.exe }} --version | grep -F "bay
 [ -n "$l_s2" ] || fail "release.yml lacks the stage 2 build"
 [ -n "$l_sm" ] || fail "release.yml smoke test lacks (selfhost)"
 [ "$l_zig" -lt "$l_s1" ] && [ "$l_s1" -lt "$l_s2" ] && [ "$l_s2" -lt "$l_sm" ] && [ "$l_sm" -lt "$l_pkg" ] || fail "release.yml: zig, stage 1, stage 2, smoke test and Package are out of order"
-grep -qxF -- '    needs: [build, memory-gate]' "$y" || fail "release job no longer needs memory-gate"
-# The dry run: workflow_dispatch with a version input, one tag value per job, the release job only on a tag push.
+grep -qxF -- '    needs: [build, memory-gate, editor-gate, laws]' "$y" || fail "release job no longer needs build, memory-gate, editor-gate and laws"
+# The dry run: workflow_dispatch with a version input, one tag value per job, the release job only on a tag push or a non-dry dispatch (which refuse-draft.sh stops).
 for line in '  workflow_dispatch:' "      version: { description: 'Dry-run version (e.g. 0.3.0)', required: true }" \
   "      RELEASE_TAG: \${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}" \
-  '        run: bash scripts/release/package.sh check-tag "$RELEASE_TAG"' "    if: github.event_name == 'push'"; do
+  '        run: bash scripts/release/package.sh check-tag "$RELEASE_TAG"' "    if: github.event_name == 'push' || !inputs.dry_run"; do
   [ -n "$(yline "$line")" ] || fail "release.yml lacks the line: $line"
 done
-[ "$(yline "    if: github.event_name == 'push'")" -gt "$(yline '  release:')" ] || fail "the push-only if: is not in the release job"
+[ "$(yline "    if: github.event_name == 'push' || !inputs.dry_run")" -gt "$(yline '  release:')" ] || fail "the dry-run-aware if: is not in the release job"
 ! grep -q 'inputs.version' <(grep -v '^      RELEASE_TAG:' "$y" | grep -v 'description:') || fail "release.yml reads inputs.version outside the RELEASE_TAG env"
 echo PASS

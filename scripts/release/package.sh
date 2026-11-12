@@ -7,13 +7,14 @@
 #   package.sh docs <out>                       <out>/bayan-<version>-docs.tar.gz, the docs under
 #                                               bayan-<version>-docs/share/doc/bayan/
 #   package.sh sums <dir>                       <dir>/SHA256SUMS over every archive in <dir>
-#   package.sh notes <version>                  the CHANGELOG.md section `## [<version>]`, heading excluded
+#   package.sh notes <version>                  the CHANGELOG.md section `## [<version>]`, heading excluded, then the known limit (2.94 GB stage-2 build)
 # Targets use bayan's own names (bayan dist): osx-arm64 -> macos-arm64, win-x64 -> windows-x64.
 # The docs (docs/RELEASING.md): SPEC, GRAMMAR, STYLE, DIAGNOSTICS, STATUS and CHANGELOG, as <NAME>.md.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 . "$root/scripts/release/version.sh"
+limit='Known limit: the stage-2 build of `selfhost/driver` peaks at 2.94 GB of memory.'
 die() { echo "package: $*" >&2; exit 1; }
 version() { bayan_version "$root"; }
 
@@ -108,6 +109,8 @@ case "${1:-}" in
     v="${2:?usage: package.sh notes <version>}"
     notes="$(awk -v h="## [$v]" 'index($0, h) == 1 { on = 1; next } on && /^## \[/ { exit } on' "$root/CHANGELOG.md")"
     [ -n "$(printf '%s' "$notes" | tr -d '[:space:]')" ] || die "CHANGELOG.md has no ## [$v] section"
-    printf '%s\n' "$notes" ;;
+    printf '%s\n' "$notes"
+    # Known limit (Q31) until the per-phase arenas land after 0.3.0; docs/RELEASING.md states it too.
+    printf '\n%s\n' "$limit" ;;
   *) die "usage: package.sh check-tag|pack|docs|sums|notes …" ;;
 esac

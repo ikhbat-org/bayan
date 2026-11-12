@@ -110,7 +110,10 @@ bash scripts/pinned-bayan.test.sh                                  # pinned buil
 
 `bash scripts/release/memory-gate.sh` runs this block and names every failing command; `release.yml`'s
 `memory-gate` job runs it on Linux and macOS, and no draft release is made without it. The VS Code
-extension and `bayan-lsp` have no release workflow: run the script by hand before packaging them.
+extension and `bayan-lsp` are gated by `scripts/release/editor-gate.sh` (`.github/workflows/editor-gate.yml`):
+it runs the `LanguageServer` tests and packages the extension (`vsce package`, size bound), on every push to
+`dev` and before a release (`release.yml`'s `release` job needs it); there is no manual pre-packaging step. The
+extension itself is not exercised headless on a runner.
 `scripts/release/memory-gate.test.sh` fails when the script and this block drift apart.
 
 plus, for a release that changes the runtime or selfhost: `leaks --atExit` over the run goldens

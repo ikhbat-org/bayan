@@ -1,12 +1,14 @@
 # Nightly and on-demand full tier of every enacted law (spec 011 D11): scripts/selfhost/pre-push-laws.sh runs each enacted
 # law's proof with BAYAN_LAW_TIER=full, the whole corpus where the merge gate runs a fixed seeded subset. It only measures: it never
-# commits or pushes.
+# commits or pushes. The job allows 180 min (the full tier measured 37 min on wp1); the merge gate's seeded subset keeps `timeout: 1200`.
 name: laws-nightly
 
 on:
   schedule:
     - cron: '0 4 * * *'
   workflow_dispatch:
+  # release.yml calls it: the full tier is a required job of a release.
+  workflow_call:
 
 permissions:
   contents: read

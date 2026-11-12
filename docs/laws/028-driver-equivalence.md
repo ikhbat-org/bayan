@@ -41,3 +41,6 @@ A corpus case (its argv, cwd and input files) and the first differing stream or 
 
 ### Proof notes (proposed)
 `BAYAN_LAW_TIER` unset = a seeded subset per command (at least one row per command); `full` = every row, as L018/L023 do. The `check:` line stays `dotnet test -v q --filter "Law=L028"`.
+
+### Tier and timeout (proposed, Q1270 (b))
+The full tier measured 37 min on wp1. It is a required job of the release workflow (`release.yml` calls `laws-nightly.yml`, which keeps its nightly schedule), and that job allows 180 min. The merge gate stays on the seeded subset, so the front matter's `timeout` is unchanged by this note: `timeout: 1200` for the subset (the `timeout: 1800` above is the draft's value, for the user to enact).
