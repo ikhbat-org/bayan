@@ -28,11 +28,21 @@ out="$(bash "$s" check-tag v1.2.3 2>&1)" && fail "malformed VERSION accepted"
 echo "$out" | grep -q "VERSION holds 'x'" || fail "no malformed-VERSION message: $out"
 setv 1.2.3
 
-mkdir -p "$t/pub/unix" "$t/pub/win"
-printf 'bin' > "$t/pub/unix/bayan"; printf 'exe' > "$t/pub/win/bayan.exe"
+# mkexe <fmt> <machine hex, big-endian as printed by od> <path>: a header-only fake executable.
+mkexe() {
+  mkdir -p "$(dirname "$3")"
+  case "$1" in
+    elf) printf '\177ELF\002\001\001\000\000\000\000\000\000\000\000\000\002\000' > "$3"; printf "\\x${2:2:2}\\x${2:0:2}" >> "$3" ;;
+    macho) printf '\317\372\355\376' > "$3"; printf "\\x${2:6:2}\\x${2:4:2}\\x${2:2:2}\\x${2:0:2}" >> "$3" ;;
+    pe) { printf 'MZ'; head -c 58 /dev/zero; printf '\100\000\000\000'; printf "PE\\0\\0\\x${2:2:2}\\x${2:0:2}"; } > "$3" ;;
+    junk) printf 'bin' > "$3" ;;
+  esac
+}
+mkexe macho 0100000c "$t/pub/unix/bayan"; mkexe pe aa64 "$t/pub/win/bayan.exe"
+mkexe elf 003e "$t/pub/linux/bayan"
 bash "$s" pack osx-arm64 "$t/pub/unix" "$t/out" >/dev/null 2>"$t/warn"
 grep -q "::warning::package: the repo has no LICENSE" "$t/warn" || fail "no missing-LICENSE warning: $(cat "$t/warn")"
-bash "$s" pack linux-x64 "$t/pub/unix" "$t/out" >/dev/null
+bash "$s" pack linux-x64 "$t/pub/linux" "$t/out" >/dev/null
 bash "$s" pack win-arm64 "$t/pub/win" "$t/out" >/dev/null
 [ -f "$t/out/bayan-1.2.3-macos-arm64.tar.gz" ] && [ -f "$t/out/bayan-1.2.3-linux-x64.tar.gz" ] || fail "tar.gz names wrong: $(ls "$t/out")"
 [ -f "$t/out/bayan-1.2.3-windows-arm64.zip" ] || fail "zip name wrong: $(ls "$t/out")"
@@ -54,6 +64,18 @@ echo "$out" | grep -q "docs/STATUS.md not found" || fail "no missing-doc message
 mv "$t/STATUS.md" "$t/repo/docs/STATUS.md"
 out="$(bash "$s" pack win-x64 "$t/pub/unix" "$t/out" 2>&1)" && fail "missing exe accepted"
 echo "$out" | grep -q "bayan.exe not found" || fail "no missing-exe message: $out"
+# The machine guard: each format matching and mismatching, and an unknown format.
+for row in "elf 003e linux-x64 linux-arm64" "elf 00b7 linux-arm64 linux-x64" "macho 01000007 osx-x64 osx-arm64" "macho 0100000c osx-arm64 osx-x64" \
+  "pe 8664 win-x64 win-arm64" "pe aa64 win-arm64 win-x64"; do
+  set -- $row; fmt=$1; mach=$2; good=$3; bad=$4; exe=bayan; case "$fmt" in pe) exe=bayan.exe ;; esac
+  mkexe "$fmt" "$mach" "$t/g-$good/$exe"
+  bash "$s" pack "$good" "$t/g-$good" "$t/gout" >/dev/null 2>&1 || fail "$good header refused for $good"
+  out="$(bash "$s" pack "$bad" "$t/g-$good" "$t/gout" 2>&1)" && fail "$good header accepted for $bad"
+  echo "$out" | grep -q "needs" || fail "no machine message for $good header as $bad: $out"
+done
+mkexe junk x "$t/g-junk/bayan"
+out="$(bash "$s" pack linux-x64 "$t/g-junk" "$t/gout" 2>&1)" && fail "an unknown executable format accepted"
+echo "$out" | grep -q "is not an ELF, 64-bit Mach-O or PE executable" || fail "no unknown-format message: $out"
 out="$(bash "$s" pack freebsd-x64 "$t/pub/unix" "$t/out" 2>&1)" && fail "unknown rid accepted"
 
 bash "$s" sums "$t/out" >/dev/null
@@ -67,8 +89,17 @@ bash "$s" notes 9.9.9 2>/dev/null && fail "missing CHANGELOG section accepted"
 
 # release.yml builds the shipped bayan as stage 2 and smoke-tests the "(selfhost)" version line (spec 017 R5).
 y="$root/.github/workflows/release.yml"
-grep -qF -- 'build --mode safe --package selfhost -o "$RUNNER_TEMP/stage1-${{ matrix.exe }}" selfhost/driver' "$y" || fail "release.yml lacks the stage 1 build"
-grep -qF -- '"$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package selfhost -o publish/${{ matrix.exe }} selfhost/driver' "$y" || fail "release.yml lacks the stage 2 build"
-grep -qF -- 'grep -F "bayan ${GITHUB_REF_NAME#v} (selfhost)"' "$y" || fail "release.yml smoke test lacks (selfhost)"
-grep -qF -- 'needs: [build, memory-gate]' "$y" || fail "release job no longer needs memory-gate"
+yline() { grep -nxF -m1 -- "$1" "$y" | cut -d: -f1 || true; } # the line number of a whole line, with its indent; empty when absent
+l_pub="$(yline '      - name: Publish (NativeAOT)')"; l_pkg="$(yline '      - name: Package')"; l_mg="$(yline '  memory-gate:')"
+l_zig="$(yline '        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"')"
+l_s1="$(yline '        run: ./publish/${{ matrix.exe }} build --mode safe --package selfhost -o "$RUNNER_TEMP/stage1-${{ matrix.exe }}" selfhost/driver')"
+l_s2="$(yline '          "$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package selfhost -o publish/${{ matrix.exe }} selfhost/driver')"
+l_sm="$(yline '        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan ${GITHUB_REF_NAME#v} (selfhost)"')"
+[ -n "$l_pub" ] && [ -n "$l_pkg" ] && [ -n "$l_mg" ] || fail "release.yml lacks the Publish or Package step or the memory-gate job"
+[ -n "$l_zig" ] && [ "$l_zig" -gt "$l_pub" ] && [ "$l_zig" -lt "$l_mg" ] || fail "release.yml: no Install zig run in the build job after Publish"
+[ -n "$l_s1" ] || fail "release.yml lacks the stage 1 build"
+[ -n "$l_s2" ] || fail "release.yml lacks the stage 2 build"
+[ -n "$l_sm" ] || fail "release.yml smoke test lacks (selfhost)"
+[ "$l_zig" -lt "$l_s1" ] && [ "$l_s1" -lt "$l_s2" ] && [ "$l_s2" -lt "$l_sm" ] && [ "$l_sm" -lt "$l_pkg" ] || fail "release.yml: zig, stage 1, stage 2, smoke test and Package are out of order"
+grep -qxF -- '    needs: [build, memory-gate]' "$y" || fail "release job no longer needs memory-gate"
 echo PASS
