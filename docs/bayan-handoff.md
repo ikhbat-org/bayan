@@ -1624,7 +1624,7 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 - **Q1257 and Q1258:** kept as is.
 - **Q1247 confirmed.** Docs state that `directory` does not affect program lookup either.
 - **Q1245, Q1246, Q1255 and Q1256:** confirmed as implemented.
-- **Rev 0024: Q2–Q4 and Q6 accepted.** Q1 is refined: `dec(0.1)` on a float literal is an error with a fix-it to `0.1dec`, and runtime values convert through an explicit, named `dec.fromF64(x, digits)`. Open point: Q1274.
+- **Rev 0024: Q2–Q4 and Q6 accepted.** Q1 is refined: `dec(0.1)` on a float literal is an error with a fix-it to `0.1dec`, and runtime values convert through an explicit, named `dec.fromF64(x, digits)`. Q1274 decided by the user 2026-11-12: `dec(x)` on a runtime `f64` is an error too, with a fix-it to `dec.fromF64(x, digits)`.
 - **Tooling decision 5 (wp1 results by tree hash): yes.**
 
 1274. **Rev 0024 Q1: is `dec(x)` on a runtime `f64` an error?** The user's 2026-11-12 note keeps `dec.fromF64(x, digits)` and says "only error on literals". Read literally, a plain `dec(x)` stays legal for a runtime `f64`, which reintroduces the silent binary-to-decimal rounding that Q1 (a) removed. Conservative option, written into rev 0024 for now: `dec(x)` on any `f32`/`f64` operand is BYN2206. The fix-it is `0.1dec` for a literal and `dec.fromF64(x, digits)` otherwise. Loosening this later breaks no code; tightening it would.

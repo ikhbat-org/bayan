@@ -67,7 +67,7 @@ Dispatcher notes (2026-11-12, after the C writer's PLAN-CHANGE):
 
 ## Not in this plan (after 0.3.0, decided)
 
-Q1229, Q1272, Q1273, Q31 arenas (with a stated phase-handoff rule), parser/ownership depth BYN1xxx, rev 0024 text (Q1274 open), T28 helper merge (Q1217/Q1218). Drift items 3 (symbol anchors as files are touched) and 4 (generated counts) follow the existing rules.
+Q1229, Q1272, Q1273, Q31 arenas (with a stated phase-handoff rule), parser/ownership depth BYN1xxx, rev 0024 text (Q1274 decided 2026-11-12: runtime `dec(f64)` is an error with a fix-it to `dec.fromF64`), T28 helper merge (Q1217/Q1218). Drift items 3 (symbol anchors as files are touched) and 4 (generated counts) follow the existing rules.
 
 ## Order and limits
 
