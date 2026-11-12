@@ -10,7 +10,7 @@
 #   - extrode-fleet01 (ghosthive) host /root: feat008.bundle, full-008.sh, w6-check.sh, rerun-fail-9af7.sh, rerun2-9af7.sh,
 #     run-full-9af7.sh, dev-9af76107.bundle;
 #   - VM bayan-test01: /root/work-full, /root/dev-9af76107.bundle, /root/run-full-9af7.sh, /root/full-9af7.*, /root/rerun*-9af7.*,
-#     /home/bt/{r-9af7,w6,feat008.bundle,w6-check.sh,full-008.sh,run.sh,w6*.log,w6.out,full-008.*}. User bt stays: shard-test.sh uses it.
+#     /home/bt/{r-9af7,w6,f008-*,feat008.bundle,w6-check.sh,full-008.sh,run.sh,w6*.log,w6.out,full-008.*}. User bt stays: shard-test.sh uses it.
 # Dry run by default. --execute / -e acts. The host and VM steps also need --delete-remote-scratch (they reach another host).
 set -euo pipefail
 
@@ -48,9 +48,12 @@ for f in /tmp/w1-flood-*.txt; do
   [ -e "$f" ] && run rm -f "$f"
 done
 
-if [ "$remote" = 1 ]; then
+if [ "$remote" = 1 ] && [ "$(ssh ghosthive 'incus list bayan-test01 -c s -f csv')" = RUNNING ] \
+   && ssh ghosthive 'incus exec bayan-test01 -- sh -c "systemctl list-units --state=active --no-legend | grep -qE \"^ *(full-008|shard-|w6-check)\""'; then
+  printf 'skip: a test job is running on bayan-test01; rerun when it has finished\n'
+elif [ "$remote" = 1 ]; then
   run ssh ghosthive 'cd /root && rm -f feat008.bundle full-008.sh w6-check.sh rerun-fail-9af7.sh rerun2-9af7.sh run-full-9af7.sh dev-9af76107.bundle'
-  run ssh ghosthive 'incus start bayan-test01 2>/dev/null; incus exec bayan-test01 -- sh -c "rm -rf /root/work-full /root/dev-9af76107.bundle /root/run-full-9af7.sh /root/full-9af7.* /root/rerun*-9af7.* /home/bt/r-9af7 /home/bt/w6 /home/bt/feat008.bundle /home/bt/w6-check.sh /home/bt/full-008.sh /home/bt/run.sh /home/bt/w6*.log /home/bt/w6.out /home/bt/full-008.*"; incus stop bayan-test01'
+  run ssh ghosthive 'incus start bayan-test01 2>/dev/null; incus exec bayan-test01 -- sh -c "rm -rf /root/work-full /root/dev-9af76107.bundle /root/run-full-9af7.sh /root/full-9af7.* /root/rerun*-9af7.* /home/bt/r-9af7 /home/bt/w6 /home/bt/feat008.bundle /home/bt/w6-check.sh /home/bt/full-008.sh /home/bt/run.sh /home/bt/w6*.log /home/bt/w6.out /home/bt/full-008.* /home/bt/f008-*"; incus stop bayan-test01'
 else
   printf 'skip: extrode-fleet01 and bayan-test01 scratch (needs --delete-remote-scratch)\n'
 fi
