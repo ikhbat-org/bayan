@@ -1,6 +1,6 @@
 // The command `test` of the self-hosted driver (spec 017 T11). Ports `CliApp.cs` :168 `ParseBuildOptions` (all its arms), :627
-// `DeleteWorkDir`, :634 `TestTimeout`, :639 `Test`, :790 `MergeCounters`, :812 `WriteCoverage`, :846 `ListingName`, :951
-// `ReportGates`, :986 `ShellQuote`, :994 `FailureDetail`, :1029 `ChangedModules`, :1061 `ModuleOf`, :1069 `ModuleDirectory` and
+// `DeleteWorkDir`, :634 `TestTimeout`, :639 `Test`, :790 `MergeCounters`, :812 `WriteCoverage`, :846 `ListingName`, :994
+// `FailureDetail`, :1029 `ChangedModules`, :1061 `ModuleOf`, :1069 `ModuleDirectory` and
 // :1077 `RunTest`, with `BoundedCapture.cs` (applied to what `Io.run` returns) and `CoverageInstrumenter.cs` :60 `DeleteStale` and
 // :72 `Read`. The report and its JSON are testreport.byn; the coverage report and gates are quality.byn.
 
@@ -190,7 +190,6 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     var ok = false
     var compiled = t5Compile(in t11T5(in o), by: in symbolsErr, to: ref reported, through: ref ok, includeTests: true, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
     unless ok { return exitFailure }
-    // coverage-blocked: Q1220 T13 mutateTests through `if o.mutate { return refuse("test --mutate") }`
     if o.run is not null && !o.mutate {
         Io.stderr.write("bayan: unexpected argument `--run`\n")
         return exitUsage
@@ -199,8 +198,7 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         Io.stderr.write($"bayan: unexpected argument `{o.coverage ? "--coverage" : "--json"}`\n")
         return exitUsage
     }
-    // stub: T11 `MutateTests` (CliApp.cs:855) is T13's (blocked: Q1220)
-    if o.mutate { return refuse("test --mutate") }
+    if o.mutate { return mutateTests(in o, through: ref compiled, by: ref d) }
     var summary = true
     if (compiled.manifest is { } manifest) { summary = manifest.summary }
     let probes = o.coverage || o.mode == "debug" && summary
@@ -465,7 +463,7 @@ bool writeCoverage(in T11Options o, by in semantics.Ctx compiled, from in emitte
     }
     if partial { return false }
     if (compiled.manifest is { } m) {
-        return t11ReportGates(gatesCoverage(in report, by: m.minLines, for: m.minBranches, through: m.minErrorPaths))
+        return reportGates(in gatesCoverage(in report, by: m.minLines, for: m.minBranches, through: m.minErrorPaths))
     }
     return false
 }
@@ -496,23 +494,6 @@ string listingName(string relative) uses alloc {
         sb.append(s == ".." ? "_" : s)
     }
     return $"{sb.finish()}"
-}
-
-/// CliApp.cs:951 `ReportGates`: a line per failed gate, then what it misses; whether any failed.
-bool t11ReportGates(in List<GateFailure> failures) uses alloc, console {
-    for f in failures {
-        Io.stderr.write($"bayan: {f.name} {gatesFmt(f.covered, by: f.total)}% < {f.min}%\n")
-        for line in f.missing { Io.stderr.write($"{line}\n") }
-    }
-    return failures.length > 0
-}
-
-/// CliApp.cs:986 `ShellQuote`: double quotes when nothing in `text` expands there, else single quotes with `'` as `'\''`.
-string shellQuote(string text) uses alloc {
-    for c in ["$", "`", "\\", "\"", "!"] {
-        if text.contains(c) { return $"'{text.replaced("'", by: "'\\''")}'" }
-    }
-    return $"\"{text}\""
 }
 
 /// CliApp.cs:994 `FailureDetail`: `panic: ` dropped, the diagram under a failed `assert` moved left, drawn with `symbols` and cut

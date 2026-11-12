@@ -45,6 +45,7 @@ public struct Manifest {
     public i64? minLines = null
     public i64? minBranches = null
     public i64? minErrorPaths = null
+    public i64? minMutation = null
     public bool summary = true
     public BooleanStyle booleans = .symbols
     public PrimitiveStyle primitives = .sized
@@ -197,8 +198,7 @@ void t10Bind(ref Manifest m, from in T10Reader r, at i64 package) {
     }
 }
 
-/// The `test` part of `Bind` (Manifest.cs:157-163): `lines`, `branches`, `errorPaths` and `summary` are kept; `mutation` is checked
-/// only (Q1217).
+/// The `test` part of `Bind` (Manifest.cs:157-163): `lines`, `branches`, `errorPaths`, `mutation` and `summary`.
 void t10BindTests(ref Manifest m, from in T10Reader r, at i64 tests) {
     if r.values[tests].kind != .objectValue || r.values[tests].text != "Tests" {
         t10Invalid(ref m, from: in r, at: tests, for: "test", as: "a `Tests { … }`")
@@ -208,7 +208,7 @@ void t10BindTests(ref Manifest m, from in T10Reader r, at i64 tests) {
     m.minLines = t10Percent(ref m, from: r, at: fields, for: "lines")
     m.minBranches = t10Percent(ref m, from: r, at: fields, for: "branches")
     m.minErrorPaths = t10Percent(ref m, from: r, at: fields, for: "errorPaths")
-    let _ = t10Percent(ref m, from: r, at: fields, for: "mutation")
+    m.minMutation = t10Percent(ref m, from: r, at: fields, for: "mutation")
     if fields.contains("summary") {
         let summary = fields["summary"]
         if r.values[summary].kind == .boolValue {

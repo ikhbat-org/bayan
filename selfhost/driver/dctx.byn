@@ -43,6 +43,9 @@ public struct DCtx {
     // T11 keeps no state: `test` reads its options per call (test.byn `T11Options`), and its coverage directory is named by T9's `uniques` (cache.byn `t9Unique`).
     // ── T12 state
     // T12 keeps no state: `dist` reads its options per call (dist.byn `distCommand`) and the unique names it needs are none.
+    // ── T13 state
+    // T13 keeps no state: `mutate` and `test --mutate` read their options per call (mutate.byn) and name their work directory
+    // through `uniques` (T9).
 }
 
 /// The state of a run before any option is read. On the base so the coverage report has an entry for this file (Q920).

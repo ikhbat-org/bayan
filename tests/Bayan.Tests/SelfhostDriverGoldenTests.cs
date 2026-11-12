@@ -130,10 +130,16 @@ public sealed class SelfhostDriverGoldenTests
 
     private static string Path_(string name) => Path.Combine(Golden.CasesRoot, name);
 
+    /// <summary>
+    /// Put before each <see cref="Work"/> name, so that another test class that runs these rows (017 T13's <c>TestPathsAsCSharpCli</c>)
+    /// never shares a directory with this class's own run of them.
+    /// </summary>
+    internal string WorkPrefix { get; init; } = "";
+
     /// <summary>A fresh empty directory under <c>tmp/golden/</c> for <paramref name="name"/>.</summary>
-    private static string Work(string name)
+    private string Work(string name)
     {
-        var work = Path.Combine(Golden.RepoRoot, "tmp", "golden", Path.ChangeExtension(name, null).Replace('/', '_'));
+        var work = Path.Combine(Golden.RepoRoot, "tmp", "golden", WorkPrefix + Path.ChangeExtension(name, null).Replace('/', '_'));
         if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
         Directory.CreateDirectory(work);
         return work;
@@ -233,8 +239,13 @@ public sealed class SelfhostDriverGoldenTests
         from flag in new[] { "", "-v", "--json", "--coverage" }
         select new object[] { name, flag };
 
-    /// <summary>L028's mask for <c>test</c>: the elapsed seconds, and the timings of <c>results.json</c> and <c>bayan-quality.json</c>.</summary>
-    private static string MaskTest(string text) => Regex.Replace(Mask(text), @"""(durationMs|build_s|total_s)"": [0-9.E+-]+", "\"$1\": <t>");
+    /// <summary>
+    /// L028's mask for <c>test</c>: the elapsed seconds, the timings of <c>results.json</c> and <c>bayan-quality.json</c>, and the
+    /// <c>timing:</c> line of a mutation summary (017 T13); a timing that is exactly 0 (<c>mutate --binary</c>'s build and share) is compared.
+    /// </summary>
+    private static string MaskTest(string text) =>
+        Regex.Replace(Regex.Replace(Mask(text), @"""(durationMs|build_s|total_s|mean_mutant_s|max_mutant_s|mutant_share_of_build)"": (?!0[,\r\n])[0-9.E+-]+", "\"$1\": <t>"),
+            @"^timing: build .*$", m => Regex.Replace(m.Value, @"(?<= )(?!0 |0%)[0-9.]+(?= s|%)", "<t>"), RegexOptions.Multiline);
 
     /// <summary>
     /// 017 T11 (L028): the C# CLI (<c>dotnet bayan.dll</c>) and the driver's harness build run <paramref name="args"/> one after the other in
@@ -271,6 +282,154 @@ public sealed class SelfhostDriverGoldenTests
         Directory.CreateDirectory(Path.Combine(work, stem));
         File.Copy(Path_(name), Path.Combine(work, stem, Path.GetFileName(name)));
         AssertTestAsCSharp(work, flag.Length == 0 ? ["test", stem] : ["test", flag, stem]);
+    }
+
+    private const string MutateInc = "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n\ntest \"later\" {\n    todo(\"x\")\n}\n";
+
+    /// <summary>
+    /// 017 T13 (L028): <c>test --mutate</c> as ExternalModeTests.cs and CliMemoryBoundsTests.cs run it: a one-function directory with a
+    /// pending test, alone, with <c>--run</c> (its <c>out/test/bayan-quality.json</c> compared), and with <c>--coverage</c>.
+    /// </summary>
+    [Fact]
+    public void TestMutateAsCSharpCli()
+    {
+        var work = Work("test/mutate");
+        Directory.CreateDirectory(Path.Combine(work, "inc"));
+        File.WriteAllText(Path.Combine(work, "inc", "a.test.byn"), MutateInc);
+        AssertTestAsCSharp(work, ["test", "--mutate", "inc"]);
+        AssertTestAsCSharp(work, ["test", "--mutate", "--coverage", "inc"]);
+        AssertTestAsCSharp(work, ["test", "--mutate", "--json", "inc"]);
+        AssertTestAsCSharp(work, ["test", "--run", "true", "inc"]);
+        if (OperatingSystem.IsWindows()) return;
+        AssertTestAsCSharp(work, ["test", "--mutate", "--run", "\"$BAYAN_BINARY\" --test 0 >/dev/null", "inc"]);
+    }
+
+    /// <summary>
+    /// 017 T13 (L028): <c>mutate --binary</c> as ExternalModeTests.cs runs it, against the C# CLI: usage errors, a site map it refuses, a
+    /// baseline that fails, and a run whose <c>bayan-quality.json</c> (beside the binary) is compared with timings masked.
+    /// </summary>
+    [Fact]
+    public void MutateBinaryAsCSharpCli()
+    {
+        var work = Work("test/mutate-binary");
+        var bin = Path.Combine(work, "prog");
+        var sites = bin + ".sites.json";
+        File.WriteAllText(bin, "");
+        void Same(params string[] args) => AssertMutateBinaryAsCSharp(work, args);
+        Same("mutate");
+        Same("mutate", "--binary", bin, "--sites");
+        File.WriteAllText(sites, "{ \"version\": 1, \"sites\": [{ \"id\": \"one\" }] }");
+        Same("mutate", "--binary", bin, "--sites", sites, "--", "true");
+        File.WriteAllText(sites, """
+            { "version": 1, "sites": [
+              { "id": 1, "file": "a.byn", "line": 1, "column": 1, "operator": "arithmetic", "original": "a + b", "mutated": "a - b" },
+              { "id": 2, "file": "a.byn", "line": 2, "column": 1, "operator": "bool", "original": "true", "mutated": "false", "emitted": false },
+              { "id": 3, "file": "a.byn", "line": 3, "column": 1, "operator": "statement", "original": "i += 1", "mutated": "", "unobservable": "no test can see it" }
+            ] }
+            """);
+        Same("mutate", "--binary", bin, "--sites", sites, "--", "nosuchcmd-xyz");
+        if (OperatingSystem.IsWindows()) return;
+        Same("mutate", "--binary", bin, "--sites", sites, "--", "/bin/sh", "-c", "exit 3");
+        Same("mutate", "--binary", bin, "--sites", sites, "--", "/bin/sh", "-c", "[ \"$BAYAN_MUTANT\" = 1 ] && exit 1; exit 0");
+        Same("mutate", "--binary", bin, "--sites", sites, "--", "/bin/sh", "-c", "exit 0");
+    }
+
+    /// <summary>
+    /// The C# CLI and the driver run <c>mutate</c> <paramref name="args"/> in <paramref name="work"/> and agree on exit code, stdout, stderr
+    /// and the <c>bayan-quality.json</c> written in <paramref name="work"/> (beside the binary), timings masked.
+    /// </summary>
+    private static void AssertMutateBinaryAsCSharp(string work, string[] args)
+    {
+        var report = Path.Combine(work, "bayan-quality.json");
+        Result Once(Func<Result> run, out string json)
+        {
+            File.Delete(report);
+            var r = run();
+            json = File.Exists(report) ? MaskTest(File.ReadAllText(report)) : "(none)";
+            return r;
+        }
+        var expected = Once(() => CSharp(work, args), out var expectedJson);
+        var actual = Once(() => Start(SelfhostDriverHarness.Build(), [], work, args), out var actualJson);
+        Assert.True(expected.Exit == actual.Exit, $"{string.Join(' ', args)}: exit {actual.Exit}, the C# CLI's {expected.Exit}\n{actual.Stdout}{actual.Stderr}");
+        Assert.Equal(MaskTest(expected.Stdout), MaskTest(actual.Stdout));
+        Assert.Equal(expected.Stderr, actual.Stderr);
+        Assert.Equal(expectedJson, actualJson);
+    }
+
+    /// <summary>
+    /// 017 T13 (L028): the mutation gate (CliApp.cs:868, :878 and :925 with Gates.cs `Mutation`) as GatesTests.cs runs it, against the C#
+    /// CLI: its <c>Project</c> app with <c>mutation: 100</c> (missed) and <c>mutation: 0</c> (met) under <c>test --mutate --run true</c> and
+    /// <c>test --mutate</c>; and <c>mutate --binary</c> beside a <c>package.byn</c> whose minimum is below, at and above a 75% score, or absent.
+    /// </summary>
+    [Fact]
+    public void MutationGatesAsCSharpCli()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        foreach (var min in new[] { 100, 0 })
+        {
+            var work = Work($"test/gates-{min}");
+            var app = Path.Combine(work, "tally");
+            Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", app, "--vcs", "none"], new StringWriter(), new StringWriter()));
+            var manifest = Path.Combine(app, "package.byn");
+            var text = File.ReadAllText(manifest);
+            File.WriteAllText(manifest, text[..text.LastIndexOf('}')].TrimEnd().TrimEnd(',') + $",\n    test: Tests {{ mutation: {min} }}\n}}\n");
+            AssertTestAsCSharp(work, ["test", "--mutate", "--run", "true", "tally"]);
+            AssertTestAsCSharp(work, ["test", "--mutate", "tally"]);
+        }
+        var binary = Work("test/gates-binary");
+        var bin = Path.Combine(binary, "prog");
+        var sites = bin + ".sites.json";
+        File.WriteAllText(bin, "");
+        File.WriteAllText(sites, """
+            { "version": 1, "sites": [
+              { "id": 1, "file": "a.byn", "line": 1, "column": 1, "operator": "arithmetic", "original": "a + b", "mutated": "a - b" },
+              { "id": 2, "file": "a.byn", "line": 2, "column": 1, "operator": "arithmetic", "original": "a * b", "mutated": "a / b" },
+              { "id": 3, "file": "a.byn", "line": 3, "column": 1, "operator": "relational", "original": "a < b", "mutated": "a <= b" },
+              { "id": 4, "file": "a.byn", "line": 4, "column": 1, "operator": "relational", "original": "a > b", "mutated": "a >= b" }
+            ] }
+            """);
+        string[] args = ["mutate", "--binary", bin, "--sites", sites, "--", "/bin/sh", "-c", "[ \"$BAYAN_MUTANT\" -ge 1 ] && [ \"$BAYAN_MUTANT\" -le 3 ] && exit 1; exit 0"];
+        foreach (var test in new[] { "mutation: 74", "mutation: 75", "mutation: 76", "" })
+        {
+            File.WriteAllText(Path.Combine(binary, "package.byn"), test.Length == 0
+                ? "Package {\n    name: \"g\",\n    version: \"0.1.0\",\n    kind: .lib,\n}\n"
+                : $"Package {{\n    name: \"g\",\n    version: \"0.1.0\",\n    kind: .lib,\n    test: Tests {{ {test} }},\n}}\n");
+            AssertMutateBinaryAsCSharp(binary, args);
+        }
+    }
+
+    /// <summary>
+    /// 017 T13 (L028): CliMemoryBoundsTests.cs:400 <c>F2_AMutateWorkDirectoryAnotherProcessSweptDoesNotChangeTheExitCode</c> against the
+    /// driver: <c>test --mutate</c> while another process deletes every <c>bayan-mutate-*</c> directory under <c>TMPDIR</c>: the driver
+    /// exits <c>CliApp.ExitOk</c>, the value F2 asserts. The C# CLI is not run here: it can crash under the sweep at MutationRunner.cs:41 (Q1258(e)).
+    /// </summary>
+    [Fact]
+    public void MutateSweptWorkDirectoryAsCSharpCli()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        void Swept(string program, string[] prefix, string name)
+        {
+            var root = Work(name);
+            File.WriteAllText(Path.Combine(root, "main.byn"), "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n");
+            var temp = Path.Combine(root, "tmp");
+            Directory.CreateDirectory(temp);
+            using var stop = new CancellationTokenSource();
+            var watcher = Task.Run(() =>
+            {
+                while (!stop.IsCancellationRequested)
+                {
+                    foreach (var d in Directory.EnumerateDirectories(temp, "bayan-mutate-*"))
+                        try { Directory.Delete(d, recursive: true); } catch (IOException) { }
+                    Thread.Sleep(5);
+                }
+            });
+            var r = Start(program, prefix, root, ["test", "--mutate", "main.byn"],
+                [("TMPDIR", temp), ("BAYAN_CACHE", Path.Combine(root, "cache")), ("BAYAN_TEST_TIMEOUT_MS", TestTime.Scale(2000).ToString())]);
+            stop.Cancel();
+            watcher.Wait();
+            Assert.True(r.Exit == CliApp.ExitOk, $"{name}: exit {r.Exit}, F2's CliApp.ExitOk\n{r.Stdout}{r.Stderr}");
+        }
+        Swept(SelfhostDriverHarness.Build(), [], "test/swept-mutate");
     }
 
     private static (int Code, string Out) Git(string dir, params string[] args) =>
@@ -379,6 +538,26 @@ public sealed class SelfhostDriverGoldenTests
             + "test \"plain\" {\n    panic(\"assert this\\nnext\")\n}\n\n"
             + "test \"esc \\\\ \\u{8}\\t\\u{c}\\r\\u{7f}\\u{85}\\u{2028}\\u{2029}\\u{1F600}\\\"\" {\n}\n");
         AssertTestAsCSharp(work, ["test", .. flags.Split(' ', StringSplitOptions.RemoveEmptyEntries), "fails"]);
+    }
+
+    /// <summary>
+    /// 017 T13 (L028): the rerun line's CliApp.cs:986 <c>ShellQuote</c> of a failing test whose name holds a <c>"</c> and a <c>'</c>, beside a
+    /// failing name with a tab (not selectable) and a pending test; under <c>-v --json</c>, <c>--diagnostics json</c>, <c>--mode debug --json</c>
+    /// and <c>--coverage</c> outside a project.
+    /// </summary>
+    [Fact]
+    public void TestRerunQuotesAsCSharpCli()
+    {
+        var work = Work("test/quotes");
+        Directory.CreateDirectory(Path.Combine(work, "q"));
+        File.WriteAllText(Path.Combine(work, "q", "main.byn"), "void main() {\n}\n\ntest \"it's \\\"q\\\"\" {\n    assert(false)\n}\n\n"
+            + "test \"tab\\there\" {\n    assert(false)\n}\n\ntest \"later\" {\n    todo(\"x\")\n}\n");
+        AssertTestAsCSharp(work, ["test", "q"]);
+        AssertTestAsCSharp(work, ["test", "--only", "tab", "q"]);
+        AssertTestAsCSharp(work, ["test", "-v", "--json", "q"]);
+        AssertTestAsCSharp(work, ["test", "--diagnostics", "json", "q"]);
+        AssertTestAsCSharp(work, ["test", "--mode", "debug", "--json", "q"]);
+        AssertTestAsCSharp(work, ["test", "--coverage", "q"]);
     }
 
     /// <summary>
