@@ -7,6 +7,7 @@
 #   - worktree .worktrees/worker-017-t14, branch chore/worker-017-t14 and key 017-t14 (first T14 attempt, superseded);
 #   - worktree .worktrees/worker-017-t14b, branch chore/worker-017-t14b, keys 017-t14b, 017-t14b-review, 017-t14--gate-review (T14, landed);
 #   - worktree .worktrees/worker-017-t17, branch chore/worker-017-t17, keys 017-t17, 017-t17-review (T17, landed);
+#   - worktree .worktrees/worker-017-t18, branch chore/worker-017-t18, keys 017-t18, 017-t18-review (T18, landed);
 #   - worktree .worktrees/fix-017-preflight-yml and branch fix/017-preflight-yml (merged into feat/017-selfhost-default);
 #   - /tmp scratch: /tmp/w015t8.py, /tmp/pt.out, /tmp/rt_new_51494.c;
 #   - on the ghosthive VM bayan-test01: /root/work-007b, /root/007b.bundle, /root/rv007b*.bundle, /root/run-*.sh.
@@ -71,6 +72,14 @@ if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor
 else printf 'keep: %s (missing or not merged)\n' "$b"; fi
 b=fix/017-preflight-yml; w="$root/.worktrees/fix-017-preflight-yml"
 if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
+  [ -d "$w" ] && run git worktree remove "$w"
+  run git branch -d "$b"
+else printf 'keep: %s (missing or not merged)\n' "$b"; fi
+
+# T18, landed into feat/017-selfhost-default by land.sh (88f817cb)
+b=chore/worker-017-t18; w="$root/.worktrees/worker-017-t18"
+if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
+  for k in 017-t18 017-t18-review; do run deno run -A "$HOME/.claude/tools/worker.js" retire "$k"; done
   [ -d "$w" ] && run git worktree remove "$w"
   run git branch -d "$b"
 else printf 'keep: %s (missing or not merged)\n' "$b"; fi
