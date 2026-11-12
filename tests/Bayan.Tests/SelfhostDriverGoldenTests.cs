@@ -250,27 +250,19 @@ public sealed class SelfhostDriverGoldenTests
 
     /// <summary>
     /// 017 T11 (L028): the C# CLI (<c>dotnet bayan.dll</c>) and the driver's harness build run <paramref name="args"/> one after the other in
-    /// <paramref name="cwd"/>, each after its <c>out/</c> directories are removed, and agree on exit code, stdout, stderr and every file under an
-    /// <c>out/test</c> (seconds and timings masked).
+    /// <paramref name="cwd"/>, each after its <c>out/</c> directories are removed, and agree on exit code, stdout, stderr and every file written in
+    /// <paramref name="cwd"/> (<see cref="RunBoth"/>; seconds and timings masked, the harness's shared cache).
     /// </summary>
     private static void AssertTestAsCSharp(string cwd, string[] args, (string Name, string? Value)[]? env = null)
     {
-        Result Once(Func<Result> run, out Dictionary<string, string> files)
-        {
-            foreach (var dir in Directory.GetDirectories(cwd, "out", SearchOption.AllDirectories)) Directory.Delete(dir, recursive: true);
-            var r = run();
-            files = Directory.GetDirectories(cwd, "out", SearchOption.AllDirectories).Select(d => Path.Combine(d, "test")).Where(Directory.Exists)
-                .SelectMany(d => Directory.GetFiles(d, "*", SearchOption.AllDirectories)).Where(f => f.EndsWith(".json") || f.EndsWith(".cov.txt")).ToDictionary(f => Path.GetRelativePath(cwd, f), f => MaskTest(File.ReadAllText(f)));
-            return r;
-        }
-        var expected = Once(() => Start("dotnet", [typeof(CliApp).Assembly.Location], cwd, args, env), out var expectedFiles);
-        var actual = Once(() => Start(SelfhostDriverHarness.Build(), [], cwd, args, env), out var actualFiles);
+        foreach (var dir in Directory.GetDirectories(cwd, "out", SearchOption.AllDirectories)) Directory.Delete(dir, recursive: true);
+        var (expected, actual) = RunBoth(cwd, "test", "",
+            () => Start("dotnet", [typeof(CliApp).Assembly.Location], cwd, args, env),
+            () => Start(SelfhostDriverHarness.Build(), [], cwd, args, env));
         var what = string.Join(' ', args);
         Assert.True(expected.Exit == actual.Exit, $"{what}: exit {actual.Exit}, the C# CLI's {expected.Exit}\n{actual.Stdout}{actual.Stderr}");
         Assert.Equal(MaskTest(expected.Stdout), MaskTest(actual.Stdout));
         Assert.Equal(MaskTest(expected.Stderr), MaskTest(actual.Stderr));
-        Assert.Equal(expectedFiles.Keys.Order(StringComparer.Ordinal), actualFiles.Keys.Order(StringComparer.Ordinal));
-        foreach (var (file, text) in expectedFiles) Assert.Equal(text, actualFiles[file]);
     }
 
     /// <summary>017 T11 (L028): <c>test</c> on each <c>run/*.test.byn</c> (the cases <c>RunTests</c> runs with <c>bayan test -v</c>), its directory named as the case.</summary>
@@ -337,24 +329,15 @@ public sealed class SelfhostDriverGoldenTests
 
     /// <summary>
     /// The C# CLI and the driver run <c>mutate</c> <paramref name="args"/> in <paramref name="work"/> and agree on exit code, stdout, stderr
-    /// and the <c>bayan-quality.json</c> written in <paramref name="work"/> (beside the binary), timings masked.
+    /// and every file written in <paramref name="work"/> (the <c>bayan-quality.json</c> beside the binary), timings masked.
     /// </summary>
     private static void AssertMutateBinaryAsCSharp(string work, string[] args)
     {
-        var report = Path.Combine(work, "bayan-quality.json");
-        Result Once(Func<Result> run, out string json)
-        {
-            File.Delete(report);
-            var r = run();
-            json = File.Exists(report) ? MaskTest(File.ReadAllText(report)) : "(none)";
-            return r;
-        }
-        var expected = Once(() => CSharp(work, args), out var expectedJson);
-        var actual = Once(() => Start(SelfhostDriverHarness.Build(), [], work, args), out var actualJson);
+        File.Delete(Path.Combine(work, "bayan-quality.json"));
+        var (expected, actual) = RunBoth(work, "mutate", "", () => CSharp(work, args), () => Start(SelfhostDriverHarness.Build(), [], work, args));
         Assert.True(expected.Exit == actual.Exit, $"{string.Join(' ', args)}: exit {actual.Exit}, the C# CLI's {expected.Exit}\n{actual.Stdout}{actual.Stderr}");
         Assert.Equal(MaskTest(expected.Stdout), MaskTest(actual.Stdout));
         Assert.Equal(expected.Stderr, actual.Stderr);
-        Assert.Equal(expectedJson, actualJson);
     }
 
     /// <summary>
@@ -739,6 +722,8 @@ public sealed class SelfhostDriverGoldenTests
         new("dist", "app", ["dist", "tally", "--target", "bogus"]),
         new("dist", "script", ["dist", "main.byn"]),
         new("dist", "empty", ["dist", "missing"]),
+        new("version", "empty", ["--version"]),
+        new("version", "empty", ["version"]),
         new("test", "inc", ["test", "inc"]),
         new("test", "inc", ["test", "--mutate", "inc"]),
         new("test", "empty", ["test", "missing"]),
@@ -823,22 +808,38 @@ public sealed class SelfhostDriverGoldenTests
     }
 
     /// <summary>
-    /// L028's masks as amended by 017 T14: elapsed seconds and the timings (<see cref="MaskTest"/>), the version line's parenthesised part (012 Q3;
-    /// <c>version</c> and <c>doctor</c>'s <c>bayan</c> line), the cache directory, and the hash of a <c>SHA256SUMS</c> line (Q1222: a native executable is not reproducible).
+    /// L028's masks of a stream as amended by 017 T14: the cache directory (when <paramref name="cache"/> is not empty) becomes <c>&lt;cache&gt;</c>;
+    /// elapsed seconds (<see cref="Mask"/>); for <c>test</c> and <c>mutate</c> also the timings of <see cref="MaskTest"/>; for <c>doctor</c> and
+    /// <c>version</c> the commit of the version line (012 Q3), anchored to <c>bayan VERSION (commit X)</c> or <c>bayan VERSION (selfhost)</c>, with <c>doctor</c>'s leading mark.
     /// </summary>
-    private static string LawMask(string text, string cache)
+    private static string MaskStream(string text, string cache, string command)
     {
-        text = MaskTest(text.Replace(cache, "<cache>"));
-        text = Regex.Replace(text, @"^[0-9a-f]{64}(  \S)", "<sha256>$1", RegexOptions.Multiline);
-        return Regex.Replace(text, @"^(.*\bbayan\s+\S+) \(.*\)$", "$1 (masked)", RegexOptions.Multiline);
+        if (cache.Length > 0) text = text.Replace(cache, "<cache>");
+        text = command is "test" or "mutate" ? MaskTest(text) : Mask(text);
+        return command is "doctor" or "version"
+            ? Regex.Replace(text, @"^((?:◆ )?bayan +\S+) \((?:commit [^)]+|selfhost)\)$", "$1 (<commit>)", RegexOptions.Multiline)
+            : text;
     }
 
     /// <summary>
-    /// Compares the written files of two runs: the same entry names, then each text file with <see cref="LawMask"/> applied. A file that
+    /// The mask of a written text file: the cache directory becomes <c>&lt;cache&gt;</c>; <c>results.json</c> and <c>bayan-quality.json</c> take
+    /// <see cref="MaskTest"/> (the <c>test</c> and <c>mutate</c> rows); the <c>SHA256SUMS</c> of a <c>dist</c> row has the 64-hex hash at the start of each line masked (Q1222).
+    /// </summary>
+    private static string MaskFile(string name, string text, string cache, string command)
+    {
+        if (cache.Length > 0) text = text.Replace(cache, "<cache>");
+        var file = name[(name.LastIndexOf('/') + 1)..];
+        if (command is "test" or "mutate" && file is "results.json" or "bayan-quality.json") text = MaskTest(text);
+        if (command == "dist" && file == "SHA256SUMS") text = Regex.Replace(text, @"^[0-9a-f]{64}(  \S)", "<sha256>$1", RegexOptions.Multiline);
+        return text;
+    }
+
+    /// <summary>
+    /// Compares the written files of two runs: the same entry names, then each text file with <see cref="MaskFile"/> applied. A file that
     /// is not text (a native executable: two C# builds of one program already differ, Q1222) is compared by name only.
     /// Null when equal, else the first difference.
     /// </summary>
-    internal static string? WrittenFilesDiffer(SortedDictionary<string, byte[]?> expected, SortedDictionary<string, byte[]?> actual, string cache)
+    internal static string? WrittenFilesDiffer(SortedDictionary<string, byte[]?> expected, SortedDictionary<string, byte[]?> actual, string cache, string command)
     {
         var missing = expected.Keys.Except(actual.Keys).ToList();
         var extra = actual.Keys.Except(expected.Keys).ToList();
@@ -854,9 +855,42 @@ public sealed class SelfhostDriverGoldenTests
             var a = Text(bytes);
             var b = Text(other);
             if ((a is null) != (b is null)) return $"{name}: text on one side only";
-            if (a is not null && LawMask(a, cache) != LawMask(b!, cache)) return $"{name} differs\n--- C#\n{LawMask(a, cache)}\n--- stage 2\n{LawMask(b!, cache)}";
+            if (a is not null && MaskFile(name, a, cache, command) != MaskFile(name, b!, cache, command))
+                return $"{name} differs\n--- C#\n{MaskFile(name, a, cache, command)}\n--- stage 2\n{MaskFile(name, b!, cache, command)}";
         }
         return null;
+    }
+
+    /// <summary>Makes <paramref name="root"/> hold exactly <paramref name="files"/> again (a directory as null).</summary>
+    private static void Restore(string root, SortedDictionary<string, byte[]?> files)
+    {
+        foreach (var entry in Directory.GetFileSystemEntries(root))
+            if (Directory.Exists(entry)) Directory.Delete(entry, recursive: true); else File.Delete(entry);
+        foreach (var (name, bytes) in files)
+        {
+            var path = Path.Combine(root, name);
+            if (bytes is null) Directory.CreateDirectory(path);
+            else
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                File.WriteAllBytes(path, bytes);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Runs <paramref name="csharp"/> and then <paramref name="stage2"/> from the same contents of <paramref name="root"/> (put back between the
+    /// two), and fails when the written files differ (<see cref="WrittenFilesDiffer"/>). Returns both results for the stream comparison.
+    /// </summary>
+    private static (Result Expected, Result Actual) RunBoth(string root, string command, string cache, Func<Result> csharp, Func<Result> stage2)
+    {
+        var before = Files(root);
+        var expected = csharp();
+        var expectedFiles = Files(root);
+        Restore(root, before);
+        var actual = stage2();
+        if (WrittenFilesDiffer(expectedFiles, Files(root), cache, command) is { } f) Assert.Fail($"`{command}`: {f}");
+        return (expected, actual);
     }
 
     /// <summary>
@@ -871,23 +905,23 @@ public sealed class SelfhostDriverGoldenTests
         var work = Path.Combine(Golden.RepoRoot, "tmp", "golden", "017", $"{command}-{Array.IndexOf(Commands, row)}");
         var cache = work + "-cache";
         (string, string?)[] env = [("BAYAN_CACHE", cache), ("CI", "1")];
-        (Result Result, SortedDictionary<string, byte[]?> Files) Once(Func<Result> run)
-        {
-            TestDirs.Delete(work);
-            TestDirs.Delete(cache);
-            Directory.CreateDirectory(work);
-            Plant(row.Tree, work);
-            return (run(), Files(work));
-        }
-        var expected = Once(() => Start("dotnet", [typeof(CliApp).Assembly.Location], work, row.Args, env));
-        var actual = Once(() => Start(BootstrapTests.Stage2Executable(), [], work, row.Args, env));
-        Assert.True(expected.Result.Exit == actual.Result.Exit, $"exit of `{label}`: C# {expected.Result.Exit}, stage 2 {actual.Result.Exit}\n{expected.Result.Stderr}\n{actual.Result.Stderr}");
-        SelfhostEmitterHarness.AssertSame($"stdout of `{label}`", LawMask(expected.Result.Stdout, cache), LawMask(actual.Result.Stdout, cache));
-        SelfhostEmitterHarness.AssertSame($"stderr of `{label}`", LawMask(expected.Result.Stderr, cache), LawMask(actual.Result.Stderr, cache));
-        if (WrittenFilesDiffer(expected.Files, actual.Files, cache) is { } f) Assert.Fail($"`{label}`: {f}");
+        TestDirs.Delete(work);
+        TestDirs.Delete(cache);
+        Directory.CreateDirectory(work);
+        Plant(row.Tree, work);
+        var (expected, actual) = RunBoth(work, command, cache,
+            () => Start("dotnet", [typeof(CliApp).Assembly.Location], work, row.Args, env),
+            () => Start(BootstrapTests.Stage2Executable(), [], work, row.Args, env));
+        Assert.True(expected.Exit == actual.Exit, $"exit of `{label}`: C# {expected.Exit}, stage 2 {actual.Exit}\n{expected.Stderr}\n{actual.Stderr}");
+        SelfhostEmitterHarness.AssertSame($"stdout of `{label}`", MaskStream(expected.Stdout, cache, command), MaskStream(actual.Stdout, cache, command));
+        SelfhostEmitterHarness.AssertSame($"stderr of `{label}`", MaskStream(expected.Stderr, cache, command), MaskStream(actual.Stderr, cache, command));
     }
 
-    /// <summary>The written-files comparison sees a changed text, an extra file, a directory-for-file swap and a text-for-binary swap; it masks the cache path, elapsed time and a SHA256SUMS hash, and takes a binary by name.</summary>
+    /// <summary>
+    /// The written-files comparison sees a changed text, a file only the C# wrote, a file only stage 2 wrote, a renamed file, a directory-for-file
+    /// swap and a text-for-binary swap; it takes a binary by name, masks the cache path everywhere, timings only in the test report files and the
+    /// hash only in a dist row's SHA256SUMS, and masks nothing in any other file.
+    /// </summary>
     [Fact]
     public void WrittenFilesComparisonSeesEveryKindOfDifference()
     {
@@ -897,18 +931,40 @@ public sealed class SelfhostDriverGoldenTests
             foreach (var (name, bytes) in entries) t[name] = bytes;
             return t;
         }
+        byte[] T(string text) => Encoding.UTF8.GetBytes(text);
         var cache = "/c/cache";
-        var a = Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2]));
-        Assert.Null(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 9.00s\n")), ("bin", [0, 1, 2])), cache));
-        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/other in 1.25s\n")), ("bin", [0, 1, 2])), cache));
-        Assert.Null(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.25s\n")), ("bin", [0, 1, 3])), cache));
-        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.25s\n")), ("bin", [1])), cache));
-        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.26s!\n")), ("bin", [0, 1, 2])), cache));
-        var sums = Tree(("SHA256SUMS", Encoding.UTF8.GetBytes(new string('a', 64) + "  macos-arm64/tally\n")));
-        Assert.Null(WrittenFilesDiffer(sums, Tree(("SHA256SUMS", Encoding.UTF8.GetBytes(new string('b', 64) + "  macos-arm64/tally\n"))), cache));
-        Assert.NotNull(WrittenFilesDiffer(sums, Tree(("SHA256SUMS", Encoding.UTF8.GetBytes(new string('b', 64) + "  linux-x64/tally\n"))), cache));
-        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2]), ("x", [])), cache));
-        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", [1]), ("d/f.txt", Encoding.UTF8.GetBytes("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2])), cache));
+        var a = Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2]));
+        Assert.Null(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2])), cache, "new"));
+        Assert.Null(WrittenFilesDiffer(Tree(("f", T("/c/cache/x\n"))), Tree(("f", T("<cache>/x\n"))), cache, "new"));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 9.00s\n")), ("bin", [0, 1, 2])), cache, "new"));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/other in 1.25s\n")), ("bin", [0, 1, 2])), cache, "new"));
+        Assert.Null(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 3])), cache, "new"));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [1])), cache, "new"));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2]), ("x", [])), cache, "new"));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("bin", [0, 1, 2])), cache, "new"));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", null), ("d/g.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2])), cache, "new"));
+        Assert.NotNull(WrittenFilesDiffer(a, Tree(("d", [1]), ("d/f.txt", T("at /c/cache in 1.25s\n")), ("bin", [0, 1, 2])), cache, "new"));
+        var sums = Tree(("SHA256SUMS", T(new string('a', 64) + "  macos-arm64/tally\n")));
+        Assert.Null(WrittenFilesDiffer(sums, Tree(("SHA256SUMS", T(new string('b', 64) + "  macos-arm64/tally\n"))), cache, "dist"));
+        Assert.NotNull(WrittenFilesDiffer(sums, Tree(("SHA256SUMS", T(new string('b', 64) + "  macos-arm64/tally\n"))), cache, "new"));
+        Assert.NotNull(WrittenFilesDiffer(sums, Tree(("SHA256SUMS", T(new string('b', 64) + "  linux-x64/tally\n"))), cache, "dist"));
+        var report = Tree(("out/test/bayan-quality.json", T("{ \"durationMs\": 12 }\n")));
+        Assert.Null(WrittenFilesDiffer(report, Tree(("out/test/bayan-quality.json", T("{ \"durationMs\": 99 }\n"))), cache, "test"));
+        Assert.NotNull(WrittenFilesDiffer(report, Tree(("out/test/bayan-quality.json", T("{ \"durationMs\": 99 }\n"))), cache, "format"));
+        Assert.NotNull(WrittenFilesDiffer(Tree(("notes.json", T("{ \"durationMs\": 12 }\n"))), Tree(("notes.json", T("{ \"durationMs\": 99 }\n"))), cache, "test"));
+    }
+
+    /// <summary>The stream masks apply to their commands only: the commit of the version line for <c>doctor</c> and <c>version</c>, anchored; timings for <c>test</c> and <c>mutate</c>.</summary>
+    [Fact]
+    public void StreamMasksAreScopedToTheirCommands()
+    {
+        Assert.Equal(MaskStream("bayan 0.3.0-dev (commit abc123)\n", "", "version"), MaskStream("bayan 0.3.0-dev (selfhost)\n", "", "version"));
+        Assert.Equal(MaskStream("◆ bayan       0.3.0-dev (commit abc123)\n", "", "doctor"), MaskStream("◆ bayan       0.3.0-dev (selfhost)\n", "", "doctor"));
+        Assert.NotEqual(MaskStream("bayan 0.3.0-dev (commit abc123)\n", "", "check"), MaskStream("bayan 0.3.0-dev (selfhost)\n", "", "check"));
+        Assert.NotEqual(MaskStream("see bayan 0.3.0-dev (commit abc123)\n", "", "doctor"), MaskStream("see bayan 0.3.0-dev (selfhost)\n", "", "doctor"));
+        Assert.Equal(MaskStream("\"durationMs\": 5\n", "", "test"), MaskStream("\"durationMs\": 7\n", "", "test"));
+        Assert.NotEqual(MaskStream("\"durationMs\": 5\n", "", "format"), MaskStream("\"durationMs\": 7\n", "", "format"));
+        Assert.Equal(MaskStream("built in 1.25s\n", "", "format"), MaskStream("built in 9.00s\n", "", "format"));
     }
 
     /// <summary>BAYAN_UPDATE=1 must not make a comparison write its expected file (R10).</summary>
