@@ -90,6 +90,9 @@ grep '^bash scripts/selfhost/guard.sh' tmp/012-t16/prompt.md | grep -q 'src/runt
 # a scripts/ shell file named in a task line (017 T16, scripts/release/memory-gate.sh) is in its guard --allow
 python3 -I scripts/selfhost/wave-brief.py . T16 --spec 017 > /dev/null
 grep '^bash scripts/selfhost/guard.sh' tmp/017-t16/prompt.md | grep -q ',scripts/release/memory-gate.sh,scripts/release/memory-gate.test.sh,' || { echo "FAIL: a scripts/ .sh file is not in the guard --allow"; exit 1; }
+# a .github/ workflow named in a task line (017 T17, .github/workflows/release.yml) is in its guard --allow
+python3 -I scripts/selfhost/wave-brief.py . T17 --spec 017 > /dev/null
+grep '^bash scripts/selfhost/guard.sh' tmp/017-t17/prompt.md | grep -q -- "--allow '[^']*\.github/workflows/release\.yml" || { echo "FAIL: a .github/ workflow is not in the guard --allow"; exit 1; }
 # a top-level bootstrap/ file (012 T6) is in its guard --allow
 python3 -I scripts/selfhost/wave-brief.py . T6 --spec 012 > /dev/null
 grep '^bash scripts/selfhost/guard.sh' tmp/012-t6/prompt.md | grep -q 'bootstrap/bayan.c,bootstrap/bayan-rt.h,bootstrap/bayan-rt.c,bootstrap/README.md,' || { echo "FAIL: a bootstrap/ file is not in the guard --allow"; exit 1; }
