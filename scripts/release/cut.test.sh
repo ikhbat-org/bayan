@@ -54,6 +54,11 @@ grep -q '^## \[1.2.3\]' "$r/CHANGELOG.md" && fail "a refused cut wrote the CHANG
 out="$(bash "$cut" 1.2.3 2>&1)" && fail "a second cut accepted the leftover 1.2.3-dev"
 echo "$out" | grep -qx "stray.txt" || fail "second cut did not name the leftover: $out"
 g rm -qf stray.txt; g checkout -q HEAD -- . ; g clean -qfd -- . 2>/dev/null || true
+printf 'body still says 1.2.3-dev\n' >> "$r/docs/bayan-spec.md"
+out="$(bash "$cut" 1.2.3 2>&1)" && fail "cut accepted a 1.2.3-dev body line in a header doc"
+echo "$out" | grep -qx "docs/bayan-spec.md" || fail "header doc with a leftover body line not named: $out"
+[ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "a refused cut (header body) bumped VERSION: $(cat "$r/VERSION")"
+g checkout -q HEAD -- .
 [ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "fixture not restored after the refused cut: $(cat "$r/VERSION")"
 
 out="$(bash "$cut" 1.2.3)"
