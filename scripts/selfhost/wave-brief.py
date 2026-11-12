@@ -143,6 +143,9 @@ for t in args[1:]:
     filt = f'Law=L{law[0]}' if law and not tests else f'FullyQualifiedName~{test_class}'
     # a docs-only task: its gate is the test that keeps 010-api.md and the code in step
     if SPEC == '010' and not law and not tests and not byns: filt = 'FullyQualifiedName~SelfhostSemanticsApiTests'
+    # a docs-only task in another spec (011 T16, 012 T10, 017 T18): no `<prefix>T<n>Tests` class exists, so the cross-cutting classes preflight runs gate it
+    elif not law and files and all(f.startswith(('docs/', 'work/')) or re.fullmatch(r'[A-Z]+\.md', f) for f in files):
+        filt = 'FullyQualifiedName~CInventoryTests|FullyQualifiedName~SelfhostDriverT8Tests|FullyQualifiedName~SelfhostDriverRuntimeTests'
     # 011: every test class the task owns gates it (a task with a law page and tests too, T14), and T21 also counts the SelfhostSemantics* tests (Q867, Q870)
     if SPEC != '010' and (tests or not law):
         filt = '|'.join(f'FullyQualifiedName~{c}' for c in dict.fromkeys(c for f in tests for c in declared(f))) or filt
