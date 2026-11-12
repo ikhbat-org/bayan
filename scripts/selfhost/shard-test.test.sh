@@ -69,6 +69,15 @@ ok "merge fails when a host left no result" "$rc.$(echo "$out" | grep -c '^vm: n
 rm -f hosts
 cd ..
 
+# poll verdicts
+ps() { printf "$1" | bash "$S" poll-state; }
+ok "poll: no answer is a miss" "$(ps '')" "miss"
+ok "poll: host answers, VM does not, is a miss" "$(ps 'MemAvailable: 20000000 kB\n')" "miss"
+ok "poll: rc written" "$(ps 'MemAvailable: 20000000 kB\n---\n0\n---\ninactive\n')" "done 0"
+ok "poll: host memory under 10 GiB" "$(ps 'MemAvailable: 9000000 kB\n---\n---\nactive\n')" "lowmem 9000000"
+ok "poll: unit ended without rc" "$(ps 'MemAvailable: 20000000 kB\n---\n---\nfailed\n')" "ended"
+ok "poll: running" "$(ps 'MemAvailable: 20000000 kB\n---\n---\nactive\n')" "running"
+
 # dry run: no host is touched
 printf '#!/bin/bash\necho "$0 $*" >> "%s/ssh-calls"\n' "$t" > bin/ssh; cp bin/ssh bin/scp; chmod +x bin/ssh bin/scp
 git init -q -b base . && git config user.email t@t && git config user.name t && git commit -q --allow-empty -m "test: base"

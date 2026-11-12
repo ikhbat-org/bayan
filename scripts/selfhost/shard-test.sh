@@ -12,7 +12,7 @@
 # Packing is greedy longest-first onto the host that would finish earliest (load/speed). Each slice is --filter terms
 # `FullyQualifiedName~Ns.Class.` joined by `|`, chunked to --max-filter chars (Windows argv limit 32767) and run chunk after chunk.
 # The vm slice is aborted (unit stopped) when ghosthive's MemAvailable (the host, not the VM) drops below 10 GiB, when ghosthive
-# cannot be reached for 10 polls in a row (5 min), or after 3 hours. --branch (default: the current branch) must be at
+# or the VM does not answer 10 polls in a row (each poll gives up after about a minute), or after 3 hours. --branch (default: the current branch) must be at
 # the commit under test (wp1-test.sh bundles a branch). Output in tmp/shard/<sha8>/: <host>.result, <host>.log, summary.
 # Internal sub-commands (used by shard-test.test.sh): pack CLASSES TSV hosts, filters MAX, merge DIR.
 # Exit non-zero if a slice failed or did not finish.
@@ -92,7 +92,24 @@ merge() {
 
 write_result() { printf 'host=%s\nwall=%s\nrc=%s\ndone=%s\nlog=%s\n' "$2" "$3" "$4" "$5" "$6" > "$1/$2.result"; }
 RUNCMD="dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q --logger 'console;verbosity=minimal'"
-vmssh() { ssh "$GH" "incus exec $VM -- $*"; }
+# Every ssh gives up on a dead connection (15 s connect, 60 s unanswered keepalives); the VM side of each poll runs under
+# timeout 60 on ghosthive, so a hung incus agent cannot stall the poll loop.
+gh() { ssh -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=4 "$GH" "$@"; }
+vmssh() { gh "timeout 60 incus exec $VM -- $*"; }
+
+# poll_state: one poll's output in (the host's MemAvailable line, then `---`, the rc file, `---`, the unit state, all from
+# the VM), one verdict out: `miss` (ghosthive or the VM did not answer), `done <rc>`, `lowmem <kB>`, `ended` or `running`.
+poll_state() {
+  local out; out=$(cat)
+  printf '%s\n' "$out" | grep -qx -- '---' || { echo miss; return; }
+  local rc mem
+  rc=$(printf '%s\n' "$out" | awk '/^---$/ { n++; next } n == 1 { print; exit }')
+  [ -z "$rc" ] || { echo "done $rc"; return; }
+  mem=$(printf '%s\n' "$out" | sed -n 's/^MemAvailable: *\([0-9]*\) kB/\1/p')
+  if [ -n "$mem" ] && [ "$mem" -lt "$MIN_KB" ]; then echo "lowmem $mem"; return; fi
+  if printf '%s\n' "$out" | grep -qx 'inactive\|failed'; then echo ended; return; fi
+  echo running
+}
 
 slice_wp1() { # dir branch
   local d=$1 t0 rc=0 n=0 f r
@@ -105,15 +122,15 @@ slice_wp1() { # dir branch
 }
 
 slice_vm() { # dir sha bundle
-  local d=$1 sha=$2 s=${2:0:8} t0 rc="" done=0 D out mem unit log i=0 polls=0 miss=0
+  local d=$1 sha=$2 s=${2:0:8} t0 rc="" done=0 D out v unit log i=0 polls=0 miss=0
   D=/home/bt/shard/$s; unit=shard-$s; log=$d/vm/out/log; mkdir -p "$d/vm"; t0=$(date +%s)
-  if ! ssh "$GH" "incus list $VM -c s -f csv" | grep -qi running; then
-    ssh "$GH" "incus start $VM" || { write_result "$d" vm 0 1 0 ""; return; }
+  if ! gh "incus list $VM -c s -f csv" | grep -qi running; then
+    gh "incus start $VM" || { write_result "$d" vm 0 1 0 ""; return; }
     : > "$d/vm.started"
   fi
-  ssh "$GH" 'for p in $(pgrep -f "[q]emu.*'$VM'"); do renice -n 15 -p $p; done' > /dev/null 2>&1
+  gh 'for p in $(pgrep -f "[q]emu.*'$VM'"); do renice -n 15 -p $p; done' > /dev/null 2>&1
   until vmssh true > /dev/null 2>&1; do i=$((i+1)); [ $i -lt 60 ] || { write_result "$d" vm 0 1 0 ""; return; }; sleep 5; done
-  ssh "$GH" "incus exec $VM -- bash -c 'mkdir -p /root/shard-scratch && cat > /root/shard-scratch/$s.bundle'" < "$3" || { write_result "$d" vm 0 1 0 ""; return; }
+  gh "incus exec $VM -- bash -c 'mkdir -p /root/shard-scratch && cat > /root/shard-scratch/$s.bundle'" < "$3" || { write_result "$d" vm 0 1 0 ""; return; }
   {
     echo "set -e"
     echo "id bt >/dev/null 2>&1 || useradd -m bt"
@@ -132,38 +149,38 @@ slice_vm() { # dir sha bundle
     echo "systemctl reset-failed $unit 2>/dev/null || true"
     echo "systemd-run -q --unit=$unit --uid=bt --gid=bt --working-directory=$D -E HOME=/home/bt /bin/bash $D/run.sh"
   } > "$d/vm.setup.sh"
-  ssh "$GH" "incus exec $VM -- bash -s" < "$d/vm.setup.sh" > "$d/vm/setup.out" 2>&1 || { write_result "$d" vm 0 1 0 "$d/vm/setup.out"; return; }
+  gh "incus exec $VM -- bash -s" < "$d/vm.setup.sh" > "$d/vm/setup.out" 2>&1 || { write_result "$d" vm 0 1 0 "$d/vm/setup.out"; return; }
   while :; do
     sleep "$POLL_S"; polls=$((polls+1))
     # one call: the host's MemAvailable (the 10 GiB floor guards ghosthive's other VMs), then the unit's rc file and state
-    out=$(ssh "$GH" "grep MemAvailable /proc/meminfo; incus exec $VM -- bash -c 'echo ---; cat $D/out/rc 2>/dev/null; echo ---; systemctl is-active $unit'" 2>/dev/null)
-    if [ -z "$out" ]; then
-      miss=$((miss+1))
-      [ "$miss" -lt 10 ] || { echo "shard-test: $GH unreachable for 10 polls; giving up on the vm slice" >&2; rc=4; break; }
-      continue
-    fi
+    out=$(gh "grep MemAvailable /proc/meminfo; timeout 60 incus exec $VM -- bash -c 'echo ---; cat $D/out/rc 2>/dev/null; echo ---; systemctl is-active $unit'" 2>/dev/null)
+    v=$(printf '%s\n' "$out" | poll_state)
+    case $v in
+      miss)
+        miss=$((miss+1))
+        if [ "$miss" -ge 10 ]; then
+          echo "shard-test: $GH or $VM did not answer 10 polls in a row; stopping $unit and giving up on the vm slice" >&2
+          vmssh "systemctl stop $unit" > /dev/null 2>&1; rc=4; break
+        fi
+        continue;;
+      "done "*) rc=${v#done }; done=1; break;;
+      "lowmem "*) echo "shard-test: $GH MemAvailable ${v#lowmem } kB below 10 GiB; stopping $unit" >&2
+        vmssh "systemctl stop $unit" > /dev/null 2>&1; rc=3; break;;
+      ended)
+        # the unit may have written rc and exited between the two reads: read rc once more
+        rc=$(vmssh "cat $D/out/rc" 2>/dev/null)
+        if [ -n "$rc" ]; then done=1; else rc=1; fi
+        break;;
+    esac
     miss=0
-    rc=$(printf '%s\n' "$out" | awk '/^---$/ { n++; next } n == 1 { print; exit }')
-    [ -z "$rc" ] || { done=1; break; }
-    mem=$(printf '%s\n' "$out" | sed -n 's/^MemAvailable: *\([0-9]*\) kB/\1/p')
-    if [ -n "$mem" ] && [ "$mem" -lt "$MIN_KB" ]; then
-      echo "shard-test: $GH MemAvailable ${mem} kB below 10 GiB; stopping $unit" >&2
-      vmssh "systemctl stop $unit" > /dev/null 2>&1; rc=3; break
-    fi
-    if printf '%s\n' "$out" | grep -qx 'inactive\|failed'; then
-      # the unit may have written rc and exited between the two reads: read rc once more
-      rc=$(vmssh "cat $D/out/rc" 2>/dev/null)
-      if [ -n "$rc" ]; then done=1; else rc=1; fi
-      break
-    fi
     [ "$polls" -lt "$MAX_POLLS" ] || { echo "shard-test: vm slice over $((MAX_POLLS * POLL_S))s; stopping $unit" >&2; vmssh "systemctl stop $unit" > /dev/null 2>&1; rc=5; break; }
   done
-  ssh "$GH" "incus exec $VM -- tar -C $D -cf - out" 2> /dev/null | tar -C "$d/vm" -xf - 2> /dev/null
+  gh "incus exec $VM -- tar -C $D -cf - out" 2> /dev/null | tar -C "$d/vm" -xf - 2> /dev/null
   vmssh "rm -rf $D /root/shard-scratch/$s.bundle" > /dev/null 2>&1
   write_result "$d" vm $(( $(date +%s) - t0 )) "$rc" "$done" "$log"
 }
 
-vm_stop() { [ ! -f "$SHARD_DIR/vm.started" ] || ssh "$GH" "incus stop $VM" > /dev/null 2>&1; }
+vm_stop() { [ ! -f "$SHARD_DIR/vm.started" ] || gh "incus stop $VM" > /dev/null 2>&1; }
 
 list_classes() { # class names from the built test assembly, one per line
   dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false --list-tests 2> /dev/null |
@@ -229,6 +246,7 @@ case "${1:-run}" in
   pack) pack "$2" "$3" "$4";;
   filters) filters "$2";;
   merge) merge "$2";;
+  poll-state) poll_state;;
   run) shift; run "$@"; exit $?;;
   -*) run "$@"; exit $?;;
   *) echo "usage: shard-test.sh [run|times] ..."; exit 2;;
