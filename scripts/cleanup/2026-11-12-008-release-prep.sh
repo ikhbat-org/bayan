@@ -11,6 +11,8 @@
 #     run-full-9af7.sh, dev-9af76107.bundle;
 #   - VM bayan-test01: /root/work-full, /root/dev-9af76107.bundle, /root/run-full-9af7.sh, /root/full-9af7.*, /root/rerun*-9af7.*,
 #     /home/bt/{r-9af7,w6,f008-*,feat008.bundle,w6-check.sh,full-008.sh,run.sh,w6*.log,w6.out,full-008.*}. User bt stays: shard-test.sh uses it.
+#     Also the zig caches /home/bt/.cache/zig (5.9G) and /root/.cache/zig (3.6G): rebuilt on the next run; the VM disk was 99% full
+#     (505M free) on 2026-11-12 and the sharded run's VM slice failed with "No space left on device". /home/bench, /root/bench stay (not 008's).
 # Dry run by default. --execute / -e acts. The host and VM steps also need --delete-remote-scratch (they reach another host).
 set -euo pipefail
 
@@ -66,7 +68,7 @@ elif [ "$remote" = 1 ]; then
   run ssh ghosthive 'cd /root && rm -f feat008.bundle full-008.sh w6-check.sh cap-check.sh cap-fix.sh rerun-fail-9af7.sh rerun2-9af7.sh run-full-9af7.sh dev-9af76107.bundle'
   # A VM that was running is left running (another job may start on it); one this step starts is stopped again.
   # A VM this step starts gets its agent waited for, and is stopped again in the same ssh call whatever the rm returns.
-  vm_rm='incus exec bayan-test01 -- sh -c "rm -rf /root/work-full /root/dev-9af76107.bundle /root/run-full-9af7.sh /root/full-9af7.* /root/rerun*-9af7.* /home/bt/r-9af7 /home/bt/w6 /home/bt/rc /home/bt/feat008.bundle /home/bt/w6-check.sh /home/bt/cap-check.sh /home/bt/cap-fix.sh /home/bt/full-008.sh /home/bt/run.sh /home/bt/w6*.log /home/bt/w6.out /home/bt/cap-*.out /home/bt/cap-*.log /home/bt/*.bin /home/bt/*.err /home/bt/full-008.* /home/bt/f008-*"'
+  vm_rm='incus exec bayan-test01 -- sh -c "rm -rf /root/work-full /root/dev-9af76107.bundle /root/run-full-9af7.sh /root/full-9af7.* /root/rerun*-9af7.* /home/bt/r-9af7 /home/bt/w6 /home/bt/rc /home/bt/feat008.bundle /home/bt/w6-check.sh /home/bt/cap-check.sh /home/bt/cap-fix.sh /home/bt/full-008.sh /home/bt/run.sh /home/bt/w6*.log /home/bt/w6.out /home/bt/cap-*.out /home/bt/cap-*.log /home/bt/*.bin /home/bt/*.err /home/bt/full-008.* /home/bt/f008-* /home/bt/.cache/zig /root/.cache/zig"'
   if [ "$state" = STOPPED ]; then
     run ssh ghosthive "incus start bayan-test01 && for i in \$(seq 60); do incus exec bayan-test01 -- true 2>/dev/null && break; sleep 2; done; $vm_rm; rc=\$?; incus stop bayan-test01; exit \$rc"
   else
