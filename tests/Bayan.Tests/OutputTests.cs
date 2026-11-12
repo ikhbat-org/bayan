@@ -165,6 +165,25 @@ public sealed partial class OutputTests
         Assert.Equal(["0.0.9", "0.1.0", "0.10.0", "0.2.0", "0.2.0-rc.1", "latest"], Directory.EnumerateDirectories(dist).Select(Path.GetFileName).Order(StringComparer.Ordinal));
     }
 
+    /// <summary>
+    /// 008 W6: of versions equal in precedence (build metadata ignored), <c>latest/</c> takes the first in ordinal order, whatever the
+    /// file system's directory order (ext4 hashes it, APFS sorts it): each set created in both orders.
+    /// </summary>
+    [Fact]
+    public void LatestTakesTheOrdinalFirstOfEqualVersions()
+    {
+        var dist = Path.Combine(Golden.RepoRoot, "tmp", "output", "dist-latest-tie");
+        foreach (var names in new[] { new[] { "1.0.0-rc.2", "1.0.0-rc.2+meta", "1.0.0-rc.2+a" }, ["1.0.0+z", "1.0.0", "1.0.0+b", "0.9.0"] })
+            foreach (var order in new[] { names, names.Reverse().ToArray() })
+            {
+                TestDirs.Delete(dist);
+                foreach (var name in order) Directory.CreateDirectory(Path.Combine(dist, name));
+                var top = names.Where(n => names.All(m => Bayan.Syntax.Packages.Manifest.CompareVersions(n, m) >= 0)).Min(StringComparer.Ordinal);
+                Assert.Equal(top, Dist.RefreshLatest(dist));
+                Assert.Equal(top + "\n", File.ReadAllText(Path.Combine(dist, "latest", "VERSION")));
+            }
+    }
+
     [Fact]
     public void ALibraryHasNoDistYet()
     {

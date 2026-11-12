@@ -43,7 +43,7 @@ twice and the language is not used to develop itself (user, 2026-11-07: 0.3.0's 
 - Given any command line in the CLI test corpus, when run with the C# CLI and with stage-2 `bayan`, then the outputs,
   exit codes and written files are equal (an L028 test per command).
 - Given a `v0.3.0` tag, when `release.yml` runs, then every archive's `bayan version` names the self-hosted compiler.
-- Given `bayan test lib/std/json` with stage-2 `bayan`, then 94 tests pass, as with the C# CLI.
+- Given `bayan test lib/std/json` with stage-2 `bayan`, then the same count as the C# CLI passes.
 
 ## Law candidates
 - L028 extended: for every command line in the CLI corpus, stage-2 output equals the C# CLI's (an amendment, not a new law).

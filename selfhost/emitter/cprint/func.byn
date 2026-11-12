@@ -610,7 +610,7 @@ string formatInner(ref CCtx cc, from ref Ctx c, for Type type, at string v, by B
     return format(ref cc, from: ref c, for: type, at: v, to: sw)
 }
 
-/// CEmitter.cs:1587 `Debug`: the debug view (spec §13): strings, `Symbol`s and runes quoted, a struct in its literal
+/// CEmitter.cs:1587 `Debug`: the debug view (SPEC §6.6): strings, `Symbol`s and runes quoted, a struct in its literal
 /// form `P { x: 1, name: "a" }` (one whose `formatInto` takes the `FormatSpec` formats itself), everything else as it displays.
 string debug(ref CCtx cc, from ref Ctx c, for Type type, at string v, to string w) uses alloc {
     if semantics.isString(type) || type == semantics.builtinType(.symbol) {

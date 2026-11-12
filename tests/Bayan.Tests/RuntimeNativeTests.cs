@@ -77,7 +77,7 @@ public sealed class RuntimeNativeTests
             void main() {
                 let args: string[2] = ["/c", "start /b ping -n 30 127.0.0.1 & ping -n 30 127.0.0.1"]
                 let r = Io.run("cmd", args.span, timeout: Millis(200)) catch switch {
-                    .timeout(let after) => {
+                    .timeout(let after, _, _) => {
                         print($"timeout {i64(after)}")
                         return
                     },
@@ -112,7 +112,7 @@ public sealed class RuntimeNativeTests
             void main() {
                 let args: string[2] = ["/c", "start /b ping -n 30 127.0.0.1"]
                 let r = Io.run("cmd", args.span, timeout: Millis(200)) catch switch {
-                    .timeout(let after) => {
+                    .timeout(let after, _, _) => {
                         print($"timeout {i64(after)}")
                         return
                     },
@@ -329,6 +329,38 @@ public sealed class RuntimeNativeTests
     {
         var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "runtime-properties.c"));
         Assert.Equal("ok\n", Run(Build(driver), []).Replace("\r\n", "\n"));
+    }
+
+    /// <summary>
+    /// Q1227: <c>Io.run(…, timeout:)</c> keeps a stream as the C# test runner's <c>BoundedCapture</c> does. The same bytes, read by
+    /// <c>cat</c> through the runtime and by <c>BoundedCapture.ReadAsync</c>, give the same text: empty, exactly the bound, one byte
+    /// over it, and a character cut at both ends of the bound.
+    /// </summary>
+    [Fact]
+    public async Task RunCaptureMatchesBoundedCapture()
+    {
+        var work = Path.Combine(Golden.RepoRoot, "tmp", "native", "run-capture");
+        if (Directory.Exists(work)) Directory.Delete(work, recursive: true);
+        Directory.CreateDirectory(work);
+        var program = """
+            void main(ReadOnlySpan<string> args) fails IoError {
+                let cat: string[1] = [args[0]]
+                let r = try Io.run("cat", cat.span, timeout: Millis(60000))
+                Io.stdout.write(r.stdout)
+            }
+            """;
+        var c = Compilation.Create([SourceText.FromString("run-capture.byn", program)], work);
+        Assert.False(c.Diagnostics.HasErrors, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
+        if (OperatingSystem.IsWindows()) return;
+        var exe = Build(CliApp.EmitC(c, BuildMode.Debug));
+        var keep = BoundedCapture.Keep;
+        var cut = System.Text.Encoding.UTF8.GetBytes(new string('a', keep - 1) + "é" + new string('b', 70000) + "é" + new string('c', keep - 1));
+        foreach (var bytes in new[] { Array.Empty<byte>(), "xy"u8.ToArray().Concat(new byte[2 * keep - 2].Select(_ => (byte)'z')).ToArray(), new byte[2 * keep + 1].Select(_ => (byte)'q').ToArray(), cut })
+        {
+            var file = Path.Combine(work, "stream.bin");
+            File.WriteAllBytes(file, bytes);
+            Assert.Equal(await BoundedCapture.ReadAsync(new MemoryStream(bytes)), Run(exe, [file]));
+        }
     }
 
     private static string Build(string cSource)

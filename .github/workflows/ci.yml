@@ -52,6 +52,9 @@ jobs:
           bash scripts/ci/known-failures.test.sh
           bash scripts/release/package.test.sh
           bash scripts/release/memory-gate.test.sh
+          bash scripts/release/editor-gate.test.sh
+          bash scripts/release/refuse-draft.test.sh
+          bash scripts/release/release-workflow.test.sh
           bash scripts/bayan-tool.test.sh
           bash scripts/parity/run.test.sh
       - name: Docs and release script tests

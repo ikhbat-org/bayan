@@ -36,8 +36,30 @@ printf '# 0003 — Third\n' > "$r/docs/revisions/0003-third.md"
 printf 'edited\n' >> "$r/docs/revisions/0001-first.md"
 sed -i.bak 's/| units | SPEC | spec-only | none |/| units | SPEC | built | `a.cs:1` |\n| `x` | SPEC | proposed | none |/' "$r/docs/STATUS.md"
 rm "$r/docs/STATUS.md.bak"
+# Files that may keep the previous -dev version: history, and the bootstrap that land.sh regenerates after the cut.
+for f in docs/bayan-handoff.md docs/plans/p.md docs/specs/s/s.md docs/revisions/r.txt docs/handoffs/h.md work/todo.md bootstrap/bayan.c; do
+  mkdir -p "$r/$(dirname "$f")"; printf 'was 1.2.3-dev\n' > "$r/$f"
+done
 commit "work"
 head="$(g rev-parse HEAD)"
+
+# A tracked file that still says the previous -dev version stops the cut before anything changes, naming the file, and
+# again on a rerun.
+printf 'version 1.2.3-dev\n' > "$r/stray.txt"; g add stray.txt
+out="$(bash "$cut" 1.2.3 2>&1)" && fail "cut accepted a leftover 1.2.3-dev"
+echo "$out" | grep -q "still contain 1.2.3-dev" || fail "no leftover message: $out"
+echo "$out" | grep -qx "stray.txt" || fail "leftover file not named: $out"
+grep -q '^## \[1.2.3\]' "$r/CHANGELOG.md" && fail "a refused cut wrote the CHANGELOG section"
+[ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "a refused cut bumped VERSION: $(cat "$r/VERSION")"
+out="$(bash "$cut" 1.2.3 2>&1)" && fail "a second cut accepted the leftover 1.2.3-dev"
+echo "$out" | grep -qx "stray.txt" || fail "second cut did not name the leftover: $out"
+g rm -qf stray.txt; g checkout -q HEAD -- . ; g clean -qfd -- . 2>/dev/null || true
+printf 'body still says 1.2.3-dev\n' >> "$r/docs/bayan-spec.md"
+out="$(bash "$cut" 1.2.3 2>&1)" && fail "cut accepted a 1.2.3-dev body line in a header doc"
+echo "$out" | grep -qx "docs/bayan-spec.md" || fail "header doc with a leftover body line not named: $out"
+[ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "a refused cut (header body) bumped VERSION: $(cat "$r/VERSION")"
+g checkout -q HEAD -- .
+[ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "fixture not restored after the refused cut: $(cat "$r/VERSION")"
 
 out="$(bash "$cut" 1.2.3)"
 for f in VERSION src/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md; do

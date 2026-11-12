@@ -9,11 +9,16 @@
 - Versioned docs (`docs/RELEASING.md`). `VERSION` holds the version and `scripts/release/set-version.sh` sets its mirrors and the `Version:` header of SPEC, GRAMMAR, STYLE, DIAGNOSTICS and STATUS. The generated `docs/DIAGNOSTICS.md` (every code: live, plan, reserved, retired) and `docs/STATUS.md` (hand-kept feature rows, generated keyword and stdlib rows) come from `scripts/docs/gen-diagnostics.sh` and `gen-status.sh`. `scripts/docs/check.sh` (in CI) fails on a stale header, revision range, generated doc or mirror. `cut.sh` and `next-dev.sh` prepare a release and the next `-dev`. Every release archive carries the six docs under `share/doc/bayan/`, and the release adds `bayan-X.Y.Z-docs.tar.gz`.
 
 ### Changed
+- `Io.run(…, timeout:)` keeps each stream's first and last 64 KiB around one `… N bytes omitted …` line, as the C# test runner does; a test that prints until it is killed peaks at 39 MB through the self-hosted driver (was 4.6 GB). `IoError.timeout` and `IoError.signaled` carry the output captured before the kill, and `bayan test` prints it after `timed out after N s`.
+- `bayan-lsp` stops descending past a fixed nesting depth and reports one diagnostic there instead of overflowing the stack.
+- Releases: the release workflow takes a `dry_run` input and refuses to publish an `-rc` tag or a dispatch; the full test tier and an editor memory gate (`bayan-lsp` tests, `vsce package` size bound) are required jobs; every workflow installs zig 0.17.0 through `scripts/ci/install-zig.sh`; `cut.sh` refuses, before changing anything, while a tracked file still holds the previous `-dev` version.
 - Releases now ship the self-hosted compiler (stage 2, built by the C# compiler's stage 1) as `bayan`; `bayan version` prints `bayan X.Y.Z (selfhost)`. Release archives do not include `bayan-lsp`, which is unchanged.
 - Signature clause order is now `where`, `expects`, `uses`, `becomes`, `fails` (round 4 §1), for function types too (`() -> T uses alloc fails DbError`); the old order is BYN1065, and `bayan format` reorders it.
 - `ensures` is no longer reserved and can be used as an identifier (revision 0019, round-4 batch 1); BYN0012 no longer fires on it.
 
 ### Fixed
+- An empty write to stdout no longer passes a null pointer to `memcpy` (debug builds on Linux aborted with exit 134).
+- `bayan audit` (which of a file and its links it lists) and `dist/latest/` (which of two equal-precedence versions such as `1.0.0-rc.2` and `1.0.0-rc.2+meta` it picks) take the first name in ordinal order instead of following the file system's directory order, so Linux (ext4) gives the same answer as macOS.
 - `bayan test --coverage` no longer counts the lines of an imported std module (`<std>/...`) in the summary, `bayan-quality.json` or the `test: Tests { lines: N }` gate.
 
 ### Security

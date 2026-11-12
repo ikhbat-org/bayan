@@ -75,7 +75,7 @@ or by luck; LOW = small or one-shot. Source reports: `tmp/leak-audit/*.out` (scr
 |---|---|---|
 | HIGH | `General` allocator never frees (Q31); selfhost stage1 reached 2.4 GB | open: decision (arenas per phase, or a freeing General) |
 | MEDIUM | 012 driver `.bayan-staging-*` left beside output; dSYM, non-recursive remove | fixed, 017 T9: the driver stages under the cache's `v1/tmp/` and `sweepStale` removes what a dead build left |
-| MEDIUM | `Io.run` buffers child output whole, then copies (2× peak) | open: 017 T11's `runTest` keeps it whole, so a test printing until killed peaks at 4619 MB through the stage-2 driver (bound 300 MB; `SelfhostDefaultBoundsTests` M1 on the driver, a listed skip, Q1227) |
+| MEDIUM | `Io.run` buffers child output whole, then copies (2× peak) | fixed, 008 W1 (Q1227): with `timeout:`, `Io.run` keeps each stream's first and last 64 KiB around one `… N bytes omitted …` line, as `BoundedCapture` does; a test printing until killed peaks at 39 MB through the stage-2 driver (40416 KB, the highest of three runs on macOS, 2026-11-12; bound 300 MB; was 4619 MB; `SelfhostDefaultBoundsTests` M1 on the driver). Without `timeout:` every byte is still kept, by design: `bayan run` and callers that need a child's whole output |
 | MEDIUM | `StrBuf` growth abandons old blocks (Q745 by design); ~2× under `General` | follows the allocator decision |
 | MEDIUM | `Symbol` intern table never shrinks (spec 008 R10, by design) | accepted |
 | LOW | Error paths in `byn_io_read*`/`list_dir` skip frees; `io_read` buffer not shrunk | open, todo |
@@ -110,7 +110,10 @@ bash scripts/pinned-bayan.test.sh                                  # pinned buil
 
 `bash scripts/release/memory-gate.sh` runs this block and names every failing command; `release.yml`'s
 `memory-gate` job runs it on Linux and macOS, and no draft release is made without it. The VS Code
-extension and `bayan-lsp` have no release workflow: run the script by hand before packaging them.
+extension and `bayan-lsp` are gated by `scripts/release/editor-gate.sh` (`.github/workflows/editor-gate.yml`):
+it runs the `LanguageServer` tests and packages the extension (`vsce package`, size bound), on every push to
+`dev` and before a release (`release.yml`'s `release` job needs it); there is no manual pre-packaging step. The
+extension itself is not exercised headless on a runner.
 `scripts/release/memory-gate.test.sh` fails when the script and this block drift apart.
 
 plus, for a release that changes the runtime or selfhost: `leaks --atExit` over the run goldens

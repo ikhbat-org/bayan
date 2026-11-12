@@ -57,6 +57,7 @@ public sealed class Indexer
     readonly string _s;
     readonly List<Token> _t;
     readonly List<Frame> _frames = [];
+    int _cut; // `{` past Lexer.MaxNesting open frames, not pushed
     readonly List<string> _doc = [];
     readonly List<LocalSymbol> _scoped = []; // reused per line
     // Names, types and headers repeat within a file; symbols share one string per distinct text.
@@ -125,6 +126,7 @@ public sealed class Indexer
             ProcessLine(line);
         }
         // Close anything left open (half-typed code).
+        _cut = 0;
         while (_frames.Count > 0) Pop(_s.Length);
     }
 
@@ -160,7 +162,7 @@ public sealed class Indexer
                 var f = new Frame(isHeader && opener is not null ? openerKind : FrameKind.Other, isHeader ? opener : null);
                 if (isHeader)
                     foreach (var p in scoped) { p.ScopeStart = line[j].Start; f.Scoped.Add(p); }
-                _frames.Add(f);
+                if (_frames.Count < Lexer.MaxNesting) _frames.Add(f); else _cut++;
             }
             else if (Is(line[j], "}")) Pop(line[j].Start);
         }
@@ -170,6 +172,7 @@ public sealed class Indexer
 
     void Pop(int at)
     {
+        if (_cut > 0) { _cut--; return; } // a block past the depth cap opened no frame
         if (_frames.Count == 0) return;
         var f = _frames[^1];
         _frames.RemoveAt(_frames.Count - 1);

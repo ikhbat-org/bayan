@@ -242,11 +242,12 @@ public sealed class SelfhostDriverGoldenTests
 
     /// <summary>
     /// L028's mask for <c>test</c>: the elapsed seconds, the timings of <c>results.json</c> and <c>bayan-quality.json</c>, and the
-    /// <c>timing:</c> line of a mutation summary (017 T13); a timing that is exactly 0 (<c>mutate --binary</c>'s build and share) is compared.
+    /// <c>timing:</c> line of a mutation summary (017 T13), every value on it, 0 included (a fast host rounds a mean to 0 on one side and
+    /// not the other, 008 W6); a JSON timing that is exactly 0 (<c>mutate --binary</c>'s build and share) is compared.
     /// </summary>
     private static string MaskTest(string text) =>
         Regex.Replace(Regex.Replace(Mask(text), @"""(durationMs|build_s|total_s|mean_mutant_s|max_mutant_s|mutant_share_of_build)"": (?!0[,\r\n])[0-9.E+-]+", "\"$1\": <t>"),
-            @"^timing: build .*$", m => Regex.Replace(m.Value, @"(?<= )(?!0 |0%)[0-9.]+(?= s|%)", "<t>"), RegexOptions.Multiline);
+            @"^timing: build .*$", m => Regex.Replace(m.Value, @"(?<= )[0-9.]+(?= s|%)", "<t>"), RegexOptions.Multiline);
 
     /// <summary>
     /// 017 T11 (L028): the C# CLI (<c>dotnet bayan.dll</c>) and the driver's harness build run <paramref name="args"/> one after the other in
@@ -476,6 +477,23 @@ public sealed class SelfhostDriverGoldenTests
         var work = Work("test/timeout");
         File.WriteAllText(Path.Combine(work, "main.byn"), "void main() {\n}\n\ntest \"loops\" {\n    while true {\n    }\n}\n");
         AssertTestAsCSharp(work, ["test", "main.byn"], [("BAYAN_TEST_TIMEOUT_MS", "300")]);
+    }
+
+    /// <summary>
+    /// Q1216, Q1227: a timed-out test's output follows the <c>timed out after N s</c> line as C# prints it, both when it is short and when it
+    /// is longer than <c>BoundedCapture.Keep</c> twice over (head, <c>… N bytes omitted …</c>, tail). The tests print to stderr, which is
+    /// flushed at each <c>print</c>: stdout waits in the runtime's buffer, which a kill drops.
+    /// </summary>
+    [Fact]
+    public void TestTimeoutOutputAsCSharpCli()
+    {
+        var work = Work("test/timeout-output-short");
+        File.WriteAllText(Path.Combine(work, "short.byn"), "void main() {\n}\n\ntest \"prints then loops\" {\n    print(\"before the loop\", to: .stderr)\n    while true {\n    }\n}\n");
+        AssertTestAsCSharp(work, ["test", "short.byn"], [("BAYAN_TEST_TIMEOUT_MS", "2000")]);
+        work = Work("test/timeout-output-flood");
+        File.WriteAllText(Path.Combine(work, "flood.byn"), "void main() {\n}\n\ntest \"floods then loops\" {\n    for i in 0..3000 {\n"
+            + "        print($\"{i} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", to: .stderr)\n    }\n    while true {\n    }\n}\n");
+        AssertTestAsCSharp(work, ["test", "flood.byn"], [("BAYAN_TEST_TIMEOUT_MS", "3000")]);
     }
 
     /// <summary>

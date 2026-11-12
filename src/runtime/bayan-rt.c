@@ -276,6 +276,7 @@ static uint8_t byn_out_buf[1 << 14];
 static int64_t byn_out_len;
 
 static void byn_out(const uint8_t* p, int64_t n) {
+    if (n <= 0) return; /* an empty string has a null pointer; memcpy(NULL, 0) is undefined */
     if (byn_out_len + n > (int64_t)sizeof byn_out_buf) {
         byn_stdout_flush();
         if (n > (int64_t)sizeof byn_out_buf) {
@@ -3520,27 +3521,106 @@ uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* deta
     return 0;
 }
 
-/* Maps the wait first (byn_wait_status), then checks both captured streams are UTF-8 and copies them into `alloc`,
- * for an exited child and for a signal-killed one (which keeps its streams; non-UTF-8 ones are dropped, not
- * `invalidUtf8`); frees them on every path. */
-static uint32_t byn_process_finish(byn_bytes* streams, int outcome, uint32_t raw, byn_process* out, int64_t* detail, byn_alloc* alloc) {
+/* `Io.run(…, timeout:)`: how long a child has after SIGTERM before SIGKILL (Q-b), and how long its streams are still
+ * drained after the kill (a Job object's drain threads are joined) before they are given up, as the C# test runner does. */
+#define BYN_RUN_GRACE_MS 2000
+#define BYN_RUN_DRAIN_MS 5000
+/* `Io.run(…, timeout:)` keeps each stream's first and last BYN_RUN_KEEP bytes (BoundedCapture.cs `Keep`, Q1227). */
+#define BYN_RUN_KEEP 65536
+
+/* One captured stream, from malloc. With `keep` >= 0 only the first `keep` bytes (`head`) and the last `keep` (`tail`, a
+ * ring once the head is full) are stored; `total` counts every byte. With `keep` < 0 every byte goes to `head`. */
+typedef struct byn_capture {
+    byn_bytes head;
+    uint8_t* tail;
+    int64_t tail_start, tail_len, total, keep;
+} byn_capture;
+
+/* BoundedCapture.cs `Append`. */
+static void byn_capture_add(byn_capture* c, const uint8_t* p, int64_t n) {
+    c->total += n;
+    int64_t take = c->keep < 0 || n <= c->keep - c->head.len ? n : c->keep - c->head.len;
+    if (take > 0) byn_bytes_add(&c->head, p, take);
+    p += take;
+    n -= take;
+    if (n == 0) return;
+    if (!c->tail) {
+        c->tail = (uint8_t*)malloc((size_t)c->keep);
+        if (!c->tail) byn_panic("out of memory", NULL, 0);
+    }
+    if (n >= c->keep) {
+        memcpy(c->tail, p + n - c->keep, (size_t)c->keep);
+        c->tail_start = 0;
+        c->tail_len = c->keep;
+        return;
+    }
+    while (n > 0) {
+        int64_t end = (c->tail_start + c->tail_len) % c->keep;
+        int64_t k = n < c->keep - end ? n : c->keep - end;
+        memcpy(c->tail + end, p, (size_t)k);
+        p += k;
+        n -= k;
+        int64_t overflow = c->tail_len + k - c->keep;
+        if (overflow > 0) {
+            c->tail_start = (c->tail_start + overflow) % c->keep;
+            c->tail_len = c->keep;
+        } else c->tail_len += k;
+    }
+}
+
+/* Appends `n` bytes decoded with U+FFFD for each invalid sequence (`Encoding.UTF8.GetString`). */
+static void byn_bytes_add_replaced(byn_bytes* b, const uint8_t* p, int64_t n) {
+    if (n == 0) return;
+    byn_str s = byn_utf8_decode_replace(p, n, &byn_general);
+    byn_bytes_add(b, s.ptr, s.len);
+    free((void*)s.ptr);
+}
+
+/* BoundedCapture.cs `Snapshot` as bytes from malloc, freeing the capture: the stream as read when nothing was dropped,
+ * else its head and its tail, each decoded with U+FFFD, around one `\n… N bytes omitted …\n` line. */
+static byn_bytes byn_capture_take(byn_capture* c) {
+    int64_t omitted = c->total - c->head.len - c->tail_len;
+    byn_bytes last = {NULL, 0, 0};
+    if (c->tail_len > 0) {
+        int64_t first = c->keep - c->tail_start < c->tail_len ? c->keep - c->tail_start : c->tail_len;
+        byn_bytes_add(&last, c->tail + c->tail_start, first);
+        if (c->tail_len > first) byn_bytes_add(&last, c->tail, c->tail_len - first);
+    }
+    free(c->tail);
+    if (omitted == 0) {
+        byn_bytes whole = c->head;
+        if (last.len > 0) byn_bytes_add(&whole, last.ptr, last.len);
+        free(last.ptr);
+        return whole;
+    }
+    byn_bytes b = {NULL, 0, 0};
+    byn_bytes_add_replaced(&b, c->head.ptr, c->head.len);
+    char marker[64];
+    int m = snprintf(marker, sizeof marker, "\n\xE2\x80\xA6 %lld bytes omitted \xE2\x80\xA6\n", (long long)omitted);
+    byn_bytes_add(&b, marker, m);
+    byn_bytes_add_replaced(&b, last.ptr, last.len);
+    free(c->head.ptr);
+    free(last.ptr);
+    return b;
+}
+
+/* Maps the wait first (byn_wait_status), then takes both captures (byn_capture_take), checks they are UTF-8 and copies
+ * them into `alloc`, for an exited child and for a signal-killed or timed-out one (which keeps its streams; non-UTF-8
+ * ones are dropped, not `invalidUtf8`); frees them on every path. */
+static uint32_t byn_process_finish(byn_capture* captures, int outcome, uint32_t raw, byn_process* out, int64_t* detail, byn_alloc* alloc) {
     int32_t code = 0;
     uint32_t result = byn_wait_status(outcome, raw, &code, detail);
+    byn_bytes streams[2] = {byn_capture_take(&captures[0]), byn_capture_take(&captures[1])};
     bool valid = byn_utf8_valid(streams[0].ptr, streams[0].len) && byn_utf8_valid(streams[1].ptr, streams[1].len);
     if (result == 0 && !valid)
         result = BYN_IO_INVALID_UTF8;
-    else if ((result == 0 || result == BYN_IO_SIGNALED) && valid && out)
+    else if ((result == 0 || result == BYN_IO_SIGNALED || result == BYN_IO_TIMEOUT) && valid && out)
         *out = (byn_process){code, byn_str_copy((byn_str){streams[0].ptr, streams[0].len}, alloc),
                              byn_str_copy((byn_str){streams[1].ptr, streams[1].len}, alloc)};
     free(streams[0].ptr);
     free(streams[1].ptr);
     return result;
 }
-
-/* `Io.run(…, timeout:)`: how long a child has after SIGTERM before SIGKILL (Q-b), and how long its streams are still
- * drained after the kill (a Job object's drain threads are joined) before they are given up, as the C# test runner does. */
-#define BYN_RUN_GRACE_MS 2000
-#define BYN_RUN_DRAIN_MS 5000
 
 #ifndef _WIN32
 /* One expiry of a POSIX run's deadline moves `*stage` on: SIGTERM to the child's group and to the child itself (it may have
@@ -3643,16 +3723,16 @@ static wchar_t* byn_find_program(byn_str program) {
 
 typedef struct byn_drain {
     HANDLE h;
-    byn_bytes bytes;
+    byn_capture capture;
 } byn_drain;
 
 static DWORD WINAPI byn_drain_pipe(LPVOID arg) {
     byn_drain* d = (byn_drain*)arg;
+    uint8_t buffer[4096];
     for (;;) {
-        byn_bytes_reserve(&d->bytes, 4096);
         DWORD got = 0;
-        if (!ReadFile(d->h, d->bytes.ptr + d->bytes.len, 4096, &got, NULL) || got == 0) break;
-        d->bytes.len += got;
+        if (!ReadFile(d->h, buffer, sizeof buffer, &got, NULL) || got == 0) break;
+        byn_capture_add(&d->capture, buffer, got);
     }
     return 0;
 }
@@ -3734,14 +3814,15 @@ static wchar_t* byn_env_block(const byn_str* keys, const byn_str* vals, const bo
     return block;
 }
 
-/* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`. `dir` (NULL: ours)
+/* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams` (their `keep` set by
+ * the caller). `dir` (NULL: ours)
  * is its working directory, `env` (NULL: ours) its environment block, and `input` (`ninput` < 0: our stdin) its stdin.
  * With `timeout_ms` >= 0 the child starts suspended inside a Job object, which is terminated once the timeout passes
  * with the process or a drain still running; the process is waited for before the drain threads are joined, and after
  * the timeout the joins wait BYN_RUN_DRAIN_MS at most (a thread still running then keeps its block, which is leaked). `*outcome` and `*raw` (the exit code) are
  * for byn_process_finish. */
 static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, wchar_t* env, const uint8_t* input, int64_t ninput,
-                              int64_t timeout_ms, byn_bytes* streams, int* outcome, uint32_t* raw) {
+                              int64_t timeout_ms, byn_capture* streams, int* outcome, uint32_t* raw) {
     SECURITY_ATTRIBUTES sa = {sizeof sa, NULL, TRUE};
     HANDLE reads[3] = {NULL, NULL, NULL};
     HANDLE writes[3] = {NULL, NULL, NULL};
@@ -3822,8 +3903,8 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, 
     }* io = malloc(sizeof *io);
     if (!io) byn_panic("out of memory", NULL, 0);
     io->feed = (byn_feed){writes[2], input, ninput};
-    io->drains[0] = (byn_drain){reads[0], {NULL, 0, 0}};
-    io->drains[1] = (byn_drain){reads[1], {NULL, 0, 0}};
+    io->drains[0] = (byn_drain){reads[0], streams[0]};
+    io->drains[1] = (byn_drain){reads[1], streams[1]};
     HANDLE ft = NULL;
     if (npipes == 3) {
         ft = CreateThread(NULL, 0, byn_feed_pipe, &io->feed, 0, NULL);
@@ -3871,8 +3952,8 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, 
     } else {
         CloseHandle(reads[0]);
         CloseHandle(reads[1]);
-        streams[0] = io->drains[0].bytes;
-        streams[1] = io->drains[1].bytes;
+        streams[0] = io->drains[0].capture;
+        streams[1] = io->drains[1].capture;
         free(io);
     }
     if (job) CloseHandle(job);
@@ -4057,7 +4138,8 @@ uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, co
             || (set && memchr(env_vals[i].ptr, 0, (size_t)env_vals[i].len)))
             return BYN_IO_INVALID_INPUT;
     }
-    byn_bytes streams[2] = {{NULL, 0, 0}, {NULL, 0, 0}};
+    int64_t keep = timeout_ms >= 0 ? BYN_RUN_KEEP : -1;
+    byn_capture streams[2] = {{{NULL, 0, 0}, NULL, 0, 0, 0, keep}, {{NULL, 0, 0}, NULL, 0, 0, 0, keep}};
     int outcome = BYN_WAIT_DONE;
     uint32_t raw = 0;
 #ifdef _WIN32
@@ -4216,9 +4298,9 @@ uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, co
         }
         for (int i = 0; i < 2; i++) {
             if (fds[i].fd < 0 || !(fds[i].revents & (POLLIN | POLLHUP | POLLERR))) continue;
-            byn_bytes_reserve(&streams[i], 4096);
-            ssize_t got = read(fds[i].fd, streams[i].ptr + streams[i].len, 4096);
-            if (got > 0) streams[i].len += got;
+            uint8_t buffer[4096];
+            ssize_t got = read(fds[i].fd, buffer, sizeof buffer);
+            if (got > 0) byn_capture_add(&streams[i], buffer, got);
             else if (got == 0 || errno != EINTR) {
                 close(fds[i].fd);
                 fds[i].fd = -1;
@@ -4288,7 +4370,7 @@ uint32_t byn_io_run_batch(byn_str path, const byn_str* args, int64_t nargs, byn_
     wcscpy(app + sn, L"\\cmd.exe");
     wchar_t* wline = byn_wide(line.ptr, line.len);
     free((void*)line.ptr);
-    byn_bytes streams[2] = {{NULL, 0, 0}, {NULL, 0, 0}};
+    byn_capture streams[2] = {{{NULL, 0, 0}, NULL, 0, 0, 0, -1}, {{NULL, 0, 0}, NULL, 0, 0, 0, -1}};
     int outcome;
     uint32_t raw;
     uint32_t err = byn_win_spawn(app, wline, NULL, NULL, NULL, -1, -1, streams, &outcome, &raw);

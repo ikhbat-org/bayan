@@ -1,0 +1,16 @@
+// os: unix
+// With `timeout:` each stream keeps its first and last 64 KiB; what lies between shows as one `… N bytes omitted …` line,
+// and a character cut at either end is U+FFFD (Q1227, as the C# test runner's `BoundedCapture`). Without `timeout:` every
+// byte is kept.
+void main() fails IoError {
+    let script: string[2] = ["-c", "head -c 65535 /dev/zero | tr '\\000' a; printf '\\303\\251'; head -c 70000 /dev/zero | tr '\\000' b; printf '\\303\\251'; head -c 65535 /dev/zero | tr '\\000' c"]
+    let bounded = try Io.run("sh", script.span, timeout: Millis(60000))
+    let s = bounded.stdout
+    let first = s.position("\n") ?? -1
+    let last = s.lastPosition("\n") ?? -1
+    print($"exit {bounded.exitCode}, {s.bytes.length} bytes, head {first} bytes, tail {s.bytes.length - last - 1} bytes")
+    print(Utf8.decode(s.bytes[first + 1..last], invalid: .replace))
+    print($"replaced {s.count("\u{FFFD}")}")
+    let whole = try Io.run("sh", script.span)
+    print($"whole {whole.stdout.bytes.length} bytes")
+}

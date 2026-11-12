@@ -83,27 +83,38 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
    - `### Status changes`: the hand-kept `docs/STATUS.md` rows whose status cell changed or that are new since that
      tag.
 
-   It prints each file it changed and the new section. It never commits, tags or pushes.
+   It fails, before it touches the CHANGELOG, when a tracked file still contains the previous `-dev` version
+   (for example `0.3.0-dev`). It prints each file it changed and the new section. It never commits, tags or pushes.
 2. **Regenerate `bootstrap/bayan.c`** with `scripts/selfhost/land.sh`, so the bootstrap compiler reports the new
    version.
 3. **Review.** Edit the CHANGELOG section (a summary, known limits). Run the tests, `bash scripts/docs/check.sh` and
    the memory gate (`bash scripts/release/memory-gate.sh`, `docs/memory-leaks.md`).
 4. **Commit** the release as one commit, and merge it to `main`.
-5. **Tag** that commit `vX.Y.Z` and push the tag.
-6. **The workflow.** The tag starts `.github/workflows/release.yml`:
+5. **Dry run.** Run the release workflow by hand on that commit (Actions, `release`, Run workflow) with `dry_run:
+   true` and version `X.Y.Z-rc.N`. It runs every job but the draft. The release job refuses a `-rc` tag or a
+   dispatch run (`scripts/release/refuse-draft.sh`), so a dry run never drafts a release.
+6. **Tag** that commit `vX.Y.Z` and push the tag.
+7. **The workflow.** The tag starts `.github/workflows/release.yml`:
    - `package.sh check-tag` refuses a tag that is not `v` + `VERSION`, or a prerelease `VERSION`, and
      `scripts/docs/check.sh` refuses a `VERSION` its mirrors do not match;
    - each target builds the NativeAOT compiler, smoke-tests `--version` and packs
      `bayan-X.Y.Z-<target>.tar.gz` (`.zip` on Windows). The binary, `README.md` and the docs go under
      `share/doc/bayan/`: `SPEC.md`, `GRAMMAR.md`, `STYLE.md`, `DIAGNOSTICS.md`, `STATUS.md` and `CHANGELOG.md`;
-   - the memory gate runs on Linux and macOS;
+   - the memory gate runs on Linux and macOS, the editor gate (`bayan-lsp` memory tests, the extension packaged under a
+     size bound) on Linux, and the full tier of every enacted law (`laws-nightly.yml`, up to 180 minutes);
    - the release job adds `bayan-X.Y.Z-docs.tar.gz` (the same six docs under `bayan-X.Y.Z-docs/share/doc/bayan/`)
      and `SHA256SUMS`, and opens a draft GitHub Release whose notes are the CHANGELOG section.
 
    Publishing the draft is a manual step.
-7. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors
+8. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors
    and the headers to `-dev` and regenerates the generated docs. Regenerate `bootstrap/bayan.c` and commit all of it
    as one commit on `dev`.
+
+## Known limits
+
+Until the per-phase arenas land after 0.3.0 (Q31), the stage-2 build of `selfhost/driver` peaks at 2.94 GB of
+memory. `scripts/release/package.sh notes` prints that line after the CHANGELOG section, so every release's notes
+carry it.
 
 ## Archive
 

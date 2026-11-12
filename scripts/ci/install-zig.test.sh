@@ -74,10 +74,20 @@ if out="$(ZIG_BASE_URL="file://$tmp/site" "$tmp/repo/scripts/ci/install-zig.sh" 
 echo "$out" | grep -q ".zig-version is 0.18.0 but the sums here are for 0.17.0" || fail "no version-mismatch message: $out"
 [ ! -e "$tmp/other" ] || fail "something was downloaded for an unpinned version"
 
-# Wiring: no workflow uses a Node 20 action; each zig step runs the script.
-for wf in "$root/.github/workflows/ci.yml" "$root/.github/workflows/mutation.yml"; do
-  ! grep -q "mlugg/setup-zig" "$wf" || fail "$wf still uses mlugg/setup-zig"
-  grep -q "scripts/ci/install-zig.sh" "$wf" || fail "$wf does not run install-zig.sh"
+# Wiring: no workflow uses a Node 20 action; every workflow gets zig only through install-zig.sh (the pinned version).
+# zig_ok <workflow>: outside comments and step names, a line that names zig must run scripts/ci/install-zig.sh.
+zig_ok() { ! grep -vE '^[[:space:]]*(#|- name:)' "$1" | grep -i zig | grep -qv 'scripts/ci/install-zig'; }
+printf 'steps:\n  - uses: mlugg/setup-zig@v2\n' > "$tmp/bad1.yml"
+printf 'steps:\n  - run: curl -O https://ziglang.org/download/0.17.0/zig-linux-x86_64-0.17.0.tar.xz\n' > "$tmp/bad2.yml"
+printf 'steps:\n  - run: brew install zig\n' > "$tmp/bad3.yml"
+printf 'steps:\n  - run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig"\n' > "$tmp/good.yml"
+for b in bad1 bad2 bad3; do ! zig_ok "$tmp/$b.yml" || fail "zig_ok accepts $b"; done
+zig_ok "$tmp/good.yml" || fail "zig_ok refuses the pinned install"
+for wf in "$root"/.github/workflows/*.yml; do
+  zig_ok "$wf" || fail "$wf installs zig other than through scripts/ci/install-zig.sh"
   ! grep -qE "uses: actions/(checkout|setup-dotnet|upload-artifact|download-artifact)@v4" "$wf" || fail "$wf still pins a Node 20 action"
+done
+for wf in ci laws-nightly mutation release; do
+  grep -q "scripts/ci/install-zig.sh" "$root/.github/workflows/$wf.yml" || fail "$wf.yml does not run install-zig.sh"
 done
 echo PASS

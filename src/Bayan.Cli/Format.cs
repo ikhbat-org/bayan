@@ -139,8 +139,12 @@ internal static class Format
             {
                 canonical = at.Canonical ?? RealPath(at.Path);
                 if (!seenDirs.Add(canonical)) continue;
+                // Sorted, so that which of a file and its links is listed, and which directory is entered first, does not
+                // follow the file system's directory order (ext4 hashes it, APFS sorts it; the driver's `Io.listDir` sorts).
                 dirFiles = Directory.GetFiles(canonical, "*.byn");
                 subs = Directory.GetDirectories(canonical);
+                Array.Sort(dirFiles, StringComparer.Ordinal);
+                Array.Sort(subs, StringComparer.Ordinal);
             }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException)
             {

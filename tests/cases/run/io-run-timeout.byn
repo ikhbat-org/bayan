@@ -4,7 +4,7 @@
 void main() fails IoError {
     let script: string[2] = ["-c", "sh -c \"sleep 2; echo alive > io-run-timeout.mark\" & sleep 30"]
     let r = Io.run("sh", script.span, timeout: Millis(200)) catch switch {
-        .timeout(let after) => {
+        .timeout(let after, _, _) => {
             print($"timeout {i64(after)}")
             let wait: string[1] = ["3"]
             let _ = try Io.run("sleep", wait.span)

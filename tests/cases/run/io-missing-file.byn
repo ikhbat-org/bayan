@@ -10,7 +10,7 @@ string describe(string path) => Io.readText(path) catch switch {
     .crossDevice => "cross device",
     .isDirectory => "is a directory",
     .signaled(let s, _, _) => $"signaled {s}",
-    .timeout(let after) => $"timed out after {after}",
+    .timeout(let after, _, _) => $"timed out after {after}",
 }
 
 void main() {
