@@ -30,6 +30,11 @@ Today, when a self-hosted (stage 2) test prints forever, `Io.run` keeps every by
 
 `tests/Bayan.Tests` has no parallelism limit, so on a loaded host the test host can exhaust memory. Add `xunit.runner.json` (copied to the output) with `maxParallelThreads` set to a measured value, and pick it from a short measurement on this machine. Turn the heaviest repeated per-test setup (driver builds, stage-2 builds) into class or collection fixtures where they are not already, without changing what any test asserts. Done when: the full suite passes on wp1, and its wall time and peak memory are reported against the 36.6 min baseline. A slower suite is acceptable only if peak memory falls. Record both numbers in the reply.
 
+Dispatcher notes (2026-11-12, after the W3 writer's reply):
+- The heavy builds are already built once per test process behind a static `Lazy` (`SelfhostDriverHarness.Build`/`ProbeBuilt`, `SelfhostEmitterHarness`, `SelfhostDriverT3Tests`, `SelfhostDriverTests` quality/progress builds, `SelfhostDefaultT10Tests`, `SelfhostEmitterT*`). That meets "where not already": no fixture conversion is owed, since `IClassFixture` would rebuild per class.
+- Measured on mb1 (10 CPUs, load 4–8), wall time: `SelfhostEmitterT2`–`T7` + `SelfhostDriverT5` (120 tests) 187.9 s at the default, 191.6 s at 4, 203.0 s at 2; `SelfhostDriverT2` + `SelfhostDefaultT4` (807 tests, warm) 25.2 s, 31.2 s, 31.5 s. Value chosen: 4 (≈2% slower on the heavy set, at most 4 classes at once).
+- The full-suite run (wall time, peak memory, against 36.6 min) is the dispatcher's, on wp1 and bayan-test01, before the merge to `dev`; a writer cannot reach wp1.
+
 ## W4 — LSP depth guard (now) and land-flow speed (A, B, D, E)
 
 1. **LSP depth guard.** `editors/language-server` (`Analysis/Indexer.cs`, `Lexer.cs` and whatever recurses per nesting level) stops descending past a fixed depth, reports one diagnostic at the cut, and never overflows the stack. A test feeds 100 000 nested brackets and blocks and asserts the server answers. The compiler parsers are not touched (the BYN1xxx diagnostic is after 0.3.0).
