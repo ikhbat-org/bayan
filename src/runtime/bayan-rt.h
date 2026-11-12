@@ -486,6 +486,17 @@ uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* deta
  * with `*out` untouched (empty streams).
  * On Windows a batch file (`.bat`, `.cmd`) is refused with `permissionDenied`, since cmd.exe would re-parse the arguments. */
 uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc);
+/* `Io.run` with its named arguments (015 S6). `directory` (NULL: ours) is where the child runs; one that does not exist
+ * or is not a directory fails before anything starts. `input` (`ninput` < 0: the child shares our stdin) is written to
+ * the child's stdin, which is then closed. Each of the `nenv` entries of `env_keys` replaces the inherited variable of
+ * its name: with `env_vals[i]` as the value, or removed when `env_unset[i]` is set (`env_vals[i]` then unread). A NUL
+ * in the directory, an empty name, `=` in a name or NUL in a name or set value is `invalidInput`. With `timeout_ms` >= 0
+ * the child runs in its own process group (a Job object on Windows); once `timeout_ms` passes the group gets SIGTERM,
+ * then SIGKILL after a grace period (the job is terminated), and the call is `timeout` with `*detail` untouched (the
+ * caller knows the timeout) and the captured streams dropped. `timeout_ms` < 0 waits as long as the child runs. */
+uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, const byn_str* directory, const uint8_t* input,
+                         int64_t ninput, const byn_str* env_keys, const byn_str* env_vals, const bool* env_unset, int64_t nenv,
+                         int64_t timeout_ms, byn_process* out, int64_t* detail, byn_alloc* alloc);
 /* `Io.runBatch`'s command line: `cmd.exe /d /e:ON /v:OFF /s /c ""<path>" "<a1>" … "<an>""`, each argument
  * in double quotes as-is. False, with nothing built, when the path or an argument holds NUL, CR, LF, `"` or `%`,
  * or the path does not end in `.bat` or `.cmd` (any case). Otherwise `out` is from malloc. Compiled on every host. */

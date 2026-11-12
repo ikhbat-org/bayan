@@ -1849,6 +1849,35 @@ internal sealed class FunctionEmitter
                     $"    if (err == 0 && out) *out = ({list}){{p, n, n, byn_context}};\n    return err;\n}}\n");
                 return $"{name}({Expr(c.Arguments[0])}, {result ?? "NULL"})";
             }
+            // With a named argument (015 S6); a call without one keeps the plain helper, so its C is unchanged.
+            case BuiltinFunction.IoRun when c.Arguments.Skip(2).Any(a => a is not BoundDefault):
+            {
+                var span = _c.CType(fn.Parameters[1].Type);
+                var (dir, input, env, timeout) = (_c.CType(fn.Parameters[2].Type), _c.CType(fn.Parameters[3].Type), _c.CType(fn.Parameters[4].Type),
+                    _c.CType(fn.Parameters[5].Type));
+                // The live map entries are repacked: a null value unsets the inherited variable (plan 007 step 9). The runtime
+                // never writes `.timeout`'s payload: it is the caller's own `timeout`.
+                var name = _c.Helper("bynh_io_run_with",
+                    $"static uint32_t bynh_io_run_with(byn_str program, {span} args, {dir} directory, {input} input, {env} env, {timeout} timeout, byn_process* out, int64_t* detail)", () =>
+                    "{\n    int64_t n = 0;\n    byn_str* keys = NULL;\n    byn_str* vals = NULL;\n    bool* unset = NULL;\n"
+                    + "    if (env.has && env.value.h.len > 0) {\n"
+                    + "        keys = (byn_str*)malloc(sizeof(byn_str) * (size_t)env.value.h.len);\n"
+                    + "        vals = (byn_str*)malloc(sizeof(byn_str) * (size_t)env.value.h.len);\n"
+                    + "        unset = (bool*)malloc(sizeof(bool) * (size_t)env.value.h.len);\n"
+                    + "        if (!keys || !vals || !unset) byn_panic(\"out of memory\", NULL, 0);\n"
+                    + "        for (int64_t i = 0; i < env.value.h.len; i++) {\n"
+                    + "            if (env.value.h.dead[i]) continue;\n"
+                    + "            keys[n] = env.value.keys[i];\n"
+                    + "            unset[n] = !env.value.vals[i].has;\n"
+                    + "            vals[n] = env.value.vals[i].has ? env.value.vals[i].value : (byn_str){NULL, 0};\n"
+                    + "            n++;\n        }\n    }\n"
+                    + "    uint32_t err = byn_io_run_with(program, args.ptr, args.len, directory.has ? &directory.value : NULL,\n"
+                    + "        input.has ? input.value.ptr : NULL, input.has ? input.value.len : -1,\n"
+                    + "        keys, vals, unset, n, timeout.has ? timeout.value : -1, out, detail, byn_context);\n"
+                    + "    free(keys);\n    free(vals);\n    free(unset);\n"
+                    + "    if (err == BYN_IO_TIMEOUT && detail) *detail = timeout.value;\n    return err;\n}\n");
+                return $"{name}({Expr(c.Arguments[0])}, {Expr(c.Arguments[1])}, {Expr(c.Arguments[2])}, {Expr(c.Arguments[3])}, {Expr(c.Arguments[4])}, {Expr(c.Arguments[5])}, {result ?? "NULL"}, {detail})";
+            }
             case BuiltinFunction.IoRun:
             {
                 var span = _c.CType(fn.Parameters[1].Type);

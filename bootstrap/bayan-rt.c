@@ -14,6 +14,7 @@
 #include "bayan-rt.h"
 
 #include <errno.h>
+#include <limits.h>
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,6 +31,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <signal.h>
 #include <spawn.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -3535,6 +3537,29 @@ static uint32_t byn_process_finish(byn_bytes* streams, int outcome, uint32_t raw
     return result;
 }
 
+/* `Io.run(…, timeout:)`: how long a child has after SIGTERM before SIGKILL (Q-b), and how long its streams are still
+ * drained after the kill (a Job object's drain threads are joined) before they are given up, as the C# test runner does. */
+#define BYN_RUN_GRACE_MS 2000
+#define BYN_RUN_DRAIN_MS 5000
+
+#ifndef _WIN32
+/* One expiry of a POSIX run's deadline moves `*stage` on: SIGTERM to the child's group and to the child itself (it may have
+ * left the group, which a helper keeps alive), delivered when either succeeds, then SIGKILL after the grace period, then BYN_RUN_DRAIN_MS more to
+ * drain and reap; a SIGTERM that fails moves on at once, and a SIGKILL that fails ends the drain and the reap at once
+ * (nothing was killed, so waiting longer would not help). Returns the new deadline. */
+static int64_t byn_run_expire(pid_t pid, int* stage, int64_t now) {
+    if (*stage == 0) {
+        *stage = 1;
+        int group = kill(-pid, SIGTERM), self = kill(pid, SIGTERM);
+        if (group == 0 || self == 0) return now + (int64_t)BYN_RUN_GRACE_MS * 1000000;
+    }
+    *stage = 2;
+    int group = kill(-pid, SIGKILL), self = kill(pid, SIGKILL);
+    if (group != 0 && self != 0) return now;
+    return now + (int64_t)BYN_RUN_DRAIN_MS * 1000000;
+}
+#endif
+
 #ifdef _WIN32
 
 /* Appends one argument quoted so that CommandLineToArgvW and the MSVC runtime read it back unchanged. */
@@ -3632,135 +3657,562 @@ static DWORD WINAPI byn_drain_pipe(LPVOID arg) {
     return 0;
 }
 
-/* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`;
- * `*outcome` and `*raw` (the exit code) are for byn_process_finish. */
-static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, byn_bytes* streams, int* outcome, uint32_t* raw) {
+typedef struct byn_feed {
+    HANDLE h;
+    const uint8_t* ptr;
+    int64_t len;
+} byn_feed;
+
+/* Writes the input to the child's stdin, then closes it; stops early when the child closes its end. */
+static DWORD WINAPI byn_feed_pipe(LPVOID arg) {
+    byn_feed* f = (byn_feed*)arg;
+    while (f->len > 0) {
+        DWORD put = 0;
+        if (!WriteFile(f->h, f->ptr, f->len > 65536 ? 65536 : (DWORD)f->len, &put, NULL)) break;
+        f->ptr += put;
+        f->len -= put;
+    }
+    CloseHandle(f->h);
+    return 0;
+}
+
+/* Orders `NAME=value` entries by name, case-insensitively, as an environment block wants; a leading `=` is part of the name. */
+static int byn_env_order(const void* a, const void* b) {
+    const wchar_t* x = *(const wchar_t* const*)a;
+    const wchar_t* y = *(const wchar_t* const*)b;
+    const wchar_t* xe = wcschr(x + 1, L'=');
+    const wchar_t* ye = wcschr(y + 1, L'=');
+    int xn = xe ? (int)(xe - x) : (int)wcslen(x);
+    int yn = ye ? (int)(ye - y) : (int)wcslen(y);
+    return CompareStringOrdinal(x, xn, y, yn, TRUE) - CSTR_EQUAL;
+}
+
+/* The inherited environment with each `keys[i]` replacing the variable of its name: set to `vals[i]`, or dropped when
+ * `unset[i]` is set, as a sorted CREATE_UNICODE_ENVIRONMENT block from malloc. */
+static wchar_t* byn_env_block(const byn_str* keys, const byn_str* vals, const bool* unset, int64_t n) {
+    wchar_t* inherited = GetEnvironmentStringsW();
+    size_t count = 0;
+    for (wchar_t* p = inherited; p && *p; p += wcslen(p) + 1) count++;
+    wchar_t** made = (wchar_t**)malloc(sizeof(wchar_t*) * (size_t)(n + 1));
+    wchar_t** list = (wchar_t**)malloc(sizeof(wchar_t*) * (count + (size_t)n + 1));
+    if (!made || !list) byn_panic("out of memory", NULL, 0);
+    /* An unset entry is `NAME=`: it matches its name but is not added. */
+    size_t nmade = 0;
+    for (int64_t i = 0; i < n; i++) {
+        byn_bytes kv = {NULL, 0, 0};
+        byn_bytes_add(&kv, keys[i].ptr, keys[i].len);
+        byn_bytes_add(&kv, "=", 1);
+        if (!(unset && unset[i])) byn_bytes_add(&kv, vals[i].ptr, vals[i].len);
+        made[nmade++] = byn_wide(kv.ptr, kv.len);
+        free(kv.ptr);
+    }
+    size_t len = 0;
+    for (wchar_t* p = inherited; p && *p; p += wcslen(p) + 1) {
+        bool replaced = false;
+        for (size_t k = 0; k < nmade && !replaced; k++) replaced = byn_env_order(&p, &made[k]) == 0;
+        if (!replaced) list[len++] = p;
+    }
+    for (size_t k = 0; k < nmade; k++)
+        if (!(unset && unset[k])) list[len++] = made[k];
+    qsort(list, len, sizeof *list, byn_env_order);
+    size_t total = 1;
+    for (size_t i = 0; i < len; i++) total += wcslen(list[i]) + 1;
+    wchar_t* block = (wchar_t*)malloc(sizeof(wchar_t) * (total + 1));
+    if (!block) byn_panic("out of memory", NULL, 0);
+    size_t at = 0;
+    for (size_t i = 0; i < len; i++) {
+        size_t k = wcslen(list[i]) + 1;
+        memcpy(block + at, list[i], sizeof(wchar_t) * k);
+        at += k;
+    }
+    block[at++] = 0;
+    if (len == 0) block[at] = 0;
+    for (size_t k = 0; k < nmade; k++) free(made[k]);
+    free(made);
+    free(list);
+    if (inherited) FreeEnvironmentStringsW(inherited);
+    return block;
+}
+
+/* Runs `app` with the command line `wline` (both freed here), capturing both streams into `streams`. `dir` (NULL: ours)
+ * is its working directory, `env` (NULL: ours) its environment block, and `input` (`ninput` < 0: our stdin) its stdin.
+ * With `timeout_ms` >= 0 the child starts suspended inside a Job object, which is terminated once the timeout passes
+ * with the process or a drain still running; the process is waited for before the drain threads are joined, and after
+ * the timeout the joins wait BYN_RUN_DRAIN_MS at most (a thread still running then keeps its block, which is leaked). `*outcome` and `*raw` (the exit code) are
+ * for byn_process_finish. */
+static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, wchar_t* env, const uint8_t* input, int64_t ninput,
+                              int64_t timeout_ms, byn_bytes* streams, int* outcome, uint32_t* raw) {
     SECURITY_ATTRIBUTES sa = {sizeof sa, NULL, TRUE};
-    HANDLE reads[2];
-    HANDLE writes[2];
-    if (!CreatePipe(&reads[0], &writes[0], &sa, 0)) {
-        free(app);
-        free(wline);
-        return byn_win_error(GetLastError());
+    HANDLE reads[3] = {NULL, NULL, NULL};
+    HANDLE writes[3] = {NULL, NULL, NULL};
+    int npipes = ninput >= 0 ? 3 : 2;
+    HANDLE job = NULL;
+    if (timeout_ms >= 0) {
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION limits;
+        memset(&limits, 0, sizeof limits);
+        limits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        job = CreateJobObjectW(NULL, NULL);
+        if (!job || !SetInformationJobObject(job, JobObjectExtendedLimitInformation, &limits, sizeof limits)) {
+            DWORD e = GetLastError();
+            if (job) CloseHandle(job);
+            free(app);
+            free(wline);
+            return byn_win_error(e);
+        }
     }
-    if (!CreatePipe(&reads[1], &writes[1], &sa, 0)) {
-        DWORD e = GetLastError();
-        CloseHandle(reads[0]);
-        CloseHandle(writes[0]);
-        free(app);
-        free(wline);
-        return byn_win_error(e);
+    for (int i = 0; i < npipes; i++) {
+        if (!CreatePipe(&reads[i], &writes[i], &sa, 0)) {
+            DWORD e = GetLastError();
+            for (int k = 0; k < i; k++) {
+                CloseHandle(reads[k]);
+                CloseHandle(writes[k]);
+            }
+            if (job) CloseHandle(job);
+            free(app);
+            free(wline);
+            return byn_win_error(e);
+        }
     }
+    /* Our ends are not inherited: the read ends of stdout and stderr, the write end of stdin. */
     SetHandleInformation(reads[0], HANDLE_FLAG_INHERIT, 0);
     SetHandleInformation(reads[1], HANDLE_FLAG_INHERIT, 0);
+    if (npipes == 3) SetHandleInformation(writes[2], HANDLE_FLAG_INHERIT, 0);
     STARTUPINFOW si;
     memset(&si, 0, sizeof si);
     si.cb = sizeof si;
     si.dwFlags = STARTF_USESTDHANDLES;
-    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    si.hStdInput = npipes == 3 ? reads[2] : GetStdHandle(STD_INPUT_HANDLE);
     si.hStdOutput = writes[0];
     si.hStdError = writes[1];
     PROCESS_INFORMATION pi;
-    BOOL started = CreateProcessW(app, wline, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi);
+    DWORD flags = (env ? CREATE_UNICODE_ENVIRONMENT : 0) | (job ? CREATE_SUSPENDED : 0);
+    BOOL started = CreateProcessW(app, wline, NULL, NULL, TRUE, flags, env, dir, &si, &pi);
     DWORD e = GetLastError();
     free(app);
     free(wline);
     CloseHandle(writes[0]);
     CloseHandle(writes[1]);
+    if (npipes == 3) CloseHandle(reads[2]);
+    /* A suspended child is in the job before it runs, so everything it starts is in the job too. */
+    if (started && job) {
+        BOOL assigned = AssignProcessToJobObject(job, pi.hProcess);
+        if (!assigned || ResumeThread(pi.hThread) == (DWORD)-1) {
+            e = GetLastError();
+            /* Still suspended: killed through the job once it is in it, else directly; if that fails too, closing the
+             * job below is all that is left. */
+            if (assigned ? TerminateJobObject(job, 1) : TerminateProcess(pi.hProcess, 1))
+                if (WaitForSingleObject(pi.hProcess, INFINITE) != WAIT_OBJECT_0) e = GetLastError();
+            CloseHandle(pi.hThread);
+            CloseHandle(pi.hProcess);
+            started = FALSE;
+        }
+    }
     if (!started) {
         CloseHandle(reads[0]);
         CloseHandle(reads[1]);
+        if (npipes == 3) CloseHandle(writes[2]);
+        if (job) CloseHandle(job);
         return byn_win_error(e);
     }
     CloseHandle(pi.hThread);
-    byn_drain drains[2] = {{reads[0], {NULL, 0, 0}}, {reads[1], {NULL, 0, 0}}};
-    HANDLE t = CreateThread(NULL, 0, byn_drain_pipe, &drains[1], 0, NULL);
-    if (!t) byn_drain_pipe(&drains[1]);
-    byn_drain_pipe(&drains[0]);
-    if (t) {
-        WaitForSingleObject(t, INFINITE);
-        CloseHandle(t);
+    /* From malloc: after a timeout a thread that outlives its bounded join keeps using it. */
+    struct {
+        byn_feed feed;
+        byn_drain drains[2];
+    }* io = malloc(sizeof *io);
+    if (!io) byn_panic("out of memory", NULL, 0);
+    io->feed = (byn_feed){writes[2], input, ninput};
+    io->drains[0] = (byn_drain){reads[0], {NULL, 0, 0}};
+    io->drains[1] = (byn_drain){reads[1], {NULL, 0, 0}};
+    HANDLE ft = NULL;
+    if (npipes == 3) {
+        ft = CreateThread(NULL, 0, byn_feed_pipe, &io->feed, 0, NULL);
+        if (!ft) byn_feed_pipe(&io->feed);
     }
-    CloseHandle(reads[0]);
-    CloseHandle(reads[1]);
+    HANDLE threads[2] = {NULL, NULL};
+    threads[1] = CreateThread(NULL, 0, byn_drain_pipe, &io->drains[1], 0, NULL);
+    if (!threads[1]) byn_drain_pipe(&io->drains[1]);
+    /* Without a timeout we drain stdout ourselves; with one a thread does, so that we can wait on the process. */
+    if (job) threads[0] = CreateThread(NULL, 0, byn_drain_pipe, &io->drains[0], 0, NULL);
+    if (!threads[0]) byn_drain_pipe(&io->drains[0]);
     DWORD status = 0;
     *outcome = BYN_WAIT_DONE;
-    if (WaitForSingleObject(pi.hProcess, INFINITE) != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
-    else if (!GetExitCodeProcess(pi.hProcess, &status)) *outcome = BYN_WAIT_QUERY_FAILED;
+    DWORD limit = job ? (timeout_ms >= (int64_t)INFINITE ? INFINITE - 1 : (DWORD)timeout_ms) : INFINITE;
+    int64_t start = byn_io_monotonic_nanos();
+    DWORD waited = WaitForSingleObject(pi.hProcess, limit);
+    bool expired = waited == WAIT_TIMEOUT;
+    if (!expired && waited != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
+    else if (!expired && !GetExitCodeProcess(pi.hProcess, &status)) *outcome = BYN_WAIT_QUERY_FAILED;
+    HANDLE joins[3] = {threads[0], threads[1], ft};
+    /* A descendant in the job can hold the pipes after the child ended in time, so the joins get what is left of the
+     * timeout; once it passes the job is terminated as if the child had run on. */
+    for (int i = 0; i < 3 && job && waited == WAIT_OBJECT_0 && !expired; i++) {
+        if (!joins[i]) continue;
+        int64_t spent = (byn_io_monotonic_nanos() - start) / 1000000;
+        expired = WaitForSingleObject(joins[i], spent >= (int64_t)limit ? 0 : (DWORD)(limit - spent)) == WAIT_TIMEOUT;
+    }
+    if (expired) {
+        *outcome = BYN_WAIT_TIMED_OUT;
+        if (!TerminateJobObject(job, 1) || WaitForSingleObject(pi.hProcess, INFINITE) != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
+    }
     CloseHandle(pi.hProcess);
+    /* After the deadline the job's kill closed every holder of the pipes, so the joins end; the bound is for one that
+     * did not, and for a terminate that failed. */
+    DWORD bound = expired ? BYN_RUN_DRAIN_MS : INFINITE;
+    bool abandoned = false;
+    for (int i = 0; i < 3; i++) {
+        if (!joins[i]) continue;
+        if (WaitForSingleObject(joins[i], bound) != WAIT_OBJECT_0) abandoned = true;
+        CloseHandle(joins[i]);
+    }
     *raw = (uint32_t)status;
-    streams[0] = drains[0].bytes;
-    streams[1] = drains[1].bytes;
+    if (abandoned) {
+        if (*outcome != BYN_WAIT_TIMED_OUT) *outcome = BYN_WAIT_FAILED;
+    } else {
+        CloseHandle(reads[0]);
+        CloseHandle(reads[1]);
+        streams[0] = io->drains[0].bytes;
+        streams[1] = io->drains[1].bytes;
+        free(io);
+    }
+    if (job) CloseHandle(job);
+    return 0;
+}
+#endif
+
+#ifndef _WIN32
+/* `environ` with each `keys[i]` replacing the variable of that name: set to `vals[i]`, or dropped when `unset[i]` is set,
+ * as a NULL-terminated array from malloc; the strings from index `*kept` on are from malloc too. */
+static char** byn_env_with(const byn_str* keys, const byn_str* vals, const bool* unset, int64_t n, int64_t* kept) {
+    int64_t count = 0;
+    while (environ[count]) count++;
+    char** envp = (char**)malloc(sizeof(char*) * (size_t)(count + n + 1));
+    if (!envp) byn_panic("out of memory", NULL, 0);
+    int64_t len = 0;
+    for (int64_t e = 0; e < count; e++) {
+        const char* eq = strchr(environ[e], '=');
+        int64_t nn = eq ? (int64_t)(eq - environ[e]) : (int64_t)strlen(environ[e]);
+        bool replaced = false;
+        for (int64_t i = 0; i < n && !replaced; i++)
+            replaced = keys[i].len == nn && memcmp(keys[i].ptr, environ[e], (size_t)nn) == 0;
+        if (!replaced) envp[len++] = environ[e];
+    }
+    *kept = len;
+    for (int64_t i = 0; i < n; i++) {
+        if (unset && unset[i]) continue;
+        char* kv = (char*)malloc((size_t)(keys[i].len + vals[i].len + 2));
+        if (!kv) byn_panic("out of memory", NULL, 0);
+        memcpy(kv, keys[i].ptr, (size_t)keys[i].len);
+        kv[keys[i].len] = '=';
+        memcpy(kv + keys[i].len + 1, vals[i].ptr, (size_t)vals[i].len);
+        kv[keys[i].len + vals[i].len + 1] = 0;
+        envp[len++] = kv;
+    }
+    envp[len] = NULL;
+    return envp;
+}
+
+/* The file `name` runs, found the way `posix_spawnp` finds it from here, so a child that changes directory or gets its own
+ * PATH runs the same program: a name with a `/` against our directory, a bare name in our PATH (an empty entry is our
+ * directory; without PATH, /usr/bin:/bin). Returns 0 (`*path` set, from malloc) or an errno value. */
+static int byn_resolve_program(const char* name, char** path) {
+    size_t nlen = strlen(name);
+    if (name[0] == '/') {
+        char* full = (char*)malloc(nlen + 1);
+        if (!full) byn_panic("out of memory", NULL, 0);
+        memcpy(full, name, nlen + 1);
+        *path = full;
+        return 0;
+    }
+    /* Our directory only when a relative name or PATH entry needs it, so a deleted one fails only those. */
+    char* cwd = NULL;
+    size_t clen = 0;
+    if (strchr(name, '/')) {
+        cwd = getcwd(NULL, 0);
+        if (!cwd) return errno;
+        clen = strlen(cwd);
+        char* full = (char*)malloc(clen + nlen + 2);
+        if (!full) byn_panic("out of memory", NULL, 0);
+        memcpy(full, cwd, clen);
+        full[clen] = '/';
+        memcpy(full + clen + 1, name, nlen + 1);
+        free(cwd);
+        *path = full;
+        return 0;
+    }
+    const char* search = getenv("PATH");
+    if (!search) search = "/usr/bin:/bin";
+    int found = ENOENT;
+    for (const char* entry = search;; entry++) {
+        const char* end = strchr(entry, ':');
+        size_t elen = end ? (size_t)(end - entry) : strlen(entry);
+        bool relative = elen == 0 || entry[0] != '/';
+        if (relative && !cwd) {
+            cwd = getcwd(NULL, 0);
+            if (cwd) clen = strlen(cwd);
+        }
+        if (relative && !cwd) {
+            /* execvp skips an entry it cannot resolve; the errno is the result only when no entry finds the program. */
+            if (found == ENOENT) found = errno;
+            if (!end) break;
+            entry = end;
+            continue;
+        }
+        char* full = (char*)malloc(clen + elen + nlen + 3);
+        if (!full) byn_panic("out of memory", NULL, 0);
+        size_t at = 0;
+        if (relative) {
+            memcpy(full, cwd, clen);
+            full[clen] = '/';
+            at = clen + 1;
+        }
+        memcpy(full + at, entry, elen);
+        at += elen;
+        full[at++] = '/';
+        memcpy(full + at, name, nlen + 1);
+        struct stat st;
+        if (stat(full, &st) == 0 && !S_ISDIR(st.st_mode)) {
+            if (access(full, X_OK) == 0) {
+                free(cwd);
+                *path = full;
+                return 0;
+            }
+            found = EACCES;
+        }
+        free(full);
+        if (!end) break;
+        entry = end;
+    }
+    free(cwd);
+    return found;
+}
+
+/* posix_spawn has no portable working-directory action (`addchdir_np` is missing under -std=c11 on macOS and before
+ * glibc 2.29), so a child with a directory is forked: the program is resolved here first (byn_resolve_program), then
+ * the child moves its streams into place, changes directory and execs the resolved path,
+ * reporting a failure before exec through a close-on-exec pipe; with `group` it first starts its own process group.
+ * Returns 0 (`*pid` set) or an errno value. */
+static int byn_fork_exec(char** argv, char** envp, const char* dir, bool group, int in, int out, int err, pid_t* pid) {
+    char* file = NULL;
+    int resolved = byn_resolve_program(argv[0], &file);
+    if (resolved != 0) return resolved;
+    int report[2];
+    if (pipe(report) != 0) {
+        int e = errno;
+        free(file);
+        return e;
+    }
+    fcntl(report[0], F_SETFD, FD_CLOEXEC);
+    fcntl(report[1], F_SETFD, FD_CLOEXEC);
+    pid_t p = fork();
+    if (p < 0) {
+        int e = errno;
+        close(report[0]);
+        close(report[1]);
+        free(file);
+        return e;
+    }
+    if (p == 0) {
+        if ((!group || setpgid(0, 0) == 0) && (in < 0 || dup2(in, 0) >= 0) && dup2(out, 1) >= 0 && dup2(err, 2) >= 0 && chdir(dir) == 0) {
+            environ = envp;
+            /* `file` has a `/`, so execvp searches nothing; it still runs a script without `#!` through sh. */
+            execvp(file, argv);
+        }
+        int e = errno;
+        ssize_t put = write(report[1], &e, sizeof e);
+        (void)put;
+        _exit(127);
+    }
+    close(report[1]);
+    free(file);
+    int e = 0;
+    ssize_t got;
+    while ((got = read(report[0], &e, sizeof e)) < 0 && errno == EINTR) {}
+    close(report[0]);
+    if (got == (ssize_t)sizeof e) {
+        int status;
+        while (waitpid(p, &status, 0) < 0 && errno == EINTR) {}
+        return e;
+    }
+    *pid = p;
     return 0;
 }
 #endif
 
 uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc) {
+    return byn_io_run_with(program, args, nargs, NULL, NULL, -1, NULL, NULL, NULL, 0, -1, out, detail, alloc);
+}
+
+uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, const byn_str* directory, const uint8_t* input,
+                         int64_t ninput, const byn_str* env_keys, const byn_str* env_vals, const bool* env_unset, int64_t nenv,
+                         int64_t timeout_ms, byn_process* out, int64_t* detail, byn_alloc* alloc) {
     if (program.len == 0 || memchr(program.ptr, 0, (size_t)program.len)) return BYN_IO_NOT_FOUND;
     for (int64_t i = 0; i < nargs; i++)
         if (memchr(args[i].ptr, 0, (size_t)args[i].len)) return BYN_IO_OTHER;
+    /* A directory or variable that cannot be passed exactly starts nothing. */
+    if (directory && memchr(directory->ptr, 0, (size_t)directory->len)) return BYN_IO_INVALID_INPUT;
+    for (int64_t i = 0; env_keys && i < nenv; i++) {
+        bool set = !(env_unset && env_unset[i]);
+        if (env_keys[i].len == 0 || memchr(env_keys[i].ptr, '=', (size_t)env_keys[i].len) || memchr(env_keys[i].ptr, 0, (size_t)env_keys[i].len)
+            || (set && memchr(env_vals[i].ptr, 0, (size_t)env_vals[i].len)))
+            return BYN_IO_INVALID_INPUT;
+    }
     byn_bytes streams[2] = {{NULL, 0, 0}, {NULL, 0, 0}};
     int outcome = BYN_WAIT_DONE;
     uint32_t raw = 0;
 #ifdef _WIN32
+    wchar_t* wdir = NULL;
+    if (directory) {
+        wdir = byn_wide(directory->ptr, directory->len);
+        DWORD attrs = GetFileAttributesW(wdir);
+        uint32_t bad = attrs == INVALID_FILE_ATTRIBUTES ? byn_win_error(GetLastError())
+            : !(attrs & FILE_ATTRIBUTE_DIRECTORY) ? BYN_IO_NOT_A_DIRECTORY : 0;
+        if (bad != 0) {
+            free(wdir);
+            return bad;
+        }
+    }
     wchar_t* app = byn_find_program(program);
-    if (!app) return BYN_IO_NOT_FOUND;
     /* CreateProcessW runs a batch file through cmd.exe, which re-parses the arguments (BatBadBut). */
-    if (byn_is_batch(app, wcslen(app))) {
+    if (!app || byn_is_batch(app, wcslen(app))) {
+        free(wdir);
         free(app);
-        return BYN_IO_PERMISSION_DENIED;
+        return app ? BYN_IO_PERMISSION_DENIED : BYN_IO_NOT_FOUND;
     }
     byn_bytes line = {NULL, 0, 0};
     byn_quote_arg(&line, program);
     for (int64_t i = 0; i < nargs; i++) byn_quote_arg(&line, args[i]);
     wchar_t* wline = byn_wide(line.ptr, line.len);
     free(line.ptr);
-    uint32_t err = byn_win_spawn(app, wline, streams, &outcome, &raw);
+    wchar_t* env = env_keys ? byn_env_block(env_keys, env_vals, env_unset, nenv) : NULL;
+    uint32_t err = byn_win_spawn(app, wline, wdir, env, input, ninput, timeout_ms, streams, &outcome, &raw);
+    free(wdir);
+    free(env);
     if (err != 0) return err;
 #else
+    char* dir = NULL;
+    if (directory) {
+        dir = byn_cstr(*directory);
+        struct stat st;
+        uint32_t bad = stat(dir, &st) != 0 ? byn_io_error(errno) : !S_ISDIR(st.st_mode) ? BYN_IO_NOT_A_DIRECTORY : 0;
+        if (bad != 0) {
+            free(dir);
+            return bad;
+        }
+    }
     char** argv = (char**)malloc(sizeof(char*) * (size_t)(nargs + 2));
     if (!argv) byn_panic("out of memory", NULL, 0);
     argv[0] = byn_cstr(program);
     for (int64_t i = 0; i < nargs; i++) argv[i + 1] = byn_cstr(args[i]);
     argv[nargs + 1] = NULL;
-    int pipes[2][2];
+    int64_t kept = 0;
+    char** envp = env_keys ? byn_env_with(env_keys, env_vals, env_unset, nenv, &kept) : environ;
+    /* stdout, stderr, and with `input` stdin; [i][0] reads, [i][1] writes. */
+    int npipes = ninput >= 0 ? 3 : 2;
+    int pipes[3][2];
     uint32_t err = 0;
-    if (pipe(pipes[0]) != 0) err = byn_io_error(errno);
-    else if (pipe(pipes[1]) != 0) {
-        err = byn_io_error(errno);
-        close(pipes[0][0]);
-        close(pipes[0][1]);
-    }
+    int made = 0;
+    for (; made < npipes; made++)
+        if (pipe(pipes[made]) != 0) {
+            err = byn_io_error(errno);
+            break;
+        }
+    if (err != 0)
+        for (int i = 0; i < made; i++) {
+            close(pipes[i][0]);
+            close(pipes[i][1]);
+        }
     pid_t pid = 0;
     if (err == 0) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < npipes; i++) {
             fcntl(pipes[i][0], F_SETFD, FD_CLOEXEC);
             fcntl(pipes[i][1], F_SETFD, FD_CLOEXEC);
         }
-        posix_spawn_file_actions_t actions;
-        posix_spawn_file_actions_init(&actions);
-        posix_spawn_file_actions_adddup2(&actions, pipes[0][1], 1);
-        posix_spawn_file_actions_adddup2(&actions, pipes[1][1], 2);
-        int rc = posix_spawnp(&pid, argv[0], &actions, NULL, argv, environ);
-        posix_spawn_file_actions_destroy(&actions);
+        int in = npipes == 3 ? pipes[2][0] : -1;
+        /* With a timeout the child leads its own process group, so the kill reaches its children too; without one it
+         * stays in ours, where it keeps terminal job control (a new group reading a shared terminal would get SIGTTIN). */
+        bool group = timeout_ms >= 0;
+        int rc;
+        if (dir) rc = byn_fork_exec(argv, envp, dir, group, in, pipes[0][1], pipes[1][1], &pid);
+        else {
+            posix_spawn_file_actions_t actions;
+            posix_spawn_file_actions_init(&actions);
+            if (in >= 0) posix_spawn_file_actions_adddup2(&actions, in, 0);
+            posix_spawn_file_actions_adddup2(&actions, pipes[0][1], 1);
+            posix_spawn_file_actions_adddup2(&actions, pipes[1][1], 2);
+            posix_spawnattr_t attr;
+            rc = group ? posix_spawnattr_init(&attr) : 0;
+            if (group && rc == 0) {
+                rc = posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETPGROUP);
+                if (rc == 0) rc = posix_spawnattr_setpgroup(&attr, 0);
+                if (rc == 0) rc = posix_spawnp(&pid, argv[0], &actions, &attr, argv, envp);
+                int destroyed = posix_spawnattr_destroy(&attr);
+                /* A started child must still be waited for, so a failed destroy is an error only when nothing started. */
+                if (destroyed != 0 && rc == 0 && pid == 0) rc = destroyed;
+            } else if (rc == 0) rc = posix_spawnp(&pid, argv[0], &actions, NULL, argv, envp);
+            posix_spawn_file_actions_destroy(&actions);
+        }
         close(pipes[0][1]);
         close(pipes[1][1]);
+        if (in >= 0) close(in);
         if (rc != 0) {
             err = byn_io_error(rc);
             close(pipes[0][0]);
             close(pipes[1][0]);
+            if (npipes == 3) close(pipes[2][1]);
         }
     }
     for (int64_t i = 0; i <= nargs; i++) free(argv[i]);
     free(argv);
+    if (envp != environ) {
+        for (int64_t i = kept; envp[i]; i++) free(envp[i]);
+        free(envp);
+    }
+    free(dir);
     if (err != 0) return err;
-    /* Drain both pipes together, so a child that fills one while we block on the other cannot deadlock. */
-    struct pollfd fds[2] = {{pipes[0][0], POLLIN, 0}, {pipes[1][0], POLLIN, 0}};
+    /* Drain both pipes and feed stdin together, so a child that fills one while we block on another cannot deadlock.
+     * A child that exits without reading all its input must not kill us with SIGPIPE: the write fails instead. */
+    struct pollfd fds[3] = {{pipes[0][0], POLLIN, 0}, {pipes[1][0], POLLIN, 0}, {-1, POLLOUT, 0}};
+    struct sigaction ignore;
+    struct sigaction previous;
+    int64_t sent = 0;
+    if (npipes == 3) {
+        if (ninput == 0) close(pipes[2][1]);
+        else {
+            fds[2].fd = pipes[2][1];
+            fcntl(fds[2].fd, F_SETFL, fcntl(fds[2].fd, F_GETFL) | O_NONBLOCK);
+            memset(&ignore, 0, sizeof ignore);
+            ignore.sa_handler = SIG_IGN;
+            sigemptyset(&ignore.sa_mask);
+            sigaction(SIGPIPE, &ignore, &previous);
+        }
+    }
+    /* With a timeout, each expiry of the deadline moves one stage on (byn_run_expire); after the last we stop draining,
+     * so a process that escaped the group cannot hold us. */
+    int stage = 0;
+    int64_t deadline = 0;
+    if (timeout_ms >= 0) {
+        /* Saturated: a timeout too long to count in nanoseconds never passes. */
+        int64_t now = byn_io_monotonic_nanos();
+        deadline = timeout_ms > (INT64_MAX - now) / 1000000 ? INT64_MAX : now + timeout_ms * 1000000;
+    }
     int open = 2;
-    while (open > 0) {
-        if (poll(fds, 2, -1) < 0) {
+    while (open > 0 || fds[2].fd >= 0) {
+        int wait = -1;
+        if (timeout_ms >= 0) {
+            int64_t left = deadline - byn_io_monotonic_nanos();
+            int64_t ms = left <= 0 ? 0 : (left - 1) / 1000000 + 1;
+            wait = ms > INT_MAX ? INT_MAX : (int)ms;
+        }
+        int ready = wait == 0 ? 0 : poll(fds, 3, wait);
+        if (ready < 0) {
             if (errno == EINTR) continue;
             break;
+        }
+        if (ready == 0) {
+            if (stage == 2) break;
+            deadline = byn_run_expire(pid, &stage, byn_io_monotonic_nanos());
+            continue;
         }
         for (int i = 0; i < 2; i++) {
             if (fds[i].fd < 0 || !(fds[i].revents & (POLLIN | POLLHUP | POLLERR))) continue;
@@ -3773,11 +4225,42 @@ uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_pro
                 open--;
             }
         }
+        if (fds[2].fd >= 0 && (fds[2].revents & (POLLOUT | POLLHUP | POLLERR))) {
+            int64_t want = ninput - sent > 65536 ? 65536 : ninput - sent;
+            ssize_t put = write(fds[2].fd, input + sent, (size_t)want);
+            if (put > 0) sent += put;
+            if (sent == ninput || (put < 0 && errno != EINTR && errno != EAGAIN)) {
+                close(fds[2].fd);
+                fds[2].fd = -1;
+            }
+        }
     }
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 3; i++)
         if (fds[i].fd >= 0) close(fds[i].fd);
+    if (npipes == 3 && ninput > 0) sigaction(SIGPIPE, &previous, NULL);
+    /* A child can close both streams and run on, so with a timeout the reap keeps the same deadline: poll for its exit
+     * every few milliseconds, expiring as above; once the last deadline passes the child is left unreaped (it could not
+     * be killed) and the call is still `timeout`. Without a timeout a blocking wait reaps it. */
     int status = 0;
-    while (waitpid(pid, &status, 0) < 0) {
+    while (timeout_ms >= 0) {
+        pid_t done = waitpid(pid, &status, WNOHANG);
+        if (done == pid) break;
+        if (done < 0 && errno != EINTR) {
+            outcome = BYN_WAIT_FAILED;
+            break;
+        }
+        int64_t now = byn_io_monotonic_nanos();
+        if (now >= deadline) {
+            if (stage == 2) break;
+            deadline = byn_run_expire(pid, &stage, now);
+            continue;
+        }
+        int64_t ms = (deadline - now - 1) / 1000000 + 1;
+        /* A sleep: no descriptors, so it returns 0 when the time is up or -1 (EINTR) earlier, and either way we look again. */
+        (void)poll(NULL, 0, ms > 10 ? 10 : (int)ms);
+    }
+    if (stage > 0 && outcome != BYN_WAIT_FAILED) outcome = BYN_WAIT_TIMED_OUT;
+    while (timeout_ms < 0 && waitpid(pid, &status, 0) < 0) {
         if (errno != EINTR) {
             outcome = BYN_WAIT_FAILED;
             break;
@@ -3808,7 +4291,7 @@ uint32_t byn_io_run_batch(byn_str path, const byn_str* args, int64_t nargs, byn_
     byn_bytes streams[2] = {{NULL, 0, 0}, {NULL, 0, 0}};
     int outcome;
     uint32_t raw;
-    uint32_t err = byn_win_spawn(app, wline, streams, &outcome, &raw);
+    uint32_t err = byn_win_spawn(app, wline, NULL, NULL, NULL, -1, -1, streams, &outcome, &raw);
     if (err != 0) return err;
     return byn_process_finish(streams, outcome, raw, out, NULL, alloc);
 #else

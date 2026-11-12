@@ -1,0 +1,28 @@
+error BYN2305: argument for `directory` must be named
+
+  4 │     let _ = try Io.run("sh", a.span, "/tmp")
+    │                                      ^^^^^^
+    │
+  help: write `directory: …`; `Io.run`'s options are named
+    │ 4 │     let _ = try Io.run("sh", a.span, directory: "/tmp")
+    │   │                                      +++++++++++
+
+error BYN2021: `run` has no parameter `dir`
+
+  5 │     let _ = try Io.run("sh", a.span, dir: "/tmp")
+    │                                      ^^^
+
+error BYN2202: expected `string?`, found `i32`
+
+  6 │     let _ = try Io.run("sh", a.span, directory: 3)
+    │                                                 ^
+
+error BYN2202: expected `ReadOnlySpan<u8>?`, found `string`
+
+  7 │     let _ = try Io.run("sh", a.span, input: "x")
+    │                                             ^^^
+
+error BYN2202: expected `string?`, found `i32`
+
+  8 │     let _ = try Io.run("sh", a.span, env: ["A": 1])
+    │                                                 ^

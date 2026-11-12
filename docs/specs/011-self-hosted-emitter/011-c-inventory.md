@@ -35,6 +35,8 @@ Predefined macros the runtime and emitter test, listed for 012: `_WIN32` (15 in 
 The C that `CliApp.EmitC` gives for every `tests/cases/run` input (all three modes; a `*.test.byn` as `bayan test` builds it) calls these library functions directly, not through `byn_*`. They are rows for 012, not a fix: no emitted C changes (Q7). `SelfhostDriverT8Tests` (in SelfhostDriverInventoryTests.cs, named for the guard filter) fails on a call missing here or listed without a call.
 
 - `atoi`
+- `free`
+- `malloc`
 - `memcpy`
 - `memmove`
 - `strcmp`

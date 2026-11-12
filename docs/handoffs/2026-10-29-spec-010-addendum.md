@@ -83,7 +83,7 @@ Running `bash scripts/selfhost/guard.sh --base feat/010-self-hosted-semantics --
 1. In `tmp/wt/t18`: add oracle test cases in `SelfhostSemanticsT18Tests.cs` covering the 5 mutant sites.
 2. Re-run `guard.sh` until output is `GUARD PASS`.
 3. Commit all changes: `git -C tmp/wt/t18 commit -am "feat(010): T18 expression binding B"`.
-4. Run review brief: `python3 -I scripts/selfhost/review-brief.py tmp/wt/t18 T18`.
+4. Run review brief: `bash scripts/bayan-tool.sh review-brief tmp/wt/t18 T18`.
 5. Have an independent review verify against C# and write `docs/specs/010-self-hosted-semantics/reviews/T18.md` with `Verdict: PASS`.
 6. Land via:
    ```bash
