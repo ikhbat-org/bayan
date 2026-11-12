@@ -76,6 +76,7 @@ ok "poll: host answers, VM does not, is a miss" "$(ps 'MemAvailable: 20000000 kB
 ok "poll: rc written" "$(ps 'MemAvailable: 20000000 kB\n---\n0\n---\ninactive\n')" "done 0"
 ok "poll: host memory under 10 GiB" "$(ps 'MemAvailable: 9000000 kB\n---\n---\nactive\n')" "lowmem 9000000"
 ok "poll: unit ended without rc" "$(ps 'MemAvailable: 20000000 kB\n---\n---\nfailed\n')" "ended"
+ok "poll: host memory under 10 GiB while the VM does not answer" "$(ps 'MemAvailable: 3000000 kB\n')" "lowmem 3000000"
 ok "poll: running" "$(ps 'MemAvailable: 20000000 kB\n---\n---\nactive\n')" "running"
 
 # dry run: no host is touched
