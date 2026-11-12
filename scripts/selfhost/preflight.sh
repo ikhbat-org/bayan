@@ -53,11 +53,11 @@ braces() { local pre post a A; if [[ $1 =~ $BR_RE ]]; then pre=${BASH_REMATCH[1]
 while IFS= read -r f; do
   [ -n "$f" ] || continue
   [[ $f =~ ^$SPEC-[a-z]+\.md$ ]] && f=$DIR/$f
-  if [[ $f == tests/* || $f == docs/* || $f == src/* || $f == work/* || $f == bootstrap/* || $f =~ ^[A-Z]+\.md$ ]]; then
+  if [[ $f == .github/* || $f == tests/* || $f == docs/* || $f == src/* || $f == work/* || $f == bootstrap/* || $f == scripts/* || $f =~ ^[A-Z]+\.md$ ]]; then
     ALLOW+=("$f"); [[ $f =~ ^tests/Bayan\.Tests/[A-Za-z0-9]+Tests\.cs$ ]] && TESTF+=("$f")
   elif [[ $f == *.byn ]]; then [[ $f == selfhost/* ]] && ALLOW+=("$f") || ALLOW+=("$BYDIR/$f")
   elif [[ $f == *.cs ]]; then ALLOW+=("tests/Bayan.Tests/$f"); TESTF+=("tests/Bayan.Tests/$f"); fi
-done < <(grep -oE '`[^`]+\.(byn|cs|md|c|h|diag|txt|stdout|stderr|exitcode|sha256)`' <<< "$FL" | tr -d '`' | while IFS= read -r x; do braces "$x"; done)
+done < <(grep -oE '`[^`]+\.(byn|cs|md|c|h|diag|txt|stdout|stderr|exitcode|sha256|sh|yml|yaml)`' <<< "$FL" | tr -d '`' | while IFS= read -r x; do braces "$x"; done)
 
 CHANGED=$( { git diff --name-only "$BASE...HEAD"; git diff --name-only; git ls-files --others --exclude-standard; } | sort -u)
 UNTRACKED=$(git ls-files --others --exclude-standard)

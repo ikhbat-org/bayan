@@ -38,9 +38,9 @@ bool t6IsByn(string name) {
     return b[n - 4] == 0x2e && (b[n - 3] | 0x20) == 0x62 && (b[n - 2] | 0x20) == 0x79 && (b[n - 1] | 0x20) == 0x6e
 }
 
-/// Format.cs:193 `RealPath`: the absolute path. The C# resolves every symlink in it, component by component; no builtin reports a link target, so
-/// links stay unresolved here (plan D7, Q1106).
-string realPath(string path) uses alloc, fs => Path.fullPath(path)
+/// Format.cs:193 `RealPath`: the absolute path with every symlink in it resolved (`Fs.realPath`). Where the C# throws "Too many levels of symbolic
+/// links" this fails with the `IoError` of the kernel's ELOOP; it also fails on a missing path, which the C# returns unresolved (Q1106).
+string realPath(string path) uses alloc, fs fails IoError => try Fs.realPath(path)
 
 /// Format.cs:119 `BynFiles`: every `.byn` file under `dir`. A directory that cannot be listed is reported to stderr (not when `silent`, the
 /// `TextWriter.Null` of `PackageNames`), sets `exit` to 1, and is skipped. With `within`, a file or directory whose real path lies outside it is
@@ -51,12 +51,19 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
     var seenDirs: Map<string, bool> = []
     var failed = false
     var pending = List<T6Pending>()
-    pending.append(T6Pending { path: dir, canonical: "" })
+    let root = realPath(dir) catch switch {
+        // coverage-exempt: Q1106 through `return files`
+        IoError e => {
+            unless silent { Io.stderr.write($"bayan: {dir}: {e}\n") }
+            exit = 1
+            return files
+        }
+    }
+    pending.append(T6Pending { path: dir, canonical: root })
     while pending.length > 0 {
         let at = pending[pending.length - 1]
         pending.remove(at: pending.length - 1)
-        let canonical = at.canonical == "" ? realPath(at.path) : at.canonical
-        // coverage-exempt: Q1106
+        let canonical = at.canonical
         if seenDirs.contains(canonical) { continue }
         seenDirs[canonical] = true
         let names = Io.listDir(canonical) catch switch {
@@ -70,8 +77,13 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
         for name in names {
             if !t6IsByn(name) || !Fs.fileExists(Path.combine(canonical, name)) { continue }
             let file = Path.combine(at.path, name)
-            let real = realPath(Path.combine(canonical, name))
-            // coverage-exempt: Q1106 through `files.append(file)`
+            let real = realPath(Path.combine(canonical, name)) catch switch {
+                IoError e => {
+                    unless silent { Io.stderr.write($"bayan: {file}: {e}\n") }
+                    failed = true
+                    continue
+                }
+            }
             if t6Inside(real, by: within) && !seenFiles.contains(real) {
                 seenFiles[real] = true
                 files.append(file)
@@ -81,8 +93,17 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
             if Fs.fileExists(Path.combine(canonical, name)) { continue }
             if t6IsSkippedDirectory(name, atRoot: at.path == dir) { continue }
             let sub = Path.combine(at.path, name)
-            let real = realPath(Path.combine(canonical, name))
-            // stub: T6 `new DirectoryInfo(...).LinkTarget is not null`, the bound's refusal to follow any directory link (blocked: Q1106)
+            let entry = Path.combine(canonical, name)
+            let real = realPath(entry) catch switch {
+                IoError e => {
+                    unless silent { Io.stderr.write($"bayan: {sub}: {e}\n") }
+                    failed = true
+                    continue
+                }
+            }
+            // With a bound, a directory link is never followed, inside it or out: `canonical` holds no link, so `entry` is a link
+            // (`DirectoryInfo.LinkTarget is not null`) exactly when its real path differs from it.
+            if within is not null && real != entry { continue }
             if t6Inside(real, by: within) { pending.append(T6Pending { path: sub, canonical: real }) }
         }
     }
@@ -138,7 +159,8 @@ T6Found? manifestFor(string file, through ref Map<string, T6Found?> cache) uses 
 Map<string, bool> packageNames(string dir) uses alloc, console, fs {
     var names: Map<string, bool> = []
     var ignored = exitOk
-    let root = realPath(dir)
+    // coverage-exempt: Q1106
+    let root = realPath(dir) catch return names
     for file in bynFiles(dir, through: ref ignored, by: root, for: true) {
         if Path.fileName(file) == "package.byn" { continue }
         let bytes = Io.readFile(file) catch continue

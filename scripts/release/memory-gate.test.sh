@@ -36,12 +36,12 @@ export LOG="$tmp/log" PATH="$tmp/bin:$PATH"
 : > "$LOG"
 FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err" || fail "an all-pass gate exited non-zero: $(cat "$tmp/err")"
 grep -qx "memory-gate: PASS" "$tmp/out" || fail "an all-pass gate printed no PASS"
-[ "$(wc -l < "$LOG" | tr -d ' ')" = 3 ] || fail "the gate did not run all 3 commands: $(cat "$LOG")"
+[ "$(wc -l < "$LOG" | tr -d ' ')" = 4 ] || fail "the gate did not run all 4 commands: $(cat "$LOG")"
 
 : > "$LOG"
 if FAIL_ON=CliMemoryBounds bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err"; then fail "a failing CliMemoryBounds run passed the gate"; fi
 grep -q "FAILED: dotnet test -v q --filter FullyQualifiedName~CliMemoryBounds" "$tmp/err" || fail "the failing command was not named: $(cat "$tmp/err")"
-[ "$(wc -l < "$LOG" | tr -d ' ')" = 3 ] || fail "a failure stopped the remaining gate commands: $(cat "$LOG")"
+[ "$(wc -l < "$LOG" | tr -d ' ')" = 4 ] || fail "a failure stopped the remaining gate commands: $(cat "$LOG")"
 ! grep -q PASS "$tmp/out" || fail "a failing gate printed PASS"
 
 : > "$LOG"

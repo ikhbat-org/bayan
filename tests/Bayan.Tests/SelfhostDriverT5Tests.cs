@@ -11,7 +11,7 @@ namespace Bayan.Tests;
 /// is <see cref="CliApp.Run"/>: in-process where the paths are absolute and no child process prints, else <c>dotnet Bayan.Cli.dll</c>
 /// (its <c>Program.cs</c> calls <c>CliApp.Run</c>) in the same working directory as the driver, because <c>run</c>'s program
 /// inherits the C# process's streams (CliApp.cs:573) and default output names are relative to the working directory.
-/// Masked: the elapsed seconds, and the C#'s ` · from cache` (the driver has no cache, R6).
+/// Masked: the elapsed seconds, and ` · from cache` (one side may find in the cache what the other built, spec 017 T9).
 /// </summary>
 public sealed class SelfhostDriverT5Tests
 {
@@ -181,9 +181,9 @@ public sealed class SelfhostDriverT5Tests
         [.. Directory.EnumerateFileSystemEntries(dir).Select(e => Path.GetFileName(e)!).Order(StringComparer.Ordinal)];
 
     /// <summary>
-    /// The build's scratch work runs in a staging directory beside the output (Toolchain.cs `Compile`, Q1042 (a)), removed
-    /// afterwards (plan D4): a user's `main.c`, `bayan-rt.h` and `bayan-rt.c` beside the output keep their bytes, and after
-    /// `build` and `run` the directory holds what the C#'s does.
+    /// The build's scratch work runs in the cache's staging directory (Toolchain.cs `Compile`, spec 017 T9): a user's `main.c`,
+    /// `bayan-rt.h` and `bayan-rt.c` beside the output keep their bytes, and after `build` and `run` the directory holds what
+    /// the C#'s does.
     /// </summary>
     [Fact]
     public void LeavesTheOutputDirectoryAsCliApp()
@@ -203,8 +203,7 @@ public sealed class SelfhostDriverT5Tests
         }
     }
 
-    /// <summary>`run` on a source with no extension: the C# links in its cache (CliApp.cs:561-564), the driver in its staging
-    /// directory, so the source keeps its bytes.</summary>
+    /// <summary>`run` on a source with no extension: both link in the cache (CliApp.cs:561-564), so the source keeps its bytes.</summary>
     [Fact]
     public void RunsAnExtensionlessSourceAsCliApp()
     {
@@ -320,7 +319,9 @@ public sealed class SelfhostDriverT5Tests
             foreach (var name in names)
             {
                 Assert.False(Path.IsPathRooted(name), $"{dir}: rooted #line name {name}");
-                Assert.True(File.Exists(Path.Combine(root, name)), $"{dir}: #line name {name} is not relative to {root}");
+                // an imported std module is named `<std>/<path>` (Compilation.cs `ResolveImport`), its file under lib/std
+                var file = name.StartsWith("<std>/", StringComparison.Ordinal) ? Path.Combine(Golden.RepoRoot, "lib", "std", name["<std>/".Length..]) : Path.Combine(root, name);
+                Assert.True(File.Exists(file), $"{dir}: #line name {name} is not relative to {root} or a <std>/ file");
             }
         }
     }
@@ -418,7 +419,7 @@ public sealed class SelfhostDriverT5Tests
         [.. Directory.EnumerateFileSystemEntries(dir, "*", SearchOption.AllDirectories).Select(e => Path.GetRelativePath(dir, e)).Order(StringComparer.Ordinal)];
 
     /// <summary>The first `bayan:` line of `err` up to its first `(`, or null without one: the C#'s text after it names its
-    /// cache and .NET's exception message (Toolchain.cs:178), which the driver has not (Q1018 (j)).</summary>
+    /// cache and .NET's exception message (Toolchain.cs:208), where the driver writes its `IoError` (Q1149).</summary>
     private static string? BayanPrefix(string err) =>
         err.Split('\n').FirstOrDefault(l => l.StartsWith("bayan:", StringComparison.Ordinal)) is { } line ? line[..(line.IndexOf('(') is var i and >= 0 ? i : line.Length)] : null;
 
@@ -493,7 +494,7 @@ public sealed class SelfhostDriverT5Tests
     /// <summary>
     /// A Windows target's link by-product: a `zig` on `PATH` that writes its `-o` file and a `.pdb` beside it, as the Windows
     /// linker does. The C# links `program.exe` in its work directory and copies only the executable (Toolchain.cs:222), so the
-    /// output's directory holds what it held plus the output, and a user's `<name>.pdb` there keeps its bytes. The C# gets a
+    /// output's directory holds what it held plus the output, and a user's `<name>.pdb` there keeps its bytes. Each side gets a
     /// fresh `BAYAN_CACHE`, so the fake executable never enters the user's cache.
     /// </summary>
     [Fact]
@@ -508,9 +509,10 @@ public sealed class SelfhostDriverT5Tests
         var empty = Path.Combine(Golden.RepoRoot, "tmp", "t5", "empty-path");
         Directory.CreateDirectory(empty);
         var cache = Path.Combine(Golden.RepoRoot, "tmp", "t5", "pdb-cache");
+        var selfCache = cache + "-self";
         (int, byte[], string) Both(string side, string cwd, string[] args, string path) => side == "cs"
             ? Process("dotnet", [typeof(CliApp).Assembly.Location], cwd, args, path, cache)
-            : Process(SelfhostDriverHarness.Build(), null, cwd, args, path);
+            : Process(SelfhostDriverHarness.Build(), null, cwd, args, path, selfCache);
         foreach (var (args, path, user) in new[]
         {
             (new[] { "build", "--target", "windows-x64", "arithmetic.byn" }, bin, false),
@@ -521,7 +523,8 @@ public sealed class SelfhostDriverT5Tests
         })
         {
             var label = string.Join(' ', args) + (user ? " with the user's arithmetic.pdb" : "") + (path == empty ? " with no compiler" : "");
-            if (Directory.Exists(cache)) Directory.Delete(cache, recursive: true);
+            foreach (var c in new[] { cache, selfCache })
+                if (Directory.Exists(c)) Directory.Delete(c, recursive: true);
             var cs = Fresh("cs", "pdb");
             var self = Fresh("self", "pdb");
             foreach (var dir in new[] { cs, self })
@@ -539,7 +542,8 @@ public sealed class SelfhostDriverT5Tests
         }
         var csProject = Project("cs", "pdb", lib: false);
         var selfProject = Project("self", "pdb", lib: false);
-        if (Directory.Exists(cache)) Directory.Delete(cache, recursive: true);
+        foreach (var c in new[] { cache, selfCache })
+            if (Directory.Exists(c)) Directory.Delete(c, recursive: true);
         Assert.Null(Differs("build --target windows-x64 in a project", Both("cs", csProject, ["build", "--target", "windows-x64"], bin), Both("self", selfProject, ["build", "--target", "windows-x64"], bin)));
         Assert.Equal(Tree(csProject), Tree(selfProject));
     }
@@ -579,7 +583,7 @@ public sealed class SelfhostDriverT5Tests
             Assert.Equal(CliApp.ExitToolchain, expected.Exit);
             Assert.Contains("BYN4001", expected.Err);
             Assert.Null(Differs(string.Join(' ', args), expected, Process(SelfhostDriverHarness.Build(), null, self, args, bin)));
-            // A failed link leaves no staging directory either (plan D4).
+            // A failed link leaves nothing beside the source either.
             Assert.Equal(Entries(cs), Entries(self));
         }
     }

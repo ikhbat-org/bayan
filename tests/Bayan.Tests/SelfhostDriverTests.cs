@@ -92,23 +92,478 @@ public sealed class SelfhostDriverT1Tests
         new[] { "missing-script.byn" },
         new[] { "--ascii", "fmt", "--color", "never" },
         new[] { "version", Path.Combine(SelfhostDriverHarness.DriverDir, "main.byn"), "--color", "bad" },
+        new[] { "features" },
+        new[] { "dist", "--bogus" },
     }.Select(a => new object[] { a });
 
     [Theory]
     [MemberData(nameof(Corpus))]
     public void MatchesTheCSharpCli(string[] args) => AssertSameAsCs(args);
 
-    [Theory]
-    [InlineData("test")]
-    [InlineData("mutate")]
-    [InlineData("dist")]
-    public void RefusesWhatItDoesNotPort(string command)
+    /// <summary>
+    /// 017 T13: the mutation report's measured timing (in the summary line and the JSON's seconds) masked; a value that is exactly 0
+    /// (`mutate --binary`'s build time and share, no mutant run) is deterministic and compared, as is the rest.
+    /// </summary>
+    private static string MaskMutation(string text) =>
+        Regex.Replace(Regex.Replace(text, @"^timing: .*$", m => Regex.Replace(m.Value, @"(?<= )(?!0 |0%)[0-9.E+-]+(?= s|%)", "<t>"), RegexOptions.Multiline),
+            "\"(build_s|mean_mutant_s|max_mutant_s|total_s|mutant_share_of_build)\": (?!0[,\\n])[^,\\n]+", "\"$1\": <t>");
+
+    /// <summary>
+    /// 017 T13: <paramref name="args"/> through <c>CliApp.Run</c> and the driver with <paramref name="env"/> and a cache of each
+    /// side's own; stdout and <paramref name="report"/> (when given, deleted before each side) masked by <see cref="MaskMutation"/>.
+    /// </summary>
+    private static void AssertMutateAsCs(string? report, (string, string?)[] env, params string[] args)
     {
-        var (exit, stdout, stderr) = SelfhostDriverHarness.Run(command, "x");
-        Assert.Equal(CliApp.ExitUsage, exit);
-        Assert.Equal("", stdout);
-        // no-oracle: Q917 (the C# never prints the refusal of spec Q4; `CliApp.Run` runs these commands)
-        Assert.Equal($"error: `{command}` is not available in the self-hosted compiler; use the C# `bayan`\n", stderr);
+        string Side(bool driver)
+        {
+            var cache = Path.Combine(Golden.RepoRoot, "tmp", "t13-mutate-cache", driver ? "driver" : "csharp");
+            var text = "";
+            CliEnvironmentTests.WithTerminalEnv(() =>
+            {
+                if (report is not null && File.Exists(report)) File.Delete(report);
+                var (exit, stdout, stderr) = driver ? SelfhostDriverHarness.Run(args) : Oracle(args);
+                text = $"exit: {exit}\n--- stdout ---\n{MaskMutation(stdout)}--- stderr ---\n{stderr}";
+                if (report is not null) text += $"--- report ---\n{(File.Exists(report) ? MaskMutation(File.ReadAllText(report)) : "(none)")}";
+            }, [("CI", "1"), ("BAYAN_CACHE", cache), .. env]);
+            return text;
+        }
+        SelfhostEmitterHarness.AssertSame($"`{string.Join(' ', args)}`", Side(driver: false), Side(driver: true));
+    }
+
+    private static string MutateDir(string name)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t13-mutate", name);
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        return dir;
+    }
+
+    /// <summary>ExternalModeTests.cs:11 `Sites`: emitted, not emitted, marked and statement sites.</summary>
+    private const string MutateSites = """
+        { "version": 1, "sites": [
+          { "id": 1, "file": "a.byn", "line": 1, "column": 1, "operator": "arithmetic", "original": "a + b", "mutated": "a - b" },
+          { "id": 2, "file": "a.byn", "line": 2, "column": 1, "operator": "arithmetic", "original": "a * b", "mutated": "a / b" },
+          { "id": 3, "file": "a.byn", "line": 3, "column": 1, "operator": "bool", "original": "true", "mutated": "false", "emitted": false },
+          { "id": 4, "file": "a.byn", "line": 4, "column": 1, "operator": "arithmetic", "original": "a + 0", "mutated": "a - 0", "unobservable": "no test can see it" },
+          { "id": 5, "file": "b.byn", "line": 5, "column": 1, "operator": "statement", "original": "i += 1", "mutated": "" },
+          { "id": 6, "file": "b.byn", "line": 6, "column": 2, "operator": "mystery", "original": "x", "mutated": "y", "emitted": true, "unobservable": null },
+          { "id": 7, "file": "b.byn", "line": 7, "column": 3, "operator": "mystery", "original": "x", "mutated": "z", "emitted": false }
+        ] }
+        """;
+
+    /// <summary>017 T13: `mutate`'s arguments (CliApp.cs:888-909): usage errors, unexpected arguments and missing files.</summary>
+    [Fact]
+    public void MutateArgumentsAsCliAppDoes()
+    {
+        var dir = MutateDir("args");
+        var bin = Path.Combine(dir, "prog");
+        var sites = bin + ".sites.json";
+        File.WriteAllText(bin, "");
+        File.WriteAllText(sites, MutateSites);
+        var missing = Path.Combine(dir, "missing");
+        foreach (string[] args in new[]
+        {
+            new[] { "mutate" }, ["mutate", "x"], ["mutate", "--binary"], ["mutate", "--sites"], ["mutate", "--binary", bin, "--sites", sites],
+            ["mutate", "--binary", bin, "--sites", sites, "--"], ["mutate", "--sites", sites, "--", "true"], ["mutate", "--binary", bin, "--", "true"],
+            ["mutate", "--binary", missing, "--sites", sites, "--", "true"], ["mutate", "--binary", bin, "--sites", missing, "--", "true"],
+            ["mutate", "--binary", bin, "--sites", sites, "--bogus"],
+        })
+            AssertSameAsCs(args);
+    }
+
+    /// <summary>017 T13: ExternalSite.cs:14 `ReadAll` on site maps it refuses and on ones it reads (duplicates, a null mark).</summary>
+    [Theory]
+    [InlineData("not json")]
+    [InlineData("[1]")]
+    [InlineData("{ \"sites\": [] }")]
+    [InlineData("{ \"version\": \"1\", \"sites\": [] }")]
+    [InlineData("{ \"version\": 2, \"sites\": [] }")]
+    [InlineData("{ \"version\": 1.5, \"sites\": [] }")]
+    [InlineData("{ \"version\": 1 }")]
+    [InlineData("{ \"version\": 1, \"sites\": 3 }")]
+    [InlineData("{ \"version\": 1, \"sites\": [3] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": \"one\", \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\" }] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\" }] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": 1, \"file\": null, \"line\": 1, \"column\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\" }] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": 1, \"file\": \"a\", \"column\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\" }] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": 1, \"file\": \"a\", \"line\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\" }] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": 1, \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": null, \"original\": \"a\", \"mutated\": \"b\" }] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": 1, \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": \"o\", \"mutated\": \"b\" }] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": 1, \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": \"o\", \"original\": \"a\" }] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": 1, \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\", \"emitted\": \"yes\" }] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": 1, \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\", \"unobservable\": 3 }] }")]
+    [InlineData("{ \"version\": 1, \"sites\": [{ \"id\": 99999999999, \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\" }] }")]
+    [InlineData("{ \"version\": -1, \"sites\": [] }")]
+    [InlineData("{ \"version\": 1, \"version\": 2, \"sites\": [] }")]
+    [InlineData("\uFEFF{ \"version\": 1, \"sites\": [] }")]
+    [InlineData("{ \"version\": 2, \"version\": 1, \"sites\": [{ \"id\": -3, \"file\": \"a\", \"line\": 1, \"column\": 1, \"operator\": \"o\", \"original\": \"a\", \"mutated\": \"b\", \"unobservable\": null, \"emitted\": false }] }")]
+    public void MutateSiteMapsAsCliAppDoes(string map)
+    {
+        var dir = MutateDir("sites");
+        var bin = Path.Combine(dir, "prog");
+        var sites = bin + ".sites.json";
+        File.WriteAllText(bin, "");
+        File.WriteAllText(sites, map);
+        AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], "mutate", "--binary", bin, "--sites", sites, "--", "true");
+    }
+
+    /// <summary>
+    /// 017 T13: CliApp.cs:918 `File.ReadAllText` on a site map in each encoding its byte order mark names (UTF-16 and UTF-32, each byte
+    /// order), and on bytes it decodes with U+FFFD: invalid UTF-8 (each maximal subpart, and a sequence cut off by the end); lone UTF-16
+    /// surrogates in each byte order, an odd trailing byte and a high surrogate as the last unit; UTF-32 values past U+10FFFF or in the
+    /// surrogate range in each byte order, and a partial last unit. Also a UTF-16 map without a byte order mark and a one-byte map, which
+    /// the C# refuses as a site map.
+    /// </summary>
+    [Theory]
+    [InlineData("utf16le")]
+    [InlineData("utf16be")]
+    [InlineData("utf32le")]
+    [InlineData("utf32be")]
+    [InlineData("utf8-ff")]
+    [InlineData("utf8-truncated")]
+    [InlineData("utf8-overlong")]
+    [InlineData("utf8-end")]
+    [InlineData("utf16le-lone")]
+    [InlineData("utf16be-lone")]
+    [InlineData("utf16be-odd")]
+    [InlineData("utf32le-invalid")]
+    [InlineData("utf32be-invalid")]
+    [InlineData("utf16le-high-end")]
+    [InlineData("utf32le-partial")]
+    [InlineData("utf16le-nobom")]
+    [InlineData("short")]
+    public void MutateEncodedSiteMapsAsCliAppDoes(string encoding)
+    {
+        var dir = MutateDir($"encoded-{encoding}");
+        var bin = Path.Combine(dir, "prog");
+        var sites = bin + ".sites.json";
+        File.WriteAllText(bin, "");
+        static string Map(string file) => "{ \"version\": 1, \"sites\": [{ \"id\": 1, \"file\": \"" + file + "\", \"line\": 1, \"column\": 1, \"operator\": \"bool\", \"original\": \"t\", \"mutated\": \"f\" }] }";
+        static byte[] With(System.Text.Encoding e, string text) => [.. e.GetPreamble(), .. e.GetBytes(text)];
+        static byte[] Split(byte[] bytes, string at, byte[] insert)
+        {
+            var i = System.Text.Encoding.Latin1.GetString(bytes).IndexOf(at, StringComparison.Ordinal);
+            return [.. bytes[..i], .. insert, .. bytes[i..]];
+        }
+        var utf16le = new System.Text.UnicodeEncoding(bigEndian: false, byteOrderMark: true);
+        var utf16be = new System.Text.UnicodeEncoding(bigEndian: true, byteOrderMark: true);
+        var utf32le = new System.Text.UTF32Encoding(bigEndian: false, byteOrderMark: true);
+        var utf32be = new System.Text.UTF32Encoding(bigEndian: true, byteOrderMark: true);
+        var good = Map("a\u00e9\U0001F600.byn");
+        File.WriteAllBytes(sites, encoding switch
+        {
+            "utf16le" => With(utf16le, good),
+            "utf16be" => With(utf16be, good),
+            "utf32le" => With(utf32le, good),
+            "utf32be" => With(utf32be, good),
+            "utf8-ff" => Split(System.Text.Encoding.UTF8.GetBytes(Map("a.byn")), ".byn", [0xFF]),
+            "utf8-truncated" => Split(System.Text.Encoding.UTF8.GetBytes(Map("a.byn")), ".byn", [0xE2, 0x82]),
+            "utf8-overlong" => Split(System.Text.Encoding.UTF8.GetBytes(Map("a.byn")), ".byn", [0xC0, 0x80, 0xED, 0xA0, 0x80, 0xE0, 0x80, 0xF0, 0x80, 0xF4, 0x90, 0xE2, 0x82, 0xAC, 0xF4, 0x8F, 0xBF, 0xBF]),
+            "utf8-end" => [.. System.Text.Encoding.UTF8.GetPreamble(), .. System.Text.Encoding.UTF8.GetBytes(Map("a.byn")), 0xE2],
+            "utf16le-lone" => [.. utf16le.GetPreamble(), .. Split(utf16le.GetBytes(Map("a.byn")), ".\0b\0", [0x00, 0xD8, 0x41, 0x00, 0x00, 0xD8, 0x21, 0xFF, 0x00, 0xDC])],
+            "utf16be-lone" => [.. utf16be.GetPreamble(), .. Split(utf16be.GetBytes(Map("a.byn")), "\0.\0b", [0xD8, 0x00, 0x00, 0x41, 0xD8, 0x00, 0xFF, 0x21, 0xDC, 0x00])],
+            "utf16le-high-end" => [.. With(utf16le, good), 0x00, 0xD8],
+            "utf32le-partial" => [.. With(utf32le, good), 0x41],
+            "short" => [0x31],
+            "utf16be-odd" => [.. With(utf16be, good), 0x41],
+            "utf32le-invalid" => [.. utf32le.GetPreamble(), .. Split(utf32le.GetBytes(Map("a.byn")), ".\0\0\0b", [0x00, 0x00, 0x11, 0x00, 0x00, 0xD8, 0x00, 0x00])],
+            "utf32be-invalid" => [.. utf32be.GetPreamble(), .. Split(utf32be.GetBytes(Map("a.byn")), "\0\0\0.\0\0\0b", [0x00, 0x11, 0x00, 0x00, 0x00, 0x00, 0xD8, 0x00])],
+            _ => utf16le.GetBytes(good),
+        });
+        AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], "mutate", "--binary", bin, "--sites", sites, "--", "true");
+    }
+
+    /// <summary>
+    /// 017 T13: `JsonDocument.Parse`'s depth limit (ExternalSite.cs:18): a site map nested <paramref name="depth"/> deep (the root object,
+    /// then arrays in an extra member), at the limit and one past it.
+    /// </summary>
+    [Theory]
+    [InlineData(64)]
+    [InlineData(65)]
+    public void MutateDeepSiteMapsAsCliAppDoes(int depth)
+    {
+        var dir = MutateDir($"deep-{depth}");
+        var bin = Path.Combine(dir, "prog");
+        var sites = bin + ".sites.json";
+        File.WriteAllText(bin, "");
+        File.WriteAllText(sites, "{ \"version\": 1, \"sites\": [], \"x\": " + new string('[', depth - 1) + new string(']', depth - 1) + " }");
+        AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], "mutate", "--binary", bin, "--sites", sites, "--", "true");
+    }
+
+    /// <summary>017 T13: MutationRunner.cs:85 `RunExternal` through `mutate`: each status, `BAYAN_BINARY`, and a baseline that fails or cannot start.</summary>
+    [Fact]
+    public void MutateExternalAsCliAppDoes()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var dir = MutateDir("external");
+        var bin = Path.Combine(dir, "prog");
+        var sites = bin + ".sites.json";
+        File.WriteAllText(bin, "");
+        File.WriteAllText(sites, MutateSites);
+        var report = Path.Combine(dir, "bayan-quality.json");
+        string[] Mutate(string script) => ["mutate", "--binary", bin, "--sites", sites, "--", "/bin/sh", "-c", script];
+        AssertMutateAsCs(report, [], Mutate("[ \"$BAYAN_BINARY\" = \"" + Path.GetFullPath(bin) + "\" ] || exit 9; case $BAYAN_MUTANT in 2|4) exit 1;; 5) sleep 3;; esac; exit 0"));
+        AssertMutateAsCs(report, [], Mutate("exit 3"));
+        AssertMutateAsCs(report, [], Mutate("[ \"$BAYAN_MUTANT\" = 0 ] && sleep 3; exit 0"));
+        AssertMutateAsCs(report, [("BAYAN_TEST_TIMEOUT_MS", "300")], Mutate("[ \"$BAYAN_MUTANT\" = 0 ] && sleep 3; exit 0"));
+        AssertMutateAsCs(report, [], "mutate", "--binary", bin, "--sites", sites, "--", "nosuchcmd-xyz");
+        AssertMutateAsCs(report, [], Mutate("kill -9 $$"));
+        // each operator's suggestion (QualityReport.cs:47 `Suggest`): every site survives
+        File.WriteAllText(sites, "{ \"version\": 1, \"sites\": [ { \"id\": 1, \"file\": \"c.byn\", \"line\": 1, \"column\": 1, \"operator\": \"boundary\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 2, \"file\": \"c.byn\", \"line\": 2, \"column\": 1, \"operator\": \"relational\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 3, \"file\": \"c.byn\", \"line\": 3, \"column\": 1, \"operator\": \"logical\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 4, \"file\": \"c.byn\", \"line\": 4, \"column\": 1, \"operator\": \"condition\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 5, \"file\": \"c.byn\", \"line\": 5, \"column\": 1, \"operator\": \"bool\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 6, \"file\": \"c.byn\", \"line\": 6, \"column\": 1, \"operator\": \"arithmetic\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 7, \"file\": \"c.byn\", \"line\": 7, \"column\": 1, \"operator\": \"literal\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 8, \"file\": \"c.byn\", \"line\": 8, \"column\": 1, \"operator\": \"negation\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 9, \"file\": \"c.byn\", \"line\": 9, \"column\": 1, \"operator\": \"statement\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 10, \"file\": \"c.byn\", \"line\": 10, \"column\": 1, \"operator\": \"emptyReturn\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 11, \"file\": \"c.byn\", \"line\": 11, \"column\": 1, \"operator\": \"variant\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 12, \"file\": \"c.byn\", \"line\": 12, \"column\": 1, \"operator\": \"mystery\", \"original\": \"a\", \"mutated\": \"b\" } ] }");
+        AssertMutateAsCs(report, [], Mutate("exit 0"));
+    }
+
+    /// <summary>017 T13: `test --mutate` (CliApp.cs:855): killed, survived, timeout, marked, not-reached and not-emitted (MutantSchemataTests.cs:222) mutants, a pending and a failing test, and `--run`.</summary>
+    [Fact]
+    public void TestMutateAsCliAppDoes()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var dir = MutateDir("tests");
+        File.WriteAllText(Path.Combine(dir, "a.test.byn"), """
+            i64 inc(i64 n) {
+                var y = n
+                @unobservable because "no test can see it"
+                y += 0
+                return n + 1
+            }
+
+            i64 spin(i64 n) {
+                var i: i64 = 0
+                while i < n {
+                    i += 1
+                }
+                return i
+            }
+
+            i64 unused(i64 n) => n * 2
+
+            u8 top() {
+                return (250 + 4) + 1
+            }
+
+            test "inc" {
+                assert inc(1) > 0
+            }
+
+            test "spin" {
+                assert spin(2) == 2
+            }
+
+            test "nothing" {
+                assert true
+            }
+
+            test "later" {
+                todo("x")
+            }
+
+            test "broken" {
+                assert inc(1) == 3
+            }
+
+            """);
+        AssertMutateAsCs(null, [], "test", "--mutate", dir);
+        var loose = MutateDir("run");
+        File.WriteAllText(Path.Combine(loose, "a.test.byn"), "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n");
+        var report = Path.Combine(loose, "out", "test", "bayan-quality.json");
+        AssertMutateAsCs(report, [], "test", "--mutate", "--run", "\"$BAYAN_BINARY\" --test 0 >/dev/null", loose);
+        AssertMutateAsCs(report, [], "test", "--mutate", "--run", "exit 0", Path.Combine(loose, "a.test.byn"));
+        var project = MutateDir("project");
+        File.WriteAllText(Path.Combine(project, "package.byn"), "Package {\n    name: \"local/inc\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .lib,\n}\n");
+        Directory.CreateDirectory(Path.Combine(project, "src", "inc"));
+        File.WriteAllText(Path.Combine(project, "src", "inc", "a.test.byn"), "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n");
+        AssertMutateAsCs(Path.Combine(project, "out", "test", "bayan-quality.json"), [], "test", "--mutate", "--run", "exit 1", project);
+        AssertMutateAsCs(null, [], "test", "--mutate", project);
+        // CliApp.cs:878-879: the mutation gate under a manifest minimum, missed (a survivor) and met.
+        var gated = MutateDir("gated");
+        Directory.CreateDirectory(Path.Combine(gated, "src", "inc"));
+        File.WriteAllText(Path.Combine(gated, "src", "inc", "a.test.byn"), "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) > 0\n}\n");
+        foreach (var min in new[] { 100, 0 })
+        {
+            File.WriteAllText(Path.Combine(gated, "package.byn"), $"Package {{\n    name: \"local/inc\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .lib,\n    test: Tests {{ mutation: {min} }},\n}}\n");
+            AssertMutateAsCs(null, [], "test", "--mutate", gated);
+        }
+        var noCc = MutateDir("no-cc");
+        AssertMutateAsCs(null, [("PATH", noCc), ("BAYAN_CACHE", noCc)], "test", "--mutate", loose);
+    }
+
+    /// <summary>
+    /// The driver with its own <c>main</c> renamed <c>driverMain</c> and a probe <c>main</c> in a file of its own:
+    /// <c>numbers</c> prints <c>qualityJsonNumber</c> of each of <see cref="JsonNumbers"/>; <c>&lt;variant&gt; &lt;file&gt;…</c> compiles the files as
+    /// <c>Compilation.Create(sources, ".", Library: true)</c> does, gives each site the status <see cref="QualityOutcome"/> gives it, and prints
+    /// the report of <c>QualityReport.Mutation(…, 20, [0.5, 1.5], 25)</c> as JSON, then its summary with <c>Warnings</c>.
+    /// </summary>
+    private const string QualityProbe = """
+
+        import emitter
+        import lexer
+        import semantics
+
+        i32 main(ReadOnlySpan<string> args) uses alloc, clock, console, fs {
+            if args[0] == "numbers" {
+                for v in [0.0, 0.05, 1.5, 100.0, 1e-7, 1.2345678e-5, 1e20, 1.5e17, 1e-100, 0.1 + 0.2, 12345.678, 1e16, 0.00012, 4.5e-5] {
+                    Io.stdout.write($"{qualityJsonNumber(v)}\n")
+                }
+                return 0
+            }
+            let variant = args[0]
+            var files = List<lexer.SourceText>()
+            var given = List<lexer.SourceText>()
+            for f in args[1..args.length] {
+                let bytes = Io.readFile(f) catch List<u8>()
+                if variant != "nosources" { given.append(lexer.SourceText.create(f, from: bytes.copy())) }
+                files.append(lexer.SourceText.create(f, from: move bytes))
+            }
+            let options = T5CompilationOptions { library: true }
+            var c = semantics.create(from: move files, at: ".", by: in options)
+            let none = List<string>()
+            let schema = emitter.buildSchema(ref c, for: in none)
+            var mutants = List<MutantResult>()
+            for s in schema.sites {
+                let site = externalSiteFrom(in s)
+                if s.unobservable is not null && s.emitted && variant == "killed" {
+                    mutants.append(MutantResult { site: site, status: .killed, runs: 1, killedBy: 3 })
+                } else if s.unobservable is not null && s.emitted && variant == "timeout" {
+                    mutants.append(MutantResult { site: site, status: .timeout, runs: 1, killedBy: 3 })
+                } else if s.site.op == "boundary" {
+                    mutants.append(MutantResult { site: site, status: .survived, runs: 2 })
+                } else if s.site.op == "relational" {
+                    mutants.append(MutantResult { site: site, status: .killed, runs: 1, killedBy: 0 })
+                } else if !s.emitted {
+                    mutants.append(MutantResult { site: site, status: .notEmitted })
+                } else if s.unobservable is not null {
+                    mutants.append(MutantResult { site: site, status: .marked })
+                } else {
+                    mutants.append(MutantResult { site: site, status: .notReached })
+                }
+            }
+            let result = MutationResult { mutants: move mutants }
+            var seconds = List<f64>()
+            seconds.append(0.5)
+            seconds.append(1.5)
+            let report = qualityMutationResult("bayan test --mutate", from: in result, by: in schema, through: 20000000000, for: in seconds, as: 25000000000)
+            Io.stdout.write(qualityMutationJson(in report))
+            let warnings = qualityWarnings(in result, by: in schema, for: in c, from: in given)
+            Io.stdout.write(qualitySummary(in report, by: in warnings))
+            return 0
+        }
+        """;
+
+    /// <summary>The values the probe's <c>numbers</c> prints, in its order: plain, <c>E</c> notation each way, and the bounds between.</summary>
+    private static readonly double[] JsonNumbers = [0.0, 0.05, 1.5, 100.0, 1e-7, 1.2345678e-5, 1e20, 1.5e17, 1e-100, 0.1 + 0.2, 12345.678, 1e16, 0.00012, 4.5e-5];
+
+    private static readonly Lazy<(string? Path, string Error)> QualityBuilt = new(() =>
+    {
+        var sources = Directory.GetFiles(SelfhostDriverHarness.DriverDir, "*.byn").Order(StringComparer.Ordinal)
+            .Select(p => Path.GetFileName(p) == "main.byn"
+                ? SourceText.FromString(p, File.ReadAllText(p).Replace("i32 main(ReadOnlySpan<string> args) {", "i32 driverMain(ReadOnlySpan<string> args) {"))
+                : SourceText.FromFile(p)).ToList();
+        sources.Add(SourceText.FromString(Path.Combine(SelfhostDriverHarness.DriverDir, "qualityprobe.byn"), QualityProbe + "\n"));
+        var c = Compilation.Create(sources, packageRoot: SelfhostSemanticsHarness.SelfhostDir);
+        if (c.Diagnostics.HasErrors) return (null, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
+        var build = SelfhostSemanticsHarness.BuildFast(c, new HashSet<string>(StringComparer.Ordinal));
+        return build.Succeeded ? (build.ExecutablePath, "") : (null, build.Errors);
+    });
+
+    private static string RunQuality(string cwd, params string[] args)
+    {
+        var (path, error) = QualityBuilt.Value;
+        if (path is null) Assert.Fail($"selfhost/driver with the quality probe did not build:\n{error}");
+        var psi = new ProcessStartInfo(path!) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, WorkingDirectory = cwd };
+        foreach (var a in args) psi.ArgumentList.Add(a);
+        using var p = Process.Start(psi)!;
+        var stdout = p.StandardOutput.ReadToEndAsync();
+        var stderr = p.StandardError.ReadToEndAsync();
+        p.WaitForExit();
+        Assert.True(p.ExitCode == 0, $"quality probe {string.Join(' ', args)}: exit {p.ExitCode}\n{stderr.Result}");
+        return stdout.Result;
+    }
+
+    /// <summary>QualityReportTests.cs `Outcome`, with a marked emitted site killed (<c>killed</c>) or timed out (<c>timeout</c>) by test 3 as `AKilledMarkedMutantIsAWarning` makes it.</summary>
+    private static Bayan.Testing.MutantResult QualityOutcome(string variant, Bayan.Testing.SchemaSite s) => s switch
+    {
+        _ when s.Unobservable is not null && s.Emitted && variant == "killed" => new(s, Bayan.Testing.MutantStatus.Killed, 1, 3),
+        _ when s.Unobservable is not null && s.Emitted && variant == "timeout" => new(s, Bayan.Testing.MutantStatus.Timeout, 1, 3),
+        _ when s.Site.Operator == Bayan.Testing.Mutator.Boundary => new(s, Bayan.Testing.MutantStatus.Survived, 2, null),
+        _ when s.Site.Operator == Bayan.Testing.Mutator.Relational => new(s, Bayan.Testing.MutantStatus.Killed, 1, 0),
+        _ when !s.Emitted => new(s, Bayan.Testing.MutantStatus.NotEmitted, 0, null),
+        _ when s.Unobservable is not null => new(s, Bayan.Testing.MutantStatus.Marked, 0, null),
+        _ => new(s, Bayan.Testing.MutantStatus.NotReached, 0, null),
+    };
+
+    /// <summary>
+    /// 017 T13: QualityReportTests.cs over its fixture (the one <c>tests/cases/quality/mutation-report.json</c> is the report of) and
+    /// <c>MarksAreMatchedBySpanNotByReason</c>'s, plus two files with operator marks: <c>QualityReport.Mutation</c> (the
+    /// <c>MutationResult</c> form, timings unmasked), <c>Json</c>, <c>Warnings</c> (killed and timed-out marked mutants, marks that cover no
+    /// mutant, no sources) and <c>Summary</c> with them, in-process C# against the driver on the same files.
+    /// </summary>
+    [Fact]
+    public void QualityReportAsCSharpDoes()
+    {
+        var fixture = (string)typeof(QualityReportTests).GetField("Fixture", BindingFlags.NonPublic | BindingFlags.Static)!.GetRawConstantValue()!;
+        var span = "i64 f(i64 n) {\n    @unobservable because \"same\"\n    var a = n\n    var m = n\n    @unobservable because \"same\"\n    m += 1\n    return m\n}\n";
+        var ops = "i64 f(i64 n) {\n    @unobservable(negation) because \"no site of this operator\"\n    if n > 5 { return 1 }\n    @unobservable(boundary) because \"this operator\"\n    if \"é\" != \"\" && n > 7 { return 2 }\n    return 0\n}\n";
+        var other = "i64 g(i64 n) {\n    return n + 1\n}\n";
+        var cases = new (string Variant, (string Name, string Text)[] Files)[]
+        {
+            ("outcome", [("lib.test.byn", fixture)]), ("killed", [("lib.test.byn", fixture)]), ("timeout", [("lib.test.byn", fixture)]),
+            ("nosources", [("lib.test.byn", fixture)]), ("outcome", [("lib.test.byn", span)]), ("killed", [("a.byn", ops), ("b.byn", other)]),
+            ("outcome", [("b.byn", other), ("a.byn", ops)]),
+        };
+        var golden = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "cases", "quality", "mutation-report.json"));
+        for (var i = 0; i < cases.Length; i++)
+        {
+            var (variant, files) = cases[i];
+            var dir = MutateDir($"quality-{i}");
+            foreach (var (name, text) in files) File.WriteAllText(Path.Combine(dir, name), text);
+            var sources = files.Select(f => SourceText.FromString(f.Name, f.Text)).ToList();
+            var c = Compilation.Create(sources, ".", new CompilationOptions(Library: true));
+            Assert.False(c.Diagnostics.HasErrors, string.Join("\n", c.Diagnostics.Items.Select(d => d.Message)));
+            var schema = Bayan.Testing.Schemata.Build(c);
+            var result = new Bayan.Testing.MutationResult(schema.Sites.Select(s => QualityOutcome(variant, s)).ToList(), [], 0);
+            var report = Bayan.Testing.QualityReport.Mutation("bayan test --mutate", result, schema, 20, [0.5, 1.5], 25);
+            var expected = report.Json() + report.Summary(Bayan.Testing.QualityReport.Warnings(result, schema, c, variant == "nosources" ? [] : sources));
+            var actual = RunQuality(dir, [variant, .. files.Select(f => f.Name)]);
+            SelfhostEmitterHarness.AssertSame($"{variant} {string.Join(' ', files.Select(f => f.Name))}", expected, actual);
+            if (i == 0) Assert.StartsWith(golden, actual);
+        }
+    }
+
+    /// <summary>017 T13: the JSON text of a timing (QualityReport.cs:157 `WriteNumber`), <c>Utf8JsonWriter</c>'s, in-process.</summary>
+    [Fact]
+    public void JsonNumbersAsUtf8JsonWriterWrites()
+    {
+        var expected = new System.Text.StringBuilder();
+        foreach (var v in JsonNumbers)
+        {
+            var ms = new MemoryStream();
+            using (var w = new System.Text.Json.Utf8JsonWriter(ms)) w.WriteNumberValue(v);
+            expected.Append(System.Text.Encoding.UTF8.GetString(ms.ToArray())).Append('\n');
+        }
+        Assert.Equal(expected.ToString(), RunQuality(MutateDir("numbers"), "numbers"));
+    }
+
+    /// <summary>
+    /// 017 T13: `test`'s statuses, failures, rerun line, `--coverage` and its gates through T11's C# CLI rows
+    /// (SelfhostDriverGoldenTests), since `testCommand` and `writeCoverage` now call `mutateTests` and `reportGates`; and T13's own rows
+    /// there. Each runs in a work directory of its own (<c>t13-</c> before its name), never the one the Golden class's run of it uses.
+    /// </summary>
+    [Fact]
+    public void TestPathsAsCSharpCli()
+    {
+        var golden = new SelfhostDriverGoldenTests { WorkPrefix = "t13-" };
+        foreach (var flag in new[] { "", "-v", "--json" }) golden.TestStatusesAsCSharpCli(flag);
+        foreach (var flags in new[] { "", "-v", "-v --json" }) golden.TestFailuresAsCSharpCli(flags);
+        golden.TestRerunQuotesAsCSharpCli();
+        golden.TestChangedAndOnlyAsCSharpCli();
+        golden.TestTimeoutAsCSharpCli();
+        foreach (var args in SelfhostDriverGoldenTests.TestArguments()) golden.TestArgumentsAsCSharpCli(args);
+        foreach (var row in SelfhostDriverGoldenTests.TestRuns()) golden.TestAsCSharpCli((string)row[0], (string)row[1]);
+        golden.TestCoverageAsCSharpCli();
+        golden.TestPercentagesAsCSharpCli();
+        golden.TestMutateAsCSharpCli();
+        golden.MutationGatesAsCSharpCli();
+        golden.MutateSweptWorkDirectoryAsCSharpCli();
     }
 
     /// <summary>`build` and `run` reach their commands (T5, T6): a missing path fails as the C# does.</summary>
@@ -118,6 +573,16 @@ public sealed class SelfhostDriverT1Tests
         var missing = Path.Combine(Golden.RepoRoot, "tmp", "t1-driver", "missing.byn");
         AssertSameAsCs("build", missing);
         AssertSameAsCs("run", missing);
+    }
+
+    /// <summary>`test` reaches its command (017 T11): a missing path, an unknown argument and `--run` without `--mutate` fail as the C# does.</summary>
+    [Fact]
+    public void DispatchesTest()
+    {
+        var missing = Path.Combine(Golden.RepoRoot, "tmp", "t1-driver", "missing.byn");
+        AssertSameAsCs("test", missing);
+        AssertSameAsCs("test", "--bogus");
+        AssertSameAsCs("test", "--only");
     }
 
     [Fact]
@@ -285,6 +750,21 @@ public sealed class SelfhostDriverT1Tests
                 Write("main.byn", AuditSource);
                 File.CreateSymbolicLink(Path.Combine(dir, "broken.byn"), "/nonexistent");
                 return ["audit", dir];
+            case "cycle":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                Directory.CreateDirectory(Path.Combine(dir, "sub"));
+                Directory.CreateSymbolicLink(Path.Combine(dir, "sub", "up"), "..");
+                Directory.CreateSymbolicLink(Path.Combine(dir, "sub", "up2"), "..");
+                return ["audit", dir];
+            case "parent-link":
+                Write("outside.byn", "unsafe void prod() {\n}\n");
+                Write("dir/main.byn", "unsafe void peek() {\n}\n");
+                Directory.CreateSymbolicLink(Path.Combine(dir, "dir", "link"), "..");
+                return ["audit", Path.Combine(dir, "dir")];
+            case "file-link":
+                Write("main.byn", "unsafe void poke() {\n}\n");
+                File.CreateSymbolicLink(Path.Combine(dir, "alias.byn"), "main.byn");
+                return ["audit", dir];
             case "missing":
                 return ["audit", Path.Combine(dir, "nope")];
             case "no-path":
@@ -315,6 +795,22 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("two-paths")]
     [InlineData("uppercase")]
     public void AuditAsCliApp(string name) => AssertSameAsCs(AuditRow(name));
+
+    /// <summary>
+    /// The walk through links against <see cref="CliApp.Run"/>, exit, stdout and stderr: CliTests.cs:146 <c>AuditWalksSymlinkCyclesOnce</c> (<c>cycle</c>),
+    /// CliTests.cs:158 <c>AuditWalksASymlinkToAParentOfTheRootOnce</c> (<c>parent-link</c>) and a file link to a file listed once (<c>file-link</c>);
+    /// bounded in time as the C# tests are, since a walk that does not resolve <c>up -> ..</c> doubles at each level.
+    /// </summary>
+    [Theory]
+    [InlineData("cycle")]
+    [InlineData("parent-link")]
+    [InlineData("file-link")]
+    public async Task AuditWalksLinksAsCliApp(string name)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var args = AuditRow(name);
+        await Task.Factory.StartNew(() => AssertSameAsCs(args), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
+    }
 
     /// <summary>The commands <c>run</c> hands to a file of their own, by their usage or missing-path paths, against <see cref="CliApp.Run"/>.</summary>
     [Theory]
@@ -366,9 +862,8 @@ public sealed class SelfhostDriverT1Tests
     }
 
     /// <summary>
-    /// CliTests.cs:172 <c>AuditReportsALoopingFileLink</c>: a <c>loop.byn</c> that links to itself is reported and the walk goes on; stdout and exit equal the C#'s, stderr up to the message.
-    /// Listed skips (Q1106, no builtin reports a link target): CliTests.cs:146 <c>AuditWalksSymlinkCyclesOnce</c> and CliTests.cs:158 <c>AuditWalksASymlinkToAParentOfTheRootOnce</c>
-    /// (the driver walks a link to a parent 33 times where the C# resolves it and walks once), and CliMemoryBoundsTests.cs:162-200's symlink-outward row.
+    /// CliTests.cs:172 <c>AuditReportsALoopingFileLink</c>: a <c>loop.byn</c> that links to itself is reported and the walk goes on; stdout and exit equal the C#'s, stderr up to the message
+    /// (the C#'s "Too many levels of symbolic links", the driver's <c>IoError</c>, Q1106).
     /// </summary>
     [Fact]
     public void AuditReportsALoopingFileLinkAsCliApp()
@@ -645,6 +1140,8 @@ public sealed class SelfhostDriverT1Tests
             "unreadable-dir" => (new() { ["locked/a.byn"] = "let a = true;\n", ["b.byn"] = Fixable }, [["{D}"]]),
             "nested-bin" => (new() { ["src/bin/x.byn"] = "unsafe void poke() {\n}\n" + Unless }, [["--check", "{D}"]]),
             "scratch-dirs" => (new() { [".worktrees/x/a.byn"] = Unless, ["tmp/b.byn"] = Unless, ["src/ok.byn"] = Unless }, [["--check", "{D}"]]),
+            "outward-links" => (new() { ["fixture/.worktrees/x/a.byn"] = Unless, ["fixture/tmp/b.byn"] = Unless, ["fixture/src/ok.byn"] = Unless, ["outside/c.byn"] = Unless }, [["--check", "{D}/fixture"]]),
+            "package-link-outside" => (new() { ["outside/x.byn"] = "long i8(long x) => x\n", ["pkg/package.byn"] = Pkg("primitives: .csharp"), ["pkg/main.byn"] = "void main() {\n    let n = i8(3)\n}\n" }, [["{D}/pkg/main.byn"]]),
             "state-lines" => Twice(Diag("state-line-input.byn")),
             "line-join-member" => One(Diag("line-join-member.byn")),
             "line-join-enum-shorthand" => One(Diag("line-join-enum-shorthand.byn")),
@@ -688,6 +1185,12 @@ public sealed class SelfhostDriverT1Tests
             File.WriteAllText(path, text);
             if (name == "executable" && !OperatingSystem.IsWindows()) File.SetUnixFileMode(path, Executable);
         }
+        if (name == "outward-links")
+        {
+            Directory.CreateSymbolicLink(Path.Combine(dir, "fixture", "link"), Path.Combine(dir, "outside"));
+            Directory.CreateSymbolicLink(Path.Combine(dir, "fixture", "inner-link"), Path.Combine(dir, "fixture", "tmp"));
+        }
+        if (name == "package-link-outside") Directory.CreateSymbolicLink(Path.Combine(dir, "pkg", "vendor"), "../outside");
         var d = dir;
         return [.. runs.Select(args => (string[])["format", .. args.Select(a => a.Replace("{D}", d))])];
     }
@@ -699,7 +1202,8 @@ public sealed class SelfhostDriverT1Tests
 
     /// <summary>
     /// <c>format</c> on a fresh tree per side, at the same path: each run's exit, stdout and stderr, and the files after, equal the C#'s.
-    /// Not here: <c>FormatTests.PackageNamesSkipALinkLeavingThePackage</c> (a link leaving the package; <c>realPath</c> resolves no link; blocked by Q1106 (D7 follow-up)), the C# test hooks
+    /// <c>outward-links</c> is CliMemoryBoundsTests.cs:162 <c>M3_FormatSkipsScratchDirectoriesAndOutwardLinks</c> and <c>package-link-outside</c> is
+    /// <c>FormatTests.PackageNamesSkipALinkLeavingThePackage</c>; their links are made by <see cref="FormatRow"/>. Not here: the C# test hooks
     /// <c>Format.MaxPasses</c> and <c>Format.RewriteHook</c> and <c>WriteReplacing</c>'s temp file and rename (Q1111, Q1122).
     /// </summary>
     [Trait("Snapshot", "skip")]
@@ -768,8 +1272,11 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("check-style-clean")]
     [InlineData("idempotent-empty")]
     [InlineData("idempotent-package")]
+    [InlineData("outward-links")]
+    [InlineData("package-link-outside")]
     public void FormatAsCliApp(string name)
     {
+        if (OperatingSystem.IsWindows() && name is "outward-links" or "package-link-outside") return;
         var runs = FormatRow(name, out var dir);
         var expected = runs.Select(Oracle).ToList();
         var expectedTree = Tree(dir);
@@ -826,6 +1333,26 @@ public sealed class SelfhostDriverT1Tests
             Assert.StartsWith(prefix, actual.Err);
         }
         finally { File.SetUnixFileMode(target, open); }
+    }
+
+    /// <summary><c>format loop.byn</c> with <c>loop.byn -> loop.byn</c>: <c>RealPath(file)</c> fails inside <c>Run</c>'s <c>try</c> on both sides; stderr is compared up to the message (Q1106).</summary>
+    [Fact]
+    public void FormatReportsALoopingFileLinkAsCliApp()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-loop");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        var loop = Path.Combine(dir, "loop.byn");
+        File.CreateSymbolicLink(loop, "loop.byn");
+        string[] args = ["format", loop];
+        var expected = Oracle(args);
+        var actual = SelfhostDriverHarness.Run(args);
+        Assert.Equal(CliApp.ExitFailure, expected.Exit);
+        Assert.Equal(expected.Exit, actual.Exit);
+        SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
+        Assert.StartsWith($"bayan: {loop}: ", expected.Err);
+        Assert.StartsWith($"bayan: {loop}: ", actual.Err);
     }
 
     /// <summary>
@@ -1216,11 +1743,10 @@ public sealed class SelfhostDriverStyleEnvironmentTests
 }
 
 /// <summary>
-/// 017 T7, L028: every <c>tests/cases/style/</c> shape of the commands the driver ports (<c>check</c>, <c>build</c>, <c>run</c>, <c>audit</c>), rendered in the
+/// 017 T7, L028: every <c>tests/cases/style/</c> shape of the commands the driver ports (<c>check</c>, <c>build</c>, <c>run</c>, <c>audit</c>, <c>test</c> (T11)), rendered in the
 /// three renderings of <c>StyleTests</c> (colour on a dark truecolor terminal, plain, <c>--ascii</c>) and with <c>--color always</c>, <c>FORCE_COLOR</c>,
 /// <c>NO_COLOR</c> and <c>TERM=dumb</c>, against <c>CliApp.Run</c> in this process under the same environment (no terminal, as the law runs).
-/// Listed skips: <c>build-ok-cache</c> (the cache hit of <c>build</c> is not reported, T9 `build` cache); the shapes of commands the driver still refuses are <c>test-ok</c>, <c>test-fail</c>, <c>test-pending</c>, <c>test-verbose</c>,
-/// <c>test-assert-values</c> and <c>test-control-chars</c> (T11 `test`); <c>diag-secondary</c> calls the renderer and
+/// Listed skips: <c>build-ok-cache</c> (the cache hit of <c>build</c> is not reported, T9 `build` cache); <c>diag-secondary</c> calls the renderer and
 /// <c>CliApp.ReportToolchain</c> directly, no command prints it; <c>doctor-ok</c> and <c>doctor-fail</c> render fixed checks, which
 /// <c>SelfhostDefaultT5Tests</c> compares to the same files. The SGR codes are compared for every shape.
 /// </summary>
@@ -1237,7 +1763,7 @@ public sealed partial class SelfhostDriverStyleCaseTests
     public static TheoryData<string, string> Rows()
     {
         var data = new TheoryData<string, string>();
-        foreach (var shape in new[] { "diag-error-fix", "diag-removal-fix", "diag-cap", "diag-cap-all", "diag-warning", "types-ok", "types-fail", "check-json", "build-ok", "build-ok-verbose", "build-fail", "build-ice", "check-ok", "run-fail", "audit" })
+        foreach (var shape in new[] { "diag-error-fix", "diag-removal-fix", "diag-cap", "diag-cap-all", "diag-warning", "types-ok", "types-fail", "check-json", "build-ok", "build-ok-verbose", "build-fail", "build-ice", "check-ok", "run-fail", "audit", "test-ok", "test-fail", "test-pending", "test-verbose", "test-assert-values", "test-control-chars" })
             foreach (var rendering in new[] { "color", "plain", "ascii", "always", "force", "no-color", "dumb" })
             {
                 // listed skip: the fake C compiler of `build-ice` is a shell script
@@ -1266,7 +1792,21 @@ public sealed partial class SelfhostDriverStyleCaseTests
         "check-ok" => (Ok, [["check", main]]),
         "run-fail" => (Broken, [["run", main]]),
         "audit" => ("@allow(BYN2230) because \"kept for the C ABI\"\nvoid toHex() {\n}\n\nunsafe void poke() {\n}\n", [["audit", main]]),
+        "test-verbose" or "test-control-chars" => (Ok, [["test", "-v", Path.GetDirectoryName(main)!]]),
+        _ when Tests.ContainsKey(shape) => (Ok, [["test", Path.GetDirectoryName(main)!]]),
         _ => throw new ArgumentException($"unknown shape `{shape}`", nameof(shape)),
+    };
+
+    /// <summary>The <c>main.test.byn</c> of each <c>test-*</c> shape, as <c>StyleTests.Produce</c> writes it.</summary>
+    private static readonly Dictionary<string, string> Tests = new()
+    {
+        ["test-ok"] = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"compares\" {\n    assert(\"a\" != \"b\")\n}\n",
+        ["test-fail"] = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"is false\" {\n    assert(false)\n}\n\ntest \"panics\" {\n    panic(\"boom\")\n}\n",
+        ["test-pending"] = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"later\" {\n    todo(\"split by weight\")\n}\n",
+        ["test-verbose"] = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"later\" {\n    todo(\"split by weight\")\n}\n\ntest \"is false\" {\n    assert(false)\n}\n",
+        ["test-assert-values"] = "i64 cents(i64 units) {\n    return units * 100\n}\n\ntest \"leftover cents\" {\n    let net = cents(2) - 1\n    assert(net == cents(2))\n}\n",
+        ["test-control-chars"] = "test \"ok\\u{1b}]0;PWNED\\u{7}\" {\n    assert(true);\n}\n\ntest \"later\\u{1b}[2J\" {\n    todo(\"soon\");\n}\n\n"
+            + "test \"y\\u{1b}]0;PWNED\\u{7}\\u{1b}[2J\" {\n    panic(\"boom\\u{1b}[2J\\u{9b}31m\");\n}\n",
     };
 
     [GeneratedRegex(@"\d+\.\d+s")]
@@ -1284,6 +1824,7 @@ public sealed partial class SelfhostDriverStyleCaseTests
         var main = Path.Combine(dir, "main.byn");
         var (source, runs) = Shape(shape, main, Path.Combine(dir, Targets.ExecutableName("tally", CliApp.HostTarget)));
         File.WriteAllText(main, source);
+        if (Tests.TryGetValue(shape, out var tests)) File.WriteAllText(Path.Combine(dir, "main.test.byn"), tests);
         var fakeBin = Path.Combine(dir, "fakebin");
         var fakeCc = Path.Combine(fakeBin, "cc");
         if (shape == "build-ice")

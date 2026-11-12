@@ -9,6 +9,7 @@ rm -rf "$tmp"
 mkdir -p "$tmp"
 trap 'rm -rf "$tmp"' EXIT
 fail() { echo "FAIL: $1" >&2; exit 1; }
+unset RUNNER_ARCH
 sha() { if command -v sha256sum >/dev/null; then sha256sum "$1" | cut -d' ' -f1; else shasum -a 256 "$1" | cut -d' ' -f1; fi; }
 
 case "$(uname -s)-$(uname -m)" in
@@ -43,6 +44,29 @@ ZIG_BASE_URL="file://$tmp/site" ZIG_SHA256="$good" "$script" "$tmp/back\\slash" 
 mkdir -p "$tmp/shim"; printf '#!/bin/sh\ncase "$1" in -s) echo Plan9;; -m) echo mips;; esac\n' > "$tmp/shim/uname"; chmod +x "$tmp/shim/uname"
 if out="$(PATH="$tmp/shim:$PATH" "$script" "$tmp/none" 2>&1)"; then fail "an unknown host was accepted"; fi
 echo "$out" | grep -q "no pinned zig 0.17.0 for Plan9-mips" || fail "no unknown-host message: $out"
+
+# Every pinned platform, through a fake uname: the archive name asked for and the unpacked directory. RUNNER_ARCH wins over uname -m.
+host_row() { # os machine runner_arch target ext
+  local d="$tmp/row-$1-$2-${3:-none}" n="zig-$4-0.17.0" b
+  mkdir -p "$d/shim" "$d/src/$n" "$d/site/0.17.0"
+  printf '#!/bin/sh\ncase "$1" in -s) echo %s;; -m) echo %s;; esac\n' "$1" "$2" > "$d/shim/uname"; chmod +x "$d/shim/uname"
+  printf '#!/bin/sh\necho 0.17.0\n' > "$d/src/$n/zig"; chmod +x "$d/src/$n/zig"
+  if [ "$5" = zip ]; then (cd "$d/src" && zip -qr "$d/site/0.17.0/$n.zip" "$n"); else tar -cJf "$d/site/0.17.0/$n.tar.xz" -C "$d/src" "$n"; fi
+  b="$(PATH="$d/shim:$PATH" RUNNER_ARCH="$3" ZIG_BASE_URL="file://$d/site" ZIG_SHA256="$(sha "$d/site/0.17.0/$n.$5")" "$script" "$d/dest" 2>/dev/null)" \
+    || fail "$1 $2 ${3:-no RUNNER_ARCH} was refused for $4"
+  [ "$b" = "$d/dest/$n" ] || fail "$1 $2 ${3:-no RUNNER_ARCH}: stdout was '$b', want $n"
+}
+host_row Linux x86_64 "" x86_64-linux tar.xz
+host_row Linux aarch64 "" aarch64-linux tar.xz
+host_row Darwin arm64 "" aarch64-macos tar.xz
+host_row Darwin x86_64 "" x86_64-macos tar.xz
+host_row MINGW64_NT-10.0 x86_64 "" x86_64-windows zip
+host_row MINGW64_NT-10.0 aarch64 "" aarch64-windows zip
+host_row MSYS_NT-10.0 arm64 "" aarch64-windows zip
+host_row MINGW64_NT-10.0 x86_64 ARM64 aarch64-windows zip
+host_row MINGW64_NT-10.0 aarch64 X64 x86_64-windows zip
+host_row Linux x86_64 ARM64 aarch64-linux tar.xz
+host_row Darwin arm64 X64 x86_64-macos tar.xz
 
 # A .zig-version the sums are not for is refused before anything is downloaded.
 mkdir -p "$tmp/repo/scripts/ci"; cp "$script" "$tmp/repo/scripts/ci/"; echo 0.18.0 > "$tmp/repo/.zig-version"

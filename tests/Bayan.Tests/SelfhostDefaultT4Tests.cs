@@ -271,22 +271,6 @@ public sealed class SelfhostDefaultT4Tests
     public void InitInsideAGitDirectoryIsNotInsideAWorkTreeAsCSharp() =>
         Same(["init", "{D}/r/.git/refs"], setup: dir => Assert.Equal(0, Start("git", [], dir, ["init", "--quiet", "r"], null).Exit));
 
-    [Theory]
-    [InlineData("test")]
-    [InlineData("mutate")]
-    [InlineData("dist")]
-    public void StillRefusesTheCommandsOfTheOtherTasks(string command)
-    {
-        var dir = Fresh();
-        try
-        {
-            var r = Start(SelfhostDriverHarness.Build(), [], dir, [command], null);
-            Assert.Equal(CliApp.ExitUsage, r.Exit); // no-oracle: Q917 the C# runs these commands; the refusal text is R3's (Q4)
-            Assert.Equal($"error: `{command}` is not available in the self-hosted compiler; use the C# `bayan`\n", r.Err);
-        }
-        finally { TestDirs.Delete(dir); }
-    }
-
     [Fact]
     public void InitInitialisesGitAsCSharp() =>
         Same(["init"], relativeCwd: "proj", setup: dir => Directory.CreateDirectory(Path.Combine(dir, "proj")));
