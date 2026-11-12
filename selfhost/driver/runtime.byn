@@ -910,6 +910,7 @@ static uint8_t byn_out_buf[1 << 14];
 static int64_t byn_out_len;
 
 static void byn_out(const uint8_t* p, int64_t n) {
+    if (n <= 0) return; /* an empty string has a null pointer; memcpy(NULL, 0) is undefined */
     if (byn_out_len + n > (int64_t)sizeof byn_out_buf) {
         byn_stdout_flush();
         if (n > (int64_t)sizeof byn_out_buf) {
