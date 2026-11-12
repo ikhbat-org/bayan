@@ -29,10 +29,14 @@ for a in "$@"; do
 done
 cd "$(git rev-parse --show-toplevel)"
 run() { if [ "$execute" = 1 ]; then printf 'run:  %s\n' "$*"; "$@"; else printf 'would: %s\n' "$*"; fi; }
+# `git branch -d` judges "merged" against HEAD, not the branch the checks above use (dev, feat/017-selfhost-default):
+# from a checkout whose HEAD lacks it, it refuses. Report and go on rather than let `set -e` stop the script halfway.
+del() { if [ "$execute" = 1 ]; then printf 'run:  git branch -d %s\n' "$1"; git branch -d "$1" || printf 'keep: %s (git branch -d refused: HEAD does not contain it; rerun from the dev checkout)\n' "$1"
+  else printf 'would: git branch -d %s\n' "$1"; fi; }
 
 b=tmp-probe-review-2026-11-12
 if git show-ref --verify --quiet "refs/heads/$b"; then
-  if git merge-base --is-ancestor "$b" refs/heads/dev; then run git branch -d "$b"
+  if git merge-base --is-ancestor "$b" refs/heads/dev; then del "$b"
   else printf 'keep: %s (not in dev)\n' "$b"; fi
 fi
 
@@ -40,7 +44,7 @@ for n in 017-preflight-sh 017-t11-refusal-tests; do
   b=chore/$n; w="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/.worktrees/chore-$n"
   if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
     [ -d "$w" ] && run git worktree remove "$w"
-    run git branch -d "$b"
+    del "$b"
   else printf 'keep: %s (missing or not merged)\n' "$b"; fi
 done
 
@@ -60,7 +64,7 @@ b=chore/worker-017-t14b; w="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/
 if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
   for k in 017-t14b 017-t14b-review 017-t14--gate-review; do run deno run -A "$HOME/.claude/tools/worker.js" retire "$k"; done
   [ -d "$w" ] && run git worktree remove "$w"
-  run git branch -d "$b"
+  del "$b"
 else printf 'keep: %s (missing or not merged)\n' "$b"; fi
 
 # T17, landed into feat/017-selfhost-default by land.sh (7b50c9e9), and the preflight/wave-brief .yml fix merged there
@@ -69,19 +73,19 @@ b=chore/worker-017-t17; w="$root/.worktrees/worker-017-t17"
 if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
   for k in 017-t17 017-t17-review; do run deno run -A "$HOME/.claude/tools/worker.js" retire "$k"; done
   [ -d "$w" ] && run git worktree remove "$w"
-  run git branch -d "$b"
+  del "$b"
 else printf 'keep: %s (missing or not merged)\n' "$b"; fi
 b=fix/017-preflight-yml; w="$root/.worktrees/fix-017-preflight-yml"
 if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
   [ -d "$w" ] && run git worktree remove "$w"
-  run git branch -d "$b"
+  del "$b"
 else printf 'keep: %s (missing or not merged)\n' "$b"; fi
 
 # the full-run test fixes, merged into feat/017-selfhost-default
 b=fix/017-full-suite; w="$root/.worktrees/fix-017-full-suite"
 if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
   [ -d "$w" ] && run git worktree remove "$w"
-  run git branch -d "$b"
+  del "$b"
 else printf 'keep: %s (missing or not merged)\n' "$b"; fi
 
 # T18, landed into feat/017-selfhost-default by land.sh (88f817cb)
@@ -89,7 +93,7 @@ b=chore/worker-017-t18; w="$root/.worktrees/worker-017-t18"
 if git show-ref --verify --quiet "refs/heads/$b" && git merge-base --is-ancestor "$b" refs/heads/feat/017-selfhost-default; then
   for k in 017-t18 017-t18-review; do run deno run -A "$HOME/.claude/tools/worker.js" retire "$k"; done
   [ -d "$w" ] && run git worktree remove "$w"
-  run git branch -d "$b"
+  del "$b"
 else printf 'keep: %s (missing or not merged)\n' "$b"; fi
 
 for f in /tmp/w015t8.py /tmp/pt.out /tmp/rt_new_51494.c; do
