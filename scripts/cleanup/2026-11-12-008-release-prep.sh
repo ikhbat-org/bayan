@@ -52,9 +52,10 @@ done
 # Fails closed: an unreachable host, an unknown VM state or a failed unit listing skips the remote steps.
 state=""; units=""
 if [ "$remote" = 1 ]; then
-  state=$(ssh ghosthive 'incus list bayan-test01 -c s -f csv' 2>/dev/null) || state=unreachable
+  state=$(ssh -o ConnectTimeout=15 ghosthive 'incus list bayan-test01 -c s -f csv' 2>/dev/null) || state=unreachable
   if [ "$state" = RUNNING ]; then
-    units=$(ssh ghosthive 'incus exec bayan-test01 -- sh -c "systemctl list-units --state=active,activating --no-legend --plain; if pgrep -u bt -x dotnet >/dev/null; then echo full-008-dotnet; fi"' 2>/dev/null) || state=unreachable
+    # a failed listing exits non-zero (fails closed); a dotnet of any user counts as a job (root ran full-9af7 by hand)
+    units=$(ssh -o ConnectTimeout=15 ghosthive 'incus exec bayan-test01 -- sh -c "systemctl list-units --state=active,activating --no-legend --plain || exit 1; if pgrep -x dotnet >/dev/null; then echo full-008-dotnet; fi"' 2>/dev/null) || state=unreachable
   fi
 fi
 if [ "$remote" = 1 ] && [ "$state" != RUNNING ] && [ "$state" != STOPPED ]; then
@@ -64,9 +65,13 @@ elif [ "$remote" = 1 ] && grep -qE '^ *(full-008|shard-|w6-check|cap-check)' <<<
 elif [ "$remote" = 1 ]; then
   run ssh ghosthive 'cd /root && rm -f feat008.bundle full-008.sh w6-check.sh cap-check.sh cap-fix.sh rerun-fail-9af7.sh rerun2-9af7.sh run-full-9af7.sh dev-9af76107.bundle'
   # A VM that was running is left running (another job may start on it); one this step starts is stopped again.
-  if [ "$state" = STOPPED ]; then run ssh ghosthive 'incus start bayan-test01'; fi
-  run ssh ghosthive 'incus exec bayan-test01 -- sh -c "rm -rf /root/work-full /root/dev-9af76107.bundle /root/run-full-9af7.sh /root/full-9af7.* /root/rerun*-9af7.* /home/bt/r-9af7 /home/bt/w6 /home/bt/rc /home/bt/feat008.bundle /home/bt/w6-check.sh /home/bt/cap-check.sh /home/bt/cap-fix.sh /home/bt/full-008.sh /home/bt/run.sh /home/bt/w6*.log /home/bt/w6.out /home/bt/cap-*.out /home/bt/cap-*.log /home/bt/*.bin /home/bt/*.err /home/bt/full-008.* /home/bt/f008-*"'
-  if [ "$state" = STOPPED ]; then run ssh ghosthive 'incus stop bayan-test01'; fi
+  # A VM this step starts gets its agent waited for, and is stopped again in the same ssh call whatever the rm returns.
+  vm_rm='incus exec bayan-test01 -- sh -c "rm -rf /root/work-full /root/dev-9af76107.bundle /root/run-full-9af7.sh /root/full-9af7.* /root/rerun*-9af7.* /home/bt/r-9af7 /home/bt/w6 /home/bt/rc /home/bt/feat008.bundle /home/bt/w6-check.sh /home/bt/cap-check.sh /home/bt/cap-fix.sh /home/bt/full-008.sh /home/bt/run.sh /home/bt/w6*.log /home/bt/w6.out /home/bt/cap-*.out /home/bt/cap-*.log /home/bt/*.bin /home/bt/*.err /home/bt/full-008.* /home/bt/f008-*"'
+  if [ "$state" = STOPPED ]; then
+    run ssh ghosthive "incus start bayan-test01 && for i in \$(seq 60); do incus exec bayan-test01 -- true 2>/dev/null && break; sleep 2; done; $vm_rm; rc=\$?; incus stop bayan-test01; exit \$rc"
+  else
+    run ssh ghosthive "$vm_rm"
+  fi
 else
   printf 'skip: extrode-fleet01 and bayan-test01 scratch (needs --delete-remote-scratch)\n'
 fi
