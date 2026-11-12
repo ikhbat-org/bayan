@@ -63,6 +63,10 @@ mk wp1 150 0 0; set +e; out=$(bash "$S" merge .); rc=$?; set -e
 ok "merge fails on an unfinished slice" "$rc.$(echo "$out" | grep -c 'DID NOT FINISH')" "1.1"
 rm -f overall.wall; mk wp1 150 0 1
 ok "overall wall defaults to the slowest slice" "$(bash "$S" merge . | grep '^total' | grep -o 'wall [0-9]*s')" "wall 150s"
+printf 'vm\nwp1\n' > hosts; rm -f vm.result
+set +e; out=$(bash "$S" merge .); rc=$?; set -e
+ok "merge fails when a host left no result" "$rc.$(echo "$out" | grep -c '^vm: no result')" "1.1"
+rm -f hosts
 cd ..
 
 # dry run: no host is touched
@@ -71,6 +75,8 @@ git init -q -b base . && git config user.email t@t && git config user.name t && 
 d=$(PATH="$t/bin:$PATH" bash "$S" run --dry-run --classes cls.txt --times w.tsv --host vm=1.45 --host wp1=1.0 2>&1)
 ok "dry run touches no host" "$([ -e ssh-calls ] && echo called || echo none)" "none"
 ok "dry run lists both slices" "$(echo "$d" | grep -c '^-- ')" "2"
+ok "speed 0 rejected" "$(bash "$S" run --dry-run --classes cls.txt --host vm=0 2>&1 | head -1)" "shard-test: bad speed in vm=0 (must be above 0)"
+ok "speed . rejected" "$(bash "$S" run --dry-run --classes cls.txt --host vm=. 2>&1 | head -1)" "shard-test: bad speed in vm=. (must be above 0)"
 ok "dry run rejects wlt1" "$(bash "$S" run --dry-run --classes cls.txt --host wlt1=1 2>&1 | head -1)" "shard-test: unsupported host wlt1 (vm, wp1)"
 
 cd "$root"; rm -rf "$t"

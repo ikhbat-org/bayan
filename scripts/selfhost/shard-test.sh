@@ -6,18 +6,20 @@
 # Hosts: vm (bayan-test01 on ghosthive: started, reniced, run as user bt via systemd-run, stopped at the end, also on failure) and
 # wp1 (through scripts/selfhost/wp1-test.sh, which has no other host, so wlt1 is not supported). The number after = is the host's speed
 # (higher is faster; measured full suite: vm 25.4 min, wp1 36.6 min, so vm=1.45 wp1=1.0). Default hosts: vm=1.45 wp1=1.0.
+# A VM that was already running is left running at the end; one this script started is stopped.
 # Class weights: tmp/shard/class-times.tsv (class<TAB>seconds); a class missing there gets the median weight. The class list comes from
 # `dotnet test --list-tests` on the built assembly (or --classes FILE, one class per line), so a new class is never dropped.
 # Packing is greedy longest-first onto the host that would finish earliest (load/speed). Each slice is --filter terms
 # `FullyQualifiedName~Ns.Class.` joined by `|`, chunked to --max-filter chars (Windows argv limit 32767) and run chunk after chunk.
-# The vm slice is aborted (unit stopped) when the vm's MemAvailable drops below 10 GiB. --branch (default: the current branch) must be at
+# The vm slice is aborted (unit stopped) when ghosthive's MemAvailable (the host, not the VM) drops below 10 GiB, when ghosthive
+# cannot be reached for 10 polls in a row (5 min), or after 3 hours. --branch (default: the current branch) must be at
 # the commit under test (wp1-test.sh bundles a branch). Output in tmp/shard/<sha8>/: <host>.result, <host>.log, summary.
 # Internal sub-commands (used by shard-test.test.sh): pack CLASSES TSV hosts, filters MAX, merge DIR.
 # Exit non-zero if a slice failed or did not finish.
 set -u
 HERE=$(cd "$(dirname "$0")" && pwd)
 TSV_DEFAULT=tmp/shard/class-times.tsv
-VM=bayan-test01; GH=ghosthive; MIN_KB=$((10*1024*1024))
+VM=bayan-test01; GH=ghosthive; MIN_KB=$((10*1024*1024)); POLL_S=${SHARD_POLL_S:-30}; MAX_POLLS=${SHARD_MAX_POLLS:-360}
 
 # per-class seconds from a TRX: results hold testId + duration, definitions hold testId -> className
 trx_times() {
@@ -62,6 +64,11 @@ filters() {
 # merge DIR: <host>.result files (host=, wall=, rc=, done=, log=) -> totals, failing tests per host, walls; non-zero when a slice failed
 merge() {
   local d=$1 bad=0 tp=0 tf=0 f h wall rc dn log p fl names
+  if [ -f "$d/hosts" ]; then
+    for h in $(cat "$d/hosts"); do
+      [ -f "$d/$h.result" ] || { printf '%s: no result, DID NOT FINISH\n' "$h"; bad=1; }
+    done
+  fi
   for f in "$d"/*.result; do
     [ -f "$f" ] || continue
     h=$(sed -n 's/^host=//p' "$f"); wall=$(sed -n 's/^wall=//p' "$f"); rc=$(sed -n 's/^rc=//p' "$f")
@@ -88,19 +95,22 @@ RUNCMD="dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q --logg
 vmssh() { ssh "$GH" "incus exec $VM -- $*"; }
 
 slice_wp1() { # dir branch
-  local d=$1 t0 rc=0 n=0 f
+  local d=$1 t0 rc=0 n=0 f r
   t0=$(date +%s); : > "$d/wp1.log"
   while IFS= read -r f; do
     n=$((n+1)); echo "== chunk $n" >> "$d/wp1.log"
-    bash "$HERE/wp1-test.sh" "$2" "$f" >> "$d/wp1.log" 2>&1 || { rc=$?; break; }
+    bash "$HERE/wp1-test.sh" "$2" "$f" >> "$d/wp1.log" 2>&1 || { r=$?; [ "$rc" != 0 ] || rc=$r; }
   done < "$d/wp1.filters"
   write_result "$d" wp1 $(( $(date +%s) - t0 )) "$rc" 1 "$d/wp1.log"
 }
 
 slice_vm() { # dir sha bundle
-  local d=$1 sha=$2 s=${2:0:8} t0 rc="" done=0 D out mem unit log i=0
+  local d=$1 sha=$2 s=${2:0:8} t0 rc="" done=0 D out mem unit log i=0 polls=0 miss=0
   D=/home/bt/shard/$s; unit=shard-$s; log=$d/vm/out/log; mkdir -p "$d/vm"; t0=$(date +%s)
-  ssh "$GH" "incus list $VM -c s -f csv" | grep -qi running || ssh "$GH" "incus start $VM" || { write_result "$d" vm 0 1 0 ""; return; }
+  if ! ssh "$GH" "incus list $VM -c s -f csv" | grep -qi running; then
+    ssh "$GH" "incus start $VM" || { write_result "$d" vm 0 1 0 ""; return; }
+    : > "$d/vm.started"
+  fi
   ssh "$GH" 'for p in $(pgrep -f "[q]emu.*'$VM'"); do renice -n 15 -p $p; done' > /dev/null 2>&1
   until vmssh true > /dev/null 2>&1; do i=$((i+1)); [ $i -lt 60 ] || { write_result "$d" vm 0 1 0 ""; return; }; sleep 5; done
   ssh "$GH" "incus exec $VM -- bash -c 'mkdir -p /root/shard-scratch && cat > /root/shard-scratch/$s.bundle'" < "$3" || { write_result "$d" vm 0 1 0 ""; return; }
@@ -124,23 +134,36 @@ slice_vm() { # dir sha bundle
   } > "$d/vm.setup.sh"
   ssh "$GH" "incus exec $VM -- bash -s" < "$d/vm.setup.sh" > "$d/vm/setup.out" 2>&1 || { write_result "$d" vm 0 1 0 "$d/vm/setup.out"; return; }
   while :; do
-    sleep 30
-    out=$(ssh "$GH" "incus exec $VM -- bash -c 'cat $D/out/rc 2>/dev/null; echo ---; systemctl is-active $unit; grep MemAvailable /proc/meminfo'" 2>/dev/null)
-    rc=$(printf '%s\n' "$out" | sed -n '1{/^---$/!p;}')
+    sleep "$POLL_S"; polls=$((polls+1))
+    # one call: the host's MemAvailable (the 10 GiB floor guards ghosthive's other VMs), then the unit's rc file and state
+    out=$(ssh "$GH" "grep MemAvailable /proc/meminfo; incus exec $VM -- bash -c 'echo ---; cat $D/out/rc 2>/dev/null; echo ---; systemctl is-active $unit'" 2>/dev/null)
+    if [ -z "$out" ]; then
+      miss=$((miss+1))
+      [ "$miss" -lt 10 ] || { echo "shard-test: $GH unreachable for 10 polls; giving up on the vm slice" >&2; rc=4; break; }
+      continue
+    fi
+    miss=0
+    rc=$(printf '%s\n' "$out" | awk '/^---$/ { n++; next } n == 1 { print; exit }')
     [ -z "$rc" ] || { done=1; break; }
     mem=$(printf '%s\n' "$out" | sed -n 's/^MemAvailable: *\([0-9]*\) kB/\1/p')
     if [ -n "$mem" ] && [ "$mem" -lt "$MIN_KB" ]; then
-      echo "shard-test: vm MemAvailable ${mem} kB below 10 GiB; stopping $unit" >&2
+      echo "shard-test: $GH MemAvailable ${mem} kB below 10 GiB; stopping $unit" >&2
       vmssh "systemctl stop $unit" > /dev/null 2>&1; rc=3; break
     fi
-    printf '%s\n' "$out" | grep -qx 'inactive\|failed' && { rc=1; break; }
+    if printf '%s\n' "$out" | grep -qx 'inactive\|failed'; then
+      # the unit may have written rc and exited between the two reads: read rc once more
+      rc=$(vmssh "cat $D/out/rc" 2>/dev/null)
+      if [ -n "$rc" ]; then done=1; else rc=1; fi
+      break
+    fi
+    [ "$polls" -lt "$MAX_POLLS" ] || { echo "shard-test: vm slice over $((MAX_POLLS * POLL_S))s; stopping $unit" >&2; vmssh "systemctl stop $unit" > /dev/null 2>&1; rc=5; break; }
   done
   ssh "$GH" "incus exec $VM -- tar -C $D -cf - out" 2> /dev/null | tar -C "$d/vm" -xf - 2> /dev/null
   vmssh "rm -rf $D /root/shard-scratch/$s.bundle" > /dev/null 2>&1
   write_result "$d" vm $(( $(date +%s) - t0 )) "$rc" "$done" "$log"
 }
 
-vm_stop() { ssh "$GH" "incus stop $VM" > /dev/null 2>&1; }
+vm_stop() { [ ! -f "$SHARD_DIR/vm.started" ] || ssh "$GH" "incus stop $VM" > /dev/null 2>&1; }
 
 list_classes() { # class names from the built test assembly, one per line
   dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false --list-tests 2> /dev/null |
@@ -162,6 +185,7 @@ run() {
   for h in ${hosts//,/ }; do
     case ${h%%=*} in vm|wp1) :;; *) echo "shard-test: unsupported host ${h%%=*} (vm, wp1)"; exit 2;; esac
     case ${h#*=} in ''|*[!0-9.]*|"$h") echo "shard-test: bad speed in $h"; exit 2;; esac
+    awk -v v="${h#*=}" 'BEGIN { exit !(v + 0 > 0) }' || { echo "shard-test: bad speed in $h (must be above 0)"; exit 2; }
   done
   [ -n "$br" ] || br=$(git symbolic-ref --short -q HEAD) || { echo "shard-test: detached HEAD, pass --branch"; exit 2; }
   local sha; sha=$(git rev-parse --verify -q "$br^{commit}") || { echo "shard-test: no branch $br"; exit 2; }
@@ -170,7 +194,8 @@ run() {
   if [ -z "$classes" ]; then classes=$d/classes.txt; list_classes > "$classes"; fi
   [ -s "$classes" ] || { echo "shard-test: no test classes found"; exit 1; }
   pack "$classes" "$times" "$hosts" > "$d/slices.tsv"
-  rm -f "${d:?}"/*.result "${d:?}/overall.wall"
+  rm -f "${d:?}"/*.result "${d:?}/overall.wall" "${d:?}/vm.started"; SHARD_DIR=$d
+  printf '%s\n' ${hosts//,/ } | sed 's/=.*//' > "$d/hosts"
   for h in ${hosts//,/ }; do
     h=${h%%=*}; awk -F'\t' -v h="$h" '$1 == h { print $3 }' "$d/slices.tsv" | filters "$maxf" > "$d/$h.filters"
     printf '%s: %s classes, est %ss, %s filter chunk(s)\n' "$h" "$(awk -F'\t' -v h="$h" '$1 == h' "$d/slices.tsv" | wc -l | tr -d ' ')" \
