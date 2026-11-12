@@ -1116,7 +1116,7 @@ void main() {
 > Round 3 §19: capturing the modifier at registration means the cleanup decision matches the state the scope was entered with.
 
 ### 7.7 `provide` and `context`
-`provide allocator: arena, io: Io.evented() { … }` sets implicit context values and effect handlers for the block (§14). `context` is only the value (`context.Io`, `context.allocator`). The `context (…) { … }` block form is rejected with a fix-it to `provide` (BYN6006).
+`provide allocator: arena, io: Io.evented() { … }` (`io:`: not in 0.x, §13) sets implicit context values and effect handlers for the block (§14). `context` is only the value (`context.Io`, `context.allocator`). The `context (…) { … }` block form is rejected with a fix-it to `provide` (BYN6006).
 
 ```csharp
 let net = FakeNet(label)
@@ -1561,7 +1561,7 @@ public u32 crc(ReadOnlySpan<u8> data) { … }   // no `uses`: no alloc, no suspe
   | Effect | Covers |
   |---|---|
   | `alloc` | Heap allocation |
-  | `suspend` | Parking the current fiber (waiting on I/O or a timer) |
+  | `suspend` | Parking the current fiber (waiting on I/O or a timer); the effect is checked, fiber parking is not in 0.x (§13) |
   | `net` | Any socket: TCP, UDP, Unix domain sockets, named pipes |
   | `fs` | Files and directories |
   | `clock` | Reading the time |

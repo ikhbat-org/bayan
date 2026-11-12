@@ -6,6 +6,8 @@ Examples use the round-4 clause order (`where → expects → uses → becomes �
 
 ## Relation to the spec
 
+Revision 0023 removed SPEC §13.1–13.5 and left a placeholder; the `§13` section and line cites below refer to the removed text, kept in the Diff section of `docs/revisions/0023-syntax-freeze-provisional-sections.md`.
+
 This reopens Appendix A's `async`/`await` (user decision 2026-11-04): `scope`/`spawn` replaces `async`/`await` and `Io.group()`. Round 4 removes `async`/`await`/`Io.group` from spec §13 and Appendix A by revision.
 
 The block deadline is `scope(timeout:)` / `until:` (user decision 2026-11-04). Round 4 removes `provide timeout: d { … }` (spec §13 :1556), which also clashes with BYN6007.

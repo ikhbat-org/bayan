@@ -55,7 +55,7 @@ Status values:
 | Debug format (`as: .debug`) | SPEC §6.6 | built | `BinderExpressions.cs:2049`, `:2133` |
 | Text to float `tryParse` | rev 0015 | built | `run/float-try-parse.byn:15`; not yet in SPEC (AUDIT A29) |
 | GC tier | SPEC §9.8; rev 0019 | rejected | SPEC:1325-1326; AUDIT A19 |
-| `scope` / `spawn` concurrency | rev 0019 | spec-only | Not in `Keywords.cs`; SPEC §13 not rewritten (AUDIT A20) |
+| `scope` / `spawn` concurrency | rev 0019 | spec-only | Not in `Keywords.cs`; SPEC §13 is a placeholder (rev 0023); design in `docs/bayan-concurrency.md` |
 | Type overloads | rev 0019 (not in v0.1) | deferred | BYN2006; AUDIT A22 |
 | Lockfile `package.lock.byn` | `docs/bayan-handoff-addendum-001.md:94` | unverified | SPEC:2284 still says `bayan.lock` (AUDIT A23) |
 | `Event<T>` / `raise` | SPEC (:1793) | spec-only | Not implemented (AUDIT, Dropped N11) |

@@ -6,7 +6,7 @@
 #       `Revisions applied:` line is `0001–<highest>`;
 #   (c) docs/DIAGNOSTICS.md and docs/STATUS.md equal what scripts/docs/gen-diagnostics.sh and gen-status.sh print;
 #   (d) every code and test mirror of VERSION (version.sh `bayan_mirrors`) holds VERSION;
-#   (e) every BYNnnnn cited in the spec, grammar and style is in docs/DIAGNOSTICS.md (a descriptor, a code comment
+#   (e) every BYNnnnn cited in the spec, grammar and style has a row in docs/DIAGNOSTICS.md (a descriptor, a code comment
 #       or a docs/diagnostics-allocated.txt line; revision 0023).
 set -uo pipefail
 
@@ -62,8 +62,8 @@ if [ -f "$root/docs/DIAGNOSTICS.md" ]; then
   for doc in docs/bayan-spec.md docs/bayan-grammar.md docs/bayan-style.md; do
     [ -f "$root/$doc" ] || continue
     for code in $(grep -oE 'BYN[0-9]{4}' "$root/$doc" | sort -u); do
-      grep -qF "$code" "$root/docs/DIAGNOSTICS.md" \
-        || fail "$doc cites $code, which docs/DIAGNOSTICS.md does not list; add it to docs/diagnostics-allocated.txt"
+      grep -qE "^\| (\[$code\]\(|$code \|)" "$root/docs/DIAGNOSTICS.md" \
+        || fail "$doc cites $code, which has no row in docs/DIAGNOSTICS.md; add it to docs/diagnostics-allocated.txt"
     done
   done
 fi
