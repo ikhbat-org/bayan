@@ -37,6 +37,11 @@ public sealed class Lexer
     int _depth;
     bool _tooDeep;
 
+    /// <summary>Brackets and blocks nested deeper than this are reported once; the indexer opens no scope past it.</summary>
+    public const int MaxNesting = 256;
+    int _open;
+    bool _nestingReported;
+
     public static Lexer Run(string text)
     {
         var lx = new Lexer();
@@ -132,6 +137,9 @@ public sealed class Lexer
             }
             if (c == '@') { Add(TokenKind.At, i, 1); i++; continue; }
             if (c == ';') Problem((i, 1, "`;` is not needed; a newline ends the statement", "BYN1040"));
+
+            if (c is '(' or '[' or '{') { if (++_open > MaxNesting && !_nestingReported) { _nestingReported = true; Problem((i, 1, $"brackets and blocks nested deeper than {MaxNesting} levels", null)); } }
+            else if (c is ')' or ']' or '}' && _open > 0) _open--;
 
             // Multi-char punctuation the analyzer cares about.
             int len = 1;

@@ -45,6 +45,7 @@ br good src/a.c 'int delta;' docs/bayan-handoff.md '200. **T99.** `src/a.c:2` `b
   $REV '| 1 | LOW | `src/a.c:4` `delta` | open |'
 br stale src/a.c 'int delta;' docs/bayan-handoff.md '201. `src/a.c:9` is past the end; `src/a.c:1` `delta` is 3 lines on; `src/a.c:1-2` `gamma` ends short; `nope.c:1` does not exist; `src/a.c:3` `gamma` holds.'
 br outside .github/workflows/r.yml 'on: push' .github/workflows/s.yml 'on: push' src/b.c 'int b;' scripts/r.sh 'true' scripts/s.sh 'true' bootstrap/r.c "int r;" src/d.c 'int d;' src/e.c 'int e;' tests/Bayan.Tests/BarTests.cs 'class BarTests {}' work/todo.md '- x'
+br driver selfhost/driver/main.byn 'x'
 br qdup docs/bayan-handoff.md '101. again'
 br qout docs/bayan-handoff.md '205. out of range'
 br qbase docs/bayan-handoff.md '202. mine'
@@ -58,6 +59,7 @@ printf 'branch: good\nsha: %s\nfilter: %s\nPassed!  - Failed:     0, Passed:    
 printf 'filter: %s\nFailed!  - Failed:     1, Passed:     3, Skipped:     0, Total:     4\nexit 1\n' "$F" > $W; wexit=$(pf T99 good)
 printf 'filter: %s\nexit 0\n' "$F" > $W; wnone=$(pf T99 good)
 printf 'filter: FullyQualifiedName~FooT8Tests\nPassed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1\nexit 0\n' > $W; wfilt=$(pf T99 good)
+printf '  Passed Bayan.Tests.%s.A [1 ms]\n' FooT8Tests CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests SelfhostDriverT2Tests SelfhostDefaultT4Tests SelfhostDriverT5Tests > "$aux/test-out"; mapped=$(pf T99 driver); mapargs=$(cat "$aux/test-args"); passing
 stale=$(pf T99 stale); outside=$(pf T99 outside)
 qdup=$(pf T99 qdup); qout=$(pf T99 qout); qbase=$(pf T99 qbase); qline=$(pf T98 qline); norange=$(pf T97 norange); notask=$(pf T96 good)
 printf '  Passed Bayan.Tests.%s.A [1 ms]\n' CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests > "$aux/test-out"; zero=$(pf T99 good)
@@ -77,6 +79,8 @@ fail() { echo "FAIL: $1"; echo "$2"; exit 1; }
 has() { grep -qxF -- "$2" <<< "$1"; }
 for l in "ok cites (5 checked)" "ok files (3 changed)" "ok questions (1 added, range Q200–Q204)" "ok plan-strings" "rc=1"; do has "$good" "$l" || fail "the clean branch lacks '$l'" "$good"; done
 has "$good" "ok tests (4 passed: FooT8Tests CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests)" || fail "the tests line is not the file's declared class and the cross-cutting set" "$good"
+has "$mapped" "ok tests (7 passed: FooT8Tests CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests SelfhostDriverT2Tests SelfhostDefaultT4Tests SelfhostDriverT5Tests)" || fail "a change to selfhost/driver/main.byn did not add the test-map classes" "$mapped"
+grep -q -- "--filter $F|FullyQualifiedName~SelfhostDriverT2Tests|FullyQualifiedName~SelfhostDefaultT4Tests|FullyQualifiedName~SelfhostDriverT5Tests " <<< "$mapargs" || fail "the filter for a driver change is '$mapargs'" "$mapped"
 grep -q -- "--filter $F " <<< "$targs" || fail "dotnet test ran '$targs'" "$good"
 grep -q "^FAIL wp1: no tmp/wp1/$gsha.out for good's HEAD; run: bash scripts/selfhost/wp1-test.sh good '$F'$" <<< "$good" || fail "a missing wp1 run is not reported with its command" "$good"
 [ "$(grep -c '^FAIL' <<< "$good")" = 1 ] || fail "the clean branch has a FAIL besides wp1" "$good"

@@ -9,8 +9,8 @@
 #   files      every file the branch changes is in the task's files list or one the guard allows; prints the addition
 #   questions  every Question number the branch adds is new to the handoff (the branch's and the base's) and inside the task's
 #              range (its task line, else $BAYAN_QRANGES or <main checkout>/tmp/q-ranges.tsv, written by wave-brief.py)
-#   tests      the classes declared in the task's tests/Bayan.Tests/*.cs and CInventoryTests, SelfhostDriverT8Tests,
-#              SelfhostDriverRuntimeTests pass, each running at least one test; plan-strings-check passes (scripts/bayan-tool.sh)
+#   tests      the classes declared in the task's tests/Bayan.Tests/*.cs and those of test-map.tsv (the smoke set always, a row when
+#              the branch changes a file its glob matches) pass, each running at least one test; plan-strings-check passes (scripts/bayan-tool.sh)
 #   wp1        tmp/wp1/<sha>.out (wp1-test.sh) exists for the branch's HEAD, ends in `exit 0`, ran tests, and its filter names every class above
 # On a checkout of <branch> the working tree is checked (a writer before its commit), else the branch's commit in a temporary worktree.
 # Logs go to tmp/preflight/<t>/.
@@ -26,7 +26,6 @@ SHA=$(git rev-parse --verify -q "$BR^{commit}") || { echo "FAIL branch: no branc
 git rev-parse --verify -q "$BASE^{commit}" > /dev/null || { echo "FAIL branch: no base branch $BASE"; exit 1; }
 QR=${BAYAN_QRANGES:-$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/tmp/q-ranges.tsv}
 OUT=$PWD; L=$OUT/tmp/preflight/$t; rm -rf "$L"; mkdir -p "$L"
-CROSS="CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests"
 F=0; ok() { echo "ok $1"; }; fail() { echo "FAIL $1"; F=1; }
 
 if [ "$(git rev-parse --abbrev-ref HEAD)" = "$BR" ]; then WT=$OUT; else
@@ -152,7 +151,13 @@ for f in "${TESTF[@]+"${TESTF[@]}"}"; do
   [ -n "$cs" ] || cs=$(basename "$f" .cs)
   CLASSES+=($cs)
 done
-CLASSES+=($CROSS)
+# test-map.tsv: the smoke set (glob `*`) and the classes of every row whose glob matches a changed file
+while IFS=$'\t' read -r glob cls; do
+  [[ -z $glob || $glob == '#'* ]] && continue
+  hit=0; [ "$glob" = '*' ] && hit=1
+  while [ $hit = 0 ] && IFS= read -r f; do [ -n "$f" ] && [[ $f == $glob ]] && hit=1; done <<< "$CHANGED"
+  [ $hit = 0 ] || CLASSES+=($cls)
+done < "$HERE/test-map.tsv"
 CLASSES=($(printf '%s\n' "${CLASSES[@]}" | awk '!seen[$0]++'))
 FILT=$(printf 'FullyQualifiedName~%s|' "${CLASSES[@]}"); FILT=${FILT%|}
 if ! dotnet build -v q > "$L/build.txt" 2>&1; then fail "tests: build failed — $(grep -m3 -E ' error [A-Z]+[0-9]+' "$L/build.txt" | sed 's/.*\///' | tr '\n' ' ')"
