@@ -291,9 +291,13 @@ bool t7Utf8() uses alloc, env {
 
 /// The C# `File.Exists`: `path` reads and is not a directory.
 bool t1FileExists(string path) {
-    let _ = Io.listDir(path) catch {
-        let _ = Io.readFile(path) catch return false
-        return true
+    // Q31 (plan 013): the listing and the bytes are read only to test the path, so both are freed with the arena
+    using let arena = Arena()
+    provide allocator: arena {
+        let _ = Io.listDir(path) catch {
+            let _ = Io.readFile(path) catch return false
+            return true
+        }
     }
     return false
 }
