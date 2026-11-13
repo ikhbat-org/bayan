@@ -99,3 +99,19 @@ Fable's verify pass grepped everything reachable from `runRegions`. The only las
    - This is the same land.sh deviation as plans 009, 011, 012 and 013: specs.tsv has no row for a Q31 plan.
 
 ETA after approval: about 3–4 h, including the 31-minute VM run.
+
+## Results (2026-11-14)
+Max RSS of bayan alone (fake zig), stage 1 from the emitted C: macOS `/usr/bin/time -l`, Linux bayan-test01 `wait4`.
+
+| | macOS before | macOS after | Linux before | Linux after |
+|---|---|---|---|---|
+| `check` | 743 | 396 | 841 | 472 |
+| `--emit-c` | 1,026 | 678 | 1,155 | 786 |
+| `build` | 1,072 | 699 | 1,168 | 798 |
+
+- Fix 1 off: macOS 582 / 865 / 886, Linux 670 / 985 / 995. Fix 2 off: macOS 557 / 839 / 860, Linux 644 / 958 / 965.
+- Bounds: `check` 480 MB (macOS) / 560 MB (Linux). Sampled break-tests on macOS fail it: fix 1 off 578 MB, fix 2 off 550 MB. The `--emit-c` bound was dropped: with fix 2 off it sampled 765 MB against 760 (margin under 40 MB); `work/todo.md`.
+- Rollback off (`t42Undo` returns false): ASan reports a heap-use-after-free in `copyIds` from `changedFields` (`region2.byn:713`) on `this-ref-call-modifies-borrowed-field.byn`, freed by the `t42SummaryInArena` arena. With the rollback: no report.
+- ASan (`-O1 -g -fsanitize=address`, `ulimit -s 65520`): the driver `--emit-c` is clean and byte-identical to `bootstrap/bayan.c`; the 73 `diag/` cases with BYN3002–3006/BYN3214, each checked alone, are clean.
+- `pairs`/`returns` clear off: **not caught.** The driver C and all 73 cases stay identical. A doubled list makes `known` 2n, and the next pass sees n ≠ 2n and rewrites it, so the fixpoint costs one extra pass and ends the same. It goes wrong only when a later true count is exactly 2n. The clear stays in; the missing test is in `work/todo.md`.
+- Fix 3: no test (depends on the host's `$TMPDIR`); 37 MB here with 110,784 entries.
