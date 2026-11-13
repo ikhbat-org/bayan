@@ -187,8 +187,8 @@ public static class Toolchain
 
     /// <summary>
     /// What the C compiler is, beyond its command, computed once per process and command: the output of <c>zig version</c> (zig cc)
-    /// or <c>&lt;compiler&gt; --version</c>, and the SHA-256 of the compiler's file, so an in-place upgrade misses every key. A
-    /// compiler that cannot report its version (a wrapper script) is its command and the hash.
+    /// or <c>&lt;compiler&gt; --version</c>, and the compiler file's <see cref="CompilerStamp"/>, so an in-place upgrade misses
+    /// every key. A compiler that cannot report its version (a wrapper script) is its command and the stamp.
     /// </summary>
     internal static string CompilerIdentity(string[] compiler)
     {
@@ -199,26 +199,41 @@ public static class Toolchain
 
     private static string ComputeIdentity(string[] compiler)
     {
-        var file = Path.IsPathRooted(compiler[0]) ? compiler[0] : FindOnPath(compiler[0]);
-        var hash = "";
-        try
-        {
-            if (file is not null && File.Exists(file)) hash = HashFile(file);
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        var stamp = CompilerStamp(compiler);
         var zig = compiler.Length > 1 && compiler[1] == "cc" && Path.GetFileNameWithoutExtension(compiler[0]) == "zig";
         try
         {
             // 30 s, or the compile timeout when that is shorter: a hung compiler fails the build within its limit.
             var limit = CompileTimeout < TimeSpan.FromSeconds(30) ? CompileTimeout : TimeSpan.FromSeconds(30);
             var (code, stdout, _) = Exec(compiler[0], [zig ? "version" : "--version"], Environment.CurrentDirectory, limit);
-            if (code == 0) return stdout + "\0" + hash;
+            if (code == 0) return stdout + "\0" + stamp;
         }
         catch (Exception e) when (e is System.ComponentModel.Win32Exception or IOException or UnauthorizedAccessException)
         {
             // Not a compiler that reports its version; its command stands in.
         }
-        return string.Join(" ", compiler) + "\0" + hash;
+        return string.Join(" ", compiler) + "\0" + stamp;
+    }
+
+    /// <summary>
+    /// The compiler file's path (as given, else as <see cref="FindOnPath"/> found it) and the last write time of the file it links
+    /// to, in ticks; empty when there is no such file. Reading it runs nothing and hashes nothing.
+    /// </summary>
+    internal static string CompilerStamp(string[] compiler)
+    {
+        var file = Path.IsPathRooted(compiler[0]) ? compiler[0] : FindOnPath(compiler[0]);
+        try
+        {
+            if (file is null || !File.Exists(file)) return "";
+            var info = new FileInfo(file);
+            // A link's own time is not the compiler's: the target's is, as stat(2) reads it.
+            var target = info.ResolveLinkTarget(returnFinalTarget: true) ?? info;
+            return file + ":" + target.LastWriteTimeUtc.Ticks;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return "";
+        }
     }
 
     public static string? FindOnPath(string name)
@@ -590,12 +605,13 @@ public static class Toolchain
     }
 
     /// <summary>
-    /// The key under which a script's program is remembered: compiler version and build, mode, host
-    /// and the script's bytes (its <c>#:</c> directives included). The C compiler isn't part of it,
-    /// so a remembered script starts even when no C compiler is installed.
+    /// The key under which a script's program is remembered: compiler version and build, mode, host,
+    /// the script's bytes (its <c>#:</c> directives included) and the C compiler's
+    /// <see cref="CompilerStamp"/>, empty when none is found. The compiler is not run, so a remembered
+    /// script starts even when no C compiler is installed.
     /// </summary>
     public static string ScriptKey(byte[] script, BuildMode mode, string? build = null) =>
-        Hash(string.Join("\0", "script", CompilerVersion, build ?? CompilerBuild, mode, Targets.Host, Convert.ToHexStringLower(SHA256.HashData(script))));
+        Hash(string.Join("\0", "script", CompilerVersion, build ?? CompilerBuild, mode, Targets.Host, Convert.ToHexStringLower(SHA256.HashData(script)), FindCompiler() is { } compiler ? CompilerStamp(compiler) : ""));
 
     /// <summary>
     /// Size and last-write time of the running compiler and its <c>Bayan*.dll</c> assemblies (any

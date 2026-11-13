@@ -214,16 +214,12 @@ string t9CompilerIdentity(in List<string> compiler, through ref DCtx d) uses all
     return d.identity
 }
 
-/// Toolchain.cs:200 `ComputeIdentity`: the output of `zig version` (zig cc) or `<compiler> --version` and the SHA-256 of the
-/// compiler's file; the command and the hash when it cannot report its version. `Io.run` without `directory:` runs in the
-/// current directory, as the C#'s `Environment.CurrentDirectory`.
+/// Toolchain.cs:200 `ComputeIdentity`: the output of `zig version` (zig cc) or `<compiler> --version` and the compiler file's
+/// stamp; the command and the stamp when it cannot report its version. `Io.run` without `directory:` runs in the current
+/// directory, as the C#'s `Environment.CurrentDirectory`.
 string t9ComputeIdentity(in List<string> compiler) uses alloc, clock, env, fs, process {
-    var file: string? = compiler[0]
-    unless Path.isRooted(compiler[0]) { file = ccFindOnPath(compiler[0], for: Target.os) }
-    var hash = ""
-    if (file is { } f) {
-        if Fs.fileExists(f) { hash = t9HashFile(f) catch "" }
-    }
+    // Toolchain.cs:202.
+    let stamp = t9CompilerStamp(in compiler)
     let zig = compiler.length > 1 && compiler[1] == "cc" && ccWithoutExtension(Path.fileName(compiler[0])) == "zig"
     var args = List<string>()
     args.append(zig ? "version" : "--version")
@@ -231,10 +227,29 @@ string t9ComputeIdentity(in List<string> compiler) uses alloc, clock, env, fs, p
     let compile = t9CompileTimeout() / 1000000
     // Not a compiler that reports its version; its command stands in.
     let r = Io.run(compiler[0], args.span, timeout: Millis(compile < 30000 ? compile : 30000)) catch switch {
-        IoError e => return $"{ccJoin(in compiler)}\0{hash}",
+        IoError e => return $"{ccJoin(in compiler)}\0{stamp}",
     }
-    if r.exitCode == 0 { return $"{r.stdout}\0{hash}" }
-    return $"{ccJoin(in compiler)}\0{hash}"
+    // Toolchain.cs:209, :215.
+    if r.exitCode == 0 { return $"{r.stdout}\0{stamp}" }
+    return $"{ccJoin(in compiler)}\0{stamp}"
+}
+
+/// Toolchain.cs:222 `CompilerStamp`: the compiler file's path (as given, else as `FindOnPath` found it) and the last write time
+/// of the file it links to, in `DateTime` ticks; empty when there is no such file. `Fs.modified` follows links as stat(2) does,
+/// which is the C#'s `ResolveLinkTarget(returnFinalTarget: true)`.
+string t9CompilerStamp(in List<string> compiler) uses alloc, env, fs {
+    // Toolchain.cs:224.
+    var file: string? = compiler[0]
+    unless Path.isRooted(compiler[0]) { file = ccFindOnPath(compiler[0], for: Target.os) }
+    // Toolchain.cs:227.
+    if (file is { } f) {
+        unless Fs.fileExists(f) { return "" }
+        // Toolchain.cs:228-233: an IO error is the empty stamp.
+        let written = Fs.modified(f) catch return ""
+        // Toolchain.cs:231: ticks count 100 ns from 0001-01-01, which is 621355968000000000 ticks before the Unix epoch.
+        return $"{f}:{621355968000000000 + written.nanos / 100}"
+    }
+    return ""
 }
 
 /// Toolchain.cs:281: the key of a program, from the compiler version, mode, target, C compiler and its identity, flags, runtime
@@ -778,7 +793,8 @@ void t9Remember(string scriptKey, by string programKey, through ref DCtx d) uses
     try Fs.rename(temp, to: Path.combine(scripts, scriptKey))
 }
 
-/// Toolchain.cs:498 `ScriptKey`: compiler version and build, mode, host and the script's bytes. `build` null is `CompilerBuild`.
+/// Toolchain.cs:613 `ScriptKey`: compiler version and build, mode, host, the script's bytes and the C compiler's stamp, empty
+/// when none is found. `build` null is `CompilerBuild`.
 string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build) uses alloc, env, fs {
     var sb = StrBuf()
     sb.append("script")
@@ -792,6 +808,10 @@ string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build) use
     sb.append(targetHost() ?? "")
     sb.append("\0")
     sb.append(Hex.encode(sha256(script).span))
+    sb.append("\0")
+    // Toolchain.cs:614 `FindCompiler() is { } compiler ? CompilerStamp(compiler) : ""`.
+    let compiler = ccFindCompiler()
+    sb.append(compiler.length > 0 ? t9CompilerStamp(in compiler) : "")
     return t9Hash(sb.finish())
 }
 

@@ -235,8 +235,32 @@ public sealed class SelfhostDefaultT9Tests
         var script = Path.Combine(dir, "tool.byn");
         File.WriteAllText(script, "#:mode fast\nvoid main() { print(\"hi\") }\n");
         Assert.True(Toolchain.TryParseMode(mode, out var buildMode));
-        var expected = Toolchain.ScriptKey(File.ReadAllBytes(script), buildMode, build);
+        var expected = With("BAYAN_CC", null, () => Toolchain.ScriptKey(File.ReadAllBytes(script), buildMode, build));
         Assert.Equal($"{expected}\n", Driver(null, "scriptkey", script, mode, build));
+    }
+
+    /// <summary>
+    /// The script key holds the compiler file's path and write time (Toolchain.cs:222 `CompilerStamp`): a <c>zig</c> on <c>PATH</c>
+    /// with a new write time gives a new key, the C#'s.
+    /// </summary>
+    [Fact]
+    public void TheScriptKeyFollowsTheCompilersWriteTime()
+    {
+        if (LoggingZig("scriptkey-mtime") is not { } bin) return;
+        var dir = Fresh("scriptkey-mtime");
+        var script = Path.Combine(dir, "tool.byn");
+        File.WriteAllText(script, "print(\"hi\")\n");
+        var path = bin + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH");
+        string Key(int year)
+        {
+            Stamp(bin, year);
+            var expected = With("BAYAN_CC", null, () => With("PATH", path, () => Toolchain.ScriptKey(File.ReadAllBytes(script), BuildMode.Safe, "b")));
+            Assert.Equal($"{expected}\n", Driver(null, [("PATH", path)], "scriptkey", script, "safe", "b"));
+            return expected;
+        }
+        var first = Key(2020);
+        Assert.Equal(first, Key(2020));
+        Assert.NotEqual(first, Key(2021));
     }
 
     // ── Lookup and LookupScript (Toolchain.cs:289, :462) ────────────────────────────────────
@@ -938,8 +962,8 @@ public sealed class SelfhostDefaultT9Tests
     }
 
     /// <summary>
-    /// A <c>zig</c> on a <c>PATH</c> of its own that appends its argv to <c>$CCLOG</c> and runs the real zig; <paramref name="tag"/>
-    /// is a comment that changes the file, and so its hash, without changing what it does. Null when the C# compiler is not zig.
+    /// A <c>zig</c> on a <c>PATH</c> of its own that appends its argv to <c>$CCLOG</c> and runs the real zig; a non-empty
+    /// <paramref name="tag"/> is what its <c>zig version</c> prints. Null when the C# compiler is not zig.
     /// </summary>
     private static string? LoggingZig(string name, string tag = "")
     {
@@ -953,7 +977,8 @@ public sealed class SelfhostDefaultT9Tests
     private static void LoggingZigIn(string bin, string real, string tag)
     {
         var zig = Path.Combine(bin, "zig");
-        File.WriteAllText(zig, $"#!/bin/sh\n# {tag}\nif [ -n \"$CCLOG\" ]; then printf '%s\\n' \"$*\" >> \"$CCLOG\"; fi\nexec '{real}' \"$@\"\n");
+        var version = tag == "" ? "" : $"if [ \"$1\" = version ]; then echo '{tag}'; exit 0; fi\n";
+        File.WriteAllText(zig, $"#!/bin/sh\nif [ -n \"$CCLOG\" ]; then printf '%s\\n' \"$*\" >> \"$CCLOG\"; fi\n{version}exec '{real}' \"$@\"\n");
         if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(zig, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
     }
 
@@ -1014,8 +1039,8 @@ public sealed class SelfhostDefaultT9Tests
     }
 
     /// <summary>
-    /// CacheTests.ADifferentCompilerIdentityMissesTheKeys: the same <c>zig</c> path with a changed file misses the program and the
-    /// runtime key; unchanged, a second build hits both.
+    /// CacheTests.ADifferentCompilerIdentityMissesTheKeys: the same <c>zig</c> path and write time with a new <c>zig version</c>
+    /// misses the program and the runtime key; unchanged, a second build hits both.
     /// </summary>
     [Fact]
     public void ADifferentCompilerIdentityMissesTheKeysAsToolchain()
@@ -1023,14 +1048,46 @@ public sealed class SelfhostDefaultT9Tests
         if (LoggingZig("rt-identity", "1") is not { } bin) return;
         var real = Toolchain.FindCompiler()![0];
         var outs = Same("rt-identity", Arithmetic,
-            new Step(["build", "--verbose", "arithmetic.byn"], _ => LoggingZigIn(bin, real, "1"), Logged(bin)),
+            new Step(["build", "--verbose", "arithmetic.byn"], _ => { LoggingZigIn(bin, real, "1"); Stamp(bin, 2020); }, Logged(bin)),
             new Step(["build", "--verbose", "arithmetic.byn"], Env: Logged(bin)),
-            new Step(["build", "--verbose", "arithmetic.byn"], _ => LoggingZigIn(bin, real, "2"), Logged(bin)));
+            new Step(["build", "--verbose", "arithmetic.byn"], _ => { LoggingZigIn(bin, real, "2"); Stamp(bin, 2020); }, Logged(bin)));
         Assert.DoesNotContain("from cache", outs[0]);
         Assert.Contains("from cache", outs[1]);
         Assert.DoesNotContain("from cache", outs[2]);
         Assert.Equal((2, 2), RuntimeCompiles("rt-identity"));
         Assert.Equal(2, RuntimeEntries("rt-identity", "s2").Length);
+    }
+
+    private static void Stamp(string bin, int year) =>
+        File.SetLastWriteTimeUtc(Path.Combine(bin, "zig"), new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+    /// <summary>CacheTests.ACompilerWithANewWriteTimeMissesTheKeys: the same <c>zig</c>, unchanged but for its write time, misses the program and the runtime key.</summary>
+    [Fact]
+    public void ACompilerWithANewWriteTimeMissesTheKeysAsToolchain()
+    {
+        if (LoggingZig("rt-mtime") is not { } bin) return;
+        var outs = Same("rt-mtime", Arithmetic,
+            new Step(["build", "--verbose", "arithmetic.byn"], _ => Stamp(bin, 2020), Logged(bin)),
+            new Step(["build", "--verbose", "arithmetic.byn"], Env: Logged(bin)),
+            new Step(["build", "--verbose", "arithmetic.byn"], _ => Stamp(bin, 2021), Logged(bin)));
+        Assert.DoesNotContain("from cache", outs[0]);
+        Assert.Contains("from cache", outs[1]);
+        Assert.DoesNotContain("from cache", outs[2]);
+        Assert.Equal((2, 2), RuntimeCompiles("rt-mtime"));
+        Assert.Equal(2, RuntimeEntries("rt-mtime", "s2").Length);
+    }
+
+    /// <summary>CacheTests.ARememberedScriptMissesAfterTheCompilerChanges: remembered until the compiler's write time changes, the C#'s pointers.</summary>
+    [Fact]
+    public void ARememberedScriptMissesAfterTheCompilerChangesAsToolchain()
+    {
+        if (LoggingZig("script-mtime") is not { } bin) return;
+        Same("script-mtime", root => File.WriteAllText(Path.Combine(root, "hello.byn"), "#!/usr/bin/env bayan\n#:io threaded\n\nprint(\"hi\")\n"),
+            new Step(["hello.byn"], _ => Stamp(bin, 2020), Logged(bin)),
+            new Step(["hello.byn"], Env: Logged(bin)),
+            new Step(["hello.byn"], _ => Stamp(bin, 2021), Logged(bin)));
+        Assert.Equal((2, 2), RuntimeCompiles("script-mtime"));
+        Assert.Equal(2, Directory.GetFiles(Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", "script-mtime", "s2", "cache", "v1", "scripts")).Length);
     }
 
     /// <summary>CacheTests.CacheStatsAndCleanCache: <c>clean --cache</c> removes <c>runtime/</c> with the rest of the cache data.</summary>

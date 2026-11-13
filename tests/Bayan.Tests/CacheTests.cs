@@ -409,8 +409,8 @@ public sealed class CacheTests
     }
 
     /// <summary>
-    /// The identity is computed once per process, so each build is a CLI process of its own: the same <c>BAYAN_CC</c> path with a
-    /// new <c>--version</c> misses the program and the runtime key; the same identity again hits both.
+    /// The identity is computed once per process, so each build is a CLI process of its own: the same <c>BAYAN_CC</c> path and
+    /// write time with a new <c>--version</c> misses the program and the runtime key; the same identity again hits both.
     /// </summary>
     [Fact]
     public void ADifferentCompilerIdentityMissesTheKeys()
@@ -420,29 +420,85 @@ public sealed class CacheTests
         var app = NewApp(root);
         int Build()
         {
-            var psi = new System.Diagnostics.ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
-            psi.ArgumentList.Add(typeof(CliApp).Assembly.Location);
-            psi.ArgumentList.Add("build");
-            psi.ArgumentList.Add(app);
-            psi.Environment["BAYAN_CACHE"] = Path.Combine(root, "cache");
-            psi.Environment["BAYAN_CC"] = Path.Combine(root, "logcc");
-            using var p = System.Diagnostics.Process.Start(psi)!;
-            var stdout = p.StandardOutput.ReadToEndAsync();
-            var stderr = p.StandardError.ReadToEndAsync();
-            p.WaitForExit();
-            Assert.True(p.ExitCode == 0, stdout.Result + stderr.Result);
-            return Directory.GetDirectories(Path.Combine(root, "cache", "v1", "programs")).Length;
+            Cli(root, "build", app);
+            return Programs(root);
         }
-        LoggingCompiler(root, "logcc 1");
+        // The write time stays, so only the version output differs.
+        var stamp = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        File.SetLastWriteTimeUtc(LoggingCompiler(root, "logcc 1"), stamp);
         Assert.Equal(1, Build());
         Assert.Equal(1, Build());
         Assert.Single(RuntimeEntries(root));
-        LoggingCompiler(root, "logcc 2");
+        File.SetLastWriteTimeUtc(LoggingCompiler(root, "logcc 2"), stamp);
         Assert.Equal(2, Build());
         Assert.Equal(2, RuntimeEntries(root).Length);
         Assert.Equal(2, Build());
         Assert.Equal(2, RuntimeCompiles(root));
         Assert.Equal("Hello, world!\n", Output(Exe(app)));
+    }
+
+    /// <summary>
+    /// <c>bayan</c> as a CLI process of its own (the identity is computed once per process), with the cache under
+    /// <paramref name="root"/> and <c>&lt;root&gt;/logcc</c> as <c>BAYAN_CC</c>; asserts it succeeds and returns its stdout.
+    /// </summary>
+    private static string Cli(string root, params string[] args)
+    {
+        var psi = new System.Diagnostics.ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
+        psi.ArgumentList.Add(typeof(CliApp).Assembly.Location);
+        foreach (var a in args) psi.ArgumentList.Add(a);
+        psi.Environment["BAYAN_CACHE"] = Path.Combine(root, "cache");
+        psi.Environment["BAYAN_CC"] = Path.Combine(root, "logcc");
+        using var p = System.Diagnostics.Process.Start(psi)!;
+        var stdout = p.StandardOutput.ReadToEndAsync();
+        var stderr = p.StandardError.ReadToEndAsync();
+        p.WaitForExit();
+        Assert.True(p.ExitCode == 0, stdout.Result + stderr.Result);
+        return stdout.Result;
+    }
+
+    private static int Programs(string root) => Directory.GetDirectories(Path.Combine(root, "cache", "v1", "programs")).Length;
+
+    private static int Scripts(string root) => Directory.GetFiles(Path.Combine(root, "cache", "v1", "scripts")).Count(f => !f.EndsWith(".tmp", StringComparison.Ordinal));
+
+    /// <summary>The same <c>BAYAN_CC</c> file, unchanged but for its write time, misses the program and the runtime key.</summary>
+    [Fact]
+    public void ACompilerWithANewWriteTimeMissesTheKeys()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-mtime");
+        var app = NewApp(root);
+        var cc = LoggingCompiler(root);
+        File.SetLastWriteTimeUtc(cc, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Cli(root, "build", app);
+        Assert.Contains("from cache", Cli(root, "build", "--verbose", app));
+        Assert.Equal(1, Programs(root));
+        File.SetLastWriteTimeUtc(cc, new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Assert.DoesNotContain("from cache", Cli(root, "build", "--verbose", app));
+        Assert.Equal(2, Programs(root));
+        Assert.Equal(2, RuntimeEntries(root).Length);
+        Assert.Equal(2, RuntimeCompiles(root));
+        Assert.Equal("Hello, world!\n", Output(Exe(app)));
+    }
+
+    /// <summary>
+    /// A remembered script starts without running the compiler (no runtime compile, no new pointer) until the compiler file's write
+    /// time changes; then its script key misses and it compiles again.
+    /// </summary>
+    [Fact]
+    public void ARememberedScriptMissesAfterTheCompilerChanges()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("script-mtime");
+        var script = Path.Combine(root, "hello.byn");
+        File.WriteAllText(script, "#!/usr/bin/env bayan\n#:io threaded\n\nprint(\"hi\")\n");
+        var cc = LoggingCompiler(root);
+        File.SetLastWriteTimeUtc(cc, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Assert.Equal("hi\n", Cli(root, script));
+        Assert.Equal("hi\n", Cli(root, script));
+        Assert.Equal((1, 1), (Scripts(root), RuntimeCompiles(root)));
+        File.SetLastWriteTimeUtc(cc, new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Assert.Equal("hi\n", Cli(root, script));
+        Assert.Equal((2, 2), (Scripts(root), RuntimeCompiles(root)));
     }
 
     [Fact]
