@@ -1,5 +1,5 @@
 # 020 — Test-result cache
-Status: draft
+Status: approved
 Created: 2026-11-13
 
 ## Problem
@@ -90,11 +90,14 @@ Visibility and control
 - For every gate named in R13 and every store content, the gate starts every unit (R13). Kind: guard.
 - For every unit, a variable outside the allow-list is not visible to a recorded run (R4). Kind: guard.
 
+## Decisions (user, 2026-11-13)
+1. **Hosts.** Version 1 records and reuses on Linux only (the ghosthive VM `bayan-test01`); mb1, wp1 and wlt1 run everything (R12).
+2. **Windows offload pass cache (plan 008 D).** Its key gains the host fingerprint and environment, and it comes under R9, R13, R17 and R24 (recommendation, not objected to).
+3. **Merges to `dev`** may count a reused pass; the nightly shadow comparison (R15) checks every such reuse. `main`, release, nightly and laws never reuse (R13).
+4. **Timing against spec 019.** Task 1 measures the per-unit process cost on the VM; build now with a thin adaptor if it is cheap, otherwise after 019.
+5. **Program cache key.** It gains the C compiler's identity (version and digest), in the C# compiler and the self-hosted driver alike (R6); every user rebuilds once after the upgrade.
+6. **CI.** No reuse on hosted runners in version 1 (recommendation, not objected to).
+7. **Toolchain roots** are identified by version plus a digest of file names, sizes and modification times (R5); the uncached gates are the backstop (recommendation, not objected to).
+
 ## Open questions
-1. **Hosts without a recorder.** Observing a process tree's file use needs no privilege on Linux, but on macOS and Windows the known mechanisms need root or administrator rights (to be confirmed in the first task). Recommended: version 1 reuses on Linux only (the ghosthive VM); mb1, wp1 and wlt1 run everything. Alternatives: grant the privilege on mb1 and wp1, or accept a whole-tree key there with a stated, unproven assumption about files outside the checkout.
-2. **The existing whole-tree pass cache on the Windows offload** (plan 008 D) keys on tree and filter only, so a toolchain upgrade on wp1 reuses a stale pass, and it serves the merge gate. Recommended: add the host fingerprint and environment to its key and bring it under R9, R13, R17 and R24; alternative: retire it.
-3. **May a reused pass count for a merge to `dev`?** Recommended: yes, since the nightly shadow comparison checks every such reuse within a day; `main`, release, nightly and laws never (R13).
-4. **Timing against spec 019.** After the .NET exit the units become plain processes, which suits this design better than today's shared test process (recording needs one process per unit, which costs start-up time). Build now with a thin adaptor for today's suite, or build after 019? Recommended: decide from the first task's measurement of the per-unit cost.
-5. **The program cache key holds the C compiler's command but not its version or content.** R6 needs it. Adding it changes a shipped behaviour (one cold rebuild for every user after the upgrade). Recommended: add it; otherwise program-cache files are ordinary inputs and the hit rate drops with every eviction.
-6. **CI.** Hosted runners start empty, so reuse there needs the store saved between runs, a decision on who may write it, and proof that recording is permitted on those runners. Recommended: not in version 1.
-7. **Toolchain roots by name, size and time, not content (R5).** Hashing every file of the C compiler's library tree on each run is the stricter choice at an unmeasured cost. Recommended: accept the digest; the uncached gates are the backstop.
+- None.
