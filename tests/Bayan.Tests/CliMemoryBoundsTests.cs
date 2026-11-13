@@ -371,6 +371,110 @@ public sealed class CliMemoryBoundsTests
                 })));
     }
 
+    // ── C compile slots (BAYAN_CC_JOBS) ──────────────────────────────────────────
+
+    [Fact]
+    public void CompileSlotIsNullWithoutALimit()
+    {
+        WithEnv("BAYAN_CC_JOBS", null, () => Assert.Null(Toolchain.CompileSlot()));
+        WithEnv("BAYAN_CC_JOBS", "0", () => Assert.Null(Toolchain.CompileSlot()));
+        WithEnv("BAYAN_CC_JOBS", "x", () => Assert.Null(Toolchain.CompileSlot()));
+    }
+
+    [Fact]
+    public void ACompileSlotWaitsWhileEverySlotIsHeld()
+    {
+        var root = Fresh("cc-jobs-slots");
+        WithEnv("BAYAN_CC_JOBS_DIR", Path.Combine(root, "jobs"), () => WithEnv("BAYAN_CC_JOBS", "2", () =>
+        {
+            using var a = Toolchain.CompileSlot();
+            var b = Toolchain.CompileSlot();
+            var third = Task.Run(Toolchain.CompileSlot);
+            try
+            {
+                Assert.NotNull(a);
+                Assert.NotNull(b);
+                Assert.False(third.Wait(TestTime.Scale(TimeSpan.FromMilliseconds(500))), "a third slot was granted while two of two were held");
+                b!.Dispose();
+                Assert.True(third.Wait(TestTime.Scale(TimeSpan.FromSeconds(10))), "the third slot was not granted after one was freed");
+            }
+            finally
+            {
+                b?.Dispose();
+                a?.Dispose();
+                if (third.Wait(TestTime.Scale(TimeSpan.FromSeconds(10)))) third.Result?.Dispose();
+            }
+        }));
+    }
+
+    [Fact]
+    public void AWaiterWhoseSlotDirectoryIsRemovedStillGetsASlot()
+    {
+        if (OperatingSystem.IsWindows()) return; // a directory with an open file cannot be removed there
+        var root = Fresh("cc-jobs-removed");
+        var dir = Path.Combine(root, "jobs");
+        WithEnv("BAYAN_CC_JOBS_DIR", dir, () => WithEnv("BAYAN_CC_JOBS", "1", () =>
+        {
+            using var held = Toolchain.CompileSlot();
+            var waiter = Task.Run(Toolchain.CompileSlot);
+            Thread.Sleep(TestTime.Scale(200));
+            Directory.Delete(dir, recursive: true);
+            Assert.True(waiter.Wait(TestTime.Scale(TimeSpan.FromSeconds(10))), "a waiter span forever after its slot directory was removed");
+            waiter.Result!.Dispose();
+        }));
+    }
+
+    [Fact]
+    public void ASlotDirectoryThatIsAFileFailsTheBuildWithAMessage()
+    {
+        var root = Fresh("cc-jobs-file");
+        var file = Path.Combine(root, "not-a-dir");
+        File.WriteAllText(file, "");
+        WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () =>
+            WithEnv("BAYAN_CC_JOBS_DIR", file, () => WithEnv("BAYAN_CC_JOBS", "1", () =>
+            {
+                var build = Toolchain.Build("int main(void) { return 0; }\n", BuildMode.Safe);
+                Assert.False(build.Succeeded);
+                Assert.Contains("BAYAN_CC_JOBS: cannot take a compile slot", build.Errors);
+            })));
+    }
+
+    [Fact]
+    public void ConcurrentBuildsRunAtMostBayanCcJobsCompilesAtOnce()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Fresh("cc-jobs-builds");
+        var marks = Path.Combine(root, "marks");
+        Directory.CreateDirectory(marks);
+        var cc = Path.Combine(root, "countcc");
+        // The runtime object (-o *.o) and the version probe return at once; a program compile records how many run beside it.
+        File.WriteAllText(cc, $$"""
+            #!/bin/sh
+            out=; prev=
+            for a in "$@"; do [ "$prev" = -o ] && out=$a; prev=$a; done
+            [ -z "$out" ] && { echo countcc 1; exit 0; }
+            case "$out" in *.o) : > "$out"; exit 0;; esac
+            mkdir "{{marks}}/run.$$"
+            ls -d "{{marks}}"/run.* | wc -l >> "{{root}}/counts"
+            sleep 0.3
+            rmdir "{{marks}}/run.$$"
+            : > "$out"; chmod +x "$out"
+            """);
+        File.SetUnixFileMode(cc, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () => WithEnv("BAYAN_CC", cc, () =>
+            WithEnv("BAYAN_CC_JOBS_DIR", Path.Combine(root, "jobs"), () => WithEnv("BAYAN_CC_JOBS", "1", () =>
+            {
+                var builds = Enumerable.Range(0, 3)
+                    .Select(i => Task.Run(() => Toolchain.Build($"int main(void) {{ return {i}; }}\n", BuildMode.Safe)))
+                    .ToArray();
+                Task.WaitAll(builds);
+                Assert.All(builds, b => Assert.True(b.Result.Succeeded, b.Result.Errors));
+            }))));
+        var counts = File.ReadAllLines(Path.Combine(root, "counts")).Select(l => int.Parse(l.Trim())).ToList();
+        Assert.Equal(3, counts.Count);
+        Assert.Equal(1, counts.Max());
+    }
+
     // ── Review fixes ─────────────────────────────────────────────────────────────
 
     /// <summary>Runs the CLI with a temp root where a watcher deletes every <paramref name="prefix"/> directory as soon as it appears, as another process's sweep would.</summary>

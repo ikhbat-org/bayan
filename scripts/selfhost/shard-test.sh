@@ -244,6 +244,9 @@ slice_vm() { # dir sha bundle unit:threads...: one VM start and bundle push, the
       echo "cat > $D/filters <<'EOF_FILTERS'"; cat "$d/${U[k]}.filters"; echo "EOF_FILTERS"
       echo "cat > $D/run.sh <<'EOF_RUN'"
       echo "export DOTNET_ROOT=/home/bt/bayan-tools/dotnet HOME=/home/bt"
+      # every slice on the VM shares 2 C program compiles (Toolchain.CompileSlot): a selfhost zig compile peaks at 2.6 GB and
+      # two slots' worth at once got one OOM-killed in the 11 GiB VM (2026-11-13, 118 SelfhostSemanticsT17Tests failures)
+      echo "export BAYAN_CC_JOBS=2 BAYAN_CC_JOBS_DIR=/home/bt/shard/cc-jobs"
       echo "export PATH=/home/bt/bayan-tools/zig/zig-x86_64-linux-0.17.0:\$DOTNET_ROOT:\$PATH"
       echo "cd $D/repo; n=0; rc=0"
       echo "while IFS= read -r f; do n=\$((n+1)); $RUNCMD --logger \"trx;LogFileName=$D/out/chunk\$n.trx\" --filter \"\$f\" -- xUnit.MaxParallelThreads=${TH[k]} >> $D/out/log 2>&1 || rc=\$?; done < $D/filters"

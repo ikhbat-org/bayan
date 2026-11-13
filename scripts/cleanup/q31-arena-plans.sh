@@ -36,8 +36,9 @@ done
 run git worktree prune
 
 # 2. VM bayan-test01 (user bt): /home/bt/q31 (plan 013 measurements) and this session's shard runs
-#    (/home/bt/shard/<sha8>-<slot>, scripts/selfhost/shard-test.sh). Other sessions' runs are not touched.
-shas="b5b5705d db4f3ca8"
+#    (/home/bt/shard/<sha8>-<slot>, scripts/selfhost/shard-test.sh; bf340707 is the fix/cc-jobs-limit proof run; /home/bt/shard/cc-jobs stays,
+#    later runs share it). Other sessions' runs are not touched.
+shas="b5b5705d db4f3ca8 bf340707"
 if [ $execute = 1 ] && [ $remote = 1 ]; then
   ssh ghosthive "
     was=\$(incus list bayan-test01 -c s -f csv)
