@@ -332,7 +332,7 @@ public sealed class SelfhostDefaultBoundsTests
     }
 
 
-    // ── Q31 (plan 013) ───────────────────────────────────────────────────────────
+    // ── Q31 (plans 013, 014) ──────────────────────────────────────────────────────
 
     // Plan 014, max RSS of the driver's check and build --emit-c (macOS mb1 / Linux bayan-test01):
     //   after both arenas   check 396 / 472 MB,  emit-c 678 / 786 MB
@@ -342,8 +342,9 @@ public sealed class SelfhostDefaultBoundsTests
     // Bound = this host's after figure + half the smaller single-arena saving (about 80 MB), rounded, so either arena reverted
     // fails it. One bound for both hosts would sit within 5 MB of macOS's summary-off figure, hence one per OS. Sampled by
     // PeakSampler on macOS with an arena reverted: region 578 MB, summary 550 MB. emit-c has no bound: sampled on macOS
-    // with the summary arena reverted it read 765 MB against 760, too close to tell a revert from noise.
-    private static readonly long CheckPeakBoundMb = OperatingSystem.IsMacOS() ? 480 : 560;
+    // with the summary arena reverted it read 765 MB against 760, too close to tell a revert from noise. Windows was never
+    // measured after plan 014, so it keeps plan 013's 1,700 MB.
+    private static readonly long CheckPeakBoundMb = OperatingSystem.IsMacOS() ? 480 : OperatingSystem.IsLinux() ? 560 : 1700;
 
     // measured after the arenas, 64 files of 4 MB: doctor 33 MB on macOS, 15 MB on Linux; before: 543 MB and 514 MB.
     // bound = 3x the larger, rounded up.
