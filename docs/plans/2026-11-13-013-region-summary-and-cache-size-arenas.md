@@ -68,3 +68,4 @@ Max RSS of the stage-1 compiler built from the emitted C (`cc -O2`), on `--packa
 - Break-tests: each fix reverted alone fails its bound test (see the handoff entry).
 - ASan (`-fsanitize=address`, stage 1 from the emitted C): `check` and `doctor` clean.
 - `build` still peaks at 1.7 GB: the per-function analyses and emit stay in `General` (out of scope above).
+- Two-slot VM run (`shard-test.sh --host vm=0.91:2:4`, b5b5705d): both slots finished, no self-hosted `bayan` was killed. vm1 5,468 passed, 0 failed. vm2 8,018 passed, 118 failed: the kernel OOM killer took a `zig` (2.6 GB anon RSS) compiling `selfhost/semantics` for `SelfhostSemanticsT17Tests`, with several other `zig` processes running at the same time. All 118 failures are that class's shared build. Alone on the VM (db4f3ca8): 118 passed, 0 failed. Verification step 3 is unmet because of `zig`'s own memory, which is outside this plan (`work/todo.md`).
