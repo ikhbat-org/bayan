@@ -1,6 +1,6 @@
 # 010 — Test builds at -O0
 
-Status: proposed (2026-11-13), waiting for the user's approval. Builds on plan 009 (prebuilt runtime object). Measurements: tmp/bench (m2, m3).
+Status: approved by the user 2026-11-13, gated on step 1 (build steps 2–4 only if the suite is ≥10% faster with no new failures). Decisions: `bayan test` for users stays -O2; merge gates at -O0, nightly, release and laws at -O2 (the recommendations). Builds on plan 009 (prebuilt runtime object). Measurements: tmp/bench (m2, m3).
 
 ## Why
 

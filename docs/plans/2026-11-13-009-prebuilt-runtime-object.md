@@ -1,6 +1,6 @@
 # 009 — Prebuilt runtime object and the C compiler's identity in the program key
 
-Status: proposed (2026-11-13), waiting for the user's approval. Measurements: tmp/bench (m1–m3), summarised below.
+Status: approved by the user 2026-11-13. Measurements: tmp/bench (m1–m3), summarised below.
 
 ## Why
 
