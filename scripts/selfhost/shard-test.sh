@@ -243,8 +243,7 @@ slice_vm() { # dir sha bundle unit:threads...: one VM start and bundle push, the
       echo "rm -rf $D; mkdir -p $D/out; cp /root/shard-scratch/$s.bundle $D/in.bundle"
       echo "cat > $D/filters <<'EOF_FILTERS'"; cat "$d/${U[k]}.filters"; echo "EOF_FILTERS"
       echo "cat > $D/run.sh <<'EOF_RUN'"
-      # both units run as bt: a reused MSBuild node from one unit's build is taken by the other's and dies under it (MSB4166)
-      echo "export DOTNET_ROOT=/home/bt/bayan-tools/dotnet HOME=/home/bt MSBUILDDISABLENODEREUSE=1"
+      echo "export DOTNET_ROOT=/home/bt/bayan-tools/dotnet HOME=/home/bt"
       echo "export PATH=/home/bt/bayan-tools/zig/zig-x86_64-linux-0.17.0:\$DOTNET_ROOT:\$PATH"
       echo "cd $D/repo; n=0; rc=0"
       echo "while IFS= read -r f; do n=\$((n+1)); $RUNCMD --logger \"trx;LogFileName=$D/out/chunk\$n.trx\" --filter \"\$f\" -- xUnit.MaxParallelThreads=${TH[k]} >> $D/out/log 2>&1 || rc=\$?; done < $D/filters"
