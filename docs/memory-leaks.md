@@ -69,6 +69,7 @@ or by luck; LOW = small or one-shot. Source reports: `tmp/leak-audit/*.out` (scr
 | MEDIUM | Staging dirs left by killed compiles; macOS `program.dSYM` moved into cache entries | fixed, M5/M6: stale sweep |
 | MEDIUM | Parser and ownership analysis recurse with input depth | open: needs a BYN1xxx diagnostic and selfhost parity (decision) |
 | LOW | C compiler ran with no timeout | fixed, M7: 10 min, `BAYAN_CC_TIMEOUT_S` |
+| MEDIUM | Concurrent C program compiles had no host-wide cap: two VM shard slots ran several 2.6 GB selfhost `zig` compiles at once and the OOM killer took one (2026-11-13) | fixed, `fix/cc-jobs-limit`: `BAYAN_CC_JOBS` lock-file slots (`Toolchain.CompileSlot`), set to 2 for VM slices by `shard-test.sh`; the self-hosted driver does not read it |
 | LOW | `AstDump` `[ThreadStatic]` lists keep their last contents | open, todo |
 
 ### Native runtime and selfhost
