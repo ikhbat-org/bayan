@@ -182,7 +182,7 @@ i64 t11Line(in List<u8> text, at i64 offset) {
 }
 
 /// CliApp.cs:639 `Test`. `kept` is the command and its arguments.
-i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process {
+i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process, random {
     let args = t2Rest(kept)
     let o = t11ParseBuildOptions(in args) ?? return exitUsage
     let symbolsErr = t19Symbols(in d.styleErr)
@@ -405,7 +405,7 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
 
 /// Toolchain.cs:262 `ReplaceFile(path, temp => File.WriteAllText(temp, json))` (CliApp.cs:775): cache.byn's `replaceFile` with the text
 /// written instead of a file copied (Q1217).
-void t11ReplaceText(string path, from string text, through ref DCtx d) uses alloc, clock, fs fails IoError {
+void t11ReplaceText(string path, from string text, through ref DCtx d) uses alloc, clock, fs, random fails IoError {
     let temp = $"{path}.{t9Unique(ref d)}.tmp"
     defer t9DeleteFile(temp)
     try Io.writeFile(temp, text.bytes)

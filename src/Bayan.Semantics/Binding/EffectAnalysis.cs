@@ -264,6 +264,7 @@ internal static class EffectAnalysis
         BuiltinFunction.IoRun or BuiltinFunction.IoRunBatch => ["process", "alloc"],
         BuiltinFunction.IoStdinReadAllBytes => ["console", "alloc"],
         BuiltinFunction.IoMonotonicNanos or BuiltinFunction.TimeNow => ["clock"],
+        BuiltinFunction.IoRandomU64 => ["random"],
         BuiltinFunction.EnvGet => ["env", "alloc"],
         BuiltinFunction.ListNew or BuiltinFunction.OwnedNew or BuiltinFunction.StrBufGrow or BuiltinFunction.StrBufOver or BuiltinFunction.ArenaNew
             or BuiltinFunction.Utf8Decode or BuiltinFunction.Utf8TryDecode or BuiltinFunction.Utf8DecodeReplace or BuiltinFunction.HexEncode or BuiltinFunction.HexDecode
