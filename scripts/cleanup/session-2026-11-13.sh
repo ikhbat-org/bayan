@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Written 2026-11-13 by the session that landed plans 009 and 011, closed plan 010 and ran the session review
 # (fix/review-2026-11-13-1). Removes that session's worker worktrees and branches, its scratch files under tmp/,
-# its named directories in VM bayan-test01 (user bt) and its named git bundle on ghosthive.
+# its named shard directories in VM bayan-test01 (user bt). Ghosthive bundles and /home/bt/f2* are only listed.
 # feat/009-prebuilt-runtime-object is checked out in .worktrees/dev-merge, so section 1 skips it until that checkout moves.
 # Every target is checked at run time: a tracked path is refused, a missing one is a skip, an unmerged branch is
 # left to `git branch -d` to refuse.
@@ -66,23 +66,27 @@ done
 # 3. VM bayan-test01 (user bt) and ghosthive: only this session's named items, removed only with --execute --remove-remote.
 #    Shard run dirs are /home/bt/shard/<sha8>-<slot> (scripts/selfhost/shard-test.sh); other sessions' runs are not touched.
 #    The VM is stopped again only if it was stopped when the script started.
-shas="91966244 9b7ff220 a6c1d8fa b53bbbbf 70d11eaa 7f80f611 51057d4c"
+# Only runs this session logged (tmp/p009-shard.log, p009-vm2.log, rv1113-shard.log, rv1113-vm2.log).
+shas="b53bbbbf 70d11eaa 7f80f611 51057d4c"
+# Listed, never removed: no log ties /root/dev-91966244.bundle to this session.
 bundles="/root/dev-91966244.bundle"
-printf -- '-- ghosthive bundles of this session:\n'
+printf -- '-- ghosthive bundles (listed only, check by hand):\n'
 for f in $bundles; do ssh ghosthive "ls -la $f 2>/dev/null || echo '  gone: $f'" || failed=1; done
 if [ $execute = 1 ] && [ $remote = 1 ]; then
   ssh ghosthive "
     was=\$(incus list bayan-test01 -c s -f csv)
     [ \"\$was\" = RUNNING ] || incus start bayan-test01
-    for i in \$(seq 1 30); do timeout 10 incus exec bayan-test01 -- true 2>/dev/null && break; sleep 2; done
+    rc=0; up=0
+    for i in \$(seq 1 30); do timeout 10 incus exec bayan-test01 -- true 2>/dev/null && { up=1; break; }; sleep 2; done
+    [ \$up = 1 ] || { echo '  VM agent not ready after 60 s'; rc=1; }
     timeout 120 incus exec bayan-test01 -- sh -c 'cd /home/bt || exit 0
       for d in o0; do [ -e \"\$d\" ] && { echo rm -rf /home/bt/\$d; rm -rf \"\$d\"; }; done
       for s in $shas; do for d in shard/\$s-*; do [ -e \"\$d\" ] && { echo rm -rf /home/bt/\$d; rm -rf \"\$d\"; }; done; done
-      ls -d f2* 2>/dev/null | sed \"s|^|  left (check by hand): /home/bt/|\"' || echo '  VM step failed'
-    [ \"\$was\" = RUNNING ] || incus stop bayan-test01
-    for f in $bundles; do [ -e \"\$f\" ] && { echo rm -f \$f; rm -f \"\$f\"; }; done; true" || failed=1
+      ls -d f2* 2>/dev/null | sed \"s|^|  left (check by hand): /home/bt/|\"' || { echo '  VM step failed'; rc=1; }
+    [ \"\$was\" = RUNNING ] || incus stop bayan-test01 || rc=1
+    exit \$rc" || failed=1
 else
-  printf 'would: in bayan-test01 remove /home/bt/o0 and /home/bt/shard/{%s}-*; list /home/bt/f2*; remove %s (needs --execute --remove-remote)\n' "${shas// /,}" "$bundles"
+  printf 'would: in bayan-test01 remove /home/bt/o0 and /home/bt/shard/{%s}-*; list /home/bt/f2* (needs --execute --remove-remote)\n' "${shas// /,}"
 fi
 
 printf -- '-- remaining worktrees:\n'; git worktree list | grep -E 'worker-p009|worker-p011|worker-rv1113|feat-011-os-random' || echo '  none'
