@@ -37,6 +37,16 @@ cat > b.trx <<'X'
 X
 ok "times merges two trx files, the larger per class" "$(bash "$S" times a.trx b.trx out2.tsv >/dev/null; cat out2.tsv | tr '\t\n' ' =')" \
   "N.AlphaTests 61.750=N.BetaTests 7.000=N.GammaTests 5.000="
+# SPEED@FILE: seconds times the host's speed before the larger is kept (Alpha 61.75 at 0.5 is 30.875, over b's 10 at 1.0)
+ok "times scales each file by its host's speed" "$(bash "$S" times 0.5@a.trx 1.0@b.trx out3.tsv >/dev/null; cat out3.tsv | tr '\t\n' ' =')" \
+  "N.AlphaTests 30.875=N.BetaTests 7.000=N.GammaTests 5.000="
+# the printed weights command: each unit's own speed, the files found, no glob
+mkdir -p wc/vm1/out wc/wp1 wc/vm2/out; printf 'vm1 0.91 4\nvm2 0.91 4\nwp1 0.52 4\n' > wc/units
+: > wc/vm1/out/chunk1.trx; : > wc/vm1/out/chunk2.trx; : > wc/wp1/chunk1.trx
+wcmd=$(bash "$S" weights-cmd wc)
+ok "weights command lists the trx files with their speeds" "$wcmd" \
+  "(weights: bash scripts/selfhost/shard-test.sh times 0.91@wc/vm1/out/chunk1.trx 0.91@wc/vm1/out/chunk2.trx 0.52@wc/wp1/chunk1.trx)"
+ok "weights command has no glob" "$(case $wcmd in *'*'*) echo glob;; *) echo none;; esac)" "none"
 
 # host spec NAME=SPEED[:SLICES[:THREADS]]: defaults 1 slice, 4 threads; each bad part named, exit 2
 ok "host spec defaults" "$(bash "$S" host-spec vm=0.91) $(bash "$S" host-spec wlt1=0.45:1) $(bash "$S" host-spec mb1=.71)" "vm=0.91:1:4 wlt1=0.45:1:4 mb1=.71:1:4"
@@ -190,12 +200,42 @@ set +e; got=$(bash "$S" run --dry-run --classes cls.txt --host wp1=0.52 --host v
 ok "a repeated host is refused" "$rc $got" "2 shard-test: host wp1 given twice (its slices would share tmp/wp1/)"
 ok "default hosts are vm and wp1" "$(PATH="$t/bin:$PATH" bash "$S" run --dry-run --classes cls.txt --times w.tsv 2>&1 | sed -n 's/^-- \(.*\) classes:$/\1/p' | tr '\n' ' ')" "vm wp1 "
 s8=$(git rev-parse HEAD | cut -c1-8)
+# an earlier run's per-unit files are cleared before the run (here a dry run, which goes through the same reset)
+mkdir -p "tmp/shard/$s8/vm2/out" "tmp/shard/$s8/mb1"; : > "tmp/shard/$s8/vm2/out/chunk1.trx"; : > "tmp/shard/$s8/vm2/out/log"; : > "tmp/shard/$s8/mb1/chunk1.trx"
 d=$(PATH="$t/bin:$PATH" bash "$S" run --dry-run --classes q.txt --times q.tsv --host vm=1:2:6 --host wp1=1 --host wlt1=1:1:3 --host mb1=1 2>&1)
 ok "dry run with four hosts touches no host" "$([ -e ssh-calls ] && echo called || echo none)" "none"
 ok "dry run names the units" "$(echo "$d" | sed -n 's/^-- \(.*\) classes:$/\1/p' | tr '\n' ' ')" "vm1 vm2 wp1 wlt1 mb1 "
 ok "dry run: vm1 and vm2 in their own unit and directory" "$(echo "$d" | grep -c "systemd-run --unit=shard-$s8-1 in /home/bt/shard/$s8-1).*MaxParallelThreads=6")$(echo "$d" | grep -c "systemd-run --unit=shard-$s8-2 in /home/bt/shard/$s8-2).*MaxParallelThreads=6")" "11"
 ok "dry run: wlt1 through wp1-test.sh" "$(echo "$d" | grep -c "^  WIN_HOST=wlt1 WIN_THREADS=3 bash scripts/selfhost/wp1-test.sh base ")" "1"
 ok "dry run: mb1 local, in its own clone" "$(echo "$d" | grep -c "^  (in tmp/shard/$s8/mb1/repo, DOTNET_ROOT=\$HOME/.dotnet) nice dotnet test .*MaxParallelThreads=4$")" "1"
+ok "stale per-unit files cleared before a run" "$(ls "tmp/shard/$s8/vm2" "tmp/shard/$s8/mb1" 2>/dev/null | wc -l | tr -d ' ')" "0"
+
+# a failed vm setup, against a fake ssh (ghosthive answers, the VM is running, the setup script exits 1): no host is touched
+mkdir -p bin2; printf '#!/bin/bash\necho "ssh $*" >> "%s/vm-calls"\ncase "$*" in *"incus list"*) echo RUNNING;; *"bash -s"*) exit 1;; esac\nexit 0\n' "$t" > bin2/ssh
+chmod +x bin2/ssh
+set +e; PATH="$t/bin2:$PATH" bash "$S" run --classes q.txt --times q.tsv --host vm=1:2 > vm-run.out 2>&1; rc=$?; set -e
+ok "failed vm setup fails the run" "$rc" "1"
+ok "setup timeout is 600 s per vm unit" "$(grep -c 'timeout 1200 incus exec bayan-test01 -- bash -s' vm-calls)" "1"
+ok "failed vm setup stops every unit" "$(grep -c "systemctl stop shard-$s8-1 shard-$s8-2\$" vm-calls)" "1"
+ok "every clone before the first unit starts" "$(awk '/^systemd-run/ && !r { r = NR } /git clone/ { c = NR } END { print (c && r && c < r) ? "yes" : "no" }' "tmp/shard/$s8/vm.setup.sh")" "yes"
+ok "failed vm setup: both units failed" "$(grep -h '^rc=' "tmp/shard/$s8/vm1.result" "tmp/shard/$s8/vm2.result" | tr '\n' ' ')" "rc=1 rc=1 "
+
+# a finished vm run against a fake ssh (both units done with rc 0, the fetch hands back one trx and a log): the printed weights
+# command names each fetched file with its unit's speed, no glob
+mkdir -p bin3 fakeout/out; : > fakeout/out/chunk1.trx; printf 'Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1\n' > fakeout/out/log
+cat > bin3/ssh <<X
+#!/bin/bash
+case "\$*" in
+  *"incus list"*) echo RUNNING;;
+  *MemAvailable*) printf 'MemAvailable: 20000000 kB\n=== vm1\n---\n0\n---\ninactive\n=== vm2\n---\n0\n---\ninactive\n';;
+  *"-cf - out"*) COPYFILE_DISABLE=1 tar -C "$t/fakeout" -cf - out;;
+esac
+exit 0
+X
+chmod +x bin3/ssh
+SHARD_POLL_S=0 PATH="$t/bin3:$PATH" bash "$S" run --classes q.txt --times q.tsv --host vm=0.5:2 > vm-ok.out 2>&1 || true
+ok "run prints the weights command with each unit's speed and files" "$(grep '^(weights:' vm-ok.out)" \
+  "(weights: bash scripts/selfhost/shard-test.sh times 0.5@tmp/shard/$s8/vm1/out/chunk1.trx 0.5@tmp/shard/$s8/vm2/out/chunk1.trx)"
 
 cd "$root"; rm -rf "$t"
 [ $fail = 0 ] && echo "shard-test.test: all passed" || { echo "shard-test.test: FAILED"; exit 1; }
