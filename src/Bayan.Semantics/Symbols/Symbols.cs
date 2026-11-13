@@ -362,6 +362,7 @@ public enum BuiltinFunction
     IoRun,
     IoRunBatch,
     IoMonotonicNanos,
+    IoRandomU64,
     IoStdout,
     IoStderr,
     IoStdin,

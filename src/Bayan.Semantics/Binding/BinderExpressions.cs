@@ -690,7 +690,7 @@ internal sealed partial class Binder
                 if (_c.Builtins.FindIo(name) is not { } member)
                 {
                     Report(DiagnosticCodes.UnknownMember, m.Member.Span, [name, io.Name],
-                        help: Suggest(name, ["readFile", "readText", "writeFile", "remove", "createDirectory", "removeDirectory", "listDir", "run", "runBatch", "monotonicNanos", "stdout", "stderr", "stdin"]) is { } near ? $"did you mean `{near}`?" : null);
+                        help: Suggest(name, ["readFile", "readText", "writeFile", "remove", "createDirectory", "removeDirectory", "listDir", "run", "runBatch", "monotonicNanos", "randomU64", "stdout", "stderr", "stdin"]) is { } near ? $"did you mean `{near}`?" : null);
                     return new BoundErrorExpr(m);
                 }
                 // `stdout`, `stderr` and `stdin` read like properties; the rest are called.

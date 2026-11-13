@@ -530,6 +530,8 @@ List<string> t23Builtin(BuiltinFunction f) {
     if f == .ioRun || f == .ioRunBatch { return ["process", "alloc"] }
     if f == .ioStdinReadAllBytes { return ["console", "alloc"] }
     if f == .ioMonotonicNanos || f == .timeNow { return ["clock"] }
+    // EffectAnalysis.cs:267
+    if f == .ioRandomU64 { return ["random"] }
     if f == .envGet { return ["env", "alloc"] }
     if f == .listNew || f == .ownedNew || f == .strBufGrow || f == .strBufOver || f == .arenaNew || f == .utf8Decode || f == .utf8TryDecode || f == .utf8DecodeReplace || f == .hexEncode || f == .hexDecode || f == .symbolIntern || f == .pathRelative || f == .pathFileName || f == .pathDirectoryName || f == .pathCombine || f == .pathCombineSpan || f == .pathFullPath { return ["alloc"] }
     return []
