@@ -73,3 +73,5 @@ Break-test: revert `schemataRebinds` with `git checkout --` and rebuild the harn
 - `std-json.byn` `mutate`, max RSS on macOS: 2,490 MB before → 23 MB after (358 switches confirmed); the bound test samples 2,349 MB on the old code and fails (break-test).
 - All 337 run inputs in one process: 5,541 MB → 179 MB, 9.7 s → 8.6 s, output byte-identical.
 - vm2 before the fix, on `fix/shard-vm-node-reuse` with `OOMPolicy=continue`: the slot finished, 2 failures, both std-json `mutate` runs killed by the OOM killer (exit 137).
+- Linux (bayan-test01, one slot, `SelfhostDefaultT10Tests` only): std-json `mutate` peaks at 17 MB; 684 of 685 passed, the one failure being the probe's deliberate 1 MB bound. `MutatePeakBoundMb` = 100 (3× 23 MB, rounded up).
+- Two-slot VM run on this branch (no `OOMPolicy`): vm2 passed 8,134, failed 0; vm1 was OOM-killed at 6.5 min, not by the mutate harness but by a self-hosted `bayan` at 2.6 GB RSS while `zig` held 2.26 GB plus 2.5 GB more and two `dotnet` hosts 1.2 GB each (unit peak 7.4 GB). Probably the bootstrap stage-1 build, the out-of-scope Q31 peak. Verification step 3 (both slots, 0 failed) is therefore unmet by this plan alone.

@@ -177,7 +177,8 @@ public sealed class SelfhostDefaultT10Tests
         Assert.True(run.Peak < MutatePeakBoundMb * 1024L * 1024, $"peak working set {run.Peak / 1024 / 1024} MB, bound {MutatePeakBoundMb} MB (before the arena: {MutatePeakBeforeMb} MB)");
     }
 
-    private const long MutatePeakBoundMb = 300;
+    // measured after the arena: 23 MB on macOS (mb1), 17 MB on Linux (bayan-test01); bound = 3x the larger, rounded up
+    private const long MutatePeakBoundMb = 100;
     private const long MutatePeakBeforeMb = 2490;
 
     /// <summary>The failure path for <c>--mutate</c>: an input with errors gets no site map, and the fixture's mutants that do not re-bind are not emitted.</summary>
