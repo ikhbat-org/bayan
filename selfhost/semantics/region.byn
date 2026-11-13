@@ -205,27 +205,65 @@ void summarizeRegions(ref Ctx c) {
         }
     }
     var changed = true
+    var first = true
     while changed {
         changed = false
         for fn in functions {
-            var r = Regions { fn: fn, source: c.functions[fn].file, summary: true }
-            runRegions(ref r, through: ref c)
             var known: i64 = 0
             if c.storeSummaries.contains(fn) { known = c.storeSummaries[fn].length }
-            if r.pairs.length != known {
-                var pairs = List<StorePair>()
-                for p in r.pairs { pairs.append(p) }
+            var returned: i64 = 0
+            if c.returnSummaries.contains(fn) { returned = c.returnSummaries[fn].length }
+            var pairs = List<StorePair>()
+            var returns = List<i64>()
+            var flags = T41Changed {}
+            // Q31 (plan 013): the first pass fills `Ctx`'s lazy memos (`changedFields`) in `General`, in today's order; later
+            // passes only read them, so each of their runs is freed with its arena. A list keeps the allocator it was made
+            // with, so `pairs`, `returns` and `c.locals` (grown by `fieldLocal`) stay in `General`.
+            if first {
+                flags = t41SummaryRun(ref c, for: fn, by: known, from: returned, to: ref pairs, through: ref returns)
+            } else {
+                using let arena = Arena()
+                provide allocator: arena {
+                    flags = t41SummaryRun(ref c, for: fn, by: known, from: returned, to: ref pairs, through: ref returns)
+                }
+            }
+            let pairsChanged = flags.pairs
+            let returnsChanged = flags.returns
+            if pairsChanged {
                 c.storeSummaries[fn] = move pairs
                 changed = true
             }
-            var returned: i64 = 0
-            if c.returnSummaries.contains(fn) { returned = c.returnSummaries[fn].length }
-            if r.returns.length != returned {
-                c.returnSummaries[fn] = copyIds(r.returns)
+            if returnsChanged {
+                c.returnSummaries[fn] = move returns
                 changed = true
             }
         }
+        first = false
     }
+}
+
+/// Whether a summary run changed the store pairs and the returns.
+struct T41Changed {
+    bool pairs = false
+    bool returns = false
+}
+
+/// One summary run of `fn`: its store pairs and returns, copied into `pairs` and `returns` when their counts differ from
+/// `known` and `returned`; whether each did.
+T41Changed t41SummaryRun(ref Ctx c, for FuncId fn, by i64 known, from i64 returned, to ref List<StorePair> pairs, through ref List<i64> returns) {
+    var r = Regions { fn: fn, source: c.functions[fn].file, summary: true }
+    runRegions(ref r, through: ref c)
+    var pairsChanged = false
+    var returnsChanged = false
+    if r.pairs.length != known {
+        for p in r.pairs { pairs.append(p) }
+        pairsChanged = true
+    }
+    if r.returns.length != returned {
+        for x in r.returns { returns.append(x) }
+        returnsChanged = true
+    }
+    return T41Changed { pairs: pairsChanged, returns: returnsChanged }
 }
 
 /// Whether `fn` has a summary target: a `ref`, `out` or writable `dyn ref` parameter, or a `ref this` receiver, that can hold a borrow.

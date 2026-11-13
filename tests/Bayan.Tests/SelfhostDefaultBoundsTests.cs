@@ -332,6 +332,46 @@ public sealed class SelfhostDefaultBoundsTests
     }
 
 
+    // ── Q31 (plan 013) ───────────────────────────────────────────────────────────
+
+    // measured after the arenas: check 781 MB on macOS (mb1), 840 MB on Linux (bayan-test01); before: 2,629 MB and 2,705 MB.
+    // 3x would reach the before figure, so the bound is 2x the larger, rounded up.
+    private const long CheckPeakBoundMb = 1700;
+
+    // measured after the arenas, 64 files of 4 MB: doctor 33 MB on macOS, 15 MB on Linux; before: 543 MB and 514 MB.
+    // bound = 3x the larger, rounded up.
+    private const long DoctorPeakBoundMb = 100;
+
+    /// <summary>Q31: <c>summarizeRegions</c> frees each fixpoint pass after the first with an arena, so checking the driver stays bounded.</summary>
+    [Fact]
+    public void CheckOfTheDriverStaysBounded()
+    {
+        var dir = Fresh("check-driver");
+        var psi = new ProcessStartInfo(BootstrapTests.Stage2Executable()) { WorkingDirectory = Golden.RepoRoot };
+        psi.Environment["BAYAN_CACHE"] = Path.Combine(dir, "cache");
+        foreach (var a in new[] { "check", "--package", "selfhost", "selfhost/driver" }) psi.ArgumentList.Add(a);
+        var (exit, _, stderr, peak) = PeakSampler.Run(psi);
+        Assert.True(exit == 0, stderr);
+        Assert.True(peak > 0, "no working-set sample was taken");
+        Assert.True(peak < CheckPeakBoundMb * 1024 * 1024, $"check of selfhost/driver peaked at {peak / (1024 * 1024)} MB, bound {CheckPeakBoundMb} MB");
+    }
+
+    /// <summary>Q31: <c>cacheStats</c> and <c>t1FileExists</c> read each cached file in an arena, so <c>doctor</c> does not grow with the cache.</summary>
+    [Fact]
+    public void DoctorOfALargeCacheStaysBounded()
+    {
+        var dir = Fresh("doctor-cache");
+        var programs = Path.Combine(dir, "cache", "v1", "programs", "x");
+        Directory.CreateDirectory(programs);
+        var block = new byte[4 * 1024 * 1024];
+        for (var i = 0; i < 64; i++) File.WriteAllBytes(Path.Combine(programs, $"f{i}"), block);
+        var run = Start(true, dir, NoEnv, "doctor");
+        Assert.Contains("256.0 MB", run.Out);
+        Assert.True(run.Peak > 0, "no working-set sample was taken");
+        Assert.True(run.Peak < DoctorPeakBoundMb * 1024 * 1024, $"doctor over a 256 MB cache peaked at {run.Peak / (1024 * 1024)} MB, bound {DoctorPeakBoundMb} MB");
+    }
+
+
     // listed skips (no xunit skip: the guard rejects them), each with its Question:
     // - CliMemoryBoundsTests.M1_* stream rows (uneven writes, a pipe held open, a split character, an endless stream, under the cap):
     //   no driver entry point reads a Stream (Q1226).

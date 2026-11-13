@@ -56,9 +56,13 @@ CacheStats cacheStats() uses alloc, env, fs {
         for file in t3Entries(entry) {
             let f = Path.combine(entry, file)
             unless t1FileExists(f) { continue }
-            // coverage-exempt: Q1083 a file that lists but cannot be read (removed in between, or unreadable); `FileInfo.Length` needs no read
-            let content = Io.readFile(f) catch continue
-            bytes += content.length
+            // Q31 (plan 013): the bytes read only for their length are freed with the arena (no size builtin, Q1148)
+            using let arena = Arena()
+            provide allocator: arena {
+                // coverage-exempt: Q1083 a file that lists but cannot be read (removed in between, or unreadable); `FileInfo.Length` needs no read
+                let content = Io.readFile(f) catch continue
+                bytes += content.length
+            }
         }
     }
     for name in t3Entries(scriptsDir) {
@@ -654,7 +658,11 @@ void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNa
             let files = try Io.listDir(dir)
             for file in files {
                 let path = Path.combine(dir, file)
-                if Fs.fileExists(path) { size += (try Io.readFile(path)).length }
+                // Q31 (plan 013): read only for the length, freed with the arena (no size builtin, Q1148)
+                using let arena = Arena()
+                provide allocator: arena {
+                    if Fs.fileExists(path) { size += (try Io.readFile(path)).length }
+                }
             }
             sizes.append(size)
         }
