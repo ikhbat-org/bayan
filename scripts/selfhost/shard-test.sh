@@ -302,7 +302,9 @@ run() {
   esac; done
   hosts=${hosts#,}; [ -n "$hosts" ] || hosts=vm=0.91,wp1=0.52
   local spec=""
-  for h in ${hosts//,/ }; do h=$(host_spec "$h") || { echo "$h"; exit 2; }; spec="$spec,$h"; done
+  for h in ${hosts//,/ }; do h=$(host_spec "$h") || { echo "$h"; exit 2; }
+    case "$spec," in *",${h%%=*}="*) echo "shard-test: host ${h%%=*} given twice (its slices would share tmp/${h%%=*}/)"; exit 2;; esac
+    spec="$spec,$h"; done
   hosts=${spec#,}
   [ -n "$br" ] || br=$(git symbolic-ref --short -q HEAD) || { echo "shard-test: detached HEAD, pass --branch"; exit 2; }
   local sha; sha=$(git rev-parse --verify -q "$br^{commit}") || { echo "shard-test: no branch $br"; exit 2; }

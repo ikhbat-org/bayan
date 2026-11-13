@@ -186,6 +186,8 @@ ok "speed 0 rejected" "$(bash "$S" run --dry-run --classes cls.txt --host vm=0 2
 ok "speed . rejected" "$(bash "$S" run --dry-run --classes cls.txt --host vm=. 2>&1 | head -1)" "shard-test: bad speed in vm=. (must be above 0)"
 ok "dry run rejects an unknown host" "$(bash "$S" run --dry-run --classes cls.txt --host wlt2=1 2>&1 | head -1)" "shard-test: unsupported host wlt2 in wlt2=1 (vm, wp1, wlt1, mb1)"
 set +e; bash "$S" run --dry-run --classes cls.txt --host vm=1:2:0 > /dev/null 2>&1; rc=$?; set -e; ok "a bad host spec exits 2" "$rc" "2"
+set +e; got=$(bash "$S" run --dry-run --classes cls.txt --host wp1=0.52 --host vm=1 --host wp1=0.5 2>&1); rc=$?; set -e
+ok "a repeated host is refused" "$rc $got" "2 shard-test: host wp1 given twice (its slices would share tmp/wp1/)"
 ok "default hosts are vm and wp1" "$(PATH="$t/bin:$PATH" bash "$S" run --dry-run --classes cls.txt --times w.tsv 2>&1 | sed -n 's/^-- \(.*\) classes:$/\1/p' | tr '\n' ' ')" "vm wp1 "
 s8=$(git rev-parse HEAD | cut -c1-8)
 d=$(PATH="$t/bin:$PATH" bash "$S" run --dry-run --classes q.txt --times q.tsv --host vm=1:2:6 --host wp1=1 --host wlt1=1:1:3 --host mb1=1 2>&1)
