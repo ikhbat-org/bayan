@@ -224,7 +224,7 @@ void bindAll(ref Ctx c) {
                     continue
                 }
                 analyzeFlow(ref c, for: fn)
-                analyzeRegions(ref c, for: fn)
+                t42AnalyzeRegions(ref c, for: fn)
                 lintSpanParameter(ref c, for: fn)
             // coverage-exempt: Q746
             } else if hasBody && c.functions[fn].iface != -1 && !c.functions[fn].isAbstract {

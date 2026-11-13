@@ -742,8 +742,10 @@ void sweepStale(string tempRoot, by i64 ageNanos) uses alloc, clock, env, fs {
         let names = t3Entries(tempRoot)
         for prefix in ["bayan-coverage-", "bayan-mutate-", "bayan-asan-"] {
             for name in names {
+                // Q31 (plan 014): test the name before building a path; `$TMPDIR` can hold 100,000+ entries.
+                if !name.startsWith(prefix) { continue }
                 let path = Path.combine(tempRoot, name)
-                if name.startsWith(prefix) && t9DirectoryExists(path) {
+                if t9DirectoryExists(path) {
                     stale.append(path)
                     limits.append(cutoff)
                 }
