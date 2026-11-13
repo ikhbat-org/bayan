@@ -17,7 +17,7 @@ So for the whole corpus (1296 buildable programs, 27 more fail to build under ev
 ## Approach
 
 1. **Runtime object cache.** Beside `programs/`, the cache gets `runtime/<rkey>/bayan-rt.o` (+ `.sha256`, as programs have). `rkey` = hash of the compiler identity, the compiler command, every flag of the build except the program's own inputs, the target, and `bayan-rt.h` + `bayan-rt.c`. A miss compiles the runtime once with `-c` in a staging directory (`-ffile-prefix-map`, same flags as today) and renames it in, with the same race rule as programs (the loser uses the winner's entry). A program build then compiles `main.c` and links the object: `… main.c <cache>/runtime/<rkey>/bayan-rt.o -o program -lm`.
-2. **Compiler identity.** `CompilerIdentity` = the output of `<compiler> --version` (for zig: `zig version`) plus the SHA-256 of the resolved compiler executable, computed once per process. It joins the program key, the script key and `rkey`.
+2. **Compiler identity.** `CompilerIdentity` = the output of `<compiler> --version` (for zig: `zig version`) plus the resolved compiler executable's path, size and mtime, computed once per process (amended 2026-11-13 by the user: hashing the 199 MB zig cost 1.4 s per stage-2 build). The script key holds the compiler's path, size and mtime only, so a remembered script starts without running the compiler (user decision 2026-11-13). It joins the program key, the script key and `rkey`.
 3. **Same in both compilers.** The C# (`Toolchain.cs`) and the self-hosted driver (`selfhost/driver/cache.byn` `t9Key`/`t9Compile`, `cc.byn` `ccArguments`, which port it) change in one branch with the C# as the oracle (land.sh takes spec rows only, so this lands by worker gate, an independent review against the C#, and the full suite sharded on the VM and wp1); `bootstrap/bayan.c` is regenerated (`BAYAN_UPDATE=1 dotnet test -v q --filter FullyQualifiedName~BootstrapTests`). The C#-vs-stage-2 tests that compare built bytes (`SelfhostDriverGoldenTests.cs:878`) must keep passing: both sides link the same object in the same order.
 4. **Bounds** (docs/memory-leaks.md): `runtime/` is part of the existing cache cap and LRU eviction (one entry per flag set and target, a handful in practice), its staging is swept with the program staging, and `bayan clean --cache` removes it.
 5. **Not changed:** optimisation levels, sanitizer builds (`-fsanitize=address` builds keep one compile step: the runtime must be instrumented too, so ASan gets its own `rkey` with the ASan flags, same mechanism), cross builds (same mechanism, target in `rkey`).
@@ -33,7 +33,7 @@ So for the whole corpus (1296 buildable programs, 27 more fail to build under ev
 ## Risks
 
 - **Link order or symbol differences** between one-step and two-step builds: covered by the run corpus (outputs and exit codes) and the parity tests; m2 found identical outputs on 30 of 30 (at -O0 vs -O2; one-step vs two-step at -O2 is checked by the corpus runs in the suite).
-- **`BAYAN_CC` set to something that is not a compiler driver** (a wrapper script): `--version` may fail; then the identity is the hash of the wrapper file plus its arguments, and the build goes on.
+- **`BAYAN_CC` set to something that is not a compiler driver** (a wrapper script): `--version` may fail; then the identity is the wrapper file's path, size and mtime plus its arguments, and the build goes on.
 - **LTO-style cross-unit inlining** of runtime functions into `main.c` is lost at -O2. Not measured; the run corpus timings in the suite show it if it matters.
 
 ## Coverage
