@@ -1,7 +1,7 @@
 // `bayan cache stats` and `bayan clean` of the self-hosted driver (spec 017 T3). Ports `CliApp.cs` :595 `Cache`,
-// `Toolchain.cs` :21-70 (`CacheDirectory`, `CacheData`, `Programs`, `Scripts`) and :518 `Stats`, and `Dist.cs` :226 `Clean`, :259 `Remove`.
+// `Toolchain.cs` :44-88 (`CacheDirectory`, `CacheData`, `Programs`, `Scripts`) and :643 `Stats`, and `Dist.cs` :226 `Clean`, :259 `Remove`.
 
-/// What `bayan cache stats` reports (Toolchain.cs:19 `CacheStats`).
+/// What `bayan cache stats` reports (Toolchain.cs:21 `CacheStats`).
 struct CacheStats {
     string directory = ""
     i64 programs = 0
@@ -9,7 +9,7 @@ struct CacheStats {
     i64 scripts = 0
 }
 
-/// Toolchain.cs:30 `CacheDirectory`: `$BAYAN_CACHE`; else `%LOCALAPPDATA%\bayan\cache` on Windows, `~/Library/Caches/bayan` on macOS, `$XDG_CACHE_HOME/bayan` or `~/.cache/bayan` elsewhere.
+/// Toolchain.cs:44 `CacheDirectory`: `$BAYAN_CACHE`; else `%LOCALAPPDATA%\bayan\cache` on Windows, `~/Library/Caches/bayan` on macOS, `$XDG_CACHE_HOME/bayan` or `~/.cache/bayan` elsewhere.
 string cacheDirectory() uses alloc, env {
     let set = Env.get("BAYAN_CACHE") ?? ""
     if set.length > 0 { return set }
@@ -41,7 +41,7 @@ List<string> t3Entries(string dir) uses alloc, fs {
     return names
 }
 
-/// Toolchain.cs:518 `Stats`.
+/// Toolchain.cs:643 `Stats`.
 CacheStats cacheStats() uses alloc, env, fs {
     var programs = 0
     var scripts = 0
@@ -153,9 +153,9 @@ i32 cleanCommand(List<string> kept) uses alloc, console, env, fs {
     return exitOk
 }
 
-// ── 017 T9: the build cache. Ports `Toolchain.cs` :71-90 (`TagCacheDirectory`, `Scripts`, `Staging`), :200-256 (`Build`,
-// `BuildCached`), :262-354 (`ReplaceFile`, `Lookup`, `Compile`), :361-456 (`Touch`, `Evict`, `SweepStale`, `Discard`), :462-516
-// (the script cache, `ComputeCompilerBuild`) and :556-562 (`Hash`, `HashFile`). `Guid.NewGuid` is `t9Unique` (Q1149);
+// ── 017 T9: the build cache. Ports `Toolchain.cs` :71-95 (`TagCacheDirectory`, `Scripts`, `Staging`), :258-316 (`Build`,
+// `BuildCached`), :322-465 (`ReplaceFile`, `Lookup`, `RuntimeObject`, `Compile`), :472-570 (`Touch`, `Evict`, `SweepStale`, `Discard`), :579-641
+// (the script cache, `ComputeCompilerBuild`) and :681-687 (`Hash`, `HashFile`). `Guid.NewGuid` is `t9Unique` (Q1149);
 // `ComputeCompilerBuild` is a stub (Q1112, Q1148).
 
 /// Toolchain.cs:66 `CacheDirTag`, the CACHEDIR.TAG signature (bford.info/cachedir).
@@ -192,10 +192,10 @@ void t9WriteTag(string tag, from string temp) uses alloc, env, fs fails IoError 
 /// Toolchain.cs:88 `Scripts`.
 string t9Scripts() uses alloc, env => Path.combine(cacheData(), "scripts")
 
-/// Toolchain.cs:90 `Staging`.
+/// Toolchain.cs:95 `Staging`.
 string t9Staging() uses alloc, env => Path.combine(cacheData(), "tmp")
 
-/// The `BuildMode` name `string.Join` writes (Toolchain.cs:237, :499): `Debug`, `Safe` or `Fast`.
+/// The `BuildMode` name `string.Join` writes (Toolchain.cs:296, :624): `Debug`, `Safe` or `Fast`.
 string t9ModeName(string mode) => mode == "debug" ? "Debug" : mode == "fast" ? "Fast" : "Safe"
 
 /// Toolchain.cs:91 `Runtime`.
@@ -223,7 +223,7 @@ string t9ComputeIdentity(in List<string> compiler) uses alloc, clock, env, fs, p
     let zig = compiler.length > 1 && compiler[1] == "cc" && ccWithoutExtension(Path.fileName(compiler[0])) == "zig"
     var args = List<string>()
     args.append(zig ? "version" : "--version")
-    // 30 s, or the compile timeout when that is shorter (Toolchain.cs:212-213).
+    // 30 s, or the compile timeout when that is shorter (Toolchain.cs:207-208).
     let compile = t9CompileTimeout() / 1000000
     // Not a compiler that reports its version; its command stands in.
     let r = Io.run(compiler[0], args.span, timeout: Millis(compile < 30000 ? compile : 30000)) catch switch {
@@ -252,7 +252,7 @@ string t9CompilerStamp(in List<string> compiler) uses alloc, env, fs {
     return ""
 }
 
-/// Toolchain.cs:281: the key of a program, from the compiler version, mode, target, C compiler and its identity, flags, runtime
+/// Toolchain.cs:296: the key of a program, from the compiler version, mode, target, C compiler and its identity, flags, runtime
 /// and C source. `target` is `target ?? Targets.Host`, which `string.Join` writes empty when null.
 string t9Key(string mode, for string? target, by in List<string> compiler, as string identity, through in List<string> flags, from string cSource) uses alloc {
     var sb = StrBuf()
@@ -276,7 +276,7 @@ string t9Key(string mode, for string? target, by in List<string> compiler, as st
     return t9Hash(sb.finish())
 }
 
-/// Toolchain.cs:200 `Build` and :212 `BuildCached`, without `sanitize` (R3): the program `cSource` builds to in the cache, copied
+/// Toolchain.cs:258 `Build` and :270 `BuildCached`, without `sanitize` (R3): the program `cSource` builds to in the cache, copied
 /// to `output` when one is given. `target` is `--target`, else `Targets.Host`.
 struct T9Built {
     NativeBuild result = NativeBuild {}
@@ -288,7 +288,7 @@ struct T9Built {
     string key = ""
 }
 
-/// Toolchain.cs:200 `Build`: an IO error of `BuildCached` is the `cannot write the build output or cache` failure.
+/// Toolchain.cs:258 `Build`: an IO error of `BuildCached` is the `cannot write the build output or cache` failure.
 T9Built t9Build(string cSource, by string mode, to string? output, for string? target, through ref DCtx d) uses alloc, clock, env, fs, process, random {
     let built = t9BuildCached(cSource, by: mode, to: output, for: target ?? targetHost(), through: ref d) catch switch {
         IoError e => return T9Built { result: NativeBuild { errors: $"cannot write the build output or cache ({cacheDirectory()}): {e}" } },
@@ -296,14 +296,14 @@ T9Built t9Build(string cSource, by string mode, to string? output, for string? t
     return built
 }
 
-/// Toolchain.cs:212 `BuildCached`; the refusals are cc.byn `ccRefusal`.
+/// Toolchain.cs:270 `BuildCached`; the refusals are cc.byn `ccRefusal`.
 T9Built t9BuildCached(string cSource, by string mode, to string? output, for string? target, through ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
     sweepOnce(ref d)
     let cross = target != targetHost()
     let compiler = ccFindCompiler()
     let refusal = ccRefusal(in compiler, for: target)
     if refusal != "" { return T9Built { result: NativeBuild { errors: refusal } } }
-    // coverage-exempt: Q1114 `target` is null only when `targetHost()` is, on a host no target names (Toolchain.cs:225's host build)
+    // coverage-exempt: Q1114 `target` is null only when `targetHost()` is, on a host no target names (Toolchain.cs:262's host build)
     let targetOs = target ?? (Target.os == "windows" ? "windows" : "")
     let exeName = targetExecutableName("program", for: targetOs)
     var triple: string? = null
@@ -313,7 +313,7 @@ T9Built t9BuildCached(string cSource, by string mode, to string? output, for str
     let key = t9Key(mode, for: target, by: in compiler, as: identity, through: in flags, from: cSource)
     let hit = (try lookup(key, by: exeName, through: ref d)) is not null
     unless hit {
-        // Toolchain.cs:287-289.
+        // Toolchain.cs:302-304.
         let runtime = try t9RuntimeObject(in compiler, by: in flags, as: identity, through: ref d)
         unless runtime.result.succeeded { return T9Built { result: runtime.result } }
         let failure = try t9Compile(in compiler, by: in flags, from: cSource, for: key, as: exeName, until: runtime.path, at: targetOs.startsWith("windows"), through: ref d)
@@ -327,7 +327,7 @@ T9Built t9BuildCached(string cSource, by string mode, to string? output, for str
     return T9Built { result: ok, exe: given, hit: hit, key: key }
 }
 
-/// Toolchain.cs:262 `ReplaceFile(path, temp => File.Copy(source, temp))`, the one call (:254); the copy keeps the mode bits. The
+/// Toolchain.cs:322 `ReplaceFile(path, temp => File.Copy(source, temp))`, the one call (:314); the copy keeps the mode bits. The
 /// tries of the rename have no sleep between them, which has no builtin (Q1149).
 void replaceFile(string path, from string source, through ref DCtx d) uses alloc, clock, fs, random fails IoError {
     let temp = $"{path}.{t9Unique(ref d)}.tmp"
@@ -342,7 +342,7 @@ void replaceFile(string path, from string source, through ref DCtx d) uses alloc
     try Fs.rename(temp, to: path)
 }
 
-/// `if (File.Exists(temp)) File.Delete(temp)` of `ReplaceFile`'s `finally` (Toolchain.cs:284).
+/// `if (File.Exists(temp)) File.Delete(temp)` of `ReplaceFile`'s `finally` (Toolchain.cs:344).
 void t9DeleteFile(string path) uses fs {
     if Fs.fileExists(path) {
         // coverage-exempt: Q1149 a temporary file that the failed copy or rename left and that cannot be removed
@@ -350,17 +350,17 @@ void t9DeleteFile(string path) uses fs {
     }
 }
 
-/// Toolchain.cs:334 `Lookup`: the cached executable for `key` if it is intact; a damaged entry is removed.
+/// Toolchain.cs:349 `Lookup`: the cached executable for `key` if it is intact; a damaged entry is removed.
 string? lookup(string key, by string exeName, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     return try t9LookupEntry(Path.combine(t9Programs(), key), by: exeName, from: "program.sha256", through: ref d)
 }
 
-/// Toolchain.cs:337 `LookupRuntime`: the cached runtime object for `runtimeKey` if it is intact; a damaged entry is removed.
+/// Toolchain.cs:352 `LookupRuntime`: the cached runtime object for `runtimeKey` if it is intact; a damaged entry is removed.
 string? t9LookupRuntime(string runtimeKey, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     return try t9LookupEntry(Path.combine(t9Runtime(), runtimeKey), by: runtimeObjectName, from: $"{runtimeObjectName}.sha256", through: ref d)
 }
 
-/// Toolchain.cs:340 `LookupEntry`: `file` in the entry `dir` if its SHA-256 is the one in `sumName`; a damaged entry is removed. A
+/// Toolchain.cs:355 `LookupEntry`: `file` in the entry `dir` if its SHA-256 is the one in `sumName`; a damaged entry is removed. A
 /// file that cannot be read for want of permission fails (the C#'s `UnauthorizedAccessException` is not caught); any other read
 /// error is damage.
 string? t9LookupEntry(string dir, by string file, from string sumName, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
@@ -421,13 +421,13 @@ bool t9Intact(string exe, by string sum) uses alloc, fs fails IoError {
     return text == hash
 }
 
-/// What `RuntimeObject` returns (Toolchain.cs:366): `path` when `result` succeeded.
+/// What `RuntimeObject` returns (Toolchain.cs:381): `path` when `result` succeeded.
 struct T9Runtime {
     NativeBuild result = NativeBuild {}
     string path = ""
 }
 
-/// Toolchain.cs:366 `RuntimeObject`: the runtime compiled with `flags` by `compiler`, from `runtime/<rkey>/`, else compiled with
+/// Toolchain.cs:381 `RuntimeObject`: the runtime compiled with `flags` by `compiler`, from `runtime/<rkey>/`, else compiled with
 /// `-c` in a private directory and renamed into place as programs are. The failure the C# returns (`Rejected`, :290) or throws as
 /// a `Win32Exception` (:294) is the `NativeBuild`.
 T9Runtime t9RuntimeObject(in List<string> compiler, by in List<string> flags, as string identity, through ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
@@ -459,7 +459,7 @@ T9Runtime t9RuntimeObject(in List<string> compiler, by in List<string> flags, as
     return result
 }
 
-/// The `try` body of `RuntimeObject` (Toolchain.cs:374-399) in `work`, with absolute names as `t9CompileIn`.
+/// The `try` body of `RuntimeObject` (Toolchain.cs:388-420) in `work`, with absolute names as `t9CompileIn`.
 T9Runtime t9RuntimeIn(string work, by in List<string> compiler, through in List<string> flags, for string rkey, to ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
     try Io.writeFile(Path.combine(work, "bayan-rt.h"), runtimeHeader.bytes)
     try Io.writeFile(Path.combine(work, "bayan-rt.c"), runtimeSource.bytes)
@@ -498,7 +498,7 @@ T9Runtime t9RuntimeIn(string work, by in List<string> compiler, through in List<
     return T9Runtime { result: NativeBuild { succeeded: true }, path: Path.combine(Path.combine(t9Runtime(), rkey), runtimeObjectName) }
 }
 
-/// Toolchain.cs:409 `Compile`: builds into a private directory, linking `runtime`, then renames it to `programs/<key>`. The
+/// Toolchain.cs:424 `Compile`: builds into a private directory, linking `runtime`, then renames it to `programs/<key>`. The
 /// failure the C# returns (`Rejected`, :290) or throws as a `Win32Exception` (:294) is the `NativeBuild`.
 NativeBuild t9Compile(in List<string> compiler, by in List<string> flags, from string cSource, for string key, as string exeName, until string runtime, at bool windows, through ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
     tagCacheDirectory(ref d)
@@ -514,14 +514,14 @@ NativeBuild t9Compile(in List<string> compiler, by in List<string> flags, from s
     return result
 }
 
-/// The `finally` of `Compile` (Toolchain.cs:352).
+/// The `finally` of `Compile` (Toolchain.cs:461-464).
 void t9DiscardLeft(string work, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     if t9DirectoryExists(work) { try discard(work, through: ref d) }
 }
 
-/// The `try` body of `Compile` (Toolchain.cs:416-445) in `work`, linking the prebuilt `runtime`. `Io.run` has no working directory
-/// and no timeout (Q1009, Q1149): the files are named by absolute path, and a compile is never killed, so there is no `timed out`
-/// failure.
+/// The `try` body of `Compile` (Toolchain.cs:429-465) in `work`, linking the prebuilt `runtime`. `Io.run` has no working directory
+/// (Q1009, Q1149): the files are named by absolute path. This `Io.run` passes no timeout (only the version probe of
+/// `t9ComputeIdentity` does), so a compile is never killed and there is no `timed out` failure.
 NativeBuild t9CompileIn(string work, by in List<string> compiler, through in List<string> flags, from string cSource, for string key, as string exeName, until string runtime, at bool windows, to ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
     try Io.writeFile(Path.combine(work, "bayan-rt.h"), runtimeHeader.bytes)
     try Io.writeFile(Path.combine(work, "main.c"), cSource.bytes)
@@ -573,13 +573,13 @@ void t9MoveDirectory(string dir, to string dest) uses alloc, fs fails IoError {
     try Fs.rename(dir, to: dest)
 }
 
-/// Toolchain.cs:361 `Touch`: a failure is harmless.
+/// Toolchain.cs:472 `Touch`: a failure is harmless.
 void touch(string dir) uses clock, fs {
     // coverage-exempt: Q1149 a directory `Lookup` just listed whose write time cannot be set (read-only file system, not the owner)
     Fs.setModified(dir, to: Time.now()) catch return
 }
 
-/// Toolchain.cs:372 `Evict(keep)`: `$BAYAN_CACHE_MAX_MB` (2048; 0 for no cap) and 4000 entries, kept 10 minutes. The bytes wrap as
+/// Toolchain.cs:483 `Evict(keep)`: `$BAYAN_CACHE_MAX_MB` (2048; 0 for no cap) and 4000 entries, kept 10 minutes. The bytes wrap as
 /// the C#'s unchecked `mb * 1024 * 1024` does.
 void evict(string keep, through ref DCtx d) uses alloc, clock, env, fs, random {
     let mb = t9Digits(Env.get("BAYAN_CACHE_MAX_MB") ?? "", until: 9223372036854775807) ?? 2048
@@ -587,7 +587,7 @@ void evict(string keep, through ref DCtx d) uses alloc, clock, env, fs, random {
     evictWith(keep, to: mb *% 1048576, by: 4000, until: 600000000000, through: ref d)
 }
 
-/// `TryParse` with `NumberStyles.None` (Toolchain.cs:142, :374): `text` as decimal digits only, null when it is empty, has
+/// `TryParse` with `NumberStyles.None` (Toolchain.cs:147, :485): `text` as decimal digits only, null when it is empty, has
 /// another character or is above `max`.
 i64? t9Digits(string text, until i64 max) {
     if text.length == 0 { return null }
@@ -601,15 +601,15 @@ i64? t9Digits(string text, until i64 max) {
     return value
 }
 
-/// Toolchain.cs:379 `Evict(keep, maxBytes, maxEntries, minAge)`: an IO error ends it.
+/// Toolchain.cs:490 `Evict(keep, maxBytes, maxEntries, minAge)`: an IO error ends it.
 void evictWith(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, through ref DCtx d) uses alloc, clock, env, fs, random {
     t9Evict(keep, to: maxBytes, by: maxEntries, until: minAgeNanos, through: ref d) catch return
 }
 
-/// The `try` body of `Evict` (Toolchain.cs:477-499). `FileInfo.Length` has no builtin: a file's size is its bytes, read (Q1149).
+/// The `try` body of `Evict` (Toolchain.cs:490-516). `FileInfo.Length` has no builtin: a file's size is its bytes, read (Q1149).
 void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     let programs = t9Programs()
-    // Runtime objects share the cap and the LRU order with programs (Toolchain.cs:479-481).
+    // Runtime objects share the cap and the LRU order with programs (Toolchain.cs:494-496).
     var parents = List<string>()
     parents.append(programs)
     if t9DirectoryExists(t9Runtime()) { parents.append(t9Runtime()) }
@@ -668,7 +668,7 @@ void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNa
     }
 }
 
-/// Toolchain.cs:407 `SweepOnce`: `SweepStale(Path.GetTempPath(), TimeSpan.FromHours(1))` once per run.
+/// Toolchain.cs:521 `SweepOnce`: `SweepStale(Path.GetTempPath(), TimeSpan.FromHours(1))` once per run.
 void sweepOnce(ref DCtx d) uses alloc, clock, env, fs {
     if d.swept { return }
     d.swept = true
@@ -689,13 +689,13 @@ string t9TempPath() uses alloc, env {
     return set.length > 0 ? set : "/tmp/"
 }
 
-/// `CompileTimeout` (Toolchain.cs:141): `$BAYAN_CC_TIMEOUT_S` seconds when it is a positive `int`, else 10 minutes; nanoseconds.
+/// `CompileTimeout` (Toolchain.cs:146): `$BAYAN_CC_TIMEOUT_S` seconds when it is a positive `int`, else 10 minutes; nanoseconds.
 i64 t9CompileTimeout() uses alloc, env {
     let seconds = t9Digits(Env.get("BAYAN_CC_TIMEOUT_S") ?? "", until: 2147483647) ?? 0
     return seconds > 0 ? seconds * 1000000000 : 600000000000
 }
 
-/// Toolchain.cs:418 `SweepStale`: `bayan-coverage-*`, `bayan-mutate-*` and `bayan-asan-*` directories in `tempRoot` older than
+/// Toolchain.cs:532 `SweepStale`: `bayan-coverage-*`, `bayan-mutate-*` and `bayan-asan-*` directories in `tempRoot` older than
 /// `ageNanos`, and every entry of `Staging` older than the larger of it and the compile timeout plus 10 minutes, are removed.
 /// Errors are ignored.
 void sweepStale(string tempRoot, by i64 ageNanos) uses alloc, clock, env, fs {
@@ -746,7 +746,7 @@ void t9DeleteTree(string dir) uses alloc, fs fails IoError {
     try Io.removeDirectory(dir)
 }
 
-/// Toolchain.cs:443 `Discard`: `Directory.CreateDirectory(Staging)`, whose `UnauthorizedAccessException` the C# does not catch, so
+/// Toolchain.cs:557 `Discard`: `Directory.CreateDirectory(Staging)`, whose `UnauthorizedAccessException` the C# does not catch, so
 /// a permission error fails; any other error is the caught `IOException`.
 void discard(string dir, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     Io.createDirectory(t9Staging()) catch switch {
@@ -764,7 +764,7 @@ void t9MoveAndDelete(string dir, through ref DCtx d) uses alloc, clock, env, fs,
     t9MoveDirectory(dir, to: trash) catch return
     t9DeleteTree(trash) catch switch {
         IoError.permissionDenied => fail .permissionDenied,
-        // coverage-exempt: Q1114 a delete that fails for another reason than permission: `trash` changed in between (Toolchain.cs:450, :452)
+        // coverage-exempt: Q1114 a delete that fails for another reason than permission: `trash` changed in between (Toolchain.cs:563, :564)
         IoError e => return,
     }
 }
@@ -838,17 +838,17 @@ string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build) use
     return t9Hash(sb.finish())
 }
 
-/// Toolchain.cs:508 `ComputeCompilerBuild`.
+/// Toolchain.cs:633 `ComputeCompilerBuild`.
 // stub: T9 compilerBuild (blocked: Q1112) the size and `LastWriteTimeUtc` of `Environment.ProcessPath` have no builtin (Q1148)
 string compilerBuild() uses alloc, env, fs {
     // coverage-exempt: Q1112 the stub's value, `CompilerVersion` without the file parts; no test asserts it
     return version
 }
 
-/// Toolchain.cs:556 `Hash`.
+/// Toolchain.cs:681 `Hash`.
 string t9Hash(string text) uses alloc => Hex.encode(sha256(text.bytes).span)
 
-/// Toolchain.cs:558 `HashFile`.
+/// Toolchain.cs:683 `HashFile`.
 string t9HashFile(string path) uses alloc, fs fails IoError {
     let bytes = try Io.readFile(path)
     return Hex.encode(sha256(bytes.span).span)
