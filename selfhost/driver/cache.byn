@@ -164,16 +164,16 @@ const cacheDirTag: string = "Signature: 8a477f597d28d172789f06886806bc55\n# This
 /// Toolchain.cs:62 `Programs`.
 string t9Programs() uses alloc, env => Path.combine(cacheData(), "programs")
 
-/// `Guid.NewGuid().ToString("N")`, which has no builtin (Q1149): the wall clock, the monotonic clock and a count of the names this
-/// run made, so two names of one run differ by the count and two runs differ by the clocks.
-string t9Unique(ref DCtx d) uses alloc, clock {
+/// `Guid.NewGuid().ToString("N")`, which has no builtin (Q1149): the wall clock, the monotonic clock, a count of the names this
+/// run made and 64 OS-random bits (`Io.randomU64`), so two names of one run differ by the count and two runs by the random bits.
+string t9Unique(ref DCtx d) uses alloc, clock, random {
     d.uniques += 1
-    return $"{Time.now().nanos}-{Io.monotonicNanos()}-{d.uniques}"
+    return $"{Time.now().nanos}-{Io.monotonicNanos()}-{d.uniques}-{Io.randomU64()}"
 }
 
 /// Toolchain.cs:71 `TagCacheDirectory`. `File.Move(temp, tag, overwrite: false)` is `Fs.rename`, which replaces a tag another
 /// run made in between with the same text (Q1149).
-void tagCacheDirectory(ref DCtx d) uses alloc, clock, env, fs {
+void tagCacheDirectory(ref DCtx d) uses alloc, clock, env, fs, random {
     let tag = Path.combine(cacheData(), "CACHEDIR.TAG")
     if Fs.fileExists(tag) { return }
     let temp = $"{tag}.{t9Unique(ref d)}"
@@ -198,9 +198,63 @@ string t9Staging() uses alloc, env => Path.combine(cacheData(), "tmp")
 /// The `BuildMode` name `string.Join` writes (Toolchain.cs:237, :499): `Debug`, `Safe` or `Fast`.
 string t9ModeName(string mode) => mode == "debug" ? "Debug" : mode == "fast" ? "Fast" : "Safe"
 
-/// Toolchain.cs:237: the key of a program, from the compiler version, mode, target, C compiler, flags, runtime and C source.
-/// `target` is `target ?? Targets.Host`, which `string.Join` writes empty when null.
-string t9Key(string mode, for string? target, by in List<string> compiler, through in List<string> flags, from string cSource) uses alloc {
+/// Toolchain.cs:91 `Runtime`.
+string t9Runtime() uses alloc, env => Path.combine(cacheData(), "runtime")
+
+/// Toolchain.cs:93 `RuntimeObjectName`.
+const runtimeObjectName: string = "bayan-rt.o"
+
+/// Toolchain.cs:193 `CompilerIdentity`: computed once per run and command.
+string t9CompilerIdentity(in List<string> compiler, through ref DCtx d) uses alloc, clock, env, fs, process {
+    let command = ccJoin(in compiler)
+    if d.identityKnown && d.identityOf == command { return d.identity }
+    d.identity = t9ComputeIdentity(in compiler)
+    d.identityOf = command
+    d.identityKnown = true
+    return d.identity
+}
+
+/// Toolchain.cs:200 `ComputeIdentity`: the output of `zig version` (zig cc) or `<compiler> --version` and the compiler file's
+/// stamp; the command and the stamp when it cannot report its version. `Io.run` without `directory:` runs in the current
+/// directory, as the C#'s `Environment.CurrentDirectory`.
+string t9ComputeIdentity(in List<string> compiler) uses alloc, clock, env, fs, process {
+    // Toolchain.cs:202.
+    let stamp = t9CompilerStamp(in compiler)
+    let zig = compiler.length > 1 && compiler[1] == "cc" && ccWithoutExtension(Path.fileName(compiler[0])) == "zig"
+    var args = List<string>()
+    args.append(zig ? "version" : "--version")
+    // 30 s, or the compile timeout when that is shorter (Toolchain.cs:212-213).
+    let compile = t9CompileTimeout() / 1000000
+    // Not a compiler that reports its version; its command stands in.
+    let r = Io.run(compiler[0], args.span, timeout: Millis(compile < 30000 ? compile : 30000)) catch switch {
+        IoError e => return $"{ccJoin(in compiler)}\0{stamp}",
+    }
+    // Toolchain.cs:209, :215.
+    if r.exitCode == 0 { return $"{r.stdout}\0{stamp}" }
+    return $"{ccJoin(in compiler)}\0{stamp}"
+}
+
+/// Toolchain.cs:222 `CompilerStamp`: the compiler file's path (as given, else as `FindOnPath` found it) and the last write time
+/// of the file it links to, in `DateTime` ticks; empty when there is no such file. `Fs.modified` follows links as stat(2) does,
+/// which is the C#'s `ResolveLinkTarget(returnFinalTarget: true)`.
+string t9CompilerStamp(in List<string> compiler) uses alloc, env, fs {
+    // Toolchain.cs:224.
+    var file: string? = compiler[0]
+    unless Path.isRooted(compiler[0]) { file = ccFindOnPath(compiler[0], for: Target.os) }
+    // Toolchain.cs:227.
+    if (file is { } f) {
+        unless Fs.fileExists(f) { return "" }
+        // Toolchain.cs:228-233: an IO error is the empty stamp.
+        let written = Fs.modified(f) catch return ""
+        // Toolchain.cs:231: ticks count 100 ns from 0001-01-01, which is 621355968000000000 ticks before the Unix epoch.
+        return $"{f}:{621355968000000000 + written.nanos / 100}"
+    }
+    return ""
+}
+
+/// Toolchain.cs:281: the key of a program, from the compiler version, mode, target, C compiler and its identity, flags, runtime
+/// and C source. `target` is `target ?? Targets.Host`, which `string.Join` writes empty when null.
+string t9Key(string mode, for string? target, by in List<string> compiler, as string identity, through in List<string> flags, from string cSource) uses alloc {
     var sb = StrBuf()
     sb.append(version)
     sb.append("\0")
@@ -209,6 +263,8 @@ string t9Key(string mode, for string? target, by in List<string> compiler, throu
     sb.append(target ?? "")
     sb.append("\0")
     sb.append(ccJoin(in compiler))
+    sb.append("\0")
+    sb.append(identity)
     sb.append("\0")
     sb.append(ccJoin(in flags))
     sb.append("\0")
@@ -233,7 +289,7 @@ struct T9Built {
 }
 
 /// Toolchain.cs:200 `Build`: an IO error of `BuildCached` is the `cannot write the build output or cache` failure.
-T9Built t9Build(string cSource, by string mode, to string? output, for string? target, through ref DCtx d) uses alloc, clock, env, fs, process {
+T9Built t9Build(string cSource, by string mode, to string? output, for string? target, through ref DCtx d) uses alloc, clock, env, fs, process, random {
     let built = t9BuildCached(cSource, by: mode, to: output, for: target ?? targetHost(), through: ref d) catch switch {
         IoError e => return T9Built { result: NativeBuild { errors: $"cannot write the build output or cache ({cacheDirectory()}): {e}" } },
     }
@@ -241,7 +297,7 @@ T9Built t9Build(string cSource, by string mode, to string? output, for string? t
 }
 
 /// Toolchain.cs:212 `BuildCached`; the refusals are cc.byn `ccRefusal`.
-T9Built t9BuildCached(string cSource, by string mode, to string? output, for string? target, through ref DCtx d) uses alloc, clock, env, fs, process fails IoError {
+T9Built t9BuildCached(string cSource, by string mode, to string? output, for string? target, through ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
     sweepOnce(ref d)
     let cross = target != targetHost()
     let compiler = ccFindCompiler()
@@ -253,10 +309,14 @@ T9Built t9BuildCached(string cSource, by string mode, to string? output, for str
     var triple: string? = null
     if cross { triple = targetTriple(target ?? "") }
     let flags = ccFlags(mode, for: triple)
-    let key = t9Key(mode, for: target, by: in compiler, through: in flags, from: cSource)
+    let identity = t9CompilerIdentity(in compiler, through: ref d)
+    let key = t9Key(mode, for: target, by: in compiler, as: identity, through: in flags, from: cSource)
     let hit = (try lookup(key, by: exeName, through: ref d)) is not null
     unless hit {
-        let failure = try t9Compile(in compiler, by: in flags, from: cSource, for: key, as: exeName, at: targetOs.startsWith("windows"), through: ref d)
+        // Toolchain.cs:287-289.
+        let runtime = try t9RuntimeObject(in compiler, by: in flags, as: identity, through: ref d)
+        unless runtime.result.succeeded { return T9Built { result: runtime.result } }
+        let failure = try t9Compile(in compiler, by: in flags, from: cSource, for: key, as: exeName, until: runtime.path, at: targetOs.startsWith("windows"), through: ref d)
         unless failure.succeeded { return T9Built { result: failure } }
     }
     if hit { tagCacheDirectory(ref d) }
@@ -269,7 +329,7 @@ T9Built t9BuildCached(string cSource, by string mode, to string? output, for str
 
 /// Toolchain.cs:262 `ReplaceFile(path, temp => File.Copy(source, temp))`, the one call (:254); the copy keeps the mode bits. The
 /// tries of the rename have no sleep between them, which has no builtin (Q1149).
-void replaceFile(string path, from string source, through ref DCtx d) uses alloc, clock, fs fails IoError {
+void replaceFile(string path, from string source, through ref DCtx d) uses alloc, clock, fs, random fails IoError {
     let temp = $"{path}.{t9Unique(ref d)}.tmp"
     defer t9DeleteFile(temp)
     try Fs.copy(source, to: temp)
@@ -290,12 +350,22 @@ void t9DeleteFile(string path) uses fs {
     }
 }
 
-/// Toolchain.cs:289 `Lookup`: the cached executable for `key` if it is intact; a damaged entry is removed. A file that cannot be
-/// read for want of permission fails (the C#'s `UnauthorizedAccessException` is not caught); any other read error is damage.
-string? lookup(string key, by string exeName, through ref DCtx d) uses alloc, clock, env, fs fails IoError {
-    let dir = Path.combine(t9Programs(), key)
-    let exe = Path.combine(dir, exeName)
-    let sum = Path.combine(dir, "program.sha256")
+/// Toolchain.cs:334 `Lookup`: the cached executable for `key` if it is intact; a damaged entry is removed.
+string? lookup(string key, by string exeName, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
+    return try t9LookupEntry(Path.combine(t9Programs(), key), by: exeName, from: "program.sha256", through: ref d)
+}
+
+/// Toolchain.cs:337 `LookupRuntime`: the cached runtime object for `runtimeKey` if it is intact; a damaged entry is removed.
+string? t9LookupRuntime(string runtimeKey, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
+    return try t9LookupEntry(Path.combine(t9Runtime(), runtimeKey), by: runtimeObjectName, from: $"{runtimeObjectName}.sha256", through: ref d)
+}
+
+/// Toolchain.cs:340 `LookupEntry`: `file` in the entry `dir` if its SHA-256 is the one in `sumName`; a damaged entry is removed. A
+/// file that cannot be read for want of permission fails (the C#'s `UnauthorizedAccessException` is not caught); any other read
+/// error is damage.
+string? t9LookupEntry(string dir, by string file, from string sumName, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
+    let exe = Path.combine(dir, file)
+    let sum = Path.combine(dir, sumName)
     unless t9DirectoryExists(dir) { return null }
     if Fs.fileExists(exe) && Fs.fileExists(sum) {
         let intact = try t9Intact(exe, by: sum)
@@ -351,13 +421,90 @@ bool t9Intact(string exe, by string sum) uses alloc, fs fails IoError {
     return text == hash
 }
 
-/// Toolchain.cs:312 `Compile`: builds into a private directory, then renames it to `programs/<key>`. The failure the C# returns
-/// (`Rejected`, :244) or throws as a `Win32Exception` (:248) is the `NativeBuild`.
-NativeBuild t9Compile(in List<string> compiler, by in List<string> flags, from string cSource, for string key, as string exeName, at bool windows, through ref DCtx d) uses alloc, clock, env, fs, process fails IoError {
+/// What `RuntimeObject` returns (Toolchain.cs:366): `path` when `result` succeeded.
+struct T9Runtime {
+    NativeBuild result = NativeBuild {}
+    string path = ""
+}
+
+/// Toolchain.cs:366 `RuntimeObject`: the runtime compiled with `flags` by `compiler`, from `runtime/<rkey>/`, else compiled with
+/// `-c` in a private directory and renamed into place as programs are. The failure the C# returns (`Rejected`, :290) or throws as
+/// a `Win32Exception` (:294) is the `NativeBuild`.
+T9Runtime t9RuntimeObject(in List<string> compiler, by in List<string> flags, as string identity, through ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
+    var sb = StrBuf()
+    sb.append("runtime")
+    sb.append("\0")
+    sb.append(identity)
+    sb.append("\0")
+    sb.append(ccJoin(in compiler))
+    sb.append("\0")
+    sb.append(ccJoin(in flags))
+    sb.append("\0")
+    sb.append(runtimeHeader)
+    sb.append("\0")
+    sb.append(runtimeSource)
+    let rkey = t9Hash(sb.finish())
+    let found = try t9LookupRuntime(rkey, through: ref d)
+    if (found is { } path) { return T9Runtime { result: NativeBuild { succeeded: true }, path: path } }
+    tagCacheDirectory(ref d)
+    let work = Path.combine(t9Staging(), $"{rkey[0..16]}-{t9Unique(ref d)}")
+    try Io.createDirectory(work)
+    let result = t9RuntimeIn(work, by: in compiler, through: in flags, for: rkey, to: ref d) catch switch {
+        IoError e => {
+            try t9DiscardLeft(work, through: ref d)
+            fail e
+        }
+    }
+    try t9DiscardLeft(work, through: ref d)
+    return result
+}
+
+/// The `try` body of `RuntimeObject` (Toolchain.cs:374-399) in `work`, with absolute names as `t9CompileIn`.
+T9Runtime t9RuntimeIn(string work, by in List<string> compiler, through in List<string> flags, for string rkey, to ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
+    try Io.writeFile(Path.combine(work, "bayan-rt.h"), runtimeHeader.bytes)
+    try Io.writeFile(Path.combine(work, "bayan-rt.c"), runtimeSource.bytes)
+    let obj = Path.combine(work, runtimeObjectName)
+    var args = List<string>()
+    for i in 1..compiler.length { args.append(compiler[i]) }
+    for f in flags { args.append(f) }
+    // Debug info names `bayan-rt.c`, not this temporary directory.
+    args.append("-c")
+    args.append($"-ffile-prefix-map={work}=.")
+    args.append("-I")
+    args.append(work)
+    args.append(Path.combine(work, "bayan-rt.c"))
+    args.append("-o")
+    args.append(obj)
+    let r = Io.run(compiler[0], args.span) catch switch {
+        IoError e => return T9Runtime { result: NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`: {e}" } },
+    }
+    if r.exitCode != 0 || !Fs.fileExists(obj) {
+        return T9Runtime { result: NativeBuild { errors: $"C compiler failed (exit {r.exitCode}):\n{r.stdout}{r.stderr}", rejected: true } }
+    }
+    let names = try Io.listDir(work)
+    for name in names {
+        let file = Path.combine(work, name)
+        if name != runtimeObjectName && Fs.fileExists(file) { try Io.remove(file) }
+    }
+    try Io.writeFile(Path.combine(work, $"{runtimeObjectName}.sha256"), $"{try t9HashFile(obj)}\n".bytes)
+    try Io.createDirectory(t9Runtime())
+    t9MoveDirectory(work, to: Path.combine(t9Runtime(), rkey)) catch switch {
+        IoError e => {
+            // Another build compiled the same runtime first; its object is as good as ours.
+            let won = try t9LookupRuntime(rkey, through: ref d)
+            if won is null { fail e }
+        }
+    }
+    return T9Runtime { result: NativeBuild { succeeded: true }, path: Path.combine(Path.combine(t9Runtime(), rkey), runtimeObjectName) }
+}
+
+/// Toolchain.cs:409 `Compile`: builds into a private directory, linking `runtime`, then renames it to `programs/<key>`. The
+/// failure the C# returns (`Rejected`, :290) or throws as a `Win32Exception` (:294) is the `NativeBuild`.
+NativeBuild t9Compile(in List<string> compiler, by in List<string> flags, from string cSource, for string key, as string exeName, until string runtime, at bool windows, through ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
     tagCacheDirectory(ref d)
     let work = Path.combine(t9Staging(), $"{key[0..16]}-{t9Unique(ref d)}")
     try Io.createDirectory(work)
-    let result = t9CompileIn(work, by: in compiler, through: in flags, from: cSource, for: key, as: exeName, at: windows, to: ref d) catch switch {
+    let result = t9CompileIn(work, by: in compiler, through: in flags, from: cSource, for: key, as: exeName, until: runtime, at: windows, to: ref d) catch switch {
         IoError e => {
             try t9DiscardLeft(work, through: ref d)
             fail e
@@ -368,15 +515,15 @@ NativeBuild t9Compile(in List<string> compiler, by in List<string> flags, from s
 }
 
 /// The `finally` of `Compile` (Toolchain.cs:352).
-void t9DiscardLeft(string work, through ref DCtx d) uses alloc, clock, env, fs fails IoError {
+void t9DiscardLeft(string work, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     if t9DirectoryExists(work) { try discard(work, through: ref d) }
 }
 
-/// The `try` body of `Compile` (Toolchain.cs:319-348) in `work`. `Io.run` has no working directory and no timeout (Q1009, Q1149):
-/// the files are named by absolute path, and a compile is never killed, so there is no `timed out` failure.
-NativeBuild t9CompileIn(string work, by in List<string> compiler, through in List<string> flags, from string cSource, for string key, as string exeName, at bool windows, to ref DCtx d) uses alloc, clock, env, fs, process fails IoError {
+/// The `try` body of `Compile` (Toolchain.cs:416-445) in `work`, linking the prebuilt `runtime`. `Io.run` has no working directory
+/// and no timeout (Q1009, Q1149): the files are named by absolute path, and a compile is never killed, so there is no `timed out`
+/// failure.
+NativeBuild t9CompileIn(string work, by in List<string> compiler, through in List<string> flags, from string cSource, for string key, as string exeName, until string runtime, at bool windows, to ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
     try Io.writeFile(Path.combine(work, "bayan-rt.h"), runtimeHeader.bytes)
-    try Io.writeFile(Path.combine(work, "bayan-rt.c"), runtimeSource.bytes)
     try Io.writeFile(Path.combine(work, "main.c"), cSource.bytes)
     let exe = Path.combine(work, exeName)
     var args = List<string>()
@@ -387,7 +534,7 @@ NativeBuild t9CompileIn(string work, by in List<string> compiler, through in Lis
     args.append("-I")
     args.append(work)
     args.append(Path.combine(work, "main.c"))
-    args.append(Path.combine(work, "bayan-rt.c"))
+    args.append(runtime)
     args.append("-o")
     args.append(exe)
     // `CommandLineToArgvW` (program arguments) is in shell32.
@@ -434,7 +581,7 @@ void touch(string dir) uses clock, fs {
 
 /// Toolchain.cs:372 `Evict(keep)`: `$BAYAN_CACHE_MAX_MB` (2048; 0 for no cap) and 4000 entries, kept 10 minutes. The bytes wrap as
 /// the C#'s unchecked `mb * 1024 * 1024` does.
-void evict(string keep, through ref DCtx d) uses alloc, clock, env, fs {
+void evict(string keep, through ref DCtx d) uses alloc, clock, env, fs, random {
     let mb = t9Digits(Env.get("BAYAN_CACHE_MAX_MB") ?? "", until: 9223372036854775807) ?? 2048
     if mb == 0 { return }
     evictWith(keep, to: mb *% 1048576, by: 4000, until: 600000000000, through: ref d)
@@ -455,31 +602,37 @@ i64? t9Digits(string text, until i64 max) {
 }
 
 /// Toolchain.cs:379 `Evict(keep, maxBytes, maxEntries, minAge)`: an IO error ends it.
-void evictWith(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, through ref DCtx d) uses alloc, clock, env, fs {
+void evictWith(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, through ref DCtx d) uses alloc, clock, env, fs, random {
     t9Evict(keep, to: maxBytes, by: maxEntries, until: minAgeNanos, through: ref d) catch return
 }
 
-/// The `try` body of `Evict` (Toolchain.cs:383-399). `FileInfo.Length` has no builtin: a file's size is its bytes, read (Q1149).
-void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, through ref DCtx d) uses alloc, clock, env, fs fails IoError {
+/// The `try` body of `Evict` (Toolchain.cs:477-499). `FileInfo.Length` has no builtin: a file's size is its bytes, read (Q1149).
+void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     let programs = t9Programs()
-    let names = try Io.listDir(programs)
+    // Runtime objects share the cap and the LRU order with programs (Toolchain.cs:479-481).
+    var parents = List<string>()
+    parents.append(programs)
+    if t9DirectoryExists(t9Runtime()) { parents.append(t9Runtime()) }
     var keys = List<string>()
     var dirs = List<string>()
     var used = List<i64>()
     var sizes = List<i64>()
-    for name in names {
-        let dir = Path.combine(programs, name)
-        unless t9DirectoryExists(dir) { continue }
-        keys.append(name)
-        dirs.append(dir)
-        used.append((try Fs.modified(dir)).nanos)
-        var size: i64 = 0
-        let files = try Io.listDir(dir)
-        for file in files {
-            let path = Path.combine(dir, file)
-            if Fs.fileExists(path) { size += (try Io.readFile(path)).length }
+    for parent in parents {
+        let names = try Io.listDir(parent)
+        for name in names {
+            let dir = Path.combine(parent, name)
+            unless t9DirectoryExists(dir) { continue }
+            keys.append(name)
+            dirs.append(dir)
+            used.append((try Fs.modified(dir)).nanos)
+            var size: i64 = 0
+            let files = try Io.listDir(dir)
+            for file in files {
+                let path = Path.combine(dir, file)
+                if Fs.fileExists(path) { size += (try Io.readFile(path)).length }
+            }
+            sizes.append(size)
         }
-        sizes.append(size)
     }
     // `OrderBy(e => e.Used)`, which is stable: an insertion sort of the indices.
     var order = List<i64>()
@@ -509,7 +662,8 @@ void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNa
     for name in pointers {
         let pointer = Path.combine(scripts, name)
         if name.endsWith(".tmp") || !Fs.fileExists(pointer) { continue }
-        let text = try t9ReadTrimmed(pointer)
+        // Toolchain.cs:513 `PointerKey(File.ReadAllText(pointer))`.
+        let text = try t9PointerLine(pointer, for: false)
         unless t9DirectoryExists(Path.combine(programs, text)) { try Io.remove(pointer) }
     }
 }
@@ -594,7 +748,7 @@ void t9DeleteTree(string dir) uses alloc, fs fails IoError {
 
 /// Toolchain.cs:443 `Discard`: `Directory.CreateDirectory(Staging)`, whose `UnauthorizedAccessException` the C# does not catch, so
 /// a permission error fails; any other error is the caught `IOException`.
-void discard(string dir, through ref DCtx d) uses alloc, clock, env, fs fails IoError {
+void discard(string dir, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     Io.createDirectory(t9Staging()) catch switch {
         IoError.permissionDenied => fail .permissionDenied,
         IoError e => return,
@@ -605,7 +759,7 @@ void discard(string dir, through ref DCtx d) uses alloc, clock, env, fs fails Io
 /// `Directory.Move(dir, trash)` and `Directory.Delete(trash, recursive: true)` of `Discard`, `trash` being `trash-<Guid>` in
 /// `Staging`, so a half-deleted entry is never visible. A failed move is the caught `IOException`: .NET's `Directory.Move` throws
 /// `IOException` for `EACCES` on Unix and `ERROR_ACCESS_DENIED` on Windows (Q1114).
-void t9MoveAndDelete(string dir, through ref DCtx d) uses alloc, clock, env, fs fails IoError {
+void t9MoveAndDelete(string dir, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     let trash = Path.combine(t9Staging(), $"trash-{t9Unique(ref d)}")
     t9MoveDirectory(dir, to: trash) catch return
     t9DeleteTree(trash) catch switch {
@@ -615,32 +769,59 @@ void t9MoveAndDelete(string dir, through ref DCtx d) uses alloc, clock, env, fs 
     }
 }
 
-/// Toolchain.cs:462 `LookupScript`: the program a script last built to. Any read error is null.
-string? lookupScript(string scriptKey, by string exeName, through ref DCtx d) uses alloc, clock, env, fs {
+/// Toolchain.cs:600 `PointerKey` (`stamp` false) and the rest of the pointer (`stamp` true) of `File.ReadAllText(path)`: the first line
+/// or the rest, trimmed; "" when there is no rest.
+string t9PointerLine(string path, for bool stamp) uses alloc, fs fails IoError {
+    let text = try Io.readText(path)
+    let body = text.startsWith("\u{FEFF}") ? text.runes.skip(1) : text
+    let ws = t9Whitespace()
+    var first = true
+    for part in body.parts(by: "\n", limit: 2) {
+        if first == !stamp { return part.trimmed(by: ws.span).copy() }
+        first = false
+    }
+    return ""
+}
+
+/// Toolchain.cs:579 `LookupScript`: the program a script last built to. Any read error is null. The pointer's second line is the
+/// C compiler's stamp: a compiler found now with another stamp misses, and with none found the pointer is used.
+string? lookupScript(string scriptKey, by string exeName, through ref DCtx d) uses alloc, clock, env, fs, random {
     let pointer = Path.combine(t9Scripts(), scriptKey)
     unless Fs.fileExists(pointer) { return null }
-    let text = t9ReadTrimmed(pointer) catch return null
-    let exe = lookup(text, by: exeName, through: ref d) catch return null
+    // Toolchain.cs:585-588.
+    let stored = t9PointerLine(pointer, for: true) catch return null
+    let compiler = ccFindCompiler()
+    if compiler.length > 0 {
+        let stamp = t9CompilerStamp(in compiler)
+        if stamp != "" && stamp != stored { return null }
+    }
+    // Toolchain.cs:589.
+    let programKey = t9PointerLine(pointer, for: false) catch return null
+    let exe = lookup(programKey, by: exeName, through: ref d) catch return null
     if exe is not null { tagCacheDirectory(ref d) }
     return exe
 }
 
-/// Toolchain.cs:477 `RememberScript`: a script that isn't remembered just compiles again next time.
-void rememberScript(string scriptKey, by string programKey, through ref DCtx d) uses alloc, clock, env, fs {
+/// Toolchain.cs:602 `RememberScript`: a script that isn't remembered just compiles again next time.
+void rememberScript(string scriptKey, by string programKey, through ref DCtx d) uses alloc, clock, env, fs, random {
     tagCacheDirectory(ref d)
     t9Remember(scriptKey, by: programKey, through: ref d) catch return
 }
 
-/// The `try` body of `RememberScript` (Toolchain.cs:482-485) after `TagCacheDirectory`.
-void t9Remember(string scriptKey, by string programKey, through ref DCtx d) uses alloc, clock, env, fs fails IoError {
+/// The `try` body of `RememberScript` (Toolchain.cs:607-610) after `TagCacheDirectory`: the program key, then the C compiler's
+/// stamp, empty when none is found.
+void t9Remember(string scriptKey, by string programKey, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     let scripts = t9Scripts()
     try Io.createDirectory(scripts)
     let temp = Path.combine(scripts, $"{scriptKey}.{t9Unique(ref d)}.tmp")
-    try Io.writeFile(temp, $"{programKey}\n".bytes)
+    // Toolchain.cs:609.
+    let compiler = ccFindCompiler()
+    let stamp = compiler.length > 0 ? t9CompilerStamp(in compiler) : ""
+    try Io.writeFile(temp, $"{programKey}\n{stamp}\n".bytes)
     try Fs.rename(temp, to: Path.combine(scripts, scriptKey))
 }
 
-/// Toolchain.cs:498 `ScriptKey`: compiler version and build, mode, host and the script's bytes. `build` null is `CompilerBuild`.
+/// Toolchain.cs:623 `ScriptKey`: compiler version and build, mode, host and the script's bytes. `build` null is `CompilerBuild`.
 string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build) uses alloc, env, fs {
     var sb = StrBuf()
     sb.append("script")

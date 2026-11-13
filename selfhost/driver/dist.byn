@@ -23,7 +23,7 @@ ScaffoldGitResult distGit(string git, at string dir, by in List<string> args) us
 }
 
 /// Dist.cs:18 `Run`. `kept` is the command and its arguments.
-i32 distCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process {
+i32 distCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process, random {
     var path: string? = null
     var targetArg: string? = null
     var modeArg: string? = null
@@ -125,7 +125,7 @@ struct DistPlan {
 }
 
 /// Dist.cs:83-106 from `EmitC` on: the builds into the staging directory, `SHA256SUMS`, `BUILDINFO.json`, the move into place and `latest/`.
-i32 distBuild(string cSource, by in DistPlan plan, for in List<string> targets, from DistSource? source, through ref DCtx d, at in semantics.T26Symbols symbols) uses alloc, clock, console, env, fs, process fails IoError {
+i32 distBuild(string cSource, by in DistPlan plan, for in List<string> targets, from DistSource? source, through ref DCtx d, at in semantics.T26Symbols symbols) uses alloc, clock, console, env, fs, process, random fails IoError {
     let distDir = Path.combine(plan.root, "dist")
     let versionDir = Path.combine(distDir, plan.version)
     let staging = Path.combine(distDir, $".{plan.version}.tmp")

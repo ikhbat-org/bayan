@@ -235,7 +235,7 @@ void t5WriteIfChanged(string path, from string text) uses alloc, fs {
 string t5HostTarget() uses alloc => targetHost() ?? "host"
 
 /// CliApp.cs:458 `Build`. `kept` is the command and its arguments.
-i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process {
+i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process, random {
     let clock = Io.monotonicNanos()
     let args = t2Rest(kept)
     let o = t5ParseBuildOptions(in args, by: true, for: true) ?? return exitUsage
@@ -324,7 +324,7 @@ string t5Phase(string name, by string value) uses alloc {
 }
 
 /// CliApp.cs:544 `RunProgram`. `args` is what follows `run` (a script run passes `[file, "--", ..rest]`, CliApp.cs:99).
-i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, env, fs, process {
+i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, env, fs, process, random {
     let o = t5ParseBuildOptions(in args, by: false, for: false) ?? return exitUsage
     let host = t5HostTarget()
     var key: string? = null

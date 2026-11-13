@@ -2006,6 +2006,8 @@ internal sealed class FunctionEmitter
             }
             case BuiltinFunction.IoMonotonicNanos:
                 return "byn_io_monotonic_nanos()";
+            case BuiltinFunction.IoRandomU64:
+                return "byn_io_random_u64()";
             case BuiltinFunction.IoStdout:
                 return "INT32_C(1)";
             case BuiltinFunction.IoStderr:

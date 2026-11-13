@@ -2360,6 +2360,12 @@ static void byn_os_random(void* p, size_t n) {
 #endif
 }
 
+uint64_t byn_io_random_u64(void) {
+    uint64_t r;
+    byn_os_random(&r, sizeof r);
+    return r;
+}
+
 void byn_hash_seed_init(bool fixed) {
     uint64_t key[2] = {0, 0};
     if (!fixed) byn_os_random(key, sizeof key);

@@ -161,8 +161,8 @@ List<string> ccFlags(string mode, for string? triple) {
     return flags
 }
 
-/// Toolchain.cs:284-290: the arguments after the compiler's own (`compiler[1..]`), for scratch files in `dir`.
-List<string> ccArguments(in List<string> compiler, for string dir, to string output, by string mode, through string? target) {
+/// `compiler[1..]` and the flags of `mode` for `target` (Toolchain.cs:280, :378-379, :418-419).
+List<string> ccCommon(in List<string> compiler, by string mode, through string? target) {
     var args = List<string>()
     for i in 1..compiler.length { args.append(compiler[i]) }
     var triple: string? = null
@@ -171,13 +171,34 @@ List<string> ccArguments(in List<string> compiler, for string dir, to string out
     }
     let flags = ccFlags(mode, for: triple)
     for f in flags { args.append(f) }
-    // Toolchain.cs:288 runs in the work directory with `-I .` and relative names; `Io.run` has no working directory (Q1009), so these are absolute.
+    return args
+}
+
+/// Toolchain.cs:378-380: the arguments after the compiler's own that compile the runtime in `dir` to `dir/bayan-rt.o`.
+List<string> ccRuntimeArguments(in List<string> compiler, for string dir, by string mode, through string? target) {
+    var args = ccCommon(in compiler, by: mode, through: target)
+    // Debug info names `bayan-rt.c`, not the scratch directory.
+    args.append("-c")
+    args.append($"-ffile-prefix-map={dir}=.")
+    args.append("-I")
+    args.append(dir)
+    args.append(Path.combine(dir, "bayan-rt.c"))
+    args.append("-o")
+    args.append(Path.combine(dir, "bayan-rt.o"))
+    return args
+}
+
+/// Toolchain.cs:418-423: the arguments after the compiler's own (`compiler[1..]`), for scratch files in `dir`, linking the runtime
+/// object `ccRuntimeArguments` compiled there.
+List<string> ccArguments(in List<string> compiler, for string dir, to string output, by string mode, through string? target) {
+    var args = ccCommon(in compiler, by: mode, through: target)
+    // Toolchain.cs:424 runs in the work directory with `-I .` and relative names; `Io.run` has no working directory (Q1009), so these are absolute.
     // Debug info names `main.c`, not the scratch directory.
     args.append($"-ffile-prefix-map={dir}=.")
     args.append("-I")
     args.append(dir)
     args.append(Path.combine(dir, "main.c"))
-    args.append(Path.combine(dir, "bayan-rt.c"))
+    args.append(Path.combine(dir, "bayan-rt.o"))
     args.append("-o")
     args.append(output)
     // `CommandLineToArgvW` (program arguments) is in shell32.
@@ -193,14 +214,14 @@ interface ICCompiler {
 
 /// The one implementation (plan D3): the `FindCompiler` order.
 struct ZigOrCc : ICCompiler {
-    /// Toolchain.cs:276 `Compile` with the checks of `BuildCached` :186-194 before it.
+    /// Toolchain.cs:366 `RuntimeObject` and :409 `Compile`, uncached, with the checks of `BuildCached` before them.
     NativeBuild compile(ref this, string dir, from string source, to string output, by string mode, for string? target) {
         let compiler = ccFindCompiler()
         let resolved = target ?? targetHost()
         let refusal = ccRefusal(in compiler, for: resolved)
         if refusal != "" { return NativeBuild { errors: refusal } }
         let args = ccArguments(in compiler, for: dir, to: output, by: mode, through: resolved)
-        // Toolchain.cs:280-283: the runtime and the generated C, where the compiler reads them.
+        // Toolchain.cs:376-377, :416-417: the runtime and the generated C, where the compiler reads them.
         var names = List<string>()
         names.append("bayan-rt.h")
         names.append("bayan-rt.c")
@@ -212,7 +233,16 @@ struct ZigOrCc : ICCompiler {
         for i in 0..names.length {
             Io.writeFile(Path.combine(dir, names[i]), texts[i].bytes) catch return NativeBuild { errors: $"cannot write the build output ({dir})" }
         }
-        // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:334).
+        // Toolchain.cs:381-386: the runtime object first. A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode`.
+        let runtimeArgs = ccRuntimeArguments(in compiler, for: dir, by: mode, through: resolved)
+        let rt = Io.run(compiler[0], runtimeArgs.span) catch switch {
+            .signaled(let s, let streamOut, let streamErr) => return NativeBuild { errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}", rejected: true },
+            IoError e => return NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`" },
+        }
+        if rt.exitCode != 0 || !t1FileExists(Path.combine(dir, "bayan-rt.o")) {
+            return NativeBuild { errors: $"C compiler failed (exit {rt.exitCode}):\n{rt.stdout}{rt.stderr}", rejected: true }
+        }
+        // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:425).
         let r = Io.run(compiler[0], args.span) catch switch {
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild { errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}", rejected: true },
             IoError e => return NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`" },
