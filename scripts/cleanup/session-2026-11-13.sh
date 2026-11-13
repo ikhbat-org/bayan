@@ -5,7 +5,8 @@
 # feat/009-prebuilt-runtime-object is checked out in .worktrees/dev-merge, so section 1 skips it until that checkout moves.
 # Every target is checked at run time: a tracked path is refused, a missing one is a skip, an unmerged branch is
 # left to `git branch -d` to refuse.
-# Dry run by default. --execute / -e acts. --remove-remote also removes the VM directories and ghosthive bundles.
+# Dry run by default. --execute / -e acts. --remove-remote also removes the named VM directories
+# (/home/bt/o0: plan 010's -O0 runs, /home/bt/o0/r<n>-<v>, this session; the shard dirs below). Bundles are never removed.
 set -euo pipefail
 
 execute=0; remote=0
@@ -82,7 +83,8 @@ if [ $execute = 1 ] && [ $remote = 1 ]; then
     timeout 120 incus exec bayan-test01 -- sh -c 'cd /home/bt || exit 0
       for d in o0; do [ -e \"\$d\" ] && { echo rm -rf /home/bt/\$d; rm -rf \"\$d\"; }; done
       for s in $shas; do for d in shard/\$s-*; do [ -e \"\$d\" ] && { echo rm -rf /home/bt/\$d; rm -rf \"\$d\"; }; done; done
-      ls -d f2* 2>/dev/null | sed \"s|^|  left (check by hand): /home/bt/|\"' || { echo '  VM step failed'; rc=1; }
+      ls -d f2* 2>/dev/null | sed \"s|^|  left (check by hand): /home/bt/|\"
+      for d in o0 \$(for s in $shas; do echo shard/\$s-*; done); do [ -e \"\$d\" ] && { echo \"  still there: /home/bt/\$d\"; exit 1; }; done; exit 0' || { echo '  VM step failed'; rc=1; }
     [ \"\$was\" = RUNNING ] || incus stop bayan-test01 || rc=1
     exit \$rc" || failed=1
 else
