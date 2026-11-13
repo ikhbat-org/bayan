@@ -27,9 +27,15 @@ rm -f "$aux/ssh-args"; CACHE_KEEP=1 w feat/x "$F|FullyQualifiedName~CTests" > /d
 printf 'Failed!  - Failed:     1, Passed:     2, Skipped:     0, Total:     3\n' > "$aux/ssh-out"; echo 1 > "$aux/ssh-rc"; red=$(w feat/x "$F"); rout=$(cat "tmp/wp1/$sha.out"); [ -z "$(ls tmp/wp1/cache)" ] && rednc=1 || rednc=0
 rm "$aux/ssh-args"; touch "$aux/scp-fail"; lost=$(w feat/x "$F"); lout=$(cat "tmp/wp1/$sha.out"); [ ! -f "$aux/ssh-args" ] && noss=1 || noss=0
 usage=$(w feat/x); nobr=$(w feat/none "$F"); quote=$(w feat/x "A'B")
+# WIN_HOST=wlt1 writes only under tmp/wlt1/ and puts zig on PATH first; WIN_THREADS adds the xunit override, WIN_TRX the trx logger
+# and the copy back; a bad WIN_THREADS is refused
+rm -f "$aux/scp-fail"; printf 'Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3\n' > "$aux/ssh-out"; echo 0 > "$aux/ssh-rc"
+w1=$(cat "tmp/wp1/$sha.out"); wl=$(WIN_HOST=wlt1 WIN_THREADS=2 WIN_TRX=$aux/x.trx w feat/x "$F"); wla=$(cat "$aux/ssh-args"); wls=$(cat "$aux/scp-args")
+[ "$(cat "tmp/wp1/$sha.out")" = "$w1" ] && [ -f "tmp/wlt1/$sha.out" ] && [ -f "tmp/wlt1/$s.bundle" ] && [ -n "$(ls tmp/wlt1/cache)" ] && wlown=1 || wlown=0
+badth=$(WIN_THREADS=x w feat/x "$F")
 # the remote command itself, run by pwsh with wp1's tmp/ at $aux/remote and a fake dotnet: a re-run replaces the clone it made,
 # a directory it did not make is left alone (exit 3)
-rm "$aux/scp-fail"; mkdir "$aux/remote"; printf 'Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3\n' > "$aux/ssh-out"
+rm -f "$aux/scp-fail"; mkdir "$aux/remote"; printf 'Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3\n' > "$aux/ssh-out"
 cat > "$aux/bin/scp" <<'EOF'
 #!/bin/bash
 cp "$2" "$AUX/remote/"
@@ -39,9 +45,15 @@ cat > "$aux/bin/ssh" <<'EOF'
 R=C:/home/code/extrode.com/bayan/tmp; c=${2//"$R"/$AUX/remote}
 exec pwsh -NoProfile -NonInteractive -Command "$c"
 EOF
-printf '#!/bin/bash\ncat "$AUX/ssh-out"\n' > "$aux/bin/dotnet"; chmod +x "$aux/bin/dotnet"
+cat > "$aux/bin/dotnet" <<'EOF'
+#!/bin/bash
+printf '%s\n' "$@" > "$AUX/dotnet-args"; cat "$AUX/ssh-out"
+EOF
+chmod +x "$aux/bin/dotnet"
 first=$(w feat/x "$F"); [ -f "$aux/remote/$s/a.txt" ] && [ -f "$aux/remote/$s.wp1-test" ] && cloned=1 || cloned=0
 touch "$aux/remote/$s/stale"; again=$(w feat/x "$F"); [ -f "$aux/remote/$s/a.txt" ] && [ ! -e "$aux/remote/$s/stale" ] && replaced=1 || replaced=0
+# pwsh passes the quoted '--' and the override to dotnet as two plain arguments, after the zig PATH line ran
+pw=$(WIN_HOST=wlt1 WIN_THREADS=3 w feat/x "$F|FullyQualifiedName~DTests"); dargs=$(tail -2 "$aux/dotnet-args" | tr '\n' ' ')
 rm "$aux/remote/$s.wp1-test"; touch "$aux/remote/$s/stale"; foreign=$(w feat/x "$F"); [ -e "$aux/remote/$s/stale" ] && kept=1 || kept=0
 # a commit landing on the branch between the sha lookup and the bundle: the remote clone is not the sha, so the run exits 4
 realgit=$(command -v git)
@@ -69,6 +81,14 @@ has "$lost" "rc=3" && [ "$(tail -2 <<< "$lout")" = "$(printf 'scp: lost\nexit 3'
 has "$usage" "usage: wp1-test.sh <branch> <filter>" && has "$usage" "rc=2" || fail "one argument did not print the usage" "$usage"
 has "$nobr" "wp1-test: no branch feat/none" && has "$nobr" "rc=2" || fail "an unknown branch did not fail" "$nobr"
 has "$quote" "wp1-test: the filter holds a single quote" && has "$quote" "rc=2" || fail "a quote in the filter was not refused" "$quote"
+[[ $wla == "wlt1 \$env:PATH = 'C:\\home\\lang\\zig\\zig-x86_64-windows-0.17.0;' + \$env:PATH; Remove-Item -Force -ErrorAction SilentlyContinue '$R/$s.trx'; Set-Location '$R';"* ]] \
+  || fail "wlt1 did not get zig on PATH first ('$wla')" "$wl"
+[[ $wla == *"--filter '$F' --logger 'trx;LogFileName=$R/$s.trx' '--' 'xUnit.MaxParallelThreads=2'; exit"* ]] || fail "WIN_THREADS/WIN_TRX not in '$wla'" "$wl"
+has "$wl" "rc=0" && [ "$wls" = "-q wlt1:/$R/$s.trx $aux/x.trx" ] || fail "the trx was not copied back from wlt1 ('$wls')" "$wl"
+[ $wlown = 1 ] || fail "WIN_HOST=wlt1 did not keep to tmp/wlt1/" "$wl"
+[[ $ssha != *zig* && $ssha != *MaxParallel* && $ssha != *trx* ]] || fail "wp1 by default got zig, threads or trx ('$ssha')" "$good"
+has "$badth" "wp1-test: bad WIN_THREADS x (a positive integer)" && has "$badth" "rc=2" || fail "a bad WIN_THREADS was not refused" "$badth"
+has "$pw" "rc=0" && [ "$dargs" = "-- xUnit.MaxParallelThreads=3 " ] || fail "pwsh did not pass '--' xUnit.MaxParallelThreads=3 to dotnet ('$dargs')" "$pw"
 has "$first" "rc=0" && [ $cloned = 1 ] || fail "the remote command did not clone into the short-sha directory with its marker" "$first"
 has "$again" "rc=0" && [ $replaced = 1 ] || fail "a re-run for the same sha did not replace the clone it made" "$again"
 has "$foreign" "wp1-test: $aux/remote/$s exists and wp1-test.sh did not create it" && has "$foreign" "rc=3" && [ $kept = 1 ] \
