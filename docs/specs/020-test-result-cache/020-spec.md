@@ -95,7 +95,7 @@ Visibility and control
 2. **Windows offload pass cache (plan 008 D).** Its key gains the host fingerprint and environment, and it comes under R9, R13, R17 and R24 (recommendation, not objected to).
 3. **Merges to `dev`** may count a reused pass; the nightly shadow comparison (R15) checks every such reuse. `main`, release, nightly and laws never reuse (R13).
 4. **Timing against spec 019.** Task 1 measures the per-unit process cost on the VM; build now with a thin adaptor if it is cheap, otherwise after 019.
-5. **Program cache key.** It gains the C compiler's identity (version and digest), in the C# compiler and the self-hosted driver alike (R6); every user rebuilds once after the upgrade.
+5. **Program cache key.** It gains the C compiler's identity (its version output plus the path and write time of each word of its command that names a file; no size or hash, user 2026-11-13; plan 009, `docs/plans/2026-11-13-009-prebuilt-runtime-object.md`), in the C# compiler and the self-hosted driver alike (R6); every user rebuilds once after the upgrade.
 6. **CI.** No reuse on hosted runners in version 1 (recommendation, not objected to).
 7. **Toolchain roots** are identified by version plus a digest of file names, sizes and modification times (R5); the uncached gates are the backstop (recommendation, not objected to).
 

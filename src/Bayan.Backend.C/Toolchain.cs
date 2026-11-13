@@ -187,8 +187,9 @@ public static class Toolchain
 
     /// <summary>
     /// What the C compiler is, beyond its command, computed once per process and command: the output of <c>zig version</c> (zig cc)
-    /// or <c>&lt;compiler&gt; --version</c>, and the compiler file's <see cref="CompilerStamp"/>, so an in-place upgrade misses
-    /// every key. A compiler that cannot report its version (a wrapper script) is its command and the stamp.
+    /// or the whole command with <c>--version</c> appended, and the command's <see cref="CompilerStamp"/>, so an in-place upgrade
+    /// misses every key. A launcher (<c>xcrun clang</c>, <c>ccache gcc</c>) reports and stamps the compiler it runs, not only
+    /// itself. A compiler that cannot report its version (a wrapper script) is its command and the stamp.
     /// </summary>
     internal static string CompilerIdentity(string[] compiler)
     {
@@ -205,7 +206,8 @@ public static class Toolchain
         {
             // 30 s, or the compile timeout when that is shorter: a hung compiler fails the build within its limit.
             var limit = CompileTimeout < TimeSpan.FromSeconds(30) ? CompileTimeout : TimeSpan.FromSeconds(30);
-            var (code, stdout, _) = Exec(compiler[0], [zig ? "version" : "--version"], Environment.CurrentDirectory, limit);
+            string[] args = zig ? ["version"] : [.. compiler[1..], "--version"];
+            var (code, stdout, _) = Exec(compiler[0], args, Environment.CurrentDirectory, limit);
             if (code == 0) return stdout + "\0" + stamp;
         }
         catch (Exception e) when (e is System.ComponentModel.Win32Exception or IOException or UnauthorizedAccessException)
@@ -216,12 +218,25 @@ public static class Toolchain
     }
 
     /// <summary>
-    /// The compiler file's path (as given, else as <see cref="FindOnPath"/> found it) and the last write time of the file it links
-    /// to, in ticks; empty when there is no such file. Reading it runs nothing and hashes nothing.
+    /// The compiler file's <see cref="FileStamp"/>, followed for a launcher (not zig cc) by the stamp of each later word that is
+    /// not a flag and names a file (<c>clang</c> in <c>xcrun clang</c>), joined by newlines; empty when no word names a file.
+    /// A single-word command or zig cc is the compiler file's stamp alone. Reading it runs nothing and hashes nothing.
     /// </summary>
     internal static string CompilerStamp(string[] compiler)
     {
-        var file = Path.IsPathRooted(compiler[0]) ? compiler[0] : FindOnPath(compiler[0]);
+        var zig = compiler.Length > 1 && compiler[1] == "cc" && Path.GetFileNameWithoutExtension(compiler[0]) == "zig";
+        var parts = new List<string> { FileStamp(compiler[0]) };
+        if (!zig) parts.AddRange(compiler[1..].Where(w => !w.StartsWith('-')).Select(FileStamp));
+        return string.Join("\n", parts.Where(p => p.Length > 0));
+    }
+
+    /// <summary>
+    /// A file's path (as given when rooted, else as <see cref="FindOnPath"/> found it) and the last write time of the file it links
+    /// to, in ticks; empty when there is no such file.
+    /// </summary>
+    private static string FileStamp(string word)
+    {
+        var file = Path.IsPathRooted(word) ? word : FindOnPath(word);
         try
         {
             if (file is null || !File.Exists(file)) return "";
