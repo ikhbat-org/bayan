@@ -764,3 +764,5 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW: -O0 test builds use GB-scale memory per test host (200 OOM kills, exit 137, in plan 010's -O0 run); investigate before any future -O0 attempt.
 - LOW: Q1148 `Fs.size` gap still open (noted during plan 009).
 - LOW: `selfhost/driver/cache.byn:2` and `:156-159` carry stale `CliApp.cs`/`Dist.cs` line cites (p009-fix left them; found 2026-11-13).
+- session review LOW (d7d992793b64..040182c3): the script-based `CacheTests` (plan 009's six plus rv1113's two launcher tests) and `SelfhostDefaultT9Tests` launcher tests start with `if (OperatingSystem.IsWindows()) return;`, so Windows reports them passed without running; the only skip helper is private in `L005RunBatchTests.cs:272` — share it.
+- LOW: `Toolchain.cs` lines from ~218 moved +14 in rv1113; untouched cites in `selfhost/driver/cache.byn` (e.g. `:198`, `:280`, `:304`, `:316`), `cc.byn` and `SelfhostDefaultT9Tests.cs` now point early.
