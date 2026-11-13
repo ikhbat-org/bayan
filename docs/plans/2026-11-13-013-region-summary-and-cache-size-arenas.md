@@ -42,7 +42,7 @@ So about 2.0 GB comes from one function. The `doctor` peak is about 2× the cach
 
 ## Tests
 - `SelfhostDefaultBoundsTests`, check bound: `Stage2Executable()` runs `check --package selfhost selfhost/driver` with a fresh `BAYAN_CACHE`, through `PeakSampler.Run`.
-  - Assert exit 0, `Peak > 0`, and peak under a bound of 3× the larger after-fix figure (macOS, VM), rounded up.
+  - Assert exit 0, `Peak > 0`, and peak under a bound of 2× the larger after-fix figure (macOS, VM), rounded up; 3× would not separate from the before figure (Results).
   - Break-test: revert fix 1, and the peak goes back above 2.4 GB.
 - `doctor` bound: a fresh `BAYAN_CACHE` holding 64 files of 4 MB under `v1/programs/x/` (one 256 MB file would measure one read's own peak, which no arena lowers). `doctor` must stay under a bound set the same way (before the fix: about 2× the cache size).
   - Break-test: revert fix 2, then fix 3, each alone.
