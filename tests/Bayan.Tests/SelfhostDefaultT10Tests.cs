@@ -110,12 +110,33 @@ public sealed class SelfhostDefaultT10Tests
         return sb.ToString();
     }
 
+    /// <summary>
+    /// The generated main over the run inputs, <see cref="BatchSize"/> per process: the self-hosted compiler frees nothing yet, so
+    /// one process over all of them peaked at 4.4 GB and was OOM-killed beside a second test slot in the 11 GiB test VM.
+    /// </summary>
+    private static (int Exit, string Out, string Err) RunInBatches(string mode, List<string> inputs)
+    {
+        var program = Build();
+        var output = new StringBuilder();
+        var error = new StringBuilder();
+        foreach (var batch in inputs.Chunk(BatchSize))
+        {
+            var (exit, o, e) = SelfhostParserTests.Run(program, [mode, RunDir, .. batch]);
+            output.Append(o);
+            error.Append(e);
+            if (exit != 0) return (exit, output.ToString(), error.ToString());
+        }
+        return (0, output.ToString(), error.ToString());
+    }
+
+    private const int BatchSize = 32;
+
     [Fact]
     public void CoverageCountersMatchTheCSharpOnEveryRunInput()
     {
         var inputs = RunInputs();
         Assert.NotEmpty(inputs);
-        var (exit, output, error) = SelfhostParserTests.Run(Build(), ["coverage", RunDir, .. inputs]);
+        var (exit, output, error) = RunInBatches("coverage", inputs);
         Assert.True(exit == 0, $"exit {exit}\n{error}");
         SelfhostEmitterHarness.AssertSame("coverage counters", Expected(inputs, RunDir), output);
     }
@@ -125,7 +146,7 @@ public sealed class SelfhostDefaultT10Tests
     {
         var inputs = RunInputs();
         Assert.NotEmpty(inputs);
-        var (exit, output, error) = SelfhostParserTests.Run(Build(), ["mutate", RunDir, .. inputs]);
+        var (exit, output, error) = RunInBatches("mutate", inputs);
         Assert.True(exit == 0, $"exit {exit}\n{error}");
         SelfhostEmitterHarness.AssertSame("sites json", Expected(inputs, RunDir, mutate: true), output);
     }
