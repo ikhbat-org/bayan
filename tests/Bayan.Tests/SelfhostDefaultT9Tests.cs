@@ -969,7 +969,10 @@ public sealed class SelfhostDefaultT9Tests
             new Step(["hello.byn"], root => File.AppendAllText(Path.Combine(root, "hello.byn"), "print(\"changed\")\n"), none));
     }
 
-    /// <summary>CacheTests.ParallelBuildsNeverCorruptTheCache through the driver: every build succeeds, one entry per key, nothing staged.</summary>
+    /// <summary>
+    /// CacheTests.ParallelBuildsNeverCorruptTheCache through the driver: every build succeeds, one entry per program key and per runtime
+    /// key (the debug and safe builds race for two), nothing staged.
+    /// </summary>
     [Fact]
     public void ParallelBuildsNeverCorruptTheCache()
     {
@@ -980,6 +983,7 @@ public sealed class SelfhostDefaultT9Tests
             results[i] = Bayan(true, dir, [], ["build", "--mode", i % 2 == 0 ? "debug" : "safe", "-o", $"prog{i}", "arithmetic.byn"]));
         foreach (var r in results) Assert.True(r.Exit == 0, r.Out + r.Err);
         Assert.Equal(2, Directory.GetDirectories(Path.Combine(dir, "cache", "v1", "programs")).Length);
+        Assert.Equal(2, Directory.GetDirectories(Path.Combine(dir, "cache", "v1", "runtime")).Length);
         Assert.Empty(Directory.EnumerateFileSystemEntries(Path.Combine(dir, "cache", "v1", "tmp")));
         Assert.Empty(Directory.GetFiles(dir, "*.tmp"));
     }
@@ -1098,6 +1102,22 @@ public sealed class SelfhostDefaultT9Tests
         Assert.DoesNotContain("from cache", outs[2]);
         Assert.Equal((2, 2), RuntimeCompiles("rt-mtime"));
         Assert.Equal(2, RuntimeEntries("rt-mtime", "s2").Length);
+    }
+
+    /// <summary>
+    /// CacheTests.AsanAndCrossBuildsGetTheirOwnRuntime, the cross half (the driver has no sanitize builds): a <c>--target</c> build
+    /// with zig compiles a runtime object of its own, under the C#'s runtime key.
+    /// </summary>
+    [Fact]
+    public void ACrossBuildGetsItsOwnRuntimeAsToolchain()
+    {
+        if (LoggingZig("rt-cross") is not { } bin) return;
+        var target = Targets.Host == "linux-x64" ? "linux-arm64" : "linux-x64";
+        Same("rt-cross", Arithmetic,
+            new Step(["build", "arithmetic.byn"], Env: Logged(bin)),
+            new Step(["build", "--target", target, "arithmetic.byn"], Env: Logged(bin)));
+        Assert.Equal((2, 2), RuntimeCompiles("rt-cross"));
+        Assert.Equal(2, RuntimeEntries("rt-cross", "s2").Length);
     }
 
     /// <summary>CacheTests.ARememberedScriptMissesAfterTheCompilerChanges: remembered until the compiler's write time changes, the C#'s pointers.</summary>
