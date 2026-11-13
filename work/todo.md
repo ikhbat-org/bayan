@@ -755,3 +755,8 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - plan 011 review LOW: `docs/diagnostics/BYN6002.md:21` (and `selfhost/driver/diagdocs.byn` on regen) omit `Io.randomU64` (`random`).
 - plan 011 review LOW: `site/content/ref-std.page:93-99` lists `Io` members without `randomU64`.
 - plan 011 review LOW: `BYN_RUNTIME_VERSION` (`src/runtime/bayan-rt.h:10`) not bumped though its comment asks; unread by any code; bump in src, bootstrap and `selfhost/driver/runtime.byn:12` or drop the comment.
+- plan 009 review LOW: `SelfhostDefaultT9Tests` runtime parity tests (shared runtime, damaged object, identity/write-time change, script pointer, old-format pointer, `TheScriptPointerFollowsTheCompilersWriteTime`) `return` as passed when `LoggingZig` is null (Windows, non-zig cc); the plan lets only cross parity skip. Use a real skip or run them with cc.
+- plan 009 review LOW: `CacheTests.AsanAndCrossBuildsGetTheirOwnRuntime` ASan half uses clang (other identity), so it cannot catch `-fsanitize` missing from rkey; assert with the same compiler.
+- plan 009 review LOW: `Toolchain.cs:384` vs `:495-507` (driver `cache.byn:317-319`): Evict can delete `runtime/<rkey>` between another process's LookupRuntime touch and its link; link fails as "C compiler failed". Retry the lookup/compile once on a missing object, or exempt entries touched after the listing.
+- plan 009 review LOW: `bayan cache stats` (`Toolchain.cs:643-655`, `cache.byn:45-68`) omits `runtime/` bytes though the cap at `:501` counts them.
+- plan 009 review LOW: a timed-out version probe (`Toolchain.cs:207-209`, `cache.byn:228-233`) falls back to command+stamp and memoises it, so one process gets other program/runtime keys: cold rebuild + duplicate runtime entries.
