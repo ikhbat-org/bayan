@@ -84,6 +84,7 @@ public sealed class Builtins
         IoRunBatch = MakeIo("runBatch", BuiltinFunction.IoRunBatch, BuiltinType.ProcessResult,
             ("path", PrimitiveType.String), ("args", new SpanType(PrimitiveType.String, readOnly: true)));
         IoMonotonicNanos = Make("monotonicNanos", BuiltinFunction.IoMonotonicNanos, PrimitiveType.I64);
+        IoRandomU64 = Make("randomU64", BuiltinFunction.IoRandomU64, PrimitiveType.U64);
         IoStdout = Make("stdout", BuiltinFunction.IoStdout, BuiltinType.IoStream);
         IoStderr = Make("stderr", BuiltinFunction.IoStderr, BuiltinType.IoStream);
         IoStdin = Make("stdin", BuiltinFunction.IoStdin, BuiltinType.IoInput);
@@ -460,6 +461,9 @@ public sealed class Builtins
     /// <summary><c>i64 Io.monotonicNanos()</c>.</summary>
     public FunctionSymbol IoMonotonicNanos { get; }
 
+    /// <summary><c>u64 Io.randomU64() uses random</c>: 8 bytes from the operating system's CSPRNG (the hash seed's source); failure panics.</summary>
+    public FunctionSymbol IoRandomU64 { get; }
+
     /// <summary><c>Io.stdout</c> and <c>Io.stderr</c>: streams with <c>write(string)</c>.</summary>
     public FunctionSymbol IoStdout { get; }
 
@@ -487,6 +491,7 @@ public sealed class Builtins
         "run" => IoRun,
         "runBatch" => IoRunBatch,
         "monotonicNanos" => IoMonotonicNanos,
+        "randomU64" => IoRandomU64,
         "stdout" => IoStdout,
         "stderr" => IoStderr,
         "stdin" => IoStdin,

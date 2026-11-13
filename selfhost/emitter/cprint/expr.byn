@@ -477,6 +477,9 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
             return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])})"
         case .ioMonotonicNanos:
             return "byn_io_monotonic_nanos()"
+        // CEmitter.cs:2009
+        case .ioRandomU64:
+            return "byn_io_random_u64()"
         case .ioStdout:
             return "INT32_C(1)"
         case .ioStderr:
