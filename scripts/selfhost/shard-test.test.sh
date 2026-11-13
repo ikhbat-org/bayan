@@ -218,6 +218,7 @@ ok "failed vm setup fails the run" "$rc" "1"
 ok "setup timeout is 600 s per vm unit" "$(grep -c 'timeout 1200 incus exec bayan-test01 -- bash -s' vm-calls)" "1"
 ok "failed vm setup stops every unit" "$(grep -c "systemctl stop shard-$s8-1 shard-$s8-2\$" vm-calls)" "1"
 ok "every clone before the first unit starts" "$(awk '/^systemd-run/ && !r { r = NR } /git clone/ { c = NR } END { print (c && r && c < r) ? "yes" : "no" }' "tmp/shard/$s8/vm.setup.sh")" "yes"
+ok "vm units build without MSBuild node reuse" "$(grep -c '^export DOTNET_ROOT=.* MSBUILDDISABLENODEREUSE=1$' "tmp/shard/$s8/vm.setup.sh")" "2"
 ok "failed vm setup: both units failed" "$(grep -h '^rc=' "tmp/shard/$s8/vm1.result" "tmp/shard/$s8/vm2.result" | tr '\n' ' ')" "rc=1 rc=1 "
 
 # a finished vm run against a fake ssh (both units done with rc 0, the fetch hands back one trx and a log): the printed weights
