@@ -109,6 +109,27 @@ public sealed class MutationRunnerTests
         Assert.True(Directory.GetLastWriteTimeUtc(dir) > DateTime.UtcNow.AddMinutes(-5), Directory.GetLastWriteTimeUtc(dir).ToString("o"));
     }
 
+    // Release dry run 43331631629 (ubuntu memory gate): CliMemoryBounds F2_AMutate… threw DirectoryNotFoundException here.
+    [Fact]
+    public void AWorkDirectoryAnotherProcessSweptIsRecreatedAndARemovedReachFileReachesNothing()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "mutation-runner-swept");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        Directory.CreateDirectory(root);
+        var c = Compilation.Create([SourceText.FromString(Path.Combine(root, "lib.test.byn"), "i64 inc(i64 n) {\n    return n + 1\n}\n")], root,
+            new CompilationOptions(IncludeTests: true, Library: true));
+        var schema = Schemata.Build(c);
+        Assert.NotEmpty(schema.Sites);
+        var test = Path.Combine(root, "test.sh");
+        File.WriteAllText(test, "#!/bin/sh\necho 0 > \"$BAYAN_SITE_REACH\"\nrm -rf \"$(dirname \"$BAYAN_SITE_REACH\")\"\n");
+        File.SetUnixFileMode(test, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        var work = Path.Combine(root, "work");
+        var result = MutationRunner.Run(test, schema, [0, 1], work, TestTime.Scale(TimeSpan.FromSeconds(10)));
+        Assert.Empty(result.Excluded);
+        Assert.All(result.Mutants.Where(m => m.Site.Emitted), m => Assert.Equal(MutantStatus.NotReached, m.Status));
+    }
+
     [Fact]
     public void StatusesAreKilledSurvivedTimeoutNotReachedMarked()
     {
