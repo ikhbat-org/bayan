@@ -257,7 +257,9 @@ slice_vm() { # dir sha bundle unit:threads...: one VM start and bundle push, the
     done
     for k in "${!U[@]}"; do D=/home/bt/shard/$s-${IX[k]}; u=shard-$s-${IX[k]}
       echo "systemctl reset-failed $u 2>/dev/null || true"
-      echo "systemd-run -q --unit=$u --uid=bt --gid=bt --working-directory=$D -E HOME=/home/bt /bin/bash $D/run.sh"
+      # OOMPolicy=continue: an OOM kill of one test's child (the SelfhostDefaultT10Tests harness peaks at 4.4 GB) fails that test,
+      # not the unit; the default (stop) killed dotnet test with it and lost the whole slice as MSB4166
+      echo "systemd-run -q --unit=$u --uid=bt --gid=bt -p OOMPolicy=continue --working-directory=$D -E HOME=/home/bt /bin/bash $D/run.sh"
     done
   } > "$d/vm.setup.sh"
   # 600 s per unit; on failure (a timeout too) stop whatever units the script got to start
