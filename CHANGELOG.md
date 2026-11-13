@@ -20,6 +20,7 @@
 - An empty write to stdout no longer passes a null pointer to `memcpy` (debug builds on Linux aborted with exit 134).
 - `bayan audit` (which of a file and its links it lists) and `dist/latest/` (which of two equal-precedence versions such as `1.0.0-rc.2` and `1.0.0-rc.2+meta` it picks) take the first name in ordinal order instead of following the file system's directory order, so Linux (ext4) gives the same answer as macOS.
 - `bayan test --coverage` no longer counts the lines of an imported std module (`<std>/...`) in the summary, `bayan-quality.json` or the `test: Tests { lines: N }` gate.
+- `bayan test --mutate` recreates its work directory when something removes it mid-run, and reads a reach file that was removed as "no sites" instead of failing the run.
 
 ### Security
 
