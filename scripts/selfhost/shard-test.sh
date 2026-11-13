@@ -3,8 +3,9 @@
 #   bash scripts/selfhost/shard-test.sh [run] [--host NAME=SPEED[:SLICES[:THREADS]] ...] [--times tmp/shard/class-times.tsv]
 #                                       [--classes FILE] [--branch B] [--max-filter 20000] [--dry-run]
 #   e.g. --host vm=0.91:2:4 --host wp1=0.52 --host wlt1=0.45
-#   bash scripts/selfhost/shard-test.sh times <a.trx> [b.trx ...] [out.tsv]   per-class seconds from `dotnet test --logger trx` files,
-#     the larger when a class is in two (default out: tmp/shard/class-times.tsv); e.g. times tmp/shard/<sha8>/*/chunk*.trx tmp/shard/<sha8>/*/out/chunk*.trx
+#   bash scripts/selfhost/shard-test.sh times [SPEED@]<a.trx> [[SPEED@]b.trx ...] [out.tsv]   per-class seconds from `dotnet test
+#     --logger trx` files, each times the SPEED of the host that ran it (default 1), the larger when a class is in two (default out:
+#     tmp/shard/class-times.tsv); a run prints this command for its own trx files, e.g. times 0.91@tmp/shard/<sha8>/vm/out/chunk1.trx
 # Hosts (NAME): vm (bayan-test01 on ghosthive: started once, reniced, each slice run as user bt via its own systemd-run unit
 # shard-<sha8>-<i> in /home/bt/shard/<sha8>-<i>, stopped at the end, also on failure), wp1 and wlt1 (through scripts/selfhost/wp1-test.sh
 # with WIN_HOST=<name>; wlt1 gets zig put on PATH there) and mb1 (this Mac: the bundle cloned into tmp/shard/<sha8>/mb1/repo, run under
@@ -24,7 +25,7 @@
 # --branch (default: the current branch) must be at the commit under test (wp1-test.sh bundles a branch).
 # Output in tmp/shard/<sha8>/: <unit>.result, <unit>.log, summary, and the trx files under <unit>/ for `times`.
 # Internal sub-commands (used by shard-test.test.sh): host-spec SPEC, pack CLASSES TSV hosts [SERIAL], serial DIR, filters MAX,
-# merge DIR, poll-state [UNIT].
+# merge DIR, weights-cmd DIR, poll-state [UNIT].
 # Exit non-zero if a slice failed or did not finish.
 set -u
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -41,10 +42,22 @@ trx_times() {
     END { for (id in dur) if (id in cls) sum[cls[id]] += dur[id]; for (c in sum) printf "%s\t%.3f\n", c, sum[c] }' "$1" | sort
 }
 
-# times TRX... -> one class<TAB>seconds list, the larger when a class is in more than one file
+# times [SPEED@]TRX... -> one class<TAB>seconds list, each file's seconds times its host's SPEED (default 1) so hosts of different
+# speeds compare, the larger when a class is in more than one file
 times_merge() {
-  local f; for f in "$@"; do trx_times "$f"; done |
+  local f sp; for f in "$@"; do sp=1
+    if [[ $f =~ ^([0-9]*\.?[0-9]+)@(.*)$ ]]; then sp=${BASH_REMATCH[1]}; f=${BASH_REMATCH[2]}; fi
+    trx_times "$f" | awk -F'\t' -v sp="$sp" '{ printf "%s\t%.3f\n", $1, $2 * sp }'; done |
     awk -F'\t' '!($1 in s) || $2 + 0 > s[$1] + 0 { s[$1] = $2 } END { for (c in s) printf "%s\t%s\n", c, s[c] }' | sort
+}
+
+# weights-cmd DIR: the `times` command for the trx files a run left, each prefixed with its unit's speed (from DIR/units)
+weights_cmd() {
+  local d=$1 u sp th f w=""
+  while read -r u sp th; do
+    for f in "$d/$u"/chunk*.trx "$d/$u"/out/chunk*.trx; do [ -f "$f" ] && w="$w $sp@$f"; done
+  done < "$d/units"
+  [ -z "$w" ] || echo "(weights: bash scripts/selfhost/shard-test.sh times$w)"
 }
 
 # host-spec NAME=SPEED[:SLICES[:THREADS]] -> NAME=SPEED:SLICES:THREADS, or a message naming the bad part and exit 2
@@ -238,13 +251,18 @@ slice_vm() { # dir sha bundle unit:threads...: one VM start and bundle push, the
       echo "EOF_RUN"
     done
     echo "chown -R bt:bt /home/bt/shard"
-    for k in "${!U[@]}"; do D=/home/bt/shard/$s-${IX[k]}; u=shard-$s-${IX[k]}
+    # every clone first: under set -e a failed clone ends the script before any unit starts
+    for k in "${!U[@]}"; do D=/home/bt/shard/$s-${IX[k]}
       echo "runuser -u bt -- bash -c 'git clone -q $D/in.bundle $D/repo && git -C $D/repo checkout -q -B dev $sha'"
+    done
+    for k in "${!U[@]}"; do D=/home/bt/shard/$s-${IX[k]}; u=shard-$s-${IX[k]}
       echo "systemctl reset-failed $u 2>/dev/null || true"
       echo "systemd-run -q --unit=$u --uid=bt --gid=bt --working-directory=$D -E HOME=/home/bt /bin/bash $D/run.sh"
     done
   } > "$d/vm.setup.sh"
-  gh "timeout 600 incus exec $VM -- bash -s" < "$d/vm.setup.sh" > "$d/vm.setup.out" 2>&1 || { vm_fail "$d/vm.setup.out"; return; }
+  # 600 s per unit; on failure (a timeout too) stop whatever units the script got to start
+  gh "timeout $((600 * ${#U[@]})) incus exec $VM -- bash -s" < "$d/vm.setup.sh" > "$d/vm.setup.out" 2>&1 ||
+    { vm_stop_units 1; vm_fail "$d/vm.setup.out"; return; }
   while :; do
     sleep "$POLL_S"; polls=$((polls+1))
     # one call: the host's MemAvailable (the 10 GiB floor guards ghosthive's other VMs), then each running unit's rc file and state
@@ -315,6 +333,8 @@ run() {
   serial_classes tests/Bayan.Tests > "$d/serial.txt"
   pack "$classes" "$times" "$hosts" "$d/serial.txt" > "$d/slices.tsv"
   rm -f "${d:?}"/*.result "${d:?}/overall.wall" "${d:?}/vm.started"; SHARD_DIR=$d
+  # an earlier run's per-unit out/, log and trx files, so a failed fetch leaves nothing stale for merge or times
+  rm -rf "${d:?}"/vm "${d:?}"/vm[0-9]* "${d:?}"/wp1 "${d:?}"/wlt1 "${d:?}"/mb1
   units "$hosts" > "$d/units"; cut -d' ' -f1 "$d/units" > "$d/hosts"
   local u sp th
   while read -r u sp th; do
@@ -351,20 +371,21 @@ run() {
   echo $(( $(date +%s) - t0 )) > "$d/overall.wall"
   merge "$d" | tee "$d/summary"
   rc=${PIPESTATUS[0]}
-  ls "$d"/*/chunk*.trx "$d"/*/out/chunk*.trx > /dev/null 2>&1 && echo "(weights: bash scripts/selfhost/shard-test.sh times $d/*/chunk*.trx $d/*/out/chunk*.trx)"
+  weights_cmd "$d"
   return "$rc"
 }
 
 case "${1:-run}" in
-  times) shift; [ $# -ge 1 ] || { echo "usage: shard-test.sh times <a.trx> [b.trx ...] [out.tsv]"; exit 2; }
+  times) shift; [ $# -ge 1 ] || { echo "usage: shard-test.sh times [SPEED@]<a.trx> [[SPEED@]b.trx ...] [out.tsv]"; exit 2; }
          o=$TSV_DEFAULT; case ${!#} in *.trx) :;; *) o=${!#}; set -- "${@:1:$#-1}";; esac
-         [ $# -ge 1 ] || { echo "usage: shard-test.sh times <a.trx> [b.trx ...] [out.tsv]"; exit 2; }
+         [ $# -ge 1 ] || { echo "usage: shard-test.sh times [SPEED@]<a.trx> [[SPEED@]b.trx ...] [out.tsv]"; exit 2; }
          mkdir -p "$(dirname "$o")"; times_merge "$@" > "$o"; echo "shard-test: $(wc -l < "$o" | tr -d ' ') classes -> $o";;
   host-spec) host_spec "$2";;
   pack) pack "$2" "$3" "$4" "${5:-}";;
   serial) serial_classes "$2";;
   filters) filters "$2";;
   merge) merge "$2";;
+  weights-cmd) weights_cmd "$2";;
   poll-state) poll_state "${2:-}";;
   run) shift; run "$@"; exit $?;;
   -*) run "$@"; exit $?;;
