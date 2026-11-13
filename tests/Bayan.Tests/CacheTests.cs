@@ -351,14 +351,14 @@ public sealed class CacheTests
         var log = Path.Combine(root, "cc.log");
         var command = string.Join(" ", real.Select(a => $"'{a}'"));
         File.WriteAllText(wrapper, $"#!/bin/sh\nif [ \"$1\" = --version ]; then echo '{version}'; exit 0; fi\nprintf '%s\\n' \"$*\" >> '{log}'\nexec {command} \"$@\"\n");
-        File.SetUnixFileMode(wrapper, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(wrapper, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
         return wrapper;
     }
 
     /// <summary>Makes <paramref name="app"/> another program: it greets <c>Hello, other!</c>.</summary>
     private static void Other(string app)
     {
-        foreach (var file in Directory.GetFiles(Path.Combine(app, "src"), "*.byn"))
+        foreach (var file in Directory.GetFiles(Path.Combine(app, "src"), "*.byn", SearchOption.AllDirectories))
             File.WriteAllText(file, File.ReadAllText(file).Replace("Hello, world!", "Hello, other!"));
     }
 

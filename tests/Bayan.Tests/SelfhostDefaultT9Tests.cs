@@ -453,6 +453,29 @@ public sealed class SelfhostDefaultT9Tests
         Assert.Equal("cache/\ncache/v1/\ncache/v1/programs/\ncache/v1/programs/k5/\ncache/v1/programs/k5/program\ncache/v1/scripts/\ncache/v1/scripts/new\ncache/v1/tmp/", Names(self));
     }
 
+    /// <summary>CacheTests.EvictionRemovesRuntimeEntries: a <c>runtime/</c> entry shares the cap and the oldest-first order with programs.</summary>
+    [Fact]
+    public void EvictCountsRuntimeEntriesAsToolchain()
+    {
+        var (cs, self) = Aged("evict-runtime", root =>
+        {
+            Programs(root, "k0", "k1");
+            foreach (var key in new[] { "r0", "r1" })
+            {
+                var entry = Path.Combine(root, "cache", "v1", "runtime", key);
+                Directory.CreateDirectory(entry);
+                File.WriteAllText(Path.Combine(entry, "bayan-rt.o"), "x");
+            }
+        }, ("cache/v1/runtime/r0", 300), ("cache/v1/programs/k0", 240), ("cache/v1/runtime/r1", 180), ("cache/v1/programs/k1", 120));
+        foreach (var entries in new[] { 3, 1 })
+        {
+            With("BAYAN_CACHE", Path.Combine(cs, "cache"), () => { Toolchain.Evict("none", long.MaxValue, entries, TimeSpan.FromMinutes(10)); return 0; });
+            Driver(Path.Combine(self, "cache"), "evict", "none", long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture), entries.ToString(System.Globalization.CultureInfo.InvariantCulture), "600");
+            SelfhostEmitterHarness.AssertSame($"cache after evicting to {entries}", Names(cs), Names(self));
+        }
+        Assert.Equal("cache/\ncache/v1/\ncache/v1/programs/\ncache/v1/programs/k1/\ncache/v1/programs/k1/program\ncache/v1/runtime/\ncache/v1/tmp/", Names(self));
+    }
+
     /// <summary>CliMemoryBoundsTests.M5_AnEntryUsedJustNowIsNotEvicted, and a byte cap: entries younger than the minimum age stay.</summary>
     [Theory]
     [InlineData("1", 0)]
@@ -912,6 +935,111 @@ public sealed class SelfhostDefaultT9Tests
         Assert.Equal(2, Directory.GetDirectories(Path.Combine(dir, "cache", "v1", "programs")).Length);
         Assert.Empty(Directory.EnumerateFileSystemEntries(Path.Combine(dir, "cache", "v1", "tmp")));
         Assert.Empty(Directory.GetFiles(dir, "*.tmp"));
+    }
+
+    /// <summary>
+    /// A <c>zig</c> on a <c>PATH</c> of its own that appends its argv to <c>$CCLOG</c> and runs the real zig; <paramref name="tag"/>
+    /// is a comment that changes the file, and so its hash, without changing what it does. Null when the C# compiler is not zig.
+    /// </summary>
+    private static string? LoggingZig(string name, string tag = "")
+    {
+        if (OperatingSystem.IsWindows() || Toolchain.FindCompiler() is not { } real || Path.GetFileNameWithoutExtension(real[0]) != "zig") return null;
+        var bin = Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", name + "-bin");
+        Directory.CreateDirectory(bin);
+        LoggingZigIn(bin, real[0], tag);
+        return bin;
+    }
+
+    private static void LoggingZigIn(string bin, string real, string tag)
+    {
+        var zig = Path.Combine(bin, "zig");
+        File.WriteAllText(zig, $"#!/bin/sh\n# {tag}\nif [ -n \"$CCLOG\" ]; then printf '%s\\n' \"$*\" >> \"$CCLOG\"; fi\nexec '{real}' \"$@\"\n");
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(zig, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+    }
+
+    private static (string Name, string? Value)[] Logged(string bin) =>
+        [("PATH", bin + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH")), ("CCLOG", "<root>/cc.log")];
+
+    /// <summary>The runtime compiles (<c>-c</c>) <c>cc.log</c> of each tree records, the C#'s then the driver's.</summary>
+    private static (int Cs, int Self) RuntimeCompiles(string name)
+    {
+        int Count(string tree)
+        {
+            var log = Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", name, tree, "cc.log");
+            return File.Exists(log) ? File.ReadAllLines(log).Count(l => l.Split(' ').Contains("-c")) : 0;
+        }
+        return (Count("cs"), Count("s2"));
+    }
+
+    private static string[] RuntimeEntries(string name, string tree)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", name, tree, "cache", "v1", "runtime");
+        return Directory.Exists(dir) ? Directory.GetDirectories(dir) : [];
+    }
+
+    private static void TwoPrograms(string root)
+    {
+        Arithmetic(root);
+        // A directory of its own: two files with top-level statements in one directory are one module (BYN2015).
+        Directory.CreateDirectory(Path.Combine(root, "other"));
+        File.Copy(Path.Combine(Golden.CasesRoot, "run", "control-flow.byn"), Path.Combine(root, "other", "control-flow.byn"));
+    }
+
+    /// <summary>CacheTests.TheRuntimeIsCompiledOncePerFlagSet: two programs, one runtime compile and one <c>runtime/</c> entry, the C#'s key.</summary>
+    [Fact]
+    public void TheRuntimeIsSharedByTwoProgramsAsToolchain()
+    {
+        if (LoggingZig("rt-shared") is not { } bin) return;
+        Same("rt-shared", TwoPrograms,
+            new Step(["build", "arithmetic.byn"], Env: Logged(bin)),
+            new Step(["build", "other/control-flow.byn"], Env: Logged(bin)));
+        Assert.Equal((1, 1), RuntimeCompiles("rt-shared"));
+        Assert.Single(RuntimeEntries("rt-shared", "s2"));
+    }
+
+    /// <summary>CacheTests.ADamagedRuntimeObjectIsRebuilt: a damaged <c>bayan-rt.o</c> is compiled again and the program links.</summary>
+    [Fact]
+    public void ADamagedRuntimeObjectIsRebuiltAsToolchain()
+    {
+        if (LoggingZig("rt-damaged") is not { } bin) return;
+        static void Damage(string root) =>
+            File.WriteAllBytes(Path.Combine(Directory.GetDirectories(Path.Combine(root, "cache", "v1", "runtime")).Single(), "bayan-rt.o"), [1, 2, 3]);
+        Same("rt-damaged", TwoPrograms,
+            new Step(["build", "arithmetic.byn"], Env: Logged(bin)),
+            new Step(["build", "other/control-flow.byn"], Damage, Logged(bin)),
+            new Step(["run", "other/control-flow.byn"], Env: Logged(bin)));
+        Assert.Equal((2, 2), RuntimeCompiles("rt-damaged"));
+        var obj = Path.Combine(RuntimeEntries("rt-damaged", "s2").Single(), "bayan-rt.o");
+        Assert.Equal(Hex(File.ReadAllBytes(obj)) + "\n", File.ReadAllText(obj + ".sha256"));
+    }
+
+    /// <summary>
+    /// CacheTests.ADifferentCompilerIdentityMissesTheKeys: the same <c>zig</c> path with a changed file misses the program and the
+    /// runtime key; unchanged, a second build hits both.
+    /// </summary>
+    [Fact]
+    public void ADifferentCompilerIdentityMissesTheKeysAsToolchain()
+    {
+        if (LoggingZig("rt-identity", "1") is not { } bin) return;
+        var real = Toolchain.FindCompiler()![0];
+        var outs = Same("rt-identity", Arithmetic,
+            new Step(["build", "--verbose", "arithmetic.byn"], _ => LoggingZigIn(bin, real, "1"), Logged(bin)),
+            new Step(["build", "--verbose", "arithmetic.byn"], Env: Logged(bin)),
+            new Step(["build", "--verbose", "arithmetic.byn"], _ => LoggingZigIn(bin, real, "2"), Logged(bin)));
+        Assert.DoesNotContain("from cache", outs[0]);
+        Assert.Contains("from cache", outs[1]);
+        Assert.DoesNotContain("from cache", outs[2]);
+        Assert.Equal((2, 2), RuntimeCompiles("rt-identity"));
+        Assert.Equal(2, RuntimeEntries("rt-identity", "s2").Length);
+    }
+
+    /// <summary>CacheTests.CacheStatsAndCleanCache: <c>clean --cache</c> removes <c>runtime/</c> with the rest of the cache data.</summary>
+    [Fact]
+    public void CleanCacheRemovesTheRuntimeAsToolchain()
+    {
+        Same("rt-clean", Arithmetic, new Step(["build", "arithmetic.byn"]), new Step(["clean", "--cache"]));
+        Assert.Empty(RuntimeEntries("rt-clean", "s2"));
+        Assert.Empty(RuntimeEntries("rt-clean", "cs"));
     }
 
     /// <summary>
