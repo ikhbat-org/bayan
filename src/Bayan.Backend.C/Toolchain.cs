@@ -510,7 +510,7 @@ public static class Toolchain
             }
             if (!Directory.Exists(Scripts)) return;
             foreach (var pointer in Directory.EnumerateFiles(Scripts).Where(f => !f.EndsWith(".tmp", StringComparison.Ordinal)))
-                if (!Directory.Exists(Path.Combine(Programs, File.ReadAllText(pointer).Trim()))) File.Delete(pointer);
+                if (!Directory.Exists(Path.Combine(Programs, PointerKey(File.ReadAllText(pointer))))) File.Delete(pointer);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
     }
@@ -571,14 +571,22 @@ public static class Toolchain
 
     /// <summary>
     /// The program a script last built to, for <c>bayan run script.byn</c> to start without
-    /// compiling; <paramref name="scriptKey"/> covers the script's bytes, mode and C compiler.
+    /// compiling; <paramref name="scriptKey"/> covers the script's bytes and mode. The pointer's
+    /// second line is the C compiler's <see cref="CompilerStamp"/> when it was remembered: a compiler
+    /// found now with another stamp misses (an old pointer has none, so it misses once), and with no
+    /// compiler found the pointer is used.
     /// </summary>
     public static string? LookupScript(string scriptKey, string exeName)
     {
         var pointer = Path.Combine(Scripts, scriptKey);
         try
         {
-            var exe = File.Exists(pointer) ? Lookup(File.ReadAllText(pointer).Trim(), exeName) : null;
+            if (!File.Exists(pointer)) return null;
+            var text = File.ReadAllText(pointer);
+            var line = text.IndexOf('\n');
+            var stored = line < 0 ? "" : text[(line + 1)..].Trim();
+            if (FindCompiler() is { } compiler && CompilerStamp(compiler) is { Length: > 0 } stamp && stamp != stored) return null;
+            var exe = Lookup(PointerKey(text), exeName);
             if (exe != null) TagCacheDirectory();
             return exe;
         }
@@ -588,6 +596,9 @@ public static class Toolchain
         }
     }
 
+    /// <summary>The program key of a script pointer's text: its first line, trimmed; the second is the C compiler's stamp.</summary>
+    private static string PointerKey(string text) => (text.IndexOf('\n') is var line and >= 0 ? text[..line] : text).Trim();
+
     public static void RememberScript(string scriptKey, string programKey)
     {
         try
@@ -595,7 +606,7 @@ public static class Toolchain
             TagCacheDirectory();
             Directory.CreateDirectory(Scripts);
             var temp = Path.Combine(Scripts, scriptKey + "." + Guid.NewGuid().ToString("N") + ".tmp");
-            File.WriteAllText(temp, programKey + "\n");
+            File.WriteAllText(temp, programKey + "\n" + (FindCompiler() is { } compiler ? CompilerStamp(compiler) : "") + "\n");
             File.Move(temp, Path.Combine(Scripts, scriptKey), overwrite: true);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
@@ -605,13 +616,12 @@ public static class Toolchain
     }
 
     /// <summary>
-    /// The key under which a script's program is remembered: compiler version and build, mode, host,
-    /// the script's bytes (its <c>#:</c> directives included) and the C compiler's
-    /// <see cref="CompilerStamp"/>, empty when none is found. The compiler is not run, so a remembered
-    /// script starts even when no C compiler is installed.
+    /// The key under which a script's program is remembered: compiler version and build, mode, host
+    /// and the script's bytes (its <c>#:</c> directives included). The C compiler isn't part of it,
+    /// so a remembered script starts even when no C compiler is installed.
     /// </summary>
     public static string ScriptKey(byte[] script, BuildMode mode, string? build = null) =>
-        Hash(string.Join("\0", "script", CompilerVersion, build ?? CompilerBuild, mode, Targets.Host, Convert.ToHexStringLower(SHA256.HashData(script)), FindCompiler() is { } compiler ? CompilerStamp(compiler) : ""));
+        Hash(string.Join("\0", "script", CompilerVersion, build ?? CompilerBuild, mode, Targets.Host, Convert.ToHexStringLower(SHA256.HashData(script))));
 
     /// <summary>
     /// Size and last-write time of the running compiler and its <c>Bayan*.dll</c> assemblies (any

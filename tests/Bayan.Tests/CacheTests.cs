@@ -480,9 +480,12 @@ public sealed class CacheTests
         Assert.Equal("Hello, world!\n", Output(Exe(app)));
     }
 
+    private static string Pointer(string root) => Directory.GetFiles(Path.Combine(root, "cache", "v1", "scripts")).Single(f => !f.EndsWith(".tmp", StringComparison.Ordinal));
+
     /// <summary>
-    /// A remembered script starts without running the compiler (no runtime compile, no new pointer) until the compiler file's write
-    /// time changes; then its script key misses and it compiles again.
+    /// A remembered script starts without running the compiler (no runtime compile) until the compiler file's write time changes;
+    /// then its pointer misses on the stamp, it compiles again (a new program key: the identity changed too) and the same pointer
+    /// is rewritten with the new program key and stamp.
     /// </summary>
     [Fact]
     public void ARememberedScriptMissesAfterTheCompilerChanges()
@@ -496,9 +499,40 @@ public sealed class CacheTests
         Assert.Equal("hi\n", Cli(root, script));
         Assert.Equal("hi\n", Cli(root, script));
         Assert.Equal((1, 1), (Scripts(root), RuntimeCompiles(root)));
+        var before = File.ReadAllText(Pointer(root));
         File.SetLastWriteTimeUtc(cc, new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         Assert.Equal("hi\n", Cli(root, script));
-        Assert.Equal((2, 2), (Scripts(root), RuntimeCompiles(root)));
+        Assert.Equal((1, 2), (Scripts(root), RuntimeCompiles(root)));
+        var after = File.ReadAllText(Pointer(root)).Split('\n');
+        Assert.NotEqual(before.Split('\n')[0], after[0]);
+        Assert.Equal(Toolchain.CompilerStamp([cc]), after[1]);
+        Assert.NotEqual(before.Split('\n')[1], after[1]);
+    }
+
+    /// <summary>A pointer from before the stamp (the program key alone) misses once and is rewritten with the stamp.</summary>
+    [Fact]
+    public void AnOldFormatPointerMissesOnceAndIsRewritten()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("script-oldpointer");
+        var script = Path.Combine(root, "hello.byn");
+        File.WriteAllText(script, "#!/usr/bin/env bayan\n#:io threaded\n\nprint(\"hi\")\n");
+        var cc = LoggingCompiler(root);
+        Assert.Equal("hi\n", Cli(root, script));
+        var pointer = Pointer(root);
+        var stamped = File.ReadAllText(pointer);
+        var programKey = stamped.Split('\n')[0];
+        Assert.Equal(programKey + "\n" + Toolchain.CompilerStamp([cc]) + "\n", stamped);
+        File.WriteAllText(pointer, programKey + "\n");
+        var old = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        File.SetLastWriteTimeUtc(pointer, old);
+        Assert.Equal("hi\n", Cli(root, script));
+        Assert.Equal(stamped, File.ReadAllText(pointer));
+        Assert.NotEqual(old, File.GetLastWriteTimeUtc(pointer));
+        File.SetLastWriteTimeUtc(pointer, old);
+        Assert.Equal("hi\n", Cli(root, script));
+        Assert.Equal(old, File.GetLastWriteTimeUtc(pointer));
+        Assert.Equal(1, Scripts(root));
     }
 
     [Fact]

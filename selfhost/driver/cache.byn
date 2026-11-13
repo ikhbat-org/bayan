@@ -662,7 +662,8 @@ void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNa
     for name in pointers {
         let pointer = Path.combine(scripts, name)
         if name.endsWith(".tmp") || !Fs.fileExists(pointer) { continue }
-        let text = try t9ReadTrimmed(pointer)
+        // Toolchain.cs:513 `PointerKey(File.ReadAllText(pointer))`.
+        let text = try t9PointerLine(pointer, for: false)
         unless t9DirectoryExists(Path.combine(programs, text)) { try Io.remove(pointer) }
     }
 }
@@ -768,33 +769,59 @@ void t9MoveAndDelete(string dir, through ref DCtx d) uses alloc, clock, env, fs 
     }
 }
 
-/// Toolchain.cs:462 `LookupScript`: the program a script last built to. Any read error is null.
+/// Toolchain.cs:600 `PointerKey` (`stamp` false) and the rest of the pointer (`stamp` true) of `File.ReadAllText(path)`: the first line
+/// or the rest, trimmed; "" when there is no rest.
+string t9PointerLine(string path, for bool stamp) uses alloc, fs fails IoError {
+    let text = try Io.readText(path)
+    let body = text.startsWith("\u{FEFF}") ? text.runes.skip(1) : text
+    let ws = t9Whitespace()
+    var first = true
+    for part in body.parts(by: "\n", limit: 2) {
+        if first == !stamp { return part.trimmed(by: ws.span).copy() }
+        first = false
+    }
+    return ""
+}
+
+/// Toolchain.cs:579 `LookupScript`: the program a script last built to. Any read error is null. The pointer's second line is the
+/// C compiler's stamp: a compiler found now with another stamp misses, and with none found the pointer is used.
 string? lookupScript(string scriptKey, by string exeName, through ref DCtx d) uses alloc, clock, env, fs {
     let pointer = Path.combine(t9Scripts(), scriptKey)
     unless Fs.fileExists(pointer) { return null }
-    let text = t9ReadTrimmed(pointer) catch return null
-    let exe = lookup(text, by: exeName, through: ref d) catch return null
+    // Toolchain.cs:585-588.
+    let stored = t9PointerLine(pointer, for: true) catch return null
+    let compiler = ccFindCompiler()
+    if compiler.length > 0 {
+        let stamp = t9CompilerStamp(in compiler)
+        if stamp != "" && stamp != stored { return null }
+    }
+    // Toolchain.cs:589.
+    let programKey = t9PointerLine(pointer, for: false) catch return null
+    let exe = lookup(programKey, by: exeName, through: ref d) catch return null
     if exe is not null { tagCacheDirectory(ref d) }
     return exe
 }
 
-/// Toolchain.cs:477 `RememberScript`: a script that isn't remembered just compiles again next time.
+/// Toolchain.cs:602 `RememberScript`: a script that isn't remembered just compiles again next time.
 void rememberScript(string scriptKey, by string programKey, through ref DCtx d) uses alloc, clock, env, fs {
     tagCacheDirectory(ref d)
     t9Remember(scriptKey, by: programKey, through: ref d) catch return
 }
 
-/// The `try` body of `RememberScript` (Toolchain.cs:482-485) after `TagCacheDirectory`.
+/// The `try` body of `RememberScript` (Toolchain.cs:607-610) after `TagCacheDirectory`: the program key, then the C compiler's
+/// stamp, empty when none is found.
 void t9Remember(string scriptKey, by string programKey, through ref DCtx d) uses alloc, clock, env, fs fails IoError {
     let scripts = t9Scripts()
     try Io.createDirectory(scripts)
     let temp = Path.combine(scripts, $"{scriptKey}.{t9Unique(ref d)}.tmp")
-    try Io.writeFile(temp, $"{programKey}\n".bytes)
+    // Toolchain.cs:609.
+    let compiler = ccFindCompiler()
+    let stamp = compiler.length > 0 ? t9CompilerStamp(in compiler) : ""
+    try Io.writeFile(temp, $"{programKey}\n{stamp}\n".bytes)
     try Fs.rename(temp, to: Path.combine(scripts, scriptKey))
 }
 
-/// Toolchain.cs:613 `ScriptKey`: compiler version and build, mode, host, the script's bytes and the C compiler's stamp, empty
-/// when none is found. `build` null is `CompilerBuild`.
+/// Toolchain.cs:623 `ScriptKey`: compiler version and build, mode, host and the script's bytes. `build` null is `CompilerBuild`.
 string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build) uses alloc, env, fs {
     var sb = StrBuf()
     sb.append("script")
@@ -808,10 +835,6 @@ string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build) use
     sb.append(targetHost() ?? "")
     sb.append("\0")
     sb.append(Hex.encode(sha256(script).span))
-    sb.append("\0")
-    // Toolchain.cs:614 `FindCompiler() is { } compiler ? CompilerStamp(compiler) : ""`.
-    let compiler = ccFindCompiler()
-    sb.append(compiler.length > 0 ? t9CompilerStamp(in compiler) : "")
     return t9Hash(sb.finish())
 }
 
