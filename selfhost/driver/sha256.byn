@@ -1,5 +1,5 @@
 // SHA-256 (FIPS 180-4) over bytes for the self-hosted driver (spec 017 T9, plan D5): what `SHA256.HashData` returns, for the
-// cache keys of `Toolchain.cs` :237, :499, :556-562 and `dist`'s inputs hash. Words are kept in `u64` below 2^32, so the
+// cache keys of `Toolchain.cs` :296, :624, :681-687 and `dist`'s inputs hash. Words are kept in `u64` below 2^32, so the
 // additions mod 2^32 are a mask, not a wrap a `safe` build would trap on.
 
 /// The round constants of FIPS 180-4 §4.2.2.

@@ -46,7 +46,8 @@ public sealed class SelfhostDefaultT9Tests
                     if args[3] != targetHost() { triple = targetTriple(args[3]) }
                 }
                 let flags = ccFlags(args[2], for: triple)
-                Io.stdout.write($"{t9Key(args[2], for: target, by: in compiler, through: in flags, from: source)}\n")
+                let identity = t9CompilerIdentity(in compiler, through: ref d)
+                Io.stdout.write($"{t9Key(args[2], for: target, by: in compiler, as: identity, through: in flags, from: source)}\n")
                 return 0
             }
             if args[0] == "scriptkey" {
@@ -234,8 +235,38 @@ public sealed class SelfhostDefaultT9Tests
         var script = Path.Combine(dir, "tool.byn");
         File.WriteAllText(script, "#:mode fast\nvoid main() { print(\"hi\") }\n");
         Assert.True(Toolchain.TryParseMode(mode, out var buildMode));
-        var expected = Toolchain.ScriptKey(File.ReadAllBytes(script), buildMode, build);
+        var expected = With("BAYAN_CC", null, () => Toolchain.ScriptKey(File.ReadAllBytes(script), buildMode, build));
         Assert.Equal($"{expected}\n", Driver(null, "scriptkey", script, mode, build));
+    }
+
+    /// <summary>
+    /// The script pointer holds the compiler file's path and write time (Toolchain.cs:222 `CompilerStamp`) after the program key,
+    /// the C#'s pointer: a <c>zig</c> on <c>PATH</c> with a new write time misses it, as the C#'s does.
+    /// </summary>
+    [Fact]
+    public void TheScriptPointerFollowsTheCompilersWriteTime()
+    {
+        if (LoggingZig("pointer-mtime") is not { } bin) return;
+        var path = bin + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH");
+        (string Pointer, string Hit, string Miss) Remembered(bool driver)
+        {
+            Stamp(bin, 2020);
+            var cache = Entry(Fresh("pointer-mtime"), "hit");
+            string Lookup() => driver
+                ? Driver(cache, [("PATH", path)], "lookupscript", "skey", "program")
+                : With("BAYAN_CC", null, () => With("PATH", path, () => CSharpLookup(cache, () => Toolchain.LookupScript("skey", "program"))));
+            if (driver) Driver(cache, [("PATH", path)], "remember", "skey", Key);
+            else With("BAYAN_CC", null, () => With("PATH", path, () => With("BAYAN_CACHE", cache, () => { Toolchain.RememberScript("skey", Key); return 0; })));
+            var pointer = File.ReadAllText(Path.Combine(cache, "v1", "scripts", "skey"));
+            var hit = Lookup();
+            Stamp(bin, 2021);
+            return (pointer, hit, Lookup());
+        }
+        var expected = Remembered(false);
+        Assert.Equal(Key + "\n" + Path.Combine(bin, "zig") + ":" + new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks + "\n", expected.Pointer);
+        Assert.NotEqual("null\n", expected.Hit);
+        Assert.Equal("null\n", expected.Miss);
+        Assert.Equal(expected, Remembered(true));
     }
 
     // ── Lookup and LookupScript (Toolchain.cs:289, :462) ────────────────────────────────────
@@ -373,10 +404,23 @@ public sealed class SelfhostDefaultT9Tests
     [InlineData("nodir", "pointer")]
     [InlineData("hit", "unreadable")]
     [InlineData("unreadablesum", "pointer")]
+    [InlineData("hit", "stamped")]
+    [InlineData("hit", "stale")]
+    [InlineData("hit", "oldformat")]
     public void LookupScriptAsToolchain(string shape, string pointer)
     {
         if ((pointer == "unreadable" || shape == "unreadablesum") && OperatingSystem.IsWindows()) return;
         var dir = Fresh($"lookupscript-{shape}-{pointer}");
+        // The pointer's stamp is checked only against a compiler found (Toolchain.cs:588): the stamp rows have a `zig` on `PATH`
+        // (a file of its own, never run), the others none.
+        var bin = Path.Combine(dir, "bin");
+        Directory.CreateDirectory(bin);
+        if (pointer is "stamped" or "stale" or "oldformat")
+        {
+            File.WriteAllText(Path.Combine(bin, "zig"), "");
+            Stamp(bin, 2020);
+        }
+        var stamp = With("BAYAN_CC", null, () => With("PATH", bin, () => Toolchain.FindCompiler() is { } c ? Toolchain.CompilerStamp(c) : ""));
         string Layout()
         {
             var cache = Entry(dir, shape);
@@ -387,11 +431,14 @@ public sealed class SelfhostDefaultT9Tests
             if (pointer == "bompointer") File.WriteAllBytes(file, [0xef, 0xbb, 0xbf, .. Encoding.UTF8.GetBytes(Key + "\n")]);
             if (pointer == "nbsppointer") File.WriteAllText(file, "\u3000" + Key + "\u00a0");
             if (pointer == "unreadable") File.SetUnixFileMode(file, UnixFileMode.None);
+            if (pointer is "stamped" or "oldformat") File.WriteAllText(file, Key + "\n" + (pointer == "stamped" ? stamp + "\n" : ""));
+            if (pointer == "stale") File.WriteAllText(file, Key + "\n" + Path.Combine(bin, "zig") + ":1\n");
             return cache;
         }
-        var driver = Driver(Layout(), "lookupscript", "skey", "program");
+        var driver = Driver(Layout(), [("PATH", bin)], "lookupscript", "skey", "program");
         var cache = Layout();
-        Assert.Equal(CSharpLookup(cache, () => Toolchain.LookupScript("skey", "program")), driver);
+        Assert.Equal(With("BAYAN_CC", null, () => With("PATH", bin, () => CSharpLookup(cache, () => Toolchain.LookupScript("skey", "program")))), driver);
+        if (pointer is "stamped" or "stale" or "oldformat") Assert.Equal(pointer != "stamped", driver == "null\n");
         if (pointer == "unreadable") File.SetUnixFileMode(Path.Combine(cache, "v1", "scripts", "skey"), UnixFileMode.UserRead | UnixFileMode.UserWrite);
     }
 
@@ -441,7 +488,8 @@ public sealed class SelfhostDefaultT9Tests
             var scripts = Path.Combine(root, "cache", "v1", "scripts");
             Directory.CreateDirectory(scripts);
             File.WriteAllText(Path.Combine(scripts, "old"), "k0\n");
-            File.WriteAllText(Path.Combine(scripts, "new"), "k5\n");
+            // A pointer's second line is the C compiler's stamp (Toolchain.cs:609); its program key is the first (:513).
+            File.WriteAllText(Path.Combine(scripts, "new"), "k5\n/bin/zig:1\n");
         }, Enumerable.Range(0, 6).Select(i => ($"cache/v1/programs/k{i}", (10 - i) * 60)).ToArray());
         foreach (var (keep, entries) in new[] { ("k0", 3), ("k5", 1) })
         {
@@ -450,6 +498,29 @@ public sealed class SelfhostDefaultT9Tests
             SelfhostEmitterHarness.AssertSame($"cache after evicting to {entries} keeping {keep}", Names(cs), Names(self));
         }
         Assert.Equal("cache/\ncache/v1/\ncache/v1/programs/\ncache/v1/programs/k5/\ncache/v1/programs/k5/program\ncache/v1/scripts/\ncache/v1/scripts/new\ncache/v1/tmp/", Names(self));
+    }
+
+    /// <summary>CacheTests.EvictionRemovesRuntimeEntries: a <c>runtime/</c> entry shares the cap and the oldest-first order with programs.</summary>
+    [Fact]
+    public void EvictCountsRuntimeEntriesAsToolchain()
+    {
+        var (cs, self) = Aged("evict-runtime", root =>
+        {
+            Programs(root, "k0", "k1");
+            foreach (var key in new[] { "r0", "r1" })
+            {
+                var entry = Path.Combine(root, "cache", "v1", "runtime", key);
+                Directory.CreateDirectory(entry);
+                File.WriteAllText(Path.Combine(entry, "bayan-rt.o"), "x");
+            }
+        }, ("cache/v1/runtime/r0", 300), ("cache/v1/programs/k0", 240), ("cache/v1/runtime/r1", 180), ("cache/v1/programs/k1", 120));
+        foreach (var entries in new[] { 3, 1 })
+        {
+            With("BAYAN_CACHE", Path.Combine(cs, "cache"), () => { Toolchain.Evict("none", long.MaxValue, entries, TimeSpan.FromMinutes(10)); return 0; });
+            Driver(Path.Combine(self, "cache"), "evict", "none", long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture), entries.ToString(System.Globalization.CultureInfo.InvariantCulture), "600");
+            SelfhostEmitterHarness.AssertSame($"cache after evicting to {entries}", Names(cs), Names(self));
+        }
+        Assert.Equal("cache/\ncache/v1/\ncache/v1/programs/\ncache/v1/programs/k1/\ncache/v1/programs/k1/program\ncache/v1/runtime/\ncache/v1/tmp/", Names(self));
     }
 
     /// <summary>CliMemoryBoundsTests.M5_AnEntryUsedJustNowIsNotEvicted, and a byte cap: entries younger than the minimum age stay.</summary>
@@ -630,7 +701,7 @@ public sealed class SelfhostDefaultT9Tests
                 Directory.CreateDirectory(Path.Combine(cache, "v1"));
                 File.WriteAllText(Path.Combine(cache, "v1", "scripts"), "");
             }
-        With("BAYAN_CACHE", cs, () => { Toolchain.RememberScript("skey", Key); return 0; });
+        With("BAYAN_CC", null, () => With("BAYAN_CACHE", cs, () => { Toolchain.RememberScript("skey", Key); return 0; }));
         Driver(self, "remember", "skey", Key);
         SelfhostEmitterHarness.AssertSame("cache after remembering", Names(cs), Names(self));
         if (!scriptsIsAFile) Assert.Equal(File.ReadAllText(Path.Combine(cs, "v1", "scripts", "skey")), File.ReadAllText(Path.Combine(self, "v1", "scripts", "skey")));
@@ -898,7 +969,10 @@ public sealed class SelfhostDefaultT9Tests
             new Step(["hello.byn"], root => File.AppendAllText(Path.Combine(root, "hello.byn"), "print(\"changed\")\n"), none));
     }
 
-    /// <summary>CacheTests.ParallelBuildsNeverCorruptTheCache through the driver: every build succeeds, one entry per key, nothing staged.</summary>
+    /// <summary>
+    /// CacheTests.ParallelBuildsNeverCorruptTheCache through the driver: every build succeeds, one entry per program key and per runtime
+    /// key (the debug and safe builds race for two), nothing staged.
+    /// </summary>
     [Fact]
     public void ParallelBuildsNeverCorruptTheCache()
     {
@@ -909,8 +983,197 @@ public sealed class SelfhostDefaultT9Tests
             results[i] = Bayan(true, dir, [], ["build", "--mode", i % 2 == 0 ? "debug" : "safe", "-o", $"prog{i}", "arithmetic.byn"]));
         foreach (var r in results) Assert.True(r.Exit == 0, r.Out + r.Err);
         Assert.Equal(2, Directory.GetDirectories(Path.Combine(dir, "cache", "v1", "programs")).Length);
+        Assert.Equal(2, Directory.GetDirectories(Path.Combine(dir, "cache", "v1", "runtime")).Length);
         Assert.Empty(Directory.EnumerateFileSystemEntries(Path.Combine(dir, "cache", "v1", "tmp")));
         Assert.Empty(Directory.GetFiles(dir, "*.tmp"));
+    }
+
+    /// <summary>
+    /// A <c>zig</c> on a <c>PATH</c> of its own that appends its argv to <c>$CCLOG</c> and runs the real zig; a non-empty
+    /// <paramref name="tag"/> is what its <c>zig version</c> prints. Null when the C# compiler is not zig.
+    /// </summary>
+    private static string? LoggingZig(string name, string tag = "")
+    {
+        if (OperatingSystem.IsWindows() || Toolchain.FindCompiler() is not { } real || Path.GetFileNameWithoutExtension(real[0]) != "zig") return null;
+        var bin = Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", name + "-bin");
+        Directory.CreateDirectory(bin);
+        LoggingZigIn(bin, real[0], tag);
+        return bin;
+    }
+
+    private static void LoggingZigIn(string bin, string real, string tag)
+    {
+        var zig = Path.Combine(bin, "zig");
+        var version = tag == "" ? "" : $"if [ \"$1\" = version ]; then echo '{tag}'; exit 0; fi\n";
+        File.WriteAllText(zig, $"#!/bin/sh\nif [ -n \"$CCLOG\" ]; then printf '%s\\n' \"$*\" >> \"$CCLOG\"; fi\n{version}exec '{real}' \"$@\"\n");
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(zig, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+    }
+
+    private static (string Name, string? Value)[] Logged(string bin) =>
+        [("PATH", bin + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH")), ("CCLOG", "<root>/cc.log")];
+
+    /// <summary>The runtime compiles (<c>-c</c>) <c>cc.log</c> of each tree records, the C#'s then the driver's.</summary>
+    private static (int Cs, int Self) RuntimeCompiles(string name)
+    {
+        int Count(string tree)
+        {
+            var log = Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", name, tree, "cc.log");
+            return File.Exists(log) ? File.ReadAllLines(log).Count(l => l.Split(' ').Contains("-c")) : 0;
+        }
+        return (Count("cs"), Count("s2"));
+    }
+
+    private static string[] RuntimeEntries(string name, string tree)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", name, tree, "cache", "v1", "runtime");
+        return Directory.Exists(dir) ? Directory.GetDirectories(dir) : [];
+    }
+
+    private static void TwoPrograms(string root)
+    {
+        Arithmetic(root);
+        // A directory of its own: two files with top-level statements in one directory are one module (BYN2015).
+        Directory.CreateDirectory(Path.Combine(root, "other"));
+        File.Copy(Path.Combine(Golden.CasesRoot, "run", "control-flow.byn"), Path.Combine(root, "other", "control-flow.byn"));
+    }
+
+    /// <summary>CacheTests.TheRuntimeIsCompiledOncePerFlagSet: two programs, one runtime compile and one <c>runtime/</c> entry, the C#'s key.</summary>
+    [Fact]
+    public void TheRuntimeIsSharedByTwoProgramsAsToolchain()
+    {
+        if (LoggingZig("rt-shared") is not { } bin) return;
+        Same("rt-shared", TwoPrograms,
+            new Step(["build", "arithmetic.byn"], Env: Logged(bin)),
+            new Step(["build", "other/control-flow.byn"], Env: Logged(bin)));
+        Assert.Equal((1, 1), RuntimeCompiles("rt-shared"));
+        Assert.Single(RuntimeEntries("rt-shared", "s2"));
+    }
+
+    /// <summary>CacheTests.ADamagedRuntimeObjectIsRebuilt: a damaged <c>bayan-rt.o</c> is compiled again and the program links.</summary>
+    [Fact]
+    public void ADamagedRuntimeObjectIsRebuiltAsToolchain()
+    {
+        if (LoggingZig("rt-damaged") is not { } bin) return;
+        static void Damage(string root) =>
+            File.WriteAllBytes(Path.Combine(Directory.GetDirectories(Path.Combine(root, "cache", "v1", "runtime")).Single(), "bayan-rt.o"), [1, 2, 3]);
+        Same("rt-damaged", TwoPrograms,
+            new Step(["build", "arithmetic.byn"], Env: Logged(bin)),
+            new Step(["build", "other/control-flow.byn"], Damage, Logged(bin)),
+            new Step(["run", "other/control-flow.byn"], Env: Logged(bin)));
+        Assert.Equal((2, 2), RuntimeCompiles("rt-damaged"));
+        var obj = Path.Combine(RuntimeEntries("rt-damaged", "s2").Single(), "bayan-rt.o");
+        Assert.Equal(Hex(File.ReadAllBytes(obj)) + "\n", File.ReadAllText(obj + ".sha256"));
+    }
+
+    /// <summary>
+    /// CacheTests.ADifferentCompilerIdentityMissesTheKeys: the same <c>zig</c> path and write time with a new <c>zig version</c>
+    /// misses the program and the runtime key; unchanged, a second build hits both.
+    /// </summary>
+    [Fact]
+    public void ADifferentCompilerIdentityMissesTheKeysAsToolchain()
+    {
+        if (LoggingZig("rt-identity", "1") is not { } bin) return;
+        var real = Toolchain.FindCompiler()![0];
+        var outs = Same("rt-identity", Arithmetic,
+            new Step(["build", "--verbose", "arithmetic.byn"], _ => { LoggingZigIn(bin, real, "1"); Stamp(bin, 2020); }, Logged(bin)),
+            new Step(["build", "--verbose", "arithmetic.byn"], Env: Logged(bin)),
+            new Step(["build", "--verbose", "arithmetic.byn"], _ => { LoggingZigIn(bin, real, "2"); Stamp(bin, 2020); }, Logged(bin)));
+        Assert.DoesNotContain("from cache", outs[0]);
+        Assert.Contains("from cache", outs[1]);
+        Assert.DoesNotContain("from cache", outs[2]);
+        Assert.Equal((2, 2), RuntimeCompiles("rt-identity"));
+        Assert.Equal(2, RuntimeEntries("rt-identity", "s2").Length);
+    }
+
+    private static void Stamp(string bin, int year) =>
+        File.SetLastWriteTimeUtc(Path.Combine(bin, "zig"), new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+    /// <summary>CacheTests.ACompilerWithANewWriteTimeMissesTheKeys: the same <c>zig</c>, unchanged but for its write time, misses the program and the runtime key.</summary>
+    [Fact]
+    public void ACompilerWithANewWriteTimeMissesTheKeysAsToolchain()
+    {
+        if (LoggingZig("rt-mtime") is not { } bin) return;
+        var outs = Same("rt-mtime", Arithmetic,
+            new Step(["build", "--verbose", "arithmetic.byn"], _ => Stamp(bin, 2020), Logged(bin)),
+            new Step(["build", "--verbose", "arithmetic.byn"], Env: Logged(bin)),
+            new Step(["build", "--verbose", "arithmetic.byn"], _ => Stamp(bin, 2021), Logged(bin)));
+        Assert.DoesNotContain("from cache", outs[0]);
+        Assert.Contains("from cache", outs[1]);
+        Assert.DoesNotContain("from cache", outs[2]);
+        Assert.Equal((2, 2), RuntimeCompiles("rt-mtime"));
+        Assert.Equal(2, RuntimeEntries("rt-mtime", "s2").Length);
+    }
+
+    /// <summary>
+    /// CacheTests.AsanAndCrossBuildsGetTheirOwnRuntime, the cross half (the driver has no sanitize builds): a <c>--target</c> build
+    /// with zig compiles a runtime object of its own, under the C#'s runtime key.
+    /// </summary>
+    [Fact]
+    public void ACrossBuildGetsItsOwnRuntimeAsToolchain()
+    {
+        if (LoggingZig("rt-cross") is not { } bin) return;
+        var target = Targets.Host == "linux-x64" ? "linux-arm64" : "linux-x64";
+        Same("rt-cross", Arithmetic,
+            new Step(["build", "arithmetic.byn"], Env: Logged(bin)),
+            new Step(["build", "--target", target, "arithmetic.byn"], Env: Logged(bin)));
+        Assert.Equal((2, 2), RuntimeCompiles("rt-cross"));
+        Assert.Equal(2, RuntimeEntries("rt-cross", "s2").Length);
+    }
+
+    /// <summary>CacheTests.ARememberedScriptMissesAfterTheCompilerChanges: remembered until the compiler's write time changes, the C#'s pointers.</summary>
+    [Fact]
+    public void ARememberedScriptMissesAfterTheCompilerChangesAsToolchain()
+    {
+        if (LoggingZig("script-mtime") is not { } bin) return;
+        Same("script-mtime", root => File.WriteAllText(Path.Combine(root, "hello.byn"), "#!/usr/bin/env bayan\n#:io threaded\n\nprint(\"hi\")\n"),
+            new Step(["hello.byn"], _ => Stamp(bin, 2020), Logged(bin)),
+            new Step(["hello.byn"], Env: Logged(bin)),
+            new Step(["hello.byn"], _ => Stamp(bin, 2021), Logged(bin)));
+        Assert.Equal((2, 2), RuntimeCompiles("script-mtime"));
+        var stamp = Path.Combine(bin, "zig") + ":" + new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks + "\n";
+        foreach (var tree in new[] { "cs", "s2" })
+            Assert.EndsWith(stamp, File.ReadAllText(Directory.GetFiles(Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", "script-mtime", tree, "cache", "v1", "scripts")).Single()));
+    }
+
+    /// <summary>
+    /// CacheTests.AnOldFormatPointerMissesOnceAndIsRewritten: a pointer of the program key alone misses once and is rewritten with
+    /// the stamp, the C#'s; then it hits and is left alone.
+    /// </summary>
+    [Fact]
+    public void AnOldFormatPointerMissesOnceAndIsRewrittenAsToolchain()
+    {
+        if (LoggingZig("script-oldpointer") is not { } bin) return;
+        var old = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var stamped = "";
+        static string Pointer(string root) => Directory.GetFiles(Path.Combine(root, "cache", "v1", "scripts")).Single();
+        Same("script-oldpointer", root => File.WriteAllText(Path.Combine(root, "hello.byn"), "#!/usr/bin/env bayan\n#:io threaded\n\nprint(\"hi\")\n"),
+            new Step(["hello.byn"], _ => Stamp(bin, 2020), Logged(bin)),
+            new Step(["hello.byn"], root =>
+            {
+                var text = File.ReadAllText(Pointer(root));
+                if (stamped == "") stamped = text;
+                Assert.Equal(stamped, text);
+                File.WriteAllText(Pointer(root), text.Split('\n')[0] + "\n");
+                File.SetLastWriteTimeUtc(Pointer(root), old);
+            }, Logged(bin)),
+            new Step(["hello.byn"], root =>
+            {
+                Assert.Equal(stamped, File.ReadAllText(Pointer(root)));
+                Assert.NotEqual(old, File.GetLastWriteTimeUtc(Pointer(root)));
+                File.SetLastWriteTimeUtc(Pointer(root), old);
+            }, Logged(bin)));
+        Assert.EndsWith("\n" + Path.Combine(bin, "zig") + ":" + old.Ticks + "\n", stamped);
+        foreach (var tree in new[] { "cs", "s2" })
+            Assert.Equal(old, File.GetLastWriteTimeUtc(Pointer(Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", "script-oldpointer", tree))));
+    }
+
+    /// <summary>CacheTests.CacheStatsAndCleanCache: <c>clean --cache</c> removes <c>runtime/</c> with the rest of the cache data.</summary>
+    [Fact]
+    public void CleanCacheRemovesTheRuntimeAsToolchain()
+    {
+        Same("rt-clean", Arithmetic, new Step(["build", "arithmetic.byn"]), new Step(["clean", "--cache"]));
+        Assert.Empty(RuntimeEntries("rt-clean", "s2"));
+        Assert.Empty(RuntimeEntries("rt-clean", "cs"));
     }
 
     /// <summary>

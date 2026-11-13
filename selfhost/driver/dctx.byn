@@ -35,10 +35,15 @@ public struct DCtx {
     /// `Format.MaxPasses` (Format.cs:36): the passes `formatFile` makes before it gives up.
     i64 maxPasses = 10
     // ── T9 state
-    /// `s_swept` (Toolchain.cs:404): `SweepOnce` has swept.
+    /// `s_swept` (Toolchain.cs:518): `SweepOnce` has swept.
     bool swept = false
     /// The names made so far for `Guid.NewGuid`, which has no builtin (cache.byn `t9Unique`, Q1149).
     i64 uniques = 0
+    /// `identities` (Toolchain.cs:186): the C compiler command whose identity `identity` is, once `identityKnown` (cache.byn
+    /// `t9CompilerIdentity`). The C# memo holds every command of the process; a run of the driver finds one compiler.
+    bool identityKnown = false
+    string identityOf = ""
+    string identity = ""
     // ── T11 state
     // T11 keeps no state: `test` reads its options per call (test.byn `T11Options`), and its coverage directory is named by T9's `uniques` (cache.byn `t9Unique`).
     // ── T12 state

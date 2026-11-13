@@ -18,7 +18,7 @@ caches, buffers child output, recurses on input, or runs for longer than one com
    output and symlinks, and has a file, byte and directory budget. Cross the budget → stop and
    log one line, never keep going.
 2. **Every watcher filters like the walk.** An event for a path the walk would skip is ignored.
-3. **Every cache evicts.** It has a size or entry cap with LRU eviction, a sweep for staging
+3. **Every cache evicts.** It has a size or entry cap with LRU eviction (`programs/` and `runtime/` share one cap), a sweep for staging
    left by killed processes, and a `CACHEDIR.TAG` in `v1/` (never the `$BAYAN_CACHE` root, which a user may share).
 4. **Child output is never buffered whole.** Keep a head and tail (`BoundedCapture`), or
    stream it. Waits after a kill have a timeout.
@@ -64,6 +64,8 @@ or by luck; LOW = small or one-shot. Source reports: `tmp/leak-audit/*.out` (scr
 | HIGH | `bayan format <dir>` walked `.worktrees`, `tmp` and followed symlinks out of the root | fixed, M3 |
 | MEDIUM | `dist` inputs hash followed symlinks | fixed, M4 |
 | MEDIUM | Program cache `v1/programs` never evicted | fixed, M5: LRU, 2 GiB / 4000 entries, `BAYAN_CACHE_MAX_MB` |
+| MEDIUM | Prebuilt runtime objects (`v1/runtime/<rkey>/`, plan 009) could pile up, one per compiler and flag set | bounded: they share the 2 GiB / 4000-entry LRU and the `v1/tmp/` staging sweep with `programs/` (`Toolchain.Evict`, `SweepStale`) |
+| LOW | Per-process compiler identity memo (`Toolchain.identities`, plan 009) | bounded: cleared past 64 entries (`Toolchain.cs:196`) |
 | MEDIUM | Staging dirs left by killed compiles; macOS `program.dSYM` moved into cache entries | fixed, M5/M6: stale sweep |
 | MEDIUM | Parser and ownership analysis recurse with input depth | open: needs a BYN1xxx diagnostic and selfhost parity (decision) |
 | LOW | C compiler ran with no timeout | fixed, M7: 10 min, `BAYAN_CC_TIMEOUT_S` |
