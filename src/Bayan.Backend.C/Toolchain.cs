@@ -151,22 +151,24 @@ public static class Toolchain
     /// <summary>
     /// One of <c>$BAYAN_CC_JOBS</c> host-wide program-compile slots, waited for and held until disposed; null (no limit)
     /// when the variable is unset or 0. A slot is an exclusive lock on <c>&lt;dir&gt;/&lt;i&gt;.lock</c>, dir being
-    /// <c>$BAYAN_CC_JOBS_DIR</c> or <c>&lt;temp&gt;/bayan-cc-jobs</c>, so test processes sharing a host share the cap
-    /// (two VM shard slots each ran several 2.6 GB zig compiles at once and the OOM killer took one, work/todo.md).
-    /// The OS drops the lock when its process dies.
+    /// <c>$BAYAN_CC_JOBS_DIR</c> or <c>&lt;temp&gt;/bayan-cc-jobs-&lt;user&gt;</c> (per user: Linux's <c>/tmp</c> is shared), so
+    /// test processes sharing a host share the cap (two VM shard slots each ran several 2.6 GB zig compiles at once and the
+    /// OOM killer took one, work/todo.md). The OS drops the lock when its process dies. Only a plain <see cref="IOException"/>
+    /// (the lock is held) means busy; the directory is re-created each round, so one removed under a waiter does not
+    /// leave it waiting forever. Any other failure throws.
     /// </summary>
     internal static FileStream? CompileSlot()
     {
         if (!int.TryParse(Environment.GetEnvironmentVariable("BAYAN_CC_JOBS"), System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var n) || n <= 0)
             return null;
-        var dir = Environment.GetEnvironmentVariable("BAYAN_CC_JOBS_DIR") is { Length: > 0 } d ? d : Path.Combine(Path.GetTempPath(), "bayan-cc-jobs");
-        Directory.CreateDirectory(dir);
+        var dir = Environment.GetEnvironmentVariable("BAYAN_CC_JOBS_DIR") is { Length: > 0 } d ? d : Path.Combine(Path.GetTempPath(), "bayan-cc-jobs-" + Environment.UserName);
         while (true)
         {
+            Directory.CreateDirectory(dir);
             for (var i = 0; i < n; i++)
             {
                 try { return new FileStream(Path.Combine(dir, $"{i}.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
-                catch (IOException) { }
+                catch (IOException e) when (e.GetType() == typeof(IOException)) { }
             }
             Thread.Sleep(100);
         }
@@ -477,7 +479,13 @@ public static class Toolchain
             args.Add(windows ? "-lshell32" : "-lm");
             var limit = CompileTimeout;
             int code; string stdout, stderr;
-            using (CompileSlot())
+            FileStream? slot;
+            try { slot = CompileSlot(); }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                return $"BAYAN_CC_JOBS: cannot take a compile slot: {e.Message}";
+            }
+            using (slot)
                 (code, stdout, stderr) = Exec(compiler[0], args, work, limit);
             if (code == -1)
                 return $"C compiler timed out after {limit.TotalSeconds:0} s and was killed (set BAYAN_CC_TIMEOUT_S to allow longer)";

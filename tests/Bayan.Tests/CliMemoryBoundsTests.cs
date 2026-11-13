@@ -389,14 +389,54 @@ public sealed class CliMemoryBoundsTests
         {
             using var a = Toolchain.CompileSlot();
             var b = Toolchain.CompileSlot();
-            Assert.NotNull(a);
-            Assert.NotNull(b);
             var third = Task.Run(Toolchain.CompileSlot);
-            Assert.False(third.Wait(TestTime.Scale(TimeSpan.FromMilliseconds(500))), "a third slot was granted while two of two were held");
-            b!.Dispose();
-            Assert.True(third.Wait(TestTime.Scale(TimeSpan.FromSeconds(10))), "the third slot was not granted after one was freed");
-            third.Result!.Dispose();
+            try
+            {
+                Assert.NotNull(a);
+                Assert.NotNull(b);
+                Assert.False(third.Wait(TestTime.Scale(TimeSpan.FromMilliseconds(500))), "a third slot was granted while two of two were held");
+                b!.Dispose();
+                Assert.True(third.Wait(TestTime.Scale(TimeSpan.FromSeconds(10))), "the third slot was not granted after one was freed");
+            }
+            finally
+            {
+                b?.Dispose();
+                a?.Dispose();
+                if (third.Wait(TestTime.Scale(TimeSpan.FromSeconds(10)))) third.Result?.Dispose();
+            }
         }));
+    }
+
+    [Fact]
+    public void AWaiterWhoseSlotDirectoryIsRemovedStillGetsASlot()
+    {
+        if (OperatingSystem.IsWindows()) return; // a directory with an open file cannot be removed there
+        var root = Fresh("cc-jobs-removed");
+        var dir = Path.Combine(root, "jobs");
+        WithEnv("BAYAN_CC_JOBS_DIR", dir, () => WithEnv("BAYAN_CC_JOBS", "1", () =>
+        {
+            using var held = Toolchain.CompileSlot();
+            var waiter = Task.Run(Toolchain.CompileSlot);
+            Thread.Sleep(TestTime.Scale(200));
+            Directory.Delete(dir, recursive: true);
+            Assert.True(waiter.Wait(TestTime.Scale(TimeSpan.FromSeconds(10))), "a waiter span forever after its slot directory was removed");
+            waiter.Result!.Dispose();
+        }));
+    }
+
+    [Fact]
+    public void ASlotDirectoryThatIsAFileFailsTheBuildWithAMessage()
+    {
+        var root = Fresh("cc-jobs-file");
+        var file = Path.Combine(root, "not-a-dir");
+        File.WriteAllText(file, "");
+        WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () =>
+            WithEnv("BAYAN_CC_JOBS_DIR", file, () => WithEnv("BAYAN_CC_JOBS", "1", () =>
+            {
+                var build = Toolchain.Build("int main(void) { return 0; }\n", BuildMode.Safe);
+                Assert.False(build.Succeeded);
+                Assert.Contains("BAYAN_CC_JOBS: cannot take a compile slot", build.Errors);
+            })));
     }
 
     [Fact]
