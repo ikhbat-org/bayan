@@ -152,7 +152,7 @@ public sealed class SelfhostDefaultT10Tests
     }
 
     /// <summary>
-    /// The largest run input under <c>mutate</c> (Q31): each site's re-bind runs in an arena freed before the next, so the peak stays near one
+    /// The heaviest run input under <c>mutate</c> (358 sites, each re-binding the program with <c>std.json</c>; Q31): each site's re-bind runs in an arena freed before the next, so the peak stays near one
     /// compile. Before the arena it grew by one compile per site, to <see cref="MutatePeakBeforeMb"/> MB. Under <c>BAYAN_SNAPSHOT</c> or
     /// <c>BAYAN_COVERAGE</c> the sampled process is not the harness alone, so only the output is compared.
     /// </summary>
@@ -178,7 +178,7 @@ public sealed class SelfhostDefaultT10Tests
     }
 
     private const long MutatePeakBoundMb = 300;
-    private const long MutatePeakBeforeMb = 2375;
+    private const long MutatePeakBeforeMb = 2490;
 
     /// <summary>The failure path for <c>--mutate</c>: an input with errors gets no site map, and the fixture's mutants that do not re-bind are not emitted.</summary>
     [Fact]

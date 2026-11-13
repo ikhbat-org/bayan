@@ -68,3 +68,8 @@ Break-test: revert `schemataRebinds` with `git checkout --` and rebuild the harn
 - The 3.0 GB bootstrap stage1 build and the 1.7–2.1 GB `doctor` peaks. Same Q31 cause, different phases; one line in work/todo.md.
 - A freeing `General` allocator.
 - The `fix/t10-harness-batches` batching stays as merged (decided); it is harmless after this fix.
+
+## Results (2026-11-13)
+- `std-json.byn` `mutate`, max RSS on macOS: 2,490 MB before → 23 MB after (358 switches confirmed); the bound test samples 2,349 MB on the old code and fails (break-test).
+- All 337 run inputs in one process: 5,541 MB → 179 MB, 9.7 s → 8.6 s, output byte-identical.
+- vm2 before the fix, on `fix/shard-vm-node-reuse` with `OOMPolicy=continue`: the slot finished, 2 failures, both std-json `mutate` runs killed by the OOM killer (exit 137).
