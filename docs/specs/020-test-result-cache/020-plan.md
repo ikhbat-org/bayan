@@ -64,7 +64,7 @@ Rejected: tracing inside the normal shared test process (reads cannot be attribu
 - **Fewer units in one process changes interference** (the known `BAYAN_CACHE` process-wide flake). Recorded units run alone, so a failure that needs a neighbour does not occur there. Mitigation: gates in R13 always run the full mix; units known to change shared state go on the never list.
 - **Recording slows or breaks tests** (ptrace overhead, timeouts). Mitigation: R26 rerun; T1 measures the overhead and stops the work if it eats the gain.
 - **Toolchain root digest is not content** (spec Q7). Mitigation: stated assumption; roots are package-managed; R13 gates.
-- **Program cache key lacks the compiler's identity** (spec Q5). Until fixed, its files are plain inputs, so soundness holds and only the hit rate suffers.
+- **Program cache key and the compiler's identity** (spec Q5). Plan 009 (`docs/plans/2026-11-13-009-prebuilt-runtime-object.md`) added it: the compiler's version output plus the path and write time of each word of its command that names a file (a launcher such as `xcrun clang` and the compiler it runs), in the C# compiler and the self-hosted driver.
 - **Imbalanced slices**: a vm slice whose units all hit finishes early while wp1 still runs. Accepted in v1; packing after lookup is a later change.
 - **Store growth or corruption.** Cap, eviction, sweep, checksum, atomic rename (R17, R22), with the bound test in the release memory gate.
 - **Trust.** The store is written and read by one user on one host; no network, no shared store, no CI writer in v1 (spec Q6). An entry is data, never executed.

@@ -441,13 +441,28 @@ public sealed class CacheTests
     /// <c>bayan</c> as a CLI process of its own (the identity is computed once per process), with the cache under
     /// <paramref name="root"/> and <c>&lt;root&gt;/logcc</c> as <c>BAYAN_CC</c>; asserts it succeeds and returns its stdout.
     /// </summary>
-    private static string Cli(string root, params string[] args)
+    private static string Cli(string root, params string[] args) => CliWith(root, Path.Combine(root, "logcc"), args);
+
+    /// <summary>
+    /// As <see cref="Cli"/>, with <c>BAYAN_CC</c> = <c>&lt;root&gt;/launch &lt;root&gt;/logcc</c>: a launcher (as <c>xcrun clang</c>)
+    /// that execs its arguments, made here.
+    /// </summary>
+    private static string Launched(string root, params string[] args)
+    {
+        var launch = Path.Combine(root, "launch");
+        File.WriteAllText(launch, "#!/bin/sh\nexec \"$@\"\n");
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(launch, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        File.SetLastWriteTimeUtc(launch, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        return CliWith(root, launch + " " + Path.Combine(root, "logcc"), args);
+    }
+
+    private static string CliWith(string root, string cc, string[] args)
     {
         var psi = new System.Diagnostics.ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
         psi.ArgumentList.Add(typeof(CliApp).Assembly.Location);
         foreach (var a in args) psi.ArgumentList.Add(a);
         psi.Environment["BAYAN_CACHE"] = Path.Combine(root, "cache");
-        psi.Environment["BAYAN_CC"] = Path.Combine(root, "logcc");
+        psi.Environment["BAYAN_CC"] = cc;
         using var p = System.Diagnostics.Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndAsync();
         var stderr = p.StandardError.ReadToEndAsync();
@@ -478,6 +493,79 @@ public sealed class CacheTests
         Assert.Equal(2, RuntimeEntries(root).Length);
         Assert.Equal(2, RuntimeCompiles(root));
         Assert.Equal("Hello, world!\n", Output(Exe(app)));
+    }
+
+    /// <summary>
+    /// A launcher's compiler is part of the identity (<c>BAYAN_CC="launch logcc"</c>): a new <c>--version</c> of <c>logcc</c>, both
+    /// write times unchanged, misses the program and the runtime key. Shell scripts: not on Windows.
+    /// </summary>
+    [Fact]
+    public void ALaunchedCompilersVersionMissesTheKeys()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-launched-identity");
+        var app = NewApp(root);
+        var stamp = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        File.SetLastWriteTimeUtc(LoggingCompiler(root, "logcc 1"), stamp);
+        Launched(root, "build", app);
+        Assert.Contains("from cache", Launched(root, "build", "--verbose", app));
+        File.SetLastWriteTimeUtc(LoggingCompiler(root, "logcc 2"), stamp);
+        Assert.DoesNotContain("from cache", Launched(root, "build", "--verbose", app));
+        Assert.Equal(2, Programs(root));
+        Assert.Equal(2, RuntimeEntries(root).Length);
+        Assert.Equal(2, RuntimeCompiles(root));
+        Assert.Equal("Hello, world!\n", Output(Exe(app)));
+    }
+
+    /// <summary>
+    /// A launcher's compiler file is stamped too: <c>logcc</c>, unchanged but for its write time behind the same launcher, misses
+    /// the program and the runtime key. Shell scripts: not on Windows.
+    /// </summary>
+    [Fact]
+    public void ALaunchedCompilersWriteTimeMissesTheKeys()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-launched-mtime");
+        var app = NewApp(root);
+        var cc = LoggingCompiler(root);
+        File.SetLastWriteTimeUtc(cc, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Launched(root, "build", app);
+        Assert.Contains("from cache", Launched(root, "build", "--verbose", app));
+        File.SetLastWriteTimeUtc(cc, new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Assert.DoesNotContain("from cache", Launched(root, "build", "--verbose", app));
+        Assert.Equal(2, Programs(root));
+        Assert.Equal(2, RuntimeEntries(root).Length);
+        Assert.Equal(2, RuntimeCompiles(root));
+    }
+
+    /// <summary>
+    /// A single-word compiler and zig cc keep the stamp they had before launchers were stamped, the file's path and write time
+    /// (no key changes on an ordinary host): zig cc's <c>cc</c> adds nothing though it is on <c>PATH</c>. A launcher's adds each
+    /// later word naming a file; flags and words naming none add nothing.
+    /// </summary>
+    [Fact]
+    public void ASingleWordOrZigCompilerKeepsItsStamp()
+    {
+        var root = Root("stamp-words");
+        var exe = OperatingSystem.IsWindows() ? ".exe" : "";
+        string Touch(string name, int year)
+        {
+            var file = Path.Combine(root, name + exe);
+            File.WriteAllText(file, "");
+            File.SetLastWriteTimeUtc(file, new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            return file + ":" + new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+        }
+        var zig = Touch("zig", 2020);
+        var cc = Touch("cc", 2021);
+        var launch = Touch("launch", 2022);
+        WithCache(root, () =>
+        {
+            Assert.Equal(cc, Toolchain.CompilerStamp([Path.Combine(root, "cc" + exe)]));
+            Assert.Equal(cc, Toolchain.CompilerStamp(["cc"]));
+            Assert.Equal(zig, Toolchain.CompilerStamp(["zig", "cc"]));
+            Assert.Equal("", Toolchain.CompilerStamp(["nosuch"]));
+            Assert.Equal(launch + "\n" + cc, Toolchain.CompilerStamp([Path.Combine(root, "launch" + exe), "cc", "-O2", "nosuch"]));
+        }, ("PATH", root));
     }
 
     private static string Pointer(string root) => Directory.GetFiles(Path.Combine(root, "cache", "v1", "scripts")).Single(f => !f.EndsWith(".tmp", StringComparison.Ordinal));
