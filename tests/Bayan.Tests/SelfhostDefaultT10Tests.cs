@@ -111,8 +111,8 @@ public sealed class SelfhostDefaultT10Tests
     }
 
     /// <summary>
-    /// The generated main over the run inputs, <see cref="BatchSize"/> per process: the self-hosted compiler frees nothing yet, so
-    /// one process over all of them peaked at 4.4 GB and was OOM-killed beside a second test slot in the 11 GiB test VM.
+    /// The generated main over the run inputs, <see cref="BatchSize"/> per process: before each mutant's re-bind got its own arena (plan 012),
+    /// one process over all of them peaked at 4.4 GB and was OOM-killed beside a second test slot in the 11 GiB test VM; it is 179 MB now.
     /// </summary>
     private static (int Exit, string Out, string Err) RunInBatches(string mode, List<string> inputs)
     {
@@ -150,6 +150,36 @@ public sealed class SelfhostDefaultT10Tests
         Assert.True(exit == 0, $"exit {exit}\n{error}");
         SelfhostEmitterHarness.AssertSame("sites json", Expected(inputs, RunDir, mutate: true), output);
     }
+
+    /// <summary>
+    /// The heaviest run input under <c>mutate</c> (358 sites, each re-binding the program with <c>std.json</c>; Q31): each site's re-bind runs in an arena freed before the next, so the peak stays near one
+    /// compile. Before the arena it grew by one compile per site, to <see cref="MutatePeakBeforeMb"/> MB. Under <c>BAYAN_SNAPSHOT</c> or
+    /// <c>BAYAN_COVERAGE</c> the sampled process is not the harness alone, so only the output is compared.
+    /// </summary>
+    [Fact]
+    public void MutateOfALargeInputStaysBounded()
+    {
+        var input = Path.Combine(RunDir, "std-json.byn");
+        var expected = Expected([input], RunDir, mutate: true);
+        if (SelfhostSemanticsHarness.SnapshotDir is not null || SelfhostSemanticsHarness.CoverageDir is not null)
+        {
+            var (exit, output, error) = SelfhostParserTests.Run(Build(), ["mutate", RunDir, input]);
+            Assert.True(exit == 0, $"exit {exit}\n{error}");
+            SelfhostEmitterHarness.AssertSame("std-json sites json", expected, output);
+            return;
+        }
+        var psi = new System.Diagnostics.ProcessStartInfo(Build()) { StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8 };
+        foreach (var a in new[] { "mutate", RunDir, input }) psi.ArgumentList.Add(a);
+        var run = PeakSampler.Run(psi);
+        Assert.True(run.Exit == 0, $"exit {run.Exit}\n{run.Err}");
+        SelfhostEmitterHarness.AssertSame("std-json sites json", expected, run.Out);
+        Assert.True(run.Peak > 0, "no sample");
+        Assert.True(run.Peak < MutatePeakBoundMb * 1024L * 1024, $"peak working set {run.Peak / 1024 / 1024} MB, bound {MutatePeakBoundMb} MB (before the arena: {MutatePeakBeforeMb} MB)");
+    }
+
+    // measured after the arena: 23 MB on macOS (mb1), 17 MB on Linux (bayan-test01); bound = 3x the larger, rounded up
+    private const long MutatePeakBoundMb = 100;
+    private const long MutatePeakBeforeMb = 2490;
 
     /// <summary>The failure path for <c>--mutate</c>: an input with errors gets no site map, and the fixture's mutants that do not re-bind are not emitted.</summary>
     [Fact]

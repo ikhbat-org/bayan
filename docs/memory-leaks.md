@@ -75,7 +75,7 @@ or by luck; LOW = small or one-shot. Source reports: `tmp/leak-audit/*.out` (scr
 
 | Sev | Leak | Status |
 |---|---|---|
-| HIGH | `General` allocator never frees (Q31); selfhost stage1 reached 2.4 GB | open: decision (arenas per phase, or a freeing General) |
+| HIGH | `General` allocator never frees (Q31); selfhost stage1 reached 2.4 GB | decided: option (a), an arena per phase (handoff Q31 note). Done for `mutate` re-binds (plan 012, `schemataRebinds`/`schemataMarkOf`: an arena per site): `std-json.byn` 2,490 MB → 23 MB, all run inputs in one process 5,541 MB → 179 MB (max RSS, macOS, 2026-11-13; `SelfhostDefaultT10Tests.MutateOfALargeInputStaysBounded`). Open: the bootstrap stage-1 build (3.0 GB) and `doctor` (1.7–2.1 GB) |
 | MEDIUM | 012 driver `.bayan-staging-*` left beside output; dSYM, non-recursive remove | fixed, 017 T9: the driver stages under the cache's `v1/tmp/` and `sweepStale` removes what a dead build left |
 | MEDIUM | `Io.run` buffers child output whole, then copies (2× peak) | fixed, 008 W1 (Q1227): with `timeout:`, `Io.run` keeps each stream's first and last 64 KiB around one `… N bytes omitted …` line, as `BoundedCapture` does; a test printing until killed peaks at 39 MB through the stage-2 driver (40416 KB, the highest of three runs on macOS, 2026-11-12; bound 300 MB; was 4619 MB; `SelfhostDefaultBoundsTests` M1 on the driver). Without `timeout:` every byte is still kept, by design: `bayan run` and callers that need a child's whole output |
 | MEDIUM | `StrBuf` growth abandons old blocks (Q745 by design); ~2× under `General` | follows the allocator decision |

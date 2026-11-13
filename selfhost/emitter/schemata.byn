@@ -802,44 +802,52 @@ public Schema buildSchema(ref Ctx c, for in List<string> skipFiles) uses alloc, 
 string? schemataMarkOf(in Ctx c, for in MutationSite site) uses alloc {
     if c.unobservable.length == 0 { return null }
     let file = c.functions[site.function].file
-    var source = lexer.SourceText.create(c.files[file].path, from: c.files[file].text.copy())
-    let start = schemataOffset(ref source, at: site.line, by: site.column)
-    let end = start + site.original.bytes.length
-    for m in c.unobservable {
-        if m.file == site.file && (m.op is null || m.op == site.op) && m.span.start <= start && end <= m.span.start + m.span.length { return m.reason }
+    // the per-site source copy is freed with the arena (Q31 option (a))
+    using let arena = Arena()
+    provide allocator: arena {
+        var source = lexer.SourceText.create(c.files[file].path, from: c.files[file].text.copy())
+        let start = schemataOffset(ref source, at: site.line, by: site.column)
+        let end = start + site.original.bytes.length
+        for m in c.unobservable {
+            if m.file == site.file && (m.op is null || m.op == site.op) && m.span.start <= start && end <= m.span.start + m.span.length { return m.reason }
+        }
     }
     return null
 }
 
 /// Schemata.cs:116 `Rebinds`: whether the program still compiles, ownership included, with the mutation applied to its source.
+/// The mutant's re-bind runs in an arena of its own, freed before the next site (Q31 option (a)): only the bool leaves it.
 bool schemataRebinds(in Ctx c, for in MutationSite site) uses alloc, clock, fs {
     let file = c.functions[site.function].file
-    var source = lexer.SourceText.create(c.files[file].path, from: c.files[file].text.copy())
-    var start = schemataOffset(ref source, at: site.line, by: site.column)
-    var length = site.original.bytes.length
-    // coverage-exempt: Q1099 through `panic($"internal error: mutation site`
-    if source.getText(TextSpan { start: start, length: length }) != site.original {
-        panic($"internal error: mutation site {site.file}:{site.line}:{site.column} is not `{site.original}`")
-    }
-    // `x = 1 if c` less its statement is ` if c`, which does not parse: the guarded statement goes whole.
-    if site.op == mutatorStatement {
-        let key = t10SyntaxKey(in c, for: site.originalNode, at: file)
-        for n in semantics.descendants(in c, for: c.functions[site.function].body) {
-            if semantics.boundKind(n) != .ifStmt || !t10SyntaxIs(in c, for: n, as: .guardedStmt) { continue }
-            if t10SyntaxKey(in c, for: c.bIfs[n & 0xFFFFFFFF].then, at: file) != key { continue }
-            let guarded = t10SyntaxSpan(in c, for: n)
-            start = guarded.start
-            length = guarded.length
-            break
+    using let arena = Arena()
+    provide allocator: arena {
+        var source = lexer.SourceText.create(c.files[file].path, from: c.files[file].text.copy())
+        var start = schemataOffset(ref source, at: site.line, by: site.column)
+        var length = site.original.bytes.length
+        // coverage-exempt: Q1099 through `panic($"internal error: mutation site`
+        if source.getText(TextSpan { start: start, length: length }) != site.original {
+            panic($"internal error: mutation site {site.file}:{site.line}:{site.column} is not `{site.original}`")
         }
-    }
-    var text = List<u8>()
-    for k in 0..start { text.append(source.bytes[k]) }
-    for b in site.mutated.bytes { text.append(b) }
-    for k in (start + length)..source.bytes.length { text.append(source.bytes[k]) }
-    let mutant = semantics.withFile(in c, from: in lexer.SourceText.create(source.path, from: move text))
-    for d in mutant.diagnostics {
-        if !d.isWarning { return false }
+        // `x = 1 if c` less its statement is ` if c`, which does not parse: the guarded statement goes whole.
+        if site.op == mutatorStatement {
+            let key = t10SyntaxKey(in c, for: site.originalNode, at: file)
+            for n in semantics.descendants(in c, for: c.functions[site.function].body) {
+                if semantics.boundKind(n) != .ifStmt || !t10SyntaxIs(in c, for: n, as: .guardedStmt) { continue }
+                if t10SyntaxKey(in c, for: c.bIfs[n & 0xFFFFFFFF].then, at: file) != key { continue }
+                let guarded = t10SyntaxSpan(in c, for: n)
+                start = guarded.start
+                length = guarded.length
+                break
+            }
+        }
+        var text = List<u8>()
+        for k in 0..start { text.append(source.bytes[k]) }
+        for b in site.mutated.bytes { text.append(b) }
+        for k in (start + length)..source.bytes.length { text.append(source.bytes[k]) }
+        let mutant = semantics.withFile(in c, from: in lexer.SourceText.create(source.path, from: move text))
+        for d in mutant.diagnostics {
+            if !d.isWarning { return false }
+        }
     }
     return true
 }

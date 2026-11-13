@@ -27,27 +27,15 @@ public sealed class SelfhostDefaultBoundsTests
     /// <summary>The C# <c>bayan</c> (its assembly under <c>dotnet</c>) or the bootstrap stage-2 driver in <paramref name="cwd"/>, <c>BAYAN_CACHE</c> = <c>&lt;cwd&gt;/cache</c>, sampling the peak working set.</summary>
     private static Run Start(bool driver, string cwd, (string Name, string? Value)[] env, params string[] args)
     {
-        var psi = new ProcessStartInfo(driver ? BootstrapTests.Stage2Executable() : "dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, WorkingDirectory = cwd };
+        var psi = new ProcessStartInfo(driver ? BootstrapTests.Stage2Executable() : "dotnet") { WorkingDirectory = cwd };
         if (!driver) psi.ArgumentList.Add(typeof(CliApp).Assembly.Location);
         psi.Environment["BAYAN_CACHE"] = Path.Combine(cwd, "cache");
         psi.Environment.Remove("BAYAN_CC");
         foreach (var (name, value) in env)
             if (value is null) psi.Environment.Remove(name); else psi.Environment[name] = value;
         foreach (var a in args) psi.ArgumentList.Add(a);
-        using var p = Process.Start(psi)!;
-        var stdout = p.StandardOutput.ReadToEndAsync();
-        var stderr = p.StandardError.ReadToEndAsync();
-        long peak = 0;
-        while (!p.WaitForExit(TestTime.Scale(100)))
-        {
-            try
-            {
-                p.Refresh();
-                peak = Math.Max(peak, Math.Max(p.WorkingSet64, p.PeakWorkingSet64));
-            }
-            catch (InvalidOperationException) { }
-        }
-        return new(p.ExitCode, stdout.Result.ReplaceLineEndings("\n"), stderr.Result.ReplaceLineEndings("\n"), peak);
+        var (exit, stdout, stderr, peak) = PeakSampler.Run(psi);
+        return new(exit, stdout, stderr, peak);
     }
 
     private static string Masked(string text, string root) => Regex.Replace(text.Replace(root, "<root>"), @"[0-9]+\.[0-9]{2}s", "<t>s");
