@@ -428,8 +428,8 @@ struct T9Runtime {
 }
 
 /// Toolchain.cs:381 `RuntimeObject`: the runtime compiled with `flags` by `compiler`, from `runtime/<rkey>/`, else compiled with
-/// `-c` in a private directory and renamed into place as programs are. The failure the C# returns (`Rejected`, :290) or throws as
-/// a `Win32Exception` (:294) is the `NativeBuild`.
+/// `-c` in a private directory and renamed into place as programs are. The failure the C# returns (`Rejected`, :304) or throws as
+/// a `Win32Exception` (:306-308) is the `NativeBuild`.
 T9Runtime t9RuntimeObject(in List<string> compiler, by in List<string> flags, as string identity, through ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
     var sb = StrBuf()
     sb.append("runtime")
@@ -499,7 +499,7 @@ T9Runtime t9RuntimeIn(string work, by in List<string> compiler, through in List<
 }
 
 /// Toolchain.cs:424 `Compile`: builds into a private directory, linking `runtime`, then renames it to `programs/<key>`. The
-/// failure the C# returns (`Rejected`, :290) or throws as a `Win32Exception` (:294) is the `NativeBuild`.
+/// failure the C# returns (`Rejected`, :304) or throws as a `Win32Exception` (:306-308) is the `NativeBuild`.
 NativeBuild t9Compile(in List<string> compiler, by in List<string> flags, from string cSource, for string key, as string exeName, until string runtime, at bool windows, through ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
     tagCacheDirectory(ref d)
     let work = Path.combine(t9Staging(), $"{key[0..16]}-{t9Unique(ref d)}")
@@ -520,8 +520,8 @@ void t9DiscardLeft(string work, through ref DCtx d) uses alloc, clock, env, fs, 
 }
 
 /// The `try` body of `Compile` (Toolchain.cs:429-465) in `work`, linking the prebuilt `runtime`. `Io.run` has no working directory
-/// (Q1009, Q1149): the files are named by absolute path. This `Io.run` passes no timeout (only the version probe of
-/// `t9ComputeIdentity` does), so a compile is never killed and there is no `timed out` failure.
+/// (Q1009): the files are named by absolute path. `Io.run` takes a `timeout:`, which `t9ComputeIdentity` passes, but
+/// the `Io.run` below does not, so this compile is never killed and has no `timed out` failure (the C# `Compile` has one).
 NativeBuild t9CompileIn(string work, by in List<string> compiler, through in List<string> flags, from string cSource, for string key, as string exeName, until string runtime, at bool windows, to ref DCtx d) uses alloc, clock, env, fs, process, random fails IoError {
     try Io.writeFile(Path.combine(work, "bayan-rt.h"), runtimeHeader.bytes)
     try Io.writeFile(Path.combine(work, "main.c"), cSource.bytes)

@@ -1,4 +1,4 @@
-// `bayan doctor` of the self-hosted driver (spec 017 T5): ports `Doctor.cs` 1-122 and `Toolchain.cs` `FindCompiler`'s `$BAYAN_CC` branch (:107),
+// `bayan doctor` of the self-hosted driver (spec 017 T5): ports `Doctor.cs` 1-122 and `Toolchain.cs` `FindCompiler`'s `$BAYAN_CC` branch (:114-115),
 // which `Doctor` reads; `CacheDirectory` and `Stats` come from cache.byn (`cacheDirectory`, `cacheStats`). `Doctor.Run` ignores its arguments.
 
 import semantics
