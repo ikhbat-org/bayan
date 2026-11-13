@@ -50,6 +50,12 @@ public sealed class SelfhostDefaultT9Tests
                 Io.stdout.write($"{t9Key(args[2], for: target, by: in compiler, as: identity, through: in flags, from: source)}\n")
                 return 0
             }
+            if args[0] == "identity" || args[0] == "stamp" {
+                var compiler = List<string>()
+                for i in 1..args.length { compiler.append(args[i]) }
+                Io.stdout.write(args[0] == "identity" ? $"{t9ComputeIdentity(in compiler)}\n" : $"{t9CompilerStamp(in compiler)}\n")
+                return 0
+            }
             if args[0] == "scriptkey" {
                 let bytes = Io.readFile(args[1]) catch List<u8>()
                 Io.stdout.write($"{scriptKey(bytes.span, by: args[2], for: args[3])}\n")
@@ -267,6 +273,65 @@ public sealed class SelfhostDefaultT9Tests
         Assert.NotEqual("null\n", expected.Hit);
         Assert.Equal("null\n", expected.Miss);
         Assert.Equal(expected, Remembered(true));
+    }
+
+    /// <summary>A <c>/bin/sh</c> script <paramref name="name"/> in <paramref name="dir"/> running <paramref name="body"/>; its path.</summary>
+    private static string Script(string dir, string name, string body)
+    {
+        var file = Path.Combine(dir, name);
+        File.WriteAllText(file, "#!/bin/sh\n" + body);
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(file, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        return file;
+    }
+
+    /// <summary>
+    /// CacheTests.ALaunchedCompilersVersionMissesTheKeys and ALaunchedCompilersWriteTimeMissesTheKeys (Toolchain.cs:201
+    /// <c>ComputeIdentity</c>): for a launcher that execs its arguments, the driver's identity is the C#'s, and a new
+    /// <c>--version</c> or write time of the compiler it runs, the launcher unchanged, changes it. The driver reads no
+    /// <c>BAYAN_CC</c> (cc.byn <c>ccFindCompiler</c>), so the probe takes the command. Shell scripts: not on Windows.
+    /// </summary>
+    [Fact]
+    public void ALaunchersCompilerIsInTheIdentityAsToolchain()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var bin = Fresh("launcher-identity");
+        string[] command = [Script(bin, "launch", "exec \"$@\"\n"), Path.Combine(bin, "fakecc"), "-m64"];
+        var compute = typeof(Toolchain).GetMethod("ComputeIdentity", BindingFlags.NonPublic | BindingFlags.Static)!;
+        string Identity(string version, int year)
+        {
+            File.SetLastWriteTimeUtc(Script(bin, "fakecc", $"echo '{version}'\n"), new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            var expected = (string)compute.Invoke(null, [command])!;
+            Assert.Equal(expected + "\n", Driver(null, ["identity", .. command]));
+            return expected;
+        }
+        var first = Identity("fakecc 1", 2020);
+        var version = Identity("fakecc 2", 2020);
+        var written = Identity("fakecc 2", 2021);
+        Assert.StartsWith("fakecc 1\n\0", first);
+        Assert.NotEqual(first, version);
+        Assert.NotEqual(version, written);
+    }
+
+    /// <summary>
+    /// Toolchain.cs:225 <c>CompilerStamp</c>: the driver's stamp is the C#'s for a single word, zig cc (its <c>cc</c> is on
+    /// <c>PATH</c> but adds nothing), a launcher with its compiler, a flag and a word naming no file, and a word naming no file.
+    /// </summary>
+    [Fact]
+    public void TheCompilerStampOfALauncherIsTheCSharpStamp()
+    {
+        var bin = Fresh("launcher-stamp");
+        var exe = OperatingSystem.IsWindows() ? ".exe" : "";
+        foreach (var (name, year) in new[] { ("zig", 2020), ("cc", 2021), ("launch", 2022) })
+        {
+            File.WriteAllText(Path.Combine(bin, name + exe), "");
+            File.SetLastWriteTimeUtc(Path.Combine(bin, name + exe), new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        }
+        string[][] commands = [[Path.Combine(bin, "cc" + exe)], ["cc"], ["zig", "cc"], [Path.Combine(bin, "launch" + exe), "cc", "-O2", "nosuch"], ["nosuch"]];
+        foreach (var command in commands)
+        {
+            var expected = With("PATH", bin, () => Toolchain.CompilerStamp(command));
+            Assert.Equal(expected + "\n", Driver(null, [("PATH", bin)], ["stamp", .. command]));
+        }
     }
 
     // ── Lookup and LookupScript (Toolchain.cs:289, :462) ────────────────────────────────────

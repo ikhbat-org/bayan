@@ -204,7 +204,7 @@ string t9Runtime() uses alloc, env => Path.combine(cacheData(), "runtime")
 /// Toolchain.cs:93 `RuntimeObjectName`.
 const runtimeObjectName: string = "bayan-rt.o"
 
-/// Toolchain.cs:193 `CompilerIdentity`: computed once per run and command.
+/// Toolchain.cs:194 `CompilerIdentity`: computed once per run and command.
 string t9CompilerIdentity(in List<string> compiler, through ref DCtx d) uses alloc, clock, env, fs, process {
     let command = ccJoin(in compiler)
     if d.identityKnown && d.identityOf == command { return d.identity }
@@ -214,39 +214,64 @@ string t9CompilerIdentity(in List<string> compiler, through ref DCtx d) uses all
     return d.identity
 }
 
-/// Toolchain.cs:200 `ComputeIdentity`: the output of `zig version` (zig cc) or `<compiler> --version` and the compiler file's
-/// stamp; the command and the stamp when it cannot report its version. `Io.run` without `directory:` runs in the current
-/// directory, as the C#'s `Environment.CurrentDirectory`.
+/// Toolchain.cs:201 `ComputeIdentity`: the output of `zig version` (zig cc) or the whole command with `--version` appended, and
+/// the command's stamp, so a launcher (`xcrun clang`, `ccache gcc`) reports the compiler it runs; the command and the stamp when
+/// it cannot report its version. `Io.run` without `directory:` runs in the current directory, as the C#'s
+/// `Environment.CurrentDirectory`.
 string t9ComputeIdentity(in List<string> compiler) uses alloc, clock, env, fs, process {
-    // Toolchain.cs:202.
+    // Toolchain.cs:203.
     let stamp = t9CompilerStamp(in compiler)
     let zig = compiler.length > 1 && compiler[1] == "cc" && ccWithoutExtension(Path.fileName(compiler[0])) == "zig"
+    // Toolchain.cs:209.
     var args = List<string>()
-    args.append(zig ? "version" : "--version")
+    if zig { args.append("version") } else {
+        for i in 1..compiler.length { args.append(compiler[i]) }
+        args.append("--version")
+    }
     // 30 s, or the compile timeout when that is shorter (Toolchain.cs:207-208).
     let compile = t9CompileTimeout() / 1000000
     // Not a compiler that reports its version; its command stands in.
     let r = Io.run(compiler[0], args.span, timeout: Millis(compile < 30000 ? compile : 30000)) catch switch {
         IoError e => return $"{ccJoin(in compiler)}\0{stamp}",
     }
-    // Toolchain.cs:209, :215.
+    // Toolchain.cs:211, :217.
     if r.exitCode == 0 { return $"{r.stdout}\0{stamp}" }
     return $"{ccJoin(in compiler)}\0{stamp}"
 }
 
-/// Toolchain.cs:222 `CompilerStamp`: the compiler file's path (as given, else as `FindOnPath` found it) and the last write time
-/// of the file it links to, in `DateTime` ticks; empty when there is no such file. `Fs.modified` follows links as stat(2) does,
-/// which is the C#'s `ResolveLinkTarget(returnFinalTarget: true)`.
+/// Toolchain.cs:225 `CompilerStamp`: the compiler file's stamp, followed for a launcher (not zig cc) by the stamp of each later
+/// word that is not a flag and names a file (`clang` in `xcrun clang`), joined by newlines; empty when no word names a file. A
+/// single-word command or zig cc is the compiler file's stamp alone.
 string t9CompilerStamp(in List<string> compiler) uses alloc, env, fs {
-    // Toolchain.cs:224.
-    var file: string? = compiler[0]
-    unless Path.isRooted(compiler[0]) { file = ccFindOnPath(compiler[0], for: Target.os) }
-    // Toolchain.cs:227.
+    // Toolchain.cs:227-229.
+    let zig = compiler.length > 1 && compiler[1] == "cc" && ccWithoutExtension(Path.fileName(compiler[0])) == "zig"
+    var sb = StrBuf()
+    var first = true
+    for i in 0..compiler.length {
+        if i > 0 && (zig || compiler[i].startsWith("-")) { continue }
+        let part = t9FileStamp(compiler[i])
+        if part == "" { continue }
+        // Toolchain.cs:230: the non-empty parts joined by newlines.
+        unless first { sb.append("\n") }
+        sb.append(part)
+        first = false
+    }
+    return sb.finish()
+}
+
+/// Toolchain.cs:237 `FileStamp`: a file's path (as given when rooted, else as `FindOnPath` found it) and the last write time of
+/// the file it links to, in `DateTime` ticks; empty when there is no such file. `Fs.modified` follows links as stat(2) does,
+/// which is the C#'s `ResolveLinkTarget(returnFinalTarget: true)`.
+string t9FileStamp(string word) uses alloc, env, fs {
+    // Toolchain.cs:239.
+    var file: string? = word
+    unless Path.isRooted(word) { file = ccFindOnPath(word, for: Target.os) }
+    // Toolchain.cs:242.
     if (file is { } f) {
         unless Fs.fileExists(f) { return "" }
-        // Toolchain.cs:228-233: an IO error is the empty stamp.
+        // Toolchain.cs:243-248: an IO error is the empty stamp.
         let written = Fs.modified(f) catch return ""
-        // Toolchain.cs:231: ticks count 100 ns from 0001-01-01, which is 621355968000000000 ticks before the Unix epoch.
+        // Toolchain.cs:246: ticks count 100 ns from 0001-01-01, which is 621355968000000000 ticks before the Unix epoch.
         return $"{f}:{621355968000000000 + written.nanos / 100}"
     }
     return ""
