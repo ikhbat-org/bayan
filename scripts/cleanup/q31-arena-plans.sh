@@ -28,10 +28,10 @@ for wt in fix-mutate-arena-per-rebind fix-t10-harness-batches fix-q31-region-cac
   d="$main/.worktrees/$wt"
   if ! git worktree list --porcelain | grep -qxF "worktree $d"; then printf 'skip:  worktree %s not registered\n' "$wt"; continue; fi
   if [ ! -d "$d" ]; then printf 'skip:  worktree %s directory gone (pruned below)\n' "$wt"; continue; fi
-  if [ -n "$(git -C "$d" status --porcelain)" ]; then printf 'refuse: %s has uncommitted changes. Left alone.\n' "$wt"; failed=1; continue; fi
-  head="$(git -C "$d" rev-parse HEAD)"
+  if ! st="$(git -C "$d" status --porcelain)" || ! head="$(git -C "$d" rev-parse HEAD)"; then printf 'refuse: git cannot read worktree %s. Left alone.\n' "$wt"; failed=1; continue; fi
+  if [ -n "$st" ]; then printf 'refuse: %s has uncommitted changes. Left alone.\n' "$wt"; failed=1; continue; fi
   if ! git merge-base --is-ancestor "$head" dev; then printf 'refuse: %s HEAD %s is not in dev. Left alone.\n' "$wt" "${head:0:8}"; failed=1; continue; fi
-  run git worktree remove --force "$d"   # --force: the gitignored tmp/ scratch inside it
+  run git worktree remove "$d"   # no --force: ignored files (tmp/ scratch) do not block it; new changes still do
 done
 run git worktree prune
 
@@ -44,11 +44,11 @@ if [ $execute = 1 ] && [ $remote = 1 ]; then
     [ \"\$was\" = RUNNING ] || incus start bayan-test01
     rc=0; up=0
     for i in \$(seq 1 30); do timeout 10 incus exec bayan-test01 -- true 2>/dev/null && { up=1; break; }; sleep 2; done
-    [ \$up = 1 ] || { echo '  VM agent not ready after 60 s'; rc=1; }
-    timeout 120 incus exec bayan-test01 -- sh -c 'cd /home/bt || exit 0
+    if [ \$up = 1 ]; then timeout 120 incus exec bayan-test01 -- sh -c 'cd /home/bt || exit 0
       [ -e q31 ] && { echo rm -rf /home/bt/q31; rm -rf q31; }
-      for s in $shas; do for d in shard/\$s-* shard/\$s; do [ -e \"\$d\" ] && { echo rm -rf /home/bt/\$d; rm -rf \"\$d\"; }; done; done
+      for s in $shas; do for d in shard/\$s-*; do [ -e \"\$d\" ] && { echo rm -rf /home/bt/\$d; rm -rf \"\$d\"; }; done; done
       for d in q31 \$(for s in $shas; do echo shard/\$s-*; done); do [ -e \"\$d\" ] && { echo \"  still there: /home/bt/\$d\"; exit 1; }; done; exit 0' || { echo '  VM step failed'; rc=1; }
+    else echo '  VM agent not ready after 60 s'; rc=1; fi
     [ \"\$was\" = RUNNING ] || incus stop bayan-test01 || rc=1
     exit \$rc" || failed=1
 else
