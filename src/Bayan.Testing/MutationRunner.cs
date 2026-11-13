@@ -38,7 +38,13 @@ public static class MutationRunner
         foreach (var t in tests)
         {
             var path = Path.Combine(workDir, "reach." + t.ToString(CultureInfo.InvariantCulture));
-            File.Delete(path);
+            // Another process's sweep may have removed the work directory: recreate it, and a delete that loses that race is harmless.
+            try
+            {
+                Directory.CreateDirectory(workDir);
+                File.Delete(path);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
             var outcome = Exec(executable, t, 0, path, baselineTimeout);
             processes++;
             // A pending test (exit 4) is left out without a warning; it is not meant to pass yet.
@@ -49,9 +55,7 @@ public static class MutationRunner
                 continue;
             }
             time[t] = outcome.Elapsed;
-            reach[t] = File.Exists(path)
-                ? File.ReadAllLines(path).Select(l => int.Parse(l, NumberStyles.None, CultureInfo.InvariantCulture)).ToHashSet()
-                : [];
+            reach[t] = ReadReach(path);
         }
         var ran = tests.Where(time.ContainsKey).ToList();
         var results = new List<MutantResult>();
@@ -65,6 +69,13 @@ public static class MutationRunner
             onMutant?.Invoke(result);
         }
         return new MutationResult(results, excluded, processes);
+    }
+
+    /// <summary>The sites a mutant-0 run recorded; none when the file is missing, also when a sweep removed it after the run.</summary>
+    private static HashSet<int> ReadReach(string path)
+    {
+        try { return File.ReadAllLines(path).Select(l => int.Parse(l, NumberStyles.None, CultureInfo.InvariantCulture)).ToHashSet(); }
+        catch (Exception e) when (e is FileNotFoundException or DirectoryNotFoundException) { return []; }
     }
 
     private static MutantResult Mutant(string executable, SchemaSite site, List<int> tests, Dictionary<int, HashSet<int>> reach,
