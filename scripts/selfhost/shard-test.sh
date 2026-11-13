@@ -257,7 +257,7 @@ slice_vm() { # dir sha bundle unit:threads...: one VM start and bundle push, the
     done
     for k in "${!U[@]}"; do D=/home/bt/shard/$s-${IX[k]}; u=shard-$s-${IX[k]}
       echo "systemctl reset-failed $u 2>/dev/null || true"
-      # OOMPolicy=continue: an OOM kill of one test's child (the SelfhostDefaultT10Tests harness peaks at 4.4 GB) fails that test,
+      # OOMPolicy=continue: an OOM kill of one test's child (seen: the T10 harness at 4.4 GB before plan 012, the bootstrap build at 2.6 GB) fails that test,
       # not the unit; the default (stop) killed dotnet test with it and lost the whole slice as MSB4166
       echo "systemd-run -q --unit=$u --uid=bt --gid=bt -p OOMPolicy=continue --working-directory=$D -E HOME=/home/bt /bin/bash $D/run.sh"
     done
