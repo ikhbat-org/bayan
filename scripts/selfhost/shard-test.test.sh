@@ -220,5 +220,22 @@ ok "failed vm setup stops every unit" "$(grep -c "systemctl stop shard-$s8-1 sha
 ok "every clone before the first unit starts" "$(awk '/^systemd-run/ && !r { r = NR } /git clone/ { c = NR } END { print (c && r && c < r) ? "yes" : "no" }' "tmp/shard/$s8/vm.setup.sh")" "yes"
 ok "failed vm setup: both units failed" "$(grep -h '^rc=' "tmp/shard/$s8/vm1.result" "tmp/shard/$s8/vm2.result" | tr '\n' ' ')" "rc=1 rc=1 "
 
+# a finished vm run against a fake ssh (both units done with rc 0, the fetch hands back one trx and a log): the printed weights
+# command names each fetched file with its unit's speed, no glob
+mkdir -p bin3 fakeout/out; : > fakeout/out/chunk1.trx; printf 'Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1\n' > fakeout/out/log
+cat > bin3/ssh <<X
+#!/bin/bash
+case "\$*" in
+  *"incus list"*) echo RUNNING;;
+  *MemAvailable*) printf 'MemAvailable: 20000000 kB\n=== vm1\n---\n0\n---\ninactive\n=== vm2\n---\n0\n---\ninactive\n';;
+  *"-cf - out"*) COPYFILE_DISABLE=1 tar -C "$t/fakeout" -cf - out;;
+esac
+exit 0
+X
+chmod +x bin3/ssh
+SHARD_POLL_S=0 PATH="$t/bin3:$PATH" bash "$S" run --classes q.txt --times q.tsv --host vm=0.5:2 > vm-ok.out 2>&1 || true
+ok "run prints the weights command with each unit's speed and files" "$(grep '^(weights:' vm-ok.out)" \
+  "(weights: bash scripts/selfhost/shard-test.sh times 0.5@tmp/shard/$s8/vm1/out/chunk1.trx 0.5@tmp/shard/$s8/vm2/out/chunk1.trx)"
+
 cd "$root"; rm -rf "$t"
 [ $fail = 0 ] && echo "shard-test.test: all passed" || { echo "shard-test.test: FAILED"; exit 1; }
