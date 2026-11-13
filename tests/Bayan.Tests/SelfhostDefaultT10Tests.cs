@@ -111,8 +111,8 @@ public sealed class SelfhostDefaultT10Tests
     }
 
     /// <summary>
-    /// The generated main over the run inputs, <see cref="BatchSize"/> per process: the self-hosted compiler frees nothing yet, so
-    /// one process over all of them peaked at 4.4 GB and was OOM-killed beside a second test slot in the 11 GiB test VM.
+    /// The generated main over the run inputs, <see cref="BatchSize"/> per process: before each mutant's re-bind got its own arena (plan 012),
+    /// one process over all of them peaked at 4.4 GB and was OOM-killed beside a second test slot in the 11 GiB test VM; it is 179 MB now.
     /// </summary>
     private static (int Exit, string Out, string Err) RunInBatches(string mode, List<string> inputs)
     {
