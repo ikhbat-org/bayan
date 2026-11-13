@@ -340,9 +340,10 @@ public sealed class SelfhostDefaultBoundsTests
     //   summary arena off   check 557 / 644 MB,  emit-c 839 / 958 MB
     //   plan 013 (before)   check 743 / 841 MB,  emit-c 1,026 / 1,155 MB
     // Bound = this host's after figure + half the smaller single-arena saving (about 80 MB), rounded, so either arena reverted
-    // fails it. One bound for both hosts would sit within 5 MB of macOS's summary-off figure, hence one per OS.
+    // fails it. One bound for both hosts would sit within 5 MB of macOS's summary-off figure, hence one per OS. Sampled by
+    // PeakSampler on macOS with an arena reverted: region 578 MB, summary 550 MB. emit-c has no bound: sampled on macOS
+    // with the summary arena reverted it read 765 MB against 760, too close to tell a revert from noise.
     private static readonly long CheckPeakBoundMb = OperatingSystem.IsMacOS() ? 480 : 560;
-    private static readonly long EmitCPeakBoundMb = OperatingSystem.IsMacOS() ? 760 : 870;
 
     // measured after the arenas, 64 files of 4 MB: doctor 33 MB on macOS, 15 MB on Linux; before: 543 MB and 514 MB.
     // bound = 3x the larger, rounded up.
@@ -350,22 +351,16 @@ public sealed class SelfhostDefaultBoundsTests
 
     /// <summary>Q31: <c>summarizeRegions</c> and each template's <c>analyzeRegions</c> run in arenas (plans 013, 014), so checking the driver stays bounded.</summary>
     [Fact]
-    public void CheckOfTheDriverStaysBounded() => DriverStaysBounded("check-driver", CheckPeakBoundMb, "check");
-
-    /// <summary>Q31: as <see cref="CheckOfTheDriverStaysBounded"/>, through emit (bayan alone; <c>build -o</c> would also count the C compiler).</summary>
-    [Fact]
-    public void EmitCOfTheDriverStaysBounded() => DriverStaysBounded("emit-c-driver", EmitCPeakBoundMb, "build", "--emit-c", "--mode", "safe");
-
-    private static void DriverStaysBounded(string name, long boundMb, params string[] command)
+    public void CheckOfTheDriverStaysBounded()
     {
-        var dir = Fresh(name);
+        var dir = Fresh("check-driver");
         var psi = new ProcessStartInfo(BootstrapTests.Stage2Executable()) { WorkingDirectory = Golden.RepoRoot };
         psi.Environment["BAYAN_CACHE"] = Path.Combine(dir, "cache");
-        foreach (var a in command.Concat(new[] { "--package", "selfhost", "selfhost/driver" })) psi.ArgumentList.Add(a);
+        foreach (var a in new[] { "check", "--package", "selfhost", "selfhost/driver" }) psi.ArgumentList.Add(a);
         var (exit, _, stderr, peak) = PeakSampler.Run(psi);
         Assert.True(exit == 0, stderr);
         Assert.True(peak > 0, "no working-set sample was taken");
-        Assert.True(peak < boundMb * 1024 * 1024, $"{string.Join(' ', command)} of selfhost/driver peaked at {peak / (1024 * 1024)} MB, bound {boundMb} MB");
+        Assert.True(peak < CheckPeakBoundMb * 1024 * 1024, $"check of selfhost/driver peaked at {peak / (1024 * 1024)} MB, bound {CheckPeakBoundMb} MB");
     }
 
     /// <summary>Q31: <c>cacheStats</c> and <c>t1FileExists</c> read each cached file in an arena, so <c>doctor</c> does not grow with the cache.</summary>
