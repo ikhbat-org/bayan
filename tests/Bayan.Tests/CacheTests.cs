@@ -215,6 +215,8 @@ public sealed class CacheTests
             foreach (var r in results) Ok(r);
             var stats = Toolchain.Stats();
             Assert.Equal(2, stats.Programs);
+            // The debug and safe builds race for two runtime keys; each has one entry.
+            Assert.Equal(2, RuntimeEntries(root).Length);
             Assert.False(Directory.Exists(Path.Combine(root, "cache", "v1", "tmp")) && Directory.EnumerateFileSystemEntries(Path.Combine(root, "cache", "v1", "tmp")).Any());
             foreach (var project in new[] { a, b })
                 foreach (var mode in new[] { "debug", "safe" })
@@ -300,6 +302,7 @@ public sealed class CacheTests
             Assert.StartsWith($"cache:    {Path.Combine(root, "cache")}\nprograms: 1 (", stdout);
             Assert.EndsWith("scripts:  0\n", stdout);
             Assert.Equal(CliApp.ExitUsage, Run("cache").Exit);
+            Assert.Single(RuntimeEntries(root));
             var saved = Environment.CurrentDirectory;
             try
             {
@@ -311,6 +314,7 @@ public sealed class CacheTests
                 Environment.CurrentDirectory = saved;
             }
             Assert.Equal(0, Toolchain.Stats().Programs);
+            Assert.Empty(RuntimeEntries(root));
             Assert.True(File.Exists(Exe(app)));
         });
     }
@@ -330,6 +334,156 @@ public sealed class CacheTests
             Assert.Contains($"removed {Toolchain.CacheData}", stdout);
             Assert.False(Directory.Exists(Toolchain.CacheData));
             Assert.True(File.Exists(unrelated));
+        });
+    }
+
+    private static string[] RuntimeEntries(string root) =>
+        Directory.Exists(Path.Combine(root, "cache", "v1", "runtime")) ? Directory.GetDirectories(Path.Combine(root, "cache", "v1", "runtime")) : [];
+
+    /// <summary>
+    /// A <c>/bin/sh</c> wrapper at <c>&lt;root&gt;/logcc</c> that appends its argv to <c>&lt;root&gt;/cc.log</c> and runs the real C compiler;
+    /// <c>--version</c> prints <paramref name="version"/>. The <c>BAYAN_CC</c> that runs it.
+    /// </summary>
+    private static string LoggingCompiler(string root, string version = "logcc 1")
+    {
+        var real = Toolchain.FindCompiler() ?? throw new InvalidOperationException("no C compiler");
+        var wrapper = Path.Combine(root, "logcc");
+        var log = Path.Combine(root, "cc.log");
+        var command = string.Join(" ", real.Select(a => $"'{a}'"));
+        File.WriteAllText(wrapper, $"#!/bin/sh\nif [ \"$1\" = --version ]; then echo '{version}'; exit 0; fi\nprintf '%s\\n' \"$*\" >> '{log}'\nexec {command} \"$@\"\n");
+        File.SetUnixFileMode(wrapper, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        return wrapper;
+    }
+
+    /// <summary>Makes <paramref name="app"/> another program: it greets <c>Hello, other!</c>.</summary>
+    private static void Other(string app)
+    {
+        foreach (var file in Directory.GetFiles(Path.Combine(app, "src"), "*.byn"))
+            File.WriteAllText(file, File.ReadAllText(file).Replace("Hello, world!", "Hello, other!"));
+    }
+
+    private static int RuntimeCompiles(string root) =>
+        File.Exists(Path.Combine(root, "cc.log")) ? File.ReadAllLines(Path.Combine(root, "cc.log")).Count(l => l.Split(' ').Contains("-c")) : 0;
+
+    [Fact]
+    public void TheRuntimeIsCompiledOncePerFlagSet()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-shared");
+        var a = NewApp(Path.Combine(root, "a"));
+        var b = NewApp(Path.Combine(root, "b"));
+        Other(b);
+        WithCache(root, () =>
+        {
+            Ok(Run("build", a));
+            Ok(Run("build", b));
+            Assert.Equal(1, RuntimeCompiles(root));
+            Assert.Single(RuntimeEntries(root));
+            Assert.Equal(2, Toolchain.Stats().Programs);
+            Ok(Run("build", a, "--mode", "debug"));
+            Assert.Equal(2, RuntimeCompiles(root));
+            Assert.Equal(2, RuntimeEntries(root).Length);
+            Assert.Equal("Hello, world!\n", Output(Exe(a)));
+            Assert.Equal("Hello, other!\n", Output(Exe(b)));
+        }, ("BAYAN_CC", LoggingCompiler(root)));
+    }
+
+    [Fact]
+    public void ADamagedRuntimeObjectIsRebuilt()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-damaged");
+        var a = NewApp(Path.Combine(root, "a"));
+        var b = NewApp(Path.Combine(root, "b"));
+        Other(b);
+        WithCache(root, () =>
+        {
+            Ok(Run("build", a));
+            var obj = Path.Combine(RuntimeEntries(root).Single(), "bayan-rt.o");
+            File.WriteAllBytes(obj, [1, 2, 3]);
+            Ok(Run("build", b));
+            Assert.Equal(2, RuntimeCompiles(root));
+            Assert.Equal(File.ReadAllText(obj + ".sha256"), Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(obj))) + "\n");
+            Assert.Equal("Hello, other!\n", Output(Exe(b)));
+        }, ("BAYAN_CC", LoggingCompiler(root)));
+    }
+
+    /// <summary>
+    /// The identity is computed once per process, so each build is a CLI process of its own: the same <c>BAYAN_CC</c> path with a
+    /// new <c>--version</c> misses the program and the runtime key; the same identity again hits both.
+    /// </summary>
+    [Fact]
+    public void ADifferentCompilerIdentityMissesTheKeys()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-identity");
+        var app = NewApp(root);
+        int Build()
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
+            psi.ArgumentList.Add(typeof(CliApp).Assembly.Location);
+            psi.ArgumentList.Add("build");
+            psi.ArgumentList.Add(app);
+            psi.Environment["BAYAN_CACHE"] = Path.Combine(root, "cache");
+            psi.Environment["BAYAN_CC"] = Path.Combine(root, "logcc");
+            using var p = System.Diagnostics.Process.Start(psi)!;
+            var stdout = p.StandardOutput.ReadToEndAsync();
+            var stderr = p.StandardError.ReadToEndAsync();
+            p.WaitForExit();
+            Assert.True(p.ExitCode == 0, stdout.Result + stderr.Result);
+            return Directory.GetDirectories(Path.Combine(root, "cache", "v1", "programs")).Length;
+        }
+        LoggingCompiler(root, "logcc 1");
+        Assert.Equal(1, Build());
+        Assert.Equal(1, Build());
+        Assert.Single(RuntimeEntries(root));
+        LoggingCompiler(root, "logcc 2");
+        Assert.Equal(2, Build());
+        Assert.Equal(2, RuntimeEntries(root).Length);
+        Assert.Equal(2, Build());
+        Assert.Equal(2, RuntimeCompiles(root));
+        Assert.Equal("Hello, world!\n", Output(Exe(app)));
+    }
+
+    [Fact]
+    public void AsanAndCrossBuildsGetTheirOwnRuntime()
+    {
+        var root = Root("runtime-variants");
+        const string c = "int main(void) { return 0; }\n";
+        WithCache(root, () =>
+        {
+            Assert.True(Toolchain.Build(c, BuildMode.Debug).Succeeded);
+            Assert.Single(RuntimeEntries(root));
+            var expected = 1;
+            if (Toolchain.AsanAvailable)
+            {
+                var asan = Toolchain.Build(c, BuildMode.Debug, sanitize: true);
+                Assert.True(asan.Succeeded, asan.Errors);
+                Assert.Equal(++expected, RuntimeEntries(root).Length);
+            }
+            if (Toolchain.FindCompiler() is { } compiler && Path.GetFileNameWithoutExtension(compiler[0]) == "zig")
+            {
+                var cross = Toolchain.Build(c, BuildMode.Debug, target: Targets.Host == "linux-x64" ? "linux-arm64" : "linux-x64");
+                Assert.True(cross.Succeeded, cross.Errors);
+                Assert.Equal(++expected, RuntimeEntries(root).Length);
+            }
+            Assert.Equal(expected, Toolchain.Stats().Programs);
+        });
+    }
+
+    /// <summary>A runtime entry counts against the cap like a program: one entry allowed, the older (the runtime) goes.</summary>
+    [Fact]
+    public void EvictionRemovesRuntimeEntries()
+    {
+        var root = Root("runtime-evict");
+        WithCache(root, () =>
+        {
+            Assert.True(Toolchain.Build("int main(void) { return 0; }\n", BuildMode.Safe).Succeeded);
+            var runtime = RuntimeEntries(root).Single();
+            Directory.SetLastWriteTimeUtc(runtime, DateTime.UtcNow.AddHours(-2));
+            Toolchain.Evict("none", long.MaxValue, 1, TimeSpan.FromMinutes(10));
+            Assert.Empty(RuntimeEntries(root));
+            Assert.Equal(1, Toolchain.Stats().Programs);
         });
     }
 

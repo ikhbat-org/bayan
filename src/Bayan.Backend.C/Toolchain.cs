@@ -87,6 +87,11 @@ public static class Toolchain
 
     private static string Scripts => Path.Combine(CacheData, "scripts");
 
+    /// <summary><c>runtime/&lt;rkey&gt;/</c> holds <c>bayan-rt.o</c>, the runtime compiled once per C compiler and flag set.</summary>
+    private static string Runtime => Path.Combine(CacheData, "runtime");
+
+    private const string RuntimeObjectName = "bayan-rt.o";
+
     private static string Staging => Path.Combine(CacheData, "tmp");
 
     public static bool TryParseMode(string text, out BuildMode mode)
@@ -178,6 +183,44 @@ public static class Toolchain
         return null;
     }
 
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> identities = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// What the C compiler is, beyond its command, computed once per process and command: the output of <c>zig version</c> (zig cc)
+    /// or <c>&lt;compiler&gt; --version</c>, and the SHA-256 of the compiler's file, so an in-place upgrade misses every key. A
+    /// compiler that cannot report its version (a wrapper script) is its command and the hash.
+    /// </summary>
+    internal static string CompilerIdentity(string[] compiler)
+    {
+        // A process sees a handful of compilers; the bound only guards a host that keeps changing BAYAN_CC.
+        if (identities.Count > 64) identities.Clear();
+        return identities.GetOrAdd(string.Join(" ", compiler), _ => ComputeIdentity(compiler));
+    }
+
+    private static string ComputeIdentity(string[] compiler)
+    {
+        var file = Path.IsPathRooted(compiler[0]) ? compiler[0] : FindOnPath(compiler[0]);
+        var hash = "";
+        try
+        {
+            if (file is not null && File.Exists(file)) hash = HashFile(file);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        var zig = compiler.Length > 1 && compiler[1] == "cc" && Path.GetFileNameWithoutExtension(compiler[0]) == "zig";
+        try
+        {
+            // 30 s, or the compile timeout when that is shorter: a hung compiler fails the build within its limit.
+            var limit = CompileTimeout < TimeSpan.FromSeconds(30) ? CompileTimeout : TimeSpan.FromSeconds(30);
+            var (code, stdout, _) = Exec(compiler[0], [zig ? "version" : "--version"], Environment.CurrentDirectory, limit);
+            if (code == 0) return stdout + "\0" + hash;
+        }
+        catch (Exception e) when (e is System.ComponentModel.Win32Exception or IOException or UnauthorizedAccessException)
+        {
+            // Not a compiler that reports its version; its command stands in.
+        }
+        return string.Join(" ", compiler) + "\0" + hash;
+    }
+
     public static string? FindOnPath(string name)
     {
         var exts = OperatingSystem.IsWindows() ? new[] { ".exe", ".cmd", ".bat" } : new[] { "" };
@@ -234,13 +277,15 @@ public static class Toolchain
             _ => ["-O2", "-DBYN_NDEBUG"],
         });
         if (asan) flags.AddRange(["-fsanitize=address", "-fno-omit-frame-pointer", "-g"]);
-        var key = Hash(string.Join("\0", CompilerVersion, mode, target, string.Join(" ", compiler), string.Join(" ", flags), RuntimeHeader, RuntimeSource, cSource));
+        var identity = CompilerIdentity(compiler);
+        var key = Hash(string.Join("\0", CompilerVersion, mode, target, string.Join(" ", compiler), identity, string.Join(" ", flags), RuntimeHeader, RuntimeSource, cSource));
         var hit = Lookup(key, exeName) is not null;
         if (!hit)
         {
             try
             {
-                var failure = Compile(compiler, flags, cSource, key, exeName, windows: targetOs.StartsWith("windows", StringComparison.Ordinal));
+                var (runtime, failure) = RuntimeObject(compiler, flags, identity);
+                failure ??= Compile(compiler, flags, cSource, key, exeName, runtime!, windows: targetOs.StartsWith("windows", StringComparison.Ordinal));
                 if (failure is not null) return new NativeBuild(null, failure, Rejected: true);
             }
             catch (System.ComponentModel.Win32Exception e)
@@ -286,11 +331,16 @@ public static class Toolchain
     }
 
     /// <summary>The cached executable for <paramref name="key"/> if it is intact; a damaged entry is removed.</summary>
-    public static string? Lookup(string key, string exeName)
+    public static string? Lookup(string key, string exeName) => LookupEntry(Path.Combine(Programs, key), exeName, "program.sha256");
+
+    /// <summary>The cached runtime object for <paramref name="runtimeKey"/> if it is intact; a damaged entry is removed.</summary>
+    internal static string? LookupRuntime(string runtimeKey) => LookupEntry(Path.Combine(Runtime, runtimeKey), RuntimeObjectName, RuntimeObjectName + ".sha256");
+
+    /// <summary><paramref name="file"/> in the entry <paramref name="dir"/> if its SHA-256 is the one in <paramref name="sumName"/>; a damaged entry is removed.</summary>
+    private static string? LookupEntry(string dir, string file, string sumName)
     {
-        var dir = Path.Combine(Programs, key);
-        var exe = Path.Combine(dir, exeName);
-        var sum = Path.Combine(dir, "program.sha256");
+        var exe = Path.Combine(dir, file);
+        var sum = Path.Combine(dir, sumName);
         if (!Directory.Exists(dir)) return null;
         try
         {
@@ -308,8 +358,55 @@ public static class Toolchain
         return null;
     }
 
-    /// <summary>Builds into a private directory, then renames it to <c>programs/&lt;key&gt;</c>; null on success.</summary>
-    private static string? Compile(string[] compiler, List<string> flags, string cSource, string key, string exeName, bool windows)
+    /// <summary>
+    /// The runtime compiled with <paramref name="flags"/> (target, mode and sanitizer included) by <paramref name="compiler"/>: from
+    /// <c>runtime/&lt;rkey&gt;/</c>, else compiled with <c>-c</c> in a private directory and renamed into place as programs are.
+    /// The object's path, or the C compiler's complaint.
+    /// </summary>
+    private static (string? Path, string? Failure) RuntimeObject(string[] compiler, List<string> flags, string identity)
+    {
+        var rkey = Hash(string.Join("\0", "runtime", identity, string.Join(" ", compiler), string.Join(" ", flags), RuntimeHeader, RuntimeSource));
+        if (LookupRuntime(rkey) is { } found) return (found, null);
+        TagCacheDirectory();
+        var work = Path.Combine(Staging, rkey[..16] + "-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(work);
+        try
+        {
+            File.WriteAllText(Path.Combine(work, "bayan-rt.h"), RuntimeHeader);
+            File.WriteAllText(Path.Combine(work, "bayan-rt.c"), RuntimeSource);
+            var args = new List<string>(compiler[1..]);
+            args.AddRange(flags);
+            // Debug info names `bayan-rt.c`, not this temporary directory.
+            args.AddRange(["-c", "-ffile-prefix-map=" + work + "=.", "-I", ".", "bayan-rt.c", "-o", RuntimeObjectName]);
+            var limit = CompileTimeout;
+            var (code, stdout, stderr) = Exec(compiler[0], args, work, limit);
+            if (code == -1)
+                return (null, $"C compiler timed out after {limit.TotalSeconds:0} s and was killed (set BAYAN_CC_TIMEOUT_S to allow longer)");
+            var obj = Path.Combine(work, RuntimeObjectName);
+            if (code != 0 || !File.Exists(obj))
+                return (null, $"C compiler failed (exit {code}):\n{stdout}{stderr}");
+            foreach (var file in Directory.EnumerateFiles(work))
+                if (Path.GetFileName(file) != RuntimeObjectName) File.Delete(file);
+            File.WriteAllText(Path.Combine(work, RuntimeObjectName + ".sha256"), HashFile(obj) + "\n");
+            Directory.CreateDirectory(Runtime);
+            try
+            {
+                Directory.Move(work, Path.Combine(Runtime, rkey));
+            }
+            catch (IOException) when (LookupRuntime(rkey) is not null)
+            {
+                // Another build compiled the same runtime first; its object is as good as ours.
+            }
+            return (Path.Combine(Runtime, rkey, RuntimeObjectName), null);
+        }
+        finally
+        {
+            if (Directory.Exists(work)) Discard(work);
+        }
+    }
+
+    /// <summary>Builds into a private directory, linking <paramref name="runtime"/>, then renames it to <c>programs/&lt;key&gt;</c>; null on success.</summary>
+    private static string? Compile(string[] compiler, List<string> flags, string cSource, string key, string exeName, string runtime, bool windows)
     {
         TagCacheDirectory();
         var work = Path.Combine(Staging, key[..16] + "-" + Guid.NewGuid().ToString("N"));
@@ -317,12 +414,11 @@ public static class Toolchain
         try
         {
             File.WriteAllText(Path.Combine(work, "bayan-rt.h"), RuntimeHeader);
-            File.WriteAllText(Path.Combine(work, "bayan-rt.c"), RuntimeSource);
             File.WriteAllText(Path.Combine(work, CEmitter.GeneratedFile), cSource);
             var args = new List<string>(compiler[1..]);
             args.AddRange(flags);
             // Debug info names `main.c`, not this temporary directory.
-            args.AddRange(["-ffile-prefix-map=" + work + "=.", "-I", ".", CEmitter.GeneratedFile, "bayan-rt.c", "-o", exeName]);
+            args.AddRange(["-ffile-prefix-map=" + work + "=.", "-I", ".", CEmitter.GeneratedFile, runtime, "-o", exeName]);
             // `CommandLineToArgvW` (program arguments) is in shell32.
             args.Add(windows ? "-lshell32" : "-lm");
             var limit = CompileTimeout;
@@ -365,7 +461,7 @@ public static class Toolchain
     }
 
     /// <summary>
-    /// Trims the program cache to <c>$BAYAN_CACHE_MAX_MB</c> (2 GiB; 0 for no cap) and 4000 entries, least recently
+    /// Trims the program and runtime cache to <c>$BAYAN_CACHE_MAX_MB</c> (2 GiB; 0 for no cap) and 4000 entries, least recently
     /// used first, then drops script pointers whose program is gone. <paramref name="keep"/> and any entry used
     /// within <paramref name="minAge"/> (a concurrent build may be running it) are never removed.
     /// </summary>
@@ -380,7 +476,10 @@ public static class Toolchain
     {
         try
         {
-            var entries = Directory.EnumerateDirectories(Programs).Select(d => new DirectoryInfo(d))
+            // Runtime objects share the cap and the LRU order with programs.
+            var dirs = Directory.EnumerateDirectories(Programs);
+            if (Directory.Exists(Runtime)) dirs = dirs.Concat(Directory.EnumerateDirectories(Runtime));
+            var entries = dirs.Select(d => new DirectoryInfo(d))
                 .Select(d => (Dir: d, Used: d.LastWriteTimeUtc, Size: d.EnumerateFiles().Sum(f => f.Length)))
                 .OrderBy(e => e.Used).ToList();
             var count = entries.Count;

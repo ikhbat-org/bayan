@@ -46,7 +46,8 @@ public sealed class SelfhostDefaultT9Tests
                     if args[3] != targetHost() { triple = targetTriple(args[3]) }
                 }
                 let flags = ccFlags(args[2], for: triple)
-                Io.stdout.write($"{t9Key(args[2], for: target, by: in compiler, through: in flags, from: source)}\n")
+                let identity = t9CompilerIdentity(in compiler, through: ref d)
+                Io.stdout.write($"{t9Key(args[2], for: target, by: in compiler, as: identity, through: in flags, from: source)}\n")
                 return 0
             }
             if args[0] == "scriptkey" {
