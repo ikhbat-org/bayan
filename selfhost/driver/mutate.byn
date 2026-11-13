@@ -62,7 +62,7 @@ struct T13Outcome {
 
 /// CliApp.cs:855 `MutateTests`: one schemata build, then every mutant run against the tests that reach it, a line per mutant and
 /// the totals; the site map is written beside the binary.
-i32 mutateTests(in T11Options o, through ref semantics.Ctx compiled, by ref DCtx d) uses alloc, clock, console, env, fs, process {
+i32 mutateTests(in T11Options o, through ref semantics.Ctx compiled, by ref DCtx d) uses alloc, clock, console, env, fs, process, random {
     let none = List<string>()
     var schema = emitter.buildSchema(ref compiled, for: in none)
     let sites = emitter.sitesJson(in schema)

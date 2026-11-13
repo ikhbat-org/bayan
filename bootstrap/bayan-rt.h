@@ -512,6 +512,8 @@ uint32_t byn_io_run_batch(byn_str path, const byn_str* args, int64_t nargs, byn_
 /* `Io.stdout.write` (fd 1, buffered with print) and `Io.stderr.write` (fd 2). No newline. */
 void byn_io_write(int32_t fd, byn_str s);
 int64_t byn_io_monotonic_nanos(void);
+/* `Io.randomU64`: 8 bytes from the operating system's CSPRNG (the hash seed's source); panics if it cannot be read. */
+uint64_t byn_io_random_u64(void);
 
 /* ── StrBuf ──────────────────────────────────────────────────────────────── */
 
