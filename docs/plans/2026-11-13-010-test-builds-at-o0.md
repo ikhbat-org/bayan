@@ -1,6 +1,6 @@
 # 010 — Test builds at -O0
 
-Status: approved by the user 2026-11-13, gated on step 1 (build steps 2–4 only if the suite is ≥10% faster with no new failures). Decisions: `bayan test` for users stays -O2; merge gates at -O0, nightly, release and laws at -O2 (the recommendations). Builds on plan 009 (prebuilt runtime object). Measurements: tmp/bench (m2, m3).
+Status: closed 2026-11-13, gate failed at step 1 (see Result). Was: approved by the user 2026-11-13, gated on step 1 (build steps 2–4 only if the suite is ≥10% faster with no new failures). Decisions: `bayan test` for users stays -O2; merge gates at -O0, nightly, release and laws at -O2 (the recommendations). Builds on plan 009 (prebuilt runtime object). Measurements: tmp/bench (m2, m3).
 
 ## Why
 
@@ -34,3 +34,15 @@ Cost on the other side: an -O0 program runs slower. m2 measured the five compile
 
 - Should `bayan test` (the user-facing command) also default to -O0 for the programs it builds, or stay -O2 (recommended: stay -O2; users opt in with `BAYAN_OPT=0`)?
 - Is a test suite that runs at -O0 on merge gates and at -O2 only nightly and on release acceptable (recommended: yes; an -O2-only bug surfaces within a day, never in a release)?
+
+## Result (2026-11-13)
+
+Gate failed; steps 2–4 not built. One ABAB pair of full sharded runs on bayan-test01 (18 GiB RAM, 8 threads for the measurement, back to 12 GiB after):
+
+| run | flags | wall | failures |
+|---|---|---|---|
+| A | -O2 (today) | 1334 s | 20 |
+| B | -O0 | 1416 s | 200, mostly OOM (exit 137) |
+
+-O0 was 6% slower, not ≥10% faster, and its larger test binaries pushed GB-scale memory into OOM kills. One pair, not the 5-run protocol: the gap and the failure count settle the gate without more runs.
+
