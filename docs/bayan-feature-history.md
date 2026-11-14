@@ -25,7 +25,7 @@ Releases:
 |---|---|---|
 | 0.1.0 | 2026-11-02 | tag `v0.1.0`; `CHANGELOG.md` [0.1.0]; milestones M0–M12 (`docs/bayan-milestones.md`) |
 | 0.2.0 | 2026-11-07 (tag); 2026-11-06 in `CHANGELOG.md` | tag `v0.2.0`; `CHANGELOG.md` [0.2.0] |
-| 0.3.0 | 2026-11-14 | `CHANGELOG.md` [0.3.0]; no `v0.3.0` tag in this checkout |
+| 0.3.0 | 2026-11-15 (tag); 2026-11-14 in `CHANGELOG.md` | tag `v0.3.0`; `CHANGELOG.md` [0.3.0] |
 
 Design sources:
 `docs/bayan-design-round-2.md` (round 2),
