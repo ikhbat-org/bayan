@@ -88,6 +88,15 @@ MOVED=$(git -C "$WT" rev-parse HEAD)
 (eval "$CMD") >/dev/null 2>&1 && fail "moved worktree branch: the command did not refuse"
 [ "$(git -C "$R" rev-parse feat/wt)" = "$MOVED" ] || fail "moved worktree branch: the new commit is gone"
 
+# E. origin/dev fetched ahead of the local dev: refused before anything, the reason printed
+fresh; git -C "$R" checkout -q --detach dev; printf 'o\n' > "$R/o.txt"; git -C "$R" add -A
+me git -C "$R" commit -q -m "feat: on origin only"; git -C "$R" update-ref refs/remotes/origin/dev HEAD; git -C "$R" checkout -q side
+S0=$(state); GIT_ALLOW_PROTECTED=1 run --execute --rewrite-history
+[ "$RC" -eq 1 ] || fail "origin ahead: exit $RC"
+case "$OUT" in *"refuse: origin/dev has commits the local dev lacks"*) ;; *) fail "origin ahead: $OUT" ;; esac
+[ "$(state)" = "$S0" ] || fail "origin ahead: the repository changed"
+[ -e "$FX/backup.git" ] && fail "origin ahead: made a backup"
+
 # C. one flag only: exit 2; an existing backup: exit 1
 fresh; S0=$(state)
 GIT_ALLOW_PROTECTED=1 run --execute; [ "$RC" -eq 2 ] || fail "--execute alone: exit $RC"

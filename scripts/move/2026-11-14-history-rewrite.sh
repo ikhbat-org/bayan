@@ -124,6 +124,15 @@ remap() {
 # mapsha <sha>: the rewritten SHA of a commit of the repository (empty if not in the commit-map)
 mapsha() { awk -v o="$1" '$1 == o { print $2 }' "$TRIAL/filter-repo/commit-map"; }
 
+# a fetched origin commit the local dev/main lacks is not in the rewrite, and the push would drop it
+for b in dev main; do
+  ob=$(git rev-parse -q --verify "refs/remotes/origin/$b" 2>/dev/null || true)
+  lb=$(git rev-parse -q --verify "refs/heads/$b" 2>/dev/null || true)
+  if [ -n "$ob" ] && [ -n "$lb" ] && ! git merge-base --is-ancestor "$ob" "$lb"; then
+    say "refuse: origin/$b has commits the local $b lacks; merge them into $b, then rerun. Nothing changed."; exit 1
+  fi
+done
+
 # ---- rehearsal (both modes) -----------------------------------------------------------------
 if [ "$EXEC" -eq 1 ]; then
   say "run: backup mirror -> $BACKUP"
@@ -210,8 +219,9 @@ for br in $(git -C "$CLONE" for-each-ref --format='%(refname:short)' refs/heads)
   if [ -z "$old" ] && [ "$br" != "$SHAB" ]; then say "skip: $br is only on origin; not created"; continue; fi
   wt=$(awk -F'\t' -v b="$br" '$1 == b { print $2; exit }' "$WTB")
   if [ -n "$wt" ]; then
-    MANUAL="$MANUAL  [ \"\$(git -C $wt rev-parse HEAD)\" = $old ] && git -C $wt reset -q --keep $new   # $br; keeps uncommitted changes, refuses if $br moved"$'\n'
-    printf '[ "$(git -C %q rev-parse HEAD)" = %s ] && git -C %q reset -q --keep %s || echo "left: %s is not at the rewritten tip"\n' "$wt" "$new" "$wt" "$old" "$br" >> "$UNDOF"
+    allow=""; case "$br" in dev|main) allow="GIT_ALLOW_PROTECTED=1 " ;; esac
+    MANUAL="$MANUAL  [ \"\$(git -C $wt rev-parse HEAD)\" = $old ] && ${allow}git -C $wt reset -q --keep $new   # $br; keeps uncommitted changes, refuses if $br moved"$'\n'
+    printf '[ "$(git -C %q rev-parse HEAD)" = %s ] && %sgit -C %q reset -q --keep %s || echo "left: %s not reset (not at the rewritten tip, or uncommitted changes in the way)"\n' "$wt" "$new" "$allow" "$wt" "$old" "$br" >> "$UNDOF"
     continue
   fi
   if [ -n "$old" ]; then
@@ -246,7 +256,8 @@ if [ -n "$MANUAL" ]; then say "checked out in a worktree, left as is (yours; und
 REFS="" LEASES=""
 for b in dev main; do
   git -C "$CLONE" rev-parse -q --verify "refs/heads/$b" >/dev/null || continue
-  REFS="$REFS $b"; LEASES="$LEASES --force-with-lease=refs/heads/$b:$(git rev-parse -q --verify "refs/remotes/origin/$b" 2>/dev/null || true)"
+  ob=$(git rev-parse -q --verify "refs/remotes/origin/$b" 2>/dev/null || true)
+  REFS="$REFS $b"; LEASES="$LEASES --force-with-lease=refs/heads/$b:$ob"
 done
 while read -r r s; do
   o=$(awk -v r="$r" '$1 == r { print $2 }' "$OLDREFS")
