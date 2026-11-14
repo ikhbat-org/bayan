@@ -97,6 +97,17 @@ case "$OUT" in *"refuse: origin/dev has commits the local dev lacks"*) ;; *) fai
 [ "$(state)" = "$S0" ] || fail "origin ahead: the repository changed"
 [ -e "$FX/backup.git" ] && fail "origin ahead: made a backup"
 
+# F. a fetch during the run moves origin/dev: the printed lease keeps the value checked before the rehearsal
+fresh; OD0=$(git -C "$R" rev-parse refs/remotes/origin/dev)
+git -C "$R" checkout -q --detach dev; printf 'f\n' > "$R/f.txt"; git -C "$R" add -A
+me git -C "$R" commit -q -m "feat: fetched mid-run"; LATER=$(git -C "$R" rev-parse HEAD); git -C "$R" checkout -q side
+printf '#!/bin/sh\n[ -e "%s/moved" ] && exit 0\n: > "%s/moved"\ngit update-ref refs/remotes/origin/dev %s\n' "$FX" "$FX" "$LATER" > "$FX/hooks/reference-transaction"
+chmod +x "$FX/hooks/reference-transaction"
+GIT_ALLOW_PROTECTED=1 run --execute --rewrite-history
+[ "$(git -C "$R" rev-parse refs/remotes/origin/dev)" = "$LATER" ] || fail "mid-run fetch: the fixture hook did not move origin/dev"
+printf '%s\n' "$OUT" | grep -q -- "--force-with-lease=refs/heads/dev:$OD0 " || fail "mid-run fetch: the lease is not the checked value: $OUT"
+rm -f "$FX/hooks/reference-transaction"
+
 # C. one flag only: exit 2; an existing backup: exit 1
 fresh; S0=$(state)
 GIT_ALLOW_PROTECTED=1 run --execute; [ "$RC" -eq 2 ] || fail "--execute alone: exit $RC"

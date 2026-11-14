@@ -124,9 +124,11 @@ remap() {
 # mapsha <sha>: the rewritten SHA of a commit of the repository (empty if not in the commit-map)
 mapsha() { awk -v o="$1" '$1 == o { print $2 }' "$TRIAL/filter-repo/commit-map"; }
 
-# a fetched origin commit the local dev/main lacks is not in the rewrite, and the push would drop it
+# a fetched origin commit the local dev/main lacks is not in the rewrite, and the push would drop it;
+# the push leases on the origin values checked here (ORIGIN_dev, ORIGIN_main), not on a later fetch
 for b in dev main; do
   ob=$(git rev-parse -q --verify "refs/remotes/origin/$b" 2>/dev/null || true)
+  printf -v "ORIGIN_$b" '%s' "$ob"
   lb=$(git rev-parse -q --verify "refs/heads/$b" 2>/dev/null || true)
   if [ -n "$ob" ] && [ -n "$lb" ] && ! git merge-base --is-ancestor "$ob" "$lb"; then
     say "refuse: origin/$b has commits the local $b lacks; merge them into $b, then rerun. Nothing changed."; exit 1
@@ -252,11 +254,11 @@ if [ -n "$WT1" ]; then
 fi
 say "ok: $FETCHED branch(es) and the tags moved to the rewritten history; $SKIPPED skipped; $CHANGED commits have new SHAs. Nothing pushed."
 if [ -n "$MANUAL" ]; then say "checked out in a worktree, left as is (yours; undo.sh covers them):"; printf '%s' "$MANUAL"; fi
-# each push leases on origin's value as this repository last saw it, so a push made since is not overwritten
+# each push leases on origin's value checked before the rehearsal, so a push or fetch made since is not overwritten
 REFS="" LEASES=""
 for b in dev main; do
   git -C "$CLONE" rev-parse -q --verify "refs/heads/$b" >/dev/null || continue
-  ob=$(git rev-parse -q --verify "refs/remotes/origin/$b" 2>/dev/null || true)
+  ob_var="ORIGIN_$b"; ob=${!ob_var}
   REFS="$REFS $b"; LEASES="$LEASES --force-with-lease=refs/heads/$b:$ob"
 done
 while read -r r s; do
