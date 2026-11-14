@@ -48,7 +48,7 @@ twice and the language is not used to develop itself (user, 2026-11-07: 0.3.0's 
 ## Law candidates
 - L028 extended: for every command line in the CLI corpus, stage-2 output equals the C# CLI's (an amendment, not a new law).
 
-## Decisions (agent, 2026-11-07, conservative; listed in the handoff Questions for the user)
+## Decisions (agent, 2026-11-07, conservative; listed in the Questions for the user)
 - D1 `bayan-lsp` stays C# for 0.3.0.
 - D2 Port order easiest first: explain, features, clean, cache, new/init, doctor, audit, `--json` diagnostics, format,
   test, dist, mutate, then the release switch.

@@ -124,7 +124,7 @@ R1 T1 T3 (2800). R2 T1 T3 T5 (2801–2805, 2814). R3 T2 T5 (Self template, defau
 - Q111 A `let` enumerator reuses `CheckWritable` through `MutationChecks` with the abstract `moveNext` as callee; no new code. Amended by round-2 C1: `moveNext` is mutating because it declares `ref this`; the error is BYN2104 with round 2's fix-it to `var`.
 - Q112 `type Item = T;` in a struct body is the existing `TypeAliasDecl` member; `DeclareMembers` treats a member alias whose name matches a base's associated type as the binding, which also makes `Circle.Item` resolvable in instances.
 - Q113 An interface name used as a plain type (outside a base list, `where` bound or `dyn ref`) is BYN2816; a default template is `IsGeneric` and never lowered; a type-parameter argument satisfies a constraint iff its own constraints include it; vtables and thunks are emitted on first `ToDynRef` use; `IIndexable` wins over `IEnumerator`; keyword bounds (`where T : struct`) stay parse errors.
-- Numbering: Q88 is skipped because branch 005 ends at Q87; T13 confirms after rebase and shifts only if the handoff shows otherwise.
+- Numbering: Q88 is skipped because branch 005 ends at Q87; T13 confirms after rebase and shifts only if the Questions list shows otherwise.
 
 ## Self-hosting gaps
 

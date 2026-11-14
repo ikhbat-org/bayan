@@ -141,4 +141,4 @@ void main() {
 | L015 | T8 | T9 |
 | L016 | T10 | T11 |
 
-Q371–Q381 are in the spec. T12 copies them into the handoff.
+Q371–Q381 are in the spec. T12 copies them into the Questions list.

@@ -145,4 +145,4 @@ Per row:
   - Flag A3 as a deliberate reopen.
 - Round 4 (first commit after 012): flip BYN1065, then format; the rest of the batch.
 
-Not reached: bayan-grammar.md body (waqf §6, §5), laws-and-decisions.md, specs/015-tooling/015-spec.md (014 vs 015 numbering and std module names unchecked), the handoff Questions beyond Q745/Q371, revision 0016 in full, and verification of the src line numbers and the "5.2b" test.
+Not reached: bayan-grammar.md body (waqf §6, §5), laws-and-decisions.md, specs/015-tooling/015-spec.md (014 vs 015 numbering and std module names unchecked), the Questions beyond Q745/Q371, revision 0016 in full, and verification of the src line numbers and the "5.2b" test.

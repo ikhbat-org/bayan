@@ -159,7 +159,7 @@ Changes from the 2026-10-22 draft (written against `244edc1`, before 009–011 w
 - **R4 own path normalisation replaced** by spec 014's `Path` module; T3 and T5 list `014` in `after:`.
 - **R1 driver location** `selfhost/bayan/main.byn` → `selfhost/driver/main.byn`; it now names the `cli.byn` and `bayan-emit` entry points it reuses.
 - **R2 version text** `bayan <Version> (selfhost)` moved to spec Q3, since the C# line is `(commit <sha>)`.
-- **R3 refusal text** kept as spec Q4's default; the refused list now matches the handoff finish line and every `CliApp.Run` case.
+- **R3 refusal text** kept as spec Q4's default; the refused list now matches the milestones doc's finish line and every `CliApp.Run` case.
 - **R5 toolchain** gained K3's interface (new R5) and lost `BAYAN_CC` (spec Q1); exit 4 kept.
 - **R6 `run` capture** kept, with the stdio difference made explicit (spec Q5).
 - **R9 `driver-runtime.byn`** → `selfhost/driver/runtime.byn` (R8), check without a built binary (D5).

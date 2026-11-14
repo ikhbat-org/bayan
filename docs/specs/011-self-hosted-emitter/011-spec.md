@@ -4,7 +4,7 @@ Created: 2026-11-02
 
 ## Problem
 
-The handoff's "Road to self-hosting" puts lowering and the C emitter next (row 011): checked against `--emit-c` on every `run/` golden. Spec 010 delivered `bayan-check`, a Bayan checker whose diagnostics and typed dump match the C# front end, but nothing in Bayan turns a bound program into C, so the driver and bootstrap (012) have no backend to call. The C# backend is about 4,580 lines: the lowerer (`src/Bayan.Lowering/`, 2,131) and the C emitter (`src/Bayan.Backend.C/CEmitter.cs`, 2,449). The `run/` goldens are 269 inputs, each built in the mode its `// mode:` line names (default `safe`). Addendum A1 (`docs/revisions/0016-addendum-a1-midflight.md`) adds two constraints that cost nothing now and a lot later: C text in one module (K1), and an inventory of the compiler-specific C the output depends on (K2).
+The milestones doc's "Road to self-hosting" puts lowering and the C emitter next (row 011): checked against `--emit-c` on every `run/` golden. Spec 010 delivered `bayan-check`, a Bayan checker whose diagnostics and typed dump match the C# front end, but nothing in Bayan turns a bound program into C, so the driver and bootstrap (012) have no backend to call. The C# backend is about 4,580 lines: the lowerer (`src/Bayan.Lowering/`, 2,131) and the C emitter (`src/Bayan.Backend.C/CEmitter.cs`, 2,449). The `run/` goldens are 269 inputs, each built in the mode its `// mode:` line names (default `safe`). Addendum A1 (`docs/revisions/0016-addendum-a1-midflight.md`) adds two constraints that cost nothing now and a lot later: C text in one module (K1), and an inventory of the compiler-specific C the output depends on (K2).
 
 ## Goals
 
@@ -40,7 +40,7 @@ The handoff's "Road to self-hosting" puts lowering and the C emitter next (row 0
 - **R7 Speed bound.** On a 1 MB generated well-typed program, `bayan-emit` built in `fast` mode takes no more than 10 times as long as the C# lower-and-emit step, median over 5 runs.
 - **R8 Quality bar.** The new `.byn` files meet spec 013's rules as 010 does: the guard's coverage gate at landing, batch mutation scores in `tests/quality-baseline.json`, landing only through `scripts/selfhost/land.sh` with an independent review against the C#.
 - **R9 Port friction.** Every workaround forced by the language or the bootstrap compiler gets a handoff Question or a `work/todo.md` line; a compiler bug that blocks the port is fixed in this spec, with a test.
-- **R10 Docs.** The handoff's row 011 is marked done, Questions raised by the port are listed, and the self-hosting readiness section is updated.
+- **R10 Docs.** The milestones doc's row 011 is marked done, Questions raised by the port are listed, and the self-hosting readiness section is updated.
 
 ## Acceptance criteria
 

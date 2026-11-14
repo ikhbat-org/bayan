@@ -4,7 +4,7 @@ Created: 2026-10-21
 
 ## Problem
 
-Porting the lexer to Bayan (spec 001, T19) needed no compiler changes, but a handful of rules cost the most effort, and the parser, binder and emitter ports (specs 009–011) are each several times the lexer's size. The handoff's *Friction found porting the lexer* list names them:
+Porting the lexer to Bayan (spec 001, T19) needed no compiler changes, but a handful of rules cost the most effort, and the parser, binder and emitter ports (specs 009–011) are each several times the lexer's size. The milestones doc's *Friction found porting the lexer* list names them:
 - The must-name rule (BYN2305) fired about 100 times, even when the argument already had the parameter's name.
 - `error` and `flags` can't be used as names.
 - `var x = 0` is `i32` while `.length` is `i64`, so every position needed an explicit `i64`.
@@ -12,7 +12,7 @@ Porting the lexer to Bayan (spec 001, T19) needed no compiler changes, but a han
 - There is no bytes→string decode, so the lexer appended `$"{(char)cp}"` per scalar.
 - The language lacks `catch { block }`, `const string[]`, `List.removeRange` and a hex conversion.
 
-The decisions for each are recorded in the handoff's *Road to self-hosting*; this spec states them as requirements.
+The decisions for each are recorded in the milestones doc's *Road to self-hosting*; this spec states them as requirements.
 
 ## Goals
 

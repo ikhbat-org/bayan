@@ -49,7 +49,7 @@ Priority order (replaces "easiest first"): W0, then W1 (libc pin, NUL, errno, re
 
 **Change.**
 - A failed `waitpid` (non-`EINTR`), a failed `WaitForSingleObject` or a failed `GetExitCodeProcess` is `fail IoError`, never exit code 0.
-- A signal-killed child must not report 0 and must be told apart from a normal exit: map it to a distinct `IoError` variant, or keep a documented signal exit code. Question for the handoff; this plan recommends the distinct variant.
+- A signal-killed child must not report 0 and must be told apart from a normal exit: map it to a distinct `IoError` variant, or keep a documented signal exit code. Question for `docs/bayan-questions.md`; this plan recommends the distinct variant.
 - Move the status-to-result mapping into one function that takes the wait outcome and raw status and returns the code or an `IoError`. Both platform paths call it.
 
 **Test (this is L031).** Unit-test the mapping function with injected failures: wait failed, exit query failed, Windows wait failed with the child still running (`STILL_ACTIVE`), signaled, normal exit. Run on linux-x64 (musl), macOS and wp1.
@@ -166,7 +166,7 @@ Gate: before merging, run it over `lib/` and `selfhost/` and report the hit coun
 - `lib/std/json` already models it (`fails JsonError`); link it as the example.
 - `bayan new` templates (`src/Bayan.Cli/Scaffold.cs:270,286`): the generated `greeting()`/`twice()` get a sibling that returns `T?` so the first program a user sees has one optional.
 
-**Acceptance.** After parity, the cheatsheet is compiler-checked as its header requires (`bayan-cheatsheet.md:2`); a grep for `return -1` in `docs/**/*.md` code blocks outside the handoff and specs finds only the migration plan.
+**Acceptance.** After parity, the cheatsheet is compiler-checked as its header requires (`bayan-cheatsheet.md:2`); a grep for `return -1` in `docs/**/*.md` code blocks outside the milestones and Questions docs and specs finds only the migration plan.
 
 ### W8. Law candidates (user enacts; proposed only)
 

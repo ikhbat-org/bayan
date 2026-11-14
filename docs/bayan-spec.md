@@ -2542,7 +2542,7 @@ Input forms are alternate spellings that the editor and `bayan format` accept an
 | `{n:hex}`, `{n:binary}`, `{n:octal}`, `{x:.2}`, `{d:iso}`, `{x:debug}` | `{n, as: .hex}`, `{n, as: .binary}`, `{n, as: .octal}`, `{x, digits: 2}`, `{d, as: .iso}`, `{x, as: .debug}` | BYN1068 |
 | `for T x in e` | `for x: T in e` | BYN1043 |
 
-The `add` through `toString()` rows are beyond the HANDOFF round 2 table; the plan added them because each retired form gets the same treatment. The rows from trailing `;` on are round 3 §20, with the codes this spec allocates. Round 3 removes `if !x { … }` → `unless x { … }`: both are paraphrases, and BYN1032 retires. The `return .x` and `(T)x` rows are Sūq review A2 and A4. BYN1049, once drafted for `unless not`, duplicated BYN1007 `UnlessNegated`; the earlier code survives and BYN1049 is retired, never reused.
+The `add` through `toString()` rows are beyond the round-2 design doc's table; the plan added them because each retired form gets the same treatment. The rows from trailing `;` on are round 3 §20, with the codes this spec allocates. Round 3 removes `if !x { … }` → `unless x { … }`: both are paraphrases, and BYN1032 retires. The `return .x` and `(T)x` rows are Sūq review A2 and A4. BYN1049, once drafted for `unless not`, duplicated BYN1007 `UnlessNegated`; the earlier code survives and BYN1049 is retired, never reused.
 
 - `bayan format` is idempotent, and rewriting an input form then formatting again produces identical bytes.
 - Prose mode (§22) is unchanged.

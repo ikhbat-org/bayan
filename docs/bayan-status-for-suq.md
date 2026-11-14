@@ -61,7 +61,7 @@ let p = Point { x = 1, y: 2 };
 | Round 1 (`bayan-milestones.md`, addendum 001, now `decisions/2026-11-14-005-read-only-spans-and-float-formatting.md`) | Applied |
 | Addendum 002 (laws, contracts, parallel iterators; now `design/laws-contracts-and-parallel-iterators.md`) | Partial: §1 keyword reservation only; `law` declarations, `bayan laws`, `ensures`, `.par()` not started |
 | Round 2 (`bayan-design-round-2.md`) | Partial *(round 2, unmerged)*, per section below |
-| Round 3 (`feat/design-round-3`) | Not applied in code. Docs in progress on `feat/design-round-3`: the HANDOFF with O1–O10 resolved (`e60ab6f`), the plan (status "awaiting approval"), and GRAMMAR/STYLE updated. SPEC.md updated there too (`76583ce`). Code alignment of plan and GRAMMAR to the spec merged (`b538763`) |
+| Round 3 (`feat/design-round-3`) | Not applied in code. Docs in progress on `feat/design-round-3`: the round-3 design doc with O1–O10 resolved (`e60ab6f`), the plan (status "awaiting approval"), and GRAMMAR/STYLE updated. SPEC.md updated there too (`76583ce`). Code alignment of plan and GRAMMAR to the spec merged (`b538763`) |
 
 Round 2 per section *(round 2, unmerged)*:
 

@@ -22,7 +22,7 @@ Add to the reserved-keyword list (spec §2.4) and the lexer, with golden tests t
 
 Laws are **opt-in, chosen by the developer, never imposed by the language or the compiler.**
 
-- A project with no laws behaves exactly as if the feature didn't exist.
+- A project with no laws behaves as if the feature didn't exist.
 - `bayan build` never runs laws.
 - Whether declared laws **block** anything is a project setting, **off by default**.
 - Once a developer declares a law **and** enables the gate, the tooling enforces it strictly. A law that can fail quietly would just be a comment.
