@@ -790,7 +790,7 @@ public sealed class CliTests
     }
 
     [Fact]
-    public void HelloPrintsHelloWorld() => Assert.Equal("Hello, world!\n", BuildAndRun("hello"));
+    public void HelloPrintsHelloWorld() => Assert.Equal("Salam, world!\n", BuildAndRun("hello"));
 
     [Fact]
     public void TallyLitePrintsTheSettlement() => Assert.Equal(

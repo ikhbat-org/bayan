@@ -433,7 +433,7 @@ public sealed class SelfhostDriverGoldenTests
         Assert.Equal(CliApp.ExitOk, CliApp.Run(["new", app, "--vcs", "none"], new StringWriter(), new StringWriter()));
         Directory.CreateDirectory(Path.Combine(app, "src", "money"));
         File.WriteAllText(Path.Combine(app, "src", "money", "money.byn"), "public i64 cents(i64 units) {\n    return units * 100\n}\n\ntest \"cents\" {\n    assert(cents(2) == 200)\n}\n");
-        File.WriteAllText(Path.Combine(app, "src", "app", "main.byn"), "import money\n\nstring greeting() {\n    return \"Hello, world!\"\n}\n\ntest \"in main\" {\n    assert(money.cents(1) == 100)\n}\n\nprint(greeting())\n");
+        File.WriteAllText(Path.Combine(app, "src", "app", "main.byn"), "import money\n\nstring greeting() {\n    return \"Salam, world!\"\n}\n\ntest \"in main\" {\n    assert(money.cents(1) == 100)\n}\n\nprint(greeting())\n");
         Assert.Equal(0, Git(app, "init", "--quiet", "-b", "work").Code);
         Assert.Equal(0, Git(app, "add", "-A").Code);
         Assert.Equal(0, Git(app, "commit", "--quiet", "-m", "start").Code);

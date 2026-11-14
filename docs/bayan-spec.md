@@ -64,7 +64,7 @@ Bayan (بيان, "clarity, eloquent exposition") is a value-oriented, natively c
 Hello world:
 
 ```csharp
-print("Hello, world!")
+print("Salam, world!")
 ```
 
 ---

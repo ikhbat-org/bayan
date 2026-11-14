@@ -49,7 +49,7 @@ cd greet
 bayan run
 ```
 
-The program prints `Hello, world!`. `bayan new` created a few files; these are the ones that matter:
+The program prints `Salam, world!`. `bayan new` created a few files; these are the ones that matter:
 
 - `package.byn` describes the project: its name, version and dependencies.
 - `src/app/main.byn` is the program.
@@ -60,7 +60,7 @@ Open `src/app/main.byn`:
 ```
 /// The line this app prints.
 string greeting() {
-    return "Hello, world!"
+    return "Salam, world!"
 }
 
 print(greeting())
@@ -99,14 +99,14 @@ string book(string name, for i64 seats, from i64 left) {
 }
 
 void main() {
-    print(book("Aisha", for: 2, from: 5))
+    print(book("Umar", for: 2, from: 5))
     print(book("Bilal", for: 4, from: 3))
     print(book("Yusuf", for: 1, from: 0))
 }
 ```
 
 ```text
-Aisha booked 2, 3 left
+Umar booked 2, 3 left
 Sorry Bilal, only 3 seats left
 Sorry Yusuf, the iftar is full
 ```
@@ -114,7 +114,7 @@ Sorry Yusuf, the iftar is full
 A few things that may look unfamiliar:
 
 - **Particles.** A function has at most one unlabeled parameter. The others carry a word such as `from`,
-  `to`, `by` or `for`, and the call says it too: `book("Aisha", for: 2, from: 5)`. Calls read like
+  `to`, `by` or `for`, and the call says it too: `book("Umar", for: 2, from: 5)`. Calls read like
   sentences, and you can't swap two arguments by accident.
 - **Locals are `let`.** You write `let rest = …`, or `let rest: i64 = …` with a type. Declarations put the
   type first (`i64 reserve(…)`), local bindings put the name first; write it the other way and the error

@@ -13,7 +13,7 @@ template: docs
 bayan doctor</code></pre>
 <p><code>bayan doctor</code> checks the C compiler, <code>zig</code>, <code>git</code> and the build cache. If something is missing it says how to fix it. The output shown in this book comes from macOS on Apple silicon.</p>
 
-<h2 id="hello">Hello, world</h2>
+<h2 id="hello">Salam, world</h2>
 <p>Make a folder, and in it a file named <code>hello.byn</code>. Bayan source files end in <code>.byn</code>.</p>
 <example name="book-01-hello"/>
 <p>That is the whole program. There is no <code>main</code>, no import and no semicolon. A file can start with statements, and they run from the top. Run it:</p>
@@ -56,11 +56,11 @@ bayan doctor</code></pre>
 <pre><span class="err">error BYN1040:</span> `;` is an input form; a statement ends at the newline
   <span class="gut">--&gt;</span> semicolon.byn:1:23
 
-<span class="gut">  1 │</span> print("Hello, world!");
+<span class="gut">  1 │</span> print("Salam, world!");
 <span class="gut">    │</span>                       ^ remove `;`
 <span class="gut">    │</span>
 <span class="gut">  help: remove the `;`</span>
-<span class="gut">    │ 1 │</span> print("Hello, world!");
+<span class="gut">    │ 1 │</span> print("Salam, world!");
 <span class="gut">    │   │</span><span class="add">                       -</span>
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
@@ -80,11 +80,11 @@ bayan doctor</code></pre>
 <pre><span class="err">error BYN2001:</span> `prnt` is not defined
   <span class="gut">--&gt;</span> hello.byn:1:1
 
-<span class="gut">  1 │</span> prnt("Hello, world!")
+<span class="gut">  1 │</span> prnt("Salam, world!")
 <span class="gut">    │</span> ^^^^
 <span class="gut">    │</span>
 <span class="gut">  help: did you mean `print`?</span>
-<span class="gut">    │ 1 │</span> print("Hello, world!")
+<span class="gut">    │ 1 │</span> print("Salam, world!")
 <span class="gut">    │   │</span><span class="add">   +</span>
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
@@ -149,7 +149,7 @@ bayan test</code></pre>
 <p>The generated <code>src/app/main.byn</code> is ordinary Bayan. Its last line is a top-level statement, and it has a function above it with a <code>///</code> comment:</p>
 <pre><code class="byn">/// The line this app prints.
 string greeting() {
-    return "Hello, world!"
+    return "Salam, world!"
 }
 
 print(greeting())</code></pre>
@@ -174,7 +174,7 @@ print(greeting())</code></pre>
 <h3 id="tests">Tests</h3>
 <p>The generated test file is:</p>
 <pre><code class="byn">test "greets the world" {
-    assert(greeting() == "Hello, world!")
+    assert(greeting() == "Salam, world!")
 }</code></pre>
 <p>A <code>test</code> block has a name and a body. <code>assert</code> checks a condition. <code>bayan test</code> compiles the tests and runs each in its own process:</p>
 <pre><code>running 1 test in 1 module
@@ -187,12 +187,12 @@ print(greeting())</code></pre>
       assert(greeting() == "Hello, World!")
              │          │
              │          false
-             Hello, world!
+             Salam, world!
       tests/app.test.byn:2
 
 ◆ 0 passed · ✗ 1 failed · 0 pending · 0.47s
   rerun the failure: bayan test --only "greets the world"</code></pre>
-<p>The line under the failing <code>assert</code> shows each part of the condition: <code>greeting()</code> was <code>Hello, world!</code>, and the whole comparison was <code>false</code>. The last line tells you the command that reruns only this test. <a href="book-12-testing.html">Chapter 12</a> covers testing in depth.</p>
+<p>The line under the failing <code>assert</code> shows each part of the condition: <code>greeting()</code> was <code>Salam, world!</code>, and the whole comparison was <code>false</code>. The last line tells you the command that reruns only this test. <a href="book-12-testing.html">Chapter 12</a> covers testing in depth.</p>
 
 <h2 id="other-commands">Other commands you will use</h2>
 <table>
