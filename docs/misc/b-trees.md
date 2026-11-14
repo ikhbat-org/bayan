@@ -1,6 +1,6 @@
 Read URL: https://bbtree.xiangpeng.systems/post/#apply-to-b-trees
 Viewed bayan-spec.md:1-100
-Viewed bayan-handoff.md:1-100
+Viewed bayan-contributing.md
 Viewed content.md:1-30
 Browser task: "Fetch BB-Tree Post Content"
 Ran command: `curl -sL https://bbtree.xiangpeng.systems/post/ | head -n 100`

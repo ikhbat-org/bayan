@@ -17,7 +17,7 @@ Three lessons: (1) errors need a channel the caller cannot confuse with data; (2
 - Every Linux binary links musl statically: `src/Bayan.Backend.C/Targets.cs:11-12` (`x86_64-linux-musl`, `aarch64-linux-musl`). macOS uses its libc, Windows the UCRT (`x86_64-windows-gnu`, `Targets.cs:15`).
 - The runtime (`src/runtime/bayan-rt.c`, 3,569 lines; `bayan-rt.h`, 572) calls 96 libc and OS functions, listed in `src/runtime/libc-uses.txt` (spec 012 T8, `docs/specs/012-self-hosted-bootstrap/012-tasks.md:16`). A libc divergence reaches every program through it.
 - The runtime already carries the norm in places: `byn_io_read` returns `0` or an `IoError` code (`bayan-rt.h:445-446`); `Env.get` returns `string?` (`src/Bayan.Semantics/Builtins.cs:128`); `position` returns `i64?` (`Binding/BuiltinMembers.cs:64`).
-- The norm-setter does not follow the norm: `selfhost/**/*.byn` (90 files) has 140 `return -1`, 620 `== -1`/`!= -1` and 27 lines with `) fails ` (grep, 2026-11-07). Spec 010/011 rule the port matches the C# method for method (handoff Q711, `docs/decisions/2026-11-14-003-answered-questions.md:2070`), so this is deliberate and must not change mid-port.
+- The norm-setter does not follow the norm: `selfhost/**/*.byn` (90 files) has 140 `return -1`, 620 `== -1`/`!= -1` and 27 lines with `) fails ` (grep, 2026-11-07). Spec 010/011 rule the port matches the C# method for method (handoff Q711, `docs/decisions/2026-11-14-004-answered-questions.md:2070`), so this is deliberate and must not change mid-port.
 
 ## 1. Lessons mapped to Bayan mechanisms
 

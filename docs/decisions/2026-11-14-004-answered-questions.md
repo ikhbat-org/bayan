@@ -928,7 +928,7 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 
 ### Q23
 
-23. **Float formatting.** *Current choice:* the shortest round-trip digits, laid out like C# `double.ToString()`: fixed notation for decimal exponents in [-4, 15), else `1E+15` / `1E-05`; `-0` prints `-0`. *Answered (addendum 001, now `docs/decisions/2026-11-14-004-read-only-spans-and-float-formatting.md`):* shortest round-trip digits; fixed notation for `1e-5 ≤ |x| < 1e15`, exponential outside it, spelled lowercase without `+` or leading zeros (`1e15`, `1.5e-7`, `-2.25e20`); `nan`, `inf`, `-inf`; `-0`; integral values print without a decimal point. `{x:F2}` stays deferred.
+23. **Float formatting.** *Current choice:* the shortest round-trip digits, laid out like C# `double.ToString()`: fixed notation for decimal exponents in [-4, 15), else `1E+15` / `1E-05`; `-0` prints `-0`. *Answered (addendum 001, now `docs/decisions/2026-11-14-005-read-only-spans-and-float-formatting.md`):* shortest round-trip digits; fixed notation for `1e-5 ≤ |x| < 1e15`, exponential outside it, spelled lowercase without `+` or leading zeros (`1e15`, `1.5e-7`, `-2.25e20`); `nan`, `inf`, `-inf`; `-0`; integral values print without a decimal point. `{x:F2}` stays deferred.
 
 ### Q29
 
@@ -944,7 +944,7 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 
 ### Q34
 
-34. **Read-only spans.** The spec says strings are immutable and always valid UTF-8 but gives `s.bytes` no type. *Current choice:* `string.bytes` (and slices of it) is a `read-only Span<u8>`: its elements cannot be assigned, a writable `Span<T>` converts to it implicitly, and it does not convert to `Span<T>`, so it cannot be passed to a `Span<u8>` parameter (copy with `.copy(to:)` first). There is no syntax to name the type yet; a later `ReadOnlySpan<T>` or read-only-by-default parameter rule (§ parameters) would relax this. *Answered (addendum 001, now `docs/decisions/2026-11-14-004-read-only-spans-and-float-formatting.md`):* add `ReadOnlySpan<T>` with C# semantics: `Span<T>` → `ReadOnlySpan<T>` implicit; `List<T>` → `ReadOnlySpan<T>` and `string` → `ReadOnlySpan<u8>` implicit as arguments; `string.bytes : ReadOnlySpan<u8>`; read-only stdlib functions take `ReadOnlySpan<T>`; lint BYN2310 suggests it for a `Span<T>` parameter never written to. Span parameters stay mutable (zero-allocation C# must compile unchanged).
+34. **Read-only spans.** The spec says strings are immutable and always valid UTF-8 but gives `s.bytes` no type. *Current choice:* `string.bytes` (and slices of it) is a `read-only Span<u8>`: its elements cannot be assigned, a writable `Span<T>` converts to it implicitly, and it does not convert to `Span<T>`, so it cannot be passed to a `Span<u8>` parameter (copy with `.copy(to:)` first). There is no syntax to name the type yet; a later `ReadOnlySpan<T>` or read-only-by-default parameter rule (§ parameters) would relax this. *Answered (addendum 001, now `docs/decisions/2026-11-14-005-read-only-spans-and-float-formatting.md`):* add `ReadOnlySpan<T>` with C# semantics: `Span<T>` → `ReadOnlySpan<T>` implicit; `List<T>` → `ReadOnlySpan<T>` and `string` → `ReadOnlySpan<u8>` implicit as arguments; `string.bytes : ReadOnlySpan<u8>`; read-only stdlib functions take `ReadOnlySpan<T>`; lint BYN2310 suggests it for a `Span<T>` parameter never written to. Span parameters stay mutable (zero-allocation C# must compile unchanged).
 
 ### Q35
 

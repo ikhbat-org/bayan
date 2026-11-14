@@ -23,7 +23,7 @@ fail() { echo "FAIL: $1"; echo "$out"; exit 1; }
 echo "$out" | grep -qE '^- coverage: missed (line selfhost/a.byn:(7|10)|branch selfhost/a.byn:7:)' && fail "an exempted miss was a FAIL item"
 echo "$out" | grep -q '^- coverage: unknown line selfhost/a.byn:9; ' || fail "an unknown line under a marker was exempted"
 echo "$out" | grep -q '^- coverage: missed line selfhost/a.byn:12; ' || fail "a marker whose Question cites none of its span exempted its line"
-echo "$out" | grep -q '^- coverage: selfhost/a.byn:11 exempts 12-12 for Q903, but Q903 in docs/bayan-questions.md or docs/decisions/2026-11-14-003-answered-questions.md cites no a.byn line' || fail "an uncited marker was not a FAIL item"
+echo "$out" | grep -q '^- coverage: selfhost/a.byn:11 exempts 12-12 for Q903, but Q903 in docs/bayan-questions.md or docs/decisions/2026-11-14-004-answered-questions.md cites no a.byn line' || fail "an uncited marker was not a FAIL item"
 echo "$out" | grep -q '^- coverage: missed line selfhost/a.byn:13; ' || fail "a missed line outside every marker was not a FAIL item"
 echo "$out" | grep -q '^- coverage: selfhost/a.byn:14 exempts through anchor `nope()`, which matches no line of the rest of its function; ' || fail "an anchor matching no line was not a FAIL item naming it"
 echo "$out" | grep -q '^- coverage: selfhost/a.byn:16 exempts through anchor `v()`, which matches lines 17, 18 of the rest of its function; ' || fail "an anchor matching two lines was not a FAIL item naming it"

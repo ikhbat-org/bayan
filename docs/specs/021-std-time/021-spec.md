@@ -265,7 +265,7 @@ Names only; numbers are allocated at merge.
 
 ## Phases
 
-- [x] **1a Spec** (no gate). New SPEC section for `std.time` from the Decisions section; library-tiers rows for `std.time`, `kit.tz`, `kit.calendar`; GRAMMAR examples. Done 2026-11-10 (`docs/bayan-spec.md` §16.5, `docs/bayan-library-tiers.md`; review fixes 2026-11-11; Questions 1159–1161 and 1240–1243 in `docs/decisions/2026-11-14-003-answered-questions.md`, Q1159 resolved).
+- [x] **1a Spec** (no gate). New SPEC section for `std.time` from the Decisions section; library-tiers rows for `std.time`, `kit.tz`, `kit.calendar`; GRAMMAR examples. Done 2026-11-10 (`docs/bayan-spec.md` §16.5, `docs/bayan-library-tiers.md`; review fixes 2026-11-11; Questions 1159–1161 and 1240–1243 in `docs/decisions/2026-11-14-004-answered-questions.md`, Q1159 resolved).
   - [ ] Confirm `Time.midnight`, `Time.noon` and `TimeZone.utc` against the round-4 static-member rule (audit row 13); fall back to `Time(hour: 0)`.
   - [ ] Settle the fake clock's name (`FakeClock` in SPEC §16.5 against `FixedClock` and `ManualClock` in T8).
 - [ ] **1b Rename sweep** (no gate). `Millis` becomes `Milliseconds` across docs, with the spec diff only. Done when `grep -rn Millis docs` is empty. Open on this branch: `docs/bayan-spec.md` lines 264, 274, 374, 477 and 1254 still say `Millis`.

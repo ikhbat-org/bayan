@@ -11,10 +11,10 @@ These docs replace the former v0.1 work plan and its two addenda (split 2026-11-
 | `docs/bayan-milestones.md` | What v0.1 is, M0–M12, after v0.1, zero dependencies, the pinned `bayan`, self-hosting readiness and the spec table (this file) |
 | `docs/bayan-contributing.md` | Ground rules, stack and constraints, repository layout, conventions, testing the compiler itself |
 | `docs/bayan-questions.md` | Open questions |
-| `docs/decisions/2026-11-14-003-answered-questions.md` | Answered questions, with their full text |
+| `docs/decisions/2026-11-14-004-answered-questions.md` | Answered questions, with their full text |
 | `docs/bayan-progress-log.md` | The progress log |
 | `docs/design/laws-contracts-and-parallel-iterators.md` | Design for opt-in laws, contracts and `.par()` (formerly addendum 002) |
-| `docs/decisions/2026-11-14-004-read-only-spans-and-float-formatting.md` | `ReadOnlySpan<T>` and float formatting (formerly addendum 001 §1) |
+| `docs/decisions/2026-11-14-005-read-only-spans-and-float-formatting.md` | `ReadOnlySpan<T>` and float formatting (formerly addendum 001 §1) |
 
 ## What v0.1 is
 
@@ -72,7 +72,7 @@ Grammar for the v0.1 subset:
 **Status:** shipped in 0.1.0 (`CHANGELOG.md` [0.1.0]).
 
 - Module = directory; `import`; name resolution across files in a module; visibility (`private` / module / `public`).
-- Types: primitives (sized names canonical; C# aliases accepted), `string`, `char`, `bool`, structs, tuples, `T?`, `never`, fixed arrays `T[N]`, built-in `Span<T>` and `List<T>`.
+- Types: primitives (sized names preferred; C# aliases accepted), `string`, `char`, `bool`, structs, tuples, `T?`, `never`, fixed arrays `T[N]`, built-in `Span<T>` and `List<T>`.
 - Untyped integer literals adopt their context type; out-of-range literals are errors.
 - Implicit lossless widening only; explicit narrowing casts.
 - Casing rules (spec §5.1) as **errors**.

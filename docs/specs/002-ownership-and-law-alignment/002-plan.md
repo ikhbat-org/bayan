@@ -185,7 +185,7 @@ Implementation:
 
 ### Docs and bookkeeping (R13)
 
-- `docs/decisions/2026-11-14-003-answered-questions.md`: Q55 and Q56 marked answered (spec 002).
+- `docs/decisions/2026-11-14-004-answered-questions.md`: Q55 and Q56 marked answered (spec 002).
 - New Questions, with the strict option implemented:
   - type parameters are unique in generic bodies;
   - borrowed loop and pattern bindings can't be mutated;

@@ -90,7 +90,7 @@ Rejected:
 - `bydir` is `selfhost/semantics`, so bare `.byn` names in a task resolve there and emitter files are written in full.
 - The base `feat/014-std-path-module` is cut from `feat/011-self-hosted-emitter` (the spec's base).
 
-**D14 Question ranges.** The spec cites Q888, but `docs/decisions/2026-11-14-003-answered-questions.md` on this branch ends at Q887. The dispatcher therefore assigns each task's five-number range when it cuts the branch, and writes it into the task line as `Q###–Q###` (`wave-brief.py:56-58`).
+**D14 Question ranges.** The spec cites Q888, but `docs/decisions/2026-11-14-004-answered-questions.md` on this branch ends at Q887. The dispatcher therefore assigns each task's five-number range when it cuts the branch, and writes it into the task line as `Q###–Q###` (`wave-brief.py:56-58`).
 
 ## Tech / dependencies
 

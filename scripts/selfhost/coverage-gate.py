@@ -7,7 +7,7 @@
 # Every line and branch of a touched function must be covered: each missed or unknown one is printed as a FAIL item
 # ("- …"), except a missed one under a `// coverage-exempt: Qnnn` marker: it exempts the next line (`… through `text``: the next
 # line to the one line holding text in the rest of the marker's function, an anchor, Q1040) when Question Qnnn of
-# docs/bayan-questions.md or docs/decisions/2026-11-14-003-answered-questions.md (a numbered entry or a table row) cites a <file> line (any: its number is prose, Q1040), for code that is dead in the C# too (the Question cites the C# line). A marker whose
+# docs/bayan-questions.md or docs/decisions/2026-11-14-004-answered-questions.md (a numbered entry or a table row) cites a <file> line (any: its number is prose, Q1040), for code that is dead in the C# too (the Question cites the C# line). A marker whose
 # Question cites no line of its file, or whose anchor matches no line or several, is a FAIL item and exempts nothing; so is a
 # `through N` line number. An unknown line is never exempt.
 # `// coverage-blocked: Qnnn T<k> <fn>` (`… through `text`` as above; user decision 2026-11-04) exempts a missed line that only runs once
@@ -75,7 +75,7 @@ def stale(root, open_, task):
     return bad
 
 
-def exempt(path, docs=('docs/bayan-questions.md', 'docs/decisions/2026-11-14-003-answered-questions.md'), open_=None, task=None):
+def exempt(path, docs=('docs/bayan-questions.md', 'docs/decisions/2026-11-14-004-answered-questions.md'), open_=None, task=None):
     """The lines of path its coverage-exempt and coverage-blocked markers exempt (two sets), and a FAIL message per marker that
     exempts nothing."""
     if not os.path.exists(path):
