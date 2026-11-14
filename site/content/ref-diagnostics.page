@@ -182,7 +182,7 @@ let c = 1e</code></pre>
   1 │ let a = 0xFFs
     │             ^
     │
-  help: write the value in decimal, or wrap it with a cast to the unit type</pre>
+  help: write the value in decimal, or convert it with T(x), where T is the unit type</pre>
   <figcaption>The compiler's message for this program. <code>bayan explain BYN0011</code> prints the long form.</figcaption>
 </figure>
 

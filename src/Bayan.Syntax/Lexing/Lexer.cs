@@ -568,7 +568,7 @@ internal ref struct LexerState
             {
                 Report(DiagnosticCodes.SuffixOnHexOrBinary, new TextSpan(suffixStart, _pos - suffixStart),
                     [Encoding.UTF8.GetString(suffix), radix],
-                    help: "write the value in decimal, or wrap it with a cast to the unit type");
+                    help: "write the value in decimal, or convert it with T(x), where T is the unit type");
             }
         }
     }
