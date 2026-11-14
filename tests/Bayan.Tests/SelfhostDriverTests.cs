@@ -1458,10 +1458,12 @@ public sealed class SelfhostDriverStyleEnvironmentTests
     public void LaterTicksAndASecondDoneAsProgressDoes(bool ascii, int extra) =>
         AssertLine("compiling", 100, ascii, true, false, "", extra);
 
-    /// <summary>The timer (a zero threshold draws once and starts none, so waiting adds no frame): a threshold passed (one frame; one for ASCII) or not (nothing), as the C# <c>Timer</c> draws it.
-    /// The 125 ms wait sits about 124 ms from both the 1 ms first frame and the 251 ms repeat, so a stalled timer thread neither drops nor adds a frame on one side only (macOS CI 2026-11-14); repeated frames are <c>LaterTicksAndASecondDoneAsProgressDoes</c>'s.</summary>
+    /// <summary>The timer (a zero threshold draws once and starts none, so waiting adds no frame): a threshold passed (the first frame, then a repeat every 250 ms; ASCII draws one line and no repeat) or not (nothing), as the C# <c>Timer</c> draws it.
+    /// A passed threshold compares frame by frame up to the shorter side: how many repeats fit in the wait depends on the host's load (macOS CI 2026-11-14 and 2026-11-15, a 125 ms sleep drew a 251 ms repeat), the frames and the clear do not.
+    /// Exact repeat counts are <c>LaterTicksAndASecondDoneAsProgressDoes</c>'s.</summary>
     [Theory]
     [InlineData(false, 1, 125)]
+    [InlineData(false, 1, 400)]
     [InlineData(true, 1, 400)]
     [InlineData(false, 0, 400)]
     [InlineData(true, 0, 400)]
@@ -1478,8 +1480,51 @@ public sealed class SelfhostDriverStyleEnvironmentTests
         }
         var (exit, _, stderr) = RunProgress(new Dictionary<string, string> { ["CI"] = "" }, "timed", "compiling", afterMs.ToString(), TrueFalse(ascii), waitMs.ToString());
         Assert.Equal(0, exit);
-        Assert.Equal(writer.ToString(), stderr);
         Assert.Equal(afterMs > waitMs, stderr.Length == 0);
+        if (ascii || afterMs == 0 || afterMs > waitMs)
+        {
+            Assert.Equal(writer.ToString(), stderr);
+            return;
+        }
+        AssertSameTimerFrames(writer.ToString(), stderr);
+    }
+
+    /// <summary>Both runs drew frames and agree on every frame up to the shorter run.</summary>
+    internal static void AssertSameTimerFrames(string want, string got)
+    {
+        var (w, g) = (TimerFrames(want), TimerFrames(got));
+        var shared = Math.Min(w.Count, g.Count);
+        Assert.Equal(w.Take(shared), g.Take(shared));
+    }
+
+    [Fact]
+    public void TimerFramesSplitsTheFramesAndRefusesARunWithoutTheClear()
+    {
+        Assert.Equal(["\u25c6\u25c7\u25c7 compiling", "\u25c7\u25c6\u25c7 compiling"], TimerFrames("\r\u25c6\u25c7\u25c7 compiling\r\u25c7\u25c6\u25c7 compiling\r\u001b[2K"));
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => TimerFrames("\r\u25c6\u25c7\u25c7 compiling"));
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => TimerFrames("compiling\r\u001b[2K"));
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => TimerFrames("\r\u001b[2K"));
+    }
+
+    [Fact]
+    public void TimerFramesMayDifferInCountButNotInAFrame()
+    {
+        const string clear = "\r\u001b[2K";
+        AssertSameTimerFrames("\rA\rB" + clear, "\rA" + clear);
+        AssertSameTimerFrames("\rA" + clear, "\rA\rB" + clear);
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => AssertSameTimerFrames("\rA\rB" + clear, "\rA\rC" + clear));
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => AssertSameTimerFrames("\rA" + clear, "\rX" + clear));
+    }
+
+    /// <summary>The drawn frames (each <c>\r</c>-led line before the closing clear) of a timer run; fails unless the run starts with a frame and ends in the clear.</summary>
+    internal static List<string> TimerFrames(string drawn)
+    {
+        const string clear = "\r\u001b[2K";
+        Assert.EndsWith(clear, drawn);
+        var body = drawn[..^clear.Length];
+        Assert.StartsWith("\r", body);
+        Assert.True(body.Length > 1, "no frame before the clear");
+        return [.. body[1..].Split('\r')];
     }
 
     // listed skip: ProgressTests.cs rows with stderr a terminal. The law runs without one, and the driver has no tty test (Q919), so
