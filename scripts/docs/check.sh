@@ -16,8 +16,8 @@
 #       CHANGELOG, suq-round3-review-response.md, and bayan-concurrency.md, which cites the removed §13.1–13.5 on purpose),
 #       and a bare `§N` (it may cite the grammar or another doc);
 #   (h) every record doc (specs, plans, decisions, revisions, audits, the progress log, the proposals and the laws
-#       design) has `Status:`, `Release:` and `Sources:` lines in its first ten lines, or `status:`, `release:` and
-#       `sources:` keys in its frontmatter (docs/laws), and its release is a `## [X.Y.Z]` version in CHANGELOG.md, the
+#       design) has `Status:`, `Release:` and `Sources:` lines in its first ten lines (docs/laws: the `status:`,
+#       `release:` and `sources:` frontmatter keys, also in the first ten lines), and its release is a `## [X.Y.Z]` version in CHANGELOG.md, the
 #       VERSION target (`-dev` stripped) or `unscheduled`; every snapshot doc (export, misc, the design rounds, the Sūq
 #       reports and the other dated notes) has a `Snapshot:` line in its first ten lines. Release docs are neither.
 set -uo pipefail
@@ -114,11 +114,11 @@ while IFS= read -r doc; do
   case "$doc" in
     docs/specs/*|docs/plans/*|docs/decisions/*|docs/revisions/*|docs/audits/*|docs/laws/*|docs/bayan-progress-log.md \
     |docs/bayan-style-proposal.md|docs/bayan-shorthands-proposal.md|docs/design/laws-contracts-and-parallel-iterators.md)
-      if [ "$(head -n 1 "$root/$doc")" = "---" ]; then
-        top="$(sed -n '2,/^---$/p' "$root/$doc" | sed -E 's/^status: /Status: /; s/^release: /Release: /; s/^sources: /Sources: /')"
-      else top="$(head -n 10 "$root/$doc")"; fi
+      top="$(head -n 10 "$root/$doc")"
+      [ "$(head -n 1 "$root/$doc")" != "---" ] \
+        || top="$(sed -E 's/^status: /Status: /; s/^release: /Release: /; s/^sources: /Sources: /' <<< "$top")"
       for key in Status Release Sources; do
-        grep -q "^$key: " <<< "$top" || fail "$doc: no $key: line in the first ten lines or the frontmatter (record doc)"
+        grep -q "^$key: " <<< "$top" || fail "$doc: no $key: line in the first ten lines (record doc)"
       done
       rel="$(grep -m 1 '^Release: ' <<< "$top" | sed -E 's/^Release: ([^ ;,(]+).*/\1/')"
       [ -z "$rel" ] || [ "$rel" = unscheduled ] || [ "$rel" = "${v%%-*}" ] || [ "$rel" = "$v" ] \

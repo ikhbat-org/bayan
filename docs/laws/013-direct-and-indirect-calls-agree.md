@@ -2,13 +2,13 @@
 id: L013
 title: Direct and indirect calls agree
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: property
 scope: src/Bayan.Backend.C/CEmitter.cs
 proof: tests/Bayan.Tests/L013DirectAndIndirectCallsAgreeTests.cs
 check: dotnet test --filter Law=L013
 enacted: 2026-10-25
-release: 0.1.0
-sources: none recorded
 ---
 
 ## Statement

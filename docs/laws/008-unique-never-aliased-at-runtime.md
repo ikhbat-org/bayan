@@ -2,13 +2,13 @@
 id: L008
 title: A compiled program never aliases a unique value at runtime
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: property
 scope: src/runtime/bayan-rt.c
 proof: tests/Bayan.Tests/L008OwnershipRuntimeTests.cs
 check: dotnet test --filter Law=L008
 enacted: 2026-10-21
-release: 0.1.0
-sources: none recorded
 ---
 
 ## Statement

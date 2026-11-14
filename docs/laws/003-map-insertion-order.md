@@ -2,13 +2,13 @@
 id: L003
 title: Map iterates live keys in first-insertion order
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: invariant
 scope: src/Bayan.Semantics/Binding/BuiltinMembers.cs
 proof: tests/Bayan.Tests/MapModelTests.cs
 check: dotnet test -v q --filter "Law=L003"
 enacted: 2026-10-20
-release: 0.1.0
-sources: none recorded
 ---
 
 ## Statement

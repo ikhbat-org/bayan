@@ -2,14 +2,14 @@
 id: L025
 title: No emitter panic
 status: enacted
+release: 0.2.0
+sources: Q662, Q663, Q890
 kind: property
 scope: selfhost/emitter/
 proof: tests/Bayan.Tests/SelfhostEmitterNoPanicLawTests.cs
 check: dotnet test -v q --filter "Law=L025"
 timeout: 1200
 enacted: 2026-11-04
-release: 0.2.0
-sources: Q662, Q663, Q890
 ---
 
 ## Statement

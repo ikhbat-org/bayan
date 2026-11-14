@@ -2,13 +2,13 @@
 id: L010
 title: Decode accepts exactly valid UTF-8
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: property
 scope: src/runtime/bayan-rt.c
 proof: tests/Bayan.Tests/L010Utf8DecodeTests.cs
 check: dotnet test --filter Law=L010
 enacted: 2026-10-21
-release: 0.1.0
-sources: none recorded
 ---
 
 ## Statement

@@ -2,13 +2,13 @@
 id: L018
 title: The Bayan parser never panics and keeps every span inside the input and its parent
 status: enacted
+release: 0.1.0
+sources: Q473, Q486, Q508, Q509, Q510, Q744, Q748, Q874
 kind: property
 scope: selfhost/parser/parser.byn
 proof: tests/Bayan.Tests/SelfhostParserNoPanicLawTests.cs
 check: dotnet test -v q --filter "Law=L018"
 timeout: 300
-release: 0.1.0
-sources: Q473, Q486, Q508, Q509, Q510, Q744, Q748, Q874
 ---
 
 ## Statement

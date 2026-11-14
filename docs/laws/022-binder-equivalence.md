@@ -2,14 +2,14 @@
 id: L022
 title: Binder equivalence
 status: enacted
+release: 0.1.0
+sources: Q658
 kind: property
 scope: selfhost/semantics/main.byn
 proof: tests/Bayan.Tests/SelfhostSemanticsEquivalenceLawTests.cs
 check: dotnet test -v q --filter "Law=L022"
 timeout: 1800
 enacted: 2026-11-01
-release: 0.1.0
-sources: Q658
 ---
 
 ## Statement

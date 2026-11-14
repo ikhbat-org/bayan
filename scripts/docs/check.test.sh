@@ -90,11 +90,14 @@ printf '# X\n\nSnapshot: 2026-01-01; not maintained. Current text: none\n' > "$t
 bash "$s" >/dev/null || fail "(h) good record, law and snapshot headers fail the check"
 cp -R "$t/repo" "$t/clean-h"; reset() { rm -rf "$t/repo" && cp -R "$t/clean-h" "$t/repo"; }
 printf '# Q\n\nStatus: open\nSources: Q1\n' > "$t/repo/docs/plans/q.md"
-expect "(h) record with no Release" "docs/plans/q.md: no Release: line in the first ten lines or the frontmatter (record doc)"
+expect "(h) record with no Release" "docs/plans/q.md: no Release: line in the first ten lines (record doc)"
 sed -i.bak 's/^Release: 1.2.2$/Release: 1.2.1 (never cut)/' "$t/repo/docs/plans/p-1.2.2.md"
 expect "(h) unknown release" "docs/plans/p-1.2.2.md: Release: 1.2.1 is not a released version (CHANGELOG.md), 1.2.3 or unscheduled"
 sed -i.bak '/^release: /d' "$t/repo/docs/laws/001-x.md"
-expect "(h) law with no release key" "docs/laws/001-x.md: no Release: line in the first ten lines or the frontmatter (record doc)"
+expect "(h) law with no release key" "docs/laws/001-x.md: no Release: line in the first ten lines (record doc)"
+sed -i.bak 's/^id: L001$/id: L001\na: 1\nb: 2\nc: 3\nd: 4\ne: 5\nf: 6/' "$t/repo/docs/laws/001-x.md"
+grep -qx 'f: 6' "$t/repo/docs/laws/001-x.md" || fail "fixture edit did not apply"
+expect "(h) law key past line ten" "docs/laws/001-x.md: no Sources: line in the first ten lines (record doc)"
 sed -i.bak '/^Snapshot: /d' "$t/repo/docs/export/X.md"
 expect "(h) snapshot with no Snapshot line" "docs/export/X.md: no Snapshot: line in the first ten lines (snapshot doc)"
 echo PASS
