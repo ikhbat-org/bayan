@@ -748,7 +748,10 @@ void changedFieldsVisit(ref T37Tarjan t, through ref Ctx c, for FuncId f) {
         t37UnionIds(ref all, by: in t.own[member])
         if member == f { break }
     }
-    for m in component { c.changedFields[m] = copyIds(in all) }
+    for m in component {
+        c.changedFields[m] = copyIds(in all)
+        c.changedFieldsKeys.append(m)
+    }
 }
 
 /// C# `DirectChanges`' result.

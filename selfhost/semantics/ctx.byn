@@ -562,6 +562,9 @@ public struct Ctx {
     // ── T37 state
     /// C# `Compilation.ChangedFields`: the fields each `ref this` method changes structurally, as a set in insertion order.
     public Map<FuncId, List<FieldId>> changedFields = []
+    /// Q31 (plan 014): the keys of `changedFields` in the order they were added, so a region run made in an arena can
+    /// remove the entries it added (their lists are arena memory) and run again in `General`. No C# twin.
+    public List<FuncId> changedFieldsKeys = List<FuncId>()
     // ── T38 state
     /// C# `_inReportedCycle`: structs and unions already reported as part of a cycle.
     public List<Type> inReportedCycle = List<Type>()
