@@ -52,9 +52,15 @@ mkexe() {
 mkexe macho 0100000c "$t/pub/unix/bayan"; mkexe pe aa64 "$t/pub/win/bayan.exe"
 mkexe elf 003e "$t/pub/linux/bayan"
 bash "$s" pack osx-arm64 "$t/pub/unix" "$t/out" >/dev/null 2>"$t/warn"
-grep -q "::warning::package: the repo has no LICENSE" "$t/warn" || fail "no missing-LICENSE warning: $(cat "$t/warn")"
-bash "$s" pack linux-x64 "$t/pub/linux" "$t/out" >/dev/null
-bash "$s" pack win-arm64 "$t/pub/win" "$t/out" >/dev/null
+grep -q "::warning::package: the repo has no LICENSE.md" "$t/warn" || fail "no missing-LICENSE warning: $(cat "$t/warn")"
+echo license > "$t/repo/LICENSE.md"; echo notice > "$t/repo/NOTICE.md"
+bash "$s" pack osx-arm64 "$t/pub/unix" "$t/out-lic" >/dev/null 2>"$t/warn"
+[ ! -s "$t/warn" ] || fail "a warning with LICENSE.md present: $(cat "$t/warn")"
+[ "$(tar -xzOf "$t/out-lic/bayan-1.2.3-macos-arm64.tar.gz" bayan-1.2.3-macos-arm64/LICENSE.md)" = license ] || fail "archive lacks LICENSE.md"
+[ "$(tar -xzOf "$t/out-lic/bayan-1.2.3-macos-arm64.tar.gz" bayan-1.2.3-macos-arm64/NOTICE.md)" = notice ] || fail "archive lacks NOTICE.md"
+rm "$t/repo/LICENSE.md" "$t/repo/NOTICE.md"
+bash "$s" pack linux-x64 "$t/pub/linux" "$t/out" >/dev/null 2>>"$t/warn"
+bash "$s" pack win-arm64 "$t/pub/win" "$t/out" >/dev/null 2>>"$t/warn"
 [ -f "$t/out/bayan-1.2.3-macos-arm64.tar.gz" ] && [ -f "$t/out/bayan-1.2.3-linux-x64.tar.gz" ] || fail "tar.gz names wrong: $(ls "$t/out")"
 [ -f "$t/out/bayan-1.2.3-windows-arm64.zip" ] || fail "zip name wrong: $(ls "$t/out")"
 layout() { local p="$1" e w=""; shift; for e in "" "$@"; do w="$w$p/$e "; done; printf '%s' "$w"; }

@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- License: ISL-P 1.2 with the ISL-OE 1.2 output exception (`LICENSE.md`, `NOTICE.md`); release archives ship both.
 - `Io.randomU64()` (`uses random`): 64 bits from the operating system's random source, the same one the map hash seed uses.
 - Spec 016: `import std.<name>` loads a std module shipped inside the `bayan` binary (`lib/std/`), from a script, a file or a project, in the C# and the self-hosted compiler alike; a package's own `std/` cannot shadow it, an unknown module lists the ones that exist (BYN2032), a std module that imports a package module is BYN2033, and diagnostics inside std source point at `<std>/…` paths.
 - `import std.json`, the first std module: a pull reader (`JsonReader.over`, `next`, `JsonToken`), the tree `JsonValue` from `Json.parse` (`Untrusted`, fails `JsonError` with offset, line and column; nesting past 128 is `tooDeep`) and `Json.encode(v, indent:)` in the layout of Python's `json.dumps`, which fails `JsonError` on an infinite or NaN number (`nonFinite`) and on a tree nested past 128 levels (`nestedTooDeep`).
