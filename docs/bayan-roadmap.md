@@ -12,7 +12,7 @@ Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan`
 | 0.2.0 | 2026-11-06 | `v0.2.0` | shipped | `CHANGELOG.md` `[0.2.0]` |
 | 0.3.0 | 2026-11-14 | `v0.3.0` | cut on `dev` (`VERSION` is `0.3.0`, `CHANGELOG.md` `[0.3.0]`); waits for the dev → main merge and the tag, both the user's | `VERSION`, `CHANGELOG.md` `[0.3.0]`, `docs/RELEASING.md` |
 
-### 0.1.0: the C# compiler, milestones M0 to M12
+### 0.1.0: the C# compiler (M0 — Skeleton to M12 — CLI completeness and machine-readable output)
 
 Source: `CHANGELOG.md` `[0.1.0]`, `docs/bayan-handoff.md` (Milestones).
 
@@ -132,6 +132,7 @@ I did not edit the spec files. Another writer owns them.
 | 017 Selfhost default | approved | `CHANGELOG.md` `[0.3.0]`; 22 of 22 ticked; handoff row 017 |
 | 018 Rev 0021 checker | approved | `docs/handoffs/2026-11-10-rev-0021-report.md` (merges 36921d29, 71021224, 10bb0a0d); 11 of 11 ticked |
 | Plan 2026-11-02-003 Move to Ikhbat | waiting for approval | `CHANGELOG.md` `[0.2.0]` Changed (repository moved) |
+| Plan 2026-10-21-001 Design round 2 | "awaiting approval" | `docs/bayan-handoff.md` Question 101 (decisions "superseded by design round 2 C1"); `docs/plans/2026-10-22-002-design-round-3.md` takes round 2 as input and wins over it |
 | Plan 2026-10-22-002 Design round 3 | no status line | `CHANGELOG.md` `[0.1.0]` Added (revisions 0002–0010) |
 | Plans 007, 009, 010, 011, 012, 013, 014 | approved or closed | 007: handoff Progress log (Phase A and B); 009, 011: `CHANGELOG.md` `[0.3.0]`; 010: closed, gate failed (see not-planned); 012–014: handoff Progress log and merges on `dev` |
 | Plan 008 Release prep | approved | `CHANGELOG.md` `[0.3.0]` Changed (release gates) |
