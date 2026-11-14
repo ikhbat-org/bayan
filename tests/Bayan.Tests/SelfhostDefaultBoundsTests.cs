@@ -364,8 +364,9 @@ public sealed class SelfhostDefaultBoundsTests
         Assert.True(peak < CheckPeakBoundMb * 1024 * 1024, $"check of selfhost/driver peaked at {peak / (1024 * 1024)} MB, bound {CheckPeakBoundMb} MB");
     }
 
-    // measured on Linux (bayan-test01), the driver's resident set when the C compiler starts: BUILD_CC_MEASURED.
-    private const long BuildAtCcBoundMb = 0;
+    // measured on Linux (bayan-test01), the driver's resident set when the C compiler starts: 21 MB at `zig cc --version`, 29 MB at the
+    // runtime object (2026-11-14); without the frontend arena the whole compile is still resident, about 830 MB.
+    private const long BuildAtCcBoundMb = 100;
 
     /// <summary>Q31 (plan 015): <c>build</c> frees the compiler's frontend before the C compiler starts, so <c>zig cc</c> never runs
     /// beside it. A fake <c>zig</c> first on PATH records its parent's (the driver's) resident set at each call (<c>zig cc --version</c>,
