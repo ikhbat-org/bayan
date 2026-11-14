@@ -2,9 +2,13 @@ using System.Diagnostics;
 
 namespace Bayan.Tests;
 
-/// <summary>Runs a process to its exit, sampling its working set every 100 ms (scaled); the peak is 0 when no sample was taken.</summary>
+/// <summary>Runs a process to its exit, sampling its working set at start and then every <see cref="IntervalMs"/>; the peak is 0
+/// when no sample was taken. The interval is not scaled by <see cref="TestTime"/>: a slower host needs samples at least as often,
+/// and a 100 ms (300 ms on CI) first wait missed a <c>doctor</c> run that exited sooner on a fast macOS runner.</summary>
 internal static class PeakSampler
 {
+    internal const int IntervalMs = 10;
+
     internal static (int Exit, string Out, string Err, long Peak) Run(ProcessStartInfo psi)
     {
         psi.RedirectStandardOutput = true;
@@ -14,7 +18,7 @@ internal static class PeakSampler
         var stdout = p.StandardOutput.ReadToEndAsync();
         var stderr = p.StandardError.ReadToEndAsync();
         long peak = 0;
-        while (!p.WaitForExit(TestTime.Scale(100)))
+        do
         {
             try
             {
@@ -23,6 +27,7 @@ internal static class PeakSampler
             }
             catch (InvalidOperationException) { }
         }
+        while (!p.WaitForExit(IntervalMs));
         return (p.ExitCode, stdout.Result.ReplaceLineEndings("\n"), stderr.Result.ReplaceLineEndings("\n"), peak);
     }
 }
