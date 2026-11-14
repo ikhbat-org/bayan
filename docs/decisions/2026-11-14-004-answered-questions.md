@@ -119,7 +119,7 @@ Each row gives the question in one line, the answer, the date of the answer (the
 | Q56 (entry 2) | Round 3 step 0: GRAMMAR §12 sources | The plan gives no Arabic source for `until`/`through`, role-noun function fields or the `Untrusted<T>` status. *Current choice:* no source rows were added for them. | not recorded | Round 3 step 0 |
 | Q115 | Round 3 step 0b: `string.from(bytes)` | O13 and J82 rename `fromUtf8` to `try string(bytes)` / `string.tryFrom(bytes)`, but the implemented v0.1 form is `string.from(bytes) fails Utf8Error` (Q71), which J82 does not name. *Current choice:* SPEC §3.2, §6.2 and §8 state `try string(bytes)`; the compiler keeps `string.from` until step 5.4, which should rename it under BYN2230 like `fromUtf8`. | not recorded | Round 3 step 0b |
 | Q116 | Round 3 step 0b: generics in debug builds | SPEC §11 said debug builds share generic code through witness tables, with `@specialize` / `@shared` per function; design round 3 §30 and J90 say generics are monomorphized and interface values are the explicit dynamic form. *Current choice:* SPEC §11 states monomorphization in every build mode, and `@specialize` / `@shared` are dropped. Revisit if a debug-build compile-time budget needs shared code. | not recorded | Round 3 step 0b |
-| Q117 | Round 3 step 0b: the FFI wide-string type | design round 3 §27 says nul-terminated UTF-16 follows the same form as `cstr` but gives no type name. *Current choice:* SPEC §18 describes the rule without naming a type; `string16` (§3.2) is unchanged. | not recorded | Round 3 step 0b |
+| Q117 | Round 3 step 0b: the FFI wide-string type | Design round 3 §27 says nul-terminated UTF-16 follows the same form as `cstr` but gives no type name. *Current choice:* SPEC §18 describes the rule without naming a type; `string16` (§3.2) is unchanged. | not recorded | Round 3 step 0b |
 | Q118 | Round 3 step 0b: `Handle<T>` | SPEC §9.6 lists `Pool<T>` + `Handle<T>` as present, while J88 keeps generational handles out of round 3. *Current choice:* §9.6 is kept and gains the typed-index-first rule from design round 3 §31; handles are added only when the selfhost AST or Sūq shows the need. | not recorded | Round 3 step 0b |
 | Q119 | Round 3 step 0b: docs ahead of the compiler | long; full text under Q119 below | not recorded | Round 3 step 0b |
 | Q120 | Pointer type spelling in type-first declarations | long; full text under Q120 below | 2026-10-24 | spec §18 |
@@ -1064,7 +1064,7 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 
 ### Q128
 
-128. **Round 3 step 5.1b: receiver forms before typestate.** design round 3 §2 lists `this is .s`, `ref this is .s`, `move this`, `move this is .s` and `this is .a or .b`; the row scopes 5.1b to `this is .s` (parse only). *Current choice:* `this is .s` and `ref this is .s` parse as the first parameter and set `FunctionDecl.ReceiverState`; the binder ignores the state (the receiver stays read-only or `ref`). A `this is .s` after other parameters is not a receiver and fails as a parameter type; `move this`, `or` states and BYN1061 wait for their steps.
+128. **Round 3 step 5.1b: receiver forms before typestate.** Design round 3 §2 lists `this is .s`, `ref this is .s`, `move this`, `move this is .s` and `this is .a or .b`; the row scopes 5.1b to `this is .s` (parse only). *Current choice:* `this is .s` and `ref this is .s` parse as the first parameter and set `FunctionDecl.ReceiverState`; the binder ignores the state (the receiver stays read-only or `ref`). A `this is .s` after other parameters is not a receiver and fails as a parameter type; `move this`, `or` states and BYN1061 wait for their steps.
 
 ### Q129
 
@@ -1088,7 +1088,7 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 
 ### Q150
 
-150. **Round 3 `#line` (J93): which path the directive names.** design round 3 §30 says `#line N "file.byn"` without saying absolute or relative. *Current choice:* the path panics already print (relative to the package root; a loose file by its name), so the emitted C and the cache key do not depend on where the project lives; the compile directory is recorded as `.` (`-ffile-prefix-map`), so a debugger started in the project root finds the file. An absolute path would work from anywhere but makes the C differ per checkout. Consecutive statements on one line share one directive; a `for` loop's increment maps to its head; code after each function body is reset to `#line N "main.c"`.
+150. **Round 3 `#line` (J93): which path the directive names.** Design round 3 §30 says `#line N "file.byn"` without saying absolute or relative. *Current choice:* the path panics already print (relative to the package root; a loose file by its name), so the emitted C and the cache key do not depend on where the project lives; the compile directory is recorded as `.` (`-ffile-prefix-map`), so a debugger started in the project root finds the file. An absolute path would work from anywhere but makes the C differ per checkout. Consecutive statements on one line share one directive; a `for` loop's increment maps to its head; code after each function body is reset to `#line N "main.c"`.
 
 ### Q162
 
