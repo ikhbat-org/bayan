@@ -1632,6 +1632,11 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 
 ## Progress log
 
+- **2026-11-14 — Plan 015 phase A: the plan 014 review LOWs (`fix/q31-followups-small`, Q31; `docs/plans/2026-11-14-015-q31-followups.md`).**
+  - `t42AnalyzeRegions` runs in `General` when a bag is the sink (`c.sink >= 0`). New `SelfhostSemanticsT25Tests.RegionsInABagKeepTheirDiagnostics` (73 rows) runs it inside a bag over every region `diag/` case; with the guard removed, 10 rows print freed memory.
+  - New `diag/ref-this-store-through-later-method`: `put` is summarized before the `keep` it calls, so its second store count (2) is twice its first. Removing the `pairs`/`returns` clear in `summarizeRegions` drops its BYN3002 (both T25 rows fail).
+  - Linux PeakSampler break-tests of `CheckOfTheDriverStaysBounded` on bayan-test01 (bound 560 MB): region arena off 628 MB, summary arena off 2,506 MB. Scratch branches `chore/q31-bt-region-off` and `chore/q31-bt-summary-off`.
+  - Fable verified the plan before approval; user decisions 2026-11-14: phase C (emit arena) deferred, phase B's bound is Linux-only.
 - **2026-11-14 — Plan 014: region analyses in arenas, cheaper `sweepStale` (`fix/q31-build-arenas`, Q31; `docs/plans/2026-11-14-014-region-analysis-arenas.md`).** The 1.7 GB recorded for the self-hosted `build` of the driver was the `zig cc -O2` child (1,663 MB); bayan alone peaked at 1,074 MB and keeps it while zig runs.
   - `analyzeRegions` (template loop, `generics.byn:227`, via `t42AnalyzeRegions`) and every `summarizeRegions` pass (`t42SummaryInArena`) run in an arena. When the run added a diagnostic or a `changedFields` memo entry (arena memory), `t42Undo` truncates diagnostics and locals, removes the new memo keys (logged in the new `Ctx.changedFieldsKeys`) and the run is made again in `General`; the summary pass also clears `pairs`/`returns` first. The instance call site (`generics.byn:799`) stays in `General`.
   - `sweepStale` tests the name prefix before `Path.combine`.
