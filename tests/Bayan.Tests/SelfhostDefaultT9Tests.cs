@@ -480,10 +480,12 @@ public sealed class SelfhostDefaultT9Tests
         // (a file of its own, never run), the others none.
         var bin = Path.Combine(dir, "bin");
         Directory.CreateDirectory(bin);
+        // FindOnPath takes only zig.exe, zig.cmd or zig.bat on Windows (Toolchain.cs FindOnPath).
+        var zig = Path.Combine(bin, OperatingSystem.IsWindows() ? "zig.exe" : "zig");
         if (pointer is "stamped" or "stale" or "oldformat")
         {
-            File.WriteAllText(Path.Combine(bin, "zig"), "");
-            Stamp(bin, 2020);
+            File.WriteAllText(zig, "");
+            File.SetLastWriteTimeUtc(zig, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         }
         var stamp = With("BAYAN_CC", null, () => With("PATH", bin, () => Toolchain.FindCompiler() is { } c ? Toolchain.CompilerStamp(c) : ""));
         string Layout()
@@ -497,7 +499,7 @@ public sealed class SelfhostDefaultT9Tests
             if (pointer == "nbsppointer") File.WriteAllText(file, "\u3000" + Key + "\u00a0");
             if (pointer == "unreadable") File.SetUnixFileMode(file, UnixFileMode.None);
             if (pointer is "stamped" or "oldformat") File.WriteAllText(file, Key + "\n" + (pointer == "stamped" ? stamp + "\n" : ""));
-            if (pointer == "stale") File.WriteAllText(file, Key + "\n" + Path.Combine(bin, "zig") + ":1\n");
+            if (pointer == "stale") File.WriteAllText(file, Key + "\n" + zig + ":1\n");
             return cache;
         }
         var driver = Driver(Layout(), [("PATH", bin)], "lookupscript", "skey", "program");

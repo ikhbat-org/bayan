@@ -7,6 +7,11 @@ on:
   # By hand on any branch (gh workflow run ci.yml --ref <branch>), e.g. to check a branch before it is pushed to dev.
   workflow_dispatch:
 
+# A newer push or dispatch on the same ref cancels the run in progress: only the latest commit's result matters.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     strategy:
@@ -23,6 +28,9 @@ jobs:
             rid: win-x64
             exe: bayan.exe
     runs-on: ${{ matrix.os }}
+    # Ported tools and SourcesAreFormatted run on the pinned bayan; a CI checkout has no local `dev`, so pin the commit under test.
+    env:
+      PINNED_BAYAN_REF: HEAD
     steps:
       # Replaces actions/checkout (spec 015 handoff, T4): the exact commit at depth 1. The repo is public, so no token.
       - name: Checkout
@@ -44,9 +52,6 @@ jobs:
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
       - name: Script tests
         if: runner.os != 'Windows'
-        # Ported tools run on the pinned bayan; a CI checkout has no local `dev`, so pin the commit under test.
-        env:
-          PINNED_BAYAN_REF: HEAD
         run: |
           bash scripts/ci/install-zig.test.sh
           bash scripts/ci/install-dotnet.test.sh

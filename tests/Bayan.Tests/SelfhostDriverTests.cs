@@ -18,7 +18,7 @@ public sealed class SelfhostDriverT1Tests
     private static string Mask(string text) => Regex.Replace(text, @"^(bayan \S+) \(.*\)$", "$1 (masked)", RegexOptions.Multiline);
 
     /// <summary><see cref="CliApp.Run(string[], TextWriter, TextWriter)"/> in-process, the oracle of R2 (no terminal), line ends read as LF.</summary>
-    private static (int Exit, string Out, string Err) Oracle(string[] args)
+    internal static (int Exit, string Out, string Err) Oracle(string[] args)
     {
         var stdout = new StringWriter();
         var stderr = new StringWriter();
@@ -1418,6 +1418,26 @@ public sealed class SelfhostDriverT1Tests
         Assert.True(exit == 0, $"bayan format --check selfhost/driver:\n{stdout}{stderr}");
     }
 
+    internal static (int Exit, string Out, string Err) Run(string program, params string[] args)
+    {
+        var psi = new ProcessStartInfo(program) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, WorkingDirectory = Golden.RepoRoot };
+        foreach (var a in args) psi.ArgumentList.Add(a);
+        using var p = Process.Start(psi)!;
+        var stdout = p.StandardOutput.ReadToEndAsync();
+        var stderr = p.StandardError.ReadToEndAsync();
+        p.WaitForExit();
+        return (p.ExitCode, stdout.Result, stderr.Result);
+    }
+}
+
+/// <summary>
+/// Stage 2's <c>format --check</c>. Runs in the serial collection: <c>BootstrapTests.Stage2Executable</c> builds the stages
+/// on first use and sets the process working directory for the stage-1 build, which broke relative paths in parallel classes
+/// (<c>SelfhostSemanticsT18Tests</c>, CI 2026-11-14).
+/// </summary>
+[Collection(nameof(ToolchainEnvironment))]
+public sealed class SelfhostDriverStage2FormatTests
+{
     /// <summary>
     /// Stage 2's <c>format --check</c> over <c>selfhost/</c> and <c>tests/cases/run/</c> equals the C#'s.
     /// </summary>
@@ -1428,22 +1448,11 @@ public sealed class SelfhostDriverT1Tests
     {
         if (OperatingSystem.IsWindows()) return;
         var dir = Path.Combine(Golden.RepoRoot, tree);
-        var expected = Oracle(["format", "--check", dir]);
-        var (exit, stdout, stderr) = Run(BootstrapTests.Stage2Executable(), "format", "--check", dir);
+        var expected = SelfhostDriverT1Tests.Oracle(["format", "--check", dir]);
+        var (exit, stdout, stderr) = SelfhostDriverT1Tests.Run(BootstrapTests.Stage2Executable(), "format", "--check", dir);
         Assert.Equal(expected.Exit, exit);
         SelfhostEmitterHarness.AssertSame($"stdout of format --check {tree}", expected.Out, stdout.ReplaceLineEndings("\n"));
         SelfhostEmitterHarness.AssertSame($"stderr of format --check {tree}", expected.Err, stderr.ReplaceLineEndings("\n"));
-    }
-
-    private static (int Exit, string Out, string Err) Run(string program, params string[] args)
-    {
-        var psi = new ProcessStartInfo(program) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, WorkingDirectory = Golden.RepoRoot };
-        foreach (var a in args) psi.ArgumentList.Add(a);
-        using var p = Process.Start(psi)!;
-        var stdout = p.StandardOutput.ReadToEndAsync();
-        var stderr = p.StandardError.ReadToEndAsync();
-        p.WaitForExit();
-        return (p.ExitCode, stdout.Result, stderr.Result);
     }
 }
 
