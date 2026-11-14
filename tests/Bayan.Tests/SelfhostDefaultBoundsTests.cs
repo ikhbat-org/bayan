@@ -364,12 +364,12 @@ public sealed class SelfhostDefaultBoundsTests
         Assert.True(peak < CheckPeakBoundMb * 1024 * 1024, $"check of selfhost/driver peaked at {peak / (1024 * 1024)} MB, bound {CheckPeakBoundMb} MB");
     }
 
-    // measured on Linux (bayan-test01), the driver's resident set when the C compiler starts: 21 MB at `zig cc --version`, 29 MB at the
-    // runtime object (2026-11-14); without the frontend arena the whole compile is still resident, about 830 MB.
+    // measured on Linux (bayan-test01), the driver's resident set when the C compiler starts: 21 MB at `zig version`, 29 MB at the
+    // runtime object (2026-11-14); without the frontend arena the whole compile is still resident, 788/801 MB (break-test, 2026-11-14).
     private const long BuildAtCcBoundMb = 100;
 
     /// <summary>Q31 (plan 015): <c>build</c> frees the compiler's frontend before the C compiler starts, so <c>zig cc</c> never runs
-    /// beside it. A fake <c>zig</c> first on PATH records its parent's (the driver's) resident set at each call (<c>zig cc --version</c>,
+    /// beside it. A fake <c>zig</c> first on PATH records its parent's (the driver's) resident set at each call (<c>zig version</c>,
     /// then the runtime object's compile) and fails. Linux only: macOS keeps freed memory charged to the process.</summary>
     [Fact]
     public void BuildFreesTheFrontendBeforeTheCCompiler()
@@ -395,7 +395,7 @@ public sealed class SelfhostDefaultBoundsTests
         var samples = File.ReadAllLines(log).Where(l => l.Trim().Length > 0).Select(l => long.Parse(l.Trim()) / 1024).ToList();
         Assert.True(samples.Count > 0, "the fake zig recorded nothing");
         Assert.True(samples.Max() < BuildAtCcBoundMb,
-            $"the driver held {string.Join(", ", samples)} MB when the C compiler started (zig cc --version, then the runtime object), bound {BuildAtCcBoundMb} MB");
+            $"the driver held {string.Join(", ", samples)} MB when the C compiler started (zig version, then the runtime object), bound {BuildAtCcBoundMb} MB");
     }
 
     /// <summary>Q31: <c>cacheStats</c> and <c>t1FileExists</c> read each cached file in an arena, so <c>doctor</c> does not grow with the cache.</summary>
