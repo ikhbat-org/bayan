@@ -120,4 +120,4 @@ carry it.
 
 Git tags are the archive. The docs of any release are the files at its `vX.Y.Z` tag, and the release's
 `bayan-X.Y.Z-docs.tar.gz`. Past versions are not copied into the repo. `docs/export/` is a dated snapshot
-(8d5e5c71); it is not shipped and not checked.
+(821afa40); it is not shipped and not checked.

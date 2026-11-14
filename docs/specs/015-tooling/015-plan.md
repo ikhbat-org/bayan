@@ -45,7 +45,7 @@ R1 launcher; R5/R6 per port task; R2/R7 at the last port; R3/R4 at each API task
 `gen-lowercase`; R9 holds (no compiler change in the first ports).
 
 ## Revision 2026-11-08: the remaining ports
-Inputs: the inventory of `feat/015-tooling-ports` at 3a90aede (`tmp/015-inventory.md`, 2026-11-08) and the user's
+Inputs: the inventory of `feat/015-tooling-ports` at 581e0eb9 (`tmp/015-inventory.md`, 2026-11-08) and the user's
 decisions of 2026-11-08 (below, U1–U5). The section above stays as history; where the two differ, this section wins.
 
 ### What the inventory found

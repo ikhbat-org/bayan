@@ -4,7 +4,7 @@ Status: accepted (user decision 2026-11-12, "I approve any changes", after an ou
 
 ## Problem
 
-An outside review of the export at `8d5e5c71` (`docs/export/BAYAN-AUDIT.md`), checked against dev at `9fda8d47`, raised four points that hold:
+An outside review of the export at `821afa40` (`docs/export/BAYAN-AUDIT.md`), checked against dev at `23f42850`, raised four points that hold:
 
 1. Syntax revisions keep landing while spec 017 makes the self-hosted compiler the default. Every syntax change is paid twice, in `src/` and in `selfhost/`.
 2. Revision 0020 tags unbuilt features `(not in 0.2)`, but the tagged text is still normative: every revision has to stay consistent with designs nobody has built or tested together.
@@ -60,7 +60,7 @@ None.
 
 ## Diff
 
-Removed from SPEC (§13 as of `9fda8d47`); the placeholder in the spec replaces it.
+Removed from SPEC (§13 as of `23f42850`); the placeholder in the spec replaces it.
 
 ```markdown
 ## 13. Concurrency (not in 0.2: no `async`/`await`, `Io` implementations or fibers; revision 0019 replaces this section with `scope`/`spawn`, not yet written)

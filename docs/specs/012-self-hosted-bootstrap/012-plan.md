@@ -2,7 +2,7 @@
 Spec: ./012-spec.md
 Tasks: ./012-tasks.md
 
-Written against `feat/011-self-hosted-emitter` on 2026-11-04 (011 T13 landed at ee3ff1b8; T14–T20 open).
+Written against `feat/011-self-hosted-emitter` on 2026-11-04 (011 T13 landed at c0d1dc1b; T14–T20 open).
 
 ## Approach
 
@@ -174,7 +174,7 @@ Changes from the 2026-10-22 draft (written against `244edc1`, before 009–011 w
 
 ## Addendum Q970: Target.os/arch, Env.get, Fs file query (user 2026-11-05)
 
-Grounded at c2c71e90 by an audit worker; tasks T15–T19 in 012-tasks.md; open points are handoff Q971–Q977, defaults applied meanwhile.
+Grounded at 383ed2d0 by an audit worker; tasks T15–T19 in 012-tasks.md; open points are handoff Q971–Q977, defaults applied meanwhile.
 
 ### Grounding (what the C# does today)
 - Host: `Targets.Host` = `os + "-" + arch`, where os is `linux|macos|windows` and arch is `x64|arm64`. It is null on any other OS or arch (`src/Bayan.Backend.C/Targets.cs:30-41`). The target names are in `Targets.cs:11-20`; `wasm32` has no os-arch split. `CliApp.HostTarget` is `Host ?? "host"` (`src/Bayan.Cli/CliApp.cs:446`). `--target host` becomes null (`:190-197`). `cross = target != Targets.Host` (`Toolchain.cs:184`). The exe suffix test is `targetOs.StartsWith("windows")` (`Toolchain.cs:194,212`, `Targets.cs:44-47`).

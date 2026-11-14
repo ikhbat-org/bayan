@@ -20,7 +20,7 @@ compilers (C# in `src/`, self-hosted in `selfhost/`) must change together, byte-
 - New sharing infrastructure for the lexicon (none exists: `Lexicon.cs` and `naming.byn` `buildLexicon` are two copies).
 - Any code outside BYN5104–5107, no change to narrowing.
 
-## Code as found (dev b976a798)
+## Code as found (dev 2fe3a14a)
 - `grammar.adjectives` already exists in both manifests (`Manifest.cs:38` `GrammarFields`, `naming.byn` `grammar.adjectives`)
   and BYN5014's selfhost help already names three classes; the C# message is "`{0}` is not a known verb or noun".
 - The lexicon parity test (`SelfhostSemanticsT7Tests.cs:171`) compares counts and samples, not the whole lists.
