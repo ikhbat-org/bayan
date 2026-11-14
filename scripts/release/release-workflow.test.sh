@@ -15,4 +15,5 @@ awk '/^  release:/{r=1} r&&/needs:/{print; exit}' "$wf" | grep -qw 'laws' || fai
 grep -qx '  workflow_call:' "$ln" || fail "laws-nightly.yml is not callable"
 grep -q "cron: '0 4 \* \* \*'" "$ln" || fail "laws-nightly.yml lost its schedule"
 grep -q 'timeout-minutes: 180' "$ln" || fail "laws-nightly.yml's job no longer allows 180 min"
+grep -qF '$(bash scripts/release/package.sh release-flags "$v")' "$wf" || fail "release.yml's gh release create lost release-flags (0.x prerelease)"
 echo PASS

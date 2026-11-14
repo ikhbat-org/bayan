@@ -27,6 +27,8 @@ setv x
 out="$(bash "$s" check-tag v1.2.3 2>&1)" && fail "malformed VERSION accepted"
 echo "$out" | grep -q "VERSION holds 'x'" || fail "no malformed-VERSION message: $out"
 setv 1.2.3
+[ "$(bash "$s" release-flags 0.3.0)" = --prerelease ] || fail "0.x release not marked prerelease"
+[ -z "$(bash "$s" release-flags 1.2.3)" ] || fail "1.x release marked prerelease"
 # check-dry-run-tag: v<VERSION without -dev>-rc.<N>, for a dispatch only.
 [ "$(bash "$s" check-dry-run-tag v1.2.3-rc.1)" = 1.2.3 ] || fail "dry-run tag refused for VERSION 1.2.3"
 setv 1.2.3-dev

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Compiler release packaging, run by .github/workflows/release.yml (decision 2026-11-02: GitHub Release per v* tag).
 #   package.sh check-tag <tag>                  exit 0 when <tag> is v + VERSION
+#   package.sh release-flags <version>          the extra `gh release create` flags: --prerelease while the major is 0
 #   package.sh check-dry-run-tag <tag>          exit 0 when <tag> is v<VERSION without -dev>-rc.<N> (workflow_dispatch only)
 #   package.sh pack <rid> <publish-dir> <out>   <out>/bayan-<version>-<target>.tar.gz (.zip for Windows), the binary
 #                                               inside a bayan-<version>-<target>/ folder with README.md, the docs
@@ -62,6 +63,9 @@ case "${1:-}" in
     [ "$tag" = "v$v" ] || die "tag $tag does not match VERSION $v (expected v$v)"
     case "$v" in *-*) die "VERSION $v is a prerelease; set the release version before tagging" ;; esac
     echo "$v" ;;
+  release-flags)
+    v="${2:?usage: package.sh release-flags <version>}"
+    case "$v" in 0.*) echo --prerelease ;; esac ;;
   check-dry-run-tag)
     # A dispatch dry run: v<VERSION without -dev>-rc.<N> is accepted; a pushed tag keeps the exact check-tag.
     tag="${2:?usage: package.sh check-dry-run-tag <tag>}"; base="$(version)"; base="${base%-dev}"

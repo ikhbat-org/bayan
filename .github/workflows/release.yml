@@ -158,5 +158,6 @@ jobs:
           bash scripts/release/package.sh sums dist
           # dist/bayan-* is the six compiler archives and bayan-$v-docs.tar.gz.
           mkdir -p tmp && bash scripts/release/package.sh notes "$v" > tmp/notes.md
+          # 0.x releases are GitHub prereleases (user, 2026-11-14).
           gh release create "$GITHUB_REF_NAME" dist/bayan-* dist/SHA256SUMS --draft --verify-tag \
-            --title "Bayān $v" --notes-file tmp/notes.md
+            $(bash scripts/release/package.sh release-flags "$v") --title "Bayān $v" --notes-file tmp/notes.md
