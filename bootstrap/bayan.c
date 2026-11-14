@@ -23112,7 +23112,7 @@ void byn_lexer__LexResult__lexNumber(bynt_lexer__LexResult* self) {
 #line 689 "lexer/lexer.byn"
             t12 = byn_lexer__TextSpan__fromBounds(l6_suffixStart, (*self).pos);
 #line 689 "lexer/lexer.byn"
-            (void)byn_lexer__LexResult__report(&(*self), ((byn_lexer_DiagnosticCode)10), t12, byn_lexer__utf8(l9_suffix), l1_radix, BYN_STR("", 0), BYN_STR("write the value in decimal, or wrap it with a cast to the unit type", 67));
+            (void)byn_lexer__LexResult__report(&(*self), ((byn_lexer_DiagnosticCode)10), t12, byn_lexer__utf8(l9_suffix), l1_radix, BYN_STR("", 0), BYN_STR("write the value in decimal, or convert it with T(x), where T is the unit type", 77));
         }
     }
 }

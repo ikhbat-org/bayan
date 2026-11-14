@@ -687,7 +687,7 @@ public struct LexResult {
             let builtIn = sameBytes(suffix, as: "u".bytes) || sameBytes(suffix, as: "l".bytes) || sameBytes(suffix, as: "ul".bytes)
             if !radix.isEmpty && !builtIn {
                 report(.suffixOnHexOrBinary, at: TextSpan.fromBounds(suffixStart, until: pos), arg0: utf8(suffix), arg1: radix,
-                    help: "write the value in decimal, or wrap it with a cast to the unit type")
+                    help: "write the value in decimal, or convert it with T(x), where T is the unit type")
             }
         }
     }
