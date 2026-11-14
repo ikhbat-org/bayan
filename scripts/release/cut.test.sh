@@ -33,6 +33,7 @@ check next-dev
 commit "1.2.3-dev"
 
 printf '# 0003 — Third\n\nStatus: done\nRelease: 1.2.3\nSources: none recorded\n' > "$r/docs/revisions/0003-third.md"
+printf '0003-third.md\n' >> "$r/docs/bayan-feature-history.md"
 printf 'edited\n' >> "$r/docs/revisions/0001-first.md"
 sed -i.bak 's/| units | SPEC | spec-only | none |/| units | SPEC | built | `a.cs:1` |\n| `x` | SPEC | proposed | none |/' "$r/docs/STATUS.md"
 rm "$r/docs/STATUS.md.bak"
