@@ -1632,6 +1632,14 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 
 ## Progress log
 
+- **2026-11-14 — Plan 014: region analyses in arenas, cheaper `sweepStale` (`fix/q31-build-arenas`, Q31; `docs/plans/2026-11-14-014-region-analysis-arenas.md`).** The 1.7 GB recorded for the self-hosted `build` of the driver was the `zig cc -O2` child (1,663 MB); bayan alone peaked at 1,074 MB and keeps it while zig runs.
+  - `analyzeRegions` (template loop, `generics.byn:227`, via `t42AnalyzeRegions`) and every `summarizeRegions` pass (`t42SummaryInArena`) run in an arena. When the run added a diagnostic or a `changedFields` memo entry (arena memory), `t42Undo` truncates diagnostics and locals, removes the new memo keys (logged in the new `Ctx.changedFieldsKeys`) and the run is made again in `General`; the summary pass also clears `pairs`/`returns` first. The instance call site (`generics.byn:799`) stays in `General`.
+  - `sweepStale` tests the name prefix before `Path.combine`.
+  - Max RSS of bayan alone (fake zig), macOS / Linux: `check` 743 → 396 / 841 → 472 MB, `--emit-c` 1,026 → 678 / 1,155 → 786 MB, `build` 1,072 → 699 / 1,168 → 798 MB. C byte-identical to `bootstrap/bayan.c` (regenerated; `BootstrapTests` 7/7).
+  - `CheckOfTheDriverStaysBounded`: 480 MB macOS / 560 MB Linux / 1,700 MB Windows (unmeasured); either arena reverted fails it (sampled 578 / 550 MB). No `--emit-c` bound (margin under 40 MB). Rollback off: ASan use-after-free in `changedFields`. ASan clean on the driver and the 73 region `diag/` cases. Removing the `pairs`/`returns` clear is not caught by any test (the fixpoint self-corrects; `work/todo.md`).
+  - Review: 0 HIGH / 0 MEDIUM / 4 LOW (2 fixed, 2 to `work/todo.md`). Local classes 1,636/1,636. VM two-slot full suite at d4e06ce7: 13,609 passed, 0 failed, 30.3 min (later commits: docs, cleanup script, the Windows bound; bounds class 16/16 locally).
+  - Open (`work/todo.md`): `t6EmitFunction` 175 MB, `analyzeEffects` 62 MB, freeing the frontend before the zig child (about 1 GB combined). Cleanup: `scripts/cleanup/q31-plan-014.sh` (not run). Same land.sh deviation as plans 009–013 (no specs.tsv row).
+
 - **2026-11-13 — Plan 013: arenas for the region-summary fixpoint and the cache size reads (`fix/q31-region-cache-arenas`, Q31).** The two-slot VM run after plan 012 lost a slot to a 2.6 GB self-hosted `bayan` (bootstrap). Measured cause: `summarizeRegions` (about 2.0 GB of the 2.6 GB `check` peak), plus `doctor` reading every cached file whole, twice. Three fixes, each an arena whose only output is plain data:
   - `summarizeRegions`: passes after the first run each summary in an arena (`t41SummaryRun`). The first pass stays in `General` because it fills the lazy `changedFields` memo; an arena there was a use-after-free (ASan; stage 1 panicked "index out of range").
   - `cacheStats` and `t9Evict` read for the length inside an arena.
