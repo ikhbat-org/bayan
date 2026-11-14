@@ -204,7 +204,7 @@ void bindAll(ref Ctx c) {
         instantiatingEnd(ref c, by: scope, instance: workInstance)
     }
     inferErrorSets(ref c)
-    analyzeEffects(ref c)
+    t42AnalyzeEffects(ref c)
     checkMutation(ref c)
     checkRequires(ref c)
     summarizeRegions(ref c)
