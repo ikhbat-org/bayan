@@ -1,5 +1,7 @@
 # 003 — Ownership verification: `take()`, `switch (move x)`, a runtime ownership checker, and a proof for L008
 Status: done
+Release: 0.1.0
+Sources: Q64, Q65, Q66, Q68
 Created: 2026-10-21
 
 ## Problem

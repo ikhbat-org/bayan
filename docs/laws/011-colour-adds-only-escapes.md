@@ -7,6 +7,8 @@ scope: src/Bayan.Syntax/Diagnostics/Style.cs, src/Bayan.Syntax/Diagnostics/Diagn
 proof: tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs
 check: dotnet test --filter Law=L011
 enacted: 2026-10-21
+release: 0.1.0
+sources: none recorded
 ---
 
 ## Statement

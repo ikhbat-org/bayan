@@ -7,6 +7,8 @@ scope: src/Bayan.Semantics/Binding/TypedDump.cs
 proof: tests/Bayan.Tests/TypedDumpTests.cs
 check: dotnet test --filter Law=L009
 enacted: 2026-10-21
+release: 0.1.0
+sources: none recorded
 ---
 
 ## Statement

@@ -1,5 +1,6 @@
 # 015 — Bayān tooling: replace Python, Deno and other non-Bayān scripts
 Status: in progress (T1–T8 landed: review-brief, plan-strings-check and install-textmate ported; T9–T17 open)
+Release: unscheduled
 Created: 2026-11-02
 
 Sources: the 2026-11-02 tooling brief (filed as 015 because 014 is the `Path` module; its decisions T1–T4 and port rules are in `docs/decisions/2026-11-02-002-tooling-port-rules.md`) and

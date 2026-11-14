@@ -7,6 +7,8 @@ scope: selfhost/driver/**, src/Bayan.Cli/CliApp.cs
 proof: tests/Bayan.Tests/SelfhostDriverGoldenTests.cs
 check: dotnet test -v q --filter "Law=L028"
 timeout: 1200
+release: 0.2.0
+sources: Q3, Q1223, Q1225, Q1270
 ---
 
 ## Statement

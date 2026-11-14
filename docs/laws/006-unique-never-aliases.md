@@ -7,6 +7,8 @@ scope: src/Bayan.Semantics/Binding/OwnershipAnalysis.cs
 proof: tests/Bayan.Tests/L006OwnershipGuardTests.cs
 check: dotnet test --filter Law=L006
 enacted: 2026-10-21
+release: 0.1.0
+sources: Q68
 ---
 
 ## Statement

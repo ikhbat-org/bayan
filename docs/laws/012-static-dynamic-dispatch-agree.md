@@ -7,6 +7,8 @@ scope: src/Bayan.Backend.C/CEmitter.cs
 proof: tests/Bayan.Tests/L012InterfaceDispatchTests.cs
 check: dotnet test --filter Law=L012
 enacted: 2026-10-22
+release: 0.1.0
+sources: none recorded
 ---
 
 ## Statement

@@ -7,6 +7,8 @@ scope: src/Bayan.Backend.C, src/Bayan.Lowering (coverage counters, mutant schema
 proof: tests/Bayan.Tests/InstrumentedRunLawTests.cs
 check: dotnet test -v q --filter "Law=L019"
 enacted: 2026-10-31
+release: 0.1.0
+sources: none recorded
 ---
 
 ## Statement

@@ -8,6 +8,8 @@ scope: selfhost/parser/main.byn
 proof: tests/Bayan.Tests/SelfhostParserEquivalenceLawTests.cs
 check: dotnet test -v q --filter "Law=L017"
 timeout: 1800
+release: 0.1.0
+sources: Q486, Q505, Q506
 ---
 
 ## Statement

@@ -1,4 +1,9 @@
 # 001 — Tasks
+
+Status: done
+Release: 0.1.0
+Sources: Q41, Q51
+
 Plan: ./001-plan.md
 
 Each milestone task ends with `dotnet test -v q` green, a docs page + `diag/` case per new diagnostic and a `run/` case per runtime feature (R12).

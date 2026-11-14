@@ -8,6 +8,8 @@ proof: tests/Bayan.Tests/SelfhostEmitterEquivalenceLawTests.cs
 check: dotnet test -v q --filter "Law=L024"
 timeout: 300
 enacted: 2026-11-04
+release: 0.2.0
+sources: Q890
 ---
 
 ## Statement

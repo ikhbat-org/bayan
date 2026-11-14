@@ -1,6 +1,8 @@
 # 0003 — Strings, culture and formatting
 
-Status: approved 2026-10-24 (user). Date: 2026-10-24. Applies to `SPEC.md`, `GRAMMAR.md`, `STYLE.md`, the HANDOFF `docs/bayan-design-round-3.md` and the plan `docs/plans/2026-10-22-002-design-round-3.md`. Amends revision 0002 item 24 and HANDOFF O13.
+Status: done; approved 2026-10-24 (user). Date: 2026-10-24. Applies to `SPEC.md`, `GRAMMAR.md`, `STYLE.md`, the HANDOFF `docs/bayan-design-round-3.md` and the plan `docs/plans/2026-10-22-002-design-round-3.md`. Amends revision 0002 item 24 and HANDOFF O13.
+Release: 0.1.0
+Sources: user, 2026-10-24; revision 0002
 
 ## Problem
 

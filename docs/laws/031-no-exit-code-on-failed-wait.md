@@ -6,6 +6,8 @@ kind: property
 scope: src/runtime/bayan-rt.c
 proof: tests/Bayan.Tests/RuntimeNativeTests.cs
 check: dotnet test -v q --filter "Law=L031"
+release: unscheduled
+sources: Q1157
 ---
 
 ## Statement

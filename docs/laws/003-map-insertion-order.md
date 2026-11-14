@@ -7,6 +7,8 @@ scope: src/Bayan.Semantics/Binding/BuiltinMembers.cs
 proof: tests/Bayan.Tests/MapModelTests.cs
 check: dotnet test -v q --filter "Law=L003"
 enacted: 2026-10-20
+release: 0.1.0
+sources: none recorded
 ---
 
 ## Statement

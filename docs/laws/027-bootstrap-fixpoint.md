@@ -7,6 +7,8 @@ scope: selfhost/driver/**, selfhost/emitter/**, selfhost/semantics/**, bootstrap
 proof: tests/Bayan.Tests/BootstrapTests.cs
 check: dotnet test -v q --filter "Law=L027"
 timeout: 900
+release: 0.2.0
+sources: none recorded
 ---
 
 ## Statement

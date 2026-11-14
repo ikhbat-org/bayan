@@ -2,7 +2,8 @@
 # check.sh on a fixture repo (test-fixture.sh): passes clean, then each check fails on its own breakage:
 # (a) a header version, (b) a new revision and a gap, (c) a new descriptor and a hand-edited generated row,
 # (d) a mirror that disagrees with VERSION, (e) a status tag for another release, (f) a cited code with no entry,
-# (g) a cited spec section with no heading.
+# (g) a cited spec section with no heading, (h) a record header that is missing or names an unknown release, a law
+# with no release key, a snapshot with no Snapshot line.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 t="$root/tmp/docs-check-test"
@@ -26,6 +27,8 @@ bash "$s" || fail "clean fixture fails"
 
 sed -i.bak 's/^Version: .*/Version: 1.2.2 (matches `bayan --version`)/' "$t/repo/docs/bayan-grammar.md"
 expect "(a) header version" "docs/bayan-grammar.md: 'Version: 1.2.2 (matches \`bayan --version\`)' is not 'Version: 1.2.3-dev"
+sed -i.bak 's/^Version: .*/Version: 1.2.2 (matches `bayan --version`)/' "$t/repo/docs/laws/README.md"
+expect "(a) release doc version" "docs/laws/README.md: 'Version: 1.2.2 (matches \`bayan --version\`)' is not 'Version: 1.2.3-dev"
 
 printf '# 0003 — Third\n' > "$t/repo/docs/revisions/0003-third.md"
 expect "(b) new revision" "docs/bayan-spec.md: 'Revisions applied: 0001–0002' is not 'Revisions applied: 0001–0003'"
@@ -76,4 +79,22 @@ expect "(g) missing heading in docs" "docs/bayan-style.md:$(wc -l < "$t/repo/doc
 printf '## 13. Concurrency\n' >> "$t/repo/docs/bayan-spec.md"
 printf '// Display (spec §13).\n// Locks (spec §13.4).\n' >> "$t/repo/src/Bayan.Semantics/Binding/Fixture.cs"
 expect "(g) missing heading in a code comment" "src/Bayan.Semantics/Binding/Fixture.cs:2 cites spec §13.4, which is not a heading of docs/bayan-spec.md"
+
+# (h) record and snapshot headers; a release doc under a record directory (docs/revisions/README.md) is not a record
+mkdir -p "$t/repo/docs/plans" "$t/repo/docs/laws" "$t/repo/docs/export"
+for rel in 1.2.2 1.2.3 1.2.3-dev unscheduled; do
+  printf '# P\n\nStatus: open\nRelease: %s\nSources: Q1\n' "$rel" > "$t/repo/docs/plans/p-$rel.md"
+done
+printf -- '---\nid: L001\nstatus: enacted\nrelease: 1.2.2\nsources: none recorded\n---\n\n# L001\n' > "$t/repo/docs/laws/001-x.md"
+printf '# X\n\nSnapshot: 2026-01-01; not maintained. Current text: none\n' > "$t/repo/docs/export/X.md"
+bash "$s" >/dev/null || fail "(h) good record, law and snapshot headers fail the check"
+cp -R "$t/repo" "$t/clean-h"; reset() { rm -rf "$t/repo" && cp -R "$t/clean-h" "$t/repo"; }
+printf '# Q\n\nStatus: open\nSources: Q1\n' > "$t/repo/docs/plans/q.md"
+expect "(h) record with no Release" "docs/plans/q.md: no Release: line in the first ten lines or the frontmatter (record doc)"
+sed -i.bak 's/^Release: 1.2.2$/Release: 1.2.1 (never cut)/' "$t/repo/docs/plans/p-1.2.2.md"
+expect "(h) unknown release" "docs/plans/p-1.2.2.md: Release: 1.2.1 is not a released version (CHANGELOG.md), 1.2.3 or unscheduled"
+sed -i.bak '/^release: /d' "$t/repo/docs/laws/001-x.md"
+expect "(h) law with no release key" "docs/laws/001-x.md: no Release: line in the first ten lines or the frontmatter (record doc)"
+sed -i.bak '/^Snapshot: /d' "$t/repo/docs/export/X.md"
+expect "(h) snapshot with no Snapshot line" "docs/export/X.md: no Snapshot: line in the first ten lines (snapshot doc)"
 echo PASS

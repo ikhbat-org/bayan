@@ -1,6 +1,8 @@
 # Bayān Style — Proposal
 
-Status: decided (all items in §5 settled; C21 revised 2026-11-04). Layout rules land in `bayan format` and docs/bayan-style.md in round 4; no grammar revision is needed.
+Status: done; decided (all items in §5 settled; C21 revised 2026-11-04). Layout rules land in `bayan format` and docs/bayan-style.md in round 4; no grammar revision is needed.
+Release: 0.2.0
+Sources: none recorded
 
 ---
 

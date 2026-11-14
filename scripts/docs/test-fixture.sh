@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 # Sourced by the scripts/docs and scripts/release tests: docs_fixture <dir> builds a small repo at <dir> holding the
-# real release and docs scripts and miniature sources for them (version 1.2.3-dev, revisions 0001–0002), with the
+# real release and docs scripts and miniature sources for them (version 1.2.3-dev, revisions 0001–0002, every release doc), with the
 # generated docs written. Needs $root (the real repo).
 
 docs_fixture() {
@@ -16,11 +16,18 @@ docs_fixture() {
   printf '// driver\nconst version: string = "1.2.3-dev"\n' > "$r/selfhost/driver/main.byn"
   printf '{\n  "compiler": "bayan 1.2.3-dev",\n  "x": 1\n}\n{\n  "compiler": "bayan 1.2.3-dev"\n}\n' > "$r/tests/cases/out/dist.tree"
   printf '# Bayan\n\n```sh\nscripts/dist.sh                                # this host: dist/macos-arm64/1.2.3-dev/bayan\n```\n' > "$r/README.md"
-  printf '# 0001 — First\n\nStatus: accepted\n' > "$r/docs/revisions/0001-first.md"
-  printf '# 0002 — Second\n\nStatus: accepted\n' > "$r/docs/revisions/0002-second.md"
-  printf '# Revisions\n' > "$r/docs/revisions/README.md"
+  printf '# 0001 — First\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$r/docs/revisions/0001-first.md"
+  printf '# 0002 — Second\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$r/docs/revisions/0002-second.md"
   for d in spec grammar style; do
     printf '# Bayan %s\n\nVersion: 1.2.3-dev (matches `bayan --version`)\nRevisions applied: 0001–0002\n\nBody of %s.\n' "$d" "$d" > "$r/docs/bayan-$d.md"
+  done
+  # The other release docs (version.sh `bayan_release_docs`): a title and the Version line.
+  . "$r/scripts/release/version.sh"
+  for d in $bayan_release_docs; do
+    case "$d" in docs/DIAGNOSTICS.md|docs/STATUS.md) continue ;; esac
+    [ -f "$r/$d" ] && continue
+    mkdir -p "$r/$(dirname "$d")"
+    printf '# %s\n\nVersion: 1.2.3-dev (matches `bayan --version`)\n' "$d" > "$r/$d"
   done
   printf '# Changelog\n\n## [Unreleased]\n\n### Added\n- a new thing\n\n## [1.2.2] - 2026-01-01\n\n- old\n' > "$r/CHANGELOG.md"
   cat > "$r/src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs" <<'EOF'

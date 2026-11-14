@@ -7,6 +7,8 @@ scope: src/runtime/bayan-rt.c
 proof: tests/Bayan.Tests/L005RunBatchTests.cs
 check: dotnet test --filter Law=L005
 enacted: 2026-10-21
+release: 0.1.0
+sources: none recorded
 ---
 
 ## Statement

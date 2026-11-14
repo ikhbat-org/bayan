@@ -1,3 +1,7 @@
+Status: done
+Release: 0.1.0
+Sources: Q565, Q566, Q568, Q571, Q572, Q573, Q574
+
 Audit of T10 (manifest.byn) and T11 (compile.byn): T10 is a faithful port, T11 is not
 
 I read every file named and compared each method in scope line by line. I did not run the test suites. Everything below comes from reading the code. Bayan paths are under `selfhost/semantics/`. C# paths are `Manifest.cs` = `src/Bayan.Syntax/Packages/Manifest.cs` and `Compilation.cs` = `src/Bayan.Semantics/Compilation.cs`.

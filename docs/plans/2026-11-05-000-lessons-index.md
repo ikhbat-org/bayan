@@ -1,6 +1,8 @@
 # Lessons intake: index and crosswalk
 
 Status: done (57c5f5c9, lessons intake merged).
+Release: 0.2.0
+Sources: none recorded
 
 Date: 2026-11-05.
 Source: `docs/design/lessons-from-other-languages.md`.

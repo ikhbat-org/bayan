@@ -1,5 +1,7 @@
 # Memory and disk leaks
 
+Version: 0.3.1-dev (matches `bayan --version`)
+
 Every Bayan memory or disk leak found so far, what caused it, and the rule that keeps it
 from coming back. Read this before writing anything that walks directories, watches files,
 caches, buffers child output, recurses on input, or runs for longer than one command.

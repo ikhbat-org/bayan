@@ -7,6 +7,8 @@ scope: selfhost/semantics/
 proof: tests/Bayan.Tests/SelfhostSemanticsNoPanicLawTests.cs
 check: dotnet test -v q --filter "Law=L023"
 timeout: 300
+release: 0.1.0
+sources: Q486, Q508, Q661, Q662, Q663, Q744, Q748, Q874
 ---
 
 ## Statement

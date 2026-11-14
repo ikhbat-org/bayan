@@ -8,6 +8,8 @@ proof: tests/Bayan.Tests/SelfhostLexerTests.cs
 check: dotnet test -v q --filter "Law=L002"
 timeout: 1800
 enacted: 2026-10-20
+release: 0.1.0
+sources: none recorded
 ---
 
 ## Statement

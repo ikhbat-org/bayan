@@ -7,6 +7,8 @@ scope: src/Bayan.Semantics/Binding/BinderCalls.cs
 proof: tests/Bayan.Tests/L007UntrustedSinkTests.cs
 check: dotnet test --filter Law=L007
 enacted: 2026-10-21
+release: 0.1.0
+sources: none recorded
 ---
 
 ## Statement

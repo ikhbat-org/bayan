@@ -1,5 +1,7 @@
 # Bayān open questions
 
+Version: 0.3.1-dev (matches `bayan --version`)
+
 Questions the spec does not answer yet. Rules (`docs/bayan-contributing.md`, *Ground rules*): a spec gap or contradiction goes here with the next free Q number, in number order; the most conservative option is implemented until the user answers. When a question is answered, move its entry to a dated record in `docs/decisions/` and keep its Q number: other docs cite Q numbers, and they never change. Questions answered up to 2026-11-14 are in `docs/decisions/2026-11-14-004-answered-questions.md`.
 
 In each entry, *Current choice* or *Conservative option* is the option in force, and *Open* or *Options* lists what is still to decide. *Who decides* is the entry's *Owner* where it names one, otherwise the user.

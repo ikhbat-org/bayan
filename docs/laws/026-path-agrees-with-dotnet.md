@@ -8,6 +8,8 @@ proof: tests/Bayan.Tests/StdPathLawTests.cs
 check: dotnet test -v q --filter "Law=L026"
 timeout: 300
 enacted: 2026-11-05
+release: 0.2.0
+sources: none recorded
 ---
 
 ## Statement
