@@ -1,6 +1,6 @@
 # Plan 016: every doc versioned, a spec index, and a feature history
 
-Status: in progress (approved by the user 2026-11-14, "Full, after the split"; started 2026-11-15, unattended run)
+Status: done (approved by the user 2026-11-14, "Full, after the split"; built 2026-11-15, unattended run)
 Release: 0.3.1 (docs only; no compiler change; moved from 0.3.0 by the user 2026-11-14, "cut 0.3.0 … then finish the docs and do 0.3.1")
 Sources: user request 2026-11-14; revision 0020 (the versioned-spec rule this extends); `docs/RELEASING.md`.
 
