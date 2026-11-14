@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Cleanup for plan 015 (docs/plans/2026-11-14-015-q31-followups.md) and the 2026-11-14 CI work, written 2026-11-14.
-#   1. worktrees .worktrees/q31-b, .worktrees/q31-d, .worktrees/ci-fixes, .worktrees/review-1114 (git worktree remove;
+#   1. worktrees .worktrees/q31-b, .worktrees/q31-d, .worktrees/ci-fixes, .worktrees/review-1114, .worktrees/review-1114-3 (git worktree remove;
 #      refused when it has uncommitted changes; refused when it holds ignored files, e.g. tmp/ evidence such as
 #      q31-d/tmp/q31-d/laws-d.out, unless --delete-scratch is given too, because git worktree remove deletes them);
 #   2. the merged branches (git branch -d; git refuses an unmerged one). chore/q31-bt-{region,summary,frontend}-off are
@@ -29,7 +29,7 @@ failed=0
 run() { if [ "$execute" = 1 ]; then printf 'do:   %s\n' "$*"; "$@" || { printf '  failed. Left alone.\n'; failed=1; }; else printf 'would: %s\n' "$*"; fi; }
 
 # 1. Worktrees.
-for rel in .worktrees/q31-b .worktrees/q31-d .worktrees/ci-fixes .worktrees/review-1114; do
+for rel in .worktrees/q31-b .worktrees/q31-d .worktrees/ci-fixes .worktrees/review-1114 .worktrees/review-1114-3; do
   wt="$main/$rel"
   if [ "$here" = "$wt" ]; then printf 'refuse: run this from outside %s.\n' "$rel"; exit 1; fi
   if ! git worktree list --porcelain | grep -qx "worktree $wt"; then printf 'skip:  %s is not a worktree\n' "$rel"; continue; fi
@@ -45,7 +45,7 @@ run git worktree prune
 
 # 2. Merged branches.
 for b in fix/q31-followups-small fix/q31-frontend-before-cc fix/q31-effects-arena fix/q31-l022-pin \
-         fix/ci-dispatch-windows-cc-timeout chore/worker-rewrite-1114 fix/review-2026-11-14-2; do
+         fix/ci-dispatch-windows-cc-timeout chore/worker-rewrite-1114 fix/review-2026-11-14-2 fix/review-2026-11-14-3; do
   if ! git rev-parse --verify --quiet "refs/heads/$b" >/dev/null; then printf 'skip:  branch %s no longer exists\n' "$b"; continue; fi
   run git branch -d "$b"
 done
@@ -80,7 +80,7 @@ else
 fi
 
 printf '\nremaining:\n'
-git worktree list | grep -E '/(q31-b|q31-d|ci-fixes|review-1114) ' || printf '  none of these worktrees\n'
-git branch --list 'fix/q31-*' 'chore/q31-bt-*' 'fix/ci-dispatch-windows-cc-timeout' 'chore/worker-rewrite-1114' 'fix/review-2026-11-14-2' || true
+git worktree list | grep -E '/(q31-b|q31-d|ci-fixes|review-1114|review-1114-3) ' || printf '  none of these worktrees\n'
+git branch --list 'fix/q31-*' 'chore/q31-bt-*' 'fix/ci-dispatch-windows-cc-timeout' 'chore/worker-rewrite-1114' 'fix/review-2026-11-14-2' 'fix/review-2026-11-14-3' || true
 if [ "$execute" = 1 ] && [ "$failed" = 1 ]; then exit 1; fi
 exit 0
