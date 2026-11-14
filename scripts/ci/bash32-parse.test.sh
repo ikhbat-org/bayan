@@ -11,6 +11,6 @@ case "$("$b" -c 'echo ${BASH_VERSINFO[0]}' 2>/dev/null || true)" in
 esac
 bad=0
 while IFS= read -r f; do
-  "$b" -n "$root/$f" 2>/dev/null || { echo "FAIL: $f does not parse under bash 3.2:"; "$b" -n "$root/$f" 2>&1 | head -2; bad=1; }
+  "$b" -n "$root/$f" 2>/dev/null || { echo "FAIL: $f does not parse under bash 3.2:"; "$b" -n "$root/$f" 2>&1 | head -2 || true; bad=1; }
 done < <(git -C "$root" ls-files '*.sh')
 [ $bad = 0 ] && echo PASS || exit 1
