@@ -103,7 +103,8 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
    - the memory gate runs on Linux and macOS, the editor gate (`bayan-lsp` memory tests, the extension packaged under a
      size bound) on Linux, and the full tier of every enacted law (`laws-nightly.yml`, up to 180 minutes);
    - the release job adds `bayan-X.Y.Z-docs.tar.gz` (the same six docs under `bayan-X.Y.Z-docs/share/doc/bayan/`)
-     and `SHA256SUMS`, and opens a draft GitHub Release whose notes are the CHANGELOG section.
+     and `SHA256SUMS`, and opens a draft GitHub Release whose notes are the CHANGELOG section. While the major version is 0 the draft
+     is marked a prerelease (`package.sh release-flags`; user, 2026-11-14).
 
    Publishing the draft is a manual step.
 8. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors
