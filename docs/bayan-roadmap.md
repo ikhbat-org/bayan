@@ -124,7 +124,6 @@ Not listed as pending: plan 000 (an index) and plan r4-section-10 (appended to t
 |---|---|---|
 | 001 Self-hosted lexer | implemented (laws L001–L004 await enactment) | `docs/laws/001`–`004` say `status: enacted`; tasks T24–T31 are the enact and prove steps |
 | 002 Ownership and law alignment | done (L005–L008 await enactment) | `docs/laws/005`–`008` say `status: enacted` |
-| 017 Selfhost default | approved | `CHANGELOG.md` `[0.3.0]`; 22 of 22 ticked; handoff row 017 |
 | Plan 2026-11-02-003 Move to Ikhbat | waiting for approval | `CHANGELOG.md` `[0.2.0]` Changed (repository moved) |
 | Plan 2026-10-21-001 Design round 2 | "awaiting approval" | `docs/bayan-handoff.md` Question 101 (decisions "superseded by design round 2 C1"); `docs/plans/2026-10-22-002-design-round-3.md` takes round 2 as input and wins over it |
 | Plan 2026-10-22-002 Design round 3 | no status line | `CHANGELOG.md` `[0.1.0]` Added (revisions 0002–0010) |
