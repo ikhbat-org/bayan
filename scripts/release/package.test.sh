@@ -80,7 +80,7 @@ grep -q "bayan-1.2.3-windows-arm64/bayan.exe" "$t/zip-list" || fail "zip lacks t
 grep -q "bayan-1.2.3-windows-arm64/share/doc/bayan/STATUS.md" "$t/zip-list" || fail "zip lacks the docs"
 [ "$(tar -xzOf "$t/out/bayan-1.2.3-linux-x64.tar.gz" bayan-1.2.3-linux-x64/share/doc/bayan/SPEC.md)" = bayan-spec ] || fail "SPEC.md is not docs/bayan-spec.md"
 bash "$s" docs "$t/out" >/dev/null
-want="$(for f in $docs $extra; do case "$f" in */) ;; *) echo "bayan-1.2.3-docs/$f" ;; esac; done | LC_ALL=C sort | tr '\n' ' ')"
+want="$(for f in $docs $extra; do case "$f" in (*/) ;; (*) echo "bayan-1.2.3-docs/$f" ;; esac; done | LC_ALL=C sort | tr '\n' ' ')"
 [ "$(tar -tzf "$t/out/bayan-1.2.3-docs.tar.gz" | grep -v '/$' | LC_ALL=C sort | tr '\n' ' ')" = "$want" ] \
   || fail "docs archive files: $(tar -tzf "$t/out/bayan-1.2.3-docs.tar.gz")"
 for d in $bayan_release_docs; do
