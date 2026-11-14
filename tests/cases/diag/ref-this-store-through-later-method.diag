@@ -1,0 +1,9 @@
+error BYN3002: arena `arena` does not live as long as `b`, which borrows it
+
+   8 │         keep(w)
+     │         ------- `put` stores `w` into `this` here
+     │
+  21 │         b.put("x", through: name)
+     │         ^^^^^^^^^^^^^^^^^^^^^^^^^ arena `arena` is freed at the end of its block
+     │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough

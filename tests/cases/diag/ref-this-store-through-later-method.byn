@@ -1,0 +1,24 @@
+struct Box {
+    string s
+    string t
+
+    // `put` is summarized before `keep`: its first summary has one store, its second two.
+    void put(ref this, string v, through string w) {
+        s = v
+        keep(w)
+    }
+
+    void keep(ref this, string w) {
+        t = w
+    }
+}
+
+void main() {
+    var b = Box { s: "", t: "" }
+    {
+        using let arena = Arena()
+        let name = "ann".copy(to: arena)
+        b.put("x", through: name)
+    }
+    print(b.t)
+}

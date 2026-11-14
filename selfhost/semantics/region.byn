@@ -195,8 +195,12 @@ void analyzeRegions(ref Ctx c, for FuncId fn) {
 /// Q31 (plan 014): `analyzeRegions` with its working memory freed. The run is made in an arena; one that reported a
 /// diagnostic or filled a `changedFields` memo entry (both arena memory) is undone and made again in `General`, so
 /// what `Ctx` keeps, its LocalIds and its order are what a run in `General` gives. For templates only: an instance's
-/// run reports into a bag, which `t42Undo` does not cover.
+/// run reports into a bag, which `t42Undo` does not cover, so a run with a sink set stays in `General`.
 void t42AnalyzeRegions(ref Ctx c, for FuncId fn) {
+    if c.sink >= 0 {
+        analyzeRegions(ref c, for: fn)
+        return
+    }
     var undone = false
     let mark = t42Mark(c)
     using let arena = Arena()
