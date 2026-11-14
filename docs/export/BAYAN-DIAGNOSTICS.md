@@ -2,6 +2,8 @@ Commit `821afa40`, 2026-11-09.
 
 # Bayān diagnostics
 
+Snapshot: 2026-11-09 (821afa40); not maintained. Current text: docs/DIAGNOSTICS.md
+
 Every `BYN` code, from `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`, `docs/diagnostics/`, the A2 scheme (`docs/revisions/0017-addendum-a2-diagnostic-codes.md`) and the plans and revisions that allocate codes. Message text is the format string as written in the source: `{0}` is an argument, `{{` and `}}` are literal braces.
 
 ## Status

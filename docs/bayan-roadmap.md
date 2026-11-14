@@ -1,5 +1,7 @@
 # Bayān roadmap
 
+Version: 0.3.1-dev (matches `bayan --version`)
+
 State of `dev` at 04366a4f, 2026-11-14. Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
 
 Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan` you download (`CHANGELOG.md`, 0.3.0). The next goals are to drop .NET and the C# compiler's role (`docs/bayan-milestones.md`, Target: zero dependencies) and to land the tooling ports.

@@ -2,6 +2,8 @@
 id: L024
 title: Emitter equivalence
 status: enacted
+release: 0.2.0
+sources: Q890
 kind: property
 scope: selfhost/emitter/, src/Bayan.Lowering/, src/Bayan.Backend.C/CEmitter.cs
 proof: tests/Bayan.Tests/SelfhostEmitterEquivalenceLawTests.cs

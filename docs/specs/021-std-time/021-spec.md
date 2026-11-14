@@ -1,5 +1,7 @@
 # 021 — std.time: calendar and clock types
-Status: approved design (user, 2026-11-08), parked. Phase 1a (the SPEC text) landed 2026-11-10 as `docs/bayan-spec.md` §16.5; Phase 1b and Phases 2–5 are open and wait on the gates below. Owner: Sy.
+Status: deferred; approved design (user, 2026-11-08), parked. Phase 1a (the SPEC text) landed 2026-11-10 as `docs/bayan-spec.md` §16.5; Phase 1b and Phases 2–5 are open and wait on the gates below. Owner: Sy.
+Release: unscheduled
+Sources: Q1159; revisions 0003; docs/decisions/2026-11-14-004-answered-questions.md
 Created: 2026-11-09
 
 `std.time` gives Bayān value types, units, arithmetic, clocks, zones, formatting and parsing for points on the timeline and civil calendar dates. `docs/bayan-spec.md` §16.5 is the normative text; this spec holds the full decision record, the gates and the phases. Where the two disagree, fix the spec.

@@ -1,4 +1,9 @@
 # 020 — Plan
+
+Status: approved (not started)
+Release: unscheduled
+Sources: Q1, Q2, Q4, Q5, Q6, Q7
+
 Spec: ./020-spec.md
 
 ## Approach

@@ -1,6 +1,8 @@
 # In-band errors and C-boundary safety (sshole lessons)
 
 Status: open (W0 landed through plan 007; W1 to W3 are not recorded as merged).
+Release: unscheduled
+Sources: Q711
 
 Date: 2026-11-07. Plan only: no code, spec or test edits. Spec gaps below are proposals for handoff Questions.
 

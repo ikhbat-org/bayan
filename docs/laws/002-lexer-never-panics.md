@@ -2,6 +2,8 @@
 id: L002
 title: The Bayan lexer never panics and keeps spans inside the input
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: property
 scope: selfhost/lexer/lexer.byn
 proof: tests/Bayan.Tests/SelfhostLexerTests.cs

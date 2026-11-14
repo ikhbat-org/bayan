@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # package.sh on a fixture repo: tag check, archive names and layout per rid (docs under share/doc/bayan/), the docs
-# archive, SHA256SUMS, CHANGELOG notes, refusals.
+# archive (every release doc), SHA256SUMS, CHANGELOG notes, refusals.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 t="$root/tmp/release-package-test"
@@ -13,6 +13,13 @@ setv() { printf '%s\n' "$1" > "$t/repo/VERSION"; }
 setv 1.2.3
 echo readme > "$t/repo/README.md"
 for d in bayan-spec bayan-grammar bayan-style DIAGNOSTICS STATUS; do echo "$d" > "$t/repo/docs/$d.md"; done
+. "$t/repo/scripts/release/version.sh"
+# The other release docs, each holding its path; the docs archive ships them under share/doc/bayan/<path below docs/>.
+extra=""
+for d in $bayan_release_docs; do
+  case " $bayan_header_docs " in *" $d "*) continue ;; esac
+  mkdir -p "$t/repo/$(dirname "$d")"; echo "$d" > "$t/repo/$d"; extra="$extra share/doc/bayan/${d#docs/}"
+done
 docs=" share/ share/doc/ share/doc/bayan/ share/doc/bayan/CHANGELOG.md share/doc/bayan/DIAGNOSTICS.md share/doc/bayan/GRAMMAR.md"
 docs="$docs share/doc/bayan/SPEC.md share/doc/bayan/STATUS.md share/doc/bayan/STYLE.md"
 printf '# Changelog\n\n## [Unreleased]\n\n## [1.2.3] - 2026-11-02\n\n### Added\n- one\n\n## [1.2.2]\n- old\n' > "$t/repo/CHANGELOG.md"
@@ -73,14 +80,24 @@ grep -q "bayan-1.2.3-windows-arm64/bayan.exe" "$t/zip-list" || fail "zip lacks t
 grep -q "bayan-1.2.3-windows-arm64/share/doc/bayan/STATUS.md" "$t/zip-list" || fail "zip lacks the docs"
 [ "$(tar -xzOf "$t/out/bayan-1.2.3-linux-x64.tar.gz" bayan-1.2.3-linux-x64/share/doc/bayan/SPEC.md)" = bayan-spec ] || fail "SPEC.md is not docs/bayan-spec.md"
 bash "$s" docs "$t/out" >/dev/null
-[ "$(tar -tzf "$t/out/bayan-1.2.3-docs.tar.gz" | LC_ALL=C sort | tr '\n' ' ')" = "$(layout bayan-1.2.3-docs $docs)" ] \
-  || fail "docs archive layout: $(tar -tzf "$t/out/bayan-1.2.3-docs.tar.gz")"
+want="$(for f in $docs $extra; do case "$f" in */) ;; *) echo "bayan-1.2.3-docs/$f" ;; esac; done | LC_ALL=C sort | tr '\n' ' ')"
+[ "$(tar -tzf "$t/out/bayan-1.2.3-docs.tar.gz" | grep -v '/$' | LC_ALL=C sort | tr '\n' ' ')" = "$want" ] \
+  || fail "docs archive files: $(tar -tzf "$t/out/bayan-1.2.3-docs.tar.gz")"
+for d in $bayan_release_docs; do
+  case " $bayan_header_docs " in *" $d "*) continue ;; esac
+  [ "$(tar -xzOf "$t/out/bayan-1.2.3-docs.tar.gz" "bayan-1.2.3-docs/share/doc/bayan/${d#docs/}")" = "$d" ] || fail "docs archive ${d#docs/}"
+done
 [ "$(tar -xzOf "$t/out/bayan-1.2.3-docs.tar.gz" bayan-1.2.3-docs/share/doc/bayan/CHANGELOG.md)" = "$(cat "$t/repo/CHANGELOG.md")" ] || fail "docs archive CHANGELOG.md"
 [ -z "$(ls -A "$t/out" | grep '^\.stage' || true)" ] || fail "staging left behind"
 mv "$t/repo/docs/STATUS.md" "$t/STATUS.md"
 out="$(bash "$s" docs "$t/out2" 2>&1)" && fail "missing doc accepted"
 echo "$out" | grep -q "docs/STATUS.md not found" || fail "no missing-doc message: $out"
 mv "$t/STATUS.md" "$t/repo/docs/STATUS.md"
+mv "$t/repo/docs/laws/README.md" "$t/laws-README.md"
+out="$(bash "$s" docs "$t/out2" 2>&1)" && fail "missing release doc accepted"
+echo "$out" | grep -q "docs/laws/README.md not found" || fail "no missing-release-doc message: $out"
+bash "$s" pack linux-x64 "$t/pub/linux" "$t/out3" >/dev/null 2>&1 || fail "pack needs a release doc outside the six"
+mv "$t/laws-README.md" "$t/repo/docs/laws/README.md"
 out="$(bash "$s" pack win-x64 "$t/pub/unix" "$t/out" 2>&1)" && fail "missing exe accepted"
 echo "$out" | grep -q "bayan.exe not found" || fail "no missing-exe message: $out"
 # The machine guard: each format matching and mismatching, and an unknown format.

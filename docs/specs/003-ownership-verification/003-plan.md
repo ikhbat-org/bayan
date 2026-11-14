@@ -1,4 +1,9 @@
 # 003 — Plan
+
+Status: done
+Release: 0.1.0
+Sources: Q64, Q65, Q66
+
 Spec: ./003-spec.md
 
 ## Approach

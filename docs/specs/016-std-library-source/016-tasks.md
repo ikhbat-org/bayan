@@ -1,4 +1,9 @@
 # 016 — Tasks
+
+Status: done
+Release: 0.3.0
+Sources: Q4
+
 Plan: ./016-plan.md
 
 - [x] T1 C# std imports — files: `lib/std/README.md`, `src/Bayan.Semantics/{Bayan.Semantics.csproj,StdLibrary.cs,Compilation.cs}`, `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`, `docs/diagnostics/`, `tests/Bayan.Tests/StdImportTests.cs`, `tests/cases/diag/` — covers: R1–R6 — done when: the injected-table tests and the diag case pass, `dotnet test -v q` passes.

@@ -2,6 +2,8 @@
 id: L017
 title: Parser equivalence
 status: enacted
+release: 0.1.0
+sources: Q486, Q505, Q506
 enacted: 2026-10-26
 kind: property
 scope: selfhost/parser/main.byn

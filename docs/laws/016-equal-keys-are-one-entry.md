@@ -2,6 +2,8 @@
 id: L016
 title: Equal keys are one entry
 status: enacted
+release: 0.1.0
+sources: Q415
 kind: property
 scope: src/Bayan.Backend.C/CEmitter.cs
 proof: tests/Bayan.Tests/MapKeyLawTests.cs

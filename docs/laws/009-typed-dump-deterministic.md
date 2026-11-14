@@ -2,6 +2,8 @@
 id: L009
 title: The typed dump is deterministic
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: property
 scope: src/Bayan.Semantics/Binding/TypedDump.cs
 proof: tests/Bayan.Tests/TypedDumpTests.cs

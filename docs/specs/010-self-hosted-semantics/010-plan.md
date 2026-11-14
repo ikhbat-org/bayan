@@ -1,4 +1,9 @@
 # 010 — Plan
+
+Status: done
+Release: 0.1.0
+Sources: Q430, Q525, Q530, Q540, Q544, Q550, Q552, Q570, Q573, Q574, Q640, Q642
+
 Spec: ./010-spec.md
 
 ## Approach

@@ -1,5 +1,7 @@
 # HANDOFF — Bayan, design round 3
 
+Snapshot: 2026-10-22; not maintained. Current text: docs/bayan-spec.md
+
 ## Context
 
 Bayan is a C#-derived, natively compiled language (no .NET runtime). `SPEC.md` exists, the round-2 HANDOFF has been applied or is in progress, and the v0.1 bootstrap compiler is being built.

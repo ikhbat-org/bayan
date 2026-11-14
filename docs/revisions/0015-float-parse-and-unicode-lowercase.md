@@ -1,6 +1,8 @@
 # 0015 — `f32.tryParse` / `f64.tryParse`; Unicode `lowercased()` / `uppercased()`
 
-Status: accepted 2026-10-31 (user decision, for spec 010 T17).
+Status: done; accepted 2026-10-31 (user decision, for spec 010 T17).
+Release: 0.1.0
+Sources: user, 2026-10-31 (spec 010 T17)
 
 ## Problem
 

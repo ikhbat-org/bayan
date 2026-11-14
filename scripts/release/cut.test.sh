@@ -32,14 +32,18 @@ grep -qx 'Version: 1.2.3-dev (matches `bayan --version`)' "$r/docs/STATUS.md" ||
 check next-dev
 commit "1.2.3-dev"
 
-printf '# 0003 — Third\n' > "$r/docs/revisions/0003-third.md"
+printf '# 0003 — Third\n\nStatus: done\nRelease: 1.2.3\nSources: none recorded\n' > "$r/docs/revisions/0003-third.md"
+printf '0003-third.md\n' >> "$r/docs/bayan-feature-history.md"
 printf 'edited\n' >> "$r/docs/revisions/0001-first.md"
 sed -i.bak 's/| units | SPEC | spec-only | none |/| units | SPEC | built | `a.cs:1` |\n| `x` | SPEC | proposed | none |/' "$r/docs/STATUS.md"
 rm "$r/docs/STATUS.md.bak"
 # Files that may keep the previous -dev version: history, and the bootstrap that land.sh regenerates after the cut.
 for f in docs/bayan-progress-log.md docs/decisions/2026-01-01-001-answered-questions.md docs/plans/p.md docs/specs/s/s.md docs/revisions/r.txt docs/handoffs/h.md work/todo.md bootstrap/bayan.c; do
   mkdir -p "$r/$(dirname "$f")"; printf 'was 1.2.3-dev\n' > "$r/$f"
+  case "$f" in *.md) printf 'Status: done\nRelease: 1.2.2\nSources: none recorded\n' >> "$r/$f" ;; esac   # record headers (check.sh (h))
 done
+sed -i.bak 's/^Status: done$/Status: in progress/' "$r/docs/specs/001-first/001-spec.md"   # the cut regenerates the spec index
+rm "$r/docs/specs/001-first/001-spec.md.bak"
 commit "work"
 head="$(g rev-parse HEAD)"
 
@@ -62,7 +66,7 @@ g checkout -q HEAD -- .
 [ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "fixture not restored after the refused cut: $(cat "$r/VERSION")"
 
 out="$(bash "$cut" 1.2.3)"
-for f in VERSION src/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md; do
+for f in VERSION src/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md docs/specs/README.md; do
   echo "$out" | grep -qx "changed $f" || fail "no 'changed $f' in: $out"
 done
 [ "$(cat "$r/VERSION")" = 1.2.3 ] || fail "cut VERSION: $(cat "$r/VERSION")"
@@ -70,6 +74,7 @@ for d in bayan-spec bayan-grammar bayan-style DIAGNOSTICS STATUS; do
   grep -qx 'Version: 1.2.3 (matches `bayan --version`)' "$r/docs/$d.md" || fail "$d Version line"
   grep -qx 'Revisions applied: 0001–0003' "$r/docs/$d.md" || fail "$d Revisions line"
 done
+grep -qx 'Version: 1.2.3 (matches `bayan --version`)' "$r/docs/laws/README.md" || fail "release doc docs/laws/README.md Version line"
 check cut
 want="$(printf '%s\n' '# Changelog' '' '## [Unreleased]' '' "## [1.2.3] - $(date +%Y-%m-%d)" '' '### Added' '- a new thing' '' \
   '### Revisions' '- 0003 — Third (`docs/revisions/0003-third.md`)' '' '### Status changes' \

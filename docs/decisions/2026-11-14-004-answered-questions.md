@@ -1,6 +1,8 @@
 # Answered questions, Q1 to Q1275
 
-Status: record, 2026-11-14. The answered part of the Questions list that `docs/bayan-questions.md` now keeps for open questions only. Q numbers are unchanged; some numbers were used twice and keep both entries, and some were never used (see *Notes* below).
+Status: done; record, 2026-11-14. The answered part of the Questions list that `docs/bayan-questions.md` now keeps for open questions only. Q numbers are unchanged; some numbers were used twice and keep both entries, and some were never used (see *Notes* below).
+Release: 0.3.0
+Sources: Q1–Q1275 (each entry names its own decision)
 
 Each row gives the question in one line, the answer, the date of the answer (the last date the entry records, or *not recorded*) and where it applies. An entry whose text is longer than a table cell keeps its full text, verbatim, under its Q number below the table. Where an entry's answer is a *Current choice* that nobody overruled, that choice is the answer.
 

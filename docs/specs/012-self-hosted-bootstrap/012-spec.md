@@ -1,5 +1,7 @@
 # 012 — Self-hosting step 6: the driver and the bootstrap
 Status: done (2026-11-06, 0.2.0; T22 batch mutation parked)
+Release: 0.2.0
+Sources: Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q430, Q648, Q744, Q753, Q970
 Created: 2026-10-22
 Revised: 2026-11-04: realigned with 011 as built (driver on top of `bayan-emit` and `selfhost/semantics/cli.byn`, no layout move, paths from spec 014's `Path`, laws L027/L028, no new builtins before 012 passes, C# ranges re-read on `feat/011-self-hosted-emitter`). 2026-11-04: Q1–Q9 decided by the user (see *Decisions*).
 

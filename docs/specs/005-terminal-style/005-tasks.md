@@ -1,4 +1,9 @@
 # 005 — Tasks
+
+Status: done
+Release: 0.1.0
+Sources: Q79, Q86; docs/decisions/2026-11-14-004-answered-questions.md
+
 Plan: ./005-plan.md
 
 - [x] T1 Style types and contrast test — files: `src/Bayan.Syntax/Diagnostics/Style.cs`, `tests/Bayan.Tests/ContrastTests.cs` — covers: R1, R3, R17 — done when: the contrast test passes against the guide's §2 table and `Palette.Hex` matches it

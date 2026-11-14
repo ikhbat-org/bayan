@@ -2,6 +2,8 @@
 id: L004
 title: A switch over a union compiles only when it covers every variant
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: guard
 scope: src/Bayan.Semantics/Binding/BinderCalls.cs
 proof: tests/Bayan.Tests/L004UnionSwitchTests.cs

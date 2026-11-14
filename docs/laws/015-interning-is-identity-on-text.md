@@ -2,6 +2,8 @@
 id: L015
 title: Interning is identity on text
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: property
 scope: src/runtime/bayan-rt.c
 proof: tests/Bayan.Tests/SymbolLawTests.cs

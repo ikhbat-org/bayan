@@ -2,6 +2,8 @@
 id: L021
 title: A mutant that does not type-check is never counted as killed or survived
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: property
 scope: src/Bayan.Testing
 proof: tests/Bayan.Tests/NotEmittedLawTests.cs

@@ -1,4 +1,9 @@
 # 002 — Tasks
+
+Status: done
+Release: 0.1.0
+Sources: Q55, Q56, Q64, Q66, Q67
+
 Plan: ./002-plan.md
 
 - [x] T1 Map API: index read/write, getOr, slot, length, contains; drop get/set/count/containsKey; migrate goldens and MapModelTests; BYN2785 — files: BuiltinMembers.cs, binder, bayan-rt.{h,c}, Lowering, CEmitter, tests/cases/run/map-*, MapModelTests.cs — covers: R5 — done when: suite green, new run/map-index-panic, run/map-slot, diag/map-slot-no-default exist

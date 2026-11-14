@@ -2,6 +2,8 @@
 id: L023
 title: The Bayan checker never panics and keeps every diagnostic span inside its file
 status: enacted
+release: 0.1.0
+sources: Q486, Q508, Q661, Q662, Q663, Q744, Q748, Q874
 kind: property
 scope: selfhost/semantics/
 proof: tests/Bayan.Tests/SelfhostSemanticsNoPanicLawTests.cs

@@ -2,6 +2,8 @@
 id: L025
 title: No emitter panic
 status: enacted
+release: 0.2.0
+sources: Q662, Q663, Q890
 kind: property
 scope: selfhost/emitter/
 proof: tests/Bayan.Tests/SelfhostEmitterNoPanicLawTests.cs
