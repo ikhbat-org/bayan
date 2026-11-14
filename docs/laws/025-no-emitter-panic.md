@@ -37,7 +37,7 @@ trap line on stderr; an input the checker rejects must exit 1 with bayan-check's
 L024 does not cover. Corrupted seeds come from the 010 no-panic test's corruption step so the two
 laws share a generator. Quick and full tiers as L024 (`BAYAN_LAW_TIER`). Where a counterexample is
 the C# front end's (a parser or binder panic reproduced by the imported checker), it is recorded as
-L023's and does not count against this law, as L018/L023 do today (handoff Q662, Q663). Enacted only after L018 and L023.
+L023's and does not count against this law, as L018/L023 do today (Q662, Q663). Enacted only after L018 and L023.
 
 Proof (T14): `SelfhostEmitterNoPanicLawTests.BayanEmitNeverPanicsOnSeedsCorruptionsAndRunInputs` (`Law=L025`) runs
 `bayan-emit --many` in the three modes over the tier's valid and faulty generator programs (N = 256 seeds quick,
@@ -53,4 +53,4 @@ so the figures are per run, never summed over modes, and the largest is 17 s aga
 120 s = 1080 s, so `timeout:` is 1200, not 300, to keep the whole-check limit above the per-run bounds. `laws-check.js --run` runs the quick tier
 (`BAYAN_LAW_TIER` unset).
 
-Enacted by the agent under the standing self-host authorization (2026-10-21; decisions 2026-11-03: the agent enacts L024/L025 after proof; spec 011 T19), after L018 and L023 were enacted, with T14's proof passing: `dotnet test -v q --filter "Law=L025"` 1 passed (`SelfhostEmitterNoPanicLawTests.BayanEmitNeverPanicsOnSeedsCorruptionsAndRunInputs`) on 2026-11-04, 47 s test time (55 s wall; both include rebuilding `bayan-emit`, which the Proof notes' 21 s quick figure does not). The app `CacheTests.cs:192` passes to `--emit-c` (the `bayan new` template) is not in this law's corpus, which is only the generator seeds and the `tests/cases/run/` inputs (handoff Q890).
+Enacted by the agent under the standing self-host authorization (2026-10-21; decisions 2026-11-03: the agent enacts L024/L025 after proof; spec 011 T19), after L018 and L023 were enacted, with T14's proof passing: `dotnet test -v q --filter "Law=L025"` 1 passed (`SelfhostEmitterNoPanicLawTests.BayanEmitNeverPanicsOnSeedsCorruptionsAndRunInputs`) on 2026-11-04, 47 s test time (55 s wall; both include rebuilding `bayan-emit`, which the Proof notes' 21 s quick figure does not). The app `CacheTests.cs:192` passes to `--emit-c` (the `bayan new` template) is not in this law's corpus, which is only the generator seeds and the `tests/cases/run/` inputs (Q890).

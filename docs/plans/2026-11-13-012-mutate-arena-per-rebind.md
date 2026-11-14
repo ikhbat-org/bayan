@@ -46,7 +46,7 @@ return emitted
 - `selfhost/emitter/schemata.byn`: `schemataRebinds`, plus one doc line naming the arena and Q31.
 - `bootstrap/bayan.c`: regenerated.
 - `tests/Bayan.Tests/SelfhostDefaultT10Tests.cs`: a new bound test (below).
-- `docs/memory-leaks.md:78`: the Q31 row's status changes from "open: decision" to option (a), as recorded in the handoff (`bayan-handoff.md:1620`), plus "mutate re-binds: arena per mutant (plan NNN), std-json 2,375 MB → <measured>".
+- `docs/memory-leaks.md:78`: the Q31 row's status changes from "open: decision" to option (a), as recorded in the handoff (`decisions/2026-11-14-003-answered-questions.md:917`), plus "mutate re-binds: arena per mutant (plan NNN), std-json 2,375 MB → <measured>".
 - `tests/Bayan.Tests/SelfhostDefaultT10Tests.cs:114-116`: the "frees nothing yet … 4.4 GB" comment is updated to the new figure.
 - `work/todo.md`: no change unless something is found along the way.
 

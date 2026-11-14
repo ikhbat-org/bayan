@@ -34,7 +34,7 @@ Own-field borrows (R6) add a receiver region to `RegionAnalysis`: a `this`-roote
 - `src/Bayan.Backend.C/CEmitter.cs` — `Builtin()` (1031): `bynh_remove_range_` helper, `byn_to_hex` call with an unsigned cast at type width; builtin functions (957–1002): the three string statics; `StaticArray`/`Constant` (581) emit `BYN_STR` elements — R7, R9, R10, R11
 - `src/runtime/bayan-rt.h`, `bayan-rt.c` — `int64_t byn_utf8_invalid_at(const uint8_t*, int64_t)` (-1 when valid, reusing the `byn_utf8_valid` decoder at rt.c:516), `byn_str byn_to_hex(uint64_t, byn_alloc*)` — R7, R11
 - `src/Bayan.Cli/CliApp.cs` — `types` command next to `Parse()` (157) — R5
-- `docs/diagnostics/BYN2307.md`, `BYN2611.md` (new), `BYN2305.md`, `BYN2229.md`; `docs/typed-dump.md` (new); `docs/bayan-spec.md` §2.3, §2.4, §3, §8; `docs/laws/009-*.md`, `010-*.md`, `README.md`; `docs/bayan-handoff.md` — R3, R4, R5, R7, R12
+- `docs/diagnostics/BYN2307.md`, `BYN2611.md` (new), `BYN2305.md`, `BYN2229.md`; `docs/typed-dump.md` (new); `docs/bayan-spec.md` §2.3, §2.4, §3, §8; `docs/laws/009-*.md`, `010-*.md`, `README.md`; `docs/bayan-milestones.md` — R3, R4, R5, R7, R12
 - `tests/cases/{diag,run,parse,lex,typed}/` goldens; `tests/Bayan.Tests/TypedDumpTests.cs`, `L010Utf8DecodeTests.cs` (new) — R12, L009, L010
 
 ## Data / interfaces
@@ -105,6 +105,6 @@ Own-field borrows (R6) add a receiver region to `RegionAnalysis`: a `this`-roote
 13. **R8 catch block** — `Nodes.cs`, `AstDump`, `Parser.cs`, `BoundNodes.cs`, `BinderCalls.cs`, `FlowAnalysis.cs`, `Lowerer.cs`, `DiagnosticCodes.cs`; `docs/diagnostics/BYN2611.md`; parse golden, run golden `errors-catch-block.byn`, diag golden `catch-block-completes.byn`. Done when all pass. Depends on 2.
 14. **R9 const string arrays** — `Binder.cs`, `CEmitter.cs`; `docs/diagnostics/BYN2229.md`; run golden `const-string-array.byn`, `invalid-const-array` update. No deps.
 15. **R10/R11 removeRange, toHex** — `BuiltinMembers.cs`, `BoundNodes.cs`, `Lowerer.cs`, `RegionAnalysis.cs`, `CEmitter.cs`, `bayan-rt.h/.c`; run goldens `list-remove-range.byn`, `list-remove-range-panics.byn` (`.exitcode`, `.stderr`), `to-hex.byn`; `mutated-while-borrowed` gains a `removeRange` line. Depends on 10 (shared runtime edit).
-16. **Docs** — `docs/bayan-spec.md` (§2.3, §2.4, §3, §8, lists), `docs/bayan-handoff.md` (Q71–Q78, road table, progress log), `tests/cases/README.md`. Depends on all.
+16. **Docs** — `docs/bayan-spec.md` (§2.3, §2.4, §3, §8, lists), `docs/decisions/2026-11-14-003-answered-questions.md` (Q71–Q78, road table, progress log), `tests/cases/README.md`. Depends on all.
 
 Noticed, not fixed: `Parser.IsStatementKeyword` lists `ErrorKeyword`/`TypeKeyword`, so recovery after R3 may skip a statement that starts with `error =`.

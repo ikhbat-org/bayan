@@ -40,7 +40,7 @@ async function stopClient() {
 function buildDebug(folder) {
   const bayan = vscode.workspace.getConfiguration('bayan').get('compiler.path') || 'bayan';
   return new Promise((resolve, reject) => {
-    // Contract (see HANDOFF.md): prints the built executable's absolute path as the last stdout line.
+    // Contract (see editors/README.md, "Phase 4: debugging"): prints the built executable's absolute path as the last stdout line.
     cp.execFile(bayan, ['build', '--debug', '--print-output'], { cwd: folder, maxBuffer: 16 * 1024 * 1024 }, (err, stdout, stderr) => {
       if (err) return reject(new Error((stderr || err.message).trim()));
       const last = stdout.trim().split(/\r?\n/).pop();

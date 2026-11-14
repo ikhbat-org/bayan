@@ -92,7 +92,7 @@ for ctx in shared:
             fails.append(f'ctx: {name}:{lo}-{hi} is outside `// ── {task} state` sections; add fields only there')
 
 # D — gates
-hand = read('docs/bayan-handoff.md')
+hand = read('docs/bayan-questions.md')
 for m in re.finditer(r'^(\d{3})\. (.*)$', hand, re.M):
     text = m.group(2)
     if re.search(rf'\bbefore {task}\b', text) and re.search(r'\bOpen\.\s*$', text):
@@ -100,7 +100,7 @@ for m in re.finditer(r'^(\d{3})\. (.*)$', hand, re.M):
 
 # E — docs
 # One diff from the merge base to the working tree: a line fixed since the last commit is checked as it stands now.
-hdiff = git('diff', git('merge-base', base, 'HEAD').strip(), '--', 'docs/bayan-handoff.md')
+hdiff = git('diff', git('merge-base', base, 'HEAD').strip(), '--', 'docs/bayan-questions.md', 'docs/bayan-progress-log.md')
 added = [l[1:] for l in hdiff.split('\n') if l.startswith('+') and not l.startswith('+++')]
 if not any(l.startswith('- **') and re.search(rf'\b{task}\b', l) for l in added):
     fails.append(f'docs: add a Progress log entry for {task} (what landed, what is left, test count)')

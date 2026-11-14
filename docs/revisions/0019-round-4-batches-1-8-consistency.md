@@ -49,7 +49,7 @@ Batch 9 also records HQ78 (per-root loans kept, closed with a trigger) and Tiers
 
 ### `since:` consumers (batch 8)
 
-A grep of docs, `src/`, `selfhost/`, `tests/`, `examples/` and `work/` for `since:` and `@replaced` found: SPEC (the two edited places), `docs/bayan-handoff-addendum-002.md:51` (`[Retired(since: …)]`, a different attribute), and the inventory. No code consumes `since:` and none implements `@replaced`. So `since:` is not added to `@deprecated`, and `work/todo.md` gets no line for it.
+A grep of docs, `src/`, `selfhost/`, `tests/`, `examples/` and `work/` for `since:` and `@replaced` found: SPEC (the two edited places), `docs/design/laws-contracts-and-parallel-iterators.md:51` (`[Retired(since: …)]`, a different attribute), and the inventory. No code consumes `since:` and none implements `@replaced`. So `since:` is not added to `@deprecated`, and `work/todo.md` gets no line for it.
 
 ## Sections
 

@@ -54,7 +54,7 @@ Order of work: T1 (skeleton, import mechanism, cursor and report API, stubs for 
 
 **tests/Bayan.Tests/**: `SelfhostParserTests.cs` (T1 creates the build `Lazy` and a smoke test; T13 adds the theories; `SelfhostParserGenerator.cs` and `SelfhostParserGeneratorTests.cs` (T14: valid and corrupted program generator, `OneMegabyte()`, `GeneratedSeedsAgree`), `SelfhostParserEquivalenceLawTests.cs` (T16) and `SelfhostParserNoPanicLawTests.cs` (T18), so parallel tasks never share a test file.
 
-**docs/**: `docs/laws/017-parser-equivalence.md`, `docs/laws/018-no-parser-panic.md` (T16–T19), `docs/bayan-handoff.md` (Questions 430 upward, progress entry, Road row 009, readiness section), `CHANGELOG.md`, `009-spec.md` status (T20). `work/todo.md` lines for C# parser bugs found and matched (any task, listed in T20).
+**docs/**: `docs/laws/017-parser-equivalence.md`, `docs/laws/018-no-parser-panic.md` (T16–T19), `docs/bayan-questions.md` (Questions 430 upward, progress entry, Road row 009, readiness section), `CHANGELOG.md`, `009-spec.md` status (T20). `work/todo.md` lines for C# parser bugs found and matched (any task, listed in T20).
 
 ## Data / interfaces
 

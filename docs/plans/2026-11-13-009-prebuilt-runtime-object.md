@@ -28,7 +28,7 @@ So for the whole corpus (1296 buildable programs, 27 more fail to build under ev
 - `selfhost/driver/cache.byn`, `selfhost/driver/cc.byn` — the same, ported line for line with `// Toolchain.cs:<line>` cites.
 - `bootstrap/bayan.c` — regenerated.
 - Tests (`tests/Bayan.Tests`): runtime object reused across two programs (one `-c` call, counted with a logging `BAYAN_CC` wrapper); a damaged `bayan-rt.o` is discarded and rebuilt; a changed compiler identity misses every key; two concurrent builds race for one `rkey`; ASan and cross builds get their own object; eviction removes `runtime/` entries; `bayan clean --cache` removes it; stage-2 parity for each of these, except ASan (the driver has no sanitize builds); the stage-2 race test counts `runtime/` entries as the C# one does; cross parity skips when zig is absent.
-- `docs/bayan-handoff.md` — Progress log; CHANGELOG `[Unreleased]`: "builds compile the runtime once per toolchain and flag set; the cache key includes the C compiler's identity (one cold rebuild after upgrading)".
+- `docs/bayan-progress-log.md` — Progress log; CHANGELOG `[Unreleased]`: "builds compile the runtime once per toolchain and flag set; the cache key includes the C compiler's identity (one cold rebuild after upgrading)".
 
 ## Risks
 

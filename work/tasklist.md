@@ -33,10 +33,10 @@ tick.
   duplicating it — two copies of a task list is one stale copy.
 - `milestones.md` is where the project is going. A tasklist is how one milestone gets done.
 
-## Current work: the 0.3.0 release and its follow-ups (detail: `docs/RELEASING.md`, `docs/bayan-handoff.md` Progress log)
+## Current work: the 0.3.0 release and its follow-ups (detail: `docs/RELEASING.md`, `docs/bayan-progress-log.md`)
 
-- [x] **T1 — Preflight done, dev ready** — done when: the three-host preflight is fixed and merged into dev (handoff, "0.3.0 release preflight on three hosts")
+- [x] **T1 — Preflight done, dev ready** — done when: the three-host preflight is fixed and merged into dev (`docs/bayan-progress-log.md`, "0.3.0 release preflight on three hosts")
 - [ ] **T2 — Release 0.3.0** — done when: dev is pushed and merged to main, the `0.3.0-rc.1` dry run passes, tag v0.3.0 is published (the user does these)
 - [ ] **T3 — Recheck `CliMemoryBoundsTests` on the dry run** — done when: the 25 rows pass on Linux in the release dry run (failed the 2026-11-12 dry run)
-- [ ] **T4 — Write spec 019, the .NET exit** — done when: `docs/specs/019-*/` holds spec, plan and tasks (handoff, Target: zero dependencies)
+- [ ] **T4 — Write spec 019, the .NET exit** — done when: `docs/specs/019-*/` holds spec, plan and tasks (`docs/bayan-milestones.md`, Target: zero dependencies)
 - [ ] **T5 — Spec 015 ports T9–T17** — done when: the listed scripts are Bayān tools with parity tests (`docs/specs/015-tooling/015-tasks.md`)

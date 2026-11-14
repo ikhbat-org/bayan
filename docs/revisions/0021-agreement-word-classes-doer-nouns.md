@@ -220,7 +220,7 @@ Do not implement any of these:
 
 ### Answers
 
-Written 2026-11-10 from `git log` on dev, `docs/bayan-handoff.md` (Progress log and Questions), `docs/specs/018-rev-0021-checker/018-plan.md` and `018-tasks.md`, `src/Bayan.Semantics/Lexicon.cs` and `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`. The Question states in item 5 are as of that date; `docs/bayan-handoff.md` holds the current state.
+Written 2026-11-10 from `git log` on dev, `docs/bayan-progress-log.md` (Progress log and Questions), `docs/specs/018-rev-0021-checker/018-plan.md` and `018-tasks.md`, `src/Bayan.Semantics/Lexicon.cs` and `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`. The Question states in item 5 are as of that date; `docs/bayan-questions.md` holds the current state.
 
 #### 1. Commits per part
 

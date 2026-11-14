@@ -49,7 +49,7 @@ Loops are written `for x in e` or, typed, `for T x in e` (round-2 C2; 3.1 parses
 - `src/Bayan.Semantics/Builtins.cs`: synthesize `IEnumerator` and `IIndexable`; a user redeclaration is the ordinary duplicate-name diagnostic. R9.
 - `src/Bayan.Lowering/Lowerer.cs`: `:740` `Lvalue` also for `ToDynRef`; `For` (:503) user-iteration branches. R7 R9.
 - `src/Bayan.Backend.C/CEmitter.cs`: `CType` (:201-230) and `Key` (:233-251) cases for `DynRefType` (readonly shares the C type); `byn_dyn_<I>`/`byn_vt_<I>` through `Named` (:253); thunks via `Helper` (:335); vtable data list emitted after helper prototypes; `Conversion` (:1525) `ToDynRef`; call emission for dyn receivers; names use `FunctionName` (ends :178) and `TypeArgs` (:181). R6 R7.
-- `tests/cases/{parse,diag,run}`, `docs/diagnostics/BYN2800–2815.md`, `docs/laws/012-*.md`, `tests/Bayan.Tests/InterfaceGenerator.cs`, `L012InterfaceDispatchTests.cs`, `docs/bayan-handoff.md`, `docs/bayan-spec.md` §3.15. R12 R13 L012.
+- `tests/cases/{parse,diag,run}`, `docs/diagnostics/BYN2800–2815.md`, `docs/laws/012-*.md`, `tests/Bayan.Tests/InterfaceGenerator.cs`, `L012InterfaceDispatchTests.cs`, `docs/bayan-milestones.md`, `docs/bayan-spec.md` §3.15. R12 R13 L012.
 
 ## Data / interfaces
 

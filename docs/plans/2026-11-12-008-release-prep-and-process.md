@@ -2,8 +2,8 @@
 
 Status: done (9653928b).
 
-Tier: Standard. Approved by the user 2026-11-12. The decisions are listed in `docs/bayan-handoff.md` (*Questions*, "Decided by the user (2026-11-12)", and Q1274).
-Branch: `feat/008-release-prep-and-process`. Each work package (W) is one writer on its own worker branch, gated against its section below, then landed here. W1–W5 own disjoint files. **No writer edits `docs/bayan-handoff.md`**: the dispatcher writes the Progress log. A spec gap becomes a line in the writer's final reply, not a handoff edit.
+Tier: Standard. Approved by the user 2026-11-12. The decisions are listed in `docs/decisions/2026-11-14-003-answered-questions.md` (*Questions*, "Decided by the user (2026-11-12)", and Q1274).
+Branch: `feat/008-release-prep-and-process`. Each work package (W) is one writer on its own worker branch, gated against its section below, then landed here. W1–W5 own disjoint files. **No writer edits `docs/bayan-progress-log.md`**: the dispatcher writes the Progress log. A spec gap becomes a line in the writer's final reply, not a handoff edit.
 
 ## W1 — `Io.run` bounded capture, and timed-out output kept (Q1216 + Q1227 (a), blocks 0.3.0)
 

@@ -164,5 +164,6 @@ scripts/dist.sh --from <publish-dir> --rid win-x64 --commit <sha>   # import a b
 NativeAOT does not cross-compile between operating systems, so Linux and Windows binaries are published on
 those systems and imported with `--from`.
 
-The work plan and progress log are in [`docs/bayan-handoff.md`](docs/bayan-handoff.md); how a version is
-cut is in [`docs/RELEASING.md`](docs/RELEASING.md).
+The milestones and an index of the project docs are in [`docs/bayan-milestones.md`](docs/bayan-milestones.md), the
+progress log is in [`docs/bayan-progress-log.md`](docs/bayan-progress-log.md), and how a version is cut is
+in [`docs/RELEASING.md`](docs/RELEASING.md).

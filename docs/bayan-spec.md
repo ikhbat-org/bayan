@@ -249,7 +249,7 @@ void main() {
 - **Text:** `sym.text` is a `string` that borrows nothing and allocates nothing; `$"{sym}"` writes the text, and a `Map` holding symbols formats them as their texts. There is no other conversion: no cast between `Symbol` and `string` or an integer, and no ID member (BYN2003). IDs are not observable, so they may change between versions.
 - **Keys:** a `Symbol` hashes its ID; `Map<Symbol, V>` and composite keys with `Symbol` parts are §3.5's keys. A program that uses no `Symbol` emits and links none of the table.
 - (not in 0.3: freeing interned text, several independent tables, `const` arrays of `Symbol` and `Symbol` in static data beyond literals (BYN2229), interning from several threads (the table is single-threaded, §13))
-- Laws: L015 "Interning is identity on text", L016 "Equal keys are one entry" (revision 0013 item 6). Codes: BYN2832. HANDOFF Questions 371–381.
+- Laws: L015 "Interning is identity on text", L016 "Equal keys are one entry" (revision 0013 item 6). Codes: BYN2832. Questions 371–381.
 
 **Self-hosting gaps** (what spec 009's port must work around):
 - No `const` symbol arrays: a keyword table is a `Map<Symbol, TokenKind>` literal built at start-up.
@@ -287,7 +287,7 @@ type distinct UserId = i64       // a unit without arithmetic
 - `Span<T>`: a borrowed view (pointer, length) whose elements may be assigned.
 - `ReadOnlySpan<T>`: a borrowed view whose elements cannot be assigned. `Span<T>` → `ReadOnlySpan<T>` is implicit. `string.bytes` is a `ReadOnlySpan<u8>`, so strings stay immutable and valid UTF-8. A `Span<T>` parameter never written through gets lint BYN2310 ("use `ReadOnlySpan<T>`").
 - `List<T>`, `Deque<T>`, `Map<K, V>`, `Set<T>`, `Pool<T>`, `Ring<T, const i32 N>`, `NonEmpty<T>`: standard library, allocator-backed (API: §16) (partial in 0.3: `List` and `Map` only).
-- `Map` **preserves insertion order** and is the only hash map. `HashMap<K, V>` is BYN2830 with a fix to `Map<K, V>`, wherever a type is written; the type is then read as `Map<K, V>`, so it is reported once (spec 008). An unordered `HashMap` would iterate in seed order; whether to add one later is HANDOFF Question 371.
+- `Map` **preserves insertion order** and is the only hash map. `HashMap<K, V>` is BYN2830 with a fix to `Map<K, V>`, wherever a type is written; the type is then read as `Map<K, V>`, so it is reported once (spec 008). An unordered `HashMap` would iterate in seed order; whether to add one later is Question 371.
 - **`Map` keys:** an integer type, `rune`, `bool`, `string`, a plain enum, `Symbol` (§3.3), a tuple whose elements are all keys, or a struct whose fields are all keys and which is not `@noEquality`. Two keys are equal when `==` says so (§6.7). A struct or tuple that is not a key is BYN2831, naming the first field or element that rules it out and its type; any other key type (a float, an optional, an enum with data, a collection) is BYN2760. A type parameter used as a key is checked at each instantiation. A key hashes its value only: a `Symbol` its ID, a `string` its text, a tuple or struct its parts in declaration order, never padding bytes, so two `==` keys built apart are one entry.
 - `xs.remove(from: start, until: end)` removes the elements in `[start, end)` and keeps the order of the rest; `xs.remove(from: start, through: end)` includes `end`; `xs.remove(at: range)` takes a range. `start > end` or `end > xs.length` panics (`slice out of range`). Like `append` and `removeLast`, they are structural modifications (§9.4 rule 5).
 - A module-level `const T[N]` with literal or constant elements is static data in `.rodata` when `T` is a number type, `bool`, `rune` or `string` (`const names: string[2] = ["a", "b"]`); it can be indexed, iterated and asked its `.length`. Any other module-level `const` array is BYN2229.
@@ -609,7 +609,7 @@ void main() {
 - **Effects:** a function-typed parameter is effect-polymorphic: a call through it adds nothing to the function that declares it, and the call that passes a function or lambda carries that argument's effects (BYN6002 on a public caller that does not declare them). A function-typed local's `uses` is an upper bound: a function or lambda beyond it is BYN6005, and a call through the local has the declared effects. Function types match exactly, so a local with a `uses` bound passed to a parameter without one is BYN2202.
 - **Input forms:** `A => B` in a type is BYN1055 with a fix to `A -> B`; `delegate bool F(Order o)` is BYN1028 with the fix `type F = Order -> bool`. `bayan format` applies both.
 - (not in 0.3: generic aliases, typed lambda parameters, `ref` captures of `var`, `move () => …` (BYN2782), function values that outlive their frame, `dyn (A -> B)`, built-in collection methods that take a lambda (`where`, `select`, `sumBy`; §16), effect variables)
-- Laws: L013 "Direct and indirect calls agree", L014 "Capture by copy never aliases the source". Codes: BYN1028, BYN1055, BYN2029, BYN2820–BYN2824. HANDOFF Questions 345–369.
+- Laws: L013 "Direct and indirect calls agree", L014 "Capture by copy never aliases the source". Codes: BYN1028, BYN1055, BYN2029, BYN2820–BYN2824. Questions 345–369.
 
 **Self-hosting gaps** (what spec 009's port must work around):
 - No stored callbacks: a visitor table, a `Dictionary<TokenKind, Func<…>>` or a parser rule table becomes a `switch` or a function-typed parameter threaded through the calls.
@@ -2248,7 +2248,7 @@ public c_int settleC(…) { … }
 
 > Round 3 §2, §5, §6: extern declarations are type-first like C signatures and every other declaration (revised 2026-10-22), and attributes use `@` like everywhere else. Codes: BYN1043, BYN1045.
 
-> Handoff Question 120 (decided 2026-10-24): postfix `T*` reads like the C signature it mirrors in a type-first declaration; `readonly` already means "no writes through this" elsewhere, so it spells C's `const`. Codes: BYN1066 (revision 0001).
+> Question 120 (decided 2026-10-24): postfix `T*` reads like the C signature it mirrors in a type-first declaration; `readonly` already means "no writes through this" elsewhere, so it spells C's `const`. Codes: BYN1066 (revision 0001).
 
 > Revision 0002 item 20: a pointer outside `extern` would let unchecked memory into safe code, so the C boundary is the only place one is written. Codes: BYN1067.
 

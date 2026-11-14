@@ -66,7 +66,7 @@ Generator and laws:
 - `tests/Bayan.Tests/L008OwnershipRuntimeTests.cs` `[Trait("Law","L008")]` | one `[Fact]`: seeds 1..N (N default 24, `size` 16, `BAYAN_GEN_SEEDS` env raises N), compile each, count rejected, build accepted in parallel with `Toolchain.Build(..., BuildMode.Debug, sanitize: asan)` (warm-up pattern of `RunTests.cs:1-80`, `BAYAN_CACHE` so unchanged programs are free on reruns), run sequentially, assert exit 0 and empty stderr, fail if rejected > 50%, print counts and whether ASan ran; a second `[Fact]` asserts `Generate(1,8)` equals a committed hash and is stable across two calls | R9, R10
 - `docs/laws/008-unique-never-aliased-at-runtime.md` | add `proof:`/`check: dotnet test --filter Law=L008` and `## Proof notes` recording which half (checker, ASan) ran; status flip is the user's "enact" | R10
 - `docs/laws/006-unique-never-aliases.md` and `tests/Bayan.Tests/L006OwnershipGuardTests.cs` | Statement gains "…with `take()` in place of a move out of a field…"; Accepted rows: `take()` from field, element, optional, through `ref`; `switch (move s)` with `consume(move items)`; Rejected rows: `switch (s)` then `consume(move items)` BYN2783, `switch (move s)` then read of `s` BYN2781, `switch (move ledger.items)` BYN2789, `take()` on `let` local (existing cannot-mutate code), `take()` on `i64` BYN2788. Update proof notes row counts | R12
-- `docs/bayan-handoff.md:475-479` | answer Q64, Q65, Q66 | all
+- `docs/bayan-questions.md:53` | answer Q64, Q65, Q66 | all
 
 ## Data / interfaces
 

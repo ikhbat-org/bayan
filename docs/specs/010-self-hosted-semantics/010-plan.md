@@ -74,7 +74,7 @@ Serial foundation tasks T2 (1,250) and T3 (1,720) exceed the wave budget; accept
 
 **tests/Bayan.Tests/**: `SelfhostSemanticsTests.cs` (T1 build `Lazy` and smoke test; T26 golden and CLI theories), `SelfhostSemanticsGenerator.cs`/`GeneratorTests.cs` (T27), `SelfhostSemanticsEquivalenceLawTests.cs` (T29), `SelfhostSemanticsNoPanicLawTests.cs` (T31), and `SelfhostSemanticsTnTests.cs` for T6–T25 and T34–T39.
 
-**docs/**: `docs/laws/022-binder-equivalence.md`, `023-no-checker-panic.md` (T29–T32), `docs/bayan-handoff.md` (Questions 520 upward, progress entry, Road row 010, readiness), `CHANGELOG.md`, `010-spec.md` status (T33). `work/todo.md` lines for C# bugs matched.
+**docs/**: `docs/laws/022-binder-equivalence.md`, `023-no-checker-panic.md` (T29–T32), `docs/bayan-questions.md` (Questions 520 upward, progress entry, Road row 010, readiness), `CHANGELOG.md`, `010-spec.md` status (T33). `work/todo.md` lines for C# bugs matched.
 
 ## Data / interfaces
 

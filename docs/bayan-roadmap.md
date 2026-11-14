@@ -2,7 +2,7 @@
 
 State of `dev` at 04366a4f, 2026-11-14. Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
 
-Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan` you download (`CHANGELOG.md`, 0.3.0). The next goals are to drop .NET and the C# compiler's role (`docs/bayan-handoff.md`, Target: zero dependencies) and to land the tooling ports.
+Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan` you download (`CHANGELOG.md`, 0.3.0). The next goals are to drop .NET and the C# compiler's role (`docs/bayan-milestones.md`, Target: zero dependencies) and to land the tooling ports.
 
 ## Where we are
 
@@ -14,7 +14,7 @@ Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan`
 
 ### 0.1.0: the C# compiler (M0 — Skeleton to M12 — CLI completeness and machine-readable output)
 
-Source: `CHANGELOG.md` `[0.1.0]`, `docs/bayan-handoff.md` (Milestones).
+Source: `CHANGELOG.md` `[0.1.0]`, `docs/bayan-milestones.md` (Milestones).
 
 | Milestone | What it delivered |
 |---|---|
@@ -60,7 +60,7 @@ Source: `CHANGELOG.md` `[0.3.0]`, `docs/specs/017-selfhost-default/017-tasks.md`
 | Runtime and release hardening | `Io.randomU64()`, SipHash-1-3 map hashing, bounded `Io.run` capture, prebuilt runtime object, release workflow gates, `docs/RELEASING.md` |
 | License | ISL-P 1.2 with the ISL-OE 1.2 output exception |
 
-Known limits of 0.3.0: Windows expects no failing test; archives do not include `bayan-lsp` (`CHANGELOG.md` `[0.3.0]` Known limits). The stage-2 build peak of 2.94 GB is named in the release notes (`docs/bayan-handoff.md`, Progress log, 2026-11-12 decisions).
+Known limits of 0.3.0: Windows expects no failing test; archives do not include `bayan-lsp` (`CHANGELOG.md` `[0.3.0]` Known limits). The stage-2 build peak of 2.94 GB is named in the release notes (`docs/bayan-progress-log.md`, 2026-11-12 decisions).
 
 ## Next releases
 
@@ -68,11 +68,11 @@ The order below follows the sources where they give one and the dependencies whe
 
 | Order | Item | State today | Source |
 |---|---|---|---|
-| 1 | Revision 0024, numeric conversions | The last syntax change admitted after the freeze. The text is not in `docs/revisions/` yet; Q1 and Q1274 are decided (a float literal `dec(0.1)` is an error with a fix-it to `0.1dec`, and a runtime `f64` in `dec(x)` is an error with a fix-it to `dec.fromF64(x, digits)`) | `docs/bayan-spec.md` line 8, `docs/bayan-handoff.md` Questions 1274, `docs/plans/2026-11-12-008-release-prep-and-process.md` |
-| 2 | Plan 015, Q31 memory follow-ups | Phases A, B and D are merged into `dev`; phase C (emit arena) is deferred by the user. Left open: the LOWs below | `docs/plans/2026-11-14-015-q31-followups.md`, `docs/bayan-handoff.md` Progress log (2026-11-14), `work/todo.md` lines 770–775, 794 |
-| 3 | Spec 019, the .NET exit | Approved 2026-11-13, not written; to be written after 0.3.0, estimate 4–7 weeks. C# test outputs become goldens, the language server moves to Bayān, CI builds from `bootstrap/bayan.c`, the C# compiler stays frozen for diverse double-compiling | `docs/bayan-handoff.md` (Target: zero dependencies) |
+| 1 | Revision 0024, numeric conversions | The last syntax change admitted after the freeze. The text is not in `docs/revisions/` yet; Q1 and Q1274 are decided (a float literal `dec(0.1)` is an error with a fix-it to `0.1dec`, and a runtime `f64` in `dec(x)` is an error with a fix-it to `dec.fromF64(x, digits)`) | `docs/bayan-spec.md` line 8, `docs/decisions/2026-11-14-003-answered-questions.md` Questions 1274, `docs/plans/2026-11-12-008-release-prep-and-process.md` |
+| 2 | Plan 015, Q31 memory follow-ups | Phases A, B and D are merged into `dev`; phase C (emit arena) is deferred by the user. Left open: the LOWs below | `docs/plans/2026-11-14-015-q31-followups.md`, `docs/bayan-progress-log.md` (2026-11-14), `work/todo.md` lines 770–775, 794 |
+| 3 | Spec 019, the .NET exit | Approved 2026-11-13, not written; to be written after 0.3.0, estimate 4–7 weeks. C# test outputs become goldens, the language server moves to Bayān, CI builds from `bootstrap/bayan.c`, the C# compiler stays frozen for diverse double-compiling | `docs/bayan-milestones.md` (Target: zero dependencies) |
 | 4 | Spec 020, test-result cache | Approved; 0 of 27 tasks ticked. Build now with a thin adaptor if cheap, otherwise after 019 | `docs/specs/020-test-result-cache/020-spec.md` (Open questions, item 4), `020-tasks.md` |
-| 5 | Sabk, native debug backend (`bayan build --backend native`) | Scheduled by the user 2026-11-13 after spec 019. `c` stays the default path; LLVM stays for release builds | `docs/plans/2026-11-05-005-parking-lot.md` (B04), `docs/bayan-handoff.md` (Target: zero dependencies) |
+| 5 | Sabk, native debug backend (`bayan build --backend native`) | Scheduled by the user 2026-11-13 after spec 019. `c` stays the default path; LLVM stays for release builds | `docs/plans/2026-11-05-005-parking-lot.md` (B04), `docs/bayan-milestones.md` (Target: zero dependencies) |
 | 6 | Spec 015, tooling ports | 8 of 17 tasks ticked; T9–T17 open (`gen-lowercase`, `stryker-to-quality`, `quality-baseline`, `mutate-plan`, `std.regex`, `guard-checks`, `Base64`, `replay`). 012 is done, so the original wait is over | `docs/specs/015-tooling/015-tasks.md`, `docs/handoffs/2026-11-02-spec-015-tooling.md` |
 | 7 | Round-4 design work, A1 and A2 addenda | 42 inventory rows open and 2 open as conflicts. Batches 1–8 landed as revisions 0019–0023; the rest wait for evidence or a user decision | `docs/bayan-design-round-4-inventory.md`, `docs/revisions/0019-round-4-batches-1-8-consistency.md`, `docs/revisions/a2-lessons-mid-flight.md`, `docs/revisions/0016-addendum-a1-midflight.md`, `docs/revisions/0017-addendum-a2-diagnostic-codes.md` |
 | 8 | Concurrency, `scope` and `spawn` | Design confirmed, spec removed from §13 by revision 0023 (placeholder). Spec and runtime not written; `async` and `await` stay reserved in the lexer | `docs/bayan-concurrency.md`, `docs/misc/2026-11-04-design-inputs-review.md`, `work/todo.md` (A12) |
@@ -83,11 +83,11 @@ The order below follows the sources where they give one and the dependencies whe
 
 | Follow-up | State | Source |
 |---|---|---|
-| Rev 0021 naming lints, Q1186–Q1189 | "Decision needed" in the handoff Questions with no later decision entry; Q1190 (option A) and Q1191 (std skipped) were settled on 2026-11-11 | `docs/bayan-handoff.md` lines 1543–1546, 1693, 2065 |
+| Rev 0021 naming lints, Q1186–Q1189 | "Decision needed" in the Questions with no later decision entry; Q1190 (option A) and Q1191 (std skipped) were settled on 2026-11-11 | `docs/decisions/2026-11-14-003-answered-questions.md` lines 3264–3276, `docs/bayan-progress-log.md` lines 63, 435 |
 | Plan 015 LOWs | `test`, `mutate` and `dist` still build with the frontend alive; `--emit-c` runs in the arena for no gain; `t42SummaryInArena` has no `c.sink` guard | `work/todo.md` lines 771, 775, 794 |
 | mmap arena chunks | `bayan-rt.c` large arena chunks through `mmap` and `munmap`, so macOS returns freed arenas to the OS | `work/todo.md` line 772 |
-| Mutation CI | The `mutation` workflow stays disabled; `ci` and `laws-nightly` are re-enabled | `docs/bayan-handoff.md` Progress log, "CI repair before 0.3.0" |
-| After 0.3.0 list | Q1229, Q1272, Q1273, the General allocator (Q31) arena per phase, parser and ownership depth (BYN1xxx "nested too deep") | `docs/bayan-handoff.md` (Decided by the user 2026-11-12, "After 0.3.0") |
+| Mutation CI | The `mutation` workflow stays disabled; `ci` and `laws-nightly` are re-enabled | `docs/bayan-progress-log.md`, "CI repair before 0.3.0" |
+| After 0.3.0 list | Q1229, Q1272, Q1273, the General allocator (Q31) arena per phase, parser and ownership depth (BYN1xxx "nested too deep") | `docs/decisions/2026-11-14-003-answered-questions.md` (Decided by the user 2026-11-12, "After 0.3.0") |
 | Before the tag | `authors` CI is red on `dev` since 2026-11-03; fixing needs a history rewrite the user runs | `work/todo.md` ("Before 0.3.0"), `scripts/move/2026-11-14-history-rewrite.sh` |
 
 ## Pending specs and plans
@@ -99,7 +99,7 @@ Slots: "(proposed)" marks a dependency-order proposal. A slot without it comes f
 | Id | Title | Status in the source | What is left | Depends on | Proposed slot |
 |---|---|---|---|---|---|
 | 015 | Tooling | decided (2026-11-02); ports wait for 012 (S1) | T9–T17 of 17 | 012 (done); `std.regex` (T14) before T15; `Io.run` streaming (Q1141) before T17 | After spec 019 (proposed) |
-| 019 | .NET exit | not written (`docs/specs/019-*` does not exist) | Write the spec, then do it | 0.3.0 tag | After 0.3.0 (`docs/bayan-handoff.md`) |
+| 019 | .NET exit | not written (`docs/specs/019-*` does not exist) | Write the spec, then do it | 0.3.0 tag | After 0.3.0 (`docs/decisions/2026-11-14-003-answered-questions.md`) |
 | 020 | Test-result cache | approved | 27 of 27 tasks | Task 1 measures the per-unit process cost; 019 | After spec 019 (proposed; `docs/specs/020-test-result-cache/020-spec.md` line 97 leaves the timing to task 1) |
 | 011 | Self-hosted emitter | draft (rev 3) | T16, the batch mutation run for `tests/quality-baseline.json` | mutation CI (disabled) | No slot |
 | 012 | Self-hosted bootstrap | approved | T22, the driver batch mutation; parked by the user 2026-11-06 | mutation CI (disabled) | No slot |
@@ -125,7 +125,7 @@ Not listed as pending: plan 000 (an index) and plan r4-section-10 (appended to t
 |---|---|---|
 | 002 Ownership and law alignment | done (L005–L008 await enactment) | `docs/laws/005`–`008` say `status: enacted` |
 | Plan 2026-11-02-003 Move to Ikhbat | waiting for approval | `CHANGELOG.md` `[0.2.0]` Changed (repository moved) |
-| Plan 2026-10-21-001 Design round 2 | "awaiting approval" | `docs/bayan-handoff.md` Question 101 (decisions "superseded by design round 2 C1"); `docs/plans/2026-10-22-002-design-round-3.md` takes round 2 as input and wins over it |
+| Plan 2026-10-21-001 Design round 2 | "awaiting approval" | `docs/decisions/2026-11-14-003-answered-questions.md` Question 101 (decisions "superseded by design round 2 C1"); `docs/plans/2026-10-22-002-design-round-3.md` takes round 2 as input and wins over it |
 | Plan 2026-10-22-002 Design round 3 | no status line | `CHANGELOG.md` `[0.1.0]` Added (revisions 0002–0010) |
-| Plans 007, 009, 010, 011, 012, 013, 014 | approved or closed | 007: handoff Progress log (Phase A and B); 009, 011: `CHANGELOG.md` `[0.3.0]`; 010: closed, gate failed (see not-planned); 012–014: handoff Progress log and merges on `dev` |
+| Plans 007, 009, 010, 011, 012, 013, 014 | approved or closed | 007: `docs/bayan-progress-log.md` (Phase A and B); 009, 011: `CHANGELOG.md` `[0.3.0]`; 010: closed, gate failed (see not-planned); 012–014: `docs/bayan-progress-log.md` and merges on `dev` |
 | Plan 008 Release prep | approved | `CHANGELOG.md` `[0.3.0]` Changed (release gates) |

@@ -57,7 +57,7 @@ Written 2026-10-22 against dev at `0a5b502` (round 2 applied; spec §3.16 is rou
 - `src/Bayan.Backend.C/Toolchain.cs`, `src/runtime/`: unchanged. R13.
 - `docs/diagnostics/BYN1028.md` (rewritten to `->`), `BYN1055.md`, `BYN2029.md`, `BYN2820.md` … `BYN2824.md`: pages in the `# BYNxxxx: title` / `**Why.**` / `**Example.**` / `**Fix.**` form (BYN2744.md is the model), examples in round-3 syntax; `BYN6005.md` gains a function-type example. `DiagnosticCodesTests` enforces page and golden per code. R14.
 - `tests/cases/parse/`, `diag/`, `run/`, `typed/`: goldens listed per task, written in round-3 syntax. `tests/Bayan.Tests/LambdaGenerator.cs`, `L013DirectAndIndirectCallsAgreeTests.cs`, `L014CaptureByCopyTests.cs`. R14 R15 L013 L014.
-- `docs/bayan-handoff.md` (Q345–Q362, progress entry), `docs/bayan-spec.md` §3.16 (the shipped subset and the self-hosting gaps), `docs/bayan-grammar.md` (function types and lambdas; the BYN1055 input-form row goes live), the round-3 plan's spec-only row (BYN1055 leaves it), `CHANGELOG.md`.
+- `docs/decisions/2026-11-14-003-answered-questions.md` (Q345–Q362, progress entry), `docs/bayan-spec.md` §3.16 (the shipped subset and the self-hosting gaps), `docs/bayan-grammar.md` (function types and lambdas; the BYN1055 input-form row goes live), the round-3 plan's spec-only row (BYN1055 leaves it), `CHANGELOG.md`.
 
 ## Data / interfaces
 

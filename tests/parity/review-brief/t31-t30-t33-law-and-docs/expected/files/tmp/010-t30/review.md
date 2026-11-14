@@ -1,6 +1,6 @@
 You are the independent reviewer for task T30 of spec 010 (the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`). You did not write this code. Your job is to find where the port is not the C#. Do not edit any file except the review file below; do not run git commands that change state.
 
-Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port , the tests , and Questions for this task in `docs/bayan-handoff.md`.
+Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port , the tests , and Questions for this task in `docs/bayan-questions.md`.
 
 ## Task (verbatim)
 - [x] T30 enact L022 "Binder equivalence" — files: `docs/laws/022-binder-equivalence.md` — covers: L022 — after: T29 — done when:

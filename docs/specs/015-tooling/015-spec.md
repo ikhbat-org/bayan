@@ -229,7 +229,7 @@ mutants), `gen-lowercase` (needs the Unicode download), the report-paths and man
 
 ## Open questions
 - Conflicts found: the original brief's paths `GRAMMAR.md`, `HANDOFF.md`, `bootstrap/`, `npm run lsp`, `npm run grammar` and
-  `tests/lsp-regress.js` do not exist here (the first two are `docs/bayan-grammar.md`, `docs/bayan-handoff.md`; the
+  `tests/lsp-regress.js` do not exist here (the first two are `docs/bayan-grammar.md`, `docs/bayan-milestones.md`; the
   rest have no counterpart, so nothing to port).
 
 ## Port record

@@ -1,12 +1,12 @@
-# Bayan handoff addendum 002 — laws (opt-in), contracts, parallel iterators
+# Laws (opt-in), contracts and parallel iterators
 
-Place in `docs/` and merge into `docs/bayan-handoff.md` as before. Spec edits go into `docs/bayan-spec.md`. Same ground rules as the original handoff.
+Design for v0.2 and later, added 2026-10-20 as addendum 002 to the v0.1 work plan (the milestones are now in `docs/bayan-milestones.md`). Spec edits go into `docs/bayan-spec.md`; the rules for working on Bayān are in `docs/bayan-contributing.md`.
 
-**Scope note:** this addendum designs features for v0.2 and later. **Do not start v0.2 work before the v0.1 exit criterion and addenda 001 are done.** The only item to do now is §1.
+**Status (2026-11-14):** §1 and §6 are done. §2–§4 are design only. §5 is partly applied: the spec has no `.par()` or `bayan verify` text yet (audit A31, `docs/audits/2026-11-14-0.3.0-docs-audit.md`), and round 4 changed `law`, `requires` and `ensures` (§3's note; spec §2.4).
 
 ---
 
-## 1. Do now: reserve keywords
+## 1. Reserve keywords (done)
 
 Add to the reserved-keyword list (spec §2.4) and the lexer, with golden tests that they're rejected as identifiers:
 
@@ -170,4 +170,4 @@ error BYN3405: a parallel closure modifies the captured `count`
 
 ## 6. Also add to the repository
 
-`docs/bayan-terminal-style.md` (provided separately) is **normative for the output of M12 — CLI completeness and machine-readable output** and for the `bayan laws` report format above. Add it to `docs/` and reference it from the handoff's section for M12 — CLI completeness and machine-readable output.
+`docs/bayan-terminal-style.md` is **normative for the output of M12 — CLI completeness and machine-readable output** and for the `bayan laws` report format above. It is in `docs/`, and M12 in `docs/bayan-milestones.md` cites it.
