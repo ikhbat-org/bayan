@@ -84,7 +84,7 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
      tag.
 
    It fails, before it touches the CHANGELOG, when a tracked file still contains the previous `-dev` version
-   (for example `0.3.0-dev`). It prints each file it changed and the new section. It never commits, tags or pushes.
+   (for example `1.2.0-dev`). It prints each file it changed and the new section. It never commits, tags or pushes.
 2. **Regenerate `bootstrap/bayan.c`** with `scripts/selfhost/land.sh`, so the bootstrap compiler reports the new
    version.
 3. **Review.** Edit the CHANGELOG section (a summary, known limits). Run the tests, `bash scripts/docs/check.sh` and

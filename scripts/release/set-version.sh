@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Sets the version everywhere it is written: VERSION, its code and test mirrors (version.sh `bayan_mirrors`) and the
 # `Version:` line of each header doc (`bayan_header_docs`). Prints each file it changed; edits files only.
-#   set-version.sh <version>      e.g. 0.3.0-dev or 0.3.0
+#   set-version.sh <version>      e.g. 1.2.0-dev or 1.2.0
 # bootstrap/bayan.c is regenerated from selfhost/ by scripts/selfhost/land.sh, not edited here.
 set -euo pipefail
 

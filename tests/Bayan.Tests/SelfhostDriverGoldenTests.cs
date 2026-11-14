@@ -993,10 +993,10 @@ public sealed class SelfhostDriverGoldenTests
     [Fact]
     public void StreamMasksAreScopedToTheirCommands()
     {
-        Assert.Equal(MaskStream("bayan 0.3.0-dev (commit abc123)\n", "", "version"), MaskStream("bayan 0.3.0-dev (selfhost)\n", "", "version"));
-        Assert.Equal(MaskStream("◆ bayan       0.3.0-dev (commit abc123)\n", "", "doctor"), MaskStream("◆ bayan       0.3.0-dev (selfhost)\n", "", "doctor"));
-        Assert.NotEqual(MaskStream("bayan 0.3.0-dev (commit abc123)\n", "", "check"), MaskStream("bayan 0.3.0-dev (selfhost)\n", "", "check"));
-        Assert.NotEqual(MaskStream("see bayan 0.3.0-dev (commit abc123)\n", "", "doctor"), MaskStream("see bayan 0.3.0-dev (selfhost)\n", "", "doctor"));
+        Assert.Equal(MaskStream("bayan 1.2.3-dev (commit abc123)\n", "", "version"), MaskStream("bayan 1.2.3-dev (selfhost)\n", "", "version"));
+        Assert.Equal(MaskStream("◆ bayan       1.2.3-dev (commit abc123)\n", "", "doctor"), MaskStream("◆ bayan       1.2.3-dev (selfhost)\n", "", "doctor"));
+        Assert.NotEqual(MaskStream("bayan 1.2.3-dev (commit abc123)\n", "", "check"), MaskStream("bayan 1.2.3-dev (selfhost)\n", "", "check"));
+        Assert.NotEqual(MaskStream("see bayan 1.2.3-dev (commit abc123)\n", "", "doctor"), MaskStream("see bayan 1.2.3-dev (selfhost)\n", "", "doctor"));
         Assert.Equal(MaskStream("\"durationMs\": 5\n", "", "test"), MaskStream("\"durationMs\": 7\n", "", "test"));
         Assert.NotEqual(MaskStream("\"durationMs\": 5\n", "", "format"), MaskStream("\"durationMs\": 7\n", "", "format"));
         Assert.Equal(MaskStream("built in 1.25s\n", "", "format"), MaskStream("built in 9.00s\n", "", "format"));
