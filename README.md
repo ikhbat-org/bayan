@@ -132,6 +132,8 @@ it in more detail, for example `bayan explain BYN1043`.
   naming and style.
 - [`docs/DIAGNOSTICS.md`](docs/DIAGNOSTICS.md) lists every error and warning.
 - [`CHANGELOG.md`](CHANGELOG.md) says what changed in each version.
+- [`docs/bayan-roadmap.md`](docs/bayan-roadmap.md) says what is coming next; [`docs/bayan-not-planned.md`](docs/bayan-not-planned.md)
+  lists what Bayān will not do, and [`docs/bayan-nice-to-have.md`](docs/bayan-nice-to-have.md) the ideas with no slot yet.
 - Home: <https://bayan.run>. Repository: <https://github.com/ikhbat-org/bayan> (Ikhbat Foundation).
 
 Found a bug or a confusing error message? Please open an issue. A small program that shows the problem
