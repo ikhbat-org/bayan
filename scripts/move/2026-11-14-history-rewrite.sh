@@ -13,10 +13,11 @@
 # every tag), clone it non-bare to clone/ and there rewrite old SHAs cited in dev's tracked .md files as one
 # commit on chore/history-sha-refs-1114 merged --no-ff into dev. The dry run changes nothing outside tmp/.
 # The real run (both flags) first mirrors the repository to --backup (default
-# ~/Developer/backups/bayan-pre-rewrite-2026-11-14.git; refuses if it exists), then fetches each rewritten
-# branch not checked out in any worktree and every tag back into the repository, maps refs/review/reviewed
-# and review.reviewedthrough, and prints the per-worktree commands for the checked-out branches, the push
-# commands and the undo. It pushes nothing and never rewrites the repository's refs in place.
+# ~/Developer/backups/bayan-pre-rewrite-2026-11-14.git; refuses if it exists), then fetches the rewritten
+# objects and moves, by compare-and-swap (a ref moved since the mirror is skipped), each rewritten branch not
+# checked out in any worktree and every tag, maps refs/review/reviewed and review.reviewedthrough, and prints
+# a guarded reset --keep per checked-out branch, the push commands (--force-with-lease) and the undo, which covers
+# every ref it moved or printed. Branches that exist only on origin are not created. It pushes nothing.
 # Exit 0 done, 1 refused or a check failed (nothing changed in the repository), 2 usage, 3 failed after the
 # repository's refs began to change (run the printed undo).
 set -u
@@ -123,6 +124,17 @@ remap() {
 # mapsha <sha>: the rewritten SHA of a commit of the repository (empty if not in the commit-map)
 mapsha() { awk -v o="$1" '$1 == o { print $2 }' "$TRIAL/filter-repo/commit-map"; }
 
+# a fetched origin commit the local dev/main lacks is not in the rewrite, and the push would drop it;
+# the push leases on the origin values checked here (ORIGIN_dev, ORIGIN_main), not on a later fetch
+for b in dev main; do
+  ob=$(git rev-parse -q --verify "refs/remotes/origin/$b" 2>/dev/null || true)
+  printf -v "ORIGIN_$b" '%s' "$ob"
+  lb=$(git rev-parse -q --verify "refs/heads/$b" 2>/dev/null || true)
+  if [ -n "$ob" ] && [ -n "$lb" ] && ! git merge-base --is-ancestor "$ob" "$lb"; then
+    say "refuse: origin/$b has commits the local $b lacks; merge them into $b, then rerun. Nothing changed."; exit 1
+  fi
+done
+
 # ---- rehearsal (both modes) -----------------------------------------------------------------
 if [ "$EXEC" -eq 1 ]; then
   say "run: backup mirror -> $BACKUP"
@@ -187,7 +199,7 @@ say "ok: rehearsal clean (identities, messages, commit count, trees)"
 if [ "$EXEC" -eq 0 ]; then say "dry run: nothing changed in $REPO; run again with --execute --rewrite-history"; exit 0; fi
 
 # ---- real run: bring the rewritten refs back ------------------------------------------------
-# branches checked out in a worktree (the main one included) and whether each worktree is clean
+# branches checked out in a worktree (the main one included)
 WTB=$WORK/worktree-branches
 git worktree list --porcelain | awk '/^worktree /{ w = substr($0, 10) } /^branch refs\/heads\//{ print substr($0, 19) "\t" w }' > "$WTB"
 UNDOF=$BACKUP/undo.sh
@@ -195,32 +207,44 @@ printf '#!/usr/bin/env bash\n# undo of 2026-11-14-history-rewrite.sh (before pus
 UNDO="GIT_ALLOW_PROTECTED=1 bash $UNDOF"
 changed_fail() { say "fail: $*"; say "the repository is partly changed and nothing is pushed. Undo: $UNDO"; exit 3; }
 FETCHED=0 SKIPPED=0 MANUAL=""
+# the rewritten objects only (FETCH_HEAD, no ref is written); every ref then moves by compare-and-swap
+# (update-ref <ref> <new> <old>), which refuses a ref that moved since the mirror. A branch checked out in a
+# worktree gets a printed `reset --keep` guarded on its old tip: dev's tree differs by the SHA-reference merge.
+git -C "$CLONE" config uploadpack.allowAnySHA1InWant true
+git fetch -q --no-tags --no-write-fetch-head "$CLONE" $(git -C "$CLONE" for-each-ref --format='%(objectname)' refs/heads refs/tags | sort -u) \
+  || { say "fail: fetch of the rewritten objects; no ref changed"; exit 1; }
 for br in $(git -C "$CLONE" for-each-ref --format='%(refname:short)' refs/heads); do
   new=$(git -C "$CLONE" rev-parse "refs/heads/$br")
   old=$(awk -v r="refs/heads/$br" '$1 == r { print $2 }' "$OLDREFS")
   [ "$new" != "$old" ] || continue
+  # filter-repo turns refs/remotes/origin/X into refs/heads/X when the mirror has no branch X: not created here
+  if [ -z "$old" ] && [ "$br" != "$SHAB" ]; then say "skip: $br is only on origin; not created"; continue; fi
   wt=$(awk -F'\t' -v b="$br" '$1 == b { print $2; exit }' "$WTB")
   if [ -n "$wt" ]; then
-    if [ -d "$wt" ] && [ -z "$(git -C "$wt" status --porcelain 2>/dev/null)" ]; then state=clean; else state="NOT clean: commit or clean it first"; fi
-    MANUAL="$MANUAL  git -C $wt fetch $CLONE $br && git -C $wt reset --hard FETCH_HEAD   # $br, worktree $state"$'\n'
+    allow=""; case "$br" in dev|main) allow="GIT_ALLOW_PROTECTED=1 " ;; esac
+    MANUAL="$MANUAL  [ \"\$(git -C $wt rev-parse HEAD)\" = $old ] && ${allow}git -C $wt reset -q --keep $new   # $br; keeps uncommitted changes, refuses if $br moved"$'\n'
+    printf '[ "$(git -C %q rev-parse HEAD)" = %s ] && %sgit -C %q reset -q --keep %s || echo "left: %s not reset (not at the rewritten tip, or uncommitted changes in the way)"\n' "$wt" "$new" "$allow" "$wt" "$old" "$br" >> "$UNDOF"
     continue
   fi
-  cur=$(git rev-parse -q --verify "refs/heads/$br" 2>/dev/null || true)
-  if [ "$cur" != "$old" ]; then say "skip: $br moved since the mirror ($old -> $cur); left as is"; SKIPPED=$((SKIPPED + 1)); continue; fi
-  if [ -n "$old" ]; then printf 'git update-ref refs/heads/%q %s %s\n' "$br" "$old" "$new" >> "$UNDOF"
-  else printf 'git update-ref -d refs/heads/%q %s\n' "$br" "$new" >> "$UNDOF"; fi
-  git fetch -q --force "$CLONE" "refs/heads/$br:refs/heads/$br" || changed_fail "fetch of $br"
+  if [ -n "$old" ]; then
+    git update-ref "refs/heads/$br" "$new" "$old" 2>/dev/null || { say "skip: $br moved since the mirror; left as is"; SKIPPED=$((SKIPPED + 1)); continue; }
+    printf 'git update-ref refs/heads/%q %s %s\n' "$br" "$old" "$new" >> "$UNDOF"
+  else
+    git update-ref "refs/heads/$br" "$new" 0000000000000000000000000000000000000000 || changed_fail "create $br"
+    printf 'git update-ref -d refs/heads/%q %s\n' "$br" "$new" >> "$UNDOF"
+  fi
   FETCHED=$((FETCHED + 1))
 done
 for t in $(git -C "$CLONE" for-each-ref --format='%(refname:short)' refs/tags); do
   new=$(git -C "$CLONE" rev-parse "refs/tags/$t")
   old=$(awk -v r="refs/tags/$t" '$1 == r { print $2 }' "$OLDREFS")
-  [ "$new" != "$old" ] && [ -n "$old" ] && printf 'git update-ref refs/tags/%q %s %s\n' "$t" "$old" "$new" >> "$UNDOF"
+  [ -n "$old" ] && [ "$new" != "$old" ] || continue
+  git update-ref "refs/tags/$t" "$new" "$old" 2>/dev/null || { say "skip: tag $t moved since the mirror; left as is"; SKIPPED=$((SKIPPED + 1)); continue; }
+  printf 'git update-ref refs/tags/%q %s %s\n' "$t" "$old" "$new" >> "$UNDOF"
 done
-git fetch -q --force "$CLONE" '+refs/tags/*:refs/tags/*' || changed_fail "fetch of the tags"
 if [ -n "$RR1" ]; then
-  git fetch -q --force "$TRIAL" "+refs/review/reviewed:refs/review/reviewed" && git update-ref refs/review/reviewed "$RR1" || changed_fail "refs/review/reviewed"
-  printf 'git update-ref refs/review/reviewed %s\n' "$RR0" >> "$UNDOF"
+  git update-ref refs/review/reviewed "$RR1" "$RR0" || changed_fail "refs/review/reviewed"
+  printf 'git update-ref refs/review/reviewed %s %s\n' "$RR0" "$RR1" >> "$UNDOF"
   say "run: refs/review/reviewed -> $RR1"
 fi
 if [ -n "$WT1" ]; then
@@ -228,12 +252,22 @@ if [ -n "$WT1" ]; then
   printf 'git config review.reviewedthrough %s\n' "$WT0" >> "$UNDOF"
   say "run: review.reviewedthrough -> $WT1"
 fi
-say "ok: $FETCHED branch(es) and the tags fetched from $CLONE; $SKIPPED skipped; $CHANGED commits have new SHAs. Nothing pushed."
-if [ -n "$MANUAL" ]; then say "checked out in a worktree, left as is; per worktree, only if it is clean (yours):"; printf '%s' "$MANUAL"; fi
-TAGS=$(git -C "$CLONE" for-each-ref --format='%(refname) %(objectname)' refs/tags | while read -r r s; do
-  [ "$s" = "$(awk -v r="$r" '$1 == r { print $2 }' "$OLDREFS")" ] || printf ' %s' "$r"; done)
+say "ok: $FETCHED branch(es) and the tags moved to the rewritten history; $SKIPPED skipped; $CHANGED commits have new SHAs. Nothing pushed."
+if [ -n "$MANUAL" ]; then say "checked out in a worktree, left as is (yours; undo.sh covers them):"; printf '%s' "$MANUAL"; fi
+# each push leases on origin's value checked before the rehearsal, so a push or fetch made since is not overwritten
+REFS="" LEASES=""
+for b in dev main; do
+  git -C "$CLONE" rev-parse -q --verify "refs/heads/$b" >/dev/null || continue
+  ob_var="ORIGIN_$b"; ob=${!ob_var}
+  REFS="$REFS $b"; LEASES="$LEASES --force-with-lease=refs/heads/$b:$ob"
+done
+while read -r r s; do
+  o=$(awk -v r="$r" '$1 == r { print $2 }' "$OLDREFS")
+  [ -n "$o" ] && [ "$s" != "$o" ] || continue
+  REFS="$REFS $r"; LEASES="$LEASES --force-with-lease=$r:$o"
+done < <(git -C "$CLONE" for-each-ref --format='%(refname) %(objectname)' refs/tags)
 say "push (yours, from the rewritten clone):"
-say "  GIT_ALLOW_PROTECTED=1 git -C $CLONE push --force $ORIGIN$(git -C "$CLONE" for-each-ref --format=' %(refname:short)' refs/heads | grep -xE ' (dev|main)' | tr -d '\n')$TAGS"
+say "  GIT_ALLOW_PROTECTED=1 git -C $CLONE push$LEASES $ORIGIN$REFS"
 DEV0=$(awk '$1 == "refs/heads/dev" { print $2 }' "$OLDREFS")
 # remote branches merged into the old dev whose tip got a new SHA
 OLDREM=$(git for-each-ref --format='%(refname:lstrip=3) %(objectname)' refs/remotes/origin | while read -r b s; do

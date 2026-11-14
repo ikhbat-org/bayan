@@ -14,7 +14,7 @@ me() { GIT_AUTHOR_NAME=User GIT_AUTHOR_EMAIL=syed@beparey.com GIT_COMMITTER_NAME
 bot() { GIT_AUTHOR_NAME=Claude GIT_AUTHOR_EMAIL=noreply@anthropic.com GIT_COMMITTER_NAME=Claude GIT_COMMITTER_EMAIL=noreply@anthropic.com "$@"; }
 
 # fixture: user commit, a Claude commit with a trailer, a doc citing it, tag v0.2.0, main, a branch in a linked
-# worktree, the main checkout on an unchanged branch, a local bare origin
+# worktree, the main checkout on an unchanged branch, a local bare origin with a branch the repository lacks
 fresh() {
   rm -rf "$FX"; mkdir -p "$FX/repo/scripts/move" "$FX/repo/scripts/ci" "$FX/hooks"
   R=$FX/repo WT=$FX/wt
@@ -31,7 +31,8 @@ fresh() {
   git -C "$R" tag v0.2.0; git -C "$R" branch main
   git -C "$R" checkout -q side
   git -C "$R" worktree add -q "$WT" feat/wt
-  git clone -q --bare "$R" "$FX/origin.git"; git -C "$R" remote add origin "$FX/origin.git"; git -C "$R" fetch -q origin
+  git clone -q --bare "$R" "$FX/origin.git"; git -C "$FX/origin.git" branch remote-only dev
+  git -C "$R" remote add origin "$FX/origin.git"; git -C "$R" fetch -q origin
   ORIGIN0=$(git -C "$FX/origin.git" for-each-ref)
   WTB0=$(git -C "$R" rev-parse feat/wt)
   TREES0=$(for r in dev main v0.2.0; do git -C "$R" rev-parse "$r^{tree}"; done)
@@ -62,17 +63,50 @@ git -C "$R" show dev:docs/x.md | grep -q "$BAD" && fail "real run: docs/x.md sti
 git -C "$R" show dev:docs/x.md | grep -q "See $NEWBAD\." || fail "real run: docs/x.md does not cite the new SHA $NEWBAD"
 [ "$(git -C "$R" config review.reviewedthrough)" = "$(git -C "$R" rev-parse main)" ] || fail "real run: review.reviewedthrough not mapped"
 [ "$(git -C "$R" rev-parse feat/wt)" = "$WTB0" ] || fail "real run: the worktree branch was changed"
-case "$OUT" in *"git -C $WT fetch $R/tmp/history-rewrite-1114/clone feat/wt && git -C $WT reset --hard FETCH_HEAD"*) ;; *) fail "real run: no worktree command: $OUT" ;; esac
+git -C "$R" rev-parse -q --verify refs/heads/remote-only >/dev/null && fail "real run: created the origin-only branch"
+case "$OUT" in *"[ \"\$(git -C $WT rev-parse HEAD)\" = $WTB0 ] && git -C $WT reset -q --keep "*) ;; *) fail "real run: no worktree command: $OUT" ;; esac
+case "$OUT" in *"reset --hard"*) fail "real run: prints a reset --hard" ;; esac
 [ "$(git -C "$FX/origin.git" for-each-ref)" = "$ORIGIN0" ] || fail "real run: origin changed"
-printf '%s\n' "$OUT" | grep -q '^  GIT_ALLOW_PROTECTED=1 git -C .* push --force .* dev main refs/tags/v0.2.0' || fail "real run: no push line: $OUT"
+printf '%s\n' "$OUT" | grep -qE '^  GIT_ALLOW_PROTECTED=1 git -C .* push --force-with-lease=refs/heads/dev:[0-9a-f]{40} --force-with-lease=refs/heads/main:[0-9a-f]{40} --force-with-lease=refs/tags/v0.2.0:[0-9a-f]{40} .* dev main refs/tags/v0.2.0$' || fail "real run: no push line: $OUT"
 case "$OUT" in *"option: git push origin --delete feat/wt"*) ;; *) fail "real run: no delete option: $OUT" ;; esac
-CMD=$(printf '%s\n' "$OUT" | sed -n 's/^  \(git -C .* reset --hard FETCH_HEAD\).*/\1/p')
+CMD=$(printf '%s\n' "$OUT" | grep -F "git -C $WT reset" | sed 's/   # .*//')
+printf 'dirty\n' >> "$WT/a.txt"
 (eval "$CMD") >/dev/null 2>&1 || fail "worktree command: failed"
 (cd "$WT" && bash scripts/ci/check-authors.sh HEAD >/dev/null 2>&1) || fail "worktree command: feat/wt not clean"
-git -C "$WT" reset -q --hard "$WTB0"
+[ "$(git -C "$WT" status --porcelain)" = " M a.txt" ] || fail "worktree command: uncommitted change lost or index moved: $(git -C "$WT" status --porcelain)"
+git -C "$WT" checkout -q -- a.txt
 UNDO=$(printf '%s\n' "$OUT" | sed -n 's/^undo (before pushing): //p')
 (cd "$R" && eval "$UNDO") >/dev/null 2>&1 || fail "undo: failed"
 [ "$(state)" = "$S0" ] || fail "undo: the repository is not back"
+
+# D. a worktree branch that moved after the run: its printed command refuses, the new commit stays
+fresh; GIT_ALLOW_PROTECTED=1 run --execute --rewrite-history
+CMD=$(printf '%s\n' "$OUT" | grep -F "git -C $WT reset" | sed 's/   # .*//')
+printf 'c\n' > "$WT/c.txt"; git -C "$WT" add -A; me git -C "$WT" commit -q -m "feat: after the mirror"
+MOVED=$(git -C "$WT" rev-parse HEAD)
+[ -n "$CMD" ] || fail "moved worktree branch: no command printed"
+(eval "$CMD") >/dev/null 2>&1 && fail "moved worktree branch: the command did not refuse"
+[ "$(git -C "$R" rev-parse feat/wt)" = "$MOVED" ] || fail "moved worktree branch: the new commit is gone"
+
+# E. origin/dev fetched ahead of the local dev: refused before anything, the reason printed
+fresh; git -C "$R" checkout -q --detach dev; printf 'o\n' > "$R/o.txt"; git -C "$R" add -A
+me git -C "$R" commit -q -m "feat: on origin only"; git -C "$R" update-ref refs/remotes/origin/dev HEAD; git -C "$R" checkout -q side
+S0=$(state); GIT_ALLOW_PROTECTED=1 run --execute --rewrite-history
+[ "$RC" -eq 1 ] || fail "origin ahead: exit $RC"
+case "$OUT" in *"refuse: origin/dev has commits the local dev lacks"*) ;; *) fail "origin ahead: $OUT" ;; esac
+[ "$(state)" = "$S0" ] || fail "origin ahead: the repository changed"
+[ -e "$FX/backup.git" ] && fail "origin ahead: made a backup"
+
+# F. a fetch during the run moves origin/dev: the printed lease keeps the value checked before the rehearsal
+fresh; OD0=$(git -C "$R" rev-parse refs/remotes/origin/dev)
+git -C "$R" checkout -q --detach dev; printf 'f\n' > "$R/f.txt"; git -C "$R" add -A
+me git -C "$R" commit -q -m "feat: fetched mid-run"; LATER=$(git -C "$R" rev-parse HEAD); git -C "$R" checkout -q side
+printf '#!/bin/sh\n[ -e "%s/moved" ] && exit 0\n: > "%s/moved"\ngit update-ref refs/remotes/origin/dev %s\n' "$FX" "$FX" "$LATER" > "$FX/hooks/reference-transaction"
+chmod +x "$FX/hooks/reference-transaction"
+GIT_ALLOW_PROTECTED=1 run --execute --rewrite-history
+[ "$(git -C "$R" rev-parse refs/remotes/origin/dev)" = "$LATER" ] || fail "mid-run fetch: the fixture hook did not move origin/dev"
+printf '%s\n' "$OUT" | grep -q -- "--force-with-lease=refs/heads/dev:$OD0 " || fail "mid-run fetch: the lease is not the checked value: $OUT"
+rm -f "$FX/hooks/reference-transaction"
 
 # C. one flag only: exit 2; an existing backup: exit 1
 fresh; S0=$(state)
