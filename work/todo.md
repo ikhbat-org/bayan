@@ -659,7 +659,11 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - review 821afa40..b5962548: `scripts/release/cut.sh:24-34` leaves a half-bumped tree when a generator fails.
 - review 821afa40..b5962548: the docs generators are unverified under mawk (ubuntu CI is the first run).
 - rev 0021: `docs/diagnostics/BYN2225.md` and `selfhost/driver/diagdocs.byn:152`, and `docs/bayan-library-tiers.md:73`, still show `formatInto(ref StrBuf out)`; rename to `buffer` (the page is generated into diagdocs.byn).
-- std.time: parked design handoff `docs/handoffs/2026-11-09-std-time.md`; phases 1a/1b (docs) after revision 0021 docs land, code phases wait for gates G1–G6 (2026-11-09).
+- std.time: design and phases in `docs/specs/021-std-time/021-spec.md`; Phase 1a landed (SPEC §16.5), Phase 1b (`Millis` to `Milliseconds` sweep, still in `docs/bayan-spec.md`) is open, code phases wait for gates G1, G5, G6 (G2, G3, G4 met).
+- Remove the redundant `in` parameter modifier from `selfhost/semantics/*.byn` (about 1,700 uses) and `docs/specs/010-self-hosted-semantics/010-api.md` (9); `for x in xs` and `x in a..b` stay (`docs/decisions/2026-10-28-001-spec-010-landing-gate-and-lessons.md`).
+- Audit the debt markers in `selfhost/` (`mutation-exempt:`, `coverage-exempt:`, `(blocked: Qnnn)`); the one `coverage-blocked:` marker, in `selfhost/emitter/cprint/expr.byn`, must go (Q838; `docs/decisions/2026-10-28-001-spec-010-landing-gate-and-lessons.md`).
+- Confirm the `examples/tally-lite/ledger/ledger.byn:38` Q745 refusal is gone on dev (`CliTests.TallyLite*` pass) (`docs/audits/2026-11-03-q745-checker-store-summaries-measurements.md`, Open).
+- Tooling ports: put Q1 (database module names), Q4 (Unicode case table home) and Q9 (`kit.xml`) to the user before any port touches them (`docs/decisions/2026-11-02-002-tooling-port-rules.md`).
 - rev 0021 Part 5: the BYN7001 help starts with a backtick, so `HelpLanguageTests.Allowed` gained a `\`` prefix; narrow it or reword the help (T1 2026-11-10).
 - 018 T1 gate LOW (fix in both compilers after T2, 018 T9 or a follow-up): `src/Bayan.Semantics/Binding/BinderStates.cs` `StateTestHelp` matches the receiver by source text, so a shadowing `let order = …` in the then-branch still gets the "doesn't narrow" help.
 - 018 T1 gate LOW (same follow-up): `BinderStates.cs` `ReportWrongState` passes `Source.GetText(span)` for a `BoundThis` value, so an implicit-receiver call inside `if this.p { … }` never gets the new help.
