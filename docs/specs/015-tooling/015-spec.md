@@ -84,9 +84,9 @@ the rest is sequencing.
 | Item | Class | Reason |
 | --- | --- | --- |
 | VS Code extension | Keep | VS Code loads only JS (R2) |
-| `upload-artifact`, `download-artifact` | Keep | no supported shell equivalent (§4) |
-| `scripts/pinned-bayan.sh`, `install-zig.sh`, `install-dotnet.sh` | Keep (shell) | run before any `bayan` exists (§4) |
-| Stryker, `scripts/quality/mutate.sh`, `tools/Bayan.UnicodeGen` | Keep | C#-side tooling, leaves with self-hosting (§4 "C# compiler and its tests") |
+| `upload-artifact`, `download-artifact` | Keep | no supported shell equivalent |
+| `scripts/pinned-bayan.sh`, `install-zig.sh`, `install-dotnet.sh` | Keep (shell) | run before any `bayan` exists |
+| Stryker, `scripts/quality/mutate.sh`, `tools/Bayan.UnicodeGen` | Keep | C#-side tooling, leaves with self-hosting |
 | `docs/assets/artifact.js` | Keep | runs in the reader's browser; owned by `~/.claude` (S11) |
 | `guard.sh`, `land.sh`, `mutation-step.sh`, `coverage.sh`, the `*.test.sh` files | Shell | sequencing; their callers switch to the ports |
 | `mutate-batch.sh` | Shell, after its inline Python moves into a Bayān port (`tools/mutate-plan.byn`) | |
