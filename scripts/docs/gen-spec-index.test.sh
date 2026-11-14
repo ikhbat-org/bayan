@@ -49,9 +49,17 @@ has 'Features rejected without a spec are in [bayan-not-planned.md](../bayan-not
 [ "$(bash "$s")" = "$(cat "$d")" ] || fail "print differs from --write"
 cmp -s <(bash "$s") "$d" || fail "print is not byte-equal to the written file"
 
-# a group with no rows is omitted
-rm -rf "$sp"/00[5-6]-*
-bash "$s" | grep -q '^## Rejected' && fail "empty section kept"
+# a group with no rows is omitted, except the rejected one, which keeps the not-planned link
+rm -rf "$sp"/00[5-6]-* "$sp"/001-*
+out="$(bash "$s")"
+grep -qxF '## Built' <<< "$out" && fail "empty Built section kept"
+grep -qxF '## Rejected or superseded' <<< "$out" || fail "empty rejected section dropped"
+grep -qxF 'Features rejected without a spec are in [bayan-not-planned.md](../bayan-not-planned.md).' <<< "$out" || fail "no not-planned link without rows"
+
+# Sources may continue on the next lines, up to a blank line or another key
+printf '# 004 — Title of 004\n\nStatus: deferred; parked\nRelease: unscheduled\nSources: first line\nsecond line\nCreated: 2026-01-01\n' > "$sp/004-delta/004-spec.md"
+out="$(bash "$s")"
+grep -qxF '| [004](004-delta/004-spec.md) | Title of 004 | deferred; parked | unscheduled | first line second line |  |' <<< "$out" || fail "Sources continuation lost"
 
 spec 009 iota 'maybe' unscheduled 'Q9'
 out="$(bash "$s" 2>&1)" && fail "unknown Status accepted"

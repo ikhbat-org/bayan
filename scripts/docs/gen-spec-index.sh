@@ -29,7 +29,8 @@ for dir in "$root"/docs/specs/[0-9][0-9][0-9]-*/; do
   done
   status="$(grep -m 1 '^Status: ' <<< "$top" | sed 's/^Status: //')"
   release="$(grep -m 1 '^Release: ' <<< "$top" | sed 's/^Release: //')"
-  sources="$(grep -m 1 '^Sources: ' <<< "$top" | sed 's/^Sources: //')"
+  # Sources may continue on the following lines, up to a blank line.
+  sources="$(awk '/^Sources: / { on = 1; sub(/^Sources: /, ""); printf "%s", $0; next } on && NF && !/^[A-Za-z]+: / { printf " %s", $0; next } on { exit }' <<< "$top")"
   title="$(grep -m 1 '^# ' "$spec" | sed -E "s/^# $n — //")"
   case "$status" in
     done*) sec=1 ;;
@@ -54,10 +55,14 @@ gen() {
   local i name
   for i in 1 2 3 4; do
     case "$i" in 1) name="Built" ;; 2) name="In progress" ;; 3) name="To be built" ;; 4) name="Rejected or superseded" ;; esac
-    grep -q "^$i|" "$t/rows" || continue
-    printf '\n## %s\n\n| Spec | Title | Status | Release | Sources | Files |\n|---|---|---|---|---|---|\n' "$name"
-    grep "^$i|" "$t/rows" | sed "s/^$i|//"
-    [ "$i" != 4 ] || printf '\nFeatures rejected without a spec are in [bayan-not-planned.md](../bayan-not-planned.md).\n'
+    # The rejected section is always present: it links the features rejected without a spec.
+    grep -q "^$i|" "$t/rows" || [ "$i" = 4 ] || continue
+    printf '\n## %s\n\n' "$name"
+    if grep -q "^$i|" "$t/rows"; then
+      printf '| Spec | Title | Status | Release | Sources | Files |\n|---|---|---|---|---|---|\n'
+      grep "^$i|" "$t/rows" | sed "s/^$i|//"
+    fi
+    [ "$i" != 4 ] || { grep -q '^4|' "$t/rows" && echo; printf 'Features rejected without a spec are in [bayan-not-planned.md](../bayan-not-planned.md).\n'; }
   done
 }
 
