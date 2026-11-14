@@ -32,6 +32,13 @@ targets=(
   "$main/.worktrees/dev-land-2026-11-13|tmp/ci-5ac81ec4.out"
   "$main/.worktrees/fix-mutate-env-race|tmp/laws.out"
   "$main/.worktrees/fix-mutate-env-race|tmp/ci85-win.log"
+  "$main/.worktrees/fix-mutate-env-race|tmp/ci85-mac.log"
+  "$main/.worktrees/fix-review-2026-11-14-2|tmp/laws.out"
+  "$main/.worktrees/fix-review-2026-11-14-2|tmp/tut"
+  "$main/.worktrees/fix-review-2026-11-14-2|tmp/tut2"
+  "$main/.worktrees/fix-peak-sampler-first-sample|tmp/laws.out"
+  "$main|tmp/review-1114.diff"
+  "$main|tmp/rv1114.out"
 )
 for t in "${targets[@]}"; do
   repo="${t%%|*}"; rel="${t#*|}"
@@ -43,7 +50,7 @@ for t in "${targets[@]}"; do
 done
 
 # 2. worktrees, then their branches
-for wt in fix-mutate-env-race chore-release-0.3.0 dev-check-8390c3d6 docs-session-2026-11-14; do
+for wt in fix-mutate-env-race chore-release-0.3.0 dev-check-8390c3d6 docs-session-2026-11-14 fix-review-2026-11-14-2 fix-peak-sampler-first-sample; do
   d="$main/.worktrees/$wt"
   if ! git worktree list --porcelain | grep -qxF "worktree $d"; then printf 'skip:  worktree %s not registered\n' "$wt"; continue; fi
   if [ ! -d "$d" ]; then printf 'skip:  worktree %s directory gone (pruned below)\n' "$wt"; continue; fi
@@ -51,7 +58,7 @@ for wt in fix-mutate-env-race chore-release-0.3.0 dev-check-8390c3d6 docs-sessio
   run git worktree remove "$d"
 done
 run git worktree prune
-for b in fix/mutate-env-race chore/release-0.3.0 docs/session-2026-11-14; do
+for b in fix/mutate-env-race chore/release-0.3.0 docs/session-2026-11-14 fix/review-2026-11-14-2 fix/peak-sampler-first-sample; do
   if ! git rev-parse --verify --quiet "refs/heads/$b" >/dev/null; then printf 'skip:  branch %s no longer exists\n' "$b"; continue; fi
   if git worktree list --porcelain | grep -qxF "branch refs/heads/$b"; then printf 'skip:  branch %s is checked out\n' "$b"; continue; fi
   run git branch -d "$b"
@@ -79,5 +86,5 @@ else
 fi
 
 printf -- '-- remaining worktrees:\n'
-git worktree list | grep -E 'fix-mutate-env-race|chore-release-0.3.0|dev-check-8390c3d6|docs-session-2026-11-14' || echo '  none'
+git worktree list | grep -E "fix-mutate-env-race|chore-release-0.3.0|dev-check-8390c3d6|docs-session-2026-11-14|fix-review-2026-11-14-2|fix-peak-sampler-first-sample" || echo '  none'
 if [ $execute = 1 ] && [ $failed = 1 ]; then exit 1; fi
