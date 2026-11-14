@@ -35,7 +35,7 @@ for wt in $wts; do
 done
 run git worktree prune
 
-# 2. branches merged into dev
+# 2. branches merged into dev (a dry run skips the writer branches as checked out; --execute removes their worktrees first)
 for b in chore/worker-016-w1 chore/worker-016-w2 chore/worker-016-w3 feat/016-versioned-docs fix/ci-timer-frame-count chore/next-dev-0-3-1; do
   if ! git rev-parse --verify --quiet "refs/heads/$b" >/dev/null; then printf 'skip:  branch %s no longer exists\n' "$b"; continue; fi
   if git worktree list --porcelain | grep -qxF "branch refs/heads/$b"; then printf 'skip:  branch %s is checked out\n' "$b"; continue; fi
@@ -54,7 +54,8 @@ if [ $execute = 1 ] && [ $remote = 1 ]; then
     timeout 120 incus exec bayan-test01 -- sh -c 'cd /home/bt || exit 0
       for d in 016-docs 016-docs.tgz pk.log; do [ -e \"\$d\" ] && { echo rm -rf /home/bt/\$d; rm -rf \"\$d\"; }; done
       for s in $shas; do for d in shard/\$s-*; do [ -e \"\$d\" ] && { echo rm -rf /home/bt/\$d; rm -rf \"\$d\"; }; done; done
-      for d in 016-docs 016-docs.tgz pk.log; do [ -e \"\$d\" ] && { echo \"  still there: /home/bt/\$d\"; exit 1; }; done; exit 0' || { echo '  VM step failed'; rc=1; }
+      for d in 016-docs 016-docs.tgz pk.log; do [ -e \"\$d\" ] && { echo \"  still there: /home/bt/\$d\"; exit 1; }; done
+      for s in $shas; do for d in shard/\$s-*; do [ -e \"\$d\" ] && { echo \"  still there: /home/bt/\$d\"; exit 1; }; done; done; exit 0' || { echo '  VM step failed'; rc=1; }
     [ \"\$was\" = RUNNING ] || incus stop bayan-test01 || rc=1
     exit \$rc" || failed=1
 else

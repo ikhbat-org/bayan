@@ -36,6 +36,8 @@ echo "$out" | grep -q "'1.3' is not X.Y.Z" || fail "no bad-version message: $out
 sed -i.bak '1,10{/^Version: /d;}' "$r/docs/laws/README.md" && rm "$r/docs/laws/README.md.bak"   # only the body example is left
 out="$(bash "$s" 1.4.0 2>&1)" && fail "release doc with a body Version: line only accepted"
 echo "$out" | grep -q "docs/laws/README.md has no Version: line in its first ten lines" || fail "no header-missing message: $out"
+[ "$(cat "$r/VERSION")" = 1.3.0 ] || fail "a refused header left VERSION at $(cat "$r/VERSION")"
+{ printf 'Version: 1.3.0 (matches `bayan --version`)\n'; cat "$r/docs/laws/README.md"; } > "$t/h" && mv "$t/h" "$r/docs/laws/README.md"
 printf 'no version here\n' > "$r/selfhost/driver/main.byn"
 out="$(bash "$s" 1.4.0 2>&1)" && fail "mirror without a version accepted"
 echo "$out" | grep -q "selfhost/driver/main.byn has no version to set" || fail "no missing-mirror message: $out"
