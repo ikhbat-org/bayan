@@ -10,7 +10,9 @@ for t in "$root"/tests/parity/*/; do
   needs "$t" || { echo "SKIP $(basename "$t"): $(read -r c _ < "$t/impl"; echo "$c") not installed"; continue; }
   bash "$root/scripts/parity/run.sh" "$(basename "$t")" > /dev/null || fail "$(basename "$t") no longer matches its baseline: $(bash "$root/scripts/parity/run.sh" "$(basename "$t")" | head -3)"
 done
-if PATH=/nonexistent needs "$root/tests/parity/plan-strings-check"; then fail "a missing interpreter was found"; fi
+# A fixture, not PATH=/nonexistent: macOS bash 3.2 keeps its command hash under a temporary PATH.
+mkdir -p "$root/tmp/parity-needs"; echo 'bayan-no-such-interpreter x' > "$root/tmp/parity-needs/impl"
+if needs "$root/tmp/parity-needs"; then fail "a missing interpreter was found"; fi
 if out=$(bash "$root/scripts/parity/run.sh" probe --impl "printf skip"); then fail "a different implementation passed"; fi
 grep -q 'FAIL probe/spans: stdout differs' <<< "$out" || fail "no stdout mismatch reported: $out"
 # A left-over file and a changed file both count; an empty directory does not.
