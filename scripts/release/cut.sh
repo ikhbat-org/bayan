@@ -2,7 +2,7 @@
 # Prepares release <X.Y.Z> in the working tree (docs/RELEASING.md); edits files only, never commits, tags or pushes.
 #   cut.sh <X.Y.Z>
 # Sets VERSION, its mirrors and every release doc's `Version:` line to X.Y.Z (set-version.sh), each `Revisions applied:` line to the highest
-# revision, regenerates docs/DIAGNOSTICS.md and docs/STATUS.md, and turns CHANGELOG.md's `## [Unreleased]` body into
+# revision, regenerates docs/DIAGNOSTICS.md, docs/STATUS.md and docs/specs/README.md, and turns CHANGELOG.md's `## [Unreleased]` body into
 # `## [X.Y.Z] - <today>` with two more lists: the revisions added since the previous v* tag (the highest v<A.B.C>
 # below X.Y.Z, reachable from HEAD or not; git diff --diff-filter=A <tag> HEAD -- docs/revisions/) and the hand-kept docs/STATUS.md rows whose status cell changed since that tag.
 # Refuses, before anything is changed, when a tracked file still contains the previous -dev version,
@@ -49,10 +49,10 @@ for doc in $bayan_header_docs; do
   sed -E "1,10s/^Revisions applied: 0001–[0-9]+\$/Revisions applied: 0001–$rev/" "$root/$doc" > "$t/doc"
   if ! cmp -s "$t/doc" "$root/$doc"; then cat "$t/doc" > "$root/$doc"; echo "changed $doc"; fi
 done
-for g in diagnostics:DIAGNOSTICS status:STATUS; do
-  cp "$root/docs/${g#*:}.md" "$t/before"
+for g in diagnostics:docs/DIAGNOSTICS.md status:docs/STATUS.md spec-index:docs/specs/README.md; do
+  doc="${g#*:}"; cp "$root/$doc" "$t/before"
   bash "$root/scripts/docs/gen-${g%%:*}.sh" --write
-  cmp -s "$t/before" "$root/docs/${g#*:}.md" || echo "changed docs/${g#*:}.md"
+  cmp -s "$t/before" "$root/$doc" || echo "changed $doc"
 done
 
 # Git is used only when $root is itself a work tree's top level, never an enclosing repo.

@@ -42,6 +42,8 @@ for f in docs/bayan-progress-log.md docs/decisions/2026-01-01-001-answered-quest
   mkdir -p "$r/$(dirname "$f")"; printf 'was 1.2.3-dev\n' > "$r/$f"
   case "$f" in *.md) printf 'Status: done\nRelease: 1.2.2\nSources: none recorded\n' >> "$r/$f" ;; esac   # record headers (check.sh (h))
 done
+sed -i.bak 's/^Status: done$/Status: in progress/' "$r/docs/specs/001-first/001-spec.md"   # the cut regenerates the spec index
+rm "$r/docs/specs/001-first/001-spec.md.bak"
 commit "work"
 head="$(g rev-parse HEAD)"
 
@@ -64,7 +66,7 @@ g checkout -q HEAD -- .
 [ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "fixture not restored after the refused cut: $(cat "$r/VERSION")"
 
 out="$(bash "$cut" 1.2.3)"
-for f in VERSION src/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md; do
+for f in VERSION src/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md docs/specs/README.md; do
   echo "$out" | grep -qx "changed $f" || fail "no 'changed $f' in: $out"
 done
 [ "$(cat "$r/VERSION")" = 1.2.3 ] || fail "cut VERSION: $(cat "$r/VERSION")"
