@@ -1,6 +1,6 @@
 # Move Bayān to the Ikhbat Foundation
 
-Status: open (steps 1–6 done 2026-11-03; later steps are not recorded in the handoff).
+Status: open (steps 1–7 done: repo at ikhbat.org/bayan on github.com/ikhbat-org; left: 8 vault sync, 9 wp1 and wlt1 moves, 10 post-move checks, 11 records; none recorded in the handoff).
 
 Date: 2026-11-02. Tier: Standard. Earlier status: rev 3e (reviews A, B and C folded in, the user's choices
 applied; rev 3b: move-script fix round 1, F1-F16; rev 3c: fix round 2, G1-G6; rev 3d: session-end

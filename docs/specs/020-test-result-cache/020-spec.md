@@ -1,5 +1,5 @@
 # 020 — Test-result cache
-Status: in progress (not started: T1–T27 open)
+Status: approved (not started)
 Created: 2026-11-13
 
 ## Problem
