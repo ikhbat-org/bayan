@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-14
+
+The released `bayan` is now the self-hosted compiler: stage 2, built from `selfhost/` by the C# compiler's stage 1.
+`import std.json` is the first module of the std library shipped inside the binary.
+
+### Known limits
+- Windows: one known failure, the 1 MB emitter speed test (`tests/windows-known-failures.txt`).
+- Release archives do not include `bayan-lsp`.
+
 ### Added
 - License: ISL-P 1.2 with the ISL-OE 1.2 output exception (`LICENSE.md`, `NOTICE.md`); release archives ship both.
 - `Io.randomU64()` (`uses random`): 64 bits from the operating system's random source, the same one the map hash seed uses.
@@ -37,6 +46,15 @@
 - `Io.stdin.readAll()` rejects input that is not UTF-8 (`invalidUtf8`), as `Io.readText` does; the new
   `Io.stdin.readAllBytes()` returns the rest of stdin as `List<u8>`, unvalidated, and fails with `IoError` like
   `Io.readFile`.
+
+### Revisions
+- 0020 — Versioned spec, 2026-11-04 style standard, AUDIT fixes (`docs/revisions/0020-versioned-spec-and-audit-fixes.md`)
+- 0021 — Agreement, word classes and doer nouns (`docs/revisions/0021-agreement-word-classes-doer-nouns.md`)
+- 0022 — Contract hardening and documentation consistency (`docs/revisions/0022-contract-hardening-doc-consistency.md`)
+- 0023 — Syntax freeze to 0.3.0, provisional sections, §13 placeholder (`docs/revisions/0023-syntax-freeze-provisional-sections.md`)
+
+### Status changes
+- docs/STATUS.md is new since v0.2.0; every row is new
 
 ## [0.2.0] - 2026-11-06
 

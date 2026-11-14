@@ -8,14 +8,14 @@
 #   package.sh docs <out>                       <out>/bayan-<version>-docs.tar.gz, the docs under
 #                                               bayan-<version>-docs/share/doc/bayan/
 #   package.sh sums <dir>                       <dir>/SHA256SUMS over every archive in <dir>
-#   package.sh notes <version>                  the CHANGELOG.md section `## [<version>]`, heading excluded, then the known limit (2.94 GB stage-2 build)
+#   package.sh notes <version>                  the CHANGELOG.md section `## [<version>]`, heading excluded, then the known limit (1.69 GB stage-2 build)
 # Targets use bayan's own names (bayan dist): osx-arm64 -> macos-arm64, win-x64 -> windows-x64.
 # The docs (docs/RELEASING.md): SPEC, GRAMMAR, STYLE, DIAGNOSTICS, STATUS and CHANGELOG, as <NAME>.md.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 . "$root/scripts/release/version.sh"
-limit='Known limit: the stage-2 build of `selfhost/driver` peaks at 2.94 GB of memory.'
+limit='Known limit: the stage-2 build of `selfhost/driver` peaks at 1.69 GB of memory.'
 die() { echo "package: $*" >&2; exit 1; }
 version() { bayan_version "$root"; }
 

@@ -194395,7 +194395,7 @@ byn_str byn_main__t9Key(byn_str p_mode, bynt_opt_str p_target, bynt_list_str p_c
 #line 287 "driver/cache.byn"
     l0_sb = byn_strbuf_grow(byn_context);
 #line 288 "driver/cache.byn"
-    (void)byn_w_str(&l0_sb, BYN_STR("0.3.0-dev", 9));
+    (void)byn_w_str(&l0_sb, BYN_STR("0.3.0", 5));
 #line 289 "driver/cache.byn"
     (void)byn_w_str(&l0_sb, BYN_STR("\000", 1));
 #line 290 "driver/cache.byn"
@@ -197000,7 +197000,7 @@ byn_str byn_main__scriptKey(bynt_span_u8 p_script, byn_str p_mode, bynt_opt_str 
 #line 863 "driver/cache.byn"
     (void)byn_w_str(&l0_sb, BYN_STR("\000", 1));
 #line 864 "driver/cache.byn"
-    (void)byn_w_str(&l0_sb, BYN_STR("0.3.0-dev", 9));
+    (void)byn_w_str(&l0_sb, BYN_STR("0.3.0", 5));
 #line 865 "driver/cache.byn"
     (void)byn_w_str(&l0_sb, BYN_STR("\000", 1));
 #line 866 "driver/cache.byn"
@@ -197028,7 +197028,7 @@ byn_str byn_main__scriptKey(bynt_span_u8 p_script, byn_str p_mode, bynt_opt_str 
 
 byn_str byn_main__compilerBuild(void) {
 #line 880 "driver/cache.byn"
-    return BYN_STR("0.3.0-dev", 9);
+    return BYN_STR("0.3.0", 5);
 }
 #line 197034 "main.c"
 
@@ -201733,7 +201733,7 @@ byn_str byn_main__distBuildInfo(byn_str p_name, byn_str p_release, byn_str p_mod
         w->file = byn_file_92;
         w->line = 322;
         byn_w_str(w, BYN_STR("  \042compiler\042: \042bayan ", 21));
-        byn_w_str(w, BYN_STR("0.3.0-dev", 9));
+        byn_w_str(w, BYN_STR("0.3.0", 5));
         byn_w_str(w, BYN_STR("\042,\012", 3));
     }
 #line 323 "driver/dist.byn"
@@ -202178,7 +202178,7 @@ int32_t byn_main__doctorCommand(bynt_main__DCtx p_d) {
         byn_writer* w = &t1;
         w->file = byn_file_93;
         w->line = 56;
-        byn_w_str(w, BYN_STR("0.3.0-dev", 9));
+        byn_w_str(w, BYN_STR("0.3.0", 5));
         byn_w_str(w, BYN_STR(" (commit ", 9));
         byn_w_str(w, BYN_STR("selfhost", 8));
         byn_w_str(w, BYN_STR(")", 1));
@@ -206485,7 +206485,7 @@ byn_str byn_main__versionLine(void) {
         w->file = byn_file_97;
         w->line = 82;
         byn_w_str(w, BYN_STR("bayan ", 6));
-        byn_w_str(w, BYN_STR("0.3.0-dev", 9));
+        byn_w_str(w, BYN_STR("0.3.0", 5));
         byn_w_str(w, BYN_STR(" (selfhost)", 11));
     }
 #line 82 "driver/main.byn"

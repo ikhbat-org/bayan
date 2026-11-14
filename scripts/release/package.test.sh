@@ -101,7 +101,7 @@ grep -q " bayan-1.2.3-docs.tar.gz$" "$t/out/SHA256SUMS" || fail "SHA256SUMS lack
 (cd "$t/out" && if command -v sha256sum >/dev/null; then sha256sum -c --quiet SHA256SUMS; else shasum -a 256 -c --quiet SHA256SUMS; fi) || fail "sums do not verify"
 mkdir -p "$t/empty"; bash "$s" sums "$t/empty" 2>/dev/null && fail "sums over no archives accepted"
 
-[ "$(bash "$s" notes 1.2.3)" = "$(printf '\n### Added\n- one\n\nKnown limit: the stage-2 build of `selfhost/driver` peaks at 2.94 GB of memory.')" ] || fail "notes: $(bash "$s" notes 1.2.3)"
+[ "$(bash "$s" notes 1.2.3)" = "$(printf '\n### Added\n- one\n\nKnown limit: the stage-2 build of `selfhost/driver` peaks at 1.69 GB of memory.')" ] || fail "notes: $(bash "$s" notes 1.2.3)"
 bash "$s" notes 9.9.9 2>/dev/null && fail "missing CHANGELOG section accepted"
 
 # release.yml builds the shipped bayan as stage 2 and smoke-tests the "(selfhost)" version line (spec 017 R5).
