@@ -33,6 +33,9 @@ bash "$r/scripts/docs/check.sh" || fail "check.sh fails after set-version"
 
 out="$(bash "$s" 1.3 2>&1)" && fail "bad version accepted"
 echo "$out" | grep -q "'1.3' is not X.Y.Z" || fail "no bad-version message: $out"
+sed -i.bak '1,10{/^Version: /d;}' "$r/docs/laws/README.md" && rm "$r/docs/laws/README.md.bak"   # only the body example is left
+out="$(bash "$s" 1.4.0 2>&1)" && fail "release doc with a body Version: line only accepted"
+echo "$out" | grep -q "docs/laws/README.md has no Version: line in its first ten lines" || fail "no header-missing message: $out"
 printf 'no version here\n' > "$r/selfhost/driver/main.byn"
 out="$(bash "$s" 1.4.0 2>&1)" && fail "mirror without a version accepted"
 echo "$out" | grep -q "selfhost/driver/main.byn has no version to set" || fail "no missing-mirror message: $out"

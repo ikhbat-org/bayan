@@ -115,7 +115,7 @@ released="$(sed -nE 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/p' "$root/CHANGELOG
 while IFS= read -r doc; do
   case " $(echo $bayan_release_docs) " in *" $doc "*) continue ;; esac
   case "$doc" in
-    docs/specs/*|docs/plans/*|docs/decisions/*|docs/revisions/*|docs/audits/*|docs/laws/*|docs/bayan-progress-log.md \
+    docs/specs/*|docs/plans/*|docs/decisions/*|docs/revisions/*|docs/audits/*|docs/laws/*|docs/handoffs/*|docs/bayan-progress-log.md \
     |docs/bayan-style-proposal.md|docs/bayan-shorthands-proposal.md|docs/design/laws-contracts-and-parallel-iterators.md)
       top="$(head -n 10 "$root/$doc")"
       [ "$(head -n 1 "$root/$doc")" != "---" ] \
@@ -124,12 +124,14 @@ while IFS= read -r doc; do
         grep -q "^$key: " <<< "$top" || fail "$doc: no $key: line in the first ten lines (record doc)"
       done
       rel="$(grep -m 1 '^Release: ' <<< "$top" | sed -E 's/^Release: ([^ ;,(]+).*/\1/')"
-      [ -z "$rel" ] || [ "$rel" = unscheduled ] || [ "$rel" = "${v%%-*}" ] || [ "$rel" = "$v" ] \
+      [ -z "$rel" ] || [ "$rel" = unscheduled ] || [ "$rel" = "${v%%-*}" ] \
         || grep -qxF "$rel" <<< "$released" \
         || fail "$doc: Release: $rel is not a released version (CHANGELOG.md), ${v%%-*} or unscheduled" ;;
     docs/export/*|docs/misc/*|docs/bayan-design-round-*|docs/suq-*|docs/bayan-reference-app-*|docs/bayan-status-for-suq.md \
     |docs/bayan-brand-brief.md|docs/bayan-going-public.md|docs/laws-and-decisions.md|docs/design/lessons-from-other-languages.md)
       head -n 10 "$root/$doc" | grep -q '^Snapshot: ' || fail "$doc: no Snapshot: line in the first ten lines (snapshot doc)" ;;
+    docs/diagnostics/*) ;;   # embedded in `bayan explain` and bootstrap/bayan.c; no header until decided (plan 016)
+    *) fail "$doc is not a release, record or snapshot doc; add it to bayan_release_docs (scripts/release/version.sh) or to a kind in check.sh (h)" ;;
   esac
 done < <(cd "$root" && find docs -name '*.md' -type f | LC_ALL=C sort)
 

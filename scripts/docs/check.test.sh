@@ -3,7 +3,7 @@
 # (a) a header version, (b) a new revision and a gap, (c) a new descriptor, a hand-edited generated row and a stale
 # spec index, (d) a mirror that disagrees with VERSION, (e) a status tag for another release, (f) a cited code with no
 # entry, (g) a cited spec section with no heading, (h) a record header that is missing or names an unknown release, a
-# law with no release key, a snapshot with no Snapshot line, (i) a revision the feature history does not cite and a spec
+# law with no release key, a -dev release, a doc of no kind, a snapshot with no Snapshot line, (i) a revision the feature history does not cite and a spec
 # section with no row.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -100,7 +100,7 @@ expect "(i) section with no row" "SPEC section 7 has no row in docs/bayan-featur
 
 # (h) record and snapshot headers; a release doc under a record directory (docs/revisions/README.md) is not a record
 mkdir -p "$t/repo/docs/plans" "$t/repo/docs/laws" "$t/repo/docs/export"
-for rel in 1.2.2 1.2.3 1.2.3-dev unscheduled; do
+for rel in 1.2.2 1.2.3 unscheduled; do
   printf '# P\n\nStatus: open\nRelease: %s\nSources: Q1\n' "$rel" > "$t/repo/docs/plans/p-$rel.md"
 done
 printf -- '---\nid: L001\nstatus: enacted\nrelease: 1.2.2\nsources: none recorded\n---\n\n# L001\n' > "$t/repo/docs/laws/001-x.md"
@@ -111,6 +111,10 @@ printf '# Q\n\nStatus: open\nSources: Q1\n' > "$t/repo/docs/plans/q.md"
 expect "(h) record with no Release" "docs/plans/q.md: no Release: line in the first ten lines (record doc)"
 sed -i.bak 's/^Release: 1.2.2$/Release: 1.2.1 (never cut)/' "$t/repo/docs/plans/p-1.2.2.md"
 expect "(h) unknown release" "docs/plans/p-1.2.2.md: Release: 1.2.1 is not a released version (CHANGELOG.md), 1.2.3 or unscheduled"
+printf '# D\n\nStatus: open\nRelease: 1.2.3-dev\nSources: Q1\n' > "$t/repo/docs/plans/d.md"
+expect "(h) -dev release" "docs/plans/d.md: Release: 1.2.3-dev is not a released version"
+printf '# U\n\nno header\n' > "$t/repo/docs/u.md"
+expect "(h) doc of no kind" "docs/u.md is not a release, record or snapshot doc"
 sed -i.bak '/^release: /d' "$t/repo/docs/laws/001-x.md"
 expect "(h) law with no release key" "docs/laws/001-x.md: no Release: line in the first ten lines (record doc)"
 sed -i.bak 's/^id: L001$/id: L001\na: 1\nb: 2\nc: 3\nd: 4\ne: 5\nf: 6/' "$t/repo/docs/laws/001-x.md"
