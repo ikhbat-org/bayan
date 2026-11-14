@@ -26,17 +26,17 @@ Status values:
 | Build modes (`debug`, `safe`, `fast`, `small`) | SPEC §19.5 | partial | `debug`, `safe` and `fast` are built (`Toolchain.cs:96-99`, `TryParseMode`); `small` is not built (rev 0022) |
 | `-er` doer pattern | SPEC §5.2 (:760) | spec-only | SPEC §5.2's pattern, with no checker (GRAMMAR:25, "No dedicated code yet"); no code is allocated for it (rev 0020). BYN5101 is `NounOnMutator` (`DiagnosticCodes.cs:350`, `Naming.cs:79`, `diag/noun-on-mutator.diag`); see AUDIT A1 |
 | BYN5100 | Only in round-4 draft :269 ("Naming rules BYN5100/5101") | not found | BYN5100 is unallocated (rev 0020): no descriptor; no document states an iḍāfa rule; see AUDIT A1 |
-| `Secret<T>` | SPEC §15.2 | unverified | unverified |
+| `Secret<T>` | SPEC §15.2 | spec-only | SPEC §15.2 is tagged (not in 0.3); `bayan 0.3.0` reports `Secret<string>` as BYN2002 (unknown type) and `@secret` as BYN2770 (unknown attribute) |
 | `Untrusted<T>` | SPEC §15.1 | built | `TypeResolver.cs:128`, `Types.cs:341`, `BinderCalls.cs:753`; `diag/run-untrusted.diag`, `diag/expects-reads-untrusted.byn:1` |
 | `xOp` | SPEC §5.2 (:746) | spec-only | `Op<T, E>` is defined nowhere; see AUDIT A34 |
-| `T.Builder` | SPEC §5.2 (:760) | spec-only | SPEC:788, "derivation mechanism is not in v0.1" |
-| `T.Patch` | SPEC §5.2 (:765) | spec-only | SPEC:788 |
-| `T.Field` | SPEC §5.2 (:762) | spec-only | SPEC:788 |
+| `T.Builder` | SPEC §5.2 (:760) | spec-only | SPEC §5.3: "(not in 0.3: neither the `derivation` mechanism nor `@derive` is implemented)" |
+| `T.Patch` | SPEC §5.2 (:765) | spec-only | SPEC §5.3 |
+| `T.Field` | SPEC §5.2 (:762) | spec-only | SPEC §5.3 |
 | typestate (`becomes`, `become`) | SPEC; codes BYN70xx | built | `run/typestate-order.byn:3`, `diag/become-undeclared.diag`; 14 codes, `DiagnosticCodes.cs:363-379` |
-| `except` | SPEC §6.8 | partial | Error-set form built (`TypeResolver.cs:433`, `run/errors-except-narrowing.byn:7`). Sequence form is parsed (`Parser.cs:3375`, `parse/except-expr.byn:1`) but not bound; see AUDIT A15 |
+| `except` | SPEC §6.8 | partial | Error-set form built (`TypeResolver.cs:433`, `run/errors-except-narrowing.byn:7`). Sequence form is parsed (`Parser.cs:3375`, `parse/except-expr.byn:1`) but not bound (BYN2022, `selfhost/semantics/express.byn:625`); see AUDIT A15 |
 | `because` | SPEC §15 | built | BYN8001 (`BinderCalls.cs:32`, `Parser.cs:676`); `diag/missing-because.diag`, `diag/because-unchecked.diag`, `parse/because.byn:1` |
 | particles | GRAMMAR | built | `Lexicon.cs:98`, `Particles.cs:28`, `BinderCalls.cs:425`; `diag/argument-needs-particle.diag` |
-| units | SPEC §3.4 | spec-only | `Builtins.cs:187` ("units are spec-only"); a suffix is reported Unsupported at `BinderExpressions.cs:415`; see AUDIT A16 |
+| units | SPEC §3.4 | spec-only | `Builtins.cs:187` ("units are spec-only"); a suffix is reported Unsupported at `BinderExpressions.cs:415` and `selfhost/semantics/express.byn:653`; `unit Seconds(s): i64` does not parse; see AUDIT A16 |
 | effects (`uses`) | SPEC §14 | built | `EffectAnalysis.cs:18`; `parse/clauses-line-start.byn:5`; 7 codes BYN60xx, `DiagnosticCodes.cs:354-361` |
 | `provide` | SPEC §14 | partial | Only `alloc` (and `allocator`) is supported (`Binder.cs:1425-1440`); other handlers are reported Unsupported (:1433); `parse/provide-become.byn:2`; see AUDIT A10, A32 |
 | `rest` | SPEC §2.4, §8 | built | `Parser.cs:1436`, `:1471`; `BinderCalls.cs:382`; `RegionAnalysis.cs:159`; `run/rest.byn:3` |
@@ -56,11 +56,11 @@ Status values:
 | Text to float `tryParse` | rev 0015 | built | `run/float-try-parse.byn:15`; not yet in SPEC (AUDIT A29) |
 | GC tier | SPEC §9.8; rev 0019 | rejected | SPEC:1325-1326; AUDIT A19 |
 | `scope` / `spawn` concurrency | rev 0019 | spec-only | Not in `Keywords.cs`; SPEC §13 is a placeholder (rev 0023); design in `docs/bayan-concurrency.md` |
-| Type overloads | rev 0019 (not in v0.1) | deferred | BYN2006; AUDIT A22 |
-| Lockfile `package.lock.byn` | `docs/bayan-handoff-addendum-001.md:94` | unverified | SPEC:2284 still says `bayan.lock` (AUDIT A23) |
-| `Event<T>` / `raise` | SPEC (:1793) | spec-only | Not implemented (AUDIT, Dropped N11) |
-| `derivation` mechanism | SPEC:788 | deferred | "not in v0.1" |
-| `bayan expand` | SPEC (:172, :754) | deferred | SPEC says "once it lands" |
+| Type overloads | rev 0019; SPEC §10 (not in 0.3) | deferred | BYN2006 (`diag/duplicate-overload-types.byn`); AUDIT A22 |
+| Lockfile `package.lock.byn` | `docs/bayan-handoff-addendum-001.md:94`; SPEC §21.4 (rev 0020) | spec-only | SPEC §21.4 names `package.lock.byn`, tagged "not in 0.3: no lockfile is written"; no `package.lock` in `src/` or `selfhost/` (AUDIT A23) |
+| `Event<T>` / `raise` | SPEC §16.1 | spec-only | Not implemented: `Event<i32>` is BYN2002 (unknown type) in `bayan 0.3.0` (AUDIT, Dropped N11) |
+| `derivation` mechanism | SPEC §5.3 | deferred | Tagged (not in 0.3); `@derive(Json)` is BYN2770 (unknown attribute) in `bayan 0.3.0` |
+| `bayan expand` | SPEC §21.2 | deferred | Tagged (not in 0.3); `bayan help` lists no `expand` command |
 | `.par()` | `docs/bayan-handoff-addendum-002.md:146` | proposed | Not in SPEC (AUDIT A31) |
 | `bayan verify` | `docs/bayan-handoff-addendum-002.md:137` | proposed | Not in SPEC (AUDIT A31) |
 | Naming checks BYN5001-5003, BYN5102 | GRAMMAR; SPEC §5 | built | `Naming.cs:70`, `:75`, `:99`, `:205`; `diag/try-wrong-return.diag`, `diag/bool-without-prefix.diag`, `diag/participle-changes-this.diag` |
@@ -88,7 +88,7 @@ All effects are checked in `uses` clauses (`EffectAnalysis.cs:18`). Only `alloc`
 | `net` | SPEC §14 | partial | `EffectAnalysis.cs:18`; `diag/function-type-placement.byn:10`; handler Unsupported |
 | `fs` | SPEC §14 | partial | `EffectAnalysis.cs:18`; `diag/capability-exceeded/main.byn:7`; handler Unsupported |
 | `clock` | SPEC §14 | partial | `EffectAnalysis.cs:18`; `diag/time-now-needs-clock.byn:6`; handler Unsupported |
-| `random` | SPEC §14 | partial | `EffectAnalysis.cs:18`; no golden with it in a `uses` clause |
+| `random` | SPEC §14 | partial | `EffectAnalysis.cs:18`; `run/io-random-u64.byn:2` (`uses console, random`), `diag/effect-random-not-declared.byn`; handler Unsupported |
 | `env` | SPEC §14 | partial | `EffectAnalysis.cs:18`; `diag/env-get-escapes-context.byn:2`; handler Unsupported |
 | `process` | SPEC §14 | partial | `EffectAnalysis.cs:18`, `:264`; no golden with it in a `uses` clause |
 | `console` | SPEC §14 | partial | `EffectAnalysis.cs:18`; `diag/clause-order-inserts.byn:10`; handler Unsupported |
@@ -101,21 +101,21 @@ Keywords whose status is not `built`; every keyword is in the generated table be
 
 | name | decided in | status | evidence |
 |---|---|---|---|
-| `flags` | SPEC §2.4 (:127 says not a keyword) | unverified | `Keywords.cs:10`; contextual; used as a name in `parse/contextual-keywords.byn`; AUDIT A13 |
-| `open` | SPEC §2.4 | unverified | `Keywords.cs:10`; contextual |
-| `extensible` | SPEC §2.4 | unverified | `Keywords.cs:11`; contextual; used as a name in `parse/contextual-keywords.byn` |
+| `flags` | SPEC §2.4 (:127 says not a keyword) | rejected | `Keywords.cs:10`; contextual; used as a name in `parse/contextual-keywords.byn`; no teaching error: `flags Perm { … }` is BYN1012 and BYN1005 in `bayan 0.3.0`; AUDIT A13 |
+| `open` | SPEC §2.4, §3.12 | spec-only | `Keywords.cs:10`; contextual; `enum open Colour { … }` is BYN1001 in `bayan 0.3.0`; SPEC §3.12 tagged (not in 0.3) |
+| `extensible` | SPEC §2.4, §3.12 | spec-only | `Keywords.cs:11`; contextual; used as a name in `parse/contextual-keywords.byn`; `union error extensible Fault { … }` is BYN1001 in `bayan 0.3.0` |
 | `delegate` | SPEC §2.4 (:127, not a keyword) | rejected | `Keywords.cs:12`; teaching error at `Parser.cs:554`; `diag/input-delegate-semicolon.byn:3` |
-| `derivation` | SPEC §2.4; SPEC:788 (mechanism not in v0.1) | spec-only | `Keywords.cs:13`; contextual; used only as a name in `parse/contextual-keywords.byn` |
-| `attribute` | SPEC §2.4 | unverified | `Keywords.cs:13`; contextual; used as a name in `parse/contextual-keywords.byn` |
-| `set` | SPEC §2.4 (:131 says it left) | unverified | `Keywords.cs:14`; contextual; used as a name in `parse/contextual-keywords.byn`; AUDIT A13 |
+| `derivation` | SPEC §2.4; SPEC §5.3 (not in 0.3) | spec-only | `Keywords.cs:13`; contextual; used only as a name in `parse/contextual-keywords.byn` |
+| `attribute` | SPEC §2.4, §4.4 | spec-only | `Keywords.cs:13`; contextual; used as a name in `parse/contextual-keywords.byn`; `struct attribute Route { … }` is BYN1001 in `bayan 0.3.0` |
+| `set` | SPEC §2.4 (:131 says it left) | rejected | `Keywords.cs:14`; contextual; used as a name in `parse/contextual-keywords.byn`; `error set X = A \| B` is an input form for `union error` (`diag/input-error-set-pipe.byn:11`); AUDIT A13 |
 | `unit` | SPEC §3.4 | spec-only | `Keywords.cs:14`; contextual; `Builtins.cs:187` |
-| `embed` | SPEC §2.4 | unverified | `Keywords.cs:19`; contextual; used as a name in `parse/contextual-keywords.byn` |
-| `extern` | SPEC §2.4 | spec-only | `Keywords.cs:19`; no golden outside `lex/` |
-| `unsafe` | SPEC §2.4 | spec-only | `Keywords.cs:20`; no golden outside `lex/` |
-| `do` | SPEC §2.4 | unverified | `Keywords.cs:23`; `diag/input-parenthesized-condition.byn:13` |
+| `embed` | SPEC §2.4, §3.10 | spec-only | `Keywords.cs:19`; contextual; used as a name in `parse/contextual-keywords.byn`; `embed Base` in a struct is BYN1004 in `bayan 0.3.0` |
+| `extern` | SPEC §2.4, §18 | spec-only | `Keywords.cs:19`; no golden outside `lex/`; `extern c { … }` is BYN1001 and `extern i32 abs(i32 x)` is BYN1016 in `bayan 0.3.0`; SPEC §18 tagged (not in 0.3) |
+| `unsafe` | SPEC §2.4, §18 | spec-only | `Keywords.cs:20`; no golden outside `lex/`; an `unsafe { … }` block is BYN1002 in `bayan 0.3.0` |
+| `do` | SPEC §2.4 | built | `Keywords.cs:23`; `selfhost/parser/stmts.byn:111`; `parse/statements.byn`, `diag/input-parenthesized-condition.byn:13`; a `do { … } while` loop runs in `bayan 0.3.0` |
 | `yield` | SPEC §2.4 | spec-only | `Keywords.cs:24`; no golden outside `lex/` |
 | `errdefer` | SPEC §2.4 (:127, not a keyword) | rejected | `Keywords.cs:25`; teaching error at `Parser.cs:2309`, `:2992`; `diag/input-errdefer.byn:7` |
-| `context` | SPEC §2.4 | unverified | `Keywords.cs:26`; `diag/context-block-input.byn:2` (BYN6006) |
+| `context` | SPEC §2.4, §7.7 | partial | `Keywords.cs:26`; the value `context.allocator` is built (`diag/path-escapes-context.byn`); the block form `context (…) { … }` is an input form for `provide` (`diag/context-block-input.byn:2`, BYN6006) |
 | `noalloc` | SPEC §2.4 (:131, left) | rejected | `Keywords.cs:27`; BYN6001 at `Parser.cs:1346-1355`; `diag/noalloc-removed.byn:1` |
 | `nosuspend` | SPEC §2.4 (:131, left) | rejected | `Keywords.cs:28`; BYN6001 at `Parser.cs:1346-1355`; `diag/nosuspend-removed.byn` |
 | `suspends` | SPEC §2.4 (:131, left) | rejected | `Keywords.cs:28`; BYN6001 at `Parser.cs:1346-1355`; `diag/nosuspend-removed.byn` |
@@ -127,7 +127,7 @@ Keywords whose status is not `built`; every keyword is in the generated table be
 | `fuzz` | SPEC §2.4 | spec-only | `Keywords.cs:36`; no golden outside `lex/` |
 | `model` | SPEC §2.4 | spec-only | `Keywords.cs:36`; no golden outside `lex/` |
 | `foreach` | SPEC §21.5 (input form) | rejected | `Keywords.cs:36`; `TokenKind.cs:176-177` ("Accepted for C# compatibility"); `diag/input-for.byn:6` |
-| `new` | SPEC §2.4 (accepted, removed by the formatter) | unverified | `Keywords.cs:37`; `TokenKind.cs:176-178`; no golden outside `lex/` |
+| `new` | SPEC §2.4 (accepted, removed by the formatter) | built | `Keywords.cs:37`; `TokenKind.cs:176-178`; `selfhost/parser/exprs.byn:298`; no golden outside `lex/`; `new P { x: 1 }` runs in `bayan 0.3.0` |
 | `goto` | SPEC §2.4 | rejected | `Keywords.cs:37`; `TokenKind.cs:179`; `diag/goto-case.byn:4` |
 | `actor` | SPEC §2.4 | deferred | `Keywords.cs:37`; reserved (`TokenKind.cs:194`); `lex/reserved.byn` |
 | `macro` | SPEC §2.4 | deferred | `Keywords.cs:38`; reserved (`TokenKind.cs:194`); `lex/reserved.byn` |

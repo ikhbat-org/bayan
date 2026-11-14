@@ -57,7 +57,7 @@ struct Tree {
 }
 ```
 
-A `NodeId` cannot index a list with another index type (BYN3210, spec-only; not in 0.2). Generational handles (`Handle<T>`, SPEC §9.6) wait until the selfhost AST or Sūq shows the need.
+A `NodeId` cannot index a list with another index type (BYN3210, spec-only; not in 0.3: `List<T, I>` is not built, SPEC §3.5). Generational handles (`Handle<T>`, SPEC §9.6) wait until the selfhost AST or Sūq shows the need.
 
 ## Configuration
 
@@ -86,11 +86,11 @@ Package {
 }
 ```
 
-Not in 0.2: the manifest check (`src/Bayan.Syntax/Packages/Manifest.cs:35`) still takes the pre-2026-11-04 knobs (`braces`, a 100-column line knob, a bool `trailingCommas`) and rejects `width`, `align` and `lints`; `bayan format` reads only `booleans` and `primitives`.
+(partial in 0.3: the manifest check (`src/Bayan.Syntax/Packages/Manifest.cs:35`, `selfhost/semantics/manifest.byn:369`) still takes the pre-2026-11-04 knobs (`braces`, a 100-column line knob, a bool `trailingCommas`) and rejects `width`, `align` and `lints`; `bayan format` reads only `booleans` and `primitives`)
 
 ## Style lints
 
-Idioms are lints, `.suggestion` by default; `lints` in `style` sets the severity of each by name. Each takes a code in the `x900–x999` range of its area (revision 0017), assigned at the round-4 renumbering; none is allocated yet. Not in 0.2.
+Idioms are lints, `.suggestion` by default; `lints` in `style` sets the severity of each by name. Each takes a code in the `x900–x999` range of its area (revision 0017), assigned at the round-4 renumbering; none is allocated yet (not in 0.3).
 
 | Lint | Flags |
 |---|---|
@@ -111,4 +111,4 @@ const rotation = [
 ]
 ```
 
-`@unformatted because "…"` is the only opt-out. It applies to declarations only; there are no comment toggles, and `bayan audit` lists every use. Not in 0.2.
+`@unformatted because "…"` is the only opt-out. It applies to declarations only; there are no comment toggles, and `bayan audit` lists every use (not in 0.3).

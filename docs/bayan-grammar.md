@@ -187,7 +187,7 @@ test "bounds" (i32 input, bool valid) { … }
 - Local bindings put the name first: `let`/`var` already lead, and the name is what the reader scans for.
 - The name-first declaration forms are input forms that `bayan format` rewrites ([BYN1043](diagnostics/BYN1043.md)): `f() -> T` → `T f()`, `f(x: T)` → `f(T x)`, field `x: T` → `T x`, payload `case(x: T)` → `case(T x)`. In a function body, `Grams w = 0g` → `let w: Grams = 0g`; in a struct body the same text is a field with a default.
 - A function type used as a field or parameter type is parenthesized so the name follows the closing paren: `(Line -> Money uses net) pricer`, `(Order -> bool) pred`; a single parameter type needs no inner parentheses. Without the parentheses the name would read as part of the return type or `uses` list.
-- In v0.1 a function type is a parameter type, a `type` alias target or a local's type (`let f: Pred = isBig`); as a field, property, return type, constant, payload, type argument or element type it is [BYN2822](diagnostics/BYN2822.md) (SPEC §3.16).
+- In 0.3 a function type is a parameter type, a `type` alias target or a local's type (`let f: Pred = isBig`); as a field, property, return type, constant, payload, type argument or element type it is [BYN2822](diagnostics/BYN2822.md) (SPEC §3.16).
 - Revised 2026-10-22: round 3 first put names first in every declaration; that was meant only for local bindings, so declarations returned to type-first.
 - `union error` also composes and narrows error sets; composed sets are flattened, and two components sharing a case name is an error (different instantiations of one generic set, such as `ValidationError<A>` and `ValidationError<B>`, are distinct components):
   ```csharp
