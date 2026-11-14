@@ -63,7 +63,9 @@ tests" on Linux and macOS. `check.sh` prints one line per failure and fails when
 - (b) the revision files do not run 0001 to the highest with no gap or repeat, or a `Revisions applied:` line does
   not name the highest;
 - (c) `docs/DIAGNOSTICS.md` or `docs/STATUS.md` differs from what its generator prints;
-- (d) a mirror's version differs from `VERSION`.
+- (d) a mirror's version differs from `VERSION`;
+- (e) SPEC, GRAMMAR or STYLE has a `(not in A.B` or `(partial in A.B` status tag whose `A.B` is not the major.minor
+  of `VERSION` (`-dev` stripped).
 
 So a new revision, a new diagnostic or a version change lands with its headers and generated docs in the same
 commit.

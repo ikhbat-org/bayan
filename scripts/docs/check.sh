@@ -6,9 +6,11 @@
 #       `Revisions applied:` line is `0001–<highest>`;
 #   (c) docs/DIAGNOSTICS.md and docs/STATUS.md equal what scripts/docs/gen-diagnostics.sh and gen-status.sh print;
 #   (d) every code and test mirror of VERSION (version.sh `bayan_mirrors`) holds VERSION;
-#   (e) every BYNnnnn cited in the spec, grammar and style has a row in docs/DIAGNOSTICS.md (a descriptor, a code comment
+#   (e) every `(not in A.B` / `(partial in A.B` status tag in the spec, grammar and style names the major.minor of
+#       VERSION, `-dev` stripped (revision 0020);
+#   (f) every BYNnnnn cited in the spec, grammar and style has a row in docs/DIAGNOSTICS.md (a descriptor, a code comment
 #       or a docs/diagnostics-allocated.txt line; revision 0023);
-#   (f) every `SPEC §N` / `spec §N.M` cited in docs/ and in code comments under src/, selfhost/ and lib/ names a numbered
+#   (g) every `SPEC §N` / `spec §N.M` cited in docs/ and in code comments under src/, selfhost/ and lib/ names a numbered
 #       heading of docs/bayan-spec.md. Not checked: historical text that cites the spec as it was (docs/revisions, plans,
 #       specs, handoffs, export, bayan-handoff*, CHANGELOG, suq-round3-review-response.md, and bayan-concurrency.md, which
 #       cites the removed §13.1–13.5 on purpose), and a bare `§N` (it may cite the grammar or the handoff).
@@ -61,7 +63,16 @@ while IFS=$'\t' read -r file pre suf; do
   done
 done < <(bayan_mirrors)
 
-# (e) cited codes
+# (e) status tags
+mm="$(cut -d. -f1-2 <<< "${v%%-*}")"
+for doc in docs/bayan-spec.md docs/bayan-grammar.md docs/bayan-style.md; do
+  [ -f "$root/$doc" ] || continue
+  while IFS=: read -r line tag; do
+    [ "${tag##* in }" = "$mm" ] || fail "$doc:$line has the status tag '$tag', which is not for $mm (VERSION $v)"
+  done < <(grep -noE '\((not|partial) in [0-9]+\.[0-9]+' "$root/$doc")
+done
+
+# (f) cited codes
 if [ -f "$root/docs/DIAGNOSTICS.md" ]; then
   for doc in docs/bayan-spec.md docs/bayan-grammar.md docs/bayan-style.md; do
     [ -f "$root/$doc" ] || continue
@@ -72,7 +83,7 @@ if [ -f "$root/docs/DIAGNOSTICS.md" ]; then
   done
 fi
 
-# (f) cited spec sections
+# (g) cited spec sections
 if [ -f "$root/docs/bayan-spec.md" ]; then
   heads="$(sed -nE 's/^#{2,3} ([0-9]+(\.[0-9]+)?)\.? .*/\1/p' "$root/docs/bayan-spec.md")"
   while IFS=: read -r file line text; do
