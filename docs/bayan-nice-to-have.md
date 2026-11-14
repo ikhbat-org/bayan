@@ -4,7 +4,6 @@ Optional improvements with no commitment and no slot. State of `dev` at 04366a4f
 
 ## Language
 
-- Print a diagnostic when `Map.get` on a map with an optional value type returns `V??` (`work/todo.md` line 65).
 - Subjectless `switch { cond => … }`, with BYN1071 reserved (`docs/bayan-design-round-4-inventory.md`, R4D §7 subjectless switch).
 - `!(x is .s)` as an input form, BYN1070 (`docs/bayan-design-round-4-inventory.md`, R4D §7 BYN1070).
 - `dbg(x)` as an error in release builds (`docs/bayan-design-round-4-inventory.md`, R4D §7 dbg).
@@ -16,19 +15,16 @@ Optional improvements with no commitment and no slot. State of `dev` at 04366a4f
 
 ## Compiler
 
-- Map the `#line` of a function signature to its declaration line, so a debugger breakpoint on a function does not name generated code (`work/todo.md` line 16).
 - Return a borrowed slice from `Path.fileName`, `directoryName` and `extension` with no `alloc` (`work/todo.md` line 467, Q753 debt).
-- Indent `break;` correctly in the generated union format helper; the output is cosmetic only (`work/todo.md` line 68).
 - Drop state-tag checks when the state is known (`docs/bayan-design-round-4-inventory.md`, R4D §4 P6).
 - Derive `restrict` from borrow facts (`docs/bayan-design-round-4-inventory.md`, R4D §10 R4.6).
 - Null-niche optionals and `Result`; the byte figures are unverified (`docs/bayan-design-round-4-inventory.md`, R4D §4 P4).
 - A single-arena default allocator for `bayan run` and request handlers (`docs/bayan-design-round-4-inventory.md`, R4D §8 and §9 Q6).
+- Decide which parser-port frictions become specs: no tuple destructuring, field moves out of `Owned`, flow typing on field paths and `is` pattern corners (`docs/bayan-handoff.md` line 411, "candidates for later specs").
 - Give `Io.run` a working-directory argument, so the driver passes relative names as the C# compiler does (`work/todo.md` line 652).
 
 ## Tooling
 
-- A hermetic zig: fetch the pinned version into a repo or cache directory and prefer it over `PATH` (`work/todo.md` line 32, user 2026-11-08).
-- A drop check for recorded coverage, which waits for a full-suite measurement (`work/todo.md` line 31).
 - A bounds-check report (`docs/bayan-design-round-4-inventory.md`, R4D §7 bounds report).
 - `bayan laws` and a laws gate in `package.byn` (`docs/bayan-design-round-4-inventory.md`, A002 §2.4–2.5).
 - A libFuzzer engine for `bayan test --fuzz`, only if the built-in fuzzer misses a bug class (`docs/plans/2026-11-05-005-parking-lot.md`, M08).
@@ -42,9 +38,6 @@ Optional improvements with no commitment and no slot. State of `dev` at 04366a4f
 
 ## Docs and site
 
-- Regenerate the export snapshot: `docs/export/BAYAN-DIAGNOSTICS.md` and `BAYAN-GRAMMAR.md` still describe BYN5014 as "not a known verb or noun" (`work/todo.md` line 15).
 - One sentence in the guide on type-first declarations against name-first locals (`docs/bayan-design-round-4-inventory.md`, R4D §2 word order).
-- Fix the sample header in `docs/RELEASING.md` line 22 (`Version: 0.2.0`) and the `0.2.0-dev` doctor output in `site/content/ref-cli.page` line 197 (`work/todo.md` line 799).
-- Add the `README.md` version strings to the release mirrors, so the next release does not ship stale archive names (`work/todo.md` line 798).
 - Multi-clause header layout in `docs/bayan-style-proposal.md` §3.4, left open by the design inputs review (`docs/misc/2026-11-04-design-inputs-review.md`; `docs/bayan-design-round-4-inventory.md`, "Unrelated issues").
 - A generated documentation site, when public release planning starts (`docs/plans/2026-11-05-005-parking-lot.md`, D06).

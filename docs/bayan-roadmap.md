@@ -68,7 +68,7 @@ The order below follows the sources where they give one and the dependencies whe
 
 | Order | Item | State today | Source |
 |---|---|---|---|
-| 1 | Revision 0024, numeric conversions and .NET 11 | The last syntax change admitted after the freeze. The text is not in `docs/revisions/` yet; Q1 and Q1274 are decided (`dec(x)` on any `f32` or `f64` is an error with a fix-it) | `docs/bayan-spec.md` line 8, `docs/bayan-handoff.md` Questions 1274, `docs/plans/2026-11-12-008-release-prep-and-process.md` |
+| 1 | Revision 0024, numeric conversions | The last syntax change admitted after the freeze. The text is not in `docs/revisions/` yet; Q1 and Q1274 are decided (a float literal `dec(0.1)` is an error with a fix-it to `0.1dec`, and a runtime `f64` in `dec(x)` is an error with a fix-it to `dec.fromF64(x, digits)`) | `docs/bayan-spec.md` line 8, `docs/bayan-handoff.md` Questions 1274, `docs/plans/2026-11-12-008-release-prep-and-process.md` |
 | 2 | Plan 015, Q31 memory follow-ups | Phases A, B and D are merged into `dev`; phase C (emit arena) is deferred by the user. Left open: the LOWs below | `docs/plans/2026-11-14-015-q31-followups.md`, `docs/bayan-handoff.md` Progress log (2026-11-14), `work/todo.md` lines 770–775, 794 |
 | 3 | Spec 019, the .NET exit | Approved 2026-11-13, not written; to be written after 0.3.0, estimate 4–7 weeks. C# test outputs become goldens, the language server moves to Bayān, CI builds from `bootstrap/bayan.c`, the C# compiler stays frozen for diverse double-compiling | `docs/bayan-handoff.md` (Target: zero dependencies) |
 | 4 | Spec 020, test-result cache | Approved; 0 of 27 tasks ticked. Build now with a thin adaptor if cheap, otherwise after 019 | `docs/specs/020-test-result-cache/020-spec.md` (Open questions, item 4), `020-tasks.md` |
@@ -83,7 +83,7 @@ The order below follows the sources where they give one and the dependencies whe
 
 | Follow-up | State | Source |
 |---|---|---|
-| Rev 0021 naming lints, Q1186–Q1191 | Open "Decision needed" rows on naming lints when the rev 0021 report was written; later status not checked | `docs/handoffs/2026-11-10-rev-0021-report.md` |
+| Rev 0021 naming lints, Q1186–Q1189 | "Decision needed" in the handoff Questions with no later decision entry; Q1190 (option A) and Q1191 (std skipped) were settled on 2026-11-11 | `docs/bayan-handoff.md` lines 1543–1546, 1693, 2065 |
 | Plan 015 LOWs | `test`, `mutate` and `dist` still build with the frontend alive; `--emit-c` runs in the arena for no gain; `t42SummaryInArena` has no `c.sink` guard | `work/todo.md` lines 771, 775, 794 |
 | mmap arena chunks | `bayan-rt.c` large arena chunks through `mmap` and `munmap`, so macOS returns freed arenas to the OS | `work/todo.md` line 772 |
 | Mutation CI | The `mutation` workflow stays disabled; `ci` and `laws-nightly` are re-enabled | `docs/bayan-handoff.md` Progress log, "CI repair before 0.3.0" |
@@ -103,6 +103,7 @@ Slots: "(proposed)" marks a dependency-order proposal. A slot without it comes f
 | 020 | Test-result cache | approved | 27 of 27 tasks | Task 1 measures the per-unit process cost; 019 | Thin adaptor now or after 019 (`020-spec.md`) |
 | 011 | Self-hosted emitter | draft (rev 3) | T16, the batch mutation run for `tests/quality-baseline.json` | mutation CI (disabled) | No slot |
 | 012 | Self-hosted bootstrap | approved | T22, the driver batch mutation; parked by the user 2026-11-06 | mutation CI (disabled) | No slot |
+| 001 | Self-hosted lexer | implemented (laws L001–L004 await enactment) (`docs/specs/001-self-hosted-lexer/001-spec.md` line 2) | T24–T31: enact L001–L004 (user) and prove each via /prove; all eight are unticked (`docs/specs/001-self-hosted-lexer/001-tasks.md` lines 48–55) | T25 needs T21, T27 needs T21, T29 needs T16, T31 needs T13 | no slot |
 
 ### Plans
 
@@ -122,7 +123,6 @@ Not listed as pending: plan 000 (an index) and plan r4-section-10 (appended to t
 
 | Spec or plan | Status line says | Evidence it is done |
 |---|---|---|
-| 001 Self-hosted lexer | implemented (laws L001–L004 await enactment) | `docs/laws/001`–`004` say `status: enacted`; tasks T24–T31 are the enact and prove steps |
 | 002 Ownership and law alignment | done (L005–L008 await enactment) | `docs/laws/005`–`008` say `status: enacted` |
 | Plan 2026-11-02-003 Move to Ikhbat | waiting for approval | `CHANGELOG.md` `[0.2.0]` Changed (repository moved) |
 | Plan 2026-10-21-001 Design round 2 | "awaiting approval" | `docs/bayan-handoff.md` Question 101 (decisions "superseded by design round 2 C1"); `docs/plans/2026-10-22-002-design-round-3.md` takes round 2 as input and wins over it |
