@@ -84,7 +84,7 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
      tag.
 
    It fails, before it touches the CHANGELOG, when a tracked file still contains the previous `-dev` version
-   (for example `0.3.0-dev`). It prints each file it changed and the new section. It never commits, tags or pushes.
+   (for example `1.2.0-dev`). It prints each file it changed and the new section. It never commits, tags or pushes.
 2. **Regenerate `bootstrap/bayan.c`** with `scripts/selfhost/land.sh`, so the bootstrap compiler reports the new
    version.
 3. **Review.** Edit the CHANGELOG section (a summary, known limits). Run the tests, `bash scripts/docs/check.sh` and
@@ -112,8 +112,8 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
 
 ## Known limits
 
-Until the per-phase arenas land after 0.3.0 (Q31), the stage-2 build of `selfhost/driver` peaks at 2.94 GB of
-memory. `scripts/release/package.sh notes` prints that line after the CHANGELOG section, so every release's notes
+Until the per-phase arenas are finished (Q31), the stage-2 build of `selfhost/driver` peaks at 1.69 GB of memory
+(macOS, 2026-11-14; 2.94 GB on 2026-11-12). `scripts/release/package.sh notes` prints that line after the CHANGELOG section, so every release's notes
 carry it.
 
 ## Archive

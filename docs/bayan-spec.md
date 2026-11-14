@@ -1,6 +1,6 @@
 # Bayān — Language Specification (draft 0.1)
 
-Version: 0.3.0-dev (matches `bayan --version`)
+Version: 0.3.0 (matches `bayan --version`)
 Revisions applied: 0001–0023
 
 > **Status:** design complete enough to build v0.1. This document is normative unless a section says otherwise.
@@ -64,7 +64,7 @@ Bayan (بيان, "clarity, eloquent exposition") is a value-oriented, natively c
 Hello world:
 
 ```csharp
-print("Hello, world!")
+print("Salam, world!")
 ```
 
 ---

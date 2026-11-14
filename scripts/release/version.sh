@@ -2,7 +2,7 @@
 # Sourced by scripts/release and scripts/docs: the one place that reads the version and knows where it is copied.
 # VERSION (repo root, one line) is the source; docs/RELEASING.md describes the mirrors.
 
-# bayan_version <root>: the version in <root>/VERSION, e.g. 0.2.0 or 0.3.0-dev.
+# bayan_version <root>: the version in <root>/VERSION, e.g. 1.2.0 or 1.3.0-dev.
 bayan_version() {
   local f="$1/VERSION" v
   [ -f "$f" ] || { echo "version: $f not found" >&2; return 1; }

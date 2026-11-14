@@ -29,7 +29,7 @@ dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
   <li>
     <h2 id="run">Run it</h2>
 <pre><code>./hello</code></pre>
-    <p>It prints <code>Hello, world!</code>. <code>bayan run hello.byn</code> does both steps at once.</p>
+    <p>It prints <code>Salam, world!</code>. <code>bayan run hello.byn</code> does both steps at once.</p>
   </li>
   <li>
     <h2 id="error">Read an error, then fix it</h2>
