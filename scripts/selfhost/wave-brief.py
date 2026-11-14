@@ -86,11 +86,14 @@ def git(*a):
 # tmp/q-ranges.tsv of the main checkout (BAYAN_QRANGES overrides) under a lock, so briefs written at once do not overlap
 QRANGES = os.environ.get('BAYAN_QRANGES') or os.path.join(os.path.dirname(git('rev-parse', '--path-format=absolute', '--git-common-dir').decode().strip() or os.path.join(wt, '.git')), 'tmp', 'q-ranges.tsv')
 
+# Every number is taken: open, answered, and the pre-split handoff a branch cut before 2026-11-14 still carries.
+QDOCS = ('docs/bayan-questions.md', 'docs/decisions/2026-11-14-004-answered-questions.md', 'docs/bayan-handoff.md')
+
 
 def taken():
-    texts = [open(os.path.join(wt, 'docs/bayan-questions.md'), encoding='utf-8').read() if os.path.exists(os.path.join(wt, 'docs/bayan-questions.md')) else '']
+    texts = [open(os.path.join(wt, d), encoding='utf-8').read() for d in QDOCS if os.path.exists(os.path.join(wt, d))]
     refs = git('for-each-ref', 'refs/heads', '--format=%(refname:short)').decode().split()
-    out = subprocess.run(['git', '-C', wt, 'cat-file', '--batch'], input=''.join(f'{r}:docs/bayan-questions.md\n' for r in refs).encode(), capture_output=True).stdout
+    out = subprocess.run(['git', '-C', wt, 'cat-file', '--batch'], input=''.join(f'{r}:{d}\n' for r in refs for d in QDOCS).encode(), capture_output=True).stdout
     while out:
         head, _, out = out.partition(b'\n')
         if head.endswith(b' missing') or not head:
