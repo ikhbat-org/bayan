@@ -364,6 +364,39 @@ public sealed class SelfhostDefaultBoundsTests
         Assert.True(peak < CheckPeakBoundMb * 1024 * 1024, $"check of selfhost/driver peaked at {peak / (1024 * 1024)} MB, bound {CheckPeakBoundMb} MB");
     }
 
+    // measured on Linux (bayan-test01), the driver's resident set when the C compiler starts: BUILD_CC_MEASURED.
+    private const long BuildAtCcBoundMb = 0;
+
+    /// <summary>Q31 (plan 015): <c>build</c> frees the compiler's frontend before the C compiler starts, so <c>zig cc</c> never runs
+    /// beside it. A fake <c>zig</c> first on PATH records its parent's (the driver's) resident set at each call (<c>zig cc --version</c>,
+    /// then the runtime object's compile) and fails. Linux only: macOS keeps freed memory charged to the process.</summary>
+    [Fact]
+    public void BuildFreesTheFrontendBeforeTheCCompiler()
+    {
+        if (!OperatingSystem.IsLinux()) return;
+        var dir = Fresh("build-at-cc");
+        var bin = Path.Combine(dir, "bin");
+        Directory.CreateDirectory(bin);
+        var log = Path.Combine(dir, "rss.log");
+        var zig = Path.Combine(bin, "zig");
+        File.WriteAllText(zig, "#!/bin/sh\nps -o rss= -p $PPID >> \"$Q31_RSS_LOG\"\nexit 1\n");
+        File.SetUnixFileMode(zig, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        var psi = new ProcessStartInfo(BootstrapTests.Stage2Executable()) { WorkingDirectory = Golden.RepoRoot, RedirectStandardError = true };
+        psi.Environment["BAYAN_CACHE"] = Path.Combine(dir, "cache");
+        psi.Environment["PATH"] = $"{bin}:/usr/bin:/bin";
+        psi.Environment["Q31_RSS_LOG"] = log;
+        psi.Environment.Remove("BAYAN_CC");
+        foreach (var a in new[] { "build", "--package", "selfhost", "-o", Path.Combine(dir, "bayan"), "selfhost/driver" }) psi.ArgumentList.Add(a);
+        using var p = Process.Start(psi)!;
+        var stderr = p.StandardError.ReadToEnd();
+        p.WaitForExit();
+        Assert.True(File.Exists(log), $"the fake zig was never started (exit {p.ExitCode}):\n{stderr}");
+        var samples = File.ReadAllLines(log).Where(l => l.Trim().Length > 0).Select(l => long.Parse(l.Trim()) / 1024).ToList();
+        Assert.True(samples.Count > 0, "the fake zig recorded nothing");
+        Assert.True(samples.Max() < BuildAtCcBoundMb,
+            $"the driver held {string.Join(", ", samples)} MB when the C compiler started (zig cc --version, then the runtime object), bound {BuildAtCcBoundMb} MB");
+    }
+
     /// <summary>Q31: <c>cacheStats</c> and <c>t1FileExists</c> read each cached file in an arena, so <c>doctor</c> does not grow with the cache.</summary>
     [Fact]
     public void DoctorOfALargeCacheStaysBounded()

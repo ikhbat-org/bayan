@@ -240,27 +240,52 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
     let args = t2Rest(kept)
     let o = t5ParseBuildOptions(in args, by: true, for: true) ?? return exitUsage
     let symbols = t19Symbols(in d.styleErr)
-    var reported = List<semantics.T26Reported>()
-    var ok = false
-    var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
-    unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
-    if refuseLibrary(compiled, by: "build") { return exitUsage }
-    let emit = Io.monotonicNanos()
-    let source = t5EmitC(ref compiled, by: o.mode)
-    let emitTime = Io.monotonicNanos() - emit
-    if o.emitC {
-        Io.stdout.write(source)
-        return exitOk
-    }
     let target = o.target ?? t5HostTarget()
-    var output = ""
-    if (o.output is { } given) {
-        output = given
-    } else if (t5PrepareOut(in compiled, by: o.mode, for: target, from: source) is { } dir) {
-        output = Path.combine(dir, targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target))
-    } else {
-        output = targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target)
+    // Q31 (plan 015): the compilation and the emit run in an arena that ends before the C compiler starts, so `zig cc`
+    // never runs beside the frontend's memory. Only what the build and the summary read leaves it, copied into buffers
+    // made here; every path that reads `compiled` returns inside.
+    var sourceBuf = StrBuf()
+    var outputBuf = StrBuf()
+    var nameBuf = StrBuf()
+    var shownBuf = StrBuf()
+    var parseTime: i64 = 0
+    var checkTime: i64 = 0
+    var emitTime: i64 = 0
+    {
+        using let frontend = Arena()
+        provide allocator: frontend {
+            var reported = List<semantics.T26Reported>()
+            var ok = false
+            var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
+            unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
+            if refuseLibrary(compiled, by: "build") { return exitUsage }
+            let emit = Io.monotonicNanos()
+            let source = t5EmitC(ref compiled, by: o.mode)
+            emitTime = Io.monotonicNanos() - emit
+            if o.emitC {
+                Io.stdout.write(source)
+                return exitOk
+            }
+            var output = ""
+            if (o.output is { } given) {
+                output = given
+            } else if (t5PrepareOut(in compiled, by: o.mode, for: target, from: source) is { } dir) {
+                output = Path.combine(dir, targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target))
+            } else {
+                output = targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target)
+            }
+            sourceBuf.append(source)
+            outputBuf.append(output)
+            nameBuf.append(semantics.programName(ref compiled, for: o.path))
+            if o.verbose {
+                shownBuf.append(compiled.manifest is not null && o.output is null ? Path.relative(compiled.displayRoot, to: output).replaced("\\", by: "/") : output)
+            }
+            parseTime = compiled.parseTime
+            checkTime = compiled.checkTime
+        }
     }
+    let source = sourceBuf.finish()
+    let output = outputBuf.finish()
     let native = Io.monotonicNanos()
     var progress = start(in d.styleErr, by: d.stderrTty, through: o.json, for: "building")
     let built = t9Build(source, by: o.mode, to: output, for: o.target, through: ref d)
@@ -272,15 +297,14 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
     }
     if o.json { return exitOk }
     if o.verbose {
-        print(t5Phase("parse", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(compiled.parseTime))))
-        print(t5Phase("check", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(compiled.checkTime))))
+        print(t5Phase("parse", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(parseTime))))
+        print(t5Phase("check", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(checkTime))))
         print(t5Phase("emit", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(emitTime))))
         print(t5Phase("compile", by: t5Paint(.note, by: d.styleOut, for: built.hit ? "from cache" : semantics.t26Seconds(nativeTime))))
-        let shown = compiled.manifest is not null && o.output is null ? Path.relative(compiled.displayRoot, to: output).replaced("\\", by: "/") : output
-        print($"  {t5Paint(.note, by: d.styleOut, for: shown)}")
+        print($"  {t5Paint(.note, by: d.styleOut, for: shownBuf.finish())}")
     }
     let dot = semantics.t26Symbols(d.styleOut.ascii).dot
-    var summary = $"{dot} built {semantics.programName(ref compiled, for: o.path)} ({o.mode}, {target}) in {semantics.t26Seconds(Io.monotonicNanos() - clock)}"
+    var summary = $"{dot} built {nameBuf.finish()} ({o.mode}, {target}) in {semantics.t26Seconds(Io.monotonicNanos() - clock)}"
     // `Messages.BuildFromCache` with `Symbols.Separator` (Style.cs:59-60).
     if built.hit { summary = $"{summary} {d.styleOut.ascii ? "-" : "·"} from cache" }
     print(t5Paint(.success, by: d.styleOut, for: summary))
@@ -338,16 +362,29 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
         }
     }
     let symbols = t19Symbols(in d.styleErr)
-    var reported = List<semantics.T26Reported>()
-    var ok = false
-    var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
-    unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
-    if refuseLibrary(compiled, by: "run") { return exitUsage }
-    let source = t5EmitC(ref compiled, by: o.mode)
-    var output: string? = null
-    if (t5PrepareOut(in compiled, by: o.mode, for: host, from: source) is { } dir) {
-        output = Path.combine(dir, targetExecutableName(semantics.programName(ref compiled, for: o.path), for: host))
+    // Q31 (plan 015): as in `buildCommand`, the frontend's memory ends before the C compiler starts.
+    var sourceBuf = StrBuf()
+    var outputBuf = StrBuf()
+    var hasOutput = false
+    {
+        using let frontend = Arena()
+        provide allocator: frontend {
+            var reported = List<semantics.T26Reported>()
+            var ok = false
+            var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
+            unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
+            if refuseLibrary(compiled, by: "run") { return exitUsage }
+            let source = t5EmitC(ref compiled, by: o.mode)
+            if (t5PrepareOut(in compiled, by: o.mode, for: host, from: source) is { } dir) {
+                outputBuf.append(Path.combine(dir, targetExecutableName(semantics.programName(ref compiled, for: o.path), for: host)))
+                hasOutput = true
+            }
+            sourceBuf.append(source)
+        }
     }
+    let source = sourceBuf.finish()
+    var output: string? = null
+    if hasOutput { output = outputBuf.finish() }
     var progress = start(in d.styleErr, by: d.stderrTty, through: o.json, for: "building")
     let built = t9Build(source, by: o.mode, to: output, for: null, through: ref d)
     done(ref progress)
