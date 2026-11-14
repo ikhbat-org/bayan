@@ -2,11 +2,10 @@
 
 *Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.*
 
-Bayān (بيان, "clear statement") is a programming language that compiles to small native executables. If you
-have written C#, most of it will look familiar, but under the hood it works differently: there is no runtime
-to install, no garbage collector and no exceptions. Values are copied by default, errors are ordinary return
-values that the compiler makes you handle, and memory is managed by scopes and allocators you can see in
-the code.
+Bayān (بيان, "clear statement") is a programming language that compiles to small native executables. There
+is no runtime to install, no garbage collector and no exceptions. Values are copied by default, errors are
+ordinary return values that the compiler makes you handle, and memory is managed by scopes and allocators
+you can see in the code.
 
 The compiler is written in Bayān itself. It turns your program into C, then hands that C to a C compiler
 to produce the executable.
@@ -67,57 +66,59 @@ string greeting() {
 print(greeting())
 ```
 
-Change the text and run `bayan run` again. To run the tests, use `bayan test`. The test will now fail,
-because it still expects the old greeting. Fix the test and it passes.
+Change the greeting to `"Salam, world!"` and run `bayan run` again. To run the tests, use `bayan test`.
+The test will now fail, because it still expects the old greeting. Change it to `"Salam, world!"` too
+and it passes.
 
 For a one-off script you don't need a project. Write a single `.byn` file and run it with
 `bayan run hello.byn`.
 
 ## A taste of the language
 
-Here is a slightly bigger program. A function that can fail says so in its signature (`fails TicketError`),
-and the caller has to decide what happens for each error:
+Here is a slightly bigger program: seats for a community iftar. A function that can fail says so in its
+signature (`fails IftarError`), and the caller has to decide what happens for each error:
 
 ```
-union error TicketError {
-    soldOut
+union error IftarError {
+    full
     tooMany
 }
 
-i64 book(i64 wanted, from i64 left) fails TicketError {
-    fail .soldOut if left == 0
-    fail .tooMany if wanted > left
-    return left - wanted
+i64 reserve(i64 seats, from i64 left) fails IftarError {
+    fail .full if left == 0
+    fail .tooMany if seats > left
+    return left - seats
 }
 
-string tryToBook(i64 wanted, from i64 left) {
-    let rest = book(wanted, from: left) catch switch {
-        TicketError.soldOut => return "sold out",
-        TicketError.tooMany => return $"only {left} left",
+string book(string name, for i64 seats, from i64 left) {
+    let rest = reserve(seats, from: left) catch switch {
+        IftarError.full => return $"Sorry {name}, the iftar is full",
+        IftarError.tooMany => return $"Sorry {name}, only {left} seats left",
     }
-    return $"booked {wanted}, {rest} left"
+    return $"{name} booked {seats}, {rest} left"
 }
 
 void main() {
-    print(tryToBook(2, from: 5))
-    print(tryToBook(9, from: 3))
-    print(tryToBook(1, from: 0))
+    print(book("Aisha", for: 2, from: 5))
+    print(book("Bilal", for: 4, from: 3))
+    print(book("Yusuf", for: 1, from: 0))
 }
 ```
 
 ```text
-booked 2, 3 left
-only 3 left
-sold out
+Aisha booked 2, 3 left
+Sorry Bilal, only 3 seats left
+Sorry Yusuf, the iftar is full
 ```
 
 A few things that may look unfamiliar:
 
 - **Particles.** A function has at most one unlabeled parameter. The others carry a word such as `from`,
-  `to`, `by` or `for`, and the call says it too: `book(2, from: 5)`. Calls read like sentences, and you
-  can't swap two arguments by accident.
-- **Locals are `let`.** You write `let rest = …`, or `let rest: i64 = …` with a type. C#-style
-  `i64 rest = …` is rejected, and the error message shows you the fix.
+  `to`, `by` or `for`, and the call says it too: `book("Aisha", for: 2, from: 5)`. Calls read like
+  sentences, and you can't swap two arguments by accident.
+- **Locals are `let`.** You write `let rest = …`, or `let rest: i64 = …` with a type. Declarations put the
+  type first (`i64 reserve(…)`), local bindings put the name first; write it the other way and the error
+  message shows you the fix.
 - **`stmt if condition`** is a statement guarded by a condition, as in `fail .soldOut if left == 0`.
 
 The compiler's error messages try to teach. Each error has a code, and `bayan explain <code>` explains
