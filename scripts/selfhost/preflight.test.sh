@@ -20,7 +20,7 @@ cat > docs/specs/012-self-hosted-bootstrap/012-tasks.md <<'EOF'
 EOF
 : > docs/specs/012-self-hosted-bootstrap/012-plan.md
 printf '100. old\n101. older\n' > docs/bayan-questions.md
-mkdir -p docs/decisions; printf '| Q203 | t | answered | not recorded | general |\n\n203. the long answer\n' > docs/decisions/2026-11-14-004-answered-questions.md
+mkdir -p docs/decisions; printf '| Q203 | t | answered | not recorded | general |\n| Q204 | t | answered | not recorded | general |\n\n203. the long answer\n' > docs/decisions/2026-11-14-004-answered-questions.md
 printf 'int alpha;\nint beta;\nint gamma;\n' > src/a.c
 printf 'namespace Bayan.Tests;\npublic sealed class FooT8Tests { }\n' > tests/Bayan.Tests/FooInventoryTests.cs
 git add -A && git commit -qm "test: base"
@@ -49,6 +49,7 @@ br outside .github/workflows/r.yml 'on: push' .github/workflows/s.yml 'on: push'
 br driver selfhost/driver/main.byn 'x'
 br qdup docs/bayan-questions.md '101. again'
 br qans docs/bayan-questions.md '203. reuses an answered number'
+br qrow docs/bayan-questions.md '204. reuses a number answered in a table row only'
 br qout docs/bayan-questions.md '205. out of range'
 br qbase docs/bayan-questions.md '202. mine'
 br qline docs/bayan-questions.md '300. in the task line range'
@@ -63,7 +64,7 @@ printf 'filter: %s\nexit 0\n' "$F" > $W; wnone=$(pf T99 good)
 printf 'filter: FullyQualifiedName~FooT8Tests\nPassed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1\nexit 0\n' > $W; wfilt=$(pf T99 good)
 printf '  Passed Bayan.Tests.%s.A [1 ms]\n' FooT8Tests CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests SelfhostDriverT2Tests SelfhostDefaultT4Tests SelfhostDriverT5Tests > "$aux/test-out"; mapped=$(pf T99 driver); mapargs=$(cat "$aux/test-args"); passing
 stale=$(pf T99 stale); outside=$(pf T99 outside)
-qdup=$(pf T99 qdup); qans=$(pf T99 qans); qout=$(pf T99 qout); qbase=$(pf T99 qbase); qline=$(pf T98 qline); norange=$(pf T97 norange); notask=$(pf T96 good)
+qdup=$(pf T99 qdup); qans=$(pf T99 qans); qrow=$(pf T99 qrow); qout=$(pf T99 qout); qbase=$(pf T99 qbase); qline=$(pf T98 qline); norange=$(pf T97 norange); notask=$(pf T96 good)
 printf '  Passed Bayan.Tests.%s.A [1 ms]\n' CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests > "$aux/test-out"; zero=$(pf T99 good)
 passing; printf '  Failed Bayan.Tests.CInventoryTests.B [1 ms]\n' >> "$aux/test-out"; echo 1 > "$aux/test-rc"; failed=$(pf T99 good)
 passing; touch "$aux/build-fail"; build=$(pf T99 good); rm "$aux/build-fail"
@@ -98,6 +99,7 @@ has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `src/a.c:1-2`: `gamma` is
 has "$outside" 'FAIL files: 4 changed outside T99'"'"'s files list; append to its files: in docs/specs/012-self-hosted-bootstrap/012-tasks.md: `.github/workflows/s.yml`, `scripts/s.sh`, `src/b.c`, `tests/Bayan.Tests/BarTests.cs`' || fail "files outside the list are not reported with the addition" "$outside"
 has "$qdup" "FAIL questions: Q101 is in the questions docs 2 times" || fail "a duplicate Question number passed" "$qdup"
 has "$qans" "FAIL questions: Q203 is in the questions docs 2 times" || fail "a number taken by an answered Question passed" "$qans"
+has "$qrow" "FAIL questions: Q204 is in the questions docs 2 times" || fail "a number answered only in a table row passed" "$qrow"
 has "$qout" "FAIL questions: Q205 is outside T99's range Q200–Q204" || fail "a Question outside the range passed" "$qout"
 has "$qbase" "FAIL questions: Q202 is already on base (another task took it)" || fail "a Question the base took meanwhile passed" "$qbase"
 has "$qline" "ok questions (1 added, range Q300–Q304)" || fail "the task line's range is not used" "$qline"
