@@ -522,6 +522,39 @@ public sealed class SelfhostSemanticsT25Tests
         }
         """;
 
+    /// <summary>Q31 (plan 015): <c>t42AnalyzeRegions</c> run inside a bag, then General memory churned so a freed arena's
+    /// chunks are reused; the bag must still hold what the C# reports. Without the <c>c.sink</c> guard the bag keeps arena
+    /// strings (ASan: heap-use-after-free).</summary>
+    private static string BaggedFunction() => """
+        void tcBagged(string name) {
+            var c = tcLoad(name)
+            print($"== bag {name}")
+            let outer = pushBag(ref c)
+            let fns = copyIds(in c.modules[c.entryModule].allFunctions)
+            for fn in fns {
+                if c.functions[fn].body != -1 && !functionIsGeneric(ref c, by: fn) && !functionIsInstance(ref c, by: fn) { t42AnalyzeRegions(ref c, for: fn) }
+            }
+            popBag(ref c, to: outer)
+            var churn = List<string>()
+            for i in 0..4096 { churn.append($"churn {i} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") }
+            let b = c.bags.length - 1
+            for d in c.bags[b].items {
+                let pos = linePosition(c.files[d.file].text.span, at: d.span.start)
+                let fixText = d.hasFix ? $"fix {d.fixSpan.start}..{d.fixSpan.end} {d.fixReplacement}" : ""
+                print($"{d.code} {pos.line}:{pos.column} {d.message} |{d.label}|{d.help}|{fixText}")
+            }
+        }
+        """;
+
+    private static readonly Lazy<Dictionary<string, List<string>>> BaggedSections = new(RunBagged);
+
+    private static Dictionary<string, List<string>> RunBagged() => SelfhostSemanticsHarness.RunSections(Main.Value, ["bagged", .. DiagCases]);
+
+    [Theory]
+    [MemberData(nameof(DiagCaseNames))]
+    public void RegionsInABagKeepTheirDiagnostics(string name) =>
+        SelfhostSemanticsHarness.AssertSection(BaggedSections.Value, "bag " + name, ExpectedDiag(name));
+
     private static readonly Lazy<Dictionary<string, List<string>>> DiagSections = new(RunDiag);
 
     private static Dictionary<string, List<string>> RunDiag() => SelfhostSemanticsHarness.RunSections(Main.Value, ["diag", .. DiagCases]);
@@ -665,12 +698,16 @@ public sealed class SelfhostSemanticsT25Tests
                 for k in 1..args.length { tcDiag(args[k]) }
                 return 0
             }
+            if args.length > 0 && args[0] == "bagged" {
+                for k in 1..args.length { tcBagged(args[k]) }
+                return 0
+            }
             for name in args {
                 if name == "pure" { tcPure() } else if name == "compute" { tcCompute() } else { tcRun(name) }
             }
             return 0
         }
-        """.Replace("PURE", PureMain()).Replace("RUN", RunFunctions() + ComputeFunction() + DiagFunction());
+        """.Replace("PURE", PureMain()).Replace("RUN", RunFunctions() + ComputeFunction() + DiagFunction() + BaggedFunction());
 
     /// <summary>The Bayan line with each bracketed list and the lends sorted, as <see cref="Show"/> sorts the C# one.</summary>
     private static string Canon(string line)
