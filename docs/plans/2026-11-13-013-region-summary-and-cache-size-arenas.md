@@ -1,5 +1,7 @@
 # Plan 013: arenas for the region-summary fixpoint and the cache size reads (Q31)
 
+Status: done (e7f31bc3).
+
 Approved by the user 2026-11-13 ("plan and implement" the remaining two-slot VM OOM: bootstrap stage-1 and `doctor` peaks), unattended.
 
 ## Context

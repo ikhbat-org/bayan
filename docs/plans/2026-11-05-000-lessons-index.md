@@ -1,5 +1,7 @@
 # Lessons intake: index and crosswalk
 
+Status: done (57c5f5c9, lessons intake merged).
+
 Date: 2026-11-05.
 Source: `docs/design/lessons-from-other-languages.md`.
 

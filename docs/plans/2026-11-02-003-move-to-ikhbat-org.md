@@ -1,6 +1,8 @@
 # Move Bayān to the Ikhbat Foundation
 
-Date: 2026-11-02. Tier: Standard. Status: rev 3e (reviews A, B and C folded in, the user's choices
+Status: open (steps 1–6 done 2026-11-03; later steps are not recorded in the handoff).
+
+Date: 2026-11-02. Tier: Standard. Earlier status: rev 3e (reviews A, B and C folded in, the user's choices
 applied; rev 3b: move-script fix round 1, F1-F16; rev 3c: fix round 2, G1-G6; rev 3d: session-end
 review fixes M1-M6; rev 3e: review loop 2, N1-N4), waiting for the user's approval.
 

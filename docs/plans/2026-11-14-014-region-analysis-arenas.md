@@ -1,5 +1,7 @@
 # Plan: arenas for `analyzeRegions` and the first summary pass; a cheaper `sweepStale` (Q31, `build` peak)
 
+Status: done (fce07891).
+
 Approved by the user 2026-11-14 after a Fable verify pass (item #2 of the 2026-11-13 open list: `build` at 1.7 GB).
 
 ## Context

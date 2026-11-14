@@ -1,5 +1,7 @@
 # 008 — 0.3.0 release prep, faster landing, docs drift
 
+Status: done (9653928b).
+
 Tier: Standard. Approved by the user 2026-11-12. The decisions are listed in `docs/bayan-handoff.md` (*Questions*, "Decided by the user (2026-11-12)", and Q1274).
 Branch: `feat/008-release-prep-and-process`. Each work package (W) is one writer on its own worker branch, gated against its section below, then landed here. W1–W5 own disjoint files. **No writer edits `docs/bayan-handoff.md`**: the dispatcher writes the Progress log. A spec gap becomes a line in the writer's final reply, not a handoff edit.
 

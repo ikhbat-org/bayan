@@ -45,11 +45,11 @@ Each milestone task ends with `dotnet test -v q` green, a docs page + `diag/` ca
 - [x] T23 Handoff Questions 40–54, progress log, spec sections touched — covers: R12 — done when: handoff updated.
 
 ## Laws
-- [ ] T24 enact L001 lexer equivalence (drafted proposed; user enacts)
-- [ ] T25 prove L001 via /prove — depends: T21
-- [ ] T26 enact L002 no lexer panic
-- [ ] T27 prove L002 via /prove — depends: T21
-- [ ] T28 enact L003 map order
-- [ ] T29 prove L003 via /prove — depends: T16
-- [ ] T30 enact L004 union exhaustiveness
-- [ ] T31 prove L004 via /prove — depends: T13
+- [x] T24 enact L001 lexer equivalence (drafted proposed; user enacts)
+- [x] T25 prove L001 via /prove — depends: T21
+- [x] T26 enact L002 no lexer panic
+- [x] T27 prove L002 via /prove — depends: T21
+- [x] T28 enact L003 map order
+- [x] T29 prove L003 via /prove — depends: T16
+- [x] T30 enact L004 union exhaustiveness
+- [x] T31 prove L004 via /prove — depends: T13

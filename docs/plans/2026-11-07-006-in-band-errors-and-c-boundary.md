@@ -1,5 +1,7 @@
 # In-band errors and C-boundary safety (sshole lessons)
 
+Status: open (W0 landed through plan 007; W1 to W3 are not recorded as merged).
+
 Date: 2026-11-07. Plan only: no code, spec or test edits. Spec gaps below are proposals for handoff Questions.
 
 Revision 1 (2026-11-07): new W0 (fail-open exit code in `Io.run`) moved out of W1; W1 gains the libc version pin, interior NUL and errno rows and a testable acceptance; W2 reduced to a Question (W2a), a gated warning (W2b) and the W2c metric moved into W7; W4 and W6 now live in the v0.3 and v0.4 plans, W5 in `docs/security/crypto-api-checklist.md`; D1 and D3 removed, D8 updated; priority order replaces "easiest first".
