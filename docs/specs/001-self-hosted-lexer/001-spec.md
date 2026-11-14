@@ -1,5 +1,5 @@
 # 001 — Self-hosting step 1: the compiler-writing subset and a Bayan lexer
-Status: implemented (laws L001–L004 await enactment)
+Status: done (2026-10-20, 0.1.0; L001–L004 enacted 2026-10-20)
 Created: 2026-10-20
 
 ## Problem

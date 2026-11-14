@@ -1,3 +1,3 @@
 # Next
 
-Enact laws L005 (`Io.runBatch`) and L006 (unique never aliases) in `docs/laws/`, then `/prove` each (spec 002 T12–T13). After that: interfaces/`dyn`, iterators, `HashMap`/`Symbol` interning, and `property`/`fuzz` tests ahead of the parser port (handoff *Self-hosting readiness*); handoff Q60 (taint sources) needs a decision before more sinks.
+Retire the C# compiler (`docs/bayan-roadmap.md`, "What it takes"): write spec 019, the .NET exit (approved 2026-11-13; C# test outputs become goldens, the language server moves to Bayān, CI builds from `bootstrap/bayan.c`; `docs/bayan-handoff.md`, "Target: zero dependencies").

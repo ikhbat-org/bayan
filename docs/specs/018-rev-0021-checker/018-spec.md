@@ -1,5 +1,5 @@
 # 018 — Revision 0021 checker changes (Parts 5, 3, 4)
-Status: approved (user, 2026-11-09: rev 0021 Parts 3–5 one merge per part with `.byn` parity; order 5, 3, 4)
+Status: in progress (all tasks done 2026-11-10; waits for the 0.3.0 tag)
 Created: 2026-11-10
 
 Source: `docs/revisions/0021-agreement-word-classes-doer-nouns.md` Parts 3–5 and its ground rules. That file is the contract;

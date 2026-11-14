@@ -1,5 +1,7 @@
 # Plan 007: `Io.run` status mapping, `.signaled`, `.timeout`, `env:` null removal (006 W0 + 017 D6)
 
+Status: done (2026-11-12, Phase A and Phase B landed with review fixes).
+
 Sources: `docs/plans/2026-11-07-006-in-band-errors-and-c-boundary.md` §W0 and §3 "W0"; `docs/specs/017-selfhost-default/017-plan.md` D6 "Decided" (branch `feat/fs-slice`, commit dcbde220); 006 §W8 row L031. No code in this document.
 
 ## Findings (read, not run)
