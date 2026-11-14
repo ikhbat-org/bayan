@@ -10,7 +10,7 @@ Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan`
 |---|---|---|---|---|
 | 0.1.0 | 2026-11-02 | `v0.1.0` | shipped | `CHANGELOG.md` `[0.1.0]` |
 | 0.2.0 | 2026-11-06 | `v0.2.0` | shipped | `CHANGELOG.md` `[0.2.0]` |
-| 0.3.0 | 2026-11-14 | `v0.3.0` | cut on `dev` (`VERSION` is `0.3.0`, `CHANGELOG.md` `[0.3.0]`); waits for the dev → main merge and the tag, both the user's | `VERSION`, `CHANGELOG.md` `[0.3.0]`, `docs/RELEASING.md` |
+| 0.3.0 | 2026-11-14 | `v0.3.0` (pending) | cut on `dev` (`VERSION` is `0.3.0`, `CHANGELOG.md` `[0.3.0]`); waits for the dev → main merge and the tag, both the user's | `VERSION`, `CHANGELOG.md` `[0.3.0]`, `docs/RELEASING.md` |
 
 ### 0.1.0: the C# compiler (M0 — Skeleton to M12 — CLI completeness and machine-readable output)
 
@@ -52,10 +52,10 @@ Source: `CHANGELOG.md` `[0.3.0]`, `docs/specs/017-selfhost-default/017-tasks.md`
 
 | Item | What it delivered |
 |---|---|
-| Spec 017, self-hosted default | The released `bayan` is stage 2, built by the C# compiler's stage 1; `bayan version` prints `bayan X.Y.Z (selfhost)` |
+| Spec 017, self-hosted default | (Status line still says approved.) The released `bayan` is stage 2, built by the C# compiler's stage 1; `bayan version` prints `bayan X.Y.Z (selfhost)` |
 | Spec 016, std library in the binary | `import std.<name>` loads modules from `lib/std/` (BYN2032, BYN2033); `std.json` is the first module |
 | Revisions 0020–0023 | Versioned spec, agreement and doer nouns, contract hardening, syntax freeze (`CHANGELOG.md` `[0.3.0]` Revisions) |
-| Spec 018, revision 0021 checker parts | Lint BYN5104–5107 and word classes, landed in all three parts (`docs/handoffs/2026-11-10-rev-0021-report.md`, `docs/specs/018-rev-0021-checker/018-tasks.md`: 11 of 11 ticked) |
+| Spec 018, revision 0021 checker parts | (Status line still says approved.) Lint BYN5104–5107 and word classes, landed in all three parts (`docs/handoffs/2026-11-10-rev-0021-report.md`, `docs/specs/018-rev-0021-checker/018-tasks.md`: 11 of 11 ticked) |
 | Signature clause order | `where`, `expects`, `uses`, `becomes`, `fails`; the old order is BYN1065 (`CHANGELOG.md` `[0.3.0]` Changed) |
 | Runtime and release hardening | `Io.randomU64()`, SipHash-1-3 map hashing, bounded `Io.run` capture, prebuilt runtime object, release workflow gates, `docs/RELEASING.md` |
 | License | ISL-P 1.2 with the ISL-OE 1.2 output exception |
@@ -83,7 +83,7 @@ The order below follows the sources where they give one and the dependencies whe
 
 | Follow-up | State | Source |
 |---|---|---|
-| Spec 018, Q1186–Q1191 | Open "Decision needed" rows on naming lints when the rev 0021 report was written; later status not checked | `docs/handoffs/2026-11-10-rev-0021-report.md` |
+| Rev 0021 naming lints, Q1186–Q1191 | Open "Decision needed" rows on naming lints when the rev 0021 report was written; later status not checked | `docs/handoffs/2026-11-10-rev-0021-report.md` |
 | Plan 015 LOWs | `test`, `mutate` and `dist` still build with the frontend alive; `--emit-c` runs in the arena for no gain; `t42SummaryInArena` has no `c.sink` guard | `work/todo.md` lines 771, 775, 794 |
 | mmap arena chunks | `bayan-rt.c` large arena chunks through `mmap` and `munmap`, so macOS returns freed arenas to the OS | `work/todo.md` line 772 |
 | Mutation CI | The `mutation` workflow stays disabled; `ci` and `laws-nightly` are re-enabled | `docs/bayan-handoff.md` Progress log, "CI repair before 0.3.0" |
@@ -120,17 +120,11 @@ Not listed as pending: plan 000 (an index) and plan r4-section-10 (appended to t
 
 ### Done, with a stale `Status:` line
 
-I did not edit the spec files. Another writer owns them.
-
 | Spec or plan | Status line says | Evidence it is done |
 |---|---|---|
 | 001 Self-hosted lexer | implemented (laws L001–L004 await enactment) | `docs/laws/001`–`004` say `status: enacted`; tasks T24–T31 are the enact and prove steps |
 | 002 Ownership and law alignment | done (L005–L008 await enactment) | `docs/laws/005`–`008` say `status: enacted` |
-| 011 Self-hosted emitter | draft (rev 3) | `CHANGELOG.md` `[0.2.0]`; handoff spec table row 011; 23 of 24 tasks ticked |
-| 012 Self-hosted bootstrap | approved | `CHANGELOG.md` `[0.2.0]`; handoff spec table row 012; 23 of 24 ticked |
-| 016 Std library source | done | Status is current; `CHANGELOG.md` `[0.3.0]` Added |
 | 017 Selfhost default | approved | `CHANGELOG.md` `[0.3.0]`; 22 of 22 ticked; handoff row 017 |
-| 018 Rev 0021 checker | approved | `docs/handoffs/2026-11-10-rev-0021-report.md` (merges 36921d29, 71021224, 10bb0a0d); 11 of 11 ticked |
 | Plan 2026-11-02-003 Move to Ikhbat | waiting for approval | `CHANGELOG.md` `[0.2.0]` Changed (repository moved) |
 | Plan 2026-10-21-001 Design round 2 | "awaiting approval" | `docs/bayan-handoff.md` Question 101 (decisions "superseded by design round 2 C1"); `docs/plans/2026-10-22-002-design-round-3.md` takes round 2 as input and wins over it |
 | Plan 2026-10-22-002 Design round 3 | no status line | `CHANGELOG.md` `[0.1.0]` Added (revisions 0002–0010) |
