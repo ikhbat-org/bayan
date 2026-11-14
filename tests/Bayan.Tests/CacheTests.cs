@@ -111,7 +111,7 @@ public sealed class CacheTests
             Ok(Run("build", second));
             Ok(Run("test", second));
             Assert.Equal(before, Toolchain.Stats());
-            Assert.Equal("Hello, world!\n", Output(Exe(second)));
+            Assert.Equal("Salam, world!\n", Output(Exe(second)));
         });
     }
 
@@ -220,7 +220,7 @@ public sealed class CacheTests
             Assert.False(Directory.Exists(Path.Combine(root, "cache", "v1", "tmp")) && Directory.EnumerateFileSystemEntries(Path.Combine(root, "cache", "v1", "tmp")).Any());
             foreach (var project in new[] { a, b })
                 foreach (var mode in new[] { "debug", "safe" })
-                    Assert.Equal("Hello, world!\n", Output(Exe(project, mode)));
+                    Assert.Equal("Salam, world!\n", Output(Exe(project, mode)));
         });
     }
 
@@ -267,7 +267,7 @@ public sealed class CacheTests
             var program = Directory.EnumerateFiles(entry).Single(f => !f.EndsWith(".sha256", StringComparison.Ordinal));
             File.WriteAllBytes(program, [1, 2, 3]);
             Ok(Run("build", app));
-            Assert.Equal("Hello, world!\n", Output(Exe(app)));
+            Assert.Equal("Salam, world!\n", Output(Exe(app)));
             Assert.Equal(1, Toolchain.Stats().Programs);
         });
     }
@@ -355,11 +355,11 @@ public sealed class CacheTests
         return wrapper;
     }
 
-    /// <summary>Makes <paramref name="app"/> another program: it greets <c>Hello, other!</c>.</summary>
+    /// <summary>Makes <paramref name="app"/> another program: it greets <c>Salam, other!</c>.</summary>
     private static void Other(string app)
     {
         foreach (var file in Directory.GetFiles(Path.Combine(app, "src"), "*.byn", SearchOption.AllDirectories))
-            File.WriteAllText(file, File.ReadAllText(file).Replace("Hello, world!", "Hello, other!"));
+            File.WriteAllText(file, File.ReadAllText(file).Replace("Salam, world!", "Salam, other!"));
     }
 
     private static int RuntimeCompiles(string root) =>
@@ -383,8 +383,8 @@ public sealed class CacheTests
             Ok(Run("build", a, "--mode", "debug"));
             Assert.Equal(2, RuntimeCompiles(root));
             Assert.Equal(2, RuntimeEntries(root).Length);
-            Assert.Equal("Hello, world!\n", Output(Exe(a)));
-            Assert.Equal("Hello, other!\n", Output(Exe(b)));
+            Assert.Equal("Salam, world!\n", Output(Exe(a)));
+            Assert.Equal("Salam, other!\n", Output(Exe(b)));
         }, ("BAYAN_CC", LoggingCompiler(root)));
     }
 
@@ -404,7 +404,7 @@ public sealed class CacheTests
             Ok(Run("build", b));
             Assert.Equal(2, RuntimeCompiles(root));
             Assert.Equal(File.ReadAllText(obj + ".sha256"), Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(obj))) + "\n");
-            Assert.Equal("Hello, other!\n", Output(Exe(b)));
+            Assert.Equal("Salam, other!\n", Output(Exe(b)));
         }, ("BAYAN_CC", LoggingCompiler(root)));
     }
 
@@ -434,7 +434,7 @@ public sealed class CacheTests
         Assert.Equal(2, RuntimeEntries(root).Length);
         Assert.Equal(2, Build());
         Assert.Equal(2, RuntimeCompiles(root));
-        Assert.Equal("Hello, world!\n", Output(Exe(app)));
+        Assert.Equal("Salam, world!\n", Output(Exe(app)));
     }
 
     /// <summary>
@@ -492,7 +492,7 @@ public sealed class CacheTests
         Assert.Equal(2, Programs(root));
         Assert.Equal(2, RuntimeEntries(root).Length);
         Assert.Equal(2, RuntimeCompiles(root));
-        Assert.Equal("Hello, world!\n", Output(Exe(app)));
+        Assert.Equal("Salam, world!\n", Output(Exe(app)));
     }
 
     /// <summary>
@@ -514,7 +514,7 @@ public sealed class CacheTests
         Assert.Equal(2, Programs(root));
         Assert.Equal(2, RuntimeEntries(root).Length);
         Assert.Equal(2, RuntimeCompiles(root));
-        Assert.Equal("Hello, world!\n", Output(Exe(app)));
+        Assert.Equal("Salam, world!\n", Output(Exe(app)));
     }
 
     /// <summary>

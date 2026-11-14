@@ -31,7 +31,7 @@ const scaffoldScript: string = """
     #!/usr/bin/env bayan
     #:io threaded
 
-    print("Hello, world!")
+    print("Salam, world!")
 
     """
 
@@ -114,7 +114,7 @@ const scaffoldLibTest: string = """
 const scaffoldAppSource: string = """
     /// The line this app prints.
     string greeting() {
-        return "Hello, world!"
+        return "Salam, world!"
     }
 
     print(greeting())
@@ -123,7 +123,7 @@ const scaffoldAppSource: string = """
 
 const scaffoldAppTest: string = """
     test "greets the world" {
-        assert(greeting() == "Hello, world!")
+        assert(greeting() == "Salam, world!")
     }
 
     """
