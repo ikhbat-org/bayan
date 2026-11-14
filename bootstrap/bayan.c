@@ -214372,7 +214372,7 @@ bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main
             byn_w_str(w, BYN_STR(".byn", 4));
         }
 #line 350 "driver/scaffold.byn"
-        (*bynh_slot_map_str_str(&l0_files, byn_strbuf_str(t1), ((byn_str){0}))) = BYN_STR("#!/usr/bin/env bayan\012#:io threaded\012\012print(\042Hello, world!\042)\012", 59);
+        (*bynh_slot_map_str_str(&l0_files, byn_strbuf_str(t1), ((byn_str){0}))) = BYN_STR("#!/usr/bin/env bayan\012#:io threaded\012\012print(\042Salam, world!\042)\012", 59);
 #line 351 "driver/scaffold.byn"
         return l0_files;
     }
@@ -214424,9 +214424,9 @@ bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main
         (*bynh_slot_map_str_str(&l0_files, byn_strbuf_str(t6), ((byn_str){0}))) = BYN_STR("test \042twice doubles\042 {\012    assert(twice(21) == 42)\012}\012", 53);
     } else {
 #line 363 "driver/scaffold.byn"
-        (*bynh_slot_map_str_str(&l0_files, BYN_STR("src/app/main.byn", 16), ((byn_str){0}))) = BYN_STR("/// The line this app prints.\012string greeting() {\012    return \042Hello, world!\042\012}\012\012print(greeting())\012", 98);
+        (*bynh_slot_map_str_str(&l0_files, BYN_STR("src/app/main.byn", 16), ((byn_str){0}))) = BYN_STR("/// The line this app prints.\012string greeting() {\012    return \042Salam, world!\042\012}\012\012print(greeting())\012", 98);
 #line 364 "driver/scaffold.byn"
-        (*bynh_slot_map_str_str(&l0_files, BYN_STR("tests/app.test.byn", 18), ((byn_str){0}))) = BYN_STR("test \042greets the world\042 {\012    assert(greeting() == \042Hello, world!\042)\012}\012", 70);
+        (*bynh_slot_map_str_str(&l0_files, BYN_STR("tests/app.test.byn", 18), ((byn_str){0}))) = BYN_STR("test \042greets the world\042 {\012    assert(greeting() == \042Salam, world!\042)\012}\012", 70);
     }
 #line 366 "driver/scaffold.byn"
     (*bynh_slot_map_str_str(&l0_files, BYN_STR("testdata/.gitkeep", 17), ((byn_str){0}))) = BYN_STR("", 0);
