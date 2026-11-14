@@ -1460,7 +1460,7 @@ public sealed class SelfhostDriverStyleEnvironmentTests
 
     /// <summary>The timer (a zero threshold draws once and starts none, so waiting adds no frame): a threshold passed (the first frame, then a repeat every 250 ms; ASCII draws one line and no repeat) or not (nothing), as the C# <c>Timer</c> draws it.
     /// A passed threshold compares frame by frame up to the shorter side: how many repeats fit in the wait depends on the host's load (macOS CI 2026-11-14 and 2026-11-15, a 125 ms sleep drew a 251 ms repeat), the frames and the clear do not.
-    /// Exact repeat counts are <c>LaterTicksAndASecondDoneAsProgressDoes</c>'s.</summary>
+    /// A wait of 400 ms or more also bounds the count: at least two frames, at most one more than the C# timer drew.</summary>
     [Theory]
     [InlineData(false, 1, 125)]
     [InlineData(false, 1, 400)]
@@ -1487,6 +1487,16 @@ public sealed class SelfhostDriverStyleEnvironmentTests
             return;
         }
         AssertSameTimerFrames(writer.ToString(), stderr);
+        if (waitMs >= 400) AssertTimerRepeats(writer.ToString(), stderr);
+    }
+
+    /// <summary>A wait of 400 ms or more spans the first frame and one 250 ms repeat, so the driver drew at least two frames, and
+    /// at most one more than the C# timer (a load-delayed run draws fewer, never several more; a repeat far under 250 ms would).</summary>
+    internal static void AssertTimerRepeats(string want, string got)
+    {
+        var (w, g) = (TimerFrames(want).Count, TimerFrames(got).Count);
+        Assert.True(g >= 2, $"the driver drew {g} frame(s) in 400 ms or more; it never repeated");
+        Assert.True(g <= w + 1, $"the driver drew {g} frames to the C# timer's {w}; it repeats too often");
     }
 
     /// <summary>Both runs drew frames and agree on every frame up to the shorter run.</summary>
@@ -1514,6 +1524,9 @@ public sealed class SelfhostDriverStyleEnvironmentTests
         AssertSameTimerFrames("\rA" + clear, "\rA\rB" + clear);
         Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => AssertSameTimerFrames("\rA\rB" + clear, "\rA\rC" + clear));
         Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => AssertSameTimerFrames("\rA" + clear, "\rX" + clear));
+        AssertTimerRepeats("\rA\rB" + clear, "\rA\rB\rA" + clear);
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => AssertTimerRepeats("\rA\rB" + clear, "\rA" + clear));
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => AssertTimerRepeats("\rA\rB" + clear, "\rA\rB\rA\rB" + clear));
     }
 
     /// <summary>The drawn frames (each <c>\r</c>-led line before the closing clear) of a timer run; fails unless the run starts with a frame and ends in the clear.</summary>
