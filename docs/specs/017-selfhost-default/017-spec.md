@@ -1,5 +1,5 @@
 # 017 — Self-hosted compiler as the default `bayan`
-Status: done (2026-11-12, 0.3.0; release pending)
+Status: in progress (all tasks done 2026-11-12; waits for the 0.3.0 tag)
 Created: 2026-11-07
 
 ## Problem
