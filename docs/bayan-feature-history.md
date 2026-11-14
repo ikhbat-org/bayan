@@ -11,7 +11,7 @@ Rejected features are under "Not built" at the end.
 
 - **From:** where the section came from.
   All 26 numbered sections were in the first spec, commit `62b0a4ec` (2026-10-20, "docs: add Bayan spec and v0.1 handoff").
-  The source of that first text is not recorded; the round-1 handoff is not in the repo.
+  It came with `docs/bayan-handoff.md` ("HANDOFF — Bayan v0.1 bootstrap compiler"), added in the same commit `62b0a4ec` and deleted by the docs split (`3c7f8b69`); read it with `git show 62b0a4ec:docs/bayan-handoff.md`.
   The design rounds named after it are the ones the section's own `> Round …` notes cite.
 - **Built:** the release that built the section, with its source.
   A `(not in 0.3)` or `(partial in 0.3: …)` tag in the spec marks what `bayan 0.3.0` does not implement.

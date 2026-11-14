@@ -1,6 +1,6 @@
 # 014 — Plan
 Spec: ./014-spec.md
-Status: done; draft, rev 1 (2026-11-04)
+Status: done (plan written as draft rev 1, 2026-11-04; spec 014 done)
 Release: 0.2.0
 Sources: Q3, Q571, Q753, Q754, Q755, Q756, Q757, Q886, Q887, Q888; docs/decisions/2026-11-14-004-answered-questions.md
 
