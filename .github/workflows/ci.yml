@@ -4,6 +4,8 @@ on:
   push:
     branches: [main, dev]
   pull_request:
+  # By hand on any branch (gh workflow run ci.yml --ref <branch>), e.g. to check a branch before it is pushed to dev.
+  workflow_dispatch:
 
 jobs:
   build:
@@ -75,6 +77,9 @@ jobs:
         continue-on-error: true
         env:
           BAYAN_TEST_TIME_SCALE: 3
+          # zig cc of selfhost/semantics took over the 600 s default on windows-latest (ci run 42602448089, 2026-11-09:
+          # 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
+          BAYAN_CC_TIMEOUT_S: 1800
         run: dotnet test Bayan.slnx -c Release --logger "trx;LogFileName=windows.trx" --results-directory TestResults
       - name: Check known failures (Windows)
         if: runner.os == 'Windows'

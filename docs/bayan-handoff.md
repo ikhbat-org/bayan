@@ -1632,6 +1632,11 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 
 ## Progress log
 
+- **2026-11-14 — CI repair before 0.3.0 (`fix/ci-dispatch-windows-cc-timeout`).**
+  - `ci` and `laws-nightly` re-enabled on GitHub (user, 2026-11-14); `mutation` stays disabled. `ci.yml` gains `workflow_dispatch:` and `BAYAN_CC_TIMEOUT_S: 1800` on the Windows test step (ci run 42602448089: 118 `SelfhostSemanticsT17` tests failed on the 600 s C compiler timeout). The Linux/macOS parity review-brief failures of that run no longer reproduce: all 17 script tests pass locally.
+  - `authors` has been red since 2026-11-03: 18 commits made as the agent identity after the first rewrite, 3 with an attribution trailer, inside v0.2.0, main, dev and three merged remote branches. User chose a full rewrite including v0.2.0. `scripts/move/2026-11-14-history-rewrite.sh` (+ `.test.sh`) mailmaps the identity to the owner, strips the trailer lines (file contents unchanged), works on a mirror under `tmp/history-rewrite-1114/`, verifies check-authors clean, commit count and dev/main/tag trees unchanged, remaps cited SHAs in `.md` files as one commit, maps the review watermark, and pushes nothing; the user runs `--execute --rewrite-history` and the printed force-pushes. Dry run at 021f6b6f: 4544 commits, 2021 new SHAs, trees unchanged, 566 SHA references remapped.
+  - `CliMemoryBoundsTests` (F2 failed the 11-12 release dry run on Linux): 25/25 pass on bayan-test01 at 021f6b6f; recheck on the next release dry run.
+  - Review ce518f04..60d4187e: 3 MEDIUM in `scripts/cleanup/q31-followups.sh` (ignored worktree scratch, all VM shard runs, all of `tmp/shard`) fixed in `fix/review-2026-11-14-2`; LOW bounds-test timeout → `work/todo.md`.
 - **2026-11-14 — Plan 015 phase D: `analyzeEffects` in an arena (`fix/q31-effects-arena`, Q31).**
   - `t42AnalyzeEffects` (`selfhost/semantics/effects.byn`) runs `analyzeEffects` in an `Arena` with plan 014's `t42Mark`/`t42Undo`; any diagnostic undoes the run and repeats it in `General`. A bag sink (`c.sink >= 0`) stays in `General`. `generics.byn` calls it in place of `analyzeEffects`.
   - Audit: `analyzeEffects` and its callees write only diagnostics into `Ctx` (`report` and `checkValue` sites); `typeDisplay`, `functionIsInstance`, `templateOf` and the `t23*` helpers write nothing.
