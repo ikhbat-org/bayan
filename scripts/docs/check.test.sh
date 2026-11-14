@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # check.sh on a fixture repo (test-fixture.sh): passes clean, then each check fails on its own breakage:
 # (a) a header version, (b) a new revision and a gap, (c) a new descriptor and a hand-edited generated row,
-# (d) a mirror that disagrees with VERSION, (e) a cited code with no entry, (f) a cited spec section with no heading.
+# (d) a mirror that disagrees with VERSION, (e) a status tag for another release, (f) a cited code with no entry,
+# (g) a cited spec section with no heading.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 t="$root/tmp/docs-check-test"
@@ -46,27 +47,33 @@ sed -i.bak 's/"1.2.3-dev"/"1.2.4-dev"/' "$t/repo/src/Bayan.Backend.C/Toolchain.c
 expect "(d) Toolchain.cs" "src/Bayan.Backend.C/Toolchain.cs says 1.2.4-dev, VERSION says 1.2.3-dev"
 sed -i.bak '6s/bayan 1.2.3-dev/bayan 1.2.2/' "$t/repo/tests/cases/out/dist.tree"
 expect "(d) second dist.tree line" "tests/cases/out/dist.tree says 1.2.2, VERSION says 1.2.3-dev"
+printf 'Units (partial in 1.2: no suffixes). Handles (not in 1.2).\n' >> "$t/repo/docs/bayan-spec.md"
+bash "$s" >/dev/null || fail "(e) tags for the VERSION release fail the check"
+printf 'Line one.\nEvents (not in 1.1).\n' >> "$t/repo/docs/bayan-grammar.md"
+expect "(e) tag for another release" "docs/bayan-grammar.md:8 has the status tag '(not in 1.1', which is not for 1.2 (VERSION 1.2.3-dev)"
+printf 'Units (partial in 0.2: no suffixes).\n' >> "$t/repo/docs/bayan-style.md"
+expect "(e) partial tag for another release" "docs/bayan-style.md:7 has the status tag '(partial in 0.2', which is not for 1.2"
 printf 'Uses BYN0001 and BYN2233.\n' >> "$t/repo/docs/bayan-style.md"
-bash "$s" >/dev/null || fail "(e) codes with a descriptor or an allocated line fail the check"
+bash "$s" >/dev/null || fail "(f) codes with a descriptor or an allocated line fail the check"
 printf 'A planned BYN6008.\n' >> "$t/repo/docs/bayan-spec.md"
-expect "(e) cited code" "docs/bayan-spec.md cites BYN6008, which has no row in docs/DIAGNOSTICS.md"
+expect "(f) cited code" "docs/bayan-spec.md cites BYN6008, which has no row in docs/DIAGNOSTICS.md"
 printf 'Merged like BYN1002 into BYN0001; see BYN3004.\n' >> "$t/repo/docs/bayan-grammar.md"
-bash "$s" >/dev/null || fail "(e) retired and reserved codes fail the check"
+bash "$s" >/dev/null || fail "(f) retired and reserved codes fail the check"
 grep -qF 'BYN0001' "$t/repo/docs/DIAGNOSTICS.md" || fail "fixture has no BYN0001 text"
 printf 'Only in prose: BYN7777.\n' >> "$t/repo/docs/bayan-style.md"
 sed -i.bak 's/^\(| \[BYN0001\].*\)$/\1 see BYN7777/' "$t/repo/docs/DIAGNOSTICS.md"
 grep -qF 'see BYN7777' "$t/repo/docs/DIAGNOSTICS.md" || fail "fixture edit did not apply"
-expect "(e) code only in another row's text" "docs/bayan-style.md cites BYN7777, which has no row in docs/DIAGNOSTICS.md"
+expect "(f) code only in another row's text" "docs/bayan-style.md cites BYN7777, which has no row in docs/DIAGNOSTICS.md"
 
-# (f) the spec gets headings; a bare §N, a historical doc and a good cite pass, a missing heading fails with file:line
+# (g) the spec gets headings; a bare §N, a historical doc and a good cite pass, a missing heading fails with file:line
 printf '\n## 6. Expressions\n\n### 6.6 Interpolation\n' >> "$t/repo/docs/bayan-spec.md"
 printf 'Display is in SPEC §6.6 and (spec §6). A bare §9.9 may cite the grammar.\n' >> "$t/repo/docs/bayan-style.md"
 printf '// Display (spec §6.6).\n' >> "$t/repo/src/Bayan.Semantics/Binding/Fixture.cs"
 printf 'Historical: spec §9.9.\n' >> "$t/repo/docs/revisions/0002-second.md"
-bash "$s" >/dev/null || fail "(f) good cites, a bare cite and a historical doc fail the check"
+bash "$s" >/dev/null || fail "(g) good cites, a bare cite and a historical doc fail the check"
 printf 'See SPEC §6.9.\n' >> "$t/repo/docs/bayan-style.md"
-expect "(f) missing heading in docs" "docs/bayan-style.md:$(wc -l < "$t/repo/docs/bayan-style.md" | tr -d ' ') cites spec §6.9, which is not a heading of docs/bayan-spec.md"
+expect "(g) missing heading in docs" "docs/bayan-style.md:$(wc -l < "$t/repo/docs/bayan-style.md" | tr -d ' ') cites spec §6.9, which is not a heading of docs/bayan-spec.md"
 printf '## 13. Concurrency\n' >> "$t/repo/docs/bayan-spec.md"
 printf '// Display (spec §13).\n// Locks (spec §13.4).\n' >> "$t/repo/src/Bayan.Semantics/Binding/Fixture.cs"
-expect "(f) missing heading in a code comment" "src/Bayan.Semantics/Binding/Fixture.cs:2 cites spec §13.4, which is not a heading of docs/bayan-spec.md"
+expect "(g) missing heading in a code comment" "src/Bayan.Semantics/Binding/Fixture.cs:2 cites spec §13.4, which is not a heading of docs/bayan-spec.md"
 echo PASS

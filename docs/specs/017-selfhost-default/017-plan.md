@@ -90,7 +90,7 @@ The order is the spec's D2 (easiest first). T1–T3 and T5 have disjoint files a
 | R7 Memory and disk bounds | T9 (cache bounds), T16 (gate block, bound tests through stage 2) |
 | Acceptance: CLI corpus per command | T14 |
 | Acceptance: v0.3.0 archives | T17 (smoke test `bayan 0.3.0 (selfhost)`) |
-| Acceptance: `bayan test lib/std/json`, 94 tests | not grounded: no `lib/` directory exists on `dev` (`ls lib` fails); T11 uses `tests/cases/run/*.test.byn` and the `CliTests.cs:539-768` rows instead, and the handoff lists the criterion as a Question for the user |
+| Acceptance: `bayan test lib/std/json`, 94 tests | not grounded: no `lib/` directory exists on `dev` (`ls lib` fails); T11 uses `tests/cases/run/*.test.byn` and the `CliTests.cs:539-768` rows instead, and `docs/bayan-questions.md` lists the criterion as a Question for the user |
 
 ## Draft law amendment (T14 edits `docs/laws/028-driver-equivalence.md`; the user re-enacts)
 

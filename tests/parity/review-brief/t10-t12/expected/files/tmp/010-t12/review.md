@@ -1,6 +1,6 @@
 You are the independent reviewer for task T12 of spec 010 (the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`). You did not write this code. Your job is to find where the port is not the C#. Do not edit any file except the review file below; do not run git commands that change state.
 
-Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port `selfhost/semantics/declare.byn`, the tests `tests/Bayan.Tests/SelfhostSemanticsT12Tests.cs`, and Questions Q575–Q579 in `docs/bayan-handoff.md`.
+Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port `selfhost/semantics/declare.byn`, the tests `tests/Bayan.Tests/SelfhostSemanticsT12Tests.cs`, and Questions Q575–Q579 in `docs/bayan-questions.md`.
 
 ## Task (verbatim)
 - [x] T12 Declaration B — files: `declare.byn` (`Compilation.cs` ~655–1037: variants, payloads, enums, unions, struct members, overloads, `overlap`), `SelfhostSemanticsT12Tests.cs` — covers: R4 — after: T4; parallel with: T6–T11, T13–T27, T34–T39 — done when:

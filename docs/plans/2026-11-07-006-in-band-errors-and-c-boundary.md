@@ -1,5 +1,7 @@
 # In-band errors and C-boundary safety (sshole lessons)
 
+Status: open (W0 landed through plan 007; W1 to W3 are not recorded as merged).
+
 Date: 2026-11-07. Plan only: no code, spec or test edits. Spec gaps below are proposals for handoff Questions.
 
 Revision 1 (2026-11-07): new W0 (fail-open exit code in `Io.run`) moved out of W1; W1 gains the libc version pin, interior NUL and errno rows and a testable acceptance; W2 reduced to a Question (W2a), a gated warning (W2b) and the W2c metric moved into W7; W4 and W6 now live in the v0.3 and v0.4 plans, W5 in `docs/security/crypto-api-checklist.md`; D1 and D3 removed, D8 updated; priority order replaces "easiest first".
@@ -15,7 +17,7 @@ Three lessons: (1) errors need a channel the caller cannot confuse with data; (2
 - Every Linux binary links musl statically: `src/Bayan.Backend.C/Targets.cs:11-12` (`x86_64-linux-musl`, `aarch64-linux-musl`). macOS uses its libc, Windows the UCRT (`x86_64-windows-gnu`, `Targets.cs:15`).
 - The runtime (`src/runtime/bayan-rt.c`, 3,569 lines; `bayan-rt.h`, 572) calls 96 libc and OS functions, listed in `src/runtime/libc-uses.txt` (spec 012 T8, `docs/specs/012-self-hosted-bootstrap/012-tasks.md:16`). A libc divergence reaches every program through it.
 - The runtime already carries the norm in places: `byn_io_read` returns `0` or an `IoError` code (`bayan-rt.h:445-446`); `Env.get` returns `string?` (`src/Bayan.Semantics/Builtins.cs:128`); `position` returns `i64?` (`Binding/BuiltinMembers.cs:64`).
-- The norm-setter does not follow the norm: `selfhost/**/*.byn` (90 files) has 140 `return -1`, 620 `== -1`/`!= -1` and 27 lines with `) fails ` (grep, 2026-11-07). Spec 010/011 rule the port matches the C# method for method (handoff Q711, `docs/bayan-handoff.md:1142`), so this is deliberate and must not change mid-port.
+- The norm-setter does not follow the norm: `selfhost/**/*.byn` (90 files) has 140 `return -1`, 620 `== -1`/`!= -1` and 27 lines with `) fails ` (grep, 2026-11-07). Spec 010/011 rule the port matches the C# method for method (handoff Q711, `docs/decisions/2026-11-14-004-answered-questions.md:2070`), so this is deliberate and must not change mid-port.
 
 ## 1. Lessons mapped to Bayan mechanisms
 
@@ -47,7 +49,7 @@ Priority order (replaces "easiest first"): W0, then W1 (libc pin, NUL, errno, re
 
 **Change.**
 - A failed `waitpid` (non-`EINTR`), a failed `WaitForSingleObject` or a failed `GetExitCodeProcess` is `fail IoError`, never exit code 0.
-- A signal-killed child must not report 0 and must be told apart from a normal exit: map it to a distinct `IoError` variant, or keep a documented signal exit code. Question for the handoff; this plan recommends the distinct variant.
+- A signal-killed child must not report 0 and must be told apart from a normal exit: map it to a distinct `IoError` variant, or keep a documented signal exit code. Question for `docs/bayan-questions.md`; this plan recommends the distinct variant.
 - Move the status-to-result mapping into one function that takes the wait outcome and raw status and returns the code or an `IoError`. Both platform paths call it.
 
 **Test (this is L031).** Unit-test the mapping function with injected failures: wait failed, exit query failed, Windows wait failed with the child still running (`STILL_ACTIVE`), signaled, normal exit. Run on linux-x64 (musl), macOS and wp1.
@@ -120,7 +122,7 @@ Gate: before merging, run it over `lib/` and `selfhost/` and report the hit coun
 
 **Numbers.** 3xxx is at BYN3219 (`DiagnosticCodes.cs:322`); 4xxx and the other blocks follow `docs/bayan-spec.md`. Lints are planned as "TBD (x9xx of their area, A2)": `docs/bayan-shorthands-proposal.md:289,300,335,360` and `docs/bayan-style-proposal.md:192,317-321`. W2b (control flow and failure, BYN4xxx) is BYN49xx per `docs/revisions/0017-addendum-a2-diagnostic-codes.md:26-28`. The failure diagnostics in code today are BYN26xx (`DiagnosticCodes.cs:216-220`), so confirm in A2 which block W2b belongs to. See Needs decision D4.
 
-**Touches.** Spec §2.5 (`docs/bayan-spec.md:142`, BYN3201 and `_ = f()`), §8 (`:1244`, `catch value`), §21.1 diagnostics (`:2232`); `docs/diagnostics/` one file. Handoff Questions: the `let _ =` spelling (W2a) and W2b's severity (D2); none of the existing Questions covers sentinels (`sentinel` has 0 matches in `docs/bayan-handoff.md`, grep 2026-11-07).
+**Touches.** Spec §2.5 (`docs/bayan-spec.md:142`, BYN3201 and `_ = f()`), §8 (`:1244`, `catch value`), §21.1 diagnostics (`:2232`); `docs/diagnostics/` one file. Handoff Questions: the `let _ =` spelling (W2a) and W2b's severity (D2); none of the existing Questions covers sentinels (`sentinel` has 0 matches in `docs/bayan-questions.md`, grep 2026-11-07).
 
 ### W3. Std API sweep
 
@@ -164,7 +166,7 @@ Gate: before merging, run it over `lib/` and `selfhost/` and report the hit coun
 - `lib/std/json` already models it (`fails JsonError`); link it as the example.
 - `bayan new` templates (`src/Bayan.Cli/Scaffold.cs:270,286`): the generated `greeting()`/`twice()` get a sibling that returns `T?` so the first program a user sees has one optional.
 
-**Acceptance.** After parity, the cheatsheet is compiler-checked as its header requires (`bayan-cheatsheet.md:2`); a grep for `return -1` in `docs/**/*.md` code blocks outside the handoff and specs finds only the migration plan.
+**Acceptance.** After parity, the cheatsheet is compiler-checked as its header requires (`bayan-cheatsheet.md:2`); a grep for `return -1` in `docs/**/*.md` code blocks outside the milestones and Questions docs and specs finds only the migration plan.
 
 ### W8. Law candidates (user enacts; proposed only)
 
@@ -205,7 +207,7 @@ The sshd bug would have been L029's counterexample: a hash function whose error 
 
 ## 4. Out of scope
 
-Memory safety, the `unsafe` rules, taint (`Untrusted<T>`) beyond the one "secret sink" row in W5, PAM-style pluggable auth, any change to `docs/bayan-spec.md` or `docs/bayan-handoff.md` from this plan, and any edit to `selfhost/` before the W7 spec other than the same-change lint port L022 requires (W2b's `selfhost/semantics` port).
+Memory safety, the `unsafe` rules, taint (`Untrusted<T>`) beyond the one "secret sink" row in W5, PAM-style pluggable auth, any change to `docs/bayan-spec.md` or `docs/bayan-milestones.md` from this plan, and any edit to `selfhost/` before the W7 spec other than the same-change lint port L022 requires (W2b's `selfhost/semantics` port).
 
 ## Noticed, not addressed
 

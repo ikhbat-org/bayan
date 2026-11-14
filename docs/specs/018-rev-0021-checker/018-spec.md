@@ -1,5 +1,5 @@
 # 018 — Revision 0021 checker changes (Parts 5, 3, 4)
-Status: approved (user, 2026-11-09: rev 0021 Parts 3–5 one merge per part with `.byn` parity; order 5, 3, 4)
+Status: in progress (all tasks done 2026-11-10; waits for the 0.3.0 tag)
 Created: 2026-11-10
 
 Source: `docs/revisions/0021-agreement-word-classes-doer-nouns.md` Parts 3–5 and its ground rules. That file is the contract;
@@ -54,4 +54,4 @@ compilers (C# in `src/`, self-hosted in `selfhost/`) must change together, byte-
 - None new. L028 (driver equivalence) already quantifies over every golden.
 
 ## Open questions
-- None blocking. Mismatches between the revision and the code go to `docs/bayan-handoff.md` Questions (Q1168–Q1175).
+- None blocking. Mismatches between the revision and the code go to `docs/bayan-questions.md` Questions (Q1168–Q1175).

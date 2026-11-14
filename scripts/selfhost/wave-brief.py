@@ -82,15 +82,15 @@ def git(*a):
 
 
 # Question ranges (plan D6): an open task with none in its line gets the next five numbers after every Question in this
-# checkout's handoff, every local branch's handoff, every range in a tasks file and every range already assigned, recorded in
+# checkout's questions doc, every local branch's, every range in a tasks file and every range already assigned, recorded in
 # tmp/q-ranges.tsv of the main checkout (BAYAN_QRANGES overrides) under a lock, so briefs written at once do not overlap
 QRANGES = os.environ.get('BAYAN_QRANGES') or os.path.join(os.path.dirname(git('rev-parse', '--path-format=absolute', '--git-common-dir').decode().strip() or os.path.join(wt, '.git')), 'tmp', 'q-ranges.tsv')
 
 
 def taken():
-    texts = [open(os.path.join(wt, 'docs/bayan-handoff.md'), encoding='utf-8').read() if os.path.exists(os.path.join(wt, 'docs/bayan-handoff.md')) else '']
+    texts = [open(os.path.join(wt, 'docs/bayan-questions.md'), encoding='utf-8').read() if os.path.exists(os.path.join(wt, 'docs/bayan-questions.md')) else '']
     refs = git('for-each-ref', 'refs/heads', '--format=%(refname:short)').decode().split()
-    out = subprocess.run(['git', '-C', wt, 'cat-file', '--batch'], input=''.join(f'{r}:docs/bayan-handoff.md\n' for r in refs).encode(), capture_output=True).stdout
+    out = subprocess.run(['git', '-C', wt, 'cat-file', '--batch'], input=''.join(f'{r}:docs/bayan-questions.md\n' for r in refs).encode(), capture_output=True).stdout
     while out:
         head, _, out = out.partition(b'\n')
         if head.endswith(b' missing') or not head:
@@ -132,7 +132,7 @@ for t in args[1:]:
     # not by a `<prefix><n>Tests` class it does not have (Q945); a task with bare test names keeps them alone (011 T14 re-pins)
     if not tests: tests = [f.removeprefix('tests/Bayan.Tests/') for f in rooted if re.fullmatch(r'tests/Bayan\.Tests/[A-Za-z0-9]+Tests\.cs', f)]
     paths = [f if f.startswith('selfhost/') else f"{row['bydir']}/{f}" for f in byns] + [f'tests/Bayan.Tests/{f}' for f in tests] + rooted
-    allow = ','.join(dict.fromkeys(paths + ['docs/bayan-handoff.md', f"{row['dir']}/{row['tasks']}"]))
+    allow = ','.join(dict.fromkeys(paths + ['docs/bayan-questions.md', f"{row['dir']}/{row['tasks']}"]))
     own_api = [l for l in api if re.match(rf'^- {t} ', l)]
     q = qrange(block)
     if not q and SPEC != '010' and block[0].startswith('- [ ]'): q = assign(t)
@@ -191,7 +191,7 @@ Port method for method in C# order, keeping C# names lowerCamel. Read the C# ran
 {BRIEF[SPEC]['harness']}
 
 ## Files you own
-{', '.join('`'+p+'`' for p in paths)}, `docs/bayan-handoff.md` (Questions {'Q'+q[0]+'–Q'+q[1] if q else 'in your range'} only, inserted in number order), your own `// ── {t} state` sections of {' and '.join('`'+c+'`' for c in SHARED)} (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`bash scripts/bayan-tool.sh review-brief`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.
+{', '.join('`'+p+'`' for p in paths)}, `docs/bayan-questions.md` (Questions {'Q'+q[0]+'–Q'+q[1] if q else 'in your range'} only, inserted in number order), your own `// ── {t} state` sections of {' and '.join('`'+c+'`' for c in SHARED)} (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`bash scripts/bayan-tool.sh review-brief`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.
 
 {cheat}
 ## End your final message with

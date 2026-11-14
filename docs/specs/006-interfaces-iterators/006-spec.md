@@ -6,7 +6,7 @@ Depends on: design-round-2 steps 3.1–3.3 on dev (`for x in` parsing from 3.1, 
 
 ## Problem
 
-The parser, binder and emitter are next to be ported to Bayan (specs 009–011), and they are written around abstractions Bayan does not have yet. Syntax nodes are visited through a common shape, symbol tables are walked, and collections of nodes are iterated in loops. Today Bayan has generics without constraints, no interfaces, and `for … in` only over built-in types (ranges, spans, lists, maps, arrays, strings). The C# compiler expresses these through interfaces and enumerators, so the port either hand-expands every visit into a `switch` and every loop into index arithmetic, or waits for interfaces. The handoff's "Road to self-hosting" decides the subset: static dispatch on constraints, `dyn ref I`, default methods and associated types, so that `for … in` works on user types.
+The parser, binder and emitter are next to be ported to Bayan (specs 009–011), and they are written around abstractions Bayan does not have yet. Syntax nodes are visited through a common shape, symbol tables are walked, and collections of nodes are iterated in loops. Today Bayan has generics without constraints, no interfaces, and `for … in` only over built-in types (ranges, spans, lists, maps, arrays, strings). The C# compiler expresses these through interfaces and enumerators, so the port either hand-expands every visit into a `switch` and every loop into index arithmetic, or waits for interfaces. The milestones doc's "Road to self-hosting" decides the subset: static dispatch on constraints, `dyn ref I`, default methods and associated types, so that `for … in` works on user types.
 
 ## Goals
 
@@ -19,7 +19,7 @@ The parser, binder and emitter are next to be ported to Bayan (specs 009–011),
 ## Non-goals
 
 - `static abstract` interface members (`IParse<TSelf>`): no port need shown; reported as not supported yet.
-- Retroactive conformance (`extension T : I`): deferred by the handoff; reported as not supported yet.
+- Retroactive conformance (`extension T : I`): deferred by the milestones doc; reported as not supported yet.
 - `dyn I` by value (owned dynamic values); only the borrowed `dyn ref I` form.
 - Specialization rules beyond "a conformer's own method beats the interface default" (spec §11's general ranking).
 - Witness-table sharing in debug builds (spec §11): every build monomorphizes for now.

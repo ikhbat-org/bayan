@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 case "$*" in
   "diff --name-only base...HEAD"|"diff --name-only")
-    printf 'docs/bayan-handoff.md\nselfhost/semantics/a.byn\nselfhost/semantics/ctx.byn\ntests/Bayan.Tests/SelfhostSemanticsT99Tests.cs\n' ;;
+    printf 'docs/bayan-questions.md\nselfhost/semantics/a.byn\nselfhost/semantics/ctx.byn\ntests/Bayan.Tests/SelfhostSemanticsT99Tests.cs\n' ;;
   "ls-files --others --exclude-standard")
     ;;
   "merge-base base HEAD")
@@ -17,11 +17,11 @@ diff --git a/selfhost/semantics/ctx.byn b/selfhost/semantics/ctx.byn
 +    stray: int
 EOF
     ;;
-  "diff base-sha -- docs/bayan-handoff.md")
+  "diff base-sha -- docs/bayan-questions.md docs/bayan-progress-log.md")
     cat <<'EOF'
-diff --git a/docs/bayan-handoff.md b/docs/bayan-handoff.md
---- a/docs/bayan-handoff.md
-+++ b/docs/bayan-handoff.md
+diff --git a/docs/bayan-questions.md b/docs/bayan-questions.md
+--- a/docs/bayan-questions.md
++++ b/docs/bayan-questions.md
 @@ -1 +1,3 @@
  # Handoff
 +901. T99 cites a.byn:7 and a.byn:6 `let wrong = 0`. Open.

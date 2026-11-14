@@ -4,7 +4,7 @@ Created: 2026-10-25
 
 ## Problem
 
-The handoff's "Road to self-hosting" puts the parser port next: `selfhost/parser/`, checked against `bayan parse --ast` on every parse golden. Today only the lexer exists in Bayan (spec 001, laws L001/L002). Specs 006–008 delivered what the self-hosting doc's table needs before the parser (interfaces and iterators, lambdas, `Symbol` and composite `Map` keys). Until a Bayan parser exists, the semantics port (010) has no tree to work on. Nobody has checked yet that Bayan can express a recursive-descent parser over a recursive syntax tree at the C# parser's size (about 4,250 lines of parser, 520 of nodes and 840 of dump).
+The milestones doc's "Road to self-hosting" puts the parser port next: `selfhost/parser/`, checked against `bayan parse --ast` on every parse golden. Today only the lexer exists in Bayan (spec 001, laws L001/L002). Specs 006–008 delivered what the self-hosting doc's table needs before the parser (interfaces and iterators, lambdas, `Symbol` and composite `Map` keys). Until a Bayan parser exists, the semantics port (010) has no tree to work on. Nobody has checked yet that Bayan can express a recursive-descent parser over a recursive syntax tree at the C# parser's size (about 4,250 lines of parser, 520 of nodes and 840 of dump).
 
 ## Goals
 
@@ -38,7 +38,7 @@ The handoff's "Road to self-hosting" puts the parser port next: `selfhost/parser
 - **R7 Generated inputs.** A generator produces both valid programs covering every node kind and corrupted ones (tokens dropped, duplicated or swapped). The suite compares the two parsers on a fixed set of seeds.
 - **R8 Speed bound.** On a 1 MB generated valid source file, `bayan-parse` built in `fast` mode takes no more than 10 times as long as `bayan parse --ast`. The figure is the median over 5 runs.
 - **R9 Port friction.** Every place where the port needed a workaround because the language or the bootstrap compiler fell short gets a handoff Question or a `work/todo.md` line. Examples: a missing feature, a wrong diagnostic, unacceptable C output, or a performance cliff. A compiler bug that blocks the port is fixed in this spec, with a test.
-- **R10 Docs.** The handoff's "Road to self-hosting" row 009 is marked done, Questions raised by the port are listed, and the self-hosting readiness section is updated.
+- **R10 Docs.** The milestones doc's "Road to self-hosting" row 009 is marked done, Questions raised by the port are listed, and the self-hosting readiness section is updated.
 
 ## Acceptance criteria
 

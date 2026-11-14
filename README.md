@@ -132,6 +132,8 @@ it in more detail, for example `bayan explain BYN1043`.
   naming and style.
 - [`docs/DIAGNOSTICS.md`](docs/DIAGNOSTICS.md) lists every error and warning.
 - [`CHANGELOG.md`](CHANGELOG.md) says what changed in each version.
+- [`docs/bayan-roadmap.md`](docs/bayan-roadmap.md) says what is coming next; [`docs/bayan-not-planned.md`](docs/bayan-not-planned.md)
+  lists what Bayān will not do, and [`docs/bayan-nice-to-have.md`](docs/bayan-nice-to-have.md) the ideas with no slot yet.
 - Home: <https://bayan.run>. Repository: <https://github.com/ikhbat-org/bayan> (Ikhbat Foundation).
 
 Found a bug or a confusing error message? Please open an issue. A small program that shows the problem
@@ -164,5 +166,6 @@ scripts/dist.sh --from <publish-dir> --rid win-x64 --commit <sha>   # import a b
 NativeAOT does not cross-compile between operating systems, so Linux and Windows binaries are published on
 those systems and imported with `--from`.
 
-The work plan and progress log are in [`docs/bayan-handoff.md`](docs/bayan-handoff.md); how a version is
-cut is in [`docs/RELEASING.md`](docs/RELEASING.md).
+The milestones and an index of the project docs are in [`docs/bayan-milestones.md`](docs/bayan-milestones.md), the
+progress log is in [`docs/bayan-progress-log.md`](docs/bayan-progress-log.md), and how a version is cut is
+in [`docs/RELEASING.md`](docs/RELEASING.md).

@@ -4,7 +4,7 @@
 #      refused when it has uncommitted changes; refused when it holds ignored files, e.g. tmp/ evidence such as
 #      q31-d/tmp/q31-d/laws-d.out, unless --delete-scratch is given too, because git worktree remove deletes them);
 #   2. the merged branches (git branch -d; git refuses an unmerged one). chore/q31-bt-{region,summary,frontend}-off are
-#      kept: they are unmerged VM break-test branches the handoff cites as evidence;
+#      kept: they are unmerged VM break-test branches the answered questions cite as evidence;
 #   3. untracked scratch in the dev worktree: the duplicate plan copy, tmp/q31-015, tmp/cimem, tmp/review-1114 and only
 #      this session's shard runs tmp/shard/<sha8> (021f6b6f 37315c1e 45fb6ba2 574db1db), never tmp/shard itself or its
 #      class-times.tsv (needs --delete-scratch as well);

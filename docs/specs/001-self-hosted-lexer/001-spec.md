@@ -1,5 +1,5 @@
 # 001 — Self-hosting step 1: the compiler-writing subset and a Bayan lexer
-Status: implemented (laws L001–L004 await enactment)
+Status: done (2026-10-20, 0.1.0; L001–L004 enacted 2026-10-20)
 Created: 2026-10-20
 
 ## Problem
@@ -14,7 +14,7 @@ Bayan is meant to self-host (handoff, *What v0.1 is*), but v0.1 can't express a 
 - The bootstrap compiler accepts the language features a compiler is written with: tagged unions, enums carrying data, user generics, `Map<K, V>`, strings that grow in an allocator, and recursive data built through an allocator.
 - The Bayan lexer, written in Bayan and built by the bootstrap compiler, produces the same output as the C# lexer: the same tokens, kinds, spans and diagnostics. This holds for every golden lex case and for generated inputs.
 - At least one tool used to develop Bayan is written in Bayan (phase 1), and the test suite uses it.
-- The handoff states which features self-hosting needs and which spec delivers each one, so later work is scoped to make the next phases possible.
+- The milestones doc states which features self-hosting needs and which spec delivers each one, so later work is scoped to make the next phases possible.
 - The Bayan lexer runs as part of the normal test suite, so a change to either lexer that makes them disagree fails the build.
 
 ## Non-goals
@@ -69,7 +69,7 @@ Bayan is meant to self-host (handoff, *What v0.1 is*), but v0.1 can't express a 
   
   Failures, such as a missing program or directory, are errors in the error set, as in R2.
 - **R14 A phase-1 tool in Bayan.** `lex-diff` is a Bayan program, built by the bootstrap compiler. Given two lexer commands and a directory, it runs both on every `.byn` file there and reports the first differing line per file. It exits 0 when all files agree and 1 otherwise. It is usable from day one with `bayan lex` against itself or against the golden `.tokens` files, and the R11 checks use it once the Bayan lexer exists.
-- **R15 Self-hosting readiness.** The handoff gains a "self-hosting readiness" section, as `docs/bayan-self-hosting.md` asks. It lists every row of that doc's feature table with its status: done, this spec, or a later spec.
+- **R15 Self-hosting readiness.** The milestones doc gains a "self-hosting readiness" section, as `docs/bayan-self-hosting.md` asks. It lists every row of that doc's feature table with its status: done, this spec, or a later spec.
 - **R12 Diagnostics and docs.** Every new diagnostic introduced for R1–R8 has a code in the right range, a `docs/diagnostics/BYN####.md` page, and a golden case (project AGENTS.md). Every new runtime feature has a `run/` case. The spec and handoff record each gap-filling choice as a handoff Question, with the conservative option.
 
 ## Acceptance criteria
@@ -95,7 +95,7 @@ Bayan is meant to self-host (handoff, *What v0.1 is*), but v0.1 can't express a 
   - Given a missing program name, then the program's error handler sees the error and does not panic.
   - Given a directory with three files, then the listing has three entries.
 - **R14.** Given `lex-diff` run with `bayan lex` on both sides over `tests/cases/lex`, then it exits 0. Given one side replaced by a command whose output differs on one file, then it exits 1 and names that file and the first differing line.
-- **R15.** Given the handoff, then every row of the self-hosting doc's feature table appears in the readiness section with a status.
+- **R15.** Given the milestones doc, then every row of the self-hosting doc's feature table appears in the readiness section with a status.
 - **R10.** Given a 1 MB generated source file, then the Bayan lexer's median time over 5 runs is ≤ 10× the C# lexer's.
 
 ## Law candidates

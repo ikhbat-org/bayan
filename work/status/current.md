@@ -1,4 +1,3 @@
 # Current
 
-- Spec 011 (self-hosted emitter) on `feat/011-self-hosted-emitter`: `docs/specs/011-self-hosted-emitter/011-tasks.md`, P1 → P2 → T1 → T2 → wave T3–T12/T15 → T13–T20.
-- Routing: difficulty-tagged per task (Flash easy, Sonnet medium, Opus hard; Argon special only).
+Release 0.3.0 (the user runs these steps): push `dev`, merge `dev` to `main`, dry run `0.3.0-rc.1` (`release.yml`, `dry_run`), then tag `v0.3.0`. Steps and gates: `docs/RELEASING.md`; the `[0.3.0]` section of `CHANGELOG.md` is written.

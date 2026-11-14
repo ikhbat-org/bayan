@@ -2,7 +2,7 @@
 
 Consistency review of the docs filed on 2026-11-04 (`bayan-views.md`, `bayan-concurrency.md`, `bayan-shorthands-proposal.md`, `bayan-style-proposal.md`, the round-4 draft) against the spec, Appendix A, the grammar, the style doc, revisions 0016-0018 and each other. One Opus reviewer; the dispatcher spot-checked its spec and code citations (spec :1243, :1310, :1549-1556, :2104, :2271, :2449, :2458; DiagnosticCodes.cs BYN1069, BYN4001, BYN7010). Rows await the user's decisions; nothing in the filed docs is changed yet.
 
-Also: `bayan-handoff.md` "After v0.1" puts fibers and `Io.Evented` in v0.3; `bayan-concurrency.md` says v0.2 (with C3). The user's copies of `bayan-library-tiers.md`, `HANDOFF-014-tooling.md` and `addendum-A2-diagnostic-codes.md` are the originals of the filed versions (tooling spec renumbered 014 → 015); they were not re-filed.
+Also: `bayan-milestones.md` "After v0.1" puts fibers and `Io.Evented` in v0.3; `bayan-concurrency.md` says v0.2 (with C3). The user's copies of `bayan-library-tiers.md`, `HANDOFF-014-tooling.md` and `addendum-A2-diagnostic-codes.md` are the originals of the filed versions (tooling spec renumbered 014 → 015); they were not re-filed.
 
 ## Status (2026-11-04)
 
@@ -145,4 +145,4 @@ Per row:
   - Flag A3 as a deliberate reopen.
 - Round 4 (first commit after 012): flip BYN1065, then format; the rest of the batch.
 
-Not reached: bayan-grammar.md body (waqf §6, §5), laws-and-decisions.md, specs/015-tooling/015-spec.md (014 vs 015 numbering and std module names unchecked), the handoff Questions beyond Q745/Q371, revision 0016 in full, and verification of the src line numbers and the "5.2b" test.
+Not reached: bayan-grammar.md body (waqf §6, §5), laws-and-decisions.md, specs/015-tooling/015-spec.md (014 vs 015 numbering and std module names unchecked), the Questions beyond Q745/Q371, revision 0016 in full, and verification of the src line numbers and the "5.2b" test.

@@ -1,5 +1,7 @@
 # Plan: arenas for `analyzeRegions` and the first summary pass; a cheaper `sweepStale` (Q31, `build` peak)
 
+Status: done (fce07891).
+
 Approved by the user 2026-11-14 after a Fable verify pass (item #2 of the 2026-11-13 open list: `build` at 1.7 GB).
 
 ## Context
@@ -92,7 +94,7 @@ Fable's verify pass grepped everything reachable from `runRegions`. The only las
 
 ## Verification
 1. `dotnet test -v q` on `SelfhostDefaultBoundsTests`, `BootstrapTests`, the selfhost semantics region and diag classes, `SelfhostDefaultT9Tests`.
-2. Max RSS before and after on macOS (`/usr/bin/time -l`, fake zig and real zig) and on bayan-test01 (`wait4`): `check`, `--emit-c`, `build -o`. Record them in the plan, `docs/memory-leaks.md` and the handoff.
+2. Max RSS before and after on macOS (`/usr/bin/time -l`, fake zig and real zig) and on bayan-test01 (`wait4`): `check`, `--emit-c`, `build -o`. Record them in the plan, `docs/memory-leaks.md` and the progress log.
 3. ASan stage 1 (`ulimit -s 65520`) over the driver and over the 81 region `diag/` cases: no reports.
 4. The full suite through `shard-test.sh --host vm=0.91:2:4`: both slots, 0 failed.
 5. `laws-check.js --run`, `structure-audit.js`, a `review` worker (lands at 0 HIGH / 0 MEDIUM), then a `--no-ff` merge to dev, unpushed.

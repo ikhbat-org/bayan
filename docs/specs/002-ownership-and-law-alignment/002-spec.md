@@ -1,5 +1,5 @@
 # 002 — Ownership for collections, Map API alignment, `Io.runBatch`, and proofs for laws L001–L004
-Status: done (T12/T13: L005–L008 await enactment)
+Status: done (2026-10-21, 0.1.0; L005–L008 enacted 2026-10-21)
 Created: 2026-10-20
 
 ## Problem

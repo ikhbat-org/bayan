@@ -168,7 +168,7 @@ public sealed partial class StyleTests
     private static Style TerminalStyleFor(bool ascii) =>
         TerminalStyle.Decide("auto", ascii, isTty: true, Environment.GetEnvironmentVariable, Width);
 
-    /// <summary>A diagnostic with a related span, which no binder site produces yet (handoff Q81): renderer only.</summary>
+    /// <summary>A diagnostic with a related span, which no binder site produces yet (Q81): renderer only.</summary>
     private static string Secondary(bool ascii)
     {
         const string text = "i64 sum(Line line) {\n    let total = 0\n    total += line.price\n    return total\n}\n";

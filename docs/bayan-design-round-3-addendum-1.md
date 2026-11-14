@@ -73,7 +73,7 @@ scores.mutableSpan().sort()                         // fine on a `var`
 ### §2 O11 and O12
 - (a) As above.
 - (b) SPEC §3.10 field visibility; §10 parameters. HANDOFF open-questions list: both resolved.
-- (c) BYN3216 (plan) `FieldWriteOutside` "`{0}.{1}` can be written only by `{0}`'s own methods or with `with`" (label at the assignment; help "add a `ref this` method to `{0}`, or build a new value with `with`"; fix no). BYN5013 (plan) `RepeatedParticle` "`{0}` uses the particle `{1}` twice" (label at the second particle; help "group the values in a struct, or choose another particle"; fix no). BYN5012 is skipped: the HANDOFF uses it as the `@allow` example; check it is free with grep before allocating it later.
+- (c) BYN3216 (plan) `FieldWriteOutside` "`{0}.{1}` can be written only by `{0}`'s own methods or with `with`" (label at the assignment; help "add a `ref this` method to `{0}`, or build a new value with `with`"; fix no). BYN5013 (plan) `RepeatedParticle` "`{0}` uses the particle `{1}` twice" (label at the second particle; help "group the values in a struct, or choose another particle"; fix no). BYN5012 is skipped: the round-3 design doc uses it as the `@allow` example; check it is free with grep before allocating it later.
 - (d) BYN3216 in the binder's assignment check (`BinderExpressions.cs`; grep `Assign`); BYN5013 in the particle check (5.3e). v0.1: yes for both.
 
 ### §3 Views and copies

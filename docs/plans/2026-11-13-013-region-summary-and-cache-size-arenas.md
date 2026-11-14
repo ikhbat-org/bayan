@@ -1,5 +1,7 @@
 # Plan 013: arenas for the region-summary fixpoint and the cache size reads (Q31)
 
+Status: done (e7f31bc3).
+
 Approved by the user 2026-11-13 ("plan and implement" the remaining two-slot VM OOM: bootstrap stage-1 and `doctor` peaks), unattended.
 
 ## Context
@@ -65,7 +67,7 @@ Max RSS of the stage-1 compiler built from the emitted C (`cc -O2`), on `--packa
 | `doctor`, empty cache | 33 MB | 33 MB | 3 MB | 3 MB |
 
 - Bounds (`SelfhostDefaultBoundsTests`): check 1,700 MB, 2× the larger after figure. 3× (2,520 MB) would not separate from the before figure. Doctor 100 MB, 3× the larger, rounded up.
-- Break-tests: each fix reverted alone fails its bound test (see the handoff entry).
+- Break-tests: each fix reverted alone fails its bound test (see the progress-log entry).
 - ASan (`-fsanitize=address`, stage 1 from the emitted C): `check` and `doctor` clean.
 - `build` still peaks at 1.7 GB: the per-function analyses and emit stay in `General` (out of scope above).
 - Two-slot VM run (`shard-test.sh --host vm=0.91:2:4`, 16d3bc22): both slots finished, no self-hosted `bayan` was killed. vm1 5,468 passed, 0 failed. vm2 8,018 passed, 118 failed: the kernel OOM killer took a `zig` (2.6 GB anon RSS) compiling `selfhost/semantics` for `SelfhostSemanticsT17Tests`, with several other `zig` processes running at the same time. All 118 failures are that class's shared build. Alone on the VM (dc162804): 118 passed, 0 failed. Verification step 3 is unmet because of `zig`'s own memory, which is outside this plan (`work/todo.md`).

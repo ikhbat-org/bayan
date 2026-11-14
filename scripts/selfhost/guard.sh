@@ -6,7 +6,7 @@
 # Changed lib/std/**/*.byn files are treated like selfhost .byn files wherever the guard selects them (coverage, banned C#-isms);
 # with one changed, the coverage run adds StdTestFilesTests to --filter, whose harness build of each std module's tests counts them,
 # and check 5 runs the pinned `bayan format --check` over lib/std/ (skipped on Windows, as SourcesAreFormatted).
-# Checks: 1 scope (changed files match --allow, plus handoff/todo/tasks), 2 no junk (binary or extensionless files),
+# Checks: 1 scope (changed files match --allow, plus the questions and progress-log docs, todo and tasks), 2 no junk (binary or extensionless files),
 # 3 build 0 warnings, 4 tests pass with 0 skipped, and coverage (spec 013 T26): when the branch changes selfhost .byn files the
 # tests run under BAYAN_COVERAGE with those files, and every line and branch of each function the branch touches (its span
 # holds a line added or changed against the merge base with --base; a new function counts) must be covered, each missed one
@@ -39,7 +39,7 @@ mkdir -p "$PWD/tmp/guard-run"; LOG=$PWD/tmp/guard-run
 CHANGED=$( { git diff --name-only "$BASE"...HEAD; git diff --name-only; git ls-files --others --exclude-standard; } | sort -u)
 while IFS= read -r f; do
   [ -n "$f" ] || continue
-  ok=0; case "$f" in docs/bayan-handoff.md|work/todo.md|docs/specs/*/*-tasks.md|docs/specs/*/reviews/*.md) ok=1;; esac
+  ok=0; case "$f" in docs/bayan-questions.md|docs/bayan-progress-log.md|work/todo.md|docs/specs/*/*-tasks.md|docs/specs/*/reviews/*.md) ok=1;; esac
   IFS=',' read -ra SH <<< "$SHARED"; for p in "${SH[@]}"; do [ "$f" = "$p" ] && ok=1; done
   IFS=',' read -ra PATS <<< "$ALLOW"; for p in "${PATS[@]}"; do [[ "$f" == $p ]] && ok=1; done
   [ $ok = 1 ] || note "scope: $f is outside --allow ($ALLOW); revert it or record the need as a Question"
