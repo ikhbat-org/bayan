@@ -1,5 +1,5 @@
 # 018 — Revision 0021 checker changes (Parts 5, 3, 4)
-Status: in progress (all tasks done 2026-11-10; waits for the 0.3.0 tag)
+Status: done (all tasks done 2026-11-10; shipped in v0.3.0, tagged 2026-11-15)
 Release: 0.3.0
 Sources: Q1168, Q1175; revisions 0021
 Created: 2026-11-10
