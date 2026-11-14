@@ -8,7 +8,7 @@ The released `bayan` is now the self-hosted compiler: stage 2, built from `selfh
 `import std.json` is the first module of the std library shipped inside the binary.
 
 ### Known limits
-- Windows: one known failure, the 1 MB emitter speed test (`tests/windows-known-failures.txt`).
+- Windows: no test is expected to fail; `tests/windows-known-failures.txt` lists none.
 - Release archives do not include `bayan-lsp`.
 
 ### Added

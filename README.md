@@ -66,8 +66,8 @@ string greeting() {
 print(greeting())
 ```
 
-Change the greeting to `"Salam, world!"` and run `bayan run` again. To run the tests, use `bayan test`.
-The test will now fail, because it still expects the old greeting. Change it to `"Salam, world!"` too
+Change the greeting to `"Salam, Aisha!"` and run `bayan run` again. To run the tests, use `bayan test`.
+The test will now fail, because it still expects the old greeting. Change it to `"Salam, Aisha!"` too
 and it passes.
 
 For a one-off script you don't need a project. Write a single `.byn` file and run it with
