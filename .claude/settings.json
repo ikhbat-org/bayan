@@ -1,3 +1,14 @@
 {
-  "attribution": { "commit": "", "pr": "", "sessionUrl": false }
+  "attribution": { "commit": "", "pr": "", "sessionUrl": false },
+  "permissions": {
+    "allow": [
+      "mcp__semble__search",
+      "Bash(sysctl -n *)",
+      "Bash(zig version)",
+      "Bash(dotnet --version)",
+      "Bash(dotnet --list-sdks)",
+      "Bash(brew info *)",
+      "Bash(brew list *)"
+    ]
+  }
 }
