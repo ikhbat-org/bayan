@@ -325,7 +325,7 @@ C# value tuples with named elements and deconstruction: `(Cents share, i32 extra
 ### 3.8 Results
 `Result<T, E>` is a standard-library union (§3.12): a tag plus the larger of the value and the error payload, inline. `fails` desugars onto `Result`. Every error variant in a program has a unique compile-time number, so merging error sets is free.
 
-> Round 2 §1: `Result` and `never` are stdlib unions (not in v0.1).
+> Round 2 §1: `Result` and `never` are stdlib unions.
 
 ### 3.9 `never`
 The empty union in the standard library. Returned by `panic`, `fatal`, `exit` and infinite loops. A `never` expression fits any position (`catch`, `??`, switch arms); code after it is reported unreachable. `fatal` and `exit` are linted as errors in packages that are not `kind: .app`.
@@ -1115,7 +1115,7 @@ void main() {
 
 > Round 3 §19: capturing the modifier at registration means the cleanup decision matches the state the scope was entered with.
 
-### 7.7 `provide` and `context`
+### 7.7 `provide` and `context` (partial in 0.3: only the `allocator` handler; the other handlers get BYN2022)
 `provide allocator: arena, io: Io.evented() { … }` (`io:`: not in 0.x, §13) sets implicit context values and effect handlers for the block (§14). `context` is only the value (`context.Io`, `context.allocator`). The `context (…) { … }` block form is rejected with a fix-it to `provide` (BYN6006).
 
 ```csharp
@@ -1606,7 +1606,7 @@ public u32 crc(ReadOnlySpan<u8> data) { … }   // no `uses`: no alloc, no suspe
   ```
 
   `print` is program output, not diagnostics: it `uses console`.
-- **Handlers use `provide`;** `context` remains only the value (`context.Io`). Handler names are the effects plus `log` (BYN6007 otherwise); `suspend` has no handler. Inner `provide` blocks override individual handlers and inherit the rest. Handlers are one-shot, so they compile to context passing at zero cost.
+- **Handlers use `provide`** (partial in 0.3: only `alloc` and `allocator`; the other handlers get BYN2022)**;** `context` remains only the value (`context.Io`). Handler names are the effects plus `log` (BYN6007 otherwise); `suspend` has no handler. Inner `provide` blocks override individual handlers and inherit the rest. Handlers are one-shot, so they compile to context passing at zero cost.
 
   ```csharp
   let net = FakeNet(label)
@@ -2320,7 +2320,7 @@ The registry publishes JSON metadata, and `bayan pkg export --json` exists, so o
 > Round 2 §10: manifest fields use `:`.
 
 ### 19.5 Build modes and reproducibility
-`debug`, `safe`, `fast`, `small`. Builds are reproducible: no timestamps, stripped paths, deterministic comptime and generators; CI verifies by building twice.
+`debug`, `safe`, `fast`, `small` (partial in 0.3: `small` is not built). Builds are reproducible: no timestamps, stripped paths, deterministic comptime and generators; CI verifies by building twice.
 
 ---
 
