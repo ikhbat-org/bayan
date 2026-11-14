@@ -63,7 +63,7 @@ public sealed class OwnershipTableTests
         }
         finally
         {
-            Directory.Delete(dir, recursive: true);
+            DeleteQuietly(dir);
         }
     }
 
@@ -90,8 +90,34 @@ public sealed class OwnershipTableTests
         }
         finally
         {
-            Directory.Delete(dir, recursive: true);
+            DeleteQuietly(dir);
         }
+    }
+
+    /// <summary>Windows can hold a just-exited exe for a moment (CI 2026-11-14: <c>harness.exe</c> access denied), so the delete is retried and a leftover under <c>tmp/</c> is left.</summary>
+    internal static void DeleteQuietly(string dir, Action<string>? delete = null)
+    {
+        delete ??= d => Directory.Delete(d, recursive: true);
+        for (var attempt = 1; ; attempt++)
+        {
+            try { delete(dir); return; }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                if (attempt == 5) return;
+                Thread.Sleep(200 * attempt);
+            }
+        }
+    }
+
+    [Fact]
+    public void DeleteQuietlyRetriesALockedDirectoryAndThenLeavesIt()
+    {
+        var calls = 0;
+        DeleteQuietly("x", _ => { if (++calls < 3) throw new UnauthorizedAccessException(); });
+        Assert.Equal(3, calls);
+        calls = 0;
+        DeleteQuietly("x", _ => { calls++; throw new IOException(); });
+        Assert.Equal(5, calls);
     }
 
     internal static async Task<(int Exit, string Stdout, string Stderr)> RunAsync(string file, IEnumerable<string> args, string dir, int timeoutMs = 60_000)

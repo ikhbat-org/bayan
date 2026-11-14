@@ -1458,10 +1458,10 @@ public sealed class SelfhostDriverStyleEnvironmentTests
     public void LaterTicksAndASecondDoneAsProgressDoes(bool ascii, int extra) =>
         AssertLine("compiling", 100, ascii, true, false, "", extra);
 
-    /// <summary>The timer (a zero threshold draws once and starts none, so waiting adds no frame): a threshold passed (one frame, two frames after a second interval; one for ASCII) or not (nothing), as the C# <c>Timer</c> draws it.</summary>
+    /// <summary>The timer (a zero threshold draws once and starts none, so waiting adds no frame): a threshold passed (one frame; one for ASCII) or not (nothing), as the C# <c>Timer</c> draws it.
+    /// The waits sit 200 ms from the 251 ms repeat, so a stalled runner does not add a frame on one side only (macOS CI 2026-11-14); repeated frames are <c>LaterTicksAndASecondDoneAsProgressDoes</c>'s.</summary>
     [Theory]
-    [InlineData(false, 1, 150)]
-    [InlineData(false, 1, 400)]
+    [InlineData(false, 1, 50)]
     [InlineData(true, 1, 400)]
     [InlineData(false, 0, 400)]
     [InlineData(true, 0, 400)]
