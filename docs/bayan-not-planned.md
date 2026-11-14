@@ -32,8 +32,8 @@ Decided against.
 | Macros, resumable effects, types-as-values comptime | Not adopted | Dialects, stack switching, slow compiles | `docs/bayan-design-round-4-draft.md` §9 |
 | Implicit conversions, explicit lifetimes, dependent types | Not adopted | Each contradicts a recorded decision | `docs/bayan-design-round-4-draft.md` §9 |
 | `@` as lambda shorthand | Keep `it` | The source gives no reason | `docs/bayan-design-round-3.md` ("Rejected", line 1020); `docs/bayan-spec.md` Appendix A |
-| `mut` | Keep `ref this` | The source gives no reason | same |
-| Automatic `T.Count` / `T.Index`; `Count of T`; `per` for units | Rejected | The source gives no reason | same |
+| `mut` | Keep `ref this` | The source gives no reason | `docs/bayan-design-round-3.md` ("Rejected", line 1020) |
+| Automatic `T.Count` / `T.Index`; `Count of T`; `per` for units | Rejected | The source gives no reason | `docs/bayan-design-round-3.md` ("Rejected", line 1020) |
 | Bare `0` for unit types | Rejected, with a fix-it to `0g` | Units must be written | `docs/bayan-design-round-3.md` ("Rejected" and the unit rules) |
 | `T.Validated` / `validated(T)`; value-dependent return types; parenthesized refinement types | Rejected | Too much ceremony; `Order.shipped order` replaces them | `docs/bayan-design-round-3.md` ("Rejected") |
 | `stmt unless not cond` | Rejected, with a fix-it to `if` | One spelling | `docs/bayan-design-round-3.md` ("Rejected") |

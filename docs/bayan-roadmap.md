@@ -1,6 +1,6 @@
 # Bayān roadmap
 
-State of `dev` at 04366a4f, 2026-11-14. Release history is in `CHANGELOG.md`. What Bayān will not do is in `docs/bayan-not-planned.md`. Optional improvements with no commitment are in `docs/bayan-nice-to-have.md`.
+State of `dev` at 04366a4f, 2026-11-14. Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
 
 Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan` you download (`CHANGELOG.md`, 0.3.0). The next goals are to drop .NET and the C# compiler's role (`docs/bayan-handoff.md`, Target: zero dependencies) and to land the tooling ports.
 
@@ -100,10 +100,10 @@ Slots: "(proposed)" marks a dependency-order proposal. A slot without it comes f
 |---|---|---|---|---|---|
 | 015 | Tooling | decided (2026-11-02); ports wait for 012 (S1) | T9–T17 of 17 | 012 (done); `std.regex` (T14) before T15; `Io.run` streaming (Q1141) before T17 | After spec 019 (proposed) |
 | 019 | .NET exit | not written (`docs/specs/019-*` does not exist) | Write the spec, then do it | 0.3.0 tag | After 0.3.0 (`docs/bayan-handoff.md`) |
-| 020 | Test-result cache | approved | 27 of 27 tasks | Task 1 measures the per-unit process cost; 019 | Thin adaptor now or after 019 (`020-spec.md`) |
+| 020 | Test-result cache | approved | 27 of 27 tasks | Task 1 measures the per-unit process cost; 019 | After spec 019 (proposed; `docs/specs/020-test-result-cache/020-spec.md` line 97 leaves the timing to task 1) |
 | 011 | Self-hosted emitter | draft (rev 3) | T16, the batch mutation run for `tests/quality-baseline.json` | mutation CI (disabled) | No slot |
 | 012 | Self-hosted bootstrap | approved | T22, the driver batch mutation; parked by the user 2026-11-06 | mutation CI (disabled) | No slot |
-| 001 | Self-hosted lexer | implemented (laws L001–L004 await enactment) (`docs/specs/001-self-hosted-lexer/001-spec.md` line 2) | T24–T31: enact L001–L004 (user) and prove each via /prove; all eight are unticked (`docs/specs/001-self-hosted-lexer/001-tasks.md` lines 48–55) | T25 needs T21, T27 needs T21, T29 needs T16, T31 needs T13 | no slot |
+| 001 | Self-hosted lexer | implemented (laws L001–L004 await enactment) (`docs/specs/001-self-hosted-lexer/001-spec.md` line 2) | T25, T27, T29, T31: prove L001–L004 via /prove, all unticked (`docs/specs/001-self-hosted-lexer/001-tasks.md` lines 49, 51, 53, 55). The laws are enacted (`docs/laws/001-lexer-equivalence.md` and 002–004 say `status: enacted`), though T24, T26, T28, T30 are unticked | T25 needs T21, T27 needs T21, T29 needs T16, T31 needs T13 | no slot |
 
 ### Plans
 
