@@ -1632,6 +1632,12 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 
 ## Progress log
 
+- **2026-11-14 — Plan 015 phase D: `analyzeEffects` in an arena (`fix/q31-effects-arena`, Q31).**
+  - `t42AnalyzeEffects` (`selfhost/semantics/effects.byn`) runs `analyzeEffects` in an `Arena` with plan 014's `t42Mark`/`t42Undo`; any diagnostic undoes the run and repeats it in `General`. A bag sink (`c.sink >= 0`) stays in `General`. `generics.byn` calls it in place of `analyzeEffects`.
+  - Audit: `analyzeEffects` and its callees write only diagnostics into `Ctx` (`report` and `checkValue` sites); `typeDisplay`, `functionIsInstance`, `templateOf` and the `t23*` helpers write nothing.
+  - `check` of the driver (no BYN6xxx, so no rerun): Linux 466–471 → 422–434 MB, macOS 393 → 388 MB. `CheckOfTheDriverStaysBounded` not tightened (margin about 20 MB).
+  - ASan: 30 effects `diag/` cases clean; with the rerun removed, 25 lose their diagnostics (break-test). 971 tests pass (T23, DiagTests, Bounds, T9, DriverGolden); laws hold.
+
 - **2026-11-14 — Plan 015 phase B: free the frontend before the C compiler (`fix/q31-frontend-before-cc`, Q31).**
   - `buildCommand` and the run path in `selfhost/driver/build.byn` compile, emit and prepare the output inside one `Arena`; what outlives it (C source, output path, program name, the verbose `shown` line, timings) is appended to StrBufs made before the block. Every failure that reads `Ctx` returns inside it.
   - Linux (bayan-test01, real zig, two rounds): bayan + zig peak 2,241/2,197 → 1,437/1,366 MB; bayan alone 831/832 → 977/958 MB (accepted by the user's 2026-11-14 rule: land when the combined peak falls 300 MB or more). macOS gains nothing (freed chunks stay charged): bayan alone 700 → 1,010 MB.
