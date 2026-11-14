@@ -2,6 +2,8 @@
 id: L011
 title: Colour adds only escapes
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: property
 scope: src/Bayan.Syntax/Diagnostics/Style.cs, src/Bayan.Syntax/Diagnostics/DiagnosticRenderer.cs, src/Bayan.Cli/CliApp.cs
 proof: tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs

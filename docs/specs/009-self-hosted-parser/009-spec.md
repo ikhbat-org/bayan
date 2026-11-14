@@ -1,5 +1,7 @@
 # 009 — Self-hosting step 3: a Bayan parser
 Status: done
+Release: 0.1.0
+Sources: none recorded
 Created: 2026-10-25
 
 ## Problem

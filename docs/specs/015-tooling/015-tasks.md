@@ -1,4 +1,9 @@
 # 015 — Tasks
+
+Status: in progress
+Release: unscheduled
+Sources: Q1140, Q1141; revisions 2026
+
 Plan: ./015-plan.md
 
 - [x] T1 Launcher — files: `scripts/bayan-tool.sh`, `scripts/bayan-tool.test.sh`, `.github/workflows/ci.yml` — covers: R1 — done when: the test passes and fails with `--` dropped.

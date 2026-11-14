@@ -2,6 +2,8 @@
 id: L007
 title: An Untrusted value never reaches a command-running API unchecked
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: guard
 scope: src/Bayan.Semantics/Binding/BinderCalls.cs
 proof: tests/Bayan.Tests/L007UntrustedSinkTests.cs

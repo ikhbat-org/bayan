@@ -1,4 +1,9 @@
 # 011 — Tasks
+
+Status: done
+Release: 0.2.0
+Sources: Q1, Q3, Q745, Q748, Q752, Q753, Q757, Q758, Q762, Q763, Q767, Q768, Q772, Q773, Q777, Q778, Q782, Q783, Q787, Q788, Q792, Q793, Q797, Q798, Q802, Q803, Q807, Q808, Q812, Q813, Q817, Q818, Q819, Q820, Q821, Q822, Q823, Q827, Q828, Q832, Q833, Q837, Q839, Q842, Q843, Q846, Q849, Q850, Q854, Q870, Q872, Q875, Q876, Q878, Q879, Q880, Q881, Q883, Q884, Q885, Q886, Q887, Q888
+
 Plan: ./011-plan.md
 
 Depends on: `dev` with 010 and the Q745 fix (T41) merged. Serial order: P1, P2, T1, T2; then the wave T3–T12 and T15 (4–6 writers, disjoint files, siblings through `struct Tn { static … }` stand-ins with the `011-api.md` signatures, tests needing an unlanded sibling `[Fact(Skip = "T13 enables …")]`); then T13, T14, T16, T17–T20. Port tasks land only through `scripts/selfhost/land.sh` (after P1, its 011 row) with an independent review against the C#; expected values come from the C# backend, never typed by hand. Each task's Questions use its own five-number range (D12).

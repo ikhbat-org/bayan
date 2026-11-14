@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The versioned-docs gate, run by .github/workflows/ci.yml (docs/RELEASING.md). Prints one line per failure and exits
 # 1 on any:
-#   (a) the `Version:` line of each header doc (version.sh `bayan_header_docs`) is `Version: <VERSION> (matches …)`;
+#   (a) the `Version:` line of each release doc (version.sh `bayan_release_docs`) is `Version: <VERSION> (matches …)`;
 #   (b) docs/revisions/NNNN-*.md runs 0001..highest with no gap or repeat, and each header doc's
 #       `Revisions applied:` line is `0001–<highest>`;
 #   (c) docs/DIAGNOSTICS.md and docs/STATUS.md equal what scripts/docs/gen-diagnostics.sh and gen-status.sh print;
@@ -14,7 +14,12 @@
 #       heading of docs/bayan-spec.md. Not checked: historical text that cites the spec as it was (docs/revisions, plans,
 #       specs, handoffs, export, bayan-progress-log.md, the answered questions (docs/decisions/*-answered-questions.md),
 #       CHANGELOG, suq-round3-review-response.md, and bayan-concurrency.md, which cites the removed §13.1–13.5 on purpose),
-#       and a bare `§N` (it may cite the grammar or another doc).
+#       and a bare `§N` (it may cite the grammar or another doc);
+#   (h) every record doc (specs, plans, decisions, revisions, audits, the progress log, the proposals and the laws
+#       design) has `Status:`, `Release:` and `Sources:` lines in its first ten lines (docs/laws: the `status:`,
+#       `release:` and `sources:` frontmatter keys, also in the first ten lines), and its release is a `## [X.Y.Z]` version in CHANGELOG.md, the
+#       VERSION target (`-dev` stripped) or `unscheduled`; every snapshot doc (export, misc, the design rounds, the Sūq
+#       reports and the other dated notes) has a `Snapshot:` line in its first ten lines. Release docs are neither.
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -34,12 +39,17 @@ if [ -z "$rev" ]; then fail "no docs/revisions/NNNN-*.md"; else
   done
 fi
 
-# (a) and (b) the headers, in the first ten lines of each doc
-for doc in $bayan_header_docs; do
+# (a) the Version line, in the first ten lines of each release doc
+for doc in $bayan_release_docs; do
   [ -f "$root/$doc" ] || { fail "$doc not found"; continue; }
   line="$(head -n 10 "$root/$doc" | grep -m 1 '^Version: ' || true)"
   want="Version: $v (matches \`bayan --version\`)"
   [ "$line" = "$want" ] || fail "$doc: '${line:-no Version: line}' is not '$want'"
+done
+
+# (b) the Revisions applied line, in the first ten lines of each header doc
+for doc in $bayan_header_docs; do
+  [ -f "$root/$doc" ] || continue
   line="$(head -n 10 "$root/$doc" | grep -m 1 '^Revisions applied: ' || true)"
   [ -z "$rev" ] || [ "$line" = "Revisions applied: 0001–$rev" ] \
     || fail "$doc: '${line:-no Revisions applied: line}' is not 'Revisions applied: 0001–$rev'"
@@ -96,5 +106,28 @@ if [ -f "$root/docs/bayan-spec.md" ]; then
     --exclude-dir=bin --exclude-dir=obj --exclude=bayan-progress-log.md --exclude='*-answered-questions.md' --exclude='CHANGELOG*' --exclude=bayan-concurrency.md \
     --exclude=suq-round3-review-response.md --exclude=bayan-spec.md | sed "s#^#$root/#")
 fi
+
+# (h) record and snapshot headers
+released="$(sed -nE 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/p' "$root/CHANGELOG.md" 2>/dev/null)"
+while IFS= read -r doc; do
+  case " $(echo $bayan_release_docs) " in *" $doc "*) continue ;; esac
+  case "$doc" in
+    docs/specs/*|docs/plans/*|docs/decisions/*|docs/revisions/*|docs/audits/*|docs/laws/*|docs/bayan-progress-log.md \
+    |docs/bayan-style-proposal.md|docs/bayan-shorthands-proposal.md|docs/design/laws-contracts-and-parallel-iterators.md)
+      top="$(head -n 10 "$root/$doc")"
+      [ "$(head -n 1 "$root/$doc")" != "---" ] \
+        || top="$(sed -E 's/^status: /Status: /; s/^release: /Release: /; s/^sources: /Sources: /' <<< "$top")"
+      for key in Status Release Sources; do
+        grep -q "^$key: " <<< "$top" || fail "$doc: no $key: line in the first ten lines (record doc)"
+      done
+      rel="$(grep -m 1 '^Release: ' <<< "$top" | sed -E 's/^Release: ([^ ;,(]+).*/\1/')"
+      [ -z "$rel" ] || [ "$rel" = unscheduled ] || [ "$rel" = "${v%%-*}" ] || [ "$rel" = "$v" ] \
+        || grep -qxF "$rel" <<< "$released" \
+        || fail "$doc: Release: $rel is not a released version (CHANGELOG.md), ${v%%-*} or unscheduled" ;;
+    docs/export/*|docs/misc/*|docs/bayan-design-round-*|docs/suq-*|docs/bayan-reference-app-*|docs/bayan-status-for-suq.md \
+    |docs/bayan-brand-brief.md|docs/bayan-going-public.md|docs/laws-and-decisions.md|docs/design/lessons-from-other-languages.md)
+      head -n 10 "$root/$doc" | grep -q '^Snapshot: ' || fail "$doc: no Snapshot: line in the first ten lines (snapshot doc)" ;;
+  esac
+done < <(cd "$root" && find docs -name '*.md' -type f | LC_ALL=C sort)
 
 exit "$failed"

@@ -1,5 +1,7 @@
 # 005 — Terminal style: `bayan` output per `docs/bayan-terminal-style.md`
 Status: done
+Release: 0.1.0
+Sources: Q38, Q57, Q79, Q80, Q81, Q85
 Created: 2026-10-21
 
 ## Problem

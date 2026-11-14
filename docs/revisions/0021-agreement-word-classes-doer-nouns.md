@@ -1,6 +1,8 @@
 # 0021 — Agreement, word classes and doer nouns
 
-Status: accepted (user, 2026-11-09, handed off from ~/Downloads "Revision 001")
+Status: done (accepted, user, 2026-11-09, handed off from ~/Downloads "Revision 001")
+Release: 0.3.0
+Sources: user, 2026-11-09; Q1160, Q1168, Q1169, Q1170, Q1172, Q1186, Q1187, Q1189, Q1190, Q1191, Q1194, Q1196, Q1197, Q1200, Q1203, Q1206, Q1207, Q1208, Q1210; revision 0002
 
 Parts 3–5 change both compilers; parity is required in every merge (user, 2026-11-09). Each of Parts 3, 4 and 5 lands as one merge holding the C# change and the matching `selfhost/` `.byn` port. C# is the reference: expected outputs come from C#, and the port goes through `scripts/selfhost/land.sh`. Messages, help lines and fix-its are byte-identical in both compilers. The lexicon data (adjectives, collectives, irregular plurals, doer-to-verb map) is shared through one data file or generated source if the compilers can already do that; otherwise two copies plus a test that they match, with no new sharing infrastructure. Order: Part 5, then Part 3, then Part 4.
 

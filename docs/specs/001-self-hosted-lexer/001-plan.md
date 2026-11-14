@@ -1,4 +1,9 @@
 # 001 — Plan
+
+Status: done
+Release: 0.1.0
+Sources: Q5, Q6, Q29, Q30, Q31, Q44
+
 Spec: ./001-spec.md
 Context: `docs/bayan-self-hosting.md` (phases 1–2). Milestones continue the milestones doc's numbering (M13–M23).
 

@@ -1,5 +1,9 @@
 # Bayān progress log
 
+Status: in progress (one entry per working session; entries are kept as written)
+Release: 0.1.0 to 0.3.1 (the entry's date places it)
+Sources: the Q-ids, revisions, plans and commits each entry names
+
 One entry per working session, added at the end of the session. Entries are kept as written; the order is as recorded (newest first since 2026-11-05, older entries below in date order).
 
 - **2026-11-15 — CI flakes after the 0.3.0 push (`fix/ci-flakes-0-3-0`).** dev 6d1d1ed1 and main fd0429dc have the same tree; ci was red on dev (Windows, macOS) and main (macOS), all timing. Windows: `OwnershipTableTests.RekeyOntoAnAddressInTheSameProbeRunLeavesNothingStale` passed its checks, then the cleanup `Directory.Delete` hit `harness.exe` access denied; the delete is now retried up to 5 times and a leftover under `tmp/` is left (`DeleteQuietly`, break-test: no retry fails). macOS: `TheTimerDrawsAsProgressDoes` sampled the 250 ms repeat frame on both sides of a 150/400 ms wait (dev got 1 frame for 400, main 2 for 150); the 150 row waits 125 ms (review: 50 ms left the first frame, a thread-pool callback at 1 ms, only 49 ms) and the 400 two-frame row is dropped, repeated frames stay covered by `LaterTicksAndASecondDoneAsProgressDoes`. User chose this test-only fix over an injectable interval (todo).

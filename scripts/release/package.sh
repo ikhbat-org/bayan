@@ -6,8 +6,8 @@
 #   package.sh pack <rid> <publish-dir> <out>   <out>/bayan-<version>-<target>.tar.gz (.zip for Windows), the binary
 #                                               inside a bayan-<version>-<target>/ folder with README.md, the docs
 #                                               under share/doc/bayan/ (and LICENSE.md, warning when the repo has none, and NOTICE.md)
-#   package.sh docs <out>                       <out>/bayan-<version>-docs.tar.gz, the docs under
-#                                               bayan-<version>-docs/share/doc/bayan/
+#   package.sh docs <out>                       <out>/bayan-<version>-docs.tar.gz, the docs and every other release doc
+#                                               (version.sh `bayan_release_docs`) under bayan-<version>-docs/share/doc/bayan/
 #   package.sh sums <dir>                       <dir>/SHA256SUMS over every archive in <dir>
 #   package.sh notes <version>                  the CHANGELOG.md section `## [<version>]`, heading excluded, then the known limit (1.69 GB stage-2 build)
 # Targets use bayan's own names (bayan dist): osx-arm64 -> macos-arm64, win-x64 -> windows-x64.
@@ -46,14 +46,22 @@ check_machine() {
   [ "$got" = "$want" ] || die "$f is $got but $rid needs $want"
 }
 
-# docs <dir>: the shipped docs into <dir>/share/doc/bayan/.
+# docs <dir> [all]: the shipped docs into <dir>/share/doc/bayan/; with `all`, also every other release doc
+# (version.sh `bayan_release_docs`) under its path below docs/.
 docs() {
-  local d="$1/share/doc/bayan" pair
+  local d="$1/share/doc/bayan" pair doc
   mkdir -p "$d"
   for pair in SPEC:docs/bayan-spec.md GRAMMAR:docs/bayan-grammar.md STYLE:docs/bayan-style.md \
     DIAGNOSTICS:docs/DIAGNOSTICS.md STATUS:docs/STATUS.md CHANGELOG:CHANGELOG.md; do
     [ -f "$root/${pair#*:}" ] || die "${pair#*:} not found"
     cp "$root/${pair#*:}" "$d/${pair%%:*}.md"
+  done
+  [ "${2:-}" = all ] || return 0
+  for doc in $bayan_release_docs; do
+    case " $bayan_header_docs " in *" $doc "*) continue ;; esac
+    [ -f "$root/$doc" ] || die "$doc not found"
+    mkdir -p "$d/$(dirname "${doc#docs/}")"
+    cp "$root/$doc" "$d/${doc#docs/}"
   done
 }
 
@@ -105,7 +113,7 @@ case "${1:-}" in
     v="$(version)"; name="bayan-$v-docs"
     mkdir -p "$out"; out="$(cd "$out" && pwd)"
     stage="$out/.stage-docs"; rm -rf "$stage"; mkdir -p "$stage/$name"
-    docs "$stage/$name"
+    docs "$stage/$name" all
     COPYFILE_DISABLE=1 tar -czf "$out/$name.tar.gz" -C "$stage" "$name"
     rm -rf "$stage"
     echo "$out/$name.tar.gz" ;;

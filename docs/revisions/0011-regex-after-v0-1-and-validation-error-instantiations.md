@@ -1,6 +1,8 @@
 # 0011 — Regex after v0.1; `ValidationError` needs its type argument
 
-Status: accepted 2026-10-25 (user decisions on HANDOFF Questions 326 and 339).
+Status: done; accepted 2026-10-25 (user decisions on HANDOFF Questions 326 and 339).
+Release: 0.1.0
+Sources: user, 2026-10-25; Q326, Q339
 
 ## Problem
 

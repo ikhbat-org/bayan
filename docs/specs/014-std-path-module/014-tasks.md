@@ -1,4 +1,9 @@
 # 014 — Tasks
+
+Status: done
+Release: 0.2.0
+Sources: Q743, Q753, Q754, Q755, Q757, Q886, Q887, Q900, Q904, Q905, Q907, Q909, Q910, Q911, Q915, Q936, Q990
+
 Plan: ./014-plan.md
 
 **Depends on:** `feat/011-self-hosted-emitter`, with 011 P2 (Q753–Q757) and T13 (Q886) merged. The base `feat/014-std-path-module` is cut from it (D13).

@@ -2,6 +2,8 @@
 id: L022
 title: Binder equivalence
 status: enacted
+release: 0.1.0
+sources: Q658
 kind: property
 scope: selfhost/semantics/main.byn
 proof: tests/Bayan.Tests/SelfhostSemanticsEquivalenceLawTests.cs

@@ -2,6 +2,8 @@
 id: L027
 title: Bootstrap fixpoint
 status: enacted
+release: 0.2.0
+sources: none recorded
 kind: property
 scope: selfhost/driver/**, selfhost/emitter/**, selfhost/semantics/**, bootstrap/bayan.c
 proof: tests/Bayan.Tests/BootstrapTests.cs

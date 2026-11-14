@@ -2,6 +2,8 @@
 id: L014
 title: Capture by copy never aliases the source
 status: enacted
+release: 0.1.0
+sources: Q370
 kind: guard
 scope: src/Bayan.Semantics/Binding/BinderExpressions.cs
 proof: tests/Bayan.Tests/L014CaptureByCopyTests.cs

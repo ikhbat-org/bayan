@@ -1,4 +1,9 @@
 # 015 — Plan
+
+Status: in progress
+Release: unscheduled
+Sources: Q910, Q916, Q1009, Q1065, Q1140, Q1141; revisions 0015, 2026
+
 Spec: ./015-spec.md
 
 ## Approach

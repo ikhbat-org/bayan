@@ -1,3 +1,7 @@
+Status: done
+Release: 0.1.0
+Sources: Q595, Q596, Q598, Q603, Q604
+
 ## T16/T17 fidelity audit (binder2.byn, express.byn)
 
 I read both ports method by method against `src/Bayan.Semantics/Binding/Binder.cs` and `BinderExpressions.cs`. I also ran the two test classes: `dotnet test --filter SelfhostSemanticsT16Tests|T17Tests` gives 18/18 passing. No tracked files were modified.

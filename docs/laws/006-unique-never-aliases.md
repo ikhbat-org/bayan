@@ -2,6 +2,8 @@
 id: L006
 title: The compiler rejects every way to create a second owner of a unique value
 status: enacted
+release: 0.1.0
+sources: Q68
 kind: guard
 scope: src/Bayan.Semantics/Binding/OwnershipAnalysis.cs
 proof: tests/Bayan.Tests/L006OwnershipGuardTests.cs

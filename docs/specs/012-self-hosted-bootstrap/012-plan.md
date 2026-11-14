@@ -1,4 +1,9 @@
 # 012 — Plan
+
+Status: done
+Release: 0.2.0
+Sources: Q1, Q2, Q3, Q4, Q5, Q6, Q8, Q9, Q178, Q190, Q886, Q970, Q971, Q977
+
 Spec: ./012-spec.md
 Tasks: ./012-tasks.md
 

@@ -2,6 +2,8 @@
 id: L005
 title: Io.runBatch passes every argument unchanged or runs nothing
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: property
 scope: src/runtime/bayan-rt.c
 proof: tests/Bayan.Tests/L005RunBatchTests.cs
