@@ -1633,7 +1633,7 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 ## Progress log
 
 - **2026-11-14 — Plan 015 phase A: the plan 014 review LOWs (`fix/q31-followups-small`, Q31; `docs/plans/2026-11-14-015-q31-followups.md`).**
-  - `t42AnalyzeRegions` runs in `General` when a bag is the sink (`c.sink >= 0`). New `SelfhostSemanticsT25Tests.RegionsInABagKeepTheirDiagnostics` (73 rows) runs it inside a bag over every region `diag/` case; with the guard removed, 10 rows print freed memory.
+  - `t42AnalyzeRegions` runs in `General` when a bag is the sink (`c.sink >= 0`). New `SelfhostSemanticsT25Tests.RegionsInABagKeepTheirDiagnostics` (one row per region `diag/` case, 74 with the new one) runs it inside a bag; with the guard removed, 10 of the 73 earlier rows print freed memory and fail.
   - New `diag/ref-this-store-through-later-method`: `put` is summarized before the `keep` it calls, so its second store count (2) is twice its first. Removing the `pairs`/`returns` clear in `summarizeRegions` drops its BYN3002 (both T25 rows fail).
   - Linux PeakSampler break-tests of `CheckOfTheDriverStaysBounded` on bayan-test01 (bound 560 MB): region arena off 628 MB, summary arena off 2,506 MB. Scratch branches `chore/q31-bt-region-off` and `chore/q31-bt-summary-off`.
   - Fable verified the plan before approval; user decisions 2026-11-14: phase C (emit arena) deferred, phase B's bound is Linux-only.
