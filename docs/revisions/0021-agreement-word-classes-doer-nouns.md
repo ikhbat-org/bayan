@@ -217,3 +217,58 @@ Do not implement any of these:
 3. The call-site `ref`/`out`/`move` codes you found.
 4. Any lexicon words you added beyond the lists above.
 5. Any mismatch between this revision and the code.
+
+### Answers
+
+Written 2026-11-10 from `git log` on dev, `docs/bayan-handoff.md` (Progress log and Questions), `docs/specs/018-rev-0021-checker/018-plan.md` and `018-tasks.md`, `src/Bayan.Semantics/Lexicon.cs` and `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`. The Question states in item 5 are as of that date; `docs/bayan-handoff.md` holds the current state.
+
+#### 1. Commits per part
+
+Spec 018 covers Parts 3, 4 and 5. Parts 1 and 2 are docs only and came before it.
+
+| Part | Merge into dev | Main feature commits |
+| ---- | -------------- | -------------------- |
+| 1, 2 (docs) | 2fe3a14a Merge branch 'docs/rev-0019-agreement' into dev | 269cd130 chore(worker): rev-0019-docs: work in progress (stopped for revision renumber); 8ccfa8a3 chore(worker): rev-0019-docs: Parts 1 and 2 of revision 0021 are finished, docs only, and…; 0a796f26 chore(worker): land rev-0019-docs |
+| 5 (T1, T2) | 36921d29 Merge branch 'feat/018-rev-0021-checker' into dev (rev 0021 Part 5: T1, T2) | f27d6c35 chore(worker): land 018-t1; 683fa119 chore(018): land T2 |
+| 3 (T3, T4) | 71021224 Merge branch 'feat/018-rev-0021-checker' into dev (rev 0021 Part 3: word classes) | 25be193e chore(worker): land 018-t3; 53e2bd09 chore(018): land T4 |
+| 4 (T5-T10) | 10bb0a0d Merge branch 'feat/018-rev-0021-checker' into dev | 5c0b3b92 chore(worker): land 018-t5; 2a827008 chore(worker): land 018-t6; 8e781e0a chore(018): land T8 (T7 and T8 together; T7 has no land commit of its own); 17547bb5 docs(018): regenerate DIAGNOSTICS.md for BYN5104-5107 (T9); b76792a7 chore(018): land T10 |
+
+Parts 1 and 2 were first merged with the revision numbered 0019 and renumbered to 0021 (68e5adc1). The 018 task map is in `docs/specs/018-rev-0021-checker/018-tasks.md`: T1, T2 are Part 5; T3, T4 are Part 3; T5-T10 are Part 4 (T10 is the branch-review fix).
+
+#### 2. Landed mid-flight and waited
+
+The plan (`018-plan.md`, Approach) lands each part on `feat/018-rev-0021-checker` and merges it to dev `--no-ff` before the next starts, in the order 5, 3, 4. It says no step of 017 or 015 owns `Naming.cs`, `Lexicon.cs`, `Manifest.cs` or `states.byn` (checked 2026-11-10), so the parts land mid-flight as the revision allows, provided every existing golden passes unchanged.
+
+- Parts 1 and 2 landed 2026-11-09 (Progress log, "Revision 0021 Parts 1-2 (docs only)").
+- Parts 5 and 3 landed mid-flight, each merged to dev as soon as its C# and `.byn` tasks were done (36921d29, 71021224).
+- Part 4 waited. Its tasks ran on the branch, and the merge to dev (10bb0a0d) came after a clean wp1 full run at eafeaf65 and the branch review, as the Progress log says ("Next: merge feat/018 into dev after a wp1 full suite and the branch review"). Inside it, T7 waited for T8: T7 alone failed T6's C# BYN5106/5107 rows, so both landed in one `land.sh 018 T8` (8e781e0a; Q1196, Q1200).
+- The full suite caught two spec-010 test breaks that the per-task filters never ran (Q1206), and T10's two goldens moved L028's pinned domain to 524 (Progress log "Session close", commit eafeaf65).
+
+#### 3. Call-site `ref`/`out`/`move` codes
+
+Only one code reports a call-site `ref`/`out` mark that does not match the parameter:
+
+- BYN2306 `ArgumentModifierMismatch` (`DiagnosticCodes.cs:196`): "argument for `{0}` must be passed as {1}". The argument's `ref` or `out` mark must match the parameter's (reported at `BinderCalls.cs:505`, with a fix that inserts the keyword).
+
+No code was found that reports a missing `move` at a call site. `BinderCalls.cs` accepts `move x` for a plain or `move` parameter and does not report an absent one; the move codes found are about use after the move, not the call-site mark: BYN2781 `UseAfterMove` (`DiagnosticCodes.cs:271`) and BYN2782 `CannotMove` (`:272`). Per Part 2, "See GRAMMAR: Role marks" is on BYN2306, 5004, 5005, 5006, 5008 and 5013 (checked in `docs/diagnostics/`).
+
+#### 4. Lexicon words added beyond the lists
+
+None, checked. `Lexicon.cs` `Adjectives` (line 86) contains every adjective the revision names (`empty`, `low`, `high`, `full`, `stale`, `valid`, `overdue`); only `overdue` was new (Q1170). `Collectives` (line 98) is the revision's fourteen. `IrregularPlurals` (line 105) is the revision's six. No Question in Q1160-Q1210 records an extra word. The one addition that is not in the lists is not a word class entry: `Lexicon.IrregularSingulars` (line 108), the six singulars, added by T10 (Q1208).
+
+#### 5. Mismatches between the revision and the code
+
+| Question | Mismatch | State |
+| -------- | -------- | ----- |
+| Q1186 | The revision says to exempt names under rename attributes "as BYN5101/5102 do"; they honour none (`@json`/`@column` is BYN2770). BYN5104/5105 skip such names; BYN5101/5102 are unchanged. | Open ("Decision needed": accept the attributes in `CheckAttributes` and extend the exemption to all BYN51xx). |
+| Q1190 | The rule as written flags numbers named with a plural (`cents`, `digits`) and 26 struct members in `selfhost/` (41 with Q1187's positions). BYN5104's second form skips numeric types. | Open (keep the numeric exemption or report units; rename the self-hosted names or leave the warnings). Q1206 skips BYN5104 in one test meanwhile. |
+| Q1191 | `lib/std/json` `JsonReader` has act `next`, so BYN5106 would fire in every program importing `std.json`. `Naming.CheckDoer` skips std modules. | Open (rename `JsonReader`, add `read`, accept `next`, or keep the skip). |
+| Q1189 | "The last word decides" flagged `modulesByDir`, `byPath` and others; the word before the first particle or function word decides. | Open ("Decision needed": keep, or follow the revision literally). |
+| Q1168 | The overlap error uses BYN3102, no new code. | Open ("Decision needed": keep BYN3102 or allocate a code). |
+| Q1169 | BYN5014 guesses the class from the member only. | Open ("Decision needed if a finer guess is wanted"). |
+| Q1172 | The BYN5014 message has no final full stop, unlike the revision's quote; `collectives` also changes the BYN3101 help list in golden `manifest/grammar-invalid.diag`. | Decided in the code (forced by the existing message style; no "Decision needed" line). |
+| Q1170 | `lib/std` has no state or event adjectives, so only `overdue` was added. | Decided (recorded as done). |
+| Q1194 | 3 BYN5106 hits in `selfhost/` (`LPushPanicHandler`, `LPopPanicHandler`, `Parser`); no revision exemption covers them. | Open ("Decision needed": rename them, add `parse`, or accept the warnings). |
+| Q1207 | `IsPlural` accepted a verb's `-ed` form as a plural. | Decided and fixed in T10 (b76792a7). |
+| Q1208 | The six irregular plurals had no singulars, so fix-its and BYN5105 were wrong for them. | Decided and fixed in T10 (b76792a7). |
+| Q1196, Q1197, Q1203, Q1206 | Test-harness and coverage-exemption mismatches (code-table extras lists, `compile.byn` call line, a `manifest.byn` exemption, two spec-010 tests). | Decided; each Question records the fix. |
