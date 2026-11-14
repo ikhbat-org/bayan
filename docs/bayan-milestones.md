@@ -215,7 +215,7 @@ Lockfile policy (name superseded 2026-11-06: the lockfile is `package.lock.byn`,
 
 **`.editorconfig`:** UTF-8, LF, 4-space indentation, final newline, trim trailing whitespace.
 
-**`--ci github`** adds `.github/workflows/bayan.yml` running `bayan build`, `bayan test`, and (once they exist) `bayan fmt --check` and `bayan fmt --check-prose`.
+**`--ci github`** adds `.github/workflows/bayan.yml` running `bayan build` (or `bayan check` for a library) and `bayan test`; it does not run `bayan format --check` yet.
 
 **Git behavior:** run `git init` only if `--vcs git` (the default), git is on `PATH`, and the target isn't already inside a work tree (`git rev-parse --is-inside-work-tree`). **Never commit, branch or configure anything.** If git is missing, print a note and continue.
 
