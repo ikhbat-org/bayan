@@ -28,7 +28,8 @@ bayan_release_docs="$bayan_header_docs docs/RELEASING.md docs/bayan-contributing
   docs/bayan-roadmap.md docs/bayan-not-planned.md docs/bayan-nice-to-have.md docs/bayan-questions.md
   docs/bayan-library-tiers.md docs/bayan-concurrency.md docs/bayan-views.md docs/bayan-self-hosting.md
   docs/memory-leaks.md docs/bayan-terminal-style.md docs/typed-dump.md docs/security/2026-11-06-runtime-audit.md
-  docs/security/crypto-api-checklist.md docs/revisions/README.md docs/laws/README.md"
+  docs/security/crypto-api-checklist.md docs/revisions/README.md docs/laws/README.md
+  docs/specs/README.md docs/bayan-feature-history.md"
 
 # The code and test mirrors of VERSION, one per line: file, then the sed -E text before and after the version
 # (tab-separated). bootstrap/bayan.c is not one: scripts/selfhost/land.sh regenerates it from selfhost/.

@@ -4,7 +4,8 @@
 #   (a) the `Version:` line of each release doc (version.sh `bayan_release_docs`) is `Version: <VERSION> (matches …)`;
 #   (b) docs/revisions/NNNN-*.md runs 0001..highest with no gap or repeat, and each header doc's
 #       `Revisions applied:` line is `0001–<highest>`;
-#   (c) docs/DIAGNOSTICS.md and docs/STATUS.md equal what scripts/docs/gen-diagnostics.sh and gen-status.sh print;
+#   (c) docs/DIAGNOSTICS.md, docs/STATUS.md and docs/specs/README.md equal what scripts/docs/gen-diagnostics.sh,
+#       gen-status.sh and gen-spec-index.sh print;
 #   (d) every code and test mirror of VERSION (version.sh `bayan_mirrors`) holds VERSION;
 #   (e) every `(not in A.B` / `(partial in A.B` status tag in the spec, grammar and style names the major.minor of
 #       VERSION, `-dev` stripped (revision 0020);
@@ -19,7 +20,9 @@
 #       design) has `Status:`, `Release:` and `Sources:` lines in its first ten lines (docs/laws: the `status:`,
 #       `release:` and `sources:` frontmatter keys, also in the first ten lines), and its release is a `## [X.Y.Z]` version in CHANGELOG.md, the
 #       VERSION target (`-dev` stripped) or `unscheduled`; every snapshot doc (export, misc, the design rounds, the Sūq
-#       reports and the other dated notes) has a `Snapshot:` line in its first ten lines. Release docs are neither.
+#       reports and the other dated notes) has a `Snapshot:` line in its first ten lines. Release docs are neither;
+#   (i) every docs/revisions/NNNN-*.md is cited in docs/bayan-feature-history.md and every numbered section of the spec
+#       has a row there (scripts/docs/check-history.sh prints one line per problem).
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -57,8 +60,8 @@ done
 
 # (c) the generated files
 t="$(mktemp -d)"; trap 'rm -rf "$t"' EXIT
-for g in diagnostics:DIAGNOSTICS status:STATUS; do
-  gen="scripts/docs/gen-${g%%:*}.sh"; doc="docs/${g#*:}.md"
+for g in diagnostics:docs/DIAGNOSTICS.md status:docs/STATUS.md spec-index:docs/specs/README.md; do
+  gen="scripts/docs/gen-${g%%:*}.sh"; doc="${g#*:}"
   if ! bash "$root/$gen" > "$t/out" 2> "$t/err"; then fail "$gen failed: $(head -n 1 "$t/err")"
   elif [ ! -f "$root/$doc" ]; then fail "$doc not found; run bash $gen --write"
   elif ! cmp -s "$t/out" "$root/$doc"; then fail "$doc is stale; run bash $gen --write"; fi
@@ -129,5 +132,8 @@ while IFS= read -r doc; do
       head -n 10 "$root/$doc" | grep -q '^Snapshot: ' || fail "$doc: no Snapshot: line in the first ten lines (snapshot doc)" ;;
   esac
 done < <(cd "$root" && find docs -name '*.md' -type f | LC_ALL=C sort)
+
+# (i) the feature history
+while IFS= read -r line; do fail "$line"; done < <(bash "$root/scripts/docs/check-history.sh" 2>&1 || true)
 
 exit "$failed"

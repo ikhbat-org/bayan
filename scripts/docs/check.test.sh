@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # check.sh on a fixture repo (test-fixture.sh): passes clean, then each check fails on its own breakage:
-# (a) a header version, (b) a new revision and a gap, (c) a new descriptor and a hand-edited generated row,
-# (d) a mirror that disagrees with VERSION, (e) a status tag for another release, (f) a cited code with no entry,
-# (g) a cited spec section with no heading, (h) a record header that is missing or names an unknown release, a law
-# with no release key, a snapshot with no Snapshot line.
+# (a) a header version, (b) a new revision and a gap, (c) a new descriptor, a hand-edited generated row and a stale
+# spec index, (d) a mirror that disagrees with VERSION, (e) a status tag for another release, (f) a cited code with no
+# entry, (g) a cited spec section with no heading, (h) a record header that is missing or names an unknown release, a
+# law with no release key, a snapshot with no Snapshot line, (i) a revision the feature history does not cite and a spec
+# section with no row.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 t="$root/tmp/docs-check-test"
@@ -45,6 +46,8 @@ sed -i.bak 's/| units | SPEC | spec-only | none |/| units | SPEC | built | none 
 bash "$s" >/dev/null || fail "(c) a hand-kept STATUS row edit fails the check"
 sed -i.bak 's/| string | `length` | property |/| string | `length` | method |/' "$t/repo/docs/STATUS.md"
 expect "(c) edited generated row" "docs/STATUS.md is stale; run bash scripts/docs/gen-status.sh --write"
+sed -i.bak 's/^Status: done$/Status: in progress/' "$t/repo/docs/specs/001-first/001-spec.md"
+expect "(c) stale spec index" "docs/specs/README.md is stale; run bash scripts/docs/gen-spec-index.sh --write"
 
 sed -i.bak 's/"1.2.3-dev"/"1.2.4-dev"/' "$t/repo/src/Bayan.Backend.C/Toolchain.cs"
 expect "(d) Toolchain.cs" "src/Bayan.Backend.C/Toolchain.cs says 1.2.4-dev, VERSION says 1.2.3-dev"
@@ -70,6 +73,7 @@ expect "(f) code only in another row's text" "docs/bayan-style.md cites BYN7777,
 
 # (g) the spec gets headings; a bare §N, a historical doc and a good cite pass, a missing heading fails with file:line
 printf '\n## 6. Expressions\n\n### 6.6 Interpolation\n' >> "$t/repo/docs/bayan-spec.md"
+printf '\n### §6. Expressions\n' >> "$t/repo/docs/bayan-feature-history.md"
 printf 'Display is in SPEC §6.6 and (spec §6). A bare §9.9 may cite the grammar.\n' >> "$t/repo/docs/bayan-style.md"
 printf '// Display (spec §6.6).\n' >> "$t/repo/src/Bayan.Semantics/Binding/Fixture.cs"
 printf 'Historical: spec §9.9.\n' >> "$t/repo/docs/revisions/0002-second.md"
@@ -77,8 +81,22 @@ bash "$s" >/dev/null || fail "(g) good cites, a bare cite and a historical doc f
 printf 'See SPEC §6.9.\n' >> "$t/repo/docs/bayan-style.md"
 expect "(g) missing heading in docs" "docs/bayan-style.md:$(wc -l < "$t/repo/docs/bayan-style.md" | tr -d ' ') cites spec §6.9, which is not a heading of docs/bayan-spec.md"
 printf '## 13. Concurrency\n' >> "$t/repo/docs/bayan-spec.md"
+printf '\n### §13. Concurrency\n' >> "$t/repo/docs/bayan-feature-history.md"
 printf '// Display (spec §13).\n// Locks (spec §13.4).\n' >> "$t/repo/src/Bayan.Semantics/Binding/Fixture.cs"
 expect "(g) missing heading in a code comment" "src/Bayan.Semantics/Binding/Fixture.cs:2 cites spec §13.4, which is not a heading of docs/bayan-spec.md"
+
+# (i) the feature history: a revision it does not cite and a numbered section with no row
+printf '# 0003 — Third\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$t/repo/docs/revisions/0003-third.md"
+sed -i.bak 's/^Revisions applied: .*/Revisions applied: 0001–0003/' "$t/repo"/docs/{bayan-spec,bayan-grammar,bayan-style,DIAGNOSTICS,STATUS}.md
+bash "$s" >/dev/null 2>&1 && fail "(i) setup: an uncited revision passes"
+printf ', 0003-third.md\n' >> "$t/repo/docs/bayan-feature-history.md"
+bash "$s" >/dev/null || fail "(i) a cited revision fails the check"
+reset
+printf '# 0003 — Third\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$t/repo/docs/revisions/0003-third.md"
+sed -i.bak 's/^Revisions applied: .*/Revisions applied: 0001–0003/' "$t/repo"/docs/{bayan-spec,bayan-grammar,bayan-style,DIAGNOSTICS,STATUS}.md
+expect "(i) uncited revision" "docs/revisions/0003-third.md is not cited in docs/bayan-feature-history.md"
+printf '\n## 7. Statements\n' >> "$t/repo/docs/bayan-spec.md"
+expect "(i) section with no row" "SPEC section 7 has no row in docs/bayan-feature-history.md"
 
 # (h) record and snapshot headers; a release doc under a record directory (docs/revisions/README.md) is not a record
 mkdir -p "$t/repo/docs/plans" "$t/repo/docs/laws" "$t/repo/docs/export"

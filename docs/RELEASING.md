@@ -42,15 +42,18 @@ doc, and prints each file it changed.
 
 ## Generated docs
 
-`docs/DIAGNOSTICS.md` and the keyword and stdlib rows of `docs/STATUS.md` are generated. Regenerate them after changing
-`DiagnosticCodes.cs`, a diagnostic page, `Keywords.cs`, `TokenKind.cs`, `BuiltinMembers.cs` or the version:
+`docs/DIAGNOSTICS.md`, the keyword and stdlib rows of `docs/STATUS.md` and the spec index `docs/specs/README.md` are
+generated. Regenerate them after changing
+`DiagnosticCodes.cs`, a diagnostic page, `Keywords.cs`, `TokenKind.cs`, `BuiltinMembers.cs`, the header of a spec or the
+version:
 
 ```sh
 bash scripts/docs/gen-diagnostics.sh --write   # docs/DIAGNOSTICS.md
 bash scripts/docs/gen-status.sh --write        # docs/STATUS.md, between the <!-- generated: … --> markers
+bash scripts/docs/gen-spec-index.sh --write    # docs/specs/README.md
 ```
 
-Without `--write` each prints to stdout. Output is sorted and has no dates. Both generated docs are release docs: each
+Without `--write` each prints to stdout. Output is sorted and has no dates. All three generated docs are release docs: each
 generator writes the `Version:` and `Revisions applied:` header itself, from `VERSION` and the highest revision.
 
 - `gen-diagnostics.sh` reads `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`: the descriptors, the `// BYNnnnn is
@@ -62,6 +65,9 @@ generator writes the `Version:` and `Revisions applied:` header itself, from `VE
   regenerate.
 - `gen-status.sh` reads `src/Bayan.Syntax/Lexing/Keywords.cs` and `TokenKind.cs` for keywords and
   `src/Bayan.Semantics/Binding/BuiltinMembers.cs` for stdlib members.
+- `gen-spec-index.sh` reads the title and the `Status:`, `Release:` and `Sources:` header lines of each
+  `docs/specs/NNN-*/NNN-spec.md`, and which plan, tasks and api files sit beside it. It fails on a Status that starts
+  with none of `done`, `in progress`, `approved`, `open`, `deferred`, `draft`, `rejected` or `superseded`.
 
 The feature, pattern, effect and unbuilt-keyword tables of `docs/STATUS.md` are hand-kept. Change a row's status
 cell when that feature's status changes; `cut.sh` lists those changes in the CHANGELOG.
@@ -75,13 +81,15 @@ tests" on Linux and macOS. `check.sh` prints one line per failure and fails when
 - (a) a release doc's `Version:` line is not `Version: <VERSION> (matches \`bayan --version\`)`;
 - (b) the revision files do not run 0001 to the highest with no gap or repeat, or a `Revisions applied:` line does
   not name the highest;
-- (c) `docs/DIAGNOSTICS.md` or `docs/STATUS.md` differs from what its generator prints;
+- (c) `docs/DIAGNOSTICS.md`, `docs/STATUS.md` or `docs/specs/README.md` differs from what its generator prints;
 - (d) a mirror's version differs from `VERSION`;
 - (e) SPEC, GRAMMAR or STYLE has a `(not in A.B` or `(partial in A.B` status tag whose `A.B` is not the major.minor
   of `VERSION` (`-dev` stripped);
 - (h) a record doc lacks its `Status:`, `Release:` or `Sources:` line (a law, its `status:`, `release:` or `sources:`
   key), or its release is not a `## [X.Y.Z]` version of `CHANGELOG.md`, the `VERSION` target or `unscheduled`; or a
-  snapshot doc lacks its `Snapshot:` line.
+  snapshot doc lacks its `Snapshot:` line;
+- (i) a `docs/revisions/NNNN-*.md` file is not cited in `docs/bayan-feature-history.md`, or a numbered section of the
+  spec has no `### §N.` row there (`scripts/docs/check-history.sh`).
 
 So a new revision, a new diagnostic or a version change lands with its headers and generated docs in the same
 commit.
@@ -92,7 +100,7 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
 
 1. **Cut.** `bash scripts/release/cut.sh X.Y.Z`. It:
    - sets `VERSION`, the mirrors and the headers to `X.Y.Z`, with `Revisions applied` at the highest revision;
-   - regenerates both generated docs;
+   - regenerates the generated docs;
    - turns the `## [Unreleased]` body of `CHANGELOG.md` into `## [X.Y.Z] - <today>`, leaving `[Unreleased]` empty.
 
    The new section gets two lists:
@@ -121,7 +129,7 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
    - the memory gate runs on Linux and macOS, the editor gate (`bayan-lsp` memory tests, the extension packaged under a
      size bound) on Linux, and the full tier of every enacted law (`laws-nightly.yml`, up to 180 minutes);
    - the release job adds `bayan-X.Y.Z-docs.tar.gz` (the same six docs, and every other release doc under its path
-     below `docs/`, under `bayan-X.Y.Z-docs/share/doc/bayan/`)
+     below `docs/`, among them `specs/README.md` and `bayan-feature-history.md`, under `bayan-X.Y.Z-docs/share/doc/bayan/`)
      and `SHA256SUMS`, and opens a draft GitHub Release whose notes are the CHANGELOG section. While the major version is 0 the draft
      is marked a prerelease (`package.sh release-flags`; user, 2026-11-14).
 
