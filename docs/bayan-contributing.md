@@ -5,7 +5,7 @@ How work on the compiler is done. The spec (`docs/bayan-spec.md`) is the source 
 ## Ground rules
 
 - `docs/bayan-spec.md` is the source of truth, and Appendix A of the spec lists settled decisions: see `AGENTS.md`. Spec gaps go to `docs/bayan-questions.md`, with the most conservative option implemented until the question is answered.
-- Update `docs/bayan-progress-log.md` at the end of every working session.
+- Update `docs/bayan-progress-log.md` at the end of every working session (see `AGENTS.md`).
 - Prefer small, test-backed steps. Every milestone has acceptance criteria; a milestone isn't done until they pass in CI.
 
 ## Stack and constraints
