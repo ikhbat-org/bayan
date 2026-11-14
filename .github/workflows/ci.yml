@@ -53,6 +53,7 @@ jobs:
       - name: Script tests
         if: runner.os != 'Windows'
         run: |
+          bash scripts/ci/bash32-parse.test.sh
           bash scripts/ci/install-zig.test.sh
           bash scripts/ci/install-dotnet.test.sh
           bash scripts/ci/sdk-patch-check.test.sh

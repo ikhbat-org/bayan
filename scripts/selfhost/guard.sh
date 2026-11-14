@@ -51,7 +51,7 @@ if [ $SCOPEONLY = 1 ]; then
   echo "GUARD FAIL (${#FAIL[@]} items):"; for x in "${FAIL[@]}"; do echo "- $x"; done; exit 1
 fi
 # the changed selfhost .byn files still present: the files coverage is measured over
-COVER=$(while IFS= read -r f; do case "$f" in selfhost/*.byn|lib/std/*.byn) [ -f "$f" ] && echo "$f";; esac; done <<< "$CHANGED" | tr '\n' ',' | sed 's/,$//')
+COVER=$(while IFS= read -r f; do case "$f" in (selfhost/*.byn|lib/std/*.byn) [ -f "$f" ] && echo "$f";; esac; done <<< "$CHANGED" | tr '\n' ',' | sed 's/,$//')
 # a changed lib/std file is covered by its module's own tests (StdTestFilesTests), whatever --filter selects
 TFILTER=$FILTER; case ",$COVER" in *,lib/std/*) TFILTER="($FILTER)|FullyQualifiedName~StdTestFilesTests";; esac
 rm -f "$LOG/quality-"*.json  # a mutation report left by an earlier run must not reach this run's baseline check
