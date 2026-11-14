@@ -10,7 +10,8 @@
 # saved as tmp/worktree-patches/<name>.patch (tracked diff) and <name>.untracked.tar (untracked files) in the main
 # checkout, then the worktree is removed with --force; if saving fails the worktree is left alone. A worktree holding
 # ignored files (tmp/ evidence, build output), which `git worktree remove` deletes without asking, is refused unless
-# --delete-ignored is given; those files are not saved.
+# --delete-ignored is given; those files are not saved. A worktree holding a nested worktree that is kept, refused or
+# failed is left alone, since removing it would delete the nested one.
 # Dry run by default. --execute / -e acts.
 set -euo pipefail
 
@@ -29,6 +30,7 @@ if [ "$(git branch --show-current)" != "dev" ]; then
 fi
 KEEP=("$main/.worktrees/dev" "$main/.worktrees/docs-tidy" "$main/.worktrees/fix-lexer-help")
 failed=0
+held=()  # worktrees kept, refused or failed: a worktree holding one of them is left alone too, since removing it deletes them
 run() { if [ $execute = 1 ]; then printf 'run:   %s\n' "$*"; "$@" || { printf '  failed\n'; failed=1; }; else printf 'would: %s\n' "$*"; fi; }
 
 # 1. collect worktrees (deepest path first, so nested worktrees go before the one holding them)
@@ -45,7 +47,7 @@ for entry in "${list[@]}"; do
   [ "$d" = "$main" ] && continue
   skip=0; for k in "${KEEP[@]}"; do [ "$d" = "$k" ] && skip=1; done
   case "$d" in "$main/.worktrees/worker-tidy-"*) skip=1 ;; esac  # this session's writers; worker.js land removes them
-  [ $skip = 1 ] && { printf 'keep:  %s\n' "${d#$main/}"; continue; }
+  [ $skip = 1 ] && { printf 'keep:  %s\n' "${d#$main/}"; held+=("$d"); continue; }
   if [ ! -d "$d" ]; then printf 'skip:  %s directory gone (pruned below)\n' "${d#$main/}"; continue; fi
   state=detached
   if [ -n "$br" ]; then
@@ -53,33 +55,37 @@ for entry in "${list[@]}"; do
       state=in-dev; else state=not-in-dev; fi
   fi
   printf 'tree:  %s [%s] %s\n' "${d#$main/}" "${br:-detached}" "$state"
+  inner=""; for h in "${held[@]+"${held[@]}"}"; do case "$h" in "$d"/*) inner="$h"; break ;; esac; done
+  if [ -n "$inner" ]; then
+    printf 'refuse: %s holds %s, which stays. Left alone.\n' "${d#$main/}" "${inner#$main/}"
+    held+=("$d"); failed=1; continue
+  fi
   ign="$(git -C "$d" status --porcelain --ignored | grep '^!!' | head -5 || true)"
   if [ -n "$ign" ] && [ $ignored = 0 ]; then
     printf 'refuse: %s holds ignored files git worktree remove would delete (--delete-ignored removes them). Left alone:\n%s\n' "${d#$main/}" "$ign"
-    failed=1; continue
+    held+=("$d"); failed=1; continue
   fi
   if [ -n "$(git -C "$d" status --porcelain)" ]; then
     if [ $discard = 0 ]; then
       printf 'refuse: %s has uncommitted changes (--discard-dirty saves and removes them). Left alone.\n' "${d#$main/}"
-      failed=1; continue
+      held+=("$d"); failed=1; continue
     fi
     name="$(basename "$d")"; out="$main/tmp/worktree-patches"
     run mkdir -p "$out"
     if [ $execute = 1 ]; then
       if ! git -C "$d" diff --binary HEAD > "$out/$name.patch" \
          || ! git -C "$d" ls-files --others --exclude-standard -z | tar -C "$d" --null -T - -cf "$out/$name.untracked.tar"; then
-        printf 'failed: saving %s; worktree left alone.\n' "${d#$main/}"; failed=1; continue
+        printf 'failed: saving %s; worktree left alone.\n' "${d#$main/}"; held+=("$d"); failed=1; continue
       fi
       printf 'saved: %s/%s.patch and %s.untracked.tar\n' "$out" "$name" "$name"
     else
       printf 'would: save %s changes to %s/%s.patch\n' "${d#$main/}" "$out" "$name"
     fi
     run git worktree remove --force "$d"
-  elif [ -n "$ign" ]; then
-    run git worktree remove --force "$d"
   else
-    run git worktree remove "$d"
+    run git worktree remove "$d"  # ignored files do not block it; no --force, so a change made since the check above refuses
   fi
+  [ $execute = 1 ] && [ -d "$d" ] && held+=("$d")
 done
 run git worktree prune
 

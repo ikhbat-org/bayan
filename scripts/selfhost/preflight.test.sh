@@ -20,7 +20,7 @@ cat > docs/specs/012-self-hosted-bootstrap/012-tasks.md <<'EOF'
 EOF
 : > docs/specs/012-self-hosted-bootstrap/012-plan.md
 printf '100. old\n101. older\n' > docs/bayan-questions.md
-mkdir -p docs/decisions; printf '203. answered\n' > docs/decisions/2026-11-14-004-answered-questions.md
+mkdir -p docs/decisions; printf '| Q203 | t | answered | not recorded | general |\n\n203. the long answer\n' > docs/decisions/2026-11-14-004-answered-questions.md
 printf 'int alpha;\nint beta;\nint gamma;\n' > src/a.c
 printf 'namespace Bayan.Tests;\npublic sealed class FooT8Tests { }\n' > tests/Bayan.Tests/FooInventoryTests.cs
 git add -A && git commit -qm "test: base"

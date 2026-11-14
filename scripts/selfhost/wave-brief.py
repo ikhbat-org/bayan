@@ -99,7 +99,8 @@ def taken():
         if head.endswith(b' missing') or not head:
             continue
         size = int(head.split()[2]); texts.append(out[:size].decode('utf-8', 'replace')); out = out[size + 1:]
-    nums = [int(n) for x in texts for n in re.findall(r'^(\d{3,4})\. ', x, re.M)]
+    # an open Question's `N. ` line, or an answered one's table row `| QN |`
+    nums = [int(a or b) for x in texts for a, b in re.findall(r'^(?:(\d{3,4})\. |\| Q(\d{3,4}) \|)', x, re.M)]
     sd = os.path.join(wt, 'docs/specs')
     for d in os.listdir(sd) if os.path.isdir(sd) else []:
         for f in os.listdir(os.path.join(sd, d)):

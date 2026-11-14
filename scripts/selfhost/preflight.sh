@@ -128,10 +128,13 @@ else fail "files: ${#need[@]} changed outside $T's files list; append to its fil
 # questions
 RANGE=$(grep -oE 'Q[0-9]{3,4}–Q[0-9]{3,4}' <<< "$BLOCK" | head -1 | tr -d Q | sed 's/–/ /')
 [ -n "$RANGE" ] || RANGE=$(awk -F'\t' -v s="$SPEC" -v t="$T" '$1 == s && $2 == t { print $3, $4; exit }' "$QR" 2> /dev/null)
-# a number is taken when it is in either questions doc: open (docs/bayan-questions.md) or answered
-QDOCS=(docs/bayan-questions.md docs/decisions/2026-11-14-004-answered-questions.md)
-qnums() { for f in "${QDOCS[@]}"; do git show "$1:$f" 2> /dev/null; done | grep -oE '^[0-9]{3,4}\. ' | tr -d '. ' || true; }
-qcount() { cat "${QDOCS[@]}" 2> /dev/null | grep -cE "^$1\. " || true; }
+# a number is taken when it is in either questions doc: open (docs/bayan-questions.md, one `N. ` line per Question) or
+# answered (counted once per number, from its table row `| QN |` or its long-answer `N. ` line)
+QOPEN=docs/bayan-questions.md; QANS=docs/decisions/2026-11-14-004-answered-questions.md
+qopen() { grep -oE '^[0-9]{3,4}\. ' | tr -d '. ' || true; }
+qans() { grep -oE '^[0-9]{3,4}\. |^\| Q[0-9]{3,4} \|' | tr -dc '0-9\n' | sort -u || true; }
+qnums() { git show "$1:$QOPEN" 2> /dev/null | qopen; git show "$1:$QANS" 2> /dev/null | qans; }
+qcount() { { [ -f "$QOPEN" ] && qopen < "$QOPEN"; [ -f "$QANS" ] && qans < "$QANS"; true; } | grep -cxF "$1" || true; }
 OLDQ=$(qnums "$MB")
 BASEQ=$(qnums "$BASE")
 # a number the branch adds: on an added line, and more often in the questions doc than at the merge base (an edited Question is not one)

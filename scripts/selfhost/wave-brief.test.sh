@@ -136,7 +136,7 @@ r=$(awk -F'\t' '$2 ~ /^T9[345]$/ { print $3 "-" $4 }' "$BAYAN_QRANGES" | sort | 
 [ "$r" = "1201-1205 1206-1210 1211-1215 " ] || { echo "FAIL: briefs written at once overlap or skip ($r)"; cat "$BAYAN_QRANGES"; exit 1; }
 python3 -I scripts/selfhost/wave-brief.py "$q" T97 --spec 012 > /dev/null
 grep -q 'Questions in your range only' "$q/tmp/012-t97/prompt.md" && ! grep -q 'T97' "$BAYAN_QRANGES" || { echo "FAIL: a ticked task got a range"; exit 1; }
-mkdir -p "$q/docs/decisions"; printf '1220. answered\n' > "$q/docs/decisions/2026-11-14-004-answered-questions.md"
+mkdir -p "$q/docs/decisions"; printf '| Q1220 | t | answered | not recorded | general |\n' > "$q/docs/decisions/2026-11-14-004-answered-questions.md"
 printf -- '- [ ] T99 t — files: `t.byn` — covers: R1\n' >> "$q/docs/specs/012-self-hosted-bootstrap/012-tasks.md"
 python3 -I scripts/selfhost/wave-brief.py "$q" T99 --spec 012 > /dev/null
 grep -q 'Questions Q1221–Q1225 only' "$q/tmp/012-t99/prompt.md" || { echo "FAIL: a number only in the answered-questions file is handed out again"; grep -o 'Questions Q[^ ]* only' "$q/tmp/012-t99/prompt.md"; exit 1; }
