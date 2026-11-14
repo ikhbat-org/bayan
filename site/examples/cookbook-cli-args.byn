@@ -1,0 +1,7 @@
+// main may take the arguments after the program name.
+// Try: bayan run cookbook-cli-args.byn -- hello 42
+void main(ReadOnlySpan<string> args) {
+    print($"{args.length} arguments")
+    for i in 0..args.length { print($"{i}: {args[i]}") }
+    print("no arguments given; run with `-- hello 42`") if args.length == 0
+}

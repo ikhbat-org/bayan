@@ -1,0 +1,17 @@
+struct Account {
+    string owner
+    i64 balance
+}
+
+void transfer(i64 amount, from ref Account payer, to ref Account payee) {
+    payer.balance -= amount
+    payee.balance += amount
+}
+
+void main() {
+    var alice = Account { owner: "alice", balance: 500 }
+    var bob = Account { owner: "bob", balance: 100 }
+    transfer(200, from: ref alice, to: ref bob)
+    print($"{alice.owner} {alice.balance}")
+    print($"{bob.owner} {bob.balance}")
+}

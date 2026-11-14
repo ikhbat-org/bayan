@@ -127,7 +127,7 @@ public struct Order {
         .cancelled(_) => "",
     }
 
-    public void addLine(ref this, Line line) fails OrderError uses alloc {
+    public void addLine(ref this, Line line) uses alloc fails OrderError {
         fail .wrongState unless state is .draft
         fail .tooManyLines if lines.length >= maxLines
         fail .currencyMismatch if line.unitPrice.currency != currency

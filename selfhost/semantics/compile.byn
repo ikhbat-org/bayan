@@ -16,6 +16,67 @@ public struct CompilationOptions {
     public List<string>? capabilities = null
     public string? packageName = null
     public string? target = null
+    /// Test-only: the std files `import std.…` reads; null for the shipped ones (`stdShippedSources`, stdsource.byn).
+    public List<StdSource>? std = null
+}
+
+// ── StdLibrary.cs ───────────────────────────────────────────────────────────────
+
+/// A std file: its path under `std/` (`json/reader.byn`) and its text.
+public struct StdSource {
+    public string path
+    public string text
+}
+
+/// One file of a std module: its name and its text.
+public struct StdFile {
+    public string file
+    public string text
+}
+
+/// One std module: its path (`a/b` for `std.a.b`) and its files, in name order.
+public struct StdModule {
+    public string path
+    public List<StdFile> files
+}
+
+/// The C# `StdLibrary`: the std modules (spec 016), `byPath` indexing `modules`, and `names` every module's import name
+/// (`std.json`), sorted.
+public struct StdLibrary {
+    public List<StdModule> modules = List<StdModule>()
+    public Map<string, i64> byPath = []
+    public List<string> names = List<string>()
+}
+
+/// StdLibrary.cs:12 the constructor: a module is the files directly in one directory; tests are not part of it.
+StdLibrary stdLibraryCreate(from in List<StdSource> files) {
+    var library = StdLibrary {}
+    for f in files {
+        let slash = f.path.lastPosition("/") ?? -1
+        let file = $"{f.path[(slash + 1)..f.path.length]}"
+        if slash < 0 || !file.endsWith(".byn") || file.endsWith(".test.byn") { continue }
+        let module = $"{f.path[0..slash]}"
+        if !library.byPath.contains(module) {
+            library.byPath[module] = library.modules.length
+            library.modules.append(StdModule { path: module, files: List<StdFile>() })
+        }
+        library.modules[library.byPath[module]].files.append(StdFile { file: file, text: f.text })
+    }
+    for m in 0..library.modules.length {
+        let n = library.modules[m].files.length
+        for i in 1..n {
+            var j = i
+            while j > 0 && pathLess(library.modules[m].files[j].file, by: library.modules[m].files[j - 1].file) {
+                let t = library.modules[m].files[j]
+                library.modules[m].files[j] = library.modules[m].files[j - 1]
+                library.modules[m].files[j - 1] = t
+                j -= 1
+            }
+        }
+        library.names.append($"std.{library.modules[m].path.replaced("/", by: ".")}")
+    }
+    t11SortOrdinal(ref library.names)
+    return library
 }
 
 /// C# `HostTarget.Split` (HostTarget.cs): the `Target.os` and `Target.arch` of a target name; `wasm32` is `wasi`/`wasm32`.
@@ -82,7 +143,36 @@ public Ctx fromProject(string root, for string entryModule, by in CompilationOpt
 // ── Compilation.cs:100 Create ───────────────────────────────────────────────────
 
 /// Compiles `entryFiles` as the entry module; imports resolve under `packageRoot`.
-public Ctx create(from move List<lexer.SourceText> entryFiles, at string packageRoot, by in CompilationOptions options, string? displayRoot = null) uses alloc, clock, fs {
+public Ctx create(from move List<lexer.SourceText> entryFiles, at string packageRoot, by in CompilationOptions options, string? displayRoot = null) uses alloc, clock, fs =>
+    t2Create(from: move entryFiles, at: packageRoot, by: in options, through: [], for: List<string>(), displayRoot: displayRoot)
+
+/// Compilation.cs:129 WithFile: the same program compiled again with `text` in place of the file of the same path,
+/// entry or imported: spec 013 re-binds and ownership-checks each mutant this way.
+public Ctx withFile(in Ctx c, from in lexer.SourceText text) uses alloc, clock, fs {
+    var replaced: Map<string, lexer.SourceText> = []
+    var paths = List<string>()
+    for path in c.replacedPaths {
+        replaced[path] = t2CopySource(in c.replaced[path])
+        paths.append(path)
+    }
+    unless replaced.contains(text.path) { paths.append(text.path) }
+    replaced[text.path] = t2CopySource(in text)
+    var entry = List<lexer.SourceText>()
+    for f in c.entryFiles { entry.append(f.path == text.path ? t2CopySource(in text) : t2CopySource(in f)) }
+    return t2Create(from: move entry, at: c.packageRoot, by: in c.options, through: move replaced, for: move paths, displayRoot: c.displayRoot)
+}
+
+lexer.SourceText t2CopySource(in lexer.SourceText s) uses alloc => lexer.SourceText.create(s.path, from: s.bytes.copy())
+
+/// C# `CompilationOptions` copied, for `withFile`.
+CompilationOptions t2CopyOptions(in CompilationOptions o) uses alloc {
+    var capabilities: List<string>? = null
+    if (o.capabilities is { } caps) { capabilities = copyStrings(in caps) }
+    return CompilationOptions { includeTests: o.includeTests, library: o.library, skipOwnershipCheck: o.skipOwnershipCheck, capabilities: move capabilities, packageName: o.packageName, target: o.target }
+}
+
+/// Compilation.cs:138 Create, with the files `through` read from this text instead of from disk.
+Ctx t2Create(from move List<lexer.SourceText> entryFiles, at string packageRoot, by in CompilationOptions options, through move Map<string, lexer.SourceText> replaced, for move List<string> replacedPaths, string? displayRoot = null) uses alloc, clock, fs {
     var capabilities: List<string>? = null
     if (options.capabilities is { } caps) { capabilities = copyStrings(in caps) }
     var c = Ctx {
@@ -98,6 +188,15 @@ public Ctx create(from move List<lexer.SourceText> entryFiles, at string package
         displayRoot: displayRoot ?? packageRoot,
         includeTests: options.includeTests,
         skipOwnershipCheck: options.skipOwnershipCheck,
+    }
+    c.options = t2CopyOptions(in options)
+    for f in entryFiles { c.entryFiles.append(t2CopySource(in f)) }
+    c.replaced = move replaced
+    c.replacedPaths = move replacedPaths
+    if (options.std is { } injected) {
+        c.std = stdLibraryCreate(from: in injected)
+    } else {
+        c.std = stdLibraryCreate(from: in stdShippedSources())
     }
     var clock = Io.monotonicNanos()
     c.entryModule = loadModule(ref c, for: "main", at: packageRoot, from: move entryFiles, by: -1)
@@ -299,9 +398,23 @@ void resolveImport(ref Ctx c, from FileId file, for in parser.ImportDecl decl) {
         nameBuf.append(part)
         parts.append(part)
     }
-    let dir = Path.combine(parts.span)
     let name = $"{nameBuf.finish()}"
+    // `std.a.b` is the shipped module `a/b/` (spec 016); the package's own `std/` is never read for it.
+    let std = parts[1] == "std"
+    var stdPathBuf = StrBuf()
+    for i in 2..parts.length {
+        if i > 2 { stdPathBuf.append("/") }
+        stdPathBuf.append(parts[i])
+    }
+    let stdPath = $"{stdPathBuf.finish()}"
+    let dir = std ? $"<std>/{stdPath}" : Path.combine(parts.span)
     let span = TextSpan.fromBounds(decl.path[0].start, until: decl.path[decl.path.length - 1].end)
+    // A std module never reads the importing package: its imports are std modules only.
+    if !std && c.modules[c.files[file].module].directory.startsWith("<std>/") {
+        report(ref c, for: .stdImportsPackage, from: file, at: span, by: (c.modules[c.files[file].module].name, name, "", "", ""),
+            help: "import only `std.…` modules from a std module")
+        return
+    }
     let alias = t11Text(in c, from: file, at: decl.alias ?? decl.path[decl.path.length - 1])
     var module: ModId = -1
     if c.modulesByDir.contains(dir) {
@@ -321,6 +434,30 @@ void resolveImport(ref Ctx c, from FileId file, for in parser.ImportDecl decl) {
                 help: "move the shared declarations into a module both can import")
             return
         }
+    } else if std {
+        // C# `Options.Std ?? StdLibrary.Shipped` is `c.std`, built once in `create`.
+        let stdModule: i64 = decl.path.length > 1 && c.std.byPath.contains(stdPath) ? c.std.byPath[stdPath] : -1
+        if stdModule < 0 {
+            var help = StrBuf()
+            if c.std.names.length == 0 {
+                help.append("remove the import: no std modules ship with this build")
+            } else {
+                help.append("import one of ")
+                for i in 0..c.std.names.length {
+                    if i > 0 { help.append(", ") }
+                    help.append($"`{c.std.names[i]}`")
+                }
+            }
+            report(ref c, for: .unknownStdModule, from: file, at: span, by: (name, "", "", "", ""), help: $"{help.finish()}")
+            return
+        }
+        var sources = List<lexer.SourceText>()
+        for f in c.std.modules[stdModule].files {
+            var bytes = List<u8>()
+            for b in f.text.bytes { bytes.append(b) }
+            sources.append(lexer.SourceText.create($"{dir}/{f.file}", from: move bytes))
+        }
+        module = loadModule(ref c, for: name, at: dir, from: move sources, by: c.files[file].module)
     } else {
         var files = List<string>()
         if t11DirectoryExists(dir) { files = t11ModuleFiles(dir, includeTests: c.includeTests) }
@@ -330,7 +467,15 @@ void resolveImport(ref Ctx c, from FileId file, for in parser.ImportDecl decl) {
             return
         }
         var sources = List<lexer.SourceText>()
-        for f in files { sources.append(lexer.SourceText.create(t11RelativePath(c.displayRoot, to: f).replaced("\\", by: "/"), from: t11ReadAllBytes(f))) }
+        for f in files {
+            let path = t11RelativePath(c.displayRoot, to: f).replaced("\\", by: "/")
+            // C# `_replaced?.GetValueOrDefault(f.Path) ?? new SourceText(…)`: `withFile`'s text before the disk's.
+            if c.replaced.contains(path) {
+                sources.append(t2CopySource(in c.replaced[path]))
+            } else {
+                sources.append(lexer.SourceText.create(path, from: t11ReadAllBytes(f)))
+            }
+        }
         module = loadModule(ref c, for: name, at: dir, from: move sources, by: c.files[file].module)
     }
     if c.files[file].imports.contains(alias) {
@@ -435,6 +580,7 @@ void declare(ref Ctx c) {
                 c.unions[rule].variants.append(sym)
             }
         default:
+            // coverage-exempt: Q1197
             panic("the builtin `Rule` is a union")
     }
     for m in copyIds(in c.moduleOrder) {
@@ -449,6 +595,7 @@ void declare(ref Ctx c) {
         for s in copyIds(in c.modules[m].structs) { checkMembers(ref c, for: s) }
         var free = List<FuncId>()
         for f in copyIds(in c.modules[m].allFunctions) {
+            // coverage-exempt: Q1197
             if c.functions[f].owner < 0 && !functionIsInstance(ref c, by: f) && c.functions[f].kind != .main && c.functions[f].kind != .testKeyword {
                 free.append(f)
             }
@@ -459,9 +606,11 @@ void declare(ref Ctx c) {
                 case .functionDecl(let decl):
                     declareSignature(ref c, for: f, from: in decl.value, by: file)
                 default:
+                    // coverage-exempt: Q1197
                     panic("a free function is declared by a `FunctionDecl`")
             }
         }
+        checkSignatures(ref c, for: m)
         checkOverloads(ref c, for: m)
     }
     c.membersDeclared = true
@@ -503,7 +652,7 @@ Work t11CopyWork(in Work w) => Work {
 // ── Compilation.cs:244 DeclareBuiltinVariants ───────────────────────────────────
 
 /// The variants of the builtin error set `name`. `IoError` is numbered first, so the runtime can return its codes 1
-/// to 7 directly; `Utf8Error` follows (8). The C# `_nextErrorCode` is `errorVariants.length + 1`: every
+/// to 11 directly; `Utf8Error` follows (12). The C# `_nextErrorCode` is `errorVariants.length + 1`: every
 /// `ErrorVariantSymbol` takes the next code (Q572).
 void t11DeclareBuiltinVariants(ref Ctx c, for string name) {
     let set = typeIndex(t9Type(ref c, for: name))
@@ -523,12 +672,14 @@ void t11DeclareBuiltinVariants(ref Ctx c, for string name) {
                     code: c.errorVariants.length + 1,
                     doc: decl.value.variants[v].doc,
                 })
-                // A built-in payload is a primitive: `invalidSequence(i64 at)`.
+                // A built-in payload field is a primitive or `Millis`: `invalidSequence(i64 at)`,
+                // `timeout(Millis after, string stdout, string stderr)`, `signaled(i32 signal, string stdout, string stderr)`.
                 for field in decl.value.variants[v].fields {
                     var type = errorType()
                     switch field.type {
                         case .namedType(let n):
-                            type = primitiveByName(t11Text(in c, from: file, at: n.value.path[0])) ?? panic("a built-in payload is a primitive")
+                            let typeName = t11Text(in c, from: file, at: n.value.path[0])
+                            type = typeName == "Millis" ? builtinType(.millis) : (primitiveByName(typeName) ?? panic("a built-in payload is a primitive or `Millis`"))
                         default:
                             panic("a built-in payload is a named type")
                     }
@@ -772,9 +923,9 @@ void t11DeclareTest(ref Ctx c, from FileId file, at i64 declIndex, by TextSpan s
     c.modules[module].tests.append(testId)
     c.modules[module].allFunctions.append(fn)
     if attribute < 0 {
-        c.testBodies[fn] = TestBody { decl: SyntaxRef { file: file, declIndex: declIndex }, hasValues: false, values: SyntaxRef {} }
+        c.testBodies[fn] = TestBody { decl: SyntaxRef { file: file, declIndex: declIndex }, hasValues: false, caseArgument: SyntaxRef {} }
     } else {
-        c.testBodies[fn] = TestBody { decl: SyntaxRef { file: file, declIndex: declIndex }, hasValues: true, values: SyntaxRef { file: file, declIndex: declIndex, memberIndex: attribute, itemIndex: arg } }
+        c.testBodies[fn] = TestBody { decl: SyntaxRef { file: file, declIndex: declIndex }, hasValues: true, caseArgument: SyntaxRef { file: file, declIndex: declIndex, memberIndex: attribute, itemIndex: arg } }
     }
 }
 
@@ -827,7 +978,7 @@ void declareFile(ref Ctx c, for FileId file) {
                 for m in s.value.members {
                     switch m {
                         case .fieldDecl(let f):
-                            if f.value.requiresKeyword.length > 0 { needsFields = true }
+                            if f.value.requiresClauses.length > 0 { needsFields = true }
                         default:
                             continue
                     }
@@ -962,8 +1113,8 @@ void declareFile(ref Ctx c, for FileId file) {
                     }
                     checkType(ref c, from: file, at: a.value.name)
                 } else {
-                    if a.value.requiresKeyword.length > 0 {
-                        report(ref c, for: .unsupported, from: file, at: a.value.requiresKeyword[0].span, by: ("`requires` on a plain `type` alias", "", "", "", ""))
+                    if a.value.requiresClauses.length > 0 {
+                        report(ref c, for: .unsupported, from: file, at: a.value.requiresClauses[0].span, by: ("`requires` on a plain `type` alias", "", "", "", ""))
                     }
                     let sym = newAlias(ref c, by: AliasPlaceholder { name: name, nameSpan: a.value.name, span: a.value.name, file: file, declIndex: d, modifiers: i64(a.value.modifiers) })
                     if addType(ref c, from: file, at: a.value.name, as: t8AliasType(sym)) { c.aliasOrder.append(sym) }

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bayan: a value-oriented native language</title>
+<meta name="description" content="Bayan is a value-oriented, natively compiled language derived from C#: no runtime, no GC, no exceptions.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="mark.svg" alt="" width="32" height="32">Bayan <span lang="ar" dir="rtl">بيان</span></a>
+    <nav aria-label="Main">
+      <a href="docs.html">Docs</a>
+      <a href="tutorial.html">Tutorial</a>
+      <a href="https://github.com/ikhbat-org/bayan">GitHub</a>
+    </nav>
+    <span class="ver">v0.1</span>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero wrap">
+  <h1>One form,<br>one meaning.</h1>
+  <svg class="qalam" viewBox="0 0 690 44" role="img" aria-label="A reed pen drawing a line under the headline">
+    <path class="ink" d="M4 32 C130 29 300 35 524 31"/>
+    <g>
+      <path class="pen" d="M524 31 L548 22 L670 2 L680 9 L552 31 Z"/>
+      <path class="pen" d="M524 31 L540 25 M548 22 L552 31"/>
+      <path class="nibdot" d="M560 38 l4 4 -4 4 -4 -4z"/>
+    </g>
+  </svg>
+  <p class="lede">Bayan (<span lang="ar" dir="rtl">بيان</span>, “clarity”) is a value-oriented language that compiles to native code. Derived from C#, with no runtime, no garbage collector and no exceptions.</p>
+  <div class="hero-links">
+    <a class="btn" href="tutorial.html">Write your first program</a>
+    <a class="btn alt" href="docs.html">Read the docs</a>
+  </div>
+</section>
+
+<section class="wrap strip" aria-labelledby="strip-h">
+  <h2 id="strip-h" style="margin-top:2rem;font-size:1.15rem">Source in, C in the middle, a native program out</h2>
+  <div class="tabs" role="tablist" aria-label="Examples">
+    <button role="tab" id="t1" aria-controls="e1" aria-selected="true">hello.byn</button>
+    <button role="tab" id="t2" aria-controls="e2" aria-selected="false" tabindex="-1">overloads.byn</button>
+    <button role="tab" id="t3" aria-controls="e3" aria-selected="false" tabindex="-1">errors-defer-failing.byn</button>
+  </div>
+
+  <div class="example" id="e1" role="tabpanel" aria-labelledby="t1">
+    <div class="panes">
+      <div class="pane"><h3>hello.byn</h3>
+<pre class="code"><code><span class="f">print</span>(<span class="s">"Salam, world!"</span>)</code></pre></div>
+      <div class="pane"><h3>generated C (excerpt)</h3>
+<pre class="code"><code><span class="t">void</span> <span class="f">byn_main__main</span>(<span class="t">void</span>) {
+    (<span class="t">void</span>)<span class="f">byn_print</span>(((byn_builtin_Stream)<span class="n">0</span>),
+        <span class="f">BYN_STR</span>(<span class="s">"Salam, world!"</span>, <span class="n">13</span>));
+}</code></pre></div>
+      <div class="pane out"><h3>output</h3>
+<pre class="code"><code>Salam, world!</code></pre></div>
+    </div>
+  </div>
+
+  <div class="example" id="e2" role="tabpanel" aria-labelledby="t2" hidden>
+    <div class="panes">
+      <div class="pane"><h3>overloads.byn</h3>
+<pre class="code"><code><span class="k">struct</span> <span class="t">Pos</span> {
+    <span class="t">i64</span> x
+
+    <span class="t">Pos</span> <span class="f">plus</span>(<span class="p">by</span> <span class="t">i64</span> d) => <span class="t">Pos</span> { x: x + d }
+    <span class="t">Pos</span> <span class="f">plus</span>(<span class="p">from</span> <span class="t">i64</span> a, <span class="p">to</span> <span class="t">i64</span> b) => <span class="t">Pos</span> { x: x - a + b }
+}
+
+<span class="t">i64</span> <span class="f">shift</span>(<span class="t">i64</span> x, <span class="p">by</span> <span class="t">i64</span> d) => x + d
+<span class="t">i64</span> <span class="f">shift</span>(<span class="t">i64</span> x, <span class="p">from</span> <span class="t">i64</span> a, <span class="p">to</span> <span class="t">i64</span> b) => x - a + b
+
+<span class="k">let</span> p = <span class="t">Pos</span> { x: <span class="n">1</span> }
+<span class="f">print</span>(<span class="s">$"{p.plus(by: 2).x} {p.plus(from: 1, to: 9).x}"</span>)
+<span class="f">print</span>(<span class="s">$"{shift(1, by: 2)} {shift(1, from: 2, to: 5)}"</span>)</code></pre></div>
+      <div class="pane"><h3>generated C (excerpt)</h3>
+<pre class="code"><code><span class="t">int64_t</span> <span class="f">byn_main__shift</span>(<span class="t">int64_t</span> p_x, <span class="t">int64_t</span> p_d) {
+    <span class="k">return</span> <span class="f">byn_add_i64</span>(p_x, p_d, byn_file_0, <span class="n">10</span>);
+}
+
+<span class="t">int64_t</span> <span class="f">byn_main__shift__o1</span>(<span class="t">int64_t</span> p_x,
+        <span class="t">int64_t</span> p_a, <span class="t">int64_t</span> p_b) {
+    <span class="k">return</span> <span class="f">byn_add_i64</span>(
+        <span class="f">byn_sub_i64</span>(p_x, p_a, byn_file_0, <span class="n">11</span>),
+        p_b, byn_file_0, <span class="n">11</span>);
+}</code></pre></div>
+      <div class="pane out"><h3>output</h3>
+<pre class="code"><code>3 9
+3 4</code></pre></div>
+    </div>
+  </div>
+
+  <div class="example" id="e3" role="tabpanel" aria-labelledby="t3" hidden>
+    <div class="panes">
+      <div class="pane"><h3>errors-defer-failing.byn</h3>
+<pre class="code"><code><span class="k">union error</span> <span class="t">StepError</span> {
+    <span class="c">/// The step was told to fail.</span>
+    told
+}
+
+<span class="t">i64</span> <span class="f">work</span>(<span class="t">bool</span> shouldFail) <span class="k">fails</span> <span class="t">StepError</span> {
+    <span class="k">defer</span> <span class="f">print</span>(<span class="s">"defer"</span>)
+    <span class="k">defer failing</span> <span class="f">print</span>(<span class="s">"defer failing"</span>)
+    <span class="k">defer failing</span> (e) <span class="f">print</span>(<span class="s">$"defer failing saw {e}"</span>)
+    <span class="k">fail</span> .told <span class="k">if</span> shouldFail
+    <span class="k">return</span> <span class="n">1</span>
+}
+
+<span class="f">print</span>(<span class="s">$"result {work(shouldFail: false) catch -1}"</span>)
+<span class="f">print</span>(<span class="s">"---"</span>)
+<span class="f">print</span>(<span class="s">$"result {work(shouldFail: true) catch -1}"</span>)</code></pre></div>
+      <div class="pane"><h3>generated C (excerpt)</h3>
+<pre class="code"><code><span class="t">byn_err</span> <span class="f">byn_main__work</span>(<span class="t">bool</span> p_shouldFail,
+        <span class="t">int64_t</span>* byn_out) {
+    <span class="t">byn_err</span> t0 = {<span class="n">0</span>};
+    <span class="k">if</span> (p_shouldFail) {
+        t0 = ((byn_err){ .code = <span class="n">UINT32_C</span>(<span class="n">9</span>) });
+        <span class="c">/* … prints "defer failing saw …" … */</span>
+        (<span class="t">void</span>)<span class="f">byn_print</span>(…, <span class="f">BYN_STR</span>(<span class="s">"defer failing"</span>, <span class="n">13</span>));
+        (<span class="t">void</span>)<span class="f">byn_print</span>(…, <span class="f">BYN_STR</span>(<span class="s">"defer"</span>, <span class="n">5</span>));
+        <span class="k">return</span> t0;
+    }
+    <span class="c">/* … */</span>
+    *byn_out = <span class="f">INT64_C</span>(<span class="n">1</span>);
+    <span class="k">return</span> (byn_err){<span class="n">0</span>};
+}</code></pre></div>
+      <div class="pane out"><h3>output</h3>
+<pre class="code"><code>defer
+result 1
+---
+defer failing saw The step was told to fail.
+defer failing
+defer
+result -1</code></pre></div>
+    </div>
+  </div>
+  <p class="strip-note">Source and output are the compiler’s own test cases (<code>tests/cases/run</code>). The C is from <code>bayan build --emit-c</code> with <code>#line</code> directives removed and some lines elided (marked …): an illustration, not a stable format.</p>
+</section>
+
+<section class="wrap routes" aria-label="Start here">
+  <a class="route" href="tutorial.html"><strong>Your first program</strong><span>Get the compiler, write hello, build it, read an error and fix it.</span></a>
+  <a class="route" href="docs.html"><strong>The language reference</strong><span>Types, errors, memory, parameters. Start with how particles label arguments.</span></a>
+  <a class="route" href="docs.html#diagnostic"><strong>Compiler messages</strong><span>Every error says what, where, why and how to fix it. See one.</span></a>
+</section>
+
+<section class="wrap facts">
+  <img src="hoopoe-note.svg" alt="A hoopoe delivering a note" width="256" height="256">
+  <div>
+    <h2 style="margin-top:0">Clear news, in both senses</h2>
+    <p>The dots on Arabic letters (<span lang="ar" dir="rtl">إعجام</span>) were added to remove ambiguity. Bayan keeps that promise in its grammar: one canonical spelling for each construct, so code reads one way. In the Qur’an (27:20–22) the hoopoe returns with news that is certain and clear. Compiler messages aim to be the same.</p>
+    <ul>
+      <li>Value types and explicit ownership. No GC, no hidden allocation.</li>
+      <li>Errors are values: <code>fails</code>, <code>try</code>, <code>catch</code>. No exceptions.</li>
+      <li>Compiles to C, then to a native executable with <code>zig cc</code>.</li>
+      <li>The bootstrap compiler is C# on .NET 10 with NativeAOT. Self-hosting is in progress.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Bayan is made by the Ikhbat Foundation.</span>
+    <a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a>
+    <a href="docs.html">Docs</a>
+    <a href="tutorial.html">Tutorial</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabs [role=tab]'));
+  function show(t) {
+    tabs.forEach(function (b) {
+      var on = b === t;
+      b.setAttribute('aria-selected', on);
+      b.tabIndex = on ? 0 : -1;
+      document.getElementById(b.getAttribute('aria-controls')).hidden = !on;
+    });
+    t.focus();
+  }
+  tabs.forEach(function (b, i) {
+    b.addEventListener('click', function () { show(b); });
+    b.addEventListener('keydown', function (e) {
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (d) { e.preventDefault(); show(tabs[(i + d + tabs.length) % tabs.length]); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

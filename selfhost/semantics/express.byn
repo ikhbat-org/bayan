@@ -719,7 +719,7 @@ BExpr bindLiteral(ref Binder b, through ref Ctx c, for in parser.LiteralExpr l, 
 BExpr t17FromLiteral(ref Ctx c, for BExpr n, from in parser.LiteralExpr l) {
     let untyped = l.suffix is null && (l.kind == .integer || l.kind == .floatKeyword || l.kind == .char || l.kind == .nullKeyword)
     setSyntaxFlags(ref c, for: n, to: untyped ? syntaxLiteral | syntaxUntypedLiteral : syntaxLiteral)
-    return recordSyntaxNode(ref c, for: n, at: syntaxLeaf(ref c, as: .literalExpr, at: l.span))
+    return recordSyntaxNode(ref c, for: n, at: syntaxOfLiteral(ref c, from: in l))
 }
 
 BExpr t17CheckedIntegerLiteral(ref Binder b, through ref Ctx c, for in parser.LiteralExpr l, at TextSpan span, by Big value, as PrimitiveKind typeKind) {
@@ -893,6 +893,8 @@ BExpr bindName(ref Binder b, through ref Ctx c, for in parser.NameExpr n) {
     if name == "Target" { return recordSyntaxNode(ref c, for: addTypeRef(ref c, from: BTypeRef { span: n.span, referenced: builtinType(.target) }), at: syntax) }
     if name == "Env" { return recordSyntaxNode(ref c, for: addTypeRef(ref c, from: BTypeRef { span: n.span, referenced: builtinType(.env) }), at: syntax) }
     if name == "Fs" { return recordSyntaxNode(ref c, for: addTypeRef(ref c, from: BTypeRef { span: n.span, referenced: builtinType(.fs) }), at: syntax) }
+    if name == "Time" { return recordSyntaxNode(ref c, for: addTypeRef(ref c, from: BTypeRef { span: n.span, referenced: builtinType(.time) }), at: syntax) }
+    if name == "Millis" { return recordSyntaxNode(ref c, for: addTypeRef(ref c, from: BTypeRef { span: n.span, referenced: builtinType(.millis) }), at: syntax) }
 
     t17ReportUndefined(ref b, through: ref c, for: n.name)
     return recordSyntaxNode(ref c, for: addErrorExpr(ref c, from: BErrorExpr { span: n.span }), at: syntax)

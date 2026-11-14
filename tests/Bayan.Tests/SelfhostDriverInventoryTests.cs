@@ -34,7 +34,7 @@ public sealed partial class SelfhostDriverT8Tests
     {
         "defined", "if", "for", "while", "switch", "return", "sizeof", "else", "void", "double", "bool",
         "int32_t", "int64_t", "uint8_t", "uint32_t", "uint64_t", "UINT64_C", "_Alignas", "_WIN32", "__attribute__",
-        "WEXITSTATUS", "WIFSIGNALED", "WTERMSIG",
+        "WEXITSTATUS", "WIFSIGNALED", "WTERMSIG", "S_ISDIR",
         // Function-pointer parameters and macro parameters of the runtime, not library functions.
         "hook", "eq", "less", "flush", "N", "X", "_i", "_u",
     };

@@ -1,0 +1,12 @@
+let s = "héllo wörld"
+print($"{s.length} {s.runeCount}")
+print($"{s.contains("wör")} {s.startsWith("hé")} {s.endsWith("x")}")
+print($"{s.position("w")} {s.position("z")}")
+print($"{s.uppercased()}")
+print($"{s.replaced("l", by: "L")}")
+for part in s.parts(by: ' ') {
+    print(part)
+}
+print($"{s[0..3]}")
+print($"{s.bytes.length}")
+print($"{"a" == "a"} {"a" < "b"}")

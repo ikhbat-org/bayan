@@ -1,0 +1,4 @@
+void main() {
+    let boxed = Owned(41)
+    print($"{boxed.value + 1}")
+}

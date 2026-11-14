@@ -69,6 +69,21 @@ public sealed class SelfhostSemanticsT9Tests
         ("fs nope", "findFs(ref c, for: \"nope\")", B.FindFs("nope")),
         ("Env.get", "t9Function(ref c, for: \"Env.get\")", B.EnvGet),
         ("Fs.fileExists", "t9Function(ref c, for: \"Fs.fileExists\")", B.FsFileExists),
+        ("fs rename", "findFs(ref c, for: \"rename\")", B.FindFs("rename")),
+        ("fs copy", "findFs(ref c, for: \"copy\")", B.FindFs("copy")),
+        ("fs modified", "findFs(ref c, for: \"modified\")", B.FindFs("modified")),
+        ("fs setModified", "findFs(ref c, for: \"setModified\")", B.FindFs("setModified")),
+        ("fs realPath", "findFs(ref c, for: \"realPath\")", B.FindFs("realPath")),
+        ("time now", "findTime(ref c, for: \"now\")", B.FindTime("now")),
+        ("time fromNanos", "findTime(ref c, for: \"fromNanos\")", B.FindTime("fromNanos")),
+        ("time nope", "findTime(ref c, for: \"nope\")", B.FindTime("nope")),
+        ("Fs.rename", "t9Function(ref c, for: \"Fs.rename\")", B.FsRename),
+        ("Fs.copy", "t9Function(ref c, for: \"Fs.copy\")", B.FsCopy),
+        ("Fs.modified", "t9Function(ref c, for: \"Fs.modified\")", B.FsModified),
+        ("Fs.setModified", "t9Function(ref c, for: \"Fs.setModified\")", B.FsSetModified),
+        ("Fs.realPath", "t9Function(ref c, for: \"Fs.realPath\")", B.FsRealPath),
+        ("Time.now", "t9Function(ref c, for: \"Time.now\")", B.TimeNow),
+        ("Time.fromNanos", "t9Function(ref c, for: \"Time.fromNanos\")", B.TimeFromNanos),
     ];
 
     /// <summary>The types the member tables are asked about: label, Bayan expression, C# type.</summary>
@@ -88,6 +103,7 @@ public sealed class SelfhostSemanticsT9Tests
         ("arena", "builtinType(.arena)", BuiltinType.Arena),
         ("strBuf", "builtinType(.strBuf)", BuiltinType.StrBuf),
         ("symbol", "builtinType(.symbol)", BuiltinType.Symbol),
+        ("time", "builtinType(.time)", BuiltinType.Time),
         ("processResult", "builtinType(.processResult)", BuiltinType.ProcessResult),
         ("panic", "builtinType(.panic)", BuiltinType.Panic),
         ("formatSpec", "builtinType(.formatSpec)", BuiltinType.FormatSpec),
@@ -111,7 +127,7 @@ public sealed class SelfhostSemanticsT9Tests
     /// <summary>The C# <c>Candidates</c> plus names no table has.</summary>
     private static readonly string[] MemberNames =
         ["length", "bytes", "isEmpty", "runeCount", "isAscii", "runes", "utf16", "lines", "value", "copy", "startsWith", "endsWith", "contains",
-         "position", "lastPosition", "count", "trimmed", "equals", "lowercased", "uppercased", "replaced", "repeated", "padded", "parts", "skip", "takeLast", "joined", "span", "mutableSpan", "clear", "removeLast", "replace", "sort", "tryGet", "slot", "remove", "reset", "append", "appendRepeated", "insert", "finish", "view", "take", "write", "readAll", "readAllBytes", "name", "ordinal", "exitCode", "stdout", "stderr", "message", "radix", "debug", "width", "fill", "align", "digits",
+         "position", "lastPosition", "count", "trimmed", "equals", "lowercased", "uppercased", "replaced", "repeated", "padded", "parts", "skip", "takeLast", "joined", "span", "mutableSpan", "clear", "removeLast", "replace", "sort", "tryGet", "slot", "remove", "reset", "append", "appendRepeated", "insert", "finish", "view", "take", "write", "readAll", "readAllBytes", "name", "ordinal", "exitCode", "stdout", "stderr", "message", "radix", "debug", "width", "fill", "align", "digits", "nanos",
          "isOk", "err", "nope"];
 
     private static readonly string[] NameTypes =
@@ -125,6 +141,7 @@ public sealed class SelfhostSemanticsT9Tests
         ("builtinType(.target)", BuiltinType.Target),
         ("builtinType(.env)", BuiltinType.Env),
         ("builtinType(.fs)", BuiltinType.Fs),
+        ("builtinType(.millis)", BuiltinType.Millis),
     ];
 
     /// <summary>Build targets for <c>Target.os</c>/<c>Target.arch</c>; null is the compiling host.</summary>
@@ -327,6 +344,21 @@ public sealed class SelfhostSemanticsT9Tests
                     }
                 """);
         }
+        s.AppendLine("    print(\"== detail\")");
+        s.AppendLine($$"""
+                {
+                    var files = List<lexer.SourceText>()
+                    var bytes = List<u8>()
+                    for ch in "{{TargetSource.Replace("\n", "\\n")}}".bytes { bytes.append(ch) }
+                    files.append(lexer.SourceText.create("main.byn", from: move bytes))
+                    var compiled = create(from: move files, at: "tmp/t18-target", by: in CompilationOptions { includeTests: false })
+                    for v in detailVariants(ref compiled) {
+                        let field = compiled.errorVariants[v].fields[0]
+                        let d = typeDisplay(ref compiled, by: compiled.locals[field].type)
+                        print($"{compiled.errorSets[compiled.errorVariants[v].set].name}.{compiled.errorVariants[v].name} {compiled.errorVariants[v].code} {compiled.locals[field].name}: {d}")
+                    }
+                }
+            """);
         s.AppendLine("    print(\"== names\")");
         foreach (var n in NameTypes)
             s.AppendLine($"    namesLine(ref c, for: \"{n}\", at: t{Array.FindIndex(Types, t => t.Label == n)})");
@@ -436,6 +468,17 @@ public sealed class SelfhostSemanticsT9Tests
             foreach (var d in compilation.Diagnostics.Items) expected.Add($"  {d.Code} {d.Span.Start}:{d.Span.Length} {d.Message}");
         }
         SelfhostSemanticsHarness.AssertSection(Output.Value, "alias", expected);
+    }
+
+    /// <summary>Plan 007 §1: the detail-carrying builtin variants, their codes (signaled 10, timeout 11, invalidSequence 12) and payloads.</summary>
+    [Fact]
+    public void DetailVariantsMatchTheCSharp()
+    {
+        var compilation = Compilation.Create([SourceText.FromString("main.byn", TargetSource)], Path.Combine(Golden.RepoRoot, "tmp", "t18-target"), new CompilationOptions());
+        var expected = compilation.Builtins.DetailVariants
+            .Select(v => $"{v.Set.Name}.{v.Name} {v.Code} {v.Fields[0].Name}: {v.Fields[0].Type.DisplayName}").ToList();
+        Assert.Equal(new[] { "IoError.signaled 10 signal: i32", "IoError.timeout 11 after: Millis", "Utf8Error.invalidSequence 12 at: i64" }, expected.Take(3));
+        SelfhostSemanticsHarness.AssertSection(Output.Value, "detail", expected);
     }
 
     [Fact]

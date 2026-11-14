@@ -64,6 +64,7 @@ jobs:
           MUTATE_FILES: ${{ inputs.files }}
           MUTATE_TASKS: ${{ inputs.tasks || 'docs/specs/010-self-hosted-semantics/010-tasks.md' }}
           SHARD: ${{ matrix.shard }}
+          BAYAN_TEST_TIME_SCALE: 3
         shell: bash
         run: |
           args=(--shard "$SHARD/4" --tasks "$MUTATE_TASKS")

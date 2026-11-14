@@ -1,0 +1,35 @@
+type distinct ParcelId = i64
+type distinct Grams = i64 requires it > 0
+
+union error ShipError {
+    noAddress
+}
+
+struct Parcel {
+    ParcelId id
+    Grams weight
+    states {
+        packed
+        sent(string carrier)
+        delivered(string carrier, string signedBy)
+    }
+
+    void send(ref this is .packed, by string carrier) becomes .sent fails ShipError {
+        fail .noAddress if carrier.isEmpty
+        become .sent(carrier: carrier)
+    }
+
+    void deliver(ref this is .sent, string signedBy) becomes .delivered {
+        become .delivered(carrier: carrier, signedBy: signedBy)
+    }
+}
+
+string receipt(Parcel.delivered p) => $"parcel {p.id.value} signed by {p.signedBy}"
+
+void main() fails ValidationError<Grams>, ShipError {
+    var p = Parcel.packed { id: ParcelId(1), weight: Grams(250) }
+    try p.send(by: "DHL")
+    p.deliver("Sam")
+    print(receipt(p))
+    print(p.carrier)
+}

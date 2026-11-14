@@ -1,0 +1,27 @@
+interface IShape {
+    i64 area()
+    string name => "shape"
+    string describe() => $"{name} with area {area()}"
+}
+
+struct Square : IShape {
+    i64 side
+
+    i64 area() => side * side
+    string name => "square"
+}
+
+struct Rect : IShape {
+    i64 w
+    i64 h
+
+    i64 area() => w * h
+}
+
+void main() {
+    let sq = Square { side: 3 }
+    let r = Rect { w: 2, h: 5 }
+    print(sq.describe())
+    print(r.describe())
+    print($"{sq.area() + r.area()}")
+}

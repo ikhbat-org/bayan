@@ -1,0 +1,6 @@
+// bayan run cli-args.byn -- one two
+// With no arguments after `--`, the list is empty.
+void main(ReadOnlySpan<string> args) {
+    print($"{args.length} arguments")
+    for a in args { print($"arg: {a}") }
+}

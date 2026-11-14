@@ -1,0 +1,16 @@
+public struct Row {
+    public i64 id
+}
+
+// A noun derived from a project verb by regular spelling is a doer: `upsert` gives `upserter`.
+public struct RowUpserter {
+    public void flush(ref this) {
+    }
+}
+
+public struct RowReindexer {
+    public void reindex(ref this) {
+    }
+}
+
+print("ok")

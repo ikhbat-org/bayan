@@ -1,6 +1,6 @@
 You are the independent reviewer for task T28 of spec 010 (the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`). You did not write this code. Your job is to find where the port is not the C#. Do not edit any file except the review file below; do not run git commands that change state.
 
-Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port `selfhost/semantics/*.byn`, the tests `tests/Bayan.Tests/SelfhostSemanticsTests.cs`, `tests/Bayan.Tests/SelfhostSemanticsGeneratorTests.cs`, `tests/Bayan.Tests/SelfhostSemanticsT*Tests.cs`, `tests/cases/diag/generic-guard-mutate-rebind.byn`, and Questions Q655–Q657 in `docs/bayan-handoff.md`.
+Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port `selfhost/semantics/*.byn`, the tests `tests/Bayan.Tests/SelfhostSemanticsTests.cs`, `tests/Bayan.Tests/SelfhostSemanticsGeneratorTests.cs`, `tests/Bayan.Tests/SelfhostSemanticsT*Tests.cs`, `tests/cases/diag/generic-guard-mutate-rebind.byn`, and Questions Q655–Q657 in `docs/bayan-questions.md`.
 
 ## Task (verbatim)
 - [x] T28 Integration: parity — files: any `selfhost/semantics/*.byn` (stand-ins removed, fixes only), `src/Bayan.*` (only a blocking compiler bug, with a test), `work/todo.md` (removes `t17Host`, `t18Host` and the `t11/t15/t16/t17ExprSpan` copies, Q674), `SelfhostSemanticsTests.cs` and `SelfhostSemanticsGeneratorTests.cs` (the `T28 enables` skips removed), `SelfhostSemanticsT*Tests.cs` (only harness stand-ins that a real port now replaces, removed), `docs/specs/010-self-hosted-semantics/010-api.md` (signatures a T28 fix widens), `tests/cases/diag/generic-guard-mutate-rebind.byn` and `tests/cases/diag/generic-guard-mutate-rebind.diag` (covers the generic `checkGuardWrite` branch and the `bindFunction` rollback, expected file from the C#) — covers: R1, R2, R4, R5, R6, R7, R8 — after: T6–T27, T34–T39; parallel with: none — done when:
@@ -18,6 +18,8 @@ Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C
 5. **True docs.** Each Question in the task's range says what the code does; each break-test line citation points at the line it names. A false claim is MEDIUM.
 
 Verify each finding in the code before you write it: name the Bayan `file:line` and the C# `file:line`. Run the task's tests (`dotnet test -v q --filter "FullyQualifiedName~SelfhostSemantics"`) once; you may add a probe under `tmp/review-t28/` to confirm a behaviour.
+
+Cite format (`scripts/selfhost/preflight.sh` checks every `path:N` in the review file before landing): a `path:N` takes, in the same clause, a backticked symbol that is on line N or the 2 lines after it at HEAD. For a line as it was in an earlier commit, or one with no symbol to name, write `path (line N)`. On a re-review your block replaces the whole file: carry every earlier row with its status.
 
 ## Write `docs/specs/010-self-hosted-semantics/reviews/T28.md`, exactly this shape
 ```

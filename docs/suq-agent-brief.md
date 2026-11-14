@@ -6,7 +6,7 @@ The round-3 plan (J1–J25) is awaiting Sy's approval. This document feeds Sūq'
 
 ## What to do
 
-1. **Part A.** Apply Sy's decisions to the round-3 docs on `feat/design-round-3`: the HANDOFF, plan, SPEC and GRAMMAR. If the round-3 docs already decide an item differently, keep the decision below and record the conflict in your response. Don't silently pick one.
+1. **Part A.** Apply Sy's decisions to the round-3 docs on `feat/design-round-3`: the round-3 design doc (`docs/bayan-design-round-3.md`), plan, SPEC and GRAMMAR. If the round-3 docs already decide an item differently, keep the decision below and record the conflict in your response. Don't silently pick one.
 2. **Part B.** Map each open friction item to a round-3 plan step, or propose a new one. Say whether the round-3 docs already answer it.
 3. **Part C.** Check that every round-3 audit fix appears in the round-3 GRAMMAR/SPEC.
 4. **Part D.** Add the Sūq-0 goldens on `feat/design-round-2` and make them pass without editing any expected output.

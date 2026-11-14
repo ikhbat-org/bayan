@@ -296,7 +296,7 @@ public sealed partial class CliEnvironmentTests
         Assert.Equal(CliApp.ExitOk, Run(["new", app, "--vcs", "none"]).Exit);
         Directory.CreateDirectory(Path.Combine(app, "src", "money"));
         File.WriteAllText(Path.Combine(app, "src", "money", "money.byn"), "public i64 cents(i64 units) {\n    return units * 100\n}\n\ntest \"cents\" {\n    assert(cents(2) == 200)\n}\n");
-        File.WriteAllText(Path.Combine(app, "src", "app", "main.byn"), "import money\n\nstring greeting() {\n    return \"Hello, world!\"\n}\n\ntest \"in main\" {\n    assert(money.cents(1) == 100)\n}\n\nprint(greeting())\n");
+        File.WriteAllText(Path.Combine(app, "src", "app", "main.byn"), "import money\n\nstring greeting() {\n    return \"Salam, world!\"\n}\n\ntest \"in main\" {\n    assert(money.cents(1) == 100)\n}\n\nprint(greeting())\n");
         Assert.Equal(0, Git(app, "init", "--quiet", "-b", "work").Code);
         Assert.Equal(0, Git(app, "add", "-A").Code);
         Assert.Equal(0, Git(app, "commit", "--quiet", "-m", "start").Code);
@@ -443,11 +443,12 @@ public sealed partial class CliEnvironmentTests
     {
         var file = Path.Combine(Fresh("timeout"), "main.byn");
         File.WriteAllText(file, "void main() {\n}\n\ntest \"loops\" {\n    while true {\n    }\n}\n");
-        With("BAYAN_TEST_TIMEOUT_MS", "300", () =>
+        var limit = TestTime.Scale(300);
+        With("BAYAN_TEST_TIMEOUT_MS", limit.ToString(System.Globalization.CultureInfo.InvariantCulture), () =>
         {
             var (exit, stdout, _) = Run(["test", file]);
             Assert.Equal(CliApp.ExitTestFailure, exit);
-            Assert.Contains(" timeout: loops\n      timed out after 0 s\n", stdout);
+            Assert.Contains($" timeout: loops\n      {Messages.TestTimedOut.Text(limit / 1000.0)}\n", stdout);
             Assert.Contains(" 0 passed · ", stdout);
             Assert.Contains(" 1 failed · ", stdout);
         });

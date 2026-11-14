@@ -1,6 +1,8 @@
 # Move Bayān to the Ikhbat Foundation
 
-Date: 2026-11-02. Tier: Standard. Status: rev 3e (reviews A, B and C folded in, the user's choices
+Status: open (steps 1–7 done: repo at ikhbat.org/bayan on github.com/ikhbat-org; left: 8 vault sync, 9 wp1 and wlt1 moves, 10 post-move checks, 11 records; none recorded in the progress log).
+
+Date: 2026-11-02. Tier: Standard. Earlier status: rev 3e (reviews A, B and C folded in, the user's choices
 applied; rev 3b: move-script fix round 1, F1-F16; rev 3c: fix round 2, G1-G6; rev 3d: session-end
 review fixes M1-M6; rev 3e: review loop 2, N1-N4), waiting for the user's approval.
 
@@ -106,7 +108,7 @@ keeps redirecting.
    - `CHANGELOG.md` `## [Unreleased]`: "Changed: the repository moved to
      `github.com/ikhbat-org/bayan` (Ikhbat Foundation); home page `https://bayan.run`."
    - `scripts/cleanup/016-spec-013-and-011-draft.sh`: Windows path → `/home/code/ikhbat.org/bayan`.
-   - The move script and its test (step 2), the handoff progress-log entry.
+   - The move script and its test (step 2), the `docs/bayan-progress-log.md` entry.
 2. **Move script** `scripts/move/2026-11-02-ikhbat-org.sh` + `.test.sh`, written by
    `codegen-lite`, gated against this plan. Dry run by default, `--execute` acts. Every path from
    variables (`OLD_REPO`, `NEW_REPO`, `CLAUDE_HOME`, `CLAUDE_JSON`, `NEW_REMOTE`, `PGREP`)

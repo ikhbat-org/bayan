@@ -1,0 +1,213 @@
+title: 4. Functions and parameters
+nav: Learn
+order: 400
+template: docs
+---
+<p class="lede">A function names an operation. Bayan functions put the type first, and most calls label their arguments with a short word such as <code>from:</code> or <code>by:</code>, so a call reads like a phrase. This chapter builds up from a one-line function to labelled, defaulted and <code>ref</code> parameters.</p>
+
+<h2 id="basic">Declaring and calling</h2>
+<example name="book-04-basic"/>
+<ul>
+  <li>A declaration starts with the return type, then the name, then the parameters: <code>i64 square(i64 x)</code>. Each parameter is also type first.</li>
+  <li><code>return</code> gives the result back. <code>void</code> means the function returns nothing.</li>
+  <li>A function whose body is one expression can use <code>=&gt;</code> instead of braces and <code>return</code>: <code>i64 cube(i64 x) =&gt; x * square(x)</code>.</li>
+  <li>Functions can call themselves, as <code>factorial</code> does.</li>
+  <li>Parameters are read-only inside the function. This is refused:</li>
+</ul>
+<figure class="diag">
+<pre><span class="err">error BYN2104:</span> `n` is immutable
+  <span class="gut">--&gt;</span> immutparam.byn:2:5
+
+<span class="gut">  2 │</span>     n -= 1
+<span class="gut">    │</span>     ^ parameters are immutable
+<span class="gut">    │</span>
+<span class="gut">  help: copy it into a local `var`, or take it by `ref` if the caller's value should change</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2104</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check immutparam.byn</code>). The path is shortened to <code>immutparam.byn</code>.</figcaption>
+</figure>
+<p>The help names the two fixes. Copy the value into a local <code>var</code>, or take it by <code>ref</code> (below).</p>
+<p>The calls at the bottom of the program label the second argument with <code>for:</code>. The next section explains why.</p>
+
+<h2 id="particles">Particles: labelled arguments</h2>
+<p>A function may have one unlabeled parameter, the thing it works on. Every other required parameter carries a particle: one of <code>from to until through at by for as</code>. In the declaration the particle comes before the type. In the call it is a label with a colon.</p>
+<example name="book-04-particles"/>
+<ul>
+  <li><code>transfer(200, from: "alice", to: "bob")</code> reads as a sentence. The first argument, <code>200</code>, is the unlabeled one.</li>
+  <li>Labelled arguments may come in any order: the second call puts <code>to:</code> before <code>from:</code>.</li>
+  <li>The labels are fixed by the declaration. You cannot invent one, and you cannot leave one out. Leaving them out is the most common error you will meet:</li>
+</ul>
+<figure class="diag">
+<pre><span class="err">error BYN5005:</span> `payer` is passed without its particle `from:`
+  <span class="gut">--&gt;</span> particle.byn:5:15
+
+<span class="gut">  5 │</span> transfer(200, "alice", "bob")
+<span class="gut">    │</span>               ^^^^^^^ needs `from:`
+<span class="gut">    │</span>
+<span class="gut">  help: add `from:` before the argument</span>
+<span class="gut">    │ 5 │</span> transfer(200, from: "alice", "bob")
+<span class="gut">    │   │</span><span class="add">               ++++++</span>
+
+<span class="err">error BYN5005:</span> `payee` is passed without its particle `to:`
+  <span class="gut">--&gt;</span> particle.byn:5:24
+
+<span class="gut">  5 │</span> transfer(200, "alice", "bob")
+<span class="gut">    │</span>                        ^^^^^ needs `to:`
+<span class="gut">    │</span>
+<span class="gut">  help: add `to:` before the argument</span>
+<span class="gut">    │ 5 │</span> transfer(200, "alice", to: "bob")
+<span class="gut">    │   │</span><span class="add">                        ++++</span>
+
+<span class="gut">✗ build failed: 2 errors, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN5005</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check particle.byn</code>). The path is shortened to <code>particle.byn</code>.</figcaption>
+</figure>
+<p>Each argument gets its own error with the exact edit. (The two suggestions are shown one at a time, so apply both.)</p>
+<p>If you declare two parameters without particles, the compiler tells you at the declaration:</p>
+<figure class="diag">
+<pre><span class="err">error BYN5004:</span> `announce` has 2 unlabeled parameters; give each but one a particle
+  <span class="gut">--&gt;</span> twoplain.byn:1:6
+
+<span class="gut">  1 │</span> void announce(string label, i64 value) {
+<span class="gut">    │</span>      ^^^^^^^^ 2 unlabeled parameters
+<span class="gut">    │</span>
+<span class="gut">  help: keep one unlabeled parameter, the object</span>
+
+<span class="err">error BYN5006:</span> `value` is a required parameter besides the object and needs a particle
+  <span class="gut">--&gt;</span> twoplain.byn:1:33
+
+<span class="gut">  1 │</span> void announce(string label, i64 value) {
+<span class="gut">    │</span>                                 ^^^^^ needs a particle
+<span class="gut">    │</span>
+<span class="gut">  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`</span>
+
+<span class="gut">✗ build failed: 2 errors, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN5004</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check twoplain.byn</code>). The path is shortened to <code>twoplain.byn</code>.</figcaption>
+</figure>
+<p>The first error says what is wrong, and the second says what each remaining parameter needs. Pick the word that fits the role: <code>from</code>/<code>to</code> for a source and destination, <code>until</code>/<code>through</code> for exclusive and inclusive ends, <code>at</code> for a position, <code>by</code> for a method or step, <code>for</code> for the subject, <code>as</code> for a representation.</p>
+
+<h2 id="mistakes">Wrong arguments</h2>
+<p>A wrong type names both types:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `i64`, found `string`
+  <span class="gut">--&gt;</span> argtype.byn:3:17
+
+<span class="gut">  3 │</span> print($"{square("seven")}")
+<span class="gut">    │</span>                 ^^^^^^^
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2202</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check argtype.byn</code>). The path is shortened to <code>argtype.byn</code>.</figcaption>
+</figure>
+<p>A wrong number of arguments says how many the function takes:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2302:</span> `square` takes 1 argument(s)
+  <span class="gut">--&gt;</span> argcount.byn:3:20
+
+<span class="gut">  3 │</span> print($"{square(2, 3)}")
+<span class="gut">    │</span>                    ^
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2302</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check argcount.byn</code>). The path is shortened to <code>argcount.byn</code>.</figcaption>
+</figure>
+
+<h2 id="defaults">Default values</h2>
+<p>A parameter with a default can be left out. To override it, pass it by name.</p>
+<example name="book-04-defaults"/>
+<ul>
+  <li><code>string greeting = "Hello"</code> is optional. <code>greet("Ada")</code> uses the default.</li>
+  <li>A defaulted parameter is passed by its own name: <code>greeting: "Welcome"</code>, <code>times: 5</code>.</li>
+</ul>
+
+<h2 id="ref"><code>ref</code> parameters</h2>
+<p>By default a function gets a read-only view of its arguments. To let it change the caller's variable, mark the parameter <code>ref</code>, and write <code>ref</code> again at the call.</p>
+<example name="book-04-ref"/>
+<ul>
+  <li><code>bump(ref hits)</code> adds one to the caller's <code>hits</code>. The word at the call tells a reader that <code>hits</code> may change there.</li>
+  <li>Pass a <code>var</code>: <code>hits</code> here is declared with <code>var</code>.</li>
+  <li>A <code>ref</code> parameter can come with defaulted parameters, as <code>addTwice(ref xs, value: 9)</code> shows.</li>
+</ul>
+<p>Forget the word at the call and the compiler adds it for you:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2306:</span> argument for `counter` must be passed as `ref`
+  <span class="gut">--&gt;</span> noref.byn:6:6
+
+<span class="gut">  6 │</span> bump(hits)
+<span class="gut">    │</span>      ^^^^
+<span class="gut">    │</span>
+<span class="gut">    │ 6 │</span> bump(ref hits)
+<span class="gut">    │   │</span><span class="add">      ++++</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2306</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check noref.byn</code>). The path is shortened to <code>noref.byn</code>.</figcaption>
+</figure>
+
+<h2 id="rest">Any number of arguments: <code>rest</code></h2>
+<p>The last parameter can be <code>rest</code>, which takes any number of values as a read-only span.</p>
+<example name="book-04-rest"/>
+<p><code>numbers</code> is a <code>ReadOnlySpan&lt;i64&gt;</code> inside the function. You go through it with <code>for</code>. Calling with no values is allowed.</p>
+
+<h2 id="overloads">Overloads</h2>
+<p>Several functions can share a name when their parameters differ by particle set:</p>
+<example name="book-04-overloads"/>
+<p>The compiler picks the one whose particles match the call. Overloads that differ only by the type of an unlabeled parameter are not accepted:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2006:</span> `show` is declared twice
+  <span class="gut">--&gt;</span> overload.byn:2:8
+
+<span class="gut">  2 │</span> string show(string s) =&gt; $"text {s}"
+<span class="gut">    │</span>        ^^^^ already declared on line 1
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2006</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check overload.byn</code>). The path is shortened to <code>overload.byn</code>.</figcaption>
+</figure>
+<p>The second declaration is called a duplicate. Give the functions different names (<code>showNumber</code>, <code>showText</code>) or different particles.</p>
+
+<h2 id="discard">Ignoring a result</h2>
+<p>A call whose result you do not need can be bound to <code>_</code>:</p>
+<pre><code class="byn">let _ = list.removeLast()</code></pre>
+<p>Some calls, such as <code>removeLast()</code>, must have their result bound or used. The compiler reports <code>BYN3201</code> otherwise. The help text in some messages suggests <code>_ = f()</code>. That form does not work yet; write <code>let _ = f()</code>.</p>
+
+<h2 id="recap">What you have now</h2>
+<ul>
+  <li>Type first: <code>i64 square(i64 x)</code>. <code>=&gt;</code> for one-expression bodies.</li>
+  <li>One unlabeled parameter. Every other required parameter has a particle.</li>
+  <li>Defaults are passed by name. <code>ref</code> is written at the declaration and at the call.</li>
+  <li>Parameters are read-only unless <code>ref</code>.</li>
+  <li>Overloads differ by particle set.</li>
+</ul>
+<p>The full rules are in <a href="parameters.html">Parameters and arguments</a>.</p>
+
+<h2 id="quiz">Check your understanding</h2>
+<example name="book-04-q1" output="no"/>
+<details class="quiz">
+  <summary>What does this program print?</summary>
+  <p>It prints:</p>
+<pre><code>[plain] a
+[bold] b</code></pre>
+  <p>The first call leaves out <code>as:</code>, so <code>style</code> uses its default, <code>plain</code>. The second passes <code>as: "bold"</code>. Writing the second call as <code>label("b", "bold")</code> would not compile: the argument needs its particle.</p>
+</details>
+<example name="book-04-q2" output="no"/>
+<details class="quiz">
+  <summary>What does this program print?</summary>
+  <p>It prints:</p>
+<pre><code>1 11</code></pre>
+  <p><code>var b = a</code> copies the number. <code>bump(ref b)</code> changes <code>b</code> only, so <code>a</code> stays 1 and <code>b</code> becomes 11. The answer <code>11 11</code> assumes both names refer to one value, which is not the case for numbers.</p>
+</details>
+<details class="quiz">
+  <summary>You write <code>void move(string name, i64 steps)</code>. What does the compiler say, and what is a fix?</summary>
+  <p>It reports <code>BYN5004</code> and <code>BYN5006</code>: a function may have one unlabeled parameter, and the second needs a particle. Make it <code>void move(string name, by i64 steps)</code> and call <code>move("ada", by: 3)</code>. Giving <code>steps</code> a default would also compile, but then the call would be <code>move("ada", steps: 3)</code>.</p>
+</details>
+<details class="quiz">
+  <summary>A function body says <code>n -= 1</code> where <code>n</code> is a parameter. Why is it refused, and what are the two fixes?</summary>
+  <p>Parameters are read-only (<code>BYN2104</code>). If only the function needs a changed value, copy it: <code>var m = n</code>. If the caller's variable should change, declare the parameter <code>ref i64 n</code> and call with <code>ref</code>. Making the caller's variable a <code>var</code> alone does not help, because the rule is about the parameter.</p>
+</details>
+
+<div class="next-box">
+  <p>Next: <a href="book-05-structs.html">5. Structs and methods</a> groups values into your own types, and puts functions on them.</p>
+</div>

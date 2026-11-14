@@ -6,7 +6,7 @@
 # (tmp/guard-run/coverage/bayan-quality.json, the only place the real guard writes one; no quality-*.json): a landing with
 # none leaves the baseline alone, one fills coverage and branches, one with a higher coverage raises it (both in the tick commit),
 # a lower filtered coverage lands and leaves the recorded value unchanged, and a malformed report is refused before the merge. With tests/Bayan.Tests/BootstrapTests.cs on the base, a branch that changes selfhost/ is refused before the merge when the base
-# changed selfhost/ or src/runtime/ after it branched (012 T6: bootstrap/ is regenerated on the branch).
+# changed selfhost/ or src/runtime/ after it branched (012 T6: bootstrap/ is regenerated on the branch). `--check` runs preflight and the guard only: no review, merge or tick, and the same exits.
 set -e
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 r="$root/tmp/land&test'q"; aux="$root/tmp/land-test-aux"
@@ -18,6 +18,7 @@ cat > scripts/selfhost/guard.sh <<'STUB'
 echo "$0" >> "$AUX/guard-ran.txt"; echo "$*" > "$AUX/guard-args.txt"
 [ -f "$AUX/covreport" ] && mkdir -p tmp/guard-run/coverage && cp "$AUX/covreport" tmp/guard-run/coverage/bayan-quality.json
 [ -f "$AUX/move" ] && git branch -f feat-move "$(git commit-tree -p HEAD -m "test: unchecked" 'HEAD^{tree}')"
+[ -f "$AUX/guard-fail" ] && { echo "GUARD FAIL: stub"; exit 1; }
 echo GUARD PASS
 STUB
 # the stub preflight logs its arguments and the base it was given; with $AUX/preflight-fail it fails
@@ -45,6 +46,13 @@ chore=$(land feat-chore); extra=$(land feat-extra); guard=$(land feat-guard); or
 noguard=$(NOGUARD=1 land feat-ok)
 touch $aux/preflight-fail; prehead=$(git rev-parse HEAD); pre=$(land feat-ok); prehead2=$(git rev-parse HEAD); rm $aux/preflight-fail
 touch $aux/move; moved=$(land feat-move); rm $aux/move; moved_in=$(git log --format=%s base | grep -c unchecked || true)
+# --check: preflight and the guard, no review, no merge, no tick (feat-chore has no valid review commit and still passes)
+check() { /bin/bash "$root/scripts/selfhost/land.sh" --check T99 "$1" 2>&1 && echo "rc=0" || echo "rc=$?"; }
+rm -f $aux/guard-ran.txt $aux/preflight-args.txt; chkhead=$(git rev-parse HEAD); chk=$(check feat-chore); chkran=$(cat $aux/guard-ran.txt 2>/dev/null || true); chkpargs=$(cat $aux/preflight-args.txt)
+chkhead2=$(git rev-parse HEAD); chkticked=$(grep -c '^- \[x\] T99 ' docs/specs/010-self-hosted-semantics/010-tasks.md || true)
+touch $aux/preflight-fail; chkpre=$(check feat-chore); rm $aux/preflight-fail
+touch $aux/guard-fail; chkguard=$(check feat-chore); rm $aux/guard-fail
+chkscope=$(check feat-guard)
 rm -f $aux/guard-ran.txt; ok=$(land feat-ok); ran=$(cat $aux/guard-ran.txt 2>/dev/null || true); ticked=$(grep -c '^- \[x\] T99 ' docs/specs/010-self-hosted-semantics/010-tasks.md || true)
 gargs=$(cat $aux/guard-args.txt); pargs=$(cat $aux/preflight-args.txt); cmp -s tests/quality-baseline.json $aux/baseline.json && noreport=1 || noreport=0
 # further landings on top of the first (T99 unticked first, so each tick commit is not empty), the guard run leaving a coverage report
@@ -75,6 +83,11 @@ echo "$orphan" | grep -q 'LAND REFUSED: cannot diff feat-orphan' || fail "a bran
 echo "$noguard" | grep -q "LAND REFUSED: tmp/010-t99/prompt.md has no line starting 'bash scripts/selfhost/guard.sh'" || fail "a prompt with no guard line did not refuse with a message" "$noguard"
 echo "$pre" | grep -q '^FAIL cites: stub$' && echo "$pre" | grep -q '^LAND REFUSED: preflight failed' && [ "$prehead" = "$prehead2" ] || fail "a failing preflight did not refuse before the merge" "$pre"
 [ "$pargs" = "010 T99 feat-ok BAYAN_BASE=base" ] || fail "preflight ran with '$pargs', not the spec, task, branch and base" "$ok"
+echo "$chk" | grep -q '^CHECK OK T99$' && echo "$chk" | grep -q '^rc=0$' && [ "$chkran" = "$r/scripts/selfhost/guard.sh" ] && [ "$chkpargs" = "010 T99 feat-chore BAYAN_BASE=base" ] && [ "$chkhead" = "$chkhead2" ] && [ "$chkticked" = 0 ] \
+  || fail "--check did not run preflight and the guard alone (ticked: $chkticked)" "$chk"
+echo "$chkpre" | grep -q '^LAND REFUSED: preflight failed' && echo "$chkpre" | grep -q '^rc=1$' || fail "--check did not exit 1 on a failing preflight" "$chkpre"
+echo "$chkguard" | grep -q '^LAND REFUSED: guard failed' && echo "$chkguard" | grep -q '^rc=1$' || fail "--check did not exit 1 on a failing guard" "$chkguard"
+echo "$chkscope" | grep -q 'LAND REFUSED: feat-guard changes scripts/selfhost/' && echo "$chkscope" | grep -q '^rc=1$' || fail "--check accepted a branch that changes scripts/selfhost/" "$chkscope"
 echo "$moved" | grep -q 'LAND REFUSED: feat-move moved' || fail "a branch that moved during the guard was not refused" "$moved"
 [ "$moved_in" = 0 ] || fail "the commit added during the guard was merged unchecked" "$moved"
 echo "$ok" | grep -q '^LANDED T99$' || fail "a well-reviewed branch did not land under /bin/bash" "$ok"

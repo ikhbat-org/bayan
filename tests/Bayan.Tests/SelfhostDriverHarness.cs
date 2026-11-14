@@ -41,7 +41,9 @@ public static class SelfhostDriverHarness
     /// <summary>
     /// The driver with its own <c>main</c> renamed <c>driverMain</c> and a probe <c>main</c> appended to <c>main.byn</c>
     /// (the real lines keep their numbers): <c>style &lt;args&gt;</c> runs <c>run</c> and prints the decided style,
-    /// <c>library &lt;path&gt; &lt;command&gt;</c> prints <c>refuseLibrary</c>'s result, <c>isscript &lt;path&gt;</c> <c>t1IsScript</c>'s.
+    /// <c>library &lt;path&gt; &lt;command&gt;</c> prints <c>refuseLibrary</c>'s result, <c>isscript &lt;path&gt;</c> <c>t1IsScript</c>'s,
+    /// <c>walk &lt;dir&gt; &lt;within|-&gt; &lt;silent&gt;</c> lists <c>bynFiles</c> and its exit, <c>manifest &lt;files&gt;</c> the directory <c>manifestFor</c> finds for each
+    /// and the size of its cache, <c>names &lt;dir&gt;</c> the <c>packageNames</c>.
     /// </summary>
     private const string ProbeMain = """
 
@@ -53,6 +55,26 @@ public static class SelfhostDriverHarness
                 let code = run(args[1..args.length], through: ref d)
                 Io.stdout.write($"\nout {d.styleOut.color} {d.styleOut.ascii} {d.styleOut.width} err {d.styleErr.color} {d.styleErr.ascii} {d.styleErr.width} tty {d.stderrTty}\n")
                 return code
+            }
+            if args[0] == "walk" {
+                var code: i32 = 0
+                let within: string? = args[2] == "-" ? null : args[2]
+                for f in bynFiles(args[1], through: ref code, by: within, for: args[3] == "true") { Io.stdout.write($"{f}\n") }
+                Io.stdout.write($"exit {code}\n")
+                return 0
+            }
+            if args[0] == "manifest" {
+                var cache: Map<string, T6Found?> = []
+                for f in args[1..args.length] {
+                    let package = manifestFor(f, through: ref cache) catch null
+                    if (package is { } found) { Io.stdout.write($"{found.dir}\n") } else { Io.stdout.write("none\n") }
+                }
+                Io.stdout.write($"{cache.length}\n")
+                return 0
+            }
+            if args[0] == "names" {
+                for (name, _) in packageNames(args[1]) { Io.stdout.write($"{name}\n") }
+                return 0
             }
             if args[0] == "isscript" {
                 Io.stdout.write($"{t1IsScript(args[1])}\n")

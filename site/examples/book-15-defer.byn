@@ -1,0 +1,23 @@
+struct Ticket {
+    string label
+    List<i64> marks
+}
+
+void work(string name) uses console {
+    print($"open {name}")
+    defer print($"close {name}")
+    print($"using {name}")
+}
+
+void main() uses console, alloc {
+    work("a")
+    defer print("main done")
+    for i in 0..2 {
+        defer print($"end of pass {i}")
+        print($"pass {i}")
+    }
+    var t = Ticket { label: "t1", marks: List<i64>() }
+    t.marks.append(5)
+    let moved = move t
+    print($"{moved.label} has {moved.marks.length} mark")
+}

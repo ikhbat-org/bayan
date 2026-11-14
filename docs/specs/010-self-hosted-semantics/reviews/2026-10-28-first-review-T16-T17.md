@@ -111,6 +111,6 @@ I read both ports method by method against `src/Bayan.Semantics/Binding/Binder.c
 
 ### Verdict
 
-**T16:** The structure is mostly faithful: dispatch, `bindLocalDecl`, `bindFor`, `isBorrowedPlace` and `defaultType` match C#. But `isNonNull` behaves differently from C#, `bindAssertFails` drops `_handled`, and three `bigParse` stand-ins violate the rules. The tests are hand-typed checks for code presence, not oracle comparisons, and the break-test claims in the handoff can't be verified.
+**T16:** The structure is mostly faithful: dispatch, `bindLocalDecl`, `bindFor`, `isBorrowedPlace` and `defaultType` match C#. But `isNonNull` behaves differently from C#, `bindAssertFails` drops `_handled`, and three `bigParse` stand-ins violate the rules. The tests are hand-typed checks for code presence, not oracle comparisons, and the break-test claims in the progress log can't be verified.
 
 **T17:** It is wider-ranging but less faithful. Two `Convert` branches are missing, the lambda body/block and `CaughtErrorExpr` are dropped, `it` resolution is invented, and three sibling-stub workarounds sit in `bindName`/`bindConverted`. Char and float decoding are re-implemented and diverge from C#. None of the tests use the C# oracle.

@@ -1,0 +1,17 @@
+union error StepError {
+    failed
+}
+
+void step(bool ok) fails StepError {
+    print("open")
+    defer print("close")
+    defer failing print("undo")
+    fail .failed if !ok
+    print("work")
+}
+
+void main() {
+    step(ok: true) catch return
+    print("--")
+    step(ok: false) catch print("step failed")
+}

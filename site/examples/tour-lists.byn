@@ -1,0 +1,9 @@
+void main() {
+    var xs = List<i64>()
+    xs.append(10)
+    xs.append(20)
+    print($"{xs.length} {xs[1]}")
+    for x in xs {
+        print($"item {x}")
+    }
+}

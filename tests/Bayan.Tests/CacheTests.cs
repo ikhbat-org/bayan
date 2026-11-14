@@ -111,7 +111,7 @@ public sealed class CacheTests
             Ok(Run("build", second));
             Ok(Run("test", second));
             Assert.Equal(before, Toolchain.Stats());
-            Assert.Equal("Hello, world!\n", Output(Exe(second)));
+            Assert.Equal("Salam, world!\n", Output(Exe(second)));
         });
     }
 
@@ -215,10 +215,12 @@ public sealed class CacheTests
             foreach (var r in results) Ok(r);
             var stats = Toolchain.Stats();
             Assert.Equal(2, stats.Programs);
+            // The debug and safe builds race for two runtime keys; each has one entry.
+            Assert.Equal(2, RuntimeEntries(root).Length);
             Assert.False(Directory.Exists(Path.Combine(root, "cache", "v1", "tmp")) && Directory.EnumerateFileSystemEntries(Path.Combine(root, "cache", "v1", "tmp")).Any());
             foreach (var project in new[] { a, b })
                 foreach (var mode in new[] { "debug", "safe" })
-                    Assert.Equal("Hello, world!\n", Output(Exe(project, mode)));
+                    Assert.Equal("Salam, world!\n", Output(Exe(project, mode)));
         });
     }
 
@@ -265,7 +267,7 @@ public sealed class CacheTests
             var program = Directory.EnumerateFiles(entry).Single(f => !f.EndsWith(".sha256", StringComparison.Ordinal));
             File.WriteAllBytes(program, [1, 2, 3]);
             Ok(Run("build", app));
-            Assert.Equal("Hello, world!\n", Output(Exe(app)));
+            Assert.Equal("Salam, world!\n", Output(Exe(app)));
             Assert.Equal(1, Toolchain.Stats().Programs);
         });
     }
@@ -300,6 +302,7 @@ public sealed class CacheTests
             Assert.StartsWith($"cache:    {Path.Combine(root, "cache")}\nprograms: 1 (", stdout);
             Assert.EndsWith("scripts:  0\n", stdout);
             Assert.Equal(CliApp.ExitUsage, Run("cache").Exit);
+            Assert.Single(RuntimeEntries(root));
             var saved = Environment.CurrentDirectory;
             try
             {
@@ -311,6 +314,7 @@ public sealed class CacheTests
                 Environment.CurrentDirectory = saved;
             }
             Assert.Equal(0, Toolchain.Stats().Programs);
+            Assert.Empty(RuntimeEntries(root));
             Assert.True(File.Exists(Exe(app)));
         });
     }
@@ -330,6 +334,334 @@ public sealed class CacheTests
             Assert.Contains($"removed {Toolchain.CacheData}", stdout);
             Assert.False(Directory.Exists(Toolchain.CacheData));
             Assert.True(File.Exists(unrelated));
+        });
+    }
+
+    private static string[] RuntimeEntries(string root) =>
+        Directory.Exists(Path.Combine(root, "cache", "v1", "runtime")) ? Directory.GetDirectories(Path.Combine(root, "cache", "v1", "runtime")) : [];
+
+    /// <summary>
+    /// A <c>/bin/sh</c> wrapper at <c>&lt;root&gt;/logcc</c> that appends its argv to <c>&lt;root&gt;/cc.log</c> and runs the real C compiler;
+    /// <c>--version</c> prints <paramref name="version"/>. The <c>BAYAN_CC</c> that runs it.
+    /// </summary>
+    private static string LoggingCompiler(string root, string version = "logcc 1")
+    {
+        var real = Toolchain.FindCompiler() ?? throw new InvalidOperationException("no C compiler");
+        var wrapper = Path.Combine(root, "logcc");
+        var log = Path.Combine(root, "cc.log");
+        var command = string.Join(" ", real.Select(a => $"'{a}'"));
+        File.WriteAllText(wrapper, $"#!/bin/sh\nif [ \"$1\" = --version ]; then echo '{version}'; exit 0; fi\nprintf '%s\\n' \"$*\" >> '{log}'\nexec {command} \"$@\"\n");
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(wrapper, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        return wrapper;
+    }
+
+    /// <summary>Makes <paramref name="app"/> another program: it greets <c>Salam, other!</c>.</summary>
+    private static void Other(string app)
+    {
+        foreach (var file in Directory.GetFiles(Path.Combine(app, "src"), "*.byn", SearchOption.AllDirectories))
+            File.WriteAllText(file, File.ReadAllText(file).Replace("Salam, world!", "Salam, other!"));
+    }
+
+    private static int RuntimeCompiles(string root) =>
+        File.Exists(Path.Combine(root, "cc.log")) ? File.ReadAllLines(Path.Combine(root, "cc.log")).Count(l => l.Split(' ').Contains("-c")) : 0;
+
+    [Fact]
+    public void TheRuntimeIsCompiledOncePerFlagSet()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-shared");
+        var a = NewApp(Path.Combine(root, "a"));
+        var b = NewApp(Path.Combine(root, "b"));
+        Other(b);
+        WithCache(root, () =>
+        {
+            Ok(Run("build", a));
+            Ok(Run("build", b));
+            Assert.Equal(1, RuntimeCompiles(root));
+            Assert.Single(RuntimeEntries(root));
+            Assert.Equal(2, Toolchain.Stats().Programs);
+            Ok(Run("build", a, "--mode", "debug"));
+            Assert.Equal(2, RuntimeCompiles(root));
+            Assert.Equal(2, RuntimeEntries(root).Length);
+            Assert.Equal("Salam, world!\n", Output(Exe(a)));
+            Assert.Equal("Salam, other!\n", Output(Exe(b)));
+        }, ("BAYAN_CC", LoggingCompiler(root)));
+    }
+
+    [Fact]
+    public void ADamagedRuntimeObjectIsRebuilt()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-damaged");
+        var a = NewApp(Path.Combine(root, "a"));
+        var b = NewApp(Path.Combine(root, "b"));
+        Other(b);
+        WithCache(root, () =>
+        {
+            Ok(Run("build", a));
+            var obj = Path.Combine(RuntimeEntries(root).Single(), "bayan-rt.o");
+            File.WriteAllBytes(obj, [1, 2, 3]);
+            Ok(Run("build", b));
+            Assert.Equal(2, RuntimeCompiles(root));
+            Assert.Equal(File.ReadAllText(obj + ".sha256"), Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(obj))) + "\n");
+            Assert.Equal("Salam, other!\n", Output(Exe(b)));
+        }, ("BAYAN_CC", LoggingCompiler(root)));
+    }
+
+    /// <summary>
+    /// The identity is computed once per process, so each build is a CLI process of its own: the same <c>BAYAN_CC</c> path and
+    /// write time with a new <c>--version</c> misses the program and the runtime key; the same identity again hits both.
+    /// </summary>
+    [Fact]
+    public void ADifferentCompilerIdentityMissesTheKeys()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-identity");
+        var app = NewApp(root);
+        int Build()
+        {
+            Cli(root, "build", app);
+            return Programs(root);
+        }
+        // The write time stays, so only the version output differs.
+        var stamp = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        File.SetLastWriteTimeUtc(LoggingCompiler(root, "logcc 1"), stamp);
+        Assert.Equal(1, Build());
+        Assert.Equal(1, Build());
+        Assert.Single(RuntimeEntries(root));
+        File.SetLastWriteTimeUtc(LoggingCompiler(root, "logcc 2"), stamp);
+        Assert.Equal(2, Build());
+        Assert.Equal(2, RuntimeEntries(root).Length);
+        Assert.Equal(2, Build());
+        Assert.Equal(2, RuntimeCompiles(root));
+        Assert.Equal("Salam, world!\n", Output(Exe(app)));
+    }
+
+    /// <summary>
+    /// <c>bayan</c> as a CLI process of its own (the identity is computed once per process), with the cache under
+    /// <paramref name="root"/> and <c>&lt;root&gt;/logcc</c> as <c>BAYAN_CC</c>; asserts it succeeds and returns its stdout.
+    /// </summary>
+    private static string Cli(string root, params string[] args) => CliWith(root, Path.Combine(root, "logcc"), args);
+
+    /// <summary>
+    /// As <see cref="Cli"/>, with <c>BAYAN_CC</c> = <c>&lt;root&gt;/launch &lt;root&gt;/logcc</c>: a launcher (as <c>xcrun clang</c>)
+    /// that execs its arguments, made here.
+    /// </summary>
+    private static string Launched(string root, params string[] args)
+    {
+        var launch = Path.Combine(root, "launch");
+        File.WriteAllText(launch, "#!/bin/sh\nexec \"$@\"\n");
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(launch, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        File.SetLastWriteTimeUtc(launch, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        return CliWith(root, launch + " " + Path.Combine(root, "logcc"), args);
+    }
+
+    private static string CliWith(string root, string cc, string[] args)
+    {
+        var psi = new System.Diagnostics.ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
+        psi.ArgumentList.Add(typeof(CliApp).Assembly.Location);
+        foreach (var a in args) psi.ArgumentList.Add(a);
+        psi.Environment["BAYAN_CACHE"] = Path.Combine(root, "cache");
+        psi.Environment["BAYAN_CC"] = cc;
+        using var p = System.Diagnostics.Process.Start(psi)!;
+        var stdout = p.StandardOutput.ReadToEndAsync();
+        var stderr = p.StandardError.ReadToEndAsync();
+        p.WaitForExit();
+        Assert.True(p.ExitCode == 0, stdout.Result + stderr.Result);
+        return stdout.Result;
+    }
+
+    private static int Programs(string root) => Directory.GetDirectories(Path.Combine(root, "cache", "v1", "programs")).Length;
+
+    private static int Scripts(string root) => Directory.GetFiles(Path.Combine(root, "cache", "v1", "scripts")).Count(f => !f.EndsWith(".tmp", StringComparison.Ordinal));
+
+    /// <summary>The same <c>BAYAN_CC</c> file, unchanged but for its write time, misses the program and the runtime key.</summary>
+    [Fact]
+    public void ACompilerWithANewWriteTimeMissesTheKeys()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-mtime");
+        var app = NewApp(root);
+        var cc = LoggingCompiler(root);
+        File.SetLastWriteTimeUtc(cc, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Cli(root, "build", app);
+        Assert.Contains("from cache", Cli(root, "build", "--verbose", app));
+        Assert.Equal(1, Programs(root));
+        File.SetLastWriteTimeUtc(cc, new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Assert.DoesNotContain("from cache", Cli(root, "build", "--verbose", app));
+        Assert.Equal(2, Programs(root));
+        Assert.Equal(2, RuntimeEntries(root).Length);
+        Assert.Equal(2, RuntimeCompiles(root));
+        Assert.Equal("Salam, world!\n", Output(Exe(app)));
+    }
+
+    /// <summary>
+    /// A launcher's compiler is part of the identity (<c>BAYAN_CC="launch logcc"</c>): a new <c>--version</c> of <c>logcc</c>, both
+    /// write times unchanged, misses the program and the runtime key. Shell scripts: not on Windows.
+    /// </summary>
+    [Fact]
+    public void ALaunchedCompilersVersionMissesTheKeys()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-launched-identity");
+        var app = NewApp(root);
+        var stamp = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        File.SetLastWriteTimeUtc(LoggingCompiler(root, "logcc 1"), stamp);
+        Launched(root, "build", app);
+        Assert.Contains("from cache", Launched(root, "build", "--verbose", app));
+        File.SetLastWriteTimeUtc(LoggingCompiler(root, "logcc 2"), stamp);
+        Assert.DoesNotContain("from cache", Launched(root, "build", "--verbose", app));
+        Assert.Equal(2, Programs(root));
+        Assert.Equal(2, RuntimeEntries(root).Length);
+        Assert.Equal(2, RuntimeCompiles(root));
+        Assert.Equal("Salam, world!\n", Output(Exe(app)));
+    }
+
+    /// <summary>
+    /// A launcher's compiler file is stamped too: <c>logcc</c>, unchanged but for its write time behind the same launcher, misses
+    /// the program and the runtime key. Shell scripts: not on Windows.
+    /// </summary>
+    [Fact]
+    public void ALaunchedCompilersWriteTimeMissesTheKeys()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("runtime-launched-mtime");
+        var app = NewApp(root);
+        var cc = LoggingCompiler(root);
+        File.SetLastWriteTimeUtc(cc, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Launched(root, "build", app);
+        Assert.Contains("from cache", Launched(root, "build", "--verbose", app));
+        File.SetLastWriteTimeUtc(cc, new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Assert.DoesNotContain("from cache", Launched(root, "build", "--verbose", app));
+        Assert.Equal(2, Programs(root));
+        Assert.Equal(2, RuntimeEntries(root).Length);
+        Assert.Equal(2, RuntimeCompiles(root));
+    }
+
+    /// <summary>
+    /// A single-word compiler and zig cc keep the stamp they had before launchers were stamped, the file's path and write time
+    /// (no key changes on an ordinary host): zig cc's <c>cc</c> adds nothing though it is on <c>PATH</c>. A launcher's adds each
+    /// later word naming a file; flags and words naming none add nothing.
+    /// </summary>
+    [Fact]
+    public void ASingleWordOrZigCompilerKeepsItsStamp()
+    {
+        var root = Root("stamp-words");
+        var exe = OperatingSystem.IsWindows() ? ".exe" : "";
+        string Touch(string name, int year)
+        {
+            var file = Path.Combine(root, name + exe);
+            File.WriteAllText(file, "");
+            File.SetLastWriteTimeUtc(file, new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            return file + ":" + new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+        }
+        var zig = Touch("zig", 2020);
+        var cc = Touch("cc", 2021);
+        var launch = Touch("launch", 2022);
+        WithCache(root, () =>
+        {
+            Assert.Equal(cc, Toolchain.CompilerStamp([Path.Combine(root, "cc" + exe)]));
+            Assert.Equal(cc, Toolchain.CompilerStamp(["cc"]));
+            Assert.Equal(zig, Toolchain.CompilerStamp(["zig", "cc"]));
+            Assert.Equal("", Toolchain.CompilerStamp(["nosuch"]));
+            Assert.Equal(launch + "\n" + cc, Toolchain.CompilerStamp([Path.Combine(root, "launch" + exe), "cc", "-O2", "nosuch"]));
+        }, ("PATH", root));
+    }
+
+    private static string Pointer(string root) => Directory.GetFiles(Path.Combine(root, "cache", "v1", "scripts")).Single(f => !f.EndsWith(".tmp", StringComparison.Ordinal));
+
+    /// <summary>
+    /// A remembered script starts without running the compiler (no runtime compile) until the compiler file's write time changes;
+    /// then its pointer misses on the stamp, it compiles again (a new program key: the identity changed too) and the same pointer
+    /// is rewritten with the new program key and stamp.
+    /// </summary>
+    [Fact]
+    public void ARememberedScriptMissesAfterTheCompilerChanges()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("script-mtime");
+        var script = Path.Combine(root, "hello.byn");
+        File.WriteAllText(script, "#!/usr/bin/env bayan\n#:io threaded\n\nprint(\"hi\")\n");
+        var cc = LoggingCompiler(root);
+        File.SetLastWriteTimeUtc(cc, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Assert.Equal("hi\n", Cli(root, script));
+        Assert.Equal("hi\n", Cli(root, script));
+        Assert.Equal((1, 1), (Scripts(root), RuntimeCompiles(root)));
+        var before = File.ReadAllText(Pointer(root));
+        File.SetLastWriteTimeUtc(cc, new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        Assert.Equal("hi\n", Cli(root, script));
+        Assert.Equal((1, 2), (Scripts(root), RuntimeCompiles(root)));
+        var after = File.ReadAllText(Pointer(root)).Split('\n');
+        Assert.NotEqual(before.Split('\n')[0], after[0]);
+        Assert.Equal(Toolchain.CompilerStamp([cc]), after[1]);
+        Assert.NotEqual(before.Split('\n')[1], after[1]);
+    }
+
+    /// <summary>A pointer from before the stamp (the program key alone) misses once and is rewritten with the stamp.</summary>
+    [Fact]
+    public void AnOldFormatPointerMissesOnceAndIsRewritten()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Root("script-oldpointer");
+        var script = Path.Combine(root, "hello.byn");
+        File.WriteAllText(script, "#!/usr/bin/env bayan\n#:io threaded\n\nprint(\"hi\")\n");
+        var cc = LoggingCompiler(root);
+        Assert.Equal("hi\n", Cli(root, script));
+        var pointer = Pointer(root);
+        var stamped = File.ReadAllText(pointer);
+        var programKey = stamped.Split('\n')[0];
+        Assert.Equal(programKey + "\n" + Toolchain.CompilerStamp([cc]) + "\n", stamped);
+        File.WriteAllText(pointer, programKey + "\n");
+        var old = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        File.SetLastWriteTimeUtc(pointer, old);
+        Assert.Equal("hi\n", Cli(root, script));
+        Assert.Equal(stamped, File.ReadAllText(pointer));
+        Assert.NotEqual(old, File.GetLastWriteTimeUtc(pointer));
+        File.SetLastWriteTimeUtc(pointer, old);
+        Assert.Equal("hi\n", Cli(root, script));
+        Assert.Equal(old, File.GetLastWriteTimeUtc(pointer));
+        Assert.Equal(1, Scripts(root));
+    }
+
+    [Fact]
+    public void AsanAndCrossBuildsGetTheirOwnRuntime()
+    {
+        var root = Root("runtime-variants");
+        const string c = "int main(void) { return 0; }\n";
+        WithCache(root, () =>
+        {
+            Assert.True(Toolchain.Build(c, BuildMode.Debug).Succeeded);
+            Assert.Single(RuntimeEntries(root));
+            var expected = 1;
+            if (Toolchain.AsanAvailable)
+            {
+                var asan = Toolchain.Build(c, BuildMode.Debug, sanitize: true);
+                Assert.True(asan.Succeeded, asan.Errors);
+                Assert.Equal(++expected, RuntimeEntries(root).Length);
+            }
+            if (Toolchain.FindCompiler() is { } compiler && Path.GetFileNameWithoutExtension(compiler[0]) == "zig")
+            {
+                var cross = Toolchain.Build(c, BuildMode.Debug, target: Targets.Host == "linux-x64" ? "linux-arm64" : "linux-x64");
+                Assert.True(cross.Succeeded, cross.Errors);
+                Assert.Equal(++expected, RuntimeEntries(root).Length);
+            }
+            Assert.Equal(expected, Toolchain.Stats().Programs);
+        });
+    }
+
+    /// <summary>A runtime entry counts against the cap like a program: one entry allowed, the older (the runtime) goes.</summary>
+    [Fact]
+    public void EvictionRemovesRuntimeEntries()
+    {
+        var root = Root("runtime-evict");
+        WithCache(root, () =>
+        {
+            Assert.True(Toolchain.Build("int main(void) { return 0; }\n", BuildMode.Safe).Succeeded);
+            var runtime = RuntimeEntries(root).Single();
+            Directory.SetLastWriteTimeUtc(runtime, DateTime.UtcNow.AddHours(-2));
+            Toolchain.Evict("none", long.MaxValue, 1, TimeSpan.FromMinutes(10));
+            Assert.Empty(RuntimeEntries(root));
+            Assert.Equal(1, Toolchain.Stats().Programs);
         });
     }
 

@@ -7,7 +7,7 @@
 # Every line and branch of a touched function must be covered: each missed or unknown one is printed as a FAIL item
 # ("- …"), except a missed one under a `// coverage-exempt: Qnnn` marker: it exempts the next line (`… through `text``: the next
 # line to the one line holding text in the rest of the marker's function, an anchor, Q1040) when Question Qnnn of
-# docs/bayan-handoff.md cites a <file> line (any: its number is prose, Q1040), for code that is dead in the C# too (the Question cites the C# line). A marker whose
+# docs/bayan-questions.md or docs/decisions/2026-11-14-004-answered-questions.md (a numbered entry or a table row) cites a <file> line (any: its number is prose, Q1040), for code that is dead in the C# too (the Question cites the C# line). A marker whose
 # Question cites no line of its file, or whose anchor matches no line or several, is a FAIL item and exempts nothing; so is a
 # `through N` line number. An unknown line is never exempt.
 # `// coverage-blocked: Qnnn T<k> <fn>` (`… through `text`` as above; user decision 2026-11-04) exempts a missed line that only runs once
@@ -75,7 +75,7 @@ def stale(root, open_, task):
     return bad
 
 
-def exempt(path, handoff='docs/bayan-handoff.md', open_=None, task=None):
+def exempt(path, docs=('docs/bayan-questions.md', 'docs/decisions/2026-11-14-004-answered-questions.md'), open_=None, task=None):
     """The lines of path its coverage-exempt and coverage-blocked markers exempt (two sets), and a FAIL message per marker that
     exempts nothing."""
     if not os.path.exists(path):
@@ -84,8 +84,8 @@ def exempt(path, handoff='docs/bayan-handoff.md', open_=None, task=None):
     if not any('// coverage-exempt:' in t or '// coverage-blocked:' in t for t in lines):
         return set(), set(), []
     questions = {}
-    for q in (open(handoff, encoding='utf-8').read().split('\n') if os.path.exists(handoff) else []):
-        m = re.match(r'(\d{3,4})\. ', q)
+    for q in (l for d in docs if os.path.exists(d) for l in open(d, encoding='utf-8').read().split('\n')):
+        m = re.match(r'(\d{3,4})\. ', q) or re.match(r'\| Q(\d{3,4}) \|', q)
         if m: questions[m.group(1)] = q
     base, skip, blocked, bad = os.path.basename(path), set(), set(), []
     for i, text in enumerate(lines, 1):
@@ -114,7 +114,7 @@ def exempt(path, handoff='docs/bayan-handoff.md', open_=None, task=None):
                 bad.append(f'coverage: {path}:{i} exempts through anchor `{last}`, which matches {"lines " + ", ".join(map(str, at)) if at else "no line"} of the rest of its function; it must match exactly one (Q1040)'); continue
             end = at[0]
         if not re.search(re.escape(base) + r':\d', questions.get(q, '')):
-            bad.append(f'coverage: {path}:{i} exempts {i + 1}-{end} for Q{q}, but Q{q} in {handoff} cites no {base} line'); continue
+            bad.append(f'coverage: {path}:{i} exempts {i + 1}-{end} for Q{q}, but Q{q} in {" or ".join(docs)} cites no {base} line'); continue
         into.update(range(i + 1, end + 1))
     return skip, blocked, bad
 

@@ -98,6 +98,8 @@ public enum BuiltinKind {
     target
     env
     fs
+    time
+    millis
 }
 
 // ── Handles ─────────────────────────────────────────────────────────────────────
@@ -182,6 +184,8 @@ public BuiltinKind builtinKindOf(i64 i) {
         case 12: return .target
         case 13: return .env
         case 14: return .fs
+        case 15: return .time
+        case 16: return .millis
         default: return .path
     }
 }
@@ -612,6 +616,8 @@ string builtinName(BuiltinKind k) {
         case .target: return "Target"
         case .env: return "Env"
         case .fs: return "Fs"
+        case .time: return "Time"
+        case .millis: return "Millis"
         default: return "Path"
     }
 }
@@ -655,18 +661,18 @@ string functionDisplay(ref Ctx c, by i64 idx) {
     } else {
         sb.append(typeDisplay(ref c, by: ret))
     }
-    if flen > 0 {
-        sb.append(" fails ")
-        for i in 0..flen {
-            if i > 0 { sb.append(", ") }
-            sb.append(errorSetDisplayName(ref c, by: c.functionTypes[idx].errorSets[i]))
-        }
-    }
     if ulen > 0 {
         sb.append(" uses ")
         for i in 0..ulen {
             if i > 0 { sb.append(", ") }
             sb.append(c.functionTypes[idx].effects[i])
+        }
+    }
+    if flen > 0 {
+        sb.append(" fails ")
+        for i in 0..flen {
+            if i > 0 { sb.append(", ") }
+            sb.append(errorSetDisplayName(ref c, by: c.functionTypes[idx].errorSets[i]))
         }
     }
     return $"{sb.finish()}"

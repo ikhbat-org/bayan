@@ -555,7 +555,7 @@ public sealed class SelfhostSemanticsT21Tests
                 pending: [],
                 constraints: [],
                 peers: [],
-                nonNull: [],
+                nonNullLocals: [],
                 stateFacts: [],
                 errorNarrowed: [],
             }

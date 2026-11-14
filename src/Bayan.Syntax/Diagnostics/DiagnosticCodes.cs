@@ -98,7 +98,7 @@ public static class DiagnosticCodes
     public static readonly DiagnosticDescriptor ReceiverWithoutState = Error("BYN1061", "`this` without a state is the default receiver");
     public static readonly DiagnosticDescriptor RequiresOnFunction = Error("BYN1063", "`requires` on a function is an input form; write `expects`");
     public static readonly DiagnosticDescriptor PayloadNeedsName = Error("BYN1064", "payload `{0}` of `.{1}` needs a name");
-    public static readonly DiagnosticDescriptor ClauseOrder = Error("BYN1065", "`{0}` must come before `{1}`; the order is `where`, `expects`, `becomes`, `fails`, `uses`");
+    public static readonly DiagnosticDescriptor ClauseOrder = Error("BYN1065", "`{0}` must come before `{1}`; the order is `where`, `expects`, `uses`, `becomes`, `fails`");
     public static readonly DiagnosticDescriptor PrefixPointerInput = Error("BYN1066", "`{0}` is an input form; write `{1}`");
     public static readonly DiagnosticDescriptor PointerOutsideExtern = Error("BYN1067", "pointer types are allowed only in `extern` declarations");
     public static readonly DiagnosticDescriptor CompactFormatSpec = Error("BYN1068", "`{0}` is an input form; write `{1}`");
@@ -135,6 +135,9 @@ public static class DiagnosticCodes
     public static readonly DiagnosticDescriptor SameTypeShadowing = Warning("BYN2028", "`{0}` shadows an earlier `{0}` of the same type `{1}`");
     public static readonly DiagnosticDescriptor NestedIt = Error("BYN2029", "`it` inside a lambda that already uses `it`; name one lambda");
     public static readonly DiagnosticDescriptor ToStringCall = Error("BYN2031", "Bayan has no `toString()`; display is `format()` (derived from `formatInto(ref StrBuf)`)");
+    public static readonly DiagnosticDescriptor UnknownStdModule = Error("BYN2032", "no std module `{0}`");
+    public static readonly DiagnosticDescriptor StdImportsPackage = Error("BYN2033", "std module `{0}` imports `{1}`, which is not a std module");
+    public static readonly DiagnosticDescriptor CircularFieldDefault = Error("BYN2034", "the default of field `{0}` depends on itself");
     public static readonly DiagnosticDescriptor MissingInitializer = Error("BYN2101", "`{0} {1}` needs a value");
     public static readonly DiagnosticDescriptor UseBeforeAssign = Error("BYN2102", "`{0}` is used before it is assigned");
     public static readonly DiagnosticDescriptor OutNotAssigned = Error("BYN2103", "`out` parameter `{0}` is not assigned on every path");
@@ -328,6 +331,7 @@ public static class DiagnosticCodes
 
     // ── Backend 4000–4999 ────────────────────────────────────────────────────────────
     public static readonly DiagnosticDescriptor CCompilerRejected = Error("BYN4001", "internal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler");
+    public static readonly DiagnosticDescriptor ErrorNodeReachedLowering = Error("BYN4002", "internal compiler error: a bound error expression reached lowering with no error reported; this is a bug in the Bayan compiler");
     // ── Grammar (naming patterns, spec §5.2) 5000–5999: errors 50xx, lints 51xx ────
     public static readonly DiagnosticDescriptor ParticipleChangesThis = Error("BYN5001", "`{0}` changes `this`; name it `{1}`");
     public static readonly DiagnosticDescriptor StateMemberMutates = Error("BYN5002", "`{0}` reads as state but modifies `this`");
@@ -342,10 +346,16 @@ public static class DiagnosticCodes
     public static readonly DiagnosticDescriptor ConversionMember = new("BYN5009", Severity.Error, "`{0}` spells a conversion with `{1}`; write `{2}`");
     public static readonly DiagnosticDescriptor ExpectsSingleParameter = Warning("BYN5011", "this `expects` reads only `{0}`; a type with `requires` checks it once");
     public static readonly DiagnosticDescriptor RepeatedParticle = Error("BYN5013", "`{0}` uses the particle `{1}` twice");
-    public static readonly DiagnosticDescriptor UnknownWord = Warning("BYN5014", "`{0}` is not a known verb or noun");
+    public static readonly DiagnosticDescriptor UnknownWord = Warning("BYN5014", "`{0}` is not a known verb, noun or adjective");
     public static readonly DiagnosticDescriptor NounOnMutator = Warning("BYN5101", "`{0}` is a noun on a `ref this` member; name the action");
     public static readonly DiagnosticDescriptor BoolWithoutPrefix = Warning("BYN5102", "`{0}` is a `bool` state; prefix with `is`, `has` or `can`");
     public static readonly DiagnosticDescriptor LineJoinIndent = Warning("BYN5103", "a line starting with `{0}` joins the statement above; indent it deeper");
+    public static readonly DiagnosticDescriptor NumberAgreement = Warning("BYN5104", "`{0}` holds a collection; name it with a plural, `{1}`");
+    /// <summary>BYN5104's second message form, for a plural name on one value; registered once, as <see cref="NumberAgreement"/>.</summary>
+    public static readonly DiagnosticDescriptor NumberAgreementOne = new("BYN5104", Severity.Warning, "`{0}` holds one `{1}`; name it with a singular noun");
+    public static readonly DiagnosticDescriptor CountName = Warning("BYN5105", "`{0}` counts items; name it `{1}`");
+    public static readonly DiagnosticDescriptor DoerWithoutVerb = Warning("BYN5106", "`{0}` is named for the act `{1}` but has no `{1}` member");
+    public static readonly DiagnosticDescriptor InstrumentChangesThis = Warning("BYN5107", "`{0}` is a tool; `{1}` must not change `this`");
 
     // ── Effects 6000–6999 ────────────────────────────────────────────────────────────
     public static readonly DiagnosticDescriptor NoallocRemoved = Error("BYN6001", "`{0}` is removed; a function without `uses` is already pure");

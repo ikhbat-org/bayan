@@ -1,6 +1,9 @@
 using System.Text.RegularExpressions;
 using Bayan.Backend.C;
 using Bayan.Cli;
+using Bayan.Lowering;
+using Bayan.Semantics.Binding;
+using Bayan.Syntax.Ast;
 using Bayan.Syntax.Diagnostics;
 using Bayan.Syntax.Text;
 
@@ -21,7 +24,7 @@ public sealed partial class StyleTests
     public static readonly string[] Shapes =
     [
         "diag-error-fix", "diag-removal-fix", "diag-secondary", "diag-cap", "diag-cap-all",
-        "build-ok", "build-ok-cache", "build-ok-verbose", "build-fail", "build-ice", "check-ok", "run-fail",
+        "build-ok", "build-ok-cache", "build-ok-verbose", "build-fail", "build-ice", "lower-ice", "check-ok", "run-fail",
         "test-ok", "test-fail", "test-pending", "test-verbose", "test-assert-values", "test-control-chars",
         "doctor-ok", "doctor-fail", "audit",
     ];
@@ -107,6 +110,8 @@ public sealed partial class StyleTests
                 return Command(Broken, "build", "-o", output, main);
             case "build-ice":
                 return Ice(ascii);
+            case "lower-ice":
+                return LowerIce(ascii);
             case "check-ok":
                 return Command(Ok, "check", main);
             case "run-fail":
@@ -163,7 +168,7 @@ public sealed partial class StyleTests
     private static Style TerminalStyleFor(bool ascii) =>
         TerminalStyle.Decide("auto", ascii, isTty: true, Environment.GetEnvironmentVariable, Width);
 
-    /// <summary>A diagnostic with a related span, which no binder site produces yet (handoff Q81): renderer only.</summary>
+    /// <summary>A diagnostic with a related span, which no binder site produces yet (Q81): renderer only.</summary>
     private static string Secondary(bool ascii)
     {
         const string text = "i64 sum(Line line) {\n    let total = 0\n    total += line.price\n    return total\n}\n";
@@ -185,6 +190,14 @@ public sealed partial class StyleTests
         var stderr = new StringWriter();
         CliApp.ReportToolchain(rejected, stderr, json: false, TerminalStyleFor(ascii));
         return "# CliApp.ReportToolchain\n" + Streams("", stderr.ToString());
+    }
+
+    /// <summary>An error node that reached lowering with no error reported (BYN4002), which no program should produce.</summary>
+    private static string LowerIce(bool ascii)
+    {
+        var stderr = new StringWriter();
+        CliApp.ReportInternalError((InternalCompilerError)Lowerer.CannotLower(new BoundErrorExpr(new BreakStmt(new TextSpan(0, 0), null))), stderr, TerminalStyleFor(ascii));
+        return "# CliApp.ReportInternalError\n" + Streams("", stderr.ToString());
     }
 
     private static string DoctorShape(bool ascii, Doctor.Check[] checks)

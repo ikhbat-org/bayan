@@ -1,0 +1,13 @@
+void main() {
+    let xs: List<i64> = [1, 2, 3, 4, 5, 6]
+    var total: i64 = 0
+    var evens = List<i64>()
+    var doubled = List<i64>()
+    for x in xs {
+        total += x
+        if x % 2 == 0 { evens.append(x) }
+        doubled.append(x * 2)
+    }
+    print($"total {total}, evens {evens.length}, doubled {doubled.length}")
+    print($"last doubled: {doubled[doubled.length - 1]}")
+}

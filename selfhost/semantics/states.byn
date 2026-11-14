@@ -93,7 +93,7 @@ BStmt bindBecome(ref Binder b, through ref Ctx c, for in parser.BecomeStmt s) {
         let name = owner != -1 ? c.structs[owner].name : b.fn != -1 ? c.functions[b.fn].name : "?"
         report(ref b, through: ref c, for: .unknownState, at: s.state, by: (name, stateText, "", "", ""), help: $"check the states declared in `{name}`")
         bindArgumentListForRecovery(ref b, through: ref c, for: in s.args)
-        return addErrorStmt(ref c, from: BErrorStmt { span: s.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: s.span }), as: .becomeStmt, at: s.span)
     }
     let fn = b.fn
     let fnName = c.functions[fn].name
@@ -103,7 +103,7 @@ BStmt bindBecome(ref Binder b, through ref Ctx c, for in parser.BecomeStmt s) {
     // A `becomes` without `ref this` is BYN7010 at the signature; its `become` reports nothing more (revision 0010).
     if !c.functions[fn].isStatic && decl.found && decl.becomes is not null && decl.refThis is null {
         let _ = t21BindArgumentList(ref b, through: ref c, for: in s.args, at: s.span, by: in fields, as: -1, enforceNames: false, displayName: $".{stateName}", syntax: syntaxAppend(ref c, from: ExprSyntax { kind: .callExpr, span: s.span, callee: syntaxLeaf(ref c, as: .nameExpr, at: s.state) }))
-        return addErrorStmt(ref c, from: BErrorStmt { span: s.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: s.span }), as: .becomeStmt, at: s.span)
     }
     let keyword = TextSpan { start: s.span.start, length: "become".length }
     // A static method has no `this` to change; one that takes neither `ref this` nor `move this` is BYN2115 (Question 297).
@@ -111,7 +111,7 @@ BStmt bindBecome(ref Binder b, through ref Ctx c, for in parser.BecomeStmt s) {
         report(ref b, through: ref c, for: .unsupported, at: keyword, by: ("`become` in a static method", "", "", "", ""),
             help: "remove `become`; only an instance method has a `this` to change")
     } else if decl.moveThis is null {
-        let thisExpr = addThis(ref c, from: BThis { span: s.span, type: structTypeOf(owner) })
+        let thisExpr = recordNodeSyntax(ref c, for: addThis(ref c, from: BThis { span: s.span, type: structTypeOf(owner) }), as: .becomeStmt, at: s.span)
         let _ = checkWritable(ref b, through: ref c, for: thisExpr, at: keyword, by: "`become` changes its state")
     }
     if (decl.becomes is { } becomes) {
@@ -137,7 +137,7 @@ BStmt bindBecome(ref Binder b, through ref Ctx c, for in parser.BecomeStmt s) {
     var one = List<VariantId>()
     one.append(state)
     learnState(ref b, for: facts, as: internState(ref c, by: owner, for: in one))
-    return addBecome(ref c, from: BBecome { span: s.span, state: state, payload: move payload })
+    return recordNodeSyntax(ref c, for: addBecome(ref c, from: BBecome { span: s.span, state: state, payload: move payload }), as: .becomeStmt, at: s.span)
 }
 
 void checkBecomesCall(ref Binder b, through ref Ctx c, for in parser.CallExpr call, from FuncId caller, by FuncId fn, to TextSpan state) {
@@ -178,9 +178,12 @@ i64 afterParams(ref Binder b, through ref Ctx c, for in parser.FunctionDecl decl
     for clause in decl.where {
         if clause.span.end > at { at = clause.span.end }
     }
-    for clause in decl.requiresKeyword {
+    for clause in decl.requiresClauses {
         let end = parser.exprSpan(in clause).end
         if end > at { at = end }
+    }
+    if (decl.usesKeyword is { } clause) {
+        if clause.span.end > at { at = clause.span.end }
     }
     return at
 }
@@ -217,8 +220,65 @@ bool reportWrongState(ref Binder b, through ref Ctx c, for string callee, by BEx
     }
     let what = isThis ? "this" : t15Text(in c, from: b.file, at: span)
     report(ref b, through: ref c, for: .wrongState, at: span, by: (callee, what, $"{names.finish()}", typeDisplay(ref c, by: known), ""),
-        help: "check the state with `is` or `switch` first")
+        help: stateTestHelp(ref b, through: ref c, for: t9Text(ref c, for: b.file, at: span), as: wanted) ?? "check the state with `is` or `switch` first")
     return true
+}
+
+/// The member of `.s`, or null for any other expression.
+TextSpan? targetMemberOf(parser.Expr e) {
+    if e is .targetMemberExpr(let t) { return t.value.member }
+    return null
+}
+
+/// The state a property body `this is .s` tests, or null for any other body: a constant pattern, or a variant pattern without payload or binding.
+TextSpan? testedState(parser.Expr body) {
+    switch body {
+        case .isExpr(let x):
+            if !(x.value.value is .thisExpr(_)) { return null }
+            switch x.value.pattern {
+                case .constantPattern(let k): return targetMemberOf(k.value.value)
+                case .variantPattern(let v):
+                    if v.value.elements.length == 0 && v.value.binding is null { return targetMemberOf(v.value.variant) }
+                default: {}
+            }
+        default: {}
+    }
+    return null
+}
+
+/// C# `StateTestHelp` (BinderStates.cs:117). Revision 0021 Part 5: inside `if x.p { … }`, when property `p` is exactly
+/// `this is .s` and `.s` is wanted, the help says to test `x` itself. The help may read a member's body; narrowing must never do so.
+string? stateTestHelp(ref Binder b, through ref Ctx c, for string value, as Type wanted) {
+    let s = c.stateTypes[typeIndex(wanted)].s
+    for k in 0..b.thenOf.length {
+        if !b.thenOf[k].item1 || t9Text(ref c, for: b.file, at: b.thenOf[k].item2) != value { continue }
+        let memberName = t9Text(ref c, for: b.file, at: b.thenOf[k].item3)
+        let p = findProperty(ref c, by: s, for: memberName)
+        if p == -1 { continue }
+        var tested: TextSpan? = null
+        switch c.files[c.properties[p].file].unit.members[c.properties[p].declIndex] {
+            case .structDecl(let n):
+                switch n.value.members[c.properties[p].memberIndex] {
+                    case .propertyDecl(let d): tested = testedState(d.value.body)
+                    default: {}
+                }
+            case .interfaceDecl(let n):
+                switch n.value.members[c.properties[p].memberIndex] {
+                    case .propertyDecl(let d): tested = testedState(d.value.body)
+                    default: {}
+                }
+            default: {}
+        }
+        if (tested is { } at) {
+            let name = t9Text(ref c, for: c.properties[p].file, at: at)
+            for v in c.stateTypes[typeIndex(wanted)].states {
+                if c.unionVariants[v].name == name {
+                    return $"`{memberName}` doesn't narrow; write `if {value} is .{name}`"
+                }
+            }
+        }
+    }
+    return null
 }
 
 UnionId statesUnion(ref Ctx c, for Type t) {

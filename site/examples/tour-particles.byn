@@ -1,0 +1,7 @@
+void transfer(i64 amount, from string payer, to string payee) {
+    print($"{amount} from {payer} to {payee}")
+}
+
+void main() {
+    transfer(200, from: "alice", to: "bob")
+}

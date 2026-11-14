@@ -32,7 +32,8 @@ public sealed class LfOutputTests
         p.StandardInput.Close();
         var stdout = Drain(p.StandardOutput.BaseStream);
         var stderr = Drain(p.StandardError.BaseStream);
-        Assert.True(p.WaitForExit(120_000), "child timed out after 120 s");
+        var waitMs = TestTime.Scale(120_000);
+        Assert.True(p.WaitForExit(waitMs), $"child timed out after {waitMs} ms");
         return (p.ExitCode, stdout.Result, stderr.Result);
     }
 

@@ -1,0 +1,7 @@
+var arena = Arena()
+provide allocator: arena {
+    let xs: List<i64> = [1, 2]
+    print($"{xs.length}")
+}
+arena.reset()
+print("done")

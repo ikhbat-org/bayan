@@ -191,7 +191,9 @@ internal static class Dist
 
     /// <summary>
     /// Rebuilds <c>dist/latest/</c> as a copy of the highest version present (by semantic
-    /// version, not build time), staged in <c>dist/.latest.tmp/</c> and renamed into place.
+    /// version, not build time), staged in <c>dist/.latest.tmp/</c> and renamed into place. Of versions equal in precedence
+    /// (<c>1.0.0-rc.2</c> and <c>1.0.0-rc.2+meta</c>) the first in ordinal order is taken, not the first in the file system's
+    /// directory order (the driver's <c>Io.listDir</c> sorts the same way).
     /// </summary>
     internal static string? RefreshLatest(string distDir)
     {
@@ -199,6 +201,7 @@ internal static class Dist
             .Select(Path.GetFileName)
             .Where(n => n is not null && Manifest.IsSemanticVersion(n))
             .Select(n => n!)
+            .Order(StringComparer.Ordinal)
             .Aggregate((string?)null, (best, n) => best is null || Manifest.CompareVersions(n, best) > 0 ? n : best);
         if (newest is null) return null;
         var staging = Path.Combine(distDir, ".latest.tmp");

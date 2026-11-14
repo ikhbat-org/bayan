@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Your first Bayan program</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Amiri:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site">
+  <a class="brand" href="index.html"><img src="../assets/mark.svg" alt="" width="36" height="36">Bayan <span lang="ar" dir="rtl">بيان</span></a>
+  <nav aria-label="Main"><ul>
+    <li><a href="docs.html">Docs</a></li>
+    <li><a href="tutorial.html" aria-current="page">Tutorial</a></li>
+    <li><a href="https://github.com/ikhbat-org/bayan">GitHub</a></li>
+  </ul></nav>
+</header>
+
+<main id="main" class="tut">
+  <h1>Your first Bayan program</h1>
+  <p class="lead">Build the compiler, write one line, run it, then make a mistake and read what the compiler says.</p>
+
+  <ol class="steps">
+    <li>
+      <span class="num" aria-hidden="true">1</span>
+      <h2>Get the compiler</h2>
+      <p>Bayan is built from source for now. You need the .NET 10 SDK, and <code>zig</code> on your <code>PATH</code>, which the compiler uses as its C compiler.</p>
+<pre><code><span class="prompt">$ </span>git clone https://github.com/ikhbat-org/bayan
+<span class="prompt">$ </span>cd bayan
+<span class="prompt">$ </span>dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
+<span class="prompt">$ </span>./tmp/publish/bayan --version</code></pre>
+      <p>Change <code>osx-arm64</code> to your platform's runtime identifier, and put the <code>bayan</code> binary on your <code>PATH</code>. Then ask it to check its surroundings:</p>
+<pre><code><span class="prompt">$ </span>bayan doctor</code></pre>
+      <p><code>doctor</code> checks the C compiler, zig, git and the build cache, and prints a fix for anything missing.</p>
+    </li>
+    <li>
+      <span class="num" aria-hidden="true">2</span>
+      <h2>Write hello</h2>
+      <p>Save this as <code>hello.byn</code>. There is no <code>main</code> and no semicolon; a file may start with statements.</p>
+<pre><code><span class="f">print</span>(<span class="s">"Salam, world!"</span>)</code></pre>
+    </li>
+    <li>
+      <span class="num" aria-hidden="true">3</span>
+      <h2>Build it</h2>
+      <p>This compiles to C and then to a native executable.</p>
+<pre><code><span class="prompt">$ </span>bayan build hello.byn -o hello</code></pre>
+    </li>
+    <li>
+      <span class="num" aria-hidden="true">4</span>
+      <h2>Run it</h2>
+<pre><code><span class="prompt">$ </span>./hello
+<span class="out">Salam, world!</span></code></pre>
+      <p>To build and run in one step, use <code>bayan run hello.byn</code>.</p>
+    </li>
+    <li>
+      <span class="num" aria-hidden="true">5</span>
+      <h2>Read an error</h2>
+      <img class="hoopoe" src="../assets/hoopoe-flat-note.svg" alt="The hoopoe, delivering a note" width="128" height="128">
+      <p>Replace <code>hello.byn</code> with a program that has a typo. It defines <code>count</code> and then asks for <code>cout</code>.</p>
+<pre><code><span class="k">let</span> count = <span class="n">1</span>
+<span class="f">print</span>(<span class="s">$"{cout}"</span>)</code></pre>
+<pre><code><span class="prompt">$ </span>bayan check hello.byn</code></pre>
+<pre class="diag"><code><span class="e">error BYN2001</span>: `cout` is not defined
+  --> hello.byn:2:10
+
+  2 │ print($"{cout}")
+    │          <span class="u">^^^^</span>
+    │
+  <span class="h">help</span>: did you mean `count`?
+    │ 2 │ print($"{count}")
+    │   │             +</code></pre>
+      <p>The message says what is wrong (<code>cout</code> is not defined), where (line 2, under the four characters), and how to fix it (the suggested line, with the missing <code>n</code> marked). For the long explanation of any code, run <code>bayan explain BYN2001</code>.</p>
+    </li>
+    <li>
+      <span class="num" aria-hidden="true">6</span>
+      <h2>Fix it</h2>
+      <p>Apply the suggestion.</p>
+<pre><code><span class="k">let</span> count = <span class="n">1</span>
+<span class="f">print</span>(<span class="s">$"{count}"</span>)</code></pre>
+<pre><code><span class="prompt">$ </span>bayan run hello.byn
+<span class="out">1</span></code></pre>
+      <p>That is the whole loop. Next, read about <a href="docs.html">enums</a>, or browse the programs in <code>tests/cases/run</code> in the <a href="https://github.com/ikhbat-org/bayan">repository</a>.</p>
+    </li>
+  </ol>
+</main>
+
+<footer class="site-foot"><div class="wrap">
+  <span>Bayan is a project of the Ikhbat Foundation.</span>
+  <span><a href="https://bayan.run">bayan.run</a> &nbsp; <a href="https://github.com/ikhbat-org/bayan">Repository</a></span>
+</div></footer>
+</body>
+</html>

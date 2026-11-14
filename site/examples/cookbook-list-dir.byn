@@ -1,0 +1,15 @@
+void main() fails IoError {
+    try Io.writeFile("/tmp/cookbook-ls-b.txt", "b".bytes)
+    try Io.writeFile("/tmp/cookbook-ls-a.txt", "a".bytes)
+    // Entry names, sorted by byte order. /tmp holds other files too, so keep ours.
+    for name in try Io.listDir("/tmp") {
+        if name.startsWith("cookbook-ls-") { print(name) }
+    }
+    let _ = Io.listDir("/tmp/cookbook-ls-a.txt") catch switch {
+        .notADirectory => {
+            print("a file, not a directory")
+            return
+        },
+        _ => return,
+    }
+}

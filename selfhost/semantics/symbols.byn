@@ -81,9 +81,11 @@ public enum BuiltinFunction {
     ioRun
     ioRunBatch
     ioMonotonicNanos
+    ioRandomU64
     ioStdout
     ioStderr
     ioStdin
+    ioStdinReadAllBytes
     utf8Decode
     utf8TryDecode
     utf8DecodeReplace
@@ -103,6 +105,13 @@ public enum BuiltinFunction {
     pathFullPath
     envGet
     fsFileExists
+    fsRename
+    fsCopy
+    fsModified
+    fsSetModified
+    fsRealPath
+    timeNow
+    timeFromNanos
 }
 
 // ── Symbols ─────────────────────────────────────────────────────────────────────

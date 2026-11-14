@@ -1,0 +1,12 @@
+@sealed
+struct Meter {
+    i64 n
+    void bump(ref this) {
+        n += 1
+    }
+}
+
+var m = Meter { n: 1 }
+m.bump()
+let m2 = m with { n: 10 }
+print($"{m.n} {m2.n}")

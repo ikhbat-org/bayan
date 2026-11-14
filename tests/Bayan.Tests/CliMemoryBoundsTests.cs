@@ -53,7 +53,7 @@ public sealed class CliMemoryBoundsTests
         const int keep = 10;
         var bytes = Enumerable.Range(0, 1000).Select(i => (byte)('a' + i % 26)).ToArray();
         var text = await BoundedCapture.ReadAsync(new Chunked(bytes, [3, 7, 1, 13, 25, 2]), keep);
-        var expected = System.Text.Encoding.ASCII.GetString(bytes, 0, keep) + $"\n… {1000 - 2 * keep} bytes elided …\n"
+        var expected = System.Text.Encoding.ASCII.GetString(bytes, 0, keep) + $"\n… {1000 - 2 * keep} bytes omitted …\n"
             + System.Text.Encoding.ASCII.GetString(bytes, 1000 - keep, keep);
         Assert.Equal(expected, text);
     }
@@ -66,13 +66,13 @@ public sealed class CliMemoryBoundsTests
         var capture = BoundedCapture.Start(client, 1024);
         server.Write(Enumerable.Repeat((byte)'z', 10_000).ToArray());
         server.Flush();
-        var deadline = DateTime.UtcNow.AddSeconds(10);
-        while (!capture.Snapshot().Contains("… 7952 bytes elided …") && DateTime.UtcNow < deadline) Thread.Sleep(20);
+        var deadline = DateTime.UtcNow.AddSeconds(TestTime.Scale(10));
+        while (!capture.Snapshot().Contains("… 7952 bytes omitted …") && DateTime.UtcNow < deadline) Thread.Sleep(20);
         Assert.False(capture.Completion.IsCompleted);
-        Assert.Equal(new string('z', 1024) + "\n… 7952 bytes elided …\n" + new string('z', 1024), capture.Snapshot());
+        Assert.Equal(new string('z', 1024) + "\n… 7952 bytes omitted …\n" + new string('z', 1024), capture.Snapshot());
         // Closing the write end ends the read; the read end is disposed only once nothing reads it.
         server.Dispose();
-        await capture.Completion.WaitAsync(TimeSpan.FromSeconds(10));
+        await capture.Completion.WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(10)));
         client.Dispose();
     }
 
@@ -88,7 +88,19 @@ public sealed class CliMemoryBoundsTests
     {
         var text = await BoundedCapture.ReadAsync(new Endless(50_000_000));
         Assert.True(text.Length < 2 * BoundedCapture.Keep + 100, text.Length.ToString());
-        Assert.Contains($"\n… {50_000_000 - 2 * BoundedCapture.Keep} bytes elided …\n", text);
+        Assert.Contains($"\n… {50_000_000 - 2 * BoundedCapture.Keep} bytes omitted …\n", text);
+    }
+
+    /// <summary>Q1227: the runtime's <c>Io.run</c> capture uses the same bound and marker as <see cref="BoundedCapture"/>.</summary>
+    [Fact]
+    public void M1_TheRuntimeKeepsTheSameBoundAndMarker()
+    {
+        foreach (var file in new[] { "src/runtime/bayan-rt.c", "bootstrap/bayan-rt.c" })
+        {
+            var source = File.ReadAllText(Path.Combine(Golden.RepoRoot, file));
+            Assert.Contains($"#define BYN_RUN_KEEP {BoundedCapture.Keep}\n", source);
+            Assert.Contains("\"\\n\\xE2\\x80\\xA6 %lld bytes omitted \\xE2\\x80\\xA6\\n\"", source);
+        }
     }
 
     [Fact]
@@ -124,13 +136,13 @@ public sealed class CliMemoryBoundsTests
         psi.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "bayan.dll"));
         psi.ArgumentList.Add("test");
         psi.ArgumentList.Add(file);
-        psi.Environment["BAYAN_TEST_TIMEOUT_MS"] = "3000";
+        psi.Environment["BAYAN_TEST_TIMEOUT_MS"] = TestTime.Scale(3000).ToString();
         psi.Environment["BAYAN_CACHE"] = Path.Combine(dir, "cache");
         using var p = System.Diagnostics.Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndAsync();
         var stderr = p.StandardError.ReadToEndAsync();
         long peak = 0;
-        while (!p.WaitForExit(100))
+        while (!p.WaitForExit(TestTime.Scale(100)))
         {
             try
             {
@@ -142,7 +154,7 @@ public sealed class CliMemoryBoundsTests
         Assert.True(peak > 0, "no sample");
         Assert.True(peak < 300L * 1024 * 1024, $"peak working set {peak / 1024 / 1024} MB");
         Assert.Equal(CliApp.ExitTestFailure, p.ExitCode);
-        Assert.Matches(@"… \d+ bytes elided …", await stdout);
+        Assert.Matches(@"… \d+ bytes omitted …", await stdout);
     }
 
     // ── M2 ───────────────────────────────────────────────────────────────────────
@@ -346,16 +358,121 @@ public sealed class CliMemoryBoundsTests
         var cc = Path.Combine(root, "slowcc");
         File.WriteAllText(cc, "#!/bin/sh\nsleep 1000\n");
         File.SetUnixFileMode(cc, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        var limitSeconds = (TestTime.Scale(2000) + 999) / 1000;
         WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () =>
             WithEnv("BAYAN_CC", cc, () =>
-                WithEnv("BAYAN_CC_TIMEOUT_S", "2", () =>
+                WithEnv("BAYAN_CC_TIMEOUT_S", limitSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture), () =>
                 {
                     var clock = System.Diagnostics.Stopwatch.StartNew();
                     var build = Toolchain.Build("int main(void) { return 0; }\n", BuildMode.Safe);
                     Assert.False(build.Succeeded);
-                    Assert.Contains("timed out after 2 s", build.Errors);
-                    Assert.True(clock.Elapsed < TimeSpan.FromSeconds(10), clock.Elapsed.ToString());
+                    Assert.Contains($"timed out after {limitSeconds} s", build.Errors);
+                    Assert.True(clock.Elapsed < TestTime.Scale(TimeSpan.FromSeconds(10)), clock.Elapsed.ToString());
                 })));
+    }
+
+    // ── C compile slots (BAYAN_CC_JOBS) ──────────────────────────────────────────
+
+    [Fact]
+    public void CompileSlotIsNullWithoutALimit()
+    {
+        WithEnv("BAYAN_CC_JOBS", null, () => Assert.Null(Toolchain.CompileSlot()));
+        WithEnv("BAYAN_CC_JOBS", "0", () => Assert.Null(Toolchain.CompileSlot()));
+        WithEnv("BAYAN_CC_JOBS", "x", () => Assert.Null(Toolchain.CompileSlot()));
+    }
+
+    [Fact]
+    public void ACompileSlotWaitsWhileEverySlotIsHeld()
+    {
+        var root = Fresh("cc-jobs-slots");
+        WithEnv("BAYAN_CC_JOBS_DIR", Path.Combine(root, "jobs"), () => WithEnv("BAYAN_CC_JOBS", "2", () =>
+        {
+            using var a = Toolchain.CompileSlot();
+            var b = Toolchain.CompileSlot();
+            var third = Task.Run(Toolchain.CompileSlot);
+            try
+            {
+                Assert.NotNull(a);
+                Assert.NotNull(b);
+                Assert.False(third.Wait(TestTime.Scale(TimeSpan.FromMilliseconds(500))), "a third slot was granted while two of two were held");
+                b!.Dispose();
+                Assert.True(third.Wait(TestTime.Scale(TimeSpan.FromSeconds(10))), "the third slot was not granted after one was freed");
+            }
+            finally
+            {
+                b?.Dispose();
+                a?.Dispose();
+                if (third.Wait(TestTime.Scale(TimeSpan.FromSeconds(10)))) third.Result?.Dispose();
+            }
+        }));
+    }
+
+    [Fact]
+    public void AWaiterWhoseSlotDirectoryIsRemovedStillGetsASlot()
+    {
+        if (OperatingSystem.IsWindows()) return; // a directory with an open file cannot be removed there
+        var root = Fresh("cc-jobs-removed");
+        var dir = Path.Combine(root, "jobs");
+        WithEnv("BAYAN_CC_JOBS_DIR", dir, () => WithEnv("BAYAN_CC_JOBS", "1", () =>
+        {
+            using var held = Toolchain.CompileSlot();
+            var waiter = Task.Run(Toolchain.CompileSlot);
+            Thread.Sleep(TestTime.Scale(200));
+            Directory.Delete(dir, recursive: true);
+            Assert.True(waiter.Wait(TestTime.Scale(TimeSpan.FromSeconds(10))), "a waiter span forever after its slot directory was removed");
+            waiter.Result!.Dispose();
+        }));
+    }
+
+    [Fact]
+    public void ASlotDirectoryThatIsAFileFailsTheBuildWithAMessage()
+    {
+        var root = Fresh("cc-jobs-file");
+        var file = Path.Combine(root, "not-a-dir");
+        File.WriteAllText(file, "");
+        WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () =>
+            WithEnv("BAYAN_CC_JOBS_DIR", file, () => WithEnv("BAYAN_CC_JOBS", "1", () =>
+            {
+                var build = Toolchain.Build("int main(void) { return 0; }\n", BuildMode.Safe);
+                Assert.False(build.Succeeded);
+                Assert.Contains("BAYAN_CC_JOBS: cannot take a compile slot", build.Errors);
+            })));
+    }
+
+    [Fact]
+    public void ConcurrentBuildsRunAtMostBayanCcJobsCompilesAtOnce()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Fresh("cc-jobs-builds");
+        var marks = Path.Combine(root, "marks");
+        Directory.CreateDirectory(marks);
+        var cc = Path.Combine(root, "countcc");
+        // The runtime object (-o *.o) and the version probe return at once; a program compile records how many run beside it.
+        File.WriteAllText(cc, $$"""
+            #!/bin/sh
+            out=; prev=
+            for a in "$@"; do [ "$prev" = -o ] && out=$a; prev=$a; done
+            [ -z "$out" ] && { echo countcc 1; exit 0; }
+            case "$out" in *.o) : > "$out"; exit 0;; esac
+            mkdir "{{marks}}/run.$$"
+            ls -d "{{marks}}"/run.* | wc -l >> "{{root}}/counts"
+            sleep 0.3
+            rmdir "{{marks}}/run.$$"
+            : > "$out"; chmod +x "$out"
+            """);
+        File.SetUnixFileMode(cc, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () => WithEnv("BAYAN_CC", cc, () =>
+            WithEnv("BAYAN_CC_JOBS_DIR", Path.Combine(root, "jobs"), () => WithEnv("BAYAN_CC_JOBS", "1", () =>
+            {
+                var builds = Enumerable.Range(0, 3)
+                    .Select(i => Task.Run(() => Toolchain.Build($"int main(void) {{ return {i}; }}\n", BuildMode.Safe)))
+                    .ToArray();
+                Task.WaitAll(builds);
+                Assert.All(builds, b => Assert.True(b.Result.Succeeded, b.Result.Errors));
+            }))));
+        var counts = File.ReadAllLines(Path.Combine(root, "counts")).Select(l => int.Parse(l.Trim())).ToList();
+        Assert.Equal(3, counts.Count);
+        Assert.Equal(1, counts.Max());
     }
 
     // ── Review fixes ─────────────────────────────────────────────────────────────
@@ -379,7 +496,7 @@ public sealed class CliMemoryBoundsTests
             }
         });
         var exit = 0;
-        WithEnv("TMPDIR", temp, () => WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () => WithEnv("BAYAN_TEST_TIMEOUT_MS", "2000", () =>
+        WithEnv("TMPDIR", temp, () => WithEnv("BAYAN_CACHE", Path.Combine(root, "cache"), () => WithEnv("BAYAN_TEST_TIMEOUT_MS", TestTime.Scale(2000).ToString(), () =>
             exit = Run([.. args, file]).Exit)));
         stop.Cancel();
         watcher.Wait();

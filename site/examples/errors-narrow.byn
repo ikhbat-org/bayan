@@ -1,0 +1,23 @@
+union error CarrierError {
+    timeout
+    rejected
+    offline
+}
+
+union error Retryable = CarrierError except .rejected
+
+i64 quote(i64 n) fails CarrierError {
+    if n < 0 { fail .rejected }
+    if n == 0 { fail .timeout }
+    return n * 2
+}
+
+i64 retry(i64 n) fails Retryable {
+    return quote(n) catch (CarrierError.rejected) 1
+}
+
+void main() {
+    print($"{retry(5) catch -1}")
+    print($"{retry(-1) catch -1}")
+    print($"{retry(0) catch -1}")
+}

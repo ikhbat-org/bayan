@@ -73,7 +73,7 @@ native debugger. The compiler must provide:
 
 ## 6. Visual Studio
 
-`install-textmate.ps1` gives colouring now. `Bayan.VisualStudio` starts `bayan-lsp` through
+`scripts/bayan-tool.sh install-textmate` gives colouring now. `Bayan.VisualStudio` starts `bayan-lsp` through
 `LanguageServerProvider`; build it on Windows, fix package versions against NuGet, then test
 completion, hover, go to definition and diagnostics against `samples/shop.byn`.
 

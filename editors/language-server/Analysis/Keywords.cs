@@ -40,7 +40,7 @@ public static class Keywords
         ["with"] = "Copy with changed fields: `order with { quantity: 2 }`. Re-checks the type's rules.",
         ["provide"] = "Effect-handler block: `provide log: handler { … }` redirects an effect inside the block.",
         ["uses"] = "Effect clause: `uses alloc, net, fs, clock, random, env, process, console, suspend`.",
-        ["where"] = "Generic constraints clause. Clause order: `where`, `expects`, `becomes`, `fails`, `uses`.",
+        ["where"] = "Generic constraints clause. Clause order: `where`, `expects`, `uses`, `becomes`, `fails`.",
         ["expects"] = "Precondition checked at function entry in every build mode; traps on failure.",
         ["requires"] = "Rule on a field, struct or distinct type, checked at construction and `with`.",
         ["becomes"] = "Clause: the method moves `this` to a state, `becomes .placed`. Every returning path must `become`.",

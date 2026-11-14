@@ -197,7 +197,7 @@ public static class Scaffold
                 #!/usr/bin/env bayan
                 #:io threaded
 
-                print("Hello, world!")
+                print("Salam, world!")
 
                 """;
             return files;
@@ -284,7 +284,7 @@ public static class Scaffold
             files["src/app/main.byn"] = """
                 /// The line this app prints.
                 string greeting() {
-                    return "Hello, world!"
+                    return "Salam, world!"
                 }
 
                 print(greeting())
@@ -292,7 +292,7 @@ public static class Scaffold
                 """;
             files["tests/app.test.byn"] = """
                 test "greets the world" {
-                    assert(greeting() == "Hello, world!")
+                    assert(greeting() == "Salam, world!")
                 }
 
                 """;

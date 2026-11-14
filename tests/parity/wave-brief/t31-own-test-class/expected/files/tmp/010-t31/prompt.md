@@ -10,7 +10,7 @@ Turns are your scarce resource: this run has 120, and you will be resumed with t
 4. **Tests are part of the task, and the C# is the oracle.** Every ported function gets a test whose expected lines are *computed* by running the C# implementation in-process on the same input (`Compilation.Create`, `new Binder(…)`, or the C# class directly; model: `SelfhostSemanticsT10Tests.Expected`), including a failure/diagnostic path; diagnostics compare as `code line:col message`. Typing the expected lines by hand is not a test: it only proves the code does what the code does, and the guard rejects it (at most 2 exemptions per file, each `// no-oracle: Qnnn` with the Question saying why no C# path exists). When a sibling stub stands in the way, pick an input that does not reach it, or build the sibling's output by hand on both sides; never assert a stub's default. Then break-test: change one line the test covers, run it and see it FAIL, restore by copying back a copy you took first (`cp f tmp/f.orig` … `cp tmp/f.orig f`; never `git checkout`, which reverts to the stub and loses your work), run it and see it PASS. Record each break-test (file:line `code as it stands`, change, failing test) in your Question; cite lines as they are after your last edit.
 4a. **Port, do not invent.** Method for method, in C# order, every branch. Logic that is not in the C# is a bug even if it makes a test pass. In particular, never write a stand-in for a sibling: call the sibling's entry point even while it is a stub, and accept that its default flows through. No fallback for a sibling's `-1`/`false`/empty result, no private re-implementation of a sibling's function, no fake handles, no skipping a sibling call.
 4b. **State has a home.** When the C# keeps a field (`_instantiating`, `_caught`, `MutationChecks`, …) that `Ctx` or `Binder` lacks, add it to your own `// ── <task> state` section of `selfhost/semantics/ctx.byn`, with a default value; touch nothing else in ctx.byn (the guard checks). Never approximate a field (a scope depth for a scope, a path prefix for a list, an index for an identity).
-4c. **Blocked is a state, not a workaround.** If a Question in the handoff says it must be decided before your task and is still Open, stop and report it. If an entry point truly cannot be ported yet, leave its stub, mark it `// stub: <task> … (blocked: Qnnn)`, and write the Question. Delete the `// stub:` marker of every function you port.
+4c. **Blocked is a state, not a workaround.** If a Question in `docs/bayan-questions.md` says it must be decided before your task and is still Open, stop and report it. If an entry point truly cannot be ported yet, leave its stub, mark it `// stub: <task> … (blocked: Qnnn)`, and write the Question. Delete the `// stub:` marker of every function you port.
 4d. **Docs say what the code does.** Each Question describes the code as it stands, not as planned; add one Progress log entry for your task (what landed, what is blocked, test count). Do not tick the task: `scripts/selfhost/land.sh` ticks it after an independent review passes.
 5. **Before you finish, run the guard** (command in the brief) and paste its last 15 lines into your summary. `GUARD PASS` is the only finished state. The per-task guard runs no mutants (user decision 2026-11-01): mutation runs in batches and survivors become T28 cases, so do not add cases only to kill mutants; do cover every ported branch with a C#-oracle case. For the batch runs, only when a statement's sole observable effect goes through an unported sibling's stub may you mark it `@unobservable because "…"` (spec 013 R7; narrow it to one operator with `@unobservable(boundary) because "…"`); the reason names the sibling and the test to add when it lands. Its mutants are reported `marked`, not survived.
 6. **At turn ~110, stop adding.** Make it compile, commit nothing yourself, and end with: done / not done / the exact next step. The resume picks up there.
@@ -26,7 +26,7 @@ Fast check: `dotnet build -v q 2>&1 | grep -E " error | warning " | head -20; do
 
 Guard (run before you finish):
 ```
-bash scripts/selfhost/guard.sh --base test-base --allow 'selfhost/semantics/compile.byn,selfhost/semantics/main.byn,tests/Bayan.Tests/SelfhostSemanticsNoPanicLawTests.cs,docs/laws/023-no-checker-panic.md,docs/bayan-handoff.md,docs/specs/010-self-hosted-semantics/010-tasks.md' --filter 'FullyQualifiedName~SelfhostSemanticsNoPanicLawTests' --task T31
+bash scripts/selfhost/guard.sh --base test-base --allow 'selfhost/semantics/compile.byn,selfhost/semantics/main.byn,tests/Bayan.Tests/SelfhostSemanticsNoPanicLawTests.cs,docs/laws/023-no-checker-panic.md,docs/bayan-questions.md,docs/specs/010-self-hosted-semantics/010-tasks.md' --filter 'FullyQualifiedName~SelfhostSemanticsNoPanicLawTests' --task T31
 ```
 Do not commit, merge, checkout, reset or stash; the dispatcher commits for you.
 
@@ -52,7 +52,7 @@ Landed and callable: `ctx.byn` (T1), `codes.byn`/`diag.byn` (T2: `report`, `addD
 `tests/Bayan.Tests/SelfhostSemanticsHarness.cs`: `SelfhostSemanticsHarness.RunSections(mainSource)` builds `selfhost/semantics` with your generated `main.byn` (a C# string) and returns its output split at lines `== <section>`; `SelfhostSemanticsHarness.AssertSection(sections, "<section>", expectedLines)` names the first differing line. Build once per class (`static readonly Lazy<…>`). The oracle is the C# implementation: run the same input through `Bayan.Semantics` in-process (`Compilation.Create`, or the C# class directly when it is public/internal-visible) and print the same lines. Every ported function gets a compared case including a failure/diagnostic path; diagnostics compare as `code line:col message`.
 
 ## Files you own
-`selfhost/semantics/compile.byn`, `selfhost/semantics/main.byn`, `tests/Bayan.Tests/SelfhostSemanticsNoPanicLawTests.cs`, `docs/laws/023-no-checker-panic.md`, `docs/bayan-handoff.md` (Questions Q661–Q662 only, inserted in number order), your own `// ── T31 state` sections of `selfhost/semantics/ctx.byn` (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`scripts/selfhost/review-brief.py`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.
+`selfhost/semantics/compile.byn`, `selfhost/semantics/main.byn`, `tests/Bayan.Tests/SelfhostSemanticsNoPanicLawTests.cs`, `docs/laws/023-no-checker-panic.md`, `docs/bayan-questions.md` (Questions Q661–Q662 only, inserted in number order), your own `// ── T31 state` sections of `selfhost/semantics/ctx.byn` (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`bash scripts/bayan-tool.sh review-brief`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.
 
 ## Bayan cheat sheet (compiler-checked)
 # Bayan cheat sheet for porters (compiler-checked 2026-10-26)
@@ -139,7 +139,7 @@ switch lexed.tokens[i].kind {
 if (d.value.failsKeyword is { } fails) { … fails.errors … }
 if failsSpan is null { failsSpan = at }
 ```
-`docs/bayan-handoff.md:750` (Q480), `selfhost/parser/decls.byn:825`
+`docs/decisions/2026-11-14-004-answered-questions.md:1343` (Q480), `selfhost/parser/decls.byn:825`
 
 **Optional early exit: `?? return` / `?? fail`.**
 ```byn
@@ -184,7 +184,7 @@ Io.stdout.write(sb.finish())
 ```byn
 return $"{sb.finish()}"
 ```
-`docs/bayan-handoff.md:732` (Q455), `docs/bayan-spec.md:195`
+`docs/decisions/2026-11-14-004-answered-questions.md:1311` (Q455), `docs/bayan-spec.md:195`
 
 **String comparisons are ordinal and by bytes: `==`, `startsWith`, `endsWith`, `contains`, `position` (byte offset).**
 ```byn
@@ -213,7 +213,7 @@ string exprText(in Expr e)        // called exprText(in n.value.left)
 var p = Parser.create(lexer.lex(…))
 let unit = parseCompilationUnit(ref p)
 ```
-`docs/bayan-handoff.md:717` (Q436), `selfhost/parser/main.byn:50-51`
+`docs/decisions/2026-11-14-004-answered-questions.md:1271` (Q436), `selfhost/parser/main.byn:50-51`
 
 **`move` transfers ownership; `List`/`Map`/`StrBuf`/`Owned` and any struct holding them are `unique`. Broken implicit copy is BYN2780.**
 ```byn
@@ -227,7 +227,7 @@ let b = move a                     // var b = a is BYN2780
 // BYN2106: modifying a temporary or read-only value
 // "an `Owned` value is read-only" — set every field before Owned(…)
 ```
-`docs/diagnostics/BYN2106.md`, `docs/bayan-handoff.md:717` (Q436b)
+`docs/diagnostics/BYN2106.md`, `docs/decisions/2026-11-14-004-answered-questions.md:1271` (Q436b)
 
 **Argument particles: at most one unlabeled object; every other required parameter takes `from:`/`to:`/`until:`/`through:`/`at:`/`by:`/`for:`/`as:`, written at both declaration and call.**
 ```byn
@@ -241,7 +241,7 @@ bool inside(TextSpan span, until i64 size) => span.end <= size
 ```byn
 p.setNoLambda(value: true)
 ```
-`docs/bayan-handoff.md:749` (Q472)
+`docs/decisions/2026-11-14-004-answered-questions.md:307` (Q472)
 
 **Errors: `T f() fails E`, `fail .x`, `try f()`, `catch` / `catch switch`; `return` always returns a value.**
 ```byn
@@ -316,7 +316,7 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 | `let (a, b) = pair`, `pair.0` | BYN1001 (compiler-checked) | named tuple fields `t.line`, or `switch t { case (let a, let b): }`, or a small struct |
 | classes, inheritance, `object` | §1:41 "Structs only … No classes, no inheritance, no `object`, no GC"; §3.10:382 | structs + `interface`; `embed T` promotes fields |
 | generics beyond constrained monomorphized forms: generic interface methods, variance, higher-kinded types | §11:1454-1463; selfhost gaps §3.15:535-541 | concrete types; `dyn ref IVisitor`; `switch` |
-| storing a lambda in a field or returning one | BYN2822, `docs/bayan-spec.md:560`, `docs/bayan-handoff.md:696` (Q346) | function-typed *parameter*, `type Predicate<T> = T -> bool`; switch on an enum key (`Map<Symbol,i32>`) |
+| storing a lambda in a field or returning one | BYN2822, `docs/bayan-spec.md:560`, `docs/decisions/2026-11-14-004-answered-questions.md:253` (Q346) | function-typed *parameter*, `type Predicate<T> = T -> bool`; switch on an enum key (`Map<Symbol,i32>`) |
 | lambda capturing a `var` / `this` / `Map` | BYN2821 (§3.16:600), BYN2780 (`docs/bayan-spec.md:252`) | capture only `let`/`const`/params by copy; pass the map as a parameter |
 | stored lambda keyed in a `Map<Symbol, () -> void>` | BYN2822, **spec §3.3:251** | `Map<Symbol, i32>` + switch |
 | LINQ (`Where`/`Select`/`Sum` chains) | §16:1774 "Not in v0.1: everything that takes a lambda"; only plain loops/builtins | `for`, `if`, explicit `List` building |
@@ -328,7 +328,7 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 | string `+`, `s[i]` indexer, `Substring`, `ToString()`, `Length` capital, `string.Format` | `docs/bayan-spec.md:190` (no indexer), `:195` (no `+`), `:1749` (slice for Substring), `:915` (no `toString`), `:188` (`length`) | `$"{a}{b}"`, `StrBuf`, `s[a..b]`, `string(x)`, `.length` |
 | `s.Contains` case-insensitive ambient culture | §16.4:1970-1971 no ambient culture, ordinal only | `equals(t, as: .caseless)`; culture via `kit.intl` |
 | current working directory / `Environment.CurrentDirectory` builtin | **Unverified — I found no cwd builtin** in §16 or the selfhost; the CLI takes explicit paths (`selfhost/parser/main.byn:5-9`) | pass paths explicitly; `Io.listDir`/`Io.readFile` take a path |
-| ASCII-only casing assumptions in the ported compiler | Q442: `char.IsUpper` is Unicode in C#, `startsUpper` is `A`–`Z` because Bayan has no case table | check `A`–`Z` explicitly; don't port Unicode casing |
+| ASCII-only casing in the ported compiler (`A`–`Z` for `char.IsUpper`) | Q442 is superseded by Q1142: `char.IsUpper`/`IsLower` are Unicode Lu/Ll in C#, and law L017 caught the parser diverging on `Åp { x: 1 }` | `lexer.firstIsUpper`/`firstIsLower` (the generated `upperRanges`/`lowerRanges`, BMP); never `A`–`Z` for a C# `char.IsUpper` |
 | tuple-typed struct field `(i8, i64) f1` | `work/todo.md:24` BYN1001 (parsed as function type) | use a named struct |
 | `List<T>` element removal by index in the port's first cut | Q440 "`List` has no `removeAt`" (a tombstone workaround); spec has `remove(at:)` §16:1743 | set `code = ""` and skip, or `remove(at:)` where built |
 | `HashSet<T>` | Q449(c): replaced by `List` searched in order; `Set` is not in v0.1 (§16:1774) | `List` + linear search, or `Map<K,bool>` |

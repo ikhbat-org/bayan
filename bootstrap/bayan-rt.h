@@ -7,7 +7,7 @@
 #define BAYAN_RT_H
 
 /* Bumped on every change to the runtime source. */
-#define BYN_RUNTIME_VERSION 2
+#define BYN_RUNTIME_VERSION 3
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -433,7 +433,7 @@ byn_str byn_utf8_decode_replace(const uint8_t* p, int64_t n, byn_alloc* to);
  * On Windows they come from the UTF-16 command line instead of `argv`, and `*argc` is set to their count. */
 byn_str* byn_args(int* argc, char** argv);
 
-/* `IoError` codes: the compiler numbers its variants first. */
+/* `IoError` codes 1 to 11: the compiler numbers its variants first, then `Utf8Error` (12); user error variants start at 13. */
 #define BYN_IO_NOT_FOUND 1u
 #define BYN_IO_PERMISSION_DENIED 2u
 #define BYN_IO_INVALID_UTF8 3u
@@ -441,6 +441,15 @@ byn_str* byn_args(int* argc, char** argv);
 #define BYN_IO_OTHER 5u
 #define BYN_IO_INVALID_INPUT 6u
 #define BYN_IO_UNSUPPORTED 7u
+#define BYN_IO_CROSS_DEVICE 8u
+#define BYN_IO_IS_DIRECTORY 9u
+/* detail-carrying: writes *detail (the signal number), field 0 of `IoError.signaled(i32 signal, string stdout, string stderr)`. */
+#define BYN_IO_SIGNALED 10u
+/* `IoError.timeout(Millis after, string stdout, string stderr)`: no runtime detail (the caller knows the timeout); the
+ * captured streams are in `*out`, as for `BYN_IO_SIGNALED`. */
+#define BYN_IO_TIMEOUT 11u
+/* `Utf8Error.invalidSequence(i64 at)`: no runtime detail; `bynh_utf8_decode` writes it. */
+#define BYN_UTF8_INVALID_SEQUENCE 12u
 
 /* Reads a whole file into memory from `alloc`. Returns 0 or an `IoError` code. */
 uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc);
@@ -454,17 +463,45 @@ uint32_t byn_io_write_file(byn_str path, const uint8_t* ptr, int64_t len);
 /* `Io.listDir`: entry names without `.` and `..`, sorted by byte order, allocated from `alloc`. */
 uint32_t byn_io_list_dir(byn_str path, byn_str** ptr, int64_t* len, byn_alloc* alloc);
 
-/* `ProcessResult`: a child killed by a signal reports 128 + the signal number. */
+/* `ProcessResult`: a child that exited; a signal-killed child is `BYN_IO_SIGNALED` instead. */
 typedef struct byn_process {
     int32_t exit_code;
     byn_str out;
     byn_str err;
 } byn_process;
 
+/* How the wait for a child ended, for byn_wait_status. */
+#define BYN_WAIT_DONE 0
+#define BYN_WAIT_FAILED 1       /* waitpid failed (not EINTR), or WaitForSingleObject did */
+#define BYN_WAIT_QUERY_FAILED 2 /* GetExitCodeProcess failed */
+#define BYN_WAIT_TIMED_OUT 3
+/* Maps a wait to 0 (with `*code`, the exit code) or an `IoError` code. A failed wait or query is `BYN_IO_OTHER`
+ * and `raw` is ignored, so no exit code is made up; a timeout is `BYN_IO_TIMEOUT` (`*detail` untouched); off Windows
+ * a signal-killed child (`raw` is the waitpid status) is `BYN_IO_SIGNALED` with `*detail` = the signal; on Windows
+ * `raw` is the exit code. `detail` may be NULL. Compiled on every host. */
+uint32_t byn_wait_status(int outcome, uint32_t raw, int32_t* code, int64_t* detail);
 /* `Io.run`: spawns `program` (looked up on PATH when it has no path separator) with `args`,
  * never through a shell, and waits for it. Both streams are captured into `alloc`. `out` may be NULL.
+ * A failed wait is `other`, a signal-killed child `signaled` with the signal in `*detail` (`detail` may be NULL)
+ * and its captured streams still in `*out` (the payload of `.signaled`); if they are not UTF-8 it stays `signaled`
+ * with `*out` untouched (empty streams).
  * On Windows a batch file (`.bat`, `.cmd`) is refused with `permissionDenied`, since cmd.exe would re-parse the arguments. */
-uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, byn_alloc* alloc);
+uint32_t byn_io_run(byn_str program, const byn_str* args, int64_t nargs, byn_process* out, int64_t* detail, byn_alloc* alloc);
+/* `Io.run` with its named arguments (015 S6). `directory` (NULL: ours) is where the child runs; one that does not exist
+ * or is not a directory fails before anything starts. `input` (`ninput` < 0: the child shares our stdin) is written to
+ * the child's stdin, which is then closed. Each of the `nenv` entries of `env_keys` replaces the inherited variable of
+ * its name: with `env_vals[i]` as the value, or removed when `env_unset[i]` is set (`env_vals[i]` then unread). A NUL
+ * in the directory, an empty name, `=` in a name or NUL in a name or set value is `invalidInput`. With `timeout_ms` >= 0
+ * the child runs in its own process group (a Job object on Windows); once `timeout_ms` passes the group gets SIGTERM,
+ * then SIGKILL after a grace period (the job is terminated), and the call is `timeout` with `*detail` untouched (the
+ * caller knows the timeout) and what was captured before then in `*out` (empty streams if either is not UTF-8). With
+ * `timeout_ms` >= 0 each stream also keeps only its first and its last BYN_RUN_KEEP bytes: when more was written, the
+ * stream is its head and its tail, each decoded with U+FFFD for a cut or invalid sequence, around one
+ * `\n… N bytes omitted …\n` line (N the bytes dropped), as the C# test runner's `BoundedCapture` keeps a test's output.
+ * `timeout_ms` < 0 waits as long as the child runs and keeps every byte. */
+uint32_t byn_io_run_with(byn_str program, const byn_str* args, int64_t nargs, const byn_str* directory, const uint8_t* input,
+                         int64_t ninput, const byn_str* env_keys, const byn_str* env_vals, const bool* env_unset, int64_t nenv,
+                         int64_t timeout_ms, byn_process* out, int64_t* detail, byn_alloc* alloc);
 /* `Io.runBatch`'s command line: `cmd.exe /d /e:ON /v:OFF /s /c ""<path>" "<a1>" … "<an>""`, each argument
  * in double quotes as-is. False, with nothing built, when the path or an argument holds NUL, CR, LF, `"` or `%`,
  * or the path does not end in `.bat` or `.cmd` (any case). Otherwise `out` is from malloc. Compiled on every host. */
@@ -475,6 +512,8 @@ uint32_t byn_io_run_batch(byn_str path, const byn_str* args, int64_t nargs, byn_
 /* `Io.stdout.write` (fd 1, buffered with print) and `Io.stderr.write` (fd 2). No newline. */
 void byn_io_write(int32_t fd, byn_str s);
 int64_t byn_io_monotonic_nanos(void);
+/* `Io.randomU64`: 8 bytes from the operating system's CSPRNG (the hash seed's source); panics if it cannot be read. */
+uint64_t byn_io_random_u64(void);
 
 /* ── StrBuf ──────────────────────────────────────────────────────────────── */
 
@@ -568,5 +607,26 @@ uint32_t byn_io_create_directory(byn_str path);
 
 /* `Io.removeDirectory`: as .NET `Directory.Delete(path)`: an empty directory only; a missing path, a file and a non-empty directory fail. */
 uint32_t byn_io_remove_directory(byn_str path);
+
+/* `Time`: nanoseconds since the Unix epoch, UTC. */
+typedef struct byn_time { int64_t nanos; } byn_time;
+
+/* `Time.now`: the wall clock. */
+byn_time byn_time_now(void);
+
+/* `Fs.rename`: POSIX `rename`, Windows `MoveFileExW` replacing an existing file. Across devices it fails `crossDevice`; nothing is copied. */
+uint32_t byn_fs_rename(byn_str path, byn_str dest);
+
+/* `Fs.copy`: a file's bytes and permission bits, not its times; an existing `dest` is replaced, a directory source fails `isDirectory`, and `dest` that is the source (by file identity) fails `invalidInput`. */
+uint32_t byn_fs_copy(byn_str path, byn_str dest);
+
+/* `Fs.modified`: the last write time. `out` may be NULL. */
+uint32_t byn_fs_modified(byn_str path, byn_time* out);
+
+/* `Fs.setModified`: sets the last write time (and leaves the access time). */
+uint32_t byn_fs_set_modified(byn_str path, byn_time t);
+
+/* `Fs.realPath`: the absolute path with every link resolved, copied into `*out` from `alloc`; a missing path is `notFound`. `out` may be NULL. */
+uint32_t byn_fs_real_path(byn_str path, byn_str* out, byn_alloc* alloc);
 
 #endif

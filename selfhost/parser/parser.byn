@@ -47,6 +47,10 @@ public struct Parser {
     /// rules only once every field of the struct is known (Q819), so `parseFieldOrProperty` leaves the field here unwrapped.
     public bool collectField = false
     public List<FieldDecl> collectedFields = List<FieldDecl>()
+    /// Set by `typeNames` and `calleeAndReceiverNames` (dump2.byn) around a dump: the C# `Writer.TypeNames` and `Writer.CalleeNames` side lists (Q1143).
+    public bool collectNames = false
+    public List<TextSpan> collectedTypeNames = List<TextSpan>()
+    public List<TextSpan> collectedCalleeNames = List<TextSpan>()
 
     public static Parser create(move LexResult lexed) uses alloc {
         let count = lexed.tokens.length

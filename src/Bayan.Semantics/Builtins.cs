@@ -77,13 +77,18 @@ public sealed class Builtins
         IoRemoveDirectory = MakeIo("removeDirectory", BuiltinFunction.IoRemoveDirectory, PrimitiveType.Void, ("path", PrimitiveType.String));
         IoListDir = MakeIo("listDir", BuiltinFunction.IoListDir, new ListType(PrimitiveType.String), ("path", PrimitiveType.String));
         IoRun = MakeIo("run", BuiltinFunction.IoRun, BuiltinType.ProcessResult,
-            ("program", PrimitiveType.String), ("args", new SpanType(PrimitiveType.String, readOnly: true)));
+            ("program", PrimitiveType.String), ("args", new SpanType(PrimitiveType.String, readOnly: true)),
+            ("directory", new OptionalType(PrimitiveType.String)), ("input", new OptionalType(new SpanType(PrimitiveType.U8, readOnly: true))),
+            ("env", new OptionalType(new MapType(PrimitiveType.String, new OptionalType(PrimitiveType.String)))),
+            ("timeout", new OptionalType(BuiltinType.Millis)));
         IoRunBatch = MakeIo("runBatch", BuiltinFunction.IoRunBatch, BuiltinType.ProcessResult,
             ("path", PrimitiveType.String), ("args", new SpanType(PrimitiveType.String, readOnly: true)));
         IoMonotonicNanos = Make("monotonicNanos", BuiltinFunction.IoMonotonicNanos, PrimitiveType.I64);
+        IoRandomU64 = Make("randomU64", BuiltinFunction.IoRandomU64, PrimitiveType.U64);
         IoStdout = Make("stdout", BuiltinFunction.IoStdout, BuiltinType.IoStream);
         IoStderr = Make("stderr", BuiltinFunction.IoStderr, BuiltinType.IoStream);
         IoStdin = Make("stdin", BuiltinFunction.IoStdin, BuiltinType.IoInput);
+        IoStdinReadAllBytes = MakeIo("readAllBytes", BuiltinFunction.IoStdinReadAllBytes, new ListType(PrimitiveType.U8));
 
         var utf8Source = SourceText.FromString("<builtin>", Utf8ErrorSource);
         var utf8Decl = (ErrorEnumDecl)SyntaxTree.Parse(utf8Source).Root.Members[0];
@@ -126,6 +131,13 @@ public sealed class Builtins
         PathFullPath = Make("fullPath", BuiltinFunction.PathFullPath, PrimitiveType.String, ("path", PrimitiveType.String));
         EnvGet = Make("get", BuiltinFunction.EnvGet, new OptionalType(PrimitiveType.String), ("name", PrimitiveType.String));
         FsFileExists = Make("fileExists", BuiltinFunction.FsFileExists, PrimitiveType.Bool, ("path", PrimitiveType.String));
+        FsRename = MakeIo("rename", BuiltinFunction.FsRename, PrimitiveType.Void, ("path", PrimitiveType.String), ("to", PrimitiveType.String));
+        FsCopy = MakeIo("copy", BuiltinFunction.FsCopy, PrimitiveType.Void, ("path", PrimitiveType.String), ("to", PrimitiveType.String));
+        FsModified = MakeIo("modified", BuiltinFunction.FsModified, BuiltinType.Time, ("path", PrimitiveType.String));
+        FsSetModified = MakeIo("setModified", BuiltinFunction.FsSetModified, PrimitiveType.Void, ("path", PrimitiveType.String), ("to", BuiltinType.Time));
+        FsRealPath = MakeIo("realPath", BuiltinFunction.FsRealPath, PrimitiveType.String, ("path", PrimitiveType.String));
+        TimeNow = Make("now", BuiltinFunction.TimeNow, BuiltinType.Time);
+        TimeFromNanos = Make("fromNanos", BuiltinFunction.TimeFromNanos, BuiltinType.Time, ("nanos", PrimitiveType.I64));
 
         // The iteration interfaces are declared from source too; `Compilation` declares their members like a user interface's.
         var iterationFile = new FileContext(Module, SyntaxTree.Parse(SourceText.FromString("<builtin>", IterationSource)));
@@ -173,7 +185,7 @@ public sealed class Builtins
         }
         """;
 
-    /// <summary><c>union error Utf8Error</c>: numbered right after <c>IoError</c>, so <c>invalidSequence</c> is code 8.</summary>
+    /// <summary><c>union error Utf8Error</c>: numbered right after <c>IoError</c>, so <c>invalidSequence</c> is code 12.</summary>
     public ErrorSetSymbol Utf8Error { get; }
 
     // SPEC §8 gives `badDigit(Bytes at)`; units are spec-only, so the position is a plain byte offset (Question 331).
@@ -293,10 +305,44 @@ public sealed class Builtins
     /// <summary><c>bool Fs.fileExists(string path)</c> <c>uses fs</c>: as .NET <c>File.Exists</c> (false for a directory, a missing entry, an empty path and a path ending in a separator).</summary>
     public FunctionSymbol FsFileExists { get; }
 
+    /// <summary><c>void Fs.rename(string path, string to) uses fs fails IoError</c>: POSIX <c>rename</c>, Windows <c>MoveFileExW</c> replacing an existing file; a move across devices fails <c>crossDevice</c> (no copy).</summary>
+    public FunctionSymbol FsRename { get; }
+
+    /// <summary><c>void Fs.copy(string path, string to) uses fs fails IoError</c>: a file's contents and permission bits (not its times); a directory source fails <c>isDirectory</c>, a destination that is the source (by file identity) <c>invalidInput</c>.</summary>
+    public FunctionSymbol FsCopy { get; }
+
+    /// <summary><c>Time Fs.modified(string path) uses fs fails IoError</c>: the last write time, in nanoseconds where the OS keeps them.</summary>
+    public FunctionSymbol FsModified { get; }
+
+    /// <summary><c>void Fs.setModified(string path, Time to) uses fs fails IoError</c>: sets the last write time.</summary>
+    public FunctionSymbol FsSetModified { get; }
+
+    /// <summary><c>string Fs.realPath(string path) uses fs, alloc fails IoError</c>: the path with every link resolved, a fresh copy from <c>context.allocator</c>; a missing path is <c>notFound</c>.</summary>
+    public FunctionSymbol FsRealPath { get; }
+
     /// <summary>A static member of <c>Fs</c>, or null.</summary>
     public FunctionSymbol? FindFs(string name) => name switch
     {
         "fileExists" => FsFileExists,
+        "rename" => FsRename,
+        "copy" => FsCopy,
+        "modified" => FsModified,
+        "setModified" => FsSetModified,
+        "realPath" => FsRealPath,
+        _ => null,
+    };
+
+    /// <summary><c>Time Time.now()</c> <c>uses clock</c>: the wall-clock time.</summary>
+    public FunctionSymbol TimeNow { get; }
+
+    /// <summary><c>Time Time.fromNanos(i64 nanos)</c>: the instant <paramref name="nanos"/> nanoseconds after the Unix epoch.</summary>
+    public FunctionSymbol TimeFromNanos { get; }
+
+    /// <summary>A static member of <c>Time</c>, or null.</summary>
+    public FunctionSymbol? FindTime(string name) => name switch
+    {
+        "now" => TimeNow,
+        "fromNanos" => TimeFromNanos,
         _ => null,
     };
 
@@ -345,7 +391,7 @@ public sealed class Builtins
             notFound,
             /// Permission denied.
             permissionDenied,
-            /// The file is not valid UTF-8.
+            /// The input is not valid UTF-8.
             invalidUtf8,
             /// The path exists but is not a directory.
             notADirectory,
@@ -355,11 +401,34 @@ public sealed class Builtins
             invalidInput,
             /// The operation is not available on this platform.
             unsupported,
+            /// The source and the destination are on different devices.
+            crossDevice,
+            /// The path is a directory where a file is needed.
+            isDirectory,
+            /// The child process was ended by this signal; what it wrote to stdout and stderr before then is kept
+            /// (empty if either stream is not UTF-8).
+            signaled(i32 signal, string stdout, string stderr),
+            /// The child process ran longer than this and was stopped; what it wrote to stdout and stderr before then is kept
+            /// (empty if either stream is not UTF-8).
+            timeout(Millis after, string stdout, string stderr),
         }
         """;
 
-    /// <summary><c>union error IoError</c>: its variants are numbered first, so their codes are 1 to 7 (the runtime returns them).</summary>
+    /// <summary><c>union error IoError</c>: its variants are numbered first, so their codes are 1 to 11 (the runtime returns them).</summary>
     public ErrorSetSymbol IoError { get; }
+
+    /// <summary>
+    /// The built-in cases whose first primitive (or <c>Millis</c>) payload field a failing builtin call fills from the general detail slot
+    /// (plan 007 §1): <c>IoError.signaled</c>, <c>IoError.timeout</c>, <c>Utf8Error.invalidSequence</c>, <c>ParseError.badDigit</c>.
+    /// <c>Io.run</c> fills the streams of <c>IoError.signaled</c> and <c>IoError.timeout</c> (fields 1 and 2) from its captured process.
+    /// </summary>
+    public IEnumerable<ErrorVariantSymbol> DetailVariants =>
+    [
+        IoError.Variants.Single(v => v.Name == "signaled"),
+        IoError.Variants.Single(v => v.Name == "timeout"),
+        Utf8Error.Variants.Single(v => v.Name == "invalidSequence"),
+        ParseError.Variants.Single(v => v.Name == "badDigit"),
+    ];
 
     /// <summary><c>List&lt;u8&gt; Io.readFile(string path) fails IoError</c>.</summary>
     public FunctionSymbol IoReadFile { get; }
@@ -370,31 +439,41 @@ public sealed class Builtins
     /// <summary><c>void Io.writeFile(string path, ReadOnlySpan&lt;u8&gt; bytes) fails IoError</c>.</summary>
     public FunctionSymbol IoWriteFile { get; }
 
-    /// <summary><c>void Io.remove(string path) fails IoError</c> <c>uses fs</c>: as .NET <c>File.Delete</c> (a missing file is not an error; a directory fails).</summary>
+    /// <summary><c>void Io.remove(string path) uses fs fails IoError</c>: as .NET <c>File.Delete</c> (a missing file is not an error; a directory fails).</summary>
     public FunctionSymbol IoRemove { get; }
 
-    /// <summary><c>void Io.createDirectory(string path) fails IoError</c> <c>uses fs</c>: as .NET <c>Directory.CreateDirectory</c> (creates missing parents; an existing directory is not an error, an existing file is).</summary>
+    /// <summary><c>void Io.createDirectory(string path) uses fs fails IoError</c>: as .NET <c>Directory.CreateDirectory</c> (creates missing parents; an existing directory is not an error, an existing file is).</summary>
     public FunctionSymbol IoCreateDirectory { get; }
 
-    /// <summary><c>void Io.removeDirectory(string path) fails IoError</c> <c>uses fs</c>: as .NET <c>Directory.Delete(path)</c> (an empty directory only; a missing path, a file or a non-empty directory fails).</summary>
+    /// <summary><c>void Io.removeDirectory(string path) uses fs fails IoError</c>: as .NET <c>Directory.Delete(path)</c> (an empty directory only; a missing path, a file or a non-empty directory fails).</summary>
     public FunctionSymbol IoRemoveDirectory { get; }
 
     /// <summary><c>List&lt;string&gt; Io.listDir(string path) fails IoError</c>: entry names sorted by byte order.</summary>
     public FunctionSymbol IoListDir { get; }
 
-    /// <summary><c>ProcessResult Io.run(string program, ReadOnlySpan&lt;string&gt; args) fails IoError</c>.</summary>
+    /// <summary>
+    /// <c>ProcessResult Io.run(string program, ReadOnlySpan&lt;string&gt; args, directory: string? = null, input: ReadOnlySpan&lt;u8&gt;? = null,
+    /// env: Map&lt;string, string?&gt;? = null, timeout: Millis? = null) fails IoError</c>; the four options are named only (015 S6).
+    /// A null `env:` value unsets that inherited variable; a child still running after `timeout:` is killed (`.timeout`, plan 007).
+    /// </summary>
     public FunctionSymbol IoRun { get; }
 
     /// <summary><c>i64 Io.monotonicNanos()</c>.</summary>
     public FunctionSymbol IoMonotonicNanos { get; }
+
+    /// <summary><c>u64 Io.randomU64() uses random</c>: 8 bytes from the operating system's CSPRNG (the hash seed's source); failure panics.</summary>
+    public FunctionSymbol IoRandomU64 { get; }
 
     /// <summary><c>Io.stdout</c> and <c>Io.stderr</c>: streams with <c>write(string)</c>.</summary>
     public FunctionSymbol IoStdout { get; }
 
     public FunctionSymbol IoStderr { get; }
 
-    /// <summary><c>Io.stdin</c>: a stream with <c>Result&lt;string, IoError&gt; readAll()</c>.</summary>
+    /// <summary><c>Io.stdin</c>: a stream with <c>Result&lt;string, IoError&gt; readAll()</c> and <c>List&lt;u8&gt; readAllBytes() fails IoError</c>.</summary>
     public FunctionSymbol IoStdin { get; }
+
+    /// <summary><c>List&lt;u8&gt; Io.stdin.readAllBytes() fails IoError</c>: the binder calls it for the <c>Io.stdin</c> method; not a static member of <c>Io</c>.</summary>
+    public FunctionSymbol IoStdinReadAllBytes { get; }
 
     /// <summary><c>ProcessResult Io.runBatch(string path, ReadOnlySpan&lt;string&gt; args) fails IoError</c>: a <c>.bat</c>/<c>.cmd</c> file through <c>cmd.exe</c>.</summary>
     public FunctionSymbol IoRunBatch { get; }
@@ -412,6 +491,7 @@ public sealed class Builtins
         "run" => IoRun,
         "runBatch" => IoRunBatch,
         "monotonicNanos" => IoMonotonicNanos,
+        "randomU64" => IoRandomU64,
         "stdout" => IoStdout,
         "stderr" => IoStderr,
         "stdin" => IoStdin,

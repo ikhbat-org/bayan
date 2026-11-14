@@ -552,6 +552,8 @@ internal sealed partial class Binder
         if (name == "Target") return new BoundTypeRef(n, BuiltinType.Target);
         if (name == "Env") return new BoundTypeRef(n, BuiltinType.Env);
         if (name == "Fs") return new BoundTypeRef(n, BuiltinType.Fs);
+        if (name == "Time") return new BoundTypeRef(n, BuiltinType.Time);
+        if (name == "Millis") return new BoundTypeRef(n, BuiltinType.Millis);
         ReportUndefined(n.Name);
         return new BoundErrorExpr(n);
     }
@@ -688,7 +690,7 @@ internal sealed partial class Binder
                 if (_c.Builtins.FindIo(name) is not { } member)
                 {
                     Report(DiagnosticCodes.UnknownMember, m.Member.Span, [name, io.Name],
-                        help: Suggest(name, ["readFile", "readText", "writeFile", "remove", "createDirectory", "removeDirectory", "listDir", "run", "runBatch", "monotonicNanos", "stdout", "stderr", "stdin"]) is { } near ? $"did you mean `{near}`?" : null);
+                        help: Suggest(name, ["readFile", "readText", "writeFile", "remove", "createDirectory", "removeDirectory", "listDir", "run", "runBatch", "monotonicNanos", "randomU64", "stdout", "stderr", "stdin"]) is { } near ? $"did you mean `{near}`?" : null);
                     return new BoundErrorExpr(m);
                 }
                 // `stdout`, `stderr` and `stdin` read like properties; the rest are called.
@@ -718,7 +720,11 @@ internal sealed partial class Binder
                 return new BoundErrorExpr(m);
             case BoundTypeRef { Referenced: BuiltinType { Kind: BuiltinKind.Fs } fs }:
                 if (_c.Builtins.FindFs(name) is { } fsMember) return new BoundMethodGroup(m, null, fsMember);
-                Report(DiagnosticCodes.UnknownMember, m.Member.Span, [name, fs.Name], help: Suggest(name, ["fileExists"]) is { } nearFs ? $"did you mean `{nearFs}`?" : null);
+                Report(DiagnosticCodes.UnknownMember, m.Member.Span, [name, fs.Name], help: Suggest(name, ["fileExists", "rename", "copy", "modified", "setModified", "realPath"]) is { } nearFs ? $"did you mean `{nearFs}`?" : null);
+                return new BoundErrorExpr(m);
+            case BoundTypeRef { Referenced: BuiltinType { Kind: BuiltinKind.Time } time }:
+                if (_c.Builtins.FindTime(name) is { } timeMember) return new BoundMethodGroup(m, null, timeMember);
+                Report(DiagnosticCodes.UnknownMember, m.Member.Span, [name, time.Name], help: Suggest(name, ["now", "fromNanos"]) is { } nearTime ? $"did you mean `{nearTime}`?" : null);
                 return new BoundErrorExpr(m);
             case BoundTypeRef { Referenced: BuiltinType { Kind: BuiltinKind.Target } targetType }:
             {
@@ -1394,7 +1400,7 @@ internal sealed partial class Binder
         ResultType r => IsEquatable(r.Value, seen) && IsEquatable(r.Error, seen),
         OwnedType o => IsEquatable(o.Inner, seen),
         UntrustedType u => IsEquatable(u.Inner, seen),
-        EnumSymbol or TypeParameterType or BuiltinType { Kind: BuiltinKind.Symbol } => true,
+        EnumSymbol or TypeParameterType or BuiltinType { Kind: BuiltinKind.Symbol or BuiltinKind.Millis } => true,
         ErrorSetSymbol s => !seen.Add(s) || s.Variants.All(v => v.Fields.All(f => IsEquatable(f.Type, seen))),
         ErrorUnionType u => u.Sets.All(s => IsEquatable(s, seen)),
         StructSymbol s => !seen.Add(s) || s.Fields.All(f => IsEquatable(f.Type, seen)),
@@ -2041,7 +2047,7 @@ internal sealed partial class Binder
             }
             var hole = (InterpolationHole)part;
             var value = BindExpr(hole.Expr);
-            // `as: .debug` shows a struct without `formatInto` in its literal form (spec §13).
+            // `as: .debug` shows a struct without `formatInto` in its literal form (SPEC §6.6).
             var debug = hole.Specs.Any(a => a is { Name.Text: "as", Value: TargetMemberExpr { Member.Text: "debug" } });
             if (!value.Type.IsError && (debug ? WhyNotDebugFormattable(value.Type, []) : WhyNotFormattable(value.Type, [])) is { } why)
                 Report(DiagnosticCodes.NotFormattable, hole.Expr.Span, [value.Type.DisplayName], label: why == "" ? null : why,
@@ -2121,11 +2127,11 @@ internal sealed partial class Binder
     private static string? WhyNotFormattable(TypeSymbol t, HashSet<TypeSymbol> seen) => t switch
     {
         PrimitiveType p => p.Kind is not (PrimitiveKind.Void or PrimitiveKind.Never) ? null : "",
-        ErrorSetSymbol or ErrorUnionType or EnumSymbol or TypeParameterType or BuiltinType { Kind: BuiltinKind.Symbol } => null,
+        ErrorSetSymbol or ErrorUnionType or EnumSymbol or TypeParameterType or BuiltinType { Kind: BuiltinKind.Symbol or BuiltinKind.Millis } => null,
         OptionalType o => Part("the value", o.Inner, seen),
         ResultType r => Part("the value", r.Value, seen),
         OwnedType o => WhyNotFormattable(o.Inner, seen),
-        // Structs have no default display (HANDOFF §13): only `formatInto` formats one.
+        // Structs have no default display (SPEC §6.6): only `formatInto` formats one.
         StructSymbol s => HasFormatInto(s) ? null : "",
         UnionSymbol u => !seen.Add(u) ? null
             : u.Variants.SelectMany(v => v.Fields.Select(f => Part($"`{v.Name}` field `{f.Name}`", f.Type, seen))).FirstOrDefault(w => w is not null),

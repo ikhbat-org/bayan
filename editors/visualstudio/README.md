@@ -4,7 +4,7 @@ Two layers, same assets as VS Code.
 
 ## 1. Colorization now (no build)
 
-Run `install-textmate.ps1`. It copies the TextMate grammar and language configuration to
+Run `scripts/bayan-tool.sh install-textmate` (with `USERPROFILE` set). It copies the TextMate grammar and language configuration to
 `%USERPROFILE%\.vs\Extensions\bayan`, which Visual Studio loads for `.byn` files on restart.
 
 ## 2. Language server (completion, hover, go to definition, diagnostics)

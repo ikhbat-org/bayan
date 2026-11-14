@@ -1,8 +1,7 @@
 // The commands `build` (with `--emit-c`) and `run` of the self-hosted driver (spec 012 T5). Ports `CliApp.cs` :151
 // `ParseBuildOptions`, :259 `Compile` (its `--package` branch; the rest is `semantics/cli.byn` `t26Compile`), :409 `EmitC`,
 // :422 `PrepareOut`, :434 `WriteIfChanged`, :458 `Build`, :505 `Phase`, :544 `RunProgram` and :573 `Start`. The C compiler
-// is `cc.byn`'s `ZigOrCc`; there is no build cache (R6): the scratch files go into a staging directory beside the output, made
-// and removed per build as `Toolchain.Compile` does (Q1042 (a), plan D4).
+// runs through the build cache, cache.byn `t9Build` (spec 017 T9), which stages under the cache as `Toolchain.Compile` does.
 
 import lexer
 import semantics
@@ -143,22 +142,25 @@ bool t5HasErrors(in semantics.Ctx c) {
     return false
 }
 
-/// The `*.byn` files of `dir` in ordinal order, without the `*.test.byn` ones (Compilation.cs:155 `ModuleFiles`, `includeTests: false`).
+/// The `*.byn` files of `dir` in ordinal order, without the `*.test.byn` ones unless `includeTests` (Compilation.cs:155 `ModuleFiles`).
 /// `Io.listDir` already returns the names in byte order (`bayan-rt.c` sorts them with `qsort` and `byn_str_order`).
-List<string> t5ModuleFiles(string dir) uses alloc, fs {
+List<string> t5ModuleFiles(string dir, bool includeTests = false) uses alloc, fs {
     var files = List<string>()
     // coverage-exempt: Q1018 reached only if the directory goes away between `t5DirectoryExists` and this read (a race no test can stage)
     let names = Io.listDir(dir) catch return files
     for name in names {
         let f = Path.combine(dir, name)
-        if name.endsWith(".byn") && !name.endsWith(".test.byn") && t1FileExists(f) { files.append(f) }
+        if name.endsWith(".byn") && (includeTests || !name.endsWith(".test.byn")) && t1FileExists(f) { files.append(f) }
     }
     return files
 }
 
-/// CliApp.cs:259 `Compile`: the `--package <root>` branch, else `semantics/cli.byn` `t26Compile` (the project, script and
-/// path branches). Prints diagnostics and adds them to `reported`; `ok` is false where the C# returns null.
-semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to ref List<semantics.T26Reported> reported, through ref bool ok) uses alloc, clock, console, fs {
+/// CliApp.cs:262 `Compile` (`includeTests` is its parameter): the `--package <root>` branch, else `semantics/cli.byn` `t26Compile` (the project, script and
+/// path branches). Prints diagnostics and adds them to `reported`; `ok` is false where the C# returns null. `ascii`, `width` and `isTty` are
+/// the stderr ones of `StartProgress` (CliApp.cs:306); the callers in commands.byn, features.byn and build.byn pass the stderr ones of `DCtx`; only `t26Compile`'s project branch clears the line late (Q1116).
+semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to ref List<semantics.T26Reported> reported, through ref bool ok, bool includeTests = false, bool ascii = false, i64 width = 100, bool isTty = false) uses alloc, clock, console, env, fs {
+    let style = DStyle { ascii: ascii, width: width }
+    var progress = start(in style, by: isTty, through: o.json, for: "compiling")
     let o26 = t5T26(in o)
     let manifestPath = Path.combine(o.path, "package.byn")
     if (o.package is { } package) {
@@ -166,7 +168,7 @@ semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to r
             let full = Path.fullPath(o.path)
             var files = List<string>()
             if t5DirectoryExists(full) {
-                files = t5ModuleFiles(full)
+                files = t5ModuleFiles(full, includeTests: includeTests)
             } else {
                 files.append(full)
             }
@@ -176,19 +178,25 @@ semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to r
                 let bytes = Io.readFile(f) catch List<u8>()
                 sources.append(lexer.SourceText.create(f, from: move bytes))
             }
-            let options = T5CompilationOptions { target: o.target }
+            let options = T5CompilationOptions { includeTests: includeTests, target: o.target }
             var c = semantics.create(from: move sources, at: Path.fullPath(package), by: in options)
+            done(ref progress)
             semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
             ok = !t5HasErrors(in c)
             return c
         }
     }
     if t5DirectoryExists(o.path) && t1FileExists(manifestPath) {
-        return semantics.t26Compile(in o26, by: in symbols, to: ref reported, through: ref ok)
+        // CliApp.cs:272 and :279 clear the line before the manifest diagnostics and the no-entry message, which `t26Compile` prints; the
+        // driver clears it after them (blocked: Q1116)
+        let compiled = semantics.t26Compile(in o26, by: in symbols, to: ref reported, through: ref ok, includeTests: includeTests)
+        done(ref progress)
+        return compiled
     }
     // The path branch, here rather than in `t26Compile`, so that `--target` reaches `CompilationOptions` (Q1018).
-    let options = T5CompilationOptions { target: o.target }
+    let options = T5CompilationOptions { includeTests: includeTests, target: o.target }
     var c = semantics.fromPath(o.path, by: in options, wholeDirectory: !t1IsScript(o.path))
+    done(ref progress)
     semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
     ok = !t5HasErrors(in c)
     return c
@@ -227,116 +235,87 @@ void t5WriteIfChanged(string path, from string text) uses alloc, fs {
 string t5HostTarget() uses alloc => targetHost() ?? "host"
 
 /// CliApp.cs:458 `Build`. `kept` is the command and its arguments.
-i32 buildCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, env, fs, process {
+i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process, random {
     let clock = Io.monotonicNanos()
     let args = t2Rest(kept)
     let o = t5ParseBuildOptions(in args, by: true, for: true) ?? return exitUsage
-    let symbols = semantics.t26Symbols(d.styleErr.ascii)
-    var reported = List<semantics.T26Reported>()
-    var ok = false
-    var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok)
-    unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
-    if refuseLibrary(compiled, by: "build") { return exitUsage }
-    let emit = Io.monotonicNanos()
-    let source = t5EmitC(ref compiled, by: o.mode)
-    let emitTime = Io.monotonicNanos() - emit
-    if o.emitC {
-        Io.stdout.write(source)
-        return exitOk
-    }
+    let symbols = t19Symbols(in d.styleErr)
     let target = o.target ?? t5HostTarget()
-    var output = ""
-    if (o.output is { } given) {
-        output = given
-    } else if (t5PrepareOut(in compiled, by: o.mode, for: target, from: source) is { } dir) {
-        output = Path.combine(dir, targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target))
-    } else {
-        output = targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target)
+    // Q31 (plan 015): the compilation and the emit run in an arena that ends before the C compiler starts, so `zig cc`
+    // never runs beside the frontend's memory. Only what the build and the summary read leaves it, copied into buffers
+    // made here; every path that reads `compiled` returns inside.
+    var sourceBuf = StrBuf()
+    var outputBuf = StrBuf()
+    var nameBuf = StrBuf()
+    var shownBuf = StrBuf()
+    var parseTime: i64 = 0
+    var checkTime: i64 = 0
+    var emitTime: i64 = 0
+    {
+        using let frontend = Arena()
+        provide allocator: frontend {
+            var reported = List<semantics.T26Reported>()
+            var ok = false
+            var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
+            unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
+            if refuseLibrary(compiled, by: "build") { return exitUsage }
+            let emit = Io.monotonicNanos()
+            let source = t5EmitC(ref compiled, by: o.mode)
+            emitTime = Io.monotonicNanos() - emit
+            if o.emitC {
+                Io.stdout.write(source)
+                return exitOk
+            }
+            var output = ""
+            if (o.output is { } given) {
+                output = given
+            } else if (t5PrepareOut(in compiled, by: o.mode, for: target, from: source) is { } dir) {
+                output = Path.combine(dir, targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target))
+            } else {
+                output = targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target)
+            }
+            sourceBuf.append(source)
+            outputBuf.append(output)
+            nameBuf.append(semantics.programName(ref compiled, for: o.path))
+            if o.verbose {
+                shownBuf.append(compiled.manifest is not null && o.output is null ? Path.relative(compiled.displayRoot, to: output).replaced("\\", by: "/") : output)
+            }
+            parseTime = compiled.parseTime
+            checkTime = compiled.checkTime
+        }
     }
+    let source = sourceBuf.finish()
+    let output = outputBuf.finish()
     let native = Io.monotonicNanos()
-    let staging = t5Staging(Path.directoryName(Path.fullPath(output)) ?? "") ?? return exitToolchain
-    let result = t5Link(staging, from: source, to: output, by: o.mode, for: o.target, at: target)
-    t5Discard(staging)
+    var progress = start(in d.styleErr, by: d.stderrTty, through: o.json, for: "building")
+    let built = t9Build(source, by: o.mode, to: output, for: o.target, through: ref d)
+    done(ref progress)
     let nativeTime = Io.monotonicNanos() - native
-    unless result.succeeded {
-        t5ReportToolchain(result, by: o.json, for: symbols)
+    unless built.result.succeeded {
+        t5ReportToolchain(built.result, by: o.json, for: symbols)
         return exitToolchain
     }
     if o.json { return exitOk }
     if o.verbose {
-        print(t5Phase("parse", by: semantics.t26Seconds(compiled.parseTime)))
-        print(t5Phase("check", by: semantics.t26Seconds(compiled.checkTime)))
-        print(t5Phase("emit", by: semantics.t26Seconds(emitTime)))
-        print(t5Phase("compile", by: semantics.t26Seconds(nativeTime)))
-        let shown = compiled.manifest is not null && o.output is null ? Path.relative(compiled.displayRoot, to: output).replaced("\\", by: "/") : output
-        print($"  {shown}")
+        print(t5Phase("parse", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(parseTime))))
+        print(t5Phase("check", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(checkTime))))
+        print(t5Phase("emit", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(emitTime))))
+        print(t5Phase("compile", by: t5Paint(.note, by: d.styleOut, for: built.hit ? "from cache" : semantics.t26Seconds(nativeTime))))
+        print($"  {t5Paint(.note, by: d.styleOut, for: shownBuf.finish())}")
     }
     let dot = semantics.t26Symbols(d.styleOut.ascii).dot
-    print($"{dot} built {semantics.programName(ref compiled, for: o.path)} ({o.mode}, {target}) in {semantics.t26Seconds(Io.monotonicNanos() - clock)}")
+    var summary = $"{dot} built {nameBuf.finish()} ({o.mode}, {target}) in {semantics.t26Seconds(Io.monotonicNanos() - clock)}"
+    // `Messages.BuildFromCache` with `Symbols.Separator` (Style.cs:59-60).
+    if built.hit { summary = $"{summary} {d.styleOut.ascii ? "-" : "·"} from cache" }
+    print(t5Paint(.success, by: d.styleOut, for: summary))
     return exitOk
 }
 
-/// Toolchain.cs:219-222 `ReplaceFile(output, temp => File.Copy(exe, temp))`: the C# links `program` in its work directory and
-/// copies only the executable to `output`, so a link by-product (the `.pdb` beside a Windows executable) goes with the work
-/// directory. On a Windows target (`resolved`, as Toolchain.cs:194) the driver links `program.exe` in `staging` and copies its
-/// bytes to `output`; elsewhere it links `output` straight, as `Io.writeFile` cannot set the executable bit (Q1018 (j)).
-NativeBuild t5Link(string staging, from string source, to string output, by string mode, for string? target, at string resolved) uses alloc, env, fs, process {
-    var cc = ZigOrCc {}
-    unless resolved.startsWith("windows-") { return cc.compile(staging, from: source, to: output, by: mode, for: target) }
-    let link = Path.combine(staging, targetExecutableName("program", for: resolved))
-    let result = cc.compile(staging, from: source, to: link, by: mode, for: target)
-    unless result.succeeded { return result }
-    // coverage-exempt: Q1018 (j) `link` was just linked in `staging`, which only `t5Discard` removes
-    let bytes = Io.readFile(link) catch return NativeBuild { errors: $"cannot write the build output or cache ({output})" }
-    // Toolchain.cs:178: a failing `ReplaceFile`.
-    Io.writeFile(output, bytes.span) catch return NativeBuild { errors: $"cannot write the build output or cache ({output})" }
-    return result
-}
-
-/// Toolchain.cs:278-279 (`Directory.CreateDirectory(work)`): a fresh staging directory in `near` for the scratch files, never
-/// `near` itself; a name that exists as a file or directory is skipped. The C# names it `<key>-<guid>` under its cache, which the
-/// driver has not (R6); the suffix here is the clock. Null after reporting when it cannot be made (Toolchain.cs:178, Q1018 (j)).
-string? t5Staging(string near) uses alloc, clock, console, fs {
-    // `-o` into a missing directory fails (spec Q1; the C#'s `ReplaceFile` at Toolchain.cs:222): `Io.createDirectory` would make
-    // the missing parents, so only the staging directory itself is created, in a `near` that exists.
-    if !(t1FileExists(near) || t5DirectoryExists(near)) {
-        Io.stderr.write($"bayan: cannot write the build output or cache ({near})\n")
-        return null
-    }
-    var dir = Path.combine(near, $".bayan-staging-{Io.monotonicNanos()}")
-    // coverage-exempt: Q1018 through `dir = Path.combine` (j) a name taken by a file or directory (the C# name has a GUID)
-    while t1FileExists(dir) || t5DirectoryExists(dir) {
-        dir = Path.combine(near, $".bayan-staging-{Io.monotonicNanos()}")
-    }
-    // `near` is a file or cannot be written: the C# builds in its cache and fails later, in `ReplaceFile` (Toolchain.cs:178).
-    Io.createDirectory(dir) catch {
-        Io.stderr.write($"bayan: cannot write the build output or cache ({dir})\n")
-        return null
-    }
-    return dir
-}
-
-/// Toolchain.cs:295-296 and :309-329 (`Discard`): every file in the staging directory `dir` is removed, then `dir` (plan D4).
-/// A failure is ignored, as `Discard` ignores an `IOException`.
-void t5Discard(string dir) uses alloc, fs {
-    // coverage-exempt: Q1018 (j) `dir` was made by `t5Staging` and only this function removes it
-    let names = Io.listDir(dir) catch return
-    for name in names { t5Remove(Path.combine(dir, name)) }
-    // coverage-exempt: Q1018 (j) the C compiler left a directory in `dir`, or `dir` went away (the C# `Discard` ignores it)
-    Io.removeDirectory(dir) catch return
-}
-
-/// `File.Delete`, its failure ignored (`Discard`).
-void t5Remove(string path) uses fs {
-    // coverage-exempt: Q1018 (j) a file in the staging directory that cannot be removed (the C# `Discard` ignores it)
-    Io.remove(path) catch return
-}
-
 /// CliApp.cs:403 `ReportToolchain`: its `--diagnostics json` branch (:411-415), BYN4001 as one `DiagnosticJson.Render` line;
-/// the plain text is cc.byn `ccReportToolchain`.
+/// the text is cc.byn `ccReportToolchainBy`, in the stderr style.
 void t5ReportToolchain(NativeBuild result, by bool json, for semantics.T26Symbols symbols) uses alloc, console {
     if !(json && result.rejected) {
-        ccReportToolchain(result)
+        ccReportToolchainBy(result, by: in symbols)
         return
     }
     var c = CcCtx {
@@ -369,53 +348,67 @@ string t5Phase(string name, by string value) uses alloc {
 }
 
 /// CliApp.cs:544 `RunProgram`. `args` is what follows `run` (a script run passes `[file, "--", ..rest]`, CliApp.cs:99).
-i32 runProgram(in List<string> args, by in DCtx d) uses alloc, clock, console, env, fs, process {
+i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, env, fs, process, random {
     let o = t5ParseBuildOptions(in args, by: false, for: false) ?? return exitUsage
-    let symbols = semantics.t26Symbols(d.styleErr.ascii)
-    var reported = List<semantics.T26Reported>()
-    var ok = false
-    var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok)
-    unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
-    if refuseLibrary(compiled, by: "run") { return exitUsage }
-    let source = t5EmitC(ref compiled, by: o.mode)
     let host = t5HostTarget()
-    var output = ""
-    var staging = ""
-    var result = NativeBuild {}
-    if (t5PrepareOut(in compiled, by: o.mode, for: host, from: source) is { } dir) {
-        output = Path.combine(dir, targetExecutableName(semantics.programName(ref compiled, for: o.path), for: host))
-        staging = t5Staging(dir) ?? return exitToolchain
-        result = t5Link(staging, from: source, to: output, by: o.mode, for: null, at: host)
-    } else {
-        // `output: null` (CliApp.cs:561-564): the C# links `program` in its staging directory (Toolchain.cs:192, :286-290)
-        // and starts it from its cache; the driver starts it from the staging directory, beside the program.
-        // coverage-exempt: Q1018 (j) the `return` when `t5Staging` cannot make the directory (it has reported)
-        staging = t5Staging(t5RunDir(o.path)) ?? return exitToolchain
-        output = Path.combine(staging, targetExecutableName("program", for: host))
-        var cc = ZigOrCc {}
-        result = cc.compile(staging, from: source, to: output, by: o.mode, for: null)
+    var key: string? = null
+    if t1IsScript(o.path) {
+        // coverage-exempt: Q1018 the catch is reached only if the script changes between `t1IsScript` and this read (a race no test can stage)
+        let bytes = Io.readFile(o.path) catch return exitFailure
+        let scripted = scriptKey(bytes.span, by: o.mode, for: null)
+        key = scripted
+        if (lookupScript(scripted, by: targetExecutableName("program", for: host), through: ref d) is { } remembered) {
+            return t5Start(remembered, by: in o.programArgs)
+        }
     }
-    unless result.succeeded {
-        t5Discard(staging)
-        t5ReportToolchain(result, by: o.json, for: symbols)
+    let symbols = t19Symbols(in d.styleErr)
+    // Q31 (plan 015): as in `buildCommand`, the frontend's memory ends before the C compiler starts.
+    var sourceBuf = StrBuf()
+    var outputBuf = StrBuf()
+    var hasOutput = false
+    {
+        using let frontend = Arena()
+        provide allocator: frontend {
+            var reported = List<semantics.T26Reported>()
+            var ok = false
+            var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
+            unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
+            if refuseLibrary(compiled, by: "run") { return exitUsage }
+            let source = t5EmitC(ref compiled, by: o.mode)
+            if (t5PrepareOut(in compiled, by: o.mode, for: host, from: source) is { } dir) {
+                outputBuf.append(Path.combine(dir, targetExecutableName(semantics.programName(ref compiled, for: o.path), for: host)))
+                hasOutput = true
+            }
+            sourceBuf.append(source)
+        }
+    }
+    let source = sourceBuf.finish()
+    var output: string? = null
+    if hasOutput { output = outputBuf.finish() }
+    var progress = start(in d.styleErr, by: d.stderrTty, through: o.json, for: "building")
+    let built = t9Build(source, by: o.mode, to: output, for: null, through: ref d)
+    done(ref progress)
+    unless built.result.succeeded {
+        t5ReportToolchain(built.result, by: o.json, for: symbols)
         return exitToolchain
     }
-    let exit = t5Start(output, by: in o.programArgs)
-    t5Discard(staging)
-    return exit
-}
-
-/// The directory `run` stages in outside a project: the directory of `path`, or `path` itself for a directory.
-string t5RunDir(string path) uses alloc, fs {
-    let full = Path.fullPath(path)
-    return t5DirectoryExists(full) ? full : Path.directoryName(full) ?? ""
+    if (key is { } k) { rememberScript(k, by: built.key, through: ref d) }
+    return t5Start(built.exe, by: in o.programArgs)
 }
 
 /// CliApp.cs:573 `Start`: runs `executable` with `programArgs`; `Io.run` captures its output, written stdout then stderr
-/// after it ends (spec Q5).
+/// after it ends (spec Q5). A signal-killed program (a panic aborts) writes what it captured the same way and exits 128 + the
+/// signal, as the C# shell reports it (Q1157).
 i32 t5Start(string executable, by in List<string> programArgs) uses alloc, console, process {
-    // coverage-exempt: Q1018 the catch is reached only if the just-built executable cannot be started; the C# `Process.Start` throws there
-    let r = Io.run(executable, programArgs.span) catch return exitFailure
+    let r = Io.run(executable, programArgs.span) catch switch {
+        .signaled(let s, let output, let errors) => {
+            Io.stdout.write(output)
+            Io.stderr.write(errors)
+            return 128 + s
+        },
+        // coverage-exempt: Q1018 reached only if the just-built executable cannot be started; the C# `Process.Start` throws there
+        IoError e => return exitFailure,
+    }
     Io.stdout.write(r.stdout)
     Io.stderr.write(r.stderr)
     return r.exitCode

@@ -36,6 +36,7 @@ internal static class BuiltinMembers
         (BuiltinType { Kind: BuiltinKind.ProcessResult }, "stdout") => (BuiltinMember.ProcessStdout, PrimitiveType.String),
         (BuiltinType { Kind: BuiltinKind.ProcessResult }, "stderr") => (BuiltinMember.ProcessStderr, PrimitiveType.String),
         (BuiltinType { Kind: BuiltinKind.Panic }, "message") => (BuiltinMember.PanicMessage, PrimitiveType.String),
+        (BuiltinType { Kind: BuiltinKind.Time }, "nanos") => (BuiltinMember.TimeNanos, PrimitiveType.I64),
         // The binder gives `radix` the builtin `Radix` and `align` the builtin `Align`; `digits` is -1 when the hole gives none.
         (BuiltinType { Kind: BuiltinKind.FormatSpec }, "radix") => (BuiltinMember.FormatSpecRadix, PrimitiveType.I32),
         (BuiltinType { Kind: BuiltinKind.FormatSpec }, "debug") => (BuiltinMember.FormatSpecDebug, PrimitiveType.Bool),
@@ -126,13 +127,14 @@ internal static class BuiltinMembers
         (BuiltinType { Kind: BuiltinKind.StrBuf } s, "take") => new(BuiltinMember.StrBufTake, [], s, Mutating: true),
         (OptionalType o, "take") when TypeFacts.IsUnique(o.Inner) => new(BuiltinMember.OptionalTake, [], o, Mutating: true),
         (BuiltinType { Kind: BuiltinKind.IoStream }, "write") => new(BuiltinMember.IoWrite, [("text", PrimitiveType.String)], PrimitiveType.Void),
-        // The binder wraps the result in `Result<string, IoError>` (`Result<List<u8>, IoError>` for `readAllBytes`).
+        // The binder wraps the result in `Result<string, IoError>`; it binds `readAllBytes()` as `Builtins.IoStdinReadAllBytes`, which fails.
         (BuiltinType { Kind: BuiltinKind.IoInput }, "readAll") => new(BuiltinMember.IoReadAll, [], PrimitiveType.String),
-        (BuiltinType { Kind: BuiltinKind.IoInput }, "readAllBytes") => new(BuiltinMember.IoReadAllBytes, [], new ListType(PrimitiveType.U8)),
         _ => null,
     };
 
-    public static bool HasMethod(TypeSymbol type, string name) => Method(type, name) is not null;
+    // `Io.stdin.readAllBytes` is bound by the binder as a failing builtin function, so `Method` has no entry for it.
+    public static bool HasMethod(TypeSymbol type, string name) =>
+        Method(type, name) is not null || (type is BuiltinType { Kind: BuiltinKind.IoInput } && name == "readAllBytes");
 
     private static readonly string[] Candidates =
         ["length", "bytes", "isEmpty", "runeCount", "isAscii", "runes", "utf16", "lines", "value", "copy", "startsWith", "endsWith", "contains",

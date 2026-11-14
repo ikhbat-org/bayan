@@ -47,13 +47,13 @@ child-within-parent half is false of C# itself, so it cannot hold for a port tha
   (`7320697320436972636C65207B7D0A20202020696620287320697320436972636C20C3C820`): `Parser.ReportBraceless`
   threw `ArgumentOutOfRangeException` on a braceless body that took no token (Q486), and the port panicked
   identically (`slice out of range` at `lexer/source.byn:80`), so the generator replaced both with empty
-  inputs. C# was fixed in 517d1c9 and the port in 010 T45 (Q874); both inputs are now in the no-panic corpus, and
+  inputs. C# was fixed in 1127c91 and the port in 010 T45 (Q874); both inputs are now in the no-panic corpus, and
   both are among the 1,085 child-outside-parent inputs below. The generator still replaces a candidate that
   crashes C#, and logs the count.
 
 Enacted 2026-11-02 (user-approved, spec 011 plan D11; was `proposed` under Q509, Q510).
 
-Since the C# fix 517d1c9 and its port (010 T45, Q874) the no-panic clause and the "node span within the input" half
+Since the C# fix 1127c91 and its port (010 T45, Q874) the no-panic clause and the "node span within the input" half
 hold on every input of both corpora, with nothing replaced. The child-within-parent half is still false of C# itself
 (the span bugs above).
 

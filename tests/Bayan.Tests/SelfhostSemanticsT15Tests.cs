@@ -858,7 +858,7 @@ public sealed class SelfhostSemanticsT15Tests
             var attribute = CasesAttribute((TestDecl)o.Members[decl]);
             var values = attribute < 0 ? "SyntaxRef {}" : $"SyntaxRef {{ file: 0, declIndex: {decl}, memberIndex: {attribute}, itemIndex: 0 }}";
             sb.AppendLine($"    print(\"== test {title}\")");
-            sb.AppendLine($"    bindTest(ref b, through: ref c, for: TestBody {{ decl: SyntaxRef {{ file: 0, declIndex: {decl} }}, hasValues: {Lower(attribute >= 0)}, values: {values} }})");
+            sb.AppendLine($"    bindTest(ref b, through: ref c, for: TestBody {{ decl: SyntaxRef {{ file: 0, declIndex: {decl} }}, hasValues: {Lower(attribute >= 0)}, caseArgument: {values} }})");
             sb.AppendLine("    tcBody(ref c, for: f)");
             sb.AppendLine("}");
         }
@@ -1123,7 +1123,7 @@ public sealed class SelfhostSemanticsT15Tests
             pending: [],
             constraints: [],
             peers: [],
-            nonNull: [],
+            nonNullLocals: [],
             stateFacts: [],
             errorNarrowed: [],
         }

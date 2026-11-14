@@ -1,0 +1,5 @@
+error BYN3102: `grammar.adjectives` must be free of `x`, which `grammar.nouns` lists; only a verb
+that is also a noun may be in two lists
+
+  6 │         adjectives: ["x"],
+    │                      ^^^

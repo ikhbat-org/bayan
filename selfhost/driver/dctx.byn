@@ -7,6 +7,9 @@ struct DStyle {
     bool color = false
     bool ascii = false
     i64 width = 100
+    // ── T7 state
+    /// The palette `Decide` picks (TerminalStyle.cs:24-27) when `color`: 0 is `Ansi16`, 1 `TruecolorLight`, 2 `TruecolorDark`. An enum would have to be declared above `DStyle`, outside the T7 section.
+    i64 palette = 0
 }
 
 /// Everything the driver reads and writes for one run. Each task adds its fields in its own `// ── Tn state` section.
@@ -26,6 +29,28 @@ public struct DCtx {
     // T3 keeps no state: `Targets.Host` is recomputed from `Target` (cc.byn `targetHost`).
     // ── T5 state
     // T5 keeps no state: `build` and `run` read their options per call (build.byn `T5Options`), and `HostTarget` is cc.byn `targetHost`.
+    // ── T6 state
+    // T6 keeps no state: `audit` reads its path per call, the walk (walk.byn `bynFiles`) keeps its seen sets local, and the `manifestFor` cache is its caller's, as the C# `Format.Run` owns it (Q1107).
+    // ── T8 state
+    /// `Format.MaxPasses` (Format.cs:36): the passes `formatFile` makes before it gives up.
+    i64 maxPasses = 10
+    // ── T9 state
+    /// `s_swept` (Toolchain.cs:518): `SweepOnce` has swept.
+    bool swept = false
+    /// The names made so far for `Guid.NewGuid`, which has no builtin (cache.byn `t9Unique`, Q1149).
+    i64 uniques = 0
+    /// `identities` (Toolchain.cs:186): the C compiler command whose identity `identity` is, once `identityKnown` (cache.byn
+    /// `t9CompilerIdentity`). The C# memo holds every command of the process; a run of the driver finds one compiler.
+    bool identityKnown = false
+    string identityOf = ""
+    string identity = ""
+    // ── T11 state
+    // T11 keeps no state: `test` reads its options per call (test.byn `T11Options`), and its coverage directory is named by T9's `uniques` (cache.byn `t9Unique`).
+    // ── T12 state
+    // T12 keeps no state: `dist` reads its options per call (dist.byn `distCommand`) and the unique names it needs are none.
+    // ── T13 state
+    // T13 keeps no state: `mutate` and `test --mutate` read their options per call (mutate.byn) and name their work directory
+    // through `uniques` (T9).
 }
 
 /// The state of a run before any option is read. On the base so the coverage report has an entry for this file (Q920).

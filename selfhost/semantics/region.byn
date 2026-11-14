@@ -192,6 +192,60 @@ void analyzeRegions(ref Ctx c, for FuncId fn) {
     runRegions(ref r, through: ref c)
 }
 
+/// Q31 (plan 014): `analyzeRegions` with its working memory freed. The run is made in an arena; one that reported a
+/// diagnostic or filled a `changedFields` memo entry (both arena memory) is undone and made again in `General`, so
+/// what `Ctx` keeps, its LocalIds and its order are what a run in `General` gives. For templates only: an instance's
+/// run reports into a bag, which `t42Undo` does not cover, so a run with a sink set stays in `General`.
+void t42AnalyzeRegions(ref Ctx c, for FuncId fn) {
+    if c.sink >= 0 {
+        analyzeRegions(ref c, for: fn)
+        return
+    }
+    var undone = false
+    let mark = t42Mark(c)
+    using let arena = Arena()
+    provide allocator: arena {
+        analyzeRegions(ref c, for: fn)
+        undone = t42Undo(ref c, to: mark)
+    }
+    if undone { analyzeRegions(ref c, for: fn) }
+}
+
+/// The lengths `t42Undo` truncates back to.
+struct T42Mark {
+    i64 diagnostics
+    i64 locals
+    i64 memo
+}
+
+T42Mark t42Mark(Ctx c) => T42Mark { diagnostics: c.diagnostics.length, locals: c.locals.length, memo: c.changedFieldsKeys.length }
+
+/// Whether the run since `mark` left arena memory in `Ctx` (a diagnostic or a `changedFields` entry); if so, takes back
+/// everything it added (diagnostics, stand-in locals, memo entries). Removing frees nothing, so this is safe before or
+/// after the arena ends.
+bool t42Undo(ref Ctx c, to T42Mark mark) {
+    if c.diagnostics.length == mark.diagnostics && c.changedFieldsKeys.length == mark.memo { return false }
+    while c.diagnostics.length > mark.diagnostics { let _ = c.diagnostics.removeLast() }
+    while c.locals.length > mark.locals { let _ = c.locals.removeLast() }
+    while c.changedFieldsKeys.length > mark.memo {
+        let fn = c.changedFieldsKeys.removeLast()
+        let _ = c.changedFields.remove(fn)
+    }
+    return true
+}
+
+/// `t41SummaryRun` in an arena, undone (`undone` set) when it filled a `changedFields` entry.
+T41Changed t42SummaryInArena(ref Ctx c, for FuncId fn, by i64 known, from i64 returned, to ref List<StorePair> pairs, through ref List<i64> returns) {
+    var flags = T41Changed {}
+    let mark = t42Mark(c)
+    using let arena = Arena()
+    provide allocator: arena {
+        flags = t41SummaryRun(ref c, for: fn, by: known, from: returned, to: ref pairs, through: ref returns)
+        flags.undone = t42Undo(ref c, to: mark)
+    }
+    return flags
+}
+
 /// Q745: each template's store and return summaries, one least fixpoint from none, recomputed in declaration order until no summary grows.
 void summarizeRegions(ref Ctx c) {
     var functions = List<FuncId>()
@@ -208,24 +262,59 @@ void summarizeRegions(ref Ctx c) {
     while changed {
         changed = false
         for fn in functions {
-            var r = Regions { fn: fn, source: c.functions[fn].file, summary: true }
-            runRegions(ref r, through: ref c)
             var known: i64 = 0
             if c.storeSummaries.contains(fn) { known = c.storeSummaries[fn].length }
-            if r.pairs.length != known {
-                var pairs = List<StorePair>()
-                for p in r.pairs { pairs.append(p) }
+            var returned: i64 = 0
+            if c.returnSummaries.contains(fn) { returned = c.returnSummaries[fn].length }
+            var pairs = List<StorePair>()
+            var returns = List<i64>()
+            // Q31 (plans 013, 014): each run is freed with its arena. A list keeps the allocator it was made with, so
+            // `pairs`, `returns` and `c.locals` (grown by `fieldLocal`) stay in `General`. A run that filled a `changedFields`
+            // memo entry (arena memory) is undone and made again in `General`, in today's order, from empty copies.
+            var flags = t42SummaryInArena(ref c, for: fn, by: known, from: returned, to: ref pairs, through: ref returns)
+            if flags.undone {
+                pairs.clear()
+                returns.clear()
+                flags = t41SummaryRun(ref c, for: fn, by: known, from: returned, to: ref pairs, through: ref returns)
+            }
+            let pairsChanged = flags.pairs
+            let returnsChanged = flags.returns
+            if pairsChanged {
                 c.storeSummaries[fn] = move pairs
                 changed = true
             }
-            var returned: i64 = 0
-            if c.returnSummaries.contains(fn) { returned = c.returnSummaries[fn].length }
-            if r.returns.length != returned {
-                c.returnSummaries[fn] = copyIds(r.returns)
+            if returnsChanged {
+                c.returnSummaries[fn] = move returns
                 changed = true
             }
         }
     }
+}
+
+/// Whether a summary run changed the store pairs and the returns.
+struct T41Changed {
+    bool pairs = false
+    bool returns = false
+    /// Q31 (plan 014): the run was made in an arena and undone (`t42Undo`); it has to be made again in `General`.
+    bool undone = false
+}
+
+/// One summary run of `fn`: its store pairs and returns, copied into `pairs` and `returns` when their counts differ from
+/// `known` and `returned`; whether each did.
+T41Changed t41SummaryRun(ref Ctx c, for FuncId fn, by i64 known, from i64 returned, to ref List<StorePair> pairs, through ref List<i64> returns) {
+    var r = Regions { fn: fn, source: c.functions[fn].file, summary: true }
+    runRegions(ref r, through: ref c)
+    var pairsChanged = false
+    var returnsChanged = false
+    if r.pairs.length != known {
+        for p in r.pairs { pairs.append(p) }
+        pairsChanged = true
+    }
+    if r.returns.length != returned {
+        for x in r.returns { returns.append(x) }
+        returnsChanged = true
+    }
+    return T41Changed { pairs: pairsChanged, returns: returnsChanged }
 }
 
 /// Whether `fn` has a summary target: a `ref`, `out` or writable `dyn ref` parameter, or a `ref this` receiver, that can hold a borrow.
@@ -654,7 +743,7 @@ Borrow builtinBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
             break
     }
     switch member {
-        case .ioReadAll or .ioReadAllBytes or .intToString or .stringCopy or .stringLowercased or .stringUppercased
+        case .ioReadAll or .intToString or .stringCopy or .stringLowercased or .stringUppercased
             or .stringReplaced or .stringRepeated or .stringJoined or .utf16Copy
             or .stringPadded or .bytesToString or .spanCopy or .listCopy:
             // Fresh text from `context.allocator`, like `Io.readText`.

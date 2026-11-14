@@ -1,0 +1,11 @@
+struct unique File {
+    i64 fd
+}
+
+i64 peek(File f) => f.fd
+i64 close(move File f) => f.fd
+
+let f = File { fd: 3 }
+print($"{peek(f)}")
+let g = move f
+print($"{close(move g)}")

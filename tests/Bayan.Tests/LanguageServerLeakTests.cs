@@ -135,7 +135,7 @@ public sealed class LanguageServerLeakTests(ITestOutputHelper output) : IDisposa
     {
         var t = new Thread(() => body(), 1 << 20);
         t.Start();
-        Assert.True(t.Join(TimeSpan.FromSeconds(60)), "did not finish");
+        Assert.True(t.Join(TestTime.Scale(TimeSpan.FromSeconds(60))), "did not finish");
     }
 
     [Fact]
@@ -153,6 +153,27 @@ public sealed class LanguageServerLeakTests(ITestOutputHelper output) : IDisposa
         var diags = Assert.Single(interpMsgs!).GetProperty("params").GetProperty("diagnostics");
         Assert.Single(diags.EnumerateArray(), d => d.GetProperty("message").GetString()!.Contains("nested deeper than 256"));
         Assert.Equal(JsonValueKind.Object, Result(chainMsgs!, 1).ValueKind);
+    }
+
+    [Fact]
+    public void HundredThousandNestedBracketsAndBlocksStillGetAnAnswer()
+    {
+        var uri = Uri(Path.Combine(_root, "nest.byn"));
+        string Rep(string s) => string.Concat(Enumerable.Repeat(s, 100_000));
+        string brackets = "f" + Rep("(") + "x" + Rep(")");
+        string blocks = "void f() " + Rep("{ let a = [") + "x" + Rep("]; }");
+        foreach (var text in new[] { brackets, blocks })
+        {
+            List<JsonElement>? msgs = null;
+            OnSmallStack(() => msgs = RunServer(
+                Notify("textDocument/didOpen", new { textDocument = new { uri, version = 1, text } }),
+                Request(1, "textDocument/documentSymbol", new { textDocument = new { uri } }),
+                Request(2, "textDocument/completion", new { textDocument = new { uri }, position = new { line = 0, character = text.Length } }),
+                Request(3, "textDocument/signatureHelp", new { textDocument = new { uri }, position = new { line = 0, character = text.Length - 1 } })));
+            var diags = msgs!.First(m => m.TryGetProperty("params", out var p) && p.TryGetProperty("diagnostics", out _)).GetProperty("params").GetProperty("diagnostics");
+            Assert.Single(diags.EnumerateArray(), d => d.GetProperty("message").GetString()!.Contains("nested deeper than"));
+            foreach (var id in new[] { 1, 2, 3 }) Assert.NotEqual(JsonValueKind.Undefined, Result(msgs!, id).ValueKind);
+        }
     }
 
     [Fact]

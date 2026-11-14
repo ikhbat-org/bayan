@@ -1,0 +1,18 @@
+struct Point {
+    i64 x
+    i64 y = 0
+
+    i64 sum => x + y
+    bool isOrigin => x == 0 and y == 0
+
+    i64 scaled(i64 k) => sum * k
+    void shift(ref this, i64 dx) {
+        x += dx
+    }
+}
+
+var p = Point { x: 1 }
+p.shift(4)
+print($"{p.x} {p.y} {p.sum} {p.isOrigin} {p.scaled(2)}")
+let q = p with { y: 9 }
+print($"{q.y} {p == q} {p == Point { x: 5 }}")

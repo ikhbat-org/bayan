@@ -1,0 +1,67 @@
+title: 15. Cleanup and resources (`defer`, move-only types, handles)
+nav: Learn
+order: 1500
+template: docs
+---
+<p>Code that acquires something has to give it back: a file, a buffer, a lock, a half-written record. Bayan gives you two tools. <code>defer</code> runs a statement when a scope ends. Unique types, the ones that own storage, are cleaned up by the compiler when their single owner goes away. This chapter shows both, and where they meet.</p>
+
+<h2 id="defer">defer runs when the scope ends</h2>
+<p>Write <code>defer</code> right after the thing it undoes. The statement runs when the scope exits, however it exits, and deferred statements run in reverse order.</p>
+<example name="book-15-defer"/>
+<p>Follow the output.</p>
+<ul>
+<li><code>work("a")</code> prints <code>open</code> and <code>using</code>, then <code>close a</code> when its body ends. The <code>defer</code> was written before <code>using</code> but ran after it.</li>
+<li>A <code>defer</code> inside a loop belongs to the loop body. <code>end of pass 0</code> prints before pass 1 starts.</li>
+<li>The <code>defer print("main done")</code> in <code>main</code> waits for the end of <code>main</code>. It runs after the last <code>print</code> in the output.</li>
+</ul>
+<p>Two defers in one scope run last-in, first-out. That matches how resources nest: what you opened last is closed first.</p>
+
+<h2 id="failing">Cleanup that depends on how you leave</h2>
+<p>Sometimes a step must only be undone if the function fails: a rollback, say. <code>defer failing</code> runs only when the function exits with an error. <code>defer panicking</code> runs only during a panic. A plain <code>defer</code> runs in every case. Deferred statements cannot themselves fail.</p>
+<example name="book-15-defer-failing"/>
+<p>The first call succeeds. It prints <code>step ok</code> and then the plain defer, <code>always runs</code>. The second call fails at <code>fail .broken</code>, so both defers run, the <code>failing</code> one first because it was registered last, and then the caller's <code>catch</code> prints <code>caught</code>. A function can only use <code>defer failing</code> if it can fail. <a href="errors.html">The error handling guide</a> covers <code>fails</code> and <code>catch</code> in full.</p>
+
+<h2 id="move-defer">defer and move</h2>
+<p>A deferred statement runs at the end of the scope, so it counts as a use of every variable it mentions. If you move one of those variables away before then, the compiler stops you:</p>
+<pre><code class="byn">void consume(move List&lt;i64&gt; xs) {
+}
+
+void main() uses console, alloc {
+    let xs = List&lt;i64&gt;()
+    defer print($"count {xs.length}")
+    consume(move xs)
+}</code></pre>
+    <figure class="diag">
+<pre><span class="err">error BYN2781:</span> `xs` is used after it was moved
+<span class="gut">  --&gt;</span> defer-moved.byn:7:13
+
+<span class="gut">  7 │</span>     consume(<span class="hl">move xs</span>)
+<span class="gut">    │</span>             <span class="hl">^^^^^^^ a `defer` on line 6 uses it at scope exit</span>
+<span class="gut">    │</span>
+<span class="gut">  help:</span> move `xs` before the `defer`, or move a `.copy(to: alloc)` of it instead
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2781</span></pre>
+      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>defer-moved.byn</code>.</figcaption>
+    </figure>
+<p>The error is on the <code>move</code>, and the label tells you which <code>defer</code> still needs the value. Either do the move before the <code>defer</code>, or move a copy.</p>
+
+<h2 id="unique">Unique types clean up for you</h2>
+<p>A <code>List</code>, <code>Map</code> or <code>StrBuf</code> owns a buffer. A struct with one of these in it is unique too, and so is a struct you mark <code>struct unique</code>. When the owner of a unique value goes out of scope, the value and everything it owns are released. You do not write a close call, and you cannot forget one. Chapter 13 showed how ownership moves from one name to another. Only the final owner releases it, exactly once.</p>
+<p>So the pattern for a resource that owns memory is: put it in a unique struct, pass it around with <code>move</code> or by <code>ref</code>, and let it go out of scope. In the last lines of <code>book-15-defer</code>, <code>t</code> moves into <code>moved</code>, and the list inside it is released when <code>main</code> ends. Use <code>defer</code> for things that are not memory: a message, a rollback, a counter you must put back.</p>
+<p>A unique type cannot be copied by accident, so it cannot be released twice. That removes the classic double-free and use-after-free from safe code. Dropping a value early is also done with a move: hand it to a function that takes <code>move</code> and returns.</p>
+<note>Planned: not in the compiler yet. Two things in the specification are not available today. First, a user-written cleanup hook for a <code>struct unique</code>, such as closing a file descriptor when its owner goes away. A <code>close(move this)</code> method that you write is an ordinary method and nothing calls it for you, so call it yourself or use <code>defer</code>. Second, <code>Pool</code> and <code>Handle</code> types for stable references to items in a pool, and typed indices such as <code>List&lt;T, RowId&gt;</code>. <code>Owned&lt;T&gt;</code> exists, but <code>Index</code> is an unknown type.</note>
+<pre><code class="byn">// planned
+Pool&lt;Row&gt; rows = Pool&lt;Row&gt;()
+Handle&lt;Row&gt; h = rows.add(Row { name: "a" })</code></pre>
+
+<h2 id="quiz">Check your understanding</h2>
+<details class="quiz"><summary>1. In <code>book-15-defer</code>, which line of output comes last, and why?</summary>
+<p><code>main done</code>. A <code>defer</code> in <code>main</code> runs when <code>main</code> exits, after every statement. It does not run at the point where it was written. The loop's <code>end of pass</code> lines are different: their defers belong to the loop body, so they run at the end of each pass.</p></details>
+<details class="quiz"><summary>2. In <code>book-15-defer-failing</code>, why is <code>only when step fails</code> printed before the second <code>always runs</code>?
+<ol type="a"><li>It is more important.</li><li>Defers run in reverse order and it was registered later.</li><li>The compiler sorts them alphabetically.</li></ol></summary>
+<p>b. Last registered runs first. Importance and alphabetical order play no part. On the success path <code>defer failing</code> does not run at all, which is why the first call prints only <code>always runs</code>.</p></details>
+<details class="quiz"><summary>3. You write <code>defer print($"{xs.length}")</code> and then <code>consume(move xs)</code>. What happens?</summary>
+<p>Error BYN2781. The defer reads <code>xs</code> at scope exit, after the move. It does not print the length at the time of the move, and it does not read an empty list. Move before the defer, or move <code>xs.copy(to: alloc)</code>.</p></details>
+<details class="quiz"><summary>4. Do you need a <code>close()</code> call for a struct holding a <code>List</code>?</summary>
+<p>No. The struct is unique, and its list is released when its owner goes away. You would need <code>defer</code> for something outside memory, such as an external side effect.</p></details>

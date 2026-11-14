@@ -1,0 +1,279 @@
+title: Standard library
+nav: Reference
+order: 70
+template: docs
+---
+<p>This page lists what the compiler provides today without an import: the free functions, the <code>Io</code> namespace, the codecs, and the members of strings, spans, lists, maps and a few other built-in types. Each entry gives the signature, what it does, how it can fail and what it costs. Every program shown here ran with the compiler and its output is the real output.</p>
+<p>Names that the language design describes but the compiler does not define yet (<code>Fs</code>, <code>Env</code>, <code>Path</code>, <code>Target</code>, the numeric members, most collection queries) are collected under <a href="#planned">Planned</a>. Calling one today is an error.</p>
+
+<h2 id="notation">How signatures are written</h2>
+<p>A signature is written the way you declare it: the return type first, then the name, then the parameters. A parameter with a role word (<code>from</code>, <code>to</code>, <code>by</code>, <code>at</code>, <code>as</code>, <code>until</code>) is passed with that word as a label. See <a href="parameters.html">Parameters and arguments</a>. A <code>fails E</code> suffix means the call can fail with an error from the set <code>E</code> and needs <code>try</code> or <code>catch</code>. <code>T?</code> means the result may be <code>null</code>. A parameter marked <code>= x</code> can be left out.</p>
+<p>Effects and capabilities (<code>uses fs</code>, <code>uses net</code>) are not checked for the built-in functions yet. The entries say when a call reaches outside the program.</p>
+
+<h2 id="free-functions">Free functions</h2>
+
+<h3 id="print"><code>print</code></h3>
+<pre><code class="byn">void print(string text, Stream to = .stdout)</code></pre>
+<p>Writes the text and a newline. <code>to:</code> picks <code>.stdout</code> or <code>.stderr</code>, the two cases of the built-in enum <code>Stream</code>. Only text goes in: build other values into a string with interpolation.</p>
+
+<h3 id="log"><code>log</code></h3>
+<pre><code class="byn">void log(string text, LogLevel as = .info)</code></pre>
+<p>Writes a line to standard error, prefixed with the level: <code>info: a note</code>. The levels are <code>.debug</code>, <code>.info</code>, <code>.warn</code> and <code>.error</code>. <code>LogLevel</code> is not a type name you can write yet; pass the case with a leading dot.</p>
+<example name="std-print"/>
+<p>The output box shows standard output only. The <code>stderr</code> lines (<code>to standard error</code>, the two <code>log</code> lines and <code>an error line</code>) go to your terminal's error stream, so a pipe or <code>2&gt;/dev/null</code> hides them.</p>
+
+<h3 id="panic"><code>panic</code> and <code>todo</code></h3>
+<pre><code class="byn">never panic(string message)
+never todo(string message)</code></pre>
+<p><code>panic</code> stops the program at once with <code>panic: message</code> and the file and line, on standard error. The process then aborts, so on macOS and Linux its exit status is 134. <code>todo</code> stops the same way with <code>pending: message</code> and exit code 4. A test that calls <code>todo</code> is reported as pending, not failed. Both return <code>never</code>, so they can end a branch that must produce a value.</p>
+<example name="std-panic"/>
+<example name="std-todo"/>
+
+<h3 id="untrusted"><code>Untrusted</code> and <code>trustUnchecked</code></h3>
+<pre><code class="byn">Untrusted&lt;T&gt; Untrusted(T value)
+T value.trustUnchecked() because "reason"</code></pre>
+<p><code>Untrusted(x)</code> marks a value as coming from outside the program. The compiler will not let it flow into a place that needs trusted data. <code>trustUnchecked()</code> clears the mark, and it must be followed by <code>because</code> and a non-empty string literal saying why that is safe. <code>bayan audit</code> lists every such reason.</p>
+<example name="std-untrusted"/>
+<note>The specification (section 15) spells this <code>trust(value, "reason")</code>. The compiler rejects that form with BYN2787 and asks for <code>x.trustUnchecked() because "…"</code>.</note>
+
+<h3 id="owned"><code>Owned</code></h3>
+<pre><code class="byn">Owned&lt;T&gt; Owned(T value)</code></pre>
+<p>Copies the value into memory from <code>context.allocator</code> and returns an owner of it. Read it with <code>.value</code>.</p>
+<example name="std-owned"/>
+
+<h2 id="io"><code>Io</code></h2>
+<p><code>Io</code> is the program's door to the outside world. All of its calls that can fail use the error set <code>IoError</code>.</p>
+
+<h3 id="ioerror"><code>IoError</code></h3>
+<table>
+<tr><th>Case</th><th>Meaning</th></tr>
+<tr><td><code>.notFound</code></td><td>The file does not exist.</td></tr>
+<tr><td><code>.permissionDenied</code></td><td>Permission denied.</td></tr>
+<tr><td><code>.invalidUtf8</code></td><td>The file is not valid UTF-8.</td></tr>
+<tr><td><code>.notADirectory</code></td><td>The path exists but is not a directory.</td></tr>
+<tr><td><code>.other</code></td><td>An input or output operation failed.</td></tr>
+<tr><td><code>.invalidInput</code></td><td>An argument cannot be passed exactly, so nothing was done.</td></tr>
+<tr><td><code>.unsupported</code></td><td>The operation is not available on this platform.</td></tr>
+</table>
+<example name="std-io-errors"/>
+
+<h3 id="io-files">Files and directories</h3>
+<pre><code class="byn">string Io.readText(string path) fails IoError
+List&lt;u8&gt; Io.readFile(string path) fails IoError
+void Io.writeFile(string path, ReadOnlySpan&lt;u8&gt; bytes) fails IoError
+List&lt;string&gt; Io.listDir(string path) fails IoError</code></pre>
+<ul>
+<li><code>readText</code> reads the whole file as text. It fails with <code>.invalidUtf8</code> if the bytes are not valid UTF-8.</li>
+<li><code>readFile</code> reads the whole file as bytes.</li>
+<li><code>writeFile</code> replaces the file with the bytes, creating it if needed. To write text, pass <code>text.bytes</code>. There is no append call: read the file, add to it and write it back.</li>
+<li><code>listDir</code> returns the entry names (not full paths), sorted by byte order.</li>
+</ul>
+<p>The result of <code>readText</code> and <code>readFile</code> is a new value from <code>context.allocator</code>.</p>
+<example name="std-io-files"/>
+
+<h3 id="io-run">Running programs</h3>
+<pre><code class="byn">ProcessResult Io.run(string program, ReadOnlySpan&lt;string&gt; args) fails IoError
+ProcessResult Io.runBatch(string path, ReadOnlySpan&lt;string&gt; args) fails IoError</code></pre>
+<p><code>run</code> starts the program with the arguments, waits for it, and returns what it did. The arguments are passed as they are; no shell is involved. It fails if the program cannot be started. A program that starts and exits with a non-zero code is not a failure: look at <code>exitCode</code>. <code>runBatch</code> runs a <code>.bat</code> or <code>.cmd</code> file through <code>cmd.exe</code>, and is for Windows.</p>
+<p>A <code>ProcessResult</code> has three read-only members:</p>
+<table>
+<tr><th>Member</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>exitCode</code></td><td><code>i32</code></td><td>The exit status.</td></tr>
+<tr><td><code>stdout</code></td><td><code>string</code></td><td>Everything the program wrote to standard output.</td></tr>
+<tr><td><code>stderr</code></td><td><code>string</code></td><td>Everything it wrote to standard error.</td></tr>
+</table>
+<example name="std-io-run"/>
+
+<h3 id="io-streams">Standard streams and the clock</h3>
+<pre><code class="byn">IoStream Io.stdout
+IoStream Io.stderr
+void stream.write(string text)
+IoInput Io.stdin
+Result&lt;string, IoError&gt; stdin.readAll()
+i64 Io.monotonicNanos()</code></pre>
+<p><code>Io.stdout.write(text)</code> and <code>Io.stderr.write(text)</code> write the text as it is, with no newline added. <code>Io.stdin.readAll()</code> reads standard input to the end and returns a result you test with <code>isOk</code> and read with <code>value</code> or <code>err</code>. It is a result value, not a <code>fails</code> call, so it does not use <code>try</code>.</p>
+<pre><code class="byn">let input = Io.stdin.readAll()
+if input.isOk {
+    print($"{input.value.length} bytes read")
+}</code></pre>
+<p><code>Io.monotonicNanos()</code> is a clock that only moves forward, in nanoseconds. The start point is unspecified, so use it only to subtract two readings. See the <a href="cookbook-time.html">time cookbook</a>.</p>
+
+<h2 id="codecs">Codecs and parsing</h2>
+
+<h3 id="utf8"><code>Utf8</code></h3>
+<pre><code class="byn">string Utf8.decode(ReadOnlySpan&lt;u8&gt; bytes) fails Utf8Error
+string? Utf8.tryDecode(ReadOnlySpan&lt;u8&gt; bytes)
+string Utf8.decode(ReadOnlySpan&lt;u8&gt; bytes, Utf8Invalid invalid)
+i64? string.invalidUtf8At(ReadOnlySpan&lt;u8&gt; bytes)</code></pre>
+<p>Bytes become text only through a decoder. <code>decode</code> copies the bytes into a string and fails with <code>Utf8Error.invalidSequence(at)</code> when they are not well-formed UTF-8. <code>tryDecode</code> returns <code>null</code> instead of failing. <code>decode(bytes, invalid: .replace)</code> never fails: each bad sequence becomes U+FFFD. <code>string.invalidUtf8At(bytes)</code> returns the byte offset of the first bad sequence, or <code>null</code> when the bytes are valid.</p>
+
+<h3 id="hex"><code>Hex</code></h3>
+<pre><code class="byn">string Hex.encode(ReadOnlySpan&lt;u8&gt; bytes)
+List&lt;u8&gt; Hex.decode(string text) fails ParseError</code></pre>
+<p><code>encode</code> writes two lowercase hex digits per byte. <code>decode</code> reads two digits per byte, in either case, and fails with a <code>ParseError</code>.</p>
+<example name="std-codecs"/>
+
+<h3 id="parse">Numbers from text</h3>
+<pre><code class="byn">T T.parse(string text, Radix as = .decimal) fails ParseError
+T? T.tryParse(string text, Radix as = .decimal)
+string string(n, as: Radix)</code></pre>
+<p><code>parse</code> exists on every integer type (<code>i8</code> to <code>i64</code>, <code>u8</code> to <code>u64</code>). It fails with <code>ParseError.badDigit(at)</code> (the byte offset of the first character that is not a digit, or <code>at: 0</code> when the text is empty) or <code>ParseError.overflow</code> (the number does not fit the type). <code>tryParse</code> returns <code>null</code> for either failure, and <code>f64.tryParse</code> reads floating-point text. <code>Radix</code> has the cases <code>.binary</code>, <code>.octal</code>, <code>.decimal</code> and <code>.hex</code>. <code>string(n, as: .hex)</code> goes the other way and writes lowercase digits without a prefix.</p>
+<example name="std-parse"/>
+<p>Two lines of that output show failures turned into fallbacks by <code>catch</code>: <code>12x</code> is not a number, and <code>300</code> does not fit in a <code>u8</code>.</p>
+
+<h3 id="symbol"><code>Symbol</code></h3>
+<pre><code class="byn">Symbol Symbol.intern(string text)
+string symbol.text</code></pre>
+<p>A symbol is a name that compares by identity. <code>Symbol.intern(text)</code> returns the one symbol for that text, copying the text into storage the runtime owns if it is new.</p>
+<example name="std-symbol"/>
+
+<h2 id="strings">Strings</h2>
+<p>A <code>string</code> is immutable UTF-8 text. Indexing and slicing use byte offsets; a slice must start and end on a character boundary. Strings have no <code>+</code>: join with interpolation or <code>joined</code>.</p>
+
+<h3 id="string-properties">Properties</h3>
+<table>
+<tr><th>Property</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>length</code></td><td><code>i64</code></td><td>Size in bytes.</td></tr>
+<tr><td><code>runeCount</code></td><td><code>i64</code></td><td>Number of characters (Unicode scalar values).</td></tr>
+<tr><td><code>isEmpty</code></td><td><code>bool</code></td><td>True when the length is 0.</td></tr>
+<tr><td><code>isAscii</code></td><td><code>bool</code></td><td>True when every byte is below 128.</td></tr>
+<tr><td><code>bytes</code></td><td><code>ReadOnlySpan&lt;u8&gt;</code></td><td>The UTF-8 bytes, without copying.</td></tr>
+<tr><td><code>runes</code></td><td>rune view</td><td>The characters, to loop over or take from.</td></tr>
+<tr><td><code>utf16</code></td><td>UTF-16 view</td><td>The text as 16-bit units; <code>copy()</code> returns a <code>List&lt;u16&gt;</code>.</td></tr>
+<tr><td><code>lines</code></td><td>line view</td><td>The lines, split at line breaks, without the breaks.</td></tr>
+</table>
+
+<h3 id="string-queries">Queries</h3>
+<pre><code class="byn">bool startsWith(string prefix)
+bool endsWith(string suffix)
+bool contains(string text)
+i64? position(string text, i64 from = 0)
+i64? lastPosition(string text)
+i64 count(string text)
+bool equals(string text, Comparison as = .ordinal)</code></pre>
+<p>None of them allocates. <code>position</code> and <code>lastPosition</code> return a byte offset or <code>null</code>. <code>count</code> counts non-overlapping occurrences. <code>equals(text, as: .caseless)</code> ignores the case of ASCII letters only; <code>Comparison</code> has the cases <code>.ordinal</code> and <code>.caseless</code>.</p>
+<example name="std-string-queries"/>
+<p>The string <code>héllo, world</code> is 13 bytes and 12 characters because <code>é</code> takes two bytes. The offsets in the third line are bytes too.</p>
+
+<h3 id="string-copies">New strings</h3>
+<pre><code class="byn">string trimmed(Edge from = both)
+string trimmed(by ReadOnlySpan&lt;rune&gt; runes)
+string lowercased()
+string uppercased()
+string replaced(string text, by string with)
+string repeated(i64 count)
+string padded(to i64 width, by rune fill)
+string copy(to Arena = context.allocator)</code></pre>
+<ul>
+<li><code>trimmed()</code> removes white space from both ends. <code>trimmed(from: .start)</code> and <code>trimmed(from: .end)</code> trim one end (<code>Edge</code> has the cases <code>.start</code> and <code>.end</code>). <code>trimmed(by: ['x'])</code> removes the listed characters instead.</li>
+<li><code>lowercased()</code> and <code>uppercased()</code> return the changed copy.</li>
+<li><code>replaced(a, by: b)</code> replaces every occurrence.</li>
+<li><code>padded(to: n, by: c)</code> fills the string out to <code>n</code> characters by adding <code>c</code> at the end.</li>
+<li><code>copy()</code> returns an independent copy from <code>context.allocator</code>. <code>copy(to: arena)</code> copies into the arena.</li>
+</ul>
+<p>Slicing with a range, <code>s[1..4]</code>, borrows part of the string without copying.</p>
+<example name="std-string-copies"/>
+
+<h3 id="string-views">Splitting and views</h3>
+<pre><code class="byn">parts parts(by string separator, i64 limit = 0)
+parts parts(by rune separator, i64 limit = 0)
+string joined(by string separator)     // on a span or list of strings
+string take(i64 count)                 // on s.runes
+string skip(i64 count)                 // on s.runes
+string takeLast(i64 count)             // on s.runes</code></pre>
+<p><code>parts</code> and <code>lines</code> and <code>runes</code> are views: you loop over them with <code>for</code>, and nothing is copied. A <code>limit</code> of 0 means no limit; a limit of 2 stops splitting after the first separator and leaves the rest in the last part. <code>joined(by:)</code> builds one new string from a span or list of strings.</p>
+<example name="std-string-views"/>
+
+<h2 id="collections">Collections</h2>
+<p>Three kinds of sequence exist: the fixed array <code>T[N]</code> (it lives where it is declared), the span <code>Span&lt;T&gt;</code> and <code>ReadOnlySpan&lt;T&gt;</code> (a view of someone else's elements), and the growable <code>List&lt;T&gt;</code>. <code>Map&lt;K, V&gt;</code> holds key and value pairs.</p>
+
+<h3 id="list"><code>List</code></h3>
+<table>
+<tr><th>Member</th><th>Meaning</th></tr>
+<tr><td><code>length</code>, <code>isEmpty</code></td><td>Size and emptiness. Constant time.</td></tr>
+<tr><td><code>xs[i]</code></td><td>The element. Panics if <code>i</code> is out of range.</td></tr>
+<tr><td><code>tryGet(at: i)</code></td><td>The element, or <code>null</code> if out of range.</td></tr>
+<tr><td><code>append(item)</code></td><td>Add at the end. Needs a <code>var</code>.</td></tr>
+<tr><td><code>removeLast()</code></td><td>Remove and return the last element.</td></tr>
+<tr><td><code>remove(at: i)</code>, <code>remove(at: range)</code>, <code>remove(from: a, until: b)</code></td><td>Remove one element or a range.</td></tr>
+<tr><td><code>replace(at: range, by: span)</code></td><td>Replace a range with copies of the items. Not for element types that own memory.</td></tr>
+<tr><td><code>clear()</code></td><td>Remove everything.</td></tr>
+<tr><td><code>sort()</code></td><td>Stable sort, in place. Elements must be numbers, <code>rune</code> or <code>string</code>.</td></tr>
+<tr><td><code>span</code></td><td>A read-only view. A property, allowed on a <code>let</code>.</td></tr>
+<tr><td><code>mutableSpan()</code></td><td>A writable view. Needs a <code>var</code>.</td></tr>
+<tr><td><code>copy()</code>, <code>copy(to: arena)</code></td><td>An independent list.</td></tr>
+<tr><td><code>take()</code></td><td>Move the contents out, leaving the original empty.</td></tr>
+</table>
+<example name="std-list"/>
+
+<h3 id="span">Spans and arrays</h3>
+<p>A span has <code>length</code>, <code>isEmpty</code>, <code>xs[i]</code> and <code>copy()</code> (which returns a <code>List</code>). An array has <code>length</code>, <code>span</code> and <code>mutableSpan()</code>. A read-only span of strings has <code>joined(by:)</code>. Functions that only read a sequence take <code>ReadOnlySpan&lt;T&gt;</code>; pass <code>xs.span</code> from a list or an array. The element types must match exactly: a <code>List&lt;i64&gt;</code> does not take a span of <code>i32</code> literals.</p>
+
+<h3 id="map"><code>Map</code></h3>
+<table>
+<tr><th>Member</th><th>Meaning</th></tr>
+<tr><td><code>Map&lt;K, V&gt;()</code></td><td>An empty map.</td></tr>
+<tr><td><code>m[k]</code>, <code>m[k] = v</code></td><td>Read (panics if the key is missing) and set or insert.</td></tr>
+<tr><td><code>tryGet(at: k)</code></td><td>The value, or <code>null</code>. Does not insert.</td></tr>
+<tr><td><code>contains(k)</code></td><td>True if the key is present.</td></tr>
+<tr><td><code>remove(k)</code></td><td>True if the key was present.</td></tr>
+<tr><td><code>length</code></td><td>Number of entries.</td></tr>
+<tr><td><code>clear()</code></td><td>Remove everything.</td></tr>
+<tr><td><code>copy(to: arena)</code></td><td>An independent map in the arena.</td></tr>
+<tr><td><code>take()</code></td><td>Move the contents out.</td></tr>
+</table>
+<p>Keys are numbers, <code>rune</code>, <code>string</code>, <code>Symbol</code>, plain enums, and tuples and structs of those. <code>for e in m</code> visits the entries; each has <code>key</code> and <code>value</code>.</p>
+<example name="std-map"/>
+
+<h3 id="iteration">Loops over your own types</h3>
+<pre><code class="byn">interface IEnumerator {
+    type Item
+    bool moveNext(ref this)
+    Item current { get }
+}
+
+interface IIndexable {
+    type Item
+    i64 count { get }
+    Item get(i64 index)
+}</code></pre>
+<p><code>for x in value</code> works on anything that conforms to one of these two built-in interfaces. For an <code>IEnumerator</code>, the loop calls <code>moveNext()</code> until it returns false and reads <code>current</code> after each true. For an <code>IIndexable</code>, it reads <code>count</code> once and then calls <code>get(0)</code> up to <code>get(count - 1)</code>. A struct literal in the loop head needs parentheses.</p>
+<example name="std-iteration"/>
+
+<h2 id="memory-types">Text builders and regions</h2>
+
+<h3 id="strbuf"><code>StrBuf</code></h3>
+<pre><code class="byn">StrBuf StrBuf()                          // grows from context.allocator
+StrBuf StrBuf(Span&lt;u8&gt; buffer)           // writes into your bytes
+StrBuf StrBuf.over(Span&lt;u8&gt; buffer)      // your bytes first, then grows</code></pre>
+<p>A <code>StrBuf</code> builds text without making a string per step. <code>append(text)</code> adds at the end, <code>appendRepeated(rune, by: n)</code> adds a character <code>n</code> times, <code>insert(text, at: offset)</code> inserts at a byte offset on a character boundary, and <code>clear()</code> empties it. <code>length</code> is the size in bytes. <code>view</code> and <code>finish()</code> return the text, borrowed from the buffer. <code>copy(to: arena)</code> and <code>take()</code> work as on lists. A buffer made with <code>StrBuf(bytes)</code> panics with <code>StrBuf is full</code> when the text outgrows the bytes; use <code>StrBuf.over</code> if it may be longer.</p>
+<example name="std-strbuf"/>
+
+<h3 id="arena"><code>Arena</code></h3>
+<pre><code class="byn">Arena Arena()
+void arena.reset()</code></pre>
+<p>An arena is a region: allocations made into it with <code>copy(to: arena)</code> live until <code>reset()</code> frees them all at once. See <a href="memory.html">Memory and ownership</a>.</p>
+<example name="std-arena"/>
+
+<h2 id="small-members">Members of other built-in types</h2>
+<table>
+<tr><th>Type</th><th>Member</th><th>Meaning</th></tr>
+<tr><td>enum</td><td><code>name</code>, <code>ordinal</code></td><td>The case name as a string, and its position starting at 0.</td></tr>
+<tr><td><code>rune</code></td><td><code>value</code></td><td>The code point as a <code>u32</code>.</td></tr>
+<tr><td><code>Result&lt;T, E&gt;</code></td><td><code>isOk</code>, <code>value</code>, <code>err</code></td><td>Test and read a result.</td></tr>
+<tr><td><code>T?</code> of a move-only type</td><td><code>take()</code></td><td>Move the value out, leaving <code>null</code>.</td></tr>
+</table>
+<example name="std-enum-members"/>
+
+<h2 id="planned">Planned</h2>
+<note>Planned: not in the compiler yet. Each name below is described in the specification and is an error today (BYN2001 for an unknown namespace, BYN2003 for an unknown member).</note>
+<ul>
+<li><code>Fs</code>, <code>Env</code>, <code>Path</code> and <code>Target</code>: file-system, environment-variable, path and build-target namespaces. The specification gives <code>Path.join(rest parts)</code> for joining path segments. Until they exist, use <code>Io</code> for files, the <code>args</code> parameter of <code>main</code> for arguments, and plain strings for paths.</li>
+<li>Numeric members: <code>abs</code>, <code>sqrt</code>, <code>floor</code>, <code>ceiling</code>, <code>rounded()</code>, <code>truncated()</code>, <code>clamped(from:, through:)</code>, <code>pow</code>, and the free functions <code>min</code> and <code>max</code> (specification section 16.2).</li>
+<li>List and sequence queries: <code>first</code>, <code>last</code>, <code>contains</code>, <code>indexOf</code>, <code>any</code>, <code>all</code>, <code>where</code>, <code>select</code>, <code>sorted</code>, <code>reversed</code>, <code>prepend</code>, <code>insert</code>, <code>Set</code>, <code>Deque</code> (section 16).</li>
+<li>Text beyond the string members above: full Unicode case folding, normalization, grapheme handling (section 16.4).</li>
+<li><code>Event&lt;T&gt;</code> for in-process notification (section 16.1) and <code>std.db</code> (section 16.3).</li>
+</ul>
+<pre><code class="byn">let joined = Path.join(root, "orders", $"{id}.json")
+let home = Env.get("HOME") ?? "/"
+let first = xs.first ?? 0</code></pre>

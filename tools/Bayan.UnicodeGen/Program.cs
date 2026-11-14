@@ -80,6 +80,19 @@ for (var cp = 0; cp < 0x110000; cp++)
             $"in .NET {Environment.Version}; try another --unicode version");
 }
 
+// Assertion (c): Lu and Ll from the file equal char.IsUpper / char.IsLower for every BMP code point.
+// The parser casing checks (Parser.cs struct literal, state literal, type pattern) use those on string[0].
+var isUpper = new bool[0x10000];
+var isLower = new bool[0x10000];
+for (var cp = 0; cp < 0x10000; cp++)
+{
+    isUpper[cp] = category[cp] == "Lu";
+    isLower[cp] = category[cp] == "Ll";
+    if (isUpper[cp] != char.IsUpper((char)cp) || isLower[cp] != char.IsLower((char)cp))
+        return Fail($"assertion (c) failed: U+{cp:X4} is {category[cp] ?? "Cn"} in UCD {version} but char.IsUpper is " +
+            $"{char.IsUpper((char)cp)} and char.IsLower is {char.IsLower((char)cp)} in .NET {Environment.Version}; try another --unicode version");
+}
+
 // Full canonical decompositions, recursively expanded.
 var decomp = new SortedDictionary<int, int[]>();
 foreach (var cp in rawDecomp.Keys) decomp[cp] = Expand(cp).ToArray();
@@ -90,6 +103,8 @@ foreach (var (cp, d) in rawDecomp)
 // Tables, in the layout both outputs share.
 var identStart = Ranges(cp => isStart[cp]);
 var identContinue = Ranges(cp => isContinue[cp] && !isStart[cp]);
+var upper = Ranges(cp => cp < 0x10000 && isUpper[cp]);
+var lower = Ranges(cp => cp < 0x10000 && isLower[cp]);
 var cccRanges = new List<(int Lo, int Hi, int Ccc)>();
 foreach (var (cp, c) in ccc)
 {
@@ -108,6 +123,8 @@ foreach (var (cp, d) in decomp)
 
 UnicodeTables.IdentStart = identStart.SelectMany(r => new[] { (uint)r.Lo, (uint)r.Hi }).ToArray();
 UnicodeTables.IdentContinue = identContinue.SelectMany(r => new[] { (uint)r.Lo, (uint)r.Hi }).ToArray();
+UnicodeTables.Upper = upper.SelectMany(r => new[] { (uint)r.Lo, (uint)r.Hi }).ToArray();
+UnicodeTables.Lower = lower.SelectMany(r => new[] { (uint)r.Lo, (uint)r.Hi }).ToArray();
 UnicodeTables.Ccc = cccRanges.SelectMany(r => new[] { (uint)r.Lo, (uint)r.Hi, (uint)r.Ccc }).ToArray();
 UnicodeTables.DecompIdx = decompIndex.Select(ParseUInt).ToArray();
 UnicodeTables.Decomp = decompData.Select(ParseUInt).ToArray();
@@ -146,7 +163,7 @@ for (var i = 0; i < 5000; i++)
     }
     if (!Agrees(sb.ToString(), out var message)) return Fail(message);
 }
-Console.WriteLine($"assertions passed: identifier classes over 0..0x10FFFF, {checks} NFC checks, {notNfc} of them not NFC " +
+Console.WriteLine($"assertions passed: identifier classes over 0..0x10FFFF, Lu/Ll over the BMP, {checks} NFC checks, {notNfc} of them not NFC " +
     $"({ident.Length} code points, {comp.Count} pairs, 5000 random strings)");
 
 var output = new StringBuilder();
@@ -161,6 +178,10 @@ Emit("identStartRanges", "identifier start (`_`, Lu Ll Lt Lm Lo Nl): pairs lo, h
     identStart.SelectMany(r => new[] { Hex(r.Lo), Hex(r.Hi) }));
 Emit("identContinueRanges", "identifier continue minus start (U+200C U+200D, Mn Mc Nd Pc): pairs lo, hi", 10,
     identContinue.SelectMany(r => new[] { Hex(r.Lo), Hex(r.Hi) }));
+Emit("upperRanges", "upper-case letters (Lu), BMP only: pairs lo, hi", 10,
+    upper.SelectMany(r => new[] { Hex(r.Lo), Hex(r.Hi) }));
+Emit("lowerRanges", "lower-case letters (Ll), BMP only: pairs lo, hi", 10,
+    lower.SelectMany(r => new[] { Hex(r.Lo), Hex(r.Hi) }));
 Emit("cccRanges", "nonzero canonical combining class: triples lo, hi, ccc", 9,
     cccRanges.SelectMany(r => new[] { Hex(r.Lo), Hex(r.Hi), r.Ccc.ToString(CultureInfo.InvariantCulture) }));
 Emit("decompIndex", "full canonical decomposition: triples cp, offset, length into decompData", 9, decompIndex);
@@ -176,7 +197,7 @@ if (csOutPath is not null)
         "namespace Bayan.Syntax.Lexing;\n\ninternal static class UnicodeTables\n{" + csOutput + "}\n");
     Console.WriteLine($"wrote {csOutPath}");
 }
-Console.WriteLine($"wrote {outPath}: identStartRanges {identStart.Count * 2}, identContinueRanges {identContinue.Count * 2}, " +
+Console.WriteLine($"wrote {outPath}: identStartRanges {identStart.Count * 2}, identContinueRanges {identContinue.Count * 2}, upperRanges {upper.Count * 2}, lowerRanges {lower.Count * 2}, " +
     $"cccRanges {cccRanges.Count * 3}, decompIndex {decompIndex.Count}, decompData {decompData.Count}, compPairs {comp.Count * 3}");
 return 0;
 
@@ -213,13 +234,13 @@ void Emit(string name, string comment, int perLine, IEnumerable<string> values)
 {
     var list = values.ToList();
     output.Append($"\n// {comment}\n");
-    output.Append($"const u32[{list.Count}] {name} = [\n");
+    output.Append($"const {name}: u32[{list.Count}] = [\n");
     for (var i = 0; i < list.Count; i += perLine)
     {
         var line = "    " + string.Join(", ", list.Skip(i).Take(perLine)) + (i + perLine < list.Count ? "," : "");
         output.Append(line.TrimEnd()).Append('\n');
     }
-    output.Append("];\n");
+    output.Append("]\n");
 
     // ReadOnlySpan<uint> over a constant array compiles to static data, with no runtime allocation.
     var property = char.ToUpperInvariant(name[0]) + name[1..];

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Your first Bayan program</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14202E">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Noto+Kufi+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html"><img src="../assets/mark-on-night.svg" alt="" width="32" height="32">Bayan <span lang="ar" dir="rtl">بيان</span></a>
+  <nav aria-label="Main">
+    <a href="docs.html">Docs</a>
+    <a href="tutorial.html" aria-current="page">Tutorial</a>
+    <a href="https://github.com/ikhbat-org/bayan">GitHub</a>
+  </nav>
+</div></header>
+<main id="main" class="wrap tut">
+  <h1>Your first program</h1>
+  <p class="muted" style="font-size:1.25rem;max-width:36rem">Five steps from nothing to a native executable, including the one where the compiler tells you something is wrong.</p>
+  <ol class="steps">
+    <li>
+      <h2>Get the compiler</h2>
+      <p>Bayan builds from source today. You need the .NET 10 SDK, and <code>zig</code> on your <code>PATH</code> for the native step.</p>
+      <div class="term"><div class="bar"><i></i>terminal</div>
+<pre><span class="g">$</span> git clone https://github.com/ikhbat-org/bayan
+<span class="g">$</span> cd bayan
+<span class="g">$</span> dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
+<span class="g">$</span> ./tmp/publish/bayan --version</pre></div>
+      <p>Use the runtime identifier for your system in place of <code>osx-arm64</code>. Put the <code>bayan</code> binary on your <code>PATH</code>, then run <code>bayan doctor</code>: it checks the C compiler, zig, git and the build cache, and says how to fix what is missing.</p>
+    </li>
+    <li>
+      <h2>Write hello</h2>
+      <p>Create <code>hello.byn</code>. Newlines end statements; there are no semicolons.</p>
+      <div class="term"><div class="bar"><i></i>hello.byn</div>
+<pre><span class="k">let</span> name = <span class="s">"Bayan"</span>
+<span class="f">print</span>(<span class="s">$"Hello, {name}!"</span>)</pre></div>
+    </li>
+    <li>
+      <h2>Build it</h2>
+      <p>Bayan emits C and hands it to <code>zig cc</code>. The result is a plain executable.</p>
+      <div class="term"><div class="bar"><i></i>terminal</div>
+<pre><span class="g">$</span> bayan build hello.byn -o hello
+<span class="ok">◆</span> built hello (safe, macos-arm64) in 0.68s</pre></div>
+    </li>
+    <li>
+      <h2>Run it</h2>
+      <div class="term"><div class="bar"><i></i>terminal</div>
+<pre><span class="g">$</span> ./hello
+Hello, Bayan!</pre></div>
+      <p><code>bayan run hello.byn</code> does both steps at once. To start a whole project instead, use <code>bayan new hello</code>.</p>
+    </li>
+    <li>
+      <h2>Read an error, fix it</h2>
+      <p>Mistype the name in the second line: <code>{nme}</code> instead of <code>{name}</code>.</p>
+      <div class="term"><div class="bar"><i></i>terminal</div>
+<pre><span class="g">$</span> bayan run hello.byn
+<span class="e">error BYN2001</span>: `nme` is not defined
+<span class="g">  --&gt; hello.byn:2:17</span>
+
+  2 <span class="g">│</span> print($"Hello, {nme}!")
+    <span class="g">│</span>                 <span class="e">^^^</span>
+    <span class="g">│</span>
+    <span class="g">│</span> <span class="h">help</span>: did you mean `name`?
+    <span class="g">│</span> 2 <span class="g">│</span> print($"Hello, {<span class="h">name</span>}!")
+
+<span class="e">✗</span> build failed: 1 error, 0 warnings
+<span class="g">  explain: bayan explain BYN2001</span></pre></div>
+      <p>Read it top to bottom. <em>What</em>: <code>nme</code> is not defined. <em>Where</em>: line 2, column 17, under the three carets. <em>How</em>: the help line suggests <code>name</code> and shows the corrected line. Make that change and run again.</p>
+      <div class="term"><div class="bar"><i></i>terminal</div>
+<pre><span class="g">$</span> bayan run hello.byn
+Hello, Bayan!</pre></div>
+      <img class="bird-sm" src="../assets/hoopoe-flat-check.svg" alt="The hoopoe perched on a passing-tests check" width="144" height="144">
+      <p>Next: <a href="docs.html">argument particles</a>, or <code>bayan --help</code> for every command.</p>
+    </li>
+  </ol>
+</main>
+<footer><div class="wrap">
+  <span>Bayan is made by the <a href="https://github.com/ikhbat-org">Ikhbat Foundation</a>. Compiler bootstrap in C# on .NET 10.</span>
+  <span><a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a>, <a href="https://bayan.run">bayan.run</a></span>
+</div></footer>
+</body>
+</html>

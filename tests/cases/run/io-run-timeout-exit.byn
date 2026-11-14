@@ -1,0 +1,7 @@
+// os: unix
+// A child that ends before `timeout:` passes is reported as without one: its exit code, no failure (plan 007).
+void main() fails IoError {
+    let script: string[2] = ["-c", "printf done; exit 4"]
+    let r = try Io.run("sh", script.span, timeout: Millis(5000))
+    print($"exit {r.exitCode} stdout '{r.stdout}'")
+}

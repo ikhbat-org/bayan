@@ -57,7 +57,7 @@ const validationErrorSource: string = "public union error ValidationError {\n   
 
 const ruleSource: string = "public union Rule {\n    /// `it.runeCount in a..=b`.\n    length(Range<i64> bounds)\n    /// `it in a..=b`.\n    range(Range<i64> bounds)\n    /// Any other rule.\n    custom\n}\n\npublic struct Violation {\n    i64 field\n    i64 rule\n}"
 
-const ioErrorSource: string = "public union error IoError {\n    /// The file does not exist.\n    notFound,\n    /// Permission denied.\n    permissionDenied,\n    /// The file is not valid UTF-8.\n    invalidUtf8,\n    /// The path exists but is not a directory.\n    notADirectory,\n    /// An input or output operation failed.\n    other,\n    /// An argument cannot be passed exactly, so nothing was done.\n    invalidInput,\n    /// The operation is not available on this platform.\n    unsupported,\n}"
+const ioErrorSource: string = "public union error IoError {\n    /// The file does not exist.\n    notFound,\n    /// Permission denied.\n    permissionDenied,\n    /// The input is not valid UTF-8.\n    invalidUtf8,\n    /// The path exists but is not a directory.\n    notADirectory,\n    /// An input or output operation failed.\n    other,\n    /// An argument cannot be passed exactly, so nothing was done.\n    invalidInput,\n    /// The operation is not available on this platform.\n    unsupported,\n    /// The source and the destination are on different devices.\n    crossDevice,\n    /// The path is a directory where a file is needed.\n    isDirectory,\n    /// The child process was ended by this signal; what it wrote to stdout and stderr before then is kept\n    /// (empty if either stream is not UTF-8).\n    signaled(i32 signal, string stdout, string stderr),\n    /// The child process ran longer than this and was stopped; what it wrote to stdout and stderr before then is kept\n    /// (empty if either stream is not UTF-8).\n    timeout(Millis after, string stdout, string stderr),\n}"
 
 /// The builtin module, built on first use (the C# `Builtins.Module`).
 ModId t9Module(ref Ctx c) {
@@ -71,6 +71,26 @@ ModId t9Module(ref Ctx c) {
 Type t9Type(ref Ctx c, for string name) {
     let m = t9Module(ref c)
     return c.modules[m].types.tryGet(at: name) ?? -1
+}
+
+/// The C# `Builtins.DetailVariants`: the built-in cases whose one primitive (or `Millis`) payload a failing builtin call fills
+/// from the general detail slot (plan 007 §1). Call after the declare pass has numbered the builtin sets.
+public List<VariantId> detailVariants(ref Ctx c) uses alloc {
+    var all = List<VariantId>()
+    all.append(t9Variant(ref c, for: "IoError", by: "signaled"))
+    all.append(t9Variant(ref c, for: "IoError", by: "timeout"))
+    all.append(t9Variant(ref c, for: "Utf8Error", by: "invalidSequence"))
+    all.append(t9Variant(ref c, for: "ParseError", by: "badDigit"))
+    return all
+}
+
+/// The variant `name` of the builtin error set `set`.
+VariantId t9Variant(ref Ctx c, for string set, by string name) {
+    let s = typeIndex(t9Type(ref c, for: set))
+    for v in c.errorSets[s].variants {
+        if c.errorVariants[v].name == name { return v }
+    }
+    panic("no such builtin error variant")
 }
 
 /// The builtin function stored under `key`, or -1.
@@ -115,12 +135,23 @@ ModId t9Create(ref Ctx c) {
     let _ = t9MakeIo(ref c, by: m, for: "createDirectory", as: .ioCreateDirectory, to: prim(.void), from: t9One("path", as: prim(.string)), at: ioError)
     let _ = t9MakeIo(ref c, by: m, for: "removeDirectory", as: .ioRemoveDirectory, to: prim(.void), from: t9One("path", as: prim(.string)), at: ioError)
     let _ = t9MakeIo(ref c, by: m, for: "listDir", as: .ioListDir, to: internList(ref c, by: prim(.string)), from: t9One("path", as: prim(.string)), at: ioError)
-    let _ = t9MakeIo(ref c, by: m, for: "run", as: .ioRun, to: builtinType(.processResult), from: t9Two("program", as: prim(.string), for: "args", to: roStrings), at: ioError)
+    // `directory:`, `input:`, `env:` and `timeout:` are named only (015 S6, plan 007).
+    var runParameters = t9Two("program", as: prim(.string), for: "args", to: roStrings)
+    runParameters.append(BuiltinParameter { name: "directory", type: internOptional(ref c, by: prim(.string)) })
+    runParameters.append(BuiltinParameter { name: "input", type: internOptional(ref c, by: roBytes) })
+    runParameters.append(BuiltinParameter { name: "env", type: internOptional(ref c, by: internMap(ref c, by: prim(.string), to: internOptional(ref c, by: prim(.string)))) })
+    runParameters.append(BuiltinParameter { name: "timeout", type: internOptional(ref c, by: builtinType(.millis)) })
+    let _ = t9MakeIo(ref c, by: m, for: "run", as: .ioRun, to: builtinType(.processResult), from: move runParameters, at: ioError)
     let _ = t9MakeIo(ref c, by: m, for: "runBatch", as: .ioRunBatch, to: builtinType(.processResult), from: t9Two("path", as: prim(.string), for: "args", to: roStrings), at: ioError)
     let _ = t9Make(ref c, by: m, for: "monotonicNanos", as: .ioMonotonicNanos, to: prim(.i64), from: List<BuiltinParameter>(), at: "Io.monotonicNanos")
+    // Builtins.cs:87
+    let _ = t9Make(ref c, by: m, for: "randomU64", as: .ioRandomU64, to: prim(.u64), from: List<BuiltinParameter>(), at: "Io.randomU64")
     let _ = t9Make(ref c, by: m, for: "stdout", as: .ioStdout, to: builtinType(.ioStream), from: List<BuiltinParameter>(), at: "Io.stdout")
     let _ = t9Make(ref c, by: m, for: "stderr", as: .ioStderr, to: builtinType(.ioStream), from: List<BuiltinParameter>(), at: "Io.stderr")
     let _ = t9Make(ref c, by: m, for: "stdin", as: .ioStdin, to: builtinType(.ioInput), from: List<BuiltinParameter>(), at: "Io.stdin")
+    // Not a static member of `Io`: the binder calls it for `Io.stdin.readAllBytes()`.
+    let stdinBytes = t9Make(ref c, by: m, for: "readAllBytes", as: .ioStdinReadAllBytes, to: internList(ref c, by: prim(.u8)), from: List<BuiltinParameter>(), at: "Io.stdin.readAllBytes")
+    t9Fails(ref c, for: stdinBytes, by: ioError)
 
     let utf8Error = t9ErrorSet(ref c, from: utf8ErrorSource, by: m)
     let _ = t9ErrorSet(ref c, from: validationErrorSource, by: m)
@@ -145,6 +176,18 @@ ModId t9Create(ref Ctx c) {
     let _ = t9Make(ref c, by: m, for: "fullPath", as: .pathFullPath, to: prim(.string), from: t9One("path", as: prim(.string)), at: "Path.fullPath")
     let _ = t9Make(ref c, by: m, for: "get", as: .envGet, to: internOptional(ref c, by: prim(.string)), from: t9One("name", as: prim(.string)), at: "Env.get")
     let _ = t9Make(ref c, by: m, for: "fileExists", as: .fsFileExists, to: prim(.bool), from: t9One("path", as: prim(.string)), at: "Fs.fileExists")
+    let fsRename = t9Make(ref c, by: m, for: "rename", as: .fsRename, to: prim(.void), from: t9Two("path", as: prim(.string), for: "to", to: prim(.string)), at: "Fs.rename")
+    t9Fails(ref c, for: fsRename, by: ioError)
+    let fsCopy = t9Make(ref c, by: m, for: "copy", as: .fsCopy, to: prim(.void), from: t9Two("path", as: prim(.string), for: "to", to: prim(.string)), at: "Fs.copy")
+    t9Fails(ref c, for: fsCopy, by: ioError)
+    let fsModified = t9Make(ref c, by: m, for: "modified", as: .fsModified, to: builtinType(.time), from: t9One("path", as: prim(.string)), at: "Fs.modified")
+    t9Fails(ref c, for: fsModified, by: ioError)
+    let fsSetModified = t9Make(ref c, by: m, for: "setModified", as: .fsSetModified, to: prim(.void), from: t9Two("path", as: prim(.string), for: "to", to: builtinType(.time)), at: "Fs.setModified")
+    t9Fails(ref c, for: fsSetModified, by: ioError)
+    let fsRealPath = t9Make(ref c, by: m, for: "realPath", as: .fsRealPath, to: prim(.string), from: t9One("path", as: prim(.string)), at: "Fs.realPath")
+    t9Fails(ref c, for: fsRealPath, by: ioError)
+    let _ = t9Make(ref c, by: m, for: "now", as: .timeNow, to: builtinType(.time), from: List<BuiltinParameter>(), at: "Time.now")
+    let _ = t9Make(ref c, by: m, for: "fromNanos", as: .timeFromNanos, to: builtinType(.time), from: t9One("nanos", as: prim(.i64)), at: "Time.fromNanos")
 
     // The iteration interfaces are declared from source too; the declare pass declares their members like a user interface's.
     let iteration = t9Parse(ref c, for: iterationSource, by: m)
@@ -305,7 +348,16 @@ FuncId findEnv(ref Ctx c, for string name) {
 /// A static member of `Fs`, or -1.
 FuncId findFs(ref Ctx c, for string name) {
     switch name {
-        case "fileExists": return t9Function(ref c, for: "Fs.fileExists")
+        case "fileExists" or "rename" or "copy" or "modified" or "setModified" or "realPath": return t9Function(ref c, for: $"Fs.{name}")
+    }
+    return -1
+}
+
+/// A static member of `Time`, or -1.
+FuncId findTime(ref Ctx c, for string name) {
+    switch name {
+        case "now": return t9Function(ref c, for: "Time.now")
+        case "fromNanos": return t9Function(ref c, for: "Time.fromNanos")
     }
     return -1
 }
@@ -343,7 +395,7 @@ FuncId intParse(ref Ctx c, for PrimitiveKind t) {
 /// A static member of `Io`, or -1.
 FuncId findIo(ref Ctx c, for string name) {
     switch name {
-        case "readFile" or "readText" or "writeFile" or "remove" or "createDirectory" or "removeDirectory" or "listDir" or "run" or "runBatch" or "monotonicNanos" or "stdout" or "stderr" or "stdin":
+        case "readFile" or "readText" or "writeFile" or "remove" or "createDirectory" or "removeDirectory" or "listDir" or "run" or "runBatch" or "monotonicNanos" or "randomU64" or "stdout" or "stderr" or "stdin":
             return t9Function(ref c, for: $"Io.{name}")
     }
     return -1
@@ -413,6 +465,8 @@ PropertyResult? builtinProperty(ref Ctx c, for Type type, by string name) {
                     }
                 case .panic:
                     if name == "message" { return t9Property(.panicMessage, as: prim(.string)) }
+                case .time:
+                    if name == "nanos" { return t9Property(.timeNanos, as: prim(.i64)) }
                 // The binder gives `radix` the builtin `Radix` and `align` the builtin `Align`; `digits` is -1 when the hole gives none.
                 case .formatSpec:
                     switch name {
@@ -603,10 +657,9 @@ BuiltinMethod? method(ref Ctx c, for Type type, by string name) {
                     }
                 case .ioStream:
                     if name == "write" { return BuiltinMethod { member: .ioWrite, parameters: t9One("text", as: prim(.string)), returns: prim(.void) } }
-                // The binder wraps the result in `Result<string, IoError>` (`Result<List<u8>, IoError>` for `readAllBytes`).
+                // The binder wraps the result in `Result<string, IoError>`; it binds `readAllBytes()` as the builtin `Io.stdin.readAllBytes`, which fails.
                 case .ioInput:
                     if name == "readAll" { return BuiltinMethod { member: .ioReadAll, parameters: List<BuiltinParameter>(), returns: prim(.string) } }
-                    if name == "readAllBytes" { return BuiltinMethod { member: .ioReadAllBytes, parameters: List<BuiltinParameter>(), returns: internList(ref c, by: prim(.u8)) } }
                 default: return null
             }
         case .optional:
@@ -618,7 +671,8 @@ BuiltinMethod? method(ref Ctx c, for Type type, by string name) {
     return null
 }
 
-bool hasMethod(ref Ctx c, for Type type, by string name) => method(ref c, for: type, by: name) is not null
+// `Io.stdin.readAllBytes` is bound as a failing builtin function, so `method` has no entry for it.
+bool hasMethod(ref Ctx c, for Type type, by string name) => method(ref c, for: type, by: name) is not null || (type == builtinType(.ioInput) && name == "readAllBytes")
 
 /// The C# `Candidates`.
 List<string> t9Candidates() => [

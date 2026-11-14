@@ -1,0 +1,7 @@
+public u64 token() {
+    return Io.randomU64()
+}
+
+public void main() uses random {
+    let _ = token()
+}

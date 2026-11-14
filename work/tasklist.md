@@ -33,20 +33,10 @@ tick.
   duplicating it — two copies of a task list is one stale copy.
 - `milestones.md` is where the project is going. A tasklist is how one milestone gets done.
 
-## Current work: Bayan v0.1 bootstrap compiler (detail: `docs/bayan-handoff.md`)
+## Current work: the 0.3.0 release and its follow-ups (detail: `docs/RELEASING.md`, `docs/bayan-progress-log.md`)
 
-- [x] **T1 — M0 skeleton** — done when: CI green on linux-x64/osx-arm64/win-x64; bayan --version runs from the AOT binary
-- [x] **T2 — M1 lexer** — done when: lex/ golden cases cover every token kind and lexer diagnostic; 1 MB file allocates only the token array
-- [x] **T3 — M2 parser** — done when: parse/ cases cover every v0.1 construct; diag/ cases cover common syntax errors
-- [x] **T4 — M3 semantics I** — done when: every names/types/mutability rule has passing and failing diag/ cases
-- [x] **T5 — M4 C backend hello world** — done when: examples/hello runs on all platforms; run/ cases per handoff M4
-- [x] **T6 — M5 errors** — done when: run/ cases for every error form incl. cleanup order; diag/ for non-exhaustive catch and try in defer
-- [x] **T7 — M6 memory basics** — done when: run/ cases for slicing and arenas; diag/ for borrow escape, mutation while borrowed
-- [x] **T8 — M7 tests** — done when: bayan test reports passing, failing and panicking tests correctly
-- [x] **T9 — M8 tally-lite** — done when: bayan run prints the sample transfers; bayan test examples/tally-lite passes
-- [x] **T10 — Q34 ReadOnlySpan and float formatting** — done when: ReadOnlySpan<T> conversions and BYN2310; float output per addendum 001 §1
-- [x] **T11 — M12a JSON diagnostics and exit codes** — done when: `--diagnostics json` goldens; exit codes 0-4 asserted in CLI tests
-- [x] **T12 — M9 bayan new and init** — done when: tests/cases/new goldens; fresh app runs and tests; init adds missing files only
-- [x] **T13 — M10 out/ and dist/** — done when: layout goldens; dist immutability and latest selection
-- [x] **T14 — M11 global cache and worktrees** — done when: second worktree compiles nothing; parallel builds never corrupt the cache; moving a project keeps cache hits
-- [x] **T15 — M12b CLI completeness** — done when: test --json, color, doctor, test --changed, --version with commit
+- [x] **T1 — Preflight done, dev ready** — done when: the three-host preflight is fixed and merged into dev (`docs/bayan-progress-log.md`, "0.3.0 release preflight on three hosts")
+- [ ] **T2 — Release 0.3.0** — done when: dev is pushed and merged to main, the `0.3.0-rc.1` dry run passes, tag v0.3.0 is published (the user does these)
+- [ ] **T3 — Recheck `CliMemoryBoundsTests` on the dry run** — done when: the 25 rows pass on Linux in the release dry run (failed the 2026-11-12 dry run)
+- [ ] **T4 — Write spec 019, the .NET exit** — done when: `docs/specs/019-*/` holds spec, plan and tasks (`docs/bayan-milestones.md`, Target: zero dependencies)
+- [ ] **T5 — Spec 015 ports T9–T17** — done when: the listed scripts are Bayān tools with parity tests (`docs/specs/015-tooling/015-tasks.md`)

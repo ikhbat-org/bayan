@@ -122,6 +122,7 @@ ConversionKind? explicit(ref Ctx c, from Type a, to Type t) {
     if isNumeric(a) && isNumeric(t) { return .numericCast }
     if a == prim(.char) && isInteger(t) { return .charToInteger }
     if isInteger(a) && t == prim(.char) { return .integerToChar }
+    if a == builtinType(.millis) && t == prim(.i64) { return .widen }
     return null
 }
 

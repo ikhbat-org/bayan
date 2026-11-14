@@ -1,0 +1,29 @@
+struct Countdown : IEnumerator {
+    type Item = i64
+
+    i64 left
+
+    bool moveNext(ref this) {
+        left -= 1
+        return left >= 0
+    }
+
+    i64 current => left
+}
+
+struct Tens : IIndexable {
+    type Item = i64
+
+    i64 count => 3
+
+    i64 get(i64 index) => index * 10
+}
+
+void main() {
+    for n in (Countdown { left: 3 }) {
+        print($"count {n}")
+    }
+    for t in (Tens {}) {
+        print($"ten {t}")
+    }
+}

@@ -1,0 +1,11 @@
+type distinct UserId = i64
+type distinct OrderId = i64
+
+string describe(UserId id) => $"user {id.value}"
+
+void main() {
+    let u = UserId(7)
+    let o = OrderId(7)
+    print(describe(u))
+    print($"{u == UserId(7)} {o.value}")
+}

@@ -1,0 +1,10 @@
+i64 total(rest ReadOnlySpan<i64> items, i64 scale = 1) {
+    var t: i64 = 0
+    for x in items {
+        t += x
+    }
+    return t * scale
+}
+
+print($"{total(1, 2, 3)}")
+print($"{total(1, 2, 3, scale: 10)}")

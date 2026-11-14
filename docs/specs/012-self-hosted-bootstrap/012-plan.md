@@ -2,7 +2,7 @@
 Spec: ./012-spec.md
 Tasks: ./012-tasks.md
 
-Written against `feat/011-self-hosted-emitter` on 2026-11-04 (011 T13 landed at ee3ff1b8; T14–T20 open).
+Written against `feat/011-self-hosted-emitter` on 2026-11-04 (011 T13 landed at c0d1dc1b; T14–T20 open).
 
 ## Approach
 
@@ -42,7 +42,7 @@ Tests compare the driver with `CliApp.Run` in-process, as 009–011 do. The boot
 | 7 | T7 Golden suite on stage 2 | `LexerTests.cs`, `ParserTests.cs`, `TypedDumpTests.cs`, `DiagTests.cs`, `RunTests.cs` (the commands each runs) | `tests/Bayan.Tests/SelfhostDriverGoldenTests.cs` | T6 | ~250 C# |
 | 8 | T8 Libc list and C scan | `bayan-rt.c`, `bayan-rt.h`; `CInventoryTests.cs` (token regex) | `src/runtime/libc-uses.txt` (new), `tests/Bayan.Tests/SelfhostDriverInventoryTests.cs`, `011-c-inventory.md` rows if the scan finds any | P1 | ~150 |
 | 9 | T9 Laws | `SelfhostSemantics{Equivalence,NoPanic}LawTests.cs` (tier pattern) | `docs/laws/027-bootstrap-fixpoint.md`, `docs/laws/028-driver-equivalence.md` (drafts below), `Law=` traits and `BAYAN_LAW_TIER` in T6/T7's classes | T6, T7 | ~150 |
-| 10 | T10 Docs and batch mutation | handoff row 012 (`docs/bayan-handoff.md:442`), readiness (`:375`), finish line (`:423`); `docs/bayan-self-hosting.md:27` (stage 4) | handoff, `docs/bayan-self-hosting.md`, `work/todo.md`, `tests/quality-baseline.json` via `mutate-batch.sh` | T9, T8 | docs |
+| 10 | T10 Docs and batch mutation | handoff row 012 (`docs/bayan-milestones.md:414`), readiness (`:375`), finish line (`:423`); `docs/bayan-self-hosting.md:27` (stage 4) | handoff, `docs/bayan-self-hosting.md`, `work/todo.md`, `tests/quality-baseline.json` via `mutate-batch.sh` | T9, T8 | docs |
 
 The enact and prove tasks T11–T14 are the user's and `/prove`'s, as 011 T17–T20.
 
@@ -159,7 +159,7 @@ Changes from the 2026-10-22 draft (written against `244edc1`, before 009–011 w
 - **R4 own path normalisation replaced** by spec 014's `Path` module; T3 and T5 list `014` in `after:`.
 - **R1 driver location** `selfhost/bayan/main.byn` → `selfhost/driver/main.byn`; it now names the `cli.byn` and `bayan-emit` entry points it reuses.
 - **R2 version text** `bayan <Version> (selfhost)` moved to spec Q3, since the C# line is `(commit <sha>)`.
-- **R3 refusal text** kept as spec Q4's default; the refused list now matches the handoff finish line and every `CliApp.Run` case.
+- **R3 refusal text** kept as spec Q4's default; the refused list now matches the milestones doc's finish line and every `CliApp.Run` case.
 - **R5 toolchain** gained K3's interface (new R5) and lost `BAYAN_CC` (spec Q1); exit 4 kept.
 - **R6 `run` capture** kept, with the stdio difference made explicit (spec Q5).
 - **R9 `driver-runtime.byn`** → `selfhost/driver/runtime.byn` (R8), check without a built binary (D5).
@@ -174,7 +174,7 @@ Changes from the 2026-10-22 draft (written against `244edc1`, before 009–011 w
 
 ## Addendum Q970: Target.os/arch, Env.get, Fs file query (user 2026-11-05)
 
-Grounded at c2c71e90 by an audit worker; tasks T15–T19 in 012-tasks.md; open points are handoff Q971–Q977, defaults applied meanwhile.
+Grounded at 383ed2d0 by an audit worker; tasks T15–T19 in 012-tasks.md; open points are handoff Q971–Q977, defaults applied meanwhile.
 
 ### Grounding (what the C# does today)
 - Host: `Targets.Host` = `os + "-" + arch`, where os is `linux|macos|windows` and arch is `x64|arm64`. It is null on any other OS or arch (`src/Bayan.Backend.C/Targets.cs:30-41`). The target names are in `Targets.cs:11-20`; `wasm32` has no os-arch split. `CliApp.HostTarget` is `Host ?? "host"` (`src/Bayan.Cli/CliApp.cs:446`). `--target host` becomes null (`:190-197`). `cross = target != Targets.Host` (`Toolchain.cs:184`). The exe suffix test is `targetOs.StartsWith("windows")` (`Toolchain.cs:194,212`, `Targets.cs:44-47`).

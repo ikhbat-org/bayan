@@ -1,0 +1,21 @@
+union error ParseError {
+    /// The text was empty.
+    empty
+    /// The text was not a number.
+    notNumber
+}
+
+i64 parse(string text) fails ParseError {
+    fail .empty if text.isEmpty
+    return i64.tryParse(text) ?? fail .notNumber
+}
+
+void main() {
+    print($"{parse("42") catch -1}")
+    let n = parse("") catch switch {
+        .empty => 0,
+        .notNumber => -1,
+    }
+    print($"{n}")
+    print($"{parse("x") catch -2}")
+}

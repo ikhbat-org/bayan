@@ -1,0 +1,7 @@
+// A line comment runs to the end of the line.
+let width = 4 // it can follow code
+
+/// A doc comment describes the item below it. It is Markdown.
+i64 area(i64 side) => side * side
+
+print($"{area(width)}")

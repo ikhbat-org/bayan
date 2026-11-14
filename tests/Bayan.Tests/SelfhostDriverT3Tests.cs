@@ -10,7 +10,7 @@ namespace Bayan.Tests;
 /// 012 T3: the C compiler interface of the driver (<c>selfhost/driver/cc.byn</c>) against the C# toolchain. Both sides run as
 /// processes with a <c>PATH</c> holding fake compilers, so the C# <c>FindCompiler</c> and <c>Compile</c> are the oracle: the
 /// fake <c>zig</c>/<c>cc</c> records its argv and creates the output named after <c>-o</c>. The scratch directory (Q1) is the
-/// only difference masked: <c>-ffile-prefix-map=&lt;dir&gt;=.</c>, <c>-I &lt;dir&gt;</c> and the absolute <c>main.c</c>/<c>bayan-rt.c</c>.
+/// only difference masked: <c>-ffile-prefix-map=&lt;dir&gt;=.</c>, <c>-I &lt;dir&gt;</c> and the absolute <c>main.c</c>/<c>bayan-rt.c</c>/<c>bayan-rt.o</c>.
 /// The probe build (a <c>main</c> over <c>cc.byn</c>) is local to this file: <see cref="SelfhostDriverHarness"/> has no entry for it.
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]
@@ -217,6 +217,8 @@ public sealed class SelfhostDriverT3Tests
             else if (i > 0 && lines[i - 1] == "-I") lines[i] = "<dir>";
             else if (lines[i] == Path.Combine(scratch, "main.c")) lines[i] = "main.c";
             else if (lines[i] == Path.Combine(scratch, "bayan-rt.c")) lines[i] = "bayan-rt.c";
+            // The C# links `<cache>/runtime/<rkey>/bayan-rt.o`, the port the object it compiled into the scratch directory.
+            else if (lines[i].EndsWith(Path.DirectorySeparatorChar + "bayan-rt.o", StringComparison.Ordinal)) lines[i] = "bayan-rt.o";
         }
         return string.Join("\n", lines);
     }
@@ -408,6 +410,17 @@ public sealed class SelfhostDriverT3Tests
         Assert.Equal(4, r.Cs.Exit);
         Assert.Contains("C compiler failed (exit 0):", r.Cs.Err);
         SelfhostEmitterHarness.AssertSame("stderr of a compiler that builds nothing", r.Cs.Err, r.Byn.Err);
+    }
+
+    [Fact]
+    public void ACompilerKilledBySignalIsAFailure()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var bin = Bin("bin-killed", "kill -9 $$\n", "cc");
+        var r = Both(bin, "safe", "", "killed");
+        Assert.Equal(4, r.Cs.Exit);
+        Assert.Contains("C compiler failed (exit ", r.Cs.Err);
+        SelfhostEmitterHarness.AssertSame("stderr of a compiler killed by a signal", r.Cs.Err, r.Byn.Err);
     }
 
     [Fact]

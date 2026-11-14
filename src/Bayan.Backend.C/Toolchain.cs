@@ -30,7 +30,7 @@ public sealed record CacheStats(string Directory, int Programs, long Bytes, int 
 public static class Toolchain
 {
     /// <summary>The Bayan compiler's version; part of every cache key.</summary>
-    public const string CompilerVersion = "0.2.0";
+    public const string CompilerVersion = "0.3.0";
 
     public static string RuntimeHeader { get; } = Resource("runtime/bayan-rt.h");
 
@@ -86,6 +86,11 @@ public static class Toolchain
     }
 
     private static string Scripts => Path.Combine(CacheData, "scripts");
+
+    /// <summary><c>runtime/&lt;rkey&gt;/</c> holds <c>bayan-rt.o</c>, the runtime compiled once per C compiler and flag set.</summary>
+    private static string Runtime => Path.Combine(CacheData, "runtime");
+
+    private const string RuntimeObjectName = "bayan-rt.o";
 
     private static string Staging => Path.Combine(CacheData, "tmp");
 
@@ -143,6 +148,32 @@ public static class Toolchain
             ? TimeSpan.FromSeconds(s)
             : TimeSpan.FromMinutes(10);
 
+    /// <summary>
+    /// One of <c>$BAYAN_CC_JOBS</c> host-wide program-compile slots, waited for and held until disposed; null (no limit)
+    /// when the variable is unset or 0. A slot is an exclusive lock on <c>&lt;dir&gt;/&lt;i&gt;.lock</c>, dir being
+    /// <c>$BAYAN_CC_JOBS_DIR</c> or <c>&lt;temp&gt;/bayan-cc-jobs-&lt;user&gt;</c> (per user: Linux's <c>/tmp</c> is shared), so
+    /// test processes sharing a host share the cap (two VM shard slots each ran several 2.6 GB zig compiles at once and the
+    /// OOM killer took one, work/todo.md). The OS drops the lock when its process dies. Only a plain <see cref="IOException"/>
+    /// (the lock is held) means busy; the directory is re-created each round, so one removed under a waiter does not
+    /// leave it waiting forever. Any other failure throws.
+    /// </summary>
+    internal static FileStream? CompileSlot()
+    {
+        if (!int.TryParse(Environment.GetEnvironmentVariable("BAYAN_CC_JOBS"), System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var n) || n <= 0)
+            return null;
+        var dir = Environment.GetEnvironmentVariable("BAYAN_CC_JOBS_DIR") is { Length: > 0 } d ? d : Path.Combine(Path.GetTempPath(), "bayan-cc-jobs-" + Environment.UserName);
+        while (true)
+        {
+            Directory.CreateDirectory(dir);
+            for (var i = 0; i < n; i++)
+            {
+                try { return new FileStream(Path.Combine(dir, $"{i}.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
+                catch (IOException e) when (e.GetType() == typeof(IOException)) { }
+            }
+            Thread.Sleep(100);
+        }
+    }
+
     /// <summary>Test seams: how long the probe waits for a candidate to compile, and for its program to run.</summary>
     internal static TimeSpan ProbeCompileTimeout { get; set; } = TimeSpan.FromSeconds(120);
 
@@ -176,6 +207,74 @@ public static class Toolchain
             }
         }
         return null;
+    }
+
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> identities = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// What the C compiler is, beyond its command, computed once per process and command: the output of <c>zig version</c> (zig cc)
+    /// or the whole command with <c>--version</c> appended, and the command's <see cref="CompilerStamp"/>, so an in-place upgrade
+    /// misses every key. A launcher (<c>xcrun clang</c>, <c>ccache gcc</c>) reports and stamps the compiler it runs, not only
+    /// itself. A compiler that cannot report its version (a wrapper script) is its command and the stamp.
+    /// </summary>
+    internal static string CompilerIdentity(string[] compiler)
+    {
+        // A process sees a handful of compilers; the bound only guards a host that keeps changing BAYAN_CC.
+        if (identities.Count > 64) identities.Clear();
+        return identities.GetOrAdd(string.Join(" ", compiler), _ => ComputeIdentity(compiler));
+    }
+
+    private static string ComputeIdentity(string[] compiler)
+    {
+        var stamp = CompilerStamp(compiler);
+        var zig = compiler.Length > 1 && compiler[1] == "cc" && Path.GetFileNameWithoutExtension(compiler[0]) == "zig";
+        try
+        {
+            // 30 s, or the compile timeout when that is shorter: a hung compiler fails the build within its limit.
+            var limit = CompileTimeout < TimeSpan.FromSeconds(30) ? CompileTimeout : TimeSpan.FromSeconds(30);
+            string[] args = zig ? ["version"] : [.. compiler[1..], "--version"];
+            var (code, stdout, _) = Exec(compiler[0], args, Environment.CurrentDirectory, limit);
+            if (code == 0) return stdout + "\0" + stamp;
+        }
+        catch (Exception e) when (e is System.ComponentModel.Win32Exception or IOException or UnauthorizedAccessException)
+        {
+            // Not a compiler that reports its version; its command stands in.
+        }
+        return string.Join(" ", compiler) + "\0" + stamp;
+    }
+
+    /// <summary>
+    /// The compiler file's <see cref="FileStamp"/>, followed for a launcher (not zig cc) by the stamp of each later word that is
+    /// not a flag and names a file (<c>clang</c> in <c>xcrun clang</c>), joined by newlines; empty when no word names a file.
+    /// A single-word command or zig cc is the compiler file's stamp alone. Reading it runs nothing and hashes nothing.
+    /// </summary>
+    internal static string CompilerStamp(string[] compiler)
+    {
+        var zig = compiler.Length > 1 && compiler[1] == "cc" && Path.GetFileNameWithoutExtension(compiler[0]) == "zig";
+        var parts = new List<string> { FileStamp(compiler[0]) };
+        if (!zig) parts.AddRange(compiler[1..].Where(w => !w.StartsWith('-')).Select(FileStamp));
+        return string.Join("\n", parts.Where(p => p.Length > 0));
+    }
+
+    /// <summary>
+    /// A file's path (as given when rooted, else as <see cref="FindOnPath"/> found it) and the last write time of the file it links
+    /// to, in ticks; empty when there is no such file.
+    /// </summary>
+    private static string FileStamp(string word)
+    {
+        var file = Path.IsPathRooted(word) ? word : FindOnPath(word);
+        try
+        {
+            if (file is null || !File.Exists(file)) return "";
+            var info = new FileInfo(file);
+            // A link's own time is not the compiler's: the target's is, as stat(2) reads it.
+            var target = info.ResolveLinkTarget(returnFinalTarget: true) ?? info;
+            return file + ":" + target.LastWriteTimeUtc.Ticks;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return "";
+        }
     }
 
     public static string? FindOnPath(string name)
@@ -234,13 +333,15 @@ public static class Toolchain
             _ => ["-O2", "-DBYN_NDEBUG"],
         });
         if (asan) flags.AddRange(["-fsanitize=address", "-fno-omit-frame-pointer", "-g"]);
-        var key = Hash(string.Join("\0", CompilerVersion, mode, target, string.Join(" ", compiler), string.Join(" ", flags), RuntimeHeader, RuntimeSource, cSource));
+        var identity = CompilerIdentity(compiler);
+        var key = Hash(string.Join("\0", CompilerVersion, mode, target, string.Join(" ", compiler), identity, string.Join(" ", flags), RuntimeHeader, RuntimeSource, cSource));
         var hit = Lookup(key, exeName) is not null;
         if (!hit)
         {
             try
             {
-                var failure = Compile(compiler, flags, cSource, key, exeName, windows: targetOs.StartsWith("windows", StringComparison.Ordinal));
+                var (runtime, failure) = RuntimeObject(compiler, flags, identity);
+                failure ??= Compile(compiler, flags, cSource, key, exeName, runtime!, windows: targetOs.StartsWith("windows", StringComparison.Ordinal));
                 if (failure is not null) return new NativeBuild(null, failure, Rejected: true);
             }
             catch (System.ComponentModel.Win32Exception e)
@@ -286,11 +387,16 @@ public static class Toolchain
     }
 
     /// <summary>The cached executable for <paramref name="key"/> if it is intact; a damaged entry is removed.</summary>
-    public static string? Lookup(string key, string exeName)
+    public static string? Lookup(string key, string exeName) => LookupEntry(Path.Combine(Programs, key), exeName, "program.sha256");
+
+    /// <summary>The cached runtime object for <paramref name="runtimeKey"/> if it is intact; a damaged entry is removed.</summary>
+    internal static string? LookupRuntime(string runtimeKey) => LookupEntry(Path.Combine(Runtime, runtimeKey), RuntimeObjectName, RuntimeObjectName + ".sha256");
+
+    /// <summary><paramref name="file"/> in the entry <paramref name="dir"/> if its SHA-256 is the one in <paramref name="sumName"/>; a damaged entry is removed.</summary>
+    private static string? LookupEntry(string dir, string file, string sumName)
     {
-        var dir = Path.Combine(Programs, key);
-        var exe = Path.Combine(dir, exeName);
-        var sum = Path.Combine(dir, "program.sha256");
+        var exe = Path.Combine(dir, file);
+        var sum = Path.Combine(dir, sumName);
         if (!Directory.Exists(dir)) return null;
         try
         {
@@ -308,8 +414,55 @@ public static class Toolchain
         return null;
     }
 
-    /// <summary>Builds into a private directory, then renames it to <c>programs/&lt;key&gt;</c>; null on success.</summary>
-    private static string? Compile(string[] compiler, List<string> flags, string cSource, string key, string exeName, bool windows)
+    /// <summary>
+    /// The runtime compiled with <paramref name="flags"/> (target, mode and sanitizer included) by <paramref name="compiler"/>: from
+    /// <c>runtime/&lt;rkey&gt;/</c>, else compiled with <c>-c</c> in a private directory and renamed into place as programs are.
+    /// The object's path, or the C compiler's complaint.
+    /// </summary>
+    private static (string? Path, string? Failure) RuntimeObject(string[] compiler, List<string> flags, string identity)
+    {
+        var rkey = Hash(string.Join("\0", "runtime", identity, string.Join(" ", compiler), string.Join(" ", flags), RuntimeHeader, RuntimeSource));
+        if (LookupRuntime(rkey) is { } found) return (found, null);
+        TagCacheDirectory();
+        var work = Path.Combine(Staging, rkey[..16] + "-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(work);
+        try
+        {
+            File.WriteAllText(Path.Combine(work, "bayan-rt.h"), RuntimeHeader);
+            File.WriteAllText(Path.Combine(work, "bayan-rt.c"), RuntimeSource);
+            var args = new List<string>(compiler[1..]);
+            args.AddRange(flags);
+            // Debug info names `bayan-rt.c`, not this temporary directory.
+            args.AddRange(["-c", "-ffile-prefix-map=" + work + "=.", "-I", ".", "bayan-rt.c", "-o", RuntimeObjectName]);
+            var limit = CompileTimeout;
+            var (code, stdout, stderr) = Exec(compiler[0], args, work, limit);
+            if (code == -1)
+                return (null, $"C compiler timed out after {limit.TotalSeconds:0} s and was killed (set BAYAN_CC_TIMEOUT_S to allow longer)");
+            var obj = Path.Combine(work, RuntimeObjectName);
+            if (code != 0 || !File.Exists(obj))
+                return (null, $"C compiler failed (exit {code}):\n{stdout}{stderr}");
+            foreach (var file in Directory.EnumerateFiles(work))
+                if (Path.GetFileName(file) != RuntimeObjectName) File.Delete(file);
+            File.WriteAllText(Path.Combine(work, RuntimeObjectName + ".sha256"), HashFile(obj) + "\n");
+            Directory.CreateDirectory(Runtime);
+            try
+            {
+                Directory.Move(work, Path.Combine(Runtime, rkey));
+            }
+            catch (IOException) when (LookupRuntime(rkey) is not null)
+            {
+                // Another build compiled the same runtime first; its object is as good as ours.
+            }
+            return (Path.Combine(Runtime, rkey, RuntimeObjectName), null);
+        }
+        finally
+        {
+            if (Directory.Exists(work)) Discard(work);
+        }
+    }
+
+    /// <summary>Builds into a private directory, linking <paramref name="runtime"/>, then renames it to <c>programs/&lt;key&gt;</c>; null on success.</summary>
+    private static string? Compile(string[] compiler, List<string> flags, string cSource, string key, string exeName, string runtime, bool windows)
     {
         TagCacheDirectory();
         var work = Path.Combine(Staging, key[..16] + "-" + Guid.NewGuid().ToString("N"));
@@ -317,16 +470,23 @@ public static class Toolchain
         try
         {
             File.WriteAllText(Path.Combine(work, "bayan-rt.h"), RuntimeHeader);
-            File.WriteAllText(Path.Combine(work, "bayan-rt.c"), RuntimeSource);
             File.WriteAllText(Path.Combine(work, CEmitter.GeneratedFile), cSource);
             var args = new List<string>(compiler[1..]);
             args.AddRange(flags);
             // Debug info names `main.c`, not this temporary directory.
-            args.AddRange(["-ffile-prefix-map=" + work + "=.", "-I", ".", CEmitter.GeneratedFile, "bayan-rt.c", "-o", exeName]);
+            args.AddRange(["-ffile-prefix-map=" + work + "=.", "-I", ".", CEmitter.GeneratedFile, runtime, "-o", exeName]);
             // `CommandLineToArgvW` (program arguments) is in shell32.
             args.Add(windows ? "-lshell32" : "-lm");
             var limit = CompileTimeout;
-            var (code, stdout, stderr) = Exec(compiler[0], args, work, limit);
+            int code; string stdout, stderr;
+            FileStream? slot;
+            try { slot = CompileSlot(); }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                return $"BAYAN_CC_JOBS: cannot take a compile slot: {e.Message}";
+            }
+            using (slot)
+                (code, stdout, stderr) = Exec(compiler[0], args, work, limit);
             if (code == -1)
                 return $"C compiler timed out after {limit.TotalSeconds:0} s and was killed (set BAYAN_CC_TIMEOUT_S to allow longer)";
             var exe = Path.Combine(work, exeName);
@@ -365,7 +525,7 @@ public static class Toolchain
     }
 
     /// <summary>
-    /// Trims the program cache to <c>$BAYAN_CACHE_MAX_MB</c> (2 GiB; 0 for no cap) and 4000 entries, least recently
+    /// Trims the program and runtime cache to <c>$BAYAN_CACHE_MAX_MB</c> (2 GiB; 0 for no cap) and 4000 entries, least recently
     /// used first, then drops script pointers whose program is gone. <paramref name="keep"/> and any entry used
     /// within <paramref name="minAge"/> (a concurrent build may be running it) are never removed.
     /// </summary>
@@ -380,7 +540,10 @@ public static class Toolchain
     {
         try
         {
-            var entries = Directory.EnumerateDirectories(Programs).Select(d => new DirectoryInfo(d))
+            // Runtime objects share the cap and the LRU order with programs.
+            var dirs = Directory.EnumerateDirectories(Programs);
+            if (Directory.Exists(Runtime)) dirs = dirs.Concat(Directory.EnumerateDirectories(Runtime));
+            var entries = dirs.Select(d => new DirectoryInfo(d))
                 .Select(d => (Dir: d, Used: d.LastWriteTimeUtc, Size: d.EnumerateFiles().Sum(f => f.Length)))
                 .OrderBy(e => e.Used).ToList();
             var count = entries.Count;
@@ -396,7 +559,7 @@ public static class Toolchain
             }
             if (!Directory.Exists(Scripts)) return;
             foreach (var pointer in Directory.EnumerateFiles(Scripts).Where(f => !f.EndsWith(".tmp", StringComparison.Ordinal)))
-                if (!Directory.Exists(Path.Combine(Programs, File.ReadAllText(pointer).Trim()))) File.Delete(pointer);
+                if (!Directory.Exists(Path.Combine(Programs, PointerKey(File.ReadAllText(pointer))))) File.Delete(pointer);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
     }
@@ -457,14 +620,22 @@ public static class Toolchain
 
     /// <summary>
     /// The program a script last built to, for <c>bayan run script.byn</c> to start without
-    /// compiling; <paramref name="scriptKey"/> covers the script's bytes, mode and C compiler.
+    /// compiling; <paramref name="scriptKey"/> covers the script's bytes and mode. The pointer's
+    /// second line is the C compiler's <see cref="CompilerStamp"/> when it was remembered: a compiler
+    /// found now with another stamp misses (an old pointer has none, so it misses once), and with no
+    /// compiler found the pointer is used.
     /// </summary>
     public static string? LookupScript(string scriptKey, string exeName)
     {
         var pointer = Path.Combine(Scripts, scriptKey);
         try
         {
-            var exe = File.Exists(pointer) ? Lookup(File.ReadAllText(pointer).Trim(), exeName) : null;
+            if (!File.Exists(pointer)) return null;
+            var text = File.ReadAllText(pointer);
+            var line = text.IndexOf('\n');
+            var stored = line < 0 ? "" : text[(line + 1)..].Trim();
+            if (FindCompiler() is { } compiler && CompilerStamp(compiler) is { Length: > 0 } stamp && stamp != stored) return null;
+            var exe = Lookup(PointerKey(text), exeName);
             if (exe != null) TagCacheDirectory();
             return exe;
         }
@@ -474,6 +645,9 @@ public static class Toolchain
         }
     }
 
+    /// <summary>The program key of a script pointer's text: its first line, trimmed; the second is the C compiler's stamp.</summary>
+    private static string PointerKey(string text) => (text.IndexOf('\n') is var line and >= 0 ? text[..line] : text).Trim();
+
     public static void RememberScript(string scriptKey, string programKey)
     {
         try
@@ -481,7 +655,7 @@ public static class Toolchain
             TagCacheDirectory();
             Directory.CreateDirectory(Scripts);
             var temp = Path.Combine(Scripts, scriptKey + "." + Guid.NewGuid().ToString("N") + ".tmp");
-            File.WriteAllText(temp, programKey + "\n");
+            File.WriteAllText(temp, programKey + "\n" + (FindCompiler() is { } compiler ? CompilerStamp(compiler) : "") + "\n");
             File.Move(temp, Path.Combine(Scripts, scriptKey), overwrite: true);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)

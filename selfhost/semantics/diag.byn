@@ -2,13 +2,8 @@
 //
 // The C# keeps the diagnostics in a `DiagnosticBag` (`Add`, `RemoveRepeats`) and the sink in
 // `Compilation` (`Report`, `ReportInto`); here both hang off `Ctx`. The renderer is the plain style
-// only: `Style.Plain`'s `│` bar, width 100 and no colours. The line and UTF-8 helpers are private
+// only; T19 gives it the driver's `Style` (`T26Symbols`: bar, width and the SGR prefixes of the roles). The line and UTF-8 helpers are private
 // copies of `selfhost/lexer/source.byn` and `selfhost/lexer/diagnostics.byn` (those are not `public`).
-
-const bar: string = "│"
-
-/// Prose (message, label, help) wraps at `Style.Plain`'s width.
-const wrapWidth: i64 = 100
 
 // ── Reporting ────────────────────────────────────────────────────────────────
 
@@ -107,19 +102,24 @@ struct Mark {
 ///       help: declare it with `var` if it should change
 ///          │  9 │     var total = 0;
 ///          │    │     +++
-string render(in Ctx c, for in Diag d, by bool includePath) {
+string render(in Ctx c, for in Diag d, by bool includePath, through in T26Symbols style) {
     var sb = StrBuf()
+    let accent = d.isWarning ? style.warning : style.error
+    // coverage-exempt: Q1127 `Style.Width` is 100 or a terminal width above 0 (main.byn `decideStyle`), so the 100 arm is the C# `style.Width > 0 ? style.Width : 100` default no driver style reaches
+    let wrapWidth = style.width > 0 ? style.width : 100
+    let bar = paint(in style, by: style.note, for: style.bar)
     let head = $"{severityName(d.isWarning)} {d.code}"
     var message = List<string>()
     wrap(d.message, to: ref message, by: Widths { first: wrapWidth - head.length - 2, rest: wrapWidth })
-    sb.append($"{head}: ")
+    sb.append(paint(in style, by: accent, for: head, bold: true))
+    sb.append(": ")
     appendLines(ref message, to: ref sb, by: "\n")
     sb.append("\n")
     let f = d.file
     if f < 0 { return $"{sb.finish()}" }
     if includePath {
         let position = linePosition(c.files[f].text.span, at: d.span.start)
-        sb.append($"  --> {c.files[f].displayPath}:{position.line}:{position.column}\n")
+        sb.append($"{paint(in style, by: style.note, for: "  -->")} {c.files[f].displayPath}:{position.line}:{position.column}\n")
     }
     sb.append("\n")
 
@@ -149,7 +149,7 @@ string render(in Ctx c, for in Diag d, by bool includePath) {
         let thisLine = lineSpanOf(c.files[f].text.span, at: s.line)
         if previous != s.line {
             if previous >= 0 { sb.append($"{blank}\n") }
-            sb.append($"  {lineNumber(s.line + 1, to: width)} {bar} ")
+            sb.append($"  {paint(in style, by: style.note, for: lineNumber(s.line + 1, to: width))} {bar} ")
             display(c.files[f].text.span[thisLine.start..thisLine.end], to: ref sb)
             sb.append("\n")
         }
@@ -160,22 +160,30 @@ string render(in Ctx c, for in Diag d, by bool includePath) {
         let prefix = c.files[f].text.span[thisLine.start..s.span.start]
         var carets = runeCount(c.files[f].text.span[s.span.start..underlineEnd])
         if carets < 1 { carets = 1 }
+        // coverage-exempt: Q1127 a related span (`-` mark) needs a diagnostic with `Related`, which no binder site produces (Q81)
+        let role = s.primary ? accent : style.note
+        var marks = StrBuf()
+        // coverage-exempt: Q1127 the `-` arm of a related span, as above
+        for i in 0..carets { marks.append(s.primary ? "^" : "-") }
+        let markText = $"{marks.finish()}"
         sb.append($"{blank} ")
         indent(prefix, to: ref sb)
-        for i in 0..carets { sb.append(s.primary ? "^" : "-") }
         if s.label.isEmpty {
+            sb.append(paint(in style, by: role, for: markText, bold: s.primary))
             sb.append("\n")
             continue
         }
         let room = wrapWidth - (2 + width + 3 + runeCount(prefix) + carets + 1)
         var label = List<string>()
         wrap(s.label, to: ref label, by: Widths { first: room, rest: room })
-        sb.append($" {label[0]}")
+        sb.append(paint(in style, by: role, for: $"{markText} {label[0]}", bold: s.primary))
         for i in 1..label.length {
+            // coverage-exempt: Q1127 a label wrapped past `room` columns; no binder label is that long
             sb.append($"\n{blank} ")
             indent(prefix, to: ref sb)
             for j in 0..carets + 1 { sb.append(" ") }
-            sb.append(label[i])
+            // coverage-exempt: Q1127 as above
+            sb.append(paint(in style, by: role, for: label[i], bold: s.primary))
         }
         sb.append("\n")
     }
@@ -186,7 +194,9 @@ string render(in Ctx c, for in Diag d, by bool includePath) {
     if !d.help.isEmpty {
         var help = List<string>()
         wrap(d.help, to: ref help, by: Widths { first: wrapWidth - 8, rest: wrapWidth - 8 })
-        sb.append("  help: ")
+        sb.append("  ")
+        sb.append(paint(in style, by: style.help, for: "help:", bold: true))
+        sb.append(" ")
         appendLines(ref help, to: ref sb, by: "\n        ")
         sb.append("\n")
     }
@@ -194,7 +204,7 @@ string render(in Ctx c, for in Diag d, by bool includePath) {
         var offset: i64 = 0
         for i in 0..fixLines.length {
             let line = fixLines[i]
-            sb.append($"{blank} {lineNumber(fix.firstLine + i + 1, to: width)} {bar} ")
+            sb.append($"{blank} {paint(in style, by: style.note, for: lineNumber(fix.firstLine + i + 1, to: width))} {bar} ")
             display(line.bytes, to: ref sb)
             sb.append("\n")
             let from = fix.markStart - offset > 0 ? fix.markStart - offset : 0
@@ -204,7 +214,9 @@ string render(in Ctx c, for in Diag d, by bool includePath) {
                 for j in 0..width { sb.append(" ") }
                 sb.append($" {bar} ")
                 indent(line[0..from].bytes, to: ref sb)
-                for j in 0..runeCount(line[from..to].bytes) { sb.append(fix.marker) }
+                var run = StrBuf()
+                for j in 0..runeCount(line[from..to].bytes) { run.append(fix.marker) }
+                sb.append(paint(in style, by: style.help, for: $"{run.finish()}"))
                 sb.append("\n")
             }
             offset += line.length + 1
@@ -217,6 +229,12 @@ string render(in Ctx c, for in Diag d, by bool includePath) {
 /// blank lines. Errors past `errorLimit` are skipped and counted in `omitted`; warnings never are
 /// (the C# `DiagnosticRenderer.RenderAll`).
 public string renderAll(in Ctx c, from in List<Diag> diags, by bool includePath, until i64 errorLimit, to ref i64 omitted) uses alloc {
+    let plain = T26Symbols { dot: "◆", cross: "✗", ellipsis: "…" }
+    return renderAllBy(in c, from: in diags, by: includePath, until: errorLimit, to: ref omitted, through: in plain)
+}
+
+/// `renderAll` in `style`: the C# `RenderAll(diagnostics, includePath, style, errorLimit, out omitted)`.
+public string renderAllBy(in Ctx c, from in List<Diag> diags, by bool includePath, until i64 errorLimit, to ref i64 omitted, through in T26Symbols style) uses alloc {
     omitted = 0
     let order = sortOrder(in c, from: in diags)
     var sb = StrBuf()
@@ -233,7 +251,7 @@ public string renderAll(in Ctx c, from in List<Diag> diags, by bool includePath,
         }
         if !first { sb.append("\n") }
         first = false
-        sb.append(render(in c, for: in diags[i], by: includePath))
+        sb.append(render(in c, for: in diags[i], by: includePath, through: in style))
     }
     return $"{sb.finish()}"
 }
@@ -573,4 +591,10 @@ string utf8(ReadOnlySpan<u8> bytes) {
     var sb = StrBuf()
     appendUtf8(bytes, to: ref sb)
     return $"{sb.finish()}"
+}
+
+/// `Style.Paint` / the renderer's `Paint` (DiagnosticRenderer.cs:41): `prefix` (a role's SGR) around `text`, `Palette.Bold` first when `bold`; `text` as it is without colour.
+string paint(in T26Symbols style, by string prefix, for string text, bool bold = false) uses alloc {
+    unless style.color { return $"{text}" }
+    return bold ? $"\u{1b}[1m{prefix}{text}\u{1b}[0m" : $"{prefix}{text}\u{1b}[0m"
 }

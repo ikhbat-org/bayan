@@ -1,0 +1,4 @@
+error BYN2202: expected `Millis`, found `i32`
+
+  3 │     let t: Millis = 5
+    │                     ^

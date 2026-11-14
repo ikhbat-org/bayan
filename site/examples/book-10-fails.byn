@@ -1,0 +1,22 @@
+union error ParseError {
+    notNumber
+}
+
+i64 parseAll(ReadOnlySpan<string> items, by (string -> i64 fails ParseError) read) fails ParseError {
+    var sum = 0
+    for s in items {
+        sum += try read(s)
+    }
+    return sum
+}
+
+i64 number(string s) fails ParseError => i64.tryParse(s) ?? fail ParseError.notNumber
+
+void main() {
+    let items: List<string> = ["4", "5"]
+    let total = parseAll(items.span, by: number) catch 0
+    print($"{total}")
+    let bad: List<string> = ["4", "x"]
+    let t2 = parseAll(bad.span, by: s => try number(s)) catch -1
+    print($"{t2}")
+}

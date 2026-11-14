@@ -3,14 +3,14 @@
 #   bash scripts/selfhost/preflight.sh 012 T17 chore/worker-012-t17
 # Prints `ok <check>` or `FAIL <check>: <why>` (one line per failing item) and exits 1 on any FAIL. The task line and its range
 # come from the base branch (BAYAN_BASE, else the specs.tsv row's), as land.sh's guard reads them.
-#   cites      every `path:N` / `path:N-M` on a line the branch adds to docs/bayan-handoff.md, reviews/<T>.md or the spec's plan names
+#   cites      every `path:N` / `path:N-M` on a line the branch adds to docs/bayan-questions.md, docs/bayan-progress-log.md, reviews/<T>.md or the spec's plan names
 #              an existing file and range (a bare name: any tracked file ending in it), and the backticked symbol the citation
 #              quotes in the same clause (the next one after it, else the last before it) is on those lines (a single-line cite: on it or the 2 after it)
 #   files      every file the branch changes is in the task's files list or one the guard allows; prints the addition
-#   questions  every Question number the branch adds is new to the handoff (the branch's and the base's) and inside the task's
+#   questions  every Question number the branch adds is new to docs/bayan-questions.md (the branch's and the base's) and inside the task's
 #              range (its task line, else $BAYAN_QRANGES or <main checkout>/tmp/q-ranges.tsv, written by wave-brief.py)
-#   tests      the classes declared in the task's tests/Bayan.Tests/*.cs and CInventoryTests, SelfhostDriverT8Tests,
-#              SelfhostDriverRuntimeTests pass, each running at least one test; scripts/plan-strings-check.js passes (deno)
+#   tests      the classes declared in the task's tests/Bayan.Tests/*.cs and those of test-map.tsv (the smoke set always, a row when
+#              the branch changes a file its glob matches) pass, each running at least one test; plan-strings-check passes (scripts/bayan-tool.sh)
 #   wp1        tmp/wp1/<sha>.out (wp1-test.sh) exists for the branch's HEAD, ends in `exit 0`, ran tests, and its filter names every class above
 # On a checkout of <branch> the working tree is checked (a writer before its commit), else the branch's commit in a temporary worktree.
 # Logs go to tmp/preflight/<t>/.
@@ -26,7 +26,6 @@ SHA=$(git rev-parse --verify -q "$BR^{commit}") || { echo "FAIL branch: no branc
 git rev-parse --verify -q "$BASE^{commit}" > /dev/null || { echo "FAIL branch: no base branch $BASE"; exit 1; }
 QR=${BAYAN_QRANGES:-$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/tmp/q-ranges.tsv}
 OUT=$PWD; L=$OUT/tmp/preflight/$t; rm -rf "$L"; mkdir -p "$L"
-CROSS="CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests"
 F=0; ok() { echo "ok $1"; }; fail() { echo "FAIL $1"; F=1; }
 
 if [ "$(git rev-parse --abbrev-ref HEAD)" = "$BR" ]; then WT=$OUT; else
@@ -45,7 +44,7 @@ if [[ $HL == *"files: "* ]]; then
   FL=${HL#*files: }; FL=${FL%% — covers*}; FL=${FL%% — after*}; FL=${FL%% — done when*}; FL=${FL%% — C#:*}
   FL=$(sed -E 's/\([^()]*(\([^()]*\)[^()]*)*\)//g' <<< "$FL")
 fi
-ALLOW=(docs/bayan-handoff.md "$DIR/$TASKS"); TESTF=()
+ALLOW=(docs/bayan-questions.md docs/bayan-progress-log.md "$DIR/$TASKS"); TESTF=()
 # a brace list in a name (`selfhost/semantics/{compile,types}.byn`, 012 T18) is one name per alternative
 BR_RE='^([^{]*)\{([^{}]*)\}(.*)$'
 braces() { local pre post a A; if [[ $1 =~ $BR_RE ]]; then pre=${BASH_REMATCH[1]}; post=${BASH_REMATCH[3]}
@@ -53,11 +52,11 @@ braces() { local pre post a A; if [[ $1 =~ $BR_RE ]]; then pre=${BASH_REMATCH[1]
 while IFS= read -r f; do
   [ -n "$f" ] || continue
   [[ $f =~ ^$SPEC-[a-z]+\.md$ ]] && f=$DIR/$f
-  if [[ $f == tests/* || $f == docs/* || $f == src/* || $f == work/* || $f == bootstrap/* || $f =~ ^[A-Z]+\.md$ ]]; then
+  if [[ $f == .github/* || $f == tests/* || $f == docs/* || $f == src/* || $f == work/* || $f == bootstrap/* || $f == scripts/* || $f =~ ^[A-Z]+\.md$ ]]; then
     ALLOW+=("$f"); [[ $f =~ ^tests/Bayan\.Tests/[A-Za-z0-9]+Tests\.cs$ ]] && TESTF+=("$f")
   elif [[ $f == *.byn ]]; then [[ $f == selfhost/* ]] && ALLOW+=("$f") || ALLOW+=("$BYDIR/$f")
   elif [[ $f == *.cs ]]; then ALLOW+=("tests/Bayan.Tests/$f"); TESTF+=("tests/Bayan.Tests/$f"); fi
-done < <(grep -oE '`[^`]+\.(byn|cs|md|c|h|diag|txt|stdout|stderr|exitcode|sha256)`' <<< "$FL" | tr -d '`' | while IFS= read -r x; do braces "$x"; done)
+done < <(grep -oE '`[^`]+\.(byn|cs|md|c|h|diag|txt|stdout|stderr|exitcode|sha256|sh|yml|yaml)`' <<< "$FL" | tr -d '`' | while IFS= read -r x; do braces "$x"; done)
 
 CHANGED=$( { git diff --name-only "$BASE...HEAD"; git diff --name-only; git ls-files --others --exclude-standard; } | sort -u)
 UNTRACKED=$(git ls-files --others --exclude-standard)
@@ -66,7 +65,7 @@ added() { if grep -qxF -- "$1" <<< "$UNTRACKED"; then cat "$1"; else git diff "$
 
 # cites
 { git ls-files; echo "$UNTRACKED"; } | sort -u > "$L/files.txt"
-for s in docs/bayan-handoff.md "$DIR/reviews/$T.md" "$DIR/$PLAN"; do added "$s" | sed "s|^|$s	|"; done > "$L/added.txt"
+for s in docs/bayan-questions.md docs/bayan-progress-log.md "$DIR/reviews/$T.md" "$DIR/$PLAN"; do added "$s" | sed "s|^|$s	|"; done > "$L/added.txt"
 LC_ALL=C awk -F'\t' -f /dev/stdin "$L/added.txt" > "$L/cites.txt" <<'AWK'
 function rep(c, n,  s) { s = ""; while (n-- > 0) s = s c; return s }
 function pathlike(x) { return x ~ /^Q[0-9]+$/ || x ~ /^[A-Za-z0-9_.\/-]*\.(byn|cs|c|h|md|txt|tsv|py|sh|js|json)(:[0-9]+(-[0-9]+)?)?$/ }
@@ -118,7 +117,7 @@ done < "$L/cites.txt"
 need=()
 while IFS= read -r f; do
   [ -n "$f" ] || continue
-  case "$f" in docs/bayan-handoff.md|work/todo.md|docs/specs/*/*-tasks.md|docs/specs/*/reviews/*.md) continue;; esac
+  case "$f" in docs/bayan-questions.md|docs/bayan-progress-log.md|work/todo.md|docs/specs/*/*-tasks.md|docs/specs/*/reviews/*.md) continue;; esac
   in=0; IFS=',' read -ra SH <<< "$SHARED"; for p in "${SH[@]}"; do [ "$f" = "$p" ] && in=1; done
   for p in "${ALLOW[@]}"; do [[ "$f" == $p ]] && in=1; done
   [ $in = 1 ] || need+=("$f")
@@ -129,15 +128,22 @@ else fail "files: ${#need[@]} changed outside $T's files list; append to its fil
 # questions
 RANGE=$(grep -oE 'Q[0-9]{3,4}–Q[0-9]{3,4}' <<< "$BLOCK" | head -1 | tr -d Q | sed 's/–/ /')
 [ -n "$RANGE" ] || RANGE=$(awk -F'\t' -v s="$SPEC" -v t="$T" '$1 == s && $2 == t { print $3, $4; exit }' "$QR" 2> /dev/null)
-OLDQ=$(git show "$MB:docs/bayan-handoff.md" 2> /dev/null | grep -oE '^[0-9]{3,4}\. ' | tr -d '. ')
-BASEQ=$(git show "$BASE:docs/bayan-handoff.md" 2> /dev/null | grep -oE '^[0-9]{3,4}\. ' | tr -d '. ')
-# a number the branch adds: on an added line, and more often in the handoff than at the merge base (an edited Question is not one)
-NEWQ=$(for n in $(added docs/bayan-handoff.md | grep -oE '^[0-9]{3,4}\. ' | tr -d '. ' | sort -un); do
-  [ "$(grep -cE "^$n\. " docs/bayan-handoff.md)" -gt "$(grep -cxF "$n" <<< "$OLDQ")" ] && echo "$n"; done)
+# a number is taken when it is in either questions doc: open (docs/bayan-questions.md, one `N. ` line per Question) or
+# answered (counted once per number, from its table row `| QN |` or its long-answer `N. ` line)
+QOPEN=docs/bayan-questions.md; QANS=docs/decisions/2026-11-14-004-answered-questions.md
+qopen() { grep -oE '^[0-9]{3,4}\. ' | tr -d '. ' || true; }
+qans() { grep -oE '^[0-9]{3,4}\. |^\| Q[0-9]{3,4} \|' | tr -dc '0-9\n' | sort -u || true; }
+qnums() { git show "$1:$QOPEN" 2> /dev/null | qopen; git show "$1:$QANS" 2> /dev/null | qans; }
+qcount() { { [ -f "$QOPEN" ] && qopen < "$QOPEN"; [ -f "$QANS" ] && qans < "$QANS"; true; } | grep -cxF "$1" || true; }
+OLDQ=$(qnums "$MB")
+BASEQ=$(qnums "$BASE")
+# a number the branch adds: on an added line, and more often in the questions doc than at the merge base (an edited Question is not one)
+NEWQ=$(for n in $(added docs/bayan-questions.md | grep -oE '^[0-9]{3,4}\. ' | tr -d '. ' | sort -un); do
+  [ "$(qcount "$n")" -gt "$(grep -cxF "$n" <<< "$OLDQ")" ] && echo "$n"; done)
 bad=0
 for n in $NEWQ; do
-  c=$(grep -cE "^$n\. " docs/bayan-handoff.md)
-  [ "$c" -le 1 ] || { fail "questions: Q$n is in docs/bayan-handoff.md $c times"; bad=1; }
+  c=$(qcount "$n")
+  [ "$c" -le 1 ] || { fail "questions: Q$n is in the questions docs $c times"; bad=1; }
   [ "$c" -le 1 ] || continue
   grep -qxF "$n" <<< "$BASEQ" && { fail "questions: Q$n is already on $BASE (another task took it)"; bad=1; }
   if [ -z "$RANGE" ]; then fail "questions: Q$n added, but $T has no Question range (none in its task line or $QR; wave-brief.py assigns one)"; bad=1
@@ -152,7 +158,13 @@ for f in "${TESTF[@]+"${TESTF[@]}"}"; do
   [ -n "$cs" ] || cs=$(basename "$f" .cs)
   CLASSES+=($cs)
 done
-CLASSES+=($CROSS)
+# test-map.tsv: the smoke set (glob `*`) and the classes of every row whose glob matches a changed file
+while IFS=$'\t' read -r glob cls; do
+  [[ -z $glob || $glob == '#'* ]] && continue
+  hit=0; [ "$glob" = '*' ] && hit=1
+  while [ $hit = 0 ] && IFS= read -r f; do [ -n "$f" ] && [[ $f == $glob ]] && hit=1; done <<< "$CHANGED"
+  [ $hit = 0 ] || CLASSES+=($cls)
+done < "$HERE/test-map.tsv"
 CLASSES=($(printf '%s\n' "${CLASSES[@]}" | awk '!seen[$0]++'))
 FILT=$(printf 'FullyQualifiedName~%s|' "${CLASSES[@]}"); FILT=${FILT%|}
 if ! dotnet build -v q > "$L/build.txt" 2>&1; then fail "tests: build failed — $(grep -m3 -E ' error [A-Z]+[0-9]+' "$L/build.txt" | sed 's/.*\///' | tr '\n' ' ')"
@@ -166,9 +178,8 @@ else
   if grep -qE '^ *Failed [A-Za-z0-9_.]+' "$L/test.txt" || [ $TX != 0 ]; then F=1; bad=1; [ $TX = 0 ] || echo "FAIL tests: dotnet test exited $TX (tmp/preflight/$t/test.txt)"; fi
   [ $bad = 1 ] || ok "tests ($(grep -cE '^ *Passed ' "$L/test.txt") passed: ${CLASSES[*]})"
 fi
-if ! command -v deno > /dev/null; then fail "tests: deno is not installed, so scripts/plan-strings-check.js cannot run"
-elif deno run -A scripts/plan-strings-check.js --base "$BASE" > "$L/plan-strings.txt" 2>&1; then ok "plan-strings"
-else fail "tests: scripts/plan-strings-check.js --base $BASE failed — $(tail -1 "$L/plan-strings.txt")"; fi
+if bash "$HERE/../bayan-tool.sh" plan-strings-check --base "$BASE" > "$L/plan-strings.txt" 2>&1; then ok "plan-strings"
+else fail "tests: plan-strings-check --base $BASE failed — $(tail -1 "$L/plan-strings.txt")"; fi
 
 # wp1
 W=$OUT/tmp/wp1/$SHA.out; RUN="bash scripts/selfhost/wp1-test.sh $BR '$FILT'"

@@ -122,9 +122,9 @@ BStmt bindForBody(ref Binder b, through ref Ctx c, for in parser.ForStmt f, by L
                 let name = f.names[i]
                 let element = declareLocal(ref b, through: ref c, at: name, as: c.tupleTypes[typeIndex(vt)][i].type, for: .forVariable)
                 c.locals[element].borrowsSubject = true
-                let receiver = addLocal(ref c, from: BLocal { span: name, local: variable, type: c.locals[variable].type })
-                let value = addTupleElement(ref c, from: BTupleElement { span: name, receiver: receiver, index: i, type: c.locals[element].type })
-                prelude.append(addLocalDecl(ref c, from: BLocalDecl { span: name, local: element, initializer: value }))
+                let receiver = recordNodeSyntax(ref c, for: addLocal(ref c, from: BLocal { span: name, local: variable, type: c.locals[variable].type }), as: .name, at: name)
+                let value = recordNodeSyntax(ref c, for: addTupleElement(ref c, from: BTupleElement { span: name, receiver: receiver, index: i, type: c.locals[element].type }), as: .name, at: name)
+                prelude.append(recordNodeSyntax(ref c, for: addLocalDecl(ref c, from: BLocalDecl { span: name, local: element, initializer: value }), as: .name, at: name))
             }
         } else {
             if !isError(vt) {
@@ -139,7 +139,7 @@ BStmt bindForBody(ref Binder b, through ref Ctx c, for in parser.ForStmt f, by L
     b.targets.remove(at: b.targets.length - 1)
     if prelude.length == 0 { return body }
     prelude.append(body)
-    return addBlock(ref c, from: BBlock { span: parser.stmtSpan(in f.body), statements: move prelude })
+    return recordStmtSyntax(ref c, for: addBlock(ref c, from: BBlock { span: parser.stmtSpan(in f.body), statements: move prelude }), from: in f.body)
 }
 
 // ── Binder.cs:1078 BindForTry ───────────────────────────────────────────────────
@@ -160,7 +160,7 @@ BStmt bindForTry(ref Binder b, through ref Ctx c, for in parser.ForStmt f, by BE
         }
         let _ = bindBody(ref b, through: ref c, for: in f.body)
         popScope(ref b)
-        return addErrorStmt(ref c, from: BErrorStmt { span: f.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: f.span }), as: .forStmt, at: f.span)
     }
     let span = parser.exprSpan(in f.iterable)
     // A `var` (or `ref` parameter) is stepped in place, so its state advances; any other value is stepped in a hidden copy.
@@ -192,17 +192,17 @@ BStmt bindForTry(ref Binder b, through ref Ctx c, for in parser.ForStmt f, by BE
     let pattern = bindPresent(ref b, through: ref c, at: f.variable, as: stepType, discard: f.names.length > 0)
     let body = bindForBody(ref b, through: ref c, for: in f, by: c.bPropertyPatterns[boundIndex(pattern)].designation, to: target)
     popScope(ref b)
-    let loop = addWhile(ref c, from: BWhile {
+    let loop = recordNodeSyntax(ref c, for: addWhile(ref c, from: BWhile {
         span: f.span,
-        condition: addIs(ref c, from: BIs { span: f.span, value: step, pattern: pattern }),
+        condition: recordNodeSyntax(ref c, for: addIs(ref c, from: BIs { span: f.span, value: step, pattern: pattern }), as: .forStmt, at: f.span),
         body: body,
         target: target.id,
-    })
+    }), as: .forStmt, at: f.span)
     if sequence == -1 { return loop }
     var statements = List<BStmt>()
-    statements.append(addLocalDecl(ref c, from: BLocalDecl { span: f.span, local: sequence, initializer: iterable }))
+    statements.append(recordNodeSyntax(ref c, for: addLocalDecl(ref c, from: BLocalDecl { span: f.span, local: sequence, initializer: iterable }), as: .forStmt, at: f.span))
     statements.append(loop)
-    return addBlock(ref c, from: BBlock { span: f.span, statements: move statements })
+    return recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: f.span, statements: move statements }), as: .forStmt, at: f.span)
 }
 
 /// A name the C# synthesizes for `for try` (`<sequence N>`, `next`): its text is not in the source, so it gets its own
@@ -253,19 +253,19 @@ Type notIterable(ref Binder b, through ref Ctx c, for in parser.ForStmt f, as Ty
 // ── Binder.cs:1123 BindReturn ───────────────────────────────────────────────────
 
 BStmt bindReturn(ref Binder b, through ref Ctx c, for in parser.ReturnStmt r) {
-    if inPanicHandler(ref b, through: ref c, at: r.span, for: "return") { return addErrorStmt(ref c, from: BErrorStmt { span: r.span }) }
+    if inPanicHandler(ref b, through: ref c, at: r.span, for: "return") { return recordReturnSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: r.span }), from: in r) }
     if b.deferDepth > 0 {
         report(ref b, through: ref c, for: .jumpOutOfDefer, at: r.span, by: ("return", "", "", "", ""))
-        return addErrorStmt(ref c, from: BErrorStmt { span: r.span })
+        return recordReturnSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: r.span }), from: in r)
     }
     let fn = b.fn
-    if fn == -1 { return addErrorStmt(ref c, from: BErrorStmt { span: r.span }) }
+    if fn == -1 { return recordReturnSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: r.span }), from: in r) }
     let returnType = c.functions[fn].returnType
     if r.value is .none {
         if !isVoid(returnType) && !isError(returnType) {
             report(ref b, through: ref c, for: .missingReturnValue, at: r.span, by: (typeDisplay(ref c, by: returnType), "", "", "", ""))
         }
-        return addReturn(ref c, from: BReturn { span: r.span })
+        return recordReturnSyntax(ref c, for: addReturn(ref c, from: BReturn { span: r.span }), from: in r)
     }
     if c.functions[fn].hasFails {
         let failure = tryBindFailure(ref b, through: ref c, for: in r.value)
@@ -277,20 +277,20 @@ BStmt bindReturn(ref Binder b, through ref Ctx c, for in parser.ReturnStmt r) {
                 report(ref b, through: ref c, for: .returnErrorInput, at: keyword, by: (name, "", "", "", ""), label: "this leaves with an error",
                     help: $"leave with the error: `fail .{name}`", hasFix: true, fixSpan: keyword, fixReplacement: "fail")
             }
-            return addFail(ref c, from: BFail { span: r.span, error: failure })
+            return recordReturnSyntax(ref c, for: addFail(ref c, from: BFail { span: r.span, error: failure }), from: in r)
         }
     }
     if isVoid(returnType) {
         let v = bindExpr(ref b, through: ref c, for: in r.value)
-        if isNever(exprType(in c, for: v)) { return addExprStmt(ref c, from: BExprStmt { span: r.span, expr: v }) }
+        if isNever(exprType(in c, for: v)) { return recordReturnSyntax(ref c, for: addExprStmt(ref c, from: BExprStmt { span: r.span, expr: v }), from: in r) }
         if !isError(exprType(in c, for: v)) {
             let isMain = c.functions[fn].kind == .main
             report(ref b, through: ref c, for: .returnValueInVoid, at: parser.exprSpan(in r.value), by: (isMain ? "main" : c.functions[fn].name, "", "", "", ""),
                 help: isMain ? "" : "declare a return type instead of `void`, or remove the value")
         }
-        return addReturn(ref c, from: BReturn { span: r.span })
+        return recordReturnSyntax(ref c, for: addReturn(ref c, from: BReturn { span: r.span }), from: in r)
     }
-    return addReturn(ref c, from: BReturn { span: r.span, value: bindConverted(ref b, through: ref c, for: in r.value, to: returnType) })
+    return recordReturnSyntax(ref c, for: addReturn(ref c, from: BReturn { span: r.span, value: bindConverted(ref b, through: ref c, for: in r.value, to: returnType) }), from: in r)
 }
 
 // ── Binder.cs:1164 TryBindFailure ───────────────────────────────────────────────
@@ -366,13 +366,13 @@ string matchedSets(ref Ctx c, for in List<VariantId> matches) {
 
 /// `fail .x`, `fail Set.x` or `fail e`: leaves the function with the error.
 BStmt bindFail(ref Binder b, through ref Ctx c, for in parser.FailStmt f) {
-    if inPanicHandler(ref b, through: ref c, at: f.span, for: "fail") { return addErrorStmt(ref c, from: BErrorStmt { span: f.span }) }
+    if inPanicHandler(ref b, through: ref c, at: f.span, for: "fail") { return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: f.span }), as: .failStmt, at: f.span) }
     if b.deferDepth > 0 {
         report(ref b, through: ref c, for: .jumpOutOfDefer, at: f.span, by: ("fail", "", "", "", ""))
-        return addErrorStmt(ref c, from: BErrorStmt { span: f.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: f.span }), as: .failStmt, at: f.span)
     }
     let fn = b.fn
-    if fn == -1 { return addErrorStmt(ref c, from: BErrorStmt { span: f.span }) }
+    if fn == -1 { return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: f.span }), as: .failStmt, at: f.span) }
     let entry = c.functions[fn].kind == .main || c.functions[fn].kind == .testKeyword
     // `(call?.Callee ?? f.Error) is TargetMemberExpr t`: its span and member, or null.
     var isCall = false
@@ -398,7 +398,7 @@ BStmt bindFail(ref Binder b, through ref Ctx c, for in parser.FailStmt f) {
             : typeDisplay(ref c, by: exprType(in c, for: bindExprOrType(ref b, through: ref c, for: in f.error)))
         report(ref b, through: ref c, for: .propagateFromInfallible, at: errorSpan, by: (c.functions[fn].name, named, "", "", ""),
             help: "declare the error in a `fails` clause, or handle it here")
-        return addErrorStmt(ref c, from: BErrorStmt { span: f.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: f.span }), as: .failStmt, at: f.span)
     }
     if (targetSpan is { } tSpan) {
         let name = t15Text(in c, from: b.file, at: member)
@@ -410,12 +410,12 @@ BStmt bindFail(ref Binder b, through ref Ctx c, for in parser.FailStmt f) {
             switch f.error {
                 case .callExpr(let call):
                     let built = bindPayload(ref b, through: ref c, for: in call.value, by: variant)
-                    if boundKind(built) == .errorVariant { return addFail(ref c, from: BFail { span: f.span, error: built }) }
-                    return addErrorStmt(ref c, from: BErrorStmt { span: f.span })
+                    if boundKind(built) == .errorVariant { return recordNodeSyntax(ref c, for: addFail(ref c, from: BFail { span: f.span, error: built }), as: .failStmt, at: f.span) }
+                    return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: f.span }), as: .failStmt, at: f.span)
                 default:
             }
-            if checkPayloadGiven(ref b, through: ref c, for: variant, from: in f.error) { return addFail(ref c, from: BFail { span: f.span, error: variant }) }
-            return addErrorStmt(ref c, from: BErrorStmt { span: f.span })
+            if checkPayloadGiven(ref b, through: ref c, for: variant, from: in f.error) { return recordNodeSyntax(ref c, for: addFail(ref c, from: BFail { span: f.span, error: variant }), as: .failStmt, at: f.span) }
+            return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: f.span }), as: .failStmt, at: f.span)
         }
         switch f.error {
             case .callExpr(let call): bindArgumentsForRecovery(ref b, through: ref c, for: in call.value)
@@ -431,7 +431,7 @@ BStmt bindFail(ref Binder b, through ref Ctx c, for in parser.FailStmt f) {
             report(ref b, through: ref c, for: .undeclaredError, at: tSpan, by: ($".{name}", c.functions[fn].name, "", "", ""),
                 help: $"name a case of `{typeDisplay(ref c, by: declared)}`")
         }
-        return addErrorStmt(ref c, from: BErrorStmt { span: f.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: f.span }), as: .failStmt, at: f.span)
     }
     let error = bindExprOrType(ref b, through: ref c, for: in f.error)
     let errorType = exprType(in c, for: error)
@@ -444,14 +444,14 @@ BStmt bindFail(ref Binder b, through ref Ctx c, for in parser.FailStmt f) {
         if !isError(errorType) {
             report(ref b, through: ref c, for: .typeMismatch, at: errorSpan, by: (typeDisplay(ref c, by: errorType), "an error", "", "", ""))
         }
-        return addErrorStmt(ref c, from: BErrorStmt { span: f.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: f.span }), as: .failStmt, at: f.span)
     }
     if !entry {
         for set in sets { checkCanFailWith(ref b, through: ref c, for: set, at: errorSpan) }
     }
     if !entry && boundKind(error) == .errorVariant { checkNotExcluded(ref b, through: ref c, for: c.bErrorVariants[boundIndex(error)].variant, at: errorSpan) }
-    if !isCall && !checkPayloadGiven(ref b, through: ref c, for: error, from: in f.error) { return addErrorStmt(ref c, from: BErrorStmt { span: f.span }) }
-    return addFail(ref c, from: BFail { span: f.span, error: error })
+    if !isCall && !checkPayloadGiven(ref b, through: ref c, for: error, from: in f.error) { return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: f.span }), as: .failStmt, at: f.span) }
+    return recordNodeSyntax(ref c, for: addFail(ref c, from: BFail { span: f.span, error: error }), as: .failStmt, at: f.span)
 }
 
 /// Binder.cs:1274 CheckCanFailWith: BYN2603 for a set the `fails` clause does not name (unless it is inferred).
@@ -518,16 +518,16 @@ JumpTarget? findTarget(ref Binder b, through ref Ctx c, for TextSpan? label, boo
 
 BStmt bindBreak(ref Binder b, through ref Ctx c, for in parser.BreakStmt s) {
     if (findTarget(ref b, through: ref c, for: s.label, loopOnly: false, at: s.span, by: "break") is { } t) {
-        return addBreak(ref c, from: BBreak { span: s.span, target: t.id })
+        return recordNodeSyntax(ref c, for: addBreak(ref c, from: BBreak { span: s.span, target: t.id }), as: .breakStmt, at: s.span)
     }
-    return addErrorStmt(ref c, from: BErrorStmt { span: s.span })
+    return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: s.span }), as: .breakStmt, at: s.span)
 }
 
 BStmt bindContinue(ref Binder b, through ref Ctx c, for in parser.ContinueStmt s) {
     if (findTarget(ref b, through: ref c, for: s.label, loopOnly: true, at: s.span, by: "continue") is { } t) {
-        return addContinue(ref c, from: BContinue { span: s.span, target: t.id })
+        return recordNodeSyntax(ref c, for: addContinue(ref c, from: BContinue { span: s.span, target: t.id }), as: .continueStmt, at: s.span)
     }
-    return addErrorStmt(ref c, from: BErrorStmt { span: s.span })
+    return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: s.span }), as: .continueStmt, at: s.span)
 }
 
 // ── Binder.cs:1328 BindErrdefer ─────────────────────────────────────────────────
@@ -551,7 +551,7 @@ BStmt bindErrdefer(ref Binder b, through ref Ctx c, for in parser.DeferStmt d) {
     let body = bindBody(ref b, through: ref c, for: in d.body)
     b.deferDepth -= 1
     popScope(ref b)
-    return addErrdefer(ref c, from: BErrdefer { span: d.span, error: err, body: body })
+    return recordNodeSyntax(ref c, for: addErrdefer(ref c, from: BErrdefer { span: d.span, error: err, body: body }), as: .deferStmt, at: d.span)
 }
 
 // ── Binder.cs:1348 BindPanicDefer ───────────────────────────────────────────────
@@ -569,7 +569,7 @@ BStmt bindPanicDefer(ref Binder b, through ref Ctx c, for in parser.DeferStmt d)
     b.deferDepth = deferDepth
     b.inPanicHandler = inHandler
     popScope(ref b)
-    return addPanicDefer(ref c, from: BPanicDefer { span: d.span, panic: panic, body: body })
+    return recordNodeSyntax(ref c, for: addPanicDefer(ref c, from: BPanicDefer { span: d.span, panic: panic, body: body }), as: .deferStmt, at: d.span)
 }
 
 // ── Binder.cs:1364 BindOnPanic ──────────────────────────────────────────────────
@@ -624,12 +624,12 @@ BStmt bindOnPanic(ref Binder b, through ref Ctx c, for in parser.AssignStmt a) {
     if misplaced != "" {
         report(ref b, through: ref c, for: .onPanicPlacement, at: a.span, by: ("", "", "", "", ""), label: misplaced,
             help: c.library ? "set `Panic.handler` in the program that uses this library" : "set it once, as the first statement of `main`")
-        return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+        return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
     }
     b.onPanicSet = true
-    if handler == -1 { return addErrorStmt(ref c, from: BErrorStmt { span: a.span }) }
+    if handler == -1 { return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a) }
     c.onPanic = handler
-    return addSetOnPanic(ref c, from: BSetOnPanic { span: a.span, handler: handler })
+    return recordAssignSyntax(ref c, for: addSetOnPanic(ref c, from: BSetOnPanic { span: a.span, handler: handler }), from: in a)
 }
 
 // ── Binder.cs:1398 InPanicHandler ───────────────────────────────────────────────
@@ -666,7 +666,7 @@ BStmt bindContext(ref Binder b, through ref Ctx c, for in parser.ContextStmt s) 
         allocator = addErrorExpr(ref c, from: BErrorExpr { span: s.span })
     }
     let body = contextBody(ref b, through: ref c, for: in s)
-    return addContext(ref c, from: BContext { span: s.span, allocator: allocator, body: body })
+    return recordNodeSyntax(ref c, for: addContext(ref c, from: BContext { span: s.span, allocator: allocator, body: body }), as: .contextStmt, at: s.span)
 }
 
 /// The C# `BindBlock(c.Body)`: the parser always gives `context` a block body (C# `BlockStmt Body`), so the default is unreachable.
@@ -722,5 +722,5 @@ BStmt bindSwitchStatement(ref Binder b, through ref Ctx c, for in parser.SwitchS
             exhaustive = checkExhaustive(ref b, through: ref c, at: parser.exprSpan(in s.value), as: valueType, by: in arms, statement: true)
         }
     }
-    return addSwitch(ref c, from: BSwitch { span: s.span, value: value, sections: move sections, target: target.id, exhaustive: exhaustive })
+    return recordNodeSyntax(ref c, for: addSwitch(ref c, from: BSwitch { span: s.span, value: value, sections: move sections, target: target.id, exhaustive: exhaustive }), as: .switchStmt, at: s.span)
 }

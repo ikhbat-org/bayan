@@ -1,0 +1,14 @@
+union Shape {
+    circle(f64 radius)
+    rect(f64 w, f64 h)
+}
+
+f64 area(Shape s) => s switch {
+    .circle(let r) => 3.0 * r * r,
+    .rect(let w, let h) => w * h,
+}
+
+void main() {
+    print($"{area(Shape.rect(2.0, 4.0))}")
+    print($"{area(Shape.circle(1.0))}")
+}

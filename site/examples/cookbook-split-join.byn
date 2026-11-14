@@ -1,0 +1,11 @@
+void main() {
+    let line = "ada,grace,,linus"
+    for part in line.parts(by: ",") {
+        print($"[{part}]")
+    }
+    for part in "k=v=w".parts(by: "=", limit: 2) {
+        print($"[{part}]")
+    }
+    let names: string[3] = ["ada", "grace", "linus"]
+    print(names.span.joined(by: " / "))
+}

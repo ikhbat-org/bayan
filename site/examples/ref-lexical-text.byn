@@ -1,0 +1,12 @@
+let letter = 'a'
+let newline = '\n'
+let smile = '\u{1F600}'
+let tab = "a\tb"
+let quoted = "say \"hi\""
+let poem = """first line
+  second line"""
+print($"{letter}{smile}")
+print(tab)
+print(quoted)
+print(poem)
+print($"a{newline}b")

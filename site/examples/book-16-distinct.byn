@@ -1,0 +1,23 @@
+type distinct UserId = i64
+type distinct OrderId = i64
+type distinct Grams = i64 requires it > 0
+
+string describe(UserId u) => $"user {u.value}"
+
+Grams parse(i64 raw) fails ValidationError<Grams> {
+    return try Grams(raw)
+}
+
+void main() uses console {
+    let u = UserId(7)
+    let o = OrderId(7)
+    print(describe(u))
+    print($"same number: {u.value == o.value}")
+    let light = Grams(250)
+    print($"light is {light.value} g")
+    let ok = parse(40) catch Grams(1)
+    let bad = parse(0) catch switch {
+        .invalid e => Grams(2),
+    }
+    print($"ok {ok.value}, bad {bad.value}")
+}

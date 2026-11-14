@@ -2,11 +2,39 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-14
+
+The released `bayan` is now the self-hosted compiler: stage 2, built from `selfhost/` by the C# compiler's stage 1.
+`import std.json` is the first module of the std library shipped inside the binary.
+
+### Known limits
+- Windows: no test is expected to fail; `tests/windows-known-failures.txt` lists none.
+- Release archives do not include `bayan-lsp`.
+
 ### Added
+- License: ISL-P 1.2 with the ISL-OE 1.2 output exception (`LICENSE.md`, `NOTICE.md`); release archives ship both.
+- `Io.randomU64()` (`uses random`): 64 bits from the operating system's random source, the same one the map hash seed uses.
+- Spec 016: `import std.<name>` loads a std module shipped inside the `bayan` binary (`lib/std/`), from a script, a file or a project, in the C# and the self-hosted compiler alike; a package's own `std/` cannot shadow it, an unknown module lists the ones that exist (BYN2032), a std module that imports a package module is BYN2033, and diagnostics inside std source point at `<std>/…` paths.
+- `import std.json`, the first std module: a pull reader (`JsonReader.over`, `next`, `JsonToken`), the tree `JsonValue` from `Json.parse` (`Untrusted`, fails `JsonError` with offset, line and column; nesting past 128 is `tooDeep`) and `Json.encode(v, indent:)` in the layout of Python's `json.dumps`, which fails `JsonError` on an infinite or NaN number (`nonFinite`) and on a tree nested past 128 levels (`nestedTooDeep`).
 - Lint BYN5103: a line starting with a joining token (`.`, `?.`, `??`, `&&`, `||`, `and`, `or`, `catch`, `fails`, …) must be indented deeper than its statement's first line; `bayan format` applies the fix.
+- Versioned docs (`docs/RELEASING.md`). `VERSION` holds the version and `scripts/release/set-version.sh` sets its mirrors and the `Version:` header of SPEC, GRAMMAR, STYLE, DIAGNOSTICS and STATUS. The generated `docs/DIAGNOSTICS.md` (every code: live, plan, reserved, retired) and `docs/STATUS.md` (hand-kept feature rows, generated keyword and stdlib rows) come from `scripts/docs/gen-diagnostics.sh` and `gen-status.sh`. `scripts/docs/check.sh` (in CI) fails on a stale header, revision range, generated doc or mirror. `cut.sh` and `next-dev.sh` prepare a release and the next `-dev`. Every release archive carries the six docs under `share/doc/bayan/`, and the release adds `bayan-X.Y.Z-docs.tar.gz`.
+- Docs reorganized: `docs/bayan-handoff.md` is split into `docs/bayan-milestones.md`, `docs/bayan-questions.md` (open questions), `docs/bayan-progress-log.md`, `docs/bayan-contributing.md` and dated answered-question decisions under `docs/decisions/`. New: `docs/bayan-roadmap.md` (what comes next, pending specs and when), `docs/bayan-not-planned.md` (rejected items and why) and `docs/bayan-nice-to-have.md`. 0.x GitHub releases are marked prereleases.
 
 ### Changed
+- Builds compile the runtime once per toolchain and flag set and link it; the program cache key now includes the C compiler's identity (its version output and its path and last write time), so the first build after upgrading or touching the C compiler is cold. A remembered script compiles again once after the C compiler changes.
+- `Io.run(…, timeout:)` keeps each stream's first and last 64 KiB around one `… N bytes omitted …` line, as the C# test runner does; a test that prints until it is killed peaks at 39 MB through the self-hosted driver (was 4.6 GB). `IoError.timeout` and `IoError.signaled` carry the output captured before the kill, and `bayan test` prints it after `timed out after N s`.
+- `bayan-lsp` stops descending past a fixed nesting depth and reports one diagnostic there instead of overflowing the stack.
+- Releases: the release workflow takes a `dry_run` input and refuses to publish an `-rc` tag or a dispatch; the full test tier and an editor memory gate (`bayan-lsp` tests, `vsce package` size bound) are required jobs; every workflow installs zig 0.17.0 through `scripts/ci/install-zig.sh`; `cut.sh` refuses, before changing anything, while a tracked file still holds the previous `-dev` version.
+- Releases now ship the self-hosted compiler (stage 2, built by the C# compiler's stage 1) as `bayan`; `bayan version` prints `bayan X.Y.Z (selfhost)`. Release archives do not include `bayan-lsp`, which is unchanged.
+- Signature clause order is now `where`, `expects`, `uses`, `becomes`, `fails` (round 4 §1), for function types too (`() -> T uses alloc fails DbError`); the old order is BYN1065, and `bayan format` reorders it.
+- `scripts/selfhost/shard-test.sh` takes `--host NAME=SPEED[:SLICES[:THREADS]]` for vm, wp1, wlt1 and mb1 (default still vm and wp1, now at the measured speeds 0.91 and 0.52): it packs by serial seconds plus parallel seconds over threads, with the serial classes read from the `DisableParallelization` collections in `tests/Bayan.Tests`; it runs two slices as two systemd units on one VM start; and it passes `-- xUnit.MaxParallelThreads=N` to every test process. `times` merges several trx files. `wp1-test.sh` takes `WIN_HOST` (wlt1, with zig on PATH, writing to its own `tmp/<host>/`), `WIN_THREADS` and `WIN_TRX`.
 - `ensures` is no longer reserved and can be used as an identifier (revision 0019, round-4 batch 1); BYN0012 no longer fires on it.
+
+### Fixed
+- An empty write to stdout no longer passes a null pointer to `memcpy` (debug builds on Linux aborted with exit 134).
+- `bayan audit` (which of a file and its links it lists) and `dist/latest/` (which of two equal-precedence versions such as `1.0.0-rc.2` and `1.0.0-rc.2+meta` it picks) take the first name in ordinal order instead of following the file system's directory order, so Linux (ext4) gives the same answer as macOS.
+- `bayan test --coverage` no longer counts the lines of an imported std module (`<std>/...`) in the summary, `bayan-quality.json` or the `test: Tests { lines: N }` gate.
+- `bayan test --mutate` recreates its work directory when something removes it mid-run, and reads a reach file that was removed as "no sites" instead of failing the run.
 
 ### Security
 
@@ -17,7 +45,17 @@
 - Slice bounds `^n` and inclusive ends reject out-of-range values before computing, with no signed overflow; `replaced`,
   `joined` and list growth check their size arithmetic and panic "too long".
 - `Io.stdin.readAll()` rejects input that is not UTF-8 (`invalidUtf8`), as `Io.readText` does; the new
-  `Io.stdin.readAllBytes()` returns the rest of stdin as `List<u8>`, unvalidated.
+  `Io.stdin.readAllBytes()` returns the rest of stdin as `List<u8>`, unvalidated, and fails with `IoError` like
+  `Io.readFile`.
+
+### Revisions
+- 0020 — Versioned spec, 2026-11-04 style standard, AUDIT fixes (`docs/revisions/0020-versioned-spec-and-audit-fixes.md`)
+- 0021 — Agreement, word classes and doer nouns (`docs/revisions/0021-agreement-word-classes-doer-nouns.md`)
+- 0022 — Contract hardening and documentation consistency (`docs/revisions/0022-contract-hardening-doc-consistency.md`)
+- 0023 — Syntax freeze to 0.3.0, provisional sections, §13 placeholder (`docs/revisions/0023-syntax-freeze-provisional-sections.md`)
+
+### Status changes
+- docs/STATUS.md is new since v0.2.0; every row is new
 
 ## [0.2.0] - 2026-11-06
 

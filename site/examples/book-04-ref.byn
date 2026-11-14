@@ -1,0 +1,19 @@
+void bump(ref i64 counter) {
+    counter += 1
+}
+
+void addTwice(ref List<i64> xs, i64 value = 0) {
+    xs.append(value)
+    xs.append(value)
+}
+
+void main() {
+    var hits: i64 = 0
+    bump(ref hits)
+    bump(ref hits)
+    print($"hits {hits}")
+
+    var xs = List<i64>()
+    addTwice(ref xs, value: 9)
+    print($"{xs.length} items, first {xs[0]}")
+}

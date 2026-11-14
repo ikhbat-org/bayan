@@ -125,6 +125,11 @@ BExpr bindConstruction(ref Binder b, through ref Ctx c, for in parser.CallExpr c
                 let args = bindArguments(ref b, through: ref c, for: in call, by: in ps, as: fn, enforceNames: false, displayName: "StrBuf")
                 return recordSyntaxNode(ref c, for: addCall(ref c, from: BCall { span: call.span, function: fn, receiver: -1, arguments: move args, type: type }), at: syntaxOfCall(ref c, from: in call))
             }
+            // `Millis(n)`: an `i64` as a duration; `i64(t)` reads it back (`explicit`).
+            if type == builtinType(.millis) && call.args.length == 1 && call.args[0].name is null {
+                let operand = bindConverted(ref b, through: ref c, for: in call.args[0].value, to: prim(.i64))
+                return recordSyntaxNode(ref c, for: addConversion(ref c, from: BConversion { span: call.span, operand: operand, type: type, kind: .widen }), at: syntaxOfCall(ref c, from: in call))
+            }
         case .error:
             bindArgumentsForRecovery(ref b, through: ref c, for: in call)
             return recordSyntaxNode(ref c, for: addErrorExpr(ref c, from: BErrorExpr { span: call.span }), at: syntaxOfCall(ref c, from: in call))
@@ -361,7 +366,7 @@ BExpr bindBuiltinMethodCall(ref Binder b, through ref Ctx c, for in parser.CallE
     var returns = m.returns
     if kindOf(m.returns) == .span && boundKind(target) == .staticArray {
         returns = internSpan(ref c, by: c.spanTypes[typeIndex(m.returns)].element, readOnly: true)
-    } else if m.member == .ioReadAll || m.member == .ioReadAllBytes {
+    } else if m.member == .ioReadAll {
         returns = internResult(ref c, by: m.returns, to: t9Type(ref c, for: "IoError"))
     }
     let n = recordSyntaxNode(ref c, for: addBuiltinCall(ref c, from: BBuiltinCall { span: call.span, member: m.member, receiver: target, arguments: move args, type: returns }), at: syntaxOfCall(ref c, from: in call))
@@ -383,6 +388,13 @@ bool isDefaultable(ref Ctx c, for Type t) {
 /// BinderCalls.cs:869 BindMove: `move x` (or a `move` argument): only a local or a `move` parameter can be moved (spec §9.3).
 BExpr bindMove(ref Binder b, through ref Ctx c, at TextSpan span, for BExpr operand) => t21BindMove(ref b, through: ref c, at: span, for: operand, from: -1)
 
+/// A `BMove` built at `span` with `Syntax` the `Expr` node `syntax`, or the `move` `Argument` when `syntax` is -1
+/// (BinderCalls.cs:540 passes `arg`).
+BExpr recordMoveSyntax(ref Ctx c, for BExpr n, at i64 syntax, by TextSpan span) uses alloc {
+    if syntax == -1 { return recordNodeSyntax(ref c, for: n, as: .argument, at: span) }
+    return recordSyntaxNode(ref c, for: n, at: syntax)
+}
+
 /// `bindMove` that records `syntax` as the C# `Syntax` of the nodes it builds (Q849).
 BExpr t21BindMove(ref Binder b, through ref Ctx c, at TextSpan span, for BExpr operand, from i64 syntax) {
     if isError(exprType(in c, for: operand)) { return operand }
@@ -394,7 +406,7 @@ BExpr t21BindMove(ref Binder b, through ref Ctx c, at TextSpan span, for BExpr o
             return shareSyntax(ref c, for: addConversion(ref c, from: BConversion { span: n.span, operand: inner, type: n.type, kind: .narrow }), from: operand)
         }
     }
-    if checkGuardWrite(ref b, through: ref c, for: operand, at: span, by: "it is moved") { return recordSyntaxNode(ref c, for: addMove(ref c, from: BMove { span: span, operand: operand }), at: syntax) }
+    if checkGuardWrite(ref b, through: ref c, for: operand, at: span, by: "it is moved") { return recordMoveSyntax(ref c, for: addMove(ref c, from: BMove { span: span, operand: operand }), at: syntax, by: span) }
     let k = boundKind(operand)
     let i = boundIndex(operand)
     let at = nodeSpan(in c, for: operand)
@@ -403,11 +415,11 @@ BExpr t21BindMove(ref Binder b, through ref Ctx c, at TextSpan span, for BExpr o
         if c.locals[l].borrowsSubject && isUnique(ref c, for: c.locals[l].type) {
             report(ref b, through: ref c, for: .mutateBorrow, at: at, by: (c.locals[l].name, "", "", "", ""), label: "moving it would take the value out of what it borrows from",
                 help: "move or copy the value it was bound to instead")
-            return recordSyntaxNode(ref c, for: addMove(ref c, from: BMove { span: span, operand: operand }), at: syntax)
+            return recordMoveSyntax(ref c, for: addMove(ref c, from: BMove { span: span, operand: operand }), at: syntax, by: span)
         }
         let lk = c.locals[l].kind
         if lk == .letKeyword || lk == .varKeyword || lk == .patternVariable || (c.locals[l].isParameter && c.locals[l].modifier == .moveKeyword) || c.locals[l].borrowsSubject {
-            return recordSyntaxNode(ref c, for: addMove(ref c, from: BMove { span: span, operand: operand }), at: syntax)
+            return recordMoveSyntax(ref c, for: addMove(ref c, from: BMove { span: span, operand: operand }), at: syntax, by: span)
         }
     }
     var what = "this expression"
@@ -441,7 +453,7 @@ BExpr t21BindMove(ref Binder b, through ref Ctx c, at TextSpan span, for BExpr o
         help = "remove the `move`; a fresh value needs none"
     }
     report(ref b, through: ref c, for: .cannotMove, at: at, by: (what, "", "", "", ""), help: help)
-    return recordSyntaxNode(ref c, for: addMove(ref c, from: BMove { span: span, operand: operand }), at: syntax)
+    return recordMoveSyntax(ref c, for: addMove(ref c, from: BMove { span: span, operand: operand }), at: syntax, by: span)
 }
 
 /// BinderCalls.cs:912 BindSwitchSubject: `move x` moves a local or `move` parameter into the switch, and `owns` says

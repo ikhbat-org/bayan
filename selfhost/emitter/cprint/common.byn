@@ -41,6 +41,8 @@ public string cType(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
                 case .panic: return "byn_panic_info"
                 case .formatSpec: return "byn_format_spec"
                 case .symbol: return "byn_sym"
+                case .time: return "byn_time"
+                case .millis: return "int64_t"
                 default: return named(ref cc, from: ref c, for: t, as: null)
             }
         case .textView: return "byn_text_view"
@@ -81,6 +83,8 @@ public string key(ref Ctx c, for Type t) uses alloc {
                 case .panic: return "panic"
                 case .formatSpec: return "formatspec"
                 case .symbol: return "sym"
+                case .time: return "time"
+                case .millis: return "millis"
                 default: return "iostream"
             }
         case .structType:

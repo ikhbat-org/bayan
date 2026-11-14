@@ -21,8 +21,6 @@ public sealed class SelfhostEmitterT4Tests
         import semantics
         import emitter.ltree
 
-        type BNode = semantics.BNode
-
         i32 main(ReadOnlySpan<string> args) {
             var rest = List<string>()
             for i in 3..args.length { rest.append(args[i]) }

@@ -364,6 +364,97 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
         Assert.Equal(string.Join("", expected.Select(l => l + "\n")), stdout);
     }
 
+    /// <summary>The parser's files with a <c>main</c> that prints <c>typeNames</c> and <c>calleeAndReceiverNames</c> of the file as
+    /// <c>type start length</c> and <c>callee start length</c>.</summary>
+    private const string CollectorsProgram = """
+        import lexer
+
+        i32 main(ReadOnlySpan<string> args) {
+            let keywords = Keywords.build()
+            var bytes = Io.readFile(args[0]) catch return 4
+            var p = Parser.create(lexer.lex(SourceText.create(args[0], from: move bytes), by: keywords))
+            var unit = parseCompilationUnit(ref p)
+            var sb = StrBuf()
+            for n in typeNames(in unit, from: ref p) { sb.append($"type {n.start} {n.length}\n") }
+            for n in calleeAndReceiverNames(in unit, from: ref p) { sb.append($"callee {n.start} {n.length}\n") }
+            Io.stdout.write(sb.finish())
+            return 0
+        }
+        """;
+
+    private static readonly Lazy<(string? Path, string Error)> Collectors = new(() =>
+        BuildParser(Directory.GetFiles(ParserDir, "*.byn").Where(f => Path.GetFileName(f) != "main.byn").Order(StringComparer.Ordinal)
+            .Select(f => SourceText.FromFile(f))
+            .Append(SourceText.FromString(Path.Combine(ParserDir, "collectors-test.byn"), CollectorsProgram)).ToList()));
+
+    /// <summary>017 T20 (Q1121 (b), (c)): <c>typeNames</c> and <c>calleeAndReceiverNames</c> equal <c>AstDump.TypeNames</c> and
+    /// <c>AstDump.CalleeAndReceiverNames</c> (span start and length, in order) on every <c>parse/</c> case.</summary>
+    [Theory]
+    [MemberData(nameof(ParseCases))]
+    public void CollectorsMatchAstDump(string name)
+    {
+        var (path, error) = Collectors.Value;
+        if (path is null) Assert.Fail($"the collectors program did not build:\n{error}");
+        var input = Path.Combine(Golden.CasesRoot, name);
+        var tree = SyntaxTree.Parse(SourceText.FromFile(input));
+        var expected = string.Concat(AstDump.TypeNames(tree).Select(n => $"type {n.Span.Start} {n.Span.Length}\n"))
+            + string.Concat(AstDump.CalleeAndReceiverNames(tree).Select(n => $"callee {n.Span.Start} {n.Span.Length}\n"));
+        var (exit, stdout, stderr) = Run(path!, input);
+        output.WriteLine(stderr);
+        Assert.Equal(0, exit);
+        Assert.Equal(expected, stdout);
+    }
+
+    /// <summary>Shapes no corpus case holds: labelled jumps in expressions, a method call with type arguments, a function type with two
+    /// effects, a tuple and a bare array type, and a reference-to-readonly dyn type.</summary>
+    private const string Shapes = """
+        import shapes
+
+        struct Box<T> { T[] items; List<i32>[] more; ReadOnlySpan<i32> view; (i32) -> void uses io, fs run; (i32, string) -> i32 fails A, B twice; dyn ref readonly Shape shape }
+
+        void apply((i32) -> void uses io, fs cb) {
+            let g: (i32) -> void uses io, fs = cb
+        }
+
+        void main(Box<i32> xs) {
+            for i in 0..3 {
+                let a = f(i) ?? break outer
+                let b = f(i) ?? continue outer
+                let c = f(i) ?? break
+                let d = f(i) ?? continue
+                let e = f(i) ?? return
+                let g = f(i) ?? return 1
+                let h = f(i) ?? fail Boom
+                let m = xs.map<i32>(f)
+                let r = (..5, 2.., ..=3)
+                let s = move xs
+                print($"{m:5} {r:hex} {s, as: .hex}")
+            }
+        }
+        """;
+
+    /// <summary>017 T20: the same comparison over every <c>run/</c> program, whose shapes (function types, effects, ranges, jumps in
+    /// expressions, interpolation specs) the <c>parse/</c> corpus lacks; the collectors run inside <c>dumpType</c> and <c>dumpExpr</c>.</summary>
+    [Fact]
+    public void CollectorsMatchAstDumpOnTheRunPrograms()
+    {
+        var (path, error) = Collectors.Value;
+        if (path is null) Assert.Fail($"the collectors program did not build:\n{error}");
+        var differ = new List<string>();
+        var shapes = Path.Combine(Golden.RepoRoot, "tmp", "t20-collectors", "shapes.byn");
+        Directory.CreateDirectory(Path.GetDirectoryName(shapes)!);
+        File.WriteAllText(shapes, Shapes);
+        foreach (var input in Directory.GetFiles(Path.Combine(Golden.CasesRoot, "run"), "*.byn").Order(StringComparer.Ordinal).Append(shapes))
+        {
+            var tree = SyntaxTree.Parse(SourceText.FromFile(input));
+            var expected = string.Concat(AstDump.TypeNames(tree).Select(n => $"type {n.Span.Start} {n.Span.Length}\n"))
+                + string.Concat(AstDump.CalleeAndReceiverNames(tree).Select(n => $"callee {n.Span.Start} {n.Span.Length}\n"));
+            var (exit, stdout, _) = Run(path!, input);
+            if (exit != 0 || stdout != expected) differ.Add(Path.GetFileName(input));
+        }
+        Assert.Empty(differ);
+    }
+
     public static TheoryData<string> ParseCases => Golden.Cases("parse");
 
     /// <summary>The <c>diag/</c> cases whose <c>.diag</c> holds a parser diagnostic; each <c>.byn</c> is parsed alone.</summary>
@@ -506,6 +597,7 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
 
     /// <summary>R8: <c>bayan-parse</c>, built in fast mode, parses and dumps 1 MB within 10x the C# parser.</summary>
     [Fact]
+    [Trait("Snapshot", "skip")]
     public void OneMegabyteWithinTenTimes()
     {
         if (Environment.GetEnvironmentVariable("BAYAN_SKIP_TIMING") == "1")

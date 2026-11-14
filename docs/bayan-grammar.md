@@ -1,5 +1,8 @@
 # Bayān grammar guide
 
+Version: 0.3.0 (matches `bayan --version`)
+Revisions applied: 0001–0023
+
 How to name things the way the standard library does. This is the developer-facing companion to [SPEC §5](bayan-spec.md) (naming and morphology). SPEC §5.2 holds the full pattern table and contracts; this guide tells you which pattern to pick.
 
 Grammar rules are not style (see [STYLE](bayan-style.md)): they cannot be configured away. Compiler errors enforce pattern contracts; lints enforce word-class heuristics and never block builds (`BYN5xxx`, SPEC §5.2; §13 below).
@@ -10,16 +13,16 @@ Casing (SPEC §5.1): `PascalCase` types, `camelCase` everything else, `I` prefix
 
 For any new member, take the first question that answers yes.
 
-1. **Acts on `this`?** Plain verb on `ref this`: `void sort(ref this)`. The `-ed` form (`sorted`) names a changed copy or a view and never takes `ref this` (item 2).
+1. **Acts on `this`?** Plain verb on `ref this`: `void sort(ref this)`. The `-ed` form (`sorted`) names a changed copy or a view and never takes `ref this` (item 2). Mutating time variables follows the same rule: `x += 1w`, `x.add(1w)` on a `var`.
    - A body that modifies `this` without `ref this`: [BYN2115](diagnostics/BYN2115.md).
-   - Calling a `ref this` member on a `let`: [BYN2104](diagnostics/BYN2104.md) (fix: `var`).
+   - Calling a `ref this` member on a `let`: [BYN2104](diagnostics/BYN2104.md) (fix: `var`; for time values the help is planned to say "write `a + 1w`", Q1243).
    - `-ed` member that takes `ref this` (`void sorted(ref this)`): [BYN5001](diagnostics/BYN5001.md).
    - A noun on a `ref this` member: [BYN5101](diagnostics/BYN5101.md) (lint).
-2. **Returns a changed copy or a view of `this`?** `-ed` form: `trimmed`, `sorted`, `lowercased`. The `-ed` form does not require a mutating verb to exist: an immutable type (`string`) has `trimmed()` and `lowercased()` with no `trim` or `lowercase`. A mutable type with both forms keeps both (`xs.sort()` / `xs.sorted()`). A result that is not a changed copy of the receiver is a noun or a plain static verb (`join`, `split`).
+2. **Returns a changed copy or a view of `this`?** `-ed` form: `trimmed`, `sorted`, `lowercased`. The `-ed` form does not require a mutating verb to exist: an immutable type (`string`) has `trimmed()` and `lowercased()` with no `trim` or `lowercase`. A mutable type with both forms keeps both (`xs.sort()` / `xs.sorted()`). A result that is not a changed copy of the receiver is a noun or a plain static verb (`join`, `split`). For `std.time` values, canonical arithmetic uses operators (`a + 1d`, `a - 1d`), while `-ed` copies (`a.added(1mo)`, `a.subtracted(1w)`) serve method chains. Strict forms returning `T?` rather than clamping or wrapping use `tryAdded` / `trySubtracted` (`a.tryAdded(1mo)`, item 4).
 3. **Boolean property, no arguments?** `is` / `has` / `can`: `isEmpty`, `hasItems`, `canRetry`. Never a `?` suffix.
    - A boolean property that modifies `this`: [BYN5002](diagnostics/BYN5002.md).
    - A `bool` property without the prefix: [BYN5102](diagnostics/BYN5102.md) (lint, fix-it).
-4. **Can fail, and callers may want `bool` or `T?`?** Write `x() fails E`; `tryX` is derived. A hand-written `tryX` must return `T?` or `bool`: [BYN5003](diagnostics/BYN5003.md).
+4. **Can fail, and callers may want `bool` or `T?`?** Write `x() fails E`; `tryX` is derived. A hand-written `tryX` must return `T?` or `bool`: [BYN5003](diagnostics/BYN5003.md). `tryX` may also be the strict form of a total `x` that clamps, wraps or traps, returning `T?` where `x` would clamp, wrap or trap (`std.time` `tryAdded`, `Time.tryFrom`).
 5. **Writes into the caller's buffer?** `xInto(ref dst)` taking `ref StrBuf` or `Span<T>`; the allocating `x()` is derived (`formatInto` → `format`). No dedicated code yet.
 6. **The act as a value?** `xOp` (derived; type `Op<T, E>`). Do not write it. No dedicated code yet.
 7. **A thing that performs the act?** Noun type: `Parser`, `Builder` (stateful doer), `Hasher`, `Comparer` (stateless instrument). No dedicated code yet.
@@ -29,10 +32,12 @@ Composition order: `[try] verb [Into] [Op]`: `tryFormatInto`, `parseOp`. Other r
 Further rules that sit beside the tree:
 - **Nouns with no arguments are properties** (`xs.span`, `order.total`), not calls. The exception is a noun member that needs `ref this`: it is a call (`xs.mutableSpan()`), because mutable access must be visible at the call site.
 - **No instance `toX` or `asX` members.** `to` and `as` are particles, and such a member spells a conversion that already has a form: a view is a noun (`xs.span`), an owned copy is `xs.copy()`, a conversion is `T(x)` (`List(seq)`, `string(x)`). Static `fromX` factories stay (`T.fromJson(…)`, `fromBounds(start, until:)`): a factory names the source a `T` is built from. Enforced by [BYN5009](diagnostics/BYN5009.md).
-- **A stored function field is a role noun** (`handler`, `pricer`, `formatter`), never `onX`. Events are past participles or adjectives (`placed`, `low`); there is no `on` prefix. Particle words (`at`, `by`, `from`) are not member names (`tryGet(at:)`, not `at(…)`). Enforced by [BYN5009](diagnostics/BYN5009.md) and [BYN5010](diagnostics/BYN5010.md).
+- **A stored function field is a role noun** (`handler`, `pricer`, `formatter`), never `onX`. Events are past participles or adjectives (`placed`, `low`); there is no `on` prefix. Particle words (`at`, `by`, `from`) are not member names (`tryGet(at:)`, not `at(…)`). Enforced by [BYN5009](diagnostics/BYN5009.md); BYN5010 is plan (no descriptor, no page): nothing rejects an `onX` name yet.
 - **A static factory that names its result is a noun or adjective** (`Money.zero(c)`, `Outbox.empty()`), not a verb: it names the value built, not an act on `this`. No checker rejects a verb here yet; [BYN5101](diagnostics/BYN5101.md) looks only at `ref this` members.
 - **`Untrusted<T>` is a status,** the same value with a different standing (`X<T>`, §10), not a different shape.
 - **Math vocabulary is exempt** from the `-ed` rule (`abs`, `sqrt`, `floor`, `ceiling`, `pow`, `rounded`): scalars have nouns and `-ed` copies only. Tool names are full words too (`bayan format`, not `fmt`).
+- **Date queries and recurrence:** `today.next(.friday)` (strictly after, never today), `today.next(.friday, inclusive: true)` (today if it is Friday), `today.previous(.monday)`. Neither word ends in `-ed`, so BYN5001 does not apply and no exemption is needed. Recurrences use `start.series(by: 1mo, until: end)`.
+- **Unit literals:** time units live in `core` (`5s`, `250ms`, `2min`, `1h`), while calendar units require `import std.time` (`1d`, `1w`, `1mo`, `1y`). Where a unit type is expected, bare numeric literals are rejected (`0` is an error there; write `0s`).
 - **Checker scope.** The pattern rules that make derived forms work (`tryX`, `-ed`, `xInto`, particles; `BYN50xx`) apply to all code. The naming-style rules (`BYN51xx`) apply to the public API only. A name forced by an outside system (a JSON field, a C symbol, a database column) uses the derivation's rename attribute (`@json(name: …)`, `@column(…)`), which exempts it from `BYN51xx`, or `@allow(…) because "…"` (§7).
 - **What names stand for (revision 0003).** On an instance member, a noun or an adjective names a result (`s.length`, `s.position("x")`, `s.isEmpty`); a verb names an act on the receiver and takes `ref this` (`buf.append(x)`); `-ed` names a changed copy (`s.trimmed()`).
 - **Assertion verbs are queries:** third-person verbs that state a fact about the receiver and return `bool`. The group is closed: `contains`, `startsWith`, `endsWith`, `matches`, `equals`. Adding one is a GRAMMAR change.
@@ -58,7 +63,7 @@ Enforced by:
 - `errdefer` is an input form for `defer failing`: [BYN1020](diagnostics/BYN1020.md).
 - `defer failing` in a function that cannot fail: [BYN2606](diagnostics/BYN2606.md).
 - `try` in a `defer` body: [BYN2601](diagnostics/BYN2601.md).
-- Panic handler restrictions: [BYN2612](diagnostics/BYN2612.md) (statement not allowed), [BYN2613](diagnostics/BYN2613.md) (reads only `let` bindings and parameters), [BYN2614](diagnostics/BYN2614.md) (`Panic.handler` placement). The process-wide hook is a role noun, `Panic.handler`, of type `Panic -> void uses console`; it replaces `Panic.onPanic` ([BYN2230](diagnostics/BYN2230.md), [BYN5010](diagnostics/BYN5010.md)).
+- Panic handler restrictions: [BYN2612](diagnostics/BYN2612.md) (statement not allowed), [BYN2613](diagnostics/BYN2613.md) (reads only `let` bindings and parameters), [BYN2614](diagnostics/BYN2614.md) (`Panic.handler` placement). The process-wide hook is a role noun, `Panic.handler`, of type `Panic -> void uses console`; it replaces `Panic.onPanic` ([BYN2230](diagnostics/BYN2230.md); BYN5010, plan).
 
 The shape itself (head verb, then participle) has no checker code; new modifiers are reviewed against it.
 
@@ -77,7 +82,7 @@ Guards against drift:
 2. New syntax must have its own job; it may not only re-spell an existing construct.
 3. Paraphrases must be truly equivalent: same narrowing, cost and effects. Where two forms are not equivalent, the difference is a style note with no diagnostic code (`0..=n - 1` vs `0..n`, `p == Point { … }` vs `p is Point { … }`).
 
-Familiar alternatives are **input forms**: the editor and `bayan format` accept them and rewrite them one way into canonical syntax; the compiler rejects them in source with a machine-applicable fix.
+Familiar alternatives are **input forms**: the editor and `bayan format` accept them and rewrite them one way into canonical syntax; the compiler rejects them in source with a machine-applicable fix. The complete list is [SPEC §21.5](bayan-spec.md); the tables below are a selection.
 
 | Input form | Canonical | Code |
 |---|---|---|
@@ -109,7 +114,7 @@ Familiar alternatives are **input forms**: the editor and `bayan format` accept 
 | `state x` member lines | One `states { … }` block | [BYN1059](diagnostics/BYN1059.md) |
 | `Order order is .paid` | `Order.paid order` | [BYN7006](diagnostics/BYN7006.md) |
 | Interface property `Type name { get }` | `Type name` | [BYN1060](diagnostics/BYN1060.md) |
-| `uses` before `fails`, or any clause out of order | `where`, `expects`, `becomes`, `fails`, `uses` | [BYN1065](diagnostics/BYN1065.md) |
+| `fails` before `uses`, or any clause out of order | `where`, `expects`, `uses`, `becomes`, `fails` | [BYN1065](diagnostics/BYN1065.md) |
 
 `HashMap<K, V>` is not in the table: it parses as any generic type and the checker reports it, [BYN2830](diagnostics/BYN2830.md), with a fix to `Map<K, V>` that `bayan format` does not apply (SPEC §3.5).
 
@@ -182,7 +187,7 @@ test "bounds" (i32 input, bool valid) { … }
 - Local bindings put the name first: `let`/`var` already lead, and the name is what the reader scans for.
 - The name-first declaration forms are input forms that `bayan format` rewrites ([BYN1043](diagnostics/BYN1043.md)): `f() -> T` → `T f()`, `f(x: T)` → `f(T x)`, field `x: T` → `T x`, payload `case(x: T)` → `case(T x)`. In a function body, `Grams w = 0g` → `let w: Grams = 0g`; in a struct body the same text is a field with a default.
 - A function type used as a field or parameter type is parenthesized so the name follows the closing paren: `(Line -> Money uses net) pricer`, `(Order -> bool) pred`; a single parameter type needs no inner parentheses. Without the parentheses the name would read as part of the return type or `uses` list.
-- In v0.1 a function type is a parameter type, a `type` alias target or a local's type (`let f: Pred = isBig`); as a field, property, return type, constant, payload, type argument or element type it is [BYN2822](diagnostics/BYN2822.md) (SPEC §3.16).
+- In 0.3 a function type is a parameter type, a `type` alias target or a local's type (`let f: Pred = isBig`); as a field, property, return type, constant, payload, type argument or element type it is [BYN2822](diagnostics/BYN2822.md) (SPEC §3.16).
 - Revised 2026-10-22: round 3 first put names first in every declaration; that was meant only for local bindings, so declarations returned to type-first.
 - `union error` also composes and narrows error sets; composed sets are flattened, and two components sharing a case name is an error (different instantiations of one generic set, such as `ValidationError<A>` and `ValidationError<B>`, are distinct components):
   ```csharp
@@ -279,7 +284,7 @@ A role in a call is marked by a particle from a closed set (Arabic مِن/إلى
 | `as` | Role |
 
 ```csharp
-public void copy(from Path src, to Path dst) fails FsError uses fs
+public void copy(from Path src, to Path dst) uses fs fails FsError
 public void transfer(Money amount, from Account payer, to Account payee) fails LedgerError
 public void insert(ref this, T item, at Index i) uses alloc
 public void remove(ref this, from Index start, until Index end)
@@ -306,7 +311,7 @@ A function's effects are a `uses` clause from a closed list: `alloc`, `suspend`,
 
 ```csharp
 public ParcelId book(Parcel parcel, by Carrier carrier)
-    fails CarrierError uses net, alloc, suspend { … }
+    uses net, alloc, suspend fails CarrierError { … }
 
 public u32 crc(ReadOnlySpan<u8> data) { … }   // pure
 
@@ -352,7 +357,7 @@ Enforced by [BYN6001](diagnostics/BYN6001.md) (`noalloc`, `nosuspend`), [BYN6002
       }
   }
 
-  public void pay(ref this is .placed, Payment p) becomes .paid fails PaymentError uses net {
+  public void pay(ref this is .placed, Payment p) uses net becomes .paid fails PaymentError {
       let id = try p.charge(total)
       become .paid(payment: id)
   }
@@ -397,6 +402,8 @@ For error doc comments: the first line of a `///` comment on an error case is it
 | Purpose clauses (§7) | Arabic mafʿūl li-ajlihi (object of purpose) | [BYN8001](diagnostics/BYN8001.md) |
 | Argument particles (§8) | Arabic prepositions (مِن, إلى, بِ) | see §8 |
 | States and transitions (§10) | Arabic kāna / ṣāra ("was" / "became") | [BYN7001](diagnostics/BYN7001.md)–[BYN7008](diagnostics/BYN7008.md) |
+| Number agreement (§14) | Arabic muṭābaqa (agreement of number between related words) | BYN5104–BYN5107 (revision 0021) |
+| Role marks (§15) | Arabic ʾiʿrāb (case marking: rafʿ, naṣb, jarr) | [BYN2306](diagnostics/BYN2306.md) |
 | Error-message voice (§11) | The hudhud in Sūrat an-Naml (27:20–22), whose news is certain and clear: exact about what went wrong, where, why and how to fix it (brand brief §4) | none |
 
 ## 13. Diagnostics
@@ -413,8 +420,63 @@ The built-in checker (`BYN5xxx`) runs on the members of every struct. Errors (`B
 | [BYN5004](diagnostics/BYN5004.md), [BYN5005](diagnostics/BYN5005.md), [BYN5006](diagnostics/BYN5006.md) | Particles (§8) | Parameter lists and call sites; `rest` tails, `@positional` constructors, `extern`, operators and payloads are exempt. |
 | [BYN5007](diagnostics/BYN5007.md) | A level is not the act (§10) | `Log.{level}` member access. |
 | [BYN5009](diagnostics/BYN5009.md) | A particle word is not a member name, and no instance member spells a conversion with `to` or `as` (§1) | Member names equal to a particle (`at`, `by`, `from`), and instance members named `toX` or `asX` (`toList`, `asSpan`); static `fromX` factories are not checked. |
-| [BYN5010](diagnostics/BYN5010.md) | An event or stored function field has no `on` prefix (§1) | Fields of type `Event<T>` or a function type whose name starts with `on` and a capital. |
+| BYN5010 (plan) | An event or stored function field has no `on` prefix (§1) | Fields of type `Event<T>` or a function type whose name starts with `on` and a capital. |
 | [BYN5013](diagnostics/BYN5013.md) | A particle appears at most once per signature (§8) | The particle labels of one parameter list. |
 | [BYN5014](diagnostics/BYN5014.md) (warning, fix-it) | Every word of a member name is a known verb or noun (§7) | Each word against the built-in word list and `grammar` in `package.byn`. |
 | [BYN5101](diagnostics/BYN5101.md) (lint) | A `ref this` member is named with a verb (tree 1) | The first word of the name against a built-in noun list: `size`, `length`, `total`, `sum`, `value`, `values`, `data`, `item`, `items`, `element`, `elements`, `result`, `results`, `name`, `id`, `state`, `status`, `info`, `content`, `contents`, `capacity`, `amount`, `number`, `key`, `keys`, `entry`, `entries`, `node`, `nodes`. |
 | [BYN5102](diagnostics/BYN5102.md) (lint, fix-it) | A `bool` property takes `is`, `has` or `can` (tree 3) | `bool` properties and `bool` methods with no arguments that are not `ref this`; fields are not checked. Names starting with `contains`, `equals`, `matches`, `startsWith`, `endsWith` or `try` are verbs, not states. |
+
+## 14. Number agreement
+
+The lints below (revision 0021) are warnings that never block a build, and they apply to the public API only, like the other `BYN51xx` lints. A rename attribute exempts a name forced from outside (§1).
+
+- **Collections are plural or collective.** A public field, property or parameter whose type is a collection (`List`, `Set`, `Map`, `T[]`, `var T[]`, `Span<T>`, `ReadOnlySpan<T>`, sequences; status wrappers such as `Untrusted<List<T>>` are looked through) is named with a plural or a collective noun. Anything else is named with a singular. `string`, `StrBuf` and `Range` are never collections. The last word of the name decides (`firstLine`, `lineItems`). Checked by BYN5104.
+- **Counts are singular noun + `Count`.** `lineCount`, not `linesCount`, `numLines` or `numberOfLines`. `length` stays the size name. Checked by BYN5105.
+- **A doer name needs its verb.** A public struct or interface named for a doer or tool (`CsvParser`) has a public member named for the act (`parse`, `tryParse`, `parseInto`, `parseOp`); a static or instance member counts. The doer nouns are `parser`, `builder`, `reader`, `writer`, `recorder`, `encoder`, `decoder`, `scanner`, `loader`, `scheduler`, `renderer`, `formatter`, `handler`, `hasher` and `comparer`, each mapped to its verb; `codec` maps to `encode` and `decode`, and either counts. A noun derived from a project verb by regular spelling (`upsert` → `upserter`) counts too; irregular agent nouns are not checked. Not covered: function-type aliases, stored function fields and other words ending in "-er" (`Carrier`, `Ledger`, `Pointer`, `User`). Checked by BYN5106.
+- **A tool does not change `this`.** A type named for a tool (`Hasher`, `Comparer`, `Codec`) has no `ref this` member; a type fed data step by step is a doer and is named like one. Checked by BYN5107.
+- **Dictionary keys.** `grammar` in `package.byn` has `verbs`, `nouns`, `adjectives` (for example `overdue`) and `collectives` (for example `ledger`; SPEC §19.2). A `forms` entry is read by the word's class: the `-ed` spelling for a verb, the plural for a noun. A word in both `verbs` and `nouns` with irregular forms both ways cannot be declared. A word may be in more than one list only as verb plus noun (`record`); any other overlap is a manifest error. The dictionary keys, the overlap rule (BYN3102) and BYN5014's message and help naming all three classes are in both compilers (revision 0021 Part 3).
+
+```csharp
+grammar: Grammar {
+    verbs: ["upsert", "reindex"],
+    nouns: ["sku", "kyc", "criterion"],
+    adjectives: ["overdue", "refundable"],
+    collectives: ["ledger"],
+    forms: ["upsert": "upserted", "criterion": "criteria"],
+}
+```
+
+Local loop variables are not checked. Name them like this:
+
+```
+for line in lines { … }        // one element: singular
+for batch in batches { … }     // each element is itself a list: name it for the element
+```
+
+## 15. Role marks
+
+A mark at the call site says what the callee may do with the argument.
+
+| Mark                               | Meaning                                                      |
+| ---------------------------------- | ------------------------------------------------------------ |
+| none                               | read only                                                    |
+| `ref`                              | the callee may change it                                     |
+| `out`                              | the callee must write it; mainly for C, and returning `T?` or a tuple is preferred |
+| `move`                             | handed over; the caller can't use it afterwards              |
+| particle (`from:`, `to:`, `by:` …) | names the argument's role; no effect on memory               |
+
+Source notes: no mark is rafʿ (the unmarked base case). `ref` and `out` are naṣb (the case of the object acted on). Particles are jarr (the case after a preposition, §8). `move` is Bayān's own and has no Arabic source.
+
+A call that leaves out a `ref` or `out` mark the parameter declares is [BYN2306](diagnostics/BYN2306.md); `move` at the call is optional, and a plain argument to a `move` parameter is handed over. Particles are enforced by the codes in §8.
+
+## 16. Exempt words
+
+These existing exemptions are collected here; this section adds no rules.
+
+- **States** are exempt from the `-ed` rule (§10, SPEC §3.17).
+- **Math vocabulary** is exempt from the `-ed` rule: `abs`, `sqrt`, `floor`, `ceiling`, `pow`, `rounded` (§1, SPEC §5.2).
+- **Particles** are not member names ([BYN5009](diagnostics/BYN5009.md), §1).
+- **Names under rename attributes** (`@json(name: …)`, `@column(…)`) are exempt from `BYN51xx` (§1).
+- **Codecs and algorithms are types**, so their verbs take the data: `Sha256.hash(d)`, `Base64.encode(d)`.
+
+**State properties.** An `isX` property such as `bool isPaid => this is .paid` is allowed and useful (interfaces, generic code, output), but it doesn't narrow. Use `order is .paid` when the block needs the state.

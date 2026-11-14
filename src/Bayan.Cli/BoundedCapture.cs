@@ -4,7 +4,7 @@ namespace Bayan.Cli;
 
 /// <summary>
 /// Reads a stream to its end while keeping only the first and the last <see cref="Keep"/> bytes. What lies between
-/// is counted, not stored, and shows as one <c>… N bytes elided …</c> line. The read runs on its own thread, so a
+/// is counted, not stored, and shows as one <c>… N bytes omitted …</c> line. The read runs on its own thread, so a
 /// busy thread pool cannot delay it, and <see cref="Snapshot"/> gives what was read so far when the reader cannot be
 /// waited for (a grandchild still holding the pipe open after a kill).
 /// </summary>
@@ -87,10 +87,10 @@ internal sealed class BoundedCapture
         {
             var last = new byte[_tailLength];
             for (var i = 0; i < _tailLength; i++) last[i] = _tail[(_tailStart + i) % _keep];
-            var elided = _total - _headLength - _tailLength;
-            // Nothing elided: decode the bytes as one, so a character is never cut at the head's end.
-            if (elided == 0) return Encoding.UTF8.GetString([.. _head.AsSpan(0, _headLength), .. last]);
-            return Encoding.UTF8.GetString(_head, 0, _headLength) + $"\n… {elided} bytes elided …\n" + Encoding.UTF8.GetString(last);
+            var omitted = _total - _headLength - _tailLength;
+            // Nothing omitted: decode the bytes as one, so a character is never cut at the head's end.
+            if (omitted == 0) return Encoding.UTF8.GetString([.. _head.AsSpan(0, _headLength), .. last]);
+            return Encoding.UTF8.GetString(_head, 0, _headLength) + $"\n… {omitted} bytes omitted …\n" + Encoding.UTF8.GetString(last);
         }
     }
 }

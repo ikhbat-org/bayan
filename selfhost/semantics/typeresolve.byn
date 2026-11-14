@@ -76,7 +76,7 @@ Binder t8Binder(in TypeResolver r) => Binder {
     pending: [],
     constraints: [],
     peers: [],
-    nonNull: [],
+    nonNullLocals: [],
     stateFacts: [],
     errorNarrowed: [],
 }
@@ -279,6 +279,14 @@ Type resolveNamed(ref Ctx c, through in TypeResolver r, for in parser.NamedType 
         if text == "IoError" || text == "Utf8Error" || text == "ParseError" {
             noTypeArgs(ref c, through: in r, for: in n, at: name)
             return t8BuiltinSet(in c, for: text)
+        }
+        if text == "Time" {
+            noTypeArgs(ref c, through: in r, for: in n, at: name)
+            return builtinType(.time)
+        }
+        if text == "Millis" {
+            noTypeArgs(ref c, through: in r, for: in n, at: name)
+            return builtinType(.millis)
         }
         // `ValidationError<T>`: a set per `T`, whose `invalid` carries the violations of a struct with `requires` (J23).
         // Without `T` there is no `T.Field`, so the bare name is BYN2023 (revision 0011).
@@ -615,7 +623,7 @@ Type errorSet(ref Ctx c, through in TypeResolver r, for in parser.ErrorSetDecl d
         }
     }
     if sets.length == 0 { return errorType() }
-    for name in decl.exceptKeyword {
+    for name in decl.exceptNames {
         let text = t8Text(in c, from: r.file, at: name)
         var matched = false
         for set in sets {
@@ -765,7 +773,7 @@ string? suggestType(ref Ctx c, through in TypeResolver r, for string text) {
         if t8Lower(e.key) == lower { return $"{e.key}" }
     }
     let builtins = ["Span", "ReadOnlySpan", "List", "Map", "HashMap", "Owned", "Untrusted", "Result", "Arena", "StrBuf", "IoError", "Utf8Error",
-        "ParseError", "ValidationError", "Violation", "Rule", "ProcessResult", "Panic", "FormatSpec", "Symbol"]
+        "ParseError", "ValidationError", "Violation", "Rule", "ProcessResult", "Panic", "FormatSpec", "Symbol", "Time", "Millis"]
     for name in builtins {
         if t8Lower(name) == lower { return name }
     }

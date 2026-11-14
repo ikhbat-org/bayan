@@ -1,0 +1,83 @@
+title: Errors
+nav: Guides
+order: 20
+template: docs
+---
+<p>Bayan has no exceptions. A function that can fail says so in its signature, and the caller has to deal with it. This guide goes from declaring an error to cleaning up after one. Every example is a complete program.</p>
+
+<h2 id="declare">Declaring errors</h2>
+<p>An error set is a <code>union error</code>. Each case is one way to fail, and each is camelCase and on its own line. A doc comment on a case is the text <code>$"{e}"</code> prints for it.</p>
+<pre><code class="byn">union error ParseError {
+    /// The input was empty.
+    empty
+    /// The input had a non-digit.
+    notDigit
+}</code></pre>
+<p>A function lists the sets it can fail with after its parameters: <code>fails ParseError</code>, or several, separated by commas. Public functions must list them. Private ones can write a bare <code>fails</code> and let the compiler infer the set.</p>
+
+<h2 id="fail">fail and return</h2>
+<p><code>fail .empty</code> leaves the function with an error. <code>return</code> always returns a value, never an error. The case must be in the function's <code>fails</code> clause, and a function that does not fail cannot use <code>fail</code>. Both statements take a suffix:</p>
+<pre><code class="byn">fail .empty if s.isEmpty
+let c = lookup ?? fail .closed</code></pre>
+
+<h2 id="try-catch">try and catch</h2>
+<p>There are four ways to deal with a call that can fail.</p>
+<ul>
+<li><code>try f()</code> passes a failure up to the caller. The caller has to declare the error too.</li>
+<li><code>f() catch value</code> uses a fallback value.</li>
+<li><code>f() catch { … }</code> runs a block. If <code>f</code> returns a value, the block cannot complete normally: it ends in <code>return</code>, <code>break</code>, <code>continue</code> or a panic.</li>
+<li><code>f() catch switch { … }</code> matches on the error. It must be exhaustive.</li>
+</ul>
+<example name="errors-basic"/>
+<p><code>try</code> covers the whole expression to its right. To apply it to a part, add parentheses: <code>(try f()) + g()</code>.</p>
+
+<h2 id="composing">Composing and matching error sets</h2>
+<p>A set can be built from others. The result is flat: <code>SignupError</code> below has the cases of both sets, and a component converts to it implicitly. Two components cannot share a case name.</p>
+<p>In <code>catch switch</code>, each arm is a pattern that can bind its own name: <code>EmailError =&gt; …</code> matches the whole set, <code>DbError.timeout =&gt; …</code> one case, and <code>DbError e =&gt; …</code> binds the error as <code>e</code>.</p>
+<example name="errors-switch"/>
+<p>Variants belong to their set. <code>EmailError.invalid</code> is not <code>UrlError.invalid</code>, and an ambiguous <code>.invalid</code> is an error.</p>
+
+<h2 id="payloads">Errors with data</h2>
+<p>A case can carry values. Name the payload fields in the declaration. When you construct the case, the label can be left out if there is exactly one payload field. With several, write them as labels or in order.</p>
+<p>In <code>catch switch</code>, bind the payload by position with <code>let</code>, or use <code>_</code> to skip a field.</p>
+<example name="errors-payload"/>
+
+<h2 id="narrowing">Narrowing a set</h2>
+<p><code>except</code> removes cases from a set. <code>catch (Set.variant)</code> handles some cases and passes the rest on, so the rest must appear in the caller's <code>fails</code>.</p>
+<example name="errors-narrow"/>
+<p>In <code>retry</code>, <code>rejected</code> is handled and turned into the value 1. The other cases leave through <code>Retryable</code>.</p>
+
+<h2 id="cleanup">Cleaning up after a failure</h2>
+<p><code>defer</code> runs when the scope ends. <code>defer failing</code> runs only if the function fails, and <code>defer failing (e) …</code> also gives it the error. Deferred statements run in reverse order of registration, and they cannot fail.</p>
+<example name="errors-defer"/>
+<p>On the failing path, <code>defer 2</code> runs first, then the two <code>defer failing</code> statements, then <code>defer 1</code>. A function can only use <code>defer failing</code> if it can fail.</p>
+
+<h2 id="validation">Validating data</h2>
+<p>For input that must meet rules, put <code>requires</code> on a type or field. The check runs when a value is constructed, so building one is a call that can fail, and the error is <code>ValidationError&lt;T&gt;</code>. Every violated rule is reported, not just the first.</p>
+<pre><code class="byn">struct Box {
+    i32 w
+        requires it &gt; 0
+    i32 h
+    requires w &lt; h at .w
+}
+
+Box build(i32 w, by i32 h) fails ValidationError&lt;Box&gt; =&gt; try Box { w: w, h: h }</code></pre>
+<p>The full program is in <a href="features.html#requires">What makes Bayan different</a>. A violation is structured data, with a field and a rule, and has no message text. A decoder for <code>T</code> uses <code>DecodeError&lt;T&gt;</code>, which joins <code>JsonError</code> and <code>ValidationError&lt;T&gt;</code>. That decoder is planned.</p>
+<p>A function precondition is different. Write it with <code>expects</code>. A violation is a bug, so it panics in every build mode instead of failing.</p>
+<pre><code class="byn">i32 discount(i32 total, by i32 percent)
+    expects percent in 0..=100
+    =&gt; total - total * percent / 100</code></pre>
+
+<h2 id="main">Errors in main</h2>
+<p><code>void main() fails ConfigError</code> is allowed. If <code>main</code> fails, the process exits with code 1 and prints the doc comment of the error to standard error. Put <code>@exitCode(n)</code> on a variant to choose another code. Deferred statements still run before the exit.</p>
+<pre><code class="byn">union error ConfigError {
+    /// The configuration file is missing.
+    missing
+    /// The configuration is malformed.
+    @exitCode(3)
+    malformed
+}</code></pre>
+
+<h2 id="panics">Panics</h2>
+<p>A panic is not an error. It means the program has a bug: an index out of range, an overflow, a violated <code>expects</code>, a division by zero. A panic prints a message and the source location and aborts. There is no unwinding. Only <code>defer panicking</code> handlers and <code>Panic.handler</code> run. Plain <code>defer</code> and <code>defer failing</code> do not.</p>
+<p>The specification also describes error return traces in debug builds. They are planned.</p>

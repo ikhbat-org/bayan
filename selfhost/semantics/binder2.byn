@@ -4,7 +4,7 @@ import parser
 import lexer
 
 // What `narrowedBegin` saved for `narrowedEnd`: the C# `Narrowed`'s `Func` split in two around the
-// caller's bind. `mark` is the `nonNull` length to cut back to, `before` the state facts to keep and
+// caller's bind. `mark` is the `nonNullLocals` length to cut back to, `before` the state facts to keep and
 // `learned` what `learnStates` added.
 struct NarrowedScope {
     i64 mark
@@ -69,7 +69,7 @@ BStmt bindBlock(ref Binder b, through ref Ctx c, for in parser.BlockStmt block) 
         statements.append(bindStatement(ref b, through: ref c, for: in block.statements[i]))
     }
     popScope(ref b)
-    return addBlock(ref c, from: BBlock { span: block.span, statements: move statements })
+    return recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: block.span, statements: move statements }), as: .blockStmt, at: block.span)
 }
 
 /// A loop or `if` body: a block, or one statement in its own scope.
@@ -125,11 +125,11 @@ void bindUnobservable(ref Binder b, through ref Ctx c, at TextSpan stmt, for in 
 }
 
 /// C# `UnobservableMark`: one `@unobservable` mark; `op` null means every operator.
-struct UnobservableMark {
-    string file
-    TextSpan span
-    string? op
-    string reason
+public struct UnobservableMark {
+    public string file
+    public TextSpan span
+    public string? op
+    public string reason
 }
 
 /// The C# `Compilation.AddUnobservable`: keeps the first mark per file, span and operator (`*` keys a null operator,
@@ -207,7 +207,7 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
         case .exprStmt(let e):
             let expr = bindStatementExpression(ref b, through: ref c, for: in e.value.expr)
             learnBecomes(ref b, through: ref c, for: expr)
-            return addExprStmt(ref c, from: BExprStmt { span: e.value.span, expr: expr })
+            return recordNodeSyntax(ref c, for: addExprStmt(ref c, from: BExprStmt { span: e.value.span, expr: expr }), as: .exprStmt, at: e.value.span)
         case .assignStmt(let a):
             if a.value.op == .assign {
                 switch a.value.target {
@@ -238,9 +238,17 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
             return bindContinue(ref b, through: ref c, for: in cont.value)
         case .ifStmt(let i):
             let cond = bindCondition(ref b, through: ref c, for: in i.value.condition)
+            var thenCond = (false, TextSpan { start: 0, length: 0 }, TextSpan { start: 0, length: 0 })
+            switch i.value.condition {
+                case .memberExpr(let me):
+                    thenCond = (true, parser.exprSpan(me.value.target), me.value.member)
+                default: {}
+            }
+            b.thenOf.append(thenCond)
             let sThen = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: true)
             let thenBranch = bindBody(ref b, through: ref c, for: in i.value.then)
             narrowedEnd(ref b, through: ref c, by: move sThen)
+            let _ = b.thenOf.removeLast()
             var elseBranch: BStmt = -1
             switch i.value.elseKeyword {
                 case .none:
@@ -250,25 +258,25 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
                     elseBranch = bindBody(ref b, through: ref c, for: in i.value.elseKeyword)
                     narrowedEnd(ref b, through: ref c, by: move sElse)
             }
-            return narrowAfter(ref b, through: ref c, for: addIf(ref c, from: BIf {
+            return narrowAfter(ref b, through: ref c, for: recordNodeSyntax(ref c, for: addIf(ref c, from: BIf {
                 span: i.value.span,
                 condition: cond,
                 then: thenBranch,
                 elseBranch: elseBranch,
                 isNever: i.value.likelihood == .neverKeyword,
-            }))
+            }), as: .ifStmt, at: i.value.span))
         case .unlessStmt(let u):
             let cond = negate(ref c, from: in u.value.condition, by: bindCondition(ref b, through: ref c, for: in u.value.condition))
             let sThen = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: true)
             let thenBranch = bindBody(ref b, through: ref c, for: in u.value.body)
             narrowedEnd(ref b, through: ref c, by: move sThen)
-            return narrowAfter(ref b, through: ref c, for: addIf(ref c, from: BIf {
+            return narrowAfter(ref b, through: ref c, for: recordNodeSyntax(ref c, for: addIf(ref c, from: BIf {
                 span: u.value.span,
                 condition: cond,
                 then: thenBranch,
                 elseBranch: -1,
                 isNever: false,
-            }))
+            }), as: .unlessStmt, at: u.value.span))
         case .guardedStmt(let g):
             // The condition is evaluated first (spec §7.3); pattern variables it binds stay in scope.
             var cond = bindCondition(ref b, through: ref c, for: in g.value.condition)
@@ -278,14 +286,14 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
             let sThen = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: true)
             let body = bindStatement(ref b, through: ref c, for: in g.value.statement)
             narrowedEnd(ref b, through: ref c, by: move sThen)
-            return narrowAfter(ref b, through: ref c, for: addIf(ref c, from: BIf {
+            return narrowAfter(ref b, through: ref c, for: recordNodeSyntax(ref c, for: addIf(ref c, from: BIf {
                 span: g.value.span,
                 condition: cond,
                 then: body,
                 elseBranch: -1,
                 isNever: false,
                 guarded: true,
-            }))
+            }), as: .guardedStmt, at: g.value.span))
         case .whileStmt(let w):
             let target = t16Target(ref c, to: labelTarget, isLoop: true)
             forgetChangingStates(ref b, through: ref c)
@@ -295,12 +303,12 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
             let body = bindBody(ref b, through: ref c, for: in w.value.body)
             b.targets.remove(at: b.targets.length - 1)
             popScope(ref b)
-            return addWhile(ref c, from: BWhile {
+            return recordNodeSyntax(ref c, for: addWhile(ref c, from: BWhile {
                 span: w.value.span,
                 condition: cond,
                 body: body,
                 target: target.id,
-            })
+            }), as: .whileStmt, at: w.value.span)
         case .whileLetStmt(let w):
             forgetChangingStates(ref b, through: ref c)
             return bindWhileLet(ref b, through: ref c, for: in w.value, to: t16Target(ref c, to: labelTarget, isLoop: true))
@@ -311,12 +319,12 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
             let body = bindBody(ref b, through: ref c, for: in d.value.body)
             b.targets.remove(at: b.targets.length - 1)
             let cond = bindCondition(ref b, through: ref c, for: in d.value.condition)
-            return addDoWhile(ref c, from: BDoWhile {
+            return recordNodeSyntax(ref c, for: addDoWhile(ref c, from: BDoWhile {
                 span: d.value.span,
                 body: body,
                 condition: cond,
                 target: target.id,
-            })
+            }), as: .doWhileStmt, at: d.value.span)
         case .forStmt(let f):
             forgetChangingStates(ref b, through: ref c)
             return bindFor(ref b, through: ref c, for: in f.value, to: t16Target(ref c, to: labelTarget, isLoop: true))
@@ -329,7 +337,7 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
                 b.deferDepth += 1
                 let body = bindBody(ref b, through: ref c, for: in d.value.body)
                 b.deferDepth -= 1
-                return addDefer(ref c, from: BDefer { span: d.value.span, body: body })
+                return recordNodeSyntax(ref c, for: addDefer(ref c, from: BDefer { span: d.value.span, body: body }), as: .deferStmt, at: d.value.span)
             }
             if d.value.kind == .failing {
                 return bindErrdefer(ref b, through: ref c, for: in d.value)
@@ -343,14 +351,14 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
             return bindBecome(ref b, through: ref c, for: in bcm.value)
         // coverage-exempt: Q765 through `BErrorStmt { span: err.value.span }`
         case .emptyStmt(let em):
-            return addBlock(ref c, from: BBlock { span: em.value.span, statements: List<BStmt>() })
+            return recordNodeSyntax(ref c, for: addBlock(ref c, from: BBlock { span: em.value.span, statements: List<BStmt>() }), as: .emptyStmt, at: em.value.span)
         case .errorStmt(let err):
-            return addErrorStmt(ref c, from: BErrorStmt { span: err.value.span })
+            return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: err.value.span }), as: .errorStmt, at: err.value.span)
         // coverage-exempt: Q765 through `BErrorStmt { span: span }`
         default:
             let span = t15StmtSpan(in stmt)
             report(ref b, through: ref c, for: .unsupported, at: span, by: ("this statement", "", "", "", ""))
-            return addErrorStmt(ref c, from: BErrorStmt { span: span })
+            return recordStmtSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: span }), from: in stmt)
     }
 }
 
@@ -389,11 +397,11 @@ BStmt bindAssert(ref Binder b, through ref Ctx c, for in parser.AssertStmt a) {
     let condType = exprType(in c, for: condition)
     if isError(condType) || implicit(ref c, from: condType, to: prim(.bool)) is not null {
         let conv = convert(ref b, through: ref c, for: condition, to: prim(.bool), at: parser.exprSpan(in a.condition))
-        return addAssert(ref c, from: BAssert { span: a.span, condition: conv, failsWith: -1, failsCase: -1 })
+        return recordNodeSyntax(ref c, for: addAssert(ref c, from: BAssert { span: a.span, condition: conv, failsWith: -1, failsCase: -1 }), as: .assertStmt, at: a.span)
     }
     report(ref b, through: ref c, for: .assertNotBool, at: parser.exprSpan(in a.condition), by: (typeDisplay(ref c, by: condType), "", "", "", ""),
         label: "this is not a `bool`", help: "check the value against what you expect, e.g. `assert count == 3`")
-    return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+    return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), as: .assertStmt, at: a.span)
 }
 
 /// C# `StripParens(a.Condition) is CallExpr call`: walks the `parenExpr` chain in place (Q703); a call is bound with
@@ -420,7 +428,7 @@ BStmt bindAssertFails(ref Binder b, through ref Ctx c, for in parser.AssertStmt 
         if !isError(exprType(in c, for: operand)) {
             report(ref b, through: ref c, for: .nothingToHandle, at: parser.exprSpan(in a.condition), by: ("assert … fails", "", "", "", ""))
         }
-        return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), as: .assertStmt, at: a.span)
     }
     let sets = errorSetsOf(ref c, for: c.bCalls[boundIndex(operand)].function)
     let errorType = errorUnionOf(ref c, for: in sets, as: in List<VariantId>())
@@ -439,7 +447,7 @@ BStmt bindAssertFails(ref Binder b, through ref Ctx c, for in parser.AssertStmt 
     if boundKind(boundSet) != .typeRef || kindOf(c.bTypeRefs[boundIndex(boundSet)].referenced) != .errorSet {
         report(ref b, through: ref c, for: .patternMismatch, at: setSpan,
             by: ($"`{t15Text(in c, from: b.file, at: setSpan)}`", typeDisplay(ref c, by: errorType), "", "", ""))
-        return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), as: .assertStmt, at: a.span)
     }
     let set = typeIndex(c.bTypeRefs[boundIndex(boundSet)].referenced)
     var variant: VariantId = -1
@@ -453,7 +461,7 @@ BStmt bindAssertFails(ref Binder b, through ref Ctx c, for in parser.AssertStmt 
             report(ref b, through: ref c, for: .patternMismatch, at: failsSpan,
                 by: ($"`{t15Text(in c, from: b.file, at: failsSpan)}`", typeDisplay(ref c, by: errorSetTypeOf(set)), "", "", ""),
                 help: close is { } s ? $"did you mean `{s}`?" : "")
-            return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+            return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), as: .assertStmt, at: a.span)
         }
     }
     var listed = false
@@ -463,21 +471,21 @@ BStmt bindAssertFails(ref Binder b, through ref Ctx c, for in parser.AssertStmt 
     if sets.length > 0 && !listed {
         report(ref b, through: ref c, for: .patternMismatch, at: setSpan,
             by: ($"`{typeDisplay(ref c, by: errorSetTypeOf(set))}`", typeDisplay(ref c, by: errorType), "", "", ""))
-        return addErrorStmt(ref c, from: BErrorStmt { span: a.span })
+        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), as: .assertStmt, at: a.span)
     }
-    return addAssert(ref c, from: BAssert {
+    return recordNodeSyntax(ref c, for: addAssert(ref c, from: BAssert {
         span: a.span,
         condition: operand,
         failsWith: set,
         failsCase: variant,
-    })
+    }), as: .assertStmt, at: a.span)
 }
 
 // ── Null narrowing (spec §7.2) ───────────────────────────────────────────────
 
 /// A fact holds while its scope is open: the C# walk from `_scope` up its parents (Q715).
 bool isNonNull(ref Binder b, for LocalId local) {
-    for pair in b.nonNull {
+    for pair in b.nonNullLocals {
         if pair.item2 != local { continue }
         for s in b.scopeIds {
             if s == pair.item1 { return true }
@@ -488,10 +496,10 @@ bool isNonNull(ref Binder b, for LocalId local) {
 
 /// Binds code that runs only when `cond` is `whenTrue`: the C# `Narrowed` before `bind()`.
 NarrowedScope narrowedBegin(ref Binder b, through ref Ctx c, for BExpr cond, bool whenTrue) {
-    let mark = b.nonNull.length
+    let mark = b.nonNullLocals.length
     let scope = t16ScopeId(ref b)
     for l in nonNullWhen(in c, for: cond, whenTrue: whenTrue) {
-        b.nonNull.append((scope, l))
+        b.nonNullLocals.append((scope, l))
     }
     var before = List<(i64, LocalId, Type)>()
     for f in b.stateFacts { before.append(f) }
@@ -505,8 +513,8 @@ NarrowedScope narrowedBegin(ref Binder b, through ref Ctx c, for BExpr cond, boo
 
 /// The C# `Narrowed` after `bind()`.
 void narrowedEnd(ref Binder b, through ref Ctx c, by move NarrowedScope scope) {
-    while b.nonNull.length > scope.mark {
-        b.nonNull.remove(at: b.nonNull.length - 1)
+    while b.nonNullLocals.length > scope.mark {
+        b.nonNullLocals.remove(at: b.nonNullLocals.length - 1)
     }
     // What the branch learned holds only when it ran.
     var kept = List<(i64, LocalId, Type)>()
@@ -530,7 +538,7 @@ BStmt narrowAfter(ref Binder b, through ref Ctx c, for BStmt i) {
     if thenExits != elseExits {
         let scope = t16ScopeId(ref b)
         for l in nonNullWhen(in c, for: node.condition, whenTrue: elseExits) {
-            b.nonNull.append((scope, l))
+            b.nonNullLocals.append((scope, l))
         }
         let _ = learnStates(ref b, through: ref c, for: node.condition, whenTrue: elseExits)
     }
@@ -689,7 +697,7 @@ BStmt bindLocalDecl(ref Binder b, through ref Ctx c, for in parser.LocalDecl d) 
     if kind == .constKeyword {
         c.locals[local].constant = init == -1 ? null : exprConstant(in c, for: init)
     }
-    return addLocalDecl(ref c, from: BLocalDecl { span: d.span, local: local, initializer: init })
+    return recordNodeSyntax(ref c, for: addLocalDecl(ref c, from: BLocalDecl { span: d.span, local: local, initializer: init }), as: .localDecl, at: d.span)
 }
 
 /// BYN3209: a `const` holding a `struct unique` value; the fix declares it with `let`.
@@ -736,21 +744,21 @@ BStmt bindWhileLet(ref Binder b, through ref Ctx c, for in parser.WhileLetStmt w
         report(ref b, through: ref c, for: .whileLetNotOptional, at: parser.exprSpan(in w.value), by: (typeDisplay(ref c, by: valType), "", "", "", ""),
             help: $"loop with `while` and a condition, or bind it once: `let {t15Text(in c, from: b.file, at: w.variable)} = …`")
     }
-    let cond = addIs(ref c, from: BIs {
+    let cond = recordNodeSyntax(ref c, for: addIs(ref c, from: BIs {
         span: w.span,
         value: value,
         pattern: bindPresent(ref b, through: ref c, at: w.variable, as: valType),
-    })
+    }), as: .whileLetStmt, at: w.span)
     b.targets.append(target)
     let body = bindBody(ref b, through: ref c, for: in w.body)
     b.targets.remove(at: b.targets.length - 1)
     popScope(ref b)
-    return addWhile(ref c, from: BWhile {
+    return recordNodeSyntax(ref c, for: addWhile(ref c, from: BWhile {
         span: w.span,
         condition: cond,
         body: body,
         target: target.id,
-    })
+    }), as: .whileLetStmt, at: w.span)
 }
 
 /// Whether `e` reads existing storage, through any arm, conversion, field or index, rather than a temporary the loop owns.
@@ -821,13 +829,13 @@ bool isBorrowedPlace(ref Ctx c, for BExpr e) {
 BPattern bindPresent(ref Binder b, through ref Ctx c, at TextSpan name, as Type input, bool discard = false) {
     let local = discard ? declareDiscard(ref b, through: ref c, at: name, as: unwrap(ref c, for: input), for: .patternVariable) : declareLocal(ref b, through: ref c, at: name, as: unwrap(ref c, for: input), for: .patternVariable)
     c.locals[local].borrowsSubject = true
-    return addPropertyPattern(ref c, from: BPropertyPattern {
+    return recordNodeSyntax(ref c, for: addPropertyPattern(ref c, from: BPropertyPattern {
         span: name,
         inputType: input,
         valueType: unwrap(ref c, for: input),
         subpatterns: List<BSubpattern>(),
         designation: local,
-    })
+    }), as: .name, at: name)
 }
 
 BStmt bindFor(ref Binder b, through ref Ctx c, for in parser.ForStmt f, to JumpTarget target) {
@@ -877,12 +885,12 @@ BStmt bindFor(ref Binder b, through ref Ctx c, for in parser.ForStmt f, to JumpT
     c.locals[variable].borrowsSubject = true
     let body = bindForBody(ref b, through: ref c, for: in f, by: variable, to: target)
     popScope(ref b)
-    return addFor(ref c, from: BFor {
+    return recordNodeSyntax(ref c, for: addFor(ref c, from: BFor {
         span: f.span,
         variable: variable,
         iterable: iterable,
         body: body,
         target: target.id,
         userIteration: user,
-    })
+    }), as: .forStmt, at: f.span)
 }

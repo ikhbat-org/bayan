@@ -1,0 +1,11 @@
+// os: unix
+void main() fails IoError {
+    let args: string[2] = ["-n", "hi"]
+    let r = try Io.run("echo", args.span)
+    print($"exit {r.exitCode}, stdout [{r.stdout}], stderr [{r.stderr}]")
+    let none: string[1] = ["x"]
+    let _ = Io.run("no-such-program-here", none.span) catch {
+        print("could not start it")
+        return
+    }
+}

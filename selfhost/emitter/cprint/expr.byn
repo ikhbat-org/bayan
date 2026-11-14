@@ -1,4 +1,4 @@
-// T10: CEmitter.cs 1617-1944 (`Expr`, `Call`), minus D3's `LMutantIs`/`LCount` cases (:1696-1699).
+// T10: CEmitter.cs 1617-1944 (`Expr`, `Call`) (with `LMutantIs`/`LCount` at :1698-1701).
 
 import semantics
 import emitter.ltree
@@ -19,7 +19,7 @@ string t10LoweredName(ltree.LKind k) uses alloc {
         "LLabel", "LGoto", "LLoop", "LReturn", "LReturnError", "LFailingCall", "LWrite", "LPanic", "LSetContext", "LFreeArena",
         "LPushPanicHandler", "LPopPanicHandler", "LClaim", "LOptionalHas", "LOptionalValue", "LUnionTag", "LUnionField",
         "LErrorCode", "LErrorField", "LAssignExpr", "LSequence", "LIndexUnchecked", "LNextChar", "LNever", "LFunctionValue",
-        "LVoid"
+        "LMutantIs", "LCount", "LVoid"
     ]
     return $"{names[k.ordinal]}"
 }
@@ -110,6 +110,10 @@ public string emitExpr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in 
                 let ctype = cType(ref cc, from: ref c, for: fnType)
                 let thunk = functionThunk(ref cc, from: ref c, for: t.functionValues[i].function, as: fnType)
                 return $"(({ctype}){{{thunk}, NULL}})"
+            case .mutantIs:
+                return $"byn_mutant_is({t.mutantIss[i].id})"
+            case .count:
+                return $"byn_cov[{t.counts[i].id}]++"
             default:
                 panic($"cannot emit {t10LoweredName(ltree.lKindOf(e))}")
         }
@@ -264,7 +268,8 @@ public string emitExpr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in 
 }
 
 /// CEmitter.cs:1726 `FunctionEmitter.Call` (Q845): the C text of call `e`, with `result` (C text, null for none) as its out argument.
-public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.LTree t, at BExpr e, to string? result) uses alloc {
+/// The C call; `detail` is the detail slot a payload-carrying builtin writes (plan 007 §1).
+public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.LTree t, at BExpr e, to string? result, by string detail = "NULL") uses alloc {
     let n = e & 0xFFFFFFFF
     let fn = c.bCalls[n].function
     let argCount = c.bCalls[n].arguments.length
@@ -317,6 +322,11 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
             let name = helper(ref cc, for: "bynh_io_read_file", from: $"static uint32_t bynh_io_read_file(byn_str path, {list}* out)",
                 as: $"{{\n    uint8_t* p = NULL;\n    int64_t n = 0;\n    uint32_t err = byn_io_read(path, &p, &n, byn_context);\n    if (err == 0 && out) *out = ({list}){{p, n, n, byn_context}};\n    return err;\n}}\n")
             return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
+        case .ioStdinReadAllBytes:
+            let list = cType(ref cc, from: ref c, for: c.functions[fn].returnType)
+            let name = helper(ref cc, for: "bynh_io_read_all_bytes", from: $"static uint32_t bynh_io_read_all_bytes({list}* out)",
+                as: $"{{\n    uint8_t* p = NULL;\n    int64_t n = 0;\n    uint32_t err = byn_io_read_stdin_bytes(&p, &n, byn_context);\n    if (err == 0 && out) *out = ({list}){{p, n, n, byn_context}};\n    return err;\n}}\n")
+            return $"{name}({outArg})"
         case .ioReadText:
             return $"byn_io_read_text({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg}, byn_context)"
         case .ioWriteFile:
@@ -338,10 +348,33 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
             return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
         case .ioRun:
             let span = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[1]].type)
-            let name = helper(ref cc, for: "bynh_io_run", from: $"static uint32_t bynh_io_run(byn_str program, {span} args, byn_process* out)",
-                as: "{\n    return byn_io_run(program, args.ptr, args.len, out, byn_context);\n}\n")
+            // CEmitter.cs:1852: with a named argument (015 S6); a call without one keeps the plain helper, so its C is unchanged.
+            var named = false
+            for k in 2..c.bCalls[n].arguments.length {
+                let a = c.bCalls[n].arguments[k]
+                if ltree.isLowered(a) || semantics.boundKind(a) != .defaultValue { named = true }
+            }
+            if named {
+                let dir = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[2]].type)
+                let input = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[3]].type)
+                let env = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[4]].type)
+                let timeout = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[5]].type)
+                // CEmitter.cs: the live map entries are repacked (a null value unsets); `.timeout`'s payload is the caller's `timeout`.
+                let name = helper(ref cc, for: "bynh_io_run_with",
+                    from: $"static uint32_t bynh_io_run_with(byn_str program, {span} args, {dir} directory, {input} input, {env} env, {timeout} timeout, byn_process* out, int64_t* detail)",
+                    as: "{\n    int64_t n = 0;\n    byn_str* keys = NULL;\n    byn_str* vals = NULL;\n    bool* unset = NULL;\n    if (env.has && env.value.h.len > 0) {\n        keys = (byn_str*)malloc(sizeof(byn_str) * (size_t)env.value.h.len);\n        vals = (byn_str*)malloc(sizeof(byn_str) * (size_t)env.value.h.len);\n        unset = (bool*)malloc(sizeof(bool) * (size_t)env.value.h.len);\n        if (!keys || !vals || !unset) byn_panic(\"out of memory\", NULL, 0);\n        for (int64_t i = 0; i < env.value.h.len; i++) {\n            if (env.value.h.dead[i]) continue;\n            keys[n] = env.value.keys[i];\n            unset[n] = !env.value.vals[i].has;\n            vals[n] = env.value.vals[i].has ? env.value.vals[i].value : (byn_str){NULL, 0};\n            n++;\n        }\n    }\n    uint32_t err = byn_io_run_with(program, args.ptr, args.len, directory.has ? &directory.value : NULL,\n        input.has ? input.value.ptr : NULL, input.has ? input.value.len : -1,\n        keys, vals, unset, n, timeout.has ? timeout.value : -1, out, detail, byn_context);\n    free(keys);\n    free(vals);\n    free(unset);\n    if (err == BYN_IO_TIMEOUT && detail) *detail = timeout.value;\n    return err;\n}\n")
+                let program = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
+                let runArgs = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])
+                let directory = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[2])
+                let bytes = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[3])
+                let vars = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[4])
+                let limit = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[5])
+                return $"{name}({program}, {runArgs}, {directory}, {bytes}, {vars}, {limit}, {outArg}, {detail})"
+            }
+            let name = helper(ref cc, for: "bynh_io_run", from: $"static uint32_t bynh_io_run(byn_str program, {span} args, byn_process* out, int64_t* detail)",
+                as: "{\n    return byn_io_run(program, args.ptr, args.len, out, detail, byn_context);\n}\n")
             let program = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
-            return $"{name}({program}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])}, {outArg})"
+            return $"{name}({program}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])}, {outArg}, {detail})"
         case .ioRunBatch:
             let span = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[1]].type)
             let name = helper(ref cc, for: "bynh_io_run_batch", from: $"static uint32_t bynh_io_run_batch(byn_str path, {span} args, byn_process* out)",
@@ -350,11 +383,9 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
             return $"{name}({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])}, {outArg})"
         case .utf8Decode:
             let span = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[0]].type)
-            let code = c.errorVariants[c.errorSets[c.functions[fn].errorSets[0]].variants[0]].code
-            let errType = errorCType(ref cc, from: ref c)
-            let name = helper(ref cc, for: "bynh_utf8_decode", from: $"static {errType} bynh_utf8_decode({span} bytes, byn_str* out)",
-                as: $"{{\n    int64_t at = byn_utf8_invalid_at(bytes.ptr, bytes.len);\n    if (at >= 0) return ({errType}){{ .code = UINT32_C({code}), .p.e{code} = {{ at }} }};\n    if (out) *out = byn_str_copy((byn_str){{bytes.ptr, bytes.len}}, byn_context);\n    return ({errType}){{0}};\n}}\n")
-            return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
+            let name = helper(ref cc, for: "bynh_utf8_decode", from: $"static uint32_t bynh_utf8_decode({span} bytes, byn_str* out, int64_t* detail)",
+                as: "{\n    int64_t at = byn_utf8_invalid_at(bytes.ptr, bytes.len);\n    if (at >= 0) {\n        if (detail) *detail = at;\n        return BYN_UTF8_INVALID_SEQUENCE;\n    }\n    if (out) *out = byn_str_copy((byn_str){bytes.ptr, bytes.len}, byn_context);\n    return 0;\n}\n")
+            return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg}, {detail})"
         case .utf8TryDecode:
             let span = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[0]].type)
             let opt = cType(ref cc, from: ref c, for: c.functions[fn].returnType)
@@ -370,22 +401,20 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
         case .hexDecode:
             let list = cType(ref cc, from: ref c, for: c.functions[fn].returnType)
             let code = c.errorVariants[c.errorSets[c.functions[fn].errorSets[0]].variants[0]].code
-            let errType = errorCType(ref cc, from: ref c)
-            let name = helper(ref cc, for: "bynh_hex_decode", from: $"static {errType} bynh_hex_decode(byn_str text, {list}* out)",
-                as: $"{{\n    uint8_t* p = NULL;\n    int64_t at = byn_hex_decode(text, &p, byn_context);\n    if (at >= 0) return ({errType}){{ .code = UINT32_C({code}), .p.e{code} = {{ at }} }};\n    if (out) *out = ({list}){{p, text.len / 2, text.len / 2, byn_context}};\n    return ({errType}){{0}};\n}}\n")
-            return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
+            let name = helper(ref cc, for: "bynh_hex_decode", from: $"static uint32_t bynh_hex_decode(byn_str text, {list}* out, int64_t* detail)",
+                as: $"{{\n    uint8_t* p = NULL;\n    int64_t at = byn_hex_decode(text, &p, byn_context);\n    if (at >= 0) {{\n        if (detail) *detail = at;\n        return UINT32_C({code});\n    }}\n    if (out) *out = ({list}){{p, text.len / 2, text.len / 2, byn_context}};\n    return 0;\n}}\n")
+            return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg}, {detail})"
         case .intParse:
             let rt = c.functions[fn].returnType
             let bad = c.errorVariants[c.errorSets[c.functions[fn].errorSets[0]].variants[0]].code
             let overflow = c.errorVariants[c.errorSets[c.functions[fn].errorSets[0]].variants[1]].code
             let name = $"bynh_parse_{key(ref c, for: rt)}"
-            let errType = errorCType(ref cc, from: ref c)
             let ctype = cType(ref cc, from: ref c, for: rt)
             let signed = semantics.isSignedInteger(rt) ? "true" : "false"
-            let _ = helper(ref cc, for: name, from: $"static {errType} {name}(byn_str s, byn_builtin_Radix radix, {ctype}* out)",
-                as: $"{{\n    int64_t v = 0;\n    int64_t at = byn_int_parse_at(s, {semantics.primitiveBits(semantics.primKindOf(i64(rt & 0xFFFFFFFF)))}, {signed}, radix, &v);\n    if (at == -2) return ({errType}){{ .code = UINT32_C({overflow}) }};\n    if (at >= 0) return ({errType}){{ .code = UINT32_C({bad}), .p.e{bad} = {{ at }} }};\n    if (out) *out = ({ctype})v;\n    return ({errType}){{0}};\n}}\n")
+            let _ = helper(ref cc, for: name, from: $"static uint32_t {name}(byn_str s, byn_builtin_Radix radix, {ctype}* out, int64_t* detail)",
+                as: $"{{\n    int64_t v = 0;\n    int64_t at = byn_int_parse_at(s, {semantics.primitiveBits(semantics.primKindOf(i64(rt & 0xFFFFFFFF)))}, {signed}, radix, &v);\n    if (at == -2) return UINT32_C({overflow});\n    if (at >= 0) {{\n        if (detail) *detail = at;\n        return UINT32_C({bad});\n    }}\n    if (out) *out = ({ctype})v;\n    return 0;\n}}\n")
             let text = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
-            return $"{name}({text}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])}, {outArg})"
+            return $"{name}({text}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])}, {outArg}, {detail})"
         case .symbolIntern:
             return symbolIntern(ref cc, for: emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0]))
         case .pathIsRooted:
@@ -418,6 +447,23 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
             return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])})"
         case .fsFileExists:
             return $"byn_fs_file_exists({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])})"
+        case .fsRename:
+            let path = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
+            return $"byn_fs_rename({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])})"
+        case .fsCopy:
+            let path = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
+            return $"byn_fs_copy({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])})"
+        case .fsModified:
+            return $"byn_fs_modified({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
+        case .fsSetModified:
+            let path = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
+            return $"byn_fs_set_modified({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])})"
+        case .fsRealPath:
+            return $"byn_fs_real_path({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg}, byn_context)"
+        case .timeNow:
+            return "byn_time_now()"
+        case .timeFromNanos:
+            return $"((byn_time){{{emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}}})"
         case .hexEncode:
             let span = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[0]].type)
             let name = helper(ref cc, for: "bynh_hex_encode", from: $"static byn_str bynh_hex_encode({span} bytes)",
@@ -431,6 +477,9 @@ public string call(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.L
             return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])})"
         case .ioMonotonicNanos:
             return "byn_io_monotonic_nanos()"
+        // CEmitter.cs:2009
+        case .ioRandomU64:
+            return "byn_io_random_u64()"
         case .ioStdout:
             return "INT32_C(1)"
         case .ioStderr:

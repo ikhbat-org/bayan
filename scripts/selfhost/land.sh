@@ -3,6 +3,7 @@
 #   bash scripts/selfhost/land.sh T13 feat/010-t13            (spec 010)
 #   bash scripts/selfhost/land.sh 011 T3 feat/011-t3          (a row of specs.tsv, named, never guessed from the branch)
 #   bash scripts/selfhost/land.sh --check-scope [spec] T13 feat/010-t13   (only the scope check: no review, no guard run, no merge)
+#   bash scripts/selfhost/land.sh --check [spec] T13 feat/010-t13   (preflight and the guard run for a row: no review, no merge, no tick; exits as they do, `CHECK OK <T>` on success)
 # The paths below are those of spec 010; spec 011 reads its own from its specs.tsv row (dir, tasks file, review/land/tick subjects, tmp dir).
 # Refuses unless: (1) the branch leaves scripts/selfhost/ and tests/quality-baseline.json (written only by land.sh and the batch mutation run, never by a task branch) alone and the base checkout's guard passes on it, (2)
 # docs/specs/010-self-hosted-semantics/reviews/<T>.md exists on that branch, the branch's last commit touches only it and is
@@ -15,7 +16,7 @@
 # Before all of it, the base checkout's preflight.sh must pass (its output: tmp/preflight-land-<t>.txt; not with --check-scope).
 # No mutation runs here (--mutate is dropped): the mutation scores come from the batch run (013 T28).
 set -eu
-CHECK=0; [ "${1:-}" = --check-scope ] && { CHECK=1; shift; }
+CHECK=0; [ "${1:-}" = --check-scope ] && { CHECK=1; shift; }; [ "${1:-}" = --check ] && { CHECK=2; shift; }
 if [ $# -eq 3 ]; then SPEC=$1; shift; else SPEC=010; fi
 T=$1; BR=$2; N=${T#T}; t=$(echo "$T" | tr '[:upper:]' '[:lower:]')
 ROW=$(awk -F'\t' -v s="$SPEC" 'NR>1 && $1==s' "$(dirname "$0")/specs.tsv")
@@ -25,7 +26,7 @@ BASE=$(git rev-parse --abbrev-ref HEAD)
 SHA=$(git rev-parse "$BR")
 [ -z "$(git status --porcelain --untracked-files=no)" ] || { echo "LAND REFUSED: the base worktree has uncommitted changes"; exit 1; }
 # the base checkout's preflight first (stale cites, files outside the list, Question numbers, cross-cutting tests, the wp1 run)
-if [ $CHECK = 0 ]; then
+if [ $CHECK != 1 ]; then
   mkdir -p tmp; BAYAN_BASE=$BASE bash "$PWD/scripts/selfhost/preflight.sh" "$SPEC" "$T" "$BR" > "tmp/preflight-land-$t.txt" 2>&1 && PX=0 || PX=$?
   cat "tmp/preflight-land-$t.txt"; [ $PX = 0 ] || { echo "LAND REFUSED: preflight failed (tmp/preflight-land-$t.txt)"; exit 1; }
 fi
@@ -59,8 +60,13 @@ if [ $CHECK = 1 ]; then
   out=$(cd "$WT" && "${GUARD[@]}" --scope-only) || { echo "$out"; echo "LAND REFUSED: $BR is outside the scope of spec $SPEC"; exit 1; }
   echo "SCOPE OK $T"; exit 0
 fi
+if [ $CHECK = 2 ]; then
+  ( cd "$WT" && "${GUARD[@]}" | tail -25 | tee "../guard-land-$t.txt" )
+  grep -q '^GUARD PASS' "$WT/../guard-land-$t.txt" || { echo "LAND REFUSED: guard failed"; exit 1; }
+  echo "CHECK OK $T"; exit 0
+fi
 ( cd "$WT"
-  [ -f "$REVIEW" ] || { echo "LAND REFUSED: $REVIEW is missing; run the reviewer (scripts/selfhost/review-brief.py) first"; exit 1; }
+  [ -f "$REVIEW" ] || { echo "LAND REFUSED: $REVIEW is missing; run the reviewer (bash scripts/bayan-tool.sh review-brief) first"; exit 1; }
   # earlier review rounds may touch the file; the last commit is the PASS round alone (writer auto-commits are chore(worker))
   [ "$(git diff --name-only "$SHA^" "$SHA")" = "$REVIEW" ] && case "$(git log -1 --format=%s "$SHA")" in "$REVSUB $T review (PASS"*) ;; *) false;; esac \
     || { echo "LAND REFUSED: the branch's last commit must touch only $REVIEW, with the subject '$REVSUB $T review (PASS, …)'"; exit 1; }

@@ -1,0 +1,11 @@
+let total = 1 +
+    2
+let list = [
+    1,
+    2,
+]
+let size = "abc"
+    .length
+let ok = total > 1 and
+    size > 1
+print($"{total} {list.length} {size} {ok}")

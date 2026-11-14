@@ -1,9 +1,9 @@
 # 015 — Bayān tooling: replace Python, Deno and other non-Bayān scripts
-Status: decided (2026-11-02); ports wait for 012 (S1)
+Status: in progress (T1–T8 landed: review-brief, plan-strings-check and install-textmate ported; T9–T17 open)
 Created: 2026-11-02
 
-Sources: `docs/handoffs/2026-11-02-spec-015-tooling.md` (the handoff, filed as 015 because 014 is the `Path` module) and
-`docs/bayan-library-tiers.md` (library placement; it wins over the handoff). Decisions T1–T4 there are settled and not
+Sources: the 2026-11-02 tooling brief (filed as 015 because 014 is the `Path` module; its decisions T1–T4 and port rules are in `docs/decisions/2026-11-02-002-tooling-port-rules.md`) and
+`docs/bayan-library-tiers.md` (library placement; it wins over the tooling rules record). Decisions T1–T4 in that record are settled and not
 re-proposed here. Porting starts after 012 passes (S1, which updates T3's "after 010"); the decisions are below.
 
 ## Problem
@@ -33,26 +33,27 @@ exist) and every workflow step. `scripts/cleanup/` (19 one-off scripts, written 
 
 | File | Lines | What it does | Called from |
 | --- | --- | --- | --- |
-| `scripts/selfhost/mutation-exempt.py` | 26 | lines a `// mutation-exempt: Qnnn` marker skips, checked against the handoff | `guard.sh` |
-| `scripts/selfhost/review-brief.py` | 68 | the reviewer brief for a 010 task (task text, C# ranges, files) | `land.sh` |
-| `scripts/selfhost/wave-brief.py` | 111 | the writer brief for a 010 task; reads `BAYAN_BASE` | `land.sh`, by hand |
-| `scripts/selfhost/guard-checks.py` | 115 | guard checks A–D (oracle, stubs, ctx sections, gating Questions) over `git diff` | `guard.sh` |
-| `scripts/selfhost/coverage-gate.py` | 66 | changed-function coverage gate over `git diff -U0` and two JSON files | `guard.sh` |
+| `scripts/selfhost/mutation-exempt.py` | 26 | lines a `// mutation-exempt: Qnnn` marker skips, checked against the Questions | `guard.sh` |
+| `scripts/selfhost/review-brief.py` | 68 | the reviewer brief for a 010 task (task text, C# ranges, files) — **done**: ported (T3) and deleted | `land.sh` |
+| `scripts/selfhost/wave-brief.py` | 198 | the writer brief for a 010 task; reads `BAYAN_BASE`; records `q-ranges.tsv` under a lock | `land.sh`, by hand |
+| `scripts/selfhost/guard-checks.py` | 124 | guard checks A–E (oracle, stubs, ctx sections, gating Questions) over `git diff` | `guard.sh` |
+| `scripts/selfhost/coverage-gate.py` | 186 | changed-function coverage gate over `git diff -U0` and two JSON files | `guard.sh` |
 | `scripts/selfhost/quality-baseline.py` | 74 | `check`/`update` of `tests/quality-baseline.json` | `mutate-batch.sh`, `land.sh`, `mutation.yml` |
 | `scripts/selfhost/replay.py` | 68 | replays recorded runs (`runs.jsonl`: program, args, cwd, base64 stdin) under a mutant | `mutation-step.sh` (as `bayan mutate`'s test command) |
 | `scripts/quality/stryker_to_quality.py` | 105 | Stryker JSON → `bayan-quality` JSON | `scripts/quality/mutate.sh` |
 | `scripts/quality/cobertura_to_quality.py` | 105 | Cobertura XML → `bayan-quality` JSON | `scripts/quality/coverage.sh` |
 | `scripts/ci/known-failures.py` | 59 | failed tests in `.trx` files vs `tests/windows-known-failures.txt` | `ci.yml` (Windows) |
 | `scripts/unicode/gen-lowercase.py` | 76 | downloads `UnicodeData.txt`, regenerates the case tables in `src/runtime/bayan-rt.c` (rev 0015) | by hand |
-| inline in `scripts/selfhost/mutate-batch.sh:24` | ~60 | the group/file/filter plan: glob `selfhost/**/*.byn`, brace-expand and match task patterns, shard | `mutate-batch.sh` |
-| inline in `scripts/selfhost/mutate-batch.sh:91` | 12 | rewrites report paths repo-relative | `mutate-batch.sh` |
-| inline in `scripts/selfhost/mutation-step.sh:24` | 1 | lists `binary<TAB>sites` from `manifest.json` | `mutation-step.sh` |
+| inline in `scripts/selfhost/mutate-batch.sh:26` | ~60 | the group/file/filter plan: glob `selfhost/**/*.byn`, brace-expand and match task patterns, shard | `mutate-batch.sh` |
+| inline in `scripts/selfhost/mutate-batch.sh:100` | 12 | rewrites report paths repo-relative | `mutate-batch.sh` |
+| inline in `scripts/selfhost/mutation-step.sh:25` | 1 | lists `binary<TAB>sites` from `manifest.json` | `mutation-step.sh` |
+| inline in `scripts/selfhost/guard.sh:80` | 1 | coverage-report files missing from the changed list (`realpath` over the report's paths); found by the 2026-11-08 inventory | `guard.sh` |
 
 ### Deno, PowerShell, JavaScript, other
 
 | File | What it does | Runtime |
 | --- | --- | --- |
-| `scripts/plan-strings-check.js` (128) + `.test.js` (156) | plan diagnostic strings vs `src/` and `docs/diagnostics/` | Deno |
+| `scripts/plan-strings-check.js` (128) + `.test.js` (156) | plan diagnostic strings vs `src/` and `docs/diagnostics/` — **done**: ported (T4) and deleted, Deno left | Deno |
 | `editors/visualstudio/install-textmate.ps1` (8) | copies the TextMate grammar into `%USERPROFILE%\.vs\Extensions\bayan` | PowerShell |
 | `editors/vscode/extension.js`, `package.json`, `.vscodeignore` | the VS Code extension | VS Code's Node |
 | `docs/assets/artifact.js` | browser behaviour for generated HTML docs; synced from `~/.claude/tools/html/` | browser |
@@ -82,10 +83,10 @@ the rest is sequencing.
 
 | Item | Class | Reason |
 | --- | --- | --- |
-| VS Code extension | Keep | VS Code loads only JS (handoff §4) |
-| `upload-artifact`, `download-artifact` | Keep | no supported shell equivalent (§4) |
-| `scripts/pinned-bayan.sh`, `install-zig.sh`, `install-dotnet.sh` | Keep (shell) | run before any `bayan` exists (§4) |
-| Stryker, `scripts/quality/mutate.sh`, `tools/Bayan.UnicodeGen` | Keep | C#-side tooling, leaves with self-hosting (§4 "C# compiler and its tests") |
+| VS Code extension | Keep | VS Code loads only JS (R2) |
+| `upload-artifact`, `download-artifact` | Keep | no supported shell equivalent |
+| `scripts/pinned-bayan.sh`, `install-zig.sh`, `install-dotnet.sh` | Keep (shell) | run before any `bayan` exists |
+| Stryker, `scripts/quality/mutate.sh`, `tools/Bayan.UnicodeGen` | Keep | C#-side tooling, leaves with self-hosting |
 | `docs/assets/artifact.js` | Keep | runs in the reader's browser; owned by `~/.claude` (S11) |
 | `guard.sh`, `land.sh`, `mutation-step.sh`, `coverage.sh`, the `*.test.sh` files | Shell | sequencing; their callers switch to the ports |
 | `mutate-batch.sh` | Shell, after its inline Python moves into a Bayān port (`tools/mutate-plan.byn`) | |
@@ -97,6 +98,8 @@ the rest is sequencing.
 - R1 Every item classed Bayān runs as `bayan run tools/<name>.byn` (a package under `tools/` only when shared) under the
   pinned `bayan` (`scripts/pinned-bayan.sh`), never the working tree's.
 - R2 After the last port, the repo holds no `.py`, Deno or PowerShell file and no `.js` outside the Keep list.
+  `scripts/cleanup/` is exempt (amended 2026-11-08): each one-off there is deleted by its own cleanup run, so
+  `scripts/cleanup/022-self-hosted-emitter-wp1.ps1` does not count against R2.
 - R3 Each library API a port adds is in the module the tiers doc names, declares its effects, takes outside data as
   `Untrusted<T>`, calls libc only through `rt`, and has `std.test` tests and doc comments; nothing a port does not use.
 - R4 No new public API is written before the user approves its shape (*Decisions* below records the approved ones).
@@ -122,7 +125,7 @@ neither, settled under *Decisions*; **014-path** = specified by spec 014 (`Path`
 | `Path.combine`, `fileName`, `directoryName`, `isRooted`, `fullPath`, `relative` | `std.path` | 014-path (spec 014) | `review-brief` |
 | environment variable read | `std.env` | New (S2) | `wave-brief` |
 | regex match, search, find-all, replace, escape | `std.regex` | New (S3) | none yet (S13) |
-| `exists`, `createDirectory`, `rename`, `canonical` (symlinks resolved) | `std.fs` | Spec-only, API New (S4) | `wave-brief` |
+| `Fs.fileExists`, `Io.createDirectory` (exist); `Fs.rename(path, to:)`, `Fs.copy`, `Fs.modified`/`setModified` (`Time`), `Fs.realPath`, `IoError.crossDevice` (fs slice, `feat/017`); `canonical` = `Fs.realPath` (S4, aligned 2026-11-08) | builtins (`fs`) | fs slice in flight; `normalize` (std path) only if a caller needs it (plan G4) | `gen-lowercase` (`rename`), `quality-baseline` (`realPath`) |
 | recursive glob / walk; shell-style pattern match (`fnmatch`) | `std.fs` | Spec-only, API New (S5) | `mutate-plan` |
 | `run` with `directory:`, `input:` bytes, `env:` over the inherited env | `std.process` | New (S6) | `replay` |
 | JSON read (decode to a struct or a tree) and write (2-space indent, Python's `json.dumps(indent=2)` layout) | `std.json` | Spec-only (decoders, §11), API New (S7) | `quality-baseline` |
@@ -137,10 +140,10 @@ Easiest first; each New API arrives with the first port that needs it. Group by 
 
 | # | Port (`tools/…`) | Replaces | Introduces |
 | --- | --- | --- | --- |
-| 1 | `mutation-exempt.byn` | `mutation-exempt.py` | nothing new (S13) |
-| 2 | `review-brief.byn` | `review-brief.py` | uses `std.path` (014) |
+| 1 | not ported | `mutation-exempt.py` | nothing: dead since Q910, removed by `scripts/cleanup/022-self-hosted-emitter.sh` (Q916 (a), 015 T2) |
+| 2 | `review-brief.byn` — **done** (T3; `review-brief.py` deleted) | `review-brief.py` | uses `std.path` (014) |
 | 3 | `wave-brief.byn` | `wave-brief.py` | `std.env`, `std.fs` exists |
-| 4 | `plan-strings-check.byn` | `plan-strings-check.js` + test (Deno leaves, R7) | — |
+| 4 | `plan-strings-check.byn` — **done** (T4; `plan-strings-check.{js,test.js}` deleted, Deno left) | `plan-strings-check.js` + test (Deno leaves, R7) | — |
 | 5 | `guard-checks.byn` | `guard-checks.py` | `std.fs` pattern match |
 | 6 | `quality-baseline.byn` | `quality-baseline.py` | `std.json` read/write, `fs` real path |
 | 7 | `mutate-plan.byn`, `report-paths.byn`, manifest listing | the 3 inline blocks | `std.fs` glob/walk |
@@ -152,16 +155,20 @@ Easiest first; each New API arrives with the first port that needs it. Group by 
 | 13 | `gen-lowercase.byn` | `gen-lowercase.py` (Python leaves once the C# suite and its two S9 scripts go, R7) | `curl` shell-out (R8) |
 | 14 | Bayān | `install-textmate.ps1` (PowerShell leaves) | per S10 |
 
+The order of the remaining rows was revised on 2026-11-08 (plan *Revision 2026-11-08*, groups G1–G7): 14 first (S10),
+then 13, then 9 and the manifest block, then 6 with the report-paths and `guard.sh:80` blocks, then `mutate-plan`, then
+5, 8 and 3 together with `std.regex`, and 10 last, gated on Q1141.
+
 ## Decisions (user, 2026-11-02)
 The questions S1–S12 and D1–D4 were answered on 2026-11-02. Signatures are the approved shapes; names follow the house
 rule of no abbreviations. Nothing below is built before its first port (R4 now reads: built as approved here).
 
 | # | Decision |
 | --- | --- |
-| S1 | **Wait for self-hosting (option B).** Library source, `import std.x` and new runtime builtins land after 012 passes (A1). Prep now: this spec, the CI chore (handoff §5.1), shell-only ports, parity baselines (`tests/parity/`). Revisit option A (a narrow A1 exception) if 011 + 012 run past 4 weeks; see *Timing* below. |
+| S1 | **Wait for self-hosting (option B).** Library source, `import std.x` and new runtime builtins land after 012 passes (A1). Prep now: this spec, the CI chore (CI shell steps in `docs/decisions/2026-11-02-002-tooling-port-rules.md`), shell-only ports, parity baselines (`tests/parity/`). Revisit option A (a narrow A1 exception) if 011 + 012 run past 4 weeks; see *Timing* below. |
 | S2 | `Untrusted<string>? Env.get(string name) uses env` (absent → `none`); no `set`. `run` takes `env:` (S6). |
 | S3 | `std.regex`, RE2-style: classes, `\d\s\w`, anchors, groups, `?*+{m,n}`, alternation, lazy quantifiers; no backreferences or lookaround; linear time. Members as proposed: `Regex.parse(pattern) fails RegexError`, `matches`, `find → Match?`, `findAll`, `replaced(text, by:)`, `Match.group(i)`, `Match.span`, `Regex.escaped(text)`. |
-| S4 | Path strings now, under `uses fs`: `bool exists(string path)`, `void createDirectory(string path, bool parents = true) fails IoError`, `void rename(string from, string to) fails IoError`, `string canonical(string path) fails IoError` (symlinks resolved). The same verbs later on capability `Dir` handles. |
+| S4 | Path strings now, under `uses fs`. Aligned 2026-11-08 to the fs slice decided on `feat/017`: `Fs.fileExists` and `Io.createDirectory` already exist (`createDirectory` is idempotent, as .NET `Directory.CreateDirectory`); the slice adds `Fs.rename(path, to: dest)`, `Fs.copy`, `Fs.modified`/`Fs.setModified` (a builtin `Time` struct, i64 ns since the Unix epoch), `Fs.realPath(path)` (symlinks resolved; fails if the path is missing) and `IoError.crossDevice`. `canonical` is `Fs.realPath`; a pure lexical `normalize` in std path (not a builtin) is added only if a port canonicalizes a path that may not exist (plan G4, T11). `IoError.alreadyExists` is added for the wave-brief lock (plan U4, Q1140). The same verbs later on capability `Dir` handles. Supersedes the 2026-11-02 shapes `rename(string from, string to)` and `canonical`. |
 | S5 | `List<string> glob(string pattern) uses fs` in `std.fs` (`**`, `*`, `?`, `[…]`, `{a,b}`; sorted; `/` separators); pure `bool Glob.matches(string pattern, string path)` in `std.path`. |
 | S6 | Named arguments on `run`: `run(program, args, directory: string? = none, input: ReadOnlySpan<u8>? = none, env: Map<string, string>? = none)`. The environment is inherited; `env:` entries are added over it (user, 2026-11-02). A clean-environment switch (`inheritEnv: false`) is added only when a port needs one. No `Command` builder. |
 | S7 | `std.json` in layers: a pull reader first, the tree (`JsonValue`: null, bool, number as `f64` plus its text, string, list, object in key order) built on the reader, `Json.encode(JsonValue v, i32 indent = 0)`; struct derivation later, on the reader. Decoded values are `Untrusted`. |
@@ -170,7 +177,7 @@ rule of no abbreviations. Nothing below is built before its first port (R4 now r
 | S10 | `install-textmate.ps1` is ported to Bayān (Windows then needs only `bayan`), using S4. |
 | S11 | `docs/assets/artifact.js` is on the Keep list. |
 | S12 | `Base64` lives in `std.encoding` with `Hex` (settles tiers Q3). |
-| S13 | `mutation-exempt` is ported to Bayān with string members only (`lines`, `position`, slices, `i64.tryParse`), not with `std.regex` and not to awk (user, 2026-11-02). `std.regex` (S3) arrives with the first later port that needs it. |
+| S13 | Superseded by Q916 (a) (015 T2): port 1 is not ported. `mutation-exempt` is ported to Bayān with string members only (`lines`, `position`, slices, `i64.tryParse`), not with `std.regex` and not to awk (user, 2026-11-02). `std.regex` (S3) arrives with the first later port that needs it. |
 | D1 | The macOS 10x timing test stays as it is (green three runs in a row). |
 | D2 | The .NET SDK stays pinned exactly (10.0.403, sha512) with a monthly reminder to bump the patch. |
 | D3 | The `bayan new --ci github` template moves to `actions/checkout@v5` now: the scaffolder is CLI code that 010 does not port, so this is an A1 exception the user granted. |
@@ -189,7 +196,7 @@ every file written.
 
 | Port | Inputs | Compare |
 | --- | --- | --- |
-| mutation-exempt | every `selfhost/**/*.byn` with the current handoff; the `mutation-exempt.test.sh` cases | bytes |
+| mutation-exempt | not ported (Q916 (a)) | none |
 | review-brief, wave-brief | each of the 40 tasks in `010-tasks.md` on the current spec files; `wave-brief.test.sh` cases | bytes |
 | plan-strings-check | the default plan, `--all-help`, each code; the Deno test's fixtures | bytes; exit code |
 | guard-checks | the last 10 landed 010 tasks (`<base> <task> <globs>` from `land.sh` history); `guard-checks.test.sh` | bytes |
@@ -221,8 +228,8 @@ mutants), `gen-lowercase` (needs the Unicode download), the report-paths and man
   only until the original is deleted, so a parity check, not a law.
 
 ## Open questions
-- Conflicts found: the handoff's paths `GRAMMAR.md`, `HANDOFF.md`, `bootstrap/`, `npm run lsp`, `npm run grammar` and
-  `tests/lsp-regress.js` do not exist here (the first two are `docs/bayan-grammar.md`, `docs/bayan-handoff.md`; the
+- Conflicts found: the original brief's paths `GRAMMAR.md`, `HANDOFF.md`, `bootstrap/`, `npm run lsp`, `npm run grammar` and
+  `tests/lsp-regress.js` do not exist here (the first two are `docs/bayan-grammar.md`, `docs/bayan-milestones.md`; the
   rest have no counterpart, so nothing to port).
 
 ## Port record

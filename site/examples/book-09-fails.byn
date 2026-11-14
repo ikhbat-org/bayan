@@ -1,0 +1,34 @@
+union error ParseError {
+    empty
+    notDigit
+}
+
+interface IParser {
+    i64 parse(string s) fails ParseError
+}
+
+struct Digits : IParser {
+    i64 base
+
+    i64 parse(string s) fails ParseError {
+        fail .empty if s.isEmpty
+        let c = s.bytes[0]
+        fail .notDigit if c < '0' || c > '9'
+        return base + i64(c - '0')
+    }
+}
+
+void attempt(dyn ref readonly IParser p, from string s) {
+    let n = p.parse(s) catch switch {
+        .empty => -1,
+        .notDigit => -2,
+    }
+    print($"{s} gives {n}")
+}
+
+void main() {
+    let d = Digits { base: 10 }
+    attempt(d, from: "7")
+    attempt(d, from: "")
+    attempt(d, from: "x")
+}

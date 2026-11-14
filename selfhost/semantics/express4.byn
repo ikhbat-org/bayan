@@ -510,7 +510,7 @@ BExpr bindInterpolated(ref Binder b, through ref Ctx c, for in parser.Interpolat
             case .interpolationHole(let hole):
                 let value = bindExpr(ref b, through: ref c, for: in hole.value.expr)
                 let valueType = exprType(in c, for: value)
-                // `as: .debug` shows a struct without `formatInto` in its literal form (spec §13).
+                // `as: .debug` shows a struct without `formatInto` in its literal form (SPEC §6.6).
                 var debug = false
                 for a in hole.value.specs {
                     if (a.name is { } an) {
@@ -616,11 +616,11 @@ string? whyNotFormattable(ref Ctx c, for Type t, by ref List<Type> seen) {
     switch kindOf(t) {
         case .primitive: return !(isVoid(t) || isNever(t)) ? null : ""
         case .errorSet or .errorUnion or .enumType or .typeParam: return null
-        case .builtin: return builtinKindOf(i) == .symbol ? null : ""
+        case .builtin: return builtinKindOf(i) == .symbol || builtinKindOf(i) == .millis ? null : ""
         case .optional: return t35Part(ref c, for: "the value", as: c.optionalTypes[i], by: ref seen)
         case .result: return t35Part(ref c, for: "the value", as: c.resultTypes[i].value, by: ref seen)
         case .owned: return whyNotFormattable(ref c, for: c.ownedTypes[i], by: ref seen)
-        // Structs have no default display (HANDOFF §13): only `formatInto` formats one.
+        // Structs have no default display (SPEC §6.6): only `formatInto` formats one.
         case .structType: return t35HasFormatInto(ref c, for: i) ? null : ""
         case .unionType:
             if listContains(in seen, by: t) { return null }

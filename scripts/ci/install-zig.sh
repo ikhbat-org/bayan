@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Installs the pinned zig into DEST and prints its bin directory; checks the archive's sha256 first.
 # Replaces mlugg/setup-zig, whose latest release (v2.2.1) still runs on Node 20.
-# Usage: install-zig.sh DEST   (tests only: ZIG_BASE_URL replaces https://ziglang.org/download, ZIG_SHA256 the pinned sum)
+# Usage: install-zig.sh DEST   (RUNNER_ARCH X64|ARM64 picks the architecture over uname; tests only: ZIG_BASE_URL replaces https://ziglang.org/download, ZIG_SHA256 the pinned sum)
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -14,12 +14,22 @@ fi
 dest="${1:?usage: install-zig.sh DEST}"
 base="${ZIG_BASE_URL:-https://ziglang.org/download}"
 
+# The runner's architecture when GitHub sets it (an x64 Git Bash on windows-11-arm still wants arm64 zig), else uname.
+case "${RUNNER_ARCH:-}" in
+  X64)   arch=x86_64 ;;
+  ARM64) arch=arm64 ;;
+  *)     arch="$(uname -m)" ;;
+esac
+
 # From https://ziglang.org/download/index.json, release 0.17.0.
-case "$(uname -s)-$(uname -m)" in
-  Linux-x86_64)                   target=x86_64-linux;   ext=tar.xz; sum=1cbe9df9f27e6b78d14ccbca43b6703a404ef79ef1c463de901d7f088d4e2026 ;;
-  Darwin-arm64)                   target=aarch64-macos;  ext=tar.xz; sum=b607e9b9234790a008116ae5bdb71c6243b84b9fb42a53a9e70fde41c06c536a ;;
-  MINGW64*-x86_64|MSYS*-x86_64)   target=x86_64-windows; ext=zip;    sum=b5663f69581dcf391293fbf16c06cb80d81d806545ce618b4d0bab7f0eb8c428 ;;
-  *) echo "install-zig: no pinned zig $version for $(uname -s)-$(uname -m)" >&2; exit 1 ;;
+case "$(uname -s)-$arch" in
+  Linux-x86_64)                          target=x86_64-linux;    ext=tar.xz; sum=1cbe9df9f27e6b78d14ccbca43b6703a404ef79ef1c463de901d7f088d4e2026 ;;
+  Linux-aarch64|Linux-arm64)             target=aarch64-linux;   ext=tar.xz; sum=9e8d11661d4ae3bd57702a3832781e23ad151dde5798e16a5ccd503f65234ff8 ;;
+  Darwin-arm64)                          target=aarch64-macos;   ext=tar.xz; sum=b607e9b9234790a008116ae5bdb71c6243b84b9fb42a53a9e70fde41c06c536a ;;
+  Darwin-x86_64)                         target=x86_64-macos;    ext=tar.xz; sum=4f9a1c5269aa17ebda5e6d3c2b89d6cbf36f7d2b22a0306e9ab98f25f95529c6 ;;
+  MINGW64*-x86_64|MSYS*-x86_64)          target=x86_64-windows;  ext=zip;    sum=b5663f69581dcf391293fbf16c06cb80d81d806545ce618b4d0bab7f0eb8c428 ;;
+  MINGW64*-aarch64|MINGW64*-arm64|MSYS*-aarch64|MSYS*-arm64) target=aarch64-windows; ext=zip; sum=0a59d91fa1cb40cf068e9b0954434ce973500c7a2ea749f1e01af62cdab52d26 ;;
+  *) echo "install-zig: no pinned zig $version for $(uname -s)-$arch" >&2; exit 1 ;;
 esac
 name="zig-$target-$version"
 sum="${ZIG_SHA256:-$sum}"

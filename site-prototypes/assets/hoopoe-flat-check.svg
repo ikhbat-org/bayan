@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Flat hoopoe perched on a passing-tests check mark</title>
+  <path d="M44 200 L88 238 L224 150" fill="none" stroke="#C08A2E" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M100.9 65.9 L79.5 50.4 L58.7 42.5 L73.2 59.4 L95.1 74.1 Z" fill="#D9A05B"/>
+  <path d="M58.7 35.5 L65.7 42.5 L58.7 49.5 L51.7 42.5 Z" fill="#1F3A5F"/>
+  <path d="M102.4 67.7 L90.5 44.1 L75.5 27.6 L80.7 49.3 L93.6 72.3 Z" fill="#D9A05B"/>
+  <path d="M75.5 20.6 L82.5 27.6 L75.5 34.6 L68.5 27.6 Z" fill="#1F3A5F"/>
+  <path d="M103.0 69.8 L102.6 43.4 L96.3 22.0 L91.6 43.8 L93.0 70.2 Z" fill="#D9A05B"/>
+  <path d="M96.3 15.0 L103.3 22.0 L96.3 29.0 L89.3 22.0 Z" fill="#1F3A5F"/>
+  <path d="M102.6 72.0 L113.8 48.1 L117.5 26.1 L103.7 43.6 L93.4 68.0 Z" fill="#D9A05B"/>
+  <path d="M117.5 19.1 L124.5 26.1 L117.5 33.1 L110.5 26.1 Z" fill="#1F3A5F"/>
+  <path d="M101.2 73.8 L121.8 57.2 L134.8 39.1 L114.7 48.8 L94.8 66.2 Z" fill="#D9A05B"/>
+  <path d="M134.8 32.1 L141.8 39.1 L134.8 46.1 L127.8 39.1 Z" fill="#1F3A5F"/>
+  <clipPath id="tail"><path d="M176 146 L196 132 L240 190 L216 208 Z"/></clipPath>
+  <path d="M176 146 L196 132 L240 190 L216 208 Z" fill="#1F3A5F"/>
+  <g clip-path="url(#tail)">
+    <path d="M162.6 178.0 L168.1 185.2 L231.8 136.8 L226.3 129.6 Z" fill="#EDE6D6"/>
+    <path d="M174.7 193.9 L180.2 201.1 L243.9 152.8 L238.4 145.6 Z" fill="#EDE6D6"/>
+    <path d="M186.8 209.9 L192.3 217.1 L256.0 168.7 L250.5 161.5 Z" fill="#EDE6D6"/>
+  </g>
+  <path d="M78.0 102.0 C62.0 138.0 70.0 170.0 108.0 184.0 C140.0 194.0 176.0 176.0 192.0 148.0 L180.0 120.0 C150.0 104.0 120.0 112.0 106.0 104.0 Z" fill="#D9A05B"/>
+  <circle cx="92" cy="88" r="23" fill="#D9A05B"/>
+  
+  <clipPath id="wing"><path d="M104 112 C138 104 176 122 200 160 C164 184 120 176 100 142 Z"/></clipPath>
+  <path d="M104 112 C138 104 176 122 200 160 C164 184 120 176 100 142 Z" fill="#1F3A5F"/>
+  <g clip-path="url(#wing)">
+    <path d="M91.5 180.9 L100.9 184.4 L143.0 72.1 L133.7 68.5 Z" fill="#EDE6D6"/>
+    <path d="M113.0 188.9 L122.3 192.5 L164.5 80.1 L155.1 76.6 Z" fill="#EDE6D6"/>
+    <path d="M134.4 197.0 L143.8 200.5 L185.9 88.1 L176.5 84.6 Z" fill="#EDE6D6"/>
+    <path d="M155.9 205.0 L165.2 208.5 L207.3 96.2 L198.0 92.7 Z" fill="#EDE6D6"/>
+  </g>
+  
+  <path d="M112.0 184.0 L110.0 216.0 L100.0 216.0" fill="none" stroke="#8A6F3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M134.0 186.0 L136.0 199.0 L126.0 199.0" fill="none" stroke="#8A6F3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

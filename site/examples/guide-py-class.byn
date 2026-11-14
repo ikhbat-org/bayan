@@ -1,0 +1,19 @@
+struct Account {
+    string owner
+    i64 balance = 0
+
+    bool isEmpty => balance == 0
+
+    void deposit(ref this, i64 amount) {
+        balance += amount
+    }
+}
+
+void main() {
+    var a = Account { owner: "ada" }
+    a.deposit(50)
+    let b = a with { owner: "grace" }
+    a.deposit(25)
+    print($"{a.owner} {a.balance} {a.isEmpty}")
+    print($"{b.owner} {b.balance}")
+}

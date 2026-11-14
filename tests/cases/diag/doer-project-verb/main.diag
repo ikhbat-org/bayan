@@ -1,0 +1,7 @@
+warning BYN5106: `RowUpserter` is named for the act `upsert` but has no `upsert` member
+  --> main.byn:6:15
+
+  6 │ public struct RowUpserter {
+    │               ^^^^^^^^^^^
+    │
+  help: add a member named `upsert`, or rename the type for what it is

@@ -12,7 +12,9 @@ if '--spec' in args:
 BRIEF = {'010': dict(desc='the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`', landed='''Landed and callable: `ctx.byn` (T1), `codes.byn`/`diag.byn` (T2: `report`, `addDiag`, `pushBag`, `popBag`), `symbols.byn`/`types.byn` (T3), `bound.byn` (T4: `add<Kind>`, `children`, `exprType`, `Constant`), `bigint.byn` (T5: labels `bigCmp(a, as: b)`, `bigAdd(a, by: b)`, `bigFits(n, to: bits, signed: s)`; see Q540).''', harness='''`tests/Bayan.Tests/SelfhostSemanticsHarness.cs`: `SelfhostSemanticsHarness.RunSections(mainSource)` builds `selfhost/semantics` with your generated `main.byn` (a C# string) and returns its output split at lines `== <section>`; `SelfhostSemanticsHarness.AssertSection(sections, "<section>", expectedLines)` names the first differing line. Build once per class (`static readonly Lazy<…>`). The oracle is the C# implementation: run the same input through `Bayan.Semantics` in-process (`Compilation.Create`, or the C# class directly when it is public/internal-visible) and print the same lines. Every ported function gets a compared case including a failure/diagnostic path; diagnostics compare as `code line:col message`.''', oracle='SelfhostSemanticsT10Tests.Expected'),
          '011': dict(desc='the Bayan lowering and C emitter ported from C# `src/Bayan.Lowering/` and `src/Bayan.Backend.C/` into Bayan under `selfhost/emitter/`', landed="Landed and callable: see `docs/specs/011-self-hosted-emitter/011-api.md` and the task's `after:` list; the 010 checker modules under `selfhost/semantics/` are public to you.", harness='''`tests/Bayan.Tests/SelfhostEmitterHarness.cs`: `SelfhostEmitterHarness.Build` compiles `selfhost/emitter/**/*.byn` once per run in `fast` mode and `Run(input, mode, tests)` starts the binary and returns stdout/stderr/exit; `AssertSame(name, expected, actual)` reports the first differing line. Unit tests of a wave task run the task's functions through a generated `main` with the C# as oracle (`CliApp.EmitC(Compilation.Create([source], dir), mode)`). Every ported function gets a compared case including a failure path. If the harness file is not landed yet, read `docs/specs/011-self-hosted-emitter/011-plan.md` (Test harness).''', oracle='SelfhostEmitterHarness.AssertSame'),
          '014': dict(desc='the Bayan lowering and C emitter ported from C# `src/Bayan.Lowering/` and `src/Bayan.Backend.C/` into Bayan under `selfhost/emitter/`', landed="Landed and callable: see `docs/specs/014-std-path-module/014-api.md` and the task's `after:` list; the 010 checker modules under `selfhost/semantics/` are public to you.", harness='''`tests/Bayan.Tests/SelfhostEmitterHarness.cs`: `SelfhostEmitterHarness.Build` compiles `selfhost/emitter/**/*.byn` once per run in `fast` mode and `Run(input, mode, tests)` starts the binary and returns stdout/stderr/exit; `AssertSame(name, expected, actual)` reports the first differing line. Unit tests of a wave task run the task's functions through a generated `main` with the C# as oracle (`CliApp.EmitC(Compilation.Create([source], dir), mode)`). Every ported function gets a compared case including a failure path. If the harness file is not landed yet, read `docs/specs/014-std-path-module/014-plan.md` (Test harness).''', oracle='SelfhostEmitterHarness.AssertSame'),
-         '012': dict(desc='the Bayan compiler driver ported from C# `src/Bayan.Cli/` (`CliApp`) into Bayan under `selfhost/driver/`, compiled with package root `selfhost/` (stage 1 of the bootstrap)', landed='Landed and callable: see `docs/specs/012-self-hosted-bootstrap/012-api.md` and the task\'s `after:` list; the lexer, parser, semantics and emitter modules under `selfhost/` are public to you as `012-plan.md` D2 says.', harness='Not landed yet: `tests/Bayan.Tests/SelfhostDriverHarness.cs` is created by T1, as `012-tasks.md` T1 and `012-plan.md` define it. It builds stage 1 once with `Compilation.Create(sources, packageRoot: selfhost/)` like `SelfhostEmitterHarness.cs:28-36` and runs it as a process. Expected values come from `CliApp.Run`/`CliApp.EmitC` or the C# golden tests. Every ported function gets a compared case including a failure path.', oracle='SelfhostDriverHarness')}
+         '012': dict(desc='the Bayan compiler driver ported from C# `src/Bayan.Cli/` (`CliApp`) into Bayan under `selfhost/driver/`, compiled with package root `selfhost/` (stage 1 of the bootstrap)', landed='Landed and callable: see `docs/specs/012-self-hosted-bootstrap/012-api.md` and the task\'s `after:` list; the lexer, parser, semantics and emitter modules under `selfhost/` are public to you as `012-plan.md` D2 says.', harness='Not landed yet: `tests/Bayan.Tests/SelfhostDriverHarness.cs` is created by T1, as `012-tasks.md` T1 and `012-plan.md` define it. It builds stage 1 once with `Compilation.Create(sources, packageRoot: selfhost/)` like `SelfhostEmitterHarness.cs:28-36` and runs it as a process. Expected values come from `CliApp.Run`/`CliApp.EmitC` or the C# golden tests. Every ported function gets a compared case including a failure path.', oracle='SelfhostDriverHarness'),
+         '017': dict(desc='the remaining `bayan` commands (explain, features, clean, cache, new, init, doctor, audit, format, test, dist, mutate) ported from C# `src/Bayan.Cli/` and `src/Bayan.Testing/` into the self-hosted driver under `selfhost/driver/`, so the self-hosted compiler can ship as the default `bayan` (spec 017)', landed='Landed and callable: the whole self-hosted driver of spec 012 (`docs/specs/012-self-hosted-bootstrap/012-api.md`), `docs/specs/017-selfhost-default/017-api.md` and the task\'s `after:` list; the lexer, parser, semantics and emitter modules under `selfhost/` are public to you.', harness='`tests/Bayan.Tests/SelfhostDriverHarness.cs` builds stage 1 once per run and runs it as a process; the L028 rows in `tests/Bayan.Tests/SelfhostDriverGoldenTests.cs` run `CSharp(cwd, args)` and `Stage2(cwd, args)` on the same argv and compare stdout, stderr, exit code and written files (`017-plan.md` Data / interfaces). Expected values come from `CliApp.Run` or the C# golden tests, never typed by hand. Every ported function gets a compared case including a failure path.', oracle='SelfhostDriverHarness')}
+BRIEF['018'] = dict(desc='revision 0021 checker changes (help texts, fix-its, new diagnostics) made in C# `src/Bayan.Semantics/` and ported into the self-hosted checker under `selfhost/semantics/` (spec 018), messages and fix-its byte-identical in both compilers', landed='Landed and callable: the whole self-hosted checker of spec 010 under `selfhost/semantics/` and the earlier tasks of `docs/specs/018-rev-0021-checker/018-tasks.md`.', harness=BRIEF['010']['harness'], oracle='SelfhostSemanticsT10Tests.Expected')
 if SPEC not in BRIEF: sys.exit(f'wave-brief: no brief text for spec {SPEC}')
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -47,7 +49,7 @@ def owned_files(block):
     head = block[0]
     files = re.search(r'files: (.*?) — (?:covers|after|done when)', head).group(1).split(' — C#:')[0]  # 011 names the C# range after the files
     files = re.sub(r'\([^()]*(\([^()]*\)[^()]*)*\)', '', files)
-    names = re.findall(r'`([^`]+\.(?:byn|cs|md|c|h|diag|txt|stdout|stderr|exitcode|sha256))`', files)  # golden expected files too (014 T6)
+    names = re.findall(r'`([^`]+\.(?:byn|cs|md|c|h|diag|txt|stdout|stderr|exitcode|sha256|sh|yml|yaml))`', files)  # golden expected files too (014 T6)
     return [x for n in names for x in braces(n)]
 
 
@@ -80,21 +82,25 @@ def git(*a):
 
 
 # Question ranges (plan D6): an open task with none in its line gets the next five numbers after every Question in this
-# checkout's handoff, every local branch's handoff, every range in a tasks file and every range already assigned, recorded in
+# checkout's questions doc, every local branch's, every range in a tasks file and every range already assigned, recorded in
 # tmp/q-ranges.tsv of the main checkout (BAYAN_QRANGES overrides) under a lock, so briefs written at once do not overlap
 QRANGES = os.environ.get('BAYAN_QRANGES') or os.path.join(os.path.dirname(git('rev-parse', '--path-format=absolute', '--git-common-dir').decode().strip() or os.path.join(wt, '.git')), 'tmp', 'q-ranges.tsv')
 
+# Every number is taken: open, answered, and the pre-split handoff a branch cut before 2026-11-14 still carries.
+QDOCS = ('docs/bayan-questions.md', 'docs/decisions/2026-11-14-004-answered-questions.md', 'docs/bayan-handoff.md')
+
 
 def taken():
-    texts = [open(os.path.join(wt, 'docs/bayan-handoff.md'), encoding='utf-8').read() if os.path.exists(os.path.join(wt, 'docs/bayan-handoff.md')) else '']
+    texts = [open(os.path.join(wt, d), encoding='utf-8').read() for d in QDOCS if os.path.exists(os.path.join(wt, d))]
     refs = git('for-each-ref', 'refs/heads', '--format=%(refname:short)').decode().split()
-    out = subprocess.run(['git', '-C', wt, 'cat-file', '--batch'], input=''.join(f'{r}:docs/bayan-handoff.md\n' for r in refs).encode(), capture_output=True).stdout
+    out = subprocess.run(['git', '-C', wt, 'cat-file', '--batch'], input=''.join(f'{r}:{d}\n' for r in refs for d in QDOCS).encode(), capture_output=True).stdout
     while out:
         head, _, out = out.partition(b'\n')
         if head.endswith(b' missing') or not head:
             continue
         size = int(head.split()[2]); texts.append(out[:size].decode('utf-8', 'replace')); out = out[size + 1:]
-    nums = [int(n) for x in texts for n in re.findall(r'^(\d{3,4})\. ', x, re.M)]
+    # an open Question's `N. ` line, or an answered one's table row `| QN |`
+    nums = [int(a or b) for x in texts for a, b in re.findall(r'^(?:(\d{3,4})\. |\| Q(\d{3,4}) \|)', x, re.M)]
     sd = os.path.join(wt, 'docs/specs')
     for d in os.listdir(sd) if os.path.isdir(sd) else []:
         for f in os.listdir(os.path.join(sd, d)):
@@ -123,14 +129,14 @@ for t in args[1:]:
     files = owned_files(block)
     # a root file (CHANGELOG.md) and a bare spec file (010-spec.md) are docs this spec owns too
     files = [f"{row['dir']}/{f}" if re.fullmatch(rf'{SPEC}-[a-z]+\.md', f) else f for f in files]
-    rooted = [f for f in files if f.startswith(('tests/', 'docs/', 'src/', 'work/', 'bootstrap/')) or re.fullmatch(r'[A-Z]+\.md', f)]
+    rooted = [f for f in files if f.startswith(('.github/', 'tests/', 'docs/', 'src/', 'work/', 'bootstrap/', 'scripts/')) or re.fullmatch(r'[A-Z]+\.md', f)]
     byns = [f for f in files if f.endswith('.byn') and f not in rooted]
     tests = [f for f in files if f.endswith('.cs') and f not in rooted]
     # a task naming its test files only with their directory (`tests/Bayan.Tests/X.cs`, 012 T4) is gated by those classes,
     # not by a `<prefix><n>Tests` class it does not have (Q945); a task with bare test names keeps them alone (011 T14 re-pins)
     if not tests: tests = [f.removeprefix('tests/Bayan.Tests/') for f in rooted if re.fullmatch(r'tests/Bayan\.Tests/[A-Za-z0-9]+Tests\.cs', f)]
     paths = [f if f.startswith('selfhost/') else f"{row['bydir']}/{f}" for f in byns] + [f'tests/Bayan.Tests/{f}' for f in tests] + rooted
-    allow = ','.join(dict.fromkeys(paths + ['docs/bayan-handoff.md', f"{row['dir']}/{row['tasks']}"]))
+    allow = ','.join(dict.fromkeys(paths + ['docs/bayan-questions.md', f"{row['dir']}/{row['tasks']}"]))
     own_api = [l for l in api if re.match(rf'^- {t} ', l)]
     q = qrange(block)
     if not q and SPEC != '010' and block[0].startswith('- [ ]'): q = assign(t)
@@ -141,6 +147,9 @@ for t in args[1:]:
     filt = f'Law=L{law[0]}' if law and not tests else f'FullyQualifiedName~{test_class}'
     # a docs-only task: its gate is the test that keeps 010-api.md and the code in step
     if SPEC == '010' and not law and not tests and not byns: filt = 'FullyQualifiedName~SelfhostSemanticsApiTests'
+    # a docs-only task in another spec (011 T16, 012 T10, 017 T18): no `<prefix>T<n>Tests` class exists, so the cross-cutting classes preflight runs gate it
+    elif not law and files and all(f.startswith(('docs/', 'work/')) or re.fullmatch(r'[A-Z]+\.md', f) for f in files):
+        filt = 'FullyQualifiedName~CInventoryTests|FullyQualifiedName~SelfhostDriverT8Tests|FullyQualifiedName~SelfhostDriverRuntimeTests'
     # 011: every test class the task owns gates it (a task with a law page and tests too, T14), and T21 also counts the SelfhostSemantics* tests (Q867, Q870)
     if SPEC != '010' and (tests or not law):
         filt = '|'.join(f'FullyQualifiedName~{c}' for c in dict.fromkeys(c for f in tests for c in declared(f))) or filt
@@ -154,7 +163,7 @@ for t in args[1:]:
 ```
 bash scripts/selfhost/preflight.sh {SPEC} {t} "$(git rev-parse --abbrev-ref HEAD)"
 ```
-Every line must say `ok` except `wp1`, which the dispatcher runs after your commit. It checks that each `file:line` you added cites the line as it stands after your last edit and that the backticked code you quote with it is on that line, that every file you changed is in your files list (if not, put the addition it prints in your final message; do not edit the tasks file), that your Questions are new numbers inside {'Q'+q[0]+'–Q'+q[1] if q else 'your range'}, and that your test classes and the cross-cutting ones (`CInventoryTests`, `SelfhostDriverT8Tests`, `SelfhostDriverRuntimeTests`, `plan-strings-check.js`) pass, none matching zero tests. Paste its output into your summary.
+Every line must say `ok` except `wp1`, which the dispatcher runs after your commit. It checks that each `file:line` you added cites the line as it stands after your last edit and that the backticked code you quote with it is on that line, that every file you changed is in your files list (if not, put the addition it prints in your final message; do not edit the tasks file), that your Questions are new numbers inside {'Q'+q[0]+'–Q'+q[1] if q else 'your range'}, and that your test classes and the cross-cutting ones (`CInventoryTests`, `SelfhostDriverT8Tests`, `SelfhostDriverRuntimeTests`, `plan-strings-check`) pass, none matching zero tests. Paste its output into your summary.
 """
     s = f"""You are doing task {t} of spec {SPEC} ({BRIEF[SPEC]['desc']}). Other writers port the sibling files in parallel; every cross-file function already exists as a compiling stub with its final signature, so you call real names and never write stand-ins. A separate reviewer compares your port with the C# line by line before it lands; invented logic, sibling fallbacks and hand-typed test expectations fail that review.
 
@@ -186,7 +195,7 @@ Port method for method in C# order, keeping C# names lowerCamel. Read the C# ran
 {BRIEF[SPEC]['harness']}
 
 ## Files you own
-{', '.join('`'+p+'`' for p in paths)}, `docs/bayan-handoff.md` (Questions {'Q'+q[0]+'–Q'+q[1] if q else 'in your range'} only, inserted in number order), your own `// ── {t} state` sections of {' and '.join('`'+c+'`' for c in SHARED)} (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`scripts/selfhost/review-brief.py`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.
+{', '.join('`'+p+'`' for p in paths)}, `docs/bayan-questions.md` (Questions {'Q'+q[0]+'–Q'+q[1] if q else 'in your range'} only, inserted in number order), your own `// ── {t} state` sections of {' and '.join('`'+c+'`' for c in SHARED)} (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`bash scripts/bayan-tool.sh review-brief`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.
 
 {cheat}
 ## End your final message with

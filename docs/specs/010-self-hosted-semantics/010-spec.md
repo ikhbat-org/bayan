@@ -4,7 +4,7 @@ Created: 2026-10-26
 
 ## Problem
 
-The handoff's "Road to self-hosting" puts semantics next: binder, flow and ownership in Bayan, checked against every `diag/` golden and, through spec 004's typed dump, a binder-equivalence law. Spec 009 delivered a Bayan parser whose tree and diagnostics match the C# parser. Nothing in Bayan yet resolves names, checks types, or runs the flow, effect, ownership and region analyses, so lowering (011) has no bound program to consume. The C# semantics are about 14,250 lines (`src/Bayan.Semantics/`), three times the parser; 421 of the 519 `diag/` goldens expect a semantic code (first code BYN2000 or above; some are BYN5xxx–BYN8xxx).
+The milestones doc's "Road to self-hosting" puts semantics next: binder, flow and ownership in Bayan, checked against every `diag/` golden and, through spec 004's typed dump, a binder-equivalence law. Spec 009 delivered a Bayan parser whose tree and diagnostics match the C# parser. Nothing in Bayan yet resolves names, checks types, or runs the flow, effect, ownership and region analyses, so lowering (011) has no bound program to consume. The C# semantics are about 14,250 lines (`src/Bayan.Semantics/`), three times the parser; 421 of the 519 `diag/` goldens expect a semantic code (first code BYN2000 or above; some are BYN5xxx–BYN8xxx).
 
 ## Goals
 
@@ -38,7 +38,7 @@ The handoff's "Road to self-hosting" puts semantics next: binder, flow and owner
 - **R6 Generated inputs.** A generator produces well-typed programs and programs with one injected semantic fault (unknown name, wrong type, use after move, missing `fails`, unassigned read). The suite compares the two checkers on a fixed set of seeds.
 - **R7 Speed bound.** On a 1 MB generated well-typed program, `bayan-check` built in `fast` mode takes no more than 10 times as long as `bayan check`, median over 5 runs.
 - **R8 Port friction.** Every workaround forced by the language or the bootstrap compiler gets a handoff Question or a `work/todo.md` line; a compiler bug that blocks the port is fixed in this spec, with a test.
-- **R9 Docs.** The handoff's "Road to self-hosting" row 010 is marked done, Questions raised by the port are listed, and the self-hosting readiness section is updated.
+- **R9 Docs.** The milestones doc's "Road to self-hosting" row 010 is marked done, Questions raised by the port are listed, and the self-hosting readiness section is updated.
 
 ## Acceptance criteria
 

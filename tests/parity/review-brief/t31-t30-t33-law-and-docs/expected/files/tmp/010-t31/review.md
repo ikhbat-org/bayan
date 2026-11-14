@@ -1,6 +1,6 @@
 You are the independent reviewer for task T31 of spec 010 (the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`). You did not write this code. Your job is to find where the port is not the C#. Do not edit any file except the review file below; do not run git commands that change state.
 
-Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port `selfhost/semantics/compile.byn`, `selfhost/semantics/main.byn`, the tests `tests/Bayan.Tests/SelfhostSemanticsNoPanicLawTests.cs`, and Questions Q661–Q662 in `docs/bayan-handoff.md`.
+Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port `selfhost/semantics/compile.byn`, `selfhost/semantics/main.byn`, the tests `tests/Bayan.Tests/SelfhostSemanticsNoPanicLawTests.cs`, and Questions Q661–Q662 in `docs/bayan-questions.md`.
 
 ## Task (verbatim)
 - [x] T31 prove L023 via /prove: no checker panic — files: `SelfhostSemanticsNoPanicLawTests.cs` [Trait Law L023], `docs/laws/023-no-checker-panic.md`, `compile.byn` (Q661 fix, dispatcher 2026-11-01: `t11DeclareTest` gives the test function C#'s default `void` return type, Symbols.cs:207), `main.byn` (`--many` reports each input's exit) — covers: L023 — after: T28; parallel with: T29 — done when:
@@ -18,6 +18,8 @@ Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C
 5. **True docs.** Each Question in the task's range says what the code does; each break-test line citation points at the line it names. A false claim is MEDIUM.
 
 Verify each finding in the code before you write it: name the Bayan `file:line` and the C# `file:line`. Run the task's tests (`dotnet test -v q --filter "FullyQualifiedName~SelfhostSemanticsNoPanicLawTests"`) once; you may add a probe under `tmp/review-t31/` to confirm a behaviour.
+
+Cite format (`scripts/selfhost/preflight.sh` checks every `path:N` in the review file before landing): a `path:N` takes, in the same clause, a backticked symbol that is on line N or the 2 lines after it at HEAD. For a line as it was in an earlier commit, or one with no symbol to name, write `path (line N)`. On a re-review your block replaces the whole file: carry every earlier row with its status.
 
 ## Write `docs/specs/010-self-hosted-semantics/reviews/T31.md`, exactly this shape
 ```

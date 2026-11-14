@@ -1,0 +1,52 @@
+union error ParseError {
+    empty
+    notNumber(string text)
+}
+
+union error StockError {
+    outOfStock(string item)
+}
+
+union error Rejected {
+    /// Some orders were rejected.
+    @exitCode(3)
+    rejected(i64 count)
+}
+
+i64 parseQty(string text) fails ParseError {
+    fail .empty if text.isEmpty
+    return i64.tryParse(text) ?? fail .notNumber(text)
+}
+
+void take(ref Map<string, i64> stock, from string item, by string qty) fails ParseError, StockError {
+    let n = try parseQty(qty)
+    let have = stock.tryGet(at: item) ?? 0
+    fail .outOfStock(item) if n > have
+    stock[item] = have - n
+}
+
+void main() fails Rejected {
+    var stock: Map<string, i64> = ["tea": 5, "jam": 1]
+    let orders = ["tea:2", "jam:3", "tea:x", "tea:3"]
+    var rejected = 0
+    defer print("shift over")
+    for order in orders {
+        let colon = order.position(":") ?? 0
+        let item = order[0..colon]
+        let qty = order[colon + 1..order.length]
+        take(ref stock, from: item, by: qty) catch switch {
+            ParseError e => {
+                print($"{order}: unreadable quantity")
+                rejected += 1
+                continue
+            },
+            .outOfStock(let name) => {
+                print($"{order}: no {name} left")
+                rejected += 1
+                continue
+            },
+        }
+        print($"{order}: ok")
+    }
+    fail .rejected(rejected) if rejected > 0
+}

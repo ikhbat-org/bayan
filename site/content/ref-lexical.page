@@ -1,0 +1,267 @@
+title: Lexical structure
+nav: Reference
+order: 10
+template: docs
+---
+<p>This page lists how Bayan reads source text: files, comments, literals, keywords and where a statement ends. Each rule is stated once, with a small program. A diagnostic code in brackets is what the compiler reports when you break the rule.</p>
+
+<h2 id="source-text">Source text</h2>
+<p>A source file is UTF-8 text with the extension <code>.byn</code>. Identifiers are normalized to NFC, and any script may be used in them, Arabic included.</p>
+<ul>
+  <li>A bidirectional control character (U+202A to U+202E, U+2066 to U+2069) outside a string literal is an error. It would let the source show different text from what the compiler reads.</li>
+  <li>A project can turn on a lint that flags identifiers mixing scripts, such as a Cyrillic letter inside a Latin word. It is off by default.</li>
+</ul>
+
+<h2 id="comments">Comments</h2>
+<p>A comment starts with <code>//</code> and runs to the end of the line. There is no other comment form. <code>/* … */</code> is rejected with a fix that rewrites it as <code>//</code> lines (BYN1047).</p>
+<pre><code class="byn">/* not allowed */
+let a = 1
+print($"{a}")</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN1047:</span> `/* */` is an input form; write `//` lines
+  --&gt; block-comment.byn:1:1
+
+<span class="gut">  1 │</span> /* not allowed */
+<span class="gut">    │</span> <span class="hl">^^^^^^^^^^^^^^^^^ block comment</span>
+<span class="gut">    │</span>
+  help: write each line with `//`
+<span class="gut">    │</span> 1 │ // not allowed
+<span class="gut">    │</span>   │  +++++++++++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="doc-comments">Doc comments</h2>
+<p>A comment that starts with <code>///</code> documents the declaration after it. The text is Markdown. The first line is the summary: tools show it alone, and <code>$"{e}"</code> on an error prints it. Code blocks inside a doc comment are meant to run as tests.</p>
+<note>Planned: running the code blocks of a doc comment as tests is not in the compiler yet. The comment itself is accepted today.</note>
+<example name="ref-lexical-doc"/>
+
+<h2 id="integers">Integer literals</h2>
+<p>An integer is written in decimal, in hexadecimal with <code>0x</code> or in binary with <code>0b</code>. An underscore may separate digits. The literal has no type of its own until the place where it is used gives it one. A literal that does not fit that type is an error at the literal (BYN2203).</p>
+<pre><code class="byn">void main() {
+    let b: u8 = 300
+    print($"{b}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2203:</span> 300 does not fit in `u8`
+  --&gt; outofrange.byn:2:17
+
+<span class="gut">  2 │</span>     let b: u8 = 300
+<span class="gut">    │</span>                 <span class="hl">^^^</span>
+<span class="gut">    │</span>
+  help: use a value from 0 to 255, the range of `u8`</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<p>An unannotated <code>let</code> or <code>var</code> that starts from a literal takes <code>i32</code> when the value fits. A <code>var</code> that starts from a literal and is later compared with, assigned from or passed as a typed integer takes that integer type instead, so <code>var i = 0</code> followed by <code>while i &lt; xs.length</code> makes <code>i</code> an <code>i64</code>.</p>
+
+<h2 id="floats">Float literals</h2>
+<p>A float has a point, an exponent or both: <code>3.14</code>, <code>1e5</code>, <code>2.5e-3</code>. An <code>e</code> followed by a digit or a sign is an exponent. Without an annotation a float is an <code>f64</code>.</p>
+<p>Floats print as the shortest digits that read back as the same value. Fixed notation is used from <code>1e-5</code> up to but not including <code>1e15</code>. Outside that range the exponent form is used, in lowercase with no <code>+</code> and no leading zeros (<code>1e20</code>, <code>1.5e-7</code>). A whole value prints without a point (<code>42</code>).</p>
+
+<h2 id="suffixes">Numeric suffixes</h2>
+<p>The suffixes <code>u</code>, <code>l</code>, <code>ul</code> and <code>f</code> are reserved for the built-in number types. A decimal literal is written <code>1.50dec</code>.</p>
+<note>Planned: the <code>dec</code> suffix is not in the compiler yet (BYN2022). Unit suffixes such as <code>5s</code> or <code>4KiB</code> are described in <a href="ref-types.html#units">Types</a>; they are not in the compiler yet either.</note>
+<example name="ref-lexical-numbers"/>
+
+<h2 id="runes">Rune literals</h2>
+<p>A rune is one Unicode scalar value in single quotes: <code>'a'</code>, <code>'\n'</code>, <code>'\u{1F600}'</code>. It is 32 bits wide. Runes compare with <code>&lt;</code> and <code>==</code> by value.</p>
+
+<h2 id="strings">String literals</h2>
+<p>A string literal is text in double quotes. The usual escapes work (<code>\n</code>, <code>\t</code>, <code>\"</code>, <code>\\</code>). Text between triple quotes is raw and may span lines. A literal lives in the program's read-only data and costs no allocation.</p>
+<example name="ref-lexical-text"/>
+<p>Strings do not join with <code>+</code>. That would hide an allocation. Use interpolation instead (BYN2209).</p>
+<pre><code class="byn">void main() {
+    let s = "a"
+    let t = s + "b"
+    print(t)
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN2209:</span> strings cannot be joined with `+`; use interpolation
+  --&gt; strplus.byn:3:13
+
+<span class="gut">  3 │</span>     let t = s + "b"
+<span class="gut">    │</span>             <span class="hl">^^^^^^^</span>
+<span class="gut">    │</span>
+  help: write the parts as one interpolation: `$"{a}{b}"`, or `buf.append($"{a}{b}")` in a loop
+<span class="gut">    │</span> 3 │     let t = $"{s}b"
+<span class="gut">    │</span>   │             +++++</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="interpolated">Interpolated strings</h2>
+<p><code>$"total {x}"</code> writes expressions inside braces. A format option is a named argument after a comma: <code>{n, as: .hex}</code>. Formatting rules are in <a href="ref-expressions.html#interpolation">Expressions</a>.</p>
+
+<h2 id="other-literals">Collection, struct and tuple literals</h2>
+<p>These are covered where they are used, because their type comes from context: <code>[1, 2, 3]</code> and <code>["alice": 500]</code> in <a href="ref-types.html#collections">Types</a>, <code>{ x: 1, y: 2 }</code> in <a href="ref-expressions.html#target-typed">Expressions</a>, and <code>(1, "a")</code> in <a href="ref-types.html#tuples">Types</a>.</p>
+<note>Planned: byte strings <code>b"text"</code>, C strings <code>c"text"</code> and UTF-16 strings <code>u16"text"</code> are in the specification but not in the compiler yet.</note>
+
+<h2 id="keywords">Keywords</h2>
+<p>These words are reserved and cannot be names.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Group</th><th scope="col">Words</th></tr></thead>
+  <tbody>
+    <tr><td>Declarations</td><td><code>struct unique union enum open extensible interface extension derivation attribute error unit distinct type effect law import as public private static readonly required const let var embed extern unsafe rest</code></td></tr>
+    <tr><td>Control</td><td><code>if else unless switch case default for in while do break continue return yield defer using context provide become</code></td></tr>
+    <tr><td>Errors and effects</td><td><code>fails fail try catch never requires uses because</code></td></tr>
+    <tr><td>Concurrency</td><td><code>async await</code></td></tr>
+    <tr><td>Expressions</td><td><code>is and or not except with move ref out this null true false comptime checked</code></td></tr>
+    <tr><td>Tests</td><td><code>test property fuzz model assert</code></td></tr>
+    <tr><td>Held back</td><td><code>actor macro select ensures Gc gc</code></td></tr>
+  </tbody>
+</table></div>
+<p>The C# primitive names <code>sbyte byte short ushort int uint long ulong nint nuint float double</code> are reserved in every project. Lowercase type names belong to the language.</p>
+<pre><code class="byn">void main() {
+    let reserved = 1
+    let int = 2
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN0012:</span> `int` is reserved and cannot be used as an identifier
+  --&gt; reserved.byn:3:9
+
+<span class="gut">  3 │</span>     let int = 2
+<span class="gut">    │</span>         <span class="hl">^^^ a C# primitive type name</span>
+<span class="gut">    │</span>
+  help: choose another name</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<p>There is no <code>goto</code>. <code>foreach</code>, <code>errdefer</code> and <code>delegate</code> are not keywords; <code>new</code> is accepted and removed by the formatter.</p>
+
+<h2 id="contextual">Words that are keywords in one place</h2>
+<p>These words act as keywords only where a declaration needs them. Everywhere else they are ordinary names for locals, parameters, fields, functions and variants: <code>error unit distinct open extensible type effect law derivation attribute embed</code>.</p>
+<p>Some more words are special in one position only:</p>
+<ul>
+  <li><code>failing</code> and <code>panicking</code> after <code>defer</code>.</li>
+  <li><code>unlikely</code> and <code>never</code> after <code>if</code>.</li>
+  <li><code>it</code> inside a lambda argument and inside a <code>requires</code> clause.</li>
+  <li><code>bench</code> and <code>measure</code> in benchmarks.</li>
+  <li><code>states</code> at the start of a member when a <code>{</code> follows, and <code>becomes</code> after a parameter list.</li>
+  <li><code>pattern</code> after <code>=</code> in a <code>const</code> declaration.</li>
+  <li>The effect names <code>alloc suspend net fs clock random env process console</code> inside a <code>uses</code> clause.</li>
+  <li>The particles <code>from to until through at by for as</code> are labels, not keywords. <code>for</code> and <code>as</code> stay reserved and are allowed only in label position, as in <code>for:</code>.</li>
+</ul>
+<example name="ref-lexical-names"/>
+
+<h2 id="statement-end">Where a statement ends</h2>
+<p>There is no <code>;</code>. A newline after a complete statement ends it. A semicolon is rejected with a fix that removes it (BYN1040).</p>
+<pre><code class="byn">void main() {
+    let a = 1;
+    print($"{a}")
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN1040:</span> `;` is an input form; a statement ends at the newline
+  --&gt; semi.byn:2:14
+
+<span class="gut">  2 │</span>     let a = 1;
+<span class="gut">    │</span>              <span class="hl">^ remove `;`</span>
+<span class="gut">    │</span>
+  help: remove the `;`
+<span class="gut">    │</span> 2 │     let a = 1;
+<span class="gut">    │</span>   │              -</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<p>A statement continues onto the next line in three cases.</p>
+<ul>
+  <li><strong>The line ends with an operator.</strong> A binary operator, <code>,</code>, <code>=</code>, <code>=&gt;</code> or <code>{</code> at the end of a line means the statement is not finished.</li>
+  <li><strong>The break is inside brackets.</strong> Newlines inside <code>( )</code> and <code>[ ]</code> are ignored, and so are blank lines.</li>
+  <li><strong>The next line starts with a joining word.</strong> These are <code>.</code>, <code>?.</code>, <code>??</code>, <code>except</code>, <code>requires</code>, <code>expects</code>, <code>where</code>, <code>becomes</code>, <code>fails</code>, <code>uses</code>, <code>catch</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>and</code> and <code>or</code>.</li>
+</ul>
+<example name="ref-lexical-lines"/>
+<p>A line that starts with <code>(</code>, <code>[</code> or <code>-</code> always begins a new statement. A line that starts with any other operator, such as <code>+</code>, does too, and is an error because its value is unused.</p>
+<pre><code class="byn">void main() {
+    let v = 10
+    let w = v
+    -w
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN1012:</span> this expression does nothing as a statement
+  --&gt; neverjoin.byn:4:5
+
+<span class="gut">  4 │</span>     -w
+<span class="gut">    │</span>     <span class="hl">^^ the value is computed and discarded</span>
+<span class="gut">    │</span>
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<ul>
+  <li>Comment lines do not break a continuation.</li>
+  <li>Outside brackets, a blank line always ends a statement.</li>
+  <li><code>return</code>, <code>break</code>, <code>continue</code> and <code>fail</code> take their operand on the same line. A postfix <code>if</code> or <code>unless</code> stays on the line of its statement (BYN1042).</li>
+</ul>
+<pre><code class="byn">void main() {
+    let x = 3
+    return
+        if x &gt; 1
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN1042:</span> a postfix `if` must be on the line of its statement
+  --&gt; postfix-line.byn:4:9
+
+<span class="gut">  4 │</span>         if x &gt; 1
+<span class="gut">    │</span>         <span class="hl">^^ on the next line</span>
+<span class="gut">    │</span>
+  help: move the `if` clause up to the statement's line
+<span class="gut">    │</span> 3 │     return
+<span class="gut">    │</span> 4 │         if x &gt; 1
+<span class="gut">    │</span>   │ -------</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<ul>
+  <li><code>else</code> follows <code>}</code> on the same line (BYN1041).</li>
+</ul>
+<pre><code class="byn">void main() {
+    var n = 1
+    if n &gt; 0 { n += 1 }
+    else { n = 0 }
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN1041:</span> `else` must follow `}` on the same line
+  --&gt; else.byn:4:5
+
+<span class="gut">  4 │</span>     else { n = 0 }
+<span class="gut">    │</span>     <span class="hl">^^^^ on a new line</span>
+<span class="gut">    │</span>
+  help: move `else` up to the line of `}`
+<span class="gut">    │</span> 3 │     if n &gt; 0 { n += 1 }
+<span class="gut">    │</span> 4 │     else { n = 0 }
+<span class="gut">    │</span>   │ ---</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+
+<h2 id="unused-values">Unused values</h2>
+<p>A call whose value is not used is an error (BYN3201). A bare expression that is not a call, an assignment or <code>++</code>/<code>--</code> is an error too (BYN1012). Together these catch a line that was split by mistake. To drop a value on purpose, assign it to <code>_</code>.</p>
+<pre><code class="byn">i64 f() =&gt; 1
+
+void main() {
+    f()
+}</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN3201:</span> the value of this `f()` is unused
+  --&gt; unused.byn:4:5
+
+<span class="gut">  4 │</span>     f()
+<span class="gut">    │</span>     <span class="hl">^^^ value dropped</span>
+<span class="gut">    │</span>
+  help: assign it with `let _ = …`, or remove the expression</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>
+<pre><code class="byn">_ = f()</code></pre>
+
+<h2 id="separators">Separators</h2>
+<p>Declarations are separated by newlines: fields, union cases, enum entries and states. A one-line <code>union U { a, b }</code> is rejected, and <code>bayan format</code> rewrites it (BYN1053). Entries in literals and argument lists are separated by commas.</p>
+<pre><code class="byn">union U { a, b }</code></pre>
+<figure class="diag">
+<pre><span class="err">error BYN1053:</span> `U` declares its cases on one line; write one per line
+  --&gt; oneline-union.byn:1:12
+
+<span class="gut">  1 │</span> union U { a, b }
+<span class="gut">    │</span>            <span class="hl">^ the first `,`</span>
+<span class="gut">    │</span>
+  help: write each case on its own line
+<span class="gut">    │</span> 1 │ union U {
+<span class="gut">    │</span> 2 │     a
+<span class="gut">    │</span>   │ +++++
+<span class="gut">    │</span> 3 │     b
+<span class="gut">    │</span>   │ +++++
+<span class="gut">    │</span> 4 │ }</pre>
+  <figcaption>The compiler’s message for this program.</figcaption>
+</figure>

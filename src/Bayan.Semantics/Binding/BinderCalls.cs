@@ -78,6 +78,9 @@ internal sealed partial class Binder
                 return BindFunctionCall(c, _c.Builtins.PathCombineSpan, null, g.TypeArgs);
             case BoundMethodGroup g:
                 return BindFunctionCall(c, Overload(g.Function, c), g.Receiver, g.TypeArgs);
+            // `Io.stdin.readAllBytes()` fails like `Io.readFile`: a call of a failing builtin function, not a builtin member.
+            case BoundBuiltinGroup { Receiver.Type: BuiltinType { Kind: BuiltinKind.IoInput }, Name: "readAllBytes" }:
+                return BindFunctionCall(c, _c.Builtins.IoStdinReadAllBytes, null);
             case BoundBuiltinGroup b:
                 return BindBuiltinMethodCall(c, b.Receiver, b.Name);
             case BoundTypeRef tr:
@@ -424,6 +427,10 @@ internal sealed partial class Binder
                 else if (enforceNames && rule[p.Ordinal].Type.IsBool && ImpliedName(arg.Value) != p.Name)
                     Report(DiagnosticCodes.ArgumentMustBeNamed, arg.Value.Span, [p.Name], help: $"write `{p.Name}: …`; a `bool` argument says nothing at the call site",
                         fix: new Fix(new TextSpan(arg.Span.Start, 0), p.Name + ": "));
+                // `Io.run`'s options after `args` are named only (015 S6).
+                else if (fn?.Builtin == BuiltinFunction.IoRun && p.Ordinal >= 2)
+                    Report(DiagnosticCodes.ArgumentMustBeNamed, arg.Value.Span, [p.Name], help: $"write `{p.Name}: …`; `Io.run`'s options are named",
+                        fix: new Fix(new TextSpan(arg.Span.Start, 0), p.Name + ": "));
             }
             if (result[p.Ordinal] is not null)
             {
@@ -453,6 +460,11 @@ internal sealed partial class Binder
             if (fn?.Builtin == BuiltinFunction.Print && p.Ordinal == 1)
             {
                 result[i] = new BoundEnumMember(c, _c.Builtins.Stream.Find("stdout")!);
+                continue;
+            }
+            if (fn?.Builtin == BuiltinFunction.IoRun && p.Ordinal >= 2)
+            {
+                result[i] = new BoundDefault(c, p.Type);
                 continue;
             }
             missing.Add(Label(p));
@@ -678,6 +690,9 @@ internal sealed partial class Binder
                 return new BoundErrorExpr(c);
             case PrimitiveType p when (p.IsNumeric || p == PrimitiveType.Char) && c.Args is [{ Name: null } arg]:
                 return BindConversion(c, p, arg.Value);
+            // `Millis(n)`: an `i64` as a duration; `i64(t)` reads it back (`Conversions.Explicit`).
+            case BuiltinType { Kind: BuiltinKind.Millis } when c.Args is [{ Name: null } ms]:
+                return new BoundConversion(c, BindConverted(ms.Value, PrimitiveType.I64), type, ConversionKind.Widen);
             case PrimitiveType { IsString: true } when c.Args is [{ Name: null }, ..]:
                 return BindIntegerText(c);
             default:
@@ -852,7 +867,7 @@ internal sealed partial class Binder
                     help: "build the copy with a loop that copies each element, or share the original by `ref`");
         }
         var returns = m.Returns is SpanType span && receiver is BoundStaticArray ? new SpanType(span.Element, readOnly: true)
-            : m.Member is BuiltinMember.IoReadAll or BuiltinMember.IoReadAllBytes ? new ResultType(m.Returns, _c.Builtins.IoError)
+            : m.Member is BuiltinMember.IoReadAll ? new ResultType(m.Returns, _c.Builtins.IoError)
             : m.Returns;
         return new BoundBuiltinCall(c, m.Member, receiver, args, returns);
     }

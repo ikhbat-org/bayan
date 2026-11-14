@@ -1,0 +1,241 @@
+title: 1. Getting started: install, bayan run, scripts, projects
+nav: Learn
+order: 100
+template: docs
+---
+<p class="lede">This chapter gets you from an empty folder to a running program, then to a project with a test. You will meet the five ways you use the <code>bayan</code> command, and you will read your first compiler errors.</p>
+
+<p>This is the first chapter of the Bayan Book. It is meant to be read in order. Each chapter builds on the one before, adds one idea, and ends with a short quiz. If you want a faster pass first, read <a href="tutorial.html">Your first Bayan program</a>, or <a href="reading.html">Reading Bayan code</a> if you want to see the unusual forms in one place.</p>
+
+<h2 id="install">What you need</h2>
+<p>You need the <code>bayan</code> compiler on your <code>PATH</code>, and <code>zig</code>, which Bayan uses to turn its generated C into a native executable. <a href="install.html">Install Bayan</a> has the steps. When it is done, check your setup:</p>
+<pre><code>bayan --version
+bayan doctor</code></pre>
+<p><code>bayan doctor</code> checks the C compiler, <code>zig</code>, <code>git</code> and the build cache. If something is missing it says how to fix it. The output shown in this book comes from macOS on Apple silicon.</p>
+
+<h2 id="hello">Salam, world</h2>
+<p>Make a folder, and in it a file named <code>hello.byn</code>. Bayan source files end in <code>.byn</code>.</p>
+<example name="book-01-hello"/>
+<p>That is the whole program. There is no <code>main</code>, no import and no semicolon. A file can start with statements, and they run from the top. Run it:</p>
+<pre><code>bayan run hello.byn</code></pre>
+<p><code>bayan run</code> compiles the file to a native executable and runs it. The result is cached, so the second run of an unchanged file starts at once. Everything after <code>--</code> goes to your program instead of to <code>bayan</code>. You will use that in <a href="book-02-project-words.html">chapter 2</a>.</p>
+
+<h3 id="run-build-check">run, build and check</h3>
+<p>Three commands cover most of your day.</p>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>bayan check hello.byn</code></td><td>Reports errors and warnings. Builds nothing. Use it while you edit.</td></tr>
+  <tr><td><code>bayan run hello.byn</code></td><td>Compiles, then runs the program.</td></tr>
+  <tr><td><code>bayan build hello.byn -o hello</code></td><td>Compiles to an executable you can copy and run on its own.</td></tr>
+</table>
+<p>All three take a file, a folder of <code>.byn</code> files, or a project (more on those below). Add <code>--mode fast</code> to build with optimizations. The default mode is <code>safe</code>. Memory safety is not a build option: bounds checks and region checks stay on in every mode.</p>
+
+<h2 id="main">Statements and main</h2>
+<p>Most programs in this book start with statements at the top of the file, because they are short. A larger program puts its work in functions and starts in <code>main</code>:</p>
+<example name="book-01-main"/>
+<p>The line <code>string greeting(string name) =&gt; $"Hello, {name}!"</code> declares a function. You will write many in <a href="book-04-functions.html">chapter 4</a>. For now, notice two things. The return type comes first, and <code>=&gt;</code> reads "evaluates to". And <code>$"…{name}…"</code> is an interpolated string: whatever is inside the braces is an expression, and its value is written into the text.</p>
+<p>A program has one way in. If it has both a <code>main</code> function and top-level statements, the compiler stops:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2013:</span> the program has two entry points
+  <span class="gut">--&gt;</span> twoentry.byn:5:1
+
+<span class="gut">  5 │</span> print("top level")
+<span class="gut">    │</span> ^^^^^^^^^^^^^^^^^^ `main` is also declared on line 1
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2013</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check twoentry.byn</code>). The path is shortened to <code>twoentry.byn</code>.</figcaption>
+</figure>
+<p>The message names the problem and points at the second entry. Pick one. Top-level statements suit scripts and short examples. <code>main</code> suits anything with a few functions, and it is where you read command-line arguments and report errors (<a href="book-02-project-words.html">chapter 2</a> does both).</p>
+
+<h2 id="comments">Comments and newlines</h2>
+<p>A comment starts with <code>//</code> and runs to the end of the line. A comment that starts with <code>///</code> documents the item below it, and its text is Markdown. There is no <code>/* */</code> form.</p>
+<example name="book-01-comments"/>
+<p>A newline ends a statement, so Bayan has no semicolons. If you write one, the compiler tells you to remove it:</p>
+<figure class="diag">
+<pre><span class="err">error BYN1040:</span> `;` is an input form; a statement ends at the newline
+  <span class="gut">--&gt;</span> semicolon.byn:1:23
+
+<span class="gut">  1 │</span> print("Salam, world!");
+<span class="gut">    │</span>                       ^ remove `;`
+<span class="gut">    │</span>
+<span class="gut">  help: remove the `;`</span>
+<span class="gut">    │ 1 │</span> print("Salam, world!");
+<span class="gut">    │   │</span><span class="add">                       -</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN1040</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check semicolon.byn</code>). The path is shortened to <code>semicolon.byn</code>.</figcaption>
+</figure>
+<p>That is the shape of every Bayan error. Read it top to bottom:</p>
+<ol>
+  <li>The first line has the code (<code>BYN1040</code>) and a sentence saying what is wrong.</li>
+  <li>The arrow line gives the file, the line and the column.</li>
+  <li>The source line follows, with <code>^</code> marks under the exact spot and a short label.</li>
+  <li><code>help:</code> shows how to fix it. A line that starts with <code>│</code> and a number is the corrected source, with <code>+</code> under added text and <code>-</code> under removed text.</li>
+  <li>The last line names a command: <code>bayan explain BYN1040</code> prints a longer page about that code, with an example and the usual fix.</li>
+</ol>
+<p>Two more errors you will hit in your first hour. A misspelled name gets a suggestion:</p>
+<figure class="diag">
+<pre><span class="err">error BYN2001:</span> `prnt` is not defined
+  <span class="gut">--&gt;</span> hello.byn:1:1
+
+<span class="gut">  1 │</span> prnt("Salam, world!")
+<span class="gut">    │</span> ^^^^
+<span class="gut">    │</span>
+<span class="gut">  help: did you mean `print`?</span>
+<span class="gut">    │ 1 │</span> print("Salam, world!")
+<span class="gut">    │   │</span><span class="add">   +</span>
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2001</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check hello.byn</code>). The path is shortened to <code>hello.byn</code>.</figcaption>
+</figure>
+<p>And a value of the wrong type is stopped where it is written. The label here has no help line because there is nothing to suggest: the fix is yours.</p>
+<figure class="diag">
+<pre><span class="err">error BYN2202:</span> expected `i64`, found `string`
+  <span class="gut">--&gt;</span> mismatch.byn:1:16
+
+<span class="gut">  1 │</span> let age: i64 = "ten"
+<span class="gut">    │</span>                ^^^^^
+
+<span class="gut">✗ build failed: 1 error, 0 warnings</span>
+<span class="gut">  explain: bayan explain BYN2202</span></pre>
+<figcaption>Real output from the compiler (<code>bayan check mismatch.byn</code>). The path is shortened to <code>mismatch.byn</code>.</figcaption>
+</figure>
+<p>Read the message in full before you change anything, and fix the first error first: later ones can follow from it. The compiler shows the first 20 errors; <code>--all</code> shows the rest.</p>
+
+<h2 id="scripts">Scripts</h2>
+<p>A script is a single file you can run by name. Start it with a line that tells the shell which program runs it:</p>
+<example name="book-01-script"/>
+<p>Save it as <code>greet.byn</code>, make it executable with <code>chmod +x greet.byn</code>, and run <code>./greet.byn</code>. You can also run <code>bayan greet.byn</code>. A file that starts with <code>#!</code> is treated as a script: <code>bayan check</code>, <code>run</code>, <code>build</code> and <code>test</code> accept it without a project. A line that starts with <code>#:</code> is a directive for the compiler; <code>bayan new greet --script</code> writes a script with <code>#:io threaded</code> in it.</p>
+<p>A script is a good place to try an idea. When it grows past one file, make it a project.</p>
+
+<h2 id="projects">Projects</h2>
+<p>A project is a folder with a <code>package.byn</code> file. Make one:</p>
+<pre><code>bayan new demo</code></pre>
+<pre><code>created app `local/demo` in `demo`
+
+  cd demo
+  bayan run
+  bayan test</code></pre>
+<p>It creates this layout (plus a <code>README.md</code>, an <code>.editorconfig</code> and <code>.gitignore</code>):</p>
+<pre><code>demo/
+  package.byn
+  src/app/main.byn
+  tests/app.test.byn
+  testdata/
+  docs/
+  README.md</code></pre>
+<p>Your code goes in <code>src/</code>. A folder is a module: every <code>.byn</code> file in <code>src/app/</code> belongs to the module <code>app</code>. Tests go in <code>tests/</code>, in files that end in <code>.test.byn</code>. Use <code>--lib</code> for a library and <code>--script</code> for a script, and <code>bayan init</code> adds the missing files to a folder that already has some.</p>
+<p>The manifest, <code>package.byn</code>, is data, not code. It is a struct literal checked against the <code>Package</code> type:</p>
+<pre><code class="byn">Package {
+    name: "local/demo",
+    version: "0.1.0",
+    edition: 2027,
+    kind: .app,
+    capabilities: [],
+    deps: [],
+    dist: Dist {
+        targets: [.host],
+        mode: .safe,
+    },
+}</code></pre>
+<p><code>kind</code> says whether you are building an app (<code>.app</code>) or a library (<code>.lib</code>). <code>capabilities</code> is a limit on what the package may do. It is empty, so the package may not touch the file system, the network or anything else outside itself. You will see why that matters in a moment.</p>
+<p>Inside the folder, the commands need no file name:</p>
+<pre><code>cd demo
+bayan run
+bayan test</code></pre>
+<p>The generated <code>src/app/main.byn</code> is ordinary Bayan. Its last line is a top-level statement, and it has a function above it with a <code>///</code> comment:</p>
+<pre><code class="byn">/// The line this app prints.
+string greeting() {
+    return "Salam, world!"
+}
+
+print(greeting())</code></pre>
+
+<h3 id="capabilities">Capabilities</h3>
+<p>Take the word counter from <a href="book-02-project-words.html">chapter 2</a>, which reads a file, and put it in a new project's <code>main.byn</code>. The first <code>bayan run</code> stops:</p>
+<figure class="diag">
+<pre>error BYN6004: `main` uses `fs`, which package `local/wc` does not declare in `capabilities`
+  --&gt; src/app/main.byn:38:6
+
+  38 │ void main(ReadOnlySpan&lt;string&gt; args) fails IoError {
+     │      ^^^^ uses `fs`
+     │
+  help: add `.fs` to `capabilities`, or remove the use
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6004</pre>
+<figcaption>Real output from the compiler, with the path shortened.</figcaption>
+</figure>
+<p>Reading a file is an effect. The package says in <code>capabilities</code> which effects it may have, and the compiler checks every function against that list. Add <code>.fs</code> to the list, <code>capabilities: [.fs]</code>, and the program runs. This is how you can tell what a dependency may do without reading its code. <a href="book-14-effects.html">Chapter 14</a> covers effects in full.</p>
+
+<h3 id="tests">Tests</h3>
+<p>The generated test file is:</p>
+<pre><code class="byn">test "greets the world" {
+    assert(greeting() == "Salam, world!")
+}</code></pre>
+<p>A <code>test</code> block has a name and a body. <code>assert</code> checks a condition. <code>bayan test</code> compiles the tests and runs each in its own process:</p>
+<pre><code>running 1 test in 1 module
+
+◆ 1 passed · 0.48s</code></pre>
+<p>Change the expected text to <code>"Hello, World!"</code> and run it again. A failing assertion shows both sides of the comparison:</p>
+<pre><code>running 1 test in 1 module
+
+  ✗ app: greets the world
+      assert(greeting() == "Hello, World!")
+             │          │
+             │          false
+             Salam, world!
+      tests/app.test.byn:2
+
+◆ 0 passed · ✗ 1 failed · 0 pending · 0.47s
+  rerun the failure: bayan test --only "greets the world"</code></pre>
+<p>The line under the failing <code>assert</code> shows each part of the condition: <code>greeting()</code> was <code>Salam, world!</code>, and the whole comparison was <code>false</code>. The last line tells you the command that reruns only this test. <a href="book-12-testing.html">Chapter 12</a> covers testing in depth.</p>
+
+<h2 id="other-commands">Other commands you will use</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>bayan explain BYN2001</code></td><td>Prints a page about one diagnostic code.</td></tr>
+  <tr><td><code>bayan format file.byn</code></td><td>Rewrites accepted-but-not-preferred forms (a trailing <code>;</code>, for example) to the preferred form. <code>--check</code> lists the files that would change and writes nothing.</td></tr>
+  <tr><td><code>bayan clean</code></td><td>Removes the project's <code>out/</code> folder.</td></tr>
+  <tr><td><code>bayan --help</code></td><td>Lists every command and option.</td></tr>
+</table>
+<p>The whole command line is in the <a href="ref-cli.html">reference</a>.</p>
+
+<h2 id="quiz">Check your understanding</h2>
+<p>This program is saved as <code>q1.byn</code> and run with <code>bayan run q1.byn</code>.</p>
+<example name="book-01-q1" output="no"/>
+<details class="quiz">
+  <summary>What does it print?</summary>
+  <p>It prints three lines:</p>
+<pre><code>start
+item 2
+end</code></pre>
+  <p>The statements run from the top. <code>label(2)</code> is a call to a function declared above the call, and it returns the text <code>item 2</code>. The declaration itself prints nothing.</p>
+</details>
+<example name="book-01-q2" output="no"/>
+<details class="quiz">
+  <summary>What does this program print?</summary>
+  <p>It prints:</p>
+<pre><code>Hello, Bayan!
+done</code></pre>
+  <p>The commented-out <code>print("hidden")</code> never runs. The comment at the end of the third line is ignored too. If you guessed that <code>{name}</code> would print as written, remember the <code>$</code> before the quote: it is what turns the braces into expressions.</p>
+</details>
+<details class="quiz">
+  <summary>Which command reports errors without compiling or running the program?</summary>
+  <p><code>bayan check</code>. <code>bayan run</code> and <code>bayan build</code> both compile first, so they also find the errors, but they go on to build an executable. <code>bayan explain</code> does not look at your program at all: it prints a page about a diagnostic code.</p>
+</details>
+<details class="quiz">
+  <summary>You write <code>print("hi");</code>. What happens, and what do you do?</summary>
+  <p>The compiler stops with <code>BYN1040</code>: <code>;</code> is not part of Bayan's syntax, because a newline ends a statement. The help line shows the fix, which is to remove the <code>;</code>. Running <code>bayan format</code> on the file removes it for you. The error is not a warning: the program does not build until the semicolon is gone.</p>
+</details>
+<details class="quiz">
+  <summary>Why does a new project have <code>capabilities: []</code>, and what happens if a function in it reads a file?</summary>
+  <p>An empty list means the package may have no effects. A function that reads a file has the file-system effect, so the compiler stops with <code>BYN6004</code> and tells you to add <code>.fs</code> to <code>capabilities</code> or to remove the use. It is a check on the package, not a runtime failure. The program never starts with an effect you did not declare.</p>
+</details>
+
+<div class="next-box">
+  <p>Next: <a href="book-02-project-words.html">2. Project: a word counter</a>. You will read a file, split it into words, count them and print the most common first.</p>
+</div>

@@ -46,7 +46,7 @@ No `.stdout` diff once each file compiled. One compiler bug was found and fixed 
 
 ## D4: workarounds and Questions
 
-Highest existing Question: Q190 (specs 012 in `feat-009-selfhost-parser`). Opened (not added to the handoff):
+Highest existing Question: Q190 (specs 012 in `feat-009-selfhost-parser`). Opened (not added to the Questions list):
 
 - **Q191. Handling a caught error with statements.** `catch switch` arms are expressions and `catch { … }` has no binding, so "print the error's name, then return" from a `void` function needs a helper returning the text. Options: block arms (`E e => { …; return; }`), or a binding on `catch { … }` typed by the call's error set. Conservative choice meanwhile: helper functions. Belongs in SPEC §8.
 - **Q192. Module-level `const` arrays of structs.** `const BoxSize[3] boxSizes = [BoxSize {…}, …]` is BYN2229 (Q51 allows numbers, `bool`, `char`, `string`). Workaround: a function with a `switch` over the index. Belongs in SPEC §2 (static data), extending Q51 to structs whose fields are all static-data types.

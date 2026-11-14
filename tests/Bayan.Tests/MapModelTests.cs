@@ -294,10 +294,11 @@ public sealed class MapModelTests
         using var p = Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndLfAsync();
         var stderr = p.StandardError.ReadToEndLfAsync();
-        if (!p.WaitForExit(120_000))
+        var waitMs = TestTime.Scale(120_000);
+        if (!p.WaitForExit(waitMs))
         {
             p.Kill();
-            throw new Xunit.Sdk.XunitException("timed out after 120 s");
+            throw new Xunit.Sdk.XunitException($"timed out after {waitMs} ms");
         }
         return new Outcome(stdout.Result, stderr.Result, p.ExitCode);
     }

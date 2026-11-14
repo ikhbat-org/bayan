@@ -16,3 +16,4 @@ __pycache__/
 !tests/parity/**/bin/
 !tests/parity/**/tmp/
 dist/
+!tests/parity/install-textmate/**/.vs/

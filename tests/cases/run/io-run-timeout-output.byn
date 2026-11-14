@@ -1,0 +1,16 @@
+// os: unix
+// A timed-out child's `.timeout` carries what it wrote to stdout and stderr before the kill (Q1216).
+void main() fails IoError {
+    let script: string[2] = ["-c", "echo out; echo err >&2; sleep 30"]
+    let r = Io.run("sh", script.span, timeout: Millis(500)) catch switch {
+        .timeout(let after, let stdout, let stderr) => {
+            print($"timeout {i64(after)} stdout '{stdout}' stderr '{stderr}'")
+            return
+        },
+        IoError e => {
+            print($"io {e}")
+            return
+        },
+    }
+    print($"exit {r.exitCode}")
+}

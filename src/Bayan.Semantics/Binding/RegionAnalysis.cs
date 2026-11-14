@@ -455,7 +455,7 @@ internal sealed class RegionAnalysis
             case BuiltinMember.SpanCopy or BuiltinMember.StringCopy or BuiltinMember.ListCopy or BuiltinMember.MapCopy or BuiltinMember.StrBufCopy
                 when b.Arguments.Length > 0:
                 return AllocatedFrom(b.Arguments[0]);
-            case BuiltinMember.IoReadAll or BuiltinMember.IoReadAllBytes or BuiltinMember.IntToString or BuiltinMember.StringCopy or BuiltinMember.StringLowercased or BuiltinMember.StringUppercased
+            case BuiltinMember.IoReadAll or BuiltinMember.IntToString or BuiltinMember.StringCopy or BuiltinMember.StringLowercased or BuiltinMember.StringUppercased
                 or BuiltinMember.StringReplaced or BuiltinMember.StringRepeated or BuiltinMember.StringJoined or BuiltinMember.Utf16Copy
                 or BuiltinMember.StringPadded or BuiltinMember.BytesToString or BuiltinMember.SpanCopy or BuiltinMember.ListCopy:
                 // Fresh text from `context.allocator`, like `Io.readText`.
@@ -565,7 +565,7 @@ internal sealed class RegionAnalysis
         if (_contexts.Count > 0 && (ContainsList(c.Type, []) || fn.Builtin is BuiltinFunction.IoReadText or BuiltinFunction.IoRun or BuiltinFunction.IoRunBatch or BuiltinFunction.StrBufGrow or BuiltinFunction.StrBufOver
                 or BuiltinFunction.Utf8Decode or BuiltinFunction.Utf8TryDecode or BuiltinFunction.Utf8DecodeReplace or BuiltinFunction.HexEncode
                 or BuiltinFunction.PathRelative or BuiltinFunction.PathFileName or BuiltinFunction.PathDirectoryName or BuiltinFunction.PathCombine or BuiltinFunction.PathCombineSpan
-                or BuiltinFunction.PathFullPath or BuiltinFunction.EnvGet))
+                or BuiltinFunction.PathFullPath or BuiltinFunction.EnvGet or BuiltinFunction.FsRealPath))
             result = result.Union(_contexts.Peek());
         return result;
     }
@@ -600,6 +600,7 @@ internal sealed class RegionAnalysis
     private static readonly Dictionary<BuiltinFunction, HashSet<int>> BuiltinResults = new()
     {
         [BuiltinFunction.IoReadFile] = [],
+        [BuiltinFunction.IoStdinReadAllBytes] = [],
         [BuiltinFunction.IoReadText] = [],
         [BuiltinFunction.IoListDir] = [],
         [BuiltinFunction.IoRun] = [],
@@ -618,6 +619,7 @@ internal sealed class RegionAnalysis
         [BuiltinFunction.PathCombineSpan] = [],
         [BuiltinFunction.PathFullPath] = [],
         [BuiltinFunction.EnvGet] = [],
+        [BuiltinFunction.FsRealPath] = [],
     };
 
     private static string ParameterName(FunctionSymbol fn, int index) => index == This ? "this" : fn.Parameters[index].Name;

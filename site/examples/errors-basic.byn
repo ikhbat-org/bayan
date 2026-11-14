@@ -1,0 +1,19 @@
+union error ParseError {
+    /// The input was empty.
+    empty
+    /// The input had a non-digit.
+    notDigit
+}
+
+i64 digit(string s) fails ParseError {
+    fail .empty if s.isEmpty
+    let c = s.bytes[0]
+    fail .notDigit if c < '0' || c > '9'
+    return i64(c - '0')
+}
+
+void main() {
+    print($"{digit("4") catch -1} {digit("") catch -1}")
+    let n = digit("x") catch { return }
+    print($"unreachable {n}")
+}

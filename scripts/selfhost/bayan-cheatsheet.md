@@ -83,7 +83,7 @@ switch lexed.tokens[i].kind {
 if (d.value.failsKeyword is { } fails) { … fails.errors … }
 if failsSpan is null { failsSpan = at }
 ```
-`docs/bayan-handoff.md:750` (Q480), `selfhost/parser/decls.byn:825`
+`docs/decisions/2026-11-14-004-answered-questions.md:1343` (Q480), `selfhost/parser/decls.byn:825`
 
 **Optional early exit: `?? return` / `?? fail`.**
 ```byn
@@ -128,7 +128,7 @@ Io.stdout.write(sb.finish())
 ```byn
 return $"{sb.finish()}"
 ```
-`docs/bayan-handoff.md:732` (Q455), `docs/bayan-spec.md:195`
+`docs/decisions/2026-11-14-004-answered-questions.md:1311` (Q455), `docs/bayan-spec.md:195`
 
 **String comparisons are ordinal and by bytes: `==`, `startsWith`, `endsWith`, `contains`, `position` (byte offset).**
 ```byn
@@ -157,7 +157,7 @@ string exprText(in Expr e)        // called exprText(in n.value.left)
 var p = Parser.create(lexer.lex(…))
 let unit = parseCompilationUnit(ref p)
 ```
-`docs/bayan-handoff.md:717` (Q436), `selfhost/parser/main.byn:50-51`
+`docs/decisions/2026-11-14-004-answered-questions.md:1271` (Q436), `selfhost/parser/main.byn:50-51`
 
 **`move` transfers ownership; `List`/`Map`/`StrBuf`/`Owned` and any struct holding them are `unique`. Broken implicit copy is BYN2780.**
 ```byn
@@ -171,7 +171,7 @@ let b = move a                     // var b = a is BYN2780
 // BYN2106: modifying a temporary or read-only value
 // "an `Owned` value is read-only" — set every field before Owned(…)
 ```
-`docs/diagnostics/BYN2106.md`, `docs/bayan-handoff.md:717` (Q436b)
+`docs/diagnostics/BYN2106.md`, `docs/decisions/2026-11-14-004-answered-questions.md:1271` (Q436b)
 
 **Argument particles: at most one unlabeled object; every other required parameter takes `from:`/`to:`/`until:`/`through:`/`at:`/`by:`/`for:`/`as:`, written at both declaration and call.**
 ```byn
@@ -185,7 +185,7 @@ bool inside(TextSpan span, until i64 size) => span.end <= size
 ```byn
 p.setNoLambda(value: true)
 ```
-`docs/bayan-handoff.md:749` (Q472)
+`docs/decisions/2026-11-14-004-answered-questions.md:307` (Q472)
 
 **Errors: `T f() fails E`, `fail .x`, `try f()`, `catch` / `catch switch`; `return` always returns a value.**
 ```byn
@@ -260,7 +260,7 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 | `let (a, b) = pair`, `pair.0` | BYN1001 (compiler-checked) | named tuple fields `t.line`, or `switch t { case (let a, let b): }`, or a small struct |
 | classes, inheritance, `object` | §1:41 "Structs only … No classes, no inheritance, no `object`, no GC"; §3.10:382 | structs + `interface`; `embed T` promotes fields |
 | generics beyond constrained monomorphized forms: generic interface methods, variance, higher-kinded types | §11:1454-1463; selfhost gaps §3.15:535-541 | concrete types; `dyn ref IVisitor`; `switch` |
-| storing a lambda in a field or returning one | BYN2822, `docs/bayan-spec.md:560`, `docs/bayan-handoff.md:696` (Q346) | function-typed *parameter*, `type Predicate<T> = T -> bool`; switch on an enum key (`Map<Symbol,i32>`) |
+| storing a lambda in a field or returning one | BYN2822, `docs/bayan-spec.md:560`, `docs/decisions/2026-11-14-004-answered-questions.md:253` (Q346) | function-typed *parameter*, `type Predicate<T> = T -> bool`; switch on an enum key (`Map<Symbol,i32>`) |
 | lambda capturing a `var` / `this` / `Map` | BYN2821 (§3.16:600), BYN2780 (`docs/bayan-spec.md:252`) | capture only `let`/`const`/params by copy; pass the map as a parameter |
 | stored lambda keyed in a `Map<Symbol, () -> void>` | BYN2822, **spec §3.3:251** | `Map<Symbol, i32>` + switch |
 | LINQ (`Where`/`Select`/`Sum` chains) | §16:1774 "Not in v0.1: everything that takes a lambda"; only plain loops/builtins | `for`, `if`, explicit `List` building |
@@ -272,7 +272,7 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 | string `+`, `s[i]` indexer, `Substring`, `ToString()`, `Length` capital, `string.Format` | `docs/bayan-spec.md:190` (no indexer), `:195` (no `+`), `:1749` (slice for Substring), `:915` (no `toString`), `:188` (`length`) | `$"{a}{b}"`, `StrBuf`, `s[a..b]`, `string(x)`, `.length` |
 | `s.Contains` case-insensitive ambient culture | §16.4:1970-1971 no ambient culture, ordinal only | `equals(t, as: .caseless)`; culture via `kit.intl` |
 | current working directory / `Environment.CurrentDirectory` builtin | **Unverified — I found no cwd builtin** in §16 or the selfhost; the CLI takes explicit paths (`selfhost/parser/main.byn:5-9`) | pass paths explicitly; `Io.listDir`/`Io.readFile` take a path |
-| ASCII-only casing assumptions in the ported compiler | Q442: `char.IsUpper` is Unicode in C#, `startsUpper` is `A`–`Z` because Bayan has no case table | check `A`–`Z` explicitly; don't port Unicode casing |
+| ASCII-only casing in the ported compiler (`A`–`Z` for `char.IsUpper`) | Q442 is superseded by Q1142: `char.IsUpper`/`IsLower` are Unicode Lu/Ll in C#, and law L017 caught the parser diverging on `Åp { x: 1 }` | `lexer.firstIsUpper`/`firstIsLower` (the generated `upperRanges`/`lowerRanges`, BMP); never `A`–`Z` for a C# `char.IsUpper` |
 | tuple-typed struct field `(i8, i64) f1` | `work/todo.md:24` BYN1001 (parsed as function type) | use a named struct |
 | `List<T>` element removal by index in the port's first cut | Q440 "`List` has no `removeAt`" (a tombstone workaround); spec has `remove(at:)` §16:1743 | set `code = ""` and skip, or `remove(at:)` where built |
 | `HashSet<T>` | Q449(c): replaced by `List` searched in order; `Set` is not in v0.1 (§16:1774) | `List` + linear search, or `Map<K,bool>` |

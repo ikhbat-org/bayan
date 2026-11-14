@@ -1,0 +1,8 @@
+error BYN6002: `token` uses `random` but does not declare it
+
+  2 │     return Io.randomU64()
+    │            ^^^^^^^^^^^^^^ uses `random`
+    │
+  help: add `random` to the `uses` clause, or remove the call
+    │ 1 │ public u64 token() uses random {
+    │   │                   ++++++++++++

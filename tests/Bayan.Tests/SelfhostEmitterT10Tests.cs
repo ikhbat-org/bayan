@@ -273,7 +273,7 @@ public sealed class SelfhostEmitterT10Tests
             }
         }
 
-        void g(i64 k, from move string s, to ref i64 ys, at (i64 q, i64 r) pair, by i64 -> i64 fv, for bool flag, as ReadOnlySpan<u8> bytes, through ReadOnlySpan<string> argv) fails uses alloc, clock, console, fs, process {
+        void g(i64 k, from move string s, to ref i64 ys, at (i64 q, i64 r) pair, by i64 -> i64 fv, for bool flag, as ReadOnlySpan<u8> bytes, through ReadOnlySpan<string> argv) uses alloc, clock, console, fs, process fails {
             var a = k
             var v = a
             var mv = move s
@@ -500,8 +500,8 @@ public sealed class SelfhostEmitterT10Tests
             lines.Add($"{i} {Expr(fe, items[i])}");
             if (items[i] is BoundCall call)
             {
-                lines.Add($"{i} call {Call(typeof(FunctionEmitter), fe, "Call", call, null)}");
-                lines.Add($"{i} call-result {Call(typeof(FunctionEmitter), fe, "Call", call, "R")}");
+                lines.Add($"{i} call {Call(typeof(FunctionEmitter), fe, "Call", call, null, "NULL")}");
+                lines.Add($"{i} call-result {Call(typeof(FunctionEmitter), fe, "Call", call, "R", "NULL")}");
             }
         }
         var emitter = Field(fe, "_c")!;
@@ -527,7 +527,7 @@ public sealed class SelfhostEmitterT10Tests
         items.AddRange(g.Body!.Statements.OfType<BoundExprStmt>().Select(s => s.Expr).OfType<BoundCall>().Where(call => call.Function.Name == "fill"));
         var lines = new List<string>();
         for (var i = 0; i < items.Count; i++)
-            lines.Add(items[i] is BoundCall call ? $"{i} call {Call(typeof(FunctionEmitter), fe, "Call", call, null)}" : $"{i} {Expr(fe, items[i])}");
+            lines.Add(items[i] is BoundCall call ? $"{i} call {Call(typeof(FunctionEmitter), fe, "Call", call, null, "NULL")}" : $"{i} {Expr(fe, items[i])}");
         // A dry run (CEmitter.cs:1326-1328) that found `lst` both read and moved.
         foreach (var name in new[] { "_reads", "_moves" })
             typeof(FunctionEmitter).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(fe, new HashSet<LocalSymbol>());

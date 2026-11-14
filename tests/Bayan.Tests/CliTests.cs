@@ -150,7 +150,7 @@ public sealed class CliTests
         var sub = Directory.CreateDirectory(Path.Combine(dir, "sub")).FullName;
         Directory.CreateSymbolicLink(Path.Combine(sub, "up"), "..");
         Directory.CreateSymbolicLink(Path.Combine(sub, "up2"), "..");
-        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(1, result.Out.Split("unsafe void poke()").Length - 1);
     }
 
@@ -163,9 +163,34 @@ public sealed class CliTests
         File.WriteAllText(Path.Combine(dir, "main.byn"), "unsafe void peek() {\n}\n");
         File.WriteAllText(Path.Combine(dir, "..", "outside.byn"), "unsafe void prod() {\n}\n");
         Directory.CreateSymbolicLink(Path.Combine(dir, "link"), "..");
-        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(1, result.Out.Split("unsafe void peek()").Length - 1);
         Assert.Equal(1, result.Out.Split("unsafe void prod()").Length - 1);
+    }
+
+    /// <summary>
+    /// 008 W6: of a file and its links, the walk lists the name first in ordinal order, whatever the file system's directory order
+    /// (ext4 hashes it, APFS sorts it): links that sort before and after their target, each created before and after it.
+    /// </summary>
+    [Fact]
+    public void AuditListsTheOrdinalFirstOfAFileAndItsLinks()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var dir = Fresh("audit-link-order", "unsafe void poke() {\n}\n");
+        File.CreateSymbolicLink(Path.Combine(dir, "alias.byn"), "main.byn");
+        File.CreateSymbolicLink(Path.Combine(dir, "zz.byn"), "main.byn");
+        File.CreateSymbolicLink(Path.Combine(dir, "c.byn"), "m.byn");
+        File.WriteAllText(Path.Combine(dir, "m.byn"), "unsafe void peek() {\n}\n");
+        File.CreateSymbolicLink(Path.Combine(dir, "y.byn"), "m.byn");
+        var groups = new[] { new[] { "main.byn", "alias.byn", "zz.byn" }, ["m.byn", "c.byn", "y.byn"] };
+        var (exit, stdout, _) = Run("audit", dir);
+        Assert.Equal(CliApp.ExitOk, exit);
+        foreach (var group in groups)
+        {
+            var first = group.Min(StringComparer.Ordinal)!;
+            foreach (var name in group)
+                Assert.Equal(name == first, stdout.Contains(Path.Combine(dir, name) + ":1:1"));
+        }
     }
 
     [Fact]
@@ -176,7 +201,7 @@ public sealed class CliTests
         File.CreateSymbolicLink(Path.Combine(dir, "loop.byn"), "loop.byn");
         var sub = Directory.CreateDirectory(Path.Combine(dir, "sub")).FullName;
         File.WriteAllText(Path.Combine(sub, "b.byn"), "unsafe void peek() {\n}\n");
-        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TimeSpan.FromSeconds(120));
+        var result = await Task.Factory.StartNew(() => Run("audit", dir), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.Equal(CliApp.ExitFailure, result.Exit);
         Assert.Contains("unsafe void peek()", result.Out);
         Assert.Contains(Path.Combine(dir, "loop.byn"), result.Err);
@@ -765,7 +790,7 @@ public sealed class CliTests
     }
 
     [Fact]
-    public void HelloPrintsHelloWorld() => Assert.Equal("Hello, world!\n", BuildAndRun("hello"));
+    public void HelloPrintsHelloWorld() => Assert.Equal("Salam, world!\n", BuildAndRun("hello"));
 
     [Fact]
     public void TallyLitePrintsTheSettlement() => Assert.Equal(

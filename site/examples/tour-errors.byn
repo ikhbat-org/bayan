@@ -1,0 +1,25 @@
+union error ParseError {
+    empty
+    notDigit
+}
+
+i64 digit(string s) fails ParseError {
+    fail .empty if s.isEmpty
+    fail .notDigit if s != "7"
+    return 7
+}
+
+i64 twice(string s) fails ParseError {
+    let d = try digit(s)
+    return d * 2
+}
+
+void main() {
+    print($"{twice("7") catch -1}")
+    print($"{twice("x") catch -1}")
+    let r = twice("") catch switch {
+        .empty => 0,
+        .notDigit => -2,
+    }
+    print($"{r}")
+}

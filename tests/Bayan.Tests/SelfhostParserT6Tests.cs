@@ -145,7 +145,8 @@ public sealed class SelfhostParserT6Tests(ITestOutputHelper output)
             .Append(SourceText.FromString(Path.Combine(ParserDir, "t6-test.byn"), Program)).ToList();
         var c = Compilation.Create(sources, packageRoot: SelfhostDir);
         if (c.Diagnostics.HasErrors) return (null, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
-        var mine = c.Diagnostics.Items.Where(d => d.Source?.Path is { } p && (p.EndsWith("types.byn") || p.EndsWith("literals.byn"))).ToList();
+        // BYN5104 on `decodeChar(ReadOnlySpan<u8> token)` stays a warning until Q1190 is decided (Q1206).
+        var mine = c.Diagnostics.Items.Where(d => d.Source?.Path is { } p && (p.EndsWith("types.byn") || p.EndsWith("literals.byn")) && d.Code != "BYN5104").ToList();
         if (mine.Count > 0) return (null, DiagnosticRenderer.RenderAll(mine, includePath: true));
         var build = Toolchain.Build(CliApp.EmitC(c, BuildMode.Fast), BuildMode.Fast);
         return build.Succeeded ? (build.ExecutablePath, "") : (null, build.Errors);
@@ -251,8 +252,8 @@ public sealed class SelfhostParserT6Tests(ITestOutputHelper output)
     /// <summary>
     /// Types from the start of a file, with the <c>ParseType</c> flags the mode names (<c>fat</c>, <c>lists</c>) and
     /// <c>extern</c> for <c>_inExtern</c>: names, qualified names and type arguments, the C# names and <c>char</c>,
-    /// optional, array, tuple and its names, function types with <c>=&gt;</c>, <c>fails</c> and <c>uses</c> (bare, listed,
-    /// parenthesized), a parenthesized lone function type, <c>dyn</c>, postfix and prefix pointers, <c>readonly T*</c>
+    /// optional, array, tuple and its names, function types with <c>=&gt;</c>, <c>uses</c> and <c>fails</c> (bare, listed,
+    /// parenthesized, and out of order for BYN1065), a parenthesized lone function type, <c>dyn</c>, postfix and prefix pointers, <c>readonly T*</c>
     /// and a missing type.
     /// </summary>
     [Theory]
@@ -271,10 +272,12 @@ public sealed class SelfhostParserT6Tests(ITestOutputHelper output)
     [InlineData("i32 -> bool", "")]
     [InlineData("i32 => bool", "")]
     [InlineData("i32 => bool", "fat")]
-    [InlineData("(i32, bool) -> string fails E uses alloc", "")]
-    [InlineData("() -> void fails A, B uses a, b", "")]
-    [InlineData("() -> void fails A, B uses a, b", "fat lists")]
-    [InlineData("() -> void fails (A, B) uses (a, b)", "")]
+    [InlineData("(i32, bool) -> string uses alloc fails E", "")]
+    [InlineData("() -> void uses a, b fails A, B", "")]
+    [InlineData("() -> void uses a, b fails A, B", "fat lists")]
+    [InlineData("() -> void uses (a, b) fails (A, B)", "")]
+    [InlineData("() -> void fails A, B uses a, b", "lists")]
+    [InlineData("() -> void fails E uses a fails F", "")]
     [InlineData("(i32 x, bool y) -> void", "")]
     [InlineData("i32 -> i32 -> i32", "")]
     [InlineData("(Token -> bool) p", "")]

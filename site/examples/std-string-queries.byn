@@ -1,0 +1,9 @@
+void main() {
+    let s = "héllo, world"
+    print($"{s.length} bytes, {s.runeCount} runes, empty {s.isEmpty}, ascii {s.isAscii}")
+    print($"{s.startsWith("hé")} {s.endsWith("d")} {s.contains("lo,")}")
+    print($"{s.position("o") ?? -1} {s.position("o", from: 6) ?? -1} {s.lastPosition("o") ?? -1} {s.position("z") ?? -1}")
+    print($"{s.count("o")}")
+    print($"{"Hello".equals("hello")} {"Hello".equals("hello", as: .caseless)}")
+    print($"{s.bytes.length} {s.bytes[0]}")
+}

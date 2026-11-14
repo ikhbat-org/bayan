@@ -1,6 +1,6 @@
 You are the independent reviewer for task T10 of spec 010 (the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`). You did not write this code. Your job is to find where the port is not the C#. Do not edit any file except the review file below; do not run git commands that change state.
 
-Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port `selfhost/semantics/manifest.byn`, the tests `tests/Bayan.Tests/SelfhostSemanticsT10Tests.cs`, and Questions Q565–Q569 in `docs/bayan-handoff.md`.
+Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C# it names (whole methods), the port `selfhost/semantics/manifest.byn`, the tests `tests/Bayan.Tests/SelfhostSemanticsT10Tests.cs`, and Questions Q565–Q569 in `docs/bayan-questions.md`.
 
 ## Task (verbatim)
 - [x] T10 Manifest reader — files: `manifest.byn` (`src/Bayan.Syntax/Packages/Manifest.cs`: data grammar, BYN3100–BYN3103, capabilities, grammar, `camelOf`/`kebabOf`), `SelfhostSemanticsT10Tests.cs` — covers: R1, R4 — after: T4; parallel with: T6–T9, T11–T27, T34–T39 — done when:
@@ -22,6 +22,8 @@ Read: `AGENTS.md`, `scripts/selfhost/bayan-cheatsheet.md`, the task below, the C
 5. **True docs.** Each Question in the task's range says what the code does; each break-test line citation points at the line it names. A false claim is MEDIUM.
 
 Verify each finding in the code before you write it: name the Bayan `file:line` and the C# `file:line`. Run the task's tests (`dotnet test -v q --filter "FullyQualifiedName~SelfhostSemanticsT10Tests"`) once; you may add a probe under `tmp/review-t10/` to confirm a behaviour.
+
+Cite format (`scripts/selfhost/preflight.sh` checks every `path:N` in the review file before landing): a `path:N` takes, in the same clause, a backticked symbol that is on line N or the 2 lines after it at HEAD. For a line as it was in an earlier commit, or one with no symbol to name, write `path (line N)`. On a re-review your block replaces the whole file: carry every earlier row with its status.
 
 ## Write `docs/specs/010-self-hosted-semantics/reviews/T10.md`, exactly this shape
 ```
