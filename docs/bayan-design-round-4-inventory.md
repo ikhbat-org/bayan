@@ -1,6 +1,6 @@
 # Bayān — Round 4 inventory (2026-11-06)
 
-Every open design item across `docs/bayan-design-round-4-draft.md` (R4D), `docs/bayan-handoff-addendum-001.md` (A001), `docs/bayan-handoff-addendum-002.md` (A002), `docs/bayan-design-round-3-addendum-1.md` (R3A1), `docs/suq-round3-review-response.md` (Sūq), the handoff *Questions* (HQ) needing a design decision, and `docs/bayan-library-tiers.md` (Tiers), as of dev 87637629. Decisions are taken batch by batch in the order at the end; each answered row moves to the round-4 plan or its own spec.
+Every open design item across `docs/bayan-design-round-4-draft.md` (R4D), `docs/decisions/2026-11-14-005-read-only-spans-and-float-formatting.md` (A001), `docs/design/laws-contracts-and-parallel-iterators.md` (A002), `docs/bayan-design-round-3-addendum-1.md` (R3A1), `docs/suq-round3-review-response.md` (Sūq), the *Questions* (HQ, now `docs/bayan-questions.md` and `docs/decisions/2026-11-14-004-answered-questions.md`) needing a design decision, and `docs/bayan-library-tiers.md` (Tiers), as of dev 87637629. Decisions are taken batch by batch in the order at the end; each answered row moves to the round-4 plan or its own spec.
 
 | id (sources) | title | kind | depends-on | size | status |
 |---|---|---|---|---|---|
@@ -94,7 +94,7 @@ Every open design item across `docs/bayan-design-round-4-draft.md` (R4D), `docs/
 Not listed as rows:
 - R3A1 has no open items.
 - A001's remaining sections are decided.
-- Handoff Q463/475/490/491/520/522/544/788–877 are implementation bookkeeping.
+- Q463/475/490/491/520/522/544/788–877 are implementation bookkeeping.
 
 Unrelated issues seen while auditing:
 - A001's manifest keys `capabilities:`/`deps:` are superseded by C13 (`uses:`/`dependencies:`).

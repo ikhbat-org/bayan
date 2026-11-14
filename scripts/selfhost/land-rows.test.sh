@@ -19,7 +19,7 @@ for d in 010-self-hosted-semantics 011-self-hosted-emitter; do
   mkdir -p docs/specs/$d; n=${d%%-*}
   printf -- '- [ ] T99 fixture — files: `a.byn` — covers: R1\n' > docs/specs/$d/$n-tasks.md; : > docs/specs/$d/$n-plan.md
 done
-printf '# Handoff\n' > docs/bayan-handoff.md
+printf '# Handoff\n' > docs/bayan-questions.md
 git add -A && git commit -qm "test: base"
 branch() { git switch -q -c "$1" base; for f in "${@:2}"; do mkdir -p "$(dirname "$f")"; echo "$1" > "$f"; done; git add -A; git commit -qm "test: $1"; git switch -q base; }
 branch in010 selfhost/semantics/a.byn selfhost/semantics/ctx.byn

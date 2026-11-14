@@ -33,12 +33,12 @@ python3 -I scripts/selfhost/wave-brief.py . T30 > /dev/null; bash scripts/bayan-
 grep -q "guard.sh .* --filter 'Law=L022' --task T30" tmp/010-t30/prompt.md || { echo "FAIL: a law-enact task's guard does not run its law's proof"; exit 1; }
 grep -q 'filter "Law=L022"`' tmp/010-t30/review.md || { echo "FAIL: a law-enact task's review does not run its law's proof"; exit 1; }
 python3 -I scripts/selfhost/wave-brief.py . T33 > /dev/null
-grep -q "guard.sh --base [^ ]* --allow 'docs/bayan-handoff.md,CHANGELOG.md,work/todo.md,docs/specs/010-self-hosted-semantics/010-spec.md,docs/specs/010-self-hosted-semantics/010-tasks.md' --filter 'FullyQualifiedName~SelfhostSemanticsApiTests' --task T33" tmp/010-t33/prompt.md || { echo "FAIL: a docs task's guard lacks its root and spec files once each, or runs no test"; grep guard.sh tmp/010-t33/prompt.md; exit 1; }
+grep -q "guard.sh --base [^ ]* --allow 'docs/bayan-questions.md,CHANGELOG.md,work/todo.md,docs/specs/010-self-hosted-semantics/010-spec.md,docs/specs/010-self-hosted-semantics/010-tasks.md' --filter 'FullyQualifiedName~SelfhostSemanticsApiTests' --task T33" tmp/010-t33/prompt.md || { echo "FAIL: a docs task's guard lacks its root and spec files once each, or runs no test"; grep guard.sh tmp/010-t33/prompt.md; exit 1; }
 bash scripts/bayan-tool.sh review-brief . T33 > /dev/null
 grep -q 'filter "FullyQualifiedName~SelfhostSemanticsApiTests"`' tmp/010-t33/review.md || { echo "FAIL: a docs task's review runs no test"; exit 1; }
 # Row 011 (specs.tsv): bare .byn names resolve under selfhost/emitter/, the guard line takes the row's base, test class and --spec, the brief goes to tmp/011-<t>/.
 python3 -I scripts/selfhost/wave-brief.py . T3 --spec 011 > /dev/null
-grep -q "^bash scripts/selfhost/guard.sh --base feat/011-self-hosted-emitter --allow 'selfhost/emitter/lowerstmt.byn,selfhost/emitter/lower.byn,tests/Bayan.Tests/SelfhostEmitterT3Tests.cs,docs/bayan-handoff.md,docs/specs/011-self-hosted-emitter/011-tasks.md' --filter 'FullyQualifiedName~SelfhostEmitterT3Tests' --task T3 --spec 011\$" tmp/011-t3/prompt.md || { echo "FAIL: the 011 guard line"; grep '^bash scripts/selfhost/guard.sh' tmp/011-t3/prompt.md; exit 1; }
+grep -q "^bash scripts/selfhost/guard.sh --base feat/011-self-hosted-emitter --allow 'selfhost/emitter/lowerstmt.byn,selfhost/emitter/lower.byn,tests/Bayan.Tests/SelfhostEmitterT3Tests.cs,docs/bayan-questions.md,docs/specs/011-self-hosted-emitter/011-tasks.md' --filter 'FullyQualifiedName~SelfhostEmitterT3Tests' --task T3 --spec 011\$" tmp/011-t3/prompt.md || { echo "FAIL: the 011 guard line"; grep '^bash scripts/selfhost/guard.sh' tmp/011-t3/prompt.md; exit 1; }
 bash scripts/bayan-tool.sh review-brief . T3 --spec 011 > /dev/null
 grep -q 'filter "FullyQualifiedName~SelfhostEmitterT3Tests"`' tmp/011-t3/review.md || { echo "FAIL: the 011 review filter"; exit 1; }
 # every test class a 011 task owns is in its guard and review filter; T21 also runs the SelfhostSemantics* classes (Q870)
@@ -69,10 +69,12 @@ old=8dae45cc
 if git cat-file -e $old:scripts/selfhost/wave-brief.py 2> /dev/null; then
   mkdir -p tmp/wave-brief-old
   here="$PWD/scripts/selfhost"
-  # the reviewer is now the port (spec 015 T3): the old brief names it as this tree's does; the old review brief is the deleted Python script
-  git show $old:scripts/selfhost/wave-brief.py | sed -e "s|^HERE = .*|HERE = '$here'|" -e 's|(`scripts/selfhost/review-brief\.py`)|(`bash scripts/bayan-tool.sh review-brief`)|' > tmp/wave-brief-old/wave-brief.py
+  # the reviewer is now the port (spec 015 T3): the old brief names it as this tree's does; the old review brief is the deleted Python script.
+  # The questions moved out of docs/bayan-handoff.md into docs/bayan-questions.md (2026-11-14): the old briefs read and name the new file.
+  git show $old:scripts/selfhost/wave-brief.py | sed -e "s|^HERE = .*|HERE = '$here'|" -e 's|(`scripts/selfhost/review-brief\.py`)|(`bash scripts/bayan-tool.sh review-brief`)|' \
+    -e 's|docs/bayan-handoff\.md|docs/bayan-questions.md|g' > tmp/wave-brief-old/wave-brief.py
   rb=scripts/selfhost/review-brief
-  git show "$old:$rb.py" > tmp/wave-brief-old/reviewer.py
+  git show "$old:$rb.py" | sed -e 's|docs/bayan-handoff\.md|docs/bayan-questions.md|g' > tmp/wave-brief-old/reviewer.py
   python3 -I tmp/wave-brief-old/wave-brief.py . T43 > /dev/null; python3 -I tmp/wave-brief-old/reviewer.py . T43 > /dev/null
   cp tmp/010-t43/prompt.md tmp/wave-brief-old/prompt.md; cp tmp/010-t43/review.md tmp/wave-brief-old/review.md
   python3 -I scripts/selfhost/wave-brief.py . T43 > /dev/null; bash scripts/bayan-tool.sh review-brief . T43 > /dev/null
@@ -101,17 +103,17 @@ grep '^bash scripts/selfhost/guard.sh' tmp/017-t17/prompt.md | grep -qv -- "--fi
 python3 -I scripts/selfhost/wave-brief.py . T6 --spec 012 > /dev/null
 grep '^bash scripts/selfhost/guard.sh' tmp/012-t6/prompt.md | grep -q 'bootstrap/bayan.c,bootstrap/bayan-rt.h,bootstrap/bayan-rt.c,bootstrap/README.md,' || { echo "FAIL: a bootstrap/ file is not in the guard --allow"; exit 1; }
 # Question ranges (012 plan D6), on a fixture repo: an open task with no range in its line gets the five numbers after the highest
-# Question in the handoff, any local branch's handoff, any tasks-file range and any range already in tmp/q-ranges.tsv; a second
+# Question in docs/bayan-questions.md, any local branch's copy of it, any tasks-file range and any range already in tmp/q-ranges.tsv; a second
 # brief for it reuses the row; briefs written at once do not overlap; a range in the task line is kept and not recorded;
 # a ticked task gets none; the 012 brief tells the writer to run preflight.sh, the 010 brief does not.
 here=$PWD; q=$here/tmp/wave-brief-q; rm -rf "$q"; mkdir -p "$q/docs/specs/012-self-hosted-bootstrap" "$q/docs/specs/011-self-hosted-emitter"
 ( cd "$q"; git init -q -b base; git config user.email t@t; git config user.name t
-  printf '1005. a\n1007. b\n' > docs/bayan-handoff.md
+  printf '1005. a\n1007. b\n' > docs/bayan-questions.md
   printf -- '- [ ] T90 a — files: `x.byn` — covers: R1\n' > docs/specs/011-self-hosted-emitter/011-tasks.md
   : > docs/specs/012-self-hosted-bootstrap/012-plan.md
   for n in 91 92 93 94 95; do printf -- '- [ ] T%s t — files: `selfhost/driver/t%s.byn` — covers: R1\n' $n $n; done > docs/specs/012-self-hosted-bootstrap/012-tasks.md
   printf -- '- [ ] T96 t — files: `t.byn` — covers: R1 — Questions Q1100–Q1104\n- [x] T97 t — files: `t.byn` — covers: R1\n- [x] T98 t — files: `selfhost/semantics/{compile,types}.byn`, `x.byn` — covers: R1\n' >> docs/specs/012-self-hosted-bootstrap/012-tasks.md
-  git add -A; git commit -qm "test: base"; git switch -q -c other; printf '1012. c\n' >> docs/bayan-handoff.md; git commit -qam "test: other"; git switch -q base )
+  git add -A; git commit -qm "test: base"; git switch -q -c other; printf '1012. c\n' >> docs/bayan-questions.md; git commit -qam "test: other"; git switch -q base )
 export BAYAN_QRANGES=$q/tmp/q-ranges.tsv
 python3 -I scripts/selfhost/wave-brief.py "$q" T96 --spec 012 > /dev/null
 grep -q 'Questions Q1100–Q1104 only' "$q/tmp/012-t96/prompt.md" || { echo "FAIL: a range in the task line is not the brief's"; exit 1; }
@@ -127,7 +129,7 @@ grep -q 'and Questions Q1105–Q1109 in' "$q/tmp/012-t91/review.md" || { echo "F
 perl -i -pe 's/ — Questions Q1100–Q1104//' "$q/docs/specs/012-self-hosted-bootstrap/012-tasks.md"
 python3 -I scripts/selfhost/wave-brief.py "$q" T92 --spec 012 > /dev/null
 grep -q 'Questions Q1110–Q1114 only' "$q/tmp/012-t92/prompt.md" || { echo "FAIL: a range already recorded is not skipped"; exit 1; }
-printf '1200. d\n' >> "$q/docs/bayan-handoff.md"
+printf '1200. d\n' >> "$q/docs/bayan-questions.md"
 python3 -I scripts/selfhost/wave-brief.py "$q" T93 --spec 012 > /dev/null & python3 -I scripts/selfhost/wave-brief.py "$q" T94 --spec 012 > /dev/null &
 python3 -I scripts/selfhost/wave-brief.py "$q" T95 --spec 012 > /dev/null & wait
 r=$(awk -F'\t' '$2 ~ /^T9[345]$/ { print $3 "-" $4 }' "$BAYAN_QRANGES" | sort | tr '\n' ' ')

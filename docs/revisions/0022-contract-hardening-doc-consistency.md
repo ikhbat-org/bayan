@@ -34,8 +34,8 @@ Edits are anchored on text and section, not line numbers. Changed SPEC rules car
 | 10 | B2 | `docs/STATUS.md` | New row "Build modes" (`partial`): `debug`, `safe` and `fast` are built (`src/Bayan.Backend.C/Toolchain.cs:96-99`); `small` is not built. The `ensures` row points at Appendix A |
 | 11 | verify.out | `AGENTS.md:9` | Diagnostic ranges continue past 4999 with the 5xxx–8xxx areas of revision 0017 (and the 9xxx note), so a worker allocating a code in those families finds its area |
 | 12 | headers | SPEC, GRAMMAR, STYLE, `docs/DIAGNOSTICS.md`, `docs/STATUS.md` | `Revisions applied: 0001–0022` (`scripts/docs/check.sh`) |
-| 13 | A6/A25 | `docs/bayan-handoff-addendum-002.md:167` | Supersedes addendum 002:167 ("`requires`/`ensures` runtime semantics now; verification marked as v1.x"): `ensures` is not adopted (revision 0019 item 19, this revision item 5). Only `requires` runtime semantics apply now; verification stays v1.x. The note at :125 already supersedes §3 for `ensures` |
-| 14 | A6/D1 | `docs/bayan-handoff-addendum-002.md:136` | Supersedes addendum 002:136 ("checked in debug and safe builds, skipped in fast builds"): contracts are checked in every build mode (item 1; revision 0002 round 2 §7) |
+| 13 | A6/A25 | `docs/design/laws-contracts-and-parallel-iterators.md:167` | Supersedes addendum 002:167 ("`requires`/`ensures` runtime semantics now; verification marked as v1.x"): `ensures` is not adopted (revision 0019 item 19, this revision item 5). Only `requires` runtime semantics apply now; verification stays v1.x. The note at :125 already supersedes §3 for `ensures` |
+| 14 | A6/D1 | `docs/design/laws-contracts-and-parallel-iterators.md:136` | Supersedes addendum 002:136 ("checked in debug and safe builds, skipped in fast builds"): contracts are checked in every build mode (item 1; revision 0002 round 2 §7) |
 
 ## Code samples
 
@@ -126,10 +126,10 @@ None affected. The new golden `run/range-binds-looser-than-arithmetic` is a lang
 
 The frozen documents below are not edited; this diff records how items 13 and 14 supersede them. Where this diff and the frozen text differ, this revision wins.
 
-### Items 13, 14: `docs/bayan-handoff-addendum-002.md`
+### Items 13, 14: `docs/design/laws-contracts-and-parallel-iterators.md`
 ```diff
---- a/docs/bayan-handoff-addendum-002.md
-+++ b/docs/bayan-handoff-addendum-002.md
+--- a/docs/design/laws-contracts-and-parallel-iterators.md
++++ b/docs/design/laws-contracts-and-parallel-iterators.md
 @@ :136
 -- At runtime they behave like `[Check]` invariants: checked in debug and safe builds, skipped in fast builds, panicking with the clause text on violation.
 +- At runtime they behave like `[Check]` invariants: checked in every build mode, panicking with the clause text on violation.

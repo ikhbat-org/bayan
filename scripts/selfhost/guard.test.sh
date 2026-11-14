@@ -23,11 +23,11 @@ r="$root/tmp/guard-test"; aux="$root/tmp/guard-test-aux"  # stubs and logs live 
 rm -rf "$r" "$aux" && mkdir -p "$r/selfhost/semantics" "$r/docs" "$r/tests" "$aux/bin" "$aux/bin2" && cd "$r"
 git init -q -b fixture && git config user.email t@t && git config user.name t
 printf 'fn f(a: int) -> int {\n    if a == 1 { return 1 }\n    return a + 1\n}\n' > selfhost/semantics/a.byn
-printf '# Handoff\n' > docs/bayan-handoff.md
+printf '# Handoff\n' > docs/bayan-progress-log.md
 printf 'bin/\n' > .gitignore
 printf '{ "version": 1, "files": { "selfhost/semantics/a.byn": { "mutation": 1.0, "coverage": null } } }\n' > tests/quality-baseline.json
 git add -A && git commit -qm "test: base" && git branch -q base
-printf '# Handoff\n- **T99** landed.\n' > docs/bayan-handoff.md
+printf '# Handoff\n- **T99** landed.\n' > docs/bayan-progress-log.md
 # stub dotnet: build and tests pass; under BAYAN_SNAPSHOT it logs the filter and files and writes a one-build manifest
 # (two builds with $AUX/two, none with $AUX/nomanifest)
 cat > $aux/dotnet <<'STUB'

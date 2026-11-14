@@ -11,4 +11,4 @@ The first `std.crypto` spec must cite each item below by number, with a golden f
 5. **Randomness only through `CryptoRandom`** (spec `:1726`).
 6. **Libc and OS primitives are audited first.** Any primitive used underneath (`crypt`, `getentropy`, `BCrypt*`) goes through the runtime libc audit table (`docs/security/runtime-libc-audit.md`, plan W1) before use.
 
-Also: add a section with these rules to `docs/bayan-library-tiers.md` (handoff Question, not an edit here).
+Also: add a section with these rules to `docs/bayan-library-tiers.md` (a Question in `docs/bayan-questions.md`, not an edit here).

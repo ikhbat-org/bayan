@@ -19,7 +19,7 @@ cat > docs/specs/012-self-hosted-bootstrap/012-tasks.md <<'EOF'
 - [ ] T97 fixture — files: `src/a.c` — covers: R1
 EOF
 : > docs/specs/012-self-hosted-bootstrap/012-plan.md
-printf '100. old\n101. older\n' > docs/bayan-handoff.md
+printf '100. old\n101. older\n' > docs/bayan-questions.md
 printf 'int alpha;\nint beta;\nint gamma;\n' > src/a.c
 printf 'namespace Bayan.Tests;\npublic sealed class FooT8Tests { }\n' > tests/Bayan.Tests/FooInventoryTests.cs
 git add -A && git commit -qm "test: base"
@@ -41,17 +41,17 @@ br() { git switch -q -c "$1" base; shift; while [ $# -gt 0 ]; do mkdir -p "$(dir
   git add -A; git commit -qm "test: branch"; git switch -q base; }
 pf() { PATH="$aux/bin:$PATH" BAYAN_BASE=base BAYAN_QRANGES=$aux/q.tsv /bin/bash "$root/scripts/selfhost/preflight.sh" 012 "$1" "$2" 2>&1 && echo "rc=0" || echo "rc=$?"; }
 REV=docs/specs/012-self-hosted-bootstrap/reviews/T99.md
-br good src/a.c 'int delta;' docs/bayan-handoff.md '200. **T99.** `src/a.c:2` `beta` and `a.c:1-2` (bare name) hold it; `src/a.c:3`, then `gamma` elsewhere; `src/a.c:1` `gamma` is 2 lines on.' \
+br good src/a.c 'int delta;' docs/bayan-questions.md '200. **T99.** `src/a.c:2` `beta` and `a.c:1-2` (bare name) hold it; `src/a.c:3`, then `gamma` elsewhere; `src/a.c:1` `gamma` is 2 lines on.' \
   $REV '| 1 | LOW | `src/a.c:4` `delta` | open |'
-br stale src/a.c 'int delta;' docs/bayan-handoff.md '201. `src/a.c:9` is past the end; `src/a.c:1` `delta` is 3 lines on; `src/a.c:1-2` `gamma` ends short; `nope.c:1` does not exist; `src/a.c:3` `gamma` holds.'
+br stale src/a.c 'int delta;' docs/bayan-questions.md '201. `src/a.c:9` is past the end; `src/a.c:1` `delta` is 3 lines on; `src/a.c:1-2` `gamma` ends short; `nope.c:1` does not exist; `src/a.c:3` `gamma` holds.'
 br outside .github/workflows/r.yml 'on: push' .github/workflows/s.yml 'on: push' src/b.c 'int b;' scripts/r.sh 'true' scripts/s.sh 'true' bootstrap/r.c "int r;" src/d.c 'int d;' src/e.c 'int e;' tests/Bayan.Tests/BarTests.cs 'class BarTests {}' work/todo.md '- x'
 br driver selfhost/driver/main.byn 'x'
-br qdup docs/bayan-handoff.md '101. again'
-br qout docs/bayan-handoff.md '205. out of range'
-br qbase docs/bayan-handoff.md '202. mine'
-br qline docs/bayan-handoff.md '300. in the task line range'
-br norange docs/bayan-handoff.md '400. no range'
-printf '202. another task\n' >> docs/bayan-handoff.md; git commit -qam "test: base takes 202"
+br qdup docs/bayan-questions.md '101. again'
+br qout docs/bayan-questions.md '205. out of range'
+br qbase docs/bayan-questions.md '202. mine'
+br qline docs/bayan-questions.md '300. in the task line range'
+br norange docs/bayan-questions.md '400. no range'
+printf '202. another task\n' >> docs/bayan-questions.md; git commit -qam "test: base takes 202"
 good=$(pf T99 good); gsha=$(git rev-parse good); targs=$(cat "$aux/test-args")
 mkdir -p tmp/wp1; W=tmp/wp1/$gsha.out
 F='FullyQualifiedName~FooT8Tests|FullyQualifiedName~CInventoryTests|FullyQualifiedName~SelfhostDriverT8Tests|FullyQualifiedName~SelfhostDriverRuntimeTests'
@@ -88,13 +88,13 @@ has "$wok" "ok wp1 (Passed:     4)" && has "$wok" "rc=0" && ! grep -q '^FAIL' <<
 has "$wexit" "FAIL wp1: tmp/wp1/$gsha.out ends in 'exit 1', not 'exit 0'" || fail "a failed wp1 run passed" "$wexit"
 has "$wnone" "FAIL wp1: tmp/wp1/$gsha.out ran no tests" || fail "a wp1 run of no tests passed" "$wnone"
 grep -q "^FAIL wp1: tmp/wp1/$gsha.out ran 'FullyQualifiedName~FooT8Tests', without CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests; run: " <<< "$wfilt" || fail "a wp1 run without the cross-cutting classes passed" "$wfilt"
-has "$stale" 'FAIL cites: docs/bayan-handoff.md Q201 `src/a.c:9`: src/a.c has 4 lines' || fail "a citation past the end passed" "$stale"
-has "$stale" 'FAIL cites: docs/bayan-handoff.md Q201 `src/a.c:1`: `delta` is not on src/a.c:1 or the 2 lines after it' || fail "a quoted symbol 3 lines after its line passed" "$stale"
-has "$stale" 'FAIL cites: docs/bayan-handoff.md Q201 `nope.c:1`: no such file' || fail "a citation of a missing file passed" "$stale"
-has "$stale" 'FAIL cites: docs/bayan-handoff.md Q201 `src/a.c:1-2`: `gamma` is not on src/a.c:1-2' || fail "a range ending short of its quoted symbol passed" "$stale"
+has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `src/a.c:9`: src/a.c has 4 lines' || fail "a citation past the end passed" "$stale"
+has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `src/a.c:1`: `delta` is not on src/a.c:1 or the 2 lines after it' || fail "a quoted symbol 3 lines after its line passed" "$stale"
+has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `nope.c:1`: no such file' || fail "a citation of a missing file passed" "$stale"
+has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `src/a.c:1-2`: `gamma` is not on src/a.c:1-2' || fail "a range ending short of its quoted symbol passed" "$stale"
 [ "$(grep -c '^FAIL cites' <<< "$stale")" = 4 ] || fail "a citation that holds was reported" "$stale"
 has "$outside" 'FAIL files: 4 changed outside T99'"'"'s files list; append to its files: in docs/specs/012-self-hosted-bootstrap/012-tasks.md: `.github/workflows/s.yml`, `scripts/s.sh`, `src/b.c`, `tests/Bayan.Tests/BarTests.cs`' || fail "files outside the list are not reported with the addition" "$outside"
-has "$qdup" "FAIL questions: Q101 is in docs/bayan-handoff.md 2 times" || fail "a duplicate Question number passed" "$qdup"
+has "$qdup" "FAIL questions: Q101 is in docs/bayan-questions.md 2 times" || fail "a duplicate Question number passed" "$qdup"
 has "$qout" "FAIL questions: Q205 is outside T99's range Q200–Q204" || fail "a Question outside the range passed" "$qout"
 has "$qbase" "FAIL questions: Q202 is already on base (another task took it)" || fail "a Question the base took meanwhile passed" "$qbase"
 has "$qline" "ok questions (1 added, range Q300–Q304)" || fail "the task line's range is not used" "$qline"

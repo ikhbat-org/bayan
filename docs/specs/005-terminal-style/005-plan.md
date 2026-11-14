@@ -36,7 +36,7 @@ Output shapes are pinned by a golden triple harness that drives `CliApp.Run` wit
 - `tests/Bayan.Tests/HelpLanguageTests.cs` (new) — every `help:` line in `tests/cases/diag/**/*.diag` starts with a verb (allowlist of verbs plus named exceptions). R15.
 - Binder help strings (`src/Bayan.Semantics/Binding/*.cs`, ~164 `help:` sites, of which the first-word census over the goldens shows roughly 70 not starting with a verb: "a …", "`s.data.copy(to:` …", "only …", "the …", "its …", "this …", "0 …") — reword to start with a verb; regenerate affected `diag/` and `diag-json/` goldens. R15.
 - Pinned tests updated: `DiagnosticRendererTests.cs:34, 60-75, 79, 122`; `CliEnvironmentTests.cs:55-100, 114-138`; `CliTests.cs:357`; `tests/cases/out/results-fail.json` (new `pending` summary key); `OutputTests.cs:102` unchanged.
-- `docs/bayan-terminal-style.md`, `docs/specs/005-terminal-style/005-spec.md`, `docs/bayan-handoff.md`, `CHANGELOG.md`, `tests/cases/README.md`, `docs/laws/011-*.md`, `docs/laws-and-decisions.md`. R19, L011.
+- `docs/bayan-terminal-style.md`, `docs/specs/005-terminal-style/005-spec.md`, `docs/bayan-milestones.md`, `CHANGELOG.md`, `tests/cases/README.md`, `docs/laws/011-*.md`, `docs/laws-and-decisions.md`. R19, L011.
 
 ## Data / interfaces
 
@@ -84,7 +84,7 @@ Output shapes are pinned by a golden triple harness that drives `CliApp.Run` wit
 15. **Help language test and rewording** — `tests/Bayan.Tests/HelpLanguageTests.cs`, binder files + `diag`/`diag-json` goldens. Done when the test passes with an allowlist of at most the justified snippet-first helps. R15.
 16. **Prove L011** — `tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs` (`[Trait("Law","L011")]`, strips `\e[…m` from every `.color` golden and from an in-memory `--ascii`+`NO_COLOR` render, asserts equality with `.plain`/`.ascii`), `docs/laws/011-colour-adds-only-escapes.md` as `status: proposed` with `proof`/`check`. Done when a mutation (a colour-only symbol) makes the test fail and `laws-check.js --run` passes. Depends on 14.
 17. **Enact L011** — `docs/laws/011-*.md` status → `enacted` (with `enacted:` date), `docs/laws-and-decisions.md` entry. Done in the same change as T16's passing proof (standing authorization, 2026-10-21). Depends on 16.
-18. **Docs** — `docs/bayan-terminal-style.md` (R2 order, R3 locale rule, R6 phases replacing the per-module `-v` example, R8 rerun forms and `-v` lines, R13 `CI`, R10 child exit 4, note that `link` is folded into `compile`), `005-spec.md` status, `docs/bayan-handoff.md` (progress entry + Q79–Q86), `CHANGELOG.md`, `tests/cases/README.md` (`style/` row). Depends on all. R19.
+18. **Docs** — `docs/bayan-terminal-style.md` (R2 order, R3 locale rule, R6 phases replacing the per-module `-v` example, R8 rerun forms and `-v` lines, R13 `CI`, R10 child exit 4, note that `link` is folded into `compile`), `005-spec.md` status, `docs/bayan-progress-log.md` (progress entry + Q79–Q86), `CHANGELOG.md`, `tests/cases/README.md` (`style/` row). Depends on all. R19.
 
 ## Decisions for handoff Questions
 

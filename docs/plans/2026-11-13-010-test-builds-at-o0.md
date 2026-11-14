@@ -28,7 +28,7 @@ Cost on the other side: an -O0 program runs slower. m2 measured the five compile
 - `src/Bayan.Backend.C/Toolchain.cs`, `selfhost/driver/cc.byn`, `selfhost/driver/cache.byn` — read `BAYAN_OPT`, pick the program's -O level, error on bad values.
 - `tests/Bayan.Tests/TestSetup.cs` — default `BAYAN_OPT=0`; `scripts/selfhost/shard-test.sh` — pass it on; nightly and release workflow files and the laws gate invocation — `BAYAN_OPT=2`.
 - Tests: key differs between 0 and 2; `debug` ignores it; a bad value is a diagnostic in both compilers (parity); a run corpus sample built both ways gives the same output; a test that fails if the nightly/release workflows do not set `BAYAN_OPT=2`.
-- `docs/bayan-handoff.md` Progress log; CHANGELOG `[Unreleased]`.
+- `docs/bayan-progress-log.md` Progress log; CHANGELOG `[Unreleased]`.
 
 ## Needs decision (before step 2)
 

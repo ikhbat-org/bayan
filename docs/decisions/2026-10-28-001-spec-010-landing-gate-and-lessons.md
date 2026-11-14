@@ -1,7 +1,7 @@
 # Spec 010 landing gate, the `in` modifier, and what the redo taught
 Status: decided (2026-10-28); the gate is live in `scripts/selfhost/`. The two follow-ups below are open.
 
-Records the decisions made while spec 010 (self-hosted semantics) was ported, so later ports (011, 012 and any new one) reuse them. The per-task questions are Q710, Q711, Q712, Q713 and Q714 in `docs/bayan-handoff.md`; the commands live in `scripts/selfhost/` (`wave-brief.py`, `guard.sh`, `land.sh`, `writer-protocol.md`, `bayan-cheatsheet.md`).
+Records the decisions made while spec 010 (self-hosted semantics) was ported, so later ports (011, 012 and any new one) reuse them. The per-task questions are Q710, Q711, Q712, Q713 and Q714 in `docs/decisions/2026-11-14-004-answered-questions.md`; the commands live in `scripts/selfhost/` (`wave-brief.py`, `guard.sh`, `land.sh`, `writer-protocol.md`, `bayan-cheatsheet.md`).
 
 ## Decisions
 

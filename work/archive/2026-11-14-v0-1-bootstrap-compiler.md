@@ -33,7 +33,7 @@ tick.
   duplicating it — two copies of a task list is one stale copy.
 - `milestones.md` is where the project is going. A tasklist is how one milestone gets done.
 
-## Current work: Bayan v0.1 bootstrap compiler (detail: `docs/bayan-handoff.md`)
+## Current work: Bayan v0.1 bootstrap compiler (detail: `docs/bayan-milestones.md`)
 
 - [x] **T1 — M0 skeleton** — done when: CI green on linux-x64/osx-arm64/win-x64; bayan --version runs from the AOT binary
 - [x] **T2 — M1 lexer** — done when: lex/ golden cases cover every token kind and lexer diagnostic; 1 MB file allocates only the token array

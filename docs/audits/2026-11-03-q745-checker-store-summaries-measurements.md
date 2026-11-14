@@ -1,5 +1,5 @@
 # Q745 checker store summaries: measurements
-Status: measured 2026-11-03; Q745 is landed on dev (spec 010 T41, `fix/q745`). Numbers are from the two measuring rounds before the merge and are kept as the evidence behind Q745 in `docs/bayan-handoff.md`. Nothing is left to do here except the open item in section 8.
+Status: measured 2026-11-03; Q745 is landed on dev (spec 010 T41, `fix/q745`). Numbers are from the two measuring rounds before the merge and are kept as the evidence behind Q745 in `docs/decisions/2026-11-14-004-answered-questions.md`. Nothing is left to do here except the open item in section 8.
 
 Q745 makes the C# checker keep per-callee store summaries (A) with a type filter inside (B), return summaries, loop-item lending and a loan-only `StrBuf.finish()`. Round 1 is the first C# rule (`chore/worker-q745-csharp` 6e45c9f6). Round 2 (store and return summaries, `finish()` loan only, option (a): `append` is not a mutation) is the rule that shipped. Revision 0018 (`docs/revisions/0018-strbuf-finish-loan.md`) records the `finish()` change.
 

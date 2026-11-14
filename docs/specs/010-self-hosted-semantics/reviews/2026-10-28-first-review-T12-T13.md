@@ -21,7 +21,7 @@ I read all the code involved. I ran one probe, under `tmp/review-b/probe1`, whic
    - It drops BYN2831, BYN2208, BYN2225 and BYN2780.
    - It has no `Reported` dedup, and omits the BYN7012 `Related` span (C# `:1493`).
    - Q580 repeats the wrong list as if it were C#'s.
-8. **HIGH, Q704 is not resolved.** The handoff still marks it Open (line 883). `InstantiatingScope` (`generics.byn:7-12`) has no outermost site, no `_instantiating` depth and no held `_instantiationErrors`. As a result:
+8. **HIGH, Q704 is not resolved.** The Questions list still marks it Open (line 883). `InstantiatingScope` (`generics.byn:7-12`) has no outermost site, no `_instantiating` depth and no held `_instantiationErrors`. As a result:
    - `check = _instantiating == 0` is gone: constraints are always checked (`:318, 380`).
    - Diagnostics that are not forwarded are dropped instead of held, so the internal-error path is impossible. Q580's "suppressed per C# :1483" misstates C#, which keeps them (`:1497`).
    - `AfterMembersDeclared` retargeting has nowhere to read the site from.

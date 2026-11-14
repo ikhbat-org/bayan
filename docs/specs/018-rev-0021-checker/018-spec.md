@@ -54,4 +54,4 @@ compilers (C# in `src/`, self-hosted in `selfhost/`) must change together, byte-
 - None new. L028 (driver equivalence) already quantifies over every golden.
 
 ## Open questions
-- None blocking. Mismatches between the revision and the code go to `docs/bayan-handoff.md` Questions (Q1168–Q1175).
+- None blocking. Mismatches between the revision and the code go to `docs/bayan-questions.md` Questions (Q1168–Q1175).

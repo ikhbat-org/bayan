@@ -20,7 +20,7 @@ Optional improvements with no commitment and no slot. State of `dev` at 04366a4f
 - Derive `restrict` from borrow facts (`docs/bayan-design-round-4-inventory.md`, R4D §10 R4.6).
 - Null-niche optionals and `Result`; the byte figures are unverified (`docs/bayan-design-round-4-inventory.md`, R4D §4 P4).
 - A single-arena default allocator for `bayan run` and request handlers (`docs/bayan-design-round-4-inventory.md`, R4D §8 and §9 Q6).
-- Decide which parser-port frictions become specs: no tuple destructuring, field moves out of `Owned`, flow typing on field paths and `is` pattern corners (`docs/bayan-handoff.md` line 411, "candidates for later specs").
+- Decide which parser-port frictions become specs: no tuple destructuring, field moves out of `Owned`, flow typing on field paths and `is` pattern corners (`docs/bayan-milestones.md` line 383, "candidates for later specs").
 - Give `Io.run` a working-directory argument, so the driver passes relative names as the C# compiler does (`work/todo.md` line 652).
 
 ## Tooling

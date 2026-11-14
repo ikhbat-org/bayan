@@ -42,13 +42,13 @@ Edits are anchored on text and section, not line numbers.
 | 23 | A19 | SPEC §1 table, Data row | "no GC in v1" → "there is no GC tier (revision 0019)" |
 | 24 | A21 | SPEC §2.5 note | Records the clause order `where` → `expects` → `uses` → `becomes` → `fails`, which the BYN1065 message (`DiagnosticCodes.cs:101`) and the parser (`Parser.cs:1304-1321`) use. Supersedes revision 0002 item 1 (`docs/revisions/0002-round-3-consistency-review.md:11`, `where` → `expects` → `becomes` → `fails` → `uses`). The SPEC note cites this item |
 | 25 | A22 | SPEC §10 Overloading, rules 2-5 | Each prefixed "(not in 0.2: type overloads, rule 1)"; rule 4 cites BYN3215 as reserved (`DiagnosticCodes.cs:317`). Applies revision 0019:74 |
-| 26 | A23 | SPEC §21.4 Projects | `bayan.lock` → `package.lock.byn` (decided 2026-11-06: `docs/bayan-handoff-addendum-001.md:94`, `docs/bayan-design-round-4-inventory.md` batch 1), tagged "not in 0.2: no lockfile is written" (no lockfile name in `src/`). Supersedes `docs/bayan-handoff.md:239` (`bayan.lock` → `package.lock.byn`) |
+| 26 | A23 | SPEC §21.4 Projects | `bayan.lock` → `package.lock.byn` (decided 2026-11-06: `docs/bayan-milestones.md:207`, `docs/bayan-design-round-4-inventory.md` batch 1), tagged "not in 0.2: no lockfile is written" (no lockfile name in `src/`). Supersedes `docs/bayan-milestones.md` (`bayan.lock` → `package.lock.byn`) |
 | 27 | A24 | GRAMMAR §3 | Points to SPEC §21.5 as the complete list of input forms; GRAMMAR's tables are a selection |
 | 28 | A27 | `docs/diagnostics/BYN2006.md` | Not applied. A corrected example would report BYN2006, and `tests/Bayan.Tests/DiagnosticCodesTests.cs:170-171` then fails until the stale skip entry at `:80` is removed, which is a test change. Queued in `work/todo.md` as one task (page example from golden `tests/cases/diag/duplicate-overload-types.byn` plus the skip entry) |
 | 29 | A28 | SPEC §4.3 `isBlank` example (the AUDIT says §6.6) | `trim().isEmpty` → `trimmed().isEmpty` (revision 0004 item 2) |
 | 30 | A29 | SPEC §6.2 conversions table; §16.4 Conversions and v0.1 scope line | Revision 0015 applied: a "Text → float" row; §16.4 names `f32.tryParse` / `f64.tryParse`; the scope line's `lowercased`/`uppercased` use Unicode simple case mapping, not ASCII (golden `tests/cases/run/float-try-parse.byn`) |
 | 31 | A30 | SPEC §3.1 (lowercase type names), §3.3 laws line, §7.9 `requires`, §24 pipeline (DIR) | The C# primitive names stay reserved words (revision 0001; `Keywords.cs:50-53`); L016 "Equal keys are one entry" (revision 0013 item 6); the BYN3218 mixed-`requires` rule (revisions 0002 item 27, 0004 item 1; `DiagnosticCodes.cs:322`); `#line N "file.byn"` before each statement, none in generated helpers, a C diagnostic is an internal compiler error (revision 0001). The `adjectives` part is item 5 |
-| 32 | A33 | `docs/bayan-handoff-addendum-002.md:137`, `:146`, `:155` | Supersedes addendum 002: `[Prove]` → `@prove` (:137, and :61 likewise); `orders.par().where(o => o.isPaid).sum(o => o.total);` → no trailing `;` (:146); `Atomic<int>` → `Atomic<i32>` (:155) |
+| 32 | A33 | `docs/design/laws-contracts-and-parallel-iterators.md:137`, `:146`, `:155` | Supersedes addendum 002: `[Prove]` → `@prove` (:137, and :61 likewise); `orders.par().where(o => o.isPaid).sum(o => o.total);` → no trailing `;` (:146); `Atomic<int>` → `Atomic<i32>` (:155) |
 | 33 | A35 | SPEC §21 | §21.3 Performance targets moves before §21.4 Projects, outputs and VCS; no text changes |
 
 ## Status tags
@@ -110,7 +110,7 @@ Not tagged, with reason: §14 `provide` handlers other than `alloc` (`src/Bayan.
 
 ## Sections
 
-SPEC §1, §2.3, §2.4, §2.5 note, §3.1, §3.4, §3.5, §3.6, §3.10, §3.16, §4.3, §5.2, §5.3, §6.2, §6.5, §6.8, §7.4, §7.6, §7.9, §9.6, §10, §11, §12, §13, §15.1, §15.2, §15.4, §16.1, §16.4, §19.2, §21.3, §21.4, §24, and the header. GRAMMAR header, §1, §2, §3, §13. STYLE header, Defaults, Configuration, Trees and graphs, new Style lints and Opting out. `docs/export/BAYAN-GRAMMAR.md` title and header, `BAYAN-STATUS.md` naming rows, `BAYAN-DIAGNOSTICS.md` spec-only paragraph and BYN5100 row. `work/todo.md`. `docs/bayan-handoff.md` Progress log.
+SPEC §1, §2.3, §2.4, §2.5 note, §3.1, §3.4, §3.5, §3.6, §3.10, §3.16, §4.3, §5.2, §5.3, §6.2, §6.5, §6.8, §7.4, §7.6, §7.9, §9.6, §10, §11, §12, §13, §15.1, §15.2, §15.4, §16.1, §16.4, §19.2, §21.3, §21.4, §24, and the header. GRAMMAR header, §1, §2, §3, §13. STYLE header, Defaults, Configuration, Trees and graphs, new Style lints and Opting out. `docs/export/BAYAN-GRAMMAR.md` title and header, `BAYAN-STATUS.md` naming rows, `BAYAN-DIAGNOSTICS.md` spec-only paragraph and BYN5100 row. `work/todo.md`. `docs/bayan-progress-log.md` Progress log.
 
 ## Codes
 
@@ -184,19 +184,19 @@ The frozen documents below are not edited (dispatcher D13); this diff records ho
 +1. **Clause order includes `expects`:** `where` → `expects` → `uses` → `becomes` → `fails` (revision 0020 item 24). Update HANDOFF:83 (shape), HANDOFF:95 (order sentence), and the BYN1065 message at plan:18.
 ```
 
-### Item 26 (A23): `docs/bayan-handoff.md`
+### Item 26 (A23): `docs/bayan-milestones.md`
 ```diff
---- a/docs/bayan-handoff.md
-+++ b/docs/bayan-handoff.md
+--- a/docs/bayan-milestones.md
++++ b/docs/bayan-milestones.md
 @@ -239 +239 @@
 -Lockfile policy: `bayan.lock` is committed for apps and libraries alike (reproducible builds); do not ignore it.
 +Lockfile policy: `package.lock.byn` is committed for apps and libraries alike (reproducible builds); do not ignore it.
 ```
 
-### Item 32 (A33): `docs/bayan-handoff-addendum-002.md`
+### Item 32 (A33): `docs/design/laws-contracts-and-parallel-iterators.md`
 ```diff
---- a/docs/bayan-handoff-addendum-002.md
-+++ b/docs/bayan-handoff-addendum-002.md
+--- a/docs/design/laws-contracts-and-parallel-iterators.md
++++ b/docs/design/laws-contracts-and-parallel-iterators.md
 @@ -61 +61 @@
 -- Attributes: `[Exhaustive(...)]` (bounds for exhaustive checking), `[Prove]` (request the `proved` level, §3), `[Cases(n)]` (number of generated cases; default 10,000).
 +- Attributes: `[Exhaustive(...)]` (bounds for exhaustive checking), `@prove` (request the `proved` level, §3), `[Cases(n)]` (number of generated cases; default 10,000).

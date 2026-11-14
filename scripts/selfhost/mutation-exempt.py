@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-# mutation-exempt.py <file.byn> <handoff.md> — the lines guard.sh's mutation step skips in <file.byn>.
+# mutation-exempt.py <file.byn> <questions.md> — the lines guard.sh's mutation step skips in <file.byn>.
 # `// mutation-exempt: Qnnn` exempts the next line; `// mutation-exempt: Qnnn through N` exempts the next line to N.
 # Each marker's Question must cite <file>:L (or a range) with L inside what the marker exempts, so every exempted
-# span is named in the handoff with the stub that blocks it. Prints `skip <line>` and `note <message>` lines.
+# span is named in the questions file with the stub that blocks it. Prints `skip <line>` and `note <message>` lines.
 import re, sys, os
 
 path, handoff = sys.argv[1], sys.argv[2]

@@ -1,6 +1,6 @@
 # Runtime security audit, 2026-11-06
 
-Scope: `src/runtime/bayan-rt.c` (the C runtime every program links), read-only audit with probes (`tmp/security/`). Not reached: case tables (:690-1190), path tables (:1622-1800), `selfhost/driver/runtime.byn` (embedded copy), any run on Windows. Fix status is tracked per row in the handoff Progress log and `work/todo.md`.
+Scope: `src/runtime/bayan-rt.c` (the C runtime every program links), read-only audit with probes (`tmp/security/`). Not reached: case tables (:690-1190), path tables (:1622-1800), `selfhost/driver/runtime.byn` (embedded copy), any run on Windows. Fix status is tracked per row in `docs/bayan-progress-log.md` and `work/todo.md`.
 
 | Sev | file:line | Defect | Trigger | Fix |
 |---|---|---|---|---|

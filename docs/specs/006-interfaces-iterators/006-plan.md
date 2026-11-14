@@ -49,7 +49,7 @@ Loops are written `for x in e` or, typed, `for T x in e` (round-2 C2; 3.1 parses
 - `src/Bayan.Semantics/Builtins.cs`: synthesize `IEnumerator` and `IIndexable`; a user redeclaration is the ordinary duplicate-name diagnostic. R9.
 - `src/Bayan.Lowering/Lowerer.cs`: `:740` `Lvalue` also for `ToDynRef`; `For` (:503) user-iteration branches. R7 R9.
 - `src/Bayan.Backend.C/CEmitter.cs`: `CType` (:201-230) and `Key` (:233-251) cases for `DynRefType` (readonly shares the C type); `byn_dyn_<I>`/`byn_vt_<I>` through `Named` (:253); thunks via `Helper` (:335); vtable data list emitted after helper prototypes; `Conversion` (:1525) `ToDynRef`; call emission for dyn receivers; names use `FunctionName` (ends :178) and `TypeArgs` (:181). R6 R7.
-- `tests/cases/{parse,diag,run}`, `docs/diagnostics/BYN2800–2815.md`, `docs/laws/012-*.md`, `tests/Bayan.Tests/InterfaceGenerator.cs`, `L012InterfaceDispatchTests.cs`, `docs/bayan-handoff.md`, `docs/bayan-spec.md` §3.15. R12 R13 L012.
+- `tests/cases/{parse,diag,run}`, `docs/diagnostics/BYN2800–2815.md`, `docs/laws/012-*.md`, `tests/Bayan.Tests/InterfaceGenerator.cs`, `L012InterfaceDispatchTests.cs`, `docs/bayan-milestones.md`, `docs/bayan-spec.md` §3.15. R12 R13 L012.
 
 ## Data / interfaces
 
@@ -124,7 +124,7 @@ R1 T1 T3 (2800). R2 T1 T3 T5 (2801–2805, 2814). R3 T2 T5 (Self template, defau
 - Q111 A `let` enumerator reuses `CheckWritable` through `MutationChecks` with the abstract `moveNext` as callee; no new code. Amended by round-2 C1: `moveNext` is mutating because it declares `ref this`; the error is BYN2104 with round 2's fix-it to `var`.
 - Q112 `type Item = T;` in a struct body is the existing `TypeAliasDecl` member; `DeclareMembers` treats a member alias whose name matches a base's associated type as the binding, which also makes `Circle.Item` resolvable in instances.
 - Q113 An interface name used as a plain type (outside a base list, `where` bound or `dyn ref`) is BYN2816; a default template is `IsGeneric` and never lowered; a type-parameter argument satisfies a constraint iff its own constraints include it; vtables and thunks are emitted on first `ToDynRef` use; `IIndexable` wins over `IEnumerator`; keyword bounds (`where T : struct`) stay parse errors.
-- Numbering: Q88 is skipped because branch 005 ends at Q87; T13 confirms after rebase and shifts only if the handoff shows otherwise.
+- Numbering: Q88 is skipped because branch 005 ends at Q87; T13 confirms after rebase and shifts only if the Questions list shows otherwise.
 
 ## Self-hosting gaps
 

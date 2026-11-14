@@ -1,6 +1,6 @@
 # Bayan: terminal style
 
-Most people meet Bayan in a terminal, not on a website. This guide defines how `bayan` output looks and behaves. It applies to every command and complements the diagnostic format in the spec (§21.1) and the handoff.
+Most people meet Bayan in a terminal, not on a website. This guide defines how `bayan` output looks and behaves. It applies to every command and complements the diagnostic format in the spec (§21.1) and `docs/bayan-contributing.md` (Diagnostics).
 
 ## 1. Principles
 

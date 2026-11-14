@@ -57,12 +57,12 @@ Status values:
 | GC tier | SPEC §9.8; rev 0019 | rejected | SPEC:1325-1326; AUDIT A19 |
 | `scope` / `spawn` concurrency | rev 0019 | spec-only | Not in `Keywords.cs`; SPEC §13 is a placeholder (rev 0023); design in `docs/bayan-concurrency.md` |
 | Type overloads | rev 0019; SPEC §10 (not in 0.3) | deferred | BYN2006 (`diag/duplicate-overload-types.byn`); AUDIT A22 |
-| Lockfile `package.lock.byn` | `docs/bayan-handoff-addendum-001.md:94`; SPEC §21.4 (rev 0020) | spec-only | SPEC §21.4 names `package.lock.byn`, tagged "not in 0.3: no lockfile is written"; no `package.lock` in `src/` or `selfhost/` (AUDIT A23) |
+| Lockfile `package.lock.byn` | `docs/bayan-milestones.md:207`; SPEC §21.4 (rev 0020) | spec-only | SPEC §21.4 names `package.lock.byn`, tagged "not in 0.3: no lockfile is written"; no `package.lock` in `src/` or `selfhost/` (AUDIT A23) |
 | `Event<T>` / `raise` | SPEC §16.1 | spec-only | Not implemented: `Event<i32>` is BYN2002 (unknown type) in `bayan 0.3.0` (AUDIT, Dropped N11) |
 | `derivation` mechanism | SPEC §5.3 | deferred | Tagged (not in 0.3); `@derive(Json)` is BYN2770 (unknown attribute) in `bayan 0.3.0` |
 | `bayan expand` | SPEC §21.2 | deferred | Tagged (not in 0.3); `bayan help` lists no `expand` command |
-| `.par()` | `docs/bayan-handoff-addendum-002.md:146` | proposed | Not in SPEC (AUDIT A31) |
-| `bayan verify` | `docs/bayan-handoff-addendum-002.md:137` | proposed | Not in SPEC (AUDIT A31) |
+| `.par()` | `docs/design/laws-contracts-and-parallel-iterators.md:146` | proposed | Not in SPEC (AUDIT A31) |
+| `bayan verify` | `docs/design/laws-contracts-and-parallel-iterators.md:137` | proposed | Not in SPEC (AUDIT A31) |
 | Naming checks BYN5001-5003, BYN5102 | GRAMMAR; SPEC §5 | built | `Naming.cs:70`, `:75`, `:99`, `:205`; `diag/try-wrong-return.diag`, `diag/bool-without-prefix.diag`, `diag/participle-changes-this.diag` |
 | Proposals in `docs/bayan-shorthands-proposal.md` | that file only | proposed | Items not listed one by one (unverified) |
 | Proposals in `docs/bayan-style-proposal.md` | that file only | proposed | Items not listed one by one (unverified) |

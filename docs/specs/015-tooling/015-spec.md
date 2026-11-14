@@ -33,7 +33,7 @@ exist) and every workflow step. `scripts/cleanup/` (19 one-off scripts, written 
 
 | File | Lines | What it does | Called from |
 | --- | --- | --- | --- |
-| `scripts/selfhost/mutation-exempt.py` | 26 | lines a `// mutation-exempt: Qnnn` marker skips, checked against the handoff | `guard.sh` |
+| `scripts/selfhost/mutation-exempt.py` | 26 | lines a `// mutation-exempt: Qnnn` marker skips, checked against the Questions | `guard.sh` |
 | `scripts/selfhost/review-brief.py` | 68 | the reviewer brief for a 010 task (task text, C# ranges, files) — **done**: ported (T3) and deleted | `land.sh` |
 | `scripts/selfhost/wave-brief.py` | 198 | the writer brief for a 010 task; reads `BAYAN_BASE`; records `q-ranges.tsv` under a lock | `land.sh`, by hand |
 | `scripts/selfhost/guard-checks.py` | 124 | guard checks A–E (oracle, stubs, ctx sections, gating Questions) over `git diff` | `guard.sh` |
@@ -229,7 +229,7 @@ mutants), `gen-lowercase` (needs the Unicode download), the report-paths and man
 
 ## Open questions
 - Conflicts found: the original brief's paths `GRAMMAR.md`, `HANDOFF.md`, `bootstrap/`, `npm run lsp`, `npm run grammar` and
-  `tests/lsp-regress.js` do not exist here (the first two are `docs/bayan-grammar.md`, `docs/bayan-handoff.md`; the
+  `tests/lsp-regress.js` do not exist here (the first two are `docs/bayan-grammar.md`, `docs/bayan-milestones.md`; the
   rest have no counterpart, so nothing to port).
 
 ## Port record

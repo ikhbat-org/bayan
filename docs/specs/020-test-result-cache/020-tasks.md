@@ -29,4 +29,4 @@ T1 is a go/no-go gate: nothing from T2 on starts until its numbers are reported 
 - [ ] T24 prove L036 via /prove — depends on T10 — done when: `laws-check.js --run` holds.
 - [ ] T25 enact L037 environment allow-list — done when: the user sets `status: enacted`.
 - [ ] T26 prove L037 via /prove — depends on T7 — done when: `laws-check.js --run` holds.
-- [ ] T27 Handoff and changelog — files: docs/bayan-handoff.md, CHANGELOG.md — covers: R23, R25 (how to switch on, read, clear); nightly scheduling line — done when: handoff section and `[Unreleased]` entry written.
+- [ ] T27 Handoff and changelog — files: docs/bayan-milestones.md, CHANGELOG.md — covers: R23, R25 (how to switch on, read, clear); nightly scheduling line — done when: handoff section and `[Unreleased]` entry written.

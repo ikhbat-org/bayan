@@ -7,7 +7,7 @@ Depends on: 011 merged to `dev` with L024 and L025 enacted (011 T17–T20); spec
 
 ## Problem
 
-Steps 1 to 5 ported the lexer (`selfhost/lexer/`, L001), the parser (`selfhost/parser/`, L017, L018), the checker (`selfhost/semantics/`, L022, L023) and the emitter (`selfhost/emitter/`, `bayan-emit`, L024, L025). Each is a separate test program built by a C# harness through `Compilation.Create(sources, packageRoot: selfhost/)` (Q430), and none of them is a compiler a user can run: nothing in Bayan reads a command line like `CliApp.Run` (`src/Bayan.Cli/CliApp.cs:37-106`), finds a C compiler (`src/Bayan.Backend.C/Toolchain.cs:83-91`), writes the runtime beside the generated C and links it (`Toolchain.cs:276-313`), or runs the result (`CliApp.cs:544-580`). The handoff's finish line (`docs/bayan-handoff.md`, "Road to self-hosting") is a Bayan-built compiler that runs `lex`, `parse`, `check`, `build` (with `--emit-c`) and `run` like the C# one, whose stage 2 and stage 3 C are byte-identical, which passes the golden suite, and whose C is committed as `bootstrap/bayan.c`. The A1 items K3–K6 (`docs/revisions/0016-addendum-a1-midflight.md`) are assigned to this step.
+Steps 1 to 5 ported the lexer (`selfhost/lexer/`, L001), the parser (`selfhost/parser/`, L017, L018), the checker (`selfhost/semantics/`, L022, L023) and the emitter (`selfhost/emitter/`, `bayan-emit`, L024, L025). Each is a separate test program built by a C# harness through `Compilation.Create(sources, packageRoot: selfhost/)` (Q430), and none of them is a compiler a user can run: nothing in Bayan reads a command line like `CliApp.Run` (`src/Bayan.Cli/CliApp.cs:37-106`), finds a C compiler (`src/Bayan.Backend.C/Toolchain.cs:83-91`), writes the runtime beside the generated C and links it (`Toolchain.cs:276-313`), or runs the result (`CliApp.cs:544-580`). The milestones doc's finish line (`docs/bayan-milestones.md`, "Road to self-hosting") is a Bayan-built compiler that runs `lex`, `parse`, `check`, `build` (with `--emit-c`) and `run` like the C# one, whose stage 2 and stage 3 C are byte-identical, which passes the golden suite, and whose C is committed as `bootstrap/bayan.c`. The A1 items K3–K6 (`docs/revisions/0016-addendum-a1-midflight.md`) are assigned to this step.
 
 ## Goals
 
@@ -69,7 +69,7 @@ Steps 1 to 5 ported the lexer (`selfhost/lexer/`, L001), the parser (`selfhost/p
 - `SelfhostDriverGoldenTests` (new, `Law=L028`): R10 against stage 2.
 - `SelfhostDriverT8Tests` (new, in `SelfhostDriverInventoryTests.cs`): R12.
 - `docs/laws/027-bootstrap-fixpoint.md` and `docs/laws/028-driver-equivalence.md` (new) enacted by the user and proved by `laws-check.js --run` (`docs/laws/README.md:12`).
-- `docs/bayan-handoff.md` row 012 done; Questions recorded.
+- `docs/bayan-milestones.md` row 012 done; Questions recorded.
 
 ## Law candidates
 
