@@ -71,13 +71,11 @@ jobs:
           bash scripts/release/cut.test.sh
           for f in scripts/docs/*.test.sh; do bash "$f"; done
           bash scripts/docs/check.sh
+      # macos-latest hit the same 600 s zig cc timeout on selfhost/semantics as Windows below (ci run 43583631792,
+      # 2026-11-14: 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
       - name: Test
         if: runner.os != 'Windows'
-        env:
-          BAYAN_TEST_TIME_SCALE: 3
-          # macos-latest hit the same 600 s zig cc timeout on selfhost/semantics as Windows below (ci run 43583631792,
-          # 2026-11-14: 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
-          BAYAN_CC_TIMEOUT_S: 1800
+        env: { BAYAN_TEST_TIME_SCALE: 3, BAYAN_CC_TIMEOUT_S: 1800 }
         run: dotnet test Bayan.slnx -c Release
       # Windows has known failures until spec 014 (Q743); the next step decides the job.
       - name: Test (Windows)
