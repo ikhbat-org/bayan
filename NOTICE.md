@@ -19,4 +19,4 @@ The full text of ISL-P 1.2 is in [`LICENSE.md`](LICENSE.md).
 
 Copyright (c) 2026 Ikhbat Foundation (ikhbat.org)
 
-The fonts under `site/assets/fonts/` carry their own SIL Open Font License files.
+The fonts under `site/assets/fonts/` and `docs/assets/` carry their own SIL Open Font License files.
