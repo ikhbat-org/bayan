@@ -114,7 +114,7 @@ def exempt(path, docs=('docs/bayan-questions.md', 'docs/decisions/2026-11-14-004
                 bad.append(f'coverage: {path}:{i} exempts through anchor `{last}`, which matches {"lines " + ", ".join(map(str, at)) if at else "no line"} of the rest of its function; it must match exactly one (Q1040)'); continue
             end = at[0]
         if not re.search(re.escape(base) + r':\d', questions.get(q, '')):
-            bad.append(f'coverage: {path}:{i} exempts {i + 1}-{end} for Q{q}, but Q{q} in {' or '.join(docs)} cites no {base} line'); continue
+            bad.append(f'coverage: {path}:{i} exempts {i + 1}-{end} for Q{q}, but Q{q} in {" or ".join(docs)} cites no {base} line'); continue
         into.update(range(i + 1, end + 1))
     return skip, blocked, bad
 

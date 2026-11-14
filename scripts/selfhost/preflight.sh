@@ -128,15 +128,22 @@ else fail "files: ${#need[@]} changed outside $T's files list; append to its fil
 # questions
 RANGE=$(grep -oE 'Q[0-9]{3,4}–Q[0-9]{3,4}' <<< "$BLOCK" | head -1 | tr -d Q | sed 's/–/ /')
 [ -n "$RANGE" ] || RANGE=$(awk -F'\t' -v s="$SPEC" -v t="$T" '$1 == s && $2 == t { print $3, $4; exit }' "$QR" 2> /dev/null)
-OLDQ=$(git show "$MB:docs/bayan-questions.md" 2> /dev/null | grep -oE '^[0-9]{3,4}\. ' | tr -d '. ')
-BASEQ=$(git show "$BASE:docs/bayan-questions.md" 2> /dev/null | grep -oE '^[0-9]{3,4}\. ' | tr -d '. ')
+# a number is taken when it is in either questions doc: open (docs/bayan-questions.md, one `N. ` line per Question) or
+# answered (counted once per number, from its table row `| QN |` or its long-answer `N. ` line)
+QOPEN=docs/bayan-questions.md; QANS=docs/decisions/2026-11-14-004-answered-questions.md
+qopen() { grep -oE '^[0-9]{3,4}\. ' | tr -d '. ' || true; }
+qans() { grep -oE '^[0-9]{3,4}\. |^\| Q[0-9]{3,4} \|' | tr -dc '0-9\n' | sort -u || true; }
+qnums() { git show "$1:$QOPEN" 2> /dev/null | qopen; git show "$1:$QANS" 2> /dev/null | qans; }
+qcount() { { [ -f "$QOPEN" ] && qopen < "$QOPEN"; [ -f "$QANS" ] && qans < "$QANS"; true; } | grep -cxF "$1" || true; }
+OLDQ=$(qnums "$MB")
+BASEQ=$(qnums "$BASE")
 # a number the branch adds: on an added line, and more often in the questions doc than at the merge base (an edited Question is not one)
 NEWQ=$(for n in $(added docs/bayan-questions.md | grep -oE '^[0-9]{3,4}\. ' | tr -d '. ' | sort -un); do
-  [ "$(grep -cE "^$n\. " docs/bayan-questions.md)" -gt "$(grep -cxF "$n" <<< "$OLDQ")" ] && echo "$n"; done)
+  [ "$(qcount "$n")" -gt "$(grep -cxF "$n" <<< "$OLDQ")" ] && echo "$n"; done)
 bad=0
 for n in $NEWQ; do
-  c=$(grep -cE "^$n\. " docs/bayan-questions.md)
-  [ "$c" -le 1 ] || { fail "questions: Q$n is in docs/bayan-questions.md $c times"; bad=1; }
+  c=$(qcount "$n")
+  [ "$c" -le 1 ] || { fail "questions: Q$n is in the questions docs $c times"; bad=1; }
   [ "$c" -le 1 ] || continue
   grep -qxF "$n" <<< "$BASEQ" && { fail "questions: Q$n is already on $BASE (another task took it)"; bad=1; }
   if [ -z "$RANGE" ]; then fail "questions: Q$n added, but $T has no Question range (none in its task line or $QR; wave-brief.py assigns one)"; bad=1
