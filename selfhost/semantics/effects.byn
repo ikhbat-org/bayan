@@ -79,6 +79,24 @@ List<string> t23Primitives() => ["alloc", "suspend", "net", "fs", "clock", "rand
 /// The effects that need a package capability; the others are always allowed.
 List<string> t23Capabilities() => ["net", "fs", "process", "env"]
 
+/// Q31 (plan 015): `analyzeEffects` with its working memory freed. It writes nothing into `Ctx` but diagnostics, so the
+/// run is made in an arena and, when it reported any (arena memory), undone (`t42Undo`) and made again in `General`.
+/// A run with a bag as the sink stays in `General`: `t42Undo` does not cover bags.
+void t42AnalyzeEffects(ref Ctx c) {
+    if c.sink >= 0 {
+        analyzeEffects(ref c)
+        return
+    }
+    var undone = false
+    let mark = t42Mark(c)
+    using let arena = Arena()
+    provide allocator: arena {
+        analyzeEffects(ref c)
+        undone = t42Undo(ref c, to: mark)
+    }
+    if undone { analyzeEffects(ref c) }
+}
+
 void analyzeEffects(ref Ctx c) {
     var aliases = List<Map<string, List<string>>>()
     for m in 0..c.modules.length { aliases.append(t23ResolveAliases(ref c, for: m)) }
