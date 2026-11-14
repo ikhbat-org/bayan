@@ -40,7 +40,7 @@ HERE=$(dirname "$0"); OUT=$PWD/tmp/mutate-batch; BASELINE=${MUTATE_BASELINE:-tes
 PLAN=$(python3 -I - "$FILES" "$SHARD" "${TASKS[@]}" <<'PY'
 import fnmatch, glob, os, re, sys
 only, shard, tasks = sys.argv[1], sys.argv[2], sys.argv[3:]
-files = sorted(glob.glob('selfhost/**/*.byn', recursive=True))
+files = sorted(p.replace(os.sep, '/') for p in glob.glob('selfhost/**/*.byn', recursive=True))  # Windows glob returns backslashes
 defaults = {'selfhost/semantics': 'SelfhostSemantics', 'selfhost/parser': 'SelfhostParser', 'selfhost/lexer': 'SelfhostLexer', 'selfhost/driver': 'SelfhostDriver'}
 kept = {'SelfhostDriver': ('SelfhostDriver', 'SelfhostDefault')}  # SelfhostDefault* (017) tests build selfhost/driver through SelfhostDriverHarness
 def family(d):
