@@ -1632,6 +1632,13 @@ Question numbers not used in the 011 range (748–890): 794–797, 821–822 and
 
 ## Progress log
 
+- **2026-11-14 — Plan 015 phase B: free the frontend before the C compiler (`fix/q31-frontend-before-cc`, Q31).**
+  - `buildCommand` and the run path in `selfhost/driver/build.byn` compile, emit and prepare the output inside one `Arena`; what outlives it (C source, output path, program name, the verbose `shown` line, timings) is appended to StrBufs made before the block. Every failure that reads `Ctx` returns inside it.
+  - Linux (bayan-test01, real zig, two rounds): bayan + zig peak 2,241/2,197 → 1,437/1,366 MB; bayan alone 831/832 → 977/958 MB (accepted by the user's 2026-11-14 rule: land when the combined peak falls 300 MB or more). macOS gains nothing (freed chunks stay charged): bayan alone 700 → 1,010 MB.
+  - New `SelfhostDefaultBoundsTests.BuildFreesTheFrontendBeforeTheCCompiler` (Linux only): a fake `zig` records the driver's RSS at each call; 21/29 MB, bound 100 MB; with the arena reverted (scratch `chore/q31-bt-frontend-off`) 788/801 MB, fails. ASan clean over build/run/`--emit-c`/failure paths.
+  - Phase C (`t6EmitFunction` arena) deferred by the user: Fable's audit is in `work/todo.md`. Also there: `test`/`mutate`/`dist` still build with the frontend alive; mmap for large arena chunks on macOS.
+  - Phase A follow-up: L022's clean-parse pin moved 529 → 530 for the new region case (`fix/q31-l022-pin`); phase A's gate had missed it.
+
 - **2026-11-14 — Plan 015 phase A: the plan 014 review LOWs (`fix/q31-followups-small`, Q31; `docs/plans/2026-11-14-015-q31-followups.md`).**
   - `t42AnalyzeRegions` runs in `General` when a bag is the sink (`c.sink >= 0`). New `SelfhostSemanticsT25Tests.RegionsInABagKeepTheirDiagnostics` (one row per region `diag/` case, 74 with the new one) runs it inside a bag; with the guard removed, 10 of the 73 earlier rows print freed memory and fail.
   - New `diag/ref-this-store-through-later-method`: `put` is summarized before the `keep` it calls, so its second store count (2) is twice its first. Removing the `pairs`/`returns` clear in `summarizeRegions` drops its BYN3002 (both T25 rows fail).
