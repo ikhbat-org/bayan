@@ -4,7 +4,7 @@
 #   package.sh check-dry-run-tag <tag>          exit 0 when <tag> is v<VERSION without -dev>-rc.<N> (workflow_dispatch only)
 #   package.sh pack <rid> <publish-dir> <out>   <out>/bayan-<version>-<target>.tar.gz (.zip for Windows), the binary
 #                                               inside a bayan-<version>-<target>/ folder with README.md, the docs
-#                                               under share/doc/bayan/ (and LICENSE, warning when the repo has none)
+#                                               under share/doc/bayan/ (and LICENSE.md, warning when the repo has none, and NOTICE.md)
 #   package.sh docs <out>                       <out>/bayan-<version>-docs.tar.gz, the docs under
 #                                               bayan-<version>-docs/share/doc/bayan/
 #   package.sh sums <dir>                       <dir>/SHA256SUMS over every archive in <dir>
@@ -83,7 +83,8 @@ case "${1:-}" in
     stage="$out/.stage-$target"; rm -rf "$stage"; mkdir -p "$stage/$name"
     cp "$pub/$exe" "$stage/$name/"
     cp "$root/README.md" "$stage/$name/"
-    if [ -f "$root/LICENSE" ]; then cp "$root/LICENSE" "$stage/$name/"; else echo "::warning::package: the repo has no LICENSE; $name ships without one" >&2; fi
+    if [ -f "$root/LICENSE.md" ]; then cp "$root/LICENSE.md" "$stage/$name/"; else echo "::warning::package: the repo has no LICENSE.md; $name ships without one" >&2; fi
+    if [ -f "$root/NOTICE.md" ]; then cp "$root/NOTICE.md" "$stage/$name/"; fi
     docs "$stage/$name"
     if [ "$ext" = zip ]; then
       # bsdtar writes zip: System32's on Windows runners, the system tar on macOS; else Info-ZIP.
