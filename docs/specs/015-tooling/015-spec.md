@@ -3,7 +3,7 @@ Status: in progress (T1–T8 landed: review-brief, plan-strings-check and instal
 Created: 2026-11-02
 
 Sources: the 2026-11-02 tooling brief (filed as 015 because 014 is the `Path` module; its decisions T1–T4 and port rules are in `docs/decisions/2026-11-02-002-tooling-port-rules.md`) and
-`docs/bayan-library-tiers.md` (library placement; it wins over the handoff). Decisions T1–T4 there are settled and not
+`docs/bayan-library-tiers.md` (library placement; it wins over the tooling rules record). Decisions T1–T4 in that record are settled and not
 re-proposed here. Porting starts after 012 passes (S1, which updates T3's "after 010"); the decisions are below.
 
 ## Problem
@@ -83,7 +83,7 @@ the rest is sequencing.
 
 | Item | Class | Reason |
 | --- | --- | --- |
-| VS Code extension | Keep | VS Code loads only JS (handoff §4) |
+| VS Code extension | Keep | VS Code loads only JS (R2) |
 | `upload-artifact`, `download-artifact` | Keep | no supported shell equivalent (§4) |
 | `scripts/pinned-bayan.sh`, `install-zig.sh`, `install-dotnet.sh` | Keep (shell) | run before any `bayan` exists (§4) |
 | Stryker, `scripts/quality/mutate.sh`, `tools/Bayan.UnicodeGen` | Keep | C#-side tooling, leaves with self-hosting (§4 "C# compiler and its tests") |
@@ -165,7 +165,7 @@ rule of no abbreviations. Nothing below is built before its first port (R4 now r
 
 | # | Decision |
 | --- | --- |
-| S1 | **Wait for self-hosting (option B).** Library source, `import std.x` and new runtime builtins land after 012 passes (A1). Prep now: this spec, the CI chore (handoff §5.1), shell-only ports, parity baselines (`tests/parity/`). Revisit option A (a narrow A1 exception) if 011 + 012 run past 4 weeks; see *Timing* below. |
+| S1 | **Wait for self-hosting (option B).** Library source, `import std.x` and new runtime builtins land after 012 passes (A1). Prep now: this spec, the CI chore (CI shell steps in `docs/decisions/2026-11-02-002-tooling-port-rules.md`), shell-only ports, parity baselines (`tests/parity/`). Revisit option A (a narrow A1 exception) if 011 + 012 run past 4 weeks; see *Timing* below. |
 | S2 | `Untrusted<string>? Env.get(string name) uses env` (absent → `none`); no `set`. `run` takes `env:` (S6). |
 | S3 | `std.regex`, RE2-style: classes, `\d\s\w`, anchors, groups, `?*+{m,n}`, alternation, lazy quantifiers; no backreferences or lookaround; linear time. Members as proposed: `Regex.parse(pattern) fails RegexError`, `matches`, `find → Match?`, `findAll`, `replaced(text, by:)`, `Match.group(i)`, `Match.span`, `Regex.escaped(text)`. |
 | S4 | Path strings now, under `uses fs`. Aligned 2026-11-08 to the fs slice decided on `feat/017`: `Fs.fileExists` and `Io.createDirectory` already exist (`createDirectory` is idempotent, as .NET `Directory.CreateDirectory`); the slice adds `Fs.rename(path, to: dest)`, `Fs.copy`, `Fs.modified`/`Fs.setModified` (a builtin `Time` struct, i64 ns since the Unix epoch), `Fs.realPath(path)` (symlinks resolved; fails if the path is missing) and `IoError.crossDevice`. `canonical` is `Fs.realPath`; a pure lexical `normalize` in std path (not a builtin) is added only if a port canonicalizes a path that may not exist (plan G4, T11). `IoError.alreadyExists` is added for the wave-brief lock (plan U4, Q1140). The same verbs later on capability `Dir` handles. Supersedes the 2026-11-02 shapes `rename(string from, string to)` and `canonical`. |
@@ -228,7 +228,7 @@ mutants), `gen-lowercase` (needs the Unicode download), the report-paths and man
   only until the original is deleted, so a parity check, not a law.
 
 ## Open questions
-- Conflicts found: the handoff's paths `GRAMMAR.md`, `HANDOFF.md`, `bootstrap/`, `npm run lsp`, `npm run grammar` and
+- Conflicts found: the original brief's paths `GRAMMAR.md`, `HANDOFF.md`, `bootstrap/`, `npm run lsp`, `npm run grammar` and
   `tests/lsp-regress.js` do not exist here (the first two are `docs/bayan-grammar.md`, `docs/bayan-handoff.md`; the
   rest have no counterpart, so nothing to port).
 

@@ -27,16 +27,16 @@ State re-checked on this branch (dev at 0.3.0 preparation, 2026-11-14).
 
 | # | Draft | Rule it broke | Fix |
 | --- | --- | --- | --- |
-| 1 | `Zoned` | type names are nouns; past participles name events and states | `ZonedDateTime` |
-| 2 | `ZoneGap` as an error name | error types are named `…Error` | `LocalTimeError { skipped, ambiguous }`; parsing fails with `TimeParseError` |
-| 3 | `tryAdded(…)` described as "fails" | `try` forms return `T?`; failing uses `fails` on the plain name | `tryAdded` returns `T?`; a typed DST failure takes the civil route: `ZonedDateTime(z.dateTime + 1d, at: z.zone)` fails `LocalTimeError` |
+| 1 | `Zoned` | type names are nouns; past participles name events and states (`Order.paid`) | `ZonedDateTime` |
+| 2 | `ZoneGap` as an error name | error types are named `…Error` (`DecodeError`, `Utf8Error`) | `LocalTimeError { skipped, ambiguous }`; parsing fails with `TimeParseError` |
+| 3 | `tryAdded(…)` described as "fails" | `try` forms return `T?` (`tryGet`, `tryFrom`); failing uses `fails` on the plain name | `tryAdded` returns `T?`; a typed DST failure takes the civil route: `ZonedDateTime(z.dateTime + 1d, at: z.zone)` fails `LocalTimeError` |
 | 4 | `.ambiguous(two) => …` in `catch switch` | A3 whole-value binding is `.case name => …` | `.ambiguous a => a.earlier` |
 | 5 | `{month:2}` pattern language | revision 0003: format specs are named arguments in the hole (`{n, as: .hex}`); `{n:hex}` is an input form | drop the pattern language; format with interpolation, `{d.month, as: .digits(2)}`; parse custom layouts with a `const DateLayout(…)`; with no format letters the `YYYY` bug cannot happen |
 | 6 | `t.sinceMidnight`, `Time(sinceMidnight:)` | A4: conversions are `T(x)` and `T.tryFrom(x)` | `Duration(t)`; `Time(d)` traps out of range; `Time.tryFrom(d)` gives `Time?` |
 | 7 | `resolve:`, `onConflict:` | optional parameters are nouns; no `on` prefix | `resolution: .earlier | .later | .compatible`; `offsetConflict: .keepZone | .keepOffset` (absent means fail) |
 | 8 | `leapSecond: .clamp` | cases read as states | `leapSecond: .clamped` |
 | 9 | "parse takes `Untrusted<string>`" | §15.1: operations preserve taint | parse accepts either; `Untrusted` in gives `Untrusted<Date>` out |
-| 10 | `Millis` in spec examples | no abbreviations in names | `Milliseconds`, in a separate doc sweep (Phase 1b) |
+| 10 | `Millis` in spec examples such as `timeout(Millis after)` | no abbreviations in names | `Milliseconds`, in a separate doc sweep (Phase 1b) |
 | 11 | unit base | round 3 keeps `unit Seconds(s): i64` storage | `Nanoseconds` is the base by relation only; every unit stores its own count, so values and storage do not change |
 | 12 | where time units live | spec examples use `30s` with no import | time units live in `core`, so no import is needed; calendar units need `import std.time` |
 | 13 | `Time.midnight`, `TimeZone.utc` | `T.x` with camelCase `x` reads as a state type | tentative: keep `Time.midnight`, `Time.noon` and `TimeZone.utc`; Phase 1a confirms them against the round-4 dot-shorthand static-member rule, with `Time(hour: 0)` as the fallback |
@@ -149,7 +149,7 @@ A mutating verb on a `let` reuses the existing mutation diagnostic, with help "w
 - Recurrence: `start.series(by: 1mo, until: end)` yields `start + n·step`. It never chains steps, so month-end dates do not drift.
 - Ranges: half-open uses `from: … until:`; inclusive uses `through:`.
 - Queries: `weekday`, `dayOfYear`, `daysInMonth`, `isLeapYear`, `startOfMonth`, `endOfMonth`, `startOfIsoWeek`.
-- Next and previous weekday: `next(…)` and `previous(…)` are strictly after or before; `inclusive: true` makes today count. This reuses the named-`bool` form instead of a second `nextOrSame` method. `next` and `previous` are adjectives, but BYN5001 does not flag them (neither ends in `-ed`), and iteration uses `moveNext`/`current`, so `next` is free.
+- Next and previous weekday: `next(…)` and `previous(…)` are strictly after or before; `inclusive: true` makes today count. This reuses the named-`bool` form instead of a second `nextOrSame` method. ``following` and `preceding` were considered and are adjectives too, so they fix nothing. `next` and `previous` are adjectives, but BYN5001 does not flag them (neither ends in `-ed`), and iteration uses `moveNext`/`current`, so `next` is free.
 
   ```bayan
   let friday = today.next(.friday)                    // never today
