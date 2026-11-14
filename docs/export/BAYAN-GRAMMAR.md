@@ -1,4 +1,4 @@
-Commit 8d5e5c71, 2026-11-09. GRAMMAR (`docs/bayan-grammar.md`) followed by STYLE (`docs/bayan-style.md`) as Part 2, revisions 0001-0019 applied; changed rules are tagged (rev NNNN). Diagnostic page links point at `docs/diagnostics/`.
+Commit 821afa40, 2026-11-09. GRAMMAR (`docs/bayan-grammar.md`) followed by STYLE (`docs/bayan-style.md`) as Part 2, revisions 0001-0019 applied; changed rules are tagged (rev NNNN). Diagnostic page links point at `docs/diagnostics/`.
 
 # Bayān grammar guide and style guide
 

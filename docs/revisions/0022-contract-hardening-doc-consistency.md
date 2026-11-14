@@ -1,6 +1,6 @@
 # 0022 — Contract hardening and documentation consistency
 
-Status: accepted (user decisions D1–D6 and Q1, handed off from `tmp/dropoff-0020/drop.md` after verification against `dev` at 92c050e3)
+Status: accepted (user decisions D1–D6 and Q1, handed off from `tmp/dropoff-0020/drop.md` after verification against `dev` at 58950f39)
 
 ## Problem
 
@@ -120,7 +120,7 @@ None affected. The new golden `run/range-binds-looser-than-arithmetic` is a lang
 ## Effect on work already done
 
 - No code changes. One golden is added; no existing golden changes.
-- `docs/export/*` is a snapshot of 8d5e5c71 and is not edited. Its "(rev 0016)" title and Appendix C wording are stale by design.
+- `docs/export/*` is a snapshot of 821afa40 and is not edited. Its "(rev 0016)" title and Appendix C wording are stale by design.
 
 ## Diff
 

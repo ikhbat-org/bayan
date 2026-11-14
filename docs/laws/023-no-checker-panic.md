@@ -71,7 +71,7 @@ spec 011 plan D11; it stayed `proposed` after T32, Q663). Until T45 it had one C
 random inputs made the C# parser throw `ArgumentOutOfRangeException` in `SourceText.GetText` from
 `Parser.ReportBraceless` (the L018 crash, Q486), 5 of them when T32 measured (`01145.byn`, `01358.byn`,
 `02510.byn`, `03889.byn`, `07234.byn`) and 4 as the corpus last stood (`00800.byn`, `04393.byn`, `05382.byn`,
-`07933.byn`); each was replaced by an empty input and pinned. C# was fixed in 517d1c9 and the port in 010 T45.
+`07933.byn`); each was replaced by an empty input and pinned. C# was fixed in 1127c91 and the port in 010 T45.
 
 T32 (2026-11-01) re-ran the proof on the 010 base after T29–T31 landed: `dotnet test -v q --filter "Law=L023"` 2 passed, 56 s test time (64 s wall, `bayan-check` rebuilt first, shared machine). Enacting then waited on Q663, whose C# fix has since landed (above).
 

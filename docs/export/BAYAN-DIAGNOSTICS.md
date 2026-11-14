@@ -1,4 +1,4 @@
-Commit `8d5e5c71`, 2026-11-09.
+Commit `821afa40`, 2026-11-09.
 
 # Bayān diagnostics
 

@@ -8,7 +8,7 @@ caches, buffers child output, recurses on input, or runs for longer than one com
 
 | Date | What happened | Cause | Fix |
 |---|---|---|---|
-| 2026-10 (twice), 2026-11-06 | `bayan-lsp` grew past 200 GB on mb1 and the machine killed parallel workers | `Workspace.IndexFolder` indexed every `.byn` under the root: 2.33M files, 1.27M of them in `.worktrees/` and 1.05M in `tmp/`. The client's `**/*.byn` watcher then loaded every new mutant and staging copy. | `fix/lsp-index-bound` (c9434a3c): skip hidden, `tmp` and build dirs and symlinks, ignore watcher events there, budgets of 20k files / 256 Mi chars / 4 MiB per file. Peak on the real repo dropped to 41–81 MB. |
+| 2026-10 (twice), 2026-11-06 | `bayan-lsp` grew past 200 GB on mb1 and the machine killed parallel workers | `Workspace.IndexFolder` indexed every `.byn` under the root: 2.33M files, 1.27M of them in `.worktrees/` and 1.05M in `tmp/`. The client's `**/*.byn` watcher then loaded every new mutant and staging copy. | `fix/lsp-index-bound` (100fbcba): skip hidden, `tmp` and build dirs and symlinks, ignore watcher events there, budgets of 20k files / 256 Mi chars / 4 MiB per file. Peak on the real repo dropped to 41–81 MB. |
 | 2026-11-05 | Long mutation recordings crashed the test host on mb1 | Homebrew dotnet GC crash under long runs (see handoff) | Run them on wp1 |
 | 2026-11-06 audit | 66.9 GB in 132 `.worktrees`, 18.4 GB in `tmp/ignored-*` | Worktrees with test output under `tmp/` could never be retired | `cow-worktree.js`: files under a `CACHEDIR.TAG` dir no longer block removal; Bayan tags its caches |
 

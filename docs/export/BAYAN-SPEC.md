@@ -1,4 +1,4 @@
-Commit 8d5e5c71, 2026-11-09. Snapshot of `docs/bayan-spec.md` with revisions 0001-0019 applied in place; changed rules are tagged (rev NNNN).
+Commit 821afa40, 2026-11-09. Snapshot of `docs/bayan-spec.md` with revisions 0001-0019 applied in place; changed rules are tagged (rev NNNN).
 
 # Bayān — Language Specification (draft 0.1) (rev 0016)
 

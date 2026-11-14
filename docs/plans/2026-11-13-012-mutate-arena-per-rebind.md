@@ -1,7 +1,7 @@
 # Self-hosted mutate: free each mutant's re-bind (arena per rebind)
 
 ## Context
-The vm2 shard slot died from an OOM kill (VM journal: `shard-7721d71f-2.service: Failed with result 'oom-kill'`, process `program` at 4,433,536 kB). The process was the `SelfhostDefaultT10Tests.SitesJsonMatchesTheCSharpOnEveryRunInput` harness running self-hosted `mutate` over all 333 `tests/cases/run` inputs.
+The vm2 shard slot died from an OOM kill (VM journal: `shard-cab40762-2.service: Failed with result 'oom-kill'`, process `program` at 4,433,536 kB). The process was the `SelfhostDefaultT10Tests.SitesJsonMatchesTheCSharpOnEveryRunInput` harness running self-hosted `mutate` over all 333 `tests/cases/run` inputs.
 
 Measured on mb1 with the cached harness:
 
