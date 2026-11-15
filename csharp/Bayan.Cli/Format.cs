@@ -81,7 +81,11 @@ internal static class Format
                 // Read and write the file the kernel opens, not the one a lexical `..` collapse names.
                 var real = RealPath(file);
                 var original = File.ReadAllBytes(real);
-                var formatted = FormatFile(file, original, booleans, primitives, declared, stderr, out var unfixable);
+                var layout = new LayoutOptions(
+                    Indent: manifest?.Indent ?? 4,
+                    Width: manifest?.Width ?? 120,
+                    TrailingCommasMultiline: (manifest?.TrailingCommas ?? TrailingCommaStyle.Multiline) == TrailingCommaStyle.Multiline);
+                var formatted = FormatFile(file, original, booleans, primitives, declared, stderr, out var unfixable, layout);
                 if (formatted is null) exit = CliApp.ExitFailure;
                 else
                 {
@@ -322,7 +326,7 @@ internal static class Format
     /// blocking error. An input-form diagnostic left with no fix is reported and sets <paramref name="unfixable"/>.
     /// </summary>
     internal static byte[]? FormatFile(string file, byte[] bytes, BooleanStyle booleans, PrimitiveStyle primitives,
-        IReadOnlySet<string> declared, TextWriter stderr, out bool unfixable)
+        IReadOnlySet<string> declared, TextWriter stderr, out bool unfixable, LayoutOptions? layout = null)
     {
         unfixable = false;
         var converged = false;
@@ -342,7 +346,7 @@ internal static class Format
             var next = fixes.Count > 0 ? ApplyFixes(bytes, fixes) : Restyle(file, bytes, tree, booleans, primitives, declared);
             if (fixes.Count == 0 && next.AsSpan().SequenceEqual(bytes))
             {
-                var (laidOut, skipped) = Layout.Apply(bytes, new LayoutOptions());
+                var (laidOut, skipped) = Layout.Apply(bytes, layout ?? new LayoutOptions());
                 if (skipped is not null) stderr.WriteLine(Messages.FormatLayoutSkipped.Text(file, skipped));
                 next = laidOut;
             }
