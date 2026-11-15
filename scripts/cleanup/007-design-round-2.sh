@@ -59,7 +59,7 @@ for abs in /tmp/r2u-blame /tmp/r2u-full.txt /tmp/r2u-full2.txt /tmp/r2u-full3.tx
 done
 
 # 4. Test-host hang dumps inside the repo (needs --delete-scratch as well; refused if git tracks them).
-for rel in csharp/tests/Bayan.Tests/TestResults; do
+for rel in tests/Bayan.Tests/TestResults; do
   if [ ! -e "$rel" ]; then printf 'skip:  %s already gone\n' "$rel"; continue; fi
   if git ls-files --error-unmatch -- "$rel" >/dev/null 2>&1; then
     printf 'refuse: %s is tracked by git. Propose it as a commit instead. Left alone.\n' "$rel"; failed=1; continue

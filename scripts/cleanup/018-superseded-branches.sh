@@ -46,12 +46,12 @@ for f in a.txt b.txt C.txt copy.bin empty.bin input.bin; do
 done
 w=tmp/wt/t28survey
 if [ ! -d "$w" ] || [ -z "$(git -C "$w" status --porcelain)" ]; then printf 'skip:  %s has no changes\n' "$w"
-elif [ -n "$(git -C "$w" status --porcelain | grep -v '^ M src/tests/SelfhostSemantics\(Generator\)\?Tests.cs$' || true)" ] \
+elif [ -n "$(git -C "$w" status --porcelain | grep -v '^ M tests/Bayan.Tests/SelfhostSemantics\(Generator\)\?Tests.cs$' || true)" ] \
   || [ -n "$(git -C "$w" diff | grep '^-[^-]' | grep -v 'Skip = "T28' || true)" ] \
   || [ -n "$(git -C "$w" diff | grep '^+[^+]' | grep -Ev '^\+ *\[(Fact|Theory)\]$' || true)" ]; then
   printf 'refuse: %s holds changes other than the T28 un-skips. Left alone.\n' "$w"; failed=1
-elif act; then git -C "$w" checkout -- csharp/tests/Bayan.Tests; printf 'reverted: %s (T28 un-skips)\n' "$w"
-else printf 'would: git -C %s checkout -- csharp/tests/Bayan.Tests (needs --execute --discard-worktree-changes)\n' "$w"; fi
+elif act; then git -C "$w" checkout -- tests/Bayan.Tests; printf 'reverted: %s (T28 un-skips)\n' "$w"
+else printf 'would: git -C %s checkout -- tests/Bayan.Tests (needs --execute --discard-worktree-changes)\n' "$w"; fi
 
 printf '== 2. worktrees whose work dev holds\n'
 CLEANUP_RECENT_HOURS=1 bash "$repo/scripts/cleanup/merged-worktree-backlog.sh" ${pass[@]+"${pass[@]}"} || failed=1

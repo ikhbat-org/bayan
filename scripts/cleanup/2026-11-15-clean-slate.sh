@@ -4,18 +4,21 @@
 # Run scripts/cleanup/session-2026-11-15.sh first: it removes the 016 writer worktrees, .worktrees/main-release and that
 # session's branches. This one then:
 #   1. removes the worktrees .worktrees/base-dev (plan 017's dev baseline) and .worktrees/dev (where plan 017 merged);
-#   2. puts the main checkout on dev;
+#   2. puts the main checkout on dev, then lists (with --delete-old-build-output, removes) the old layout's ignored build
+#      output left inside the new src/ and tests/;
 #   3. with --delete-branches, deletes every local branch merged into dev (`git branch -d`, which refuses anything else);
 #   4. lists the unmerged branches whose every commit is already on dev by patch (`git cherry`), for the user: a cleanup
 #      script never force-deletes;
-# Every target is checked at run time. Dry run by default; --execute / -e acts; --delete-branches adds step 3.
+# Every target is checked at run time. Dry run by default; --execute / -e acts; --delete-branches adds step 3;
+# --delete-old-build-output adds the removal in step 2.
 set -euo pipefail
 
-execute=0; branches=0
+execute=0; branches=0; buildout=0
 for a in "$@"; do
   case "$a" in
     --execute|-e) execute=1 ;;
     --delete-branches) branches=1 ;;
+    --delete-old-build-output) buildout=1 ;;
     *) printf 'unknown flag: %s\n' "$a"; exit 2 ;;
   esac
 done
@@ -46,6 +49,21 @@ elif git -C "$main" worktree list --porcelain | grep -qxF 'branch refs/heads/dev
   else printf 'would: git -C %s switch dev (once step 1 has freed dev)\n' "$main"; fi
 else run git -C "$main" switch dev; fi
 
+# 2b. the old layout's ignored build output: git moves tracked files only, so bin/, obj/ and .DS_Store of src/Bayan.*,
+#     tests/Bayan.Tests and selfhost/ stay where they were, inside the new src/. Removed only with --delete-old-build-output, and
+#     only a directory dev does not track and that holds nothing but ignored files.
+for p in src/Bayan.Backend.C src/Bayan.Cli src/Bayan.Lowering src/Bayan.Semantics src/Bayan.Syntax src/Bayan.Testing \
+         tests/Bayan.Tests tests/native selfhost; do
+  d="$main/$p"
+  [ -e "$d" ] || continue
+  if [ "$(git -C "$main" branch --show-current)" != dev ]; then printf 'later: %s (checked once the main checkout is on dev)\n' "$p"; continue; fi
+  if [ -n "$(git -C "$main" ls-files -- "$p" | head -1)" ]; then printf 'refuse: %s is tracked on dev. Left alone.\n' "$p"; failed=1; continue; fi
+  if [ -n "$(git -C "$main" status --porcelain --untracked-files=all -- "$p" | head -1)" ]; then
+    printf 'refuse: %s holds files git does not ignore. Left alone.\n' "$p"; failed=1; continue
+  fi
+  if [ $buildout = 1 ]; then run rm -rf "$d"; else printf 'stale:  %s (ignored build output; --delete-old-build-output removes it)\n' "$p"; fi
+done
+
 # 3. branches merged into dev
 if [ $branches = 1 ]; then
   for b in $(git -C "$main" branch --merged dev --format='%(refname:short)'); do
@@ -66,5 +84,6 @@ done
 
 printf '\nremaining worktrees:\n'; git -C "$main" worktree list
 printf 'main checkout: %s\n' "$(git -C "$main" branch --show-current)"
-[ $execute = 1 ] || printf '\ndry run: nothing changed. --execute to act, --delete-branches to delete merged branches too.\n'
+[ $execute = 1 ] || printf '\ndry run: nothing changed. --execute to act, --delete-branches to delete merged branches too,
+--delete-old-build-output to remove the old layout build output.\n'
 exit $failed
