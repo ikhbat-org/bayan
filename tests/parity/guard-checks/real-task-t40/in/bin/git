@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 case "$*" in
   "diff --name-only dev...HEAD"|"diff --name-only")
-    printf 'docs/bayan-questions.md\nsrc/semantics/ctx.byn\nsrc/semantics/diag.byn\ntests/Bayan.Tests/SelfhostSemanticsT40Tests.cs\n' ;;
+    printf 'docs/bayan-questions.md\nsrc/semantics/ctx.byn\nsrc/semantics/diag.byn\nsrc/tests/SelfhostSemanticsT40Tests.cs\n' ;;
   "ls-files --others --exclude-standard")
     ;;
   "merge-base dev HEAD")

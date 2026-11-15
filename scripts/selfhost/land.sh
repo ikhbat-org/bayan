@@ -80,11 +80,11 @@ fi
   "${GUARD[@]}" | tail -25 | tee "../guard-land-$t.txt"
   grep -q '^GUARD PASS' "../guard-land-$t.txt" || { echo "LAND REFUSED: guard failed"; exit 1; }
 )
-# bootstrap/ follows the compiler (012 T6, user 2026-11-05): a change under src/ or runtime/ regenerates
+# bootstrap/ follows the compiler (012 T6, user 2026-11-05): a change under src/ or runtime/ (their tests/ excepted) regenerates
 # bootstrap/bayan.c and the runtime copies in the checked worktree before the merge; the tick commit carries them
 REGEN=0
-if [ -f "$WT/csharp/tests/Bayan.Tests/BootstrapTests.cs" ] && [ -n "$(git diff --name-only "$BASE...$SHA" -- src/ runtime/)" ]; then
-  [ -z "$(git diff --name-only "$SHA...$BASE" -- src/ runtime/)" ] \
+if [ -f "$WT/csharp/tests/Bayan.Tests/BootstrapTests.cs" ] && [ -n "$(git diff --name-only "$BASE...$SHA" -- src/ runtime/ ':!src/tests' ':!runtime/tests')" ]; then
+  [ -z "$(git diff --name-only "$SHA...$BASE" -- src/ runtime/ ':!src/tests' ':!runtime/tests')" ] \
     || { echo "LAND REFUSED: $BASE changed src/ or runtime/ after $BR branched, so bootstrap/ regenerated on $BR would not be the merged tree's; merge $BASE into $BR and land again"; exit 1; }
   REGEN=1; mkdir -p tmp
   ( cd "$WT" && BAYAN_UPDATE=1 nice dotnet test -v q --filter FullyQualifiedName~BootstrapTests ) > "tmp/land-$t-bootstrap.txt" 2>&1 \
