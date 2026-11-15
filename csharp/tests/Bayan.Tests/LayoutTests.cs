@@ -8,9 +8,9 @@ namespace Bayan.Tests;
 
 public sealed class LayoutTests
 {
-    private static string Lay(string source)
+    private static string Lay(string source, LayoutOptions? options = null)
     {
-        var (output, skipped) = Layout.Apply(Encoding.UTF8.GetBytes(source), new LayoutOptions());
+        var (output, skipped) = Layout.Apply(Encoding.UTF8.GetBytes(source), options ?? new LayoutOptions());
         Assert.Null(skipped);
         return Encoding.UTF8.GetString(output);
     }
@@ -80,8 +80,8 @@ public sealed class LayoutTests
 
     [Fact]
     public void ACloserSitsAtItsOpenersLevel() => Assert.Equal(
-        "void main() {\n    f(\n        1,\n        2\n    )\n    let xs = [\n        1,\n    ]\n}\n",
-        Lay("void main() {\n    f(\n1,\n            2\n        )\n    let xs = [\n  1,\n  ]\n}\n"));
+        "void main() {\n    f(\n        1,\n        2,\n    )\n    let xs = [\n        1,\n    ]\n}\n",
+        Lay("void main() {\n    f(\n1,\n            2,\n        )\n    let xs = [\n  1,\n  ]\n}\n"));
 
     [Fact]
     public void ACommentLineTakesTheNextLinesLevel() => Assert.Equal(
@@ -173,6 +173,185 @@ public sealed class LayoutTests
     public void AnAuthorsBlankLineBetweenOneLinersIsKept() => Assert.Equal(
         "struct A { i32 x }\n\nstruct B { i32 y }\n",
         Lay("struct A { i32 x }\n\n\nstruct B { i32 y }\n"));
+
+    // ── Joins and breaks: the proposal's §3.1, §3.4–§3.6 ──
+
+    private const string QuoteBody =
+        "    let rates = taxRates.forRegion(customer.region) ?? fail .noTaxRegion\n" +
+        "    var subtotal = Money.zero(cart.currency)\n" +
+        "    for line in cart.lines {\n" +
+        "        let product = try catalog.find(line.sku)\n" +
+        "        fail .discontinued(line.sku) if product.isDiscontinued\n" +
+        "        subtotal = subtotal + product.price * line.quantity\n" +
+        "    }\n" +
+        "    let discount = customer.tier.discount(on: subtotal)\n" +
+        "    let total = (subtotal - discount) * rates.multiplier\n" +
+        "    log($\"quote {cart.id}: {total}\", as: .debug)\n" +
+        "    return total\n" +
+        "}\n";
+
+    // The Before header is 109 columns, so it fits at 120; at 100 its clauses wrap. The After's blank lines are the
+    // author's: the formatter never inserts one (docs/bayan-style.md, "Paragraphs inside functions").
+    [Fact]
+    public void Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines() => Assert.Equal(
+        "public Money quote(Cart cart, for Customer customer)\n        expects cart.lines.length > 0\n        uses db\n" +
+        "        fails QuoteError {\n" + QuoteBody,
+        Lay("public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 uses db fails QuoteError {\n"
+            + QuoteBody, new LayoutOptions(Width: 100)));
+
+    [Fact]
+    public void Proposal31AfterIsLaidOut()
+    {
+        const string after =
+            "public Money quote(Cart cart, for Customer customer)\n        expects cart.lines.length > 0\n        uses db\n" +
+            "        fails QuoteError {\n" +
+            "    let rates = taxRates.forRegion(customer.region) ?? fail .noTaxRegion\n" +
+            "    var subtotal = Money.zero(cart.currency)\n\n" +
+            "    for line in cart.lines {\n" +
+            "        let product = try catalog.find(line.sku)\n" +
+            "        fail .discontinued(line.sku) if product.isDiscontinued\n\n" +
+            "        subtotal = subtotal + product.price * line.quantity\n" +
+            "    }\n\n" +
+            "    let discount = customer.tier.discount(on: subtotal)\n" +
+            "    let total = (subtotal - discount) * rates.multiplier\n\n" +
+            "    log($\"quote {cart.id}: {total}\", as: .debug)\n" +
+            "    return total\n" +
+            "}\n";
+        Assert.Equal(after, Lay(after));
+    }
+
+    [Fact]
+    public void Proposal34WrappedConditionBreaksBeforeEachAnd() => Assert.Equal(
+        "if order is .paid\n        and order.total >= freeShippingThreshold\n        and customer.region.shipsFree\n" +
+        "        and not order.hasOversizedItems {\n    order.shipping = .free\n}\n",
+        Lay("if order is .paid and order.total >= freeShippingThreshold and customer.region.shipsFree and not order.hasOversizedItems {\n" +
+            "    order.shipping = .free\n}\n"));
+
+    [Fact]
+    public void Proposal35ChainBreaksEveryLink() => Assert.Equal(
+        "let reminders = orders\n    .where(it.placedAt < cutoff and it.total > minimum)\n    .sorted(by: it.placedAt)\n    .take(50)\n" +
+        "    .map(Reminder(it.id, for: it.customer))\n",
+        Lay("let reminders = orders.where(it.placedAt < cutoff and it.total > minimum).sorted(by: it.placedAt).take(50).map(Reminder(it.id, for: it.customer))\n"));
+
+    [Fact]
+    public void Proposal36ArgumentListBreaksWithATrailingComma() => Assert.Equal(
+        "let shipment = carrier.book(\n    parcel,\n    from: warehouse.address,\n    to: order.shippingAddress,\n" +
+        "    by: order.deadline,\n    as: .express,\n)\n",
+        Lay("let shipment = carrier.book(parcel, from: warehouse.address, to: order.shippingAddress, by: order.deadline, as: .express)\n"));
+
+    // ── Joins and breaks: docs/bayan-style.md Don't → Do ──
+
+    [Fact]
+    public void StyleWrappedParameterListTakesNoTrailingCommaAndClosesWithParenBrace() => Assert.Equal(
+        "Booking book(\n    Carrier carrier,\n    Route route,\n    Date date,\n    Passenger passenger,\n    Seat preferredSeat,\n" +
+        "    Meal meal,\n    Insurance insurance\n) uses net, suspend fails BookingError {\n    return try carrier.quote(route, on: date)\n}\n",
+        Lay("Booking book(Carrier carrier, Route route, Date date, Passenger passenger, Seat preferredSeat, Meal meal, Insurance insurance) uses net, suspend fails BookingError {\n" +
+            "    return try carrier.quote(route, on: date)\n}\n"));
+
+    [Fact]
+    public void StyleHeaderClausesGoOnePerLine() => Assert.Equal(
+        "public Money quote(Cart cart, for Customer customer)\n        expects cart.lines.length > 0 && customer.region.isKnown\n" +
+        "        uses db\n        fails QuoteError {\n    return cart.total(for: customer)\n}\n",
+        Lay("public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 && customer.region.isKnown uses db fails QuoteError {\n" +
+            "    return cart.total(for: customer)\n}\n"));
+
+    [Fact]
+    public void StyleWrappedConditionBreaksBeforeEachAmpAmp() => Assert.Equal(
+        "if order is .paid\n        && order.total >= freeShippingThreshold\n        && customer.region.shipsFree\n" +
+        "        && !order.hasOversizedOrHazardousItems {\n    order.shipping = .free\n}\n",
+        Lay("if order is .paid && order.total >= freeShippingThreshold && customer.region.shipsFree && !order.hasOversizedOrHazardousItems {\n" +
+            "    order.shipping = .free\n}\n"));
+
+    [Fact]
+    public void StyleChainBreaksEveryLink() => Assert.Equal(
+        "let reminders = orders\n    .where(it.placedAt < cutoff && it.total > minimum)\n    .sorted(by: it.placedAt)\n    .take(50)\n" +
+        "    .map(Reminder(it.id, for: it.customer))\n",
+        Lay("let reminders = orders.where(it.placedAt < cutoff && it.total > minimum).sorted(by: it.placedAt).take(50).map(Reminder(it.id, for: it.customer))\n"));
+
+    [Fact]
+    public void StyleArgumentListBreaksWithATrailingComma() => Assert.Equal(
+        "let shipment = carrier.book(\n    parcel,\n    from: warehouse.address,\n    to: order.shippingAddress,\n" +
+        "    by: order.deadline,\n    as: .express,\n    insured: order.total > insuranceThreshold,\n)\n",
+        Lay("let shipment = carrier.book(parcel, from: warehouse.address, to: order.shippingAddress, by: order.deadline, as: .express, insured: order.total > insuranceThreshold)\n"));
+
+    [Fact]
+    public void StyleAListThatFitsWithoutATrailingCommaJoins() => Assert.Equal(
+        "let shipment = carrier.book(parcel, as: .express)\n",
+        Lay("let shipment = carrier.book(\n    parcel,\n    as: .express\n)\n"));
+
+    // ── Joins and breaks: the rules ──
+
+    [Fact]
+    public void AnAuthorsTrailingCommaKeepsAListVertical() => Assert.Equal(
+        "let s = f(\n    a,\n    b,\n)\nlet t = [\n    1,\n    2,\n]\n",
+        Lay("let s = f(a, b,)\nlet t = [\n    1, 2,\n]\n"));
+
+    [Fact]
+    public void NeverDropsTrailingCommasAndAddsNone() => Assert.Equal(
+        "let s = f(a, b)\nlet t = g(\n    argumentNumberOne,\n    argumentNumberTwo,\n    argumentNumberThree\n)\n",
+        Lay("let s = f(\n    a,\n    b,\n)\nlet t = g(argumentNumberOne, argumentNumberTwo, argumentNumberThree)\n",
+            new LayoutOptions(Width: 40, TrailingCommasMultiline: false)));
+
+    [Fact]
+    public void AStructLiteralBreaksButNeverJoins() => Assert.Equal(
+        "let p = Point {\n    x: 1,\n    y: 2\n}\nlet q = Point {\n    x: firstCoordinate,\n    y: secondCoordinate,\n}\n",
+        Lay("let p = Point {\n    x: 1,\n    y: 2\n}\nlet q = Point { x: firstCoordinate, y: secondCoordinate }\n", new LayoutOptions(Width: 40)));
+
+    [Fact]
+    public void AChainBrokenAtLeadingDotsThatFitsJoins() => Assert.Equal(
+        "let n = xs.take(2).count()\n",
+        Lay("let n = xs\n    .take(2)\n    .count()\n"));
+
+    [Fact]
+    public void ThreeLambdaCallsBreakAChainThatFits() => Assert.Equal(
+        "let n = xs\n    .map(it + 1)\n    .where(it > 0)\n    .sorted(by: it)\n",
+        Lay("let n = xs.map(it + 1).where(it > 0).sorted(by: it)\n"));
+
+    [Fact]
+    public void APartlyBrokenChainBreaksEveryLink() => Assert.Equal(
+        "let n = xs\n    .map(it + 1)\n    .where(it > 0)\n    .sorted(by: it)\n",
+        Lay("let n = xs.map(it + 1)\n    .where(it > 0).sorted(by: it)\n"));
+
+    [Fact]
+    public void AVerticalListTakesOneItemPerLine() => Assert.Equal(
+        "let t = f(\n    1,\n    2,\n    3,\n)\n",
+        Lay("let t = f(1, 2,\n    3,\n)\n"));
+
+    [Fact]
+    public void AParenthesisedHeadIsNotBrokenAfter() => Assert.Equal(
+        "if (alpha || beta) && gamma\n        && delta {\n    go()\n}\n",
+        Lay("if (alpha || beta) && gamma && delta {\n    go()\n}\n", new LayoutOptions(Width: 30)));
+
+    [Fact]
+    public void AnOverWideOneLineBodyOpens() => Assert.Equal(
+        "if ready {\n    launch(firstArgument, secondArgument)\n}\n",
+        Lay("if ready { launch(firstArgument, secondArgument) }\n", new LayoutOptions(Width: 45)));
+
+    // `check(…) {` reads like a parameter list, so it takes no trailing comma.
+    [Fact]
+    public void ABodyAfterAListBrokenInAConditionStaysAtOneLevel() => Assert.Equal(
+        "void main() {\n    if a\n            && check(\n                firstArgument,\n                secondArgument\n            ) {\n" +
+        "        go()\n    }\n}\n",
+        Lay("void main() {\n    if a\n            && check(firstArgument, secondArgument) {\n        go()\n    }\n}\n", new LayoutOptions(Width: 40)));
+
+    [Fact]
+    public void APatternAndAnIndexTakeNoTrailingComma() => Assert.Equal(
+        "void main() {\n    switch k {\n        case .pair(let first, let second): return f(\n            first,\n" +
+        "            by: grid[rowNumber, columnNumber],\n        )\n    }\n}\n",
+        Lay("void main() {\n    switch k {\n        case .pair(let first, let second): return f(first, by: grid[rowNumber, columnNumber])\n    }\n}\n",
+            new LayoutOptions(Width: 72)));
+
+    [Fact]
+    public void AVerticalPatternTakesNoTrailingComma()
+    {
+        const string source = "void main() {\n    switch k {\n        case .pair(\n            let firstValue,\n            let secondValue\n        ): go()\n    }\n}\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(Width: 30)));
+    }
+
+    [Fact]
+    public void ATernaryColonKeepsItsSpaceAfterABreak() => Assert.Equal(
+        "let x = c ? first(\n    argumentNumberOne,\n    argumentNumberTwo,\n) : \"\"\n",
+        Lay("let x = c ? first(argumentNumberOne, argumentNumberTwo) : \"\"\n", new LayoutOptions(Width: 40)));
 
     // ── Idempotence, @unformatted ──
 

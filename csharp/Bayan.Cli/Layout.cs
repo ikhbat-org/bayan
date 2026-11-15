@@ -10,12 +10,17 @@ internal sealed record LayoutOptions(int Indent = 4, int Width = 120, bool Align
 
 /// <summary>
 /// The layout pass of <c>bayan format</c> (docs/bayan-style-proposal.md §3): it rewrites only the whitespace between
-/// tokens, line by line, and never moves a token to another line. Comments are the source bytes between token spans.
-/// The output is kept only when it lexes to the same tokens, keeps the same comments and parses with the same
-/// diagnostics; otherwise the input comes back with the reason.
+/// tokens and the trailing commas before a closer. It joins and breaks lines only where spec §5 lets a line continue:
+/// inside <c>( )</c> and <c>[ ]</c>, after <c>,</c> or <c>{</c>, and before a leading <c>.</c>, <c>&amp;&amp;</c>,
+/// <c>||</c>, <c>and</c>, <c>or</c> or a clause keyword. Comments are the source bytes between token spans.
+/// The output is kept only when it lexes to the same tokens (trailing commas aside), keeps the same comments and parses
+/// with the same diagnostics; otherwise the input comes back with the reason.
 /// </summary>
 internal static class Layout
 {
+    /// <summary>Rounds of the engine over its own output: a join can fit only once a later break has shortened its line.</summary>
+    private const int Rounds = 4;
+
     /// <summary>Test-only: replaces the laid-out bytes before the safety check, to force a difference.</summary>
     [ThreadStatic] internal static Func<byte[], byte[]>? OutputHook;
 
@@ -33,6 +38,7 @@ internal static class Layout
         public int StatementIndent;
         public bool Control;
         public bool Clause;
+        public int Body = -1;
     }
 
     private enum Side : byte { Defer, Space, None, Keep }
@@ -45,6 +51,14 @@ internal static class Layout
         if (gaps is null) return (source, "text between tokens that is neither whitespace nor a `//` comment");
         var tree = SyntaxTree.Parse(new SourceText("layout", source));
         var output = new Engine(source, tokens, gaps, bom, tree, options).Render();
+        for (var round = 1; round < Rounds; round++)
+        {
+            var roundTokens = Lexer.Lex(new SourceText("layout", output)).Tokens.ToArray();
+            if (Gaps(output, roundTokens, bom) is not { } roundGaps) break;
+            var next = new Engine(output, roundTokens, roundGaps, bom, SyntaxTree.Parse(new SourceText("layout", output)), options).Render();
+            if (next.AsSpan().SequenceEqual(output)) break;
+            output = next;
+        }
         if (OutputHook is not null) output = OutputHook(output);
         return Check(source, tokens, gaps, tree, output) is { } reason ? (source, reason) : (output, null);
     }
@@ -95,11 +109,7 @@ internal static class Layout
     private static string? Check(byte[] source, Token[] tokens, Gap[] gaps, SyntaxTree tree, byte[] output)
     {
         var after = Lexer.Lex(new SourceText("layout", output)).Tokens.ToArray();
-        if (after.Length != tokens.Length) return "the tokens changed";
-        for (var i = 0; i < tokens.Length; i++)
-            if (after[i].Kind != tokens[i].Kind
-                || !source.AsSpan(tokens[i].Start, tokens[i].Length).SequenceEqual(output.AsSpan(after[i].Start, after[i].Length)))
-                return "the tokens changed";
+        if (!Significant(source, tokens).SequenceEqual(Significant(output, after))) return "the tokens changed";
         var bom = output.Length >= 3 && output[0] == 0xEF && output[1] == 0xBB && output[2] == 0xBF ? 3 : 0;
         var afterGaps = Gaps(output, after, bom);
         if (afterGaps is null || !Comments(source, gaps).SequenceEqual(Comments(output, afterGaps))) return "the comments changed";
@@ -107,6 +117,12 @@ internal static class Layout
         if (!tree.Diagnostics.Select(d => d.Code).SequenceEqual(reparsed.Diagnostics.Select(d => d.Code))) return "the diagnostics changed";
         return null;
     }
+
+    /// <summary>The tokens as kind and text, less each trailing comma (a <c>,</c> before <c>)</c>, <c>]</c> or <c>}</c>).</summary>
+    private static IEnumerable<(TokenKind, string)> Significant(byte[] bytes, Token[] tokens) =>
+        tokens.Where((t, i) => !(t.Kind == TokenKind.Comma && i + 1 < tokens.Length
+                                 && tokens[i + 1].Kind is TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace))
+            .Select(t => (t.Kind, System.Text.Encoding.UTF8.GetString(bytes, t.Start, t.Length)));
 
     private static IEnumerable<string> Comments(byte[] bytes, Gap[] gaps) =>
         gaps.SelectMany(g => g.Items).Where(x => x.IsComment)
@@ -129,19 +145,28 @@ internal static class Layout
         private readonly bool[] _frozen = new bool[tokens.Length];
         private readonly bool[] _inHole = new bool[tokens.Length];
         private readonly bool[] _needsBlank = new bool[tokens.Length];
+        private readonly int[] _match = new int[tokens.Length];
+        private readonly bool[] _dropComma = new bool[tokens.Length];
+        private readonly bool[] _addComma = new bool[tokens.Length];
         private readonly List<byte> _out = new(source.Length + source.Length / 8);
 
         public byte[] Render()
         {
             for (var i = 0; i < tokens.Length; i++) _lineStart[i] = i == 0 || gaps[i].HasNewline;
             Freeze();
+            Match();
+            Levels();
+            Joins();
+            Breaks();
             Levels();
             TopLevelBlanks();
             _out.AddRange(source.AsSpan(0, bom));
             for (var i = 0; i < tokens.Length; i++)
             {
+                if (_dropComma[i]) continue;
                 EmitGap(i);
                 _out.AddRange(source.AsSpan(tokens[i].Start, tokens[i].Length));
+                if (_addComma[i]) _out.Add((byte)',');
             }
             return [.. _out];
         }
@@ -227,7 +252,12 @@ internal static class Layout
                 // A `{` that ends a header clause or a wrapped condition opens a body at the statement's level.
                 var body = -1;
                 if (first == TokenKind.EndOfFile) level = 0;
-                else if (first is TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace) level = Math.Max(0, top.Line);
+                else if (first is TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace)
+                {
+                    level = Math.Max(0, top.Line);
+                    // `) {` closing a list opened on a clause or condition line opens that line's body.
+                    body = top.Body;
+                }
                 else
                 {
                     var inGroup = top.Opener is TokenKind.OpenParen or TokenKind.OpenBracket;
@@ -265,7 +295,7 @@ internal static class Layout
                     {
                         case TokenKind.OpenParen or TokenKind.OpenBracket or TokenKind.OpenBrace or TokenKind.InterpolationStart:
                             var line = Kind(k) == TokenKind.OpenBrace && body >= 0 ? body : level;
-                            frames.Add(new Frame { Opener = Kind(k), Line = line, Statement = line, StatementIndent = OriginalIndent(i) });
+                            frames.Add(new Frame { Opener = Kind(k), Line = line, Statement = line, StatementIndent = OriginalIndent(i), Body = body });
                             break;
                         case TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace or TokenKind.InterpolationEnd:
                             if (frames.Count > 1) frames.RemoveAt(frames.Count - 1);
@@ -304,6 +334,428 @@ internal static class Layout
             TokenKind.Equals or TokenKind.PlusEquals or TokenKind.MinusEquals or TokenKind.StarEquals or TokenKind.SlashEquals or
             TokenKind.PercentEquals or TokenKind.AmpEquals or TokenKind.BarEquals or TokenKind.CaretEquals or
             TokenKind.LessLessEquals or TokenKind.QuestionQuestionEquals;
+
+        // ── Joins (pass 3) and breaks (pass 4): lists, chains, header clauses, conditions (proposal §3.4–§3.6) ──
+
+        /// <summary>A member chain: its receiver's first token, its last token, the <c>.</c> of each link, and those that break.</summary>
+        private sealed record Chain(int Start, int End, List<int> Dots, List<int> Breakable, int LambdaCalls);
+
+        private static bool IsOpener(TokenKind kind) =>
+            kind is TokenKind.OpenParen or TokenKind.OpenBracket or TokenKind.OpenBrace or TokenKind.InterpolationStart;
+
+        private static bool IsCloser(TokenKind kind) =>
+            kind is TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace or TokenKind.InterpolationEnd;
+
+        private void Match()
+        {
+            var open = new Stack<int>();
+            for (var i = 0; i < tokens.Length; i++)
+            {
+                _match[i] = -1;
+                if (IsOpener(Kind(i))) open.Push(i);
+                else if (IsCloser(Kind(i)) && open.Count > 0)
+                {
+                    var o = open.Pop();
+                    _match[o] = i;
+                    _match[i] = o;
+                }
+            }
+        }
+
+        /// <summary>The columns token <paramref name="i"/> takes: its UTF-8 lead bytes.</summary>
+        private int Columns(int i)
+        {
+            var n = 0;
+            foreach (var b in source.AsSpan(tokens[i].Start, tokens[i].Length))
+                if ((b & 0xC0) != 0x80) n++;
+            return n;
+        }
+
+        private bool Multiline(int i) => source.AsSpan(tokens[i].Start, tokens[i].Length).Contains((byte)'\n');
+
+        private int LineStartOf(int i)
+        {
+            while (i > 0 && !_lineStart[i]) i--;
+            return i;
+        }
+
+        /// <summary>The first token after <paramref name="i"/> that starts a line, or the end of the file.</summary>
+        private int LineEnd(int i)
+        {
+            for (i++; i < tokens.Length - 1; i++)
+                if (_lineStart[i]) return i;
+            return tokens.Length - 1;
+        }
+
+        /// <summary>The columns of tokens <c>[s, e)</c> written as one line from line start <paramref name="s"/>; 0 when a token spans lines.</summary>
+        private int Width(int s, int e)
+        {
+            var width = _level[s] * options.Indent;
+            for (var k = s; k < e; k++)
+            {
+                if (_dropComma[k]) continue;
+                if (Multiline(k)) return 0;
+                if (k > s && Space(k, tokens[k - 1].End)) width++;
+                width += Columns(k) + (_addComma[k] ? 1 : 0);
+            }
+            return width;
+        }
+
+        /// <summary>Whether the structure over tokens <c>[from, to]</c> may change: none is frozen and it is not in an interpolation hole.</summary>
+        private bool Editable(int from, int to)
+        {
+            if (_inHole[from]) return false;
+            for (var k = from; k <= to; k++)
+                if (_frozen[k]) return false;
+            return true;
+        }
+
+        /// <summary>The tokens directly inside the list <c>(o, c)</c>, stepping over nested brackets.</summary>
+        private IEnumerable<int> Items(int o, int c)
+        {
+            for (var k = o + 1; k < c; k++)
+            {
+                yield return k;
+                if (IsOpener(Kind(k)) && _match[k] > k) k = _match[k];
+            }
+        }
+
+        private bool TrailingComma(int c) => Kind(c - 1) == TokenKind.Comma && !_dropComma[c - 1];
+
+        /// <summary>A <c>{</c> that opens a struct literal or a <c>with</c> update: a type name or <c>with</c>, then <c>name:</c>.</summary>
+        private bool IsStructLiteral(int o) => Kind(o) == TokenKind.OpenBrace && _match[o] > o
+            && Kind(o - 1) is TokenKind.Identifier or TokenKind.Greater or TokenKind.WithKeyword
+            && Kind(o + 1) == TokenKind.Identifier && Kind(o + 2) == TokenKind.Colon;
+
+        /// <summary>
+        /// Whether the parser takes a trailing comma in the list <c>(o, c)</c>: an argument list, a <c>[ ]</c> literal or a
+        /// struct literal. A parameter list (BYN1003), a lambda's, an index and a group do not.
+        /// </summary>
+        private bool CommaSafe(int o, int c)
+        {
+            switch (Kind(o))
+            {
+                case TokenKind.OpenBrace: return IsStructLiteral(o);
+                case TokenKind.OpenBracket: return _lineStart[o] || !OperandEnd(Kind(o - 1));
+                case TokenKind.OpenParen:
+                    var name = o - 1;
+                    if (_lineStart[o] || !(Kind(name) == TokenKind.Identifier || Kind(name).IsContextualKeyword()) || !CallLike(name)) return false;
+                    if (Kind(c + 1) is TokenKind.OpenBrace or TokenKind.FatArrow or TokenKind.Arrow or TokenKind.RequiresKeyword || IsClause(c + 1))
+                        return false;
+                    if (InPattern(o)) return false;
+                    // A spaced `?` is a ternary's; `T? name(` declares.
+                    return _lineStart[name] || ExpressionBefore(Kind(name - 1)) || Kind(name - 1) == TokenKind.Question && Trivia(name - 1);
+                default: return false;
+            }
+        }
+
+        /// <summary>Whether the <c>(</c> at <paramref name="o"/> holds a pattern (<c>case .some(let x)</c>, <c>is .pair(a, b)</c>).</summary>
+        private bool InPattern(int o)
+        {
+            if (Items(o, _match[o]).Any(k => (Kind(k - 1) == TokenKind.OpenParen && k - 1 == o || Kind(k - 1) == TokenKind.Comma)
+                                             && Kind(k) is TokenKind.LetKeyword or TokenKind.VarKeyword))
+                return true;
+            for (var k = o - 1; k >= 0; k--)
+            {
+                if (IsCloser(Kind(k)) && _match[k] >= 0 && _match[k] < k) k = _match[k];
+                else if (IsOpener(Kind(k)) || Kind(k) is TokenKind.Comma or TokenKind.Colon or TokenKind.Equals or TokenKind.FatArrow
+                         || Kind(k) == TokenKind.Identifier && Text(k) == "where")
+                    return false;
+                else if (Kind(k) is TokenKind.CaseKeyword or TokenKind.IsKeyword or TokenKind.ExceptKeyword) return true;
+                if (_lineStart[k]) return false;
+            }
+            return false;
+        }
+
+        /// <summary>Whether a name after <paramref name="kind"/> starts an expression, not a declaration (<c>Type name(</c>).</summary>
+        private static bool ExpressionBefore(TokenKind kind) => kind switch
+        {
+            TokenKind.Identifier or TokenKind.Greater or TokenKind.Question or TokenKind.CloseBracket or TokenKind.CloseParen
+                or TokenKind.Star => false,
+            TokenKind.ReturnKeyword or TokenKind.TryKeyword or TokenKind.AwaitKeyword or TokenKind.InKeyword or TokenKind.IsKeyword
+                or TokenKind.AndKeyword or TokenKind.OrKeyword or TokenKind.NotKeyword or TokenKind.IfKeyword or TokenKind.UnlessKeyword
+                or TokenKind.WhileKeyword or TokenKind.ElseKeyword or TokenKind.FailKeyword or TokenKind.YieldKeyword
+                or TokenKind.DeferKeyword or TokenKind.ErrdeferKeyword or TokenKind.AssertKeyword or TokenKind.CaseKeyword
+                or TokenKind.MoveKeyword or TokenKind.RefKeyword or TokenKind.OutKeyword or TokenKind.SwitchKeyword => true,
+            var k => !k.IsKeyword(),
+        };
+
+        /// <summary>
+        /// Pass 3. A <c>( )</c> or <c>[ ]</c> list broken over lines joins when it fits, holds no comment, block or
+        /// author's trailing comma (under <c>.multiline</c>). A chain broken only before its links joins when it fits and
+        /// has fewer than three lambda calls. Under <c>.never</c> every trailing comma the parser can do without goes first.
+        /// </summary>
+        private void Joins()
+        {
+            if (!options.TrailingCommasMultiline)
+                for (var c = 1; c < tokens.Length; c++)
+                    if (IsCloser(Kind(c)) && _match[c] >= 0 && Kind(c - 1) == TokenKind.Comma && gaps[c - 1].Items.Count == 0
+                        && CommaSafe(_match[c], c) && Editable(c - 1, c))
+                        _dropComma[c - 1] = true;
+            for (var o = 0; o < tokens.Length; o++)
+            {
+                if (Kind(o) is not (TokenKind.OpenParen or TokenKind.OpenBracket) || _match[o] < o) continue;
+                var c = _match[o];
+                if (!Joinable(o, c)) continue;
+                if (TryJoin(o, c, Enumerable.Range(o + 1, c - o))) o = c;
+            }
+            foreach (var chain in Chains())
+            {
+                if (chain.LambdaCalls >= 3 || !chain.Dots.Any(d => _lineStart[d]) || !Editable(chain.Start, chain.End)) continue;
+                var only = true;
+                for (var k = chain.Start + 1; k <= chain.End && only; k++)
+                    if (_lineStart[k] && (!chain.Dots.Contains(k) || gaps[k].Items.Any(x => x.IsComment))) only = false;
+                if (only) TryJoin(chain.Start, chain.End, chain.Dots);
+            }
+        }
+
+        private bool Joinable(int o, int c)
+        {
+            var broken = false;
+            for (var k = o + 1; k <= c; k++)
+            {
+                broken |= _lineStart[k];
+                if (gaps[k].Items.Any(x => x.IsComment) || _frozen[k] || _inHole[k] && _lineStart[k] || Multiline(k)
+                    || Kind(k) is TokenKind.OpenBrace or TokenKind.CloseBrace
+                    || Kind(k) == TokenKind.Comma && Kind(k + 1) is TokenKind.CloseParen or TokenKind.CloseBracket && !_dropComma[k])
+                    return false;
+            }
+            return broken && !_frozen[o];
+        }
+
+        /// <summary>Clears the line breaks before <paramref name="breaks"/> when the line holding tokens <c>[from, to]</c> then fits.</summary>
+        private bool TryJoin(int from, int to, IEnumerable<int> breaks)
+        {
+            var cleared = breaks.Where(k => _lineStart[k]).ToList();
+            foreach (var k in cleared) _lineStart[k] = false;
+            var s = LineStartOf(from);
+            if (Width(s, LineEnd(to)) <= options.Width) return true;
+            foreach (var k in cleared) _lineStart[k] = true;
+            return false;
+        }
+
+        /// <summary>A <c>.</c> or <c>?.</c> and a name: a link of a member chain.</summary>
+        private bool IsLink(int j) => Kind(j) is TokenKind.Dot or TokenKind.QuestionDot
+            && (Kind(j + 1) == TokenKind.Identifier || Kind(j + 1).IsContextualKeyword());
+
+        /// <summary>Whether the line from link <paramref name="j"/> holds a <c>=&gt;</c> outside brackets: a switch arm, not a link.</summary>
+        private bool ArmLine(int j)
+        {
+            var depth = 0;
+            for (var k = j; k < tokens.Length - 1 && (k == j || !_lineStart[k]); k++)
+            {
+                if (IsOpener(Kind(k))) depth++;
+                else if (IsCloser(Kind(k))) depth--;
+                else if (depth == 0 && Kind(k) == TokenKind.FatArrow) return true;
+            }
+            return false;
+        }
+
+        /// <summary>The member chains with two or more calls (<c>orders.where(…).take(50)</c>); a nested chain is its own.</summary>
+        private List<Chain> Chains()
+        {
+            var chains = new List<Chain>();
+            var used = new bool[tokens.Length];
+            for (var i = 1; i < tokens.Length; i++)
+            {
+                if (used[i] || !IsLink(i) || _lineStart[i] && (gaps[i].HasBlank || ArmLine(i))) continue;
+                var before = Kind(i - 1);
+                if (!(before is TokenKind.Identifier or TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.ThisKeyword
+                        or TokenKind.InterpolatedStringEnd || before.IsStringLiteral() || before.IsContextualKeyword()))
+                    continue;
+                var start = i - 1;
+                if (IsCloser(Kind(start)) && _match[start] >= 0)
+                {
+                    start = _match[start];
+                    if (Kind(start) != TokenKind.InterpolationStart && !_lineStart[start]
+                        && (Kind(start - 1) == TokenKind.Identifier || Kind(start - 1).IsContextualKeyword()))
+                        start--;
+                }
+                var dots = new List<int>();
+                var breakable = new List<int>();
+                int calls = 0, lambdas = 0, end = i, j = i;
+                while (IsLink(j) && (j == i || !_lineStart[j] || !gaps[j].HasBlank && !ArmLine(j)))
+                {
+                    used[j] = true;
+                    dots.Add(j);
+                    var k = j + 2;
+                    var call = false;
+                    while (Kind(k) is TokenKind.OpenParen or TokenKind.OpenBracket && !_lineStart[k] && _match[k] > k)
+                    {
+                        if (Kind(k) == TokenKind.OpenParen && k == j + 2)
+                        {
+                            call = true;
+                            if (HasLambda(k, _match[k])) lambdas++;
+                        }
+                        k = _match[k] + 1;
+                    }
+                    if (call) calls++;
+                    if (call || breakable.Count > 0) breakable.Add(j);
+                    end = k - 1;
+                    j = k;
+                }
+                if (calls >= 2) chains.Add(new Chain(start, end, dots, breakable, lambdas));
+            }
+            return chains;
+        }
+
+        /// <summary>Whether the arguments <c>(o, c)</c> hold a lambda: a <c>=&gt;</c> or an implicit <c>it</c>.</summary>
+        private bool HasLambda(int o, int c)
+        {
+            for (var k = o + 1; k < c; k++)
+                if (Kind(k) == TokenKind.FatArrow || Kind(k) == TokenKind.Identifier && Text(k) == "it") return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Pass 4. A chain with three or more lambda calls, or with one link already broken, breaks every link. A list
+        /// broken over lines, or ending in the author's trailing comma, takes one item per line. Then each line past
+        /// <c>width</c> breaks its condition, its header clauses, or its outermost chain or list, until every line fits or
+        /// nothing is left to break.
+        /// </summary>
+        private void Breaks()
+        {
+            foreach (var chain in Chains())
+                if ((chain.LambdaCalls >= 3 || chain.Breakable.Any(d => _lineStart[d])) && Editable(chain.Start, chain.End))
+                    foreach (var d in chain.Breakable) _lineStart[d] = true;
+            for (var o = 0; o < tokens.Length; o++)
+            {
+                if (Kind(o) is not (TokenKind.OpenParen or TokenKind.OpenBracket) || _match[o] < o) continue;
+                var c = _match[o];
+                if (!Editable(o, c) || !Items(o, c).Any(k => Kind(k) == TokenKind.Comma)) continue;
+                if (_lineStart[c] || TrailingComma(c) || Items(o, c).Any(k => _lineStart[k])) BreakList(o, c);
+            }
+            for (var round = 0; round < tokens.Length; round++)
+            {
+                Levels();
+                var chains = Chains();
+                var changed = false;
+                for (int s = 0, e; s < tokens.Length - 1; s = e)
+                {
+                    e = LineEnd(s);
+                    if (!_frozen[s] && !_inHole[s] && Width(s, e) > options.Width && BreakLine(s, e, chains)) changed = true;
+                }
+                if (!changed) break;
+            }
+        }
+
+        /// <summary>One item per line: a break after the opener and after each item, and the trailing comma the knob asks for.</summary>
+        private void BreakList(int o, int c)
+        {
+            if (o + 1 < c) _lineStart[o + 1] = true;
+            foreach (var k in Items(o, c))
+                if (Kind(k) == TokenKind.Comma && k + 1 < c) _lineStart[k + 1] = true;
+            _lineStart[c] = true;
+            if (options.TrailingCommasMultiline && Kind(c - 1) != TokenKind.Comma && o + 1 < c && CommaSafe(o, c))
+                _addComma[c - 1] = true;
+        }
+
+        /// <summary>Breaks the over-wide line <c>[s, e)</c> at its widest structure; false when it has none.</summary>
+        private bool BreakLine(int s, int e, List<Chain> chains)
+        {
+            var changed = false;
+            // A one-line body opens: `{` ends the line and `}` starts one.
+            var p = Kind(s) == TokenKind.CloseBrace && Kind(s + 1) == TokenKind.ElseKeyword ? s + 1 : s;
+            if (Kind(p) is TokenKind.IfKeyword or TokenKind.WhileKeyword or TokenKind.UnlessKeyword or TokenKind.ForKeyword
+                or TokenKind.ElseKeyword)
+            {
+                for (int k = p + 1, depth = 0; k < e; k++)
+                {
+                    if (IsCloser(Kind(k))) depth--;
+                    if (depth == 0 && Kind(k) == TokenKind.OpenBrace)
+                    {
+                        var c = _match[k];
+                        if (c > k + 1 && c < e && Editable(k + 1, c))
+                        {
+                            _lineStart[k + 1] = _lineStart[c] = true;
+                            return true;
+                        }
+                        break;
+                    }
+                    if (IsOpener(Kind(k))) depth++;
+                }
+            }
+            // A wrapped condition breaks before each `&&`, `||`, `and` and `or` outside brackets, as does its continuation line.
+            if (Kind(p) == TokenKind.ElseKeyword) p++;
+            if (p < e && Kind(p) is TokenKind.IfKeyword or TokenKind.WhileKeyword or TokenKind.UnlessKeyword
+                or TokenKind.AmpAmp or TokenKind.BarBar or TokenKind.AndKeyword or TokenKind.OrKeyword)
+            {
+                var depth = 0;
+                for (var k = p + 1; k < e; k++)
+                {
+                    if (IsCloser(Kind(k))) depth--;
+                    if (depth == 0 && Kind(k) == TokenKind.OpenBrace) break;
+                    if (depth == 0 && Kind(k) is TokenKind.AmpAmp or TokenKind.BarBar or TokenKind.AndKeyword or TokenKind.OrKeyword
+                        && !_lineStart[k] && Editable(k, k)
+                        // `if (a) ⏎ && b` would read `(a)` as the whole condition (BYN1017).
+                        && !(Kind(k - 1) == TokenKind.CloseParen && _match[k - 1] == p + 1))
+                        changed = _lineStart[k] = true;
+                    if (IsOpener(Kind(k))) depth++;
+                }
+                if (changed) return true;
+            }
+            // Header clauses after the `)` go one per line when the head before them fits.
+            {
+                var depth = 0;
+                var closed = false;
+                var first = -1;
+                for (var k = s; k < e; k++)
+                {
+                    if (IsCloser(Kind(k))) depth--;
+                    if (depth == 0 && Kind(k) == TokenKind.CloseParen) closed = true;
+                    else if (depth == 0 && closed && k > s && IsClause(k))
+                    {
+                        if (first < 0)
+                        {
+                            if (Width(s, k) > options.Width) break;
+                            first = k;
+                        }
+                        if (!_lineStart[k] && Editable(k, k)) changed = _lineStart[k] = true;
+                    }
+                    if (IsOpener(Kind(k))) depth++;
+                }
+                if (changed) return true;
+            }
+            // Otherwise the outermost chain or list on the line: a chain before a list at the same depth, then the leftmost.
+            var depths = new int[e - s];
+            for (int k = s, d = 0; k < e; k++)
+            {
+                if (IsCloser(Kind(k))) d--;
+                depths[k - s] = d;
+                if (IsOpener(Kind(k))) d++;
+            }
+            Chain? bestChain = null;
+            var best = int.MaxValue;
+            foreach (var chain in chains)
+            {
+                var b = chain.Breakable;
+                if (b.Count == 0 || b[0] < s || b[^1] >= e || b.Any(d => _lineStart[d]) || !Editable(chain.Start, chain.End)) continue;
+                if (depths[b[0] - s] < best)
+                {
+                    best = depths[b[0] - s];
+                    bestChain = chain;
+                }
+            }
+            var bestList = -1;
+            for (var o = s; o < e; o++)
+            {
+                if (!(Kind(o) is TokenKind.OpenParen or TokenKind.OpenBracket || IsStructLiteral(o))) continue;
+                var c = _match[o];
+                if (c <= o + 1 || c >= e || depths[o - s] >= best || !Editable(o, c) || Kind(o) == TokenKind.OpenParen && InPattern(o))
+                    continue;
+                best = depths[o - s];
+                bestList = o;
+                bestChain = null;
+            }
+            if (bestChain is not null)
+            {
+                foreach (var d in bestChain.Breakable) _lineStart[d] = true;
+                return true;
+            }
+            if (bestList < 0) return false;
+            BreakList(bestList, _match[bestList]);
+            return true;
+        }
 
         // ── Blank lines between top-level declarations (pass 7, proposal §3.7) ───────────
 
@@ -364,7 +816,8 @@ internal static class Layout
                 Add(items[0]);
                 at = 1;
             }
-            if (i > 0 && !gap.HasNewline)
+            // A joined gap holds no comment (Joinable); a broken one held no newline.
+            if (i > 0 && !_lineStart[i])
             {
                 if (eof)
                 {
@@ -555,7 +1008,7 @@ internal static class Layout
                 else if (depth == 0 && (kind is TokenKind.StructKeyword or TokenKind.InterfaceKeyword or TokenKind.ExtensionKeyword
                              || kind == TokenKind.Question && Trivia(k) || kind == TokenKind.Identifier && Text(k) == "where"))
                     return true;
-                if (_lineStart[k]) return false;
+                if (_lineStart[k] && depth == 0) return false;
             }
             return false;
         }
