@@ -276,7 +276,7 @@ public static class CliApp
     /// <c>#!</c>, compiled alone) or a file or directory (the whole directory is the entry module).
     /// Prints diagnostics; null on errors.
     /// </summary>
-    internal static Compiled? Compile(BuildOptions o, TextWriter stderr, bool includeTests = false, List<Diagnostic>? reported = null)
+    internal static Compiled? Compile(BuildOptions o, TextWriter stderr, bool includeTests = false, List<Diagnostic>? reported = null, bool styleLints = false)
     {
         using var progress = StartProgress(o.Json, stderr, Messages.CompileProgress.Text());
         Compilation c;
@@ -317,7 +317,15 @@ public static class CliApp
         progress.Done();
         Report(o, c.Diagnostics.Items, stderr);
         reported?.AddRange(c.Diagnostics.Items);
-        return c.Diagnostics.HasErrors ? null : new Compiled(c, manifest, root);
+        var lintErrors = false;
+        if (styleLints && !c.Diagnostics.HasErrors)
+        {
+            var lints = c.StyleLintsAt(manifest);
+            Report(o, lints, stderr);
+            reported?.AddRange(lints);
+            lintErrors = lints.Any(d => d.IsError);
+        }
+        return c.Diagnostics.HasErrors || lintErrors ? null : new Compiled(c, manifest, root);
     }
 
     private static Progress StartProgress(bool json, TextWriter stderr, string phase) =>
@@ -480,7 +488,7 @@ public static class CliApp
         var clock = System.Diagnostics.Stopwatch.StartNew();
         if (ParseBuildOptions(args, stderr, allowOutput: false) is not { } o) return ExitUsage;
         var reported = new List<Diagnostic>();
-        if (Compile(o, stderr, reported: reported) is not { } compiled) return Failed(o, reported, stderr);
+        if (Compile(o, stderr, reported: reported, styleLints: true) is not { } compiled) return Failed(o, reported, stderr);
         if (!o.Json) stdout.WriteLine(Success(Messages.CheckSummary.Text(Dot, ProgramName(compiled, o.Path), Seconds(clock.Elapsed))));
         return ExitOk;
     }

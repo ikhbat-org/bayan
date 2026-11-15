@@ -1,0 +1,6 @@
+note BYN1075: blocks nested more than 4 deep; flatten them with early exits
+
+  17 │                     if n > 4 {
+     │                              ^ nested more than 4 deep
+     │
+  help: flatten it with early exits

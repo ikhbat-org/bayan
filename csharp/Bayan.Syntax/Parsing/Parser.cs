@@ -13,6 +13,9 @@ public sealed record SyntaxTree(SourceText Source, CompilationUnit Root, IReadOn
 
     /// <summary>The line-join lint (BYN5103): reported by a compilation and fixed by <c>bayan format</c>, not by <c>bayan parse</c>.</summary>
     public IReadOnlyList<Diagnostic> Lints { get; init; } = [];
+
+    /// <summary>The style lints (BYN1072–BYN1076): reported by <c>bayan check</c> only, with the severity of the manifest's <c>lints</c>.</summary>
+    public IReadOnlyList<Diagnostic> StyleLints { get; init; } = [];
 }
 
 /// <summary>
@@ -26,6 +29,10 @@ public sealed class Parser
     private readonly Token[] _tokens;
     private readonly int _count;
     private readonly DiagnosticBag _diagnostics = new();
+
+    /// <summary>The style lints found while parsing; a block's depth is counted from the enclosing function's body.</summary>
+    private readonly DiagnosticBag _styleLints = new();
+    private int _blockDepth;
     private int _pos;
     private int _prevEnd;
     private int _lastErrorAt = -1;
@@ -73,7 +80,7 @@ public sealed class Parser
     {
         var parser = new Parser(Lexer.Lex(source));
         var root = parser.ParseCompilationUnit();
-        return new SyntaxTree(source, root, parser._diagnostics.Items) { Lints = parser.LintLineJoins() };
+        return new SyntaxTree(source, root, parser._diagnostics.Items) { Lints = parser.LintLineJoins(), StyleLints = parser._styleLints.Items };
     }
 
     // ── Token access ─────────────────────────────────────────────────────────────────
@@ -328,6 +335,56 @@ public sealed class Parser
                 fix: new Fix(new TextSpan(lineStart, indent.Length), statementIndent + "    "));
         }
         return lints.Items;
+    }
+
+    // ── Style lints (BYN1072–BYN1076) ────────────────────────────────────────────────
+
+    private const int MaxNesting = 4;
+    private const int MaxFunctionLines = 60;
+
+    /// <summary>BYN1072 on an <c>if</c> without <c>else</c> whose block holds only a <c>return</c>, <c>fail</c>, <c>break</c> or <c>continue</c>; the fix writes it as a postfix guard.</summary>
+    private void LintPostfixGuard(IfStmt stmt)
+    {
+        if (stmt.Else is not null || stmt.Likelihood != Likelihood.None) return;
+        if (stmt.Then is not BlockStmt { Statements: [{ } only] } block || only is not (ReturnStmt or FailStmt or BreakStmt or ContinueStmt) || block.Span.Length < 2) return;
+        // A break or continue has an empty span (its span is taken before its label is read), so the exit is read off the block's text.
+        var body = _source.GetText(block.Span)[1..^1].Trim().TrimEnd(';').TrimEnd();
+        var condition = _source.GetText(stmt.Condition.Span);
+        // A comment, a second statement or a line break in the block or the condition has no place in the one-line rewrite: no fix.
+        var plain = !body.Contains('\n') && !body.Contains('/') && !body.Contains(';') && !condition.Contains('\n');
+        _styleLints.Report(DiagnosticCodes.GuardsPostfix, _source, TextSpan.FromBounds(stmt.Span.Start, block.Span.Start), label: "an early exit in a block",
+            help: "write it as a postfix guard", fix: plain ? new Fix(stmt.Span, $"{body} if {condition}") : null);
+    }
+
+    /// <summary>BYN1073 on a lambda argument <c>x => x.f</c>; the fix writes <c>it.f</c>.</summary>
+    private void LintItLambda(LambdaExpr lambda, int startIndex)
+    {
+        if (lambda.Params is not [var param] || param.Text == "it" || startIndex == 0 || KindAt(startIndex - 1) is not (TokenKind.OpenParen or TokenKind.Comma or TokenKind.Colon)) return;
+        if (lambda.Body is not MemberExpr { Target: NameExpr { Name.Text: var target, TypeArgs.Length: 0 }, NullConditional: false, TypeArgs.Length: 0 } member || target != param.Text) return;
+        _styleLints.Report(DiagnosticCodes.LambdasIt, _source, lambda.Span, [param.Text], label: "reads one member of its parameter",
+            help: "write `it` for the parameter", fix: new Fix(lambda.Span, $"it.{member.Member.Text}"));
+    }
+
+    /// <summary>BYN1074 on a control head whose condition continues on a later line than the keyword at token <paramref name="keywordIndex"/>.</summary>
+    private void LintWrappedCondition(int keywordIndex, Expr condition)
+    {
+        for (var i = keywordIndex + 1; i < _pos; i++)
+        {
+            if (!_tokens[i].HasNewlineBefore) continue;
+            _styleLints.Report(DiagnosticCodes.ConditionsNamed, _source, condition.Span, label: "the condition wraps",
+                help: "name the condition with a `let`");
+            return;
+        }
+    }
+
+    /// <summary>BYN1076 on a function body of more than 60 lines between its braces.</summary>
+    private void LintFunctionLength(BlockStmt body)
+    {
+        if (body.Span.Length == 0) return;
+        var lines = _source.GetLineIndex(body.Span.End - 1) - _source.GetLineIndex(body.Span.Start) - 1;
+        if (lines > MaxFunctionLines)
+            _styleLints.Report(DiagnosticCodes.FunctionsLength, _source, new TextSpan(body.Span.Start, 1), [lines], label: $"{lines} lines",
+                help: "split it into named steps");
     }
 
     /// <summary>Whether the line starting at token <paramref name="index"/> continues the line before: inside <c>()</c> or <c>[]</c>, waṣl, or after lā (not <c>{</c>, which opens a block).</summary>
@@ -1277,7 +1334,11 @@ public sealed class Parser
         Expr? expressionBody = null;
         if (Kind == TokenKind.OpenBrace)
         {
+            var outer = _blockDepth;
+            _blockDepth = -1;
             body = ParseBlock();
+            _blockDepth = outer;
+            LintFunctionLength(body);
         }
         else if (Accept(TokenKind.FatArrow))
         {
@@ -2232,6 +2293,9 @@ public sealed class Parser
         var start = Current.Start;
         var open = Expect(TokenKind.OpenBrace);
         if (open.Length == 0) return new BlockStmt(new TextSpan(start, 0), []);
+        if (++_blockDepth == MaxNesting + 1)
+            _styleLints.Report(DiagnosticCodes.NestingDepth, _source, open.Span, label: $"nested more than {MaxNesting} deep",
+                help: "flatten it with early exits");
         var statements = new List<Stmt>();
         while (Kind != TokenKind.CloseBrace && !AtEnd)
         {
@@ -2244,6 +2308,7 @@ public sealed class Parser
             if (_pos == before) Advance();
         }
         ExpectClose(open, "block");
+        _blockDepth--;
         return new BlockStmt(SpanFrom(start), statements.ToArray());
     }
 
@@ -2278,6 +2343,7 @@ public sealed class Parser
                 return RejectPostfixAfterCompound(ParseUnless(start));
             case TokenKind.WhileKeyword:
                 var whileKeyword = Advance();
+                var whileIndex = _pos - 1;
                 if (Accept(TokenKind.LetKeyword))
                 {
                     var variable = ExpectName("a variable name");
@@ -2287,6 +2353,7 @@ public sealed class Parser
                 }
                 {
                     var condition = ParseCondition(out var parenthesized, out var parens);
+                    LintWrappedCondition(whileIndex, condition);
                     var body = parenthesized ? ParseBody(whileKeyword, ref parens) : ParseBlock();
                     return new WhileStmt(SpanFrom(start), condition, body);
                 }
@@ -2691,6 +2758,7 @@ public sealed class Parser
     private Stmt ParseIf(int start, bool elseIf = false)
     {
         var keyword = Advance();
+        var keywordIndex = _pos - 1;
         var likelihood = Likelihood.None;
         if (Kind == TokenKind.NeverKeyword && Peek(1) != TokenKind.OpenBrace && CanStartExpression(Peek(1)))
         {
@@ -2703,6 +2771,7 @@ public sealed class Parser
             likelihood = Likelihood.Unlikely;
         }
         var condition = ParseCondition(out var parenthesized, out var parens);
+        LintWrappedCondition(keywordIndex, condition);
         // The BYN1017 fix leaves a bare condition, after which `then` and `else` must both be blocks: it braces both.
         var then = parenthesized ? ParseBody(keyword, ref parens) : ParseBlock();
         Stmt? otherwise = null;
@@ -2715,7 +2784,9 @@ public sealed class Parser
             otherwise = Kind == TokenKind.IfKeyword ? RejectPostfixAfterCompound(ParseIf(Current.Start, elseIf: true))
                 : parenthesized ? ParseBody(elseKeyword, ref parens) : ParseBlock();
         }
-        return new IfStmt(SpanFrom(start), condition, then, otherwise) { Likelihood = likelihood };
+        var ifStmt = new IfStmt(SpanFrom(start), condition, then, otherwise) { Likelihood = likelihood };
+        if (!elseIf && !parenthesized) LintPostfixGuard(ifStmt);
+        return ifStmt;
     }
 
     private static Expr Unwrap(Expr e) => e is ParenExpr p ? Unwrap(p.Inner) : e;
@@ -2769,8 +2840,10 @@ public sealed class Parser
     private Stmt ParseUnless(int start)
     {
         var keyword = Advance();
+        var keywordIndex = _pos - 1;
         SkipUnlessLikelihood();
         var condition = ParseCondition(out var parenthesized, out var parens);
+        LintWrappedCondition(keywordIndex, condition);
         // The `if` fix spans the parentheses and drops them, so it replaces the BYN1017 report.
         var check = CheckUnlessCondition(condition, TextSpan.FromBounds(keyword.Start, _prevEnd));
         if (check is not null) Unreport(parens);
@@ -3862,7 +3935,9 @@ public sealed class Parser
         Expect(TokenKind.FatArrow);
         if (Kind == TokenKind.OpenBrace) return new LambdaExpr(SpanFrom(start), parameters.ToArray(), null, ParseBlock());
         var body = ParseExpression();
-        return new LambdaExpr(SpanFrom(start), parameters.ToArray(), body, null);
+        var lambda = new LambdaExpr(SpanFrom(start), parameters.ToArray(), body, null);
+        LintItLambda(lambda, TokenAt(start));
+        return lambda;
     }
 
     /// <summary>

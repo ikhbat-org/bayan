@@ -11,6 +11,8 @@ public static class DiagnosticCodes
     private static DiagnosticDescriptor Error(string code, string format) => Register(new(code, Severity.Error, format));
     private static DiagnosticDescriptor Warning(string code, string format) => Register(new(code, Severity.Warning, format));
 
+    private static DiagnosticDescriptor Note(string code, string format) => Register(new(code, Severity.Note, format));
+
     private static DiagnosticDescriptor Register(DiagnosticDescriptor d)
     {
         Registry.Add(d);
@@ -350,6 +352,17 @@ public static class DiagnosticCodes
     public static readonly DiagnosticDescriptor NounOnMutator = Warning("BYN5101", "`{0}` is a noun on a `ref this` member; name the action");
     public static readonly DiagnosticDescriptor BoolWithoutPrefix = Warning("BYN5102", "`{0}` is a `bool` state; prefix with `is`, `has` or `can`");
     public static readonly DiagnosticDescriptor LineJoinIndent = Warning("BYN5103", "a line starting with `{0}` joins the statement above; indent it deeper");
+    // Style lints: reported by `bayan check` only, with the severity of the manifest's `lints` (spec 022).
+    // target: 19xx lint
+    public static readonly DiagnosticDescriptor GuardsPostfix = Note("BYN1072", "an early exit in a block can be a postfix guard");
+    // target: 19xx lint
+    public static readonly DiagnosticDescriptor LambdasIt = Note("BYN1073", "`{0} => {0}.…` reads one member and can use `it`");
+    // target: 49xx lint
+    public static readonly DiagnosticDescriptor ConditionsNamed = Note("BYN1074", "this condition wraps; name it with a `let`");
+    // target: 49xx lint
+    public static readonly DiagnosticDescriptor NestingDepth = Note("BYN1075", "blocks nested more than 4 deep; flatten them with early exits");
+    // target: 09xx lint
+    public static readonly DiagnosticDescriptor FunctionsLength = Note("BYN1076", "this function body is {0} lines; split it into named steps");
     public static readonly DiagnosticDescriptor NumberAgreement = Warning("BYN5104", "`{0}` holds a collection; name it with a plural, `{1}`");
     /// <summary>BYN5104's second message form, for a plural name on one value; registered once, as <see cref="NumberAgreement"/>.</summary>
     public static readonly DiagnosticDescriptor NumberAgreementOne = new("BYN5104", Severity.Warning, "`{0}` holds one `{1}`; name it with a singular noun");
