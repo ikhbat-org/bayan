@@ -53,7 +53,8 @@ public sealed class SnapshotSkipTraitTests
     public void EveryTimeRunIsSkippedOrMarkedDeterministic()
     {
         var unmarked = new List<string>();
-        foreach (var file in Directory.GetFiles(Path.Combine(Golden.RepoRoot, "tests", "Bayan.Tests"), "*.cs"))
+        var dirs = new[] { Path.Combine(Golden.RepoRoot, "csharp", "tests", "Bayan.Tests"), Path.Combine(Golden.RepoRoot, "src", "tests") };
+        foreach (var file in dirs.SelectMany(d => Directory.GetFiles(d, "*.cs")))
         {
             if (Path.GetFileName(file) == nameof(SnapshotSkipTraitTests) + ".cs") continue;
             var lines = File.ReadAllLines(file);

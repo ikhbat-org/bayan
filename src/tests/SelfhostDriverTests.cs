@@ -1195,7 +1195,7 @@ public sealed class SelfhostDriverStage2FormatTests
     /// Stage 2's <c>format --check</c> over <c>src/</c> and <c>tests/cases/run/</c> equals the C#'s.
     /// </summary>
     [Theory]
-    [InlineData("selfhost")]
+    [InlineData("src")]
     [InlineData("tests/cases/run")]
     public void SourcesFormatCheckAsCliApp(string tree)
     {

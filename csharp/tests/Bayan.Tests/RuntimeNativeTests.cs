@@ -13,7 +13,7 @@ public sealed class RuntimeNativeTests
     [Fact]
     public void BatchCommandLine()
     {
-        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "batch-cmdline.c"));
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "runtime", "tests", "batch-cmdline.c"));
         Assert.Equal(
             """"
             cmd.exe /d /e:ON /v:OFF /s /c "".\echo.cmd" "a b""
@@ -150,7 +150,7 @@ public sealed class RuntimeNativeTests
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "native", "run-terminate-fails");
         if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
         Directory.CreateDirectory(dir);
-        File.Copy(Path.Combine(Golden.RepoRoot, "tests", "native", "run-terminate-fails.c"), Path.Combine(dir, "main.c"));
+        File.Copy(Path.Combine(Golden.RepoRoot, "runtime", "tests", "run-terminate-fails.c"), Path.Combine(dir, "main.c"));
         File.WriteAllText(Path.Combine(dir, "bayan-rt.c"), runtime.Replace(terminate, "if (true ||"));
         File.WriteAllText(Path.Combine(dir, "bayan-rt.h"), Toolchain.RuntimeHeader);
         var cc = new ProcessStartInfo(compiler[0]) { WorkingDirectory = dir, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
@@ -176,7 +176,7 @@ public sealed class RuntimeNativeTests
     public void RunPosixEdges()
     {
         if (OperatingSystem.IsWindows()) return;
-        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "io-run-posix.c"));
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "runtime", "tests", "io-run-posix.c"));
         Assert.Equal(
             "left group: 11 in time 1\n" +
             "left group with helper: 11 in time 1 child gone 1\n" +
@@ -195,7 +195,7 @@ public sealed class RuntimeNativeTests
     [Trait("Law", "L031")]
     public void WaitStatusMapping()
     {
-        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "wait-status.c"));
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "runtime", "tests", "wait-status.c"));
         Assert.Equal(
             "failed raw 0: 5 code -1 detail -1\n" +
             "query failed raw 259: 5 code -1 detail -1\n" +
@@ -210,7 +210,7 @@ public sealed class RuntimeNativeTests
     [Fact]
     public void EmptyInputAsksNoZeroByteBlock()
     {
-        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "zero-resize.c"));
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "runtime", "tests", "zero-resize.c"));
         Assert.Equal("hex 0, zero-byte requests 0\n", Run(Build(driver), []).Replace("\r\n", "\n"));
     }
 
@@ -218,7 +218,7 @@ public sealed class RuntimeNativeTests
     [Fact]
     public void StrBufGrowthKeepsTheOldBlock()
     {
-        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "strbuf-grow.c"));
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "runtime", "tests", "strbuf-grow.c"));
         Assert.Equal("cap 128, taken text unchanged 1, old blocks handed back 0\n", Run(Build(driver), []).Replace("\r\n", "\n"));
     }
 
@@ -231,7 +231,7 @@ public sealed class RuntimeNativeTests
     {
         var work = Path.Combine(Golden.RepoRoot, "tmp", "native", "io-read-release");
         Directory.CreateDirectory(work);
-        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "io-read-release.c"));
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "runtime", "tests", "io-read-release.c"));
         var output = Run(Build(driver), [Path.Combine(work, "invalid.bin"), work]).Replace("\r\n", "\n");
         if (output == "unsupported\n")
         {
@@ -313,7 +313,7 @@ public sealed class RuntimeNativeTests
     [Fact]
     public void CovFlushRunsOnPanic()
     {
-        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "cov-flush.c"));
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "runtime", "tests", "cov-flush.c"));
         var psi = new ProcessStartInfo(Build(driver)) { RedirectStandardOutput = true, StandardOutputEncoding = System.Text.Encoding.UTF8, RedirectStandardError = true, StandardErrorEncoding = System.Text.Encoding.UTF8, UseShellExecute = false };
         using var p = Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndLf();
@@ -327,7 +327,7 @@ public sealed class RuntimeNativeTests
     [Fact]
     public void RuntimePropertiesHold()
     {
-        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "runtime-properties.c"));
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "runtime", "tests", "runtime-properties.c"));
         Assert.Equal("ok\n", Run(Build(driver), []).Replace("\r\n", "\n"));
     }
 

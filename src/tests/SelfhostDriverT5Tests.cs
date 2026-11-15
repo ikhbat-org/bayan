@@ -299,7 +299,7 @@ public sealed class SelfhostDriverT5Tests
 
     /// <summary>
     /// `build --emit-c --mode debug --package src src/<dir>` from the repo root, for `lexer` and the driver itself:
-    /// same exit and stderr, byte-identical C, and every `#line` name in the C#'s C relative to `Path.fullPath("selfhost")`
+    /// same exit and stderr, byte-identical C, and every `#line` name in the C#'s C relative to `Path.fullPath("src")`
     /// (CEmitter.cs `FilePath`, 388-395) and naming a file of the package, `<dir>/` among them; `main.c` is the generated-code reset.
     /// </summary>
     [Fact]

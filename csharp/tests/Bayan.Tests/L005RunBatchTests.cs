@@ -252,7 +252,7 @@ public sealed class L005RunBatchTests
 
     private static string Run(string input)
     {
-        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "batch-cmdline-cases.c"));
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "runtime", "tests", "batch-cmdline-cases.c"));
         var build = Toolchain.Build(driver, BuildMode.Debug);
         Assert.True(build.Succeeded, build.Errors);
         var psi = new ProcessStartInfo(build.ExecutablePath!)

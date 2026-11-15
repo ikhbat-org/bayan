@@ -315,7 +315,7 @@ public sealed class StdPathTests
     /// <summary>Runs <c>runtime/tests/path-relative-cases.c</c> on <paramref name="input"/> and returns its output lines.</summary>
     private static async Task<string[]> RunDriver(string input)
     {
-        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "path-relative-cases.c"));
+        var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "runtime", "tests", "path-relative-cases.c"));
         var build = Toolchain.Build(driver, BuildMode.Debug);
         Assert.True(build.Succeeded, build.Errors);
         var psi = new ProcessStartInfo(build.ExecutablePath!)
