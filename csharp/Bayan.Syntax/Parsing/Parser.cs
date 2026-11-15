@@ -339,6 +339,9 @@ public sealed class Parser
 
     // ── Style lints (BYN1072–BYN1076) ────────────────────────────────────────────────
 
+    /// <summary>The token index where each call argument's value starts: a lambda there is an argument itself, not inside a group or a tuple.</summary>
+    private readonly HashSet<int> _argumentStarts = [];
+
     private const int MaxNesting = 4;
     private const int MaxFunctionLines = 60;
 
@@ -359,7 +362,7 @@ public sealed class Parser
     /// <summary>BYN1073 on a lambda argument <c>x => x.f</c>; the fix writes <c>it.f</c>.</summary>
     private void LintItLambda(LambdaExpr lambda, int startIndex)
     {
-        if (lambda.Params is not [var param] || param.Text == "it" || startIndex == 0 || KindAt(startIndex - 1) is not (TokenKind.OpenParen or TokenKind.Comma or TokenKind.Colon)) return;
+        if (lambda.Params is not [var param] || param.Text == "it" || !_argumentStarts.Contains(startIndex)) return;
         if (lambda.Body is not MemberExpr { Target: NameExpr { Name.Text: var target, TypeArgs.Length: 0 }, NullConditional: false, TypeArgs.Length: 0 } member || target != param.Text) return;
         _styleLints.Report(DiagnosticCodes.LambdasIt, _source, lambda.Span, [param.Text], label: "reads one member of its parameter",
             help: "write `it` for the parameter", fix: new Fix(lambda.Span, $"it.{member.Member.Text}"));
@@ -3798,6 +3801,7 @@ public sealed class Parser
                     _ => ArgModifier.None,
                 };
                 if (modifier != ArgModifier.None) Advance();
+                _argumentStarts.Add(_pos);
                 var value = ParseExpression();
                 args.Add(new Argument(SpanFrom(start), name, modifier, value));
             } while (Accept(TokenKind.Comma));

@@ -15,5 +15,6 @@ void main() {
     let customers: List<Customer> = [Customer { isActive: true }]
     let before = any(customers, by: c => c.isActive)
     let after = any(customers, by: it.isActive)
-    print($"{before}{after}")
+    let grouped = any(customers, by: (c => c.isActive))
+    print($"{before}{after}{grouped}")
 }
