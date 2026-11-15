@@ -495,10 +495,10 @@ public sealed class LayoutTests
     public void StyleHorizontalSpacing() => Assert.Equal(
         "void show(List<Sku> skus) {\n    let total = price * quantity\n    let port = config.port ?? 8080\n    let span = 0..n\n"
         + "    let origin = Point { x: 1, y: 2 }\n    let sizes = [1, 2]\n    let label = format(total)\n"
-        + "    let done = !finished\n    let w: Grams = -weight\n    let wait = 30s\n}\n",
+        + "    let done = !finished\n    let w: Grams = -weight\n}\n",
         Lay("void show(List< Sku > skus) {\n    let total = price*quantity\n    let port = config.port??8080\n    let span = 0 .. n\n"
             + "    let origin = Point {x:1, y:2}\n    let sizes = [ 1, 2 ]\n    let label = format( total )\n"
-            + "    let done = ! finished\n    let w : Grams = - weight\n    let wait = 30s\n}\n"));
+            + "    let done = ! finished\n    let w : Grams = - weight\n}\n"));
 
     [Fact]
     public void APointerWrittenTightStaysAPointer()

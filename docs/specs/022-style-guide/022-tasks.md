@@ -75,10 +75,10 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - Files: `csharp/Bayan.Cli/Layout.cs`, `csharp/tests/Bayan.Tests/LayoutTests.cs`, `docs/bayan-style.md` (Do/Don't pairs for each rule, plus the doc tidy).
   - Covers: R3, R1.
   - After: T6b. Decisions from the user, 2026-11-15, after three Fable 5.2 passes.
-  - Done when each rule below has a `LayoutTests` case that fails when the rule is reverted, the T4 corpus and idempotence tests pass with 0 skips, and `Check` still holds (whitespace and newlines only):
+  - Done when each rule below has a `LayoutTests` case that fails when the rule is reverted, the T4 corpus and idempotence tests pass with 0 skips, and `Check` still holds (whitespace and newlines only). The break-tests are run by the writer and reported in its reply; a read-only gate accepts that table:
     - **D, break order.** An expression that does not fit breaks before every operator of its lowest precedence level, in `if`, `let` and `return` alike. A parenthesised group that fits stays on one line. While an operator break remains, nothing breaks inside `[ ]` or a call's argument list.
     - **Atoms.** Never break inside an index bracket or a unit literal, or before a `.member` that follows `]`.
-    - **Ternary ladder.** A ternary that does not fit breaks before `?` and before `:`, each one continuation in. At statement level the ladder applies only inside brackets: a line that starts with `?` or `:` would end the statement.
+    - **Ternary ladder.** A ternary that does not fit breaks before `?` and before `:`, each one continuation in. At statement level the ladder applies only inside brackets: a line that starts with `?` or `:` ends the statement in the grammar (plan-owner decision 2026-11-15, verified against the parser), so a bare `let`/`return` ternary breaks inside its operands instead.
     - **Chains.** A chain inside a ternary or an argument breaks only after the enclosing ternary or list has broken.
     - **A/B, outlier limit.** A line more than 8 columns wider than the next-widest in its alignment run (fields, properties, switch arms) leaves the run and stays unaligned. `=` defaults align within a run.
     - **C, `=>` bodies.** A header with a `=>` body that does not fit breaks after `=>` first. The parameters wrap only when the header alone still overflows.
@@ -86,7 +86,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - **Case bodies.** A multi-line `case` body is indented one level past `case` (the formatter puts it at `case`'s column today, at all 2,423 sites).
     - **Empty arm.** `default: {}` stays on one line.
     - **`///` in runs.** A `///` line does not end an alignment run. A blank line or a `//` line still does.
-  - Also in `docs/bayan-style.md`: merge "Unary operators and annotations" and "Generics and units" into "Horizontal spacing", fix the units Don't (identical to its Do today), and drop "Comment form". `StyleGuideExamplesTests` passes on every pair.
+  - Also in `docs/bayan-style.md`: merge "Unary operators and annotations" and "Generics and units" into "Horizontal spacing", fix the units Don't (identical to its Do today) or drop the units pair if no Don't reaches the formatter, and drop "Comment form". `StyleGuideExamplesTests` passes on every pair; a pair marked "Shown at width N" runs at width N (the test reads the marker; checked after T7 lands and is merged in).
   - Then, outside the task: measure `src/` at width 100 and 120 for the user's width decision.
 - [ ] **T7b Lints with one-time fixes (C#).**
   - Files: as T7 (`Parser.cs` lint pass, or the semantics layer where a lint needs types or constness, `DiagnosticCodes.cs`, `docs/diagnostics/BYN1077.md`–`BYN1080.md`, `tests/cases/diag/` cases, `docs/DIAGNOSTICS.md`).

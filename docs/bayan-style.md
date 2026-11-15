@@ -644,7 +644,6 @@ void show(List<Sku> skus) {
     let label = format(total)
     let done = !finished
     let w: Grams = -weight
-    let wait = 30s
 }
 ```
 
@@ -660,7 +659,6 @@ void show(List< Sku > skus) {
     let label = format( total )
     let done = ! finished
     let w : Grams = - weight
-    let wait = 30s
 }
 ```
 
