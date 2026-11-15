@@ -27,7 +27,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - `braces`, `maxLine` and a bool `trailingCommas` are errors that name the replacement (`braces`: no knob, `{` always ends the line; `maxLine`: `width`; bool `trailingCommas`: `.multiline`/`.never`);
     - an unknown lint name is an error;
     - `Manifest` exposes the values;
-    - the existing `dotnet test` manifest and format tests pass.
+    - the existing `dotnet test` manifest and format tests pass, except the self-hosted manifest-agreement rows (`SelfhostSemanticsT10Tests.ManifestMatchesCSharp`, `SelfhostEmitterHarnessTests.ManifestErrorsAgree`), which T3 brings back to green: they compare against `src/semantics/manifest.byn`, which T2 does not touch.
 - [ ] **T3 Manifest knobs (self-hosted).**
   - Files: `src/semantics/manifest.byn` and its parity tests.
   - Covers: R2.
