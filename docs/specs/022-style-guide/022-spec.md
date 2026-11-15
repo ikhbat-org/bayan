@@ -81,5 +81,7 @@ The 2026-11-04 proposal settled the rules and the knobs, but none of it is built
 - **Where lints run:** `bayan check` only, since `.suggestion` output on every build would bury real diagnostics. `.suggestion` renders with the existing `note` severity; no new severity enters the renderer, whose format is fixed by `DiagnosticRendererTests`.
 - **Engine:** a layout pass over the token stream and the source bytes, with comments recovered from the trivia between tokens. Newlines inside `( )` and `[ ]` are free, and leading `.`, `and` and `or` join (spec §5), so every break the rules need is one the grammar already allows. A full tree printer is not needed for R3, and it would be twice the port.
 
+- **No trailing comma in a parameter list.** The proposal (§3.4, C21) gives a wrapped parameter list a trailing comma, but the parser accepts one only in argument and literal lists (`BYN1003: expected a type` after `,` before `)`). Accepting it would be a grammar change in both parsers, so the formatter wraps a parameter list without one; argument lists and literals keep the trailing-comma rule. Whether the grammar should take it goes to `docs/bayan-questions.md` (T11).
+
 ## Open questions
 - none blocking. The two above are recorded and can be reversed without rework of the layout engine.

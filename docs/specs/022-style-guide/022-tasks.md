@@ -46,7 +46,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - Files: `Layout.cs`, `LayoutTests.cs`.
   - Covers: R3 (lists, chains, headers, conditions).
   - After: T4.
-  - Done when passes 3 and 4 work at `width`, with the author's trailing comma kept vertical and `.never` dropping commas, and a `{` is never on a line of its own. The proposal's §3.1, §3.4, §3.5 and §3.6 examples format to their After text, and T4's corpus and idempotence tests pass.
+  - Done when passes 3 and 4 work at `width`, with the author's trailing comma kept vertical and `.never` dropping commas, a wrapped parameter list getting no trailing comma (the grammar has none, spec Decisions), and a `{` is never on a line of its own. The proposal's §3.1, §3.4, §3.5 and §3.6 examples format to their After text, and T4's corpus and idempotence tests pass.
 - [ ] **T6 Layout: alignment runs (C#).**
   - Files: `Layout.cs`, `LayoutTests.cs`.
   - Covers: R3 (alignment).
