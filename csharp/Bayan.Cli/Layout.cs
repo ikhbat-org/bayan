@@ -110,6 +110,7 @@ internal static class Layout
     {
         var after = Lexer.Lex(new SourceText("layout", output)).Tokens.ToArray();
         if (!Significant(source, tokens).SequenceEqual(Significant(output, after))) return "the tokens changed";
+        if (!Adjacency(source, tokens).SequenceEqual(Adjacency(output, after))) return "the spacing the parser reads changed";
         var bom = output.Length >= 3 && output[0] == 0xEF && output[1] == 0xBB && output[2] == 0xBF ? 3 : 0;
         var afterGaps = Gaps(output, after, bom);
         if (afterGaps is null || !Comments(source, gaps).SequenceEqual(Comments(output, afterGaps))) return "the comments changed";
@@ -123,6 +124,46 @@ internal static class Layout
         tokens.Where((t, i) => !(t.Kind == TokenKind.Comma && i + 1 < tokens.Length
                                  && tokens[i + 1].Kind is TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace))
             .Select(t => (t.Kind, System.Text.Encoding.UTF8.GetString(bytes, t.Start, t.Length)));
+
+    /// <summary>
+    /// Whether a gap goes before each significant token, at the positions where the parser reads it, and null elsewhere.
+    /// Layout keeps the gap at those positions (<see cref="TriviaMatters"/>); this catches a rule that would not.
+    /// </summary>
+    private static IEnumerable<bool?> Adjacency(byte[] bytes, Token[] tokens) =>
+        Enumerable.Range(0, tokens.Length)
+            .Where(i => !(tokens[i].Kind == TokenKind.Comma && i + 1 < tokens.Length
+                          && tokens[i + 1].Kind is TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace))
+            .Select(i => TriviaMatters(bytes, tokens, i) ? tokens[i].HasTriviaBefore : (bool?)null);
+
+    /// <summary>
+    /// Whether the parser branches on the gap before token <paramref name="i"/> (<c>HasTriviaBefore</c> in Parser.cs):
+    /// <list type="bullet">
+    /// <item><c>&gt;</c> then <c>&gt;</c> or <c>&gt;=</c> with no gap is a shift, <c>&gt;&gt;</c> or <c>&gt;&gt;=</c> (<c>AtShiftRight</c>, <c>IsAssignOp</c>, the binary-operator table);</item>
+    /// <item><c>..</c> then <c>.</c> with no gap is a rest input, <c>T... name</c> (parameter lists);</item>
+    /// <item>a <c>*</c> with no gap after a type is a pointer, <c>u8*</c>, and a type scan also wants a gap after the
+    /// <c>*</c> run (<c>ScanType</c>, <c>ParseType</c>): <c>u8* p</c> is a declaration, <c>a*b</c> a product;</item>
+    /// <item>a numeric suffix with no gap belongs to its literal, <c>30s</c> (<c>ParsePrimary</c>);</item>
+    /// <item><c>unlikely</c> followed by a gap is the branch hint of <c>if unlikely (a)…</c>, not a call (<c>AtUnlikely</c>).</item>
+    /// </list>
+    /// The two other reads of <c>HasTriviaBefore</c> in Parser.cs only build a fix's text. The lexer keeps no state between
+    /// tokens, so its adjacency shows in the tokens themselves, which <see cref="Check"/> compares; newlines the parser
+    /// reads (<c>HasNewlineBefore</c>) are kept by the break and join rules and checked by the diagnostics.
+    /// </summary>
+    private static bool TriviaMatters(byte[] bytes, Token[] tokens, int i)
+    {
+        if (i == 0 || i >= tokens.Length) return false;
+        var (before, kind) = (tokens[i - 1].Kind, tokens[i].Kind);
+        return before == TokenKind.Greater && kind is TokenKind.Greater or TokenKind.GreaterEquals
+            || before == TokenKind.DotDot && kind == TokenKind.Dot
+            || kind == TokenKind.Star && (TypeEnd(before) || before == TokenKind.Star)
+            || before == TokenKind.Star && !tokens[i - 1].HasTriviaBefore
+            || kind == TokenKind.NumericSuffix
+            || before == TokenKind.Identifier && bytes.AsSpan(tokens[i - 1].Start, tokens[i - 1].Length).SequenceEqual("unlikely"u8);
+    }
+
+    /// <summary>A token a type can end with, so that a <c>*</c> after it may make a pointer.</summary>
+    private static bool TypeEnd(TokenKind kind) =>
+        kind is TokenKind.Identifier or TokenKind.Greater or TokenKind.Question or TokenKind.CloseBracket || kind.IsContextualKeyword();
 
     private static IEnumerable<string> Comments(byte[] bytes, Gap[] gaps) =>
         gaps.SelectMany(g => g.Items).Where(x => x.IsComment)
@@ -226,7 +267,7 @@ internal static class Layout
 
         // ── Indentation (pass 5) ──────────────────────────────────────────────────────────
 
-        /// <summary>The spaces and tabs that start the original line of token <paramref name="i"/>.</summary>
+        /// <summary>The columns of the spaces and tabs that start the original line of token <paramref name="i"/>; a tab is a level.</summary>
         private int OriginalIndent(int i)
         {
             var at = tokens[i].Start;
@@ -234,7 +275,7 @@ internal static class Layout
             while (at > bom && source[at - 1] is (byte)' ' or (byte)'\t')
             {
                 at--;
-                n++;
+                n += source[at] == '\t' ? options.Indent : 1;
             }
             return n;
         }
@@ -891,10 +932,8 @@ internal static class Layout
         private bool Space(int i, int from)
         {
             var written = tokens[i].Start > from;
-            var (before, kind) = (Kind(i - 1), Kind(i));
-            // The parser reads these pairs by their adjacency: `>>`, `>>=`, `T...`.
-            if (before == TokenKind.Greater && kind is TokenKind.Greater or TokenKind.GreaterEquals && !written) return false;
-            if (before is TokenKind.DotDot && kind == TokenKind.Dot) return written;
+            // The parser reads the gap here (`>>`, `T...`, `u8*`, `30s`, `unlikely (a)`): keep it as written.
+            if (TriviaMatters(source, tokens, i)) return written;
             var after = After(i - 1);
             var ahead = Before(i);
             bool space;

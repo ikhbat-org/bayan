@@ -82,6 +82,7 @@ internal static class Format
                 var real = RealPath(file);
                 var original = File.ReadAllBytes(real);
                 var layout = new LayoutOptions(
+                    Indent: manifest?.Indent ?? 4,
                     Width: manifest?.Width ?? 120,
                     TrailingCommasMultiline: (manifest?.TrailingCommas ?? TrailingCommaStyle.Multiline) == TrailingCommaStyle.Multiline);
                 var formatted = FormatFile(file, original, booleans, primitives, declared, stderr, out var unfixable, layout);

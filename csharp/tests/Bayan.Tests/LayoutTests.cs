@@ -386,6 +386,40 @@ public sealed class LayoutTests
             Lay(source));
     }
 
+    // ── Gaps the parser reads, knobs, tabs (review fixes of the T4 land) ──
+
+    [Fact]
+    public void AnUnlikelyHintKeepsItsSpace()
+    {
+        const string source = "void main() {\n    if unlikely (a).length > 0 {\n        print(1)\n    }\n}\n";
+        Assert.Equal(source, Lay(source));
+    }
+
+    [Fact]
+    public void GapsTheParserReadsAreKeptAsWritten()
+    {
+        const string source = "let s = x >> 2\nlet d = 30s\nlet p = a*b\nlet q = a * b\n";
+        Assert.Equal(source, Lay(source));
+    }
+
+    [Fact]
+    public void TheManifestsIndentWidthAndCommasReachLayout()
+    {
+        var file = Fresh("knobs", "void main() {\n    let t = g(argumentNumberOne, argumentNumberTwo)\n    let s = f(\n        a,\n        b,\n    )\n}\n");
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"),
+            "Package { name: \"local/t\", version: \"0.1.0\", style: Style { indent: 2, width: 30, trailingCommas: .never } }\n");
+        var (exit, _, stderr) = Run("format", file);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.DoesNotContain("skipped", stderr);
+        Assert.Equal("void main() {\n  let t = g(\n    argumentNumberOne,\n    argumentNumberTwo\n  )\n  let s = f(a, b)\n}\n",
+            File.ReadAllText(file));
+    }
+
+    [Fact]
+    public void ATabIndentedRequiresLineCountsATabAsALevel() => Assert.Equal(
+        "struct S {\n    i32 x\n        requires x > 0\n}\n",
+        Lay("struct S {\n    i32 x\n\t\trequires x > 0\n}\n"));
+
     // ── Safety net ──
 
     [Fact]
@@ -401,6 +435,7 @@ public sealed class LayoutTests
     [InlineData("tokens", "let a = 1\nlet b = 2\n", "let a = 1\nlet b = 3\n", "the tokens changed")]
     [InlineData("diagnostics", "let a = 1\nlet b = 2\n", "let a = 1 let b = 2\n", "the diagnostics changed")]
     [InlineData("comments", "let a = 1 // one\n", "let a = 1 // two\n", "the comments changed")]
+    [InlineData("adjacency", "let a = 1\nlet b = x >> 2\n", "let a = 1\nlet b = x > > 2\n", "the spacing the parser reads changed")]
     public void ADifferenceKeepsTheInput(string name, string source, string broken, string reason)
     {
         Layout.OutputHook = _ => Encoding.UTF8.GetBytes(broken);
@@ -439,13 +474,21 @@ public sealed class LayoutTests
         var twice = once is null ? null : Format.FormatFile(file, once, BooleanStyle.Symbols, PrimitiveStyle.Sized, new HashSet<string>(), stderr, out _);
         Assert.DoesNotContain("layout skipped", stderr.ToString());
         Assert.DoesNotContain("still changing", stderr.ToString());
+        // Layout keeps every token but trailing commas, whatever its safety net says (R4); newlines are not tokens.
+        var (laidOut, _) = Layout.Apply(source, new LayoutOptions());
+        Assert.Equal(Tokens(source), Tokens(laidOut));
         if (once is null) return;
         Assert.NotNull(twice);
         Assert.Equal(Encoding.UTF8.GetString(once), Encoding.UTF8.GetString(twice));
-        Assert.Equal(Tokens(once), Tokens(twice));
     }
 
-    private static List<(TokenKind, string)> Tokens(byte[] bytes) =>
-        [.. Lexer.Lex(new SourceText("corpus", bytes)).Tokens.ToArray()
+    /// <summary>The tokens as kind and text, less each trailing comma (a <c>,</c> before <c>)</c>, <c>]</c> or <c>}</c>).</summary>
+    private static List<(TokenKind, string)> Tokens(byte[] bytes)
+    {
+        var tokens = Lexer.Lex(new SourceText("corpus", bytes)).Tokens.ToArray();
+        return [.. tokens
+            .Where((t, i) => !(t.Kind == TokenKind.Comma && i + 1 < tokens.Length
+                               && tokens[i + 1].Kind is TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace))
             .Select(t => (t.Kind, Encoding.UTF8.GetString(bytes, t.Start, t.Length)))];
+    }
 }
