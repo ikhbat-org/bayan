@@ -154,6 +154,82 @@ union error QuoteError {
 }
 ```
 
+### Blocks and bodies
+
+A block with statements always spans lines; only a `=>` body stays on one line.
+
+Do:
+
+```bayan
+public void promote(ref this, to Tier next) {
+    tier = next
+}
+```
+
+Don't:
+
+```bayan
+public void promote(ref this, to Tier next) { tier = next }
+```
+
+### Attributes
+
+An attribute goes on its own line above a type or function, and inline before a field or parameter.
+
+Do:
+
+```bayan
+@derive(Json)
+struct Note {
+    @json(name: "note") string text
+}
+```
+
+Don't:
+
+```bayan
+@derive(Json) struct Note {
+    @json(name: "note") string text
+}
+```
+
+### Member groups
+
+One blank line separates member groups (fields, `states`, properties, static members, methods) and each method from the next.
+
+Do:
+
+```bayan
+struct Cart {
+    List<Line> lines
+
+    public i32 count => lines.length
+
+    public void add(ref this, Line line) {
+        lines.append(line)
+    }
+
+    public void clear(ref this) {
+        lines = []
+    }
+}
+```
+
+Don't:
+
+```bayan
+struct Cart {
+    List<Line> lines
+    public i32 count => lines.length
+    public void add(ref this, Line line) {
+        lines.append(line)
+    }
+    public void clear(ref this) {
+        lines = []
+    }
+}
+```
+
 ### Wrapped parameter lists and `) {`
 
 `{` always ends the line: a parameter list that does not fit takes one parameter per line with a trailing comma and closes with `) {` (with any clauses that fit); there is no own-line `{` and no `braces` knob.
@@ -314,6 +390,98 @@ let span = 0 .. n
 let origin = Point {x:1, y:2}
 let sizes = [ 1, 2 ]
 let label = format( total )
+```
+
+### Unary operators and annotations
+
+Unary symbols are tight, and an annotation or label has no space before `:` and one after.
+
+Do:
+
+```bayan
+let done = !finished
+let w: Grams = -weight
+```
+
+Don't:
+
+```bayan
+let done = ! finished
+let w : Grams = - weight
+```
+
+### Generics, pointers and units
+
+Generics, pointers and units are tight.
+
+Do:
+
+```bayan
+void fill(u8* buffer, List<Sku> skus) {
+    let wait = 30s
+}
+```
+
+Don't:
+
+```bayan
+void fill(u8 * buffer, List< Sku > skus) {
+    let wait = 30s
+}
+```
+
+### Interpolation holes
+
+An interpolation hole is spaced like named arguments.
+
+Do:
+
+```bayan
+let tag = $"{n, as: .hex}"
+```
+
+Don't:
+
+```bayan
+let tag = $"{n ,as:.hex}"
+```
+
+### Comments
+
+A comment is `// ` followed by text, and trailing comments align within a run.
+
+Do:
+
+```bayan
+struct Server {
+    i64  port // default 8080
+    bool tls  // on by default
+}
+```
+
+Don't:
+
+```bayan
+struct Server {
+    i64  port // default 8080
+    bool tls // on by default
+}
+```
+
+### Comment form
+
+A comment starts with `// ` and a space.
+
+Do:
+
+```bayan
+// default port
+```
+
+Don't:
+
+```bayan
+//default port
 ```
 
 ### Files
@@ -526,8 +694,67 @@ Don't:
 
 ```bayan
 void process(Order order) {
-    // validate, charge, pack, ship and notify, all inline in one body of more than 60 lines
-    validate(order)
+    audit(order, step: 1)
+    audit(order, step: 2)
+    audit(order, step: 3)
+    audit(order, step: 4)
+    audit(order, step: 5)
+    audit(order, step: 6)
+    audit(order, step: 7)
+    audit(order, step: 8)
+    audit(order, step: 9)
+    audit(order, step: 10)
+    audit(order, step: 11)
+    audit(order, step: 12)
+    audit(order, step: 13)
+    audit(order, step: 14)
+    audit(order, step: 15)
+    audit(order, step: 16)
+    audit(order, step: 17)
+    audit(order, step: 18)
+    audit(order, step: 19)
+    audit(order, step: 20)
+    audit(order, step: 21)
+    audit(order, step: 22)
+    audit(order, step: 23)
+    audit(order, step: 24)
+    audit(order, step: 25)
+    audit(order, step: 26)
+    audit(order, step: 27)
+    audit(order, step: 28)
+    audit(order, step: 29)
+    audit(order, step: 30)
+    audit(order, step: 31)
+    audit(order, step: 32)
+    audit(order, step: 33)
+    audit(order, step: 34)
+    audit(order, step: 35)
+    audit(order, step: 36)
+    audit(order, step: 37)
+    audit(order, step: 38)
+    audit(order, step: 39)
+    audit(order, step: 40)
+    audit(order, step: 41)
+    audit(order, step: 42)
+    audit(order, step: 43)
+    audit(order, step: 44)
+    audit(order, step: 45)
+    audit(order, step: 46)
+    audit(order, step: 47)
+    audit(order, step: 48)
+    audit(order, step: 49)
+    audit(order, step: 50)
+    audit(order, step: 51)
+    audit(order, step: 52)
+    audit(order, step: 53)
+    audit(order, step: 54)
+    audit(order, step: 55)
+    audit(order, step: 56)
+    audit(order, step: 57)
+    audit(order, step: 58)
+    audit(order, step: 59)
+    audit(order, step: 60)
+    audit(order, step: 61)
 }
 ```
 
