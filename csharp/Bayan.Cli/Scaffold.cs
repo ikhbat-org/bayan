@@ -5,7 +5,7 @@ using Bayan.Syntax.Packages;
 
 namespace Bayan.Cli;
 
-public enum Layout { App, Lib, Script }
+public enum ProjectLayout { App, Lib, Script }
 
 /// <summary>
 /// <c>bayan new</c> and <c>bayan init</c>: an app, library or script that builds and passes its
@@ -13,7 +13,7 @@ public enum Layout { App, Lib, Script }
 /// </summary>
 public static class Scaffold
 {
-    private sealed record Options(string? Target, Layout Layout, bool Git, bool CiGithub);
+    private sealed record Options(string? Target, ProjectLayout Layout, bool Git, bool CiGithub);
 
     public static int New(string[] args, TextWriter stdout, TextWriter stderr)
     {
@@ -26,7 +26,7 @@ public static class Scaffold
         var full = Path.GetFullPath(o.Target).TrimEnd(Path.DirectorySeparatorChar);
         var dirName = Path.GetFileName(full);
         if (Names(dirName, o.Layout, stderr) is not { } names) return CliApp.ExitUsage;
-        if (o.Layout == Layout.Script)
+        if (o.Layout == ProjectLayout.Script)
         {
             var file = Path.Combine(Path.GetDirectoryName(full)!, names.Kebab + ".byn");
             var shown = Path.IsPathRooted(o.Target) ? file : Path.GetRelativePath(Environment.CurrentDirectory, file);
@@ -47,11 +47,11 @@ public static class Scaffold
         }
         Directory.CreateDirectory(full);
         Write(full, Files(names, o), stdout: null);
-        stdout.WriteLine($"created {(o.Layout == Layout.Lib ? "library" : "app")} `local/{names.Kebab}` in `{o.Target}`");
+        stdout.WriteLine($"created {(o.Layout == ProjectLayout.Lib ? "library" : "app")} `local/{names.Kebab}` in `{o.Target}`");
         InitGit(full, o, stdout);
         stdout.WriteLine();
         stdout.WriteLine($"  cd {o.Target}");
-        if (o.Layout == Layout.App) stdout.WriteLine("  bayan run");
+        if (o.Layout == ProjectLayout.App) stdout.WriteLine("  bayan run");
         stdout.WriteLine("  bayan test");
         return CliApp.ExitOk;
     }
@@ -72,21 +72,21 @@ public static class Scaffold
         }
         if (Names(Path.GetFileName(dir), o.Layout, stderr) is not { } names) return CliApp.ExitUsage;
         Write(dir, Files(names, o), stdout);
-        if (o.Layout != Layout.Script) InitGit(dir, o, stdout);
+        if (o.Layout != ProjectLayout.Script) InitGit(dir, o, stdout);
         return CliApp.ExitOk;
     }
 
     private static Options? ParseOptions(string[] args, string command, TextWriter stderr)
     {
         string? target = null;
-        var layout = Layout.App;
+        var layout = ProjectLayout.App;
         bool git = true, ci = false;
         for (var i = 0; i < args.Length; i++)
         {
             switch (args[i])
             {
-                case "--lib": layout = Layout.Lib; break;
-                case "--script": layout = Layout.Script; break;
+                case "--lib": layout = ProjectLayout.Lib; break;
+                case "--script": layout = ProjectLayout.Script; break;
                 case "--vcs" when i + 1 < args.Length && args[i + 1] is "git" or "none":
                     git = args[++i] == "git";
                     break;
@@ -112,7 +112,7 @@ public static class Scaffold
     /// A directory name may be kebab-case (<c>my-app</c>) or camelCase (<c>myApp</c>); the package
     /// name is its kebab-case form and a library's module its camelCase form.
     /// </summary>
-    private static ProjectNames? Names(string dirName, Layout layout, TextWriter stderr)
+    private static ProjectNames? Names(string dirName, ProjectLayout layout, TextWriter stderr)
     {
         var camel = dirName.Length > 0 && char.IsAsciiLetterLower(dirName[0]) && dirName.All(char.IsAsciiLetterOrDigit);
         var kebab = camel ? Manifest.KebabOf(dirName) : dirName;
@@ -123,7 +123,7 @@ public static class Scaffold
             return null;
         }
         var module = Manifest.CamelOf(kebab);
-        if (layout == Layout.Lib && Keywords.Lookup(Encoding.UTF8.GetBytes(module)) != TokenKind.Identifier)
+        if (layout == ProjectLayout.Lib && Keywords.Lookup(Encoding.UTF8.GetBytes(module)) != TokenKind.Identifier)
         {
             stderr.WriteLine($"bayan: `{module}` is a keyword, so `import {module}` couldn't name the library");
             stderr.WriteLine($"  help: pick another name, e.g. `{kebab}-lib`");
@@ -191,7 +191,7 @@ public static class Scaffold
     private static SortedDictionary<string, string> Files(ProjectNames n, Options o)
     {
         var files = new SortedDictionary<string, string>(StringComparer.Ordinal);
-        if (o.Layout == Layout.Script)
+        if (o.Layout == ProjectLayout.Script)
         {
             files[n.Kebab + ".byn"] = """
                 #!/usr/bin/env bayan
@@ -202,7 +202,7 @@ public static class Scaffold
                 """;
             return files;
         }
-        var lib = o.Layout == Layout.Lib;
+        var lib = o.Layout == ProjectLayout.Lib;
         files["package.byn"] = $$"""
             Package {
                 name: "local/{{n.Kebab}}",      // `local/` until published under a verified namespace
