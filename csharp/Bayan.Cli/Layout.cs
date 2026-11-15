@@ -575,12 +575,30 @@ internal static class Layout
                     if (IsCloser(Kind(c)) && _match[c] >= 0 && Kind(c - 1) == TokenKind.Comma && gaps[c - 1].Items.Count == 0
                         && CommaSafe(_match[c], c) && Editable(c - 1, c))
                         _dropComma[c - 1] = true;
+            // A group breaks only before its own operators: the author's break after its `(` or before its `)` goes.
+            for (var o = 1; o < tokens.Length; o++)
+            {
+                if (Kind(o) != TokenKind.OpenParen || _match[o] <= o + 1 || CallLike(o - 1) || Kind(o - 1) == TokenKind.Greater || InPattern(o))
+                    continue;
+                var c = _match[o];
+                if (Items(o, c).Any(k => Kind(k) == TokenKind.Comma)) continue;
+                foreach (var k in new[] { o + 1, c })
+                    if (_lineStart[k] && !gaps[k].Items.Any(x => x.IsComment) && Editable(k, k))
+                        _lineStart[k] = false;
+            }
             for (var o = 0; o < tokens.Length; o++)
             {
                 if (Kind(o) is not (TokenKind.OpenParen or TokenKind.OpenBracket) || _match[o] < o) continue;
                 var c = _match[o];
                 if (!Joinable(o, c)) continue;
                 if (TryJoin(o, c, Enumerable.Range(o + 1, c - o))) o = c;
+                // A header with a `=>` body breaks after the `=>` before its parameters wrap.
+                else if (HeaderArrow(c) is var arrow and > 0 && !_lineStart[arrow + 1] && Editable(arrow + 1, arrow + 1))
+                {
+                    _lineStart[arrow + 1] = true;
+                    if (TryJoin(o, c, Enumerable.Range(o + 1, c - o))) o = c;
+                    else _lineStart[arrow + 1] = false;
+                }
             }
             foreach (var chain in Chains())
             {
@@ -588,8 +606,37 @@ internal static class Layout
                 var only = true;
                 for (var k = chain.Start + 1; k <= chain.End && only; k++)
                     if (_lineStart[k] && (!chain.Dots.Contains(k) || gaps[k].Items.Any(x => x.IsComment))) only = false;
-                if (only) TryJoin(chain.Start, chain.End, chain.Dots);
+                if (!only) continue;
+                // A chain in a ternary that has not broken joins: the ternary breaks first.
+                if (InUnbrokenTernary(chain.Start))
+                    foreach (var d in chain.Dots) _lineStart[d] = false;
+                else TryJoin(chain.Start, chain.End, chain.Dots);
             }
+        }
+
+        /// <summary>The header <c>=&gt;</c> on the line after the parameter list closed at <paramref name="c"/>, or -1.</summary>
+        private int HeaderArrow(int c)
+        {
+            for (var k = c + 1; k < tokens.Length && !_lineStart[k]; k++)
+            {
+                if (_headerArrow[k]) return k;
+                if (IsOpener(Kind(k)) && _match[k] > k) k = _match[k];
+            }
+            return -1;
+        }
+
+        /// <summary>Whether token <paramref name="i"/> is in an operand of a ternary inside <c>( )</c> or <c>[ ]</c> whose <c>?</c> has not broken.</summary>
+        private bool InUnbrokenTernary(int i)
+        {
+            var o = _enclosing[i];
+            if (o < 0 || Kind(o) is not (TokenKind.OpenParen or TokenKind.OpenBracket)) return false;
+            for (var k = i - 1; k > o; k--)
+            {
+                if (IsCloser(Kind(k)) && _match[k] >= 0 && _match[k] < k) k = _match[k];
+                else if (Kind(k) == TokenKind.Comma) return false;
+                else if (Kind(k) == TokenKind.Question && Trivia(k)) return !_lineStart[k];
+            }
+            return false;
         }
 
         private bool Joinable(int o, int c)

@@ -538,7 +538,7 @@ let inInstance = host != -1 && !c.fns[host].isStatic && (
 
 ### Indexes and members stay whole
 
-A line never breaks inside an index bracket or a unit literal, or before a `.member` that follows `]`. Shown at width 50.
+A line never breaks inside an index bracket or a unit literal, or before a `.member` that follows `]`. Shown at width 56.
 
 Do:
 
@@ -617,13 +617,9 @@ Don't:
 
 ```bayan
 const t: u32[8] = [
-    0x0041,
-    0x005A,
-    0x005F,
-    0x005F,
+    0x0041, 0x005A, 0x005F, 0x005F,
     0x0061,
-    0x007A,
-    0x00AA,
+    0x007A, 0x00AA,
     0x00AA,
 ]
 ```

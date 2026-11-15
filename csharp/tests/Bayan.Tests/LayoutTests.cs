@@ -596,6 +596,27 @@ public sealed class LayoutTests
         Assert.Equal(source, Lay(source, new LayoutOptions(Width: 100)));
     }
 
+    // The author's break after a group's `(` goes: the group breaks before its own operators.
+    [Fact]
+    public void AnAuthorsGroupBreakGivesWayToItsOperators() => Assert.Equal(
+        "let inInstance = host != -1\n    && !c.fns[host].isStatic\n    && (c.fns[host].kind == .method\n        || c.fns[host].kind == .getter)\n",
+        Lay("let inInstance = host != -1 && !c.fns[host].isStatic && (\n    c.fns[host].kind == .method || c.fns[host].kind == .getter)\n",
+            new LayoutOptions(Width: 50)));
+
+    // The author's broken chain in a ternary joins, and the ternary breaks first.
+    [Fact]
+    public void AnAuthorsChainInATernaryJoinsForTheLadder() => Assert.Equal(
+        "shown.append(\n    compiled.manifest is not null\n        ? Path.relative(compiled.root, to: output).replaced(\"\\\\\", by: \"/\")\n" +
+        "        : output,\n)\n",
+        Lay("shown.append(\n    compiled.manifest is not null ? Path\n        .relative(compiled.root, to: output)\n        .replaced(\"\\\\\", by: \"/\") : output,\n)\n",
+            new LayoutOptions(Width: 80)));
+
+    // The author's wrapped parameters join when the header fits once the `=>` body moves to the next line.
+    [Fact]
+    public void AnAuthorsWrappedParametersJoinBeforeTheArrowBreaks() => Assert.Equal(
+        "i64 total(i64 firstArgument, i64 secondArgument) =>\n    firstArgument + secondArgument\n",
+        Lay("i64 total(\n    i64 firstArgument,\n    i64 secondArgument\n) => firstArgument + secondArgument\n", new LayoutOptions(Width: 60)));
+
     [Fact]
     public void ATernaryInAnArgumentBreaksBeforeQuestionAndColon() => Assert.Equal(
         "shown.append(\n    compiled.manifest is not null\n        ? Path.relative(compiled.root, to: output).replaced(\"\\\\\", by: \"/\")\n" +
