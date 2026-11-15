@@ -44,7 +44,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - the existing `FormatTests` and `CliTests` still pass, with expected-file updates only where layout now changes the output, each one checked by hand.
   - Expected red until T8: the self-hosted format parity rows (`SelfhostDriverStage2FormatTests.SourcesFormatCheckAsCliApp`, `SelfhostDriverT1Tests.FormatAsCliApp`), since the self-hosted formatter has no layout until T8 ports it. The branch merges into `dev` only after T8.
   - The review fixes F1–F4 of the T3/T4 lands are listed under T5 and gated with it.
-- [ ] **T5 Layout: list wrapping, trailing commas, `) {`, header clauses, wrapped conditions, chains (C#).**
+- [x] **T5 Layout: list wrapping, trailing commas, `) {`, header clauses, wrapped conditions, chains (C#).**
   - Files: `Layout.cs`, `LayoutTests.cs`.
   - Covers: R3 (lists, chains, headers, conditions).
   - After: T4.
@@ -80,7 +80,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - After: T8, T9.
   - Done when `bayan format --check src lib examples` exits 0 with both drivers, `SelfhostDriverTests` (the stage-3 fixed point and `SourcesAreFormatted`) and `BootstrapTests` pass, and `git blame --ignore-revs-file .git-blame-ignore-revs` shows the authors from before.
 - [ ] **T11 Docs and laws.**
-  - Files: `docs/bayan-spec.md` §19.2 and the §21.2 `bayan format` row, `docs/STATUS.md`, `CHANGELOG.md`, `docs/laws/` (two `proposed` laws: format idempotent and meaning-preserving; format parity), `docs/bayan-questions.md` (the unattended decisions and the `functions.length` bound), the progress log.
+  - Files: `docs/bayan-spec.md` §19.2 and the §21.2 `bayan format` row, `docs/STATUS.md`, `CHANGELOG.md`, `docs/laws/` (two `proposed` laws: format idempotent and meaning-preserving; format parity), `docs/bayan-questions.md` (the unattended decisions, the `functions.length` bound, the parameter-list trailing comma, and the proposal §3.1 After: its blank lines between paragraphs cannot come from the formatter, which never inserts one, and its header wraps only below width 120, so T5's test runs it at width 100), the progress log.
   - Covers: R9.
   - After: T10.
   - Done when `check.sh` passes, `laws-check.js --run` reports no failing law, and no "partial in 0.3" tag remains for what 022 built.
