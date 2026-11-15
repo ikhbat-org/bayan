@@ -105,22 +105,22 @@ Single-line switch arms form a run and align their `=>`; a multi-line arm ends t
 Do:
 
 ```bayan
-let label = switch order {
-    .placed    => "Awaiting payment"
-    .paid p    => $"Paid via {p.payment.method}"
-    .shipped s => $"Shipped, tracking {s.tracking}"
-    .canceled  => "Canceled"
+let label = order switch {
+    .placed    => "Awaiting payment",
+    .paid p    => $"Paid via {p.payment.method}",
+    .shipped s => $"Shipped, tracking {s.tracking}",
+    .canceled  => "Canceled",
 }
 ```
 
 Don't:
 
 ```bayan
-let label = switch order {
-    .placed => "Awaiting payment"
-    .paid p => $"Paid via {p.payment.method}"
-    .shipped s => $"Shipped, tracking {s.tracking}"
-    .canceled => "Canceled"
+let label = order switch {
+    .placed => "Awaiting payment",
+    .paid p => $"Paid via {p.payment.method}",
+    .shipped s => $"Shipped, tracking {s.tracking}",
+    .canceled => "Canceled",
 }
 ```
 
@@ -232,7 +232,7 @@ struct Cart {
 
 ### Wrapped parameter lists and `) {`
 
-`{` always ends the line: a parameter list that does not fit takes one parameter per line with a trailing comma and closes with `) {` (with any clauses that fit); there is no own-line `{` and no `braces` knob.
+`{` always ends the line: a parameter list that does not fit takes one parameter per line and closes with `) {` (with any clauses that fit); there is no own-line `{` and no `braces` knob.
 
 Do:
 
@@ -244,7 +244,7 @@ Booking book(
     Passenger passenger,
     Seat preferredSeat,
     Meal meal,
-    Insurance insurance,
+    Insurance insurance
 ) uses net, suspend fails BookingError {
     return try carrier.quote(route, on: date)
 }
@@ -326,7 +326,7 @@ let reminders = orders.where(it.placedAt < cutoff and it.total > minimum).sorted
 
 ### Argument lists and literals
 
-A list that fits stays on one line; otherwise it takes one item per line, a trailing comma and the closing bracket on its own line, indented one level and never aligned to the opening parenthesis.
+A list that fits stays on one line; otherwise it takes one item per line, a trailing comma (not in a parameter list, whose grammar has none) and the closing bracket on its own line, indented one level and never aligned to the opening parenthesis.
 
 Do:
 
@@ -373,23 +373,27 @@ Binary operators, `=>`, `??` and `=` take one space on each side; ranges, calls,
 Do:
 
 ```bayan
-let total = price * quantity
-let port = config.port ?? 8080
-let span = 0..n
-let origin = Point { x: 1, y: 2 }
-let sizes = [1, 2]
-let label = format(total)
+void show() {
+    let total = price * quantity
+    let port = config.port ?? 8080
+    let span = 0..n
+    let origin = Point { x: 1, y: 2 }
+    let sizes = [1, 2]
+    let label = format(total)
+}
 ```
 
 Don't:
 
 ```bayan
-let total = price*quantity
-let port = config.port??8080
-let span = 0 .. n
-let origin = Point {x:1, y:2}
-let sizes = [ 1, 2 ]
-let label = format( total )
+void show() {
+    let total = price*quantity
+    let port = config.port??8080
+    let span = 0 .. n
+    let origin = Point {x:1, y:2}
+    let sizes = [ 1, 2 ]
+    let label = format( total )
+}
 ```
 
 ### Unary operators and annotations
@@ -399,25 +403,29 @@ Unary symbols are tight, and an annotation or label has no space before `:` and 
 Do:
 
 ```bayan
-let done = !finished
-let w: Grams = -weight
+void show() {
+    let done = !finished
+    let w: Grams = -weight
+}
 ```
 
 Don't:
 
 ```bayan
-let done = ! finished
-let w : Grams = - weight
+void show() {
+    let done = ! finished
+    let w : Grams = - weight
+}
 ```
 
-### Generics, pointers and units
+### Generics and units
 
-Generics, pointers and units are tight.
+Generic arguments and unit literals are tight.
 
 Do:
 
 ```bayan
-void fill(u8* buffer, List<Sku> skus) {
+void fill(List<Sku> skus) {
     let wait = 30s
 }
 ```
@@ -425,7 +433,7 @@ void fill(u8* buffer, List<Sku> skus) {
 Don't:
 
 ```bayan
-void fill(u8 * buffer, List< Sku > skus) {
+void fill(List< Sku > skus) {
     let wait = 30s
 }
 ```
