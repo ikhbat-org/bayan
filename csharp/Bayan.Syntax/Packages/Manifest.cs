@@ -54,6 +54,10 @@ public sealed class Manifest
         ("nesting.depth", LintSeverity.Suggestion),
         ("functions.length", LintSeverity.None),
         ("conditions.named", LintSeverity.Suggestion),
+        ("sections.banner", LintSeverity.Suggestion),
+        ("conditions.patterns", LintSeverity.Suggestion),
+        ("literals.empty", LintSeverity.Suggestion),
+        ("optionals.bind", LintSeverity.Suggestion),
     ];
 
     /// <summary>Fields of <c>Grammar</c>, the grammar checker's project dictionary (HANDOFF round 3 §12, J85).</summary>

@@ -363,6 +363,14 @@ public static class DiagnosticCodes
     public static readonly DiagnosticDescriptor NestingDepth = Note("BYN1075", "blocks nested more than 4 deep; flatten them with early exits");
     // target: 09xx lint
     public static readonly DiagnosticDescriptor FunctionsLength = Note("BYN1076", "this function body is {0} lines; split it into named steps");
+    // target: 49xx lint
+    public static readonly DiagnosticDescriptor SectionsBanner = Note("BYN1077", "a banner comment ends at column {0}; fill it with `─` to column {1}");
+    // target: 19xx lint
+    public static readonly DiagnosticDescriptor ConditionsPatterns = Note("BYN1078", "`{0}` is tested against constants {1} times; write one pattern");
+    // target: 19xx lint
+    public static readonly DiagnosticDescriptor LiteralsEmpty = Note("BYN1079", "the type is known from the target; write `{0}`");
+    // target: 19xx lint
+    public static readonly DiagnosticDescriptor OptionalsBind = Note("BYN1080", "`while ({0} is {{ }} {1})` can be `while let`");
     public static readonly DiagnosticDescriptor NumberAgreement = Warning("BYN5104", "`{0}` holds a collection; name it with a plural, `{1}`");
     /// <summary>BYN5104's second message form, for a plural name on one value; registered once, as <see cref="NumberAgreement"/>.</summary>
     public static readonly DiagnosticDescriptor NumberAgreementOne = new("BYN5104", Severity.Warning, "`{0}` holds one `{1}`; name it with a singular noun");
