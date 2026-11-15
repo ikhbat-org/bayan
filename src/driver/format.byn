@@ -91,6 +91,7 @@ i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
         var booleans = semantics.BooleanStyle.symbols
         var primitives = semantics.PrimitiveStyle.sized
         var declared: Map<string, bool> = []
+        var layout = LayoutOptions {}
         if (package is { } found) {
             if found.hasErrors {
                 Io.stderr.write(found.report)
@@ -99,6 +100,7 @@ i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
             }
             booleans = found.booleans
             primitives = found.primitives
+            layout = LayoutOptions { indent: found.indent, width: found.width, align: found.align, trailingCommas: found.trailingCommas }
             unless packageNamesByRoot.contains(found.dir) { packageNamesByRoot[found.dir] = packageNames(found.dir) }
             for (name, _) in packageNamesByRoot[found.dir] { declared[name] = true }
         }
@@ -118,7 +120,7 @@ i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
             }
         }
         var unfixable = false
-        let formatted = formatFile(file, from: in original, by: booleans, for: primitives, at: in declared, until: d.maxPasses, to: ref unfixable)
+        let formatted = formatFile(file, from: in original, by: booleans, for: primitives, at: in declared, until: d.maxPasses, to: ref unfixable, as: layout)
         if (formatted is { } bytes) {
             if unfixable { exit = exitFailure }
             if !t8SameBytes(in bytes, as: in original) {
@@ -262,7 +264,7 @@ string t8RenderManifest(string path, from in List<T8Diag> diagnostics) uses allo
 
 /// Format.cs:320 `FormatFile`: the file's bytes with every input-form fix applied, then the project's spellings; null after reporting a
 /// blocking error. An input-form diagnostic left with no fix is reported and sets `unfixable`.
-List<u8>? formatFile(string file, from in List<u8> bytes, by semantics.BooleanStyle booleans, for semantics.PrimitiveStyle primitives, at in Map<string, bool> declared, until i64 maxPasses, to ref bool unfixable) uses alloc, console {
+List<u8>? formatFile(string file, from in List<u8> bytes, by semantics.BooleanStyle booleans, for semantics.PrimitiveStyle primitives, at in Map<string, bool> declared, until i64 maxPasses, to ref bool unfixable, as LayoutOptions layout) uses alloc, console {
     unfixable = false
     var converged = false
     var current = List<u8>()
@@ -297,6 +299,11 @@ List<u8>? formatFile(string file, from in List<u8> bytes, by semantics.BooleanSt
             next = applyFixes(in current, for: in fixes)
         } else {
             next = restyle(file, from: in current, by: in root, through: ref p, for: booleans, as: primitives, at: in declared)
+        }
+        if fixes.length == 0 && t8SameBytes(in next, as: in current) {
+            let laid = layoutApply(current, by: layout)
+            if (laid.skipReason is { } reason) { Io.stderr.write($"bayan format: layout skipped for {file}: {reason}\n") }
+            next = laid.output.copy()
         }
         if t8SameBytes(in next, as: in current) {
             var fixless = List<T8Diagnostic>()

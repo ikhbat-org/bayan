@@ -545,7 +545,8 @@ void layoutUnformatted(List<parser.Decl> decls, from List<u8> bytes, to ref List
 bool layoutOwnLineAttributes(parser.Decl decl) => decl switch {
     .structDecl(_) or .interfaceDecl(_) or .extensionDecl(_) or .enumDecl(_) or .unionDecl(_) => true,
     .errorEnumDecl(_) or .errorSetDecl(_) or .typeAliasDecl(_) or .functionDecl(_) or .constructorDecl(_) or .testDecl(_) => true,
-    _ => false,
+    .importDecl(_) or .globalStatement(_) or .getterDecl(_) or .associatedTypeDecl(_) or .fieldDecl(_) or .propertyDecl(_) => false,
+    .effectDecl(_) or .none => false,
 }
 
 /// Layout.cs: Engine.Group. `Modifiers.Static` is 4 (nodes.byn `modifierStatic`).

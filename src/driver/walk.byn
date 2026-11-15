@@ -113,13 +113,18 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
 
 /// The C# `(Manifest Manifest, string Dir)`: the directory of a `package.byn` and what `Format.Run` reads of its manifest. A `Manifest` holds
 /// lists and so cannot be copied into the cache for each directory below the one found (BYN2780): `booleans` and `primitives` are its styles,
-/// `hasErrors` is `Manifest.HasErrors` and `report` is `DiagnosticRenderer.RenderAll(manifest.Diagnostics, includePath: true)` when it is set.
+/// `hasErrors` is `Manifest.HasErrors`, `report` is `DiagnosticRenderer.RenderAll(manifest.Diagnostics, includePath: true)` when it is set,
+/// and `indent`, `width`, `align` and `trailingCommas` are its layout knobs.
 struct T6Found {
     string dir
     semantics.BooleanStyle booleans
     semantics.PrimitiveStyle primitives
     bool hasErrors
     string report
+    i64 indent
+    i64 width
+    semantics.AlignStyle align
+    semantics.TrailingCommaStyle trailingCommas
 }
 
 /// Format.cs:407 `OtherUses`, ported by T8 in format.byn.
@@ -145,7 +150,8 @@ T6Found? manifestFor(string file, through ref Map<string, T6Found?> cache) uses 
             let hasErrors = semantics.manifestErrorCount(in manifest) > 0
             var report = ""
             if hasErrors { report = t8RenderManifest(candidate, from: in manifest.diagnostics) }
-            found = T6Found { dir: current, booleans: manifest.booleans, primitives: manifest.primitives, hasErrors: hasErrors, report: report }
+            found = T6Found { dir: current, booleans: manifest.booleans, primitives: manifest.primitives, hasErrors: hasErrors, report: report,
+                indent: manifest.indent, width: manifest.width, align: manifest.align, trailingCommas: manifest.trailingCommas }
             break
         }
         dir = Path.directoryName(current)

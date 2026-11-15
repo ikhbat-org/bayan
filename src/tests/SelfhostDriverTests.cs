@@ -1207,6 +1207,133 @@ public sealed class SelfhostDriverStage2FormatTests
         SelfhostEmitterHarness.AssertSame($"stdout of format --check {tree}", expected.Out, stdout.ReplaceLineEndings("\n"));
         SelfhostEmitterHarness.AssertSame($"stderr of format --check {tree}", expected.Err, stderr.ReplaceLineEndings("\n"));
     }
+
+    /// <summary>
+    /// The <c>style</c> fields of each <c>LayoutOptions</c> in LayoutTests.cs (and <c>indent</c>, which no test there sets) and each
+    /// <c>Package</c> style in FormatTests.cs.
+    /// </summary>
+    private static readonly string[] s_styles =
+    [
+        "", "width: 100", "width: 30", "width: 40", "width: 45", "width: 72", "align: .none", "width: 40, trailingCommas: .never", "indent: 2",
+        "booleans: .words, primitives: .csharp", "primitives: .csharp", "booleans: .words", "booleans: .both",
+    ];
+
+    public static IEnumerable<object[]> LayoutInputRows() =>
+        from file in new[] { "LayoutTests.cs", "FormatTests.cs" }
+        from style in Enumerable.Range(0, s_styles.Length)
+        select new object[] { file, style };
+
+    /// <summary>
+    /// Every string literal of <paramref name="file"/> (literals joined by <c>+</c> read as one) is a file of one directory, with a
+    /// <c>package.byn</c> holding style <paramref name="style"/>; stage 2's <c>format</c> of it equals the C#'s in exit, stdout, stderr and
+    /// the files after. Not here: the inputs LayoutTests.cs builds with <c>Layout.OutputHook</c> or <c>Replace</c>, and constants spliced
+    /// into a concatenation (each of its literal runs is a file of its own).
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(LayoutInputRows))]
+    public void LayoutInputsFormatAsCliApp(string file, int style)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var inputs = Literals(File.ReadAllText(Path.Combine(Golden.RepoRoot, "csharp", "tests", "Bayan.Tests", file))).Distinct(StringComparer.Ordinal).ToList();
+        Assert.NotEmpty(inputs);
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-layout", $"{Path.GetFileNameWithoutExtension(file)}-{style}");
+        void Write()
+        {
+            if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+            Directory.CreateDirectory(dir);
+            if (s_styles[style] != "")
+            {
+                File.WriteAllText(Path.Combine(dir, "package.byn"),
+                    $"Package {{\n    name: \"local/shop\",\n    version: \"0.1.0\",\n    style: Style {{ {s_styles[style]} }},\n}}\n");
+            }
+            for (var i = 0; i < inputs.Count; i++) File.WriteAllText(Path.Combine(dir, $"case{i:D3}.byn"), inputs[i]);
+        }
+        Write();
+        var expected = SelfhostDriverT1Tests.Oracle(["format", dir]);
+        var expectedTree = Tree(dir);
+        Write();
+        var (exit, stdout, stderr) = SelfhostDriverT1Tests.Run(BootstrapTests.Stage2Executable(), "format", dir);
+        Assert.Equal(expected.Exit, exit);
+        SelfhostEmitterHarness.AssertSame($"stdout of {file} style {style}", expected.Out, stdout.ReplaceLineEndings("\n"));
+        SelfhostEmitterHarness.AssertSame($"stderr of {file} style {style}", expected.Err, stderr.ReplaceLineEndings("\n"));
+        SelfhostEmitterHarness.AssertSame($"files after {file} style {style}", expectedTree, Tree(dir));
+    }
+
+    private static string Tree(string dir) => string.Join("", Directory.GetFiles(dir, "*", SearchOption.AllDirectories)
+        .Order(StringComparer.Ordinal)
+        .Select(f => $"== {Path.GetRelativePath(dir, f)}\n{File.ReadAllText(f)}"));
+
+    /// <summary>
+    /// The regular string literals of C# source <paramref name="text"/>, decoded, those joined by <c>+</c> read as one; interpolated
+    /// literals, char literals and comments are stepped over.
+    /// </summary>
+    private static List<string> Literals(string text)
+    {
+        var result = new List<string>();
+        var run = new System.Text.StringBuilder();
+        var inRun = false;
+        var i = 0;
+        while (i < text.Length)
+        {
+            var ch = text[i];
+            if (ch == '/' && i + 1 < text.Length && text[i + 1] == '/')
+            {
+                while (i < text.Length && text[i] != '\n') i++;
+                continue;
+            }
+            if (ch == '\'')
+            {
+                i++;
+                while (i < text.Length && text[i] != '\'') i += text[i] == '\\' ? 2 : 1;
+                i++;
+                continue;
+            }
+            if (ch == '"')
+            {
+                var interpolated = i > 0 && text[i - 1] == '$';
+                i++;
+                var piece = new System.Text.StringBuilder();
+                while (i < text.Length && text[i] != '"')
+                {
+                    if (text[i] != '\\') { piece.Append(text[i++]); continue; }
+                    var e = text[i + 1];
+                    i += 2;
+                    switch (e)
+                    {
+                        case 'n': piece.Append('\n'); break;
+                        case 't': piece.Append('\t'); break;
+                        case 'r': piece.Append('\r'); break;
+                        case '0': piece.Append('\0'); break;
+                        case 'u':
+                            piece.Append((char)Convert.ToInt32(text.Substring(i, 4), 16));
+                            i += 4;
+                            break;
+                        default: piece.Append(e); break;
+                    }
+                }
+                i++;
+                if (i + 1 < text.Length && text[i] == 'u' && text[i + 1] == '8') i += 2;
+                if (interpolated) continue;
+                run.Append(piece);
+                inRun = true;
+                var k = i;
+                while (k < text.Length && char.IsWhiteSpace(text[k])) k++;
+                if (k < text.Length && text[k] == '+')
+                {
+                    k++;
+                    while (k < text.Length && char.IsWhiteSpace(text[k])) k++;
+                    if (k < text.Length && text[k] == '"') { i = k; continue; }
+                }
+                result.Add(run.ToString());
+                run.Clear();
+                inRun = false;
+                continue;
+            }
+            i++;
+        }
+        if (inRun) result.Add(run.ToString());
+        return result;
+    }
 }
 
 /// <summary>
