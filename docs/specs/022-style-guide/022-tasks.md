@@ -42,7 +42,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - `LayoutTests` has a case per rule;
     - an idempotence test passes, and so does a corpus test over `tests/cases/**/*.byn`, `src/**/*.byn` and `lib/**/*.byn` (format twice in memory: no skip, second pass unchanged, tokens equal);
     - the existing `FormatTests` and `CliTests` still pass, with expected-file updates only where layout now changes the output, each one checked by hand.
-  - Expected red until T8: the stage-2 format parity rows (`SelfhostDriverStage2FormatTests.SourcesFormatCheckAsCliApp`), since the self-hosted formatter has no layout until T8 ports it. The branch merges into `dev` only after T8.
+  - Expected red until T8: the self-hosted format parity rows (`SelfhostDriverStage2FormatTests.SourcesFormatCheckAsCliApp`, `SelfhostDriverT1Tests.FormatAsCliApp`), since the self-hosted formatter has no layout until T8 ports it. The branch merges into `dev` only after T8.
   - The review fixes F1–F4 of the T3/T4 lands are listed under T5 and gated with it.
 - [ ] **T5 Layout: list wrapping, trailing commas, `) {`, header clauses, wrapped conditions, chains (C#).**
   - Files: `Layout.cs`, `LayoutTests.cs`.
