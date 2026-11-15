@@ -52,7 +52,7 @@ public sealed class FormatTests
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
         Assert.Equal(
-            "// one\n// two\nbool isA(rune c) => c == 'a'\n" +
+            "// one\n// two\nbool isA(rune c) => c == 'a'\n\n" +
             "@cases(1, 2)\ntest \"positive\" (i32 n) {\n    assert(n > 0)\n}\n",
             File.ReadAllText(file));
     }
@@ -72,7 +72,7 @@ public sealed class FormatTests
         var file = Path.Combine(Fresh("function-types"), "main.byn");
         File.WriteAllText(file, "struct Order { i64 total }\ndelegate bool OrderFilter(Order order)\ntype F = i32 => bool\n");
         Run("format", file);
-        Assert.Equal("struct Order { i64 total }\ntype OrderFilter = Order -> bool\ntype F = i32 -> bool\n", File.ReadAllText(file));
+        Assert.Equal("struct Order { i64 total }\n\ntype OrderFilter = Order -> bool\ntype F = i32 -> bool\n", File.ReadAllText(file));
     }
 
     [Fact]
@@ -86,8 +86,8 @@ public sealed class FormatTests
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
         Assert.Equal(
-            "struct Box { i64 weight }\nunion Event { timeout(i64 after) }\n" +
-            "i64 add(i64 a, i64 b) { return a + b }\n" +
+            "struct Box { i64 weight }\n\nunion Event { timeout(i64 after) }\n\n" +
+            "i64 add(i64 a, i64 b) { return a + b }\n\n" +
             "void main() {\n    let t: i64 = add(1, 2)\n    var u: i64 = 0\n    u = t\n    const k: i64 = 3\n    print($\"{u}{k}\")\n}\n",
             File.ReadAllText(file));
     }
@@ -119,7 +119,7 @@ public sealed class FormatTests
     public void AFailsShorthandKeepsAComment()
     {
         var text = FormatHeader("shorthand-comment", "i32!E g() // keep me\n    fails F\n    uses console");
-        Assert.Contains("i32 g()\n    uses console // keep me\n    fails E, F {", text);
+        Assert.Contains("i32 g()\n        uses console // keep me\n        fails E, F {", text);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
     }
 
@@ -127,7 +127,7 @@ public sealed class FormatTests
     public void AFailsShorthandKeepsAMultiLineHeader()
     {
         var text = FormatHeader("shorthand-lines", "i32!E g()\n    fails F\n    uses console");
-        Assert.Contains("i32 g()\n    uses console\n    fails E, F {", text);
+        Assert.Contains("i32 g()\n        uses console\n        fails E, F {", text);
     }
 
     [Fact]
@@ -167,12 +167,12 @@ public sealed class FormatTests
     }
 
     private const string WordsAndCSharp =
-        "bool f(bool a, bool b, int n) => a and not b or n is not 0\n" +
+        "bool f(bool a, bool b, int n) => a and not b or n is not 0\n\n" +
         "void main() {\n    let x: nint = 3\n    switch x {\n        case 1 or 2: print(\"a\")\n        default: print(\"b\")\n    }\n" +
         "    print(\"s\") if not f(true, false, 1) and x > 0\n}\n";
 
     private const string SymbolsAndSized =
-        "bool f(bool a, bool b, i32 n) => a && !b || n is not 0\n" +
+        "bool f(bool a, bool b, i32 n) => a && !b || n is not 0\n\n" +
         "void main() {\n    let x: isize = 3\n    switch x {\n        case 1 or 2: print(\"a\")\n        default: print(\"b\")\n    }\n" +
         "    print(\"s\") if !f(true, false, 1) && x > 0\n}\n";
 
@@ -253,7 +253,7 @@ public sealed class FormatTests
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
         Assert.Equal(
-            "struct P { int i8 }\nvoid main() {\n    let u8 = 1\n    let p = P { i8: 3 }\n    let w: sbyte = 2\n    print($\"{u8}{p.i8}{w}\")\n}\n",
+            "struct P { int i8 }\n\nvoid main() {\n    let u8 = 1\n    let p = P { i8: 3 }\n    let w: sbyte = 2\n    print($\"{u8}{p.i8}{w}\")\n}\n",
             File.ReadAllText(file));
     }
 
@@ -391,13 +391,13 @@ public sealed class FormatTests
         "    let u: Untrusted<string> = Untrusted(\"x\")\n    print(trust(u, reason: \"checked\"))\n}\n";
 
     private const string Round3Canonical =
-        "// Shapes.\nunion Shape {\n    circle(f64 r)\n    square(f64 side)\n}\nenum Size { // small\n    s\n    m // medium\n    l\n}\n" +
-        "struct unique File {\n    i64 fd\n}\nunion error StockError {\n    outOfStock\n}\n" +
-        "type distinct Percent = i32 requires it in 0..=100\n@derive(Json)\nstruct Parcel {\n    i64 weight\n}\n" +
-        "i32 twice(i32 n) => n * 2\nbool isA(rune c) => c == 'a'\n" +
-        "Shape pick(Shape s) {\n    switch s {\n        case not .circle: return s\n        default: return s\n    }\n}\n" +
-        "i64 add(i64 a, i64 b) {\n    return a + b\n}\n" +
-        "void run(Arena arena) {\n    provide allocator: arena {\n        print(\"x\")\n    }\n}\n" +
+        "// Shapes.\nunion Shape {\n    circle(f64 r)\n    square(f64 side)\n}\n\nenum Size { // small\n    s\n    m // medium\n    l\n}\n\n" +
+        "struct unique File {\n    i64 fd\n}\n\nunion error StockError {\n    outOfStock\n}\n\n" +
+        "type distinct Percent = i32 requires it in 0..=100\n\n@derive(Json)\nstruct Parcel {\n    i64 weight\n}\n\n" +
+        "i32 twice(i32 n) => n * 2\nbool isA(rune c) => c == 'a'\n\n" +
+        "Shape pick(Shape s) {\n    switch s {\n        case not .circle: return s\n        default: return s\n    }\n}\n\n" +
+        "i64 add(i64 a, i64 b) {\n    return a + b\n}\n\n" +
+        "void run(Arena arena) {\n    provide allocator: arena {\n        print(\"x\")\n    }\n}\n\n" +
         "void main() {\n    let t: i64 = add(1, b: 2)\n    print($\"{t}\")\n    if t > 0 {\n        print(\"pos\")\n    } else {\n        print(\"other\")\n    }\n" +
         "    let u: Untrusted<string> = Untrusted(\"x\")\n    print(u.trustUnchecked() because \"checked\")\n}\n";
 

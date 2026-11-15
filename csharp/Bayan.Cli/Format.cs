@@ -318,10 +318,10 @@ internal static class Format
     }
 
     /// <summary>
-    /// The file's bytes with every input-form fix applied, then the project's spellings; null after reporting a
+    /// The file's bytes with every input-form fix applied, then the project's spellings, then the layout; null after reporting a
     /// blocking error. An input-form diagnostic left with no fix is reported and sets <paramref name="unfixable"/>.
     /// </summary>
-    private static byte[]? FormatFile(string file, byte[] bytes, BooleanStyle booleans, PrimitiveStyle primitives,
+    internal static byte[]? FormatFile(string file, byte[] bytes, BooleanStyle booleans, PrimitiveStyle primitives,
         IReadOnlySet<string> declared, TextWriter stderr, out bool unfixable)
     {
         unfixable = false;
@@ -340,6 +340,12 @@ internal static class Format
             }
             var fixes = tree.Diagnostics.Where(d => Applies(d) && d.Fix is not null).Concat(tree.Lints).Select(d => d.Fix!).ToList();
             var next = fixes.Count > 0 ? ApplyFixes(bytes, fixes) : Restyle(file, bytes, tree, booleans, primitives, declared);
+            if (fixes.Count == 0 && next.AsSpan().SequenceEqual(bytes))
+            {
+                var (laidOut, skipped) = Layout.Apply(bytes, new LayoutOptions());
+                if (skipped is not null) stderr.WriteLine(Messages.FormatLayoutSkipped.Text(file, skipped));
+                next = laidOut;
+            }
             if (RewriteHook is not null) next = RewriteHook(next);
             if (next.AsSpan().SequenceEqual(bytes))
             {
