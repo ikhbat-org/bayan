@@ -72,7 +72,7 @@ public sealed class FormatTests
         var file = Path.Combine(Fresh("function-types"), "main.byn");
         File.WriteAllText(file, "struct Order { i64 total }\ndelegate bool OrderFilter(Order order)\ntype F = i32 => bool\n");
         Run("format", file);
-        Assert.Equal("struct Order { i64 total }\n\ntype OrderFilter = Order -> bool\ntype F = i32 -> bool\n", File.ReadAllText(file));
+        Assert.Equal("struct Order { i64 total }\n\ntype OrderFilter = Order -> bool\ntype F           = i32 -> bool\n", File.ReadAllText(file));
     }
 
     [Fact]
