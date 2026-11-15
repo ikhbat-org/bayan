@@ -41,7 +41,10 @@ public sealed class Manifest
     private static readonly string[] DistFields = ["targets", "mode"];
 
     /// <summary>Fields of <c>Style</c> (spec 022 R2); the old knobs <c>braces</c>, <c>maxLine</c> and a bool <c>trailingCommas</c> are errors that name the replacement.</summary>
-    private static readonly string[] StyleFields = ["indent", "width", "align", "trailingCommas", "booleans", "primitives", "lints", "braces", "maxLine"];
+    private static readonly string[] StyleFields = ["indent", "width", "align", "trailingCommas", "booleans", "primitives", "lints"];
+
+    /// <summary>Old <c>Style</c> knobs: read so each gets its own error naming the replacement, but never listed as a field to use.</summary>
+    private static readonly string[] RemovedStyleFields = ["braces", "maxLine"];
 
     /// <summary>The lints <c>style.lints</c> may name, with the severity each has when absent.</summary>
     private static readonly (string Name, LintSeverity Default)[] LintNames =
@@ -209,7 +212,7 @@ public sealed class Manifest
             }
             else
             {
-                var styleFields = Fields(st, StyleFields);
+                var styleFields = Fields(st, StyleFields, RemovedStyleFields);
                 if (styleFields.TryGetValue("indent", out var indent))
                 {
                     if (indent is IntValue { Value: > 0 and <= int.MaxValue } i) Indent = (int)i.Value;
@@ -339,12 +342,12 @@ public sealed class Manifest
         }
     }
 
-    private Dictionary<string, Value> Fields(ObjectValue obj, string[] known)
+    private Dictionary<string, Value> Fields(ObjectValue obj, string[] known, string[]? removed = null)
     {
         var fields = new Dictionary<string, Value>(StringComparer.Ordinal);
         foreach (var (name, span, value) in obj.Fields)
         {
-            if (!known.Contains(name))
+            if (!known.Contains(name) && removed?.Contains(name) != true)
                 Report(DiagnosticCodes.ManifestUnknownField, span, [name, obj.Type], help: "use one of the fields " + string.Join(", ", known.Select(k => $"`{k}`")));
             else if (!fields.TryAdd(name, value))
                 Report(DiagnosticCodes.ManifestNotData, span, [$"`{name}` only once"]);

@@ -55,4 +55,4 @@ error BYN3101: `tabs` is not a field of `Style`
      │         ^^^^
      │
   help: use one of the fields `indent`, `width`, `align`, `trailingCommas`, `booleans`,
-        `primitives`, `lints`, `braces`, `maxLine`
+        `primitives`, `lints`
