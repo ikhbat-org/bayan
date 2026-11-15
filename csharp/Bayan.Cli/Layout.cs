@@ -191,6 +191,8 @@ internal static class Layout
         private readonly bool[] _addComma = new bool[tokens.Length];
         private readonly int[] _pad = new int[tokens.Length];
         private readonly int[] _commentPad = new int[tokens.Length];
+        private readonly bool[] _tightAfter = new bool[tokens.Length];
+        private readonly bool[] _tightBefore = new bool[tokens.Length];
         private readonly List<byte> _out = new(source.Length + source.Length / 8);
 
         public byte[] Render()
@@ -198,11 +200,13 @@ internal static class Layout
             for (var i = 0; i < tokens.Length; i++) _lineStart[i] = i == 0 || gaps[i].HasNewline;
             Freeze();
             Match();
+            Guide();
             Levels();
             Joins();
             Breaks();
             Levels();
             TopLevelBlanks();
+            MemberBlanks();
             if (options.AlignRuns) Align();
             _out.AddRange(source.AsSpan(0, bom));
             for (var i = 0; i < tokens.Length; i++)
@@ -835,6 +839,170 @@ internal static class Layout
             return string.Join(" ", words);
         }
 
+        // ── The guide's attributes, blocks, generics and member groups (docs/bayan-style.md, proposal §3.2) ──
+
+        /// <summary>The declarations of <paramref name="decls"/> and of the type bodies among them.</summary>
+        private static IEnumerable<Decl> Decls(Decl[] decls)
+        {
+            foreach (var decl in decls)
+            {
+                yield return decl;
+                var members = decl switch
+                {
+                    StructDecl s => s.Members,
+                    InterfaceDecl n => n.Members,
+                    ExtensionDecl x => x.Members,
+                    _ => [],
+                };
+                foreach (var member in Decls(members)) yield return member;
+            }
+        }
+
+        /// <summary>The statement blocks of a declaration: its body's, and those nested in its statements, not in expressions.</summary>
+        private static IEnumerable<BlockStmt> Blocks(Decl decl) => decl switch
+        {
+            FunctionDecl f => Blocks(f.Body),
+            ConstructorDecl c => Blocks(c.Body),
+            TestDecl t => Blocks(t.Body),
+            PropertyDecl p => Blocks(p.Block),
+            GlobalStatement g => Blocks(g.Statement),
+            _ => [],
+        };
+
+        private static IEnumerable<BlockStmt> Blocks(Stmt? stmt) => stmt switch
+        {
+            BlockStmt b => [b, .. b.Statements.SelectMany(Blocks)],
+            IfStmt s => [.. Blocks(s.Then), .. Blocks(s.Else)],
+            UnlessStmt s => Blocks(s.Body),
+            GuardedStmt s => Blocks(s.Statement),
+            WhileStmt s => Blocks(s.Body),
+            DoWhileStmt s => Blocks(s.Body),
+            WhileLetStmt s => Blocks(s.Body),
+            ForStmt s => Blocks(s.Body),
+            LabeledStmt s => Blocks(s.Statement),
+            SwitchStmt s => s.Sections.SelectMany(x => x.Statements).SelectMany(Blocks),
+            DeferStmt s => Blocks(s.Body),
+            ContextStmt s => Blocks(s.Body),
+            _ => [],
+        };
+
+        /// <summary>
+        /// An attribute before a type or function goes on its own line above it; one before a field or parameter stays
+        /// inline. A statement block written on one line takes one statement per line, <c>{</c> ending the line and
+        /// <c>}</c> starting one; a <c>=&gt;</c> body and a block inside an expression (a lambda's) stay as written. The
+        /// <c>&lt;</c> and <c>&gt;</c> of a generic list take no space inside.
+        /// </summary>
+        private void Guide()
+        {
+            foreach (var decl in Decls(tree.Root.Members))
+            {
+                if (decl.Attributes is [var first, ..] attributes && OwnLineAttributes(decl))
+                {
+                    var head = TokenAt(Math.Max(attributes[^1].Span.End, attributes[^1].Because?.Span.End ?? 0));
+                    if (Editable(TokenAt(first.Span.Start), head))
+                    {
+                        foreach (var a in attributes.Skip(1)) _lineStart[TokenAt(a.Span.Start)] = true;
+                        _lineStart[head] = true;
+                    }
+                }
+                foreach (var block in Blocks(decl))
+                {
+                    var o = TokenAt(block.Span.Start);
+                    if (block.Statements.Length == 0 || Kind(o) != TokenKind.OpenBrace || _match[o] < o || !Editable(o, _match[o])) continue;
+                    foreach (var s in block.Statements) _lineStart[TokenAt(s.Span.Start)] = true;
+                    _lineStart[_match[o]] = true;
+                }
+            }
+            for (var o = 1; o < tokens.Length; o++)
+                if (GenericClose(o) is var close and > 0)
+                {
+                    _tightAfter[o] = true;
+                    _tightBefore[close] = true;
+                }
+        }
+
+        /// <summary>A type or a function: the declarations whose attributes go on their own lines.</summary>
+        private static bool OwnLineAttributes(Decl decl) => decl is StructDecl or InterfaceDecl or ExtensionDecl or EnumDecl
+            or UnionDecl or ErrorEnumDecl or ErrorSetDecl or TypeAliasDecl or FunctionDecl or ConstructorDecl or TestDecl;
+
+        /// <summary>
+        /// The <c>&gt;</c> closing a generic list opened by the <c>&lt;</c> at <paramref name="o"/>, or −1: a <c>&lt;</c>
+        /// right after a name, then on one line only tokens a type is made of, up to its <c>&gt;</c>. The parser reads no
+        /// gap inside one but a <c>&gt;</c> after a <c>&gt;</c>, which <see cref="TriviaMatters"/> keeps.
+        /// </summary>
+        private int GenericClose(int o)
+        {
+            if (Kind(o) != TokenKind.Less || Trivia(o) || !(Kind(o - 1) == TokenKind.Identifier || Kind(o - 1).IsContextualKeyword())) return -1;
+            for (int k = o + 1, depth = 1; k < tokens.Length && !_lineStart[k]; k++)
+            {
+                switch (Kind(k))
+                {
+                    case TokenKind.Less:
+                        depth++;
+                        break;
+                    case TokenKind.Greater:
+                        if (--depth == 0) return k;
+                        break;
+                    case TokenKind.Identifier or TokenKind.Comma or TokenKind.Dot or TokenKind.Question or TokenKind.Star
+                        or TokenKind.OpenBracket or TokenKind.CloseBracket or TokenKind.OpenParen or TokenKind.CloseParen
+                        or TokenKind.IntegerLiteral or TokenKind.Arrow:
+                        break;
+                    default:
+                        if (!Kind(k).IsContextualKeyword()) return -1;
+                        break;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Inside a type body, one blank line between member groups (fields, <c>states</c>, properties, static members,
+        /// methods) and between two methods. A function body's statements are not members, so none goes there.
+        /// </summary>
+        private void MemberBlanks()
+        {
+            foreach (var decl in Decls(tree.Root.Members))
+            {
+                var (members, states) = decl switch
+                {
+                    StructDecl s => (s.Members, s.States),
+                    InterfaceDecl n => (n.Members, []),
+                    ExtensionDecl x => (x.Members, []),
+                    _ => ((Decl[])[], (UnionVariant[])[]),
+                };
+                var items = members.Select(m => (Start: MemberStart(m), Group: Group(m), Method: m is FunctionDecl or ConstructorDecl)).ToList();
+                if (states is [var state, ..] && StatesStart(TokenAt(state.Span.Start)) is var at and >= 0)
+                    items.Add((at, "states", false));
+                items.Sort((a, b) => a.Start.CompareTo(b.Start));
+                for (var k = 1; k < items.Count; k++)
+                {
+                    var (prev, next) = (items[k - 1], items[k]);
+                    if (prev.Group == next.Group && !(prev.Method && next.Method)) continue;
+                    if (gaps[next.Start].HasNewline && Editable(next.Start, next.Start)) _needsBlank[next.Start] = true;
+                }
+            }
+        }
+
+        private int MemberStart(Decl decl) => TokenAt(decl.Attributes is [var a, ..] ? Math.Min(a.Span.Start, decl.Span.Start) : decl.Span.Start);
+
+        /// <summary>The <c>states</c> word of the <c>states { … }</c> block holding the state at <paramref name="first"/>, or −1.</summary>
+        private int StatesStart(int first)
+        {
+            var o = first - 1;
+            return Kind(o) == TokenKind.OpenBrace && o > 0 && Text(o - 1) == "states" ? o - 1 : -1;
+        }
+
+        private static string Group(Decl decl) => decl switch
+        {
+            FieldDecl { Modifiers: var m } when m.HasFlag(Modifiers.Static) => "static",
+            PropertyDecl { Modifiers: var m } when m.HasFlag(Modifiers.Static) => "static",
+            FunctionDecl { Modifiers: var m } when m.HasFlag(Modifiers.Static) => "static",
+            FieldDecl => "field",
+            PropertyDecl or GetterDecl => "property",
+            FunctionDecl or ConstructorDecl => "method",
+            _ => decl.GetType().Name,
+        };
+
         // ── Alignment runs (pass 8, proposal §3.2, §3.3, §3.7) ───────────────────────────
 
         /// <summary>
@@ -1095,6 +1263,8 @@ internal static class Layout
             var written = tokens[i].Start > from;
             // The parser reads the gap here (`>>`, `T...`, `u8*`, `30s`, `unlikely (a)`): keep it as written.
             if (TriviaMatters(source, tokens, i)) return written;
+            // Generics are tight inside (`List<Sku>`).
+            if (_tightAfter[i - 1] || _tightBefore[i]) return written && Merges(i);
             var after = After(i - 1);
             var ahead = Before(i);
             bool space;

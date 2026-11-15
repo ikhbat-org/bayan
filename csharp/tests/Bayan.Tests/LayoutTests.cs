@@ -101,7 +101,7 @@ public sealed class LayoutTests
         Lay("bool isA(rune c)=>c=='a'\n"));
 
     [Fact]
-    public void RangesAreTight() => Assert.Equal("for i in 0..10 { print(i) }\nfor i in 0..<n { print(i) }\n",
+    public void RangesAreTight() => Assert.Equal("for i in 0..10 {\n    print(i)\n}\nfor i in 0..<n {\n    print(i)\n}\n",
         Lay("for i in 0 .. 10 { print(i) }\nfor i in 0 ..< n { print(i) }\n"));
 
     [Fact]
@@ -434,7 +434,7 @@ public sealed class LayoutTests
 
     [Fact]
     public void FieldsAndPropertiesAreRunsOfTheirOwn() => Assert.Equal(
-        "struct S {\n    i32    a\n    string bb\n    public i64 c  => a\n    bool       dd => true\n}\n",
+        "struct S {\n    i32    a\n    string bb\n\n    public i64 c  => a\n    bool       dd => true\n}\n",
         Lay("struct S {\n    i32 a\n    string bb\n    public i64 c => a\n    bool dd => true\n}\n"));
 
     [Fact]
@@ -484,6 +484,67 @@ public sealed class LayoutTests
         Assert.Equal(once, Lay(once));
     }
 
+    // ── The guide's rules T4–T6 left out (docs/bayan-style.md) ──
+
+    [Fact]
+    public void ABinaryOperatorIsSpacedAndAUnaryMinusStaysTight() => Assert.Equal(
+        "void show() {\n    let d = a - b\n    let w: Grams = -weight\n    let f = c ?? -d\n}\n",
+        Lay("void show() {\n    let d = a-b\n    let w: Grams = - weight\n    let f = c??-d\n}\n"));
+
+    [Fact]
+    public void StyleGenericsAndUnits() => Assert.Equal(
+        "void fill(List<Sku> skus) {\n    let wait = 30s\n}\n",
+        Lay("void fill(List< Sku > skus) {\n    let wait = 30s\n}\n"));
+
+    [Fact]
+    public void AGapBetweenTwoGenericClosersIsKept() => Assert.Equal(
+        "Map<string, List<i32> > m = make()\nList<List<i32>> n = make()\n",
+        Lay("Map< string, List< i32 > > m = make()\nList<List< i32 >> n = make()\n"));
+
+    [Fact]
+    public void StyleAttributes() => Assert.Equal(
+        "@derive(Json)\nstruct Note {\n    @json(name: \"note\") string text\n}\n",
+        Lay("@derive(Json) struct Note {\n    @json(name: \"note\") string text\n}\n"));
+
+    [Fact]
+    public void AFieldAttributeStaysInline()
+    {
+        const string source = "struct Note {\n    @json(name: \"note\") string text\n}\n";
+        Assert.Equal(source, Lay(source));
+    }
+
+    [Fact]
+    public void EachFunctionAttributeTakesItsOwnLine() => Assert.Equal(
+        "@allow(unusedValue) because \"warm\"\n@cases(1)\nvoid warm() {\n}\n",
+        Lay("@allow(unusedValue) because \"warm\" @cases(1) void warm() {\n}\n"));
+
+    [Fact]
+    public void StyleBlocksAndBodies() => Assert.Equal(
+        "public void promote(ref this, to Tier next) {\n    tier = next\n}\n",
+        Lay("public void promote(ref this, to Tier next) { tier = next }\n"));
+
+    [Fact]
+    public void ABlockTakesOneStatementPerLineAndAnArrowBodyStays() => Assert.Equal(
+        "bool ok() => true\n\nvoid main() {\n    if a {\n        b()\n    } else {\n        c()\n    }\n}\n",
+        Lay("bool ok() => true\n\nvoid main() { if a { b() } else { c() } }\n"));
+
+    [Fact]
+    public void StyleMemberGroups() => Assert.Equal(
+        "struct Cart {\n    List<Line> lines\n\n    public i32 count => lines.length\n\n" +
+        "    public void add(ref this, Line line) {\n        lines.append(line)\n    }\n\n" +
+        "    public void clear(ref this) {\n        lines = []\n    }\n}\n",
+        Lay("struct Cart {\n    List<Line> lines\n    public i32 count => lines.length\n" +
+            "    public void add(ref this, Line line) {\n        lines.append(line)\n    }\n" +
+            "    public void clear(ref this) {\n        lines = []\n    }\n}\n"));
+
+    [Fact]
+    public void AFunctionBodyGetsNoBlankLine()
+    {
+        const string source = "struct Cart {\n    public void add(ref this, Line line) {\n        let n = 1\n        print(n)\n" +
+                              "        lines.append(line)\n    }\n}\n\nvoid main() {\n    let a = 1\n    print(a)\n}\n";
+        Assert.Equal(source, Lay(source));
+    }
+
     // ── Idempotence, @unformatted ──
 
     private const string Messy =
@@ -513,7 +574,7 @@ public sealed class LayoutTests
     {
         const string source = "struct S {\n    @unformatted because \"columns\"\n    i32 f() {\n      return   1\n    }\n  i32 g() {\nreturn   2\n}\n}\n";
         Assert.Equal(
-            "struct S {\n    @unformatted because \"columns\"\n    i32 f() {\n      return   1\n    }\n    i32 g() {\n        return 2\n    }\n}\n",
+            "struct S {\n    @unformatted because \"columns\"\n    i32 f() {\n      return   1\n    }\n\n    i32 g() {\n        return 2\n    }\n}\n",
             Lay(source));
     }
 

@@ -33,10 +33,13 @@ internal static class Format
     private static readonly Dictionary<string, string> SizedPrimitives =
         CSharpPrimitives.ToDictionary(p => p.Value, p => p.Key, StringComparer.Ordinal);
 
-    internal static int MaxPasses = 10;
+    /// <summary>Test-only override, per thread: a <c>[ThreadStatic]</c> initializer would run on the first thread only.</summary>
+    [ThreadStatic] private static int? maxPassesOverride;
+
+    internal static int MaxPasses { get => maxPassesOverride ?? 10; set => maxPassesOverride = value; }
 
     /// <summary>Test-only: replaces each pass's rewrite, to force one that does not parse.</summary>
-    internal static Func<byte[], byte[]>? RewriteHook;
+    [ThreadStatic] internal static Func<byte[], byte[]>? RewriteHook;
 
     public static int Run(string[] args, TextWriter stdout, TextWriter stderr)
     {
