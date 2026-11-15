@@ -266,7 +266,7 @@ Do:
 
 ```bayan
 public Money quote(Cart cart, for Customer customer)
-        expects cart.lines.length > 0 and customer.region.isKnown
+        expects cart.lines.length > 0 && customer.region.isKnown
         uses db
         fails QuoteError {
     return cart.total(for: customer)
@@ -276,22 +276,22 @@ public Money quote(Cart cart, for Customer customer)
 Don't:
 
 ```bayan
-public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 and customer.region.isKnown uses db fails QuoteError {
+public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 && customer.region.isKnown uses db fails QuoteError {
     return cart.total(for: customer)
 }
 ```
 
 ### Wrapped conditions
 
-A condition that does not fit breaks before `and` or `or`, continues at two levels (8) and ends with ` {`.
+A condition that does not fit breaks before `&&` or `||` (`and` or `or` under `booleans: .words`), continues at two levels (8) and ends with ` {`.
 
 Do:
 
 ```bayan
 if order is .paid
-        and order.total >= freeShippingThreshold
-        and customer.region.shipsFree
-        and not order.hasOversizedItems {
+        && order.total >= freeShippingThreshold
+        && customer.region.shipsFree
+        && !order.hasOversizedOrHazardousItems {
     order.shipping = .free
 }
 ```
@@ -299,7 +299,7 @@ if order is .paid
 Don't:
 
 ```bayan
-if order is .paid and order.total >= freeShippingThreshold and customer.region.shipsFree and not order.hasOversizedItems {
+if order is .paid && order.total >= freeShippingThreshold && customer.region.shipsFree && !order.hasOversizedOrHazardousItems {
     order.shipping = .free
 }
 ```
@@ -312,7 +312,7 @@ Do:
 
 ```bayan
 let reminders = orders
-    .where(it.placedAt < cutoff and it.total > minimum)
+    .where(it.placedAt < cutoff && it.total > minimum)
     .sorted(by: it.placedAt)
     .take(50)
     .map(Reminder(it.id, for: it.customer))
@@ -321,7 +321,7 @@ let reminders = orders
 Don't:
 
 ```bayan
-let reminders = orders.where(it.placedAt < cutoff and it.total > minimum).sorted(by: it.placedAt).take(50).map(Reminder(it.id, for: it.customer))
+let reminders = orders.where(it.placedAt < cutoff && it.total > minimum).sorted(by: it.placedAt).take(50).map(Reminder(it.id, for: it.customer))
 ```
 
 ### Argument lists and literals
@@ -630,9 +630,9 @@ Do:
 
 ```bayan
 let shipsFree = order is .paid
-    and order.total >= freeShippingThreshold
-    and customer.region.shipsFree
-    and not order.hasOversizedItems
+    && order.total >= freeShippingThreshold
+    && customer.region.shipsFree
+    && !order.hasOversizedItems
 
 order.shipping = .free if shipsFree
 ```
@@ -641,9 +641,9 @@ Don't:
 
 ```bayan
 if order is .paid
-        and order.total >= freeShippingThreshold
-        and customer.region.shipsFree
-        and not order.hasOversizedItems {
+        && order.total >= freeShippingThreshold
+        && customer.region.shipsFree
+        && !order.hasOversizedItems {
     order.shipping = .free
 }
 ```
@@ -658,9 +658,9 @@ Do:
 void pack(Order order) {
     return if order is not .paid
     for line in order.lines {
-        continue if not line.inStock
+        continue if !line.inStock
         continue if line.weight <= 0g
-        continue if not line.fits(box)
+        continue if !line.fits(box)
         stow(line)
     }
 }
