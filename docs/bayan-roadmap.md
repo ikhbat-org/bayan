@@ -1,6 +1,6 @@
 # Bayān roadmap
 
-Version: 0.3.1 (matches `bayan --version`)
+Version: 0.3.2-dev (matches `bayan --version`)
 
 State of `dev` at 04366a4f, 2026-11-14. Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
 

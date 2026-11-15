@@ -1,6 +1,6 @@
 # Bayān milestones
 
-Version: 0.3.1 (matches `bayan --version`)
+Version: 0.3.2-dev (matches `bayan --version`)
 
 What v0.1 was, its milestones M0 to M12, what came after, and the road to self-hosting. The coarse table of releases is `work/milestones.md`; the plan after 0.3.0 is `docs/bayan-roadmap.md`.
 

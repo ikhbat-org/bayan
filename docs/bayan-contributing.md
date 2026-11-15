@@ -1,6 +1,6 @@
 # Working on Bayān: rules, stack, layout and conventions
 
-Version: 0.3.1 (matches `bayan --version`)
+Version: 0.3.2-dev (matches `bayan --version`)
 
 How work on the compiler is done. The spec (`docs/bayan-spec.md`) is the source of truth for the language; `AGENTS.md` holds the short agent rules. This file keeps only what neither of them says. The milestones are in `docs/bayan-milestones.md`.
 
