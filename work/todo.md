@@ -825,3 +825,7 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - scripts/ci/bash32-parse.test.sh: a `$((cmd; case …))` subshell-in-substitution is taken as arithmetic and not scanned (bash itself parses it ambiguously; no tracked file uses it). Review 93cfe60eaf59..5d30d219, LOW.
 - scripts/ci/bash32-parse.test.sh heredoc(): a shift `$((1 << n))` is still taken for a heredoc when a later line is exactly `n`, hiding bare arms up to it (latent: no tracked .sh shifts with <<). Review 93cfe60eaf59..5d30d219 round 3, LOW.
 - `bayan format` BYN1041 fix (`else` on its own line) deletes a comment between `}` and `else`: `if a {\n}\n// c\nelse {\n}` loses `// c` (both drivers, before spec 022). Found by the 022 T3/T4 review, 2026-11-15.
+- `csharp/Bayan.Cli/Layout.cs` (022 T6b): when spacing one `*` fails `Check`, the whole file is laid out again with every `*` gap as written, silently, rather than skipping that site. No CLI input found that reaches it (pointer files stop at BYN1067/BYN1001). T6b gate, LOW, 2026-11-15.
+- `LayoutTests.APointerWrittenTightStaysAPointer` (022 T6b) uses `u8*p`; `src/parser/types.byn` says the spaced `u8* p` is the pointer form, so the test name may describe the wrong thing. T6b gate, LOW, 2026-11-15.
+- Parser.cs `BreakStmt`/`ContinueStmt` have empty spans (`SpanFrom` runs before `Advance`), found by 022 T7, 2026-11-15.
+- BYN1073 lambdas.it (022 T7) covers only lambdas passed as arguments, not lambdas bound to a name or returned.
