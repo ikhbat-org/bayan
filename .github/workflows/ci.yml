@@ -52,26 +52,10 @@ jobs:
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
       - name: Script tests
         if: runner.os != 'Windows'
-        run: |
-          bash scripts/ci/bash32-parse.test.sh
-          bash scripts/ci/install-zig.test.sh
-          bash scripts/ci/install-dotnet.test.sh
-          bash scripts/ci/sdk-patch-check.test.sh
-          bash scripts/ci/known-failures.test.sh
-          bash scripts/release/package.test.sh
-          bash scripts/release/memory-gate.test.sh
-          bash scripts/release/editor-gate.test.sh
-          bash scripts/release/refuse-draft.test.sh
-          bash scripts/release/release-workflow.test.sh
-          bash scripts/bayan-tool.test.sh
-          bash scripts/parity/run.test.sh
+        run: bash scripts/ci/script-tests.sh unix  # the list lives there; run it before a push (docs/bayan-contributing.md)
       - name: Docs and release script tests
         if: runner.os == 'Linux'
-        run: |
-          bash scripts/release/set-version.test.sh
-          bash scripts/release/cut.test.sh
-          for f in scripts/docs/*.test.sh; do bash "$f"; done
-          bash scripts/docs/check.sh
+        run: bash scripts/ci/script-tests.sh docs
       # macos-latest hit the same 600 s zig cc timeout on selfhost/semantics as Windows below (ci run 43583631792,
       # 2026-11-14: 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
       - name: Test

@@ -46,7 +46,7 @@ mkdir -p wc/vm1/out wc/wp1 wc/vm2/out; printf 'vm1 0.91 4\nvm2 0.91 4\nwp1 0.52 
 wcmd=$(bash "$S" weights-cmd wc)
 ok "weights command lists the trx files with their speeds" "$wcmd" \
   "(weights: bash scripts/selfhost/shard-test.sh times 0.91@wc/vm1/out/chunk1.trx 0.91@wc/vm1/out/chunk2.trx 0.52@wc/wp1/chunk1.trx)"
-ok "weights command has no glob" "$(case $wcmd in *'*'*) echo glob;; *) echo none;; esac)" "none"
+ok "weights command has no glob" "$(case $wcmd in (*'*'*) echo glob;; (*) echo none;; esac)" "none"
 
 # host spec NAME=SPEED[:SLICES[:THREADS]]: defaults 1 slice, 4 threads; each bad part named, exit 2
 ok "host spec defaults" "$(bash "$S" host-spec vm=0.91) $(bash "$S" host-spec wlt1=0.45:1) $(bash "$S" host-spec mb1=.71)" "vm=0.91:1:4 wlt1=0.45:1:4 mb1=.71:1:4"
