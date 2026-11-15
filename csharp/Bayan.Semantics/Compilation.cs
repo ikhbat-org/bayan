@@ -2,6 +2,7 @@ using Bayan.Semantics.Binding;
 using Bayan.Semantics.Symbols;
 using Bayan.Syntax.Ast;
 using Bayan.Syntax.Diagnostics;
+using Bayan.Syntax.Packages;
 using Bayan.Syntax.Parsing;
 using Bayan.Syntax.Text;
 
@@ -62,6 +63,36 @@ public sealed partial class Compilation
     public CompilationOptions Options { get; }
 
     public DiagnosticBag Diagnostics { get; } = new();
+
+    /// <summary>The style lints (BYN1072–BYN1076) of every file, kept out of <see cref="Diagnostics"/>: only <c>bayan check</c> reports them.</summary>
+    public List<Diagnostic> StyleLints { get; } = [];
+
+    private static readonly Dictionary<string, string> StyleLintNames = new(StringComparer.Ordinal)
+    {
+        ["BYN1072"] = "guards.postfix",
+        ["BYN1073"] = "lambdas.it",
+        ["BYN1074"] = "conditions.named",
+        ["BYN1075"] = "nesting.depth",
+        ["BYN1076"] = "functions.length",
+    };
+
+    /// <summary>The style lints at the severity of <paramref name="manifest"/>'s <c>lints</c> (the defaults without one): <c>.none</c> drops a lint, <c>.suggestion</c> is a note.</summary>
+    public List<Diagnostic> StyleLintsAt(Manifest? manifest)
+    {
+        var lints = new List<Diagnostic>();
+        foreach (var d in StyleLints)
+        {
+            var name = StyleLintNames[d.Code];
+            var severity = manifest is not null ? manifest.Lints[name] : name == "functions.length" ? LintSeverity.None : LintSeverity.Suggestion;
+            switch (severity)
+            {
+                case LintSeverity.Suggestion: lints.Add(d with { Severity = Severity.Note }); break;
+                case LintSeverity.Warning: lints.Add(d with { Severity = Severity.Warning }); break;
+                case LintSeverity.Error: lints.Add(d with { Severity = Severity.Error }); break;
+            }
+        }
+        return lints;
+    }
 
     /// <summary>Every module, dependencies before dependents.</summary>
     public List<ModuleSymbol> Modules { get; } = new();
@@ -171,6 +202,7 @@ public sealed partial class Compilation
             var tree = SyntaxTree.Parse(source);
             Diagnostics.AddRange(tree.Diagnostics);
             Diagnostics.AddRange(tree.Lints);
+            if (!dir.StartsWith("<std>/", StringComparison.Ordinal)) StyleLints.AddRange(tree.StyleLints);
             module.Files.Add(new FileContext(module, tree));
         }
         foreach (var file in module.Files.Where(f => !f.Tree.Diagnostics.Any(d => d.IsError)))

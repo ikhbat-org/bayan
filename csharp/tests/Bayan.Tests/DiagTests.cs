@@ -6,7 +6,7 @@ namespace Bayan.Tests;
 
 /// <summary>
 /// <c>tests/cases/diag/*.byn</c> → <c>*.diag</c>: every diagnostic the front end reports, rendered.
-/// A directory with a <c>main.byn</c> is a package whose imports resolve inside it, bounded by its <c>package.byn</c> when it has one, its <c>std.…</c> imports read from its <c>stdlib/</c> when it has one. A <c>*.test.byn</c> case compiles its tests.
+/// A case named <c>style-*</c> also renders the style lints. A directory with a <c>main.byn</c> is a package whose imports resolve inside it, bounded by its <c>package.byn</c> when it has one, its <c>std.…</c> imports read from its <c>stdlib/</c> when it has one. A <c>*.test.byn</c> case compiles its tests.
 /// </summary>
 public sealed class DiagTests
 {
@@ -29,6 +29,8 @@ public sealed class DiagTests
             var c = Compilation.Create([Golden.Load(path)], dir, new CompilationOptions(IncludeTests: path.EndsWith(".test.byn", StringComparison.Ordinal),
                 Capabilities: manifest?.Capabilities, PackageName: manifest?.Name, Std: std));
             var package = Path.GetFileName(dir) != "diag";
-            return DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: package);
+            // The style lints (BYN1072–BYN1076) are `bayan check` output: only the `style-*` cases render them, at the severity of their manifest.
+            var styleCase = Path.GetFileName(package ? dir : path).StartsWith("style-", StringComparison.Ordinal);
+            return DiagnosticRenderer.RenderAll(styleCase ? [.. c.Diagnostics.Items, .. c.StyleLintsAt(manifest)] : c.Diagnostics.Items, includePath: package);
         });
 }

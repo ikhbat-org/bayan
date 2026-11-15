@@ -20,8 +20,3 @@ retired BYN2113 RecursiveStruct Superseded by BYN2761 since M21, which names the
 retired BYN2224 InterpolationNotAllowed `$"…"` is an expression anywhere since M14 (docs/diagnostics/BYN2224.md); the descriptor stays.
 retired BYN2707 RecursiveUnion Superseded by BYN2761 since M21 (docs/diagnostics/BYN2707.md); the descriptor stays.
 reserved BYN2116 RefThisOnOperator Not reported yet: operator declarations are spec-only (spec §2); the code is reserved for when they arrive (docs/diagnostics/BYN2116.md).
-plan BYN1072 GuardsPostfix Suggestion (note): an early-exit `if c { return }` reads as `return if c` (lint `guards.postfix`). Spec 022 (docs/specs/022-style-guide/022-plan.md); target 19xx lint.
-plan BYN1073 LambdasIt Suggestion (note): a one-parameter lambda whose parameter is used once can use `it` (lint `lambdas.it`). Spec 022; target 19xx lint.
-plan BYN1074 ConditionsNamed Suggestion (note): a long compound condition can be named with a `let` (lint `conditions.named`). Spec 022; target 49xx lint.
-plan BYN1075 NestingDepth Suggestion (note): blocks nested more than 4 deep (lint `nesting.depth`). Spec 022; target 49xx lint.
-plan BYN1076 FunctionsLength Off by default: a function longer than 60 lines (lint `functions.length`). Spec 022; target 09xx lint.
