@@ -706,6 +706,41 @@ public sealed class LayoutTests
             "        return stored\n    }\n}\n",
             new LayoutOptions(Width: 88)));
 
+    // With nothing else to break, the head's `(` still does not open.
+    [Fact]
+    public void AControlHeadGroupDoesNotOpen()
+    {
+        const string source = "void f() {\n    if (originalValueNumberOne == originalValueNumberTwo) is true {\n        return 1\n    }\n}\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(Width: 40)));
+    }
+
+    [Fact]
+    public void AnOperatorInsideAnIndexDoesNotBreak()
+    {
+        const string source = "let v = table[\n    firstKeyNameValue ?? secondKeyNameValue ?? thirdKeyNameValue\n].value\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(Width: 40)));
+    }
+
+    [Fact]
+    public void AChainAfterAnIndexKeepsItsFirstMember() => Assert.Equal(
+        "let w = rows[i].first()\n    .second(alphaValue)\n    .third(betaValue)\n    .fourth()\n",
+        Lay("let w = rows[i].first().second(alphaValue).third(betaValue).fourth()\n", new LayoutOptions(Width: 40)));
+
+    // The ternary's line ends the scan: the next label's `:` takes no space.
+    [Fact]
+    public void ACaseLabelAfterATernaryKeepsItsColonTight()
+    {
+        const string source = "void f() {\n    switch kind {\n        case .binary:\n            let op = ready ? c.op : d.op\n" +
+            "        case .unary:\n            go(op)\n        default: {}\n    }\n}\n";
+        Assert.Equal(source, Lay(source));
+    }
+
+    // The parameters cannot join again around the struct literal, so the `=>` must break first.
+    [Fact]
+    public void AnArrowHeaderBreaksAfterTheArrowBeforeAStructDefault() => Assert.Equal(
+        "Point moved(Point p, Point by = Point { x: 0, y: 0 }) =>\n    p.plus(by)\n",
+        Lay("Point moved(Point p, Point by = Point { x: 0, y: 0 }) => p.plus(by)\n", new LayoutOptions(Width: 60)));
+
     [Fact]
     public void ATernaryColonAfterABrokenChainKeepsItsSpace()
     {
