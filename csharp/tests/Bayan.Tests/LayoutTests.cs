@@ -493,10 +493,12 @@ public sealed class LayoutTests
 
     [Fact]
     public void StyleHorizontalSpacing() => Assert.Equal(
-        "void show() {\n    let total = price * quantity\n    let port = config.port ?? 8080\n    let span = 0..n\n"
-        + "    let origin = Point { x: 1, y: 2 }\n    let sizes = [1, 2]\n    let label = format(total)\n}\n",
-        Lay("void show() {\n    let total = price*quantity\n    let port = config.port??8080\n    let span = 0 .. n\n"
-            + "    let origin = Point {x:1, y:2}\n    let sizes = [ 1, 2 ]\n    let label = format( total )\n}\n"));
+        "void show(List<Sku> skus) {\n    let total = price * quantity\n    let port = config.port ?? 8080\n    let span = 0..n\n"
+        + "    let origin = Point { x: 1, y: 2 }\n    let sizes = [1, 2]\n    let label = format(total)\n"
+        + "    let done = !finished\n    let w: Grams = -weight\n    let wait = 30s\n}\n",
+        Lay("void show(List< Sku > skus) {\n    let total = price*quantity\n    let port = config.port??8080\n    let span = 0 .. n\n"
+            + "    let origin = Point {x:1, y:2}\n    let sizes = [ 1, 2 ]\n    let label = format( total )\n"
+            + "    let done = ! finished\n    let w : Grams = - weight\n    let wait = 30s\n}\n"));
 
     [Fact]
     public void APointerWrittenTightStaysAPointer()
@@ -638,6 +640,34 @@ public sealed class LayoutTests
         "    public string root   = \"\"\n    // ── T2 state\n    public i64    n      = 0\n    public string longer = \"\"\n}\n",
         Lay("struct CCtx {\n    /// `OwnershipChecks`.\n    public bool checks = false\n    /// `_packageRoot`.\n" +
             "    public string root = \"\"\n    // ── T2 state\n    public i64 n = 0\n    public string longer = \"\"\n}\n"));
+
+    // A ternary at statement level cannot break, so its chain stays whole and the argument list breaks.
+    [Fact]
+    public void AChainInATernaryWaitsForTheTernary() => Assert.Equal(
+        "void f() {\n    let shown = ready ? Path.relative(\n        root,\n        to: output,\n    ).replaced(\"a\", by: \"/\") : output\n}\n",
+        Lay("void f() {\n    let shown = ready ? Path.relative(root, to: output).replaced(\"a\", by: \"/\") : output\n}\n",
+            new LayoutOptions(Width: 60)));
+
+    // binder2.byn: breaking inside the head group first left `) ⏎ &&` for the next round, which reads `(…)` as the
+    // whole condition (BYN1017), and Check skipped the file.
+    [Fact]
+    public void AControlHeadGroupIsNotBrokenAtItsOperators() => Assert.Equal(
+        "void f() {\n    if (\n        member == \"handler\" || member == \"onPanic\"\n    ) && lookup(ref b, for: \"Panic\") == -1 {\n" +
+        "        go()\n    }\n}\n",
+        Lay("void f() {\n    if (member == \"handler\" || member == \"onPanic\") && lookup(ref b, for: \"Panic\") == -1 {\n        go()\n    }\n}\n",
+            new LayoutOptions(Width: 60)));
+
+    [Fact]
+    public void ATernaryColonAfterABrokenChainKeepsItsSpace()
+    {
+        const string source = "void f() {\n    let shown = ready ? Path\n        .relative(root, to: output)\n        .replaced(\"a\", by: \"/\") : output\n}\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(Width: 60)));
+    }
+
+    [Fact]
+    public void TopLevelConstsAlignTheirEquals() => Assert.Equal(
+        "const distMaxFiles: i64 = 20000\nconst distMaxDirs: i64  = 4000\nconst distMaxDepth: i64 = 64\n",
+        Lay("const distMaxFiles: i64 = 20000\nconst distMaxDirs: i64 = 4000\nconst distMaxDepth: i64 = 64\n"));
 
     // ── Idempotence, @unformatted ──
 

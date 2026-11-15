@@ -78,7 +78,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - Done when each rule below has a `LayoutTests` case that fails when the rule is reverted, the T4 corpus and idempotence tests pass with 0 skips, and `Check` still holds (whitespace and newlines only):
     - **D, break order.** An expression that does not fit breaks before every operator of its lowest precedence level, in `if`, `let` and `return` alike. A parenthesised group that fits stays on one line. While an operator break remains, nothing breaks inside `[ ]` or a call's argument list.
     - **Atoms.** Never break inside an index bracket or a unit literal, or before a `.member` that follows `]`.
-    - **Ternary ladder.** A ternary that does not fit breaks before `?` and before `:`, each one continuation in.
+    - **Ternary ladder.** A ternary that does not fit breaks before `?` and before `:`, each one continuation in. At statement level the ladder applies only inside brackets: a line that starts with `?` or `:` would end the statement.
     - **Chains.** A chain inside a ternary or an argument breaks only after the enclosing ternary or list has broken.
     - **A/B, outlier limit.** A line more than 8 columns wider than the next-widest in its alignment run (fields, properties, switch arms) leaves the run and stays unaligned. `=` defaults align within a run.
     - **C, `=>` bodies.** A header with a `=>` body that does not fit breaks after `=>` first. The parameters wrap only when the header alone still overflows.

@@ -833,15 +833,15 @@ internal static class Layout
             // An expression breaks before each operator of its lowest level outside brackets, then inside the widest group.
             if (Kind(p) == TokenKind.ElseKeyword) p++;
             var control = p < e && Kind(p) is TokenKind.IfKeyword or TokenKind.WhileKeyword or TokenKind.UnlessKeyword;
-            var ops = LowestOperators(s, p, e, control ? p : -1);
+            var ops = LowestOperators(s, p, e);
             if (ops.Count == 0)
             {
                 var widest = 0;
                 for (int k = s, depth = 0; k < e; k++)
                 {
                     if (IsCloser(Kind(k))) depth = Math.Max(0, depth - 1);
-                    if (depth == 0 && Kind(k) == TokenKind.OpenParen && _match[k] > k + 1 && _match[k] < e && (k == s || !CallLike(k - 1))
-                        && tokens[_match[k]].End - tokens[k].Start > widest && LowestOperators(k, k + 1, _match[k], -1) is { Count: > 0 } inner)
+                    if (depth == 0 && Kind(k) == TokenKind.OpenParen && _match[k] > k + 1 && _match[k] < e && (k == s || !CallLike(k - 1)) && !(control && k == p + 1)
+                        && tokens[_match[k]].End - tokens[k].Start > widest && LowestOperators(k, k + 1, _match[k]) is { Count: > 0 } inner)
                     {
                         widest = tokens[_match[k]].End - tokens[k].Start;
                         ops = inner;
@@ -905,9 +905,9 @@ internal static class Layout
         /// The operators of the lowest level in tokens <c>[from, e)</c> outside brackets that a line may start with, before
         /// any header clause: a ternary's <c>?</c> and <c>:</c> inside <c>( )</c> or a list's <c>[ ]</c> (at a statement's
         /// level a line starting with <c>?</c> ends the statement), then <c>??</c>, <c>||</c>, <c>&amp;&amp;</c> and their
-        /// words outside an index. <paramref name="control"/> is the <c>if</c>, <c>while</c> or <c>unless</c> of the line, or −1.
+        /// words outside an index.
         /// </summary>
-        private List<int> LowestOperators(int s, int from, int e, int control)
+        private List<int> LowestOperators(int s, int from, int e)
         {
             var found = new List<(int Token, int Level)>();
             var ternaries = 0;
@@ -931,8 +931,9 @@ internal static class Layout
                     var o = _enclosing[k];
                     if (level >= 0 && !_lineStart[k] && Editable(k, k) && !(o >= 0 && IsIndex(o))
                         && (level > 0 || o >= 0 && Kind(o) is TokenKind.OpenParen or TokenKind.OpenBracket)
-                        // `if (a) ⏎ && b` would read `(a)` as the whole condition (BYN1017).
-                        && !(control >= 0 && Kind(k - 1) == TokenKind.CloseParen && _match[k - 1] == control + 1))
+                        // `if (a) ⏎ && b` would read `(a)` as the whole condition (BYN1017), on any line of the header.
+                        && !(Kind(k - 1) == TokenKind.CloseParen && _match[k - 1] > 0
+                             && Kind(_match[k - 1] - 1) is TokenKind.IfKeyword or TokenKind.WhileKeyword or TokenKind.UnlessKeyword))
                         found.Add((k, level));
                 }
                 if (IsOpener(Kind(k))) depth++;
@@ -1203,7 +1204,8 @@ internal static class Layout
                 if ((s == start || Kind(s) == TokenKind.At) && TokenAt(decl.Span.End) == e)
                 {
                     var name = decl switch { FieldDecl f => TokenAt(f.Name.Span.Start), PropertyDecl p => TokenAt(p.Name.Span.Start), _ => -1 };
-                    if (topLevel && decl is not GlobalStatement && First(TokenKind.Equals, start, e) is var eq and > 0)
+                    // A top-level `const` parses as a statement but declares like the rest.
+                    if (topLevel && decl is not GlobalStatement or GlobalStatement { Statement: LocalDecl { Kind: BindingKind.Const } } && First(TokenKind.Equals, start, e) is var eq and > 0)
                         shapes[s] = (decl.GetType().Name + " " + LeadingKeywords(start), [eq]);
                     else if (!topLevel && decl is FieldDecl)
                         shapes[s] = ("field", [name, First(TokenKind.Equals, name, e)]);
@@ -1551,7 +1553,8 @@ internal static class Layout
                 else if (depth == 0 && (kind is TokenKind.StructKeyword or TokenKind.InterfaceKeyword or TokenKind.ExtensionKeyword
                              || kind == TokenKind.Question && Trivia(k) || kind == TokenKind.Identifier && Text(k) == "where"))
                     return true;
-                if (_lineStart[k] && depth == 0) return false;
+                // A chain link continues its line, so the scan goes on through it to a `?` before the chain.
+                if (_lineStart[k] && depth == 0 && !IsWasl(k)) return false;
             }
             return false;
         }
