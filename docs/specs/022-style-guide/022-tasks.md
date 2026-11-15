@@ -54,7 +54,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - **F2 (MEDIUM) the corpus test compares tokens.** The corpus test asserts that the input's token sequence equals the output's, ignoring trailing commas and newlines (R4). The old assertion compared the first output with the second, which the byte check already covers.
     - **F3 (LOW) knobs reach layout.** `Indent`, `Width` and `TrailingCommas` come from the manifest in `Format.cs`; a test shows `indent: 2` lays out at 2.
     - **F4 (LOW) tabs.** `OriginalIndent` counts a tab as `Indent` columns (or the check works on levels), with a test on a tab-indented `requires` line.
-- [ ] **T6 Layout: alignment runs (C#).**
+- [x] **T6 Layout: alignment runs (C#).**
   - Files: `Layout.cs`, `LayoutTests.cs`.
   - Covers: R3 (alignment).
   - After: T5.
