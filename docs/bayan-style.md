@@ -678,7 +678,7 @@ void pack(Order order) {
 
 ### `functions.length` (BYN1076)
 
-Off by default; when on, a body over 60 lines is split into named steps.
+Off by default (set `"functions.length": .suggestion` in `lints` to turn it on); a body over 60 lines is split into named steps.
 
 Do:
 
@@ -687,6 +687,76 @@ void process(Order order) {
     validate(order)
     charge(order)
     ship(order)
+}
+
+void validate(Order order) {
+    audit(order, step: 1)
+    audit(order, step: 2)
+    audit(order, step: 3)
+    audit(order, step: 4)
+    audit(order, step: 5)
+    audit(order, step: 6)
+    audit(order, step: 7)
+    audit(order, step: 8)
+    audit(order, step: 9)
+    audit(order, step: 10)
+    audit(order, step: 11)
+    audit(order, step: 12)
+    audit(order, step: 13)
+    audit(order, step: 14)
+    audit(order, step: 15)
+    audit(order, step: 16)
+    audit(order, step: 17)
+    audit(order, step: 18)
+    audit(order, step: 19)
+    audit(order, step: 20)
+}
+
+void charge(Order order) {
+    audit(order, step: 21)
+    audit(order, step: 22)
+    audit(order, step: 23)
+    audit(order, step: 24)
+    audit(order, step: 25)
+    audit(order, step: 26)
+    audit(order, step: 27)
+    audit(order, step: 28)
+    audit(order, step: 29)
+    audit(order, step: 30)
+    audit(order, step: 31)
+    audit(order, step: 32)
+    audit(order, step: 33)
+    audit(order, step: 34)
+    audit(order, step: 35)
+    audit(order, step: 36)
+    audit(order, step: 37)
+    audit(order, step: 38)
+    audit(order, step: 39)
+    audit(order, step: 40)
+}
+
+void ship(Order order) {
+    audit(order, step: 41)
+    audit(order, step: 42)
+    audit(order, step: 43)
+    audit(order, step: 44)
+    audit(order, step: 45)
+    audit(order, step: 46)
+    audit(order, step: 47)
+    audit(order, step: 48)
+    audit(order, step: 49)
+    audit(order, step: 50)
+    audit(order, step: 51)
+    audit(order, step: 52)
+    audit(order, step: 53)
+    audit(order, step: 54)
+    audit(order, step: 55)
+    audit(order, step: 56)
+    audit(order, step: 57)
+    audit(order, step: 58)
+    audit(order, step: 59)
+    audit(order, step: 60)
+    audit(order, step: 61)
 }
 ```
 
