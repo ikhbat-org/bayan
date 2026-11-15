@@ -130,13 +130,15 @@ public sealed class CliMemoryBoundsTests
         var file = Path.Combine(dir, "main.byn");
         File.WriteAllText(file,
             "void main() {\n}\n\ntest \"spam\" {\n    while true {\n" +
-            "        print(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\")\n" +
+            // 1 KiB lines and a 6 s timeout: a starved test binary on a loaded macOS runner still passes the 2 × 64 KiB kept
+            // before it is killed (it printed less in 3 s at 100-byte lines, so nothing was omitted; 2026-11-15 full run)
+            "        print(\"" + new string('x', 1024) + "\")\n" +
             "    }\n}\n");
         var psi = new System.Diagnostics.ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
         psi.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "bayan.dll"));
         psi.ArgumentList.Add("test");
         psi.ArgumentList.Add(file);
-        psi.Environment["BAYAN_TEST_TIMEOUT_MS"] = TestTime.Scale(3000).ToString();
+        psi.Environment["BAYAN_TEST_TIMEOUT_MS"] = TestTime.Scale(6000).ToString();
         psi.Environment["BAYAN_CACHE"] = Path.Combine(dir, "cache");
         using var p = System.Diagnostics.Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndAsync();
