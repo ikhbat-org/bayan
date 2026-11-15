@@ -3,22 +3,26 @@
 # the user's "land everything you can merge back to dev and then start with a clean slate".
 # Run scripts/cleanup/session-2026-11-15.sh first: it removes the 016 writer worktrees, .worktrees/main-release and that
 # session's branches. This one then:
-#   1. removes the worktrees .worktrees/base-dev (plan 017's dev baseline) and .worktrees/dev (where plan 017 merged);
+#   1. removes the worktrees .worktrees/base-dev (plan 017's dev baseline), .worktrees/dev (where plan 017 merged) and the
+#      0.3.1 prep's fix-m1-relpath, fix-bash32-subst-lint, fix-review-2026-11-15-3, release-0.3.1 and cleanup-slate;
 #   2. puts the main checkout on dev, then lists (with --delete-old-build-output, removes) the old layout's ignored build
 #      output left inside the new src/ and tests/;
 #   3. with --delete-branches, deletes every local branch merged into dev (`git branch -d`, which refuses anything else);
 #   4. lists the unmerged branches whose every commit is already on dev by patch (`git cherry`), for the user: a cleanup
 #      script never force-deletes;
+#   5. lists (with --delete-vm-ci, removes) bayan-test01:/home/bt/ci, the local-CI clones (one per commit, reached through
+#      ssh ghosthive incus), refused while a ci-* unit is still active there.
 # Every target is checked at run time. Dry run by default; --execute / -e acts; --delete-branches adds step 3;
-# --delete-old-build-output adds the removal in step 2.
+# --delete-old-build-output adds the removal in step 2; --delete-vm-ci adds the removal in step 5.
 set -euo pipefail
 
-execute=0; branches=0; buildout=0
+execute=0; branches=0; buildout=0; vmci=0
 for a in "$@"; do
   case "$a" in
     --execute|-e) execute=1 ;;
     --delete-branches) branches=1 ;;
     --delete-old-build-output) buildout=1 ;;
+    --delete-vm-ci) vmci=1 ;;
     *) printf 'unknown flag: %s\n' "$a"; exit 2 ;;
   esac
 done
@@ -27,7 +31,7 @@ failed=0
 run() { if [ $execute = 1 ]; then printf 'run:   %s\n' "$*"; "$@" || { printf '  failed\n'; failed=1; }; else printf 'would: %s\n' "$*"; fi; }
 
 # 1. worktrees
-for wt in base-dev dev; do
+for wt in base-dev dev fix-m1-relpath fix-bash32-subst-lint fix-review-2026-11-15-3 release-0.3.1 cleanup-slate; do
   d="$main/.worktrees/$wt"
   if ! git -C "$main" worktree list --porcelain | grep -qxF "worktree $d"; then printf 'skip:  worktree %s not registered\n' "$wt"; continue; fi
   if [ ! -d "$d" ]; then printf 'skip:  worktree %s directory gone (pruned below)\n' "$wt"; continue; fi
@@ -81,9 +85,15 @@ for b in $(git -C "$main" branch --no-merged dev --format='%(refname:short)'); d
   if [ -z "$(git -C "$main" cherry dev "$b" | grep '^+' || true)" ]; then printf 'patch-equivalent (not deleted): %s\n' "$b"; fi
 done
 
+# 5. bayan-test01's local-CI clones
+if [ $vmci = 1 ]; then
+  run ssh ghosthive "incus exec bayan-test01 -- sh -c 'if systemctl list-units --no-legend --state=active,activating \"ci-*\" | grep -q .; then echo a ci-* unit is still active; exit 3; fi; rm -rf /home/bt/ci'"
+else
+  printf 'stale:  bayan-test01:/home/bt/ci (local-CI clones; --delete-vm-ci removes it)\n'
+fi
 
 printf '\nremaining worktrees:\n'; git -C "$main" worktree list
 printf 'main checkout: %s\n' "$(git -C "$main" branch --show-current)"
 [ $execute = 1 ] || printf '\ndry run: nothing changed. --execute to act, --delete-branches to delete merged branches too,
---delete-old-build-output to remove the old layout build output.\n'
+--delete-old-build-output to remove the old layout build output, --delete-vm-ci to remove bayan-test01:/home/bt/ci.\n'
 exit $failed
