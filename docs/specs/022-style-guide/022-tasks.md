@@ -14,7 +14,7 @@ Order:
 
 Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is gated against this file, then lands into `feat/022-style-guide`. The landing bar is 0 HIGH / 0 MEDIUM.
 
-- [ ] **T1 Style guide with Do/Don't.**
+- [x] **T1 Style guide with Do/Don't.**
   - Files: `docs/bayan-style.md`; `docs/diagnostics-allocated.txt` and `docs/DIAGNOSTICS.md` (regenerated), for `plan` rows BYN1072–BYN1076 so that `check.sh` accepts the doc's citations. T7 replaces those rows with descriptors.
   - Covers: R1.
   - Done when every layout rule of `docs/bayan-style-proposal.md` §3.1–§3.9 and every lint has a `### ` heading, one rule line, a `Do:` fenced `bayan` block and a `Don't:` fenced `bayan` block. C21 (`{` always ends the line, no knob) is stated as is, and the Version/Revisions header is kept. The Do block is exactly what the layout engine produces from the Don't block (4-space indent, width 120, `.runs`, `.multiline`), except for the naming rule (§3.9): no tool renames, so its rule line says it is a guideline the formatter does not change and the test skips it. A lint's Do block is the code the lint suggests.
