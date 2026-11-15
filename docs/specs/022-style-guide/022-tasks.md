@@ -28,12 +28,12 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - an unknown lint name is an error;
     - `Manifest` exposes the values;
     - the existing `dotnet test` manifest and format tests pass, except the self-hosted manifest-agreement rows (`SelfhostSemanticsT10Tests.ManifestMatchesCSharp`, `SelfhostEmitterHarnessTests.ManifestErrorsAgree`), which T3 brings back to green: they compare against `src/semantics/manifest.byn`, which T2 does not touch.
-- [ ] **T3 Manifest knobs (self-hosted).**
+- [x] **T3 Manifest knobs (self-hosted).**
   - Files: `src/semantics/manifest.byn` and its parity tests.
   - Covers: R2.
   - After: T2.
   - Done when the self-hosted manifest check gives the same diagnostics as T2's C# on every T2 case and on the existing manifest corpus. Expected values come from the C#.
-- [ ] **T4 Layout engine: hygiene, `@unformatted`, indentation, spacing, blank lines, safety net (C#).**
+- [x] **T4 Layout engine: hygiene, `@unformatted`, indentation, spacing, blank lines, safety net (C#).**
   - Files: `csharp/Bayan.Cli/Layout.cs` (new), `csharp/Bayan.Cli/Format.cs` (the call in `FormatFile`), `csharp/tests/Bayan.Tests/LayoutTests.cs` (new).
   - Covers: R3 (hygiene, indentation, spacing, blank lines, top-level blank lines), R4, R5.
   - Done when:
