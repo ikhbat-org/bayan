@@ -34,6 +34,326 @@ Not configurable: declarations are type-first and local bindings name-first ([GR
 | `timeout(after: Millis)` (payload) | `timeout(Millis after)` |
 | `Grams w = 0g` (in a function body) | `let w: Grams = 0g` |
 
+## Layout
+
+Each rule below shows what `bayan format` produces (Do) from the same code laid out otherwise (Don't). Layout never produces a diagnostic: run the formatter. The examples assume indent 4, width 120, `align: .runs` and `trailingCommas: .multiline`.
+
+### Paragraphs inside functions
+
+A blank line separates the steps of a function; the formatter keeps one blank line you wrote, collapses a run of blank lines to one, removes blank lines directly after `{` and before `}`, and never inserts one, so breaking paragraphs is your call.
+
+Do:
+
+```bayan
+public Money total(Cart cart) {
+    let subtotal = cart.subtotal()
+
+    let tax = subtotal * cart.region.multiplier
+    return subtotal + tax
+}
+```
+
+Don't:
+
+```bayan
+public Money total(Cart cart) {
+
+    let subtotal = cart.subtotal()
+
+
+    let tax = subtotal * cart.region.multiplier
+    return subtotal + tax
+}
+```
+
+### Alignment runs
+
+Under `.runs`, consecutive fields or properties of the same shape align their name column and the `=>` column, and a blank line or comment line ends the run.
+
+Do:
+
+```bayan
+struct Customer {
+    CustomerId id
+    Email      email
+    string     name
+    Tier       tier = .standard
+
+    public bool   isVip       => tier is .gold or .platinum
+    public string displayName => $"{name} <{email}>"
+}
+```
+
+Don't:
+
+```bayan
+struct Customer {
+    CustomerId id
+    Email email
+    string name
+    Tier tier = .standard
+
+    public bool isVip => tier is .gold or .platinum
+    public string displayName => $"{name} <{email}>"
+}
+```
+
+### Switch arms
+
+Single-line switch arms form a run and align their `=>`; a multi-line arm ends the run.
+
+Do:
+
+```bayan
+let label = switch order {
+    .placed    => "Awaiting payment"
+    .paid p    => $"Paid via {p.payment.method}"
+    .shipped s => $"Shipped, tracking {s.tracking}"
+    .canceled  => "Canceled"
+}
+```
+
+Don't:
+
+```bayan
+let label = switch order {
+    .placed => "Awaiting payment"
+    .paid p => $"Paid via {p.payment.method}"
+    .shipped s => $"Shipped, tracking {s.tracking}"
+    .canceled => "Canceled"
+}
+```
+
+### Top-level layout
+
+Top-level declarations are separated by one blank line, except consecutive one-line declarations of the same kind, which form a run and align their `=`.
+
+Do:
+
+```bayan
+type distinct CustomerId = i64
+type distinct Sku        = string requires it.length <= 16
+
+effect db = net, fs
+
+union error QuoteError {
+    noTaxRegion
+    discontinued(Sku sku)
+}
+```
+
+Don't:
+
+```bayan
+type distinct CustomerId = i64
+type distinct Sku        = string requires it.length <= 16
+effect db = net, fs
+union error QuoteError {
+    noTaxRegion
+    discontinued(Sku sku)
+}
+```
+
+### Wrapped parameter lists and `) {`
+
+`{` always ends the line: a parameter list that does not fit takes one parameter per line with a trailing comma and closes with `) {` (with any clauses that fit); there is no own-line `{` and no `braces` knob.
+
+Do:
+
+```bayan
+Booking book(
+    Carrier carrier,
+    Route route,
+    Date date,
+    Passenger passenger,
+    Seat preferredSeat,
+    Meal meal,
+    Insurance insurance,
+) uses net, suspend fails BookingError {
+    return try carrier.quote(route, on: date)
+}
+```
+
+Don't:
+
+```bayan
+Booking book(Carrier carrier, Route route, Date date, Passenger passenger, Seat preferredSeat, Meal meal, Insurance insurance) uses net, suspend fails BookingError {
+    return try carrier.quote(route, on: date)
+}
+```
+
+### Header clauses
+
+When the clauses do not fit on the header line, each gets its own line at two levels (8) and the last ends with ` {`, so the body at one level never lines up with a clause.
+
+Do:
+
+```bayan
+public Money quote(Cart cart, for Customer customer)
+        expects cart.lines.length > 0 and customer.region.isKnown
+        uses db
+        fails QuoteError {
+    return cart.total(for: customer)
+}
+```
+
+Don't:
+
+```bayan
+public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 and customer.region.isKnown uses db fails QuoteError {
+    return cart.total(for: customer)
+}
+```
+
+### Wrapped conditions
+
+A condition that does not fit breaks before `and` or `or`, continues at two levels (8) and ends with ` {`.
+
+Do:
+
+```bayan
+if order is .paid
+        and order.total >= freeShippingThreshold
+        and customer.region.shipsFree
+        and not order.hasOversizedItems {
+    order.shipping = .free
+}
+```
+
+Don't:
+
+```bayan
+if order is .paid and order.total >= freeShippingThreshold and customer.region.shipsFree and not order.hasOversizedItems {
+    order.shipping = .free
+}
+```
+
+### Chains
+
+A chain that exceeds the width, or has three or more calls taking lambdas, puts every link on its own line with a leading `.`.
+
+Do:
+
+```bayan
+let reminders = orders
+    .where(it.placedAt < cutoff and it.total > minimum)
+    .sorted(by: it.placedAt)
+    .take(50)
+    .map(Reminder(it.id, for: it.customer))
+```
+
+Don't:
+
+```bayan
+let reminders = orders.where(it.placedAt < cutoff and it.total > minimum).sorted(by: it.placedAt).take(50).map(Reminder(it.id, for: it.customer))
+```
+
+### Argument lists and literals
+
+A list that fits stays on one line; otherwise it takes one item per line, a trailing comma and the closing bracket on its own line, indented one level and never aligned to the opening parenthesis.
+
+Do:
+
+```bayan
+let shipment = carrier.book(
+    parcel,
+    from: warehouse.address,
+    to: order.shippingAddress,
+    by: order.deadline,
+    as: .express,
+    insured: order.total > insuranceThreshold,
+)
+```
+
+Don't:
+
+```bayan
+let shipment = carrier.book(parcel, from: warehouse.address, to: order.shippingAddress, by: order.deadline, as: .express, insured: order.total > insuranceThreshold)
+```
+
+### Trailing comma as intent
+
+A list that fits stays on one line unless you end it with a trailing comma, which keeps it one item per line; without the comma the formatter joins it.
+
+Do:
+
+```bayan
+let shipment = carrier.book(parcel, as: .express)
+```
+
+Don't:
+
+```bayan
+let shipment = carrier.book(
+    parcel,
+    as: .express
+)
+```
+
+### Horizontal spacing
+
+Binary operators, `=>`, `??` and `=` take one space on each side; ranges, calls, unary operators, generics and units are tight; a label has no space before `:` and one after; struct literals have spaces inside the braces, and list literals and calls have none.
+
+Do:
+
+```bayan
+let total = price * quantity
+let port = config.port ?? 8080
+let span = 0..n
+let origin = Point { x: 1, y: 2 }
+let sizes = [1, 2]
+let label = format(total)
+```
+
+Don't:
+
+```bayan
+let total = price*quantity
+let port = config.port??8080
+let span = 0 .. n
+let origin = Point {x:1, y:2}
+let sizes = [ 1, 2 ]
+let label = format( total )
+```
+
+### Files
+
+Files are UTF-8 with LF line endings, a final newline and no trailing whitespace (the Don't line below ends in spaces).
+
+Do:
+
+```bayan
+let total = price * quantity
+```
+
+Don't:
+
+```bayan
+let total = price * quantity   
+```
+
+### Naming
+
+Not changed by the formatter; a guideline. Types are `PascalCase`, everything else `camelCase`, acronyms are words (`Utf8`, `Json`, `httpClient`), and kind never appears as a prefix or suffix (`I…`, `_field`, `m_`), so the test skips this pair.
+
+Do:
+
+```bayan
+struct Customer {
+    string name
+    HttpClient httpClient
+}
+```
+
+Don't:
+
+```bayan
+struct customer {
+    string m_name
+    HTTPClient http_client
+}
+```
+
 ## Text
 
 - Use `std` operations for protocols, keys and identifiers, and `kit.intl` for text shown to people ([SPEC §16.4](bayan-spec.md)).
@@ -86,19 +406,130 @@ Package {
 }
 ```
 
-(partial in 0.3: the manifest check (`csharp/Bayan.Syntax/Packages/Manifest.cs:35`, `src/semantics/manifest.byn:369`) still takes the pre-2026-11-04 knobs (`braces`, a 100-column line knob, a bool `trailingCommas`) and rejects `width`, `align` and `lints`; `bayan format` reads only `booleans` and `primitives`)
+The `style` knobs are checked from 0.3.2; an old knob (`braces`, `maxLine`, a bool `trailingCommas`) is an error that names its replacement.
 
 ## Style lints
 
-Idioms are lints, `.suggestion` by default; `lints` in `style` sets the severity of each by name. Each takes a code in the `x900–x999` range of its area (revision 0017), assigned at the round-4 renumbering; none is allocated yet (not in 0.3).
+Idioms are lints, `.suggestion` by default and reported by `bayan check` only; `lints` in `style` sets the severity of each by name (`.none`, `.suggestion`, `.warning`, `.error`). Each Do block is the code the lint suggests.
 
-| Lint | Flags |
-|---|---|
-| `guards.postfix` | an `if` block whose only statement is `return`, `fail`, `break` or `continue`: write `fail .x if c` |
-| `lambdas.it` | `x => x.f` with one parameter: write `it.f` |
-| `nesting.depth` | blocks nested more than 4 deep: exit early |
-| `functions.length` | a body over N lines (off by default) |
-| `conditions.named` | a control head that wraps: name the condition with a `let` |
+### `guards.postfix` (BYN1072)
+
+An `if` block whose only statement is `return`, `fail`, `break` or `continue` is written as a postfix guard.
+
+Do:
+
+```bayan
+fail .emptyCart if cart.lines.isEmpty
+```
+
+Don't:
+
+```bayan
+if cart.lines.isEmpty {
+    fail .emptyCart
+}
+```
+
+### `lambdas.it` (BYN1073)
+
+A lambda with one parameter that only reads a member is written with `it`.
+
+Do:
+
+```bayan
+let names = customers.map(it.name)
+```
+
+Don't:
+
+```bayan
+let names = customers.map(c => c.name)
+```
+
+### `conditions.named` (BYN1074)
+
+A control head that wraps is better served by naming the condition with a `let`.
+
+Do:
+
+```bayan
+let shipsFree = order is .paid
+    and order.total >= freeShippingThreshold
+    and customer.region.shipsFree
+    and not order.hasOversizedItems
+
+order.shipping = .free if shipsFree
+```
+
+Don't:
+
+```bayan
+if order is .paid
+        and order.total >= freeShippingThreshold
+        and customer.region.shipsFree
+        and not order.hasOversizedItems {
+    order.shipping = .free
+}
+```
+
+### `nesting.depth` (BYN1075)
+
+Blocks nested more than 4 deep are flattened with early exits.
+
+Do:
+
+```bayan
+void pack(Order order) {
+    return if order is not .paid
+    for line in order.lines {
+        continue if not line.inStock
+        continue if line.weight <= 0g
+        continue if not line.fits(box)
+        stow(line)
+    }
+}
+```
+
+Don't:
+
+```bayan
+void pack(Order order) {
+    if order is .paid {
+        for line in order.lines {
+            if line.inStock {
+                if line.weight > 0g {
+                    if line.fits(box) {
+                        stow(line)
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+### `functions.length` (BYN1076)
+
+Off by default; when on, a body over 60 lines is split into named steps.
+
+Do:
+
+```bayan
+void process(Order order) {
+    validate(order)
+    charge(order)
+    ship(order)
+}
+```
+
+Don't:
+
+```bayan
+void process(Order order) {
+    // validate, charge, pack, ship and notify, all inline in one body of more than 60 lines
+    validate(order)
+}
+```
 
 ## Opting out
 
