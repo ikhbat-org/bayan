@@ -94,6 +94,13 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - After: T7. Decisions from the user, 2026-11-15.
   - Adds the C# `bayan fix [paths…]` subcommand (plan-owner decision 2026-11-16: no fix command existed after T7). It applies every lint fix (`guards.postfix`, `lambdas.it` and the four below) to the named files or package directories, rewrites only files that change, prints the count of fixes per file, and exits 0. Running it twice changes nothing on the second run. It has a `CliTests` case, including one for a path that does not exist (exit 2, the same message `format` gives).
   - Also fixes T7's gate note: `check --package <dir> <file>` reads `lints` from that package's manifest (`csharp/Bayan.Cli/CliApp.cs` near `StyleLintsAt(null)`). Test: `bayan check --all --package . main.byn` in `tests/cases/diag/style-severity-error` gives `error BYN1072` and a nonzero exit.
+  - Plan-owner decisions 2026-11-16, after T7b's first run:
+    - **Fix equivalence:** a fix keeps the program's behaviour, shown by a `run/` case that prints the same output before and after the fix. Byte-identical C is required only of `literals.empty`.
+    - **`literals.empty` sites:** field defaults and annotated `let` locals. Arguments and struct-literal field initialisers go to `work/todo.md`.
+    - **`conditions.patterns` operands:** an index path qualifies only when every index is a name or a literal.
+    - **Qualified constants** (`Op.a or Op.b`) stay out.
+    - **Banner column:** 80.
+    - **Self-hosted manifest row:** the self-hosted manifest parity row joins T7's expected-red list until T9.
   - Done when each lint below defaults to `.suggestion`, takes its severity from `lints`, has a `diag/` case and a fix, and its fix applied by `bayan fix` gives code that passes `bayan check` (test each on its `diag/` case):
     - **BYN1077 `sections.banner`.** A banner comment `// ── Title ──…` is filled with `─` up to one fixed column.
     - **BYN1078 `conditions.patterns`.** Fires when one `&&` or `||` group tests the same operand against constants two or more times, and the operand is a plain name, field or index path. The fix writes a pattern: `x >= A && x <= B` becomes `x is A..=B`, and `op == .a || op == .b` becomes `op is .a or .b`. Mixed groups (`c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C`) become one `or` pattern. A single comparison never fires.
