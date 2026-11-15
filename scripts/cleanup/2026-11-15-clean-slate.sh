@@ -4,7 +4,8 @@
 # Run scripts/cleanup/session-2026-11-15.sh first: it removes the 016 writer worktrees, .worktrees/main-release and that
 # session's branches. This one then:
 #   1. removes the worktrees .worktrees/base-dev (plan 017's dev baseline), .worktrees/dev (where plan 017 merged) and the
-#      0.3.1 prep's fix-m1-relpath, fix-bash32-subst-lint, fix-review-2026-11-15-3, release-0.3.1 and cleanup-slate;
+#      0.3.1 prep's fix-m1-relpath, fix-bash32-subst-lint, fix-review-2026-11-15-3, release-0.3.1, cleanup-slate and
+#      fix-review-4, refusing one (detached or not) whose HEAD has commits not on dev;
 #   2. puts the main checkout on dev, then lists (with --delete-old-build-output, removes) the old layout's ignored build
 #      output left inside the new src/ and tests/;
 #   3. with --delete-branches, deletes every local branch merged into dev (`git branch -d`, which refuses anything else);
@@ -31,12 +32,12 @@ failed=0
 run() { if [ $execute = 1 ]; then printf 'run:   %s\n' "$*"; "$@" || { printf '  failed\n'; failed=1; }; else printf 'would: %s\n' "$*"; fi; }
 
 # 1. worktrees
-for wt in base-dev dev fix-m1-relpath fix-bash32-subst-lint fix-review-2026-11-15-3 release-0.3.1 cleanup-slate; do
+for wt in base-dev dev fix-m1-relpath fix-bash32-subst-lint fix-review-2026-11-15-3 release-0.3.1 cleanup-slate fix-review-4; do
   d="$main/.worktrees/$wt"
   if ! git -C "$main" worktree list --porcelain | grep -qxF "worktree $d"; then printf 'skip:  worktree %s not registered\n' "$wt"; continue; fi
   if [ ! -d "$d" ]; then printf 'skip:  worktree %s directory gone (pruned below)\n' "$wt"; continue; fi
   if [ -n "$(git -C "$d" status --porcelain)" ]; then printf 'refuse: %s has uncommitted changes. Left alone.\n' "$wt"; failed=1; continue; fi
-  if [ "$(git -C "$d" rev-parse --abbrev-ref HEAD)" != HEAD ] && [ "$(git -C "$d" rev-parse --abbrev-ref HEAD)" != dev ] \
+  if [ "$(git -C "$d" rev-parse --abbrev-ref HEAD)" != dev ] \
      && [ -n "$(git -C "$main" rev-list -1 "dev..$(git -C "$d" rev-parse HEAD)")" ]; then
     printf 'refuse: %s holds commits not on dev. Left alone.\n' "$wt"; failed=1; continue
   fi
@@ -55,7 +56,8 @@ else run git -C "$main" switch dev; fi
 
 # 2b. the old layout's ignored build output: git moves tracked files only, so bin/, obj/ and .DS_Store of src/Bayan.*,
 #     tests/Bayan.Tests and selfhost/ stay where they were, inside the new src/. Removed only with --delete-old-build-output, and
-#     only a directory dev does not track and that holds nothing but ignored files.
+#     only a directory dev does not track and whose every file is ignored and under bin/ or obj/ or a .DS_Store
+#     (tmp/, .idea/, *.user and other ignored scratch refuse the directory).
 for p in src/Bayan.Backend.C src/Bayan.Cli src/Bayan.Lowering src/Bayan.Semantics src/Bayan.Syntax src/Bayan.Testing \
          tests/Bayan.Tests tests/native selfhost; do
   d="$main/$p"
@@ -65,6 +67,9 @@ for p in src/Bayan.Backend.C src/Bayan.Cli src/Bayan.Lowering src/Bayan.Semantic
   if [ -n "$(git -C "$main" status --porcelain --untracked-files=all -- "$p" | head -1)" ]; then
     printf 'refuse: %s holds files git does not ignore. Left alone.\n' "$p"; failed=1; continue
   fi
+  other="$(git -C "$main" status --porcelain --ignored=matching --untracked-files=all -- "$p" | sed -n 's/^!! //p' \
+           | grep -vE '(^|/)(bin|obj)/|(^|/)\.DS_Store$' | head -1 || true)"
+  if [ -n "$other" ]; then printf 'refuse: %s holds ignored files that are not build output (%s). Left alone.\n' "$p" "$other"; failed=1; continue; fi
   if [ $buildout = 1 ]; then run rm -rf "$d"; else printf 'stale:  %s (ignored build output; --delete-old-build-output removes it)\n' "$p"; fi
 done
 

@@ -478,7 +478,7 @@ i32 main(ReadOnlySpan<string> argv) {
     var joined = StrBuf()
     var first = true
     for f in git(srcArgs).parts(by: "\n") {
-        if !f.endsWith(".cs") { continue }
+        if !f.endsWith(".cs") || f.startsWith("csharp/tests/") { continue }
         let t = readText(f) catch {
             print($"plan-strings-check: cannot read {f}", to: .stderr)
             return 1

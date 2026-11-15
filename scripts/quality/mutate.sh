@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # C# mutation report (spec 013 R15): Stryker scoped to the named csharp/ files, converted to bayan-quality.json (kind "mutation").
 # usage: mutate.sh [--base BRANCH] [--out FILE] [csharp/.../File.cs ...]
-# With no file, the changed csharp/ files: git diff --name-only BASE...HEAD -- 'csharp/*.cs' (BASE defaults to dev).
+# With no file, the changed csharp/ files outside csharp/tests/ (the test project is not a mutation target):
+# git diff --name-only BASE...HEAD -- 'csharp/*.cs' ':!csharp/tests/**' (BASE defaults to dev).
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 repo="$(cd "$here/../.." && pwd)"
@@ -17,7 +18,7 @@ while [ $# -gt 0 ]; do
 done
 cd "$repo"
 if [ ${#files[@]} -eq 0 ]; then
-  while IFS= read -r f; do files+=("$f"); done < <(git diff --name-only "$base...HEAD" -- 'csharp/*.cs')
+  while IFS= read -r f; do files+=("$f"); done < <(git diff --name-only "$base...HEAD" -- 'csharp/*.cs' ':!csharp/tests/**')
 fi
 if [ ${#files[@]} -eq 0 ]; then echo "mutate.sh: no csharp/ files to mutate" >&2; exit 1; fi
 

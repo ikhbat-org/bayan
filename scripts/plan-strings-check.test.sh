@@ -58,6 +58,11 @@ fixture 'write the kind before the modifier: `{canonical}`'
 out=$(check BYN1044)
 grep -qxF 'BYN1044 help not in csharp/: "put the kind first: `{1}`"' <<< "$out" && grep -qx rc=1 <<< "$out" || fail "a help that drifts from the plan passed" "$out"
 
+put csharp/tests/Bayan.Tests/ParserHelpTests.cs '    const string Want = "put the kind first: `{1}`";'
+g add -A; g commit -q --no-verify -m test
+out=$(check BYN1044)
+grep -qx rc=1 <<< "$out" || fail "a plan help found only in a csharp/tests/ literal passed" "$out"
+
 fixture 'put the kind first: `{canonical}`'
 printf '# BYN1053: title\n\n**Why.** prose only\n' > "$d/docs/diagnostics/BYN1053.md"
 out=$(check BYN1053)
