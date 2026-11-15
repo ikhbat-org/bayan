@@ -16,7 +16,7 @@ set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 . "$root/scripts/release/version.sh"
-limit='Known limit: the stage-2 build of `selfhost/driver` peaks at 1.69 GB of memory.'
+limit='Known limit: the stage-2 build of `src/driver` peaks at 1.69 GB of memory.'
 die() { echo "package: $*" >&2; exit 1; }
 version() { bayan_version "$root"; }
 

@@ -5,8 +5,8 @@ status: enacted
 release: 0.2.0
 sources: Q662, Q663, Q890
 kind: property
-scope: selfhost/emitter/
-proof: tests/Bayan.Tests/SelfhostEmitterNoPanicLawTests.cs
+scope: src/emitter/
+proof: src/tests/SelfhostEmitterNoPanicLawTests.cs
 check: dotnet test -v q --filter "Law=L025"
 timeout: 1200
 enacted: 2026-11-04
@@ -18,7 +18,7 @@ For every program in the corpus (every `tests/cases/run/` input, among them `run
 (byte-identical to `examples/hello/main.byn`, which `CliTests` passes to `--emit-c`), and the 010 generator's programs on the fixed seeds, well-typed or
 corrupted) and every `BuildMode` (`debug`, `safe`, `fast` today), `bayan-emit` terminates and each input exits 0 or 1:
 it never panics, never exits through the runtime's trap paths, and no `bayan-emit --many` run (one mode, one batch) takes
-longer than 120 s. Exit 2 is a usage error (`selfhost/emitter/main.byn:29` `exitUsage`) and never occurs on file input.
+longer than 120 s. Exit 2 is a usage error (`src/emitter/main.byn:29` `exitUsage`) and never occurs on file input.
 Emitter coverage on valid programs comes from the well-typed seeds and the `run/` inputs; the corrupted copies reach the
 emitter only where the C# checker still accepts them.
 
@@ -29,7 +29,7 @@ division by zero, invalid char), or whose exit code is outside {0, 1}, or a `--m
 
 ```
 seed 1187 (debug): exit 134
-  panic: index 7 out of range for list of length 7 at selfhost/emitter/cprint/expr.byn:410
+  panic: index 7 out of range for list of length 7 at src/emitter/cprint/expr.byn:410
 ```
 
 ## Proof notes

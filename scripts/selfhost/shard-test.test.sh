@@ -141,6 +141,8 @@ namespace Ns.B
 }
 X
 ok "serial classes from the .cs tree" "$(bash "$S" serial cs | tr '\n' ' ')" "Ns.A.OneTests Ns.B.FourTests Ns.B.ThreeTests "
+mkdir -p cs2; printf 'namespace Ns.C;\n\n[Collection(nameof(Ser))]\npublic sealed class SixTests\n{\n}\n' > cs2/C.cs
+ok "a definition in one dir serves a class in another" "$(bash "$S" serial cs cs2 | tr '\n' ' ')" "Ns.A.OneTests Ns.B.FourTests Ns.B.ThreeTests Ns.C.SixTests "
 ok "no .cs files: no serial classes" "$(bash "$S" serial nowhere | wc -l | tr -d ' ')" "0"
 
 # filter chunking

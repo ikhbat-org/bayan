@@ -5,8 +5,8 @@ status: enacted
 release: 0.2.0
 sources: Q3, Q1223, Q1225, Q1270
 kind: property
-scope: selfhost/driver/**, src/Bayan.Cli/CliApp.cs
-proof: tests/Bayan.Tests/SelfhostDriverGoldenTests.cs
+scope: src/driver/**, csharp/Bayan.Cli/CliApp.cs
+proof: src/tests/SelfhostDriverGoldenTests.cs
 check: dotnet test -v q --filter "Law=L028"
 timeout: 1200
 ---

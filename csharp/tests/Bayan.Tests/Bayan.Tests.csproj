@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="10.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <!-- The Bayān compiler's tests (src/tests/) build into this assembly: the two halves share helpers (plan 017). -->
+  <ItemGroup>
+    <Compile Include="../../../src/tests/**/*.cs" LinkBase="src-tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Bayan.Syntax/Bayan.Syntax.csproj" />
+    <ProjectReference Include="../../Bayan.Semantics/Bayan.Semantics.csproj" />
+    <ProjectReference Include="../../Bayan.Cli/Bayan.Cli.csproj" />
+    <ProjectReference Include="../../Bayan.Testing/Bayan.Testing.csproj" />
+    <ProjectReference Include="../../../editors/language-server/Bayan.LanguageServer.csproj" />
+  </ItemGroup>
+</Project>

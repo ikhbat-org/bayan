@@ -86,7 +86,7 @@ Package {
 }
 ```
 
-(partial in 0.3: the manifest check (`src/Bayan.Syntax/Packages/Manifest.cs:35`, `selfhost/semantics/manifest.byn:369`) still takes the pre-2026-11-04 knobs (`braces`, a 100-column line knob, a bool `trailingCommas`) and rejects `width`, `align` and `lints`; `bayan format` reads only `booleans` and `primitives`)
+(partial in 0.3: the manifest check (`csharp/Bayan.Syntax/Packages/Manifest.cs:35`, `src/semantics/manifest.byn:369`) still takes the pre-2026-11-04 knobs (`braces`, a 100-column line knob, a bool `trailingCommas`) and rejects `width`, `align` and `lints`; `bayan format` reads only `booleans` and `primitives`)
 
 ## Style lints
 

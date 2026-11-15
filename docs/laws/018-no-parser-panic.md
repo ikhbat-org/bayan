@@ -5,8 +5,8 @@ status: enacted
 release: 0.1.0
 sources: Q473, Q486, Q508, Q509, Q510, Q744, Q748, Q874
 kind: property
-scope: selfhost/parser/parser.byn
-proof: tests/Bayan.Tests/SelfhostParserNoPanicLawTests.cs
+scope: src/parser/parser.byn
+proof: src/tests/SelfhostParserNoPanicLawTests.cs
 check: dotnet test -v q --filter "Law=L018"
 timeout: 300
 ---
@@ -18,7 +18,7 @@ For every byte sequence, `bayan-parse` terminates without a panic. Every node sp
 `bayan-parse --many` over a directory whose input ends in a dropped value prints `span out of range: errorExpr 267+0 outside 260+6`, or any input on which `bayan-parse` exits 134 with `panic:`.
 
 ## Proof notes
-Proof: `tests/Bayan.Tests/SelfhostParserNoPanicLawTests.cs`, one `--many` process per corpus (not one
+Proof: `src/tests/SelfhostParserNoPanicLawTests.cs`, one `--many` process per corpus (not one
 per input), built once via `SelfhostParserTests.Built`. Two corpora, both run through `--many`:
 
 - the corrupted seed corpus (`SelfhostParserGenerator.GenerateCorrupt(Seeds)`), 128 inputs;
@@ -69,7 +69,7 @@ The generator caps block/expression nesting at `SelfhostParserGenerator.NestingC
 corpus caps its own nesting the same way. Both `Parser.cs` and the port recurse without a limit, so a
 deep enough input overflows the stack in both; the proof does not exercise stack overflow (Q508).
 
-Mutation: `selfhost/parser/parser.byn:105` `spanFrom` changed `prevEnd > start ? prevEnd : start` to
+Mutation: `src/parser/parser.byn:105` `spanFrom` changed `prevEnd > start ? prevEnd : start` to
 `prevEnd > start ? prevEnd + 1 : start` (a one-byte span extension). `BayanParseNeverPanicsAndEverySpanMatchesTheCSharpTree`
 failed (`random: exit 134`, `panic: offset out of range` at `lexer/source.byn:42`). Restored from
 `tmp/scratch/parser-backup.byn` with `cp`, `cmp` clean, and the rerun passed.

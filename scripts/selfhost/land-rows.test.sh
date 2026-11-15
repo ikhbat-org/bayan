@@ -9,9 +9,9 @@ r="$root/tmp/land-rows-test"
 rm -rf "$r" && mkdir -p "$r/scripts/selfhost" && cd "$r"
 awk -F'\t' '$1 == "010"' "$root/scripts/selfhost/specs.tsv" | grep -q . || { echo "FAIL: specs.tsv has no 010 row"; exit 1; }
 awk -F'\t' '$1 == "011"' "$root/scripts/selfhost/specs.tsv" | grep -q . || { echo "FAIL: specs.tsv has no 011 row"; exit 1; }
-awk -F'\t' '$1 == "012" && $7 == "selfhost/driver" && $9 == "feat/012-self-hosted-bootstrap"' "$root/scripts/selfhost/specs.tsv" | grep -q . || { echo "FAIL: specs.tsv has no 012 row"; exit 1; }
-awk -F'\t' '$1 == "017" && $7 == "selfhost/driver" && $8 == "SelfhostDefaultT" && $9 == "feat/017-selfhost-default"' "$root/scripts/selfhost/specs.tsv" | grep -q . || { echo "FAIL: specs.tsv has no 017 row"; exit 1; }
-awk -F'\t' '$1 == "018" && $7 == "selfhost/semantics" && $8 == "SelfhostRevisionT" && $9 == "feat/018-rev-0021-checker"' "$root/scripts/selfhost/specs.tsv" | grep -q . || { echo "FAIL: specs.tsv has no 018 row"; exit 1; }
+awk -F'\t' '$1 == "012" && $7 == "src/driver" && $9 == "feat/012-self-hosted-bootstrap"' "$root/scripts/selfhost/specs.tsv" | grep -q . || { echo "FAIL: specs.tsv has no 012 row"; exit 1; }
+awk -F'\t' '$1 == "017" && $7 == "src/driver" && $8 == "SelfhostDefaultT" && $9 == "feat/017-selfhost-default"' "$root/scripts/selfhost/specs.tsv" | grep -q . || { echo "FAIL: specs.tsv has no 017 row"; exit 1; }
+awk -F'\t' '$1 == "018" && $7 == "src/semantics" && $8 == "SelfhostRevisionT" && $9 == "feat/018-rev-0021-checker"' "$root/scripts/selfhost/specs.tsv" | grep -q . || { echo "FAIL: specs.tsv has no 018 row"; exit 1; }
 for f in specs.tsv guard.sh wave-brief.py writer-protocol.md bayan-cheatsheet.md; do cp "$root/scripts/selfhost/$f" scripts/selfhost/; done
 git init -q -b base && git config user.email t@t && git config user.name t
 printf 'tmp/\n' > .gitignore
@@ -22,11 +22,11 @@ done
 printf '# Handoff\n' > docs/bayan-questions.md
 git add -A && git commit -qm "test: base"
 branch() { git switch -q -c "$1" base; for f in "${@:2}"; do mkdir -p "$(dirname "$f")"; echo "$1" > "$f"; done; git add -A; git commit -qm "test: $1"; git switch -q base; }
-branch in010 selfhost/semantics/a.byn selfhost/semantics/ctx.byn
-branch out010 selfhost/semantics/a.byn selfhost/emitter/lctx.byn
-branch in011 selfhost/emitter/a.byn selfhost/emitter/lctx.byn selfhost/emitter/cprint/cctx.byn
-branch out011 selfhost/emitter/a.byn selfhost/semantics/ctx.byn
-branch own011 selfhost/emitter/a.byn selfhost/emitter/other.byn
+branch in010 src/semantics/a.byn src/semantics/ctx.byn
+branch out010 src/semantics/a.byn src/emitter/lctx.byn
+branch in011 src/emitter/a.byn src/emitter/lctx.byn src/emitter/cprint/cctx.byn
+branch out011 src/emitter/a.byn src/semantics/ctx.byn
+branch own011 src/emitter/a.byn src/emitter/other.byn
 scope() { /bin/bash "$root/scripts/selfhost/land.sh" --check-scope "$@" 2>&1 || true; }
 in010=$(scope T99 in010); out010=$(scope T99 out010)
 in011=$(scope 011 T99 in011); out011=$(scope 011 T99 out011); own011=$(scope 011 T99 own011)
@@ -35,10 +35,10 @@ prompt011=$(grep -c -- "--spec 011" tmp/011-t99/prompt.md || true); prompt010=$(
 cd "$root"; rm -rf "$r"
 fail() { echo "FAIL: $1"; echo "$2"; exit 1; }
 echo "$in010" | grep -q '^SCOPE OK T99$' || fail "010: an in-area branch was refused" "$in010"
-echo "$out010" | grep -q 'scope: selfhost/emitter/lctx.byn is outside --allow' && echo "$out010" | grep -q '^LAND REFUSED' || fail "010: a branch touching the 011 shared file was not refused" "$out010"
+echo "$out010" | grep -q 'scope: src/emitter/lctx.byn is outside --allow' && echo "$out010" | grep -q '^LAND REFUSED' || fail "010: a branch touching the 011 shared file was not refused" "$out010"
 echo "$in011" | grep -q '^SCOPE OK T99$' || fail "011: an in-area branch (both shared-state files) was refused" "$in011"
-echo "$out011" | grep -q 'scope: selfhost/semantics/ctx.byn is outside --allow' && echo "$out011" | grep -q '^LAND REFUSED' || fail "011: a branch touching the 010 shared file was not refused" "$out011"
-echo "$own011" | grep -q 'scope: selfhost/emitter/other.byn is outside --allow' || fail "011: a .byn outside the task's --allow was accepted" "$own011"
+echo "$out011" | grep -q 'scope: src/semantics/ctx.byn is outside --allow' && echo "$out011" | grep -q '^LAND REFUSED' || fail "011: a branch touching the 010 shared file was not refused" "$out011"
+echo "$own011" | grep -q 'scope: src/emitter/other.byn is outside --allow' || fail "011: a .byn outside the task's --allow was accepted" "$own011"
 echo "$nospec" | grep -q '^LAND REFUSED: no row for spec 099' || fail "an unknown spec was not refused" "$nospec"
 [ "$prompt011" = 1 ] || fail "the 011 brief has no '--spec 011' guard line in tmp/011-t99" "$prompt011"
 [ "$prompt010" = 0 ] || fail "the 010 brief carries --spec (its prompt must stay as it was)" "$prompt010"

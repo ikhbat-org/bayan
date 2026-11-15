@@ -18,7 +18,7 @@ State re-checked on this branch (dev at 0.3.0 preparation, 2026-11-14).
 
 | Gate | Needed by | Check | State |
 | --- | --- | --- | --- |
-| G1 Unit suffix lookup lands (lexer suffix-to-unit; BYN3203 and BYN3205 raised) | Phase 2 | `5s` binds as `Seconds`; a bare literal is rejected | not met: neither code exists in `src/` or `docs/diagnostics/` |
+| G1 Unit suffix lookup lands (lexer suffix-to-unit; BYN3203 and BYN3205 raised) | Phase 2 | `5s` binds as `Seconds`; a bare literal is rejected | not met: neither code exists in `csharp/` or `docs/diagnostics/` |
 | G2 Particle checks land (5.3e) | Phase 2 | BYN5006-family active | met: BYN5006 `ParameterNeedsParticle` in `DiagnosticCodes.cs` |
 | G3 `union error` binds (5.3b) | Phase 3 | `catch switch` with whole-value arms works | met on the evidence of `catch switch` and `union error` in `tests/cases/run/` (for example `self-hosting-lambdas.byn`); confirm whole-value arms (`.case name => …`) before Phase 3 |
 | G4 `uses` and `provide` land | Phase 2 | `provide clock: …` compiles | met: `tests/cases/run/lambda-uses-provide.byn` |

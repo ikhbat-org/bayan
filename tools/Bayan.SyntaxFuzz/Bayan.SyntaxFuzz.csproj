@@ -4,6 +4,6 @@
     <RootNamespace>Bayan.SyntaxFuzz</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/Bayan.Syntax/Bayan.Syntax.csproj" />
+    <ProjectReference Include="../../csharp/Bayan.Syntax/Bayan.Syntax.csproj" />
   </ItemGroup>
 </Project>

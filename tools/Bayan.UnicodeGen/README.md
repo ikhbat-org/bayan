@@ -1,9 +1,9 @@
 # Bayan.UnicodeGen
 
-Generates `selfhost/lexer/unicode-tables.byn` and `src/Bayan.Syntax/Lexing/UnicodeTables.g.cs`
+Generates `src/lexer/unicode-tables.byn` and `csharp/Bayan.Syntax/Lexing/UnicodeTables.g.cs`
 from the same UCD data: identifier-class ranges and the NFC data (CCC, full canonical decompositions,
 composition pairs) that both lexers use for identifiers and the BYN0005 NFC check.
-`src/Bayan.Syntax/Lexing/Nfc.cs` is the algorithm the C# lexer runs and the Bayan port mirrors method
+`csharp/Bayan.Syntax/Lexing/Nfc.cs` is the algorithm the C# lexer runs and the Bayan port mirrors method
 by method; the generator compiles that same file.
 
 ## Regenerate
@@ -11,7 +11,7 @@ by method; the generator compiles that same file.
 From the repository root:
 
 ```
-dotnet run --project tools/Bayan.UnicodeGen -- --unicode 16.0.0 --out selfhost/lexer/unicode-tables.byn --cs-out src/Bayan.Syntax/Lexing/UnicodeTables.g.cs
+dotnet run --project tools/Bayan.UnicodeGen -- --unicode 16.0.0 --out src/lexer/unicode-tables.byn --cs-out csharp/Bayan.Syntax/Lexing/UnicodeTables.g.cs
 ```
 
 The UCD files are downloaded once from `https://www.unicode.org/Public/<version>/ucd/` into

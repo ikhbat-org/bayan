@@ -66,7 +66,7 @@ g checkout -q HEAD -- .
 [ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "fixture not restored after the refused cut: $(cat "$r/VERSION")"
 
 out="$(bash "$cut" 1.2.3)"
-for f in VERSION src/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md docs/specs/README.md; do
+for f in VERSION csharp/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md docs/specs/README.md; do
   echo "$out" | grep -qx "changed $f" || fail "no 'changed $f' in: $out"
 done
 [ "$(cat "$r/VERSION")" = 1.2.3 ] || fail "cut VERSION: $(cat "$r/VERSION")"

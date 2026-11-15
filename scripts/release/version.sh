@@ -32,11 +32,11 @@ bayan_release_docs="$bayan_header_docs docs/RELEASING.md docs/bayan-contributing
   docs/specs/README.md docs/bayan-feature-history.md"
 
 # The code and test mirrors of VERSION, one per line: file, then the sed -E text before and after the version
-# (tab-separated). bootstrap/bayan.c is not one: scripts/selfhost/land.sh regenerates it from selfhost/.
+# (tab-separated). bootstrap/bayan.c is not one: scripts/selfhost/land.sh regenerates it from src/.
 bayan_mirrors() {
   printf '%s\t%s\t%s\n' \
-    src/Bayan.Backend.C/Toolchain.cs '(const string CompilerVersion = ")' '(";)' \
-    selfhost/driver/main.byn '^(const version: string = ")' '(")' \
+    csharp/Bayan.Backend.C/Toolchain.cs '(const string CompilerVersion = ")' '(";)' \
+    src/driver/main.byn '^(const version: string = ")' '(")' \
     tests/cases/out/dist.tree '("compiler": "bayan )' '(")' \
     README.md '(scripts/dist\.sh .*dist/[a-z0-9-]+/)' '(/bayan)'
 }

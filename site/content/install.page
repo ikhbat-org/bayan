@@ -16,7 +16,7 @@ template: docs
 <p>The compiler is written in C# and published as a native executable. From a clone of the repository:</p>
 <pre><code>git clone https://github.com/ikhbat-org/bayan
 cd bayan
-dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
+dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
 ./tmp/publish/bayan --version</code></pre>
 <p>Use your own runtime identifier in place of <code>osx-arm64</code>, for example <code>linux-x64</code> or <code>win-x64</code>. Copy <code>tmp/publish/bayan</code> to a directory on your <code>PATH</code>.</p>
 

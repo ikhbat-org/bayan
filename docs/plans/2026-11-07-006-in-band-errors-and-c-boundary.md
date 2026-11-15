@@ -16,21 +16,21 @@ Three lessons: (1) errors need a channel the caller cannot confuse with data; (2
 
 ## Why this reaches Bayan
 
-- Every Linux binary links musl statically: `src/Bayan.Backend.C/Targets.cs:11-12` (`x86_64-linux-musl`, `aarch64-linux-musl`). macOS uses its libc, Windows the UCRT (`x86_64-windows-gnu`, `Targets.cs:15`).
-- The runtime (`src/runtime/bayan-rt.c`, 3,569 lines; `bayan-rt.h`, 572) calls 96 libc and OS functions, listed in `src/runtime/libc-uses.txt` (spec 012 T8, `docs/specs/012-self-hosted-bootstrap/012-tasks.md:16`). A libc divergence reaches every program through it.
-- The runtime already carries the norm in places: `byn_io_read` returns `0` or an `IoError` code (`bayan-rt.h:445-446`); `Env.get` returns `string?` (`src/Bayan.Semantics/Builtins.cs:128`); `position` returns `i64?` (`Binding/BuiltinMembers.cs:64`).
-- The norm-setter does not follow the norm: `selfhost/**/*.byn` (90 files) has 140 `return -1`, 620 `== -1`/`!= -1` and 27 lines with `) fails ` (grep, 2026-11-07). Spec 010/011 rule the port matches the C# method for method (handoff Q711, `docs/decisions/2026-11-14-004-answered-questions.md:2070`), so this is deliberate and must not change mid-port.
+- Every Linux binary links musl statically: `csharp/Bayan.Backend.C/Targets.cs:11-12` (`x86_64-linux-musl`, `aarch64-linux-musl`). macOS uses its libc, Windows the UCRT (`x86_64-windows-gnu`, `Targets.cs:15`).
+- The runtime (`runtime/bayan-rt.c`, 3,569 lines; `bayan-rt.h`, 572) calls 96 libc and OS functions, listed in `runtime/libc-uses.txt` (spec 012 T8, `docs/specs/012-self-hosted-bootstrap/012-tasks.md:16`). A libc divergence reaches every program through it.
+- The runtime already carries the norm in places: `byn_io_read` returns `0` or an `IoError` code (`bayan-rt.h:445-446`); `Env.get` returns `string?` (`csharp/Bayan.Semantics/Builtins.cs:128`); `position` returns `i64?` (`Binding/BuiltinMembers.cs:64`).
+- The norm-setter does not follow the norm: `src/**/*.byn` (90 files) has 140 `return -1`, 620 `== -1`/`!= -1` and 27 lines with `) fails ` (grep, 2026-11-07). Spec 010/011 rule the port matches the C# method for method (handoff Q711, `docs/decisions/2026-11-14-004-answered-questions.md:2070`), so this is deliberate and must not change mid-port.
 
 ## 1. Lessons mapped to Bayan mechanisms
 
 | # | Lesson | Mechanism | Status | Evidence |
 |---|---|---|---|---|
-| L1 | Errors travel on their own channel | `fails`, `union error`, `try`, exhaustive `catch switch`, `catch (E.v)` | exists | `docs/bayan-spec.md:1224-1247`; BYN2602-2606 `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs:216-220` |
+| L1 | Errors travel on their own channel | `fails`, `union error`, `try`, exhaustive `catch switch`, `catch (E.v)` | exists | `docs/bayan-spec.md:1224-1247`; BYN2602-2606 `csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs:216-220` |
 | L2 | Absence is a type, not a value | `T?`, `??`, `?? return/fail` | exists | spec `:310-313`; `position` is `i64?` `BuiltinMembers.cs:64-66`; `tryGet` `:102,:107` |
 | L3 | A dropped result is a bug | BYN3201, "an unused non-void value is a compile error"; `let _ = f()` discards | exists, opt-out takes no reason | spec `:142` (writes `_ = f()`, see W2a); `Binding/BinderExpressions.cs:65-70`; golden `tests/cases/diag/unused-value.byn` |
-| L4 | A failure must not become a valid-looking value | `f() catch value` is allowed with any `value` | partial: legal and documented, nothing warns | spec `:1244`; cheatsheet shows `catch { return -1 }` `scripts/selfhost/bayan-cheatsheet.md:198`; `Io.readText(path) catch ""` `selfhost/driver/build.byn` |
-| L5 | A library cannot change its error contract silently | exhaustive `catch switch` breaks on a new variant; no tool reports it as a breaking change | partial: compile error exists, no API diff | spec `:1244`; `bayan audit` lists bypasses only `src/Bayan.Cli/Audit.cs:8-10`; §19.3 names advisories as spec-only `:2124` |
-| L6 | C's in-band errors stay in C | `extern` needs `unsafe`; wrappers are "once in safe APIs" by convention | partial: no check that a wrapper translates NULL/-1 | spec `:2056-2057`; `comptime CImport` is spec-only (no match in `src/`) |
+| L4 | A failure must not become a valid-looking value | `f() catch value` is allowed with any `value` | partial: legal and documented, nothing warns | spec `:1244`; cheatsheet shows `catch { return -1 }` `scripts/selfhost/bayan-cheatsheet.md:198`; `Io.readText(path) catch ""` `src/driver/build.byn` |
+| L5 | A library cannot change its error contract silently | exhaustive `catch switch` breaks on a new variant; no tool reports it as a breaking change | partial: compile error exists, no API diff | spec `:1244`; `bayan audit` lists bypasses only `csharp/Bayan.Cli/Audit.cs:8-10`; §19.3 names advisories as spec-only `:2124` |
+| L6 | C's in-band errors stay in C | `extern` needs `unsafe`; wrappers are "once in safe APIs" by convention | partial: no check that a wrapper translates NULL/-1 | spec `:2056-2057`; `comptime CImport` is spec-only (no match in `csharp/`) |
 | L7 | Security states are variants, not magic strings | `Secret<T>`, `equalsConstantTime`, `CryptoRandom`, `Untrusted<T>` | spec only for secrets; `Untrusted` partial | spec `:1718-1726`; no `Secret` in `Builtins.cs`; `Untrusted` 5 hits in `Builtins.cs` |
 | L8 | libc returns are checked | out-of-memory panics (`bayan-rt.c:186,1407,1439`), `getcwd` (`:2098-2099`), `getrandom` (`:2347-2351`) | partial: `clock_gettime` `:3566`, `QueryPerformanceCounter` `:3559`, `WaitForSingleObject`/`GetExitCodeProcess` `:3419-3421`, `snprintf` `:438,:458`, `atoi` `:449`, Unix `waitpid` `:3511` unchecked | audit in W0 (the wait calls) and W1 (the rest) |
 | L9 | No locale-dependent parsing | per-call "C" locale, `strtod_l`/`_strtod_l`; the runtime never calls `setlocale` (0 matches in `bayan-rt.c`), so plain `strtod`/`atoi` also run in the C locale | exists | `bayan-rt.c:1544-1559,1591-1593` vs `:439,449` |
@@ -56,13 +56,13 @@ Priority order (replaces "easiest first"): W0, then W1 (libc pin, NUL, errno, re
 
 **Test (this is L031).** Unit-test the mapping function with injected failures: wait failed, exit query failed, Windows wait failed with the child still running (`STILL_ACTIVE`), signaled, normal exit. Run on linux-x64 (musl), macOS and wp1.
 
-**Files.** `src/runtime/bayan-rt.c`, `bayan-rt.h` (the `byn_io_run` surface), `tests/native/*.c`, `tests/Bayan.Tests/RuntimeNativeTests.cs`.
+**Files.** `runtime/bayan-rt.c`, `bayan-rt.h` (the `byn_io_run` surface), `runtime/tests/*.c`, `csharp/tests/Bayan.Tests/RuntimeNativeTests.cs`.
 
 ### W1. Runtime audit: every libc return checked, no in-band error returns
 
-**Scope.** All 96 entries of `src/runtime/libc-uses.txt`. For each call site: is the return checked; what does each libc do on failure; does the runtime's own API return an in-band value to the compiler.
+**Scope.** All 96 entries of `runtime/libc-uses.txt`. For each call site: is the return checked; what does each libc do on failure; does the runtime's own API return an in-band value to the compiler.
 
-**Files.** `src/runtime/bayan-rt.c`, `bayan-rt.h`, `src/runtime/libc-uses.txt`, new `docs/security/runtime-libc-audit.md` (the table), `tests/native/*.c`, `tests/Bayan.Tests/RuntimeNativeTests.cs`.
+**Files.** `runtime/bayan-rt.c`, `bayan-rt.h`, `runtime/libc-uses.txt`, new `docs/security/runtime-libc-audit.md` (the table), `runtime/tests/*.c`, `csharp/tests/Bayan.Tests/RuntimeNativeTests.cs`.
 
 **Known in-band returns inside the runtime API** (internal to compiler-emitted C, translated by the emitter, so acceptable if documented and tested):
 
@@ -102,7 +102,7 @@ The two wait rows (`WaitForSingleObject`/`GetExitCodeProcess` `:3419-3421`, `wai
 Hashing: the map seed comes from the OS CSPRNG or is fixed (`:2360-2365`). No password or message hashing exists in the runtime, so the `crypt` class of bug has no current site. Record this in the audit table so a future `std.crypto` (W5) does not add one to the runtime.
 
 **Acceptance.** Every row above is either fixed or has a one-line reason in `runtime-libc-audit.md`. `libc-uses.txt` gains a column or a sibling file: per function, "checked at line N" or "cannot fail: reason".
- Each fixed row's error mapping is unit-tested through an injectable seam (`tests/native/`, built by `Toolchain.Build` as `RuntimeNativeTests.cs:193` does); OS-level reproduction is optional. Run on linux-x64 (musl; `RuntimeNativeTests.IsMusl` at `:101` is a private check the existing heap test uses at `:95`, reuse it for musl-only tests) and on wp1 (`tests/windows-known-failures.txt` lists one entry today, `SelfhostEmitterSpeedTests.OneMegabyteLowerAndEmitWithinTenTimes`, and must gain no runtime test).
+ Each fixed row's error mapping is unit-tested through an injectable seam (`runtime/tests/`, built by `Toolchain.Build` as `RuntimeNativeTests.cs:193` does); OS-level reproduction is optional. Run on linux-x64 (musl; `RuntimeNativeTests.IsMusl` at `:101` is a private check the existing heap test uses at `:95`, reuse it for musl-only tests) and on wp1 (`tests/windows-known-failures.txt` lists one entry today, `SelfhostEmitterSpeedTests.OneMegabyteLowerAndEmitWithinTenTimes`, and must gain no runtime test).
 
 **Touches.** Spec §21.1 (none), handoff Question: "runtime libc returns: policy is check or document, no exceptions".
 
@@ -114,11 +114,11 @@ The discarded-result rule already exists (L3), so the gap is narrower than the b
 
 **W2b. `catch <literal>` warning, gated.** Fire when the handler value is a literal whose type equals the call's non-optional result type (`catch -1` on an `i64` call, `catch ""` on a `string` call). `null` is not a value of a non-optional type (spec `:311`), so it is never a candidate. Do not fire when the handler is `return`/`fail`/`break`/`continue`/a `never` call, when the `catch` is a `catch switch`, or when the enclosing function's name starts with `try` (the `tryX` convention, `docs/bayan-library-tiers.md:200`). A `return <literal>` handler does not fire (the lint only sees a value substituted in place), so the cheatsheet's `catch { return -1 }` (`scripts/selfhost/bayan-cheatsheet.md:198`) stays silent. Fix-it: "handle with `?? return`, `catch return`, or add the error to this function's `fails`".
 
-Gate: before merging, run it over `lib/` and `selfhost/` and report the hit count with a sample of 10 hits classified true or false positive. Ship only if the false-positive rate is low; otherwise drop it and record why.
+Gate: before merging, run it over `lib/` and `src/` and report the hit count with a sample of 10 hits classified true or false positive. Ship only if the false-positive rate is low; otherwise drop it and record why.
 
 **W2c** moved into W7 as the migration's progress metric.
 
-**Files.** `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`, a new lint in `src/Bayan.Semantics/Binding/`, `docs/diagnostics/BYNxxxx.md`, `tests/cases/diag/catch-literal-sentinel.byn` and `.diag`, plus the matching `selfhost/semantics` port in the same change as the C#. L022 (`docs/laws/022-binder-equivalence.md`, enacted) requires `bayan-check` and `bayan check` to report the same diagnostics on every clean-parsing diag case, so a C# lint with a golden and no port fails it (conservative choice over an L022 ruling). The port adds lint code only; no existing selfhost return shape changes.
+**Files.** `csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`, a new lint in `csharp/Bayan.Semantics/Binding/`, `docs/diagnostics/BYNxxxx.md`, `tests/cases/diag/catch-literal-sentinel.byn` and `.diag`, plus the matching `src/semantics` port in the same change as the C#. L022 (`docs/laws/022-binder-equivalence.md`, enacted) requires `bayan-check` and `bayan check` to report the same diagnostics on every clean-parsing diag case, so a C# lint with a golden and no port fails it (conservative choice over an L022 ruling). The port adds lint code only; no existing selfhost return shape changes.
 
 **Acceptance.** One golden that fires and one that stays silent (each exemption above is a line in the silent golden). The dry-run report above is attached to the change. Zero new warnings on `lib/std/json/*.byn`.
 
@@ -157,16 +157,16 @@ Gate: before merging, run it over `lib/` and `selfhost/` and report the hit coun
 
 **Timing.** Not during the ports. Spec 010/011/012 ports match C# method for method (Q711); changing return shapes there would break the oracle tests. The migration is its own spec after the self-hosted compiler reaches parity on every golden kind and the bootstrap fixpoint law (L027, `docs/laws/027-bootstrap-fixpoint.md`) is enacted. Working name: spec "selfhost sentinel migration", number assigned then (017 is selfhost-default, `docs/specs/017-selfhost-default/` on branch `feat/017-selfhost-default`, not yet on dev; the next free number then).
 
-**Progress metric (W2c, moved from W2).** A sentinel-comparison lint: for a non-public function `f` returning an integer type, if every call site compares the result with the same literal (`== -1`, `!= -1`, `< 0`) and `f` has at least one `return <that literal>`, report once at `f`'s declaration: "callers treat `-1` as absence; return `i64?` or declare `fails`". It needs every call site of `f`, so it runs after binding over all functions of the module; `NeverReassignedVarLint` (`Binding/NeverReassignedVarLint.cs:13`) is per-function, so this needs a new module-level pass. It ships with the migration spec, the C# lint and the selfhost port together (L022). It is a warning; a test counts it over `selfhost/` and that count is the baseline. No `lints:` manifest key and no module-level `@allow` are needed. Files: a new `src/Bayan.Semantics/Binding/SentinelLint.cs`, `tests/cases/diag/sentinel-return.byn` and `.diag` (one fires, one silent), `docs/diagnostics/BYNxxxx.md`; code BYN49xx (D4).
+**Progress metric (W2c, moved from W2).** A sentinel-comparison lint: for a non-public function `f` returning an integer type, if every call site compares the result with the same literal (`== -1`, `!= -1`, `< 0`) and `f` has at least one `return <that literal>`, report once at `f`'s declaration: "callers treat `-1` as absence; return `i64?` or declare `fails`". It needs every call site of `f`, so it runs after binding over all functions of the module; `NeverReassignedVarLint` (`Binding/NeverReassignedVarLint.cs:13`) is per-function, so this needs a new module-level pass. It ships with the migration spec, the C# lint and the selfhost port together (L022). It is a warning; a test counts it over `src/` and that count is the baseline. No `lints:` manifest key and no module-level `@allow` are needed. Files: a new `csharp/Bayan.Semantics/Binding/SentinelLint.cs`, `tests/cases/diag/sentinel-return.byn` and `.diag` (one fires, one silent), `docs/diagnostics/BYNxxxx.md`; code BYN49xx (D4).
 
-**Oracle.** The migration spec's oracle is the migrated compiler against itself: every `run/`, `diag`, `typed`, `parse`, `lex` golden unchanged, L027 fixpoint holds, and the W2c lint count over `selfhost/` goes from the W7 baseline to zero, file by file. Each task takes one file (`selfhost/semantics/states.byn` and `manifest.byn` lead with 13 `return -1` each, `binder.byn` 12).
+**Oracle.** The migration spec's oracle is the migrated compiler against itself: every `run/`, `diag`, `typed`, `parse`, `lex` golden unchanged, L027 fixpoint holds, and the W2c lint count over `src/` goes from the W7 baseline to zero, file by file. Each task takes one file (`src/semantics/states.byn` and `manifest.byn` lead with 13 `return -1` each, `binder.byn` 12).
 
 **Teaching material.** Everything below is now except the porters' cheatsheet, which waits for parity. These are what agents read first:
 
 - `scripts/selfhost/bayan-cheatsheet.md:190-200` is the porters' reference and its `catch { return -1 }` example matches what they port, so it is not touched during the ports. After parity, replace it with `?? return .notFound` and `catch return` and add one line: "a failure is never a value; return `T?` or `fails`". Until then the same text goes in a separate guide for non-porters (the style doc below).
 - `docs/bayan-style.md`: a short "absence and failure" rule with the three shapes (`T?`, `fails`, `never`) and the one forbidden one (a literal that is also a valid result).
 - `lib/std/json` already models it (`fails JsonError`); link it as the example.
-- `bayan new` templates (`src/Bayan.Cli/Scaffold.cs:270,286`): the generated `greeting()`/`twice()` get a sibling that returns `T?` so the first program a user sees has one optional.
+- `bayan new` templates (`csharp/Bayan.Cli/Scaffold.cs:270,286`): the generated `greeting()`/`twice()` get a sibling that returns `T?` so the first program a user sees has one optional.
 
 **Acceptance.** After parity, the cheatsheet is compiler-checked as its header requires (`bayan-cheatsheet.md:2`); a grep for `return -1` in `docs/**/*.md` code blocks outside the milestones and Questions docs and specs finds only the migration plan.
 
@@ -184,7 +184,7 @@ The sshd bug would have been L029's counterexample: a hash function whose error 
 
 - **W0** lands now, in the same change as 017 plan D6 (`Io.run` `env:`/`timeout`): a failed `waitpid` (other than EINTR), `WaitForSingleObject` or `GetExitCodeProcess` is `fail IoError`, never exit code 0 or 259; a signal-killed child fails with a distinct `.signaled(i32 signal)` (the 128+n convention is dropped); one status-mapping function serves both platform paths, and the D6 timeout and kill path goes through it, so a killed child reports `.timeout`, never a stale or zeroed status. L031 is enacted with it; W0's injected-failure unit test is its proof, run on musl, macOS and wp1.
 - **W1's rules apply now to the new fs slice** (`Fs.rename`, `copy`, `modified`, `setModified`, `realPath`): every libc/OS return checked, errno read only after a return that signals failure, an interior `\0` in a path rejected with `IoError`, `libc-uses.txt` rows in the same commit.
-- **D2:** warning, shipped only if W2b's dry run over `lib/` and `selfhost/` shows a low false-positive rate; the 10-hit sample is attached to that change.
+- **D2:** warning, shipped only if W2b's dry run over `lib/` and `src/` shows a low false-positive rate; the 10-hit sample is attached to that change.
 - **D4:** BYN49xx; descriptor names only until the A2 renumbering in round 4.
 - **D5:** after parity and L027, in its own spec.
 - **D6:** `bayan pkg diff`.
@@ -209,7 +209,7 @@ The sshd bug would have been L029's counterexample: a hash function whose error 
 
 ## 4. Out of scope
 
-Memory safety, the `unsafe` rules, taint (`Untrusted<T>`) beyond the one "secret sink" row in W5, PAM-style pluggable auth, any change to `docs/bayan-spec.md` or `docs/bayan-milestones.md` from this plan, and any edit to `selfhost/` before the W7 spec other than the same-change lint port L022 requires (W2b's `selfhost/semantics` port).
+Memory safety, the `unsafe` rules, taint (`Untrusted<T>`) beyond the one "secret sink" row in W5, PAM-style pluggable auth, any change to `docs/bayan-spec.md` or `docs/bayan-milestones.md` from this plan, and any edit to `src/` before the W7 spec other than the same-change lint port L022 requires (W2b's `src/semantics` port).
 
 ## Noticed, not addressed
 

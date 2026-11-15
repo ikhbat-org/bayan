@@ -10,19 +10,19 @@
 set -e
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 r="$root/tmp/preflight-test"; aux="$root/tmp/preflight-test-aux"
-rm -rf "$r" "$aux" && mkdir -p "$r/docs/specs/012-self-hosted-bootstrap" "$r/src" "$r/tests/Bayan.Tests" "$aux/bin" && cd "$r"
+rm -rf "$r" "$aux" && mkdir -p "$r/docs/specs/012-self-hosted-bootstrap" "$r/csharp/tests/Bayan.Tests" "$aux/bin" && cd "$r"
 git init -q -b base && git config user.email t@t && git config user.name t
 printf 'tmp/\n' > .gitignore
 cat > docs/specs/012-self-hosted-bootstrap/012-tasks.md <<'EOF'
-- [ ] T99 fixture — files: `src/a.c`, `.github/workflows/r.yml`, `src/{d,e}.c`, `bootstrap/r.c`, `scripts/r.sh`, `tests/Bayan.Tests/FooInventoryTests.cs` (declares `FooT8Tests`, not `x.cs`) — covers: R1 — done when: x
-- [ ] T98 fixture — files: `src/a.c` — covers: R1 — Questions Q300–Q304
-- [ ] T97 fixture — files: `src/a.c` — covers: R1
+- [ ] T99 fixture — files: `csharp/a.c`, `.github/workflows/r.yml`, `csharp/{d,e}.c`, `bootstrap/r.c`, `scripts/r.sh`, `csharp/tests/Bayan.Tests/FooInventoryTests.cs` (declares `FooT8Tests`, not `x.cs`) — covers: R1 — done when: x
+- [ ] T98 fixture — files: `csharp/a.c` — covers: R1 — Questions Q300–Q304
+- [ ] T97 fixture — files: `csharp/a.c` — covers: R1
 EOF
 : > docs/specs/012-self-hosted-bootstrap/012-plan.md
 printf '100. old\n101. older\n' > docs/bayan-questions.md
 mkdir -p docs/decisions; printf '| Q203 | t | answered | not recorded | general |\n| Q204 | t | answered | not recorded | general |\n\n203. the long answer\n' > docs/decisions/2026-11-14-004-answered-questions.md
-printf 'int alpha;\nint beta;\nint gamma;\n' > src/a.c
-printf 'namespace Bayan.Tests;\npublic sealed class FooT8Tests { }\n' > tests/Bayan.Tests/FooInventoryTests.cs
+printf 'int alpha;\nint beta;\nint gamma;\n' > csharp/a.c
+printf 'namespace Bayan.Tests;\npublic sealed class FooT8Tests { }\n' > csharp/tests/Bayan.Tests/FooInventoryTests.cs
 git add -A && git commit -qm "test: base"
 printf 'spec\ttask\tfirst\tlast\n012\tT99\t200\t204\n' > "$aux/q.tsv"
 cat > "$aux/bin/dotnet" <<'EOF'
@@ -42,11 +42,11 @@ br() { git switch -q -c "$1" base; shift; while [ $# -gt 0 ]; do mkdir -p "$(dir
   git add -A; git commit -qm "test: branch"; git switch -q base; }
 pf() { PATH="$aux/bin:$PATH" BAYAN_BASE=base BAYAN_QRANGES=$aux/q.tsv /bin/bash "$root/scripts/selfhost/preflight.sh" 012 "$1" "$2" 2>&1 && echo "rc=0" || echo "rc=$?"; }
 REV=docs/specs/012-self-hosted-bootstrap/reviews/T99.md
-br good src/a.c 'int delta;' docs/bayan-questions.md '200. **T99.** `src/a.c:2` `beta` and `a.c:1-2` (bare name) hold it; `src/a.c:3`, then `gamma` elsewhere; `src/a.c:1` `gamma` is 2 lines on.' \
-  $REV '| 1 | LOW | `src/a.c:4` `delta` | open |'
-br stale src/a.c 'int delta;' docs/bayan-questions.md '201. `src/a.c:9` is past the end; `src/a.c:1` `delta` is 3 lines on; `src/a.c:1-2` `gamma` ends short; `nope.c:1` does not exist; `src/a.c:3` `gamma` holds.'
-br outside .github/workflows/r.yml 'on: push' .github/workflows/s.yml 'on: push' src/b.c 'int b;' scripts/r.sh 'true' scripts/s.sh 'true' bootstrap/r.c "int r;" src/d.c 'int d;' src/e.c 'int e;' tests/Bayan.Tests/BarTests.cs 'class BarTests {}' work/todo.md '- x'
-br driver selfhost/driver/main.byn 'x'
+br good csharp/a.c 'int delta;' docs/bayan-questions.md '200. **T99.** `csharp/a.c:2` `beta` and `a.c:1-2` (bare name) hold it; `csharp/a.c:3`, then `gamma` elsewhere; `csharp/a.c:1` `gamma` is 2 lines on.' \
+  $REV '| 1 | LOW | `csharp/a.c:4` `delta` | open |'
+br stale csharp/a.c 'int delta;' docs/bayan-questions.md '201. `csharp/a.c:9` is past the end; `csharp/a.c:1` `delta` is 3 lines on; `csharp/a.c:1-2` `gamma` ends short; `nope.c:1` does not exist; `csharp/a.c:3` `gamma` holds.'
+br outside .github/workflows/r.yml 'on: push' .github/workflows/s.yml 'on: push' csharp/b.c 'int b;' scripts/r.sh 'true' scripts/s.sh 'true' bootstrap/r.c "int r;" csharp/d.c 'int d;' csharp/e.c 'int e;' csharp/tests/Bayan.Tests/BarTests.cs 'class BarTests {}' work/todo.md '- x'
+br driver src/driver/main.byn 'x'
 br qdup docs/bayan-questions.md '101. again'
 br qans docs/bayan-questions.md '203. reuses an answered number'
 br qrow docs/bayan-questions.md '204. reuses a number answered in a table row only'
@@ -69,7 +69,7 @@ printf '  Passed Bayan.Tests.%s.A [1 ms]\n' CInventoryTests SelfhostDriverT8Test
 passing; printf '  Failed Bayan.Tests.CInventoryTests.B [1 ms]\n' >> "$aux/test-out"; echo 1 > "$aux/test-rc"; failed=$(pf T99 good)
 passing; touch "$aux/build-fail"; build=$(pf T99 good); rm "$aux/build-fail"
 touch "$aux/tool-fail"; tool=$(pf T99 good); rm "$aux/tool-fail"
-git switch -q good; printf 'int c;\n' > src/c.c; writer=$(pf T99 good); rm src/c.c; git switch -q base
+git switch -q good; printf 'int c;\n' > csharp/c.c; writer=$(pf T99 good); rm csharp/c.c; git switch -q base
 # the exits before any check: no specs.tsv row, an unknown branch or base, a worktree that cannot be made, no merge base
 nospec=$(PATH="$aux/bin:$PATH" /bin/bash "$root/scripts/selfhost/preflight.sh" 999 T99 good 2>&1 && echo "rc=0" || echo "rc=$?")
 nobr=$(pf T99 nope); nobase=$(BAYAN_BASE=nobase PATH="$aux/bin:$PATH" BAYAN_QRANGES=$aux/q.tsv /bin/bash "$root/scripts/selfhost/preflight.sh" 012 T99 good 2>&1 && echo "rc=0" || echo "rc=$?")
@@ -82,7 +82,7 @@ fail() { echo "FAIL: $1"; echo "$2"; exit 1; }
 has() { grep -qxF -- "$2" <<< "$1"; }
 for l in "ok cites (5 checked)" "ok files (3 changed)" "ok questions (1 added, range Q200–Q204)" "ok plan-strings" "rc=1"; do has "$good" "$l" || fail "the clean branch lacks '$l'" "$good"; done
 has "$good" "ok tests (4 passed: FooT8Tests CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests)" || fail "the tests line is not the file's declared class and the cross-cutting set" "$good"
-has "$mapped" "ok tests (7 passed: FooT8Tests CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests SelfhostDriverT2Tests SelfhostDefaultT4Tests SelfhostDriverT5Tests)" || fail "a change to selfhost/driver/main.byn did not add the test-map classes" "$mapped"
+has "$mapped" "ok tests (7 passed: FooT8Tests CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests SelfhostDriverT2Tests SelfhostDefaultT4Tests SelfhostDriverT5Tests)" || fail "a change to src/driver/main.byn did not add the test-map classes" "$mapped"
 grep -q -- "--filter $F|FullyQualifiedName~SelfhostDriverT2Tests|FullyQualifiedName~SelfhostDefaultT4Tests|FullyQualifiedName~SelfhostDriverT5Tests " <<< "$mapargs" || fail "the filter for a driver change is '$mapargs'" "$mapped"
 grep -q -- "--filter $F " <<< "$targs" || fail "dotnet test ran '$targs'" "$good"
 grep -q "^FAIL wp1: no tmp/wp1/$gsha.out for good's HEAD; run: bash scripts/selfhost/wp1-test.sh good '$F'$" <<< "$good" || fail "a missing wp1 run is not reported with its command" "$good"
@@ -91,12 +91,12 @@ has "$wok" "ok wp1 (Passed:     4)" && has "$wok" "rc=0" && ! grep -q '^FAIL' <<
 has "$wexit" "FAIL wp1: tmp/wp1/$gsha.out ends in 'exit 1', not 'exit 0'" || fail "a failed wp1 run passed" "$wexit"
 has "$wnone" "FAIL wp1: tmp/wp1/$gsha.out ran no tests" || fail "a wp1 run of no tests passed" "$wnone"
 grep -q "^FAIL wp1: tmp/wp1/$gsha.out ran 'FullyQualifiedName~FooT8Tests', without CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests; run: " <<< "$wfilt" || fail "a wp1 run without the cross-cutting classes passed" "$wfilt"
-has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `src/a.c:9`: src/a.c has 4 lines' || fail "a citation past the end passed" "$stale"
-has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `src/a.c:1`: `delta` is not on src/a.c:1 or the 2 lines after it' || fail "a quoted symbol 3 lines after its line passed" "$stale"
+has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `csharp/a.c:9`: csharp/a.c has 4 lines' || fail "a citation past the end passed" "$stale"
+has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `csharp/a.c:1`: `delta` is not on csharp/a.c:1 or the 2 lines after it' || fail "a quoted symbol 3 lines after its line passed" "$stale"
 has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `nope.c:1`: no such file' || fail "a citation of a missing file passed" "$stale"
-has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `src/a.c:1-2`: `gamma` is not on src/a.c:1-2' || fail "a range ending short of its quoted symbol passed" "$stale"
+has "$stale" 'FAIL cites: docs/bayan-questions.md Q201 `csharp/a.c:1-2`: `gamma` is not on csharp/a.c:1-2' || fail "a range ending short of its quoted symbol passed" "$stale"
 [ "$(grep -c '^FAIL cites' <<< "$stale")" = 4 ] || fail "a citation that holds was reported" "$stale"
-has "$outside" 'FAIL files: 4 changed outside T99'"'"'s files list; append to its files: in docs/specs/012-self-hosted-bootstrap/012-tasks.md: `.github/workflows/s.yml`, `scripts/s.sh`, `src/b.c`, `tests/Bayan.Tests/BarTests.cs`' || fail "files outside the list are not reported with the addition" "$outside"
+has "$outside" 'FAIL files: 4 changed outside T99'"'"'s files list; append to its files: in docs/specs/012-self-hosted-bootstrap/012-tasks.md: `.github/workflows/s.yml`, `csharp/b.c`, `csharp/tests/Bayan.Tests/BarTests.cs`, `scripts/s.sh`' || fail "files outside the list are not reported with the addition" "$outside"
 has "$qdup" "FAIL questions: Q101 is in the questions docs 2 times" || fail "a duplicate Question number passed" "$qdup"
 has "$qans" "FAIL questions: Q203 is in the questions docs 2 times" || fail "a number taken by an answered Question passed" "$qans"
 has "$qrow" "FAIL questions: Q204 is in the questions docs 2 times" || fail "a number answered only in a table row passed" "$qrow"
@@ -109,7 +109,7 @@ has "$zero" "FAIL tests: FullyQualifiedName~FooT8Tests matched no tests" || fail
 has "$failed" "FAIL tests: Bayan.Tests.CInventoryTests.B failed" && has "$failed" "FAIL tests: dotnet test exited 1 (tmp/preflight/t99/test.txt)" || fail "a failed test passed" "$failed"
 grep -q '^FAIL tests: build failed — a.cs(1,1): error CS1002' <<< "$build" || fail "a build error passed" "$build"
 grep -q '^FAIL tests: plan-strings-check --base base failed — BYN1001 message missing$' <<< "$tool" || fail "a plan-strings failure passed" "$tool"
-has "$writer" 'FAIL files: 1 changed outside T99'"'"'s files list; append to its files: in docs/specs/012-self-hosted-bootstrap/012-tasks.md: `src/c.c`' || fail "on the branch's checkout an untracked file is not checked" "$writer"
+has "$writer" 'FAIL files: 1 changed outside T99'"'"'s files list; append to its files: in docs/specs/012-self-hosted-bootstrap/012-tasks.md: `csharp/c.c`' || fail "on the branch's checkout an untracked file is not checked" "$writer"
 grep -q '^FAIL wp1: the working tree has uncommitted changes' <<< "$writer" || fail "uncommitted changes did not make wp1 fail" "$writer"
 has "$nospec" "FAIL spec: no row for spec 999 in scripts/selfhost/specs.tsv" && has "$nospec" "rc=1" || fail "a spec without a specs.tsv row did not fail" "$nospec"
 has "$nobr" "FAIL branch: no branch nope" && has "$nobr" "rc=1" || fail "an unknown branch did not fail" "$nobr"
