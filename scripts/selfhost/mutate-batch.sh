@@ -122,7 +122,7 @@ while IFS= read -r g <&3; do
   mutation_step "$LOG" "$flt" "$mut" 0
   # bayan mutate writes absolute source paths: make each report's paths repo-root-relative, so any machine can read it
   if [ ${#FAIL[@]} = 0 ]; then for rp in "$LOG"/quality-*.json; do
-    [ -f "$rp" ] && { python3 -I - "$rp" "$PWD" <<'PY' 2> "$LOG/relpath.txt" || note "report: $(tail -1 "$LOG/relpath.txt")"
+    [ -f "$rp" ] && { python3 -I - "$rp" "$(pwd -W 2>/dev/null || pwd)" <<'PY' 2> "$LOG/relpath.txt" || note "report: $(tail -1 "$LOG/relpath.txt")"
 import json, os, sys
 rp, root = sys.argv[1:3]
 root = os.path.realpath(root)
@@ -131,8 +131,8 @@ for e in report['files']:
     p = os.path.join(root, e['path'])
     if not os.path.isabs(e['path']) and not os.path.isfile(p):
         p = os.path.join(root, 'selfhost', e['path'])
-    rel = os.path.relpath(os.path.realpath(p), root)
-    if rel == '..' or rel.startswith('../'):
+    rel = os.path.relpath(os.path.realpath(p), root).replace(os.sep, '/')
+    if rel.split('/')[0] == '..':
         sys.exit(f'{rp}: path {e["path"]} is not under the repo root {root}')
     if not os.path.isfile(p):
         sys.exit(f'{rp}: path {e["path"]} is no file under the repo root {root} or its selfhost/')
