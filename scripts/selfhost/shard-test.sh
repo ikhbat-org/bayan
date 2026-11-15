@@ -17,7 +17,7 @@
 # Class weights: tmp/shard/class-times.tsv (class<TAB>seconds); a class missing there gets the median weight. The class list comes from
 # `dotnet test --list-tests` on the built assembly (or --classes FILE, one class per line), so a new class is never dropped.
 # Serial classes (run one at a time by xunit) are those carrying [Collection(nameof(X))] or [Collection("X")] for a
-# [CollectionDefinition(nameof(X), DisableParallelization = true)] in csharp/tests/Bayan.Tests/*.cs. A unit's load is
+# [CollectionDefinition(nameof(X), DisableParallelization = true)] in csharp/tests/Bayan.Tests/*.cs and src/tests/*.cs. A unit's load is
 # (serial seconds + parallel seconds / THREADS) / SPEED; packing is greedy longest-first onto the unit that would finish earliest.
 # Each slice is --filter terms `FullyQualifiedName~Ns.Class.` joined by `|`, chunked to --max-filter chars (Windows argv limit 32767)
 # and run chunk after chunk. The vm slices are aborted (all units stopped) when ghosthive's MemAvailable (the host, not the VM) drops
@@ -88,9 +88,12 @@ units() {
   done
 }
 
-# serial DIR -> the classes (Ns.Class) in a collection whose [CollectionDefinition] has DisableParallelization = true, from DIR/*.cs
+# serial DIR... -> the classes (Ns.Class) in a collection whose [CollectionDefinition] has DisableParallelization = true, from
+# DIR/*.cs over every DIR (one test assembly compiles csharp/tests/Bayan.Tests and src/tests: a definition in one serves the other)
 serial_classes() {
-  ls "$1"/*.cs > /dev/null 2>&1 || return 0
+  local files=() d f
+  for d in "$@"; do for f in "$d"/*.cs; do [ -f "$f" ] && files+=("$f"); done; done
+  [ ${#files[@]} -gt 0 ] || return 0
   awk '
     function cname(s) { sub(/^[^(]*\(/, "", s)
       if (s ~ /^nameof\(/) { sub(/^nameof\(/, "", s); sub(/\).*/, "", s); sub(/.*\./, "", s) } else { sub(/^"/, "", s); sub(/".*/, "", s) }
@@ -103,7 +106,7 @@ serial_classes() {
     pend != "" && /^[ \t]*(\[[^]]*\][ \t]*)*((public|internal|private|protected|sealed|static|partial|abstract|file)[ \t]+)*(class|record)[ \t]+[A-Za-z_]/ {
       c = $0; sub(/.*(class|record)[ \t]+/, "", c); sub(/[^A-Za-z0-9_].*/, "", c)
       if (pend in dis) print (ns == "" ? "" : ns ".") c
-      pend = "" }' pass=1 "$1"/*.cs pass=2 "$1"/*.cs | sort -u
+      pend = "" }' pass=1 "${files[@]}" pass=2 "${files[@]}" | sort -u
 }
 
 # pack CLASSES TSV "vm=0.91:2:4,wp1=0.52" [SERIAL] -> unit<TAB>weight<TAB>class. A unit's load is (serial seconds + parallel
@@ -335,7 +338,7 @@ run() {
   [ -f "$times" ] || { echo "shard-test: no $times, every class gets weight 1"; : > "$d/empty.tsv"; times=$d/empty.tsv; }
   if [ -z "$classes" ]; then classes=$d/classes.txt; list_classes > "$classes"; fi
   [ -s "$classes" ] || { echo "shard-test: no test classes found"; exit 1; }
-  serial_classes csharp/tests/Bayan.Tests > "$d/serial.txt"
+  serial_classes csharp/tests/Bayan.Tests src/tests > "$d/serial.txt"
   pack "$classes" "$times" "$hosts" "$d/serial.txt" > "$d/slices.tsv"
   rm -f "${d:?}"/*.result "${d:?}/overall.wall" "${d:?}/vm.started"; SHARD_DIR=$d
   # an earlier run's per-unit out/, log and trx files, so a failed fetch leaves nothing stale for merge or times
@@ -387,7 +390,7 @@ case "${1:-run}" in
          mkdir -p "$(dirname "$o")"; times_merge "$@" > "$o"; echo "shard-test: $(wc -l < "$o" | tr -d ' ') classes -> $o";;
   host-spec) host_spec "$2";;
   pack) pack "$2" "$3" "$4" "${5:-}";;
-  serial) serial_classes "$2";;
+  serial) shift; serial_classes "$@";;
   filters) filters "$2";;
   merge) merge "$2";;
   weights-cmd) weights_cmd "$2";;
