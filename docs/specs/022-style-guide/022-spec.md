@@ -14,7 +14,7 @@ The 2026-11-04 proposal settled the rules and the knobs, but none of it is built
 
 ## Goals
 - `bayan format` produces the layout of `docs/bayan-style.md` §Layout for every `.byn` file it can parse. The C# implementation and the self-hosted one give byte-identical output.
-- Each layout rule and each lint in `docs/bayan-style.md` shows one "Do" example and one "Don't" example. Each Don't example, run through `bayan format` or `bayan check`, gives the Do example or the lint.
+- Each layout rule and each lint in `docs/bayan-style.md` shows one "Do" example and one "Don't" example. Each Don't example, run through `bayan format` or `bayan check`, gives the Do example or the lint. The naming guideline (proposal §3.9) is the one exception: neither tool renames, so its pair is marked as a guideline and the doc-examples test skips it.
 - The idiom lints are reported with a code and a severity the project sets.
 - The repo's own `.byn` sources are formatted once. That commit is listed in `.git-blame-ignore-revs`.
 
