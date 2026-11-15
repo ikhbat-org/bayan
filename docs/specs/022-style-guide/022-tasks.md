@@ -15,9 +15,9 @@ Order:
 Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is gated against this file, then lands into `feat/022-style-guide`. The landing bar is 0 HIGH / 0 MEDIUM.
 
 - [ ] **T1 Style guide with Do/Don't.**
-  - Files: `docs/bayan-style.md`.
+  - Files: `docs/bayan-style.md`; `docs/diagnostics-allocated.txt` and `docs/DIAGNOSTICS.md` (regenerated), for `plan` rows BYN1072–BYN1076 so that `check.sh` accepts the doc's citations. T7 replaces those rows with descriptors.
   - Covers: R1.
-  - Done when every layout rule of `docs/bayan-style-proposal.md` §3.1–§3.9 and every lint has a `### ` heading, one rule line, a `Do:` fenced `bayan` block and a `Don't:` fenced `bayan` block. C21 (`{` always ends the line, no knob) is stated as is, and the Version/Revisions header is kept. The Do block is exactly what the layout engine produces from the Don't block (4-space indent, width 120, `.runs`, `.multiline`). A lint's Do block is the code the lint suggests.
+  - Done when every layout rule of `docs/bayan-style-proposal.md` §3.1–§3.9 and every lint has a `### ` heading, one rule line, a `Do:` fenced `bayan` block and a `Don't:` fenced `bayan` block. C21 (`{` always ends the line, no knob) is stated as is, and the Version/Revisions header is kept. The Do block is exactly what the layout engine produces from the Don't block (4-space indent, width 120, `.runs`, `.multiline`), except for the naming rule (§3.9): no tool renames, so its rule line says it is a guideline the formatter does not change and the test skips it. A lint's Do block is the code the lint suggests.
 - [ ] **T2 Manifest knobs (C#).**
   - Files: `csharp/Bayan.Syntax/Packages/Manifest.cs`, `csharp/tests/Bayan.Tests/` manifest tests, `tests/cases/diag/` manifest cases.
   - Covers: R2.
@@ -27,7 +27,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - `braces`, `maxLine` and a bool `trailingCommas` are errors that name the replacement (`braces`: no knob, `{` always ends the line; `maxLine`: `width`; bool `trailingCommas`: `.multiline`/`.never`);
     - an unknown lint name is an error;
     - `Manifest` exposes the values;
-    - the existing `dotnet test` manifest and format tests pass.
+    - the existing `dotnet test` manifest and format tests pass, except the self-hosted manifest-agreement rows (`SelfhostSemanticsT10Tests.ManifestMatchesCSharp`, `SelfhostEmitterHarnessTests.ManifestErrorsAgree`), which T3 brings back to green: they compare against `src/semantics/manifest.byn`, which T2 does not touch.
 - [ ] **T3 Manifest knobs (self-hosted).**
   - Files: `src/semantics/manifest.byn` and its parity tests.
   - Covers: R2.
@@ -46,7 +46,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - Files: `Layout.cs`, `LayoutTests.cs`.
   - Covers: R3 (lists, chains, headers, conditions).
   - After: T4.
-  - Done when passes 3 and 4 work at `width`, with the author's trailing comma kept vertical and `.never` dropping commas, and a `{` is never on a line of its own. The proposal's §3.1, §3.4, §3.5 and §3.6 examples format to their After text, and T4's corpus and idempotence tests pass.
+  - Done when passes 3 and 4 work at `width`, with the author's trailing comma kept vertical and `.never` dropping commas, a wrapped parameter list getting no trailing comma (the grammar has none, spec Decisions), and a `{` is never on a line of its own. The proposal's §3.1, §3.4, §3.5 and §3.6 examples format to their After text, and T4's corpus and idempotence tests pass.
 - [ ] **T6 Layout: alignment runs (C#).**
   - Files: `Layout.cs`, `LayoutTests.cs`.
   - Covers: R3 (alignment).

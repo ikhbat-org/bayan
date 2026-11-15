@@ -14,7 +14,7 @@ The 2026-11-04 proposal settled the rules and the knobs, but none of it is built
 
 ## Goals
 - `bayan format` produces the layout of `docs/bayan-style.md` §Layout for every `.byn` file it can parse. The C# implementation and the self-hosted one give byte-identical output.
-- Each layout rule and each lint in `docs/bayan-style.md` shows one "Do" example and one "Don't" example. Each Don't example, run through `bayan format` or `bayan check`, gives the Do example or the lint.
+- Each layout rule and each lint in `docs/bayan-style.md` shows one "Do" example and one "Don't" example. Each Don't example, run through `bayan format` or `bayan check`, gives the Do example or the lint. The naming guideline (proposal §3.9) is the one exception: neither tool renames, so its pair is marked as a guideline and the doc-examples test skips it.
 - The idiom lints are reported with a code and a severity the project sets.
 - The repo's own `.byn` sources are formatted once. That commit is listed in `.git-blame-ignore-revs`.
 
@@ -80,6 +80,8 @@ The 2026-11-04 proposal settled the rules and the knobs, but none of it is built
 - **Lint codes** follow revision 0017's rules for codes allocated mid-flight: the next free number in the current allocation of the phase that reports it, with a `// target: x9xx lint` comment. No number is taken from the round-4 target range.
 - **Where lints run:** `bayan check` only, since `.suggestion` output on every build would bury real diagnostics. `.suggestion` renders with the existing `note` severity; no new severity enters the renderer, whose format is fixed by `DiagnosticRendererTests`.
 - **Engine:** a layout pass over the token stream and the source bytes, with comments recovered from the trivia between tokens. Newlines inside `( )` and `[ ]` are free, and leading `.`, `and` and `or` join (spec §5), so every break the rules need is one the grammar already allows. A full tree printer is not needed for R3, and it would be twice the port.
+
+- **No trailing comma in a parameter list.** The proposal (§3.4, C21) gives a wrapped parameter list a trailing comma, but the parser accepts one only in argument and literal lists (`BYN1003: expected a type` after `,` before `)`). Accepting it would be a grammar change in both parsers, so the formatter wraps a parameter list without one; argument lists and literals keep the trailing-comma rule. Whether the grammar should take it goes to `docs/bayan-questions.md` (T11).
 
 ## Open questions
 - none blocking. The two above are recorded and can be reversed without rework of the layout engine.
