@@ -189,6 +189,8 @@ internal static class Layout
         private readonly int[] _match = new int[tokens.Length];
         private readonly bool[] _dropComma = new bool[tokens.Length];
         private readonly bool[] _addComma = new bool[tokens.Length];
+        private readonly int[] _pad = new int[tokens.Length];
+        private readonly int[] _commentPad = new int[tokens.Length];
         private readonly List<byte> _out = new(source.Length + source.Length / 8);
 
         public byte[] Render()
@@ -201,6 +203,7 @@ internal static class Layout
             Breaks();
             Levels();
             TopLevelBlanks();
+            if (options.AlignRuns) Align();
             _out.AddRange(source.AsSpan(0, bom));
             for (var i = 0; i < tokens.Length; i++)
             {
@@ -832,6 +835,162 @@ internal static class Layout
             return string.Join(" ", words);
         }
 
+        // ── Alignment runs (pass 8, proposal §3.2, §3.3, §3.7) ───────────────────────────
+
+        /// <summary>
+        /// Pass 8. Consecutive lines of one shape at one level, with no blank or comment line between them, form a run, and
+        /// the run pads the gap before each of its columns so that they start at one column: the name of a field, the name
+        /// and <c>=&gt;</c> of a property, the <c>=&gt;</c> of a one-line switch arm and the <c>=</c> of a one-line top-level
+        /// declaration. Then consecutive lines at one level that end in a comment align the comments. A column whose padding
+        /// would push a line of its run past <c>width</c> stays unaligned in that run, and a line whose column sits after a
+        /// gap the parser reads (<see cref="TriviaMatters"/>) ends the run.
+        /// </summary>
+        private void Align()
+        {
+            var shapes = new Dictionary<int, (string Key, int[] Columns)>();
+            Shapes(tree.Root.Members, topLevel: true, shapes);
+            Arms(shapes);
+            var lines = new List<int>();
+            for (var i = 0; i < tokens.Length - 1; i++)
+                if (_lineStart[i]) lines.Add(i);
+            var run = new List<int>();
+            foreach (var s in lines)
+            {
+                var ok = shapes.TryGetValue(s, out var shape) && Plain(s) && shape.Columns.All(k => Padded(s, k));
+                if (run.Count > 0 && (!ok || shape.Key != shapes[run[0]].Key || _level[s] != _level[run[0]] || Separated(s)))
+                {
+                    AlignRun(run, shapes);
+                    run.Clear();
+                }
+                if (ok) run.Add(s);
+            }
+            AlignRun(run, shapes);
+            run.Clear();
+            foreach (var s in lines)
+            {
+                var e = LineEnd(s);
+                var ok = gaps[e].Items is [{ IsComment: true }, ..] && Plain(s);
+                if (run.Count > 0 && (!ok || _level[s] != _level[run[0]] || Separated(s)))
+                {
+                    AlignComments(run);
+                    run.Clear();
+                }
+                if (ok) run.Add(s);
+            }
+            AlignComments(run);
+        }
+
+        /// <summary>The fields, properties and one-line top-level declarations that start a line, by their line.</summary>
+        private void Shapes(Decl[] decls, bool topLevel, Dictionary<int, (string Key, int[] Columns)> shapes)
+        {
+            foreach (var decl in decls)
+            {
+                var start = TokenAt(decl.Span.Start);
+                var s = LineStartOf(start);
+                var e = LineEnd(s);
+                if ((s == start || Kind(s) == TokenKind.At) && TokenAt(decl.Span.End) == e)
+                {
+                    var name = decl switch { FieldDecl f => TokenAt(f.Name.Span.Start), PropertyDecl p => TokenAt(p.Name.Span.Start), _ => -1 };
+                    if (topLevel && decl is not GlobalStatement && First(TokenKind.Equals, start, e) is var eq and > 0)
+                        shapes[s] = (decl.GetType().Name + " " + LeadingKeywords(start), [eq]);
+                    else if (!topLevel && decl is FieldDecl)
+                        shapes[s] = ("field", [name]);
+                    else if (!topLevel && decl is PropertyDecl { Body: not null } && First(TokenKind.FatArrow, name, e) is var arrow and > 0)
+                        shapes[s] = ("property", [name, arrow]);
+                }
+                var members = decl switch
+                {
+                    StructDecl d => d.Members,
+                    InterfaceDecl n => n.Members,
+                    ExtensionDecl x => x.Members,
+                    _ => [],
+                };
+                Shapes(members, topLevel: false, shapes);
+            }
+        }
+
+        /// <summary>The one-line arms of each <c>switch { … }</c>: an arm that starts a line and ends it with its <c>,</c> or the <c>}</c>.</summary>
+        private void Arms(Dictionary<int, (string Key, int[] Columns)> shapes)
+        {
+            for (var o = 1; o < tokens.Length; o++)
+            {
+                if (Kind(o) != TokenKind.OpenBrace || Kind(o - 1) != TokenKind.SwitchKeyword || _match[o] < o) continue;
+                var c = _match[o];
+                foreach (var k in Items(o, c))
+                {
+                    if (!_lineStart[k] || !(k == o + 1 || Kind(k - 1) == TokenKind.Comma)) continue;
+                    var e = LineEnd(k);
+                    if (e > c || !(e == c || Kind(e - 1) == TokenKind.Comma)) continue;
+                    if (Enumerable.Range(k, e - k).Any(m => IsOpener(Kind(m)) && _match[m] >= e)) continue;
+                    if (First(TokenKind.FatArrow, k, e) is var arrow and > 0) shapes[k] = ("arm", [arrow]);
+                }
+            }
+        }
+
+        /// <summary>The first <paramref name="kind"/> in tokens <c>[from, e)</c> outside brackets, or −1.</summary>
+        private int First(TokenKind kind, int from, int e)
+        {
+            for (var k = from; k < e; k++)
+            {
+                if (Kind(k) == kind) return k;
+                if (IsOpener(Kind(k)) && _match[k] > k) k = _match[k];
+            }
+            return -1;
+        }
+
+        /// <summary>Whether the line from <paramref name="s"/> is one line, with no frozen token and not in a hole.</summary>
+        private bool Plain(int s)
+        {
+            var e = LineEnd(s);
+            if (_inHole[s] || _inHole[e] || Width(s, e) == 0) return false;
+            for (var k = s; k <= e; k++)
+                if (_frozen[k]) return false;
+            return true;
+        }
+
+        /// <summary>Whether column token <paramref name="k"/> follows a space on the line of <paramref name="s"/> that padding may widen.</summary>
+        private bool Padded(int s, int k) =>
+            k > s && k < LineEnd(s) && Space(k, tokens[k - 1].End) && !TriviaMatters(source, tokens, k);
+
+        /// <summary>Whether a blank line, an inserted one or a comment line comes before line start <paramref name="s"/>.</summary>
+        private bool Separated(int s) => gaps[s].HasBlank || _needsBlank[s] || gaps[s].Items.Skip(1).Any(x => x.IsComment);
+
+        /// <summary>The padding the run has already put in tokens <c>(s, e)</c>.</summary>
+        private int Pads(int s, int e)
+        {
+            var n = 0;
+            for (var k = s + 1; k < e; k++) n += _pad[k];
+            return n;
+        }
+
+        /// <summary>The columns of the line from <paramref name="s"/> with its padding, before any trailing comment.</summary>
+        private int LineWidth(int s) => Width(s, LineEnd(s)) + Pads(s, LineEnd(s));
+
+        private void AlignRun(List<int> run, Dictionary<int, (string Key, int[] Columns)> shapes)
+        {
+            if (run.Count < 2) return;
+            for (var c = 0; c < shapes[run[0]].Columns.Length; c++)
+            {
+                var at = run.Select(s => Width(s, shapes[s].Columns[c]) + Pads(s, shapes[s].Columns[c]) + 1).ToArray();
+                var target = at.Max();
+                if (run.Where((s, n) => at[n] < target && LineWidth(s) + target - at[n] > options.Width).Any()) continue;
+                for (var n = 0; n < run.Count; n++) _pad[shapes[run[n]].Columns[c]] = target - at[n];
+            }
+        }
+
+        private void AlignComments(List<int> run)
+        {
+            if (run.Count < 2) return;
+            var at = run.Select(s => LineWidth(s) + 1).ToArray();
+            var target = at.Max();
+            for (var n = 0; n < run.Count; n++)
+            {
+                var text = CommentText(source, gaps[LineEnd(run[n])].Items[0]);
+                if (at[n] < target && target + text.Count(b => (b & 0xC0) != 0x80) > options.Width) return;
+            }
+            for (var n = 0; n < run.Count; n++) _commentPad[LineEnd(run[n])] = target - at[n];
+        }
+
         // ── Writing a gap: blank lines (pass 7), comments, indentation (pass 5), spacing (pass 6) ──
 
         private void EmitGap(int i)
@@ -853,7 +1012,7 @@ internal static class Layout
             var at = 0;
             if (i > 0 && items.Count > 0 && items[0].IsComment)
             {
-                _out.Add((byte)' ');
+                Spaces(1 + _commentPad[i]);
                 Add(items[0]);
                 at = 1;
             }
@@ -865,7 +1024,7 @@ internal static class Layout
                     _out.Add((byte)'\n');
                     return;
                 }
-                if (at == 0 && Space(i, from)) _out.Add((byte)' ');
+                if (at == 0 && Space(i, from)) Spaces(1 + _pad[i]);
                 return;
             }
             if (i > 0)
@@ -906,9 +1065,11 @@ internal static class Layout
 
         private void Add(GapItem item) => _out.AddRange(CommentText(source, item));
 
-        private void Indent(int level)
+        private void Indent(int level) => Spaces(level * options.Indent);
+
+        private void Spaces(int n)
         {
-            for (var n = level * options.Indent; n > 0; n--) _out.Add((byte)' ');
+            for (; n > 0; n--) _out.Add((byte)' ');
         }
 
         /// <summary>The bytes as written, less the blanks and carriage returns before each newline (pass 1).</summary>

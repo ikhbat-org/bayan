@@ -84,6 +84,7 @@ internal static class Format
                 var layout = new LayoutOptions(
                     Indent: manifest?.Indent ?? 4,
                     Width: manifest?.Width ?? 120,
+                    AlignRuns: (manifest?.Align ?? AlignStyle.Runs) == AlignStyle.Runs,
                     TrailingCommasMultiline: (manifest?.TrailingCommas ?? TrailingCommaStyle.Multiline) == TrailingCommaStyle.Multiline);
                 var formatted = FormatFile(file, original, booleans, primitives, declared, stderr, out var unfixable, layout);
                 if (formatted is null) exit = CliApp.ExitFailure;
