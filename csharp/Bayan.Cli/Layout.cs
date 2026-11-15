@@ -39,6 +39,7 @@ internal static class Layout
         public bool Control;
         public bool Clause;
         public int Body = -1;
+        public bool Switch;
     }
 
     private enum Side : byte { Defer, Space, None, Keep }
@@ -211,6 +212,8 @@ internal static class Layout
         private readonly int[] _commentPad = new int[tokens.Length];
         private readonly bool[] _tightAfter = new bool[tokens.Length];
         private readonly bool[] _tightBefore = new bool[tokens.Length];
+        private readonly int[] _enclosing = new int[tokens.Length];
+        private readonly bool[] _headerArrow = new bool[tokens.Length];
         private readonly List<byte> _out = new(source.Length + source.Length / 8);
 
         public byte[] Render()
@@ -333,10 +336,12 @@ internal static class Layout
                     // After `,` a line starts an entry, except in a top-level or clause list (`effect db = net,`, `uses net,`).
                     else if (before == TokenKind.Comma) continues = !inGroup && (frames.Count == 1 || top.Clause);
                     else if (!inGroup && gaps[i].HasBlank) continues = false;
-                    else continues = IsWasl(i) || AfterLa(before);
+                    // A line can start with a ternary's `?` or `:` only inside brackets, where it continues the entry.
+                    else continues = IsWasl(i) || AfterLa(before) || first is TokenKind.Question or TokenKind.Colon;
                     if (!continues)
                     {
-                        level = top.Line + 1;
+                        // A `case` body goes one level past its `case`.
+                        level = top.Line + (top.Switch && first is not (TokenKind.CaseKeyword or TokenKind.DefaultKeyword) ? 2 : 1);
                         top.Statement = level;
                         top.StatementIndent = OriginalIndent(i);
                         top.Control = first is TokenKind.IfKeyword or TokenKind.WhileKeyword or TokenKind.ForKeyword or TokenKind.UnlessKeyword;
@@ -361,7 +366,11 @@ internal static class Layout
                     {
                         case TokenKind.OpenParen or TokenKind.OpenBracket or TokenKind.OpenBrace or TokenKind.InterpolationStart:
                             var line = Kind(k) == TokenKind.OpenBrace && body >= 0 ? body : level;
-                            frames.Add(new Frame { Opener = Kind(k), Line = line, Statement = line, StatementIndent = OriginalIndent(i), Body = body });
+                            frames.Add(new Frame
+                            {
+                                Opener = Kind(k), Line = line, Statement = line, StatementIndent = OriginalIndent(i), Body = body,
+                                Switch = Kind(k) == TokenKind.OpenBrace && Kind(k + 1) is TokenKind.CaseKeyword or TokenKind.DefaultKeyword,
+                            });
                             break;
                         case TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace or TokenKind.InterpolationEnd:
                             if (frames.Count > 1) frames.RemoveAt(frames.Count - 1);
@@ -418,15 +427,19 @@ internal static class Layout
             for (var i = 0; i < tokens.Length; i++)
             {
                 _match[i] = -1;
-                if (IsOpener(Kind(i))) open.Push(i);
-                else if (IsCloser(Kind(i)) && open.Count > 0)
+                if (IsCloser(Kind(i)) && open.Count > 0)
                 {
                     var o = open.Pop();
                     _match[o] = i;
                     _match[i] = o;
                 }
+                _enclosing[i] = open.Count > 0 ? open.Peek() : -1;
+                if (IsOpener(Kind(i))) open.Push(i);
             }
         }
+
+        /// <summary>Whether the <c>[</c> at <paramref name="o"/> is an index (<c>xs[i]</c>, <c>u8[4]</c>), not a list literal.</summary>
+        private bool IsIndex(int o) => Kind(o) == TokenKind.OpenBracket && o > 0 && OperandEnd(Kind(o - 1));
 
         /// <summary>The columns token <paramref name="i"/> takes: its UTF-8 lead bytes.</summary>
         private int Columns(int i)
@@ -656,7 +669,8 @@ internal static class Layout
                         k = _match[k] + 1;
                     }
                     if (call) calls++;
-                    if (call || breakable.Count > 0) breakable.Add(j);
+                    // A `.member` after an index stays on its line (`c.items[i].payload`).
+                    if ((call || breakable.Count > 0) && Kind(j - 1) != TokenKind.CloseBracket) breakable.Add(j);
                     end = k - 1;
                     j = k;
                 }
@@ -688,7 +702,7 @@ internal static class Layout
             {
                 if (Kind(o) is not (TokenKind.OpenParen or TokenKind.OpenBracket) || _match[o] < o) continue;
                 var c = _match[o];
-                if (!Editable(o, c) || !Items(o, c).Any(k => Kind(k) == TokenKind.Comma)) continue;
+                if (!Editable(o, c) || IsIndex(o) || !Items(o, c).Any(k => Kind(k) == TokenKind.Comma)) continue;
                 if (_lineStart[c] || TrailingComma(c) || Items(o, c).Any(k => _lineStart[k])) BreakList(o, c);
             }
             for (var round = 0; round < tokens.Length; round++)
@@ -709,11 +723,60 @@ internal static class Layout
         private void BreakList(int o, int c)
         {
             if (o + 1 < c) _lineStart[o + 1] = true;
-            foreach (var k in Items(o, c))
-                if (Kind(k) == TokenKind.Comma && k + 1 < c) _lineStart[k + 1] = true;
+            var starts = Items(o, c).Where(k => k == o + 1 || Kind(k - 1) == TokenKind.Comma).Where(k => k < c).ToList();
+            var row = Scalars(o, c, starts) is { } widths ? Row(o, starts, widths) : 1;
+            for (var n = 1; n < starts.Count; n++) _lineStart[starts[n]] = n % row == 0;
             _lineStart[c] = true;
             if (options.TrailingCommasMultiline && Kind(c - 1) != TokenKind.Comma && o + 1 < c && CommaSafe(o, c))
                 _addComma[c - 1] = true;
+        }
+
+        /// <summary>
+        /// The columns of each item of the list literal <c>[o, c]</c> when every item is a scalar (a number, a char, or a
+        /// string of at most 16 columns, signed or not) and no comment is inside; otherwise null.
+        /// </summary>
+        private int[]? Scalars(int o, int c, List<int> starts)
+        {
+            if (Kind(o) != TokenKind.OpenBracket || IsIndex(o) || starts.Count < 2) return null;
+            for (var k = o + 1; k <= c; k++)
+                if (gaps[k].Items.Any(x => x.IsComment)) return null;
+            var widths = new int[starts.Count];
+            for (var n = 0; n < starts.Count; n++)
+            {
+                var k = starts[n];
+                if (Kind(k) is TokenKind.Minus or TokenKind.Plus) k++;
+                if (!(Kind(k) is TokenKind.IntegerLiteral or TokenKind.FloatLiteral or TokenKind.CharLiteral
+                      || Kind(k) == TokenKind.StringLiteral && !Multiline(k) && Columns(k) <= 16)) return null;
+                if (Kind(k + 1) == TokenKind.NumericSuffix) k++;
+                if (Kind(k + 1) is not (TokenKind.Comma or TokenKind.CloseBracket)) return null;
+                widths[n] = Width(starts[n], k + 1) - _level[starts[n]] * options.Indent;
+            }
+            return widths;
+        }
+
+        /// <summary>
+        /// The items per row of a broken scalar list: as many as the author's first row holds when rows of that many fit,
+        /// otherwise the most that fit in every row (at least one).
+        /// </summary>
+        private int Row(int o, List<int> starts, int[] widths)
+        {
+            var indent = (_level[LineStartOf(o)] + 1) * options.Indent;
+            bool Fits(int n)
+            {
+                for (var at = 0; at < widths.Length; at += n)
+                {
+                    var width = indent + 1;
+                    for (var m = at; m < Math.Min(widths.Length, at + n); m++) width += widths[m] + (m > at ? 2 : 0);
+                    if (width > options.Width) return false;
+                }
+                return true;
+            }
+            var first = 1;
+            while (first < starts.Count && !gaps[starts[first]].HasNewline) first++;
+            if (Fits(first)) return first;
+            for (var n = Math.Min(first, starts.Count) - 1; n > 1; n--)
+                if (Fits(n)) return n;
+            return 1;
         }
 
         /// <summary>Breaks the over-wide line <c>[s, e)</c> at its widest structure; false when it has none.</summary>
@@ -741,25 +804,10 @@ internal static class Layout
                     if (IsOpener(Kind(k))) depth++;
                 }
             }
-            // A wrapped condition breaks before each `&&`, `||`, `and` and `or` outside brackets, as does its continuation line.
-            if (Kind(p) == TokenKind.ElseKeyword) p++;
-            if (p < e && Kind(p) is TokenKind.IfKeyword or TokenKind.WhileKeyword or TokenKind.UnlessKeyword
-                or TokenKind.AmpAmp or TokenKind.BarBar or TokenKind.AndKeyword or TokenKind.OrKeyword)
-            {
-                var depth = 0;
-                for (var k = p + 1; k < e; k++)
-                {
-                    if (IsCloser(Kind(k))) depth--;
-                    if (depth == 0 && Kind(k) == TokenKind.OpenBrace) break;
-                    if (depth == 0 && Kind(k) is TokenKind.AmpAmp or TokenKind.BarBar or TokenKind.AndKeyword or TokenKind.OrKeyword
-                        && !_lineStart[k] && Editable(k, k)
-                        // `if (a) ⏎ && b` would read `(a)` as the whole condition (BYN1017).
-                        && !(Kind(k - 1) == TokenKind.CloseParen && _match[k - 1] == p + 1))
-                        changed = _lineStart[k] = true;
-                    if (IsOpener(Kind(k))) depth++;
-                }
-                if (changed) return true;
-            }
+            // A header with a `=>` body breaks after the `=>` first; its parameters wrap only if the header still does not fit.
+            for (var k = s; k + 1 < e; k++)
+                if (_headerArrow[k] && !_lineStart[k + 1] && Editable(k + 1, k + 1))
+                    return _lineStart[k + 1] = true;
             // Header clauses after the `)` go one per line when the head before them fits.
             {
                 var depth = 0;
@@ -782,12 +830,41 @@ internal static class Layout
                 }
                 if (changed) return true;
             }
+            // An expression breaks before each operator of its lowest level outside brackets, then inside the widest group.
+            if (Kind(p) == TokenKind.ElseKeyword) p++;
+            var control = p < e && Kind(p) is TokenKind.IfKeyword or TokenKind.WhileKeyword or TokenKind.UnlessKeyword;
+            var ops = LowestOperators(s, p, e, control ? p : -1);
+            if (ops.Count == 0)
+            {
+                var widest = 0;
+                for (int k = s, depth = 0; k < e; k++)
+                {
+                    if (IsCloser(Kind(k))) depth = Math.Max(0, depth - 1);
+                    if (depth == 0 && Kind(k) == TokenKind.OpenParen && _match[k] > k + 1 && _match[k] < e && (k == s || !CallLike(k - 1))
+                        && tokens[_match[k]].End - tokens[k].Start > widest && LowestOperators(k, k + 1, _match[k], -1) is { Count: > 0 } inner)
+                    {
+                        widest = tokens[_match[k]].End - tokens[k].Start;
+                        ops = inner;
+                    }
+                    if (IsOpener(Kind(k))) depth++;
+                }
+            }
+            if (ops.Count > 0)
+            {
+                foreach (var k in ops) _lineStart[k] = true;
+                return true;
+            }
             // Otherwise the outermost chain or list on the line: a chain before a list at the same depth, then the leftmost.
+            // A chain in a ternary that has not broken stays whole, and nothing breaks inside an index.
             var depths = new int[e - s];
-            for (int k = s, d = 0; k < e; k++)
+            var ternary = new bool[e - s];
+            for (int k = s, d = 0, q = -1; k < e; k++)
             {
                 if (IsCloser(Kind(k))) d--;
+                if (q >= 0 && (d < depths[q - s] || d == depths[q - s] && Kind(k) == TokenKind.Comma)) q = -1;
                 depths[k - s] = d;
+                if (q < 0 && k > s && Kind(k) == TokenKind.Question && Trivia(k)) q = k;
+                ternary[k - s] = q >= 0 && d == depths[q - s];
                 if (IsOpener(Kind(k))) d++;
             }
             Chain? bestChain = null;
@@ -796,6 +873,7 @@ internal static class Layout
             {
                 var b = chain.Breakable;
                 if (b.Count == 0 || b[0] < s || b[^1] >= e || b.Any(d => _lineStart[d]) || !Editable(chain.Start, chain.End)) continue;
+                if (ternary[b[0] - s]) continue;
                 if (depths[b[0] - s] < best)
                 {
                     best = depths[b[0] - s];
@@ -805,7 +883,7 @@ internal static class Layout
             var bestList = -1;
             for (var o = s; o < e; o++)
             {
-                if (!(Kind(o) is TokenKind.OpenParen or TokenKind.OpenBracket || IsStructLiteral(o))) continue;
+                if (!(Kind(o) is TokenKind.OpenParen or TokenKind.OpenBracket || IsStructLiteral(o)) || IsIndex(o)) continue;
                 var c = _match[o];
                 if (c <= o + 1 || c >= e || depths[o - s] >= best || !Editable(o, c) || Kind(o) == TokenKind.OpenParen && InPattern(o))
                     continue;
@@ -821,6 +899,47 @@ internal static class Layout
             if (bestList < 0) return false;
             BreakList(bestList, _match[bestList]);
             return true;
+        }
+
+        /// <summary>
+        /// The operators of the lowest level in tokens <c>[from, e)</c> outside brackets that a line may start with, before
+        /// any header clause: a ternary's <c>?</c> and <c>:</c> inside <c>( )</c> or a list's <c>[ ]</c> (at a statement's
+        /// level a line starting with <c>?</c> ends the statement), then <c>??</c>, <c>||</c>, <c>&amp;&amp;</c> and their
+        /// words outside an index. <paramref name="control"/> is the <c>if</c>, <c>while</c> or <c>unless</c> of the line, or −1.
+        /// </summary>
+        private List<int> LowestOperators(int s, int from, int e, int control)
+        {
+            var found = new List<(int Token, int Level)>();
+            var ternaries = 0;
+            for (int k = from, depth = 0; k < e; k++)
+            {
+                if (IsCloser(Kind(k))) depth = Math.Max(0, depth - 1);
+                if (depth == 0)
+                {
+                    if (k > s && IsClause(k)) break;
+                    var level = Kind(k) switch
+                    {
+                        TokenKind.Question when Trivia(k) => 0,
+                        TokenKind.Colon when ternaries > 0 => 0,
+                        TokenKind.QuestionQuestion => 1,
+                        TokenKind.BarBar or TokenKind.OrKeyword => 2,
+                        TokenKind.AmpAmp or TokenKind.AndKeyword => 3,
+                        _ => -1,
+                    };
+                    if (Kind(k) == TokenKind.Question && level == 0) ternaries++;
+                    else if (Kind(k) == TokenKind.Colon && level == 0) ternaries--;
+                    var o = _enclosing[k];
+                    if (level >= 0 && !_lineStart[k] && Editable(k, k) && !(o >= 0 && IsIndex(o))
+                        && (level > 0 || o >= 0 && Kind(o) is TokenKind.OpenParen or TokenKind.OpenBracket)
+                        // `if (a) ⏎ && b` would read `(a)` as the whole condition (BYN1017).
+                        && !(control >= 0 && Kind(k - 1) == TokenKind.CloseParen && _match[k - 1] == control + 1))
+                        found.Add((k, level));
+                }
+                if (IsOpener(Kind(k))) depth++;
+            }
+            if (found.Count == 0) return [];
+            var lowest = found.Min(x => x.Level);
+            return [.. found.Where(x => x.Level == lowest).Select(x => x.Token)];
         }
 
         // ── Blank lines between top-level declarations (pass 7, proposal §3.7) ───────────
@@ -923,9 +1042,16 @@ internal static class Layout
                         _lineStart[head] = true;
                     }
                 }
+                if (decl is FunctionDecl { ExpressionBody: { } body } && TokenAt(body.Span.Start) - 1 is var arrow and > 0
+                    && Kind(arrow) == TokenKind.FatArrow)
+                    _headerArrow[arrow] = true;
                 foreach (var block in Blocks(decl))
                 {
                     var o = TokenAt(block.Span.Start);
+                    // An empty arm stays on its label's line: `default: {}`.
+                    if (block.Statements.Length == 0 && Kind(o) == TokenKind.OpenBrace && Kind(o - 1) == TokenKind.Colon
+                        && _match[o] == o + 1 && !gaps[o].Items.Any(x => x.IsComment) && gaps[o + 1].Items.Count == 0 && Editable(o, o + 1))
+                        _lineStart[o] = false;
                     if (block.Statements.Length == 0 || Kind(o) != TokenKind.OpenBrace || _match[o] < o || !Editable(o, _match[o])) continue;
                     foreach (var s in block.Statements) _lineStart[TokenAt(s.Span.Start)] = true;
                     _lineStart[_match[o]] = true;
@@ -1042,7 +1168,7 @@ internal static class Layout
             var run = new List<int>();
             foreach (var s in lines)
             {
-                var ok = shapes.TryGetValue(s, out var shape) && Plain(s) && shape.Columns.All(k => Padded(s, k));
+                var ok = shapes.TryGetValue(s, out var shape) && Plain(s) && shape.Columns.All(k => k < 0 || Padded(s, k));
                 if (run.Count > 0 && (!ok || shape.Key != shapes[run[0]].Key || _level[s] != _level[run[0]] || Separated(s)))
                 {
                     AlignRun(run, shapes);
@@ -1080,7 +1206,7 @@ internal static class Layout
                     if (topLevel && decl is not GlobalStatement && First(TokenKind.Equals, start, e) is var eq and > 0)
                         shapes[s] = (decl.GetType().Name + " " + LeadingKeywords(start), [eq]);
                     else if (!topLevel && decl is FieldDecl)
-                        shapes[s] = ("field", [name]);
+                        shapes[s] = ("field", [name, First(TokenKind.Equals, name, e)]);
                     else if (!topLevel && decl is PropertyDecl { Body: not null } && First(TokenKind.FatArrow, name, e) is var arrow and > 0)
                         shapes[s] = ("property", [name, arrow]);
                 }
@@ -1138,8 +1264,11 @@ internal static class Layout
         private bool Padded(int s, int k) =>
             k > s && k < LineEnd(s) && Space(k, tokens[k - 1].End) && !TriviaMatters(source, tokens, k);
 
-        /// <summary>Whether a blank line, an inserted one or a comment line comes before line start <paramref name="s"/>.</summary>
-        private bool Separated(int s) => gaps[s].HasBlank || _needsBlank[s] || gaps[s].Items.Skip(1).Any(x => x.IsComment);
+        /// <summary>Whether a blank line, an inserted one or a <c>//</c> line comes before line start <paramref name="s"/>; a <c>///</c> line does not.</summary>
+        private bool Separated(int s) => gaps[s].HasBlank || _needsBlank[s] || gaps[s].Items.Skip(1).Any(x => x.IsComment && !Doc(x));
+
+        private bool Doc(GapItem item) =>
+            item.End - item.Start >= 3 && source.AsSpan(item.Start, 3).SequenceEqual("///"u8) && (item.End - item.Start == 3 || source[item.Start + 3] != '/');
 
         /// <summary>The padding the run has already put in tokens <c>(s, e)</c>.</summary>
         private int Pads(int s, int e)
@@ -1155,12 +1284,28 @@ internal static class Layout
         private void AlignRun(List<int> run, Dictionary<int, (string Key, int[] Columns)> shapes)
         {
             if (run.Count < 2) return;
+            run = [.. run];
+            var outliers = shapes[run[0]].Key is "field" or "property" or "arm";
+        restart:
+            if (run.Count < 2) return;
             for (var c = 0; c < shapes[run[0]].Columns.Length; c++)
             {
-                var at = run.Select(s => Width(s, shapes[s].Columns[c]) + Pads(s, shapes[s].Columns[c]) + 1).ToArray();
+                // Only the lines that have the column take part: a field without a default has no `=`.
+                var part = run.Where(s => shapes[s].Columns[c] >= 0).ToList();
+                if (part.Count < 2) continue;
+                var at = part.Select(s => Width(s, shapes[s].Columns[c]) + Pads(s, shapes[s].Columns[c]) + 1).ToArray();
                 var target = at.Max();
-                if (run.Where((s, n) => at[n] < target && LineWidth(s) + target - at[n] > options.Width).Any()) continue;
-                for (var n = 0; n < run.Count; n++) _pad[shapes[run[n]].Columns[c]] = target - at[n];
+                // A line more than 8 columns past the next-widest leaves the run and stays unaligned.
+                if (outliers && at.Order().ToArray() is var sorted && target - sorted[^2] > 8)
+                {
+                    foreach (var s in run)
+                        foreach (var k in shapes[s].Columns)
+                            if (k >= 0) _pad[k] = 0;
+                    run.Remove(part[Array.IndexOf(at, target)]);
+                    goto restart;
+                }
+                if (part.Where((s, n) => at[n] < target && LineWidth(s) + target - at[n] > options.Width).Any()) continue;
+                for (var n = 0; n < part.Count; n++) _pad[shapes[part[n]].Columns[c]] = target - at[n];
             }
         }
 

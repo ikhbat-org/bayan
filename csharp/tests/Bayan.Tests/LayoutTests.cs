@@ -283,8 +283,8 @@ public sealed class LayoutTests
 
     [Fact]
     public void AnAuthorsTrailingCommaKeepsAListVertical() => Assert.Equal(
-        "let s = f(\n    a,\n    b,\n)\nlet t = [\n    1,\n    2,\n]\n",
-        Lay("let s = f(a, b,)\nlet t = [\n    1, 2,\n]\n"));
+        "let s = f(\n    a,\n    b,\n)\nlet t = [\n    x,\n    y,\n]\n",
+        Lay("let s = f(a, b,)\nlet t = [\n    x, y,\n]\n"));
 
     [Fact]
     public void NeverDropsTrailingCommasAndAddsNone() => Assert.Equal(
@@ -558,6 +558,86 @@ public sealed class LayoutTests
                               "        lines.append(line)\n    }\n}\n\nvoid main() {\n    let a = 1\n    print(a)\n}\n";
         Assert.Equal(source, Lay(source));
     }
+
+    // ── The T6c rules (docs/specs/022-style-guide/022-tasks.md), from the self-hosted compiler ──
+
+    [Fact]
+    public void AnExpressionBreaksBeforeItsLowestOperators() => Assert.Equal(
+        "bool hidden(i64 c) {\n    return c < 0x20\n        || (c >= 0x7F && c <= 0x9F)\n        || c == 0x61C\n" +
+        "        || (c >= 0x202A && c <= 0x202E)\n}\n",
+        Lay("bool hidden(i64 c) {\n    return c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C || (c >= 0x202A && c <= 0x202E)\n}\n",
+            new LayoutOptions(Width: 60)));
+
+    [Fact]
+    public void AnOperatorBreaksBeforeAnArgumentList() => Assert.Equal(
+        "let ok = ready\n    && check(firstArgument, secondArgument)\n    && done\n",
+        Lay("let ok = ready && check(firstArgument, secondArgument) && done\n", new LayoutOptions(Width: 44)));
+
+    [Fact]
+    public void AGroupThatDoesNotFitBreaksInside() => Assert.Equal(
+        "let inInstance = host != -1\n    && !c.fns[host].isStatic\n    && (c.fns[host].kind == .method\n" +
+        "        || c.fns[host].kind == .getter)\n",
+        Lay("let inInstance = host != -1 && !c.fns[host].isStatic && (c.fns[host].kind == .method || c.fns[host].kind == .getter)\n",
+            new LayoutOptions(Width: 50)));
+
+    [Fact]
+    public void AnIndexAndAMemberAfterItStayWhole() => Assert.Equal(
+        "let empty = c.variants[i].payload.length == 0\n    && c.errors[c.variants[i].variant].fields.length > 0\n",
+        Lay("let empty = c.variants[i].payload.length == 0 && c.errors[c.variants[i].variant].fields.length > 0\n",
+            new LayoutOptions(Width: 50)));
+
+    [Fact]
+    public void ATernaryInAnArgumentBreaksBeforeQuestionAndColon() => Assert.Equal(
+        "shown.append(\n    compiled.manifest is not null\n        ? Path.relative(compiled.root, to: output).replaced(\"\\\\\", by: \"/\")\n" +
+        "        : output,\n)\n",
+        Lay("shown.append(compiled.manifest is not null ? Path.relative(compiled.root, to: output).replaced(\"\\\\\", by: \"/\") : output)\n",
+            new LayoutOptions(Width: 80)));
+
+    [Fact]
+    public void AnOutlierLeavesTheRun() => Assert.Equal(
+        "bool literal(TokenKind kind) => kind switch {\n    .integerLiteral => true,\n    .floatLiteral   => true,\n" +
+        "    .stringLiteral or .rawStringLiteral or .cStringLiteral => true,\n    _               => false,\n}\n",
+        Lay("bool literal(TokenKind kind) => kind switch {\n    .integerLiteral => true,\n    .floatLiteral => true,\n" +
+            "    .stringLiteral or .rawStringLiteral or .cStringLiteral => true,\n    _ => false,\n}\n"));
+
+    [Fact]
+    public void FieldDefaultsAlignTheirEquals() => Assert.Equal(
+        "struct DistSource {\n    string? commit = null\n    bool    dirty  = false\n    i64     count\n}\n",
+        Lay("struct DistSource {\n    string? commit = null\n    bool dirty = false\n    i64 count\n}\n"));
+
+    [Fact]
+    public void AnArrowHeaderBreaksAfterTheArrowFirst() => Assert.Equal(
+        "i64 total(i64 firstArgument, i64 secondArgument) =>\n    firstArgument + secondArgument\n",
+        Lay("i64 total(i64 firstArgument, i64 secondArgument) => firstArgument + secondArgument\n", new LayoutOptions(Width: 60)));
+
+    [Fact]
+    public void AScalarListKeepsTheAuthorsFirstRow() => Assert.Equal(
+        "const t: u32[8] = [\n    0x0041, 0x005A, 0x005F, 0x005F,\n    0x0061, 0x007A, 0x00AA, 0x00AA,\n]\n",
+        Lay("const t: u32[8] = [\n    0x0041, 0x005A, 0x005F, 0x005F,\n    0x0061, 0x007A,\n    0x00AA, 0x00AA,\n]\n"));
+
+    [Fact]
+    public void AScalarListFillsToTheWidth() => Assert.Equal(
+        "const t: u32[8] = [\n    0x0041, 0x005A, 0x005F,\n    0x005F, 0x0061, 0x007A,\n    0x00AA, 0x00AA,\n]\n",
+        Lay("const t: u32[8] = [0x0041, 0x005A, 0x005F, 0x005F, 0x0061, 0x007A, 0x00AA, 0x00AA]\n", new LayoutOptions(Width: 30)));
+
+    [Fact]
+    public void ACaseBodyGoesOneLevelIn() => Assert.Equal(
+        "void f() {\n    switch kind {\n        case .binary:\n            let op = c.op\n            go(op)\n" +
+        "        default: {}\n    }\n}\n",
+        Lay("void f() {\n    switch kind {\n        case .binary:\n        let op = c.op\n        go(op)\n" +
+            "        default: {}\n    }\n}\n"));
+
+    [Fact]
+    public void AnEmptyArmStaysOnItsLine() => Assert.Equal(
+        "void f() {\n    switch kind {\n        case .a: go()\n        default: {}\n    }\n}\n",
+        Lay("void f() {\n    switch kind {\n        case .a: go()\n        default:\n            {}\n    }\n}\n"));
+
+    [Fact]
+    public void ADocCommentDoesNotEndARun() => Assert.Equal(
+        "struct CCtx {\n    /// `OwnershipChecks`.\n    public bool   checks = false\n    /// `_packageRoot`.\n" +
+        "    public string root   = \"\"\n    // ── T2 state\n    public i64    n      = 0\n    public string longer = \"\"\n}\n",
+        Lay("struct CCtx {\n    /// `OwnershipChecks`.\n    public bool checks = false\n    /// `_packageRoot`.\n" +
+            "    public string root = \"\"\n    // ── T2 state\n    public i64 n = 0\n    public string longer = \"\"\n}\n"));
 
     // ── Idempotence, @unformatted ──
 
