@@ -99,7 +99,7 @@ error BYN2104: `total` is immutable
 
 ## Before a push
 
-The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/workflows/ci.yml` calls it and runs no script test of its own. Run it on macOS under the system bash, which is what the macOS job uses:
+The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/workflows/ci.yml` calls it and runs no script test of its own. Run it on macOS under the system bash, the bash the macOS job uses. With no group it runs both: `unix`, the macOS job's list, and `docs`, which ci runs only on Linux:
 
 ```
 /bin/bash scripts/ci/script-tests.sh
