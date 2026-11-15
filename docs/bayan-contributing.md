@@ -109,3 +109,13 @@ error BYN2104: `total` is immutable
 - The lexer and parser are the compiler's untrusted-input surface: add **SharpFuzz** on `bayan parse` once M2 is stable (nightly CI).
 - Run **Stryker.NET** on `Bayan.Syntax` and `Bayan.Semantics` before v0.1 to find weak tests.
 - Reproducibility: CI compiles `examples/` twice and compares the emitted C byte-for-byte.
+
+## Before a push
+
+The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/workflows/ci.yml` calls it and runs no script test of its own. Run it on macOS under the system bash, the bash the macOS job uses. With no group it runs both: `unix`, the macOS job's list, and `docs`, which ci runs only on Linux:
+
+```
+/bin/bash scripts/ci/script-tests.sh
+```
+
+macOS ships bash 3.2. It parses the body of `$( … )`, `<( … )` and `>( … )` only when the line runs, and a bare `pat)` case arm there closes the substitution, so `bash -n` passes and the script dies later. Inside a substitution, write every case pattern as `(pat)`. `scripts/ci/bash32-parse.test.sh` enforces this on every tracked `.sh` file on every OS.
