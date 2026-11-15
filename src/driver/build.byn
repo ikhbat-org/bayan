@@ -158,7 +158,7 @@ List<string> t5ModuleFiles(string dir, bool includeTests = false) uses alloc, fs
 /// CliApp.cs:262 `Compile` (`includeTests` is its parameter): the `--package <root>` branch, else `semantics/cli.byn` `t26Compile` (the project, script and
 /// path branches). Prints diagnostics and adds them to `reported`; `ok` is false where the C# returns null. `ascii`, `width` and `isTty` are
 /// the stderr ones of `StartProgress` (CliApp.cs:306); the callers in commands.byn, features.byn and build.byn pass the stderr ones of `DCtx`; only `t26Compile`'s project branch clears the line late (Q1116).
-semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to ref List<semantics.T26Reported> reported, through ref bool ok, bool includeTests = false, bool ascii = false, i64 width = 100, bool isTty = false) uses alloc, clock, console, env, fs {
+semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to ref List<semantics.T26Reported> reported, through ref bool ok, bool includeTests = false, bool ascii = false, i64 width = 100, bool isTty = false, bool styleLints = false) uses alloc, clock, console, env, fs {
     let style = DStyle { ascii: ascii, width: width }
     var progress = start(in style, by: isTty, through: o.json, for: "compiling")
     let o26 = t5T26(in o)
@@ -183,13 +183,14 @@ semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to r
             done(ref progress)
             semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
             ok = !t5HasErrors(in c)
+            if styleLints && ok { ok = semantics.t26StyleLints(o26, by: symbols, for: c, to: ref reported) }
             return c
         }
     }
     if t5DirectoryExists(o.path) && t1FileExists(manifestPath) {
         // CliApp.cs:272 and :279 clear the line before the manifest diagnostics and the no-entry message, which `t26Compile` prints; the
         // driver clears it after them (blocked: Q1116)
-        let compiled = semantics.t26Compile(in o26, by: in symbols, to: ref reported, through: ref ok, includeTests: includeTests)
+        let compiled = semantics.t26Compile(in o26, by: in symbols, to: ref reported, through: ref ok, includeTests: includeTests, styleLints: styleLints)
         done(ref progress)
         return compiled
     }
@@ -199,6 +200,7 @@ semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to r
     done(ref progress)
     semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
     ok = !t5HasErrors(in c)
+    if styleLints && ok { ok = semantics.t26StyleLints(o26, by: symbols, for: c, to: ref reported) }
     return c
 }
 

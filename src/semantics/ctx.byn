@@ -109,6 +109,8 @@ public struct Diag {
     public string label = ""
     public string help = ""
     public bool isWarning = false
+    /// A style lint at `.suggestion` (the C# `Severity.Note`, compile.byn `styleLintsAt`); neither an error nor a warning.
+    public bool isNote = false
     public bool hasFix = false
     public TextSpan fixSpan
     public string fixReplacement = ""
@@ -269,6 +271,8 @@ public struct Ctx {
     public List<SourceFile> files
     public List<Mod> modules
     public List<Diag> diagnostics
+    /// The C# `Compilation.StyleLints`: every file's style lints (BYN1072–BYN1076), kept out of `diagnostics`; only `bayan check` reports them.
+    public List<Diag> styleLints = List<Diag>()
     /// Nested sinks; empty for the outermost.
     public List<DiagBag> bags
     /// The bag index new diagnostics go to, or -1 for `diagnostics`.

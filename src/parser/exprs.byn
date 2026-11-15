@@ -535,6 +535,7 @@ List<Argument> parseArgumentList(ref Parser p) {
                 _ => ArgModifier.none,
             }
             if modifier != .none { let _ = p.advance() }
+            p.argumentStarts[p.pos] = true
             let value = parseExpression(ref p)
             args.append(Argument { span: p.spanFrom(start), name: name, modifier: modifier, value: move value })
             unless p.accept(.comma) { break }

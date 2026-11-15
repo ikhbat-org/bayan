@@ -598,6 +598,7 @@ Diag t10CopyDiag(in Diag d) => Diag {
     label: d.label,
     help: d.help,
     isWarning: d.isWarning,
+    isNote: d.isNote,
     hasFix: d.hasFix,
     fixSpan: d.fixSpan,
     fixReplacement: d.fixReplacement,

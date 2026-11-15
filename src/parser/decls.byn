@@ -912,7 +912,12 @@ FunctionDecl parseFunction(ref Parser p, at i64 start, by Modifiers modifiers, b
     var body: Stmt = .none
     var expressionBody: Expr = .none
     if p.kind() == .openBrace {
+        // Parser.cs: ParseFunction (a body's depth counts from 0)
+        let outer = p.blockDepth
+        p.blockDepth = -1
         body = parseBlock(ref p)
+        p.blockDepth = outer
+        lintFunctionLength(ref p, at: stmtSpan(in body))
     } else if p.accept(.fatArrow) {
         expressionBody = parseExpression(ref p)
         expectEnd(ref p)

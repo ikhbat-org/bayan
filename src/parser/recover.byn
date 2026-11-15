@@ -1,7 +1,8 @@
 // Recovery and line structure. Ports from `csharp/Bayan.Syntax/Parsing/Parser.cs`: `ExpectEnd`,
 // `ReportSemicolon`, `IndentAt`, `BreaksLine`, `HasBlankLineBefore`, `IsWasl`, `LineContinues`,
 // `StopsHere`, `EndsBefore`, `ExpectName`, `NameOf`, `IsName`, `IsStatementKeyword`, `Synchronize`,
-// `RecoverIfNeeded` (lines 165–343), `InGroup`, `Unreport`, the sets `ItName` and `Particles`, and
+// `RecoverIfNeeded` (lines 165–343), `LintLineJoins`, the style lints (`LintPostfixGuard`, `LintItLambda`,
+// `LintWrappedCondition`, `LintFunctionLength` and `ParseBlock`'s depth check), `InGroup`, `Unreport`, the sets `ItName` and `Particles`, and
 // from the lexer `TokenKindFacts.IsContextualKeyword` and `Keywords.IsCSharpPrimitive`. Owner: 
 //
 // A C# `Name` is its `TextSpan` (nodes.byn), so `expectName` and `nameOf` return the span; a missing
@@ -183,6 +184,127 @@ public List<Diagnostic> lintLineJoins(ref Parser p) uses alloc {
         })
     }
     return lints
+}
+
+// ── Style lints (BYN1072–BYN1076) ────────────────────────────────────────────────
+// Reported by `bayan check` only, at the severity of the manifest's `lints` (compile.byn `styleLintsAt`). Each lint
+// appends to `p.styleLints` through `reportStyleLint`; the parse functions call them where `Parser.cs` does.
+
+// Parser.cs: MaxNesting, MaxFunctionLines
+const maxNesting: i64 = 4
+const maxFunctionLines: i64 = 60
+
+/// The C# `_styleLints.Report`: a lint has a fix exactly when `fixSpan` is set.
+void reportStyleLint(ref Parser p, for string code, at TextSpan span, by string message, string label = "", string help = "",
+    TextSpan? fixSpan = null, string fixReplacement = "") {
+    p.styleLints.append(Diagnostic {
+        code: code,
+        span: span,
+        message: message,
+        label: label,
+        help: help,
+        hasFix: fixSpan is not null,
+        fixSpan: fixSpan ?? TextSpan { start: 0, length: 0 },
+        fixReplacement: fixReplacement,
+    })
+}
+
+/// BYN1072 on an `if` without `else` whose block holds only a `return`, `fail`, `break` or `continue`; the fix writes it
+/// as a postfix guard. `span` is the `if` statement's span.
+// Parser.cs: LintPostfixGuard
+void lintPostfixGuard(ref Parser p, at TextSpan span, for Expr condition, by Stmt then, from Stmt otherwise, as Likelihood likelihood) {
+    if !(otherwise is .none && likelihood == .none) { return }
+    var block = TextSpan { start: 0, length: 0 }
+    switch then {
+        case .blockStmt(let b):
+            if b.value.statements.length != 1 { return }
+            switch b.value.statements[0] {
+                case .returnStmt(_) or .failStmt(_) or .breakStmt(_) or .continueStmt(_):
+                    block = b.value.span
+                default:
+                    return
+            }
+        default:
+            return
+    }
+    if block.length < 2 { return }
+    // A break or continue has an empty span (its span is taken before its label is read), so the exit is read off the block's
+    // text: inside the braces, trimmed, then without its trailing `;`s. Trivia is only spaces, tabs and line breaks (Lexer.cs).
+    var from = block.start + 1
+    var to = block.end - 1
+    while from < to && isTriviaSpace(p.lexed.source.bytes[from]) { from += 1 }
+    while to > from && isTriviaSpace(p.lexed.source.bytes[to - 1]) { to -= 1 }
+    while to > from && p.lexed.source.bytes[to - 1] == ';' { to -= 1 }
+    while to > from && isTriviaSpace(p.lexed.source.bytes[to - 1]) { to -= 1 }
+    let body = p.lexed.source.getText(TextSpan.fromBounds(from, until: to))
+    let text = p.lexed.source.getText(exprSpan(in condition))
+    // A comment, a second statement or a line break in the block or the condition has no place in the one-line rewrite: no fix.
+    let plain = !body.contains("\n") && !body.contains("/") && !body.contains(";") && !text.contains("\n")
+    let at = TextSpan.fromBounds(span.start, until: block.start)
+    let message = "an early exit in a block can be a postfix guard"
+    if plain {
+        reportStyleLint(ref p, for: "BYN1072", at: at, by: message, label: "an early exit in a block", help: "write it as a postfix guard",
+            fixSpan: span, fixReplacement: $"{body} if {text}")
+    } else {
+        reportStyleLint(ref p, for: "BYN1072", at: at, by: message, label: "an early exit in a block", help: "write it as a postfix guard")
+    }
+}
+
+/// A space, tab or line-break byte.
+bool isTriviaSpace(u8 b) => b == ' ' || b == '\t' || b == '\r' || b == '\n'
+
+/// BYN1073 on a lambda argument `x => x.f`; the fix writes `it.f`. `startIndex` is the lambda's first token.
+// Parser.cs: LintItLambda
+void lintItLambda(ref Parser p, at TextSpan span, for List<TextSpan> parameters, by Expr body, from i64 startIndex) {
+    if parameters.length != 1 || startIndex >= p.count || !p.argumentStarts[startIndex] { return }
+    let param = p.lexed.source.getText(parameters[0])
+    if param == "it" { return }
+    switch body {
+        case .memberExpr(let m):
+            if m.value.nullConditional || m.value.typeArgs.length != 0 { return }
+            switch m.value.target {
+                case .nameExpr(let n):
+                    if n.value.typeArgs.length != 0 || p.lexed.source.getText(n.value.name) != param { return }
+                    let member = p.lexed.source.getText(m.value.member)
+                    reportStyleLint(ref p, for: "BYN1073", at: span, by: $"`{param} => {param}.…` reads one member and can use `it`",
+                        label: "reads one member of its parameter", help: "write `it` for the parameter", fixSpan: span,
+                        fixReplacement: $"it.{member}")
+                default:
+                    return
+            }
+        default:
+            return
+    }
+}
+
+/// BYN1074 on a control head whose condition continues on a later line than the keyword at token `keywordIndex`.
+// Parser.cs: LintWrappedCondition
+void lintWrappedCondition(ref Parser p, from i64 keywordIndex, for Expr condition) {
+    for i in (keywordIndex + 1)..p.pos {
+        unless p.lexed.tokens[i].hasNewlineBefore { continue }
+        reportStyleLint(ref p, for: "BYN1074", at: exprSpan(in condition), by: "this condition wraps; name it with a `let`",
+            label: "the condition wraps", help: "name the condition with a `let`")
+        return
+    }
+}
+
+/// BYN1075 at the `{` of a block opened more than 4 levels below its function's body; `parseBlock` counts the depth.
+// Parser.cs: ParseBlock (its `_blockDepth` check)
+void lintNestingDepth(ref Parser p, at Token open) {
+    p.blockDepth += 1
+    if p.blockDepth != maxNesting + 1 { return }
+    reportStyleLint(ref p, for: "BYN1075", at: spanOf(open), by: "blocks nested more than 4 deep; flatten them with early exits",
+        label: $"nested more than {maxNesting} deep", help: "flatten it with early exits")
+}
+
+/// BYN1076 on a function body of more than 60 lines between its braces.
+// Parser.cs: LintFunctionLength
+void lintFunctionLength(ref Parser p, at TextSpan body) {
+    if body.length == 0 { return }
+    let lines = p.lexed.source.getLineIndex(body.end - 1) - p.lexed.source.getLineIndex(body.start) - 1
+    if lines <= maxFunctionLines { return }
+    reportStyleLint(ref p, for: "BYN1076", at: TextSpan { start: body.start, length: 1 },
+        by: $"this function body is {lines} lines; split it into named steps", label: $"{lines} lines", help: "split it into named steps")
 }
 
 /// Whether token `index` continues the statement on the line before it.

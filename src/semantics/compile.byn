@@ -241,6 +241,42 @@ List<string> t11ModuleFiles(string dir, bool includeTests) {
     return files
 }
 
+// ── Compilation.cs: StyleLintNames, StyleLintsAt ─────────────────────────────────
+
+/// Compilation.cs: StyleLintNames, the `lints` name of each style lint code. Every code in `Ctx.styleLints` is one of these.
+string styleLintName(string code) => code switch {
+    "BYN1072" => "guards.postfix",
+    "BYN1073" => "lambdas.it",
+    "BYN1074" => "conditions.named",
+    "BYN1075" => "nesting.depth",
+    "BYN1076" => "functions.length",
+    _ => "",
+}
+
+/// Compilation.cs: StyleLintsAt, the style lints at the severity of `manifest`'s `lints` (the defaults without one): `.none`
+/// drops a lint, `.suggestion` is a note.
+public List<Diag> styleLintsAt(Ctx c, by Manifest? manifest) uses alloc {
+    var lints = List<Diag>()
+    for d in c.styleLints {
+        let name = styleLintName(d.code)
+        var severity = name == "functions.length" ? LintSeverity.none : LintSeverity.suggestion
+        if (manifest is { } m) { severity = m.lints[name] }
+        var copy = t10CopyDiag(in d)
+        switch severity {
+            case .none:
+                continue
+            case .suggestion:
+                copy.isNote = true
+            case .warning:
+                copy.isWarning = true
+            case .error:
+                let _ = 0
+        }
+        lints.append(move copy)
+    }
+    return lints
+}
+
 // ── Compilation.cs:125 LoadModule ───────────────────────────────────────────────
 
 ModId loadModule(ref Ctx c, for string name, at string dir, from move List<lexer.SourceText> sources, by ModId importer) {
@@ -296,6 +332,23 @@ ModId loadModule(ref Ctx c, for string name, at string dir, from move List<lexer
                 fixReplacement: d.fixReplacement,
                 related: List<Related>(),
             })
+        }
+        // Compilation.cs: LoadModule. The style lints (BYN1072–BYN1076) are kept apart for `bayan check`; the standard library has none.
+        unless dir.startsWith("<std>/") {
+            for d in p.styleLints {
+                c.styleLints.append(Diag {
+                    code: d.code,
+                    file: fileId,
+                    span: d.span,
+                    message: d.message,
+                    label: d.label,
+                    help: d.help,
+                    hasFix: d.hasFix,
+                    fixSpan: d.fixSpan,
+                    fixReplacement: d.fixReplacement,
+                    related: List<Related>(),
+                })
+            }
         }
         c.files.append(SourceFile {
             path: path,

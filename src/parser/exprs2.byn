@@ -136,7 +136,9 @@ Expr parseLambda(ref Parser p) {
         return Expr.lambdaExpr(Owned(LambdaExpr { span: span, params: move parameters, body: .none, block: move block }))
     }
     let body = parseExpression(ref p)
-    return Expr.lambdaExpr(Owned(LambdaExpr { span: p.spanFrom(start), params: move parameters, body: move body, block: .none }))
+    let span = p.spanFrom(start)
+    lintItLambda(ref p, at: span, for: parameters, by: body, from: tokenAt(ref p, at: start))
+    return Expr.lambdaExpr(Owned(LambdaExpr { span: span, params: move parameters, body: move body, block: .none }))
 }
 
 /// The contextual `pattern` followed on its line by a type name; `pattern` is a name everywhere else,

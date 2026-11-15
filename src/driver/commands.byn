@@ -95,7 +95,7 @@ i32 checkCommand(in List<string> kept, by in DCtx d) {
     let symbols = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
-    var c = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
+    var c = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty, styleLints: true)
     unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
     unless o.json {
         let dot = semantics.t26Symbols(d.styleOut.ascii).dot
