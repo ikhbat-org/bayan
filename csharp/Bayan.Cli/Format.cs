@@ -321,7 +321,7 @@ internal static class Format
     /// The file's bytes with every input-form fix applied, then the project's spellings, then the layout; null after reporting a
     /// blocking error. An input-form diagnostic left with no fix is reported and sets <paramref name="unfixable"/>.
     /// </summary>
-    private static byte[]? FormatFile(string file, byte[] bytes, BooleanStyle booleans, PrimitiveStyle primitives,
+    internal static byte[]? FormatFile(string file, byte[] bytes, BooleanStyle booleans, PrimitiveStyle primitives,
         IReadOnlySet<string> declared, TextWriter stderr, out bool unfixable)
     {
         unfixable = false;

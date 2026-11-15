@@ -110,13 +110,24 @@ internal static class Layout
 
     private static IEnumerable<string> Comments(byte[] bytes, Gap[] gaps) =>
         gaps.SelectMany(g => g.Items).Where(x => x.IsComment)
-            .Select(x => System.Text.Encoding.UTF8.GetString(bytes, x.Start, x.End - x.Start));
+            .Select(x => System.Text.Encoding.UTF8.GetString(CommentText(bytes, x)));
+
+    /// <summary>A comment as written, with one space after its <c>//</c> run when text follows it directly (proposal §3.8).</summary>
+    private static byte[] CommentText(byte[] bytes, GapItem item)
+    {
+        var text = bytes.AsSpan(item.Start, item.End - item.Start);
+        var slashes = 0;
+        while (slashes < text.Length && text[slashes] == '/') slashes++;
+        if (slashes == 0 || slashes == text.Length || text[slashes] is (byte)' ' or (byte)'\t') return text.ToArray();
+        return [.. text[..slashes], (byte)' ', .. text[slashes..]];
+    }
 
     private sealed class Engine(byte[] source, Token[] tokens, Gap[] gaps, int bom, SyntaxTree tree, LayoutOptions options)
     {
         private readonly bool[] _lineStart = new bool[tokens.Length];
         private readonly int[] _level = new int[tokens.Length];
         private readonly bool[] _frozen = new bool[tokens.Length];
+        private readonly bool[] _inHole = new bool[tokens.Length];
         private readonly bool[] _needsBlank = new bool[tokens.Length];
         private readonly List<byte> _out = new(source.Length + source.Length / 8);
 
@@ -154,14 +165,14 @@ internal static class Layout
             return lo;
         }
 
-        // ── Frozen gaps: inside interpolated strings, and `@unformatted because "…"` declarations (proposal §4.4) ──
+        // ── Frozen gaps: `@unformatted because "…"` declarations (proposal §4.4); a hole's line breaks ──
 
         private void Freeze()
         {
             var depth = 0;
             for (var i = 0; i < tokens.Length; i++)
             {
-                if (depth > 0) _frozen[i] = true;
+                if (depth > 0) _inHole[i] = true;
                 if (tokens[i].Kind == TokenKind.InterpolatedStringStart) depth++;
                 else if (tokens[i].Kind == TokenKind.InterpolatedStringEnd && depth > 0) depth--;
             }
@@ -336,6 +347,11 @@ internal static class Layout
             var from = i == 0 ? bom : tokens[i - 1].End;
             if (_frozen[i])
             {
+                _out.AddRange(source.AsSpan(from, tokens[i].Start - from));
+                return;
+            }
+            if (_inHole[i] && gap.HasNewline)
+            {
                 Hygiene(from, tokens[i].Start);
                 return;
             }
@@ -394,7 +410,7 @@ internal static class Layout
             if (!eof) Indent(_level[i]);
         }
 
-        private void Add(GapItem item) => _out.AddRange(source.AsSpan(item.Start, item.End - item.Start));
+        private void Add(GapItem item) => _out.AddRange(CommentText(source, item));
 
         private void Indent(int level)
         {
@@ -439,10 +455,15 @@ internal static class Layout
         /// <summary>Whether tokens <paramref name="i"/> − 1 and <paramref name="i"/> written together lex as something else (<c>- -x</c>).</summary>
         private bool Merges(int i)
         {
+            // A string piece lexes as itself only inside its string; it never merges with a neighbour.
+            if (Piece(Kind(i - 1)) || Piece(Kind(i))) return false;
             byte[] joined = [.. source.AsSpan(tokens[i - 1].Start, tokens[i - 1].Length), .. source.AsSpan(tokens[i].Start, tokens[i].Length)];
             var lexed = Lexer.Lex(new SourceText("layout", joined)).Tokens;
             return lexed.Length != 3 || lexed[0].Kind != tokens[i - 1].Kind || lexed[1].Kind != tokens[i].Kind;
         }
+
+        private static bool Piece(TokenKind kind) => kind is TokenKind.InterpolatedStringStart or TokenKind.InterpolatedStringText
+            or TokenKind.InterpolationStart or TokenKind.InterpolationEnd or TokenKind.InterpolatedStringEnd;
 
         private static bool OperandEnd(TokenKind kind) => kind is TokenKind.Identifier or TokenKind.IntegerLiteral
             or TokenKind.FloatLiteral or TokenKind.NumericSuffix or TokenKind.CharLiteral or TokenKind.InterpolatedStringEnd
@@ -474,6 +495,8 @@ internal static class Layout
         /// <summary>What token <paramref name="i"/> asks of the space after it.</summary>
         private Side After(int i) => Kind(i) switch
         {
+            TokenKind.InterpolatedStringStart or TokenKind.InterpolatedStringText or TokenKind.InterpolationStart
+                or TokenKind.InterpolationEnd => Side.None,
             TokenKind.OpenParen or TokenKind.OpenBracket or TokenKind.Dot or TokenKind.QuestionDot or TokenKind.At
                 or TokenKind.Tilde or TokenKind.DotDot or TokenKind.DotDotEquals => Side.None,
             TokenKind.Comma or TokenKind.Colon => Side.Space,
@@ -491,6 +514,8 @@ internal static class Layout
         /// <summary>What token <paramref name="i"/> asks of the space before it.</summary>
         private Side Before(int i) => Kind(i) switch
         {
+            TokenKind.InterpolatedStringText or TokenKind.InterpolationStart or TokenKind.InterpolationEnd
+                or TokenKind.InterpolatedStringEnd => Side.None,
             TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.Comma => Side.None,
             TokenKind.Semicolon or TokenKind.NumericSuffix or TokenKind.PlusPlus or TokenKind.MinusMinus or TokenKind.Hash => Side.Keep,
             TokenKind.CloseBrace => Kind(i - 1) == TokenKind.OpenBrace ? Side.Keep : Side.Space,

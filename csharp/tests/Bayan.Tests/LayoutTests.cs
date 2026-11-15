@@ -1,6 +1,7 @@
 using System.Text;
 using Bayan.Cli;
-using Bayan.Syntax.Parsing;
+using Bayan.Syntax.Lexing;
+using Bayan.Syntax.Packages;
 using Bayan.Syntax.Text;
 
 namespace Bayan.Tests;
@@ -137,9 +138,19 @@ public sealed class LayoutTests
         Lay("let a = 1      // a  note\nlet b = 2// b\n"));
 
     [Fact]
+    public void ACommentTakesOneSpaceAfterItsSlashes() => Assert.Equal(
+        "// tight\n/// doc\n//\nlet a = 1 // b  c\n",
+        Lay("//tight\n///doc\n//\nlet a = 1 //b  c\n"));
+
+    [Fact]
     public void StringContentsAreNotTouched() => Assert.Equal(
-        "let a = \"x  =  y \"\nlet b = $\"{ a+1 }  -\"\n",
-        Lay("let a  =  \"x  =  y \"\nlet b = $\"{ a+1 }  -\"\n"));
+        "let a = \"x  =  y \"\nlet b = $\"  x {a}  -\"\n",
+        Lay("let a  =  \"x  =  y \"\nlet b = $\"  x {a}  -\"\n"));
+
+    [Fact]
+    public void InterpolationHolesAreSpacedAsNamedArguments() => Assert.Equal(
+        "let s = $\"{n, as: .hex} and {a + 1}\"\n",
+        Lay("let s = $\"{n,as:.hex} and { a+1 }\"\n"));
 
     // ── Blank lines ──
 
@@ -183,7 +194,7 @@ public sealed class LayoutTests
     [Fact]
     public void AnUnformattedDeclarationKeepsItsBytes()
     {
-        const string table = "@unformatted because \"a table\"\nvoid t() {\n  let grid = [\n  1,   0,\n  0,   1,\n  ]\n}\n";
+        const string table = "@unformatted because \"a table\"\nvoid t() {  \r\n  let grid = [\n  1,   0,\t\n  0,   1,\n  ]\n}\n";
         Assert.Equal(table + "\nvoid f() {\n    let a = 1\n}\n", Lay(table + "void f() {\nlet a=1\n}\n"));
     }
 
@@ -232,13 +243,9 @@ public sealed class LayoutTests
 
     // ── Corpus ──
 
-    /// <summary>
-    /// Every corpus file that <c>bayan format</c> lays out as it is: no error stops it, and no fix rewrites it first.
-    /// </summary>
     public static IEnumerable<object[]> Corpus() =>
         new[] { Golden.CasesRoot, Path.Combine(Golden.RepoRoot, "src"), Path.Combine(Golden.RepoRoot, "lib") }
             .SelectMany(root => Directory.EnumerateFiles(root, "*.byn", SearchOption.AllDirectories))
-            .Where(f => !SyntaxTree.Parse(new SourceText(f, File.ReadAllBytes(f))).Diagnostics.Any(d => d.IsError || d.Fix is not null))
             .Order(StringComparer.Ordinal)
             .Select(f => new object[] { Path.GetRelativePath(Golden.RepoRoot, f) });
 
@@ -247,10 +254,19 @@ public sealed class LayoutTests
     public void TheCorpusLaysOutOnceAndForAll(string file)
     {
         var source = File.ReadAllBytes(Path.Combine(Golden.RepoRoot, file));
-        var (once, skipped) = Layout.Apply(source, new LayoutOptions());
-        Assert.Null(skipped);
-        var (twice, again) = Layout.Apply(once, new LayoutOptions());
-        Assert.Null(again);
+        var stderr = new StringWriter();
+        var once = Format.FormatFile(file, source, BooleanStyle.Symbols, PrimitiveStyle.Sized, new HashSet<string>(), stderr, out _);
+        // A file with an error the formatter cannot fix is reported and left alone, as on disk.
+        var twice = once is null ? null : Format.FormatFile(file, once, BooleanStyle.Symbols, PrimitiveStyle.Sized, new HashSet<string>(), stderr, out _);
+        Assert.DoesNotContain("layout skipped", stderr.ToString());
+        Assert.DoesNotContain("still changing", stderr.ToString());
+        if (once is null) return;
+        Assert.NotNull(twice);
         Assert.Equal(Encoding.UTF8.GetString(once), Encoding.UTF8.GetString(twice));
+        Assert.Equal(Tokens(once), Tokens(twice));
     }
+
+    private static List<(TokenKind, string)> Tokens(byte[] bytes) =>
+        [.. Lexer.Lex(new SourceText("corpus", bytes)).Tokens.ToArray()
+            .Select(t => (t.Kind, Encoding.UTF8.GetString(bytes, t.Start, t.Length)))];
 }
