@@ -28,7 +28,7 @@ public sealed class FormatTests
         File.WriteAllText(file, "let a = true\nunless !a { print(\"y\") }\n");
         var (exit, stdout, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
-        Assert.Equal("let a = true\nif a { print(\"y\") }\n", File.ReadAllText(file));
+        Assert.Equal("let a = true\nif a {\n    print(\"y\")\n}\n", File.ReadAllText(file));
         Assert.Contains("formatted", stdout);
     }
 
@@ -39,7 +39,7 @@ public sealed class FormatTests
         File.WriteAllText(file, "let a = true\nlet b = true\nif (a) { if (b) { print(\"x\") } }\n");
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
-        Assert.Equal("let a = true\nlet b = true\nif a { if b { print(\"x\") } }\n", File.ReadAllText(file));
+        Assert.Equal("let a = true\nlet b = true\nif a {\n    if b {\n        print(\"x\")\n    }\n}\n", File.ReadAllText(file));
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public sealed class FormatTests
         Assert.True(exit == CliApp.ExitOk, stderr);
         Assert.Equal(
             "struct Box { i64 weight }\n\nunion Event { timeout(i64 after) }\n\n" +
-            "i64 add(i64 a, i64 b) { return a + b }\n\n" +
+            "i64 add(i64 a, i64 b) {\n    return a + b\n}\n\n" +
             "void main() {\n    let t: i64 = add(1, 2)\n    var u: i64 = 0\n    u = t\n    const k: i64 = 3\n    print($\"{u}{k}\")\n}\n",
             File.ReadAllText(file));
     }
@@ -159,7 +159,7 @@ public sealed class FormatTests
         File.WriteAllText(file, "let a = true\nif (a) { print(\"x\") }\n");
         Run("format", file);
         var once = File.ReadAllText(file);
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", once);
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", once);
         var (exit, stdout, _) = Run("format", file);
         Assert.Equal(CliApp.ExitOk, exit);
         Assert.Empty(stdout);
@@ -427,7 +427,7 @@ public sealed class FormatTests
         Assert.Equal(CliApp.ExitFailure, exit);
         Assert.Contains("a.byn", stderr);
         Assert.Equal(brokenText, File.ReadAllText(broken));
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(fixable));
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(fixable));
     }
 
     [Fact]
@@ -439,14 +439,14 @@ public sealed class FormatTests
         File.WriteAllText(file, "let a = true\nif (a) { print(\"x\") }\n");
         var (exit, _, stderr) = Run("format", dir);
         Assert.True(exit == CliApp.ExitOk, stderr);
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(file));
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(file));
     }
 
     [Fact]
     public void AnInputFormWithoutAFixIsReported()
     {
         var file = Path.Combine(Fresh("nofix"), "main.byn");
-        var text = "i32!Foo? f() { return 1 }\n";
+        var text = "i32!Foo? f() {\n    return 1\n}\n";
         File.WriteAllText(file, text);
         var (exit, _, stderr) = Run("format", file);
         Assert.Equal(CliApp.ExitFailure, exit);
@@ -467,6 +467,26 @@ public sealed class FormatTests
             var (exit, _, stderr) = Run("format", file);
             Assert.Equal(CliApp.ExitFailure, exit);
             Assert.Contains("still changing after 1 passes", stderr);
+        }
+        finally { Format.MaxPasses = passes; }
+    }
+
+    [Fact]
+    public void MaxPassesSetOnOneThreadLeavesAnotherAtTen()
+    {
+        var file = Path.Combine(Fresh("passes-thread"), "main.byn");
+        File.WriteAllText(file, "let a = true\nif (a) { print(\"x\") }\n");
+        var passes = Format.MaxPasses;
+        Format.MaxPasses = 1;
+        try
+        {
+            (int Exit, string Out, string Err) result = default;
+            var other = new Thread(() => result = Run("format", file));
+            other.Start();
+            other.Join();
+            Assert.True(result.Exit == CliApp.ExitOk, result.Err);
+            Assert.DoesNotContain("still changing", result.Err);
+            Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(file));
         }
         finally { Format.MaxPasses = passes; }
     }
@@ -511,7 +531,7 @@ public sealed class FormatTests
             var (exit, _, stderr) = Run("format", dir);
             Assert.Equal(CliApp.ExitFailure, exit);
             Assert.Contains("a.byn", stderr);
-            Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(fixable));
+            Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(fixable));
         }
         finally { File.SetUnixFileMode(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite); }
     }
@@ -537,7 +557,7 @@ public sealed class FormatTests
             var (exit, _, stderr) = Run("format", dir);
             Assert.Equal(CliApp.ExitFailure, exit);
             Assert.Contains("locked", stderr);
-            Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(fixable));
+            Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(fixable));
         }
         finally { File.SetUnixFileMode(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); }
     }
@@ -568,7 +588,7 @@ public sealed class FormatTests
         File.CreateSymbolicLink(link, "real.byn");
         var (exit, _, stderr) = Run("format", link);
         Assert.True(exit == CliApp.ExitOk, stderr);
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(target));
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(target));
         Assert.Equal("real.byn", new FileInfo(link).LinkTarget);
     }
 
@@ -627,7 +647,7 @@ public sealed class FormatTests
         var (proj, real) = LinkThroughALinkedDirectory("link-through-dir", Decoy);
         var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(proj, "sub", "f.byn")), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.True(result.Exit == CliApp.ExitOk, result.Err);
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(Path.Combine(real, "g.byn")));
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(Path.Combine(real, "g.byn")));
         Assert.Equal(Decoy, File.ReadAllText(Path.Combine(proj, "g.byn")));
     }
 
@@ -638,7 +658,7 @@ public sealed class FormatTests
         var (proj, real) = LinkThroughALinkedDirectory("link-through-dir-nodecoy", null);
         var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(proj, "sub", "f.byn")), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.True(result.Exit == CliApp.ExitOk, result.Err);
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(Path.Combine(real, "g.byn")));
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(Path.Combine(real, "g.byn")));
         Assert.False(File.Exists(Path.Combine(proj, "g.byn")));
     }
 
@@ -693,7 +713,7 @@ public sealed class FormatTests
     public async Task FormattingAPathThroughALinkAndUpReadsAndWritesTheSameFile()
     {
         if (OperatingSystem.IsWindows()) return;
-        const string Other = "let b = true\nif b { print(\"y\") }\n";
+        const string Other = "let b = true\nif b {\n    print(\"y\")\n}\n";
         var dir = LinkToADeeperDirectory("link-dotdot-file", Other);
         var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(dir, "link", "..", "a.byn")), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.True(result.Exit == CliApp.ExitOk, result.Err);
