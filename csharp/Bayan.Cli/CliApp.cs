@@ -85,6 +85,8 @@ public static class CliApp
                 return Types(rest, stdout, stderr);
             case "format":
                 return Format.Run(rest, stdout, stderr);
+            case "fix":
+                return FixCommand.Run(rest, stdout, stderr);
             case "audit":
                 return Audit.Run(rest, stdout, stderr, s_styleOut ?? Style.Plain);
             case "features":
@@ -281,6 +283,8 @@ public static class CliApp
         using var progress = StartProgress(o.Json, stderr, Messages.CompileProgress.Text());
         Compilation c;
         Manifest? manifest = null;
+        // The manifest whose `lints` set the style lints' severity: the project's, or under `--package` the root's.
+        Manifest? lintManifest = null;
         string? root = null;
         if (Directory.Exists(o.Path) && File.Exists(Path.Combine(o.Path, "package.byn")))
         {
@@ -309,6 +313,8 @@ public static class CliApp
                 ? Directory.EnumerateFiles(full, "*.byn").Where(f => includeTests || !f.EndsWith(".test.byn", StringComparison.Ordinal)).Order(StringComparer.Ordinal).ToArray()
                 : [full];
             c = Compilation.Create([.. files.Select(f => SourceText.FromFile(f))], Path.GetFullPath(package), new CompilationOptions(includeTests, Target: o.Target));
+            var packageManifest = Path.Combine(Path.GetFullPath(package), "package.byn");
+            if (styleLints && File.Exists(packageManifest) && Manifest.Read(packageManifest) is { HasErrors: false } read) lintManifest = read;
         }
         else
         {
@@ -320,7 +326,7 @@ public static class CliApp
         var lintErrors = false;
         if (styleLints && !c.Diagnostics.HasErrors)
         {
-            var lints = c.StyleLintsAt(manifest);
+            var lints = c.StyleLintsAt(manifest ?? lintManifest);
             Report(o, lints, stderr);
             reported?.AddRange(lints);
             lintErrors = lints.Any(d => d.IsError);

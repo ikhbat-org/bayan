@@ -1,0 +1,62 @@
+note BYN1079: the type is known from the target; write `[]`
+
+  8 │     List<i32> items = List<i32>()
+    │                       ^^^^^^^^^^^ spells out the declared type
+    │
+  help: write `[]`
+    │ 8 │     List<i32> items = []
+    │   │                       ++
+
+note BYN1079: the type is known from the target; write `[]`
+
+  9 │     Map<string, i32> counts = Map<string, i32>()
+    │                               ^^^^^^^^^^^^^^^^^^ spells out the declared type
+    │
+  help: write `[]`
+    │ 9 │     Map<string, i32> counts = []
+    │   │                               ++
+
+note BYN1079: the type is known from the target; write `{}`
+
+  10 │     Point origin = Point {}
+     │                    ^^^^^^^^ spells out the declared type
+     │
+  help: write `{}`
+     │ 10 │     Point origin = Point {}
+     │    │                    ------
+
+note BYN1079: the type is known from the target; write `[]`
+
+  14 │     let xs: List<i32> = List<i32>()
+     │                         ^^^^^^^^^^^ spells out the declared type
+     │
+  help: write `[]`
+     │ 14 │     let xs: List<i32> = []
+     │    │                         ++
+
+note BYN1079: the type is known from the target; write `[]`
+
+  15 │     let m: Map<string, i32> = Map<string, i32>()
+     │                               ^^^^^^^^^^^^^^^^^^ spells out the declared type
+     │
+  help: write `[]`
+     │ 15 │     let m: Map<string, i32> = []
+     │    │                               ++
+
+note BYN1079: the type is known from the target; write `{}`
+
+  16 │     let p: Point = Point {}
+     │                    ^^^^^^^^ spells out the declared type
+     │
+  help: write `{}`
+     │ 16 │     let p: Point = Point {}
+     │    │                    ------
+
+note BYN1079: the type is known from the target; write `[]`
+
+  19 │     let other: List<i64> = List<i64>()
+     │                            ^^^^^^^^^^^ spells out the declared type
+     │
+  help: write `[]`
+     │ 19 │     let other: List<i64> = []
+     │    │                            ++

@@ -1,0 +1,77 @@
+// BYN1078: one `||` or `&&` group tests a path against constants; the fix writes one pattern.
+enum Op {
+    add
+    sub
+    mul
+}
+
+struct Box {
+    Op op
+    i32 n
+}
+
+bool digit(rune c) {
+    return c >= '0' && c <= '9'
+}
+
+bool small(i32 x) {
+    return x >= -1 && x <= 10
+}
+
+bool additive(Op op) {
+    let yes = op == .add || op == .sub
+    return yes
+}
+
+bool mixed(i32 c) {
+    return c == 0 || (c >= 7 && c <= 9) || c == 12
+}
+
+bool named(string s) {
+    return s == "a" || s == "b"
+}
+
+bool field(Box b) {
+    return b.op == .mul || b.op == .add
+}
+
+bool indexed(List<i32> xs, at i32 i) {
+    return xs[i] == 1 || xs[i] == 2
+}
+
+i32 size(List<i32> xs) {
+    return 2
+}
+
+bool calls(List<i32> xs) {
+    // Not a path: `size` is called each time.
+    return size(xs) == 1 || size(xs) == 2
+}
+
+bool partial(i32 x, at bool y) {
+    // Not the whole chain.
+    return x == 1 || x == 2 || y
+}
+
+bool single(i32 x) {
+    return x == 1
+}
+
+bool reversed(i32 x) {
+    return x >= 9 && x <= 1
+}
+
+bool floats(f64 x) {
+    return x == 1.0 || x == 2.0
+}
+
+bool optional(i32? x) {
+    return x == 1 || x == 2
+}
+
+void main() {
+    let xs: List<i32> = [1, 2]
+    let b = Box { op: .add, n: 1 }
+    print($"{digit('5')}{small(3)}{additive(.add)}{mixed(8)}{named("a")}{field(b)}{indexed(xs, at: 0)}")
+    print($"{calls(xs)}{partial(1, at: false)}{single(1)}{reversed(3)}{floats(1.0)}{optional(null)}")
+}

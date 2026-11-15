@@ -293,7 +293,7 @@ internal static class Format
     /// <see cref="RealPath"/>, gives it the original's Unix mode, then renames it over the original; a symlink to it
     /// stays a symlink.
     /// </summary>
-    private static void WriteReplacing(string file, byte[] bytes)
+    internal static void WriteReplacing(string file, byte[] bytes)
     {
         var temp = Path.Combine(Path.GetDirectoryName(file)!, Path.GetRandomFileName() + ".tmp");
         try
@@ -310,13 +310,18 @@ internal static class Format
     }
 
     /// <summary>The bytes with each distinct fix applied in order; a fix overlapping an earlier one is skipped.</summary>
-    internal static byte[] ApplyFixes(byte[] bytes, IEnumerable<Fix> fixes)
+    internal static byte[] ApplyFixes(byte[] bytes, IEnumerable<Fix> fixes) => ApplyFixes(bytes, fixes, out _);
+
+    /// <summary>As <see cref="ApplyFixes(byte[], IEnumerable{Fix})"/>, counting the fixes <paramref name="applied"/>.</summary>
+    internal static byte[] ApplyFixes(byte[] bytes, IEnumerable<Fix> fixes, out int applied)
     {
         var result = new List<byte>(bytes.Length);
         var at = 0;
+        applied = 0;
         foreach (var fix in fixes.Distinct().OrderBy(f => f.Span.Start))
         {
             if (fix.Span.Start < at) continue;
+            applied++;
             result.AddRange(bytes.AsSpan(at, fix.Span.Start - at));
             result.AddRange(System.Text.Encoding.UTF8.GetBytes(fix.Replacement));
             at = fix.Span.End;

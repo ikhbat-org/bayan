@@ -370,7 +370,7 @@ public static class DiagnosticCodes
     // target: 19xx lint
     public static readonly DiagnosticDescriptor LiteralsEmpty = Note("BYN1079", "the type is known from the target; write `{0}`");
     // target: 19xx lint
-    public static readonly DiagnosticDescriptor OptionalsBind = Note("BYN1080", "`while ({0} is {{ }} {1})` can be `while let`");
+    public static readonly DiagnosticDescriptor OptionalsBind = Note("BYN1080", "`{0} is {{ }} {1}` binds an optional with a pattern; {2}");
     public static readonly DiagnosticDescriptor NumberAgreement = Warning("BYN5104", "`{0}` holds a collection; name it with a plural, `{1}`");
     /// <summary>BYN5104's second message form, for a plural name on one value; registered once, as <see cref="NumberAgreement"/>.</summary>
     public static readonly DiagnosticDescriptor NumberAgreementOne = new("BYN5104", Severity.Warning, "`{0}` holds one `{1}`; name it with a singular noun");
