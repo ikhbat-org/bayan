@@ -8,7 +8,7 @@
   },
   "files": [
     {
-      "path": "src/A.cs",
+      "path": "csharp/A.cs",
       "lines": {
         "covered": 1,
         "total": 1,

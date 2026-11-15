@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 case "$*" in
   "diff --name-only base...HEAD"|"diff --name-only")
-    printf 'docs/bayan-questions.md\nselfhost/semantics/a.byn\nselfhost/semantics/ctx.byn\ntests/Bayan.Tests/SelfhostSemanticsT99Tests.cs\n' ;;
+    printf 'docs/bayan-questions.md\nsrc/semantics/a.byn\nsrc/semantics/ctx.byn\ntests/Bayan.Tests/SelfhostSemanticsT99Tests.cs\n' ;;
   "ls-files --others --exclude-standard")
     ;;
   "merge-base base HEAD")
     echo "base-sha" ;;
-  "diff -U0 base-sha -- selfhost/semantics/ctx.byn")
+  "diff -U0 base-sha -- src/semantics/ctx.byn")
     cat <<'EOF'
-diff --git a/selfhost/semantics/ctx.byn b/selfhost/semantics/ctx.byn
---- a/selfhost/semantics/ctx.byn
-+++ b/selfhost/semantics/ctx.byn
+diff --git a/src/semantics/ctx.byn b/src/semantics/ctx.byn
+--- a/src/semantics/ctx.byn
++++ b/src/semantics/ctx.byn
 @@ -2,1 +2,0 @@ struct Ctx {
 -    old: int
 @@ -5,0 +6,1 @@ struct Ctx {

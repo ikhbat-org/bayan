@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 case "$*" in
-  "cat-file -e base:selfhost/semantics/b.byn")
+  "cat-file -e base:src/semantics/b.byn")
     exit 1 ;;
   *)
     echo "unexpected git args: $*" >&2

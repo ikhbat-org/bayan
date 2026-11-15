@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 case "$*" in
   "diff --name-only dev...HEAD"|"diff --name-only")
-    printf 'docs/bayan-questions.md\nselfhost/semantics/ctx.byn\nselfhost/semantics/diag.byn\ntests/Bayan.Tests/SelfhostSemanticsT40Tests.cs\n' ;;
+    printf 'docs/bayan-questions.md\nsrc/semantics/ctx.byn\nsrc/semantics/diag.byn\ntests/Bayan.Tests/SelfhostSemanticsT40Tests.cs\n' ;;
   "ls-files --others --exclude-standard")
     ;;
   "merge-base dev HEAD")
     echo "c3f5c132c018dfdf2bc22470d4b5ea37863a00a0" ;;
-  "diff -U0 c3f5c132c018dfdf2bc22470d4b5ea37863a00a0 -- selfhost/semantics/ctx.byn")
+  "diff -U0 c3f5c132c018dfdf2bc22470d4b5ea37863a00a0 -- src/semantics/ctx.byn")
     cat <<'EOF'
-diff --git a/selfhost/semantics/ctx.byn b/selfhost/semantics/ctx.byn
+diff --git a/src/semantics/ctx.byn b/src/semantics/ctx.byn
 index 38095ecd..bc2d6c54 100644
---- a/selfhost/semantics/ctx.byn
-+++ b/selfhost/semantics/ctx.byn
+--- a/src/semantics/ctx.byn
++++ b/src/semantics/ctx.byn
 @@ -5,0 +6,2 @@ struct Ctx {
 +    /// The C# span of each `for try` synthetic name (Binder.cs:1110-1115, `f.Iterable.Span`), beside `syntheticNames`.
 +    List<TextSpan> syntheticSpans = List<TextSpan>()

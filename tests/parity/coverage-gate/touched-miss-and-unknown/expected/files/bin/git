@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 case "$*" in
-  "cat-file -e base:selfhost/semantics/a.byn")
+  "cat-file -e base:src/semantics/a.byn")
     exit 0 ;;
-  "diff -U0 base -- selfhost/semantics/a.byn")
+  "diff -U0 base -- src/semantics/a.byn")
     cat <<'EOF'
-diff --git a/selfhost/semantics/a.byn b/selfhost/semantics/a.byn
---- a/selfhost/semantics/a.byn
-+++ b/selfhost/semantics/a.byn
+diff --git a/src/semantics/a.byn b/src/semantics/a.byn
+--- a/src/semantics/a.byn
++++ b/src/semantics/a.byn
 @@ -4,0 +5,5 @@
 +
 +fn g(a: int) -> int {
