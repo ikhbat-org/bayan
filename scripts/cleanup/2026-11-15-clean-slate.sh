@@ -6,8 +6,8 @@
 #   1. removes the worktrees .worktrees/base-dev (plan 017's dev baseline), .worktrees/dev (where plan 017 merged) and the
 #      0.3.1 prep's fix-m1-relpath, fix-bash32-subst-lint, fix-review-2026-11-15-3, release-0.3.1, cleanup-slate and
 #      fix-review-4, refusing one (detached or not) whose HEAD has commits not on dev, and one holding ignored files
-#      other than build output (bin/, obj/, TestResults/, .cache/, .DS_Store), which `git worktree remove` deletes with
-#      it, unless --delete-worktree-scratch;
+#      other than build output (bin/, obj/, dist/, TestResults/, .cache/, .DS_Store, *.vsix), which `git worktree
+#      remove` deletes with it, unless --delete-worktree-scratch;
 #   2. puts the main checkout on dev, then lists (with --delete-old-build-output, removes) the old layout's ignored build
 #      output left inside the new src/ and tests/;
 #   3. with --delete-branches, deletes every local branch merged into dev (`git branch -d`, which refuses anything else);
@@ -33,9 +33,13 @@ for a in "$@"; do
 done
 main="$(git rev-parse --path-format=absolute --git-common-dir)"; main="${main%/.git}"
 failed=0
-# The first ignored path under <dir> (or <dir>/<sub>) that is not build output, if any.
-scratch() { git -C "$1" status --porcelain --ignored=matching --untracked-files=all -- "${2:-.}" | sed -n 's/^!! //p' \
-  | grep -vE '(^|/)(bin|obj|TestResults|\.cache)/|(^|/)\.DS_Store$' | head -1 || true; }
+# The first ignored path under <dir> (or <dir>/<sub>) that is not build output, if any; a failing git status prints a
+# placeholder, so the caller refuses rather than reading it as "no scratch".
+scratch() {
+  local st; st="$(git -C "$1" status --porcelain --ignored=matching --untracked-files=all -- "${2:-.}")" \
+    || { printf '(git status failed)\n'; return 0; }
+  printf '%s\n' "$st" | sed -n 's/^!! //p' | grep -vE '(^|/)(bin|obj|dist|TestResults|\.cache)/|(^|/)\.DS_Store$|\.vsix$' | head -1 || true
+}
 run() { if [ $execute = 1 ]; then printf 'run:   %s\n' "$*"; "$@" || { printf '  failed\n'; failed=1; }; else printf 'would: %s\n' "$*"; fi; }
 
 # 1. worktrees
@@ -49,7 +53,7 @@ for wt in base-dev dev fix-m1-relpath fix-bash32-subst-lint fix-review-2026-11-1
     printf 'refuse: %s holds commits not on dev. Left alone.\n' "$wt"; failed=1; continue
   fi
   other="$(scratch "$d")"
-  if [ -n "$other" ] && [ $wtscratch = 0 ]; then
+  if [ "$other" = '(git status failed)' ] || { [ -n "$other" ] && [ $wtscratch = 0 ]; }; then
     printf 'refuse: %s holds ignored files that are not build output (%s; --delete-worktree-scratch removes them with it). Left alone.\n' "$wt" "$other"; failed=1; continue
   fi
   run git -C "$main" worktree remove "$d"
@@ -67,8 +71,8 @@ else run git -C "$main" switch dev; fi
 
 # 2b. the old layout's ignored build output: git moves tracked files only, so bin/, obj/ and .DS_Store of src/Bayan.*,
 #     tests/Bayan.Tests and selfhost/ stay where they were, inside the new src/. Removed only with --delete-old-build-output, and
-#     only a directory dev does not track and whose every file is ignored build output (bin/, obj/, TestResults/,
-#     .cache/, .DS_Store; tmp/, .idea/, *.user and other ignored scratch refuse the directory).
+#     only a directory dev does not track and whose every file is ignored build output (the list in step 1;
+#     tmp/, .idea/, *.user and other ignored scratch, or a failing git status, refuse the directory).
 for p in src/Bayan.Backend.C src/Bayan.Cli src/Bayan.Lowering src/Bayan.Semantics src/Bayan.Syntax src/Bayan.Testing \
          tests/Bayan.Tests tests/native selfhost; do
   d="$main/$p"
