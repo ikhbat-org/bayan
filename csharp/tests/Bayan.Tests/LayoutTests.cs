@@ -101,7 +101,7 @@ public sealed class LayoutTests
         Lay("bool isA(rune c)=>c=='a'\n"));
 
     [Fact]
-    public void RangesAreTight() => Assert.Equal("for i in 0..10 { print(i) }\nfor i in 0..<n { print(i) }\n",
+    public void RangesAreTight() => Assert.Equal("for i in 0..10 {\n    print(i)\n}\nfor i in 0..<n {\n    print(i)\n}\n",
         Lay("for i in 0 .. 10 { print(i) }\nfor i in 0 ..< n { print(i) }\n"));
 
     [Fact]
@@ -353,6 +353,212 @@ public sealed class LayoutTests
         "let x = c ? first(\n    argumentNumberOne,\n    argumentNumberTwo,\n) : \"\"\n",
         Lay("let x = c ? first(argumentNumberOne, argumentNumberTwo) : \"\"\n", new LayoutOptions(Width: 40)));
 
+    // ── Alignment runs: the proposal's §3.2, §3.3, §3.7 ──
+
+    // The member-group blank lines and the opened method body of the After are taken as written: R3 has no rule for
+    // either, so the input has them and the test checks the alignment.
+    [Fact]
+    public void Proposal32FieldAndPropertyRunsAlign() => Assert.Equal(
+        "@derive(Json, Row)\npublic struct Customer {\n    CustomerId id\n    Email      email\n    string     name\n" +
+        "    Region     region\n    Tier       tier = .standard\n    Instant    createdAt\n\n" +
+        "    public bool   isVip       => tier is .gold or .platinum\n    public string displayName => $\"{name} <{email}>\"\n\n" +
+        "    public void promote(ref this, to Tier next) {\n        tier = next\n    }\n}\n",
+        Lay("@derive(Json, Row)\npublic struct Customer {\n    CustomerId id\n    Email email\n    string name\n    Region region\n" +
+            "    Tier tier = .standard\n    Instant createdAt\n\n    public bool isVip => tier is .gold or .platinum\n" +
+            "    public string displayName => $\"{name} <{email}>\"\n\n    public void promote(ref this, to Tier next) {\n" +
+            "        tier = next\n    }\n}\n"));
+
+    // The proposal writes `switch order { … }` with no commas, which does not parse; the arms are those of
+    // docs/bayan-style.md. Its After leaves `.canceled =>` unaligned against its own rule; the rule wins.
+    [Fact]
+    public void Proposal33OneLineArmsAlignTheirArrows() => Assert.Equal(
+        "let label = order switch {\n    .placed    => \"Awaiting payment\",\n    .paid p    => $\"Paid via {p.payment.method}\",\n" +
+        "    .shipped s => $\"Shipped, tracking {s.tracking}\",\n    .canceled  => \"Canceled\",\n}\n",
+        Lay("let label = order switch {\n    .placed => \"Awaiting payment\",\n    .paid p => $\"Paid via {p.payment.method}\",\n" +
+            "    .shipped s => $\"Shipped, tracking {s.tracking}\",\n    .canceled => \"Canceled\",\n}\n"));
+
+    // The proposal's `quote(…) …` is given a body so that it parses.
+    [Fact]
+    public void Proposal37OneLineDeclarationsAlignTheirEquals() => Assert.Equal(
+        "type distinct CustomerId = i64\ntype distinct Sku        = string requires it.length <= 16\n\neffect db = net, fs\n\n" +
+        "union error QuoteError {\n    noTaxRegion\n    discontinued(Sku sku)\n}\n\n" +
+        "public Money quote(Cart cart, for Customer customer) {\n    return cart.total\n}\n",
+        Lay("type distinct CustomerId = i64\ntype distinct Sku = string requires it.length <= 16\neffect db = net, fs\n" +
+            "union error QuoteError {\n    noTaxRegion\n    discontinued(Sku sku)\n}\n" +
+            "public Money quote(Cart cart, for Customer customer) {\n    return cart.total\n}\n"));
+
+    // ── Alignment runs: docs/bayan-style.md Don't → Do ──
+
+    [Fact]
+    public void StyleAlignmentRuns() => Assert.Equal(
+        "struct Customer {\n    CustomerId id\n    Email      email\n    string     name\n    Tier       tier = .standard\n\n" +
+        "    public bool   isVip       => tier is .gold or .platinum\n    public string displayName => $\"{name} <{email}>\"\n}\n",
+        Lay("struct Customer {\n    CustomerId id\n    Email email\n    string name\n    Tier tier = .standard\n\n" +
+            "    public bool isVip => tier is .gold or .platinum\n    public string displayName => $\"{name} <{email}>\"\n}\n"));
+
+    [Fact]
+    public void StyleSwitchArms() => Assert.Equal(
+        "let label = order switch {\n    .placed    => \"Awaiting payment\",\n    .paid p    => $\"Paid via {p.payment.method}\",\n" +
+        "    .shipped s => $\"Shipped, tracking {s.tracking}\",\n    .canceled  => \"Canceled\",\n}\n",
+        Lay("let label = order switch {\n    .placed => \"Awaiting payment\",\n    .paid p => $\"Paid via {p.payment.method}\",\n" +
+            "    .shipped s => $\"Shipped, tracking {s.tracking}\",\n    .canceled => \"Canceled\",\n}\n"));
+
+    [Fact]
+    public void StyleTopLevelLayout() => Assert.Equal(
+        "type distinct CustomerId = i64\ntype distinct Sku        = string requires it.length <= 16\n\neffect db = net, fs\n\n" +
+        "union error QuoteError {\n    noTaxRegion\n    discontinued(Sku sku)\n}\n",
+        Lay("type distinct CustomerId = i64\ntype distinct Sku        = string requires it.length <= 16\neffect db = net, fs\n" +
+            "union error QuoteError {\n    noTaxRegion\n    discontinued(Sku sku)\n}\n"));
+
+    [Fact]
+    public void StyleTrailingCommentsAlign() => Assert.Equal(
+        "struct Server {\n    i64  port // default 8080\n    bool tls  // on by default\n}\n",
+        Lay("struct Server {\n    i64  port // default 8080\n    bool tls // on by default\n}\n"));
+
+    // ── Alignment runs: the rules ──
+
+    [Fact]
+    public void ABlankLineEndsARun() => Assert.Equal(
+        "struct S {\n    i32 a\n\n    string bb\n    i64    c\n}\n",
+        Lay("struct S {\n    i32 a\n\n    string bb\n    i64 c\n}\n"));
+
+    [Fact]
+    public void ACommentLineEndsARun() => Assert.Equal(
+        "struct S {\n    i32 a\n    // the rest\n    string bb\n    i64    c\n}\n",
+        Lay("struct S {\n    i32 a\n    // the rest\n    string bb\n    i64 c\n}\n"));
+
+    [Fact]
+    public void AMultiLineArmEndsARun() => Assert.Equal(
+        "let n = k switch {\n    .a => 1,\n    .bb => f(\n        x,\n    ),\n    .ccc => 3,\n    .d   => 4,\n}\n",
+        Lay("let n = k switch {\n    .a => 1,\n    .bb => f(\n        x,\n    ),\n    .ccc => 3,\n    .d => 4,\n}\n"));
+
+    [Fact]
+    public void FieldsAndPropertiesAreRunsOfTheirOwn() => Assert.Equal(
+        "struct S {\n    i32    a\n    string bb\n\n    public i64 c  => a\n    bool       dd => true\n}\n",
+        Lay("struct S {\n    i32 a\n    string bb\n    public i64 c => a\n    bool dd => true\n}\n"));
+
+    [Fact]
+    public void TrailingCommentsAlignOnlyAtOneLevel() => Assert.Equal(
+        "void main() {\n    let a = 1   // one\n    let bcd = 2 // two\n    if a > 0 {  // three\n        go() // four\n    }\n}\n",
+        Lay("void main() {\n    let a = 1 // one\n    let bcd = 2 // two\n    if a > 0 { // three\n        go() // four\n    }\n}\n"));
+
+    [Fact]
+    public void AColumnThatWouldPassTheWidthStaysUnaligned()
+    {
+        const string source = "struct S {\n    i32 aaaaaaaaaaaaaaaaaaaa\n    LongerTypeName b\n}\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(Width: 30)));
+    }
+
+    [Fact]
+    public void AGapTheParserReadsIsNotPadded()
+    {
+        const string source = "struct S {\n    u8* p\n    Instant n\n}\n";
+        Assert.Equal(source, Lay(source));
+    }
+
+    [Fact]
+    public void NoneAlignsNothing()
+    {
+        const string source = "type A = i64\ntype Bb = string\n\nstruct S {\n    i32 a // x\n    string bb // y\n}\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(AlignRuns: false)));
+    }
+
+    [Fact]
+    public void TheManifestsAlignNoneReachesLayout()
+    {
+        const string source = "struct S {\n    i32 a\n    string bb\n}\n";
+        var file = Fresh("align", source);
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"),
+            "Package { name: \"local/t\", version: \"0.1.0\", style: Style { align: .none } }\n");
+        var (exit, _, stderr) = Run("format", file);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.DoesNotContain("skipped", stderr);
+        Assert.Equal(source, File.ReadAllText(file));
+    }
+
+    [Fact]
+    public void AlignmentIsIdempotent()
+    {
+        var once = Lay("struct S {\n    i32 a // x\n    string bb = \"q\" // y\n    public bool c => a > 0\n    i64 dd => 2\n}\n" +
+                       "type A = i64\ntype Bb = string\n");
+        Assert.Equal(once, Lay(once));
+    }
+
+    // ── The guide's rules T4–T6 left out (docs/bayan-style.md) ──
+
+    [Fact]
+    public void ABinaryOperatorIsSpacedAndAUnaryMinusStaysTight() => Assert.Equal(
+        "void show() {\n    let d = a - b\n    let w: Grams = -weight\n    let f = c ?? -d\n}\n",
+        Lay("void show() {\n    let d = a-b\n    let w: Grams = - weight\n    let f = c??-d\n}\n"));
+
+    [Fact]
+    public void StyleHorizontalSpacing() => Assert.Equal(
+        "void show() {\n    let total = price * quantity\n    let port = config.port ?? 8080\n    let span = 0..n\n"
+        + "    let origin = Point { x: 1, y: 2 }\n    let sizes = [1, 2]\n    let label = format(total)\n}\n",
+        Lay("void show() {\n    let total = price*quantity\n    let port = config.port??8080\n    let span = 0 .. n\n"
+            + "    let origin = Point {x:1, y:2}\n    let sizes = [ 1, 2 ]\n    let label = format( total )\n}\n"));
+
+    [Fact]
+    public void APointerWrittenTightStaysAPointer()
+    {
+        const string source = "void f(u8*p) {\n    let n = a * b\n}\n";
+        Assert.Equal(source, Lay(source));
+    }
+
+    [Fact]
+    public void StyleGenericsAndUnits() => Assert.Equal(
+        "void fill(List<Sku> skus) {\n    let wait = 30s\n}\n",
+        Lay("void fill(List< Sku > skus) {\n    let wait = 30s\n}\n"));
+
+    [Fact]
+    public void AGapBetweenTwoGenericClosersIsKept() => Assert.Equal(
+        "Map<string, List<i32> > m = make()\nList<List<i32>> n = make()\n",
+        Lay("Map< string, List< i32 > > m = make()\nList<List< i32 >> n = make()\n"));
+
+    [Fact]
+    public void StyleAttributes() => Assert.Equal(
+        "@derive(Json)\nstruct Note {\n    @json(name: \"note\") string text\n}\n",
+        Lay("@derive(Json) struct Note {\n    @json(name: \"note\") string text\n}\n"));
+
+    [Fact]
+    public void AFieldAttributeStaysInline()
+    {
+        const string source = "struct Note {\n    @json(name: \"note\") string text\n}\n";
+        Assert.Equal(source, Lay(source));
+    }
+
+    [Fact]
+    public void EachFunctionAttributeTakesItsOwnLine() => Assert.Equal(
+        "@allow(unusedValue) because \"warm\"\n@cases(1)\nvoid warm() {\n}\n",
+        Lay("@allow(unusedValue) because \"warm\" @cases(1) void warm() {\n}\n"));
+
+    [Fact]
+    public void StyleBlocksAndBodies() => Assert.Equal(
+        "public void promote(ref this, to Tier next) {\n    tier = next\n}\n",
+        Lay("public void promote(ref this, to Tier next) { tier = next }\n"));
+
+    [Fact]
+    public void ABlockTakesOneStatementPerLineAndAnArrowBodyStays() => Assert.Equal(
+        "bool ok() => true\n\nvoid main() {\n    if a {\n        b()\n    } else {\n        c()\n    }\n}\n",
+        Lay("bool ok() => true\n\nvoid main() { if a { b() } else { c() } }\n"));
+
+    [Fact]
+    public void StyleMemberGroups() => Assert.Equal(
+        "struct Cart {\n    List<Line> lines\n\n    public i32 count => lines.length\n\n" +
+        "    public void add(ref this, Line line) {\n        lines.append(line)\n    }\n\n" +
+        "    public void clear(ref this) {\n        lines = []\n    }\n}\n",
+        Lay("struct Cart {\n    List<Line> lines\n    public i32 count => lines.length\n" +
+            "    public void add(ref this, Line line) {\n        lines.append(line)\n    }\n" +
+            "    public void clear(ref this) {\n        lines = []\n    }\n}\n"));
+
+    [Fact]
+    public void AFunctionBodyGetsNoBlankLine()
+    {
+        const string source = "struct Cart {\n    public void add(ref this, Line line) {\n        let n = 1\n        print(n)\n" +
+                              "        lines.append(line)\n    }\n}\n\nvoid main() {\n    let a = 1\n    print(a)\n}\n";
+        Assert.Equal(source, Lay(source));
+    }
+
     // ── Idempotence, @unformatted ──
 
     private const string Messy =
@@ -382,7 +588,7 @@ public sealed class LayoutTests
     {
         const string source = "struct S {\n    @unformatted because \"columns\"\n    i32 f() {\n      return   1\n    }\n  i32 g() {\nreturn   2\n}\n}\n";
         Assert.Equal(
-            "struct S {\n    @unformatted because \"columns\"\n    i32 f() {\n      return   1\n    }\n    i32 g() {\n        return 2\n    }\n}\n",
+            "struct S {\n    @unformatted because \"columns\"\n    i32 f() {\n      return   1\n    }\n\n    i32 g() {\n        return 2\n    }\n}\n",
             Lay(source));
     }
 
@@ -398,7 +604,7 @@ public sealed class LayoutTests
     [Fact]
     public void GapsTheParserReadsAreKeptAsWritten()
     {
-        const string source = "let s = x >> 2\nlet d = 30s\nlet p = a*b\nlet q = a * b\n";
+        const string source = "let s = x >> 2\nlet d = 30s\nlet p = u8* b\nlet q = a * b\n";
         Assert.Equal(source, Lay(source));
     }
 

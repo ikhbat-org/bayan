@@ -54,11 +54,23 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - **F2 (MEDIUM) the corpus test compares tokens.** The corpus test asserts that the input's token sequence equals the output's, ignoring trailing commas and newlines (R4). The old assertion compared the first output with the second, which the byte check already covers.
     - **F3 (LOW) knobs reach layout.** `Indent`, `Width` and `TrailingCommas` come from the manifest in `Format.cs`; a test shows `indent: 2` lays out at 2.
     - **F4 (LOW) tabs.** `OriginalIndent` counts a tab as `Indent` columns (or the check works on levels), with a test on a tab-indented `requires` line.
-- [ ] **T6 Layout: alignment runs (C#).**
+- [x] **T6 Layout: alignment runs (C#).**
   - Files: `Layout.cs`, `LayoutTests.cs`.
   - Covers: R3 (alignment).
   - After: T5.
   - Done when, under `.runs`, field and property name columns, the `=>` of properties and switch arms, the `=` of one-line top-level declarations and trailing comments align within a run. A run ends at a blank line or a comment line, and a multi-line arm ends a run. `.none` aligns nothing. The proposal's §3.2, §3.3 and §3.7 examples give their After text, and the corpus and idempotence tests pass.
+- [x] **T6b Layout: the guide rules T4–T6 left out (C#).**
+  - Files: `Layout.cs`, `LayoutTests.cs`.
+  - Covers: R1 (each Do block is the engine's output), R3 (horizontal spacing, proposal §3.8).
+  - After: T6. Found by T7's `StyleGuideExamplesTests`.
+  - Done when, at the defaults, the `docs/bayan-style.md` pairs below format Don't to Do byte for byte, each with a `LayoutTests` case that fails when its rule is reverted, and T4's corpus and idempotence tests still pass with 0 skips:
+    - **Horizontal spacing:** one space around binary operators (`price*quantity` → `price * quantity`), per §3.8 and the doc's rule line.
+    - **Generics and units:** no space inside `<` `>` of a type argument list (`List< Sku >` → `List<Sku>`).
+    - **Attributes:** an attribute before a type or function goes on its own line above it. An attribute before a field or parameter stays inline.
+    - **Blocks and bodies:** a block body written on one line (`{ tier = next }`) is expanded, one statement per line, with `{` ending the line.
+    - **Member groups:** inside a type body, one blank line between member groups (fields, `states`, properties, static members, methods) and between methods. This is the one place besides the top level where layout inserts a blank line. Inside function bodies it still never inserts one (doc "Paragraphs inside functions").
+  - Each rule changes whitespace and newlines only, so the safety net (`Check`) keeps holding. A rule that would change a token, an adjacency in `TriviaMatters`, or a comment's order is skipped for that site.
+  - Also done when the corpus-test flake is fixed. `TheCorpusLaysOutOnceAndForAll` failed about 1 run in 8, on a different file each time. The test-only statics `Format.MaxPasses` (`Format.cs:36`) and `Format.RewriteHook` (`Format.cs:39`) are process-wide, and `FormatTests.NonConvergenceIsReported` and `ARewriteThatDoesNotParseIsAbandoned` set them while the corpus theory runs in parallel. Both become per-thread, like `Layout.OutputHook`. `MaxPasses` keeps the default of 10 on every thread (a `[ThreadStatic]` initializer runs only on the first thread). A test shows that setting `MaxPasses` on one thread leaves another thread's format run at 10. Files: `csharp/Bayan.Cli/Format.cs` and `FormatTests.cs`.
 - [ ] **T7 Lints (C#) and the doc-examples test.**
   - Files: `csharp/Bayan.Syntax/Parsing/Parser.cs` (lint pass), `csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`, `docs/diagnostics/BYN1072.md`–`BYN1076.md`, `tests/cases/diag/` cases, the check-path severity in `csharp/Bayan.Cli` and `csharp/Bayan.Semantics/Compilation.cs`, `csharp/tests/Bayan.Tests/StyleGuideExamplesTests.cs` (new), `docs/DIAGNOSTICS.md` (regenerated).
   - Covers: R7, R1 (test).
