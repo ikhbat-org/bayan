@@ -366,9 +366,13 @@ internal static class Layout
                     {
                         case TokenKind.OpenParen or TokenKind.OpenBracket or TokenKind.OpenBrace or TokenKind.InterpolationStart:
                             var line = Kind(k) == TokenKind.OpenBrace && body >= 0 ? body : level;
+                            // A group in a control header continues the header: its lines and its `{` keep the header's levels.
+                            var outer = frames[^1];
+                            var header = Kind(k) == TokenKind.OpenParen && outer.Control && !CallLike(k - 1);
                             frames.Add(new Frame
                             {
-                                Opener = Kind(k), Line = line, Statement = line, StatementIndent = OriginalIndent(i), Body = body,
+                                Opener = Kind(k), Line = line, Statement = header ? outer.Statement : line, StatementIndent = OriginalIndent(i),
+                                Body = body, Control = header,
                                 Switch = Kind(k) == TokenKind.OpenBrace && Kind(k + 1) is TokenKind.CaseKeyword or TokenKind.DefaultKeyword,
                             });
                             break;
@@ -840,7 +844,7 @@ internal static class Layout
                 for (int k = s, depth = 0; k < e; k++)
                 {
                     if (IsCloser(Kind(k))) depth = Math.Max(0, depth - 1);
-                    if (depth == 0 && Kind(k) == TokenKind.OpenParen && _match[k] > k + 1 && _match[k] < e && (k == s || !CallLike(k - 1)) && !(control && k == p + 1)
+                    if (depth == 0 && Kind(k) == TokenKind.OpenParen && _match[k] > k + 1 && _match[k] < e && (k == s || !CallLike(k - 1))
                         && tokens[_match[k]].End - tokens[k].Start > widest && LowestOperators(k, k + 1, _match[k]) is { Count: > 0 } inner)
                     {
                         widest = tokens[_match[k]].End - tokens[k].Start;
@@ -855,7 +859,8 @@ internal static class Layout
                 return true;
             }
             // Otherwise the outermost chain or list on the line: a chain before a list at the same depth, then the leftmost.
-            // A chain in a ternary that has not broken stays whole, and nothing breaks inside an index.
+            // A chain in a ternary that has not broken stays whole, and nothing breaks inside an index. A control head's
+            // `(` never opens: a line after its `)` would end the condition (BYN1017).
             var depths = new int[e - s];
             var ternary = new bool[e - s];
             for (int k = s, d = 0, q = -1; k < e; k++)
@@ -883,9 +888,13 @@ internal static class Layout
             var bestList = -1;
             for (var o = s; o < e; o++)
             {
-                if (!(Kind(o) is TokenKind.OpenParen or TokenKind.OpenBracket || IsStructLiteral(o)) || IsIndex(o)) continue;
+                if (!(Kind(o) is TokenKind.OpenParen or TokenKind.OpenBracket || IsStructLiteral(o)) || IsIndex(o) || control && o == p + 1) continue;
                 var c = _match[o];
                 if (c <= o + 1 || c >= e || depths[o - s] >= best || !Editable(o, c) || Kind(o) == TokenKind.OpenParen && InPattern(o))
+                    continue;
+                // A group around one operand followed by a member (`(move parsed).trust()`) is an atom, as `xs[i].member` is.
+                if (Kind(o) == TokenKind.OpenParen && (o == s || !CallLike(o - 1)) && Kind(c + 1) is TokenKind.Dot or TokenKind.QuestionDot
+                    && !Items(o, c).Any(k => Kind(k) == TokenKind.Comma))
                     continue;
                 best = depths[o - s];
                 bestList = o;

@@ -588,6 +588,14 @@ public sealed class LayoutTests
         Lay("let empty = c.variants[i].payload.length == 0 && c.errors[c.variants[i].variant].fields.length > 0\n",
             new LayoutOptions(Width: 50)));
 
+    // driver/mutate.byn:728 at width 100: `(move parsed).member` does not open, as `xs[i].member` does not.
+    [Fact]
+    public void AGroupAroundAnOperandBeforeAMemberStaysWhole()
+    {
+        const string source = "void f() {\n    let root = (move parsed).trustUnchecked() because \"a site map only names sites; each field is checked below\"\n}\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(Width: 100)));
+    }
+
     [Fact]
     public void ATernaryInAnArgumentBreaksBeforeQuestionAndColon() => Assert.Equal(
         "shown.append(\n    compiled.manifest is not null\n        ? Path.relative(compiled.root, to: output).replaced(\"\\\\\", by: \"/\")\n" +
@@ -648,14 +656,34 @@ public sealed class LayoutTests
         Lay("void f() {\n    let shown = ready ? Path.relative(root, to: output).replaced(\"a\", by: \"/\") : output\n}\n",
             new LayoutOptions(Width: 60)));
 
-    // binder2.byn: breaking inside the head group first left `) ⏎ &&` for the next round, which reads `(…)` as the
-    // whole condition (BYN1017), and Check skipped the file.
+    // binder2.byn:305 at width 120 (indent 36): the head group breaks at its own `||`, and never opens as a list. A line
+    // after its `)` would read `(…)` as the whole condition (BYN1017), so `&&` stays on the `)` line.
     [Fact]
-    public void AControlHeadGroupIsNotBrokenAtItsOperators() => Assert.Equal(
-        "void f() {\n    if (\n        member == \"handler\" || member == \"onPanic\"\n    ) && lookup(ref b, for: \"Panic\") == -1 {\n" +
-        "        go()\n    }\n}\n",
-        Lay("void f() {\n    if (member == \"handler\" || member == \"onPanic\") && lookup(ref b, for: \"Panic\") == -1 {\n        go()\n    }\n}\n",
-            new LayoutOptions(Width: 60)));
+    public void AControlHeadGroupBreaksAtItsOwnOperators() => Assert.Equal(
+        "void f() {\n    if (member == \"handler\"\n            || member == \"onPanic\") && t15Lookup(ref b, for: \"Panic\") == -1 {\n" +
+        "        return bindOnPanic(ref b, through: ref c, for: in a.value)\n    }\n}\n",
+        Lay("void f() {\n    if (member == \"handler\" || member == \"onPanic\") && t15Lookup(ref b, for: \"Panic\") == -1 {\n" +
+            "        return bindOnPanic(ref b, through: ref c, for: in a.value)\n    }\n}\n",
+            new LayoutOptions(Width: 88)));
+
+    // lower.byn:692 at width 100 (indent 8): the top-level `&&` that may break goes first, then the group's `||`.
+    [Fact]
+    public void AControlHeadGroupBreaksAfterTheTopLevelOperators() => Assert.Equal(
+        "void f() {\n    if (i < barrier && !isTrivial(in c, through: in l, for: values[i])\n            || movedFirst[i]) && !lvalue\n" +
+        "            && !isVoidExpr(values[i]) {\n        values[i] = spill(ref c, through: ref l, for: values[i])\n    }\n}\n",
+        Lay("void f() {\n    if (i < barrier && !isTrivial(in c, through: in l, for: values[i]) || movedFirst[i]) && !lvalue && !isVoidExpr(values[i]) {\n" +
+            "        values[i] = spill(ref c, through: ref l, for: values[i])\n    }\n}\n",
+            new LayoutOptions(Width: 96)));
+
+    // cprint/expr.byn:191 at width 100 (indent 16): a head group with no operator to break opens the call inside it.
+    [Fact]
+    public void AControlHeadGroupOpensTheCallInside() => Assert.Equal(
+        "void f() {\n    if (checkedStore(\n        ref cc,\n        for: ref f,\n        from: ref c,\n        through: t,\n" +
+        "        at: t.assignExprs[i].target,\n        to: t.assignExprs[i].value,\n        claim: false,\n    ) is { } stored) {\n" +
+        "        return stored\n    }\n}\n",
+        Lay("void f() {\n    if (checkedStore(ref cc, for: ref f, from: ref c, through: t, at: t.assignExprs[i].target, to: t.assignExprs[i].value, claim: false) is { } stored) {\n" +
+            "        return stored\n    }\n}\n",
+            new LayoutOptions(Width: 88)));
 
     [Fact]
     public void ATernaryColonAfterABrokenChainKeepsItsSpace()
