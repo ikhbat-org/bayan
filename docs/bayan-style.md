@@ -1,6 +1,6 @@
 # Bayān style guide
 
-Version: 0.3.1-dev (matches `bayan --version`)
+Version: 0.3.1 (matches `bayan --version`)
 Revisions applied: 0001–0023
 
 *Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.*
