@@ -92,6 +92,8 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - Files: as T7 (`Parser.cs` lint pass, or the semantics layer where a lint needs types or constness, `DiagnosticCodes.cs`, `docs/diagnostics/BYN1077.md`–`BYN1080.md`, `tests/cases/diag/` cases, `docs/DIAGNOSTICS.md`).
   - Covers: R7.
   - After: T7. Decisions from the user, 2026-11-15.
+  - Adds the C# `bayan fix [paths…]` subcommand (plan-owner decision 2026-11-16: no fix command existed after T7). It applies every lint fix (`guards.postfix`, `lambdas.it` and the four below) to the named files or package directories, rewrites only files that change, prints the count of fixes per file, and exits 0. Running it twice changes nothing on the second run. It has a `CliTests` case, including one for a path that does not exist (exit 2, the same message `format` gives).
+  - Also fixes T7's gate note: `check --package <dir> <file>` reads `lints` from that package's manifest (`csharp/Bayan.Cli/CliApp.cs` near `StyleLintsAt(null)`). Test: `bayan check --all --package . main.byn` in `tests/cases/diag/style-severity-error` gives `error BYN1072` and a nonzero exit.
   - Done when each lint below defaults to `.suggestion`, takes its severity from `lints`, has a `diag/` case and a fix, and its fix applied by `bayan fix` gives code that passes `bayan check` (test each on its `diag/` case):
     - **BYN1077 `sections.banner`.** A banner comment `// ── Title ──…` is filled with `─` up to one fixed column.
     - **BYN1078 `conditions.patterns`.** Fires when one `&&` or `||` group tests the same operand against constants two or more times, and the operand is a plain name, field or index path. The fix writes a pattern: `x >= A && x <= B` becomes `x is A..=B`, and `op == .a || op == .b` becomes `op is .a or .b`. Mixed groups (`c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C`) become one `or` pattern. A single comparison never fires.
@@ -101,7 +103,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
       - When the fallback is longer, the fix writes `let k = X` followed by `return <fallback> if k is null`, putting the miss first.
       - A parameter or `let` operand gets `if x is not null`. `while (X is { } k)` becomes `while let k = X`.
       - It stays silent when the result is used only on a hit and nothing leaves, and inside `&&`. Those sites wait for `if let`.
-- [ ] **T7 Lints (C#) and the doc-examples test.**
+- [x] **T7 Lints (C#) and the doc-examples test.**
   - Files: `csharp/Bayan.Syntax/Parsing/Parser.cs` (lint pass), `csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`, `docs/diagnostics/BYN1072.md`–`BYN1076.md`, `tests/cases/diag/` cases, the check-path severity in `csharp/Bayan.Cli` and `csharp/Bayan.Semantics/Compilation.cs`, `csharp/tests/Bayan.Tests/StyleGuideExamplesTests.cs` (new), `docs/DIAGNOSTICS.md` (regenerated).
   - Covers: R7, R1 (test).
   - After: T6, T1, T2.
