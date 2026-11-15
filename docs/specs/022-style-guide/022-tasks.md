@@ -1,0 +1,79 @@
+# 022 — Tasks
+Status: in progress
+Release: 0.3.2
+Sources: ./022-plan.md
+Plan: ./022-plan.md
+
+Order:
+- **First wave, in parallel:** T1, T2, T4.
+- **After T2:** T3.
+- **After T4:** T5, then T6.
+- **After T6 and T1:** T7, which also needs T2.
+- **After T7:** T8 and T9, in parallel.
+- **After T8 and T9:** T10, then T11.
+
+Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is gated against this file, then lands into `feat/022-style-guide`. The landing bar is 0 HIGH / 0 MEDIUM.
+
+- [ ] **T1 Style guide with Do/Don't.**
+  - Files: `docs/bayan-style.md`.
+  - Covers: R1.
+  - Done when every layout rule of `docs/bayan-style-proposal.md` §3.1–§3.9 and every lint has a `### ` heading, one rule line, a `Do:` fenced `bayan` block and a `Don't:` fenced `bayan` block. C21 (`{` always ends the line, no knob) is stated as is, and the Version/Revisions header is kept. The Do block is exactly what the layout engine produces from the Don't block (4-space indent, width 120, `.runs`, `.multiline`). A lint's Do block is the code the lint suggests.
+- [ ] **T2 Manifest knobs (C#).**
+  - Files: `csharp/Bayan.Syntax/Packages/Manifest.cs`, `csharp/tests/Bayan.Tests/` manifest tests, `tests/cases/diag/` manifest cases.
+  - Covers: R2.
+  - Done when:
+    - `style` accepts exactly `indent`, `width`, `align` (`.runs`/`.none`), `trailingCommas` (`.multiline`/`.never`), `booleans`, `primitives` and `lints` (a map of string to `.none`/`.suggestion`/`.warning`/`.error`, with names from the five lints);
+    - the defaults are those of the spec;
+    - `braces`, `maxLine` and a bool `trailingCommas` are errors that name the replacement (`braces`: no knob, `{` always ends the line; `maxLine`: `width`; bool `trailingCommas`: `.multiline`/`.never`);
+    - an unknown lint name is an error;
+    - `Manifest` exposes the values;
+    - the existing `dotnet test` manifest and format tests pass.
+- [ ] **T3 Manifest knobs (self-hosted).**
+  - Files: `src/semantics/manifest.byn` and its parity tests.
+  - Covers: R2.
+  - After: T2.
+  - Done when the self-hosted manifest check gives the same diagnostics as T2's C# on every T2 case and on the existing manifest corpus. Expected values come from the C#.
+- [ ] **T4 Layout engine: hygiene, `@unformatted`, indentation, spacing, blank lines, safety net (C#).**
+  - Files: `csharp/Bayan.Cli/Layout.cs` (new), `csharp/Bayan.Cli/Format.cs` (the call in `FormatFile`), `csharp/tests/Bayan.Tests/LayoutTests.cs` (new).
+  - Covers: R3 (hygiene, indentation, spacing, blank lines, top-level blank lines), R4, R5.
+  - Done when:
+    - passes 1, 2 and 5–7 of the plan work;
+    - the safety net keeps the input on a token or diagnostic difference and prints the skip line;
+    - `LayoutTests` has a case per rule;
+    - an idempotence test passes, and so does a corpus test over `tests/cases/**/*.byn`, `src/**/*.byn` and `lib/**/*.byn` (format twice in memory: no skip, second pass unchanged, tokens equal);
+    - the existing `FormatTests` and `CliTests` still pass, with expected-file updates only where layout now changes the output, each one checked by hand.
+- [ ] **T5 Layout: list wrapping, trailing commas, `) {`, header clauses, wrapped conditions, chains (C#).**
+  - Files: `Layout.cs`, `LayoutTests.cs`.
+  - Covers: R3 (lists, chains, headers, conditions).
+  - After: T4.
+  - Done when passes 3 and 4 work at `width`, with the author's trailing comma kept vertical and `.never` dropping commas, and a `{` is never on a line of its own. The proposal's §3.1, §3.4, §3.5 and §3.6 examples format to their After text, and T4's corpus and idempotence tests pass.
+- [ ] **T6 Layout: alignment runs (C#).**
+  - Files: `Layout.cs`, `LayoutTests.cs`.
+  - Covers: R3 (alignment).
+  - After: T5.
+  - Done when, under `.runs`, field and property name columns, the `=>` of properties and switch arms, the `=` of one-line top-level declarations and trailing comments align within a run. A run ends at a blank line or a comment line, and a multi-line arm ends a run. `.none` aligns nothing. The proposal's §3.2, §3.3 and §3.7 examples give their After text, and the corpus and idempotence tests pass.
+- [ ] **T7 Lints (C#) and the doc-examples test.**
+  - Files: `csharp/Bayan.Syntax/Parsing/Parser.cs` (lint pass), `csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`, `docs/diagnostics/BYN1072.md`–`BYN1076.md`, `tests/cases/diag/` cases, the check-path severity in `csharp/Bayan.Cli` and `csharp/Bayan.Semantics/Compilation.cs`, `csharp/tests/Bayan.Tests/StyleGuideExamplesTests.cs` (new), `docs/DIAGNOSTICS.md` (regenerated).
+  - Covers: R7, R1 (test).
+  - After: T6, T1, T2.
+  - Done when the five lints are reported by `bayan check` only, with the codes of the plan and `// target:` comments, with fixes for `guards.postfix` and `lambdas.it`, and with severity from `lints` (`.suggestion` renders as a note; `.error` fails `check`). `functions.length` is off by default and bounds at 60 lines when on. `StyleGuideExamplesTests` passes on every pair of `docs/bayan-style.md`, and `bash scripts/docs/check.sh` passes.
+- [ ] **T8 Layout port (self-hosted).**
+  - Files: `src/driver/layout.byn` (new), `src/driver/format.byn`, `csharp/tests/Bayan.Tests/SelfhostDriverTests.cs` rows.
+  - Covers: R6.
+  - After: T7.
+  - Done when every `LayoutTests` and `FormatTests` case gives the same stdout, stderr, exit code and bytes through stage 2 as the C#, and `bootstrap/bayan.c` is regenerated (`BAYAN_UPDATE=1` BootstrapTests).
+- [ ] **T9 Lints and severity port (self-hosted).**
+  - Files: `src/parser/*.byn` lint pass, the `src/driver` check path, parity rows.
+  - Covers: R7, R6.
+  - After: T7.
+  - Done when each lint `diag/` case and each severity case gives the same output through stage 2 as the C#.
+- [ ] **T10 Format the repo's sources.**
+  - Files: every `src/**/*.byn`, `lib/**/*.byn` and `examples/**/*.byn` that the formatter changes (one commit, nothing else in it); `bootstrap/bayan.c` (next commit); `.git-blame-ignore-revs` (new, naming the format commit).
+  - Covers: R8.
+  - After: T8, T9.
+  - Done when `bayan format --check src lib examples` exits 0 with both drivers, `SelfhostDriverTests` (the stage-3 fixed point and `SourcesAreFormatted`) and `BootstrapTests` pass, and `git blame --ignore-revs-file .git-blame-ignore-revs` shows the authors from before.
+- [ ] **T11 Docs and laws.**
+  - Files: `docs/bayan-spec.md` §19.2 and the §21.2 `bayan format` row, `docs/STATUS.md`, `CHANGELOG.md`, `docs/laws/` (two `proposed` laws: format idempotent and meaning-preserving; format parity), `docs/bayan-questions.md` (the unattended decisions and the `functions.length` bound), the progress log.
+  - Covers: R9.
+  - After: T10.
+  - Done when `check.sh` passes, `laws-check.js --run` reports no failing law, and no "partial in 0.3" tag remains for what 022 built.
