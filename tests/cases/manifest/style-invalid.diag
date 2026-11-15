@@ -3,35 +3,56 @@ error BYN3102: `style.indent` must be a positive integer, e.g. `4`
   5 │         indent: "4",
     │                 ^^^
 
-error BYN3102: `style.braces` must be `.sameLine` or `.nextLine`
+error BYN3102: `style.braces` must be removed: there is no brace knob, `{` always ends the line
 
-  6 │         braces: .allman,
-    │                 ^^^^^^^
+  6 │         braces: .nextLine,
+    │                 ^^^^^^^^^
 
-error BYN3102: `style.maxLine` must be a positive integer, e.g. `100`
+error BYN3102: `style.maxLine` must be removed: use `style.width`
 
-  7 │         maxLine: 0,
-    │                  ^
+  7 │         maxLine: 100,
+    │                  ^^^
 
-error BYN3102: `style.trailingCommas` must be `true` or `false`
+error BYN3102: `style.width` must be a positive integer, e.g. `120`
 
-  8 │         trailingCommas: .always,
-    │                         ^^^^^^^
+  8 │         width: 0,
+    │                ^
+
+error BYN3102: `style.align` must be `.runs` or `.none`
+
+  9 │         align: .left,
+    │                ^^^^^
+
+error BYN3102: `style.trailingCommas` must be `.multiline` or `.never`, not `true` or `false`
+
+  10 │         trailingCommas: true,
+     │                         ^^^^
+
+error BYN3102: `style.lints` must be a known lint name: `guards.postfix`, `lambdas.it`,
+`nesting.depth`, `functions.length`, `conditions.named`
+
+  11 │         lints: ["guards.prefix": .warning, "lambdas.it": .loud],
+     │                 ^^^^^^^^^^^^^^^
+
+error BYN3102: `style.lints` must be `.none`, `.suggestion`, `.warning` or `.error` for `lambdas.it`
+
+  11 │         lints: ["guards.prefix": .warning, "lambdas.it": .loud],
+     │                                                          ^^^^^
 
 error BYN3102: `style.booleans` must be `.symbols` or `.words`
 
-  9 │         booleans: .both,
-    │                   ^^^^^
+  12 │         booleans: .both,
+     │                   ^^^^^
 
 error BYN3102: `style.primitives` must be `.sized` or `.csharp`
 
-  10 │         primitives: .int,
+  13 │         primitives: .int,
      │                     ^^^^
 
 error BYN3101: `tabs` is not a field of `Style`
 
-  11 │         tabs: true,
+  14 │         tabs: true,
      │         ^^^^
      │
-  help: use one of the fields `indent`, `braces`, `maxLine`, `trailingCommas`, `booleans`,
-        `primitives`
+  help: use one of the fields `indent`, `width`, `align`, `trailingCommas`, `booleans`,
+        `primitives`, `lints`
