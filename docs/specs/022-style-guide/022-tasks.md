@@ -59,7 +59,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - Covers: R3 (alignment).
   - After: T5.
   - Done when, under `.runs`, field and property name columns, the `=>` of properties and switch arms, the `=` of one-line top-level declarations and trailing comments align within a run. A run ends at a blank line or a comment line, and a multi-line arm ends a run. `.none` aligns nothing. The proposal's §3.2, §3.3 and §3.7 examples give their After text, and the corpus and idempotence tests pass.
-- [ ] **T6b Layout: the guide rules T4–T6 left out (C#).**
+- [x] **T6b Layout: the guide rules T4–T6 left out (C#).**
   - Files: `Layout.cs`, `LayoutTests.cs`.
   - Covers: R1 (each Do block is the engine's output), R3 (horizontal spacing, proposal §3.8).
   - After: T6. Found by T7's `StyleGuideExamplesTests`.
