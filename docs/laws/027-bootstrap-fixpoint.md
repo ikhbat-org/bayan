@@ -5,8 +5,8 @@ status: enacted
 release: 0.2.0
 sources: none recorded
 kind: property
-scope: selfhost/driver/**, selfhost/emitter/**, selfhost/semantics/**, bootstrap/bayan.c
-proof: tests/Bayan.Tests/BootstrapTests.cs
+scope: src/driver/**, src/emitter/**, src/semantics/**, bootstrap/bayan.c
+proof: csharp/tests/Bayan.Tests/BootstrapTests.cs
 check: dotnet test -v q --filter "Law=L027"
 timeout: 900
 ---

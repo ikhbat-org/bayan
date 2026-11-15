@@ -42,8 +42,8 @@ Source: `CHANGELOG.md` `[0.2.0]`. The released binary was still the C# compiler.
 
 | Item | What it delivered |
 |---|---|
-| Spec 011, self-hosted emitter | `selfhost/emitter/` emits the same C as the C# backend, byte for byte (L024, L025) |
-| Spec 012, self-hosted driver and bootstrap | `selfhost/driver/`; stage 1, 2 and 3 emit identical C; `bootstrap/bayan.c` builds a compiler with only a C compiler (L028) |
+| Spec 011, self-hosted emitter | `src/emitter/` emits the same C as the C# backend, byte for byte (L024, L025) |
+| Spec 012, self-hosted driver and bootstrap | `src/driver/`; stage 1, 2 and 3 emit identical C; `bootstrap/bayan.c` builds a compiler with only a C compiler (L028) |
 | Spec 014, `Path` module | `Path.combine`, `directoryName`, `fullPath` agree with .NET (L026); `tests/windows-known-failures.txt` is empty |
 | `bayan-lsp` and CLI memory bounds | `bayan-lsp` peaks at 81 MB where it passed 200 GB; test output, program cache and C compiler runs are capped |
 | Move to the Ikhbat Foundation | Repository at `github.com/ikhbat-org/bayan`; home page `https://bayan.run` |

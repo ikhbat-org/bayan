@@ -3,7 +3,7 @@
 - Source of truth: `docs/bayan-spec.md`. Milestones: `docs/bayan-milestones.md`; what comes next: `docs/bayan-roadmap.md`; open questions: `docs/bayan-questions.md` (answered ones: `docs/decisions/2026-11-14-004-answered-questions.md`); working rules: `docs/bayan-contributing.md`. Read the spec and the milestones before working.
 - Appendix A of the spec lists settled decisions; do not re-propose them. Spec gaps go to `docs/bayan-questions.md`, with the most conservative option implemented meanwhile.
 - Add an entry to `docs/bayan-progress-log.md` at the end of every working session.
-- Stack: C# / .NET 10, NativeAOT for `src/` (`IsAotCompatible`, warnings are errors). No reflection, no `Reflection.Emit`, no parser generators.
+- Stack: C# / .NET 10, NativeAOT for `csharp/` (`IsAotCompatible`, warnings are errors). No reflection, no `Reflection.Emit`, no parser generators.
 - Lexer works over `ReadOnlySpan<byte>` UTF-8; tokens are structs; positions are byte offsets (`TextSpan`).
 - Tests: `dotnet test -v q`. Golden cases live in `tests/cases/<kind>/`; `BAYAN_UPDATE=1 dotnet test` rewrites expected files. Every new diagnostic needs a `diag/` case, every runtime feature a `run/` case.
 - Diagnostic codes `BYN####`: 0001–0999 lexer, 1000–1999 parser, 2000–3999 semantics, 4000–4999 backend, 5000–5999 grammar and naming, 6000–6999 effects and concurrency, 7000–7999 typestate and contracts, 8000–8999 trust and security (the ranges in use today; `docs/revisions/0017-addendum-a2-diagnostic-codes.md` assigns target areas that differ for 0xxx (project and CLI), 4xxx (control flow and failure) and 9xxx (build, C backend and runtime traps), and the codes have not been renumbered to them yet). Rendered format is fixed by `DiagnosticRendererTests`.

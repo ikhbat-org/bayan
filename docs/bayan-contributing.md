@@ -24,27 +24,28 @@ The main directories (the top level also holds `bench/`, `dist/`, `editors/`, `s
 
 ```
 bayan/
-  src/
+  csharp/                   the compiler in C#
     Bayan.Cli/              bayan executable: run, build, test, explain, --version
     Bayan.Syntax/           source text, lexer, tokens, parser, AST, diagnostics
     Bayan.Semantics/        binder, symbols, types, checks
     Bayan.Lowering/         typed AST → lowered tree (seam for DIR later)
     Bayan.Backend.C/        C emitter, toolchain invocation
     Bayan.Testing/
-    runtime/                bayan-rt.h / bayan-rt.c: panic, print, bounds checks, arena, list
-  selfhost/                 the compiler in Bayān: lexer, parser, semantics, emitter, driver
+    tests/Bayan.Tests/      the test assembly (it also compiles src/tests/)
+  src/                      the compiler in Bayān: lexer, parser, semantics, emitter, driver
+    tests/                  its tests (Selfhost* classes), built into Bayan.Tests
+  runtime/                  bayan-rt.h / bayan-rt.c: panic, print, bounds checks, arena, list
+    tests/                  the runtime's C tests
   bootstrap/                bayan.c and the runtime, the C that builds the self-hosted compiler
   lib/std/                  the standard library written in Bayān
   tools/                    lex-diff, the syntax fuzzer and other tools
-  tests/
-    Bayan.Tests/            test runner for golden files
+  tests/                    tests both compilers share
     cases/
       lex/        *.byn → *.tokens
       parse/      *.byn → *.ast
       diag/       *.byn → *.diag        (expected diagnostics, exact text)
       run/        *.byn → *.stdout      (+ optional *.exitcode)
                   (and diag-json, emit, manifest, new, out, quality, style, typed)
-    native/
     parity/
   docs/
     bayan-spec.md
@@ -53,6 +54,18 @@ bayan/
     hello/main.byn
     tally-lite/…
 ```
+
+Plan 017 (2026-11-15) moved the tree; the last commit before it is `3c3ccc82`. Done specs, plans and other records keep the old paths. `git log --follow` follows a file across the move.
+
+| Before | After |
+|---|---|
+| `src/Bayan.*/` | `csharp/Bayan.*/` |
+| `tests/Bayan.Tests/` | `csharp/tests/Bayan.Tests/` |
+| `tests/Bayan.Tests/Selfhost*.cs` | `src/tests/Selfhost*.cs` |
+| `src/runtime/` | `runtime/` |
+| `tests/native/` | `runtime/tests/` |
+| `selfhost/` | `src/` |
+| `tests/cases/`, `tests/parity/` | unchanged |
 
 ## Conventions
 

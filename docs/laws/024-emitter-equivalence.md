@@ -5,8 +5,8 @@ status: enacted
 release: 0.2.0
 sources: Q890
 kind: property
-scope: selfhost/emitter/, src/Bayan.Lowering/, src/Bayan.Backend.C/CEmitter.cs
-proof: tests/Bayan.Tests/SelfhostEmitterEquivalenceLawTests.cs
+scope: src/emitter/, csharp/Bayan.Lowering/, csharp/Bayan.Backend.C/CEmitter.cs
+proof: src/tests/SelfhostEmitterEquivalenceLawTests.cs
 check: dotnet test -v q --filter "Law=L024"
 timeout: 300
 enacted: 2026-11-04

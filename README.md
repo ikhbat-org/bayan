@@ -141,14 +141,14 @@ helps most.
 
 ## Working on the compiler
 
-The self-hosted compiler lives in `selfhost/`. The original compiler is written in C# (`src/`). It still
+The self-hosted compiler lives in `src/`. The original compiler is written in C# (`csharp/`). It still
 builds the first stage, and it is the reference the tests check the self-hosted compiler against. You need
 the .NET 10 SDK and zig.
 
 ```sh
 dotnet test -v q                               # unit and golden tests
 BAYAN_UPDATE=1 dotnet test                     # rewrite golden expected files
-dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
+dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
 ./tmp/publish/bayan --version
 ```
 

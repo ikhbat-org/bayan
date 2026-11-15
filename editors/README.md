@@ -11,7 +11,7 @@ the compiler; phases 2–4 connect it to the compiler. Spec authority: round 3 +
 | `editors/vscode/language-configuration.json` | `//` toggle, brackets, auto-close, `///` continuation | Done |
 | `editors/vscode/snippets/bayan.json` | Snippets in canonical forms (type-first, no parens, `union error`) | Done |
 | `editors/vscode/extension.js`, `package.json` | LSP client (stdio), `bayan` debug type, `.byn` breakpoints | Packaged to `.vsix` |
-| `src/Bayan.LanguageServer` | `bayan-lsp`, NativeAOT, hand-rolled JSON-RPC, no LSP library | Builds, AOT publish clean (2.2 MB), smoke-tested |
+| `csharp/Bayan.LanguageServer` | `bayan-lsp`, NativeAOT, hand-rolled JSON-RPC, no LSP library | Builds, AOT publish clean (2.2 MB), smoke-tested |
 | `editors/visualstudio` | TextMate drop-in script; VisualStudio.Extensibility LSP skeleton | Skeleton not built (needs Windows) |
 | `tests/` | `grammar-dump.js` (scopes per token), `lsp-smoke.js` (protocol driver), `lsp-regress.js` (asserting edge cases) | `npm install`, then `npm run grammar` / `npm run lsp` / `npm run regress` |
 
@@ -35,7 +35,7 @@ Type {…}`, and member chains `a.b().c`.
 
 ## 3. Phase 2: compiler front end in the server
 
-1. Move `src/Bayan.LanguageServer` into the compiler solution. Reference `Bayan.Syntax` and
+1. Move `csharp/Bayan.LanguageServer` into the compiler solution. Reference `Bayan.Syntax` and
    `Bayan.Semantics`.
 2. Replace `Document.Analyze` with a `Compilation` over the workspace (one per `package.byn`).
    Re-bind only changed files where the binder allows; otherwise debounce 150 ms after the last edit.

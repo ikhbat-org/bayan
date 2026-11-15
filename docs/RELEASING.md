@@ -9,12 +9,12 @@ How a version is cut, checked, tagged and published, and where the version and t
 `VERSION` at the repo root is the source: `X.Y.Z` on a release commit, `X.Y.Z-dev` between releases. It is mirrored in
 (`bayan_mirrors` in `scripts/release/version.sh`):
 
-- `src/Bayan.Backend.C/Toolchain.cs`: `CompilerVersion`, what `bayan --version` prints;
-- `selfhost/driver/main.byn`: `version`, the self-hosted driver's;
+- `csharp/Bayan.Backend.C/Toolchain.cs`: `CompilerVersion`, what `bayan --version` prints;
+- `src/driver/main.byn`: `version`, the self-hosted driver's;
 - `tests/cases/out/dist.tree`: the `"compiler": "bayan …"` lines of the `bayan dist` golden;
 - `README.md`: the `dist/<target>/<version>/bayan` path in the build example.
 
-`bootstrap/bayan.c` is generated from `selfhost/` by `scripts/selfhost/land.sh`; regenerate it after the version
+`bootstrap/bayan.c` is generated from `src/` by `scripts/selfhost/land.sh`; regenerate it after the version
 changes, never edit it.
 
 The versioned docs carry a header in their first lines (`bayan_header_docs`): `docs/bayan-spec.md`,
@@ -56,15 +56,15 @@ bash scripts/docs/gen-spec-index.sh --write    # docs/specs/README.md
 Without `--write` each prints to stdout. Output is sorted and has no dates. All three generated docs are release docs: each
 generator writes the `Version:` and `Revisions applied:` header itself, from `VERSION` and the highest revision.
 
-- `gen-diagnostics.sh` reads `src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`: the descriptors, the `// BYNnnnn is
+- `gen-diagnostics.sh` reads `csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`: the descriptors, the `// BYNnnnn is
   retired|reserved` comments and the `// Reserved: round 4` block. It also checks which `docs/diagnostics/BYNnnnn.md`
   pages exist. Codes with no machine-readable source are in the hand-kept `docs/diagnostics-allocated.txt`, and the
   generator reads that file too. The file lists plan codes (allocated in a plan, spec or revision, with no descriptor
   yet), reservations with no descriptor, and retirements recorded only in a code's page. It holds one code per line:
   `plan|reserved|retired BYNnnnn Name-or-- note`. Edit it when such a code is allocated, reserved or retired, then
   regenerate.
-- `gen-status.sh` reads `src/Bayan.Syntax/Lexing/Keywords.cs` and `TokenKind.cs` for keywords and
-  `src/Bayan.Semantics/Binding/BuiltinMembers.cs` for stdlib members.
+- `gen-status.sh` reads `csharp/Bayan.Syntax/Lexing/Keywords.cs` and `TokenKind.cs` for keywords and
+  `csharp/Bayan.Semantics/Binding/BuiltinMembers.cs` for stdlib members.
 - `gen-spec-index.sh` reads the title and the `Status:`, `Release:` and `Sources:` header lines of each
   `docs/specs/NNN-*/NNN-spec.md`, and which plan, tasks and api files sit beside it. It fails on a Status that starts
   with none of `done`, `in progress`, `approved`, `open`, `deferred`, `draft`, `rejected` or `superseded`.
@@ -140,7 +140,7 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
 
 ## Known limits
 
-Until the per-phase arenas are finished (Q31), the stage-2 build of `selfhost/driver` peaks at 1.69 GB of memory
+Until the per-phase arenas are finished (Q31), the stage-2 build of `src/driver` peaks at 1.69 GB of memory
 (macOS, 2026-11-14; 2.94 GB on 2026-11-12). `scripts/release/package.sh notes` prints that line after the CHANGELOG section, so every release's notes
 carry it.
 

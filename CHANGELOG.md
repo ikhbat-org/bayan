@@ -9,6 +9,9 @@
 - `scripts/docs/check.sh` guards: (a) covers every release doc, (c) the spec index, (h) record and snapshot headers and a doc of no kind, (i) every revision cited in the feature history and every SPEC section with a row (`scripts/docs/check-history.sh`).
 - `bayan-X.Y.Z-docs.tar.gz` ships every release doc, CHANGELOG, the spec index and the feature history.
 
+### Changed
+- Repository layout (plan 017): the C# compiler moved from `src/` to `csharp/`, the Bayān compiler from `selfhost/` to `src/`, the runtime from `src/runtime/` to `runtime/` (its C tests from `tests/native/` to `runtime/tests/`). Tests sit beside their code: `csharp/tests/Bayan.Tests/`, with the Bayān compiler's `Selfhost*` classes in `src/tests/` built into the same assembly; shared golden cases and parity fixtures stay in `tests/`. Moves are their own commits, so `git log --follow` crosses them; the mapping is in `docs/bayan-contributing.md`.
+
 ## [0.3.0] - 2026-11-14
 
 The released `bayan` is now the self-hosted compiler: stage 2, built from `selfhost/` by the C# compiler's stage 1.

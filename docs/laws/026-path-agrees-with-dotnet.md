@@ -5,8 +5,8 @@ status: enacted
 release: 0.2.0
 sources: none recorded
 kind: property
-scope: src/runtime/bayan-rt.c (byn_path_*), src/Bayan.Semantics/Builtins.cs (Path members), src/Bayan.Backend.C/CEmitter.cs (Path calls)
-proof: tests/Bayan.Tests/StdPathLawTests.cs
+scope: runtime/bayan-rt.c (byn_path_*), csharp/Bayan.Semantics/Builtins.cs (Path members), csharp/Bayan.Backend.C/CEmitter.cs (Path calls)
+proof: csharp/tests/Bayan.Tests/StdPathLawTests.cs
 check: dotnet test -v q --filter "Law=L026"
 timeout: 300
 enacted: 2026-11-05
