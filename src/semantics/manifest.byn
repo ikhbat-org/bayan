@@ -24,6 +24,24 @@ public enum PrimitiveStyle {
     csharp
 }
 
+public enum AlignStyle {
+    runs
+    none
+}
+
+// `.never` in a manifest; `never` is a keyword here, so the case is `omit`.
+public enum TrailingCommaStyle {
+    multiline
+    omit
+}
+
+public enum LintSeverity {
+    none
+    suggestion
+    warning
+    error
+}
+
 // The C# `Grammar`: the package's extra lexicon words and irregular forms.
 struct Grammar {
     List<string> verbs = []
@@ -47,6 +65,11 @@ public struct Manifest {
     public i64? minErrorPaths = null
     public i64? minMutation = null
     public bool summary = true
+    public i64 indent = 4
+    public i64 width = 120
+    public AlignStyle align = .runs
+    public TrailingCommaStyle trailingCommas = .multiline
+    public Map<string, LintSeverity> lints = t10DefaultLints()
     public BooleanStyle booleans = .symbols
     public PrimitiveStyle primitives = .sized
     Grammar grammar = Grammar {}
@@ -143,7 +166,7 @@ const t10VersionExpected: string = "a semantic version string, e.g. `\"0.1.0\"`"
 
 /// Manifest.cs:96 `Bind`.
 void t10Bind(ref Manifest m, from in T10Reader r, at i64 package) {
-    let fields = t10Fields(ref m, from: in r, at: package, by: t10PackageFields())
+    let fields = t10Fields(ref m, from: in r, at: package, by: t10PackageFields(), for: [])
     let name = t10Required(ref m, from: in r, for: in fields, by: "name", at: package)
     if name >= 0 {
         if (t10Text(ref m, from: in r, at: name, for: "name", as: t10NameExpected) is { } n) {
@@ -204,7 +227,7 @@ void t10BindTests(ref Manifest m, from in T10Reader r, at i64 tests) {
         t10Invalid(ref m, from: in r, at: tests, for: "test", as: "a `Tests { … }`")
         return
     }
-    let fields = t10Fields(ref m, from: in r, at: tests, by: t10TestsFields())
+    let fields = t10Fields(ref m, from: in r, at: tests, by: t10TestsFields(), for: [])
     m.minLines = t10Percent(ref m, from: r, at: fields, for: "lines")
     m.minBranches = t10Percent(ref m, from: r, at: fields, for: "branches")
     m.minErrorPaths = t10Percent(ref m, from: r, at: fields, for: "errorPaths")
@@ -235,29 +258,79 @@ void t10BindStyle(ref Manifest m, from in T10Reader r, at i64 style) {
         t10Invalid(ref m, from: in r, at: style, for: "style", as: "a `Style { … }`")
         return
     }
-    let fields = t10Fields(ref m, from: in r, at: style, by: t10StyleFields())
+    let fields = t10Fields(ref m, from: in r, at: style, by: t10StyleFields(), for: t10RemovedStyleFields())
     if fields.contains("indent") {
         let indent = fields["indent"]
-        if r.values[indent].kind != .intValue || r.values[indent].number <= 0 {
+        if r.values[indent].kind == .intValue && r.values[indent].number > 0 && r.values[indent].number <= 2147483647 {
+            m.indent = r.values[indent].number
+        } else {
             t10Invalid(ref m, from: in r, at: indent, for: "style.indent", as: "a positive integer, e.g. `4`")
         }
     }
-    if fields.contains("braces") {
-        let braces = fields["braces"]
-        if !t10IsEnum(in r, at: braces, as: "sameLine") && !t10IsEnum(in r, at: braces, as: "nextLine") {
-            t10Invalid(ref m, from: in r, at: braces, for: "style.braces", as: "`.sameLine` or `.nextLine`")
+    if fields.contains("width") {
+        let width = fields["width"]
+        if r.values[width].kind == .intValue && r.values[width].number > 0 && r.values[width].number <= 2147483647 {
+            m.width = r.values[width].number
+        } else {
+            t10Invalid(ref m, from: in r, at: width, for: "style.width", as: "a positive integer, e.g. `120`")
         }
     }
-    if fields.contains("maxLine") {
-        let maxLine = fields["maxLine"]
-        if r.values[maxLine].kind != .intValue || r.values[maxLine].number <= 0 {
-            t10Invalid(ref m, from: in r, at: maxLine, for: "style.maxLine", as: "a positive integer, e.g. `100`")
+    if fields.contains("align") {
+        let align = fields["align"]
+        if t10IsEnum(in r, at: align, as: "runs") {
+            m.align = .runs
+        } else if t10IsEnum(in r, at: align, as: "none") {
+            m.align = .none
+        } else {
+            t10Invalid(ref m, from: in r, at: align, for: "style.align", as: "`.runs` or `.none`")
         }
     }
     if fields.contains("trailingCommas") {
         let trailingCommas = fields["trailingCommas"]
-        if r.values[trailingCommas].kind != .boolValue {
-            t10Invalid(ref m, from: in r, at: trailingCommas, for: "style.trailingCommas", as: "`true` or `false`")
+        if t10IsEnum(in r, at: trailingCommas, as: "multiline") {
+            m.trailingCommas = .multiline
+        } else if t10IsEnum(in r, at: trailingCommas, as: "never") {
+            m.trailingCommas = .omit
+        } else if r.values[trailingCommas].kind == .boolValue {
+            t10Invalid(ref m, from: in r, at: trailingCommas, for: "style.trailingCommas", as: "`.multiline` or `.never`, not `true` or `false`")
+        } else {
+            t10Invalid(ref m, from: in r, at: trailingCommas, for: "style.trailingCommas", as: "`.multiline` or `.never`")
+        }
+    }
+    if fields.contains("braces") {
+        t10Invalid(ref m, from: in r, at: fields["braces"], for: "style.braces", as: "removed: there is no brace knob, `{` always ends the line")
+    }
+    if fields.contains("maxLine") {
+        t10Invalid(ref m, from: in r, at: fields["maxLine"], for: "style.maxLine", as: "removed: use `style.width`")
+    }
+    if fields.contains("lints") {
+        let lints = fields["lints"]
+        if r.values[lints].kind == .mapValue {
+            for i in 0..r.values[lints].keys.length {
+                let key = r.values[lints].keys[i]
+                let severity = r.values[lints].items[i]
+                if r.values[key].kind != .stringValue || !m.lints.contains(r.values[key].text) {
+                    var names = StrBuf()
+                    let known = t10LintNames()
+                    for j in 0..known.length {
+                        if j > 0 { names.append(", ") }
+                        names.append($"`{known[j]}`")
+                    }
+                    t10Invalid(ref m, from: in r, at: key, for: "style.lints", as: $"a known lint name: {names.finish()}")
+                } else if t10IsEnum(in r, at: severity, as: "none") {
+                    m.lints[r.values[key].text] = .none
+                } else if t10IsEnum(in r, at: severity, as: "suggestion") {
+                    m.lints[r.values[key].text] = .suggestion
+                } else if t10IsEnum(in r, at: severity, as: "warning") {
+                    m.lints[r.values[key].text] = .warning
+                } else if t10IsEnum(in r, at: severity, as: "error") {
+                    m.lints[r.values[key].text] = .error
+                } else {
+                    t10Invalid(ref m, from: in r, at: severity, for: "style.lints", as: $"`.none`, `.suggestion`, `.warning` or `.error` for `{r.values[key].text}`")
+                }
+            }
+        } else if r.values[lints].kind != .listValue || r.values[lints].items.length != 0 {
+            t10Invalid(ref m, from: in r, at: lints, for: "style.lints", as: "a map from a lint name to `.none`, `.suggestion`, `.warning` or `.error`, e.g. `[\"guards.postfix\": .warning]`")
         }
     }
     if fields.contains("booleans") {
@@ -288,7 +361,7 @@ void t10BindGrammar(ref Manifest m, from in T10Reader r, at i64 grammar) {
         t10Invalid(ref m, from: in r, at: grammar, for: "grammar", as: "a `Grammar { … }`")
         return
     }
-    let fields = t10Fields(ref m, from: in r, at: grammar, by: t10GrammarFields())
+    let fields = t10Fields(ref m, from: in r, at: grammar, by: t10GrammarFields(), for: [])
     t10BindWords(ref m, from: in r, for: in fields, by: "verbs")
     t10BindWords(ref m, from: in r, for: in fields, by: "nouns")
     t10BindWords(ref m, from: in r, for: in fields, by: "adjectives")
@@ -341,7 +414,7 @@ void t10BindDist(ref Manifest m, from in T10Reader r, at i64 dist) {
         t10Invalid(ref m, from: in r, at: dist, for: "dist", as: "a `Dist { … }`")
         return
     }
-    let fields = t10Fields(ref m, from: in r, at: dist, by: t10DistFields())
+    let fields = t10Fields(ref m, from: in r, at: dist, by: t10DistFields(), for: [])
     if fields.contains("targets") {
         let targets = fields["targets"]
         if t10IsListOf(in r, at: targets, as: .enumValue) {
@@ -366,15 +439,30 @@ List<string> t10TestsFields() => ["lines", "branches", "errorPaths", "mutation",
 
 List<string> t10DistFields() => ["targets", "mode"]
 
-List<string> t10StyleFields() => ["indent", "braces", "maxLine", "trailingCommas", "booleans", "primitives"]
+List<string> t10StyleFields() => ["indent", "width", "align", "trailingCommas", "booleans", "primitives", "lints"]
+
+/// Manifest.cs:47 `RemovedStyleFields`.
+List<string> t10RemovedStyleFields() => ["braces", "maxLine"]
+
+/// Manifest.cs:50 `LintNames`, in order.
+List<string> t10LintNames() => ["guards.postfix", "lambdas.it", "nesting.depth", "functions.length", "conditions.named"]
+
+/// Manifest.cs:50 `LintNames` defaults, the C# `_lints` initializer (Manifest.cs:117).
+Map<string, LintSeverity> t10DefaultLints() => [
+    "guards.postfix": .suggestion,
+    "lambdas.it": .suggestion,
+    "nesting.depth": .suggestion,
+    "functions.length": .none,
+    "conditions.named": .suggestion,
+]
 
 List<string> t10GrammarFields() => ["verbs", "nouns", "adjectives", "collectives", "forms"]
 
-/// Manifest.cs:216 `Fields`: the known fields by name; unknown and repeated ones are reported.
-Map<string, i64> t10Fields(ref Manifest m, from in T10Reader r, at i64 obj, by in List<string> known) {
+/// Manifest.cs:345 `Fields`: the known fields by name (and the `removed` ones, read so each is reported on its own); unknown and repeated ones are reported.
+Map<string, i64> t10Fields(ref Manifest m, from in T10Reader r, at i64 obj, by in List<string> known, for in List<string> removed) {
     var fields: Map<string, i64> = []
     for f in r.values[obj].fields {
-        if !t10Contains(in known, for: f.name) {
+        if !t10Contains(in known, for: f.name) && !t10Contains(in removed, for: f.name) {
             var help = StrBuf()
             help.append("use one of the fields ")
             for i in 0..known.length {
