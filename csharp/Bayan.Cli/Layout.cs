@@ -43,19 +43,26 @@ internal static class Layout
 
     private enum Side : byte { Defer, Space, None, Keep }
 
-    internal static (byte[] Output, string? SkipReason) Apply(byte[] source, LayoutOptions options)
+    /// <summary>
+    /// Lays out <paramref name="source"/>, spacing each product written tight (<c>a*b</c>). When that fails
+    /// <see cref="Check"/> (<c>u8*p</c> is a pointer to the parser), the file is laid out again with each such gap as written.
+    /// </summary>
+    internal static (byte[] Output, string? SkipReason) Apply(byte[] source, LayoutOptions options) =>
+        Apply(source, options, spaceProducts: true) is ({ } output, null) ? (output, null) : Apply(source, options, spaceProducts: false);
+
+    private static (byte[] Output, string? SkipReason) Apply(byte[] source, LayoutOptions options, bool spaceProducts)
     {
         var tokens = Lexer.Lex(new SourceText("layout", source)).Tokens.ToArray();
         var bom = source.Length >= 3 && source[0] == 0xEF && source[1] == 0xBB && source[2] == 0xBF ? 3 : 0;
         var gaps = Gaps(source, tokens, bom);
         if (gaps is null) return (source, "text between tokens that is neither whitespace nor a `//` comment");
         var tree = SyntaxTree.Parse(new SourceText("layout", source));
-        var output = new Engine(source, tokens, gaps, bom, tree, options).Render();
+        var output = new Engine(source, tokens, gaps, bom, tree, options, spaceProducts).Render();
         for (var round = 1; round < Rounds; round++)
         {
             var roundTokens = Lexer.Lex(new SourceText("layout", output)).Tokens.ToArray();
             if (Gaps(output, roundTokens, bom) is not { } roundGaps) break;
-            var next = new Engine(output, roundTokens, roundGaps, bom, SyntaxTree.Parse(new SourceText("layout", output)), options).Render();
+            var next = new Engine(output, roundTokens, roundGaps, bom, SyntaxTree.Parse(new SourceText("layout", output)), options, spaceProducts).Render();
             if (next.AsSpan().SequenceEqual(output)) break;
             output = next;
         }
@@ -116,6 +123,7 @@ internal static class Layout
         if (afterGaps is null || !Comments(source, gaps).SequenceEqual(Comments(output, afterGaps))) return "the comments changed";
         var reparsed = SyntaxTree.Parse(new SourceText("layout", output));
         if (!tree.Diagnostics.Select(d => d.Code).SequenceEqual(reparsed.Diagnostics.Select(d => d.Code))) return "the diagnostics changed";
+        if (Format.Shape(tree) != Format.Shape(reparsed)) return "the tree changed";
         return null;
     }
 
@@ -133,7 +141,7 @@ internal static class Layout
         Enumerable.Range(0, tokens.Length)
             .Where(i => !(tokens[i].Kind == TokenKind.Comma && i + 1 < tokens.Length
                           && tokens[i + 1].Kind is TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace))
-            .Select(i => TriviaMatters(bytes, tokens, i) ? tokens[i].HasTriviaBefore : (bool?)null);
+            .Select(i => TriviaMatters(bytes, tokens, i) && !StarGap(tokens, i) ? tokens[i].HasTriviaBefore : (bool?)null);
 
     /// <summary>
     /// Whether the parser branches on the gap before token <paramref name="i"/> (<c>HasTriviaBefore</c> in Parser.cs):
@@ -155,10 +163,20 @@ internal static class Layout
         var (before, kind) = (tokens[i - 1].Kind, tokens[i].Kind);
         return before == TokenKind.Greater && kind is TokenKind.Greater or TokenKind.GreaterEquals
             || before == TokenKind.DotDot && kind == TokenKind.Dot
-            || kind == TokenKind.Star && (TypeEnd(before) || before == TokenKind.Star)
-            || before == TokenKind.Star && !tokens[i - 1].HasTriviaBefore
+            || StarGap(tokens, i)
             || kind == TokenKind.NumericSuffix
             || before == TokenKind.Identifier && bytes.AsSpan(tokens[i - 1].Start, tokens[i - 1].Length).SequenceEqual("unlikely"u8);
+    }
+
+    /// <summary>
+    /// The gaps around a <c>*</c> that may make a pointer (<c>u8*</c>, <c>u8* p</c>). The parser reads them only to tell a
+    /// pointer type from a product, which shows in the tree, so <see cref="Check"/> compares the trees for these.
+    /// </summary>
+    private static bool StarGap(Token[] tokens, int i)
+    {
+        var (before, kind) = (tokens[i - 1].Kind, tokens[i].Kind);
+        return kind == TokenKind.Star && (TypeEnd(before) || before == TokenKind.Star)
+            || before == TokenKind.Star && !tokens[i - 1].HasTriviaBefore;
     }
 
     /// <summary>A token a type can end with, so that a <c>*</c> after it may make a pointer.</summary>
@@ -179,7 +197,7 @@ internal static class Layout
         return [.. text[..slashes], (byte)' ', .. text[slashes..]];
     }
 
-    private sealed class Engine(byte[] source, Token[] tokens, Gap[] gaps, int bom, SyntaxTree tree, LayoutOptions options)
+    private sealed class Engine(byte[] source, Token[] tokens, Gap[] gaps, int bom, SyntaxTree tree, LayoutOptions options, bool spaceProducts)
     {
         private readonly bool[] _lineStart = new bool[tokens.Length];
         private readonly int[] _level = new int[tokens.Length];
@@ -1261,6 +1279,8 @@ internal static class Layout
         private bool Space(int i, int from)
         {
             var written = tokens[i].Start > from;
+            // A product written tight takes a space each side (`price * quantity`); Check compares the trees.
+            if (spaceProducts && (TightProduct(i) || TightProduct(i - 1))) return true;
             // The parser reads the gap here (`>>`, `T...`, `u8*`, `30s`, `unlikely (a)`): keep it as written.
             if (TriviaMatters(source, tokens, i)) return written;
             // Generics are tight inside (`List<Sku>`).
@@ -1284,6 +1304,14 @@ internal static class Layout
             var lexed = Lexer.Lex(new SourceText("layout", joined)).Tokens;
             return lexed.Length != 3 || lexed[0].Kind != tokens[i - 1].Kind || lexed[1].Kind != tokens[i].Kind;
         }
+
+        /// <summary>Whether token <paramref name="i"/> is a <c>*</c> written tight between two operands on one line (<c>a*b</c>).</summary>
+        private bool TightProduct(int i) =>
+            i > 0 && i + 1 < tokens.Length && Kind(i) == TokenKind.Star && !_lineStart[i] && !_lineStart[i + 1]
+            && !Trivia(i) && !Trivia(i + 1) && OperandEnd(Kind(i - 1))
+            && (Kind(i + 1) is TokenKind.Identifier or TokenKind.IntegerLiteral or TokenKind.FloatLiteral or TokenKind.CharLiteral
+                or TokenKind.OpenParen or TokenKind.ThisKeyword or TokenKind.InterpolatedStringStart
+                || Kind(i + 1).IsStringLiteral() || Kind(i + 1).IsContextualKeyword());
 
         private static bool Piece(TokenKind kind) => kind is TokenKind.InterpolatedStringStart or TokenKind.InterpolatedStringText
             or TokenKind.InterpolationStart or TokenKind.InterpolationEnd or TokenKind.InterpolatedStringEnd;

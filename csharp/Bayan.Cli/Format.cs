@@ -475,7 +475,7 @@ internal static class Format
     }
 
     /// <summary>The tree's dump and its diagnostic codes, which a respelling must leave unchanged.</summary>
-    private static string Shape(SyntaxTree tree)
+    internal static string Shape(SyntaxTree tree)
     {
         var dump = AstDump.Dump(tree);
         var diagnostics = tree.Diagnostics.Count > 0 ? "\n" + DiagnosticRenderer.RenderAll(tree.Diagnostics) : "";

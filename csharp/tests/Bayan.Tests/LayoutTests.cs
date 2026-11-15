@@ -492,6 +492,20 @@ public sealed class LayoutTests
         Lay("void show() {\n    let d = a-b\n    let w: Grams = - weight\n    let f = c??-d\n}\n"));
 
     [Fact]
+    public void StyleHorizontalSpacing() => Assert.Equal(
+        "void show() {\n    let total = price * quantity\n    let port = config.port ?? 8080\n    let span = 0..n\n"
+        + "    let origin = Point { x: 1, y: 2 }\n    let sizes = [1, 2]\n    let label = format(total)\n}\n",
+        Lay("void show() {\n    let total = price*quantity\n    let port = config.port??8080\n    let span = 0 .. n\n"
+            + "    let origin = Point {x:1, y:2}\n    let sizes = [ 1, 2 ]\n    let label = format( total )\n}\n"));
+
+    [Fact]
+    public void APointerWrittenTightStaysAPointer()
+    {
+        const string source = "void f(u8*p) {\n    let n = a * b\n}\n";
+        Assert.Equal(source, Lay(source));
+    }
+
+    [Fact]
     public void StyleGenericsAndUnits() => Assert.Equal(
         "void fill(List<Sku> skus) {\n    let wait = 30s\n}\n",
         Lay("void fill(List< Sku > skus) {\n    let wait = 30s\n}\n"));
@@ -590,7 +604,7 @@ public sealed class LayoutTests
     [Fact]
     public void GapsTheParserReadsAreKeptAsWritten()
     {
-        const string source = "let s = x >> 2\nlet d = 30s\nlet p = a*b\nlet q = a * b\n";
+        const string source = "let s = x >> 2\nlet d = 30s\nlet p = u8* b\nlet q = a * b\n";
         Assert.Equal(source, Lay(source));
     }
 
