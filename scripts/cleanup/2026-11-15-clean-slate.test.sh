@@ -14,6 +14,9 @@ s="$root/scripts/cleanup/2026-11-15-clean-slate.sh"
 out="$(bash "$s" 2>&1 || true)"
 grep -q '^stale:  src/Bayan.Cli ' <<<"$out" || fail "dry run lists the ignored build output: $out"
 grep -q '^refuse: src/Bayan.Testing holds files git does not ignore' <<<"$out" || fail "dry run refuses an unignored file: $out"
+grep -q '^stale:  bayan-test01:/home/bt/ci ' <<<"$out" || fail "without --delete-vm-ci the VM clones are only listed: $out"
+out="$(bash "$s" --delete-vm-ci 2>&1 || true)"
+grep -q '^would: ssh ghosthive ' <<<"$out" || fail "a dry run with --delete-vm-ci prints the ssh, not runs it: $out"
 bash "$s" -e > /dev/null 2>&1 || true
 [ -f src/Bayan.Cli/obj/a.dll ] || fail "--execute alone removed build output"
 bash "$s" -e --delete-old-build-output > /dev/null 2>&1 || true
