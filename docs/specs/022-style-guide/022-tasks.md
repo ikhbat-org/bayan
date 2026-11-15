@@ -42,11 +42,18 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - `LayoutTests` has a case per rule;
     - an idempotence test passes, and so does a corpus test over `tests/cases/**/*.byn`, `src/**/*.byn` and `lib/**/*.byn` (format twice in memory: no skip, second pass unchanged, tokens equal);
     - the existing `FormatTests` and `CliTests` still pass, with expected-file updates only where layout now changes the output, each one checked by hand.
+  - Expected red until T8: the stage-2 format parity rows (`SelfhostDriverStage2FormatTests.SourcesFormatCheckAsCliApp`), since the self-hosted formatter has no layout until T8 ports it. The branch merges into `dev` only after T8.
+  - The review fixes F1–F4 of the T3/T4 lands are listed under T5 and gated with it.
 - [ ] **T5 Layout: list wrapping, trailing commas, `) {`, header clauses, wrapped conditions, chains (C#).**
   - Files: `Layout.cs`, `LayoutTests.cs`.
   - Covers: R3 (lists, chains, headers, conditions).
   - After: T4.
   - Done when passes 3 and 4 work at `width`, with the author's trailing comma kept vertical and `.never` dropping commas, a wrapped parameter list getting no trailing comma (the grammar has none, spec Decisions), and a `{` is never on a line of its own. The proposal's §3.1, §3.4, §3.5 and §3.6 examples format to their After text, and T4's corpus and idempotence tests pass.
+  - Also done when the review fixes of the T4 land hold, each with a `LayoutTests` case that fails when its fix is reverted:
+    - **F1 (HIGH) adjacency-sensitive spacing.** `CallLike` removed the space between any identifier and `(`/`[`, so `if unlikely (a).length > 0 {` became `if unlikely(a)…`: the parser reads the `unlikely` branch hint only when a space follows (`Parser.cs`, `PeekToken(1).HasTriviaBefore`), and `bayan check` then fails with BYN2001. Every place the parser or lexer branches on `HasTriviaBefore` or token adjacency is listed in a comment in `Layout.cs`. Layout never adds or removes the gap at those positions, and `Check` compares `HasTriviaBefore` there, so a rule that breaks one is skipped, not written.
+    - **F2 (MEDIUM) the corpus test compares tokens.** The corpus test asserts that the input's token sequence equals the output's, ignoring trailing commas and newlines (R4). The old assertion compared the first output with the second, which the byte check already covers.
+    - **F3 (LOW) knobs reach layout.** `Indent`, `Width` and `TrailingCommas` come from the manifest in `Format.cs`; a test shows `indent: 2` lays out at 2.
+    - **F4 (LOW) tabs.** `OriginalIndent` counts a tab as `Indent` columns (or the check works on levels), with a test on a tab-indented `requires` line.
 - [ ] **T6 Layout: alignment runs (C#).**
   - Files: `Layout.cs`, `LayoutTests.cs`.
   - Covers: R3 (alignment).
