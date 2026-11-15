@@ -10,7 +10,7 @@ signature help. Debugging maps `bayan` launch configs onto CodeLLDB, cpptools or
     npx @vscode/vsce package
     code --install-extension bayan-0.0.1.vsix
 
-Build the server (`dotnet publish -c Release -r <rid>` in `src/Bayan.LanguageServer`) and put
+Build the server (`dotnet publish -c Release -r <rid>` in `editors/language-server`) and put
 `bayan-lsp` on `PATH`, or set `bayan.server.path`. Without the server, highlighting and snippets
 still work.
 

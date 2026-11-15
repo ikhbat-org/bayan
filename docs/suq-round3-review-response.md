@@ -1,5 +1,7 @@
 # Sūq round-3 review: response
 
+Snapshot: 2026-10-22; not maintained. Current text: none
+
 Input: `docs/suq-agent-brief.md` (on `dev`) Parts A, B, C, E; `docs/bayan-reference-app-friction.md` (on `dev`). Docs changed on `feat/design-round-3`: `docs/bayan-design-round-3.md` (HANDOFF), `docs/plans/2026-10-22-002-design-round-3.md` (plan), `docs/bayan-spec.md` (SPEC), `docs/bayan-grammar.md` (GRAMMAR). Line numbers are after the change unless marked "old"; old lines are the SPEC and GRAMMAR before the review commit.
 
 ## Part A

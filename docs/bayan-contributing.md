@@ -1,5 +1,7 @@
 # Working on Bayān: rules, stack, layout and conventions
 
+Version: 0.3.1 (matches `bayan --version`)
+
 How work on the compiler is done. The spec (`docs/bayan-spec.md`) is the source of truth for the language; `AGENTS.md` holds the short agent rules. This file keeps only what neither of them says. The milestones are in `docs/bayan-milestones.md`.
 
 ## Ground rules
@@ -22,27 +24,28 @@ The main directories (the top level also holds `bench/`, `dist/`, `editors/`, `s
 
 ```
 bayan/
-  src/
+  csharp/                   the compiler in C#
     Bayan.Cli/              bayan executable: run, build, test, explain, --version
     Bayan.Syntax/           source text, lexer, tokens, parser, AST, diagnostics
     Bayan.Semantics/        binder, symbols, types, checks
     Bayan.Lowering/         typed AST → lowered tree (seam for DIR later)
     Bayan.Backend.C/        C emitter, toolchain invocation
     Bayan.Testing/
-    runtime/                bayan-rt.h / bayan-rt.c: panic, print, bounds checks, arena, list
-  selfhost/                 the compiler in Bayān: lexer, parser, semantics, emitter, driver
+    tests/Bayan.Tests/      the test assembly (it also compiles src/tests/)
+  src/                      the compiler in Bayān: lexer, parser, semantics, emitter, driver
+    tests/                  its tests (Selfhost* classes), built into Bayan.Tests
+  runtime/                  bayan-rt.h / bayan-rt.c: panic, print, bounds checks, arena, list
+    tests/                  the runtime's C tests
   bootstrap/                bayan.c and the runtime, the C that builds the self-hosted compiler
   lib/std/                  the standard library written in Bayān
   tools/                    lex-diff, the syntax fuzzer and other tools
-  tests/
-    Bayan.Tests/            test runner for golden files
+  tests/                    tests both compilers share
     cases/
       lex/        *.byn → *.tokens
       parse/      *.byn → *.ast
       diag/       *.byn → *.diag        (expected diagnostics, exact text)
       run/        *.byn → *.stdout      (+ optional *.exitcode)
                   (and diag-json, emit, manifest, new, out, quality, style, typed)
-    native/
     parity/
   docs/
     bayan-spec.md
@@ -51,6 +54,18 @@ bayan/
     hello/main.byn
     tally-lite/…
 ```
+
+Plan 017 (2026-11-15) moved the tree; the last commit before it is `3c3ccc82`. Done specs, plans and other records keep the old paths. `git log --follow` follows a file across the move.
+
+| Before | After |
+|---|---|
+| `src/Bayan.*/` | `csharp/Bayan.*/` |
+| `tests/Bayan.Tests/` | `csharp/tests/Bayan.Tests/` |
+| `tests/Bayan.Tests/Selfhost*.cs` | `src/tests/Selfhost*.cs` |
+| `src/runtime/` | `runtime/` |
+| `tests/native/` | `runtime/tests/` |
+| `selfhost/` | `src/` |
+| `tests/cases/`, `tests/parity/` | unchanged |
 
 ## Conventions
 
@@ -94,3 +109,13 @@ error BYN2104: `total` is immutable
 - The lexer and parser are the compiler's untrusted-input surface: add **SharpFuzz** on `bayan parse` once M2 is stable (nightly CI).
 - Run **Stryker.NET** on `Bayan.Syntax` and `Bayan.Semantics` before v0.1 to find weak tests.
 - Reproducibility: CI compiles `examples/` twice and compares the emitted C byte-for-byte.
+
+## Before a push
+
+The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/workflows/ci.yml` calls it and runs no script test of its own. Run it on macOS under the system bash, the bash the macOS job uses. With no group it runs both: `unix`, the macOS job's list, and `docs`, which ci runs only on Linux:
+
+```
+/bin/bash scripts/ci/script-tests.sh
+```
+
+macOS ships bash 3.2. It parses the body of `$( … )`, `<( … )` and `>( … )` only when the line runs, and a bare `pat)` case arm there closes the substitution, so `bash -n` passes and the script dies later. Inside a substitution, write every case pattern as `(pat)`. `scripts/ci/bash32-parse.test.sh` enforces this on every tracked `.sh` file on every OS.

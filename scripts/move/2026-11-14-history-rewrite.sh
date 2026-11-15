@@ -271,7 +271,7 @@ say "  GIT_ALLOW_PROTECTED=1 git -C $CLONE push$LEASES $ORIGIN$REFS"
 DEV0=$(awk '$1 == "refs/heads/dev" { print $2 }' "$OLDREFS")
 # remote branches merged into the old dev whose tip got a new SHA
 OLDREM=$(git for-each-ref --format='%(refname:lstrip=3) %(objectname)' refs/remotes/origin | while read -r b s; do
-  case "$b" in HEAD|dev|main) continue ;; esac
+  case "$b" in (HEAD|dev|main) continue ;; esac
   n=$(mapsha "$s"); [ -n "$n" ] && [ "$n" != "$s" ] && git merge-base --is-ancestor "$s" "$DEV0" && printf ' %s' "$b"; done)
 [ -z "$OLDREM" ] || say "  option: git push origin --delete$OLDREM   # merged remote branches holding only old history"
 say "undo (before pushing): $UNDO"

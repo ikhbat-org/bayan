@@ -1,5 +1,5 @@
 // Diagnostics: the lexer's message table, the diagnostic record and the plain-text renderer. Ports
-// the lexer parts of `src/Bayan.Syntax/Diagnostics/{Diagnostic,DiagnosticCodes,DiagnosticRenderer}.cs`.
+// the lexer parts of `csharp/Bayan.Syntax/Diagnostics/{Diagnostic,DiagnosticCodes,DiagnosticRenderer}.cs`.
 
 /// The lexer's entries of the message table (BYN0001–BYN0016, then BYN1047), in code order.
 enum DiagnosticCode {

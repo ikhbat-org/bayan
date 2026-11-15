@@ -1,3 +1,5 @@
+Snapshot: 2026-10-20; not maintained. Current text: docs/laws/README.md
+
 ## The four laws
 
 All four are good laws: each one has a checkable statement and a concrete counterexample. Three need small changes before you enact them.

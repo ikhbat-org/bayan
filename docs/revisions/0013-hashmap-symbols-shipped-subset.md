@@ -1,6 +1,8 @@
 # 0013 — `Symbol` and `Map` keys: the shipped subset
 
-Status: applied 2026-10-25 by spec 008 T12 (the spec's docs task). It records what spec 008 shipped and decides nothing beyond spec 008 and HANDOFF Questions 371–381.
+Status: done; applied 2026-10-25 by spec 008 T12 (the spec's docs task). It records what spec 008 shipped and decides nothing beyond spec 008 and HANDOFF Questions 371–381.
+Release: 0.1.0
+Sources: Q371–Q381; spec 008
 
 ## Problem
 

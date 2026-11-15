@@ -2,7 +2,7 @@
 # wp1-test.sh — run a branch's tests on the Windows host wp1 and record what ran (preflight.sh reads the record).
 #   bash scripts/selfhost/wp1-test.sh chore/worker-012-t17 'FullyQualifiedName~StdFsTests|FullyQualifiedName~CInventoryTests'
 # Bundles <branch> into tmp/wp1/<short sha>.bundle, copies it to wp1:/C:/home/code/extrode.com/bayan/tmp/ (scp), and over ssh
-# clones it there into tmp/<short sha> (replacing the one an earlier run made) and runs `dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q --logger 'console;verbosity=minimal' --filter <filter>`. The minimal console logger keeps each failed test's message and stack in the record (-v q alone printed only `[FAIL]` lines).
+# clones it there into tmp/<short sha> (replacing the one an earlier run made) and runs `dotnet test csharp/tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q --logger 'console;verbosity=minimal' --filter <filter>`. The minimal console logger keeps each failed test's message and stack in the record (-v q alone printed only `[FAIL]` lines).
 # The remote checks the clone's HEAD is the sha resolved here, else exit 4 (the branch moved before the bundle was made).
 # Writes tmp/wp1/<sha>.out: branch, sha, filter and the remote command, then the run's output, then `exit <code>`.
 # A pass is cached in tmp/wp1/cache/<tree hash>-<filter hash>.out (the commit's tree, so an identical tree on another commit hits too): a later
@@ -34,7 +34,7 @@ XTRA=""; [ -z "${WIN_TRX:-}" ] || { XTRA=" --logger 'trx;LogFileName=$R/$S.trx'"
 [ -z "${WIN_THREADS:-}" ] || XTRA="$XTRA '--' 'xUnit.MaxParallelThreads=$WIN_THREADS'"
 CMD="$PRE""Set-Location '$R'; if (Test-Path '$S') { if (-not (Test-Path '$S.wp1-test')) { Write-Output 'wp1-test: $R/$S exists and wp1-test.sh did not create it'; exit 3 }; Remove-Item -Recurse -Force '$S' }; \
 New-Item -ItemType File -Force '$S.wp1-test' | Out-Null; git clone -q -b $BR $S.bundle $S; if (\$LASTEXITCODE) { exit \$LASTEXITCODE }; \
-Set-Location '$S'; if ((git rev-parse HEAD) -ne '$SHA') { Write-Output 'wp1-test: $BR moved after $SHA was resolved; the clone is not $SHA'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '${BAYAN_TEST_TIME_SCALE:-3}'; dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q --logger 'console;verbosity=minimal' --filter '$FILT'$XTRA; exit \$LASTEXITCODE"
+Set-Location '$S'; if ((git rev-parse HEAD) -ne '$SHA') { Write-Output 'wp1-test: $BR moved after $SHA was resolved; the clone is not $SHA'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '${BAYAN_TEST_TIME_SCALE:-3}'; dotnet test csharp/tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q --logger 'console;verbosity=minimal' --filter '$FILT'$XTRA; exit \$LASTEXITCODE"
 printf 'branch: %s\nsha: %s\nfilter: %s\ncommand: ssh %s "%s"\n' "$BR" "$SHA" "$FILT" "$H" "$CMD" > "$OUT"
 scp -q "tmp/$H/$S.bundle" "$H:/$R/" >> "$OUT" 2>&1; rc=$?
 [ $rc = 0 ] && { ssh "$H" "$CMD" >> "$OUT" 2>&1; rc=$?

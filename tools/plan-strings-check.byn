@@ -1,10 +1,10 @@
 #!/usr/bin/env bayan
 // Checks that diagnostic messages and help strings are copied verbatim from the
-// round-3 plan's code entries into src/ and docs/diagnostics/BYN####.md.
+// round-3 plan's code entries into csharp/ and docs/diagnostics/BYN####.md.
 //
 //   bash scripts/bayan-tool.sh plan-strings-check [--base <ref>] [--plan <file>] [BYN#### ...]
 //
-// A string counts as found in src/ when a C# string literal holds it or a tests/cases
+// A string counts as found in csharp/ when a C# string literal outside csharp/tests/ holds it or a tests/cases
 // `.diag` golden renders it; on the page, when the page holds it or renders it.
 // Codes: those named on the command line, else every code whose descriptor line in
 // DiagnosticCodes.cs differs from <base> (default dev). Placeholders compare equal:
@@ -16,9 +16,9 @@
 // Port of scripts/plan-strings-check.js (spec 015 T4). The regexes are re-done with string members, matching as
 // JavaScript's do.
 
-const descriptorsPath: string = "src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs"
-const helpTestPath: string = "tests/Bayan.Tests/HelpLanguageTests.cs"
-const lexiconPath: string = "src/Bayan.Semantics/Lexicon.cs"
+const descriptorsPath: string = "csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs"
+const helpTestPath: string = "csharp/tests/Bayan.Tests/HelpLanguageTests.cs"
+const lexiconPath: string = "csharp/Bayan.Semantics/Lexicon.cs"
 
 /// `Deno.readTextFile`: the file's text, as is.
 string readText(string path) fails {
@@ -362,7 +362,7 @@ i32 main(ReadOnlySpan<string> argv) {
         }
     }
 
-    // R15's verbs, the grammar checker's verb list (BYN5014), and the allowed openings from the test that enforces R15 on src/.
+    // R15's verbs, the grammar checker's verb list (BYN5014), and the allowed openings from the test that enforces R15 on csharp/.
     let lexicon = readText(lexiconPath) catch {
         print($"plan-strings-check: cannot read {lexiconPath}", to: .stderr)
         return 1
@@ -474,11 +474,11 @@ i32 main(ReadOnlySpan<string> argv) {
     }
     var srcArgs: List<string> = List<string>()
     srcArgs.append("ls-files")
-    srcArgs.append("src")
+    srcArgs.append("csharp")
     var joined = StrBuf()
     var first = true
     for f in git(srcArgs).parts(by: "\n") {
-        if !f.endsWith(".cs") { continue }
+        if !f.endsWith(".cs") || f.startsWith("csharp/tests/") { continue }
         let t = readText(f) catch {
             print($"plan-strings-check: cannot read {f}", to: .stderr)
             return 1
@@ -538,7 +538,7 @@ i32 main(ReadOnlySpan<string> argv) {
                 let want = normPlan(text)
                 if !(src.contains(want) || rendered(goldens, for: text)) {
                     missing += 1
-                    print($"{code} {kind} not in src/: \"{text}\"")
+                    print($"{code} {kind} not in csharp/: \"{text}\"")
                 }
                 if !(page.contains(want) || rendered(page, for: text)) {
                     missing += 1

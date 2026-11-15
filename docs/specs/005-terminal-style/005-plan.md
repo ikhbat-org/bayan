@@ -1,4 +1,9 @@
 # 005 — Plan
+
+Status: done
+Release: 0.1.0
+Sources: Q79, Q80, Q81, Q82, Q83, Q84, Q85, Q86
+
 Spec: ./005-spec.md
 
 ## Approach

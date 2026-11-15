@@ -2,6 +2,8 @@ Commit 821afa40, 2026-11-09. GRAMMAR (`docs/bayan-grammar.md`) followed by STYLE
 
 # Bayān grammar guide and style guide
 
+Snapshot: 2026-11-09 (821afa40); not maintained. Current text: docs/bayan-grammar.md and docs/bayan-style.md
+
 Version: 0.2.0 (matches `bayan --version`)
 Revisions applied: 0001–0019
 

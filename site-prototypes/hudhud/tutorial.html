@@ -31,7 +31,7 @@
       <div class="term"><div class="bar"><i></i>terminal</div>
 <pre><span class="g">$</span> git clone https://github.com/ikhbat-org/bayan
 <span class="g">$</span> cd bayan
-<span class="g">$</span> dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
+<span class="g">$</span> dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
 <span class="g">$</span> ./tmp/publish/bayan --version</pre></div>
       <p>Use the runtime identifier for your system in place of <code>osx-arm64</code>. Put the <code>bayan</code> binary on your <code>PATH</code>, then run <code>bayan doctor</code>: it checks the C compiler, zig, git and the build cache, and says how to fix what is missing.</p>
     </li>

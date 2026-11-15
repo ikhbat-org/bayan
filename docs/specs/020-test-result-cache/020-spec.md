@@ -1,5 +1,7 @@
 # 020 — Test-result cache
 Status: approved (not started)
+Release: unscheduled
+Sources: none recorded
 Created: 2026-11-13
 
 ## Problem

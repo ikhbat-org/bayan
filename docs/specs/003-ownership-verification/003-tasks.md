@@ -1,4 +1,9 @@
 # 003 — Tasks
+
+Status: done
+Release: 0.1.0
+Sources: Q64, Q66
+
 Plan: ./003-plan.md
 
 - [x] T1 `take()` on `List`, `Map`, `StrBuf` and optionals of unique types: builtin rows, BYN2788 for other types, lowering as move-then-default, BYN2782 help suggests `take()` — files: `BoundNodes.cs`, `BuiltinMembers.cs`, `BinderExpressions.cs`, `BinderCalls.cs`, `OwnershipAnalysis.cs`, `Lowerer.cs`, `DiagnosticCodes.cs`, `docs/diagnostics/BYN2788.md`, `BYN2782.md`, goldens `run/take`, `diag/take-unsupported`, `diag/take-immutable` — covers: R1, R2, R3 — done when: goldens pass, break-test fails them

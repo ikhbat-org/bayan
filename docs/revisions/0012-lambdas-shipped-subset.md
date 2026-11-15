@@ -1,6 +1,8 @@
 # 0012 — Lambdas: the shipped subset
 
-Status: applied 2026-10-25 by spec 007 T13 (the spec's docs task). It records what spec 007 shipped and decides nothing beyond spec 007 and HANDOFF Questions 345–369.
+Status: done; applied 2026-10-25 by spec 007 T13 (the spec's docs task). It records what spec 007 shipped and decides nothing beyond spec 007 and HANDOFF Questions 345–369.
+Release: 0.1.0
+Sources: Q345–Q369; spec 007
 
 ## Problem
 

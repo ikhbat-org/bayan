@@ -1,5 +1,7 @@
 # Bayan status for porting Sūq
 
+Snapshot: 2026-10-22; not maintained. Current text: docs/STATUS.md
+
 Commit: `af964b51e36bf17ffc5d5ea2597a2323112a478b` (`feat/design-round-2`) — snapshot 2026-10-22 ~14:00; branches move after that
 
 Test run (`dotnet test -v q`): `Failed!  - Failed: 1, Passed: 1315, Skipped: 0, Total: 1316, Duration: 22 m 35 s`. The failure is `LexerTests.OneMegabyteAllocatesOnlyTheTokenArray`, an allocation-count test, on a machine loaded by other test runs; re-run alone it passes (1/1).

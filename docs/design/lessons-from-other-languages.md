@@ -1,5 +1,7 @@
 # Bayān: lessons from other languages and platforms
 
+Snapshot: 2026-11-05; not maintained. Current text: none
+
 Status: reference, as of 2026-11-05. Not spec. Spec changes still go through `docs/revisions/` or a numbered design round.
 
 **Purpose:** record what other ecosystems got right, what they could not fix, and Bayān's answer. A lesson counts as learned only when it becomes a compiler rule, a tool behaviour or a test, not a style note.

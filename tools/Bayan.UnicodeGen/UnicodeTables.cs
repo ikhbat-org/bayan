@@ -1,7 +1,7 @@
 namespace Bayan.Syntax.Lexing;
 
 /// <summary>
-/// Stand-in for the generated src/Bayan.Syntax/Lexing/UnicodeTables.g.cs, so the linked Nfc.cs
+/// Stand-in for the generated csharp/Bayan.Syntax/Lexing/UnicodeTables.g.cs, so the linked Nfc.cs
 /// runs over the tables computed from the UCD in this run before they are written.
 /// </summary>
 internal static class UnicodeTables

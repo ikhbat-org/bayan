@@ -43,8 +43,8 @@ target() {
 
 label() {
   local v sha dirty=""
-  v="$(sed -nE 's/.*const string CompilerVersion = "([^"]+)";.*/\1/p' "$root/src/Bayan.Backend.C/Toolchain.cs")"
-  [ -n "$v" ] || die "no CompilerVersion in src/Bayan.Backend.C/Toolchain.cs"
+  v="$(sed -nE 's/.*const string CompilerVersion = "([^"]+)";.*/\1/p' "$root/csharp/Bayan.Backend.C/Toolchain.cs")"
+  [ -n "$v" ] || die "no CompilerVersion in csharp/Bayan.Backend.C/Toolchain.cs"
   [ -z "$(git -C "$root" status --porcelain 2>/dev/null)" ] || dirty=.dirty
   case "$v" in
     *-*) sha="$(git -C "$root" rev-parse --short=12 HEAD 2>/dev/null)" || die "a prerelease label needs a git checkout"
@@ -92,13 +92,13 @@ for rid in "${rids[@]}"; do
   else
     command -v dotnet >/dev/null || die "dotnet not on PATH"
     mkdir -p "$root/tmp"
-    # Every rid shares src/*/obj/ (restore writes project.assets.json there): one publish at a time per checkout.
+    # Every rid shares csharp/*/obj/ (restore writes project.assets.json there): one publish at a time per checkout.
     plock="$root/tmp/dist-publish.lock"
     mkdir "$plock" 2>/dev/null || { plock=""; die "another dist run is publishing in this checkout (remove $root/tmp/dist-publish.lock if none is)"; }
     pub="$root/tmp/dist-publish/$rid"
     rm -rf "$pub"
     echo "dist: publishing $rid" >&2
-    dotnet publish "$root/src/Bayan.Cli" -c Release -r "$rid" -o "$pub" >"$root/tmp/dist-publish-$rid.log" 2>&1 \
+    dotnet publish "$root/csharp/Bayan.Cli" -c Release -r "$rid" -o "$pub" >"$root/tmp/dist-publish-$rid.log" 2>&1 \
       || die "dotnet publish -r $rid failed, see tmp/dist-publish-$rid.log"
     rmdir "$plock"; plock=""
   fi

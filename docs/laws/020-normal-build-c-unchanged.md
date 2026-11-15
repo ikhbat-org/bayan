@@ -2,9 +2,11 @@
 id: L020
 title: A normal build's generated C is byte-identical with or without the test tooling
 status: enacted
+release: 0.1.0
+sources: none recorded
 kind: property
-scope: src/Bayan.Backend.C, src/Bayan.Lowering
-proof: tests/Bayan.Tests/MutantSchemataTests.cs
+scope: csharp/Bayan.Backend.C, csharp/Bayan.Lowering
+proof: csharp/tests/Bayan.Tests/MutantSchemataTests.cs
 check: dotnet test -v q --filter "Law=L020"
 enacted: 2026-10-31
 ---

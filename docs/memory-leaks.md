@@ -1,5 +1,7 @@
 # Memory and disk leaks
 
+Version: 0.3.1 (matches `bayan --version`)
+
 Every Bayan memory or disk leak found so far, what caused it, and the rule that keeps it
 from coming back. Read this before writing anything that walks directories, watches files,
 caches, buffers child output, recurses on input, or runs for longer than one command.
@@ -120,8 +122,8 @@ extension itself is not exercised headless on a runner.
 `scripts/release/memory-gate.test.sh` fails when the script and this block drift apart.
 
 plus, for a release that changes the runtime or selfhost: `leaks --atExit` over the run goldens
-on macOS (2026-11-06: ≤ 3.6 KB per golden; 2026-11-12 through stage 2: median 16 B, max 1.1 MB in `io-run-input.byn`; probes show a `List`'s last buffer left allocated at exit, in any function, Q1228 and Q1229) and peak RSS of a selfhost build of `selfhost/`
-(2026-11-12: 2.94 GB for `selfhost/driver`, Q1228; 2026-11-14, 0.3.0 at `bootstrap/bayan.c` regenerated for the release: 1.69 GB, median of 3 on macOS (1,656,848,384, 1,688,387,584 and 1,693,663,232 bytes, 34 s each); record the number in the release notes; a rise over 20 % blocks until explained).
+on macOS (2026-11-06: ≤ 3.6 KB per golden; 2026-11-12 through stage 2: median 16 B, max 1.1 MB in `io-run-input.byn`; probes show a `List`'s last buffer left allocated at exit, in any function, Q1228 and Q1229) and peak RSS of a selfhost build of `src/`
+(2026-11-12: 2.94 GB for `src/driver`, Q1228; 2026-11-14, 0.3.0 at `bootstrap/bayan.c` regenerated for the release: 1.69 GB, median of 3 on macOS (1,656,848,384, 1,688,387,584 and 1,693,663,232 bytes, 34 s each); record the number in the release notes; a rise over 20 % blocks until explained).
 
 A new long-running component, cache, walk or watcher adds its bound test to this list in the
 same branch.

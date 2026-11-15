@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # plan-strings-check (tools/plan-strings-check.byn, run by scripts/bayan-tool.sh) on a fixture repo under tmp/: plan strings
-# copied verbatim pass with the codes found from the descriptor diff; a help that drifts from the plan fails and names it;
+# copied verbatim pass with the codes found from the descriptor diff; a help that drifts from the plan fails and names it,
+# also when a csharp/tests/ literal holds the plan's text;
 # a page without the plan's strings fails; a plan help without a leading verb fails, alone and in --all-help; `{{ }}`
 # escapes and a `(plan, revision NNNN)` tag are matched.
 set -euo pipefail
@@ -21,22 +22,22 @@ fixture() {
 - (c) BYN1043 `TypeNameOrder` (revised), two forms. A field: "`{0}: {1}` is an input form; write `{1} {0}`" (label "name before type"; help "put the type before the name; declarations are type-first"; fix yes).
 - (c) BYN1053 `OneLine` "`{0}` declares its cases on one line" (O1; label at the first `,`; help "write each case on its own line"; fix yes).
 - (c) BYN6006 `ContextInput` "`context (…) { }` is now `provide … { }`" (label at `context`; help "write `provide`"; fix yes).'
-  put src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs 'class DiagnosticCodes {}'
-  put tests/Bayan.Tests/HelpLanguageTests.cs '    private static readonly Dictionary<string, string> Allowed = new()
+  put csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs 'class DiagnosticCodes {}'
+  put csharp/tests/Bayan.Tests/HelpLanguageTests.cs '    private static readonly Dictionary<string, string> Allowed = new()
     {
         ["did you mean `"] = "question",
     };'
-  put src/Bayan.Semantics/Lexicon.cs '    public static readonly FrozenSet<string> Verbs = [
+  put csharp/Bayan.Semantics/Lexicon.cs '    public static readonly FrozenSet<string> Verbs = [
         "put", "write",
     ];'
   g init -q -b dev; g add -A; g commit -q --no-verify -m base
-  put src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs 'class DiagnosticCodes {
+  put csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs 'class DiagnosticCodes {
     public static readonly DiagnosticDescriptor KeywordOrder = Error("BYN1044", "`{0}` is an input form; write `{1}`");
     public static readonly DiagnosticDescriptor TypeNameOrder = Error("BYN1043", "`{0}` is an input form; write `{1}`");
     public static readonly DiagnosticDescriptor OneLine = Error("BYN1053", "`{0}` declares its cases on one line");
     public static readonly DiagnosticDescriptor ContextInput = Error("BYN6006", "`context (…) {{ }}` is now `provide … {{ }}`");
 }'
-  put src/Bayan.Syntax/Parsing/Parser.cs "class Parser {
+  put csharp/Bayan.Syntax/Parsing/Parser.cs "class Parser {
     void A() { Report(KeywordOrder, help: \$\"$1\"); }
     void B() { Report(TypeNameOrder, help: \"put the type before the name; declarations are type-first\"); }
     void C() { Report(OneLine, help: \"write each case on its own line\"); }
@@ -56,7 +57,13 @@ grep -qx 'all plan strings found for 4 code(s)' <<< "$out" && grep -qx rc=0 <<< 
 
 fixture 'write the kind before the modifier: `{canonical}`'
 out=$(check BYN1044)
-grep -qxF 'BYN1044 help not in src/: "put the kind first: `{1}`"' <<< "$out" && grep -qx rc=1 <<< "$out" || fail "a help that drifts from the plan passed" "$out"
+grep -qxF 'BYN1044 help not in csharp/: "put the kind first: `{1}`"' <<< "$out" && grep -qx rc=1 <<< "$out" || fail "a help that drifts from the plan passed" "$out"
+
+put csharp/tests/Bayan.Tests/ParserHelpTests.cs '    const string Want = "put the kind first: `{1}`";'
+g add -A; g commit -q --no-verify -m test
+out=$(check BYN1044)
+grep -qxF 'BYN1044 help not in csharp/: "put the kind first: `{1}`"' <<< "$out" && grep -qx rc=1 <<< "$out" \
+  || fail "a plan help found only in a csharp/tests/ literal passed" "$out"
 
 fixture 'put the kind first: `{canonical}`'
 printf '# BYN1053: title\n\n**Why.** prose only\n' > "$d/docs/diagnostics/BYN1053.md"
@@ -68,7 +75,7 @@ fixture 'put the kind first: `{canonical}`'
 cp "$d/$plan" "$d/plan.orig"
 sed 's/help "write each case on its own line"/help "each case goes on its own line"/' "$d/plan.orig" > "$d/$plan"
 out=$(check BYN1053)
-grep -qxF 'BYN1053 help in the plan does not start with a verb from src/Bayan.Semantics/Lexicon.cs: "each case goes on its own line"' <<< "$out" \
+grep -qxF 'BYN1053 help in the plan does not start with a verb from csharp/Bayan.Semantics/Lexicon.cs: "each case goes on its own line"' <<< "$out" \
   && grep -qx rc=1 <<< "$out" || fail "a plan help without a leading verb passed" "$out"
 out=$(check --all-help)
 grep -qx '1 plan help(s) without a leading verb' <<< "$out" && grep -qx rc=1 <<< "$out" || fail "--all-help passed a help without a leading verb" "$out"
@@ -78,11 +85,11 @@ grep -qx rc=0 <<< "$out" || fail "--all-help failed a plan whose helps all start
 
 fixture 'put the kind first: `{canonical}`'
 printf '%s\n' '- (c) BYN7005 `StateLiteralNeedsState` "`{0}` has states; write `{0}.{1} {{ … }}`" (label at the type name; help "write the state"; fix no). BYN7008 (plan) `StateShadowsStatic` "state `.{0}` shadows `{1}.{0}`" (label at the state; help "write another name"; fix no). BYN7009 (plan, revision 0002) `MissingBecome` "`{0}` returns without `become`" (label at the return; help "write `become .{1}(…)`"; fix no).' >> "$d/$plan"
-put src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs 'class DiagnosticCodes {
+put csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs 'class DiagnosticCodes {
     public static readonly DiagnosticDescriptor StateLiteralNeedsState = Error("BYN7005", "`{0}` has states; write `{0}.{1} {{ … }}`");
     public static readonly DiagnosticDescriptor StateShadowsStatic = Error("BYN7008", "state `.{0}` shadows `{1}.{0}`");
 }'
-put src/Bayan.Syntax/Parsing/States.cs 'class S { void A() { Help("write the state"); Help("write another name"); } }'
+put csharp/Bayan.Syntax/Parsing/States.cs 'class S { void A() { Help("write the state"); Help("write another name"); } }'
 page BYN7005 '`{0}` has states; write `{0}.{1} { … }`' 'write the state' > "$d/docs/diagnostics/BYN7005.md"
 page BYN7008 'state `.{0}` shadows `{1}.{0}`' 'write another name' > "$d/docs/diagnostics/BYN7008.md"
 g add -A

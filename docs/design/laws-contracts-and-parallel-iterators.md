@@ -2,7 +2,9 @@
 
 Design for v0.2 and later, added 2026-10-20 as addendum 002 to the v0.1 work plan (the milestones are now in `docs/bayan-milestones.md`). Spec edits go into `docs/bayan-spec.md`; the rules for working on Bayān are in `docs/bayan-contributing.md`.
 
-**Status (2026-11-14):** §1 and §6 are done. §2–§4 are design only. §5 is partly applied: the spec has no `.par()` or `bayan verify` text yet (audit A31, `docs/audits/2026-11-14-0.3.0-docs-audit.md`), and round 4 changed `law`, `requires` and `ensures` (§3's note; spec §2.4).
+Status: in progress (2026-11-14). §1 and §6 are done. §2–§4 are design only. §5 is partly applied: the spec has no `.par()` or `bayan verify` text yet (audit A31, `docs/audits/2026-11-14-0.3.0-docs-audit.md`), and round 4 changed `law`, `requires` and `ensures` (§3's note; spec §2.4).
+Release: unscheduled
+Sources: handoff addendum 002 (2026-10-20); audit A31 (`docs/audits/2026-11-14-0.3.0-docs-audit.md`)
 
 ---
 

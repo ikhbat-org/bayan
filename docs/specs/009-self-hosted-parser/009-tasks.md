@@ -1,4 +1,9 @@
 # 009 — Tasks
+
+Status: done
+Release: 0.1.0
+Sources: Q430, Q431, Q432, Q435, Q437, Q440, Q445, Q449, Q450, Q454, Q455, Q460, Q464, Q465, Q469, Q470, Q474, Q475, Q479, Q480, Q484, Q485, Q489, Q490, Q494, Q495, Q500, Q501, Q504, Q505, Q506, Q508, Q509, Q510
+
 Plan: ./009-plan.md
 Depends on: `dev` with specs 006–008 merged. T1 then T2 land serially before the wave; T3–T14 each own disjoint files and run in parallel (4–6 writers, two rounds: parsing areas T3–T10 first, then T11–T14, which can only be checked once parsing merges). Each wave task rebases over merged siblings before finishing. T15 is the only task after the wave that may edit any `selfhost/parser/` file. Handoff Questions are partitioned per task from 430 upward (T1 430–434, T2 435–439, T3 440–444, T4 445–449, T5 450–454, T6 455–459, T7 460–464, T8 465–469, T9 470–474, T10 475–479, T11 480–484, T12 485–489, T13 490–494, T14 495–499, T15 500–504, T16/T17 505–507, T18/T19 508–510); unused numbers stay unused. Line numbers refer to `src/Bayan.Syntax/Parsing/Parser.cs` at the branch point; locate by method name when they drift.
 
