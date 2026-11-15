@@ -24,7 +24,7 @@ export LC_ALL=C
 cell() { sed -E 's/\|/\\|/g'; }
 
 # code, name, severity, message (C# \" unescaped)
-sed -nE 's/^ *public static readonly DiagnosticDescriptor ([A-Za-z0-9_]+) = (Error|Warning)\("(BYN[0-9]{4})", "(.*)"\);$/\3	\1	\2	\4/p' "$codes" \
+sed -nE 's/^ *public static readonly DiagnosticDescriptor ([A-Za-z0-9_]+) = (Error|Warning|Note)\("(BYN[0-9]{4})", "(.*)"\);$/\3	\1	\2	\4/p' "$codes" \
   | sed -E 's/\\"/"/g; s/\\\\/\\/g' | cell | sort -k1,1 > "$t/reg"
 [ -s "$t/reg" ] || die "no descriptors in DiagnosticCodes.cs"
 dup="$(cut -f1 "$t/reg" | uniq -d)"; [ -z "$dup" ] || die "registered twice: $dup"

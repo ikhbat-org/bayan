@@ -1,0 +1,6 @@
+note BYN1074: this condition wraps; name it with a `let`
+
+  5 │     if a > 0
+    │        ^^^^^ the condition wraps
+    │
+  help: name the condition with a `let`
