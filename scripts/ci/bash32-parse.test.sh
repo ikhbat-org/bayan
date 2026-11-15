@@ -22,10 +22,12 @@ case_in_subst() {
       return b ~ /[ \t\n;|&(]/ && a ~ /[ \t\n;|&)]/
     }
     function lineof(at,   t) { t = substr(s, 1, at); return gsub(/\n/, "", t) + 1 }
-    function skipws(i) { while (i <= n && substr(s, i, 1) ~ /[ \t\n]/) i++; return i }
+    function skipws(i) { while (i <= n && (i in skip || substr(s, i, 1) ~ /[ \t\n]/)) i = i in skip ? skip[i] : i + 1; return i }
     function comment(i) { return substr(s, i, 1) == "#" && (i == 1 || substr(s, i - 1, 1) ~ /[ \t\n;]/) }
     function eol(i) { while (i <= n && substr(s, i, 1) != "\n") i++; return i }
-    # heredoc(i): s[i] starts "<<" (not "<<<"); record its body as a skip from the line after it to its delimiter line
+    # lt(i): s[i] starts "<<"; a heredoc (not "<<<") records its body as a skip from the line after it to its delimiter
+    # line. With no delimiter line it is not a heredoc (a shift such as $((1 << 2)) or <<=) and nothing is skipped.
+    function lt(i) { if (substr(s, i + 2, 1) == "<") return i + 2; heredoc(i); return i + 1 }
     function heredoc(i,   dash, w, c, at, ln, end) {
       i += 2; if (substr(s, i, 1) == "-") { dash = 1; i++ }
       while (substr(s, i, 1) ~ /[ \t]/) i++
@@ -41,7 +43,7 @@ case_in_subst() {
         ln = substr(s, end, eol(end) - end); if (dash) sub(/^\t+/, "", ln)
         if (ln == w) break
       }
-      skip[at] = eol(end); hnext = eol(end) + 1
+      if (end <= n) { skip[at] = eol(end); hnext = eol(end) + 1 }
     }
     function arms(i, f) {  # i just past "case": check every arm up to esac, return the index past esac
       while (i <= n && !word(i, "in")) i++
@@ -57,6 +59,7 @@ case_in_subst() {
     function armend(i, f,   c, q) {  # from the pattern of an arm: the index past its ";;", ";&" or ";;&", or the index of the closing esac
       q = ""
       for (; i <= n; i++) {
+        if (i in skip) { i = skip[i]; continue }
         c = substr(s, i, 1)
         if (q == "\047") { if (c == "\047") q = ""; continue }
         if (c == "\\") { i++; continue }
@@ -64,6 +67,7 @@ case_in_subst() {
         if (c == "\"") { q = q == "\"" ? "" : "\""; continue }
         if (q != "") continue
         if (comment(i)) { i = eol(i); continue }
+        if (c == "<" && substr(s, i + 1, 1) == "<") { i = lt(i); continue }
         if (c == ";" && substr(s, i + 1, 1) == ";") { i = skipws(i + 2); if (substr(s, i, 1) == "&") i = skipws(i + 1); return i }
         if (c == ";" && substr(s, i + 1, 1) == "&") return skipws(i + 2)
         if (word(i, "case")) { i = arms(i + 4, f) - 1; continue }
@@ -80,7 +84,7 @@ case_in_subst() {
         if (c == "\\") { i++; continue }
         if (q[d] == "" && c == "#" && (i == 1 || substr(s, i - 1, 1) ~ /[ \t\n;]/)) { while (i <= n && substr(s, i, 1) != "\n") i++; continue }
         if (q[d] == "" && c == "\047") { q[d] = c; continue }
-        if (q[d] == "" && c == "<" && substr(s, i + 1, 1) == "<") { if (substr(s, i + 2, 1) == "<") i += 2; else { heredoc(i); i++ }; continue }
+        if (q[d] == "" && c == "<" && substr(s, i + 1, 1) == "<") { i = lt(i); continue }
         if (c == "\"") { q[d] = q[d] == "\"" ? "" : (q[d] == "" ? "\"" : q[d]); continue }
         if ((c == "$" || (q[d] == "" && (c == "<" || c == ">"))) && substr(s, i + 1, 1) == "(" && substr(s, i + 2, 1) != "(") {
           d++; q[d] = ""; pc[d] = 0; i++; continue
@@ -106,10 +110,13 @@ printf '%s\n' 'case "$b" in HEAD|dev) continue ;; esac  # not in a substitution'
   '# $(case a in b) c;; esac)' 'v="$(echo "(")"; case $v in a) ;; esac' > "$t/fine.sh"
 printf '%s\n' "x=\$(cat <<'E'" "don't" 'E' ')' 'y=$(case a in b) c;; esac)' > "$t/heredoc.sh"
 printf '%s\n' 'x=$(case a in (b) case q in r) s;; esac;; esac)' > "$t/nested.sh"
+printf '%s\n' 'echo $((1 << 2)); ((x <<= 1))' 'y=$(case a in b) c;; esac)' > "$t/shift.sh"
+printf '%s\n' 'x=$(case a in (b) cat <<E ;;' "don't" 'E' '  c) d;; esac)' > "$t/arm-heredoc.sh"
 printf '%s\n' 'x=$(case a in (b) echo esacs;; (c) d;; esac)' 'x=$(case a in' '  # an arm comment' '  (b) c;; esac)' \
-  'y=$(cat <<-EOF' "	it's" '	EOF' ')' 'z=$(tr a b <<< "q")' > "$t/fine2.sh"
-got="$(cd "$t" && case_in_subst loop.sh first.sh second-arm.sh procsub.sh fine.sh heredoc.sh nested.sh fine2.sh || true)"
-want="$(printf '%s\n' loop.sh:1 first.sh:1 second-arm.sh:2 procsub.sh:1 heredoc.sh:5 nested.sh:1)"
+  'y=$(cat <<-EOF' "	it's" '	EOF' ')' 'z=$(tr a b <<< "q")' \
+  'x=$(case a in (b) cat <<E ;;' "it's" 'E' '  (c) d;; esac)' > "$t/fine2.sh"
+got="$(cd "$t" && case_in_subst loop.sh first.sh second-arm.sh procsub.sh fine.sh heredoc.sh nested.sh shift.sh arm-heredoc.sh fine2.sh || true)"
+want="$(printf '%s\n' loop.sh:1 first.sh:1 second-arm.sh:2 procsub.sh:1 heredoc.sh:5 nested.sh:1 shift.sh:2 arm-heredoc.sh:4)"
 [ "$got" = "$want" ] || { printf 'FAIL: the case-in-substitution check on its fixtures\nwant:\n%s\ngot:\n%s\n' "$want" "$got"; exit 1; }
 
 bad=0
