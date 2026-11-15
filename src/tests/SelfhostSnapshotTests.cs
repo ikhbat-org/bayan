@@ -18,7 +18,7 @@ public sealed class SelfhostSnapshotTests(ITestOutputHelper output)
 
     /// <summary>The file whose sites the schemata build carries: the CLI those tests drive (a whole-module schemata
     /// build re-binds the module once per site, over ten minutes for the parser).</summary>
-    private const string Scope = "selfhost/parser/main.byn";
+    private const string Scope = "src/parser/main.byn";
 
     [Fact]
     public void ReplayMatchesMutantZeroAndFailsOnAKilledMutant()
@@ -56,7 +56,7 @@ public sealed class SelfhostSnapshotTests(ITestOutputHelper output)
     [Fact]
     public void OwnBuildCallerRecordsAgainstASchemataBuild()
     {
-        const string scope = "selfhost/semantics/ctx.byn";
+        const string scope = "src/semantics/ctx.byn";
         var clock = Stopwatch.StartNew();
         var (dir, runs) = Record("selfhost-snapshot-t5", "FullyQualifiedName~SelfhostSemanticsT5Tests&Snapshot!=skip", scope);
         output.WriteLine($"record {clock.Elapsed.TotalSeconds:F1} s");
@@ -145,11 +145,11 @@ public sealed class SelfhostSnapshotTests(ITestOutputHelper output)
     [Fact]
     public void SnapshotFilesAreTrimmedAndMustMatchACompiledSource()
     {
-        string[] compiled = [Path.Combine(Golden.RepoRoot, "selfhost", "a.byn"), Path.Combine(Golden.RepoRoot, "selfhost", "b.byn")];
+        string[] compiled = [Path.Combine(Golden.RepoRoot, "src", "a.byn"), Path.Combine(Golden.RepoRoot, "src", "b.byn")];
         var none = new HashSet<string>(StringComparer.Ordinal);
-        Assert.Equal([compiled[1]], SelfhostSemanticsHarness.SnapshotSkip(compiled, none, " selfhost/a.byn , "));
-        var e = Assert.Throws<InvalidOperationException>(() => SelfhostSemanticsHarness.SnapshotSkip(compiled, none, "selfhost/a.byn,selfhost/nope.byn"));
-        Assert.Contains(Path.Combine(Golden.RepoRoot, "selfhost", "nope.byn") + " matches no compiled source", e.Message);
+        Assert.Equal([compiled[1]], SelfhostSemanticsHarness.SnapshotSkip(compiled, none, " src/a.byn , "));
+        var e = Assert.Throws<InvalidOperationException>(() => SelfhostSemanticsHarness.SnapshotSkip(compiled, none, "src/a.byn,src/nope.byn"));
+        Assert.Contains(Path.Combine(Golden.RepoRoot, "src", "nope.byn") + " matches no compiled source", e.Message);
     }
 
     /// <summary>Q820: a listed file that exists but is not in this compilation (the guard lists every changed file to
@@ -167,8 +167,8 @@ public sealed class SelfhostSnapshotTests(ITestOutputHelper output)
         var compiled = c.Modules.SelectMany(m => m.AllFunctions).Select(f => f.File?.Source.Path).OfType<string>().Distinct().ToList();
         Assert.Contains(main, compiled);
         var none = new HashSet<string>(StringComparer.Ordinal);
-        Assert.True(File.Exists(Path.Combine(Golden.RepoRoot, "selfhost", "parser", "decls.byn")));
-        var skip = SelfhostSemanticsHarness.SnapshotSkip(compiled, none, "selfhost/parser/decls.byn", root: c.DisplayRoot);
+        Assert.True(File.Exists(Path.Combine(Golden.RepoRoot, "src", "parser", "decls.byn")));
+        var skip = SelfhostSemanticsHarness.SnapshotSkip(compiled, none, "src/parser/decls.byn", root: c.DisplayRoot);
         Assert.Equal(compiled.Order(StringComparer.Ordinal), skip.Order(StringComparer.Ordinal));
     }
 
@@ -178,10 +178,10 @@ public sealed class SelfhostSnapshotTests(ITestOutputHelper output)
     [Fact]
     public void RelativeModulePathsResolveAgainstTheRoot()
     {
-        var root = Path.Combine(Golden.RepoRoot, "selfhost");
+        var root = Path.Combine(Golden.RepoRoot, "src");
         string[] compiled = [Path.Combine(root, "emitter", "a.byn"), "emitter/cprint/common.byn"];
         var none = new HashSet<string>(StringComparer.Ordinal);
-        Assert.Equal([compiled[0]], SelfhostSemanticsHarness.SnapshotSkip(compiled, none, "selfhost/emitter/cprint/common.byn", root: root));
+        Assert.Equal([compiled[0]], SelfhostSemanticsHarness.SnapshotSkip(compiled, none, "src/emitter/cprint/common.byn", root: root));
     }
 
     /// <summary>A recording whose <c>dotnet test</c> fails (here every build throws on an unknown
@@ -190,7 +190,7 @@ public sealed class SelfhostSnapshotTests(ITestOutputHelper output)
     [Fact]
     public void AFailedRecordingFailsTheRecordHelper()
     {
-        var e = Assert.Throws<Xunit.Sdk.TrueException>(() => Record("selfhost-snapshot-failed", Filter, "selfhost/parser/nope.byn"));
+        var e = Assert.Throws<Xunit.Sdk.TrueException>(() => Record("selfhost-snapshot-failed", Filter, "src/parser/nope.byn"));
         Assert.Contains("recording exited 1", e.Message);
     }
 

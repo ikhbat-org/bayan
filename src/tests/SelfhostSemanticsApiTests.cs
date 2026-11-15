@@ -4,7 +4,7 @@ namespace Bayan.Tests;
 
 /// <summary>
 /// The 010 cross-file skeleton: every entry point <c>docs/specs/010-self-hosted-semantics/010-api.md</c>
-/// indexes is declared, with exactly that signature, in its owner file under <c>selfhost/semantics</c>.
+/// indexes is declared, with exactly that signature, in its owner file under <c>src/semantics</c>.
 /// </summary>
 public sealed class SelfhostSemanticsApiTests
 {

@@ -18,7 +18,7 @@ tree() { find . -path ./tmp -prune -o -type f -print | LC_ALL=C sort | xargs sha
 clean=$(tree)
 cat > "$t/aux/batch.sh" <<'STUB'
 #!/bin/bash
-if [ "$1" = --list ]; then printf 'selfhost/b/z.byn -> G\nselfhost/a/x.byn -> F\nselfhost/a/y.byn -> F\n'; exit 0; fi
+if [ "$1" = --list ]; then printf 'src/b/z.byn -> G\nsrc/a/x.byn -> F\nsrc/a/y.byn -> F\n'; exit 0; fi
 f=$2; echo "$f" >> "$AUX/ran.txt"
 echo '{}' >> "${MUTATE_BASELINE:-tests/quality-baseline.json}"
 mkdir -p tmp/mutate-batch/g; echo "{\"file\": \"$f\"}" > tmp/mutate-batch/g/quality-1-prog.json
@@ -26,8 +26,8 @@ echo "mutation: 3 of 4 killed"
 [ -f "$AUX/two" ] && echo "mutation: 1 of 2 killed"
 [ -f "$AUX/setup" ] && exit 3
 [ -f "$AUX/group" ] && exit 4
-[ -f "$AUX/recfail" ] && [ "$f" != selfhost/b/z.byn ] && { echo "group a: mutation: recording under BAYAN_SNAPSHOT: 1 test(s) failed (tmp/mutate-batch/a/record.txt): T.X — first: differs"; exit 4; }
-[ "$f" = selfhost/a/y.byn ] && exit 1
+[ -f "$AUX/recfail" ] && [ "$f" != src/b/z.byn ] && { echo "group a: mutation: recording under BAYAN_SNAPSHOT: 1 test(s) failed (tmp/mutate-batch/a/record.txt): T.X — first: differs"; exit 4; }
+[ "$f" = src/a/y.byn ] && exit 1
 exit 0
 STUB
 export AUX="$t/aux" MUTATE_BATCH="$t/aux/batch.sh"
@@ -37,27 +37,27 @@ fail() { echo "FAIL $1"; exit 1; }
 log() { cat "$state"/*.log; }
 
 night || fail "night 1 exited $?: $(cat "$t/out.txt")"
-[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn,selfhost/a/y.byn,selfhost/b/z.byn ] || fail "night 1 ran $(paste -sd, "$t/aux/ran.txt")"
-[ "$(cat "$state/cursor")" = selfhost/b/z.byn ] || fail "night 1 cursor $(cat "$state/cursor")"
-log | grep -q '^selfhost/a/y.byn rc=1 secs=[0-9]* mutation: 3 of 4 killed$' || fail "night 1 log lacks the failing file: $(log)"
-log | grep -q '^selfhost/b/z.byn rc=0 secs=[0-9]* mutation: 3 of 4 killed$' || fail "night 1 log lacks the file after the failing one: $(log)"
+[ "$(paste -sd, "$t/aux/ran.txt")" = src/a/x.byn,src/a/y.byn,src/b/z.byn ] || fail "night 1 ran $(paste -sd, "$t/aux/ran.txt")"
+[ "$(cat "$state/cursor")" = src/b/z.byn ] || fail "night 1 cursor $(cat "$state/cursor")"
+log | grep -q '^src/a/y.byn rc=1 secs=[0-9]* mutation: 3 of 4 killed$' || fail "night 1 log lacks the failing file: $(log)"
+log | grep -q '^src/b/z.byn rc=0 secs=[0-9]* mutation: 3 of 4 killed$' || fail "night 1 log lacks the file after the failing one: $(log)"
 log | grep -q 'stop: the queue of 3 files ran once' || fail "night 1 log lacks the full-pass stop: $(log)"
-grep -q selfhost/a/x.byn "$state/reports/selfhost-a-x/quality-1-prog.json" || fail "no report in reports/selfhost-a-x/"
+grep -q src/a/x.byn "$state/reports/src-a-x/quality-1-prog.json" || fail "no report in reports/src-a-x/"
 [ "$(tree)" = "$clean" ] || fail "the repo is not clean: $(diff <(echo "$clean") <(tree))"
 
 # night 2: the slowest per-file time (86400s, 24h) does not fit: nothing runs, the cursor stays
-: > "$t/aux/ran.txt"; echo 86400 > "$state/secs/selfhost-b-z"
+: > "$t/aux/ran.txt"; echo 86400 > "$state/secs/src-b-z"
 night || fail "night 2 exited $?: $(cat "$t/out.txt")"
 [ ! -s "$t/aux/ran.txt" ] || fail "night 2 (slowest 86400s) ran $(paste -sd, "$t/aux/ran.txt")"
-[ "$(cat "$state/cursor")" = selfhost/b/z.byn ] || fail "night 2 cursor $(cat "$state/cursor")"
+[ "$(cat "$state/cursor")" = src/b/z.byn ] || fail "night 2 cursor $(cat "$state/cursor")"
 log | grep -q 'stop: [0-9]*s left before .*, slowest file 86400s' || fail "night 2 log lacks the deadline stop: $(log)"
 
 # night 3: an outlier (80000s of 86340s left fits) is replaced when its file runs again, and every build's score is logged
-: > "$t/aux/ran.txt"; echo 80000 > "$state/secs/selfhost-a-x"; echo 1 > "$state/secs/selfhost-b-z"; touch "$t/aux/two"
+: > "$t/aux/ran.txt"; echo 80000 > "$state/secs/src-a-x"; echo 1 > "$state/secs/src-b-z"; touch "$t/aux/two"
 night || fail "night 3 exited $?: $(cat "$t/out.txt")"
-[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn,selfhost/a/y.byn,selfhost/b/z.byn ] || fail "night 3 (wrap after the cursor) ran $(paste -sd, "$t/aux/ran.txt")"
-[ "$(cat "$state/secs/selfhost-a-x")" -lt 80000 ] || fail "night 3: the outlier time of x was kept ($(cat "$state/secs/selfhost-a-x"))"
-log | grep -q '^selfhost/a/x.byn rc=0 secs=[0-9]* mutation: 3 of 4 killed | mutation: 1 of 2 killed$' || fail "night 3 log lacks both builds' scores: $(log)"
+[ "$(paste -sd, "$t/aux/ran.txt")" = src/a/x.byn,src/a/y.byn,src/b/z.byn ] || fail "night 3 (wrap after the cursor) ran $(paste -sd, "$t/aux/ran.txt")"
+[ "$(cat "$state/secs/src-a-x")" -lt 80000 ] || fail "night 3: the outlier time of x was kept ($(cat "$state/secs/src-a-x"))"
+log | grep -q '^src/a/x.byn rc=0 secs=[0-9]* mutation: 3 of 4 killed | mutation: 1 of 2 killed$' || fail "night 3 log lacks both builds' scores: $(log)"
 rm "$t/aux/two"
 [ "$(tree)" = "$clean" ] || fail "the repo is not clean after night 3: $(diff <(echo "$clean") <(tree))"
 
@@ -73,45 +73,45 @@ log | grep -q 'stop: [0-9]*s left before .*, slowest file 900s' || fail "night 4
 deadline=$(python3 -I -c 'import datetime; print((datetime.datetime.now() - datetime.timedelta(minutes=1)).strftime("%H:%M"))')
 rc=0; night || rc=$?
 [ $rc = 2 ] || fail "night 5 (setup rc 3) exited $rc, not 2"
-[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn ] || fail "night 5 ran $(paste -sd, "$t/aux/ran.txt")"
-[ "$(cat "$state/cursor")" = selfhost/b/z.byn ] || fail "night 5 moved the cursor to $(cat "$state/cursor")"
-log | grep -q 'stop: setup failure (rc=3) on selfhost/a/x.byn, cursor not moved' || fail "night 5 log lacks the setup failure: $(log)"
+[ "$(paste -sd, "$t/aux/ran.txt")" = src/a/x.byn ] || fail "night 5 ran $(paste -sd, "$t/aux/ran.txt")"
+[ "$(cat "$state/cursor")" = src/b/z.byn ] || fail "night 5 moved the cursor to $(cat "$state/cursor")"
+log | grep -q 'stop: setup failure (rc=3) on src/a/x.byn, cursor not moved' || fail "night 5 log lacks the setup failure: $(log)"
 rm "$t/aux/setup"
 
 # night 6: rc 4 (the file's own group failed) is logged and the cursor passes the file, every night
-: > "$t/aux/ran.txt"; touch "$t/aux/group"; echo selfhost/b/z.byn > "$state/cursor"
+: > "$t/aux/ran.txt"; touch "$t/aux/group"; echo src/b/z.byn > "$state/cursor"
 night || fail "night 6 (group failures) exited $?: $(cat "$t/out.txt")"
-[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn,selfhost/a/y.byn,selfhost/b/z.byn ] || fail "night 6 stopped on a failing group: ran $(paste -sd, "$t/aux/ran.txt")"
-log | grep -q '^selfhost/a/x.byn rc=4 ' || fail "night 6 log lacks the rc=4 line: $(log)"
-[ "$(cat "$state/cursor")" = selfhost/b/z.byn ] || fail "night 6 cursor $(cat "$state/cursor")"
+[ "$(paste -sd, "$t/aux/ran.txt")" = src/a/x.byn,src/a/y.byn,src/b/z.byn ] || fail "night 6 stopped on a failing group: ran $(paste -sd, "$t/aux/ran.txt")"
+log | grep -q '^src/a/x.byn rc=4 ' || fail "night 6 log lacks the rc=4 line: $(log)"
+[ "$(cat "$state/cursor")" = src/b/z.byn ] || fail "night 6 cursor $(cat "$state/cursor")"
 rm "$t/aux/group"
 
 # night 7: a recording with failed tests (rc 4) records no time and skips the rest of its family; the other family runs
-: > "$t/aux/ran.txt"; touch "$t/aux/recfail"; rm -f "$state"/secs/*; echo selfhost/b/z.byn > "$state/cursor"
+: > "$t/aux/ran.txt"; touch "$t/aux/recfail"; rm -f "$state"/secs/*; echo src/b/z.byn > "$state/cursor"
 night || fail "night 7 (recording failure) exited $?: $(cat "$t/out.txt")"
-[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn,selfhost/b/z.byn ] || fail "night 7 ran $(paste -sd, "$t/aux/ran.txt"), not x then z (y skipped)"
-log | grep -q '^selfhost/a/y.byn rc=skip secs=0 no score: the recording of selfhost/a failed earlier tonight$' || fail "night 7 log lacks y's skip: $(log)"
-log | grep -q 'skip: the tests of selfhost/a fail under BAYAN_SNAPSHOT, .*1 test(s) failed .*T.X' || fail "night 7 log lacks the failed tests: $(log)"
-[ ! -e "$state/secs/selfhost-a-x" ] && [ -e "$state/secs/selfhost-b-z" ] || fail "night 7: a failed recording's time was kept, or z's was not"
-[ "$(cat "$state/cursor")" = selfhost/b/z.byn ] || fail "night 7 cursor $(cat "$state/cursor")"
-[ "$(paste -sd, "$state/retry")" = selfhost/a/x.byn,selfhost/a/y.byn ] || fail "night 7 retry is $(paste -sd, "$state/retry")"
+[ "$(paste -sd, "$t/aux/ran.txt")" = src/a/x.byn,src/b/z.byn ] || fail "night 7 ran $(paste -sd, "$t/aux/ran.txt"), not x then z (y skipped)"
+log | grep -q '^src/a/y.byn rc=skip secs=0 no score: the recording of src/a failed earlier tonight$' || fail "night 7 log lacks y's skip: $(log)"
+log | grep -q 'skip: the tests of src/a fail under BAYAN_SNAPSHOT, .*1 test(s) failed .*T.X' || fail "night 7 log lacks the failed tests: $(log)"
+[ ! -e "$state/secs/src-a-x" ] && [ -e "$state/secs/src-b-z" ] || fail "night 7: a failed recording's time was kept, or z's was not"
+[ "$(cat "$state/cursor")" = src/b/z.byn ] || fail "night 7 cursor $(cat "$state/cursor")"
+[ "$(paste -sd, "$state/retry")" = src/a/x.byn,src/a/y.byn ] || fail "night 7 retry is $(paste -sd, "$state/retry")"
 
 # night 7b: a restart of the same night (same deadline) loads the skip set: x and y are logged rc=skip, the batch is not called for them
 : > "$t/aux/ran.txt"
 night || fail "night 7b exited $?: $(cat "$t/out.txt")"
-[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/b/z.byn ] || fail "night 7b ran $(paste -sd, "$t/aux/ran.txt"), not z only"
-[ "$(log | grep -c '^selfhost/a/x.byn rc=skip ')" = 1 ] || fail "night 7b log lacks x's rc=skip: $(log)"
+[ "$(paste -sd, "$t/aux/ran.txt")" = src/b/z.byn ] || fail "night 7b ran $(paste -sd, "$t/aux/ran.txt"), not z only"
+[ "$(log | grep -c '^src/a/x.byn rc=skip ')" = 1 ] || fail "night 7b log lacks x's rc=skip: $(log)"
 
 # night 7c: another night with the failure still there: the retry files run first, fail again and stay in retry
 : > "$t/aux/ran.txt"; rm "$state/skip"
 night || fail "night 7c exited $?: $(cat "$t/out.txt")"
-[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn,selfhost/b/z.byn ] || fail "night 7c ran $(paste -sd, "$t/aux/ran.txt")"
-[ "$(paste -sd, "$state/retry")" = selfhost/a/x.byn,selfhost/a/y.byn ] || fail "night 7c retry is $(paste -sd, "$state/retry")"
+[ "$(paste -sd, "$t/aux/ran.txt")" = src/a/x.byn,src/b/z.byn ] || fail "night 7c ran $(paste -sd, "$t/aux/ran.txt")"
+[ "$(paste -sd, "$state/retry")" = src/a/x.byn,src/a/y.byn ] || fail "night 7c retry is $(paste -sd, "$state/retry")"
 
 # night 7d: the failure is gone: x and y run first (in path order), then the rest after the cursor; retry ends empty
 : > "$t/aux/ran.txt"; rm "$state/skip" "$t/aux/recfail"
 night || fail "night 7d exited $?: $(cat "$t/out.txt")"
-[ "$(paste -sd, "$t/aux/ran.txt")" = selfhost/a/x.byn,selfhost/a/y.byn,selfhost/b/z.byn ] || fail "night 7d ran $(paste -sd, "$t/aux/ran.txt")"
+[ "$(paste -sd, "$t/aux/ran.txt")" = src/a/x.byn,src/a/y.byn,src/b/z.byn ] || fail "night 7d ran $(paste -sd, "$t/aux/ran.txt")"
 [ ! -s "$state/retry" ] || fail "night 7d retry is $(paste -sd, "$state/retry")"
 rm "$state/skip"
 

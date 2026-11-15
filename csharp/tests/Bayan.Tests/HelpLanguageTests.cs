@@ -47,7 +47,7 @@ public sealed partial class HelpLanguageTests
     [Fact]
     public void SourceHelpsStartWithAVerb()
     {
-        var helps = Find("src", "*.cs", HelpLiteral()).Concat(Find("selfhost", "*.byn", HelpLiteral())).ToList();
+        var helps = Find("csharp", "*.cs", HelpLiteral()).Concat(Find("src", "*.byn", HelpLiteral())).ToList();
         Assert.NotEmpty(helps);
         var bad = helps.Where(h => !StartsWithVerb(h.Help)).Select(h => $"{h.File}: {h.Help}").ToList();
         Assert.True(bad.Count == 0, string.Join("\n", bad));

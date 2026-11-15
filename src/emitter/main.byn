@@ -105,7 +105,7 @@ i32 t12Package(string dir, at string file, by bool tests, through string mode, f
     return t12Finish(ref c, for: in o, by: in symbols, through: mode, as: tests, covering: covering, mutating: mutating)
 }
 
-/// `--many`: every `*.byn` in `dir`, in name order; the shape of `bayan-check --many`. Exits 0: the worst exit that is not 1 (selfhost/semantics/main.byn:102-107), and a `--package` run is 0 or 1.
+/// `--many`: every `*.byn` in `dir`, in name order; the shape of `bayan-check --many`. Exits 0: the worst exit that is not 1 (src/semantics/main.byn:102-107), and a `--package` run is 0 or 1.
 i32 t12Many(string dir, by string mode, for in semantics.T26Symbols symbols) {
     var names = Io.listDir(dir) catch return usage()
     names.sort()

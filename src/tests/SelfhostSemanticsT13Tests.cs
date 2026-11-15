@@ -11,7 +11,7 @@ using TextSpan = Bayan.Syntax.Text.TextSpan;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T13: <c>selfhost/semantics/generics.byn</c> against the C# <c>Compilation</c> (Compilation.cs 1363–1952).
+/// T13: <c>src/semantics/generics.byn</c> against the C# <c>Compilation</c> (Compilation.cs 1363–1952).
 /// Each section compiles a source with the C# <c>Compilation.Create</c>, drives the C# method under test
 /// through reflection, and prints the oracle's lines; the same scenario is emitted as Bayan code that
 /// builds the matching symbols (from the C# ones) and calls the port, whose output is compared line by line.

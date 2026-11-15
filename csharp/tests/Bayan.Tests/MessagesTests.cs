@@ -48,7 +48,7 @@ public sealed class MessagesTests
         var prose = new List<string>();
         foreach (var name in Sources)
         {
-            var text = File.ReadAllText(Path.Combine(Golden.RepoRoot, "src", "Bayan.Cli", name));
+            var text = File.ReadAllText(Path.Combine(Golden.RepoRoot, "csharp", "Bayan.Cli", name));
             foreach (var literal in Literals(text))
                 if (literal.Any(char.IsLetter) && literal.Contains(' ') && !NotProse.Contains(literal) && !CommandSnippet.IsMatch(literal))
                     prose.Add($"{name}: \"{literal}\"");

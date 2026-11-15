@@ -10,7 +10,7 @@ using OptionalType = Bayan.Semantics.Symbols.OptionalType;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T39: <c>selfhost/semantics/calls4.byn</c> against the C# <c>BinderCalls</c> (BinderCalls.cs 1578-1963).
+/// T39: <c>src/semantics/calls4.byn</c> against the C# <c>BinderCalls</c> (BinderCalls.cs 1578-1963).
 /// <c>diag.*</c> compiles a golden of <c>tests/cases/diag/</c> whole on both sides and compares the codes T39 reports;
 /// <c>wr</c> compiles <see cref="WrSource"/> and compares each <c>w*</c> local's <c>Written</c> flag too.
 /// <c>exh.*</c> takes the bound arms of one switch of <see cref="ExhSource"/> from the C# and calls <c>CheckExhaustive</c>

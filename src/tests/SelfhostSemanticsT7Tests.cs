@@ -8,7 +8,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T7: <c>selfhost/semantics/naming.byn</c> (casing, the grammar checker and the particle rule) against
+/// T7: <c>src/semantics/naming.byn</c> (casing, the grammar checker and the particle rule) against
 /// <c>Bayan.Semantics</c>. Each case is compiled by the C# checker; its naming diagnostics are the oracle.
 /// The generated <c>main</c> rebuilds the C# symbols of each case in a <c>Ctx</c> over the same parsed
 /// source, runs the ported check and prints one <c>== case</c> section of diagnostics.

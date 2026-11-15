@@ -13,7 +13,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 T7: <c>selfhost/emitter/cprint/types.byn</c> (CEmitter.cs 477-587, 605-681) and <c>cprint/own.byn</c> (682-778) against the C#
+/// 011 T7: <c>src/emitter/cprint/types.byn</c> (CEmitter.cs 477-587, 605-681) and <c>cprint/own.byn</c> (682-778) against the C#
 /// as an in-process oracle. The expected text is whatever the C# <c>CEmitter</c> prints for the same program; the emitter's sources but
 /// <c>main.byn</c> are built with a generated <c>main.byn</c> that prints what the ported functions return (Q788).
 /// Every section compares whole, with nothing masked (Q791).
@@ -216,7 +216,7 @@ public sealed class SelfhostEmitterT7Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T7 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T7 main did not build:\n{error}");
         return path!;
     }
 

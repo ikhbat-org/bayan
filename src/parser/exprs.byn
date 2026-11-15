@@ -1,4 +1,4 @@
-// Expressions A. Ports `src/Bayan.Syntax/Parsing/Parser.cs` lines 3141–3605: precedence
+// Expressions A. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 3141–3605: precedence
 // climbing, conditional, ranges, `is`/`in`/`except`/casts, unary, postfix, members, calls, index,
 // `try`/`move`/`catch`. Owner: 
 //

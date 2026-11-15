@@ -11,7 +11,7 @@ using TextSpan = Bayan.Syntax.Text.TextSpan;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T17: <c>selfhost/semantics/express.byn</c> against the C# <c>Binder</c> (BinderExpressions.cs 1–599), as T15 does it:
+/// T17: <c>src/semantics/express.byn</c> against the C# <c>Binder</c> (BinderExpressions.cs 1–599), as T15 does it:
 /// the oracle compiles <see cref="Source"/>, makes a C# <c>Binder</c> by reflection over a symbol of that compilation and
 /// calls <c>BindExpr</c>, <c>BindStatementExpression</c>, <c>BindExprFor</c>, <c>Convert</c>, <c>Constrain</c>,
 /// <c>FindPeer</c>, <c>IsPending</c>, <c>IsUntypedLiteral</c>, <c>ParseInteger</c>, <c>Fits</c> and <c>Suggest</c>; the

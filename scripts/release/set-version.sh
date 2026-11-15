@@ -2,7 +2,7 @@
 # Sets the version everywhere it is written: VERSION, its code and test mirrors (version.sh `bayan_mirrors`) and the
 # `Version:` line of each release doc (`bayan_release_docs`). Prints each file it changed; edits files only.
 #   set-version.sh <version>      e.g. 1.2.0-dev or 1.2.0
-# bootstrap/bayan.c is regenerated from selfhost/ by scripts/selfhost/land.sh, not edited here.
+# bootstrap/bayan.c is regenerated from src/ by scripts/selfhost/land.sh, not edited here.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

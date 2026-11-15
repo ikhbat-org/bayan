@@ -5,7 +5,7 @@ namespace Bayan.Tests;
 
 /// <summary>
 /// The 012 cross-file skeleton: every entry point <c>docs/specs/012-self-hosted-bootstrap/012-api.md</c> indexes is
-/// declared, with exactly that signature, in its owner file under <c>selfhost/</c>.
+/// declared, with exactly that signature, in its owner file under <c>src/</c>.
 /// </summary>
 public sealed class SelfhostDriverApiTests
 {

@@ -14,7 +14,7 @@ namespace Bayan.Tests;
 /// </summary>
 public sealed class SelfhostParserT3Tests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 

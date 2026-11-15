@@ -11,7 +11,7 @@
 #       VERSION, `-dev` stripped (revision 0020);
 #   (f) every BYNnnnn cited in the spec, grammar and style has a row in docs/DIAGNOSTICS.md (a descriptor, a code comment
 #       or a docs/diagnostics-allocated.txt line; revision 0023);
-#   (g) every `SPEC §N` / `spec §N.M` cited in docs/ and in code comments under src/, selfhost/ and lib/ names a numbered
+#   (g) every `SPEC §N` / `spec §N.M` cited in docs/ and in code comments under csharp/, src/ and lib/ names a numbered
 #       heading of docs/bayan-spec.md. Not checked: historical text that cites the spec as it was (docs/revisions, plans,
 #       specs, handoffs, export, bayan-progress-log.md, the answered questions (docs/decisions/*-answered-questions.md),
 #       CHANGELOG, suq-round3-review-response.md, and bayan-concurrency.md, which cites the removed §13.1–13.5 on purpose),
@@ -104,7 +104,7 @@ if [ -f "$root/docs/bayan-spec.md" ]; then
     for c in $(grep -oiE "spec('s)? §[0-9]+(\.[0-9]+)?" <<< "$text" | grep -oE '[0-9]+(\.[0-9]+)?$'); do
       grep -qxF "$c" <<< "$heads" || fail "${file#"$root"/}:$line cites spec §$c, which is not a heading of docs/bayan-spec.md"
     done
-  done < <(cd "$root" && grep -rnIiE "spec('s)? §[0-9]+" $(for d in docs src selfhost lib; do [ -d "$d" ] && echo "$d"; done) \
+  done < <(cd "$root" && grep -rnIiE "spec('s)? §[0-9]+" $(for d in docs csharp src lib; do [ -d "$d" ] && echo "$d"; done) \
     --exclude-dir=revisions --exclude-dir=plans --exclude-dir=specs --exclude-dir=handoffs --exclude-dir=export \
     --exclude-dir=bin --exclude-dir=obj --exclude=bayan-progress-log.md --exclude='*-answered-questions.md' --exclude='CHANGELOG*' --exclude=bayan-concurrency.md \
     --exclude=suq-round3-review-response.md --exclude=bayan-spec.md | sed "s#^#$root/#")

@@ -76,7 +76,7 @@ public sealed class OwnershipTableTests
         Directory.CreateDirectory(dir);
         try
         {
-            var runtime = Path.Combine(Golden.RepoRoot, "src", "runtime");
+            var runtime = Path.Combine(Golden.RepoRoot, "runtime");
             File.WriteAllText(Path.Combine(dir, "harness.c"), Harness(Path.Combine(runtime, "bayan-rt.c").Replace('\\', '/')));
             var exe = Path.Combine(dir, OperatingSystem.IsWindows() ? "harness.exe" : "harness");
             var args = new List<string>(compiler[1..]) { "-std=c11", "-DBYN_DEBUG", "-w", "-I", runtime, "harness.c", "-o", exe };

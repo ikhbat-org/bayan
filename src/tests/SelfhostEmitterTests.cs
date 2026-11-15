@@ -1,6 +1,6 @@
 namespace Bayan.Tests;
 
-/// <summary>011 T1 smoke: <c>selfhost/emitter</c> builds with its nested imports and the CLI shell runs.</summary>
+/// <summary>011 T1 smoke: <c>src/emitter</c> builds with its nested imports and the CLI shell runs.</summary>
 public sealed class SelfhostEmitterTests
 {
     [Fact]

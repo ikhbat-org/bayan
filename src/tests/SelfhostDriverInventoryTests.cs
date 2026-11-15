@@ -7,13 +7,13 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// Spec 012 R12 (T8). K4: <c>src/runtime/libc-uses.txt</c> is exactly the library functions <c>bayan-rt.{h,c}</c> call.
+/// Spec 012 R12 (T8). K4: <c>runtime/libc-uses.txt</c> is exactly the library functions <c>bayan-rt.{h,c}</c> call.
 /// K2 secondary scan: the C that <c>CliApp.EmitC</c> gives for every <c>run/</c> input, literals assembled at run time included,
 /// has only extension tokens that are rows of <c>011-c-inventory.md</c>, and its direct library calls are the ones that file lists (Q7).
 /// </summary>
 public sealed partial class SelfhostDriverT8Tests
 {
-    private const string LibcPath = "src/runtime/libc-uses.txt";
+    private const string LibcPath = "runtime/libc-uses.txt";
     private const string InventoryPath = "docs/specs/011-self-hosted-emitter/011-c-inventory.md";
 
     /// <summary>Comments, string literals and character literals, matched in one pass so a quote inside a comment (or the reverse) is read once.</summary>
@@ -50,7 +50,7 @@ public sealed partial class SelfhostDriverT8Tests
     /// <summary>The functions the runtime calls and does not define: every called name of both files except the runtime's own and <see cref="NotFunctions"/>.</summary>
     private static List<string> RuntimeLibc()
     {
-        var code = Code(Read("src/runtime/bayan-rt.c")) + "\n" + Code(Read("src/runtime/bayan-rt.h"));
+        var code = Code(Read("runtime/bayan-rt.c")) + "\n" + Code(Read("runtime/bayan-rt.h"));
         return Call().Matches(code).Select(m => m.Groups["name"].Value)
             .Where(n => !OurName(n) && !NotFunctions.Contains(n))
             .Distinct().Order(StringComparer.Ordinal).ToList();

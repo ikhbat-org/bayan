@@ -1,4 +1,4 @@
-// Statements A. Ports `src/Bayan.Syntax/Parsing/Parser.cs` lines 2116–2776: `ParseBlock`,
+// Statements A. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 2116–2776: `ParseBlock`,
 // `ParseStatement`, locals, conditions, `InGroup`, `ParseBody(Token, ref …)`, `MatchingClose`,
 // `if`/`unless` and the helpers of the guarded statement, and the loops through `ParseFor`,
 // `ParseParenFor` and `SkipPastCloseParen`. Owner: 

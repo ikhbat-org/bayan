@@ -14,27 +14,27 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// The shared build-and-compare harness for the 010 checker tests: <c>selfhost/semantics</c> with a
+/// The shared build-and-compare harness for the 010 checker tests: <c>src/semantics</c> with a
 /// generated <c>main.byn</c>, built once per distinct source, its stdout split into <c>== name</c>
 /// sections, and each section compared line by line with a C# oracle's lines.
 /// </summary>
 public static class SelfhostSemanticsHarness
 {
-    public static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    public static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     public static string SemanticsDir => Path.Combine(SelfhostDir, "semantics");
 
     private static readonly ConcurrentDictionary<string, Lazy<(string? Path, string Error)>> Builds = new();
 
     /// <summary>
-    /// Every <c>selfhost/semantics/*.byn</c> but <c>main.byn</c>, plus <paramref name="mainSource"/> as
+    /// Every <c>src/semantics/*.byn</c> but <c>main.byn</c>, plus <paramref name="mainSource"/> as
     /// <c>main.byn</c>, built once per distinct source; fails the test with the compiler's complaint.
     /// </summary>
     public static string Build(string mainSource)
     {
         var key = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(mainSource)));
         var (path, error) = Builds.GetOrAdd(key, _ => new(() => BuildNow(mainSource))).Value;
-        if (path is null) Assert.Fail($"selfhost/semantics with the generated main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/semantics with the generated main did not build:\n{error}");
         return path!;
     }
 

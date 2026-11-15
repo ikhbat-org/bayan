@@ -11,7 +11,7 @@ namespace Bayan.Tests;
 /// <summary>T11: the declaration and statement halves of the tree dump, checked before the parsing tasks merge.</summary>
 public sealed class SelfhostParserT11Tests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 
@@ -77,7 +77,7 @@ public sealed class SelfhostParserT11Tests(ITestOutputHelper output)
         var sources = Directory.GetFiles(ParserDir, "*.byn").Where(f => Path.GetFileName(f) != "main.byn").Order(StringComparer.Ordinal)
             .Select(f => SourceText.FromFile(f)).Append(SourceText.FromString(Path.Combine(ParserDir, "dump-t11-test.byn"), program)).ToList();
         var (path, error) = BuildParser(sources);
-        if (path is null) Assert.Fail($"selfhost/parser did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/parser did not build:\n{error}");
         var (exit, stdout, stderr) = Run(path!);
         output.WriteLine(stderr);
         Assert.Equal(0, exit);

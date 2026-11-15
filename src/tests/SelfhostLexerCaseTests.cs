@@ -36,7 +36,7 @@ public sealed class SelfhostLexerCaseTests(ITestOutputHelper output)
     internal static (int Exit, string Out) RunCases(string? snapshot, string? coverage)
     {
         Environment.SetEnvironmentVariable("BAYAN_CACHE", Path.Combine(Golden.RepoRoot, "tmp", "cache"));
-        var selfhost = Path.Combine(Golden.RepoRoot, "selfhost");
+        var selfhost = Path.Combine(Golden.RepoRoot, "src");
         var program = new StringBuilder("import lexer\n\nvoid main() {\n");
         foreach (var s in Inputs)
             program.Append($"    print($\"{{lexer.firstIsUpper(\"{s}\".bytes)}} {{lexer.firstIsLower(\"{s}\".bytes)}}\")\n");

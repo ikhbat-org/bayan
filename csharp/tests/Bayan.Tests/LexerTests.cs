@@ -32,7 +32,7 @@ public sealed class LexerTests
     [Fact]
     public void SyntaxTakesUnicodeDataOnlyFromGeneratedTables()
     {
-        var root = Path.Combine(Golden.RepoRoot, "src", "Bayan.Syntax");
+        var root = Path.Combine(Golden.RepoRoot, "csharp", "Bayan.Syntax");
         string[] banned = ["Normalize(", "IsNormalized(", "GetUnicodeCategory"];
         var offenders = Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories)
             .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}")

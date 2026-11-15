@@ -11,14 +11,14 @@ using Xunit.Abstractions;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 009 T9: <c>selfhost/parser/exprs.byn</c> on its own. The primaries (T10) are stubs on this branch, so the program
+/// 009 T9: <c>src/parser/exprs.byn</c> on its own. The primaries (T10) are stubs on this branch, so the program
 /// replaces <c>exprs2.byn</c> with a <c>parsePrimary</c> for names, integer and string literals and parentheses, and
 /// <c>main.byn</c> with a driver that parses the expression after <c>x =</c> and prints it in <c>AstDump.Expr</c>'s
 /// form with its span and diagnostics. Each line is compared with the C# parse of the same input.
 /// </summary>
 public sealed class SelfhostParserT9Tests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 

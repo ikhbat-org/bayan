@@ -8,7 +8,7 @@ namespace Bayan.Tests;
 /// <summary>
 /// L005 (docs/laws/005-run-batch-escape-or-fail.md): <c>Io.runBatch</c> passes every argument unchanged or runs
 /// nothing. Generated paths and argument lists go through the real <c>byn_batch_cmdline</c>
-/// (<c>tests/native/batch-cmdline-cases.c</c>); each accepted command line is read back with a model of
+/// (<c>runtime/tests/batch-cmdline-cases.c</c>); each accepted command line is read back with a model of
 /// <c>cmd.exe /d /e:ON /v:OFF /s /c</c> and the batch file's <c>%~1</c> + <c>shift</c> loop. Off Windows,
 /// <c>tests/cases/run/io-run-batch</c> shows <c>unsupported</c> before the arguments are looked at.
 /// </summary>

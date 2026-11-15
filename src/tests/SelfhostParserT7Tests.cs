@@ -11,14 +11,14 @@ using Xunit.Abstractions;
 namespace Bayan.Tests;
 
 /// <summary>
-/// <c>selfhost/parser/stmts.byn</c> (009 T7) against the C# parser, before the other tasks merge. The parser's files
+/// <c>src/parser/stmts.byn</c> (009 T7) against the C# parser, before the other tasks merge. The parser's files
 /// stand in for the module without <c>main.byn</c> and <c>exprs.byn</c>; this file's program adds a <c>parseExpression</c>
 /// for names, <c>not x</c> and <c>(x)</c>, and a <c>main</c> that parses the first block of a file and prints its
 /// statement shapes with spans, then the diagnostics with their fixes. The inputs use only T7's statements.
 /// </summary>
 public sealed class SelfhostParserT7Tests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 
@@ -85,7 +85,7 @@ public sealed class SelfhostParserT7Tests(ITestOutputHelper output)
         var c = Compilation.Create(sources, packageRoot: SelfhostDir);
         if (c.Diagnostics.HasErrors) return (null, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
         // BYN5014 (a word outside the package grammar) is allowed, as in `parser.byn` (Q431): the stand-in methods keep the
-        // sibling names, and there is no `package.byn` under `selfhost/` to declare the words in.
+        // sibling names, and there is no `package.byn` under `src/` to declare the words in.
         var stmts = c.Diagnostics.Items.Where(d => d.Source?.Path.EndsWith("stmts.byn") == true && d.Code != "BYN5014").ToList();
         if (stmts.Count > 0) return (null, DiagnosticRenderer.RenderAll(stmts, includePath: true));
         var build = Toolchain.Build(CliApp.EmitC(c, BuildMode.Fast), BuildMode.Fast);

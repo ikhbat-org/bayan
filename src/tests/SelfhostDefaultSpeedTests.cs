@@ -7,7 +7,7 @@ namespace Bayan.Tests;
 
 /// <summary>
 /// 017 T15 (R6): stage 2 (the self-hosted <c>bayan</c> built by stage 1 in <see cref="BootstrapTests"/>) builds
-/// <c>selfhost/driver</c> with <c>build --mode safe --package selfhost selfhost/driver -o &lt;tmp out&gt;</c> no slower than
+/// <c>src/driver</c> with <c>build --mode safe --package src src/driver -o &lt;tmp out&gt;</c> no slower than
 /// 2 times <see cref="CliApp.Run"/> in-process on the same argv, each run with a fresh empty <c>BAYAN_CACHE</c> under <c>tmp/</c>.
 /// Median of 3 runs per side when <c>BAYAN_LAW_TIER</c> is <c>full</c>, 1 run per side otherwise.
 /// </summary>
@@ -37,7 +37,7 @@ public sealed class SelfhostDefaultSpeedTests(ITestOutputHelper output)
         var root = Path.Combine(Golden.RepoRoot, "tmp", "default-speed");
         var outDir = Path.Combine(root, "out");
         var outPath = Path.Combine("tmp", "default-speed", "out", Targets.ExecutableName("bayan", Targets.Host ?? ""));
-        string[] args = ["build", "--mode", "safe", "--package", "selfhost", "selfhost/driver", "-o", outPath];
+        string[] args = ["build", "--mode", "safe", "--package", "src", "src/driver", "-o", outPath];
 
         var savedCwd = Environment.CurrentDirectory;
         var savedCache = Environment.GetEnvironmentVariable("BAYAN_CACHE");

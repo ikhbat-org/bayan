@@ -9,13 +9,13 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T19: <c>selfhost/semantics/express3.byn</c> against the C# <c>BinderExpressions</c> (BinderExpressions.cs ~1156-1640).
+/// T19: <c>src/semantics/express3.byn</c> against the C# <c>BinderExpressions</c> (BinderExpressions.cs ~1156-1640).
 /// One source, <see cref="Source"/>, is compiled by both sides: the C# side via <c>Compilation.Create</c> plus
 /// reflection on the C# <c>Binder</c>, the Bayan side via <c>loadModule</c> + <c>declare</c> in the generated main run
 /// by <c>SelfhostSemanticsHarness.RunSections</c>. Each case runs one T19 function on one <c>let</c> of that source on
 /// both sides; every expected line is computed from the C#. Not compared: the value a struct literal or a <c>with</c>
 /// that passes every check returns (ops <c>structd</c>, <c>withd</c> compare only the diagnostics), because the C#
-/// <c>Checked</c> is the T21 stub <c>checkedValue</c> (<c>selfhost/semantics/calls2.byn</c>:39, <c>=&gt; -1</c>).
+/// <c>Checked</c> is the T21 stub <c>checkedValue</c> (<c>src/semantics/calls2.byn</c>:39, <c>=&gt; -1</c>).
 /// </summary>
 public sealed class SelfhostSemanticsT19Tests
 {

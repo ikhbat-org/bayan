@@ -7,7 +7,7 @@ using Bayan.Syntax.Text;
 
 namespace Bayan.Tests;
 
-/// <summary>Runtime functions driven directly from C (<c>tests/native/*.c</c>, built against <c>bayan-rt.c</c>), and <c>Io.runBatch</c> on Windows.</summary>
+/// <summary>Runtime functions driven directly from C (<c>runtime/tests/*.c</c>, built against <c>bayan-rt.c</c>), and <c>Io.runBatch</c> on Windows.</summary>
 public sealed class RuntimeNativeTests
 {
     [Fact]
@@ -135,7 +135,7 @@ public sealed class RuntimeNativeTests
 
     /// <summary>
     /// After the deadline the drain joins are bounded even when <c>TerminateJobObject</c> fails and the tree runs on: the runtime
-    /// is built with that call failing (<c>tests/native/run-terminate-fails.c</c>), and the call is <c>other</c> (5) well before
+    /// is built with that call failing (<c>runtime/tests/run-terminate-fails.c</c>), and the call is <c>other</c> (5) well before
     /// the pings end. Windows only; elsewhere only the replaced text is checked.
     /// </summary>
     [Fact]
@@ -167,7 +167,7 @@ public sealed class RuntimeNativeTests
     }
 
     /// <summary>
-    /// POSIX <c>Io.run</c> edges (<c>tests/native/io-run-posix.c</c>): a child that leaves its process group is signalled
+    /// POSIX <c>Io.run</c> edges (<c>runtime/tests/io-run-posix.c</c>): a child that leaves its process group is signalled
     /// itself, so a 300 ms timeout ends in time; <c>timeout: Millis(i64.max)</c> never passes, so a child that exits at once
     /// reports exit 0; a deleted working directory does not stop <c>sh</c> on an absolute PATH, even after an empty entry;
     /// a child that leaves its group while a helper keeps the group alive is still signalled and reaped.

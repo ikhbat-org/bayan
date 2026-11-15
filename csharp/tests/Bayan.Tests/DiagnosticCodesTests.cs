@@ -53,7 +53,7 @@ public sealed class DiagnosticCodesTests
     [Fact]
     public void NoLiveCodeReusesAReservedNumber()
     {
-        var lines = File.ReadAllLines(Path.Combine(Golden.RepoRoot, "src", "Bayan.Syntax", "Diagnostics", "DiagnosticCodes.cs"))
+        var lines = File.ReadAllLines(Path.Combine(Golden.RepoRoot, "csharp", "Bayan.Syntax", "Diagnostics", "DiagnosticCodes.cs"))
             .Select(l => l.Trim()).ToList();
         var start = lines.FindIndex(l => l.StartsWith("// Reserved: round 4", StringComparison.Ordinal));
         var end = lines.FindIndex(l => l == "// End reserved: round 4.");

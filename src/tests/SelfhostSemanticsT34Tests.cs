@@ -9,7 +9,7 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T34: <c>selfhost/semantics/calls3.byn</c> against the C# <c>BinderCalls</c> (BinderCalls.cs 1007-1577: <c>BindTry</c>
+/// T34: <c>src/semantics/calls3.byn</c> against the C# <c>BinderCalls</c> (BinderCalls.cs 1007-1577: <c>BindTry</c>
 /// through <c>ResolveStep</c>). One source, <see cref="Source"/>, is compiled by both sides; each case binds one <c>let</c>
 /// initializer of <c>probes</c> with <c>BindExpr</c> and prints the bound tree (try, catch, switch arms and every pattern
 /// node, its locals with their borrow and guard marks), then the diagnostics the binding reported. Every expected line is

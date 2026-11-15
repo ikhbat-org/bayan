@@ -3,7 +3,7 @@
 // The C# keeps the diagnostics in a `DiagnosticBag` (`Add`, `RemoveRepeats`) and the sink in
 // `Compilation` (`Report`, `ReportInto`); here both hang off `Ctx`. The renderer is the plain style
 // only; T19 gives it the driver's `Style` (`T26Symbols`: bar, width and the SGR prefixes of the roles). The line and UTF-8 helpers are private
-// copies of `selfhost/lexer/source.byn` and `selfhost/lexer/diagnostics.byn` (those are not `public`).
+// copies of `src/lexer/source.byn` and `src/lexer/diagnostics.byn` (those are not `public`).
 
 // ── Reporting ────────────────────────────────────────────────────────────────
 

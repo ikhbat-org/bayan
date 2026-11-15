@@ -10,7 +10,7 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T23: <c>selfhost/semantics/flow.byn</c> and <c>effects.byn</c> against the C# <c>FlowAnalysis</c>, <c>EffectAnalysis</c>
+/// T23: <c>src/semantics/flow.byn</c> and <c>effects.byn</c> against the C# <c>FlowAnalysis</c>, <c>EffectAnalysis</c>
 /// and <c>ErrorFlow</c>. The statement and expression binders these walk are still stubs (T34, T36, T38, T39), so the
 /// C# side compiles <see cref="Source"/>, then writes each case function's bound body and symbols out as Bayan code that
 /// rebuilds them in the Bayan arenas; the generated main runs the port over that tree. Every expected line is the C#

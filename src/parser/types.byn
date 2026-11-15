@@ -1,4 +1,4 @@
-// Types. Ports `src/Bayan.Syntax/Parsing/Parser.cs` lines 1743–2113 (`IsTypeNameToken`, `IsDynAt`, `ScanType`,
+// Types. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 1743–2113 (`IsTypeNameToken`, `IsDynAt`, `ScanType`,
 // `IsTypeArrow`, `ScanFunctionType`, `ScanClauseList`, `ScanTypeArgs`, `ScanExprTypeArgs`, `CSharpTypeNames`,
 // `ParseType`, `ParseFunctionType`, `ParseClauseList`, `ReadOnlyPointee`, `ParsePrefixPointer`, `PointeeText`,
 // `ReportPointerOutsideExtern`, `ParseNamedType`, `MissingType`, `ParseTypeArgs`). Owner: 

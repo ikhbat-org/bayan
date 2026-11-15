@@ -1,4 +1,4 @@
-// Source text, spans and UTF-8. Ports `src/Bayan.Syntax/Text/{SourceText,TextSpan}.cs`, plus the
+// Source text, spans and UTF-8. Ports `csharp/Bayan.Syntax/Text/{SourceText,TextSpan}.cs`, plus the
 // parts of .NET's UTF-8 decoding the lexer relies on (`Rune.DecodeFromUtf8`, `Encoding.UTF8.GetString`).
 
 /// A half-open range of UTF-8 byte offsets into a source.

@@ -6,8 +6,8 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// The shared harness for the 012 driver tests: <c>selfhost/driver/*.byn</c> built once per run as stage 1 with
-/// <c>packageRoot: selfhost/</c> (the shape of <see cref="SelfhostEmitterHarness"/>), in <c>fast</c> mode, then run as a process.
+/// The shared harness for the 012 driver tests: <c>src/driver/*.byn</c> built once per run as stage 1 with
+/// <c>packageRoot: src/</c> (the shape of <see cref="SelfhostEmitterHarness"/>), in <c>fast</c> mode, then run as a process.
 /// </summary>
 public static class SelfhostDriverHarness
 {
@@ -19,7 +19,7 @@ public static class SelfhostDriverHarness
     public static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/driver did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/driver did not build:\n{error}");
         return path!;
     }
 
@@ -116,7 +116,7 @@ public static class SelfhostDriverHarness
     public static (int Exit, string Out, string Err) RunProbe(IReadOnlyDictionary<string, string> env, params string[] args)
     {
         var (path, error) = ProbeBuilt.Value;
-        if (path is null) Assert.Fail($"selfhost/driver with the probe main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/driver with the probe main did not build:\n{error}");
         var psi = new ProcessStartInfo(path!) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
         foreach (var (k, v) in env) psi.Environment[k] = v;
         foreach (var a in args) psi.ArgumentList.Add(a);

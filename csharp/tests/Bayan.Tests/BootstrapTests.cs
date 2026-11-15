@@ -7,12 +7,12 @@ using Bayan.Cli;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 012 T6: the three-stage bootstrap (R9, R11). Stage 1 is <c>selfhost/driver</c> built by <see cref="CliApp.Run"/> in-process
+/// 012 T6: the three-stage bootstrap (R9, R11). Stage 1 is <c>src/driver</c> built by <see cref="CliApp.Run"/> in-process
 /// in <c>safe</c> (Q9); stage 2 is built by stage 1 and stage 3 by stage 2, each with the one invocation
-/// <c>build --package selfhost -o tmp/bootstrap/stageN/bayan selfhost/driver</c> from the repo root (Q2). Each stage's C is
-/// its <c>build --emit-c --mode &lt;m&gt; --package selfhost selfhost/driver</c>, kept as <c>stageN/driver.&lt;m&gt;.c</c> and
+/// <c>build --package src -o tmp/bootstrap/stageN/bayan src/driver</c> from the repo root (Q2). Each stage's C is
+/// its <c>build --emit-c --mode &lt;m&gt; --package src src/driver</c>, kept as <c>stageN/driver.&lt;m&gt;.c</c> and
 /// compared as bytes. <c>bootstrap/bayan.c</c> is C1 in <c>safe</c>; <c>bootstrap/bayan-rt.{h,c}</c> are
-/// <c>src/runtime/</c>; <c>BAYAN_UPDATE=1</c> rewrites all three. The working directory is process-wide, so this runs alone.
+/// <c>runtime/</c>; <c>BAYAN_UPDATE=1</c> rewrites all three. The working directory is process-wide, so this runs alone.
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]
 [Trait("Law", "L027")]
@@ -31,9 +31,9 @@ public sealed class BootstrapTests
     /// <summary>Stage <paramref name="n"/>'s executable relative to the repo root, named as the C# names one (Targets.cs:29-32).</summary>
     private static string Exe(int n) => Path.Combine("tmp", "bootstrap", $"stage{n}", Targets.ExecutableName("bayan", Targets.Host ?? ""));
 
-    private static string[] BuildArgs(int n) => ["build", "--package", "selfhost", "-o", Exe(n), "selfhost/driver"];
+    private static string[] BuildArgs(int n) => ["build", "--package", "src", "-o", Exe(n), "src/driver"];
 
-    private static string[] EmitArgs(string mode) => ["build", "--emit-c", "--mode", mode, "--package", "selfhost", "selfhost/driver"];
+    private static string[] EmitArgs(string mode) => ["build", "--emit-c", "--mode", mode, "--package", "src", "src/driver"];
 
     private static readonly Lazy<bool> Built = new(BuildStages);
 
@@ -199,13 +199,13 @@ public sealed class BootstrapTests
         Assert.Null(FirstDifference("bootstrap/bayan.c vs stage1 driver.safe.c", File.ReadAllBytes(path), c1));
     }
 
-    /// <summary>`bootstrap/bayan-rt.{h,c}` are byte for byte `src/runtime/bayan-rt.{h,c}` (Q6); `BAYAN_UPDATE=1` copies them.</summary>
+    /// <summary>`bootstrap/bayan-rt.{h,c}` are byte for byte `runtime/bayan-rt.{h,c}` (Q6); `BAYAN_UPDATE=1` copies them.</summary>
     [Theory]
     [InlineData("bayan-rt.h")]
     [InlineData("bayan-rt.c")]
     public void RuntimeCopiesAreTheRuntime(string name)
     {
-        var source = File.ReadAllBytes(Path.Combine(Golden.RepoRoot, "src", "runtime", name));
+        var source = File.ReadAllBytes(Path.Combine(Golden.RepoRoot, "runtime", name));
         var copy = Path.Combine(BootstrapDir, name);
         if (Golden.UpdateMode)
         {
@@ -213,7 +213,7 @@ public sealed class BootstrapTests
             File.WriteAllBytes(copy, source);
         }
         Assert.True(File.Exists(copy), $"{copy} is missing; run BAYAN_UPDATE=1 dotnet test --filter FullyQualifiedName~BootstrapTests");
-        Assert.True(source.AsSpan().SequenceEqual(File.ReadAllBytes(copy)), $"bootstrap/{name} differs from src/runtime/{name}");
+        Assert.True(source.AsSpan().SequenceEqual(File.ReadAllBytes(copy)), $"bootstrap/{name} differs from runtime/{name}");
     }
 
     /// <summary>

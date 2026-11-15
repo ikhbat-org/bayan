@@ -11,7 +11,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 T9: <c>selfhost/emitter/cprint/func.byn</c> (CEmitter.cs 1173-1236, 1254-1616) against the C#
+/// 011 T9: <c>src/emitter/cprint/func.byn</c> (CEmitter.cs 1173-1236, 1254-1616) against the C#
 /// <c>FunctionEmitter</c> as an in-process oracle. Both sides build the same lowered bodies by hand from the fixture's
 /// bound nodes, so each statement kind is reached without a full lowering. T10 <c>Expr</c>/<c>Call</c> are real, so
 /// the C# text is compared whole (no Q802 masks).
@@ -507,7 +507,7 @@ public sealed class SelfhostEmitterT9Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T9 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T9 main did not build:\n{error}");
         return path!;
     }
 

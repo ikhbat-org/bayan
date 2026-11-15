@@ -192,7 +192,7 @@ public sealed class SelfhostEmitterT3Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T3 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T3 main did not build:\n{error}");
         return path!;
     }
 

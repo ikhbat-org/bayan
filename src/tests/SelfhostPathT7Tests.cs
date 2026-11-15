@@ -5,7 +5,7 @@ using Bayan.Syntax.Diagnostics;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 014 T7: the four path helpers of <c>selfhost/semantics/compile.byn</c> (<c>t11DirectoryName</c>,
+/// 014 T7: the four path helpers of <c>src/semantics/compile.byn</c> (<c>t11DirectoryName</c>,
 /// <c>t11FullPath</c>, <c>t11Combine</c>, <c>t11RelativePath</c>) against the C# <c>System.IO.Path</c> call each one
 /// ports (<c>Compilation.cs</c> 93, 95, 110, 111, 113, 116, 187, 209; <c>Naming.cs</c> 189). One generated
 /// <c>main.byn</c> runs every input; every expected value is computed by <c>System.IO.Path</c> at run time. The

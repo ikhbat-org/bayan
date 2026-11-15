@@ -11,7 +11,7 @@ using TextSpan = Bayan.Syntax.Text.TextSpan;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T15: <c>selfhost/semantics/binder.byn</c> against the C# <c>Binder</c> (Binder.cs 1–514). The same source goes to
+/// T15: <c>src/semantics/binder.byn</c> against the C# <c>Binder</c> (Binder.cs 1–514). The same source goes to
 /// <c>Compilation.Create</c>; the oracle then makes a fresh C# <c>Binder</c> (it is internal, so by reflection) over a
 /// symbol of that compilation and calls the method under test, while the generated <c>main.byn</c> builds the same
 /// symbols by hand in a <c>Ctx</c> and calls the Bayan port. Both print the bound tree, the locals and the new

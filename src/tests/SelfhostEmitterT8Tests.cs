@@ -11,7 +11,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 T8: <c>selfhost/emitter/cprint/helpers.byn</c> (CEmitter.cs 779-1046: <c>Equal</c>, <c>KeyHash</c>, <c>KeyEq</c>,
+/// 011 T8: <c>src/emitter/cprint/helpers.byn</c> (CEmitter.cs 779-1046: <c>Equal</c>, <c>KeyHash</c>, <c>KeyEq</c>,
 /// <c>MapMethod</c>, <c>Format</c>, <c>FormatInto</c>, <c>FormatIntoWithSpec</c>) against the C# as an in-process oracle. The types
 /// are the parameters of the fixture's <c>eqN</c>, <c>fmtN</c> and <c>mapN</c> functions.
 /// </summary>
@@ -283,7 +283,7 @@ public sealed class SelfhostEmitterT8Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T8 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T8 main did not build:\n{error}");
         return path!;
     }
 

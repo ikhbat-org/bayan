@@ -91,8 +91,8 @@ run --rid osx-arm64 --label "1.0 x" >/dev/null 2>&1; check "label with a space r
 err=$(PATH="$t/bin:$PATH" bash "$root/scripts/dist.sh" --dist "" --rid osx-arm64 --label 1.0.0 2>&1); check "empty --dist refused" "$err" "dist: --dist needs a directory"
 
 # .dirty counts untracked files: a scratch repo holding just the script and Toolchain.cs
-g="$t/repo"; mkdir -p "$g/scripts" "$g/src/Bayan.Backend.C"
-cp "$root/scripts/dist.sh" "$g/scripts/"; cp "$root/src/Bayan.Backend.C/Toolchain.cs" "$g/src/Bayan.Backend.C/"
+g="$t/repo"; mkdir -p "$g/scripts" "$g/csharp/Bayan.Backend.C"
+cp "$root/scripts/dist.sh" "$g/scripts/"; cp "$root/csharp/Bayan.Backend.C/Toolchain.cs" "$g/csharp/Bayan.Backend.C/"
 git -C "$g" init -q && git -C "$g" add -A && GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t git -C "$g" -c core.hooksPath=/dev/null commit -qm "test: fixture"
 check "scratch repo committed" "$(git -C "$g" rev-list --count HEAD 2>/dev/null)" 1
 grun() { PATH="$t/bin:$PATH" bash "$g/scripts/dist.sh" --dist "$t/gdist" --rid osx-arm64 2>/dev/null; }

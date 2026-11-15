@@ -357,11 +357,11 @@ public sealed class SelfhostDefaultBoundsTests
         var dir = Fresh("check-driver");
         var psi = new ProcessStartInfo(BootstrapTests.Stage2Executable()) { WorkingDirectory = Golden.RepoRoot };
         psi.Environment["BAYAN_CACHE"] = Path.Combine(dir, "cache");
-        foreach (var a in new[] { "check", "--package", "selfhost", "selfhost/driver" }) psi.ArgumentList.Add(a);
+        foreach (var a in new[] { "check", "--package", "src", "src/driver" }) psi.ArgumentList.Add(a);
         var (exit, _, stderr, peak) = PeakSampler.Run(psi);
         Assert.True(exit == 0, stderr);
         Assert.True(peak > 0, "no working-set sample was taken");
-        Assert.True(peak < CheckPeakBoundMb * 1024 * 1024, $"check of selfhost/driver peaked at {peak / (1024 * 1024)} MB, bound {CheckPeakBoundMb} MB");
+        Assert.True(peak < CheckPeakBoundMb * 1024 * 1024, $"check of src/driver peaked at {peak / (1024 * 1024)} MB, bound {CheckPeakBoundMb} MB");
     }
 
     // measured on Linux (bayan-test01), the driver's resident set when the C compiler starts: 21 MB at `zig version`, 29 MB at the
@@ -387,7 +387,7 @@ public sealed class SelfhostDefaultBoundsTests
         psi.Environment["PATH"] = $"{bin}:/usr/bin:/bin";
         psi.Environment["Q31_RSS_LOG"] = log;
         psi.Environment.Remove("BAYAN_CC");
-        foreach (var a in new[] { "build", "--package", "selfhost", "-o", Path.Combine(dir, "bayan"), "selfhost/driver" }) psi.ArgumentList.Add(a);
+        foreach (var a in new[] { "build", "--package", "src", "-o", Path.Combine(dir, "bayan"), "src/driver" }) psi.ArgumentList.Add(a);
         using var p = Process.Start(psi)!;
         var stderr = p.StandardError.ReadToEnd();
         p.WaitForExit();

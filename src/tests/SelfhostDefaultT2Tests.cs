@@ -6,7 +6,7 @@ namespace Bayan.Tests;
 
 /// <summary>
 /// 017 T2: <c>bayan features --used</c> of the self-hosted driver. The expected output is <see cref="CliApp.Run"/> in-process on the
-/// same argv; the name tables of <c>selfhost/driver/features.byn</c> are checked against the C# syntax types by reflection.
+/// same argv; the name tables of <c>src/driver/features.byn</c> are checked against the C# syntax types by reflection.
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]
 [Trait("Law", "L028")]

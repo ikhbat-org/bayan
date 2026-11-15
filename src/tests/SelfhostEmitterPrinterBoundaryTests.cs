@@ -3,8 +3,8 @@ using System.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 D9: <c>selfhost/emitter/cprint/</c> is the only module with C text in its string literals. Every other
-/// <c>.byn</c> under <c>selfhost/emitter/</c> is scanned for a literal containing one of <see cref="Forbidden"/>.
+/// 011 D9: <c>src/emitter/cprint/</c> is the only module with C text in its string literals. Every other
+/// <c>.byn</c> under <c>src/emitter/</c> is scanned for a literal containing one of <see cref="Forbidden"/>.
 /// </summary>
 public sealed class SelfhostEmitterPrinterBoundaryTests
 {
@@ -16,7 +16,7 @@ public sealed class SelfhostEmitterPrinterBoundaryTests
 
     /// <summary>
     /// Literals that hold JSON, not C (user 2026-11-08): the schemata site map in <c>schemata.byn</c> <c>sitesJson</c>
-    /// opens a JSON object with <c>{\n</c>. Each entry is a file under <c>selfhost/emitter/</c> and the literal's text as written.
+    /// opens a JSON object with <c>{\n</c>. Each entry is a file under <c>src/emitter/</c> and the literal's text as written.
     /// </summary>
     private static readonly (string File, string Literal)[] Json =
     [
@@ -41,7 +41,7 @@ public sealed class SelfhostEmitterPrinterBoundaryTests
                             if (Unescape(literal).Contains(word, StringComparison.Ordinal))
                                 hits.Add($"{Path.GetRelativePath(SelfhostEmitterHarness.EmitterDir, file)}:{i + 1}: \"{literal}\" has `{word.Replace("\n", "\\n")}`");
         }
-        Assert.True(hits.Count == 0, $"C text outside selfhost/emitter/cprint:\n{string.Join('\n', hits)}");
+        Assert.True(hits.Count == 0, $"C text outside src/emitter/cprint:\n{string.Join('\n', hits)}");
     }
 
     /// <summary>Every JSON entry still names a literal in its file, so a stale entry cannot hide new C text.</summary>

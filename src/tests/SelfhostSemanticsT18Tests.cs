@@ -9,7 +9,7 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T18: <c>selfhost/semantics/express2.byn</c> against the C# <c>BinderExpressions</c> (BinderExpressions.cs ~600-1155).
+/// T18: <c>src/semantics/express2.byn</c> against the C# <c>BinderExpressions</c> (BinderExpressions.cs ~600-1155).
 /// One source, <see cref="Source"/>, is compiled by both sides: the C# side via <c>Compilation.Create</c> plus
 /// reflection on the C# <c>Binder</c>, the Bayan side via <c>loadModule</c> + <c>declare</c> in the generated main run
 /// by <c>SelfhostSemanticsHarness.RunSections</c>. Each case binds one <c>let</c> initializer of that source on both

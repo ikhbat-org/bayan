@@ -15,9 +15,9 @@ public sealed partial class CInventoryTests
 {
     private const string InventoryPath = "docs/specs/011-self-hosted-emitter/011-c-inventory.md";
 
-    private static readonly string[] CFiles = ["src/runtime/bayan-rt.h", "src/runtime/bayan-rt.c"];
+    private static readonly string[] CFiles = ["runtime/bayan-rt.h", "runtime/bayan-rt.c"];
 
-    private static readonly string[] LiteralFiles = ["src/Bayan.Backend.C/CEmitter.cs"];
+    private static readonly string[] LiteralFiles = ["csharp/Bayan.Backend.C/CEmitter.cs"];
 
     [GeneratedRegex(@"__builtin_\w+|__attribute__\s*\(\(([^()]|\([^()]*\))*\)\)|__declspec|\balloca\b|__typeof__|\btypeof\b|__auto_type|__thread\b|__int128|__extension__|__restrict\w*|#pragma \w+|_Pragma|__asm__|\basm\b|__has_builtin|__PRETTY_FUNCTION__|__COUNTER__|\(\{")]
     internal static partial Regex Extensions();
@@ -55,7 +55,7 @@ public sealed partial class CInventoryTests
     {
         var files = CFiles.Select(f => (File: f, Text: Read(f)))
             .Concat(LiteralFiles.Select(f => (File: f, Text: Literals(Read(f)))));
-        var cprint = Path.Combine(Golden.RepoRoot, "selfhost", "emitter", "cprint");
+        var cprint = Path.Combine(Golden.RepoRoot, "src", "emitter", "cprint");
         if (Directory.Exists(cprint))
         {
             files = files.Concat(Directory.GetFiles(cprint, "*.byn").Order(StringComparer.Ordinal)

@@ -95,7 +95,7 @@ public sealed class CliMemoryBoundsTests
     [Fact]
     public void M1_TheRuntimeKeepsTheSameBoundAndMarker()
     {
-        foreach (var file in new[] { "src/runtime/bayan-rt.c", "bootstrap/bayan-rt.c" })
+        foreach (var file in new[] { "runtime/bayan-rt.c", "bootstrap/bayan-rt.c" })
         {
             var source = File.ReadAllText(Path.Combine(Golden.RepoRoot, file));
             Assert.Contains($"#define BYN_RUN_KEEP {BoundedCapture.Keep}\n", source);

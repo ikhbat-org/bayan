@@ -222,7 +222,7 @@ public sealed class SelfhostDriverT1Tests
     private static string RunQuality(string cwd, params string[] args)
     {
         var (path, error) = QualityBuilt.Value;
-        if (path is null) Assert.Fail($"selfhost/driver with the quality probe did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/driver with the quality probe did not build:\n{error}");
         var psi = new ProcessStartInfo(path!) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, WorkingDirectory = cwd };
         foreach (var a in args) psi.ArgumentList.Add(a);
         using var p = Process.Start(psi)!;
@@ -1159,7 +1159,7 @@ public sealed class SelfhostDriverT1Tests
         finally { Unlock(); }
     }
 
-    /// <summary>`bayan format --check` over `selfhost/driver/` with the pinned `bayan`. Skipped on Windows: `bash scripts/pinned-bayan.sh` exits 127 on wp1 (work/todo.md, 012 T28).</summary>
+    /// <summary>`bayan format --check` over `src/driver/` with the pinned `bayan`. Skipped on Windows: `bash scripts/pinned-bayan.sh` exits 127 on wp1 (work/todo.md, 012 T28).</summary>
     [Fact]
     public void SourcesAreFormatted()
     {
@@ -1168,7 +1168,7 @@ public sealed class SelfhostDriverT1Tests
         Assert.Equal(0, pinned.Exit);
         var bayan = pinned.Out.Trim().Split('\n')[^1].Trim();
         var (exit, stdout, stderr) = Run(bayan, "format", "--check", SelfhostDriverHarness.DriverDir);
-        Assert.True(exit == 0, $"bayan format --check selfhost/driver:\n{stdout}{stderr}");
+        Assert.True(exit == 0, $"bayan format --check src/driver:\n{stdout}{stderr}");
     }
 
     internal static (int Exit, string Out, string Err) Run(string program, params string[] args)
@@ -1192,7 +1192,7 @@ public sealed class SelfhostDriverT1Tests
 public sealed class SelfhostDriverStage2FormatTests
 {
     /// <summary>
-    /// Stage 2's <c>format --check</c> over <c>selfhost/</c> and <c>tests/cases/run/</c> equals the C#'s.
+    /// Stage 2's <c>format --check</c> over <c>src/</c> and <c>tests/cases/run/</c> equals the C#'s.
     /// </summary>
     [Theory]
     [InlineData("selfhost")]

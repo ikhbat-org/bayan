@@ -9,7 +9,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T12: <c>selfhost/semantics/declare.byn</c> against the C# <c>Compilation</c>. Each case is a module directory
+/// T12: <c>src/semantics/declare.byn</c> against the C# <c>Compilation</c>. Each case is a module directory
 /// under <c>tmp/t12-cases/</c>, loaded and declared file by file (T11), then run through the T12 phases its flags
 /// name, in <c>Declare</c>'s order: <c>v</c> DeclareVariants, <c>c</c> CheckComposition, <c>e</c>
 /// DeclareEnumMembers, <c>u</c> DeclareUnionVariants, <c>p</c> DeclarePayloads, <c>m</c> DeclareMembers,

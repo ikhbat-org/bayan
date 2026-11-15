@@ -39,8 +39,8 @@ cp "$t/repo/docs/revisions/0002-second.md" "$t/repo/docs/revisions/0002-again.md
 expect "(b) repeat" "docs/revisions has 2 files numbered 0002"
 
 sed -i.bak 's/^}$/    public static readonly DiagnosticDescriptor Eps = Error("BYN4006", "eps");\n}/' \
-  "$t/repo/src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs"
-grep -q BYN4006 "$t/repo/src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs" || fail "fixture edit did not apply"
+  "$t/repo/csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs"
+grep -q BYN4006 "$t/repo/csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs" || fail "fixture edit did not apply"
 expect "(c) new descriptor" "docs/DIAGNOSTICS.md is stale; run bash scripts/docs/gen-diagnostics.sh --write"
 sed -i.bak 's/| units | SPEC | spec-only | none |/| units | SPEC | built | none |/' "$t/repo/docs/STATUS.md"
 bash "$s" >/dev/null || fail "(c) a hand-kept STATUS row edit fails the check"
@@ -49,8 +49,8 @@ expect "(c) edited generated row" "docs/STATUS.md is stale; run bash scripts/doc
 sed -i.bak 's/^Status: done$/Status: in progress/' "$t/repo/docs/specs/001-first/001-spec.md"
 expect "(c) stale spec index" "docs/specs/README.md is stale; run bash scripts/docs/gen-spec-index.sh --write"
 
-sed -i.bak 's/"1.2.3-dev"/"1.2.4-dev"/' "$t/repo/src/Bayan.Backend.C/Toolchain.cs"
-expect "(d) Toolchain.cs" "src/Bayan.Backend.C/Toolchain.cs says 1.2.4-dev, VERSION says 1.2.3-dev"
+sed -i.bak 's/"1.2.3-dev"/"1.2.4-dev"/' "$t/repo/csharp/Bayan.Backend.C/Toolchain.cs"
+expect "(d) Toolchain.cs" "csharp/Bayan.Backend.C/Toolchain.cs says 1.2.4-dev, VERSION says 1.2.3-dev"
 sed -i.bak '6s/bayan 1.2.3-dev/bayan 1.2.2/' "$t/repo/tests/cases/out/dist.tree"
 expect "(d) second dist.tree line" "tests/cases/out/dist.tree says 1.2.2, VERSION says 1.2.3-dev"
 printf 'Units (partial in 1.2: no suffixes). Handles (not in 1.2).\n' >> "$t/repo/docs/bayan-spec.md"
@@ -75,15 +75,15 @@ expect "(f) code only in another row's text" "docs/bayan-style.md cites BYN7777,
 printf '\n## 6. Expressions\n\n### 6.6 Interpolation\n' >> "$t/repo/docs/bayan-spec.md"
 printf '\n### §6. Expressions\n' >> "$t/repo/docs/bayan-feature-history.md"
 printf 'Display is in SPEC §6.6 and (spec §6). A bare §9.9 may cite the grammar.\n' >> "$t/repo/docs/bayan-style.md"
-printf '// Display (spec §6.6).\n' >> "$t/repo/src/Bayan.Semantics/Binding/Fixture.cs"
+printf '// Display (spec §6.6).\n' >> "$t/repo/csharp/Bayan.Semantics/Binding/Fixture.cs"
 printf 'Historical: spec §9.9.\n' >> "$t/repo/docs/revisions/0002-second.md"
 bash "$s" >/dev/null || fail "(g) good cites, a bare cite and a historical doc fail the check"
 printf 'See SPEC §6.9.\n' >> "$t/repo/docs/bayan-style.md"
 expect "(g) missing heading in docs" "docs/bayan-style.md:$(wc -l < "$t/repo/docs/bayan-style.md" | tr -d ' ') cites spec §6.9, which is not a heading of docs/bayan-spec.md"
 printf '## 13. Concurrency\n' >> "$t/repo/docs/bayan-spec.md"
 printf '\n### §13. Concurrency\n' >> "$t/repo/docs/bayan-feature-history.md"
-printf '// Display (spec §13).\n// Locks (spec §13.4).\n' >> "$t/repo/src/Bayan.Semantics/Binding/Fixture.cs"
-expect "(g) missing heading in a code comment" "src/Bayan.Semantics/Binding/Fixture.cs:2 cites spec §13.4, which is not a heading of docs/bayan-spec.md"
+printf '// Display (spec §13).\n// Locks (spec §13.4).\n' >> "$t/repo/csharp/Bayan.Semantics/Binding/Fixture.cs"
+expect "(g) missing heading in a code comment" "csharp/Bayan.Semantics/Binding/Fixture.cs:2 cites spec §13.4, which is not a heading of docs/bayan-spec.md"
 
 # (i) the feature history: a revision it does not cite and a numbered section with no row
 printf '# 0003 — Third\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$t/repo/docs/revisions/0003-third.md"

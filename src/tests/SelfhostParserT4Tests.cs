@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 009 T4, <c>selfhost/parser/decls.byn</c> on its own: each case calls one declaration parser directly, from
+/// 009 T4, <c>src/parser/decls.byn</c> on its own: each case calls one declaration parser directly, from
 /// a <c>main</c> that stands in for <c>main.byn</c>, and compares a span, a name, a count and every diagnostic
 /// (code, span, message, label, help, fix) with the C# parser. The inputs avoid what the sibling stubs and the
 /// <c>T4</c> stand-ins do not parse yet (Q445): types other than plain names outside parameters, expressions,
@@ -21,7 +21,7 @@ namespace Bayan.Tests;
 /// </summary>
 public sealed class SelfhostParserT4Tests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 

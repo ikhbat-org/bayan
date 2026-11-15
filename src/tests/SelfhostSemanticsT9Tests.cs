@@ -7,7 +7,7 @@ using ArrayType = Bayan.Semantics.Symbols.ArrayType;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T9: the builtin functions, types and member tables of <c>selfhost/semantics/builtins.byn</c> against
+/// T9: the builtin functions, types and member tables of <c>src/semantics/builtins.byn</c> against
 /// the C# <c>Builtins</c> and <c>BuiltinMembers</c>. One generated <c>main.byn</c> prints labelled
 /// sections; each test builds the same lines from the C# oracle and compares one section.
 /// </summary>

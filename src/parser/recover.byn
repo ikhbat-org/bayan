@@ -1,4 +1,4 @@
-// Recovery and line structure. Ports from `src/Bayan.Syntax/Parsing/Parser.cs`: `ExpectEnd`,
+// Recovery and line structure. Ports from `csharp/Bayan.Syntax/Parsing/Parser.cs`: `ExpectEnd`,
 // `ReportSemicolon`, `IndentAt`, `BreaksLine`, `HasBlankLineBefore`, `IsWasl`, `LineContinues`,
 // `StopsHere`, `EndsBefore`, `ExpectName`, `NameOf`, `IsName`, `IsStatementKeyword`, `Synchronize`,
 // `RecoverIfNeeded` (lines 165–343), `InGroup`, `Unreport`, the sets `ItName` and `Particles`, and

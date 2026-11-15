@@ -14,7 +14,7 @@ using Xunit.Abstractions;
 namespace Bayan.Tests;
 
 /// <summary>
-/// <c>selfhost/parser/types.byn</c> and <c>literals.byn</c> (009 T6) against the C# parser, before the other tasks merge.
+/// <c>src/parser/types.byn</c> and <c>literals.byn</c> (009 T6) against the C# parser, before the other tasks merge.
 /// The parser's files stand in for the module without <c>main.byn</c> and <c>exprs2.byn</c>; this file's program adds a
 /// <c>parsePrimary</c> for an array size (an integer or a name) and a <c>main</c> that either parses one type from the
 /// start of a file and prints its shape with spans, then the diagnostics with their fixes, or prints every string,
@@ -23,7 +23,7 @@ namespace Bayan.Tests;
 /// </summary>
 public sealed class SelfhostParserT6Tests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 

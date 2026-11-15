@@ -10,7 +10,7 @@ using TupleType = Bayan.Semantics.Symbols.TupleType;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T4: the self-hosted bound tree (<c>selfhost/semantics/bound.byn</c>) against the C# records of
+/// T4: the self-hosted bound tree (<c>src/semantics/bound.byn</c>) against the C# records of
 /// <c>BoundNodes.cs</c> and <c>BoundTree</c>. One generated <c>main.byn</c> builds the same nodes the C#
 /// oracle builds and prints labelled sections; each test compares one.
 /// </summary>
@@ -49,7 +49,7 @@ public sealed class SelfhostSemanticsT4Tests
 
     private static readonly string[] Groups = ["BoundMethodGroup", "BoundVariantGroup", "BoundBuiltinGroup"];
 
-    private static string BindingDir => Path.Combine(Golden.RepoRoot, "src", "Bayan.Semantics", "Binding");
+    private static string BindingDir => Path.Combine(Golden.RepoRoot, "csharp", "Bayan.Semantics", "Binding");
 
     private static string Lower(string s) => char.ToLowerInvariant(s[0]) + s[1..];
 

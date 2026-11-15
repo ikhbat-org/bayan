@@ -270,7 +270,7 @@ public sealed class SelfhostDriverT5Tests
         SameAsInProcess("build", "--emit-c", "--target", "bogus", file);
         SameAsInProcess("run", "-o", "x", file);
         SameAsInProcess("run", "-v", file);
-        SameAsInProcess("build", "--emit-c", "--package", Path.Combine(Golden.RepoRoot, "selfhost"), broken);
+        SameAsInProcess("build", "--emit-c", "--package", Path.Combine(Golden.RepoRoot, "src"), broken);
         foreach (var dangling in new[] { "--mode", "--diagnostics", "-o", "--target", "--package" })
             SameAsInProcess("build", file, dangling);
         SameAsInProcess("run", "--emit-c", file);
@@ -298,22 +298,22 @@ public sealed class SelfhostDriverT5Tests
     }
 
     /// <summary>
-    /// `build --emit-c --mode debug --package selfhost selfhost/<dir>` from the repo root, for `lexer` and the driver itself:
+    /// `build --emit-c --mode debug --package src src/<dir>` from the repo root, for `lexer` and the driver itself:
     /// same exit and stderr, byte-identical C, and every `#line` name in the C#'s C relative to `Path.fullPath("selfhost")`
     /// (CEmitter.cs `FilePath`, 388-395) and naming a file of the package, `<dir>/` among them; `main.c` is the generated-code reset.
     /// </summary>
     [Fact]
     public void EmitsAPackageAsCliApp()
     {
-        var root = Path.GetFullPath(Path.Combine(Golden.RepoRoot, "selfhost"));
+        var root = Path.GetFullPath(Path.Combine(Golden.RepoRoot, "src"));
         foreach (var dir in new[] { "lexer", "driver" })
         {
-            string[] args = ["build", "--emit-c", "--mode", "debug", "--package", "selfhost", $"selfhost/{dir}"];
+            string[] args = ["build", "--emit-c", "--mode", "debug", "--package", "src", $"src/{dir}"];
             var expected = Cs(Golden.RepoRoot, args);
             var actual = Self(Golden.RepoRoot, args);
             Assert.True(expected.Exit == actual.Exit, $"{dir}: exit {expected.Exit} != {actual.Exit}\n{actual.Err}");
             Assert.Equal(expected.Err, actual.Err);
-            Assert.True(expected.Out.AsSpan().SequenceEqual(actual.Out), $"the driver's C of selfhost/{dir} differs from the C#'s");
+            Assert.True(expected.Out.AsSpan().SequenceEqual(actual.Out), $"the driver's C of src/{dir} differs from the C#'s");
             var names = Regex.Matches(Text(expected.Out), "^#line \\d+ \"([^\"]+)\"$", RegexOptions.Multiline).Select(m => m.Groups[1].Value).Where(n => n != CEmitter.GeneratedFile).Distinct().ToList();
             Assert.Contains(names, n => n.StartsWith($"{dir}/", StringComparison.Ordinal));
             foreach (var name in names)
@@ -326,14 +326,14 @@ public sealed class SelfhostDriverT5Tests
         }
     }
 
-    /// <summary>The C# `bayan build --package selfhost selfhost/driver` builds a driver that answers as the harness's driver.</summary>
+    /// <summary>The C# `bayan build --package src src/driver` builds a driver that answers as the harness's driver.</summary>
     [Fact]
     public void TheCsBuildsTheDriver()
     {
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "t5", "built");
         Directory.CreateDirectory(dir);
         var built = Path.Combine(dir, "bayan-driver");
-        var (exit, _, err) = InProcess("build", "--mode", "fast", "--package", Path.Combine(Golden.RepoRoot, "selfhost"), "-o", built, SelfhostDriverHarness.DriverDir);
+        var (exit, _, err) = InProcess("build", "--mode", "fast", "--package", Path.Combine(Golden.RepoRoot, "src"), "-o", built, SelfhostDriverHarness.DriverDir);
         Assert.True(exit == 0, err);
         var arithmetic = Path.Combine(Golden.CasesRoot, "run", "arithmetic.byn");
         foreach (var args in new[] { new[] { "version" }, ["help"], ["build", "--emit-c", arithmetic], ["check", arithmetic], ["build", "--mode", "bogus", arithmetic] })

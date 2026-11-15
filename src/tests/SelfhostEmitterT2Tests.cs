@@ -13,7 +13,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 T2: <c>selfhost/emitter/lower.byn</c> (Lowerer.cs 11-351) and <c>cprint/common.byn</c> (CEmitter.cs 397-476,
+/// 011 T2: <c>src/emitter/lower.byn</c> (Lowerer.cs 11-351) and <c>cprint/common.byn</c> (CEmitter.cs 397-476,
 /// 588-599, 1237-1253) against the C# as an in-process oracle. The emitter's top-level files but <c>main.byn</c> are
 /// built with a generated <c>main.byn</c> that prints what the ported functions return, by mode (Q763).
 /// </summary>
@@ -566,7 +566,7 @@ public sealed class SelfhostEmitterT2Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T2 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T2 main did not build:\n{error}");
         return path!;
     }
 

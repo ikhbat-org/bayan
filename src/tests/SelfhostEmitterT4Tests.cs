@@ -10,7 +10,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 T4: <c>selfhost/emitter/lowerexpr.byn</c> and <c>lowerpat.byn</c> (Lowerer.cs 899-1088, 1173-1375, 1729-1926)
+/// 011 T4: <c>src/emitter/lowerexpr.byn</c> and <c>lowerpat.byn</c> (Lowerer.cs 899-1088, 1173-1375, 1729-1926)
 /// against the C# as an in-process oracle. Each `let` initializer of a fixture function goes through `Expr` on a fresh
 /// `FunctionLowerer`; the statements it emits and the value it returns are dumped as a tree on both sides (Q773).
 /// </summary>
@@ -245,7 +245,7 @@ public sealed class SelfhostEmitterT4Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T4 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T4 main did not build:\n{error}");
         return path!;
     }
 

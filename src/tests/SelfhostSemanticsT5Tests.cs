@@ -9,13 +9,13 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T5: the 128-bit <c>Big</c> in <c>selfhost/semantics/bigint.byn</c>, against a C# <c>Int128</c> and
+/// T5: the 128-bit <c>Big</c> in <c>src/semantics/bigint.byn</c>, against a C# <c>Int128</c> and
 /// <c>BigInteger</c> oracle. One generated <c>main</c> prints a line per case, and each test compares a
 /// section of that output with the line the oracle built for it.
 /// </summary>
 public sealed class SelfhostSemanticsT5Tests
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string SemanticsDir => Path.Combine(SelfhostDir, "semantics");
 
@@ -44,7 +44,7 @@ public sealed class SelfhostSemanticsT5Tests
         return (output.Split('\n', StringSplitOptions.RemoveEmptyEntries), "");
     });
 
-    /// <summary>The whole <c>selfhost/semantics</c> module with a generated <c>main</c>, built once.</summary>
+    /// <summary>The whole <c>src/semantics</c> module with a generated <c>main</c>, built once.</summary>
     private static (string? Path, string Error) Build(List<SourceText> sources)
     {
         Environment.SetEnvironmentVariable("BAYAN_CACHE", Path.Combine(Golden.RepoRoot, "tmp", "cache"));

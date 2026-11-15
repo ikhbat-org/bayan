@@ -12,7 +12,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 017 T9: the build cache of the self-hosted driver (<c>selfhost/driver/sha256.byn</c>, <c>cache.byn</c>). A probe build runs the
+/// 017 T9: the build cache of the self-hosted driver (<c>src/driver/sha256.byn</c>, <c>cache.byn</c>). A probe build runs the
 /// driver's functions; each case compares their output with the C# on the same input: <see cref="SHA256.HashData(byte[])"/> for
 /// <c>sha256</c>, <see cref="Toolchain.Build"/>'s <c>Key</c> for the program key, <see cref="Toolchain.ScriptKey"/>,
 /// <see cref="Toolchain.Lookup"/> and <see cref="Toolchain.LookupScript"/> with <c>BAYAN_CACHE</c> set for both, and the trees
@@ -143,7 +143,7 @@ public sealed class SelfhostDefaultT9Tests
     private static string Driver(string? cache, (string Name, string Value)[] env, params string[] args)
     {
         var (path, error) = Probe.Value;
-        if (path is null) Assert.Fail($"selfhost/driver with the T9 probe did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/driver with the T9 probe did not build:\n{error}");
         var psi = new ProcessStartInfo(path!) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
         if (cache is not null) psi.Environment["BAYAN_CACHE"] = cache;
         psi.Environment.Remove("BAYAN_CC");

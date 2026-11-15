@@ -7,8 +7,8 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// The shared build-and-run harness for the 011 emitter tests: the top-level <c>selfhost/emitter/*.byn</c> built
-/// once per run with <c>packageRoot: selfhost/</c> (the nested <c>emitter.cprint</c> import resolves through
+/// The shared build-and-run harness for the 011 emitter tests: the top-level <c>src/emitter/*.byn</c> built
+/// once per run with <c>packageRoot: src/</c> (the nested <c>emitter.cprint</c> import resolves through
 /// <c>Compilation.cs:187</c>), in <c>fast</c> mode, then run as a process.
 /// </summary>
 public static class SelfhostEmitterHarness
@@ -21,7 +21,7 @@ public static class SelfhostEmitterHarness
     public static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter did not build:\n{error}");
         return path!;
     }
 

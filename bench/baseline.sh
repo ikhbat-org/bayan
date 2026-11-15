@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bench/baseline.sh: clean build time of the self-hosted compiler (selfhost/semantics, built by the bootstrap
+# bench/baseline.sh: clean build time of the self-hosted compiler (src/semantics, built by the bootstrap
 # bayan with an empty BAYAN_CACHE), rebuild time after a one-file change (on a copy), and binary sizes of
 # `bayan` and three goldens built by it. Writes bench/results/<commit>-baseline.txt. Not a CI gate.
 #
@@ -29,7 +29,7 @@ bayan=${BAYAN_BIN:-}
 if [ -z "$bayan" ]; then
     rid=$(bench_rid "$(uname -s)" "$(uname -m)") || { echo "bench/baseline.sh: no runtime identifier for $(uname -s)-$(uname -m)" >&2; exit 1; }
     command -v dotnet >/dev/null 2>&1 || { echo "bench/baseline.sh: dotnet not found (needed to publish bayan)" >&2; exit 1; }
-    dotnet publish src/Bayan.Cli -c Release -r "$rid" -o "$W/publish" >"$W/publish.log" 2>&1 || { echo "bench/baseline.sh: publish failed, see $W/publish.log" >&2; exit 1; }
+    dotnet publish csharp/Bayan.Cli -c Release -r "$rid" -o "$W/publish" >"$W/publish.log" 2>&1 || { echo "bench/baseline.sh: publish failed, see $W/publish.log" >&2; exit 1; }
     bayan="$W/publish/$(bench_exe "$(uname -s)")"
 fi
 [ -x "$bayan" ] || { echo "bench/baseline.sh: no executable bayan at $bayan" >&2; exit 1; }
@@ -45,8 +45,8 @@ secs() { # <log> <cmd...>: wall seconds of the command, its output into <log>
 # The compiler's package: semantics is the entry module, parser and lexer its siblings (the layout the
 # bootstrap needs); `.fs` because the self-hosted sources read files.
 mkdir -p "$W/sh/src/app"
-cp selfhost/semantics/*.byn "$W/sh/src/app/"
-cp -R selfhost/parser selfhost/lexer "$W/sh/src/"
+cp src/semantics/*.byn "$W/sh/src/app/"
+cp -R src/parser src/lexer "$W/sh/src/"
 cat > "$W/sh/package.byn" <<'PKG'
 Package {
     name: "local/bench-selfhost",

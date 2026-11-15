@@ -11,12 +11,12 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// <c>selfhost/semantics/codes.byn</c> (the semantic message table) and <c>diag.byn</c> (the
+/// <c>src/semantics/codes.byn</c> (the semantic message table) and <c>diag.byn</c> (the
 /// diagnostic sink and the plain renderer), checked against C# through one generated driver.
 /// </summary>
 public sealed class SelfhostSemanticsT2Tests
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string SemanticsDir => Path.Combine(SelfhostDir, "semantics");
 
@@ -281,7 +281,7 @@ public sealed class SelfhostSemanticsT2Tests
         }
         """;
 
-    /// <summary>The built driver, or the compiler's complaint; the package root is <c>selfhost/</c>.</summary>
+    /// <summary>The built driver, or the compiler's complaint; the package root is <c>src/</c>.</summary>
     private static readonly Lazy<(string? Path, string Error)> BayanCheck = new(() =>
     {
         var sources = Directory.GetFiles(SemanticsDir, "*.byn")
@@ -307,7 +307,7 @@ public sealed class SelfhostSemanticsT2Tests
         get
         {
             var (path, error) = BayanCheck.Value;
-            if (path is null) Assert.Fail($"selfhost/semantics did not build:\n{error}");
+            if (path is null) Assert.Fail($"src/semantics did not build:\n{error}");
             return path!;
         }
     }

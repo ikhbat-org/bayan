@@ -11,7 +11,7 @@ using TextSpan = Bayan.Syntax.Text.TextSpan;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T37: <c>selfhost/semantics/region2.byn</c> against the C# <c>RegionAnalysis</c> (RegionAnalysis.cs 418-881).
+/// T37: <c>src/semantics/region2.byn</c> against the C# <c>RegionAnalysis</c> (RegionAnalysis.cs 418-881).
 /// Each case compiles <see cref="Source"/> on both sides, builds one function's analysis state with its commands and
 /// calls the ported member on a bound node of that function: on the C# side by reflection on the private class, on the
 /// Bayan side through generated code. It then prints the mutations, the loans and the diagnostics the commands added.

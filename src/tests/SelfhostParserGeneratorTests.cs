@@ -19,11 +19,11 @@ namespace Bayan.Tests;
 /// </summary>
 public sealed class SelfhostParserGeneratorTests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 
-    /// <summary>The built <c>bayan-parse</c>, or the compiler's complaint (package root <c>selfhost/</c>, Q430).</summary>
+    /// <summary>The built <c>bayan-parse</c>, or the compiler's complaint (package root <c>src/</c>, Q430).</summary>
     private static readonly Lazy<(string? Path, string Error)> BayanParse = new(() =>
         BuildParser(Directory.GetFiles(ParserDir, "*.byn").Order(StringComparer.Ordinal).Select(f => SourceText.FromFile(f)).ToList()));
 
@@ -41,7 +41,7 @@ public sealed class SelfhostParserGeneratorTests(ITestOutputHelper output)
         get
         {
             var (path, error) = BayanParse.Value;
-            if (path is null) Assert.Fail($"selfhost/parser did not build:\n{error}");
+            if (path is null) Assert.Fail($"src/parser did not build:\n{error}");
             return path!;
         }
     }

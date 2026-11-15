@@ -10,7 +10,7 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T24: <c>selfhost/semantics/ownership.byn</c> against the C# <c>OwnershipAnalysis</c>, <c>NeverReassignedVarLint</c>,
+/// T24: <c>src/semantics/ownership.byn</c> against the C# <c>OwnershipAnalysis</c>, <c>NeverReassignedVarLint</c>,
 /// <c>SpanParameterLint</c> and <c>PanicHandlerCheck</c>. The statement and expression binders are still stubs (T35, T36,
 /// T39), so the C# side compiles <see cref="Source"/>, then writes each case function's bound body and locals out as Bayan
 /// code that rebuilds them on the Bayan declarations; the generated main runs the four ports over that tree. Every

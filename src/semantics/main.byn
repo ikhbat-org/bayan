@@ -81,7 +81,7 @@ i32 golden(in List<string> args) {
 }
 
 /// `--many`: every `*.byn` in `dir`, in name order, as `--golden --package <dir>` prints it, then its
-/// `--spans` lines; the shape of `bayan-parse --many` (selfhost/parser/main.byn:58). Exits 0, or the
+/// `--spans` lines; the shape of `bayan-parse --many` (src/parser/main.byn:58). Exits 0, or the
 /// last per-input exit that is neither 0 nor 1.
 i32 many(string dir) {
     var names = Io.listDir(dir) catch return usage()
@@ -109,7 +109,7 @@ i32 many(string dir) {
 }
 
 /// `--time` (R7): `check`'s compile of `path`, timed by `Compilation.ParseTime`/`CheckTime`
-/// (compile.byn:96, :107); the total on stdout as `bayan-parse --time` does (selfhost/parser/main.byn:80).
+/// (compile.byn:96, :107); the total on stdout as `bayan-parse --time` does (src/parser/main.byn:80).
 i32 timed(string path, by in T26Symbols symbols) {
     var args = List<string>()
     args.append(path)
@@ -123,7 +123,7 @@ i32 timed(string path, by in T26Symbols symbols) {
 }
 
 /// `--codes`: `code\tmessage` for every `SemaCode` (codes.byn:785 `allSemaCodes`), as `bayan-parse --codes`
-/// prints `ParseCode` (selfhost/parser/main.byn:99).
+/// prints `ParseCode` (src/parser/main.byn:99).
 i32 printCodes() {
     for code in allSemaCodes() {
         print($"{codeText(code)}\t{messageFormat(code)}")

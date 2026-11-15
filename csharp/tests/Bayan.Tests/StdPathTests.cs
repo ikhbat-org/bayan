@@ -231,7 +231,7 @@ public sealed class StdPathTests
     /// <summary>
     /// <c>byn_path_relative</c> on bytes that are not UTF-8 gives what <c>Path.GetRelativePath</c> gives on their
     /// <c>Encoding.UTF8</c> decoding (each maximal invalid subpart one U+FFFD). Bayan text is always valid UTF-8 (literals,
-    /// <c>Utf8.decode</c>, arguments and <c>Io</c> all check), so a native driver (<c>tests/native/path-relative-cases.c</c>)
+    /// <c>Utf8.decode</c>, arguments and <c>Io</c> all check), so a native driver (<c>runtime/tests/path-relative-cases.c</c>)
     /// calls the runtime directly.
     /// </summary>
     [Fact]
@@ -312,7 +312,7 @@ public sealed class StdPathTests
         Assert.True(steps.All(s => s.Runtime == s.Full), report);
     }
 
-    /// <summary>Runs <c>tests/native/path-relative-cases.c</c> on <paramref name="input"/> and returns its output lines.</summary>
+    /// <summary>Runs <c>runtime/tests/path-relative-cases.c</c> on <paramref name="input"/> and returns its output lines.</summary>
     private static async Task<string[]> RunDriver(string input)
     {
         var driver = File.ReadAllText(Path.Combine(Golden.RepoRoot, "tests", "native", "path-relative-cases.c"));
@@ -425,7 +425,7 @@ public sealed class StdPathTests
     }
 
     /// <summary>
-    /// The runtime's case tables (<c>src/runtime/bayan-rt.c</c>) give <c>char.ToUpperInvariant</c> and <c>OrdinalCasing.ToUpper</c> for
+    /// The runtime's case tables (<c>runtime/bayan-rt.c</c>) give <c>char.ToUpperInvariant</c> and <c>OrdinalCasing.ToUpper</c> for
     /// every one of the 65,536 UTF-16 units, and <c>CharUnicodeInfo.ToUpper</c> for every scalar above U+FFFF, as this .NET does.
     /// Only the block for the running OS is checked and, with <c>BAYAN_UPDATE=1</c>, rewritten; the other is left as it is.
     /// </summary>
@@ -433,7 +433,7 @@ public sealed class StdPathTests
     public void CaseTablesMatchDotNet()
     {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsMacOS()) return;
-        var path = Path.Combine(Golden.RepoRoot, "src", "runtime", "bayan-rt.c");
+        var path = Path.Combine(Golden.RepoRoot, "runtime", "bayan-rt.c");
         var text = File.ReadAllText(path);
         var begin = text.IndexOf(TablesBegin, StringComparison.Ordinal);
         var end = text.IndexOf(TablesEnd, StringComparison.Ordinal);

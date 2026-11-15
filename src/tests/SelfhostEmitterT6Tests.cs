@@ -12,7 +12,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 T6: <c>selfhost/emitter/cprint/program.byn</c> (CEmitter.cs 61-178, 288-396) and <c>cprint/data.byn</c>
+/// 011 T6: <c>src/emitter/cprint/program.byn</c> (CEmitter.cs 61-178, 288-396) and <c>cprint/data.byn</c>
 /// (CEmitter.cs 1047-1147) against the C# as an in-process oracle. A generated <c>main.byn</c> prints what the ported
 /// functions return, by mode, as <see cref="SelfhostEmitterT2Tests"/> does (Q783).
 /// </summary>
@@ -247,7 +247,7 @@ public sealed class SelfhostEmitterT6Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T6 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T6 main did not build:\n{error}");
         return path!;
     }
 

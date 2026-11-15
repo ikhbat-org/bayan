@@ -10,7 +10,7 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T25: <c>selfhost/semantics/region.byn</c> against the C# <c>RegionAnalysis</c> (RegionAnalysis.cs 1-416). The C# class and
+/// T25: <c>src/semantics/region.byn</c> against the C# <c>RegionAnalysis</c> (RegionAnalysis.cs 1-416). The C# class and
 /// its records are private, so the oracle drives them by reflection: <c>Borrow.Union</c>/<c>Lent</c> on borrows both sides build
 /// from one spec; <c>Run</c> on whole programs, compared on the state T25 code alone writes (<c>_depthOf</c>, <c>_declaredAt</c>,
 /// <c>_restTails</c> and the rest parameters' <c>_locals</c>); <c>Compute</c> on probe expressions; and <c>Analyze</c> against

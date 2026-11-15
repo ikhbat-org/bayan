@@ -9,7 +9,7 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T20: <c>selfhost/semantics/calls.byn</c> against the C# <c>BinderCalls</c> (BinderCalls.cs 1-595).
+/// T20: <c>src/semantics/calls.byn</c> against the C# <c>BinderCalls</c> (BinderCalls.cs 1-595).
 /// One source, <see cref="Source"/>, is compiled by both sides: the C# side via <c>Compilation.Create</c> plus
 /// reflection on the C# <c>Binder</c>, the Bayan side via <c>loadModule</c> + <c>declare</c> in the generated main run
 /// by <c>SelfhostSemanticsHarness.RunSections</c>. Each case runs one operation on one <c>let</c> initializer of

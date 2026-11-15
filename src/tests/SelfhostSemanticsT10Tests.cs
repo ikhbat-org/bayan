@@ -7,7 +7,7 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T10: <c>selfhost/semantics/manifest.byn</c> against the C# <c>Manifest</c>. Every manifest input (the
+/// T10: <c>src/semantics/manifest.byn</c> against the C# <c>Manifest</c>. Every manifest input (the
 /// <c>tests/cases/manifest/</c> goldens, the two <c>diag/</c> <c>package.byn</c> files and the inline cases
 /// below, written to <c>tmp/t10-cases/</c>) goes through <c>manifestRead</c> in one generated
 /// <c>main.byn</c>, which prints a section per input: the rendered diagnostics, or the fields read. The
@@ -144,7 +144,7 @@ public sealed class SelfhostSemanticsT10Tests
         return cases;
     }
 
-    /// <summary>017 T20: <c>selfhost/semantics/main.byn</c> keeps Q565 for the unreadable <c>package.byn</c> that <c>manifestRead</c> now fails on:
+    /// <summary>017 T20: <c>src/semantics/main.byn</c> keeps Q565 for the unreadable <c>package.byn</c> that <c>manifestRead</c> now fails on:
     /// it reads as an empty one, so the run prints what it prints for an empty <c>package.byn</c>.</summary>
     [Fact]
     public void MainReadsAnUnreadablePackageAsAnEmptyOne()

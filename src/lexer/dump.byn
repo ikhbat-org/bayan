@@ -1,5 +1,5 @@
 // Text and JSON forms of a token stream, as printed by `bayan lex` (the text form is kept in the
-// `lex/` goldens). Ports `src/Bayan.Syntax/Lexing/TokenDump.cs`.
+// `lex/` goldens). Ports `csharp/Bayan.Syntax/Lexing/TokenDump.cs`.
 
 void dump(ref LexResult result, to ref StrBuf sb) {
     // By index: `getLinePosition` modifies `result.source`, so the loop may not borrow `result`.

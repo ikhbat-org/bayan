@@ -12,14 +12,14 @@ using Xunit.Abstractions;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 009 T5, <c>selfhost/parser/decls2.byn</c> on its own: each case calls one declaration parser directly, from
+/// 009 T5, <c>src/parser/decls2.byn</c> on its own: each case calls one declaration parser directly, from
 /// a <c>main</c> that stands in for <c>main.byn</c>, and compares the node's name, span and case count and every
 /// diagnostic (code, span, message, label, help, fix) with the C# parser. The inputs avoid types, expressions,
 /// blocks, attributes and docs, which the sibling files and the <c>T5</c> shims do not parse yet (Q450).
 /// </summary>
 public sealed class SelfhostParserT5Tests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 

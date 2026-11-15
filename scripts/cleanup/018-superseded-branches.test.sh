@@ -10,9 +10,9 @@ export GIT_ALLOW_PROTECTED=1  # fixture repo: its dev branch is the subject unde
 old="2020-01-01T00:00:00"
 g() { GIT_COMMITTER_DATE="$old" GIT_AUTHOR_DATE="$old" git -c user.email=t@t -c user.name=t "$@"; }
 git init -q -b dev && git config core.hooksPath /dev/null
-mkdir -p scripts/cleanup tests/Bayan.Tests
+mkdir -p scripts/cleanup csharp/tests/Bayan.Tests
 cp "$root/scripts/cleanup/018-superseded-branches.sh" "$root/scripts/cleanup/merged-worktree-backlog.sh" scripts/cleanup/
-printf '    [Fact(Skip = "T28 enables it")]\n    public void A() {}\n' > tests/Bayan.Tests/SelfhostSemanticsTests.cs
+printf '    [Fact(Skip = "T28 enables it")]\n    public void A() {}\n' > src/tests/SelfhostSemanticsTests.cs
 printf 'tmp/\n.worktrees/\n' > .gitignore && git add . && g commit -q -m base
 gnow() { git -c user.email=t@t -c user.name=t "$@"; }
 ago3h="$(( $(date +%s) - 10800 )) +0000"
@@ -22,13 +22,13 @@ g3h branch feat/010-self-hosted-semantics && g3h worktree add -q .worktrees/feat
 gnow branch fresh && gnow worktree add -q .worktrees/fresh fresh
 g worktree add -q --detach tmp/wt/t28survey dev
 for f in a.txt b.txt C.txt copy.bin empty.bin input.bin; do echo x > ".worktrees/feat-010-self-hosted-semantics/$f"; done
-s=tmp/wt/t28survey/tests/Bayan.Tests/SelfhostSemanticsTests.cs
+s=tmp/wt/t28survey/src/tests/SelfhostSemanticsTests.cs
 printf '    [Fact]\n    public void A() {}\n' > "$s"
 fail() { echo "FAIL: $1"; echo "$out"; cd "$root"; exit 1; }
 
 out="$(bash scripts/cleanup/018-superseded-branches.sh)"
 echo "$out" | grep -q "^would: rm .worktrees/feat-010-self-hosted-semantics/input.bin (needs --execute --discard-worktree-changes)$" || fail "untracked file not listed"
-echo "$out" | grep -q "^would: git -C tmp/wt/t28survey checkout -- tests/Bayan.Tests" || fail "un-skip revert not listed"
+echo "$out" | grep -q "^would: git -C tmp/wt/t28survey checkout -- csharp/tests/Bayan.Tests" || fail "un-skip revert not listed"
 [ -f .worktrees/feat-010-self-hosted-semantics/a.txt ] && grep -q '\[Fact\]' "$s" || fail "dry run changed something"
 
 out="$(bash scripts/cleanup/018-superseded-branches.sh -e)"

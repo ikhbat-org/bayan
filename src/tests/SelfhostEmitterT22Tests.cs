@@ -10,7 +10,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 T22: the selfhost lowering's <c>LoweredFunction.locals</c> (<c>selfhost/emitter/lower*.byn</c>, the
+/// 011 T22: the selfhost lowering's <c>LoweredFunction.locals</c> (<c>src/emitter/lower*.byn</c>, the
 /// <c>note</c>/<c>newTemp</c> calls) against the C# <c>LoweredFunction.Locals</c> (Lowerer.cs:99-110 <c>Note</c>,
 /// <c>NewTemp</c>), run in-process on the same compilation. Each function and test of <c>Lowerer.Lower</c> prints its
 /// locals in order as <c>kind:name</c>, the kind <c>LocalKind</c>'s ordinal.
@@ -103,7 +103,7 @@ public sealed class SelfhostEmitterT22Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T22 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T22 main did not build:\n{error}");
         return path!;
     }
 

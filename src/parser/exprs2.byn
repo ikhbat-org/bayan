@@ -1,4 +1,4 @@
-// Expressions B. Ports `src/Bayan.Syntax/Parsing/Parser.cs` lines 3607–4056: primaries, literals and
+// Expressions B. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 3607–4056: primaries, literals and
 // interpolation, collections, struct literals, lambdas, block and switch expressions. Owner: 
 //
 // `with`, block and switch expressions are built in T9's range (`ParsePostfix`, `ParseSwitchExpr`);

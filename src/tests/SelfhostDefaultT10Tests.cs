@@ -11,7 +11,7 @@ using Bayan.Testing;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 017 T10: <c>selfhost/emitter/coverage.byn</c> (CoverageInstrumenter.cs:33-200) and <c>schemata.byn</c> (Mutator.cs,
+/// 017 T10: <c>src/emitter/coverage.byn</c> (CoverageInstrumenter.cs:33-200) and <c>schemata.byn</c> (Mutator.cs,
 /// Schemata.cs) against the C# on every <c>run/</c> input, through a generated emitter main that prints the counters.
 /// </summary>
 public sealed class SelfhostDefaultT10Tests
@@ -752,7 +752,7 @@ public sealed class SelfhostDefaultT10Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T10 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T10 main did not build:\n{error}");
         return path!;
     }
 

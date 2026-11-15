@@ -7,7 +7,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 017 T1: <c>bayan explain</c> of the self-hosted driver. <c>selfhost/driver/diagdocs.byn</c> holds one constant per
+/// 017 T1: <c>bayan explain</c> of the self-hosted driver. <c>src/driver/diagdocs.byn</c> holds one constant per
 /// <c>docs/diagnostics/BYN####.md</c> (plan D2); <c>BAYAN_UPDATE=1</c> regenerates it. The rows compare stage 2 with <see cref="CliApp.Run"/>.
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]

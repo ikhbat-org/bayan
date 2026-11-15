@@ -5,15 +5,15 @@
 
 docs_fixture() {
   local r="$1" d
-  mkdir -p "$r/scripts/release" "$r/scripts/docs" "$r/docs/revisions" "$r/docs/diagnostics" "$r/src/Bayan.Backend.C" \
-    "$r/src/Bayan.Syntax/Diagnostics" "$r/src/Bayan.Syntax/Lexing" "$r/src/Bayan.Semantics/Binding" "$r/selfhost/driver" \
+  mkdir -p "$r/scripts/release" "$r/scripts/docs" "$r/docs/revisions" "$r/docs/diagnostics" "$r/csharp/Bayan.Backend.C" \
+    "$r/csharp/Bayan.Syntax/Diagnostics" "$r/csharp/Bayan.Syntax/Lexing" "$r/csharp/Bayan.Semantics/Binding" "$r/src/driver" \
     "$r/tests/cases/out"
   cp "$root"/scripts/release/{version,set-version,package}.sh "$r/scripts/release/"
   for f in cut next-dev; do [ ! -f "$root/scripts/release/$f.sh" ] || cp "$root/scripts/release/$f.sh" "$r/scripts/release/"; done
   cp "$root"/scripts/docs/{gen-diagnostics,gen-status,gen-spec-index,check,check-history}.sh "$r/scripts/docs/"
   printf '1.2.3-dev\n' > "$r/VERSION"
-  printf 'public static class Toolchain\n{\n    public const string CompilerVersion = "1.2.3-dev";\n}\n' > "$r/src/Bayan.Backend.C/Toolchain.cs"
-  printf '// driver\nconst version: string = "1.2.3-dev"\n' > "$r/selfhost/driver/main.byn"
+  printf 'public static class Toolchain\n{\n    public const string CompilerVersion = "1.2.3-dev";\n}\n' > "$r/csharp/Bayan.Backend.C/Toolchain.cs"
+  printf '// driver\nconst version: string = "1.2.3-dev"\n' > "$r/src/driver/main.byn"
   printf '{\n  "compiler": "bayan 1.2.3-dev",\n  "x": 1\n}\n{\n  "compiler": "bayan 1.2.3-dev"\n}\n' > "$r/tests/cases/out/dist.tree"
   printf '# Bayan\n\n```sh\nscripts/dist.sh                                # this host: dist/macos-arm64/1.2.3-dev/bayan\n```\n' > "$r/README.md"
   printf '# 0001 — First\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$r/docs/revisions/0001-first.md"
@@ -34,7 +34,7 @@ docs_fixture() {
   mkdir -p "$r/docs/specs/001-first"
   printf '# 001 — First\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$r/docs/specs/001-first/001-spec.md"
   printf '# Changelog\n\n## [Unreleased]\n\n### Added\n- a new thing\n\n## [1.2.2] - 2026-01-01\n\n- old\n' > "$r/CHANGELOG.md"
-  cat > "$r/src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs" <<'EOF'
+  cat > "$r/csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs" <<'EOF'
 public static class DiagnosticCodes
 {
     public static readonly DiagnosticDescriptor Alpha = Error("BYN0001", "alpha `{0}`");
@@ -57,7 +57,7 @@ plan BYN2233 UnlikelyOnErrorReturn Warning: redundant.
 reserved BYN8004 - a layer-2 sink
 retired BYN3005 Old retired in its page only
 EOF
-  cat > "$r/src/Bayan.Syntax/Lexing/Keywords.cs" <<'EOF'
+  cat > "$r/csharp/Bayan.Syntax/Lexing/Keywords.cs" <<'EOF'
 public static class Keywords
 {
     private static readonly (string Text, TokenKind Kind)[] All =
@@ -67,7 +67,7 @@ public static class Keywords
     ];
 }
 EOF
-  cat > "$r/src/Bayan.Syntax/Lexing/TokenKind.cs" <<'EOF'
+  cat > "$r/csharp/Bayan.Syntax/Lexing/TokenKind.cs" <<'EOF'
 public enum TokenKind : ushort
 {
     StructKeyword,
@@ -86,7 +86,7 @@ public static class TokenKindFacts
         TokenKind.ErrorKeyword;
 }
 EOF
-  cat > "$r/src/Bayan.Semantics/Binding/BuiltinMembers.cs" <<'EOF'
+  cat > "$r/csharp/Bayan.Semantics/Binding/BuiltinMembers.cs" <<'EOF'
 internal static class BuiltinMembers
 {
     public static (BuiltinMember Member, TypeSymbol Type)? Property(TypeSymbol type, string name) => (type, name) switch

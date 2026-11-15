@@ -1,4 +1,4 @@
-// Parser state, token access and diagnostics. Ports `src/Bayan.Syntax/Parsing/Parser.cs` lines 20–163
+// Parser state, token access and diagnostics. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 20–163
 // (fields, the constructor's `_inGroup` precompute, the cursor, `Report`, `ErrorCount`, `Describe`,
 // `Expect`) and gives the flags C# restores in `finally` a save helper each. Owner: 
 //

@@ -1,4 +1,4 @@
-// Hand-written lexer over UTF-8 bytes. Ports `src/Bayan.Syntax/Lexing/Lexer.cs` method by method;
+// Hand-written lexer over UTF-8 bytes. Ports `csharp/Bayan.Syntax/Lexing/Lexer.cs` method by method;
 // identifier classes and NFC come from the generated `unicode-tables.byn` instead of the .NET
 // runtime and ICU, with NFC ported from `tools/Bayan.UnicodeGen/Nfc.cs`.
 

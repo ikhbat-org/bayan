@@ -29,7 +29,7 @@ public static class TokenDump
     /// <summary>
     /// <c>bayan lex --json</c>: one object with <c>tokens</c> and <c>diagnostics</c> (in source order),
     /// no insignificant whitespace, then <c>\n</c>. Offsets are bytes; invalid UTF-8 in source text
-    /// becomes U+FFFD per maximal subpart. <c>selfhost/lexer/dump.byn</c> prints the same bytes.
+    /// becomes U+FFFD per maximal subpart. <c>src/lexer/dump.byn</c> prints the same bytes.
     /// </summary>
     public static string ToJson(LexResult result)
     {

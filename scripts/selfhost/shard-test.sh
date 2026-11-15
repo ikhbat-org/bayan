@@ -17,7 +17,7 @@
 # Class weights: tmp/shard/class-times.tsv (class<TAB>seconds); a class missing there gets the median weight. The class list comes from
 # `dotnet test --list-tests` on the built assembly (or --classes FILE, one class per line), so a new class is never dropped.
 # Serial classes (run one at a time by xunit) are those carrying [Collection(nameof(X))] or [Collection("X")] for a
-# [CollectionDefinition(nameof(X), DisableParallelization = true)] in tests/Bayan.Tests/*.cs. A unit's load is
+# [CollectionDefinition(nameof(X), DisableParallelization = true)] in csharp/tests/Bayan.Tests/*.cs. A unit's load is
 # (serial seconds + parallel seconds / THREADS) / SPEED; packing is greedy longest-first onto the unit that would finish earliest.
 # Each slice is --filter terms `FullyQualifiedName~Ns.Class.` joined by `|`, chunked to --max-filter chars (Windows argv limit 32767)
 # and run chunk after chunk. The vm slices are aborted (all units stopped) when ghosthive's MemAvailable (the host, not the VM) drops
@@ -173,7 +173,7 @@ merge() {
 }
 
 write_result() { printf 'host=%s\nwall=%s\nrc=%s\ndone=%s\nlog=%s\n' "$2" "$3" "$4" "$5" "$6" > "$1/$2.result"; }
-RUNCMD="dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q --logger 'console;verbosity=minimal'"
+RUNCMD="dotnet test csharp/tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q --logger 'console;verbosity=minimal'"
 # Every ssh gives up on a dead connection (15 s connect, 60 s unanswered keepalives); the VM side of each poll runs under
 # timeout 60 on ghosthive, so a hung incus agent cannot stall the poll loop.
 gh() { ssh -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=4 "$GH" "$@"; }
@@ -211,7 +211,7 @@ slice_mb1() { # dir bundle sha threads: this Mac, in a clone of the bundle under
   { git clone -q "$2" "$m/repo" && git -C "$m/repo" checkout -q -B dev "$3"; } >> "$d/mb1.log" 2>&1 || { write_result "$d" mb1 0 1 0 "$d/mb1.log"; return; }
   while IFS= read -r f; do
     n=$((n+1))
-    (cd "$m/repo" && DOTNET_ROOT=$HOME/.dotnet PATH=$HOME/.dotnet:$PATH nice dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q \
+    (cd "$m/repo" && DOTNET_ROOT=$HOME/.dotnet PATH=$HOME/.dotnet:$PATH nice dotnet test csharp/tests/Bayan.Tests -c Release -p:NuGetAudit=false -v q \
       --logger 'console;verbosity=minimal' --logger "trx;LogFileName=$a/chunk$n.trx" --filter "$f" -- xUnit.MaxParallelThreads="$4") >> "$d/mb1.log" 2>&1 || rc=$?
   done < "$d/mb1.filters"
   rm -rf "$m/repo"
@@ -308,7 +308,7 @@ slice_vm() { # dir sha bundle unit:threads...: one VM start and bundle push, the
 vm_stop() { [ ! -f "$SHARD_DIR/vm.started" ] || gh "timeout 300 incus stop $VM" > /dev/null 2>&1; }
 
 list_classes() { # class names from the built test assembly, one per line
-  dotnet test tests/Bayan.Tests -c Release -p:NuGetAudit=false --list-tests 2> /dev/null |
+  dotnet test csharp/tests/Bayan.Tests -c Release -p:NuGetAudit=false --list-tests 2> /dev/null |
     sed -n '/The following Tests are available/,$p' | sed '1d' | sed 's/^ *//; s/(.*//' | grep '\.' | sed 's/\.[^.]*$//' | sort -u
 }
 
@@ -335,7 +335,7 @@ run() {
   [ -f "$times" ] || { echo "shard-test: no $times, every class gets weight 1"; : > "$d/empty.tsv"; times=$d/empty.tsv; }
   if [ -z "$classes" ]; then classes=$d/classes.txt; list_classes > "$classes"; fi
   [ -s "$classes" ] || { echo "shard-test: no test classes found"; exit 1; }
-  serial_classes tests/Bayan.Tests > "$d/serial.txt"
+  serial_classes csharp/tests/Bayan.Tests > "$d/serial.txt"
   pack "$classes" "$times" "$hosts" "$d/serial.txt" > "$d/slices.tsv"
   rm -f "${d:?}"/*.result "${d:?}/overall.wall" "${d:?}/vm.started"; SHARD_DIR=$d
   # an earlier run's per-unit out/, log and trx files, so a failed fetch leaves nothing stale for merge or times

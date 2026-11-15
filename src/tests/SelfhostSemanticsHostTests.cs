@@ -6,7 +6,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// <c>host</c> in <c>selfhost/semantics/express4.byn</c>, pre-ported for T17/T18, against the C# private getter
+/// <c>host</c> in <c>src/semantics/express4.byn</c>, pre-ported for T17/T18, against the C# private getter
 /// <c>Binder.Host</c> (BinderExpressions.cs:1939-1946), read by reflection on a fresh <c>Binder</c>. The shapes are
 /// built by hand on both sides; only the answers come from the C#.
 /// </summary>

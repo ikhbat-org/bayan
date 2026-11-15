@@ -11,7 +11,7 @@ namespace Bayan.Tests;
 /// exercised in isolation with a stand-in <c>main</c>, before the parsing tasks merge.</summary>
 public sealed class SelfhostParserT12Tests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 
@@ -46,7 +46,7 @@ public sealed class SelfhostParserT12Tests(ITestOutputHelper output)
             var dump = Path.Combine(Golden.RepoRoot, "tmp", "t12-build-error.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(dump)!);
             File.WriteAllText(dump, error);
-            Assert.Fail($"selfhost/parser did not build (full error at {dump}):\n{error}");
+            Assert.Fail($"src/parser did not build (full error at {dump}):\n{error}");
         }
         var (exit, stdout, stderr) = Run(path!);
         output.WriteLine(stderr);

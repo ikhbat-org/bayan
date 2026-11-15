@@ -1,4 +1,4 @@
-// Statements B. Ports `src/Bayan.Syntax/Parsing/Parser.cs` lines 2667–3160: `switch`, switch and
+// Statements B. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 2667–3160: `switch`, switch and
 // jump labels, `defer`, `return`, `fail`, `break`/`continue`, `provide`/context, assignment and
 // inc/dec, expression statements. Owner: 
 //

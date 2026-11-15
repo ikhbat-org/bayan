@@ -9,7 +9,7 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T35: <c>selfhost/semantics/express4.byn</c> against the C# <c>BinderExpressions</c> (BinderExpressions.cs 1641-2145:
+/// T35: <c>src/semantics/express4.byn</c> against the C# <c>BinderExpressions</c> (BinderExpressions.cs 1641-2145:
 /// collections, spreads, map literals, tuples, lambdas and captures, <c>stackalloc</c>, interpolation and format specs,
 /// <c>WhyNotFormattable</c>, <c>PropertyType</c>). One source, <see cref="Source"/>, is compiled by both sides as in the
 /// T19 tests; each case runs one op on one <c>let</c> of that source on both sides, and every expected line is computed

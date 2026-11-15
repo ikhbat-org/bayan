@@ -12,7 +12,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 T10: <c>selfhost/emitter/cprint/expr.byn</c> (CEmitter.cs 1617-1944, minus the D3 branch at 1696-1699) against the C#
+/// 011 T10: <c>src/emitter/cprint/expr.byn</c> (CEmitter.cs 1617-1944, minus the D3 branch at 1696-1699) against the C#
 /// <c>FunctionEmitter.Expr</c> and <c>Call</c> as an in-process oracle. A generated <c>main.byn</c> emits the same expressions of
 /// one fixture function as the C# does and prints the text (Q803). The T6 helpers run; the T7, T9 and T11 siblings the two
 /// functions call are stubs until those tasks land, so the fixture reaches none of them (Q806).
@@ -397,7 +397,7 @@ public sealed class SelfhostEmitterT10Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T10 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T10 main did not build:\n{error}");
         return path!;
     }
 

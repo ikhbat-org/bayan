@@ -10,7 +10,7 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T22: <c>selfhost/semantics/states.byn</c> and <c>errorcases.byn</c> against the C# <c>BinderStates</c> and
+/// T22: <c>src/semantics/states.byn</c> and <c>errorcases.byn</c> against the C# <c>BinderStates</c> and
 /// <c>BinderErrors</c>. One source, <see cref="Source"/>, is compiled by both sides: the C# side via
 /// <c>Compilation.Create</c> plus reflection on the C# <c>Binder</c>, the Bayan side via <c>loadModule</c> + <c>declare</c>
 /// in the generated main. Each case anchors on one <c>let</c> of that source; every expected line is computed from the C#.

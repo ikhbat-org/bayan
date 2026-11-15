@@ -1,4 +1,4 @@
-// Patterns. Ports `src/Bayan.Syntax/Parsing/Parser.cs` lines 4058–4248 (`ParsePattern` onward):
+// Patterns. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 4058–4248 (`ParsePattern` onward):
 // `ParsePattern` with `WithoutLambdas` inlined as save/restore, `ParseAndPattern`, `ParseNotPattern`,
 // `ParsePrimaryPattern`, `ParsePropertyPattern`, `ParseListPattern`. Owner: 
 

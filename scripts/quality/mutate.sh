@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# C# mutation report (spec 013 R15): Stryker scoped to the named src/ files, converted to bayan-quality.json (kind "mutation").
-# usage: mutate.sh [--base BRANCH] [--out FILE] [src/.../File.cs ...]
-# With no file, the changed src/ files: git diff --name-only BASE...HEAD -- 'src/*.cs' (BASE defaults to dev).
+# C# mutation report (spec 013 R15): Stryker scoped to the named csharp/ files, converted to bayan-quality.json (kind "mutation").
+# usage: mutate.sh [--base BRANCH] [--out FILE] [csharp/.../File.cs ...]
+# With no file, the changed csharp/ files: git diff --name-only BASE...HEAD -- 'csharp/*.cs' (BASE defaults to dev).
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 repo="$(cd "$here/../.." && pwd)"
@@ -17,9 +17,9 @@ while [ $# -gt 0 ]; do
 done
 cd "$repo"
 if [ ${#files[@]} -eq 0 ]; then
-  while IFS= read -r f; do files+=("$f"); done < <(git diff --name-only "$base...HEAD" -- 'src/*.cs')
+  while IFS= read -r f; do files+=("$f"); done < <(git diff --name-only "$base...HEAD" -- 'csharp/*.cs')
 fi
-if [ ${#files[@]} -eq 0 ]; then echo "mutate.sh: no src/ files to mutate" >&2; exit 1; fi
+if [ ${#files[@]} -eq 0 ]; then echo "mutate.sh: no csharp/ files to mutate" >&2; exit 1; fi
 
 work="$repo/tmp/quality/stryker"
 rm -rf "$work"
@@ -50,7 +50,7 @@ while IFS= read -r proj; do
     i=$((i + 1))
   done
   n=$((n + 1))
-  (cd "$repo/tests/Bayan.Tests" && dotnet tool run dotnet-stryker --project "$(basename "$proj")" "${mutate[@]}" \
+  (cd "$repo/csharp/tests/Bayan.Tests" && dotnet tool run dotnet-stryker --project "$(basename "$proj")" "${mutate[@]}" \
     --reporter json --output "$work/$n" >&2 </dev/null)
   reports+=("$(find "$work/$n" -name 'mutation-report.json' | head -n 1)")
 done < <(printf '%s\n' "${projects[@]}" | sort -u)

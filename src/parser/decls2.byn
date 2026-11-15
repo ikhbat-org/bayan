@@ -1,4 +1,4 @@
-// Declarations B. Ports `src/Bayan.Syntax/Parsing/Parser.cs` lines about 929–1740 by content:
+// Declarations B. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines about 929–1740 by content:
 // interfaces (`ParseInterface`, `ParseInterfaceMember`: associated types, getters), extensions,
 // `ExpectClose`, fields and properties, `ParseRequiresLines`, constructors, error enums and sets, enums,
 // unions with their payloads and case commas, type aliases, effects and tests. Owner: 

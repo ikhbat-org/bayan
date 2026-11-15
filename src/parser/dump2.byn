@@ -1,4 +1,4 @@
-// The tree dump, S-expressions. Ports `src/Bayan.Syntax/Ast/AstDump.cs` `AssignText` (352–367),
+// The tree dump, S-expressions. Ports `csharp/Bayan.Syntax/Ast/AstDump.cs` `AssignText` (352–367),
 // `BinaryText` (369–397), `UnaryText` (399–407), `Type` (409–461), `Pattern` (463–554), `Sexp`
 // (556–566), `Expr` (568–818), `FieldInits` (820–828) and `Quote` (830–834). Owner: 
 //

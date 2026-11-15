@@ -5,7 +5,7 @@ using Bayan.Cli;
 namespace Bayan.Tests;
 
 /// <summary>
-/// Spec 017 T4: <c>bayan new</c> and <c>bayan init</c> of <c>selfhost/driver/scaffold.byn</c> against the C# CLI (<c>Scaffold.cs</c>).
+/// Spec 017 T4: <c>bayan new</c> and <c>bayan init</c> of <c>src/driver/scaffold.byn</c> against the C# CLI (<c>Scaffold.cs</c>).
 /// Each row runs the same argv under the C# process and the stage-1 driver in two fresh directories and compares stdout, stderr,
 /// the exit code and the written tree (names, bytes, executable bit); the directory is masked as <c>&lt;D&gt;</c>.
 /// </summary>

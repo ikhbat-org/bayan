@@ -8,7 +8,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T38: <c>selfhost/semantics/declare2.byn</c> against the C# <c>Compilation</c>. Each case is a module directory
+/// T38: <c>src/semantics/declare2.byn</c> against the C# <c>Compilation</c>. Each case is a module directory
 /// under <c>tmp/t38-cases/</c>, loaded and declared file by file (T11), then run through the phases its flags name,
 /// in flag order: <c>e</c> DeclareVariants of each error set, <c>u</c> DeclareUnionVariants, <c>m</c> DeclareMembers (each method's DeclareSignature,
 /// DeclareCheck), <c>s</c> DeclareSignature of each free function, <c>i</c> DeclareInterfaceMembers, <c>t</c>

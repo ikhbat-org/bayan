@@ -8,7 +8,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 017 T5: <c>bayan doctor</c> of the self-hosted driver (<c>selfhost/driver/doctor.byn</c>). Each row runs <see cref="CliApp.Run"/> and the
+/// 017 T5: <c>bayan doctor</c> of the self-hosted driver (<c>src/driver/doctor.byn</c>). Each row runs <see cref="CliApp.Run"/> and the
 /// driver on the same argv and environment and compares stdout, stderr and exit code; the commit of the version line and the
 /// OS message of an unwritable cache differ by construction (Q1091, Q1093) and are masked.
 /// </summary>
@@ -305,7 +305,7 @@ public sealed partial class SelfhostDefaultT5Tests
     private static string RenderedByTheDriver(string shape, string style)
     {
         var (path, error) = Probe.Value;
-        if (path is null) Assert.Fail($"selfhost/driver with the render probe did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/driver with the render probe did not build:\n{error}");
         var (exit, stdout, _) = SelfhostParserTests.Run(path!, shape, style);
         Assert.Equal(0, exit);
         return stdout.ReplaceLineEndings("\n");

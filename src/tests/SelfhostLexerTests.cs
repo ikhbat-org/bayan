@@ -10,17 +10,17 @@ using Xunit.Abstractions;
 
 namespace Bayan.Tests;
 
-/// <summary><c>selfhost/lexer</c>, built by the bootstrap compiler and run against the <c>lex/</c> goldens.</summary>
+/// <summary><c>src/lexer</c>, built by the bootstrap compiler and run against the <c>lex/</c> goldens.</summary>
 public sealed class SelfhostLexerTests(ITestOutputHelper output)
 {
     public static TheoryData<string> Cases => Golden.Cases("lex");
 
-    private static string LexerDir => Path.Combine(Golden.RepoRoot, "selfhost", "lexer");
+    private static string LexerDir => Path.Combine(Golden.RepoRoot, "src", "lexer");
 
     /// <summary>The built <c>bayan-lex</c>, or the compiler's complaint.</summary>
     private static readonly Lazy<(string? Path, string Error)> BayanLex = new(() => BuildLex(SelfhostSemanticsHarness.SnapshotDir));
 
-    /// <summary><c>selfhost/lexer</c> built in fast mode; under <paramref name="snapshot"/> a schemata build listed in its <c>manifest.json</c>.
+    /// <summary><c>src/lexer</c> built in fast mode; under <paramref name="snapshot"/> a schemata build listed in its <c>manifest.json</c>.
     /// Never coverage-instrumented: the lexer group ignored <c>BAYAN_COVERAGE</c> before snapshot recording, and a guard
     /// <c>BAYAN_COVERAGE_FILES</c> naming only non-lexer files would make the build throw.</summary>
     internal static (string? Path, string Error) BuildLex(string? snapshot)
@@ -37,7 +37,7 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
         get
         {
             var (path, error) = BayanLex.Value;
-            if (path is null) Assert.Fail($"selfhost/lexer/main.byn did not build:\n{error}");
+            if (path is null) Assert.Fail($"src/lexer/main.byn did not build:\n{error}");
             return path!;
         }
     }

@@ -8,10 +8,10 @@ using Xunit.Abstractions;
 
 namespace Bayan.Tests;
 
-/// <summary>Focused checks for the T8 statements-B port (<c>selfhost/parser/stmts2.byn</c>).</summary>
+/// <summary>Focused checks for the T8 statements-B port (<c>src/parser/stmts2.byn</c>).</summary>
 public sealed class SelfhostParserT8Tests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 

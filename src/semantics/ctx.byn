@@ -2,7 +2,7 @@
 // records, the diagnostic bag, the deferred-work item and the binder's cursors. Every type another
 // semantics file names lives here; T3/T4 extend `Ctx` with arenas and the file is frozen after T4.
 //
-// The C# keeps this state in `Compilation` (`src/Bayan.Semantics/Compilation.cs`: the module list,
+// The C# keeps this state in `Compilation` (`csharp/Bayan.Semantics/Compilation.cs`: the module list,
 // the diagnostic bag, the sinks, the options), in `FileContext` (`Symbols/Symbols.cs:69-80`: the
 // tree, the module, the imports) and in `Binder`. A handle is an index into an arena; -1 is C#'s
 // `null`. `Type` and the bound handles encode `(kind << 32) | index`.

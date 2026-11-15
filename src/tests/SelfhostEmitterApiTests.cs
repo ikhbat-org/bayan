@@ -4,7 +4,7 @@ namespace Bayan.Tests;
 
 /// <summary>
 /// The 011 cross-file skeleton: every entry point <c>docs/specs/011-self-hosted-emitter/011-api.md</c> indexes is
-/// declared, with exactly that signature, in its file under <c>selfhost/</c>.
+/// declared, with exactly that signature, in its file under <c>src/</c>.
 /// </summary>
 public sealed class SelfhostEmitterApiTests
 {

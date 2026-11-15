@@ -1,4 +1,4 @@
-// The tree dump, declarations and statements. Ports `src/Bayan.Syntax/Ast/AstDump.cs` (`Dump`, the
+// The tree dump, declarations and statements. Ports `csharp/Bayan.Syntax/Ast/AstDump.cs` (`Dump`, the
 // `Writer` with `Decl`, `Stmt`, `Mods`, `TypeParams`, `Params`, `Doc`, `Bases`, `Where`,
 // `Attribute`, `Rules`), plus tombstone compaction before the lexer's `renderAll`. Owner: 
 //

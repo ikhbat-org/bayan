@@ -13,19 +13,19 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// <c>selfhost/semantics</c>, the self-hosted checker: T1's skeleton checks, and T26's modes
+/// <c>src/semantics</c>, the self-hosted checker: T1's skeleton checks, and T26's modes
 /// (<c>bayan-check &lt;path&gt;</c>, <c>--types</c>, <c>--golden</c>) against the C# <see cref="CliApp"/>, <see cref="Compilation"/>
 /// and <see cref="Messages"/>. Both sides use the Unicode symbols: <c>TestSetup</c> sets a UTF-8 <c>LANG</c>,
 /// and the self-hosted renderer has no ASCII style yet (Q646).
 /// </summary>
 public sealed class SelfhostSemanticsTests
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string SemanticsDir => Path.Combine(SelfhostDir, "semantics");
 
     /// <summary>
-    /// The built <c>bayan-check</c>, or the compiler's complaint. The package root is <c>selfhost/</c>
+    /// The built <c>bayan-check</c>, or the compiler's complaint. The package root is <c>src/</c>
     /// so that <c>import parser</c> and <c>import lexer</c> resolve (Q430).
     /// </summary>
     private static readonly Lazy<(string? Path, string Error)> BayanCheck = new(() =>
@@ -46,7 +46,7 @@ public sealed class SelfhostSemanticsTests
         get
         {
             var (path, error) = BayanCheck.Value;
-            if (path is null) Assert.Fail($"selfhost/semantics did not build:\n{error}");
+            if (path is null) Assert.Fail($"src/semantics did not build:\n{error}");
             return path!;
         }
     }

@@ -5,7 +5,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 016 T2: <c>selfhost/semantics/stdsource.byn</c> carries <c>lib/std/**/*.byn</c> (embedded by
+/// 016 T2: <c>src/semantics/stdsource.byn</c> carries <c>lib/std/**/*.byn</c> (embedded by
 /// <c>Bayan.Semantics.csproj</c>) as one raw-string constant per file and <c>stdShippedSources</c>, the selfhost's
 /// <c>StdLibrary.Shipped</c>. <c>BAYAN_UPDATE=1</c> regenerates the file; the check needs no built binary.
 /// </summary>

@@ -9,7 +9,7 @@ using SourceText = Bayan.Syntax.Text.SourceText;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T36: <c>selfhost/semantics/binder3.byn</c> against the C# <c>Binder</c> (Binder.cs 987-1467: for bodies, return/fail,
+/// T36: <c>src/semantics/binder3.byn</c> against the C# <c>Binder</c> (Binder.cs 987-1467: for bodies, return/fail,
 /// break/continue, defers, <c>Panic.handler</c>, <c>context</c>, the switch statement). Each case is a golden diag input
 /// or an inline source, compiled whole by both sides: the C# via <c>Compilation.Create</c>, the Bayan via
 /// <c>loadModule</c> + <c>declare</c>, conformances checked and every body bound. Both print the diagnostics with the

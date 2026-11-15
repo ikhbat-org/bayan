@@ -1,5 +1,5 @@
 // Tokens: kinds, flags, the token struct and keywords. Ports `TokenKind.cs`, `Token.cs` and
-// `Keywords.cs` from `src/Bayan.Syntax/Lexing/`.
+// `Keywords.cs` from `csharp/Bayan.Syntax/Lexing/`.
 
 /// Member names are the C# `TokenKind` names with the first letter lowered; the dump raises it again.
 public enum TokenKind {

@@ -253,7 +253,7 @@ public sealed class SelfhostSemanticsNoPanicLawTests(ITestOutputHelper output)
                          + $"{replaced.Count} replaced (C# throws): {string.Join(", ", replaced)}");
     }
 
-    /// <summary><c>golden</c> (selfhost/semantics/main.byn) and <see cref="SelfhostSemanticsTests.GoldenSame"/>: the file alone,
+    /// <summary><c>golden</c> (src/semantics/main.byn) and <see cref="SelfhostSemanticsTests.GoldenSame"/>: the file alone,
     /// <paramref name="dir"/> as root, tests for <c>*.test.byn</c>, the manifest's capabilities and name.</summary>
     private static Compilation Compile(string dir, string name, byte[] bytes, Manifest? manifest) =>
         Compilation.Create([new SourceText(name, bytes)], dir, new CompilationOptions(
@@ -278,7 +278,7 @@ public sealed class SelfhostSemanticsNoPanicLawTests(ITestOutputHelper output)
     }
 
     /// <summary>
-    /// The C# diagnostics' spans walked as <c>t26CheckSpans</c> walks the port's (selfhost/semantics/main.byn):
+    /// The C# diagnostics' spans walked as <c>t26CheckSpans</c> walks the port's (src/semantics/main.byn):
     /// for every diagnostic with a file, its span, each related span and its fix span lie within the file.
     /// </summary>
     private static bool CSharpSpansOutside(IReadOnlyList<Diagnostic> diagnostics)

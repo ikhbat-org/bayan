@@ -9,13 +9,13 @@ using Xunit.Abstractions;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 009 T10: <c>selfhost/parser/exprs2.byn</c> in isolation. The siblings' parsing files are stubs on this branch,
+/// 009 T10: <c>src/parser/exprs2.byn</c> in isolation. The siblings' parsing files are stubs on this branch,
 /// so the program replaces <c>exprs.byn</c> with a <c>parseExpression</c> that is <c>parsePrimary</c> and
 /// prints its own S-expressions in place of <c>dump2.byn</c>. Full dumps against the C# are T15's.
 /// </summary>
 public sealed class SelfhostParserT10Tests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 

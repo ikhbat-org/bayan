@@ -8,8 +8,8 @@ using Bayan.Cli;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 017 T12: <c>bayan dist</c> of the self-hosted driver (<c>selfhost/driver/dist.byn</c>, <c>compareVersions</c> in
-/// <c>selfhost/semantics/manifest.byn</c>). Every row runs one argv sequence on two trees seeded alike, the C# <c>bayan</c> (its assembly
+/// 017 T12: <c>bayan dist</c> of the self-hosted driver (<c>src/driver/dist.byn</c>, <c>compareVersions</c> in
+/// <c>src/semantics/manifest.byn</c>). Every row runs one argv sequence on two trees seeded alike, the C# <c>bayan</c> (its assembly
 /// under <c>dotnet</c>) on the first and the stage-2 driver on the second, and compares per step the exit code and the streams (the root
 /// masked), and after the last the whole <c>dist/</c> tree: relative names, Unix modes, and the text of <c>SHA256SUMS</c>,
 /// <c>BUILDINFO.json</c>, <c>VERSION</c> and any other text file. The executables' bytes are not compared (their names, modes and the

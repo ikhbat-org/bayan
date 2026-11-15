@@ -15,7 +15,7 @@ using TupleType = Bayan.Semantics.Symbols.TupleType;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T6: <c>selfhost/semantics/conversions.byn</c> (<c>Conversions.cs</c>, <c>TypeFacts.cs</c>) and
+/// T6: <c>src/semantics/conversions.byn</c> (<c>Conversions.cs</c>, <c>TypeFacts.cs</c>) and
 /// <c>fold.byn</c> (<c>ConstantFolding.cs</c>) against the C# classes. One generated <c>main.byn</c>
 /// rebuilds the oracle's symbols and types by hand and prints a section per function family.
 /// </summary>

@@ -12,7 +12,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 T11: <c>selfhost/emitter/cprint/builtin.byn</c> (CEmitter.cs 1946-2454: <c>Builtin</c>, <c>Unary</c>,
+/// 011 T11: <c>src/emitter/cprint/builtin.byn</c> (CEmitter.cs 1946-2454: <c>Builtin</c>, <c>Unary</c>,
 /// <c>Binary</c>, <c>Conversion</c>, <c>Index</c>, <c>Slice</c>) against the C# <c>FunctionEmitter</c> run in-process.
 /// Every builtin call, unary, binary, conversion, index and slice of the unlowered bodies is numbered in
 /// <c>BoundTree.Descendants</c> order. Each case is emitted by both sides with the locals named as the C#
@@ -195,7 +195,7 @@ public sealed class SelfhostEmitterT11Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T11 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T11 main did not build:\n{error}");
         return path!;
     }
 

@@ -11,16 +11,16 @@ using Xunit.Abstractions;
 
 namespace Bayan.Tests;
 
-/// <summary><c>selfhost/parser</c>, built by the bootstrap compiler and run against the C# parser.</summary>
+/// <summary><c>src/parser</c>, built by the bootstrap compiler and run against the C# parser.</summary>
 public sealed class SelfhostParserTests(ITestOutputHelper output)
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string ParserDir => Path.Combine(SelfhostDir, "parser");
 
     /// <summary>
-    /// The built <c>bayan-parse</c>, or the compiler's complaint. The package root is <c>selfhost/</c> so that
-    /// <c>import lexer</c> resolves; <see cref="Compilation.FromPath"/> would use <c>selfhost/parser/</c> (Q430).
+    /// The built <c>bayan-parse</c>, or the compiler's complaint. The package root is <c>src/</c> so that
+    /// <c>import lexer</c> resolves; <see cref="Compilation.FromPath"/> would use <c>src/parser/</c> (Q430).
     /// </summary>
     private static readonly Lazy<(string? Path, string Error)> BayanParse = new(() =>
         BuildParser(Directory.GetFiles(ParserDir, "*.byn").Order(StringComparer.Ordinal).Select(f => SourceText.FromFile(f)).ToList()));
@@ -40,7 +40,7 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
         get
         {
             var (path, error) = BayanParse.Value;
-            if (path is null) Assert.Fail($"selfhost/parser did not build:\n{error}");
+            if (path is null) Assert.Fail($"src/parser did not build:\n{error}");
             return path!;
         }
     }

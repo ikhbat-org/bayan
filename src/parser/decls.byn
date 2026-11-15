@@ -1,4 +1,4 @@
-// Declarations A. Ports `src/Bayan.Syntax/Parsing/Parser.cs` lines 347–928 and 1075–1459 by content:
+// Declarations A. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 347–928 and 1075–1459 by content:
 // the compilation unit, `DocOf`, modifiers, `ParseDeclaration`, attributes and `because`, the delegate
 // alias, the declaration-start scans, type params, imports, structs with their states and requires
 // rules, the struct `ParseBody(string, …)` site, bases, `where`, and functions with their clauses,

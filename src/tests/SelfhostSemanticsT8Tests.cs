@@ -4,7 +4,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T8: <c>selfhost/semantics/typeresolve.byn</c> against the C# <c>TypeResolver</c>. Each fixture's
+/// T8: <c>src/semantics/typeresolve.byn</c> against the C# <c>TypeResolver</c>. Each fixture's
 /// <c>Probe</c> fields are resolved on both sides and printed as <c>name: display</c>, then the
 /// diagnostics as <c>code line:col message</c> plus any help, sorted.
 /// </summary>

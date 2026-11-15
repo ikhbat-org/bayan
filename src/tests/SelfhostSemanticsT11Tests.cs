@@ -8,7 +8,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T11: <c>selfhost/semantics/compile.byn</c> against the C# <c>Compilation</c>. The fixture trees below are
+/// T11: <c>src/semantics/compile.byn</c> against the C# <c>Compilation</c>. The fixture trees below are
 /// written to <c>tmp/t11-cases/</c>; one generated <c>main.byn</c> runs every case and prints a section per
 /// case. The oracle runs the same case through <c>Compilation.FromPath</c>/<c>FromProject</c>/<c>Create</c>,
 /// or, for one phase, through the private <c>LoadModule</c>, <c>DeclareFile</c> and <c>Declare</c> by

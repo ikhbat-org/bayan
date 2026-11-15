@@ -14,14 +14,14 @@ using TupleType = Bayan.Semantics.Symbols.TupleType;
 namespace Bayan.Tests;
 
 /// <summary>
-/// T3: the self-hosted symbols and types (<c>selfhost/semantics/symbols.byn</c> and
+/// T3: the self-hosted symbols and types (<c>src/semantics/symbols.byn</c> and
 /// <c>types.byn</c>) against a C# oracle over the same symbols and types. One generated
 /// <c>main.byn</c> reconstructs the symbols by hand and prints labelled sections; the C# oracle
 /// builds the same symbols and types and emits the same sections, and each test compares one.
 /// </summary>
 public sealed class SelfhostSemanticsT3Tests
 {
-    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "selfhost");
+    private static string SelfhostDir => Path.Combine(Golden.RepoRoot, "src");
 
     private static string SemanticsDir => Path.Combine(SelfhostDir, "semantics");
 
@@ -48,7 +48,7 @@ public sealed class SelfhostSemanticsT3Tests
         return (output.Split('\n', StringSplitOptions.RemoveEmptyEntries), "");
     });
 
-    /// <summary>The whole <c>selfhost/semantics</c> module with a generated <c>main</c>, built once.</summary>
+    /// <summary>The whole <c>src/semantics</c> module with a generated <c>main</c>, built once.</summary>
     private static (string? Path, string Error) Build(List<SourceText> sources)
     {
         Environment.SetEnvironmentVariable("BAYAN_CACHE", Path.Combine(Golden.RepoRoot, "tmp", "cache"));

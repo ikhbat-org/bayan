@@ -7,7 +7,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 012 T3: the C compiler interface of the driver (<c>selfhost/driver/cc.byn</c>) against the C# toolchain. Both sides run as
+/// 012 T3: the C compiler interface of the driver (<c>src/driver/cc.byn</c>) against the C# toolchain. Both sides run as
 /// processes with a <c>PATH</c> holding fake compilers, so the C# <c>FindCompiler</c> and <c>Compile</c> are the oracle: the
 /// fake <c>zig</c>/<c>cc</c> records its argv and creates the output named after <c>-o</c>. The scratch directory (Q1) is the
 /// only difference masked: <c>-ffile-prefix-map=&lt;dir&gt;=.</c>, <c>-I &lt;dir&gt;</c> and the absolute <c>main.c</c>/<c>bayan-rt.c</c>/<c>bayan-rt.o</c>.
@@ -91,14 +91,14 @@ public sealed class SelfhostDriverT3Tests
     private static string Probe()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/driver with the T3 probe main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/driver with the T3 probe main did not build:\n{error}");
         return path!;
     }
 
     private static string Configuration =>
         Path.GetFileName(Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(AppContext.BaseDirectory)))!;
 
-    private static string Cli => Path.Combine(Golden.RepoRoot, "src", "Bayan.Cli", "bin", Configuration, "net10.0", OperatingSystem.IsWindows() ? "bayan.exe" : "bayan");
+    private static string Cli => Path.Combine(Golden.RepoRoot, "csharp", "Bayan.Cli", "bin", Configuration, "net10.0", OperatingSystem.IsWindows() ? "bayan.exe" : "bayan");
 
     /// <summary>The file name <c>FindOnPath</c> finds for <paramref name="name"/> on this OS (Toolchain.cs:153: <c>.exe</c> first on Windows).</summary>
     private static string Tool(string name) => OperatingSystem.IsWindows() ? name + ".exe" : name;

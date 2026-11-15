@@ -12,7 +12,7 @@ using Bayan.Syntax.Text;
 namespace Bayan.Tests;
 
 /// <summary>
-/// 011 T5: <c>selfhost/emitter/lowerassert.byn</c> (Lowerer.cs 1376-1728) and
+/// 011 T5: <c>src/emitter/lowerassert.byn</c> (Lowerer.cs 1376-1728) and
 /// <c>powerassert.byn</c> (PowerAssert.cs 1-78) against the C# as an in-process oracle. The emitter's top-level files but
 /// <c>main.byn</c> are built with a generated <c>main.byn</c> that prints a shape of what the ported functions return and
 /// emit, by mode; the C# prints the same shape of what <c>FunctionLowerer</c> returns and emits.
@@ -436,7 +436,7 @@ public sealed class SelfhostEmitterT5Tests
     private static string Build()
     {
         var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"selfhost/emitter with the T5 main did not build:\n{error}");
+        if (path is null) Assert.Fail($"src/emitter with the T5 main did not build:\n{error}");
         return path!;
     }
 
