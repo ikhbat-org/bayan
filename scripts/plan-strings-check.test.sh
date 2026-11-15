@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # plan-strings-check (tools/plan-strings-check.byn, run by scripts/bayan-tool.sh) on a fixture repo under tmp/: plan strings
-# copied verbatim pass with the codes found from the descriptor diff; a help that drifts from the plan fails and names it;
+# copied verbatim pass with the codes found from the descriptor diff; a help that drifts from the plan fails and names it,
+# also when a csharp/tests/ literal holds the plan's text;
 # a page without the plan's strings fails; a plan help without a leading verb fails, alone and in --all-help; `{{ }}`
 # escapes and a `(plan, revision NNNN)` tag are matched.
 set -euo pipefail
@@ -57,6 +58,12 @@ grep -qx 'all plan strings found for 4 code(s)' <<< "$out" && grep -qx rc=0 <<< 
 fixture 'write the kind before the modifier: `{canonical}`'
 out=$(check BYN1044)
 grep -qxF 'BYN1044 help not in csharp/: "put the kind first: `{1}`"' <<< "$out" && grep -qx rc=1 <<< "$out" || fail "a help that drifts from the plan passed" "$out"
+
+put csharp/tests/Bayan.Tests/ParserHelpTests.cs '    const string Want = "put the kind first: `{1}`";'
+g add -A; g commit -q --no-verify -m test
+out=$(check BYN1044)
+grep -qxF 'BYN1044 help not in csharp/: "put the kind first: `{1}`"' <<< "$out" && grep -qx rc=1 <<< "$out" \
+  || fail "a plan help found only in a csharp/tests/ literal passed" "$out"
 
 fixture 'put the kind first: `{canonical}`'
 printf '# BYN1053: title\n\n**Why.** prose only\n' > "$d/docs/diagnostics/BYN1053.md"
