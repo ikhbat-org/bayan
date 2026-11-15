@@ -14,14 +14,18 @@
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
+  <!-- The Bayān compiler's tests (src/tests/) build into this assembly: the two halves share helpers (plan 017). -->
+  <ItemGroup>
+    <Compile Include="../../../src/tests/**/*.cs" LinkBase="src-tests" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/Bayan.Syntax/Bayan.Syntax.csproj" />
-    <ProjectReference Include="../../src/Bayan.Semantics/Bayan.Semantics.csproj" />
-    <ProjectReference Include="../../src/Bayan.Cli/Bayan.Cli.csproj" />
-    <ProjectReference Include="../../src/Bayan.Testing/Bayan.Testing.csproj" />
-    <ProjectReference Include="../../editors/language-server/Bayan.LanguageServer.csproj" />
+    <ProjectReference Include="../../Bayan.Syntax/Bayan.Syntax.csproj" />
+    <ProjectReference Include="../../Bayan.Semantics/Bayan.Semantics.csproj" />
+    <ProjectReference Include="../../Bayan.Cli/Bayan.Cli.csproj" />
+    <ProjectReference Include="../../Bayan.Testing/Bayan.Testing.csproj" />
+    <ProjectReference Include="../../../editors/language-server/Bayan.LanguageServer.csproj" />
   </ItemGroup>
 </Project>

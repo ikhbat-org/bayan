@@ -6,7 +6,7 @@
     <InternalsVisibleTo Include="Bayan.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="../runtime/bayan-rt.h" LogicalName="runtime/bayan-rt.h" />
-    <EmbeddedResource Include="../runtime/bayan-rt.c" LogicalName="runtime/bayan-rt.c" />
+    <EmbeddedResource Include="../../runtime/bayan-rt.h" LogicalName="runtime/bayan-rt.h" />
+    <EmbeddedResource Include="../../runtime/bayan-rt.c" LogicalName="runtime/bayan-rt.c" />
   </ItemGroup>
 </Project>
