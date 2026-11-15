@@ -23,26 +23,64 @@ case_in_subst() {
     }
     function lineof(at,   t) { t = substr(s, 1, at); return gsub(/\n/, "", t) + 1 }
     function skipws(i) { while (i <= n && substr(s, i, 1) ~ /[ \t\n]/) i++; return i }
-    function arms(i, f,   c, j) {  # i just past "case": check every arm up to esac, return the index past esac
+    function comment(i) { return substr(s, i, 1) == "#" && (i == 1 || substr(s, i - 1, 1) ~ /[ \t\n;]/) }
+    function eol(i) { while (i <= n && substr(s, i, 1) != "\n") i++; return i }
+    # heredoc(i): s[i] starts "<<" (not "<<<"); record its body as a skip from the line after it to its delimiter line
+    function heredoc(i,   dash, w, c, at, ln, end) {
+      i += 2; if (substr(s, i, 1) == "-") { dash = 1; i++ }
+      while (substr(s, i, 1) ~ /[ \t]/) i++
+      w = ""
+      for (; i <= n; i++) {
+        c = substr(s, i, 1)
+        if (c ~ /[ \t\n;|&<>()]/) break
+        if (c != "\047" && c != "\"" && c != "\\") w = w c
+      }
+      if (w == "") return
+      at = hnext > i ? hnext : eol(i) + 1
+      for (end = at; end <= n; end = eol(end) + 1) {
+        ln = substr(s, end, eol(end) - end); if (dash) sub(/^\t+/, "", ln)
+        if (ln == w) break
+      }
+      skip[at] = eol(end); hnext = eol(end) + 1
+    }
+    function arms(i, f) {  # i just past "case": check every arm up to esac, return the index past esac
       while (i <= n && !word(i, "in")) i++
       i = skipws(i + 2)
       while (i <= n) {
+        if (comment(i)) { i = skipws(eol(i)); continue }
         if (word(i, "esac")) return i + 4
         if (substr(s, i, 1) != "(") { print f ":" lineof(i); bad++ }
-        j = index(substr(s, i), ";;"); k = index(substr(s, i), "esac")
-        if (j == 0 || (k > 0 && k < j)) { i += (k > 1 ? k - 1 : (k == 1 ? 1 : n)); continue }
-        i = skipws(i + j + 1); if (substr(s, i, 1) == "&") i = skipws(i + 1)
+        i = armend(i, f)
+      }
+      return i
+    }
+    function armend(i, f,   c, q) {  # from the pattern of an arm: the index past its ";;", ";&" or ";;&", or the index of the closing esac
+      q = ""
+      for (; i <= n; i++) {
+        c = substr(s, i, 1)
+        if (q == "\047") { if (c == "\047") q = ""; continue }
+        if (c == "\\") { i++; continue }
+        if (q == "" && c == "\047") { q = c; continue }
+        if (c == "\"") { q = q == "\"" ? "" : "\""; continue }
+        if (q != "") continue
+        if (comment(i)) { i = eol(i); continue }
+        if (c == ";" && substr(s, i + 1, 1) == ";") { i = skipws(i + 2); if (substr(s, i, 1) == "&") i = skipws(i + 1); return i }
+        if (c == ";" && substr(s, i + 1, 1) == "&") return skipws(i + 2)
+        if (word(i, "case")) { i = arms(i + 4, f) - 1; continue }
+        if (word(i, "esac")) return i
       }
       return i
     }
     function scan(f,   i, c, d, q, pc) {
-      n = length(s); d = 0; q[0] = ""; pc[0] = 0
+      n = length(s); d = 0; q[0] = ""; pc[0] = 0; hnext = 0; split("", skip)
       for (i = 1; i <= n; i++) {
+        if (i in skip) { i = skip[i]; continue }
         c = substr(s, i, 1)
         if (q[d] == "\047") { if (c == "\047") q[d] = ""; continue }
         if (c == "\\") { i++; continue }
         if (q[d] == "" && c == "#" && (i == 1 || substr(s, i - 1, 1) ~ /[ \t\n;]/)) { while (i <= n && substr(s, i, 1) != "\n") i++; continue }
         if (q[d] == "" && c == "\047") { q[d] = c; continue }
+        if (q[d] == "" && c == "<" && substr(s, i + 1, 1) == "<") { if (substr(s, i + 2, 1) == "<") i += 2; else { heredoc(i); i++ }; continue }
         if (c == "\"") { q[d] = q[d] == "\"" ? "" : (q[d] == "" ? "\"" : q[d]); continue }
         if ((c == "$" || (q[d] == "" && (c == "<" || c == ">"))) && substr(s, i + 1, 1) == "(" && substr(s, i + 2, 1) != "(") {
           d++; q[d] = ""; pc[d] = 0; i++; continue
@@ -66,8 +104,12 @@ printf '%s\n' 'diff <(case $1 in x) echo;; esac) /dev/null' > "$t/procsub.sh"
 printf '%s\n' 'case "$b" in HEAD|dev) continue ;; esac  # not in a substitution' \
   'x=$(case $w in (*a*) echo "y)";; (*) echo n;; esac)' "y='\$(case a in b) c;; esac)'" 'z=$((1 + (2)))' \
   '# $(case a in b) c;; esac)' 'v="$(echo "(")"; case $v in a) ;; esac' > "$t/fine.sh"
-got="$(cd "$t" && case_in_subst loop.sh first.sh second-arm.sh procsub.sh fine.sh || true)"
-want="$(printf '%s\n' loop.sh:1 first.sh:1 second-arm.sh:2 procsub.sh:1)"
+printf '%s\n' "x=\$(cat <<'E'" "don't" 'E' ')' 'y=$(case a in b) c;; esac)' > "$t/heredoc.sh"
+printf '%s\n' 'x=$(case a in (b) case q in r) s;; esac;; esac)' > "$t/nested.sh"
+printf '%s\n' 'x=$(case a in (b) echo esacs;; (c) d;; esac)' 'x=$(case a in' '  # an arm comment' '  (b) c;; esac)' \
+  'y=$(cat <<-EOF' "	it's" '	EOF' ')' 'z=$(tr a b <<< "q")' > "$t/fine2.sh"
+got="$(cd "$t" && case_in_subst loop.sh first.sh second-arm.sh procsub.sh fine.sh heredoc.sh nested.sh fine2.sh || true)"
+want="$(printf '%s\n' loop.sh:1 first.sh:1 second-arm.sh:2 procsub.sh:1 heredoc.sh:5 nested.sh:1)"
 [ "$got" = "$want" ] || { printf 'FAIL: the case-in-substitution check on its fixtures\nwant:\n%s\ngot:\n%s\n' "$want" "$got"; exit 1; }
 
 bad=0
