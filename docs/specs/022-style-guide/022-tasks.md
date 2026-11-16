@@ -71,23 +71,65 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - **Member groups:** inside a type body, one blank line between member groups (fields, `states`, properties, static members, methods) and between methods. This is the one place besides the top level where layout inserts a blank line. Inside function bodies it still never inserts one (doc "Paragraphs inside functions").
   - Each rule changes whitespace and newlines only, so the safety net (`Check`) keeps holding. A rule that would change a token, an adjacency in `TriviaMatters`, or a comment's order is skipped for that site.
   - Also done when the corpus-test flake is fixed. `TheCorpusLaysOutOnceAndForAll` failed about 1 run in 8, on a different file each time. The test-only statics `Format.MaxPasses` (`Format.cs:36`) and `Format.RewriteHook` (`Format.cs:39`) are process-wide, and `FormatTests.NonConvergenceIsReported` and `ARewriteThatDoesNotParseIsAbandoned` set them while the corpus theory runs in parallel. Both become per-thread, like `Layout.OutputHook`. `MaxPasses` keeps the default of 10 on every thread (a `[ThreadStatic]` initializer runs only on the first thread). A test shows that setting `MaxPasses` on one thread leaves another thread's format run at 10. Files: `csharp/Bayan.Cli/Format.cs` and `FormatTests.cs`.
-- [ ] **T7 Lints (C#) and the doc-examples test.**
+- [x] **T6c Layout: the rules the user approved after the Fable review (C#).**
+  - Files: `csharp/Bayan.Cli/Layout.cs`, `csharp/tests/Bayan.Tests/LayoutTests.cs`, `docs/bayan-style.md` (Do/Don't pairs for each rule, plus the doc tidy).
+  - Covers: R3, R1.
+  - After: T6b. Decisions from the user, 2026-11-15, after three Fable 5.2 passes.
+  - Done when each rule below has a `LayoutTests` case that fails when the rule is reverted, the T4 corpus and idempotence tests pass with 0 skips, and `Check` still holds (whitespace and newlines only). The break-tests are run by the writer and reported in its reply; a read-only gate accepts that table:
+    - **D, break order.** An expression that does not fit breaks before every operator of its lowest precedence level, in `if`, `let` and `return` alike. A parenthesised group that fits stays on one line. While an operator break remains, nothing breaks inside `[ ]` or a call's argument list.
+    - **Atoms.** Never break inside an index bracket or a unit literal, or before a `.member` that follows `]`.
+    - **Ternary ladder.** A ternary that does not fit breaks before `?` and before `:`, each one continuation in. At statement level the ladder applies only inside brackets: a line that starts with `?` or `:` ends the statement in the grammar (plan-owner decision 2026-11-15, verified against the parser), so a bare `let`/`return` ternary breaks inside its operands instead.
+    - **Chains.** A chain inside a ternary or an argument breaks only after the enclosing ternary or list has broken.
+    - **A/B, outlier limit.** A line more than 8 columns wider than the next-widest in its alignment run (fields, properties, switch arms) leaves the run and stays unaligned. `=` defaults align within a run.
+    - **C, `=>` bodies.** A header with a `=>` body that does not fit breaks after `=>` first. The parameters wrap only when the header alone still overflows.
+    - **E, scalar fill.** A list or collection literal made only of scalars (numbers, chars, short strings) fills each line to the width, keeping the row count of the author's first row when it fits.
+    - **Case bodies.** A multi-line `case` body is indented one level past `case` (the formatter puts it at `case`'s column today, at all 2,423 sites).
+    - **Empty arm.** `default: {}` stays on one line.
+    - **`///` in runs.** A `///` line does not end an alignment run. A blank line or a `//` line still does.
+  - Also in `docs/bayan-style.md`: merge "Unary operators and annotations" and "Generics and units" into "Horizontal spacing", fix the units Don't (identical to its Do today) or drop the units pair if no Don't reaches the formatter, and drop "Comment form". `StyleGuideExamplesTests` passes on every pair; a pair marked "Shown at width N" runs at width N (the test reads the marker; checked after T7 lands and is merged in).
+  - Then, outside the task: measure `src/` at width 100 and 120 for the user's width decision.
+- [ ] **T7b Lints with one-time fixes (C#).**
+  - Files: as T7 (`Parser.cs` lint pass, or the semantics layer where a lint needs types or constness, `DiagnosticCodes.cs`, `docs/diagnostics/BYN1077.md`–`BYN1080.md`, `tests/cases/diag/` cases, `docs/DIAGNOSTICS.md`).
+  - Covers: R7.
+  - After: T7. Decisions from the user, 2026-11-15.
+  - Adds the C# `bayan fix [paths…]` subcommand (plan-owner decision 2026-11-16: no fix command existed after T7). It applies every lint fix (`guards.postfix`, `lambdas.it` and the four below) to the named files or package directories, rewrites only files that change, prints the count of fixes per file, and exits 0. Running it twice changes nothing on the second run. It has a `CliTests` case, including one for a path that does not exist (exit 2, the same message `format` gives).
+  - Also fixes T7's gate note: `check --package <dir> <file>` reads `lints` from that package's manifest (`csharp/Bayan.Cli/CliApp.cs` near `StyleLintsAt(null)`). Test: `bayan check --all --package . main.byn` in `tests/cases/diag/style-severity-error` gives `error BYN1072` and a nonzero exit.
+  - Plan-owner decisions 2026-11-16, after T7b's first run:
+    - **Fix equivalence:** a fix keeps the program's behaviour, shown by a `run/` case that prints the same output before and after the fix. Byte-identical C is required only of `literals.empty`.
+    - **`literals.empty` sites:** field defaults and annotated `let` locals. Arguments and struct-literal field initialisers go to `work/todo.md`.
+    - **`conditions.patterns` operands:** an index path qualifies only when every index is a name or a literal.
+    - **Qualified constants** (`Op.a or Op.b`) stay out.
+    - **Banner column:** 80.
+    - **Self-hosted manifest row:** the self-hosted manifest parity row joins T7's expected-red list until T9.
+  - Plan-owner decision 2026-11-16, after T7b's full run: the self-hosted rows that compare usage or dispatch output with the C# CLI and fail only because the C# usage now lists `fix` (`SelfhostDriverT1Tests.MatchesTheCSharpCli`, `AScriptRunsAndAGlobalOptionBeforeItIsTaken`, `SelfhostDriverT2Tests.DispatchAsCliApp`, `SelfhostDriverT5Tests.DispatchAsCliApp`, `SelfhostDefaultT12Tests.EveryOtherArmOfRunIsTheCSharps`, `SelfhostDefaultT2Tests.FeaturesMatchesTheCSharpCli`; 29 rows) join the expected-red list until T9, which ports `bayan fix` to the self-hosted driver.
+  - Done when each lint below defaults to `.suggestion`, takes its severity from `lints`, has a `diag/` case and a fix, and its fix applied by `bayan fix` gives code that passes `bayan check` (test each on its `diag/` case):
+    - **BYN1077 `sections.banner`.** A banner comment `// ── Title ──…` is filled with `─` up to one fixed column.
+    - **BYN1078 `conditions.patterns`.** Fires when one `&&` or `||` group tests the same operand against constants two or more times, and the operand is a plain name, field or index path. The fix writes a pattern: `x >= A && x <= B` becomes `x is A..=B`, and `op == .a || op == .b` becomes `op is .a or .b`. Mixed groups (`c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C`) become one `or` pattern. A single comparison never fires.
+    - **BYN1079 `literals.empty`.** Fires on a field default, annotated local, argument or field initialiser whose type is already known from the target and that spells out an empty collection or struct: `= List<T>()` becomes `= []`, `Map<K, V>()` becomes `[]`, and `T {}` becomes `{}`. It does not fire on an unannotated `var x = List<T>()`.
+    - **BYN1080 `optionals.bind`.** It covers the `if (X is { } k)` sites where the miss leaves, or where the operand is a parameter or `let` local, plus `while (X is { } k)`.
+      - When the fallback is a literal, a name, a case, `continue` or `break`, the fix writes `let k = X ?? return v`.
+      - When the fallback is longer, the fix writes `let k = X` followed by `return <fallback> if k is null`, putting the miss first.
+      - A parameter or `let` operand gets `if x is not null`. `while (X is { } k)` becomes `while let k = X`.
+      - It stays silent when the result is used only on a hit and nothing leaves, and inside `&&`. Those sites wait for `if let`.
+- [x] **T7 Lints (C#) and the doc-examples test.**
   - Files: `csharp/Bayan.Syntax/Parsing/Parser.cs` (lint pass), `csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`, `docs/diagnostics/BYN1072.md`–`BYN1076.md`, `tests/cases/diag/` cases, the check-path severity in `csharp/Bayan.Cli` and `csharp/Bayan.Semantics/Compilation.cs`, `csharp/tests/Bayan.Tests/StyleGuideExamplesTests.cs` (new), `docs/DIAGNOSTICS.md` (regenerated).
   - Covers: R7, R1 (test).
   - After: T6, T1, T2.
   - Done when the five lints are reported by `bayan check` only, with the codes of the plan and `// target:` comments, with fixes for `guards.postfix` and `lambdas.it`, and with severity from `lints` (`.suggestion` renders as a note; `.error` fails `check`). `functions.length` is off by default and bounds at 60 lines when on. `StyleGuideExamplesTests` passes on every pair of `docs/bayan-style.md`, and `bash scripts/docs/check.sh` passes.
+  - Expected red until T9 lands (plan-owner decision 2026-11-15, after T7's gate returned PLAN-CHANGE): any test that compares self-hosted `check` output with C# `check` and fails only because the self-hosted side lacks the new lint notes. That covers `SelfhostDriverT2Tests.CheckAsCliApp`, `SelfhostSemanticsParityTests.CheckParity`, `ForTrySource`, the generator seed cases, and `SelfhostSemanticsEquivalenceLawTests.PinnedClean` (530 → 541). Every other test stays green. T9 turns these rows green, and re-pins `PinnedClean` from the C# if its count still differs. 022 does not merge into dev while any of them is red.
 - [ ] **T8 Layout port (self-hosted).**
   - Files: `src/driver/layout.byn` (new), `src/driver/format.byn`, `csharp/tests/Bayan.Tests/SelfhostDriverTests.cs` rows.
   - Covers: R6.
-  - After: T7.
+  - After: T7, T6c (the T6c rules are ported on the same worker key).
   - Done when every `LayoutTests` and `FormatTests` case gives the same stdout, stderr, exit code and bytes through stage 2 as the C#, and `bootstrap/bayan.c` is regenerated (`BAYAN_UPDATE=1` BootstrapTests).
 - [ ] **T9 Lints and severity port (self-hosted).**
   - Files: `src/parser/*.byn` lint pass, the `src/driver` check path, parity rows.
   - Covers: R7, R6.
-  - After: T7.
-  - Done when each lint `diag/` case and each severity case gives the same output through stage 2 as the C#.
+  - After: T7, T7b (BYN1077–BYN1080, the `check --package` lints fix and the `bayan fix` command are ported too).
+  - Done when each lint `diag/` case and each severity case gives the same output through stage 2 as the C#, `bayan fix` gives the same output and bytes as the C# on every `FormatTests` fix case, and every row on T7's and T7b's expected-red lists, except the T8 format rows, is green.
 - [ ] **T10 Format the repo's sources.**
-  - Files: every `src/**/*.byn`, `lib/**/*.byn` and `examples/**/*.byn` that the formatter changes (one commit, nothing else in it); `bootstrap/bayan.c` (next commit); `.git-blame-ignore-revs` (new, naming the format commit).
+  - On hold until the user approves the measured format (2026-11-15).
+  - Files: every `src/**/*.byn`, `lib/**/*.byn` and `examples/**/*.byn` that the formatter changes (one commit, nothing else in it; it also applies the `bayan fix` output of `guards.postfix`, `sections.banner`, `conditions.patterns`, `literals.empty` and `optionals.bind`); `bootstrap/bayan.c` (next commit); `.git-blame-ignore-revs` (new, naming the format commit).
   - Covers: R8.
   - After: T8, T9.
   - Done when `bayan format --check src lib examples` exits 0 with both drivers, `SelfhostDriverTests` (the stage-3 fixed point and `SourcesAreFormatted`) and `BootstrapTests` pass, and `git blame --ignore-revs-file .git-blame-ignore-revs` shows the authors from before.

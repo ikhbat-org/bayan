@@ -829,3 +829,5 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - `LayoutTests.APointerWrittenTightStaysAPointer` (022 T6b) uses `u8*p`; `src/parser/types.byn` says the spaced `u8* p` is the pointer form, so the test name may describe the wrong thing. T6b gate, LOW, 2026-11-15.
 - Parser.cs `BreakStmt`/`ContinueStmt` have empty spans (`SpanFrom` runs before `Advance`), found by 022 T7, 2026-11-15.
 - BYN1073 lambdas.it (022 T7) covers only lambdas passed as arguments, not lambdas bound to a name or returned.
+- `var xs = []` with no target type checks without a diagnostic (found by Fable, spec 022 pass 3, 2026-11-15); expected: an error asking for a type. LOW.
+- Feature spec after 022: promote `if let k = X { … }` from deferred (spec §7.2), mirroring `while let`; covers the ~240 `is { } k` sites `optionals.bind` leaves alone. Amend spec §3.6 (implies `?? return` replaces `is { } k` everywhere). User approved queueing it, 2026-11-15.
