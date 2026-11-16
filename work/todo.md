@@ -867,3 +867,9 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - VM shard runs abort when ghosthive's MemAvailable falls under 10 GiB; it sat at 12 GiB on 2026-11-16, so the 0.3.2 suite ran on wp1 + mb1. Find what holds ghosthive's memory.
 - Manifesto edition 1 is written against 0.2.0 (lines 9 and 1413) and its status badges reflect that; refresh the content for a later edition. 2026-11-16.
 - `scripts/cleanup/run-all.sh:153` shows only `refuse` lines at the start of a line in its summary; indented `  refused:` lines from some scripts are missed. Gate note, 2026-11-16.
+- site/content/book-04-functions.page ~136: BYN2306 figure has an orphan gutter line and a help block from another diagnostic (BYN2780, `move xs`); regenerate the figure from real compiler output (proofread 2026-11-17).
+- site/content/book-17-concurrency.page:10,46 still presents `async` functions as the design; rev 0019 replaced it with scope/spawn (docs/bayan-concurrency.md); cookbook-concurrency.page and features.page:82 still describe call-site async/await. Rewrite to the scope/spawn design (proofread 2026-11-17).
+- BYN2022 message "`extension` declarations is not supported" has a grammar slip ("are"); fix in C# and selfhost together, regenerate goldens and the book-05 figure (proofread 2026-11-17).
+- docs/manifesto/bayan-manifesto.md:727-728 still uses `alice`/`bob` in a code block; switch to aisha/bilal (proof-fix gate note, 2026-11-17).
+- scripts/pinned-bayan.sh:37 needs `dotnet` on PATH; fall back to `$HOME/.dotnet` when it is missing (the 0.3.2 push failed its pre-push tests from a shell without it, 2026-11-17).
+- ~/dotfiles/githooks/kebab-check.sh: `awk -v ign="$_ki"` fails on macOS awk when `.kebab-ignore` matches more than one path ("newline in string") and the check then passes everything; pass the list through a file or stdin (2026-11-17).
