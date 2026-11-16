@@ -1,5 +1,5 @@
 # 015 — Bayān tooling: replace Python, Deno and other non-Bayān scripts
-Status: in progress (T1–T8 landed: review-brief, plan-strings-check and install-textmate ported; T9–T17 open)
+Status: in progress (T1–T9, T11 landed: review-brief, plan-strings-check, install-textmate and gen-lowercase ported; T10, T12–T17 open)
 Release: unscheduled
 Created: 2026-11-02
 
@@ -44,7 +44,7 @@ exist) and every workflow step. `scripts/cleanup/` (19 one-off scripts, written 
 | `scripts/quality/stryker_to_quality.py` | 105 | Stryker JSON → `bayan-quality` JSON | `scripts/quality/mutate.sh` |
 | `scripts/quality/cobertura_to_quality.py` | 105 | Cobertura XML → `bayan-quality` JSON | `scripts/quality/coverage.sh` |
 | `scripts/ci/known-failures.py` | 59 | failed tests in `.trx` files vs `tests/windows-known-failures.txt` | `ci.yml` (Windows) |
-| `scripts/unicode/gen-lowercase.py` | 76 | downloads `UnicodeData.txt`, regenerates the case tables in `runtime/bayan-rt.c` (rev 0015) | by hand |
+| `scripts/unicode/gen-lowercase.py` | 76 | downloads `UnicodeData.txt`, regenerates the case tables in `runtime/bayan-rt.c` (rev 0015) — **done**: ported (T9) and deleted | by hand |
 | inline in `scripts/selfhost/mutate-batch.sh:26` | ~60 | the group/file/filter plan: glob `src/**/*.byn`, brace-expand and match task patterns, shard | `mutate-batch.sh` |
 | inline in `scripts/selfhost/mutate-batch.sh:100` | 12 | rewrites report paths repo-relative | `mutate-batch.sh` |
 | inline in `scripts/selfhost/mutation-step.sh:25` | 1 | lists `binary<TAB>sites` from `manifest.json` | `mutation-step.sh` |
@@ -153,7 +153,7 @@ Easiest first; each New API arrives with the first port that needs it. Group by 
 | 10 | `replay.byn` | `replay.py` | `run` with `directory:`/`input:`/`env:`, `Base64` |
 | 11 | not ported (S9) | `known-failures.py`, deleted with the C# suite | — |
 | 12 | not ported (S9) | `cobertura_to_quality.py`, deleted with the C# suite | — |
-| 13 | `gen-lowercase.byn` | `gen-lowercase.py` (Python leaves once the C# suite and its two S9 scripts go, R7) | `curl` shell-out (R8) |
+| 13 | `gen-lowercase.byn` — **done** (T9; `gen-lowercase.py` deleted) | `gen-lowercase.py` (Python leaves once the C# suite and its two S9 scripts go, R7) | `curl` shell-out (R8) |
 | 14 | Bayān | `install-textmate.ps1` (PowerShell leaves) | per S10 |
 
 The order of the remaining rows was revised on 2026-11-08 (plan *Revision 2026-11-08*, groups G1–G7): 14 first (S10),
@@ -234,4 +234,4 @@ mutants), `gen-lowercase` (needs the Unicode download), the report-paths and man
   rest have no counterpart, so nothing to port).
 
 ## Port record
-(Filled per port: commit, parity result.)
+- T9 `gen-lowercase`: `tools/gen-lowercase.byn` replaces `scripts/unicode/gen-lowercase.py`; `PASS gen-lowercase 3 cases` (`cached`, `missing-begin`, `path-arg`); `scripts/unicode/gen-lowercase.test.sh` rewritten in bash (`PASS`).
