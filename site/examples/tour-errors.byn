@@ -3,13 +3,13 @@ union error ParseError {
     notDigit
 }
 
-i64 digit(string s) fails ParseError {
+i32 digit(string s) fails ParseError {
     fail .empty if s.isEmpty
     fail .notDigit if s != "7"
     return 7
 }
 
-i64 twice(string s) fails ParseError {
+i32 twice(string s) fails ParseError {
     let d = try digit(s)
     return d * 2
 }

@@ -91,7 +91,7 @@ print($"{a}")</code></pre>
 <p><code>$"total {x}"</code> writes expressions inside braces. A format option is a named argument after a comma: <code>{n, as: .hex}</code>. Formatting rules are in <a href="ref-expressions.html#interpolation">Expressions</a>.</p>
 
 <h2 id="other-literals">Collection, struct and tuple literals</h2>
-<p>These are covered where they are used, because their type comes from context: <code>[1, 2, 3]</code> and <code>["alice": 500]</code> in <a href="ref-types.html#collections">Types</a>, <code>{ x: 1, y: 2 }</code> in <a href="ref-expressions.html#target-typed">Expressions</a>, and <code>(1, "a")</code> in <a href="ref-types.html#tuples">Types</a>.</p>
+<p>These are covered where they are used, because their type comes from context: <code>[1, 2, 3]</code> and <code>["Aisha": 500]</code> in <a href="ref-types.html#collections">Types</a>, <code>{ x: 1, y: 2 }</code> in <a href="ref-expressions.html#target-typed">Expressions</a>, and <code>(1, "a")</code> in <a href="ref-types.html#tuples">Types</a>.</p>
 <note>Planned: byte strings <code>b"text"</code>, C strings <code>c"text"</code> and UTF-16 strings <code>u16"text"</code> are in the specification but not in the compiler yet.</note>
 
 <h2 id="keywords">Keywords</h2>

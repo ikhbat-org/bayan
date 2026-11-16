@@ -17,13 +17,13 @@ template: docs
 </ul>
 <example name="ref-declarations-const"/>
 <pre><code class="byn">let limit = 10
-i64 clampTo(i64 x) =&gt; x &gt; limit ? limit : x
+i32 clampTo(i32 x) =&gt; x &gt; limit ? limit : x
 print($"{clampTo(25)}")</code></pre>
 <figure class="diag">
 <pre><span class="err">error BYN2001:</span> `limit` is not defined
   --&gt; let-in-fn.byn:2:27
 
-<span class="gut">  2 │</span> i64 clampTo(i64 x) =&gt; x &gt; limit ? limit : x
+<span class="gut">  2 │</span> i32 clampTo(i32 x) =&gt; x &gt; limit ? limit : x
 <span class="gut">    │</span>                           <span class="hl">^^^^^</span></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
@@ -41,10 +41,10 @@ print($"{clampTo(25)}")</code></pre>
 <p>The modifier comes first on a field, a member or a top-level declaration. Reading, writing or naming a <code>private</code> field outside its type is BYN2005. That includes building the struct with a literal that sets it, so give a private field a default.</p>
 <example name="ref-declarations-visibility"/>
 <pre><code class="byn">struct Account {
-    private i64 cents = 0
+    private i32 cents = 0
     string name
-    i64 balance =&gt; cents
-    void deposit(ref this, i64 amount) { cents += amount }
+    i32 balance =&gt; cents
+    void deposit(ref this, i32 amount) { cents += amount }
 }
 var a = Account { name: "x" }
 a.deposit(5)
@@ -68,7 +68,7 @@ print($"{a.cents}")</code></pre>
 <example name="ref-declarations-sealed"/>
 <pre><code class="byn">@sealed
 struct Meter {
-    i64 n
+    i32 n
     void bump(ref this) { n += 1 }
 }
 var m = Meter { n: 1 }
@@ -92,7 +92,7 @@ m.n = 5</code></pre>
   <li>Arguments must be compile-time constants.</li>
   <li><code>@exitCode(n)</code> on an error case sets the process exit code when that error ends the program. <code>@cases(…)</code> is for tests, in <a href="book-12-testing.html">Testing</a>.</li>
   <li>An attribute the compiler does not know is BYN2770, and the help lists the ones it does. An attribute on a statement is BYN1016, except <code>@unobservable</code> in tests.</li>
-  <li>A line that starts with <code>[</code> is a collection literal, not an attribute. The C# form <code>[Name(args)]</code> is rejected (BYN1045).</li>
+  <li>A line that starts with <code>[</code> is a collection literal, not an attribute. The form <code>[Name(args)]</code> is rejected (BYN1045).</li>
 </ul>
 <pre><code class="byn">@noEquality
 struct A { i64 x }</code></pre>

@@ -1,4 +1,4 @@
-let a: i64 = 7
+let a: i32 = 7
 print($"{a / 2} {a % 3} {-7 / 2} {-7 % 3} {a << 2} {a & 3} {a | 8} {a ^ 2}")
 print($"{a > 3 && a < 10} {a > 3 and not (a == 7)} {a in 1..=7} {a in 1..7}")
 let size = a > 5 ? "big" : "small"

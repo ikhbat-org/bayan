@@ -1,19 +1,19 @@
-type distinct Count = i64 requires it > 0
+type distinct Count = i32 requires it > 0
 
 struct User {
     string name
         requires it.runeCount in 3..=8
-    i64 age
+    i32 age
         requires it in 13..=120
 }
 
-User make(string n, at i64 a) fails ValidationError<User> {
+User make(string n, at i32 a) fails ValidationError<User> {
     return try User { name: n, age: a }
 }
 
-Count count(i64 raw) fails ValidationError<Count> => try Count(raw)
+Count count(i32 raw) fails ValidationError<Count> => try Count(raw)
 
-let u = make("abc", at: 20) catch { return }
+let u = make("Umar", at: 20) catch { return }
 print(u.name)
 let c = count(0) catch Count(1)
 print($"{c.value}")

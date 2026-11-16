@@ -1,4 +1,4 @@
-i64 square(i64 x) => x * x
+i32 square(i32 x) => x * x
 
 void main() {
     print($"{square(7)}")

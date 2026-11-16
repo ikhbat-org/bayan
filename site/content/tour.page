@@ -100,7 +100,7 @@ template: docs
   </li>
   <li>
     <h2 id="lambdas">19. Lambdas and it</h2>
-    <p>Where a function is expected you can pass a lambda: <code>x =&gt; x % 2 == 1</code>. If the function takes one argument, write <code>it</code> and skip the parameter. Here <code>Pred</code> is a name for the type <code>i64 -&gt; bool</code>.</p>
+    <p>Where a function is expected you can pass a lambda: <code>x =&gt; x % 2 == 1</code>. If the function takes one argument, write <code>it</code> and skip the parameter. Here <code>Pred</code> is a name for the type <code>i32 -&gt; bool</code>.</p>
     <example name="tour-lambdas"/>
   </li>
   <li>
