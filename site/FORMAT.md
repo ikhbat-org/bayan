@@ -51,6 +51,13 @@ template: docs
 
 The generator tokenizes Bayan and wraps tokens in `<span class="…">`, with the classes `kw` (keywords), `ty` (type names: built-in types and capitalized names), `fn` (a name directly before `(`), `str` (string and char literals, including `$"…{…}"` interpolation text), `num`, `com` (comments, `///` doc comments too), `at` (attributes `@name`), `pa` (a particle label before `:` in a call or parameter list: `by:`, `from:`, `to:` …), and `op` for `=>`, `?`, `!`. `style.css` gives each class a colour from the brand palette, readable on parchment (WCAG AA, 4.5:1).
 
+## Manifesto and book
+
+- `out/manifesto.html` is `docs/manifesto/bayan-manifesto.md` through the renderer, with the docs template and a `{{toc}}` of its headings (skipped if the file is absent). `build.sh` copies `docs/manifesto/assets/*.svg` into `out/assets/`, where its images point. Its ```` ```mermaid ```` fences are plain text. The footer of every page links it (`{{root}}manifesto.html`), and `index.page` links it once.
+- `out/book.html` holds every `content/book-*.page` body in `order`, each chapter starting with its title as `<h1>`, on one page for printing. It is not in the sidebar.
+- `style.css` has an `@media print` block: header, footer, sidebar, theme button and toc hidden, light colors, each `h1` on a new page, code blocks kept whole where they fit, links without decoration.
+- `scripts/release/docs-pdf.sh` runs `site/build.sh`, then prints both pages with headless Chrome (`$CHROME`, else Google Chrome on macOS, else `google-chrome` or `chromium`; exit 2 if none) to `dist/bayan-manifesto-<version>.pdf` and `dist/bayan-book-<version>.pdf`.
+
 ## Release docs
 
 `build.sh` sources `scripts/release/version.sh` and runs the generator as `bayan run site/gen -- site $bayan_release_docs CHANGELOG.md`. The version is the trimmed first line of `VERSION`, read by the generator from `site/../VERSION`; a `-dev` version is shown as is. Every page's header shows it through `{{version}}` (`<span class="version">Bayān {{version}}</span>`).
@@ -64,6 +71,7 @@ The generator tokenizes Bayan and wraps tokens in `<span class="…">`, with the
 The renderer (`gen/markdown.byn`) handles this subset; anything else is shown as escaped text, and all text is escaped (`& < > "`):
 
 - ATX headings `#` to `######` with an optional closing `#` run. Ids are slugs: lowercase, ASCII letters and digits kept, every other run becomes one `-`, leading and trailing `-` dropped (`section` if nothing is left); a repeat gets `-2`, `-3`.
+- Images `![alt](path)`: `<img src="path" alt="alt">`, both escaped; the path is kept as written (not rewritten like links). No closing `)` leaves the text as it is.
 - Paragraphs; `*em*`, `_em_` (not inside a word), `**strong**`; code spans of any backtick run length; `\` before punctuation.
 - Links `[text](url)` and autolinks `<https://…>`.
 - Fences of three or more `` ` `` or `~` with an info string; `bayan` and `byn` fences are highlighted (§Highlighting), others are plain text. An unclosed fence runs to the end.

@@ -219,3 +219,15 @@ test "a dev version links to the dev branch" {
         "[x](../src/x.byn)",
     ) == "<p><a href=\"https://github.com/ikhbat-org/bayan/blob/dev/src/x.byn\">x</a></p>\n"
 }
+
+test "an image is an img with escaped alt and src" {
+    assert md("![Idris & `Yusuf`](assets/a&b.svg)") == "<p><img src=\"assets/a&amp;b.svg\" alt=\"Idris &amp; `Yusuf`\"></p>\n"
+}
+
+test "an image keeps the text around it" {
+    assert md("see ![hoopoe](h.svg) here") == "<p>see <img src=\"h.svg\" alt=\"hoopoe\"> here</p>\n"
+}
+
+test "an image with no closing paren is text" {
+    assert md("![Maryam](m.svg") == "<p>![Maryam](m.svg</p>\n"
+}

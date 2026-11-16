@@ -16,4 +16,5 @@ mkdir -p "$here/out/docs/$version"
 # shellcheck disable=SC2086 # one argument per doc path
 "$BAYAN" run "$here/gen" -- "$here" $bayan_release_docs CHANGELOG.md
 cp -R "$here/assets" "$here/out/assets"
+cp "$root"/docs/manifesto/assets/*.svg "$here/out/assets/"
 "$here/check-examples.sh"

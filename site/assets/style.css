@@ -324,12 +324,16 @@ details.quiz pre { background: var(--bg); }
 /* print: light tokens (dark ones are screen only), no site chrome, code wraps instead of scrolling */
 @media print {
   body { background: #fff; font-size: 10.5pt; }
-  .skip, .site-head nav, .theme-btn, .side, .toc, .toc-btn, .pager, .site-foot { display: none !important; }
+  .skip, .site-head, .theme-btn, .side, .toc, .toc-btn, .pager, .site-foot { display: none !important; }
   .docs { display: block; padding-top: 0; }
   .prose { max-width: none; }
   pre { white-space: pre-wrap; overflow: visible; break-inside: avoid; border: 1px solid var(--rule); border-left: 3px solid var(--gold); font-size: 8.5pt; }
   pre, code, .code-figure, aside.note { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .landing .example, .feature-grid { grid-template-columns: minmax(0, 1fr); }
   .landing .example, .code-figure { break-inside: avoid; }
-  a { color: var(--fg); }
+  a { color: var(--fg); text-decoration: none; }
+  .prose h1 { break-before: page; max-width: none; }
+  .prose h1:first-child { break-before: auto; }
+  h2, h3 { break-after: avoid; }
+  pre, .code-figure { break-inside: avoid; }
 }
