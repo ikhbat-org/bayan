@@ -78,7 +78,9 @@ for b in $branches; do
 done
 
 echo "== 4. stray scratch outside the repo"
-if [ -e /tmp/x ]; then run rm -f /tmp/x; else echo "skip:  /tmp/x is gone"; fi
+for f in /tmp/x /tmp/t8b-gate.log; do
+    if [ -e "$f" ]; then run rm -f "$f"; else printf "skip:  %s is gone\n" "$f"; fi
+done
 
 echo "== remaining"
 git -C "$common" worktree list | grep -E 'worker-s022|readme-examples' || echo "no 022 or README worktrees left"
