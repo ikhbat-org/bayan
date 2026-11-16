@@ -128,7 +128,7 @@ while IFS= read -r doc; do
         || grep -qxF "$rel" <<< "$released" \
         || fail "$doc: Release: $rel is not a released version (CHANGELOG.md), ${v%%-*} or unscheduled" ;;
     docs/export/*|docs/misc/*|docs/bayan-design-round-*|docs/suq-*|docs/bayan-reference-app-*|docs/bayan-status-for-suq.md \
-    |docs/bayan-brand-brief.md|docs/bayan-going-public.md|docs/laws-and-decisions.md|docs/design/lessons-from-other-languages.md)
+    |docs/bayan-brand-brief.md|docs/bayan-additional-concepts.md|docs/bayan-going-public.md|docs/laws-and-decisions.md|docs/design/lessons-from-other-languages.md)
       head -n 10 "$root/$doc" | grep -q '^Snapshot: ' || fail "$doc: no Snapshot: line in the first ten lines (snapshot doc)" ;;
     docs/diagnostics/*) ;;   # embedded in `bayan explain` and bootstrap/bayan.c; no header until decided (plan 016)
     *) fail "$doc is not a release, record or snapshot doc; add it to bayan_release_docs (scripts/release/version.sh) or to a kind in check.sh (h)" ;;

@@ -1,3 +1,5 @@
+Snapshot: 2026-11-16; not maintained. Current text: docs/decisions/2026-11-16-007-additional-concepts-review.md
+
 Here are ideas that don't repeat what Bayān already uses (Forms I/V/X, ḥāl, waqf, kāna/ṣāra, particles, mafʿūl li-ajlihi, istithnāʾ, muṭābaqa, iʿjām, ḥadhf and the rest). I've grouped them by what they would do.
 
 ## A. New features
