@@ -52,7 +52,9 @@ The golden runner (T1–T10) comes first and T10 is a gate: nothing from T11 on 
 
 ## 019a: the language server
 
-- [ ] T33 Reading a message from standard input — files: decided by OQ8 (runtime/bayan-rt.c and lib/std if the default holds) — covers: R20 — done when: the user has answered OQ8 and a Bayān program can read a message of a given byte length from standard input and keep running.
+Placement C (decided 2026-11-17): these tasks do not block T51. They must be done before T64 (R30).
+
+- [ ] T33 Reading a message from standard input — files: decided by OQ8 (runtime/bayan-rt.c and lib/std if the default holds) — covers: R20 — done when: the owner has approved the `Io.stdin.read(into:)` signature (OQ8, decided 2026-11-17) and a Bayān program can read a message of a given byte length from standard input and keep running.
 - [ ] T34 Record sessions — files: editors/language-server/sessions/ (new) — covers: R21 — done when: every request kind in R20 and every protocol case of the 42 existing tests has a recorded session against the C# server at the tag.
 - [ ] T35 Transport, lexer, keywords — files: editors/language-server/bayan.toml, editors/language-server/src/ (transport, lexer, keywords modules) — covers: R20 — done when: `initialize`, `shutdown` and `exit` sessions replay the same; an oversized or malformed message is refused as the C# server refuses it.
 - [ ] T36 Indexer and workspace — files: editors/language-server/src/ (indexer, workspace modules) — covers: R20, R22 — done when: `didOpen`, `didChange`, `didClose` and `didChangeWatchedFiles` sessions replay the same and the budgets stop indexing with one log line.
@@ -67,7 +69,7 @@ The golden runner (T1–T10) comes first and T10 is a gate: nothing from T11 on 
 - [ ] T41 CI without .NET — files: .github/workflows/ci.yml — covers: R15, R24 — done when: no step installs .NET; the three jobs build through T40 and run `scripts/test.sh`; all three are green.
 - [ ] T42 Windows known failures — files: scripts/ci/known-failures.py, tests/windows-known-failures.txt — covers: R19 — done when: the check reads the new report, and its self-test shows it fails on an unlisted failure and on a listed test that passes.
 - [ ] T43 Release without .NET — files: .github/workflows/release.yml, scripts/dist.sh — covers: R24, R25 — done when: a dry run builds the six archives with no .NET step and each `bayan --version` prints `(selfhost)`; `scripts/release/release-workflow.test.sh` passes.
-- [ ] T44a Laws nightly and editor gate workflows — files: .github/workflows/laws-nightly.yml, .github/workflows/editor-gate.yml — covers: R24 — done when: neither installs .NET and each has one green run.
+- [ ] T44a Laws nightly and editor gate workflows — files: .github/workflows/laws-nightly.yml, .github/workflows/editor-gate.yml — covers: R24 — done when: `laws-nightly.yml` installs no .NET and has one green run; `editor-gate.yml` installs none once T38a is done, and until then it is the exemption in R24 (placement C).
 - [ ] T44b Mutation and pages workflows — files: .github/workflows/mutation.yml, .github/workflows/pages.yml — covers: R24 — done when: neither installs .NET and each has one green run.
 - [ ] T45 Bootstrap freshness — files: scripts/ci/bootstrap-check.sh (new), scripts/selfhost/land.sh — covers: R26 — done when: the check fails after a change under `src/` or `runtime/` without a regenerated bootstrap, and `land.sh` regenerates with no `dotnet` call.
 - [ ] T46 Diverse double-compiling job — files: scripts/ci/ddc.sh (new), .github/workflows/ddc.yml (new) — covers: R27 — done when: the job builds the C# compiler from the frozen ref, reproduces that tree's `bootstrap/bayan.c`, runs the amended laws, is scheduled weekly and is required by `release.yml`.
@@ -97,7 +99,7 @@ The golden runner (T1–T10) comes first and T10 is a gate: nothing from T11 on 
 
 ## 019b: the archive
 
-- [ ] T64 Gate: entry condition — files: tmp/ only — covers: R30 — done when: reported to the user: CI, the laws nightly and one release dry run are green on `dev` with no .NET, and the user says go.
+- [ ] T64 Gate: entry condition — files: tmp/ only — covers: R30 — done when: reported to the user: T33–T39 are done (R20–R23 met), CI, the laws nightly and one release dry run are green on `dev` with no .NET, and the user says go.
 - [ ] T65 Tag `csharp-final` — files: none (the user creates and pushes the tag) — covers: R31 — done when: the annotated tag is on the last commit where the C# compiler builds and its suite passes, and its message names the 019b range.
 - [ ] T66 Decision doc — files: docs/decisions/<date>-NNN-csharp-archive.md (new) — covers: R32 — done when: it names the tag, its commit, what it holds, and the commands `git show csharp-final:<path>`, `git worktree add ../bayan-csharp csharp-final` and `git restore --source=csharp-final -- csharp/`.
 - [ ] T67 Removal commit — files: csharp/, src/tests/*.cs, Bayan.slnx, the C# sources of editors/language-server, tests/Bayan.Tests/ (deletions only) — covers: R33 — done when: one commit titled `chore(019b): remove the C# compiler` holds only deletions and no tracked file is left under `csharp/`.
