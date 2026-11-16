@@ -37,69 +37,10 @@ while [ $# -gt 0 ]; do case "$1" in
 HERE=$(dirname "$0"); OUT=$PWD/tmp/mutate-batch; BASELINE=${MUTATE_BASELINE:-tests/quality-baseline.json}
 
 # group<TAB>file<TAB>filter per file, in file order, after --files and --shard
-PLAN=$(python3 -I - "$FILES" "$SHARD" "${TASKS[@]}" <<'PY'
-import fnmatch, glob, os, re, sys
-only, shard, tasks = sys.argv[1], sys.argv[2], sys.argv[3:]
-files = sorted(p.replace(os.sep, '/') for p in glob.glob('src/**/*.byn', recursive=True))  # Windows glob returns backslashes
-defaults = {'src/semantics': 'SelfhostSemantics', 'src/parser': 'SelfhostParser', 'src/lexer': 'SelfhostLexer', 'src/driver': 'SelfhostDriver'}
-kept = {'SelfhostDriver': ('SelfhostDriver', 'SelfhostDefault')}  # SelfhostDefault* (017) tests build src/driver through SelfhostDriverHarness
-def family(d):
-    return 'SelfhostEmitter' if d == 'src/emitter' or d.startswith('src/emitter/') else defaults.get(d)
-def expand(p):
-    m = re.search(r'\{([^{}]*)\}', p)
-    return [q for o in m.group(1).split(',') for q in expand(p[:m.start()] + o + p[m.end():])] if m else [p]
-entries = []  # (patterns, test classes) per task line
-lines = []
-for t in tasks:
-    try:
-        lines += open(t, encoding='utf-8').read().splitlines()
-    except OSError as e:
-        sys.exit(f'mutate-batch: cannot read the tasks file: {e}')
-for line in lines:
-    m = re.match(r'- \[.\] .*?files:(.*?)(?: — covers:|$)', line)
-    if not m:
-        continue
-    toks = re.findall(r'`([^`]+)`', m.group(1))
-    pats = [q for t in toks if t.endswith('.byn') for q in expand(t)]
-    classes = [os.path.basename(t)[:-3] for t in toks if t.endswith('Tests.cs') and '*' not in t]
-    entries.append((pats, classes))
-def names(f, p):
-    if '/' in p:
-        return fnmatch.fnmatchcase(f, p)
-    return fnmatch.fnmatchcase(os.path.basename(f), p) and sum(os.path.basename(g) == os.path.basename(f) for g in files) == 1
-rows = []
-for f in files:
-    d = os.path.dirname(f)
-    fam = family(d)
-    if not fam:
-        sys.exit(f'mutate-batch: {f}: the directory {d}/ has no test family (src/semantics, parser, lexer, emitter, driver)')
-    cls = {c for pats, classes in entries if any(names(f, p) for p in pats) for c in classes if c.startswith(kept.get(fam, fam))} or {fam}
-    rows.append((f, '|'.join('FullyQualifiedName~' + c for c in sorted(cls))))
-fams = {}  # family dir (src/<family>) -> files, in file order
-for f, flt in rows:
-    fams.setdefault('/'.join(f.split('/')[:2]), []).append((f, flt))
-n = 1
-if shard:
-    m = re.fullmatch(r'(\d+)/(\d+)', shard)
-    if not m or not 1 <= int(m.group(1)) <= int(m.group(2)):
-        sys.exit(f'mutate-batch: --shard {shard}: want k/n with 1 <= k <= n')
-    k, n = int(m.group(1)), int(m.group(2))
-if only:
-    want = only.split(',')
-    for w in want:
-        if w not in files:
-            sys.exit(f'mutate-batch: --files {w}: not a selfhost .byn file')
-for d, fl in fams.items():
-    mine = fl[k - 1::n] if shard else fl  # file i goes to shard (i mod n)+1
-    flt = '|'.join(sorted({c for _, x in mine for c in x.split('|')}))  # the union of the whole group, as a full run builds it
-    mine = [x for x in mine if not only or x[0] in want]  # --files narrows only which files are mutated
-    if not mine:
-        continue
-    name = d.split('/')[-1] + (f'-shard{k}of{n}' if shard else '')
-    for f, _ in mine:
-        print(f'{name}\t{f}\t{flt}')
-PY
-) || { echo "$PLAN"; exit 2; }
+# a plan error is the tool'"'"'s `mutate-batch: ...` line (exit 2); anything else on stderr (no pinned bayan) is a setup failure (exit 3)
+PERR=$(mktemp); PLAN=$(bash "$HERE/../bayan-tool.sh" mutate-plan "$FILES" "$SHARD" "${TASKS[@]}" 2> "$PERR") || {
+  echo "$PLAN"; cat "$PERR" >&2; case $(head -c 14 "$PERR") in "mutate-batch: ") rm -f "$PERR"; exit 2;; esac; rm -f "$PERR"; exit 3; }
+rm -f "$PERR"
 
 if [ $LIST = 1 ]; then while IFS=$'\t' read -r g f flt; do echo "$f -> $flt"; done <<< "$PLAN"; exit 0; fi
 [ -n "$PLAN" ] || { echo "mutate-batch: no file selected"; exit 2; }

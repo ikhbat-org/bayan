@@ -1,0 +1,64 @@
+// std.fs glob (spec 015 S5, T13): the files under the working directory a pattern names.
+
+import std.path
+
+type Glob = path.Glob
+
+/// The depth below the base directory a walk stops at when the pattern has `**` or `{}` (its length is unknown).
+const maxDepth: i64 = 64
+
+/// The files whose path matches `pattern` (`**`, `*`, `?`, `[…]`, `{a,b}` as `Glob.matches` reads them), sorted by byte
+/// order, written with `/` separators and starting as `pattern` does. Directories are walked but not listed; a base
+/// directory that is missing or unreadable gives an empty list.
+public List<string> glob(string pattern) uses fs, alloc {
+    var found = List<string>()
+    let base = baseOf(pattern)
+    let depth = (pattern.contains("**") || pattern.contains("{")) ? maxDepth : count(pattern, for: "/") + 1
+    walk(pattern, from: base, until: depth, to: ref found)
+    var j = 0
+    while j < found.length {
+        var k = j
+        while k > 0 && found[k] < found[k - 1] {
+            let t = found[k]
+            found[k] = found[k - 1]
+            found[k - 1] = t
+            k -= 1
+        }
+        j += 1
+    }
+    return found
+}
+
+/// The directory a walk for `pattern` starts in: its leading segments with no `*`, `?`, `[` or `{`.
+string baseOf(string pattern) {
+    var i = 0
+    var slash = -1
+    while i < pattern.length {
+        let b = pattern.bytes[i]
+        if b == '*' || b == '?' || b == '[' || b == '{' { break }
+        if b == '/' { slash = i }
+        i += 1
+    }
+    if slash < 0 { return "" }
+    return slash == 0 ? "/" : pattern[0..slash]
+}
+
+/// The number of times `part` occurs in `text`.
+i64 count(string text, for string part) {
+    var n = 0
+    for _ in text.parts(by: part) { n += 1 }
+    return n - 1
+}
+
+/// Adds every file under `dir` (to `depth` levels) whose path matches `pattern`.
+void walk(string pattern, from string dir, until i64 depth, to ref List<string> found) uses fs, alloc {
+    let names = Io.listDir(dir.isEmpty ? "." : dir) catch { return }
+    for name in names {
+        let entry = dir.isEmpty ? $"{name}" : (dir.endsWith("/") ? $"{dir}{name}" : $"{dir}/{name}")
+        let inside = Io.listDir(entry) catch {
+            if Glob.matches(pattern, for: entry) { found.append(entry) }
+            continue
+        }
+        if depth > 1 { walk(pattern, from: entry, until: depth - 1, to: ref found) }
+    }
+}

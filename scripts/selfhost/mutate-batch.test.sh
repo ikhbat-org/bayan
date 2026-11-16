@@ -43,8 +43,8 @@ mkdir -p csharp/Bayan.Cli/bin/Debug/net10.0
 cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 #!/bin/bash
 # `run` is scripts/bayan-tool.sh running manifest-builds: one `binary<TAB>sites` line per build, a malformed manifest fails;
-# the quality-baseline, report-paths and coverage-missing tools run on the real pinned bayan ($REAL_BAYAN)
-[ "$1" = run ] && case $2 in */quality-baseline.byn|*/report-paths.byn|*/coverage-missing.byn) exec "$REAL_BAYAN" "$@";; esac
+# the quality-baseline, report-paths, coverage-missing and mutate-plan tools run on the real pinned bayan ($REAL_BAYAN)
+[ "$1" = run ] && case $2 in */quality-baseline.byn|*/report-paths.byn|*/coverage-missing.byn|*/mutate-plan.byn) exec "$REAL_BAYAN" "$@";; esac
 [ "$1" = run ] && { m=${@: -1}; grep -q ']}$' "$m" || { echo "manifest-builds: $m: malformed" >&2; exit 1; }
   tr '{' '\n' < "$m" | sed -n 's/^"binary": "\([^"]*\)", "sites": "\([^"]*\)".*/\1 \2/p' | tr ' ' '\t'; exit 0; }
 bn=$(basename "$(dirname "$3")")
@@ -168,7 +168,7 @@ echo "$m0" | grep -q '^group semantics: mutation: the recording does not replay 
 echo "$nomanifest" | grep -q '^group parser: mutation: the recording wrote no tmp/mutate-batch/parser/snap/manifest.json' || fail "a manifest-less recording did not name its group" "$nomanifest"
 [ "$testfailx" = 4 ] && echo "$testfail" | grep -qF 'group parser: mutation: recording under BAYAN_SNAPSHOT: 2 test(s) failed (tmp/mutate-batch/parser/record.txt): Bayan.Tests.D.Format(name: "round3", x: 1); Bayan.Tests.E.Time — first: two runs differ' || fail "failed tests in the recording exited $testfailx (want 4) or did not name both" "$testfail"
 [ "$hostcrashx" = 3 ] && echo "$hostcrash" | grep -q '^group parser: mutation: recording the tests under BAYAN_SNAPSHOT failed (tmp/mutate-batch/parser/record.txt)' || fail "a recording with no failed test (host crash) exited $hostcrashx, not 3" "$hostcrash"
-echo "$nocli" | grep -q '^group parser: mutation: no pinned bayan — pinned-bayan: PINNED_BAYAN=.*/csharp/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not name its group" "$nocli"
+echo "$nocli" | grep -q 'pinned-bayan: PINNED_BAYAN=.*/csharp/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not name the pinned bayan" "$nocli"
 [ "$relpath" = src/semantics/a.byn ] || fail "the copied report's path was not rewritten repo-root-relative (got $relpath)" "$fill"
 echo "$outside" | grep -q '^group parser: report: .*quality-1-prog.json: path /elsewhere/p.byn is not under the repo root' || fail "a report path outside the repo root did not fail the group naming the report" "$outside"
 [ "$pkgpath" = src/parser/p.byn ] || fail "a path relative to the packageRoot src/ was not resolved there (got $pkgpath)" "$pkgrel"
