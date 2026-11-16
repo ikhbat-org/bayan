@@ -21,8 +21,8 @@ The versioned docs carry a header in their first lines (`bayan_header_docs`): `d
 `docs/bayan-grammar.md`, `docs/bayan-style.md`, `docs/DIAGNOSTICS.md` and `docs/STATUS.md`.
 
 ```text
-Version: 0.2.0 (matches `bayan --version`)
-Revisions applied: 0001–0020
+Version: 0.3.2-dev (matches `bayan --version`)
+Revisions applied: 0001–0023
 ```
 
 `Revisions applied` names the highest `docs/revisions/NNNN-*.md`; the range covers every revision from 0001.

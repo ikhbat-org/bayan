@@ -136,7 +136,7 @@ A body that is not a block: [BYN1018](diagnostics/BYN1018.md). Display-only view
 |---|---|---|
 | `if c { … }` | The general case. No parentheses, braces mandatory. `if !x { … }` and `unless x { … }` are both allowed paraphrases. `else` follows `}` on the same line (§6). | [BYN1017](diagnostics/BYN1017.md), [BYN1018](diagnostics/BYN1018.md) |
 | `unless c { … }` | A guard on a simple positive condition with no `else`. Not with `else`, not with `!` or `not`, not with a top-level `&&`/`\|\|` (`and`/`or`), not with `is null`, no likelihood word. | [BYN1006](diagnostics/BYN1006.md), [BYN1007](diagnostics/BYN1007.md), [BYN1022](diagnostics/BYN1022.md), [BYN1023](diagnostics/BYN1023.md), [BYN1033](diagnostics/BYN1033.md) |
-| `if unlikely c { … }` | A cold path that is not already an error return. Layout hint only; semantics unchanged. | [BYN2233](diagnostics/BYN2233.md) (lint: redundant on error returns) |
+| `if unlikely c { … }` | A cold path that is not already an error return. Layout hint only; semantics unchanged. | [BYN2233](DIAGNOSTICS.md) (lint: redundant on error returns) |
 | `if never c { … }` | A state that would be a bug. Panics if true in every build mode. For a caller's obligation on entry, use `expects` instead. | No dedicated code (runtime panic) |
 | `stmt if c`, `stmt unless c` | A one-line guard: `return`, `fail`, `break`, `continue` or one call, on the same line as the guard. `stmt unless not c` is rejected with a fix-it to `stmt if c`. | [BYN1008](diagnostics/BYN1008.md) (simple statements only), [BYN1009](diagnostics/BYN1009.md) (no chaining), [BYN1007](diagnostics/BYN1007.md) (negated `unless`) |
 

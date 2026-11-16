@@ -12,7 +12,8 @@ Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan`
 |---|---|---|---|---|
 | 0.1.0 | 2026-11-02 | `v0.1.0` | shipped | `CHANGELOG.md` `[0.1.0]` |
 | 0.2.0 | 2026-11-06 | `v0.2.0` | shipped | `CHANGELOG.md` `[0.2.0]` |
-| 0.3.0 | 2026-11-14 | `v0.3.0` (pending) | cut on `dev` (`VERSION` is `0.3.0`, `CHANGELOG.md` `[0.3.0]`); waits for the dev → main merge and the tag, both the user's | `VERSION`, `CHANGELOG.md` `[0.3.0]`, `docs/RELEASING.md` |
+| 0.3.0 | 2026-11-14 | `v0.3.0` | shipped | `CHANGELOG.md` `[0.3.0]` |
+| 0.3.1 | 2026-11-15 | `v0.3.1` | shipped | `CHANGELOG.md` `[0.3.1]` |
 
 ### 0.1.0: the C# compiler (M0 — Skeleton to M12 — CLI completeness and machine-readable output)
 
@@ -71,7 +72,7 @@ The order below follows the sources where they give one and the dependencies whe
 | Order | Item | State today | Source |
 |---|---|---|---|
 | 1 | Revision 0024, numeric conversions | The last syntax change admitted after the freeze. The text is not in `docs/revisions/` yet; Q1 and Q1274 are decided (a float literal `dec(0.1)` is an error with a fix-it to `0.1dec`, and a runtime `f64` in `dec(x)` is an error with a fix-it to `dec.fromF64(x, digits)`) | `docs/bayan-spec.md` line 8, `docs/decisions/2026-11-14-004-answered-questions.md` Questions 1274, `docs/plans/2026-11-12-008-release-prep-and-process.md` |
-| 2 | Plan 015, Q31 memory follow-ups | Phases A, B and D are merged into `dev`; phase C (emit arena) is deferred by the user. Left open: the LOWs below | `docs/plans/2026-11-14-015-q31-followups.md`, `docs/bayan-progress-log.md` (2026-11-14), `work/todo.md` lines 770–775, 794 |
+| 2 | Plan 015, Q31 memory follow-ups | Phases A, B and D are merged into `dev`; phase C (emit arena) is deferred by the user. Left open: the LOWs below | `docs/plans/2026-11-14-015-q31-followups.md`, `docs/bayan-progress-log.md` (2026-11-14), `work/todo.md` lines 776–800 |
 | 3 | Spec 019, the .NET exit | Approved 2026-11-13, not written; to be written after 0.3.0, estimate 4–7 weeks. C# test outputs become goldens, the language server moves to Bayān, CI builds from `bootstrap/bayan.c`, the C# compiler stays frozen for diverse double-compiling | `docs/bayan-milestones.md` (Target: zero dependencies) |
 | 4 | Spec 020, test-result cache | Approved; 0 of 27 tasks ticked. Build now with a thin adaptor if cheap, otherwise after 019 | `docs/specs/020-test-result-cache/020-spec.md` (Open questions, item 4), `020-tasks.md` |
 | 5 | Sabk, native debug backend (`bayan build --backend native`) | Scheduled by the user 2026-11-13 after spec 019. `c` stays the default path; LLVM stays for release builds | `docs/plans/2026-11-05-005-parking-lot.md` (B04), `docs/bayan-milestones.md` (Target: zero dependencies) |
@@ -86,8 +87,8 @@ The order below follows the sources where they give one and the dependencies whe
 | Follow-up | State | Source |
 |---|---|---|
 | Rev 0021 naming lints, Q1186–Q1189 | "Decision needed" in the Questions with no later decision entry; Q1190 (option A) and Q1191 (std skipped) were settled on 2026-11-11 | `docs/decisions/2026-11-14-004-answered-questions.md` lines 3264–3276, `docs/bayan-progress-log.md` lines 63, 435 |
-| Plan 015 LOWs | `test`, `mutate` and `dist` still build with the frontend alive; `--emit-c` runs in the arena for no gain; `t42SummaryInArena` has no `c.sink` guard | `work/todo.md` lines 771, 775, 794 |
-| mmap arena chunks | `bayan-rt.c` large arena chunks through `mmap` and `munmap`, so macOS returns freed arenas to the OS | `work/todo.md` line 772 |
+| Plan 015 LOWs | `test`, `mutate` and `dist` still build with the frontend alive; `--emit-c` runs in the arena for no gain; `t42SummaryInArena` has no `c.sink` guard | `work/todo.md` lines 777, 781, 800 |
+| mmap arena chunks | `bayan-rt.c` large arena chunks through `mmap` and `munmap`, so macOS returns freed arenas to the OS | `work/todo.md` line 778 |
 | Mutation CI | The `mutation` workflow stays disabled; `ci` and `laws-nightly` are re-enabled | `docs/bayan-progress-log.md`, "CI repair before 0.3.0" |
 | After 0.3.0 list | Q1229, Q1272, Q1273, the General allocator (Q31) arena per phase, parser and ownership depth (BYN1xxx "nested too deep") | `docs/decisions/2026-11-14-004-answered-questions.md` (Decided by the user 2026-11-12, "After 0.3.0") |
 | Before the tag | `authors` CI is red on `dev` since 2026-11-03; fixing needs a history rewrite the user runs | `work/todo.md` ("Before 0.3.0"), `scripts/move/2026-11-14-history-rewrite.sh` |
