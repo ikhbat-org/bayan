@@ -129,6 +129,8 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
      `share/doc/bayan/`: `SPEC.md`, `GRAMMAR.md`, `STYLE.md`, `DIAGNOSTICS.md`, `STATUS.md` and `CHANGELOG.md`;
    - the memory gate runs on Linux and macOS, the editor gate (`bayan-lsp` memory tests, the extension packaged under a
      size bound) on Linux, and the full tier of every enacted law (`laws-nightly.yml`, up to 180 minutes);
+   - once spec 019 adds the R27 job (diverse double-compiling), a red R27 run means fix the job's environment (the SDK download,
+     the runner image) and re-run it; it does not mean the release is broken (decided 2026-11-17);
    - the release job adds `bayan-X.Y.Z-docs.tar.gz` (the same six docs, and every other release doc under its path
      below `docs/`, among them `specs/README.md` and `bayan-feature-history.md`, under `bayan-X.Y.Z-docs/share/doc/bayan/`)
      and `SHA256SUMS`, and opens a draft GitHub Release whose notes are the CHANGELOG section. While the major version is 0 the draft
