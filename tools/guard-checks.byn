@@ -1,0 +1,362 @@
+#!/usr/bin/env bayan
+// The guard's content checks for one spec 010 task (spec 015 T15): called by scripts/selfhost/guard.sh, prints one
+// failure per line and exits 0. Port of scripts/selfhost/guard-checks.py. The spec is a row of
+// scripts/selfhost/specs.tsv, read under $BAYAN_REPO_ROOT (set by scripts/bayan-tool.sh; the Python read it beside
+// itself): its shared-state files (check C) and the directory a bare .byn name resolves in.
+// A  oracle: the task's test class runs the C# implementation and compares with it; no hand-typed expected lines.
+// B  stubs: no `// stub: <task>` marker left in an owned file unless it names its blocking Question; no empty bodies.
+// C  ctx.byn: changes only inside the task's own `// ── <task> state` section (its header line counts as inside).
+// D  gates: no Question that gates this task ("before <task>") is still Open.
+// E  docs: a Progress log entry naming the task; every `[dir/]file.byn:N` a new Question cites exists and shows the quoted code.
+// Each `re.M` pattern runs on one line at a time. Divergences from the Python: `\b \w \s \d` are ASCII (std.regex), and
+// whitespace splitting and stripping know the ASCII spaces only; a spec missing from specs.tsv, or too few arguments,
+// is a one-line error and exit 1, not a traceback.
+// Usage: bash scripts/bayan-tool.sh guard-checks <base> <task, e.g. T13> <allow globs, comma-separated> [spec, default 010]
+
+import std.regex
+
+type Regex = regex.Regex
+
+/// The regex of `pattern`, which this tool knows to be valid.
+Regex compiled(string pattern) uses alloc => Regex.parse(pattern) catch panic($"guard-checks: bad pattern {pattern}")
+
+/// `re.search(pattern, text)` found something.
+bool found(string pattern, for string text) uses alloc {
+    return compiled(pattern).find(text) is not null
+}
+
+/// Python's text-mode read: `\r\n` and a lone `\r` become `\n`; "" when the file is unreadable.
+string read(string path) uses fs, alloc {
+    let text = Io.readText(path) catch {
+        return ""
+    }
+    return text.replaced("\r\n", by: "\n").replaced("\r", by: "\n")
+}
+
+/// The stdout of git with the tab-separated `args`, newlines as in text mode; "" when git cannot run.
+string git(string args) uses process, alloc {
+    var list = List<string>()
+    for a in args.parts(by: "\t") { list.append(a) }
+    let r = Io.run("git", list.span) catch {
+        return ""
+    }
+    return r.stdout.replaced("\r\n", by: "\n").replaced("\r", by: "\n")
+}
+
+/// `text.split('\n')`.
+List<string> lines(string text) uses alloc {
+    var result = List<string>()
+    for p in text.parts(by: "\n") { result.append(p) }
+    return result
+}
+
+bool isSpace(u8 b) {
+    return b == ' ' || b == '\t' || b == '\n' || b == '\r' || b == 0x0B || b == 0x0C
+}
+
+/// `text.split()`: the runs of non-space bytes.
+List<string> words(string text) uses alloc {
+    var result = List<string>()
+    var start = -1
+    for i in 0..text.length + 1 {
+        let space = i == text.length || isSpace(text.bytes[i])
+        if space && start >= 0 {
+            result.append(text[start..i])
+            start = -1
+        } else if !space && start < 0 {
+            start = i
+        }
+    }
+    return result
+}
+
+/// `s.lstrip()`.
+string lstripped(string s) uses alloc {
+    var i = 0
+    while i < s.length && isSpace(s.bytes[i]) { i += 1 }
+    return $"{s[i..s.length]}"
+}
+
+/// `s.strip()`.
+string stripped(string s) uses alloc {
+    let l = lstripped(s)
+    var j = l.length
+    while j > 0 && isSpace(l.bytes[j - 1]) { j -= 1 }
+    return $"{l[0..j]}"
+}
+
+/// `s[:n]`: the first `n` code points.
+string prefix(string s, until i64 n) uses alloc {
+    var count = 0
+    for i in 0..s.length {
+        let b = s.bytes[i]
+        if b < 0x80 || b >= 0xC0 {
+            if count == n { return $"{s[0..i]}" }
+            count += 1
+        }
+    }
+    return $"{s}"
+}
+
+/// `strings` sorted by byte order, equal ones once.
+List<string> sortedSet(List<string> strings) uses alloc {
+    var result = List<string>()
+    for s in strings {
+        var has = false
+        for r in result {
+            if r == s { has = true }
+        }
+        if has { continue }
+        var j = result.length
+        result.append(s)
+        while j > 0 && result[j] < result[j - 1] {
+            let t = result[j]
+            result[j] = result[j - 1]
+            result[j - 1] = t
+            j -= 1
+        }
+    }
+    return result
+}
+
+bool has(List<string> strings, for string s) {
+    for x in strings {
+        if x == s { return true }
+    }
+    return false
+}
+
+/// `s` as a decimal number, or -1.
+i64 number(string s) {
+    if s.isEmpty || s.length > 15 { return -1 }
+    var n = 0
+    for b in s.bytes {
+        if b < '0' || b > '9' { return -1 }
+        n = n * 10 + i64(b - '0')
+    }
+    return n
+}
+
+struct Section {
+    i64 start
+    i64 end
+}
+
+i32 main(ReadOnlySpan<string> argv) {
+    if argv.length < 3 {
+        print("guard-checks: IndexError: list index out of range (usage: guard-checks <base> <task> <allow> [spec])", to: .stderr)
+        return 1
+    }
+    let base = argv[0]
+    let task = argv[1]
+    let allow = lines(argv[2].replaced(",", by: "\n"))
+    let spec = argv.length > 3 ? argv[3] : "010"
+    let root = Env.get("BAYAN_REPO_ROOT") ?? "."
+    var head = List<string>()
+    var row = List<string>()
+    var first = true
+    for l in lines(read(Path.combine(root, "scripts/selfhost/specs.tsv"))) {
+        if l.isEmpty { continue }
+        let cols = lines(l.replaced("\t", by: "\n"))
+        if first {
+            head = move cols
+            first = false
+        } else if row.isEmpty && cols[0] == spec {
+            row = move cols
+        }
+    }
+    var sharedAt = -1
+    var bydirAt = -1
+    for i in 0..head.length {
+        if head[i] == "shared" { sharedAt = i }
+        if head[i] == "bydir" { bydirAt = i }
+    }
+    if row.isEmpty || sharedAt < 0 || sharedAt >= row.length || bydirAt < 0 || bydirAt >= row.length {
+        print($"guard-checks: spec {spec} has no row with shared and bydir in scripts/selfhost/specs.tsv", to: .stderr)
+        return 1
+    }
+    let shared = lines(row[sharedAt].replaced(",", by: "\n"))
+    let bydir = row[bydirAt]
+    let t = Regex.escaped(task)
+    var failures = List<string>()
+
+    var all = words(git($"diff\t--name-only\t{base}...HEAD"))
+    for w in words(git("diff\t--name-only")) { all.append(w) }
+    for w in words(git("ls-files\t--others\t--exclude-standard")) { all.append(w) }
+    let changed = sortedSet(all)
+    var ownedByn = List<string>()
+    var testFiles = List<string>()
+    for p in allow {
+        if p.endsWith(".byn") && !has(shared, for: p) { ownedByn.append(p) }
+        if p.endsWith("Tests.cs") { testFiles.append(p) }
+    }
+
+    // A — oracle
+    let oracle = compiled("\\b(Compilation\\.(Create|FromPath|FromProject)|Manifest\\.(Read|Parse)|DiagnosticRenderer\\.|new (Binder|Compilation|Parser)\\b|typeof\\((Compilation|Binder|Conversions|Conformance)\\)|(Conversions|ConstantFolding|TypeFacts|Conformance|BinderExpressions|Lexicon)\\.[A-Z]|\\.GetType\\(\"Bayan\\.Semantics|CliApp\\.(Run|EmitC)\\(|SyntaxTree\\.Parse\\(|SelfhostEmitterHarness\\.SameAsCli\\()")
+    let hand = compiled("(\\bexpected\\w*\\s*=\\s*(new\\s*(List<string>)?\\s*(\\(\\))?\\s*\\{|\\[)\\s*\")|(AssertSection\\([^;]*,\\s*(new\\s*(List<string>)?\\s*\\{|\\[)\\s*\")")
+    let opens = compiled("(\\bexpected\\w*\\s*=\\s*new\\s*(List<string>)?\\s*(\\(\\))?|AssertSection\\([^;]*,\\s*new\\s*(List<string>)?)\\s*\\{?\\s*$")
+    for tf in testFiles {
+        let src = read(tf)
+        if src.isEmpty { continue }
+        let tl = lines(src)
+        var body = StrBuf()
+        var firstLine = true
+        for l in tl {
+            let s = lstripped(l)
+            if s.startsWith("using ") || s.startsWith("///") || s.startsWith("//") { continue }
+            if !firstLine { body.append("\n") }
+            body.append(l)
+            firstLine = false
+        }
+        if oracle.find(body.finish()) is null {
+            failures.append($"oracle: {tf} never runs the C# implementation; build each expected line from `Bayan.Semantics` (see SelfhostSemanticsT10Tests.Expected) instead of typing it")
+        }
+        var exempt = 0
+        for i in 1..tl.length + 1 {
+            let line = tl[i - 1]
+            let nxt = i < tl.length ? lstripped(tl[i]) : ""
+            let opened = opens.find(line) is not null && (nxt.startsWith("\"") || nxt.startsWith("{ \""))
+            if hand.find(line) is not null || opened {
+                if found("// no-oracle: Q\\d{3}", for: line) && exempt < 2 {
+                    exempt += 1
+                    continue
+                }
+                failures.append($"oracle: {tf}:{i} hand-typed expected lines; compute them from the C# oracle (at most 2 exemptions, each `// no-oracle: Qnnn`)")
+            }
+        }
+    }
+
+    // B — stubs left behind, empty bodies
+    let emptyOpen = compiled("^[A-Za-z].*\\)\\s*(->\\s*\\S+\\s*)?\\{\\s*$")
+    for f in ownedByn {
+        let ls = lines(read(f))
+        for i in 1..ls.length + 1 {
+            let line = ls[i - 1]
+            if line.startsWith($"// stub: {task} ") && !found("blocked: Q\\d{3}", for: line) {
+                failures.append($"stub: {f}:{i} still marked `{prefix(line, until: 60)}`; port it and delete the marker, or append `(blocked: Qnnn)` naming the Question that blocks it")
+            }
+        }
+        for i in 0..ls.length - 1 {
+            if emptyOpen.find(ls[i]) is not null && stripped(ls[i + 1]) == "}" {
+                let prev = i > 0 ? ls[i - 1] : ""
+                if !prev.contains("blocked: Q") {
+                    failures.append($"stub: {f}:{i + 1} has an empty body; port it, or mark it `// stub: {task} … (blocked: Qnnn)`")
+                }
+            }
+        }
+    }
+
+    // C — ctx.byn sections (each shared-state file of the spec)
+    let header = compiled($"^\\s*// ── {t} state\\b")
+    let closer = compiled("^\\s*(// ──|\\})")
+    let hunk = compiled("^@@ -\\d+(?:,(\\d+))? \\+(\\d+)(?:,(\\d+))? @@")
+    for ctx in shared {
+        if !has(changed, for: ctx) { continue }
+        let name = Path.fileName(ctx)
+        let nl = lines(read(ctx))
+        var spans = List<Section>()
+        var start = 0
+        for i in 1..nl.length + 1 {
+            if header.find(nl[i - 1]) is not null {
+                start = i
+            } else if start > 0 && closer.find(nl[i - 1]) is not null {
+                spans.append(Section { start: start, end: i })
+                start = 0
+            }
+        }
+        // one diff from the merge base to the working tree, numbered as the spans are (as in E)
+        let mb = stripped(git($"merge-base\t{base}\tHEAD"))
+        for dl in lines(git($"diff\t-U0\t{mb}\t--\t{ctx}")) {
+            let m = hunk.find(dl) ?? continue
+            let oldN = number(m.group(1) ?? "1")
+            let at = number(m.group(2) ?? "")
+            let cnt = number(m.group(3) ?? "1")
+            let lo = at
+            let hi = at + (cnt > 1 ? cnt : 1) - 1
+            if oldN != 0 && cnt == 0 {
+                failures.append($"ctx: {name} deletes lines near :{at}; sections only grow")
+                continue
+            }
+            // a hunk may start on its section's header: a task adds its own `// ── Tn state` line with its first field
+            var inside = false
+            for s in spans {
+                if s.start <= lo && hi < s.end { inside = true }
+            }
+            if !inside {
+                failures.append($"ctx: {name}:{lo}-{hi} is outside `// ── {task} state` sections; add fields only there")
+            }
+        }
+    }
+
+    // D — gates
+    let question = compiled("^(\\d{3})\\. (.*)$")
+    let before = compiled($"\\bbefore {t}\\b")
+    let open = compiled("\\bOpen\\.\\s*$")
+    for q in lines(read("docs/bayan-questions.md")) {
+        let m = question.find(q) ?? continue
+        let text = m.group(2) ?? ""
+        if before.find(text) is not null && open.find(text) is not null {
+            failures.append($"gate: Q{m.group(1) ?? ""} must be decided before {task} and is still Open; stop and ask the dispatcher")
+        }
+    }
+
+    // E — docs
+    // One diff from the merge base to the working tree: a line fixed since the last commit is checked as it stands now.
+    let mb = stripped(git($"merge-base\t{base}\tHEAD"))
+    var added = List<string>()
+    for l in lines(git($"diff\t{mb}\t--\tdocs/bayan-questions.md\tdocs/bayan-progress-log.md")) {
+        if l.startsWith("+") && !l.startsWith("+++") { added.append(l[1..l.length]) }
+    }
+    let named = compiled($"\\b{t}\\b")
+    var entry = false
+    for l in added {
+        if l.startsWith("- **") && named.find(l) is not null { entry = true }
+    }
+    if !entry {
+        failures.append($"docs: add a Progress log entry for {task} (what landed, what is left, test count)")
+    }
+    let numbered = compiled("^\\d{3}\\. ")
+    let citation = compiled("`?((?:[A-Za-z0-9_.-]+/)*[a-z0-9_]+\\.byn)`?\\s*:(\\d+)(?:\\s*`([^`]+)`)?")
+    for l in added {
+        if numbered.find(l) is null { continue }
+        let q = prefix(l, until: 3)
+        for m in citation.findAll(l) {
+            let name = m.group(1) ?? ""
+            let ln = number(m.group(2) ?? "")
+            let code = m.group(3) ?? ""
+            // a cited directory path is exact; a bare basename is looked up in the owned files, then the spec's directory
+            var path = $"{name}"
+            if !name.contains("/") {
+                path = $"{bydir}/{name}"
+                for p in ownedByn {
+                    if p.endsWith($"/{name}") {
+                        path = $"{p}"
+                        break
+                    }
+                }
+            }
+            if !Fs.fileExists(path) {
+                failures.append($"docs: Q{q} cites {name}:{ln}, but {path} does not exist; cite an existing file")
+                continue
+            }
+            let src = lines(read(path))
+            if ln < 1 || ln > src.length || stripped(src[ln - 1]) == "" || stripped(src[ln - 1]) == "}" || stripped(src[ln - 1]) == "{" {
+                failures.append($"docs: Q{q} cites {name}:{ln}, which is blank, a brace or past the end; cite the line as it stands now")
+            } else if !code.isEmpty {
+                let want = stripped(code)
+                var near = false
+                let from = ln - 3 > 0 ? ln - 3 : 0
+                let to = ln + 2 < src.length ? ln + 2 : src.length
+                for k in from..to {
+                    if want.isEmpty || src[k].contains(want) { near = true }
+                }
+                if !near {
+                    failures.append($"docs: Q{q} cites {name}:{ln} `{prefix(code, until: 40)}`, which is not on or near that line")
+                }
+            }
+        }
+    }
+
+    for f in failures { print(f) }
+    return 0
+}

@@ -10,14 +10,14 @@
 # 3 build 0 warnings, 4 tests pass with 0 skipped, and coverage (spec 013 T26): when the branch changes selfhost .byn files the
 # tests run under BAYAN_COVERAGE with those files, and every line and branch of each function the branch touches (its span
 # holds a line added or changed against the merge base with --base; a new function counts) must be covered, each missed one
-# named (coverage-gate.py; `// coverage-exempt:` for code dead in the C#, `// coverage-blocked: Qnnn T<k> <fn>` for code
+# named (tools/coverage-gate.byn; `// coverage-exempt:` for code dead in the C#, `// coverage-blocked: Qnnn T<k> <fn>` for code
 # behind sibling T<k>'s stub while T<k> is open and not --task); each file's other functions get one info line, never a FAIL; a file under another specs.tsv row's bydir (an 011 task editing src/semantics) has only its changed lines gated (Q871), while files outside every bydir (src/parser) keep the touched-function rule; a changed file the report has no entry for is one (Q820) unless its AST (pinned bayan parse --ast) holds no Function, Constructor, Getter, Property, Test or Block line: then an info line. The guard makes no baseline check of
 # coverage: it leaves the report at tmp/guard-run/coverage/bayan-quality.json, and land.sh records it (raise-only) in
 # tests/quality-baseline.json. 5 banned C#-isms in changed .byn, 6 mutation (spec 013 R14): every
 # mutation site of the --mutate files must make the filtered tests fail (`bayan mutate --binary` over a BAYAN_SNAPSHOT
 # recording; a survivor = an untested change; `@unobservable because "…"` marks a statement whose mutants no test can see),
 # and no file's score may fall below tests/quality-baseline.json (only with --mutate),
-# 7 content checks from guard-checks.py (C# oracle in the tests, no stubs or empty bodies left, ctx.byn only in the
+# 7 content checks from tools/guard-checks.byn (C# oracle in the tests, no stubs or empty bodies left, ctx.byn only in the
 # task's own section, no open gating Question, docs: progress log entry and Question line citations that hold).
 # Per-task landing runs no mutation (land.sh drops --mutate, user decision 2026-11-01): it runs in batches and CI; coverage
 # runs on every guard (when a selfhost .byn changed), landing included. A python helper that exits non-zero (a malformed report, manifest or baseline) is a
@@ -93,7 +93,7 @@ if [ $TX = 0 ] && [ -n "$COVER" ]; then
       fi
       note "coverage: $f is in no build under --filter '$TFILTER' (no entry in tmp/guard-run/coverage/bayan-quality.json), so its touched functions are unchecked"
     done <<< "$miss"
-    out=$(python3 -I "$(dirname "$0")/coverage-gate.py" "$(git merge-base "$BASE" HEAD)" "$COV/bayan-quality.json" "$COV/functions.json" \
+    out=$(bash "$(dirname "$0")/../bayan-tool.sh" coverage-gate "$(git merge-base "$BASE" HEAD)" "$COV/bayan-quality.json" "$COV/functions.json" \
       "$SDIR/$STASKS" "$TASK" "$BYDIR" 2> "$LOG/coverage-gate.txt") \
       || note "coverage: $(tail -1 "$LOG/coverage-gate.txt")"
     while read -r l; do case "$l" in "- "*) note "${l#- }";; ?*) echo "$l";; esac; done <<< "$out"
@@ -120,7 +120,7 @@ esac
 # the task comes from --task, else from a <prefix><n>Tests class in --filter (the row's test-class prefix; T26/T27 test classes carry no number)
 [ -n "$TASK" ] || TASK=$(echo "$FILTER" | grep -oE "${PREFIX}[0-9]+Tests" | head -1 | sed -E "s/${PREFIX%T}(T[0-9]+)Tests/\1/")
 if [ -n "$TASK" ]; then
-  out=$(python3 -I "$(dirname "$0")/guard-checks.py" "$BASE" "$TASK" "$ALLOW" "$SPEC" 2> "$LOG/checks.txt") || note "checks: guard-checks.py failed: $(tail -1 "$LOG/checks.txt")"
+  out=$(bash "$(dirname "$0")/../bayan-tool.sh" guard-checks "$BASE" "$TASK" "$ALLOW" "$SPEC" 2> "$LOG/checks.txt") || note "checks: guard-checks failed: $(tail -1 "$LOG/checks.txt")"
   while read -r l; do [ -n "$l" ] && note "$l"; done <<< "$out"
 else note "checks: no --task and --filter names no ${PREFIX}<n>Tests class, so the content checks cannot run"; fi
 

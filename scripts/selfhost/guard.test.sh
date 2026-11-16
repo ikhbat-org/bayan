@@ -55,9 +55,9 @@ mkdir -p csharp/Bayan.Cli/bin/Debug/net10.0
 cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 #!/bin/bash
 # `run` is scripts/bayan-tool.sh running manifest-builds: one `binary<TAB>sites` line per build, a malformed manifest fails;
-# the quality-baseline, report-paths and coverage-missing tools run on the real pinned bayan ($REAL_BAYAN)
+# the quality-baseline, report-paths, coverage-missing, coverage-gate and guard-checks tools run on the real pinned bayan ($REAL_BAYAN)
 [ "$1" = run ] && [ -f $AUX/missfail ] && case $2 in */coverage-missing.byn) echo "bayan: pinned build failed" >&2; exit 1;; esac
-[ "$1" = run ] && case $2 in */quality-baseline.byn|*/report-paths.byn|*/coverage-missing.byn) exec "$REAL_BAYAN" "$@";; esac
+[ "$1" = run ] && case $2 in */quality-baseline.byn|*/report-paths.byn|*/coverage-missing.byn|*/coverage-gate.byn|*/guard-checks.byn) exec "$REAL_BAYAN" "$@";; esac
 [ "$1" = run ] && { m=${@: -1}; grep -q ']}$' "$m" || { echo "manifest-builds: $m: malformed" >&2; exit 1; }
   tr '{' '\n' < "$m" | sed -n 's/^"binary": "\([^"]*\)", "sites": "\([^"]*\)".*/\1 \2/p' | tr ' ' '\t'; exit 0; }
 [ "$1" = format ] && { if grep -q BAD "${@: -1}"/*/*.byn; then echo "${@: -1}/m/x.byn"; exit 1; fi; exit 0; }
@@ -172,7 +172,8 @@ echo "$nomanifest" | grep -q '^- mutation: the recording wrote no tmp/guard-run/
 echo "$badmanifest" | grep -q '^GUARD FAIL' && echo "$badmanifest" | grep -q '^- mutation: tmp/guard-run/snap/manifest.json is unreadable — ' || fail "a malformed manifest did not fail naming it" "$badmanifest"
 echo "$badbase" | grep -q '^GUARD FAIL' && echo "$badbase" | grep -q '^- baseline: quality-baseline check failed on tests/quality-baseline.json and tmp/guard-run/quality-\*.json — ' || fail "a malformed baseline did not fail naming it" "$badbase"
 echo "$recordfail" | grep -q '^- mutation: recording under BAYAN_SNAPSHOT: 1 test(s) failed (tmp/guard-run/record.txt): T99 — first: .*recording broke' || fail "a failed recording did not fail with its message" "$recordfail"
-echo "$nocli" | grep -q '^- mutation: no pinned bayan — pinned-bayan: PINNED_BAYAN=.*/csharp/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not fail with a message" "$nocli"
+# guard-checks runs on the pinned bayan too (spec 015 T15), so the missing CLI fails the content checks before mutation
+echo "$nocli" | grep -q '^- checks: guard-checks failed: pinned-bayan: PINNED_BAYAN=.*/csharp/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not fail with a message" "$nocli"
 echo "$plain" | grep -q '^GUARD PASS$' && [ $plainrec = 0 ] && [ $plainrep = 0 ] || fail "a guard without --mutate recorded or left a report" "$plain"
 L='(listing: tmp/guard-run/coverage/src/semantics/a.byn.cov.txt)'
 echo "$covpass" | grep -q '^GUARD PASS$' || fail "an uncovered untouched function failed the guard" "$covpass"
