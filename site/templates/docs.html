@@ -6,17 +6,47 @@
 <link rel="icon" href="{{root}}assets/brand/favicon/favicon.ico" sizes="48x48">
 <link rel="icon" href="{{root}}assets/brand/favicon/favicon-auto.svg" type="image/svg+xml">
 <link rel="stylesheet" href="{{root}}assets/style.css">
-<title>{{title}} - Bayan</title>
+<script>
+(function () {
+  /* Theme: light, dark or system (the default). Runs before first paint, so a chosen theme shows at once. */
+  var root = document.documentElement, key = 'bayan-theme', order = ['light', 'dark', 'system'], theme = 'system';
+  try { theme = localStorage.getItem(key) || 'system'; } catch (e) {}
+  if (order.indexOf(theme) < 0) theme = 'system';
+  function apply() {
+    if (theme === 'system') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', theme);
+    var btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = 'Theme: ' + theme;
+  }
+  apply();
+  document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('theme-btn');
+    if (!btn) return;
+    btn.hidden = false;
+    apply();
+    btn.addEventListener('click', function () {
+      theme = order[(order.indexOf(theme) + 1) % order.length];
+      try { localStorage.setItem(key, theme); } catch (e) {}
+      apply();
+    });
+  });
+})();
+</script>
+<title>{{title}} - Bayān</title>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-head">
-  <div class="wrap">
-    <a class="brand" href="{{root}}index.html"><img src="{{root}}assets/brand/wordmark/bayan-wordmark-en-header.svg" alt="bayān" width="560" height="330"><span lang="ar" dir="rtl">بيان</span></a>
+  <div class="wrap head-row">
+    <a class="brand" href="{{root}}index.html" aria-label="Bayān home">Bayān <span lang="ar" dir="rtl" aria-hidden="true">بيان</span></a>
     <span class="version">Bayān {{version}}</span>
     <nav aria-label="Main">
-{{headnav}}
+      <a href="{{root}}tutorial.html">Learn</a>
+      <a href="{{docs}}">Reference</a>
+      <a href="{{root}}roadmap.html">Roadmap</a>
+      <a href="{{root}}docs/{{version}}/index.html">Docs</a>
+      <a href="{{root}}install.html">Download</a>
     </nav>
+    <button type="button" class="theme-btn" id="theme-btn" title="Switch between light, dark and the system setting" hidden>Theme: system</button>
   </div>
 </header>
 
@@ -52,8 +82,10 @@
 
 <footer class="site-foot">
   <div class="wrap">
-    <span>Bayan is made by the Ikhbat Foundation.</span>
-    <span><a href="{{root}}index.html">Home</a> &nbsp; <a href="{{root}}tutorial.html">Tutorial</a> &nbsp; <a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a></span>
+    <span>Bayān is made by the Ikhbat Foundation.</span>
+    <nav aria-label="Site">
+{{headnav}}
+    </nav>
   </div>
 </footer>
 <script>
