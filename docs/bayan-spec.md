@@ -2437,7 +2437,7 @@ Every diagnostic states **what**, **where**, **why** and a **fix** (machine-appl
 | `bayan doctor` | Check the compiler, host target, C compiler, `zig`, git and cache; every failure prints a fix; exits 4 on any failure |
 | `bayan --version` | Compiler version and the commit it was built from |
 | `bayan format [--check] <path>` | Lay out the `.byn` files of a file or directory by `style` in `package.byn` (§19.2) and rewrite input forms (§21.5). `--check` writes nothing, prints each file that would change and exits 1 if any would. `--prose`, `--from-prose`, `--check-prose` are prose translation (§22) (not in 0.3) |
-| `bayan fix [paths…]` | Apply the machine fix of every style lint (BYN1072–BYN1080), whatever its severity in `lints` (§19.2), to the `.byn` files or directories named (default `.`); repeats until nothing changes (at most 10 passes), rewrites only changed files and prints each one's fix count. It does not format. A missing path exits 2 |
+| `bayan fix [<path>…]` | Apply the machine fix of every style lint (BYN1072–BYN1080), whatever its severity in `lints` (§19.2), to the `.byn` files or directories named (default `.`); repeats until nothing changes (at most 10 passes), rewrites only changed files and prints each one's fix count. It does not format. A missing path exits 2 |
 | `bayan lint`, `bayan doc`, `bayan repl`, `bayan lsp` | |
 | `bayan pkg` | Packages (`add`, `audit`, `export --json`) |
 | `bayan expand X` | Show every derived member and the derived effects of each function (not in 0.3) |
