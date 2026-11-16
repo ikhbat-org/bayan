@@ -42,7 +42,9 @@ STUB
 mkdir -p csharp/Bayan.Cli/bin/Debug/net10.0
 cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 #!/bin/bash
-# `run` is scripts/bayan-tool.sh running manifest-builds: one `binary<TAB>sites` line per build, a malformed manifest fails
+# `run` is scripts/bayan-tool.sh running manifest-builds: one `binary<TAB>sites` line per build, a malformed manifest fails;
+# the quality-baseline, report-paths and coverage-missing tools run on the real pinned bayan ($REAL_BAYAN)
+[ "$1" = run ] && case $2 in */quality-baseline.byn|*/report-paths.byn|*/coverage-missing.byn) exec "$REAL_BAYAN" "$@";; esac
 [ "$1" = run ] && { m=${@: -1}; grep -q ']}$' "$m" || { echo "manifest-builds: $m: malformed" >&2; exit 1; }
   tr '{' '\n' < "$m" | sed -n 's/^"binary": "\([^"]*\)", "sites": "\([^"]*\)".*/\1 \2/p' | tr ' ' '\t'; exit 0; }
 bn=$(basename "$(dirname "$3")")
@@ -51,7 +53,8 @@ prog=$(basename "$3")
 cat $AUX/rep/$bn.txt; cp $AUX/rep/$bn.json "$(dirname "$3")/bayan-quality.json"
 exit 0
 STUB
-chmod +x $aux/dotnet csharp/Bayan.Cli/bin/Debug/net10.0/bayan; export AUX=$aux PINNED_BAYAN=$PWD/csharp/Bayan.Cli/bin/Debug/net10.0/bayan
+chmod +x $aux/dotnet csharp/Bayan.Cli/bin/Debug/net10.0/bayan; export REAL_BAYAN=$(cd "$root" && env -u PINNED_BAYAN bash scripts/pinned-bayan.sh)
+export AUX=$aux PINNED_BAYAN=$PWD/csharp/Bayan.Cli/bin/Debug/net10.0/bayan
 # rep <file> <killed> <survived> <marked>: the stub report and summary of the build recorded for <file>
 rep() { local bn; bn=$(basename "$1")
   echo "mutation: $2 killed, $3 survived, 0 timeout, $4 marked, 0 not reached, 0 not emitted" > $aux/rep/$bn.txt
@@ -64,7 +67,7 @@ rep_all() { rep src/semantics/a.byn "$@"; rep src/semantics/b.byn "$@"; rep src/
 b() { PATH="$aux:$PATH" bash "$root/scripts/selfhost/mutate-batch.sh" --tasks tasks.md "$@" 2>&1 || true; }
 # brc: the same, output in $aux/brc.txt, exit code in $BRC
 brc() { set +e; PATH="$aux:$PATH" bash "$root/scripts/selfhost/mutate-batch.sh" --tasks tasks.md "$@" > $aux/brc.txt 2>&1; BRC=$?; set -e; }
-# score <file>: the file's mutation score in the baseline (the indent=2 layout quality-baseline.py writes), empty for no entry
+# score <file>: the file's mutation score in the baseline (the indent=2 layout quality-baseline writes), empty for no entry
 score() { awk -v k="    \"$1\": {" '$0 == k { on = 1; next } on && /^    }/ { exit } on && sub(/^ *"mutation": /, "") { sub(/,$/, ""); print }' tests/quality-baseline.json; }
 # path1 <report>: the path of the report's first file (mutate-batch.sh writes it indent=2)
 path1() { sed -n 's/^      "path": "\(.*\)",$/\1/p' "$1" | head -n 1; }
@@ -187,9 +190,9 @@ has 'cancel-in-progress: false' "concurrency cancels runs in progress"
 [ "$(echo "$wf" | grep -c 'name: quality-baseline-')" = 0 ] || fail "mutation.yml: a shard uploads its own tests/quality-baseline.json" ""
 has '^    needs: mutate$' "no merge job needing the shard job"
 has 'mapfile -t reports < <\(find reports' "the merge job collects no reports"
-has 'quality-baseline.py check tests/quality-baseline.json \. "\$\{reports\[@\]\}"' "the merge job does not check the reports before updating"
-has 'quality-baseline.py update tests/quality-baseline.json \. "\$\{reports\[@\]\}"' "the merge job runs no single update over all reports"
-has 'Apply the run by `python3 -I scripts/selfhost/quality-baseline.py update tests/quality-baseline\.json \. <reports\.\.\.>`' "the header does not document applying the run by updating from the reports"
+has 'scripts/bayan-tool.sh quality-baseline check tests/quality-baseline.json \. "\$\{reports\[@\]\}"' "the merge job does not check the reports before updating"
+has 'scripts/bayan-tool.sh quality-baseline update tests/quality-baseline.json \. "\$\{reports\[@\]\}"' "the merge job runs no single update over all reports"
+has 'Apply the run by `bash scripts/bayan-tool.sh quality-baseline update tests/quality-baseline\.json \. <reports\.\.\.>`' "the header does not document applying the run by updating from the reports"
 has 'on a chore/ branch off current dev, never by copying the baseline file' "the header does not warn against copying the baseline file"
 has 'name: accepted-reports' "the merge job does not upload the accepted reports artifact"
 has 'path: reports/\*\*/quality-\[0-9\]\*\.json' "the merge job reports upload path is not the accepted reports"

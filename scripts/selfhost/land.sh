@@ -95,12 +95,12 @@ COVREPORT=$WT/tmp/guard-run/coverage/bayan-quality.json
 # the update after the merge must not fail half-way (merge done, tick uncommitted): try it on a copy first
 if [ -f "$COVREPORT" ]; then
   mkdir -p tmp; cp tests/quality-baseline.json "tmp/land-$t-baseline.json"
-  python3 -I "$(dirname "$0")/quality-baseline.py" update "tmp/land-$t-baseline.json" "$WT" "$COVREPORT" 2> "tmp/land-$t-baseline.txt" \
-    || { echo "LAND REFUSED: quality-baseline.py failed on $COVREPORT — $(tail -1 "tmp/land-$t-baseline.txt")"; exit 1; }
+  bash "$(dirname "$0")/../bayan-tool.sh" quality-baseline update "tmp/land-$t-baseline.json" "$WT" "$COVREPORT" 2> "tmp/land-$t-baseline.txt" \
+    || { echo "LAND REFUSED: quality-baseline failed on $COVREPORT — $(tail -1 "tmp/land-$t-baseline.txt")"; exit 1; }
 fi
 [ "$(git rev-parse "$BR")" = "$SHA" ] || { echo "LAND REFUSED: $BR moved from $SHA while it was checked; land again"; exit 1; }
 git merge --no-ff -m "$LANDSUB $T" "$SHA"
 perl -i -pe "s/^- \[ \] $T /- [x] $T /" "$DIR/$TASKS"
 [ $REGEN = 0 ] || { cp "$WT/bootstrap/bayan.c" "$WT/bootstrap/bayan-rt.h" "$WT/bootstrap/bayan-rt.c" bootstrap/; git add bootstrap/; }
-[ ! -f "$COVREPORT" ] || python3 -I "$(dirname "$0")/quality-baseline.py" update tests/quality-baseline.json "$WT" "$COVREPORT"
+[ ! -f "$COVREPORT" ] || bash "$(dirname "$0")/../bayan-tool.sh" quality-baseline update tests/quality-baseline.json "$WT" "$COVREPORT"
 git commit -qam "$TICKSUB $T" && echo "LANDED $T"

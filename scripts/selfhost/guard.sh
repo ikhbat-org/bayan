@@ -82,8 +82,7 @@ if [ $TX = 0 ] && [ -n "$COVER" ]; then
   else
     # a changed file no build under --filter compiles has no entry in the report, so none of its functions is checked (Q820);
     # a malformed report fails in coverage-gate.py below, naming it
-    miss=$(python3 -I -c 'import json, os, sys; p = {os.path.realpath(f["path"]) for f in json.load(open(sys.argv[1]))["files"]}; print("\n".join(f for f in sys.argv[2].split(",") if os.path.realpath(f) not in p))' \
-      "$COV/bayan-quality.json" "$COVER" 2> /dev/null) || miss=""
+    miss=$(bash "$(dirname "$0")/../bayan-tool.sh" coverage-missing "$COV/bayan-quality.json" "$COVER" 2> /dev/null) || miss=""
     while read -r f; do
       [ -n "$f" ] || continue
       # a file declaring no function has no counters, so the report never lists it: nothing to cover (any doubt stays a FAIL item)
@@ -132,10 +131,10 @@ if [ ${#FAIL[@]} = 0 ] && [ -n "$MUTATE" ]; then
   if mutation_step "$LOG" "$FILTER" "$MUTATE" 1; then
     # a score below tests/quality-baseline.json fails (mutate-batch.sh, the batch run, raises the baseline)
     if ls "$LOG/quality-"*.json > /dev/null 2>&1; then
-      # exit 1 with lines: the drops; a non-zero exit without them: quality-baseline.py failed on its inputs
-      out=$(python3 -I "$(dirname "$0")/quality-baseline.py" check tests/quality-baseline.json . "$LOG/quality-"*.json 2> "$LOG/baseline.txt"); BX=$?
+      # exit 1 with lines: the drops; a non-zero exit without them: quality-baseline failed on its inputs
+      out=$(bash "$(dirname "$0")/../bayan-tool.sh" quality-baseline check tests/quality-baseline.json . "$LOG/quality-"*.json 2> "$LOG/baseline.txt"); BX=$?
       while read -r l; do [ -n "$l" ] && note "$l"; done <<< "$out"
-      [ $BX = 0 ] || [ -n "$out" ] || note "baseline: quality-baseline.py check failed on tests/quality-baseline.json and tmp/guard-run/quality-*.json — $(tail -1 "$LOG/baseline.txt")"
+      [ $BX = 0 ] || [ -n "$out" ] || note "baseline: quality-baseline check failed on tests/quality-baseline.json and tmp/guard-run/quality-*.json — $(tail -1 "$LOG/baseline.txt")"
     fi
   fi
 fi
