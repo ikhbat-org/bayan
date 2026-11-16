@@ -124,7 +124,7 @@ string greeting() {
 print(greeting())
 ```
 
-It has top-level statements and no `main`, so it runs as a script inside the project. Change the greeting to `"Salam, Aisha!"` and run `bayan run` again. To run the tests, use `bayan test`.
+It has top-level statements and no `main`: the compiler runs them as the program. Change the greeting to `"Salam, Aisha!"` and run `bayan run` again. To run the tests, use `bayan test`.
 The test will now fail, because it still expects the old greeting. Change it to `"Salam, Aisha!"` too
 and it passes.
 
