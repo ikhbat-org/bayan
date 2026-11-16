@@ -968,7 +968,7 @@ No user-defined operator symbols. Operator implementations must not allocate, su
 | `f32` → `u64` | Explicit (`u64(x)`); truncates toward zero, saturates to `u64`'s bounds (`0` for negative), `nan` becomes `0`. `u64.tryFrom(x)` returns `u64?` (`null` on `nan`, out of range or a nonzero fraction) |
 | `f32` → `usize` | Explicit (`usize(x)`); truncates toward zero, saturates to `usize`'s bounds (`0` for negative), `nan` becomes `0`. `usize.tryFrom(x)` returns `usize?` (`null` on `nan`, out of range or a nonzero fraction) |
 | `f32` → `f64` | Implicit (lossless widening) |
-| `f32` → `dec` | Rejected: `dec(x)` is BYN2206 (fix-it `0.1dec` on a literal, `dec.fromF64(f64(x), digits: n)` on a runtime value; not in 0.3, §3.1) |
+| `f32` → `dec` | Rejected: `dec(x)` is BYN2206 (fix-it `0.1dec` on a literal, `dec.fromF64(x, digits: n)` on a runtime value; not in 0.3, §3.1) |
 | `f64` → `i8` | Explicit (`i8(x)`); truncates toward zero, saturates to `i8`'s bounds, `nan` becomes `0`. `i8.tryFrom(x)` returns `i8?` (`null` on `nan`, out of range or a nonzero fraction) |
 | `f64` → `i16` | Explicit (`i16(x)`); truncates toward zero, saturates to `i16`'s bounds, `nan` becomes `0`. `i16.tryFrom(x)` returns `i16?` (`null` on `nan`, out of range or a nonzero fraction) |
 | `f64` → `i32` | Explicit (`i32(x)`); truncates toward zero, saturates to `i32`'s bounds, `nan` becomes `0`. `i32.tryFrom(x)` returns `i32?` (`null` on `nan`, out of range or a nonzero fraction) |

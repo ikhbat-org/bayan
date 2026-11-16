@@ -34,7 +34,7 @@ mutation_step() {
       note "mutation: the recording wrote no $REL/snap/manifest.json: no test under --filter '$FILTER' builds a selfhost program"; fi
   fi
   if [ ${#FAIL[@]} = 0 ]; then
-    BUILDS=$(python3 -I -c 'import json, sys; [print(b["binary"] + "\t" + b["sites"]) for b in json.load(open(sys.argv[1]))["builds"]]' "$SNAP/manifest.json" 2> "$LOG/manifest.txt") \
+    BUILDS=$(bash "$(dirname "${BASH_SOURCE[0]}")/../bayan-tool.sh" manifest-builds "$SNAP/manifest.json" 2> "$LOG/manifest.txt") \
       || note "mutation: $REL/snap/manifest.json is unreadable — $(tail -1 "$LOG/manifest.txt")"
   fi
   [ ${#FAIL[@]} = 0 ] || return 1

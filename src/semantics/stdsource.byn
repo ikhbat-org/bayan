@@ -3,13 +3,184 @@
 /// The C# `StdLibrary.Shipped` files (StdLibrary.cs:36): every `lib/std/**/*.byn`, its path under `std/`.
 List<StdSource> stdShippedSources() {
     var sources = List<StdSource>()
-    sources.append(StdSource { path: "json/json.test.byn", text: stdSource0 })
-    sources.append(StdSource { path: "json/reader.byn", text: stdSource1 })
-    sources.append(StdSource { path: "json/value.byn", text: stdSource2 })
+    sources.append(StdSource { path: "encoding/base64.byn", text: stdSource0 })
+    sources.append(StdSource { path: "encoding/base64.test.byn", text: stdSource1 })
+    sources.append(StdSource { path: "json/json.test.byn", text: stdSource2 })
+    sources.append(StdSource { path: "json/reader.byn", text: stdSource3 })
+    sources.append(StdSource { path: "json/value.byn", text: stdSource4 })
     return sources
 }
 
-const stdSource0: string = """// Tests of std.json. The "parse then encode" table's expected encodings are python3 `json.dumps` output (indent 0 is
+const stdSource0: string = """// std.encoding base64 codec (spec 015 S12, T16): RFC 4648 §4 standard alphabet with `=` padding.
+
+const alphabet: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+/// Encoding bytes as RFC 4648 §4 base64 text and decoding base64 text back to bytes.
+public struct Base64 {
+    /// `bytes` in the RFC 4648 §4 standard alphabet (`A–Z`, `a–z`, `0–9`, `+`, `/`), padded with `=` to a multiple of 4 bytes.
+    public static string encode(ReadOnlySpan<u8> bytes) uses alloc {
+        var sb = StrBuf()
+        var i = 0
+        while i + 3 <= bytes.length {
+            let n = (i64(bytes[i]) << 16) | (i64(bytes[i + 1]) << 8) | i64(bytes[i + 2])
+            sb.append(digit(n >> 18))
+            sb.append(digit((n >> 12) & 0x3F))
+            sb.append(digit((n >> 6) & 0x3F))
+            sb.append(digit(n & 0x3F))
+            i += 3
+        }
+        let rem = bytes.length - i
+        if rem == 1 {
+            let b0 = i64(bytes[i])
+            sb.append(digit(b0 >> 2))
+            sb.append(digit((b0 & 0x03) << 4))
+            sb.append("==")
+        } else if rem == 2 {
+            let n = (i64(bytes[i]) << 8) | i64(bytes[i + 1])
+            sb.append(digit(n >> 10))
+            sb.append(digit((n >> 4) & 0x3F))
+            sb.append(digit((n & 0x0F) << 2))
+            sb.append("=")
+        }
+        return $"{sb.finish()}"
+    }
+
+    /// The bytes `text` holds in RFC 4648 §4 base64, failing `ParseError.badDigit` at the first byte outside the
+    /// alphabet, misplaced `=`, non-zero padding bit, or missing byte at `text.length`.
+    public static List<u8> decode(string text) uses alloc fails ParseError {
+        var bytes = List<u8>()
+        var i = 0
+        while i < text.length {
+            let d0 = try sextet(text, at: i)
+            fail .badDigit(at: text.length) if i + 1 >= text.length
+            let d1 = try sextet(text, at: i + 1)
+            fail .badDigit(at: text.length) if i + 2 >= text.length
+            if text.bytes[i + 2] == '=' {
+                fail .badDigit(at: i + 2) if i + 4 < text.length
+                fail .badDigit(at: text.length) if i + 3 >= text.length
+                fail .badDigit(at: i + 3) if text.bytes[i + 3] != '='
+                fail .badDigit(at: i + 1) if (d1 & 0x0F) != 0
+                bytes.append(u8((d0 << 2) | (d1 >> 4)))
+                return bytes
+            }
+            let d2 = try sextet(text, at: i + 2)
+            fail .badDigit(at: text.length) if i + 3 >= text.length
+            if text.bytes[i + 3] == '=' {
+                fail .badDigit(at: i + 3) if i + 4 < text.length
+                fail .badDigit(at: i + 2) if (d2 & 0x03) != 0
+                bytes.append(u8((d0 << 2) | (d1 >> 4)))
+                bytes.append(u8(((d1 & 0x0F) << 4) | (d2 >> 2)))
+                return bytes
+            }
+            let d3 = try sextet(text, at: i + 3)
+            bytes.append(u8((d0 << 2) | (d1 >> 4)))
+            bytes.append(u8(((d1 & 0x0F) << 4) | (d2 >> 2)))
+            bytes.append(u8(((d2 & 0x03) << 6) | d3))
+            i += 4
+        }
+        return bytes
+    }
+}
+
+/// The 1-byte slice of `alphabet` at `index`.
+string digit(i64 index) => alphabet[index..index + 1]
+
+/// The 6-bit value of the base64 digit at `at` in `text`.
+i64 sextet(string text, at i64 at) fails ParseError {
+    let b = text.bytes[at]
+    return i64(b - 'A') if b >= 'A' && b <= 'Z'
+    return i64(b - 'a') + 26 if b >= 'a' && b <= 'z'
+    return i64(b - '0') + 52 if b >= '0' && b <= '9'
+    return 62 if b == '+'
+    return 63 if b == '/'
+    fail .badDigit(at: at)
+}
+"""
+
+const stdSource1: string = """// Tests of std.encoding. Expected encodings for non-RFC vectors are recorded from a run of
+// `python3 -c 'import base64,sys; print(base64.b64encode(...).decode())'`, not written by hand.
+
+/// `ok`, or the error `Base64.decode(text)` fails with.
+string errorOf(string text) uses alloc {
+    let _ = Base64.decode(text) catch switch {
+        .badDigit(let at) => return $"badDigit @{at}",
+        .overflow         => return "overflow",
+    }
+    return "ok"
+}
+
+@cases(
+    ("", ""),
+    ("f", "Zg=="),
+    ("fo", "Zm8="),
+    ("foo", "Zm9v"),
+    ("foob", "Zm9vYg=="),
+    ("fooba", "Zm9vYmE="),
+    ("foobar", "Zm9vYmFy"),
+)
+test "RFC 4648 §10 vectors encode and decode" (string input, string expected) {
+    assert Base64.encode(input.bytes) == expected
+    let decoded = try Base64.decode(expected)
+    assert (try Utf8.decode(decoded.span)) == input
+}
+
+test "all 256 byte values round-trip and match recorded b64encode output" {
+    var all = List<u8>()
+    for i in 0..256 {
+        all.append(u8(i))
+        var single = List<u8>()
+        single.append(u8(i))
+        let back = try Base64.decode(Base64.encode(single.span))
+        assert back.length == 1 && back[0] == u8(i)
+    }
+    let expected = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w=="
+    let encoded = Base64.encode(all.span)
+    assert encoded == expected
+    let decoded = try Base64.decode(encoded)
+    assert Hex.encode(decoded.span) == Hex.encode(all.span)
+}
+
+@cases(
+    ("00", "AA=="),
+    ("0000", "AAA="),
+    ("000000", "AAAA"),
+    ("fbefbe", "++++"),
+    ("ffffff", "////"),
+    ("fbffbf", "+/+/"),
+)
+test "non-RFC byte vectors encode and decode" (string hex, string expected) {
+    let raw = try Hex.decode(hex)
+    assert Base64.encode(raw.span) == expected
+    let decoded = try Base64.decode(expected)
+    assert Hex.encode(decoded.span) == hex
+}
+
+@cases(
+    ("Zg=", "badDigit @3"),
+    ("Z", "badDigit @1"),
+    ("Zg", "badDigit @2"),
+    ("Zm8", "badDigit @3"),
+    ("Zm9!", "badDigit @3"),
+    ("!m9v", "badDigit @0"),
+    ("Z!9v", "badDigit @1"),
+    ("Zm!v", "badDigit @2"),
+    ("Zg==Zg==", "badDigit @2"),
+    ("Zm8=Zg==", "badDigit @3"),
+    ("=g==", "badDigit @0"),
+    ("Z===", "badDigit @1"),
+    ("Zg=A", "badDigit @3"),
+    ("Zh==", "badDigit @1"),
+    ("Zm9=", "badDigit @2"),
+    ("Zm9v\n", "badDigit @4"),
+    (" Zm9v", "badDigit @0"),
+    ("Zm 9v", "badDigit @2"),
+)
+test "decode refuses broken text with the bad byte offset" (string input, string expected) {
+    assert errorOf(input) == expected
+}
+"""
+
+const stdSource2: string = """// Tests of std.json. The "parse then encode" table's expected encodings are python3 `json.dumps` output (indent 0 is
 // `json.dumps(v)`, N is `json.dumps(v, indent=N)`) for `json.loads` of the input, recorded from a run, not written by hand.
 // Number text is kept as read (`1e400`, `1E2`; spec 016), so the cases with such numbers are not python's output.
 
@@ -303,7 +474,7 @@ test "a reader error is the parse error" {
 }
 """
 
-const stdSource1: string = """// std.json pull reader (spec 016 T4, 015 S7): RFC 8259 text as a stream of tokens, one per `next()`.
+const stdSource3: string = """// std.json pull reader (spec 016 T4, 015 S7): RFC 8259 text as a stream of tokens, one per `next()`.
 
 /// One step of a JSON text: a container bound, an object key, or a scalar.
 public union JsonToken {
@@ -671,7 +842,7 @@ public struct JsonReader {
 bool isDigit(u8 b) => b >= '0' && b <= '9'
 """
 
-const stdSource2: string = """// std.json tree (spec 016 T4, 015 S7): `JsonValue` built on `JsonReader`, and `Json.encode`.
+const stdSource4: string = """// std.json tree (spec 016 T4, 015 S7): `JsonValue` built on `JsonReader`, and `Json.encode`.
 
 /// A JSON value. A number keeps its text, so `Json.encode` writes it back as read (a built one whose text is not a
 /// JSON number is written from its value, and refused when that is not finite); an object keeps its members in text order, duplicate keys included.
