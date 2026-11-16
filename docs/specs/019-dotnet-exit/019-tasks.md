@@ -1,0 +1,100 @@
+# 019 — Tasks
+
+Status: approved (text drafted 2026-11-17, owner to review)
+Release: unscheduled
+Sources: docs/decisions/2026-11-16-006-after-022-roadmap-decisions.md (§2, §3, C# archive plan); docs/bayan-milestones.md (Target: zero dependencies)
+
+Plan: ./019-plan.md
+
+The golden runner (T1–T10) comes first and T10 is a gate: nothing from T11 on starts until the runner and the xUnit classes agree on every existing case. T12 is a second gate: the export does not start until the `v0.3.2` tag resolves and the freeze conditions are reported (spec OQ1, OQ2). T13–T16 are the only edits to C# and live on the export branch, not on `dev`. T64–T70 are 019b and wait for T64. Laws take L040–L045 (spec OQ9); only the user sets `status: enacted`. Port tasks T25–T28 name a family; each lands as several commits of one or two files, one inventory row at a time.
+
+## 019a: golden runner
+
+- [ ] T1 Case discovery in `bayan test` — files: src/driver/golden.byn (new), src/driver/test.byn — covers: R1 — done when: given `tests/cases`, the driver lists every case of all 12 kinds with its name `<kind>/<case>`, subdirectory cases counted once; the per-kind counts equal the ones in the plan's table.
+- [ ] T2 Compare the text kinds — files: src/driver/golden.byn — covers: R1, R2, R6 — done when: `diag`, `parse`, `lex`, `typed`, `manifest`, `diag-json` and `style` cases pass; a changed expected line fails with the input path and the first differing line; CR LF reads as LF.
+- [ ] T3 Compare the `run` kind and the rest — files: src/driver/golden.byn — covers: R1, R6 — done when: `run` cases honour `// mode:`, `// os:`, `.args`, `.stdin`, `.exitcode`, optional `.stderr`, `.test.byn` and an empty working directory per case; `new`, `out`, `emit` and `quality` cases pass.
+- [ ] T4 One result per case, `--only`, time limit — files: src/driver/test.byn, src/driver/golden.byn — covers: R2, R3 — done when: a failing case and a case that never exits are each reported and the cases after them still run; `--only run/<name>` runs one case.
+- [ ] T5 `--jobs N` — files: src/driver/test.byn — covers: R4 — done when: the report for `--jobs 1` and `--jobs 8` over `tests/cases` is the same with times masked, and the wall time for 8 is recorded.
+- [ ] T6 Update mode and `.pending` — files: src/driver/golden.byn — covers: R5 — done when: `BAYAN_UPDATE=1` rewrites only differing expected files and lists them; a run without it leaves the tree byte for byte the same; a `.pending` case is left alone and fails once it matches.
+- [ ] T7 `@cases` rows — files: src/driver/test.byn, the semantics file that checks attributes (located in the task) — covers: R7 — done when: a test with `@cases` over a constant list reports one result per row, `--only` selects a row, and a non-constant value is a diagnostic with a `diag` case.
+- [ ] T8 One report — files: src/driver/testreport.byn, src/driver/test.byn — covers: R8 — done when: golden cases appear in the summary, in `--json` and in `out/test/results.json` with kind and path, and the exit code is non-zero on any failure.
+- [ ] T9 Bound test for the runner — files: scripts/release/memory-gate.sh, docs/memory-leaks.md (test block in src/driver/golden.byn) — covers: R9 — done when: a run over the full cases tree stays under a stated memory bound, scratch directories are gone afterwards, and `scripts/release/memory-gate.test.sh` passes.
+- [ ] T10 Gate: runner agrees with xUnit — files: tmp/ only — covers: gate for R1–R6 — done when: reported to the user: for all 12 kinds, the runner's pass and fail sets equal those of the xUnit classes that read `tests/cases/`, on macOS, Linux and Windows.
+
+## 019a: the freeze
+
+- [ ] T11 Inventory — files: tests/inventory-019.tsv (new) — covers: R11 — done when: all 215 classes have a row with file, family, the test count from a listing run of the suite, and a proposed disposition; the total expanded count is reported.
+- [ ] T12 Gate: freeze conditions — files: tmp/ only — covers: R10, R12 (entry), OQ1, OQ2 — done when: reported to the user: the commit `v0.3.2` resolves to; whether revision 0024 is in or out; whether Q1272 and Q1186–Q1189 have landed; the export branch name.
+- [ ] T13 Export mode, semantics harness — files: src/tests/SelfhostSemanticsHarness.cs (export branch) — covers: R10 — done when: with `BAYAN_EXPORT_DIR` set, every `AssertSection` call writes its input program and the C# lines as a case and the test count written equals the inventory's.
+- [ ] T14 Export mode, emitter harness — files: src/tests/SelfhostEmitterHarness.cs (export branch) — covers: R10 — done when: every `AssertSame` and `SameAsCli` call writes its input and the C# compiler's C.
+- [ ] T15 Export mode, driver harness and in-process CLI — files: src/tests/SelfhostDriverHarness.cs, the `CliApp` helper in csharp/tests/Bayan.Tests (export branch) — covers: R10 — done when: every compared command writes its arguments, exit code, stdout and stderr.
+- [ ] T16 Export mode, parser, lexer and table classes — files: the `SelfhostParser*` and `SelfhostLexer*` shared helpers, the `[MemberData]` tables compared with .NET (export branch) — covers: R10 — done when: tree and token dumps and each table row are written; the 68 `[MemberData]` files are each either exported or marked in the inventory as needing no export.
+- [ ] T17 Run the export and land the cases — files: tests/cases/<new kinds>/ — covers: R10 — done when: the exported cases are in the tree, the golden runner runs them with the self-hosted compiler, and every failure is in the T19 list or fixed.
+- [ ] T18 Inventory check — files: scripts/ci/inventory-check.sh (new), its `.test.sh` — covers: R11 — done when: the check fails on a class with no row, a dropped row with no reason, and a golden row whose case count is below the class's test count.
+- [ ] T19 Divergence list — files: tests/cases/DIVERGENCES.tsv (new) — covers: R12 — done when: every case where the two compilers differ at the tag has a row with a question number and the side that was right, and its expected file holds that side's output.
+- [ ] T20 Freeze manifest and check — files: tests/cases/FREEZE.tsv (new), scripts/ci/freeze-check.sh (new) — covers: R13 — done when: the manifest names the tag, commit, export branch head and per-kind counts; the check fails on a hand-edited frozen file and names it.
+- [ ] T21 Golden-update commit check — files: scripts/ci/golden-commit-check.sh (new), scripts/ci/pre-push.sh — covers: R14 — done when: a range with a commit mixing an expected file and another file is refused, as is a golden-only commit whose message names no cause.
+
+## 019a: the suite without .NET
+
+- [ ] T22 Whole-suite coverage baseline — files: tests/quality-baseline.json, scripts/quality/coverage.sh — covers: R16 — done when: every file under `src/` has a line and branch figure taken from the full xUnit suite at the tag, before any class is dropped.
+- [ ] T23 One test command — files: scripts/test.sh (new), its `.test.sh` — covers: R15 — done when: it runs golden cases, Bayān tests, script tests and runtime C tests, with `--jobs`, and exits non-zero on any failure.
+- [ ] T24 Runtime C tests without xUnit — files: runtime/tests/run.sh (new) — covers: R15 — done when: the 11 C files under `runtime/tests/` build and pass through it on the three OSes.
+- [ ] T25 Port: CLI and tools family (25 classes) — files: tests/cases/cli/, tests/parity/ — covers: R15, R11 — done when: every row of the family in the inventory has its target present and passing.
+- [ ] T26 Port: std and path families (11 classes) — files: test blocks under lib/std/, exported tables — covers: R15, R11, R7 — done when: every row has its target present and passing; tables compared with .NET are `@cases` data from the export.
+- [ ] T27 Port: C# internals family (29 classes) — files: tests/cases/ and test blocks under src/ — covers: R15, R11, OQ4 — done when: every row is a passing golden or Bayān test, or is marked frozen with the covering case named.
+- [ ] T28 Port: bounds and generated-file checks — files: test blocks under src/driver/, scripts for `diagdocs.byn` and `runtime.byn` freshness — covers: R15, R9, R28 — done when: the `CliMemoryBounds` and `SelfhostDefaultBounds` tests run in Bayān in the memory gate, and both generated files have a generator and a check with no .NET.
+- [ ] T29 Coverage ratchet through the new suite — files: scripts/selfhost/coverage-gate.py, scripts/quality/coverage.sh — covers: R16 — done when: the gate, fed by `scripts/test.sh` with coverage on, shows no file below its T22 figure.
+- [ ] T30 Measure suite time — files: tmp/ only — covers: R17 — done when: reported to the user: wall time of `scripts/test.sh` on the reference host and on each CI OS; above 45 minutes, work stops here.
+- [ ] T31 Law checks without .NET — files: docs/laws/*.md (drafts, one law per commit) — covers: R18 — done when: each of the 31 law files has a drafted new `check:` line, or a drafted amendment to the R27 job, or a drafted retirement, and the user has enacted each.
+- [ ] T32 Laws gate without .NET — files: scripts/selfhost/pre-push-laws.sh, scripts/ci/pre-push.sh — covers: R18 — done when: the quick tier and the full tier (`BAYAN_LAW_TIER=full`) run with no `dotnet` call and hold.
+
+## 019a: the language server
+
+- [ ] T33 Reading a message from standard input — files: decided by OQ8 (runtime/bayan-rt.c and lib/std if the default holds) — covers: R20 — done when: the user has answered OQ8 and a Bayān program can read a message of a given byte length from standard input and keep running.
+- [ ] T34 Record sessions — files: editors/language-server/sessions/ (new) — covers: R21 — done when: every request kind in R20 and every protocol case of the 42 existing tests has a recorded session against the C# server at the tag.
+- [ ] T35 Transport, lexer, keywords — files: editors/language-server/bayan.toml, editors/language-server/src/ (transport, lexer, keywords modules) — covers: R20 — done when: `initialize`, `shutdown` and `exit` sessions replay the same; an oversized or malformed message is refused as the C# server refuses it.
+- [ ] T36 Indexer and workspace — files: editors/language-server/src/ (indexer, workspace modules) — covers: R20, R22 — done when: `didOpen`, `didChange`, `didClose` and `didChangeWatchedFiles` sessions replay the same and the budgets stop indexing with one log line.
+- [ ] T37 Requests — files: editors/language-server/src/ (server, main modules) — covers: R20, R21 — done when: every recorded session replays the same.
+- [ ] T38 Bound tests and the editor gate — files: scripts/release/editor-gate.sh, scripts/release/memory-gate.sh (plus docs/memory-leaks.md in the same commit) — covers: R22 — done when: each limit in the `bayan-lsp` rows of `docs/memory-leaks.md` has a Bayān test, both gates run them with no .NET, and both gate self-tests pass.
+- [ ] T39 Editors start the new server — files: none changed (check only) — covers: R23 — done when: the VS Code extension packaged by the editor gate starts the Bayān `bayan-lsp` through `PATH` and through `bayan.server.path`, and `git diff` shows no change under `editors/vscode/` or `editors/visualstudio/`.
+
+## 019a: builds and tooling
+
+- [ ] T40 Build from the bootstrap — files: scripts/bootstrap-build.sh (new), its `.test.sh` — covers: R24 — done when: on a machine with no .NET it produces stage 0 from `bootstrap/bayan.c` and stage 1 from `src/`, on the three OSes.
+- [ ] T41 CI without .NET — files: .github/workflows/ci.yml — covers: R15, R24 — done when: no step installs .NET; the three jobs build through T40 and run `scripts/test.sh`; all three are green.
+- [ ] T42 Windows known failures — files: scripts/ci/known-failures.py, tests/windows-known-failures.txt — covers: R19 — done when: the check reads the new report, and its self-test shows it fails on an unlisted failure and on a listed test that passes.
+- [ ] T43 Release without .NET — files: .github/workflows/release.yml, scripts/dist.sh — covers: R24, R25 — done when: a dry run builds the six archives with no .NET step and each `bayan --version` prints `(selfhost)`; `scripts/release/release-workflow.test.sh` passes.
+- [ ] T44 Other workflows — files: .github/workflows/laws-nightly.yml, editor-gate.yml (then mutation.yml, pages.yml in a second commit) — covers: R24 — done when: none installs .NET and each has one green run.
+- [ ] T45 Bootstrap freshness — files: scripts/ci/bootstrap-check.sh (new), scripts/selfhost/land.sh — covers: R26 — done when: the check fails after a change under `src/` or `runtime/` without a regenerated bootstrap, and `land.sh` regenerates with no `dotnet` call.
+- [ ] T46 Diverse double-compiling job — files: scripts/ci/ddc.sh (new), .github/workflows/ddc.yml (new) — covers: R27 — done when: the job builds the C# compiler from the frozen ref, reproduces that tree's `bootstrap/bayan.c`, runs the amended laws, is scheduled weekly and is required by `release.yml`.
+- [ ] T47 Pinned bayan from the bootstrap — files: scripts/pinned-bayan.sh, scripts/pinned-bayan.test.sh — covers: R28 — done when: the pinned binary is built with no .NET and the self-test passes.
+- [ ] T48 Remaining script call sites — files: scripts/selfhost/guard.sh, preflight.sh, shard-test.sh, wp1-test.sh, mutate-batch.sh, mutation-step.sh, scripts/quality/mutate.sh (one or two per commit) — covers: R28 — done when: `grep -rl dotnet scripts .github` lists only the R27 job's files, `install-dotnet.sh`, `sdk-patch-check.sh` and their tests.
+- [ ] T49 Docs generators — files: scripts/docs/gen-diagnostics.sh, scripts/docs/gen-status.sh — covers: R28 — done when: both read the self-hosted compiler's sources or output, their outputs are unchanged, and `scripts/docs/check.sh` passes.
+- [ ] T50 Version mirrors — files: scripts/release/version.sh — covers: R28 — done when: it works with and without `csharp/Bayan.Backend.C/Toolchain.cs` present and `set-version.test.sh` passes.
+- [ ] T51 Declare 019a landed — files: docs/bayan-roadmap.md, docs/specs/019-dotnet-exit/019-spec.md — covers: R29 — done when: `dotnet test` is no longer run on `dev`, the roadmap and the spec header name the commit, and both say the syntax freeze of revision 0023 is over.
+
+## Laws
+
+- [ ] T52 enact L040 every case is reported once — done when: the user sets `status: enacted`.
+- [ ] T53 prove L040 via /prove — depends on T4 — done when: `laws-check.js --run` holds.
+- [ ] T54 enact L041 job count does not change the result — done when: the user sets `status: enacted`.
+- [ ] T55 prove L041 via /prove — depends on T5 — done when: `laws-check.js --run` holds.
+- [ ] T56 enact L042 a run without update writes nothing — done when: the user sets `status: enacted`.
+- [ ] T57 prove L042 via /prove — depends on T6 — done when: `laws-check.js --run` holds.
+- [ ] T58 enact L043 frozen files come from the frozen compiler — done when: the user sets `status: enacted`.
+- [ ] T59 prove L043 via /prove — depends on T20, T46 — done when: the R27 job reproduces every manifest file outside the divergence list.
+- [ ] T60 enact L044 language server equivalence — done when: the user sets `status: enacted`.
+- [ ] T61 prove L044 via /prove — depends on T37 — done when: `laws-check.js --run` holds.
+- [ ] T62 enact L045 two bootstraps agree (or as the amendment of L027) — done when: the user sets `status: enacted`.
+- [ ] T63 prove L045 via /prove — depends on T46 — done when: the R27 job holds.
+
+## 019b: the archive
+
+- [ ] T64 Gate: entry condition — files: tmp/ only — covers: R30 — done when: reported to the user: CI, the laws nightly and one release dry run are green on `dev` with no .NET, and the user says go.
+- [ ] T65 Tag `csharp-final` — files: none (the user creates and pushes the tag) — covers: R31 — done when: the annotated tag is on the last commit where the C# compiler builds and its suite passes, and its message names the 019b range.
+- [ ] T66 Decision doc — files: docs/decisions/<date>-NNN-csharp-archive.md (new) — covers: R32 — done when: it names the tag, its commit, what it holds, and the commands `git show csharp-final:<path>`, `git worktree add ../bayan-csharp csharp-final` and `git restore --source=csharp-final -- csharp/`.
+- [ ] T67 Removal commit — files: csharp/, src/tests/*.cs, Bayan.slnx, the C# sources of editors/language-server, tests/Bayan.Tests/ (deletions only) — covers: R33 — done when: one commit titled `chore(019b): remove the C# compiler` holds only deletions and no tracked file is left under `csharp/`.
+- [ ] T68 Post-removal checks — files: tmp/ only — covers: R34 — done when: `scripts/test.sh`, `scripts/docs/check.sh`, the laws gate and a release dry run pass on the removal commit, and the R27 job passes from `csharp-final`.
+- [ ] T69 Contributor docs — files: AGENTS.md, docs/bayan-contributing.md (then docs/RELEASING.md, bootstrap/README.md, docs/memory-leaks.md in a second commit) — covers: R35 — done when: the stack, the test command and the release steps match what runs, and no doc tells a reader to run `dotnet` outside the R27 job.
+- [ ] T70 Roadmap and dependency table — files: docs/bayan-roadmap.md, docs/bayan-milestones.md — covers: R35 — done when: row 3 says done with the removal commit, and the .NET row of the dependency table names the R27 job and the Visual Studio extension as the only users.
