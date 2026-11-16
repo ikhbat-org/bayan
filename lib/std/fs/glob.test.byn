@@ -1,0 +1,34 @@
+// Tests of std.fs glob, over a tree the tests build in tmp/ below the working directory.
+
+/// Writes `rel` (and its parent directories) under `root`, empty.
+void touch(string root, string rel) uses fs, alloc {
+    var dir = root
+    for part in rel.parts(by: "/") {
+        let at = Path.combine(dir, part)
+        if part.endsWith(".byn") || part.endsWith(".cs") {
+            Io.writeFile(at, "".bytes) catch { assert false }
+        } else {
+            Io.createDirectory(at) catch { assert false }
+        }
+        dir = at
+    }
+}
+
+test "glob lists the matching files, sorted, with / separators" {
+    let root = "tmp/glob-test"
+    touch(root, "src/b.byn")
+    touch(root, "src/a.byn")
+    touch(root, "src/x/c.byn")
+    touch(root, "src/x/y/d.byn")
+    touch(root, "src/x/e.cs")
+    touch(root, "lib/f.byn")
+    assert glob("tmp/glob-test/src/**/*.byn") == [
+        "tmp/glob-test/src/a.byn", "tmp/glob-test/src/b.byn", "tmp/glob-test/src/x/c.byn", "tmp/glob-test/src/x/y/d.byn"]
+    assert glob("tmp/glob-test/src/*.byn") == ["tmp/glob-test/src/a.byn", "tmp/glob-test/src/b.byn"]
+    assert glob("tmp/glob-test/{src,lib}/*.byn") == ["tmp/glob-test/lib/f.byn", "tmp/glob-test/src/a.byn", "tmp/glob-test/src/b.byn"]
+    assert glob("tmp/glob-test/src/x/?.cs") == ["tmp/glob-test/src/x/e.cs"]
+    assert glob("tmp/glob-test/src/[ab].byn") == ["tmp/glob-test/src/a.byn", "tmp/glob-test/src/b.byn"]
+    assert glob("tmp/glob-test/src/a.byn") == ["tmp/glob-test/src/a.byn"]
+    assert glob("tmp/glob-test/src").length == 0
+    assert glob("tmp/glob-test/none/*.byn").length == 0
+}
