@@ -842,6 +842,8 @@ public sealed class FormatTests
     [Theory]
     [InlineData("conditions-patterns")]
     [InlineData("optionals-bind")]
+    [InlineData("literals-empty")]
+    [InlineData("sections-banner")]
     public void FixGivesTheFixedRunCase(string name)
     {
         // Both run cases print the same output (RunTests), so the fix keeps the program's behaviour.
