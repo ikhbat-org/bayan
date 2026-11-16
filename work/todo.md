@@ -888,3 +888,10 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - tools/{report-paths,coverage-missing,quality-baseline}.byn `tryReal` swallows every `Fs.realPath` error, not only "missing" (Fable, decision 008).
 - tools/{report-paths,coverage-missing,quality-baseline}.byn `looseReal` calls `Path.fullPath` first; if it folds `..` lexically, a symlink followed by `..` resolves differently from Python `os.path.realpath` (Fable, decision 008).
 - docs/specs/015-tooling/015-tasks.md: T14 was built before T13 although T14 lists "after: T13" (decision 008).
+- lib/std/fs/glob.byn:8: `maxDepth = 64` silently drops matches deeper than 64 directories for `**`/`{` patterns; fail or document (T13 gate).
+- lib/std/fs/glob.byn `walk`: lists dotfiles and enters dot-directories, where Python `glob('src/**/*.byn')` skipped both; decide std's rule (T13 gate).
+- tools/mutate-plan.byn:111: `/` is checked before brace expansion, so `{a.byn,src/x/b.byn}` matches `a.byn` against the full path, not the basename as the Python did (T13 gate).
+- tools/mutate-plan.byn:154: every tasks-file read error reports `[Errno 2] No such file or directory`, including permission errors and directories (T13 gate).
+- lib/std/path/glob.byn: `?` and `[…]` match one byte, not one character (fnmatch matches characters) (T13 gate).
+- scripts/selfhost/mutate-batch.sh:40: `$PERR` is not removed on interrupt (no trap) (T13 gate).
+- lib/std/fs/glob.byn, lib/std/path/glob.byn: effects are `uses fs, alloc` and `uses alloc`, where S5 says `uses fs` and "pure"; align S5's wording (T13 gate).
