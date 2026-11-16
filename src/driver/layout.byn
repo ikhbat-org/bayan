@@ -2083,6 +2083,7 @@ struct LayoutEngine {
         if k == .colon { return spacedColon(i) ? .space : .none }
         if k == .dot || k == .questionDot {
             let prev = kind(i - 1)
+            if k == .dot && prev == .identifier && textIs(i - 1, as: "becomes") { return .deferred }
             return prev == .identifier || prev == .closeParen || prev == .closeBracket || prev == .thisKeyword || prev == .interpolatedStringEnd
                 || lexer.isStringLiteral(prev) || parser.isContextualKeyword(prev) ? .none : .deferred
         }

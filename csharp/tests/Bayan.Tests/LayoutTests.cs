@@ -152,6 +152,66 @@ public sealed class LayoutTests
         "let s = $\"{n, as: .hex} and {a + 1}\"\n",
         Lay("let s = $\"{n,as:.hex} and { a+1 }\"\n"));
 
+    [Fact]
+    public void BecomesKeepsTheSpaceBeforeItsState() => Assert.Equal(
+        "void pay(ref this is .draft) becomes .paid {\n}\n",
+        Lay("void pay(ref this is .draft) becomes .paid {\n}\n"));
+
+    [Fact]
+    public void IsKeepsTheSpaceBeforeEachOfSeveralStates() => Assert.Equal(
+        "i64 amount(this is .paid or .shipped) => payment\n",
+        Lay("i64 amount(this is .paid or .shipped) => payment\n"));
+
+    [Fact]
+    public void ReturnKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "Color pick() {\n    return .red\n}\n",
+        Lay("Color pick() {\n    return .red\n}\n"));
+
+    [Fact]
+    public void FailKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "void check(string s) fails ParseError {\n    fail .empty if s.isEmpty\n}\n",
+        Lay("void check(string s) fails ParseError {\n    fail .empty if s.isEmpty\n}\n"));
+
+    [Fact]
+    public void CaseKeepsTheSpaceBeforeItsPattern() => Assert.Equal(
+        "i64 f(Color c) => c switch {\n    case .red => 1\n    case .green => 2\n}\n",
+        Lay("i64 f(Color c) => c switch {\n    case .red => 1\n    case .green => 2\n}\n"));
+
+    [Fact]
+    public void ExceptKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "union error Retryable = SendError except .rejected\n",
+        Lay("union error Retryable = SendError except .rejected\n"));
+
+    [Fact]
+    public void AndKeepsTheSpaceBeforeItsState() => Assert.Equal(
+        "void f(Order o) requires o is .paid and o is .shipped {\n}\n",
+        Lay("void f(Order o) requires o is .paid and o is .shipped {\n}\n"));
+
+    [Fact]
+    public void NullCoalescingKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "let parsed = Suit.parse(\"spades\") ?? .clubs\n",
+        Lay("let parsed = Suit.parse(\"spades\") ?? .clubs\n"));
+
+    [Fact]
+    public void CatchKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "print($\"{size(1) catch .good}\")\n",
+        Lay("print($\"{size(1) catch .good}\")\n"));
+
+    [Fact]
+    public void OrOrKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "let a = c == .red || c == .green\n",
+        Lay("let a = c == .red || c == .green\n"));
+
+    [Fact]
+    public void AndAndKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "let a = c != .red && c != .green\n",
+        Lay("let a = c != .red && c != .green\n"));
+
+    [Fact]
+    public void MemberAccessAfterANameStaysJoined() => Assert.Equal(
+        "let a = order.paid\nlet b = f().x\n",
+        Lay("let a = order.paid\nlet b = f().x\n"));
+
     // ── Blank lines ──
 
     [Fact]

@@ -1575,9 +1575,10 @@ internal static class Layout
             TokenKind.CloseBrace => Kind(i - 1) == TokenKind.OpenBrace ? Side.Keep : Side.Space,
             TokenKind.OpenBrace => Side.Space,
             TokenKind.Colon => SpacedColon(i) ? Side.Space : Side.None,
-            TokenKind.Dot or TokenKind.QuestionDot => Kind(i - 1) is TokenKind.Identifier or TokenKind.CloseParen
+            TokenKind.Dot or TokenKind.QuestionDot => (Kind(i - 1) is TokenKind.Identifier or TokenKind.CloseParen
                 or TokenKind.CloseBracket or TokenKind.ThisKeyword or TokenKind.InterpolatedStringEnd
-                || Kind(i - 1).IsStringLiteral() || Kind(i - 1).IsContextualKeyword() ? Side.None : Side.Defer,
+                || Kind(i - 1).IsStringLiteral() || Kind(i - 1).IsContextualKeyword())
+                && !(Kind(i) == TokenKind.Dot && Kind(i - 1) == TokenKind.Identifier && Text(i - 1) == "becomes") ? Side.None : Side.Defer,
             TokenKind.OpenParen or TokenKind.OpenBracket => CallLike(i - 1) ? Side.None : Side.Defer,
             TokenKind.DotDot or TokenKind.DotDotEquals => OperandEnd(Kind(i - 1)) ? Side.None : Side.Defer,
             var k when IsBinary(k) => Side.Space,
