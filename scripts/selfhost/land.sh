@@ -30,10 +30,10 @@ if [ $CHECK != 1 ]; then
   mkdir -p tmp; BAYAN_BASE=$BASE bash "$PWD/scripts/selfhost/preflight.sh" "$SPEC" "$T" "$BR" > "tmp/preflight-land-$t.txt" 2>&1 && PX=0 || PX=$?
   cat "tmp/preflight-land-$t.txt"; [ $PX = 0 ] || { echo "LAND REFUSED: preflight failed (tmp/preflight-land-$t.txt)"; exit 1; }
 fi
-PATH="/usr/bin:$PATH" python3 -I scripts/selfhost/wave-brief.py . "$T" --spec "$SPEC" > /dev/null
+bash "$(dirname "$0")/../bayan-tool.sh" wave-brief . "$T" --spec "$SPEC" > /dev/null
 # the base checkout's guard, by absolute path: a branch cannot run a guard it rewrote
 LINE=$(grep -m1 '^bash scripts/selfhost/guard.sh' "$TMPP$t/prompt.md") || {
-  echo "LAND REFUSED: $TMPP$t/prompt.md has no line starting 'bash scripts/selfhost/guard.sh' (wave-brief.py writes it from $T's guard line in $TASKS)"; exit 1; }
+  echo "LAND REFUSED: $TMPP$t/prompt.md has no line starting 'bash scripts/selfhost/guard.sh' (wave-brief writes it from $T's guard line in $TASKS)"; exit 1; }
 # the prompt's words (single quotes stripped) become array elements; --mutate/--mutations/--seed and their values are dropped
 # (per-task landing runs no mutation, user decision 2026-11-01), --base is the base branch; nothing is re-parsed by a shell, so a path with & | ' runs the right guard
 read -ra W <<< "${LINE#bash scripts/selfhost/guard.sh}"
