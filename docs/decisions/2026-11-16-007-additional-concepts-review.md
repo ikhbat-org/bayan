@@ -1,6 +1,6 @@
 # 007 — Review of the additional concepts draft
 
-Status: proposed (review; awaiting the owner's answers below)
+Status: decided except Q4 (owner leans `std`, one-word confirmation pending)
 Date: 2026-11-16
 Sources: `docs/bayan-additional-concepts.md`; `docs/bayan-spec.md` (§0, §19, Appendix A, Appendix B); `docs/bayan-grammar.md` §4, §12, §13; `docs/STATUS.md`; `docs/bayan-not-planned.md`; `docs/bayan-nice-to-have.md`; `docs/revisions/0019`, `0022`, `0023`; drafts `specs/023-spec-catch-up/023-spec.md` and `decisions/2026-11-16-006-after-022-roadmap-decisions.md` (not on `dev`).
 
@@ -210,6 +210,8 @@ So "keep them out of diagnostics" holds for the message line, not for explain te
 - **Q2:** yes, English grade names.
 - **Q7:** yes, `@deprecated` and `lazy` rows in 023, `lazy` in SPEC §2.4.
 - **Q4:** the owner leans `std`; recommendation agrees (SPEC §3.4 already defines `Money`), awaiting confirmation.
-- **Q3, Q5, Q6:** owner asked for real-world examples with and without; sent 2026-11-16, awaiting answers.
-- **Q8:** yes to a priority order; owner asked for the recommendation and a build-order dependency chain; sent 2026-11-16.
+- **Q3: yes, run-time check** (after examples, 2026-11-16, fourth message). `fs.restricted` ships with the `provide` handlers of 023 item 16a; its law: no path outside the root is opened, including through `..` and symlinks.
+- **Q5: yes, no `Ratio` for now.** Weights (`[3, 2, 1]`) cover the cases; add `Ratio` only when a real case needs it.
+- **Q6: yes, the sentence, not the table.** The "where this comes from" doc says Arabic marks expectation on the conditional word and Bayān puts its likelihood word straight after `if`; no idhā/in/law mapping table.
+- **Q8: yes.** Priority order: safety, then visible cost, then clarity, then familiarity, with the build order sent 2026-11-16. Before it is written as its own decision doc it is tested against about 10 past decisions in `docs/decisions/`, and any it would have decided differently goes to the owner.
 - **Q9:** the syntax freeze stays in force until spec 019a lands (owner agreed after the explanation: no new keywords, statement forms or renamed syntax; library, lint, fix and doc changes continue).
