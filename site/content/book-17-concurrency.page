@@ -68,3 +68,7 @@ i64 total() uses suspend fails {
 <p>No. The effect is accepted in a declaration, but nothing can suspend yet. It only records in the signature that the function may wait.</p></details>
 <details class="quiz"><summary>3. Why does the design say a task may borrow from its caller's stack?</summary>
 <p>Because the scope that starts a task cancels it on exit, the task cannot outlive the borrow. This is the same rule you met in chapter 13: a borrow must not outlive what it points into.</p></details>
+
+<div class="next-box">
+  <p>Next: <a href="book-18-project-cli.html">18. Project: a grep-like command-line tool</a> builds a small search tool that uses structs, errors, effects, capabilities and tests.</p>
+</div>

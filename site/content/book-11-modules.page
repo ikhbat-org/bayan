@@ -228,3 +228,7 @@ out/test/results.json             the last bayan test results</code></pre>
 <details class="quiz"><summary>The module <code>a</code> imports <code>b</code> and <code>b</code> imports <code>a</code>. What does the compiler do?</summary>
 <p>It stops with BYN2010, "import cycle: a → b → a", and suggests moving the shared declarations into a module both can import. It does not choose an order and carry on, and it does not only warn.</p>
 </details>
+
+<div class="next-box">
+  <p>Next: <a href="book-12-testing.html">12. Testing</a> covers <code>test</code> blocks, <code>assert</code>, and running tests in their own process with <code>bayan test</code>.</p>
+</div>

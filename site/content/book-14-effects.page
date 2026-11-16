@@ -132,3 +132,7 @@ provide clock: Clock.fixed(1_000) {
 <p>Add <code>.fs</code> to <code>capabilities</code> in <code>package.byn</code>, or remove the file access. Adding <code>uses fs</code> to more functions does not help: the function already declares it. The package is the one that has not agreed to it.</p></details>
 <details class="quiz"><summary>5. Can you write <code>provide console: myConsole { … }</code> today?</summary>
 <p>No. Only <code>alloc</code> and <code>allocator:</code> handlers work now. Others give BYN2022. The feature is planned.</p></details>
+
+<div class="next-box">
+  <p>Next: <a href="book-15-cleanup.html">15. Cleanup and resources (<code>defer</code>, move-only types, handles)</a> shows how <code>defer</code> and unique types clean up resources when a scope ends or their owner goes away.</p>
+</div>

@@ -265,3 +265,7 @@ union error Both = ParseError, Other</code></pre>
 <p>Exit code 3, from <code>@exitCode(3)</code> on the case; without it the code would be 1. The text is the case's doc comment and goes to standard error, not standard output.</p></details>
 <details class="quiz"><summary>You index a list with <code>xs[10]</code> and the list has 2 elements. Which of these can you write to recover? (a) <code>xs[10] catch 0</code> (b) <code>try xs[10]</code> (c) neither</summary>
 <p>(c). An out-of-range index is a panic, not an error. It has no <code>fails</code> clause to catch or to <code>try</code>. To recover, ask a question that can come back empty: <code>xs.tryGet(at: 10) ?? 0</code>.</p></details>
+
+<div class="next-box">
+  <p>Next: <a href="book-09-interfaces.html">9. Interfaces and generics</a> covers defining member promises with interfaces and writing generic code that works across them.</p>
+</div>
