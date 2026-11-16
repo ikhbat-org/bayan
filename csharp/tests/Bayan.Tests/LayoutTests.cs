@@ -128,6 +128,11 @@ public sealed class LayoutTests
         Lay("test \"positive\" (i32 n) {\n    assert(n > 0)\n}\n"));
 
     [Fact]
+    public void AParticleBeforeATupleTypeKeepsItsSpace() => Assert.Equal(
+        "string f(string t, by (string a, string b) args) => t\nlet x = g(by(1), at(2))\n",
+        Lay("string f(string t, by(string a, string b) args) => t\nlet x = g(by (1), at(2))\n"));
+
+    [Fact]
     public void GenericsPointersAndUnitsStayTight() => Assert.Equal(
         "List<i32> xs = make()\nu8* p = q\nlet t = 30s\nlet s = a >> 2\n",
         Lay("List<i32> xs = make()\nu8* p = q\nlet t = 30s\nlet s = a >> 2\n"));

@@ -1279,7 +1279,7 @@ void regionReport(
     through ref Ctx c,
     for SemaCode code,
     at TextSpan span,
-    by(string a0, string a1, string a2, string a3, string a4) args,
+    by (string a0, string a1, string a2, string a3, string a4) args,
     string label = "",
     string help = "",
     Related? note = null

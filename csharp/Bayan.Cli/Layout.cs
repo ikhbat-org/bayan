@@ -1579,7 +1579,7 @@ internal static class Layout
                 or TokenKind.CloseBracket or TokenKind.ThisKeyword or TokenKind.InterpolatedStringEnd
                 || Kind(i - 1).IsStringLiteral() || Kind(i - 1).IsContextualKeyword())
                 && !(Kind(i) == TokenKind.Dot && Kind(i - 1) == TokenKind.Identifier && Text(i - 1) == "becomes") ? Side.None : Side.Defer,
-            TokenKind.OpenParen or TokenKind.OpenBracket => CallLike(i - 1) ? Side.None : Side.Defer,
+            TokenKind.OpenParen or TokenKind.OpenBracket => ParticleTuple(i) ? Side.Space : CallLike(i - 1) ? Side.None : Side.Defer,
             TokenKind.DotDot or TokenKind.DotDotEquals => OperandEnd(Kind(i - 1)) ? Side.None : Side.Defer,
             var k when IsBinary(k) => Side.Space,
             TokenKind.Minus or TokenKind.Plus or TokenKind.Amp => IsUnary(i) ? Side.Defer : Side.Space,
@@ -1589,6 +1589,16 @@ internal static class Layout
             TokenKind.Greater or TokenKind.Question => Trivia(i) ? Side.Space : Side.Keep,
             _ => Side.Defer,
         };
+
+        private static readonly HashSet<string> ParticleWords = ["from", "to", "until", "through", "at", "by", "for", "as"];
+
+        /// <summary>
+        /// Whether the <c>(</c> at <paramref name="i"/> opens the tuple type of a parameter after its particle
+        /// (<c>by (string a, string b) args</c>), not a call: the particle follows a <c>(</c> or <c>,</c> and a name follows the <c>)</c>.
+        /// </summary>
+        private bool ParticleTuple(int i) => Kind(i) == TokenKind.OpenParen && i >= 2 && Kind(i - 1) == TokenKind.Identifier
+            && ParticleWords.Contains(Text(i - 1)) && Kind(i - 2) is TokenKind.OpenParen or TokenKind.Comma
+            && _match[i] > i && _match[i] + 1 < _match.Length && Kind(_match[i] + 1) == TokenKind.Identifier;
 
         /// <summary>Whether a <c>(</c> or <c>[</c> after token <paramref name="i"/> is a call or an index: no space before it.</summary>
         private bool CallLike(int i) => Kind(i) is TokenKind.CloseParen or TokenKind.CloseBracket || Kind(i).IsContextualKeyword()

@@ -667,7 +667,7 @@ void t10Report(
     ref Manifest m,
     for SemaCode code,
     at TextSpan span,
-    by(string a0, string a1, string a2, string a3, string a4) args,
+    by (string a0, string a1, string a2, string a3, string a4) args,
     string help = ""
 ) {
     m.diagnostics.append(Diag {

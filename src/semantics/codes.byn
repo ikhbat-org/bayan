@@ -860,7 +860,7 @@ List<SemaCode> allSemaCodes() {
 
 /// `string.Format` for the templates above: `{0}`-`{4}` are replaced and `{{`/`}}` unescaped. Text is
 /// copied in runs between braces, so a slice never splits a code point.
-string format(string template, by(string a0, string a1, string a2, string a3, string a4) args) {
+string format(string template, by (string a0, string a1, string a2, string a3, string a4) args) {
     var sb = StrBuf()
     let t = template.bytes
     var i: i64 = 0

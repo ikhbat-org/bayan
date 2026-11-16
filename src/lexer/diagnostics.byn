@@ -51,7 +51,7 @@ string messageFormat(DiagnosticCode code) => code switch {
 }
 
 /// `string.Format` for the templates above: `{0}`/`{1}` are replaced, `{{`/`}}` are unescaped.
-string format(string template, by(string arg0, string arg1) args) {
+string format(string template, by (string arg0, string arg1) args) {
     var sb = StrBuf()
     let t = template.bytes
     var i = 0

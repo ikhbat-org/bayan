@@ -2504,7 +2504,7 @@ struct LayoutEngine {
                 || prev == .interpolatedStringEnd
                 || lexer.isStringLiteral(prev) || parser.isContextualKeyword(prev) ? .none : .deferred
         }
-        return callLike(i - 1) ? .none : .deferred if k is .openParen or .openBracket
+        return particleTuple(i) ? .space : callLike(i - 1) ? .none : .deferred if k is .openParen or .openBracket
         return layoutOperandEnd(kind(i - 1)) ? .none : .deferred if k is .dotDot or .dotDotEquals
         return .space if layoutIsBinary(k)
         return isUnary(i) ? .deferred : .space if k is .minus or .plus or .amp
@@ -2513,6 +2513,18 @@ struct LayoutEngine {
         return kind(i - 1) == .dotDot ? .none : trivia(i) ? .space : .keep if k == .less
         return trivia(i) ? .space : .keep if k is .greater or .question
         return .deferred
+    }
+
+    /// Layout.cs: Engine.ParticleTuple. Whether the `(` at `i` opens the tuple type of a parameter after its particle
+    /// (`by (string a, string b) args`), not a call: the particle follows a `(` or `,` and a name follows the `)`.
+    bool particleTuple(i64 i) {
+        return false if kind(i) != .openParen || i < 2 || kind(i - 1) != .identifier
+        return false if !(kind(i - 2) is .openParen or .comma)
+        return false if !(textIs(i - 1, as: "from") || textIs(i - 1, as: "to") || textIs(i - 1, as: "until")
+            || textIs(i - 1, as: "through") || textIs(i - 1, as: "at") || textIs(i - 1, as: "by") || textIs(i - 1, as: "for")
+            || textIs(i - 1, as: "as"))
+        let close = matchOf[i]
+        return close > i && close + 1 < matchOf.length && kind(close + 1) == .identifier
     }
 
     /// Layout.cs: Engine.CallLike. Whether a `(` or `[` after token `i` is a call or an index: no space before it.
