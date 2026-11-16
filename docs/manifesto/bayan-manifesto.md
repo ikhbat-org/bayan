@@ -76,7 +76,7 @@ public void pay(ref this is .placed, Payment p)
 
 Read the signature aloud: *pay, acting on this order while it is placed, using the network; it becomes paid, or fails with a payment error.* Every word in that sentence is checked by the compiler. That is the whole idea of this book.
 
-> **Hello, world** in Bayān is one line: `print("Hello, world!")`. No class, no `static void Main`, no semicolon.
+> **Salam, world** in Bayān is one line: `print("Salam, world!")`. No class, no `static void Main`, no semicolon.
 
 # Why Arabic grammar?
 
@@ -815,7 +815,7 @@ The kind of thing comes first; what makes it special follows.
 | `distinct type UserId` | `type distinct UserId = i64` | A new type, not an alias |
 | `error union ParseError` | `union error ParseError` | A union used as an error set |
 
-The familiar spellings still work in your editor: `bayan format` rewrites them, and the compiler explains the canonical form (BYN1044).
+The familiar spellings still work in your editor: `bayan format` rewrites them, and the compiler explains the preferred form (BYN1044).
 
 ## Head-first statements: the `defer` family
 
