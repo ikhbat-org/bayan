@@ -12,6 +12,9 @@ wish list; the value is in recording the ones nobody has got to yet.
 Small, clear, and could be picked up without a design decision.
 
 - ~~CI: install zig (or set `BAYAN_CC`) on all three runners so `run/` goldens execute there.~~ (done: ci.yml:40-42 installs zig; triage 2026-11-09)
+- `bayan build --emit-c file.byn` (0.3.1) leaves a stray `a.o` in the current directory (README v3 writer, 2026-11-16).
+- Spec §21.4 says `bayan dist` writes `dist/<version>/<target>/`; 0.3.1 writes `dist/<version>/` and `dist/latest/` (README follows the binary). Reconcile spec or code.
+- `bayan --help` lists `parse [--ast] <file>`, but plain `bayan parse` is refused by the self-hosted compiler while `parse --ast` works; settle in the help rewrite (review of 9e54c2e..cf32c38).
 - `docs/export/BAYAN-DIAGNOSTICS.md` and `BAYAN-GRAMMAR.md` still say BYN5014 is "not a known verb or noun"; regenerate the export snapshot.
 - `#line`: function signatures and prologues map to `main.c`, so a debugger breakpoint on a function names generated code until its first statement; mapping the signature to the declaration line would fix it.
 - `CliToolchainTests.GeneratedCTheCCompilerRejectsIsAnInternalCompilerError` uses a `/bin/sh` fake compiler and returns early on Windows.

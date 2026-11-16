@@ -35,7 +35,7 @@ void main() {
 Salam, world!
 ```
 
-A program starts at `void main()`. A file of top-level statements with no `main` runs too: `bayan run hello.byn`.
+A program starts at `void main()`. A file holding only `print("Salam, world!")`, with no `main`, runs too: `bayan run hello.byn`.
 
 > [!NOTE]
 > Bayān is young (version 0.3.x). The language is usable and the compiler builds itself, but expect rough
@@ -128,7 +128,8 @@ It has top-level statements and no `main`: the compiler runs them as the program
 The test will now fail, because it still expects the old greeting. Change it to `"Salam, Aisha!"` too
 and it passes.
 
-`main` can do real work. This one fails with an error, and `@exitCode` sets the process exit code:
+`main` can do real work. Save this as `guests.byn` outside the project. It fails with an error, and
+`@exitCode` sets the process exit code:
 
 ```swift
 union error GuestError {
@@ -149,7 +150,7 @@ void main() fails GuestError {
 ```
 
 ```sh
-bayan run main.byn; echo $?
+bayan run guests.byn; echo $?
 ```
 
 ```text
