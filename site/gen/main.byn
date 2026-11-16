@@ -8,9 +8,9 @@
 // `docs/bayan-roadmap.md` also as `<site>/out/roadmap.html` (FORMAT.md §Release docs). Exit 1 with
 // `file:line: message` on stderr for a page it cannot build, 2 on a usage error.
 
-const exitOk: i32 = 0
+const exitOk: i32      = 0
 const exitFailure: i32 = 1
-const exitUsage: i32 = 2
+const exitUsage: i32   = 2
 
 i32 report(string message) {
     Io.stderr.write($"gen: {message}\n")
@@ -30,9 +30,13 @@ bool before(ReadOnlySpan<Page> pages, from i64 a, to i64 b) {
 List<i64> navOrder(ReadOnlySpan<Page> pages) {
     var order = List<i64>()
     for i in 0..pages.length {
-        if pages[i].nav.isEmpty { continue }
+        if pages[i].nav.isEmpty {
+            continue
+        }
         var at = order.length
-        while at > 0 && before(pages, from: i, to: order[at - 1]) { at -= 1 }
+        while at > 0 && before(pages, from: i, to: order[at - 1]) {
+            at -= 1
+        }
         order.append(i)
         var j = order.length - 1
         while j > at {
@@ -58,7 +62,9 @@ string sidebar(ReadOnlySpan<Page> pages, by ReadOnlySpan<i64> order, for i64 cur
     for k in order {
         let page = pages[k]
         if page.nav != group {
-            unless group.isEmpty { sb.append("</ul>\n") }
+            unless group.isEmpty {
+                sb.append("</ul>\n")
+            }
             group = page.nav
             sb.append($"<p class=\"grp\">{group}</p>\n<ul>\n")
         }
@@ -67,13 +73,17 @@ string sidebar(ReadOnlySpan<Page> pages, by ReadOnlySpan<i64> order, for i64 cur
         escapeInto(page.title, to: ref sb)
         sb.append("</a></li>\n")
     }
-    unless group.isEmpty { sb.append("</ul>\n") }
+    unless group.isEmpty {
+        sb.append("</ul>\n")
+    }
     return $"{sb.finish()}"
 }
 
 string tocList(ReadOnlySpan<Heading> toc) {
     var sb = StrBuf()
-    for h in toc { sb.append($"<li><a href=\"#{h.id}\">{h.html}</a></li>\n") }
+    for h in toc {
+        sb.append($"<li><a href=\"#{h.id}\">{h.html}</a></li>\n")
+    }
     return $"{sb.finish()}"
 }
 
@@ -86,10 +96,16 @@ void pagerLink(Page page, as string role, to ref StrBuf sb) {
 
 string pager(ReadOnlySpan<Page> pages, by ReadOnlySpan<i64> order, for i64 current) {
     let k = positionIn(order, for: current)
-    if k < 0 { return "" }
+    if k < 0 {
+        return ""
+    }
     var sb = StrBuf()
-    if k > 0 { pagerLink(pages[order[k - 1]], as: "prev", to: ref sb) }
-    if k + 1 < order.length { pagerLink(pages[order[k + 1]], as: "next", to: ref sb) }
+    if k > 0 {
+        pagerLink(pages[order[k - 1]], as: "prev", to: ref sb)
+    }
+    if k + 1 < order.length {
+        pagerLink(pages[order[k + 1]], as: "next", to: ref sb)
+    }
     return $"{sb.finish()}"
 }
 
@@ -108,7 +124,9 @@ i64 docsPage(ReadOnlySpan<Page> pages, by ReadOnlySpan<i64> order) {
 string headNav(ReadOnlySpan<Page> pages, by ReadOnlySpan<i64> order, for i64 current, at string root) {
     var tutorial: i64 = -1
     for k in order {
-        if pages[k].name == "tutorial" { tutorial = k }
+        if pages[k].name == "tutorial" {
+            tutorial = k
+        }
     }
     let docs = docsPage(pages, by: order)
     var sb = StrBuf()
@@ -151,7 +169,9 @@ string fillTemplate(string shell, from ReadOnlySpan<string> keys, by ReadOnlySpa
     while i < shell.length {
         let open = shell.position("{{", from: i) ?? shell.length
         sb.append(shell[i..open])
-        if open == shell.length { break }
+        if open == shell.length {
+            break
+        }
         var matched = false
         for k in 0..keys.length {
             if shell[open..shell.length].startsWith(keys[k]) {
@@ -184,7 +204,9 @@ bool isDated(string name) {
 string docName(string path) {
     let slash = path.lastPosition("/") ?? -1
     var base = path[(slash + 1)..path.length]
-    if base.endsWith(".md") { base = base[0..(base.length - 3)] }
+    if base.endsWith(".md") {
+        base = base[0..(base.length - 3)]
+    }
     return isDated(base) ? base[11..base.length] : base
 }
 
@@ -195,7 +217,9 @@ List<string> docNames(ReadOnlySpan<string> docs) {
         let name = docName(docs[k])
         var matches: i64 = 0
         for other in docs {
-            if docName(other) == name { matches += 1 }
+            if docName(other) == name {
+                matches += 1
+            }
         }
         let slash = docs[k].lastPosition("/") ?? -1
         let dir = slash < 0 ? "" : docs[k][0..slash]
@@ -206,7 +230,13 @@ List<string> docNames(ReadOnlySpan<string> docs) {
 }
 
 /// The link targets for the doc at `source`, its page at `prefix` from the published pages.
-DocLinks linksFor(string source, from ReadOnlySpan<string> docs, by ReadOnlySpan<string> names, at string prefix, for string version) {
+DocLinks linksFor(
+    string source,
+    from ReadOnlySpan<string> docs,
+    by ReadOnlySpan<string> names,
+    at string prefix,
+    for string version
+) {
     var paths = List<string>()
     var pageNames = List<string>()
     for k in 0..docs.length {
@@ -265,7 +295,9 @@ string filledDoc(DocPage page, by Release release) {
     keys.append("{{docs}}")
     values.append($"{page.root}{release.docsHref}")
     keys.append("{{headnav}}")
-    values.append($"{page.root.isEmpty ? release.navTop : release.navDeep}{releaseNav(release.version, at: page.root, for: page.here)}")
+    values.append(
+        $"{page.root.isEmpty ? release.navTop : release.navDeep}{releaseNav(release.version, at: page.root, for: page.here)}",
+    )
     keys.append("{{sidebar}}")
     values.append(page.sidebar)
     keys.append("{{toc}}")
@@ -308,12 +340,22 @@ i32 publish(ReadOnlySpan<string> docs, at string site, by Release release) {
     }
     for k in 0..docs.length {
         let sidebar = docsSidebar(names.span, by: titles.span, at: "", for: names[k])
-        let page = DocPage { title: titles[k], body: bodies[k], toc: tocs[k], sidebar: sidebar, root: "../../", here: "docs" }
+        let page = DocPage {
+            title: titles[k],
+            body: bodies[k],
+            toc: tocs[k],
+            sidebar: sidebar,
+            root: "../../",
+            here: "docs",
+        }
         let status = writePage($"{dir}/{names[k]}.html", from: filledDoc(page, by: release))
         return status if status != exitOk
         continue if docs[k] != "docs/bayan-roadmap.md"
         let prefix = $"docs/{version}/"
-        let roadmap = renderMarkdown(texts[k], by: linksFor(docs[k], from: docs, by: names.span, at: prefix, for: version))
+        let roadmap = renderMarkdown(
+            texts[k],
+            by: linksFor(docs[k], from: docs, by: names.span, at: prefix, for: version),
+        )
         let top = DocPage {
             title: titles[k],
             body: roadmap.html,
@@ -354,9 +396,13 @@ bool beforeInBook(ReadOnlySpan<Page> pages, from i64 a, to i64 b) {
 i32 writeBook(ReadOnlySpan<Page> pages, at string site, by Release release) {
     var chapters = List<i64>()
     for i in 0..pages.length {
-        unless pages[i].name.startsWith("book-") { continue }
+        unless pages[i].name.startsWith("book-") {
+            continue
+        }
         var at = chapters.length
-        while at > 0 && beforeInBook(pages, from: i, to: chapters[at - 1]) { at -= 1 }
+        while at > 0 && beforeInBook(pages, from: i, to: chapters[at - 1]) {
+            at -= 1
+        }
         chapters.append(i)
         var j = chapters.length - 1
         while j > at {
@@ -373,7 +419,9 @@ i32 writeBook(ReadOnlySpan<Page> pages, at string site, by Release release) {
         sb.append("</h1>\n")
         var toc = List<Heading>()
         let problem = renderBody(pages[k], from: $"{site}/examples", to: ref sb, for: ref toc)
-        unless problem.isEmpty { return report(problem) }
+        unless problem.isEmpty {
+            return report(problem)
+        }
     }
     let page = DocPage { title: "The Bayān book", body: $"{sb.finish()}", toc: "", sidebar: "", root: "", here: "" }
     return writePage($"{site}/out/book.html", from: filledDoc(page, by: release))
@@ -384,7 +432,10 @@ i32 writeManifesto(at string site, by Release release) {
     let file = $"{site}/../docs/manifesto/bayan-manifesto.md"
     let text = Io.readText(file) catch return exitOk
     let source = "docs/manifesto/bayan-manifesto.md"
-    let doc = renderMarkdown(text, by: linksFor(source, from: List<string>().span, by: List<string>().span, at: "", for: release.version))
+    let doc = renderMarkdown(
+        text,
+        by: linksFor(source, from: List<string>().span, by: List<string>().span, at: "", for: release.version),
+    )
     let page = DocPage {
         title: doc.title.isEmpty ? "The Bayān Manifesto" : doc.title,
         body: doc.html,
@@ -410,21 +461,31 @@ i32 main(ReadOnlySpan<string> args) {
     let templateFiles = Io.listDir($"{site}/templates") catch return report($"cannot list {site}/templates")
     var templates = List<string>()
     for t in templateFiles {
-        if t.endsWith(".html") { templates.append(t[0..(t.length - 5)]) }
+        if t.endsWith(".html") {
+            templates.append(t[0..(t.length - 5)])
+        }
     }
 
     var pages = List<Page>()
     for name in names {
-        unless name.endsWith(".page") { continue }
+        unless name.endsWith(".page") {
+            continue
+        }
         let file = $"{contentDir}/{name}"
         let text = Io.readText(file) catch return report($"{file}: cannot read")
         let parsed = parsePage(file, from: text)
-        unless parsed.error.isEmpty { return report(parsed.error) }
+        unless parsed.error.isEmpty {
+            return report(parsed.error)
+        }
         let missing = templateError(parsed.page, from: templates.span, at: site)
-        unless missing.isEmpty { return report(missing) }
+        unless missing.isEmpty {
+            return report(missing)
+        }
         pages.append(parsed.page)
     }
-    if pages.isEmpty { return report($"no .page files in {contentDir}") }
+    if pages.isEmpty {
+        return report($"no .page files in {contentDir}")
+    }
 
     let order = navOrder(pages.span)
     let docs = docsPage(pages.span, by: order.span)
@@ -434,8 +495,12 @@ i32 main(ReadOnlySpan<string> args) {
         var html = StrBuf()
         var toc = List<Heading>()
         let problem = renderBody(page, from: $"{site}/examples", to: ref html, for: ref toc)
-        unless problem.isEmpty { return report(problem) }
-        let shell = Io.readText($"{site}/templates/{page.template}.html") catch return report($"{site}/templates/{page.template}.html: cannot read")
+        unless problem.isEmpty {
+            return report(problem)
+        }
+        let shell = Io.readText(
+            $"{site}/templates/{page.template}.html",
+        ) catch return report($"{site}/templates/{page.template}.html: cannot read")
         var keys = List<string>()
         var values = List<string>()
         keys.append("{{title}}")
@@ -447,7 +512,9 @@ i32 main(ReadOnlySpan<string> args) {
         keys.append("{{docs}}")
         values.append(docsHref)
         keys.append("{{headnav}}")
-        values.append($"{headNav(pages.span, by: order.span, for: index, at: "")}{releaseNav(version, at: "", for: "")}")
+        values.append(
+            $"{headNav(pages.span, by: order.span, for: index, at: "")}{releaseNav(version, at: "", for: "")}",
+        )
         keys.append("{{sidebar}}")
         values.append(sidebar(pages.span, by: order.span, for: index))
         keys.append("{{toc}}")
@@ -465,7 +532,9 @@ i32 main(ReadOnlySpan<string> args) {
         Io.writeFile(path, result.bytes) catch return report($"{path}: cannot write")
         print($"wrote {path}")
     }
-    let shell = Io.readText($"{site}/templates/docs.html") catch return report($"{site}/templates/docs.html: cannot read")
+    let shell = Io.readText(
+        $"{site}/templates/docs.html",
+    ) catch return report($"{site}/templates/docs.html: cannot read")
     let release = Release {
         version: version,
         shell: shell,

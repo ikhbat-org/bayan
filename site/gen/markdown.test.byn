@@ -221,7 +221,9 @@ test "a dev version links to the dev branch" {
 }
 
 test "an image is an img with escaped alt and src" {
-    assert md("![Idris & `Yusuf`](assets/a&b.svg)") == "<p><img src=\"assets/a&amp;b.svg\" alt=\"Idris &amp; `Yusuf`\"></p>\n"
+    assert md(
+        "![Idris & `Yusuf`](assets/a&b.svg)",
+    ) == "<p><img src=\"assets/a&amp;b.svg\" alt=\"Idris &amp; `Yusuf`\"></p>\n"
 }
 
 test "an image keeps the text around it" {

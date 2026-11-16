@@ -10,7 +10,9 @@ string render(string body) {
     var html = StrBuf()
     var toc = List<Heading>()
     let problem = renderBody(page, from: "no-such-dir", to: ref html, for: ref toc)
-    unless problem.isEmpty { return problem }
+    unless problem.isEmpty {
+        return problem
+    }
     return $"{html.finish()}"
 }
 
@@ -48,11 +50,15 @@ test "bad order" {
 }
 
 test "unknown nav group" {
-    assert parsed("title: T\nnav: Misc\ntemplate: docs\n---\n").error == "content/x.page:2: unknown nav `Misc` (expected Start, Learn, Guides or Reference)"
+    assert parsed(
+        "title: T\nnav: Misc\ntemplate: docs\n---\n",
+    ).error == "content/x.page:2: unknown nav `Misc` (expected Start, Learn, Guides or Reference)"
 }
 
 test "unknown header key" {
-    assert parsed("title: T\nauthor: me\n---\n").error == "content/x.page:2: unknown header `author` (expected title, nav, order or template)"
+    assert parsed(
+        "title: T\nauthor: me\n---\n",
+    ).error == "content/x.page:2: unknown header `author` (expected title, nav, order or template)"
 }
 
 test "header line without a colon" {
@@ -64,12 +70,18 @@ test "unknown template" {
     templates.append("docs")
     templates.append("landing")
     let page = parsed("title: T\n\ntemplate: wiki\n---\n").page
-    assert templateError(page, from: templates.span, at: "site") == "content/x.page:3: unknown template `wiki` (no site/templates/wiki.html)"
+    assert templateError(
+        page,
+        from: templates.span,
+        at: "site",
+    ) == "content/x.page:3: unknown template `wiki` (no site/templates/wiki.html)"
     assert templateError(parsed(good).page, from: templates.span, at: "site") == ""
 }
 
 test "h2 ids go to the toc" {
-    let page = parsed("title: T\ntemplate: docs\n---\n<h2 id=\"a\">One <code>x</code></h2>\n<h2 id=\"b\">Two</h2>\n").page
+    let page = parsed(
+        "title: T\ntemplate: docs\n---\n<h2 id=\"a\">One <code>x</code></h2>\n<h2 id=\"b\">Two</h2>\n",
+    ).page
     var html = StrBuf()
     var toc = List<Heading>()
     assert renderBody(page, from: "no-such-dir", to: ref html, for: ref toc) == ""
@@ -96,11 +108,15 @@ test "note becomes an aside" {
 }
 
 test "byn code block is highlighted" {
-    assert render("<pre><code class=\"byn\">a =&gt; b</code></pre>") == "<pre class=\"byn\"><code>a <span class=\"op\">=&gt;</span> b</code></pre>"
+    assert render(
+        "<pre><code class=\"byn\">a =&gt; b</code></pre>",
+    ) == "<pre class=\"byn\"><code>a <span class=\"op\">=&gt;</span> b</code></pre>"
 }
 
 test "other code block keeps its text and gets a caption" {
-    assert render("<pre><code class=\"other\" data-lang=\"Python\">x = 1</code></pre>") == "<figure class=\"other\"><figcaption class=\"label\">Python</figcaption>\n<pre class=\"other\"><code>x = 1</code></pre></figure>"
+    assert render(
+        "<pre><code class=\"other\" data-lang=\"Python\">x = 1</code></pre>",
+    ) == "<figure class=\"other\"><figcaption class=\"label\">Python</figcaption>\n<pre class=\"other\"><code>x = 1</code></pre></figure>"
 }
 
 test "unclosed code block" {
