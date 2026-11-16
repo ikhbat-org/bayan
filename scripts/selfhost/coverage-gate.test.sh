@@ -1,5 +1,5 @@
 #!/bin/bash
-# coverage-gate.py's coverage-exempt markers: a marker whose Question cites a line of its file exempts its span's missed
+# tools/coverage-gate.byn's coverage-exempt markers: a marker whose Question cites a line of its file exempts its span's missed
 # lines and branches (`through `text`` a range to the one line holding text, Q1040), and the file gets one count line; a marker
 # whose Question cites no line of its file, an anchor matching no line or two, and a `through N` line number are FAIL items; an unknown line under a marker and a missed line outside every marker stay FAIL items;
 # a file absent from the work tree has no markers, so its missed line in a touched function stays a FAIL item.
@@ -17,7 +17,7 @@ printf '1001. cites a.byn:7.\n902. cites a.byn:9-10.\n903. cites b.byn:3 only.\n
 a=$r/src/a.byn
 printf '{"version": 1, "kind": "coverage", "files": [{"path": "%s", "lines": {"covered": 1, "total": 7, "missed": [7, 10, 12, 13], "unknown": [9]}, "branches": {"covered": 0, "total": 1, "missed": [{"line": 7, "column": 5, "outcome": true}], "unknown": []}, "errorPaths": []}, {"path": "%s", "lines": {"covered": 0, "total": 1, "missed": [2], "unknown": []}, "branches": {"covered": 0, "total": 0, "missed": [], "unknown": []}, "errorPaths": []}]}\n' "$a" "$r/src/gone.byn" > cov.json
 printf '{"version": 1, "files": {"%s": [{"span": [1, 3], "lines": [1, 1], "branches": [0, 0]}, {"span": [5, 21], "lines": [0, 6], "branches": [0, 1]}], "%s": [{"span": [1, 3], "lines": [0, 1], "branches": [0, 0]}]}}\n' "$a" "$r/src/gone.byn" > fns.json
-out=$(python3 -I "$root/scripts/selfhost/coverage-gate.py" "$(git rev-parse HEAD)" cov.json fns.json)
+out=$(bash "$root/scripts/bayan-tool.sh" coverage-gate "$(git rev-parse HEAD)" cov.json fns.json)
 cd "$root"; rm -rf "$r"
 fail() { echo "FAIL: $1"; echo "$out"; exit 1; }
 echo "$out" | grep -qE '^- coverage: missed (line src/a.byn:(7|10)|branch src/a.byn:7:)' && fail "an exempted miss was a FAIL item"
@@ -41,8 +41,8 @@ printf -- '- [x] T1 one — done\n- [ ] T2 two — done\n- [ ] T4 four — done\
 b=$r/src/b.byn
 printf '{"version": 1, "kind": "coverage", "files": [{"path": "%s", "lines": {"covered": 1, "total": 7, "missed": [7, 9, 11, 14], "unknown": []}, "branches": {"covered": 0, "total": 1, "missed": [{"line": 7, "column": 5, "outcome": false}], "unknown": []}, "errorPaths": []}]}\n' "$b" > cov.json
 printf '{"version": 1, "files": {"%s": [{"span": [1, 3], "lines": [1, 1], "branches": [0, 0]}, {"span": [5, 16], "lines": [0, 6], "branches": [0, 1]}]}}\n' "$b" > fns.json
-out=$(python3 -I "$root/scripts/selfhost/coverage-gate.py" "$(git rev-parse HEAD)" cov.json fns.json docs/tasks.md T2 src)
-bare=$(python3 -I "$root/scripts/selfhost/coverage-gate.py" "$(git rev-parse HEAD)" cov.json fns.json)
+out=$(bash "$root/scripts/bayan-tool.sh" coverage-gate "$(git rev-parse HEAD)" cov.json fns.json docs/tasks.md T2 src)
+bare=$(bash "$root/scripts/bayan-tool.sh" coverage-gate "$(git rev-parse HEAD)" cov.json fns.json)
 cd "$root"; rm -rf "$r"
 echo "$out" | grep -qE '^- coverage: missed (line src/b.byn:7;|branch src/b.byn:7:)' && fail "a miss blocked on an open sibling task was a FAIL item"
 echo "$out" | grep -qx 'coverage: src/b.byn: 2 missed lines and branches under coverage-blocked markers' || fail "no count line for the blocked misses"
@@ -67,7 +67,7 @@ printf -- '- [ ] T2 two — done\n' > docs/tasks.md; : > docs/bayan-questions.md
 d=$r/src/semantics/d.byn; e=$r/src/emitter/e.byn
 printf '{"version": 1, "kind": "coverage", "files": [{"path": "%s", "lines": {"covered": 0, "total": 2, "missed": [2, 3], "unknown": []}, "branches": {"covered": 0, "total": 1, "missed": [{"line": 2, "column": 5, "outcome": true}], "unknown": []}, "errorPaths": []}, {"path": "%s", "lines": {"covered": 0, "total": 2, "missed": [2, 3], "unknown": []}, "branches": {"covered": 0, "total": 0, "missed": [], "unknown": []}, "errorPaths": []}]}\n' "$d" "$e" > cov.json
 printf '{"version": 1, "files": {"%s": [{"span": [1, 4], "lines": [0, 2], "branches": [0, 1]}], "%s": [{"span": [1, 4], "lines": [0, 2], "branches": [0, 0]}]}}\n' "$d" "$e" > fns.json
-out=$(python3 -I "$root/scripts/selfhost/coverage-gate.py" "$(git rev-parse HEAD)" cov.json fns.json docs/tasks.md T2 src/emitter)
+out=$(bash "$root/scripts/bayan-tool.sh" coverage-gate "$(git rev-parse HEAD)" cov.json fns.json docs/tasks.md T2 src/emitter)
 cd "$root"; rm -rf "$r"
 echo "$out" | grep -q '^- coverage: missed line src/semantics/d.byn:3; ' || fail "a changed line under another row's bydir was not gated"
 echo "$out" | grep -qE '^- coverage: missed (line src/semantics/d.byn:2;|branch src/semantics/d.byn:2:)' && fail "an unchanged line under another row's bydir was gated"
@@ -83,7 +83,7 @@ printf -- '- [ ] T2 two — done\n' > docs/tasks.md; : > docs/bayan-questions.md
 p=$r/src/parser/p.byn
 printf '{"version": 1, "kind": "coverage", "files": [{"path": "%s", "lines": {"covered": 0, "total": 2, "missed": [2, 3], "unknown": []}, "branches": {"covered": 0, "total": 0, "missed": [], "unknown": []}, "errorPaths": []}]}\n' "$p" > cov.json
 printf '{"version": 1, "files": {"%s": [{"span": [1, 4], "lines": [0, 2], "branches": [0, 0]}]}}\n' "$p" > fns.json
-out=$(python3 -I "$root/scripts/selfhost/coverage-gate.py" "$(git rev-parse HEAD)" cov.json fns.json docs/tasks.md T2 src/semantics)
+out=$(bash "$root/scripts/bayan-tool.sh" coverage-gate "$(git rev-parse HEAD)" cov.json fns.json docs/tasks.md T2 src/semantics)
 cd "$root"; rm -rf "$r"
 echo "$out" | grep -q '^- coverage: missed line src/parser/p.byn:2; ' || fail "an unchanged line of a touched function in src/parser was not gated for 010"
 echo "$out" | grep -q '^- coverage: missed line src/parser/p.byn:3; ' || fail "a changed line in src/parser was not gated for 010"

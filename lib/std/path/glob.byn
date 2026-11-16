@@ -1,0 +1,180 @@
+// std.path glob matching (spec 015 S5, T13): shell-style patterns over `/`-separated paths, compared character by
+// character (UTF-8).
+
+/// Matching `/`-separated paths against shell-style glob patterns.
+public struct Glob {
+    /// Whether the whole of `path` matches `pattern`. `?` is one character and `*` any characters, neither crossing a
+    /// `/`; a `**` segment (`a/**/b`, `**/b`, `a/**`) is any number of segments, `a/**/b` matching `a/b`; `[abc]`,
+    /// `[a-z]` and `[!abc]` (or `[^abc]`) are one character of a set, a `[` without a closing `]` is itself; `{a,b}`
+    /// alternatives nest and may hold `/`; an unclosed `{` is itself. A character is one UTF-8 code point (`é` is one,
+    /// in a path and in a set); where the bytes are not well-formed UTF-8, each such byte counts as one character
+    /// that equals only the same byte.
+    public static bool matches(string pattern, for string path) uses alloc {
+        for alternative in expand(pattern) {
+            if matchFrom(alternative, from: 0, for: path, at: 0) { return true }
+        }
+        return false
+    }
+}
+
+/// `pattern` with its first `{a,b}` group replaced by each option in turn, expanded again until no group is left.
+List<string> expand(string pattern) uses alloc {
+    var result = List<string>()
+    let open = pattern.position("{") ?? -1
+    var close = -1
+    var starts = List<i64>()
+    if open >= 0 {
+        var depth = 0
+        var i = open
+        starts.append(open)
+        while i < pattern.length && close < 0 {
+            let b = pattern.bytes[i]
+            if b == '{' {
+                depth += 1
+            } else if b == '}' {
+                depth -= 1
+                if depth == 0 { close = i }
+            } else if b == ',' && depth == 1 {
+                starts.append(i)
+            }
+            i += 1
+        }
+    }
+    if close < 0 {
+        result.append($"{pattern}")
+        return result
+    }
+    starts.append(close)
+    let head = pattern[0..open]
+    let tail = pattern[close + 1..pattern.length]
+    for k in 0..(starts.length - 1) {
+        let option = pattern[starts[k] + 1..starts[k + 1]]
+        for e in expand($"{head}{option}{tail}") { result.append(e) }
+    }
+    return result
+}
+
+/// Whether `pattern` from `pi` matches `path` from `si` to its end.
+bool matchFrom(string pattern, from i64 pi, for string path, at i64 si) {
+    var i = pi
+    var j = si
+    while i < pattern.length {
+        let c = pattern.bytes[i]
+        if c == '*' {
+            if i + 1 < pattern.length && pattern.bytes[i + 1] == '*' && (i == 0 || pattern.bytes[i - 1] == '/') {
+                let k = i + 2
+                if k == pattern.length { return true }
+                if pattern.bytes[k] == '/' {
+                    if matchFrom(pattern, from: k + 1, for: path, at: j) { return true }
+                    var m = j
+                    while m < path.length {
+                        if path.bytes[m] == '/' && matchFrom(pattern, from: k + 1, for: path, at: m + 1) { return true }
+                        m += 1
+                    }
+                    return false
+                }
+            }
+            var m = j
+            while m <= path.length {
+                if matchFrom(pattern, from: i + 1, for: path, at: m) { return true }
+                if m == path.length || path.bytes[m] == '/' { return false }
+                m += charLength(charAt(path, at: m))
+            }
+            return false
+        }
+        if c == '?' {
+            if j >= path.length || path.bytes[j] == '/' { return false }
+            i += 1
+            j += charLength(charAt(path, at: j))
+        } else if c == '[' && classEnd(pattern, at: i) > 0 {
+            let end = classEnd(pattern, at: i)
+            if j >= path.length || path.bytes[j] == '/' { return false }
+            let ch = charAt(path, at: j)
+            if !inClass(pattern, from: i, to: end, for: ch) { return false }
+            i = end
+            j += charLength(ch)
+        } else {
+            if j >= path.length || path.bytes[j] != c { return false }
+            i += 1
+            j += 1
+        }
+    }
+    return j == path.length
+}
+
+/// The index just past the `]` closing the class that opens at `open`, or -1.
+i64 classEnd(string pattern, at i64 open) {
+    var i = open + 1
+    if i < pattern.length && (pattern.bytes[i] == '!' || pattern.bytes[i] == '^') { i += 1 }
+    if i < pattern.length && pattern.bytes[i] == ']' { i += 1 }
+    while i < pattern.length {
+        if pattern.bytes[i] == ']' { return i + 1 }
+        i += 1
+    }
+    return -1
+}
+
+/// Whether the character `ch` (as `charAt` gives it) is in the class `pattern[open..end]`.
+bool inClass(string pattern, from i64 open, to i64 end, for i64 ch) {
+    var i = open + 1
+    var negated = false
+    if pattern.bytes[i] == '!' || pattern.bytes[i] == '^' {
+        negated = true
+        i += 1
+    }
+    let close = end - 1
+    var hit = false
+    while i < close {
+        let low = charAt(pattern, at: i)
+        let next = i + charLength(low)
+        if next + 1 < close && pattern.bytes[next] == '-' {
+            let high = charAt(pattern, at: next + 1)
+            if ch >= low && ch <= high { hit = true }
+            i = next + 1 + charLength(high)
+        } else {
+            if ch == low { hit = true }
+            i = next
+        }
+    }
+    return hit != negated
+}
+
+/// The character at `i` in `text`: its code point, or 0x110000 plus the byte at `i` when the bytes there are not
+/// well-formed UTF-8 (truncated, overlong, a surrogate or past U+10FFFF).
+i64 charAt(string text, at i64 i) {
+    let b = i64(text.bytes[i])
+    if b < 0x80 { return b }
+    var more = 0
+    var cp = 0
+    var least = 0
+    if b >= 0xC2 && b <= 0xDF {
+        more = 1
+        cp = b & 0x1F
+        least = 0x80
+    } else if b >= 0xE0 && b <= 0xEF {
+        more = 2
+        cp = b & 0x0F
+        least = 0x800
+    } else if b >= 0xF0 && b <= 0xF4 {
+        more = 3
+        cp = b & 0x07
+        least = 0x10000
+    }
+    if more == 0 || i + more >= text.length { return 0x110000 + b }
+    var k = 1
+    while k <= more {
+        let t = i64(text.bytes[i + k])
+        if t < 0x80 || t > 0xBF { return 0x110000 + b }
+        cp = cp * 0x40 + (t & 0x3F)
+        k += 1
+    }
+    if cp < least || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF) { return 0x110000 + b }
+    return cp
+}
+
+/// The number of bytes the character `ch` (as `charAt` gives it) takes.
+i64 charLength(i64 ch) {
+    if ch < 0x80 || ch >= 0x110000 { return 1 }
+    if ch < 0x800 { return 2 }
+    return ch < 0x10000 ? 3 : 4
+}

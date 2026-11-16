@@ -5,9 +5,15 @@ List<StdSource> stdShippedSources() {
     var sources = List<StdSource>()
     sources.append(StdSource { path: "encoding/base64.byn", text: stdSource0 })
     sources.append(StdSource { path: "encoding/base64.test.byn", text: stdSource1 })
-    sources.append(StdSource { path: "json/json.test.byn", text: stdSource2 })
-    sources.append(StdSource { path: "json/reader.byn", text: stdSource3 })
-    sources.append(StdSource { path: "json/value.byn", text: stdSource4 })
+    sources.append(StdSource { path: "fs/glob.byn", text: stdSource2 })
+    sources.append(StdSource { path: "fs/glob.test.byn", text: stdSource3 })
+    sources.append(StdSource { path: "json/json.test.byn", text: stdSource4 })
+    sources.append(StdSource { path: "json/reader.byn", text: stdSource5 })
+    sources.append(StdSource { path: "json/value.byn", text: stdSource6 })
+    sources.append(StdSource { path: "path/glob.byn", text: stdSource7 })
+    sources.append(StdSource { path: "path/glob.test.byn", text: stdSource8 })
+    sources.append(StdSource { path: "regex/regex.byn", text: stdSource9 })
+    sources.append(StdSource { path: "regex/regex.test.byn", text: stdSource10 })
     return sources
 }
 
@@ -180,7 +186,128 @@ test "decode refuses broken text with the bad byte offset" (string input, string
 }
 """
 
-const stdSource2: string = """// Tests of std.json. The "parse then encode" table's expected encodings are python3 `json.dumps` output (indent 0 is
+const stdSource2: string = """// std.fs glob (spec 015 S5, T13): the files under the working directory a pattern names.
+
+import std.path
+
+type Glob = path.Glob
+
+/// The depth below the base directory a walk stops at when the pattern has `**` or `{}` (its length is unknown).
+const maxDepth: i64 = 64
+
+/// The files whose path matches `pattern` (`**`, `*`, `?`, `[…]`, `{a,b}` as `Glob.matches` reads them), sorted by byte
+/// order, written with `/` separators and starting as `pattern` does. Directories are walked but not listed; a base
+/// directory that is missing or unreadable gives an empty list. Names starting with `.` are listed and dot-directories
+/// are entered, as any other name (the Go and Rust rule); a caller that wants them hidden filters the result. A
+/// pattern with `**` or `{` is walked 64 directory levels below its base directory; matches deeper than that are not
+/// returned.
+public List<string> glob(string pattern) uses fs, alloc {
+    var found = List<string>()
+    let base = baseOf(pattern)
+    let depth = (pattern.contains("**") || pattern.contains("{")) ? maxDepth : count(pattern, for: "/") + 1
+    walk(pattern, from: base, until: depth, to: ref found)
+    var j = 0
+    while j < found.length {
+        var k = j
+        while k > 0 && found[k] < found[k - 1] {
+            let t = found[k]
+            found[k] = found[k - 1]
+            found[k - 1] = t
+            k -= 1
+        }
+        j += 1
+    }
+    return found
+}
+
+/// The directory a walk for `pattern` starts in: its leading segments with no `*`, `?`, `[` or `{`.
+string baseOf(string pattern) {
+    var i = 0
+    var slash = -1
+    while i < pattern.length {
+        let b = pattern.bytes[i]
+        if b == '*' || b == '?' || b == '[' || b == '{' { break }
+        if b == '/' { slash = i }
+        i += 1
+    }
+    if slash < 0 { return "" }
+    return slash == 0 ? "/" : pattern[0..slash]
+}
+
+/// The number of times `part` occurs in `text`.
+i64 count(string text, for string part) {
+    var n = 0
+    for _ in text.parts(by: part) { n += 1 }
+    return n - 1
+}
+
+/// Adds every file under `dir` (to `depth` levels) whose path matches `pattern`.
+void walk(string pattern, from string dir, until i64 depth, to ref List<string> found) uses fs, alloc {
+    let names = Io.listDir(dir.isEmpty ? "." : dir) catch { return }
+    for name in names {
+        let entry = dir.isEmpty ? $"{name}" : (dir.endsWith("/") ? $"{dir}{name}" : $"{dir}/{name}")
+        let inside = Io.listDir(entry) catch {
+            if Glob.matches(pattern, for: entry) { found.append(entry) }
+            continue
+        }
+        if depth > 1 { walk(pattern, from: entry, until: depth - 1, to: ref found) }
+    }
+}
+"""
+
+const stdSource3: string = """// Tests of std.fs glob, over a tree the tests build in tmp/ below the working directory.
+
+/// Writes `rel` (and its parent directories) under `root`, empty.
+void touch(string root, at string rel) uses fs, alloc {
+    var dir = $"{root}"
+    for part in rel.parts(by: "/") {
+        let at = Path.combine(dir, part)
+        if part.contains(".") {
+            Io.writeFile(at, "".bytes) catch { assert false }
+        } else {
+            Io.createDirectory(at) catch { assert false }
+        }
+        dir = at
+    }
+}
+
+/// `found` as one line, entries separated by a space.
+string joined(List<string> found) uses alloc {
+    var sb = StrBuf()
+    for f in found {
+        if sb.length > 0 { sb.append(" ") }
+        sb.append(f)
+    }
+    return sb.finish()
+}
+
+test "glob lists the matching files, sorted, with / separators" {
+    let root = "tmp/glob-test"
+    touch(root, at: "src/b.byn")
+    touch(root, at: "src/a.byn")
+    touch(root, at: "src/x/c.byn")
+    touch(root, at: "src/x/y/d.byn")
+    touch(root, at: "src/x/e.cs")
+    touch(root, at: "lib/f.byn")
+    let all = glob("tmp/glob-test/src/**/*.byn")
+    assert joined(all) == "tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn tmp/glob-test/src/x/c.byn tmp/glob-test/src/x/y/d.byn"
+    assert joined(glob("tmp/glob-test/src/*.byn")) == "tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn"
+    assert joined(glob("tmp/glob-test/{src,lib}/*.byn")) == "tmp/glob-test/lib/f.byn tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn"
+    assert joined(glob("tmp/glob-test/src/x/?.cs")) == "tmp/glob-test/src/x/e.cs"
+    assert joined(glob("tmp/glob-test/src/[ab].byn")) == "tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn"
+    assert joined(glob("tmp/glob-test/src/a.byn")) == "tmp/glob-test/src/a.byn"
+    for f in all { assert Glob.matches("tmp/glob-test/src/**/*.byn", for: f) }
+}
+
+test "glob finds nothing for a directory, a missing base or a pattern no file fits" {
+    assert glob("tmp/glob-test/src").length == 0
+    assert glob("tmp/glob-test/none/*.byn").length == 0
+    assert glob("tmp/glob-test/src/*.rs").length == 0
+    assert glob("tmp/glob-test/src/?.byn/x").length == 0
+}
+"""
+
+const stdSource4: string = """// Tests of std.json. The "parse then encode" table's expected encodings are python3 `json.dumps` output (indent 0 is
 // `json.dumps(v)`, N is `json.dumps(v, indent=N)`) for `json.loads` of the input, recorded from a run, not written by hand.
 // Number text is kept as read (`1e400`, `1E2`; spec 016), so the cases with such numbers are not python's output.
 
@@ -474,7 +601,7 @@ test "a reader error is the parse error" {
 }
 """
 
-const stdSource3: string = """// std.json pull reader (spec 016 T4, 015 S7): RFC 8259 text as a stream of tokens, one per `next()`.
+const stdSource5: string = """// std.json pull reader (spec 016 T4, 015 S7): RFC 8259 text as a stream of tokens, one per `next()`.
 
 /// One step of a JSON text: a container bound, an object key, or a scalar.
 public union JsonToken {
@@ -842,7 +969,7 @@ public struct JsonReader {
 bool isDigit(u8 b) => b >= '0' && b <= '9'
 """
 
-const stdSource4: string = """// std.json tree (spec 016 T4, 015 S7): `JsonValue` built on `JsonReader`, and `Json.encode`.
+const stdSource6: string = """// std.json tree (spec 016 T4, 015 S7): `JsonValue` built on `JsonReader`, and `Json.encode`.
 
 /// A JSON value. A number keeps its text, so `Json.encode` writes it back as read (a built one whose text is not a
 /// JSON number is written from its value, and refused when that is not finite); an object keeps its members in text order, duplicate keys included.
@@ -1022,5 +1149,1185 @@ void unitInto(ref StrBuf sb, from u32 unit) {
     let digits = string(unit, as: .hex)
     sb.appendRepeated('0', by: 4 - digits.length)
     sb.append(digits)
+}
+"""
+
+const stdSource7: string = """// std.path glob matching (spec 015 S5, T13): shell-style patterns over `/`-separated paths, compared character by
+// character (UTF-8).
+
+/// Matching `/`-separated paths against shell-style glob patterns.
+public struct Glob {
+    /// Whether the whole of `path` matches `pattern`. `?` is one character and `*` any characters, neither crossing a
+    /// `/`; a `**` segment (`a/**/b`, `**/b`, `a/**`) is any number of segments, `a/**/b` matching `a/b`; `[abc]`,
+    /// `[a-z]` and `[!abc]` (or `[^abc]`) are one character of a set, a `[` without a closing `]` is itself; `{a,b}`
+    /// alternatives nest and may hold `/`; an unclosed `{` is itself. A character is one UTF-8 code point (`é` is one,
+    /// in a path and in a set); where the bytes are not well-formed UTF-8, each such byte counts as one character
+    /// that equals only the same byte.
+    public static bool matches(string pattern, for string path) uses alloc {
+        for alternative in expand(pattern) {
+            if matchFrom(alternative, from: 0, for: path, at: 0) { return true }
+        }
+        return false
+    }
+}
+
+/// `pattern` with its first `{a,b}` group replaced by each option in turn, expanded again until no group is left.
+List<string> expand(string pattern) uses alloc {
+    var result = List<string>()
+    let open = pattern.position("{") ?? -1
+    var close = -1
+    var starts = List<i64>()
+    if open >= 0 {
+        var depth = 0
+        var i = open
+        starts.append(open)
+        while i < pattern.length && close < 0 {
+            let b = pattern.bytes[i]
+            if b == '{' {
+                depth += 1
+            } else if b == '}' {
+                depth -= 1
+                if depth == 0 { close = i }
+            } else if b == ',' && depth == 1 {
+                starts.append(i)
+            }
+            i += 1
+        }
+    }
+    if close < 0 {
+        result.append($"{pattern}")
+        return result
+    }
+    starts.append(close)
+    let head = pattern[0..open]
+    let tail = pattern[close + 1..pattern.length]
+    for k in 0..(starts.length - 1) {
+        let option = pattern[starts[k] + 1..starts[k + 1]]
+        for e in expand($"{head}{option}{tail}") { result.append(e) }
+    }
+    return result
+}
+
+/// Whether `pattern` from `pi` matches `path` from `si` to its end.
+bool matchFrom(string pattern, from i64 pi, for string path, at i64 si) {
+    var i = pi
+    var j = si
+    while i < pattern.length {
+        let c = pattern.bytes[i]
+        if c == '*' {
+            if i + 1 < pattern.length && pattern.bytes[i + 1] == '*' && (i == 0 || pattern.bytes[i - 1] == '/') {
+                let k = i + 2
+                if k == pattern.length { return true }
+                if pattern.bytes[k] == '/' {
+                    if matchFrom(pattern, from: k + 1, for: path, at: j) { return true }
+                    var m = j
+                    while m < path.length {
+                        if path.bytes[m] == '/' && matchFrom(pattern, from: k + 1, for: path, at: m + 1) { return true }
+                        m += 1
+                    }
+                    return false
+                }
+            }
+            var m = j
+            while m <= path.length {
+                if matchFrom(pattern, from: i + 1, for: path, at: m) { return true }
+                if m == path.length || path.bytes[m] == '/' { return false }
+                m += charLength(charAt(path, at: m))
+            }
+            return false
+        }
+        if c == '?' {
+            if j >= path.length || path.bytes[j] == '/' { return false }
+            i += 1
+            j += charLength(charAt(path, at: j))
+        } else if c == '[' && classEnd(pattern, at: i) > 0 {
+            let end = classEnd(pattern, at: i)
+            if j >= path.length || path.bytes[j] == '/' { return false }
+            let ch = charAt(path, at: j)
+            if !inClass(pattern, from: i, to: end, for: ch) { return false }
+            i = end
+            j += charLength(ch)
+        } else {
+            if j >= path.length || path.bytes[j] != c { return false }
+            i += 1
+            j += 1
+        }
+    }
+    return j == path.length
+}
+
+/// The index just past the `]` closing the class that opens at `open`, or -1.
+i64 classEnd(string pattern, at i64 open) {
+    var i = open + 1
+    if i < pattern.length && (pattern.bytes[i] == '!' || pattern.bytes[i] == '^') { i += 1 }
+    if i < pattern.length && pattern.bytes[i] == ']' { i += 1 }
+    while i < pattern.length {
+        if pattern.bytes[i] == ']' { return i + 1 }
+        i += 1
+    }
+    return -1
+}
+
+/// Whether the character `ch` (as `charAt` gives it) is in the class `pattern[open..end]`.
+bool inClass(string pattern, from i64 open, to i64 end, for i64 ch) {
+    var i = open + 1
+    var negated = false
+    if pattern.bytes[i] == '!' || pattern.bytes[i] == '^' {
+        negated = true
+        i += 1
+    }
+    let close = end - 1
+    var hit = false
+    while i < close {
+        let low = charAt(pattern, at: i)
+        let next = i + charLength(low)
+        if next + 1 < close && pattern.bytes[next] == '-' {
+            let high = charAt(pattern, at: next + 1)
+            if ch >= low && ch <= high { hit = true }
+            i = next + 1 + charLength(high)
+        } else {
+            if ch == low { hit = true }
+            i = next
+        }
+    }
+    return hit != negated
+}
+
+/// The character at `i` in `text`: its code point, or 0x110000 plus the byte at `i` when the bytes there are not
+/// well-formed UTF-8 (truncated, overlong, a surrogate or past U+10FFFF).
+i64 charAt(string text, at i64 i) {
+    let b = i64(text.bytes[i])
+    if b < 0x80 { return b }
+    var more = 0
+    var cp = 0
+    var least = 0
+    if b >= 0xC2 && b <= 0xDF {
+        more = 1
+        cp = b & 0x1F
+        least = 0x80
+    } else if b >= 0xE0 && b <= 0xEF {
+        more = 2
+        cp = b & 0x0F
+        least = 0x800
+    } else if b >= 0xF0 && b <= 0xF4 {
+        more = 3
+        cp = b & 0x07
+        least = 0x10000
+    }
+    if more == 0 || i + more >= text.length { return 0x110000 + b }
+    var k = 1
+    while k <= more {
+        let t = i64(text.bytes[i + k])
+        if t < 0x80 || t > 0xBF { return 0x110000 + b }
+        cp = cp * 0x40 + (t & 0x3F)
+        k += 1
+    }
+    if cp < least || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF) { return 0x110000 + b }
+    return cp
+}
+
+/// The number of bytes the character `ch` (as `charAt` gives it) takes.
+i64 charLength(i64 ch) {
+    if ch < 0x80 || ch >= 0x110000 { return 1 }
+    if ch < 0x800 { return 2 }
+    return ch < 0x10000 ? 3 : 4
+}
+"""
+
+const stdSource8: string = """// Tests of std.path Glob. The expected results are not recorded from another implementation: S5 settles the
+// semantics (`*` and `?` stop at `/`, `**` crosses it), so the table is written from the rules in `Glob.matches`.
+
+@cases(
+    ("a.byn", "a.byn", true),
+    ("a.byn", "b.byn", false),
+    ("*.byn", "a.byn", true),
+    ("*.byn", "a.cs", false),
+    ("*.byn", ".byn", true),
+    ("*.byn", "d/a.byn", false),
+    ("src/*.byn", "src/a.byn", true),
+    ("src/*.byn", "src/d/a.byn", false),
+    ("a?c", "abc", true),
+    ("a?c", "ac", false),
+    ("a?c", "a/c", false),
+    ("[ab]x", "ax", true),
+    ("[ab]x", "cx", false),
+    ("[a-c]x", "bx", true),
+    ("[a-c]x", "dx", false),
+    ("[!a-c]x", "dx", true),
+    ("[!a-c]x", "bx", false),
+    ("[^a]x", "bx", true),
+    ("[]a]x", "]x", true),
+    ("[a", "[a", true),
+    ("[a", "a", false),
+    ("[a-]x", "-x", true),
+    ("{a,b}.cs", "a.cs", true),
+    ("{a,b}.cs", "b.cs", true),
+    ("{a,b}.cs", "c.cs", false),
+    ("s/{a,b/c}/x", "s/a/x", true),
+    ("s/{a,b/c}/x", "s/b/c/x", true),
+    ("{a,{b,c}d}", "cd", true),
+    ("{a,{b,c}d}", "bd", true),
+    ("{a,{b,c}d}", "b", false),
+    ("{a", "{a", true),
+    ("{}", "", true),
+    ("src/**/*.byn", "src/a.byn", true),
+    ("src/**/*.byn", "src/x/y/a.byn", true),
+    ("src/**/*.byn", "lib/a.byn", false),
+    ("src/**/*.byn", "src/x/a.cs", false),
+    ("**/a.byn", "a.byn", true),
+    ("**/a.byn", "x/y/a.byn", true),
+    ("**/a.byn", "x/ya.byn", false),
+    ("src/**", "src/x/y", true),
+    ("src/**", "lib/x", false),
+    ("**", "a/b/c", true),
+    ("a**b", "axb", true),
+    ("a**b", "a/b", false),
+    ("*", "", true),
+    ("", "", true),
+    ("", "a", false),
+    ("?", "é", true),
+    ("a?", "aé", true),
+    ("a??", "aé", false),
+    ("[é]", "é", true),
+    ("[éa]x", "éx", true),
+    ("[!é]", "é", false),
+    ("[!é]", "è", true),
+    ("*[!é]", "é", false),
+    ("[à-ë]", "é", true),
+    ("?", "€", true),
+    ("?", "😀", true),
+)
+test "patterns against paths" (string pattern, string path, bool expected) {
+    assert Glob.matches(pattern, for: path) == expected
+}
+"""
+
+const stdSource9: string = """// std.regex (spec 015 S3, T14): RE2-style patterns run by a Pike VM over the runes of UTF-8 text, so matching takes
+// time linear in the text times the program, never backtracking; no backreferences, no lookaround.
+
+/// A `{m,n}` count above this is refused, as in RE2.
+const maxRepeat: i64 = 1000
+
+/// A compiled program longer than this many instructions is refused (`tooLarge`).
+const maxProgram: i64 = 100000
+
+/// Groups nest at most this deep, so parsing never recurses past it (docs/memory-leaks.md rule 5).
+const maxDepth: i64 = 1000
+
+/// Why `Regex.parse` refused a pattern, at a byte offset of the pattern.
+public union error RegexError {
+    /// The pattern breaks the syntax at `offset`.
+    syntax(string message, i64 offset)
+    /// A backreference or lookaround (or another construct that linear-time matching leaves out) starts at `offset`.
+    unsupported(string message, i64 offset)
+    /// The compiled program would exceed `maxProgram` instructions; `offset` is where the pattern grew past it.
+    tooLarge(i64 offset)
+}
+
+/// What one instruction does.
+enum Op {
+    rune
+    set
+    any
+    split
+    jump
+    save
+    lineStart
+    lineEnd
+    wordBoundary
+    notWordBoundary
+    done
+}
+
+/// One instruction. `rune`: `x` is the code point. `set`: the range pairs `ranges[x..y]` and `flags` (1 negated, 2 any
+/// non-digit, 4 any non-space, 8 any non-word). `split`: try `pc + x` first, then `pc + y`. `jump`: go to `pc + x`.
+/// `save`: slot `x` takes the position. Targets are relative, so a fragment can be copied anywhere.
+struct Inst {
+    Op  op
+    i64 x     = 0
+    i64 y     = 0
+    i64 flags = 0
+}
+
+/// A compiled RE2-style pattern: literals, `.`, classes `[...]` and `[^...]`, `\d \s \w` and `\D \S \W` (ASCII, as in
+/// RE2), anchors `^ $ \b \B`, groups `(...)` and `(?:...)`, `? * + {m} {m,} {m,n}` with lazy forms (`??`, `*?`, ...),
+/// and alternation `|`. `^` and `$` match at the start and end of the whole text; `.` matches any rune but `\n`. A
+/// match is leftmost-first (Perl order); matching is linear in the length of the text.
+public struct Regex {
+    List<Inst> program
+    List<u32>  ranges
+    i64        groups
+
+    /// The pattern compiled, failing `unsupported` for a backreference (`\1`, `\k<…>`), lookaround (`(?=`, `(?!`,
+    /// `(?<=`, `(?<!`), flags or named groups, `syntax` at the first byte that breaks the syntax, and `tooLarge` when
+    /// the program would exceed `maxProgram` instructions.
+    public static Regex parse(string pattern) uses alloc fails RegexError {
+        var p = Parser { pattern: pattern, ranges: List<u32>() }
+        let body = try p.parseBranches()
+        fail .syntax(message: "unmatched `)`", offset: p.pos) if p.pos < pattern.length
+        var program = List<Inst>()
+        program.append(Inst { op: .save, x: 0 })
+        for inst in body {
+            program.append(inst)
+        }
+        program.append(Inst { op: .save, x: 1 })
+        program.append(Inst { op: .done })
+        return Regex { program: move program, ranges: p.ranges.copy(), groups: p.groups }
+    }
+
+    /// Whether the pattern matches the whole of `text`, as Python's `re.fullmatch` (not only a part; `find` is that).
+    public bool matches(string text) uses alloc {
+        return search(text, from: 0, whole: true) is not null
+    }
+
+    /// The leftmost-first match in `text`, or `null` when there is none.
+    public Match? find(string text) uses alloc {
+        let slots = search(text, from: 0, whole: false) ?? return null
+        return Match { text: text, slots: move slots }
+    }
+
+    /// Every match in `text`, left to right and not overlapping. As in RE2 and Go, an empty match right where the
+    /// previous match ended is skipped, and the search steps one rune past an empty match.
+    public List<Match> findAll(string text) uses alloc {
+        var all = List<Match>()
+        var pos = 0
+        var previousEnd = -1
+        while pos <= text.length {
+            let slots = search(text, from: pos, whole: false) ?? break
+            let start = slots[0]
+            let end = slots[1]
+            var accept = true
+            if end == pos {
+                accept = start != previousEnd
+                pos += pos < text.length ? runeAt(text, at: pos).width : 1
+            } else {
+                pos = end
+            }
+            previousEnd = end
+            if accept {
+                all.append(Match { text: text, slots: move slots })
+            }
+        }
+        return all
+    }
+
+    /// `text` with every match `findAll` gives replaced by `replacement`, taken literally (no `$1` or `\1`).
+    public string replaced(string text, by string replacement) uses alloc {
+        let all = findAll(text)
+        var sb = StrBuf()
+        var last = 0
+        for m in all {
+            let span = m.span
+            sb.append(text[last..span.start])
+            sb.append(replacement)
+            last = span.end
+        }
+        sb.append(text[last..])
+        return $"{sb.finish()}"
+    }
+
+    /// `text` with `\` before each of `\ . + * ? ( ) | [ ] { } ^ $` (Go's `QuoteMeta` set), so `Regex.parse` of the
+    /// result matches `text` literally; the pattern for outside text (spec §15.1).
+    public static string escaped(string text) uses alloc {
+        var sb = StrBuf()
+        var run = 0
+        for i in 0..text.length {
+            let b = text.bytes[i]
+            if isMeta(b) {
+                sb.append(text[run..i])
+                sb.append("\\")
+                run = i
+            }
+        }
+        sb.append(text[run..])
+        return $"{sb.finish()}"
+    }
+
+    /// The slots of the first match at or after `from` (start and end of the match, then of each group, -1 when a
+    /// group took no part), or `null`. `whole` anchors the match at `from` and accepts it only when it ends at the
+    /// text's end.
+    List<i64>? search(string text, from i64 from, bool whole) uses alloc {
+        let slotCount = 2 * (groups + 1)
+        var vm = Vm { marks: List<i64>(), stack: List<Frame>(), current: List<i64>(), slotCount: slotCount }
+        for _ in 0..program.length {
+            vm.marks.append(0)
+        }
+        for _ in 0..slotCount {
+            vm.current.append(-1)
+        }
+        var now = Threads { pcs: List<i64>(), slots: List<i64>() }
+        var next = Threads { pcs: List<i64>(), slots: List<i64>() }
+        var best = List<i64>()
+        var matched = false
+        var generation = 1
+        var nowGeneration = 1
+        var pos = from
+        while true {
+            if !matched && (!whole || pos == from) {
+                for k in 0..slotCount {
+                    vm.current[k] = -1
+                }
+                vm.pos = pos
+                vm.generation = nowGeneration
+                vm.add(text, at: 0, to: ref now, from: program.span)
+            }
+            break if now.pcs.length == 0 && (matched || whole)
+            var value: u32 = 0
+            var width = 0
+            if pos < text.length {
+                let r = runeAt(text, at: pos)
+                value = r.value
+                width = r.width
+            }
+            generation += 1
+            for i in 0..now.pcs.length {
+                let pc = now.pcs[i]
+                let inst = program[pc]
+                if inst.op == .done {
+                    continue if whole && pos != text.length
+                    best.clear()
+                    for k in 0..slotCount {
+                        best.append(now.slots[i * slotCount + k])
+                    }
+                    matched = true
+                    break
+                }
+                continue if pos >= text.length
+                var hit = false
+                if inst.op == .rune {
+                    hit = i64(value) == inst.x
+                } else if inst.op == .any {
+                    hit = value != 0x0A
+                } else if inst.op == .set {
+                    hit = isInClass(value, by: inst)
+                }
+                continue if !hit
+                for k in 0..slotCount {
+                    vm.current[k] = now.slots[i * slotCount + k]
+                }
+                vm.pos = pos + width
+                vm.generation = generation
+                vm.add(text, at: pc + 1, to: ref next, from: program.span)
+            }
+            let swap = move now
+            now = move next
+            next = move swap
+            next.pcs.clear()
+            next.slots.clear()
+            nowGeneration = generation
+            break if pos >= text.length
+            pos += width
+        }
+        return null if !matched
+        return best
+    }
+
+    /// Whether rune `value` is in the class of `inst`.
+    bool isInClass(u32 value, by Inst inst) {
+        var hit = false
+        var i = inst.x
+        while i < inst.y {
+            if value >= ranges[i] && value <= ranges[i + 1] {
+                hit = true
+            }
+            i += 2
+        }
+        hit = hit || ((inst.flags & 2) != 0 && !isDigit(value))
+        hit = hit || ((inst.flags & 4) != 0 && !isSpace(value))
+        hit = hit || ((inst.flags & 8) != 0 && !isWord(value))
+        return hit != ((inst.flags & 1) != 0)
+    }
+}
+
+/// One match: its span and the text of each group.
+public struct Match {
+    string    text
+    List<i64> slots
+
+    /// The byte offsets of the whole match in the text searched, `start` inclusive and `end` exclusive.
+    public (i64 start, i64 end) span => (start: slots[0], end: slots[1])
+
+    /// The text group `index` matched (0 is the whole match, then each `(...)` by its opening parenthesis), or `null`
+    /// when the group took no part in the match or there is no group `index`.
+    public string? group(i64 index) {
+        return null if index < 0 || 2 * index + 1 >= slots.length
+        let start = slots[2 * index]
+        return null if start < 0
+        return text[start..slots[2 * index + 1]]
+    }
+}
+
+/// A recursive-descent parser that emits program fragments.
+struct Parser {
+    string    pattern
+    i64       pos    = 0
+    i64       groups = 0
+    i64       depth  = 0
+    List<u32> ranges
+
+    /// `concat ('|' concat)*`.
+    List<Inst> parseBranches(ref this) uses alloc fails RegexError {
+        fail .syntax(message: "groups nest too deep", offset: pos) if depth >= maxDepth
+        depth += 1
+        var branches = List<List<Inst>>()
+        branches.append(try parseConcat())
+        while pos < pattern.length && pattern.bytes[pos] == '|' {
+            pos += 1
+            branches.append(try parseConcat())
+        }
+        depth -= 1
+        if branches.length == 1 {
+            return branches.removeLast()
+        }
+        var total = 2 * (branches.length - 1)
+        for b in branches {
+            total += b.length
+        }
+        fail .tooLarge(offset: pos) if total > maxProgram
+        var frag = List<Inst>()
+        for i in 0..branches.length {
+            let last = i == branches.length - 1
+            if !last {
+                frag.append(Inst { op: .split, x: 1, y: branches[i].length + 2 })
+            }
+            for inst in branches[i] {
+                frag.append(inst)
+            }
+            if !last {
+                frag.append(Inst { op: .jump, x: total - frag.length })
+            }
+        }
+        return frag
+    }
+
+    /// A run of repeated atoms, up to `|`, `)` or the end.
+    List<Inst> parseConcat(ref this) uses alloc fails RegexError {
+        var frag = List<Inst>()
+        while pos < pattern.length && pattern.bytes[pos] != '|' && pattern.bytes[pos] != ')' {
+            let piece = try parseRepeat()
+            fail .tooLarge(offset: pos) if frag.length + piece.length > maxProgram
+            for inst in piece {
+                frag.append(inst)
+            }
+        }
+        return frag
+    }
+
+    /// An atom and at most one quantifier, with its lazy `?`.
+    List<Inst> parseRepeat(ref this) uses alloc fails RegexError {
+        let atom = try parseItem()
+        let at = pos
+        var min = 0
+        var max = -1
+        let b = peek()
+        if b == '*' {
+            pos += 1
+        } else if b == '+' {
+            min = 1
+            pos += 1
+        } else if b == '?' {
+            max = 1
+            pos += 1
+        } else if b == '{' && hasCountNext() {
+            pos += 1
+            min = number()
+            max = min
+            if peek() == ',' {
+                pos += 1
+                max = peek() == '}' ? -1 : number()
+            }
+            pos += 1
+            fail .syntax(message: "repetition count above 1000", offset: at) if min > maxRepeat || max > maxRepeat
+            fail .syntax(message: "repetition maximum below its minimum", offset: at) if max >= 0 && max < min
+        } else {
+            return atom
+        }
+        var greedy = true
+        if peek() == '?' {
+            greedy = false
+            pos += 1
+        }
+        fail .syntax(message: "repetition of a repetition", offset: pos) if hasRepeatNext()
+        return try repeated(atom.span, from: min, through: max, greedy: greedy, at: at)
+    }
+
+    /// `e` repeated `min` to `max` times (`max` -1: no bound), each optional copy nested in the one before it. `e*` is
+    /// `(e+)?`, as in RE2, so an `e` that matches empty still sets its groups (`(a*)*` on `b`).
+    List<Inst> repeated(ReadOnlySpan<Inst> e, from i64 min, through i64 max, bool greedy, at i64 at)
+            uses alloc fails RegexError {
+        let n = e.length
+        var size = min * n
+        if max < 0 {
+            size += min == 0 ? n + 2 : 1
+        } else {
+            size += (max - min) * (n + 1)
+        }
+        fail .tooLarge(offset: at) if size > maxProgram
+        var frag = List<Inst>()
+        let copies = max < 0 && min > 0 ? min - 1 : min
+        for _ in 0..copies {
+            for inst in e {
+                frag.append(inst)
+            }
+        }
+        if max < 0 && min == 0 {
+            frag.append(greedy ? Inst { op: .split, x: 1, y: n + 2 } : Inst { op: .split, x: n + 2, y: 1 })
+            for inst in e {
+                frag.append(inst)
+            }
+            frag.append(greedy ? Inst { op: .split, x: -n, y: 1 } : Inst { op: .split, x: 1, y: -n })
+        } else if max < 0 {
+            for inst in e {
+                frag.append(inst)
+            }
+            frag.append(greedy ? Inst { op: .split, x: -n, y: 1 } : Inst { op: .split, x: 1, y: -n })
+        } else {
+            for k in 0..max - min {
+                let skip = (max - min - k) * (n + 1)
+                frag.append(greedy ? Inst { op: .split, x: 1, y: skip } : Inst { op: .split, x: skip, y: 1 })
+                for inst in e {
+                    frag.append(inst)
+                }
+            }
+        }
+        return frag
+    }
+
+    /// One atom: a group, a class, `.`, an anchor, an escape or a literal rune.
+    List<Inst> parseItem(ref this) uses alloc fails RegexError {
+        let start = pos
+        var frag = List<Inst>()
+        let b = pattern.bytes[pos]
+        if b == '(' {
+            pos += 1
+            var index = -1
+            if peek() == '?' {
+                let rest = pattern[pos..]
+                let lookaround = rest.startsWith("?=") || rest.startsWith("?!") || rest.startsWith("?<=")
+                    || rest.startsWith("?<!")
+                fail .unsupported(message: "lookaround", offset: start) if lookaround
+                fail .unsupported(message: "group flags and named groups", offset: start) if !rest.startsWith("?:")
+                pos += 2
+            } else {
+                groups += 1
+                index = groups
+                frag.append(Inst { op: .save, x: 2 * index })
+            }
+            let body = try parseBranches()
+            fail .syntax(message: "missing `)`", offset: start) if peek() != ')'
+            pos += 1
+            for inst in body {
+                frag.append(inst)
+            }
+            if index >= 0 {
+                frag.append(Inst { op: .save, x: 2 * index + 1 })
+            }
+            return frag
+        }
+        fail .syntax(message: "missing argument to repetition operator", offset: start) if hasRepeatNext()
+        pos += 1
+        if b == '[' {
+            frag.append(try classSet(start))
+        } else if b == '.' {
+            frag.append(Inst { op: .any })
+        } else if b == '^' {
+            frag.append(Inst { op: .lineStart })
+        } else if b == '$' {
+            frag.append(Inst { op: .lineEnd })
+        } else if b == '\\' {
+            let code = try escape(start)
+            if code >= 0 {
+                frag.append(Inst { op: .rune, x: code })
+            } else if code == -7 {
+                frag.append(Inst { op: .wordBoundary })
+            } else if code == -8 {
+                frag.append(Inst { op: .notWordBoundary })
+            } else {
+                let from = ranges.length
+                let flags = addClass(code)
+                frag.append(Inst { op: .set, x: from, y: ranges.length, flags: flags })
+            }
+        } else {
+            pos = start
+            let r = runeAt(pattern, at: pos)
+            pos += r.width
+            frag.append(Inst { op: .rune, x: i64(r.value) })
+        }
+        return frag
+    }
+
+    /// The class whose `[` is at `start` (`pos` is past it), as a `set` instruction.
+    Inst classSet(ref this, i64 start) uses alloc fails RegexError {
+        var flags = 0
+        if peek() == '^' {
+            flags = 1
+            pos += 1
+        }
+        let from = ranges.length
+        var first = true
+        while true {
+            fail .syntax(message: "missing `]`", offset: start) if pos >= pattern.length
+            let b = pattern.bytes[pos]
+            if b == ']' && !first {
+                pos += 1
+                return Inst { op: .set, x: from, y: ranges.length, flags: flags }
+            }
+            first = false
+            fail .unsupported(message: "POSIX class", offset: pos) if pattern[pos..].startsWith("[:")
+            let at = pos
+            let lo = try classRune()
+            if lo < 0 {
+                flags = flags | addClass(lo)
+                continue
+            }
+            var hi = lo
+            if hasRangeNext() {
+                pos += 1
+                let endAt = pos
+                hi = try classRune()
+                fail .syntax(message: "class escape as a range end", offset: endAt) if hi < 0
+                fail .syntax(message: "range end before its start", offset: at) if hi < lo
+            }
+            ranges.append(u32(lo))
+            ranges.append(u32(hi))
+        }
+    }
+
+    /// A rune of a class, or a negative builtin code for `\d \D \s \S \w \W` (as `escape` gives them).
+    i64 classRune(ref this) fails RegexError {
+        let start = pos
+        if pattern.bytes[pos] == '\\' {
+            pos += 1
+            let code = try escape(start)
+            fail .syntax(message: "`\\b` or `\\B` in a class", offset: start) if code == -7 || code == -8
+            return code
+        }
+        let r = runeAt(pattern, at: pos)
+        pos += r.width
+        return i64(r.value)
+    }
+
+    /// The escape whose `\` is at `start` (`pos` is past it): a rune, or -1..-6 for `\d \D \s \S \w \W`, -7 for `\b`,
+    /// -8 for `\B`.
+    i64 escape(ref this, i64 start) fails RegexError {
+        fail .syntax(message: "trailing `\\`", offset: start) if pos >= pattern.length
+        let e = pattern.bytes[pos]
+        pos += 1
+        fail .unsupported(message: "backreference", offset: start) if (e >= '1' && e <= '9') || e == 'k'
+        return -1 if e == 'd'
+        return -2 if e == 'D'
+        return -3 if e == 's'
+        return -4 if e == 'S'
+        return -5 if e == 'w'
+        return -6 if e == 'W'
+        return -7 if e == 'b'
+        return -8 if e == 'B'
+        return 0x0A if e == 'n'
+        return 0x09 if e == 't'
+        return 0x0D if e == 'r'
+        return 0x0C if e == 'f'
+        return 0x0B if e == 'v'
+        return i64(e) if e >= 0x21 && e <= 0x7E && !isWord(u32(e))
+        fail .syntax(message: "unknown escape", offset: start)
+    }
+
+    /// Appends the ranges of builtin `code` (-1..-6) and gives the `set` flags it needs: a negated builtin adds no
+    /// ranges and sets its flag.
+    i64 addClass(ref this, i64 code) uses alloc {
+        if code == -1 {
+            addRange(0x30, through: 0x39)
+        } else if code == -3 {
+            addRange(0x09, through: 0x0A)
+            addRange(0x0C, through: 0x0D)
+            addRange(0x20, through: 0x20)
+        } else if code == -5 {
+            addRange(0x30, through: 0x39)
+            addRange(0x41, through: 0x5A)
+            addRange(0x5F, through: 0x5F)
+            addRange(0x61, through: 0x7A)
+        }
+        return 2 if code == -2
+        return 4 if code == -4
+        return 8 if code == -6
+        return 0
+    }
+
+    void addRange(ref this, u32 lo, through u32 hi) uses alloc {
+        ranges.append(lo)
+        ranges.append(hi)
+    }
+
+    /// The byte at `pos`, or 0 at the end.
+    u8 peek() => pos < pattern.length ? pattern.bytes[pos] : 0
+
+    /// Whether a `-` at `pos` makes a range (it is not the last byte before `]`).
+    bool hasRangeNext() => peek() == '-' && pos + 1 < pattern.length && pattern.bytes[pos + 1] != ']'
+
+    /// Whether a quantifier starts at `pos`.
+    bool hasRepeatNext() {
+        let b = peek()
+        return b == '*' || b == '+' || b == '?' || (b == '{' && hasCountNext())
+    }
+
+    /// Whether `{m}`, `{m,}` or `{m,n}` starts at `pos`; any other `{` is a literal, as in RE2.
+    bool hasCountNext() {
+        var i = pos + 1
+        let digitsStart = i
+        while i < pattern.length && isDigit(u32(pattern.bytes[i])) {
+            i += 1
+        }
+        return false if i == digitsStart || i >= pattern.length
+        return true if pattern.bytes[i] == '}'
+        return false if pattern.bytes[i] != ','
+        i += 1
+        while i < pattern.length && isDigit(u32(pattern.bytes[i])) {
+            i += 1
+        }
+        return i < pattern.length && pattern.bytes[i] == '}'
+    }
+
+    /// The decimal number at `pos`, capped above `maxRepeat` so a long one cannot overflow.
+    i64 number(ref this) {
+        var value = 0
+        while isDigit(u32(peek())) {
+            value = value * 10 + i64(peek() - '0')
+            if value > maxRepeat {
+                value = maxRepeat + 1
+            }
+            pos += 1
+        }
+        return value
+    }
+}
+
+/// The threads of one step: the pc of each, in priority order, and its `slotCount` slots.
+struct Threads {
+    List<i64> pcs
+    List<i64> slots
+}
+
+/// A pending step of `Vm.add`: follow `pc`, or (`pc` -1) put `value` back into slot `slot`.
+struct Frame {
+    i64 pc
+    i64 slot  = 0
+    i64 value = 0
+}
+
+/// The work space of `Regex.search`.
+struct Vm {
+    /// The generation that last added each pc to a list, so a pc joins a list once.
+    List<i64>   marks
+    List<Frame> stack
+    /// The slots of the thread being added.
+    List<i64>   current
+    i64         slotCount
+    /// The text position and list generation of the threads being added.
+    i64         pos        = 0
+    i64         generation = 0
+
+    /// Adds the thread at `pc` (with `current` slots) to `list` at text position `pos`, marking with `generation`,
+    /// following jumps, splits, saves and assertions in priority order with an explicit stack.
+    void add(ref this, string text, at i64 pc, to ref Threads list, from ReadOnlySpan<Inst> program) uses alloc {
+        stack.append(Frame { pc: pc })
+        while stack.length > 0 {
+            let f = stack.removeLast()
+            if f.pc < 0 {
+                current[f.slot] = f.value
+                continue
+            }
+            continue if marks[f.pc] == generation
+            marks[f.pc] = generation
+            let inst = program[f.pc]
+            switch inst.op {
+                case .jump:
+                    stack.append(Frame { pc: f.pc + inst.x })
+                case .split:
+                    stack.append(Frame { pc: f.pc + inst.y })
+                    stack.append(Frame { pc: f.pc + inst.x })
+                case .save:
+                    stack.append(Frame { pc: -1, slot: inst.x, value: current[inst.x] })
+                    current[inst.x] = pos
+                    stack.append(Frame { pc: f.pc + 1 })
+                case .lineStart:
+                    stack.append(Frame { pc: f.pc + 1 }) if pos == 0
+                case .lineEnd:
+                    stack.append(Frame { pc: f.pc + 1 }) if pos == text.length
+                case .wordBoundary:
+                    stack.append(Frame { pc: f.pc + 1 }) if isBoundary(text, at: pos)
+                case .notWordBoundary:
+                    stack.append(Frame { pc: f.pc + 1 }) if !isBoundary(text, at: pos)
+                default:
+                    list.pcs.append(f.pc)
+                    for k in 0..slotCount {
+                        list.slots.append(current[k])
+                    }
+            }
+        }
+    }
+}
+
+/// The rune at byte `at` of `text` and its width in bytes.
+(u32 value, i64 width) runeAt(string text, at i64 at) {
+    let b0 = u32(text.bytes[at])
+    return (value: b0, width: 1) if b0 < 0x80
+    let b1 = u32(text.bytes[at + 1]) & 0x3F
+    return (value: ((b0 & 0x1F) << 6) | b1, width: 2) if b0 < 0xE0
+    let b2 = u32(text.bytes[at + 2]) & 0x3F
+    return (value: ((b0 & 0x0F) << 12) | (b1 << 6) | b2, width: 3) if b0 < 0xF0
+    let b3 = u32(text.bytes[at + 3]) & 0x3F
+    return (value: ((b0 & 0x07) << 18) | (b1 << 12) | (b2 << 6) | b3, width: 4)
+}
+
+/// Whether `\b` holds at byte `at`: a word byte on exactly one side.
+bool isBoundary(string text, at i64 at) {
+    let before = at > 0 && isWord(u32(text.bytes[at - 1]))
+    let after = at < text.length && isWord(u32(text.bytes[at]))
+    return before != after
+}
+
+bool isDigit(u32 r) => r >= 0x30 && r <= 0x39
+
+/// `\s`: tab, newline, form feed, carriage return, space (RE2's set).
+bool isSpace(u32 r) => r == 0x09 || r == 0x0A || r == 0x0C || r == 0x0D || r == 0x20
+
+/// `\w`: ASCII letters, digits and `_`.
+bool isWord(u32 r) => isDigit(r) || (r >= 0x41 && r <= 0x5A) || (r >= 0x61 && r <= 0x7A) || r == 0x5F
+
+/// Whether `Regex.escaped` puts a `\` before byte `b`.
+bool isMeta(u8 b) {
+    return b == '\\' || b == '.' || b == '+' || b == '*' || b == '?' || b == '(' || b == ')' || b == '|' || b == '['
+        || b == ']' || b == '{' || b == '}' || b == '^' || b == '$'
+}
+"""
+
+const stdSource10: string = """// Tests of std.regex. The expected `findAll`, `matches`, `replaced` and `escaped` values are recorded from a run of
+// Go's `regexp` (RE2 syntax and semantics: `FindAllStringSubmatchIndex`, `MatchString` of `^(?:p)$`,
+// `ReplaceAllLiteralString`, `QuoteMeta`), not written by hand. The error kinds and offsets are this module's own; Go
+// rejects each of those patterns too, except `(?P<n>a)`, `(?i)a` and `[[:alpha:]]`, which S3 leaves out.
+
+/// The regex of `pattern`, which the test knows to be valid.
+Regex compiled(string pattern) uses alloc => Regex.parse(pattern) catch panic($"bad test pattern {pattern}")
+
+/// `m` as `start:end` and groups 1 to 3, each its text or `-`.
+string describe(Match m) uses alloc {
+    let span = m.span
+    var sb = StrBuf()
+    sb.append($"{span.start}:{span.end}")
+    for i in 1..4 {
+        sb.append($"|{m.group(i) ?? "-"}")
+    }
+    return $"{sb.finish()}"
+}
+
+/// Every match of `pattern` in `text`, described and joined by spaces.
+string allOf(string pattern, for string text) uses alloc {
+    let re = compiled(pattern)
+    var sb = StrBuf()
+    for m in re.findAll(text) {
+        if sb.view.length > 0 {
+            sb.append(" ")
+        }
+        sb.append(describe(m))
+    }
+    return $"{sb.finish()}"
+}
+
+/// `ok`, or the error `Regex.parse(pattern)` fails with as `kind message @offset`.
+string errorOf(string pattern) uses alloc {
+    let _ = Regex.parse(pattern) catch switch {
+        .syntax(let message, let offset)      => return $"syntax {message} @{offset}",
+        .unsupported(let message, let offset) => return $"unsupported {message} @{offset}",
+        .tooLarge(let offset)                 => return $"tooLarge @{offset}",
+    }
+    return "ok"
+}
+
+@cases(
+    ("abc", "xabcyabc", "1:4|-|-|- 5:8|-|-|-", false),
+    ("a.c", "abc a\nc a.c", "0:3|-|-|- 8:11|-|-|-", false),
+    ("é.", "éa éé", "0:3|-|-|- 4:8|-|-|-", false),
+    ("[a-c]+", "xxabcbazz", "2:7|-|-|-", false),
+    ("[^a-c]+", "abxyzc", "2:5|-|-|-", false),
+    ("[]a]+", "a]]b", "0:3|-|-|-", false),
+    ("[a-]+", "-a-b", "0:3|-|-|-", false),
+    ("[\\d.]+", "v1.20 x", "1:5|-|-|-", false),
+    ("[^\\D]+", "ab12c3", "2:4|-|-|- 5:6|-|-|-", false),
+    ("[\\W]+", "a, b", "1:3|-|-|-", false),
+    ("[à-ÿ]+", "café olé", "3:5|-|-|- 8:10|-|-|-", false),
+    ("[^\\n]+", "ab\ncd", "0:2|-|-|- 3:5|-|-|-", false),
+    ("\\d+", "a12b345", "1:3|-|-|- 4:7|-|-|-", false),
+    ("\\D+", "a12b", "0:1|-|-|- 3:4|-|-|-", false),
+    ("\\s+", "a \t\nb\u{B}c", "1:4|-|-|-", false),
+    ("\\S+", "ab cd", "0:2|-|-|- 3:5|-|-|-", false),
+    ("\\w+", "héllo_w0rld x", "0:1|-|-|- 3:12|-|-|- 13:14|-|-|-", false),
+    ("\\W+", "a, b!", "1:3|-|-|- 4:5|-|-|-", false),
+    ("^a", "aa", "0:1|-|-|-", false),
+    ("a$", "aa", "1:2|-|-|-", false),
+    ("^$", "", "0:0|-|-|-", true),
+    ("^", "abc", "0:0|-|-|-", false),
+    ("$", "ab", "2:2|-|-|-", false),
+    ("\\bfoo\\b", "foo foobar a.foo", "0:3|-|-|- 13:16|-|-|-", false),
+    ("\\Boo\\B", "foo boot", "5:7|-|-|-", false),
+    ("\\b", "ab cd", "0:0|-|-|- 2:2|-|-|- 3:3|-|-|- 5:5|-|-|-", false),
+    ("(a)(b)?", "ab a", "0:2|a|b|- 3:4|a|-|-", false),
+    ("(?:ab)+(c)", "ababc", "0:5|c|-|-", true),
+    ("((a)|b)+", "ab", "0:2|b|a|-", true),
+    ("(a|ab)(c|bcd)(d*)", "abcd", "0:4|a|bcd|", true),
+    ("a?", "baa", "0:0|-|-|- 1:2|-|-|- 2:3|-|-|-", false),
+    ("a*", "baaac", "0:0|-|-|- 1:4|-|-|- 5:5|-|-|-", false),
+    ("a+", "baaac", "1:4|-|-|-", false),
+    ("a{2}", "aaaaa", "0:2|-|-|- 2:4|-|-|-", false),
+    ("a{2,}", "aaaaa b aa", "0:5|-|-|- 8:10|-|-|-", false),
+    ("a{2,3}", "aaaaaaa", "0:3|-|-|- 3:6|-|-|-", false),
+    ("a{0}b", "ab", "1:2|-|-|-", false),
+    ("x{", "x{ x{1", "0:2|-|-|- 3:5|-|-|-", false),
+    ("a{,2}", "a{,2}", "0:5|-|-|-", true),
+    ("a{1,2", "a{1,2", "0:5|-|-|-", true),
+    ("a+?", "aaa", "0:1|-|-|- 1:2|-|-|- 2:3|-|-|-", true),
+    ("a*?b", "aaab", "0:4|-|-|-", true),
+    ("a??", "aa", "0:0|-|-|- 1:1|-|-|- 2:2|-|-|-", false),
+    ("<.*?>", "<a><bb>", "0:3|-|-|- 3:7|-|-|-", true),
+    ("a{2,3}?", "aaaaa", "0:2|-|-|- 2:4|-|-|-", false),
+    ("a{2,}?", "aaaaa", "0:2|-|-|- 2:4|-|-|-", true),
+    ("cat|dog", "hotdog cat", "3:6|-|-|- 7:10|-|-|-", false),
+    ("a|ab", "ab", "0:1|-|-|-", true),
+    ("ab|a", "ab", "0:2|-|-|-", true),
+    ("|a", "ab", "0:0|-|-|- 1:1|-|-|- 2:2|-|-|-", false),
+    ("a|", "ab", "0:1|-|-|- 2:2|-|-|-", false),
+    ("(|x)y", "xy y", "0:2|x|-|- 3:4||-|-", false),
+    ("\\.\\*\\+\\?\\(\\)\\[\\]\\{\\}\\|\\^\\$\\\\", "x.*+?()[]{}|^$\\", "1:15|-|-|-", false),
+    ("\\n\\t", "a\n\tb", "1:3|-|-|-", false),
+    ("a\\-b", "a-b", "0:3|-|-|-", true),
+    ("(a*)*", "b", "0:0||-|- 1:1||-|-", false),
+    ("(a*)+", "b", "0:0||-|- 1:1||-|-", false),
+    ("(a|b)*c", "abac", "0:4|a|-|-", true),
+    ("(a*)*b", "aab", "0:3|aa|-|-", true),
+    ("\\d+", "12a", "0:2|-|-|-", false),
+    ("x*", "", "0:0|-|-|-", true),
+)
+test "findAll, find and matches agree with RE2" (string pattern, string text, string expected, bool whole) {
+    assert allOf(pattern, for: text) == expected
+    let re = compiled(pattern)
+    let first = re.find(text)
+    if (first is { } m) {
+        assert expected.startsWith(describe(m))
+    } else {
+        assert expected == ""
+    }
+    assert re.matches(text) == whole
+}
+
+test "find gives null and findAll nothing when there is no match" {
+    let re = compiled("x+")
+    assert re.find("abc") is null
+    assert re.findAll("abc").length == 0
+    assert !re.matches("abc")
+}
+
+test "Match.group is null for a group that took no part or does not exist" {
+    let re = compiled("(a)|(b)")
+    let m = re.find("b") ?? panic("no match")
+    assert m.group(0) == "b"
+    assert m.group(1) is null
+    assert m.group(2) == "b"
+    assert m.group(3) is null
+    assert m.group(-1) is null
+}
+
+test "Match.span gives byte offsets in the text searched" {
+    let re = compiled("ö+")
+    let m = re.find("aöö!") ?? panic("no match")
+    let span = m.span
+    assert span.start == 1 && span.end == 5
+}
+
+@cases(
+    ("a+", "baaacaa", "-", "b-c-"),
+    ("a*", "baaac", "-", "-b-c-"),
+    ("\\s+", "a  b\tc", " ", "a b c"),
+    ("x", "abc", "y", "abc"),
+    ("(b)", "abc", "$1", "a$1c"),
+    ("", "abc", ".", ".a.b.c."),
+    ("é", "éaé", "e", "eae"),
+    ("\\([^()]*\\)", "f(a) g(b(c))", "", "f g(b)"),
+)
+test "replaced puts the replacement, taken literally, at every match" (
+    string pattern,
+    string text,
+    string by,
+    string expected
+) {
+    assert compiled(pattern).replaced(text, by: by) == expected
+}
+
+@cases(
+    ("", ""),
+    ("abc", "abc"),
+    ("a.b*c", "a\\.b\\*c"),
+    ("\\.+*?()|[]{}^$", "\\\\\\.\\+\\*\\?\\(\\)\\|\\[\\]\\{\\}\\^\\$"),
+    ("x-y #é", "x-y #é"),
+    ("1+1=2", "1\\+1=2"),
+)
+test "escaped quotes every metacharacter and the result matches the text literally" (string text, string expected) {
+    assert Regex.escaped(text) == expected
+    let re = compiled(Regex.escaped(text))
+    assert re.matches(text)
+    assert !re.matches($"{text}x")
+}
+
+@cases(
+    ("(?=a)", "unsupported lookaround @0"),
+    ("(?!a)", "unsupported lookaround @0"),
+    ("a(?<=b)", "unsupported lookaround @1"),
+    ("(?<!b)a", "unsupported lookaround @0"),
+    ("(a)\\1", "unsupported backreference @3"),
+    ("[\\2]", "unsupported backreference @1"),
+    ("\\k<x>", "unsupported backreference @0"),
+    ("(?P<n>a)", "unsupported group flags and named groups @0"),
+    ("(?i)a", "unsupported group flags and named groups @0"),
+    ("[[:alpha:]]", "unsupported POSIX class @1"),
+    ("(a", "syntax missing `)` @0"),
+    ("(?:", "syntax missing `)` @0"),
+    ("a)", "syntax unmatched `)` @1"),
+    ("[a", "syntax missing `]` @0"),
+    ("[]", "syntax missing `]` @0"),
+    ("*a", "syntax missing argument to repetition operator @0"),
+    ("|*", "syntax missing argument to repetition operator @1"),
+    ("a**", "syntax repetition of a repetition @2"),
+    ("a{1001}", "syntax repetition count above 1000 @1"),
+    ("a{3,2}", "syntax repetition maximum below its minimum @1"),
+    ("[z-a]", "syntax range end before its start @1"),
+    ("[a-\\d]", "syntax class escape as a range end @3"),
+    ("a\\", "syntax trailing `\\` @1"),
+    ("\\q", "syntax unknown escape @0"),
+    ("[\\b]", "syntax `\\b` or `\\B` in a class @1"),
+    ("(a{1000}){1000}", "tooLarge @9"),
+)
+test "parse refuses backreferences, lookaround and broken patterns with RegexError" (string pattern, string expected) {
+    assert errorOf(pattern) == expected
+}
+
+test "parse refuses groups nested deeper than 1000" {
+    var sb = StrBuf()
+    sb.appendRepeated('(', by: 1001)
+    sb.appendRepeated(')', by: 1001)
+    assert errorOf(sb.view) == "syntax groups nest too deep @1000"
+}
+
+test "(a*)*b and (a?){n}a{n} run in linear time on long input" {
+    var sb = StrBuf()
+    sb.appendRepeated('a', by: 20000)
+    let text = sb.view
+    assert compiled("(a*)*b").find(text) is null
+    assert compiled("(x+x+)+y").find(text) is null
+    let m = compiled("(a|aa)+$").find(text) ?? panic("no match")
+    assert m.span.end == 20000
+    let re = compiled("(a?){100}a{100}")
+    var n = StrBuf()
+    n.appendRepeated('a', by: 200)
+    assert re.matches(n.view)
+    n.append("a")
+    assert !re.matches(n.view)
+    assert (re.find(n.view) ?? panic("no match")).span.end == 200
 }
 """

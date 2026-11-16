@@ -1,5 +1,5 @@
 #!/bin/bash
-# land.sh on a fixture repo with a stub wave-brief.py and guard.sh, run by /bin/bash (3.2 on macOS): it refuses a last
+# land.sh on a fixture repo with a stub wave-brief and guard.sh, run by /bin/bash (3.2 on macOS): it refuses a last
 # commit that is not a lone `docs(010): T99 review (PASS` commit, a branch that changes scripts/selfhost/ or edits tests/quality-baseline.json, and a branch that
 # moves while it is checked, one with no merge base, and a prompt with no guard line; the fixture path holds & and ' (the guard must still run); it runs the base checkout's guard by absolute path, without --mutate/--seed,
 # refuses before any merge when the base checkout's preflight.sh fails (and passes it the spec, task, branch and BAYAN_BASE), and lands a two-round reviewed branch; tests/quality-baseline.json changes only when the guard run left its coverage report
@@ -12,7 +12,14 @@ root="$(cd "$(dirname "$0")/../.." && pwd)"
 r="$root/tmp/land&test'q"; aux="$root/tmp/land-test-aux"
 rm -rf "$r" "$aux" && mkdir -p "$r/scripts/selfhost" "$r/docs/specs/010-self-hosted-semantics/reviews" "$aux" && cd "$r"
 git init -q -b base && git config user.email t@t && git config user.name t
-printf 'import os, sys\nd = "tmp/010-" + sys.argv[2].lower()\nos.makedirs(d, exist_ok=True)\nopen(d + "/prompt.md", "w").write("" if os.environ.get("NOGUARD") else "bash scripts/selfhost/guard.sh --base x --mutate a.byn --seed 3 --filter F\\n")\n' > scripts/selfhost/wave-brief.py
+# the stub bayan (scripts/bayan-tool.sh runs $PINNED_BAYAN) stands in for wave-brief (`run <root>/tools/wave-brief.byn -- . T99 --spec 010`); any other tool runs on the real pinned bayan
+cat > "$aux/bayan" <<'STUB'
+#!/bin/bash
+case $2 in */wave-brief.byn) d=tmp/010-$(echo "$5" | tr A-Z a-z); mkdir -p "$d"
+  if [ -n "${NOGUARD:-}" ]; then : > "$d/prompt.md"; else echo "bash scripts/selfhost/guard.sh --base x --mutate a.byn --seed 3 --filter F" > "$d/prompt.md"; fi; exit 0;; esac
+exec "$REAL_BAYAN" "$@"
+STUB
+chmod +x "$aux/bayan"; export REAL_BAYAN=$(cd "$root" && env -u PINNED_BAYAN bash scripts/pinned-bayan.sh) PINNED_BAYAN=$aux/bayan
 # the stub guard logs the path it runs as; with $AUX/move it adds a commit to feat-move, as a writer still pushing would
 cat > scripts/selfhost/guard.sh <<'STUB'
 echo "$0" >> "$AUX/guard-ran.txt"; echo "$*" > "$AUX/guard-args.txt"
