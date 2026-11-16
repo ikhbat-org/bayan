@@ -42,6 +42,13 @@ rc=0; bash tmp/copy/a/b/p.sh "$one" >/dev/null 2>&1 || rc=$?; [ $rc = 0 ] || fai
 grep -qx "$(git rev-parse "$one^{tree}")" tmp/pre-push/passed || fail "a copy under tmp/ did not record in the repo's tmp/pre-push"
 [ ! -e tmp/copy/a/tmp ] || fail "a copy under tmp/ wrote state beside itself"
 
+# a push from a linked worktree exports its GIT_DIR into the hook; the tests must run on the checkout's repo, not on it
+rm tmp/pre-push/passed; head0="$(git rev-parse HEAD)"; n0="$(git rev-list --count HEAD)"
+rc=0; GIT_DIR="$t/.git" PRE_PUSH_TEST_CMD='git rev-parse --absolute-git-dir > "'"$t"'/gitdir"; git commit -q --allow-empty -m "test: leak"' bash $pp "$one" >/dev/null 2>&1 || rc=$?
+[ $rc = 0 ] || fail "a push with GIT_DIR set exited $rc"
+grep -q '/worktrees/wt-' gitdir || fail "the tests ran on the pushing repo's git dir: $(cat gitdir)"
+[ "$(git rev-parse HEAD)" = "$head0" ] && [ "$(git rev-list --count HEAD)" = "$n0" ] || fail "the tests committed to the pushing repo"
+
 rc=0; bash $pp deadbeef >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "a bad sha exited $rc, not 2"
 rc=0; bash $pp >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "no argument exited $rc, not 2"
 echo "pre-push.test: all passed"

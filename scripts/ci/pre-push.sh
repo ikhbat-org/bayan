@@ -9,6 +9,9 @@ root="$(git rev-parse --show-toplevel)" || { echo "pre-push: not in a git repo" 
 [ $# = 1 ] || { echo "usage: scripts/ci/pre-push.sh <sha>" >&2; exit 2; }
 sha="$(git -C "$root" rev-parse --verify -q "$1^{commit}")" || { echo "pre-push: unknown commit '$1'" >&2; echo "usage: scripts/ci/pre-push.sh <sha>" >&2; exit 2; }
 tree="$(git -C "$root" rev-parse "$sha^{tree}")"
+# a push from a linked worktree exports GIT_DIR etc. for that worktree; the tests must act on the checkout's own repo
+# shellcheck disable=SC2046
+unset $(git rev-parse --local-env-vars)
 state="$root/tmp/pre-push"
 mkdir -p "$state"
 if grep -qx "$tree" "$state/passed" 2>/dev/null; then
