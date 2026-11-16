@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "$WORK/scripts/unicode/gen-lowercase.py", line 76, in <module>
+    main()
+  File "$WORK/scripts/unicode/gen-lowercase.py", line 69, in main
+    start, end = source.index(BEGIN), source.index(END) + len(END)
+ValueError: substring not found
