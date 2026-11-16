@@ -124,7 +124,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - After: T7, T6c (the T6c rules are ported on the same worker key).
   - Done when every `LayoutTests` and `FormatTests` case gives the same stdout, stderr, exit code and bytes through stage 2 as the C#, and `bootstrap/bayan.c` is regenerated (`BAYAN_UPDATE=1` BootstrapTests).
   - Plan-owner note 2026-11-16, after T8's first gate: "every case" means the whole input each case formats, including inputs joined from a literal and a named constant (`Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines`, `AnUnformattedDeclarationKeepsItsBytes`, the `FormatHeader` callers). One exception: `ADifferenceKeepsTheInput` injects its fault through `Layout.OutputHook`, a C#-only seam that no CLI run can reach, so it has no stage-2 row; the test's doc comment says so.
-- [ ] **T8b Space after the contextual clause words (C# and self-hosted).**
+- [x] **T8b Space after the contextual clause words (C# and self-hosted).**
   - Found 2026-11-16 while checking the README examples: `bayan format` rewrites `void pay(ref this is .draft) becomes .paid {` as `becomes.paid`, in the C# layout and the self-hosted layout alike (`tests/cases/run/typestate-order.byn` shows it). The guide and the spec write `becomes .paid`.
   - Files: the C# layout (`csharp/Bayan.Syntax/Formatting/`), `src/driver/layout.byn`, `LayoutTests`, the stage-2 rows, `bootstrap/bayan.c`.
   - Covers: R6.
