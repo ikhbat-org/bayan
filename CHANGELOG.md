@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- `.github/workflows/pages.yml` builds `site/` with the compiler from the same commit (every example is run and checked) and publishes it to GitHub Pages on each push to `main`, for bayan.run.
+
 ### Changed
 - README: "A taste of the language" is now four small iftar programs: errors with a payload (the iftar keeps its own seat count, so a caller only asks for seats), effects in a signature (`uses fs, alloc`, with the BYN6002 message), typestate (`states`, `becomes`, with the BYN7001 message) and an arena with `provide`. Each was run on the dev compiler.
 
