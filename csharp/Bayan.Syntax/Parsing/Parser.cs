@@ -424,7 +424,7 @@ public sealed class Parser
     /// <summary>Drops the fix of each style lint, typed or not, that would delete a comment (<see cref="DropsComment"/>); the lint stays.</summary>
     private void KeepComments()
     {
-        foreach (var d in _styleLints.Items.ToList()) _styleLints.Replace(d, KeepingComments(d));
+        _styleLints.ReplaceEach(KeepingComments);
         for (var i = 0; i < _typedLints.Count; i++)
             _typedLints[i] = _typedLints[i] with { Lint = KeepingComments(_typedLints[i].Lint), Otherwise = _typedLints[i].Otherwise is { } o ? KeepingComments(o) : null };
     }

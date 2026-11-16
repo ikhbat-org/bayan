@@ -991,4 +991,14 @@ public sealed class FormatTests
         .. LineJoinCases.Select(c => ($"{nameof(FormattedCodeQuietsTheLineJoinLint)}({c.Name})",
             File.ReadAllText(Path.Combine(Golden.CasesRoot, "diag", c.Name + ".byn")), "")),
     ];
+
+    [Fact]
+    public void ReplaceEachMapsEveryDiagnosticInPlace()
+    {
+        var bag = new Bayan.Syntax.Diagnostics.DiagnosticBag();
+        for (var i = 0; i < 3; i++)
+            bag.Add(new(Bayan.Syntax.Diagnostics.Severity.Warning, "BYN1072", null, new Bayan.Syntax.Text.TextSpan(i, 1), "m" + i));
+        bag.ReplaceEach(x => x with { Message = x.Message + "!" });
+        Assert.Equal(["m0!", "m1!", "m2!"], bag.Items.Select(x => x.Message));
+    }
 }
