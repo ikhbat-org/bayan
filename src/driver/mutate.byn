@@ -546,7 +546,7 @@ MutantResult t13Mutant(
     }
     // A marked mutant still runs; one a test kills stays killed so the report can warn that the mark is wrong.
     return MutantResult { site: s, status: .marked, runs: runs } if site.unobservable is not null
-    return MutantResult { site: s, status: runs == 0 ? .notReached : .survived, runs : runs }
+    return MutantResult { site: s, status: runs == 0 ? .notReached : .survived, runs: runs }
 }
 
 /// `TimeSpan.FromTicks(Math.Max(TimeSpan.TicksPerSecond, 5 * elapsed.Ticks))` in whole milliseconds, truncated as
@@ -772,7 +772,7 @@ i64? t13Int(in json.JsonValue v) uses alloc {
     switch v {
         case .number(let _, let text):
             let negative = text.startsWith("-")
-            let digits = t9Digits(negative ? text[1..text.length] : text, until : negative ? 2147483648 : 2147483647)
+            let digits = t9Digits(negative ? text[1..text.length] : text, until: negative ? 2147483648 : 2147483647)
                 ?? return null
             return negative ? -digits : digits
         default:

@@ -497,7 +497,7 @@ BExpr bindOwned(ref Binder b, through ref Ctx c, for in parser.CallExpr call, as
         )
     } else {
         var ps = List<LocalId>()
-        ps.append(t21Param(ref c, by: "value", as: t != -1 ? t : errorType(), at : 0))
+        ps.append(t21Param(ref c, by: "value", as: t != -1 ? t : errorType(), at: 0))
         value = bindArguments(
             ref b,
             through: ref c,
@@ -549,7 +549,7 @@ BExpr bindUntrusted(ref Binder b, through ref Ctx c, for in parser.CallExpr call
         )
     } else {
         var ps = List<LocalId>()
-        ps.append(t21Param(ref c, by: "value", as: t != -1 ? t : errorType(), at : 0))
+        ps.append(t21Param(ref c, by: "value", as: t != -1 ? t : errorType(), at: 0))
         value = bindArguments(
             ref b,
             through: ref c,

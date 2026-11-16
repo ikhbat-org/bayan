@@ -76,7 +76,7 @@ i32 lexOne(string path, by Keywords keywords, bool json) {
         bytes = Io.readFile(path) catch return unreadable(path)
     }
     var sb = StrBuf()
-    let failed = dumpFile(path == "-" ? "<stdin>" : path, from : move bytes, by : keywords, to : ref sb, json : json)
+    let failed = dumpFile(path == "-" ? "<stdin>" : path, from: move bytes, by: keywords, to: ref sb, json: json)
     Io.stdout.write(sb.finish())
     return failed ? exitFailure : exitOk
 }

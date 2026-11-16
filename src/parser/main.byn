@@ -44,7 +44,7 @@ public i32 parseOne(string path, by Keywords keywords) uses alloc, console, fs {
     } else {
         bytes = Io.readFile(path) catch return unreadable(path)
     }
-    var p = Parser.create(lexer.lex(SourceText.create(path == "-" ? "<stdin>" : path, from : move bytes), by: keywords))
+    var p = Parser.create(lexer.lex(SourceText.create(path == "-" ? "<stdin>" : path, from: move bytes), by: keywords))
     var unit = parseCompilationUnit(ref p)
     var sb = StrBuf()
     dump(in unit, from: ref p, to: ref sb)

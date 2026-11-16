@@ -2521,7 +2521,10 @@ struct LayoutEngine {
         return false if kind(i) != .openParen || i < 2 || kind(i - 1) != .identifier
         return false if !(kind(i - 2) is .openParen or .comma)
         return false if !(textIs(i - 1, as: "from") || textIs(i - 1, as: "to") || textIs(i - 1, as: "until")
-            || textIs(i - 1, as: "through") || textIs(i - 1, as: "at") || textIs(i - 1, as: "by") || textIs(i - 1, as: "for")
+            || textIs(i - 1, as: "through")
+            || textIs(i - 1, as: "at")
+            || textIs(i - 1, as: "by")
+            || textIs(i - 1, as: "for")
             || textIs(i - 1, as: "as"))
         let close = matchOf[i]
         return close > i && close + 1 < matchOf.length && kind(close + 1) == .identifier
@@ -2549,7 +2552,9 @@ struct LayoutEngine {
                 return false if depth == 0
                 depth -= 1
             } else if depth == 0
-                    && (at == .structKeyword || at == .interfaceKeyword || at == .extensionKeyword || at == .question && trivia(k) && !pastComma
+                    && (at == .structKeyword || at == .interfaceKeyword || at == .extensionKeyword || at == .question && trivia(
+                        k,
+                    ) && !pastComma
                     || at == .identifier && textIs(k, as: "where")) {
                 return true
             }

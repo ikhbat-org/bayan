@@ -1053,7 +1053,7 @@ void checkWords(ref Ctx c, by in Grammar grammar, from FileId f, at TextSpan nam
             from: f,
             at: TextSpan { start: name.start + w.start, length: w.text.length },
             by: (a0: word, a1: "", a2: "", a3: "", a4: ""),
-            help: $"add it to `grammar` in package.byn: {offer(guess, for: word)}, {offer(guess == "verbs" ? "nouns" : "verbs", for : word)} or {offer(guess == "adjectives" ? "nouns" : "adjectives", for : word)}",
+            help: $"add it to `grammar` in package.byn: {offer(guess, for: word)}, {offer(guess == "verbs" ? "nouns" : "verbs", for: word)} or {offer(guess == "adjectives" ? "nouns" : "adjectives", for: word)}",
         )
     }
 }
