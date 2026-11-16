@@ -200,12 +200,37 @@ aside.note > :first-child { margin-top: 0; }
 aside.note > :last-child { margin-bottom: 0; }
 
 /* landing: hero, then examples beside their output */
-.hero { padding: clamp(1.75rem, 5vw, 3.5rem) 0 clamp(1.25rem, 3vw, 2rem); }
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(1.25rem, 4vw, 3rem); align-items: center; padding: clamp(1.75rem, 5vw, 3.5rem) 0 clamp(1.25rem, 3vw, 2rem); }
+.art { margin: 0; display: flex; align-items: flex-end; gap: 4%; overflow-x: clip; }
+.art svg { display: block; width: 100%; height: auto; }
+.art-en { position: relative; flex: 1 1 62%; min-width: 0; }
+.art-ar { flex: 0 1 34%; min-width: 0; }
+.art .fly { position: absolute; left: 56.7%; top: 4.6%; width: 25.8%; opacity: 0; }
+.art .navy { fill: var(--brand); }
 .hero h1 { max-width: 22ch; font-size: var(--step-4); }
 .lead { max-width: 48ch; margin: .9rem 0 0; font-size: var(--step-1); line-height: 1.45; color: var(--muted); }
 .go { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.25rem; margin-top: 1.35rem; font-size: .92rem; }
 .btn { display: inline-block; background: var(--navy); color: var(--btn-fg); padding: .5rem .95rem; border-radius: 3px; text-decoration: none; font-weight: 600; }
 .btn:hover { text-decoration: underline; text-underline-offset: .2em; }
+/* hero animation: Arabic right to left, then bayān left to right, then the hoopoe lands.
+   Without motion (or with reduced motion) none of this applies and the end state shows. */
+@media (prefers-reduced-motion: no-preference) {
+  .art .r { animation: wipe-r .55s ease-out var(--d) both; }
+  .art .l { animation: wipe-l .55s ease-out var(--d) both; }
+  .art .perch { animation: perch .01s linear 6.7s both; }
+  .art .fly { animation: land 1.3s cubic-bezier(.2,.7,.3,1) 5.4s both; }
+  .m-line { animation: settle 1s ease-out 6.9s both; }
+}
+@keyframes wipe-r { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+@keyframes wipe-l { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes perch { from { opacity: 0; } to { opacity: 1; } }
+@keyframes land {
+  0% { opacity: 1; transform: translate(520%, -90%); }
+  75% { opacity: 1; transform: translate(0, 0); }
+  99% { opacity: 1; transform: translate(0, 0); }
+  100% { opacity: 0; transform: translate(0, 0); }
+}
+@keyframes settle { from { transform: translateX(-.6rem); opacity: 0; } to { transform: none; opacity: 1; } }
 .feature { padding: 0 0 clamp(1.5rem, 4vw, 2.5rem); }
 .feature-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: clamp(1.25rem, 4vw, 2.5rem); align-items: start; border-top: 1px solid var(--rule); padding-top: 1.5rem; }
 .feature h2 { max-width: 22ch; }
@@ -307,6 +332,7 @@ details.quiz pre { background: var(--bg); }
   .prose table { display: block; overflow-x: auto; max-width: 100%; }
 }
 @media (max-width: 680px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
   .feature-grid { grid-template-columns: minmax(0, 1fr); }
   .site-head nav { margin-left: 0; width: 100%; order: 1; }
   .theme-btn { margin-left: auto; }
