@@ -1,17 +1,59 @@
 # Bayān
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="site-prototypes/brand/mascot/bayan-hoopoe-dark.svg">
+    <img src="site-prototypes/brand/mascot/bayan-hoopoe-light.svg" alt="Bayān, the hoopoe mascot" width="160">
+  </picture>
+</p>
+
+A small, explicit language that compiles to native executables. Errors are values, memory is visible.
+
+[![CI](https://github.com/ikhbat-org/bayan/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/ikhbat-org/bayan/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/version-0.3.x-1F3A5F)](CHANGELOG.md)
+[![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Linux%20%7C%20Windows-1F3A5F)](#install)
+[![Runtime](https://img.shields.io/badge/runtime-none-C08A2E)](#a-taste-of-the-language)
+[![GC](https://img.shields.io/badge/GC-none-C08A2E)](#memory-you-can-see)
+[![License: ISL-P](https://img.shields.io/badge/license-ISL--P%201.2-1F3A5F)](LICENSE.md)
+
+Bayān (بيان, "clear statement") compiles to a small native executable, with no runtime to install, no
+garbage collector and no exceptions. Values are copied by default, errors are return values the compiler
+makes you handle, and memory comes from scopes and allocators you can see. The compiler is written in
+Bayān itself and turns your program into C for a C compiler.
+
+```swift
+string greeting() {
+    return "Salam, world!"
+}
+
+print(greeting())
+```
+
+```text
+Salam, world!
+```
+
+> [!NOTE]
+> Bayān is young (version 0.3.x). The language is usable and the compiler builds itself, but expect rough
+> edges, and expect things to change between versions.
+
 *Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.*
 
-Bayān (بيان, "clear statement") is a programming language that compiles to small native executables. There
-is no runtime to install, no garbage collector and no exceptions. Values are copied by default, errors are
-ordinary return values that the compiler makes you handle, and memory is managed by scopes and allocators
-you can see in the code.
+---
 
-The compiler is written in Bayān itself. It turns your program into C, then hands that C to a C compiler
-to produce the executable.
+## Contents
 
-Bayān is young (version 0.3.0). The language is usable and the compiler builds itself, but expect rough
-edges, and expect things to change between versions.
+- [Install](#install)
+- [Your first program](#your-first-program)
+- [Batteries included](#batteries-included)
+- [How it works](#how-it-works)
+- [A taste of the language](#a-taste-of-the-language)
+- [What Bayān has instead](#what-bayān-has-instead)
+- [Where to go next](#where-to-go-next)
+- [Working on the compiler](#working-on-the-compiler)
+- [License](#license)
+
+---
 
 ## Install
 
@@ -39,9 +81,9 @@ You need two things: the `bayan` binary and a C compiler.
    This lists the compiler, zig, git and the build cache that `bayan` found. If something is missing, it
    tells you how to fix it.
 
-## Your first program
+---
 
-Create a project and run it:
+## Your first program
 
 ```sh
 bayan new greet
@@ -49,7 +91,11 @@ cd greet
 bayan run
 ```
 
-The program prints `Salam, world!`. `bayan new` created a few files; these are the ones that matter:
+```text
+Salam, world!
+```
+
+`bayan new` created a few files; these are the ones that matter:
 
 - `package.byn` describes the project: its name, version and dependencies.
 - `src/app/main.byn` is the program.
@@ -57,7 +103,7 @@ The program prints `Salam, world!`. `bayan new` created a few files; these are t
 
 Open `src/app/main.byn`:
 
-```
+```swift
 /// The line this app prints.
 string greeting() {
     return "Salam, world!"
@@ -73,18 +119,74 @@ and it passes.
 For a one-off script you don't need a project. Write a single `.byn` file and run it with
 `bayan run hello.byn`.
 
+---
+
+## Batteries included
+
+One `bayan` binary holds the compiler, the formatter, the test runner and the release builder. There is
+nothing else to install except a C compiler. The commands are from `bayan --help`.
+
+| Command | What it does |
+|---|---|
+| `bayan new`, `bayan init` | Create an app, library (`--lib`) or script (`--script`), in a new or an existing directory |
+| `bayan run` | Compile and run a project, a script or a file |
+| `bayan build` | Compile to an executable; `--mode debug\|safe\|fast`, `--target`, `--emit-c` |
+| `bayan test` | Run each test in its own process; `--coverage` for a report of lines, branches and error paths; `--mutate` for mutation testing; `--changed` for modules touched since `HEAD`; `--json` |
+| `bayan check` | Report diagnostics without building; `--diagnostics json` for tools |
+| `bayan format` | Rewrite input forms and apply the `style` in `package.byn`; `--check` writes nothing |
+| `bayan explain` | Explain a diagnostic code, for example `bayan explain BYN6002` |
+| `bayan doctor` | Check the C compiler, zig, git and the build cache, with a fix for each problem |
+| `bayan dist` | Build release binaries into `dist/<version>/`; `--target all` cross-compiles through zig |
+| `bayan mutate` | Run a command once per mutant site of a prebuilt `--mutate` binary |
+| `bayan audit` | List every `because` bypass and every `unsafe` or `extern` declaration, with its reason |
+| `bayan clean`, `bayan cache stats` | Remove `out/` (and `dist/`, the cache on request); show the shared build cache |
+| `bayan lex`, `parse`, `types`, `features` | Look inside the compiler: tokens, syntax tree, inferred types, features a build used |
+
+An editor language server, `bayan-lsp`, lives in [`editors/`](editors/README.md) with a VS Code extension.
+It is built from source and is not in the release archives yet.
+
+The standard library is compiled in, so a program needs no package manager to use it:
+
+| Piece | What it gives you |
+|---|---|
+| `Io` | Files (`Io.readText`), standard streams, processes, random numbers; each use shows up in `uses` |
+| `Path` | File names and paths, for example `Path.fileName` |
+| `List`, `Map` | Growable collections that take their memory from an allocator |
+| `StrBuf` | A string builder for loops |
+| `Arena` | Allocate many things, free them all together |
+| `std.json` | A JSON reader and a `Json` value type: `import std.json` |
+
+`std.time` and `std.db` are specified in [`docs/bayan-spec.md`](docs/bayan-spec.md) but not built yet.
+
+---
+
+## How it works
+
+`bayan` parses and checks your `.byn` files, lowers them to C, and hands the C to `zig cc` (or `cc`). The
+output is one native executable.
+
+```mermaid
+flowchart LR
+    A[".byn source"] --> B["bayan<br/>parse, check, lower"]
+    B --> C["C"]
+    C --> D["zig cc / cc"]
+    D --> E["native executable"]
+```
+
+`bayan build --emit-c` keeps the C so you can read it.
+
+---
+
 ## A taste of the language
 
-The examples below are small programs around a community iftar. Each one runs as it is with
-`bayan run main.byn`.
+Small programs around a community iftar. Each runs as it is with `bayan run main.byn`.
 
 ### Errors are values
 
-The iftar keeps its own count of seats, so a guest asks only for what they need. Booking can fail, and
-the signature says so (`fails BookingError`). The caller has to handle each error; the compiler checks that
-none is left out:
+Booking can fail, and the signature says so (`fails BookingError`). The compiler checks that the caller
+handles every error. An error can carry data, like `notEnough(i64 left)`.
 
-```
+```swift
 union error BookingError {
     /// Every seat is taken.
     full
@@ -131,18 +233,15 @@ Yusuf booked 1, 0 left
 Sorry Maryam, the iftar is full
 ```
 
-An error can carry data: `notEnough(i64 left)` tells the guest how many seats remain. There are no
-exceptions: `fail` returns the error to the caller, and a call that can fail is marked with `try` (pass the
-error on) or `catch` (handle it here).
+`fail` returns the error. A call that can fail is marked `try` (pass it on) or `catch` (handle it here).
 
 ### Effects are part of the signature
 
-A public function lists what it touches outside its own arguments: files (`fs`), memory (`alloc`), the
-console, the network and so on. A public function with no `uses` clause only computes, so you can call
-it anywhere and test it with plain values. Private functions, `main` and scripts work their effects out
-from what they call, which is why `main` below needs no clause:
+A public function lists what it touches: files (`fs`), memory (`alloc`), the console, the network and so
+on. With no `uses` clause it only computes. Private functions, `main` and scripts work their effects out
+from their calls.
 
-```
+```swift
 /// Counts the names in a guest list, one per line. No `uses` clause: it only computes.
 public i64 countGuests(string list) {
     var count = 0
@@ -167,10 +266,16 @@ void main() {
 }
 ```
 
-With a `guests.txt` holding `Umar`, `Aisha` and `Bilal` on separate lines, it prints
-`3 guests, 9 dates to break the fast`. Without the file it prints `No guest list yet`.
+With a `guests.txt` of three names:
 
-Leave `alloc` out of the `uses` clause and the compiler tells you, with the fix:
+```text
+3 guests, 9 dates to break the fast
+```
+
+Without the file it prints `No guest list yet`. Leave `alloc` out of `uses` and the compiler says so, with the fix:
+
+<details>
+<summary>The compiler error</summary>
 
 ```text
 error BYN6002: `guestsIn` uses `alloc` but does not declare it
@@ -184,13 +289,22 @@ error BYN6002: `guestsIn` uses `alloc` but does not declare it
      │    │                                         +++++++
 ```
 
+</details>
+
 ### States the compiler tracks
 
-A catering order is placed, then paid, then delivered. Its `states` block names the steps, each method
-says which state it needs (`ref this is .paid`) and which it leaves behind (`becomes .delivered`), and a
-state can carry its own data (`paid(i64 amount)`):
+An order is placed, then paid, then delivered. Each method names the state it needs (`is .paid`) and the
+one it leaves (`becomes .delivered`). A state can carry data (`paid(i64 amount)`).
 
+```mermaid
+stateDiagram-v2
+    [*] --> placed
+    placed --> paid: pay(amount)
+    paid --> delivered: deliver()
+    delivered --> [*]
 ```
+
+```swift
 struct Order {
     string dish
     i64 plates
@@ -231,7 +345,10 @@ lentil soup paid (120), on its way
 lentil soup delivered
 ```
 
-Leave out `order.pay(120)`, so the order is delivered before it is paid, and the program does not compile:
+Deliver before paying (drop `order.pay(120)`) and it does not compile:
+
+<details>
+<summary>The compiler error</summary>
 
 ```text
 error BYN7001: `deliver` needs `order` to be `.paid`, but it is `Order.placed`
@@ -243,12 +360,14 @@ error BYN7001: `deliver` needs `order` to be `.paid`, but it is `Order.placed`
   help: check the state with `is` or `switch` first
 ```
 
+</details>
+
 ### Memory you can see
 
-There is no garbage collector. Text and lists come from an allocator, and `provide` picks which one. Here
-every invitation is built in one arena, and all of them are freed together when the arena's scope ends:
+Text and lists come from an allocator, and `provide` picks which. Here one arena holds every invitation
+and frees them together at the end of its scope.
 
-```
+```swift
 void main() {
     let guests = ["Umar", "Aisha", "Bilal"]
     using let arena = Arena()
@@ -269,20 +388,31 @@ Salam Bilal, join us for iftar on Friday
 
 ### A few more things
 
-- **Particles.** A function has at most one unlabeled parameter. The others carry a word such as `from`,
-  `to`, `by` or `for`, and the call says it too: `iftar.book("Umar", for: 2)`. Calls read like sentences,
-  and you can't swap two arguments by accident.
-- **Locals are `let`** (or `var` when they change). You write `let list = …`, or `let list: string = …`
-  with a type. Declarations put the type first (`i64 countGuests(…)`), local bindings put the name first;
-  write it the other way and the error message shows you the fix.
-- **`stmt if condition`** is a statement guarded by a condition, as in `fail .full if left == 0`.
+- **Particles.** At most one parameter is unlabeled; the rest carry a word such as `for`, and the call
+  says it too: `iftar.book("Umar", for: 2)`. You can't swap two arguments by accident.
+- **Locals** are `let` or `var`: `let list = …`, or `let list: string = …` with a type. Declarations put
+  the type first (`i64 countGuests(…)`), local bindings put the name first; write it the other way and the
+  error message shows you the fix.
+- **`stmt if condition`** guards a statement, as in `fail .full if left == 0`.
+- **Errors teach.** Each has a code; `bayan explain BYN1043` explains it.
 
-The compiler's error messages try to teach. Each error has a code, and `bayan explain <code>` explains
-it in more detail, for example `bayan explain BYN1043`.
+---
+
+## What Bayān has instead
+
+| Often found elsewhere | In Bayān |
+|---|---|
+| Exceptions | `fails` in the signature; `fail` returns the error; `try` and `catch` at the call |
+| Garbage collector | Scopes and allocators; `Arena` and `provide allocator:` |
+| Runtime to install | None; the output is one native executable |
+| Hidden side effects | `uses` clauses on public functions |
+| Run-time checks of object lifecycle | `states`, `is` and `becomes`, checked at compile time |
+
+---
 
 ## Where to go next
 
-- `bayan --help` lists every command: `build`, `run`, `test`, `format`, `check`, `dist` and more.
+- `bayan --help` lists every command.
 - [`docs/bayan-spec.md`](docs/bayan-spec.md) is the language specification, the full reference.
 - [`docs/bayan-style.md`](docs/bayan-style.md) and [`docs/bayan-grammar.md`](docs/bayan-grammar.md) cover
   naming and style.
@@ -294,6 +424,8 @@ it in more detail, for example `bayan explain BYN1043`.
 
 Found a bug or a confusing error message? Please open an issue. A small program that shows the problem
 helps most.
+
+---
 
 ## Working on the compiler
 
@@ -325,3 +457,11 @@ those systems and imported with `--from`.
 The milestones and an index of the project docs are in [`docs/bayan-milestones.md`](docs/bayan-milestones.md), the
 progress log is in [`docs/bayan-progress-log.md`](docs/bayan-progress-log.md), and how a version is cut is
 in [`docs/RELEASING.md`](docs/RELEASING.md).
+
+Code fences in this README use Swift highlighting until GitHub knows `.byn`.
+
+---
+
+## License
+
+Bayān is released under the Islamic Software License - Permissive (ISL-P), Version 1.2. See [`LICENSE.md`](LICENSE.md).
