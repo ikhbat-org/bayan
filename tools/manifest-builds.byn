@@ -1,0 +1,82 @@
+#!/usr/bin/env bayan
+// Lists `binary<TAB>sites` from a BAYAN_SNAPSHOT `manifest.json` (spec 015 T10, `mutation-step.sh`).
+// Usage: bash scripts/bayan-tool.sh manifest-builds <manifest.json>
+
+import std.json
+
+type JsonValue = json.JsonValue
+type JsonMember = json.JsonMember
+type JsonError = json.JsonError
+type Json = json.Json
+
+/// The string value of the last member named `key` in `members`, or null.
+string? textMember(ReadOnlySpan<JsonMember> members, for string key) {
+    var i = members.length - 1
+    while i >= 0 {
+        if members[i].key == key {
+            if members[i].value is .text(let s) { return s }
+            return null
+        }
+        i -= 1
+    }
+    return null
+}
+
+/// Prints one `binary<TAB>sites` line per entry of `builds` in `path`.
+i32 dumpBuilds(string path) uses fs, console, alloc {
+    let raw = Io.readText(path) catch {
+        print($"[Errno 2] No such file or directory: '{path}'", to: .stderr)
+        return 1
+    }
+    let parsed = Json.parse(raw) catch switch {
+        .syntax e => {
+            print($"Expecting value: line {e.line} column {e.column} (char {e.offset})", to: .stderr)
+            return 1
+        },
+        .tooDeep e => {
+            print($"Expecting value: line {e.line} column {e.column} (char {e.offset})", to: .stderr)
+            return 1
+        },
+        _ => {
+            print($"manifest-builds: {path}: malformed json", to: .stderr)
+            return 1
+        },
+    }
+    let root = (move parsed).trustUnchecked() because "manifest is read by a local build tool"
+    if root is .object(let top) {
+        var i = top.length - 1
+        while i >= 0 {
+            if top[i].key == "builds" {
+                if top[i].value is .list(let items) {
+                    var lines = List<string>()
+                    for item in items {
+                        if item is .object(let fields) {
+                            let bin = textMember(fields.span, for: "binary") ?? ""
+                            let sites = textMember(fields.span, for: "sites") ?? ""
+                            if !bin.isEmpty && !sites.isEmpty {
+                                lines.append($"{bin}\t{sites}")
+                                continue
+                            }
+                        }
+                        print($"manifest-builds: {path}: entry is missing binary or sites", to: .stderr)
+                        return 1
+                    }
+                    for l in lines { print(l) }
+                    return 0
+                }
+                break
+            }
+            i -= 1
+        }
+    }
+    print($"manifest-builds: {path}: no builds list", to: .stderr)
+    return 1
+}
+
+i32 main(ReadOnlySpan<string> argv) uses fs, console, alloc {
+    if argv.length < 1 {
+        print("manifest-builds: missing manifest.json path", to: .stderr)
+        return 1
+    }
+    return dumpBuilds(argv[0])
+}

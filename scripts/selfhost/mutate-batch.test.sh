@@ -42,6 +42,9 @@ STUB
 mkdir -p csharp/Bayan.Cli/bin/Debug/net10.0
 cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 #!/bin/bash
+# `run` is scripts/bayan-tool.sh running manifest-builds: one `binary<TAB>sites` line per build, a malformed manifest fails
+[ "$1" = run ] && { m=${@: -1}; grep -q ']}$' "$m" || { echo "manifest-builds: $m: malformed" >&2; exit 1; }
+  tr '{' '\n' < "$m" | sed -n 's/^"binary": "\([^"]*\)", "sites": "\([^"]*\)".*/\1 \2/p' | tr ' ' '\t'; exit 0; }
 bn=$(basename "$(dirname "$3")")
 prog=$(basename "$3")
 [ -f $AUX/rep/$bn-$prog.mismatch ] || [ -f $AUX/rep/$bn.mismatch ] && { echo "bayan: mutant 0 differs" >&2; exit 1; }
@@ -52,16 +55,19 @@ chmod +x $aux/dotnet csharp/Bayan.Cli/bin/Debug/net10.0/bayan; export AUX=$aux P
 # rep <file> <killed> <survived> <marked>: the stub report and summary of the build recorded for <file>
 rep() { local bn; bn=$(basename "$1")
   echo "mutation: $2 killed, $3 survived, 0 timeout, $4 marked, 0 not reached, 0 not emitted" > $aux/rep/$bn.txt
-  python3 -I -c 'import json, os, sys
-f, k, s, m = sys.argv[1], *map(int, sys.argv[2:])
-ms = [{"site": {"file": f}, "status": st} for st, n in (("killed", k), ("survived", s), ("marked", m)) for _ in range(n)]
-print(json.dumps({"version": 1, "kind": "mutation", "files": [{"path": os.environ.get("REPPATH", os.getcwd() + "/" + f), "mutants": ms}]}))' "$1" "$2" "$3" "$4" > $aux/rep/$bn.json; }
+  local ms="" st i
+  for st in killed:$2 survived:$3 marked:$4; do
+    for ((i = 0; i < ${st#*:}; i++)); do ms="$ms${ms:+, }{\"site\": {\"file\": \"$1\"}, \"status\": \"${st%%:*}\"}"; done; done
+  printf '{"version": 1, "kind": "mutation", "files": [{"path": "%s", "mutants": [%s]}]}\n' "${REPPATH:-$(pwd -P)/$1}" "$ms" > $aux/rep/$bn.json; }
 rep_all() { rep src/semantics/a.byn "$@"; rep src/semantics/b.byn "$@"; rep src/parser/p.byn "$@"; rep src/emitter/e.byn "$@"; rep src/emitter/cprint/cp.byn "$@"; }
 # a family's group is recorded as one build named after its first recorded file
 b() { PATH="$aux:$PATH" bash "$root/scripts/selfhost/mutate-batch.sh" --tasks tasks.md "$@" 2>&1 || true; }
 # brc: the same, output in $aux/brc.txt, exit code in $BRC
 brc() { set +e; PATH="$aux:$PATH" bash "$root/scripts/selfhost/mutate-batch.sh" --tasks tasks.md "$@" > $aux/brc.txt 2>&1; BRC=$?; set -e; }
-score() { python3 -I -c 'import json, sys; print(json.load(open("tests/quality-baseline.json"))["files"].get(sys.argv[1], {}).get("mutation"))' "$1"; }
+# score <file>: the file's mutation score in the baseline (the indent=2 layout quality-baseline.py writes), empty for no entry
+score() { awk -v k="    \"$1\": {" '$0 == k { on = 1; next } on && /^    }/ { exit } on && sub(/^ *"mutation": /, "") { sub(/,$/, ""); print }' tests/quality-baseline.json; }
+# path1 <report>: the path of the report's first file (mutate-batch.sh writes it indent=2)
+path1() { sed -n 's/^      "path": "\(.*\)",$/\1/p' "$1" | head -n 1; }
 list=$(b --list)
 all_files=$(echo "$list" | cut -d' ' -f1 | sort)
 sh_files=$(for k in 1 2 3; do b --shard $k/3 --list; done | cut -d' ' -f1 | sort); sh_one=$(b --shard 1/2 --list | cut -d' ' -f1 | tr '\n' ' ')
@@ -73,7 +79,7 @@ list_one=$(b --files src/semantics/a.byn --list)
 # fill: an empty baseline gets an entry for every file
 rep_all 3 1 1; fill=$(b); rec=$(sort $aux/record.txt); fa=$(score src/semantics/a.byn); fp=$(score src/parser/p.byn)
 [ -f tmp/mutate-batch/semantics/quality-1-prog.json ] && report=1 || report=0
-relpath=$(python3 -I -c 'import json; print(json.load(open("tmp/mutate-batch/semantics/quality-1-prog.json"))["files"][0]["path"])')
+relpath=$(path1 tmp/mutate-batch/semantics/quality-1-prog.json)
 # rise: a higher score replaces a lower one, and a lower one fails
 printf '{ "version": 1, "files": { "src/semantics/a.byn": { "mutation": 0.5, "coverage": null, "branches": null } } }\n' > tests/quality-baseline.json
 rep_all 4 0 0; rm $aux/record.txt; rise=$(b --files src/semantics/a.byn); ra=$(score src/semantics/a.byn); rrec=$(cat $aux/record.txt)
@@ -99,7 +105,7 @@ REPPATH=/elsewhere/p.byn rep src/parser/p.byn 1 0 0; outside=$(b --files src/par
 # an imported module's path is relative to the packageRoot src/ (SelfhostLexerCaseTests' build of `import lexer`)
 REPPATH=parser/nope.byn rep src/parser/p.byn 1 0 0; brc --files src/parser/p.byn; missing=$(cat $aux/brc.txt); missingx=$BRC; rep src/parser/p.byn 1 0 0
 REPPATH=parser/p.byn rep src/parser/p.byn 1 0 0; pkgrel=$(b --files src/parser/p.byn); rep src/parser/p.byn 1 0 0
-pkgpath=$(python3 -I -c 'import json; print(json.load(open("tmp/mutate-batch/parser/quality-1-prog.json"))["files"][0]["path"])')
+pkgpath=$(path1 tmp/mutate-batch/parser/quality-1-prog.json)
 # MUTATE_BASELINE: the scratch baseline is raised, the repo's is not touched
 cp $aux/empty.json tests/quality-baseline.json; cp $aux/empty.json $aux/scratch.json
 MUTATE_BASELINE=$aux/scratch.json b --files src/parser/p.byn > /dev/null
@@ -154,7 +160,7 @@ echo "$stale" | grep -q '^== group parser' && [ $released = 1 ] || fail "a stale
 [ "$noclix" = 3 ] && [ "$crashx" = 3 ] || fail "a setup failure (no pinned bayan / unreadable baseline) exited $noclix / $crashx, not 3" "$nocli"
 [ "$pidlessx" = 3 ] && [ "$oldx" = 0 ] || fail "a pid-less lock exited $pidlessx while young (want 3) and $oldx when old (want 0)" "$pidlessout"
 echo "$badshard" | grep -q 'want k/n' || fail "a bad --shard was accepted" "$badshard"
-[ "$m0x" = 4 ] && [ "$m0p" = 1.0 ] && [ "$m0a" = None ] || fail "a failed mutant 0 exited $m0x (a=$m0a p=$m0p)" "$m0"
+[ "$m0x" = 4 ] && [ "$m0p" = 1.0 ] && [ -z "$m0a" ] || fail "a failed mutant 0 exited $m0x (a=$m0a p=$m0p)" "$m0"
 echo "$m0" | grep -q '^group semantics: mutation: the recording does not replay on the unmutated build' || fail "a failed mutant 0 did not name its group" "$m0"
 echo "$nomanifest" | grep -q '^group parser: mutation: the recording wrote no tmp/mutate-batch/parser/snap/manifest.json' || fail "a manifest-less recording did not name its group" "$nomanifest"
 [ "$testfailx" = 4 ] && echo "$testfail" | grep -qF 'group parser: mutation: recording under BAYAN_SNAPSHOT: 2 test(s) failed (tmp/mutate-batch/parser/record.txt): Bayan.Tests.D.Format(name: "round3", x: 1); Bayan.Tests.E.Time — first: two runs differ' || fail "failed tests in the recording exited $testfailx (want 4) or did not name both" "$testfail"
