@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="assets/brand/favicon/favicon.ico" sizes="48x48">
-<link rel="icon" href="assets/brand/favicon/favicon-auto.svg" type="image/svg+xml">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="{{root}}assets/brand/favicon/favicon.ico" sizes="48x48">
+<link rel="icon" href="{{root}}assets/brand/favicon/favicon-auto.svg" type="image/svg+xml">
+<link rel="stylesheet" href="{{root}}assets/style.css">
 <title>Bayan: {{title}}</title>
 <meta name="description" content="Bayan is a value-oriented, natively compiled language. No runtime, no garbage collector, no exceptions.">
 </head>
@@ -13,7 +13,8 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-head">
   <div class="wrap">
-    <a class="brand" href="index.html"><img src="assets/brand/wordmark/bayan-wordmark-en-header.svg" alt="bayān" width="560" height="330"><span lang="ar" dir="rtl">بيان</span></a>
+    <a class="brand" href="{{root}}index.html"><img src="{{root}}assets/brand/wordmark/bayan-wordmark-en-header.svg" alt="bayān" width="560" height="330"><span lang="ar" dir="rtl">بيان</span></a>
+    <span class="version">Bayān {{version}}</span>
     <nav aria-label="Main">
 {{headnav}}
     </nav>
@@ -31,7 +32,7 @@
     <div class="tag">
       <h1 id="h" class="m-line">{{title}}</h1>
       <p class="lead m-line">Bayan is a value-oriented language that compiles to native code. No runtime, no garbage collector, no exceptions.</p>
-      <p class="go m-line"><a class="btn" href="tutorial.html">Compile your first program</a> <a href="{{docs}}">Read the docs</a></p>
+      <p class="go m-line"><a class="btn" href="{{root}}tutorial.html">Compile your first program</a> <a href="{{docs}}">Read the docs</a></p>
     </div>
   </section>
 
@@ -42,7 +43,7 @@
 <footer class="site-foot">
   <div class="wrap">
     <span>Bayan is made by the Ikhbat Foundation.</span>
-    <span><a href="index.html">Home</a> &nbsp; <a href="tutorial.html">Tutorial</a> &nbsp; <a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a></span>
+    <span><a href="{{root}}index.html">Home</a> &nbsp; <a href="{{root}}tutorial.html">Tutorial</a> &nbsp; <a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a></span>
   </div>
 </footer>
 </body>

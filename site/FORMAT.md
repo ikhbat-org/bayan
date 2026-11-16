@@ -12,6 +12,7 @@ site/
   content/*.page       one file per page
   examples/<name>.byn  complete programs shown on pages; <name>.out is their real stdout
   assets/              style.css, fonts/, brand/ (copied as-is into out/)
+  gen/markdown.byn     the Markdown renderer for the release docs (§Release docs)
   out/                 the built site (gitignored)
 ```
 
@@ -49,3 +50,23 @@ template: docs
 ## Highlighting
 
 The generator tokenizes Bayan and wraps tokens in `<span class="…">`, with the classes `kw` (keywords), `ty` (type names: built-in types and capitalized names), `fn` (a name directly before `(`), `str` (string and char literals, including `$"…{…}"` interpolation text), `num`, `com` (comments, `///` doc comments too), `at` (attributes `@name`), `pa` (a particle label before `:` in a call or parameter list: `by:`, `from:`, `to:` …), and `op` for `=>`, `?`, `!`. `style.css` gives each class a colour from the brand palette, readable on parchment (WCAG AA, 4.5:1).
+
+## Release docs
+
+`build.sh` sources `scripts/release/version.sh` and runs the generator as `bayan run site/gen -- site $bayan_release_docs CHANGELOG.md`. The version is the trimmed first line of `VERSION`, read by the generator from `site/../VERSION`; a `-dev` version is shown as is. Every page's header shows it through `{{version}}` (`<span class="version">Bayān {{version}}</span>`).
+
+- Each doc (a path from the repo root) becomes `out/docs/<version>/<name>.html`. `<name>` is the base name without `.md`, with a leading `YYYY-MM-DD-` dropped (`docs/security/2026-11-06-runtime-audit.md` is `runtime-audit`). Names shared by several docs get the parent directory as a prefix (`docs/laws/README.md` is `laws-README`).
+- A page uses `templates/docs.html`. Its title is the first `# ` heading, which leaves the body (the template prints the `<h1>`); `{{toc}}` holds the `##` and `###` headings. The sidebar lists every release doc.
+- `out/docs/<version>/index.html` lists the docs by title.
+- `docs/bayan-roadmap.md` is also written as `out/roadmap.html`. The header nav has Roadmap (`roadmap.html`) and Docs (`docs/<version>/index.html`) links; `{{root}}` (empty, or `../../` under `out/docs/<version>/`) leads back to `out/`.
+- Links: a relative link to a published doc becomes `<name>.html#frag`. Any other relative link goes to `https://github.com/ikhbat-org/bayan/blob/<ref>/<path>`, where `<ref>` is `v<version>`, or `dev` for a `-dev` version. Absolute URLs (with a scheme) and `#frag` links are kept.
+
+The renderer (`gen/markdown.byn`) handles this subset; anything else is shown as escaped text, and all text is escaped (`& < > "`):
+
+- ATX headings `#` to `######` with an optional closing `#` run. Ids are slugs: lowercase, ASCII letters and digits kept, every other run becomes one `-`, leading and trailing `-` dropped (`section` if nothing is left); a repeat gets `-2`, `-3`.
+- Paragraphs; `*em*`, `_em_` (not inside a word), `**strong**`; code spans of any backtick run length; `\` before punctuation.
+- Links `[text](url)` and autolinks `<https://…>`.
+- Fences of three or more `` ` `` or `~` with an info string; `bayan` and `byn` fences are highlighted (§Highlighting), others are plain text. An unclosed fence runs to the end.
+- `-`, `*` and `1.` lists, nested by indentation, continued on indented and lazy lines; a blank line between items makes the items paragraphs.
+- GFM pipe tables with an alignment row, blockquotes (with lazy lines), and `---` / `* * *` rules.
+- Lists and blockquotes nest at most 16 deep (docs/memory-leaks.md); deeper markers render as text. Every scan moves forward, so no input makes the renderer recurse without bound or loop.

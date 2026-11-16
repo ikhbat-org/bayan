@@ -1,0 +1,216 @@
+// Markdown renderer tests: one or more per construct of FORMAT.md §Release docs, escaping, bounds and link targets.
+
+DocLinks noLinks() =>
+    DocLinks { source: "docs/a.md", paths: List<string>(), names: List<string>(), prefix: "", gitRef: "dev" }
+
+string md(string source) => renderMarkdown(source, by: noLinks()).html
+
+/// `source` rendered as a doc at `docs/guide/a.md`, with `docs/b.md` and `CHANGELOG.md` published.
+string linked(string source, at string prefix) {
+    var paths = List<string>()
+    var names = List<string>()
+    paths.append("docs/b.md")
+    names.append("b")
+    paths.append("CHANGELOG.md")
+    names.append("CHANGELOG")
+    let links = DocLinks {
+        source: "docs/guide/a.md",
+        paths: move paths,
+        names: move names,
+        prefix: prefix,
+        gitRef: "v1.2.0",
+    }
+    return renderMarkdown(source, by: move links).html
+}
+
+test "atx headings from two to six hashes get ids" {
+    assert md(
+        "## A b\n###### Six\n####### seven\n#no",
+    ) == "<h2 id=\"a-b\">A b</h2>\n<h6 id=\"six\">Six</h6>\n<p>####### seven\n#no</p>\n"
+}
+
+test "the first level-one heading is the title and leaves the body" {
+    let doc = renderMarkdown("# The *title*\n\n# Second", by: noLinks())
+    assert doc.title == "The *title*"
+    assert doc.html == "<h1 id=\"second\">Second</h1>\n"
+}
+
+test "a closing hash run is dropped" {
+    assert md("### A ###") == "<h3 id=\"a\">A</h3>\n"
+}
+
+test "slugs keep ascii letters and digits and join the rest with one dash" {
+    assert md("## Hello, World! 2.0") == "<h2 id=\"hello-world-2-0\">Hello, World! 2.0</h2>\n"
+    assert md("## `x`: Bayān") == "<h2 id=\"x-bay-n\"><code>x</code>: Bayān</h2>\n"
+    assert md("## ...") == "<h2 id=\"section\">...</h2>\n"
+}
+
+test "slug collisions get -2 and -3" {
+    assert md(
+        "## A\n## A\n## A\n## A 2",
+    ) == "<h2 id=\"a\">A</h2>\n<h2 id=\"a-2\">A</h2>\n<h2 id=\"a-3\">A</h2>\n<h2 id=\"a-2-2\">A 2</h2>\n"
+}
+
+test "the toc holds the h2 and h3 headings" {
+    let doc = renderMarkdown("# T\n## One `x`\n### Two\n#### Three", by: noLinks())
+    assert doc.toc.length == 2
+    assert doc.toc[0].id == "one-x"
+    assert doc.toc[0].html == "One <code>x</code>"
+    assert doc.toc[1].id == "two"
+}
+
+test "paragraphs are separated by blank lines" {
+    assert md("a\n  b\n\n\nc\n") == "<p>a\nb</p>\n<p>c</p>\n"
+}
+
+test "emphasis with stars and underscores" {
+    assert md("*a* _b c_ snake_case_name *open") == "<p><em>a</em> <em>b c</em> snake_case_name *open</p>\n"
+}
+
+test "strong emphasis, with emphasis inside" {
+    assert md(
+        "**a** and **b *c* d** **open",
+    ) == "<p><strong>a</strong> and <strong>b <em>c</em> d</strong> **open</p>\n"
+}
+
+test "code spans of any backtick run length" {
+    assert md(
+        "`a<b` and ``x ` y`` and `` ` `` and `open",
+    ) == "<p><code>a&lt;b</code> and <code>x ` y</code> and <code>`</code> and `open</p>\n"
+}
+
+test "code span text is not emphasis" {
+    assert md("`*a*`") == "<p><code>*a*</code></p>\n"
+}
+
+test "backslash escapes punctuation" {
+    assert md("\\*a\\* \\q") == "<p>*a* \\q</p>\n"
+}
+
+test "links with inline text, absolute urls kept" {
+    assert md(
+        "[a *b*](https://e.org/x?y=1&z) [c](mailto:c@d) [e](#f)",
+    ) == "<p><a href=\"https://e.org/x?y=1&amp;z\">a <em>b</em></a> <a href=\"mailto:c@d\">c</a> <a href=\"#f\">e</a></p>\n"
+}
+
+test "a bracket with no link stays text" {
+    assert md("[a] [b](c") == "<p>[a] [b](c</p>\n"
+}
+
+test "autolinks" {
+    assert md("see <https://a.b/c?d&e>.") == "<p>see <a href=\"https://a.b/c?d&amp;e\">https://a.b/c?d&amp;e</a>.</p>\n"
+}
+
+test "bayan and byn fences are highlighted" {
+    assert md(
+        "```bayan\nlet x = 1\n```",
+    ) == "<pre class=\"byn\"><code><span class=\"kw\">let</span> x = <span class=\"num\">1</span></code></pre>\n"
+    assert md("```byn\ni64 n\n```") == "<pre class=\"byn\"><code><span class=\"ty\">i64</span> n</code></pre>\n"
+}
+
+test "other fences are escaped plain text" {
+    assert md("~~~sh extra\na < b\n\n*c*\n~~~\nd") == "<pre><code>a &lt; b\n\n*c*</code></pre>\n<p>d</p>\n"
+}
+
+test "a fence closes only on a run as long as its opener" {
+    assert md("````\n```\n````") == "<pre><code>```</code></pre>\n"
+}
+
+test "an unclosed fence runs to the end" {
+    assert md("```\na\n\n# b") == "<pre><code>a\n\n# b</code></pre>\n"
+}
+
+test "bullet lists, a new bullet character starts a new list" {
+    assert md("- a\n- b\n* c") == "<ul>\n<li>a</li>\n<li>b</li>\n</ul>\n<ul>\n<li>c</li>\n</ul>\n"
+}
+
+test "ordered lists keep their start number" {
+    assert md("1. a\n2. b") == "<ol>\n<li>a</li>\n<li>b</li>\n</ol>\n"
+    assert md("3. a") == "<ol start=\"3\">\n<li>a</li>\n</ol>\n"
+}
+
+test "lists nest by indentation and continue on indented and lazy lines" {
+    assert md(
+        "- a\n  more\n  - b\n    c\n- d\nlazy",
+    ) == "<ul>\n<li>a\nmore\n<ul>\n<li>b\nc</li>\n</ul>\n</li>\n<li>d\nlazy</li>\n</ul>\n"
+}
+
+test "a blank line between items makes the list loose" {
+    assert md("- a\n\n- b") == "<ul>\n<li><p>a</p>\n</li>\n<li><p>b</p>\n</li>\n</ul>\n"
+}
+
+test "a pipe table with its alignment row" {
+    let source = "| a | b | c |\n|:--|:-:|--:|\n| 1 | x \\| y |\n\nafter"
+    let want = "<table>\n<thead>\n<tr><th style=\"text-align: left\">a</th><th style=\"text-align: center\">b</th><th style=\"text-align: right\">c</th></tr>\n</thead>\n<tbody>\n<tr><td style=\"text-align: left\">1</td><td style=\"text-align: center\">x | y</td><td style=\"text-align: right\"></td></tr>\n</tbody>\n</table>\n<p>after</p>\n"
+    assert md(source) == want
+}
+
+test "a table needs a delimiter row with as many cells" {
+    assert md("a | b\n--- | ---") == "<table>\n<thead>\n<tr><th>a</th><th>b</th></tr>\n</thead>\n</table>\n"
+    assert md("a | b\n---") == "<p>a | b</p>\n<hr>\n"
+}
+
+test "blockquotes nest and take lazy lines" {
+    assert md("> a\nb\n> > c") == "<blockquote>\n<p>a\nb</p>\n<blockquote>\n<p>c</p>\n</blockquote>\n</blockquote>\n"
+}
+
+test "thematic breaks" {
+    assert md("a\n\n---\n\n* * *") == "<p>a</p>\n<hr>\n<hr>\n"
+}
+
+test "html in the source is escaped" {
+    assert md("<b>\"x\" & y</b>") == "<p>&lt;b&gt;&quot;x&quot; &amp; y&lt;/b&gt;</p>\n"
+    assert md("## <i>") == "<h2 id=\"i\">&lt;i&gt;</h2>\n"
+}
+
+test "empty input gives empty output" {
+    assert md("") == ""
+    assert md("\n  \n\n") == ""
+}
+
+test "nesting deeper than 16 renders as text" {
+    assert md($"{">".repeated(20)} x").count("<blockquote>") == 16
+    assert md($"{">".repeated(20)} x").contains("&gt;&gt;&gt;&gt; x")
+    var sb = StrBuf()
+    for k in 0..20 {
+        sb.append("  ".repeated(k))
+        sb.append("- x\n")
+    }
+    let html = md($"{sb.finish()}")
+    assert html.count("<ul>") == 16
+    assert html.contains("- x")
+}
+
+test "a 2000-line input renders" {
+    var sb = StrBuf()
+    for k in 0..500 {
+        sb.append($"## Part {k}\n- item *{k}* `c` [l](u.md)\n  - sub **b**\n| a | b |\n")
+    }
+    let doc = renderMarkdown($"{sb.finish()}", by: noLinks())
+    assert doc.html.count("<li>") == 1000
+    assert doc.toc.length == 500
+}
+
+test "unmatched delimiters never stall" {
+    assert md("*_`[<](\n|\n|-|\n~~").length > 0
+    assert md($"a{"[".repeated(3000)}{"_".repeated(3000)}").length == "<p>a</p>\n".length + 6000
+}
+
+test "a relative link to a published doc goes to its page" {
+    assert linked(
+        "[b](../b.md#s) [c](../../CHANGELOG.md)",
+        at: "",
+    ) == "<p><a href=\"b.html#s\">b</a> <a href=\"CHANGELOG.html\">c</a></p>\n"
+    assert linked("[b](../b.md)", at: "docs/1.2.0/") == "<p><a href=\"docs/1.2.0/b.html\">b</a></p>\n"
+}
+
+test "any other relative link goes to the file on GitHub at the version tag" {
+    let want = "<p><a href=\"https://github.com/ikhbat-org/bayan/blob/v1.2.0/src/x.byn#L3\">x</a> <a href=\"https://github.com/ikhbat-org/bayan/blob/v1.2.0/docs/guide/c.md\">c</a></p>\n"
+    assert linked("[x](../../src/./x.byn#L3) [c](c.md)", at: "") == want
+}
+
+test "a dev version links to the dev branch" {
+    assert md(
+        "[x](../src/x.byn)",
+    ) == "<p><a href=\"https://github.com/ikhbat-org/bayan/blob/dev/src/x.byn\">x</a></p>\n"
+}
