@@ -2,7 +2,7 @@ bool isBlank(string s) => s.trimmed().isEmpty
 
 string shout(string s) => s.uppercased()
 
-bool isEven(i64 n) => n % 2 == 0
+bool isEven(i32 n) => n % 2 == 0
 
 void main() {
     print($"{isBlank("   ")} {isBlank("hi")}")

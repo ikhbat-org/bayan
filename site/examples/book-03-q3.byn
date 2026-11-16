@@ -1,4 +1,4 @@
-string size(i64 n) => n switch {
+string size(i32 n) => n switch {
     < 0 => "negative",
     0 => "zero",
     1 or 2 => "small",

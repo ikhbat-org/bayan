@@ -1,5 +1,5 @@
 void main() {
-    var scores: List<i64> = [72, 91, 85]
+    var scores: List<i32> = [72, 91, 85]
     scores.append(64)
     print($"{scores.length} scores")
     print($"first {scores[0]}, last {scores[scores.length - 1]}")

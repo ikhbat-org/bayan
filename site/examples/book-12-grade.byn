@@ -3,7 +3,7 @@ union error GradeError {
     tooHigh
 }
 
-string grade(i64 score) fails GradeError {
+string grade(i32 score) fails GradeError {
     fail GradeError.negative if score < 0
     fail GradeError.tooHigh if score > 100
     return "A" if score >= 90
@@ -22,6 +22,6 @@ test "negative scores fail" {
 }
 
 @cases((100, "A"), (89, "B"), (79, "C"))
-test "grade table" (i64 score, string expected) {
+test "grade table" (i32 score, string expected) {
     assert (try grade(score)) == expected
 }

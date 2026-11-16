@@ -1,6 +1,6 @@
-string show(i64 amount) => $"{amount}"
-string show(i64 amount, as string unit) => $"{amount} {unit}"
-string show(i64 amount, from i64 low, to i64 high) => $"{amount} in {low}..{high}"
+string show(i32 amount) => $"{amount}"
+string show(i32 amount, as string unit) => $"{amount} {unit}"
+string show(i32 amount, from i32 low, to i32 high) => $"{amount} in {low}..{high}"
 
 void main() {
     print(show(42))

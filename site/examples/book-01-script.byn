@@ -1,4 +1,4 @@
 #!/usr/bin/env bayan
 // A script: the first line lets the shell run the file directly.
 let name = "script"
-print($"Hello from a {name}!")
+print($"Salam from a {name}!")
