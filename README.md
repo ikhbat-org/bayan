@@ -124,14 +124,14 @@ For a one-off script you don't need a project. Write a single `.byn` file and ru
 ## Batteries included
 
 One `bayan` binary holds the compiler, the formatter, the test runner and the release builder. There is
-nothing else to install except a C compiler. The commands are from `bayan --help`; test flags beyond it are from the spec (§21.2).
+nothing else to install except a C compiler. The commands are from `bayan --help`.
 
 | Command | What it does |
 |---|---|
 | `bayan new`, `bayan init` | Create an app, library (`--lib`) or script (`--script`), in a new or an existing directory |
 | `bayan run` | Compile and run a project, a script or a file |
 | `bayan build` | Compile to an executable; `--mode debug\|safe\|fast`, `--target`, `--emit-c` |
-| `bayan test` | Run each test in its own process; `--coverage` for a full report of lines, branches and error paths (a one-line summary prints by default); `--mutate` for mutation testing; `--changed` for modules touched since `HEAD`; `--json` |
+| `bayan test` | Run each test in its own process; `--coverage` for a report of lines, branches and error paths; `--mutate` for mutation testing; `--changed` for modules touched since `HEAD`; `--json` |
 | `bayan check` | Report diagnostics without building; `--diagnostics json` for tools |
 | `bayan format` | Rewrite input forms and apply the `style` in `package.byn`; `--check` writes nothing |
 | `bayan explain` | Explain a diagnostic code, for example `bayan explain BYN6002` |
@@ -150,6 +150,7 @@ The standard library is compiled in, so a program needs no package manager to us
 | Piece | What it gives you |
 |---|---|
 | `Io` | Files (`Io.readText`), standard streams, processes, random numbers; each use shows up in `uses` |
+| `Path` | File names and paths, for example `Path.fileName` |
 | `List`, `Map` | Growable collections that take their memory from an allocator |
 | `StrBuf` | A string builder for loops |
 | `Arena` | Allocate many things, free them all together |
