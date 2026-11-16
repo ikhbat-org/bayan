@@ -17,4 +17,7 @@ mkdir -p "$here/out/docs/$version"
 "$BAYAN" run "$here/gen" -- "$here" $bayan_release_docs CHANGELOG.md
 cp -R "$here/assets" "$here/out/assets"
 cp "$root"/docs/manifesto/assets/*.svg "$here/out/assets/"
+# The versioned copy of the manifesto (out/docs/<version>/) resolves assets/ next to itself.
+mkdir -p "$here/out/docs/$version/assets"
+cp "$root"/docs/manifesto/assets/*.svg "$here/out/docs/$version/assets/"
 "$here/check-examples.sh"
