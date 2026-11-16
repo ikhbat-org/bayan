@@ -17,23 +17,23 @@ git add -A && git commit -qm "test: base" && git branch -q base
 printf '# Handoff\n900. T99 cites a.byn:9 `let x = 1`. Open.\n' > docs/bayan-questions.md
 git commit -qam "test: stale"
 printf '# Handoff\n900. T99 cites a.byn:2 `let x = 1`. Open.\n- **T99** landed.\n' > docs/bayan-questions.md
-out=$(python3 -I "$root/scripts/selfhost/guard-checks.py" base T99 'src/semantics/a.byn,docs/bayan-questions.md' || true)
+out=$(bash "$root/scripts/bayan-tool.sh" guard-checks base T99 'src/semantics/a.byn,docs/bayan-questions.md' || true)
 cp src/semantics/ctx.byn ctx.orig
 printf 'struct Ctx {\n    stray: int\n    // ── T99 state\n    a: int\n    // ── T98 state\n}\n' > src/semantics/ctx.byn
 git commit -qm "test: stray ctx line" -- src/semantics/ctx.byn; mv ctx.orig src/semantics/ctx.byn
-out3=$(python3 -I "$root/scripts/selfhost/guard-checks.py" base T99 'src/semantics/a.byn,docs/bayan-questions.md' || true)
+out3=$(bash "$root/scripts/bayan-tool.sh" guard-checks base T99 'src/semantics/a.byn,docs/bayan-questions.md' || true)
 printf '# Handoff\n901. T99 cites `src/parser/e.byn:2` `let y = 2`, a.byn:2 `let x = 1`, src/parser/nope.byn:3.\n- **T99** landed.\n' > docs/bayan-questions.md
-out2=$(python3 -I "$root/scripts/selfhost/guard-checks.py" base T99 'src/semantics/a.byn,docs/bayan-questions.md' || true)
+out2=$(bash "$root/scripts/bayan-tool.sh" guard-checks base T99 'src/semantics/a.byn,docs/bayan-questions.md' || true)
 cp src/semantics/ctx.byn ctx.orig
 printf 'struct Ctx {\n    // ── T99 state\n    a: int\n    // ── T98 state\n    // ── T97 state\n    b: int\n}\n' > src/semantics/ctx.byn
-out4=$(python3 -I "$root/scripts/selfhost/guard-checks.py" base T97 'src/semantics/a.byn,docs/bayan-questions.md' || true)
-out5=$(python3 -I "$root/scripts/selfhost/guard-checks.py" base T98 'src/semantics/a.byn,docs/bayan-questions.md' || true)
+out4=$(bash "$root/scripts/bayan-tool.sh" guard-checks base T97 'src/semantics/a.byn,docs/bayan-questions.md' || true)
+out5=$(bash "$root/scripts/bayan-tool.sh" guard-checks base T98 'src/semantics/a.byn,docs/bayan-questions.md' || true)
 mv ctx.orig src/semantics/ctx.byn
 mkdir -p csharp/tests/Bayan.Tests
 printf 'class P { void F() { var tree = SyntaxTree.Parse(SourceText.FromFile(f)); } }\n' > csharp/tests/Bayan.Tests/ParseOracleTests.cs
 printf 'class S { void F() { SelfhostEmitterHarness.SameAsCli("n", ["build"], [m]); } }\n' > csharp/tests/Bayan.Tests/CliOracleTests.cs
 printf 'class N { void F() { Assert.Equal("1", Run()); } }\n' > csharp/tests/Bayan.Tests/NoOracleTests.cs
-out6=$(python3 -I "$root/scripts/selfhost/guard-checks.py" base T99 'src/semantics/a.byn,csharp/tests/Bayan.Tests/ParseOracleTests.cs,csharp/tests/Bayan.Tests/CliOracleTests.cs,csharp/tests/Bayan.Tests/NoOracleTests.cs' 011 || true)
+out6=$(bash "$root/scripts/bayan-tool.sh" guard-checks base T99 'src/semantics/a.byn,csharp/tests/Bayan.Tests/ParseOracleTests.cs,csharp/tests/Bayan.Tests/CliOracleTests.cs,csharp/tests/Bayan.Tests/NoOracleTests.cs' 011 || true)
 rm -rf "$r"
 if echo "$out" | grep -q 'a.byn:9'; then echo "FAIL: stale committed citation reported"; exit 1; fi
 if echo "$out" | grep -q 'Progress log'; then echo "FAIL: working-tree Progress log entry not seen"; exit 1; fi
