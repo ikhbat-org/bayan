@@ -25,7 +25,8 @@ bash "$(dirname "${BASH_SOURCE[0]}")/merged-worktree-backlog.sh" ${pass[@]+"${pa
 
 if [ $execute = 1 ] && [ $remote = 1 ]; then
   ssh ghosthive "
-    was=\$(incus list bayan-test01 -c s -f csv)
+    was=\$(incus info bayan-test01 | sed -n 's/^Status: //p')
+    [ -n \"\$was\" ] || { echo '  cannot read the bayan-test01 status; VM left alone'; exit 1; }
     [ \"\$was\" = RUNNING ] || incus start bayan-test01
     rc=0; up=0
     for i in \$(seq 1 30); do timeout 10 incus exec bayan-test01 -- true 2>/dev/null && { up=1; break; }; sleep 2; done
@@ -38,5 +39,5 @@ if [ $execute = 1 ] && [ $remote = 1 ]; then
 else
   printf 'would: in bayan-test01 remove /home/bt/tmp-020-t1 (needs --execute --remove-remote)\n'
 fi
-if [ $execute = 1 ] && [ $failed = 1 ]; then exit 1; fi
+if [ $failed = 1 ]; then exit 1; fi
 exit 0
