@@ -68,5 +68,5 @@ The renderer (`gen/markdown.byn`) handles this subset; anything else is shown as
 - Links `[text](url)` and autolinks `<https://…>`.
 - Fences of three or more `` ` `` or `~` with an info string; `bayan` and `byn` fences are highlighted (§Highlighting), others are plain text. An unclosed fence runs to the end.
 - `-`, `*` and `1.` lists, nested by indentation, continued on indented and lazy lines; a blank line between items makes the items paragraphs.
-- GFM pipe tables with an alignment row, blockquotes (with lazy lines), and `---` / `* * *` rules.
+- GFM pipe tables with an alignment row, blockquotes (with lazy lines), and `---` rules.
 - Lists and blockquotes nest at most 16 deep (docs/memory-leaks.md); deeper markers render as text. Every scan moves forward, so no input makes the renderer recurse without bound or loop.

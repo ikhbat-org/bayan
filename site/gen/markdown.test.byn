@@ -154,8 +154,13 @@ test "blockquotes nest and take lazy lines" {
     assert md("> a\nb\n> > c") == "<blockquote>\n<p>a\nb</p>\n<blockquote>\n<p>c</p>\n</blockquote>\n</blockquote>\n"
 }
 
-test "thematic breaks" {
-    assert md("a\n\n---\n\n* * *") == "<p>a</p>\n<hr>\n<hr>\n"
+test "thematic breaks are dashes only" {
+    assert md("a\n\n---\n\n - - -") == "<p>a</p>\n<hr>\n<hr>\n"
+    assert md("***\n\n___") == "<p>***</p>\n<p>___</p>\n"
+}
+
+test "a plus is not a bullet" {
+    assert md("+ a\n+ b") == "<p>+ a\n+ b</p>\n"
 }
 
 test "html in the source is escaped" {

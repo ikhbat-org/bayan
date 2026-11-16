@@ -139,16 +139,13 @@ string headingText(string line, at i64 level) {
     return text[0..end].trimmed()
 }
 
-/// Whether `line` is a thematic break: 3 or more of one of `-`, `*`, `_`, spaces allowed.
+/// Whether `line` is a thematic break: 3 or more `-`, spaces allowed.
 bool isRule(string line) {
     return false if indentOf(line) > 3
-    var marker: u8 = 0
     var count: i64 = 0
     for c in line.bytes {
         continue if c == ' '
-        return false if c != '-' && c != '*' && c != '_'
-        return false if marker != 0 && c != marker
-        marker = c
+        return false if c != '-'
         count += 1
     }
     return count >= 3
@@ -175,7 +172,7 @@ ListMarker markerOf(string line) {
     var marker = none
     var end = start
     let c = line.bytes[start]
-    if c == '-' || c == '*' || c == '+' {
+    if c == '-' || c == '*' {
         marker.bullet = c
         end = start + 1
     } else {
