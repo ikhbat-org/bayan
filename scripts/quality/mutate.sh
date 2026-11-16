@@ -55,5 +55,5 @@ while IFS= read -r proj; do
     --reporter json --output "$work/$n" >&2 </dev/null)
   reports+=("$(find "$work/$n" -name 'mutation-report.json' | head -n 1)")
 done < <(printf '%s\n' "${projects[@]}" | sort -u)
-python3 -I "$here/stryker_to_quality.py" "$out" "$repo" 0 "$((SECONDS - start))" "${reports[@]}"
+bash "$here/../bayan-tool.sh" stryker-to-quality "$out" "$repo" 0 "$((SECONDS - start))" "${reports[@]}"
 echo "wrote $out"
