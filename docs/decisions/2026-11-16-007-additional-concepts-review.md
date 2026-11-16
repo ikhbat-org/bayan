@@ -1,6 +1,7 @@
 # 007 — Review of the additional concepts draft
 
 Status: decided (all answers recorded below; Q4 confirmed 2026-11-16)
+Release: unscheduled
 Date: 2026-11-16
 Sources: `docs/bayan-additional-concepts.md`; `docs/bayan-spec.md` (§0, §19, Appendix A, Appendix B); `docs/bayan-grammar.md` §4, §12, §13; `docs/STATUS.md`; `docs/bayan-not-planned.md`; `docs/bayan-nice-to-have.md`; `docs/revisions/0019`, `0022`, `0023`; drafts `specs/023-spec-catch-up/023-spec.md` and `decisions/2026-11-16-006-after-022-roadmap-decisions.md` (not on `dev`).
 
@@ -45,7 +46,7 @@ Would change my mind: a public registry before 0.4, which pulls this forward.
 
 ### A2. Naskh → deprecation naming its replacement
 1. **Exists, spec-only.** `docs/bayan-spec.md:1538`: `@deprecated(by:, until:)`, the error keyed to the consumer's edition, "without `by:` the attribute requires `because`". Accepted as R4.3 (`docs/bayan-design-round-4-inventory.md:165`). `bayan migrate` applies it (`docs/bayan-spec.md:2446`; packages plan item 7). It is listed in `docs/bayan-nice-to-have.md`. I found no code for it and no row in the 023 inventory.
-2. **`@abrogated` conflicts** with one spelling per construct (SPEC §0.3) and with the draft's own caution about religious terms.
+2. **`@abrogated` conflicts** with one spelling per construct (SPEC §0 (principle 3)) and with the draft's own caution about religious terms.
 3. **The draft's three differences are worse than the existing design:**
    - A mandatory replacement fails when something is removed with none; the existing "`by:` or `because`" rule covers that.
    - `bayan format` rewriting calls is the wrong tool; `bayan migrate` already owns that job.
@@ -108,7 +109,7 @@ Would change my mind: a real case relating the result to the arguments that neit
 
 ### A8. Ism al-marra → `once`
 1. **Exists, spec-only.** `docs/bayan-spec.md:692`: "Runtime setup uses `static let x = lazy load()` (thread-safe, runs once on first use)"; `:2622` maps C# static constructors to `lazy`.
-2. **Conflicts with SPEC §0.3:** `once` would be a synonym of `lazy`.
+2. **Conflicts with SPEC §0 (principle 3):** `once` would be a synonym of `lazy`.
 3. No value beyond what `lazy` gives.
 4. **Reject.**
 5. Gaps to record instead: `lazy` is missing from the keyword lists in SPEC §2.4, from `docs/STATUS.md`, and from the 023 inventory.
@@ -124,7 +125,7 @@ Would change my mind: a Sūq friction entry showing repeated stamp code, togethe
 
 ### A10. Ḥaṣr → `only`
 1. **New.** Ḥaṣr is already a named source for something else: "Permissions are deny-by-default (ḥaṣr)" (`docs/bayan-spec.md:2580`).
-2. **Syntax change** under the freeze (rev 0023), and SPEC §0.3 requires new syntax to have its own job.
+2. **Syntax change** under the freeze (rev 0023), and SPEC §0 (principle 3) requires new syntax to have its own job.
 3. `only .paid` would narrow the element type, which `where` is not specified to do, so it has a job. But `orders except not .paid` may already say it, and sequence `except` is not built (`docs/STATUS.md:36`, BYN2022).
 4. **Reject now.** The draft doubts it too. Revisit after 023 item 5 lands and real code shows `except not .x`.
 5. Not applicable.

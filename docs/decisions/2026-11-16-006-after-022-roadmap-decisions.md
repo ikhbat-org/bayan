@@ -1,6 +1,8 @@
 # 006 — Decisions after spec 022: order, oracle freeze, test runner, coverage, catch-up, open questions
 
 Status: decided (all answers in the "Decided by the user" sections below)
+Release: unscheduled
+Sources: an independent Fable review (think worker, key `s022-decisions`); the user's answers of 2026-11-16 recorded below
 Date: 2026-11-16
 Input: an independent review by Fable (think worker, key `s022-decisions`) given the full facts and no recommendations; verdicts below are Fable's unless marked otherwise.
 
