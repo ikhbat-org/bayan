@@ -1,10 +1,12 @@
-<p align="center"><img src="assets/hoopoe.svg" width="380" alt="bayān"></p>
+![bayān](assets/hoopoe.svg)
 
-<h1 align="center">The Bayān Manifesto</h1>
+# The Bayān Manifesto
 
-<p align="center"><em>Syntax is a contract. Ten axioms for a language that says what it means, explained for developers who have never written Bayān or studied Arabic.</em></p>
+*Syntax is a contract. Ten axioms for a language that says what it means, explained for developers who have never written Bayān or studied Arabic.*
 
-<p align="center"><sub>Edition 1 · November 2026 · written against the Bayān specification at commit 8d5e5c71 (revisions 0001–0019) and compiler 0.2.0</sub></p>
+Version: 0.3.2-dev (matches `bayan --version`)
+
+Edition 1 · November 2026 · written against the Bayān specification at commit 8d5e5c71 (revisions 0001–0019) and compiler 0.2.0
 
 ---
 

@@ -344,6 +344,58 @@ i32 publish(ReadOnlySpan<string> docs, at string site, by Release release) {
     return writePage($"{dir}/index.html", from: filledDoc(index, by: release))
 }
 
+/// Whether `pages[a]` comes before `pages[b]` in the book: by `order`, then name.
+bool beforeInBook(ReadOnlySpan<Page> pages, from i64 a, to i64 b) {
+    return pages[a].order < pages[b].order if pages[a].order != pages[b].order
+    return pages[a].name < pages[b].name
+}
+
+/// Writes `<site>/out/book.html`: every `book-*` page in order, each chapter under its title as `<h1>`; nothing if there are none.
+i32 writeBook(ReadOnlySpan<Page> pages, at string site, by Release release) {
+    var chapters = List<i64>()
+    for i in 0..pages.length {
+        unless pages[i].name.startsWith("book-") { continue }
+        var at = chapters.length
+        while at > 0 && beforeInBook(pages, from: i, to: chapters[at - 1]) { at -= 1 }
+        chapters.append(i)
+        var j = chapters.length - 1
+        while j > at {
+            chapters[j] = chapters[j - 1]
+            j -= 1
+        }
+        chapters[at] = i
+    }
+    return exitOk if chapters.isEmpty
+    var sb = StrBuf()
+    for k in chapters {
+        sb.append("<h1>")
+        escapeInto(pages[k].title, to: ref sb)
+        sb.append("</h1>\n")
+        var toc = List<Heading>()
+        let problem = renderBody(pages[k], from: $"{site}/examples", to: ref sb, for: ref toc)
+        unless problem.isEmpty { return report(problem) }
+    }
+    let page = DocPage { title: "The Bayān book", body: $"{sb.finish()}", toc: "", sidebar: "", root: "", here: "" }
+    return writePage($"{site}/out/book.html", from: filledDoc(page, by: release))
+}
+
+/// Writes `<site>/out/manifesto.html` from `docs/manifesto/bayan-manifesto.md`; nothing if the file is absent.
+i32 writeManifesto(at string site, by Release release) {
+    let file = $"{site}/../docs/manifesto/bayan-manifesto.md"
+    let text = Io.readText(file) catch return exitOk
+    let source = "docs/manifesto/bayan-manifesto.md"
+    let doc = renderMarkdown(text, by: linksFor(source, from: List<string>().span, by: List<string>().span, at: "", for: release.version))
+    let page = DocPage {
+        title: doc.title.isEmpty ? "The Bayān Manifesto" : doc.title,
+        body: doc.html,
+        toc: tocList(doc.toc.span),
+        sidebar: "",
+        root: "",
+        here: "",
+    }
+    return writePage($"{site}/out/manifesto.html", from: filledDoc(page, by: release))
+}
+
 i32 main(ReadOnlySpan<string> args) {
     if args.length < 1 || args[0].startsWith("-") {
         Io.stderr.write("usage: bayan run site/gen -- <site-dir> [<doc.md>…]\n")
@@ -413,7 +465,6 @@ i32 main(ReadOnlySpan<string> args) {
         Io.writeFile(path, result.bytes) catch return report($"{path}: cannot write")
         print($"wrote {path}")
     }
-    return exitOk if args.length == 1
     let shell = Io.readText($"{site}/templates/docs.html") catch return report($"{site}/templates/docs.html: cannot read")
     let release = Release {
         version: version,
@@ -422,5 +473,10 @@ i32 main(ReadOnlySpan<string> args) {
         navDeep: headNav(pages.span, by: order.span, for: -1, at: "../../"),
         docsHref: docsHref,
     }
+    let book = writeBook(pages.span, at: site, by: release)
+    return book if book != exitOk
+    let manifesto = writeManifesto(at: site, by: release)
+    return manifesto if manifesto != exitOk
+    return exitOk if args.length == 1
     return publish(args[1..args.length], at: site, by: release)
 }

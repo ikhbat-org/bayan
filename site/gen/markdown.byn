@@ -483,6 +483,26 @@ void inlineInto(string text, by i64 depth, to ref StrBuf html, for ref MdState m
             plain = i
             continue
         }
+        if c == '!' && next == '[' && !noLink {
+            let middle = text.position("](", from: i + 2) ?? -1
+            let close = middle < 0 ? -1 : text.position(")", from: middle + 2) ?? -1
+            if close < 0 {
+                noLink = true
+                i += 1
+                continue
+            }
+            var url = text[(middle + 2)..close].trimmed()
+            url = url[0..(url.position(" ") ?? url.length)]
+            escapeInto(text[plain..i], to: ref html)
+            html.append("<img src=\"")
+            escapeInto(url, to: ref html)
+            html.append("\" alt=\"")
+            escapeInto(text[(i + 2)..middle], to: ref html)
+            html.append("\">")
+            i = close + 1
+            plain = i
+            continue
+        }
         if c == '[' && !noLink {
             let middle = text.position("](", from: i + 1) ?? -1
             let close = middle < 0 ? -1 : text.position(")", from: middle + 2) ?? -1

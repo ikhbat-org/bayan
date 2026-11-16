@@ -134,7 +134,9 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
      is marked a prerelease (`package.sh release-flags`; user, 2026-11-14).
 
    Publishing the draft is a manual step.
-8. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors
+8. **PDFs.** Run `bash scripts/release/docs-pdf.sh` (needs Chrome; `CHROME` names it) and attach `dist/bayan-manifesto-X.Y.Z.pdf`
+   and `dist/bayan-book-X.Y.Z.pdf` to the GitHub release.
+9. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors
    and the headers to `-dev` and regenerates the generated docs. Regenerate `bootstrap/bayan.c` and commit all of it
    as one commit on `dev`.
 
