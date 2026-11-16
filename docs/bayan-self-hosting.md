@@ -1,6 +1,6 @@
 # Bayan: self-hosting plan
 
-Version: 0.3.2 (matches `bayan --version`)
+Version: 0.3.3-dev (matches `bayan --version`)
 
 **Short answer:** small tools can be written in Bayan right after v0.1; the compiler itself can move to Bayan once v0.2 lands, because v0.2 adds the features a compiler can't do without.
 
