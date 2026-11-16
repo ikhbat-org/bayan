@@ -6,13 +6,13 @@ union error CarrierError {
 
 union error Retryable = CarrierError except .rejected
 
-i64 send(i64 n) fails CarrierError {
+i32 send(i32 n) fails CarrierError {
     fail .rejected if n < 0
     fail .timeout if n == 0
     return n * 2
 }
 
-i64 retry(i64 n) fails Retryable {
+i32 retry(i32 n) fails Retryable {
     let q = send(n) catch (CarrierError.rejected) 1
     return q
 }

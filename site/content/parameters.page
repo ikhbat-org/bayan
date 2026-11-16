@@ -96,10 +96,10 @@ void shift(i64 a, by i64 d, to i64 e = 0) { print("by2") }</code></pre>
 <h2 id="diagnostic">When a particle is missing</h2>
 <p>Write the argument without its particle and the compiler names the particle, points at the argument and shows the fix. A swapped pair of arguments of the same type lands here too, which is why Bayan needs no separate same-type naming rule.</p>
 <pre><code class="byn">// A swapped pair is a particle mismatch (BYN5005).
-i64 width(i64 start, until i64 end) =&gt; end - start
+i32 width(i32 start, until i32 end) =&gt; end - start
 
-let start: i64 = 2
-let end: i64 = 5
+let start: i32 = 2
+let end: i32 = 5
 print($"{width(end, start)}")
 print($"{width(start, until: end)}")</code></pre>
 <figure class="diag">

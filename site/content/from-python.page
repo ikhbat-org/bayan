@@ -52,14 +52,14 @@ template: docs
 <p>The sections below show the less obvious rows as programs.</p>
 
 <h2 id="values">Values, lists and maps</h2>
-<p>A Bayan program is a set of typed values. You can leave the type off a local when the right-hand side shows it (<code>let name = "Ada"</code>), and you write it for collections that start empty (<code>List&lt;i64&gt;()</code>). Blocks use braces, not indentation, and a statement ends at the end of the line.</p>
+<p>A Bayan program is a set of typed values. You can leave the type off a local when the right-hand side shows it (<code>let name = "Aisha"</code>), and you write it for collections that start empty (<code>List&lt;i64&gt;()</code>). Blocks use braces, not indentation, and a statement ends at the end of the line.</p>
 <pre><code class="other" data-lang="Python">scores = [90, 72, 85]
 total = 0
 for s in scores:
     total += s
 print(f"{len(scores)} scores, total {total}, mean {total / len(scores)}")
-ages = {"ada": 36, "grace": 45}
-print("ada" in ages, "linus" in ages)
+ages = {"aisha": 36, "maryam": 45}
+print("aisha" in ages, "yusuf" in ages)
 for name, age in ages.items():
     print(name, "is", age)</code></pre>
 <example name="guide-py-basics"/>
@@ -80,15 +80,15 @@ class Account:
     def deposit(self, amount):
         self.balance += amount
 
-a = Account("ada")
+a = Account("aisha")
 a.deposit(50)
-b = replace(a, owner="grace")
+b = replace(a, owner="maryam")
 a.deposit(25)</code></pre>
 <example name="guide-py-class"/>
 <p>Two things differ from the Python version.</p>
 <ul>
 <li>A method that changes the struct says <code>ref this</code> as its first parameter. Without it, the method can only read. You cannot call a changing method on a <code>let</code>.</li>
-<li><code>b</code> is a separate value. <code>a with { owner: "grace" }</code> copies <code>a</code> and replaces one field, so the later <code>a.deposit(25)</code> does not touch <code>b</code>. In Python two names can point at one object. In Bayan they cannot, unless you ask for a <code>ref</code>.</li>
+<li><code>b</code> is a separate value. <code>a with { owner: "maryam" }</code> copies <code>a</code> and replaces one field, so the later <code>a.deposit(25)</code> does not touch <code>b</code>. In Python two names can point at one object. In Bayan they cannot, unless you ask for a <code>ref</code>.</li>
 </ul>
 
 <h2 id="none">None becomes an optional</h2>
@@ -99,7 +99,7 @@ a.deposit(25)</code></pre>
             return n
     return None</code></pre>
 <example name="guide-py-none"/>
-<p>The second parameter of <code>find</code> is written <code>by string prefix</code>. When a function takes more than one required parameter, all but the first carry a label, called a particle, and the call writes it: <code>find(names, by: "gr")</code>. The <a href="parameters.html">parameters page</a> lists the particles and when to pick which.</p>
+<p>The second parameter of <code>find</code> is written <code>by string prefix</code>. When a function takes more than one required parameter, all but the first carry a label, called a particle, and the call writes it: <code>find(names, by: "fa")</code>. The <a href="parameters.html">parameters page</a> lists the particles and when to pick which.</p>
 <note>Planned: <code>?.</code>, as in <code>name?.length</code>. The parser rejects it today (BYN2022). Use <code>is not null</code> or <code>??</code>.</note>
 
 <h2 id="errors">Exceptions become fails and catch</h2>

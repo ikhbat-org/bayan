@@ -29,7 +29,7 @@ template: docs
 <tr><td>Narrowing</td><td><code>if (x !== null) { … }</code></td><td><code>if x is not null { … }</code></td></tr>
 <tr><td>Optional chaining</td><td><code>user?.name</code></td><td>planned (BYN2022 today)</td></tr>
 <tr><td>Object type</td><td><code>interface User { name: string }</code></td><td><code>struct User { string name }</code></td></tr>
-<tr><td>Spread update</td><td><code>{ ...a, name: "grace" }</code></td><td><code>a with { name: "grace" }</code></td></tr>
+<tr><td>Spread update</td><td><code>{ ...a, name: "maryam" }</code></td><td><code>a with { name: "maryam" }</code></td></tr>
 <tr><td>Default field</td><td><code>role = "guest"</code> in a class</td><td><code>Role role = .guest</code> in the struct</td></tr>
 <tr><td>String literal union</td><td><code>"admin" | "guest"</code></td><td><code>enum Role</code> with cases <code>admin</code> and <code>guest</code></td></tr>
 <tr><td>Tagged union</td><td><code>{ kind: "ok"; value: string } | { kind: "failed"; reason: string }</code></td><td><code>union Outcome</code> with the cases <code>ok(string value)</code> and <code>failed(string reason)</code></td></tr>
@@ -59,8 +59,8 @@ template: docs
 <pre><code class="other" data-lang="TypeScript">type Role = "admin" | "guest";
 interface User { name: string; role: Role; email?: string }
 
-const a: User = { name: "ada", role: "admin" };
-const b = { ...a, name: "grace", email: "g@example.com" };</code></pre>
+const a: User = { name: "aisha", role: "admin" };
+const b = { ...a, name: "maryam", email: "m@example.com" };</code></pre>
 <example name="guide-ts-struct"/>
 <p><code>email</code> has the type <code>string?</code>. It is <code>null</code> unless set, and the compiler will not let you read it as a <code>string</code> before you have checked: inside <code>if b.email is not null { … }</code> it narrows to <code>string</code>, as TypeScript does. <code>a</code> is not changed by creating <code>b</code>. Every struct is a value, so <code>with</code> makes a copy.</p>
 <p>A struct literal must give a value to every field that has no default. A missing field is an error (BYN2109), not <code>undefined</code>.</p>
@@ -108,7 +108,7 @@ function render(r: Outcome): string {
 <note>Planned: <code>async</code> and <code>await</code>. The model differs from <code>Promise</code>: a function is not declared <code>async</code>, you mark the call, and a task cannot outlive the block that started it. The compiler rejects both keywords today. See the <a href="cookbook-concurrency.html">Concurrency cookbook</a>.</note>
 
 <h2 id="functions">Functions and lambdas</h2>
-<p>Parameter types come first: <code>i64 add(i64 a, by i64 b)</code>. All parameters after the first carry a label, called a particle, from a fixed list (<code>from</code>, <code>to</code>, <code>until</code>, <code>through</code>, <code>at</code>, <code>by</code>, <code>for</code>, <code>as</code>), and the call writes it. This is where TypeScript would use an options object. A lambda borrows its parameter types from the function type it is passed to, so it is written without types.</p>
+<p>Parameter types come first: <code>i32 add(i32 a, by i32 b)</code>. All parameters after the first carry a label, called a particle, from a fixed list (<code>from</code>, <code>to</code>, <code>until</code>, <code>through</code>, <code>at</code>, <code>by</code>, <code>for</code>, <code>as</code>), and the call writes it. This is where TypeScript would use an options object. A lambda borrows its parameter types from the function type it is passed to, so it is written without types.</p>
 <pre><code class="other" data-lang="TypeScript">const applyTwice = (x: number, step: (n: number) =&gt; number) =&gt; step(step(x));
 applyTwice(5, (n) =&gt; n * 3);</code></pre>
 <example name="guide-ts-fn"/>

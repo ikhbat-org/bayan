@@ -8,7 +8,7 @@ struct Dog : IDescribe {
 }
 
 struct Cat : IDescribe {
-    i64 lives
+    i32 lives
     string describe() => $"cat with {lives} lives"
 }
 

@@ -2,7 +2,7 @@ union error RangeError {
     tooLow
     tooHigh
 }
-i64 checkPercent(i64 n) fails RangeError {
+i32 checkPercent(i32 n) fails RangeError {
     fail .tooLow if n < 0
     fail .tooHigh if n > 100
     return n
@@ -16,7 +16,7 @@ test "rejects out of range" {
     assert checkPercent(101) fails RangeError
 }
 @cases((0, 0), (100, 100), (101, -1))
-test "bounds" (i64 input, i64 expected) {
+test "bounds" (i32 input, i32 expected) {
     assert (checkPercent(input) catch -1) == expected
 }
 void main() {

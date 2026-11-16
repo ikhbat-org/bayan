@@ -6,13 +6,13 @@ union error CarrierError {
 
 union error Retryable = CarrierError except .rejected
 
-i64 quote(i64 n) fails CarrierError {
+i32 quote(i32 n) fails CarrierError {
     if n < 0 { fail .rejected }
     if n == 0 { fail .timeout }
     return n * 2
 }
 
-i64 retry(i64 n) fails Retryable {
+i32 retry(i32 n) fails Retryable {
     return quote(n) catch (CarrierError.rejected) 1
 }
 

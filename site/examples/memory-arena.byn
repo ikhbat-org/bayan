@@ -1,5 +1,5 @@
-List<i64> squares(i64 n) {
-    var xs = List<i64>()
+List<i32> squares(i32 n) {
+    var xs = List<i32>()
     for i in 0..n {
         xs.append(i * i)
     }
@@ -14,7 +14,7 @@ void main() {
         let name = "temporary".copy(to: arena)
         print(name)
     }
-    var many = List<i64>()
+    var many = List<i32>()
     for i in 0..1000 {
         many.append(i)
     }

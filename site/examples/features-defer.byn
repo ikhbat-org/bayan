@@ -3,7 +3,7 @@ union error StepError {
     told
 }
 
-i64 work(bool shouldFail) fails StepError {
+i32 work(bool shouldFail) fails StepError {
     defer print("always")
     defer failing print("rollback")
     fail .told if shouldFail

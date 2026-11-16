@@ -5,12 +5,12 @@ enum Color {
 }
 
 struct Point {
-    i64 x
-    i64 y = 0
+    i32 x
+    i32 y = 0
 
-    i64 sum => x + y
+    i32 sum => x + y
 
-    void shift(ref this, i64 by) {
+    void shift(ref this, i32 by) {
         x += by
         y += by
     }

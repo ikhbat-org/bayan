@@ -3,9 +3,9 @@ union error ConfigError {
     badValue
 }
 
-i64 port(string text) fails ConfigError {
+i32 port(string text) fails ConfigError {
     fail .missing("port") if text.length == 0
-    return i64.tryParse(text) ?? fail .badValue
+    return i32.tryParse(text) ?? fail .badValue
 }
 
 string describe(string text) {

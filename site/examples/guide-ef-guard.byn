@@ -10,7 +10,7 @@ string clean(string text) fails InputError {
 }
 
 void main() {
-    print(clean("  ada  ") catch "bad")
+    print(clean("  bilal  ") catch "bad")
     print(clean("") catch "bad")
     print(clean("much too long a name") catch "bad")
     for i in 1..=6 {

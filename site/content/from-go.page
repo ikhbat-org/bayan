@@ -64,7 +64,7 @@ func (s *Stack) Pop() (int, bool) {
     return last, true
 }</code></pre>
 <example name="guide-go-basics"/>
-<p><code>Pop</code> returns an <code>i64?</code> where Go returns a pair. The caller cannot ignore the "was there one" half, because the type does not let it use the value until it has dealt with <code>null</code>. Here <code>?? -1</code> supplies a fallback for the empty stack.</p>
+<p><code>Pop</code> returns an <code>i32?</code> where Go returns a pair. The caller cannot ignore the "was there one" half, because the type does not let it use the value until it has dealt with <code>null</code>. Here <code>?? -1</code> supplies a fallback for the empty stack.</p>
 <p>A struct literal must set every field that has no default. Leave one out and the compiler stops: <code>P needs a value for y</code> (BYN2109). Go fills in zero values silently, and Bayan does not.</p>
 
 <h2 id="ref">Pointers become ref and spans</h2>

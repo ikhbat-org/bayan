@@ -1,5 +1,5 @@
 void greet(string name) {
-    print($"hello {name}")
+    print($"salam {name}")
 }
 
 void main() {
