@@ -99,7 +99,7 @@ string? optText(ReadOnlySpan<JsonMember> members, for string key) {
 }
 
 /// The string value of the last member named `key` in `members`, or fails.
-string reqText(ReadOnlySpan<JsonMember> members, for string key, in string path) fails ConvertError {
+string reqText(ReadOnlySpan<JsonMember> members, for string key, at string path) fails ConvertError {
     var i = members.length - 1
     while i >= 0 {
         if members[i].key == key {
@@ -112,7 +112,7 @@ string reqText(ReadOnlySpan<JsonMember> members, for string key, in string path)
 }
 
 /// The integer value of the last member named `key` in `members`, or fails.
-i64 reqInt(ReadOnlySpan<JsonMember> members, for string key, in string path) fails ConvertError {
+i64 reqInt(ReadOnlySpan<JsonMember> members, for string key, at string path) fails ConvertError {
     var i = members.length - 1
     while i >= 0 {
         if members[i].key == key {
@@ -202,7 +202,10 @@ List<JsonMember> dedupMembers(ReadOnlySpan<JsonMember> members) uses alloc {
     for m in members {
         var seen = false
         for k in keys {
-            if k == m.key { seen = true; break }
+            if k == m.key {
+                seen = true
+                break
+            }
         }
         if !seen { keys.append(m.key) }
     }
@@ -274,12 +277,12 @@ void runConvert(string outPath, from string root, at f64 buildS, until f64 total
                             var mutantsOut = List<JsonValue>()
                             for m in entryMutants {
                                 if m is .object(let mf) {
-                                    let rawStatus = try reqText(mf.span, for: "status", in: p)
+                                    let rawStatus = try reqText(mf.span, for: "status", at: p)
                                     let status = mapStatus(rawStatus)
                                     if status.isEmpty {
                                         fail .failed(message: $"ValueError(\"{p}: unknown status '{rawStatus}'\")")
                                     }
-                                    let op = try reqText(mf.span, for: "mutatorName", in: p)
+                                    let op = try reqText(mf.span, for: "mutatorName", at: p)
                                     recordOperator(ref operators, for: op, as: status)
                                     if status == "not_emitted" {
                                         continue
@@ -295,14 +298,14 @@ void runConvert(string outPath, from string root, at f64 buildS, until f64 total
                                         let ei = memberIndex(locFields.span, for: "end")
                                         if si < 0 || ei < 0 { fail .failed(message: "KeyError('start')") }
                                         if locFields[si].value is .object(let sf) {
-                                            sLine = try reqInt(sf.span, for: "line", in: p)
-                                            sCol = try reqInt(sf.span, for: "column", in: p)
+                                            sLine = try reqInt(sf.span, for: "line", at: p)
+                                            sCol = try reqInt(sf.span, for: "column", at: p)
                                         } else {
                                             fail .failed(message: "TypeError('start is not an object')")
                                         }
                                         if locFields[ei].value is .object(let ef) {
-                                            eLine = try reqInt(ef.span, for: "line", in: p)
-                                            eCol = try reqInt(ef.span, for: "column", in: p)
+                                            eLine = try reqInt(ef.span, for: "line", at: p)
+                                            eCol = try reqInt(ef.span, for: "column", at: p)
                                         } else {
                                             fail .failed(message: "TypeError('end is not an object')")
                                         }
@@ -310,7 +313,7 @@ void runConvert(string outPath, from string root, at f64 buildS, until f64 total
                                         fail .failed(message: "TypeError('location is not an object')")
                                     }
                                     let orig = try originalText(src, from: sLine, at: sCol, to: eLine, until: eCol)
-                                    let repl = try reqText(mf.span, for: "replacement", in: p)
+                                    let repl = try reqText(mf.span, for: "replacement", at: p)
                                     var siteMembers = List<JsonMember>()
                                     siteMembers.append(JsonMember { key: "id", value: intJson(nextId) })
                                     siteMembers.append(JsonMember { key: "file", value: .text(value: name) })
