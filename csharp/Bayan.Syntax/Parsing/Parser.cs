@@ -469,7 +469,7 @@ public sealed class Parser
         {
             var parts = new List<Expr>();
             Flatten(e);
-            var items = parts.Select(PatternItem).ToList();
+            var items = parts.Select(p => PatternItem(p, relational: true)).ToList();
             if (items.Any(i => i is null)) continue;
             if (LintPatternChain(e, next, items.Select(i => i!.Value).ToList()))
                 foreach (var p in parts)
@@ -513,12 +513,22 @@ public sealed class Parser
         return true;
     }
 
-    /// <summary>One test of a chain: <c>x == C</c> gives <c>C</c>, and <c>x &gt;= A &amp;&amp; x &lt;= B</c> (A at most B) gives <c>A..=B</c>.</summary>
-    private (Expr Operand, string Pattern, char Kind, bool Range)? PatternItem(Expr e)
+    /// <summary>
+    /// One test of a chain: <c>x == C</c> gives <c>C</c>, and <c>x &gt;= A &amp;&amp; x &lt;= B</c> (A at most B) gives <c>A..=B</c>. With
+    /// <paramref name="relational"/> (a term of an <c>||</c> chain), <c>x &lt; C</c> gives <c>&lt; C</c>, and <c>C &gt; x</c> gives the same.
+    /// </summary>
+    private (Expr Operand, string Pattern, char Kind, bool Range)? PatternItem(Expr e, bool relational = false)
     {
         e = Unwrap(e);
         if (e is BinaryExpr { Op: BinaryOp.Eq } eq && IsPathOperand(eq.Left) && ConstantKind(eq.Right) is { } kind)
             return (eq.Left, _source.GetText(eq.Right.Span), kind, false);
+        if (relational && e is BinaryExpr { Op: BinaryOp.Lt or BinaryOp.Le or BinaryOp.Gt or BinaryOp.Ge } cmp)
+        {
+            var (operand, bound, op) = IsPathOperand(cmp.Left) ? (cmp.Left, cmp.Right, cmp.Op)
+                : (cmp.Right, cmp.Left, cmp.Op switch { BinaryOp.Lt => BinaryOp.Gt, BinaryOp.Le => BinaryOp.Ge, BinaryOp.Gt => BinaryOp.Lt, _ => BinaryOp.Le });
+            var text = op switch { BinaryOp.Lt => "<", BinaryOp.Le => "<=", BinaryOp.Gt => ">", _ => ">=" };
+            if (IsPathOperand(operand) && RangeBound(bound) is { } b) return (operand, $"{text} {_source.GetText(bound.Span)}", b.Kind, false);
+        }
         if (e is BinaryExpr { Op: BinaryOp.LogicalAnd, Left: BinaryExpr { Op: BinaryOp.Ge } ge, Right: BinaryExpr { Op: BinaryOp.Le } le }
             && IsPathOperand(ge.Left) && _source.GetText(ge.Left.Span) == _source.GetText(le.Left.Span)
             && RangeBound(ge.Right) is { } lo && RangeBound(le.Right) is { } hi && lo.Kind == hi.Kind && lo.Value <= hi.Value)

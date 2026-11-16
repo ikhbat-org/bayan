@@ -60,3 +60,21 @@ note BYN1078: `xs[i]` is tested against constants 2 times; write one pattern
   help: write `xs[i] is 1 or 2`
      │ 39 │     return xs[i] is 1 or 2
      │    │                  +++++++
+
+note BYN1078: `c` is tested against constants 4 times; write one pattern
+
+  43 │     return c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C
+     │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 4 tests of `c`
+     │
+  help: write `c is < 0x20 or 0x7F..=0x9F or 0x61C`
+     │ 43 │     return c is < 0x20 or 0x7F..=0x9F or 0x61C
+     │    │              +++++++++++++++++++++++++++
+
+note BYN1078: `c` is tested against constants 2 times; write one pattern
+
+  48 │     return 0x20 > c || c >= 0x7F
+     │            ^^^^^^^^^^^^^^^^^^^^^ 2 tests of `c`
+     │
+  help: write `c is < 0x20 or >= 0x7F`
+     │ 48 │     return c is < 0x20 or >= 0x7F
+     │    │            ++++++++++++++

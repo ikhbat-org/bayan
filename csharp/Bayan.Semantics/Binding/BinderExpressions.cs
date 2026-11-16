@@ -1288,6 +1288,7 @@ internal sealed partial class Binder
             right = Operand(b.Right, hint);
         }
         _c.NoteLintOperand(b.Left, left);
+        _c.NoteLintOperand(b.Right, right);
         // `x is null` is valid only on an optional `x`: for `null == null` or a non-optional operand BYN2208 reports alone.
         if (nullTested is not null && nullTested is not LiteralExpr { Kind: LiteralKind.Null } && (nullTested == b.Left ? left : right).Type is OptionalType)
         {

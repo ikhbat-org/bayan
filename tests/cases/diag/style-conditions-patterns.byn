@@ -39,6 +39,25 @@ bool indexed(List<i32> xs, at i32 i) {
     return xs[i] == 1 || xs[i] == 2
 }
 
+bool control(i32 c) {
+    return c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C
+}
+
+bool flipped(i32 c) {
+    // The constant on the left: `0x20 > c` is `c < 0x20`.
+    return 0x20 > c || c >= 0x7F
+}
+
+bool lone(i32 c) {
+    // One relational test is not a group.
+    return c < 0x20
+}
+
+bool between(i32 c) {
+    // Not an inclusive range: `&&` with other comparisons is left alone.
+    return c > 3 && c < 9
+}
+
 i32 size(List<i32> xs) {
     return 2
 }
@@ -74,4 +93,5 @@ void main() {
     let b = Box { op: .add, n: 1 }
     print($"{digit('5')}{small(3)}{additive(.add)}{mixed(8)}{named("a")}{field(b)}{indexed(xs, at: 0)}")
     print($"{calls(xs)}{partial(1, at: false)}{single(1)}{reversed(3)}{floats(1.0)}{optional(null)}")
+    print($"{control(1)}{control(0x80)}{control(0x61C)}{control(0x41)}{flipped(1)}{flipped(0x7F)}{flipped(0x41)}{lone(1)}{between(5)}")
 }
