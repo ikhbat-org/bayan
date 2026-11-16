@@ -25,6 +25,11 @@ commit "release 1.2.2"
 g checkout -q --detach && g commit -q --allow-empty -m "Merge branch 'fixture'" && g tag v1.2.2 && g checkout -q fixture
 ! g merge-base --is-ancestor v1.2.2 HEAD || fail "fixture: v1.2.2 is an ancestor of HEAD"
 
+# The roadmap's dated line (docs/RELEASING.md step 1), on the previous tag's date: cut.sh refuses an older one.
+tagdate="$(g log -1 --format=%cs v1.2.2)"
+printf '# docs/bayan-roadmap.md\n\nVersion: 1.2.3-dev (matches `bayan --version`)\n\nState of `dev` at %s, %s. Kept live.\n' \
+  "$(g rev-parse --short HEAD)" "$tagdate" > "$r/docs/bayan-roadmap.md"
+
 out="$(bash "$nd" 1.2.3)"
 echo "$out" | grep -qx "changed VERSION" || fail "next-dev output: $out"
 [ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "next-dev VERSION: $(cat "$r/VERSION")"
@@ -64,6 +69,20 @@ echo "$out" | grep -qx "docs/bayan-spec.md" || fail "header doc with a leftover 
 [ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "a refused cut (header body) bumped VERSION: $(cat "$r/VERSION")"
 g checkout -q HEAD -- .
 [ "$(cat "$r/VERSION")" = 1.2.3-dev ] || fail "fixture not restored after the refused cut: $(cat "$r/VERSION")"
+
+# A roadmap dated before the previous release, or without its dated line, stops the cut before anything changes.
+cp "$r/VERSION" "$t/VERSION"; cp "$r/CHANGELOG.md" "$t/CHANGELOG"
+printf '# docs/bayan-roadmap.md\n\nVersion: 1.2.3-dev (matches `bayan --version`)\n\nState of `dev` at %s, 2000-01-01. Kept live.\n' \
+  "$(g rev-parse --short HEAD)" > "$r/docs/bayan-roadmap.md"
+out="$(bash "$cut" 1.2.3 2>&1)" && fail "cut accepted a roadmap dated before v1.2.2"
+echo "$out" | grep -q "docs/bayan-roadmap.md is dated 2000-01-01, before v1.2.2 ($tagdate)" || fail "no stale-roadmap message: $out"
+cmp -s "$t/VERSION" "$r/VERSION" || fail "a stale-roadmap refusal changed VERSION"
+cmp -s "$t/CHANGELOG" "$r/CHANGELOG.md" || fail "a stale-roadmap refusal changed CHANGELOG.md"
+printf '# docs/bayan-roadmap.md\n\nVersion: 1.2.3-dev (matches `bayan --version`)\n\nNo dated line.\n' > "$r/docs/bayan-roadmap.md"
+out="$(bash "$cut" 1.2.3 2>&1)" && fail "cut accepted a roadmap without its dated line"
+echo "$out" | grep -q 'State of `dev` at <sha>, <YYYY-MM-DD>.' || fail "no undated-roadmap message: $out"
+cmp -s "$t/VERSION" "$r/VERSION" || fail "an undated-roadmap refusal changed VERSION"
+g checkout -q HEAD -- docs/bayan-roadmap.md
 
 out="$(bash "$cut" 1.2.3)"
 for f in VERSION csharp/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md docs/specs/README.md; do

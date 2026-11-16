@@ -21,8 +21,8 @@ The versioned docs carry a header in their first lines (`bayan_header_docs`): `d
 `docs/bayan-grammar.md`, `docs/bayan-style.md`, `docs/DIAGNOSTICS.md` and `docs/STATUS.md`.
 
 ```text
-Version: 0.2.0 (matches `bayan --version`)
-Revisions applied: 0001–0020
+Version: 0.3.2-dev (matches `bayan --version`)
+Revisions applied: 0001–0023
 ```
 
 `Revisions applied` names the highest `docs/revisions/NNNN-*.md`; the range covers every revision from 0001.
@@ -98,7 +98,8 @@ commit.
 
 Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
 
-1. **Cut.** `bash scripts/release/cut.sh X.Y.Z`. It:
+1. **Cut.** First update `docs/bayan-roadmap.md` (the states, the order, the `State of `dev` at <sha>, <date>.` line);
+   `cut.sh` refuses a roadmap dated before the previous release. Then run `bash scripts/release/cut.sh X.Y.Z`. It:
    - sets `VERSION`, the mirrors and the headers to `X.Y.Z`, with `Revisions applied` at the highest revision;
    - regenerates the generated docs;
    - turns the `## [Unreleased]` body of `CHANGELOG.md` into `## [X.Y.Z] - <today>`, leaving `[Unreleased]` empty.
