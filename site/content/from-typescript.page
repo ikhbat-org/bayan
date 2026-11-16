@@ -13,12 +13,12 @@ template: docs
 <tr><td>Fixed binding</td><td><code>const x = 1</code></td><td><code>let x = 1</code></td></tr>
 <tr><td>Changing binding</td><td><code>let x = 1</code></td><td><code>var x = 1</code></td></tr>
 <tr><td>Number types</td><td><code>number</code>, <code>bigint</code></td><td><code>i64</code>, <code>i32</code>, <code>u8</code>, <code>f64</code> …</td></tr>
-<tr><td>Array</td><td><code>const xs: number[] = [1, 2, 3]</code></td><td><code>let xs: List&lt;i64&gt; = [1, 2, 3]</code></td></tr>
-<tr><td>Fixed-size array</td><td><code>[number, number, number]</code></td><td><code>i64[3]</code></td></tr>
+<tr><td>Array</td><td><code>const xs: number[] = [1, 2, 3]</code></td><td><code>let xs: List&lt;i32&gt; = [1, 2, 3]</code></td></tr>
+<tr><td>Fixed-size array</td><td><code>[number, number, number]</code></td><td><code>i32[3]</code></td></tr>
 <tr><td>Push</td><td><code>xs.push(4)</code></td><td><code>xs.append(4)</code></td></tr>
 <tr><td>Length</td><td><code>xs.length</code></td><td><code>xs.length</code></td></tr>
 <tr><td>Index</td><td><code>xs[0]</code> (<code>undefined</code> if out of range)</td><td><code>xs[0]</code> (panic if out of range), <code>xs.tryGet(at: 0)</code> (<code>null</code>)</td></tr>
-<tr><td>Map</td><td><code>new Map&lt;string, number&gt;()</code></td><td><code>Map&lt;string, i64&gt;()</code></td></tr>
+<tr><td>Map</td><td><code>new Map&lt;string, number&gt;()</code></td><td><code>Map&lt;string, i32&gt;()</code></td></tr>
 <tr><td>Map get with default</td><td><code>m.get(k) ?? 0</code></td><td><code>m.tryGet(at: k) ?? 0</code></td></tr>
 <tr><td>Map has</td><td><code>m.has(k)</code></td><td><code>m.contains(k)</code></td></tr>
 <tr><td>Iterate</td><td><code>for (const x of xs)</code></td><td><code>for x in xs { … }</code></td></tr>
@@ -38,7 +38,7 @@ template: docs
 <tr><td>Catch</td><td><code>try { … } catch (e) { … }</code></td><td><code>f() catch value</code>, <code>f() catch switch { … }</code></td></tr>
 <tr><td>Rethrow</td><td>(automatic)</td><td><code>try f()</code></td></tr>
 <tr><td>Arrow function</td><td><code>(x) =&gt; x + 1</code></td><td><code>x =&gt; x + 1</code> or <code>it + 1</code>, where a function type is expected</td></tr>
-<tr><td>Function type</td><td><code>(x: number) =&gt; number</code></td><td><code>i64 -&gt; i64</code></td></tr>
+<tr><td>Function type</td><td><code>(x: number) =&gt; number</code></td><td><code>i32 -&gt; i32</code></td></tr>
 <tr><td>Template string</td><td><code>`a${b}`</code></td><td><code>$"a{b}"</code></td></tr>
 <tr><td>Split and join</td><td><code>s.split(",")</code>, <code>xs.join(", ")</code></td><td><code>s.parts(by: ",")</code>, <code>xs.span.joined(by: ", ")</code></td></tr>
 <tr><td>Trim</td><td><code>s.trim()</code></td><td><code>s.trimmed()</code></td></tr>

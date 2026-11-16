@@ -41,7 +41,7 @@ let line = $"{a}{b}"             // the one way to join text</code></pre>
 <p><strong>What it is.</strong> Data is made of structs, which are values. Values live on the stack, in an arena, on the heap through an allocator, or in static data. Collections and other resources are <code>unique</code>: assigning one moves it, and a copy is something you ask for. Borrows are checked against the region they come from, and you do not write lifetime annotations in the common case.</p>
 <p><strong>Why.</strong> The cost of memory is in the source, and a program starts with nothing running beside it.</p>
 <p><strong>What it costs.</strong> You decide where memory comes from and who owns it. A borrow cannot be stored somewhere that outlives its source, and a value cannot be changed structurally while a borrow into it is alive. The fix is usually an explicit <code>.copy()</code>. A garbage collector is a possible future allocator, never a language mode. The guide <a href="memory.html">Memory and ownership</a> has the details.</p>
-<pre><code class="byn">var a = List&lt;i64&gt;()
+<pre><code class="byn">var a = List&lt;i32&gt;()
 a.append(1)
 let b = move a        // `a` can no longer be used
 var c = b.copy()      // an explicit copy</code></pre>

@@ -2,7 +2,7 @@ void main() {
     let xs: List<i32> = [10, 20, 30, 40]
     let mid = xs.span[1..3]
     print($"{mid.length} {mid[0]} {mid[1]}")
-    let s = "hello, world"
+    let s = "salam, world"
     print(s[0..5])
     var counts = Map<string, i32>()
     for w in "a b a c a b".parts(by: " ") {
