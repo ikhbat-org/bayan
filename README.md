@@ -236,8 +236,9 @@ Sorry Maryam, the iftar is full
 
 ### Effects are part of the signature
 
-A public function lists what it touches: files (`fs`), memory (`alloc`) and so on. With no `uses` clause
-it only computes. `main` and private functions work their effects out from their calls.
+A public function lists what it touches: files (`fs`), memory (`alloc`), the console, the network and so
+on. With no `uses` clause it only computes. Private functions, `main` and scripts work their effects out
+from their calls.
 
 ```swift
 /// Counts the names in a guest list, one per line. No `uses` clause: it only computes.
@@ -270,7 +271,7 @@ With a `guests.txt` of three names:
 3 guests, 9 dates to break the fast
 ```
 
-Without the file it prints `No guest list yet`. Leave `alloc` out of `uses` and the compiler says so:
+Without the file it prints `No guest list yet`. Leave `alloc` out of `uses` and the compiler says so, with the fix:
 
 <details>
 <summary>The compiler error</summary>
@@ -387,9 +388,10 @@ Salam Bilal, join us for iftar on Friday
 ### A few more things
 
 - **Particles.** At most one parameter is unlabeled; the rest carry a word such as `for`, and the call
-  says it too: `iftar.book("Umar", for: 2)`.
+  says it too: `iftar.book("Umar", for: 2)`. You can't swap two arguments by accident.
 - **Locals** are `let` or `var`: `let list = …`, or `let list: string = …` with a type. Declarations put
-  the type first (`i64 countGuests(…)`).
+  the type first (`i64 countGuests(…)`), local bindings put the name first; write it the other way and the
+  error message shows you the fix.
 - **`stmt if condition`** guards a statement, as in `fail .full if left == 0`.
 - **Errors teach.** Each has a code; `bayan explain BYN1043` explains it.
 
