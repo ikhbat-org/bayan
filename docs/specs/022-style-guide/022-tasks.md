@@ -129,7 +129,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - Files: the C# layout (`csharp/Bayan.Syntax/Formatting/`), `src/driver/layout.byn`, `LayoutTests`, the stage-2 rows, `bootstrap/bayan.c`.
   - Covers: R6.
   - Done when a leading-dot operand after a clause word keeps its space: `becomes .paid` (a `becomes` clause names one state, spec §3.17 item 11; the `or` form is covered by `this is .paid or .shipped`), and the same after each word that takes a leading-dot operand: `??`, `catch` and `except` from the spec §2 waṣl list, `or` between `is` states, `==` and `!=` in a `&&`, `||` or `and` chain, and `is`, `fail`, `return`, `case` (the other waṣl words, `where`, `expects`, `requires`, `fails`, `uses`, take names, types or conditions, never a leading dot), while a member access after a name (`order.paid`) stays joined. A `LayoutTests` case covers each, its stage-2 row passes, and formatting `tests/cases/run/typestate-order.byn` leaves its `becomes` lines unchanged. Break-test in "## T8b" of `022-break-tests.md`.
-- [ ] **T9 Lints and severity port (self-hosted).**
+- [x] **T9 Lints and severity port (self-hosted).**
   - Files: `src/parser/*.byn` lint pass, the `src/driver` check path, parity rows.
   - Covers: R7, R6.
   - After: T7, T7b (BYN1077–BYN1080, the `check --package` lints fix and the `bayan fix` command are ported too).
