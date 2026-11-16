@@ -1,7 +1,7 @@
 @positional
 struct Point {
-    i64 x
-    i64 y
+    i32 x
+    i32 y
 }
 
 let p = Point(3, 4)

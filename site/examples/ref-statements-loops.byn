@@ -9,7 +9,7 @@ var k = 0
 while k < 3 { k++ }
 do { k-- } while k > 0
 print($"{k}")
-let opt: i64? = 4
+let opt: i32? = 4
 while let x = opt {
     print($"{x}")
     break

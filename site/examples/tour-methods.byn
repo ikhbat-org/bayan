@@ -1,5 +1,5 @@
 struct Counter {
-    i64 hits = 0
+    i32 hits = 0
 
     void bump(ref this) {
         hits += 1

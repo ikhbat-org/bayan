@@ -20,7 +20,7 @@ template: docs
     <tr><td><code>dec</code></td><td>A decimal type for exact decimal arithmetic.</td></tr>
   </tbody>
 </table></div>
-<p>A project may spell the integer and float types the C# way (<code>int</code>, <code>long</code>, <code>double</code>) by setting <code>style.primitives</code>. The two spellings mean the same type, and <code>bayan format</code> rewrites a project to its own. <code>char</code>, <code>decimal</code> and <code>object</code> have no equivalent.</p>
+<p>A project may spell the integer and float types as <code>int</code>, <code>long</code>, <code>double</code> by setting <code>style.primitives</code>. The two spellings mean the same type, and <code>bayan format</code> rewrites a project to its own. <code>char</code>, <code>decimal</code> and <code>object</code> have no equivalent.</p>
 <note>Planned: <code>dec</code> has no literal yet (<code>1.50dec</code> is rejected with BYN2022), and the <code>style.primitives</code> setting is read from <code>package.byn</code>, which is covered in the command reference.</note>
 
 <h2 id="numbers">Number conversions and arithmetic</h2>
@@ -151,7 +151,7 @@ print($"{grid[7]}")</code></pre>
 <note>Planned: the safe-navigation operator <code>?.</code> is in the specification but not in the compiler yet.</note>
 
 <h2 id="tuples">Tuples</h2>
-<p>A tuple groups values: <code>(1, "a")</code>. Elements may have names, and a name makes the element reachable with a dot: <code>(i64 count, string label)</code> as a type, <code>p.count</code> as an access. A tuple pattern takes a tuple apart in <code>switch</code>, in <code>is</code> and in the head of a <code>for</code> loop.</p>
+<p>A tuple groups values: <code>(1, "a")</code>. Elements may have names, and a name makes the element reachable with a dot: <code>(i32 count, string label)</code> as a type, <code>p.count</code> as an access. A tuple pattern takes a tuple apart in <code>switch</code>, in <code>is</code> and in the head of a <code>for</code> loop.</p>
 <example name="ref-types-tuples"/>
 <note>The compiler does not take a tuple apart in a <code>let</code> (<code>let (a, b) = t</code> is a syntax error), and it has no numeric access such as <code>t.0</code>. Name the elements, or use a pattern.</note>
 
@@ -167,8 +167,8 @@ print($"{grid[7]}")</code></pre>
 <p>A struct is a value with named fields. Structs are the only data type with fields. There are no classes and no inheritance.</p>
 <ul>
   <li><strong>Type first.</strong> A field, a parameter and a return type put the type before the name. A local binding puts the name first, <code>let w: Grams = 0g</code>, and <code>Grams w = 0g</code> inside a body is rejected with a fix (BYN1043).</li>
-  <li><strong>Defaults.</strong> <code>i64 y = 0</code> gives a field a default. A struct literal may then leave it out. A type can be created with no values (is <em>defaultable</em>) only if every field has a default.</li>
-  <li><strong>Computed members.</strong> <code>i64 sum =&gt; x + y</code> is a member that reads like a field. A member without arguments is a property. <code>sum</code> is read, not called.</li>
+  <li><strong>Defaults.</strong> <code>i32 y = 0</code> gives a field a default. A struct literal may then leave it out. A type can be created with no values (is <em>defaultable</em>) only if every field has a default.</li>
+  <li><strong>Computed members.</strong> <code>i32 sum =&gt; x + y</code> is a member that reads like a field. A member without arguments is a property. <code>sum</code> is read, not called.</li>
   <li><strong>Methods are read-only by default.</strong> A method that changes the struct has <code>ref this</code> as its first parameter. Without it the compiler reports BYN2115 and shows the fix. You cannot call a <code>ref this</code> method on a <code>let</code> (BYN2104).</li>
   <li><strong>Literals.</strong> <code>Point { x: 1 }</code> uses <code>:</code> for each field. A literal of a type with a <code>requires</code> rule is checked when it is built.</li>
   <li><strong>Equality</strong> compares field by field, and so does hashing. A struct is a <code>Map</code> key when all its fields are.</li>
@@ -177,7 +177,7 @@ print($"{grid[7]}")</code></pre>
 </ul>
 <example name="ref-types-struct"/>
 <pre><code class="byn">struct Counter {
-    i64 n
+    i32 n
     void bump() {
         n += 1
     }
@@ -195,7 +195,7 @@ print($"{grid[7]}")</code></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
 <pre><code class="byn">struct Counter {
-    i64 n
+    i32 n
     void bump(ref this) {
         n += 1
     }
@@ -234,7 +234,7 @@ c.bump()</code></pre>
 </ul>
 <example name="ref-types-unique"/>
 <pre><code class="byn">struct unique File {
-    i64 fd
+    i32 fd
 }
 
 let f = File { fd: 3 }
@@ -258,7 +258,7 @@ print($"{g.fd}")</code></pre>
 <p>A union is a value that is exactly one of several cases. A case may carry named data. The storage is a tag plus room for the largest case, inline, with no allocation.</p>
 <ul>
   <li>Case names are camelCase, one per line. A one-line union is rejected (BYN1053).</li>
-  <li>Every payload is named in the declaration, <code>rect(i64 w, i64 h)</code>. A payload with no name is BYN1064.</li>
+  <li>Every payload is named in the declaration, <code>rect(i32 w, i32 h)</code>. A payload with no name is BYN1064.</li>
   <li>Construction may drop the label when the case has exactly one payload (<code>.percentOff(10)</code>). With several payloads, labels are required: <code>.rect(w: 3, h: 4)</code>.</li>
   <li>A leading dot, <code>.rect(…)</code>, names a case of the type the compiler expects at that place. <code>Shape.circle(2)</code> names it in full.</li>
   <li>A <code>switch</code> over a union must cover every case, and the error names the one you missed (BYN2410). A <code>_</code> arm hides later additions, so on a union from the same package it is a lint warning.</li>
@@ -267,11 +267,11 @@ print($"{g.fd}")</code></pre>
 </ul>
 <example name="ref-types-union"/>
 <pre><code class="byn">union Shape {
-    circle(i64 r)
+    circle(i32 r)
     empty
 }
 
-i64 area(Shape s) =&gt; s switch {
+i32 area(Shape s) =&gt; s switch {
     .circle c =&gt; c.r,
 }
 print($"{area(.empty)}")</code></pre>
@@ -279,24 +279,24 @@ print($"{area(.empty)}")</code></pre>
 <pre><span class="err">error BYN2410:</span> `switch` does not handle every `Shape`
   --&gt; missing-case.byn:6:22
 
-<span class="gut">  6 │</span> i64 area(Shape s) =&gt; s switch {
+<span class="gut">  6 │</span> i32 area(Shape s) =&gt; s switch {
 <span class="gut">    │</span>                      <span class="hl">^ not covered: .empty</span>
 <span class="gut">    │</span>
   help: add the missing arms: .empty</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
 <pre><code class="byn">union Shape {
-    circle(i64)
+    circle(i32)
     empty
 }</code></pre>
 <figure class="diag">
-<pre><span class="err">error BYN1064:</span> payload `i64` of `.circle` needs a name
+<pre><span class="err">error BYN1064:</span> payload `i32` of `.circle` needs a name
   --&gt; payload-name.byn:2:12
 
-<span class="gut">  2 │</span>     circle(i64)
+<span class="gut">  2 │</span>     circle(i32)
 <span class="gut">    │</span>            <span class="hl">^^^ no name</span>
 <span class="gut">    │</span>
-  help: name the payload: `.circle(i64 name)`</pre>
+  help: name the payload: `.circle(i32 name)`</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
 <note>Planned: members declared after the cases of a union, and <code>T.tryParse(text)</code> for a union, are not in the compiler yet.</note>
@@ -341,7 +341,7 @@ print($"{area(.empty)}")</code></pre>
 <h2 id="function-types">Function types</h2>
 <p><code>A -&gt; B</code> is the type of a function from <code>A</code> to <code>B</code>. Write <code>(A, B) -&gt; C</code> for two parameters and <code>() -&gt; void</code> for none. After the return type, <code>uses e</code> and then <code>fails E</code> add effects and error sets. <code>-&gt;</code> is for types. <code>=&gt;</code> is for lambdas and bodies.</p>
 <ul>
-  <li>A function type before a name needs parentheses: <code>by (i64 -&gt; i64) f</code>. An alias avoids that: <code>type Pred = i64 -&gt; bool</code>, then <code>by Pred p</code>.</li>
+  <li>A function type before a name needs parentheses: <code>by (i32 -&gt; i32) f</code>. An alias avoids that: <code>type Pred = i32 -&gt; bool</code>, then <code>by Pred p</code>.</li>
   <li>Two function types are equal when the parameters, return type, error sets and effects are equal. There is no variance.</li>
   <li>A <em>named function</em> works as a value when it is a non-generic, module-level function whose signature matches exactly. Particles are part of the name, not the type. A mismatch is BYN2202, and a method or generic function used as a value is BYN2824.</li>
   <li>A <em>lambda</em> is <code>x =&gt; …</code>, <code>(a, b) =&gt; …</code> or <code>() =&gt; …</code>. Its parameters are bare names. Their types come from the type expected at that place.</li>
@@ -396,12 +396,12 @@ let f: i32 -&gt; bool = isBig</code></pre>
 </ul>
 <example name="ref-types-typestate"/>
 <pre><code class="byn">struct Order {
-    i64 id
+    i32 id
     states {
         draft
-        paid(i64 payment)
+        paid(i32 payment)
     }
-    void pay(ref this is .draft, i64 amount) becomes .paid {
+    void pay(ref this is .draft, i32 amount) becomes .paid {
         become .paid(amount)
     }
 }
@@ -420,10 +420,10 @@ o.pay(5)</code></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
 <pre><code class="byn">struct Order {
-    i64 id
+    i32 id
     states {
         draft
-        paid(i64 payment)
+        paid(i32 payment)
     }
 }
 

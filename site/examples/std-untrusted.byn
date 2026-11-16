@@ -1,6 +1,6 @@
-i64 port(Untrusted<string> text) {
+i32 port(Untrusted<string> text) {
     let s: string = text.trustUnchecked() because "the digits are checked by the parse below"
-    return i64.parse(s) catch 80
+    return i32.parse(s) catch 80
 }
 
 void main() {
