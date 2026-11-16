@@ -7,7 +7,7 @@ union error FetchError {
 
 string load(string name) fails FetchError {
     fail .badName if name.isEmpty
-    fail .notFound if name != "ada"
+    fail .notFound if name != "aisha"
     return $"profile of {name}"
 }
 
@@ -19,7 +19,7 @@ string show(string name) {
 }
 
 void main() {
-    print(show("ada"))
-    print(show("bob"))
+    print(show("aisha"))
+    print(show("bilal"))
     print(show(""))
 }

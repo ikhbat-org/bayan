@@ -5,12 +5,12 @@ union error ConfigError {
     badPort
 }
 
-i64 readPort(string text) fails ConfigError {
+i32 readPort(string text) fails ConfigError {
     fail .missing if text.isEmpty
-    return i64.tryParse(text) ?? fail .badPort
+    return i32.tryParse(text) ?? fail .badPort
 }
 
-i64 doubled(string text) fails ConfigError {
+i32 doubled(string text) fails ConfigError {
     let port = try readPort(text)
     return port * 2
 }

@@ -1,6 +1,6 @@
-type Pred = i64 -> bool
+type Pred = i32 -> bool
 
-bool any(ReadOnlySpan<i64> xs, by Pred p) {
+bool any(ReadOnlySpan<i32> xs, by Pred p) {
     for x in xs {
         if p(x) {
             return true
@@ -10,7 +10,7 @@ bool any(ReadOnlySpan<i64> xs, by Pred p) {
 }
 
 void main() {
-    let xs: Span<i64> = [1, 2, 3]
+    let xs: Span<i32> = [1, 2, 3]
     print($"{any(xs, by: it > 2)}")
     print($"{any(xs, by: x => x > 5)}")
 }

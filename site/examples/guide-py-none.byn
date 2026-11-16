@@ -6,10 +6,10 @@ string? find(List<string> names, by string prefix) {
 }
 
 void main() {
-    let names: List<string> = ["ada", "grace", "linus"]
-    print(find(names, by: "gr") ?? "nobody")
+    let names: List<string> = ["aisha", "fatimah", "bilal"]
+    print(find(names, by: "fa") ?? "nobody")
     print(find(names, by: "x") ?? "nobody")
-    let hit = find(names, by: "li")
+    let hit = find(names, by: "bi")
     if hit is not null {
         print($"found {hit}")
     }

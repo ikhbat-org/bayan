@@ -10,14 +10,14 @@ union error DbError {
 
 union error SignupError = EmailError, DbError
 
-i64 signUp(i64 n) fails SignupError {
+i32 signUp(i32 n) fails SignupError {
     fail .invalid if n == 1
     fail .timeout if n == 2
     fail .lost if n == 3
     return n * 100
 }
 
-i64 handle(i64 n) => signUp(n) catch switch {
+i32 handle(i32 n) => signUp(n) catch switch {
     EmailError => 10,
     DbError.timeout => 30,
     DbError e => 40,

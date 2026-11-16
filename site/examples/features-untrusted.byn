@@ -1,9 +1,9 @@
 void greet(string name) {
-    print($"hello {name}")
+    print($"salam {name}")
 }
 
 void main() {
-    let typed: Untrusted<string> = Untrusted("ada")
+    let typed: Untrusted<string> = Untrusted("ali")
     print($"{typed.length}")
     let name: string = typed.trustUnchecked() because "demo input"
     greet(name)

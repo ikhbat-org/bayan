@@ -1,13 +1,13 @@
 struct Stat {
-    i64 hits = 0
-    i64 total = 0
+    i32 hits = 0
+    i32 total = 0
 
-    void record(ref this, i64 ms) {
+    void record(ref this, i32 ms) {
         hits += 1
         total += ms
     }
 
-    i64 average() => total / hits
+    i32 average() => total / hits
 }
 
 void main() {

@@ -1,6 +1,6 @@
 union Event {
     key(rune code)
-    click(i64 x, i64 y)
+    click(i32 x, i32 y)
     quit
 }
 

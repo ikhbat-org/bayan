@@ -4,9 +4,9 @@ union error CliError {
 }
 string run(ReadOnlySpan<string> args) fails CliError {
     fail .missing if args.length == 0
-    if args[0] == "greet" { return "hello" }
+    if args[0] == "greet" { return "salam" }
     if args[0] == "add" && args.length == 3 {
-        return $"{(i64.tryParse(args[1]) ?? 0) + (i64.tryParse(args[2]) ?? 0)}"
+        return $"{(i32.tryParse(args[1]) ?? 0) + (i32.tryParse(args[2]) ?? 0)}"
     }
     fail .unknown
 }

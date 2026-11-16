@@ -3,7 +3,7 @@ union error StepError {
     told
 }
 
-i64 work(bool shouldFail) fails StepError {
+i32 work(bool shouldFail) fails StepError {
     defer print("defer 1")
     defer failing print("failing 1")
     defer failing (e) print($"failing 2 saw {e}")

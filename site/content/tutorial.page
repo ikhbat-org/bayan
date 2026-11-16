@@ -34,10 +34,10 @@ dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
   <li>
     <h2 id="error">Read an error, then fix it</h2>
     <p>Save this as <code>width.byn</code>. The second parameter carries the particle <code>until</code>, and the call leaves it out.</p>
-<pre><code class="byn">i64 width(i64 start, until i64 end) =&gt; end - start
+<pre><code class="byn">i32 width(i32 start, until i32 end) =&gt; end - start
 
-let start: i64 = 2
-let end: i64 = 5
+let start: i32 = 2
+let end: i32 = 5
 print($"{width(end, start)}")</code></pre>
 <pre><code>bayan run width.byn</code></pre>
     <figure class="diag">

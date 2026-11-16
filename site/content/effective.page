@@ -38,7 +38,7 @@ template: docs
 <table>
 <tr><th>Particle</th><th>Means</th><th>Call</th></tr>
 <tr><td><code>at</code></td><td>a position or key</td><td><code>m.tryGet(at: name)</code></td></tr>
-<tr><td><code>by</code></td><td>the method, separator or measure</td><td><code>s.parts(by: ",")</code>, <code>find(names, by: "gr")</code></td></tr>
+<tr><td><code>by</code></td><td>the method, separator or measure</td><td><code>s.parts(by: ",")</code>, <code>find(names, by: "fa")</code></td></tr>
 <tr><td><code>from</code>, <code>to</code></td><td>a source and a destination</td><td><code>xs.copy(to: arena)</code></td></tr>
 <tr><td><code>until</code>, <code>through</code></td><td>an end that is excluded, or included</td><td><code>remove(from: a, through: b)</code></td></tr>
 <tr><td><code>as</code></td><td>the form something is shown or read in</td><td><code>i64.tryParse(s, as: .hex)</code></td></tr>
