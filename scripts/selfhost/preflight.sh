@@ -8,7 +8,7 @@
 #              quotes in the same clause (the next one after it, else the last before it) is on those lines (a single-line cite: on it or the 2 after it)
 #   files      every file the branch changes is in the task's files list or one the guard allows; prints the addition
 #   questions  every Question number the branch adds is new to docs/bayan-questions.md (the branch's and the base's) and inside the task's
-#              range (its task line, else $BAYAN_QRANGES or <main checkout>/tmp/q-ranges.tsv, written by wave-brief.py)
+#              range (its task line, else $BAYAN_QRANGES or <main checkout>/tmp/q-ranges.tsv, written by wave-brief)
 #   tests      the classes declared in the task's test files (csharp/tests/Bayan.Tests/, src/tests/) and those of test-map.tsv (the smoke set always, a row when
 #              the branch changes a file its glob matches) pass, each running at least one test; plan-strings-check passes (scripts/bayan-tool.sh)
 #   wp1        tmp/wp1/<sha>.out (wp1-test.sh) exists for the branch's HEAD, ends in `exit 0`, ran tests, and its filter names every class above
@@ -36,7 +36,7 @@ fi
 cd "$WT"
 MB=$(git merge-base "$BASE" HEAD) || { echo "FAIL branch: $BR has no merge base with $BASE"; exit 1; }
 
-# the task line on the base, and its files list as wave-brief.py reads it
+# the task line on the base, and its files list as wave-brief reads it
 BLOCK=$(git show "$BASE:$DIR/$TASKS" 2> /dev/null | awk -v t="$T" '$0 ~ "^- \\[[ x]\\] " t " " { on = 1; print; next } on && /^- \[/ { exit } on')
 [ -n "$BLOCK" ] || { echo "FAIL task: no $T in $DIR/$TASKS on $BASE"; exit 1; }
 HL=$(head -1 <<< "$BLOCK"); FL=""
@@ -146,7 +146,7 @@ for n in $NEWQ; do
   [ "$c" -le 1 ] || { fail "questions: Q$n is in the questions docs $c times"; bad=1; }
   [ "$c" -le 1 ] || continue
   grep -qxF "$n" <<< "$BASEQ" && { fail "questions: Q$n is already on $BASE (another task took it)"; bad=1; }
-  if [ -z "$RANGE" ]; then fail "questions: Q$n added, but $T has no Question range (none in its task line or $QR; wave-brief.py assigns one)"; bad=1
+  if [ -z "$RANGE" ]; then fail "questions: Q$n added, but $T has no Question range (none in its task line or $QR; wave-brief assigns one)"; bad=1
   else read -r a b <<< "$RANGE"; [ "$n" -ge "$a" ] && [ "$n" -le "$b" ] || { fail "questions: Q$n is outside $T's range Q${a}–Q${b}"; bad=1; }; fi
 done
 [ $bad = 1 ] || ok "questions ($(echo $NEWQ | wc -w | tr -d ' ') added${RANGE:+, range Q${RANGE% *}–Q${RANGE#* }})"

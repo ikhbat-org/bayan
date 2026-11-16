@@ -1,0 +1,667 @@
+#!/usr/bin/env bayan
+// Usage: bash scripts/bayan-tool.sh wave-brief <repo-or-worktree> T10 [T11 ...] [--spec 011] — writes tmp/010-<t>/prompt.md for each task:
+// a self-contained writer brief for one spec 010 task (task text, plan rows, its 010-api.md entry points, guard command).
+// The spec is a row of specs.tsv (paths, shared-state files, test-class prefix, base branch); without --spec it is 010.
+//
+// Port of scripts/selfhost/wave-brief.py (spec 015 T15 part 2a). specs.tsv, writer-protocol.md and bayan-cheatsheet.md
+// are read under $BAYAN_REPO_ROOT/scripts/selfhost (set by scripts/bayan-tool.sh; the Python read them beside itself).
+// Each `re.M` pattern runs on one line at a time. Divergences from the Python: q-ranges.tsv is written with no lock
+// (see `assign`); a questions file on a local branch that is not UTF-8 stops the run (the Python decoded it with
+// U+FFFD); `\b \w \s \d` are ASCII (std.regex); the task name is matched as text, not as a regex; a file under
+// docs/specs/ is skipped (the Python's os.listdir raised on it); every failure other than a missing brief text prints
+// one `wave-brief: <Error>: …` line and exits 1, not a traceback; the stdout line's list repr escapes only `\` and `'`.
+
+import std.regex
+
+type Regex = regex.Regex
+
+union error BriefError {
+    /// The message after `wave-brief: `.
+    failed(string message)
+}
+
+/// The texts of one spec's brief.
+struct Brief {
+    string desc
+    string landed
+    string harness
+    string oracle
+}
+
+/// The values of the spec's row in specs.tsv.
+struct Row {
+    string dir
+    string tasks
+    string plan
+    string api
+    string shared
+    string bydir
+    string prefix
+    string base
+    string tmp
+}
+
+// Every number is taken: open, answered, and the pre-split handoff a branch cut before 2026-11-14 still carries.
+const qdocs: string = "docs/bayan-questions.md\tdocs/decisions/2026-11-14-004-answered-questions.md\tdocs/bayan-handoff.md"
+
+const harness010: string = "`src/tests/SelfhostSemanticsHarness.cs`: `SelfhostSemanticsHarness.RunSections(mainSource)` builds `src/semantics` with your generated `main.byn` (a C# string) and returns its output split at lines `== <section>`; `SelfhostSemanticsHarness.AssertSection(sections, \"<section>\", expectedLines)` names the first differing line. Build once per class (`static readonly Lazy<…>`). The oracle is the C# implementation: run the same input through `Bayan.Semantics` in-process (`Compilation.Create`, or the C# class directly when it is public/internal-visible) and print the same lines. Every ported function gets a compared case including a failure/diagnostic path; diagnostics compare as `code line:col message`."
+
+/// The brief texts of `spec`, or null when it has none.
+Brief? brief(string spec) {
+    var b = Brief { desc: "", landed: "", harness: "", oracle: "" }
+    if spec == "010" {
+        b.desc = "the Bayan type checker ported from C# `csharp/Bayan.Semantics/` into Bayan under `src/semantics/`"
+        b.landed = "Landed and callable: `ctx.byn` (T1), `codes.byn`/`diag.byn` (T2: `report`, `addDiag`, `pushBag`, `popBag`), `symbols.byn`/`types.byn` (T3), `bound.byn` (T4: `add<Kind>`, `children`, `exprType`, `Constant`), `bigint.byn` (T5: labels `bigCmp(a, as: b)`, `bigAdd(a, by: b)`, `bigFits(n, to: bits, signed: s)`; see Q540)."
+        b.harness = harness010
+        b.oracle = "SelfhostSemanticsT10Tests.Expected"
+    } else if spec == "011" {
+        b.desc = "the Bayan lowering and C emitter ported from C# `csharp/Bayan.Lowering/` and `csharp/Bayan.Backend.C/` into Bayan under `src/emitter/`"
+        b.landed = "Landed and callable: see `docs/specs/011-self-hosted-emitter/011-api.md` and the task's `after:` list; the 010 checker modules under `src/semantics/` are public to you."
+        b.harness = "`src/tests/SelfhostEmitterHarness.cs`: `SelfhostEmitterHarness.Build` compiles `src/emitter/**/*.byn` once per run in `fast` mode and `Run(input, mode, tests)` starts the binary and returns stdout/stderr/exit; `AssertSame(name, expected, actual)` reports the first differing line. Unit tests of a wave task run the task's functions through a generated `main` with the C# as oracle (`CliApp.EmitC(Compilation.Create([source], dir), mode)`). Every ported function gets a compared case including a failure path. If the harness file is not landed yet, read `docs/specs/011-self-hosted-emitter/011-plan.md` (Test harness)."
+        b.oracle = "SelfhostEmitterHarness.AssertSame"
+    } else if spec == "014" {
+        b.desc = "the Bayan lowering and C emitter ported from C# `csharp/Bayan.Lowering/` and `csharp/Bayan.Backend.C/` into Bayan under `src/emitter/`"
+        b.landed = "Landed and callable: see `docs/specs/014-std-path-module/014-api.md` and the task's `after:` list; the 010 checker modules under `src/semantics/` are public to you."
+        b.harness = "`src/tests/SelfhostEmitterHarness.cs`: `SelfhostEmitterHarness.Build` compiles `src/emitter/**/*.byn` once per run in `fast` mode and `Run(input, mode, tests)` starts the binary and returns stdout/stderr/exit; `AssertSame(name, expected, actual)` reports the first differing line. Unit tests of a wave task run the task's functions through a generated `main` with the C# as oracle (`CliApp.EmitC(Compilation.Create([source], dir), mode)`). Every ported function gets a compared case including a failure path. If the harness file is not landed yet, read `docs/specs/014-std-path-module/014-plan.md` (Test harness)."
+        b.oracle = "SelfhostEmitterHarness.AssertSame"
+    } else if spec == "012" {
+        b.desc = "the Bayan compiler driver ported from C# `csharp/Bayan.Cli/` (`CliApp`) into Bayan under `src/driver/`, compiled with package root `src/` (stage 1 of the bootstrap)"
+        b.landed = "Landed and callable: see `docs/specs/012-self-hosted-bootstrap/012-api.md` and the task's `after:` list; the lexer, parser, semantics and emitter modules under `src/` are public to you as `012-plan.md` D2 says."
+        b.harness = "Not landed yet: `src/tests/SelfhostDriverHarness.cs` is created by T1, as `012-tasks.md` T1 and `012-plan.md` define it. It builds stage 1 once with `Compilation.Create(sources, packageRoot: src/)` like `SelfhostEmitterHarness.cs:28-36` and runs it as a process. Expected values come from `CliApp.Run`/`CliApp.EmitC` or the C# golden tests. Every ported function gets a compared case including a failure path."
+        b.oracle = "SelfhostDriverHarness"
+    } else if spec == "017" {
+        b.desc = "the remaining `bayan` commands (explain, features, clean, cache, new, init, doctor, audit, format, test, dist, mutate) ported from C# `csharp/Bayan.Cli/` and `csharp/Bayan.Testing/` into the self-hosted driver under `src/driver/`, so the self-hosted compiler can ship as the default `bayan` (spec 017)"
+        b.landed = "Landed and callable: the whole self-hosted driver of spec 012 (`docs/specs/012-self-hosted-bootstrap/012-api.md`), `docs/specs/017-selfhost-default/017-api.md` and the task's `after:` list; the lexer, parser, semantics and emitter modules under `src/` are public to you."
+        b.harness = "`src/tests/SelfhostDriverHarness.cs` builds stage 1 once per run and runs it as a process; the L028 rows in `src/tests/SelfhostDriverGoldenTests.cs` run `CSharp(cwd, args)` and `Stage2(cwd, args)` on the same argv and compare stdout, stderr, exit code and written files (`017-plan.md` Data / interfaces). Expected values come from `CliApp.Run` or the C# golden tests, never typed by hand. Every ported function gets a compared case including a failure path."
+        b.oracle = "SelfhostDriverHarness"
+    } else if spec == "018" {
+        b.desc = "revision 0021 checker changes (help texts, fix-its, new diagnostics) made in C# `csharp/Bayan.Semantics/` and ported into the self-hosted checker under `src/semantics/` (spec 018), messages and fix-its byte-identical in both compilers"
+        b.landed = "Landed and callable: the whole self-hosted checker of spec 010 under `src/semantics/` and the earlier tasks of `docs/specs/018-rev-0021-checker/018-tasks.md`."
+        b.harness = harness010
+        b.oracle = "SelfhostSemanticsT10Tests.Expected"
+    } else {
+        return null
+    }
+    return b
+}
+
+/// The regex of `pattern`, which this tool knows to be valid.
+Regex compiled(string pattern) uses alloc => Regex.parse(pattern) catch panic($"wave-brief: bad pattern {pattern}")
+
+/// Python's text-mode read: `\r\n` and a lone `\r` become `\n`.
+string read(string path) uses fs, alloc fails BriefError {
+    let text = Io.readText(path) catch {
+        fail .failed(message: $"OSError: cannot read {path} as UTF-8 text")
+    }
+    return text.replaced("\r\n", by: "\n").replaced("\r", by: "\n")
+}
+
+/// `text.split(sep)`.
+List<string> split(string text, by string sep) uses alloc {
+    var result = List<string>()
+    for p in text.parts(by: sep) { result.append(p) }
+    return result
+}
+
+/// `sep.join(strings)`.
+string joined(List<string> strings, by string sep) uses alloc {
+    var buf = StrBuf()
+    for i in 0..strings.length {
+        if i > 0 { buf.append(sep) }
+        buf.append(strings[i])
+    }
+    return buf.finish()
+}
+
+/// `sep.join('`'+x+'`' for x in names)`.
+string ticked(List<string> names, by string sep) uses alloc {
+    var buf = StrBuf()
+    for i in 0..names.length {
+        if i > 0 { buf.append(sep) }
+        buf.append($"`{names[i]}`")
+    }
+    return buf.finish()
+}
+
+bool has(List<string> strings, for string s) {
+    for x in strings {
+        if x == s { return true }
+    }
+    return false
+}
+
+bool isSpace(u8 b) {
+    return b == ' ' || b == '\t' || b == '\n' || b == '\r' || b == 0x0B || b == 0x0C
+}
+
+/// `text.split()`: the runs of non-space bytes.
+List<string> words(string text) uses alloc {
+    var result = List<string>()
+    var start = -1
+    for i in 0..text.length + 1 {
+        let space = i == text.length || isSpace(text.bytes[i])
+        if space && start >= 0 {
+            result.append(text[start..i])
+            start = -1
+        } else if !space && start < 0 {
+            start = i
+        }
+    }
+    return result
+}
+
+/// `s` as a decimal number, or -1.
+i64 number(string s) {
+    if s.isEmpty || s.length > 15 { return -1 }
+    var n = 0
+    for b in s.bytes {
+        if b < '0' || b > '9' { return -1 }
+        n = n * 10 + i64(b - '0')
+    }
+    return n
+}
+
+/// `len(s)`: the code points of `s`.
+i64 codePoints(string s) {
+    var n = 0
+    for b in s.bytes {
+        if b < 0x80 || b >= 0xC0 { n += 1 }
+    }
+    return n
+}
+
+/// `repr(s)` for a printable string: single quotes, double when it holds `'` and no `"`.
+string repr(string s) uses alloc {
+    let body = s.replaced("\\", by: "\\\\")
+    if s.contains("'") && !s.contains("\"") { return $"\"{body}\"" }
+    return $"'{body.replaced("'", by: "\\'")}'"
+}
+
+/// The stdout of `git -C wt` with the tab-separated `args`.
+string git(string wt, for string args) uses process, alloc fails BriefError {
+    var list = List<string>()
+    list.append("-C")
+    list.append(wt)
+    for a in args.parts(by: "\t") { list.append(a) }
+    let r = Io.run("git", list.span) catch {
+        fail .failed(message: $"OSError: git {args.replaced("\t", by: " ")} did not run, or its output is not UTF-8")
+    }
+    return r.stdout
+}
+
+/// The lines of the task's block in the tasks file: its `- [ ] <t> ` line to the next `- [` line.
+List<string> taskBlock(List<string> tasks, for string t) uses alloc {
+    var block = List<string>()
+    var on = false
+    for line in tasks {
+        if line.startsWith($"- [ ] {t} ") || line.startsWith($"- [x] {t} ") {
+            on = true
+        } else if on && line.startsWith("- [") {
+            break
+        }
+        if on { block.append(line) }
+    }
+    return block
+}
+
+/// `src/semantics/{compile,types}.byn` (012 T18) is one name per alternative.
+void braces(string n, to ref List<string> names) uses alloc {
+    let open = n.position("{") ?? -1
+    let close = open < 0 ? -1 : n.position("}", from: open + 1) ?? -1
+    if close < 0 || n[open + 1..close].contains("{") {
+        names.append(n)
+        return
+    }
+    for a in n[open + 1..close].parts(by: ",") {
+        braces($"{n[0..open]}{a}{n[close + 1..n.length]}", to: ref names)
+    }
+}
+
+/// The files the task's line names after `files: `.
+List<string> ownedFiles(string head) uses alloc fails BriefError {
+    // `re.search(r'files: (.*?) — (?:covers|after|done when)', head)`: the first `files: `, to the nearest of the three
+    let from = head.position("files: ") ?? -1
+    var end = -1
+    if from >= 0 {
+        for stop in " — covers\t — after\t — done when".parts(by: "\t") {
+            let p = head.position(stop, from: from + 7) ?? -1
+            if p >= 0 && (end < 0 || p < end) { end = p }
+        }
+    }
+    if end < 0 { fail .failed(message: "AttributeError: the task line has no `files: … — covers|after|done when`") }
+    var files = $"{head[from + 7..end]}"
+    let cs = files.position(" — C#:") ?? -1  // 011 names the C# range after the files
+    if cs >= 0 { files = $"{files[0..cs]}" }
+    files = compiled("\\([^()]*(\\([^()]*\\)[^()]*)*\\)").replaced(files, by: "")
+    var result = List<string>()
+    // golden expected files too (014 T6)
+    for m in compiled("`([^`]+\\.(?:byn|cs|md|c|h|diag|txt|stdout|stderr|exitcode|sha256|sh|yml|yaml))`").findAll(files) {
+        braces(m.group(1) ?? "", to: ref result)
+    }
+    return result
+}
+
+/// A done task's row keeps the layout before plan 017 as history; its paths map to today's.
+string currentPath(string f) uses alloc {
+    if f.startsWith("src/runtime/") { return $"runtime/{f[12..f.length]}" }
+    if f.startsWith("tests/native/") { return $"runtime/tests/{f[13..f.length]}" }
+    if f.startsWith("tests/Bayan.Tests/Selfhost") { return $"src/tests/{f[18..f.length]}" }
+    if f.startsWith("tests/Bayan.Tests/") { return $"csharp/{f}" }
+    if f.startsWith("src/Bayan.") { return $"csharp/{f[4..f.length]}" }
+    if f.startsWith("selfhost/") { return $"src/{f[9..f.length]}" }
+    return f
+}
+
+/// A bare test file name: the Bayan compiler's tests (`Selfhost*`) are in `src/tests/`, the rest beside the C#.
+string testDir(string f) => f.startsWith("Selfhost") ? "src/tests" : "csharp/tests/Bayan.Tests"
+
+/// The test classes `<test dir>/<f>` declares (SelfhostDriverInventoryTests.cs holds SelfhostDriverT8Tests); a file not
+/// written yet: its name.
+List<string> declared(string f, at string wt) uses fs, alloc fails BriefError {
+    let p = Path.combine(wt, f.contains("/") ? f : $"{testDir(f)}/{f}")
+    var result = List<string>()
+    if Fs.fileExists(p) {
+        for m in compiled("\\bclass\\s+(\\w+Tests)\\b").findAll(try read(p)) { result.append(m.group(1) ?? "") }
+    }
+    if result.isEmpty {
+        let name = Path.fileName(f)
+        result.append($"{name[0..name.length - 3]}")
+    }
+    return result
+}
+
+/// The rows of the plan's file table that name one of `byns`.
+List<string> planRows(List<string> plan, for List<string> byns) uses alloc {
+    let cell = compiled("^\\| (`[^|]+`) \\|")
+    var rows = List<string>()
+    for line in plan {
+        let m = cell.find(line) ?? continue
+        let names = m.group(1) ?? ""
+        for b in byns {
+            if names.contains($"`{b}`") {
+                rows.append(line)
+                break
+            }
+        }
+    }
+    return rows
+}
+
+/// `text` is a larger number than `top`: the larger of the two.
+i64 larger(i64 top, by string text) {
+    let n = number(text)
+    return n > top ? n : top
+}
+
+/// The highest Question number in `text`: an open Question's `N. ` line, or an answered one's table row `| QN |`.
+i64 highest(string text, from i64 top) uses alloc {
+    let numbered = compiled("^(?:(\\d{3,4})\\. |\\| Q(\\d{3,4}) \\|)")
+    var result = top
+    for line in text.parts(by: "\n") {
+        if line.isEmpty || (line.bytes[0] != '|' && (line.bytes[0] < '0' || line.bytes[0] > '9')) { continue }
+        let m = numbered.find(line) ?? continue
+        result = larger(result, by: m.group(1) ?? m.group(2) ?? "")
+    }
+    return result
+}
+
+/// The highest Question number taken (0 for none): every Question in this checkout's questions docs, every local
+/// branch's, and every range in a tasks file.
+i64 taken(string wt) uses fs, process, alloc fails BriefError {
+    var top = 0
+    var names = List<string>()
+    for d in qdocs.parts(by: "\t") {
+        let p = Path.combine(wt, d)
+        if Fs.fileExists(p) { top = highest(try read(p), from: top) }
+    }
+    var input = StrBuf()
+    for r in words(try git(wt, for: "for-each-ref\trefs/heads\t--format=%(refname:short)")) {
+        for d in qdocs.parts(by: "\t") { input.append($"{r}:{d}\n") }
+    }
+    names.append("-C")
+    names.append(wt)
+    names.append("cat-file")
+    names.append("--batch")
+    // Io.run gives stdout as text: a blob that is not UTF-8 fails the whole run, where the Python decoded it with U+FFFD
+    let batch = Io.run("git", names.span, input: input.finish().bytes) catch {
+        fail .failed(message: "OSError: git cat-file --batch did not run, or a local branch's questions file is not UTF-8")
+    }
+    let blobs = batch.stdout
+    var pos = 0
+    while pos < blobs.length {
+        let nl = blobs.position("\n", from: pos) ?? blobs.length
+        let head = blobs[pos..nl]
+        pos = nl + 1
+        if head.isEmpty || head.endsWith(" missing") { continue }
+        let w = words(head)
+        let size = w.length > 2 ? number(w[2]) : -1
+        if size < 0 { fail .failed(message: $"ValueError: git cat-file --batch printed `{head}`") }
+        let end = pos + size < blobs.length ? pos + size : blobs.length
+        top = highest(blobs[pos..end], from: top)
+        pos = end + 1
+    }
+    let range = compiled("Q(\\d{3,4})–Q(\\d{3,4})")
+    let sd = Path.combine(wt, "docs/specs")
+    let dirs = Io.listDir(sd) catch {
+        return top
+    }
+    for d in dirs {
+        let files = Io.listDir(Path.combine(sd, d)) catch {
+            continue
+        }
+        for f in files {
+            if !f.endsWith("-tasks.md") { continue }
+            for m in range.findAll(try read(Path.combine(Path.combine(sd, d), f))) {
+                top = larger(top, by: m.group(1) ?? "")
+                top = larger(top, by: m.group(2) ?? "")
+            }
+        }
+    }
+    return top
+}
+
+/// Question ranges (plan D6): an open task with none in its line gets the next five numbers after every Question in this
+/// checkout's questions docs, every local branch's, every range in a tasks file and every range already assigned,
+/// recorded in `qranges`; a task with a row there keeps it.
+// No mutual exclusion yet: the Python held an flock over the read and the append, so briefs written at once did not
+// overlap. Here two runs at once can take the same range, or one can lose the other's row. The Q1140 lock (a lock
+// directory holding the owner's pid, spec 015 T15 part 2b) goes around this function's body.
+List<string> assign(string t, for string spec, at string wt, to string qranges) uses fs, process, random, alloc fails BriefError {
+    let dir = Path.directoryName(qranges) ?? ""
+    if !dir.isEmpty {
+        Io.createDirectory(dir) catch {
+            fail .failed(message: $"OSError: cannot create {dir}")
+        }
+    }
+    var old = ""
+    if Fs.fileExists(qranges) {
+        old = Io.readText(qranges) catch {
+            fail .failed(message: $"OSError: cannot read {qranges} as UTF-8 text")
+        }
+    }
+    var result = List<string>()
+    var top = 0
+    var first = true
+    for l in old.replaced("\r\n", by: "\n").replaced("\r", by: "\n").parts(by: "\n") {
+        if first || l.isEmpty {
+            first = false
+            continue
+        }
+        let r = split(l, by: "\t")
+        if r[0] == spec && r.length > 1 && r[1] == t {
+            if r.length < 4 { fail .failed(message: $"IndexError: {qranges} has a short row for {spec} {t}") }
+            result.append(r[2])
+            result.append(r[3])
+            return result
+        }
+        for k in 2..(r.length < 4 ? r.length : 4) {
+            if number(r[k]) < 0 { fail .failed(message: $"ValueError: {qranges} has `{r[k]}` where a number is needed") }
+            top = larger(top, by: r[k])
+        }
+    }
+    let high = try taken(wt)
+    if high > top { top = high }
+    result.append($"{top + 1}")
+    result.append($"{top + 5}")
+    // the writeReplacing pattern: a temp file in the same directory (so never crossDevice), renamed over the table
+    let text = $"{old}{old.isEmpty ? "spec\ttask\tfirst\tlast\n" : ""}{spec}\t{t}\t{top + 1}\t{top + 5}\n"
+    let temp = $"{qranges}.{Io.randomU64()}.tmp"
+    Io.writeFile(temp, text.bytes) catch {
+        fail .failed(message: $"OSError: cannot write {temp}")
+    }
+    Fs.rename(temp, to: qranges) catch {
+        Io.remove(temp) catch {}
+        fail .failed(message: $"OSError: cannot rename {temp} to {qranges}")
+    }
+    return result
+}
+
+/// The row of `spec` in the specs.tsv under `here`.
+Row rowOf(string spec, at string here) uses fs, alloc fails BriefError {
+    var head = List<string>()
+    var row = List<string>()
+    var first = true
+    for l in (try read(Path.combine(here, "specs.tsv"))).parts(by: "\n") {
+        if first {
+            head = split(l, by: "\t")
+            first = false
+        } else if row.isEmpty && !l.isEmpty {
+            let cols = split(l, by: "\t")
+            if cols[0] == spec { row = move cols }
+        }
+    }
+    if row.isEmpty { fail .failed(message: $"StopIteration: spec {spec} has no row in scripts/selfhost/specs.tsv") }
+    var values = List<string>()
+    for name in "dir\ttasks\tplan\tapi\tshared\tbydir\tprefix\tbase\ttmp".parts(by: "\t") {
+        var at = -1
+        for i in 0..head.length {
+            if head[i] == name { at = i }
+        }
+        if at < 0 || at >= row.length { fail .failed(message: $"KeyError: '{name}' (spec {spec} in scripts/selfhost/specs.tsv)") }
+        values.append(row[at])
+    }
+    return Row { dir: values[0], tasks: values[1], plan: values[2], api: values[3], shared: values[4], bydir: values[5], prefix: values[6], base: values[7], tmp: values[8] }
+}
+
+/// Writes each task's brief and prints its line.
+void run(List<string> args, for string spec, by Brief b) uses fs, env, process, random, console, alloc fails BriefError {
+    let here = Path.combine(Env.get("BAYAN_REPO_ROOT") ?? ".", "scripts/selfhost")
+    let row = try rowOf(spec, at: here)
+    let shared = split(row.shared, by: ",")
+    if args.isEmpty { fail .failed(message: "IndexError: list index out of range (usage: wave-brief <repo-or-worktree> T10 [T11 ...] [--spec 011])") }
+    let wt = Path.fullPath(args[0])
+    let base = Env.get("BAYAN_BASE") ?? row.base
+    let dir = row.dir
+    let tasksName = row.tasks
+    let apiName = row.api
+    let specDir = Path.combine(wt, dir)
+    let tasks = split(try read(Path.combine(specDir, tasksName)), by: "\n")
+    let plan = split(try read(Path.combine(specDir, row.plan)), by: "\n")
+    let apiPath = Path.combine(specDir, apiName)
+    var api = List<string>()
+    if Fs.fileExists(apiPath) { api = split(try read(apiPath), by: "\n") }
+    let protocol = try read(Path.combine(here, "writer-protocol.md"))
+    let cheat = try read(Path.combine(here, "bayan-cheatsheet.md"))
+    // the table of assigned ranges: tmp/q-ranges.tsv of the main checkout (BAYAN_QRANGES overrides)
+    var qranges = Env.get("BAYAN_QRANGES") ?? ""
+    if qranges.isEmpty {
+        let common = words(try git(wt, for: "rev-parse\t--path-format=absolute\t--git-common-dir"))
+        let top = common.isEmpty ? wt : Path.directoryName(joined(common, by: " ")) ?? ""
+        qranges = Path.combine(Path.combine(top, "tmp"), "q-ranges.tsv")
+    }
+    let ownDoc = compiled($"{Regex.escaped(spec)}-[a-z]+\\.md")
+    let rootDoc = compiled("[A-Z]+\\.md")
+    let testPath = compiled("(csharp/tests/Bayan\\.Tests|src/tests)/[A-Za-z0-9]+Tests\\.cs")
+    let lawPage = compiled("^docs/laws/(\\d{3})-")
+    let range = compiled("Q(\\d{3,4})–Q(\\d{3,4})")
+
+    for ti in 1..args.length {
+        let t = args[ti]
+        let block = taskBlock(tasks, for: t)
+        if block.isEmpty { fail .failed(message: $"AssertionError: {t}") }
+        // a root file (CHANGELOG.md) and a bare spec file (010-spec.md) are docs this spec owns too
+        var files = List<string>()
+        for f in try ownedFiles(block[0]) { files.append(currentPath(ownDoc.matches(f) ? $"{dir}/{f}" : f)) }
+        var rooted = List<string>()
+        for f in files {
+            var under = rootDoc.matches(f)
+            for p in ".github/\ttests/\tdocs/\tcsharp/\truntime/\tsrc/tests/\twork/\tbootstrap/\tscripts/".parts(by: "\t") {
+                if f.startsWith(p) { under = true }
+            }
+            if under { rooted.append(f) }
+        }
+        var byns = List<string>()
+        var tests = List<string>()
+        for f in files {
+            if f.endsWith(".byn") && !has(rooted, for: f) { byns.append(f) }
+            if f.endsWith(".cs") && !has(rooted, for: f) { tests.append(f) }
+        }
+        // a task naming its test files only with their directory (`csharp/tests/Bayan.Tests/X.cs` or `src/tests/X.cs`, 012 T4) is gated by those classes,
+        // not by a `<prefix><n>Tests` class it does not have (Q945); a task with bare test names keeps them alone (011 T14 re-pins)
+        if tests.isEmpty {
+            for f in rooted {
+                if testPath.matches(f) { tests.append(f) }
+            }
+        }
+        var paths = List<string>()
+        for f in byns { paths.append(f.startsWith("src/") ? f : $"{row.bydir}/{f}") }
+        for f in tests { paths.append(f.contains("/") ? f : $"{testDir(f)}/{f}") }
+        for f in rooted { paths.append(f) }
+        var allowed = List<string>()
+        for p in paths {
+            if !has(allowed, for: p) { allowed.append(p) }
+        }
+        if !has(allowed, for: "docs/bayan-questions.md") { allowed.append("docs/bayan-questions.md") }
+        if !has(allowed, for: $"{dir}/{tasksName}") { allowed.append($"{dir}/{tasksName}") }
+        let allow = joined(allowed, by: ",")
+        var ownApi = List<string>()
+        for l in api {
+            if l.startsWith($"- {t} ") { ownApi.append(l) }
+        }
+        var q = List<string>()
+        for m in range.findAll(joined(block, by: " ")) {
+            q.append(m.group(1) ?? "")
+            q.append(m.group(2) ?? "")
+            break
+        }
+        if q.isEmpty && spec != "010" && block[0].startsWith("- [ ]") { q = try assign(t, for: spec, at: wt, to: qranges) }
+        // T28 integrates: its gate is every SelfhostSemantics* class, parity and corpus parity included
+        var testClass = $"{row.prefix}{t[1..t.length]}Tests"
+        if spec == "010" && t == "T28" {
+            testClass = "SelfhostSemantics"
+        } else if !tests.isEmpty {
+            let name = Path.fileName(tests[0])
+            testClass = $"{name[0..name.length - 3]}"
+        }
+        // a law-enact task owns only its law page: its gate is that law's proof
+        var law = List<string>()
+        for f in rooted {
+            for m in lawPage.findAll(f) { law.append(m.group(1) ?? "") }
+        }
+        var filt = !law.isEmpty && tests.isEmpty ? $"Law=L{law[0]}" : $"FullyQualifiedName~{testClass}"
+        var docsOnly = !files.isEmpty
+        for f in files {
+            if !f.startsWith("docs/") && !f.startsWith("work/") && !rootDoc.matches(f) { docsOnly = false }
+        }
+        if spec == "010" && law.isEmpty && tests.isEmpty && byns.isEmpty {
+            // a docs-only task: its gate is the test that keeps 010-api.md and the code in step
+            filt = "FullyQualifiedName~SelfhostSemanticsApiTests"
+        } else if law.isEmpty && docsOnly {
+            // a docs-only task in another spec (011 T16, 012 T10, 017 T18): no `<prefix>T<n>Tests` class exists, so the cross-cutting classes preflight runs gate it
+            filt = "FullyQualifiedName~CInventoryTests|FullyQualifiedName~SelfhostDriverT8Tests|FullyQualifiedName~SelfhostDriverRuntimeTests"
+        }
+        // 011: every test class the task owns gates it (a task with a law page and tests too, T14), and T21 also counts the SelfhostSemantics* tests (Q867, Q870)
+        if spec != "010" && (!tests.isEmpty || law.isEmpty) {
+            var classes = List<string>()
+            for f in tests {
+                for c in try declared(f, at: wt) {
+                    if !has(classes, for: c) { classes.append($"FullyQualifiedName~{c}") }
+                }
+            }
+            if !classes.isEmpty { filt = joined(classes, by: "|") }
+            if spec == "011" && t == "T21" { filt = $"{filt}|FullyQualifiedName~SelfhostSemantics" }
+            if spec == "011" && t == "T13" { filt = $"{filt}|FullyQualifiedName~SelfhostEmitter" }  // integration: every emitter class (Q886)
+        }
+        let sharedx = ticked(shared, by: " and ")
+        var proto = protocol
+        if spec != "010" {
+            proto = proto.replaced("`src/semantics/ctx.byn`", by: sharedx).replaced("nothing else in ctx.byn", by: "nothing else in those files").replaced("SelfhostSemanticsT10Tests.Expected", by: b.oracle)
+        }
+        proto = proto.replaced("SelfhostSemanticsT3Tests", by: testClass).replaced("restore with `git checkout -- <file>`", by: "restore by copying back a copy you took first (`cp f tmp/f.orig` … `cp tmp/f.orig f`; never `git checkout`, which reverts to the stub and loses your work)").replaced("Skeleton by turn 12", by: "Skeleton by turn 15")
+        let preQuestions = q.isEmpty ? "your range" : $"Q{q[0]}–Q{q[1]}"
+        let questions = q.isEmpty ? "in your range" : $"Q{q[0]}–Q{q[1]}"
+        var p = StrBuf()
+        if spec != "010" {
+            p.append("Preflight (after the guard passes, before you return; `land.sh` runs it again and refuses on any FAIL):\n")
+            p.append("```\n")
+            p.append($"bash scripts/selfhost/preflight.sh {spec} {t} \"$(git rev-parse --abbrev-ref HEAD)\"\n")
+            p.append("```\n")
+            p.append($"Every line must say `ok` except `wp1`, which the dispatcher runs after your commit. It checks that each `file:line` you added cites the line as it stands after your last edit and that the backticked code you quote with it is on that line, that every file you changed is in your files list (if not, put the addition it prints in your final message; do not edit the tasks file), that your Questions are new numbers inside {preQuestions}, and that your test classes and the cross-cutting ones (`CInventoryTests`, `SelfhostDriverT8Tests`, `SelfhostDriverRuntimeTests`, `plan-strings-check`) pass, none matching zero tests. Paste its output into your summary.\n")
+        }
+        let pre = p.finish()
+        let specFlag = spec == "010" ? "" : $" --spec {spec}"
+        let blockText = joined(block, by: "\n")
+        let planText = joined(planRows(plan, for: byns), by: "\n")
+        let entryPoints = ownApi.isEmpty ? "(none in the cross-file index; your functions are file-private)" : joined(ownApi, by: "\n")
+        let lower = t.lowercased()
+        let ownedText = ticked(paths, by: ", ")
+        var s = StrBuf()
+        s.append($"You are doing task {t} of spec {spec} ({b.desc}). Other writers port the sibling files in parallel; every cross-file function already exists as a compiling stub with its final signature, so you call real names and never write stand-ins. A separate reviewer compares your port with the C# line by line before it lands; invented logic, sibling fallbacks and hand-typed test expectations fail that review.\n")
+        s.append("\n")
+        s.append($"{proto}\n")
+        s.append("\n")
+        s.append("Guard (run before you finish):\n")
+        s.append("```\n")
+        s.append($"bash scripts/selfhost/guard.sh --base {base} --allow '{allow}' --filter '{filt}' --task {t}{specFlag}\n")
+        s.append("```\n")
+        s.append($"{pre}Do not commit, merge, checkout, reset or stash; the dispatcher commits for you.\n")
+        s.append("\n")
+        s.append("**Order of work:** turns 1–6 read; by turn 15 your file(s) compile with every function stubbed and the test file has one passing test; then port in C# order, ~80 lines per compile; tests for each function as you go; guard; docs. If you reach turn 100 with tests unwritten, stop porting and write tests: the dispatcher resumes you for the rest.\n")
+        s.append("\n")
+        s.append($"## Task (verbatim, {dir}/{tasksName})\n")
+        s.append($"{blockText}\n")
+        s.append("\n")
+        s.append("## What you port (plan file table)\n")
+        s.append($"{planText}\n")
+        s.append("Port method for method in C# order, keeping C# names lowerCamel. Read the C# ranges named above whole, once. Line ranges marked `~` are approximate: start and stop at the method boundary nearest to them, and say in your Question where you cut.\n")
+        s.append("\n")
+        s.append("## Your entry points (exact; already stubbed in your file with `// stub:` comments; replace each body, keep each signature byte for byte)\n")
+        s.append($"{entryPoints}\n")
+        s.append("\n")
+        s.append("## Calling siblings\n")
+        s.append($"`{dir}/{apiName}` lists every cross-file function with its exact signature and owner. Call those names as written. A sibling still a stub returns a default (`-1`, `errorType()`, empty list), so **test your functions on inputs that do not go through an unported sibling**, or build the sibling's output by hand (arenas and structs are module-visible). Never edit a sibling's file: if you need a function that is not in the index, write it as a private helper in your own file with a `{t}`-prefixed name (e.g. `{lower}FindX`) and record it in a Question so integration (T28) can merge duplicates.\n")
+        s.append($"{b.landed}\n")
+        s.append("\n")
+        s.append("## Tests: use the shared harness, do not write another build helper\n")
+        s.append($"{b.harness}\n")
+        s.append("\n")
+        s.append("## Files you own\n")
+        s.append($"{ownedText}, `docs/bayan-questions.md` (Questions {questions} only, inserted in number order), your own `// ── {t} state` sections of {sharedx} (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`bash scripts/bayan-tool.sh review-brief`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.\n")
+        s.append("\n")
+        s.append($"{cheat}\n")
+        s.append("## End your final message with\n")
+        s.append("Files changed; test count; the guard's last 3 lines; break-tests (file:line → failing test); Questions added; done / not done / exact next step.\n")
+        let text = s.finish()
+        let d = $"{wt}/{row.tmp}{lower}"
+        Io.createDirectory(d) catch {
+            fail .failed(message: $"OSError: cannot create {d}")
+        }
+        Io.writeFile($"{d}/prompt.md", text.bytes) catch {
+            fail .failed(message: $"OSError: cannot write {d}/prompt.md")
+        }
+        var shown = List<string>()
+        for f in files { shown.append(repr(f)) }
+        let range2 = q.isEmpty ? "None" : $"({repr(q[0])}, {repr(q[1])})"
+        print($"{t} {codePoints(text)} [{joined(shown, by: ", ")}] {range2} {ownApi.length}")
+    }
+}
+
+i32 main(ReadOnlySpan<string> argv) {
+    var args = List<string>()
+    var spec = "010"
+    var skip = -1
+    for i in 0..argv.length {
+        if argv[i] == "--spec" && skip < 0 {
+            if i + 1 >= argv.length {
+                print("wave-brief: IndexError: list index out of range (--spec needs a value)", to: .stderr)
+                return 1
+            }
+            spec = argv[i + 1]
+            skip = i + 1
+        } else if i != skip {
+            args.append(argv[i])
+        }
+    }
+    let b = brief(spec)
+    if b is null {
+        print($"wave-brief: no brief text for spec {spec}", to: .stderr)
+        return 1
+    }
+    run(args, for: spec, by: b) catch switch {
+        .failed(let msg) => {
+            print($"wave-brief: {msg}", to: .stderr)
+            return 1
+        },
+    }
+    return 0
+}

@@ -128,7 +128,7 @@ List<string> lawNumbers(string s) {
 /// A bare test file name's directory: the Bayan compiler's tests (`Selfhost*`) are in `src/tests/`, the rest beside the C#.
 string testDir(string name) => name.startsWith("Selfhost") ? "src/tests" : "csharp/tests/Bayan.Tests"
 
-/// A done task's row keeps the layout before plan 017 as history; its paths map to today's (wave-brief.py `current_path`).
+/// A done task's row keeps the layout before plan 017 as history; its paths map to today's (wave-brief `currentPath`).
 string currentPath(string f) {
     if f.startsWith("src/runtime/") { return $"runtime/{f[12..f.length]}" }
     if f.startsWith("tests/native/") { return $"runtime/tests/{f[13..f.length]}" }
@@ -283,7 +283,7 @@ i32 main(ReadOnlySpan<string> argv) {
     let specDir = Path.combine(wt, field(head, at: row, for: "dir"))
     let tasksText = readText(Path.combine(specDir, field(head, at: row, for: "tasks"))) catch return 1
     let tasks = split(tasksText, by: "\n")
-    // the Question ranges wave-brief.py assigned: $BAYAN_QRANGES, else tmp/q-ranges.tsv of the main checkout (as preflight.sh reads them)
+    // the Question ranges wave-brief assigned: $BAYAN_QRANGES, else tmp/q-ranges.tsv of the main checkout (as preflight.sh reads them)
     var gitArgs: List<string> = List<string>()
     gitArgs.append("-C")
     gitArgs.append(wt)
@@ -359,7 +359,7 @@ i32 main(ReadOnlySpan<string> argv) {
         // 011: every test class the task owns gates it (a task with a law page and tests too, T14), and T21 also counts the SelfhostSemantics* tests (Q867, Q870)
         // the classes are those the task's test files declare, bare names or with their directory (SelfhostDriverInventoryTests.cs
         // holds SelfhostDriverT8Tests); a file not written yet counts by its name; never a `<prefix><n>Tests` class the task does not have (012 T17).
-        // As in wave-brief.py, a task with bare test names keeps them alone (011 T14 re-pins the rooted ones)
+        // As in wave-brief, a task with bare test names keeps them alone (011 T14 re-pins the rooted ones)
         var testPaths: List<string> = List<string>()
         for f in ownTests { testPaths.append($"{testDir(f)}/{f}") }
         if testPaths.isEmpty {
@@ -403,7 +403,7 @@ i32 main(ReadOnlySpan<string> argv) {
         }
         var q = questionRange(joinLines(block).replaced("\n", by: " "))
         if q.isEmpty {
-            for r in qrows {  // else the range wave-brief.py assigned
+            for r in qrows {  // else the range wave-brief assigned
                 if r.length >= 2 && r[0] == spec && r[1] == t {
                     for k in 2..(r.length < 4 ? r.length : 4) { q.append(r[k]) }
                     break
