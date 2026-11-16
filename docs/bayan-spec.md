@@ -837,18 +837,166 @@ No user-defined operator symbols. Operator implementations must not allocate, su
 
 | Conversion | Rule |
 |---|---|
-| Lossless numeric widening | Implicit: `i8`→`i16`→`i32`→`i64`, `u8`→`u16`→`u32`→`u64`, `u8`→`i16`/`i32`/`i64`, `u16`→`i32`/`i64`, `u32`→`i64`, `f32`→`f64`, and `i8`/`u8`/`i16`/`u16`→`f32` and `i8`/`u8`/`i16`/`u16`/`i32`/`u32`→`f64` |
-| Integer ↔ integer narrowing or sign change `u8(x)` | Explicit; traps in every build mode if out of range (`isize`/`usize` included). `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
-| Wide integer → float `f64(n)`, `f32(n)` | Explicit on `i64`/`u64`/`isize`/`usize`→`f64` and `i32`/`u32`/`i64`/`u64`/`isize`/`usize`→`f32`; rounds the mathematical value once to nearest, ties to even |
-| `f64` → `f32` `f32(x)` | Explicit; rounds the mathematical value once to nearest, ties to even (overflow gives `±∞`) |
-| Float → integer `i64(x)` | Explicit; truncates toward zero, saturates to the target's minimum or maximum when out of range (`0` for negative inputs to unsigned types), and `nan` becomes `0`; the one narrowing conversion that saturates instead of trapping. `i64.tryFrom(x)` returns `i64?` (`null` on `nan`, out of range, or a nonzero fractional part) |
-| Integer → `dec` `dec(n)` | Explicit; exact and infallible for every integer type (not in 0.3, §3.1) |
-| `dec` → integer `i64(d)` | Explicit; truncates toward zero and traps if out of range; `i64.tryFrom(d)` returns `i64?` (`null` if out of range or if `d` has a nonzero fractional part) (not in 0.3) |
-| `dec` → float `f64(d)`, `f32(d)` | Explicit; rounds the mathematical value once to nearest, ties to even (not in 0.3) |
-| Float → `dec` | Rejected: `dec(x)` on `f32` or `f64` is BYN2206 (fix-it `0.1dec` on a literal, `dec.fromF64(x, digits: n)` on a runtime value); `dec.fromF64(x, digits: n)` and `dec.tryFromF64(x, digits: n)` convert with explicit decimal places (not in 0.3, §3.1) |
+| `i8` → `i16` | Implicit (lossless widening) |
+| `i8` → `i32` | Implicit (lossless widening) |
+| `i8` → `i64` | Implicit (lossless widening) |
+| `i8` → `isize` | Implicit (lossless widening; 64-bit `isize`) |
+| `i8` → `u8` | Explicit (`u8(x)`); traps in every build mode if negative. `u8.tryFrom(x)` returns `u8?` (`null` when negative) |
+| `i8` → `u16` | Explicit (`u16(x)`); traps in every build mode if negative. `u16.tryFrom(x)` returns `u16?` (`null` when negative) |
+| `i8` → `u32` | Explicit (`u32(x)`); traps in every build mode if negative. `u32.tryFrom(x)` returns `u32?` (`null` when negative) |
+| `i8` → `u64` | Explicit (`u64(x)`); traps in every build mode if negative. `u64.tryFrom(x)` returns `u64?` (`null` when negative) |
+| `i8` → `usize` | Explicit (`usize(x)`); traps in every build mode if negative. `usize.tryFrom(x)` returns `usize?` (`null` when negative) |
+| `i8` → `f32` | Implicit (lossless widening) |
+| `i8` → `f64` | Implicit (lossless widening) |
+| `i8` → `dec` | Explicit (`dec(n)`); exact and infallible (not in 0.3, §3.1) |
+| `i16` → `i8` | Explicit (`i8(x)`); traps in every build mode if out of range. `i8.tryFrom(x)` returns `i8?` (`null` when out of range) |
+| `i16` → `i32` | Implicit (lossless widening) |
+| `i16` → `i64` | Implicit (lossless widening) |
+| `i16` → `isize` | Implicit (lossless widening; 64-bit `isize`) |
+| `i16` → `u8` | Explicit (`u8(x)`); traps in every build mode if out of range. `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
+| `i16` → `u16` | Explicit (`u16(x)`); traps in every build mode if negative. `u16.tryFrom(x)` returns `u16?` (`null` when negative) |
+| `i16` → `u32` | Explicit (`u32(x)`); traps in every build mode if negative. `u32.tryFrom(x)` returns `u32?` (`null` when negative) |
+| `i16` → `u64` | Explicit (`u64(x)`); traps in every build mode if negative. `u64.tryFrom(x)` returns `u64?` (`null` when negative) |
+| `i16` → `usize` | Explicit (`usize(x)`); traps in every build mode if negative. `usize.tryFrom(x)` returns `usize?` (`null` when negative) |
+| `i16` → `f32` | Implicit (lossless widening) |
+| `i16` → `f64` | Implicit (lossless widening) |
+| `i16` → `dec` | Explicit (`dec(n)`); exact and infallible (not in 0.3, §3.1) |
+| `i32` → `i8` | Explicit (`i8(x)`); traps in every build mode if out of range. `i8.tryFrom(x)` returns `i8?` (`null` when out of range) |
+| `i32` → `i16` | Explicit (`i16(x)`); traps in every build mode if out of range. `i16.tryFrom(x)` returns `i16?` (`null` when out of range) |
+| `i32` → `i64` | Implicit (lossless widening) |
+| `i32` → `isize` | Implicit (lossless widening; 64-bit `isize`) |
+| `i32` → `u8` | Explicit (`u8(x)`); traps in every build mode if out of range. `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
+| `i32` → `u16` | Explicit (`u16(x)`); traps in every build mode if out of range. `u16.tryFrom(x)` returns `u16?` (`null` when out of range) |
+| `i32` → `u32` | Explicit (`u32(x)`); traps in every build mode if negative. `u32.tryFrom(x)` returns `u32?` (`null` when negative) |
+| `i32` → `u64` | Explicit (`u64(x)`); traps in every build mode if negative. `u64.tryFrom(x)` returns `u64?` (`null` when negative) |
+| `i32` → `usize` | Explicit (`usize(x)`); traps in every build mode if negative. `usize.tryFrom(x)` returns `usize?` (`null` when negative) |
+| `i32` → `f32` | Explicit (`f32(n)`); rounds the mathematical value once to nearest, ties to even |
+| `i32` → `f64` | Implicit (lossless widening) |
+| `i32` → `dec` | Explicit (`dec(n)`); exact and infallible (not in 0.3, §3.1) |
+| `i64` → `i8` | Explicit (`i8(x)`); traps in every build mode if out of range. `i8.tryFrom(x)` returns `i8?` (`null` when out of range) |
+| `i64` → `i16` | Explicit (`i16(x)`); traps in every build mode if out of range. `i16.tryFrom(x)` returns `i16?` (`null` when out of range) |
+| `i64` → `i32` | Explicit (`i32(x)`); traps in every build mode if out of range. `i32.tryFrom(x)` returns `i32?` (`null` when out of range) |
+| `i64` → `isize` | Explicit (`isize(x)`); both are 64-bit signed, so `isize(x)` and `isize.tryFrom(x)` always succeed |
+| `i64` → `u8` | Explicit (`u8(x)`); traps in every build mode if out of range. `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
+| `i64` → `u16` | Explicit (`u16(x)`); traps in every build mode if out of range. `u16.tryFrom(x)` returns `u16?` (`null` when out of range) |
+| `i64` → `u32` | Explicit (`u32(x)`); traps in every build mode if out of range. `u32.tryFrom(x)` returns `u32?` (`null` when out of range) |
+| `i64` → `u64` | Explicit (`u64(x)`); traps in every build mode if negative. `u64.tryFrom(x)` returns `u64?` (`null` when negative) |
+| `i64` → `usize` | Explicit (`usize(x)`); traps in every build mode if negative. `usize.tryFrom(x)` returns `usize?` (`null` when negative) |
+| `i64` → `f32` | Explicit (`f32(n)`); rounds the mathematical value once to nearest, ties to even |
+| `i64` → `f64` | Explicit (`f64(n)`); rounds the mathematical value once to nearest, ties to even |
+| `i64` → `dec` | Explicit (`dec(n)`); exact and infallible (not in 0.3, §3.1) |
+| `isize` → `i8` | Explicit (`i8(x)`); traps in every build mode if out of range. `i8.tryFrom(x)` returns `i8?` (`null` when out of range) |
+| `isize` → `i16` | Explicit (`i16(x)`); traps in every build mode if out of range. `i16.tryFrom(x)` returns `i16?` (`null` when out of range) |
+| `isize` → `i32` | Explicit (`i32(x)`); traps in every build mode if out of range. `i32.tryFrom(x)` returns `i32?` (`null` when out of range) |
+| `isize` → `i64` | Explicit (`i64(x)`); both are 64-bit signed, so `i64(x)` and `i64.tryFrom(x)` always succeed |
+| `isize` → `u8` | Explicit (`u8(x)`); traps in every build mode if out of range. `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
+| `isize` → `u16` | Explicit (`u16(x)`); traps in every build mode if out of range. `u16.tryFrom(x)` returns `u16?` (`null` when out of range) |
+| `isize` → `u32` | Explicit (`u32(x)`); traps in every build mode if out of range. `u32.tryFrom(x)` returns `u32?` (`null` when out of range) |
+| `isize` → `u64` | Explicit (`u64(x)`); traps in every build mode if negative. `u64.tryFrom(x)` returns `u64?` (`null` when negative) |
+| `isize` → `usize` | Explicit (`usize(x)`); traps in every build mode if negative. `usize.tryFrom(x)` returns `usize?` (`null` when negative) |
+| `isize` → `f32` | Explicit (`f32(n)`); rounds the mathematical value once to nearest, ties to even |
+| `isize` → `f64` | Explicit (`f64(n)`); rounds the mathematical value once to nearest, ties to even |
+| `isize` → `dec` | Explicit (`dec(n)`); exact and infallible (not in 0.3, §3.1) |
+| `u8` → `i8` | Explicit (`i8(x)`); traps in every build mode if above `127`. `i8.tryFrom(x)` returns `i8?` (`null` when out of range) |
+| `u8` → `i16` | Implicit (lossless widening) |
+| `u8` → `i32` | Implicit (lossless widening) |
+| `u8` → `i64` | Implicit (lossless widening) |
+| `u8` → `isize` | Implicit (lossless widening; 64-bit `isize`) |
+| `u8` → `u16` | Implicit (lossless widening) |
+| `u8` → `u32` | Implicit (lossless widening) |
+| `u8` → `u64` | Implicit (lossless widening) |
+| `u8` → `usize` | Implicit (lossless widening; 64-bit `usize`) |
+| `u8` → `f32` | Implicit (lossless widening) |
+| `u8` → `f64` | Implicit (lossless widening) |
+| `u8` → `dec` | Explicit (`dec(n)`); exact and infallible (not in 0.3, §3.1) |
+| `u16` → `i8` | Explicit (`i8(x)`); traps in every build mode if out of range. `i8.tryFrom(x)` returns `i8?` (`null` when out of range) |
+| `u16` → `i16` | Explicit (`i16(x)`); traps in every build mode if above `32767`. `i16.tryFrom(x)` returns `i16?` (`null` when out of range) |
+| `u16` → `i32` | Implicit (lossless widening) |
+| `u16` → `i64` | Implicit (lossless widening) |
+| `u16` → `isize` | Implicit (lossless widening; 64-bit `isize`) |
+| `u16` → `u8` | Explicit (`u8(x)`); traps in every build mode if out of range. `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
+| `u16` → `u32` | Implicit (lossless widening) |
+| `u16` → `u64` | Implicit (lossless widening) |
+| `u16` → `usize` | Implicit (lossless widening; 64-bit `usize`) |
+| `u16` → `f32` | Implicit (lossless widening) |
+| `u16` → `f64` | Implicit (lossless widening) |
+| `u16` → `dec` | Explicit (`dec(n)`); exact and infallible (not in 0.3, §3.1) |
+| `u32` → `i8` | Explicit (`i8(x)`); traps in every build mode if out of range. `i8.tryFrom(x)` returns `i8?` (`null` when out of range) |
+| `u32` → `i16` | Explicit (`i16(x)`); traps in every build mode if out of range. `i16.tryFrom(x)` returns `i16?` (`null` when out of range) |
+| `u32` → `i32` | Explicit (`i32(x)`); traps in every build mode if above `2147483647`. `i32.tryFrom(x)` returns `i32?` (`null` when out of range) |
+| `u32` → `i64` | Implicit (lossless widening) |
+| `u32` → `isize` | Implicit (lossless widening; 64-bit `isize`) |
+| `u32` → `u8` | Explicit (`u8(x)`); traps in every build mode if out of range. `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
+| `u32` → `u16` | Explicit (`u16(x)`); traps in every build mode if out of range. `u16.tryFrom(x)` returns `u16?` (`null` when out of range) |
+| `u32` → `u64` | Implicit (lossless widening) |
+| `u32` → `usize` | Implicit (lossless widening; 64-bit `usize`) |
+| `u32` → `f32` | Explicit (`f32(n)`); rounds the mathematical value once to nearest, ties to even |
+| `u32` → `f64` | Implicit (lossless widening) |
+| `u32` → `dec` | Explicit (`dec(n)`); exact and infallible (not in 0.3, §3.1) |
+| `u64` → `i8` | Explicit (`i8(x)`); traps in every build mode if out of range. `i8.tryFrom(x)` returns `i8?` (`null` when out of range) |
+| `u64` → `i16` | Explicit (`i16(x)`); traps in every build mode if out of range. `i16.tryFrom(x)` returns `i16?` (`null` when out of range) |
+| `u64` → `i32` | Explicit (`i32(x)`); traps in every build mode if out of range. `i32.tryFrom(x)` returns `i32?` (`null` when out of range) |
+| `u64` → `i64` | Explicit (`i64(x)`); traps in every build mode if above `9223372036854775807`. `i64.tryFrom(x)` returns `i64?` (`null` when out of range) |
+| `u64` → `isize` | Explicit (`isize(x)`); traps in every build mode if above `9223372036854775807`. `isize.tryFrom(x)` returns `isize?` (`null` when out of range) |
+| `u64` → `u8` | Explicit (`u8(x)`); traps in every build mode if out of range. `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
+| `u64` → `u16` | Explicit (`u16(x)`); traps in every build mode if out of range. `u16.tryFrom(x)` returns `u16?` (`null` when out of range) |
+| `u64` → `u32` | Explicit (`u32(x)`); traps in every build mode if out of range. `u32.tryFrom(x)` returns `u32?` (`null` when out of range) |
+| `u64` → `usize` | Explicit (`usize(x)`); both are 64-bit unsigned, so `usize(x)` and `usize.tryFrom(x)` always succeed |
+| `u64` → `f32` | Explicit (`f32(n)`); rounds the mathematical value once to nearest, ties to even |
+| `u64` → `f64` | Explicit (`f64(n)`); rounds the mathematical value once to nearest, ties to even |
+| `u64` → `dec` | Explicit (`dec(n)`); exact and infallible (not in 0.3, §3.1) |
+| `usize` → `i8` | Explicit (`i8(x)`); traps in every build mode if out of range. `i8.tryFrom(x)` returns `i8?` (`null` when out of range) |
+| `usize` → `i16` | Explicit (`i16(x)`); traps in every build mode if out of range. `i16.tryFrom(x)` returns `i16?` (`null` when out of range) |
+| `usize` → `i32` | Explicit (`i32(x)`); traps in every build mode if out of range. `i32.tryFrom(x)` returns `i32?` (`null` when out of range) |
+| `usize` → `i64` | Explicit (`i64(x)`); traps in every build mode if above `9223372036854775807`. `i64.tryFrom(x)` returns `i64?` (`null` when out of range) |
+| `usize` → `isize` | Explicit (`isize(x)`); traps in every build mode if above `9223372036854775807`. `isize.tryFrom(x)` returns `isize?` (`null` when out of range) |
+| `usize` → `u8` | Explicit (`u8(x)`); traps in every build mode if out of range. `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
+| `usize` → `u16` | Explicit (`u16(x)`); traps in every build mode if out of range. `u16.tryFrom(x)` returns `u16?` (`null` when out of range) |
+| `usize` → `u32` | Explicit (`u32(x)`); traps in every build mode if out of range. `u32.tryFrom(x)` returns `u32?` (`null` when out of range) |
+| `usize` → `u64` | Explicit (`u64(x)`); both are 64-bit unsigned, so `u64(x)` and `u64.tryFrom(x)` always succeed |
+| `usize` → `f32` | Explicit (`f32(n)`); rounds the mathematical value once to nearest, ties to even |
+| `usize` → `f64` | Explicit (`f64(n)`); rounds the mathematical value once to nearest, ties to even |
+| `usize` → `dec` | Explicit (`dec(n)`); exact and infallible (not in 0.3, §3.1) |
+| `f32` → `i8` | Explicit (`i8(x)`); truncates toward zero, saturates to `i8`'s bounds, `nan` becomes `0`. `i8.tryFrom(x)` returns `i8?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f32` → `i16` | Explicit (`i16(x)`); truncates toward zero, saturates to `i16`'s bounds, `nan` becomes `0`. `i16.tryFrom(x)` returns `i16?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f32` → `i32` | Explicit (`i32(x)`); truncates toward zero, saturates to `i32`'s bounds, `nan` becomes `0`. `i32.tryFrom(x)` returns `i32?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f32` → `i64` | Explicit (`i64(x)`); truncates toward zero, saturates to `i64`'s bounds, `nan` becomes `0`. `i64.tryFrom(x)` returns `i64?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f32` → `isize` | Explicit (`isize(x)`); truncates toward zero, saturates to `isize`'s bounds, `nan` becomes `0`. `isize.tryFrom(x)` returns `isize?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f32` → `u8` | Explicit (`u8(x)`); truncates toward zero, saturates to `0..=255`, `nan` becomes `0`. `u8.tryFrom(x)` returns `u8?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f32` → `u16` | Explicit (`u16(x)`); truncates toward zero, saturates to `0..=65535`, `nan` becomes `0`. `u16.tryFrom(x)` returns `u16?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f32` → `u32` | Explicit (`u32(x)`); truncates toward zero, saturates to `u32`'s bounds (`0` for negative), `nan` becomes `0`. `u32.tryFrom(x)` returns `u32?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f32` → `u64` | Explicit (`u64(x)`); truncates toward zero, saturates to `u64`'s bounds (`0` for negative), `nan` becomes `0`. `u64.tryFrom(x)` returns `u64?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f32` → `usize` | Explicit (`usize(x)`); truncates toward zero, saturates to `usize`'s bounds (`0` for negative), `nan` becomes `0`. `usize.tryFrom(x)` returns `usize?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f32` → `f64` | Implicit (lossless widening) |
+| `f32` → `dec` | Rejected: `dec(x)` is BYN2206 (fix-it `0.1dec` on a literal, `dec.fromF64(f64(x), digits: n)` on a runtime value; not in 0.3, §3.1) |
+| `f64` → `i8` | Explicit (`i8(x)`); truncates toward zero, saturates to `i8`'s bounds, `nan` becomes `0`. `i8.tryFrom(x)` returns `i8?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f64` → `i16` | Explicit (`i16(x)`); truncates toward zero, saturates to `i16`'s bounds, `nan` becomes `0`. `i16.tryFrom(x)` returns `i16?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f64` → `i32` | Explicit (`i32(x)`); truncates toward zero, saturates to `i32`'s bounds, `nan` becomes `0`. `i32.tryFrom(x)` returns `i32?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f64` → `i64` | Explicit (`i64(x)`); truncates toward zero, saturates to `i64`'s bounds, `nan` becomes `0`. `i64.tryFrom(x)` returns `i64?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f64` → `isize` | Explicit (`isize(x)`); truncates toward zero, saturates to `isize`'s bounds, `nan` becomes `0`. `isize.tryFrom(x)` returns `isize?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f64` → `u8` | Explicit (`u8(x)`); truncates toward zero, saturates to `0..=255`, `nan` becomes `0`. `u8.tryFrom(x)` returns `u8?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f64` → `u16` | Explicit (`u16(x)`); truncates toward zero, saturates to `0..=65535`, `nan` becomes `0`. `u16.tryFrom(x)` returns `u16?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f64` → `u32` | Explicit (`u32(x)`); truncates toward zero, saturates to `u32`'s bounds (`0` for negative), `nan` becomes `0`. `u32.tryFrom(x)` returns `u32?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f64` → `u64` | Explicit (`u64(x)`); truncates toward zero, saturates to `u64`'s bounds (`0` for negative), `nan` becomes `0`. `u64.tryFrom(x)` returns `u64?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f64` → `usize` | Explicit (`usize(x)`); truncates toward zero, saturates to `usize`'s bounds (`0` for negative), `nan` becomes `0`. `usize.tryFrom(x)` returns `usize?` (`null` on `nan`, out of range or a nonzero fraction) |
+| `f64` → `f32` | Explicit (`f32(x)`); rounds the mathematical value once to nearest, ties to even (overflow gives `±∞`) |
+| `f64` → `dec` | Rejected: `dec(x)` is BYN2206 (fix-it `0.1dec` on a literal, `dec.fromF64(x, digits: n)` on a runtime value); `dec.fromF64(x, digits: n)` and `dec.tryFromF64(x, digits: n)` convert with explicit decimal places (not in 0.3, §3.1) |
+| `dec` → `i8` | Explicit (`i8(d)`); truncates toward zero and traps in every build mode if out of range. `i8.tryFrom(d)` returns `i8?` (`null` if out of range or if `d` has a nonzero fraction) (not in 0.3) |
+| `dec` → `i16` | Explicit (`i16(d)`); truncates toward zero and traps in every build mode if out of range. `i16.tryFrom(d)` returns `i16?` (`null` if out of range or if `d` has a nonzero fraction) (not in 0.3) |
+| `dec` → `i32` | Explicit (`i32(d)`); truncates toward zero and traps in every build mode if out of range. `i32.tryFrom(d)` returns `i32?` (`null` if out of range or if `d` has a nonzero fraction) (not in 0.3) |
+| `dec` → `i64` | Explicit (`i64(d)`); truncates toward zero and traps in every build mode if out of range. `i64.tryFrom(d)` returns `i64?` (`null` if out of range or if `d` has a nonzero fraction) (not in 0.3) |
+| `dec` → `isize` | Explicit (`isize(d)`); truncates toward zero and traps in every build mode if out of range. `isize.tryFrom(d)` returns `isize?` (`null` if out of range or if `d` has a nonzero fraction) (not in 0.3) |
+| `dec` → `u8` | Explicit (`u8(d)`); truncates toward zero and traps in every build mode if out of range. `u8.tryFrom(d)` returns `u8?` (`null` if out of range or if `d` has a nonzero fraction) (not in 0.3) |
+| `dec` → `u16` | Explicit (`u16(d)`); truncates toward zero and traps in every build mode if out of range. `u16.tryFrom(d)` returns `u16?` (`null` if out of range or if `d` has a nonzero fraction) (not in 0.3) |
+| `dec` → `u32` | Explicit (`u32(d)`); truncates toward zero and traps in every build mode if out of range. `u32.tryFrom(d)` returns `u32?` (`null` if out of range or if `d` has a nonzero fraction) (not in 0.3) |
+| `dec` → `u64` | Explicit (`u64(d)`); truncates toward zero and traps in every build mode if out of range. `u64.tryFrom(d)` returns `u64?` (`null` if out of range or if `d` has a nonzero fraction) (not in 0.3) |
+| `dec` → `usize` | Explicit (`usize(d)`); truncates toward zero and traps in every build mode if out of range. `usize.tryFrom(d)` returns `usize?` (`null` if out of range or if `d` has a nonzero fraction) (not in 0.3) |
+| `dec` → `f32` | Explicit (`f32(d)`); rounds the mathematical value once to nearest, ties to even (not in 0.3) |
+| `dec` → `f64` | Explicit (`f64(d)`); rounds the mathematical value once to nearest, ties to even (not in 0.3) |
 | Truncation | `x.truncate<u8>()` (low bits of an integer) |
 | Bit reinterpretation | `bitcast<T>(x)` (same size; non-plain types require `unsafe`) |
 | Units / distinct types | `Seconds(raw)`, `i64(t)` |
+| `rune` ↔ integer | `u32(r)`, `i64(r)` (implicit widening does not apply; `r.value` is `u32`); `rune(n)` traps outside Unicode scalars (`0..=0x10FFFF` excluding `0xD800..=0xDFFF`) |
 | Enum ↔ number | `.ordinal` / `.value`; `T.fromOrdinal(i)` returns `T?` |
 | Views | `Span<T>` → `ReadOnlySpan<T>` implicit; as a call argument, `List<T>` and `T[N]` → `Span<T>` / `ReadOnlySpan<T>`, and `string` → `ReadOnlySpan<u8>`. Never `ReadOnlySpan<T>` → `Span<T>`. |
 | User types | `T(x)` calls `IFrom<T, U>.from` (infallible). A fallible conversion (`ITryFrom`, or a type with `requires`) is `try T(x)`; `T.tryFrom(x)` returns `T?` (like `u8.tryFrom`); `T.tryParse(text)` reads text |
@@ -862,7 +1010,7 @@ No user-defined operator symbols. Operator implementations must not allocate, su
 | Bytes → text | A codec: `try Utf8.decode(bytes)` (fails `Utf8Error`), `Utf8.tryDecode(bytes)` (`string?`), `Utf8.decode(bytes, invalid: .replace)` (lossy, never fails); `try Latin1.decode(bytes)` (`kit`), `try Utf16.decode(units)` (`std.text`) (§3.2). Hex and base64 are codecs too: `Hex.encode(bytes)`, `try Hex.decode(text)` |
 | User-defined implicit conversions | Not allowed |
 
-There are no implicit user conversions; a conversion is `T(x)`, never an instance `toX` or `asX` member (§5.2), and any cast outside the table is BYN2206. Every explicit conversion that rounds (`Wide integer → float`, `f64` → `f32`, `dec` → float) rounds the mathematical value once to the target type, to nearest, ties to even. `checked(expr)` evaluates a whole expression with overflow detection and returns `T?` (`null` on overflow). Unlike C#, where `checked` throws, it never traps. Float-to-integer `I(x)` truncates toward zero, saturates to `I`'s bounds, and maps `nan` to `0`; `I.tryFrom(x)` returns `null` on `nan`, out of range or a nonzero fractional part. Integer and `dec` division by zero traps. (not in 0.3: `checked(expr)`, `dec`; rev 0024)
+There are no implicit user conversions; a conversion is `T(x)` (`T(x)` on a value already of type `T`, or on a type that widens implicitly to `T`, is also accepted), never an instance `toX` or `asX` member (§5.2), and any cast outside the table is BYN2206. Every explicit conversion that rounds (`i32`/`u32`/`i64`/`u64`/`isize`/`usize` → `f32`, `i64`/`u64`/`isize`/`usize` → `f64`, `f64` → `f32`, `dec` → `f32`/`f64`) rounds the mathematical value once to the target type, to nearest, ties to even. `checked(expr)` evaluates a whole expression with overflow detection and returns `T?` (`null` on overflow). Unlike C#, where `checked` throws, it never traps. Float-to-integer `I(x)` truncates toward zero, saturates to `I`'s bounds (`0` for negative inputs to unsigned types), and maps `nan` to `0` (the one narrowing conversion that saturates instead of trapping); `I.tryFrom(x)` returns `null` on `nan`, out of range or a nonzero fractional part. Integer and `dec` division by zero traps. (not in 0.3: `checked(expr)`, `dec`; rev 0024)
 
 The C# cast `(T)x` is an input form for `T(x)` (BYN1057).
 
