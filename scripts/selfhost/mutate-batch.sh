@@ -37,7 +37,7 @@ while [ $# -gt 0 ]; do case "$1" in
 HERE=$(dirname "$0"); OUT=$PWD/tmp/mutate-batch; BASELINE=${MUTATE_BASELINE:-tests/quality-baseline.json}
 
 # group<TAB>file<TAB>filter per file, in file order, after --files and --shard
-# a plan error is the tool'"'"'s `mutate-batch: ...` line (exit 2); anything else on stderr (no pinned bayan) is a setup failure (exit 3)
+# a plan error is the tool's `mutate-batch: ...` line (exit 2); anything else on stderr (no pinned bayan) is a setup failure (exit 3)
 PERR=$(mktemp); PLAN=$(bash "$HERE/../bayan-tool.sh" mutate-plan "$FILES" "$SHARD" "${TASKS[@]}" 2> "$PERR") || {
   echo "$PLAN"; cat "$PERR" >&2; case $(head -c 14 "$PERR") in "mutate-batch: ") rm -f "$PERR"; exit 2;; esac; rm -f "$PERR"; exit 3; }
 rm -f "$PERR"
