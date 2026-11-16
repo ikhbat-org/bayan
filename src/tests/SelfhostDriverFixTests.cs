@@ -13,6 +13,10 @@ public sealed class SelfhostDriverFixTests
 {
     private const string DoesNotFormat = "void main() {\n    let x = 1\n    if x == 1 || x == 2 { print(\"y\") }\n    let ok  =  true\n    print($\"{ok}\")\n}\n";
 
+    private const string NamedTwice = "// ── Helpers ──────\nbool f(i32 x) {\n    return x == 1 || x == 2\n}\n";
+
+    private const string Unparsable = "void f(bool c) {\n    if c { return }\n    let x = (1 +\n}\n";
+
     public static TheoryData<string, string> Cases() => new()
     {
         // FixClearsItsLintAndIsIdempotent, FixKeepsTheSameC: a diag case as `main.byn`, fixed through its directory.
@@ -22,6 +26,9 @@ public sealed class SelfhostDriverFixTests
         { "diag", "style-optionals-bind" },
         { "diag", "style-guards-postfix" },
         { "diag", "style-lambdas-it" },
+        // FixKeepsAComment.
+        { "diag", "style-fix-keeps-comments" },
+        { "diag", "style-fix-keeps-line-comments" },
         // FixGivesTheFixedRunCase: a run case, fixed as a file.
         { "run", "style-fix-conditions-patterns" },
         { "run", "style-fix-optionals-bind" },
@@ -29,6 +36,10 @@ public sealed class SelfhostDriverFixTests
         { "run", "style-fix-sections-banner" },
         // FixDoesNotFormat.
         { "text", "no-format" },
+        // FixNamesAFileOnce: the directory, named twice.
+        { "twice", "named-twice" },
+        // FixRefusesAFileThatDoesNotParse.
+        { "unparsable", "parse-error" },
         // FixMissingPathExitsTwo.
         { "missing", "nope.byn" },
     };
@@ -44,6 +55,8 @@ public sealed class SelfhostDriverFixTests
             case "diag": File.Copy(Path.Combine(Golden.CasesRoot, "diag", name + ".byn"), file); return dir;
             case "run": File.Copy(Path.Combine(Golden.CasesRoot, "run", name + ".byn"), file); return file;
             case "text": File.WriteAllText(file, DoesNotFormat); return dir;
+            case "twice": File.WriteAllText(file, NamedTwice); return dir;
+            case "unparsable": File.WriteAllText(file, Unparsable); return dir;
             default: return Path.Combine(dir, name);
         }
     }
@@ -76,7 +89,7 @@ public sealed class SelfhostDriverFixTests
     }
 
     [Fact]
-    public void CoversTheFormatTestsFixInputs() => Assert.Equal(12, Cases().Count);
+    public void CoversTheFormatTestsFixInputs() => Assert.Equal(16, Cases().Count);
 
     [Theory]
     [MemberData(nameof(Cases))]
@@ -93,10 +106,11 @@ public sealed class SelfhostDriverFixTests
         var actualPath = Layout(kind, name, side);
         var expectedDir = kind == "run" || kind == "missing" ? Path.GetDirectoryName(expectedPath)! : expectedPath;
         var actualDir = kind == "run" || kind == "missing" ? Path.GetDirectoryName(actualPath)! : actualPath;
+        string[] Args(string path) => kind == "twice" ? ["fix", path, Path.Combine(path, ".")] : ["fix", path];
         for (var pass = 1; pass <= 2; pass++)
         {
-            var expected = Start("dotnet", [typeof(CliApp).Assembly.Location], "fix", expectedPath);
-            var actual = Start(program, [], "fix", actualPath);
+            var expected = Start("dotnet", [typeof(CliApp).Assembly.Location], Args(expectedPath));
+            var actual = Start(program, [], Args(actualPath));
             Assert.Equal(expected.Exit, actual.Exit);
             SelfhostEmitterHarness.AssertSame($"stdout of fix pass {pass} on {kind}/{name}", expected.Out.Replace(expectedDir, "<dir>"), actual.Out.Replace(actualDir, "<dir>"));
             SelfhostEmitterHarness.AssertSame($"stderr of fix pass {pass} on {kind}/{name}", expected.Err.Replace(expectedDir, "<dir>"), actual.Err.Replace(actualDir, "<dir>"));

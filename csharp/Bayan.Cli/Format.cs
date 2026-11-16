@@ -14,7 +14,7 @@ namespace Bayan.Cli;
 internal static class Format
 {
     /// <summary>The input-form codes whose fix the formatter applies.</summary>
-    private static readonly HashSet<string> InputForms = new(StringComparer.Ordinal)
+    internal static readonly HashSet<string> InputForms = new(StringComparer.Ordinal)
     {
         "BYN1007", "BYN1017", "BYN1018", "BYN1019", "BYN1020", "BYN1021", "BYN1022", "BYN1023", "BYN1025",
         "BYN1028", "BYN1029", "BYN1031", "BYN1033",

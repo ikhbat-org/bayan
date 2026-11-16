@@ -852,6 +852,21 @@ public sealed class FormatTests
     }
 
     [Theory]
+    [InlineData("style-fix-keeps-comments")]
+    [InlineData("style-fix-keeps-line-comments")]
+    public void FixKeepsAComment(string name)
+    {
+        // Each lint there has a comment in the span its fix would replace, so it is reported with no fix.
+        var dir = FixCase(name);
+        var file = Path.Combine(dir, "main.byn");
+        var before = File.ReadAllBytes(file);
+        var (exit, stdout, _) = Run("fix", dir);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Equal("", stdout);
+        Assert.Equal(before, File.ReadAllBytes(file));
+    }
+
+    [Theory]
     [InlineData("conditions-patterns")]
     [InlineData("optionals-bind")]
     [InlineData("literals-empty")]
@@ -903,6 +918,53 @@ public sealed class FormatTests
         File.WriteAllText(file, Source);
         Assert.Equal(CliApp.ExitOk, Run("fix", dir).Exit);
         Assert.Equal(Source.Replace("x == 1 || x == 2", "x is 1 or 2"), File.ReadAllText(file));
+    }
+
+    [Fact]
+    public void FixNamesAFileOnce()
+    {
+        // `bayan fix dir dir/.` lists main.byn twice: a second copy would apply the offsets found before the first rewrote the banner.
+        var dir = Fresh("fix-twice");
+        var file = Path.Combine(dir, "main.byn");
+        File.WriteAllText(file, "// ── Helpers ──────\nbool f(i32 x) {\n    return x == 1 || x == 2\n}\n");
+        var (exit, stdout, _) = Run("fix", dir, Path.Combine(dir, "."));
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Matches(@"^fixed .*main\.byn \(2\)\n$", stdout.ReplaceLineEndings("\n"));
+        Assert.Equal("// ── Helpers ──────────────────────────────────────────────────────────────────\nbool f(i32 x) {\n    return x is 1 or 2\n}\n", File.ReadAllText(file));
+    }
+
+    [Fact]
+    public void FixRefusesAFileThatDoesNotParse()
+    {
+        // As `bayan format`: the parse errors are rendered, the file is left and the exit code is 1.
+        var dir = Fresh("fix-unparsable");
+        var file = Path.Combine(dir, "main.byn");
+        const string Source = "void f(bool c) {\n    if c { return }\n    let x = (1 +\n}\n";
+        File.WriteAllText(file, Source);
+        var (exit, stdout, stderr) = Run("fix", file);
+        Assert.Equal(CliApp.ExitFailure, exit);
+        Assert.Equal("", stdout);
+        Assert.Equal(Run("format", file).Err, stderr);
+        Assert.Contains("error BYN1002", stderr);
+        Assert.Equal(Source, File.ReadAllText(file));
+    }
+
+    [Fact]
+    public void AFixThatDoesNotParseIsAbandoned()
+    {
+        var file = Path.Combine(Fresh("fix-abandoned"), "main.byn");
+        const string Source = "void f(bool c) {\n    if c { return }\n}\n";
+        File.WriteAllText(file, Source);
+        Format.RewriteHook = next => [.. next, .. "let broken = (\n"u8.ToArray()];
+        try
+        {
+            var (exit, stdout, stderr) = Run("fix", file);
+            Assert.Equal(CliApp.ExitFailure, exit);
+            Assert.Equal("", stdout);
+            Assert.Equal(Messages.FormatRewriteAbandoned.Text(file), stderr.TrimEnd());
+            Assert.Equal(Source, File.ReadAllText(file));
+        }
+        finally { Format.RewriteHook = null; }
     }
 
     [Fact]

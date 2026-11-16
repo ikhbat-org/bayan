@@ -381,6 +381,7 @@ ModId loadModule(
         // SyntaxTree.cs: Parse (Parser.cs: Parse, after the unit).
         parser.lintBanners(ref p)
         parser.lintPatterns(ref p)
+        parser.keepComments(ref p)
         let fileId = c.files.length
         // Every lexer and parser code is an error (DiagnosticCodes.cs has no BYN0xxx/BYN1xxx warning).
         var hasError = false
