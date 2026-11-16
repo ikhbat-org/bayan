@@ -323,7 +323,7 @@ List<AttributeSyntax> parseAttributes(ref Parser p) {
             }
         }
         if becauseClause is null && !bracket && (nameText == "allow" || nameText == "json" && expose) {
-            reportMissingBecause(ref p, for: nameText == "json" ? $"@{nameText}(expose)" : $"@{nameText}", at : span)
+            reportMissingBecause(ref p, for: nameText == "json" ? $"@{nameText}(expose)" : $"@{nameText}", at: span)
         }
         attributes.append(AttributeSyntax { span: span, name: name, args: move args, becauseKeyword: becauseClause })
     }

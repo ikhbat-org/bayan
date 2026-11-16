@@ -95,7 +95,7 @@ string t5Render(in List<T5Check> checks, by DStyle style) uses alloc {
         if c.level == .broken {
             sb.append($"{t5Paint(.error, by: style, for: $"{symbols.cross} {c.name}: {c.detail}")}\n")
         } else {
-            let mark = t5Paint(c.level == .ok ? .success : .note, by : style, for : symbols.dot)
+            let mark = t5Paint(c.level == .ok ? .success : .note, by: style, for: symbols.dot)
             var padded = StrBuf()
             padded.append(c.name)
             for _ in c.name.length..width {

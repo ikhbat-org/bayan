@@ -723,7 +723,7 @@ bool mutatorFolds(parser.BinaryOp op, from Big l, to Big r, as Type t) {
 Big t10Big(i64 v) {
     // coverage-exempt: Q1099 through `return Big { lo: v >= 0 ? u64(v) : ~u64(-(v + 1)), hi: hi }`
     let hi: u64 = v >= 0 ? 0 : 0xFFFFFFFFFFFFFFFF
-    return Big { lo: v >= 0 ? u64(v) : ~u64(-(v + 1)), hi : hi }
+    return Big { lo: v >= 0 ? u64(v) : ~u64(-(v + 1)), hi: hi }
 }
 
 /// 2^k for 0 <= k <= 64.

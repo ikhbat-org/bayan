@@ -233605,27 +233605,27 @@ bool byn_main__LayoutEngine__particleTuple(bynt_main__LayoutEngine* self, int64_
         return false;
     }
 #line 2523 "driver/layout.byn"
-    if ((!(((((((byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2523), BYN_STR("from", 4)) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2523), BYN_STR("to", 2))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2523), BYN_STR("until", 5))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2524), BYN_STR("through", 7))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2524), BYN_STR("at", 2))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2524), BYN_STR("by", 2))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2524), BYN_STR("for", 3))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2525), BYN_STR("as", 2))))) {
+    if ((!(((((((byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2523), BYN_STR("from", 4)) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2523), BYN_STR("to", 2))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2523), BYN_STR("until", 5))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2524), BYN_STR("through", 7))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2525), BYN_STR("at", 2))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2526), BYN_STR("by", 2))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2527), BYN_STR("for", 3))) || byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2528), BYN_STR("as", 2))))) {
 #line 2523 "driver/layout.byn"
         return false;
     }
-#line 2526 "driver/layout.byn"
-    l1_close = (*bynh_at_list_i64((*self).matchOf, (int64_t)p_i, false, byn_file_99, 2526));
-#line 2527 "driver/layout.byn"
-    return (((l1_close > p_i) && (byn_add_i64(l1_close, INT64_C(1), byn_file_99, 2527) < (*self).matchOf.len)) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(l1_close, INT64_C(1), byn_file_99, 2527)) == ((byn_lexer_TokenKind)1)));
+#line 2529 "driver/layout.byn"
+    l1_close = (*bynh_at_list_i64((*self).matchOf, (int64_t)p_i, false, byn_file_99, 2529));
+#line 2530 "driver/layout.byn"
+    return (((l1_close > p_i) && (byn_add_i64(l1_close, INT64_C(1), byn_file_99, 2530) < (*self).matchOf.len)) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(l1_close, INT64_C(1), byn_file_99, 2530)) == ((byn_lexer_TokenKind)1)));
 }
 #line 233618 "main.c"
 
 bool byn_main__LayoutEngine__callLike(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
-#line 2532 "driver/layout.byn"
+#line 2535 "driver/layout.byn"
     l0_k = byn_main__LayoutEngine__kind(&(*self), p_i);
-#line 2533 "driver/layout.byn"
+#line 2536 "driver/layout.byn"
     if ((((l0_k == ((byn_lexer_TokenKind)16)) || (l0_k == ((byn_lexer_TokenKind)18))) || byn_parser__isContextualKeyword(l0_k))) {
-#line 2533 "driver/layout.byn"
+#line 2536 "driver/layout.byn"
         return true;
     }
-#line 2534 "driver/layout.byn"
+#line 2537 "driver/layout.byn"
     return ((l0_k == ((byn_lexer_TokenKind)1)) && (!((byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("where", 5)) || byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("expects", 7))) || byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("becomes", 7)))));
 }
 #line 233632 "main.c"
@@ -233635,59 +233635,59 @@ bool byn_main__LayoutEngine__spacedColon(bynt_main__LayoutEngine* self, int64_t 
     bool l1_pastComma = {0};
     int64_t l2_k = {0};
     byn_lexer_TokenKind l3_at = {0};
-#line 2539 "driver/layout.byn"
-    l0_depth = INT64_C(0);
-#line 2541 "driver/layout.byn"
-    l1_pastComma = false;
 #line 2542 "driver/layout.byn"
-    l2_k = byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2542);
-#line 2543 "driver/layout.byn"
+    l0_depth = INT64_C(0);
+#line 2544 "driver/layout.byn"
+    l1_pastComma = false;
+#line 2545 "driver/layout.byn"
+    l2_k = byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2545);
+#line 2546 "driver/layout.byn"
     for (;;) {
-#line 2543 "driver/layout.byn"
+#line 2546 "driver/layout.byn"
         if ((!(l2_k >= INT64_C(0)))) {
-#line 2543 "driver/layout.byn"
+#line 2546 "driver/layout.byn"
             goto break_1;
         }
-#line 2544 "driver/layout.byn"
+#line 2547 "driver/layout.byn"
         l3_at = byn_main__LayoutEngine__kind(&(*self), l2_k);
-#line 2545 "driver/layout.byn"
+#line 2548 "driver/layout.byn"
         if (((l3_at == ((byn_lexer_TokenKind)22)) && (l0_depth == INT64_C(0)))) {
-#line 2545 "driver/layout.byn"
+#line 2548 "driver/layout.byn"
             l1_pastComma = true;
         }
-#line 2546 "driver/layout.byn"
+#line 2549 "driver/layout.byn"
         if (((((l3_at == ((byn_lexer_TokenKind)16)) || (l3_at == ((byn_lexer_TokenKind)18))) || (l3_at == ((byn_lexer_TokenKind)20))) || (l3_at == ((byn_lexer_TokenKind)13)))) {
-#line 2547 "driver/layout.byn"
-            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_99, 2547);
+#line 2550 "driver/layout.byn"
+            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_99, 2550);
         } else {
-#line 2548 "driver/layout.byn"
+#line 2551 "driver/layout.byn"
             if (((((l3_at == ((byn_lexer_TokenKind)15)) || (l3_at == ((byn_lexer_TokenKind)17))) || (l3_at == ((byn_lexer_TokenKind)19))) || (l3_at == ((byn_lexer_TokenKind)12)))) {
-#line 2549 "driver/layout.byn"
+#line 2552 "driver/layout.byn"
                 if ((l0_depth == INT64_C(0))) {
-#line 2549 "driver/layout.byn"
+#line 2552 "driver/layout.byn"
                     return false;
                 }
-#line 2550 "driver/layout.byn"
-                l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_99, 2550);
+#line 2553 "driver/layout.byn"
+                l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_99, 2553);
             } else {
-#line 2551 "driver/layout.byn"
-                if (((l0_depth == INT64_C(0)) && (((((l3_at == ((byn_lexer_TokenKind)72)) || (l3_at == ((byn_lexer_TokenKind)79))) || (l3_at == ((byn_lexer_TokenKind)81))) || (((l3_at == ((byn_lexer_TokenKind)27)) && byn_main__LayoutEngine__trivia(&(*self), l2_k)) && (!l1_pastComma))) || ((l3_at == ((byn_lexer_TokenKind)1)) && byn_main__LayoutEngine__textIs(&(*self), l2_k, BYN_STR("where", 5)))))) {
 #line 2554 "driver/layout.byn"
+                if (((l0_depth == INT64_C(0)) && (((((l3_at == ((byn_lexer_TokenKind)72)) || (l3_at == ((byn_lexer_TokenKind)79))) || (l3_at == ((byn_lexer_TokenKind)81))) || (((l3_at == ((byn_lexer_TokenKind)27)) && byn_main__LayoutEngine__trivia(&(*self), l2_k)) && (!l1_pastComma))) || ((l3_at == ((byn_lexer_TokenKind)1)) && byn_main__LayoutEngine__textIs(&(*self), l2_k, BYN_STR("where", 5)))))) {
+#line 2559 "driver/layout.byn"
                     return true;
                 }
             }
         }
-#line 2557 "driver/layout.byn"
-        if ((((*bynh_at_list_bool((*self).lineStart, (int64_t)l2_k, false, byn_file_99, 2557)) && (l0_depth == INT64_C(0))) && (!byn_main__LayoutEngine__isWasl(&(*self), l2_k)))) {
-#line 2557 "driver/layout.byn"
+#line 2562 "driver/layout.byn"
+        if ((((*bynh_at_list_bool((*self).lineStart, (int64_t)l2_k, false, byn_file_99, 2562)) && (l0_depth == INT64_C(0))) && (!byn_main__LayoutEngine__isWasl(&(*self), l2_k)))) {
+#line 2562 "driver/layout.byn"
             return false;
         }
-#line 2558 "driver/layout.byn"
-        l2_k = byn_sub_i64(l2_k, INT64_C(1), byn_file_99, 2558);
+#line 2563 "driver/layout.byn"
+        l2_k = byn_sub_i64(l2_k, INT64_C(1), byn_file_99, 2563);
     continue_2:;
     }
 break_1:;
-#line 2560 "driver/layout.byn"
+#line 2565 "driver/layout.byn"
     return false;
 }
 #line 233694 "main.c"

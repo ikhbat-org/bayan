@@ -191,7 +191,7 @@ Constant? evaluate(ref Ctx c, for BExpr e, from in Map<LocalId, Constant> locals
             let n = evaluate(ref c, for: end, from: in locals, by: in fields) ?? return null
             let vt = exprType(in c, for: value)
             let low = foldBinary(ref c, for: .ge, from: in v, by: in s, as: vt)
-            let high = foldBinary(ref c, for: inclusive ? .le : .lt, from : in v, by : in n, as : vt)
+            let high = foldBinary(ref c, for: inclusive ? .le : .lt, from: in v, by: in n, as: vt)
             if low is not null {
                 if high is not null {
                     return t6Flag(flag: low.flag && high.flag) if low.kind == .flag && high.kind == .flag
