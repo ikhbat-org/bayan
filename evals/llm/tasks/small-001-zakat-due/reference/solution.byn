@@ -1,0 +1,37 @@
+const nisab: i64 = 5000
+
+/// Zakat due on `savings`: one fortieth once it reaches the nisab, otherwise nothing.
+i64 zakat(i64 savings) => savings >= nisab ? savings / 40 : 0
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var total: i64 = 0
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        var name = ""
+        var amount: i64 = -1
+        var fields = 0
+        for part in text.parts(by: " ") {
+            if fields == 0 {
+                name = part
+            }
+            if fields == 1 {
+                amount = i64.tryParse(part) ?? -1
+            }
+            fields += 1
+        }
+        if fields != 2 || amount < 0 {
+            print($"skipped: {text}")
+            continue
+        }
+        let due = zakat(amount)
+        total += due
+        print($"{name}: {due}")
+    }
+    print($"total: {total}")
+}

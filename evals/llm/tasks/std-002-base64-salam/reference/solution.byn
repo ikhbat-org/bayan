@@ -1,0 +1,25 @@
+import std.encoding
+
+/// The text `encoded` holds, or null when it is not Base64 of UTF-8 text.
+string? decoded(string encoded) {
+    let bytes = encoding.Base64.decode(encoded) catch return null
+    let text = Utf8.decode(bytes.span) catch return null
+    return text
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    for line in read.value.lines {
+        if line.startsWith("encode ") {
+            print(encoding.Base64.encode(line[7..].bytes))
+        } else if line.startsWith("decode ") {
+            print(decoded(line[7..]) ?? "invalid")
+        } else {
+            print("unknown command")
+        }
+    }
+}

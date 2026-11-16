@@ -1,0 +1,36 @@
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var phrases = List<string>()
+    var counts = Map<string, i64>()
+    for line in read.value.lines {
+        let phrase = line.trimmed()
+        continue if phrase.isEmpty
+        if !counts.contains(phrase) {
+            phrases.append(phrase)
+        }
+        counts[phrase] = (counts.tryGet(at: phrase) ?? 0) + 1
+    }
+    var printed = List<bool>()
+    for _ in phrases {
+        printed.append(false)
+    }
+    for _ in phrases {
+        var best = -1
+        var bestCount: i64 = 0
+        for i in 0..phrases.length {
+            continue if printed[i]
+            let count = counts[phrases[i]]
+            if count > bestCount {
+                best = i
+                bestCount = count
+            }
+        }
+        printed[best] = true
+        print($"{bestCount} {phrases[best]}")
+    }
+    print($"distinct: {phrases.length}")
+}

@@ -1,0 +1,15 @@
+test "discounted takes the percentage off" {
+    assert discounted(2000, by: Percent(25)) == 1500
+    assert discounted(999, by: Percent(10)) == 900
+    assert discounted(0, by: Percent(50)) == 0
+}
+
+@cases((2000, 0, 2000), (2000, 100, 0), (1, 50, 1), (350, 20, 280))
+test "priceAfter accepts 0 through 100" (i64 price, i32 percent, i64 expected) {
+    assert (try priceAfter(price, by: percent)) == expected
+}
+
+@cases(-1, 101, 250)
+test "priceAfter refuses a percentage outside 0 through 100" (i32 percent) {
+    assert priceAfter(2000, by: percent) fails ValidationError<Percent>
+}
