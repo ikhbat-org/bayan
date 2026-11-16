@@ -79,9 +79,11 @@ unsafe because "the C API wants a raw pointer" {
 <example name="reading-except"/>
 
 <h2 id="concurrency">Structured concurrency</h2>
-<p><strong>Planned.</strong> Functions are never declared <code>async</code>. You write <code>async f(x)</code> and <code>await</code> at the call site, and a future cannot outlive the block that started it: leaving the block cancels unfinished work, which runs its <code>defer failing</code> handlers. Tasks are started in a group:</p>
-<pre><code class="byn">let group = Io.group()
-group.spawn(…)
-group.spawn(…)
-try await group.all()</code></pre>
-<p>The group form follows the specification's section on structured concurrency. Fibers, <code>async</code>, futures and deadlines are not in the compiler yet.</p>
+<p><strong>Planned.</strong> Tasks run inside a <code>scope</code> block with <code>spawn</code>. A task cannot outlive the scope that started it: leaving the scope cancels unfinished work, running its <code>defer failing</code> and <code>defer canceling</code> handlers. The scope waits for every child before it exits, and children may borrow from the caller's stack:</p>
+<pre><code class="byn">scope(timeout: 5s) {
+    let aisha = spawn prepareIftar("Aisha")
+    let bilal = spawn prepareIftar("Bilal")
+    let mealA = try aisha.join()
+    let mealB = try bilal.join()
+}</code></pre>
+<p>A scope can cap concurrent children with <code>limit:</code> or set a deadline with <code>timeout:</code>. Structured concurrency is not implemented in the current compiler yet.</p>
