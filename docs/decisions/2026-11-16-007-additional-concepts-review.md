@@ -191,7 +191,7 @@ So "keep them out of diagnostics" holds for the message line, not for explain te
 9. C: the manifest is data only and the style knobs are a closed set.
 10. `docs/bayan-reference-app-coverage.md:62` mentions `if likely`, which the spec does not have. One line; not fixed here.
 
-**Freeze.** The spec header (`docs/bayan-spec.md:8`) ends the freeze at the 0.3.0 release. `CHANGELOG.md` has `[0.3.0]` and `[0.3.1]`, and `VERSION` is `0.3.2-dev`, but `docs/bayan-roadmap.md` still shows the tag as pending and nothing records the freeze as lifted. I could not check the tags here. In practice, until spec 019 lands, every syntax change is still built twice, which is the reason rev 0023 gave.
+**Freeze.** The spec header (`docs/bayan-spec.md:8`) ends the freeze at the 0.3.0 release. `CHANGELOG.md` has `[0.3.0]` and `[0.3.1]`, and `VERSION` is the 0.3.2 development version, but `docs/bayan-roadmap.md` still shows the tag as pending and nothing records the freeze as lifted. I could not check the tags here. In practice, until spec 019 lands, every syntax change is still built twice, which is the reason rev 0023 gave.
 
 ## Open questions for the owner
 

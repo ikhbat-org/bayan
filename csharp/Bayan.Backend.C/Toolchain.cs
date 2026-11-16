@@ -30,7 +30,7 @@ public sealed record CacheStats(string Directory, int Programs, long Bytes, int 
 public static class Toolchain
 {
     /// <summary>The Bayan compiler's version; part of every cache key.</summary>
-    public const string CompilerVersion = "0.3.2-dev";
+    public const string CompilerVersion = "0.3.2";
 
     public static string RuntimeHeader { get; } = Resource("runtime/bayan-rt.h");
 
