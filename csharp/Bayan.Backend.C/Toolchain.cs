@@ -154,8 +154,8 @@ public static class Toolchain
     /// <c>$BAYAN_CC_JOBS_DIR</c> or <c>&lt;temp&gt;/bayan-cc-jobs-&lt;user&gt;</c> (per user: Linux's <c>/tmp</c> is shared), so
     /// test processes sharing a host share the cap (two VM shard slots each ran several 2.6 GB zig compiles at once and the
     /// OOM killer took one, work/todo.md). The OS drops the lock when its process dies. A plain <see cref="IOException"/>
-    /// (the lock is held) means busy; a <see cref="DirectoryNotFoundException"/> (the directory was removed after it was
-    /// created) means try again. The directory is re-created each round, so one removed under a waiter does not
+    /// (the lock is held) means busy; a <see cref="DirectoryNotFoundException"/> or <see cref="FileNotFoundException"/> (the
+    /// directory was removed after it was created) means try again. The directory is re-created each round, so one removed under a waiter does not
     /// leave it waiting forever. Any other failure throws.
     /// </summary>
     internal static FileStream? CompileSlot()
