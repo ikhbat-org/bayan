@@ -84,7 +84,7 @@ The bootstrap build command is the one in `bootstrap/README.md`: `cc -std=c11 -O
 - `docs/decisions/<date>-NNN-csharp-archive.md` (the next free number today is 008).
 
 **Removed at 019b, in the one commit**
-- `csharp/`, `src/tests/*.cs`, `Bayan.slnx`, the C# sources and project file of `editors/language-server`, and the stale `tests/Bayan.Tests/`. `global.json` and `Directory.Build.props` stay while `tools/` and the Visual Studio extension build with them (OQ5).
+- `csharp/`, `src/tests/*.cs`, `Bayan.slnx`, the C# sources and project file of `editors/language-server`, and the stale `tests/Bayan.Tests/`. `tools/Bayan.SyntaxFuzz` and `tools/Bayan.UnicodeGen`, which compile files under `csharp/` (OQ5). `global.json` and `Directory.Build.props` stay while the Visual Studio extension builds with them.
 
 ## Data / interfaces
 
@@ -121,7 +121,7 @@ A failure line has the shape decision 006 §3 shows: the case name, the input pa
 |---|---|---|---|---|---|
 | Golden folder (`DiagTests`, `RunTests`, `ParserTests`, …) | 11 | 63 | 39 | files in `tests/cases/` | the golden runner reads the same files; the classes go |
 | CLI and tools | 25 | 429 | 22 | exit code and text of `bayan` commands, run in process | `cli` golden cases; `tests/parity/` where a case needs set-up |
-| C# internals | 29 | 110 | 17 | C# data structures (binder, lowering, ownership tables) | a golden or Bayān test of the same behaviour through the self-hosted compiler, or frozen with reason (OQ4) |
+| C# internals | 29 | 110 | 17 | C# data structures (binder, lowering, ownership tables) | a golden or Bayān test of the same behaviour through the self-hosted compiler, or dropped with a named covering case, or "no counterpart" with owner approval per row (OQ4) |
 | Law | 15 | 20 | 10 | the properties of L001–L039 | new `check:` commands (R18) |
 | Runtime and C | 7 | 41 | 2 | C runtime behaviour, C compile of emitted code | shell runner over `runtime/tests/*.c`; `run` cases |
 | Std | 5 | 41 | 3 | library behaviour, some against .NET's own answers | Bayān `test` blocks; tables exported once as `@cases` data |
@@ -169,7 +169,7 @@ A session is a directory: a workspace tree, `in.jsonl` (client messages in order
 | The suite is slower as processes than in one .NET process: about 15,000 cases at 100 ms is 25 minutes in sequence (decision 006 §1). | `--jobs` is in the first step. `sem` cases keep the harness shape: one built program prints many sections, so the build cost is paid per program, not per assertion. R17 measures; above 45 minutes the work stops for the owner. |
 | The export misses an assertion, and it is lost when the C# compiler goes. | The inventory counts tests per class at the tag and the check compares that count with the exported cases. The coverage ratchet catches lost reach. The frozen-files law reruns the C# compiler on every exported input in the R27 job. |
 | Exported cases fail under the self-hosted compiler. | Expected for listed divergences only. Any other failure is fixed, or listed with a question number, before the freeze is declared. |
-| An in-process C# test has no process-level form (it asserts on an object). | Disposition "frozen with reason" exists; OQ4 forbids dropping without a covering case. |
+| An in-process C# test has no process-level form (it asserts on an object). | Disposition "no counterpart" exists, approved by the owner per row; OQ4 forbids dropping without a covering case and forbids "proven only by the frozen compiler" for this family. |
 | Standard input cannot be read message by message from Bayān today (OQ8). | The language server tasks start with that decision. OQ8 is decided (2026-11-17): `Io.stdin.read(into:)` as the first piece of the Q1141 stream API, signature pending the owner's approval (spec, OQ8). The rest of 019a does not depend on it, and 019a lands without the server (placement C). Each new keyword is added to both servers during the gap. |
 | Windows: process start is slow and 23 `run` cases are OS-specific. | The known-failures check is ported with the runner (R19); time is measured per OS. |
 | A stale `bootstrap/bayan.c` builds an old compiler in CI. | R26 runs in every CI job before the suite. |
@@ -216,3 +216,5 @@ A session is a directory: a workspace tree, `in.jsonl` (client messages in order
 | R33 | 6 | T67 |
 | R34 | 6 | T68 |
 | R35 | 6 | T69a–T69c, T70 |
+| R36 | 5 | T45 |
+| R37 | 5 | T43 |
