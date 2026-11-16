@@ -5,30 +5,38 @@ import parser
 // The C# `(LocalSymbol Key, TypeSymbol Type)` tuple `Subject` returns.
 struct SubjectResult {
     LocalId key
-    Type type
+    Type    type
 }
 
 /// C# `fn.Decl`'s typestate parts (`Becomes`, `RefThis`, `MoveThis`, `ReceiverStates`), read from the function's
 /// declaration where `t20DeclFacts` finds it (Q626); `found` is false where C# `Decl` is null.
 struct T22DeclFacts {
-    bool found = false
-    TextSpan? becomes = null
-    TextSpan? refThis = null
-    TextSpan? moveThis = null
-    List<TextSpan> receiverStates = List<TextSpan>()
+    bool           found          = false
+    TextSpan?      becomes        = null
+    TextSpan?      refThis        = null
+    TextSpan?      moveThis       = null
+    List<TextSpan> receiverStates = []
 }
 
 T22DeclFacts t22FactsOf(in parser.FunctionDecl d) {
     var states = List<TextSpan>()
-    for s in d.receiverStates { states.append(s) }
-    return T22DeclFacts { found: true, becomes: d.becomes, refThis: d.refThis, moveThis: d.moveThis, receiverStates: move states }
+    for s in d.receiverStates {
+        states.append(s)
+    }
+    return T22DeclFacts {
+        found: true,
+        becomes: d.becomes,
+        refThis: d.refThis,
+        moveThis: d.moveThis,
+        receiverStates: move states,
+    }
 }
 
 T22DeclFacts t22DeclFacts(ref Ctx c, for FuncId fn) {
     let f = c.functions[fn].file
     let d = c.functions[fn].declIndex
     let m = c.functions[fn].memberIndex
-    if d < 0 { return T22DeclFacts {} }
+    return T22DeclFacts {} if d < 0
     switch c.files[f].unit.members[d] {
         case .functionDecl(let n): return t22FactsOf(in n.value)
         case .structDecl(let n):
@@ -57,7 +65,7 @@ Fix? t22BecomesFixOf(ref Binder b, through ref Ctx c, for FuncId fn, by string s
     let f = c.functions[fn].file
     let d = c.functions[fn].declIndex
     let m = c.functions[fn].memberIndex
-    if d < 0 { return null }
+    return null if d < 0
     var fix: Fix? = null
     switch c.files[f].unit.members[d] {
         case .functionDecl(let n): fix = becomesFix(ref b, through: ref c, for: fn, from: in n.value, by: state)
@@ -91,9 +99,21 @@ BStmt bindBecome(ref Binder b, through ref Ctx c, for in parser.BecomeStmt s) {
     let state = states != -1 ? findUnionVariant(ref c, by: states, for: stateText) : -1
     if state == -1 {
         let name = owner != -1 ? c.structs[owner].name : b.fn != -1 ? c.functions[b.fn].name : "?"
-        report(ref b, through: ref c, for: .unknownState, at: s.state, by: (name, stateText, "", "", ""), help: $"check the states declared in `{name}`")
+        report(
+            ref b,
+            through: ref c,
+            for: .unknownState,
+            at: s.state,
+            by: (name, stateText, "", "", ""),
+            help: $"check the states declared in `{name}`",
+        )
         bindArgumentListForRecovery(ref b, through: ref c, for: in s.args)
-        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: s.span }), as: .becomeStmt, at: s.span)
+        return recordNodeSyntax(
+            ref c,
+            for: addErrorStmt(ref c, from: BErrorStmt { span: s.span }),
+            as: .becomeStmt,
+            at: s.span,
+        )
     }
     let fn = b.fn
     let fnName = c.functions[fn].name
@@ -102,131 +122,262 @@ BStmt bindBecome(ref Binder b, through ref Ctx c, for in parser.BecomeStmt s) {
     let decl = t22DeclFacts(ref c, for: fn)
     // A `becomes` without `ref this` is BYN7010 at the signature; its `become` reports nothing more (revision 0010).
     if !c.functions[fn].isStatic && decl.found && decl.becomes is not null && decl.refThis is null {
-        let _ = t21BindArgumentList(ref b, through: ref c, for: in s.args, at: s.span, by: in fields, as: -1, enforceNames: false, displayName: $".{stateName}", syntax: syntaxAppend(ref c, from: ExprSyntax { kind: .callExpr, span: s.span, callee: syntaxLeaf(ref c, as: .nameExpr, at: s.state) }))
-        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: s.span }), as: .becomeStmt, at: s.span)
+        let _ = t21BindArgumentList(
+            ref b,
+            through: ref c,
+            for: in s.args,
+            at: s.span,
+            by: in fields,
+            as: -1,
+            enforceNames: false,
+            displayName: $".{stateName}",
+            syntax: syntaxAppend(
+                ref c,
+                from: ExprSyntax {
+                    kind: .callExpr,
+                    span: s.span,
+                    callee: syntaxLeaf(ref c, as: .nameExpr, at: s.state),
+                },
+            ),
+        )
+        return recordNodeSyntax(
+            ref c,
+            for: addErrorStmt(ref c, from: BErrorStmt { span: s.span }),
+            as: .becomeStmt,
+            at: s.span,
+        )
     }
     let keyword = TextSpan { start: s.span.start, length: "become".length }
     // A static method has no `this` to change; one that takes neither `ref this` nor `move this` is BYN2115 (Question 297).
     if c.functions[fn].isStatic {
-        report(ref b, through: ref c, for: .unsupported, at: keyword, by: ("`become` in a static method", "", "", "", ""),
-            help: "remove `become`; only an instance method has a `this` to change")
+        report(
+            ref b,
+            through: ref c,
+            for: .unsupported,
+            at: keyword,
+            by: ("`become` in a static method", "", "", "", ""),
+            help: "remove `become`; only an instance method has a `this` to change",
+        )
     } else if decl.moveThis is null {
-        let thisExpr = recordNodeSyntax(ref c, for: addThis(ref c, from: BThis { span: s.span, type: structTypeOf(owner) }), as: .becomeStmt, at: s.span)
+        let thisExpr = recordNodeSyntax(
+            ref c,
+            for: addThis(ref c, from: BThis { span: s.span, type: structTypeOf(owner) }),
+            as: .becomeStmt,
+            at: s.span,
+        )
         let _ = checkWritable(ref b, through: ref c, for: thisExpr, at: keyword, by: "`become` changes its state")
     }
     if (decl.becomes is { } becomes) {
         let becomesText = t15Text(in c, from: c.functions[fn].file, at: becomes)
         if becomesText != stateName {
-            report(ref b, through: ref c, for: .becomeOtherState, at: s.state, by: (stateName, fnName, becomesText, "", ""),
-                help: $"change the target to `.{becomesText}`, or declare `becomes .{stateName}`")
+            report(
+                ref b,
+                through: ref c,
+                for: .becomeOtherState,
+                at: s.state,
+                by: (stateName, fnName, becomesText, "", ""),
+                help: $"change the target to `.{becomesText}`, or declare `becomes .{stateName}`",
+            )
         }
     } else {
         let help = $"add `becomes .{stateName}` to the signature of `{fnName}`"
         let fix = decl.found ? t22BecomesFixOf(ref b, through: ref c, for: fn, by: stateName) : null
-        if (fix is { } x) {
-            report(ref b, through: ref c, for: .becomeUndeclared, at: keyword, by: (stateName, fnName, "", "", ""),
-                help: help, hasFix: true, fixSpan: x.span, fixReplacement: x.replacement)
+        if fix is not null {
+            report(
+                ref b,
+                through: ref c,
+                for: .becomeUndeclared,
+                at: keyword,
+                by: (stateName, fnName, "", "", ""),
+                help: help,
+                hasFix: true,
+                fixSpan: fix.span,
+                fixReplacement: fix.replacement,
+            )
         } else {
-            report(ref b, through: ref c, for: .becomeUndeclared, at: keyword, by: (stateName, fnName, "", "", ""), help: help)
+            report(
+                ref b,
+                through: ref c,
+                for: .becomeUndeclared,
+                at: keyword,
+                by: (stateName, fnName, "", "", ""),
+                help: help,
+            )
         }
     }
-    let payload = t21BindArgumentList(ref b, through: ref c, for: in s.args, at: s.span, by: in fields, as: -1, enforceNames: false, displayName: $".{stateName}", syntax: syntaxAppend(ref c, from: ExprSyntax { kind: .callExpr, span: s.span, callee: syntaxLeaf(ref c, as: .nameExpr, at: s.state) }))
+    let payload = t21BindArgumentList(
+        ref b,
+        through: ref c,
+        for: in s.args,
+        at: s.span,
+        by: in fields,
+        as: -1,
+        enforceNames: false,
+        displayName: $".{stateName}",
+        syntax: syntaxAppend(
+            ref c,
+            from: ExprSyntax { kind: .callExpr, span: s.span, callee: syntaxLeaf(ref c, as: .nameExpr, at: s.state) },
+        ),
+    )
     // The payload reads the old state; after it, `this` is in the new one.
     let facts = t15ThisFacts(ref b, through: ref c)
     forgetState(ref b, for: facts)
     var one = List<VariantId>()
     one.append(state)
     learnState(ref b, for: facts, as: internState(ref c, by: owner, for: in one))
-    return recordNodeSyntax(ref c, for: addBecome(ref c, from: BBecome { span: s.span, state: state, payload: move payload }), as: .becomeStmt, at: s.span)
+    return recordNodeSyntax(
+        ref c,
+        for: addBecome(ref c, from: BBecome { span: s.span, state: state, payload: move payload }),
+        as: .becomeStmt,
+        at: s.span,
+    )
 }
 
-void checkBecomesCall(ref Binder b, through ref Ctx c, for in parser.CallExpr call, from FuncId caller, by FuncId fn, to TextSpan state) {
+void checkBecomesCall(
+    ref Binder b,
+    through ref Ctx c,
+    for in parser.CallExpr call,
+    from FuncId caller,
+    by FuncId fn,
+    to TextSpan state
+) {
     // `to` is a name in the callee's declaration (Q626).
     let toText = t15Text(in c, from: c.functions[fn].file, at: state)
     let decl = t22DeclFacts(ref c, for: caller)
-    if (decl.becomes is { } own) && t15Text(in c, from: c.functions[caller].file, at: own) == toText { return }
+    return if (decl.becomes is { } own) && t15Text(in c, from: c.functions[caller].file, at: own) == toText
     var fix: Fix? = null
-    if decl.found && decl.becomes is null { fix = t22BecomesFixOf(ref b, through: ref c, for: caller, by: toText) }
+    if decl.found && decl.becomes is null {
+        fix = t22BecomesFixOf(ref b, through: ref c, for: caller, by: toText)
+    }
     let callerName = c.functions[caller].name
     let fnName = c.functions[fn].name
     if (fix is { } x) {
-        report(ref b, through: ref c, for: .becomesCallUndeclared, at: call.span, by: (callerName, fnName, toText, "", ""),
-            help: $"add `becomes .{toText}` to the signature of `{callerName}`", hasFix: true, fixSpan: x.span, fixReplacement: x.replacement)
+        report(
+            ref b,
+            through: ref c,
+            for: .becomesCallUndeclared,
+            at: call.span,
+            by: (callerName, fnName, toText, "", ""),
+            help: $"add `becomes .{toText}` to the signature of `{callerName}`",
+            hasFix: true,
+            fixSpan: x.span,
+            fixReplacement: x.replacement,
+        )
     } else {
-        report(ref b, through: ref c, for: .becomesCallUndeclared, at: call.span, by: (callerName, fnName, toText, "", ""),
-            help: $"add `becomes .{toText}` to the signature of `{callerName}`")
+        report(
+            ref b,
+            through: ref c,
+            for: .becomesCallUndeclared,
+            at: call.span,
+            by: (callerName, fnName, toText, "", ""),
+            help: $"add `becomes .{toText}` to the signature of `{callerName}`",
+        )
     }
 }
 
 /// C# `BecomesFix` (BinderStates.cs:63).
 Fix becomesFix(ref Binder b, through ref Ctx c, for FuncId fn, from in parser.FunctionDecl decl, by string state) {
     let at = afterParams(ref b, through: ref c, for: in decl)
-    if decl.refThis is not null || !(c.functions[fn].kind == .method && !c.functions[fn].isStatic) {
-        return Fix { span: TextSpan { start: at, length: 0 }, replacement: $" becomes .{state}" }
-    }
+    return Fix {
+        span: TextSpan { start: at, length: 0 },
+        replacement: $" becomes .{state}",
+    } if decl.refThis is not null
+        || !(c.functions[fn].kind == .method && !c.functions[fn].isStatic)
     let receiver = refReceiverFix(in decl)
     let between = t15Text(in c, from: b.file, at: TextSpan.fromBounds(receiver.span.end, until: at))
-    return Fix { span: TextSpan.fromBounds(receiver.span.start, until: at), replacement: $"{receiver.replacement}{between} becomes .{state}" }
+    return Fix {
+        span: TextSpan.fromBounds(receiver.span.start, until: at),
+        replacement: $"{receiver.replacement}{between} becomes .{state}",
+    }
 }
 
 /// C# `AfterParams` (BinderStates.cs:76).
 i64 afterParams(ref Binder b, through ref Ctx c, for in parser.FunctionDecl decl) {
     var at = decl.params.length > 0 ? decl.params[decl.params.length - 1].span.end : decl.paramsStart
     let length = c.files[b.file].text.length
-    while at < length && c.files[b.file].text[at] != 41 { at += 1 }
+    while at < length && c.files[b.file].text[at] != 41 {
+        at += 1
+    }
     at = at + 1 < length ? at + 1 : length
     for clause in decl.where {
-        if clause.span.end > at { at = clause.span.end }
+        if clause.span.end > at {
+            at = clause.span.end
+        }
     }
     for clause in decl.requiresClauses {
         let end = parser.exprSpan(in clause).end
-        if end > at { at = end }
+        if end > at {
+            at = end
+        }
     }
     if (decl.usesKeyword is { } clause) {
-        if clause.span.end > at { at = clause.span.end }
+        if clause.span.end > at {
+            at = clause.span.end
+        }
     }
     return at
 }
 
 Type receiverStates(ref Binder b, through ref Ctx c, for FuncId fn) {
     let decl = t22DeclFacts(ref c, for: fn)
-    if !decl.found || decl.receiverStates.length == 0 { return -1 }
+    return -1 if !decl.found || decl.receiverStates.length == 0
     let owner = c.functions[fn].owner
-    if owner == -1 { return -1 }
+    return -1 if owner == -1
     let states = statesOf(ref c, for: owner)
-    if states == -1 { return -1 }
+    return -1 if states == -1
     var found = List<VariantId>()
     for n in decl.receiverStates {
         let v = findUnionVariant(ref c, by: states, for: t15Text(in c, from: c.functions[fn].file, at: n))
-        if v != -1 { found.append(v) }
+        if v != -1 {
+            found.append(v)
+        }
     }
-    if found.length == 0 { return -1 }
+    return -1 if found.length == 0
     return internState(ref c, by: owner, for: in found)
 }
 
-bool reportWrongState(ref Binder b, through ref Ctx c, for string callee, by BExpr value, as Type wanted, at TextSpan span) {
+bool reportWrongState(
+    ref Binder b,
+    through ref Ctx c,
+    for string callee,
+    by BExpr value,
+    as Type wanted,
+    at TextSpan span
+) {
     let isThis = boundKind(value) == .thisRef
     var known = exprType(in c, for: value)
     if isThis {
         let own = t22ThisStates(ref b, through: ref c)
-        if own != -1 { known = own }
+        if own != -1 {
+            known = own
+        }
     }
     let of = kindOf(known) == .state ? structTypeOf(c.stateTypes[typeIndex(known)].s) : known
-    if of != structTypeOf(c.stateTypes[typeIndex(wanted)].s) || implicit(ref c, from: known, to: wanted) is not null { return false }
+    return false if of != structTypeOf(c.stateTypes[typeIndex(wanted)].s)
+        || implicit(ref c, from: known, to: wanted) is not null
     var names = StrBuf()
     for i in 0..c.stateTypes[typeIndex(wanted)].states.length {
-        if i > 0 { names.append(" or .") }
+        if i > 0 {
+            names.append(" or .")
+        }
         names.append(c.unionVariants[c.stateTypes[typeIndex(wanted)].states[i]].name)
     }
     let what = isThis ? "this" : t15Text(in c, from: b.file, at: span)
-    report(ref b, through: ref c, for: .wrongState, at: span, by: (callee, what, $"{names.finish()}", typeDisplay(ref c, by: known), ""),
-        help: stateTestHelp(ref b, through: ref c, for: t9Text(ref c, for: b.file, at: span), as: wanted) ?? "check the state with `is` or `switch` first")
+    report(
+        ref b,
+        through: ref c,
+        for: .wrongState,
+        at: span,
+        by: (callee, what, $"{names.finish()}", typeDisplay(ref c, by: known), ""),
+        help: stateTestHelp(ref b, through: ref c, for: t9Text(ref c, for: b.file, at: span), as: wanted)
+            ?? "check the state with `is` or `switch` first",
+    )
     return true
 }
 
 /// The member of `.s`, or null for any other expression.
 TextSpan? targetMemberOf(parser.Expr e) {
-    if e is .targetMemberExpr(let t) { return t.value.member }
+    return t.value.member if e is .targetMemberExpr(let t)
     return null
 }
 
@@ -234,11 +385,11 @@ TextSpan? targetMemberOf(parser.Expr e) {
 TextSpan? testedState(parser.Expr body) {
     switch body {
         case .isExpr(let x):
-            if !(x.value.value is .thisExpr(_)) { return null }
+            return null if !(x.value.value is .thisExpr(_))
             switch x.value.pattern {
                 case .constantPattern(let k): return targetMemberOf(k.value.value)
                 case .variantPattern(let v):
-                    if v.value.elements.length == 0 && v.value.binding is null { return targetMemberOf(v.value.variant) }
+                    return targetMemberOf(v.value.variant) if v.value.elements.length == 0 && v.value.binding is null
                 default: {}
             }
         default: {}
@@ -251,10 +402,10 @@ TextSpan? testedState(parser.Expr body) {
 string? stateTestHelp(ref Binder b, through ref Ctx c, for string value, as Type wanted) {
     let s = c.stateTypes[typeIndex(wanted)].s
     for k in 0..b.thenOf.length {
-        if !b.thenOf[k].item1 || t9Text(ref c, for: b.file, at: b.thenOf[k].item2) != value { continue }
+        continue if !b.thenOf[k].item1 || t9Text(ref c, for: b.file, at: b.thenOf[k].item2) != value
         let memberName = t9Text(ref c, for: b.file, at: b.thenOf[k].item3)
         let p = findProperty(ref c, by: s, for: memberName)
-        if p == -1 { continue }
+        continue if p == -1
         var tested: TextSpan? = null
         switch c.files[c.properties[p].file].unit.members[c.properties[p].declIndex] {
             case .structDecl(let n):
@@ -301,22 +452,38 @@ StructId stateStruct(ref Ctx c, for Type t) {
 /// C# `PossibleStates` (BinderStates.cs:126).
 List<VariantId> possibleStates(ref Ctx c, for Type t, by UnionId states) {
     let u = unwrap(ref c, for: t)
-    if kindOf(u) == .state { return copyIds(in c.stateTypes[typeIndex(u)].states) }
+    return copyIds(in c.stateTypes[typeIndex(u)].states) if kindOf(u) == .state
     return copyIds(in c.unions[states].variants)
 }
 
 /// The index of the field named `name` in `fields`, or -1 (C# `FindIndex`).
 i64 t22FieldIndex(Ctx c, for List<LocalId> fields, by string name) {
     for i in 0..fields.length {
-        if c.locals[fields[i]].name == name { return i }
+        return i if c.locals[fields[i]].name == name
     }
     return -1
 }
 
-BExpr bindPayloadField(ref Binder b, through ref Ctx c, at TextSpan span, for BExpr target, from UnionId states, by TextSpan member) => t21BindPayloadField(ref b, through: ref c, at: span, for: target, from: states, by: member, to: -1)
+BExpr bindPayloadField(
+    ref Binder b,
+    through ref Ctx c,
+    at TextSpan span,
+    for BExpr target,
+    from UnionId states,
+    by TextSpan member
+) =>
+    t21BindPayloadField(ref b, through: ref c, at: span, for: target, from: states, by: member, to: -1)
 
 /// `bindPayloadField` that records `syntax` as the C# `Syntax` of the nodes it builds (Q849).
-BExpr t21BindPayloadField(ref Binder b, through ref Ctx c, at TextSpan span, for BExpr target, from UnionId states, by TextSpan member, to i64 syntax) {
+BExpr t21BindPayloadField(
+    ref Binder b,
+    through ref Ctx c,
+    at TextSpan span,
+    for BExpr target,
+    from UnionId states,
+    by TextSpan member,
+    to i64 syntax
+) {
     let name = t15Text(in c, from: b.file, at: member)
     var holder: VariantId = -1
     for v in copyIds(in c.unions[states].variants) {
@@ -325,7 +492,7 @@ BExpr t21BindPayloadField(ref Binder b, through ref Ctx c, at TextSpan span, for
             break
         }
     }
-    if holder == -1 { return -1 }
+    return -1 if holder == -1
     let isThis = boundKind(target) == .thisRef
     var known = List<VariantId>()
     let own = isThis ? t22ThisStates(ref b, through: ref c) : -1
@@ -349,18 +516,24 @@ BExpr t21BindPayloadField(ref Binder b, through ref Ctx c, at TextSpan span, for
                     break
                 }
             }
-            if !same { break }
+            break if !same
         }
     }
     // Every state holds the field after the same field types, so C reads it through any of them (a common initial sequence).
-    if same { return recordSyntaxNode(ref c, for: addUnionField(ref c, from: BUnionField { span: span, receiver: target, variant: known[0], index: index }), at: syntax) }
+    return recordSyntaxNode(
+        ref c,
+        for: addUnionField(ref c, from: BUnionField { span: span, receiver: target, variant: known[0], index: index }),
+        at: syntax,
+    ) if same
     var everywhere = index >= 0
     if everywhere {
         let type = c.locals[first[index]].type
         for v in known {
             var has = false
             for f in c.unionVariants[v].fields {
-                if c.locals[f].name == name && c.locals[f].type == type { has = true }
+                if c.locals[f].name == name && c.locals[f].type == type {
+                    has = true
+                }
             }
             if !has {
                 everywhere = false
@@ -369,34 +542,57 @@ BExpr t21BindPayloadField(ref Binder b, through ref Ctx c, at TextSpan span, for
         }
     }
     if everywhere {
-        report(ref b, through: ref c, for: .unsupported, at: span, by: ($"reading `{name}` from states that hold it at different places", "", "", "", ""),
-            help: $"match one state with `is` or `switch` before reading `{name}`")
+        report(
+            ref b,
+            through: ref c,
+            for: .unsupported,
+            at: span,
+            by: ($"reading `{name}` from states that hold it at different places", "", "", "", ""),
+            help: $"match one state with `is` or `switch` before reading `{name}`",
+        )
         return recordSyntaxNode(ref c, for: addErrorExpr(ref c, from: BErrorExpr { span: span }), at: syntax)
     }
     let what = isThis ? "this" : t15Text(in c, from: b.file, at: nodeSpan(in c, for: target))
     let holderName = c.unionVariants[holder].name
-    report(ref b, through: ref c, for: .payloadNotInState, at: span, by: (name, holderName, what, "", ""),
-        help: $"match `.{holderName}` with `is` or `switch` before reading `{name}`")
+    report(
+        ref b,
+        through: ref c,
+        for: .payloadNotInState,
+        at: span,
+        by: (name, holderName, what, "", ""),
+        help: $"match `.{holderName}` with `is` or `switch` before reading `{name}`",
+    )
     return recordSyntaxNode(ref c, for: addErrorExpr(ref c, from: BErrorExpr { span: span }), at: syntax)
 }
 
 /// C# `CheckStatesExhaustive` (BinderStates.cs:160). `span` is the switch's; C# `s is SwitchExpr e` is `valueEnd` (the end of
 /// `e.Value.Span`, -1 for a statement), and `st.Sections[^1]` is `lastSection` (null for an expression or no section; Q656).
-bool checkStatesExhaustive(ref Binder b, through ref Ctx c, at TextSpan span, as Type type, from UnionId states, by in List<(BPattern, BExpr)> arms, until i64 valueEnd, to TextSpan? lastSection) {
+bool checkStatesExhaustive(
+    ref Binder b,
+    through ref Ctx c,
+    at TextSpan span,
+    as Type type,
+    from UnionId states,
+    by in List<(BPattern, BExpr)> arms,
+    until i64 valueEnd,
+    to TextSpan? lastSection
+) {
     var covered = List<string>()
     for arm in arms {
         let pattern = arm.item1
         let guard = arm.item2
-        if pattern == -1 { return true }
-        if guard != -1 { continue }
-        if irrefutable(ref c, for: pattern) { return true }
+        return true if pattern == -1
+        continue if guard != -1
+        return true if irrefutable(ref c, for: pattern)
         collect(ref c, for: pattern, as: type, to: ref covered)
     }
     var missing = List<VariantId>()
     for v in possibleStates(ref c, for: type, by: states) {
-        if !listContainsString(in covered, by: $".{c.unionVariants[v].name}") { missing.append(v) }
+        if !listContainsString(in covered, by: $".{c.unionVariants[v].name}") {
+            missing.append(v)
+        }
     }
-    if missing.length == 0 { return true }
+    return true if missing.length == 0
     let length = c.files[b.file].text.length
     var keyword = span.start
     if valueEnd >= 0 {
@@ -404,18 +600,38 @@ bool checkStatesExhaustive(ref Binder b, through ref Ctx c, at TextSpan span, as
         keyword = valueEnd + (rest.position("switch") ?? -1)
     }
     var indent: i64 = 0
-    if (lastSection is { } section) {
-        while section.start - indent > 0 && (c.files[b.file].text[section.start - indent - 1] == 32 || c.files[b.file].text[section.start - indent - 1] == 9) { indent += 1 }
+    if lastSection is not null {
+        while lastSection.start - indent > 0
+                && (c.files[b.file].text[lastSection.start - indent - 1] == 32
+                || c.files[b.file].text[lastSection.start - indent - 1] == 9) {
+            indent += 1
+        }
     }
     for v in missing {
         let name = c.unionVariants[v].name
         let at = TextSpan { start: keyword, length: "switch".length }
-        if (lastSection is { } last) {
-            let lead = t15Text(in c, from: b.file, at: TextSpan { start: last.start - indent, length: indent })
-            report(ref b, through: ref c, for: .stateSwitchNotExhaustive, at: at, by: (name, "", "", "", ""), help: $"add a `case .{name}` arm",
-                hasFix: true, fixSpan: TextSpan { start: last.end, length: 0 }, fixReplacement: $"\n{lead}case .{name}:")
+        if lastSection is not null {
+            let lead = t15Text(in c, from: b.file, at: TextSpan { start: lastSection.start - indent, length: indent })
+            report(
+                ref b,
+                through: ref c,
+                for: .stateSwitchNotExhaustive,
+                at: at,
+                by: (name, "", "", "", ""),
+                help: $"add a `case .{name}` arm",
+                hasFix: true,
+                fixSpan: TextSpan { start: lastSection.end, length: 0 },
+                fixReplacement: $"\n{lead}case .{name}:",
+            )
         } else {
-            report(ref b, through: ref c, for: .stateSwitchNotExhaustive, at: at, by: (name, "", "", "", ""), help: $"add a `case .{name}` arm")
+            report(
+                ref b,
+                through: ref c,
+                for: .stateSwitchNotExhaustive,
+                at: at,
+                by: (name, "", "", "", ""),
+                help: $"add a `case .{name}` arm",
+            )
         }
     }
     return false
@@ -440,7 +656,7 @@ SubjectResult? subject(ref Binder b, through ref Ctx c, for BExpr e) {
 /// C# `IsOpen` (BinderStates.cs:207): the scope is `_scope` or one of its parents (Q715).
 bool isOpen(ref Binder b, for i64 scope) {
     for s in b.scopeIds {
-        if s == scope { return true }
+        return true if s == scope
     }
     return false
 }
@@ -448,7 +664,7 @@ bool isOpen(ref Binder b, for i64 scope) {
 Type knownState(ref Binder b, for LocalId local) {
     var i = b.stateFacts.length - 1
     while i >= 0 {
-        if b.stateFacts[i].item2 == local && isOpen(ref b, for: b.stateFacts[i].item1) { return b.stateFacts[i].item3 }
+        return b.stateFacts[i].item3 if b.stateFacts[i].item2 == local && isOpen(ref b, for: b.stateFacts[i].item1)
         i -= 1
     }
     return -1
@@ -462,7 +678,9 @@ void learnState(ref Binder b, for LocalId local, as Type type) {
 void forgetState(ref Binder b, for LocalId local) {
     var kept = List<(i64, LocalId, Type)>()
     for f in b.stateFacts {
-        if f.item2 != local { kept.append(f) }
+        if f.item2 != local {
+            kept.append(f)
+        }
     }
     b.stateFacts = move kept
 }
@@ -472,7 +690,7 @@ void forgetChangingStates(ref Binder b, through ref Ctx c) {
     var kept = List<(i64, LocalId, Type)>()
     for f in b.stateFacts {
         let isThis = (b.thisFacts is { } t) && f.item2 == t
-        if localIsMutable(ref c, by: f.item2) || paramIsByRef(ref c, by: f.item2) || isThis && mutating { continue }
+        continue if localIsMutable(ref c, by: f.item2) || paramIsByRef(ref c, by: f.item2) || isThis && mutating
         kept.append(f)
     }
     b.stateFacts = move kept
@@ -481,7 +699,9 @@ void forgetChangingStates(ref Binder b, through ref Ctx c) {
 List<(i64, LocalId, Type)> learnStates(ref Binder b, through ref Ctx c, for BExpr cond, bool whenTrue) {
     var learned = List<(i64, LocalId, Type)>()
     t22Collect(ref b, through: ref c, for: cond, when: whenTrue, to: ref learned)
-    for f in learned { b.stateFacts.append(f) }
+    for f in learned {
+        b.stateFacts.append(f)
+    }
     return learned
 }
 
@@ -494,15 +714,23 @@ void t22Collect(ref Binder b, through ref Ctx c, for BExpr cond, bool when, to r
             if (subject(ref b, through: ref c, for: value) is { } s) {
                 let type = narrow(ref c, for: s.type, by: pattern, matched: when)
                 @unobservable because "Q627: statesOf is a stub; add cases on a struct with states when T38 lands"
-                if type != -1 { learned.append((t16ScopeId(ref b), s.key, type)) }
+                if type != -1 {
+                    learned.append((t16ScopeId(ref b), s.key, type))
+                }
             }
         case .unary:
             if c.bUnaries[boundIndex(cond)].op == .notKeyword {
-                t22Collect(ref b, through: ref c, for: c.bUnaries[boundIndex(cond)].operand, when: !when, to: ref learned)
+                t22Collect(
+                    ref b,
+                    through: ref c,
+                    for: c.bUnaries[boundIndex(cond)].operand,
+                    when: !when,
+                    to: ref learned,
+                )
             }
         case .binary:
             let op = c.bBinaries[boundIndex(cond)].op
-            if (op == .logicalAnd || op == .logicalOr) && when == (op == .logicalAnd) {
+            if (op is .logicalAnd or .logicalOr) && when == (op == .logicalAnd) {
                 t22Collect(ref b, through: ref c, for: c.bBinaries[boundIndex(cond)].left, when: when, to: ref learned)
                 t22Collect(ref b, through: ref c, for: c.bBinaries[boundIndex(cond)].right, when: when, to: ref learned)
             }
@@ -522,7 +750,9 @@ void unlearnStates(ref Binder b, by in List<(i64, LocalId, Type)> learned) {
     }
     var kept = List<(i64, LocalId, Type)>()
     for i in 0..b.stateFacts.length {
-        if isOpen(ref b, for: b.stateFacts[i].item1) { kept.append(b.stateFacts[i]) }
+        if isOpen(ref b, for: b.stateFacts[i].item1) {
+            kept.append(b.stateFacts[i])
+        }
     }
     b.stateFacts = move kept
 }
@@ -542,23 +772,27 @@ void learnArmState(ref Binder b, through ref Ctx c, for BExpr subject, by BPatte
         default: return
     }
     let narrowed = narrow(ref c, for: type, by: pattern, matched: true)
-    if narrowed != -1 { learnState(ref b, for: key, as: narrowed) }
+    if narrowed != -1 {
+        learnState(ref b, for: key, as: narrowed)
+    }
 }
 
 /// C# `Narrow` (BinderStates.cs:276); -1 for null.
 Type narrow(ref Ctx c, for Type type, by BPattern pattern, bool matched) {
-    if kindOf(type) == .optional { return -1 }
+    return -1 if kindOf(type) == .optional
     let states = statesUnion(ref c, for: type)
-    if states == -1 { return -1 }
+    return -1 if states == -1
     let possible = possibleStates(ref c, for: type, by: states)
     // A match proves the tag even when a payload subpattern also had to hold; a failed match proves it only for a bare tag test.
     var tested = List<VariantId>()
-    if !t22StatesOf(ref c, for: pattern, by: states, exact: !matched, to: ref tested) { return -1 }
+    return -1 if !t22StatesOf(ref c, for: pattern, by: states, exact: !matched, to: ref tested)
     var left = List<VariantId>()
     for v in possible {
-        if listContains(in tested, by: v) == matched { left.append(v) }
+        if listContains(in tested, by: v) == matched {
+            left.append(v)
+        }
     }
-    if left.length == 0 || left.length == possible.length { return -1 }
+    return -1 if left.length == 0 || left.length == possible.length
     let s = kindOf(type) == .state ? c.stateTypes[typeIndex(type)].s : typeIndex(type)
     return internState(ref c, by: s, for: in left)
 }
@@ -569,7 +803,9 @@ bool t22StatesOf(ref Ctx c, for BPattern p, by UnionId states, bool exact, to re
         case .unionPattern:
             var all = true
             for sp in copyIds(in c.bUnionPatterns[boundIndex(p)].subpatterns) {
-                if !irrefutable(ref c, for: sp) { all = false }
+                if !irrefutable(ref c, for: sp) {
+                    all = false
+                }
             }
             if !exact || all {
                 into.append(c.bUnionPatterns[boundIndex(p)].variant)
@@ -582,18 +818,37 @@ bool t22StatesOf(ref Ctx c, for BPattern p, by UnionId states, bool exact, to re
             if !c.bBinaryPatterns[boundIndex(p)].isAnd {
                 var l = List<VariantId>()
                 var r = List<VariantId>()
-                if !t22StatesOf(ref c, for: left, by: states, exact: exact, to: ref l) || !t22StatesOf(ref c, for: right, by: states, exact: exact, to: ref r) { return false }
-                for v in l { into.append(v) }
-                for v in r { into.append(v) }
+                return false if !t22StatesOf(ref c, for: left, by: states, exact: exact, to: ref l)
+                    || !t22StatesOf(ref c, for: right, by: states, exact: exact, to: ref r)
+                for v in l {
+                    into.append(v)
+                }
+                for v in r {
+                    into.append(v)
+                }
                 return true
             }
-            if irrefutable(ref c, for: right) { return t22StatesOf(ref c, for: left, by: states, exact: exact, to: ref into) }
+            return t22StatesOf(
+                ref c,
+                for: left,
+                by: states,
+                exact: exact,
+                to: ref into,
+            ) if irrefutable(ref c, for: right)
             return false
         case .notPattern:
             var inner = List<VariantId>()
-            if !t22StatesOf(ref c, for: c.bNotPatterns[boundIndex(p)].operand, by: states, exact: !exact, to: ref inner) { return false }
+            return false if !t22StatesOf(
+                ref c,
+                for: c.bNotPatterns[boundIndex(p)].operand,
+                by: states,
+                exact: !exact,
+                to: ref inner,
+            )
             for v in c.unions[states].variants {
-                if !listContains(in inner, by: v) { into.append(v) }
+                if !listContains(in inner, by: v) {
+                    into.append(v)
+                }
             }
             return true
         default: return false
@@ -603,18 +858,18 @@ bool t22StatesOf(ref Ctx c, for BPattern p, by UnionId states, bool exact, to re
 void learnBecomes(ref Binder b, through ref Ctx c, for BExpr e) {
     let isTry = boundKind(e) == .tryExpr
     let call = isTry ? c.bTries[boundIndex(e)].operand : e
-    if boundKind(call) != .call { return }
+    return if boundKind(call) != .call
     let fn = c.bCalls[boundIndex(call)].function
     let r = c.bCalls[boundIndex(call)].receiver
     let owner = c.functions[fn].owner
-    if !c.functions[fn].isMutating || owner == -1 { return }
+    return if !c.functions[fn].isMutating || owner == -1
     let decl = t22DeclFacts(ref c, for: fn)
     if (decl.becomes is { } to) {
-        if c.functions[fn].hasFails && !isTry { return }
+        return if c.functions[fn].hasFails && !isTry
         let states = statesOf(ref c, for: owner)
-        if states == -1 { return }
+        return if states == -1
         let state = findUnionVariant(ref c, by: states, for: t15Text(in c, from: c.functions[fn].file, at: to))
-        if state == -1 { return }
+        return if state == -1
         var one = List<VariantId>()
         one.append(state)
         let type = internState(ref c, by: owner, for: in one)

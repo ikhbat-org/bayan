@@ -14,10 +14,10 @@ public struct TextSpan {
 /// One source file as UTF-8 bytes. Positions everywhere are byte offsets into `bytes`; line and
 /// column are computed only when a human needs them.
 public struct SourceText {
-    public string path
+    public string   path
     public List<u8> bytes
     /// Empty until a line or column is first needed.
-    List<i64> lineStarts
+    List<i64>       lineStarts
 
     public i64 length => bytes.length
 
@@ -30,16 +30,22 @@ public struct SourceText {
     }
 
     void ensureLineStarts(ref this) {
-        unless lineStarts.isEmpty { return }
+        unless lineStarts.isEmpty {
+            return
+        }
         lineStarts.append(0)
         for i in 0..bytes.length {
-            if bytes[i] == 0x0A { lineStarts.append(i + 1) }
+            if bytes[i] == 0x0A {
+                lineStarts.append(i + 1)
+            }
         }
     }
 
     /// Zero-based line index containing `offset`.
     public i64 getLineIndex(ref this, i64 offset) uses alloc {
-        if offset < 0 || offset > length { panic("offset out of range") }
+        if offset < 0 || offset > length {
+            panic("offset out of range")
+        }
         ensureLineStarts()
         // The last line start <= offset.
         var lo: i64 = 0
@@ -60,8 +66,12 @@ public struct SourceText {
         ensureLineStarts()
         let start = lineStarts[lineIndex]
         var end = lineIndex + 1 < lineStarts.length ? lineStarts[lineIndex + 1] : length
-        if end > start && bytes[end - 1] == 0x0A { end -= 1 }
-        if end > start && bytes[end - 1] == 0x0D { end -= 1 }
+        if end > start && bytes[end - 1] == 0x0A {
+            end -= 1
+        }
+        if end > start && bytes[end - 1] == 0x0D {
+            end -= 1
+        }
         return TextSpan.fromBounds(start, until: end)
     }
 
@@ -71,7 +81,9 @@ public struct SourceText {
         let start = lineStarts[line]
         var column: i64 = 1
         for i in start..offset {
-            if (bytes[i] & 0xC0) != 0x80 { column += 1 }
+            if (bytes[i] & 0xC0) != 0x80 {
+                column += 1
+            }
         }
         return (line: line + 1, column: column)
     }
@@ -80,14 +92,14 @@ public struct SourceText {
     public string getText(TextSpan span) uses alloc => $"{utf8(bytes.span[span.start..span.end])}"
 }
 
-// ── UTF-8 ─────────────────────────────────────────────────────────────────────────
+// ── UTF-8 ────────────────────────────────────────────────────────────────────
 
 const replacementCharacter: u32 = 0xFFFD
 
 /// One decoding step: a scalar and its length, or an invalid maximal subpart of `length` bytes.
 struct Decoded {
-    u32 value
-    i64 length
+    u32  value
+    i64  length
     bool valid
 }
 
@@ -98,25 +110,37 @@ bool isContinuation(ReadOnlySpan<u8> bytes, at i64 pos, from u8 lo, through u8 h
 /// reported with the length of its maximal subpart (at least 1), as `Encoding.UTF8` replaces it.
 Decoded decodeAt(ReadOnlySpan<u8> bytes, at i64 pos) {
     let b0 = bytes[pos]
-    if b0 < 0x80 { return Decoded { value: b0, length: 1, valid: true } }
-    if b0 >= 0xC2 && b0 <= 0xDF {
-        unless isContinuation(bytes, at: pos + 1, from: 0x80, through: 0xBF) { return invalid(1) }
+    return Decoded { value: b0, length: 1, valid: true } if b0 < 0x80
+    if b0 is 0xC2..=0xDF {
+        unless isContinuation(bytes, at: pos + 1, from: 0x80, through: 0xBF) {
+            return invalid(1)
+        }
         return Decoded { value: (u32(b0 & 0x1F) << 6) | u32(bytes[pos + 1] & 0x3F), length: 2, valid: true }
     }
-    if b0 >= 0xE0 && b0 <= 0xEF {
+    if b0 is 0xE0..=0xEF {
         let lo: u8 = b0 == 0xE0 ? 0xA0 : 0x80
         let hi: u8 = b0 == 0xED ? 0x9F : 0xBF
-        unless isContinuation(bytes, at: pos + 1, from: lo, through: hi) { return invalid(1) }
-        unless isContinuation(bytes, at: pos + 2, from: 0x80, through: 0xBF) { return invalid(2) }
+        unless isContinuation(bytes, at: pos + 1, from: lo, through: hi) {
+            return invalid(1)
+        }
+        unless isContinuation(bytes, at: pos + 2, from: 0x80, through: 0xBF) {
+            return invalid(2)
+        }
         let value = (u32(b0 & 0x0F) << 12) | (u32(bytes[pos + 1] & 0x3F) << 6) | u32(bytes[pos + 2] & 0x3F)
         return Decoded { value: value, length: 3, valid: true }
     }
-    if b0 >= 0xF0 && b0 <= 0xF4 {
+    if b0 is 0xF0..=0xF4 {
         let lo: u8 = b0 == 0xF0 ? 0x90 : 0x80
         let hi: u8 = b0 == 0xF4 ? 0x8F : 0xBF
-        unless isContinuation(bytes, at: pos + 1, from: lo, through: hi) { return invalid(1) }
-        unless isContinuation(bytes, at: pos + 2, from: 0x80, through: 0xBF) { return invalid(2) }
-        unless isContinuation(bytes, at: pos + 3, from: 0x80, through: 0xBF) { return invalid(3) }
+        unless isContinuation(bytes, at: pos + 1, from: lo, through: hi) {
+            return invalid(1)
+        }
+        unless isContinuation(bytes, at: pos + 2, from: 0x80, through: 0xBF) {
+            return invalid(2)
+        }
+        unless isContinuation(bytes, at: pos + 3, from: 0x80, through: 0xBF) {
+            return invalid(3)
+        }
         let value = (u32(b0 & 0x07) << 18) | (u32(bytes[pos + 1] & 0x3F) << 12) |
             (u32(bytes[pos + 2] & 0x3F) << 6) | u32(bytes[pos + 3] & 0x3F)
         return Decoded { value: value, length: 4, valid: true }
@@ -158,8 +182,12 @@ i64 runeCount(ReadOnlySpan<u8> bytes) {
 string hex(u32 value, to i64 digits) {
     var sb = StrBuf()
     var n: i64 = 1
-    while n < 8 && (value >> u32(4 * n)) != 0 { n += 1 }
-    if n < digits { n = digits }
+    while n < 8 && (value >> u32(4 * n)) != 0 {
+        n += 1
+    }
+    if n < digits {
+        n = digits
+    }
     var i = n - 1
     while i >= 0 {
         let d = (value >> u32(4 * i)) & 0xF

@@ -20,19 +20,19 @@ i32 explainCommand(List<string> kept) uses alloc, console {
 /// CliApp.cs:1107 `ExplainText`: the document for a code, matched case-insensitively; null when the code is malformed or has none.
 string? explainText(string code) uses alloc {
     let name = t1Trim(code).uppercased()
-    if name.length != 7 || !name.startsWith("BYN") { return null }
+    return null if name.length != 7 || !name.startsWith("BYN")
     for i in 3..7 {
         let b = name.bytes[i]
-        if b < 0x30 || b > 0x39 { return null }
+        return null if b is < 0x30 or > 0x39
     }
     return diagDoc(name)
 }
 
 /// `char.IsWhiteSpace` for a code point of the Basic Multilingual Plane (the set `string.Trim` removes).
 bool t1IsWhiteSpace(i64 cp) {
-    if cp >= 0x09 && cp <= 0x0d { return true }
-    if cp >= 0x2000 && cp <= 0x200a { return true }
-    return cp == 0x20 || cp == 0x85 || cp == 0xa0 || cp == 0x1680 || cp == 0x2028 || cp == 0x2029 || cp == 0x202f || cp == 0x205f || cp == 0x3000
+    return true if cp is 0x09..=0x0d
+    return true if cp is 0x2000..=0x200a
+    return cp is 0x20 or 0x85 or 0xa0 or 0x1680 or 0x2028 or 0x2029 or 0x202f or 0x205f or 0x3000
 }
 
 /// The code point and byte size of the UTF-8 sequence of `text` at byte `i`.
@@ -49,7 +49,9 @@ bool t1IsWhiteSpace(i64 cp) {
         size = 3
         cp = b & 0x0f
     }
-    for k in 1..size { cp = (cp << 6) | (i64(text.bytes[i + k]) & 0x3f) }
+    for k in 1..size {
+        cp = (cp << 6) | (i64(text.bytes[i + k]) & 0x3f)
+    }
     return (cp: cp, size: size)
 }
 
@@ -59,14 +61,20 @@ string t1Trim(string text) {
     var end = text.length
     while start < end {
         let c = t1Decode(text, at: start)
-        unless t1IsWhiteSpace(c.cp) { break }
+        unless t1IsWhiteSpace(c.cp) {
+            break
+        }
         start += c.size
     }
     while end > start {
         var i = end - 1
-        while i > start && (text.bytes[i] & 0xc0) == 0x80 { i -= 1 }
+        while i > start && (text.bytes[i] & 0xc0) == 0x80 {
+            i -= 1
+        }
         let c = t1Decode(text, at: i)
-        unless t1IsWhiteSpace(c.cp) { break }
+        unless t1IsWhiteSpace(c.cp) {
+            break
+        }
         end = i
     }
     return text[start..end]

@@ -7,7 +7,7 @@ import semantics
 
 /// CEmitter.cs:1050 `Static`, first half: registers the file-scope table `name` once; false when it is registered.
 bool t6StaticReserve(ref CCtx cc, for string name) uses alloc {
-    if cc.statics.contains(name) { return false }
+    return false if cc.statics.contains(name)
     cc.statics[name] = ""
     cc.staticOrder.append(name)
     return true
@@ -16,10 +16,12 @@ bool t6StaticReserve(ref CCtx cc, for string name) uses alloc {
 /// CEmitter.cs:1060 `EnumNames` (Q845): the name of the static table of `e`'s member names, registering it.
 public string enumNames(ref CCtx cc, from ref Ctx c, for semantics.EnumId e) uses alloc {
     let name = $"{cType(ref cc, from: ref c, for: semantics.enumTypeOf(e))}_names"
-    if !t6StaticReserve(ref cc, for: name) { return name }
+    return name if !t6StaticReserve(ref cc, for: name)
     var sb = StrBuf()
     sb.append($"static const byn_str {cType(ref cc, from: ref c, for: semantics.enumTypeOf(e))}_names[] = {{\n")
-    for m in c.enums[e].members { sb.append($"    {stringLiteral(c.enumMembers[m].name)},\n") }
+    for m in c.enums[e].members {
+        sb.append($"    {stringLiteral(c.enumMembers[m].name)},\n")
+    }
     sb.append("};\n\n")
     cc.statics[name] = $"{sb.finish()}"
     return name
@@ -28,13 +30,15 @@ public string enumNames(ref CCtx cc, from ref Ctx c, for semantics.EnumId e) use
 /// CEmitter.cs:1064 `EnumValues` (Q845): the name of the static table of `e`'s members in order, registering it.
 public string enumValues(ref CCtx cc, from ref Ctx c, for semantics.EnumId e) uses alloc {
     let name = $"{cType(ref cc, from: ref c, for: semantics.enumTypeOf(e))}_values"
-    if !t6StaticReserve(ref cc, for: name) { return name }
+    return name if !t6StaticReserve(ref cc, for: name)
     var sb = StrBuf()
     let type = cType(ref cc, from: ref c, for: semantics.enumTypeOf(e))
     sb.append($"static const {type} {type}_values[] = {{")
     var first = true
     for m in c.enums[e].members {
-        if !first { sb.append(", ") }
+        if !first {
+            sb.append(", ")
+        }
         first = false
         sb.append($"{c.enumMembers[m].ordinal}")
     }
@@ -48,10 +52,12 @@ public string enumField(ref CCtx cc, from ref Ctx c, for semantics.EnumFieldId f
     let owner = c.enumFields[field].owner
     let fieldName = c.enumFields[field].name
     let name = $"{cType(ref cc, from: ref c, for: semantics.enumTypeOf(owner))}_f_{fieldName}"
-    if !t6StaticReserve(ref cc, for: name) { return name }
+    return name if !t6StaticReserve(ref cc, for: name)
     var sb = StrBuf()
     let fieldType = c.enumFields[field].type
-    sb.append($"static const {cType(ref cc, from: ref c, for: fieldType)} {cType(ref cc, from: ref c, for: semantics.enumTypeOf(owner))}_f_{fieldName}[] = {{\n")
+    sb.append(
+        $"static const {cType(ref cc, from: ref c, for: fieldType)} {cType(ref cc, from: ref c, for: semantics.enumTypeOf(owner))}_f_{fieldName}[] = {{\n",
+    )
     let members = t6Copy(in c.enums[owner].members)
     let index = c.enumFields[field].index
     for m in members {
@@ -72,7 +78,9 @@ public string staticArray(ref CCtx cc, from ref Ctx c, for semantics.ConstId k) 
         var sb = StrBuf()
         sb.append($"static const {at} {name} = {{{{")
         for i in 0..c.consts[k].elements.length {
-            if i % 8 == 0 { sb.append("\n   ") }
+            if i % 8 == 0 {
+                sb.append("\n   ")
+            }
             let value = c.consts[k].elements[i]
             sb.append($" {constant(ref cc, from: ref c, for: value, as: element)},")
         }
@@ -112,11 +120,14 @@ public string constant(ref CCtx cc, from ref Ctx c, for semantics.Constant k, as
         case .rune: return $"UINT32_C({k.rune})"
         case .real: return t6FloatLiteral(k.real, by: type == semantics.prim(.f32))
         case .integer:
-            if semantics.isFloat(type) { return t6FloatLiteral(semantics.bigToF64(k.integer), by: type == semantics.prim(.f32)) }
+            return t6FloatLiteral(
+                semantics.bigToF64(k.integer),
+                by: type == semantics.prim(.f32),
+            ) if semantics.isFloat(type)
             if semantics.kindOf(type) == .primitive {
                 switch semantics.primKindOf(i64(type & 0xFFFFFFFF)) {
                     case .i64 or .isize:
-                        if k.integer.lo == 0x8000000000000000 && k.integer.hi == 0xFFFFFFFFFFFFFFFF { return "INT64_MIN" }
+                        return "INT64_MIN" if k.integer.lo == 0x8000000000000000 && k.integer.hi == 0xFFFFFFFFFFFFFFFF
                         return $"INT64_C({semantics.bigText(k.integer)})"
                     case .u64 or .usize: return $"UINT64_C({semantics.bigText(k.integer)})"
                     default: return $"(({cType(ref cc, from: ref c, for: type)}){semantics.bigText(k.integer)})"
@@ -128,13 +139,15 @@ public string constant(ref CCtx cc, from ref Ctx c, for semantics.Constant k, as
 
 /// CEmitter.cs:1137 `FloatLiteral`.
 string t6FloatLiteral(f64 d, by bool single) uses alloc {
-    if d != d { return single ? "((float)NAN)" : "((double)NAN)" }
+    return single ? "((float)NAN)" : "((double)NAN)" if d != d
     if d == 1.0 / 0.0 || d == -1.0 / 0.0 {
         let head = d < 0.0 ? "(-" : "("
         return single ? $"{head}(float)INFINITY)" : $"{head}(double)INFINITY)"
     }
     var text = semantics.realText(d)
-    if !text.contains(".") && !text.contains("E") { text = $"{text}.0" }
+    if !text.contains(".") && !text.contains("E") {
+        text = $"{text}.0"
+    }
     return single ? $"((float){text})" : $"({text})"
 }
 
@@ -143,6 +156,8 @@ string t6FloatLiteral(f64 d, by bool single) uses alloc {
 /// A copy of `xs`, so the loop over it does not borrow `c`.
 List<i64> t6Copy(in List<i64> xs) uses alloc {
     var r = List<i64>()
-    for x in xs { r.append(x) }
+    for x in xs {
+        r.append(x)
+    }
     return r
 }

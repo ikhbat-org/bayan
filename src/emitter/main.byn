@@ -24,14 +24,16 @@ import semantics
 import emitter.cprint
 
 type CompilationOptions = semantics.CompilationOptions
-type T26Options = semantics.T26Options
+type T26Options         = semantics.T26Options
 
-const exitOk: i32 = 0
+const exitOk: i32      = 0
 const exitFailure: i32 = 1
-const exitUsage: i32 = 2
+const exitUsage: i32   = 2
 
 i32 usage() {
-    Io.stderr.write("usage: bayan-emit [--ascii] [--color <when>] [--mode debug|safe|fast] [--tests] <path> | [--mode m] [--tests] --package <dir> <file> | [--mode m] --many <dir> | [--mode m] --time <path>\n")
+    Io.stderr.write(
+        "usage: bayan-emit [--ascii] [--color <when>] [--mode debug|safe|fast] [--tests] <path> | [--mode m] [--tests] --package <dir> <file> | [--mode m] --many <dir> | [--mode m] --time <path>\n",
+    )
     return exitUsage
 }
 
@@ -68,7 +70,7 @@ string t10Emit(ref semantics.Ctx c, by string mode, through bool covering, as bo
 
 bool t12HasErrors(in semantics.Ctx c) {
     for d in c.diagnostics {
-        if !d.isWarning { return true }
+        return true if !d.isWarning
     }
     return false
 }
@@ -83,10 +85,18 @@ semantics.Ctx t12Compile(string dir, at move List<u8> bytes, for string file, by
 
 /// Reports `c` as `CliApp.Compile` does (CliApp.cs:298) and fails as `Failed` does (`build`), or with a bare exit 1 when
 /// `tests` (`Test`, CliApp.cs:605), or emits it to stdout.
-i32 t12Finish(ref semantics.Ctx c, for in T26Options o, by in semantics.T26Symbols symbols, through string mode, as bool tests, bool covering = false, bool mutating = false) {
+i32 t12Finish(
+    ref semantics.Ctx c,
+    for in T26Options o,
+    by in semantics.T26Symbols symbols,
+    through string mode,
+    as bool tests,
+    bool covering = false,
+    bool mutating = false
+) {
     var reported = List<semantics.T26Reported>()
     semantics.t26Report(in o, by: in symbols, for: ref c, to: ref reported)
-    if t12HasErrors(in c) { return tests ? exitFailure : semantics.t26Failed(in o, from: in reported, by: in symbols) }
+    return tests ? exitFailure : semantics.t26Failed(in o, from: in reported, by: in symbols) if t12HasErrors(in c)
     if covering || mutating {
         Io.stdout.write(t10Emit(ref c, by: mode, through: covering, as: mutating))
         return exitOk
@@ -95,7 +105,15 @@ i32 t12Finish(ref semantics.Ctx c, for in T26Options o, by in semantics.T26Symbo
     return exitOk
 }
 
-i32 t12Package(string dir, at string file, by bool tests, through string mode, for in semantics.T26Symbols symbols, bool covering = false, bool mutating = false) {
+i32 t12Package(
+    string dir,
+    at string file,
+    by bool tests,
+    through string mode,
+    for in semantics.T26Symbols symbols,
+    bool covering = false,
+    bool mutating = false
+) {
     let bytes = Io.readFile(file) catch {
         Io.stderr.write($"bayan: not found: {file}\n")
         return exitFailure
@@ -110,10 +128,14 @@ i32 t12Many(string dir, by string mode, for in semantics.T26Symbols symbols) {
     var names = Io.listDir(dir) catch return usage()
     names.sort()
     for name in names {
-        unless name.endsWith(".byn") { continue }
+        unless name.endsWith(".byn") {
+            continue
+        }
         print($"== {name}")
         let exit = t12Package(dir, at: $"{dir}/{name}", by: name.endsWith(".test.byn"), through: mode, for: in symbols)
-        if exit != exitOk { print($"exit {exit}") }
+        if exit != exitOk {
+            print($"exit {exit}")
+        }
     }
     return exitOk
 }
@@ -127,7 +149,9 @@ i32 t12Timed(string path, by string mode, through bool ascii) {
     var reported = List<semantics.T26Reported>()
     var ok = false
     var c = semantics.t26Compile(in o, by: in symbols, to: ref reported, through: ref ok)
-    unless ok { return semantics.t26Failed(in o, from: in reported, by: in symbols) }
+    unless ok {
+        return semantics.t26Failed(in o, from: in reported, by: in symbols)
+    }
     var l = LCtx {}
     let t0 = Io.monotonicNanos()
     let program = lower(ref c, to: ref l)
@@ -154,7 +178,9 @@ i32 main(ReadOnlySpan<string> args) {
         let a = args[i]
         if a == "--" {
             // CliApp.cs:325 `TakeGlobalOptions` and :163 `ParseBuildOptions` stop here: the rest is the program's.
-            for k in i..args.length { rest.append(args[k]) }
+            for k in i..args.length {
+                rest.append(args[k])
+            }
             break
         } else if a == "--ascii" {
             ascii = true
@@ -199,19 +225,35 @@ i32 main(ReadOnlySpan<string> args) {
         return exitUsage
     }
     let symbols = semantics.t26Symbols(ascii)
-    if (many is { } dir) { return rest.length == 0 ? t12Many(dir, by: mode, for: in symbols) : usage() }
-    if (time is { } path) { return rest.length == 0 ? t12Timed(path, by: mode, through: ascii) : usage() }
+    if (many is { } dir) {
+        return rest.length == 0 ? t12Many(dir, by: mode, for: in symbols) : usage()
+    }
+    if (time is { } path) {
+        return rest.length == 0 ? t12Timed(path, by: mode, through: ascii) : usage()
+    }
     if (package is { } root) {
-        return rest.length == 1 ? t12Package(root, at: rest[0], by: tests, through: mode, for: in symbols, covering: covering, mutating: mutating) : usage()
+        return rest.length == 1 ? t12Package(
+            root,
+            at: rest[0],
+            by: tests,
+            through: mode,
+            for: in symbols,
+            covering: covering,
+            mutating: mutating,
+        ) : usage()
     }
     let o = semantics.t26ParseBuildOptions(in rest, allowSpans: false) ?? return exitUsage
     var reported = List<semantics.T26Reported>()
     var ok = false
     var c = semantics.t26Compile(in o, by: in symbols, to: ref reported, through: ref ok, includeTests: tests)
-    unless ok { return tests ? exitFailure : semantics.t26Failed(in o, from: in reported, by: in symbols) }
+    unless ok {
+        return tests ? exitFailure : semantics.t26Failed(in o, from: in reported, by: in symbols)
+    }
     // CliApp.cs:464 `RefuseLibrary` (`Build`; `Test` has none); `c.library` and `c.packageName` are the manifest's kind and name.
     if !tests && c.library {
-        Io.stderr.write($"bayan: `{c.packageName}` is a library, so there is no program to build; `bayan test` runs its tests\n")
+        Io.stderr.write(
+            $"bayan: `{c.packageName}` is a library, so there is no program to build; `bayan test` runs its tests\n",
+        )
         return exitUsage
     }
     if covering || mutating {

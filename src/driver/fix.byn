@@ -8,7 +8,7 @@ import semantics
 /// A typed lint's fix in the file at `path` (a `TypedFixes` entry).
 struct T9PathFix {
     string path
-    T8Fix fix
+    T8Fix  fix
 }
 
 /// Applies the fix of every style lint (BYN1072–BYN1080), whatever its severity in `lints`; overlapping fixes wait for the next
@@ -26,10 +26,12 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
     if args.length == 0 {
         paths.append(".")
     } else {
-        for a in args { paths.append(a) }
+        for a in args {
+            paths.append(a)
+        }
     }
     for path in paths {
-        if t6DirectoryExists(path) || Fs.fileExists(path) { continue }
+        continue if t6DirectoryExists(path) || Fs.fileExists(path)
         Io.stderr.write($"bayan: not found: {path}\n")
         return exitUsage
     }
@@ -44,7 +46,9 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
                     return exitFailure
                 }
             }
-            for f in bynFiles(path, through: ref exit, by: root) { files.append(f) }
+            for f in bynFiles(path, through: ref exit, by: root) {
+                files.append(f)
+            }
         } else {
             files.append(path)
         }
@@ -53,8 +57,10 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
     files.sort()
     var sorted = List<string>()
     for f in files {
-        if sorted.length > 0 && sorted[sorted.length - 1] == f { continue }
-        if Path.fileName(f) != "package.byn" { sorted.append(f) }
+        continue if sorted.length > 0 && sorted[sorted.length - 1] == f
+        if Path.fileName(f) != "package.byn" {
+            sorted.append(f)
+        }
     }
     // `GroupBy` the full directory, in the order a directory first appears.
     var dirs = List<string>()
@@ -62,14 +68,20 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
         let dir = Path.directoryName(Path.fullPath(f)) ?? ""
         var seen = false
         for g in dirs {
-            if g == dir { seen = true }
+            if g == dir {
+                seen = true
+            }
         }
-        unless seen { dirs.append(dir) }
+        unless seen {
+            dirs.append(dir)
+        }
     }
     for dir in dirs {
         var module = List<string>()
         for f in sorted {
-            if (Path.directoryName(Path.fullPath(f)) ?? "") == dir { module.append(f) }
+            if (Path.directoryName(Path.fullPath(f)) ?? "") == dir {
+                module.append(f)
+            }
         }
         fixModule(dir, for: in module, until: d.maxPasses) catch switch {
             IoError e => {
@@ -83,9 +95,13 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
 
 /// Fixes the files of one module until no fix applies, then prints each changed file's count.
 // FixCommand.cs: FixModule
-void fixModule(string dir, for in List<string> files, until i64 maxPasses) uses alloc, clock, console, fs fails IoError {
+void fixModule(string dir, for in List<string> files, until i64 maxPasses)
+        uses alloc, clock, console, fs
+        fails IoError {
     var counts = List<i64>()
-    for _ in files { counts.append(0) }
+    for _ in files {
+        counts.append(0)
+    }
     for _ in 0..maxPasses {
         let typed = try typedFixes(dir)
         var changed = false
@@ -97,23 +113,31 @@ void fixModule(string dir, for in List<string> files, until i64 maxPasses) uses 
             parser.lintBanners(ref p)
             var fixes = List<T8Fix>()
             for lint in p.styleLints {
-                if lint.hasFix { fixes.append(T8Fix { span: lint.fixSpan, replacement: lint.fixReplacement }) }
+                if lint.hasFix {
+                    fixes.append(T8Fix { span: lint.fixSpan, replacement: lint.fixReplacement })
+                }
             }
             for t in typed {
-                if t.path == real { fixes.append(t.fix) }
+                if t.path == real {
+                    fixes.append(t.fix)
+                }
             }
-            if fixes.length == 0 { continue }
+            continue if fixes.length == 0
             var applied: i64 = 0
             let fixedBytes = applyFixesCounting(in bytes, for: in fixes, to: ref applied)
-            if t8SameBytes(in fixedBytes, as: in bytes) { continue }
+            continue if t8SameBytes(in fixedBytes, as: in bytes)
             try writeReplacing(real, from: in fixedBytes)
             counts[k] += applied
             changed = true
         }
-        unless changed { break }
+        unless changed {
+            break
+        }
     }
     for k in 0..files.length {
-        if counts[k] > 0 { Io.stdout.write($"fixed {files[k]} ({counts[k]})\n") }
+        if counts[k] > 0 {
+            Io.stdout.write($"fixed {files[k]} ({counts[k]})\n")
+        }
     }
 }
 
@@ -124,7 +148,9 @@ void fixModule(string dir, for in List<string> files, until i64 maxPasses) uses 
 List<T9PathFix> typedFixes(string dir) uses alloc, clock, console, fs fails IoError {
     var paths = List<string>()
     for f in t5ModuleFiles(dir, includeTests: true) {
-        if Path.fileName(f) != "package.byn" { paths.append(try realPath(f)) }
+        if Path.fileName(f) != "package.byn" {
+            paths.append(try realPath(f))
+        }
     }
     var best: semantics.Ctx? = null
     var bestErrors: i64 = 0
@@ -141,13 +167,18 @@ List<T9PathFix> typedFixes(string dir) uses alloc, clock, console, fs fails IoEr
             bestErrors = errors
             best = move c
         }
-        if errors == 0 { break }
+        break if errors == 0
     }
     var fixes = List<T9PathFix>()
     if (best is { } found) {
         for lint in found.styleLints {
             if lint.hasFix {
-                fixes.append(T9PathFix { path: found.files[lint.file].path, fix: T8Fix { span: lint.fixSpan, replacement: lint.fixReplacement } })
+                fixes.append(
+                    T9PathFix {
+                        path: found.files[lint.file].path,
+                        fix: T8Fix { span: lint.fixSpan, replacement: lint.fixReplacement },
+                    },
+                )
             }
         }
     }
@@ -158,7 +189,9 @@ List<T9PathFix> typedFixes(string dir) uses alloc, clock, console, fs fails IoEr
 i64 fixErrorCount(in semantics.Ctx c) {
     var n: i64 = 0
     for d in c.diagnostics {
-        if !d.isWarning && !d.isNote { n += 1 }
+        if !d.isWarning && !d.isNote {
+            n += 1
+        }
     }
     return n
 }
@@ -178,7 +211,7 @@ List<string> fixRoots(string dir) uses alloc, fs {
     var at: string? = dir
     var i: i64 = 0
     while let a = at {
-        if i == 3 { break }
+        break if i == 3
         roots.append(a)
         at = Path.directoryName(a)
         i += 1

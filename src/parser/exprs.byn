@@ -1,6 +1,6 @@
 // Expressions A. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 3141–3605: precedence
 // climbing, conditional, ranges, `is`/`in`/`except`/casts, unary, postfix, members, calls, index,
-// `try`/`move`/`catch`. Owner: 
+// `try`/`move`/`catch`. Owner:
 //
 // A C# node built as `new X(SpanFrom(start), …, ParseY())` takes its span before the child is
 // parsed (C# evaluates arguments left to right), so the span ends before that child; the port
@@ -10,35 +10,35 @@
 import lexer
 
 // The C# `Prec`, as `i64` so that `prec + 1` past the last level binds nothing, as in C#.
-const precNone: i64 = 0
-const precCoalesce: i64 = 1
-const precLogicalOr: i64 = 2
-const precLogicalAnd: i64 = 3
-const precBitOr: i64 = 4
-const precBitXor: i64 = 5
-const precBitAnd: i64 = 6
-const precEquality: i64 = 7
-const precRelational: i64 = 8
-const precRange: i64 = 9
-const precShift: i64 = 10
-const precAdditive: i64 = 11
+const precNone: i64           = 0
+const precCoalesce: i64       = 1
+const precLogicalOr: i64      = 2
+const precLogicalAnd: i64     = 3
+const precBitOr: i64          = 4
+const precBitXor: i64         = 5
+const precBitAnd: i64         = 6
+const precEquality: i64       = 7
+const precRelational: i64     = 8
+const precRange: i64          = 9
+const precShift: i64          = 10
+const precAdditive: i64       = 11
 const precMultiplicative: i64 = 12
 
 bool canStartExpression(TokenKind kind) => isContextualKeyword(kind) || kind switch {
     .identifier or .integerLiteral or .floatLiteral or .charLiteral or
-    .stringLiteral or .rawStringLiteral or .cStringLiteral or .u16StringLiteral or
-    .interpolatedStringStart or .openParen or .openBracket or .openBrace or
-    .dot or .dotDot or .dotDotEquals or .plus or .minus or .bang or
-    .notKeyword or .tilde or .caret or .trueKeyword or .falseKeyword or .nullKeyword or
-    .thisKeyword or .tryKeyword or .newKeyword or .moveKeyword or .returnKeyword or
-    .failKeyword or .breakKeyword or .continueKeyword => true,
+        .stringLiteral or .rawStringLiteral or .cStringLiteral or .u16StringLiteral or
+        .interpolatedStringStart or .openParen or .openBracket or .openBrace or
+        .dot or .dotDot or .dotDotEquals or .plus or .minus or .bang or
+        .notKeyword or .tilde or .caret or .trueKeyword or .falseKeyword or .nullKeyword or
+        .thisKeyword or .tryKeyword or .newKeyword or .moveKeyword or .returnKeyword or
+        .failKeyword or .breakKeyword or .continueKeyword => true,
     _ => false,
 }
 
 Expr parseExpression(ref Parser p) {
     let start = p.current().start
     let condition = parseBinary(ref p, at: precCoalesce)
-    if p.kind() != .question || stopsHere(ref p) { return condition }
+    return condition if p.kind() != .question || stopsHere(ref p)
     let _ = p.advance()
     let whenTrue = parseExpression(ref p)
     let _ = p.expect(.colon)
@@ -54,35 +54,36 @@ Expr parseExpression(ref Parser p) {
 (BinaryOp op, i64 prec, i64 width) binaryOperator(ref Parser p) {
     let kind = p.kind()
     if kind == .greater {
-        if p.atShiftRight() { return (op: BinaryOp.shr, prec: precShift, width: 2) }
-        if p.peek(1) == .greaterEquals && !p.peekToken(1).hasTriviaBefore { return (op: BinaryOp.add, prec: precNone, width: 0) }
+        return (op: BinaryOp.shr, prec: precShift, width: 2) if p.atShiftRight()
+        return (op: BinaryOp.add, prec: precNone, width: 0) if p.peek(1) == .greaterEquals
+            && !p.peekToken(1).hasTriviaBefore
         return (op: BinaryOp.gt, prec: precRelational, width: 1)
     }
     return kind switch {
-        .questionQuestion => (op: BinaryOp.coalesce, prec: precCoalesce, width: 1),
-        .barBar or .orKeyword => (op: BinaryOp.logicalOr, prec: precLogicalOr, width: 1),
+        .questionQuestion      => (op: BinaryOp.coalesce, prec: precCoalesce, width: 1),
+        .barBar or .orKeyword  => (op: BinaryOp.logicalOr, prec: precLogicalOr, width: 1),
         .ampAmp or .andKeyword => (op: BinaryOp.logicalAnd, prec: precLogicalAnd, width: 1),
-        .bar => (op: BinaryOp.bitOr, prec: precBitOr, width: 1),
-        .caret => (op: BinaryOp.bitXor, prec: precBitXor, width: 1),
-        .amp => (op: BinaryOp.bitAnd, prec: precBitAnd, width: 1),
-        .equalsEquals => (op: BinaryOp.eq, prec: precEquality, width: 1),
-        .bangEquals => (op: BinaryOp.ne, prec: precEquality, width: 1),
-        .less => (op: BinaryOp.lt, prec: precRelational, width: 1),
-        .lessEquals => (op: BinaryOp.le, prec: precRelational, width: 1),
-        .greaterEquals => (op: BinaryOp.ge, prec: precRelational, width: 1),
-        .lessLess => (op: BinaryOp.shl, prec: precShift, width: 1),
-        .plus => (op: BinaryOp.add, prec: precAdditive, width: 1),
-        .minus => (op: BinaryOp.sub, prec: precAdditive, width: 1),
-        .plusPercent => (op: BinaryOp.addWrap, prec: precAdditive, width: 1),
-        .minusPercent => (op: BinaryOp.subWrap, prec: precAdditive, width: 1),
-        .plusBar => (op: BinaryOp.addSat, prec: precAdditive, width: 1),
-        .minusBar => (op: BinaryOp.subSat, prec: precAdditive, width: 1),
-        .star => (op: BinaryOp.mul, prec: precMultiplicative, width: 1),
-        .slash => (op: BinaryOp.div, prec: precMultiplicative, width: 1),
-        .percent => (op: BinaryOp.rem, prec: precMultiplicative, width: 1),
-        .starPercent => (op: BinaryOp.mulWrap, prec: precMultiplicative, width: 1),
-        .starBar => (op: BinaryOp.mulSat, prec: precMultiplicative, width: 1),
-        _ => (op: BinaryOp.add, prec: precNone, width: 0),
+        .bar                   => (op: BinaryOp.bitOr, prec: precBitOr, width: 1),
+        .caret                 => (op: BinaryOp.bitXor, prec: precBitXor, width: 1),
+        .amp                   => (op: BinaryOp.bitAnd, prec: precBitAnd, width: 1),
+        .equalsEquals          => (op: BinaryOp.eq, prec: precEquality, width: 1),
+        .bangEquals            => (op: BinaryOp.ne, prec: precEquality, width: 1),
+        .less                  => (op: BinaryOp.lt, prec: precRelational, width: 1),
+        .lessEquals            => (op: BinaryOp.le, prec: precRelational, width: 1),
+        .greaterEquals         => (op: BinaryOp.ge, prec: precRelational, width: 1),
+        .lessLess              => (op: BinaryOp.shl, prec: precShift, width: 1),
+        .plus                  => (op: BinaryOp.add, prec: precAdditive, width: 1),
+        .minus                 => (op: BinaryOp.sub, prec: precAdditive, width: 1),
+        .plusPercent           => (op: BinaryOp.addWrap, prec: precAdditive, width: 1),
+        .minusPercent          => (op: BinaryOp.subWrap, prec: precAdditive, width: 1),
+        .plusBar               => (op: BinaryOp.addSat, prec: precAdditive, width: 1),
+        .minusBar              => (op: BinaryOp.subSat, prec: precAdditive, width: 1),
+        .star                  => (op: BinaryOp.mul, prec: precMultiplicative, width: 1),
+        .slash                 => (op: BinaryOp.div, prec: precMultiplicative, width: 1),
+        .percent               => (op: BinaryOp.rem, prec: precMultiplicative, width: 1),
+        .starPercent           => (op: BinaryOp.mulWrap, prec: precMultiplicative, width: 1),
+        .starBar               => (op: BinaryOp.mulSat, prec: precMultiplicative, width: 1),
+        _                      => (op: BinaryOp.add, prec: precNone, width: 0),
     }
 }
 
@@ -91,8 +92,12 @@ Expr parseBinary(ref Parser p, at i64 minPrec) {
     if (p.kind() == .dotDot || p.kind() == .dotDotEquals) && minPrec <= precRange {
         let inclusive = p.advance().kind == .dotDotEquals
         var end: Expr = .none
-        if canStartRangeEnd(ref p) { end = parseBinary(ref p, at: precShift) }
-        let left = Expr.rangeExpr(Owned(RangeExpr { span: p.spanFrom(start), start: .none, end: move end, inclusive: inclusive }))
+        if canStartRangeEnd(ref p) {
+            end = parseBinary(ref p, at: precShift)
+        }
+        let left = Expr.rangeExpr(
+            Owned(RangeExpr { span: p.spanFrom(start), start: .none, end: move end, inclusive: inclusive }),
+        )
         return parseBinaryRest(ref p, from: start, by: move left, at: minPrec)
     }
     let left = parseUnary(ref p)
@@ -103,7 +108,7 @@ Expr parseBinary(ref Parser p, at i64 minPrec) {
 Expr parseBinaryRest(ref Parser p, from i64 start, by move Expr first, at i64 minPrec) {
     var left = move first
     while true {
-        if stopsHere(ref p) { return left }
+        return left if stopsHere(ref p)
         if p.kind() == .isKeyword && minPrec <= precRelational {
             let _ = p.advance()
             let pattern = parsePattern(ref p)
@@ -126,8 +131,12 @@ Expr parseBinaryRest(ref Parser p, from i64 start, by move Expr first, at i64 mi
         if (p.kind() == .dotDot || p.kind() == .dotDotEquals) && minPrec <= precRange {
             let inclusive = p.advance().kind == .dotDotEquals
             var end: Expr = .none
-            if canStartRangeEnd(ref p) { end = parseBinary(ref p, at: precShift) }
-            left = Expr.rangeExpr(Owned(RangeExpr { span: p.spanFrom(start), start: move left, end: move end, inclusive: inclusive }))
+            if canStartRangeEnd(ref p) {
+                end = parseBinary(ref p, at: precShift)
+            }
+            left = Expr.rangeExpr(
+                Owned(RangeExpr { span: p.spanFrom(start), start: move left, end: move end, inclusive: inclusive }),
+            )
             continue
         }
         if p.kind() == .catchKeyword && minPrec <= precCoalesce {
@@ -135,17 +144,31 @@ Expr parseBinaryRest(ref Parser p, from i64 start, by move Expr first, at i64 mi
             continue
         }
         let operator = binaryOperator(ref p)
-        if operator.prec == precNone || operator.prec < minPrec { return left }
-        for _ in 0..operator.width { let _ = p.advance() }
+        return left if operator.prec == precNone || operator.prec < minPrec
+        for _ in 0..operator.width {
+            let _ = p.advance()
+        }
         // A line ending in an operator continues (lā), but not across a blank line outside brackets.
         if breaksLine(ref p, at: p.pos) && hasBlankLineBefore(ref p, at: p.pos) {
-            let _ = p.report(.expectedExpression, at: TextSpan { start: p.prevEnd, length: 0 }, arg0: "a blank line",
-                label: "the statement ends here", help: "remove the blank line, or finish the expression on this line")
+            let _ = p.report(
+                .expectedExpression,
+                at: TextSpan { start: p.prevEnd, length: 0 },
+                arg0: "a blank line",
+                label: "the statement ends here",
+                help: "remove the blank line, or finish the expression on this line",
+            )
         }
         // `??` is right-associative; everything else is left-associative.
-        let right = operator.op == .coalesce ? parseBinary(ref p, at: operator.prec) : parseBinary(ref p, at: operator.prec + 1)
-        left = Expr.binaryExpr(Owned(BinaryExpr { span: p.spanFrom(start), op: operator.op, left: move left, right: move right }))
-        if operator.op == .logicalAnd || operator.op == .logicalOr { noteLogical(ref p, for: left) }
+        let right = operator.op == .coalesce ? parseBinary(
+            ref p,
+            at: operator.prec,
+        ) : parseBinary(ref p, at: operator.prec + 1)
+        left = Expr.binaryExpr(
+            Owned(BinaryExpr { span: p.spanFrom(start), op: operator.op, left: move left, right: move right }),
+        )
+        if operator.op is .logicalAnd or .logicalOr {
+            noteLogical(ref p, for: left)
+        }
     }
 }
 
@@ -160,9 +183,9 @@ Pattern parseExceptPattern(ref Parser p) {
         default:
             return pattern
     }
-    if stopsHere(ref p) { return pattern }
+    return pattern if stopsHere(ref p)
     let prec = binaryOperator(ref p).prec
-    if (prec == precNone || prec == precCoalesce) && p.kind() != .isKeyword && p.kind() != .inKeyword { return pattern }
+    return pattern if (prec == precNone || prec == precCoalesce) && p.kind() != .isKeyword && p.kind() != .inKeyword
     let value = reparseConstant(ref p, from: constantStart)
     let condition = parseBinaryRest(ref p, from: constantStart, by: move value, at: precLogicalOr)
     let span = exprSpan(in condition)
@@ -180,13 +203,17 @@ Expr reparseConstant(ref Parser p, from i64 start) {
     let syntaxErrors = p.syntaxErrors
     let lastErrorAt = p.lastErrorAt
     var index = after
-    while index > 0 && p.lexed.tokens[index - 1].start >= start { index -= 1 }
+    while index > 0 && p.lexed.tokens[index - 1].start >= start {
+        index -= 1
+    }
     p.pos = index
     p.prevEnd = index > 0 ? p.lexed.tokens[index - 1].end : 0
     let saved = p.setNoLambda(value: true)
     let value = parseBinary(ref p, at: precRange)
     p.noLambda = saved
-    while p.lexed.diagnostics.length > diagnostics { let _ = p.lexed.diagnostics.removeLast() }
+    while p.lexed.diagnostics.length > diagnostics {
+        let _ = p.lexed.diagnostics.removeLast()
+    }
     p.syntaxErrors = syntaxErrors
     p.lastErrorAt = lastErrorAt
     p.pos = after
@@ -210,11 +237,21 @@ Expr parseCatch(ref Parser p, from i64 start, by move Expr operand) {
         let span = TextSpan.fromBounds(openToken.start, until: p.advance().end)
         let text = p.lexed.source.getText(name)
         if p.kind() == .switchKeyword {
-            let _ = p.reportFix(.catchBinding, at: span, through: TextSpan.fromBounds(openToken.start, until: p.current().start), by: "",
-                label: "the input form", help: $"remove `({text})` and bind the error in each arm: `E {text} => …`")
+            let _ = p.reportFix(
+                .catchBinding,
+                at: span,
+                through: TextSpan.fromBounds(openToken.start, until: p.current().start),
+                by: "",
+                label: "the input form",
+                help: $"remove `({text})` and bind the error in each arm: `E {text} => …`",
+            )
         } else {
-            let _ = p.report(.catchBinding, at: span, label: "the input form",
-                help: $"write `catch switch {{ E {text} => … }}`, binding the error in each arm")
+            let _ = p.report(
+                .catchBinding,
+                at: span,
+                label: "the input form",
+                help: $"write `catch switch {{ E {text} => … }}`, binding the error in each arm",
+            )
         }
     } else if p.kind() == .openParen {
         let _ = p.advance()
@@ -232,7 +269,8 @@ Expr parseCatch(ref Parser p, from i64 start, by move Expr operand) {
         }
         let _ = p.advance()
         handler = parseSwitchArms(ref p, from: switchStart, by: move subject)
-    } else if p.kind() == .openBrace && !(isName(p.peek(1)) && p.peek(2) == .colon && !braceBodyHasStatementBreak(ref p)) {
+    } else if p.kind() == .openBrace
+            && !(isName(p.peek(1)) && p.peek(2) == .colon && !braceBodyHasStatementBreak(ref p)) {
         // `catch { x: 1 }` stays a target-typed struct literal; `catch {}`, `catch { x = 1 }` and a body of
         // several statements, one per line, are blocks.
         let block = parseBlock(ref p)
@@ -272,13 +310,13 @@ Expr parseUnary(ref Parser p) {
 Expr parsePrefixed(ref Parser p) {
     let start = p.current().start
     let kind = p.kind()
-    if kind == .plus || kind == .minus || kind == .bang || kind == .notKeyword || kind == .tilde || kind == .caret {
+    if kind is .plus or .minus or .bang or .notKeyword or .tilde or .caret {
         let op = kind switch {
-            .plus => UnaryOp.plus,
+            .plus  => UnaryOp.plus,
             .minus => UnaryOp.negate,
             .tilde => UnaryOp.complement,
             .caret => UnaryOp.fromEnd,
-            _ => UnaryOp.notKeyword,
+            _      => UnaryOp.notKeyword,
         }
         let _ = p.advance()
         let operand = parsePrefixed(ref p)
@@ -306,7 +344,7 @@ Expr parsePrefixed(ref Parser p) {
         let next = p.kind()
         var value: Expr = .none
         if canStartExpression(next) && !breaksLine(ref p, at: p.pos)
-            && next != .returnKeyword && next != .breakKeyword && next != .continueKeyword {
+                && next != .returnKeyword && next != .breakKeyword && next != .continueKeyword {
             value = parseBinary(ref p, at: precLogicalOr)
         }
         let jump = Stmt.returnStmt(Owned(ReturnStmt { span: p.spanFrom(start), value: move value }))
@@ -319,11 +357,13 @@ Expr parsePrefixed(ref Parser p) {
         let jump = Stmt.failStmt(Owned(FailStmt { span: span, error: move error }))
         return Expr.jumpExpr(Owned(JumpExpr { span: span, jump: move jump }))
     }
-    if kind == .breakKeyword || kind == .continueKeyword {
+    if kind is .breakKeyword or .continueKeyword {
         let _ = p.advance()
         let span = p.spanFrom(start)
         var label: TextSpan? = null
-        if p.kind() == .identifier && !p.current().hasNewlineBefore { label = spanOf(p.advance()) }
+        if p.kind() == .identifier && !p.current().hasNewlineBefore {
+            label = spanOf(p.advance())
+        }
         if kind == .breakKeyword {
             let jump = Stmt.breakStmt(Owned(BreakStmt { span: span, label: label }))
             return Expr.jumpExpr(Owned(JumpExpr { span: span, jump: move jump }))
@@ -347,8 +387,15 @@ Expr parsePrefixed(ref Parser p) {
             default:
                 inner = exprSpan(in operand)
         }
-        let _ = p.reportFix(.castInput, at: typeSpan, through: p.spanFrom(start), by: $"{typeText}({p.lexed.source.getText(inner)})",
-            arg0: typeText, label: "a cast", help: $"call the conversion: `{typeText}(x)`")
+        let _ = p.reportFix(
+            .castInput,
+            at: typeSpan,
+            through: p.spanFrom(start),
+            by: $"{typeText}({p.lexed.source.getText(inner)})",
+            arg0: typeText,
+            label: "a cast",
+            help: $"call the conversion: `{typeText}(x)`",
+        )
         return Expr.castExpr(Owned(CastExpr { span: p.spanFrom(start), type: move castType, operand: move operand }))
     }
 
@@ -364,13 +411,13 @@ Expr parsePrefixed(ref Parser p) {
 
 bool isCast(ref Parser p) {
     let after = scanType(ref p, at: p.pos + 1)
-    if after < 0 || p.kindAt(after) != .closeParen { return false }
+    return false if after < 0 || p.kindAt(after) != .closeParen
     let next = p.kindAt(after + 1)
     return isContextualKeyword(next) || next switch {
         .identifier or .integerLiteral or .floatLiteral or .charLiteral or
-        .stringLiteral or .rawStringLiteral or .interpolatedStringStart or
-        .openParen or .bang or .tilde or .thisKeyword or
-        .trueKeyword or .falseKeyword or .nullKeyword or .tryKeyword or .newKeyword => true,
+            .stringLiteral or .rawStringLiteral or .interpolatedStringStart or
+            .openParen or .bang or .tilde or .thisKeyword or
+            .trueKeyword or .falseKeyword or .nullKeyword or .tryKeyword or .newKeyword => true,
         _ => false,
     }
 }
@@ -400,16 +447,22 @@ Expr parseSwitchArms(ref Parser p, from i64 start, by move Expr value) {
         let _ = p.expect(.fatArrow)
         // A `catch switch` arm may be a block, read as a `catch` block is (J49); elsewhere `{` starts a struct literal.
         var result: Expr = .none
-        if caught && p.kind() == .openBrace && !(isName(p.peek(1)) && p.peek(2) == .colon && !braceBodyHasStatementBreak(ref p)) {
+        if caught
+                && p.kind() == .openBrace
+                && !(isName(p.peek(1)) && p.peek(2) == .colon && !braceBodyHasStatementBreak(ref p)) {
             let block = parseBlock(ref p)
             let span = blockSpan(in block)
             result = Expr.blockExpr(Owned(BlockExpr { span: span, block: move block }))
         } else {
             result = parseExpression(ref p)
         }
-        arms.append(SwitchArm { span: p.spanFrom(armStart), pattern: move pattern, guard: move guard, value: move result })
-        unless p.accept(.comma) { break }
-        if p.pos == before { break }
+        arms.append(
+            SwitchArm { span: p.spanFrom(armStart), pattern: move pattern, guard: move guard, value: move result },
+        )
+        unless p.accept(.comma) {
+            break
+        }
+        break if p.pos == before
     }
     expectClose(ref p, from: openToken, for: "switch")
     return Expr.switchExpr(Owned(SwitchExpr { span: p.spanFrom(start), value: move subject, arms: move arms }))
@@ -419,13 +472,15 @@ Expr parsePostfix(ref Parser p, by move Expr first) {
     var expr = move first
     let start = exprSpan(in expr).start
     while true {
-        if stopsHere(ref p) { return expr }
+        return expr if stopsHere(ref p)
         let kind = p.kind()
         if kind == .dot && isName(p.peek(1)) {
             let _ = p.advance()
             let member = spanOf(p.advance())
             var typeArgs = List<TypeSyntax>()
-            if p.kind() == .less && isTypeArgsBeforeCall(ref p) { typeArgs = parseTypeArgs(ref p) }
+            if p.kind() == .less && isTypeArgsBeforeCall(ref p) {
+                typeArgs = parseTypeArgs(ref p)
+            }
             expr = Expr.memberExpr(Owned(MemberExpr {
                 span: p.spanFrom(start),
                 target: move expr,
@@ -437,7 +492,9 @@ Expr parsePostfix(ref Parser p, by move Expr first) {
             let _ = p.advance()
             let span = p.spanFrom(start)
             let member = expectName(ref p, "a member name")
-            expr = Expr.memberExpr(Owned(MemberExpr { span: span, target: move expr, member: member, nullConditional: true }))
+            expr = Expr.memberExpr(
+                Owned(MemberExpr { span: span, target: move expr, member: member, nullConditional: true }),
+            )
         } else if kind == .openParen {
             let args = parseArguments(ref p)
             var call = CallExpr { span: p.spanFrom(start), callee: move expr, args: move args }
@@ -469,15 +526,17 @@ void reportTrustInput(ref Parser p, for in CallExpr call) {
     switch call.callee {
         case .nameExpr(let callee):
             let name = callee.value.name
-            if callee.value.typeArgs.length != 0 || !lexer.sameBytes(p.lexed.source.bytes.span[name.start..name.end], as: "trust".bytes) { return }
+            return if callee.value.typeArgs.length != 0
+                || !lexer.sameBytes(p.lexed.source.bytes.span[name.start..name.end], as: "trust".bytes)
             calleeSpan = callee.value.span
         default:
             return
     }
-    if call.args.length != 2 { return }
-    if call.args[0].name is not null || call.args[0].modifier != .none || call.args[1].modifier != .none { return }
+    return if call.args.length != 2
+    return if call.args[0].name is not null || call.args[0].modifier != .none || call.args[1].modifier != .none
     let reasonName = call.args[1].name ?? TextSpan { start: 0, length: -1 }
-    if reasonName.length < 0 || !lexer.sameBytes(p.lexed.source.bytes.span[reasonName.start..reasonName.end], as: "reason".bytes) { return }
+    return if reasonName.length < 0
+        || !lexer.sameBytes(p.lexed.source.bytes.span[reasonName.start..reasonName.end], as: "reason".bytes)
     var isString = false
     switch call.args[1].value {
         case .literalExpr(let literal):
@@ -486,8 +545,12 @@ void reportTrustInput(ref Parser p, for in CallExpr call) {
             isString = false
     }
     unless isString {
-        let _ = p.report(.trustInput, at: calleeSpan, label: "the input form",
-            help: "call `trustUnchecked()` on the value and give the reason in `because`")
+        let _ = p.report(
+            .trustInput,
+            at: calleeSpan,
+            label: "the input form",
+            help: "call `trustUnchecked()` on the value and give the reason in `because`",
+        )
         return
     }
     var text = p.lexed.source.getText(exprSpan(in call.args[0].value))
@@ -498,14 +561,22 @@ void reportTrustInput(ref Parser p, for in CallExpr call) {
         default:
             primary = false
     }
-    unless primary { text = $"({text})" }
+    unless primary {
+        text = $"({text})"
+    }
     text = $"{text}.trustUnchecked() because {p.lexed.source.getText(exprSpan(in call.args[1].value))}"
     // Anything after the call other than a closer would read as part of the reason.
     let kind = p.kind()
     let ends = p.current().hasNewlineBefore || kind == .closeParen || kind == .comma || kind == .closeBracket
         || kind == .closeBrace || kind == .interpolationEnd || kind == .endOfFile
-    let _ = p.reportFix(.trustInput, at: calleeSpan, through: call.span, by: ends ? text : $"({text})", label: "the input form",
-        help: "call `trustUnchecked()` on the value and give the reason in `because`")
+    let _ = p.reportFix(
+        .trustInput,
+        at: calleeSpan,
+        through: call.span,
+        by: ends ? text : $"({text})",
+        label: "the input form",
+        help: "call `trustUnchecked()` on the value and give the reason in `because`",
+    )
 }
 
 List<Argument> parseArguments(ref Parser p) {
@@ -520,7 +591,7 @@ List<Argument> parseArgumentList(ref Parser p) {
     var args = List<Argument>()
     if p.kind() != .closeParen {
         while true {
-            if p.kind() == .closeParen { break }
+            break if p.kind() == .closeParen
             let start = p.current().start
             var name: TextSpan? = null
             // `for` and `as` are keywords, but labels in argument position (`for: user`).
@@ -529,17 +600,21 @@ List<Argument> parseArgumentList(ref Parser p) {
                 let _ = p.advance()
             }
             let modifier = p.kind() switch {
-                .refKeyword => ArgModifier.refKeyword,
+                .refKeyword  => ArgModifier.refKeyword,
                 .moveKeyword => ArgModifier.moveKeyword,
-                .outKeyword => ArgModifier.outKeyword,
-                .inKeyword => ArgModifier.inKeyword,
-                _ => ArgModifier.none,
+                .outKeyword  => ArgModifier.outKeyword,
+                .inKeyword   => ArgModifier.inKeyword,
+                _            => ArgModifier.none,
             }
-            if modifier != .none { let _ = p.advance() }
+            if modifier != .none {
+                let _ = p.advance()
+            }
             p.argumentStarts[p.pos] = true
             let value = parseExpression(ref p)
             args.append(Argument { span: p.spanFrom(start), name: name, modifier: modifier, value: move value })
-            unless p.accept(.comma) { break }
+            unless p.accept(.comma) {
+                break
+            }
         }
     }
     let _ = p.expect(.closeParen)
@@ -548,41 +623,41 @@ List<Argument> parseArgumentList(ref Parser p) {
 
 /// The C# `Expr.Span`.
 public TextSpan exprSpan(in Expr e) => e switch {
-    .literalExpr(let n) => n.value.span,
-    .interpolatedExpr(let n) => n.value.span,
-    .nameExpr(let n) => n.value.span,
-    .thisExpr(let n) => n.value.span,
-    .memberExpr(let n) => n.value.span,
-    .targetMemberExpr(let n) => n.value.span,
-    .callExpr(let n) => n.value.span,
-    .indexExpr(let n) => n.value.span,
-    .unaryExpr(let n) => n.value.span,
-    .binaryExpr(let n) => n.value.span,
-    .rangeExpr(let n) => n.value.span,
-    .conditionalExpr(let n) => n.value.span,
-    .castExpr(let n) => n.value.span,
-    .isExpr(let n) => n.value.span,
-    .exceptExpr(let n) => n.value.span,
-    .inExpr(let n) => n.value.span,
-    .switchExpr(let n) => n.value.span,
-    .tryExpr(let n) => n.value.span,
-    .moveExpr(let n) => n.value.span,
-    .catchExpr(let n) => n.value.span,
-    .caughtErrorExpr(let n) => n.value.span,
-    .jumpExpr(let n) => n.value.span,
-    .blockExpr(let n) => n.value.span,
+    .literalExpr(let n)       => n.value.span,
+    .interpolatedExpr(let n)  => n.value.span,
+    .nameExpr(let n)          => n.value.span,
+    .thisExpr(let n)          => n.value.span,
+    .memberExpr(let n)        => n.value.span,
+    .targetMemberExpr(let n)  => n.value.span,
+    .callExpr(let n)          => n.value.span,
+    .indexExpr(let n)         => n.value.span,
+    .unaryExpr(let n)         => n.value.span,
+    .binaryExpr(let n)        => n.value.span,
+    .rangeExpr(let n)         => n.value.span,
+    .conditionalExpr(let n)   => n.value.span,
+    .castExpr(let n)          => n.value.span,
+    .isExpr(let n)            => n.value.span,
+    .exceptExpr(let n)        => n.value.span,
+    .inExpr(let n)            => n.value.span,
+    .switchExpr(let n)        => n.value.span,
+    .tryExpr(let n)           => n.value.span,
+    .moveExpr(let n)          => n.value.span,
+    .catchExpr(let n)         => n.value.span,
+    .caughtErrorExpr(let n)   => n.value.span,
+    .jumpExpr(let n)          => n.value.span,
+    .blockExpr(let n)         => n.value.span,
     .structLiteralExpr(let n) => n.value.span,
-    .withExpr(let n) => n.value.span,
-    .spreadExpr(let n) => n.value.span,
-    .mapEntryExpr(let n) => n.value.span,
-    .collectionExpr(let n) => n.value.span,
-    .tupleExpr(let n) => n.value.span,
-    .parenExpr(let n) => n.value.span,
-    .lambdaExpr(let n) => n.value.span,
-    .stackallocExpr(let n) => n.value.span,
-    .patternExpr(let n) => n.value.span,
-    .errorExpr(let n) => n.value.span,
-    .none => TextSpan { start: 0, length: 0 },
+    .withExpr(let n)          => n.value.span,
+    .spreadExpr(let n)        => n.value.span,
+    .mapEntryExpr(let n)      => n.value.span,
+    .collectionExpr(let n)    => n.value.span,
+    .tupleExpr(let n)         => n.value.span,
+    .parenExpr(let n)         => n.value.span,
+    .lambdaExpr(let n)        => n.value.span,
+    .stackallocExpr(let n)    => n.value.span,
+    .patternExpr(let n)       => n.value.span,
+    .errorExpr(let n)         => n.value.span,
+    .none                     => TextSpan { start: 0, length: 0 },
 }
 
 /// The span of the `BlockStmt` that `parseBlock` returns.
@@ -595,6 +670,6 @@ public TextSpan blockSpan(in Stmt block) {
     }
 }
 
-// ── T9 stand-ins ──────────────────────────────────────────────────────────────────
+// ── T9 stand-ins ─────────────────────────────────────────────────────────────
 // Helpers other files own, which their stubs do not declare yet (Q470). Each has the signature this
 // file calls; T15 deletes this section once the owners' definitions merge.

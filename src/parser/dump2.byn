@@ -1,6 +1,6 @@
 // The tree dump, S-expressions. Ports `csharp/Bayan.Syntax/Ast/AstDump.cs` `AssignText` (352–367),
 // `BinaryText` (369–397), `UnaryText` (399–407), `Type` (409–461), `Pattern` (463–554), `Sexp`
-// (556–566), `Expr` (568–818), `FieldInits` (820–828) and `Quote` (830–834). Owner: 
+// (556–566), `Expr` (568–818), `FieldInits` (820–828) and `Quote` (830–834). Owner:
 //
 // `dumpExpr`, `dumpType` and `dumpPattern` write one node as an S-expression on one line; `dump.byn`
 // (T11) calls them for the inline parts of declarations and statements, and calls `assignText`,
@@ -15,56 +15,56 @@ import lexer
 
 /// The C# `AssignText`: the source spelling of an assignment operator.
 string assignText(AssignOp op) => op switch {
-    .assign => "=",
-    .add => "+=",
-    .sub => "-=",
-    .mul => "*=",
-    .div => "/=",
-    .rem => "%=",
+    .assign     => "=",
+    .add        => "+=",
+    .sub        => "-=",
+    .mul        => "*=",
+    .div        => "/=",
+    .rem        => "%=",
     .andKeyword => "&=",
-    .orKeyword => "|=",
-    .xor => "^=",
-    .shl => "<<=",
-    .shr => ">>=",
-    .coalesce => "??=",
+    .orKeyword  => "|=",
+    .xor        => "^=",
+    .shl        => "<<=",
+    .shr        => ">>=",
+    .coalesce   => "??=",
 }
 
 /// The C# `BinaryText`: the source spelling of a binary operator.
 string binaryText(BinaryOp op) => op switch {
-    .add => "+",
-    .sub => "-",
-    .mul => "*",
-    .div => "/",
-    .rem => "%",
-    .addWrap => "+%",
-    .subWrap => "-%",
-    .mulWrap => "*%",
-    .addSat => "+|",
-    .subSat => "-|",
-    .mulSat => "*|",
-    .shl => "<<",
-    .shr => ">>",
-    .lt => "<",
-    .gt => ">",
-    .le => "<=",
-    .ge => ">=",
-    .eq => "==",
-    .ne => "!=",
-    .bitAnd => "&",
-    .bitOr => "|",
-    .bitXor => "^",
+    .add        => "+",
+    .sub        => "-",
+    .mul        => "*",
+    .div        => "/",
+    .rem        => "%",
+    .addWrap    => "+%",
+    .subWrap    => "-%",
+    .mulWrap    => "*%",
+    .addSat     => "+|",
+    .subSat     => "-|",
+    .mulSat     => "*|",
+    .shl        => "<<",
+    .shr        => ">>",
+    .lt         => "<",
+    .gt         => ">",
+    .le         => "<=",
+    .ge         => ">=",
+    .eq         => "==",
+    .ne         => "!=",
+    .bitAnd     => "&",
+    .bitOr      => "|",
+    .bitXor     => "^",
     .logicalAnd => "&&",
-    .logicalOr => "||",
-    .coalesce => "??",
+    .logicalOr  => "||",
+    .coalesce   => "??",
 }
 
 /// The C# `UnaryText`: the source spelling of a prefix operator.
 string unaryText(UnaryOp op) => op switch {
-    .plus => "+",
-    .negate => "-",
+    .plus       => "+",
+    .negate     => "-",
     .notKeyword => "!",
     .complement => "~",
-    .fromEnd => "^",
+    .fromEnd    => "^",
 }
 
 /// The decoded text of an identifier span (the C# `Name.Text`).
@@ -88,7 +88,7 @@ string quote(string text) {
                 sb.append("\\r")
             } else if b == 0x09 {
                 sb.append("\\t")
-            } else if b < 0x20 || b == 0x7F {
+            } else if b is < 0x20 or 0x7F {
                 appendUnicodeEscape(u32(b), to: ref sb)
             } else {
                 sb.append(text[pos..pos + 1])
@@ -104,10 +104,12 @@ string quote(string text) {
                 value = (u32(b & 0x0F) << 12) | (u32(bytes[pos + 1] & 0x3F) << 6) | u32(bytes[pos + 2] & 0x3F)
                 n = 3
             } else {
-                value = (u32(b & 0x07) << 18) | (u32(bytes[pos + 1] & 0x3F) << 12) | (u32(bytes[pos + 2] & 0x3F) << 6) | u32(bytes[pos + 3] & 0x3F)
+                value = (
+                    u32(b & 0x07) << 18
+                ) | (u32(bytes[pos + 1] & 0x3F) << 12) | (u32(bytes[pos + 2] & 0x3F) << 6) | u32(bytes[pos + 3] & 0x3F)
                 n = 4
             }
-            if (value >= 0x202A && value <= 0x202E) || (value >= 0x2066 && value <= 0x2069) || value == 0xFEFF {
+            if value is 0x202A..=0x202E or 0x2066..=0x2069 or 0xFEFF {
                 appendUnicodeEscape(value, to: ref sb)
             } else {
                 sb.append(text[pos..pos + n])
@@ -123,7 +125,9 @@ string quote(string text) {
 void appendUnicodeEscape(u32 value, to ref StrBuf sb) {
     sb.append("\\u{")
     var n: i64 = 1
-    while n < 8 && (value >> u32(4 * n)) != 0 { n += 1 }
+    while n < 8 && (value >> u32(4 * n)) != 0 {
+        n += 1
+    }
     var i = n - 1
     while i >= 0 {
         let d = (value >> u32(4 * i)) & 0xF
@@ -137,7 +141,9 @@ void appendUnicodeEscape(u32 value, to ref StrBuf sb) {
 void appendTypes(in List<TypeSyntax> types, from ref Parser p, to ref StrBuf sb) {
     var first = true
     for t in types {
-        if !first { sb.append(", ") }
+        if !first {
+            sb.append(", ")
+        }
         first = false
         dumpType(in t, from: ref p, to: ref sb)
     }
@@ -160,7 +166,9 @@ bool allMapEntries(in List<Expr> elements) {
     var any = false
     for item in elements {
         any = true
-        unless item is .mapEntryExpr(_) { return false }
+        unless item is .mapEntryExpr(_) {
+            return false
+        }
     }
     return any
 }
@@ -187,17 +195,25 @@ void dumpBlockExpr(in Stmt block, from ref Parser p, to ref StrBuf sb) {
 void appendFlattened(string text, to ref StrBuf sb) {
     let t = text.bytes
     var end = t.length
-    while end > 0 && t[end - 1] == 0x0A { end -= 1 }
+    while end > 0 && t[end - 1] == 0x0A {
+        end -= 1
+    }
     var from: i64 = 0
     var first = true
     for i in 0..end + 1 {
         let atEnd = i == end
-        if !atEnd && t[i] != 0x0A { continue }
+        continue if !atEnd && t[i] != 0x0A
         var lo = from
         var hi = i
-        while lo < hi && (t[lo] == 0x20 || t[lo] == 0x09) { lo += 1 }
-        while hi > lo && (t[hi - 1] == 0x20 || t[hi - 1] == 0x09) { hi -= 1 }
-        unless first { sb.append("; ") }
+        while lo < hi && (t[lo] is 0x20 or 0x09) {
+            lo += 1
+        }
+        while hi > lo && (t[hi - 1] == 0x20 || t[hi - 1] == 0x09) {
+            hi -= 1
+        }
+        unless first {
+            sb.append("; ")
+        }
         first = false
         sb.append(text[lo..hi])
         from = i + 1
@@ -208,7 +224,9 @@ void appendFlattened(string text, to ref StrBuf sb) {
 void dumpType(in TypeSyntax t, from ref Parser p, to ref StrBuf sb) {
     switch t {
         case .namedType(let n):
-            if p.collectNames && n.value.path.length == 1 { p.collectedTypeNames.append(n.value.path[0]) }
+            if p.collectNames && n.value.path.length == 1 {
+                p.collectedTypeNames.append(n.value.path[0])
+            }
             if n.value.path.length == 1 && n.value.args.length == 0 {
                 let text = nameText(ref p, at: n.value.path[0])
                 let renamed = cSharpTypeName(text)
@@ -227,7 +245,9 @@ void dumpType(in TypeSyntax t, from ref Parser p, to ref StrBuf sb) {
                 } else {
                     var first = true
                     for path in n.value.path {
-                        if !first { sb.append(".") }
+                        if !first {
+                            sb.append(".")
+                        }
                         first = false
                         sb.append(nameText(ref p, at: path))
                     }
@@ -250,7 +270,9 @@ void dumpType(in TypeSyntax t, from ref Parser p, to ref StrBuf sb) {
             sb.append("(")
             var first = true
             for el in n.value.elements {
-                if !first { sb.append(", ") }
+                if !first {
+                    sb.append(", ")
+                }
                 first = false
                 dumpType(in el.type, from: ref p, to: ref sb)
                 if (el.name is { } nm) {
@@ -263,24 +285,34 @@ void dumpType(in TypeSyntax t, from ref Parser p, to ref StrBuf sb) {
             var paren = n.value.params.length != 1
             if !paren {
                 for tp in n.value.params {
-                    if tp is .tupleType(_) || tp is .functionTypeSyntax(_) { paren = true }
+                    if tp is .tupleType(_) || tp is .functionTypeSyntax(_) {
+                        paren = true
+                    }
                 }
             }
-            if paren { sb.append("(") }
+            if paren {
+                sb.append("(")
+            }
             var first = true
             for tp in n.value.params {
-                if !first { sb.append(", ") }
+                if !first {
+                    sb.append(", ")
+                }
                 first = false
                 dumpType(in tp, from: ref p, to: ref sb)
             }
-            if paren { sb.append(")") }
+            if paren {
+                sb.append(")")
+            }
             sb.append(" -> ")
             dumpType(in n.value.returnKeyword, from: ref p, to: ref sb)
             if (n.value.usesKeyword is { } u) {
                 sb.append(" uses ")
                 var firstU = true
                 for eff in u.effects {
-                    if !firstU { sb.append(", ") }
+                    if !firstU {
+                        sb.append(", ")
+                    }
                     firstU = false
                     sb.append(nameText(ref p, at: eff))
                 }
@@ -297,13 +329,17 @@ void dumpType(in TypeSyntax t, from ref Parser p, to ref StrBuf sb) {
             sb.append(" is ")
             var first = true
             for s in n.value.states {
-                if !first { sb.append(" or ") }
+                if !first {
+                    sb.append(" or ")
+                }
                 first = false
                 sb.append(".")
                 sb.append(nameText(ref p, at: s))
             }
         case .pointerType(let n):
-            if n.value.readOnly { sb.append("readonly ") }
+            if n.value.readOnly {
+                sb.append("readonly ")
+            }
             dumpType(in n.value.pointee, from: ref p, to: ref sb)
             sb.append("*")
         case .none:
@@ -325,7 +361,9 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
                     sb.append(quote(n.value.text))
                 default:
                     sb.append(n.value.text)
-                    if (n.value.suffix is { } s) { sb.append(nameText(ref p, at: s)) }
+                    if (n.value.suffix is { } s) {
+                        sb.append(nameText(ref p, at: s))
+                    }
             }
         case .interpolatedExpr(let n):
             sb.append("(interp")
@@ -343,7 +381,9 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
                                 // coverage-exempt: Q1145 through `spec.name is { } sn`
                                 if (spec.name is { } sn) {
                                     let text = nameText(ref p, at: sn)
-                                    sb.append(text == ":" ? (spec.value is .targetMemberExpr(_) ? "as" : "digits") : text)
+                                    sb.append(
+                                        text == ":" ? (spec.value is .targetMemberExpr(_) ? "as" : "digits") : text,
+                                    )
                                 }
                                 sb.append(": ")
                                 dumpExpr(in spec.value, from: ref p, to: ref sb)
@@ -366,7 +406,9 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
         case .thisExpr(_):
             sb.append("this")
         case .memberExpr(let n):
-            if p.collectNames && n.value.target is .nameExpr(let receiver) { p.collectedCalleeNames.append(receiver.value.name) }
+            if p.collectNames && n.value.target is .nameExpr(let receiver) {
+                p.collectedCalleeNames.append(receiver.value.name)
+            }
             sb.append(n.value.nullConditional ? "(?. " : "(. ")
             dumpExpr(in n.value.target, from: ref p, to: ref sb)
             sb.append(" ")
@@ -381,29 +423,35 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
             sb.append(".")
             sb.append(nameText(ref p, at: n.value.member))
         case .callExpr(let n):
-            if p.collectNames && n.value.callee is .nameExpr(let callee) { p.collectedCalleeNames.append(callee.value.name) }
+            if p.collectNames && n.value.callee is .nameExpr(let callee) {
+                p.collectedCalleeNames.append(callee.value.name)
+            }
             sb.append("(call ")
             dumpExpr(in n.value.callee, from: ref p, to: ref sb)
             for arg in n.value.args {
                 sb.append(" ")
                 let wrapped = arg.name is not null || arg.modifier != .none
-                if wrapped { sb.append("(") }
+                if wrapped {
+                    sb.append("(")
+                }
                 if (arg.name is { } an) {
                     sb.append(nameText(ref p, at: an))
                     sb.append(": ")
                 }
                 if arg.modifier != .none {
                     sb.append(arg.modifier switch {
-                        .refKeyword => "ref",
+                        .refKeyword  => "ref",
                         .moveKeyword => "move",
-                        .outKeyword => "out",
-                        .inKeyword => "in",
-                        _ => "",
+                        .outKeyword  => "out",
+                        .inKeyword   => "in",
+                        _            => "",
                     })
                     sb.append(" ")
                 }
                 dumpExpr(in arg.value, from: ref p, to: ref sb)
-                if wrapped { sb.append(")") }
+                if wrapped {
+                    sb.append(")")
+                }
             }
             if (n.value.becauseKeyword is { } bc) {
                 sb.append(" because ")
@@ -434,9 +482,17 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
             sb.append("(")
             sb.append(n.value.inclusive ? "..=" : "..")
             sb.append(" ")
-            if n.value.start is .none { sb.append("_") } else { dumpExpr(in n.value.start, from: ref p, to: ref sb) }
+            if n.value.start is .none {
+                sb.append("_")
+            } else {
+                dumpExpr(in n.value.start, from: ref p, to: ref sb)
+            }
             sb.append(" ")
-            if n.value.end is .none { sb.append("_") } else { dumpExpr(in n.value.end, from: ref p, to: ref sb) }
+            if n.value.end is .none {
+                sb.append("_")
+            } else {
+                dumpExpr(in n.value.end, from: ref p, to: ref sb)
+            }
             sb.append(")")
         case .inExpr(let n):
             sb.append("(in ")
@@ -543,7 +599,11 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
             }
         case .structLiteralExpr(let n):
             sb.append("(struct ")
-            if n.value.type is .none { sb.append("_") } else { dumpType(in n.value.type, from: ref p, to: ref sb) }
+            if n.value.type is .none {
+                sb.append("_")
+            } else {
+                dumpType(in n.value.type, from: ref p, to: ref sb)
+            }
             fieldInits(in n.value.fields, from: ref p, to: ref sb)
             sb.append(")")
         case .withExpr(let n):
@@ -592,7 +652,9 @@ void dumpExpr(in Expr e, from ref Parser p, to ref StrBuf sb) {
             sb.append("(lambda (")
             var first = true
             for pp in n.value.params {
-                if !first { sb.append(" ") }
+                if !first {
+                    sb.append(" ")
+                }
                 first = false
                 sb.append(nameText(ref p, at: pp))
             }
@@ -664,7 +726,9 @@ void dumpPattern(in Pattern pattern, from ref Parser p, to ref StrBuf sb) {
                 sb.append(" (")
                 var first = true
                 for path in sub.path {
-                    if !first { sb.append(".") }
+                    if !first {
+                        sb.append(".")
+                    }
                     first = false
                     sb.append(nameText(ref p, at: path))
                 }
@@ -720,7 +784,7 @@ void dumpPattern(in Pattern pattern, from ref Parser p, to ref StrBuf sb) {
     }
 }
 
-// ── T12 stand-ins (T15 deletes) ──
+// ── T12 stand-ins (T15 deletes) ──────────────────────────────────────────────
 // T11's `dump.byn` owns the `Stmt` switch, which `dumpExpr`'s `BlockExpr` flattens; until T11 lands
 // this stub lets the module build. T15 deletes this struct and drops the `` prefix.
 

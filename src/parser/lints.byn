@@ -19,10 +19,10 @@ public enum TypedLintCheck {
 /// The C# `TypedLint`: a lint the compilation confirms from every binding of the expression at `operand`; if it does not,
 /// it adds `otherwise` instead, when set.
 public struct TypedLint {
-    public Diagnostic lint
-    public TextSpan operand
+    public Diagnostic     lint
+    public TextSpan       operand
     public TypedLintCheck check
-    public Diagnostic? otherwise = null
+    public Diagnostic?    otherwise = null
 }
 
 /// The kind of a constant a pattern can hold (the C# `ConstantKind` char): `i`nteger, `c`har (rune), `s`tring or `e`num case.
@@ -36,41 +36,41 @@ public enum ConstKind {
 
 /// One test of a chain (the C# `PatternItem` tuple).
 public struct PatternItem {
-    public TextSpan operand
-    public string pattern
+    public TextSpan  operand
+    public string    pattern
     public ConstKind kind
-    public bool range
+    public bool      range
 }
 
 /// An `&&` or `||` (the C# `_logical` entry, with `next`), and what `lintPatterns` reads of it, taken when it is built: for
 /// `||`, the items of its flattened terms (`allItems` when every term is one) and the spans of its `&&` terms; for `&&`,
 /// its range item, if it is one. `child` is set when it is the left operand of the same operator.
 public struct LogicalSite {
-    public TextSpan span
-    public BinaryOp op
-    public i64 next
-    public bool child = false
-    public bool allItems = false
-    public List<PatternItem> items = List<PatternItem>()
-    public List<TextSpan> ranges = List<TextSpan>()
+    public TextSpan          span
+    public BinaryOp          op
+    public i64               next
+    public bool              child    = false
+    public bool              allItems = false
+    public List<PatternItem> items    = []
+    public List<TextSpan>    ranges   = []
 }
 
 /// A `_bindExits` entry: the `if` statement's span, its lint and narrowing lint, the bound name, and whether its hit block
 /// has a `defer` or `using` local (`declares`) or any local (`hasLocal`).
 public struct BindExit {
-    public TextSpan stmt
+    public TextSpan   stmt
     public Diagnostic exit
     public TypedLint? local
-    public string name
-    public bool declares
-    public bool hasLocal
+    public string     name
+    public bool       declares
+    public bool       hasLocal
 }
 
 /// The operand span and name of `X is { } k`, and whether `X` is a name without type arguments.
 public struct OptionalBind {
     public TextSpan value
-    public string name
-    public bool isName
+    public string   name
+    public bool     isName
 }
 
 bool sameSpan(TextSpan a, as TextSpan b) => a.start == b.start && a.length == b.length
@@ -80,13 +80,16 @@ bool isIndentByte(u8 b) => b == ' ' || b == '\t'
 
 /// Whether `bytes[at..at+3]` is `─` (U+2500, E2 94 80).
 bool isBoxDash(ref Parser p, at i64 at) =>
-    at >= 0 && at + 3 <= p.lexed.source.length && p.lexed.source.bytes[at] == 0xE2 && p.lexed.source.bytes[at + 1] == 0x94
-        && p.lexed.source.bytes[at + 2] == 0x80
+    at >= 0
+    && at + 3 <= p.lexed.source.length
+    && p.lexed.source.bytes[at] == 0xE2
+    && p.lexed.source.bytes[at + 1] == 0x94
+    && p.lexed.source.bytes[at + 2] == 0x80
 
 /// Whether the bytes of `span` hold `\n`.
 bool spansLine(ref Parser p, at TextSpan span) {
     for i in span.start..span.end {
-        if p.lexed.source.bytes[i] == '\n' { return true }
+        return true if p.lexed.source.bytes[i] == '\n'
     }
     return false
 }
@@ -98,36 +101,53 @@ public void lintBanners(ref Parser p) uses alloc {
     for line in 0..lines {
         let span = p.lexed.source.getLineSpan(line)
         var slash = span.start
-        while slash < span.end && isIndentByte(p.lexed.source.bytes[slash]) { slash += 1 }
+        while slash < span.end && isIndentByte(p.lexed.source.bytes[slash]) {
+            slash += 1
+        }
         // `// ── ` is 10 bytes: `//`, a space, two `─` and a space.
         if slash + 10 > span.end || p.lexed.source.bytes[slash] != '/' || p.lexed.source.bytes[slash + 1] != '/'
-            || p.lexed.source.bytes[slash + 2] != ' ' || !isBoxDash(ref p, at: slash + 3) || !isBoxDash(ref p, at: slash + 6)
-            || p.lexed.source.bytes[slash + 9] != ' ' {
+                || p.lexed.source.bytes[slash + 2] != ' '
+                || !isBoxDash(ref p, at: slash + 3)
+                || !isBoxDash(ref p, at: slash + 6)
+                || p.lexed.source.bytes[slash + 9] != ' ' {
             continue
         }
         var fill: i64 = 0
-        while isBoxDash(ref p, at: span.end - 3 * (fill + 1)) && span.end - 3 * (fill + 1) >= slash + 10 { fill += 1 }
+        while isBoxDash(ref p, at: span.end - 3 * (fill + 1)) && span.end - 3 * (fill + 1) >= slash + 10 {
+            fill += 1
+        }
         let titleStart = slash + 10
         let titleEnd = span.end - 3 * fill
-        if fill == 0 || titleEnd - titleStart < 2 || p.lexed.source.bytes[titleEnd - 1] != ' ' { continue }
+        continue if fill == 0 || titleEnd - titleStart < 2 || p.lexed.source.bytes[titleEnd - 1] != ' '
         // The title before its last space has no space of its own at either end, and does not end in `─`.
-        if isTriviaSpace(p.lexed.source.bytes[titleStart]) || isTriviaSpace(p.lexed.source.bytes[titleEnd - 2]) { continue }
-        if isBoxDash(ref p, at: titleEnd - 4) { continue }
+        continue if isTriviaSpace(p.lexed.source.bytes[titleStart]) || isTriviaSpace(p.lexed.source.bytes[titleEnd - 2])
+        continue if isBoxDash(ref p, at: titleEnd - 4)
         // A `//` inside a multi-line string is not a comment.
         let next = tokenAt(ref p, at: slash)
-        if next > 0 && p.lexed.tokens[next - 1].end > slash { continue }
+        continue if next > 0 && p.lexed.tokens[next - 1].end > slash
         var columns: i64 = 0
         for i in span.start..span.end {
-            if (p.lexed.source.bytes[i] & 0xC0) != 0x80 { columns += 1 }
+            if (p.lexed.source.bytes[i] & 0xC0) != 0x80 {
+                columns += 1
+            }
         }
         let want = bannerColumn - (columns - fill)
-        if columns == bannerColumn || want < 2 { continue }
+        continue if columns == bannerColumn || want < 2
         let fillSpan = TextSpan.fromBounds(titleEnd, until: span.end)
         var dashes = StrBuf()
-        for _ in 0..want { dashes.append("─") }
-        reportStyleLint(ref p, for: "BYN1077", at: fillSpan, by: $"a banner comment ends at column {columns}; fill it with `─` to column {bannerColumn}",
-            label: $"ends at column {columns}", help: $"fill it with `─` to column {bannerColumn}", fixSpan: fillSpan,
-            fixReplacement: $"{dashes.finish()}")
+        for _ in 0..want {
+            dashes.append("─")
+        }
+        reportStyleLint(
+            ref p,
+            for: "BYN1077",
+            at: fillSpan,
+            by: $"a banner comment ends at column {columns}; fill it with `─` to column {bannerColumn}",
+            label: $"ends at column {columns}",
+            help: $"fill it with `─` to column {bannerColumn}",
+            fixSpan: fillSpan,
+            fixReplacement: $"{dashes.finish()}",
+        )
     }
 }
 
@@ -185,7 +205,9 @@ void flattenOr(ref Parser p, for Expr x, to ref LogicalSite site) {
         site.allItems = false
     }
     let range = andSpan(x)
-    if range is not null { site.ranges.append(range) }
+    if range is not null {
+        site.ranges.append(range)
+    }
 }
 
 /// The span of `x` if it is an `&&`, inside any parentheses.
@@ -194,7 +216,7 @@ TextSpan? andSpan(Expr x) {
         case .parenExpr(let paren):
             return andSpan(paren.value.inner)
         case .binaryExpr(let b):
-            if b.value.op == .logicalAnd { return b.value.span }
+            return b.value.span if b.value.op == .logicalAnd
             return null
         default:
             return null
@@ -206,24 +228,39 @@ TextSpan? andSpan(Expr x) {
 public void lintPatterns(ref Parser p) uses alloc {
     var consumed = List<TextSpan>()
     for i in 0..p.logical.length {
-        if p.logical[i].op != .logicalOr || p.logical[i].child || !p.logical[i].allItems { continue }
-        unless lintPatternChain(ref p, at: i) { continue }
-        for r in p.logical[i].ranges { consumed.append(r) }
+        continue if p.logical[i].op != .logicalOr || p.logical[i].child || !p.logical[i].allItems
+        unless lintPatternChain(ref p, at: i) {
+            continue
+        }
+        for r in p.logical[i].ranges {
+            consumed.append(r)
+        }
     }
     for i in 0..p.logical.length {
-        if p.logical[i].op != .logicalAnd || p.logical[i].child || !p.logical[i].allItems { continue }
+        continue if p.logical[i].op != .logicalAnd || p.logical[i].child || !p.logical[i].allItems
         var taken = false
         for r in consumed {
-            if sameSpan(r, as: p.logical[i].span) { taken = true }
+            if sameSpan(r, as: p.logical[i].span) {
+                taken = true
+            }
         }
-        if !taken { let _ = lintPatternChain(ref p, at: i) }
+        if !taken {
+            let _ = lintPatternChain(ref p, at: i)
+        }
     }
 }
 
 /// Whether a token of `kind` after a chain ends it, so nothing after it joins the pattern.
 bool endsPattern(TokenKind kind) =>
-    kind == .closeParen || kind == .closeBracket || kind == .comma || kind == .openBrace || kind == .semicolon || kind == .closeBrace
-        || kind == .endOfFile || kind == .ampAmp || kind == .barBar
+    kind is .closeParen
+    or .closeBracket
+    or .comma
+    or .openBrace
+    or .semicolon
+    or .closeBrace
+    or .endOfFile
+    or .ampAmp
+    or .barBar
 
 /// Reports BYN1078 on the chain of `p.logical[site]` if its items test one operand with one kind of constant, distinct, and
 /// nothing after it joins the pattern.
@@ -231,7 +268,7 @@ bool endsPattern(TokenKind kind) =>
 bool lintPatternChain(ref Parser p, at i64 site) {
     let next = p.logical[site].next
     let after = p.lexed.tokens[next < p.count - 1 ? next : p.count - 1]
-    if !after.hasNewlineBefore && !endsPattern(after.kind) { return false }
+    return false if !after.hasNewlineBefore && !endsPattern(after.kind)
     let count = p.logical[site].items.length
     let operandSpan = p.logical[site].items[0].operand
     let operand = p.lexed.source.getText(operandSpan)
@@ -239,20 +276,30 @@ bool lintPatternChain(ref Parser p, at i64 site) {
     var tests: i64 = 0
     var patterns = StrBuf()
     for k in 0..count {
-        if p.lexed.source.getText(p.logical[site].items[k].operand) != operand || p.logical[site].items[k].kind != kind { return false }
+        return false if p.lexed.source.getText(p.logical[site].items[k].operand) != operand
+            || p.logical[site].items[k].kind != kind
         for j in 0..k {
-            if p.logical[site].items[j].pattern == p.logical[site].items[k].pattern { return false }
+            return false if p.logical[site].items[j].pattern == p.logical[site].items[k].pattern
         }
         tests += p.logical[site].items[k].range ? 2 : 1
-        if k > 0 { patterns.append(" or ") }
+        if k > 0 {
+            patterns.append(" or ")
+        }
         patterns.append(p.logical[site].items[k].pattern)
     }
     let check = kind == .integer ? TypedLintCheck.patternInteger : kind == .rune ? TypedLintCheck.patternRune
         : kind == .string ? TypedLintCheck.patternString : TypedLintCheck.patternEnum
     let pattern = $"{operand} is {patterns.finish()}"
     let span = p.logical[site].span
-    let lint = styleLintOf("BYN1078", at: span, by: $"`{operand}` is tested against constants {tests} times; write one pattern",
-        label: $"{tests} tests of `{operand}`", help: $"write `{pattern}`", fixSpan: span, fixReplacement: pattern)
+    let lint = styleLintOf(
+        "BYN1078",
+        at: span,
+        by: $"`{operand}` is tested against constants {tests} times; write one pattern",
+        label: $"{tests} tests of `{operand}`",
+        help: $"write `{pattern}`",
+        fixSpan: span,
+        fixReplacement: pattern,
+    )
     p.typedLints.append(TypedLint { lint: lint, operand: operandSpan, check: check })
     return true
 }
@@ -274,18 +321,27 @@ PatternItem? patternItem(ref Parser p, for Expr e, bool relational = false) {
 PatternItem? binaryPatternItem(ref Parser p, for BinaryExpr b, bool relational) {
     if b.op == .eq && isPathOperand(b.left) {
         let kind = constantKind(ref p, for: b.right)
-        if kind != .none {
-            return PatternItem { operand: exprSpan(in b.left), pattern: p.lexed.source.getText(exprSpan(in b.right)), kind: kind, range: false }
-        }
+        return PatternItem {
+            operand: exprSpan(in b.left),
+            pattern: p.lexed.source.getText(exprSpan(in b.right)),
+            kind: kind,
+            range: false,
+        } if kind != .none
     }
-    if relational && (b.op == .lt || b.op == .le || b.op == .gt || b.op == .ge) {
-        if isPathOperand(b.left) { return relationalItem(ref p, for: b.left, by: b.right, as: b.op) }
+    if relational && (b.op is .lt or .le or .gt or .ge) {
+        return relationalItem(ref p, for: b.left, by: b.right, as: b.op) if isPathOperand(b.left)
         let flipped = b.op == .lt ? BinaryOp.gt : b.op == .le ? BinaryOp.ge : b.op == .gt ? BinaryOp.lt : BinaryOp.le
         return relationalItem(ref p, for: b.right, by: b.left, as: flipped)
     }
-    if b.op == .logicalAnd && b.left is .binaryExpr(let ge) && ge.value.op == .ge && b.right is .binaryExpr(let le) && le.value.op == .le
-        && isPathOperand(ge.value.left)
-        && p.lexed.source.getText(exprSpan(in ge.value.left)) == p.lexed.source.getText(exprSpan(in le.value.left)) {
+    if b.op == .logicalAnd
+            && b.left is .binaryExpr(let ge)
+            && ge.value.op == .ge
+            && b.right is .binaryExpr(let le)
+            && le.value.op == .le
+            && isPathOperand(ge.value.left)
+            && p.lexed.source.getText(
+                exprSpan(in ge.value.left),
+            ) == p.lexed.source.getText(exprSpan(in le.value.left)) {
         let lo = rangeBound(ref p, for: ge.value.right)
         let hi = rangeBound(ref p, for: le.value.right)
         if lo is not null && hi is not null && lo.kind == hi.kind && boundAtMost(lo, to: hi) {
@@ -299,10 +355,17 @@ PatternItem? binaryPatternItem(ref Parser p, for BinaryExpr b, bool relational) 
 /// `operand op bound` as a relational item, if `operand` is a path and `bound` a range bound.
 PatternItem? relationalItem(ref Parser p, for Expr operand, by Expr bound, as BinaryOp op) {
     let text = op == .lt ? "<" : op == .le ? "<=" : op == .gt ? ">" : ">="
-    unless isPathOperand(operand) { return null }
+    unless isPathOperand(operand) {
+        return null
+    }
     let b = rangeBound(ref p, for: bound)
-    if b is null { return null }
-    return PatternItem { operand: exprSpan(in operand), pattern: $"{text} {p.lexed.source.getText(exprSpan(in bound))}", kind: b.kind, range: false }
+    return null if b is null
+    return PatternItem {
+        operand: exprSpan(in operand),
+        pattern: $"{text} {p.lexed.source.getText(exprSpan(in bound))}",
+        kind: b.kind,
+        range: false,
+    }
 }
 
 /// A name, a field path or an index path whose indexes are names or literals: reading it twice reads the same value.
@@ -312,13 +375,13 @@ bool isPathOperand(Expr e) {
         case .nameExpr(let n):
             return n.value.typeArgs.length == 0
         case .memberExpr(let m):
-            if m.value.nullConditional || m.value.typeArgs.length != 0 { return false }
-            if m.value.target is .thisExpr(_) { return true }
+            return false if m.value.nullConditional || m.value.typeArgs.length != 0
+            return true if m.value.target is .thisExpr(_)
             return isPathOperand(m.value.target)
         case .indexExpr(let i):
             switch i.value.index {
                 case .nameExpr(let n):
-                    if n.value.typeArgs.length != 0 { return false }
+                    return false if n.value.typeArgs.length != 0
                 case .literalExpr(_):
                     let _ = 0
                 default:
@@ -335,16 +398,16 @@ bool isPathOperand(Expr e) {
 ConstKind constantKind(ref Parser p, for Expr e) {
     switch e {
         case .literalExpr(let l):
-            if l.value.suffix is not null { return .none }
-            if l.value.kind == .integer { return .integer }
-            if l.value.kind == .char { return .rune }
+            return .none if l.value.suffix is not null
+            return .integer if l.value.kind == .integer
+            return .rune if l.value.kind == .char
             if l.value.kind == .string {
                 let t = p.lexed.source.getText(l.value.span)
-                if t.startsWith("\"") && !t.startsWith("\"\"\"") { return .string }
+                return .string if t.startsWith("\"") && !t.startsWith("\"\"\"")
             }
             return .none
         case .unaryExpr(let u):
-            if u.value.op == .negate && isPlainInteger(u.value.operand) { return .integer }
+            return .integer if u.value.op == .negate && isPlainInteger(u.value.operand)
             return .none
         case .targetMemberExpr(_):
             return .enumCase
@@ -366,16 +429,16 @@ bool isPlainInteger(Expr e) {
 /// The value of a range bound (the C# `(char Kind, Int128 Value)`): the magnitude in four 32-bit limbs, low first.
 public struct Bound {
     public ConstKind kind
-    public bool negative
-    public u64 l0
-    public u64 l1
-    public u64 l2
-    public u64 l3
+    public bool      negative
+    public u64       l0
+    public u64       l1
+    public u64       l2
+    public u64       l3
 }
 
 /// Whether `a` is at most `b`, both of one kind.
 bool boundAtMost(Bound a, to Bound b) {
-    if a.negative != b.negative { return a.negative }
+    return a.negative if a.negative != b.negative
     var order: i64 = 0
     if a.l3 != b.l3 {
         order = a.l3 < b.l3 ? -1 : 1
@@ -394,29 +457,33 @@ bool boundAtMost(Bound a, to Bound b) {
 Bound? rangeBound(ref Parser p, for Expr e) {
     switch e {
         case .unaryExpr(let u):
-            if u.value.op != .negate { return null }
+            return null if u.value.op != .negate
             switch u.value.operand {
                 case .literalExpr(let l):
-                    if l.value.kind != .integer || l.value.suffix is not null { return null }
+                    return null if l.value.kind != .integer || l.value.suffix is not null
                     let v = integerValue(ref p, at: l.value.span)
-                    if v is null { return null }
+                    return null if v is null
                     let zero = v.l0 == 0 && v.l1 == 0 && v.l2 == 0 && v.l3 == 0
                     return Bound { kind: .integer, negative: !zero, l0: v.l0, l1: v.l1, l2: v.l2, l3: v.l3 }
                 default:
                     return null
             }
         case .literalExpr(let l):
-            if l.value.suffix is not null { return null }
-            if l.value.kind == .integer { return integerValue(ref p, at: l.value.span) }
-            if l.value.kind != .char { return null }
+            return null if l.value.suffix is not null
+            return integerValue(ref p, at: l.value.span) if l.value.kind == .integer
+            return null if l.value.kind != .char
             let s = l.value.span
-            if s.length < 2 || p.lexed.source.bytes[s.start] != '\'' || p.lexed.source.bytes[s.end - 1] != '\'' { return null }
+            return null if s.length < 2
+                || p.lexed.source.bytes[s.start] != '\''
+                || p.lexed.source.bytes[s.end - 1] != '\''
             var runes: i64 = 0
             for i in (s.start + 1)..(s.end - 1) {
-                if p.lexed.source.bytes[i] == '\\' { return null }
-                if (p.lexed.source.bytes[i] & 0xC0) != 0x80 { runes += 1 }
+                return null if p.lexed.source.bytes[i] == '\\'
+                if (p.lexed.source.bytes[i] & 0xC0) != 0x80 {
+                    runes += 1
+                }
             }
-            if runes != 1 { return null }
+            return null if runes != 1
             return Bound { kind: .rune, negative: false, l0: scalarAt(ref p, at: s.start + 1), l1: 0, l2: 0, l3: 0 }
         default:
             return null
@@ -426,11 +493,11 @@ Bound? rangeBound(ref Parser p, for Expr e) {
 /// The scalar of the UTF-8 sequence at `at`.
 u64 scalarAt(ref Parser p, at i64 at) {
     let b0 = u64(p.lexed.source.bytes[at])
-    if b0 < 0x80 { return b0 }
-    if b0 < 0xE0 { return ((b0 & 0x1F) << 6) | (u64(p.lexed.source.bytes[at + 1]) & 0x3F) }
-    if b0 < 0xF0 {
-        return ((b0 & 0x0F) << 12) | ((u64(p.lexed.source.bytes[at + 1]) & 0x3F) << 6) | (u64(p.lexed.source.bytes[at + 2]) & 0x3F)
-    }
+    return b0 if b0 < 0x80
+    return ((b0 & 0x1F) << 6) | (u64(p.lexed.source.bytes[at + 1]) & 0x3F) if b0 < 0xE0
+    return (
+        (b0 & 0x0F) << 12
+    ) | ((u64(p.lexed.source.bytes[at + 1]) & 0x3F) << 6) | (u64(p.lexed.source.bytes[at + 2]) & 0x3F) if b0 < 0xF0
     let high = ((b0 & 0x07) << 18) | ((u64(p.lexed.source.bytes[at + 1]) & 0x3F) << 12)
     return high | ((u64(p.lexed.source.bytes[at + 2]) & 0x3F) << 6) | (u64(p.lexed.source.bytes[at + 3]) & 0x3F)
 }
@@ -440,7 +507,9 @@ u64 scalarAt(ref Parser p, at i64 at) {
 Bound? integerValue(ref Parser p, at TextSpan span) {
     var digits = List<u8>()
     for i in span.start..span.end {
-        if p.lexed.source.bytes[i] != '_' { digits.append(p.lexed.source.bytes[i]) }
+        if p.lexed.source.bytes[i] != '_' {
+            digits.append(p.lexed.source.bytes[i])
+        }
     }
     var radix: u64 = 10
     var from: i64 = 0
@@ -453,10 +522,12 @@ Bound? integerValue(ref Parser p, at TextSpan span) {
         } else if b == 'b' || b == 'B' {
             radix = 2
         }
-        if radix != 10 { from = 2 }
+        if radix != 10 {
+            from = 2
+        }
     }
     let length = digits.length - from
-    if length == 0 || length > 30 { return null }
+    return null if length is 0 or > 30
     var v = Bound { kind: .integer, negative: false, l0: 0, l1: 0, l2: 0, l3: 0 }
     for k in from..digits.length {
         let c = digits[k]
@@ -468,7 +539,7 @@ Bound? integerValue(ref Parser p, at TextSpan span) {
         } else if c >= 'A' && c <= 'F' {
             d = u64(c - 'A') + 10
         }
-        if d >= radix { return null }
+        return null if d >= radix
         let n0 = v.l0 * radix + d
         v.l0 = n0 & 0xFFFFFFFF
         let n1 = v.l1 * radix + (n0 >> 32)
@@ -489,27 +560,37 @@ void lintEmptyLiteral(ref Parser p, for TypeSyntax type, by Expr init) {
     var empty = ""
     switch init {
         case .callExpr(let call):
-            if call.value.args.length != 0 || call.value.becauseKeyword is not null { return }
+            return if call.value.args.length != 0 || call.value.becauseKeyword is not null
             switch call.value.callee {
                 case .nameExpr(let callee):
                     let name = p.lexed.source.getText(callee.value.name)
-                    if callee.value.typeArgs.length == 0 || name != "List" && name != "Map" { return }
+                    return if callee.value.typeArgs.length == 0 || name != "List" && name != "Map"
                     spelled = callee.value.span
                     empty = "[]"
                 default:
                     return
             }
         case .structLiteralExpr(let s):
-            if s.value.type is .none || s.value.fields.length != 0 { return }
+            return if s.value.type is .none || s.value.fields.length != 0
             spelled = typeSpan(in s.value.type)
             empty = "{}"
         default:
             return
     }
-    unless sameSqueezed(ref p, from: spelled, as: typeSpan(in type)) { return }
+    unless sameSqueezed(ref p, from: spelled, as: typeSpan(in type)) {
+        return
+    }
     let span = exprSpan(in init)
-    reportStyleLint(ref p, for: "BYN1079", at: span, by: $"the type is known from the target; write `{empty}`", label: "spells out the declared type",
-        help: $"write `{empty}`", fixSpan: span, fixReplacement: empty)
+    reportStyleLint(
+        ref p,
+        for: "BYN1079",
+        at: span,
+        by: $"the type is known from the target; write `{empty}`",
+        label: "spells out the declared type",
+        help: $"write `{empty}`",
+        fixSpan: span,
+        fixReplacement: empty,
+    )
 }
 
 /// Whether the texts of `a` and `b` are the same without their whitespace.
@@ -518,10 +599,14 @@ bool sameSqueezed(ref Parser p, from TextSpan a, as TextSpan b) {
     var i = a.start
     var j = b.start
     while true {
-        while i < a.end && isTriviaSpace(p.lexed.source.bytes[i]) { i += 1 }
-        while j < b.end && isTriviaSpace(p.lexed.source.bytes[j]) { j += 1 }
-        if i == a.end || j == b.end { return i == a.end && j == b.end }
-        if p.lexed.source.bytes[i] != p.lexed.source.bytes[j] { return false }
+        while i < a.end && isTriviaSpace(p.lexed.source.bytes[i]) {
+            i += 1
+        }
+        while j < b.end && isTriviaSpace(p.lexed.source.bytes[j]) {
+            j += 1
+        }
+        return i == a.end && j == b.end if i == a.end || j == b.end
+        return false if p.lexed.source.bytes[i] != p.lexed.source.bytes[j]
         i += 1
         j += 1
     }
@@ -530,7 +615,8 @@ bool sameSqueezed(ref Parser p, from TextSpan a, as TextSpan b) {
 // ── BYN1080 optionals.bind ───────────────────────────────────────────────────
 
 /// The BYN1080 message for `X is { } k`, with `reason`.
-string optionalsBindMessage(string x, by string name, for string reason) => $"`{x} is {{ }} {name}` binds an optional with a pattern; {reason}"
+string optionalsBindMessage(string x, by string name, for string reason) =>
+    $"`{x} is {{ }} {name}` binds an optional with a pattern; {reason}"
 
 /// The operand and name of `X is { } k`.
 // Parser.cs: OptionalBinding
@@ -539,12 +625,18 @@ OptionalBind? optionalBinding(ref Parser p, for Expr condition) {
         case .isExpr(let i):
             switch i.value.pattern {
                 case .propertyPattern(let pp):
-                    if !(pp.value.type is .none) || pp.value.properties.length != 0 { return null }
+                    return null if !(pp.value.type is .none) || pp.value.properties.length != 0
                     let k = pp.value.designation
-                    if k is null { return null }
+                    return null if k is null
                     var isName = false
-                    if i.value.value is .nameExpr(let n) && n.value.typeArgs.length == 0 { isName = true }
-                    return OptionalBind { value: exprSpan(in i.value.value), name: p.lexed.source.getText(k), isName: isName }
+                    if i.value.value is .nameExpr(let n) && n.value.typeArgs.length == 0 {
+                        isName = true
+                    }
+                    return OptionalBind {
+                        value: exprSpan(in i.value.value),
+                        name: p.lexed.source.getText(k),
+                        isName: isName,
+                    }
                 default:
                     return null
             }
@@ -555,48 +647,97 @@ OptionalBind? optionalBinding(ref Parser p, for Expr condition) {
 
 /// BYN1080 on `while (X is { } k)`; the fix writes `while let k = X`.
 // Parser.cs: LintWhileBind
-void lintWhileBind(ref Parser p, at Token keyword, for Expr condition, by Stmt body, until i64 conditionEnd, bool parenthesized) {
-    if !parenthesized || !isBlockStmt(in body) { return }
+void lintWhileBind(
+    ref Parser p,
+    at Token keyword,
+    for Expr condition,
+    by Stmt body,
+    until i64 conditionEnd,
+    bool parenthesized
+) {
+    return if !parenthesized || !isBlockStmt(in body)
     let bind = optionalBinding(ref p, for: condition)
-    if bind is null { return }
+    return if bind is null
     let x = p.lexed.source.getText(bind.value)
     // `while let` takes a bare value, which ends at `{`.
-    if x.contains("{") || x.contains("\n") { return }
+    return if x.contains("{") || x.contains("\n")
     let span = TextSpan.fromBounds(keyword.start, until: conditionEnd)
     let fixedText = $"while let {bind.name} = {x}"
-    reportStyleLint(ref p, for: "BYN1080", at: span, by: optionalsBindMessage(x, by: bind.name, for: "write `while let`"),
-        label: "binds with a pattern", help: $"write `{fixedText}`", fixSpan: span, fixReplacement: fixedText)
+    reportStyleLint(
+        ref p,
+        for: "BYN1080",
+        at: span,
+        by: optionalsBindMessage(x, by: bind.name, for: "write `while let`"),
+        label: "binds with a pattern",
+        help: $"write `{fixedText}`",
+        fixSpan: span,
+        fixReplacement: fixedText,
+    )
 }
 
 /// BYN1080 on `if (X is { } k)`: on a `let` local or parameter the fix tests `X is not null` and reads `X` (confirmed by the
 /// compilation); where the miss leaves, it binds `let k = X ?? exit` (decided by the block). `span` is the `if` statement's.
 // Parser.cs: LintIfBind
 /// `conditionSpan` runs from the condition's first token to its end.
-void lintIfBind(ref Parser p, at TextSpan span, for Expr condition, by Stmt then, from Stmt otherwise, as Likelihood likelihood,
-    through TextSpan conditionSpan, bool parenthesized, bool elseIf) {
-    if !parenthesized || likelihood != .none { return }
+void lintIfBind(
+    ref Parser p,
+    at TextSpan span,
+    for Expr condition,
+    by Stmt then,
+    from Stmt otherwise,
+    as Likelihood likelihood,
+    through TextSpan conditionSpan,
+    bool parenthesized,
+    bool elseIf
+) {
+    return if !parenthesized || likelihood != .none
     switch otherwise {
         case .blockStmt(_) or .ifStmt(_):
             let _ = 0
         default:
-            unless otherwise is .none { return }
+            unless otherwise is .none {
+                return
+            }
     }
     switch then {
         case .blockStmt(let block):
-            lintIfBindBlock(ref p, at: span, for: condition, by: block.value, from: otherwise, through: conditionSpan, elseIf: elseIf)
+            lintIfBindBlock(
+                ref p,
+                at: span,
+                for: condition,
+                by: block.value,
+                from: otherwise,
+                through: conditionSpan,
+                elseIf: elseIf,
+            )
         default:
             return
     }
 }
 
-void lintIfBindBlock(ref Parser p, at TextSpan span, for Expr condition, by BlockStmt then, from Stmt otherwise,
-    through TextSpan conditionSpan, bool elseIf) {
+void lintIfBindBlock(
+    ref Parser p,
+    at TextSpan span,
+    for Expr condition,
+    by BlockStmt then,
+    from Stmt otherwise,
+    through TextSpan conditionSpan,
+    bool elseIf
+) {
     let bind = optionalBinding(ref p, for: condition)
-    if bind is null { return }
+    return if bind is null
     let x = p.lexed.source.getText(bind.value)
-    if x.contains("\n") { return }
+    return if x.contains("\n")
     let local = narrowLint(ref p, for: then, by: bind, through: conditionSpan)
-    let exit = exitBindLint(ref p, at: span, for: then, from: otherwise, by: bind, through: conditionSpan, elseIf: elseIf)
+    let exit = exitBindLint(
+        ref p,
+        at: span,
+        for: then,
+        from: otherwise,
+        by: bind,
+        through: conditionSpan,
+        elseIf: elseIf,
+    )
     if exit is not null {
         var declares = false
         var hasLocal = false
@@ -606,12 +747,16 @@ void lintIfBindBlock(ref Parser p, at TextSpan span, for Expr condition, by Bloc
                     declares = true
                 case .localDecl(let l):
                     hasLocal = true
-                    if l.value.usingKeyword { declares = true }
+                    if l.value.usingKeyword {
+                        declares = true
+                    }
                 default:
                     continue
             }
         }
-        p.bindExits.append(BindExit { stmt: span, exit: exit, local: local, name: bind.name, declares: declares, hasLocal: hasLocal })
+        p.bindExits.append(
+            BindExit { stmt: span, exit: exit, local: local, name: bind.name, declares: declares, hasLocal: hasLocal },
+        )
     } else if local is not null {
         p.typedLints.append(local)
     }
@@ -621,7 +766,9 @@ void lintIfBindBlock(ref Parser p, at TextSpan span, for Expr condition, by Bloc
 /// is a name.
 // Parser.cs: NarrowLint
 TypedLint? narrowLint(ref Parser p, for BlockStmt then, by OptionalBind bind, through TextSpan conditionSpan) {
-    unless bind.isName { return null }
+    unless bind.isName {
+        return null
+    }
     let x = p.lexed.source.getText(bind.value)
     let conditionStart = conditionSpan.start
     let conditionEnd = conditionSpan.end
@@ -631,12 +778,14 @@ TypedLint? narrowLint(ref Parser p, for BlockStmt then, by OptionalBind bind, th
     while i < p.count && p.lexed.tokens[i].start < then.span.end {
         let t = p.lexed.tokens[i]
         // A lambda may not see the narrowing.
-        if t.kind == .fatArrow { return null }
+        return null if t.kind == .fatArrow
         if t.kind == .identifier && p.textOf(t) == bind.name {
             let before = p.kindAt(i - 1)
-            if before == .dot || before == .refKeyword || before == .inKeyword || before == .outKeyword || p.kindAt(i + 1) == .colon {
-                return null
-            }
+            return null if before == .dot
+                || before == .refKeyword
+                || before == .inKeyword
+                || before == .outKeyword
+                || p.kindAt(i + 1) == .colon
             body.append(p.lexed.source.getText(TextSpan.fromBounds(from, until: t.start)))
             body.append(x)
             from = t.end
@@ -647,10 +796,15 @@ TypedLint? narrowLint(ref Parser p, for BlockStmt then, by OptionalBind bind, th
     let open = p.lexed.tokens[tokenAt(ref p, at: conditionStart)]
     let lead = open.hasTriviaBefore ? "" : " "
     let head = $"{lead}{x} is not null{p.lexed.source.getText(TextSpan.fromBounds(conditionEnd, until: then.span.start))}"
-    let lint = styleLintOf("BYN1080", at: TextSpan.fromBounds(conditionStart, until: conditionEnd),
-        by: optionalsBindMessage(x, by: bind.name, for: $"`{x} is not null` narrows `{x}`"), label: "binds a second name",
-        help: $"write `if {x} is not null` and read `{x}`", fixSpan: TextSpan.fromBounds(conditionStart, until: then.span.end),
-        fixReplacement: $"{head}{body.finish()}")
+    let lint = styleLintOf(
+        "BYN1080",
+        at: TextSpan.fromBounds(conditionStart, until: conditionEnd),
+        by: optionalsBindMessage(x, by: bind.name, for: $"`{x} is not null` narrows `{x}`"),
+        label: "binds a second name",
+        help: $"write `if {x} is not null` and read `{x}`",
+        fixSpan: TextSpan.fromBounds(conditionStart, until: then.span.end),
+        fixReplacement: $"{head}{body.finish()}",
+    )
     return TypedLint { lint: lint, operand: bind.value, check: .narrowableLocal }
 }
 
@@ -669,9 +823,16 @@ bool isSimpleReturn(Expr value) {
 /// The `let k = X ?? exit` rewrite of an `if` whose `else` block is one bare exit; the hit block moves up a level. Null for
 /// an `else if`.
 // Parser.cs: ExitBindLint
-Diagnostic? exitBindLint(ref Parser p, at TextSpan span, for BlockStmt then, from Stmt otherwise, by OptionalBind bind,
-    through TextSpan conditionSpan, bool elseIf) {
-    if elseIf { return null }
+Diagnostic? exitBindLint(
+    ref Parser p,
+    at TextSpan span,
+    for BlockStmt then,
+    from Stmt otherwise,
+    by OptionalBind bind,
+    through TextSpan conditionSpan,
+    bool elseIf
+) {
+    return null if elseIf
     switch otherwise {
         case .blockStmt(let block):
             return exitBindBlock(ref p, at: span, for: then, from: block.value, by: bind, through: conditionSpan)
@@ -680,51 +841,73 @@ Diagnostic? exitBindLint(ref Parser p, at TextSpan span, for BlockStmt then, fro
     }
 }
 
-Diagnostic? exitBindBlock(ref Parser p, at TextSpan span, for BlockStmt then, from BlockStmt otherwise, by OptionalBind bind,
-    through TextSpan conditionSpan) {
+Diagnostic? exitBindBlock(
+    ref Parser p,
+    at TextSpan span,
+    for BlockStmt then,
+    from BlockStmt otherwise,
+    by OptionalBind bind,
+    through TextSpan conditionSpan
+) {
     let x = p.lexed.source.getText(bind.value)
     let name = bind.name
-    if otherwise.statements.length != 1 || otherwise.span.length < 2 { return null }
+    return null if otherwise.statements.length != 1 || otherwise.span.length < 2
     var jump = ""
     var simple = false
     switch otherwise.statements[0] {
         case .returnStmt(let r):
             simple = isSimpleReturn(r.value.value)
         case .breakStmt(let b):
-            if b.value.label is not null { return null }
+            return null if b.value.label is not null
             jump = "break"
         case .continueStmt(let c):
-            if c.value.label is not null { return null }
+            return null if c.value.label is not null
             jump = "continue"
         default:
             return null
     }
     var from = otherwise.span.start + 1
     var to = otherwise.span.end - 1
-    while from < to && isTriviaSpace(p.lexed.source.bytes[from]) { from += 1 }
-    while to > from && isTriviaSpace(p.lexed.source.bytes[to - 1]) { to -= 1 }
+    while from < to && isTriviaSpace(p.lexed.source.bytes[from]) {
+        from += 1
+    }
+    while to > from && isTriviaSpace(p.lexed.source.bytes[to - 1]) {
+        to -= 1
+    }
     let exit = p.lexed.source.getText(TextSpan.fromBounds(from, until: to))
-    if exit.contains("\n") || exit.contains("/") || exit.contains(";") { return null }
-    if jump != "" && exit != jump { return null }
-    if jump != "" { simple = true }
+    return null if exit.contains("\n") || exit.contains("/") || exit.contains(";")
+    return null if jump != "" && exit != jump
+    if jump != "" {
+        simple = true
+    }
     let lineStart = p.lexed.source.getLineSpan(p.lexed.source.getLineIndex(span.start)).start
     for i in lineStart..span.start {
-        unless isIndentByte(p.lexed.source.bytes[i]) { return null }
+        unless isIndentByte(p.lexed.source.bytes[i]) {
+            return null
+        }
     }
     let indent = p.lexed.source.getText(TextSpan.fromBounds(lineStart, until: span.start))
     let body = dedentedBody(ref p, for: then, at: indent)
-    if body is null { return null }
+    return null if body is null
     let head = simple ? $"let {name} = {x} ?? {exit}" : $"let {name} = {x}\n{indent}{exit} if {name} is null"
     let help = simple ? $"write `{head}`" : $"write `let {name} = {x}` and `{exit} if {name} is null`"
-    return styleLintOf("BYN1080", at: conditionSpan,
-        by: optionalsBindMessage(x, by: name, for: "the miss leaves, so a `let` can bind it"), label: "binds with a pattern", help: help,
-        fixSpan: span, fixReplacement: $"{head}\n{body}")
+    return styleLintOf(
+        "BYN1080",
+        at: conditionSpan,
+        by: optionalsBindMessage(x, by: name, for: "the miss leaves, so a `let` can bind it"),
+        label: "binds with a pattern",
+        help: help,
+        fixSpan: span,
+        fixReplacement: $"{head}\n{body}",
+    )
 }
 
 /// Whether the bytes of `from..to` are all spaces, tabs or line breaks.
 bool isBlank(ref Parser p, from i64 from, to i64 to) {
     for i in from..to {
-        unless isTriviaSpace(p.lexed.source.bytes[i]) { return false }
+        unless isTriviaSpace(p.lexed.source.bytes[i]) {
+            return false
+        }
     }
     return true
 }
@@ -734,40 +917,52 @@ bool isBlank(ref Parser p, from i64 from, to i64 to) {
 string? dedentedBody(ref Parser p, for BlockStmt block, at string indent) {
     var t = tokenAt(ref p, at: block.span.start)
     while t < p.count && p.lexed.tokens[t].start < block.span.end {
-        if spansLine(ref p, at: spanOf(p.lexed.tokens[t])) { return null }
+        return null if spansLine(ref p, at: spanOf(p.lexed.tokens[t]))
         t += 1
     }
-    if block.span.length < 2 { return null }
+    return null if block.span.length < 2
     let start = block.span.start + 1
     let end = block.span.end - 1
     var breaks = List<i64>()
     for i in start..end {
-        if p.lexed.source.bytes[i] == '\r' { return null }
-        if p.lexed.source.bytes[i] == '\n' { breaks.append(i) }
+        return null if p.lexed.source.bytes[i] == '\r'
+        if p.lexed.source.bytes[i] == '\n' {
+            breaks.append(i)
+        }
     }
     if breaks.length == 0 {
         var from = start
         var to = end
-        while from < to && isTriviaSpace(p.lexed.source.bytes[from]) { from += 1 }
-        while to > from && isTriviaSpace(p.lexed.source.bytes[to - 1]) { to -= 1 }
-        if from == to { return null }
+        while from < to && isTriviaSpace(p.lexed.source.bytes[from]) {
+            from += 1
+        }
+        while to > from && isTriviaSpace(p.lexed.source.bytes[to - 1]) {
+            to -= 1
+        }
+        return null if from == to
         return $"{indent}{p.lexed.source.getText(TextSpan.fromBounds(from, until: to))}"
     }
-    unless isBlank(ref p, from: start, to: breaks[0]) { return null }
-    if p.lexed.source.getText(TextSpan.fromBounds(breaks[breaks.length - 1] + 1, until: end)) != indent { return null }
+    unless isBlank(ref p, from: start, to: breaks[0]) {
+        return null
+    }
+    return null if p.lexed.source.getText(TextSpan.fromBounds(breaks[breaks.length - 1] + 1, until: end)) != indent
     let deeper = $"{indent}    "
     var body = StrBuf()
     for k in 0..(breaks.length - 1) {
         let lineStart = breaks[k] + 1
         let lineEnd = breaks[k + 1]
-        if k > 0 { body.append("\n") }
-        if isBlank(ref p, from: lineStart, to: lineEnd) { continue }
+        if k > 0 {
+            body.append("\n")
+        }
+        continue if isBlank(ref p, from: lineStart, to: lineEnd)
         let line = p.lexed.source.getText(TextSpan.fromBounds(lineStart, until: lineEnd))
-        unless line.startsWith(deeper) { return null }
+        unless line.startsWith(deeper) {
+            return null
+        }
         body.append(indent)
         body.append(p.lexed.source.getText(TextSpan.fromBounds(lineStart + deeper.length, until: lineEnd)))
     }
-    if breaks.length < 2 { return null }
+    return null if breaks.length < 2
     return $"{body.finish()}"
 }
 
@@ -791,7 +986,7 @@ void lintBindExits(ref Parser p, for List<Stmt> statements) {
                 break
             }
         }
-        if found == -1 { continue }
+        continue if found == -1
         let site = p.bindExits[found]
         p.bindExits.remove(at: found)
         let outlives = site.declares || i < last && site.hasLocal
@@ -800,7 +995,9 @@ void lintBindExits(ref Parser p, for List<Stmt> statements) {
             let end = stmtSpan(in statements[last]).end
             var t = tokenAt(ref p, at: span.end)
             while t < p.count && p.lexed.tokens[t].start < end {
-                if p.lexed.tokens[t].kind == .identifier && p.textOf(p.lexed.tokens[t]) == site.name { named = true }
+                if p.lexed.tokens[t].kind == .identifier && p.textOf(p.lexed.tokens[t]) == site.name {
+                    named = true
+                }
                 t += 1
             }
         }

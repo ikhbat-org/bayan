@@ -14,7 +14,10 @@ struct T6Pending {
 /// Format.cs:183 `IsSkippedDirectory`: dot-directories and `node_modules` or `obj` anywhere, `bin`, `dist` and `tmp` only directly under the walk root.
 bool t6IsSkippedDirectory(string name, bool atRoot) =>
     name.startsWith(".") || name.equals("node_modules", as: .caseless) || name.equals("obj", as: .caseless)
-        || (atRoot && (name.equals("bin", as: .caseless) || name.equals("dist", as: .caseless) || name.equals("tmp", as: .caseless)))
+    || (atRoot
+        && (name.equals("bin", as: .caseless)
+            || name.equals("dist", as: .caseless)
+            || name.equals("tmp", as: .caseless)))
 
 /// Format.cs:121-122 `Inside`: `real` is `within` or lies under it; every path is inside without a bound. The separator is
 /// `Path.DirectorySeparatorChar`, and `Path.EndsInDirectorySeparator` takes `/` or `\` on Windows and `/` elsewhere.
@@ -31,9 +34,9 @@ bool t6Inside(string real, by string? within) {
 /// (ASCII letters only here, Q1106).
 bool t6IsByn(string name) {
     // coverage-exempt: Q1106 through `return name.endsWith(".byn")`
-    if Target.os == "linux" { return name.endsWith(".byn") }
+    return name.endsWith(".byn") if Target.os == "linux"
     let n = name.length
-    if n < 4 { return false }
+    return false if n < 4
     let b = name.bytes
     return b[n - 4] == 0x2e && (b[n - 3] | 0x20) == 0x62 && (b[n - 2] | 0x20) == 0x79 && (b[n - 1] | 0x20) == 0x6e
 }
@@ -45,7 +48,8 @@ string realPath(string path) uses alloc, fs fails IoError => try Fs.realPath(pat
 /// Format.cs:119 `BynFiles`: every `.byn` file under `dir`. A directory that cannot be listed is reported to stderr (not when `silent`, the
 /// `TextWriter.Null` of `PackageNames`), sets `exit` to 1, and is skipped. With `within`, a file or directory whose real path lies outside it is
 /// neither listed nor entered.
-List<string> bynFiles(string dir, through ref i32 exit, by string? within = null, for bool silent = false) uses alloc, console, fs {
+List<string> bynFiles(string dir, through ref i32 exit, by string? within = null, for bool silent = false)
+        uses alloc, console, fs {
     var files = List<string>()
     var seenFiles: Map<string, bool> = []
     var seenDirs: Map<string, bool> = []
@@ -64,7 +68,7 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
         let at = pending[pending.length - 1]
         pending.remove(at: pending.length - 1)
         let canonical = at.canonical
-        if seenDirs.contains(canonical) { continue }
+        continue if seenDirs.contains(canonical)
         seenDirs[canonical] = true
         let names = Io.listDir(canonical) catch switch {
             IoError e => {
@@ -75,7 +79,7 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
         }
         // `Directory.GetFiles(canonical, "*.byn")` and `Directory.GetDirectories(canonical)`: an entry that is not a file is a directory.
         for name in names {
-            if !t6IsByn(name) || !Fs.fileExists(Path.combine(canonical, name)) { continue }
+            continue if !t6IsByn(name) || !Fs.fileExists(Path.combine(canonical, name))
             let file = Path.combine(at.path, name)
             let real = realPath(Path.combine(canonical, name)) catch switch {
                 IoError e => {
@@ -90,8 +94,8 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
             }
         }
         for name in names {
-            if Fs.fileExists(Path.combine(canonical, name)) { continue }
-            if t6IsSkippedDirectory(name, atRoot: at.path == dir) { continue }
+            continue if Fs.fileExists(Path.combine(canonical, name))
+            continue if t6IsSkippedDirectory(name, atRoot: at.path == dir)
             let sub = Path.combine(at.path, name)
             let entry = Path.combine(canonical, name)
             let real = realPath(entry) catch switch {
@@ -103,11 +107,15 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
             }
             // With a bound, a directory link is never followed, inside it or out: `canonical` holds no link, so `entry` is a link
             // (`DirectoryInfo.LinkTarget is not null`) exactly when its real path differs from it.
-            if within is not null && real != entry { continue }
-            if t6Inside(real, by: within) { pending.append(T6Pending { path: sub, canonical: real }) }
+            continue if within is not null && real != entry
+            if t6Inside(real, by: within) {
+                pending.append(T6Pending { path: sub, canonical: real })
+            }
         }
     }
-    if failed { exit = 1 }
+    if failed {
+        exit = 1
+    }
     return files
 }
 
@@ -116,19 +124,24 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
 /// `hasErrors` is `Manifest.HasErrors`, `report` is `DiagnosticRenderer.RenderAll(manifest.Diagnostics, includePath: true)` when it is set,
 /// and `indent`, `width`, `align` and `trailingCommas` are its layout knobs.
 struct T6Found {
-    string dir
-    semantics.BooleanStyle booleans
-    semantics.PrimitiveStyle primitives
-    bool hasErrors
-    string report
-    i64 indent
-    i64 width
-    semantics.AlignStyle align
+    string                       dir
+    semantics.BooleanStyle       booleans
+    semantics.PrimitiveStyle     primitives
+    bool                         hasErrors
+    string                       report
+    i64                          indent
+    i64                          width
+    semantics.AlignStyle         align
     semantics.TrailingCommaStyle trailingCommas
 }
 
 /// Format.cs:407 `OtherUses`, ported by T8 in format.byn.
-Map<string, bool> t6OtherUses(string file, from in List<u8> bytes, by in parser.CompilationUnit tree, through ref parser.Parser p) uses alloc {
+Map<string, bool> t6OtherUses(
+    string file,
+    from in List<u8> bytes,
+    by in parser.CompilationUnit tree,
+    through ref parser.Parser p
+) uses alloc {
     return otherUses(file, from: in bytes, by: in tree, through: ref p)
 }
 
@@ -138,7 +151,7 @@ T6Found? manifestFor(string file, through ref Map<string, T6Found?> cache) uses 
     var dir = Path.directoryName(Path.fullPath(file))
     var seen = List<string>()
     var found: T6Found? = null
-    while (dir is { } current) {
+    while let current = dir {
         if cache.contains(current) {
             found = cache[current]
             break
@@ -149,14 +162,18 @@ T6Found? manifestFor(string file, through ref Map<string, T6Found?> cache) uses 
             let manifest = try semantics.manifestRead(candidate)
             let hasErrors = semantics.manifestErrorCount(in manifest) > 0
             var report = ""
-            if hasErrors { report = t8RenderManifest(candidate, from: in manifest.diagnostics) }
+            if hasErrors {
+                report = t8RenderManifest(candidate, from: in manifest.diagnostics)
+            }
             found = T6Found { dir: current, booleans: manifest.booleans, primitives: manifest.primitives, hasErrors: hasErrors, report: report,
                 indent: manifest.indent, width: manifest.width, align: manifest.align, trailingCommas: manifest.trailingCommas }
             break
         }
         dir = Path.directoryName(current)
     }
-    for d in seen { cache[d] = found }
+    for d in seen {
+        cache[d] = found
+    }
     return found
 }
 
@@ -168,13 +185,19 @@ Map<string, bool> packageNames(string dir) uses alloc, console, fs {
     // coverage-exempt: Q1106
     let root = realPath(dir) catch return names
     for file in bynFiles(dir, through: ref ignored, by: root, for: true) {
-        if Path.fileName(file) == "package.byn" { continue }
+        continue if Path.fileName(file) == "package.byn"
         let bytes = Io.readFile(file) catch continue
         var copy = List<u8>()
-        for b in bytes { copy.append(b) }
-        var p = parser.Parser.create(lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build()))
+        for b in bytes {
+            copy.append(b)
+        }
+        var p = parser.Parser.create(
+            lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build()),
+        )
         let tree = parser.parseCompilationUnit(ref p)
-        for (name, _) in t6OtherUses(file, from: in bytes, by: in tree, through: ref p) { names[name] = true }
+        for (name, _) in t6OtherUses(file, from: in bytes, by: in tree, through: ref p) {
+            names[name] = true
+        }
     }
     return names
 }

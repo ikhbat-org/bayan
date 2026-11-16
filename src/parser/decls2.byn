@@ -1,7 +1,7 @@
 // Declarations B. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines about 929–1740 by content:
 // interfaces (`ParseInterface`, `ParseInterfaceMember`: associated types, getters), extensions,
 // `ExpectClose`, fields and properties, `ParseRequiresLines`, constructors, error enums and sets, enums,
-// unions with their payloads and case commas, type aliases, effects and tests. Owner: 
+// unions with their payloads and case commas, type aliases, effects and tests. Owner:
 //
 // A C# method that returns one node kind returns its struct here, so the caller can set `doc` and
 // `attributes` (the C# `decl with { … }`) before wrapping it in `Owned`; one that returns a `Decl` of
@@ -20,9 +20,13 @@ InterfaceDecl parseInterface(ref Parser p, at i64 start, by Modifiers modifiers)
         let before = p.pos
         let errors = p.syntaxErrors
         let member = parseInterfaceMember(ref p)
-        unless member is .none { members.append(move member) }
+        unless member is .none {
+            members.append(move member)
+        }
         recoverIfNeeded(ref p, from: errors)
-        if p.pos == before { let _ = p.advance() }
+        if p.pos == before {
+            let _ = p.advance()
+        }
     }
     expectClose(ref p, from: open, for: "interface")
     return InterfaceDecl {
@@ -31,7 +35,7 @@ InterfaceDecl parseInterface(ref Parser p, at i64 start, by Modifiers modifiers)
         name: name,
         members: move members,
         typeParams: move typeParams,
-        where: move where,
+        where : move where,
     }
 }
 
@@ -43,7 +47,9 @@ Decl parseInterfaceMember(ref Parser p) {
     let startIndex = p.pos
     let start = first.start
     let attributes = parseAttributes(ref p)
-    if doc is null { doc = docOf(ref p, for: p.current()) }
+    if doc is null {
+        doc = docOf(ref p, for: p.current())
+    }
     let modifiers = parseModifiers(ref p)
     rejectModifiers(ref p, for: modifiers, by: modifierStatic, at: startIndex)
 
@@ -79,9 +85,16 @@ Decl parseInterfaceMember(ref Parser p) {
         let _ = p.expect(.closeBrace)
         if get {
             let typeText = p.lexed.source.getText(typeSpan(in type))
-            let _ = p.reportFix(.interfaceGetInput, at: TextSpan.fromBounds(open.start, until: p.prevEnd),
-                through: TextSpan.fromBounds(name.end, until: p.prevEnd), by: "", arg0: typeText, arg1: p.lexed.source.getText(name),
-                label: "the input form", help: "remove `{ get }`: a field-shaped interface member is a read-only property")
+            let _ = p.reportFix(
+                .interfaceGetInput,
+                at: TextSpan.fromBounds(open.start, until: p.prevEnd),
+                through: TextSpan.fromBounds(name.end, until: p.prevEnd),
+                by: "",
+                arg0: typeText,
+                arg1: p.lexed.source.getText(name),
+                label: "the input form",
+                help: "remove `{ get }`: a field-shaped interface member is a read-only property",
+            )
         }
         return Decl.getterDecl(Owned(GetterDecl {
             span: p.spanFrom(start),
@@ -105,10 +118,15 @@ Decl parseInterfaceMember(ref Parser p) {
             attributes: move attributes,
         }))
     }
-    if after > 0 && isName(p.kindAt(after)) && p.kindAt(after + 1) == .fatArrow {
-        return parseFieldOrProperty(ref p, at: start, by: modifiers, through: move attributes, doc: doc)
-    }
-    let _ = p.report(.expected, at: spanOf(p.current()), arg0: "a method, getter or `type Name`", arg1: p.describe(p.current()))
+    return parseFieldOrProperty(ref p, at: start, by: modifiers, through: move attributes, doc: doc) if after > 0
+        && isName(p.kindAt(after))
+        && p.kindAt(after + 1) == .fatArrow
+    let _ = p.report(
+        .expected,
+        at: spanOf(p.current()),
+        arg0: "a method, getter or `type Name`",
+        arg1: p.describe(p.current()),
+    )
     synchronize(ref p)
     return .none
 }
@@ -127,9 +145,13 @@ ExtensionDecl parseExtension(ref Parser p, at i64 start) {
             let before = p.pos
             let errors = p.syntaxErrors
             let member = parseDeclaration(ref p, topLevel: false, for: name)
-            unless member is .none { members.append(move member) }
+            unless member is .none {
+                members.append(move member)
+            }
             recoverIfNeeded(ref p, from: errors)
-            if p.pos == before { let _ = p.advance() }
+            if p.pos == before {
+                let _ = p.advance()
+            }
         }
         expectClose(ref p, from: open, for: "extension")
     }
@@ -137,14 +159,24 @@ ExtensionDecl parseExtension(ref Parser p, at i64 start) {
 }
 
 void expectClose(ref Parser p, from Token open, for string what) {
-    if p.accept(.closeBrace) { return }
+    return if p.accept(.closeBrace)
     let line = p.lexed.source.getLinePosition(open.start).line
-    let _ = p.report(.expected, at: spanOf(p.current()), arg0: "`}`", arg1: p.describe(p.current()),
-        help: open.length > 0 ? $"close the {what} opened on line {line}" : "")
+    let _ = p.report(
+        .expected,
+        at: spanOf(p.current()),
+        arg0: "`}`",
+        arg1: p.describe(p.current()),
+        help: open.length > 0 ? $"close the {what} opened on line {line}" : "",
+    )
 }
 
-Decl parseFieldOrProperty(ref Parser p, at i64 start, by Modifiers modifiers, through move List<AttributeSyntax> attributes,
-    string? doc = null) {
+Decl parseFieldOrProperty(
+    ref Parser p,
+    at i64 start,
+    by Modifiers modifiers,
+    through move List<AttributeSyntax> attributes,
+    string? doc = null
+) {
     // `parseStruct` sets it for its own member only; clear it so nothing nested collects.
     let collect = p.collectField
     p.collectField = false
@@ -195,7 +227,9 @@ Decl parseFieldOrProperty(ref Parser p, at i64 start, by Modifiers modifiers, th
         }))
     }
     var init: Expr = .none
-    if p.accept(.equals) { init = parseExpression(ref p) }
+    if p.accept(.equals) {
+        init = parseExpression(ref p)
+    }
     var rules = parseRequiresLines(ref p)
     expectEnd(ref p)
     lintEmptyLiteral(ref p, for: type, by: init)
@@ -220,7 +254,9 @@ Decl parseFieldOrProperty(ref Parser p, at i64 start, by Modifiers modifiers, th
 /// The `requires` rules of a field or type: on its line, then one per line with no blank line between.
 List<RequiresRule> parseRequiresLines(ref Parser p) {
     var rules = List<RequiresRule>()
-    while p.kind() == .requiresKeyword && !hasBlankLineBefore(ref p, at: p.pos) { rules.append(parseRequiresRule(ref p)) }
+    while p.kind() == .requiresKeyword && !hasBlankLineBefore(ref p, at: p.pos) {
+        rules.append(parseRequiresRule(ref p))
+    }
     return rules
 }
 
@@ -228,14 +264,27 @@ ConstructorDecl parseConstructor(ref Parser p, at i64 start, by Modifiers modifi
     let name = spanOf(p.advance())
     let parameters = parseParams(ref p)
     let body = parseBlock(ref p)
-    return ConstructorDecl { span: p.spanFrom(start), modifiers: modifiers, name: name, params: move parameters, body: move body }
+    return ConstructorDecl {
+        span: p.spanFrom(start),
+        modifiers: modifiers,
+        name: name,
+        params: move parameters,
+        body: move body,
+    }
 }
 
-Decl parseErrorUnion(ref Parser p, at i64 start, by Modifiers modifiers, through move List<AttributeSyntax> attributes,
-    string? doc = null) {
+Decl parseErrorUnion(
+    ref Parser p,
+    at i64 start,
+    by Modifiers modifiers,
+    through move List<AttributeSyntax> attributes,
+    string? doc = null
+) {
     let first = p.advance()
     let second = p.advance()
-    if first.kind == .errorKeyword && second.kind != .setKeyword { reportKeywordOrder(ref p, from: first, to: second, as: "union error") }
+    if first.kind == .errorKeyword && second.kind != .setKeyword {
+        reportKeywordOrder(ref p, from: first, to: second, as: "union error")
+    }
     let name = expectName(ref p, what: "an error set name")
     if p.kind() == .equals || second.kind == .setKeyword {
         var set = parseErrorComposition(ref p, at: start, by: modifiers, from: first, through: second, for: name)
@@ -251,12 +300,24 @@ Decl parseErrorUnion(ref Parser p, at i64 start, by Modifiers modifiers, through
         let caseStart = p.current()
         let caseAttributes = parseAttributes(ref p)
         var caseDoc = docOf(ref p, for: caseStart)
-        if caseDoc is null { caseDoc = docOf(ref p, for: p.current()) }
+        if caseDoc is null {
+            caseDoc = docOf(ref p, for: p.current())
+        }
         let variant = expectName(ref p, what: "a variant name")
         let fields = parsePayload(ref p, for: variant)
-        variants.append(ErrorVariant { span: variant, name: variant, doc: caseDoc, attributes: move caseAttributes, fields: move fields })
+        variants.append(
+            ErrorVariant {
+                span: variant,
+                name: variant,
+                doc: caseDoc,
+                attributes: move caseAttributes,
+                fields: move fields,
+            },
+        )
         cases.append(TextSpan.fromBounds(caseStart.start, until: p.prevEnd))
-        unless nextCase(ref p, to: ref commas) { break }
+        unless nextCase(ref p, to: ref commas) {
+            break
+        }
     }
     reportCaseCommas(ref p, for: p.lexed.source.getText(name), from: open, through: in cases, by: in commas)
     expectClose(ref p, from: open, for: "union error")
@@ -272,15 +333,23 @@ Decl parseErrorUnion(ref Parser p, at i64 start, by Modifiers modifiers, through
 
 /// `union error Name = A, B`, optionally narrowed by `except .a, .b`. The round-2 `error set Name = A | B`
 /// is the input form (BYN1029); its fix writes `union error` and `,` between the members.
-ErrorSetDecl parseErrorComposition(ref Parser p, at i64 start, by Modifiers modifiers, from Token first, through Token second,
-    for TextSpan name) {
+ErrorSetDecl parseErrorComposition(
+    ref Parser p,
+    at i64 start,
+    by Modifiers modifiers,
+    from Token first,
+    through Token second,
+    for TextSpan name
+) {
     let _ = p.expect(.equals)
     var members = List<TypeSyntax>()
     members.append(parseType(ref p))
     var pipes = List<TextSpan>()
     while p.kind() == .comma || p.kind() == .bar {
         let memberEnd = p.prevEnd
-        if p.advance().kind == .bar { pipes.append(TextSpan.fromBounds(memberEnd, until: p.prevEnd)) }
+        if p.advance().kind == .bar {
+            pipes.append(TextSpan.fromBounds(memberEnd, until: p.prevEnd))
+        }
         members.append(parseType(ref p))
     }
     var exceptNames = List<TextSpan>()
@@ -296,7 +365,11 @@ ErrorSetDecl parseErrorComposition(ref Parser p, at i64 start, by Modifiers modi
     }
     if second.kind == .setKeyword || pipes.length > 0 {
         var text = StrBuf()
-        text.append(second.kind == .setKeyword ? "union error" : p.lexed.source.getText(TextSpan.fromBounds(first.start, until: second.end)))
+        text.append(
+            second.kind == .setKeyword
+                ? "union error"
+                : p.lexed.source.getText(TextSpan.fromBounds(first.start, until: second.end)),
+        )
         var at = second.end
         for pipe in pipes {
             text.append(p.lexed.source.getText(TextSpan.fromBounds(at, until: pipe.start)))
@@ -305,8 +378,15 @@ ErrorSetDecl parseErrorComposition(ref Parser p, at i64 start, by Modifiers modi
         }
         text.append(p.lexed.source.getText(TextSpan.fromBounds(at, until: p.prevEnd)))
         let span = second.kind == .setKeyword ? TextSpan.fromBounds(first.start, until: second.end) : pipes[0]
-        let _ = p.reportFix(.errorSetPipe, at: span, through: TextSpan.fromBounds(first.start, until: p.prevEnd), by: $"{text.finish()}",
-            arg0: p.lexed.source.getText(name), label: "the input form", help: "write `union error`, with `,` between the members")
+        let _ = p.reportFix(
+            .errorSetPipe,
+            at: span,
+            through: TextSpan.fromBounds(first.start, until: p.prevEnd),
+            by: $"{text.finish()}",
+            arg0: p.lexed.source.getText(name),
+            label: "the input form",
+            help: "write `union error`, with `,` between the members",
+        )
     }
     expectEnd(ref p)
     return ErrorSetDecl {
@@ -324,11 +404,20 @@ ErrorSetDecl parseErrorComposition(ref Parser p, at i64 start, by Modifiers modi
 void reportKeywordOrder(ref Parser p, from Token modifier, to Token kind, as string canonical) {
     let span = TextSpan.fromBounds(modifier.start, until: kind.end)
     var from = modifier.end
-    while from < kind.start && isWhiteSpace(p.lexed.source.bytes[from]) { from += 1 }
+    while from < kind.start && isWhiteSpace(p.lexed.source.bytes[from]) {
+        from += 1
+    }
     let between = p.lexed.source.getText(TextSpan.fromBounds(from, until: kind.start))
-    let _ = p.reportFix(.declarationKeywordOrder, at: span, through: span, by: $"{between}{canonical}",
-        arg0: $"{p.textOf(modifier)} {p.textOf(kind)}", arg1: canonical, label: "the input form",
-        help: $"put the kind first: `{canonical}`")
+    let _ = p.reportFix(
+        .declarationKeywordOrder,
+        at: span,
+        through: span,
+        by: $"{between}{canonical}",
+        arg0: $"{p.textOf(modifier)} {p.textOf(kind)}",
+        arg1: canonical,
+        label: "the input form",
+        help: $"put the kind first: `{canonical}`",
+    )
 }
 
 /// The ASCII bytes C#'s `string.TrimStart()` removes (it also trims Unicode spaces, which a gap between two
@@ -341,7 +430,9 @@ EnumDecl parseEnum(ref Parser p, at i64 start, by Modifiers modifiers) {
     let _ = p.advance()
     let name = expectName(ref p, what: "an enum name")
     var parameters: List<Param>? = null
-    if p.kind() == .openParen { parameters = parseParams(ref p) }
+    if p.kind() == .openParen {
+        parameters = parseParams(ref p)
+    }
     let bases = parseBases(ref p)
     let where = parseWhere(ref p)
     let open = p.expect(.openBrace)
@@ -353,13 +444,19 @@ EnumDecl parseEnum(ref Parser p, at i64 start, by Modifiers modifiers) {
         let memberStart = p.current().start
         let member = expectName(ref p, what: "a member name")
         var args: List<Argument>? = null
-        if p.kind() == .openParen { args = parseArguments(ref p) }
+        if p.kind() == .openParen {
+            args = parseArguments(ref p)
+        }
         let span = p.spanFrom(memberStart)
         members.append(EnumMember { span: span, name: member, doc: doc, args: move args })
         cases.append(span)
-        unless nextCase(ref p, to: ref commas) { break }
+        unless nextCase(ref p, to: ref commas) {
+            break
+        }
     }
-    while p.kind() == .semicolon { reportSemicolon(ref p, for: p.advance()) }
+    while p.kind() == .semicolon {
+        reportSemicolon(ref p, for: p.advance())
+    }
     reportCaseCommas(ref p, for: p.lexed.source.getText(name), from: open, through: in cases, by: in commas)
     expectClose(ref p, from: open, for: "enum")
     return EnumDecl {
@@ -369,7 +466,7 @@ EnumDecl parseEnum(ref Parser p, at i64 start, by Modifiers modifiers) {
         params: move parameters,
         members: move members,
         bases: move bases,
-        where: move where,
+        where : move where,
     }
 }
 
@@ -391,13 +488,19 @@ UnionDecl parseUnion(ref Parser p, at i64 start, by Modifiers modifiers) {
         let variant = expectName(ref p, what: "a variant name")
         let fields = parsePayload(ref p, for: variant)
         var value: Expr = .none
-        if p.accept(.equals) { value = parseExpression(ref p) }
+        if p.accept(.equals) {
+            value = parseExpression(ref p)
+        }
         let span = p.spanFrom(variantStart)
         variants.append(UnionVariant { span: span, name: variant, fields: move fields, doc: doc, value: move value })
         cases.append(span)
-        unless nextCase(ref p, to: ref commas) { break }
+        unless nextCase(ref p, to: ref commas) {
+            break
+        }
     }
-    while p.kind() == .semicolon { reportSemicolon(ref p, for: p.advance()) }
+    while p.kind() == .semicolon {
+        reportSemicolon(ref p, for: p.advance())
+    }
     reportCaseCommas(ref p, for: p.lexed.source.getText(name), from: open, through: in cases, by: in commas)
     expectClose(ref p, from: open, for: "union")
     return UnionDecl {
@@ -407,14 +510,14 @@ UnionDecl parseUnion(ref Parser p, at i64 start, by Modifiers modifiers) {
         variants: move variants,
         typeParams: move typeParams,
         bases: move bases,
-        where: move where,
+        where : move where,
     }
 }
 
 /// The `(T name, …)` payload of a union variant or a state, if written; a type without a name is BYN1064.
 List<UnionField> parsePayload(ref Parser p, for TextSpan variant) {
     var fields = List<UnionField>()
-    if p.kind() != .openParen { return fields }
+    return fields if p.kind() != .openParen
     let _ = p.advance()
     while p.kind() != .closeParen && !p.atEnd() {
         let before = p.pos
@@ -429,8 +532,14 @@ List<UnionField> parsePayload(ref Parser p, for TextSpan variant) {
                 let typeSpan = typeSpan(in type)
                 let typeText = p.lexed.source.getText(typeSpan)
                 let variantText = p.lexed.source.getText(variant)
-                let _ = p.report(.payloadNeedsName, at: typeSpan, arg0: typeText, arg1: variantText, label: "no name",
-                    help: $"name the payload: `.{variantText}({typeText} name)`")
+                let _ = p.report(
+                    .payloadNeedsName,
+                    at: typeSpan,
+                    arg0: typeText,
+                    arg1: variantText,
+                    label: "no name",
+                    help: $"name the payload: `.{variantText}({typeText} name)`",
+                )
                 // The C# `Name` here has the text `<missing>`; a name is its span (Q452).
                 field = TextSpan { start: p.prevEnd, length: 0 }
             } else {
@@ -438,7 +547,7 @@ List<UnionField> parsePayload(ref Parser p, for TextSpan variant) {
             }
         }
         fields.append(UnionField { span: p.spanFrom(fieldStart), type: move type, name: field })
-        if !p.accept(.comma) || p.pos == before { break }
+        break if !p.accept(.comma) || p.pos == before
     }
     let _ = p.expect(.closeParen)
     return fields
@@ -455,9 +564,15 @@ bool nextCase(ref Parser p, to ref List<Token> commas) {
 }
 
 /// BYN1053 at the first `,` between cases; the fix puts each case on its own line and drops the commas.
-void reportCaseCommas(ref Parser p, for string typeName, from Token open, through in List<TextSpan> cases, by in List<Token> commas) {
+void reportCaseCommas(
+    ref Parser p,
+    for string typeName,
+    from Token open,
+    through in List<TextSpan> cases,
+    by in List<Token> commas
+) {
     // A lone case with a trailing comma (`union error E { bad, }`) is still one case on one line.
-    if commas.length == 0 || cases.length < 2 { return }
+    return if commas.length == 0 || cases.length < 2
     if p.kind() == .closeBrace && cases.length > 0 {
         let outer = indentAt(ref p, at: open.start)
         let lead = p.lexed.source.getText(TextSpan.fromBounds(open.end, until: cases[0].start))
@@ -475,20 +590,36 @@ void reportCaseCommas(ref Parser p, for string typeName, from Token open, throug
             }
             text.append(gap)
         }
-        let _ = p.reportFix(.oneLineDeclarations, at: spanOf(commas[0]), through: TextSpan.fromBounds(open.end, until: p.current().start),
-            by: $"{text.finish()}", arg0: typeName, label: "the first `,`", help: "write each case on its own line")
+        let _ = p.reportFix(
+            .oneLineDeclarations,
+            at: spanOf(commas[0]),
+            through: TextSpan.fromBounds(open.end, until: p.current().start),
+            by: $"{text.finish()}",
+            arg0: typeName,
+            label: "the first `,`",
+            help: "write each case on its own line",
+        )
         return
     }
-    let _ = p.report(.oneLineDeclarations, at: spanOf(commas[0]), arg0: typeName, label: "the first `,`",
-        help: "write each case on its own line")
+    let _ = p.report(
+        .oneLineDeclarations,
+        at: spanOf(commas[0]),
+        arg0: typeName,
+        label: "the first `,`",
+        help: "write each case on its own line",
+    )
 }
 
 /// A `/* */` comment in a one-line gap between cases, kept at the end of its line; empty when there is none.
 string keptComment(string gap) {
     var first: i64 = 0
     var last = gap.length
-    while first < last && (gap.bytes[first] == ' ' || gap.bytes[first] == '\t') { first += 1 }
-    while last > first && (gap.bytes[last - 1] == ' ' || gap.bytes[last - 1] == '\t') { last -= 1 }
+    while first < last && (gap.bytes[first] == ' ' || gap.bytes[first] == '\t') {
+        first += 1
+    }
+    while last > first && (gap.bytes[last - 1] == ' ' || gap.bytes[last - 1] == '\t') {
+        last -= 1
+    }
     return first < last ? $" {gap[first..last]}" : ""
 }
 
@@ -497,17 +628,23 @@ string withoutCommas(ref Parser p, from i64 start, until i64 end, by in List<Tok
     var text = StrBuf()
     var at = start
     for comma in commas {
-        if comma.start < start || comma.start >= end { continue }
+        continue if comma.start < start || comma.start >= end
         var cut = comma.start
-        while cut > at && (p.lexed.source.bytes[cut - 1] == ' ' || p.lexed.source.bytes[cut - 1] == '\t') { cut -= 1 }
+        while cut > at && (p.lexed.source.bytes[cut - 1] == ' ' || p.lexed.source.bytes[cut - 1] == '\t') {
+            cut -= 1
+        }
         text.append(p.lexed.source.getText(TextSpan.fromBounds(at, until: cut)))
         at = comma.end
     }
     var restStart = at
     // A comma ends its line: the spaces it left before a line break go too.
     var blank = at
-    while blank < end && (p.lexed.source.bytes[blank] == ' ' || p.lexed.source.bytes[blank] == '\t') { blank += 1 }
-    if at > start && blank < end && p.lexed.source.bytes[blank] == '\n' { restStart = blank }
+    while blank < end && (p.lexed.source.bytes[blank] == ' ' || p.lexed.source.bytes[blank] == '\t') {
+        blank += 1
+    }
+    if at > start && blank < end && p.lexed.source.bytes[blank] == '\n' {
+        restStart = blank
+    }
     text.append(p.lexed.source.getText(TextSpan.fromBounds(restStart, until: end)))
     return $"{text.finish()}"
 }
@@ -545,7 +682,9 @@ EffectDecl parseEffect(ref Parser p, at i64 start, by Modifiers modifiers) {
     let _ = p.expect(.equals)
     var effects = List<TextSpan>()
     effects.append(expectName(ref p, what: "an effect name"))
-    while p.accept(.comma) { effects.append(expectName(ref p, what: "an effect name")) }
+    while p.accept(.comma) {
+        effects.append(expectName(ref p, what: "an effect name"))
+    }
     expectEnd(ref p)
     return EffectDecl { span: p.spanFrom(start), modifiers: modifiers, name: name, effects: move effects }
 }
@@ -557,16 +696,22 @@ TestDecl parseTest(ref Parser p, at i64 start) {
         let token = p.advance()
         title = $"{decodeString(p.text(token))}"
     } else {
-        let _ = p.report(.expected, at: spanOf(p.current()), arg0: "the test's name as a string literal", arg1: p.describe(p.current()))
+        let _ = p.report(
+            .expected,
+            at: spanOf(p.current()),
+            arg0: "the test's name as a string literal",
+            arg1: p.describe(p.current()),
+        )
     }
     var parameters = List<Param>()
-    if p.kind() == .openParen { parameters = parseParams(ref p) }
+    if p.kind() == .openParen {
+        parameters = parseParams(ref p)
+    }
     let body = parseBlock(ref p)
     return TestDecl { span: p.spanFrom(start), title: title, params: move parameters, body: move body }
 }
 
-// ── T5 shims (Q450) ───────────────────────────────────────────────────────────
+// ── T5 shims (Q450) ──────────────────────────────────────────────────────────
 // Stand-ins for helpers that sibling files own and that had no stub when T5 ran. Each keeps the C#
 // name in camelCase; T15 deletes this struct and drops the `` prefix at every call, adjusting a
 // call where the owner's signature differs. The bodies are just enough for the T5 tests' inputs.
-

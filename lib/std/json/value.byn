@@ -13,7 +13,7 @@ public union JsonValue {
 
 /// One `key: value` of an object.
 public struct JsonMember {
-    public string key
+    public string    key
     public JsonValue value
 }
 
@@ -47,7 +47,7 @@ JsonValue treeOf(ref JsonReader reader, from JsonToken first) uses alloc fails J
             var items = List<JsonValue>()
             while true {
                 let token = (try reader.next()) ?? panic("std.json: a reader gives a token before its end")
-                if token is .endList { return .list(items: move items) }
+                return .list(items: move items) if token is .endList
                 items.append(try treeOf(ref reader, from: token))
             }
         case .startObject:
@@ -128,12 +128,14 @@ bool isNumberText(string text) uses alloc {
 
 /// Before an item: `, ` (compact) or `,` and a new line (indented); the first item has no comma.
 void separate(ref StrBuf sb, by i64 indent, at i64 level, bool first) {
-    if !first { sb.append(indent > 0 ? "," : ", ") }
+    if !first {
+        sb.append(indent > 0 ? "," : ", ")
+    }
     newline(ref sb, by: indent, at: level)
 }
 
 void newline(ref StrBuf sb, by i64 indent, at i64 level) {
-    if indent <= 0 { return }
+    return if indent <= 0
     sb.append("\n")
     sb.appendRepeated(' ', by: indent * level)
 }
@@ -158,7 +160,7 @@ void quoteInto(ref StrBuf sb, from string s) {
             sb.append("\\b")
         } else if cp == 0xC {
             sb.append("\\f")
-        } else if cp >= 0x20 && cp <= 0x7E {
+        } else if cp is 0x20..=0x7E {
             sb.append($"{r}")
         } else if cp > 0xFFFF {
             let v = cp - 0x10000

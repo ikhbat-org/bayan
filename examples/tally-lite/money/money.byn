@@ -13,7 +13,7 @@ public union error MoneyError {
 }
 
 public struct Money {
-    public Cents cents
+    public Cents  cents
     public string currency
 
     /// Writes `91.82 MYR`, or `-1.28 MYR` for a negative amount.

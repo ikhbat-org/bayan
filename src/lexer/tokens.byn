@@ -204,83 +204,83 @@ string kindName(TokenKind kind) {
 
 /// Source text of fixed tokens, for messages ("expected `;`").
 public string kindText(TokenKind kind) uses alloc {
-    if isKeyword(kind) { return keywordText(kind) }
+    return keywordText(kind) if isKeyword(kind)
     return kind switch {
-        .endOfFile => "end of file",
-        .identifier => "identifier",
-        .integerLiteral => "integer literal",
-        .floatLiteral => "float literal",
-        .numericSuffix => "numeric suffix",
-        .charLiteral => "char literal",
+        .endOfFile               => "end of file",
+        .identifier              => "identifier",
+        .integerLiteral          => "integer literal",
+        .floatLiteral            => "float literal",
+        .numericSuffix           => "numeric suffix",
+        .charLiteral             => "char literal",
         .stringLiteral or .rawStringLiteral or .cStringLiteral or .u16StringLiteral => "string literal",
         .interpolatedStringStart => "$\"",
-        .interpolatedStringText => "interpolated text",
-        .interpolationStart => "{",
-        .interpolationEnd => "}",
-        .interpolatedStringEnd => "\"",
-        .openParen => "(",
-        .closeParen => ")",
-        .openBracket => "[",
-        .closeBracket => "]",
-        .openBrace => "{",
-        .closeBrace => "}",
-        .semicolon => ";",
-        .comma => ",",
-        .dot => ".",
-        .dotDot => "..",
-        .dotDotEquals => "..=",
-        .colon => ":",
-        .question => "?",
-        .questionQuestion => "??",
-        .questionQuestionEquals => "??=",
-        .questionDot => "?.",
-        .fatArrow => "=>",
-        .arrow => "->",
-        .at => "@",
-        .hash => "#",
-        .plus => "+",
-        .minus => "-",
-        .star => "*",
-        .slash => "/",
-        .percent => "%",
-        .plusPercent => "+%",
-        .minusPercent => "-%",
-        .starPercent => "*%",
-        .plusBar => "+|",
-        .minusBar => "-|",
-        .starBar => "*|",
-        .plusPlus => "++",
-        .minusMinus => "--",
-        .amp => "&",
-        .ampAmp => "&&",
-        .bar => "|",
-        .barBar => "||",
-        .caret => "^",
-        .tilde => "~",
-        .bang => "!",
-        .equals => "=",
-        .equalsEquals => "==",
-        .bangEquals => "!=",
-        .less => "<",
-        .lessEquals => "<=",
-        .greater => ">",
-        .greaterEquals => ">=",
-        .lessLess => "<<",
-        .plusEquals => "+=",
-        .minusEquals => "-=",
-        .starEquals => "*=",
-        .slashEquals => "/=",
-        .percentEquals => "%=",
-        .ampEquals => "&=",
-        .barEquals => "|=",
-        .caretEquals => "^=",
-        .lessLessEquals => "<<=",
-        _ => kindName(kind),
+        .interpolatedStringText  => "interpolated text",
+        .interpolationStart      => "{",
+        .interpolationEnd        => "}",
+        .interpolatedStringEnd   => "\"",
+        .openParen               => "(",
+        .closeParen              => ")",
+        .openBracket             => "[",
+        .closeBracket            => "]",
+        .openBrace               => "{",
+        .closeBrace              => "}",
+        .semicolon               => ";",
+        .comma                   => ",",
+        .dot                     => ".",
+        .dotDot                  => "..",
+        .dotDotEquals            => "..=",
+        .colon                   => ":",
+        .question                => "?",
+        .questionQuestion        => "??",
+        .questionQuestionEquals  => "??=",
+        .questionDot             => "?.",
+        .fatArrow                => "=>",
+        .arrow                   => "->",
+        .at                      => "@",
+        .hash                    => "#",
+        .plus                    => "+",
+        .minus                   => "-",
+        .star                    => "*",
+        .slash                   => "/",
+        .percent                 => "%",
+        .plusPercent             => "+%",
+        .minusPercent            => "-%",
+        .starPercent             => "*%",
+        .plusBar                 => "+|",
+        .minusBar                => "-|",
+        .starBar                 => "*|",
+        .plusPlus                => "++",
+        .minusMinus              => "--",
+        .amp                     => "&",
+        .ampAmp                  => "&&",
+        .bar                     => "|",
+        .barBar                  => "||",
+        .caret                   => "^",
+        .tilde                   => "~",
+        .bang                    => "!",
+        .equals                  => "=",
+        .equalsEquals            => "==",
+        .bangEquals              => "!=",
+        .less                    => "<",
+        .lessEquals              => "<=",
+        .greater                 => ">",
+        .greaterEquals           => ">=",
+        .lessLess                => "<<",
+        .plusEquals              => "+=",
+        .minusEquals             => "-=",
+        .starEquals              => "*=",
+        .slashEquals             => "/=",
+        .percentEquals           => "%=",
+        .ampEquals               => "&=",
+        .barEquals               => "|=",
+        .caretEquals             => "^=",
+        .lessLessEquals          => "<<=",
+        _                        => kindName(kind),
     }
 }
 
 /// Whitespace or a comment separates this token from the previous one.
-const triviaBefore: u8 = 1
+const triviaBefore: u8  = 1
 /// A line break separates this token from the previous one.
 const newlineBefore: u8 = 2
 
@@ -288,19 +288,19 @@ const newlineBefore: u8 = 2
 /// token is attached as its doc span.
 public struct Token {
     public TokenKind kind
-    public u8 tokenFlags
-    public i64 start
-    public i64 length
-    public i64 docStart
-    public i64 docLength
+    public u8        tokenFlags
+    public i64       start
+    public i64       length
+    public i64       docStart
+    public i64       docLength
 
-    public i64 end => start + length
-    public bool hasDoc => docLength > 0
-    public bool hasTriviaBefore => (tokenFlags & triviaBefore) != 0
+    public i64  end              => start + length
+    public bool hasDoc           => docLength > 0
+    public bool hasTriviaBefore  => (tokenFlags & triviaBefore) != 0
     public bool hasNewlineBefore => (tokenFlags & newlineBefore) != 0
 }
 
-// ── Keywords ──────────────────────────────────────────────────────────────────────
+// ── Keywords ─────────────────────────────────────────────────────────────────
 
 /// The keyword text of a keyword kind: its member name without `Keyword`.
 string keywordText(TokenKind kind) {
@@ -321,7 +321,9 @@ public struct Keywords {
             keywords.bucketStart.append(keywords.byFirstByte.length)
             for ordinal in TokenKind.structKeyword.ordinal..=TokenKind.selectKeyword.ordinal {
                 let kind = TokenKind.fromOrdinal(ordinal) ?? .identifier
-                if kind.name.bytes[0] - 0x61 == letter { keywords.byFirstByte.append(ordinal) }
+                if kind.name.bytes[0] - 0x61 == letter {
+                    keywords.byFirstByte.append(ordinal)
+                }
             }
         }
         keywords.bucketStart.append(keywords.byFirstByte.length)
@@ -331,20 +333,20 @@ public struct Keywords {
     /// The keyword kind for an ASCII identifier, or `identifier`.
     public TokenKind lookup(ReadOnlySpan<u8> text) {
         // coverage-exempt: Q1086 scaffold passes a module name from `camelOf` (a lowercase first byte), so the `> 0x7A` branch is not reached through `new`
-        if text.length < 2 || text[0] < 0x61 || text[0] > 0x7A { return .identifier }
+        return .identifier if text.length < 2 || text[0] < 0x61 || text[0] > 0x7A
         let letter = text[0] - 0x61
         for i in bucketStart[letter]..bucketStart[letter + 1] {
             let kind = TokenKind.fromOrdinal(byFirstByte[i]) ?? .identifier
-            if sameBytes(text, as: kind.name.bytes[0..kind.name.length - 7]) { return kind }
+            return kind if sameBytes(text, as: kind.name.bytes[0..kind.name.length - 7])
         }
         return .identifier
     }
 }
 
 public bool sameBytes(ReadOnlySpan<u8> a, as ReadOnlySpan<u8> b) {
-    if a.length != b.length { return false }
+    return false if a.length != b.length
     for i in 0..a.length {
-        if a[i] != b[i] { return false }
+        return false if a[i] != b[i]
     }
     return true
 }

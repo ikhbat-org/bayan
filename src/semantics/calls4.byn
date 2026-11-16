@@ -6,27 +6,42 @@ import parser
 
 /// Reports a non-exhaustive `switch`. Expressions must always be exhaustive; statements only over finite types
 /// (`bool`, error sets, enums, their optionals). Returns whether every value is covered. A null pattern or guard is -1.
-bool checkExhaustive(ref Binder b, through ref Ctx c, at TextSpan span, as Type type, by in List<(BPattern, BExpr)> arms, bool statement) {
-    if isError(type) { return true }
+bool checkExhaustive(
+    ref Binder b,
+    through ref Ctx c,
+    at TextSpan span,
+    as Type type,
+    by in List<(BPattern, BExpr)> arms,
+    bool statement
+) {
+    return true if isError(type)
     let domain = t39Domain(ref c, for: type)
     var covered = List<string>()
     for arm in arms {
         let pattern = arm.item1
         let guard = arm.item2
-        if pattern == -1 { return true }
-        if guard != -1 { continue }
+        return true if pattern == -1
+        continue if guard != -1
         if irrefutable(ref c, for: pattern) {
             // Every union is declared in the package being compiled: there are no dependencies yet.
             if hasSyntax(in c, for: pattern, by: syntaxDiscard) && kindOf(type) == .unionType {
                 var rest = List<string>()
                 if (domain is { } all) {
                     for k in all {
-                        if !listContainsString(in covered, by: k) { rest.append(k) }
+                        if !listContainsString(in covered, by: k) {
+                            rest.append(k)
+                        }
                     }
                 }
-                report(ref b, through: ref c, for: .wildcardOnLocalUnion, at: nodeSpan(in c, for: pattern), by: (typeDisplay(ref c, by: type), "", "", "", ""),
+                report(
+                    ref b,
+                    through: ref c,
+                    for: .wildcardOnLocalUnion,
+                    at: nodeSpan(in c, for: pattern),
+                    by: (typeDisplay(ref c, by: type), "", "", "", ""),
                     label: "matches every case added later",
-                    help: rest.length > 0 ? $"list the cases instead: {t39Join(in rest)}" : "remove the `_` arm")
+                    help: rest.length > 0 ? $"list the cases instead: {t39Join(in rest)}" : "remove the `_` arm",
+                )
             }
             return true
         }
@@ -43,24 +58,32 @@ bool checkExhaustive(ref Binder b, through ref Ctx c, at TextSpan span, as Type 
                 all = false
                 missing.append(k == t39Some ? "a value" : k)
             }
-            if k == t39Some { hasSome = true }
+            if k == t39Some {
+                hasSome = true
+            }
         }
     }
-    if hasDomain && all { return true }
-    if statement && (!hasDomain || hasSome) { return false }
+    return true if hasDomain && all
+    return false if statement && (!hasDomain || hasSome)
     // A set none of whose variants is handled is named once, as the `catch switch` arm that would cover it.
     let unwrapped = unwrap(ref c, for: type)
     if kindOf(unwrapped) == .errorUnion && c.errorUnionTypes[typeIndex(unwrapped)].sets.length > 1 && hasDomain {
         var sets = List<ErrorSetId>()
-        for s in c.errorUnionTypes[typeIndex(unwrapped)].sets { sets.append(s) }
+        for s in c.errorUnionTypes[typeIndex(unwrapped)].sets {
+            sets.append(s)
+        }
         for set in sets {
             var keys = List<string>()
-            for v in copyIds(in c.errorSets[set].variants) { keys.append(t39VariantKey(ref c, for: v, as: type)) }
+            for v in copyIds(in c.errorSets[set].variants) {
+                keys.append(t39VariantKey(ref c, for: v, as: type))
+            }
             var every = true
             for k in keys {
-                if !listContainsString(in missing, by: k) { every = false }
+                if !listContainsString(in missing, by: k) {
+                    every = false
+                }
             }
-            if keys.length == 0 || !every { continue }
+            continue if keys.length == 0 || !every
             var at: i64 = 0
             for i in 0..missing.length {
                 if missing[i] == keys[0] {
@@ -70,15 +93,21 @@ bool checkExhaustive(ref Binder b, through ref Ctx c, at TextSpan span, as Type 
             }
             var next = List<string>()
             for i in 0..missing.length {
-                if i == at { next.append(displayNameAmong(ref c, by: set, for: in sets)) }
-                if !listContainsString(in keys, by: missing[i]) { next.append(missing[i]) }
+                if i == at {
+                    next.append(displayNameAmong(ref c, by: set, for: in sets))
+                }
+                if !listContainsString(in keys, by: missing[i]) {
+                    next.append(missing[i])
+                }
             }
             missing = move next
         }
     }
     if kindOf(unwrapped) == .errorUnion && c.errorUnionTypes[typeIndex(unwrapped)].sets.length > 1 && hasDomain {
         var sets = List<ErrorSetId>()
-        for s in c.errorUnionTypes[typeIndex(unwrapped)].sets { sets.append(s) }
+        for s in c.errorUnionTypes[typeIndex(unwrapped)].sets {
+            sets.append(s)
+        }
         var names: Map<string, string> = []
         for s in sets {
             for v in copyIds(in c.errorSets[s].variants) {
@@ -87,16 +116,24 @@ bool checkExhaustive(ref Binder b, through ref Ctx c, at TextSpan span, as Type 
             }
         }
         var shown = List<string>()
-        for k in missing { shown.append(names.tryGet(at: k) ?? k) }
+        for k in missing {
+            shown.append(names.tryGet(at: k) ?? k)
+        }
         missing = move shown
     }
     let listed = hasDomain && missing.length > 0
-    report(ref b, through: ref c, for: .nonExhaustive, at: span, by: (typeDisplay(ref c, by: type), "", "", "", ""),
+    report(
+        ref b,
+        through: ref c,
+        for: .nonExhaustive,
+        at: span,
+        by: (typeDisplay(ref c, by: type), "", "", "", ""),
         label: listed ? $"not covered: {t39Join(in missing)}" : "",
         help: statement ? "add the missing cases or a `default:` section"
             // A `_` arm on a union of this package is BYN2712, so name the arms instead.
             : kindOf(type) == .unionType && listed ? $"add the missing arms: {t39Join(in missing)}"
-            : "add the missing arms, or `_ => …` for the rest")
+            : "add the missing arms, or `_ => …` for the rest",
+    )
     return false
 }
 
@@ -106,7 +143,9 @@ const t39Some: string = "\0some"
 string t39Join(in List<string> xs) {
     var sb = StrBuf()
     for i in 0..xs.length {
-        if i > 0 { sb.append(", ") }
+        if i > 0 {
+            sb.append(", ")
+        }
         sb.append(xs[i])
     }
     return $"{sb.finish()}"
@@ -114,7 +153,9 @@ string t39Join(in List<string> xs) {
 
 /// C# `HashSet.Add`.
 void t39Add(ref List<string> set, by string k) {
-    if !listContainsString(in set, by: k) { set.append(k) }
+    if !listContainsString(in set, by: k) {
+        set.append(k)
+    }
 }
 
 /// Every value of a finite type as a key; null for types with too many values to list.
@@ -128,28 +169,38 @@ List<string>? t39Domain(ref Ctx c, for Type type) {
     }
     switch kindOf(type) {
         case .errorSet:
-            for v in copyIds(in c.errorSets[i].variants) { keys.append(t39VariantKey(ref c, for: v, as: type)) }
+            for v in copyIds(in c.errorSets[i].variants) {
+                keys.append(t39VariantKey(ref c, for: v, as: type))
+            }
             return keys
         case .enumType:
-            for m in c.enums[i].members { keys.append($".{c.enumMembers[m].name}") }
+            for m in c.enums[i].members {
+                keys.append($".{c.enumMembers[m].name}")
+            }
             return keys
         case .unionType:
-            for v in c.unions[i].variants { keys.append($".{c.unionVariants[v].name}") }
+            for v in c.unions[i].variants {
+                keys.append($".{c.unionVariants[v].name}")
+            }
             return keys
         case .errorUnion:
-            if c.errorUnionTypes[i].sets.length == 0 { return null }
+            return null if c.errorUnionTypes[i].sets.length == 0
             var seen = List<i64>()
             for s in c.errorUnionTypes[i].sets {
                 for v in copyIds(in c.errorSets[s].variants) {
-                    if listContains(in c.errorUnionTypes[i].excluded, by: v) || listContains(in seen, by: v) { continue }
+                    continue if listContains(in c.errorUnionTypes[i].excluded, by: v) || listContains(in seen, by: v)
                     seen.append(v)
                 }
             }
-            for v in seen { keys.append(t39VariantKey(ref c, for: v, as: type)) }
+            for v in seen {
+                keys.append(t39VariantKey(ref c, for: v, as: type))
+            }
             return keys
         case .optional:
             if (t39Domain(ref c, for: c.optionalTypes[i]) is { } inner) {
-                for k in inner { keys.append(k) }
+                for k in inner {
+                    keys.append(k)
+                }
                 keys.append("null")
                 return keys
             }
@@ -164,7 +215,8 @@ List<string>? t39Domain(ref Ctx c, for Type type) {
 // Across sets a case is keyed by its program-wide code, not its text: `ValidationError<Point>` from two modules reads alike.
 string t39VariantKey(ref Ctx c, for VariantId v, as Type type) {
     let u = unwrap(ref c, for: type)
-    if kindOf(u) == .errorUnion && c.errorUnionTypes[typeIndex(u)].sets.length > 1 { return $"\0code{c.errorVariants[v].code}" }
+    return $"\0code{c.errorVariants[v].code}" if kindOf(u) == .errorUnion
+        && c.errorUnionTypes[typeIndex(u)].sets.length > 1
     return $".{c.errorVariants[v].name}"
 }
 
@@ -174,16 +226,16 @@ bool irrefutable(ref Ctx c, for BPattern p) {
         case .bindPattern:
             return true
         case .propertyPattern:
-            if kindOf(c.bPropertyPatterns[i].inputType) == .optional { return false }
+            return false if kindOf(c.bPropertyPatterns[i].inputType) == .optional
             let n = c.bPropertyPatterns[i].subpatterns.length
             for k in 0..n {
-                if !irrefutable(ref c, for: c.bPropertyPatterns[i].subpatterns[k].pattern) { return false }
+                return false if !irrefutable(ref c, for: c.bPropertyPatterns[i].subpatterns[k].pattern)
             }
             return true
         case .binaryPattern:
             let left = c.bBinaryPatterns[i].left
             let right = c.bBinaryPatterns[i].right
-            if !c.bBinaryPatterns[i].isAnd { return irrefutable(ref c, for: left) || irrefutable(ref c, for: right) }
+            return irrefutable(ref c, for: left) || irrefutable(ref c, for: right) if !c.bBinaryPatterns[i].isAnd
             return irrefutable(ref c, for: left) && irrefutable(ref c, for: right)
         default:
             return false
@@ -193,7 +245,7 @@ bool irrefutable(ref Ctx c, for BPattern p) {
 /// `Subpatterns.All(Irrefutable)` over a list of patterns.
 bool t39AllIrrefutable(ref Ctx c, for in List<BPattern> ps) {
     for p in ps {
-        if !irrefutable(ref c, for: p) { return false }
+        return false if !irrefutable(ref c, for: p)
     }
     return true
 }
@@ -221,10 +273,14 @@ void collect(ref Ctx c, for BPattern p, as Type type, to ref List<string> covere
             }
         case .unionPattern:
             let subs = copyIds(in c.bUnionPatterns[i].subpatterns)
-            if t39AllIrrefutable(ref c, for: in subs) { t39Add(ref covered, by: $".{c.unionVariants[c.bUnionPatterns[i].variant].name}") }
+            if t39AllIrrefutable(ref c, for: in subs) {
+                t39Add(ref covered, by: $".{c.unionVariants[c.bUnionPatterns[i].variant].name}")
+            }
         case .errorPattern:
             let subs = copyIds(in c.bErrorPatterns[i].subpatterns)
-            if t39AllIrrefutable(ref c, for: in subs) { t39Add(ref covered, by: t39VariantKey(ref c, for: c.bErrorPatterns[i].variant, as: type)) }
+            if t39AllIrrefutable(ref c, for: in subs) {
+                t39Add(ref covered, by: t39VariantKey(ref c, for: c.bErrorPatterns[i].variant, as: type))
+            }
         case .binaryPattern:
             let left = c.bBinaryPatterns[i].left
             let right = c.bBinaryPatterns[i].right
@@ -236,22 +292,27 @@ void collect(ref Ctx c, for BPattern p, as Type type, to ref List<string> covere
             }
         case .propertyPattern:
             let input = c.bPropertyPatterns[i].inputType
-            if kindOf(input) != .optional { return }
+            return if kindOf(input) != .optional
             let n = c.bPropertyPatterns[i].subpatterns.length
             for k in 0..n {
-                if !irrefutable(ref c, for: c.bPropertyPatterns[i].subpatterns[k].pattern) { return }
+                return if !irrefutable(ref c, for: c.bPropertyPatterns[i].subpatterns[k].pattern)
             }
             t39Add(ref covered, by: t39Some)
             if (t39Domain(ref c, for: c.optionalTypes[typeIndex(input)]) is { } all) {
-                for k in all { t39Add(ref covered, by: k) }
+                for k in all {
+                    t39Add(ref covered, by: k)
+                }
             }
         case .notPattern:
             let operand = c.bNotPatterns[i].operand
-            if boundKind(operand) != .constantPattern || boundKind(c.bConstantPatterns[boundIndex(operand)].value) != .defaultValue { return }
-            if kindOf(type) != .optional { return }
+            return if boundKind(operand) != .constantPattern
+                || boundKind(c.bConstantPatterns[boundIndex(operand)].value) != .defaultValue
+            return if kindOf(type) != .optional
             t39Add(ref covered, by: t39Some)
             if (t39Domain(ref c, for: c.optionalTypes[typeIndex(type)]) is { } rest) {
-                for k in rest { t39Add(ref covered, by: k) }
+                for k in rest {
+                    t39Add(ref covered, by: k)
+                }
             }
         default: {}
     }
@@ -280,7 +341,11 @@ BStmt bindAssign(ref Binder b, through ref Ctx c, for in parser.AssignStmt a) {
     var target = bindExpr(ref b, through: ref c, for: in a.target)
     // A local whose state is known is written as its declared type; the value's state is what it is known to be after.
     if boundKind(target) == .local && knownState(ref b, for: c.bLocals[boundIndex(target)].local) != -1 {
-        target = shareSyntax(ref c, for: addLocalNode(ref c, at: c.bLocals[boundIndex(target)].span, for: c.bLocals[boundIndex(target)].local), from: target)
+        target = shareSyntax(
+            ref c,
+            for: addLocalNode(ref c, at: c.bLocals[boundIndex(target)].span, for: c.bLocals[boundIndex(target)].local),
+            from: target,
+        )
     }
     let op = compoundOperator(a.op)
     let targetSpan = parser.exprSpan(in a.target)
@@ -306,54 +371,114 @@ BStmt bindAssign(ref Binder b, through ref Ctx c, for in parser.AssignStmt a) {
             let l = c.bLocals[boundIndex(target)].local
             refOrThis = c.locals[l].isParameter && c.locals[l].modifier == .refKeyword
         }
-        let hasStates = kindOf(targetType) == .state || kindOf(targetType) == .structType && statesOf(ref c, for: typeIndex(targetType)) != -1
+        let hasStates = kindOf(targetType) == .state
+            || kindOf(targetType) == .structType && statesOf(ref c, for: typeIndex(targetType)) != -1
         if refOrThis && hasStates {
             var same = false
             if kindOf(targetType) == .state && c.stateTypes[typeIndex(targetType)].states.length == 1 {
                 let one = c.stateTypes[typeIndex(targetType)].states[0]
                 var givenType = exprType(in c, for: assigned)
-                if (subject(ref b, through: ref c, for: assigned) is { } subj) { givenType = subj.type }
+                if (subject(ref b, through: ref c, for: assigned) is { } subj) {
+                    givenType = subj.type
+                }
                 if kindOf(givenType) == .state && c.stateTypes[typeIndex(givenType)].states.length == 1 {
                     same = c.stateTypes[typeIndex(givenType)].states[0] == one
                 }
             }
             if !same {
                 let name = tk == .local ? c.locals[c.bLocals[boundIndex(target)].local].name : "this"
-                report(ref b, through: ref c, for: .assignmentChangesState, at: a.span, by: (name, "", "", "", ""),
-                    help: "assign a value in the same state, or move the transition into a `becomes` method")
-                return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
+                report(
+                    ref b,
+                    through: ref c,
+                    for: .assignmentChangesState,
+                    at: a.span,
+                    by: (name, "", "", "", ""),
+                    help: "assign a value in the same state, or move the transition into a `becomes` method",
+                )
+                return recordAssignSyntax(
+                    ref c,
+                    for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }),
+                    from: in a,
+                )
             }
         }
         if tk == .local {
             let written = c.bLocals[boundIndex(target)].local
             forgetState(ref b, for: written)
             let at = exprType(in c, for: assigned)
-            if kindOf(at) == .state { learnState(ref b, for: written, as: at) }
+            if kindOf(at) == .state {
+                learnState(ref b, for: written, as: at)
+            }
         } else if tk == .thisRef {
             forgetState(ref b, for: t15ThisFacts(ref b, through: ref c))
         }
         let pending = isPending(ref b, through: ref c, for: target)
-        let converted = convert(ref b, through: ref c, for: assigned, to: targetType, at: valueSpan, constrains: !pending)
-        return recordAssignSyntax(ref c, for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted }), from: in a)
+        let converted = convert(
+            ref b,
+            through: ref c,
+            for: assigned,
+            to: targetType,
+            at: valueSpan,
+            constrains: !pending,
+        )
+        return recordAssignSyntax(
+            ref c,
+            for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted }),
+            from: in a,
+        )
     }
     let bop = op
     if bop == .coalesce {
         if kindOf(targetType) != .optional {
-            report(ref b, through: ref c, for: .coalesceNotOptional, at: targetSpan, by: (typeDisplay(ref c, by: targetType), "", "", "", ""))
+            report(
+                ref b,
+                through: ref c,
+                for: .coalesceNotOptional,
+                at: targetSpan,
+                by: (typeDisplay(ref c, by: targetType), "", "", "", ""),
+            )
             return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
         }
-        let converted = bindConverted(ref b, through: ref c, for: in a.value, to: c.optionalTypes[typeIndex(targetType)])
-        return recordAssignSyntax(ref c, for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted, op: bop }), from: in a)
+        let converted = bindConverted(
+            ref b,
+            through: ref c,
+            for: in a.value,
+            to: c.optionalTypes[typeIndex(targetType)],
+        )
+        return recordAssignSyntax(
+            ref c,
+            for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted, op: bop }),
+            from: in a,
+        )
     }
-    let value = bindExpr(ref b, through: ref c, for: in a.value, to: bop == .shl || bop == .shr ? prim(.i32) : targetType)
+    let value = bindExpr(
+        ref b,
+        through: ref c,
+        for: in a.value,
+        to: bop == .shl || bop == .shr ? prim(.i32) : targetType,
+    )
     let valueType = exprType(in c, for: value)
-    if isError(valueType) { return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a) }
-    if bop == .shl || bop == .shr {
+    return recordAssignSyntax(
+        ref c,
+        for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }),
+        from: in a,
+    ) if isError(valueType)
+    if bop is .shl or .shr {
         if !isInteger(targetType) || !isInteger(valueType) {
-            report(ref b, through: ref c, for: .badBinaryOperands, at: a.span, by: (binaryText(bop), typeDisplay(ref c, by: targetType), typeDisplay(ref c, by: valueType), "", ""))
+            report(
+                ref b,
+                through: ref c,
+                for: .badBinaryOperands,
+                at: a.span,
+                by: (binaryText(bop), typeDisplay(ref c, by: targetType), typeDisplay(ref c, by: valueType), "", ""),
+            )
             return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
         }
-        return recordAssignSyntax(ref c, for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: value, op: bop }), from: in a)
+        return recordAssignSyntax(
+            ref c,
+            for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: value, op: bop }),
+            from: in a,
+        )
     }
     constrain(ref b, through: ref c, for: target, as: value, from: in a.value)
     if isString(targetType) && bop == .add {
@@ -365,46 +490,102 @@ BStmt bindAssign(ref Binder b, through ref Ctx c, for in parser.AssignStmt a) {
         fix.append("}")
         fix.append(interpolationSource(ref b, through: ref c, for: in a.value))
         fix.append("\"")
-        report(ref b, through: ref c, for: .stringConcatenation, at: a.span, by: ("", "", "", "", ""),
+        report(
+            ref b,
+            through: ref c,
+            for: .stringConcatenation,
+            at: a.span,
+            by: ("", "", "", "", ""),
             help: "write the parts as one interpolation: `s = $\"{s}{x}\"`, or build text in a `StrBuf`: `buf.append($\"{a}{b}\")`",
-            hasFix: true, fixSpan: a.span, fixReplacement: $"{fix.finish()}")
+            hasFix: true,
+            fixSpan: a.span,
+            fixReplacement: $"{fix.finish()}",
+        )
         return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
     }
     if !operatorApplies(ref c, for: bop, as: targetType) {
-        report(ref b, through: ref c, for: .badBinaryOperands, at: a.span, by: (binaryText(bop), typeDisplay(ref c, by: targetType), typeDisplay(ref c, by: valueType), "", ""))
+        report(
+            ref b,
+            through: ref c,
+            for: .badBinaryOperands,
+            at: a.span,
+            by: (binaryText(bop), typeDisplay(ref c, by: targetType), typeDisplay(ref c, by: valueType), "", ""),
+        )
         return recordAssignSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: a.span }), from: in a)
     }
     let pending = isPending(ref b, through: ref c, for: target)
     let converted = convert(ref b, through: ref c, for: value, to: targetType, at: valueSpan, constrains: !pending)
-    return recordAssignSyntax(ref c, for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted, op: bop }), from: in a)
+    return recordAssignSyntax(
+        ref c,
+        for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted, op: bop }),
+        from: in a,
+    )
 }
 
 BStmt bindIncDec(ref Binder b, through ref Ctx c, for in parser.IncDecStmt i) {
     var target = bindExpr(ref b, through: ref c, for: in i.target)
     let targetType = exprType(in c, for: target)
-    if isError(targetType) { return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: i.span }), as: .incDecStmt, at: i.span) }
+    return recordNodeSyntax(
+        ref c,
+        for: addErrorStmt(ref c, from: BErrorStmt { span: i.span }),
+        as: .incDecStmt,
+        at: i.span,
+    ) if isError(targetType)
     if !isInteger(targetType) {
-        report(ref b, through: ref c, for: .badUnaryOperand, at: i.span, by: (i.increment ? "++" : "--", typeDisplay(ref c, by: targetType), "", "", ""))
-        return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: i.span }), as: .incDecStmt, at: i.span)
+        report(
+            ref b,
+            through: ref c,
+            for: .badUnaryOperand,
+            at: i.span,
+            by: (i.increment ? "++" : "--", typeDisplay(ref c, by: targetType), "", "", ""),
+        )
+        return recordNodeSyntax(
+            ref c,
+            for: addErrorStmt(ref c, from: BErrorStmt { span: i.span }),
+            as: .incDecStmt,
+            at: i.span,
+        )
     }
     target = mapWriteTarget(ref c, for: target)
-    if !t39CheckFieldWrite(ref b, through: ref c, for: target, at: i.span) { return recordNodeSyntax(ref c, for: addErrorStmt(ref c, from: BErrorStmt { span: i.span }), as: .incDecStmt, at: i.span) }
+    return recordNodeSyntax(
+        ref c,
+        for: addErrorStmt(ref c, from: BErrorStmt { span: i.span }),
+        as: .incDecStmt,
+        at: i.span,
+    ) if !t39CheckFieldWrite(ref b, through: ref c, for: target, at: i.span)
     let _ = checkWritable(ref b, through: ref c, for: target, at: parser.exprSpan(in i.target), by: "")
-    let one = recordNodeSyntax(ref c, for: literal(ref c, at: i.span, as: exprType(in c, for: target), by: in Constant { kind: .integer, integer: bigFromI64(1) }), as: .incDecStmt, at: i.span)
+    let one = recordNodeSyntax(
+        ref c,
+        for: literal(
+            ref c,
+            at: i.span,
+            as: exprType(in c, for: target),
+            by: in Constant { kind: .integer, integer: bigFromI64(1) },
+        ),
+        as: .incDecStmt,
+        at: i.span,
+    )
     let op: parser.BinaryOp = i.increment ? .add : .sub
-    return recordNodeSyntax(ref c, for: addAssign(ref c, from: BAssign { span: i.span, target: target, value: one, op: op }), as: .incDecStmt, at: i.span)
+    return recordNodeSyntax(
+        ref c,
+        for: addAssign(ref c, from: BAssign { span: i.span, target: target, value: one, op: op }),
+        as: .incDecStmt,
+        at: i.span,
+    )
 }
 
 /// J78 (O11, revision 0007): a field of a struct with `requires`, states or `@sealed` is written only by its own
 /// methods (BYN3216 elsewhere); there, a field of a struct with `requires` is BYN3208, since the rules are checked at
 /// construction. A constructor sets fields freely, and plain data is written anywhere.
 bool t39CheckFieldWrite(ref Binder b, through ref Ctx c, for BExpr target, at TextSpan span) {
-    if boundKind(target) != .field { return true }
+    return true if boundKind(target) != .field
     let field = c.bFields[boundIndex(target)].field
     let owner = c.fields[field].owner
     // Still a write for BYN2311, whichever way it is reported.
     let written = writtenLocal(ref c, for: target)
-    if written != -1 { c.locals[written].written = true }
+    if written != -1 {
+        c.locals[written].written = true
+    }
     let ownerDecl = c.structs[owner].template != -1 ? c.structs[owner].template : owner
     var own = false
     if b.owner != -1 {
@@ -414,12 +595,25 @@ bool t39CheckFieldWrite(ref Binder b, through ref Ctx c, for BExpr target, at Te
     if !own {
         let reason = t39Invariant(ref c, for: ownerDecl) ?? return true
         let ownerName = c.structs[owner].name
-        report(ref b, through: ref c, for: .fieldWriteOutside, at: span, by: (ownerName, c.fields[field].name, reason, "", ""),
-            help: $"add a `ref this` method to `{ownerName}`, or build a new value with `with`")
+        report(
+            ref b,
+            through: ref c,
+            for: .fieldWriteOutside,
+            at: span,
+            by: (ownerName, c.fields[field].name, reason, "", ""),
+            help: $"add a `ref this` method to `{ownerName}`, or build a new value with `with`",
+        )
         return false
     }
-    if (b.fn != -1 && c.functions[b.fn].kind == .constructor) || !c.checksOf.contains(ownerDecl) { return true }
-    report(ref b, through: ref c, for: .checkedFieldAssignment, at: span, by: (c.structs[owner].name, "", "", "", ""), help: "build a new value with `with`: `try x with { f: v }`")
+    return true if (b.fn != -1 && c.functions[b.fn].kind == .constructor) || !c.checksOf.contains(ownerDecl)
+    report(
+        ref b,
+        through: ref c,
+        for: .checkedFieldAssignment,
+        at: span,
+        by: (c.structs[owner].name, "", "", "", ""),
+        help: "build a new value with `with`: `try x with { f: v }`",
+    )
     return false
 }
 
@@ -433,14 +627,16 @@ string? t39Invariant(ref Ctx c, for StructId s) {
             for m in n.value.members {
                 switch m {
                     case .fieldDecl(let f):
-                        if f.value.requiresClauses.length > 0 { hasRequires = true }
+                        if f.value.requiresClauses.length > 0 {
+                            hasRequires = true
+                        }
                     default: {}
                 }
             }
-            if hasRequires { return "has `requires`" }
-            if n.value.states.length > 0 { return "has states" }
+            return "has `requires`" if hasRequires
+            return "has states" if n.value.states.length > 0
             for a in n.value.attributes {
-                if t11Text(in c, from: file, at: a.name) == "sealed" { return "is `@sealed`" }
+                return "is `@sealed`" if t11Text(in c, from: file, at: a.name) == "sealed"
             }
             return null
         default:
@@ -450,7 +646,7 @@ string? t39Invariant(ref Ctx c, for StructId s) {
 
 /// `map[k]` as an assignment target: `=` inserts `k` when missing; `op=`, `++` and `--` read it first and panic (lowering).
 BExpr mapWriteTarget(ref Ctx c, for BExpr target) {
-    if boundKind(target) != .builtinCall || c.bBuiltinCalls[boundIndex(target)].member != .mapIndex { return target }
+    return target if boundKind(target) != .builtinCall || c.bBuiltinCalls[boundIndex(target)].member != .mapIndex
     let i = boundIndex(target)
     return shareSyntax(ref c, for: addBuiltinCall(ref c, from: BBuiltinCall {
         span: c.bBuiltinCalls[i].span,
@@ -466,17 +662,25 @@ BExpr mapWriteTarget(ref Ctx c, for BExpr target) {
 void reportMutatesWithoutRefThis(ref Ctx c, for FuncId fn, at TextSpan span) {
     let d = t39DeclFacts(ref c, for: fn)
     let file = c.thisWrites[fn].file
-    report(ref c, for: .mutatesWithoutRefThis, from: file, at: span, by: (c.functions[fn].name, "", "", "", ""), label: "`this` is modified here",
+    report(
+        ref c,
+        for: .mutatesWithoutRefThis,
+        from: file,
+        at: span,
+        by: (c.functions[fn].name, "", "", "", ""),
+        label: "`this` is modified here",
         help: "declare it `ref this` as the first parameter",
         // A receiver written as `this is .s` gains only `ref`.
-        hasFix: true, fixSpan: TextSpan { start: d.paramsStart, length: 0 },
-        fixReplacement: d.receiverStates > 0 ? "ref " : d.params > 0 ? "ref this, " : "ref this")
+        hasFix: true,
+        fixSpan: TextSpan { start: d.paramsStart, length: 0 },
+        fixReplacement: d.receiverStates > 0 ? "ref " : d.params > 0 ? "ref this, " : "ref this",
+    )
 }
 
 /// The first write to `this` in a method not declared `ref this` (C# `Compilation.ThisWrites`' value): the file of the
 /// binder that saw it, and where (Q694).
 struct T39ThisWrite {
-    FileId file
+    FileId   file
     TextSpan span
 }
 
@@ -486,20 +690,36 @@ struct T39ThisWrite {
     let d = c.functions[fn].declIndex
     let m = c.functions[fn].memberIndex
     switch c.files[f].unit.members[d] {
-        case .functionDecl(let n): return (paramsStart: n.value.paramsStart, receiverStates: n.value.receiverStates.length, params: n.value.params.length)
+        case .functionDecl(let n): return (
+            paramsStart: n.value.paramsStart,
+            receiverStates: n.value.receiverStates.length,
+            params: n.value.params.length
+        )
         case .structDecl(let n):
             switch n.value.members[m] {
-                case .functionDecl(let x): return (paramsStart: x.value.paramsStart, receiverStates: x.value.receiverStates.length, params: x.value.params.length)
+                case .functionDecl(let x): return (
+                    paramsStart: x.value.paramsStart,
+                    receiverStates: x.value.receiverStates.length,
+                    params: x.value.params.length
+                )
                 default: {}
             }
         case .interfaceDecl(let n):
             switch n.value.members[m] {
-                case .functionDecl(let x): return (paramsStart: x.value.paramsStart, receiverStates: x.value.receiverStates.length, params: x.value.params.length)
+                case .functionDecl(let x): return (
+                    paramsStart: x.value.paramsStart,
+                    receiverStates: x.value.receiverStates.length,
+                    params: x.value.params.length
+                )
                 default: {}
             }
         case .extensionDecl(let n):
             switch n.value.members[m] {
-                case .functionDecl(let x): return (paramsStart: x.value.paramsStart, receiverStates: x.value.receiverStates.length, params: x.value.params.length)
+                case .functionDecl(let x): return (
+                    paramsStart: x.value.paramsStart,
+                    receiverStates: x.value.receiverStates.length,
+                    params: x.value.params.length
+                )
                 default: {}
             }
         default: {}
@@ -511,8 +731,10 @@ struct T39ThisWrite {
 /// for BYN2115; getters may not write. `why` is "" where C# has null.
 bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpan span, by string why) {
     let written = writtenLocal(ref c, for: target)
-    if written != -1 { c.locals[written].written = true }
-    if checkGuardWrite(ref b, through: ref c, for: target, at: span, by: why) { return false }
+    if written != -1 {
+        c.locals[written].written = true
+    }
+    return false if checkGuardWrite(ref b, through: ref c, for: target, at: span, by: why)
     let i = boundIndex(target)
     switch boundKind(target) {
         case .errorExpr:
@@ -520,26 +742,42 @@ bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpa
         case .local:
             let l = c.bLocals[i].local
             if c.locals[l].borrowsSubject && isUnique(ref c, for: c.locals[l].type) {
-                report(ref b, through: ref c, for: .mutateBorrow, at: span, by: (c.locals[l].name, "", "", "", ""), label: why,
-                    help: "change the subject itself, or work on a `.copy(to: alloc)`; a loop or pattern variable of a unique type borrows from its subject")
+                report(
+                    ref b,
+                    through: ref c,
+                    for: .mutateBorrow,
+                    at: span,
+                    by: (c.locals[l].name, "", "", "", ""),
+                    label: why,
+                    help: "change the subject itself, or work on a `.copy(to: alloc)`; a loop or pattern variable of a unique type borrows from its subject",
+                )
                 return false
             }
             let kind = c.locals[l].kind
-            let byRef = c.locals[l].isParameter && (c.locals[l].modifier == .refKeyword || c.locals[l].modifier == .outKeyword)
-            if kind == .varKeyword || kind == .temp || byRef { return true }
+            let byRef = c.locals[l].isParameter && (c.locals[l].modifier is .refKeyword or .outKeyword)
+            return true if kind == .varKeyword || kind == .temp || byRef
             t39ReportImmutable(ref b, through: ref c, for: l, at: span, by: why)
             return false
         case .thisRef:
-            if b.fn != -1 && c.functions[b.fn].kind == .constructor { return true }
+            return true if b.fn != -1 && c.functions[b.fn].kind == .constructor
             if b.fn != -1 && c.functions[b.fn].kind == .method && !c.functions[b.fn].isStatic {
                 let fn = b.fn
-                if !c.functions[fn].isMutating && !functionIsInstance(ref c, by: fn) && (!c.thisWrites.contains(fn) || span.start < c.thisWrites[fn].span.start) {
+                if !c.functions[fn].isMutating
+                        && !functionIsInstance(ref c, by: fn)
+                        && (!c.thisWrites.contains(fn) || span.start < c.thisWrites[fn].span.start) {
                     c.thisWrites[fn] = T39ThisWrite { file: b.file, span: span }
                 }
                 return true
             }
             if b.fn != -1 && c.functions[b.fn].kind == .getter {
-                report(ref b, through: ref c, for: .getterMutates, at: span, by: (c.functions[b.fn].name, "", "", "", ""), help: "make it a method if it needs to change the value")
+                report(
+                    ref b,
+                    through: ref c,
+                    for: .getterMutates,
+                    at: span,
+                    by: (c.functions[b.fn].name, "", "", "", ""),
+                    help: "make it a method if it needs to change the value",
+                )
             } else {
                 report(ref b, through: ref c, for: .mutateTemporary, at: span, by: ("", "", "", "", ""), label: why)
             }
@@ -547,8 +785,19 @@ bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpa
         case .field:
             let field = c.bFields[i].field
             let receiver = c.bFields[i].receiver
-            if fieldIsReadonly(ref c, by: field) && !(b.fn != -1 && c.functions[b.fn].kind == .constructor && c.functions[b.fn].owner == c.fields[field].owner && boundKind(receiver) == .thisRef) {
-                report(ref b, through: ref c, for: .readonlyField, at: span, by: (c.fields[field].name, "", "", "", ""), help: "set `readonly` fields only in a constructor or a struct literal")
+            if fieldIsReadonly(ref c, by: field)
+                    && !(b.fn != -1
+                    && c.functions[b.fn].kind == .constructor
+                    && c.functions[b.fn].owner == c.fields[field].owner
+                    && boundKind(receiver) == .thisRef) {
+                report(
+                    ref b,
+                    through: ref c,
+                    for: .readonlyField,
+                    at: span,
+                    by: (c.fields[field].name, "", "", "", ""),
+                    help: "set `readonly` fields only in a constructor or a struct literal",
+                )
                 return false
             }
             return checkWritable(ref b, through: ref c, for: receiver, at: span, by: why)
@@ -559,7 +808,14 @@ bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpa
             let tt = exprType(in c, for: indexed)
             if kindOf(tt) == .span {
                 if c.spanTypes[typeIndex(tt)].readOnly {
-                    report(ref b, through: ref c, for: .mutateTemporary, at: span, by: ("", "", "", "", ""), label: "a `ReadOnlySpan` cannot be written through")
+                    report(
+                        ref b,
+                        through: ref c,
+                        for: .mutateTemporary,
+                        at: span,
+                        by: ("", "", "", "", ""),
+                        label: "a `ReadOnlySpan` cannot be written through",
+                    )
                     return false
                 }
                 return true
@@ -567,16 +823,37 @@ bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpa
             return checkWritable(ref b, through: ref c, for: indexed, at: span, by: why)
         case .builtinCall:
             let member = c.bBuiltinCalls[i].member
-            if member == .mapIndexSet || member == .mapSlot { return checkWritable(ref b, through: ref c, for: c.bBuiltinCalls[i].receiver, at: span, by: why) }
+            return checkWritable(
+                ref b,
+                through: ref c,
+                for: c.bBuiltinCalls[i].receiver,
+                at: span,
+                by: why,
+            ) if member is .mapIndexSet
+                or .mapSlot
             if member == .ownedValue {
-                report(ref b, through: ref c, for: .mutateTemporary, at: span, by: ("", "", "", "", ""), label: why == "" ? "an `Owned` value is read-only" : $"{why}; an `Owned` value is read-only",
-                    help: "build a new value and wrap it with `Owned(…)`")
+                report(
+                    ref b,
+                    through: ref c,
+                    for: .mutateTemporary,
+                    at: span,
+                    by: ("", "", "", "", ""),
+                    label: why == "" ? "an `Owned` value is read-only" : $"{why}; an `Owned` value is read-only",
+                    help: "build a new value and wrap it with `Owned(…)`",
+                )
                 return false
             }
             report(ref b, through: ref c, for: .mutateTemporary, at: span, by: ("", "", "", "", ""), label: why)
             return false
         case .staticArray:
-            report(ref b, through: ref c, for: .mutateTemporary, at: span, by: ("", "", "", "", ""), label: why == "" ? "a `const` never changes" : $"{why}; a `const` never changes")
+            report(
+                ref b,
+                through: ref c,
+                for: .mutateTemporary,
+                at: span,
+                by: ("", "", "", "", ""),
+                label: why == "" ? "a `const` never changes" : $"{why}; a `const` never changes",
+            )
             return false
         default:
             report(ref b, through: ref c, for: .mutateTemporary, at: span, by: ("", "", "", "", ""), label: why)
@@ -592,11 +869,11 @@ LocalId writtenLocal(ref Ctx c, for BExpr e) {
         case .field: return writtenLocal(ref c, for: c.bFields[i].receiver)
         case .tupleElement: return writtenLocal(ref c, for: c.bTupleElements[i].receiver)
         case .index:
-            if kindOf(exprType(in c, for: c.bIndexes[i].target)) == .span { return -1 }
+            return -1 if kindOf(exprType(in c, for: c.bIndexes[i].target)) == .span
             return writtenLocal(ref c, for: c.bIndexes[i].target)
         case .builtinCall:
             let member = c.bBuiltinCalls[i].member
-            if member == .mapIndexSet || member == .mapSlot { return writtenLocal(ref c, for: c.bBuiltinCalls[i].receiver) }
+            return writtenLocal(ref c, for: c.bBuiltinCalls[i].receiver) if member is .mapIndexSet or .mapSlot
             return -1
         default: return -1
     }
@@ -627,6 +904,19 @@ void t39ReportImmutable(ref Binder b, through ref Ctx c, for LocalId l, at TextS
             label = "pattern variables are immutable"
         default: {}
     }
-    if why != "" { label = label == "" ? why : $"{why}; {label}" }
-    report(ref b, through: ref c, for: .immutableAssignment, at: span, by: (c.locals[l].name, "", "", "", ""), label: label, help: help, hasFix: hasFix, fixSpan: fixSpan, fixReplacement: hasFix ? "var" : "")
+    if why != "" {
+        label = label == "" ? why : $"{why}; {label}"
+    }
+    report(
+        ref b,
+        through: ref c,
+        for: .immutableAssignment,
+        at: span,
+        by: (c.locals[l].name, "", "", "", ""),
+        label: label,
+        help: help,
+        hasFix: hasFix,
+        fixSpan: fixSpan,
+        fixReplacement: hasFix ? "var" : "",
+    )
 }

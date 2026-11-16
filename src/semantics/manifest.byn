@@ -44,39 +44,39 @@ public enum LintSeverity {
 
 // The C# `Grammar`: the package's extra lexicon words and irregular forms.
 struct Grammar {
-    List<string> verbs = []
-    List<string> nouns = []
-    List<string> adjectives = []
-    List<string> collectives = []
-    Map<string, string> forms = []
+    List<string>        verbs       = []
+    List<string>        nouns       = []
+    List<string>        adjectives  = []
+    List<string>        collectives = []
+    Map<string, string> forms       = []
 }
 
 // The C# `Manifest`; `capabilities` is null when the package lists none.
 public struct Manifest {
-    string name = ""
-    public string version = ""
-    i64 edition = 2027
-    PackageKind kind = .app
-    List<string>? capabilities = null
-    public List<string> distTargets = []
-    public string distMode = "safe"
-    public i64? minLines = null
-    public i64? minBranches = null
-    public i64? minErrorPaths = null
-    public i64? minMutation = null
-    public bool summary = true
-    public i64 indent = 4
-    public i64 width = 120
-    public AlignStyle align = .runs
-    public TrailingCommaStyle trailingCommas = .multiline
-    public Map<string, LintSeverity> lints = t10DefaultLints()
-    public BooleanStyle booleans = .symbols
-    public PrimitiveStyle primitives = .sized
-    Grammar grammar = Grammar {}
-    public List<Diag> diagnostics = []
+    string                           name           = ""
+    public string                    version        = ""
+    i64                              edition        = 2027
+    PackageKind                      kind           = .app
+    List<string>?                    capabilities   = null
+    public List<string>              distTargets    = []
+    public string                    distMode       = "safe"
+    public i64?                      minLines       = null
+    public i64?                      minBranches    = null
+    public i64?                      minErrorPaths  = null
+    public i64?                      minMutation    = null
+    public bool                      summary        = true
+    public i64                       indent         = 4
+    public i64                       width          = 120
+    public AlignStyle                align          = .runs
+    public TrailingCommaStyle        trailingCommas = .multiline
+    public Map<string, LintSeverity> lints          = t10DefaultLints()
+    public BooleanStyle              booleans       = .symbols
+    public PrimitiveStyle            primitives     = .sized
+    Grammar                          grammar        = {}
+    public List<Diag>                diagnostics    = []
 }
 
-// ── Values (the C# `Value` records) ─────────────────────────────────────────────
+// ── Values (the C# `Value` records) ──────────────────────────────────────────
 
 enum T10ValueKind {
     stringValue
@@ -90,38 +90,40 @@ enum T10ValueKind {
 
 /// One `field: value` of an object value; `value` indexes `T10Reader.values`.
 struct T10Field {
-    string name
+    string   name
     TextSpan nameSpan
-    i64 value
+    i64      value
 }
 
 /// A C# `Value`: `text` is a string's contents, an enum's name or an object's type; `number` an int, or a bool as 1 or 0; a list's items and a
 /// map's values are in `items`, a map's keys in `keys`, all indexes into `T10Reader.values`.
 struct T10Value {
-    T10ValueKind kind
-    TextSpan span
-    string text = ""
-    i64 number = 0
-    List<i64> items = List<i64>()
-    List<i64> keys = List<i64>()
-    List<T10Field> fields = List<T10Field>()
+    T10ValueKind   kind
+    TextSpan       span
+    string         text   = ""
+    i64            number = 0
+    List<i64>      items  = []
+    List<i64>      keys   = []
+    List<T10Field> fields = []
 }
 
 /// The C# `Reader`: the manifest's bytes and tokens, a position and the value arena.
 struct T10Reader {
-    List<u8> bytes
+    List<u8>          bytes
     List<lexer.Token> tokens
-    i64 pos = 0
-    List<T10Value> values = List<T10Value>()
+    i64               pos    = 0
+    List<T10Value>    values = []
 }
 
-// ── Entry points ────────────────────────────────────────────────────────────────
+// ── Entry points ─────────────────────────────────────────────────────────────
 
 /// Manifest.cs:73 `HasErrors`, as a count.
 public i64 manifestErrorCount(in Manifest m) {
     var n: i64 = 0
     for d in m.diagnostics {
-        unless d.isWarning { n += 1 }
+        unless d.isWarning {
+            n += 1
+        }
     }
     return n
 }
@@ -140,17 +142,25 @@ Manifest manifestParse(move lexer.SourceText source) {
     for d in lexed.diagnostics {
         m.diagnostics.append(t10FromLexer(in d))
     }
-    if manifestErrorCount(in m) > 0 { return m }
+    return m if manifestErrorCount(in m) > 0
     var bytes = List<u8>()
-    for b in lexed.source.bytes { bytes.append(b) }
+    for b in lexed.source.bytes {
+        bytes.append(b)
+    }
     var tokens = List<lexer.Token>()
-    for t in lexed.tokens { tokens.append(t) }
+    for t in lexed.tokens {
+        tokens.append(t)
+    }
     var r = T10Reader { bytes: move bytes, tokens: move tokens }
     var diags = List<Diag>()
     let root = t10ReadValue(ref r, to: ref diags)
-    if root >= 0 && !t10AtEnd(in r) { t10Fail(in r, for: "the end of the file after `Package { … }`", to: ref diags) }
-    for d in diags { m.diagnostics.append(t10CopyDiag(in d)) }
-    if manifestErrorCount(in m) > 0 { return m }
+    if root >= 0 && !t10AtEnd(in r) {
+        t10Fail(in r, for: "the end of the file after `Package { … }`", to: ref diags)
+    }
+    for d in diags {
+        m.diagnostics.append(t10CopyDiag(in d))
+    }
+    return m if manifestErrorCount(in m) > 0
     if r.values[root].kind != .objectValue || r.values[root].text != "Package" {
         t10Report(ref m, for: .manifestNotData, at: r.values[root].span, by: t10Args("`Package { … }`", by: ""))
         return m
@@ -159,9 +169,9 @@ Manifest manifestParse(move lexer.SourceText source) {
     return m
 }
 
-// ── Bind ────────────────────────────────────────────────────────────────────────
+// ── Bind ─────────────────────────────────────────────────────────────────────
 
-const t10NameExpected: string = "a string `namespace/name` of lowercase words joined by `-`, e.g. `\"local/tally\"`"
+const t10NameExpected: string    = "a string `namespace/name` of lowercase words joined by `-`, e.g. `\"local/tally\"`"
 const t10VersionExpected: string = "a semantic version string, e.g. `\"0.1.0\"`"
 
 /// Manifest.cs:96 `Bind`.
@@ -170,13 +180,21 @@ void t10Bind(ref Manifest m, from in T10Reader r, at i64 package) {
     let name = t10Required(ref m, from: in r, for: in fields, by: "name", at: package)
     if name >= 0 {
         if (t10Text(ref m, from: in r, at: name, for: "name", as: t10NameExpected) is { } n) {
-            if t10IsPackageName(n) { m.name = n } else { t10Invalid(ref m, from: in r, at: name, for: "name", as: t10NameExpected) }
+            if t10IsPackageName(n) {
+                m.name = n
+            } else {
+                t10Invalid(ref m, from: in r, at: name, for: "name", as: t10NameExpected)
+            }
         }
     }
     let version = t10Required(ref m, from: in r, for: in fields, by: "version", at: package)
     if version >= 0 {
         if (t10Text(ref m, from: in r, at: version, for: "version", as: t10VersionExpected) is { } v) {
-            if t10IsSemanticVersion(v) { m.version = v } else { t10Invalid(ref m, from: in r, at: version, for: "version", as: t10VersionExpected) }
+            if t10IsSemanticVersion(v) {
+                m.version = v
+            } else {
+                t10Invalid(ref m, from: in r, at: version, for: "version", as: t10VersionExpected)
+            }
         }
     }
     if fields.contains("edition") {
@@ -201,10 +219,18 @@ void t10Bind(ref Manifest m, from in T10Reader r, at i64 package) {
         let capabilities = fields["capabilities"]
         if t10IsListOf(in r, at: capabilities, as: .enumValue) {
             var names = List<string>()
-            for item in r.values[capabilities].items { names.append(r.values[item].text) }
+            for item in r.values[capabilities].items {
+                names.append(r.values[item].text)
+            }
             m.capabilities = move names
         } else {
-            t10Invalid(ref m, from: in r, at: capabilities, for: "capabilities", as: "a list of capabilities, e.g. `[.fs, .net]`")
+            t10Invalid(
+                ref m,
+                from: in r,
+                at: capabilities,
+                for: "capabilities",
+                as: "a list of capabilities, e.g. `[.fs, .net]`",
+            )
         }
     }
     if fields.contains("test") {
@@ -244,10 +270,14 @@ void t10BindTests(ref Manifest m, from in T10Reader r, at i64 tests) {
 
 /// Manifest.cs:268 `Percent`: the field's value from 0 to 100, null when absent or invalid (reported).
 i64? t10Percent(ref Manifest m, from T10Reader r, at Map<string, i64> fields, for string name) uses alloc {
-    unless fields.contains(name) { return null }
+    unless fields.contains(name) {
+        return null
+    }
     let value = fields[name]
     // coverage-exempt: Q1217 an int value is an integer literal, never below 0 (Manifest.cs:451 `IntValue` too)
-    if r.values[value].kind == .intValue && r.values[value].number >= 0 && r.values[value].number <= 100 { return r.values[value].number }
+    return r.values[value].number if r.values[value].kind == .intValue
+        && r.values[value].number >= 0
+        && r.values[value].number <= 100
     t10Invalid(ref m, from: in r, at: value, for: $"test.{name}", as: "a percentage from 0 to 100, e.g. `80`")
     return null
 }
@@ -292,13 +322,31 @@ void t10BindStyle(ref Manifest m, from in T10Reader r, at i64 style) {
         } else if t10IsEnum(in r, at: trailingCommas, as: "never") {
             m.trailingCommas = .omit
         } else if r.values[trailingCommas].kind == .boolValue {
-            t10Invalid(ref m, from: in r, at: trailingCommas, for: "style.trailingCommas", as: "`.multiline` or `.never`, not `true` or `false`")
+            t10Invalid(
+                ref m,
+                from: in r,
+                at: trailingCommas,
+                for: "style.trailingCommas",
+                as: "`.multiline` or `.never`, not `true` or `false`",
+            )
         } else {
-            t10Invalid(ref m, from: in r, at: trailingCommas, for: "style.trailingCommas", as: "`.multiline` or `.never`")
+            t10Invalid(
+                ref m,
+                from: in r,
+                at: trailingCommas,
+                for: "style.trailingCommas",
+                as: "`.multiline` or `.never`",
+            )
         }
     }
     if fields.contains("braces") {
-        t10Invalid(ref m, from: in r, at: fields["braces"], for: "style.braces", as: "removed: there is no brace knob, `{` always ends the line")
+        t10Invalid(
+            ref m,
+            from: in r,
+            at: fields["braces"],
+            for: "style.braces",
+            as: "removed: there is no brace knob, `{` always ends the line",
+        )
     }
     if fields.contains("maxLine") {
         t10Invalid(ref m, from: in r, at: fields["maxLine"], for: "style.maxLine", as: "removed: use `style.width`")
@@ -313,10 +361,18 @@ void t10BindStyle(ref Manifest m, from in T10Reader r, at i64 style) {
                     var names = StrBuf()
                     let known = t10LintNames()
                     for j in 0..known.length {
-                        if j > 0 { names.append(", ") }
+                        if j > 0 {
+                            names.append(", ")
+                        }
                         names.append($"`{known[j]}`")
                     }
-                    t10Invalid(ref m, from: in r, at: key, for: "style.lints", as: $"a known lint name: {names.finish()}")
+                    t10Invalid(
+                        ref m,
+                        from: in r,
+                        at: key,
+                        for: "style.lints",
+                        as: $"a known lint name: {names.finish()}",
+                    )
                 } else if t10IsEnum(in r, at: severity, as: "none") {
                     m.lints[r.values[key].text] = .none
                 } else if t10IsEnum(in r, at: severity, as: "suggestion") {
@@ -326,11 +382,23 @@ void t10BindStyle(ref Manifest m, from in T10Reader r, at i64 style) {
                 } else if t10IsEnum(in r, at: severity, as: "error") {
                     m.lints[r.values[key].text] = .error
                 } else {
-                    t10Invalid(ref m, from: in r, at: severity, for: "style.lints", as: $"`.none`, `.suggestion`, `.warning` or `.error` for `{r.values[key].text}`")
+                    t10Invalid(
+                        ref m,
+                        from: in r,
+                        at: severity,
+                        for: "style.lints",
+                        as: $"`.none`, `.suggestion`, `.warning` or `.error` for `{r.values[key].text}`",
+                    )
                 }
             }
         } else if r.values[lints].kind != .listValue || r.values[lints].items.length != 0 {
-            t10Invalid(ref m, from: in r, at: lints, for: "style.lints", as: "a map from a lint name to `.none`, `.suggestion`, `.warning` or `.error`, e.g. `[\"guards.postfix\": .warning]`")
+            t10Invalid(
+                ref m,
+                from: in r,
+                at: lints,
+                for: "style.lints",
+                as: "a map from a lint name to `.none`, `.suggestion`, `.warning` or `.error`, e.g. `[\"guards.postfix\": .warning]`",
+            )
         }
     }
     if fields.contains("booleans") {
@@ -376,14 +444,22 @@ void t10BindGrammar(ref Manifest m, from in T10Reader r, at i64 grammar) {
                 m.grammar.forms[word] = form
             }
         } else if r.values[forms].kind != .listValue || r.values[forms].items.length != 0 {
-            t10Invalid(ref m, from: in r, at: forms, for: "grammar.forms", as: "a map from a word to its form, e.g. `[\"upsert\": \"upserted\"]`")
+            t10Invalid(
+                ref m,
+                from: in r,
+                at: forms,
+                for: "grammar.forms",
+                as: "a map from a word to its form, e.g. `[\"upsert\": \"upserted\"]`",
+            )
         }
     }
 }
 
 /// One of `verbs`, `nouns`, `adjectives`, `collectives` in Manifest.cs:214 `Grammar.Collectives`: the words join the set, duplicates once.
 void t10BindWords(ref Manifest m, from in T10Reader r, for in Map<string, i64> fields, by string field) {
-    unless fields.contains(field) { return }
+    unless fields.contains(field) {
+        return
+    }
     let list = fields[field]
     unless t10IsListOf(in r, at: list, as: .stringValue) {
         t10Invalid(ref m, from: in r, at: list, for: $"grammar.{field}", as: "a list of words, e.g. `[\"upsert\"]`")
@@ -403,7 +479,7 @@ void t10BindWords(ref Manifest m, from in T10Reader r, for in Map<string, i64> f
 /// `HashSet.Add`: `word` joins `words` unless it is there.
 void t10AddWord(ref List<string> words, by string word) {
     for w in words {
-        if w == word { return }
+        return if w == word
     }
     words.append(word)
 }
@@ -418,14 +494,24 @@ void t10BindDist(ref Manifest m, from in T10Reader r, at i64 dist) {
     if fields.contains("targets") {
         let targets = fields["targets"]
         if t10IsListOf(in r, at: targets, as: .enumValue) {
-            for item in r.values[targets].items { m.distTargets.append(kebabOf(r.values[item].text)) }
+            for item in r.values[targets].items {
+                m.distTargets.append(kebabOf(r.values[item].text))
+            }
         } else {
-            t10Invalid(ref m, from: in r, at: targets, for: "dist.targets", as: "a list of targets, e.g. `[.host, .linuxX64]`")
+            t10Invalid(
+                ref m,
+                from: in r,
+                at: targets,
+                for: "dist.targets",
+                as: "a list of targets, e.g. `[.host, .linuxX64]`",
+            )
         }
     }
     if fields.contains("mode") {
         let mode = fields["mode"]
-        if t10IsEnum(in r, at: mode, as: "debug") || t10IsEnum(in r, at: mode, as: "safe") || t10IsEnum(in r, at: mode, as: "fast") {
+        if t10IsEnum(in r, at: mode, as: "debug")
+                || t10IsEnum(in r, at: mode, as: "safe")
+                || t10IsEnum(in r, at: mode, as: "fast") {
             m.distMode = r.values[mode].text
         } else {
             t10Invalid(ref m, from: in r, at: mode, for: "dist.mode", as: "`.debug`, `.safe` or `.fast`")
@@ -433,7 +519,8 @@ void t10BindDist(ref Manifest m, from in T10Reader r, at i64 dist) {
     }
 }
 
-List<string> t10PackageFields() => ["name", "version", "edition", "kind", "codes", "capabilities", "deps", "test", "dist", "style", "grammar"]
+List<string> t10PackageFields() =>
+    ["name", "version", "edition", "kind", "codes", "capabilities", "deps", "test", "dist", "style", "grammar"]
 
 List<string> t10TestsFields() => ["lines", "branches", "errorPaths", "mutation", "summary", "diffCoverage", "nightly"]
 
@@ -445,8 +532,17 @@ List<string> t10StyleFields() => ["indent", "width", "align", "trailingCommas", 
 List<string> t10RemovedStyleFields() => ["braces", "maxLine"]
 
 /// Manifest.cs:50 `LintNames`, in order.
-List<string> t10LintNames() => ["guards.postfix", "lambdas.it", "nesting.depth", "functions.length", "conditions.named", "sections.banner",
-    "conditions.patterns", "literals.empty", "optionals.bind"]
+List<string> t10LintNames() => [
+    "guards.postfix",
+    "lambdas.it",
+    "nesting.depth",
+    "functions.length",
+    "conditions.named",
+    "sections.banner",
+    "conditions.patterns",
+    "literals.empty",
+    "optionals.bind",
+]
 
 /// Manifest.cs:50 `LintNames` defaults, the C# `_lints` initializer (Manifest.cs:117).
 Map<string, LintSeverity> t10DefaultLints() => [
@@ -464,17 +560,31 @@ Map<string, LintSeverity> t10DefaultLints() => [
 List<string> t10GrammarFields() => ["verbs", "nouns", "adjectives", "collectives", "forms"]
 
 /// Manifest.cs:345 `Fields`: the known fields by name (and the `removed` ones, read so each is reported on its own); unknown and repeated ones are reported.
-Map<string, i64> t10Fields(ref Manifest m, from in T10Reader r, at i64 obj, by in List<string> known, for in List<string> removed) {
+Map<string, i64> t10Fields(
+    ref Manifest m,
+    from in T10Reader r,
+    at i64 obj,
+    by in List<string> known,
+    for in List<string> removed
+) {
     var fields: Map<string, i64> = []
     for f in r.values[obj].fields {
         if !t10Contains(in known, for: f.name) && !t10Contains(in removed, for: f.name) {
             var help = StrBuf()
             help.append("use one of the fields ")
             for i in 0..known.length {
-                if i > 0 { help.append(", ") }
+                if i > 0 {
+                    help.append(", ")
+                }
                 help.append($"`{known[i]}`")
             }
-            t10Report(ref m, for: .manifestUnknownField, at: f.nameSpan, by: t10Args(f.name, by: r.values[obj].text), help: $"{help.finish()}")
+            t10Report(
+                ref m,
+                for: .manifestUnknownField,
+                at: f.nameSpan,
+                by: t10Args(f.name, by: r.values[obj].text),
+                help: $"{help.finish()}",
+            )
         } else if fields.contains(f.name) {
             t10Report(ref m, for: .manifestNotData, at: f.nameSpan, by: t10Args($"`{f.name}` only once", by: ""))
         } else {
@@ -486,14 +596,14 @@ Map<string, i64> t10Fields(ref Manifest m, from in T10Reader r, at i64 obj, by i
 
 bool t10Contains(in List<string> xs, for string x) {
     for s in xs {
-        if s == x { return true }
+        return true if s == x
     }
     return false
 }
 
 /// Manifest.cs:229 `Required`: the field's value, or -1 after BYN3103 at the object's type name.
 i64 t10Required(ref Manifest m, from in T10Reader r, for in Map<string, i64> fields, by string name, at i64 package) {
-    if fields.contains(name) { return fields[name] }
+    return fields[name] if fields.contains(name)
     let span = TextSpan { start: r.values[package].span.start, length: r.values[package].text.length }
     t10Report(ref m, for: .manifestMissingField, at: span, by: t10Args(name, by: ""))
     return -1
@@ -501,7 +611,7 @@ i64 t10Required(ref Manifest m, from in T10Reader r, for in Map<string, i64> fie
 
 /// Manifest.cs:236 `Text`: a string value's contents, or null after BYN3102.
 string? t10Text(ref Manifest m, from in T10Reader r, at i64 value, for string field, as string expected) {
-    if r.values[value].kind == .stringValue { return r.values[value].text }
+    return r.values[value].text if r.values[value].kind == .stringValue
     t10Invalid(ref m, from: in r, at: value, for: field, as: expected)
     return null
 }
@@ -512,22 +622,34 @@ void t10CheckOverlap(ref Manifest m, from T10Reader r, for Map<string, i64> fiel
     var seen: Map<string, string> = []
     let classes: List<string> = ["verbs", "nouns", "adjectives", "collectives"]
     for field in classes {
-        unless fields.contains(field) { continue }
+        unless fields.contains(field) {
+            continue
+        }
         let list = fields[field]
-        if r.values[list].kind != .listValue { continue }
+        continue if r.values[list].kind != .listValue
         // A list already reported as not a list of words is not read again (one BYN3102 per mistake).
         var allWords = true
         for item in r.values[list].items {
-            if r.values[item].kind != .stringValue { allWords = false }
+            if r.values[item].kind != .stringValue {
+                allWords = false
+            }
         }
-        unless allWords { continue }
+        unless allWords {
+            continue
+        }
         for item in r.values[list].items {
             // coverage-exempt: Q1203
-            if r.values[item].kind != .stringValue { continue }
+            continue if r.values[item].kind != .stringValue
             let word = lowerAscii(r.values[item].text)
             if seen.contains(word) && seen[word] != field && !(seen[word] == "verbs" && field == "nouns") {
                 let other = seen[word]
-                t10Invalid(ref m, from: in r, at: item, for: $"grammar.{field}", as: $"free of `{r.values[item].text}`, which `grammar.{other}` lists; only a verb that is also a noun may be in two lists")
+                t10Invalid(
+                    ref m,
+                    from: in r,
+                    at: item,
+                    for: $"grammar.{field}",
+                    as: $"free of `{r.values[item].text}`, which `grammar.{other}` lists; only a verb that is also a noun may be in two lists",
+                )
             } else if !seen.contains(word) {
                 seen[word] = field
             }
@@ -541,7 +663,13 @@ void t10Invalid(ref Manifest m, from in T10Reader r, at i64 value, for string fi
 }
 
 /// Manifest.cs:246 `Report`.
-void t10Report(ref Manifest m, for SemaCode code, at TextSpan span, by (string a0, string a1, string a2, string a3, string a4) args, string help = "") {
+void t10Report(
+    ref Manifest m,
+    for SemaCode code,
+    at TextSpan span,
+    by(string a0, string a1, string a2, string a3, string a4) args,
+    string help = ""
+) {
     m.diagnostics.append(Diag {
         code: codeText(code),
         span: span,
@@ -564,19 +692,19 @@ bool t10IsEnum(in T10Reader r, at i64 value, as string name) =>
 
 /// `value is ListValue list && list.Items.All(i => i is <kind>)`.
 bool t10IsListOf(in T10Reader r, at i64 value, as T10ValueKind kind) {
-    if r.values[value].kind != .listValue { return false }
+    return false if r.values[value].kind != .listValue
     for item in r.values[value].items {
-        if r.values[item].kind != kind { return false }
+        return false if r.values[item].kind != kind
     }
     return true
 }
 
 /// `value is MapValue map && map.Entries.All(e => e is (StringValue, StringValue))`.
 bool t10IsStringMap(in T10Reader r, at i64 value) {
-    if r.values[value].kind != .mapValue { return false }
+    return false if r.values[value].kind != .mapValue
     for i in 0..r.values[value].keys.length {
-        if r.values[r.values[value].keys[i]].kind != .stringValue { return false }
-        if r.values[r.values[value].items[i]].kind != .stringValue { return false }
+        return false if r.values[r.values[value].keys[i]].kind != .stringValue
+        return false if r.values[r.values[value].items[i]].kind != .stringValue
     }
     return true
 }
@@ -610,13 +738,13 @@ Diag t10CopyDiag(in Diag d) => Diag {
     related: List<Related>(),
 }
 
-// ── Names and versions ──────────────────────────────────────────────────────────
+// ── Names and versions ───────────────────────────────────────────────────────
 
 /// Manifest.cs:250 `KebabOf`: `linuxX64` → `linux-x64`.
 public string kebabOf(string camel) uses alloc {
     var buf = List<u8>()
     for b in camel.bytes {
-        if b >= 0x41 && b <= 0x5A {
+        if b is 0x41..=0x5A {
             buf.append(0x2D)
             buf.append(b + 32)
         } else {
@@ -658,19 +786,19 @@ string t10ShortName(in Manifest m) {
 /// `CliApp.EntryModule`: a library's entry module is its short name in camelCase, an app's is `app`.
 string t10EntryModule(in Manifest m) => m.kind == .lib ? camelOf(t10ShortName(in m)) : "app"
 
-bool t10IsAsciiLower(u8 c) => c >= 0x61 && c <= 0x7A
+bool t10IsAsciiLower(u8 c) => c is 0x61..=0x7A
 
-bool t10IsAsciiDigit(u8 c) => c >= 0x30 && c <= 0x39
+bool t10IsAsciiDigit(u8 c) => c is 0x30..=0x39
 
-bool t10IsAsciiLetterOrDigit(u8 c) => t10IsAsciiLower(c) || t10IsAsciiDigit(c) || (c >= 0x41 && c <= 0x5A)
+bool t10IsAsciiLetterOrDigit(u8 c) => t10IsAsciiLower(c) || t10IsAsciiDigit(c) || (c is 0x41..=0x5A)
 
 /// Manifest.cs:274 `IsKebabName`: lowercase words joined by `-`.
 public bool t10IsKebabName(ReadOnlySpan<u8> text) {
-    if text.length == 0 || !t10IsAsciiLower(text[0]) || text[text.length - 1] == 0x2D { return false }
+    return false if text.length == 0 || !t10IsAsciiLower(text[0]) || text[text.length - 1] == 0x2D
     for i in 0..text.length {
         let c = text[i]
         if c == 0x2D {
-            if text[i - 1] == 0x2D { return false }
+            return false if text[i - 1] == 0x2D
         } else if !t10IsAsciiLower(c) && !t10IsAsciiDigit(c) {
             return false
         }
@@ -682,8 +810,8 @@ public bool t10IsKebabName(ReadOnlySpan<u8> text) {
 bool t10IsPackageName(string text) {
     let t = text.bytes
     let slash = t10IndexOf(t, for: 0x2F)
-    if slash < 0 { return false }
-    if t10IndexOf(t[slash + 1..t.length], for: 0x2F) >= 0 { return false }
+    return false if slash < 0
+    return false if t10IndexOf(t[slash + 1..t.length], for: 0x2F) >= 0
     return t10IsKebabName(t[0..slash]) && t10IsKebabName(t[slash + 1..t.length])
 }
 
@@ -693,20 +821,22 @@ public bool t10IsSemanticVersion(string text) {
     let t = text.bytes
     let plus = t10IndexOf(t, for: 0x2B)
     let main = plus < 0 ? t : t[0..plus]
-    if plus >= 0 && !t10Identifiers(t[plus + 1..t.length]) { return false }
+    return false if plus >= 0 && !t10Identifiers(t[plus + 1..t.length])
     let dash = t10IndexOf(main, for: 0x2D)
     let core = dash < 0 ? main : main[0..dash]
-    if dash >= 0 && !t10Identifiers(main[dash + 1..main.length]) { return false }
+    return false if dash >= 0 && !t10Identifiers(main[dash + 1..main.length])
     var parts: i64 = 0
     var start: i64 = 0
     for i in 0..core.length + 1 {
-        if i < core.length && core[i] != 0x2E { continue }
+        continue if i < core.length && core[i] != 0x2E
         let p = core[start..i]
-        if p.length == 0 || p.length > 18 { return false }
+        return false if p.length is 0 or > 18
         for c in p {
-            unless t10IsAsciiDigit(c) { return false }
+            unless t10IsAsciiDigit(c) {
+                return false
+            }
         }
-        if p.length > 1 && p[0] == 0x30 { return false }
+        return false if p.length > 1 && p[0] == 0x30
         parts += 1
         start = i + 1
     }
@@ -719,7 +849,7 @@ public i64 compareVersions(string a, to string b) uses alloc {
     let pa = splitVersion(a)
     let pb = splitVersion(b)
     for i in 0..3 {
-        if pa.core[i] != pb.core[i] { return pa.core[i] < pb.core[i] ? -1 : 1 }
+        return pa.core[i] < pb.core[i] ? -1 : 1 if pa.core[i] != pb.core[i]
     }
     if (pa.pre is { } x) {
         // A prerelease is below a release.
@@ -729,7 +859,7 @@ public i64 compareVersions(string a, to string b) uses alloc {
         var k: i64 = 0
         while k < u.length && k < w.length {
             // coverage-exempt: Q1152 the only caller visits names in `Io.listDir` order (ordinal), so a name never sorts below the best so far inside a prerelease
-            if u[k] != w[k] { return u[k] < w[k] ? -1 : 1 }
+            return u[k] < w[k] ? -1 : 1 if u[k] != w[k]
             k += 1
         }
         return u.length - w.length
@@ -741,7 +871,7 @@ public i64 compareVersions(string a, to string b) uses alloc {
 /// The numeric core and the prerelease of a version, as `SplitVersion` returns them.
 struct VersionParts {
     List<i64> core
-    string? pre
+    string?   pre
 }
 
 /// Manifest.cs:368 `SplitVersion`: the three numbers of `v` and its prerelease (null without one); the build metadata after `+` is dropped.
@@ -776,7 +906,7 @@ bool t10Identifiers(ReadOnlySpan<u8> text) {
     var length: i64 = 0
     for c in text {
         if c == 0x2E {
-            if length == 0 { return false }
+            return false if length == 0
             length = 0
         } else if t10IsAsciiLetterOrDigit(c) || c == 0x2D {
             length += 1
@@ -789,12 +919,12 @@ bool t10Identifiers(ReadOnlySpan<u8> text) {
 
 i64 t10IndexOf(ReadOnlySpan<u8> text, for u8 b) {
     for i in 0..text.length {
-        if text[i] == b { return i }
+        return i if text[i] == b
     }
     return -1
 }
 
-// ── Reader (the C# `Manifest.Reader`) ───────────────────────────────────────────
+// ── Reader (the C# `Manifest.Reader`) ────────────────────────────────────────
 
 lexer.Token t10Current(in T10Reader r) {
     let last = r.tokens.length - 1
@@ -814,7 +944,9 @@ string t10TextOf(in T10Reader r, for lexer.Token t) {
 /// `Reader.Fail`: BYN3100 at the current token, unless an error is already reported.
 void t10Fail(in T10Reader r, for string expected, to ref List<Diag> diags) {
     for d in diags {
-        unless d.isWarning { return }
+        unless d.isWarning {
+            return
+        }
     }
     diags.append(Diag {
         code: codeText(.manifestNotData),
@@ -829,7 +961,7 @@ void t10Fail(in T10Reader r, for string expected, to ref List<Diag> diags) {
 }
 
 bool t10Accept(ref T10Reader r, for lexer.TokenKind kind) {
-    if t10Current(in r).kind != kind { return false }
+    return false if t10Current(in r).kind != kind
     r.pos += 1
     return true
 }
@@ -838,7 +970,9 @@ bool t10Accept(ref T10Reader r, for lexer.TokenKind kind) {
 bool t10IsName(lexer.TokenKind kind) => kind == .identifier || lexer.isKeyword(kind)
 
 bool t10AcceptName(ref T10Reader r) {
-    unless t10IsName(t10Current(in r).kind) { return false }
+    unless t10IsName(t10Current(in r).kind) {
+        return false
+    }
     r.pos += 1
     return true
 }
@@ -864,7 +998,7 @@ i64 t10ReadValue(ref T10Reader r, to ref List<Diag> diags) {
             return t10Add(ref r, by: move val)
         }
     }
-    if t.kind == .trueKeyword || t.kind == .falseKeyword {
+    if t.kind is .trueKeyword or .falseKeyword {
         r.pos += 1
         let val = T10Value { kind: .boolValue, span: t10SpanOf(t), number: t.kind == .trueKeyword ? 1 : 0 }
         return t10Add(ref r, by: move val)
@@ -884,15 +1018,17 @@ i64 t10ReadValue(ref T10Reader r, to ref List<Diag> diags) {
         var isMap: i64 = -1
         while !t10Accept(ref r, for: .closeBracket) {
             let item = t10ReadValue(ref r, to: ref diags)
-            if item < 0 { return -1 }
-            if isMap < 0 { isMap = t10Current(in r).kind == .colon ? 1 : 0 }
+            return -1 if item < 0
+            if isMap < 0 {
+                isMap = t10Current(in r).kind == .colon ? 1 : 0
+            }
             if isMap == 1 {
                 unless t10Accept(ref r, for: .colon) {
                     t10Fail(in r, for: "`:` and a value", to: ref diags)
                     return -1
                 }
                 let value = t10ReadValue(ref r, to: ref diags)
-                if value < 0 { return -1 }
+                return -1 if value < 0
                 keys.append(item)
                 items.append(value)
             } else {
@@ -904,9 +1040,10 @@ i64 t10ReadValue(ref T10Reader r, to ref List<Diag> diags) {
             }
         }
         let span = TextSpan.fromBounds(t.start, until: r.tokens[r.pos - 1].end)
-        if isMap == 1 {
-            return t10Add(ref r, by: T10Value { kind: .mapValue, span: span, items: move items, keys: move keys })
-        }
+        return t10Add(
+            ref r,
+            by: T10Value { kind: .mapValue, span: span, items: move items, keys: move keys },
+        ) if isMap == 1
         return t10Add(ref r, by: T10Value { kind: .listValue, span: span, items: move items })
     }
     if t.kind == .identifier && r.tokens[r.pos + 1].kind == .openBrace {
@@ -915,7 +1052,9 @@ i64 t10ReadValue(ref T10Reader r, to ref List<Diag> diags) {
         while !t10Accept(ref r, for: .closeBrace) {
             let name = t10Current(in r)
             var ok = t10AcceptName(ref r)
-            if ok && !t10Accept(ref r, for: .colon) { ok = t10Current(in r).kind == .equals }
+            if ok && !t10Accept(ref r, for: .colon) {
+                ok = t10Current(in r).kind == .equals
+            }
             unless ok {
                 t10Fail(in r, for: "`field: value` or `}`", to: ref diags)
                 return -1
@@ -937,7 +1076,7 @@ i64 t10ReadValue(ref T10Reader r, to ref List<Diag> diags) {
                 r.pos += 1
             }
             let value = t10ReadValue(ref r, to: ref diags)
-            if value < 0 { return -1 }
+            return -1 if value < 0
             let fieldName = $"{t10TextOf(in r, for: name)}"
             fields.append(T10Field { name: fieldName, nameSpan: t10SpanOf(name), value: value })
             if !t10Accept(ref r, for: .comma) && t10Current(in r).kind != .closeBrace {
@@ -959,14 +1098,16 @@ i64? t10ParseLong(ReadOnlySpan<u8> text) {
     var value: i64 = 0
     var digits: i64 = 0
     for b in text {
-        if b == 0x5F { continue }
-        unless t10IsAsciiDigit(b) { return null }
+        continue if b == 0x5F
+        unless t10IsAsciiDigit(b) {
+            return null
+        }
         let d = i64(b - 0x30)
-        if value > (9223372036854775807 - d) / 10 { return null }
+        return null if value > (9223372036854775807 - d) / 10
         value = value * 10 + d
         digits += 1
     }
-    if digits == 0 { return null }
+    return null if digits == 0
     return value
 }
 
@@ -1028,17 +1169,19 @@ i64 t10ParseScalar(ReadOnlySpan<u8> hex) {
         var digit: i64 = -1
         if t10IsAsciiDigit(c) {
             digit = i64(c - 0x30)
-        } else if c >= 0x61 && c <= 0x66 {
+        } else if c is 0x61..=0x66 {
             digit = i64(c - 0x61) + 10
-        } else if c >= 0x41 && c <= 0x46 {
+        } else if c is 0x41..=0x46 {
             digit = i64(c - 0x41) + 10
         }
-        if digit < 0 { return -1 }
-        if significant > 0 || digit > 0 { significant += 1 }
-        if significant > 8 { return -1 }
+        return -1 if digit < 0
+        if significant > 0 || digit > 0 {
+            significant += 1
+        }
+        return -1 if significant > 8
         value = value * 16 + digit
     }
-    if value > 0x10FFFF || (value >= 0xD800 && value <= 0xDFFF) { return -1 }
+    return -1 if value is > 0x10FFFF or 0xD800..=0xDFFF
     return value
 }
 

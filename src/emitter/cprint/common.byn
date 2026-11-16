@@ -31,7 +31,12 @@ public string cType(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
         case .unionType:
             let typeArgs = t2Copy(in c.unions[i].typeArgs)
             let args = t2TypeArgs(ref c, for: in typeArgs)
-            return named(ref cc, from: ref c, for: t, as: $"byn_{c.modules[c.unions[i].module].cName}_{c.unions[i].name}{args}")
+            return named(
+                ref cc,
+                from: ref c,
+                for: t,
+                as: $"byn_{c.modules[c.unions[i].module].cName}_{c.unions[i].name}{args}",
+            )
         case .builtin:
             switch semantics.builtinKindOf(i) {
                 case .arena: return "byn_arena*"
@@ -113,11 +118,15 @@ public string key(ref Ctx c, for Type t) uses alloc {
         case .array: return $"arr{c.arrayTypes[i].length}_{key(ref c, for: c.arrayTypes[i].element)}"
         case .tuple:
             var types = List<Type>()
-            for f in c.tupleTypes[i] { types.append(f.type) }
+            for f in c.tupleTypes[i] {
+                types.append(f.type)
+            }
             var sb = StrBuf()
             sb.append($"tup{types.length}_")
             for k in 0..types.length {
-                if k > 0 { sb.append("_") }
+                if k > 0 {
+                    sb.append("_")
+                }
                 sb.append(key(ref c, for: types[k]))
             }
             return $"{sb.finish()}"
@@ -125,18 +134,30 @@ public string key(ref Ctx c, for Type t) uses alloc {
         // The fails and uses markers come before the return key, so a nested function type cannot share a key with an outer one.
         case .function:
             var parameters = List<Type>()
-            for p in c.functionTypes[i].parameters { parameters.append(p) }
+            for p in c.functionTypes[i].parameters {
+                parameters.append(p)
+            }
             var effects = List<string>()
-            for u in c.functionTypes[i].effects { effects.append(u) }
+            for u in c.functionTypes[i].effects {
+                effects.append(u)
+            }
             let failing = c.functionTypes[i].errorSets.length > 0
             let ret = c.functionTypes[i].ret
             var sb = StrBuf()
             sb.append($"fn{parameters.length}")
-            if failing { sb.append("f") }
-            if effects.length > 0 { sb.append($"u{effects.length}") }
+            if failing {
+                sb.append("f")
+            }
+            if effects.length > 0 {
+                sb.append($"u{effects.length}")
+            }
             sb.append("_")
-            for p in parameters { sb.append($"{key(ref c, for: p)}_") }
-            for u in effects { sb.append($"{u}_") }
+            for p in parameters {
+                sb.append($"{key(ref c, for: p)}_")
+            }
+            for u in effects {
+                sb.append($"{u}_")
+            }
             sb.append(key(ref c, for: ret))
             return $"{sb.finish()}"
         default: panic($"no C type for {semantics.typeDisplay(ref c, by: t)}")
@@ -156,14 +177,18 @@ string named(ref CCtx cc, from ref Ctx c, for Type t, as string? name) uses allo
 /// CEmitter.cs:372 `TypeArgs` (T6's range, needed by `CType`/`Key`; Q766): `__` + each argument's key.
 string t2TypeArgs(ref Ctx c, for in List<Type> args) uses alloc {
     var sb = StrBuf()
-    for a in args { sb.append($"__{key(ref c, for: a)}") }
+    for a in args {
+        sb.append($"__{key(ref c, for: a)}")
+    }
     return $"{sb.finish()}"
 }
 
 /// A copy of `xs`, so `c` can be passed by `ref` beside it.
 List<Type> t2Copy(in List<Type> xs) uses alloc {
     var r = List<Type>()
-    for x in xs { r.append(x) }
+    for x in xs {
+        r.append(x)
+    }
     return r
 }
 
@@ -172,7 +197,9 @@ List<Type> t2Copy(in List<Type> xs) uses alloc {
 /// CEmitter.cs:591 `Helper` (D5): registers helper `name` once through `helperReserve` and `helperFill`. `body` is
 /// already built, so a caller whose body registers other helpers calls the pair itself (Q763).
 public string helper(ref CCtx cc, for string name, from string proto, as string body) uses alloc {
-    if helperReserve(ref cc, for: name, from: proto) { let _ = helperFill(ref cc, for: name, from: proto, as: body) }
+    if helperReserve(ref cc, for: name, from: proto) {
+        let _ = helperFill(ref cc, for: name, from: proto, as: body)
+    }
     return name
 }
 
@@ -180,7 +207,9 @@ public string helper(ref CCtx cc, for string name, from string proto, as string 
 
 /// CEmitter.cs:1237 `Line`: `text` indented by `f.indent`, on its own line.
 public void line(ref StrBuf sb, by in CFunc f, for string text) {
-    for k in 0..f.indent * 4 { sb.append(" ") }
+    for k in 0..f.indent * 4 {
+        sb.append(" ")
+    }
     sb.append(text)
     sb.append("\n")
 }
@@ -190,7 +219,9 @@ public List<i64> lineStartsOf(in Ctx c, for semantics.FileId file) uses alloc {
     var starts = List<i64>()
     starts.append(0)
     for k in 0..c.files[file].text.length {
-        if c.files[file].text[k] == 10 { starts.append(k + 1) }
+        if c.files[file].text[k] == 10 {
+            starts.append(k + 1)
+        }
     }
     return starts
 }
@@ -201,7 +232,7 @@ public List<i64> lineStartsOf(in Ctx c, for semantics.FileId file) uses alloc {
 public i64 lineOf(in Ctx c, by in CFunc f, at semantics.TextSpan span) {
     let file = c.functions[f.fn].file
     // coverage-exempt: Q827
-    if file == -1 { return 0 }
+    return 0 if file == -1
     var lo: i64 = 0
     var hi = f.lineStarts.length
     while lo < hi {
@@ -216,14 +247,15 @@ public i64 lineOf(in Ctx c, by in CFunc f, at semantics.TextSpan span) {
 }
 
 /// CEmitter.cs:1241 `Loc`: `file, line` for a runtime call.
-public string loc(in Ctx c, by in CFunc f, at semantics.TextSpan span) uses alloc => $"{f.file}, {lineOf(in c, by: in f, at: span)}"
+public string loc(in Ctx c, by in CFunc f, at semantics.TextSpan span) uses alloc =>
+    $"{f.file}, {lineOf(in c, by: in f, at: span)}"
 
 /// CEmitter.cs:1244 `MapLine`: `#line N "file.byn"`, so debuggers and C compiler messages name the Bayan line of the
 /// code that follows. `sb.length` counts bytes where C# counts UTF-16 units; it is only compared with itself.
 public void mapLine(ref StrBuf sb, from in Ctx c, through ref CFunc f, at semantics.TextSpan span) {
     let path = f.linePath ?? return
     let n = lineOf(in c, by: in f, at: span)
-    if n == f.lastLine && sb.length == f.lastLineEnd { return }
+    return if n == f.lastLine && sb.length == f.lastLineEnd
     f.lastLine = n
     sb.append($"#line {n} {path}\n")
     f.lastLineEnd = sb.length
@@ -231,7 +263,7 @@ public void mapLine(ref StrBuf sb, from in Ctx c, through ref CFunc f, at semant
 
 /// CEmitter.cs:593-595 `Helper` (D5, Q840): reserves helper `name` before its body is built; false when it is registered.
 public bool helperReserve(ref CCtx cc, for string name, from string proto) uses alloc {
-    if cc.helpers.contains(name) { return false }
+    return false if cc.helpers.contains(name)
     cc.helpers[name] = CHelper { proto: proto, body: "" }
     cc.helperOrder.append(name)
     return true

@@ -70,7 +70,9 @@ List<u8> sha256(ReadOnlySpan<u8> data) uses alloc {
     let k = t9RoundConstants()
     var h: List<u64> = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19]
     var w = List<u64>()
-    for _ in 0..64 { w.append(0) }
+    for _ in 0..64 {
+        w.append(0)
+    }
     let whole = data.length / 64 * 64
     var start: i64 = 0
     while start < whole {
@@ -79,11 +81,17 @@ List<u8> sha256(ReadOnlySpan<u8> data) uses alloc {
     }
     // The tail, the `0x80` byte, zeros to 56 mod 64, then the bit length big-endian (§5.1.1).
     var tail = List<u8>()
-    for i in whole..data.length { tail.append(data[i]) }
+    for i in whole..data.length {
+        tail.append(data[i])
+    }
     tail.append(0x80)
-    while tail.length % 64 != 56 { tail.append(0) }
+    while tail.length % 64 != 56 {
+        tail.append(0)
+    }
     let bits = u64(data.length) * 8
-    for i in 0..8 { tail.append(u8((bits >> u64(56 - i * 8)) & 0xff)) }
+    for i in 0..8 {
+        tail.append(u8((bits >> u64(56 - i * 8)) & 0xff))
+    }
     start = 0
     while start < tail.length {
         t9Block(ref h, from: tail.span, at: start, by: in k, through: ref w)

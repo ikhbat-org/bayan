@@ -1,7 +1,7 @@
 // Statements A. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 2116–2776: `ParseBlock`,
 // `ParseStatement`, locals, conditions, `InGroup`, `ParseBody(Token, ref …)`, `MatchingClose`,
 // `if`/`unless` and the helpers of the guarded statement, and the loops through `ParseFor`,
-// `ParseParenFor` and `SkipPastCloseParen`. Owner: 
+// `ParseParenFor` and `SkipPastCloseParen`. Owner:
 //
 // A C# `Diagnostic?` kept for later is its index in `p.lexed.diagnostics`, -1 for `null`, and
 // `Replace(d, d with { Fix = … })` sets that entry's fix in place. The C# fields `_bracesReport` and
@@ -12,35 +12,41 @@ import lexer
 /// What the last BYN1018 report of a body carried: its index and its own braces fix, so `parseUnless`
 /// can hand the fix back when the header fix is dropped (the C# `_bracesReport`, `_bracesFix`).
 struct BracesReport {
-    i64 report = -1
-    bool hasFix = false
-    TextSpan fixSpan = TextSpan { start: 0, length: 0 }
-    string fixReplacement = ""
+    i64      report         = -1
+    bool     hasFix         = false
+    TextSpan fixSpan        = TextSpan { start: 0, length: 0 }
+    string   fixReplacement = ""
 }
 
 /// With `rejectPostfix`, a block statement: `rejectPostfixAfterCompound` after the `}`.
 Stmt parseBlock(ref Parser p, bool rejectPostfix = false) {
     let start = p.current().start
     let open = p.expect(.openBrace)
-    if open.length == 0 {
-        return Stmt.blockStmt(Owned(BlockStmt { span: TextSpan { start: start, length: 0 }, statements: List<Stmt>() }))
-    }
+    return Stmt.blockStmt(
+        Owned(BlockStmt { span: TextSpan { start: start, length: 0 }, statements: List<Stmt>() }),
+    ) if open.length == 0
     lintNestingDepth(ref p, at: open)
     var statements = List<Stmt>()
     while p.kind() != .closeBrace && !p.atEnd() {
         // Functions do not nest: a function header on a new line means this block was never closed.
-        if p.current().hasNewlineBefore && isFunctionStart(ref p) { break }
+        break if p.current().hasNewlineBefore && isFunctionStart(ref p)
         let before = p.pos
         let errors = p.syntaxErrors
         statements.append(parseStatement(ref p))
         recoverIfNeeded(ref p, from: errors)
-        if p.pos == before { let _ = p.advance() }
+        if p.pos == before {
+            let _ = p.advance()
+        }
     }
     expectClose(ref p, from: open, for: "block")
     p.blockDepth -= 1
-    if p.bindExits.length > 0 { lintBindExits(ref p, for: statements) }
+    if p.bindExits.length > 0 {
+        lintBindExits(ref p, for: statements)
+    }
     let span = p.spanFrom(start)
-    if rejectPostfix { rejectPostfixAfterCompound(ref p) }
+    if rejectPostfix {
+        rejectPostfixAfterCompound(ref p)
+    }
     return Stmt.blockStmt(Owned(BlockStmt {
         span: statementSpan(ref p, at: start, from: span),
         statements: move statements,
@@ -53,7 +59,12 @@ Stmt parseStatement(ref Parser p) {
     if p.kind() == .at && isName(p.peek(1)) {
         let attributes = parseStatementAttributes(ref p)
         if p.atEnd() || p.kind() == .closeBrace {
-            let _ = p.report(.expected, at: spanOf(p.current()), arg0: "a statement after the attribute", arg1: p.describe(p.current()))
+            let _ = p.report(
+                .expected,
+                at: spanOf(p.current()),
+                arg0: "a statement after the attribute",
+                arg1: p.describe(p.current()),
+            )
             return Stmt.errorStmt(Owned(ErrorStmt { span: p.spanFrom(start), attributes: move attributes }))
         }
         // C# sets `with { Span = SpanFrom(start), Attributes = attributes }` on the result, but a built node is
@@ -108,7 +119,14 @@ Stmt parseStatement(ref Parser p) {
             let conditionEnd = p.prevEnd
             lintWrappedCondition(ref p, from: whileIndex, for: condition)
             let body = parenthesized ? parseBody(ref p, by: whileKeyword, to: ref parens) : parseBlock(ref p)
-            lintWhileBind(ref p, at: whileKeyword, for: condition, by: body, until: conditionEnd, parenthesized: parenthesized)
+            lintWhileBind(
+                ref p,
+                at: whileKeyword,
+                for: condition,
+                by: body,
+                until: conditionEnd,
+                parenthesized: parenthesized,
+            )
             return Stmt.whileStmt(Owned(WhileStmt {
                 span: statementSpan(ref p, at: start, from: p.spanFrom(start)),
                 condition: move condition,
@@ -141,7 +159,8 @@ Stmt parseStatement(ref Parser p) {
             let _ = p.advance()
             let _ = p.expect(.dot)
             let state = expectName(ref p, "a state name")
-            let args = p.kind() == .openParen && !p.current().hasNewlineBefore ? parseArguments(ref p) : List<Argument>()
+            let args = p.kind() == .openParen
+                && !p.current().hasNewlineBefore ? parseArguments(ref p) : List<Argument>()
             expectEnd(ref p)
             return Stmt.becomeStmt(Owned(BecomeStmt {
                 span: statementSpan(ref p, at: start, from: p.spanFrom(start)),
@@ -183,8 +202,13 @@ Stmt parseStatement(ref Parser p) {
                 }))
             }
         case .elseKeyword:
-            let _ = p.report(.expected, at: spanOf(p.current()), arg0: "a statement", arg1: p.describe(p.current()),
-                help: "remove this `else`; it has no matching `if`")
+            let _ = p.report(
+                .expected,
+                at: spanOf(p.current()),
+                arg0: "a statement",
+                arg1: p.describe(p.current()),
+                help: "remove this `else`; it has no matching `if`",
+            )
             let _ = p.advance()
             return Stmt.errorStmt(Owned(ErrorStmt {
                 span: statementSpan(ref p, at: start, from: p.spanFrom(start)),
@@ -194,11 +218,11 @@ Stmt parseStatement(ref Parser p) {
             let _ = start
     }
 
-    if isLocalDeclarationStart(ref p) { return parseLocal(ref p, from: start) }
+    return parseLocal(ref p, from: start) if isLocalDeclarationStart(ref p)
 
     var ended = false
     let simple = parseSimpleStatement(ref p, at: start, to: ref ended)
-    if ended { return simple }
+    return simple if ended
     return finishSimpleStatement(ref p, at: start, for: move simple)
 }
 
@@ -210,11 +234,16 @@ bool hasStatementAttributes(ref Parser p, at i64 start) =>
 /// The span of the statement at `start`: with attributes it is the C# `with { Span = SpanFrom(start) }` from them,
 /// so the statement's end must already be consumed.
 TextSpan statementSpan(ref Parser p, at i64 start, from TextSpan span) =>
-    hasStatementAttributes(ref p, at: start) ? p.spanFrom(p.statementAttributeStarts[p.statementAttributeStarts.length - 1]) : span
+    hasStatementAttributes(
+        ref p,
+        at: start,
+    ) ? p.spanFrom(p.statementAttributeStarts[p.statementAttributeStarts.length - 1]) : span
 
 /// The pending attributes of the statement at `start`, taken off the stack; none when they are not its.
 List<AttributeSyntax> takeStatementAttributes(ref Parser p, at i64 start) {
-    unless hasStatementAttributes(ref p, at: start) { return List<AttributeSyntax>() }
+    unless hasStatementAttributes(ref p, at: start) {
+        return List<AttributeSyntax>()
+    }
     let _ = p.statementAttributeKeys.removeLast()
     let _ = p.statementAttributeStarts.removeLast()
     return p.statementAttributes.removeLast()
@@ -225,7 +254,7 @@ Stmt parseEmbedded(ref Parser p) => parseStatement(ref p)
 
 /// C#-style `T name = …` or `T name` at the end of its line.
 bool isLocalDeclarationStart(ref Parser p) {
-    if !isTypeNameToken(p.kind()) && p.kind() != .openParen { return false }
+    return false if !isTypeNameToken(p.kind()) && p.kind() != .openParen
     let after = scanType(ref p, at: p.pos)
     return after > 0 && isName(p.kindAt(after)) && !p.lexed.tokens[after].hasNewlineBefore
         && (p.kindAt(after + 1) == .equals || endsBefore(ref p, at: after + 1))
@@ -256,7 +285,8 @@ Stmt parseLocal(ref Parser p, from i64 start) {
         name = expectName(ref p, "a variable name")
         // A `let` needs a value, so a local declared without one is a `var`.
         if !keyword && !isUsing {
-            kind = p.kind() != .equals || isWrittenLater(ref p, for: name) ? BindingKind.varKeyword : BindingKind.letKeyword
+            kind = p.kind() != .equals
+                || isWrittenLater(ref p, for: name) ? BindingKind.varKeyword : BindingKind.letKeyword
         }
         reportTypeFirstLocal(ref p, as: kind, by: keyword, from: typeSpan(in type), for: name)
     } else {
@@ -267,13 +297,19 @@ Stmt parseLocal(ref Parser p, from i64 start) {
         init = kind == .constKeyword && isPatternExprStart(ref p) ? parsePatternExpr(ref p) : parseExpression(ref p)
     }
     if (p.kind() == .ifKeyword || p.kind() == .unlessKeyword) && !p.current().hasNewlineBefore {
-        let _ = p.report(.postfixNotSimple, at: spanOf(p.current()), arg0: p.textOf(p.current()),
-            help: "declare the variable, then assign it conditionally; a declaration cannot be conditional")
+        let _ = p.report(
+            .postfixNotSimple,
+            at: spanOf(p.current()),
+            arg0: p.textOf(p.current()),
+            help: "declare the variable, then assign it conditionally; a declaration cannot be conditional",
+        )
         let _ = p.advance()
         let _ = parseExpression(ref p)
     }
     expectEnd(ref p)
-    if kind == .letKeyword && !(type is .none) { lintEmptyLiteral(ref p, for: type, by: init) }
+    if kind == .letKeyword && !(type is .none) {
+        lintEmptyLiteral(ref p, for: type, by: init)
+    }
     return Stmt.localDecl(Owned(LocalDecl {
         span: statementSpan(ref p, at: start, from: p.spanFrom(start)),
         kind: kind,
@@ -292,14 +328,21 @@ void reportTypeFirstLocal(ref Parser p, as BindingKind kind, by bool keyword, fr
     let typeText = p.lexed.source.getText(type)
     let nameText = p.lexed.source.getText(name)
     let word = kind switch {
-        .letKeyword => "let",
+        .letKeyword   => "let",
         .constKeyword => "const",
-        _ => "var",
+        _             => "var",
     }
     let prefix = keyword ? "" : $"{word} "
-    let _ = p.reportFix(.typeNameOrder, at: span, through: span, by: $"{prefix}{nameText}: {typeText}",
-        arg0: $"{typeText} {nameText}", arg1: $"{word} {nameText}: {typeText}", label: "type before name",
-        help: $"write `{word} {nameText}: {typeText}`; local bindings put the name first")
+    let _ = p.reportFix(
+        .typeNameOrder,
+        at: span,
+        through: span,
+        by: $"{prefix}{nameText}: {typeText}",
+        arg0: $"{typeText} {nameText}",
+        arg1: $"{word} {nameText}: {typeText}",
+        label: "type before name",
+        help: $"write `{word} {nameText}: {typeText}`; local bindings put the name first",
+    )
 }
 
 /// Whether the rest of the enclosing block assigns `name`, increments it or passes it as `ref` or `out`, so
@@ -313,16 +356,16 @@ bool isWrittenLater(ref Parser p, for TextSpan name) {
             depth += 1
         } else if kind == .closeBrace {
             depth -= 1
-            if depth < 0 { return false }
+            return false if depth < 0
         } else if kind == .endOfFile {
             return false
         }
-        if kind != .identifier || !hasText(ref p, at: i, as: name) || i > 0 && (p.kindAt(i - 1) == .dot || p.kindAt(i - 1) == .questionDot) {
-            continue
-        }
+        continue if kind != .identifier
+            || !hasText(ref p, at: i, as: name)
+            || i > 0 && (p.kindAt(i - 1) == .dot || p.kindAt(i - 1) == .questionDot)
         if i > 0 {
             let before = p.kindAt(i - 1)
-            if before == .refKeyword || before == .outKeyword || before == .plusPlus || before == .minusMinus { return true }
+            return true if before is .refKeyword or .outKeyword or .plusPlus or .minusMinus
         }
         var j = i + 1
         while true {
@@ -340,7 +383,7 @@ bool isWrittenLater(ref Parser p, for TextSpan name) {
             break
         }
         if isAssignmentKind(p.kindAt(j)) || p.kindAt(j) == .plusPlus || p.kindAt(j) == .minusMinus
-            || p.kindAt(j) == .greater && p.kindAt(j + 1) == .greaterEquals {
+                || p.kindAt(j) == .greater && p.kindAt(j + 1) == .greaterEquals {
             return true
         }
     }
@@ -350,9 +393,9 @@ bool isWrittenLater(ref Parser p, for TextSpan name) {
 /// Whether token `index` has the source text of `name` (the C# `Text(_tokens[i]) != name`).
 bool hasText(ref Parser p, at i64 index, as TextSpan name) {
     let token = p.lexed.tokens[index]
-    if token.length != name.length { return false }
+    return false if token.length != name.length
     for k in 0..name.length {
-        if p.lexed.source.bytes[token.start + k] != p.lexed.source.bytes[name.start + k] { return false }
+        return false if p.lexed.source.bytes[token.start + k] != p.lexed.source.bytes[name.start + k]
     }
     return true
 }
@@ -378,12 +421,22 @@ Expr parseParenCondition(ref Parser p, to ref i64 parens) {
         // C# `Trim()` of the text between the parentheses.
         var from = open.end
         var until = close.start
-        while from < until && isTrimmed(p.lexed.source.bytes[from]) { from += 1 }
-        while until > from && isTrimmed(p.lexed.source.bytes[until - 1]) { until -= 1 }
+        while from < until && isTrimmed(p.lexed.source.bytes[from]) {
+            from += 1
+        }
+        while until > from && isTrimmed(p.lexed.source.bytes[until - 1]) {
+            until -= 1
+        }
         let inner = p.lexed.source.getText(TextSpan.fromBounds(from, until: until))
         let space = open.hasTriviaBefore ? "" : " "
-        parens = p.reportFix(.parenthesizedCondition, at: span, through: span, by: $"{space}{inner}", label: "not needed",
-            help: "remove the parentheses")
+        parens = p.reportFix(
+            .parenthesizedCondition,
+            at: span,
+            through: span,
+            by: $"{space}{inner}",
+            label: "not needed",
+            help: "remove the parentheses",
+        )
     }
     return condition
 }
@@ -407,35 +460,54 @@ Stmt parseBody(ref Parser p, by Token keyword, to ref i64 header) {
 
 /// `parseBody` that also fills `braces` with its BYN1018 report, for `parseUnless`.
 Stmt parseBody(ref Parser p, by Token keyword, to ref i64 header, for ref BracesReport braces) {
-    if p.kind() == .openBrace { return parseBlock(ref p) }
+    return parseBlock(ref p) if p.kind() == .openBrace
     let gapStart = p.prevEnd
     let errors = p.errorCount()
     let seen = p.lexed.diagnostics.length
     let bodyPos = p.pos
     let body = parseStatement(ref p)
-    if p.errorCount() != errors && isErrorStmt(in body) { return body }
+    return body if p.errorCount() != errors && isErrorStmt(in body)
     // At the end of the file the statement takes no token: there is no text to wrap in braces.
-    if p.pos == bodyPos && p.kind() == .endOfFile { return body }
+    return body if p.pos == bodyPos && p.kind() == .endOfFile
     // Only an inner fix overlaps the braces fix; a diagnostic without one (e.g. BYN1006) leaves it applicable.
     var clean = true
     for i in seen..p.lexed.diagnostics.length {
-        if !p.lexed.diagnostics[i].code.isEmpty && p.lexed.diagnostics[i].hasFix { clean = false }
+        if !p.lexed.diagnostics[i].code.isEmpty && p.lexed.diagnostics[i].hasFix {
+            clean = false
+        }
     }
-    header = reportBraceless(ref p, by: keyword, from: gapStart, at: stmtSpan(in body), as: clean, to: header, for: ref braces)
+    header = reportBraceless(
+        ref p,
+        by: keyword,
+        from: gapStart,
+        at: stmtSpan(in body),
+        as: clean,
+        to: header,
+        for: ref braces,
+    )
     return body
 }
 
 /// BYN1018 on `body`, a single statement after `keyword`. A `header` fix takes the braces too, so that fix
 /// parses applied alone and BYN1018 has none of its own. Returns the header's report.
-i64 reportBraceless(ref Parser p, by Token keyword, from i64 gapStart, at TextSpan body, as bool clean, to i64 header,
-    for ref BracesReport braces) {
+i64 reportBraceless(
+    ref Parser p,
+    by Token keyword,
+    from i64 gapStart,
+    at TextSpan body,
+    as bool clean,
+    to i64 header,
+    for ref BracesReport braces
+) {
     // A body that took no token (an `errorExpr` before `}`) starts past `prevEnd`: the braces then wrap nothing.
     let start = body.start < p.prevEnd ? body.start : p.prevEnd
     let text = p.lexed.source.getText(TextSpan.fromBounds(start, until: p.prevEnd))
     let gap = p.lexed.source.getText(TextSpan.fromBounds(gapStart, until: start))
     var gapHasNewline = false
     for i in gapStart..start {
-        if p.lexed.source.bytes[i] == '\n' { gapHasNewline = true }
+        if p.lexed.source.bytes[i] == '\n' {
+            gapHasNewline = true
+        }
     }
     let openBrace = "{"
     let closeBrace = "}"
@@ -443,7 +515,9 @@ i64 reportBraceless(ref Parser p, by Token keyword, from i64 gapStart, at TextSp
     if gapHasNewline {
         let line = p.lexed.source.getLineSpan(p.lexed.source.getLineIndex(keyword.start))
         var end = line.start
-        while end < line.end && (p.lexed.source.bytes[end] == ' ' || p.lexed.source.bytes[end] == '\t') { end += 1 }
+        while end < line.end && (p.lexed.source.bytes[end] == ' ' || p.lexed.source.bytes[end] == '\t') {
+            end += 1
+        }
         let indent = p.lexed.source.getText(TextSpan.fromBounds(line.start, until: end))
         replacement = $" {openBrace}{gap}{text}\n{indent}{closeBrace}"
     } else {
@@ -464,7 +538,8 @@ i64 reportBraceless(ref Parser p, by Token keyword, from i64 gapStart, at TextSp
         if hasFix {
             for i in 0..p.lexed.diagnostics.length {
                 if i != header && !p.lexed.diagnostics[i].code.isEmpty && p.lexed.diagnostics[i].hasFix
-                    && p.lexed.diagnostics[i].fixSpan.start < merged.end && p.lexed.diagnostics[i].fixSpan.end > merged.start {
+                        && p.lexed.diagnostics[i].fixSpan.start < merged.end
+                        && p.lexed.diagnostics[i].fixSpan.end > merged.start {
                     overlaps = true
                 }
             }
@@ -476,15 +551,29 @@ i64 reportBraceless(ref Parser p, by Token keyword, from i64 gapStart, at TextSp
         } else {
             p.lexed.diagnostics[header].hasFix = false
         }
-        if !overlaps { hasFix = false }
+        if !overlaps {
+            hasFix = false
+        }
     }
     let keywordText = p.textOf(keyword)
     if hasFix {
-        braces.report = p.reportFix(.bodyNeedsBraces, at: body, through: fixSpan, by: replacement, arg0: keywordText,
-            label: "a single statement", help: "wrap the statement in `{ }`")
+        braces.report = p.reportFix(
+            .bodyNeedsBraces,
+            at: body,
+            through: fixSpan,
+            by: replacement,
+            arg0: keywordText,
+            label: "a single statement",
+            help: "wrap the statement in `{ }`",
+        )
     } else {
-        braces.report = p.report(.bodyNeedsBraces, at: body, arg0: keywordText, label: "a single statement",
-            help: "wrap the statement in `{ }`")
+        braces.report = p.report(
+            .bodyNeedsBraces,
+            at: body,
+            arg0: keywordText,
+            label: "a single statement",
+            help: "wrap the statement in `{ }`",
+        )
     }
     braces.hasFix = ownHasFix
     braces.fixSpan = fixSpan
@@ -505,15 +594,19 @@ Expr parseCondition(ref Parser p, to ref bool parenthesized, for ref i64 parens)
 /// start of a longer bare condition such as `(a + b) * c > d {`.
 bool isParenthesizedCondition(ref Parser p) {
     // `switch (a, b) {` is a bare tuple condition.
-    if p.kind() != .openParen || inGroup(ref p, at: p.pos, for: .comma) { return false }
+    return false if p.kind() != .openParen || inGroup(ref p, at: p.pos, for: .comma)
     let next = matchingClose(ref p, at: p.pos) + 1
     let kind = p.kindAt(next)
     // Mirrors C#'s clamp (`_tokens[Math.Min(next, _count - 1)]`) for an unclosed `(`, like `kindAt`.
-    if kind == .openBrace || kind == .semicolon || p.lexed.tokens[next < p.count ? next : p.count - 1].hasNewlineBefore { return true }
-    if kind == .identifier { return true }
-    if lexer.isKeyword(kind) {
-        return kind != .isKeyword && kind != .asKeyword && kind != .catchKeyword && kind != .withKeyword && kind != .inKeyword
-    }
+    return true if kind == .openBrace
+        || kind == .semicolon
+        || p.lexed.tokens[next < p.count ? next : p.count - 1].hasNewlineBefore
+    return true if kind == .identifier
+    return kind != .isKeyword
+        && kind != .asKeyword
+        && kind != .catchKeyword
+        && kind != .withKeyword
+        && kind != .inKeyword if lexer.isKeyword(kind)
     // An operator: a bare condition reaches its `{` body before the statement ends; a statement such as `-x` does not.
     return !bodyBraceFirst(ref p, from: next)
 }
@@ -523,7 +616,7 @@ bool isParenthesizedCondition(ref Parser p) {
 bool bodyBraceFirst(ref Parser p, from i64 index) {
     var depth: i64 = 0
     for i in index..p.count {
-        if depth == 0 && i > index && breaksLine(ref p, at: i) && !lineContinues(ref p, at: i) { return false }
+        return false if depth == 0 && i > index && breaksLine(ref p, at: i) && !lineContinues(ref p, at: i)
         let kind = p.kindAt(i)
         switch kind {
             case .openParen or .openBracket:
@@ -531,11 +624,11 @@ bool bodyBraceFirst(ref Parser p, from i64 index) {
             case .closeParen or .closeBracket:
                 depth -= 1
             case .openBrace:
-                if depth == 0 { return true }
+                return true if depth == 0
             case .semicolon or .closeBrace or .endOfFile:
                 return false
             default:
-                if depth == 0 && isAssignmentKind(kind) { return false }
+                return false if depth == 0 && isAssignmentKind(kind)
         }
     }
     return false
@@ -550,7 +643,7 @@ i64 matchingClose(ref Parser p, at i64 open) {
                 depth += 1
             case .closeParen or .closeBracket or .closeBrace:
                 depth -= 1
-                if depth == 0 { return i }
+                return i if depth == 0
             default:
                 continue
         }
@@ -568,7 +661,7 @@ Expr parseBareCondition(ref Parser p) {
 
 /// Whether a `{` here may open a struct literal or property pattern: not at the top level of a bare condition.
 bool braceLiteralAllowed(ref Parser p) {
-    if p.conditionStart < 0 { return true }
+    return true if p.conditionStart < 0
     var depth: i64 = 0
     for i in p.conditionStart..p.pos {
         switch p.kindAt(i) {
@@ -585,7 +678,10 @@ bool braceLiteralAllowed(ref Parser p) {
 
 /// `unlikely` after `if`, as a word rather than a variable: something follows it after a space.
 bool atUnlikely(ref Parser p) =>
-    atContextual(ref p, as: "unlikely") && p.peekToken(1).hasTriviaBefore && p.peek(1) != .openBrace && canStartExpression(p.peek(1))
+    atContextual(ref p, as: "unlikely")
+    && p.peekToken(1).hasTriviaBefore
+    && p.peek(1) != .openBrace
+    && canStartExpression(p.peek(1))
 
 Stmt parseIf(ref Parser p, from i64 start, bool elseIf = false, bool rejectPostfix = false) {
     let keyword = p.advance()
@@ -609,8 +705,14 @@ Stmt parseIf(ref Parser p, from i64 start, bool elseIf = false, bool rejectPostf
     var otherwise: Stmt = .none
     if p.kind() == .elseKeyword {
         if p.current().hasNewlineBefore && isBlockStmt(in then) && p.kindAt(p.pos - 1) == .closeBrace {
-            let _ = p.reportFix(.elseOnNewLine, at: spanOf(p.current()), through: TextSpan.fromBounds(p.prevEnd, until: p.current().start),
-                by: " ", label: "on a new line", help: "move `else` up to the line of `}`")
+            let _ = p.reportFix(
+                .elseOnNewLine,
+                at: spanOf(p.current()),
+                through: TextSpan.fromBounds(p.prevEnd, until: p.current().start),
+                by: " ",
+                label: "on a new line",
+                help: "move `else` up to the line of `}`",
+            )
         }
         let elseKeyword = p.advance()
         if p.kind() == .ifKeyword {
@@ -620,10 +722,23 @@ Stmt parseIf(ref Parser p, from i64 start, bool elseIf = false, bool rejectPostf
         }
     }
     let span = p.spanFrom(start)
-    if !elseIf && !parenthesized { lintPostfixGuard(ref p, at: span, for: condition, by: then, from: otherwise, as: likelihood) }
-    lintIfBind(ref p, at: span, for: condition, by: then, from: otherwise, as: likelihood,
-        through: TextSpan.fromBounds(conditionStart, until: conditionEnd), parenthesized: parenthesized, elseIf: elseIf)
-    if rejectPostfix { rejectPostfixAfterCompound(ref p) }
+    if !elseIf && !parenthesized {
+        lintPostfixGuard(ref p, at: span, for: condition, by: then, from: otherwise, as: likelihood)
+    }
+    lintIfBind(
+        ref p,
+        at: span,
+        for: condition,
+        by: then,
+        from: otherwise,
+        as: likelihood,
+        through: TextSpan.fromBounds(conditionStart, until: conditionEnd),
+        parenthesized: parenthesized,
+        elseIf: elseIf,
+    )
+    if rejectPostfix {
+        rejectPostfixAfterCompound(ref p)
+    }
     return Stmt.ifStmt(Owned(IfStmt {
         span: statementSpan(ref p, at: start, from: span),
         condition: move condition,
@@ -664,20 +779,38 @@ i64 checkUnlessCondition(ref Parser p, from in Expr condition, at TextSpan fixSp
         case .unaryExpr(let n):
             if n.value.op == .notKeyword {
                 let operand = p.lexed.source.getText(exprSpan(in n.value.operand))
-                return p.reportFix(.unlessNegated, at: fixSpan, through: fixSpan, by: $"if {operand}", label: "`unless` already negates",
-                    help: "use `if` with the condition as written")
+                return p.reportFix(
+                    .unlessNegated,
+                    at: fixSpan,
+                    through: fixSpan,
+                    by: $"if {operand}",
+                    label: "`unless` already negates",
+                    help: "use `if` with the condition as written",
+                )
             }
         case .binaryExpr(let n):
-            if n.value.op == .logicalAnd || n.value.op == .logicalOr {
+            if n.value.op is .logicalAnd or .logicalOr {
                 let text = p.lexed.source.getText(n.value.span)
-                return p.reportFix(.unlessCompound, at: fixSpan, through: fixSpan, by: $"if !({text})", label: "a compound condition",
-                    help: "use `if` with the negated condition")
+                return p.reportFix(
+                    .unlessCompound,
+                    at: fixSpan,
+                    through: fixSpan,
+                    by: $"if !({text})",
+                    label: "a compound condition",
+                    help: "use `if` with the negated condition",
+                )
             }
         case .isExpr(let n):
             if isNullTest(in condition) {
                 let value = p.lexed.source.getText(exprSpan(in n.value.value))
-                return p.reportFix(.unlessNull, at: fixSpan, through: fixSpan, by: $"if {value} is not null", label: "a negated null test",
-                    help: "use `if` with `is not null`")
+                return p.reportFix(
+                    .unlessNull,
+                    at: fixSpan,
+                    through: fixSpan,
+                    by: $"if {value} is not null",
+                    label: "a negated null test",
+                    help: "use `if` with `is not null`",
+                )
             }
         default:
             return -1
@@ -687,10 +820,18 @@ i64 checkUnlessCondition(ref Parser p, from in Expr condition, at TextSpan fixSp
 
 /// A likelihood word after `unless` (BYN1033), removed by the fix.
 void skipUnlessLikelihood(ref Parser p) {
-    if !(p.kind() == .neverKeyword && p.peek(1) != .openBrace && canStartExpression(p.peek(1))) && !atUnlikely(ref p) { return }
+    return if !(p.kind() == .neverKeyword && p.peek(1) != .openBrace && canStartExpression(p.peek(1)))
+        && !atUnlikely(ref p)
     let word = p.advance()
-    let _ = p.reportFix(.unlessLikelihood, at: spanOf(word), through: TextSpan.fromBounds(word.start, until: p.current().start), by: "",
-        arg0: p.textOf(word), label: "a likelihood word", help: "remove the word, or write `if unlikely` with the negated condition")
+    let _ = p.reportFix(
+        .unlessLikelihood,
+        at: spanOf(word),
+        through: TextSpan.fromBounds(word.start, until: p.current().start),
+        by: "",
+        arg0: p.textOf(word),
+        label: "a likelihood word",
+        help: "remove the word, or write `if unlikely` with the negated condition",
+    )
 }
 
 Stmt parseUnless(ref Parser p, from i64 start, bool rejectPostfix = false) {
@@ -702,16 +843,26 @@ Stmt parseUnless(ref Parser p, from i64 start, bool rejectPostfix = false) {
     let condition = parseCondition(ref p, to: ref parenthesized, for: ref parens)
     lintWrappedCondition(ref p, from: keywordIndex, for: condition)
     // The `if` fix spans the parentheses and drops them, so it replaces the BYN1017 report.
-    let check = checkUnlessCondition(ref p, from: in condition, at: TextSpan.fromBounds(keyword.start, until: p.prevEnd))
-    if check >= 0 { unreport(ref p, at: parens) }
+    let check = checkUnlessCondition(
+        ref p,
+        from: in condition,
+        at: TextSpan.fromBounds(keyword.start, until: p.prevEnd),
+    )
+    if check >= 0 {
+        unreport(ref p, at: parens)
+    }
     var header = check >= 0 ? check : parens
     var braces = BracesReport {}
     let body = parenthesized ? parseBody(ref p, by: keyword, to: ref header, for: ref braces) : parseBlock(ref p)
     // `braces` holds this body's own BYN1018, the C# `_bracesReport?.Span == body.Span`.
     let bracesReport = parenthesized ? braces.report : -1
     if p.kind() == .elseKeyword {
-        let _ = p.report(.unlessWithElse, at: spanOf(p.current()), label: "`else` after `unless`",
-            help: "use `if` with the opposite condition, so both branches read positively")
+        let _ = p.report(
+            .unlessWithElse,
+            at: spanOf(p.current()),
+            label: "`else` after `unless`",
+            help: "use `if` with the opposite condition, so both branches read positively",
+        )
         let _ = p.advance()
         // The `if` fix of BYN1007/1022/1023 leaves a bare condition, which needs a block after `else`.
         let otherwise = parseEmbedded(ref p)
@@ -726,7 +877,9 @@ Stmt parseUnless(ref Parser p, from i64 start, bool rejectPostfix = false) {
         }
     }
     let span = p.spanFrom(start)
-    if rejectPostfix { rejectPostfixAfterCompound(ref p) }
+    if rejectPostfix {
+        rejectPostfixAfterCompound(ref p)
+    }
     return Stmt.unlessStmt(Owned(UnlessStmt {
         span: statementSpan(ref p, at: start, from: span),
         condition: move condition,
@@ -738,9 +891,8 @@ Stmt parseUnless(ref Parser p, from i64 start, bool rejectPostfix = false) {
 Stmt parseFor(ref Parser p, from i64 start) {
     let keyword = p.advance()
     let isTry = p.accept(.tryKeyword)
-    if keyword.kind == .foreachKeyword || p.kind() == .openParen && !isTupleLoopVariables(ref p) {
-        return parseParenFor(ref p, from: start, by: keyword, tryKeyword: isTry)
-    }
+    return parseParenFor(ref p, from: start, by: keyword, tryKeyword: isTry) if keyword.kind == .foreachKeyword
+        || p.kind() == .openParen && !isTupleLoopVariables(ref p)
 
     var type: TypeSyntax = .none
     var variable = TextSpan { start: 0, length: 0 }
@@ -749,7 +901,9 @@ Stmt parseFor(ref Parser p, from i64 start) {
         let groupStart = p.current().start
         let _ = p.advance()
         names.append(expectName(ref p, "a loop variable"))
-        while p.accept(.comma) { names.append(expectName(ref p, "a loop variable")) }
+        while p.accept(.comma) {
+            names.append(expectName(ref p, "a loop variable"))
+        }
         let _ = p.expect(.closeParen)
         // The C# `Name(SpanFrom(groupStart), "_")`; the dump prints `names` instead.
         variable = p.spanFrom(groupStart)
@@ -770,9 +924,16 @@ Stmt parseFor(ref Parser p, from i64 start) {
         let span = TextSpan.fromBounds(typeSpanOf.start, until: variable.end)
         let typeText = p.lexed.source.getText(typeSpanOf)
         let variableText = p.lexed.source.getText(variable)
-        let _ = p.reportFix(.typeNameOrder, at: span, through: span, by: $"{variableText}: {typeText}",
-            arg0: $"for {typeText} {variableText}", arg1: $"for {variableText}: {typeText}", label: "type before name",
-            help: $"write `for {variableText}: {typeText}`; loop variables put the name first")
+        let _ = p.reportFix(
+            .typeNameOrder,
+            at: span,
+            through: span,
+            by: $"{variableText}: {typeText}",
+            arg0: $"for {typeText} {variableText}",
+            arg1: $"for {variableText}: {typeText}",
+            label: "type before name",
+            help: $"write `for {variableText}: {typeText}`; loop variables put the name first",
+        )
     } else {
         variable = expectName(ref p, "a loop variable")
     }
@@ -809,10 +970,17 @@ Stmt parseParenFor(ref Parser p, from i64 start, by Token keyword, bool tryKeywo
     } else if p.accept(.varKeyword) {
         kind = .varKeyword
     }
-    if isTypeThenName(ref p, at: p.pos) { type = parseType(ref p) }
+    if isTypeThenName(ref p, at: p.pos) {
+        type = parseType(ref p)
+    }
     let name = expectName(ref p, "a loop variable")
     if p.kind() != .inKeyword {
-        let _ = p.report(.cStyleFor, at: spanOf(p.current()), label: "expected `in`", help: "loop over a range instead: `for i in 0..n { … }`")
+        let _ = p.report(
+            .cStyleFor,
+            at: spanOf(p.current()),
+            label: "expected `in`",
+            help: "loop over a range instead: `for i in 0..n { … }`",
+        )
         skipPastCloseParen(ref p)
         let body0 = parseEmbedded(ref p)
         return Stmt.forStmt(Owned(ForStmt {
@@ -832,12 +1000,18 @@ Stmt parseParenFor(ref Parser p, from i64 start, by Token keyword, bool tryKeywo
     let close = p.expect(.closeParen)
     var input: i64 = -1
     if close.length > 0 && p.errorCount() == errors {
-        let span = TextSpan.fromBounds(keyword.kind == .foreachKeyword ? keyword.start : open.start, until: close.end)
+        let span = TextSpan.fromBounds(keyword.kind == .foreachKeyword ? keyword.start : open.start, until : close.end)
         let typeText = isNoType(in type) ? "" : $"{p.lexed.source.getText(typeSpan(in type))} "
         let header = $"{typeText}{nameText(ref p, at: name)} in {p.lexed.source.getText(exprSpan(in iterable))}"
         let replacement = keyword.kind == .foreachKeyword ? $"for {header}" : open.hasTriviaBefore ? header : $" {header}"
-        input = p.reportFix(.forInputForm, at: span, through: span, by: replacement, label: "the input form",
-            help: "write the loop variable and iterable without parentheses")
+        input = p.reportFix(
+            .forInputForm,
+            at: span,
+            through: span,
+            by: replacement,
+            label: "the input form",
+            help: "write the loop variable and iterable without parentheses",
+        )
     }
     let body = parseBody(ref p, by: keyword, to: ref input)
     return Stmt.forStmt(Owned(ForStmt {
@@ -897,51 +1071,51 @@ bool isNoType(in TypeSyntax t) {
     }
 }
 
-// ── Node spans ────────────────────────────────────────────────────────────────────
+// ── Node spans ───────────────────────────────────────────────────────────────
 // The C# `Node.Span` of a union child. No task owns these in the plan (Q460); `.none` has no span in
 // C# (a `null` child) and gives an empty one here.
 
 public TextSpan stmtSpan(in Stmt s) => s switch {
-    .blockStmt(let n) => n.value.span,
-    .localDecl(let n) => n.value.span,
-    .exprStmt(let n) => n.value.span,
-    .assignStmt(let n) => n.value.span,
-    .incDecStmt(let n) => n.value.span,
-    .returnStmt(let n) => n.value.span,
-    .failStmt(let n) => n.value.span,
-    .breakStmt(let n) => n.value.span,
+    .blockStmt(let n)    => n.value.span,
+    .localDecl(let n)    => n.value.span,
+    .exprStmt(let n)     => n.value.span,
+    .assignStmt(let n)   => n.value.span,
+    .incDecStmt(let n)   => n.value.span,
+    .returnStmt(let n)   => n.value.span,
+    .failStmt(let n)     => n.value.span,
+    .breakStmt(let n)    => n.value.span,
     .continueStmt(let n) => n.value.span,
-    .becomeStmt(let n) => n.value.span,
-    .ifStmt(let n) => n.value.span,
-    .unlessStmt(let n) => n.value.span,
-    .guardedStmt(let n) => n.value.span,
-    .whileStmt(let n) => n.value.span,
-    .doWhileStmt(let n) => n.value.span,
+    .becomeStmt(let n)   => n.value.span,
+    .ifStmt(let n)       => n.value.span,
+    .unlessStmt(let n)   => n.value.span,
+    .guardedStmt(let n)  => n.value.span,
+    .whileStmt(let n)    => n.value.span,
+    .doWhileStmt(let n)  => n.value.span,
     .whileLetStmt(let n) => n.value.span,
-    .forStmt(let n) => n.value.span,
-    .labeledStmt(let n) => n.value.span,
-    .switchStmt(let n) => n.value.span,
-    .deferStmt(let n) => n.value.span,
-    .assertStmt(let n) => n.value.span,
-    .contextStmt(let n) => n.value.span,
-    .emptyStmt(let n) => n.value.span,
-    .errorStmt(let n) => n.value.span,
-    .none => TextSpan { start: 0, length: 0 },
+    .forStmt(let n)      => n.value.span,
+    .labeledStmt(let n)  => n.value.span,
+    .switchStmt(let n)   => n.value.span,
+    .deferStmt(let n)    => n.value.span,
+    .assertStmt(let n)   => n.value.span,
+    .contextStmt(let n)  => n.value.span,
+    .emptyStmt(let n)    => n.value.span,
+    .errorStmt(let n)    => n.value.span,
+    .none                => TextSpan { start: 0, length: 0 },
 }
 
 public TextSpan typeSpan(in TypeSyntax t) => t switch {
-    .namedType(let n) => n.value.span,
-    .optionalType(let n) => n.value.span,
-    .arrayType(let n) => n.value.span,
-    .tupleType(let n) => n.value.span,
+    .namedType(let n)          => n.value.span,
+    .optionalType(let n)       => n.value.span,
+    .arrayType(let n)          => n.value.span,
+    .tupleType(let n)          => n.value.span,
     .functionTypeSyntax(let n) => n.value.span,
-    .dynType(let n) => n.value.span,
-    .refinedType(let n) => n.value.span,
-    .pointerType(let n) => n.value.span,
-    .none => TextSpan { start: 0, length: 0 },
+    .dynType(let n)            => n.value.span,
+    .refinedType(let n)        => n.value.span,
+    .pointerType(let n)        => n.value.span,
+    .none                      => TextSpan { start: 0, length: 0 },
 }
 
-// ── Stand-ins (T15 deletes this section) ──────────────────────────────────────────────────
+// ── Stand-ins (T15 deletes this section) ─────────────────────────────────────
 // Helpers the statements call that sibling files own and that have no T1 stub, as statics of `T7` so
 // they cannot collide with the real ones. Each has the signature T7 assumed (Q460) and the smallest body
 // that builds; the C# one-liners are ported as is so the T7 tests can run. When the siblings merge, T15

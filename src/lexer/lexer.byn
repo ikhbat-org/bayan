@@ -6,7 +6,9 @@ const maxInterpolationDepth: i64 = 32
 
 public LexResult lex(move SourceText source, by Keywords keywords) uses alloc {
     var modes = List<ModeEntry>()
-    for i in 0..maxInterpolationDepth + 1 { modes.append(ModeEntry { inText: false, braceDepth: 0, start: 0 }) }
+    for i in 0..maxInterpolationDepth + 1 {
+        modes.append(ModeEntry { inText: false, braceDepth: 0, start: 0 })
+    }
     var result = LexResult {
         source: move source,
         diagnostics: List<Diagnostic>(),
@@ -23,7 +25,7 @@ public LexResult lex(move SourceText source, by Keywords keywords) uses alloc {
     return result
 }
 
-// ── Unicode ───────────────────────────────────────────────────────────────────────
+// ── Unicode ──────────────────────────────────────────────────────────────────
 
 /// Whether `cp` lies in one of the inclusive `lo, hi` pairs of `ranges`.
 bool inRanges(ReadOnlySpan<u32> ranges, for u32 cp) {
@@ -44,32 +46,34 @@ bool inRanges(ReadOnlySpan<u32> ranges, for u32 cp) {
 bool isIdentifierStart(u32 cp) => inRanges(identStartRanges, for: cp)
 
 /// C# `char.IsUpper(text[0])`: whether the first scalar is Lu. Above U+FFFF C# sees a high surrogate, and the tables are BMP only, so it is false.
-public bool firstIsUpper(ReadOnlySpan<u8> text) => text.length > 0 && inRanges(upperRanges, for: decodeAt(text, at: 0).value)
+public bool firstIsUpper(ReadOnlySpan<u8> text) =>
+    text.length > 0 && inRanges(upperRanges, for: decodeAt(text, at: 0).value)
 
 /// C# `char.IsLower(text[0])`: whether the first scalar is Ll; false above U+FFFF like `firstIsUpper`.
-public bool firstIsLower(ReadOnlySpan<u8> text) => text.length > 0 && inRanges(lowerRanges, for: decodeAt(text, at: 0).value)
+public bool firstIsLower(ReadOnlySpan<u8> text) =>
+    text.length > 0 && inRanges(lowerRanges, for: decodeAt(text, at: 0).value)
 
 /// Identifier starts plus U+200C U+200D and Mn Mc Nd Pc.
 bool isIdentifierContinue(u32 cp) => isIdentifierStart(cp) || inRanges(identContinueRanges, for: cp)
 
 /// Length of the bidi control character at `pos` and its code point, or 0.
 (i64 length, u32 codePoint) bidiControlAt(ReadOnlySpan<u8> text, at i64 pos) {
-    if pos + 2 >= text.length || text[pos] != 0xE2 { return (length: 0, codePoint: 0) }
+    return (length: 0, codePoint: 0) if pos + 2 >= text.length || text[pos] != 0xE2
     let b1 = text[pos + 1]
     let b2 = text[pos + 2]
-    if (b1 == 0x80 && b2 >= 0xAA && b2 <= 0xAE) || (b1 == 0x81 && b2 >= 0xA6 && b2 <= 0xA9) {
-        return (length: 3, codePoint: 0x2000 | (u32(b1 & 0x0F) << 6) | u32(b2 & 0x3F))
-    }
+    return (length: 3, codePoint: 0x2000 | (u32(b1 & 0x0F) << 6) | u32(b2 & 0x3F)) if (b1 == 0x80
+        && b2 >= 0xAA
+        && b2 <= 0xAE) || (b1 == 0x81 && b2 >= 0xA6 && b2 <= 0xA9)
     return (length: 0, codePoint: 0)
 }
 
 // NFC (UAX #15) over the generated tables: full canonical decomposition (Hangul algorithmic),
 // canonical ordering by CCC, canonical composition with blocking.
 
-const sBase: i64 = 0xAC00
-const lBase: i64 = 0x1100
-const vBase: i64 = 0x1161
-const tBase: i64 = 0x11A7
+const sBase: i64  = 0xAC00
+const lBase: i64  = 0x1100
+const vBase: i64  = 0x1161
+const tBase: i64  = 0x11A7
 const lCount: i64 = 19
 const vCount: i64 = 21
 const tCount: i64 = 28
@@ -112,7 +116,9 @@ void decompose(u32 cp, to ref List<u32> output) {
     if s >= 0 && s < sCount {
         output.append(u32(lBase + s / nCount))
         output.append(u32(vBase + s % nCount / tCount))
-        if s % tCount != 0 { output.append(u32(tBase + s % tCount)) }
+        if s % tCount != 0 {
+            output.append(u32(tBase + s % tCount))
+        }
         return
     }
     let i = findTriple(decompIndex, for: cp)
@@ -122,14 +128,16 @@ void decompose(u32 cp, to ref List<u32> output) {
     }
     let offset = i64(decompIndex[i * 3 + 1])
     let length = i64(decompIndex[i * 3 + 2])
-    for k in offset..offset + length { output.append(decompData[k]) }
+    for k in offset..offset + length {
+        output.append(decompData[k])
+    }
 }
 
 /// Stable sort of each run of non-starters by CCC.
 void reorder(ref List<u32> cps) {
     for i in 1..cps.length {
         let c = ccc(cps[i])
-        if c == 0 { continue }
+        continue if c == 0
         let cp = cps[i]
         var j = i
         while j > 0 && ccc(cps[j - 1]) > c {
@@ -144,10 +152,10 @@ void reorder(ref List<u32> cps) {
 i64 composePair(u32 first, to u32 second) {
     let l = i64(first) - lBase
     let v = i64(second) - vBase
-    if l >= 0 && l < lCount && v >= 0 && v < vCount { return sBase + (l * vCount + v) * tCount }
+    return sBase + (l * vCount + v) * tCount if l >= 0 && l < lCount && v >= 0 && v < vCount
     let s = i64(first) - sBase
     let t = i64(second) - tBase
-    if s >= 0 && s < sCount && s % tCount == 0 && t > 0 && t < tCount { return i64(first) + t }
+    return i64(first) + t if s >= 0 && s < sCount && s % tCount == 0 && t > 0 && t < tCount
     var lo: i64 = 0
     var hi = compPairs.length / 3
     while lo < hi {
@@ -159,13 +167,15 @@ i64 composePair(u32 first, to u32 second) {
             hi = mid
         }
     }
-    if lo < compPairs.length / 3 && compPairs[lo * 3] == first && compPairs[lo * 3 + 1] == second { return compPairs[lo * 3 + 2] }
+    return compPairs[lo * 3 + 2] if lo < compPairs.length / 3
+        && compPairs[lo * 3] == first
+        && compPairs[lo * 3 + 1] == second
     return -1
 }
 
 /// Canonical composition in place; a character is blocked by an intervening one of equal or higher CCC.
 void compose(ref List<u32> cps) {
-    if cps.length == 0 { return }
+    return if cps.length == 0
     var starterIndex: i64 = 0
     var lastCcc: i64 = ccc(cps[0]) == 0 ? 0 : 256
     var count: i64 = 1
@@ -177,50 +187,58 @@ void compose(ref List<u32> cps) {
             cps[starterIndex] = u32(composite)
             continue
         }
-        if c == 0 { starterIndex = count }
+        if c == 0 {
+            starterIndex = count
+        }
         lastCcc = c
         cps[count] = cp
         count += 1
     }
-    while cps.length > count { let _ = cps.removeLast() }
+    while cps.length > count {
+        let _ = cps.removeLast()
+    }
 }
 
 /// The NFC form of the scalars `input`.
 List<u32> normalize(ReadOnlySpan<u32> input) {
     var cps = List<u32>()
-    for cp in input { decompose(cp, to: ref cps) }
+    for cp in input {
+        decompose(cp, to: ref cps)
+    }
     reorder(ref cps)
     compose(ref cps)
     return cps
 }
 
-// ── Lexer state ───────────────────────────────────────────────────────────────────
+// ── Lexer state ──────────────────────────────────────────────────────────────
 
 struct ModeEntry {
     /// True while scanning the text part of an interpolated string.
     bool inText
     /// Unclosed `{` inside an interpolation hole.
-    i64 braceDepth
+    i64  braceDepth
     /// Offset of the `$"` that opened this string.
-    i64 start
+    i64  start
 }
 
 /// The tokens and diagnostics of one source, and the lexer's state while it runs; the last token is `endOfFile`.
 public struct LexResult {
-    public SourceText source
+    public SourceText       source
     public List<Diagnostic> diagnostics
     /// `maxInterpolationDepth + 1` entries; `modes[depth]` is the current one.
-    List<ModeEntry> modes
-    i64 depth
-    bool reportedTooDeep
-    i64 pos
-    u8 tokenFlags
-    i64 docStart
-    i64 docEnd
-    public List<Token> tokens
+    List<ModeEntry>         modes
+    i64                     depth
+    bool                    reportedTooDeep
+    i64                     pos
+    u8                      tokenFlags
+    i64                     docStart
+    i64                     docEnd
+    public List<Token>      tokens
 
     void run(ref this, Keywords keywords) {
-        if source.bytes.length >= 3 && source.bytes[0] == 0xEF && source.bytes[1] == 0xBB && source.bytes[2] == 0xBF { pos = 3 }
+        if source.bytes.length >= 3 && source.bytes[0] == 0xEF && source.bytes[1] == 0xBB && source.bytes[2] == 0xBF {
+            pos = 3
+        }
         while true {
             if modes[depth].inText {
                 lexInterpolatedText()
@@ -229,8 +247,12 @@ public struct LexResult {
             skipTrivia()
             if pos >= source.bytes.length {
                 if depth > 0 {
-                    report(.unterminatedString, at: TextSpan { start: modes[depth].start, length: 2 },
-                        label: "this string never ends", help: "close the `{` and the string")
+                    report(
+                        .unterminatedString,
+                        at: TextSpan { start: modes[depth].start, length: 2 },
+                        label: "this string never ends",
+                        help: "close the `{` and the string",
+                    )
                 }
                 add(.endOfFile, at: TextSpan { start: pos, length: 0 })
                 return
@@ -239,7 +261,7 @@ public struct LexResult {
         }
     }
 
-    // ── Plumbing ──────────────────────────────────────────────────────────────────
+    // ── Plumbing ─────────────────────────────────────────────────────────────
 
     u8 peek(i64 offset = 0) => pos + offset < source.bytes.length ? source.bytes[pos + offset] : 0
 
@@ -257,7 +279,15 @@ public struct LexResult {
         docStart = -1
     }
 
-    void report(ref this, DiagnosticCode code, at TextSpan span, string arg0 = "", string arg1 = "", string label = "", string help = "") {
+    void report(
+        ref this,
+        DiagnosticCode code,
+        at TextSpan span,
+        string arg0 = "",
+        string arg1 = "",
+        string label = "",
+        string help = ""
+    ) {
         diagnostics.append(Diagnostic {
             code: codeText(code),
             span: span,
@@ -270,7 +300,15 @@ public struct LexResult {
         })
     }
 
-    void reportFix(ref this, DiagnosticCode code, at TextSpan span, by string replacement, string arg0 = "", string label = "", string help = "") {
+    void reportFix(
+        ref this,
+        DiagnosticCode code,
+        at TextSpan span,
+        by string replacement,
+        string arg0 = "",
+        string label = "",
+        string help = ""
+    ) {
         diagnostics.append(Diagnostic {
             code: codeText(code),
             span: span,
@@ -284,9 +322,9 @@ public struct LexResult {
     }
 
     bool isIdentifierStartAt(i64 at) {
-        if at >= source.bytes.length { return false }
+        return false if at >= source.bytes.length
         let b = source.bytes[at]
-        if b < 0x80 { return isAsciiIdentStart(b) }
+        return isAsciiIdentStart(b) if b < 0x80
         let d = decodeAt(source.bytes.span, at: at)
         return d.valid && isIdentifierStart(d.value)
     }
@@ -300,7 +338,9 @@ public struct LexResult {
         }
         let bidi = bidiControlAt(source.bytes.span, at: pos)
         if bidi.length > 0 {
-            unless allowBidi { reportBidi(bidi.codePoint, at: pos) }
+            unless allowBidi {
+                reportBidi(bidi.codePoint, at: pos)
+            }
             pos += bidi.length
             return
         }
@@ -314,12 +354,17 @@ public struct LexResult {
     }
 
     void reportBidi(ref this, u32 codePoint, at i64 start) {
-        reportFix(.bidiControl, at: TextSpan { start: start, length: 3 }, by: "", arg0: hex(codePoint, to: 4),
+        reportFix(
+            .bidiControl,
+            at: TextSpan { start: start, length: 3 },
+            by: "",
+            arg0: hex(codePoint, to: 4),
             label: "invisible character that reorders how the text displays",
-            help: "remove it; bidi controls may only appear inside string literals (Trojan Source, CVE-2021-42574)")
+            help: "remove it; bidi controls may only appear inside string literals (Trojan Source, CVE-2021-42574)",
+        )
     }
 
-    // ── Trivia ────────────────────────────────────────────────────────────────────
+    // ── Trivia ───────────────────────────────────────────────────────────────
 
     void skipTrivia(ref this) {
         while pos < source.bytes.length {
@@ -333,9 +378,13 @@ public struct LexResult {
             } else if b == '/' && peek(1) == '/' {
                 let start = pos
                 let isDoc = peek(2) == '/' && peek(3) != '/'
-                while pos < source.bytes.length && source.bytes[pos] != '\n' { advanceCodePoint(allowBidi: false) }
+                while pos < source.bytes.length && source.bytes[pos] != '\n' {
+                    advanceCodePoint(allowBidi: false)
+                }
                 if isDoc {
-                    if docStart < 0 { docStart = start }
+                    if docStart < 0 {
+                        docStart = start
+                    }
                     docEnd = pos
                 }
                 tokenFlags |= triviaBefore
@@ -343,21 +392,34 @@ public struct LexResult {
                 let start = pos
                 pos += 2
                 while pos < source.bytes.length && !(source.bytes[pos] == '*' && peek(1) == '/') {
-                    if source.bytes[pos] == '\n' { tokenFlags |= newlineBefore }
+                    if source.bytes[pos] == '\n' {
+                        tokenFlags |= newlineBefore
+                    }
                     advanceCodePoint(allowBidi: false)
                 }
                 if pos >= source.bytes.length {
-                    report(.unterminatedComment, at: TextSpan { start: start, length: 2 }, label: "comment starts here",
-                        help: "close it with `*/`")
+                    report(
+                        .unterminatedComment,
+                        at: TextSpan { start: start, length: 2 },
+                        label: "comment starts here",
+                        help: "close it with `*/`",
+                    )
                 } else {
                     pos += 2
-                    reportFix(.blockComment, at: TextSpan.fromBounds(start, until: pos), by: lineComments(start, until: pos),
-                        label: "block comment", help: "write each line with `//`")
+                    reportFix(
+                        .blockComment,
+                        at: TextSpan.fromBounds(start, until: pos),
+                        by: lineComments(start, until: pos),
+                        label: "block comment",
+                        help: "write each line with `//`",
+                    )
                 }
                 tokenFlags |= triviaBefore
             } else if b == '#' && tokens.length == 0 && (peek(1) == '!' || peek(1) == ':') && isAtLineStart() {
                 // Script shebang and `#:` directives at the top of a file.
-                while pos < source.bytes.length && source.bytes[pos] != '\n' { advanceCodePoint(allowBidi: false) }
+                while pos < source.bytes.length && source.bytes[pos] != '\n' {
+                    advanceCodePoint(allowBidi: false)
+                }
                 tokenFlags |= triviaBefore
             } else {
                 return
@@ -370,28 +432,42 @@ public struct LexResult {
     string lineComments(ref this, i64 start, until i64 end) {
         let text = source.bytes.span
         var lineStart = start
-        while lineStart > 0 && text[lineStart - 1] != '\n' { lineStart -= 1 }
+        while lineStart > 0 && text[lineStart - 1] != '\n' {
+            lineStart -= 1
+        }
         var indentEnd = lineStart
-        while indentEnd < start && (text[indentEnd] == ' ' || text[indentEnd] == '\t') { indentEnd += 1 }
+        while indentEnd < start && (text[indentEnd] == ' ' || text[indentEnd] == '\t') {
+            indentEnd += 1
+        }
         var starts = List<i64>()
         var ends = List<i64>()
         var at = start + 2
         while true {
             var lineEnd = at
-            while lineEnd < end - 2 && text[lineEnd] != '\n' { lineEnd += 1 }
+            while lineEnd < end - 2 && text[lineEnd] != '\n' {
+                lineEnd += 1
+            }
             var a = at
             var b = lineEnd
-            while a < b && (text[a] == ' ' || text[a] == '\t' || text[a] == '\r') { a += 1 }
-            while b > a && (text[b - 1] == ' ' || text[b - 1] == '\t' || text[b - 1] == '\r') { b -= 1 }
+            while a < b && (text[a] == ' ' || text[a] == '\t' || text[a] == '\r') {
+                a += 1
+            }
+            while b > a && (text[b - 1] == ' ' || text[b - 1] == '\t' || text[b - 1] == '\r') {
+                b -= 1
+            }
             starts.append(a)
             ends.append(b)
-            if lineEnd >= end - 2 { break }
+            break if lineEnd >= end - 2
             at = lineEnd + 1
         }
         var first: i64 = 0
         var last = starts.length - 1
-        if last > first && starts[last] == ends[last] { last -= 1 }
-        if last > first && starts[first] == ends[first] { first += 1 }
+        if last > first && starts[last] == ends[last] {
+            last -= 1
+        }
+        if last > first && starts[first] == ends[first] {
+            first += 1
+        }
         var sb = StrBuf()
         for i in first..last + 1 {
             if i > first {
@@ -402,7 +478,9 @@ public struct LexResult {
             appendUtf8(text[starts[i]..ends[i]], to: ref sb)
         }
         var after = end
-        while after < text.length && (text[after] == ' ' || text[after] == '\t' || text[after] == '\r') { after += 1 }
+        while after < text.length && (text[after] == ' ' || text[after] == '\t' || text[after] == '\r') {
+            after += 1
+        }
         if after < text.length && text[after] != '\n' {
             sb.append("\n")
             appendUtf8(text[lineStart..indentEnd], to: ref sb)
@@ -412,7 +490,7 @@ public struct LexResult {
 
     bool isAtLineStart() => pos == 0 || source.bytes[pos - 1] == '\n'
 
-    // ── Tokens ────────────────────────────────────────────────────────────────────
+    // ── Tokens ───────────────────────────────────────────────────────────────
 
     void lexToken(ref this, Keywords keywords) {
         let start = pos
@@ -459,7 +537,9 @@ public struct LexResult {
                     return
                 }
                 if depth + 1 >= modes.length {
-                    unless reportedTooDeep { report(.interpolationTooDeep, at: TextSpan { start: start, length: 2 }) }
+                    unless reportedTooDeep {
+                        report(.interpolationTooDeep, at: TextSpan { start: start, length: 2 })
+                    }
                     reportedTooDeep = true
                     pos += 1
                     lexString(.stringLiteral, from: start, at: pos)
@@ -470,7 +550,9 @@ public struct LexResult {
                 depth += 1
                 modes[depth] = ModeEntry { inText: true, braceDepth: 0, start: start }
             case '{':
-                if depth > 0 { modes[depth].braceDepth += 1 }
+                if depth > 0 {
+                    modes[depth].braceDepth += 1
+                }
                 single(.openBrace)
             case '}':
                 if depth > 0 && modes[depth].braceDepth == 0 {
@@ -479,7 +561,9 @@ public struct LexResult {
                     depth -= 1
                     return
                 }
-                if depth > 0 { modes[depth].braceDepth -= 1 }
+                if depth > 0 {
+                    modes[depth].braceDepth -= 1
+                }
                 single(.closeBrace)
             case '(': single(.openParen)
             case ')': single(.closeParen)
@@ -499,7 +583,10 @@ public struct LexResult {
                 }
             case '?':
                 if peek(1) == '?' {
-                    addFixed(peek(2) == '=' ? TokenKind.questionQuestionEquals : TokenKind.questionQuestion, peek(2) == '=' ? 3 : 2)
+                    addFixed(
+                        peek(2) == '=' ? TokenKind.questionQuestionEquals : TokenKind.questionQuestion,
+                        peek(2) == '=' ? 3 : 2,
+                    )
                 } else if peek(1) == '.' && !isDigit(peek(2)) {
                     addFixed(.questionDot, 2)
                 } else {
@@ -511,7 +598,7 @@ public struct LexResult {
                     '=' => TokenKind.plusEquals,
                     '%' => TokenKind.plusPercent,
                     '|' => TokenKind.plusBar,
-                    _ => TokenKind.plus,
+                    _   => TokenKind.plus,
                 })
             case '-':
                 addFixed(peek(1) switch {
@@ -520,14 +607,14 @@ public struct LexResult {
                     '=' => TokenKind.minusEquals,
                     '%' => TokenKind.minusPercent,
                     '|' => TokenKind.minusBar,
-                    _ => TokenKind.minus,
+                    _   => TokenKind.minus,
                 })
             case '*':
                 addFixed(peek(1) switch {
                     '=' => TokenKind.starEquals,
                     '%' => TokenKind.starPercent,
                     '|' => TokenKind.starBar,
-                    _ => TokenKind.star,
+                    _   => TokenKind.star,
                 })
             case '/': addFixed(peek(1) == '=' ? TokenKind.slashEquals : TokenKind.slash)
             case '%': addFixed(peek(1) == '=' ? TokenKind.percentEquals : TokenKind.percent)
@@ -538,7 +625,9 @@ public struct LexResult {
             case '|':
                 addFixed(peek(1) switch { '|' => TokenKind.barBar, '=' => TokenKind.barEquals, _ => TokenKind.bar })
             case '=':
-                addFixed(peek(1) switch { '=' => TokenKind.equalsEquals, '>' => TokenKind.fatArrow, _ => TokenKind.equals })
+                addFixed(
+                    peek(1) switch { '=' => TokenKind.equalsEquals, '>' => TokenKind.fatArrow, _ => TokenKind.equals },
+                )
             case '<':
                 if peek(1) == '<' {
                     addFixed(peek(2) == '=' ? TokenKind.lessLessEquals : TokenKind.lessLess, peek(2) == '=' ? 3 : 2)
@@ -574,13 +663,15 @@ public struct LexResult {
         while pos < source.bytes.length {
             let b = source.bytes[pos]
             if b < 0x80 {
-                unless isAsciiIdentContinue(b) { break }
+                unless isAsciiIdentContinue(b) {
+                    break
+                }
                 pos += 1
                 continue
             }
-            if bidiControlAt(source.bytes.span, at: pos).length > 0 { break }
+            break if bidiControlAt(source.bytes.span, at: pos).length > 0
             let d = decodeAt(source.bytes.span, at: pos)
-            if !d.valid || !isIdentifierContinue(d.value) { break }
+            break if !d.valid || !isIdentifierContinue(d.value)
             ascii = false
             pos += d.length
         }
@@ -604,8 +695,13 @@ public struct LexResult {
             }
         }
         if isReservedKeyword(kind) {
-            report(.reservedKeyword, at: TextSpan.fromBounds(start, until: pos), arg0: utf8(span),
-                label: "reserved for a future version of Bayan", help: "choose another name")
+            report(
+                .reservedKeyword,
+                at: TextSpan.fromBounds(start, until: pos),
+                arg0: utf8(span),
+                label: "reserved for a future version of Bayan",
+                help: "choose another name",
+            )
             kind = .identifier
         }
         add(kind, at: TextSpan { start: start, length: pos - start })
@@ -624,15 +720,24 @@ public struct LexResult {
         var same = normalized.length == input.length
         if same {
             for i in 0..input.length {
-                if normalized[i] != input[i] { same = false }
+                if normalized[i] != input[i] {
+                    same = false
+                }
             }
         }
-        if same { return }
+        return if same
         var fix = StrBuf()
-        for cp in normalized { fix.append($"{rune(cp)}") }
-        reportFix(.identifierNotNfc, at: TextSpan.fromBounds(start, until: pos), by: fix.finish(), arg0: utf8(span),
+        for cp in normalized {
+            fix.append($"{rune(cp)}")
+        }
+        reportFix(
+            .identifierNotNfc,
+            at: TextSpan.fromBounds(start, until: pos),
+            by: fix.finish(),
+            arg0: utf8(span),
             label: "same letters, different encoding",
-            help: "use the composed (NFC) form; identifiers that look the same must be byte-identical")
+            help: "use the composed (NFC) form; identifiers that look the same must be byte-identical",
+        )
     }
 
     void lexNumber(ref this) {
@@ -644,14 +749,22 @@ public struct LexResult {
             radix = "hexadecimal"
             pos += 2
             scanDigits(.hex, from: start)
-        } else if source.bytes[pos] == '0' && (peek(1) | 0x20) == 'b' && (peek(2) == '0' || peek(2) == '1' || peek(2) == '_') {
+        } else if source.bytes[pos] == '0'
+                && (peek(1) | 0x20) == 'b'
+                && (peek(2) == '0' || peek(2) == '1' || peek(2) == '_') {
             radix = "binary"
             pos += 2
             scanDigits(.binary, from: start)
             if isDigit(peek()) {
                 let bad = pos
-                while isDigit(peek()) { pos += 1 }
-                report(.invalidNumber, at: TextSpan.fromBounds(bad, until: pos), arg0: "binary literals use only `0` and `1`")
+                while isDigit(peek()) {
+                    pos += 1
+                }
+                report(
+                    .invalidNumber,
+                    at: TextSpan.fromBounds(bad, until: pos),
+                    arg0: "binary literals use only `0` and `1`",
+                )
             }
         } else {
             scanDigits(.decimal, from: start)
@@ -660,34 +773,47 @@ public struct LexResult {
                 pos += 1
                 scanDigits(.decimal, from: start)
             }
-            if (peek() | 0x20) == 'e' && (isDigit(peek(1)) || ((peek(1) == '+' || peek(1) == '-') && isDigit(peek(2)))) {
+            if (peek() | 0x20) == 'e'
+                    && (isDigit(peek(1)) || ((peek(1) == '+' || peek(1) == '-') && isDigit(peek(2)))) {
                 isFloat = true
                 pos += peek(1) == '+' || peek(1) == '-' ? 2 : 1
                 scanDigits(.decimal, from: start)
             }
         }
 
-        add(isFloat ? TokenKind.floatLiteral : TokenKind.integerLiteral, at: TextSpan { start: start, length: pos - start })
+        add(
+            isFloat ? TokenKind.floatLiteral : TokenKind.integerLiteral,
+            at: TextSpan { start: start, length: pos - start },
+        )
 
         if isIdentifierStartAt(pos) {
             let suffixStart = pos
             while pos < source.bytes.length {
                 let b = source.bytes[pos]
                 if b < 0x80 {
-                    unless isAsciiIdentContinue(b) { break }
+                    unless isAsciiIdentContinue(b) {
+                        break
+                    }
                     pos += 1
                     continue
                 }
                 let d = decodeAt(source.bytes.span, at: pos)
-                if !d.valid || !isIdentifierContinue(d.value) { break }
+                break if !d.valid || !isIdentifierContinue(d.value)
                 pos += d.length
             }
             add(.numericSuffix, at: TextSpan { start: suffixStart, length: pos - suffixStart })
             let suffix = source.bytes.span[suffixStart..pos]
-            let builtIn = sameBytes(suffix, as: "u".bytes) || sameBytes(suffix, as: "l".bytes) || sameBytes(suffix, as: "ul".bytes)
+            let builtIn = sameBytes(suffix, as: "u".bytes)
+                || sameBytes(suffix, as: "l".bytes)
+                || sameBytes(suffix, as: "ul".bytes)
             if !radix.isEmpty && !builtIn {
-                report(.suffixOnHexOrBinary, at: TextSpan.fromBounds(suffixStart, until: pos), arg0: utf8(suffix), arg1: radix,
-                    help: "write the value in decimal, or convert it with T(x), where T is the unit type")
+                report(
+                    .suffixOnHexOrBinary,
+                    at: TextSpan.fromBounds(suffixStart, until: pos),
+                    arg0: utf8(suffix),
+                    arg1: radix,
+                    help: "write the value in decimal, or convert it with T(x), where T is the unit type",
+                )
             }
         }
     }
@@ -696,16 +822,27 @@ public struct LexResult {
         let first = pos
         var digitsEnd = first
         while pos < source.bytes.length && (isDigitOf(digits, for: source.bytes[pos]) || source.bytes[pos] == '_') {
-            if source.bytes[pos] != '_' { digitsEnd = pos + 1 }
+            if source.bytes[pos] != '_' {
+                digitsEnd = pos + 1
+            }
             pos += 1
         }
         // Only underscores after a prefix is still no digits; deleting them would not help. Trailing underscores are
         // reported and deleted as one run, so the fix leaves a valid literal.
         if digitsEnd == first && digits != .decimal {
             let prefix = digits == .hex ? "0x" : "0b"
-            report(.invalidNumber, at: TextSpan.fromBounds(literalStart, until: pos), arg0: $"expected digits after `{prefix}`")
+            report(
+                .invalidNumber,
+                at: TextSpan.fromBounds(literalStart, until: pos),
+                arg0: $"expected digits after `{prefix}`",
+            )
         } else if digitsEnd < pos {
-            reportFix(.invalidNumber, at: TextSpan.fromBounds(digitsEnd, until: pos), by: "", arg0: "`_` must sit between digits")
+            reportFix(
+                .invalidNumber,
+                at: TextSpan.fromBounds(digitsEnd, until: pos),
+                by: "",
+                arg0: "`_` must sit between digits",
+            )
         }
     }
 
@@ -714,10 +851,16 @@ public struct LexResult {
         pos = quote
         if kind == .stringLiteral && peek(1) == '"' && peek(2) == '"' {
             pos += 3
-            while pos < source.bytes.length && !(source.bytes[pos] == '"' && peek(1) == '"' && peek(2) == '"') { advanceCodePoint(allowBidi: true) }
+            while pos < source.bytes.length && !(source.bytes[pos] == '"' && peek(1) == '"' && peek(2) == '"') {
+                advanceCodePoint(allowBidi: true)
+            }
             if pos >= source.bytes.length {
-                report(.unterminatedString, at: TextSpan { start: start, length: 3 }, label: "raw string starts here",
-                    help: "close it with `\"\"\"`")
+                report(
+                    .unterminatedString,
+                    at: TextSpan { start: start, length: 3 },
+                    label: "raw string starts here",
+                    help: "close it with `\"\"\"`",
+                )
             } else {
                 pos += 3
             }
@@ -728,10 +871,16 @@ public struct LexResult {
         pos += 1
         while true {
             if pos >= source.bytes.length || source.bytes[pos] == '\n' {
-                let end = pos > start && pos <= source.bytes.length && pos > 0 && source.bytes[pos - 1] == '\r' ? pos - 1 : pos
-                report(.unterminatedString, at: TextSpan.fromBounds(start, until: end),
+                let end = pos > start
+                    && pos <= source.bytes.length
+                    && pos > 0
+                    && source.bytes[pos - 1] == '\r' ? pos - 1 : pos
+                report(
+                    .unterminatedString,
+                    at: TextSpan.fromBounds(start, until: end),
                     label: "string ends at the end of the line",
-                    help: "close it with `\"`; for text spanning lines use a raw `\"\"\"` string")
+                    help: "close it with `\"`; for text spanning lines use a raw `\"\"\"` string",
+                )
                 add(kind, at: TextSpan { start: start, length: end - start })
                 return
             }
@@ -755,8 +904,12 @@ public struct LexResult {
         while true {
             if pos >= source.bytes.length || source.bytes[pos] == '\n' {
                 addText(start)
-                report(.unterminatedString, at: TextSpan { start: modeStart, length: 2 }, label: "this string never ends",
-                    help: "close it with `\"`")
+                report(
+                    .unterminatedString,
+                    at: TextSpan { start: modeStart, length: 2 },
+                    label: "this string never ends",
+                    help: "close it with `\"`",
+                )
                 add(.interpolatedStringEnd, at: TextSpan { start: pos, length: 0 })
                 depth -= 1
                 return
@@ -774,7 +927,9 @@ public struct LexResult {
                 pos += 2
             } else if b == '{' {
                 if depth + 1 >= modes.length {
-                    unless reportedTooDeep { report(.interpolationTooDeep, at: TextSpan { start: pos, length: 1 }) }
+                    unless reportedTooDeep {
+                        report(.interpolationTooDeep, at: TextSpan { start: pos, length: 1 })
+                    }
                     reportedTooDeep = true
                     pos += 1
                     continue
@@ -795,7 +950,9 @@ public struct LexResult {
     }
 
     void addText(ref this, i64 start) {
-        if pos > start { add(.interpolatedStringText, at: TextSpan { start: start, length: pos - start }) }
+        if pos > start {
+            add(.interpolatedStringText, at: TextSpan { start: start, length: pos - start })
+        }
     }
 
     void lexChar(ref this) {
@@ -803,7 +960,11 @@ public struct LexResult {
         pos += 1
         if peek() == '\'' {
             pos += 1
-            report(.emptyCharLiteral, at: TextSpan { start: start, length: 2 }, help: "write the character between the quotes, e.g. `' '`")
+            report(
+                .emptyCharLiteral,
+                at: TextSpan { start: start, length: 2 },
+                help: "write the character between the quotes, e.g. `' '`",
+            )
             add(.charLiteral, at: TextSpan { start: start, length: 2 })
             return
         }
@@ -823,7 +984,11 @@ public struct LexResult {
         }
         pos += 1
         if scalars > 1 {
-            report(.charLiteralTooLong, at: TextSpan.fromBounds(start, until: pos), help: "use a string literal (\"…\") for text")
+            report(
+                .charLiteralTooLong,
+                at: TextSpan.fromBounds(start, until: pos),
+                help: "use a string literal (\"…\") for text",
+            )
         }
         add(.charLiteral, at: TextSpan { start: start, length: pos - start })
     }
@@ -853,14 +1018,22 @@ public struct LexResult {
                 }
                 let digits = pos - digitsStart
                 if digits == 0 || peek() != '}' {
-                    report(.invalidEscape, at: TextSpan.fromBounds(start, until: pos), arg0: utf8(source.bytes.span[start..pos]),
-                        help: "write `\\u{` followed by 1–6 hex digits and `}`")
+                    report(
+                        .invalidEscape,
+                        at: TextSpan.fromBounds(start, until: pos),
+                        arg0: utf8(source.bytes.span[start..pos]),
+                        help: "write `\\u{` followed by 1–6 hex digits and `}`",
+                    )
                     return
                 }
                 pos += 1
-                if digits > 6 || value > 0x10FFFF || (value >= 0xD800 && value <= 0xDFFF) {
-                    report(.invalidUnicodeEscape, at: TextSpan.fromBounds(start, until: pos), arg0: utf8(source.bytes.span[start..pos]),
-                        help: "use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF")
+                if digits > 6 || value > 0x10FFFF || (value is 0xD800..=0xDFFF) {
+                    report(
+                        .invalidUnicodeEscape,
+                        at: TextSpan.fromBounds(start, until: pos),
+                        arg0: utf8(source.bytes.span[start..pos]),
+                        help: "use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF",
+                    )
                 }
             default:
                 invalidEscape(start)
@@ -870,8 +1043,12 @@ public struct LexResult {
     /// The `default` arm of `scanEscape`.
     void invalidEscape(ref this, i64 start) {
         advanceCodePoint(allowBidi: true)
-        report(.invalidEscape, at: TextSpan.fromBounds(start, until: pos), arg0: utf8(source.bytes.span[start..pos]),
-            help: "use a valid escape: \\n \\r \\t \\0 \\\\ \\\" \\' and \\u{…}")
+        report(
+            .invalidEscape,
+            at: TextSpan.fromBounds(start, until: pos),
+            arg0: utf8(source.bytes.span[start..pos]),
+            help: "use a valid escape: \\n \\r \\t \\0 \\\\ \\\" \\' and \\u{…}",
+        )
     }
 }
 
@@ -883,8 +1060,8 @@ enum DigitKind {
 
 bool isDigitOf(DigitKind kind, for u8 b) => kind switch {
     .decimal => isDigit(b),
-    .hex => isDigit(b) || (b >= 'a' && b <= 'f') || (b >= 'A' && b <= 'F'),
-    .binary => b == '0' || b == '1',
+    .hex     => isDigit(b) || (b >= 'a' && b <= 'f') || (b >= 'A' && b <= 'F'),
+    .binary  => b == '0' || b == '1',
 }
 
 bool isDigit(u8 b) => b >= '0' && b <= '9'
@@ -894,8 +1071,8 @@ bool isAsciiIdentStart(u8 b) => (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
 bool isAsciiIdentContinue(u8 b) => isAsciiIdentStart(b) || isDigit(b)
 
 i64 hexValue(u8 b) {
-    if b >= '0' && b <= '9' { return b - 0x30 }
-    if b >= 'a' && b <= 'f' { return b - 0x61 + 10 }
-    if b >= 'A' && b <= 'F' { return b - 0x41 + 10 }
+    return b - 0x30 if b >= '0' && b <= '9'
+    return b - 0x61 + 10 if b >= 'a' && b <= 'f'
+    return b - 0x41 + 10 if b >= 'A' && b <= 'F'
     return -1
 }

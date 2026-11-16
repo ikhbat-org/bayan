@@ -1,6 +1,6 @@
 // Statements B. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 2667–3160: `switch`, switch and
 // jump labels, `defer`, `return`, `fail`, `break`/`continue`, `provide`/context, assignment and
-// inc/dec, expression statements. Owner: 
+// inc/dec, expression statements. Owner:
 //
 // The dispatch cases for `assert`, `become`, labeled statements, `EmptyStmt` and `ErrorStmt` are
 // inline in `ParseStatement` (stmts.byn, T7), not here; see Q465. Lines 2667–2777 (`ParseFor` and
@@ -8,7 +8,7 @@
 
 import lexer
 
-// ── Switch ─────────────────────────────────────────────────────────────────────
+// ── Switch ───────────────────────────────────────────────────────────────────
 
 Stmt parseSwitchStatement(ref Parser p, at i64 start) {
     let _ = p.advance()
@@ -32,12 +32,19 @@ Stmt parseSwitchStatement(ref Parser p, at i64 start) {
         while p.kind() == .caseKeyword || p.kind() == .defaultKeyword {
             let stackedAt = spanOf(p.current())
             let next = parseSwitchLabel(ref p)
-            let _ = p.report(.stackedCaseLabels, at: stackedAt, label: "a second label for the same statements",
-                help: "combine the patterns into one label, e.g. `case .sat or .sun:`")
+            let _ = p.report(
+                .stackedCaseLabels,
+                at: stackedAt,
+                label: "a second label for the same statements",
+                help: "combine the patterns into one label, e.g. `case .sat or .sun:`",
+            )
             if labelPattern is not .none && next.pattern is not .none {
                 switch move next {
                     case { span: _, pattern: let np, guard: _ }:
-                        let mergedSpan = TextSpan.fromBounds(patternSpan(in labelPattern).start, until: patternSpan(in np).end)
+                        let mergedSpan = TextSpan.fromBounds(
+                            patternSpan(in labelPattern).start,
+                            until: patternSpan(in np).end,
+                        )
                         labelPattern = Pattern.binaryPattern(Owned(BinaryPattern {
                             span: mergedSpan,
                             isAnd: false,
@@ -48,12 +55,17 @@ Stmt parseSwitchStatement(ref Parser p, at i64 start) {
             }
         }
         var statements = List<Stmt>()
-        while p.kind() != .caseKeyword && p.kind() != .defaultKeyword && p.kind() != .closeBrace && p.kind() != .endOfFile {
+        while p.kind() != .caseKeyword
+                && p.kind() != .defaultKeyword
+                && p.kind() != .closeBrace
+                && p.kind() != .endOfFile {
             let before = p.pos
             let errors = p.syntaxErrors
             statements.append(parseStatement(ref p))
             recoverIfNeeded(ref p, from: errors)
-            if p.pos == before { let _ = p.advance() }
+            if p.pos == before {
+                let _ = p.advance()
+            }
         }
         sections.append(SwitchSection {
             span: p.spanFrom(sectionStart),
@@ -62,9 +74,16 @@ Stmt parseSwitchStatement(ref Parser p, at i64 start) {
         })
     }
     if p.kind() != .closeBrace && !p.atEnd() {
-        let _ = p.report(.expected, at: spanOf(p.current()), arg0: "`case`, `default` or `}`", arg1: p.describe(p.current()))
+        let _ = p.report(
+            .expected,
+            at: spanOf(p.current()),
+            arg0: "`case`, `default` or `}`",
+            arg1: p.describe(p.current()),
+        )
     }
-    while p.kind() != .closeBrace && !p.atEnd() { let _ = p.advance() }
+    while p.kind() != .closeBrace && !p.atEnd() {
+        let _ = p.advance()
+    }
     expectClose(ref p, from: open, for: "switch")
     return Stmt.switchStmt(Owned(SwitchStmt {
         span: statementSpan(ref p, at: start, from: p.spanFrom(start)),
@@ -95,34 +114,48 @@ SwitchLabel parseSwitchLabel(ref Parser p) {
 Pattern parseArmPattern(ref Parser p, for string head) {
     let start = p.current().start
     let pattern = parsePattern(ref p)
-    if p.kind() != .exceptKeyword { return move pattern }
+    return move pattern if p.kind() != .exceptKeyword
     let keyword = p.advance()
     let excluded = parsePattern(ref p)
     let excludedText = p.lexed.source.getText(patternSpan(in excluded))
     let notPat = Pattern.notPattern(Owned(NotPattern { span: patternSpan(in excluded), operand: move excluded }))
     let help = $"write the arm as `{head}not {excludedText}`"
     if pattern is .discardPattern(_) {
-        let _ = p.reportFix(.exceptInCase, at: spanOf(keyword), through: p.spanFrom(start), by: $"not {excludedText}",
-            label: "not allowed here", help: help)
+        let _ = p.reportFix(
+            .exceptInCase,
+            at: spanOf(keyword),
+            through: p.spanFrom(start),
+            by: $"not {excludedText}",
+            label: "not allowed here",
+            help: help,
+        )
         return move notPat
     }
     let _ = p.report(.exceptInCase, at: spanOf(keyword), label: "not allowed here", help: help)
-    return Pattern.binaryPattern(Owned(BinaryPattern { span: p.spanFrom(start), isAnd: true, left: move pattern, right: move notPat }))
+    return Pattern.binaryPattern(
+        Owned(BinaryPattern { span: p.spanFrom(start), isAnd: true, left: move pattern, right: move notPat }),
+    )
 }
 
-// ── Defer ──────────────────────────────────────────────────────────────────────
+// ── Defer ────────────────────────────────────────────────────────────────────
 
 /// `defer`, `defer failing`, `defer panicking` (contextual words) or `errdefer`, each but the first with an optional `(name)`.
 Stmt parseDefer(ref Parser p, at i64 start) {
     let keyword = p.advance()
     var kind: DeferKind = keyword.kind == .errdeferKeyword ? .failing : .always
     if kind == .failing {
-        let _ = p.reportFix(.errdeferInput, at: spanOf(keyword), through: spanOf(keyword), by: "defer failing",
-            label: "the input form", help: "write `defer failing`")
+        let _ = p.reportFix(
+            .errdeferInput,
+            at: spanOf(keyword),
+            through: spanOf(keyword),
+            by: "defer failing",
+            label: "the input form",
+            help: "write `defer failing`",
+        )
     }
     // `failing` and `panicking` are words only here, and only when a statement or `(name)` binding follows.
     if kind == .always && (atContextual(ref p, as: "failing") || atContextual(ref p, as: "panicking"))
-        && (startsDeferBody(ref p, at: 1) || isBinding(ref p, at: 1) && startsDeferBody(ref p, at: 4)) {
+            && (startsDeferBody(ref p, at: 1) || isBinding(ref p, at: 1) && startsDeferBody(ref p, at: 4)) {
         kind = p.textOf(p.advance()) == "failing" ? .failing : .panicking
     }
     var binding: TextSpan? = null
@@ -137,7 +170,15 @@ Stmt parseDefer(ref Parser p, at i64 start) {
     let body = parseEmbedded(ref p)
     if body is .localDecl(_) {
         var braces = BracesReport {}
-        let _ = reportBraceless(ref p, by: keyword, from: gapStart, at: stmtSpan(in body), as: p.errorCount() == errors, to: -1, for: ref braces)
+        let _ = reportBraceless(
+            ref p,
+            by: keyword,
+            from: gapStart,
+            at: stmtSpan(in body),
+            as: p.errorCount() == errors,
+            to: -1,
+            for: ref braces,
+        )
     }
     return Stmt.deferStmt(Owned(DeferStmt {
         span: statementSpan(ref p, at: start, from: span),
@@ -157,13 +198,15 @@ bool isBinding(ref Parser p, at i64 n) =>
 
 bool atContextual(ref Parser p, as string word) => p.kind() == .identifier && p.textOf(p.current()) == word
 
-// ── Provide / context ──────────────────────────────────────────────────────────
+// ── Provide / context ────────────────────────────────────────────────────────
 
 /// `provide allocator: a { … }`, or the input form `context (allocator: a) { … }` (BYN6006).
 Stmt parseContext(ref Parser p, at i64 start) {
     let keyword = p.advance()
     let parenthesized = keyword.kind == .contextKeyword
-    if parenthesized { let _ = p.expect(.openParen) }
+    if parenthesized {
+        let _ = p.expect(.openParen)
+    }
     var values = List<NamedArg>()
     if !parenthesized || p.kind() != .closeParen {
         while true {
@@ -172,19 +215,27 @@ Stmt parseContext(ref Parser p, at i64 start) {
             let _ = p.expect(.colon)
             let value = parenthesized ? parseExpression(ref p) : parseBareCondition(ref p)
             values.append(NamedArg { span: p.spanFrom(argStart), name: name, value: move value })
-            if !p.accept(.comma) { break }
+            break if !p.accept(.comma)
         }
     }
     if parenthesized {
         let _ = p.expect(.closeParen)
         let text = values.length == 0 ? "…"
-            : p.lexed.source.getText(TextSpan.fromBounds(values[0].span.start, until: values[values.length - 1].span.end))
+            : p.lexed.source.getText(
+                TextSpan.fromBounds(values[0].span.start, until: values[values.length - 1].span.end),
+            )
         let help = $"write `provide {text} {{ }}` without the parentheses"
         if values.length == 0 {
             let _ = p.report(.contextBlockInput, at: spanOf(keyword), label: "the input form", help: help)
         } else {
-            let _ = p.reportFix(.contextBlockInput, at: spanOf(keyword), through: TextSpan.fromBounds(keyword.start, until: p.prevEnd),
-                by: $"provide {text}", label: "the input form", help: help)
+            let _ = p.reportFix(
+                .contextBlockInput,
+                at: spanOf(keyword),
+                through: TextSpan.fromBounds(keyword.start, until: p.prevEnd),
+                by: $"provide {text}",
+                label: "the input form",
+                help: help,
+            )
         }
     }
     let body = parseBlock(ref p)
@@ -196,22 +247,31 @@ Stmt parseContext(ref Parser p, at i64 start) {
     }))
 }
 
-// ── Goto ───────────────────────────────────────────────────────────────────────
+// ── Goto ─────────────────────────────────────────────────────────────────────
 
 Stmt parseGoto(ref Parser p, at i64 start) {
     let keyword = p.advance()
     if p.kind() == .caseKeyword || p.kind() == .defaultKeyword {
-        let _ = p.report(.gotoKeyword, at: spanOf(keyword), label: "`goto case` does not exist",
-            help: "combine patterns with `or`, or move shared code into a function; switch sections never fall through")
+        let _ = p.report(
+            .gotoKeyword,
+            at: spanOf(keyword),
+            label: "`goto case` does not exist",
+            help: "combine patterns with `or`, or move shared code into a function; switch sections never fall through",
+        )
         synchronize(ref p)
         return Stmt.errorStmt(Owned(ErrorStmt {
             span: statementSpan(ref p, at: start, from: p.spanFrom(start)),
             attributes: takeStatementAttributes(ref p, at: start),
         }))
     }
-    let _ = p.reportFix(.gotoKeyword, at: spanOf(keyword), through: spanOf(keyword), by: "break",
+    let _ = p.reportFix(
+        .gotoKeyword,
+        at: spanOf(keyword),
+        through: spanOf(keyword),
+        by: "break",
         label: "not a keyword in Bayan",
-        help: "label the loop (`outer: for x in xs { … }`) and use `break outer` to leave it early")
+        help: "label the loop (`outer: for x in xs { … }`) and use `break outer` to leave it early",
+    )
     var label: TextSpan? = null
     if p.kind() == .identifier && !p.current().hasNewlineBefore {
         label = nameOf(p.advance())
@@ -224,7 +284,7 @@ Stmt parseGoto(ref Parser p, at i64 start) {
     }))
 }
 
-// ── Simple statements ──────────────────────────────────────────────────────────
+// ── Simple statements ────────────────────────────────────────────────────────
 
 /// A statement that may take a postfix `if`/`unless`; its end is not consumed.
 Stmt parseSimpleStatement(ref Parser p, at i64 start, to ref bool ended) {
@@ -236,14 +296,25 @@ Stmt parseSimpleStatement(ref Parser p, at i64 start, to ref bool ended) {
             let valueOnly = endsBefore(ref p, at: p.pos + 1) || lexer.isStringLiteral(p.kind())
                 || p.kind() is .integerLiteral or .floatLiteral or .charLiteral or .interpolatedStringStart or .dot
                 || indentAt(ref p, at: p.current().start).length > indentAt(ref p, at: keyword.start).length
-            if breaksLine(ref p, at: p.pos) && !hasBlankLineBefore(ref p, at: p.pos) && valueOnly && canStartExpression(p.kind())
-                && !isStatementKeyword(p.kind())
-                && !(p.kind() is .openBrace or .openParen or .openBracket or .minus or .returnKeyword or .breakKeyword or .continueKeyword) {
+            if breaksLine(ref p, at: p.pos)
+                    && !hasBlankLineBefore(ref p, at: p.pos)
+                    && valueOnly
+                    && canStartExpression(p.kind())
+                    && !isStatementKeyword(p.kind())
+                    && !(p.kind() is .openBrace
+                    or .openParen
+                    or .openBracket
+                    or .minus
+                    or .returnKeyword
+                    or .breakKeyword
+                    or .continueKeyword) {
                 reportOnNewLine(ref p, for: keyword)
                 hasValue = true
             }
             var value: Expr = .none
-            if hasValue { value = parseExpression(ref p) }
+            if hasValue {
+                value = parseExpression(ref p)
+            }
             let span = p.spanFrom(start)
             let key = simpleKey(ref p, at: start, to: ref ended)
             return Stmt.returnStmt(Owned(ReturnStmt {
@@ -254,7 +325,7 @@ Stmt parseSimpleStatement(ref Parser p, at i64 start, to ref bool ended) {
         case .failKeyword:
             let keyword = p.advance()
             if breaksLine(ref p, at: p.pos) && !hasBlankLineBefore(ref p, at: p.pos) && canStartExpression(p.kind())
-                && !isStatementKeyword(p.kind()) {
+                    && !isStatementKeyword(p.kind()) {
                 reportOnNewLine(ref p, for: keyword)
             }
             let span = p.spanFrom(start)
@@ -303,7 +374,9 @@ Stmt parseSimpleStatement(ref Parser p, at i64 start, to ref bool ended) {
     let op = tryAssignOp(ref p)
     if !breaksLine(ref p, at: p.pos) && (op is { } assignOp) {
         let width = assignOp == .shr ? 2 : 1
-        for _ in 0..width { let _ = p.advance() }
+        for _ in 0..width {
+            let _ = p.advance()
+        }
         checkAssignable(ref p, for: in expr)
         let value = parseExpression(ref p)
         let span = p.spanFrom(start)
@@ -329,8 +402,12 @@ Stmt parseSimpleStatement(ref Parser p, at i64 start, to ref bool ended) {
         }))
     }
     if p.errorCount() == errors && !isStatementExpression(in expr) {
-        let _ = p.report(.invalidExpressionStatement, at: exprSpan(in expr), label: "the value is computed and discarded",
-            help: "write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand alone")
+        let _ = p.report(
+            .invalidExpressionStatement,
+            at: exprSpan(in expr),
+            label: "the value is computed and discarded",
+            help: "write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand alone",
+        )
     }
     let span = p.spanFrom(start)
     let key = simpleKey(ref p, at: start, to: ref ended)
@@ -345,7 +422,7 @@ Stmt parseSimpleStatement(ref Parser p, at i64 start, to ref bool ended) {
 /// `GuardedStmt` takes them instead, as C# sets them on the statement `ParseStatement` returns. Without one the
 /// statement ends here (`ended`): its `expectEnd`, run before the node is built so `statementSpan` takes in a `;`.
 i64 simpleKey(ref Parser p, at i64 start, to ref bool ended) {
-    if postfixFollows(ref p) { return -1 }
+    return -1 if postfixFollows(ref p)
     expectEnd(ref p)
     ended = true
     return start
@@ -353,17 +430,26 @@ i64 simpleKey(ref Parser p, at i64 start, to ref bool ended) {
 
 /// The label of `break`/`continue`: on its line, or alone on the next (BYN1042).
 TextSpan? parseJumpLabel(ref Parser p, for Token keyword) {
-    if p.kind() != .identifier { return null }
-    if !p.current().hasNewlineBefore { return nameOf(p.advance()) }
-    if !breaksLine(ref p, at: p.pos) || hasBlankLineBefore(ref p, at: p.pos) || !endsBefore(ref p, at: p.pos + 1) { return null }
+    return null if p.kind() != .identifier
+    return nameOf(p.advance()) if !p.current().hasNewlineBefore
+    return null if !breaksLine(ref p, at: p.pos)
+        || hasBlankLineBefore(ref p, at: p.pos)
+        || !endsBefore(ref p, at: p.pos + 1)
     reportOnNewLine(ref p, for: keyword)
     return nameOf(p.advance())
 }
 
 /// BYN1042: the operand of `keyword` starts the next line; the fix joins it to the keyword's line.
 void reportOnNewLine(ref Parser p, for Token keyword) {
-    let _ = p.reportFix(.onNewLine, at: spanOf(p.current()), through: TextSpan.fromBounds(p.prevEnd, until: p.current().start),
-        by: " ", arg0: p.textOf(keyword), label: "on the next line", help: $"move the value to the line of `{p.textOf(keyword)}`")
+    let _ = p.reportFix(
+        .onNewLine,
+        at: spanOf(p.current()),
+        through: TextSpan.fromBounds(p.prevEnd, until: p.current().start),
+        by: " ",
+        arg0: p.textOf(keyword),
+        label: "on the next line",
+        help: $"move the value to the line of `{p.textOf(keyword)}`",
+    )
 }
 
 bool isStatementExpression(in Expr expr) {
@@ -375,7 +461,7 @@ bool isStatementExpression(in Expr expr) {
         case .catchExpr(let c):
             return isStatementExpression(in c.value.operand)
         case .binaryExpr(let b):
-            if b.value.op == .coalesce && b.value.right is .jumpExpr(_) { return true }
+            return true if b.value.op == .coalesce && b.value.right is .jumpExpr(_)
             return false
         case .errorExpr(_):
             return true
@@ -386,23 +472,21 @@ bool isStatementExpression(in Expr expr) {
 
 AssignOp? tryAssignOp(ref Parser p) {
     let op: AssignOp? = p.kind() switch {
-        .equals => AssignOp.assign,
-        .plusEquals => AssignOp.add,
-        .minusEquals => AssignOp.sub,
-        .starEquals => AssignOp.mul,
-        .slashEquals => AssignOp.div,
-        .percentEquals => AssignOp.rem,
-        .ampEquals => AssignOp.andKeyword,
-        .barEquals => AssignOp.orKeyword,
-        .caretEquals => AssignOp.xor,
-        .lessLessEquals => AssignOp.shl,
+        .equals                 => AssignOp.assign,
+        .plusEquals             => AssignOp.add,
+        .minusEquals            => AssignOp.sub,
+        .starEquals             => AssignOp.mul,
+        .slashEquals            => AssignOp.div,
+        .percentEquals          => AssignOp.rem,
+        .ampEquals              => AssignOp.andKeyword,
+        .barEquals              => AssignOp.orKeyword,
+        .caretEquals            => AssignOp.xor,
+        .lessLessEquals         => AssignOp.shl,
         .questionQuestionEquals => AssignOp.coalesce,
-        _ => null,
+        _                       => null,
     }
-    if op is not null { return op }
-    if p.kind() == .greater && p.peek(1) == .greaterEquals && !p.peekToken(1).hasTriviaBefore {
-        return AssignOp.shr
-    }
+    return op if op is not null
+    return AssignOp.shr if p.kind() == .greater && p.peek(1) == .greaterEquals && !p.peekToken(1).hasTriviaBefore
     return null
 }
 
@@ -425,7 +509,11 @@ void checkAssignable(ref Parser p, for in Expr target) {
             checkAssignable(ref p, for: in paren.value.inner)
             return
         default:
-            let _ = p.report(.invalidAssignmentTarget, at: exprSpan(in target), help: "assign to a variable, a field or an indexed element")
+            let _ = p.report(
+                .invalidAssignmentTarget,
+                at: exprSpan(in target),
+                help: "assign to a variable, a field or an indexed element",
+            )
             return
     }
 }
@@ -435,23 +523,41 @@ void checkAssignable(ref Parser p, for in Expr target) {
 Stmt finishSimpleStatement(ref Parser p, at i64 start, for move Stmt statement) {
     let stranded = strandedPostfix(ref p)
     if stranded {
-        let _ = p.reportFix(.postfixOnNewLine, at: spanOf(p.current()), through: TextSpan.fromBounds(p.prevEnd, until: p.current().start),
-            by: " ", arg0: p.textOf(p.current()), label: "on the next line",
-            help: $"move the `{p.textOf(p.current())}` clause up to the statement's line")
+        let _ = p.reportFix(
+            .postfixOnNewLine,
+            at: spanOf(p.current()),
+            through: TextSpan.fromBounds(p.prevEnd, until: p.current().start),
+            by: " ",
+            arg0: p.textOf(p.current()),
+            label: "on the next line",
+            help: $"move the `{p.textOf(p.current())}` clause up to the statement's line",
+        )
     }
     let keyword = p.advance()
     let isUnless = keyword.kind == .unlessKeyword
     let unlikely = !isUnless && atUnlikely(ref p)
-    if unlikely { let _ = p.advance() }
-    if isUnless { skipUnlessLikelihood(ref p) }
+    if unlikely {
+        let _ = p.advance()
+    }
+    if isUnless {
+        skipUnlessLikelihood(ref p)
+    }
     let condition = parseExpression(ref p)
     if isUnless {
-        let _ = checkUnlessCondition(ref p, from: in condition, at: TextSpan.fromBounds(keyword.start, until: exprSpan(in condition).end))
+        let _ = checkUnlessCondition(
+            ref p,
+            from: in condition,
+            at: TextSpan.fromBounds(keyword.start, until: exprSpan(in condition).end),
+        )
     }
     let span = p.spanFrom(start)
     if (p.kind() is .ifKeyword or .unlessKeyword) && !breaksLine(ref p, at: p.pos) {
-        let _ = p.report(.postfixChained, at: spanOf(p.current()), label: "a second condition",
-            help: "combine the conditions with `&&` in one postfix `if`")
+        let _ = p.report(
+            .postfixChained,
+            at: spanOf(p.current()),
+            label: "a second condition",
+            help: "combine the conditions with `&&` in one postfix `if`",
+        )
         let _ = p.advance()
         let _ = parseExpression(ref p)
     }
@@ -479,16 +585,20 @@ bool postfixFollows(ref Parser p) =>
 /// calls it before building its node, so an attributed span takes it in (`statementSpan`).
 void rejectPostfixAfterCompound(ref Parser p) {
     if (p.kind() is .ifKeyword or .unlessKeyword) && !p.current().hasNewlineBefore && p.peek(1) != .openParen
-        && !bodyBraceFirst(ref p, from: p.pos + 1) {
-        let _ = p.report(.postfixNotSimple, at: spanOf(p.current()), arg0: p.textOf(p.current()),
-            help: "put the condition first: `if cond { … }`")
+            && !bodyBraceFirst(ref p, from: p.pos + 1) {
+        let _ = p.report(
+            .postfixNotSimple,
+            at: spanOf(p.current()),
+            arg0: p.textOf(p.current()),
+            help: "put the condition first: `if cond { … }`",
+        )
         let _ = p.advance()
         let _ = parseExpression(ref p)
         expectEnd(ref p)
     }
 }
 
-// ── Node spans ─────────────────────────────────────────────────────────────────
+// ── Node spans ───────────────────────────────────────────────────────────────
 
 /// The `span` of a pattern node (the C# `Pattern.Span`).
 public TextSpan patternSpan(in Pattern p) {
@@ -509,6 +619,6 @@ public TextSpan patternSpan(in Pattern p) {
     }
 }
 
-// ── T8 stand-ins (T15 deletes) ──
+// ── T8 stand-ins (T15 deletes) ───────────────────────────────────────────────
 
 /// Stand-ins for siblings' helpers that have no stub on this branch, so this file builds on its own.

@@ -9,16 +9,16 @@ import semantics
 
 /// Layout.cs: LayoutOptions. The project's layout knobs (`style` in `package.byn`).
 struct LayoutOptions {
-    i64 indent = 4
-    i64 width = 120
-    semantics.AlignStyle align = .runs
+    i64                          indent         = 4
+    i64                          width          = 120
+    semantics.AlignStyle         align          = .runs
     semantics.TrailingCommaStyle trailingCommas = .multiline
 }
 
 /// Layout.cs: Apply. The laid-out bytes, or the input and why the layout was skipped.
 struct LayoutResult {
     List<u8> output
-    string? skipReason
+    string?  skipReason
 }
 
 /// Layout.cs: Rounds. Rounds of the engine over its own output: a join can fit only once a later break has shortened its line.
@@ -27,8 +27,8 @@ const layoutRounds: i64 = 4
 /// Layout.cs: GapItem. A newline, or a `//` comment (or a `#!`/`#:` line at the top) without its trailing blanks.
 struct LayoutGapItem {
     bool isComment
-    i64 start
-    i64 end
+    i64  start
+    i64  end
 }
 
 /// Layout.cs: Gap.
@@ -41,13 +41,13 @@ struct LayoutGap {
 /// Layout.cs: Frame. An open `{`, `(`, `[` (or the file), with the level of its line and its current statement.
 struct LayoutFrame {
     lexer.TokenKind opener
-    i64 line
-    i64 statement = 0
-    i64 statementIndent = 0
-    bool control = false
-    bool clause = false
-    i64 body = -1
-    bool inSwitch = false
+    i64  line
+    i64  statement       = 0
+    i64  statementIndent = 0
+    bool control         = false
+    bool clause          = false
+    i64  body            = -1
+    bool inSwitch        = false
 }
 
 /// Layout.cs: Side.
@@ -60,11 +60,11 @@ enum LayoutSide {
 
 /// Layout.cs: Chain. A member chain: its receiver's first token, its last token, the `.` of each link, and those that break.
 struct LayoutChain {
-    i64 start
-    i64 end
+    i64       start
+    i64       end
     List<i64> dots
     List<i64> breakable
-    i64 lambdaCalls
+    i64       lambdaCalls
 }
 
 /// The C# `(Start, End)` of `Unformatted`.
@@ -75,25 +75,25 @@ struct LayoutRegion {
 
 /// What the passes read of an `AttributeSyntax`: its span, its name's span and the end of its `because` (0 without one).
 struct LayoutAttribute {
-    i64 start
-    i64 end
-    i64 nameStart
-    i64 nameEnd
+    i64  start
+    i64  end
+    i64  nameStart
+    i64  nameEnd
     bool hasBecause
-    i64 becauseEnd
+    i64  becauseEnd
 }
 
 /// The C# `(Key, Columns)` of `Shapes`.
 struct LayoutShape {
-    string key
+    string    key
     List<i64> columns
 }
 
 /// The C# `(Start, Group, Method)` of `MemberBlanks`.
 struct LayoutMember {
-    i64 start
+    i64    start
     string group
-    bool method
+    bool   method
 }
 
 /// The C# `(TokenKind, string)` of `Significant`.
@@ -106,7 +106,7 @@ struct LayoutTokenText {
 /// to the parser), the file is laid out again with each such gap as written.
 LayoutResult layoutApply(List<u8> source, by LayoutOptions options) uses alloc {
     let spaced = layoutApplyWith(source, by: options, for: true)
-    if spaced.skipReason is null { return spaced }
+    return spaced if spaced.skipReason is null
     return layoutApplyWith(source, by: options, for: false)
 }
 
@@ -127,7 +127,10 @@ LayoutResult layoutApplyWith(List<u8> source, by LayoutOptions options, for bool
     let bom = layoutBom(source)
     var gaps = List<LayoutGap>()
     unless layoutGaps(source, from: tokens, at: bom, to: ref gaps) {
-        return LayoutResult { output: source.copy(), skipReason: "text between tokens that is neither whitespace nor a `//` comment" }
+        return LayoutResult {
+            output: source.copy(),
+            skipReason: "text between tokens that is neither whitespace nor a `//` comment",
+        }
     }
     var p = parser.Parser.create(move lexed)
     let tree = parser.parseCompilationUnit(ref p)
@@ -137,15 +140,31 @@ LayoutResult layoutApplyWith(List<u8> source, by LayoutOptions options, for bool
         let roundLexed = layoutLex(output, by: keywords)
         let roundTokens = roundLexed.tokens.copy()
         var roundGaps = List<LayoutGap>()
-        unless layoutGaps(output, from: roundTokens, at: bom, to: ref roundGaps) { break }
+        unless layoutGaps(output, from: roundTokens, at: bom, to: ref roundGaps) {
+            break
+        }
         var roundParser = parser.Parser.create(move roundLexed)
         let roundTree = parser.parseCompilationUnit(ref roundParser)
-        var roundEngine = layoutEngine(output.copy(), from: move roundTokens, by: move roundGaps, at: bom, for: options, as: spaceProducts)
+        var roundEngine = layoutEngine(
+            output.copy(),
+            from: move roundTokens,
+            by: move roundGaps,
+            at: bom,
+            for: options,
+            as: spaceProducts,
+        )
         let next = roundEngine.render(roundTree)
-        if t8SameBytes(in next, as: in output) { break }
+        break if t8SameBytes(in next, as: in output)
         output = move next
     }
-    if (layoutCheck(source, from: engine.tokens, by: engine.gaps, at: tree, through: ref p, for: output) is { } reason) {
+    if (layoutCheck(
+        source,
+        from: engine.tokens,
+        by: engine.gaps,
+        at: tree,
+        through: ref p,
+        for: output,
+    ) is { } reason) {
         return LayoutResult { output: source.copy(), skipReason: reason }
     }
     return LayoutResult { output: move output, skipReason: null }
@@ -161,30 +180,39 @@ bool layoutGaps(List<u8> source, from List<lexer.Token> tokens, at i64 bom, to r
         var lineEmpty = i == 0
         while at < tokens[i].start {
             let b = source[at]
-            if b == 0x20 || b == 0x09 || b == 0x0D {
+            if b is 0x20 or 0x09 or 0x0D {
                 at += 1
                 continue
             }
             if b == 0x0A {
-                if lineEmpty && items.length > 0 { blank = true }
+                if lineEmpty && items.length > 0 {
+                    blank = true
+                }
                 items.append(LayoutGapItem { isComment: false, start: at, end: at + 1 })
                 lineEmpty = true
                 at += 1
                 continue
             }
             let shebang = b == 0x23 && i == 0 && (at == start || source[at - 1] == 0x0A)
-            if !shebang && !(b == 0x2F && at + 1 < tokens[i].start && source[at + 1] == 0x2F) { return false }
+            return false if !shebang && !(b == 0x2F && at + 1 < tokens[i].start && source[at + 1] == 0x2F)
             var end = at
-            while end < tokens[i].start && source[end] != 0x0A { end += 1 }
+            while end < tokens[i].start && source[end] != 0x0A {
+                end += 1
+            }
             var trimmed = end
-            while trimmed > at && (source[trimmed - 1] == 0x20 || source[trimmed - 1] == 0x09 || source[trimmed - 1] == 0x0D) { trimmed -= 1 }
+            while trimmed > at
+                    && (source[trimmed - 1] == 0x20 || source[trimmed - 1] == 0x09 || source[trimmed - 1] == 0x0D) {
+                trimmed -= 1
+            }
             items.append(LayoutGapItem { isComment: true, start: at, end: trimmed })
             lineEmpty = false
             at = end
         }
         var newline = false
         for x in items {
-            if !x.isComment { newline = true }
+            if !x.isComment {
+                newline = true
+            }
         }
         gaps.append(LayoutGap { items: move items, hasNewline: newline, hasBlank: blank })
     }
@@ -192,61 +220,79 @@ bool layoutGaps(List<u8> source, from List<lexer.Token> tokens, at i64 bom, to r
 }
 
 /// Layout.cs: Check. Why `output` may not replace `source`, or null when it may. `p` is the parser that built `tree` from `source`.
-string? layoutCheck(List<u8> source, from List<lexer.Token> tokens, by List<LayoutGap> gaps, at parser.CompilationUnit tree, through ref parser.Parser p, for List<u8> output) uses alloc {
+string? layoutCheck(
+    List<u8> source,
+    from List<lexer.Token> tokens,
+    by List<LayoutGap> gaps,
+    at parser.CompilationUnit tree,
+    through ref parser.Parser p,
+    for List<u8> output
+) uses alloc {
     let lexed = layoutLex(output, by: lexer.Keywords.build())
     let after = lexed.tokens.copy()
     let before = layoutSignificant(p.lexed.source, from: tokens)
     let now = layoutSignificant(lexed.source, from: after)
-    if before.length != now.length { return "the tokens changed" }
+    return "the tokens changed" if before.length != now.length
     for k in 0..before.length {
-        if before[k].kind != now[k].kind || before[k].text != now[k].text { return "the tokens changed" }
+        return "the tokens changed" if before[k].kind != now[k].kind || before[k].text != now[k].text
     }
     let adjacency = layoutAdjacency(source, from: tokens)
     let adjacencyAfter = layoutAdjacency(output, from: after)
-    if adjacency.length != adjacencyAfter.length { return "the spacing the parser reads changed" }
+    return "the spacing the parser reads changed" if adjacency.length != adjacencyAfter.length
     for k in 0..adjacency.length {
-        if adjacency[k] != adjacencyAfter[k] { return "the spacing the parser reads changed" }
+        return "the spacing the parser reads changed" if adjacency[k] != adjacencyAfter[k]
     }
     let bom = layoutBom(output)
     var afterGaps = List<LayoutGap>()
-    unless layoutGaps(output, from: after, at: bom, to: ref afterGaps) { return "the comments changed" }
+    unless layoutGaps(output, from: after, at: bom, to: ref afterGaps) {
+        return "the comments changed"
+    }
     let comments = layoutComments(source, from: gaps)
     let commentsAfter = layoutComments(output, from: afterGaps)
-    if comments.length != commentsAfter.length { return "the comments changed" }
+    return "the comments changed" if comments.length != commentsAfter.length
     for k in 0..comments.length {
-        if comments[k] != commentsAfter[k] { return "the comments changed" }
+        return "the comments changed" if comments[k] != commentsAfter[k]
     }
     var reparsed = parser.Parser.create(move lexed)
     let reparsedTree = parser.parseCompilationUnit(ref reparsed)
     var codes = List<string>()
     for d in p.lexed.diagnostics {
-        unless d.code.isEmpty { codes.append(d.code) }
+        unless d.code.isEmpty {
+            codes.append(d.code)
+        }
     }
     var codesAfter = List<string>()
     for d in reparsed.lexed.diagnostics {
-        unless d.code.isEmpty { codesAfter.append(d.code) }
+        unless d.code.isEmpty {
+            codesAfter.append(d.code)
+        }
     }
-    if codes.length != codesAfter.length { return "the diagnostics changed" }
+    return "the diagnostics changed" if codes.length != codesAfter.length
     for k in 0..codes.length {
-        if codes[k] != codesAfter[k] { return "the diagnostics changed" }
+        return "the diagnostics changed" if codes[k] != codesAfter[k]
     }
-    if shape(in tree, from: ref p) != shape(in reparsedTree, from: ref reparsed) { return "the tree changed" }
+    return "the tree changed" if shape(in tree, from: ref p) != shape(in reparsedTree, from: ref reparsed)
     return null
 }
 
 /// Whether token `i` is a trailing comma: a `,` before `)`, `]` or `}`.
 bool layoutTrailing(List<lexer.Token> tokens, at i64 i) {
-    if tokens[i].kind != .comma || i + 1 >= tokens.length { return false }
+    return false if tokens[i].kind != .comma || i + 1 >= tokens.length
     let next = tokens[i + 1].kind
-    return next == .closeParen || next == .closeBracket || next == .closeBrace
+    return next is .closeParen or .closeBracket or .closeBrace
 }
 
 /// Layout.cs: Significant. The tokens as kind and text, less each trailing comma (a `,` before `)`, `]` or `}`).
 List<LayoutTokenText> layoutSignificant(lexer.SourceText text, from List<lexer.Token> tokens) uses alloc {
     var result = List<LayoutTokenText>()
     for i in 0..tokens.length {
-        if layoutTrailing(tokens, at: i) { continue }
-        result.append(LayoutTokenText { kind: tokens[i].kind, text: text.getText(lexer.TextSpan.fromBounds(tokens[i].start, until: tokens[i].end)) })
+        continue if layoutTrailing(tokens, at: i)
+        result.append(
+            LayoutTokenText {
+                kind: tokens[i].kind,
+                text: text.getText(lexer.TextSpan.fromBounds(tokens[i].start, until: tokens[i].end)),
+            },
+        )
     }
     return result
 }
@@ -256,7 +302,7 @@ List<LayoutTokenText> layoutSignificant(lexer.SourceText text, from List<lexer.T
 List<i8> layoutAdjacency(List<u8> bytes, from List<lexer.Token> tokens) uses alloc {
     var result = List<i8>()
     for i in 0..tokens.length {
-        if layoutTrailing(tokens, at: i) { continue }
+        continue if layoutTrailing(tokens, at: i)
         if layoutTriviaMatters(bytes, from: tokens, at: i) && !layoutStarGap(tokens, at: i) {
             result.append(tokens[i].hasTriviaBefore ? i8(1) : i8(0))
         } else {
@@ -269,22 +315,23 @@ List<i8> layoutAdjacency(List<u8> bytes, from List<lexer.Token> tokens) uses all
 /// Layout.cs: TriviaMatters. Whether the parser branches on the gap before token `i` (`HasTriviaBefore` in Parser.cs): a `>` then `>`
 /// or `>=`, a `..` then `.`, a `*` that may make a pointer, a numeric suffix, and `unlikely` before a gap.
 bool layoutTriviaMatters(List<u8> bytes, from List<lexer.Token> tokens, at i64 i) {
-    if i == 0 || i >= tokens.length { return false }
+    return false if i == 0 || i >= tokens.length
     let before = tokens[i - 1].kind
     let kind = tokens[i].kind
-    return before == .greater && (kind == .greater || kind == .greaterEquals)
+    return before == .greater && (kind is .greater or .greaterEquals)
         || before == .dotDot && kind == .dot
         || layoutStarGap(tokens, at: i)
         || kind == .numericSuffix
-        || before == .identifier && layoutBytesAre(bytes, from: tokens[i - 1].start, until: tokens[i - 1].end, as: "unlikely")
+        || before == .identifier
+        && layoutBytesAre(bytes, from: tokens[i - 1].start, until: tokens[i - 1].end, as: "unlikely")
 }
 
 /// Whether `bytes[start..end]` spell `word`.
 bool layoutBytesAre(List<u8> bytes, from i64 start, until i64 end, as string word) {
     let w = word.bytes
-    if end - start != w.length { return false }
+    return false if end - start != w.length
     for k in 0..w.length {
-        if bytes[start + k] != w[k] { return false }
+        return false if bytes[start + k] != w[k]
     }
     return true
 }
@@ -293,19 +340,26 @@ bool layoutBytesAre(List<u8> bytes, from i64 start, until i64 end, as string wor
 bool layoutStarGap(List<lexer.Token> tokens, at i64 i) {
     let before = tokens[i - 1].kind
     let kind = tokens[i].kind
-    return kind == .star && (layoutTypeEnd(before) || before == .star) || before == .star && !tokens[i - 1].hasTriviaBefore
+    return kind == .star && (layoutTypeEnd(before) || before == .star)
+        || before == .star && !tokens[i - 1].hasTriviaBefore
 }
 
 /// Layout.cs: TypeEnd. A token a type can end with, so that a `*` after it may make a pointer.
 bool layoutTypeEnd(lexer.TokenKind kind) =>
-    kind == .identifier || kind == .greater || kind == .question || kind == .closeBracket || parser.isContextualKeyword(kind)
+    kind == .identifier
+    || kind == .greater
+    || kind == .question
+    || kind == .closeBracket
+    || parser.isContextualKeyword(kind)
 
 /// Layout.cs: Comments.
 List<string> layoutComments(List<u8> bytes, from List<LayoutGap> gaps) uses alloc {
     var result = List<string>()
     for g in gaps {
         for x in g.items {
-            if x.isComment { result.append(layoutString(layoutCommentText(bytes, from: x))) }
+            if x.isComment {
+                result.append(layoutString(layoutCommentText(bytes, from: x)))
+            }
         }
     }
     return result
@@ -322,19 +376,37 @@ string layoutString(List<u8> bytes) uses alloc {
 List<u8> layoutCommentText(List<u8> bytes, from LayoutGapItem item) uses alloc {
     var slashes: i64 = 0
     let length = item.end - item.start
-    while slashes < length && bytes[item.start + slashes] == 0x2F { slashes += 1 }
+    while slashes < length && bytes[item.start + slashes] == 0x2F {
+        slashes += 1
+    }
     var text = List<u8>()
-    for k in item.start..item.end { text.append(bytes[k]) }
-    if slashes == 0 || slashes == length || bytes[item.start + slashes] == 0x20 || bytes[item.start + slashes] == 0x09 { return text }
+    for k in item.start..item.end {
+        text.append(bytes[k])
+    }
+    return text if slashes == 0
+        || slashes == length
+        || bytes[item.start + slashes] == 0x20
+        || bytes[item.start + slashes] == 0x09
     var spaced = List<u8>()
-    for k in 0..slashes { spaced.append(text[k]) }
+    for k in 0..slashes {
+        spaced.append(text[k])
+    }
     spaced.append(0x20)
-    for k in slashes..length { spaced.append(text[k]) }
+    for k in slashes..length {
+        spaced.append(text[k])
+    }
     return spaced
 }
 
 /// Layout.cs: Engine (its constructor).
-LayoutEngine layoutEngine(move List<u8> source, from move List<lexer.Token> tokens, by move List<LayoutGap> gaps, at i64 bom, for LayoutOptions options, as bool spaceProducts) uses alloc {
+LayoutEngine layoutEngine(
+    move List<u8> source,
+    from move List<lexer.Token> tokens,
+    by move List<LayoutGap> gaps,
+    at i64 bom,
+    for LayoutOptions options,
+    as bool spaceProducts
+) uses alloc {
     let n = tokens.length
     var engine = LayoutEngine {
         source: move source,
@@ -380,40 +452,44 @@ LayoutEngine layoutEngine(move List<u8> source, from move List<lexer.Token> toke
 }
 
 /// Layout.cs: IsOpener.
-bool layoutIsOpener(lexer.TokenKind kind) => kind == .openParen || kind == .openBracket || kind == .openBrace || kind == .interpolationStart
+bool layoutIsOpener(lexer.TokenKind kind) => kind is .openParen or .openBracket or .openBrace or .interpolationStart
 
 /// Layout.cs: IsCloser.
-bool layoutIsCloser(lexer.TokenKind kind) => kind == .closeParen || kind == .closeBracket || kind == .closeBrace || kind == .interpolationEnd
+bool layoutIsCloser(lexer.TokenKind kind) => kind is .closeParen or .closeBracket or .closeBrace or .interpolationEnd
 
 /// Layout.cs: AfterLa. Whether a line ending in `kind` continues on the next (lā).
 bool layoutAfterLa(lexer.TokenKind kind) => kind switch {
-    .comma or .fatArrow or .openBrace or .openParen or .openBracket => true,
-    .dot or .dotDot or .dotDotEquals or .question or .questionQuestion => true,
-    .questionDot or .plus or .minus or .star or .slash or .percent => true,
+    .comma or .fatArrow or .openBrace or .openParen or .openBracket        => true,
+    .dot or .dotDot or .dotDotEquals or .question or .questionQuestion     => true,
+    .questionDot or .plus or .minus or .star or .slash or .percent         => true,
     .plusPercent or .minusPercent or .starPercent or .plusBar or .minusBar => true,
-    .starBar or .amp or .ampAmp or .bar or .barBar or .caret => true,
+    .starBar or .amp or .ampAmp or .bar or .barBar or .caret               => true,
     .equalsEquals or .bangEquals or .less or .lessEquals or .greaterEquals => true,
-    .lessLess or .andKeyword or .orKeyword or .isKeyword or .inKeyword => true,
-    .equals or .plusEquals or .minusEquals or .starEquals or .slashEquals => true,
-    .percentEquals or .ampEquals or .barEquals or .caretEquals => true,
-    .lessLessEquals or .questionQuestionEquals => true,
-    _ => false,
+    .lessLess or .andKeyword or .orKeyword or .isKeyword or .inKeyword     => true,
+    .equals or .plusEquals or .minusEquals or .starEquals or .slashEquals  => true,
+    .percentEquals or .ampEquals or .barEquals or .caretEquals             => true,
+    .lessLessEquals or .questionQuestionEquals                             => true,
+    _                                                                      => false,
 }
 
 /// Layout.cs: ExpressionBefore. Whether a name after `kind` starts an expression, not a declaration (`Type name(`).
 bool layoutExpressionBefore(lexer.TokenKind kind) => kind switch {
     .identifier or .greater or .question or .closeBracket or .closeParen or .star => false,
-    .returnKeyword or .tryKeyword or .awaitKeyword or .inKeyword or .isKeyword => true,
-    .andKeyword or .orKeyword or .notKeyword or .ifKeyword or .unlessKeyword => true,
-    .whileKeyword or .elseKeyword or .failKeyword or .yieldKeyword => true,
-    .deferKeyword or .errdeferKeyword or .assertKeyword or .caseKeyword => true,
-    .moveKeyword or .refKeyword or .outKeyword or .switchKeyword => true,
-    _ => !lexer.isKeyword(kind),
+    .returnKeyword or .tryKeyword or .awaitKeyword or .inKeyword or .isKeyword    => true,
+    .andKeyword or .orKeyword or .notKeyword or .ifKeyword or .unlessKeyword      => true,
+    .whileKeyword or .elseKeyword or .failKeyword or .yieldKeyword                => true,
+    .deferKeyword or .errdeferKeyword or .assertKeyword or .caseKeyword           => true,
+    .moveKeyword or .refKeyword or .outKeyword or .switchKeyword                  => true,
+    _                                                                             => !lexer.isKeyword(kind),
 }
 
 /// Layout.cs: Piece.
 bool layoutPiece(lexer.TokenKind kind) => kind switch {
-    .interpolatedStringStart or .interpolatedStringText or .interpolationStart or .interpolationEnd or .interpolatedStringEnd => true,
+    .interpolatedStringStart
+        or .interpolatedStringText
+        or .interpolationStart
+        or .interpolationEnd
+        or .interpolatedStringEnd => true,
     _ => false,
 }
 
@@ -427,59 +503,59 @@ bool layoutOperandEnd(lexer.TokenKind kind) => kind switch {
 /// Layout.cs: IsBinary.
 bool layoutIsBinary(lexer.TokenKind kind) => kind switch {
     .fatArrow or .arrow or .equals or .equalsEquals or .bangEquals or .lessEquals or .greaterEquals => true,
-    .questionQuestion or .questionQuestionEquals or .ampAmp or .barBar => true,
+    .questionQuestion or .questionQuestionEquals or .ampAmp or .barBar  => true,
     .slash or .percent or .plusPercent or .minusPercent or .starPercent => true,
-    .plusBar or .minusBar or .starBar or .bar or .caret => true,
-    .lessLess or .plusEquals or .minusEquals or .starEquals => true,
-    .slashEquals or .percentEquals or .ampEquals or .barEquals => true,
-    .caretEquals or .lessLessEquals => true,
-    _ => false,
+    .plusBar or .minusBar or .starBar or .bar or .caret                 => true,
+    .lessLess or .plusEquals or .minusEquals or .starEquals             => true,
+    .slashEquals or .percentEquals or .ampEquals or .barEquals          => true,
+    .caretEquals or .lessLessEquals                                     => true,
+    _                                                                   => false,
 }
 
 /// The C# `decl.Span`.
 lexer.TextSpan layoutDeclSpan(parser.Decl decl) => decl switch {
-    .importDecl(let n) => n.value.span,
-    .globalStatement(let n) => n.value.span,
-    .functionDecl(let n) => n.value.span,
-    .structDecl(let n) => n.value.span,
-    .interfaceDecl(let n) => n.value.span,
-    .getterDecl(let n) => n.value.span,
+    .importDecl(let n)         => n.value.span,
+    .globalStatement(let n)    => n.value.span,
+    .functionDecl(let n)       => n.value.span,
+    .structDecl(let n)         => n.value.span,
+    .interfaceDecl(let n)      => n.value.span,
+    .getterDecl(let n)         => n.value.span,
     .associatedTypeDecl(let n) => n.value.span,
-    .extensionDecl(let n) => n.value.span,
-    .fieldDecl(let n) => n.value.span,
-    .propertyDecl(let n) => n.value.span,
-    .constructorDecl(let n) => n.value.span,
-    .errorEnumDecl(let n) => n.value.span,
-    .errorSetDecl(let n) => n.value.span,
-    .enumDecl(let n) => n.value.span,
-    .unionDecl(let n) => n.value.span,
-    .typeAliasDecl(let n) => n.value.span,
-    .effectDecl(let n) => n.value.span,
-    .testDecl(let n) => n.value.span,
-    .none => lexer.TextSpan.fromBounds(0, until: 0),
+    .extensionDecl(let n)      => n.value.span,
+    .fieldDecl(let n)          => n.value.span,
+    .propertyDecl(let n)       => n.value.span,
+    .constructorDecl(let n)    => n.value.span,
+    .errorEnumDecl(let n)      => n.value.span,
+    .errorSetDecl(let n)       => n.value.span,
+    .enumDecl(let n)           => n.value.span,
+    .unionDecl(let n)          => n.value.span,
+    .typeAliasDecl(let n)      => n.value.span,
+    .effectDecl(let n)         => n.value.span,
+    .testDecl(let n)           => n.value.span,
+    .none                      => lexer.TextSpan.fromBounds(0, until: 0),
 }
 
 /// The C# `decl.GetType().Name`.
 string layoutDeclType(parser.Decl decl) => decl switch {
-    .importDecl(_) => "ImportDecl",
-    .globalStatement(_) => "GlobalStatement",
-    .functionDecl(_) => "FunctionDecl",
-    .structDecl(_) => "StructDecl",
-    .interfaceDecl(_) => "InterfaceDecl",
-    .getterDecl(_) => "GetterDecl",
+    .importDecl(_)         => "ImportDecl",
+    .globalStatement(_)    => "GlobalStatement",
+    .functionDecl(_)       => "FunctionDecl",
+    .structDecl(_)         => "StructDecl",
+    .interfaceDecl(_)      => "InterfaceDecl",
+    .getterDecl(_)         => "GetterDecl",
     .associatedTypeDecl(_) => "AssociatedTypeDecl",
-    .extensionDecl(_) => "ExtensionDecl",
-    .fieldDecl(_) => "FieldDecl",
-    .propertyDecl(_) => "PropertyDecl",
-    .constructorDecl(_) => "ConstructorDecl",
-    .errorEnumDecl(_) => "ErrorEnumDecl",
-    .errorSetDecl(_) => "ErrorSetDecl",
-    .enumDecl(_) => "EnumDecl",
-    .unionDecl(_) => "UnionDecl",
-    .typeAliasDecl(_) => "TypeAliasDecl",
-    .effectDecl(_) => "EffectDecl",
-    .testDecl(_) => "TestDecl",
-    .none => "",
+    .extensionDecl(_)      => "ExtensionDecl",
+    .fieldDecl(_)          => "FieldDecl",
+    .propertyDecl(_)       => "PropertyDecl",
+    .constructorDecl(_)    => "ConstructorDecl",
+    .errorEnumDecl(_)      => "ErrorEnumDecl",
+    .errorSetDecl(_)       => "ErrorSetDecl",
+    .enumDecl(_)           => "EnumDecl",
+    .unionDecl(_)          => "UnionDecl",
+    .typeAliasDecl(_)      => "TypeAliasDecl",
+    .effectDecl(_)         => "EffectDecl",
+    .testDecl(_)           => "TestDecl",
+    .none                  => "",
 }
 
 /// The C# `decl.Attributes`, as the spans the passes read.
@@ -549,8 +625,18 @@ void layoutUnformatted(List<parser.Decl> decls, from List<u8> bytes, to ref List
 /// Layout.cs: Engine.OwnLineAttributes. A type or a function: the declarations whose attributes go on their own lines.
 bool layoutOwnLineAttributes(parser.Decl decl) => decl switch {
     .structDecl(_) or .interfaceDecl(_) or .extensionDecl(_) or .enumDecl(_) or .unionDecl(_) => true,
-    .errorEnumDecl(_) or .errorSetDecl(_) or .typeAliasDecl(_) or .functionDecl(_) or .constructorDecl(_) or .testDecl(_) => true,
-    .importDecl(_) or .globalStatement(_) or .getterDecl(_) or .associatedTypeDecl(_) or .fieldDecl(_) or .propertyDecl(_) => false,
+    .errorEnumDecl(_)
+        or .errorSetDecl(_)
+        or .typeAliasDecl(_)
+        or .functionDecl(_)
+        or .constructorDecl(_)
+        or .testDecl(_) => true,
+    .importDecl(_)
+        or .globalStatement(_)
+        or .getterDecl(_)
+        or .associatedTypeDecl(_)
+        or .fieldDecl(_)
+        or .propertyDecl(_) => false,
     .effectDecl(_) or .none => false,
 }
 
@@ -568,32 +654,34 @@ string layoutGroup(parser.Decl decl) {
 
 /// Layout.cs: Engine.
 struct LayoutEngine {
-    List<u8> source
+    List<u8>          source
     List<lexer.Token> tokens
-    List<LayoutGap> gaps
-    i64 bom
-    LayoutOptions options
-    bool spaceProducts
-    lexer.Keywords keywords
-    List<bool> lineStart
-    List<i64> levelOf
-    List<bool> frozen
-    List<bool> inHole
-    List<bool> needsBlank
-    List<i64> matchOf
-    List<bool> dropComma
-    List<bool> addComma
-    List<i64> pad
-    List<i64> commentPad
-    List<bool> tightAfter
-    List<bool> tightBefore
-    List<i64> enclosing
-    List<bool> headerArrow
-    List<u8> output
+    List<LayoutGap>   gaps
+    i64               bom
+    LayoutOptions     options
+    bool              spaceProducts
+    lexer.Keywords    keywords
+    List<bool>        lineStart
+    List<i64>         levelOf
+    List<bool>        frozen
+    List<bool>        inHole
+    List<bool>        needsBlank
+    List<i64>         matchOf
+    List<bool>        dropComma
+    List<bool>        addComma
+    List<i64>         pad
+    List<i64>         commentPad
+    List<bool>        tightAfter
+    List<bool>        tightBefore
+    List<i64>         enclosing
+    List<bool>        headerArrow
+    List<u8>          output
 
     /// Layout.cs: Engine.Render.
     List<u8> render(ref this, parser.CompilationUnit tree) uses alloc {
-        for i in 0..tokens.length { lineStart[i] = i == 0 || gaps[i].hasNewline }
+        for i in 0..tokens.length {
+            lineStart[i] = i == 0 || gaps[i].hasNewline
+        }
         freeze(tree.members)
         match()
         guide(tree.members)
@@ -603,20 +691,28 @@ struct LayoutEngine {
         levels()
         topLevelBlanks(tree.members)
         memberBlanks(tree.members)
-        if options.align == .runs { align(tree.members) }
-        for b in 0..bom { output.append(source[b]) }
+        if options.align == .runs {
+            align(tree.members)
+        }
+        for b in 0..bom {
+            output.append(source[b])
+        }
         for i in 0..tokens.length {
-            if dropComma[i] { continue }
+            continue if dropComma[i]
             emitGap(i)
-            for b in tokens[i].start..tokens[i].end { output.append(source[b]) }
-            if addComma[i] { output.append(0x2C) }
+            for b in tokens[i].start..tokens[i].end {
+                output.append(source[b])
+            }
+            if addComma[i] {
+                output.append(0x2C)
+            }
         }
         return output.copy()
     }
 
     /// Layout.cs: Engine.Kind.
     lexer.TokenKind kind(i64 i) {
-        if i >= 0 && i < tokens.length { return tokens[i].kind }
+        return tokens[i].kind if i >= 0 && i < tokens.length
         return .endOfFile
     }
 
@@ -626,7 +722,9 @@ struct LayoutEngine {
     /// Layout.cs: Engine.Text.
     string text(i64 i) uses alloc {
         var bytes = List<u8>()
-        for b in tokens[i].start..tokens[i].end { bytes.append(source[b]) }
+        for b in tokens[i].start..tokens[i].end {
+            bytes.append(source[b])
+        }
         return layoutString(bytes)
     }
 
@@ -654,7 +752,9 @@ struct LayoutEngine {
     void freeze(ref this, List<parser.Decl> members) uses alloc {
         var depth: i64 = 0
         for i in 0..tokens.length {
-            if depth > 0 { inHole[i] = true }
+            if depth > 0 {
+                inHole[i] = true
+            }
             if tokens[i].kind == .interpolatedStringStart {
                 depth += 1
             } else if tokens[i].kind == .interpolatedStringEnd && depth > 0 {
@@ -672,7 +772,7 @@ struct LayoutEngine {
         }
     }
 
-    // ── Indentation (pass 5) ──────────────────────────────────────────────────────────
+    // ── Indentation (pass 5) ─────────────────────────────────────────────────
 
     /// Layout.cs: Engine.OriginalIndent. The columns of the spaces and tabs that start the original line of token `i`; a tab is a level.
     i64 originalIndent(i64 i) {
@@ -692,7 +792,9 @@ struct LayoutEngine {
         var i: i64 = 0
         while i < tokens.length {
             var j = i + 1
-            while j < tokens.length && !lineStart[j] { j += 1 }
+            while j < tokens.length && !lineStart[j] {
+                j += 1
+            }
             let top = frames.length - 1
             let first = kind(i)
             var level: i64 = 0
@@ -700,12 +802,12 @@ struct LayoutEngine {
             var body: i64 = -1
             if first == .endOfFile {
                 level = 0
-            } else if first == .closeParen || first == .closeBracket || first == .closeBrace {
+            } else if first is .closeParen or .closeBracket or .closeBrace {
                 level = frames[top].line > 0 ? frames[top].line : 0
                 // `) {` closing a list opened on a clause or condition line opens that line's body.
                 body = frames[top].body
             } else {
-                let inGroup = frames[top].opener == .openParen || frames[top].opener == .openBracket
+                let inGroup = frames[top].opener is .openParen or .openBracket
                 let prev = kind(i - 1)
                 var continues = false
                 if i == 0 || prev == .openParen || prev == .openBracket || prev == .openBrace {
@@ -721,19 +823,25 @@ struct LayoutEngine {
                 }
                 if !continues {
                     // A `case` body goes one level past its `case`.
-                    level = frames[top].line + (frames[top].inSwitch && !(first == .caseKeyword || first == .defaultKeyword) ? 2 : 1)
+                    level = frames[top].line + (frames[top].inSwitch && !(first is .caseKeyword or .defaultKeyword)
+                        ? 2
+                        : 1)
                     frames[top].statement = level
                     frames[top].statementIndent = originalIndent(i)
-                    frames[top].control = first == .ifKeyword || first == .whileKeyword || first == .forKeyword || first == .unlessKeyword
+                    frames[top].control = first is .ifKeyword or .whileKeyword or .forKeyword or .unlessKeyword
                     frames[top].clause = false
-                } else if (first == .requiresKeyword || first == .catchKeyword && prev == .closeBrace) && originalIndent(i) <= frames[top].statementIndent {
+                } else if (first == .requiresKeyword
+                        || first == .catchKeyword
+                        && prev == .closeBrace) && originalIndent(i) <= frames[top].statementIndent {
                     // A struct-level `requires` and a `catch` after `}` may sit at the statement's indentation (BYN5103 exempts them).
                     level = frames[top].statement
                 } else {
                     let clause = isClause(i)
                     let wide = clause || frames[top].control || frames[top].clause
                     level = frames[top].statement + (wide ? 2 : 1)
-                    if wide { body = frames[top].statement }
+                    if wide {
+                        body = frames[top].statement
+                    }
                     frames[top].clause = frames[top].clause || clause
                 }
             }
@@ -751,10 +859,13 @@ struct LayoutEngine {
                         statementIndent: originalIndent(i),
                         body: body,
                         control: header,
-                        inSwitch: kind(k) == .openBrace && (kind(k + 1) == .caseKeyword || kind(k + 1) == .defaultKeyword),
+                        inSwitch: kind(k) == .openBrace
+                            && (kind(k + 1) == .caseKeyword || kind(k + 1) == .defaultKeyword),
                     })
                 } else if layoutIsCloser(kind(k)) {
-                    if frames.length > 1 { frames.remove(at: frames.length - 1) }
+                    if frames.length > 1 {
+                        frames.remove(at: frames.length - 1)
+                    }
                 }
             }
             i = j
@@ -764,21 +875,30 @@ struct LayoutEngine {
     /// Layout.cs: Engine.IsWasl. A token that joins the line it starts to the line before (waṣl), as the parser reads it.
     bool isWasl(i64 i) {
         let k = kind(i)
-        return k == .dot || k == .questionDot || k == .questionQuestion || k == .ampAmp || k == .barBar || k == .andKeyword
-            || k == .orKeyword || k == .catchKeyword || k == .exceptKeyword || k == .requiresKeyword || k == .failsKeyword
+        return k == .dot
+            || k == .questionDot
+            || k == .questionQuestion
+            || k == .ampAmp
+            || k == .barBar
+            || k == .andKeyword
+            || k == .orKeyword
+            || k == .catchKeyword
+            || k == .exceptKeyword
+            || k == .requiresKeyword
+            || k == .failsKeyword
             || k == .usesKeyword || isClause(i)
     }
 
     /// Layout.cs: Engine.IsClause. A header clause keyword: `where`, `expects`, `uses`, `becomes` or `fails`.
     bool isClause(i64 i) {
         let k = kind(i)
-        if k == .failsKeyword || k == .usesKeyword { return true }
-        if k != .identifier { return false }
-        if textIs(i, as: "where") { return kind(i + 1) == .identifier && kind(i + 2) == .colon }
-        if textIs(i, as: "becomes") { return kind(i + 1) == .dot }
+        return true if k is .failsKeyword or .usesKeyword
+        return false if k != .identifier
+        return kind(i + 1) == .identifier && kind(i + 2) == .colon if textIs(i, as: "where")
+        return kind(i + 1) == .dot if textIs(i, as: "becomes")
         if textIs(i, as: "expects") {
             let next = kind(i + 1)
-            return next == .identifier || next == .bang || next == .notKeyword || next == .thisKeyword
+            return next is .identifier or .bang or .notKeyword or .thisKeyword
         }
         return false
     }
@@ -797,7 +917,9 @@ struct LayoutEngine {
                 matchOf[i] = o
             }
             enclosing[i] = open.length > 0 ? open[open.length - 1] : -1
-            if layoutIsOpener(kind(i)) { open.append(i) }
+            if layoutIsOpener(kind(i)) {
+                open.append(i)
+            }
         }
     }
 
@@ -808,7 +930,9 @@ struct LayoutEngine {
     i64 columns(i64 i) {
         var n: i64 = 0
         for b in tokens[i].start..tokens[i].end {
-            if (source[b] & 0xC0) != 0x80 { n += 1 }
+            if (source[b] & 0xC0) != 0x80 {
+                n += 1
+            }
         }
         return n
     }
@@ -816,7 +940,7 @@ struct LayoutEngine {
     /// Layout.cs: Engine.Multiline.
     bool multiline(i64 i) {
         for b in tokens[i].start..tokens[i].end {
-            if source[b] == 0x0A { return true }
+            return true if source[b] == 0x0A
         }
         return false
     }
@@ -824,7 +948,9 @@ struct LayoutEngine {
     /// Layout.cs: Engine.LineStartOf.
     i64 lineStartOf(i64 i) {
         var k = i
-        while k > 0 && !lineStart[k] { k -= 1 }
+        while k > 0 && !lineStart[k] {
+            k -= 1
+        }
         return k
     }
 
@@ -832,7 +958,7 @@ struct LayoutEngine {
     i64 lineEnd(i64 i) {
         var k = i + 1
         while k < tokens.length - 1 {
-            if lineStart[k] { return k }
+            return k if lineStart[k]
             k += 1
         }
         return tokens.length - 1
@@ -842,9 +968,11 @@ struct LayoutEngine {
     i64 width(i64 s, until i64 e) uses alloc {
         var width = levelOf[s] * options.indent
         for k in s..e {
-            if dropComma[k] { continue }
-            if multiline(k) { return 0 }
-            if k > s && space(k, from: tokens[k - 1].end) { width += 1 }
+            continue if dropComma[k]
+            return 0 if multiline(k)
+            if k > s && space(k, from: tokens[k - 1].end) {
+                width += 1
+            }
             width += columns(k) + (addComma[k] ? 1 : 0)
         }
         return width
@@ -853,9 +981,9 @@ struct LayoutEngine {
     /// Layout.cs: Engine.Editable. Whether the structure over tokens `[start, end]` may change: none is frozen and it is not in an
     /// interpolation hole.
     bool editable(i64 start, through i64 end) {
-        if inHole[start] { return false }
+        return false if inHole[start]
         for k in start..end + 1 {
-            if frozen[k] { return false }
+            return false if frozen[k]
         }
         return true
     }
@@ -866,7 +994,9 @@ struct LayoutEngine {
         var k = o + 1
         while k < c {
             result.append(k)
-            if layoutIsOpener(kind(k)) && matchOf[k] > k { k = matchOf[k] }
+            if layoutIsOpener(kind(k)) && matchOf[k] > k {
+                k = matchOf[k]
+            }
             k += 1
         }
         return result
@@ -877,45 +1007,57 @@ struct LayoutEngine {
 
     /// Layout.cs: Engine.IsStructLiteral. A `{` that opens a struct literal or a `with` update: a type name or `with`, then `name:`.
     bool isStructLiteral(i64 o) {
-        if kind(o) != .openBrace || matchOf[o] <= o { return false }
+        return false if kind(o) != .openBrace || matchOf[o] <= o
         let prev = kind(o - 1)
-        return (prev == .identifier || prev == .greater || prev == .withKeyword) && kind(o + 1) == .identifier && kind(o + 2) == .colon
+        return (prev is .identifier or .greater or .withKeyword) && kind(o + 1) == .identifier && kind(o + 2) == .colon
     }
 
     /// Layout.cs: Engine.CommaSafe. Whether the parser takes a trailing comma in the list `(o, c)`: an argument list, a `[ ]` literal or
     /// a struct literal. A parameter list (BYN1003), a lambda's, an index and a group do not.
     bool commaSafe(i64 o, until i64 c) uses alloc {
         let k = kind(o)
-        if k == .openBrace { return isStructLiteral(o) }
-        if k == .openBracket { return lineStart[o] || !layoutOperandEnd(kind(o - 1)) }
-        if k != .openParen { return false }
+        return isStructLiteral(o) if k == .openBrace
+        return lineStart[o] || !layoutOperandEnd(kind(o - 1)) if k == .openBracket
+        return false if k != .openParen
         let name = o - 1
-        if lineStart[o] || !(kind(name) == .identifier || parser.isContextualKeyword(kind(name))) || !callLike(name) { return false }
+        return false if lineStart[o]
+            || !(kind(name) == .identifier || parser.isContextualKeyword(kind(name)))
+            || !callLike(name)
         let after = kind(c + 1)
-        if after == .openBrace || after == .fatArrow || after == .arrow || after == .requiresKeyword || isClause(c + 1) { return false }
-        if inPattern(o) { return false }
+        return false if after == .openBrace
+            || after == .fatArrow
+            || after == .arrow
+            || after == .requiresKeyword
+            || isClause(c + 1)
+        return false if inPattern(o)
         // A spaced `?` is a ternary's; `T? name(` declares.
-        return lineStart[name] || layoutExpressionBefore(kind(name - 1)) || kind(name - 1) == .question && trivia(name - 1)
+        return lineStart[name]
+            || layoutExpressionBefore(kind(name - 1))
+            || kind(name - 1) == .question && trivia(name - 1)
     }
 
     /// Layout.cs: Engine.InPattern. Whether the `(` at `o` holds a pattern (`case .some(let x)`, `is .pair(a, b)`).
     bool inPattern(i64 o) uses alloc {
         for k in items(o, until: matchOf[o]) {
-            if (kind(k - 1) == .openParen && k - 1 == o || kind(k - 1) == .comma) && (kind(k) == .letKeyword || kind(k) == .varKeyword) {
-                return true
-            }
+            return true if (kind(k - 1) == .openParen && k - 1 == o
+                || kind(k - 1) == .comma) && (kind(k) == .letKeyword || kind(k) == .varKeyword)
         }
         var k = o - 1
         while k >= 0 {
             let at = kind(k)
             if layoutIsCloser(at) && matchOf[k] >= 0 && matchOf[k] < k {
                 k = matchOf[k]
-            } else if layoutIsOpener(at) || at == .comma || at == .colon || at == .equals || at == .fatArrow || at == .identifier && textIs(k, as: "where") {
+            } else if layoutIsOpener(at)
+                    || at == .comma
+                    || at == .colon
+                    || at == .equals
+                    || at == .fatArrow
+                    || at == .identifier && textIs(k, as: "where") {
                 return false
-            } else if at == .caseKeyword || at == .isKeyword || at == .exceptKeyword {
+            } else if at is .caseKeyword or .isKeyword or .exceptKeyword {
                 return true
             }
-            if lineStart[k] { return false }
+            return false if lineStart[k]
             k -= 1
         }
         return false
@@ -924,7 +1066,7 @@ struct LayoutEngine {
     /// Whether the gap before token `k` holds a comment.
     bool hasComment(i64 k) {
         for x in gaps[k].items {
-            if x.isComment { return true }
+            return true if x.isComment
         }
         return false
     }
@@ -936,22 +1078,32 @@ struct LayoutEngine {
         if options.trailingCommas != .multiline {
             for c in 1..tokens.length {
                 if layoutIsCloser(kind(c)) && matchOf[c] >= 0 && kind(c - 1) == .comma && gaps[c - 1].items.length == 0
-                    && commaSafe(matchOf[c], until: c) && editable(c - 1, through: c) {
+                        && commaSafe(matchOf[c], until: c) && editable(c - 1, through: c) {
                     dropComma[c - 1] = true
                 }
             }
         }
         // A group breaks only before its own operators: the author's break after its `(` or before its `)` goes.
         for g in 1..tokens.length {
-            if kind(g) != .openParen || matchOf[g] <= g + 1 || callLike(g - 1) || kind(g - 1) == .greater || inPattern(g) { continue }
+            continue if kind(g) != .openParen
+                || matchOf[g] <= g + 1
+                || callLike(g - 1)
+                || kind(g - 1) == .greater
+                || inPattern(g)
             let c = matchOf[g]
             var comma = false
             for k in items(g, until: c) {
-                if kind(k) == .comma { comma = true }
+                if kind(k) == .comma {
+                    comma = true
+                }
             }
-            if comma { continue }
-            if lineStart[g + 1] && !hasComment(g + 1) && editable(g + 1, through: g + 1) { lineStart[g + 1] = false }
-            if lineStart[c] && !hasComment(c) && editable(c, through: c) { lineStart[c] = false }
+            continue if comma
+            if lineStart[g + 1] && !hasComment(g + 1) && editable(g + 1, through: g + 1) {
+                lineStart[g + 1] = false
+            }
+            if lineStart[c] && !hasComment(c) && editable(c, through: c) {
+                lineStart[c] = false
+            }
         }
         var o: i64 = 0
         while o < tokens.length {
@@ -959,7 +1111,9 @@ struct LayoutEngine {
                 let c = matchOf[o]
                 if joinable(o, until: c) {
                     var breaks = List<i64>()
-                    for k in o + 1..c + 1 { breaks.append(k) }
+                    for k in o + 1..c + 1 {
+                        breaks.append(k)
+                    }
                     if tryJoin(o, through: c, for: breaks) {
                         o = c
                     } else {
@@ -982,25 +1136,33 @@ struct LayoutEngine {
         for chain in all {
             var broken = false
             for d in chain.dots {
-                if lineStart[d] { broken = true }
+                if lineStart[d] {
+                    broken = true
+                }
             }
-            if chain.lambdaCalls >= 3 || !broken || !editable(chain.start, through: chain.end) { continue }
+            continue if chain.lambdaCalls >= 3 || !broken || !editable(chain.start, through: chain.end)
             var only = true
             var k = chain.start + 1
             while k <= chain.end && only {
                 if lineStart[k] {
                     var isDot = false
                     for d in chain.dots {
-                        if d == k { isDot = true }
+                        if d == k {
+                            isDot = true
+                        }
                     }
-                    if !isDot || hasComment(k) { only = false }
+                    if !isDot || hasComment(k) {
+                        only = false
+                    }
                 }
                 k += 1
             }
-            if !only { continue }
+            continue if !only
             // A chain in a ternary that has not broken joins: the ternary breaks first.
             if inUnbrokenTernary(chain.start) {
-                for d in chain.dots { lineStart[d] = false }
+                for d in chain.dots {
+                    lineStart[d] = false
+                }
             } else {
                 let _ = tryJoin(chain.start, through: chain.end, for: chain.dots)
             }
@@ -1011,8 +1173,10 @@ struct LayoutEngine {
     i64 headerArrowAfter(i64 c) {
         var k = c + 1
         while k < tokens.length && !lineStart[k] {
-            if headerArrow[k] { return k }
-            if layoutIsOpener(kind(k)) && matchOf[k] > k { k = matchOf[k] }
+            return k if headerArrow[k]
+            if layoutIsOpener(kind(k)) && matchOf[k] > k {
+                k = matchOf[k]
+            }
             k += 1
         }
         return -1
@@ -1022,7 +1186,7 @@ struct LayoutEngine {
     /// broken.
     bool inUnbrokenTernary(i64 i) {
         let o = enclosing[i]
-        if o < 0 || !(kind(o) == .openParen || kind(o) == .openBracket) { return false }
+        return false if o < 0 || !(kind(o) == .openParen || kind(o) == .openBracket)
         var k = i - 1
         while k > o {
             if layoutIsCloser(kind(k)) && matchOf[k] >= 0 && matchOf[k] < k {
@@ -1042,8 +1206,15 @@ struct LayoutEngine {
         var broken = false
         for k in o + 1..c + 1 {
             broken = broken || lineStart[k]
-            if hasComment(k) || frozen[k] || inHole[k] && lineStart[k] || multiline(k) || kind(k) == .openBrace || kind(k) == .closeBrace
-                || kind(k) == .comma && (kind(k + 1) == .closeParen || kind(k + 1) == .closeBracket) && !dropComma[k] {
+            if hasComment(k)
+                    || frozen[k]
+                    || inHole[k] && lineStart[k]
+                    || multiline(k)
+                    || kind(k) == .openBrace
+                    || kind(k) == .closeBrace
+                    || kind(k) == .comma
+                    && (kind(k + 1) == .closeParen || kind(k + 1) == .closeBracket)
+                    && !dropComma[k] {
                 return false
             }
         }
@@ -1054,17 +1225,25 @@ struct LayoutEngine {
     bool tryJoin(ref this, i64 start, through i64 end, for List<i64> breaks) uses alloc {
         var cleared = List<i64>()
         for k in breaks {
-            if lineStart[k] { cleared.append(k) }
+            if lineStart[k] {
+                cleared.append(k)
+            }
         }
-        for k in cleared { lineStart[k] = false }
+        for k in cleared {
+            lineStart[k] = false
+        }
         let s = lineStartOf(start)
-        if width(s, until: lineEnd(end)) <= options.width { return true }
-        for k in cleared { lineStart[k] = true }
+        return true if width(s, until: lineEnd(end)) <= options.width
+        for k in cleared {
+            lineStart[k] = true
+        }
         return false
     }
 
     /// Layout.cs: Engine.IsLink. A `.` or `?.` and a name: a link of a member chain.
-    bool isLink(i64 j) => (kind(j) == .dot || kind(j) == .questionDot) && (kind(j + 1) == .identifier || parser.isContextualKeyword(kind(j + 1)))
+    bool isLink(i64 j) =>
+        (kind(j) == .dot || kind(j) == .questionDot)
+        && (kind(j + 1) == .identifier || parser.isContextualKeyword(kind(j + 1)))
 
     /// Layout.cs: Engine.ArmLine. Whether the line from link `j` holds a `=>` outside brackets: a switch arm, not a link.
     bool armLine(i64 j) {
@@ -1087,19 +1266,21 @@ struct LayoutEngine {
     List<LayoutChain> chains() uses alloc {
         var result = List<LayoutChain>()
         var used = List<bool>()
-        for i in 0..tokens.length { used.append(false) }
+        for i in 0..tokens.length {
+            used.append(false)
+        }
         for i in 1..tokens.length {
-            if used[i] || !isLink(i) || lineStart[i] && (gaps[i].hasBlank || armLine(i)) { continue }
+            continue if used[i] || !isLink(i) || lineStart[i] && (gaps[i].hasBlank || armLine(i))
             let prev = kind(i - 1)
             if !(prev == .identifier || prev == .closeParen || prev == .closeBracket || prev == .thisKeyword || prev == .interpolatedStringEnd
-                || lexer.isStringLiteral(prev) || parser.isContextualKeyword(prev)) {
+                    || lexer.isStringLiteral(prev) || parser.isContextualKeyword(prev)) {
                 continue
             }
             var start = i - 1
             if layoutIsCloser(kind(start)) && matchOf[start] >= 0 {
                 start = matchOf[start]
                 if kind(start) != .interpolationStart && !lineStart[start]
-                    && (kind(start - 1) == .identifier || parser.isContextualKeyword(kind(start - 1))) {
+                        && (kind(start - 1) == .identifier || parser.isContextualKeyword(kind(start - 1))) {
                     start -= 1
                 }
             }
@@ -1117,17 +1298,33 @@ struct LayoutEngine {
                 while (kind(k) == .openParen || kind(k) == .openBracket) && !lineStart[k] && matchOf[k] > k {
                     if kind(k) == .openParen && k == j + 2 {
                         call = true
-                        if hasLambda(k, until: matchOf[k]) { lambdas += 1 }
+                        if hasLambda(k, until: matchOf[k]) {
+                            lambdas += 1
+                        }
                     }
                     k = matchOf[k] + 1
                 }
-                if call { calls += 1 }
+                if call {
+                    calls += 1
+                }
                 // A `.member` after an index stays on its line (`c.items[i].payload`).
-                if (call || breakable.length > 0) && kind(j - 1) != .closeBracket { breakable.append(j) }
+                if (call || breakable.length > 0) && kind(j - 1) != .closeBracket {
+                    breakable.append(j)
+                }
                 end = k - 1
                 j = k
             }
-            if calls >= 2 { result.append(LayoutChain { start: start, end: end, dots: move dots, breakable: move breakable, lambdaCalls: lambdas }) }
+            if calls >= 2 {
+                result.append(
+                    LayoutChain {
+                        start: start,
+                        end: end,
+                        dots: move dots,
+                        breakable: move breakable,
+                        lambdaCalls: lambdas,
+                    },
+                )
+            }
         }
         return result
     }
@@ -1135,7 +1332,7 @@ struct LayoutEngine {
     /// Layout.cs: Engine.HasLambda. Whether the arguments `(o, c)` hold a lambda: a `=>` or an implicit `it`.
     bool hasLambda(i64 o, until i64 c) {
         for k in o + 1..c {
-            if kind(k) == .fatArrow || kind(k) == .identifier && textIs(k, as: "it") { return true }
+            return true if kind(k) == .fatArrow || kind(k) == .identifier && textIs(k, as: "it")
         }
         return false
     }
@@ -1148,24 +1345,34 @@ struct LayoutEngine {
         for chain in all {
             var broken = false
             for d in chain.breakable {
-                if lineStart[d] { broken = true }
+                if lineStart[d] {
+                    broken = true
+                }
             }
             if (chain.lambdaCalls >= 3 || broken) && editable(chain.start, through: chain.end) {
-                for d in chain.breakable { lineStart[d] = true }
+                for d in chain.breakable {
+                    lineStart[d] = true
+                }
             }
         }
         for o in 0..tokens.length {
-            if !(kind(o) == .openParen || kind(o) == .openBracket) || matchOf[o] < o { continue }
+            continue if !(kind(o) == .openParen || kind(o) == .openBracket) || matchOf[o] < o
             let c = matchOf[o]
             let inner = items(o, until: c)
             var comma = false
             var started = false
             for k in inner {
-                if kind(k) == .comma { comma = true }
-                if lineStart[k] { started = true }
+                if kind(k) == .comma {
+                    comma = true
+                }
+                if lineStart[k] {
+                    started = true
+                }
             }
-            if !editable(o, through: c) || isIndex(o) || !comma { continue }
-            if lineStart[c] || trailingComma(c) || started { breakList(o, until: c) }
+            continue if !editable(o, through: c) || isIndex(o) || !comma
+            if lineStart[c] || trailingComma(c) || started {
+                breakList(o, until: c)
+            }
         }
         for round in 0..tokens.length {
             levels()
@@ -1174,43 +1381,60 @@ struct LayoutEngine {
             var s: i64 = 0
             while s < tokens.length - 1 {
                 let e = lineEnd(s)
-                if !frozen[s] && !inHole[s] && width(s, until: e) > options.width && breakLine(s, until: e, for: lineChains) { changed = true }
+                if !frozen[s]
+                        && !inHole[s]
+                        && width(s, until: e) > options.width
+                        && breakLine(s, until: e, for: lineChains) {
+                    changed = true
+                }
                 s = e
             }
-            if !changed { break }
+            break if !changed
         }
     }
 
     /// Layout.cs: Engine.BreakList. One item per line: a break after the opener and after each item, and the trailing comma the knob asks for.
     void breakList(ref this, i64 o, until i64 c) uses alloc {
-        if o + 1 < c { lineStart[o + 1] = true }
+        if o + 1 < c {
+            lineStart[o + 1] = true
+        }
         var starts = List<i64>()
         for k in items(o, until: c) {
-            if (k == o + 1 || kind(k - 1) == .comma) && k < c { starts.append(k) }
+            if (k == o + 1 || kind(k - 1) == .comma) && k < c {
+                starts.append(k)
+            }
         }
         var widths = List<i64>()
         let row = scalars(o, until: c, at: starts, to: ref widths) ? rowOf(o, at: starts, by: widths) : 1
-        for n in 1..starts.length { lineStart[starts[n]] = n % row == 0 }
+        for n in 1..starts.length {
+            lineStart[starts[n]] = n % row == 0
+        }
         lineStart[c] = true
-        if options.trailingCommas == .multiline && kind(c - 1) != .comma && o + 1 < c && commaSafe(o, until: c) { addComma[c - 1] = true }
+        if options.trailingCommas == .multiline && kind(c - 1) != .comma && o + 1 < c && commaSafe(o, until: c) {
+            addComma[c - 1] = true
+        }
     }
 
     /// Layout.cs: Engine.Scalars. Whether every item of the list literal `[o, c]` is a scalar (a number, a char, or a string of at most 16
     /// columns, signed or not) and no comment is inside; the columns of each item into `widths` when so (the C# null is false).
     bool scalars(i64 o, until i64 c, at List<i64> starts, to ref List<i64> widths) uses alloc {
-        if kind(o) != .openBracket || isIndex(o) || starts.length < 2 { return false }
+        return false if kind(o) != .openBracket || isIndex(o) || starts.length < 2
         for k in o + 1..c + 1 {
-            if hasComment(k) { return false }
+            return false if hasComment(k)
         }
         for n in 0..starts.length {
             var k = starts[n]
-            if kind(k) == .minus || kind(k) == .plus { k += 1 }
+            if kind(k) == .minus || kind(k) == .plus {
+                k += 1
+            }
             if !(kind(k) == .integerLiteral || kind(k) == .floatLiteral || kind(k) == .charLiteral
-                || kind(k) == .stringLiteral && !multiline(k) && columns(k) <= 16) {
+                    || kind(k) == .stringLiteral && !multiline(k) && columns(k) <= 16) {
                 return false
             }
-            if kind(k + 1) == .numericSuffix { k += 1 }
-            if !(kind(k + 1) == .comma || kind(k + 1) == .closeBracket) { return false }
+            if kind(k + 1) == .numericSuffix {
+                k += 1
+            }
+            return false if !(kind(k + 1) == .comma || kind(k + 1) == .closeBracket)
             widths.append(width(starts[n], until: k + 1) - levelOf[starts[n]] * options.indent)
         }
         return true
@@ -1221,11 +1445,13 @@ struct LayoutEngine {
     i64 rowOf(i64 o, at List<i64> starts, by List<i64> widths) {
         let indent = (levelOf[lineStartOf(o)] + 1) * options.indent
         var first: i64 = 1
-        while first < starts.length && !gaps[starts[first]].hasNewline { first += 1 }
-        if rowFits(first, by: widths, at: indent) { return first }
+        while first < starts.length && !gaps[starts[first]].hasNewline {
+            first += 1
+        }
+        return first if rowFits(first, by: widths, at: indent)
         var n = (first < starts.length ? first : starts.length) - 1
         while n > 1 {
-            if rowFits(n, by: widths, at: indent) { return n }
+            return n if rowFits(n, by: widths, at: indent)
             n -= 1
         }
         return 1
@@ -1237,8 +1463,10 @@ struct LayoutEngine {
         while at < widths.length {
             var width = indent + 1
             let end = widths.length < at + n ? widths.length : at + n
-            for m in at..end { width += widths[m] + (m > at ? 2 : 0) }
-            if width > options.width { return false }
+            for m in at..end {
+                width += widths[m] + (m > at ? 2 : 0)
+            }
+            return false if width > options.width
             at += n
         }
         return true
@@ -1250,11 +1478,13 @@ struct LayoutEngine {
         // A one-line body opens: `{` ends the line and `}` starts one.
         var p = kind(s) == .closeBrace && kind(s + 1) == .elseKeyword ? s + 1 : s
         let head = kind(p)
-        if head == .ifKeyword || head == .whileKeyword || head == .unlessKeyword || head == .forKeyword || head == .elseKeyword {
+        if head is .ifKeyword or .whileKeyword or .unlessKeyword or .forKeyword or .elseKeyword {
             var k = p + 1
             var depth: i64 = 0
             while k < e {
-                if layoutIsCloser(kind(k)) { depth -= 1 }
+                if layoutIsCloser(kind(k)) {
+                    depth -= 1
+                }
                 if depth == 0 && kind(k) == .openBrace {
                     let c = matchOf[k]
                     if c > k + 1 && c < e && editable(k + 1, through: c) {
@@ -1264,7 +1494,9 @@ struct LayoutEngine {
                     }
                     break
                 }
-                if layoutIsOpener(kind(k)) { depth += 1 }
+                if layoutIsOpener(kind(k)) {
+                    depth += 1
+                }
                 k += 1
             }
         }
@@ -1280,12 +1512,14 @@ struct LayoutEngine {
         var closed = false
         var firstClause: i64 = -1
         for k in s..e {
-            if layoutIsCloser(kind(k)) { clauseDepth -= 1 }
+            if layoutIsCloser(kind(k)) {
+                clauseDepth -= 1
+            }
             if clauseDepth == 0 && kind(k) == .closeParen {
                 closed = true
             } else if clauseDepth == 0 && closed && k > s && isClause(k) {
                 if firstClause < 0 {
-                    if width(s, until: k) > options.width { break }
+                    break if width(s, until: k) > options.width
                     firstClause = k
                 }
                 if !lineStart[k] && editable(k, through: k) {
@@ -1293,31 +1527,45 @@ struct LayoutEngine {
                     changed = true
                 }
             }
-            if layoutIsOpener(kind(k)) { clauseDepth += 1 }
+            if layoutIsOpener(kind(k)) {
+                clauseDepth += 1
+            }
         }
-        if changed { return true }
+        return true if changed
         // An expression breaks before each operator of its lowest level outside brackets, then inside the widest group.
-        if kind(p) == .elseKeyword { p += 1 }
+        if kind(p) == .elseKeyword {
+            p += 1
+        }
         let control = p < e && (kind(p) == .ifKeyword || kind(p) == .whileKeyword || kind(p) == .unlessKeyword)
         var ops = lowestOperators(s, from: p, until: e)
         if ops.length == 0 {
             var widest: i64 = 0
             var depth: i64 = 0
             for k in s..e {
-                if layoutIsCloser(kind(k)) { depth = depth > 0 ? depth - 1 : 0 }
-                if depth == 0 && kind(k) == .openParen && matchOf[k] > k + 1 && matchOf[k] < e && (k == s || !callLike(k - 1))
-                    && tokens[matchOf[k]].end - tokens[k].start > widest {
+                if layoutIsCloser(kind(k)) {
+                    depth = depth > 0 ? depth - 1 : 0
+                }
+                if depth == 0
+                        && kind(k) == .openParen
+                        && matchOf[k] > k + 1
+                        && matchOf[k] < e
+                        && (k == s || !callLike(k - 1))
+                        && tokens[matchOf[k]].end - tokens[k].start > widest {
                     let inner = lowestOperators(k, from: k + 1, until: matchOf[k])
                     if inner.length > 0 {
                         widest = tokens[matchOf[k]].end - tokens[k].start
                         ops = inner.copy()
                     }
                 }
-                if layoutIsOpener(kind(k)) { depth += 1 }
+                if layoutIsOpener(kind(k)) {
+                    depth += 1
+                }
             }
         }
         if ops.length > 0 {
-            for k in ops { lineStart[k] = true }
+            for k in ops {
+                lineStart[k] = true
+            }
             return true
         }
         // Otherwise the outermost chain or list on the line: a chain before a list at the same depth, then the leftmost.
@@ -1328,24 +1576,34 @@ struct LayoutEngine {
         var d: i64 = 0
         var q: i64 = -1
         for k in s..e {
-            if layoutIsCloser(kind(k)) { d -= 1 }
-            if q >= 0 && (d < depths[q - s] || d == depths[q - s] && kind(k) == .comma) { q = -1 }
+            if layoutIsCloser(kind(k)) {
+                d -= 1
+            }
+            if q >= 0 && (d < depths[q - s] || d == depths[q - s] && kind(k) == .comma) {
+                q = -1
+            }
             depths.append(d)
-            if q < 0 && k > s && kind(k) == .question && trivia(k) { q = k }
+            if q < 0 && k > s && kind(k) == .question && trivia(k) {
+                q = k
+            }
             ternary.append(q >= 0 && d == depths[q - s])
-            if layoutIsOpener(kind(k)) { d += 1 }
+            if layoutIsOpener(kind(k)) {
+                d += 1
+            }
         }
         var bestChain: i64 = -1
         var best: i64 = 2147483647
         for ci in 0..lineChains.length {
             let count = lineChains[ci].breakable.length
-            if count == 0 || lineChains[ci].breakable[0] < s || lineChains[ci].breakable[count - 1] >= e { continue }
+            continue if count == 0 || lineChains[ci].breakable[0] < s || lineChains[ci].breakable[count - 1] >= e
             var broken = false
             for b in lineChains[ci].breakable {
-                if lineStart[b] { broken = true }
+                if lineStart[b] {
+                    broken = true
+                }
             }
-            if broken || !editable(lineChains[ci].start, through: lineChains[ci].end) { continue }
-            if ternary[lineChains[ci].breakable[0] - s] { continue }
+            continue if broken || !editable(lineChains[ci].start, through: lineChains[ci].end)
+            continue if ternary[lineChains[ci].breakable[0] - s]
             if depths[lineChains[ci].breakable[0] - s] < best {
                 best = depths[lineChains[ci].breakable[0] - s]
                 bestChain = ci
@@ -1353,26 +1611,38 @@ struct LayoutEngine {
         }
         var bestList: i64 = -1
         for o in s..e {
-            if !(kind(o) == .openParen || kind(o) == .openBracket || isStructLiteral(o)) || isIndex(o) || control && o == p + 1 { continue }
+            continue if !(kind(o) == .openParen || kind(o) == .openBracket || isStructLiteral(o))
+                || isIndex(o)
+                || control && o == p + 1
             let c = matchOf[o]
-            if c <= o + 1 || c >= e || depths[o - s] >= best || !editable(o, through: c) || kind(o) == .openParen && inPattern(o) { continue }
+            continue if c <= o + 1
+                || c >= e
+                || depths[o - s] >= best
+                || !editable(o, through: c)
+                || kind(o) == .openParen && inPattern(o)
             // A group around one operand followed by a member (`(move parsed).trust()`) is an atom, as `xs[i].member` is.
-            if kind(o) == .openParen && (o == s || !callLike(o - 1)) && (kind(c + 1) == .dot || kind(c + 1) == .questionDot) {
+            if kind(o) == .openParen
+                    && (o == s || !callLike(o - 1))
+                    && (kind(c + 1) == .dot || kind(c + 1) == .questionDot) {
                 var comma = false
                 for k in items(o, until: c) {
-                    if kind(k) == .comma { comma = true }
+                    if kind(k) == .comma {
+                        comma = true
+                    }
                 }
-                if !comma { continue }
+                continue if !comma
             }
             best = depths[o - s]
             bestList = o
             bestChain = -1
         }
         if bestChain >= 0 {
-            for b in lineChains[bestChain].breakable { lineStart[b] = true }
+            for b in lineChains[bestChain].breakable {
+                lineStart[b] = true
+            }
             return true
         }
-        if bestList < 0 { return false }
+        return false if bestList < 0
         breakList(bestList, until: matchOf[bestList])
         return true
     }
@@ -1386,9 +1656,11 @@ struct LayoutEngine {
         var ternaries: i64 = 0
         var depth: i64 = 0
         for k in start..e {
-            if layoutIsCloser(kind(k)) { depth = depth > 0 ? depth - 1 : 0 }
+            if layoutIsCloser(kind(k)) {
+                depth = depth > 0 ? depth - 1 : 0
+            }
             if depth == 0 {
-                if k > s && isClause(k) { break }
+                break if k > s && isClause(k)
                 let t = kind(k)
                 var level: i64 = -1
                 if t == .question && trivia(k) {
@@ -1397,9 +1669,9 @@ struct LayoutEngine {
                     level = 0
                 } else if t == .questionQuestion {
                     level = 1
-                } else if t == .barBar || t == .orKeyword {
+                } else if t is .barBar or .orKeyword {
                     level = 2
-                } else if t == .ampAmp || t == .andKeyword {
+                } else if t is .ampAmp or .andKeyword {
                     level = 3
                 }
                 if t == .question && level == 0 {
@@ -1410,41 +1682,50 @@ struct LayoutEngine {
                 let o = enclosing[k]
                 // `if (a) ⏎ && b` would read `(a)` as the whole condition (BYN1017), on any line of the header.
                 let afterHead = kind(k - 1) == .closeParen && matchOf[k - 1] > 0
-                    && (kind(matchOf[k - 1] - 1) == .ifKeyword || kind(matchOf[k - 1] - 1) == .whileKeyword || kind(matchOf[k - 1] - 1) == .unlessKeyword)
+                    && (kind(matchOf[k - 1] - 1) == .ifKeyword
+                        || kind(matchOf[k - 1] - 1) == .whileKeyword
+                        || kind(matchOf[k - 1] - 1) == .unlessKeyword)
                 if level >= 0 && !lineStart[k] && editable(k, through: k) && !(o >= 0 && isIndex(o))
-                    && (level > 0 || o >= 0 && (kind(o) == .openParen || kind(o) == .openBracket)) && !afterHead {
+                        && (level > 0 || o >= 0 && (kind(o) == .openParen || kind(o) == .openBracket)) && !afterHead {
                     found.append(k)
                     levels.append(level)
                 }
             }
-            if layoutIsOpener(kind(k)) { depth += 1 }
+            if layoutIsOpener(kind(k)) {
+                depth += 1
+            }
         }
         var lowest: i64 = 4
         for l in levels {
-            if l < lowest { lowest = l }
+            if l < lowest {
+                lowest = l
+            }
         }
         var result = List<i64>()
         for n in 0..found.length {
-            if levels[n] == lowest { result.append(found[n]) }
+            if levels[n] == lowest {
+                result.append(found[n])
+            }
         }
         return result
     }
 
-    // ── Blank lines between top-level declarations (pass 7, proposal §3.7) ───────────
+    // ── Blank lines between top-level declarations (pass 7, proposal §3.7) ───
 
     /// Layout.cs: Engine.TopLevelBlanks.
     void topLevelBlanks(ref this, List<parser.Decl> members) uses alloc {
         for d in 1..members.length {
-            if members[d - 1] is .globalStatement(_) || members[d] is .globalStatement(_) { continue }
+            continue if members[d - 1] is .globalStatement(_) || members[d] is .globalStatement(_)
             let a = layoutDeclSpan(members[d - 1])
             let b = layoutDeclSpan(members[d])
             let next = tokenAt(a.end)
-            if next >= tokens.length - 1 || !gaps[next].hasNewline { continue }
+            continue if next >= tokens.length - 1 || !gaps[next].hasNewline
             let nextEnd = d + 1 < members.length ? tokenAt(layoutDeclSpan(members[d + 1]).start) : tokens.length - 1
             let bEnd = tokenAt(b.end)
             let until = nextEnd < bEnd ? nextEnd : bEnd
             if oneLine(tokenAt(a.start), until: next) && oneLine(next, until: next + 1 > until ? next + 1 : until)
-                && layoutDeclType(members[d - 1]) == layoutDeclType(members[d]) && leadingKeywords(tokenAt(a.start)) == leadingKeywords(next) {
+                    && layoutDeclType(members[d - 1]) == layoutDeclType(members[d])
+                    && leadingKeywords(tokenAt(a.start)) == leadingKeywords(next) {
                 continue
             }
             needsBlank[next] = true
@@ -1454,7 +1735,7 @@ struct LayoutEngine {
     /// Layout.cs: Engine.OneLine. Whether tokens `[start, end)` lie on one line.
     bool oneLine(i64 start, until i64 end) {
         for i in start + 1..end {
-            if lineStart[i] { return false }
+            return false if lineStart[i]
         }
         return true
     }
@@ -1464,7 +1745,9 @@ struct LayoutEngine {
         var words = StrBuf()
         var k = i
         while k < tokens.length && lexer.isKeyword(kind(k)) {
-            if k > i { words.append(" ") }
+            if k > i {
+                words.append(" ")
+            }
             words.append(text(k))
             k += 1
         }
@@ -1495,7 +1778,9 @@ struct LayoutEngine {
                 let last = attributes[attributes.length - 1]
                 let head = tokenAt(last.end > last.becauseEnd ? last.end : last.becauseEnd)
                 if editable(tokenAt(attributes[0].start), through: head) {
-                    for k in 1..attributes.length { lineStart[tokenAt(attributes[k].start)] = true }
+                    for k in 1..attributes.length {
+                        lineStart[tokenAt(attributes[k].start)] = true
+                    }
                     lineStart[head] = true
                 }
             }
@@ -1503,7 +1788,9 @@ struct LayoutEngine {
                 case .functionDecl(let f):
                     unless f.value.expressionBody is .none {
                         let arrow = tokenAt(parser.exprSpan(in f.value.expressionBody).start) - 1
-                        if arrow > 0 && kind(arrow) == .fatArrow { headerArrow[arrow] = true }
+                        if arrow > 0 && kind(arrow) == .fatArrow {
+                            headerArrow[arrow] = true
+                        }
                     }
                     guideStmt(f.value.body)
                 case .constructorDecl(let c): guideStmt(c.value.body)
@@ -1524,15 +1811,26 @@ struct LayoutEngine {
             case .blockStmt(let b):
                 let o = tokenAt(b.value.span.start)
                 // An empty arm stays on its label's line: `default: {}`.
-                if b.value.statements.length == 0 && kind(o) == .openBrace && kind(o - 1) == .colon && matchOf[o] == o + 1 && !hasComment(o)
-                    && gaps[o + 1].items.length == 0 && editable(o, through: o + 1) {
+                if b.value.statements.length == 0
+                        && kind(o) == .openBrace
+                        && kind(o - 1) == .colon
+                        && matchOf[o] == o + 1
+                        && !hasComment(o)
+                        && gaps[o + 1].items.length == 0 && editable(o, through: o + 1) {
                     lineStart[o] = false
                 }
-                if b.value.statements.length > 0 && kind(o) == .openBrace && matchOf[o] >= o && editable(o, through: matchOf[o]) {
-                    for s in b.value.statements { lineStart[tokenAt(parser.stmtSpan(in s).start)] = true }
+                if b.value.statements.length > 0
+                        && kind(o) == .openBrace
+                        && matchOf[o] >= o
+                        && editable(o, through: matchOf[o]) {
+                    for s in b.value.statements {
+                        lineStart[tokenAt(parser.stmtSpan(in s).start)] = true
+                    }
                     lineStart[matchOf[o]] = true
                 }
-                for s in b.value.statements { guideStmt(s) }
+                for s in b.value.statements {
+                    guideStmt(s)
+                }
             case .ifStmt(let s):
                 guideStmt(s.value.then)
                 guideStmt(s.value.elseKeyword)
@@ -1545,7 +1843,9 @@ struct LayoutEngine {
             case .labeledStmt(let s): guideStmt(s.value.statement)
             case .switchStmt(let s):
                 for section in s.value.sections {
-                    for x in section.statements { guideStmt(x) }
+                    for x in section.statements {
+                        guideStmt(x)
+                    }
                 }
             case .deferStmt(let s): guideStmt(s.value.body)
             case .contextStmt(let s): guideStmt(s.value.body)
@@ -1556,7 +1856,9 @@ struct LayoutEngine {
     /// Layout.cs: Engine.GenericClose. The `>` closing a generic list opened by the `<` at `o`, or −1: a `<` right after a name, then on
     /// one line only tokens a type is made of, up to its `>`.
     i64 genericClose(i64 o) {
-        if kind(o) != .less || trivia(o) || !(kind(o - 1) == .identifier || parser.isContextualKeyword(kind(o - 1))) { return -1 }
+        return -1 if kind(o) != .less
+            || trivia(o)
+            || !(kind(o - 1) == .identifier || parser.isContextualKeyword(kind(o - 1)))
         var depth: i64 = 1
         var k = o + 1
         while k < tokens.length && !lineStart[k] {
@@ -1565,10 +1867,14 @@ struct LayoutEngine {
                 depth += 1
             } else if at == .greater {
                 depth -= 1
-                if depth == 0 { return k }
+                return k if depth == 0
             } else if !(at == .identifier || at == .comma || at == .dot || at == .question || at == .star || at == .openBracket
-                || at == .closeBracket || at == .openParen || at == .closeParen || at == .integerLiteral || at == .arrow
-                || parser.isContextualKeyword(at)) {
+                    || at == .closeBracket
+                    || at == .openParen
+                    || at == .closeParen
+                    || at == .integerLiteral
+                    || at == .arrow
+                    || parser.isContextualKeyword(at)) {
                 return -1
             }
             k += 1
@@ -1600,11 +1906,19 @@ struct LayoutEngine {
     void memberBlanksOf(ref this, List<parser.Decl> members, for List<parser.UnionVariant> states) uses alloc {
         var found = List<LayoutMember>()
         for m in members {
-            found.append(LayoutMember { start: memberStart(m), group: layoutGroup(m), method: m is .functionDecl(_) || m is .constructorDecl(_) })
+            found.append(
+                LayoutMember {
+                    start: memberStart(m),
+                    group: layoutGroup(m),
+                    method: m is .functionDecl(_) || m is .constructorDecl(_),
+                },
+            )
         }
         if states.length > 0 {
             let at = statesStart(tokenAt(states[0].span.start))
-            if at >= 0 { found.append(LayoutMember { start: at, group: "states", method: false }) }
+            if at >= 0 {
+                found.append(LayoutMember { start: at, group: "states", method: false })
+            }
         }
         // `items.Sort` by start: the starts are distinct tokens.
         for k in 1..found.length {
@@ -1617,9 +1931,11 @@ struct LayoutEngine {
             }
         }
         for k in 1..found.length {
-            if found[k - 1].group == found[k].group && !(found[k - 1].method && found[k].method) { continue }
+            continue if found[k - 1].group == found[k].group && !(found[k - 1].method && found[k].method)
             let next = found[k].start
-            if gaps[next].hasNewline && editable(next, through: next) { needsBlank[next] = true }
+            if gaps[next].hasNewline && editable(next, through: next) {
+                needsBlank[next] = true
+            }
         }
     }
 
@@ -1627,7 +1943,7 @@ struct LayoutEngine {
     i64 memberStart(parser.Decl decl) uses alloc {
         let span = layoutDeclSpan(decl)
         let attributes = layoutAttributes(decl)
-        if attributes.length > 0 { return tokenAt(attributes[0].start < span.start ? attributes[0].start : span.start) }
+        return tokenAt(attributes[0].start < span.start ? attributes[0].start : span.start) if attributes.length > 0
         return tokenAt(span.start)
     }
 
@@ -1637,7 +1953,7 @@ struct LayoutEngine {
         return kind(o) == .openBrace && o > 0 && textIs(o - 1, as: "states") ? o - 1 : -1
     }
 
-    // ── Alignment runs (pass 8, proposal §3.2, §3.3, §3.7) ───────────────────────────
+    // ── Alignment runs (pass 8, proposal §3.2, §3.3, §3.7) ───────────────────
 
     /// Layout.cs: Engine.Align. Pass 8. Consecutive lines of one shape at one level, with no blank or comment line between them, form a
     /// run, and the run pads the gap before each of its columns so that they start at one column. Then consecutive lines at one level
@@ -1649,21 +1965,31 @@ struct LayoutEngine {
         arms(ref shapeMap)
         var lines = List<i64>()
         for i in 0..tokens.length - 1 {
-            if lineStart[i] { lines.append(i) }
+            if lineStart[i] {
+                lines.append(i)
+            }
         }
         var run = List<i64>()
         for s in lines {
             var ok = shapeMap.contains(s) && plain(s)
             if ok {
                 for k in shapeMap[s].columns {
-                    if !(k < 0 || padded(s, at: k)) { ok = false }
+                    if !(k < 0 || padded(s, at: k)) {
+                        ok = false
+                    }
                 }
             }
-            if run.length > 0 && (!ok || shapeMap[s].key != shapeMap[run[0]].key || levelOf[s] != levelOf[run[0]] || separated(s)) {
+            if run.length > 0
+                    && (!ok
+                    || shapeMap[s].key != shapeMap[run[0]].key
+                    || levelOf[s] != levelOf[run[0]]
+                    || separated(s)) {
                 alignRun(run, by: shapeMap)
                 run = List<i64>()
             }
-            if ok { run.append(s) }
+            if ok {
+                run.append(s)
+            }
         }
         alignRun(run, by: shapeMap)
         run = List<i64>()
@@ -1674,7 +2000,9 @@ struct LayoutEngine {
                 alignComments(run)
                 run = List<i64>()
             }
-            if ok { run.append(s) }
+            if ok {
+                run.append(s)
+            }
         }
         alignComments(run)
     }
@@ -1709,7 +2037,10 @@ struct LayoutEngine {
                 if topLevel && declares && firstAt(.equals, from: start, until: e) > 0 {
                     var columns = List<i64>()
                     columns.append(firstAt(.equals, from: start, until: e))
-                    shapeMap[s] = LayoutShape { key: $"{layoutDeclType(decl)} {leadingKeywords(start)}", columns: move columns }
+                    shapeMap[s] = LayoutShape {
+                        key: $"{layoutDeclType(decl)} {leadingKeywords(start)}",
+                        columns: move columns,
+                    }
                 } else if !topLevel && isField {
                     var columns = List<i64>()
                     columns.append(name)
@@ -1734,17 +2065,19 @@ struct LayoutEngine {
     /// Layout.cs: Engine.Arms. The one-line arms of each `switch { … }`: an arm that starts a line and ends it with its `,` or the `}`.
     void arms(ref Map<i64, LayoutShape> shapeMap) uses alloc {
         for o in 1..tokens.length {
-            if kind(o) != .openBrace || kind(o - 1) != .switchKeyword || matchOf[o] < o { continue }
+            continue if kind(o) != .openBrace || kind(o - 1) != .switchKeyword || matchOf[o] < o
             let c = matchOf[o]
             for k in items(o, until: c) {
-                if !lineStart[k] || !(k == o + 1 || kind(k - 1) == .comma) { continue }
+                continue if !lineStart[k] || !(k == o + 1 || kind(k - 1) == .comma)
                 let e = lineEnd(k)
-                if e > c || !(e == c || kind(e - 1) == .comma) { continue }
+                continue if e > c || !(e == c || kind(e - 1) == .comma)
                 var spans = false
                 for m in k..e {
-                    if layoutIsOpener(kind(m)) && matchOf[m] >= e { spans = true }
+                    if layoutIsOpener(kind(m)) && matchOf[m] >= e {
+                        spans = true
+                    }
                 }
-                if spans { continue }
+                continue if spans
                 let arrow = firstAt(.fatArrow, from: k, until: e)
                 if arrow > 0 {
                     var columns = List<i64>()
@@ -1759,8 +2092,10 @@ struct LayoutEngine {
     i64 firstAt(lexer.TokenKind wanted, from i64 start, until i64 e) {
         var k = start
         while k < e {
-            if kind(k) == wanted { return k }
-            if layoutIsOpener(kind(k)) && matchOf[k] > k { k = matchOf[k] }
+            return k if kind(k) == wanted
+            if layoutIsOpener(kind(k)) && matchOf[k] > k {
+                k = matchOf[k]
+            }
             k += 1
         }
         return -1
@@ -1769,22 +2104,25 @@ struct LayoutEngine {
     /// Layout.cs: Engine.Plain. Whether the line from `s` is one line, with no frozen token and not in a hole.
     bool plain(i64 s) uses alloc {
         let e = lineEnd(s)
-        if inHole[s] || inHole[e] || width(s, until: e) == 0 { return false }
+        return false if inHole[s] || inHole[e] || width(s, until: e) == 0
         for k in s..e + 1 {
-            if frozen[k] { return false }
+            return false if frozen[k]
         }
         return true
     }
 
     /// Layout.cs: Engine.Padded. Whether column token `k` follows a space on the line of `s` that padding may widen.
     bool padded(i64 s, at i64 k) uses alloc =>
-        k > s && k < lineEnd(s) && space(k, from: tokens[k - 1].end) && !layoutTriviaMatters(source, from: tokens, at: k)
+        k > s
+        && k < lineEnd(s)
+        && space(k, from: tokens[k - 1].end)
+        && !layoutTriviaMatters(source, from: tokens, at: k)
 
     /// Layout.cs: Engine.Separated. Whether a blank line, an inserted one or a `//` line comes before line start `s`; a `///` line does not.
     bool separated(i64 s) {
-        if gaps[s].hasBlank || needsBlank[s] { return true }
+        return true if gaps[s].hasBlank || needsBlank[s]
         for k in 1..gaps[s].items.length {
-            if gaps[s].items[k].isComment && !doc(gaps[s].items[k]) { return true }
+            return true if gaps[s].items[k].isComment && !doc(gaps[s].items[k])
         }
         return false
     }
@@ -1792,14 +2130,19 @@ struct LayoutEngine {
     /// Layout.cs: Engine.Doc. Whether the comment `item` is a `///` line.
     bool doc(LayoutGapItem item) {
         let n = item.end - item.start
-        if n < 3 || source[item.start] != 0x2f || source[item.start + 1] != 0x2f || source[item.start + 2] != 0x2f { return false }
+        return false if n < 3
+            || source[item.start] != 0x2f
+            || source[item.start + 1] != 0x2f
+            || source[item.start + 2] != 0x2f
         return n == 3 || source[item.start + 3] != 0x2f
     }
 
     /// Layout.cs: Engine.Pads. The padding the run has already put in tokens `(s, e)`.
     i64 pads(i64 s, until i64 e) {
         var n: i64 = 0
-        for k in s + 1..e { n += pad[k] }
+        for k in s + 1..e {
+            n += pad[k]
+        }
         return n
     }
 
@@ -1808,22 +2151,24 @@ struct LayoutEngine {
 
     /// Layout.cs: Engine.AlignRun.
     void alignRun(ref this, List<i64> lines, by Map<i64, LayoutShape> shapeMap) uses alloc {
-        if lines.length < 2 { return }
+        return if lines.length < 2
         var run = lines.copy()
         let key = shapeMap[run[0]].key
-        let outliers = key == "field" || key == "property" || key == "arm"
+        let outliers = key is "field" or "property" or "arm"
         var restart = true
         // Each restart drops one line, so the loop ends within `lines.length` passes.
         while restart {
             restart = false
-            if run.length < 2 { return }
+            return if run.length < 2
             for c in 0..shapeMap[run[0]].columns.length {
                 // Only the lines that have the column take part: a field without a default has no `=`.
                 var part = List<i64>()
                 for s in run {
-                    if shapeMap[s].columns[c] >= 0 { part.append(s) }
+                    if shapeMap[s].columns[c] >= 0 {
+                        part.append(s)
+                    }
                 }
-                if part.length < 2 { continue }
+                continue if part.length < 2
                 var at = List<i64>()
                 for s in part {
                     let column = shapeMap[s].columns[c]
@@ -1839,13 +2184,17 @@ struct LayoutEngine {
                 }
                 var second: i64 = -2147483648
                 for n in 0..at.length {
-                    if n != widest && at[n] > second { second = at[n] }
+                    if n != widest && at[n] > second {
+                        second = at[n]
+                    }
                 }
                 // A line more than 8 columns past the next-widest leaves the run and stays unaligned.
                 if outliers && target - second > 8 {
                     for s in run {
                         for k in shapeMap[s].columns {
-                            if k >= 0 { pad[k] = 0 }
+                            if k >= 0 {
+                                pad[k] = 0
+                            }
                         }
                     }
                     let outlier = part[widest]
@@ -1860,33 +2209,45 @@ struct LayoutEngine {
                 }
                 var over = false
                 for n in 0..part.length {
-                    if at[n] < target && lineWidth(part[n]) + target - at[n] > options.width { over = true }
+                    if at[n] < target && lineWidth(part[n]) + target - at[n] > options.width {
+                        over = true
+                    }
                 }
-                if over { continue }
-                for n in 0..part.length { pad[shapeMap[part[n]].columns[c]] = target - at[n] }
+                continue if over
+                for n in 0..part.length {
+                    pad[shapeMap[part[n]].columns[c]] = target - at[n]
+                }
             }
         }
     }
 
     /// Layout.cs: Engine.AlignComments.
     void alignComments(ref this, List<i64> run) uses alloc {
-        if run.length < 2 { return }
+        return if run.length < 2
         var at = List<i64>()
-        for s in run { at.append(lineWidth(s) + 1) }
+        for s in run {
+            at.append(lineWidth(s) + 1)
+        }
         var target = at[0]
         for x in at {
-            if x > target { target = x }
+            if x > target {
+                target = x
+            }
         }
         for n in 0..run.length {
             let item = gaps[lineEnd(run[n])].items[0]
             let comment = layoutCommentText(source, from: item)
             var columns: i64 = 0
             for b in comment {
-                if (b & 0xC0) != 0x80 { columns += 1 }
+                if (b & 0xC0) != 0x80 {
+                    columns += 1
+                }
             }
-            if at[n] < target && target + columns > options.width { return }
+            return if at[n] < target && target + columns > options.width
         }
-        for n in 0..run.length { commentPad[lineEnd(run[n])] = target - at[n] }
+        for n in 0..run.length {
+            commentPad[lineEnd(run[n])] = target - at[n]
+        }
     }
 
     // ── Writing a gap: blank lines (pass 7), comments, indentation (pass 5), spacing (pass 6) ──
@@ -1895,7 +2256,9 @@ struct LayoutEngine {
     void emitGap(ref this, i64 i) uses alloc {
         let start = i == 0 ? bom : tokens[i - 1].end
         if frozen[i] {
-            for b in start..tokens[i].start { output.append(source[b]) }
+            for b in start..tokens[i].start {
+                output.append(source[b])
+            }
             return
         }
         if inHole[i] && gaps[i].hasNewline {
@@ -1917,7 +2280,9 @@ struct LayoutEngine {
                 output.append(0x0A)
                 return
             }
-            if at == 0 && space(i, from: start) { spaces(1 + pad[i]) }
+            if at == 0 && space(i, from: start) {
+                spaces(1 + pad[i])
+            }
             return
         }
         if i > 0 {
@@ -1931,26 +2296,38 @@ struct LayoutEngine {
             if gaps[i].items[at].isComment {
                 comment = at
             } else {
-                if comment >= 0 || lines.length == 0 || lines[lines.length - 1] >= 0 { lines.append(comment) }
+                if comment >= 0 || lines.length == 0 || lines[lines.length - 1] >= 0 {
+                    lines.append(comment)
+                }
                 comment = -1
             }
             at += 1
         }
-        if comment >= 0 { lines.append(comment) }
+        if comment >= 0 {
+            lines.append(comment)
+        }
         if i == 0 || kind(i - 1) == .openBrace {
-            while lines.length > 0 && lines[0] < 0 { lines.remove(at: 0) }
+            while lines.length > 0 && lines[0] < 0 {
+                lines.remove(at: 0)
+            }
         }
         if eof || kind(i) == .closeBrace {
-            while lines.length > 0 && lines[lines.length - 1] < 0 { lines.remove(at: lines.length - 1) }
+            while lines.length > 0 && lines[lines.length - 1] < 0 {
+                lines.remove(at: lines.length - 1)
+            }
         }
         var blank = false
         for line in lines {
-            if line < 0 { blank = true }
+            if line < 0 {
+                blank = true
+            }
         }
         if needsBlank[i] && !blank {
             var withBlank = List<i64>()
             withBlank.append(-1)
-            for line in lines { withBlank.append(line) }
+            for line in lines {
+                withBlank.append(line)
+            }
             lines = move withBlank
         }
         let closer = kind(i) == .closeParen || kind(i) == .closeBracket || kind(i) == .closeBrace
@@ -1963,12 +2340,16 @@ struct LayoutEngine {
             }
             output.append(0x0A)
         }
-        if !eof { indent(levelOf[i]) }
+        if !eof {
+            indent(levelOf[i])
+        }
     }
 
     /// Layout.cs: Engine.Add.
     void add(ref this, LayoutGapItem item) uses alloc {
-        for b in layoutCommentText(source, from: item) { output.append(b) }
+        for b in layoutCommentText(source, from: item) {
+            output.append(b)
+        }
     }
 
     /// Layout.cs: Engine.Indent.
@@ -1976,7 +2357,9 @@ struct LayoutEngine {
 
     /// Layout.cs: Engine.Spaces.
     void spaces(ref this, i64 n) uses alloc {
-        for k in 0..n { output.append(0x20) }
+        for k in 0..n {
+            output.append(0x20)
+        }
     }
 
     /// Layout.cs: Engine.Hygiene. The bytes as written, less the blanks and carriage returns before each newline (pass 1).
@@ -1984,27 +2367,31 @@ struct LayoutEngine {
         var blanks = start
         for at in start..end {
             let b = source[at]
-            if b == 0x20 || b == 0x09 || b == 0x0D { continue }
+            continue if b is 0x20 or 0x09 or 0x0D
             if b != 0x0A {
-                for k in blanks..at { output.append(source[k]) }
+                for k in blanks..at {
+                    output.append(source[k])
+                }
             }
             output.append(b)
             blanks = at + 1
         }
-        for k in blanks..end { output.append(source[k]) }
+        for k in blanks..end {
+            output.append(source[k])
+        }
     }
 
-    // ── Horizontal spacing (pass 6, proposal §3.8) ────────────────────────────────────
+    // ── Horizontal spacing (pass 6, proposal §3.8) ───────────────────────────
 
     /// Layout.cs: Engine.Space. Whether one space goes between tokens `i` − 1 and `i` on one line.
     bool space(i64 i, from i64 start) uses alloc {
         let written = tokens[i].start > start
         // A product written tight takes a space each side (`price * quantity`); Check compares the trees.
-        if spaceProducts && (tightProduct(i) || tightProduct(i - 1)) { return true }
+        return true if spaceProducts && (tightProduct(i) || tightProduct(i - 1))
         // The parser reads the gap here (`>>`, `T...`, `u8*`, `30s`, `unlikely (a)`): keep it as written.
-        if layoutTriviaMatters(source, from: tokens, at: i) { return written }
+        return written if layoutTriviaMatters(source, from: tokens, at: i)
         // Generics are tight inside (`List<Sku>`).
-        if tightAfter[i - 1] || tightBefore[i] { return written && merges(i) }
+        return written && merges(i) if tightAfter[i - 1] || tightBefore[i]
         let a = after(i - 1)
         let ahead = before(i)
         var spaced = false
@@ -2023,23 +2410,38 @@ struct LayoutEngine {
     /// Layout.cs: Engine.Merges. Whether tokens `i` − 1 and `i` written together lex as something else (`- -x`).
     bool merges(i64 i) uses alloc {
         // A string piece lexes as itself only inside its string; it never merges with a neighbour.
-        if layoutPiece(kind(i - 1)) || layoutPiece(kind(i)) { return false }
+        return false if layoutPiece(kind(i - 1)) || layoutPiece(kind(i))
         var joined = List<u8>()
-        for b in tokens[i - 1].start..tokens[i - 1].end { joined.append(source[b]) }
-        for b in tokens[i].start..tokens[i].end { joined.append(source[b]) }
+        for b in tokens[i - 1].start..tokens[i - 1].end {
+            joined.append(source[b])
+        }
+        for b in tokens[i].start..tokens[i].end {
+            joined.append(source[b])
+        }
         let lexed = lexer.lex(lexer.SourceText.create("layout", from: move joined), by: keywords)
-        return lexed.tokens.length != 3 || lexed.tokens[0].kind != tokens[i - 1].kind || lexed.tokens[1].kind != tokens[i].kind
+        return lexed.tokens.length != 3
+            || lexed.tokens[0].kind != tokens[i - 1].kind
+            || lexed.tokens[1].kind != tokens[i].kind
     }
 
     /// Layout.cs: Engine.TightProduct. Whether token `i` is a `*` written tight between two operands on one line (`a*b`).
     bool tightProduct(i64 i) {
-        if !(i > 0 && i + 1 < tokens.length && kind(i) == .star && !lineStart[i] && !lineStart[i + 1] && !trivia(i) && !trivia(i + 1)
-            && layoutOperandEnd(kind(i - 1))) {
+        if !(i > 0 && i + 1 < tokens.length && kind(
+            i,
+        ) == .star && !lineStart[i] && !lineStart[i + 1] && !trivia(i) && !trivia(i + 1)
+                && layoutOperandEnd(kind(i - 1))) {
             return false
         }
         let next = kind(i + 1)
-        return next == .identifier || next == .integerLiteral || next == .floatLiteral || next == .charLiteral || next == .openParen
-            || next == .thisKeyword || next == .interpolatedStringStart || lexer.isStringLiteral(next) || parser.isContextualKeyword(next)
+        return next == .identifier
+            || next == .integerLiteral
+            || next == .floatLiteral
+            || next == .charLiteral
+            || next == .openParen
+            || next == .thisKeyword
+            || next == .interpolatedStringStart
+            || lexer.isStringLiteral(next)
+            || parser.isContextualKeyword(next)
     }
 
     /// Layout.cs: Engine.IsUnary. Whether the `-`, `+`, `&`, `!` or `*` at `i` is a prefix operator.
@@ -2047,61 +2449,76 @@ struct LayoutEngine {
 
     /// Layout.cs: Engine.Star. A `*`: prefix, binary (spaced before), or as written (`u8*`, `u8**`, `a*b`).
     LayoutSide star(i64 i, as LayoutSide prefix) {
-        if lineStart[i] { return prefix }
-        if kind(i - 1) == .star && !trivia(i) { return .keep }
-        if !layoutOperandEnd(kind(i - 1)) { return prefix }
+        return prefix if lineStart[i]
+        return .keep if kind(i - 1) == .star && !trivia(i)
+        return prefix if !layoutOperandEnd(kind(i - 1))
         return trivia(i) ? .space : .keep
     }
 
     /// Layout.cs: Engine.After. What token `i` asks of the space after it.
     LayoutSide after(i64 i) {
         let k = kind(i)
-        if k == .interpolatedStringStart || k == .interpolatedStringText || k == .interpolationStart || k == .interpolationEnd { return .none }
-        if k == .openParen || k == .openBracket || k == .dot || k == .questionDot || k == .at || k == .tilde || k == .dotDot || k == .dotDotEquals {
-            return .none
-        }
-        if k == .comma || k == .colon { return .space }
-        if k == .openBrace { return kind(i + 1) == .closeBrace ? .keep : .space }
-        if layoutIsBinary(k) { return .space }
-        if k == .minus || k == .plus || k == .amp { return isUnary(i) ? .none : .space }
-        if k == .bang { return isUnary(i) ? .none : .keep }
-        if k == .star { return star(i, as: .none) }
-        if k == .less { return kind(i - 1) == .dotDot ? .none : trivia(i) ? .space : .keep }
-        if k == .greater || k == .question { return trivia(i) ? .space : .keep }
-        if k == .plusPlus || k == .minusMinus || k == .hash || k == .semicolon { return .keep }
+        return .none if k is .interpolatedStringStart
+            or .interpolatedStringText
+            or .interpolationStart
+            or .interpolationEnd
+        return .none if k is .openParen
+            or .openBracket
+            or .dot
+            or .questionDot
+            or .at
+            or .tilde
+            or .dotDot
+            or .dotDotEquals
+        return .space if k is .comma or .colon
+        return kind(i + 1) == .closeBrace ? .keep : .space if k == .openBrace
+        return .space if layoutIsBinary(k)
+        return isUnary(i) ? .none : .space if k is .minus or .plus or .amp
+        return isUnary(i) ? .none : .keep if k == .bang
+        return star(i, as: .none) if k == .star
+        return kind(i - 1) == .dotDot ? .none : trivia(i) ? .space : .keep if k == .less
+        return trivia(i) ? .space : .keep if k is .greater or .question
+        return .keep if k is .plusPlus or .minusMinus or .hash or .semicolon
         return .deferred
     }
 
     /// Layout.cs: Engine.Before. What token `i` asks of the space before it.
     LayoutSide before(i64 i) {
         let k = kind(i)
-        if k == .interpolatedStringText || k == .interpolationStart || k == .interpolationEnd || k == .interpolatedStringEnd { return .none }
-        if k == .closeParen || k == .closeBracket || k == .comma { return .none }
-        if k == .semicolon || k == .numericSuffix || k == .plusPlus || k == .minusMinus || k == .hash { return .keep }
-        if k == .closeBrace { return kind(i - 1) == .openBrace ? .keep : .space }
-        if k == .openBrace { return .space }
-        if k == .colon { return spacedColon(i) ? .space : .none }
-        if k == .dot || k == .questionDot {
+        return .none if k is .interpolatedStringText
+            or .interpolationStart
+            or .interpolationEnd
+            or .interpolatedStringEnd
+        return .none if k is .closeParen or .closeBracket or .comma
+        return .keep if k is .semicolon or .numericSuffix or .plusPlus or .minusMinus or .hash
+        return kind(i - 1) == .openBrace ? .keep : .space if k == .closeBrace
+        return .space if k == .openBrace
+        return spacedColon(i) ? .space : .none if k == .colon
+        if k is .dot or .questionDot {
             let prev = kind(i - 1)
-            if k == .dot && prev == .identifier && textIs(i - 1, as: "becomes") { return .deferred }
-            return prev == .identifier || prev == .closeParen || prev == .closeBracket || prev == .thisKeyword || prev == .interpolatedStringEnd
+            return .deferred if k == .dot && prev == .identifier && textIs(i - 1, as: "becomes")
+            return prev == .identifier
+                || prev == .closeParen
+                || prev == .closeBracket
+                || prev == .thisKeyword
+                || prev == .interpolatedStringEnd
                 || lexer.isStringLiteral(prev) || parser.isContextualKeyword(prev) ? .none : .deferred
         }
-        if k == .openParen || k == .openBracket { return callLike(i - 1) ? .none : .deferred }
-        if k == .dotDot || k == .dotDotEquals { return layoutOperandEnd(kind(i - 1)) ? .none : .deferred }
-        if layoutIsBinary(k) { return .space }
-        if k == .minus || k == .plus || k == .amp { return isUnary(i) ? .deferred : .space }
-        if k == .bang { return isUnary(i) ? .deferred : .keep }
-        if k == .star { return star(i, as: .deferred) }
-        if k == .less { return kind(i - 1) == .dotDot ? .none : trivia(i) ? .space : .keep }
-        if k == .greater || k == .question { return trivia(i) ? .space : .keep }
+        return callLike(i - 1) ? .none : .deferred if k is .openParen or .openBracket
+        return layoutOperandEnd(kind(i - 1)) ? .none : .deferred if k is .dotDot or .dotDotEquals
+        return .space if layoutIsBinary(k)
+        return isUnary(i) ? .deferred : .space if k is .minus or .plus or .amp
+        return isUnary(i) ? .deferred : .keep if k == .bang
+        return star(i, as: .deferred) if k == .star
+        return kind(i - 1) == .dotDot ? .none : trivia(i) ? .space : .keep if k == .less
+        return trivia(i) ? .space : .keep if k is .greater or .question
         return .deferred
     }
 
     /// Layout.cs: Engine.CallLike. Whether a `(` or `[` after token `i` is a call or an index: no space before it.
     bool callLike(i64 i) {
         let k = kind(i)
-        if k == .closeParen || k == .closeBracket || parser.isContextualKeyword(k) { return true }
+        return true if k == .closeParen || k == .closeBracket || parser.isContextualKeyword(k)
         return k == .identifier && !(textIs(i, as: "where") || textIs(i, as: "expects") || textIs(i, as: "becomes"))
     }
 
@@ -2111,17 +2528,20 @@ struct LayoutEngine {
         var k = i - 1
         while k >= 0 {
             let at = kind(k)
-            if at == .closeParen || at == .closeBracket || at == .closeBrace || at == .interpolationEnd {
+            if at is .closeParen or .closeBracket or .closeBrace or .interpolationEnd {
                 depth += 1
-            } else if at == .openParen || at == .openBracket || at == .openBrace || at == .interpolationStart {
-                if depth == 0 { return false }
+            } else if at is .openParen or .openBracket or .openBrace or .interpolationStart {
+                return false if depth == 0
                 depth -= 1
-            } else if depth == 0 && (at == .structKeyword || at == .interfaceKeyword || at == .extensionKeyword || at == .question && trivia(k)
-                || at == .identifier && textIs(k, as: "where")) {
+            } else if depth == 0
+                    && (at == .structKeyword || at == .interfaceKeyword || at == .extensionKeyword || at == .question && trivia(
+                        k,
+                    )
+                    || at == .identifier && textIs(k, as: "where")) {
                 return true
             }
             // A chain link continues its line, so the scan goes on through it to a `?` before the chain.
-            if lineStart[k] && depth == 0 && !isWasl(k) { return false }
+            return false if lineStart[k] && depth == 0 && !isWasl(k)
             k -= 1
         }
         return false

@@ -10,7 +10,9 @@ const t8NoFormatSpec: string = "((byn_format_spec){2, false, 0, ' ', 0, -1})"
 string t8Join(in List<string> parts, by string sep) uses alloc {
     var sb = StrBuf()
     for k in 0..parts.length {
-        if k > 0 { sb.append(sep) }
+        if k > 0 {
+            sb.append(sep)
+        }
         sb.append(parts[k])
     }
     return $"{sb.finish()}"
@@ -21,28 +23,32 @@ public string equalHelper(ref CCtx cc, from ref Ctx c, for Type t, at string a, 
     let i = i64(t & 0xFFFFFFFF)
     switch semantics.kindOf(t) {
         case .primitive:
-            if semantics.isString(t) { return $"byn_str_eq({a}, {b})" }
+            return $"byn_str_eq({a}, {b})" if semantics.isString(t)
             return $"({a} == {b})"
         case .enumType: return $"({a} == {b})"
         case .builtin:
-            if t == semantics.builtinType(.symbol) { return $"(({a}).id == ({b}).id)" }
-            if t == semantics.builtinType(.millis) { return $"({a} == {b})" }
+            return $"(({a}).id == ({b}).id)" if t == semantics.builtinType(.symbol)
+            return $"({a} == {b})" if t == semantics.builtinType(.millis)
         case .errorSet or .errorUnion:
             // By code, then the payload of a case that has one (Q45, Q28). One helper serves every set, as the
             // `Result`, optional and tuple helpers are keyed without theirs; a case whose payload has no equality is
             // left out, since `==` on its set does not bind (Q344).
             var cases = List<semantics.VariantId>()
             for v in 0..c.errorVariants.length {
-                if c.errorVariants[v].fields.length == 0 { continue }
+                continue if c.errorVariants[v].fields.length == 0
                 var all = true
                 for fPos in 0..c.errorVariants[v].fields.length {
                     let f = c.errorVariants[v].fields[fPos]
-                    if !semantics.isEquatable(ref c, for: c.locals[f].type) { all = false }
+                    if !semantics.isEquatable(ref c, for: c.locals[f].type) {
+                        all = false
+                    }
                 }
-                if all { cases.append(v) }
+                if all {
+                    cases.append(v)
+                }
             }
             // coverage-exempt: Q793
-            if cases.length == 0 { return $"({a}.code == {b}.code)" }
+            return $"({a}.code == {b}.code)" if cases.length == 0
             let ect = errorCType(ref cc, from: ref c)
             let eq = "bynh_eq_err"
             let proto = $"static bool bynh_eq_err({ect} a, {ect} b)"
@@ -55,7 +61,15 @@ public string equalHelper(ref CCtx cc, from ref Ctx c, for Type t, at string a, 
                         let f = c.errorVariants[v].fields[fPos]
                         let n = fieldName(c.locals[f].name)
                         let code = c.errorVariants[v].code
-                        fields.append(equalHelper(ref cc, from: ref c, for: c.locals[f].type, at: $"a.p.e{code}.{n}", to: $"b.p.e{code}.{n}"))
+                        fields.append(
+                            equalHelper(
+                                ref cc,
+                                from: ref c,
+                                for: c.locals[f].type,
+                                at: $"a.p.e{code}.{n}",
+                                to: $"b.p.e{code}.{n}",
+                            ),
+                        )
                     }
                     sb.append($"    case {c.errorVariants[v].code}: return {t8Join(in fields, by: "\n        && ")};\n")
                 }
@@ -65,7 +79,13 @@ public string equalHelper(ref CCtx cc, from ref Ctx c, for Type t, at string a, 
             return $"{eq}({a}, {b})"
         case .owned: return equalHelper(ref cc, from: ref c, for: c.ownedTypes[i], at: $"(*{a})", to: $"(*{b})")
         case .untrusted: return equalHelper(ref cc, from: ref c, for: c.untrustedTypes[i], at: a, to: b)
-        case .state: return equalHelper(ref cc, from: ref c, for: semantics.makeType(.structType, at: c.stateTypes[i].s), at: a, to: b)
+        case .state: return equalHelper(
+            ref cc,
+            from: ref c,
+            for: semantics.makeType(.structType, at: c.stateTypes[i].s),
+            at: a,
+            to: b,
+        )
         default: let _ = 0
     }
     let ct = cType(ref cc, from: ref c, for: t)
@@ -85,7 +105,7 @@ string t8EqBody(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
         sb.append("{\n    if (a.tag != b.tag) return false;\n    switch (a.tag) {\n")
         for vPos in 0..c.unions[i].variants.length {
             let v = c.unions[i].variants[vPos]
-            if c.unionVariants[v].fields.length == 0 { continue }
+            continue if c.unionVariants[v].fields.length == 0
             sb.append(t8EqCase(ref cc, from: ref c, for: v))
         }
         sb.append("    default: return true;\n    }\n}\n")
@@ -99,12 +119,14 @@ string t8EqBody(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
             for fPos in 0..c.structs[i].fields.length {
                 let f = c.structs[i].fields[fPos]
                 let n = fieldName(c.fields[f].name)
-                sb.append($"    if (!{equalHelper(ref cc, from: ref c, for: c.fields[f].type, at: $"a.{n}", to: $"b.{n}")}) return false;\n")
+                sb.append(
+                    $"    if (!{equalHelper(ref cc, from: ref c, for: c.fields[f].type, at: $"a.{n}", to: $"b.{n}")}) return false;\n",
+                )
             }
             sb.append("    if (a.tag != b.tag) return false;\n    switch (a.tag) {\n")
             for vPos in 0..c.unions[states].variants.length {
                 let v = c.unions[states].variants[vPos]
-                if c.unionVariants[v].fields.length == 0 { continue }
+                continue if c.unionVariants[v].fields.length == 0
                 sb.append(t8EqCase(ref cc, from: ref c, for: v))
             }
             sb.append("    default: return true;\n    }\n}\n")
@@ -118,7 +140,9 @@ string t8EqBody(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
     var tests = List<string>()
     switch semantics.kindOf(t) {
         case .optional:
-            tests.append($"a.has == b.has && (!a.has || {equalHelper(ref cc, from: ref c, for: c.optionalTypes[i], at: "a.value", to: "b.value")})")
+            tests.append(
+                $"a.has == b.has && (!a.has || {equalHelper(ref cc, from: ref c, for: c.optionalTypes[i], at: "a.value", to: "b.value")})",
+            )
         case .result:
             let err = equalHelper(ref cc, from: ref c, for: c.resultTypes[i].error, at: "a.err", to: "b.err")
             let value = equalHelper(ref cc, from: ref c, for: c.resultTypes[i].value, at: "a.value", to: "b.value")
@@ -131,7 +155,15 @@ string t8EqBody(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
             }
         case .tuple:
             for k in 0..c.tupleTypes[i].length {
-                tests.append(equalHelper(ref cc, from: ref c, for: c.tupleTypes[i][k].type, at: $"a.item{k + 1}", to: $"b.item{k + 1}"))
+                tests.append(
+                    equalHelper(
+                        ref cc,
+                        from: ref c,
+                        for: c.tupleTypes[i][k].type,
+                        at: $"a.item{k + 1}",
+                        to: $"b.item{k + 1}",
+                    ),
+                )
             }
         default: panic($"no equality for {semantics.typeDisplay(ref c, by: t)}")
     }
@@ -156,7 +188,7 @@ string t8KeyHash(ref CCtx cc, from ref Ctx c, for Type k) uses alloc {
     cc.hashes = true
     let name = $"bynh_hash_{key(ref c, for: k)}"
     let proto = $"static uint64_t {name}({cType(ref cc, from: ref c, for: k)} k)"
-    if !helperReserve(ref cc, for: name, from: proto) { return name }
+    return name if !helperReserve(ref cc, for: name, from: proto)
     let i = i64(k & 0xFFFFFFFF)
     var types = List<Type>()
     var exprs = List<string>()
@@ -178,9 +210,23 @@ string t8KeyHash(ref CCtx cc, from ref Ctx c, for Type k) uses alloc {
         default: let _ = 0
     }
     if !isParts {
-        if semantics.isString(k) { return helperFill(ref cc, for: name, from: proto, as: "{\n    return byn_hash_bytes(k.ptr, k.len);\n}\n") }
-        if k == semantics.builtinType(.symbol) { return helperFill(ref cc, for: name, from: proto, as: "{\n    return byn_hash_bytes(&k.id, (int64_t)sizeof k.id);\n}\n") }
-        return helperFill(ref cc, for: name, from: proto, as: "{\n    return byn_hash_bytes(&k, (int64_t)sizeof k);\n}\n")
+        if semantics.isString(k) {
+            return helperFill(ref cc, for: name, from: proto, as: "{\n    return byn_hash_bytes(k.ptr, k.len);\n}\n")
+        }
+        if k == semantics.builtinType(.symbol) {
+            return helperFill(
+                ref cc,
+                for: name,
+                from: proto,
+                as: "{\n    return byn_hash_bytes(&k.id, (int64_t)sizeof k.id);\n}\n",
+            )
+        }
+        return helperFill(
+            ref cc,
+            for: name,
+            from: proto,
+            as: "{\n    return byn_hash_bytes(&k, (int64_t)sizeof k);\n}\n",
+        )
     }
     var sb = StrBuf()
     sb.append("{\n    uint64_t h = byn_hash_bytes(NULL, 0);\n")
@@ -196,13 +242,21 @@ string t8KeyEq(ref CCtx cc, from ref Ctx c, for Type k) uses alloc {
     let ct = cType(ref cc, from: ref c, for: k)
     let name = $"bynh_keq_{key(ref c, for: k)}"
     let proto = $"static bool {name}(const void* a, const void* b)"
-    if !helperReserve(ref cc, for: name, from: proto) { return name }
+    return name if !helperReserve(ref cc, for: name, from: proto)
     let eq = equalHelper(ref cc, from: ref c, for: k, at: $"*(const {ct}*)a", to: $"*(const {ct}*)b")
     return helperFill(ref cc, for: name, from: proto, as: $"{{\n    return {eq};\n}}\n")
 }
 
 /// CEmitter.cs:894 `MapMethod` (Q845): the C call for map builtin `member` on `map` of map type `t` with C arguments `args`, at C location `loc`.
-public string mapMethod(ref CCtx cc, from ref Ctx c, for semantics.BuiltinMember member, as Type t, at string map, by List<string> args, to string loc) uses alloc {
+public string mapMethod(
+    ref CCtx cc,
+    from ref Ctx c,
+    for semantics.BuiltinMember member,
+    as Type t,
+    at string map,
+    by List<string> args,
+    to string loc
+) uses alloc {
     let i = i64(t & 0xFFFFFFFF)
     let mt = cType(ref cc, from: ref c, for: t)
     let kt = cType(ref cc, from: ref c, for: c.mapTypes[i].key)
@@ -214,29 +268,50 @@ public string mapMethod(ref CCtx cc, from ref Ctx c, for semantics.BuiltinMember
         case .mapIndexSet or .mapSlot:
             // A missing key is inserted with `d`: zero for a write target, the value type's default for `slot`.
             let name = $"bynh_slot_{key(ref c, for: t)}"
-            let _ = helper(ref cc, for: name, from: $"static {vt}* {name}({mt}* m, {kt} k, {vt} d)",
-                as: $"{{\n    if (!m->h.alloc) m->h.alloc = byn_context;\n    bool added;\n    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof({kt}), (void**)&m->vals, (int64_t)sizeof({vt}), &k, {hash}(k), {eq}, &added);\n    if (added) {{\n        m->keys[i] = k;\n        m->vals[i] = d;\n    }}\n    return &m->vals[i];\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {vt}* {name}({mt}* m, {kt} k, {vt} d)",
+                as: $"{{\n    if (!m->h.alloc) m->h.alloc = byn_context;\n    bool added;\n    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof({kt}), (void**)&m->vals, (int64_t)sizeof({vt}), &k, {hash}(k), {eq}, &added);\n    if (added) {{\n        m->keys[i] = k;\n        m->vals[i] = d;\n    }}\n    return &m->vals[i];\n}}\n",
+            )
             let d = member == .mapSlot ? args[1] : $"(({vt}){{0}})"
             return $"(*{name}(&{map}, {args[0]}, {d}))"
         case .mapIndex:
             let name = $"bynh_index_{key(ref c, for: t)}"
-            let _ = helper(ref cc, for: name, from: $"static {vt} {name}({mt} m, {kt} k, const char* file, int line)",
-                as: $"{{\n    int64_t i = {find};\n    if (i < 0) byn_panic(\"key not found in map\", file, line);\n    return m.vals[i];\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {vt} {name}({mt} m, {kt} k, const char* file, int line)",
+                as: $"{{\n    int64_t i = {find};\n    if (i < 0) byn_panic(\"key not found in map\", file, line);\n    return m.vals[i];\n}}\n",
+            )
             return $"{name}({map}, {args[0]}, {loc})"
         case .mapTryGet:
             let opt = cType(ref cc, from: ref c, for: semantics.internOptional(ref c, by: c.mapTypes[i].value))
             let name = $"bynh_try_get_{key(ref c, for: t)}"
-            let _ = helper(ref cc, for: name, from: $"static {opt} {name}({mt} m, {kt} k)",
-                as: $"{{\n    int64_t i = {find};\n    return i < 0 ? ({opt}){{0}} : ({opt}){{true, m.vals[i]}};\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {opt} {name}({mt} m, {kt} k)",
+                as: $"{{\n    int64_t i = {find};\n    return i < 0 ? ({opt}){{0}} : ({opt}){{true, m.vals[i]}};\n}}\n",
+            )
             return $"{name}({map}, {args[0]})"
         case .mapContains:
             let name = $"bynh_has_{key(ref c, for: t)}"
-            let _ = helper(ref cc, for: name, from: $"static bool {name}({mt} m, {kt} k)", as: $"{{\n    return {find} >= 0;\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static bool {name}({mt} m, {kt} k)",
+                as: $"{{\n    return {find} >= 0;\n}}\n",
+            )
             return $"{name}({map}, {args[0]})"
         default:
             let name = $"bynh_remove_{key(ref c, for: t)}"
-            let _ = helper(ref cc, for: name, from: $"static bool {name}({mt}* m, {kt} k)",
-                as: $"{{\n    return byn_map_remove(&m->h, m->keys, (int64_t)sizeof({kt}), &k, {hash}(k), {eq});\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static bool {name}({mt}* m, {kt} k)",
+                as: $"{{\n    return byn_map_remove(&m->h, m->keys, (int64_t)sizeof({kt}), &k, {hash}(k), {eq});\n}}\n",
+            )
             return $"{name}(&{map}, {args[0]})"
     }
 }
@@ -253,15 +328,21 @@ public string format(ref CCtx cc, from ref Ctx c, for Type t, at string v, to st
                 case .bool: return $"byn_w_bool({w}, {v});"
                 case .char: return $"byn_w_char({w}, {v});"
                 default:
-                    if semantics.isSignedInteger(t) { return $"byn_w_i64({w}, (int64_t)({v}));" }
+                    if semantics.isSignedInteger(t) {
+                        return $"byn_w_i64({w}, (int64_t)({v}));"
+                    }
                     return $"byn_w_u64({w}, (uint64_t)({v}));"
             }
         case .errorSet or .errorUnion: return $"byn_w_error({w}, {v}.code);"
         case .enumType: return $"byn_w_str({w}, {enumNames(ref cc, from: ref c, for: i)}[{v}]);"
         case .builtin:
-            if t == semantics.builtinType(.symbol) { return $"byn_w_str({w}, {symbolText(ref cc, for: v)});" }
+            if t == semantics.builtinType(.symbol) {
+                return $"byn_w_str({w}, {symbolText(ref cc, for: v)});"
+            }
             // A unit formats as its value plus its symbol (spec §3.4).
-            if t == semantics.builtinType(.millis) { return $"byn_w_i64({w}, {v}); byn_w_str({w}, BYN_STR(\" ms\", 3));" }
+            if t == semantics.builtinType(.millis) {
+                return $"byn_w_i64({w}, {v}); byn_w_str({w}, BYN_STR(\" ms\", 3));"
+            }
         case .owned: return format(ref cc, from: ref c, for: c.ownedTypes[i], at: $"(*{v})", to: w)
         default: let _ = 0
     }
@@ -286,13 +367,19 @@ string t8FormatBody(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
     sb.append("{\n")
     switch semantics.kindOf(t) {
         case .optional:
-            sb.append($"    if (v.has) {format(ref cc, from: ref c, for: c.optionalTypes[i], at: "v.value", to: "w")}\n")
+            sb.append(
+                $"    if (v.has) {format(ref cc, from: ref c, for: c.optionalTypes[i], at: "v.value", to: "w")}\n",
+            )
             sb.append("    else byn_w_str(w, BYN_STR(\"null\", 4));\n")
         case .result:
-            sb.append($"    if (v.err.code) byn_w_error(w, v.err.code);\n    else {format(ref cc, from: ref c, for: c.resultTypes[i].value, at: "v.value", to: "w")}\n")
+            sb.append(
+                $"    if (v.err.code) byn_w_error(w, v.err.code);\n    else {format(ref cc, from: ref c, for: c.resultTypes[i].value, at: "v.value", to: "w")}\n",
+            )
         case .structType:
             let method = formatInto(ref c, for: i)
-            if method == -1 { panic($"cannot format {semantics.typeDisplay(ref c, by: t)}") }
+            if method == -1 {
+                panic($"cannot format {semantics.typeDisplay(ref c, by: t)}")
+            }
             let callee = functionName(ref cc, from: ref c, for: method)
             let spec = c.functions[method].parameters.length == 2 ? $", {t8NoFormatSpec}" : ""
             sb.append($"    {callee}(&v, w{spec});\n")
@@ -307,18 +394,30 @@ string t8FormatBody(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
                 for n in 0..fieldCount {
                     let f = c.unionVariants[variant].fields[n]
                     sb.append(t8Text(ref cc, for: $"{n > 0 ? ", " : ""}{c.locals[f].name}: "))
-                    let part = format(ref cc, from: ref c, for: c.locals[f].type, at: $"v.u.{fieldName(vname)}.{fieldName(c.locals[f].name)}", to: "w")
+                    let part = format(
+                        ref cc,
+                        from: ref c,
+                        for: c.locals[f].type,
+                        at: $"v.u.{fieldName(vname)}.{fieldName(c.locals[f].name)}",
+                        to: "w",
+                    )
                     sb.append($"    {part}\n")
                 }
-                if fieldCount > 0 { sb.append(t8Text(ref cc, for: ")")) }
+                if fieldCount > 0 {
+                    sb.append(t8Text(ref cc, for: ")"))
+                }
                 sb.append("        break;\n")
             }
             sb.append("    }\n")
         case .tuple:
             sb.append(t8Text(ref cc, for: "("))
             for n in 0..c.tupleTypes[i].length {
-                if n > 0 { sb.append(t8Text(ref cc, for: ", ")) }
-                sb.append($"    {format(ref cc, from: ref c, for: c.tupleTypes[i][n].type, at: $"v.item{n + 1}", to: "w")}\n")
+                if n > 0 {
+                    sb.append(t8Text(ref cc, for: ", "))
+                }
+                sb.append(
+                    $"    {format(ref cc, from: ref c, for: c.tupleTypes[i][n].type, at: $"v.item{n + 1}", to: "w")}\n",
+                )
             }
             sb.append(t8Text(ref cc, for: ")"))
         case .map:
@@ -327,7 +426,9 @@ string t8FormatBody(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
             sb.append("        if (!first) byn_w_str(w, BYN_STR(\", \", 2));\n        first = false;\n")
             sb.append($"        {format(ref cc, from: ref c, for: c.mapTypes[i].key, at: "v.keys[i]", to: "w")}\n")
             sb.append("        byn_w_str(w, BYN_STR(\": \", 2));\n")
-            sb.append($"        {format(ref cc, from: ref c, for: c.mapTypes[i].value, at: "v.vals[i]", to: "w")}\n    }}\n")
+            sb.append(
+                $"        {format(ref cc, from: ref c, for: c.mapTypes[i].value, at: "v.vals[i]", to: "w")}\n    }}\n",
+            )
             sb.append(t8Text(ref cc, for: "}"))
         default: panic($"cannot format {semantics.typeDisplay(ref c, by: t)}")
     }
@@ -341,11 +442,19 @@ public semantics.FuncId formatInto(ref Ctx c, for semantics.StructId s) {
     for m in 0..c.structs[s].methods.length {
         let fn = c.structs[s].methods[m]
         let n = c.functions[fn].parameters.length
-        if c.functions[fn].name == "formatInto" && !c.functions[fn].isStatic && !c.functions[fn].hasFails && (n == 1 || n == 2)
-            && semantics.paramIsByRef(ref c, by: c.functions[fn].parameters[0]) && c.locals[c.functions[fn].parameters[0]].type == semantics.builtinType(.strBuf)
-            && (n == 1 || (!semantics.paramIsByRef(ref c, by: c.functions[fn].parameters[1]) && c.locals[c.functions[fn].parameters[1]].type == semantics.builtinType(.formatSpec))) {
+        if c.functions[fn].name == "formatInto"
+                && !c.functions[fn].isStatic
+                && !c.functions[fn].hasFails
+                && (n is 1 or 2)
+                && semantics.paramIsByRef(ref c, by: c.functions[fn].parameters[0])
+                && c.locals[c.functions[fn].parameters[0]].type == semantics.builtinType(.strBuf)
+                && (n == 1
+                || (!semantics.paramIsByRef(ref c, by: c.functions[fn].parameters[1])
+                && c.locals[c.functions[fn].parameters[1]].type == semantics.builtinType(.formatSpec))) {
             // `OrderBy(m => m.Parameters.Count).FirstOrDefault()`: the fewest parameters, the first of them.
-            if found == -1 || n < c.functions[found].parameters.length { found = fn }
+            if found == -1 || n < c.functions[found].parameters.length {
+                found = fn
+            }
         }
     }
     return found
@@ -355,9 +464,14 @@ public semantics.FuncId formatInto(ref Ctx c, for semantics.StructId s) {
 public semantics.FuncId formatIntoWithSpec(ref Ctx c, for semantics.StructId s) {
     for m in 0..c.structs[s].methods.length {
         let fn = c.structs[s].methods[m]
-        if c.functions[fn].name == "formatInto" && !c.functions[fn].isStatic && !c.functions[fn].hasFails && c.functions[fn].parameters.length == 2
-            && semantics.paramIsByRef(ref c, by: c.functions[fn].parameters[0]) && c.locals[c.functions[fn].parameters[0]].type == semantics.builtinType(.strBuf)
-            && !semantics.paramIsByRef(ref c, by: c.functions[fn].parameters[1]) && c.locals[c.functions[fn].parameters[1]].type == semantics.builtinType(.formatSpec) {
+        if c.functions[fn].name == "formatInto"
+                && !c.functions[fn].isStatic
+                && !c.functions[fn].hasFails
+                && c.functions[fn].parameters.length == 2
+                && semantics.paramIsByRef(ref c, by: c.functions[fn].parameters[0])
+                && c.locals[c.functions[fn].parameters[0]].type == semantics.builtinType(.strBuf)
+                && !semantics.paramIsByRef(ref c, by: c.functions[fn].parameters[1])
+                && c.locals[c.functions[fn].parameters[1]].type == semantics.builtinType(.formatSpec) {
             return fn
         }
     }
