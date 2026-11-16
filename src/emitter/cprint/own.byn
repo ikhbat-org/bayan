@@ -21,23 +21,46 @@ enum T7OwnLine {
 void t7StorageParts(ref Ctx c, for Type t, at string at, to ref List<T7Part> parts) uses alloc {
     let i = i64(t & 0xFFFFFFFF)
     switch semantics.kindOf(t) {
-        case .list: parts.append(T7Part { storage: $"{at}.ptr", place: $"&{at}", type: semantics.typeDisplay(ref c, by: t) })
-        case .map: parts.append(T7Part { storage: $"{at}.keys", place: $"&{at}", type: semantics.typeDisplay(ref c, by: t) })
+        case .list: parts.append(
+            T7Part { storage: $"{at}.ptr", place: $"&{at}", type: semantics.typeDisplay(ref c, by: t) },
+        )
+        case .map: parts.append(
+            T7Part { storage: $"{at}.keys", place: $"&{at}", type: semantics.typeDisplay(ref c, by: t) },
+        )
         case .builtin:
             if semantics.builtinKindOf(i) == .strBuf {
-                parts.append(T7Part { storage: $"({at}.mode == BYN_WRITE_GROW ? {at}.buf : NULL)", place: $"&{at}", type: semantics.typeDisplay(ref c, by: t) })
+                parts.append(
+                    T7Part {
+                        storage: $"({at}.mode == BYN_WRITE_GROW ? {at}.buf : NULL)",
+                        place: $"&{at}",
+                        type: semantics.typeDisplay(ref c, by: t),
+                    },
+                )
             }
         case .owned: parts.append(T7Part { storage: at, place: $"&{at}", type: semantics.typeDisplay(ref c, by: t) })
         case .untrusted: t7StorageParts(ref c, for: c.untrustedTypes[i], at: at, to: ref parts)
         case .tuple:
             var types = List<Type>()
-            for f in c.tupleTypes[i] { types.append(f.type) }
-            for k in 0..types.length { t7StorageParts(ref c, for: types[k], at: $"{at}.item{k + 1}", to: ref parts) }
+            for f in c.tupleTypes[i] {
+                types.append(f.type)
+            }
+            for k in 0..types.length {
+                t7StorageParts(ref c, for: types[k], at: $"{at}.item{k + 1}", to: ref parts)
+            }
         case .structType:
             var fields = List<semantics.FieldId>()
-            for f in c.structs[i].fields { fields.append(f) }
-            for f in fields { t7StorageParts(ref c, for: c.fields[f].type, at: $"{at}.{fieldName(c.fields[f].name)}", to: ref parts) }
-        case .state: t7StorageParts(ref c, for: semantics.makeType(.structType, at: c.stateTypes[i].s), at: at, to: ref parts)
+            for f in c.structs[i].fields {
+                fields.append(f)
+            }
+            for f in fields {
+                t7StorageParts(ref c, for: c.fields[f].type, at: $"{at}.{fieldName(c.fields[f].name)}", to: ref parts)
+            }
+        case .state: t7StorageParts(
+            ref c,
+            for: semantics.makeType(.structType, at: c.stateTypes[i].s),
+            at: at,
+            to: ref parts,
+        )
         default: return
     }
 }
@@ -69,7 +92,12 @@ public string ownClaim(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
     let ct = cType(ref cc, from: ref c, for: t)
     let name = $"bynh_chk_claim_{key(ref c, for: t)}"
     let proto = $"static void {name}({ct}* p, const char* file, int line)"
-    return helper(ref cc, for: name, from: proto, as: $"{{\n{t7OwnStatements(ref c, for: t, at: "(*p)", as: .claim)}}}\n")
+    return helper(
+        ref cc,
+        for: name,
+        from: proto,
+        as: $"{{\n{t7OwnStatements(ref c, for: t, at: "(*p)", as: .claim)}}}\n",
+    )
 }
 
 /// CEmitter.cs:742 `OwnSet`: the name of the helper that stores into `*p` of type `t` through the ownership checker, registering it.
@@ -81,7 +109,12 @@ public string ownSet(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
     if helperReserve(ref cc, for: name, from: proto) {
         let drops = t7OwnStatements(ref c, for: t, at: "(*p)", as: .drop)
         let claim = ownClaim(ref cc, from: ref c, for: t)
-        let _ = helperFill(ref cc, for: name, from: proto, as: $"{{\n{drops}    *p = v;\n    if (s) s->line = 0;\n    if (claim) {claim}(p, file, line);\n    return v;\n}}\n")
+        let _ = helperFill(
+            ref cc,
+            for: name,
+            from: proto,
+            as: $"{{\n{drops}    *p = v;\n    if (s) s->line = 0;\n    if (claim) {claim}(p, file, line);\n    return v;\n}}\n",
+        )
     }
     return name
 }
@@ -93,7 +126,12 @@ public string ownMove(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
     let proto = $"static {ct}* {name}({ct}* p, byn_own_slot* s, const char* file, int line)"
     let read = $"    if (s) byn_own_read(s, {cString(semantics.typeDisplay(ref c, by: t))}, file, line);\n"
     let releases = t7OwnStatements(ref c, for: t, at: "(*p)", as: .release)
-    return helper(ref cc, for: name, from: proto, as: $"{{\n{read}{releases}    if (s) {{\n        s->file = file;\n        s->line = line;\n    }}\n    return p;\n}}\n")
+    return helper(
+        ref cc,
+        for: name,
+        from: proto,
+        as: $"{{\n{read}{releases}    if (s) {{\n        s->file = file;\n        s->line = line;\n    }}\n    return p;\n}}\n",
+    )
 }
 
 /// CEmitter.cs:763 `OwnReturn`: the name of the helper that releases a returned value of type `t`, registering it.
@@ -101,13 +139,20 @@ public string ownReturn(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
     let ct = cType(ref cc, from: ref c, for: t)
     let name = $"bynh_chk_ret_{key(ref c, for: t)}"
     let proto = $"static {ct} {name}({ct} v)"
-    return helper(ref cc, for: name, from: proto, as: $"{{\n{t7OwnStatements(ref c, for: t, at: "v", as: .release)}    return v;\n}}\n")
+    return helper(
+        ref cc,
+        for: name,
+        from: proto,
+        as: $"{{\n{t7OwnStatements(ref c, for: t, at: "v", as: .release)}    return v;\n}}\n",
+    )
 }
 
 /// CEmitter.cs:771 `IntSuffix`: the runtime suffix (`i8` .. `u64`) of integer type `t`.
 public string intSuffix(Type t) uses alloc {
     // C# `(PrimitiveType)t` throws on any other type.
-    if semantics.kindOf(t) != .primitive { panic("intSuffix of a non-primitive type") }
+    if semantics.kindOf(t) != .primitive {
+        panic("intSuffix of a non-primitive type")
+    }
     let k = semantics.primKindOf(i64(t & 0xFFFFFFFF))
     switch k {
         case .isize: return "i64"

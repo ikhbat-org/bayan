@@ -36,9 +36,9 @@ string encodeErrorOf(JsonValue v) uses alloc {
 
 /// `e` as `kind message @offset line:column`, or its kind alone when it has no position.
 string describe(JsonError e) uses alloc => e switch {
-    .syntax s => $"syntax {s.message} @{s.offset} {s.line}:{s.column}",
-    .tooDeep d => $"tooDeep @{d.offset} {d.line}:{d.column}",
-    .nonFinite => "nonFinite",
+    .syntax s      => $"syntax {s.message} @{s.offset} {s.line}:{s.column}",
+    .tooDeep d     => $"tooDeep @{d.offset} {d.line}:{d.column}",
+    .nonFinite     => "nonFinite",
     .nestedTooDeep => "nestedTooDeep",
 }
 
@@ -60,15 +60,15 @@ string tokensOf(string text) uses alloc fails JsonError {
     while true {
         let token = (try reader.next()) ?? break
         let word = token switch {
-            .startObject => "{",
-            .endObject => "}",
-            .startList => "[",
-            .endList => "]",
-            .key(let name) => $"key:{name}",
+            .startObject     => "{",
+            .endObject       => "}",
+            .startList       => "[",
+            .endList         => "]",
+            .key(let name)   => $"key:{name}",
             .text(let value) => $"text:{value}",
             .number(let value, let digits) => $"number:{value}/{digits}",
             .flag(let value) => $"flag:{value}",
-            .nothing => "null",
+            .nothing         => "null",
         }
         sb.append($"{word} ")
     }
@@ -109,28 +109,62 @@ string tokensOf(string text) uses alloc fails JsonError {
     ("{\"a\": 1, \"b\": [1, 2]}", 0, "{\"a\": 1, \"b\": [1, 2]}"),
     ("{\"a\": 1, \"b\": [1, 2]}", 2, "{\n  \"a\": 1,\n  \"b\": [\n    1,\n    2\n  ]\n}"),
     ("{\"a\": 1, \"b\": [1, 2]}", 4, "{\n    \"a\": 1,\n    \"b\": [\n        1,\n        2\n    ]\n}"),
-    ("{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}", 0, "{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}"),
-    ("{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}", 2, "{\n  \"a\": {\n    \"b\": {\n      \"c\": []\n    }\n  },\n  \"d\": [\n    {},\n    [],\n    [\n      null,\n      true,\n      false\n    ]\n  ],\n  \"e\": \"x\"\n}"),
-    ("{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}", 4, "{\n    \"a\": {\n        \"b\": {\n            \"c\": []\n        }\n    },\n    \"d\": [\n        {},\n        [],\n        [\n            null,\n            true,\n            false\n        ]\n    ],\n    \"e\": \"x\"\n}"),
+    (
+        "{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}",
+        0,
+        "{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}"
+    ),
+    (
+        "{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}",
+        2,
+        "{\n  \"a\": {\n    \"b\": {\n      \"c\": []\n    }\n  },\n  \"d\": [\n    {},\n    [],\n    [\n      null,\n      true,\n      false\n    ]\n  ],\n  \"e\": \"x\"\n}"
+    ),
+    (
+        "{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}",
+        4,
+        "{\n    \"a\": {\n        \"b\": {\n            \"c\": []\n        }\n    },\n    \"d\": [\n        {},\n        [],\n        [\n            null,\n            true,\n            false\n        ]\n    ],\n    \"e\": \"x\"\n}"
+    ),
     (" \t\r\n [ 1 , { \"x\" : \"y\" } ] \n", 0, "[1, {\"x\": \"y\"}]"),
     (" \t\r\n [ 1 , { \"x\" : \"y\" } ] \n", 2, "[\n  1,\n  {\n    \"x\": \"y\"\n  }\n]"),
     (" \t\r\n [ 1 , { \"x\" : \"y\" } ] \n", 4, "[\n    1,\n    {\n        \"x\": \"y\"\n    }\n]"),
-    ("\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"", 0, "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""),
-    ("\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"", 2, "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""),
-    ("\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"", 4, "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""),
+    (
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"",
+        0,
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""
+    ),
+    (
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"",
+        2,
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""
+    ),
+    (
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"",
+        4,
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""
+    ),
     ("\"café 中 😀\"", 0, "\"caf\\u00e9 \\u4e2d \\ud83d\\ude00\""),
     ("\"café 中 😀\"", 2, "\"caf\\u00e9 \\u4e2d \\ud83d\\ude00\""),
     ("\"café 中 😀\"", 4, "\"caf\\u00e9 \\u4e2d \\ud83d\\ude00\""),
     ("[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]", 0, "[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]"),
-    ("[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]", 2, "[\n  0,\n  10,\n  -3.25,\n  0.5,\n  2.0,\n  1e+21,\n  -1.5e-07\n]"),
-    ("[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]", 4, "[\n    0,\n    10,\n    -3.25,\n    0.5,\n    2.0,\n    1e+21,\n    -1.5e-07\n]")
+    (
+        "[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]",
+        2,
+        "[\n  0,\n  10,\n  -3.25,\n  0.5,\n  2.0,\n  1e+21,\n  -1.5e-07\n]"
+    ),
+    (
+        "[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]",
+        4,
+        "[\n    0,\n    10,\n    -3.25,\n    0.5,\n    2.0,\n    1e+21,\n    -1.5e-07\n]"
+    ),
 )
 test "parse then encode is json.dumps" (string input, i32 indent, string expected) {
     assert (try Json.encode(try tree(input), indent: indent)) == expected
 }
 
 test "the reader gives every token kind, then null" {
-    assert (try tokensOf("{\"a\": [1.5e1, true, false, null, \"x\", {}]}")) =="{ key:a [ number:15/1.5e1 flag:true flag:false null text:x { } ] } "
+    assert (
+        try tokensOf("{\"a\": [1.5e1, true, false, null, \"x\", {}]}")
+    ) == "{ key:a [ number:15/1.5e1 flag:true flag:false null text:x { } ] } "
 }
 
 test "next stays null after the end" {
@@ -164,7 +198,9 @@ test "encode writes a built tree as json.dumps does" {
     members.append(JsonMember { key: "ok", value: .nothing })
     let v = JsonValue.object(members: move members)
     assert (try Json.encode(v)) == "{\"name\": \"Bay\\u0101n\", \"tags\": [], \"meta\": {}, \"n\": 3, \"ok\": null}"
-    assert (try Json.encode(v, indent: 2)) == "{\n  \"name\": \"Bay\\u0101n\",\n  \"tags\": [],\n  \"meta\": {},\n  \"n\": 3,\n  \"ok\": null\n}"
+    assert (
+        try Json.encode(v, indent: 2)
+    ) == "{\n  \"name\": \"Bay\\u0101n\",\n  \"tags\": [],\n  \"meta\": {},\n  \"n\": 3,\n  \"ok\": null\n}"
 }
 
 test "encode writes a built number's text only when it is a JSON number" {
@@ -245,8 +281,12 @@ test "line and column are reported past one line" {
 }
 
 test "line and column hold values past i32" {
-    assert describe(JsonError.syntax(message: "m", offset: 0, line: 3000000000, column: 4000000000)) == "syntax m @0 3000000000:4000000000"
-    assert describe(JsonError.tooDeep(offset: 0, line: 3000000000, column: 4000000000)) == "tooDeep @0 3000000000:4000000000"
+    assert describe(
+        JsonError.syntax(message: "m", offset: 0, line: 3000000000, column: 4000000000),
+    ) == "syntax m @0 3000000000:4000000000"
+    assert describe(
+        JsonError.tooDeep(offset: 0, line: 3000000000, column: 4000000000),
+    ) == "tooDeep @0 3000000000:4000000000"
 }
 
 test "nesting past 128 levels is tooDeep" {
@@ -311,11 +351,11 @@ union ReadState {
 /// A pull reader over one JSON text: `next()` gives the next token, `null` after the value and its trailing
 /// whitespace, and fails on the first byte that breaks RFC 8259.
 public struct JsonReader {
-    string text
-    i64 pos = 0
-    i64 line = 1
-    i64 lineStart = 0
-    ReadState state = .begin
+    string     text
+    i64        pos       = 0
+    i64        line      = 1
+    i64        lineStart = 0
+    ReadState  state     = .begin
     /// One entry per open container, `true` for an object.
     List<bool> open
 
@@ -328,19 +368,39 @@ public struct JsonReader {
     public JsonToken? next(ref this) uses alloc fails JsonError {
         skipSpace()
         if state is .done {
-            fail .syntax(message: "unexpected content after the value", offset: pos, line: line, column: columnAt(pos)) if pos < text.length
+            fail .syntax(
+                message: "unexpected content after the value",
+                offset: pos,
+                line: line,
+                column: columnAt(pos),
+            ) if pos < text.length
             return null
         }
-        fail .syntax(message: "unexpected end of input", offset: pos, line: line, column: columnAt(pos)) if pos >= text.length
+        fail .syntax(
+            message: "unexpected end of input",
+            offset: pos,
+            line: line,
+            column: columnAt(pos),
+        ) if pos >= text.length
         if state is .listNext {
-            if peek() == ']' { return close(as: .endList) }
-            fail .syntax(message: "expected `,` or `]`", offset: pos, line: line, column: columnAt(pos)) if peek() != ','
+            return close(as: .endList) if peek() == ']'
+            fail .syntax(
+                message: "expected `,` or `]`",
+                offset: pos,
+                line: line,
+                column: columnAt(pos),
+            ) if peek() != ','
             pos += 1
             skipSpace()
             state = .listValue
         } else if state is .objectNext {
-            if peek() == '}' { return close(as: .endObject) }
-            fail .syntax(message: "expected `,` or `}`", offset: pos, line: line, column: columnAt(pos)) if peek() != ','
+            return close(as: .endObject) if peek() == '}'
+            fail .syntax(
+                message: "expected `,` or `}`",
+                offset: pos,
+                line: line,
+                column: columnAt(pos),
+            ) if peek() != ','
             pos += 1
             skipSpace()
             state = .objectKey
@@ -350,10 +410,15 @@ public struct JsonReader {
             skipSpace()
             state = .objectValue
         }
-        fail .syntax(message: "unexpected end of input", offset: pos, line: line, column: columnAt(pos)) if pos >= text.length
+        fail .syntax(
+            message: "unexpected end of input",
+            offset: pos,
+            line: line,
+            column: columnAt(pos),
+        ) if pos >= text.length
         let b = peek()
-        if state is .listFirst && b == ']' { return close(as: .endList) }
-        if state is .objectFirst && b == '}' { return close(as: .endObject) }
+        return close(as: .endList) if state is .listFirst && b == ']'
+        return close(as: .endObject) if state is .objectFirst && b == '}'
         if state is .objectFirst or .objectKey {
             fail .syntax(message: "expected a string key", offset: pos, line: line, column: columnAt(pos)) if b != '"'
             let name = try readString()
@@ -410,14 +475,14 @@ public struct JsonReader {
 
     JsonToken readValue(ref this) uses alloc fails JsonError {
         let b = peek()
-        if b == '{' { return try openContainer(object: true) }
-        if b == '[' { return try openContainer(object: false) }
+        return try openContainer(object: true) if b == '{'
+        return try openContainer(object: false) if b == '['
         if b == '"' {
             let value = try readString()
             finishValue()
             return .text(value: value)
         }
-        if b == '-' || (b >= '0' && b <= '9') { return try readNumber() }
+        return try readNumber() if b == '-' || (b >= '0' && b <= '9')
         if literal("true") {
             finishValue()
             return .flag(value: true)
@@ -435,7 +500,7 @@ public struct JsonReader {
 
     /// Whether `word` starts at `pos`; if so, steps over it.
     bool literal(ref this, string word) {
-        if !text[pos..].startsWith(word) { return false }
+        return false if !text[pos..].startsWith(word)
         pos += word.length
         return true
     }
@@ -443,28 +508,54 @@ public struct JsonReader {
     /// RFC 8259 §6: `-`? (`0` | [1-9] digits) (`.` digits)? ([eE] [+-]? digits)?
     JsonToken readNumber(ref this) fails JsonError {
         let start = pos
-        if peek() == '-' { pos += 1 }
+        if peek() == '-' {
+            pos += 1
+        }
         if peek() == '0' {
             pos += 1
-            fail .syntax(message: "leading zero in a number", offset: start, line: line, column: columnAt(start)) if isDigit(peek())
+            fail .syntax(
+                message: "leading zero in a number",
+                offset: start,
+                line: line,
+                column: columnAt(start),
+            ) if isDigit(peek())
         } else if isDigit(peek()) {
-            while isDigit(peek()) { pos += 1 }
+            while isDigit(peek()) {
+                pos += 1
+            }
         } else {
             fail .syntax(message: "invalid number", offset: start, line: line, column: columnAt(start))
         }
         if peek() == '.' {
             pos += 1
-            fail .syntax(message: "invalid number", offset: start, line: line, column: columnAt(start)) if !isDigit(peek())
-            while isDigit(peek()) { pos += 1 }
+            fail .syntax(
+                message: "invalid number",
+                offset: start,
+                line: line,
+                column: columnAt(start),
+            ) if !isDigit(peek())
+            while isDigit(peek()) {
+                pos += 1
+            }
         }
         if peek() == 'e' || peek() == 'E' {
             pos += 1
-            if peek() == '+' || peek() == '-' { pos += 1 }
-            fail .syntax(message: "invalid number", offset: start, line: line, column: columnAt(start)) if !isDigit(peek())
-            while isDigit(peek()) { pos += 1 }
+            if peek() == '+' || peek() == '-' {
+                pos += 1
+            }
+            fail .syntax(
+                message: "invalid number",
+                offset: start,
+                line: line,
+                column: columnAt(start),
+            ) if !isDigit(peek())
+            while isDigit(peek()) {
+                pos += 1
+            }
         }
         let digits = text[start..pos]
-        let value = f64.tryParse(digits) ?? fail .syntax(message: "invalid number", offset: start, line: line, column: columnAt(start))
+        let value = f64.tryParse(digits)
+            ?? fail .syntax(message: "invalid number", offset: start, line: line, column: columnAt(start))
         finishValue()
         return .number(value: value, text: digits)
     }
@@ -477,15 +568,25 @@ public struct JsonReader {
         var escaped = false
         var run = pos
         while true {
-            fail .syntax(message: "unterminated string", offset: start, line: line, column: columnAt(start)) if pos >= text.length
+            fail .syntax(
+                message: "unterminated string",
+                offset: start,
+                line: line,
+                column: columnAt(start),
+            ) if pos >= text.length
             let b = text.bytes[pos]
             if b == '"' {
                 pos += 1
-                if !escaped { return text[run..pos - 1] }
+                return text[run..pos - 1] if !escaped
                 sb.append(text[run..pos - 1])
                 return $"{sb.finish()}"
             }
-            fail .syntax(message: "control character in a string", offset: pos, line: line, column: columnAt(pos)) if b < 0x20
+            fail .syntax(
+                message: "control character in a string",
+                offset: pos,
+                line: line,
+                column: columnAt(pos),
+            ) if b < 0x20
             if b != '\\' {
                 pos += 1
                 continue
@@ -516,14 +617,25 @@ public struct JsonReader {
             } else if e == 'u' {
                 pos += 1
                 var cp = try hex4(escapeAt: at)
-                if cp >= 0xD800 && cp <= 0xDBFF {
-                    fail .syntax(message: "lone surrogate", offset: at, line: line, column: columnAt(at)) if !text[pos..].startsWith("\\u")
+                if cp is 0xD800..=0xDBFF {
+                    fail .syntax(
+                        message: "lone surrogate",
+                        offset: at,
+                        line: line,
+                        column: columnAt(at),
+                    ) if !text[pos..].startsWith("\\u")
                     let second = pos
                     pos += 2
                     let low = try hex4(escapeAt: second)
-                    fail .syntax(message: "lone surrogate", offset: at, line: line, column: columnAt(at)) if low < 0xDC00 || low > 0xDFFF
+                    fail .syntax(
+                        message: "lone surrogate",
+                        offset: at,
+                        line: line,
+                        column: columnAt(at),
+                    ) if low is < 0xDC00
+                        or > 0xDFFF
                     cp = 0x10000 + (cp - 0xD800) * 0x400 + (low - 0xDC00)
-                } else if cp >= 0xDC00 && cp <= 0xDFFF {
+                } else if cp is 0xDC00..=0xDFFF {
                     fail .syntax(message: "lone surrogate", offset: at, line: line, column: columnAt(at))
                 }
                 sb.append($"{rune(cp)}")
@@ -574,7 +686,7 @@ public union JsonValue {
 
 /// One `key: value` of an object.
 public struct JsonMember {
-    public string key
+    public string    key
     public JsonValue value
 }
 
@@ -608,7 +720,7 @@ JsonValue treeOf(ref JsonReader reader, from JsonToken first) uses alloc fails J
             var items = List<JsonValue>()
             while true {
                 let token = (try reader.next()) ?? panic("std.json: a reader gives a token before its end")
-                if token is .endList { return .list(items: move items) }
+                return .list(items: move items) if token is .endList
                 items.append(try treeOf(ref reader, from: token))
             }
         case .startObject:
@@ -689,12 +801,14 @@ bool isNumberText(string text) uses alloc {
 
 /// Before an item: `, ` (compact) or `,` and a new line (indented); the first item has no comma.
 void separate(ref StrBuf sb, by i64 indent, at i64 level, bool first) {
-    if !first { sb.append(indent > 0 ? "," : ", ") }
+    if !first {
+        sb.append(indent > 0 ? "," : ", ")
+    }
     newline(ref sb, by: indent, at: level)
 }
 
 void newline(ref StrBuf sb, by i64 indent, at i64 level) {
-    if indent <= 0 { return }
+    return if indent <= 0
     sb.append("\n")
     sb.appendRepeated(' ', by: indent * level)
 }
@@ -719,7 +833,7 @@ void quoteInto(ref StrBuf sb, from string s) {
             sb.append("\\b")
         } else if cp == 0xC {
             sb.append("\\f")
-        } else if cp >= 0x20 && cp <= 0x7E {
+        } else if cp is 0x20..=0x7E {
             sb.append($"{r}")
         } else if cp > 0xFFFF {
             let v = cp - 0x10000

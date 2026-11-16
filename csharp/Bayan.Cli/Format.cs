@@ -14,7 +14,7 @@ namespace Bayan.Cli;
 internal static class Format
 {
     /// <summary>The input-form codes whose fix the formatter applies.</summary>
-    private static readonly HashSet<string> InputForms = new(StringComparer.Ordinal)
+    internal static readonly HashSet<string> InputForms = new(StringComparer.Ordinal)
     {
         "BYN1007", "BYN1017", "BYN1018", "BYN1019", "BYN1020", "BYN1021", "BYN1022", "BYN1023", "BYN1025",
         "BYN1028", "BYN1029", "BYN1031", "BYN1033",
@@ -33,10 +33,13 @@ internal static class Format
     private static readonly Dictionary<string, string> SizedPrimitives =
         CSharpPrimitives.ToDictionary(p => p.Value, p => p.Key, StringComparer.Ordinal);
 
-    internal static int MaxPasses = 10;
+    /// <summary>Test-only override, per thread: a <c>[ThreadStatic]</c> initializer would run on the first thread only.</summary>
+    [ThreadStatic] private static int? maxPassesOverride;
+
+    internal static int MaxPasses { get => maxPassesOverride ?? 10; set => maxPassesOverride = value; }
 
     /// <summary>Test-only: replaces each pass's rewrite, to force one that does not parse.</summary>
-    internal static Func<byte[], byte[]>? RewriteHook;
+    [ThreadStatic] internal static Func<byte[], byte[]>? RewriteHook;
 
     public static int Run(string[] args, TextWriter stdout, TextWriter stderr)
     {
@@ -81,7 +84,12 @@ internal static class Format
                 // Read and write the file the kernel opens, not the one a lexical `..` collapse names.
                 var real = RealPath(file);
                 var original = File.ReadAllBytes(real);
-                var formatted = FormatFile(file, original, booleans, primitives, declared, stderr, out var unfixable);
+                var layout = new LayoutOptions(
+                    Indent: manifest?.Indent ?? 4,
+                    Width: manifest?.Width ?? 120,
+                    AlignRuns: (manifest?.Align ?? AlignStyle.Runs) == AlignStyle.Runs,
+                    TrailingCommasMultiline: (manifest?.TrailingCommas ?? TrailingCommaStyle.Multiline) == TrailingCommaStyle.Multiline);
+                var formatted = FormatFile(file, original, booleans, primitives, declared, stderr, out var unfixable, layout);
                 if (formatted is null) exit = CliApp.ExitFailure;
                 else
                 {
@@ -285,7 +293,7 @@ internal static class Format
     /// <see cref="RealPath"/>, gives it the original's Unix mode, then renames it over the original; a symlink to it
     /// stays a symlink.
     /// </summary>
-    private static void WriteReplacing(string file, byte[] bytes)
+    internal static void WriteReplacing(string file, byte[] bytes)
     {
         var temp = Path.Combine(Path.GetDirectoryName(file)!, Path.GetRandomFileName() + ".tmp");
         try
@@ -302,13 +310,18 @@ internal static class Format
     }
 
     /// <summary>The bytes with each distinct fix applied in order; a fix overlapping an earlier one is skipped.</summary>
-    internal static byte[] ApplyFixes(byte[] bytes, IEnumerable<Fix> fixes)
+    internal static byte[] ApplyFixes(byte[] bytes, IEnumerable<Fix> fixes) => ApplyFixes(bytes, fixes, out _);
+
+    /// <summary>As <see cref="ApplyFixes(byte[], IEnumerable{Fix})"/>, counting the fixes <paramref name="applied"/>.</summary>
+    internal static byte[] ApplyFixes(byte[] bytes, IEnumerable<Fix> fixes, out int applied)
     {
         var result = new List<byte>(bytes.Length);
         var at = 0;
+        applied = 0;
         foreach (var fix in fixes.Distinct().OrderBy(f => f.Span.Start))
         {
             if (fix.Span.Start < at) continue;
+            applied++;
             result.AddRange(bytes.AsSpan(at, fix.Span.Start - at));
             result.AddRange(System.Text.Encoding.UTF8.GetBytes(fix.Replacement));
             at = fix.Span.End;
@@ -318,11 +331,11 @@ internal static class Format
     }
 
     /// <summary>
-    /// The file's bytes with every input-form fix applied, then the project's spellings; null after reporting a
+    /// The file's bytes with every input-form fix applied, then the project's spellings, then the layout; null after reporting a
     /// blocking error. An input-form diagnostic left with no fix is reported and sets <paramref name="unfixable"/>.
     /// </summary>
-    private static byte[]? FormatFile(string file, byte[] bytes, BooleanStyle booleans, PrimitiveStyle primitives,
-        IReadOnlySet<string> declared, TextWriter stderr, out bool unfixable)
+    internal static byte[]? FormatFile(string file, byte[] bytes, BooleanStyle booleans, PrimitiveStyle primitives,
+        IReadOnlySet<string> declared, TextWriter stderr, out bool unfixable, LayoutOptions? layout = null)
     {
         unfixable = false;
         var converged = false;
@@ -340,6 +353,12 @@ internal static class Format
             }
             var fixes = tree.Diagnostics.Where(d => Applies(d) && d.Fix is not null).Concat(tree.Lints).Select(d => d.Fix!).ToList();
             var next = fixes.Count > 0 ? ApplyFixes(bytes, fixes) : Restyle(file, bytes, tree, booleans, primitives, declared);
+            if (fixes.Count == 0 && next.AsSpan().SequenceEqual(bytes))
+            {
+                var (laidOut, skipped) = Layout.Apply(bytes, layout ?? new LayoutOptions());
+                if (skipped is not null) stderr.WriteLine(Messages.FormatLayoutSkipped.Text(file, skipped));
+                next = laidOut;
+            }
             if (RewriteHook is not null) next = RewriteHook(next);
             if (next.AsSpan().SequenceEqual(bytes))
             {
@@ -461,7 +480,7 @@ internal static class Format
     }
 
     /// <summary>The tree's dump and its diagnostic codes, which a respelling must leave unchanged.</summary>
-    private static string Shape(SyntaxTree tree)
+    internal static string Shape(SyntaxTree tree)
     {
         var dump = AstDump.Dump(tree);
         var diagnostics = tree.Diagnostics.Count > 0 ? "\n" + DiagnosticRenderer.RenderAll(tree.Diagnostics) : "";

@@ -2,6 +2,7 @@ using Bayan.Semantics.Binding;
 using Bayan.Semantics.Symbols;
 using Bayan.Syntax.Ast;
 using Bayan.Syntax.Diagnostics;
+using Bayan.Syntax.Packages;
 using Bayan.Syntax.Parsing;
 using Bayan.Syntax.Text;
 
@@ -62,6 +63,72 @@ public sealed partial class Compilation
     public CompilationOptions Options { get; }
 
     public DiagnosticBag Diagnostics { get; } = new();
+
+    /// <summary>The style lints (BYN1072–BYN1076) of every file, kept out of <see cref="Diagnostics"/>: only <c>bayan check</c> reports them.</summary>
+    public List<Diagnostic> StyleLints { get; } = [];
+
+    private static readonly Dictionary<string, string> StyleLintNames = new(StringComparer.Ordinal)
+    {
+        ["BYN1072"] = "guards.postfix",
+        ["BYN1073"] = "lambdas.it",
+        ["BYN1074"] = "conditions.named",
+        ["BYN1075"] = "nesting.depth",
+        ["BYN1076"] = "functions.length",
+        ["BYN1077"] = "sections.banner",
+        ["BYN1078"] = "conditions.patterns",
+        ["BYN1079"] = "literals.empty",
+        ["BYN1080"] = "optionals.bind",
+    };
+
+    /// <summary>The style lints that wait on how their operand binds, and each operand's bindings.</summary>
+    private readonly List<TypedLint> _typedLints = [];
+    private readonly Dictionary<Expr, List<BoundExpr>> _lintOperands = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>Records a binding of <paramref name="e"/> if a typed style lint waits on it.</summary>
+    internal void NoteLintOperand(Expr e, BoundExpr bound)
+    {
+        if (_lintOperands.TryGetValue(e, out var bounds)) bounds.Add(bound);
+    }
+
+    /// <summary>Adds each typed style lint whose operand bound, every time, as its check asks; else its fallback.</summary>
+    private void ConfirmTypedLints()
+    {
+        foreach (var t in _typedLints)
+        {
+            var bounds = _lintOperands[t.Operand];
+            if (bounds.Count > 0 && bounds.All(b => Passes(b, t.Check))) StyleLints.Add(t.Lint);
+            else if (t.Otherwise is { } otherwise) StyleLints.Add(otherwise);
+        }
+    }
+
+    private static bool Passes(BoundExpr b, TypedLintCheck check) => check switch
+    {
+        TypedLintCheck.PatternInteger => b is not BoundConversion && b.Type.IsInteger,
+        TypedLintCheck.PatternRune => b is not BoundConversion && b.Type == PrimitiveType.Char,
+        TypedLintCheck.PatternString => b is not BoundConversion && b.Type.IsString,
+        TypedLintCheck.PatternEnum => b is not BoundConversion && b.Type is EnumSymbol { Fields.Count: 0 },
+        TypedLintCheck.NarrowableLocal => b is BoundLocal { Local: { Type: OptionalType } l }
+            && (l.Kind == LocalKind.Let || l is ParameterSymbol { Modifier: ParamModifier.None or ParamModifier.In }),
+        _ => false,
+    };
+
+    /// <summary>The style lints at the severity of <paramref name="manifest"/>'s <c>lints</c> (the defaults without one): <c>.none</c> drops a lint, <c>.suggestion</c> is a note.</summary>
+    public List<Diagnostic> StyleLintsAt(Manifest? manifest)
+    {
+        var lints = new List<Diagnostic>();
+        foreach (var d in StyleLints)
+        {
+            var name = StyleLintNames[d.Code];
+            var severity = manifest is not null ? manifest.Lints[name] : name == "functions.length" ? LintSeverity.None : LintSeverity.Suggestion;
+            switch (severity)
+            {
+                case LintSeverity.Suggestion: lints.Add(d with { Severity = Severity.Note }); break;
+                case LintSeverity.Warning: lints.Add(d with { Severity = Severity.Warning }); break;
+                case LintSeverity.Error: lints.Add(d with { Severity = Severity.Error }); break;
+            }
+        }
+        return lints;
+    }
 
     /// <summary>Every module, dependencies before dependents.</summary>
     public List<ModuleSymbol> Modules { get; } = new();
@@ -147,6 +214,7 @@ public sealed partial class Compilation
         clock.Restart();
         c.Declare();
         c.BindAll();
+        c.ConfirmTypedLints();
         // Each case binds and checks the same body; report what it finds there once.
         if (c._testCases.Count > 0) c.Diagnostics.RemoveRepeats();
         c.CheckTime = clock.Elapsed;
@@ -171,6 +239,15 @@ public sealed partial class Compilation
             var tree = SyntaxTree.Parse(source);
             Diagnostics.AddRange(tree.Diagnostics);
             Diagnostics.AddRange(tree.Lints);
+            if (!dir.StartsWith("<std>/", StringComparison.Ordinal))
+            {
+                StyleLints.AddRange(tree.StyleLints);
+                foreach (var t in tree.TypedLints)
+                {
+                    _typedLints.Add(t);
+                    _lintOperands.TryAdd(t.Operand, []);
+                }
+            }
             module.Files.Add(new FileContext(module, tree));
         }
         foreach (var file in module.Files.Where(f => !f.Tree.Diagnostics.Any(d => d.IsError)))

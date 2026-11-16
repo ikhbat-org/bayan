@@ -25,9 +25,9 @@ string encodeErrorOf(JsonValue v) uses alloc {
 
 /// `e` as `kind message @offset line:column`, or its kind alone when it has no position.
 string describe(JsonError e) uses alloc => e switch {
-    .syntax s => $"syntax {s.message} @{s.offset} {s.line}:{s.column}",
-    .tooDeep d => $"tooDeep @{d.offset} {d.line}:{d.column}",
-    .nonFinite => "nonFinite",
+    .syntax s      => $"syntax {s.message} @{s.offset} {s.line}:{s.column}",
+    .tooDeep d     => $"tooDeep @{d.offset} {d.line}:{d.column}",
+    .nonFinite     => "nonFinite",
     .nestedTooDeep => "nestedTooDeep",
 }
 
@@ -49,15 +49,15 @@ string tokensOf(string text) uses alloc fails JsonError {
     while true {
         let token = (try reader.next()) ?? break
         let word = token switch {
-            .startObject => "{",
-            .endObject => "}",
-            .startList => "[",
-            .endList => "]",
-            .key(let name) => $"key:{name}",
+            .startObject     => "{",
+            .endObject       => "}",
+            .startList       => "[",
+            .endList         => "]",
+            .key(let name)   => $"key:{name}",
             .text(let value) => $"text:{value}",
             .number(let value, let digits) => $"number:{value}/{digits}",
             .flag(let value) => $"flag:{value}",
-            .nothing => "null",
+            .nothing         => "null",
         }
         sb.append($"{word} ")
     }
@@ -98,28 +98,62 @@ string tokensOf(string text) uses alloc fails JsonError {
     ("{\"a\": 1, \"b\": [1, 2]}", 0, "{\"a\": 1, \"b\": [1, 2]}"),
     ("{\"a\": 1, \"b\": [1, 2]}", 2, "{\n  \"a\": 1,\n  \"b\": [\n    1,\n    2\n  ]\n}"),
     ("{\"a\": 1, \"b\": [1, 2]}", 4, "{\n    \"a\": 1,\n    \"b\": [\n        1,\n        2\n    ]\n}"),
-    ("{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}", 0, "{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}"),
-    ("{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}", 2, "{\n  \"a\": {\n    \"b\": {\n      \"c\": []\n    }\n  },\n  \"d\": [\n    {},\n    [],\n    [\n      null,\n      true,\n      false\n    ]\n  ],\n  \"e\": \"x\"\n}"),
-    ("{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}", 4, "{\n    \"a\": {\n        \"b\": {\n            \"c\": []\n        }\n    },\n    \"d\": [\n        {},\n        [],\n        [\n            null,\n            true,\n            false\n        ]\n    ],\n    \"e\": \"x\"\n}"),
+    (
+        "{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}",
+        0,
+        "{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}"
+    ),
+    (
+        "{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}",
+        2,
+        "{\n  \"a\": {\n    \"b\": {\n      \"c\": []\n    }\n  },\n  \"d\": [\n    {},\n    [],\n    [\n      null,\n      true,\n      false\n    ]\n  ],\n  \"e\": \"x\"\n}"
+    ),
+    (
+        "{\"a\": {\"b\": {\"c\": []}}, \"d\": [{}, [], [null, true, false]], \"e\": \"x\"}",
+        4,
+        "{\n    \"a\": {\n        \"b\": {\n            \"c\": []\n        }\n    },\n    \"d\": [\n        {},\n        [],\n        [\n            null,\n            true,\n            false\n        ]\n    ],\n    \"e\": \"x\"\n}"
+    ),
     (" \t\r\n [ 1 , { \"x\" : \"y\" } ] \n", 0, "[1, {\"x\": \"y\"}]"),
     (" \t\r\n [ 1 , { \"x\" : \"y\" } ] \n", 2, "[\n  1,\n  {\n    \"x\": \"y\"\n  }\n]"),
     (" \t\r\n [ 1 , { \"x\" : \"y\" } ] \n", 4, "[\n    1,\n    {\n        \"x\": \"y\"\n    }\n]"),
-    ("\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"", 0, "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""),
-    ("\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"", 2, "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""),
-    ("\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"", 4, "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""),
+    (
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"",
+        0,
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""
+    ),
+    (
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"",
+        2,
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""
+    ),
+    (
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\\\/\\b\\f\\r\\t \\u001f \\u007f\"",
+        4,
+        "\"\\u00e9 \\ud83d\\ude00 \\n\\\"\\\\/\\b\\f\\r\\t \\u001f \\u007f\""
+    ),
     ("\"café 中 😀\"", 0, "\"caf\\u00e9 \\u4e2d \\ud83d\\ude00\""),
     ("\"café 中 😀\"", 2, "\"caf\\u00e9 \\u4e2d \\ud83d\\ude00\""),
     ("\"café 中 😀\"", 4, "\"caf\\u00e9 \\u4e2d \\ud83d\\ude00\""),
     ("[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]", 0, "[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]"),
-    ("[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]", 2, "[\n  0,\n  10,\n  -3.25,\n  0.5,\n  2.0,\n  1e+21,\n  -1.5e-07\n]"),
-    ("[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]", 4, "[\n    0,\n    10,\n    -3.25,\n    0.5,\n    2.0,\n    1e+21,\n    -1.5e-07\n]")
+    (
+        "[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]",
+        2,
+        "[\n  0,\n  10,\n  -3.25,\n  0.5,\n  2.0,\n  1e+21,\n  -1.5e-07\n]"
+    ),
+    (
+        "[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]",
+        4,
+        "[\n    0,\n    10,\n    -3.25,\n    0.5,\n    2.0,\n    1e+21,\n    -1.5e-07\n]"
+    ),
 )
 test "parse then encode is json.dumps" (string input, i32 indent, string expected) {
     assert (try Json.encode(try tree(input), indent: indent)) == expected
 }
 
 test "the reader gives every token kind, then null" {
-    assert (try tokensOf("{\"a\": [1.5e1, true, false, null, \"x\", {}]}")) =="{ key:a [ number:15/1.5e1 flag:true flag:false null text:x { } ] } "
+    assert (
+        try tokensOf("{\"a\": [1.5e1, true, false, null, \"x\", {}]}")
+    ) == "{ key:a [ number:15/1.5e1 flag:true flag:false null text:x { } ] } "
 }
 
 test "next stays null after the end" {
@@ -153,7 +187,9 @@ test "encode writes a built tree as json.dumps does" {
     members.append(JsonMember { key: "ok", value: .nothing })
     let v = JsonValue.object(members: move members)
     assert (try Json.encode(v)) == "{\"name\": \"Bay\\u0101n\", \"tags\": [], \"meta\": {}, \"n\": 3, \"ok\": null}"
-    assert (try Json.encode(v, indent: 2)) == "{\n  \"name\": \"Bay\\u0101n\",\n  \"tags\": [],\n  \"meta\": {},\n  \"n\": 3,\n  \"ok\": null\n}"
+    assert (
+        try Json.encode(v, indent: 2)
+    ) == "{\n  \"name\": \"Bay\\u0101n\",\n  \"tags\": [],\n  \"meta\": {},\n  \"n\": 3,\n  \"ok\": null\n}"
 }
 
 test "encode writes a built number's text only when it is a JSON number" {
@@ -234,8 +270,12 @@ test "line and column are reported past one line" {
 }
 
 test "line and column hold values past i32" {
-    assert describe(JsonError.syntax(message: "m", offset: 0, line: 3000000000, column: 4000000000)) == "syntax m @0 3000000000:4000000000"
-    assert describe(JsonError.tooDeep(offset: 0, line: 3000000000, column: 4000000000)) == "tooDeep @0 3000000000:4000000000"
+    assert describe(
+        JsonError.syntax(message: "m", offset: 0, line: 3000000000, column: 4000000000),
+    ) == "syntax m @0 3000000000:4000000000"
+    assert describe(
+        JsonError.tooDeep(offset: 0, line: 3000000000, column: 4000000000),
+    ) == "tooDeep @0 3000000000:4000000000"
 }
 
 test "nesting past 128 levels is tooDeep" {

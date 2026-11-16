@@ -5,11 +5,11 @@
 
 import semantics
 
-const exitOk: i32 = 0
-const exitFailure: i32 = 1
-const exitUsage: i32 = 2
+const exitOk: i32          = 0
+const exitFailure: i32     = 1
+const exitUsage: i32       = 2
 const exitTestFailure: i32 = 3
-const exitToolchain: i32 = 4
+const exitToolchain: i32   = 4
 
 /// Toolchain.CompilerVersion (Toolchain.cs:33).
 const version: string = "0.3.2-dev"
@@ -43,6 +43,8 @@ commands:
   cache stats          show the shared build cache's location and size
   format <path>        rewrite input forms (those with a fix-it) in a `.byn` file or a directory of them,
                        and booleans and primitives to `style` in `package.byn` [--check: list, don't write]
+  fix [<path>…]        apply every style lint's fix (whatever its severity in `lints`) to `.byn` files
+                       or directories of them (default: the current directory); does not format
   audit <path>         list every `because` bypass and `unsafe` or `extern` declaration, with its reason
   features --used <path>
                        print the syntax node kinds, builtins and diagnostics a build touched, as JSON
@@ -84,7 +86,9 @@ string versionLine() => $"bayan {version} (selfhost)"
 /// CliApp.cs:37 `Run`.
 i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
     var kept = List<string>()
-    unless takeGlobalOptions(args, to: ref kept, through: ref d) { return exitUsage }
+    unless takeGlobalOptions(args, to: ref kept, through: ref d) {
+        return exitUsage
+    }
     // no-builtin: Q1117 the `Terminal` of CliApp.cs:27 is what `Run(args, stdout, stderr)` gives: neither stream a tty, width 0
     d.styleOut = decideStyle(d.color, by: d.ascii, through: false, for: 0)
     d.styleErr = decideStyle(d.color, by: d.ascii, through: false, for: 0)
@@ -112,6 +116,8 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
             return typesCommand(in kept, by: in d)
         case "format":
             return formatCommand(in kept, by: in d)
+        case "fix":
+            return fixCommand(in kept, by: in d)
         case "audit":
             return auditCommand(in kept, by: in d)
         case "features":
@@ -146,11 +152,15 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
                 var script = List<string>()
                 script.append(command)
                 script.append("--")
-                for a in t2Rest(kept) { script.append(a) }
+                for a in t2Rest(kept) {
+                    script.append(a)
+                }
                 return runProgram(in script, by: ref d)
             }
             Io.stderr.write($"bayan: unknown command `{command}`\n")
-            if command == "fmt" { Io.stderr.write("the formatter is `bayan format`\n") }
+            if command == "fmt" {
+                Io.stderr.write("the formatter is `bayan format`\n")
+            }
             Io.stderr.write($"{usageText}\n")
             return exitUsage
     }
@@ -165,11 +175,16 @@ bool takeGlobalOptions(ReadOnlySpan<string> args, to ref List<string> kept, thro
     while i < args.length {
         var value: string? = null
         // A script's arguments are its own (`bayan --ascii tool.byn --color never`).
-        if args[i] == "--" || (!command && !args[i].startsWith("-") && args[i].endsWith(".byn") && t1FileExists(args[i])) {
-            for k in i..args.length { kept.append(args[k]) }
+        if args[i] == "--"
+                || (!command && !args[i].startsWith("-") && args[i].endsWith(".byn") && t1FileExists(args[i])) {
+            for k in i..args.length {
+                kept.append(args[k])
+            }
             break
         }
-        if !args[i].startsWith("-") { command = true }
+        if !args[i].startsWith("-") {
+            command = true
+        }
         if args[i] == "--ascii" {
             d.ascii = true
             i += 1
@@ -222,18 +237,23 @@ DStyle decideStyle(string colorFlag, by bool ascii, through bool isTty, for i64 
     var palette: i64 = 0
     if color {
         let term = Env.get("COLORTERM") ?? ""
-        if term == "truecolor" || term == "24bit" {
+        if term is "truecolor" or "24bit" {
             palette = t7Light() ? 1 : 2
         }
     }
-    return DStyle { color: color, ascii: ascii || dumb || !t7Utf8(), width: isTty && width > 0 ? width : 100, palette: palette }
+    return DStyle {
+        color: color,
+        ascii: ascii || dumb || !t7Utf8(),
+        width: isTty && width > 0 ? width : 100,
+        palette: palette,
+    }
 }
 
 /// TerminalStyle.cs:59 `Light`: `BAYAN_THEME`, else the background field of `COLORFGBG` (digits only, 7 or 9 to 15), else dark.
 bool t7Light() uses alloc, env {
     let theme = Env.get("BAYAN_THEME") ?? ""
-    if theme == "light" { return true }
-    if theme == "dark" { return false }
+    return true if theme == "light"
+    return false if theme == "dark"
     let fgbg = Env.get("COLORFGBG") ?? ""
     // digits after the last `;`; `int.TryParse` with `NumberStyles.None` rejects an empty, non-digit or out-of-range (above int.MaxValue) field
     var bg: i64 = 0
@@ -244,7 +264,7 @@ bool t7Light() uses alloc, env {
             bg = 0
             digits = 0
             bad = false
-        } else if c >= 0x30 && c <= 0x39 {
+        } else if c is 0x30..=0x39 {
             bg = bg * 10 + i64(c) - 0x30
             digits += 1
             if bg > 2147483647 {
@@ -255,8 +275,8 @@ bool t7Light() uses alloc, env {
             bad = true
         }
     }
-    if bad || digits == 0 { return false }
-    return bg == 7 || (bg >= 9 && bg <= 15)
+    return false if bad || digits == 0
+    return bg is 7 or 9..=15
 }
 
 /// `Palette.Prefix` (Style.cs:34) of the roles `error`, `warning`, `help`, `success`, `note` as 0 to 4, for `palette` (0 `Ansi16`, 1 `TruecolorLight`, 2 `TruecolorDark`); the hex rows are `Palette.Hex`.
@@ -266,10 +286,22 @@ string t7Prefix(by i64 palette, for i64 role) uses alloc {
         return rows[role]
     }
     if palette == 1 {
-        let rows = ["\u{1b}[38;2;180;35;24m", "\u{1b}[38;2;138;83;0m", "\u{1b}[38;2;31;58;95m", "\u{1b}[38;2;47;107;31m", "\u{1b}[38;2;95;94;90m"]
+        let rows = [
+            "\u{1b}[38;2;180;35;24m",
+            "\u{1b}[38;2;138;83;0m",
+            "\u{1b}[38;2;31;58;95m",
+            "\u{1b}[38;2;47;107;31m",
+            "\u{1b}[38;2;95;94;90m",
+        ]
         return rows[role]
     }
-    let rows = ["\u{1b}[38;2;255;138;128m", "\u{1b}[38;2;242;193;78m", "\u{1b}[38;2;141;184;242m", "\u{1b}[38;2;143;214;148m", "\u{1b}[38;2;180;178;169m"]
+    let rows = [
+        "\u{1b}[38;2;255;138;128m",
+        "\u{1b}[38;2;242;193;78m",
+        "\u{1b}[38;2;141;184;242m",
+        "\u{1b}[38;2;143;214;148m",
+        "\u{1b}[38;2;180;178;169m",
+    ]
     return rows[role]
 }
 
@@ -283,7 +315,7 @@ bool t7Utf8() uses alloc, env {
     let names = ["LC_ALL", "LC_CTYPE", "LANG"]
     for name in names {
         let locale = Env.get(name) ?? ""
-        if locale.length == 0 { continue }
+        continue if locale.length == 0
         return locale.lowercased().contains("utf-8") || locale.lowercased().contains("utf8")
     }
     return true
@@ -304,7 +336,9 @@ bool t1FileExists(string path) {
 
 /// CliApp.cs:375 `IsScript`: a file whose first two bytes are `#!`. A copy of `semantics/cli.byn` `t26IsScript` (private there); T28 merges copies.
 bool t1IsScript(string path) {
-    unless t1FileExists(path) { return false }
+    unless t1FileExists(path) {
+        return false
+    }
     // coverage-exempt: Q918 the catch is reached only if the file changes between the reads at :219 and :229 (a race no test can stage); the C# has no such branch
     let bytes = Io.readFile(path) catch return false
     return bytes.length >= 2 && bytes[0] == 0x23 && bytes[1] == 0x21
@@ -312,8 +346,12 @@ bool t1IsScript(string path) {
 
 /// CliApp.cs:384 `RefuseLibrary`: a library has nothing to build or run; `command` is the refused verb (`build`, `run`).
 bool refuseLibrary(semantics.Ctx compiled, by string command) {
-    unless compiled.library { return false }
-    Io.stderr.write($"bayan: `{compiled.packageName}` is a library, so there is no program to {command}; `bayan test` runs its tests\n")
+    unless compiled.library {
+        return false
+    }
+    Io.stderr.write(
+        $"bayan: `{compiled.packageName}` is a library, so there is no program to {command}; `bayan test` runs its tests\n",
+    )
     return true
 }
 

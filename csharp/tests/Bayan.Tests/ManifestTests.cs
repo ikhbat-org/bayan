@@ -125,6 +125,65 @@ public sealed class ManifestTests
         Assert.Equal("BYN3102", d.Code);
     }
 
+    private static Manifest ParseStyle(string style) =>
+        Manifest.Parse(new Bayan.Syntax.Text.SourceText("package.byn",
+            System.Text.Encoding.UTF8.GetBytes($"Package {{ name: \"local/t\", version: \"0.1.0\", style: Style {{ {style} }} }}")));
+
+    [Fact]
+    public void StyleKnobsDefaultWhenAbsent()
+    {
+        var m = ParseStyle("booleans: .words");
+        Assert.Empty(m.Diagnostics);
+        Assert.Equal(4, m.Indent);
+        Assert.Equal(120, m.Width);
+        Assert.Equal(AlignStyle.Runs, m.Align);
+        Assert.Equal(TrailingCommaStyle.Multiline, m.TrailingCommas);
+        Assert.Equal(9, m.Lints.Count);
+        Assert.Equal(LintSeverity.None, m.Lints["functions.length"]);
+        foreach (var name in new[] { "guards.postfix", "lambdas.it", "nesting.depth", "conditions.named", "sections.banner", "conditions.patterns", "literals.empty", "optionals.bind" })
+            Assert.Equal(LintSeverity.Suggestion, m.Lints[name]);
+        Assert.Equal(4, Manifest.Parse(new Bayan.Syntax.Text.SourceText("package.byn",
+            System.Text.Encoding.UTF8.GetBytes("Package { name: \"local/t\", version: \"0.1.0\" }"))).Indent);
+    }
+
+    [Fact]
+    public void StyleKnobsParse()
+    {
+        var m = ParseStyle("indent: 2, width: 80, align: .none, trailingCommas: .never, lints: [\"guards.postfix\": .warning, \"functions.length\": .error, \"lambdas.it\": .none, \"nesting.depth\": .suggestion]");
+        Assert.Empty(m.Diagnostics);
+        Assert.Equal(2, m.Indent);
+        Assert.Equal(80, m.Width);
+        Assert.Equal(AlignStyle.None, m.Align);
+        Assert.Equal(TrailingCommaStyle.Never, m.TrailingCommas);
+        Assert.Equal(LintSeverity.Warning, m.Lints["guards.postfix"]);
+        Assert.Equal(LintSeverity.Error, m.Lints["functions.length"]);
+        Assert.Equal(LintSeverity.None, m.Lints["lambdas.it"]);
+        Assert.Equal(LintSeverity.Suggestion, m.Lints["nesting.depth"]);
+        Assert.Equal(LintSeverity.Suggestion, m.Lints["conditions.named"]);
+        var explicitRuns = ParseStyle("align: .runs, trailingCommas: .multiline, lints: []");
+        Assert.Empty(explicitRuns.Diagnostics);
+        Assert.Equal(AlignStyle.Runs, explicitRuns.Align);
+        Assert.Equal(TrailingCommaStyle.Multiline, explicitRuns.TrailingCommas);
+    }
+
+    [Theory]
+    [InlineData("braces: .sameLine", "`style.braces` must be removed: there is no brace knob, `{` always ends the line")]
+    [InlineData("maxLine: 100", "`style.maxLine` must be removed: use `style.width`")]
+    [InlineData("trailingCommas: true", "`style.trailingCommas` must be `.multiline` or `.never`, not `true` or `false`")]
+    [InlineData("trailingCommas: .always", "`style.trailingCommas` must be `.multiline` or `.never`")]
+    [InlineData("indent: 0", "`style.indent` must be a positive integer, e.g. `4`")]
+    [InlineData("width: \"80\"", "`style.width` must be a positive integer, e.g. `120`")]
+    [InlineData("align: .left", "`style.align` must be `.runs` or `.none`")]
+    [InlineData("lints: [\"guards.prefix\": .warning]", "`style.lints` must be a known lint name: `guards.postfix`, `lambdas.it`, `nesting.depth`, `functions.length`, `conditions.named`, `sections.banner`, `conditions.patterns`, `literals.empty`, `optionals.bind`")]
+    [InlineData("lints: [\"lambdas.it\": .loud]", "`style.lints` must be `.none`, `.suggestion`, `.warning` or `.error` for `lambdas.it`")]
+    [InlineData("lints: [\"lambdas.it\"]", "`style.lints` must be a map from a lint name to `.none`, `.suggestion`, `.warning` or `.error`, e.g. `[\"guards.postfix\": .warning]`")]
+    public void StyleRejects(string style, string message)
+    {
+        var d = Assert.Single(ParseStyle(style).Diagnostics);
+        Assert.Equal("BYN3102", d.Code);
+        Assert.Equal(message, d.Message);
+    }
+
     [Fact]
     public void NamesConvertBetweenKebabAndCamel()
     {

@@ -10,11 +10,11 @@ const powerAssertIndent: string = "       "
 /// is shown, none in `noneShown` is, and, when `anyFrom` is not -1, some column from that index on is (C#'s `When`,
 /// `Unless` and `AnyFrom`; `anyFrom` -1 is null).
 struct PowerAssertPiece {
-    string text
-    i64 value
+    string    text
+    i64       value
     List<i64> allShown
     List<i64> noneShown
-    i64 anyFrom
+    i64       anyFrom
 }
 
 /// One line of `Flatten`'s input with the blanks around its break cut off; `next` is where the next line starts, -1 for the last.
@@ -37,23 +37,32 @@ PowerAssertLine powerAssertLine(string text, at i64 start, by bool first) {
     var from = start
     var until = end
     if !first {
-        while from < until && (text.bytes[from] == 32 || text.bytes[from] == 9) { from += 1 }
+        while from < until && (text.bytes[from] is 32 or 9) {
+            from += 1
+        }
     }
     if next >= 0 {
-        while until > from && (text.bytes[until - 1] == 32 || text.bytes[until - 1] == 9 || text.bytes[until - 1] == 13) { until -= 1 }
+        while until > from
+                && (text.bytes[until - 1] == 32 || text.bytes[until - 1] == 9 || text.bytes[until - 1] == 13) {
+            until -= 1
+        }
     }
     return PowerAssertLine { from: from, until: until, next: next }
 }
 
 /// PowerAssert.cs:16 `Flatten`: source text on one line; each line break, with the blanks around it, becomes one space.
 string powerAssertFlatten(string text) uses alloc {
-    unless text.contains("\n") { return text }
+    unless text.contains("\n") {
+        return text
+    }
     var sb = StrBuf()
     var start: i64 = 0
     var first = true
     while start >= 0 {
         let line = powerAssertLine(text, at: start, by: first)
-        unless first { sb.append(" ") }
+        unless first {
+            sb.append(" ")
+        }
         sb.append(text[line.from..line.until])
         first = false
         start = line.next
@@ -63,13 +72,17 @@ string powerAssertFlatten(string text) uses alloc {
 
 /// PowerAssert.cs:29 `Column` (Q848): the rune count of `before` once flattened.
 public i64 powerAssertColumn(string before) {
-    unless before.contains("\n") { return before.runeCount }
+    unless before.contains("\n") {
+        return before.runeCount
+    }
     var count: i64 = 0
     var start: i64 = 0
     var first = true
     while start >= 0 {
         let line = powerAssertLine(before, at: start, by: first)
-        unless first { count += 1 }
+        unless first {
+            count += 1
+        }
         count += before[line.from..line.until].runeCount
         first = false
         start = line.next
@@ -79,10 +92,19 @@ public i64 powerAssertColumn(string before) {
 
 /// PowerAssert.cs:47 `Diagram`'s local `Add`: appends a piece, dropping an `anyFrom` past the last column, and an `anyFrom`
 /// that an always-shown column from there on satisfies, and the columns of `whens` that are always shown.
-void powerAssertAdd(List<i64> columns, by List<bool> always, to ref List<PowerAssertPiece> pieces, for string text, at i64 value, through List<i64> whens, from List<i64> unlesses, as i64 anyFrom) uses alloc {
+void powerAssertAdd(
+    List<i64> columns,
+    by List<bool> always,
+    to ref List<PowerAssertPiece> pieces,
+    for string text,
+    at i64 value,
+    through List<i64> whens,
+    from List<i64> unlesses,
+    as i64 anyFrom
+) uses alloc {
     var from = anyFrom
     if from != -1 {
-        if from >= columns.length { return }
+        return if from >= columns.length
         for j in from..columns.length {
             if always[j] {
                 from = -1
@@ -92,11 +114,17 @@ void powerAssertAdd(List<i64> columns, by List<bool> always, to ref List<PowerAs
     }
     var kept = List<i64>()
     for k in whens {
-        unless always[k] { kept.append(k) }
+        unless always[k] {
+            kept.append(k)
+        }
     }
     var noneShown = List<i64>()
-    for k in unlesses { noneShown.append(k) }
-    pieces.append(PowerAssertPiece { text: text, value: value, allShown: move kept, noneShown: move noneShown, anyFrom: from })
+    for k in unlesses {
+        noneShown.append(k)
+    }
+    pieces.append(
+        PowerAssertPiece { text: text, value: value, allShown: move kept, noneShown: move noneShown, anyFrom: from },
+    )
 }
 
 /// PowerAssert.cs:47 `Diagram`'s local `Gap`.
@@ -116,9 +144,27 @@ List<PowerAssertPiece> powerAssertDiagram(List<i64> columns, by List<bool> alway
     for k in 0..columns.length {
         var only = List<i64>()
         only.append(k)
-        powerAssertAdd(columns, by: always, to: ref pieces, for: $"{powerAssertGap(columns, at: k)}{powerAssertBar}", at: -1, through: only, from: none, as: -1)
+        powerAssertAdd(
+            columns,
+            by: always,
+            to: ref pieces,
+            for: $"{powerAssertGap(columns, at: k)}{powerAssertBar}",
+            at: -1,
+            through: only,
+            from: none,
+            as: -1,
+        )
         unless always[k] {
-            powerAssertAdd(columns, by: always, to: ref pieces, for: $"{powerAssertGap(columns, at: k)} ", at: -1, through: none, from: only, as: k + 1)
+            powerAssertAdd(
+                columns,
+                by: always,
+                to: ref pieces,
+                for: $"{powerAssertGap(columns, at: k)} ",
+                at: -1,
+                through: none,
+                from: only,
+                as: k + 1,
+            )
         }
     }
     var k = columns.length - 1
@@ -132,12 +178,39 @@ List<PowerAssertPiece> powerAssertDiagram(List<i64> columns, by List<bool> alway
             both.append(j)
             var left = List<i64>()
             left.append(j)
-            powerAssertAdd(columns, by: always, to: ref pieces, for: $"{powerAssertGap(columns, at: j)}{powerAssertBar}", at: -1, through: both, from: none, as: -1)
+            powerAssertAdd(
+                columns,
+                by: always,
+                to: ref pieces,
+                for: $"{powerAssertGap(columns, at: j)}{powerAssertBar}",
+                at: -1,
+                through: both,
+                from: none,
+                as: -1,
+            )
             unless always[j] {
-                powerAssertAdd(columns, by: always, to: ref pieces, for: $"{powerAssertGap(columns, at: j)} ", at: -1, through: only, from: left, as: -1)
+                powerAssertAdd(
+                    columns,
+                    by: always,
+                    to: ref pieces,
+                    for: $"{powerAssertGap(columns, at: j)} ",
+                    at: -1,
+                    through: only,
+                    from: left,
+                    as: -1,
+                )
             }
         }
-        powerAssertAdd(columns, by: always, to: ref pieces, for: powerAssertGap(columns, at: k), at: -1, through: only, from: none, as: -1)
+        powerAssertAdd(
+            columns,
+            by: always,
+            to: ref pieces,
+            for: powerAssertGap(columns, at: k),
+            at: -1,
+            through: only,
+            from: none,
+            as: -1,
+        )
         powerAssertAdd(columns, by: always, to: ref pieces, for: "", at: k, through: only, from: none, as: -1)
         k -= 1
     }

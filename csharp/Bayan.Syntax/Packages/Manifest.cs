@@ -15,6 +15,15 @@ public enum BooleanStyle { Symbols, Words }
 /// <summary><c>style.primitives</c>: <c>i32</c> or <c>int</c> (spec §3.1).</summary>
 public enum PrimitiveStyle { Sized, Csharp }
 
+/// <summary><c>style.align</c>: align name columns, <c>=&gt;</c> and trailing comments in runs, or not.</summary>
+public enum AlignStyle { Runs, None }
+
+/// <summary><c>style.trailingCommas</c>: a trailing comma in a wrapped list, or never.</summary>
+public enum TrailingCommaStyle { Multiline, Never }
+
+/// <summary>The severity of a style lint (<c>style.lints</c>).</summary>
+public enum LintSeverity { None, Suggestion, Warning, Error }
+
 /// <summary>
 /// <c>package.byn</c> (spec §19.2): data only. The grammar is <c>Type { field: value, … }</c>
 /// (<c>field = value</c> is still read) where a value is a string, an integer, <c>true</c>,
@@ -31,8 +40,25 @@ public sealed class Manifest
 
     private static readonly string[] DistFields = ["targets", "mode"];
 
-    /// <summary>Fields of <c>Style</c> (HANDOFF §18); <c>bayan format</c> reads <c>booleans</c> and <c>primitives</c>, the rest are checked only.</summary>
-    private static readonly string[] StyleFields = ["indent", "braces", "maxLine", "trailingCommas", "booleans", "primitives"];
+    /// <summary>Fields of <c>Style</c> (spec 022 R2); the old knobs <c>braces</c>, <c>maxLine</c> and a bool <c>trailingCommas</c> are errors that name the replacement.</summary>
+    private static readonly string[] StyleFields = ["indent", "width", "align", "trailingCommas", "booleans", "primitives", "lints"];
+
+    /// <summary>Old <c>Style</c> knobs: read so each gets its own error naming the replacement, but never listed as a field to use.</summary>
+    private static readonly string[] RemovedStyleFields = ["braces", "maxLine"];
+
+    /// <summary>The lints <c>style.lints</c> may name, with the severity each has when absent.</summary>
+    private static readonly (string Name, LintSeverity Default)[] LintNames =
+    [
+        ("guards.postfix", LintSeverity.Suggestion),
+        ("lambdas.it", LintSeverity.Suggestion),
+        ("nesting.depth", LintSeverity.Suggestion),
+        ("functions.length", LintSeverity.None),
+        ("conditions.named", LintSeverity.Suggestion),
+        ("sections.banner", LintSeverity.Suggestion),
+        ("conditions.patterns", LintSeverity.Suggestion),
+        ("literals.empty", LintSeverity.Suggestion),
+        ("optionals.bind", LintSeverity.Suggestion),
+    ];
 
     /// <summary>Fields of <c>Grammar</c>, the grammar checker's project dictionary (HANDOFF round 3 §12, J85).</summary>
     private static readonly string[] GrammarFields = ["verbs", "nouns", "adjectives", "collectives", "forms"];
@@ -76,6 +102,23 @@ public sealed class Manifest
 
     /// <summary><c>test.summary</c>: print the coverage summary after <c>bayan test</c>; <c>true</c> when absent.</summary>
     public bool Summary { get; private set; } = true;
+
+    /// <summary><c>style.indent</c>: spaces per block level; 4 when absent.</summary>
+    public int Indent { get; private set; } = 4;
+
+    /// <summary><c>style.width</c>: the column lists and chains wrap at; 120 when absent.</summary>
+    public int Width { get; private set; } = 120;
+
+    /// <summary><c>style.align</c>; <c>.runs</c> when absent.</summary>
+    public AlignStyle Align { get; private set; } = AlignStyle.Runs;
+
+    /// <summary><c>style.trailingCommas</c>; <c>.multiline</c> when absent.</summary>
+    public TrailingCommaStyle TrailingCommas { get; private set; } = TrailingCommaStyle.Multiline;
+
+    /// <summary><c>style.lints</c> with every lint present: the written severity, else its default.</summary>
+    public IReadOnlyDictionary<string, LintSeverity> Lints => _lints;
+
+    private readonly Dictionary<string, LintSeverity> _lints = LintNames.ToDictionary(l => l.Name, l => l.Default, StringComparer.Ordinal);
 
     /// <summary><c>style.booleans</c>; <c>.symbols</c> when absent.</summary>
     public BooleanStyle Booleans { get; private set; } = BooleanStyle.Symbols;
@@ -173,15 +216,66 @@ public sealed class Manifest
             }
             else
             {
-                var styleFields = Fields(st, StyleFields);
-                if (styleFields.TryGetValue("indent", out var indent) && indent is not IntValue { Value: > 0 })
-                    Invalid(indent, "style.indent", "a positive integer, e.g. `4`");
-                if (styleFields.TryGetValue("braces", out var braces) && braces is not EnumValue { Name: "sameLine" or "nextLine" })
-                    Invalid(braces, "style.braces", "`.sameLine` or `.nextLine`");
-                if (styleFields.TryGetValue("maxLine", out var maxLine) && maxLine is not IntValue { Value: > 0 })
-                    Invalid(maxLine, "style.maxLine", "a positive integer, e.g. `100`");
-                if (styleFields.TryGetValue("trailingCommas", out var trailingCommas) && trailingCommas is not BoolValue)
-                    Invalid(trailingCommas, "style.trailingCommas", "`true` or `false`");
+                var styleFields = Fields(st, StyleFields, RemovedStyleFields);
+                if (styleFields.TryGetValue("indent", out var indent))
+                {
+                    if (indent is IntValue { Value: > 0 and <= int.MaxValue } i) Indent = (int)i.Value;
+                    else Invalid(indent, "style.indent", "a positive integer, e.g. `4`");
+                }
+                if (styleFields.TryGetValue("width", out var width))
+                {
+                    if (width is IntValue { Value: > 0 and <= int.MaxValue } w) Width = (int)w.Value;
+                    else Invalid(width, "style.width", "a positive integer, e.g. `120`");
+                }
+                if (styleFields.TryGetValue("align", out var align))
+                {
+                    switch (align)
+                    {
+                        case EnumValue { Name: "runs" }: Align = AlignStyle.Runs; break;
+                        case EnumValue { Name: "none" }: Align = AlignStyle.None; break;
+                        default: Invalid(align, "style.align", "`.runs` or `.none`"); break;
+                    }
+                }
+                if (styleFields.TryGetValue("trailingCommas", out var trailingCommas))
+                {
+                    switch (trailingCommas)
+                    {
+                        case EnumValue { Name: "multiline" }: TrailingCommas = TrailingCommaStyle.Multiline; break;
+                        case EnumValue { Name: "never" }: TrailingCommas = TrailingCommaStyle.Never; break;
+                        case BoolValue: Invalid(trailingCommas, "style.trailingCommas", "`.multiline` or `.never`, not `true` or `false`"); break;
+                        default: Invalid(trailingCommas, "style.trailingCommas", "`.multiline` or `.never`"); break;
+                    }
+                }
+                if (styleFields.TryGetValue("braces", out var braces))
+                    Invalid(braces, "style.braces", "removed: there is no brace knob, `{` always ends the line");
+                if (styleFields.TryGetValue("maxLine", out var maxLine))
+                    Invalid(maxLine, "style.maxLine", "removed: use `style.width`");
+                if (styleFields.TryGetValue("lints", out var lints))
+                {
+                    const string lintsExpected = "a map from a lint name to `.none`, `.suggestion`, `.warning` or `.error`, e.g. `[\"guards.postfix\": .warning]`";
+                    if (lints is MapValue lintMap)
+                    {
+                        foreach (var (key, severity) in lintMap.Entries)
+                        {
+                            if (key is not StringValue { Value: var lint } || !_lints.ContainsKey(lint))
+                                Invalid(key, "style.lints", "a known lint name: " + string.Join(", ", LintNames.Select(l => $"`{l.Name}`")));
+                            else if (severity is EnumValue { Name: "none" } or EnumValue { Name: "suggestion" } or EnumValue { Name: "warning" } or EnumValue { Name: "error" })
+                                _lints[lint] = ((EnumValue)severity).Name switch
+                                {
+                                    "none" => LintSeverity.None,
+                                    "suggestion" => LintSeverity.Suggestion,
+                                    "warning" => LintSeverity.Warning,
+                                    _ => LintSeverity.Error,
+                                };
+                            else
+                                Invalid(severity, "style.lints", "`.none`, `.suggestion`, `.warning` or `.error` for `" + lint + "`");
+                        }
+                    }
+                    else if (lints is not ListValue { Items.Count: 0 })
+                    {
+                        Invalid(lints, "style.lints", lintsExpected);
+                    }
+                }
                 if (styleFields.TryGetValue("booleans", out var booleans))
                 {
                     switch (booleans)
@@ -252,12 +346,12 @@ public sealed class Manifest
         }
     }
 
-    private Dictionary<string, Value> Fields(ObjectValue obj, string[] known)
+    private Dictionary<string, Value> Fields(ObjectValue obj, string[] known, string[]? removed = null)
     {
         var fields = new Dictionary<string, Value>(StringComparer.Ordinal);
         foreach (var (name, span, value) in obj.Fields)
         {
-            if (!known.Contains(name))
+            if (!known.Contains(name) && removed?.Contains(name) != true)
                 Report(DiagnosticCodes.ManifestUnknownField, span, [name, obj.Type], help: "use one of the fields " + string.Join(", ", known.Select(k => $"`{k}`")));
             else if (!fields.TryAdd(name, value))
                 Report(DiagnosticCodes.ManifestNotData, span, [$"`{name}` only once"]);

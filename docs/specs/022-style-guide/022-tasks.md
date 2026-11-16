@@ -1,0 +1,147 @@
+# 022 — Tasks
+Status: in progress
+Release: 0.3.2
+Sources: ./022-plan.md
+Plan: ./022-plan.md
+
+Order:
+- **First wave, in parallel:** T1, T2, T4.
+- **After T2:** T3.
+- **After T4:** T5, then T6.
+- **After T6 and T1:** T7, which also needs T2.
+- **After T7:** T8 and T9, in parallel.
+- **After T8 and T9:** T10, then T11.
+
+Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is gated against this file, then lands into `feat/022-style-guide`. The landing bar is 0 HIGH / 0 MEDIUM.
+
+- [x] **T1 Style guide with Do/Don't.**
+  - Files: `docs/bayan-style.md`; `docs/diagnostics-allocated.txt` and `docs/DIAGNOSTICS.md` (regenerated), for `plan` rows BYN1072–BYN1076 so that `check.sh` accepts the doc's citations. T7 replaces those rows with descriptors.
+  - Covers: R1.
+  - Done when every layout rule of `docs/bayan-style-proposal.md` §3.1–§3.9 and every lint has a `### ` heading, one rule line, a `Do:` fenced `bayan` block and a `Don't:` fenced `bayan` block. C21 (`{` always ends the line, no knob) is stated as is, and the Version/Revisions header is kept. The Do block is exactly what the layout engine produces from the Don't block (4-space indent, width 120, `.runs`, `.multiline`), except for the naming rule (§3.9): no tool renames, so its rule line says it is a guideline the formatter does not change and the test skips it. A lint's Do block is the code the lint suggests.
+- [x] **T2 Manifest knobs (C#).**
+  - Files: `csharp/Bayan.Syntax/Packages/Manifest.cs`, `csharp/tests/Bayan.Tests/` manifest tests, `tests/cases/diag/` manifest cases.
+  - Covers: R2.
+  - Done when:
+    - `style` accepts exactly `indent`, `width`, `align` (`.runs`/`.none`), `trailingCommas` (`.multiline`/`.never`), `booleans`, `primitives` and `lints` (a map of string to `.none`/`.suggestion`/`.warning`/`.error`, with names from the five lints);
+    - the defaults are those of the spec;
+    - `braces`, `maxLine` and a bool `trailingCommas` are errors that name the replacement (`braces`: no knob, `{` always ends the line; `maxLine`: `width`; bool `trailingCommas`: `.multiline`/`.never`);
+    - an unknown lint name is an error;
+    - `Manifest` exposes the values;
+    - the existing `dotnet test` manifest and format tests pass, except the self-hosted manifest-agreement rows (`SelfhostSemanticsT10Tests.ManifestMatchesCSharp`, `SelfhostEmitterHarnessTests.ManifestErrorsAgree`), which T3 brings back to green: they compare against `src/semantics/manifest.byn`, which T2 does not touch.
+- [x] **T3 Manifest knobs (self-hosted).**
+  - Files: `src/semantics/manifest.byn` and its parity tests.
+  - Covers: R2.
+  - After: T2.
+  - Done when the self-hosted manifest check gives the same diagnostics as T2's C# on every T2 case and on the existing manifest corpus. Expected values come from the C#.
+- [x] **T4 Layout engine: hygiene, `@unformatted`, indentation, spacing, blank lines, safety net (C#).**
+  - Files: `csharp/Bayan.Cli/Layout.cs` (new), `csharp/Bayan.Cli/Format.cs` (the call in `FormatFile`), `csharp/tests/Bayan.Tests/LayoutTests.cs` (new).
+  - Covers: R3 (hygiene, indentation, spacing, blank lines, top-level blank lines), R4, R5.
+  - Done when:
+    - passes 1, 2 and 5–7 of the plan work;
+    - the safety net keeps the input on a token or diagnostic difference and prints the skip line;
+    - `LayoutTests` has a case per rule;
+    - an idempotence test passes, and so does a corpus test over `tests/cases/**/*.byn`, `src/**/*.byn` and `lib/**/*.byn` (format twice in memory: no skip, second pass unchanged, tokens equal);
+    - the existing `FormatTests` and `CliTests` still pass, with expected-file updates only where layout now changes the output, each one checked by hand.
+  - Expected red until T8: the self-hosted format parity rows (`SelfhostDriverStage2FormatTests.SourcesFormatCheckAsCliApp`, `SelfhostDriverT1Tests.FormatAsCliApp`), since the self-hosted formatter has no layout until T8 ports it. The branch merges into `dev` only after T8.
+  - The review fixes F1–F4 of the T3/T4 lands are listed under T5 and gated with it.
+- [x] **T5 Layout: list wrapping, trailing commas, `) {`, header clauses, wrapped conditions, chains (C#).**
+  - Files: `Layout.cs`, `LayoutTests.cs`.
+  - Covers: R3 (lists, chains, headers, conditions).
+  - After: T4.
+  - Done when passes 3 and 4 work at `width`, with the author's trailing comma kept vertical and `.never` dropping commas, a wrapped parameter list getting no trailing comma (the grammar has none, spec Decisions), and a `{` is never on a line of its own. The proposal's §3.1, §3.4, §3.5 and §3.6 examples format to their After text, and T4's corpus and idempotence tests pass.
+  - Also done when the review fixes of the T4 land hold, each with a `LayoutTests` case that fails when its fix is reverted:
+    - **F1 (HIGH) adjacency-sensitive spacing.** `CallLike` removed the space between any identifier and `(`/`[`, so `if unlikely (a).length > 0 {` became `if unlikely(a)…`: the parser reads the `unlikely` branch hint only when a space follows (`Parser.cs`, `PeekToken(1).HasTriviaBefore`), and `bayan check` then fails with BYN2001. Every place the parser or lexer branches on `HasTriviaBefore` or token adjacency is listed in a comment in `Layout.cs`. Layout never adds or removes the gap at those positions, and `Check` compares `HasTriviaBefore` there, so a rule that breaks one is skipped, not written.
+    - **F2 (MEDIUM) the corpus test compares tokens.** The corpus test asserts that the input's token sequence equals the output's, ignoring trailing commas and newlines (R4). The old assertion compared the first output with the second, which the byte check already covers.
+    - **F3 (LOW) knobs reach layout.** `Indent`, `Width` and `TrailingCommas` come from the manifest in `Format.cs`; a test shows `indent: 2` lays out at 2.
+    - **F4 (LOW) tabs.** `OriginalIndent` counts a tab as `Indent` columns (or the check works on levels), with a test on a tab-indented `requires` line.
+- [x] **T6 Layout: alignment runs (C#).**
+  - Files: `Layout.cs`, `LayoutTests.cs`.
+  - Covers: R3 (alignment).
+  - After: T5.
+  - Done when, under `.runs`, field and property name columns, the `=>` of properties and switch arms, the `=` of one-line top-level declarations and trailing comments align within a run. A run ends at a blank line or a comment line, and a multi-line arm ends a run. `.none` aligns nothing. The proposal's §3.2, §3.3 and §3.7 examples give their After text, and the corpus and idempotence tests pass.
+- [x] **T6b Layout: the guide rules T4–T6 left out (C#).**
+  - Files: `Layout.cs`, `LayoutTests.cs`.
+  - Covers: R1 (each Do block is the engine's output), R3 (horizontal spacing, proposal §3.8).
+  - After: T6. Found by T7's `StyleGuideExamplesTests`.
+  - Done when, at the defaults, the `docs/bayan-style.md` pairs below format Don't to Do byte for byte, each with a `LayoutTests` case that fails when its rule is reverted, and T4's corpus and idempotence tests still pass with 0 skips:
+    - **Horizontal spacing:** one space around binary operators (`price*quantity` → `price * quantity`), per §3.8 and the doc's rule line.
+    - **Generics and units:** no space inside `<` `>` of a type argument list (`List< Sku >` → `List<Sku>`).
+    - **Attributes:** an attribute before a type or function goes on its own line above it. An attribute before a field or parameter stays inline.
+    - **Blocks and bodies:** a block body written on one line (`{ tier = next }`) is expanded, one statement per line, with `{` ending the line.
+    - **Member groups:** inside a type body, one blank line between member groups (fields, `states`, properties, static members, methods) and between methods. This is the one place besides the top level where layout inserts a blank line. Inside function bodies it still never inserts one (doc "Paragraphs inside functions").
+  - Each rule changes whitespace and newlines only, so the safety net (`Check`) keeps holding. A rule that would change a token, an adjacency in `TriviaMatters`, or a comment's order is skipped for that site.
+  - Also done when the corpus-test flake is fixed. `TheCorpusLaysOutOnceAndForAll` failed about 1 run in 8, on a different file each time. The test-only statics `Format.MaxPasses` (`Format.cs:36`) and `Format.RewriteHook` (`Format.cs:39`) are process-wide, and `FormatTests.NonConvergenceIsReported` and `ARewriteThatDoesNotParseIsAbandoned` set them while the corpus theory runs in parallel. Both become per-thread, like `Layout.OutputHook`. `MaxPasses` keeps the default of 10 on every thread (a `[ThreadStatic]` initializer runs only on the first thread). A test shows that setting `MaxPasses` on one thread leaves another thread's format run at 10. Files: `csharp/Bayan.Cli/Format.cs` and `FormatTests.cs`.
+- [x] **T6c Layout: the rules the user approved after the Fable review (C#).**
+  - Files: `csharp/Bayan.Cli/Layout.cs`, `csharp/tests/Bayan.Tests/LayoutTests.cs`, `docs/bayan-style.md` (Do/Don't pairs for each rule, plus the doc tidy).
+  - Covers: R3, R1.
+  - After: T6b. Decisions from the user, 2026-11-15, after three Fable 5.2 passes.
+  - Done when each rule below has a `LayoutTests` case that fails when the rule is reverted, the T4 corpus and idempotence tests pass with 0 skips, and `Check` still holds (whitespace and newlines only). The break-tests are run by the writer and reported in its reply; a read-only gate accepts that table:
+    - **D, break order.** An expression that does not fit breaks before every operator of its lowest precedence level, in `if`, `let` and `return` alike. A parenthesised group that fits stays on one line. While an operator break remains, nothing breaks inside `[ ]` or a call's argument list.
+    - **Atoms.** Never break inside an index bracket or a unit literal, or before a `.member` that follows `]`.
+    - **Ternary ladder.** A ternary that does not fit breaks before `?` and before `:`, each one continuation in. At statement level the ladder applies only inside brackets: a line that starts with `?` or `:` ends the statement in the grammar (plan-owner decision 2026-11-15, verified against the parser), so a bare `let`/`return` ternary breaks inside its operands instead.
+    - **Chains.** A chain inside a ternary or an argument breaks only after the enclosing ternary or list has broken.
+    - **A/B, outlier limit.** A line more than 8 columns wider than the next-widest in its alignment run (fields, properties, switch arms) leaves the run and stays unaligned. `=` defaults align within a run.
+    - **C, `=>` bodies.** A header with a `=>` body that does not fit breaks after `=>` first. The parameters wrap only when the header alone still overflows.
+    - **E, scalar fill.** A list or collection literal made only of scalars (numbers, chars, short strings) fills each line to the width, keeping the row count of the author's first row when it fits.
+    - **Case bodies.** A multi-line `case` body is indented one level past `case` (the formatter puts it at `case`'s column today, at all 2,423 sites).
+    - **Empty arm.** `default: {}` stays on one line.
+    - **`///` in runs.** A `///` line does not end an alignment run. A blank line or a `//` line still does.
+  - Also in `docs/bayan-style.md`: merge "Unary operators and annotations" and "Generics and units" into "Horizontal spacing", fix the units Don't (identical to its Do today) or drop the units pair if no Don't reaches the formatter, and drop "Comment form". `StyleGuideExamplesTests` passes on every pair; a pair marked "Shown at width N" runs at width N (the test reads the marker; checked after T7 lands and is merged in).
+  - Then, outside the task: measure `src/` at width 100 and 120 for the user's width decision.
+- [x] **T7b Lints with one-time fixes (C#).**
+  - Files: as T7 (`Parser.cs` lint pass, or the semantics layer where a lint needs types or constness, `DiagnosticCodes.cs`, `docs/diagnostics/BYN1077.md`–`BYN1080.md`, `tests/cases/diag/` cases, `docs/DIAGNOSTICS.md`).
+  - Covers: R7.
+  - After: T7. Decisions from the user, 2026-11-15.
+  - Adds the C# `bayan fix [paths…]` subcommand (plan-owner decision 2026-11-16: no fix command existed after T7). It applies every lint fix (`guards.postfix`, `lambdas.it` and the four below) to the named files or package directories, rewrites only files that change, prints the count of fixes per file, and exits 0. Running it twice changes nothing on the second run. It has a `CliTests` case, including one for a path that does not exist (exit 2, the same message `format` gives).
+  - Also fixes T7's gate note: `check --package <dir> <file>` reads `lints` from that package's manifest (`csharp/Bayan.Cli/CliApp.cs` near `StyleLintsAt(null)`). Test: `bayan check --all --package . main.byn` in `tests/cases/diag/style-severity-error` gives `error BYN1072` and a nonzero exit.
+  - Plan-owner decisions 2026-11-16, after T7b's first run:
+    - **Fix equivalence:** a fix keeps the program's behaviour, shown by a `run/` case that prints the same output before and after the fix. Byte-identical C is required only of `literals.empty`.
+    - **`literals.empty` sites:** field defaults and annotated `let` locals. Arguments and struct-literal field initialisers go to `work/todo.md`.
+    - **`conditions.patterns` operands:** an index path qualifies only when every index is a name or a literal.
+    - **Qualified constants** (`Op.a or Op.b`) stay out.
+    - **Banner column:** 80.
+    - **Self-hosted manifest row:** the self-hosted manifest parity row joins T7's expected-red list until T9.
+  - Plan-owner decision 2026-11-16, after T7b's full run: the self-hosted rows that compare usage or dispatch output with the C# CLI and fail only because the C# usage now lists `fix` (`SelfhostDriverT1Tests.MatchesTheCSharpCli`, `AScriptRunsAndAGlobalOptionBeforeItIsTaken`, `SelfhostDriverT2Tests.DispatchAsCliApp`, `SelfhostDriverT5Tests.DispatchAsCliApp`, `SelfhostDefaultT12Tests.EveryOtherArmOfRunIsTheCSharps`, `SelfhostDefaultT2Tests.FeaturesMatchesTheCSharpCli`; 29 rows) join the expected-red list until T9, which ports `bayan fix` to the self-hosted driver.
+  - Plan-owner decision 2026-11-16, after T7b's first gate: four more rows fail on feat as well, and only because the self-hosted side lacks a later port. Until T9: `SelfhostSemanticsTests.ForTryTypes` (the missing BYN1072 note), `SelfhostSemanticsEquivalenceLawTests.BayanCheckEqualsTheCCheckerOnEveryCleanParse` (the clean count, 545 with T7b's diag cases; T9 re-pins it from the C#), and `SelfhostDriverGoldenTests.DiagAsCSharpCli(diag/style-functions-length-on/main.byn)` (the self-hosted side prints no BYN1076). Until T8: `SelfhostDriverT1Tests.FormatReportsAnUnreadablePathAsCliApp` (2 cases; green on the T8 branch).
+  - Done when each lint below defaults to `.suggestion`, takes its severity from `lints`, has a `diag/` case and a fix, and its fix applied by `bayan fix` gives code that passes `bayan check` (test each on its `diag/` case):
+    - **BYN1077 `sections.banner`.** A banner comment `// ── Title ──…` is filled with `─` up to one fixed column.
+    - **BYN1078 `conditions.patterns`.** Fires when one `&&` or `||` group tests the same operand against constants two or more times, and the operand is a plain name, field or index path. The fix writes a pattern: `x >= A && x <= B` becomes `x is A..=B`, and `op == .a || op == .b` becomes `op is .a or .b`. Mixed groups (`c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C`) become one `or` pattern. A single comparison never fires.
+    - **BYN1079 `literals.empty`.** Fires on a field default, annotated local, argument or field initialiser whose type is already known from the target and that spells out an empty collection or struct: `= List<T>()` becomes `= []`, `Map<K, V>()` becomes `[]`, and `T {}` becomes `{}`. It does not fire on an unannotated `var x = List<T>()`.
+    - **BYN1080 `optionals.bind`.** It covers the `if (X is { } k)` sites where the miss leaves, or where the operand is a parameter or `let` local, plus `while (X is { } k)`.
+      - When the fallback is a literal, a name, a case, `continue` or `break`, the fix writes `let k = X ?? return v`.
+      - When the fallback is longer, the fix writes `let k = X` followed by `return <fallback> if k is null`, putting the miss first.
+      - A parameter or `let` operand gets `if x is not null`. `while (X is { } k)` becomes `while let k = X`.
+      - It stays silent when the result is used only on a hit and nothing leaves, and inside `&&`. Those sites wait for `if let`.
+- [x] **T7 Lints (C#) and the doc-examples test.**
+  - Files: `csharp/Bayan.Syntax/Parsing/Parser.cs` (lint pass), `csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`, `docs/diagnostics/BYN1072.md`–`BYN1076.md`, `tests/cases/diag/` cases, the check-path severity in `csharp/Bayan.Cli` and `csharp/Bayan.Semantics/Compilation.cs`, `csharp/tests/Bayan.Tests/StyleGuideExamplesTests.cs` (new), `docs/DIAGNOSTICS.md` (regenerated).
+  - Covers: R7, R1 (test).
+  - After: T6, T1, T2.
+  - Done when the five lints are reported by `bayan check` only, with the codes of the plan and `// target:` comments, with fixes for `guards.postfix` and `lambdas.it`, and with severity from `lints` (`.suggestion` renders as a note; `.error` fails `check`). `functions.length` is off by default and bounds at 60 lines when on. `StyleGuideExamplesTests` passes on every pair of `docs/bayan-style.md`, and `bash scripts/docs/check.sh` passes.
+  - Expected red until T9 lands (plan-owner decision 2026-11-15, after T7's gate returned PLAN-CHANGE): any test that compares self-hosted `check` output with C# `check` and fails only because the self-hosted side lacks the new lint notes. That covers `SelfhostDriverT2Tests.CheckAsCliApp`, `SelfhostSemanticsParityTests.CheckParity`, `ForTrySource`, the generator seed cases, and `SelfhostSemanticsEquivalenceLawTests.PinnedClean` (530 → 541). Every other test stays green. T9 turns these rows green, and re-pins `PinnedClean` from the C# if its count still differs. 022 does not merge into dev while any of them is red.
+- [x] **T8 Layout port (self-hosted).**
+  - Files: `src/driver/layout.byn` (new), `src/driver/format.byn`, `csharp/tests/Bayan.Tests/SelfhostDriverTests.cs` rows.
+  - Covers: R6.
+  - After: T7, T6c (the T6c rules are ported on the same worker key).
+  - Done when every `LayoutTests` and `FormatTests` case gives the same stdout, stderr, exit code and bytes through stage 2 as the C#, and `bootstrap/bayan.c` is regenerated (`BAYAN_UPDATE=1` BootstrapTests).
+  - Plan-owner note 2026-11-16, after T8's first gate: "every case" means the whole input each case formats, including inputs joined from a literal and a named constant (`Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines`, `AnUnformattedDeclarationKeepsItsBytes`, the `FormatHeader` callers). One exception: `ADifferenceKeepsTheInput` injects its fault through `Layout.OutputHook`, a C#-only seam that no CLI run can reach, so it has no stage-2 row; the test's doc comment says so.
+- [x] **T8b Space after the contextual clause words (C# and self-hosted).**
+  - Found 2026-11-16 while checking the README examples: `bayan format` rewrites `void pay(ref this is .draft) becomes .paid {` as `becomes.paid`, in the C# layout and the self-hosted layout alike (`tests/cases/run/typestate-order.byn` shows it). The guide and the spec write `becomes .paid`.
+  - Files: the C# layout (`csharp/Bayan.Syntax/Formatting/`), `src/driver/layout.byn`, `LayoutTests`, the stage-2 rows, `bootstrap/bayan.c`.
+  - Covers: R6.
+  - Done when a leading-dot operand after a clause word keeps its space: `becomes .paid` (a `becomes` clause names one state, spec §3.17 item 11; the `or` form is covered by `this is .paid or .shipped`), and the same after each word that takes a leading-dot operand: `??`, `catch` and `except` from the spec §2 waṣl list, `or` between `is` states, `==` and `!=` in a `&&`, `||` or `and` chain, and `is`, `fail`, `return`, `case` (the other waṣl words, `where`, `expects`, `requires`, `fails`, `uses`, take names, types or conditions, never a leading dot), while a member access after a name (`order.paid`) stays joined. A `LayoutTests` case covers each, its stage-2 row passes, and formatting `tests/cases/run/typestate-order.byn` leaves its `becomes` lines unchanged. Break-test in "## T8b" of `022-break-tests.md`.
+- [x] **T9 Lints and severity port (self-hosted).**
+  - Files: `src/parser/*.byn` lint pass, the `src/driver` check path, parity rows.
+  - Covers: R7, R6.
+  - After: T7, T7b (BYN1077–BYN1080, the `check --package` lints fix and the `bayan fix` command are ported too).
+  - Done when each lint `diag/` case and each severity case gives the same output through stage 2 as the C#, `bayan fix` gives the same output and bytes as the C# on every `FormatTests` fix case, and every row on T7's and T7b's expected-red lists, except the T8 format rows, is green.
+- [x] **T10 Format the repo's sources.** (landed in dbc05369 plus the regen and `.git-blame-ignore-revs` commits; SelfhostDriver 1668/1668, BootstrapTests 7/7)
+  - On hold until the user approves the measured format (2026-11-15).
+  - Files: every `src/**/*.byn`, `lib/**/*.byn` and `examples/**/*.byn` that the formatter changes (one commit, nothing else in it; it also applies the `bayan fix` output of `guards.postfix`, `sections.banner`, `conditions.patterns`, `literals.empty` and `optionals.bind`); `bootstrap/bayan.c` (next commit); `.git-blame-ignore-revs` (new, naming the format commit).
+  - Covers: R8.
+  - After: T8, T9.
+  - Done when `bayan format --check src lib examples` exits 0 with both drivers, `SelfhostDriverTests` (the stage-3 fixed point and `SourcesAreFormatted`) and `BootstrapTests` pass, and `git blame --ignore-revs-file .git-blame-ignore-revs` shows the authors from before.
+- [x] **T11 Docs and laws.**
+  - Files: `docs/bayan-spec.md` §19.2 and the §21.2 `bayan format` row, `docs/STATUS.md`, `CHANGELOG.md`, `docs/laws/` (two `proposed` laws: format idempotent and meaning-preserving; format parity), `docs/bayan-questions.md` (the unattended decisions, the `functions.length` bound, the parameter-list trailing comma, and the proposal §3.1 After: its blank lines between paragraphs cannot come from the formatter, which never inserts one, and its header wraps only below width 120, so T5's test runs it at width 100), the progress log.
+  - Covers: R9.
+  - After: T10.
+  - Done when `check.sh` passes, `laws-check.js --run` reports no failing law, and no "partial in 0.3" tag remains for what 022 built.

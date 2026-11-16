@@ -19,15 +19,20 @@ string buildFailed(string mark, by i64 errors, as i64 warnings) {
 string buildExplain(string code) => $"  explain: bayan explain {code}"
 
 /// Messages.cs:133 `CheckSummary`: `{0} checked {1} in {2}`; `seconds` is `Messages.Seconds` (`{0}s`).
-public string checkSummary(string mark, for string program, by string seconds) uses alloc => $"{mark} checked {program} in {seconds}"
+public string checkSummary(string mark, for string program, by string seconds) uses alloc =>
+    $"{mark} checked {program} in {seconds}"
 
 /// CliApp.cs:535 `ProgramName`: a project's short name, else the file's (a `main.byn` is named after its
 /// directory) or the directory's.
 public string programName(ref Ctx c, for string path) uses alloc, fs {
-    if (c.manifest is { } m) { return t10ShortName(in m) }
+    if (c.manifest is { } m) {
+        return t10ShortName(in m)
+    }
     let full = t11FullPath(path)
     var name = t11DirectoryExists(full) ? t26FileName(t26TrimEndSlash(full)) : t26FileNameWithoutExtension(full)
-    if name == "main" && !t11DirectoryExists(full) { name = t26FileName(t11DirectoryName(full)) }
+    if name == "main" && !t11DirectoryExists(full) {
+        name = t26FileName(t11DirectoryName(full))
+    }
     return name
 }
 
@@ -42,10 +47,12 @@ string t26FileNameWithoutExtension(string path) {
     var dot: i64 = -1
     var i: i64 = 0
     for b in name.bytes {
-        if b == 0x2E { dot = i }
+        if b == 0x2E {
+            dot = i
+        }
         i += 1
     }
-    if dot < 0 { return name }
+    return name if dot < 0
     return name[0..dot]
 }
 
@@ -54,7 +61,9 @@ string t26FileNameWithoutExtension(string path) {
 string t26TrimEndSlash(string path) {
     let separator = Path.combine("a", "b").bytes[1]
     var end = path.length
-    while end > 0 && path.bytes[end - 1] == separator { end -= 1 }
+    while end > 0 && path.bytes[end - 1] == separator {
+        end -= 1
+    }
     return path[0..end]
 }
 
@@ -63,7 +72,9 @@ string t26TrimEndSlash(string path) {
 /// `null` (Q646).
 string t26DiagnosticJson(in Ctx c, for in Diag d) {
     var sb = StrBuf()
-    sb.append($"{{\"code\":{t26JsonString(d.code)},\"severity\":{t26JsonString(severityName(d.isWarning))}")
+    sb.append(
+        $"{{\"code\":{t26JsonString(d.code)},\"severity\":{t26JsonString(severityName(d.isWarning, isNote: d.isNote))}",
+    )
     if d.file >= 0 {
         sb.append($",\"file\":{t26JsonString(c.files[d.file].displayPath)},\"span\":")
         t26JsonSpan(ref sb, from: in c, for: d.file, at: d.span)

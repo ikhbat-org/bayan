@@ -46,11 +46,11 @@ union ReadState {
 /// A pull reader over one JSON text: `next()` gives the next token, `null` after the value and its trailing
 /// whitespace, and fails on the first byte that breaks RFC 8259.
 public struct JsonReader {
-    string text
-    i64 pos = 0
-    i64 line = 1
-    i64 lineStart = 0
-    ReadState state = .begin
+    string     text
+    i64        pos       = 0
+    i64        line      = 1
+    i64        lineStart = 0
+    ReadState  state     = .begin
     /// One entry per open container, `true` for an object.
     List<bool> open
 
@@ -63,19 +63,39 @@ public struct JsonReader {
     public JsonToken? next(ref this) uses alloc fails JsonError {
         skipSpace()
         if state is .done {
-            fail .syntax(message: "unexpected content after the value", offset: pos, line: line, column: columnAt(pos)) if pos < text.length
+            fail .syntax(
+                message: "unexpected content after the value",
+                offset: pos,
+                line: line,
+                column: columnAt(pos),
+            ) if pos < text.length
             return null
         }
-        fail .syntax(message: "unexpected end of input", offset: pos, line: line, column: columnAt(pos)) if pos >= text.length
+        fail .syntax(
+            message: "unexpected end of input",
+            offset: pos,
+            line: line,
+            column: columnAt(pos),
+        ) if pos >= text.length
         if state is .listNext {
-            if peek() == ']' { return close(as: .endList) }
-            fail .syntax(message: "expected `,` or `]`", offset: pos, line: line, column: columnAt(pos)) if peek() != ','
+            return close(as: .endList) if peek() == ']'
+            fail .syntax(
+                message: "expected `,` or `]`",
+                offset: pos,
+                line: line,
+                column: columnAt(pos),
+            ) if peek() != ','
             pos += 1
             skipSpace()
             state = .listValue
         } else if state is .objectNext {
-            if peek() == '}' { return close(as: .endObject) }
-            fail .syntax(message: "expected `,` or `}`", offset: pos, line: line, column: columnAt(pos)) if peek() != ','
+            return close(as: .endObject) if peek() == '}'
+            fail .syntax(
+                message: "expected `,` or `}`",
+                offset: pos,
+                line: line,
+                column: columnAt(pos),
+            ) if peek() != ','
             pos += 1
             skipSpace()
             state = .objectKey
@@ -85,10 +105,15 @@ public struct JsonReader {
             skipSpace()
             state = .objectValue
         }
-        fail .syntax(message: "unexpected end of input", offset: pos, line: line, column: columnAt(pos)) if pos >= text.length
+        fail .syntax(
+            message: "unexpected end of input",
+            offset: pos,
+            line: line,
+            column: columnAt(pos),
+        ) if pos >= text.length
         let b = peek()
-        if state is .listFirst && b == ']' { return close(as: .endList) }
-        if state is .objectFirst && b == '}' { return close(as: .endObject) }
+        return close(as: .endList) if state is .listFirst && b == ']'
+        return close(as: .endObject) if state is .objectFirst && b == '}'
         if state is .objectFirst or .objectKey {
             fail .syntax(message: "expected a string key", offset: pos, line: line, column: columnAt(pos)) if b != '"'
             let name = try readString()
@@ -145,14 +170,14 @@ public struct JsonReader {
 
     JsonToken readValue(ref this) uses alloc fails JsonError {
         let b = peek()
-        if b == '{' { return try openContainer(object: true) }
-        if b == '[' { return try openContainer(object: false) }
+        return try openContainer(object: true) if b == '{'
+        return try openContainer(object: false) if b == '['
         if b == '"' {
             let value = try readString()
             finishValue()
             return .text(value: value)
         }
-        if b == '-' || (b >= '0' && b <= '9') { return try readNumber() }
+        return try readNumber() if b == '-' || (b >= '0' && b <= '9')
         if literal("true") {
             finishValue()
             return .flag(value: true)
@@ -170,7 +195,7 @@ public struct JsonReader {
 
     /// Whether `word` starts at `pos`; if so, steps over it.
     bool literal(ref this, string word) {
-        if !text[pos..].startsWith(word) { return false }
+        return false if !text[pos..].startsWith(word)
         pos += word.length
         return true
     }
@@ -178,28 +203,54 @@ public struct JsonReader {
     /// RFC 8259 §6: `-`? (`0` | [1-9] digits) (`.` digits)? ([eE] [+-]? digits)?
     JsonToken readNumber(ref this) fails JsonError {
         let start = pos
-        if peek() == '-' { pos += 1 }
+        if peek() == '-' {
+            pos += 1
+        }
         if peek() == '0' {
             pos += 1
-            fail .syntax(message: "leading zero in a number", offset: start, line: line, column: columnAt(start)) if isDigit(peek())
+            fail .syntax(
+                message: "leading zero in a number",
+                offset: start,
+                line: line,
+                column: columnAt(start),
+            ) if isDigit(peek())
         } else if isDigit(peek()) {
-            while isDigit(peek()) { pos += 1 }
+            while isDigit(peek()) {
+                pos += 1
+            }
         } else {
             fail .syntax(message: "invalid number", offset: start, line: line, column: columnAt(start))
         }
         if peek() == '.' {
             pos += 1
-            fail .syntax(message: "invalid number", offset: start, line: line, column: columnAt(start)) if !isDigit(peek())
-            while isDigit(peek()) { pos += 1 }
+            fail .syntax(
+                message: "invalid number",
+                offset: start,
+                line: line,
+                column: columnAt(start),
+            ) if !isDigit(peek())
+            while isDigit(peek()) {
+                pos += 1
+            }
         }
         if peek() == 'e' || peek() == 'E' {
             pos += 1
-            if peek() == '+' || peek() == '-' { pos += 1 }
-            fail .syntax(message: "invalid number", offset: start, line: line, column: columnAt(start)) if !isDigit(peek())
-            while isDigit(peek()) { pos += 1 }
+            if peek() == '+' || peek() == '-' {
+                pos += 1
+            }
+            fail .syntax(
+                message: "invalid number",
+                offset: start,
+                line: line,
+                column: columnAt(start),
+            ) if !isDigit(peek())
+            while isDigit(peek()) {
+                pos += 1
+            }
         }
         let digits = text[start..pos]
-        let value = f64.tryParse(digits) ?? fail .syntax(message: "invalid number", offset: start, line: line, column: columnAt(start))
+        let value = f64.tryParse(digits)
+            ?? fail .syntax(message: "invalid number", offset: start, line: line, column: columnAt(start))
         finishValue()
         return .number(value: value, text: digits)
     }
@@ -212,15 +263,25 @@ public struct JsonReader {
         var escaped = false
         var run = pos
         while true {
-            fail .syntax(message: "unterminated string", offset: start, line: line, column: columnAt(start)) if pos >= text.length
+            fail .syntax(
+                message: "unterminated string",
+                offset: start,
+                line: line,
+                column: columnAt(start),
+            ) if pos >= text.length
             let b = text.bytes[pos]
             if b == '"' {
                 pos += 1
-                if !escaped { return text[run..pos - 1] }
+                return text[run..pos - 1] if !escaped
                 sb.append(text[run..pos - 1])
                 return $"{sb.finish()}"
             }
-            fail .syntax(message: "control character in a string", offset: pos, line: line, column: columnAt(pos)) if b < 0x20
+            fail .syntax(
+                message: "control character in a string",
+                offset: pos,
+                line: line,
+                column: columnAt(pos),
+            ) if b < 0x20
             if b != '\\' {
                 pos += 1
                 continue
@@ -251,14 +312,25 @@ public struct JsonReader {
             } else if e == 'u' {
                 pos += 1
                 var cp = try hex4(escapeAt: at)
-                if cp >= 0xD800 && cp <= 0xDBFF {
-                    fail .syntax(message: "lone surrogate", offset: at, line: line, column: columnAt(at)) if !text[pos..].startsWith("\\u")
+                if cp is 0xD800..=0xDBFF {
+                    fail .syntax(
+                        message: "lone surrogate",
+                        offset: at,
+                        line: line,
+                        column: columnAt(at),
+                    ) if !text[pos..].startsWith("\\u")
                     let second = pos
                     pos += 2
                     let low = try hex4(escapeAt: second)
-                    fail .syntax(message: "lone surrogate", offset: at, line: line, column: columnAt(at)) if low < 0xDC00 || low > 0xDFFF
+                    fail .syntax(
+                        message: "lone surrogate",
+                        offset: at,
+                        line: line,
+                        column: columnAt(at),
+                    ) if low is < 0xDC00
+                        or > 0xDFFF
                     cp = 0x10000 + (cp - 0xD800) * 0x400 + (low - 0xDC00)
-                } else if cp >= 0xDC00 && cp <= 0xDFFF {
+                } else if cp is 0xDC00..=0xDFFF {
                     fail .syntax(message: "lone surrogate", offset: at, line: line, column: columnAt(at))
                 }
                 sb.append($"{rune(cp)}")

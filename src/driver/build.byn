@@ -7,21 +7,21 @@ import lexer
 import semantics
 import emitter
 
-type T5T26Options = semantics.T26Options
+type T5T26Options         = semantics.T26Options
 type T5CompilationOptions = semantics.CompilationOptions
 
 /// The `BuildOptions` (CliApp.cs:149) fields `build` and `run` read; the test-only ones stay C# (R3).
 struct T5Options {
-    string path
-    string mode = "safe"
-    string? output = null
-    bool emitC = false
-    bool json = false
-    List<string> programArgs = List<string>()
-    string? target = null
-    bool verbose = false
-    bool all = false
-    string? package = null
+    string       path
+    string       mode        = "safe"
+    string?      output      = null
+    bool         emitC       = false
+    bool         json        = false
+    List<string> programArgs = []
+    string?      target      = null
+    bool         verbose     = false
+    bool         all         = false
+    string?      package     = null
 }
 
 /// The C# `Directory.Exists`: `path` lists.
@@ -32,7 +32,8 @@ bool t5DirectoryExists(string path) {
 
 /// CliApp.cs:151 `ParseBuildOptions` with `allowTestJson: false` (the `--changed`, `--base`, `--json`, `--mutate`, `--run`,
 /// `--coverage` and `--only` arms are then the `default` arm's). Null after reporting.
-T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bool allowVerbose) uses alloc, console, fs {
+T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bool allowVerbose)
+        uses alloc, console, fs {
     var path: string? = null
     var output: string? = null
     var target: string? = null
@@ -47,7 +48,9 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
     while i < args.length {
         let a = args[i]
         if a == "--" {
-            for k in (i + 1)..args.length { programArgs.append(args[k]) }
+            for k in (i + 1)..args.length {
+                programArgs.append(args[k])
+            }
             i = args.length
         } else if a == "--mode" && i + 1 < args.length {
             // Toolchain.cs:68 `TryParseMode`.
@@ -83,7 +86,7 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
             }
         } else if a == "--all" {
             all = true
-        } else if (a == "-v" || a == "--verbose") && allowVerbose {
+        } else if (a is "-v" or "--verbose") && allowVerbose {
             verbose = true
         } else if a == "--package" && i + 1 < args.length {
             i += 1
@@ -98,7 +101,9 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
         i += 1
     }
     // `File.Exists("package.byn")`: a relative name resolves against the working directory.
-    if path is null && t1FileExists("package.byn") { path = "." }
+    if path is null && t1FileExists("package.byn") {
+        path = "."
+    }
     if (path is not { } p) {
         Io.stderr.write("bayan: expected a file or directory (or run inside a project with a `package.byn`)\n")
         return null
@@ -125,7 +130,9 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
 string t5Join(in List<string> xs) {
     var sb = StrBuf()
     for i in 0..xs.length {
-        if i > 0 { sb.append(", ") }
+        if i > 0 {
+            sb.append(", ")
+        }
         sb.append(xs[i])
     }
     return $"{sb.finish()}"
@@ -137,7 +144,7 @@ T5T26Options t5T26(in T5Options o) => T5T26Options { path: o.path, json: o.json,
 /// `Compilation.Diagnostics.HasErrors`.
 bool t5HasErrors(in semantics.Ctx c) {
     for d in c.diagnostics {
-        if !d.isWarning { return true }
+        return true if !d.isWarning
     }
     return false
 }
@@ -150,7 +157,9 @@ List<string> t5ModuleFiles(string dir, bool includeTests = false) uses alloc, fs
     let names = Io.listDir(dir) catch return files
     for name in names {
         let f = Path.combine(dir, name)
-        if name.endsWith(".byn") && (includeTests || !name.endsWith(".test.byn")) && t1FileExists(f) { files.append(f) }
+        if name.endsWith(".byn") && (includeTests || !name.endsWith(".test.byn")) && t1FileExists(f) {
+            files.append(f)
+        }
     }
     return files
 }
@@ -158,7 +167,17 @@ List<string> t5ModuleFiles(string dir, bool includeTests = false) uses alloc, fs
 /// CliApp.cs:262 `Compile` (`includeTests` is its parameter): the `--package <root>` branch, else `semantics/cli.byn` `t26Compile` (the project, script and
 /// path branches). Prints diagnostics and adds them to `reported`; `ok` is false where the C# returns null. `ascii`, `width` and `isTty` are
 /// the stderr ones of `StartProgress` (CliApp.cs:306); the callers in commands.byn, features.byn and build.byn pass the stderr ones of `DCtx`; only `t26Compile`'s project branch clears the line late (Q1116).
-semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to ref List<semantics.T26Reported> reported, through ref bool ok, bool includeTests = false, bool ascii = false, i64 width = 100, bool isTty = false) uses alloc, clock, console, env, fs {
+semantics.Ctx t5Compile(
+    in T5Options o,
+    by in semantics.T26Symbols symbols,
+    to ref List<semantics.T26Reported> reported,
+    through ref bool ok,
+    bool includeTests = false,
+    bool ascii = false,
+    i64 width = 100,
+    bool isTty = false,
+    bool styleLints = false
+) uses alloc, clock, console, env, fs {
     let style = DStyle { ascii: ascii, width: width }
     var progress = start(in style, by: isTty, through: o.json, for: "compiling")
     let o26 = t5T26(in o)
@@ -183,13 +202,29 @@ semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to r
             done(ref progress)
             semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
             ok = !t5HasErrors(in c)
+            if styleLints && ok {
+                ok = semantics.t26StyleLints(
+                    o26,
+                    by: symbols,
+                    for: c,
+                    to: ref reported,
+                    lintRoot: Path.fullPath(package),
+                )
+            }
             return c
         }
     }
     if t5DirectoryExists(o.path) && t1FileExists(manifestPath) {
         // CliApp.cs:272 and :279 clear the line before the manifest diagnostics and the no-entry message, which `t26Compile` prints; the
         // driver clears it after them (blocked: Q1116)
-        let compiled = semantics.t26Compile(in o26, by: in symbols, to: ref reported, through: ref ok, includeTests: includeTests)
+        let compiled = semantics.t26Compile(
+            in o26,
+            by: in symbols,
+            to: ref reported,
+            through: ref ok,
+            includeTests: includeTests,
+            styleLints: styleLints,
+        )
         done(ref progress)
         return compiled
     }
@@ -199,6 +234,9 @@ semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to r
     done(ref progress)
     semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
     ok = !t5HasErrors(in c)
+    if styleLints && ok {
+        ok = semantics.t26StyleLints(o26, by: symbols, for: c, to: ref reported)
+    }
     return c
 }
 
@@ -208,7 +246,7 @@ string t5EmitC(ref semantics.Ctx c, by string mode) uses alloc => emitter.t12Emi
 /// CliApp.cs:435 `PrepareOut`: a project's `out/<mode>/<target>/`, with the emitted C written to its `c/`; null outside a
 /// project.
 string? t5PrepareOut(in semantics.Ctx compiled, by string mode, for string target, from string source) uses alloc, fs {
-    if compiled.manifest is null { return null }
+    return null if compiled.manifest is null
     let root = compiled.displayRoot
     let dir = Path.combine(Path.combine(Path.combine(root, "out"), mode), target)
     let c = Path.combine(dir, "c")
@@ -256,9 +294,19 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
         provide allocator: frontend {
             var reported = List<semantics.T26Reported>()
             var ok = false
-            var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
-            unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
-            if refuseLibrary(compiled, by: "build") { return exitUsage }
+            var compiled = t5Compile(
+                in o,
+                by: in symbols,
+                to: ref reported,
+                through: ref ok,
+                ascii: d.styleErr.ascii,
+                width: d.styleErr.width,
+                isTty: d.stderrTty,
+            )
+            unless ok {
+                return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols)
+            }
+            return exitUsage if refuseLibrary(compiled, by: "build")
             let emit = Io.monotonicNanos()
             let source = t5EmitC(ref compiled, by: o.mode)
             emitTime = Io.monotonicNanos() - emit
@@ -270,7 +318,10 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
             if (o.output is { } given) {
                 output = given
             } else if (t5PrepareOut(in compiled, by: o.mode, for: target, from: source) is { } dir) {
-                output = Path.combine(dir, targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target))
+                output = Path.combine(
+                    dir,
+                    targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target),
+                )
             } else {
                 output = targetExecutableName(semantics.programName(ref compiled, for: o.path), for: target)
             }
@@ -278,7 +329,11 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
             outputBuf.append(output)
             nameBuf.append(semantics.programName(ref compiled, for: o.path))
             if o.verbose {
-                shownBuf.append(compiled.manifest is not null && o.output is null ? Path.relative(compiled.displayRoot, to: output).replaced("\\", by: "/") : output)
+                shownBuf.append(
+                    compiled.manifest is not null && o.output is null
+                        ? Path.relative(compiled.displayRoot, to: output).replaced("\\", by: "/")
+                        : output,
+                )
             }
             parseTime = compiled.parseTime
             checkTime = compiled.checkTime
@@ -295,18 +350,25 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
         t5ReportToolchain(built.result, by: o.json, for: symbols)
         return exitToolchain
     }
-    if o.json { return exitOk }
+    return exitOk if o.json
     if o.verbose {
         print(t5Phase("parse", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(parseTime))))
         print(t5Phase("check", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(checkTime))))
         print(t5Phase("emit", by: t5Paint(.note, by: d.styleOut, for: semantics.t26Seconds(emitTime))))
-        print(t5Phase("compile", by: t5Paint(.note, by: d.styleOut, for: built.hit ? "from cache" : semantics.t26Seconds(nativeTime))))
+        print(
+            t5Phase(
+                "compile",
+                by: t5Paint(.note, by: d.styleOut, for: built.hit ? "from cache" : semantics.t26Seconds(nativeTime)),
+            ),
+        )
         print($"  {t5Paint(.note, by: d.styleOut, for: shownBuf.finish())}")
     }
     let dot = semantics.t26Symbols(d.styleOut.ascii).dot
     var summary = $"{dot} built {nameBuf.finish()} ({o.mode}, {target}) in {semantics.t26Seconds(Io.monotonicNanos() - clock)}"
     // `Messages.BuildFromCache` with `Symbols.Separator` (Style.cs:59-60).
-    if built.hit { summary = $"{summary} {d.styleOut.ascii ? "-" : "·"} from cache" }
+    if built.hit {
+        summary = $"{summary} {d.styleOut.ascii ? "-" : "·"} from cache"
+    }
     print(t5Paint(.success, by: d.styleOut, for: summary))
     return exitOk
 }
@@ -342,7 +404,9 @@ string t5Phase(string name, by string value) uses alloc {
     var sb = StrBuf()
     sb.append("  ")
     sb.append(name)
-    for _ in name.length..11 { sb.append(" ") }
+    for _ in name.length..11 {
+        sb.append(" ")
+    }
     sb.append(value)
     return $"{sb.finish()}"
 }
@@ -371,12 +435,27 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
         provide allocator: frontend {
             var reported = List<semantics.T26Reported>()
             var ok = false
-            var compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
-            unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
-            if refuseLibrary(compiled, by: "run") { return exitUsage }
+            var compiled = t5Compile(
+                in o,
+                by: in symbols,
+                to: ref reported,
+                through: ref ok,
+                ascii: d.styleErr.ascii,
+                width: d.styleErr.width,
+                isTty: d.stderrTty,
+            )
+            unless ok {
+                return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols)
+            }
+            return exitUsage if refuseLibrary(compiled, by: "run")
             let source = t5EmitC(ref compiled, by: o.mode)
             if (t5PrepareOut(in compiled, by: o.mode, for: host, from: source) is { } dir) {
-                outputBuf.append(Path.combine(dir, targetExecutableName(semantics.programName(ref compiled, for: o.path), for: host)))
+                outputBuf.append(
+                    Path.combine(
+                        dir,
+                        targetExecutableName(semantics.programName(ref compiled, for: o.path), for: host),
+                    ),
+                )
                 hasOutput = true
             }
             sourceBuf.append(source)
@@ -384,7 +463,9 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
     }
     let source = sourceBuf.finish()
     var output: string? = null
-    if hasOutput { output = outputBuf.finish() }
+    if hasOutput {
+        output = outputBuf.finish()
+    }
     var progress = start(in d.styleErr, by: d.stderrTty, through: o.json, for: "building")
     let built = t9Build(source, by: o.mode, to: output, for: null, through: ref d)
     done(ref progress)
@@ -392,7 +473,9 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
         t5ReportToolchain(built.result, by: o.json, for: symbols)
         return exitToolchain
     }
-    if (key is { } k) { rememberScript(k, by: built.key, through: ref d) }
+    if (key is { } k) {
+        rememberScript(k, by: built.key, through: ref d)
+    }
     return t5Start(built.exe, by: in o.programArgs)
 }
 

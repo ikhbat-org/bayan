@@ -28,13 +28,13 @@ public sealed class SelfhostSemanticsT10Tests
                 kind: .lib,
                 capabilities: [.fs, .net],
                 test: Tests { lines: 100, summary: false, diffCoverage: 80, nightly: [.fuzz] },
-                style: Style { indent: 4, braces: .nextLine, maxLine: 100, trailingCommas: true, booleans: .words, primitives: .csharp },
+                style: Style { indent: 2, width: 100, align: .none, trailingCommas: .never, booleans: .words, primitives: .csharp, lints: ["guards.postfix": .warning, "lambdas.it": .error, "nesting.depth": .none, "functions.length": .suggestion] },
                 grammar: Grammar { verbs: ["upsert", "upsert", "regrind"], nouns: ["SKU"], adjectives: ["idempotent"], forms: ["regrind": "reground", "a": "b", "a": "c"] },
                 dist: Dist { targets: [.host, .linuxX64, .macosArm64], mode: .fast },
             }
             """),
         ("app-defaults", "Package { name: \"local/shop\", version: \"0.1.0\", capabilities: [], grammar: Grammar { forms: [] } }"),
-        ("style-words-symbols", "Package { name: \"a/b\", version: \"0.0.0\", kind: .app, style: Style { booleans: .symbols, primitives: .sized, braces: .sameLine }, dist: Dist { mode: .debug } }"),
+        ("style-words-symbols", "Package { name: \"a/b\", version: \"0.0.0\", kind: .app, style: Style { booleans: .symbols, primitives: .sized, align: .runs, trailingCommas: .multiline, lints: [] }, dist: Dist { mode: .debug } }"),
         ("dist-safe", "Package { name: \"a/b\", version: \"0.0.0\", dist: Dist { mode: .safe, targets: [] } }"),
         ("escapes", """
             Package {
@@ -44,12 +44,12 @@ public sealed class SelfhostSemanticsT10Tests
             }
             """),
         ("int-overflow", "Package { name: \"local/a\", version: \"0.1.0\", edition: 99999999999999999999 }"),
-        ("int-max", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { indent: 9223372036854775807, maxLine: 9223372036854775808 } }"),
+        ("int-max", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { indent: 9223372036854775807, width: 9223372036854775808 } }"),
         ("int-hex", "Package { name: \"local/a\", version: \"0.1.0\", edition: 0x7E3 }"),
-        ("int-zero", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { indent: 0, maxLine: -1 } }"),
+        ("int-zero", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { indent: 0, width: -1 } }"),
         ("capabilities-mixed", "Package { name: \"local/a\", version: \"0.1.0\", capabilities: [.fs, \"net\"] }"),
         ("capabilities-bare", "Package { name: \"local/a\", version: \"0.1.0\", capabilities: .fs }"),
-        ("style-bad", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { indent: \"4\", braces: .left, maxLine: true, trailingCommas: .yes, booleans: .both, primitives: .int, tabs: 1 } }"),
+        ("style-bad", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { indent: \"4\", width: true, align: .left, trailingCommas: .yes, lints: 3, booleans: .both, primitives: .int, tabs: 1 } }"),
         ("style-scalar", "Package { name: \"local/a\", version: \"0.1.0\", style: 3 }"),
         ("style-other-type", "Package { name: \"local/a\", version: \"0.1.0\", style: Grammar { } }"),
         ("grammar-other-type", "Package { name: \"local/a\", version: \"0.1.0\", grammar: Style { } }"),
@@ -86,6 +86,16 @@ public sealed class SelfhostSemanticsT10Tests
         ("dot-alone", "Package { name: \"local/a\", version: \"0.1.0\", kind: . }"),
         ("dot-keyword", "Package { name: \"local/a\", version: \"0.1.0\", kind: .struct, if: 1 }"),
         ("bools", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { trailingCommas: false } }"),
+        ("style-braces", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { braces: .sameLine } }"),
+        ("style-max-line", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { maxLine: 100 } }"),
+        ("style-width-int-max", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { width: 2147483647, indent: 2147483648 } }"),
+        ("style-trailing-multiline", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { trailingCommas: .multiline } }"),
+        ("style-trailing-other", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { trailingCommas: .always } }"),
+        ("style-align-none", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { align: .none } }"),
+        ("style-lint-unknown", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { lints: [\"guards.prefix\": .warning, 1: .none] } }"),
+        ("style-lint-severity", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { lints: [\"lambdas.it\": .loud, \"nesting.depth\": 1] } }"),
+        ("style-lint-list", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { lints: [\"lambdas.it\"] } }"),
+        ("style-lint-all", "Package { name: \"local/a\", version: \"0.1.0\", style: Style { lints: [\"guards.postfix\": .error, \"lambdas.it\": .warning, \"nesting.depth\": .suggestion, \"functions.length\": .none, \"conditions.named\": .error, \"lambdas.it\": .none] } }"),
         ("nested-equals", "Package { name: \"local/a\", version: \"0.1.0\", dist: Dist { mode: = .fast, targets = [.host] } }"),
         ("equals-then-fail", "Package { name = \"local/a\", version: 1 + 2 }"),
         ("lexer-error", "Package { name: \"local/a, version: \"0.1.0\" }"),
@@ -277,6 +287,23 @@ public sealed class SelfhostSemanticsT10Tests
             .lib => "Lib",
         }
 
+        string alignName(AlignStyle a) => a switch {
+            .runs => "Runs",
+            .none => "None",
+        }
+
+        string trailingCommasName(TrailingCommaStyle t) => t switch {
+            .multiline => "Multiline",
+            .omit => "Never",
+        }
+
+        string lintSeverityName(LintSeverity s) => s switch {
+            .none => "None",
+            .suggestion => "Suggestion",
+            .warning => "Warning",
+            .error => "Error",
+        }
+
         string booleansName(BooleanStyle b) => b switch {
             .symbols => "Symbols",
             .words => "Words",
@@ -321,6 +348,11 @@ public sealed class SelfhostSemanticsT10Tests
             for t in m.distTargets { targets.append($" {t}") }
             print($"{targets.finish()}")
             print($"mode {m.distMode}")
+            print($"indent {m.indent}")
+            print($"width {m.width}")
+            print($"align {alignName(m.align)}")
+            print($"trailingCommas {trailingCommasName(m.trailingCommas)}")
+            for lint in t10LintNames() { print($"lint {lint} {lintSeverityName(m.lints[lint])}") }
             print($"booleans {booleansName(m.booleans)}")
             print($"primitives {primitivesName(m.primitives)}")
             if (m.capabilities is { } caps) {
@@ -386,6 +418,11 @@ public sealed class SelfhostSemanticsT10Tests
         lines.Add($"kind {m.Kind}");
         lines.Add("targets" + string.Concat(m.DistTargets.Select(t => " " + t)));
         lines.Add($"mode {m.DistMode}");
+        lines.Add($"indent {m.Indent}");
+        lines.Add($"width {m.Width}");
+        lines.Add($"align {m.Align}");
+        lines.Add($"trailingCommas {m.TrailingCommas}");
+        lines.AddRange(m.Lints.Select(l => $"lint {l.Key} {l.Value}"));
         lines.Add($"booleans {m.Booleans}");
         lines.Add($"primitives {m.Primitives}");
         lines.Add(m.Capabilities is null ? "capabilities -" : Words("capabilities", m.Capabilities));

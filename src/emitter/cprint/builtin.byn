@@ -12,14 +12,17 @@ string t11Expr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in ltree.LT
 }
 
 /// CEmitter.cs:1946 `FunctionEmitter.Builtin` (Q846): the C text of builtin call `call`.
-public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.LTree t, at BExpr call) uses alloc {
+public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.LTree t, at BExpr call)
+        uses alloc {
     let bi = i64(call & 0xFFFFFFFF)
     let r = c.bBuiltinCalls[bi].receiver
     let member = c.bBuiltinCalls[bi].member
     let bType = c.bBuiltinCalls[bi].type
     let syntax = c.bBuiltinCalls[bi].span
     var args = List<BExpr>()
-    for a in c.bBuiltinCalls[bi].arguments { args.append(a) }
+    for a in c.bBuiltinCalls[bi].arguments {
+        args.append(a)
+    }
     let rt = ltree.typeOf(in c, through: in t, for: r)
     let ri = i64(rt & 0xFFFFFFFF)
     let arg = args.length > 0 ? t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: args[0]) : ""
@@ -34,7 +37,12 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             return $"byn_str_is_ascii({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)})"
         case .stringBytes:
             let span = cType(ref cc, from: ref c, for: bType)
-            let name = helper(ref cc, for: "bynh_str_bytes", from: $"static {span} bynh_str_bytes(byn_str s)", as: $"{{\n    return ({span}){{(uint8_t*)s.ptr, s.len}};\n}}\n")
+            let name = helper(
+                ref cc,
+                for: "bynh_str_bytes",
+                from: $"static {span} bynh_str_bytes(byn_str s)",
+                as: $"{{\n    return ({span}){{(uint8_t*)s.ptr, s.len}};\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)})"
         case .stringCopy:
             return $"byn_str_copy({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {args.length > 0 ? $"byn_arena_alloc({arg})" : "byn_context"})"
@@ -46,8 +54,13 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             return $"byn_str_contains({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg})"
         case .stringPosition or .stringLastPosition:
             let opt = cType(ref cc, from: ref c, for: bType)
-            let name = helper(ref cc, for: "bynh_position", from: $"static {opt} bynh_position(int64_t p)", as: $"{{\n    return p < 0 ? ({opt}){{0}} : ({opt}){{true, p}};\n}}\n")
-            if member == .stringLastPosition { return $"{name}(byn_str_last_position({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg}))" }
+            let name = helper(
+                ref cc,
+                for: "bynh_position",
+                from: $"static {opt} bynh_position(int64_t p)",
+                as: $"{{\n    return p < 0 ? ({opt}){{0}} : ({opt}){{true, p}};\n}}\n",
+            )
+            return $"{name}(byn_str_last_position({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg}))" if member == .stringLastPosition
             let rv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)
             let from = args.length > 1 ? t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: args[1]) : "0"
             return $"{name}(byn_str_position({rv}, {arg}, {from}, {loc(in c, by: in f, at: syntax)}))"
@@ -57,7 +70,12 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             return $"byn_str_trimmed({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {args.length > 0 ? arg : "2"})"
         case .stringTrimmedBy:
             let st = cType(ref cc, from: ref c, for: ltree.typeOf(in c, through: in t, for: args[0]))
-            let name = helper(ref cc, for: "bynh_trimmed_by", from: $"static byn_str bynh_trimmed_by(byn_str s, {st} by)", as: "{\n    return byn_str_trimmed_by(s, by.ptr, by.len);\n}\n")
+            let name = helper(
+                ref cc,
+                for: "bynh_trimmed_by",
+                from: $"static byn_str bynh_trimmed_by(byn_str s, {st} by)",
+                as: "{\n    return byn_str_trimmed_by(s, by.ptr, by.len);\n}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg})"
         case .stringLowercased or .stringUppercased:
             return $"byn_str_case({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {member == .stringUppercased ? "true" : "false"}, byn_context)"
@@ -80,7 +98,12 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
         case .bytesToString:
             let st = cType(ref cc, from: ref c, for: rt)
             let name = $"bynh_bytes_string_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static byn_str {name}({st} b)", as: "{\n    return byn_bytes_string(b.ptr, b.len, byn_context);\n}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static byn_str {name}({st} b)",
+                as: "{\n    return byn_bytes_string(b.ptr, b.len, byn_context);\n}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)})"
         case .intTryParse:
             let opt = cType(ref cc, from: ref c, for: bType)
@@ -89,7 +112,12 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             let name = $"bynh_try_parse_{key(ref c, for: bType)}"
             let signed = semantics.isSignedInteger(inner) ? "true" : "false"
             let it = cType(ref cc, from: ref c, for: inner)
-            let _ = helper(ref cc, for: name, from: $"static {opt} {name}(byn_str s, byn_builtin_Radix radix)", as: $"{{\n    int64_t v;\n    if (!byn_int_parse(s, {semantics.primitiveBits(p)}, {signed}, radix, &v)) return ({opt}){{0}};\n    return ({opt}){{true, ({it})v}};\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {opt} {name}(byn_str s, byn_builtin_Radix radix)",
+                as: $"{{\n    int64_t v;\n    if (!byn_int_parse(s, {semantics.primitiveBits(p)}, {signed}, radix, &v)) return ({opt}){{0}};\n    return ({opt}){{true, ({it})v}};\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg})"
         case .floatTryParse:
             let opt = cType(ref cc, from: ref c, for: bType)
@@ -97,12 +125,22 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             let name = $"bynh_try_parse_{key(ref c, for: bType)}"
             let f32 = inner == semantics.prim(.f32) ? "true" : "false"
             let it = cType(ref cc, from: ref c, for: inner)
-            let _ = helper(ref cc, for: name, from: $"static {opt} {name}(byn_str s)", as: $"{{\n    double v;\n    if (!byn_float_parse(s, {f32}, &v)) return ({opt}){{0}};\n    return ({opt}){{true, ({it})v}};\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {opt} {name}(byn_str s)",
+                as: $"{{\n    double v;\n    if (!byn_float_parse(s, {f32}, &v)) return ({opt}){{0}};\n    return ({opt}){{true, ({it})v}};\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)})"
         case .stringJoined:
             let xt = cType(ref cc, from: ref c, for: rt)
             let name = $"bynh_joined_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static byn_str {name}({xt} xs, byn_str sep)", as: "{\n    return byn_str_joined(xs.ptr, xs.len, sep, byn_context);\n}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static byn_str {name}({xt} xs, byn_str sep)",
+                as: "{\n    return byn_str_joined(xs.ptr, xs.len, sep, byn_context);\n}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg})"
         case .stringRunes or .stringUtf16 or .stringLines:
             return $"((byn_text_view){{{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {{NULL, 0}}, 0, 0}})"
@@ -122,7 +160,12 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             return $"byn_str_take_last_runes({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}.s, {arg}, {loc(in c, by: in f, at: syntax)})"
         case .utf16Copy:
             let list = cType(ref cc, from: ref c, for: bType)
-            let name = helper(ref cc, for: "bynh_utf16_copy", from: $"static {list} bynh_utf16_copy(byn_text_view v)", as: $"{{\n    {list} r = {{NULL, 0, 0, byn_context}};\n    r.ptr = byn_utf16_copy(v.s, &r.len, byn_context);\n    r.cap = r.len;\n    return r;\n}}\n")
+            let name = helper(
+                ref cc,
+                for: "bynh_utf16_copy",
+                from: $"static {list} bynh_utf16_copy(byn_text_view v)",
+                as: $"{{\n    {list} r = {{NULL, 0, 0, byn_context}};\n    r.ptr = byn_utf16_copy(v.s, &r.len, byn_context);\n    r.cap = r.len;\n    return r;\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)})"
         case .textViewMore:
             return $"byn_view_more({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg}, {ri})"
@@ -138,13 +181,23 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             let st = cType(ref cc, from: ref c, for: rt)
             let et = cType(ref cc, from: ref c, for: c.spanTypes[ri].element)
             let name = $"bynh_copy_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static {list} {name}({st} s, byn_alloc* a)", as: $"{{\n    {list} r = {{NULL, 0, 0, a}};\n    if (s.len > 0) {{\n        r.ptr = ({et}*)byn_copy_bytes(s.ptr, s.len * (int64_t)sizeof({et}), a);\n        r.len = r.cap = s.len;\n    }}\n    return r;\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {list} {name}({st} s, byn_alloc* a)",
+                as: $"{{\n    {list} r = {{NULL, 0, 0, a}};\n    if (s.len > 0) {{\n        r.ptr = ({et}*)byn_copy_bytes(s.ptr, s.len * (int64_t)sizeof({et}), a);\n        r.len = r.cap = s.len;\n    }}\n    return r;\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {args.length > 0 ? $"byn_arena_alloc({arg})" : "byn_context"})"
         case .listCopy:
             let lt = cType(ref cc, from: ref c, for: rt)
             let et = cType(ref cc, from: ref c, for: c.listTypes[ri])
             let name = $"bynh_copy_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static {lt} {name}({lt} l, byn_alloc* a)", as: $"{{\n    {lt} r = {{NULL, 0, 0, a}};\n    if (l.len > 0) {{\n        r.ptr = ({et}*)byn_copy_bytes(l.ptr, l.len * (int64_t)sizeof({et}), a);\n        r.len = r.cap = l.len;\n    }}\n    return r;\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {lt} {name}({lt} l, byn_alloc* a)",
+                as: $"{{\n    {lt} r = {{NULL, 0, 0, a}};\n    if (l.len > 0) {{\n        r.ptr = ({et}*)byn_copy_bytes(l.ptr, l.len * (int64_t)sizeof({et}), a);\n        r.len = r.cap = l.len;\n    }}\n    return r;\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {args.length > 0 ? $"byn_arena_alloc({arg})" : "byn_context"})"
         case .strBufCopy:
             return $"byn_strbuf_copy({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, byn_arena_alloc({arg}))"
@@ -152,20 +205,35 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             let lt = cType(ref cc, from: ref c, for: rt)
             let et = cType(ref cc, from: ref c, for: c.listTypes[ri])
             let name = $"bynh_add_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static void {name}({lt}* l, {et} v)", as: $"{{\n    if (!l->alloc) l->alloc = byn_context;\n    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof({et}), l->alloc);\n    l->ptr[l->len++] = v;\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static void {name}({lt}* l, {et} v)",
+                as: $"{{\n    if (!l->alloc) l->alloc = byn_context;\n    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof({et}), l->alloc);\n    l->ptr[l->len++] = v;\n}}\n",
+            )
             let text = $"{name}(&{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg})"
             return claimed(ref cc, for: ref f, from: ref c, through: t, at: text, by: r, to: syntax)
         case .listAsSpan:
             let lt = cType(ref cc, from: ref c, for: rt)
             let st = cType(ref cc, from: ref c, for: bType)
             let name = $"bynh_span_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static {st} {name}({lt} l)", as: $"{{\n    return ({st}){{l.ptr, l.len}};\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {st} {name}({lt} l)",
+                as: $"{{\n    return ({st}){{l.ptr, l.len}};\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)})"
         case .listMutableSpan:
             let lt = cType(ref cc, from: ref c, for: rt)
             let st = cType(ref cc, from: ref c, for: bType)
             let name = $"bynh_mutable_span_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static {st} {name}({lt} l)", as: $"{{\n    return ({st}){{l.ptr, l.len}};\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {st} {name}({lt} l)",
+                as: $"{{\n    return ({st}){{l.ptr, l.len}};\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)})"
         case .listClear or .strBufClear:
             return $"({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}.len = 0)"
@@ -173,53 +241,95 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             let lt = cType(ref cc, from: ref c, for: rt)
             let et = cType(ref cc, from: ref c, for: bType)
             let name = $"bynh_pop_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static {et} {name}({lt}* l, const char* file, int line)", as: "{\n    if (l->len == 0) byn_panic(\"removeLast on an empty list\", file, line);\n    return l->ptr[--l->len];\n}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {et} {name}({lt}* l, const char* file, int line)",
+                as: "{\n    if (l->len == 0) byn_panic(\"removeLast on an empty list\", file, line);\n    return l->ptr[--l->len];\n}\n",
+            )
             return $"{name}(&{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {loc(in c, by: in f, at: syntax)})"
         case .listTryGet:
             let lt = cType(ref cc, from: ref c, for: rt)
             let opt = cType(ref cc, from: ref c, for: bType)
             let name = $"bynh_try_get_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static {opt} {name}({lt} l, int64_t i)", as: $"{{\n    return i < 0 || i >= l.len ? ({opt}){{0}} : ({opt}){{true, l.ptr[i]}};\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {opt} {name}({lt} l, int64_t i)",
+                as: $"{{\n    return i < 0 || i >= l.len ? ({opt}){{0}} : ({opt}){{true, l.ptr[i]}};\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg})"
         case .listRemoveRange:
             let lt = cType(ref cc, from: ref c, for: rt)
             let name = $"bynh_remove_range_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static void {name}({lt}* l, int64_t start, int64_t end, const char* file, int line)", as: "{\n    byn_slice_check(start, end, l->len, file, line);\n    if (end > start) memmove(l->ptr + start, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));\n    l->len -= end - start;\n}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static void {name}({lt}* l, int64_t start, int64_t end, const char* file, int line)",
+                as: "{\n    byn_slice_check(start, end, l->len, file, line);\n    if (end > start) memmove(l->ptr + start, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));\n    l->len -= end - start;\n}\n",
+            )
             let rv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)
             return $"{name}(&{rv}, {arg}, {t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: args[1])}, {loc(in c, by: in f, at: syntax)})"
         case .listRemoveThrough or .listRemoveAt or .listRemoveAtRange:
             // `through:` is an inclusive end and `at: i` removes one element (mode 1 and 2; mode 0 is `until`).
             let lt = cType(ref cc, from: ref c, for: rt)
             let name = $"bynh_remove_through_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static void {name}({lt}* l, int64_t start, int64_t end, int mode, const char* file, int line)", as: "{\n    if (mode == 2) {\n        if (start < 0 || start >= l->len) bayan_trap_bounds(file, line);\n        end = start;\n    }\n    if (mode != 0) {\n        byn_slice_check(start, end, l->len - 1, file, line);\n        end++;\n    }\n    byn_slice_check(start, end, l->len, file, line);\n    if (end > start) memmove(l->ptr + start, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));\n    l->len -= end - start;\n}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static void {name}({lt}* l, int64_t start, int64_t end, int mode, const char* file, int line)",
+                as: "{\n    if (mode == 2) {\n        if (start < 0 || start >= l->len) bayan_trap_bounds(file, line);\n        end = start;\n    }\n    if (mode != 0) {\n        byn_slice_check(start, end, l->len - 1, file, line);\n        end++;\n    }\n    byn_slice_check(start, end, l->len, file, line);\n    if (end > start) memmove(l->ptr + start, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));\n    l->len -= end - start;\n}\n",
+            )
             if member == .listRemoveThrough {
                 let rv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)
                 return $"{name}(&{rv}, {arg}, {t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: args[1])}, 1, {loc(in c, by: in f, at: syntax)})"
             }
-            if member == .listRemoveAt { return $"{name}(&{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg}, 0, 2, {loc(in c, by: in f, at: syntax)})" }
+            return $"{name}(&{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg}, 0, 2, {loc(in c, by: in f, at: syntax)})" if member == .listRemoveAt
             // `at: a..b` or `at: a..=b` reads the range's layout tuple (start, end, inclusive).
             let range = $"bynh_remove_at_range_{key(ref c, for: rt)}"
             let at = cType(ref cc, from: ref c, for: ltree.typeOf(in c, through: in t, for: args[0]))
-            let _ = helper(ref cc, for: range, from: $"static void {range}({lt}* l, {at} at, const char* file, int line)", as: $"{{\n    {name}(l, at.item1, at.item2, at.item3 ? 1 : 0, file, line);\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: range,
+                from: $"static void {range}({lt}* l, {at} at, const char* file, int line)",
+                as: $"{{\n    {name}(l, at.item1, at.item2, at.item3 ? 1 : 0, file, line);\n}}\n",
+            )
             return $"{range}(&{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg}, {loc(in c, by: in f, at: syntax)})"
         case .listReplace:
             let lt = cType(ref cc, from: ref c, for: rt)
             let name = $"bynh_replace_{key(ref c, for: rt)}"
             let at = cType(ref cc, from: ref c, for: ltree.typeOf(in c, through: in t, for: args[0]))
             let items = cType(ref cc, from: ref c, for: ltree.typeOf(in c, through: in t, for: args[1]))
-            let _ = helper(ref cc, for: name, from: $"static void {name}({lt}* l, {at} at, {items} items, const char* file, int line)", as: "{\n    int64_t start = at.item1, end = at.item3 ? at.item2 + 1 : at.item2;\n    byn_slice_check(start, end, l->len, file, line);\n    int64_t len = l->len - (end - start) + items.len;\n    if (!l->alloc) l->alloc = byn_context;\n    void* copy = NULL;\n    if (items.len > 0 && items.ptr >= l->ptr && items.ptr < l->ptr + l->cap)\n        items.ptr = copy = byn_copy_bytes(items.ptr, items.len * (int64_t)sizeof(*l->ptr), l->alloc);\n    byn_list_reserve((void**)&l->ptr, &l->cap, len, (int64_t)sizeof(*l->ptr), l->alloc);\n    memmove(l->ptr + start + items.len, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));\n    if (items.len > 0) memcpy(l->ptr + start, items.ptr, (size_t)items.len * sizeof(*l->ptr));\n    l->len = len;\n    if (copy) byn_release(l->alloc, copy);\n}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static void {name}({lt}* l, {at} at, {items} items, const char* file, int line)",
+                as: "{\n    int64_t start = at.item1, end = at.item3 ? at.item2 + 1 : at.item2;\n    byn_slice_check(start, end, l->len, file, line);\n    int64_t len = l->len - (end - start) + items.len;\n    if (!l->alloc) l->alloc = byn_context;\n    void* copy = NULL;\n    if (items.len > 0 && items.ptr >= l->ptr && items.ptr < l->ptr + l->cap)\n        items.ptr = copy = byn_copy_bytes(items.ptr, items.len * (int64_t)sizeof(*l->ptr), l->alloc);\n    byn_list_reserve((void**)&l->ptr, &l->cap, len, (int64_t)sizeof(*l->ptr), l->alloc);\n    memmove(l->ptr + start + items.len, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));\n    if (items.len > 0) memcpy(l->ptr + start, items.ptr, (size_t)items.len * sizeof(*l->ptr));\n    l->len = len;\n    if (copy) byn_release(l->alloc, copy);\n}\n",
+            )
             let rv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)
             return $"{name}(&{rv}, {arg}, {t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: args[1])}, {loc(in c, by: in f, at: syntax)})"
         case .listSort:
             let element = c.listTypes[ri]
             let et = cType(ref cc, from: ref c, for: element)
             let ek = key(ref c, for: element)
-            let lessBody = semantics.isString(element) ? "{\n    return byn_str_cmp(*(const byn_str*)a, *(const byn_str*)b) < 0;\n}\n" : $"{{\n    return *(const {et}*)a < *(const {et}*)b;\n}}\n"
-            let less = helper(ref cc, for: $"bynh_less_{ek}", from: $"static bool bynh_less_{ek}(const void* a, const void* b)", as: lessBody)
+            let lessBody = semantics.isString(
+                element,
+            ) ? "{\n    return byn_str_cmp(*(const byn_str*)a, *(const byn_str*)b) < 0;\n}\n" : $"{{\n    return *(const {et}*)a < *(const {et}*)b;\n}}\n"
+            let less = helper(
+                ref cc,
+                for: $"bynh_less_{ek}",
+                from: $"static bool bynh_less_{ek}(const void* a, const void* b)",
+                as: lessBody,
+            )
             // The list is read once, through a pointer, so a receiver with side effects runs once.
             let lt = cType(ref cc, from: ref c, for: rt)
             let rk = key(ref c, for: rt)
-            let name = helper(ref cc, for: $"bynh_sort_{rk}", from: $"static void bynh_sort_{rk}({lt}* l)", as: $"{{\n    byn_sort(l->ptr, l->len, sizeof(*l->ptr), {less});\n}}\n")
+            let name = helper(
+                ref cc,
+                for: $"bynh_sort_{rk}",
+                from: $"static void bynh_sort_{rk}({lt}* l)",
+                as: $"{{\n    byn_sort(l->ptr, l->len, sizeof(*l->ptr), {less});\n}}\n",
+            )
             return $"{name}(&{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)})"
         case .mapLength:
             return $"{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}.h.live"
@@ -239,13 +349,28 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             let kt = cType(ref cc, from: ref c, for: c.mapTypes[ri].key)
             let vt = cType(ref cc, from: ref c, for: c.mapTypes[ri].value)
             let name = $"bynh_copy_{key(ref c, for: rt)}"
-            let _ = helper(ref cc, for: name, from: $"static {mt} {name}({mt} m, byn_alloc* a)", as: $"{{\n    {mt} r;\n    byn_map_copy(&m.h, m.keys, (int64_t)sizeof({kt}), (void**)&r.keys, m.vals, (int64_t)sizeof({vt}), (void**)&r.vals, &r.h, a);\n    return r;\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {mt} {name}({mt} m, byn_alloc* a)",
+                as: $"{{\n    {mt} r;\n    byn_map_copy(&m.h, m.keys, (int64_t)sizeof({kt}), (void**)&r.keys, m.vals, (int64_t)sizeof({vt}), (void**)&r.vals, &r.h, a);\n    return r;\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, byn_arena_alloc({arg}))"
         case .mapIndex or .mapIndexSet or .mapSlot or .mapTryGet or .mapContains or .mapRemove:
             let m = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)
             var cargs = List<string>()
-            for a in args { cargs.append(t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: a)) }
-            return mapMethod(ref cc, from: ref c, for: member, as: rt, at: m, by: cargs, to: loc(in c, by: in f, at: syntax))
+            for a in args {
+                cargs.append(t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: a))
+            }
+            return mapMethod(
+                ref cc,
+                from: ref c,
+                for: member,
+                as: rt,
+                at: m,
+                by: cargs,
+                to: loc(in c, by: in f, at: syntax),
+            )
         case .arrayLength:
             return $"((void){t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, INT64_C({c.arrayTypes[ri].length}))"
         case .arrayAsSpan or .arrayMutableSpan:
@@ -257,14 +382,29 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             let text = $"byn_w_str(&{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg})"
             return claimed(ref cc, for: ref f, from: ref c, through: t, at: text, by: r, to: syntax)
         case .strBufAppendRepeated:
-            let name = helper(ref cc, for: "bynh_strbuf_repeat", from: "static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line)", as: "{\n    if (n < 0) byn_panic(\"repeated a negative number of times\", file, line);\n    for (int64_t i = 0; i < n; i++) byn_w_char(w, c);\n}\n")
+            let name = helper(
+                ref cc,
+                for: "bynh_strbuf_repeat",
+                from: "static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line)",
+                as: "{\n    if (n < 0) byn_panic(\"repeated a negative number of times\", file, line);\n    for (int64_t i = 0; i < n; i++) byn_w_char(w, c);\n}\n",
+            )
             let rv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)
             let text = $"{name}(&{rv}, {arg}, {t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: args[1])}, {loc(in c, by: in f, at: syntax)})"
             return claimed(ref cc, for: ref f, from: ref c, through: t, at: text, by: r, to: syntax)
         case .strBufInsert:
             // Appends the text, then rotates it into place by three reversals; text the buffer grew away from stays valid.
-            let _ = helper(ref cc, for: "bynh_reverse", from: "static void bynh_reverse(uint8_t* p, int64_t n)", as: "{\n    for (int64_t i = 0, j = n - 1; i < j; i++, j--) {\n        uint8_t t = p[i];\n        p[i] = p[j];\n        p[j] = t;\n    }\n}\n")
-            let name = helper(ref cc, for: "bynh_strbuf_insert", from: "static void bynh_strbuf_insert(byn_writer* w, byn_str s, int64_t at, const char* file, int line)", as: "{\n    byn_slice_check(at, w->len, w->len, file, line);\n    if (at < w->len && (w->buf[at] & 0xC0) == 0x80) byn_panic(\"string slice splits a code point\", file, line);\n    int64_t end = w->len;\n    byn_w_bytes(w, s.ptr, s.len);\n    bynh_reverse(w->buf + at, end - at);\n    bynh_reverse(w->buf + end, s.len);\n    bynh_reverse(w->buf + at, end - at + s.len);\n}\n")
+            let _ = helper(
+                ref cc,
+                for: "bynh_reverse",
+                from: "static void bynh_reverse(uint8_t* p, int64_t n)",
+                as: "{\n    for (int64_t i = 0, j = n - 1; i < j; i++, j--) {\n        uint8_t t = p[i];\n        p[i] = p[j];\n        p[j] = t;\n    }\n}\n",
+            )
+            let name = helper(
+                ref cc,
+                for: "bynh_strbuf_insert",
+                from: "static void bynh_strbuf_insert(byn_writer* w, byn_str s, int64_t at, const char* file, int line)",
+                as: "{\n    byn_slice_check(at, w->len, w->len, file, line);\n    if (at < w->len && (w->buf[at] & 0xC0) == 0x80) byn_panic(\"string slice splits a code point\", file, line);\n    int64_t end = w->len;\n    byn_w_bytes(w, s.ptr, s.len);\n    bynh_reverse(w->buf + at, end - at);\n    bynh_reverse(w->buf + end, s.len);\n    bynh_reverse(w->buf + at, end - at + s.len);\n}\n",
+            )
             let rv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)
             let text = $"{name}(&{rv}, {arg}, {t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: args[1])}, {loc(in c, by: in f, at: syntax)})"
             return claimed(ref cc, for: ref f, from: ref c, through: t, at: text, by: r, to: syntax)
@@ -272,7 +412,12 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             return $"byn_io_write({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {arg})"
         case .ioReadAll:
             let res = cType(ref cc, from: ref c, for: bType)
-            let name = helper(ref cc, for: "bynh_io_read_all", from: $"static {res} bynh_io_read_all(int32_t fd)", as: $"{{\n    (void)fd;\n    {res} r = {{0}};\n    r.err.code = byn_io_read_stdin(&r.value, byn_context);\n    return r;\n}}\n")
+            let name = helper(
+                ref cc,
+                for: "bynh_io_read_all",
+                from: $"static {res} bynh_io_read_all(int32_t fd)",
+                as: $"{{\n    (void)fd;\n    {res} r = {{0}};\n    r.err.code = byn_io_read_stdin(&r.value, byn_context);\n    return r;\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)})"
         case .strBufAsString:
             return $"byn_strbuf_str({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)})"
@@ -282,7 +427,12 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             return $"{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}.exit_code"
         case .timeNanos:
             return $"{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}.nanos"
-        case .formatSpecRadix or .formatSpecDebug or .formatSpecWidth or .formatSpecFill or .formatSpecAlign or .formatSpecDigits:
+        case .formatSpecRadix
+            or .formatSpecDebug
+            or .formatSpecWidth
+            or .formatSpecFill
+            or .formatSpecAlign
+            or .formatSpecDigits:
             let field = $"{member}"[10..].lowercased()
             return $"{t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}.{field}"
         case .processStdout:
@@ -315,7 +465,12 @@ public string emitBuiltin(ref CCtx cc, for ref CFunc f, from ref Ctx c, through 
             let message = value ? "result holds an error" : "result holds a value"
             let check = value ? "r.err.code" : "!r.err.code"
             let field = value ? "r.value" : "r.err"
-            let _ = helper(ref cc, for: name, from: $"static {cType(ref cc, from: ref c, for: bType)} {name}({res} r, const char* file, int line)", as: $"{{\n    if ({check}) byn_panic(\"{message}\", file, line);\n    return {field};\n}}\n")
+            let _ = helper(
+                ref cc,
+                for: name,
+                from: $"static {cType(ref cc, from: ref c, for: bType)} {name}({res} r, const char* file, int line)",
+                as: $"{{\n    if ({check}) byn_panic(\"{message}\", file, line);\n    return {field};\n}}\n",
+            )
             return $"{name}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: r)}, {loc(in c, by: in f, at: syntax)})"
         default:
             panic($"cannot emit {csName($"{member}")}")
@@ -338,7 +493,7 @@ public string unary(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.
     switch op {
         case .plus: return v
         case .negate:
-            if semantics.isInteger(type) { return $"byn_neg_{intSuffix(type)}({v}, {loc(in c, by: in f, at: span)})" }
+            return $"byn_neg_{intSuffix(type)}({v}, {loc(in c, by: in f, at: span)})" if semantics.isInteger(type)
             return $"(-{v})"
         case .notKeyword: return $"(!{v})"
         case .complement: return $"(({cType(ref cc, from: ref c, for: type)})~{v})"
@@ -349,10 +504,11 @@ public string unary(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.
 
 /// CEmitter.cs:2310 `BareCase`: an error case with fields written without its payload, under any conversions.
 bool bareCase(in Ctx c, for BExpr e) {
-    if ltree.isLowered(e) { return false }
+    return false if ltree.isLowered(e)
     let i = i64(e & 0xFFFFFFFF)
     switch semantics.boundKind(e) {
-        case .errorVariant: return c.bErrorVariants[i].payload.length == 0 && c.errorVariants[c.bErrorVariants[i].variant].fields.length > 0
+        case .errorVariant: return c.bErrorVariants[i].payload.length == 0
+            && c.errorVariants[c.bErrorVariants[i].variant].fields.length > 0
         case .conversion: return bareCase(in c, for: c.bConversions[i].operand)
         default: return false
     }
@@ -390,9 +546,10 @@ public string binary(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree
             default: {}
         }
     }
-    if semantics.isFloat(type) && op == .rem { return type == semantics.prim(.f32) ? $"fmodf({l}, {r})" : $"fmod({l}, {r})" }
-    let ordering = op == .lt || op == .gt || op == .le || op == .ge
-    if semantics.isString(type) && ordering { return $"(byn_str_cmp({l}, {r}) {opText(op)} 0)" }
+    return type == semantics.prim(.f32) ? $"fmodf({l}, {r})" : $"fmod({l}, {r})" if semantics.isFloat(type)
+        && op == .rem
+    let ordering = op is .lt or .gt or .le or .ge
+    return $"(byn_str_cmp({l}, {r}) {opText(op)} 0)" if semantics.isString(type) && ordering
     // Symbols order by text, as `string` does (R1).
     if type == semantics.builtinType(.symbol) && ordering {
         let a = symbolText(ref cc, for: l)
@@ -400,9 +557,8 @@ public string binary(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree
         return $"(byn_str_cmp({a}, {b}) {opText(op)} 0)"
     }
     // `== .case` with a payload case written bare tests the code (Q312).
-    if (op == .eq || op == .ne) && (bareCase(in c, for: left) || bareCase(in c, for: right)) {
-        return $"({l}.code {op == .eq ? "==" : "!="} {r}.code)"
-    }
+    return $"({l}.code {op == .eq ? "==" : "!="} {r}.code)" if (op is .eq or .ne) && (bareCase(in c, for: left)
+        || bareCase(in c, for: right))
     switch op {
         case .eq: return equalHelper(ref cc, from: ref c, for: type, at: l, to: r)
         case .ne: return $"(!{equalHelper(ref cc, from: ref c, for: type, at: l, to: r)})"
@@ -445,17 +601,19 @@ public string conversion(ref CCtx cc, for ref CFunc f, from ref Ctx c, through l
         case .widen: return $"(({cType(ref cc, from: ref c, for: to)}){v})"
         default: {}
     }
-    if kind == .numericCast && semantics.isInteger(to) && semantics.isFloat(from) {
-        return $"byn_f2i_{intSuffix(to)}((double){v})"
-    }
-    if (kind == .numericCast || kind == .charToInteger) && semantics.isInteger(to) {
-        if semantics.isSignedInteger(from) { return $"byn_cast_{intSuffix(to)}_i((int64_t){v}, {loc(in c, by: in f, at: span)})" }
+    return $"byn_f2i_{intSuffix(to)}((double){v})" if kind == .numericCast
+        && semantics.isInteger(to)
+        && semantics.isFloat(from)
+    if (kind is .numericCast or .charToInteger) && semantics.isInteger(to) {
+        return $"byn_cast_{intSuffix(to)}_i((int64_t){v}, {loc(in c, by: in f, at: span)})" if semantics.isSignedInteger(
+            from,
+        )
         return $"byn_cast_{intSuffix(to)}_u((uint64_t){v}, {loc(in c, by: in f, at: span)})"
     }
     switch kind {
         case .numericCast: return $"(({cType(ref cc, from: ref c, for: to)}){v})"
         case .integerToChar:
-            if semantics.isSignedInteger(from) { return $"byn_to_char((int64_t){v}, {loc(in c, by: in f, at: span)})" }
+            return $"byn_to_char((int64_t){v}, {loc(in c, by: in f, at: span)})" if semantics.isSignedInteger(from)
             return $"byn_to_char_u((uint64_t){v}, {loc(in c, by: in f, at: span)})"
         case .toOptional: return $"(({cType(ref cc, from: ref c, for: to)}){{true, {v}}})"
         // coverage-exempt: Q812
@@ -467,7 +625,12 @@ public string conversion(ref CCtx cc, for ref CFunc f, from ref Ctx c, through l
         case .arrayToSpan: return $"(({cType(ref cc, from: ref c, for: to)}){{{v}.v, {c.arrayTypes[i64(from & 0xFFFFFFFF)].length}}})"
         case .toDynRef:
             let ct = cType(ref cc, from: ref c, for: to)
-            let vt = vtable(ref cc, from: ref c, for: i64(from & 0xFFFFFFFF), as: c.dynRefTypes[i64(to & 0xFFFFFFFF)].iface)
+            let vt = vtable(
+                ref cc,
+                from: ref c,
+                for: i64(from & 0xFFFFFFFF),
+                as: c.dynRefTypes[i64(to & 0xFFFFFFFF)].iface,
+            )
             return $"(({ct}){{&{v}, &{vt}}})"
         // coverage-exempt: Q812
         default: panic($"cannot emit conversion {csName($"{kind}")}")
@@ -485,12 +648,22 @@ public string index(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.
     let fromEnd = c.bIndexes[ii].fromEnd ? "true" : "false"
     if semantics.kindOf(targetType) == .array {
         let length = c.arrayTypes[i64(targetType & 0xFFFFFFFF)].length
-        let _ = helper(ref cc, for: name, from: $"static {et}* {name}({tt}* a, int64_t i, bool from_end, const char* file, int line)", as: $"{{\n    if (from_end) i = {length} - i;\n    return &a->v[byn_index(i, {length}, file, line)];\n}}\n")
+        let _ = helper(
+            ref cc,
+            for: name,
+            from: $"static {et}* {name}({tt}* a, int64_t i, bool from_end, const char* file, int line)",
+            as: $"{{\n    if (from_end) i = {length} - i;\n    return &a->v[byn_index(i, {length}, file, line)];\n}}\n",
+        )
         let tv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: target)
         let iv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: c.bIndexes[ii].index)
         return $"(*{name}(&{tv}, (int64_t){iv}, {fromEnd}, {loc(in c, by: in f, at: c.bIndexes[ii].span)}))"
     }
-    let _ = helper(ref cc, for: name, from: $"static {et}* {name}({tt} s, int64_t i, bool from_end, const char* file, int line)", as: "{\n    if (from_end) i = s.len - i;\n    return &s.ptr[byn_index(i, s.len, file, line)];\n}\n")
+    let _ = helper(
+        ref cc,
+        for: name,
+        from: $"static {et}* {name}({tt} s, int64_t i, bool from_end, const char* file, int line)",
+        as: "{\n    if (from_end) i = s.len - i;\n    return &s.ptr[byn_index(i, s.len, file, line)];\n}\n",
+    )
     let tv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: target)
     let iv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: c.bIndexes[ii].index)
     return $"(*{name}({tv}, (int64_t){iv}, {fromEnd}, {loc(in c, by: in f, at: c.bIndexes[ii].span)}))"
@@ -511,7 +684,12 @@ public string slice(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.
     let tail = $"{start}, {end}, {c.bSlices[si].inclusive ? "true" : "false"}, {loc(in c, by: in f, at: c.bSlices[si].span)}"
     let targetType = ltree.typeOf(in c, through: in t, for: target)
     if semantics.isString(targetType) {
-        let str = helper(ref cc, for: "bynh_slice_str", from: "static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line)", as: "{\n    int64_t from, to;\n    byn_slice_range(s.len, a, am, b, bm, incl, file, line, &from, &to);\n    return byn_str_slice(s, from, to, file, line);\n}\n")
+        let str = helper(
+            ref cc,
+            for: "bynh_slice_str",
+            from: "static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line)",
+            as: "{\n    int64_t from, to;\n    byn_slice_range(s.len, a, am, b, bm, incl, file, line, &from, &to);\n    return byn_str_slice(s, from, to, file, line);\n}\n",
+        )
         return $"{str}({t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: target)}, {tail})"
     }
     let st = cType(ref cc, from: ref c, for: c.bSlices[si].type)
@@ -523,6 +701,11 @@ public string slice(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.
     let ptr = isArray ? "x->v" : "x.ptr"
     let tv = t11Expr(ref cc, for: ref f, from: ref c, through: in t, at: target)
     let arg = isArray ? $"&{tv}" : tv
-    let _ = helper(ref cc, for: name, from: $"static {st} {name}({param}, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line)", as: $"{{\n    int64_t from, to;\n    byn_slice_range({len}, a, am, b, bm, incl, file, line, &from, &to);\n    return ({st}){{{ptr} + from, to - from}};\n}}\n")
+    let _ = helper(
+        ref cc,
+        for: name,
+        from: $"static {st} {name}({param}, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line)",
+        as: $"{{\n    int64_t from, to;\n    byn_slice_range({len}, a, am, b, bm, incl, file, line, &from, &to);\n    return ({st}){{{ptr} + from, to - from}};\n}}\n",
+    )
     return $"{name}({arg}, {tail})"
 }

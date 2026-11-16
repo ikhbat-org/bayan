@@ -13,29 +13,31 @@ enum TestStatus {
 
 /// `TestResult` (TestReport.cs:9): `elapsedNanos` is `Elapsed`.
 struct TestResult {
-    string name
-    string file
-    i64 line
+    string     name
+    string     file
+    i64        line
     TestStatus status
-    i64 elapsedNanos
-    string output
+    i64        elapsedNanos
+    string     output
 }
 
 /// `TestReport` (TestReport.cs:17): `package` null outside a project, `elapsedNanos` is `Elapsed`, `skipped` the tests `--changed` left out.
 struct TestReport {
     string? package
-    string mode
-    string target
-    List<TestResult> tests = List<TestResult>()
-    i64 elapsedNanos = 0
-    i64 skipped = 0
+    string  mode
+    string  target
+    List<TestResult> tests = []
+    i64     elapsedNanos = 0
+    i64     skipped      = 0
 }
 
 /// TestReport.cs:19 `Count`.
 i64 testReportCount(in TestReport r, for TestStatus status) {
     var n: i64 = 0
     for t in r.tests {
-        if t.status == status { n += 1 }
+        if t.status == status {
+            n += 1
+        }
     }
     return n
 }
@@ -96,7 +98,9 @@ string t11JsonMilliseconds(i64 nanos) uses alloc {
     var tenths = ticks / 1000
     let rest = ticks % 1000
     // coverage-exempt: Q1218 a test that takes a tick count ending in 500 (a tie)
-    if rest > 500 || rest == 500 && tenths % 2 == 1 { tenths += 1 }
+    if rest > 500 || rest == 500 && tenths % 2 == 1 {
+        tenths += 1
+    }
     return tenths % 10 == 0 ? $"{tenths / 10}" : $"{tenths / 10}.{tenths % 10}"
 }
 
@@ -106,29 +110,39 @@ string t11JsonSeconds(i64 nanos) uses alloc {
     let whole = ticks / 10000000
     let rest = ticks % 10000000
     // coverage-exempt: Q1218 a run that takes a whole number of seconds to the 100 ns tick
-    if rest == 0 { return $"{whole}" }
+    return $"{whole}" if rest == 0
     var digits = $"{rest}"
-    while digits.length < 7 { digits = $"0{digits}" }
-    while digits.endsWith("0") { digits = digits[0..digits.length - 1] }
+    while digits.length < 7 {
+        digits = $"0{digits}"
+    }
+    while digits.endsWith("0") {
+        digits = digits[0..digits.length - 1]
+    }
     return $"{whole}.{digits}"
 }
 
 /// The `Utf8JsonWriter` of TestReport.cs:24 and QualityReport.cs:153 with `Indented = true` and `NewLine = "\n"`: two spaces a
 /// level, `"name": value`, and an empty container closed on its own line (`[]`, `{}`). `first` is no item yet in the open container.
 struct T11Json {
-    List<string> parts = List<string>()
-    i64 depth = 0
-    bool first = true
+    List<string> parts = []
+    i64          depth = 0
+    bool         first = true
 }
 
 /// The separator, new line and indent before an item, then its property name.
 void t11JsonItem(ref T11Json w, for string? name) uses alloc {
     if w.depth > 0 {
-        unless w.first { w.parts.append(",") }
+        unless w.first {
+            w.parts.append(",")
+        }
         w.parts.append("\n")
-        for _ in 0..w.depth { w.parts.append("  ") }
+        for _ in 0..w.depth {
+            w.parts.append("  ")
+        }
     }
-    if (name is { } n) { w.parts.append($"{t11JsonString(n)}: ") }
+    if name is not null {
+        w.parts.append($"{t11JsonString(name)}: ")
+    }
 }
 
 /// `WriteStartObject`/`WriteStartArray`: `bracket` is `{` or `[`.
@@ -144,7 +158,9 @@ void t11JsonClose(ref T11Json w, by string bracket) uses alloc {
     w.depth -= 1
     unless w.first {
         w.parts.append("\n")
-        for _ in 0..w.depth { w.parts.append("  ") }
+        for _ in 0..w.depth {
+            w.parts.append("  ")
+        }
     }
     w.parts.append(bracket)
     w.first = false
@@ -181,7 +197,7 @@ string t11JsonString(string s) uses alloc {
             escaped = "\\f"
         } else if v == 0x0D {
             escaped = "\\r"
-        } else if v < 0x20 || (v >= 0x7F && v <= 0x9F) || v == 0x2028 || v == 0x2029 {
+        } else if v is < 0x20 or 0x7F..=0x9F or 0x2028 or 0x2029 {
             escaped = $"\\u{t11Hex4(v)}"
         } else if v > 0xFFFF {
             let u = v - 0x10000
@@ -215,6 +231,8 @@ string t11Hex4(i64 v) uses alloc {
 /// The text written so far (`Encoding.UTF8.GetString(buffer.WrittenSpan)`).
 string t11JsonText(in T11Json w) uses alloc {
     var sb = StrBuf()
-    for p in w.parts { sb.append(p) }
+    for p in w.parts {
+        sb.append(p)
+    }
     return $"{sb.finish()}"
 }

@@ -1,7 +1,7 @@
 // Types. Ports `csharp/Bayan.Syntax/Parsing/Parser.cs` lines 1743–2113 (`IsTypeNameToken`, `IsDynAt`, `ScanType`,
 // `IsTypeArrow`, `ScanFunctionType`, `ScanClauseList`, `ScanTypeArgs`, `ScanExprTypeArgs`, `CSharpTypeNames`,
 // `ParseType`, `ParseFunctionType`, `ParseClauseList`, `ReadOnlyPointee`, `ParsePrefixPointer`, `PointeeText`,
-// `ReportPointerOutsideExtern`, `ParseNamedType`, `MissingType`, `ParseTypeArgs`). Owner: 
+// `ReportPointerOutsideExtern`, `ParseNamedType`, `MissingType`, `ParseTypeArgs`). Owner:
 //
 // The C# rewrites two finished nodes with `with`: a parenthesized lone function type gets the span of its
 // parentheses, and `ReadOnlyPointee` widens the outer pointers of `readonly T*` and marks the innermost one.
@@ -26,7 +26,7 @@ TypeSyntax wrapType(move ParsedType parsed) {
     }
 }
 
-bool isTypeNameToken(TokenKind kind) => kind == .identifier || kind == .neverKeyword
+bool isTypeNameToken(TokenKind kind) => kind is .identifier or .neverKeyword
 
 /// Whether `dyn` at `index` starts a type: `dyn ref I` or `dyn I`.
 bool isDynAt(ref Parser p, at i64 index) =>
@@ -52,50 +52,56 @@ i64 scanType(ref Parser p, at i64 index) => scanTypeNested(ref p, at: index, nes
                 let element = scanTypeNested(ref p, at: i, nested: true)
                 i = element.end
                 lone = element.function
-                if i < 0 { return (end: -1, function: false) }
+                return (end: -1, function: false) if i < 0
                 names = names && i == elementStart + 1
                 if isName(p.kindAt(i)) {
                     i += 1
                     names = false
                 }
                 elements += 1
-                if p.kindAt(i) != .comma { break }
+                break if p.kindAt(i) != .comma
                 i += 1
             }
         }
-        if p.kindAt(i) != .closeParen { return (end: -1, function: false) }
+        return (end: -1, function: false) if p.kindAt(i) != .closeParen
         i += 1
         // `(a, b) => …` at a statement start is a lambda, not a tuple type.
-        if !nested && names && p.kindAt(i) == .fatArrow { return (end: -1, function: false) }
-        if isTypeArrow(ref p, at: i, nested: nested) { return scanFunctionType(ref p, at: i, nested: nested) }
-        if elements < 2 && !(elements == 1 && lone) { return (end: -1, function: false) }
+        return (end: -1, function: false) if !nested && names && p.kindAt(i) == .fatArrow
+        return scanFunctionType(ref p, at: i, nested: nested) if isTypeArrow(ref p, at: i, nested: nested)
+        return (end: -1, function: false) if elements < 2 && !(elements == 1 && lone)
     } else {
         if isDynAt(ref p, at: at) {
             at += 1
             if p.kindAt(at) == .refKeyword {
                 at += 1
-                if p.kindAt(at) == .readonlyKeyword { at += 1 }
+                if p.kindAt(at) == .readonlyKeyword {
+                    at += 1
+                }
             }
         }
-        if !isTypeNameToken(p.kindAt(at)) { return (end: -1, function: false) }
+        return (end: -1, function: false) if !isTypeNameToken(p.kindAt(at))
         i = at + 1
-        while p.kindAt(i) == .dot && p.kindAt(i + 1) == .identifier { i += 2 }
+        while p.kindAt(i) == .dot && p.kindAt(i + 1) == .identifier {
+            i += 2
+        }
         if p.kindAt(i) == .less {
             i = scanTypeArgs(ref p, at: i)
-            if i < 0 { return (end: -1, function: false) }
+            return (end: -1, function: false) if i < 0
         }
     }
     while true {
         if p.kindAt(i) == .question {
             i += 1
         } else if p.kindAt(i) == .openBracket && (p.kindAt(i + 1) == .integerLiteral || p.kindAt(i + 1) == .identifier)
-            && p.kindAt(i + 2) == .closeBracket {
+                && p.kindAt(i + 2) == .closeBracket {
             i += 3
         } else if p.kindAt(i) == .star && !p.lexed.tokens[i].hasTriviaBefore {
             // `u8* p` is a pointer type; `a*b` is a product.
             var j = i
-            while p.kindAt(j) == .star && !p.lexed.tokens[j].hasTriviaBefore { j += 1 }
-            if j >= p.count || !p.lexed.tokens[j].hasTriviaBefore { return (end: i, function: false) }
+            while p.kindAt(j) == .star && !p.lexed.tokens[j].hasTriviaBefore {
+                j += 1
+            }
+            return (end: i, function: false) if j >= p.count || !p.lexed.tokens[j].hasTriviaBefore
             i = j
         } else if isTypeArrow(ref p, at: i, nested: nested) {
             return scanFunctionType(ref p, at: i, nested: nested)
@@ -117,7 +123,11 @@ bool isTypeArrow(ref Parser p, at i64 index, bool nested) =>
     var seenUses = false
     while i > 0 && (p.kindAt(i) == .failsKeyword && !seenFails || p.kindAt(i) == .usesKeyword && !seenUses) {
         let names = p.kindAt(i) == .usesKeyword
-        if names { seenUses = true } else { seenFails = true }
+        if names {
+            seenUses = true
+        } else {
+            seenFails = true
+        }
         i = scanClauseList(ref p, at: i + 1, names: names)
     }
     return (end: i, function: true)
@@ -133,10 +143,10 @@ i64 scanClauseList(ref Parser p, at i64 index, bool names) {
         } else {
             i = scanTypeNested(ref p, at: i, nested: true).end
         }
-        if i < 0 || p.kindAt(i) != .comma { break }
+        break if i < 0 || p.kindAt(i) != .comma
         i += 1
     }
-    if !paren || i < 0 { return i }
+    return i if !paren || i < 0
     return p.kindAt(i) == .closeParen ? i + 1 : -1
 }
 
@@ -145,7 +155,7 @@ i64 scanTypeArgs(ref Parser p, at i64 index) {
     var i = index + 1
     while true {
         i = scanTypeNested(ref p, at: i, nested: true).end
-        if i < 0 { return -1 }
+        return -1 if i < 0
         if p.kindAt(i) == .comma {
             i += 1
             continue
@@ -166,15 +176,15 @@ i64 scanExprTypeArgs(ref Parser p, at i64 index) {
 /// The C# parser rewrites the name's text; a `NamedType` path here is spans, so the dump applies this to a
 /// one-name path without type arguments (Q455).
 public string cSharpTypeName(string name) => name switch {
-    "int" => "i32",
-    "long" => "i64",
-    "short" => "i16",
-    "byte" => "u8",
-    "uint" => "u32",
-    "ulong" => "u64",
-    "float" => "f32",
+    "int"    => "i32",
+    "long"   => "i64",
+    "short"  => "i16",
+    "byte"   => "u8",
+    "uint"   => "u32",
+    "ulong"  => "u64",
+    "float"  => "f32",
     "double" => "f64",
-    _ => "",
+    _        => "",
 }
 
 /// A type. With `fatArrow` (a parameter type, an alias target, a local's annotation, a type argument) `=>` after a
@@ -189,7 +199,7 @@ TypeSyntax parseType(ref Parser p, bool fatArrow = false, bool lists = false) =>
 ParsedType parseTypeParts(ref Parser p, bool fatArrow = false, bool lists = false, i64 readOnlyStart = -1) {
     let start = p.current().start
     var type: TypeSyntax = .none
-    if p.kind() == .star { return ParsedType.done(parsePrefixPointer(ref p)) }
+    return ParsedType.done(parsePrefixPointer(ref p)) if p.kind() == .star
     if p.kind() == .readonlyKeyword {
         let end = scanType(ref p, at: p.pos + 1)
         if end > 0 && p.kindAt(end - 1) == .star {
@@ -222,8 +232,12 @@ ParsedType parseTypeParts(ref Parser p, bool fatArrow = false, bool lists = fals
         }
         let _ = p.expect(.closeParen)
         if p.kind() == .arrow || fatArrow && p.kind() == .fatArrow {
-            if hasLone { elements.append(TupleTypeElement { span: loneSpan, type: wrapType(move lone), name: null }) }
-            return ParsedType.function(parseFunctionType(ref p, from: start, by: move elements, fatArrow: fatArrow, lists: lists))
+            if hasLone {
+                elements.append(TupleTypeElement { span: loneSpan, type: wrapType(move lone), name: null })
+            }
+            return ParsedType.function(
+                parseFunctionType(ref p, from: start, by: move elements, fatArrow: fatArrow, lists: lists),
+            )
         }
         // `(Token -> bool) p`: the parentheses around a function type only group it.
         if hasLone {
@@ -242,7 +256,9 @@ ParsedType parseTypeParts(ref Parser p, bool fatArrow = false, bool lists = fals
         let isRef = p.accept(.refKeyword)
         let isReadOnly = isRef && p.accept(.readonlyKeyword)
         let inner = parseNamedType(ref p)
-        type = TypeSyntax.dynType(Owned(DynType { span: p.spanFrom(start), isRef: isRef, isReadOnly: isReadOnly, inner: move inner }))
+        type = TypeSyntax.dynType(
+            Owned(DynType { span: p.spanFrom(start), isRef: isRef, isReadOnly: isReadOnly, inner: move inner }),
+        )
     } else if isTypeNameToken(p.kind()) {
         type = parseNamedType(ref p)
     } else {
@@ -256,12 +272,16 @@ ParsedType parseTypeParts(ref Parser p, bool fatArrow = false, bool lists = fals
             let _ = p.advance()
             let inner = move type
             type = TypeSyntax.optionalType(Owned(OptionalType { span: p.spanFrom(start), inner: move inner }))
-        } else if p.kind() == .openBracket && (p.peek(1) == .integerLiteral || p.peek(1) == .identifier) && p.peek(2) == .closeBracket {
+        } else if p.kind() == .openBracket
+                && (p.peek(1) == .integerLiteral || p.peek(1) == .identifier)
+                && p.peek(2) == .closeBracket {
             let _ = p.advance()
             let size = parsePrimary(ref p)
             let _ = p.expect(.closeBracket)
             let element = move type
-            type = TypeSyntax.arrayType(Owned(ArrayType { span: p.spanFrom(start), element: move element, size: move size }))
+            type = TypeSyntax.arrayType(
+                Owned(ArrayType { span: p.spanFrom(start), element: move element, size: move size }),
+            )
         } else if p.kind() == .star && !p.current().hasTriviaBefore {
             let widen = readOnlyStart >= 0 && starsEndType(ref p, fatArrow: fatArrow)
             let _ = p.advance()
@@ -273,12 +293,16 @@ ParsedType parseTypeParts(ref Parser p, bool fatArrow = false, bool lists = fals
                 readOnly: widen && !widened,
             }))
             widened = widen
-            if p.kind() != .star { reportPointerOutsideExtern(ref p, at: span) }
+            if p.kind() != .star {
+                reportPointerOutsideExtern(ref p, at: span)
+            }
         } else if p.kind() == .arrow || fatArrow && p.kind() == .fatArrow {
             // Every node above spans from `start`, so this is `type.Span`.
             var parameters = List<TupleTypeElement>()
             parameters.append(TupleTypeElement { span: p.spanFrom(start), type: move type, name: null })
-            return ParsedType.function(parseFunctionType(ref p, from: start, by: move parameters, fatArrow: fatArrow, lists: lists))
+            return ParsedType.function(
+                parseFunctionType(ref p, from: start, by: move parameters, fatArrow: fatArrow, lists: lists),
+            )
         } else {
             return ParsedType.done(move type)
         }
@@ -289,28 +313,47 @@ ParsedType parseTypeParts(ref Parser p, bool fatArrow = false, bool lists = fals
 /// make are the outer ones `ReadOnlyPointee` rewrites (the C# rewrites the finished type; see the file comment).
 bool starsEndType(ref Parser p, bool fatArrow) {
     var j = p.pos
-    while p.kindAt(j) == .star && !p.lexed.tokens[j].hasTriviaBefore { j += 1 }
+    while p.kindAt(j) == .star && !p.lexed.tokens[j].hasTriviaBefore {
+        j += 1
+    }
     let k = p.kindAt(j)
-    if k == .question || k == .arrow || fatArrow && k == .fatArrow { return false }
+    return false if k == .question || k == .arrow || fatArrow && k == .fatArrow
     return !(k == .openBracket && (p.kindAt(j + 1) == .integerLiteral || p.kindAt(j + 1) == .identifier)
         && p.kindAt(j + 2) == .closeBracket)
 }
 
 /// `-> R uses e fails E` after the parameter types of a function type, right-associative: `A -> B -> C` returns
 /// `B -> C`. `=>` for the arrow is BYN1055, fixed to `->`; `fails` before `uses` is BYN1065.
-FunctionTypeSyntax parseFunctionType(ref Parser p, from i64 start, by move List<TupleTypeElement> parameters, bool fatArrow,
-    bool lists) {
+FunctionTypeSyntax parseFunctionType(
+    ref Parser p,
+    from i64 start,
+    by move List<TupleTypeElement> parameters,
+    bool fatArrow,
+    bool lists
+) {
     for e in parameters {
         let name = e.name
         if name is not null {
-            let _ = p.report(.expected, at: name, arg0: "`,` or `)`", arg1: $"`{p.lexed.source.getText(name)}`",
-                label: "a parameter name", help: "remove the name; a function type lists only its parameter types")
+            let _ = p.report(
+                .expected,
+                at: name,
+                arg0: "`,` or `)`",
+                arg1: $"`{p.lexed.source.getText(name)}`",
+                label: "a parameter name",
+                help: "remove the name; a function type lists only its parameter types",
+            )
         }
     }
     let arrow = p.advance()
     if arrow.kind == .fatArrow {
-        let _ = p.reportFix(.fatArrowFunctionType, at: spanOf(arrow), through: spanOf(arrow), by: "->", label: "the input form",
-            help: "write the function type with `->`")
+        let _ = p.reportFix(
+            .fatArrowFunctionType,
+            at: spanOf(arrow),
+            through: spanOf(arrow),
+            by: "->",
+            label: "the input form",
+            help: "write the function type with `->`",
+        )
     }
     let result = parseType(ref p, fatArrow: fatArrow, lists: lists)
     var failsClause: FailsClause? = null
@@ -355,7 +398,9 @@ List<TypeSyntax> elementTypes(move List<TupleTypeElement> parameters) {
         }
     }
     var types = List<TypeSyntax>()
-    while reversed.length > 0 { types.append(reversed.removeLast()) }
+    while reversed.length > 0 {
+        types.append(reversed.removeLast())
+    }
     return types
 }
 
@@ -363,22 +408,34 @@ List<TypeSyntax> elementTypes(move List<TupleTypeElement> parameters) {
 /// with `lists`, else one, or a parenthesized list (Q352).
 List<TypeSyntax> parseClauseTypes(ref Parser p, bool lists) {
     let paren = p.kind() == .openParen
-    if paren { let _ = p.advance() }
+    if paren {
+        let _ = p.advance()
+    }
     var items = List<TypeSyntax>()
     items.append(parseType(ref p))
-    while (lists || paren) && p.accept(.comma) { items.append(parseType(ref p)) }
-    if paren { let _ = p.expect(.closeParen) }
+    while (lists || paren) && p.accept(.comma) {
+        items.append(parseType(ref p))
+    }
+    if paren {
+        let _ = p.expect(.closeParen)
+    }
     return items
 }
 
 /// `ParseClauseList(lists, () => ExpectName("an effect name"))`: the effects after a function type's `uses`.
 List<TextSpan> parseClauseNames(ref Parser p, bool lists) {
     let paren = p.kind() == .openParen
-    if paren { let _ = p.advance() }
+    if paren {
+        let _ = p.advance()
+    }
     var items = List<TextSpan>()
     items.append(expectName(ref p, what: "an effect name"))
-    while (lists || paren) && p.accept(.comma) { items.append(expectName(ref p, what: "an effect name")) }
-    if paren { let _ = p.expect(.closeParen) }
+    while (lists || paren) && p.accept(.comma) {
+        items.append(expectName(ref p, what: "an effect name"))
+    }
+    if paren {
+        let _ = p.expect(.closeParen)
+    }
     return items
 }
 
@@ -387,21 +444,39 @@ TypeSyntax parsePrefixPointer(ref Parser p) {
     let start = p.current().start
     let star = p.advance()
     let readOnly = p.accept(.constKeyword)
-    if !readOnly && atContextual(ref p, as: "mut") && isTypeNameToken(p.peek(1)) { let _ = p.advance() }
+    if !readOnly && atContextual(ref p, as: "mut") && isTypeNameToken(p.peek(1)) {
+        let _ = p.advance()
+    }
     let pointee = parseType(ref p)
     let span = p.spanFrom(start)
     let canonical = $"{readOnly ? "readonly " : ""}{pointeeText(in pointee, from: ref p)}*"
     // `**T` nests input forms; the inner one gets the fix first, and has already raised BYN1067.
     let nested = pointee is .pointerType(_)
     if nested {
-        let _ = p.report(.prefixPointerInput, at: spanOf(star), arg0: p.lexed.source.getText(span), arg1: canonical,
-            label: "the input form", help: $"write the pointer after the type: `{canonical}`")
+        let _ = p.report(
+            .prefixPointerInput,
+            at: spanOf(star),
+            arg0: p.lexed.source.getText(span),
+            arg1: canonical,
+            label: "the input form",
+            help: $"write the pointer after the type: `{canonical}`",
+        )
     } else {
-        let _ = p.reportFix(.prefixPointerInput, at: spanOf(star), through: span, by: canonical, arg0: p.lexed.source.getText(span),
-            arg1: canonical, label: "the input form", help: $"write the pointer after the type: `{canonical}`")
+        let _ = p.reportFix(
+            .prefixPointerInput,
+            at: spanOf(star),
+            through: span,
+            by: canonical,
+            arg0: p.lexed.source.getText(span),
+            arg1: canonical,
+            label: "the input form",
+            help: $"write the pointer after the type: `{canonical}`",
+        )
     }
     let type = TypeSyntax.pointerType(Owned(PointerType { span: span, pointee: move pointee, readOnly: readOnly }))
-    if !nested { reportPointerOutsideExtern(ref p, at: span) }
+    if !nested {
+        reportPointerOutsideExtern(ref p, at: span)
+    }
     return type
 }
 
@@ -417,7 +492,7 @@ string pointeeText(in TypeSyntax pointee, from ref Parser p) {
 
 /// BYN1067 at `span`, the C# `ReportPointerOutsideExtern(type)` with `type.Span`.
 void reportPointerOutsideExtern(ref Parser p, at TextSpan span) {
-    if p.inExtern { return }
+    return if p.inExtern
     // Not through `report`: the type parsed in full, so no recovery is needed, and BYN1066 for a prefix pointer
     // starts at the same `*` and would make `report`'s same-start check drop this one.
     p.lexed.diagnostics.append(Diagnostic {
@@ -434,7 +509,7 @@ void reportPointerOutsideExtern(ref Parser p, at TextSpan span) {
 
 /// `Name`, `m.Name` or `Name<A>` without suffixes: a type, a base, a `where` bound or after `dyn`.
 TypeSyntax parseNamedType(ref Parser p) {
-    if !isTypeNameToken(p.kind()) { return missingType(ref p) }
+    return missingType(ref p) if !isTypeNameToken(p.kind())
     let start = p.current().start
     var path = List<TextSpan>()
     path.append(spanOf(p.advance()))
@@ -443,12 +518,22 @@ TypeSyntax parseNamedType(ref Parser p) {
         path.append(spanOf(p.advance()))
     }
     var args = List<TypeSyntax>()
-    if p.kind() == .less && scanTypeArgs(ref p, at: p.pos) > 0 { args = parseTypeArgs(ref p) }
+    if p.kind() == .less && scanTypeArgs(ref p, at: p.pos) > 0 {
+        args = parseTypeArgs(ref p)
+    }
     // The C# first rewrites a `CSharpTypeNames` name (`int` → `i32`, no diagnostic); that is the dump's here
     // (`cSharpTypeName`, Q455). `char` is not among them, so it reaches this branch either way.
-    if path.length == 1 && args.length == 0 && lexer.sameBytes(p.lexed.source.bytes.span[path[0].start..path[0].end], as: "char".bytes) {
-        let _ = p.reportFix(.charInput, at: path[0], through: path[0], by: "rune", label: "the input form",
-            help: "rename the type to `rune`")
+    if path.length == 1
+            && args.length == 0
+            && lexer.sameBytes(p.lexed.source.bytes.span[path[0].start..path[0].end], as: "char".bytes) {
+        let _ = p.reportFix(
+            .charInput,
+            at: path[0],
+            through: path[0],
+            by: "rune",
+            label: "the input form",
+            help: "rename the type to `rune`",
+        )
     }
     return TypeSyntax.namedType(Owned(NamedType { span: p.spanFrom(start), path: move path, args: move args }))
 }
@@ -459,17 +544,20 @@ TypeSyntax missingType(ref Parser p) {
     let _ = p.report(.expectedType, at: spanOf(p.current()), arg0: p.describe(p.current()))
     var path = List<TextSpan>()
     path.append(TextSpan { start: start, length: 0 })
-    return TypeSyntax.namedType(Owned(NamedType { span: TextSpan { start: start, length: 0 }, path: move path, args: List<TypeSyntax>() }))
+    return TypeSyntax.namedType(
+        Owned(NamedType { span: TextSpan { start: start, length: 0 }, path: move path, args: List<TypeSyntax>() }),
+    )
 }
 
 List<TypeSyntax> parseTypeArgs(ref Parser p) {
     let _ = p.advance()
     var args = List<TypeSyntax>()
     args.append(parseType(ref p, fatArrow: true))
-    while p.accept(.comma) { args.append(parseType(ref p, fatArrow: true)) }
+    while p.accept(.comma) {
+        args.append(parseType(ref p, fatArrow: true))
+    }
     let _ = p.expect(.greater)
     return args
 }
 
-// ── T6 stand-ins (T15 deletes) ──
-
+// ── T6 stand-ins (T15 deletes) ───────────────────────────────────────────────

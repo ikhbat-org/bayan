@@ -28,7 +28,7 @@ public sealed class FormatTests
         File.WriteAllText(file, "let a = true\nunless !a { print(\"y\") }\n");
         var (exit, stdout, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
-        Assert.Equal("let a = true\nif a { print(\"y\") }\n", File.ReadAllText(file));
+        Assert.Equal("let a = true\nif a {\n    print(\"y\")\n}\n", File.ReadAllText(file));
         Assert.Contains("formatted", stdout);
     }
 
@@ -39,7 +39,7 @@ public sealed class FormatTests
         File.WriteAllText(file, "let a = true\nlet b = true\nif (a) { if (b) { print(\"x\") } }\n");
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
-        Assert.Equal("let a = true\nlet b = true\nif a { if b { print(\"x\") } }\n", File.ReadAllText(file));
+        Assert.Equal("let a = true\nlet b = true\nif a {\n    if b {\n        print(\"x\")\n    }\n}\n", File.ReadAllText(file));
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public sealed class FormatTests
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
         Assert.Equal(
-            "// one\n// two\nbool isA(rune c) => c == 'a'\n" +
+            "// one\n// two\nbool isA(rune c) => c == 'a'\n\n" +
             "@cases(1, 2)\ntest \"positive\" (i32 n) {\n    assert(n > 0)\n}\n",
             File.ReadAllText(file));
     }
@@ -72,7 +72,7 @@ public sealed class FormatTests
         var file = Path.Combine(Fresh("function-types"), "main.byn");
         File.WriteAllText(file, "struct Order { i64 total }\ndelegate bool OrderFilter(Order order)\ntype F = i32 => bool\n");
         Run("format", file);
-        Assert.Equal("struct Order { i64 total }\ntype OrderFilter = Order -> bool\ntype F = i32 -> bool\n", File.ReadAllText(file));
+        Assert.Equal("struct Order { i64 total }\n\ntype OrderFilter = Order -> bool\ntype F           = i32 -> bool\n", File.ReadAllText(file));
     }
 
     [Fact]
@@ -86,8 +86,8 @@ public sealed class FormatTests
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
         Assert.Equal(
-            "struct Box { i64 weight }\nunion Event { timeout(i64 after) }\n" +
-            "i64 add(i64 a, i64 b) { return a + b }\n" +
+            "struct Box { i64 weight }\n\nunion Event { timeout(i64 after) }\n\n" +
+            "i64 add(i64 a, i64 b) {\n    return a + b\n}\n\n" +
             "void main() {\n    let t: i64 = add(1, 2)\n    var u: i64 = 0\n    u = t\n    const k: i64 = 3\n    print($\"{u}{k}\")\n}\n",
             File.ReadAllText(file));
     }
@@ -106,10 +106,20 @@ public sealed class FormatTests
 
     private const string ErrorSets = "union error E {\n    a\n}\nunion error F {\n    b\n}\nunion error G {\n    c\n}\n";
 
+    private const string CommentHeader = "i32!E g() // keep me\n    fails F\n    uses console";
+    private const string LinesHeader = "i32!E g()\n    fails F\n    uses console";
+    private const string WhereHeader = "i64!E g<T>(T x) fails F where T : IShape expects true";
+    private const string TwoFailsHeader = "i32!E g() fails F uses console fails G, E";
+    private const string TwoUsesHeader = "i32!E g() fails F uses console uses fs";
+
+    /// <summary>The file <see cref="FormatHeader"/> formats: the error sets, an interface and a function with <paramref name="header"/>.</summary>
+    private static string HeaderInput(string header) =>
+        ErrorSets + "interface IShape {\n    i64 area()\n}\n" + header + " {\n    print(\"g\")\n    return 1\n}\n";
+
     private static string FormatHeader(string dir, string header)
     {
         var file = Path.Combine(Fresh(dir), "main.byn");
-        File.WriteAllText(file, ErrorSets + "interface IShape {\n    i64 area()\n}\n" + header + " {\n    print(\"g\")\n    return 1\n}\n");
+        File.WriteAllText(file, HeaderInput(header));
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
         return File.ReadAllText(file);
@@ -118,29 +128,29 @@ public sealed class FormatTests
     [Fact]
     public void AFailsShorthandKeepsAComment()
     {
-        var text = FormatHeader("shorthand-comment", "i32!E g() // keep me\n    fails F\n    uses console");
-        Assert.Contains("i32 g()\n    uses console // keep me\n    fails E, F {", text);
+        var text = FormatHeader("shorthand-comment", CommentHeader);
+        Assert.Contains("i32 g()\n        uses console // keep me\n        fails E, F {", text);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
     }
 
     [Fact]
     public void AFailsShorthandKeepsAMultiLineHeader()
     {
-        var text = FormatHeader("shorthand-lines", "i32!E g()\n    fails F\n    uses console");
-        Assert.Contains("i32 g()\n    uses console\n    fails E, F {", text);
+        var text = FormatHeader("shorthand-lines", LinesHeader);
+        Assert.Contains("i32 g()\n        uses console\n        fails E, F {", text);
     }
 
     [Fact]
     public void AFailsShorthandCarriesWhereAndExpects()
     {
-        var text = FormatHeader("shorthand-where", "i64!E g<T>(T x) fails F where T : IShape expects true");
+        var text = FormatHeader("shorthand-where", WhereHeader);
         Assert.Contains("i64 g<T>(T x) where T : IShape expects true fails E, F {", text);
     }
 
     [Fact]
     public void AFailsShorthandMergesEveryFailsClause()
     {
-        var text = FormatHeader("shorthand-two-fails", "i32!E g() fails F uses console fails G, E");
+        var text = FormatHeader("shorthand-two-fails", TwoFailsHeader);
         Assert.Contains("i32 g() uses console fails E, F, G {", text);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
     }
@@ -148,7 +158,7 @@ public sealed class FormatTests
     [Fact]
     public void AFailsShorthandKeepsUsesClausesInSourceOrder()
     {
-        var text = FormatHeader("shorthand-two-uses", "i32!E g() fails F uses console uses fs");
+        var text = FormatHeader("shorthand-two-uses", TwoUsesHeader);
         Assert.Contains("i32 g() uses console uses fs fails E, F {", text);
     }
 
@@ -159,7 +169,7 @@ public sealed class FormatTests
         File.WriteAllText(file, "let a = true\nif (a) { print(\"x\") }\n");
         Run("format", file);
         var once = File.ReadAllText(file);
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", once);
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", once);
         var (exit, stdout, _) = Run("format", file);
         Assert.Equal(CliApp.ExitOk, exit);
         Assert.Empty(stdout);
@@ -167,12 +177,12 @@ public sealed class FormatTests
     }
 
     private const string WordsAndCSharp =
-        "bool f(bool a, bool b, int n) => a and not b or n is not 0\n" +
+        "bool f(bool a, bool b, int n) => a and not b or n is not 0\n\n" +
         "void main() {\n    let x: nint = 3\n    switch x {\n        case 1 or 2: print(\"a\")\n        default: print(\"b\")\n    }\n" +
         "    print(\"s\") if not f(true, false, 1) and x > 0\n}\n";
 
     private const string SymbolsAndSized =
-        "bool f(bool a, bool b, i32 n) => a && !b || n is not 0\n" +
+        "bool f(bool a, bool b, i32 n) => a && !b || n is not 0\n\n" +
         "void main() {\n    let x: isize = 3\n    switch x {\n        case 1 or 2: print(\"a\")\n        default: print(\"b\")\n    }\n" +
         "    print(\"s\") if !f(true, false, 1) && x > 0\n}\n";
 
@@ -253,7 +263,7 @@ public sealed class FormatTests
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
         Assert.Equal(
-            "struct P { int i8 }\nvoid main() {\n    let u8 = 1\n    let p = P { i8: 3 }\n    let w: sbyte = 2\n    print($\"{u8}{p.i8}{w}\")\n}\n",
+            "struct P { int i8 }\n\nvoid main() {\n    let u8 = 1\n    let p = P { i8: 3 }\n    let w: sbyte = 2\n    print($\"{u8}{p.i8}{w}\")\n}\n",
             File.ReadAllText(file));
     }
 
@@ -391,13 +401,13 @@ public sealed class FormatTests
         "    let u: Untrusted<string> = Untrusted(\"x\")\n    print(trust(u, reason: \"checked\"))\n}\n";
 
     private const string Round3Canonical =
-        "// Shapes.\nunion Shape {\n    circle(f64 r)\n    square(f64 side)\n}\nenum Size { // small\n    s\n    m // medium\n    l\n}\n" +
-        "struct unique File {\n    i64 fd\n}\nunion error StockError {\n    outOfStock\n}\n" +
-        "type distinct Percent = i32 requires it in 0..=100\n@derive(Json)\nstruct Parcel {\n    i64 weight\n}\n" +
-        "i32 twice(i32 n) => n * 2\nbool isA(rune c) => c == 'a'\n" +
-        "Shape pick(Shape s) {\n    switch s {\n        case not .circle: return s\n        default: return s\n    }\n}\n" +
-        "i64 add(i64 a, i64 b) {\n    return a + b\n}\n" +
-        "void run(Arena arena) {\n    provide allocator: arena {\n        print(\"x\")\n    }\n}\n" +
+        "// Shapes.\nunion Shape {\n    circle(f64 r)\n    square(f64 side)\n}\n\nenum Size { // small\n    s\n    m // medium\n    l\n}\n\n" +
+        "struct unique File {\n    i64 fd\n}\n\nunion error StockError {\n    outOfStock\n}\n\n" +
+        "type distinct Percent = i32 requires it in 0..=100\n\n@derive(Json)\nstruct Parcel {\n    i64 weight\n}\n\n" +
+        "i32 twice(i32 n) => n * 2\nbool isA(rune c) => c == 'a'\n\n" +
+        "Shape pick(Shape s) {\n    switch s {\n        case not .circle: return s\n        default: return s\n    }\n}\n\n" +
+        "i64 add(i64 a, i64 b) {\n    return a + b\n}\n\n" +
+        "void run(Arena arena) {\n    provide allocator: arena {\n        print(\"x\")\n    }\n}\n\n" +
         "void main() {\n    let t: i64 = add(1, b: 2)\n    print($\"{t}\")\n    if t > 0 {\n        print(\"pos\")\n    } else {\n        print(\"other\")\n    }\n" +
         "    let u: Untrusted<string> = Untrusted(\"x\")\n    print(u.trustUnchecked() because \"checked\")\n}\n";
 
@@ -427,7 +437,7 @@ public sealed class FormatTests
         Assert.Equal(CliApp.ExitFailure, exit);
         Assert.Contains("a.byn", stderr);
         Assert.Equal(brokenText, File.ReadAllText(broken));
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(fixable));
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(fixable));
     }
 
     [Fact]
@@ -439,14 +449,14 @@ public sealed class FormatTests
         File.WriteAllText(file, "let a = true\nif (a) { print(\"x\") }\n");
         var (exit, _, stderr) = Run("format", dir);
         Assert.True(exit == CliApp.ExitOk, stderr);
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(file));
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(file));
     }
 
     [Fact]
     public void AnInputFormWithoutAFixIsReported()
     {
         var file = Path.Combine(Fresh("nofix"), "main.byn");
-        var text = "i32!Foo? f() { return 1 }\n";
+        var text = "i32!Foo? f() {\n    return 1\n}\n";
         File.WriteAllText(file, text);
         var (exit, _, stderr) = Run("format", file);
         Assert.Equal(CliApp.ExitFailure, exit);
@@ -467,6 +477,26 @@ public sealed class FormatTests
             var (exit, _, stderr) = Run("format", file);
             Assert.Equal(CliApp.ExitFailure, exit);
             Assert.Contains("still changing after 1 passes", stderr);
+        }
+        finally { Format.MaxPasses = passes; }
+    }
+
+    [Fact]
+    public void MaxPassesSetOnOneThreadLeavesAnotherAtTen()
+    {
+        var file = Path.Combine(Fresh("passes-thread"), "main.byn");
+        File.WriteAllText(file, "let a = true\nif (a) { print(\"x\") }\n");
+        var passes = Format.MaxPasses;
+        Format.MaxPasses = 1;
+        try
+        {
+            (int Exit, string Out, string Err) result = default;
+            var other = new Thread(() => result = Run("format", file));
+            other.Start();
+            other.Join();
+            Assert.True(result.Exit == CliApp.ExitOk, result.Err);
+            Assert.DoesNotContain("still changing", result.Err);
+            Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(file));
         }
         finally { Format.MaxPasses = passes; }
     }
@@ -511,7 +541,7 @@ public sealed class FormatTests
             var (exit, _, stderr) = Run("format", dir);
             Assert.Equal(CliApp.ExitFailure, exit);
             Assert.Contains("a.byn", stderr);
-            Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(fixable));
+            Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(fixable));
         }
         finally { File.SetUnixFileMode(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite); }
     }
@@ -537,7 +567,7 @@ public sealed class FormatTests
             var (exit, _, stderr) = Run("format", dir);
             Assert.Equal(CliApp.ExitFailure, exit);
             Assert.Contains("locked", stderr);
-            Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(fixable));
+            Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(fixable));
         }
         finally { File.SetUnixFileMode(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); }
     }
@@ -568,7 +598,7 @@ public sealed class FormatTests
         File.CreateSymbolicLink(link, "real.byn");
         var (exit, _, stderr) = Run("format", link);
         Assert.True(exit == CliApp.ExitOk, stderr);
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(target));
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(target));
         Assert.Equal("real.byn", new FileInfo(link).LinkTarget);
     }
 
@@ -627,7 +657,7 @@ public sealed class FormatTests
         var (proj, real) = LinkThroughALinkedDirectory("link-through-dir", Decoy);
         var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(proj, "sub", "f.byn")), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.True(result.Exit == CliApp.ExitOk, result.Err);
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(Path.Combine(real, "g.byn")));
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(Path.Combine(real, "g.byn")));
         Assert.Equal(Decoy, File.ReadAllText(Path.Combine(proj, "g.byn")));
     }
 
@@ -638,7 +668,7 @@ public sealed class FormatTests
         var (proj, real) = LinkThroughALinkedDirectory("link-through-dir-nodecoy", null);
         var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(proj, "sub", "f.byn")), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.True(result.Exit == CliApp.ExitOk, result.Err);
-        Assert.Equal("let a = true\nif a { print(\"x\") }\n", File.ReadAllText(Path.Combine(real, "g.byn")));
+        Assert.Equal("let a = true\nif a {\n    print(\"x\")\n}\n", File.ReadAllText(Path.Combine(real, "g.byn")));
         Assert.False(File.Exists(Path.Combine(proj, "g.byn")));
     }
 
@@ -693,7 +723,7 @@ public sealed class FormatTests
     public async Task FormattingAPathThroughALinkAndUpReadsAndWritesTheSameFile()
     {
         if (OperatingSystem.IsWindows()) return;
-        const string Other = "let b = true\nif b { print(\"y\") }\n";
+        const string Other = "let b = true\nif b {\n    print(\"y\")\n}\n";
         var dir = LinkToADeeperDirectory("link-dotdot-file", Other);
         var result = await Task.Factory.StartNew(() => Run("format", Path.Combine(dir, "link", "..", "a.byn")), TaskCreationOptions.LongRunning).WaitAsync(TestTime.Scale(TimeSpan.FromSeconds(120)));
         Assert.True(result.Exit == CliApp.ExitOk, result.Err);
@@ -764,11 +794,13 @@ public sealed class FormatTests
     }
 
     /// <summary>`bayan format` indents each under-indented joined line, so BYN5103 is quiet on its output; quiet input is left alone.</summary>
+    private static readonly (string Name, bool Fires)[] LineJoinCases =
+        [("line-join-member", true), ("line-join-enum-shorthand", true), ("line-join-and", true), ("line-join-quiet", false)];
+
+    public static IEnumerable<object[]> LineJoinRows() => LineJoinCases.Select(c => new object[] { c.Name, c.Fires });
+
     [Theory]
-    [InlineData("line-join-member", true)]
-    [InlineData("line-join-enum-shorthand", true)]
-    [InlineData("line-join-and", true)]
-    [InlineData("line-join-quiet", false)]
+    [MemberData(nameof(LineJoinRows))]
     public void FormattedCodeQuietsTheLineJoinLint(string name, bool fires)
     {
         var source = File.ReadAllBytes(Path.Combine(Golden.CasesRoot, "diag", name + ".byn"));
@@ -780,5 +812,193 @@ public sealed class FormatTests
         var formatted = File.ReadAllBytes(file);
         Assert.Empty(Bayan.Syntax.Parsing.SyntaxTree.Parse(new Bayan.Syntax.Text.SourceText(file, formatted)).Lints);
         if (!fires) Assert.Equal(source, formatted);
+    }
+
+    // ── bayan fix (spec 022 T7b) ─────────────────────────────────────────────────────
+
+    /// <summary>A copy of the <c>diag/</c> case <paramref name="name"/> as <c>main.byn</c> in a fresh directory.</summary>
+    private static string FixCase(string name)
+    {
+        var dir = Fresh("fix-" + name);
+        File.Copy(Path.Combine(Golden.RepoRoot, "tests", "cases", "diag", name + ".byn"), Path.Combine(dir, "main.byn"));
+        return dir;
+    }
+
+    [Theory]
+    [InlineData("style-sections-banner", "BYN1077")]
+    [InlineData("style-conditions-patterns", "BYN1078")]
+    [InlineData("style-literals-empty", "BYN1079")]
+    [InlineData("style-optionals-bind", "BYN1080")]
+    [InlineData("style-guards-postfix", "BYN1072")]
+    [InlineData("style-lambdas-it", "BYN1073")]
+    public void FixClearsItsLintAndIsIdempotent(string name, string code)
+    {
+        var dir = FixCase(name);
+        var file = Path.Combine(dir, "main.byn");
+        var (exit, _, err) = Run("check", file);
+        Assert.Contains($"note {code}", err);
+        (exit, var stdout, _) = Run("fix", dir);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Matches(@"^fixed .*main\.byn \(\d+\)\n$", stdout.ReplaceLineEndings("\n"));
+        var once = File.ReadAllBytes(file);
+        (exit, stdout, _) = Run("fix", dir);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Equal("", stdout);
+        Assert.Equal(once, File.ReadAllBytes(file));
+        (exit, _, err) = Run("check", file);
+        Assert.True(exit == CliApp.ExitOk, err);
+        // A `guards.postfix` site without a fix (a comment in the block) stays.
+        if (code != "BYN1072") Assert.DoesNotContain(code, err);
+    }
+
+    [Theory]
+    [InlineData("style-fix-keeps-comments")]
+    [InlineData("style-fix-keeps-line-comments")]
+    public void FixKeepsAComment(string name)
+    {
+        // Each lint there has a comment in the span its fix would replace, so it is reported with no fix.
+        var dir = FixCase(name);
+        var file = Path.Combine(dir, "main.byn");
+        var before = File.ReadAllBytes(file);
+        var (exit, stdout, _) = Run("fix", dir);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Equal("", stdout);
+        Assert.Equal(before, File.ReadAllBytes(file));
+    }
+
+    [Theory]
+    [InlineData("conditions-patterns")]
+    [InlineData("optionals-bind")]
+    [InlineData("literals-empty")]
+    [InlineData("sections-banner")]
+    public void FixGivesTheFixedRunCase(string name)
+    {
+        // Both run cases print the same output (RunTests), so the fix keeps the program's behaviour.
+        var run = Path.Combine(Golden.RepoRoot, "tests", "cases", "run");
+        Assert.Equal(File.ReadAllText(Path.Combine(run, $"style-fix-{name}.stdout")), File.ReadAllText(Path.Combine(run, $"style-fix-{name}-fixed.stdout")));
+        var dir = Fresh("fix-run-" + name);
+        var file = Path.Combine(dir, "main.byn");
+        File.Copy(Path.Combine(run, $"style-fix-{name}.byn"), file);
+        var (exit, _, _) = Run("fix", file);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Equal(File.ReadAllText(Path.Combine(run, $"style-fix-{name}-fixed.byn")), File.ReadAllText(file));
+    }
+
+    [Theory]
+    [InlineData("style-literals-empty")]
+    [InlineData("style-sections-banner")]
+    public void FixKeepsTheSameC(string name)
+    {
+        var dir = FixCase(name);
+        var file = Path.Combine(dir, "main.byn");
+        var (exit, before, err) = Run("build", file, "--emit-c");
+        Assert.True(exit == CliApp.ExitOk, err);
+        Assert.Equal(CliApp.ExitOk, Run("fix", dir).Exit);
+        (exit, var after, err) = Run("build", file, "--emit-c");
+        Assert.True(exit == CliApp.ExitOk, err);
+        Assert.Equal(before, after);
+    }
+
+    [Fact]
+    public void FixMissingPathExitsTwo()
+    {
+        var missing = Path.Combine(Golden.RepoRoot, "tmp", "format", "fix-missing", "nope.byn");
+        var (exit, _, err) = Run("fix", missing);
+        Assert.Equal(CliApp.ExitUsage, exit);
+        Assert.Equal(Messages.NotFound.Text(missing), err.TrimEnd());
+        Assert.Equal(Run("format", missing).Err, err);
+    }
+
+    [Fact]
+    public void FixDoesNotFormat()
+    {
+        var dir = Fresh("fix-no-format");
+        var file = Path.Combine(dir, "main.byn");
+        const string Source = "void main() {\n    let x = 1\n    if x == 1 || x == 2 { print(\"y\") }\n    let ok  =  true\n    print($\"{ok}\")\n}\n";
+        File.WriteAllText(file, Source);
+        Assert.Equal(CliApp.ExitOk, Run("fix", dir).Exit);
+        Assert.Equal(Source.Replace("x == 1 || x == 2", "x is 1 or 2"), File.ReadAllText(file));
+    }
+
+    [Fact]
+    public void FixNamesAFileOnce()
+    {
+        // `bayan fix dir dir/.` lists main.byn twice: a second copy would apply the offsets found before the first rewrote the banner.
+        var dir = Fresh("fix-twice");
+        var file = Path.Combine(dir, "main.byn");
+        File.WriteAllText(file, "// ── Helpers ──────\nbool f(i32 x) {\n    return x == 1 || x == 2\n}\n");
+        var (exit, stdout, _) = Run("fix", dir, Path.Combine(dir, "."));
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Matches(@"^fixed .*main\.byn \(2\)\n$", stdout.ReplaceLineEndings("\n"));
+        Assert.Equal("// ── Helpers ──────────────────────────────────────────────────────────────────\nbool f(i32 x) {\n    return x is 1 or 2\n}\n", File.ReadAllText(file));
+    }
+
+    [Fact]
+    public void FixRefusesAFileThatDoesNotParse()
+    {
+        // As `bayan format`: the parse errors are rendered, the file is left and the exit code is 1.
+        var dir = Fresh("fix-unparsable");
+        var file = Path.Combine(dir, "main.byn");
+        const string Source = "void f(bool c) {\n    if c { return }\n    let x = (1 +\n}\n";
+        File.WriteAllText(file, Source);
+        var (exit, stdout, stderr) = Run("fix", file);
+        Assert.Equal(CliApp.ExitFailure, exit);
+        Assert.Equal("", stdout);
+        Assert.Equal(Run("format", file).Err, stderr);
+        Assert.Contains("error BYN1002", stderr);
+        Assert.Equal(Source, File.ReadAllText(file));
+    }
+
+    [Fact]
+    public void AFixThatDoesNotParseIsAbandoned()
+    {
+        var file = Path.Combine(Fresh("fix-abandoned"), "main.byn");
+        const string Source = "void f(bool c) {\n    if c { return }\n}\n";
+        File.WriteAllText(file, Source);
+        Format.RewriteHook = next => [.. next, .. "let broken = (\n"u8.ToArray()];
+        try
+        {
+            var (exit, stdout, stderr) = Run("fix", file);
+            Assert.Equal(CliApp.ExitFailure, exit);
+            Assert.Equal("", stdout);
+            Assert.Equal(Messages.FormatRewriteAbandoned.Text(file), stderr.TrimEnd());
+            Assert.Equal(Source, File.ReadAllText(file));
+        }
+        finally { Format.RewriteHook = null; }
+    }
+
+    [Fact]
+    public void CheckPackageReadsTheRootsLints()
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tests", "cases", "diag", "style-severity-error");
+        // As `bayan check --all --package . main.byn` run in that directory.
+        var (exit, _, err) = Run("check", "--all", "--package", dir, Path.Combine(dir, "main.byn"));
+        Assert.NotEqual(CliApp.ExitOk, exit);
+        Assert.Contains("error BYN1072", err);
+    }
+
+    /// <summary>
+    /// The inputs these cases build from a literal and a named constant or read from <c>tests/cases/diag/</c>, by case name, with
+    /// their <c>Style</c> fields. <c>SelfhostDriverStage2FormatTests.ComposedInputsFormatAsCliApp</c> formats each whole through stage 2.
+    /// </summary>
+    public static IEnumerable<(string Name, string Source, string Style)> ComposedInputs() =>
+    [
+        (nameof(AFailsShorthandKeepsAComment), HeaderInput(CommentHeader), ""),
+        (nameof(AFailsShorthandKeepsAMultiLineHeader), HeaderInput(LinesHeader), ""),
+        (nameof(AFailsShorthandCarriesWhereAndExpects), HeaderInput(WhereHeader), ""),
+        (nameof(AFailsShorthandMergesEveryFailsClause), HeaderInput(TwoFailsHeader), ""),
+        (nameof(AFailsShorthandKeepsUsesClausesInSourceOrder), HeaderInput(TwoUsesHeader), ""),
+        .. LineJoinCases.Select(c => ($"{nameof(FormattedCodeQuietsTheLineJoinLint)}({c.Name})",
+            File.ReadAllText(Path.Combine(Golden.CasesRoot, "diag", c.Name + ".byn")), "")),
+    ];
+
+    [Fact]
+    public void ReplaceEachMapsEveryDiagnosticInPlace()
+    {
+        var bag = new Bayan.Syntax.Diagnostics.DiagnosticBag();
+        for (var i = 0; i < 3; i++)
+            bag.Add(new(Bayan.Syntax.Diagnostics.Severity.Warning, "BYN1072", null, new Bayan.Syntax.Text.TextSpan(i, 1), "m" + i));
+        bag.ReplaceEach(x => x with { Message = x.Message + "!" });
+        Assert.Equal(["m0!", "m1!", "m2!"], bag.Items.Select(x => x.Message));
     }
 }

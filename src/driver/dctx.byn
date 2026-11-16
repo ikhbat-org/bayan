@@ -6,7 +6,7 @@
 struct DStyle {
     bool color = false
     bool ascii = false
-    i64 width = 100
+    i64  width = 100
     // ── T7 state
     /// The palette `Decide` picks (TerminalStyle.cs:24-27) when `color`: 0 is `Ansi16`, 1 `TruecolorLight`, 2 `TruecolorDark`. An enum would have to be declared above `DStyle`, outside the T7 section.
     i64 palette = 0
@@ -16,15 +16,15 @@ struct DStyle {
 public struct DCtx {
     // ── T1 state
     /// `--ascii` of `TakeGlobalOptions` (CliApp.cs:315), as given.
-    bool ascii = false
+    bool   ascii     = false
     /// `--color` of `TakeGlobalOptions`, as given: auto, always or never.
-    string color = "auto"
+    string color     = "auto"
     /// `s_styleOut` of `Run` (CliApp.cs:29), decided from `color` and `ascii`.
-    DStyle styleOut = DStyle {}
+    DStyle styleOut  = {}
     /// `s_styleErr` of `Run` (CliApp.cs:30).
-    DStyle styleErr = DStyle {}
+    DStyle styleErr  = {}
     /// `s_stderrTty` of `Run` (CliApp.cs:31).
-    bool stderrTty = false
+    bool   stderrTty = false
     // ── T3 state
     // T3 keeps no state: `Targets.Host` is recomputed from `Target` (cc.byn `targetHost`).
     // ── T5 state
@@ -36,14 +36,14 @@ public struct DCtx {
     i64 maxPasses = 10
     // ── T9 state
     /// `s_swept` (Toolchain.cs:518): `SweepOnce` has swept.
-    bool swept = false
+    bool   swept         = false
     /// The names made so far for `Guid.NewGuid`, which has no builtin (cache.byn `t9Unique`, Q1149).
-    i64 uniques = 0
+    i64    uniques       = 0
     /// `identities` (Toolchain.cs:186): the C compiler command whose identity `identity` is, once `identityKnown` (cache.byn
     /// `t9CompilerIdentity`). The C# memo holds every command of the process; a run of the driver finds one compiler.
-    bool identityKnown = false
-    string identityOf = ""
-    string identity = ""
+    bool   identityKnown = false
+    string identityOf    = ""
+    string identity      = ""
     // ── T11 state
     // T11 keeps no state: `test` reads its options per call (test.byn `T11Options`), and its coverage directory is named by T9's `uniques` (cache.byn `t9Unique`).
     // ── T12 state
