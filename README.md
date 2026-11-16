@@ -75,51 +75,206 @@ For a one-off script you don't need a project. Write a single `.byn` file and ru
 
 ## A taste of the language
 
-Here is a slightly bigger program: seats for a community iftar. A function that can fail says so in its
-signature (`fails IftarError`), and the caller has to decide what happens for each error:
+The examples below are small programs around a community iftar. Each one runs as it is with
+`bayan run main.byn`.
+
+### Errors are values
+
+The iftar keeps its own count of seats, so a guest asks only for what they need. Booking can fail, and
+the signature says so (`fails BookingError`). The caller has to handle each error; the compiler checks that
+none is left out:
 
 ```
-union error IftarError {
+union error BookingError {
+    /// Every seat is taken.
     full
-    tooMany
+    /// Fewer seats are left than were asked for.
+    notEnough(i64 left)
 }
 
-i64 reserve(i64 seats, from i64 left) fails IftarError {
-    fail .full if left == 0
-    fail .tooMany if seats > left
-    return left - seats
-}
+struct Iftar {
+    i64 seats
+    i64 booked
 
-string book(string name, for i64 seats, from i64 left) {
-    let rest = reserve(seats, from: left) catch switch {
-        IftarError.full => return $"Sorry {name}, the iftar is full",
-        IftarError.tooMany => return $"Sorry {name}, only {left} seats left",
+    i64 left => seats - booked
+
+    void reserve(ref this, i64 count) fails BookingError {
+        fail .full if left == 0
+        fail .notEnough(left) if count > left
+        booked += count
     }
-    return $"{name} booked {seats}, {rest} left"
+
+    string book(ref this, string guest, for i64 count) {
+        reserve(count) catch switch {
+            .full => return $"Sorry {guest}, the iftar is full",
+            .notEnough(let left) => return $"Sorry {guest}, only {left} left",
+        }
+        return $"{guest} booked {count}, {left} left"
+    }
 }
 
 void main() {
-    print(book("Umar", for: 2, from: 5))
-    print(book("Bilal", for: 4, from: 3))
-    print(book("Yusuf", for: 1, from: 0))
+    var iftar = Iftar { seats: 6, booked: 0 }
+    print(iftar.book("Umar", for: 2))
+    print(iftar.book("Aisha", for: 3))
+    print(iftar.book("Bilal", for: 4))
+    print(iftar.book("Yusuf", for: 1))
+    print(iftar.book("Maryam", for: 1))
 }
 ```
 
 ```text
-Umar booked 2, 3 left
-Sorry Bilal, only 3 seats left
-Sorry Yusuf, the iftar is full
+Umar booked 2, 4 left
+Aisha booked 3, 1 left
+Sorry Bilal, only 1 left
+Yusuf booked 1, 0 left
+Sorry Maryam, the iftar is full
 ```
 
-A few things that may look unfamiliar:
+An error can carry data: `notEnough(i64 left)` tells the guest how many seats remain. There are no
+exceptions: `fail` returns the error to the caller, and a call that can fail is marked with `try` (pass the
+error on) or `catch` (handle it here).
+
+### Effects are part of the signature
+
+A public function lists what it touches outside its own arguments: files (`fs`), memory (`alloc`), the
+console, the network and so on. A function with no `uses` clause only computes, so you can call it
+anywhere and test it with plain values:
+
+```
+/// Counts the names in a guest list, one per line. No `uses` clause: it only computes.
+public i64 countGuests(string list) {
+    var count = 0
+    for line in list.lines {
+        count += 1 if !line.trimmed().isEmpty
+    }
+    return count
+}
+
+/// Reads the guest list from a file, so it declares `uses fs`.
+public i64 guestsIn(string path) uses fs, alloc fails IoError {
+    let list = try Io.readText(path)
+    return countGuests(list)
+}
+
+void main() {
+    let guests = guestsIn("guests.txt") catch {
+        print("No guest list yet")
+        return
+    }
+    print($"{guests} guests, {guests * 3} dates to break the fast")
+}
+```
+
+With a `guests.txt` holding `Umar`, `Aisha` and `Bilal` on separate lines, it prints
+`3 guests, 9 dates to break the fast`. Without the file it prints `No guest list yet`.
+
+Leave `alloc` out of the `uses` clause and the compiler tells you, with the fix:
+
+```text
+error BYN6002: `guestsIn` uses `alloc` but does not declare it
+  --> main.byn:12:20
+
+  12 │     let list = try Io.readText(path)
+     │                    ^^^^^^^^^^^^^^^^^ uses `alloc`
+     │
+  help: add `alloc` to the `uses` clause, or remove the call
+     │ 11 │ public i64 guestsIn(string path) uses fs, alloc fails IoError {
+     │    │                                         +++++++
+```
+
+### States the compiler tracks
+
+A catering order is placed, then paid, then delivered. Its `states` block names the steps, each method
+says which state it needs (`ref this is .paid`) and which it leaves behind (`becomes .delivered`), and a
+state can carry its own data (`paid(i64 amount)`):
+
+```
+struct Order {
+    string dish
+    i64 plates
+    states {
+        placed
+        paid(i64 amount)
+        delivered(i64 amount)
+    }
+
+    void pay(ref this is .placed, i64 amount) becomes .paid {
+        become .paid(amount)
+    }
+
+    void deliver(ref this is .paid) becomes .delivered {
+        become .delivered(amount)
+    }
+}
+
+string status(Order o) => o switch {
+    .placed => $"{o.plates} plates of {o.dish}, waiting for payment",
+    .paid(let amount) => $"{o.dish} paid ({amount}), on its way",
+    .delivered => $"{o.dish} delivered",
+}
+
+void main() {
+    var order = Order.placed { dish: "lentil soup", plates: 40 }
+    print(status(order))
+    order.pay(120)
+    print(status(order))
+    order.deliver()
+    print(status(order))
+}
+```
+
+```text
+40 plates of lentil soup, waiting for payment
+lentil soup paid (120), on its way
+lentil soup delivered
+```
+
+Deliver before paying and the program does not compile:
+
+```text
+error BYN7001: `deliver` needs `order` to be `.paid`, but it is `Order.placed`
+  --> main.byn:28:5
+
+  28 │     order.deliver()
+     │     ^^^^^
+     │
+  help: check the state with `is` or `switch` first
+```
+
+### Memory you can see
+
+There is no garbage collector. Text and lists come from an allocator, and `provide` picks which one. Here
+every invitation is built in one arena, and all of them are freed together when the arena's scope ends:
+
+```
+void main() {
+    let guests = ["Umar", "Aisha", "Bilal"]
+    using let arena = Arena()
+    provide allocator: arena {
+        for guest in guests {
+            let card = $"Salam {guest}, join us for iftar on Friday"
+            print(card)
+        }
+    }
+}
+```
+
+```text
+Salam Umar, join us for iftar on Friday
+Salam Aisha, join us for iftar on Friday
+Salam Bilal, join us for iftar on Friday
+```
+
+### A few more things
 
 - **Particles.** A function has at most one unlabeled parameter. The others carry a word such as `from`,
-  `to`, `by` or `for`, and the call says it too: `book("Umar", for: 2, from: 5)`. Calls read like
-  sentences, and you can't swap two arguments by accident.
-- **Locals are `let`.** You write `let rest = …`, or `let rest: i64 = …` with a type. Declarations put the
-  type first (`i64 reserve(…)`), local bindings put the name first; write it the other way and the error
-  message shows you the fix.
-- **`stmt if condition`** is a statement guarded by a condition, as in `fail .soldOut if left == 0`.
+  `to`, `by` or `for`, and the call says it too: `iftar.book("Umar", for: 2)`. Calls read like sentences,
+  and you can't swap two arguments by accident.
+- **Locals are `let`** (or `var` when they change). You write `let list = …`, or `let list: string = …`
+  with a type. Declarations put the type first (`i64 countGuests(…)`), local bindings put the name first;
+  write it the other way and the error message shows you the fix.
+- **`stmt if condition`** is a statement guarded by a condition, as in `fail .full if left == 0`.
 
 The compiler's error messages try to teach. Each error has a code, and `bayan explain <code>` explains
 it in more detail, for example `bayan explain BYN1043`.
