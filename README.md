@@ -506,7 +506,7 @@ Local builds go in `dist/` (gitignored). `scripts/dist.sh` writes `dist/<target>
 per target that every build replaces. `bayan dist` writes `dist/<version>/` and one `dist/latest/`.
 
 ```sh
-scripts/dist.sh                                # this host: dist/macos-arm64/latest/bayan
+scripts/dist.sh                                # this host: dist/macos-arm64/0.3.2-dev/bayan
 scripts/dist.sh --from <publish-dir> --rid win-x64 --commit <sha>   # import a binary published on another OS
 ```
 
