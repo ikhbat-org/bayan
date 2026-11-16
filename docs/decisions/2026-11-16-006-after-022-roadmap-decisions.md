@@ -263,3 +263,10 @@ The code uses the word before the first particle (`by`, `of`, `in`): `modules` d
 
 - `docs/bayan-spec.md` §20 code fences are tagged `csharp`; the rule against describing Bayān that way may want a different tag.
 - Spec §20 says `assert expr` takes no parentheses; all four `tests/cases/run/*.test.byn` files write `assert(...)`.
+
+## Decided by the user, 2026-11-16 (third message)
+
+- **2 (oracle freeze): yes.** Freeze the C# outputs at the 0.3.2 tag under the three conditions in §2.
+- **4 (coverage): agreed.** Not an exit condition of 019; a no-drop ratchet inside 019, the climb to 100% as its own track, `Io` fault injection in the C runtime.
+- **3 (test runner) and 6 (Q1272, Q1186–Q1189):** the owner asked for more examples; sent 2026-11-16 with real compiler output. Correction found while preparing them: Q1188's `people` already gets the fix `person`.
+- **Site look:** mockup b for the light theme, mockup c for dark mode.
