@@ -59,7 +59,8 @@ gargs=$(cat $aux/guard-args.txt); pargs=$(cat $aux/preflight-args.txt); cmp -s t
 next() { code "$1"; review; git switch -q base
   perl -i -pe 's/^- \[x\] T99 /- [ ] T99 /' docs/specs/010-self-hosted-semantics/010-tasks.md; git commit -qam "test: untick T99"; }
 covrep() { printf '{"version": 1, "kind": "coverage", "files": [{"path": "y.byn", "lines": {"covered": %s, "total": 4, "missed": []}, "branches": {"covered": %s, "total": 2, "missed": []}}]}\n' "$1" "$2" > $aux/covreport; }
-ycov() { python3 -I -c 'import json; print(json.load(open("tests/quality-baseline.json"))["files"].get("y.byn"))'; }
+# ycov: y.byn's baseline entry as `"mutation": null, "coverage": 1.0, ...` (the indent=2 layout quality-baseline.py writes), empty for none
+ycov() { awk '$0 == "    \"y.byn\": {" { on = 1; next } on && /^    }/ { exit } on { sub(/^ +/, ""); printf "%s%s", s, $0; s = " " }' tests/quality-baseline.json; }
 next feat-fill; covrep 3 1
 fill=$(land feat-fill); filled=$(ycov); intick=$(git log -1 --format=%s -- tests/quality-baseline.json)
 next feat-rise; covrep 4 2; rise=$(land feat-rise); rose=$(ycov)
@@ -96,10 +97,10 @@ echo "$ok" | grep -q '^LANDED T99$' || fail "a well-reviewed branch did not land
 [ "$gargs" = "--base base --filter F" ] || fail "the guard ran with '$gargs', not without --mutate and --seed" "$ok"
 echo "$stale" | grep -q "LAND REFUSED: base changed src/ or runtime/ after feat-stale branched" && [ "$stalehead" = "$stalehead2" ] || fail "a src/ branch landed after the base changed src/ (bootstrap/ would not match the merged tree)" "$stale"
 [ $noreport = 1 ] || fail "a landing without a coverage report changed tests/quality-baseline.json" "$ok"
-echo "$fill" | grep -q '^LANDED T99$' && [ "$filled" = "{'mutation': None, 'coverage': 0.75, 'branches': 0.5}" ] || fail "a landing with a coverage report did not fill coverage and branches (y.byn: $filled)" "$fill"
+echo "$fill" | grep -q '^LANDED T99$' && [ "$filled" = '"mutation": null, "coverage": 0.75, "branches": 0.5' ] || fail "a landing with a coverage report did not fill coverage and branches (y.byn: $filled)" "$fill"
 [ "$intick" = "chore(010): tick T99" ] || fail "the baseline change is not in the tick commit (last commit touching it: $intick)" "$fill"
-echo "$rise" | grep -q '^LANDED T99$' && [ "$rose" = "{'mutation': None, 'coverage': 1.0, 'branches': 1.0}" ] || fail "a landing with a higher coverage did not raise the baseline (y.byn: $rose)" "$rise"
-echo "$drop" | grep -q '^LANDED T99$' && [ "$dropped" = "{'mutation': None, 'coverage': 1.0, 'branches': 1.0}" ] && [ $dropsame = 1 ] || fail "a lower filtered coverage did not land leaving the recorded value unchanged (y.byn: $dropped)" "$drop"
+echo "$rise" | grep -q '^LANDED T99$' && [ "$rose" = '"mutation": null, "coverage": 1.0, "branches": 1.0' ] || fail "a landing with a higher coverage did not raise the baseline (y.byn: $rose)" "$rise"
+echo "$drop" | grep -q '^LANDED T99$' && [ "$dropped" = '"mutation": null, "coverage": 1.0, "branches": 1.0' ] && [ $dropsame = 1 ] || fail "a lower filtered coverage did not land leaving the recorded value unchanged (y.byn: $dropped)" "$drop"
 echo "$bad" | grep -q '^LAND REFUSED: quality-baseline.py failed on ' && [ "$badhead" = "$badbase" ] && [ -z "$badtree" ] && [ $badsame = 1 ] \
   || fail "a malformed coverage report was not refused before the merge (head moved: $([ "$badhead" = "$badbase" ] && echo no || echo yes); dirty: $badtree)" "$bad"
 echo PASS

@@ -1,0 +1,84 @@
+// std.encoding base64 codec (spec 015 S12, T16): RFC 4648 §4 standard alphabet with `=` padding.
+
+const alphabet: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+/// Encoding bytes as RFC 4648 §4 base64 text and decoding base64 text back to bytes.
+public struct Base64 {
+    /// `bytes` in the RFC 4648 §4 standard alphabet (`A–Z`, `a–z`, `0–9`, `+`, `/`), padded with `=` to a multiple of 4 bytes.
+    public static string encode(ReadOnlySpan<u8> bytes) uses alloc {
+        var sb = StrBuf()
+        var i = 0
+        while i + 3 <= bytes.length {
+            let n = (i64(bytes[i]) << 16) | (i64(bytes[i + 1]) << 8) | i64(bytes[i + 2])
+            sb.append(digit(n >> 18))
+            sb.append(digit((n >> 12) & 0x3F))
+            sb.append(digit((n >> 6) & 0x3F))
+            sb.append(digit(n & 0x3F))
+            i += 3
+        }
+        let rem = bytes.length - i
+        if rem == 1 {
+            let b0 = i64(bytes[i])
+            sb.append(digit(b0 >> 2))
+            sb.append(digit((b0 & 0x03) << 4))
+            sb.append("==")
+        } else if rem == 2 {
+            let n = (i64(bytes[i]) << 8) | i64(bytes[i + 1])
+            sb.append(digit(n >> 10))
+            sb.append(digit((n >> 4) & 0x3F))
+            sb.append(digit((n & 0x0F) << 2))
+            sb.append("=")
+        }
+        return $"{sb.finish()}"
+    }
+
+    /// The bytes `text` holds in RFC 4648 §4 base64, failing `ParseError.badDigit` at the first byte outside the
+    /// alphabet, misplaced `=`, non-zero padding bit, or missing byte at `text.length`.
+    public static List<u8> decode(string text) uses alloc fails ParseError {
+        var bytes = List<u8>()
+        var i = 0
+        while i < text.length {
+            let d0 = try sextet(text, at: i)
+            fail .badDigit(at: text.length) if i + 1 >= text.length
+            let d1 = try sextet(text, at: i + 1)
+            fail .badDigit(at: text.length) if i + 2 >= text.length
+            if text.bytes[i + 2] == '=' {
+                fail .badDigit(at: i + 2) if i + 4 < text.length
+                fail .badDigit(at: text.length) if i + 3 >= text.length
+                fail .badDigit(at: i + 3) if text.bytes[i + 3] != '='
+                fail .badDigit(at: i + 1) if (d1 & 0x0F) != 0
+                bytes.append(u8((d0 << 2) | (d1 >> 4)))
+                return bytes
+            }
+            let d2 = try sextet(text, at: i + 2)
+            fail .badDigit(at: text.length) if i + 3 >= text.length
+            if text.bytes[i + 3] == '=' {
+                fail .badDigit(at: i + 3) if i + 4 < text.length
+                fail .badDigit(at: i + 2) if (d2 & 0x03) != 0
+                bytes.append(u8((d0 << 2) | (d1 >> 4)))
+                bytes.append(u8(((d1 & 0x0F) << 4) | (d2 >> 2)))
+                return bytes
+            }
+            let d3 = try sextet(text, at: i + 3)
+            bytes.append(u8((d0 << 2) | (d1 >> 4)))
+            bytes.append(u8(((d1 & 0x0F) << 4) | (d2 >> 2)))
+            bytes.append(u8(((d2 & 0x03) << 6) | d3))
+            i += 4
+        }
+        return bytes
+    }
+}
+
+/// The 1-byte slice of `alphabet` at `index`.
+string digit(i64 index) => alphabet[index..index + 1]
+
+/// The 6-bit value of the base64 digit at `at` in `text`.
+i64 sextet(string text, at i64 at) fails ParseError {
+    let b = text.bytes[at]
+    return i64(b - 'A') if b >= 'A' && b <= 'Z'
+    return i64(b - 'a') + 26 if b >= 'a' && b <= 'z'
+    return i64(b - '0') + 52 if b >= '0' && b <= '9'
+    return 62 if b == '+'
+    return 63 if b == '/'
+    fail .badDigit(at: at)
+}
