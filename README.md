@@ -17,8 +17,9 @@ A small, explicit language that compiles to native executables. Errors are value
 [![License: ISL-P](https://img.shields.io/badge/license-ISL--P%201.2-1F3A5F)](LICENSE.md)
 
 Bayān (بيان, "clear statement") compiles to a small native executable. There is no runtime to install, no
-garbage collector and no exceptions. Errors are ordinary return values that the compiler makes you handle,
-and memory comes from scopes and allocators you can see in the code.
+garbage collector and no exceptions. Values are copied by default, errors are ordinary return values that
+the compiler makes you handle, and memory comes from scopes and allocators you can see in the code. The
+compiler is written in Bayān itself: it turns your program into C, then hands that C to a C compiler.
 
 ```swift
 string greeting() {
@@ -130,12 +131,13 @@ nothing else to install except a C compiler. This is the list from `bayan --help
 | `bayan new`, `bayan init` | Create an app, library (`--lib`) or script (`--script`), in a new or an existing directory |
 | `bayan run` | Compile and run a project, a script or a file |
 | `bayan build` | Compile to an executable; `--mode debug\|safe\|fast`, `--target`, `--emit-c` |
-| `bayan test` | Run each test in its own process; `--coverage` for lines, branches and error paths; `--mutate` for mutation testing; `--changed` for modules touched since `HEAD`; `--json` |
+| `bayan test` | Run each test in its own process; `--mutate` for mutation testing; `--changed` for modules touched since `HEAD`; `--json` |
 | `bayan check` | Report diagnostics without building; `--diagnostics json` for tools |
 | `bayan format` | Rewrite input forms and apply the `style` in `package.byn`; `--check` writes nothing |
 | `bayan explain` | Explain a diagnostic code, for example `bayan explain BYN6002` |
 | `bayan doctor` | Check the C compiler, zig, git and the build cache, with a fix for each problem |
 | `bayan dist` | Build release binaries into `dist/<version>/`; `--target all` cross-compiles through zig |
+| `bayan mutate` | Run a command once per mutant site of a prebuilt `--mutate` binary |
 | `bayan audit` | List every `because` bypass and every `unsafe` or `extern` declaration, with its reason |
 | `bayan clean`, `bayan cache stats` | Remove `out/` (and `dist/`, the cache on request); show the shared build cache |
 | `bayan lex`, `parse`, `types`, `features` | Look inside the compiler: tokens, syntax tree, inferred types, features a build used |
@@ -148,8 +150,7 @@ The standard library is compiled in, so a program needs no package manager to us
 | Piece | What it gives you |
 |---|---|
 | `Io` | Files (`Io.readText`), standard streams, processes, random numbers; each use shows up in `uses` |
-| `Path` | Build file paths from segments with `Path.join` |
-| `List`, `Map`, `Deque` | Growable collections that take their memory from an allocator |
+| `List`, `Map` | Growable collections that take their memory from an allocator |
 | `StrBuf` | A string builder for loops |
 | `Arena` | Allocate many things, free them all together |
 | `std.json` | A JSON reader and a `Json` value type: `import std.json` |
@@ -394,7 +395,8 @@ Salam Bilal, join us for iftar on Friday
 - **Particles.** A function has at most one unlabeled parameter. The others carry a word such as `from`,
   `to`, `by` or `for`, and the call says it too: `iftar.book("Umar", for: 2)`. You can't swap two
   arguments by accident.
-- **Locals are `let`** (or `var` when they change). Declarations put the type first
+- **Locals are `let`** (or `var` when they change). You write `let list = …`, or `let list: string = …`
+  with a type. Declarations put the type first
   (`i64 countGuests(…)`); local bindings put the name first. Write it the other way and the error message
   shows you the fix.
 - **`stmt if condition`** is a statement guarded by a condition, as in `fail .full if left == 0`.
