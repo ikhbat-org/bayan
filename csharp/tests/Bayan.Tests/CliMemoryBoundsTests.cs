@@ -420,9 +420,37 @@ public sealed class CliMemoryBoundsTests
             using var held = Toolchain.CompileSlot();
             var waiter = Task.Run(Toolchain.CompileSlot);
             Thread.Sleep(TestTime.Scale(200));
-            Directory.Delete(dir, recursive: true);
+            // The waiter re-creates the directory as it goes, so a delete can meet a file it just made: repeat until gone.
+            for (var tries = 0; tries < 100 && Directory.Exists(dir); tries++)
+            {
+                try { Directory.Delete(dir, recursive: true); }
+                catch (IOException) { }
+            }
             Assert.True(waiter.Wait(TestTime.Scale(TimeSpan.FromSeconds(10))), "a waiter span forever after its slot directory was removed");
             waiter.Result!.Dispose();
+        }));
+    }
+
+    [Fact]
+    public void ASlotDirectoryRemovedRightAfterItIsCreatedIsRetried()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Fresh("cc-jobs-window");
+        var dir = Path.Combine(root, "jobs");
+        var removals = 0;
+        WithEnv("BAYAN_CC_JOBS_DIR", dir, () => WithEnv("BAYAN_CC_JOBS", "1", () =>
+        {
+            Toolchain.AfterSlotDirectoryCreated = d =>
+            {
+                if (d == dir && removals++ == 0) Directory.Delete(d, recursive: true);
+            };
+            try
+            {
+                using var slot = Toolchain.CompileSlot();
+                Assert.NotNull(slot);
+                Assert.Equal(2, removals);
+            }
+            finally { Toolchain.AfterSlotDirectoryCreated = null; }
         }));
     }
 

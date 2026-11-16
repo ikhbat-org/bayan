@@ -153,8 +153,9 @@ public static class Toolchain
     /// when the variable is unset or 0. A slot is an exclusive lock on <c>&lt;dir&gt;/&lt;i&gt;.lock</c>, dir being
     /// <c>$BAYAN_CC_JOBS_DIR</c> or <c>&lt;temp&gt;/bayan-cc-jobs-&lt;user&gt;</c> (per user: Linux's <c>/tmp</c> is shared), so
     /// test processes sharing a host share the cap (two VM shard slots each ran several 2.6 GB zig compiles at once and the
-    /// OOM killer took one, work/todo.md). The OS drops the lock when its process dies. Only a plain <see cref="IOException"/>
-    /// (the lock is held) means busy; the directory is re-created each round, so one removed under a waiter does not
+    /// OOM killer took one, work/todo.md). The OS drops the lock when its process dies. A plain <see cref="IOException"/>
+    /// (the lock is held) means busy; a <see cref="DirectoryNotFoundException"/> (the directory was removed after it was
+    /// created) means try again. The directory is re-created each round, so one removed under a waiter does not
     /// leave it waiting forever. Any other failure throws.
     /// </summary>
     internal static FileStream? CompileSlot()
@@ -165,14 +166,19 @@ public static class Toolchain
         while (true)
         {
             Directory.CreateDirectory(dir);
+            AfterSlotDirectoryCreated?.Invoke(dir);
             for (var i = 0; i < n; i++)
             {
                 try { return new FileStream(Path.Combine(dir, $"{i}.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
                 catch (IOException e) when (e.GetType() == typeof(IOException)) { }
+                catch (Exception e) when (e is DirectoryNotFoundException or FileNotFoundException) { break; }
             }
             Thread.Sleep(100);
         }
     }
+
+    /// <summary>Test seam: called with the slot directory right after <see cref="CompileSlot"/> created it, to remove it in that window.</summary>
+    internal static Action<string>? AfterSlotDirectoryCreated { get; set; }
 
     /// <summary>Test seams: how long the probe waits for a candidate to compile, and for its program to run.</summary>
     internal static TimeSpan ProbeCompileTimeout { get; set; } = TimeSpan.FromSeconds(120);
