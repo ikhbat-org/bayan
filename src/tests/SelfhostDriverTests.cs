@@ -1293,6 +1293,58 @@ public sealed class SelfhostDriverStage2FormatTests
         SelfhostEmitterHarness.AssertSame($"stderr of format --check {tree}", expected.Err, stderr.ReplaceLineEndings("\n"));
     }
 
+    public static IEnumerable<object[]> CorpusRootRows() => LayoutTests.CorpusRoots.Select(root => new object[] { Path.GetRelativePath(Golden.RepoRoot, root) });
+
+    /// <summary>
+    /// <c>LayoutTests.TheCorpusLaysOutOnceAndForAll</c>'s corpus, root by root: its <c>LayoutTests.CorpusPattern</c> files are copied to
+    /// <c>tmp/t8-corpus/cs/</c> and <c>tmp/t8-corpus/stage2/</c> and formatted there by the C# CLI and by stage 2. The exit, stdout and
+    /// stderr (the side's directory read as <c>{D}</c>, seconds masked) and every file after, byte for byte (checked first, so a mismatch names the file and line), are the same.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(CorpusRootRows))]
+    public void CorpusFormatsAsCliApp(string root)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var from = Path.Combine(Golden.RepoRoot, root);
+        var files = Directory.EnumerateFiles(from, LayoutTests.CorpusPattern, SearchOption.AllDirectories)
+            .Select(f => Path.GetRelativePath(from, f)).Order(StringComparer.Ordinal).ToList();
+        Assert.NotEmpty(files);
+        string Copy(string side)
+        {
+            var dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-corpus", side, root);
+            if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+            foreach (var rel in files)
+            {
+                var to = Path.Combine(dir, rel);
+                Directory.CreateDirectory(Path.GetDirectoryName(to)!);
+                File.WriteAllBytes(to, File.ReadAllBytes(Path.Combine(from, rel)));
+            }
+            return dir;
+        }
+        static string Mask(string text, string dir) =>
+            Regex.Replace(text.ReplaceLineEndings("\n").Replace(dir, "{D}"), @"\d+\.\d+s", "0.00s");
+        var cs = Copy("cs");
+        var expected = SelfhostDriverT1Tests.Oracle(["format", cs]);
+        var stage2 = Copy("stage2");
+        var (exit, stdout, stderr) = SelfhostDriverT1Tests.Run(BootstrapTests.Stage2Executable(), "format", stage2);
+        string[] Listed(string dir) => [.. Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories).Select(f => Path.GetRelativePath(dir, f)).Order(StringComparer.Ordinal)];
+        Assert.Equal(Listed(cs), Listed(stage2));
+        foreach (var rel in Listed(cs))
+        {
+            var want = File.ReadAllBytes(Path.Combine(cs, rel));
+            var got = File.ReadAllBytes(Path.Combine(stage2, rel));
+            if (want.AsSpan().SequenceEqual(got)) continue;
+            var wantLines = System.Text.Encoding.UTF8.GetString(want).Split('\n');
+            var gotLines = System.Text.Encoding.UTF8.GetString(got).Split('\n');
+            var line = 0;
+            while (line < wantLines.Length && line < gotLines.Length && wantLines[line] == gotLines[line]) line++;
+            Assert.Fail($"{root}/{rel}:{line + 1} differs\n  C#:      {(line < wantLines.Length ? wantLines[line] : "<end>")}\n  stage 2: {(line < gotLines.Length ? gotLines[line] : "<end>")}");
+        }
+        Assert.Equal(expected.Exit, exit);
+        SelfhostEmitterHarness.AssertSame($"stdout of format {root}", Mask(expected.Out, cs), Mask(stdout, stage2));
+        SelfhostEmitterHarness.AssertSame($"stderr of format {root}", Mask(expected.Err, cs), Mask(stderr, stage2));
+    }
+
     /// <summary>
     /// The <c>style</c> fields of each <c>LayoutOptions</c> in LayoutTests.cs (and <c>indent</c>, which no test there sets) and each
     /// <c>Package</c> style in FormatTests.cs.

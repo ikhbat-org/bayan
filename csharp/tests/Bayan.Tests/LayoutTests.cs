@@ -860,6 +860,9 @@ public sealed class LayoutTests
         Assert.Equal(source, output);
     }
 
+    /// <summary>
+    /// No stage-2 row replays this case: it injects its fault through <c>Layout.OutputHook</c>, a C#-only seam no CLI run can reach.
+    /// </summary>
     [Theory]
     [InlineData("tokens", "let a = 1\nlet b = 2\n", "let a = 1\nlet b = 3\n", "the tokens changed")]
     [InlineData("diagnostics", "let a = 1\nlet b = 2\n", "let a = 1 let b = 2\n", "the diagnostics changed")]
@@ -886,9 +889,15 @@ public sealed class LayoutTests
 
     // ── Corpus ──
 
+    /// <summary>The roots <see cref="Corpus"/> walks; <c>SelfhostDriverStage2FormatTests.CorpusFormatsAsCliApp</c> copies the same.</summary>
+    public static readonly string[] CorpusRoots = [Golden.CasesRoot, Path.Combine(Golden.RepoRoot, "src"), Path.Combine(Golden.RepoRoot, "lib")];
+
+    /// <summary>The file filter <see cref="Corpus"/> walks each of <see cref="CorpusRoots"/> with.</summary>
+    public const string CorpusPattern = "*.byn";
+
     public static IEnumerable<object[]> Corpus() =>
-        new[] { Golden.CasesRoot, Path.Combine(Golden.RepoRoot, "src"), Path.Combine(Golden.RepoRoot, "lib") }
-            .SelectMany(root => Directory.EnumerateFiles(root, "*.byn", SearchOption.AllDirectories))
+        CorpusRoots
+            .SelectMany(root => Directory.EnumerateFiles(root, CorpusPattern, SearchOption.AllDirectories))
             .Order(StringComparer.Ordinal)
             .Select(f => new object[] { Path.GetRelativePath(Golden.RepoRoot, f) });
 
