@@ -7,7 +7,8 @@
 # A program that exits non-zero on purpose has <name>.exit holding the expected exit code.
 set -u
 here=$(cd "$(dirname "$0")" && pwd)
-bayan=${BAYAN:-$(cd "$here/.." && pwd)/dist/macos-arm64/latest/bayan}
+# BAYAN names the compiler; the default is the CLI built from HEAD (scripts/pinned-bayan.sh), as in build.sh.
+if [ -z "${BAYAN:-}" ]; then bayan=$(cd "$here/.." && PINNED_BAYAN_REF=HEAD bash scripts/pinned-bayan.sh) || exit 2; else bayan=$BAYAN; fi
 # The examples run after a cd, so a relative path to the compiler must be made absolute first.
 case $bayan in
   */*) dir=$(cd "$(dirname "$bayan")" 2>/dev/null && pwd) || { echo "check-examples.sh: no directory for BAYAN=$bayan" >&2; exit 2; }
