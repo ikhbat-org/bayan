@@ -2,11 +2,13 @@
 # Builds bayan.run into site/out: runs the generator (site/gen) with the release docs (version.sh
 # `bayan_release_docs` and CHANGELOG.md), copies site/assets to site/out/assets, then checks every
 # example's output (check-examples.sh).
-# BAYAN names the compiler; the default is the latest local build.
+# BAYAN names the compiler; the default is the CLI built from this checkout's HEAD commit (scripts/pinned-bayan.sh,
+# cached by commit), so the site and the PDFs never run a stale dist/ build.
 set -eu
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/.." && pwd)
-export BAYAN="${BAYAN:-$root/dist/macos-arm64/latest/bayan}"
+if [ -z "${BAYAN:-}" ]; then BAYAN=$(cd "$root" && PINNED_BAYAN_REF=HEAD bash scripts/pinned-bayan.sh); fi
+export BAYAN
 . "$root/scripts/release/version.sh"
 version=$(bayan_version "$root")
 

@@ -3,6 +3,7 @@
 # dist/bayan-book-<version>.pdf, from the site build (site/build.sh).
 #   scripts/release/docs-pdf.sh
 # CHROME names the browser; the default is Google Chrome on macOS, else google-chrome or chromium on PATH. Exit 2 if none.
+# BAYAN names the compiler site/build.sh runs; the default is the CLI built from HEAD (scripts/pinned-bayan.sh).
 set -eu
 root=$(cd "$(dirname "$0")/../.." && pwd)
 . "$root/scripts/release/version.sh"
