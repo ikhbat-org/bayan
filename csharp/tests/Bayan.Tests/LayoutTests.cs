@@ -190,14 +190,18 @@ public sealed class LayoutTests
         "    return total\n" +
         "}\n";
 
+    private const string Proposal31Before =
+        "public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 uses db fails QuoteError {\n" + QuoteBody;
+
+    private const int Proposal31Width = 100;
+
     // The Before header is 109 columns, so it fits at 120; at 100 its clauses wrap. The After's blank lines are the
     // author's: the formatter never inserts one (docs/bayan-style.md, "Paragraphs inside functions").
     [Fact]
     public void Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines() => Assert.Equal(
         "public Money quote(Cart cart, for Customer customer)\n        expects cart.lines.length > 0\n        uses db\n" +
         "        fails QuoteError {\n" + QuoteBody,
-        Lay("public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 uses db fails QuoteError {\n"
-            + QuoteBody, new LayoutOptions(Width: 100)));
+        Lay(Proposal31Before, new LayoutOptions(Width: Proposal31Width)));
 
     [Fact]
     public void Proposal31AfterIsLaidOut()
@@ -463,17 +467,18 @@ public sealed class LayoutTests
         Assert.Equal(source, Lay(source, new LayoutOptions(AlignRuns: false)));
     }
 
+    private const string AlignNoneInput = "struct S {\n    i32 a\n    string bb\n}\n";
+    private const string AlignNonePackage = "Package { name: \"local/t\", version: \"0.1.0\", style: Style { align: .none } }\n";
+
     [Fact]
     public void TheManifestsAlignNoneReachesLayout()
     {
-        const string source = "struct S {\n    i32 a\n    string bb\n}\n";
-        var file = Fresh("align", source);
-        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"),
-            "Package { name: \"local/t\", version: \"0.1.0\", style: Style { align: .none } }\n");
+        var file = Fresh("align", AlignNoneInput);
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"), AlignNonePackage);
         var (exit, _, stderr) = Run("format", file);
         Assert.Equal(CliApp.ExitOk, exit);
         Assert.DoesNotContain("skipped", stderr);
-        Assert.Equal(source, File.ReadAllText(file));
+        Assert.Equal(AlignNoneInput, File.ReadAllText(file));
     }
 
     [Fact]
@@ -770,12 +775,33 @@ public sealed class LayoutTests
         Assert.Equal(once, Lay(once));
     }
 
+    private const string UnformattedTable = "@unformatted because \"a table\"\nvoid t() {  \r\n  let grid = [\n  1,   0,\t\n  0,   1,\n  ]\n}\n";
+
+    private const string UnformattedInput = UnformattedTable + "void f() {\nlet a=1\n}\n";
+
     [Fact]
-    public void AnUnformattedDeclarationKeepsItsBytes()
-    {
-        const string table = "@unformatted because \"a table\"\nvoid t() {  \r\n  let grid = [\n  1,   0,\t\n  0,   1,\n  ]\n}\n";
-        Assert.Equal(table + "\nvoid f() {\n    let a = 1\n}\n", Lay(table + "void f() {\nlet a=1\n}\n"));
-    }
+    public void AnUnformattedDeclarationKeepsItsBytes() =>
+        Assert.Equal(UnformattedTable + "\nvoid f() {\n    let a = 1\n}\n", Lay(UnformattedInput));
+
+    /// <summary>
+    /// The cases that format <c>main.byn</c> beside a <c>package.byn</c> of their own, by case name, with both texts;
+    /// <c>SelfhostDriverStage2FormatTests.ManifestInputsFormatAsCliApp</c> replays each through stage 2.
+    /// </summary>
+    public static IEnumerable<(string Name, string Source, string Package)> ManifestInputs() =>
+    [
+        (nameof(TheManifestsAlignNoneReachesLayout), AlignNoneInput, AlignNonePackage),
+        (nameof(TheManifestsIndentWidthAndCommasReachLayout), KnobsInput, KnobsPackage),
+    ];
+
+    /// <summary>
+    /// The inputs these cases build from a literal and a named constant, by case name, with the <c>Style</c> fields their options
+    /// need. <c>SelfhostDriverStage2FormatTests.ComposedInputsFormatAsCliApp</c> formats each whole through stage 2.
+    /// </summary>
+    public static IEnumerable<(string Name, string Source, string Style)> ComposedInputs() =>
+    [
+        (nameof(Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines), Proposal31Before, $"width: {Proposal31Width}"),
+        (nameof(AnUnformattedDeclarationKeepsItsBytes), UnformattedInput, ""),
+    ];
 
     [Fact]
     public void AnUnformattedMemberKeepsItsBytes()
@@ -802,12 +828,15 @@ public sealed class LayoutTests
         Assert.Equal(source, Lay(source));
     }
 
+    private const string KnobsInput = "void main() {\n    let t = g(argumentNumberOne, argumentNumberTwo)\n    let s = f(\n        a,\n        b,\n    )\n}\n";
+    private const string KnobsPackage =
+        "Package { name: \"local/t\", version: \"0.1.0\", style: Style { indent: 2, width: 30, trailingCommas: .never } }\n";
+
     [Fact]
     public void TheManifestsIndentWidthAndCommasReachLayout()
     {
-        var file = Fresh("knobs", "void main() {\n    let t = g(argumentNumberOne, argumentNumberTwo)\n    let s = f(\n        a,\n        b,\n    )\n}\n");
-        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"),
-            "Package { name: \"local/t\", version: \"0.1.0\", style: Style { indent: 2, width: 30, trailingCommas: .never } }\n");
+        var file = Fresh("knobs", KnobsInput);
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"), KnobsPackage);
         var (exit, _, stderr) = Run("format", file);
         Assert.Equal(CliApp.ExitOk, exit);
         Assert.DoesNotContain("skipped", stderr);
@@ -831,6 +860,9 @@ public sealed class LayoutTests
         Assert.Equal(source, output);
     }
 
+    /// <summary>
+    /// No stage-2 row replays this case: it injects its fault through <c>Layout.OutputHook</c>, a C#-only seam no CLI run can reach.
+    /// </summary>
     [Theory]
     [InlineData("tokens", "let a = 1\nlet b = 2\n", "let a = 1\nlet b = 3\n", "the tokens changed")]
     [InlineData("diagnostics", "let a = 1\nlet b = 2\n", "let a = 1 let b = 2\n", "the diagnostics changed")]
@@ -857,9 +889,15 @@ public sealed class LayoutTests
 
     // ── Corpus ──
 
+    /// <summary>The roots <see cref="Corpus"/> walks; <c>SelfhostDriverStage2FormatTests.CorpusFormatsAsCliApp</c> copies the same.</summary>
+    public static readonly string[] CorpusRoots = [Golden.CasesRoot, Path.Combine(Golden.RepoRoot, "src"), Path.Combine(Golden.RepoRoot, "lib")];
+
+    /// <summary>The file filter <see cref="Corpus"/> walks each of <see cref="CorpusRoots"/> with.</summary>
+    public const string CorpusPattern = "*.byn";
+
     public static IEnumerable<object[]> Corpus() =>
-        new[] { Golden.CasesRoot, Path.Combine(Golden.RepoRoot, "src"), Path.Combine(Golden.RepoRoot, "lib") }
-            .SelectMany(root => Directory.EnumerateFiles(root, "*.byn", SearchOption.AllDirectories))
+        CorpusRoots
+            .SelectMany(root => Directory.EnumerateFiles(root, CorpusPattern, SearchOption.AllDirectories))
             .Order(StringComparer.Ordinal)
             .Select(f => new object[] { Path.GetRelativePath(Golden.RepoRoot, f) });
 

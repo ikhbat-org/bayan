@@ -118,7 +118,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - After: T6, T1, T2.
   - Done when the five lints are reported by `bayan check` only, with the codes of the plan and `// target:` comments, with fixes for `guards.postfix` and `lambdas.it`, and with severity from `lints` (`.suggestion` renders as a note; `.error` fails `check`). `functions.length` is off by default and bounds at 60 lines when on. `StyleGuideExamplesTests` passes on every pair of `docs/bayan-style.md`, and `bash scripts/docs/check.sh` passes.
   - Expected red until T9 lands (plan-owner decision 2026-11-15, after T7's gate returned PLAN-CHANGE): any test that compares self-hosted `check` output with C# `check` and fails only because the self-hosted side lacks the new lint notes. That covers `SelfhostDriverT2Tests.CheckAsCliApp`, `SelfhostSemanticsParityTests.CheckParity`, `ForTrySource`, the generator seed cases, and `SelfhostSemanticsEquivalenceLawTests.PinnedClean` (530 → 541). Every other test stays green. T9 turns these rows green, and re-pins `PinnedClean` from the C# if its count still differs. 022 does not merge into dev while any of them is red.
-- [ ] **T8 Layout port (self-hosted).**
+- [x] **T8 Layout port (self-hosted).**
   - Files: `src/driver/layout.byn` (new), `src/driver/format.byn`, `csharp/tests/Bayan.Tests/SelfhostDriverTests.cs` rows.
   - Covers: R6.
   - After: T7, T6c (the T6c rules are ported on the same worker key).
