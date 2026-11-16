@@ -40,7 +40,11 @@
     <a class="brand" href="{{root}}index.html" aria-label="Bayān home">Bayān <span lang="ar" dir="rtl" aria-hidden="true">بيان</span></a>
     <span class="version">Bayān {{version}}</span>
     <nav aria-label="Main">
-{{headnav}}
+      <a href="{{root}}tutorial.html">Learn</a>
+      <a href="{{docs}}">Reference</a>
+      <a href="{{root}}roadmap.html">Roadmap</a>
+      <a href="{{root}}docs/{{version}}/index.html">Docs</a>
+      <a href="{{root}}install.html">Download</a>
     </nav>
     <button type="button" class="theme-btn" id="theme-btn" title="Switch between light, dark and the system setting" hidden>Theme: system</button>
   </div>
@@ -79,7 +83,9 @@
 <footer class="site-foot">
   <div class="wrap">
     <span>Bayān is made by the Ikhbat Foundation.</span>
-    <span><a href="{{root}}index.html">Home</a> &nbsp; <a href="{{root}}tutorial.html">Tutorial</a> &nbsp; <a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a></span>
+    <nav aria-label="Site">
+{{headnav}}
+    </nav>
   </div>
 </footer>
 <script>

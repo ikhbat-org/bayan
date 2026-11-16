@@ -41,7 +41,11 @@
     <a class="brand" href="{{root}}index.html" aria-label="Bayān home">Bayān <span lang="ar" dir="rtl" aria-hidden="true">بيان</span></a>
     <span class="version">Bayān {{version}}</span>
     <nav aria-label="Main">
-{{headnav}}
+      <a href="{{root}}tutorial.html">Learn</a>
+      <a href="{{docs}}">Reference</a>
+      <a href="{{root}}roadmap.html">Roadmap</a>
+      <a href="{{root}}docs/{{version}}/index.html">Docs</a>
+      <a href="{{root}}install.html">Download</a>
     </nav>
     <button type="button" class="theme-btn" id="theme-btn" title="Switch between light, dark and the system setting" hidden>Theme: system</button>
   </div>
@@ -55,6 +59,35 @@
     <p class="go"><a class="btn" href="{{root}}tutorial.html">Compile your first program</a> <a href="{{docs}}">Read the docs</a></p>
   </section>
 
+  <section class="feature" aria-labelledby="feature-title">
+    <div class="feature-grid">
+      <div>
+        <h2 id="feature-title">A binding says whether it can change</h2>
+        <p>A <code>let</code> binding holds one value while it is in scope. A <code>var</code> binding may be assigned again. The keyword sits at the declaration, so a reader sees which names can change without searching for assignments.</p>
+        <ul class="checks">
+          <li>Assigning to a <code>let</code> binding is a compile error.</li>
+          <li>A type can follow the name, or come from the value.</li>
+          <li>The compiled program runs on its own, with no runtime beside it.</li>
+        </ul>
+      </div>
+      <figure class="code-figure">
+        <figcaption class="label">greet.byn</figcaption>
+        <pre class="byn"><code><span class="kw">let</span> greeting = <span class="str">&quot;Salam&quot;</span>
+<span class="kw">var</span> count: <span class="ty">i64</span> = <span class="num">0</span>
+<span class="kw">for</span> name <span class="kw">in</span> [<span class="str">&quot;Aisha&quot;</span>, <span class="str">&quot;Yusuf&quot;</span>, <span class="str">&quot;Maryam&quot;</span>] {
+    count += <span class="num">1</span>
+    <span class="fn">print</span>(<span class="str">$&quot;{greeting}, {name}!&quot;</span>)
+}
+<span class="fn">print</span>(<span class="str">$&quot;{count} greetings&quot;</span>)</code></pre>
+        <p class="label">Output</p>
+        <pre class="out"><code>Salam, Aisha!
+Salam, Yusuf!
+Salam, Maryam!
+3 greetings</code></pre>
+      </figure>
+    </div>
+  </section>
+
 {{body}}
 </div>
 </main>
@@ -62,7 +95,9 @@
 <footer class="site-foot">
   <div class="wrap">
     <span>Bayān is made by the Ikhbat Foundation.</span>
-    <span><a href="{{root}}index.html">Home</a> &nbsp; <a href="{{root}}tutorial.html">Tutorial</a> &nbsp; <a href="https://github.com/ikhbat-org/bayan">Source on GitHub</a></span>
+    <nav aria-label="Site">
+{{headnav}}
+    </nav>
   </div>
 </footer>
 </body>
