@@ -49,6 +49,17 @@
     ("*", "", true),
     ("", "", true),
     ("", "a", false),
+    ("?", "é", true),
+    ("a?", "aé", true),
+    ("a??", "aé", false),
+    ("[é]", "é", true),
+    ("[éa]x", "éx", true),
+    ("[!é]", "é", false),
+    ("[!é]", "è", true),
+    ("*[!é]", "é", false),
+    ("[à-ë]", "é", true),
+    ("?", "€", true),
+    ("?", "😀", true),
 )
 test "patterns against paths" (string pattern, string path, bool expected) {
     assert Glob.matches(pattern, for: path) == expected
