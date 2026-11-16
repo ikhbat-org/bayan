@@ -44,6 +44,10 @@ In each entry, *Current choice* or *Conservative option* is the option in force,
 | Q1243 | std.time: BYN2104 help for time values | see the entry | the text stays planned; the implementing phase adds it to the binder and the doc. | the user (designer) |
 | Q1272 | `expects` messages say `requires` (BYN2320, BYN2321) | see the entry | the messages stay; the user decides whether they say `expects` for an `expects` clause. | the user (designer) |
 | Q1273 | BYN6008 and the purity of `expects` and `requires` (revision 0022 Part C) | see the entry | no compiler change; the user schedules the task (code, `docs/diagnostics/BYN6008.md`, `docs/DIAGNOSTICS.md`, four goldens listed in revision 0022). | the user (designer) |
+| Q1274 | Spec 022 T10: the format landed unattended | see the entry | the format stays landed; undoing it is a revert of dbc05369 and its two regeneration commits. | the user |
+| Q1275 | Spec 022: the `functions.length` bound is fixed at 60 lines | see the entry | the bound stays fixed at 60. | the user (designer) |
+| Q1276 | Spec 022: should a parameter list take a trailing comma? | see the entry | grammar unchanged; a wrapped parameter list has no trailing comma. | the user (designer) |
+| Q1277 | Spec 022: the proposal §3.1 After block cannot be a formatter test as written | see the entry | the formatter inserts no paragraph breaks; the test uses the width-100 run. | the user (designer) |
 
 ### Q60
 
@@ -180,6 +184,22 @@ In each entry, *Current choice* or *Conservative option* is the option in force,
 ### Q1273
 
 1273. **BYN6008 and the purity of `expects` and `requires` (revision 0022 Part C).** SPEC §7.9 records that an `expects` clause is pure, tagged not in 0.2. The check needs `EffectAnalysis.cs` to analyze `expects` and `requires` expressions, which it ignores today, so it is more than a small change. *Conservative option:* no compiler change; the user schedules the task (code, `docs/diagnostics/BYN6008.md`, `docs/DIAGNOSTICS.md`, four goldens listed in revision 0022). The purity sentence for `requires` rules waits for it.
+
+### Q1274
+
+1274. **Spec 022 T10: the format landed unattended.** The user's rule for 2026-11-15/16 was tools only: `bayan format` and `bayan fix` wrote every change in dbc05369, no hand edit. `src/` grew from 69,705 to 88,439 lines (+26.9%); with `lib/` and `examples/` the format-only growth is +31.6%, against +31.4% measured at T6c. The `lambdas.it` fix exists in `bayan fix` and fired at no site, so no source uses `it` because of this commit. `.git-blame-ignore-revs` names the commit. *Conservative option:* the format stays landed; undoing it is a revert of dbc05369 and its two regeneration commits. The user confirms the landing or asks for the revert and a rerun at another `width`.
+
+### Q1275
+
+1275. **Spec 022: the `functions.length` bound is fixed at 60 lines.** The lint (BYN1076) is off by default and, when set to a severity in `lints`, fires on a function body longer than 60 lines. A numeric knob would widen the closed `style` set (spec 022 R2), so the bound is not configurable. *Conservative option:* the bound stays fixed at 60; the user decides whether `lints` takes one, for example `"functions.length": .warning(80)`.
+
+### Q1276
+
+1276. **Spec 022: should a parameter list take a trailing comma?** The proposal (§3.4, C21) gives a wrapped parameter list a trailing comma. The parser accepts one only in argument and literal lists; after `,` before `)` in a parameter list it reports BYN1003 (expected a type). Allowing it is a grammar change in both parsers, so the formatter wraps a parameter list without one and keeps the comma elsewhere. *Conservative option:* the grammar is unchanged and the formatter wraps a parameter list without a trailing comma; the user decides whether to change the grammar, which also changes the style guide's Do block.
+
+### Q1277
+
+1277. **Spec 022: the proposal §3.1 After block cannot be a formatter test as written.** Its blank lines between paragraphs cannot come from the formatter, which never inserts one inside a function, and its header wraps only below width 120, so T5's test runs it at width 100. The block stays in the proposal as the author's intent; the formatter test uses the width-100 run and the author's own blank lines. *Conservative option:* the formatter inserts no paragraph breaks and the test uses the width-100 run; the user decides whether the formatter should insert them.
 
 ## Self-hosting ports (specs 009 and 010)
 

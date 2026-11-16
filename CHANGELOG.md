@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Added
+- Style guide (`docs/bayan-style.md`, spec 022): every layout rule and lint has a Do and a Don't example, and a test checks that the formatter turns each Don't into its Do.
+- `bayan format` is a layout engine, in the C# CLI and in the self-hosted driver, with byte-identical output. It wraps lists and chains at `style.width`, aligns runs, and keeps or drops trailing commas.
+- `package.byn` `style` takes `width`, `align`, `trailingCommas` (`.multiline` or `.never`) and `lints`. `braces`, `maxLine` and a bool `trailingCommas` are manifest errors that name the new knob.
+- Style lints BYN1072–BYN1080, reported by `bayan check` with a severity per lint (`functions.length` is off by default), and `bayan fix [<path>…]`, which applies their fixes.
+- `.git-blame-ignore-revs` names the format commit dbc05369.
+
+### Changed
+- `src/`, `lib/` and `examples/` are reformatted with `bayan format` and `bayan fix` (dbc05369). `src/` grows from 69,705 to 88,439 lines.
+
 ## [0.3.1] - 2026-11-15
 
 ### Added
