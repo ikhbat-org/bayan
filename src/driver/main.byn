@@ -43,6 +43,8 @@ commands:
   cache stats          show the shared build cache's location and size
   format <path>        rewrite input forms (those with a fix-it) in a `.byn` file or a directory of them,
                        and booleans and primitives to `style` in `package.byn` [--check: list, don't write]
+  fix [<path>…]        apply every style lint's fix (whatever its severity in `lints`) to `.byn` files
+                       or directories of them (default: the current directory); does not format
   audit <path>         list every `because` bypass and `unsafe` or `extern` declaration, with its reason
   features --used <path>
                        print the syntax node kinds, builtins and diagnostics a build touched, as JSON
@@ -112,6 +114,8 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
             return typesCommand(in kept, by: in d)
         case "format":
             return formatCommand(in kept, by: in d)
+        case "fix":
+            return fixCommand(in kept, by: in d)
         case "audit":
             return auditCommand(in kept, by: in d)
         case "features":

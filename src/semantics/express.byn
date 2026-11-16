@@ -556,6 +556,7 @@ BExpr bindExprOrType(ref Binder b, through ref Ctx c, for in parser.Expr e, to T
             return bindCast(ref b, through: ref c, for: in cast.value, from: e)
         case .isExpr(let isE):
             let val = bindExpr(ref b, through: ref c, for: in isE.value.value)
+            if c.typedLints.length > 0 { noteLintOperand(ref c, for: b.file, at: parser.exprSpan(in isE.value.value), by: val) }
             let pat = bindPattern(ref b, through: ref c, for: in isE.value.pattern, as: exprType(in c, for: val))
             return recordSyntax(ref c, for: addIs(ref c, from: BIs { span: isE.value.span, value: val, pattern: pat }), from: in e)
         case .inExpr(let inE):

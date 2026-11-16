@@ -210,6 +210,7 @@ Ctx t2Create(from move List<lexer.SourceText> entryFiles, at string packageRoot,
     buildLexicon(ref c)
     declare(ref c)
     bindAll(ref c)
+    confirmTypedLints(ref c)
     // Each case binds and checks the same body; report what it finds there once.
     // (blocked: Q573) Untested: no current path produces a repeated diagnostic until T12's `checkOverloads` lands.
     if c.testCases.length > 0 { removeRepeats(ref c) }
@@ -241,6 +242,46 @@ List<string> t11ModuleFiles(string dir, bool includeTests) {
     return files
 }
 
+// ── Compilation.cs: StyleLintNames, StyleLintsAt ─────────────────────────────────
+
+/// Compilation.cs: StyleLintNames, the `lints` name of each style lint code. Every code in `Ctx.styleLints` is one of these.
+string styleLintName(string code) => code switch {
+    "BYN1072" => "guards.postfix",
+    "BYN1073" => "lambdas.it",
+    "BYN1074" => "conditions.named",
+    "BYN1075" => "nesting.depth",
+    "BYN1076" => "functions.length",
+    "BYN1077" => "sections.banner",
+    "BYN1078" => "conditions.patterns",
+    "BYN1079" => "literals.empty",
+    "BYN1080" => "optionals.bind",
+    _ => "",
+}
+
+/// Compilation.cs: StyleLintsAt, the style lints at the severity of `manifest`'s `lints` (the defaults without one): `.none`
+/// drops a lint, `.suggestion` is a note.
+public List<Diag> styleLintsAt(Ctx c, by Manifest? manifest) uses alloc {
+    var lints = List<Diag>()
+    for d in c.styleLints {
+        let name = styleLintName(d.code)
+        var severity = name == "functions.length" ? LintSeverity.none : LintSeverity.suggestion
+        if (manifest is { } m) { severity = m.lints[name] }
+        var copy = t10CopyDiag(in d)
+        switch severity {
+            case .none:
+                continue
+            case .suggestion:
+                copy.isNote = true
+            case .warning:
+                copy.isWarning = true
+            case .error:
+                let _ = 0
+        }
+        lints.append(move copy)
+    }
+    return lints
+}
+
 // ── Compilation.cs:125 LoadModule ───────────────────────────────────────────────
 
 ModId loadModule(ref Ctx c, for string name, at string dir, from move List<lexer.SourceText> sources, by ModId importer) {
@@ -260,6 +301,9 @@ ModId loadModule(ref Ctx c, for string name, at string dir, from move List<lexer
         for b in source.bytes { text.append(b) }
         var p = parser.Parser.create(lexer.lex(move source, by: lexer.Keywords.build()))
         let unit = parser.parseCompilationUnit(ref p)
+        // SyntaxTree.cs: Parse (Parser.cs: Parse, after the unit).
+        parser.lintBanners(ref p)
+        parser.lintPatterns(ref p)
         let fileId = c.files.length
         // Every lexer and parser code is an error (DiagnosticCodes.cs has no BYN0xxx/BYN1xxx warning).
         var hasError = false
@@ -296,6 +340,26 @@ ModId loadModule(ref Ctx c, for string name, at string dir, from move List<lexer
                 fixReplacement: d.fixReplacement,
                 related: List<Related>(),
             })
+        }
+        // Compilation.cs: LoadModule. The style lints (BYN1072–BYN1076) are kept apart for `bayan check`; the standard library has none.
+        unless dir.startsWith("<std>/") {
+            for d in p.styleLints {
+                c.styleLints.append(Diag {
+                    code: d.code,
+                    file: fileId,
+                    span: d.span,
+                    message: d.message,
+                    label: d.label,
+                    help: d.help,
+                    hasFix: d.hasFix,
+                    fixSpan: d.fixSpan,
+                    fixReplacement: d.fixReplacement,
+                    related: List<Related>(),
+                })
+            }
+            for t in p.typedLints {
+                c.typedLints.append(TypedLintSite { lint: t.lint, file: fileId, operand: t.operand, check: t.check, otherwise: t.otherwise })
+            }
         }
         c.files.append(SourceFile {
             path: path,
@@ -1527,5 +1591,67 @@ void t11SortOrdinal(ref List<string> xs) {
             xs[j - 1] = t
             j -= 1
         }
+    }
+}
+
+/// A parser style lint as a `Diag` of `file`.
+Diag styleLintDiag(lexer.Diagnostic d, for FileId file) uses alloc => Diag {
+    code: d.code,
+    file: file,
+    span: d.span,
+    message: d.message,
+    label: d.label,
+    help: d.help,
+    hasFix: d.hasFix,
+    fixSpan: d.fixSpan,
+    fixReplacement: d.fixReplacement,
+    related: List<Related>(),
+}
+
+/// Records a binding of the expression at `span` in `file` if a typed style lint waits on it.
+// Compilation.cs: NoteLintOperand
+public void noteLintOperand(ref Ctx c, for FileId file, at TextSpan span, by BExpr bound) uses alloc {
+    for i in 0..c.typedLints.length {
+        if c.typedLints[i].file == file && c.typedLints[i].operand.start == span.start && c.typedLints[i].operand.length == span.length {
+            c.typedLints[i].bounds.append(bound)
+        }
+    }
+}
+
+/// Adds each typed style lint whose operand bound, every time, as its check asks; else its fallback.
+// Compilation.cs: ConfirmTypedLints
+void confirmTypedLints(ref Ctx c) uses alloc {
+    for i in 0..c.typedLints.length {
+        var all = c.typedLints[i].bounds.length > 0
+        for b in c.typedLints[i].bounds {
+            unless lintPasses(in c, by: b, for: c.typedLints[i].check) { all = false }
+        }
+        if all {
+            c.styleLints.append(styleLintDiag(c.typedLints[i].lint, for: c.typedLints[i].file))
+        } else {
+            let otherwise = c.typedLints[i].otherwise
+            if otherwise is not null { c.styleLints.append(styleLintDiag(otherwise, for: c.typedLints[i].file)) }
+        }
+    }
+}
+
+// Compilation.cs: Passes
+bool lintPasses(in Ctx c, by BExpr b, for parser.TypedLintCheck check) {
+    let t = exprType(in c, for: b)
+    let conversion = boundKind(b) == .conversion
+    switch check {
+        case .patternInteger:
+            return !conversion && isInteger(t)
+        case .patternRune:
+            return !conversion && t == prim(.char)
+        case .patternString:
+            return !conversion && isString(t)
+        case .patternEnum:
+            return !conversion && kindOf(t) == .enumType && c.enums[typeIndex(t)].fields.length == 0
+        case .narrowableLocal:
+            if boundKind(b) != .local { return false }
+            let l = c.locals[c.bLocals[boundIndex(b)].local]
+            if kindOf(l.type) != .optional { return false }
+            return l.kind == .letKeyword || l.isParameter && (l.modifier == .none || l.modifier == .inKeyword)
     }
 }

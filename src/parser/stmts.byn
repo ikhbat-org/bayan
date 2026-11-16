@@ -25,6 +25,7 @@ Stmt parseBlock(ref Parser p, bool rejectPostfix = false) {
     if open.length == 0 {
         return Stmt.blockStmt(Owned(BlockStmt { span: TextSpan { start: start, length: 0 }, statements: List<Stmt>() }))
     }
+    lintNestingDepth(ref p, at: open)
     var statements = List<Stmt>()
     while p.kind() != .closeBrace && !p.atEnd() {
         // Functions do not nest: a function header on a new line means this block was never closed.
@@ -36,6 +37,8 @@ Stmt parseBlock(ref Parser p, bool rejectPostfix = false) {
         if p.pos == before { let _ = p.advance() }
     }
     expectClose(ref p, from: open, for: "block")
+    p.blockDepth -= 1
+    if p.bindExits.length > 0 { lintBindExits(ref p, for: statements) }
     let span = p.spanFrom(start)
     if rejectPostfix { rejectPostfixAfterCompound(ref p) }
     return Stmt.blockStmt(Owned(BlockStmt {
@@ -83,6 +86,7 @@ Stmt parseStatement(ref Parser p) {
             return parseUnless(ref p, from: start, rejectPostfix: true)
         case .whileKeyword:
             let whileKeyword = p.advance()
+            let whileIndex = p.pos - 1
             if p.accept(.letKeyword) {
                 let variable = expectName(ref p, "a variable name")
                 let _ = p.expect(.equals)
@@ -101,7 +105,10 @@ Stmt parseStatement(ref Parser p) {
             var parenthesized = false
             var parens: i64 = -1
             let condition = parseCondition(ref p, to: ref parenthesized, for: ref parens)
+            let conditionEnd = p.prevEnd
+            lintWrappedCondition(ref p, from: whileIndex, for: condition)
             let body = parenthesized ? parseBody(ref p, by: whileKeyword, to: ref parens) : parseBlock(ref p)
+            lintWhileBind(ref p, at: whileKeyword, for: condition, by: body, until: conditionEnd, parenthesized: parenthesized)
             return Stmt.whileStmt(Owned(WhileStmt {
                 span: statementSpan(ref p, at: start, from: p.spanFrom(start)),
                 condition: move condition,
@@ -266,6 +273,7 @@ Stmt parseLocal(ref Parser p, from i64 start) {
         let _ = parseExpression(ref p)
     }
     expectEnd(ref p)
+    if kind == .letKeyword && !(type is .none) { lintEmptyLiteral(ref p, for: type, by: init) }
     return Stmt.localDecl(Owned(LocalDecl {
         span: statementSpan(ref p, at: start, from: p.spanFrom(start)),
         kind: kind,
@@ -581,6 +589,7 @@ bool atUnlikely(ref Parser p) =>
 
 Stmt parseIf(ref Parser p, from i64 start, bool elseIf = false, bool rejectPostfix = false) {
     let keyword = p.advance()
+    let keywordIndex = p.pos - 1
     var likelihood = Likelihood.none
     if p.kind() == .neverKeyword && p.peek(1) != .openBrace && canStartExpression(p.peek(1)) {
         let _ = p.advance()
@@ -591,7 +600,10 @@ Stmt parseIf(ref Parser p, from i64 start, bool elseIf = false, bool rejectPostf
     }
     var parenthesized = false
     var parens: i64 = -1
+    let conditionStart = p.current().start
     let condition = parseCondition(ref p, to: ref parenthesized, for: ref parens)
+    let conditionEnd = p.prevEnd
+    lintWrappedCondition(ref p, from: keywordIndex, for: condition)
     // The BYN1017 fix leaves a bare condition, after which `then` and `else` must both be blocks: it braces both.
     let then = parenthesized ? parseBody(ref p, by: keyword, to: ref parens) : parseBlock(ref p)
     var otherwise: Stmt = .none
@@ -608,6 +620,9 @@ Stmt parseIf(ref Parser p, from i64 start, bool elseIf = false, bool rejectPostf
         }
     }
     let span = p.spanFrom(start)
+    if !elseIf && !parenthesized { lintPostfixGuard(ref p, at: span, for: condition, by: then, from: otherwise, as: likelihood) }
+    lintIfBind(ref p, at: span, for: condition, by: then, from: otherwise, as: likelihood,
+        through: TextSpan.fromBounds(conditionStart, until: conditionEnd), parenthesized: parenthesized, elseIf: elseIf)
     if rejectPostfix { rejectPostfixAfterCompound(ref p) }
     return Stmt.ifStmt(Owned(IfStmt {
         span: statementSpan(ref p, at: start, from: span),
@@ -680,10 +695,12 @@ void skipUnlessLikelihood(ref Parser p) {
 
 Stmt parseUnless(ref Parser p, from i64 start, bool rejectPostfix = false) {
     let keyword = p.advance()
+    let keywordIndex = p.pos - 1
     skipUnlessLikelihood(ref p)
     var parenthesized = false
     var parens: i64 = -1
     let condition = parseCondition(ref p, to: ref parenthesized, for: ref parens)
+    lintWrappedCondition(ref p, from: keywordIndex, for: condition)
     // The `if` fix spans the parentheses and drops them, so it replaces the BYN1017 report.
     let check = checkUnlessCondition(ref p, from: in condition, at: TextSpan.fromBounds(keyword.start, until: p.prevEnd))
     if check >= 0 { unreport(ref p, at: parens) }

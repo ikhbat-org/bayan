@@ -104,11 +104,11 @@ struct Mark {
 ///          │    │     +++
 string render(in Ctx c, for in Diag d, by bool includePath, through in T26Symbols style) {
     var sb = StrBuf()
-    let accent = d.isWarning ? style.warning : style.error
+    let accent = d.isNote ? style.note : d.isWarning ? style.warning : style.error
     // coverage-exempt: Q1127 `Style.Width` is 100 or a terminal width above 0 (main.byn `decideStyle`), so the 100 arm is the C# `style.Width > 0 ? style.Width : 100` default no driver style reaches
     let wrapWidth = style.width > 0 ? style.width : 100
     let bar = paint(in style, by: style.note, for: style.bar)
-    let head = $"{severityName(d.isWarning)} {d.code}"
+    let head = $"{severityName(d.isWarning, isNote: d.isNote)} {d.code}"
     var message = List<string>()
     wrap(d.message, to: ref message, by: Widths { first: wrapWidth - head.length - 2, rest: wrapWidth })
     sb.append(paint(in style, by: accent, for: head, bold: true))
@@ -242,7 +242,7 @@ public string renderAllBy(in Ctx c, from in List<Diag> diags, by bool includePat
     var first = true
     for k in 0..order.length {
         let i = order[k]
-        if !diags[i].isWarning {
+        if !diags[i].isWarning && !diags[i].isNote {
             errors += 1
             if errors > errorLimit {
                 omitted += 1
@@ -296,8 +296,8 @@ bool pathLess(string a, by string b) {
     return x.length < y.length
 }
 
-/// "error" or "warning"; every `Diag` here is one of the two.
-string severityName(bool isWarning) => isWarning ? "warning" : "error"
+/// "error", "warning", or "note" for a style lint at `.suggestion`.
+string severityName(bool isWarning, bool isNote = false) => isNote ? "note" : isWarning ? "warning" : "error"
 
 /// Sorts marks by line, keeping the order of marks on the same line (the C# `OrderBy`).
 void sortMarks(ref List<Mark> marks) {

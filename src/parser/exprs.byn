@@ -145,6 +145,7 @@ Expr parseBinaryRest(ref Parser p, from i64 start, by move Expr first, at i64 mi
         // `??` is right-associative; everything else is left-associative.
         let right = operator.op == .coalesce ? parseBinary(ref p, at: operator.prec) : parseBinary(ref p, at: operator.prec + 1)
         left = Expr.binaryExpr(Owned(BinaryExpr { span: p.spanFrom(start), op: operator.op, left: move left, right: move right }))
+        if operator.op == .logicalAnd || operator.op == .logicalOr { noteLogical(ref p, for: left) }
     }
 }
 
@@ -535,6 +536,7 @@ List<Argument> parseArgumentList(ref Parser p) {
                 _ => ArgModifier.none,
             }
             if modifier != .none { let _ = p.advance() }
+            p.argumentStarts[p.pos] = true
             let value = parseExpression(ref p)
             args.append(Argument { span: p.spanFrom(start), name: name, modifier: modifier, value: move value })
             unless p.accept(.comma) { break }

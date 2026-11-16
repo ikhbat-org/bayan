@@ -63,7 +63,7 @@ string t26TrimEndSlash(string path) {
 /// `null` (Q646).
 string t26DiagnosticJson(in Ctx c, for in Diag d) {
     var sb = StrBuf()
-    sb.append($"{{\"code\":{t26JsonString(d.code)},\"severity\":{t26JsonString(severityName(d.isWarning))}")
+    sb.append($"{{\"code\":{t26JsonString(d.code)},\"severity\":{t26JsonString(severityName(d.isWarning, isNote: d.isNote))}")
     if d.file >= 0 {
         sb.append($",\"file\":{t26JsonString(c.files[d.file].displayPath)},\"span\":")
         t26JsonSpan(ref sb, from: in c, for: d.file, at: d.span)

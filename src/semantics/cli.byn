@@ -49,6 +49,8 @@ public struct T26Reported {
     public i64 start
     public string code
     public bool isWarning
+    /// A style lint at `.suggestion`: counted neither as an error nor as a warning.
+    public bool isNote = false
 }
 
 public T26Symbols t26Symbols(bool ascii, bool color = false, i64 width = 100, string error = "", string warning = "", string help = "", string note = "") =>
@@ -129,8 +131,8 @@ Ctx t26EmptyCtx() => Ctx {
 
 /// CliApp.cs:259 `Compile`: a project directory (one with `package.byn`), a script (a file starting with
 /// `#!`, compiled alone) or a file or directory (the whole directory is the entry module). Prints
-/// diagnostics and adds them to `reported`; `ok` is false where C# returns null.
-public Ctx t26Compile(in T26Options o, by in T26Symbols symbols, to ref List<T26Reported> reported, through ref bool ok, bool includeTests = false) uses alloc, clock, console, fs {
+/// diagnostics and adds them to `reported`; `ok` is false where C# returns null. With `styleLints` (`check`), `t26StyleLints` follows.
+public Ctx t26Compile(in T26Options o, by in T26Symbols symbols, to ref List<T26Reported> reported, through ref bool ok, bool includeTests = false, bool styleLints = false) uses alloc, clock, console, fs {
     ok = false
     let manifestPath = t11Combine(o.path, by: "package.byn")
     if t11DirectoryExists(o.path) && t26FileExists(manifestPath) {
@@ -152,13 +154,44 @@ public Ctx t26Compile(in T26Options o, by in T26Symbols symbols, to ref List<T26
         c.manifest = move manifest
         t26Report(in o, by: in symbols, for: ref c, to: ref reported)
         ok = !t11HasErrors(in c)
+        if styleLints && ok { ok = t26StyleLints(o, by: symbols, for: c, to: ref reported) }
         return c
     }
     let options = CompilationOptions { includeTests: includeTests }
     var c = fromPath(o.path, by: in options, wholeDirectory: !t26IsScript(o.path))
     t26Report(in o, by: in symbols, for: ref c, to: ref reported)
     ok = !t11HasErrors(in c)
+    if styleLints && ok { ok = t26StyleLints(o, by: symbols, for: c, to: ref reported) }
     return c
+}
+
+/// CliApp.cs: Compile, its `styleLints` step (`check` only, after an error-free compile): reports `StyleLintsAt` of the
+/// compilation's manifest and returns false when one of them is an error. Under `--package <root>`, `lintRoot` is the root, whose
+/// `package.byn` (if it reads without errors) sets the severities instead (the C# `lintManifest`).
+public bool t26StyleLints(T26Options o, by T26Symbols symbols, for Ctx c, to ref List<T26Reported> reported, string? lintRoot = null)
+    uses alloc, console, fs {
+    var lintManifest: Manifest? = null
+    if lintRoot is not null && t26FileExists(t11Combine(lintRoot, by: "package.byn")) {
+        // An unreadable one reads as an empty one (Q565), whose BYN3100 leaves the defaults.
+        var read = manifestRead(t11Combine(lintRoot, by: "package.byn")) catch manifestParse(lexer.SourceText.create("package.byn", from: List<u8>()))
+        if manifestErrorCount(in read) == 0 { lintManifest = move read }
+    }
+    let lints = lintManifest is not null ? styleLintsAt(c, by: lintManifest) : styleLintsAt(c, by: c.manifest)
+    var ok = true
+    for d in lints {
+        reported.append(T26Reported { path: pathOf(in c, for: in d), start: d.span.start, code: d.code, isWarning: d.isWarning, isNote: d.isNote })
+        if !d.isWarning && !d.isNote { ok = false }
+    }
+    if lints.length == 0 { return ok }
+    if o.json {
+        Io.stderr.write(t26DiagnosticJsonAll(in c, from: in lints))
+        return ok
+    }
+    var omitted: i64 = 0
+    let rendered = renderAllBy(in c, from: in lints, by: true, until: o.all ? noLimit : errorLimit, to: ref omitted, through: in symbols)
+    Io.stderr.write(rendered)
+    if omitted > 0 { Io.stderr.write($"{capLine(symbols.ellipsis, by: omitted)}\n") }
+    return ok
 }
 
 /// CliApp.cs:298 `Report` for the compilation's diagnostics.
@@ -219,7 +252,7 @@ i32 check(in List<string> args, by in T26Symbols symbols) {
     let o = t26ParseBuildOptions(in args, allowSpans: true) ?? return exitUsage
     var reported = List<T26Reported>()
     var ok = false
-    var c = t26Compile(in o, by: in symbols, to: ref reported, through: ref ok)
+    var c = t26Compile(in o, by: in symbols, to: ref reported, through: ref ok, styleLints: true)
     if o.spans { t26CheckSpans(ref c) }
     unless ok { return t26Failed(in o, from: in reported, by: in symbols) }
     unless o.json { print(checkSummary(symbols.dot, for: programName(ref c, for: o.path), by: t26Seconds(Io.monotonicNanos() - clock))) }
@@ -246,6 +279,7 @@ public i32 t26Failed(in T26Options o, from in List<T26Reported> reported, by in 
             warnings += 1
             continue
         }
+        if reported[i].isNote { continue }
         errors += 1
         if first < 0 || pathLess(reported[i].path, by: reported[first].path) ||
             (reported[i].path == reported[first].path && reported[i].start < reported[first].start) {

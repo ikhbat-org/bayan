@@ -85,3 +85,40 @@ The same filter on the restored `layout.byn`: 38 passed, 0 failed (Total: 38). T
 Reverted the C# change only (`Layout.cs`, the `becomes` exception in `Before` for `.dot`), with a backup copy kept outside the tree. `FullyQualifiedName~LayoutTests`: that run, before the round-2 and round-3 cases, had 2 of 1366 fail, `BecomesKeepsTheSpaceBeforeItsState` and the `becomes ... or ...` case (`becomes.paid`; that case was dropped in round 3, since a `becomes` clause names one state); `MemberAccessAfterANameStaysJoined` stayed green. Restored from the backup, `cmp` clean, and the same filter passes again (1366 passed).
 
 Round 3 added cases for `??`, `catch`, `||` and `&&` before a leading-dot operand (round 2 added `is`/`or`, `return`, `fail`, `case`, `except`, `and`). They passed in both layouts with no further layout change, so only the `becomes` exception can be broken by the revert above. Formatting a copy of `tests/cases/run/typestate-order.byn` leaves lines 10 and 14 (`becomes .paid`, `becomes .shipped`) unchanged; the copy differs from the original elsewhere (first difference at line 3), which is the formatter's other output.
+
+
+## T9
+
+Each row breaks one ported lint (or the `.error` severity) in the self-hosted compiler, rebuilds the driver the parity row
+runs, runs the row with `--filter "FullyQualifiedName~SelfhostDriverT2Tests.CheckAsCliApp&DisplayName~<case>"`, and
+restores the file from its `tmp/t9-bt/<name>.bak` copy (checked with `cmp`).
+
+| lint | revert | parity row | result |
+|---|---|---|---|
+| BYN1072 guards.postfix (`lintPostfixGuard`) | `src/parser/stmts.byn` `parseIf`: `if !elseIf && !parenthesized { lintPostfixGuard(` → `if false { lintPostfixGuard(` | `CheckAsCliApp(diag/style-guards-postfix.byn)` | Failed 1/1: stderr line 1 differs, expected `note BYN1072: an early exit in a block can be a postfix guard` |
+| BYN1073 lambdas.it (`lintItLambda`) | `src/parser/recover.byn`: `if param == "it" { return }` → `if param != "" { return }` | `CheckAsCliApp(diag/style-lambdas-it.byn)` | Failed 1/1: stderr line 1 differs, expected ``note BYN1073: `c => c.…` reads one member and can use `it` `` |
+| BYN1074 conditions.named (`lintWrappedCondition`) | `src/parser/recover.byn`: `unless p.lexed.tokens[i].hasNewlineBefore { continue }` → `if i >= 0 { continue }` | `CheckAsCliApp(diag/style-conditions-named.byn)` | Failed 1/1: stderr line 1 differs, expected ``note BYN1074: this condition wraps; name it with a `let` `` |
+| BYN1075 nesting.depth (`lintNestingDepth`) | `src/parser/recover.byn`: `if p.blockDepth != maxNesting + 1 { return }` → `if p.blockDepth != -100 { return }` | `CheckAsCliApp(diag/style-nesting-depth.byn)` | Failed 1/1: stderr line 1 differs, expected `note BYN1075: blocks nested more than 4 deep; flatten them with early exits` |
+| BYN1076 functions.length (`lintFunctionLength`) | `src/parser/recover.byn`: `if lines <= maxFunctionLines { return }` → `if lines > -1 { return }` | `SelfhostDriverStyleLintsTests.CheckProjectAsCSharpCli(style-functions-length-on)` | Failed 1/7: stderr line 1 differs, expected `warning BYN1076: this function body is 61 lines; split it into named steps`; the other six passed. (`CheckAsCliApp(diag/style-functions-length-on/main.byn)` stays green, see below) |
+| `.error` severity (`styleLintsAt` / `t26Failed`) | `src/semantics/compile.byn` `styleLintsAt`: `case .error: let _ = 0` → `case .error: copy.isNote = true` | `SelfhostDriverStyleLintsTests.CheckProjectAsCSharpCli(style-severity-error)` | Failed 1/7: exit code differs, expected 1 (the broken driver exits 0); the other six passed. (`CheckAsCliApp(diag/style-severity-error/main.byn)` stays green, see below) |
+| BYN1077 sections.banner (`lintBanners`) | `src/parser/lints.byn` `lintBanners`: `if columns == bannerColumn \|\| want < 2 { continue }` → `if columns >= 0 \|\| want < 2 { continue }` | `CheckAsCliApp(diag/style-sections-banner.byn)` | Failed 1/1: stderr line 1 differs, expected ``note BYN1077: a banner comment ends at column 17; fill it with `─` to column 80`` |
+| BYN1078 conditions.patterns (`lintPatternChain`) | `src/parser/lints.byn` `lintPatternChain`: `if !after.hasNewlineBefore && !endsPattern(after.kind) { return false }` → `if site >= 0 { return false }` | `CheckAsCliApp(diag/style-conditions-patterns.byn)` | Failed 1/1: stderr line 1 differs, expected ``note BYN1078: `c` is tested against constants 2 times; write one pattern`` |
+| BYN1079 literals.empty (`lintEmptyLiteral`) | `src/parser/lints.byn` `lintEmptyLiteral`: `unless sameSqueezed(…) { return }` → `if sameSqueezed(…) { return }` | `CheckAsCliApp(diag/style-literals-empty.byn)` | Failed 1/1: stderr line 1 differs, expected ``note BYN1079: the type is known from the target; write `[]` `` |
+| BYN1080 optionals.bind (`lintIfBind`) | `src/parser/lints.byn` `lintIfBind`: `if !parenthesized \|\| likelihood != .none { return }` → `if parenthesized \|\| likelihood != .none { return }` | `CheckAsCliApp(diag/style-optionals-bind.byn)` | Failed 1/1: stderr line 1 differs, expected ``note BYN1080: `find(xs, at: 3) is { } k` binds an optional with a pattern; the miss leaves, …``, actual the `while let` site (the `if` sites are gone) |
+| `bayan fix` (`fixModule`) | `src/driver/fix.byn` `fixModule`: `if fixes.length == 0 { continue }` → `if fixes.length >= 0 { continue }` | `SelfhostDriverFixTests.FixAsCSharpCli` (filter `FullyQualifiedName~SelfhostDriverFixTests`, 13 rows) | Failed 11/13: every row but `missing/nope.byn` (and `CoversTheFormatTestsFixInputs`); first, `diag/style-optionals-bind` stdout line 1 differs, expected `fixed <dir>/main.byn (8)`, actual empty |
+
+The BYN1077–BYN1080 and `bayan fix` rows use the same backup, run and `cmp` restore (script and logs in `tmp/t9-bt/`: `run6.sh`,
+`<id>.log`). `SelfhostDriverFixTests` (`src/tests/SelfhostDriverFixTests.cs`) lays out each input of the FormatTests fix cases
+(`FixClearsItsLintAndIsIdempotent`, `FixGivesTheFixedRunCase`, `FixKeepsTheSameC`, `FixMissingPathExitsTwo`, `FixDoesNotFormat`) twice under
+`tmp/t9-fix/`, runs `fix` twice with the C# CLI and with the stage-1 driver, and asserts the same exit code, stdout, stderr (case
+directory masked) and `main.byn` bytes after each pass. After the restore: `SelfhostDriverFixTests` plus the `style-` rows of
+`SelfhostDriverT2Tests.CheckAsCliApp` 29/29 passed.
+
+The folder cases cannot catch a break through `CheckAsCliApp`. That row checks the isolated `main.byn` as a file, so the sibling
+`package.byn` is compiled as a module and both sides stop at BYN1012 before any lint runs. `SelfhostDriverGoldenTests.DiagAsCSharpCli`
+checks them with `--package`, and on that branch the C# CLI has no manifest (T7b). Only the project branch reads `lints`.
+`SelfhostDriverStyleLintsTests` (`src/tests/SelfhostDriverStyleLintsTests.cs`) covers that branch. For each `style-severity-*` and
+`style-functions-length-*` folder case, it lays out `package.byn` and `src/app/main.byn` under `tmp/t9/<case>/`, runs `check .` with the
+C# CLI and with the stage-1 driver, and asserts the same exit code, stdout and stderr (seconds masked).
+
+After the restore: `SelfhostDriverStyleLintsTests` 7/7 passed (six cases plus `CoversTheFolderCases`); `SelfhostDriverT2Tests.CheckAsCliApp` 636/636 passed.

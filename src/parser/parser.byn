@@ -51,12 +51,24 @@ public struct Parser {
     public bool collectNames = false
     public List<TextSpan> collectedTypeNames = List<TextSpan>()
     public List<TextSpan> collectedCalleeNames = List<TextSpan>()
+    /// The style lints found while parsing (the C# `_styleLints`); a block's depth (`_blockDepth`) is counted from the enclosing function's body.
+    public List<Diagnostic> styleLints = List<Diagnostic>()
+    public i64 blockDepth = 0
+    /// Per token: whether a call argument's value starts there (the C# `_argumentStarts`); a lambda there is an argument itself.
+    public List<bool> argumentStarts = List<bool>()
+    /// The style lints the compilation confirms from how their operands bind (the C# `_typedLints`, lints.byn); every `&&` and `||`
+    /// as built (`_logical`); the `if (X is { } k)` sites whose miss leaves, until their block decides them (`_bindExits`).
+    public List<TypedLint> typedLints = List<TypedLint>()
+    public List<LogicalSite> logical = List<LogicalSite>()
+    public List<BindExit> bindExits = List<BindExit>()
 
     public static Parser create(move LexResult lexed) uses alloc {
         let count = lexed.tokens.length
         var inGroup = List<bool>()
         var groups = List<bool>()
+        var argumentStarts = List<bool>()
         for i in 0..count {
+            argumentStarts.append(false)
             inGroup.append(groups.length > 0 && groups[groups.length - 1])
             switch lexed.tokens[i].kind {
                 case .openParen or .openBracket or .interpolationStart:
@@ -81,6 +93,7 @@ public struct Parser {
             inExtern: false,
             noLambda: false,
             exprTypeArgs: false,
+            argumentStarts: move argumentStarts,
         }
     }
 
