@@ -1,5 +1,5 @@
 # 015 — Bayān tooling: replace Python, Deno and other non-Bayān scripts
-Status: in progress (T1–T9, T11 landed: review-brief, plan-strings-check, install-textmate and gen-lowercase ported; T10, T12–T17 open)
+Status: in progress (T1–T11, T16 landed: review-brief, plan-strings-check, install-textmate, gen-lowercase, stryker-to-quality and manifest-builds ported, Base64 added; T12–T15, T17 open)
 Release: unscheduled
 Created: 2026-11-02
 
@@ -235,3 +235,5 @@ mutants), `gen-lowercase` (needs the Unicode download), the report-paths and man
 
 ## Port record
 - T9 `gen-lowercase`: `tools/gen-lowercase.byn` replaces `scripts/unicode/gen-lowercase.py`; `PASS gen-lowercase 3 cases` (`cached`, `missing-begin`, `path-arg`); `scripts/unicode/gen-lowercase.test.sh` rewritten in bash (`PASS`).
+- T10 `stryker-to-quality`, `manifest-builds`: `tools/stryker-to-quality.byn` replaces `scripts/quality/stryker_to_quality.py` and `tools/manifest-builds.byn` replaces the inline `python3 -I -c` manifest probes; `PASS stryker-to-quality 4 cases` (float fields parsed-equal, S8), `PASS manifest-builds 4 cases`.
+- T16 `Base64` in `std.encoding` (S12): `encode`, `decode` with `std.test` tests; `replay` stays skipped, gated on Q1141.
