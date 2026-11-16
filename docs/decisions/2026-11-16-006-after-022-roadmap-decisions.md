@@ -15,6 +15,28 @@ Input: an independent review by Fable (think worker, key `s022-decisions`) given
 | 5 | Catch-up spec | yes | Yes: dependency order, a cut line for 0.4, and a "how it is checked" line per item. Write it during 019. |
 | 6 | Q1272, Q1186–Q1189 | wants plain explanation | Q1272 reword; Q1186 accept the attributes and exempt all BYN51xx; Q1187 keep scope; Q1188 keep "warn only when sure"; Q1189 keep the particle rule and amend the revision. Settle all five before the freeze. |
 
+## Decided by the user, 2026-11-16 (second message)
+
+- **0.3.2 waits for the site docs.** The cut is delayed until bayan.run names the version it documents and publishes that version's release docs (`bayan_release_docs` in `scripts/release/version.sh`, plus `CHANGELOG.md`) and the roadmap.
+- **Sabk** (`bayan build --backend native`) starts after 019a and runs in parallel with the catch-up spec 023 (`docs/bayan-roadmap.md`, Next releases, row 5).
+- **Site look.** More neutral background and foreground colours, navy and gold kept as accents, a modular type scale. Three mockups go to the user first.
+- **The roadmap is live.** Updated whenever an order or state changes; `scripts/release/cut.sh` refuses a roadmap dated before the previous release; published on the site.
+
+## C# archive plan (019b)
+
+Removing the C# compiler must leave a copy that is easy to find and restore:
+1. Before removal, an annotated tag `csharp-final` on the last `dev` commit that still builds and tests the C# compiler, with a message naming the spec 019b commit range.
+2. A decision doc `docs/decisions/<date>-NNN-csharp-archive.md` naming the tag, its sha, what it contains (`csharp/`, the xUnit suite, the .NET CI jobs), and the commands to look at or restore it:
+   ```sh
+   git show csharp-final:csharp/Bayan.Cli/Program.cs
+   git worktree add ../bayan-csharp csharp-final
+   git restore --source=csharp-final -- csharp/
+   ```
+3. The removal is its own commit (`chore(019b): remove the C# compiler`), with no other change, so `git log -- csharp/` ends at a commit that says where the code went.
+4. The frozen C# compiler stays buildable from that tag for diverse double-compiling (2026-11-13 decision).
+
+The user pushes the tag; the agent never does.
+
 ## Facts the brief had wrong
 
 - **Syntax freeze end.** `docs/revisions/0023-syntax-freeze-provisional-sections.md:18` says the freeze lasts "until the 0.3.0 release tag exists", not "until after 0.3.x". If it was extended, that is not written down. Matters for decision 3 (a).
