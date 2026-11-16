@@ -29,13 +29,13 @@ a = 6</code></pre>
 <span class="gut">    │</span>   │ +++</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<pre><code class="byn">void f(i64 p) { p = 3 }
+<pre><code class="byn">void f(i32 p) { p = 3 }
 f(1)</code></pre>
 <figure class="diag">
 <pre><span class="err">error BYN2104:</span> `p` is immutable
   --&gt; st-param.byn:1:17
 
-<span class="gut">  1 │</span> void f(i64 p) { p = 3 }
+<span class="gut">  1 │</span> void f(i32 p) { p = 3 }
 <span class="gut">    │</span>                 <span class="hl">^ parameters are immutable</span>
 <span class="gut">    │</span>
   help: copy it into a local `var`, or take it by `ref` if the caller's value should change</pre>
@@ -184,8 +184,8 @@ let c = try Count(3) catch Count(1)</code></pre>
     <tr><td>Checked</td><td>Once, at construction</td><td>Every call</td></tr>
   </tbody>
 </table></div>
-<pre><code class="byn">i64 gap(i64 a, to i64 b) expects a &lt;= b =&gt; b - a</code></pre>
-<pre><code class="byn">i64 gap(i64 a, to i64 b) expects a &lt;= b =&gt; b - a
+<pre><code class="byn">i32 gap(i32 a, to i32 b) expects a &lt;= b =&gt; b - a</code></pre>
+<pre><code class="byn">i32 gap(i32 a, to i32 b) expects a &lt;= b =&gt; b - a
 print($"{gap(9, to: 5)}")</code></pre>
 <figure class="diag">
 <pre><span class="err">error BYN2321:</span> `9` violates `requires a &lt;= b` of `gap`
@@ -198,10 +198,10 @@ print($"{gap(9, to: 5)}")</code></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
 <p>With a value only known at run time, a violation stops the program. This program reads the two values from a list, so the compiler cannot see the violation. It is not an example, because the build checks that an example exits with 0.</p>
-<pre><code class="byn">i64 gap(i64 a, to i64 b) expects a &lt;= b =&gt; b - a
+<pre><code class="byn">i32 gap(i32 a, to i32 b) expects a &lt;= b =&gt; b - a
 
 print($"{gap(2, to: 5)}")
-let xs: List&lt;i64&gt; = [9, 5]
+let xs: List&lt;i32&gt; = [9, 5]
 print($"{gap(xs[0], to: xs[1])}")</code></pre>
 <figure class="diag">
 <pre>3

@@ -95,7 +95,7 @@ m.n = 5</code></pre>
   <li>A line that starts with <code>[</code> is a collection literal, not an attribute. The form <code>[Name(args)]</code> is rejected (BYN1045).</li>
 </ul>
 <pre><code class="byn">@noEquality
-struct A { i64 x }</code></pre>
+struct A { i32 x }</code></pre>
 <figure class="diag">
 <pre><span class="err">error BYN2770:</span> unknown attribute `noEquality`
   --&gt; unknown-attr.byn:1:2

@@ -167,8 +167,8 @@ print($"{grid[7]}")</code></pre>
 <p>A struct is a value with named fields. Structs are the only data type with fields. There are no classes and no inheritance.</p>
 <ul>
   <li><strong>Type first.</strong> A field, a parameter and a return type put the type before the name. A local binding puts the name first, <code>let w: Grams = 0g</code>, and <code>Grams w = 0g</code> inside a body is rejected with a fix (BYN1043).</li>
-  <li><strong>Defaults.</strong> <code>i64 y = 0</code> gives a field a default. A struct literal may then leave it out. A type can be created with no values (is <em>defaultable</em>) only if every field has a default.</li>
-  <li><strong>Computed members.</strong> <code>i64 sum =&gt; x + y</code> is a member that reads like a field. A member without arguments is a property. <code>sum</code> is read, not called.</li>
+  <li><strong>Defaults.</strong> <code>i32 y = 0</code> gives a field a default. A struct literal may then leave it out. A type can be created with no values (is <em>defaultable</em>) only if every field has a default.</li>
+  <li><strong>Computed members.</strong> <code>i32 sum =&gt; x + y</code> is a member that reads like a field. A member without arguments is a property. <code>sum</code> is read, not called.</li>
   <li><strong>Methods are read-only by default.</strong> A method that changes the struct has <code>ref this</code> as its first parameter. Without it the compiler reports BYN2115 and shows the fix. You cannot call a <code>ref this</code> method on a <code>let</code> (BYN2104).</li>
   <li><strong>Literals.</strong> <code>Point { x: 1 }</code> uses <code>:</code> for each field. A literal of a type with a <code>requires</code> rule is checked when it is built.</li>
   <li><strong>Equality</strong> compares field by field, and so does hashing. A struct is a <code>Map</code> key when all its fields are.</li>
@@ -177,7 +177,7 @@ print($"{grid[7]}")</code></pre>
 </ul>
 <example name="ref-types-struct"/>
 <pre><code class="byn">struct Counter {
-    i64 n
+    i32 n
     void bump() {
         n += 1
     }
@@ -195,7 +195,7 @@ print($"{grid[7]}")</code></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
 <pre><code class="byn">struct Counter {
-    i64 n
+    i32 n
     void bump(ref this) {
         n += 1
     }
@@ -341,7 +341,7 @@ print($"{area(.empty)}")</code></pre>
 <h2 id="function-types">Function types</h2>
 <p><code>A -&gt; B</code> is the type of a function from <code>A</code> to <code>B</code>. Write <code>(A, B) -&gt; C</code> for two parameters and <code>() -&gt; void</code> for none. After the return type, <code>uses e</code> and then <code>fails E</code> add effects and error sets. <code>-&gt;</code> is for types. <code>=&gt;</code> is for lambdas and bodies.</p>
 <ul>
-  <li>A function type before a name needs parentheses: <code>by (i64 -&gt; i64) f</code>. An alias avoids that: <code>type Pred = i64 -&gt; bool</code>, then <code>by Pred p</code>.</li>
+  <li>A function type before a name needs parentheses: <code>by (i32 -&gt; i32) f</code>. An alias avoids that: <code>type Pred = i64 -&gt; bool</code>, then <code>by Pred p</code>.</li>
   <li>Two function types are equal when the parameters, return type, error sets and effects are equal. There is no variance.</li>
   <li>A <em>named function</em> works as a value when it is a non-generic, module-level function whose signature matches exactly. Particles are part of the name, not the type. A mismatch is BYN2202, and a method or generic function used as a value is BYN2824.</li>
   <li>A <em>lambda</em> is <code>x =&gt; …</code>, <code>(a, b) =&gt; …</code> or <code>() =&gt; …</code>. Its parameters are bare names. Their types come from the type expected at that place.</li>

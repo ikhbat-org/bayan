@@ -931,7 +931,7 @@ distinct type Sku = string</code></pre>
 </figure>
 
 <h3 id="byn1045">BYN1045: bracket attribute</h3>
-<p><strong>Why.</strong> Bayan writes an attribute as <code>@name</code> or <code>@name(args)</code> before the declaration, with a camelCase name, so <code>[</code> only ever opens a list or an index. The bracket spelling <code>[Name(args)]</code> is an input form.</p>
+<p><strong>Why.</strong> Bayan writes an attribute as <code>@name</code> or <code>@name(args)</code> before the declaration, with a camelCase name, so <code>[</code> only ever opens a list or an index. The C# spelling <code>[Name(args)]</code> is an input form.</p>
 <p><strong>Fix.</strong> Write the attribute with <code>@</code> and a camelCase name:</p>
 <pre><code class="byn">@cases(1, 2, 3)
 test "positive" (i32 n) {
@@ -1003,7 +1003,7 @@ i64 total(i64 price) =&gt; price</code></pre>
 </figure>
 
 <h3 id="byn1048">BYN1048: <code>char</code> is now <code>rune</code></h3>
-<p><strong>Why.</strong> A Bayan character is a Unicode scalar value, not a 16-bit code unit, so it is named <code>rune</code>. <code>char</code> is an input form; a character literal such as <code>'a'</code> is a <code>rune</code>.</p>
+<p><strong>Why.</strong> A Bayan character is a Unicode scalar value, not a UTF-16 unit as in C#, so it is named <code>rune</code>. <code>char</code> is an input form; a character literal such as <code>'a'</code> is a <code>rune</code>.</p>
 <p><strong>Fix.</strong> Rename the type to <code>rune</code>:</p>
 <pre><code class="byn">bool isVowel(rune c) =&gt; c == 'a' or c == 'e'</code></pre>
 <p>The diagnostic carries a machine-applicable fix, and <code>bayan format</code> applies it.</p>
@@ -1300,7 +1300,7 @@ i32 total(i32... xs) { … }</code></pre>
 </figure>
 
 <h3 id="byn1060">BYN1060: <code>{ get }</code> on an interface member</h3>
-<p><strong>Why.</strong> A field-shaped interface member, <code>Type name</code>, is already a read-only property requirement. The form <code>Type name { get }</code> is an input form.</p>
+<p><strong>Why.</strong> A field-shaped interface member, <code>Type name</code>, is already a read-only property requirement. C#'s <code>Type name { get }</code> is an input form.</p>
 <p><strong>Fix.</strong> Remove <code>{ get }</code>: <code>i64 length</code>. The diagnostic carries a machine-applicable fix, and <code>bayan format</code> applies it.</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">interface Sized {
