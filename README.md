@@ -138,8 +138,9 @@ error on) or `catch` (handle it here).
 ### Effects are part of the signature
 
 A public function lists what it touches outside its own arguments: files (`fs`), memory (`alloc`), the
-console, the network and so on. A function with no `uses` clause only computes, so you can call it
-anywhere and test it with plain values:
+console, the network and so on. A public function with no `uses` clause only computes, so you can call
+it anywhere and test it with plain values. Private functions, `main` and scripts work their effects out
+from what they call, which is why `main` below needs no clause:
 
 ```
 /// Counts the names in a guest list, one per line. No `uses` clause: it only computes.
@@ -230,13 +231,13 @@ lentil soup paid (120), on its way
 lentil soup delivered
 ```
 
-Deliver before paying and the program does not compile:
+Leave out `order.pay(120)`, so the order is delivered before it is paid, and the program does not compile:
 
 ```text
 error BYN7001: `deliver` needs `order` to be `.paid`, but it is `Order.placed`
-  --> main.byn:28:5
+  --> main.byn:29:5
 
-  28 │     order.deliver()
+  29 │     order.deliver()
      │     ^^^^^
      │
   help: check the state with `is` or `switch` first
