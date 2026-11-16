@@ -204225,7 +204225,7 @@ bynt_opt_str byn_main__diagDoc(byn_str p_name) {
 #line 626 "driver/diagdocs.byn"
     if (byn_str_eq(p_name, BYN_STR("BYN2206", 7))) {
 #line 627 "driver/diagdocs.byn"
-        return ((bynt_opt_str){true, BYN_STR("# BYN2206: invalid cast\012\012**Why.** Casts convert between numeric types and between `rune` and integers. Other conversions are functions (`parse`, `formatInto`).\012\012**Example.**\012\012```\012let n = i64(\04242\042)\012```\012\012**Fix.** Call a conversion function instead.\012", 247)});
+        return ((bynt_opt_str){true, BYN_STR("# BYN2206: invalid cast\012\012**Why.** Casts convert between numeric types and between `rune` and integers. Other conversions are functions (`parse`, `formatInto`). Converting `f32` or `f64` to `dec` with `dec(x)` is also rejected (not in 0.3, spec \302\2473.1, \302\2476.2): binary floating-point fractions do not represent most decimal fractions, so a float literal takes the `dec` suffix (`0.025dec` instead of `dec(0.025)`) and a runtime float converts through `dec.fromF64(x, digits: n)`.\012\012**Example.**\012\012```\012let n = i64(\04242\042)\012```\012\012**Fix.** Call a conversion function instead (`i64.tryParse(\04242\042)`). For `dec` on a float literal, write the `dec` suffix (`0.025dec`); for `dec(x)` on a runtime `f32` or `f64`, call `dec.fromF64(x, digits: 2)`.\012", 730)});
 #line 626 "driver/diagdocs.byn"
         goto switch_end_1;
     }
