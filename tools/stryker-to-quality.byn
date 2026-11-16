@@ -99,11 +99,11 @@ string? optText(ReadOnlySpan<JsonMember> members, for string key) {
 }
 
 /// The string value of the last member named `key` in `members`, or fails.
-string reqText(ReadOnlySpan<JsonMember> members, for string key, at string path) fails ConvertError {
+string reqText(ReadOnlySpan<JsonMember> members, for string key, at string path) uses alloc fails ConvertError {
     var i = members.length - 1
     while i >= 0 {
         if members[i].key == key {
-            if members[i].value is .text(let s) { return s }
+            if members[i].value is .text(let s) { return $"{s}" }
             fail .failed(message: $"TypeError(\"{path}: {key} is not a string\")")
         }
         i -= 1
@@ -262,7 +262,7 @@ void runConvert(string outPath, from string root, at f64 buildS, until f64 total
             if top[fi].value is .object(let rawFiles) {
                 let fileEntries = dedupMembers(rawFiles.span)
                 for fe in fileEntries {
-                    var name = fe.key
+                    var name = $"{fe.key}"
                     if Path.isRooted(name) {
                         name = Path.relative(root, to: name).replaced("\\", by: "/")
                     }
