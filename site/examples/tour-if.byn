@@ -1,4 +1,4 @@
-string sign(i64 n) {
+string sign(i32 n) {
     if n < 0 {
         return "negative"
     } else if n == 0 {

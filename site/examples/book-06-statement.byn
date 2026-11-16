@@ -1,5 +1,5 @@
 union Command {
-    step(i64 dx, i64 dy)
+    step(i32 dx, i32 dy)
     say(string text)
     quit
 }

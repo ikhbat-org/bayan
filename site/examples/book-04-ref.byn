@@ -1,19 +1,19 @@
-void bump(ref i64 counter) {
+void bump(ref i32 counter) {
     counter += 1
 }
 
-void addTwice(ref List<i64> xs, i64 value = 0) {
+void addTwice(ref List<i32> xs, i32 value = 0) {
     xs.append(value)
     xs.append(value)
 }
 
 void main() {
-    var hits: i64 = 0
+    var hits: i32 = 0
     bump(ref hits)
     bump(ref hits)
     print($"hits {hits}")
 
-    var xs = List<i64>()
+    var xs = List<i32>()
     addTwice(ref xs, value: 9)
     print($"{xs.length} items, first {xs[0]}")
 }

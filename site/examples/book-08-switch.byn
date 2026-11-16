@@ -13,9 +13,9 @@ i64 parseQty(string text) fails ParseError {
 
 string describe(string text) {
     let n = parseQty(text) catch switch {
-        .empty => return "nothing there",
+        .empty            => return "nothing there",
         .notNumber(let t) => return $"'{t}' is not a number",
-        .negative(let v) => return $"{v} is below zero",
+        .negative(let v)  => return $"{v} is below zero",
     }
     return $"quantity {n}"
 }

@@ -3,7 +3,7 @@ void main(ReadOnlySpan<string> args) {
     let demo: string[4] = ["--verbose", "--count", "3", "Bayan"]
     let list = args.length == 0 ? demo.span : args
     var verbose = false
-    var count: i64 = 1
+    var count: i32 = 1
     var name = "world"
     var i = 0
     while i < list.length {
@@ -11,7 +11,7 @@ void main(ReadOnlySpan<string> args) {
             verbose = true
         } else if list[i] == "--count" && i + 1 < list.length {
             i++
-            count = i64.tryParse(list[i]) ?? 1
+            count = i32.tryParse(list[i]) ?? 1
         } else {
             name = list[i]
         }

@@ -3,20 +3,20 @@ nav: Learn
 order: 10
 template: docs
 ---
-<p>If you know Python, Rust, Go, C# or TypeScript, most Bayan reads as you expect. This page covers the forms that do not: what each one does and why it is there. Each entry gives the form, a fragment, and what it means. Where a mainstream equivalent exists, it names it.</p>
+<p>If you know Python, Rust, Go or TypeScript, most Bayan reads as you expect. This page covers the forms that do not: what each one does and why it is there. Each entry gives the form, a fragment, and what it means. Where a mainstream equivalent exists, it names it.</p>
 
 <h2 id="receivers">Methods that change their receiver</h2>
 
 <h3 id="ref-this"><code>ref this</code></h3>
-<pre><code class="byn">void record(ref this, i64 ms) {
+<pre><code class="byn">void record(ref this, i32 ms) {
     hits += 1
 }</code></pre>
-<p>A method is read-only by default. A method that changes its receiver says so with <code>ref this</code> as its first parameter. You cannot call it on a <code>let</code>. Closest: Rust's <code>&amp;mut self</code>. In Python and C# every method can change the object, and here the signature tells you.</p>
+<p>A method is read-only by default. A method that changes its receiver says so with <code>ref this</code> as its first parameter. You cannot call it on a <code>let</code>. Closest: Rust's <code>&amp;mut self</code>. In Python every method can change the object, and here the signature tells you.</p>
 <example name="reading-ref-this"/>
 
 <h3 id="with"><code>x with { … }</code></h3>
 <pre><code class="byn">let b = a with { qty: 5, paid: true }</code></pre>
-<p><code>with</code> makes a copy of a struct with some fields replaced. The original is not touched. It is the only way to copy with changes, and the fields it lists are checked against the type's <code>requires</code> rules. Closest: Rust's struct update syntax, C#'s <code>with</code> on records.</p>
+<p><code>with</code> makes a copy of a struct with some fields replaced. The original is not touched. It is the only way to copy with changes, and the fields it lists are checked against the type's <code>requires</code> rules. Closest: Rust's struct update syntax.</p>
 <example name="reading-with"/>
 
 <h2 id="context">Names taken from context</h2>
@@ -40,23 +40,23 @@ any(xs, by: x =&gt; x &gt; 5)</code></pre>
 <h2 id="calls">Calls and parameters</h2>
 
 <h3 id="particles">Particles in calls and parameters</h3>
-<pre><code class="byn">void transfer(i64 amount, from Account payer, to Account payee)
+<pre><code class="byn">void transfer(i32 amount, from Account payer, to Account payee)
 
-transfer(200, from: alice, to: bob)</code></pre>
-<p>A required parameter after the first takes a role word. In the declaration the word comes before the type (<code>from Account payer</code>). In the call it is a label with a colon (<code>from: alice</code>). The words are <code>from to until through at by for as</code>. A call that leaves one out, or writes the wrong one, does not compile. Closest: Swift's argument labels, or Python keyword-only arguments, except that here the label is fixed by the language's word list.</p>
-<pre><code class="byn">i64 clamp(i64 x, to i64 max) =&gt; x &gt; max ? max : x
+transfer(200, from: aisha, to: maryam)</code></pre>
+<p>A required parameter after the first takes a role word. In the declaration the word comes before the type (<code>from Account payer</code>). In the call it is a label with a colon (<code>from: aisha</code>). The words are <code>from to until through at by for as</code>. A call that leaves one out, or writes the wrong one, does not compile. Closest: Swift's argument labels, or Python keyword-only arguments, except that here the label is fixed by the language's word list.</p>
+<pre><code class="byn">i32 clamp(i32 x, to i32 max) =&gt; x &gt; max ? max : x
 
 clamp(12, to: 10)</code></pre>
 
 <h3 id="arrow">Bodies with <code>=&gt;</code></h3>
-<pre><code class="byn">i64 square(i64 x) =&gt; x * x</code></pre>
-<p><code>=&gt;</code> reads "evaluates to". A function whose body is one expression can use it in place of braces and <code>return</code>. It also separates a lambda's parameters from its body, and a <code>switch</code> arm from its result. Function types use <code>-&gt;</code> instead: <code>i64 -&gt; bool</code>. Closest: C# expression-bodied members, JavaScript arrow functions.</p>
+<pre><code class="byn">i32 square(i32 x) =&gt; x * x</code></pre>
+<p><code>=&gt;</code> reads "evaluates to". A function whose body is one expression can use it in place of braces and <code>return</code>. It also separates a lambda's parameters from its body, and a <code>switch</code> arm from its result. Function types use <code>-&gt;</code> instead: <code>i32 -&gt; bool</code>. Closest: JavaScript arrow functions.</p>
 <example name="reading-expression-body"/>
 
 <h3 id="interpolation">Interpolated strings <code>$"…{…}"</code></h3>
 <pre><code class="byn">print($"{name} has {name.length} bytes")
 print($"{n, as: .hex}")</code></pre>
-<p>A <code>$</code> before the quote lets you write expressions inside braces. A format option is a named argument inside the hole, like any other argument. Strings have no <code>+</code>, so this is also how you join them. Closest: C# interpolated strings, Python f-strings.</p>
+<p>A <code>$</code> before the quote lets you write expressions inside braces. A format option is a named argument inside the hole, like any other argument. Strings have no <code>+</code>, so this is also how you join them. Closest: Python f-strings.</p>
 
 <h2 id="statements">Statements</h2>
 
@@ -74,7 +74,7 @@ defer failing tx.rollback()  // only when the function fails</code></pre>
 <h2 id="errors">Errors</h2>
 
 <h3 id="fails"><code>fails E</code></h3>
-<pre><code class="byn">i64 digit(string s) fails ParseError {
+<pre><code class="byn">i32 digit(string s) fails ParseError {
     fail .empty if s.isEmpty
     …
 }</code></pre>
@@ -102,7 +102,7 @@ let q = send(n) catch (CarrierError.rejected) 1</code></pre>
 <h2 id="effects-ownership">Effects and ownership</h2>
 
 <h3 id="uses"><code>uses</code></h3>
-<pre><code class="byn">public List&lt;i64&gt; squares(i64 n) uses alloc { … }</code></pre>
+<pre><code class="byn">public List&lt;i32&gt; squares(i32 n) uses alloc { … }</code></pre>
 <p><code>uses</code> lists the effects a function has: <code>alloc suspend net fs clock random env process console</code>. No <code>uses</code> means pure. A public function that does something it did not declare does not compile. There is no direct equivalent in mainstream languages. It is nearest to Koka's effect types.</p>
 
 <h3 id="move"><code>move</code></h3>

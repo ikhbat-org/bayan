@@ -1,4 +1,4 @@
-void check(i64 n) {
+void check(i32 n) {
     return if n < 0
     print($"checked {n}")
 }

@@ -1,6 +1,6 @@
 struct Ticket {
-    string label
-    List<i64> marks
+    string    label
+    List<i32> marks
 }
 
 void work(string name) uses console {
@@ -16,7 +16,7 @@ void main() uses console, alloc {
         defer print($"end of pass {i}")
         print($"pass {i}")
     }
-    var t = Ticket { label: "t1", marks: List<i64>() }
+    var t = Ticket { label: "t1", marks: List<i32>() }
     t.marks.append(5)
     let moved = move t
     print($"{moved.label} has {moved.marks.length} mark")

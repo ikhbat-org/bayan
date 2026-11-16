@@ -1,11 +1,13 @@
 let flag = true
 let done = false
-unless done { print("u") }
+unless done {
+    print("u")
+}
 print("a") if flag
 print("b") unless flag
 if flag {
     print("1")
-} else if not flag {
+} else if !flag {
     print("2")
 } else {
     print("3")

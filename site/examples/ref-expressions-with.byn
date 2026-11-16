@@ -1,6 +1,6 @@
 struct Line {
     string name
-    i64 qty
+    i32    qty
 }
 
 let a = Line { name: "pen", qty: 2 }

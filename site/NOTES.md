@@ -10,7 +10,7 @@ Where the build differs from FORMAT.md, or fills a gap in it, and why.
 
 ## Choices where FORMAT.md is silent
 
-- **Template placeholders.** Templates use `{{title}}`, `{{name}}`, `{{group}}` (the nav group), `{{docs}}` (href of the Docs link), `{{headnav}}`, `{{sidebar}}`, `{{toc}}`, `{{pager}}` and `{{body}}`. `{{body}}` is filled last, so page text containing `{{…}}` is left alone.
+- **Template placeholders.** Templates use `{{title}}`, `{{name}}`, `{{group}}` (the nav group), `{{docs}}` (href of the Docs link), `{{headnav}}`, `{{sidebar}}`, `{{toc}}`, `{{pager}}`, `{{version}}` (the `VERSION` line), `{{root}}` (the way back to `out/`) and `{{body}}`. `{{body}}` is filled last, so page text containing `{{…}}` is left alone.
 - **Pages without `nav`** (the landing page) are left out of the sidebar and the previous/next links.
 - **The header's Docs link** goes to the first Reference page, else the first sidebar page that is not the tutorial. It is marked current on every sidebar page except the tutorial.
 - **Unknown header keys are an error** (`unknown header ...`), as are an unknown `nav` group, a non-integer `order`, a missing `---` and a missing `template`, each with file and line.
@@ -18,3 +18,6 @@ Where the build differs from FORMAT.md, or fills a gap in it, and why.
 - **Plain `<pre><code>`** (no class) is passed through unchanged; the tutorial uses it for shell commands. FORMAT.md reserves `class="other"` for side-by-side comparisons, so it is not used for commands.
 - **Type colour.** `.ty` is a lighter navy (#2F5A8A) rather than a gold, so types read apart from keywords (bold dark gold) and from plain names (ink navy). All token colours are at least 4.5:1 on the code background; the ratios are in comments in `assets/style.css`.
 - **Box-drawing characters** in diagnostics (`│`) are outside the bundled font subsets, so they come from the system monospace font.
+- **Release doc titles.** The first `# ` heading is the page title and is not repeated in the body, since `docs.html` prints `<h1>{{title}}</h1>`. A doc with no `# ` heading is titled by its name.
+- **Release doc slugs** come from the raw heading text and differ from GitHub's anchors (GitHub keeps `_` and non-ASCII letters), so a `#fragment` written for GitHub may not match.
+- **Two Docs links.** The header keeps the site's Docs link (the reference pages) and adds the release Docs link (`docs/<version>/index.html`) after Roadmap, so both read "Docs".

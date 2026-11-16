@@ -1,5 +1,5 @@
 type distinct ParcelId = i64
-type distinct Grams = i64 requires it > 0
+type distinct Grams    = i64 requires it > 0
 
 union error ShipError {
     noAddress
@@ -7,7 +7,8 @@ union error ShipError {
 
 struct Parcel {
     ParcelId id
-    Grams weight
+    Grams    weight
+
     states {
         packed
         sent(string carrier)
@@ -29,7 +30,7 @@ string receipt(Parcel.delivered p) => $"parcel {p.id.value} signed by {p.signedB
 void main() fails ValidationError<Grams>, ShipError {
     var p = Parcel.packed { id: ParcelId(1), weight: Grams(250) }
     try p.send(by: "DHL")
-    p.deliver("Sam")
+    p.deliver("Umar")
     print(receipt(p))
     print(p.carrier)
 }

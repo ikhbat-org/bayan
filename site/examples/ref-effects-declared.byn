@@ -1,4 +1,4 @@
-public i64 add(i64 a, to i64 b) => a + b
+public i32 add(i32 a, to i32 b) => a + b
 
 public void say(string text) uses console {
     print(text)

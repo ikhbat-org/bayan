@@ -23,11 +23,11 @@ template: docs
 
 <h2 id="move-defer">defer and move</h2>
 <p>A deferred statement runs at the end of the scope, so it counts as a use of every variable it mentions. If you move one of those variables away before then, the compiler stops you:</p>
-<pre><code class="byn">void consume(move List&lt;i64&gt; xs) {
+<pre><code class="byn">void consume(move List&lt;i32&gt; xs) {
 }
 
 void main() uses console, alloc {
-    let xs = List&lt;i64&gt;()
+    let xs = List&lt;i32&gt;()
     defer print($"count {xs.length}")
     consume(move xs)
 }</code></pre>

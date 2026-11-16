@@ -15,14 +15,14 @@ i64 total(ReadOnlySpan<i64> items) {
 }
 print($"{total(xs)}")
 let view = xs.span
-print($"{view.length} {view[0]} {view[^1]}")
+print($"{view.length} {view[0]} {view[^ 1]}")
 
 xs.remove(from: 0, until: 1)
 print($"{xs.length}")
 
-var ages: Map<string, i64> = ["bea": 31, "al": 29]
-ages["cy"] = 40
+var ages: Map<string, i32> = ["Aisha": 31, "Bilal": 29]
+ages["Maryam"] = 40
 for (name, age) in ages {
     print($"{name}={age}")
 }
-print($"{ages.contains("al")} {ages.length} {ages["cy"]}")
+print($"{ages.contains("Bilal")} {ages.length} {ages["Maryam"]}")

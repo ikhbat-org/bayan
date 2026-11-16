@@ -1,5 +1,5 @@
 struct Batch {
-    string name
+    string    name
     List<i64> items
 }
 

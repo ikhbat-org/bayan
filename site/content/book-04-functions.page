@@ -8,9 +8,9 @@ template: docs
 <h2 id="basic">Declaring and calling</h2>
 <example name="book-04-basic"/>
 <ul>
-  <li>A declaration starts with the return type, then the name, then the parameters: <code>i64 square(i64 x)</code>. Each parameter is also type first.</li>
+  <li>A declaration starts with the return type, then the name, then the parameters: <code>i32 square(i32 x)</code>. Each parameter is also type first.</li>
   <li><code>return</code> gives the result back. <code>void</code> means the function returns nothing.</li>
-  <li>A function whose body is one expression can use <code>=&gt;</code> instead of braces and <code>return</code>: <code>i64 cube(i64 x) =&gt; x * square(x)</code>.</li>
+  <li>A function whose body is one expression can use <code>=&gt;</code> instead of braces and <code>return</code>: <code>i32 cube(i32 x) =&gt; x * square(x)</code>.</li>
   <li>Functions can call themselves, as <code>factorial</code> does.</li>
   <li>Parameters are read-only inside the function. This is refused:</li>
 </ul>
@@ -34,7 +34,7 @@ template: docs
 <p>A function may have one unlabeled parameter, the thing it works on. Every other required parameter carries a particle: one of <code>from to until through at by for as</code>. In the declaration the particle comes before the type. In the call it is a label with a colon.</p>
 <example name="book-04-particles"/>
 <ul>
-  <li><code>transfer(200, from: "alice", to: "bob")</code> reads as a sentence. The first argument, <code>200</code>, is the unlabeled one.</li>
+  <li><code>transfer(200, from: "Aisha", to: "Ali")</code> reads as a sentence. The first argument, <code>200</code>, is the unlabeled one.</li>
   <li>Labelled arguments may come in any order: the second call puts <code>to:</code> before <code>from:</code>.</li>
   <li>The labels are fixed by the declaration. You cannot invent one, and you cannot leave one out. Leaving them out is the most common error you will meet:</li>
 </ul>
@@ -42,21 +42,21 @@ template: docs
 <pre><span class="err">error BYN5005:</span> `payer` is passed without its particle `from:`
   <span class="gut">--&gt;</span> particle.byn:5:15
 
-<span class="gut">  5 │</span> transfer(200, "alice", "bob")
+<span class="gut">  5 │</span> transfer(200, "Aisha", "Ali")
 <span class="gut">    │</span>               ^^^^^^^ needs `from:`
 <span class="gut">    │</span>
 <span class="gut">  help: add `from:` before the argument</span>
-<span class="gut">    │ 5 │</span> transfer(200, from: "alice", "bob")
+<span class="gut">    │ 5 │</span> transfer(200, from: "Aisha", "Ali")
 <span class="gut">    │   │</span><span class="add">               ++++++</span>
 
 <span class="err">error BYN5005:</span> `payee` is passed without its particle `to:`
   <span class="gut">--&gt;</span> particle.byn:5:24
 
-<span class="gut">  5 │</span> transfer(200, "alice", "bob")
+<span class="gut">  5 │</span> transfer(200, "Aisha", "Ali")
 <span class="gut">    │</span>                        ^^^^^ needs `to:`
 <span class="gut">    │</span>
 <span class="gut">  help: add `to:` before the argument</span>
-<span class="gut">    │ 5 │</span> transfer(200, "alice", to: "bob")
+<span class="gut">    │ 5 │</span> transfer(200, "Aisha", to: "Ali")
 <span class="gut">    │   │</span><span class="add">                        ++++</span>
 
 <span class="gut">✗ build failed: 2 errors, 0 warnings</span>
@@ -69,7 +69,7 @@ template: docs
 <pre><span class="err">error BYN5004:</span> `announce` has 2 unlabeled parameters; give each but one a particle
   <span class="gut">--&gt;</span> twoplain.byn:1:6
 
-<span class="gut">  1 │</span> void announce(string label, i64 value) {
+<span class="gut">  1 │</span> void announce(string label, i32 value) {
 <span class="gut">    │</span>      ^^^^^^^^ 2 unlabeled parameters
 <span class="gut">    │</span>
 <span class="gut">  help: keep one unlabeled parameter, the object</span>
@@ -77,7 +77,7 @@ template: docs
 <span class="err">error BYN5006:</span> `value` is a required parameter besides the object and needs a particle
   <span class="gut">--&gt;</span> twoplain.byn:1:33
 
-<span class="gut">  1 │</span> void announce(string label, i64 value) {
+<span class="gut">  1 │</span> void announce(string label, i32 value) {
 <span class="gut">    │</span>                                 ^^^^^ needs a particle
 <span class="gut">    │</span>
 <span class="gut">  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`</span>
@@ -91,7 +91,7 @@ template: docs
 <h2 id="mistakes">Wrong arguments</h2>
 <p>A wrong type names both types:</p>
 <figure class="diag">
-<pre><span class="err">error BYN2202:</span> expected `i64`, found `string`
+<pre><span class="err">error BYN2202:</span> expected `i32`, found `string`
   <span class="gut">--&gt;</span> argtype.byn:3:17
 
 <span class="gut">  3 │</span> print($"{square("seven")}")
@@ -118,7 +118,7 @@ template: docs
 <p>A parameter with a default can be left out. To override it, pass it by name.</p>
 <example name="book-04-defaults"/>
 <ul>
-  <li><code>string greeting = "Hello"</code> is optional. <code>greet("Ada")</code> uses the default.</li>
+  <li><code>string greeting = "Salam"</code> is optional. <code>greet("Aisha")</code> uses the default.</li>
   <li>A defaulted parameter is passed by its own name: <code>greeting: "Welcome"</code>, <code>times: 5</code>.</li>
 </ul>
 
@@ -149,7 +149,7 @@ template: docs
 <h2 id="rest">Any number of arguments: <code>rest</code></h2>
 <p>The last parameter can be <code>rest</code>, which takes any number of values as a read-only span.</p>
 <example name="book-04-rest"/>
-<p><code>numbers</code> is a <code>ReadOnlySpan&lt;i64&gt;</code> inside the function. You go through it with <code>for</code>. Calling with no values is allowed.</p>
+<p><code>numbers</code> is a <code>ReadOnlySpan&lt;i32&gt;</code> inside the function. You go through it with <code>for</code>. Calling with no values is allowed.</p>
 
 <h2 id="overloads">Overloads</h2>
 <p>Several functions can share a name when their parameters differ by particle set:</p>
@@ -175,7 +175,7 @@ template: docs
 
 <h2 id="recap">What you have now</h2>
 <ul>
-  <li>Type first: <code>i64 square(i64 x)</code>. <code>=&gt;</code> for one-expression bodies.</li>
+  <li>Type first: <code>i32 square(i32 x)</code>. <code>=&gt;</code> for one-expression bodies.</li>
   <li>One unlabeled parameter. Every other required parameter has a particle.</li>
   <li>Defaults are passed by name. <code>ref</code> is written at the declaration and at the call.</li>
   <li>Parameters are read-only unless <code>ref</code>.</li>
@@ -200,12 +200,12 @@ template: docs
   <p><code>var b = a</code> copies the number. <code>bump(ref b)</code> changes <code>b</code> only, so <code>a</code> stays 1 and <code>b</code> becomes 11. The answer <code>11 11</code> assumes both names refer to one value, which is not the case for numbers.</p>
 </details>
 <details class="quiz">
-  <summary>You write <code>void move(string name, i64 steps)</code>. What does the compiler say, and what is a fix?</summary>
-  <p>It reports <code>BYN5004</code> and <code>BYN5006</code>: a function may have one unlabeled parameter, and the second needs a particle. Make it <code>void move(string name, by i64 steps)</code> and call <code>move("ada", by: 3)</code>. Giving <code>steps</code> a default would also compile, but then the call would be <code>move("ada", steps: 3)</code>.</p>
+  <summary>You write <code>void move(string name, i32 steps)</code>. What does the compiler say, and what is a fix?</summary>
+  <p>It reports <code>BYN5004</code> and <code>BYN5006</code>: a function may have one unlabeled parameter, and the second needs a particle. Make it <code>void move(string name, by i32 steps)</code> and call <code>move("Aisha", by: 3)</code>. Giving <code>steps</code> a default would also compile, but then the call would be <code>move("Aisha", steps: 3)</code>.</p>
 </details>
 <details class="quiz">
   <summary>A function body says <code>n -= 1</code> where <code>n</code> is a parameter. Why is it refused, and what are the two fixes?</summary>
-  <p>Parameters are read-only (<code>BYN2104</code>). If only the function needs a changed value, copy it: <code>var m = n</code>. If the caller's variable should change, declare the parameter <code>ref i64 n</code> and call with <code>ref</code>. Making the caller's variable a <code>var</code> alone does not help, because the rule is about the parameter.</p>
+  <p>Parameters are read-only (<code>BYN2104</code>). If only the function needs a changed value, copy it: <code>var m = n</code>. If the caller's variable should change, declare the parameter <code>ref i32 n</code> and call with <code>ref</code>. Making the caller's variable a <code>var</code> alone does not help, because the rule is about the parameter.</p>
 </details>
 
 <div class="next-box">

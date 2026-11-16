@@ -1,5 +1,5 @@
-i64 total(rest ReadOnlySpan<i64> items, i64 scale = 1) {
-    var t: i64 = 0
+i32 total(rest ReadOnlySpan<i32> items, i32 scale = 1) {
+    var t: i32 = 0
     for x in items {
         t += x
     }

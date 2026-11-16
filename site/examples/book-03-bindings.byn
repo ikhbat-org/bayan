@@ -1,6 +1,6 @@
 const secondsPerDay: i64 = 86_400
 
-let name = "Ada"
+let name = "Aisha"
 let age: i64 = 36
 var visits = 0
 

@@ -18,7 +18,7 @@ i64 average(ReadOnlySpan<i64> xs) {
 }
 
 void main() {
-    let input = "ada, 90\ngrace,85\n\nada,95\nlinus,x7\ngrace, 70\n"
+    let input = "ali, 90\nhafsa,85\n\nali,95\nyusuf,x7\nhafsa, 70\n"
     var best = Map<string, i64>()
     var all: List<i64> = []
     for line in input.lines {

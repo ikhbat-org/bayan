@@ -1,12 +1,13 @@
 struct Point {
-    i64 x
-    i64 y = 0
+    i32 x
+    i32 y = 0
 
-    i64 sum => x + y
-    bool isOrigin => x == 0 and y == 0
+    i32  sum      => x + y
+    bool isOrigin => x == 0 && y == 0
 
-    i64 scaled(i64 k) => sum * k
-    void shift(ref this, i64 dx) {
+    i32 scaled(i32 k) => sum * k
+
+    void shift(ref this, i32 dx) {
         x += dx
     }
 }

@@ -100,52 +100,52 @@ template: docs
   <li>Anywhere else (a <code>let</code> with a function type), the type’s <code>uses</code> clause is an upper bound. Without one, the bound is pure. A function that exceeds it is BYN6005.</li>
 </ul>
 <example name="ref-effects-callback"/>
-<pre><code class="byn">public i64 apply(i64 x, by (i64 -&gt; i64) f) =&gt; f(x)
+<pre><code class="byn">public i32 apply(i32 x, by (i32 -&gt; i32) f) =&gt; f(x)
 
-i64 loud(i64 x) {
+i32 loud(i32 x) {
     print("called")
     return x + 1
 }
 
-public i64 run() =&gt; apply(1, by: loud)</code></pre>
+public i32 run() =&gt; apply(1, by: loud)</code></pre>
 <figure class="diag">
 <pre><span class="err">error BYN6002:</span> `run` uses `console` but does not declare it
   --&gt; ec3.byn:8:21
 
-<span class="gut">  8 │</span> public i64 run() =&gt; <span class="hl">apply(1, by: loud)</span>
+<span class="gut">  8 │</span> public i32 run() =&gt; <span class="hl">apply(1, by: loud)</span>
 <span class="gut">    │</span>                     <span class="hl">^^^^^^^^^^^^^^^^^^ uses `console`</span>
 <span class="gut">    │</span>
 <span class="gut">  help:</span> add `console` to the `uses` clause, or remove the call
-<span class="gut">    │ 8 │</span> public i64 run() <span class="add">uses console </span>=&gt; apply(1, by: loud)
+<span class="gut">    │ 8 │</span> public i32 run() <span class="add">uses console </span>=&gt; apply(1, by: loud)
 <span class="gut">    │   │</span>                 <span class="add">+++++++++++++</span></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<pre><code class="byn">i64 loud(i64 x) {
+<pre><code class="byn">i32 loud(i32 x) {
     print("called")
     return x + 1
 }
 
 void main() {
-    let f: i64 -&gt; i64 = loud
+    let f: i32 -&gt; i32 = loud
     print($"{f(1)}")
 }</code></pre>
 <figure class="diag">
-<pre><span class="err">error BYN6005:</span> `loud` uses `console`, beyond the bound `pure` declared by `i64 -&gt; i64`
+<pre><span class="err">error BYN6005:</span> `loud` uses `console`, beyond the bound `pure` declared by `i32 -&gt; i32`
   --&gt; e4.byn:7:25
 
-<span class="gut">  7 │</span>     let f: i64 -&gt; i64 = <span class="hl">loud</span>
+<span class="gut">  7 │</span>     let f: i32 -&gt; i32 = <span class="hl">loud</span>
 <span class="gut">    │</span>                         <span class="hl">^^^^ uses `console`</span>
 <span class="gut">    │</span>
 <span class="gut">  help:</span> add `console` to the function type’s `uses`, or pass a function without it</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<p>Write the bound in the type to allow it: <code>let f: i64 -&gt; i64 uses console = loud</code> compiles.</p>
+<p>Write the bound in the type to allow it: <code>let f: i32 -&gt; i32 uses console = loud</code> compiles.</p>
 
 <h2 id="logging">Logging</h2>
 <p><code>log</code> writes a diagnostic line to standard error, so it never mixes with what the program prints. It needs no <code>uses</code> clause, so pure functions may log. The level is a particle argument: <code>as: .debug</code>, <code>.warn</code> or <code>.error</code>. The default is <code>.info</code>. Any other level is BYN2720. <code>print</code> is program output and <code>uses console</code>.</p>
 <pre><code class="byn">log("starting")
 log("detail", as: .debug)
-let n: i64 = 3
+let n: i32 = 3
 log($"count {n}", as: .warn)
 print("done")</code></pre>
 <figure class="diag">

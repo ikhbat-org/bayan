@@ -48,7 +48,9 @@ test "attribute" {
 }
 
 test "particle at a call" {
-    assert highlight("f(a, by: 2)") == "<span class=\"fn\">f</span>(a, <span class=\"pa\">by:</span> <span class=\"num\">2</span>)"
+    assert highlight(
+        "f(a, by: 2)",
+    ) == "<span class=\"fn\">f</span>(a, <span class=\"pa\">by:</span> <span class=\"num\">2</span>)"
 }
 
 test "particle in a declaration" {
@@ -60,7 +62,9 @@ test "particle word outside parentheses is a keyword" {
 }
 
 test "named argument label" {
-    assert highlight("f(verbose: true)") == "<span class=\"fn\">f</span>(<span class=\"pa\">verbose:</span> <span class=\"kw\">true</span>)"
+    assert highlight(
+        "f(verbose: true)",
+    ) == "<span class=\"fn\">f</span>(<span class=\"pa\">verbose:</span> <span class=\"kw\">true</span>)"
 }
 
 test "operators" {

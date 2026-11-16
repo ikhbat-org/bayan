@@ -15,14 +15,14 @@ void ship(bool late) fails ShipError {
 }
 
 string describe(ShipError e) => e switch {
-    .timeout t => $"timeout after {t.after}",
-    .rejected r => $"rejected {r.reason}",
+    .timeout t    => $"timeout after {t.after}",
+    .rejected r   => $"rejected {r.reason}",
     .outOfStock s => $"out of stock {s.sku}",
 }
 
 ship(late: true) catch switch {
-    .timeout => print("late"),
-    .rejected => print("rejected"),
+    .timeout    => print("late"),
+    .rejected   => print("rejected"),
     .outOfStock => print("stock"),
 }
 ship(late: false) catch switch {

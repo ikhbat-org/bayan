@@ -6,10 +6,10 @@ union error UsageError {
 }
 
 struct Options {
-    string pattern
-    bool ignoreCase
-    bool numbers
-    bool countOnly
+    string       pattern
+    bool         ignoreCase
+    bool         numbers
+    bool         countOnly
     List<string> files
 }
 

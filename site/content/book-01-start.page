@@ -33,7 +33,7 @@ bayan doctor</code></pre>
 <h2 id="main">Statements and main</h2>
 <p>Most programs in this book start with statements at the top of the file, because they are short. A larger program puts its work in functions and starts in <code>main</code>:</p>
 <example name="book-01-main"/>
-<p>The line <code>string greeting(string name) =&gt; $"Hello, {name}!"</code> declares a function. You will write many in <a href="book-04-functions.html">chapter 4</a>. For now, notice two things. The return type comes first, and <code>=&gt;</code> reads "evaluates to". And <code>$"…{name}…"</code> is an interpolated string: whatever is inside the braces is an expression, and its value is written into the text.</p>
+<p>The line <code>string greeting(string name) =&gt; $"Salam, {name}!"</code> declares a function. You will write many in <a href="book-04-functions.html">chapter 4</a>. For now, notice two things. The return type comes first, and <code>=&gt;</code> reads "evaluates to". And <code>$"…{name}…"</code> is an interpolated string: whatever is inside the braces is an expression, and its value is written into the text.</p>
 <p>A program has one way in. If it has both a <code>main</code> function and top-level statements, the compiler stops:</p>
 <figure class="diag">
 <pre><span class="err">error BYN2013:</span> the program has two entry points
@@ -180,11 +180,11 @@ print(greeting())</code></pre>
 <pre><code>running 1 test in 1 module
 
 ◆ 1 passed · 0.48s</code></pre>
-<p>Change the expected text to <code>"Hello, World!"</code> and run it again. A failing assertion shows both sides of the comparison:</p>
+<p>Change the expected text to <code>"Salam, World!"</code> and run it again. A failing assertion shows both sides of the comparison:</p>
 <pre><code>running 1 test in 1 module
 
   ✗ app: greets the world
-      assert(greeting() == "Hello, World!")
+      assert(greeting() == "Salam, World!")
              │          │
              │          false
              Salam, world!
@@ -219,7 +219,7 @@ end</code></pre>
 <details class="quiz">
   <summary>What does this program print?</summary>
   <p>It prints:</p>
-<pre><code>Hello, Bayan!
+<pre><code>Salam, Bayan!
 done</code></pre>
   <p>The commented-out <code>print("hidden")</code> never runs. The comment at the end of the third line is ignored too. If you guessed that <code>{name}</code> would print as written, remember the <code>$</code> before the quote: it is what turns the braces into expressions.</p>
 </details>

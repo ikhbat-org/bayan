@@ -1,5 +1,5 @@
 void main() {
-    var stock = Map<string, i64>()
+    var stock = Map<string, i32>()
     stock["apples"] = 3
     stock["pears"] = 0
     print($"{stock["apples"]} {stock.length}")

@@ -1,15 +1,15 @@
 void main() {
-    let prices: List<i64> = [5, 12, 8, 30]
-    var cheap = List<i64>()
-    var doubled = List<i64>()
-    var total: i64 = 0
+    let prices: List<i32> = [5, 12, 8, 30]
+    var cheap = List<i32>()
+    var doubled = List<i32>()
+    var total: i32 = 0
     for p in prices {
         total += p
         doubled.append(p * 2)
         cheap.append(p) if p < 10
     }
     print($"total {total}, cheap {cheap.length}, doubled {doubled[3]}")
-    var found: i64? = null
+    var found: i32? = null
     for p in prices {
         if p > 10 {
             found = p

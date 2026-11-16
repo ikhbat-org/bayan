@@ -7,9 +7,10 @@ gen=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$gen/../.." && pwd)
 bayan=${BAYAN:-$root/dist/macos-arm64/latest/bayan}
 mkdir -p "$root/tmp"
-site=$(mktemp -d "$root/tmp/gen-fixture.XXXXXX") || { echo "gen/test.sh: mktemp failed" >&2; exit 1; }
+fix=$(mktemp -d "$root/tmp/gen-fixture.XXXXXX") || { echo "gen/test.sh: mktemp failed" >&2; exit 1; }
+site="$fix/site"
 meta=
-trap 'rm -rf "$site" "$meta"' EXIT
+trap 'rm -rf "$fix" "$meta"' EXIT
 passed=0
 failed=0
 
@@ -21,9 +22,10 @@ has() { if grep -qF -- "$2" "$1"; then ok; else bad "$(basename "$1") lacks: $2"
 lacks() { if grep -qF -- "$2" "$1"; then bad "$(basename "$1") has: $2"; else ok; fi; }
 
 fixture() {
-  rm -rf "$site"
-  mkdir -p "$site/content" "$site/templates" "$site/examples" "$site/out"
-  printf '<title>{{title}}</title>\n<nav>{{headnav}}</nav>\n<aside>\n{{sidebar}}</aside>\n<p class="group">{{group}}</p>\n<main>\n{{body}}\n</main>\n<ul>\n{{toc}}</ul>\n<nav class="pager">\n{{pager}}</nav>\n' > "$site/templates/docs.html"
+  rm -rf "$site" "$fix/docs"
+  mkdir -p "$site/content" "$site/templates" "$site/examples" "$site/out/docs/1.2.0-dev"
+  printf '1.2.0-dev\n' > "$fix/VERSION"
+  printf '<title>{{title}}</title>\n<span class="version">Bay\304\201n {{version}}</span>\n<link href="{{root}}assets/style.css">\n<nav>{{headnav}}</nav>\n<aside>\n{{sidebar}}</aside>\n<p class="group">{{group}}</p>\n<main>\n{{body}}\n</main>\n<ul>\n{{toc}}</ul>\n<nav class="pager">\n{{pager}}</nav>\n' > "$site/templates/docs.html"
   printf '<title>{{title}}</title>\n<a href="{{docs}}">docs</a>\n{{body}}\n' > "$site/templates/landing.html"
   printf 'print("a < b")\n' > "$site/examples/lt.byn"
   printf 'a < b\n' > "$site/examples/lt.out"
@@ -67,6 +69,29 @@ has "$out/zfirst.html" '<pre class="out"><code>a &lt; b</code></pre>'
 has "$out/zfirst.html" '<aside class="note">Careful</aside>'
 has "$out/zfirst.html" '<span class="kw">let</span> s = <span class="str">&quot;&lt;&quot;</span>'
 has "$out/zfirst.html" '<a href="ref.html" aria-current="page">Docs</a>'
+has "$out/zfirst.html" '<span class="version">Bayān 1.2.0-dev</span>'
+has "$out/zfirst.html" '<a href="docs/1.2.0-dev/index.html">Docs</a>'
+
+# release docs: pages, index and roadmap under out/, with links rewritten
+fixture
+mkdir -p "$fix/docs/a" "$fix/docs/b"
+printf '# The roadmap\n\n## Next\n\nSee [x](a/README.md#top) and [src](../src/m.byn).\n' > "$fix/docs/bayan-roadmap.md"
+printf '# A readme\n' > "$fix/docs/a/README.md"
+printf 'no title\n' > "$fix/docs/b/README.md"
+"$bayan" run "$gen" -- "$site" docs/bayan-roadmap.md docs/a/README.md docs/b/README.md > "$site/stdout" 2> "$site/stderr" || bad "docs build: $(cat "$site/stderr")"
+docs="$out/docs/1.2.0-dev"
+for name in bayan-roadmap a-README b-README index; do
+  if [ -f "$docs/$name.html" ]; then ok; else bad "no out/docs/1.2.0-dev/$name.html"; fi
+done
+has "$docs/bayan-roadmap.html" '<title>The roadmap</title>'
+has "$docs/bayan-roadmap.html" '<link href="../../assets/style.css">'
+has "$docs/bayan-roadmap.html" '<li><a href="#next">Next</a></li>'
+has "$docs/bayan-roadmap.html" '<a href="a-README.html#top">x</a>'
+has "$docs/bayan-roadmap.html" '<a href="https://github.com/ikhbat-org/bayan/blob/dev/src/m.byn">src</a>'
+has "$docs/index.html" 'a-README.html">A readme</a>'
+has "$docs/index.html" 'b-README.html">b-README</a>'
+has "$out/roadmap.html" '<a href="docs/1.2.0-dev/a-README.html#top">x</a>'
+has "$out/roadmap.html" '<a href="roadmap.html" aria-current="page">Roadmap</a>'
 
 fixture
 printf 'title: About {{body}}\nnav: Start\norder: 2\ntemplate: docs\n---\n<h2 id="p">The {{pager}} slot</h2>\n' > "$site/content/second.page"
@@ -103,6 +128,9 @@ cp "$latest/bayan" "$repo/site/fakebayan"
 printf '#!/bin/sh\nexit 1\n' > "$meta/fakebin/mktemp"
 chmod +x "$latest/bayan" "$repo/site/fakebayan" "$meta/fakebin/mktemp"
 cp "$gen/../build.sh" "$gen/../check-examples.sh" "$repo/site/"
+mkdir -p "$repo/scripts/release"
+cp "$root/scripts/release/version.sh" "$repo/scripts/release/"
+printf '1.2.0\n' > "$repo/VERSION"
 cp "$gen/test.sh" "$repo/site/gen/"
 : > "$repo/site/examples/x.byn"
 : > "$repo/site/examples/x.out"

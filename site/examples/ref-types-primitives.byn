@@ -8,4 +8,4 @@ print($"{n +% 10} {n +| 10}")
 print($"{i32(big)} {f64(3) / 2.0} {i64(2.9)} {i64(-2.9)}")
 print($"{7 / 2} {-7 / 2} {7 % 3}")
 let flag: bool = true
-print($"{flag and not false}")
+print($"{flag && !false}")

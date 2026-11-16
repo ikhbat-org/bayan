@@ -1,24 +1,24 @@
 effect store = console, alloc
 
-public i64 square(i64 n) {
+public i32 square(i32 n) {
     return n * n
 }
 
-public List<i64> squares(i64 upTo) uses alloc {
-    var xs = List<i64>()
+public List<i32> squares(i32 upTo) uses alloc {
+    var xs = List<i32>()
     for i in 1..=upTo {
         xs.append(square(i))
     }
     return xs
 }
 
-public void show(List<i64> xs) uses store {
+public void show(List<i32> xs) uses store {
     for x in xs {
         print($"- {x}")
     }
 }
 
-public i64 traced(i64 n) {
+public i32 traced(i32 n) {
     log($"tracing {n}")
     return n + 1
 }

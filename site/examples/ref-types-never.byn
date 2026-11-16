@@ -2,7 +2,7 @@ never stop(string why) {
     panic(why)
 }
 
-i64 pick(i64 x) {
+i32 pick(i32 x) {
     if x > 0 {
         return x
     }

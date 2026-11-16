@@ -10,7 +10,7 @@ union Color {
 
 Color pick(bool warm) => warm ? .red : .green
 
-i64 step(bool shouldFail) fails StepError {
+i32 step(bool shouldFail) fails StepError {
     fail .told if shouldFail
     return 1
 }

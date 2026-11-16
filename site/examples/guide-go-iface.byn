@@ -1,24 +1,31 @@
 interface IShape {
     f64 area()
+
     string name
 }
 
 struct Square : IShape {
     f64 side
+
     f64 area() => side * side
+
     string name => "square"
 }
 
 struct Rect : IShape {
     f64 w
     f64 h
+
     f64 area() => w * h
+
     string name => "rect"
 }
 
 f64 total<T>(List<T> shapes) where T : IShape {
     var sum = 0.0
-    for s in shapes { sum += s.area() }
+    for s in shapes {
+        sum += s.area()
+    }
     return sum
 }
 

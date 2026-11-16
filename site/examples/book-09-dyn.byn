@@ -4,28 +4,37 @@ interface IShape {
 
 struct Square : IShape {
     i64 side
+
     i64 area() => side * side
 }
 
 struct Rect : IShape {
     i64 w
     i64 h
+
     i64 area() => w * h
 }
 
 interface ICounter {
     void bump(ref this)
+
     i64 value
 }
 
 struct Clicks : ICounter {
     i64 value = 0
-    void bump(ref this) { value += 1 }
+
+    void bump(ref this) {
+        value += 1
+    }
 }
 
 struct Steps : ICounter {
     i64 value = 0
-    void bump(ref this) { value += 10 }
+
+    void bump(ref this) {
+        value += 10
+    }
 }
 
 void report(dyn ref readonly IShape s) {

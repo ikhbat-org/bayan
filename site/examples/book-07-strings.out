@@ -1,7 +1,7 @@
-[ada, 90 ,grace,85] 17 bytes
-[ada]
+[ali, 90 ,hafsa,85] 17 bytes
+[ali]
 [90]
-[grace]
+[hafsa]
 [85]
 6 bytes, 5 runes
 hé
@@ -10,4 +10,4 @@ h
 é
 total: 36
 90 -1
-[ada    ] [0007]
+[ali    ] [0007]

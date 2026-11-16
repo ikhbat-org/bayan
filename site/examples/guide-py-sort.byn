@@ -1,9 +1,11 @@
 void main() {
-    let xs: List<i64> = [3, 1, 2]
+    let xs: List<i32> = [3, 1, 2]
     var sorted = xs.copy()
     sorted.sort()
     print($"{xs[0]} {sorted[0]}")
-    var squares = List<i64>()
-    for x in xs { squares.append(x * x) }
+    var squares = List<i32>()
+    for x in xs {
+        squares.append(x * x)
+    }
     print($"{squares[0]} {squares[1]} {squares[2]}")
 }
