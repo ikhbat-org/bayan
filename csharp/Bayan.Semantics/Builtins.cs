@@ -185,7 +185,7 @@ public sealed class Builtins
         }
         """;
 
-    /// <summary><c>union error Utf8Error</c>: numbered right after <c>IoError</c>, so <c>invalidSequence</c> is code 13.</summary>
+    /// <summary><c>union error Utf8Error</c>: numbered right after <c>IoError</c>, so <c>invalidSequence</c> is code 12.</summary>
     public ErrorSetSymbol Utf8Error { get; }
 
     // SPEC §8 gives `badDigit(Bytes at)`; units are spec-only, so the position is a plain byte offset (Question 331).
@@ -305,7 +305,7 @@ public sealed class Builtins
     /// <summary><c>bool Fs.fileExists(string path)</c> <c>uses fs</c>: as .NET <c>File.Exists</c> (false for a directory, a missing entry, an empty path and a path ending in a separator).</summary>
     public FunctionSymbol FsFileExists { get; }
 
-    /// <summary><c>void Fs.rename(string path, string to) uses fs fails IoError</c>: POSIX <c>rename</c>, Windows <c>MoveFileExW</c> replacing an existing file; a move across devices fails <c>crossDevice</c> (no copy), onto a non-empty directory <c>alreadyExists</c>.</summary>
+    /// <summary><c>void Fs.rename(string path, string to) uses fs fails IoError</c>: POSIX <c>rename</c>, Windows <c>MoveFileExW</c> replacing an existing file; a move across devices fails <c>crossDevice</c> (no copy).</summary>
     public FunctionSymbol FsRename { get; }
 
     /// <summary><c>void Fs.copy(string path, string to) uses fs fails IoError</c>: a file's contents and permission bits (not its times); a directory source fails <c>isDirectory</c>, a destination that is the source (by file identity) <c>invalidInput</c>.</summary>
@@ -411,12 +411,10 @@ public sealed class Builtins
             /// The child process ran longer than this and was stopped; what it wrote to stdout and stderr before then is kept
             /// (empty if either stream is not UTF-8).
             timeout(Millis after, string stdout, string stderr),
-            /// The destination already exists: a rename onto a non-empty directory.
-            alreadyExists,
         }
         """;
 
-    /// <summary><c>union error IoError</c>: its variants are numbered first, so their codes are 1 to 12 (the runtime returns them).</summary>
+    /// <summary><c>union error IoError</c>: its variants are numbered first, so their codes are 1 to 11 (the runtime returns them).</summary>
     public ErrorSetSymbol IoError { get; }
 
     /// <summary>

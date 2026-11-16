@@ -3260,14 +3260,6 @@ uint32_t byn_fs_rename(byn_str path, byn_str dest) {
     free(wfrom);
     free(wto);
     if (ok) return 0;
-    if (e == ERROR_ALREADY_EXISTS || e == ERROR_FILE_EXISTS || e == ERROR_DIR_NOT_EMPTY) return BYN_IO_ALREADY_EXISTS;
-    if (e == ERROR_ACCESS_DENIED) {
-        /* MoveFileExW does not replace a directory; it fails access denied when `dest` is one. */
-        wchar_t* wd = byn_wide(dest.ptr, dest.len);
-        DWORD a = GetFileAttributesW(wd);
-        free(wd);
-        if (a != INVALID_FILE_ATTRIBUTES && (a & FILE_ATTRIBUTE_DIRECTORY)) return BYN_IO_ALREADY_EXISTS;
-    }
     return e == ERROR_NOT_SAME_DEVICE ? BYN_IO_CROSS_DEVICE : byn_win_error(e);
 #else
     char* from = byn_cstr(path);
@@ -3277,7 +3269,6 @@ uint32_t byn_fs_rename(byn_str path, byn_str dest) {
     free(from);
     free(to);
     if (rc == 0) return 0;
-    if (e == EEXIST || e == ENOTEMPTY) return BYN_IO_ALREADY_EXISTS;
     return e == EXDEV ? BYN_IO_CROSS_DEVICE : byn_io_error(e);
 #endif
 }

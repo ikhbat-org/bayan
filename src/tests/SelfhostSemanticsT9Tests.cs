@@ -470,14 +470,14 @@ public sealed class SelfhostSemanticsT9Tests
         SelfhostSemanticsHarness.AssertSection(Output.Value, "alias", expected);
     }
 
-    /// <summary>Plan 007 §1: the detail-carrying builtin variants, their codes (signaled 10, timeout 11, invalidSequence 13) and payloads.</summary>
+    /// <summary>Plan 007 §1: the detail-carrying builtin variants, their codes (signaled 10, timeout 11, invalidSequence 12) and payloads.</summary>
     [Fact]
     public void DetailVariantsMatchTheCSharp()
     {
         var compilation = Compilation.Create([SourceText.FromString("main.byn", TargetSource)], Path.Combine(Golden.RepoRoot, "tmp", "t18-target"), new CompilationOptions());
         var expected = compilation.Builtins.DetailVariants
             .Select(v => $"{v.Set.Name}.{v.Name} {v.Code} {v.Fields[0].Name}: {v.Fields[0].Type.DisplayName}").ToList();
-        Assert.Equal(new[] { "IoError.signaled 10 signal: i32", "IoError.timeout 11 after: Millis", "Utf8Error.invalidSequence 13 at: i64" }, expected.Take(3));
+        Assert.Equal(new[] { "IoError.signaled 10 signal: i32", "IoError.timeout 11 after: Millis", "Utf8Error.invalidSequence 12 at: i64" }, expected.Take(3));
         SelfhostSemanticsHarness.AssertSection(Output.Value, "detail", expected);
     }
 
