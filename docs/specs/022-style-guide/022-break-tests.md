@@ -56,5 +56,6 @@ Each row reverts one ported rule in `src/driver/layout.byn` (line numbers from t
 | An empty arm stays on its line | `guideStmt`:1529 `lineStart[o] = false` replaced by `lineStart[o] = lineStart[o]` | LayoutInputsFormatAsCliApp | 18 of 38 failed: Layout-0 to 11, 13 to 18; first diverging input `switch kind { case .a: go() default: {} }` |
 | Case bodies go one level in | `levels`:724 `frames[top].inSwitch && …` forced false | LayoutInputsFormatAsCliApp | 18 of 38 failed: Layout-0 to 11, 13 to 18; first diverging input `case .binary: let op = c.op …` |
 | Outlier limit | `alignRun`:1845 `outliers && target - second > 8` forced false | LayoutInputsFormatAsCliApp | 16 of 38 failed: Layout-0, 1, 3, 4, 5, 7, 8, 9, 10, 11, 13 to 18 |
+| Header clauses go one per line (Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines, composed input) | `breakLine`:1291 `if !lineStart[k] && editable(k, through: k) {` in the header-clause loop forced false | ComposedInputsFormatAsCliApp (filter `FullyQualifiedName~SelfhostDriverStage2FormatTests.ComposedInputs`, 12 rows) | 1 of 12 failed: ComposedInputsFormatAsCliApp(name: "Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines"); first difference `public Money quote(Cart cart, for Customer customer)` expected, `public Money quote(` actual |
 
-The same filter on the restored `layout.byn`: 38 passed, 0 failed (Total: 38).
+The same filter on the restored `layout.byn`: 38 passed, 0 failed (Total: 38). The composed-input filter on the restored file: 12 passed, 0 failed (Total: 12).

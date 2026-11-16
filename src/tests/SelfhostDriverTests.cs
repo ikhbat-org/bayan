@@ -1227,8 +1227,9 @@ public sealed class SelfhostDriverStage2FormatTests
     /// <summary>
     /// Every string literal of <paramref name="file"/> (literals joined by <c>+</c> read as one) is a file of one directory, with a
     /// <c>package.byn</c> holding style <paramref name="style"/>; stage 2's <c>format</c> of it equals the C#'s in exit, stdout, stderr and
-    /// the files after. Not here: the inputs LayoutTests.cs builds with <c>Layout.OutputHook</c> or <c>Replace</c>, and constants spliced
-    /// into a concatenation (each of its literal runs is a file of its own).
+    /// the files after. An input a case joins from a literal and a named constant is formatted whole by
+    /// <see cref="ComposedInputsFormatAsCliApp"/>. The only case with no stage-2 row is <c>LayoutTests.ADifferenceKeepsTheInput</c>: it
+    /// injects its fault through <c>Layout.OutputHook</c>, a C#-only seam that no CLI run can reach.
     /// </summary>
     [Theory]
     [MemberData(nameof(LayoutInputRows))]
@@ -1237,15 +1238,51 @@ public sealed class SelfhostDriverStage2FormatTests
         if (OperatingSystem.IsWindows()) return;
         var inputs = Literals(File.ReadAllText(Path.Combine(Golden.RepoRoot, "csharp", "tests", "Bayan.Tests", file))).Distinct(StringComparer.Ordinal).ToList();
         Assert.NotEmpty(inputs);
-        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-layout", $"{Path.GetFileNameWithoutExtension(file)}-{style}");
+        FormatsAsCliApp($"{file} style {style}", $"{Path.GetFileNameWithoutExtension(file)}-{style}", s_styles[style], inputs);
+    }
+
+    /// <summary>The composed inputs of LayoutTests.cs and FormatTests.cs, by case name, with their <c>Style</c> fields.</summary>
+    private static readonly Dictionary<string, (string Source, string Style)> s_composed =
+        LayoutTests.ComposedInputs().Concat(FormatTests.ComposedInputs()).ToDictionary(x => x.Name, x => (x.Source, x.Style));
+
+    public static IEnumerable<object[]> ComposedInputRows() => s_composed.Keys.Select(name => new object[] { name });
+
+    /// <summary>
+    /// The guard of <see cref="ComposedInputsFormatAsCliApp"/>: Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines,
+    /// AnUnformattedDeclarationKeepsItsBytes, the five FormatHeader callers and the four line-join cases.
+    /// </summary>
+    [Fact]
+    public void ComposedInputsAreAllListed() => Assert.Equal(11, s_composed.Count);
+
+    /// <summary>
+    /// The whole input a case builds from a literal and a named constant (or reads from <c>tests/cases/diag/</c>) is a file of its own
+    /// directory, with a <c>package.byn</c> holding the case's style; stage 2's <c>format</c> of it equals the C#'s.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(ComposedInputRows))]
+    public void ComposedInputsFormatAsCliApp(string name)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var (source, style) = s_composed[name];
+        FormatsAsCliApp(name, Path.Combine("composed", name), style, [source]);
+    }
+
+    /// <summary>
+    /// Writes <paramref name="inputs"/> as <c>caseNNN.byn</c> under <c>tmp/t8-layout/</c><paramref name="dirName"/> (with a
+    /// <c>package.byn</c> holding <paramref name="style"/> unless empty), and asserts stage 2's <c>format</c> of it equals the C#'s in exit,
+    /// stdout, stderr and the files after.
+    /// </summary>
+    private static void FormatsAsCliApp(string label, string dirName, string style, IReadOnlyList<string> inputs)
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-layout", dirName);
         void Write()
         {
             if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
             Directory.CreateDirectory(dir);
-            if (s_styles[style] != "")
+            if (style != "")
             {
                 File.WriteAllText(Path.Combine(dir, "package.byn"),
-                    $"Package {{\n    name: \"local/shop\",\n    version: \"0.1.0\",\n    style: Style {{ {s_styles[style]} }},\n}}\n");
+                    $"Package {{\n    name: \"local/shop\",\n    version: \"0.1.0\",\n    style: Style {{ {style} }},\n}}\n");
             }
             for (var i = 0; i < inputs.Count; i++) File.WriteAllText(Path.Combine(dir, $"case{i:D3}.byn"), inputs[i]);
         }
@@ -1255,9 +1292,9 @@ public sealed class SelfhostDriverStage2FormatTests
         Write();
         var (exit, stdout, stderr) = SelfhostDriverT1Tests.Run(BootstrapTests.Stage2Executable(), "format", dir);
         Assert.Equal(expected.Exit, exit);
-        SelfhostEmitterHarness.AssertSame($"stdout of {file} style {style}", expected.Out, stdout.ReplaceLineEndings("\n"));
-        SelfhostEmitterHarness.AssertSame($"stderr of {file} style {style}", expected.Err, stderr.ReplaceLineEndings("\n"));
-        SelfhostEmitterHarness.AssertSame($"files after {file} style {style}", expectedTree, Tree(dir));
+        SelfhostEmitterHarness.AssertSame($"stdout of {label}", expected.Out, stdout.ReplaceLineEndings("\n"));
+        SelfhostEmitterHarness.AssertSame($"stderr of {label}", expected.Err, stderr.ReplaceLineEndings("\n"));
+        SelfhostEmitterHarness.AssertSame($"files after {label}", expectedTree, Tree(dir));
     }
 
     private static string Tree(string dir) => string.Join("", Directory.GetFiles(dir, "*", SearchOption.AllDirectories)

@@ -190,14 +190,18 @@ public sealed class LayoutTests
         "    return total\n" +
         "}\n";
 
+    private const string Proposal31Before =
+        "public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 uses db fails QuoteError {\n" + QuoteBody;
+
+    private const int Proposal31Width = 100;
+
     // The Before header is 109 columns, so it fits at 120; at 100 its clauses wrap. The After's blank lines are the
     // author's: the formatter never inserts one (docs/bayan-style.md, "Paragraphs inside functions").
     [Fact]
     public void Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines() => Assert.Equal(
         "public Money quote(Cart cart, for Customer customer)\n        expects cart.lines.length > 0\n        uses db\n" +
         "        fails QuoteError {\n" + QuoteBody,
-        Lay("public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 uses db fails QuoteError {\n"
-            + QuoteBody, new LayoutOptions(Width: 100)));
+        Lay(Proposal31Before, new LayoutOptions(Width: Proposal31Width)));
 
     [Fact]
     public void Proposal31AfterIsLaidOut()
@@ -770,12 +774,23 @@ public sealed class LayoutTests
         Assert.Equal(once, Lay(once));
     }
 
+    private const string UnformattedTable = "@unformatted because \"a table\"\nvoid t() {  \r\n  let grid = [\n  1,   0,\t\n  0,   1,\n  ]\n}\n";
+
+    private const string UnformattedInput = UnformattedTable + "void f() {\nlet a=1\n}\n";
+
     [Fact]
-    public void AnUnformattedDeclarationKeepsItsBytes()
-    {
-        const string table = "@unformatted because \"a table\"\nvoid t() {  \r\n  let grid = [\n  1,   0,\t\n  0,   1,\n  ]\n}\n";
-        Assert.Equal(table + "\nvoid f() {\n    let a = 1\n}\n", Lay(table + "void f() {\nlet a=1\n}\n"));
-    }
+    public void AnUnformattedDeclarationKeepsItsBytes() =>
+        Assert.Equal(UnformattedTable + "\nvoid f() {\n    let a = 1\n}\n", Lay(UnformattedInput));
+
+    /// <summary>
+    /// The inputs these cases build from a literal and a named constant, by case name, with the <c>Style</c> fields their options
+    /// need. <c>SelfhostDriverStage2FormatTests.ComposedInputsFormatAsCliApp</c> formats each whole through stage 2.
+    /// </summary>
+    public static IEnumerable<(string Name, string Source, string Style)> ComposedInputs() =>
+    [
+        (nameof(Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines), Proposal31Before, $"width: {Proposal31Width}"),
+        (nameof(AnUnformattedDeclarationKeepsItsBytes), UnformattedInput, ""),
+    ];
 
     [Fact]
     public void AnUnformattedMemberKeepsItsBytes()
