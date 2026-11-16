@@ -1043,7 +1043,7 @@ const maxDepth: i64 = 1000
 public union error RegexError {
     /// The pattern breaks the syntax at `offset`.
     syntax(string message, i64 offset)
-    /// A backreference or lookaround (or another construct linear-time matching leaves frag) starts at `offset`.
+    /// A backreference or lookaround (or another construct that linear-time matching leaves out) starts at `offset`.
     unsupported(string message, i64 offset)
     /// The compiled program would exceed `maxProgram` instructions; `offset` is where the pattern grew past it.
     tooLarge(i64 offset)
