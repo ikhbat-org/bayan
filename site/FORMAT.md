@@ -16,7 +16,7 @@ site/
   out/                 the built site (gitignored)
 ```
 
-Compiler: `$BAYAN` if set, else `/Users/sy/Developer/ikhbat.org/bayan/dist/macos-arm64/latest/bayan`.
+Compiler: `$BAYAN` if set, else the CLI built from HEAD by `scripts/pinned-bayan.sh` (cached by commit).
 
 ## A `.page` file
 

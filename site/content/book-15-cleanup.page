@@ -19,7 +19,7 @@ template: docs
 <h2 id="failing">Cleanup that depends on how you leave</h2>
 <p>Sometimes a step must only be undone if the function fails: a rollback, say. <code>defer failing</code> runs only when the function exits with an error. <code>defer panicking</code> runs only during a panic. A plain <code>defer</code> runs in every case. Deferred statements cannot themselves fail.</p>
 <example name="book-15-defer-failing"/>
-<p>The first call succeeds. It prints <code>step ok</code> and then the plain defer, <code>always runs</code>. The second call fails at <code>fail .broken</code>, so both defers run, the <code>failing</code> one first because it was registered last, and then the caller's <code>catch</code> prints <code>caught</code>. A function can only use <code>defer failing</code> if it can fail. <a href="errors.html">The error handling guide</a> covers <code>fails</code> and <code>catch</code> in full.</p>
+<p>The first call succeeds. It prints <code>step ok</code> and then the plain defer, <code>always runs</code>. The second call fails at <code>fail .broken</code>, so both defers run, the <code>failing</code> one first because it was registered last, and then the caller's <code>catch</code> prints <code>caught</code>. A function can only use <code>defer failing</code> if it can fail. <a href="errors.html">The errors guide</a> covers <code>fails</code> and <code>catch</code> in full.</p>
 
 <h2 id="move-defer">defer and move</h2>
 <p>A deferred statement runs at the end of the scope, so it counts as a use of every variable it mentions. If you move one of those variables away before then, the compiler stops you:</p>
@@ -47,7 +47,7 @@ void main() uses console, alloc {
 <p>The error is on the <code>move</code>, and the label tells you which <code>defer</code> still needs the value. Either do the move before the <code>defer</code>, or move a copy.</p>
 
 <h2 id="unique">Unique types clean up for you</h2>
-<p>A <code>List</code>, <code>Map</code> or <code>StrBuf</code> owns a buffer. A struct with one of these in it is unique too, and so is a struct you mark <code>struct unique</code>. When the owner of a unique value goes out of scope, the value and everything it owns are released. You do not write a close call, and you cannot forget one. Chapter 13 showed how ownership moves from one name to another. Only the final owner releases it, exactly once.</p>
+<p>A <code>List</code>, <code>Map</code> or <code>StrBuf</code> owns a buffer. A struct with one of these in it is unique too, and so is a struct you mark <code>struct unique</code>. When the owner of a unique value goes out of scope, the value and everything it owns are released. You do not write a close call, and you cannot forget one. Chapter 13 showed how ownership moves from one name to another. Only the final owner releases it, once and only once.</p>
 <p>So the pattern for a resource that owns memory is: put it in a unique struct, pass it around with <code>move</code> or by <code>ref</code>, and let it go out of scope. In the last lines of <code>book-15-defer</code>, <code>t</code> moves into <code>moved</code>, and the list inside it is released when <code>main</code> ends. Use <code>defer</code> for things that are not memory: a message, a rollback, a counter you must put back.</p>
 <p>A unique type cannot be copied by accident, so it cannot be released twice. That removes the classic double-free and use-after-free from safe code. Dropping a value early is also done with a move: hand it to a function that takes <code>move</code> and returns.</p>
 <note>Planned: not in the compiler yet. Two things in the specification are not available today. First, a user-written cleanup hook for a <code>struct unique</code>, such as closing a file descriptor when its owner goes away. A <code>close(move this)</code> method that you write is an ordinary method and nothing calls it for you, so call it yourself or use <code>defer</code>. Second, <code>Pool</code> and <code>Handle</code> types for stable references to items in a pool, and typed indices such as <code>List&lt;T, RowId&gt;</code>. <code>Owned&lt;T&gt;</code> exists, but <code>Index</code> is an unknown type.</note>
@@ -65,3 +65,7 @@ Handle&lt;Row&gt; h = rows.add(Row { name: "a" })</code></pre>
 <p>Error BYN2781. The defer reads <code>xs</code> at scope exit, after the move. It does not print the length at the time of the move, and it does not read an empty list. Move before the defer, or move <code>xs.copy(to: alloc)</code>.</p></details>
 <details class="quiz"><summary>4. Do you need a <code>close()</code> call for a struct holding a <code>List</code>?</summary>
 <p>No. The struct is unique, and its list is released when its owner goes away. You would need <code>defer</code> for something outside memory, such as an external side effect.</p></details>
+
+<div class="next-box">
+  <p>Next: <a href="book-16-types-that-check.html">16. Types that check for you (units, distinct types, <code>requires</code>, typestate)</a> shows four ways to make the compiler reject invalid programs from distinct types to typestates.</p>
+</div>

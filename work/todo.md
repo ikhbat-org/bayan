@@ -859,7 +859,6 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - Review 2026-11-16 LOW: `.github/workflows/pages.yml` rebuilds `out/` from empty, so only the current `docs/<version>/` is published and older release doc links break after the next deploy; decide whether old versions stay.
 - Review 2026-11-16 LOW: `scripts/release/docs-pdf.sh:31` `file://$root/...` is not percent-encoded (space or `#` in the checkout path).
 - Review 2026-11-16 LOW: `scripts/release/cut.sh:42` a roadmap dated the same day as the previous tag passes even when last edited before the tag.
-||||||| 4a48b58a
 - Site: `book.html` prints an extra title page before chapter 1 (print stylesheet). 2026-11-16, 0.3.2 prep.
 - Site: inline code in `.page` bodies is not formatted by `bayan format` (only fenced examples are checked). 2026-11-16.
 - wlt1 has no Python, so 3 `SelfhostSnapshotTests` fail there; install Python or skip them with a reason on hosts without it. 2026-11-16.
@@ -868,3 +867,10 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - Manifesto edition 1 is written against 0.2.0 (lines 9 and 1413) and its status badges reflect that; refresh the content for a later edition. 2026-11-16.
 - `scripts/cleanup/run-all.sh:153` shows only `refuse` lines at the start of a line in its summary; indented `  refused:` lines from some scripts are missed. Gate note, 2026-11-16.
 - `tools/gen-lowercase.byn` fetches UnicodeData.txt with `curl` through `Io.run` until `kit.http` exists (spec 015 R8, §12.5).
+- site/content/book-04-functions.page ~136: BYN2306 figure has an orphan gutter line and a help block from another diagnostic (BYN2780, `move xs`); regenerate the figure from real compiler output (proofread 2026-11-17).
+- BYN2022 message "`extension` declarations is not supported" has a grammar slip ("are"); fix in C# and selfhost together, regenerate goldens and the book-05 figure (proofread 2026-11-17).
+- docs/manifesto/bayan-manifesto.md:727-728 still uses `alice`/`bob` in a code block; switch to aisha/bilal (proof-fix gate note, 2026-11-17).
+- scripts/pinned-bayan.sh:37 needs `dotnet` on PATH; fall back to `$HOME/.dotnet` when it is missing (the 0.3.2 push failed its pre-push tests from a shell without it, 2026-11-17).
+- ~/dotfiles/githooks/kebab-check.sh: `awk -v ign="$_ki"` fails on macOS awk when `.kebab-ignore` matches more than one path ("newline in string") and the check then passes everything; pass the list through a file or stdin (2026-11-17).
+- LOW (review 2026-11-17, 11c974d0..db0c5f62): page titles with backticks render literally in `<title>`, the nav and the PDF contents (book-14, book-15, book-16 titles); have site/gen render inline code in titles or strip the backticks.
+- MEDIUM, recorded (review 2026-11-17, 11c974d0..db0c5f62): site/build.sh, check-examples.sh, gen/test.sh and docs-pdf.sh now default to scripts/pinned-bayan.sh, which needs git and dotnet; a shell without dotnet (see the pinned-bayan.sh:37 line) or a source tarball stops there. Decide the default once spec 019 removes .NET (pin the self-hosted CLI instead); `BAYAN=<path>` is the workaround.

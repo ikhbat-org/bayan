@@ -140,3 +140,7 @@ test "search counts matching lines" {
 <p>It has two unlabeled parameters (BYN5004), and <code>name</code> needs a particle (BYN5006). Keep one object parameter plain and give the other a particle such as <code>as</code>.</p></details>
 <details class="quiz"><summary>4. The package builds locally but BYN6004 appears when you add <code>Io.readText</code>. What is missing?</summary>
 <p><code>capabilities: [.fs]</code> in <code>package.byn</code>. The functions already say <code>uses fs</code>; the package has not allowed it.</p></details>
+
+<div class="next-box">
+  <p>Next: <a href="book-19-c.html">19. Talking to C (FFI) and building for other targets</a> covers calling C libraries and producing a binary for a machine other than the one you are on.</p>
+</div>

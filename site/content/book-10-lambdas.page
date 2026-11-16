@@ -20,7 +20,7 @@ i64 count(ReadOnlySpan&lt;i64&gt; xs, by Pred check) {
     }
     return n
 }</code></pre>
-<p><code>count</code> walks the span and calls <code>check</code> on each element like any function. Without an alias, the function type goes in parentheses before the name: <code>by (i64 -&gt; i64) f</code>.</p>
+<p><code>count</code> walks the span and calls <code>check</code> on each element like any function. Without an alias, the function type goes in parentheses before the name: <code>by(i64 -&gt; i64) f</code>.</p>
 
 <h2 id="lambdas">Passing a lambda</h2>
 <p>A lambda is a parameter name, an arrow and an expression: <code>x =&gt; x % 3 == 0</code>. When the expected type is a one-parameter function, you may skip the name and write <code>it</code>. The compiler reads any argument that mentions <code>it</code> as a lambda whose parameter is called <code>it</code>.</p>
@@ -49,7 +49,7 @@ i64 count(ReadOnlySpan&lt;i64&gt; xs, by Pred check) {
 </figure>
 <p>Methods, constructors and generic functions cannot be passed by name. Wrap them in a lambda.</p>
 
-<h2 id="it">The rules for it</h2>
+<h2 id="it">The rules for <code>it</code></h2>
 <p><code>it</code> only exists in an argument position where a one-parameter function is expected. Anywhere else it is just an undefined name.</p>
 <figure class="diag">
 <pre><span class="err">error BYN2001:</span> `it` is not defined
@@ -213,3 +213,7 @@ let total = lines.sumBy(it.price * it.qty)</code></pre>
 <p>Only the lambda. <code>main</code> goes on and prints <code>11</code>, the value the lambda gave back. If the <code>return</code> left <code>main</code>, nothing would be printed for that line.</p></details>
 <details class="quiz"><summary>Can a struct have a field of type <code>i64 -&gt; bool</code>?</summary>
 <p>No. The compiler refuses it (BYN2822) because a function type may only be a parameter, a <code>type</code> alias target or a local. Take the function as a parameter on each call that needs it.</p></details>
+
+<div class="next-box">
+  <p>Next: <a href="book-11-modules.html">11. Modules, visibility and packages</a> splits a program into modules, decides what each module shows to others, and lays the result out as a project.</p>
+</div>
