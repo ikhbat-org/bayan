@@ -1,6 +1,6 @@
 # Releasing Bayān
 
-Version: 0.3.2-dev (matches `bayan --version`)
+Version: 0.3.2 (matches `bayan --version`)
 
 How a version is cut, checked, tagged and published, and where the version and the versioned docs live.
 
@@ -21,7 +21,7 @@ The versioned docs carry a header in their first lines (`bayan_header_docs`): `d
 `docs/bayan-grammar.md`, `docs/bayan-style.md`, `docs/DIAGNOSTICS.md` and `docs/STATUS.md`.
 
 ```text
-Version: 0.3.2-dev (matches `bayan --version`)
+Version: X.Y.Z (matches `bayan --version`)
 Revisions applied: 0001–0023
 ```
 

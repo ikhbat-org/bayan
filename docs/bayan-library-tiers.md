@@ -1,6 +1,6 @@
 # Bayān Library Tiers: core, std and kit
 
-Version: 0.3.2-dev (matches `bayan --version`)
+Version: 0.3.2 (matches `bayan --version`)
 
 Nov 2, 2026
 

@@ -7,11 +7,11 @@
 #   ... -e --delete-build-output   first delete ignored files (bin/, obj/, tmp/) inside those worktrees,
 #                                  so `git worktree remove` accepts them
 #   ... -e --delete-scratch        delete this session's scratch in tmp/ and the stale .cache/bayan/.build-* dirs
-#   ... -e --delete-vm-scratch     delete /home/bt/ci-ce337d7b and /opt/dotnet-10.0.302 on the VM bayan-test01
+#   ... -e --delete-vm-scratch     delete /home/bt/ci-ce337d7b, /opt/dotnet-10.0.302 and the rel-032 clone on the VM bayan-test01
 #
 # Run it from a checkout on dev, after chore/release-0.3.2 is merged into dev. A worktree still holding uncommitted
 # edits, and a branch dev does not contain, are refused and left alone.
-# sabk-spec (docs/024-sabk-spec) and site-redesign (feat/site-redesign) are not listed: both hold unmerged work.
+# site-redesign (feat/site-redesign) is not listed: it holds unmerged work (mockups).
 set -euo pipefail
 
 execute=0; delete_build=0; delete_scratch=0; delete_vm=0
@@ -55,7 +55,8 @@ review-2026-11-16-4:fix/review-2026-11-16-4 site-0.3.2:docs/site-0.3.2 spec-catc
 worker-ci-pre-push:chore/worker-ci-pre-push worker-ci-readme-dist:chore/worker-ci-readme-dist
 worker-readme-v3:chore/worker-readme-v3 worker-review-prepush-gitdir:chore/worker-review-prepush-gitdir
 worker-s022-rfix:chore/worker-s022-rfix worker-site-a:chore/worker-site-a worker-site-docs:chore/worker-site-docs
-worker-site-mockups:chore/worker-site-mockups dev-merge:"
+worker-site-mockups:chore/worker-site-mockups sabk-spec:docs/024-sabk-spec review-2026-11-16-5:fix/review-2026-11-16-5
+session-notes-1116:docs/session-notes-2026-11-16 dev-merge:"
 # branches whose worktree is already gone (writers landed this session)
 extra_branches="chore/worker-cleanup-all chore/worker-manifesto-site chore/worker-site-redesign chore/worker-site-docs2
 chore/worker-roadmap-check chore/worker-docs-fix-032 chore/worker-spec-catch-up"
@@ -96,7 +97,8 @@ done
 
 echo "== 4. scratch in tmp/ and stale compiler build dirs"
 scratch="tmp/cleanup-all-ignored tmp/cleanup-all-criteria.md tmp/cleanup-all-gate.out tmp/manifesto-site-criteria.md
-tmp/manifesto-site-gate2.out tmp/devcheck"
+tmp/manifesto-site-gate2.out tmp/devcheck tmp/pages tmp/rel-032.bundle tmp/review-1116.out tmp/review-1116-prompt.md
+tmp/refute-1116-m3.md tmp/refute-1116-m3.out tmp/plog-entry.md"
 for f in $scratch; do
     path="$common/$f"
     if [ ! -e "$path" ]; then printf 'skip:  %s is gone\n' "$f"; continue; fi
@@ -113,9 +115,9 @@ done
 
 echo "== 5. VM bayan-test01 (through ghosthive)"
 if [ "$delete_vm" -eq 1 ]; then
-    run ssh -o ConnectTimeout=15 ghosthive 'incus exec bayan-test01 -- rm -rf /home/bt/ci-ce337d7b /opt/dotnet-10.0.302'
+    run ssh -o ConnectTimeout=15 ghosthive 'incus exec bayan-test01 -- rm -rf /home/bt/ci-ce337d7b /opt/dotnet-10.0.302 /home/bt/rel-032-750c /home/bt/rel-032.bundle /home/bt/rel-032-st.out'
 else
-    printf 'keep:  /home/bt/ci-ce337d7b and /opt/dotnet-10.0.302 on bayan-test01; pass --delete-vm-scratch\n'
+    printf 'keep:  /home/bt/ci-ce337d7b, /opt/dotnet-10.0.302 and /home/bt/rel-032* on bayan-test01; pass --delete-vm-scratch\n'
 fi
 
 echo "== remaining"
