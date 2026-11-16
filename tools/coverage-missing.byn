@@ -1,0 +1,117 @@
+#!/usr/bin/env bayan
+// Prints, one per line, the files of a comma-separated list that a bayan-quality.json coverage report has no entry for
+// (spec 015 T12): a changed file no build under the guard's --filter compiles has no entry, so none of its functions is
+// checked (Q820). Port of the inline command of scripts/selfhost/guard.sh. Paths compare by their real path. Prints one
+// empty line when nothing is missing, as the original did; a report it cannot read exits 1 with no output.
+// Usage: bash scripts/bayan-tool.sh coverage-missing <bayan-quality.json> <file,file,...>
+
+import std.json
+
+type JsonValue = json.JsonValue
+type JsonMember = json.JsonMember
+type JsonError = json.JsonError
+type Json = json.Json
+
+union error MissingError {
+    failed(string message)
+}
+
+/// `Fs.realPath(path)`, or null when the path is missing.
+string? tryReal(string path) uses fs, alloc {
+    let r = Fs.realPath(path) catch {
+        return null
+    }
+    return $"{r}"
+}
+
+/// Python's `os.path.realpath`: links in the existing part of `path` resolved, the missing rest kept as it is.
+string looseReal(string path) uses fs, alloc {
+    let full = Path.fullPath(path.isEmpty ? "." : path)
+    return resolveFrom(full)
+}
+
+string resolveFrom(string full) uses fs, alloc {
+    let r = tryReal(full)
+    if r is null {
+        let parent = Path.directoryName(full) ?? ""
+        if parent.isEmpty || parent == full { return full }
+        return Path.combine(resolveFrom(parent), Path.fileName(full))
+    }
+    return r
+}
+
+/// The index of the last member named `key` in `members`, or -1.
+i64 memberIndex(ReadOnlySpan<JsonMember> members, for string key) {
+    var i = members.length - 1
+    while i >= 0 {
+        if members[i].key == key { return i }
+        i -= 1
+    }
+    return -1
+}
+
+/// The real paths of the report's files.
+List<string> reportPaths(string reportPath) uses fs, alloc fails MissingError {
+    let raw = Io.readText(reportPath) catch {
+        fail .failed(message: $"[Errno 2] No such file or directory: '{reportPath}'")
+    }
+    let parsed = Json.parse(raw) catch switch {
+        .syntax e => fail .failed(message: $"JSONDecodeError('Expecting value: line {e.line} column {e.column} (char {e.offset})')"),
+        .tooDeep e => fail .failed(message: $"JSONDecodeError('Too deep: line {e.line} column {e.column} (char {e.offset})')"),
+        _ => fail .failed(message: $"{reportPath}: invalid json"),
+    }
+    let tree = (move parsed).trustUnchecked() because "report written by a local tool"
+    var paths = List<string>()
+    if tree is .object(let top) {
+        let fi = memberIndex(top.span, for: "files")
+        if fi < 0 { fail .failed(message: "KeyError('files')") }
+        if top[fi].value is .list(let files) {
+            for f in files {
+                if f is .object(let entry) {
+                    let pi = memberIndex(entry.span, for: "path")
+                    if pi < 0 { fail .failed(message: "KeyError('path')") }
+                    if entry[pi].value is .text(let s) {
+                        paths.append(looseReal(s))
+                    } else {
+                        fail .failed(message: "TypeError('path is not a string')")
+                    }
+                } else {
+                    fail .failed(message: "TypeError('file entry is not an object')")
+                }
+            }
+            return paths
+        }
+    }
+    fail .failed(message: $"{reportPath}: no files list")
+}
+
+i32 main(ReadOnlySpan<string> argv) uses fs, console, alloc {
+    if argv.length != 2 {
+        print("usage: coverage-missing <bayan-quality.json> <file,file,...>", to: .stderr)
+        return 2
+    }
+    let known = reportPaths(argv[0]) catch switch {
+        .failed(let msg) => {
+            print(msg, to: .stderr)
+            return 1
+        },
+    }
+    var missing = List<string>()
+    for f in argv[1].parts(by: ",") {
+        var found = false
+        let real = looseReal(f)
+        for k in known {
+            if k == real { found = true }
+        }
+        if !found { missing.append($"{f}") }
+    }
+    var sb = StrBuf()
+    var first = true
+    for m in missing {
+        if !first { sb.append("\n") }
+        sb.append(m)
+        first = false
+    }
+    print($"{sb.finish()}")
+    return 0
+}
