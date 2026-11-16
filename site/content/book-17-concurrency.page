@@ -39,7 +39,7 @@ void main() uses console {
 <p>The design has three ideas.</p>
 <ol>
 <li><strong>Waiting is an effect.</strong> A function that can suspend says <code>uses suspend</code>. Because it is in the signature, you can see from a function's header whether it can wait.</li>
-<li><strong>Tasks live in a scope.</strong> You spawn tasks inside a <code>scope</code> block with <code>spawn</code>. The scope waits for every child before it exits, so no task outlives its caller. You wait for a task with <code>.join()</code>. Leaving the scope cancels child tasks that are still running, and children may borrow from the caller's stack.</li>
+<li><strong>Tasks live in a scope.</strong> You spawn tasks inside a <code>scope</code> block with <code>spawn</code>. The scope waits for every child before it exits, so no task outlives its caller. You wait for a task with <code>.join()</code>. The first failure cancels the siblings, and so does a <code>timeout:</code> or <code>until:</code> deadline on the scope. Children may borrow from the caller's stack.</li>
 <li><strong>Shared data has rules.</strong> Shared mutation goes through <code>Mutex&lt;T&gt;</code>, atomics, or channels. Holding a mutex guard across a suspend point is a compile error, and passing <code>ref x</code> to a spawned task locks <code>x</code> in the parent until the scope ends.</li>
 </ol>
 <pre><code class="byn">// planned

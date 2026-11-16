@@ -79,7 +79,7 @@ unsafe because "the C API wants a raw pointer" {
 <example name="reading-except"/>
 
 <h2 id="concurrency">Structured concurrency</h2>
-<p><strong>Planned.</strong> Tasks run inside a <code>scope</code> block with <code>spawn</code>. A task cannot outlive the scope that started it: leaving the scope cancels unfinished work, running its <code>defer failing</code> and <code>defer canceling</code> handlers. The scope waits for every child before it exits, and children may borrow from the caller's stack:</p>
+<p><strong>Planned.</strong> Tasks run inside a <code>scope</code> block with <code>spawn</code>. A task cannot outlive the scope that started it: the scope waits for every child before it exits, and children may borrow from the caller's stack. The first failure, a <code>timeout:</code> or <code>until:</code> deadline, or a cancel from outside cancels the children, which runs their <code>defer failing</code> and <code>defer canceling</code> handlers:</p>
 <pre><code class="byn">scope(timeout: 5s) {
     let aisha = spawn prepareIftar("Aisha")
     let bilal = spawn prepareIftar("Bilal")

@@ -7,7 +7,7 @@ template: docs
 <note>The concurrency design is not implemented yet. <code>spawn</code> is legal only inside a <code>scope</code> block, and functions are ordinary functions without special declaration keywords.</note>
 
 <h2 id="spawn">Start a task</h2>
-<p><strong>Planned.</strong> <code>spawn</code> starts a child task inside a <code>scope</code> block. <code>spawn</code> is valid only inside a <code>scope</code>. Leaving the scope cancels any children still running, so no task outlives its enclosing scope.</p>
+<p><strong>Planned.</strong> <code>spawn</code> starts a child task inside a <code>scope</code> block. <code>spawn</code> is valid only inside a <code>scope</code>. The scope waits for every child before it exits, so no task outlives its enclosing scope. Children are canceled only on the first failure, on a <code>timeout:</code> or <code>until:</code> deadline, or by a cancel from outside the scope.</p>
 <pre><code class="byn">scope {
     let task = spawn prepareIftar("Aisha")
     let meal = try task.join()
