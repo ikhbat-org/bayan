@@ -1,5 +1,5 @@
 struct Box {
-    i64 w
+    i32 w
 }
 
 let a = Box { w: 1 }

@@ -22,17 +22,17 @@ template: docs
 <h2 id="checked">Public functions must declare their effects</h2>
 <p>Inside one file, the compiler works out effects for private helpers. A <code>public</code> function is part of a module's contract, so it has to state its effects. Leave one out and you get this:</p>
 <pre><code class="byn">public void greet(string name) {
-    print($"hello {name}")
+    print($"Salam {name}")
 }
 
 void main() uses console {
-    greet("Sam")
+    greet("Umar")
 }</code></pre>
     <figure class="diag">
 <pre><span class="err">error BYN6002:</span> `greet` uses `console` but does not declare it
 <span class="gut">  --&gt;</span> missing-uses.byn:2:5
 
-<span class="gut">  2 │</span>     <span class="hl">print($"hello {name}")</span>
+<span class="gut">  2 │</span>     <span class="hl">print($"Salam {name}")</span>
 <span class="gut">    │</span>     <span class="hl">^^^^^^^^^^^^^^^^^^^^^^ uses `console`</span>
 <span class="gut">    │</span>
 <span class="gut">  help:</span> add `console` to the `uses` clause, or remove the call
@@ -46,11 +46,11 @@ void main() uses console {
 <p>The error points at the call that needs the effect. The fix-it shows the exact clause to add. Calling a function that uses an effect makes the caller use it too, all the way up to <code>main</code>.</p>
 <p>A misspelled effect has its own error. It also lists every valid name:</p>
 <pre><code class="byn">public void greet(string name) uses printing {
-    print($"hello {name}")
+    print($"Salam {name}")
 }
 
 void main() uses console {
-    greet("Sam")
+    greet("Umar")
 }</code></pre>
     <figure class="diag">
 <pre><span class="err">error BYN6003:</span> `printing` is not an effect
@@ -65,7 +65,7 @@ void main() uses console {
 <span class="err">error BYN6002:</span> `greet` uses `console` but does not declare it
 <span class="gut">  --&gt;</span> unknown-effect.byn:2:5
 
-<span class="gut">  2 │</span>     <span class="hl">print($"hello {name}")</span>
+<span class="gut">  2 │</span>     <span class="hl">print($"Salam {name}")</span>
 <span class="gut">    │</span>     <span class="hl">^^^^^^^^^^^^^^^^^^^^^^ uses `console`</span>
 <span class="gut">    │</span>
 <span class="gut">  help:</span> add `console` to the `uses` clause, or remove the call

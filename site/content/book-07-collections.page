@@ -24,7 +24,7 @@ template: docs
 <h3 id="list-mutation">A list you change must be a <code>var</code></h3>
 <p>The methods that change a list (<code>append</code>, <code>sort</code>, <code>remove</code>, <code>clear</code>) need a <code>var</code>. On a <code>let</code> the compiler refuses, and its help line shows the fix.</p>
 <pre><code class="byn">void main() {
-    let xs: List&lt;i64&gt; = [1, 2]
+    let xs: List&lt;i32&gt; = [1, 2]
     xs.append(3)
 }</code></pre>
 <figure class="diag">
@@ -35,7 +35,7 @@ template: docs
 <span class="gut">    │</span>     <span class="hl">^^ `append` modifies it; declared with `let` on line 2</span>
 <span class="gut">    │</span>
 <span class="gut">  help:</span> declare it with `var` if it should change
-<span class="gut">    │</span> 2 │     var xs: List&lt;i64&gt; = [1, 2]
+<span class="gut">    │</span> 2 │     var xs: List&lt;i32&gt; = [1, 2]
 <span class="gut">    │   │</span>     <span class="add">+++</span>
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
@@ -46,12 +46,12 @@ template: docs
 <h3 id="list-ownership">A list is owned by one name</h3>
 <p>A list owns its storage. Assigning it to another name would leave two owners, so Bayan does not copy it silently.</p>
 <pre><code class="byn">void main() {
-    let xs: List&lt;i64&gt; = [1, 2]
+    let xs: List&lt;i32&gt; = [1, 2]
     let ys = xs
     print($"{xs.length} {ys.length}")
 }</code></pre>
 <figure class="diag">
-<pre><span class="err">error BYN2780:</span> implicit copy of a unique value: `List&lt;i64&gt;` is unique: it owns its storage
+<pre><span class="err">error BYN2780:</span> implicit copy of a unique value: `List&lt;i32&gt;` is unique: it owns its storage
 <span class="gut">  --&gt;</span> d2.byn:3:14
 
 <span class="gut">  3 │</span>     let ys = xs
@@ -70,7 +70,7 @@ template: docs
 <h3 id="list-bounds">Reading past the end</h3>
 <p><code>xs[5]</code> on a list of two elements compiles. The check happens when the program runs, and a bad index stops it with a panic.</p>
 <pre><code class="byn">void main() {
-    let xs: List&lt;i64&gt; = [1, 2]
+    let xs: List&lt;i32&gt; = [1, 2]
     print($"{xs[5]}")
 }</code></pre>
 <figure class="diag">
@@ -82,11 +82,11 @@ template: docs
 <h3 id="list-print">Printing a list</h3>
 <p>You cannot put a whole list in an interpolation hole. Loop over it and print the elements.</p>
 <pre><code class="byn">void main() {
-    let xs: List&lt;i64&gt; = [1, 2]
+    let xs: List&lt;i32&gt; = [1, 2]
     print($"{xs}")
 }</code></pre>
 <figure class="diag">
-<pre><span class="err">error BYN2225:</span> `List&lt;i64&gt;` cannot be formatted
+<pre><span class="err">error BYN2225:</span> `List&lt;i32&gt;` cannot be formatted
 <span class="gut">  --&gt;</span> d3.byn:3:14
 
 <span class="gut">  3 │</span>     print($"{xs}")
@@ -97,13 +97,13 @@ template: docs
 </figure>
 
 <h2 id="arrays">Fixed arrays</h2>
-<p>When the number of elements is known up front, write the length in the type: <code>i64[3]</code>. An array lives inline where you declare it, with no allocation, and its length never changes. An index that is a constant outside the array is a compile error, not a panic.</p>
+<p>When the number of elements is known up front, write the length in the type: <code>i32[3]</code>. An array lives inline where you declare it, with no allocation, and its length never changes. An index that is a constant outside the array is a compile error, not a panic.</p>
 <pre><code class="byn">void main() {
-    let a: i64[3] = [1, 2, 3]
+    let a: i32[3] = [1, 2, 3]
     print($"{a[5]}")
 }</code></pre>
 <figure class="diag">
-<pre><span class="err">error BYN2213:</span> index 5 is out of range for `i64[3]`
+<pre><span class="err">error BYN2213:</span> index 5 is out of range for `i32[3]`
 <span class="gut">  --&gt;</span> e3.byn:3:16
 
 <span class="gut">  3 │</span>     print($"{a[5]}")
@@ -122,7 +122,7 @@ template: docs
 </ul>
 <p>Make a function take a <code>ReadOnlySpan&lt;T&gt;</code> and it accepts a list, an array or a span. This is the usual way to write a function that only looks at its input.</p>
 <example name="book-07-array"/>
-<p><code>sum</code> reads its input, so it takes a <code>ReadOnlySpan&lt;i64&gt;</code>. It works on the array <code>days</code> and on the list <code>scores</code> without conversion. <code>curve</code> changes its input, so it takes a <code>Span&lt;i64&gt;</code>, and the caller must say so by asking the list for <code>scores.mutableSpan()</code>. That call counts as a change to the list, so it needs a <code>var</code>. <code>scores.span</code> is the read-only view and works on a <code>let</code>.</p>
+<p><code>sum</code> reads its input, so it takes a <code>ReadOnlySpan&lt;i32&gt;</code>. It works on the array <code>days</code> and on the list <code>scores</code> without conversion. <code>curve</code> changes its input, so it takes a <code>Span&lt;i32&gt;</code>, and the caller must say so by asking the list for <code>scores.mutableSpan()</code>. That call counts as a change to the list, so it needs a <code>var</code>. <code>scores.span</code> is the read-only view and works on a <code>let</code>.</p>
 <p>A range in brackets cuts a view out of a list or span: <code>scores[1..3]</code> is the second and third elements, with no copy. A range past the end panics with <code>slice out of range</code>.</p>
 <p>A fixed array can be a module-level <code>const</code> when its elements are numbers, <code>bool</code>, <code>rune</code> or <code>string</code>. It is stored as static data.</p>
 
@@ -130,7 +130,7 @@ template: docs
 <p>A <code>Map&lt;K, V&gt;</code> finds a value by key. A map remembers insertion order, so a <code>for</code> loop visits entries in the order you added the keys. It is the only hash map in the language; the name <code>HashMap</code> is rejected with a fix to <code>Map</code>.</p>
 <example name="book-07-map"/>
 <ul>
-<li><code>Map&lt;string, i64&gt;()</code> makes an empty map. A literal such as <code>["x": 1, "y": 2]</code> makes a map too; its types come from the declaration, or from the entries when there is none.</li>
+<li><code>Map&lt;string, i32&gt;()</code> makes an empty map. A literal such as <code>["x": 1, "y": 2]</code> makes a map too; its types come from the declaration, or from the entries when there is none.</li>
 <li><code>m[k] = v</code> adds a key or replaces its value.</li>
 <li><code>m[k]</code> reads a value. A key that is not there panics with <code>key not found in map</code>.</li>
 <li><code>tryGet(at: k) ?? fallback</code> reads without panicking and without inserting. There is no <code>m.get(k, default)</code>: this is the one form.</li>
@@ -138,9 +138,9 @@ template: docs
 <li><code>for e in m</code> gives each entry as <code>e.key</code> and <code>e.value</code>.</li>
 </ul>
 <pre><code class="byn">void main() {
-    var m = Map&lt;string, i64&gt;()
-    m["ada"] = 1
-    print($"{m["linus"]}")
+    var m = Map&lt;string, i32&gt;()
+    m["aisha"] = 1
+    print($"{m["yusuf"]}")
 }</code></pre>
 <figure class="diag">
 <pre>panic: key not found in map
@@ -148,13 +148,13 @@ template: docs
 </figure>
 <p>A key must be a type that has a stable meaning for <code>==</code>: an integer type, <code>rune</code>, <code>bool</code>, <code>string</code>, a plain enum, a <code>Symbol</code>, a tuple of those, or a struct whose fields are all keys. A <code>f64</code> is not a key because of rounding.</p>
 <pre><code class="byn">void main() {
-    let f = Map&lt;f64, i64&gt;()
+    let f = Map&lt;f64, i32&gt;()
 }</code></pre>
 <figure class="diag">
 <pre><span class="err">error BYN2760:</span> `f64` cannot be a `Map` key
 <span class="gut">  --&gt;</span> q4.byn:2:17
 
-<span class="gut">  2 │</span>     let f = Map&lt;f64, i64&gt;()
+<span class="gut">  2 │</span>     let f = Map&lt;f64, i32&gt;()
 <span class="gut">    │</span>                 <span class="hl">^^^</span>
 <span class="gut">    │</span>
 <span class="gut">  help:</span> use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct
@@ -184,7 +184,7 @@ template: docs
 <h3 id="no-index">No single-character index</h3>
 <p>Position 0 of a string is a byte, not necessarily a character, so <code>word[0]</code> does not exist. The compiler explains the options.</p>
 <pre><code class="byn">void main() {
-    let word = "hello"
+    let word = "salam"
     print($"{word[0]}")
 }</code></pre>
 <figure class="diag">
@@ -243,13 +243,13 @@ template: docs
 </figure>
 
 <h3 id="parse">Turning text into numbers</h3>
-<p><code>i64.tryParse(text)</code> returns an <code>i64?</code>: the number, or <code>null</code> when the text is not a number. The strings example uses it with <code>??</code>. Format options go inside the hole as named arguments: <code>{7, width: 4, fill: '0'}</code> pads to <code>0007</code>, <code>{"ada", width: 7}</code> pads on the right, <code>{x, digits: 2}</code> rounds a float and <code>{n, as: .hex}</code> prints hexadecimal.</p>
+<p><code>i64.tryParse(text)</code> returns an <code>i64?</code>: the number, or <code>null</code> when the text is not a number. The strings example uses it with <code>??</code>. Format options go inside the hole as named arguments: <code>{7, width: 4, fill: '0'}</code> pads to <code>0007</code>, <code>{"ali", width: 7}</code> pads on the right, <code>{x, digits: 2}</code> rounds a float and <code>{n, as: .hex}</code> prints hexadecimal.</p>
 
 <h2 id="building">Building text with StrBuf</h2>
 <p>Because a string never changes, building a long text piece by piece uses a <code>StrBuf</code>. <code>StrBuf(capacity: n)</code> makes one. <code>append(text)</code> adds to the end, and <code>append($"…")</code> formats straight into the buffer. <code>finish()</code> returns the result as a string. <code>length</code>, <code>clear()</code> and <code>insert(text, at: i)</code> also exist. Like a list, a buffer is owned by one name.</p>
 
 <h2 id="gradebook">Putting it together: the gradebook</h2>
-<p>The program reads lines such as <code>ada, 90</code>, keeps each student's best score in a map, collects every score in a list and prints a report. Bad lines are reported and skipped.</p>
+<p>The program reads lines such as <code>ali, 90</code>, keeps each student's best score in a map, collects every score in a list and prints a report. Bad lines are reported and skipped.</p>
 <example name="book-07-gradebook"/>
 <p>Follow the data through it:</p>
 <ol>
@@ -266,7 +266,7 @@ template: docs
 <note>Planned: not in the compiler yet. The specification lists these collection members, and the compiler rejects them today: <code>first</code>, <code>last</code>, <code>contains</code>, <code>indexOf</code>, <code>hasItems</code>, <code>removeFirst()</code>, <code>reverse()</code>, <code>sorted()</code>, <code>prepend</code> and <code>insert</code> on lists, <code>Set&lt;T&gt;</code> and <code>Deque&lt;T&gt;</code>, and every member that takes a lambda (<code>where</code>, <code>select</code>, <code>any</code>, <code>all</code>, <code>removeWhere</code>, <code>sort(by)</code>). The specification also gives <code>removeLast()</code> the type <code>T?</code>; today it returns <code>T</code> and panics on an empty list.</note>
 <p>Today you write the loop yourself, as the <a href="cookbook-collections.html">collections cookbook</a> shows. This is what you see if you try one:</p>
 <figure class="diag">
-<pre><span class="err">error BYN2003:</span> `last` is not a member of `List&lt;i64&gt;`
+<pre><span class="err">error BYN2003:</span> `last` is not a member of `List&lt;i32&gt;`
 <span class="gut">  --&gt;</span> d6.byn:3:17
 
 <span class="gut">  3 │</span>     print($"{xs.last ?? 0}")
@@ -279,11 +279,11 @@ template: docs
 <h2 id="quiz">Check your understanding</h2>
 <details class="quiz"><summary>The list example ends with <code>removed 91, 3 left</code>. Why 91?</summary>
 <p>The list was sorted before <code>removeLast()</code>, so the last element is the largest. Before the sort the last element was 64, so "removed 64" would be wrong. Without the <code>sort()</code> call the answer would change.</p></details>
-<details class="quiz"><summary>You write <code>let names: List&lt;string&gt; = []</code> and then <code>names.append("ada")</code>. What happens?</summary>
+<details class="quiz"><summary>You write <code>let names: List&lt;string&gt; = []</code> and then <code>names.append("aisha")</code>. What happens?</summary>
 <p>It does not compile (BYN2104): <code>append</code> changes the list and the list is declared with <code>let</code>. Use <code>var</code>. It is not a panic, and it is not allowed to "work anyway" because the type says nothing about mutability.</p></details>
 <details class="quiz"><summary>The strings example prints <code>6 bytes, 5 runes</code> for <code>"héllo"</code>. Which member gives the 5?</summary>
 <p><code>runeCount</code>. <code>length</code> is the byte count, 6. There is no <code>charCount</code>, and <code>length</code> never counts characters.</p></details>
-<details class="quiz"><summary>A map has the keys <code>"ada"</code> and <code>"grace"</code>. Which line reads <code>"linus"</code> without stopping the program?</summary>
-<p><code>m.tryGet(at: "linus") ?? 0</code>. <code>m["linus"]</code> panics with <code>key not found in map</code>. <code>m.get("linus", 0)</code> does not exist. <code>m.contains("linus")</code> only tests; it does not read.</p></details>
-<details class="quiz"><summary>What does <code>book-07-map</code> print for <code>totals.remove("grace")</code> and <code>totals.length</code>?</summary>
-<p><code>true 1</code>. <code>remove</code> returns <code>true</code> because the key was there, and one entry (<code>ada</code>) is left. If the key had been missing it would return <code>false</code> and change nothing.</p></details>
+<details class="quiz"><summary>A map has the keys <code>"aisha"</code> and <code>"hafsa"</code>. Which line reads <code>"yusuf"</code> without stopping the program?</summary>
+<p><code>m.tryGet(at: "yusuf") ?? 0</code>. <code>m["yusuf"]</code> panics with <code>key not found in map</code>. <code>m.get("yusuf", 0)</code> does not exist. <code>m.contains("yusuf")</code> only tests; it does not read.</p></details>
+<details class="quiz"><summary>What does <code>book-07-map</code> print for <code>totals.remove("hafsa")</code> and <code>totals.length</code>?</summary>
+<p><code>true 1</code>. <code>remove</code> returns <code>true</code> because the key was there, and one entry (<code>aisha</code>) is left. If the key had been missing it would return <code>false</code> and change nothing.</p></details>

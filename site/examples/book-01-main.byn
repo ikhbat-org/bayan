@@ -1,5 +1,5 @@
 // A program can also start in `main`. Top-level statements and `main` are two ways in.
-string greeting(string name) => $"Hello, {name}!"
+string greeting(string name) => $"Salam, {name}!"
 
 void main() {
     print(greeting("Bayan"))

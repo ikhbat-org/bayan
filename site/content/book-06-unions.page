@@ -126,7 +126,7 @@ template: docs
 <p>A type followed by <code>?</code> is the value or <code>null</code>. A plain type is never null.</p>
 <example name="book-06-optional"/>
 <ul>
-  <li><code>string? findName(i64 id)</code> may return a string or <code>null</code>.</li>
+  <li><code>string? findName(i32 id)</code> may return a string or <code>null</code>.</li>
   <li><code>a ?? "nobody"</code> gives the value, or the fallback when it is null.</li>
   <li><code>if a is not null { … }</code> narrows: inside the braces <code>a</code> is a <code>string</code>, so <code>a.length</code> works.</li>
   <li><code>b is null</code> tests for absence. <code>b switch { null =&gt; …, _ =&gt; … }</code> also works.</li>
@@ -166,9 +166,9 @@ template: docs
 <h2 id="tuples">Tuples</h2>
 <example name="book-06-tuple"/>
 <ul>
-  <li>A function can return several values as a tuple with named elements: <code>(i64 quotient, i64 remainder) divide(…)</code>. Read them by name: <code>result.quotient</code>.</li>
-  <li><code>(a / b, a % b)</code> builds a tuple. <code>(name: "Ada", age: 36)</code> names the elements as it builds.</li>
-  <li>A tuple prints in parentheses. For an unnamed or inferred tuple like <code>pair</code>, the names are not printed: <code>(Ada, 36)</code>.</li>
+  <li>A function can return several values as a tuple with named elements: <code>(i32 quotient, i32 remainder) divide(…)</code>. Read them by name: <code>result.quotient</code>.</li>
+  <li><code>(a / b, a % b)</code> builds a tuple. <code>(name: "Ali", age: 36)</code> names the elements as it builds.</li>
+  <li>A tuple prints in parentheses. For an unnamed or inferred tuple like <code>pair</code>, the names are not printed: <code>(Ali, 36)</code>.</li>
   <li><code>for (x, y) in points</code> takes each pair apart in a loop.</li>
 </ul>
 <note>Planned: not in the compiler yet. Taking a tuple apart with <code>let (a, b) = pair</code> and reading elements by position (<code>pair.0</code>) are in the specification but do not compile.</note>

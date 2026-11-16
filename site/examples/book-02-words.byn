@@ -3,7 +3,7 @@
 
 struct Entry {
     string word
-    i64 count
+    i32 count
 
     bool isBefore(Entry other) {
         if count != other.count { return count > other.count }
@@ -11,8 +11,8 @@ struct Entry {
     }
 }
 
-Map<string, i64> countWords(string text) {
-    var counts = Map<string, i64>()
+Map<string, i32> countWords(string text) {
+    var counts = Map<string, i32>()
     for line in text.lines {
         for part in line.parts(by: " ") {
             let word = part.trimmed(by: ['.', ',', '!', '?']).lowercased()

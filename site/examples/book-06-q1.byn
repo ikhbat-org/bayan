@@ -1,5 +1,5 @@
 union Token {
-    num(i64 value)
+    num(i32 value)
     word(string text)
     end
 }

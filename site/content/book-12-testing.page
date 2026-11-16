@@ -12,7 +12,7 @@ template: docs
     tooHigh
 }
 
-string grade(i64 score) fails GradeError {
+string grade(i32 score) fails GradeError {
     fail GradeError.negative if score &lt; 0
     fail GradeError.tooHigh if score &gt; 100
     return "A" if score &gt;= 90
@@ -101,7 +101,7 @@ string grade(i64 score) fails GradeError {
 <h2 id="cases">One test, many inputs</h2>
 <p>A table is a test with parameters and an <code>@cases</code> attribute above it. Each row is a tuple, or a single value when the test takes one parameter. Every row runs as its own test.</p>
 <pre><code class="byn">@cases((100, "A"), (89, "B"), (79, "C"))
-test "grade table" (i64 score, string expected) {
+test "grade table" (i32 score, string expected) {
     assert (try grade(score)) == expected
 }</code></pre>
 <p>With <code>-v</code> the passing tests are listed, and each row carries its values:</p>
