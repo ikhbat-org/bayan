@@ -108,8 +108,8 @@ template: docs
 <p>A <code>string</code> is UTF-8 text. That has two consequences you can see in the program below: <code>length</code> counts bytes, and <code>runeCount</code> counts characters (Unicode code points, called runes).</p>
 <example name="book-03-strings"/>
 <ul>
-  <li><code>"héllo"</code> is 6 bytes and 5 runes, because <code>é</code> takes two bytes.</li>
-  <li><code>word[0..1]</code> slices by byte offsets. The slice <code>0..1</code> is the first byte, <code>h</code>. Slicing in the middle of a multi-byte rune is not what you want.</li>
+  <li><code>"salām"</code> is 6 bytes and 5 runes, because <code>ā</code> takes two bytes.</li>
+  <li><code>word[0..1]</code> slices by byte offsets. The slice <code>0..1</code> is the first byte, <code>s</code>. Slicing in the middle of a multi-byte rune is not what you want.</li>
   <li><code>word.runes</code> goes through the runes. <code>for ch in "héy"</code> does the same.</li>
   <li><code>"""…"""</code> is a multi-line string.</li>
   <li><code>$"…{expr}…"</code> is an interpolated string. Any expression can go in the braces. To write a literal brace, double it: <code>{{</code> and <code>}}</code>.</li>

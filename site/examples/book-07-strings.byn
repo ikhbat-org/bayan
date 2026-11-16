@@ -5,10 +5,10 @@ void main() {
     for part in clean.parts(by: ",") {
         print($"[{part.trimmed()}]")
     }
-    let word = "héllo"
+    let word = "salām"
     print($"{word.length} bytes, {word.runeCount} runes")
-    print(word[0..3])
-    print($"{word.bytes[1]}")
+    print(word[0..5])
+    print($"{word.bytes[3]}")
     for r in word.runes.take(2) {
         print($"{r}")
     }
