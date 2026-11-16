@@ -250,6 +250,10 @@ string styleLintName(string code) => code switch {
     "BYN1074" => "conditions.named",
     "BYN1075" => "nesting.depth",
     "BYN1076" => "functions.length",
+    "BYN1077" => "sections.banner",
+    "BYN1078" => "conditions.patterns",
+    "BYN1079" => "literals.empty",
+    "BYN1080" => "optionals.bind",
     _ => "",
 }
 

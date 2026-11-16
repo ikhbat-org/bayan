@@ -445,7 +445,8 @@ List<string> t10StyleFields() => ["indent", "width", "align", "trailingCommas", 
 List<string> t10RemovedStyleFields() => ["braces", "maxLine"]
 
 /// Manifest.cs:50 `LintNames`, in order.
-List<string> t10LintNames() => ["guards.postfix", "lambdas.it", "nesting.depth", "functions.length", "conditions.named"]
+List<string> t10LintNames() => ["guards.postfix", "lambdas.it", "nesting.depth", "functions.length", "conditions.named", "sections.banner",
+    "conditions.patterns", "literals.empty", "optionals.bind"]
 
 /// Manifest.cs:50 `LintNames` defaults, the C# `_lints` initializer (Manifest.cs:117).
 Map<string, LintSeverity> t10DefaultLints() => [
@@ -454,6 +455,10 @@ Map<string, LintSeverity> t10DefaultLints() => [
     "nesting.depth": .suggestion,
     "functions.length": .none,
     "conditions.named": .suggestion,
+    "sections.banner": .suggestion,
+    "conditions.patterns": .suggestion,
+    "literals.empty": .suggestion,
+    "optionals.bind": .suggestion,
 ]
 
 List<string> t10GrammarFields() => ["verbs", "nouns", "adjectives", "collectives", "forms"]

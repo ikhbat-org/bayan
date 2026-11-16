@@ -56,6 +56,11 @@ public struct Parser {
     public i64 blockDepth = 0
     /// Per token: whether a call argument's value starts there (the C# `_argumentStarts`); a lambda there is an argument itself.
     public List<bool> argumentStarts = List<bool>()
+    /// The style lints the compilation confirms from how their operands bind (the C# `_typedLints`, lints.byn); every `&&` and `||`
+    /// as built (`_logical`); the `if (X is { } k)` sites whose miss leaves, until their block decides them (`_bindExits`).
+    public List<TypedLint> typedLints = List<TypedLint>()
+    public List<LogicalSite> logical = List<LogicalSite>()
+    public List<BindExit> bindExits = List<BindExit>()
 
     public static Parser create(move LexResult lexed) uses alloc {
         let count = lexed.tokens.length

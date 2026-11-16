@@ -1,7 +1,7 @@
-// T2: Bayan.Syntax/Diagnostics/DiagnosticCodes.cs, BYN2xxx-BYN8xxx plus BYN1016/1054/1056 and BYN1072-1076.
+// T2: Bayan.Syntax/Diagnostics/DiagnosticCodes.cs, BYN2xxx-BYN8xxx plus BYN1016/1054/1056 and BYN1072-1080.
 //
 // The semantic message table: every descriptor in the BYN2000-BYN8999 ranges, in `DiagnosticCodes.cs`
-// order, plus the three BYN1xxx codes the checker reports (Q526) and the style lints BYN1072-BYN1076 (spec 022,
+// order, plus the three BYN1xxx codes the checker reports (Q526) and the style lints BYN1072-BYN1080 (spec 022,
 // `Note` in C#; the parser reports them, recover.byn, and `bayan check` gives them their severity, compile.byn). Member names are the C# names with the
 // first letter lowered, so `conversionMember` is BYN5009's second message form and `becomesCallUndeclared`
 // is BYN7003's third, registered once each in C#.
@@ -248,6 +248,10 @@ enum SemaCode {
     conditionsNamed
     nestingDepth
     functionsLength
+    sectionsBanner
+    conditionsPatterns
+    literalsEmpty
+    optionalsBind
     numberAgreement
     numberAgreementOne
     countName
@@ -520,6 +524,10 @@ string codeText(SemaCode code) => code switch {
     .conditionsNamed => "BYN1074",
     .nestingDepth => "BYN1075",
     .functionsLength => "BYN1076",
+    .sectionsBanner => "BYN1077",
+    .conditionsPatterns => "BYN1078",
+    .literalsEmpty => "BYN1079",
+    .optionalsBind => "BYN1080",
     .numberAgreement => "BYN5104",
     .numberAgreementOne => "BYN5104",
     .countName => "BYN5105",
@@ -792,6 +800,10 @@ string messageFormat(SemaCode code) => code switch {
     .conditionsNamed => "this condition wraps; name it with a `let`",
     .nestingDepth => "blocks nested more than 4 deep; flatten them with early exits",
     .functionsLength => "this function body is {0} lines; split it into named steps",
+    .sectionsBanner => "a banner comment ends at column {0}; fill it with `─` to column {1}",
+    .conditionsPatterns => "`{0}` is tested against constants {1} times; write one pattern",
+    .literalsEmpty => "the type is known from the target; write `{0}`",
+    .optionalsBind => "`{0} is {{ }} {1}` binds an optional with a pattern; {2}",
     .numberAgreement => "`{0}` holds a collection; name it with a plural, `{1}`",
     .numberAgreementOne => "`{0}` holds one `{1}`; name it with a singular noun",
     .countName => "`{0}` counts items; name it `{1}`",

@@ -373,13 +373,13 @@ public sealed class SelfhostSemanticsTests
         SameAsCli("types script", "types", Path.Combine(dir, "tool.byn"));
     }
 
-    /// <summary><c>--codes</c> against <c>DiagnosticCodes</c>: the semantic ranges, the three BYN1 codes the checker reports, the style lints `bayan check` reports (BYN1072–BYN1076), and the three second message forms after their codes (Q527).</summary>
+    /// <summary><c>--codes</c> against <c>DiagnosticCodes</c>: the semantic ranges, the three BYN1 codes the checker reports, the style lints `bayan check` reports (BYN1072–BYN1080), and the three second message forms after their codes (Q527).</summary>
     [Fact]
     public void CodesMatchDiagnosticCodes()
     {
         static bool Checker(string code) =>
             int.Parse(code.AsSpan(3), CultureInfo.InvariantCulture) is >= 2000 and <= 8999 || code is "BYN1016" or "BYN1054" or "BYN1056"
-            || code is "BYN1072" or "BYN1073" or "BYN1074" or "BYN1075" or "BYN1076";
+            || code is "BYN1072" or "BYN1073" or "BYN1074" or "BYN1075" or "BYN1076" or "BYN1077" or "BYN1078" or "BYN1079" or "BYN1080";
         var table = DiagnosticCodes.All.Where(d => Checker(d.Code)).ToList();
         foreach (var name in new[] { "ConversionMember", "BecomeOtherState", "BecomesCallUndeclared", "NumberAgreementOne" })
         {

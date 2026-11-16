@@ -197,7 +197,13 @@ const maxFunctionLines: i64 = 60
 /// The C# `_styleLints.Report`: a lint has a fix exactly when `fixSpan` is set.
 void reportStyleLint(ref Parser p, for string code, at TextSpan span, by string message, string label = "", string help = "",
     TextSpan? fixSpan = null, string fixReplacement = "") {
-    p.styleLints.append(Diagnostic {
+    p.styleLints.append(styleLintOf(code, at: span, by: message, label: label, help: help, fixSpan: fixSpan, fixReplacement: fixReplacement))
+}
+
+/// The diagnostic `reportStyleLint` appends; a typed lint (lints.byn) is made the same way and kept until the compilation confirms it.
+Diagnostic styleLintOf(string code, at TextSpan span, by string message, string label = "", string help = "", TextSpan? fixSpan = null,
+    string fixReplacement = "") {
+    return Diagnostic {
         code: code,
         span: span,
         message: message,
@@ -206,7 +212,7 @@ void reportStyleLint(ref Parser p, for string code, at TextSpan span, by string 
         hasFix: fixSpan is not null,
         fixSpan: fixSpan ?? TextSpan { start: 0, length: 0 },
         fixReplacement: fixReplacement,
-    })
+    }
 }
 
 /// BYN1072 on an `if` without `else` whose block holds only a `return`, `fail`, `break` or `continue`; the fix writes it
