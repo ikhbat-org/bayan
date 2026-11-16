@@ -54,4 +54,3 @@ Each row breaks one line, runs the narrowest test filter, then restores the file
 | b10 `NoteLintOperand` on a binary left | `BinderExpressions.cs` removed `_c.NoteLintOperand(b.Left, left)` | caught: `DiagGolden(style-conditions-patterns)`, `FixClearsItsLintAndIsIdempotent(style-conditions-patterns)`, `FixGivesTheFixedRunCase(conditions-patterns)`, `FixDoesNotFormat` |
 | b8 `bayan fix` repeats until stable | `FixCommand.cs` `pass < Format.MaxPasses` to `pass < 1` | caught: `FixClearsItsLintAndIsIdempotent(style-optionals-bind)`, `FixGivesTheFixedRunCase(optionals-bind)` (the BYN1072 follow-on fixes need a second pass) |
 | b9 `check --package` reads the package's `lints` | `CliApp.cs` `StyleLintsAt(manifest ?? lintManifest)` to `StyleLintsAt(manifest)` | caught: `CheckPackageReadsTheRootsLints` |
-||||||| 08368b52
