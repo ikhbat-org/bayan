@@ -5,7 +5,9 @@ void main() {
     var doubled = List<i32>()
     for x in xs {
         total += x
-        if x % 2 == 0 { evens.append(x) }
+        if x % 2 == 0 {
+            evens.append(x)
+        }
         doubled.append(x * 2)
     }
     print($"total {total}, evens {evens.length}, doubled {doubled.length}")

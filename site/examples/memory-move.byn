@@ -1,5 +1,5 @@
 struct Bag {
-    string name
+    string    name
     List<i32> items
 }
 

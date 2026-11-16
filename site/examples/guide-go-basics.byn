@@ -6,7 +6,9 @@ struct Stack {
     }
 
     i32? pop(ref this) {
-        if items.length == 0 { return null }
+        if items.length == 0 {
+            return null
+        }
         let last = items[items.length - 1]
         items.remove(at: items.length - 1)
         return last

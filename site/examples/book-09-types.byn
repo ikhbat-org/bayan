@@ -12,7 +12,7 @@ union Option<T> {
 
 string show<T>(Option<T> o) => o switch {
     .some(let v) => $"some {v}",
-    .nothing => "nothing",
+    .nothing     => "nothing",
 }
 
 Option<T> wrap<T>(move T x) => .some(move x)

@@ -1,6 +1,6 @@
 struct Account {
     string owner
-    i32 balance
+    i32    balance
 }
 
 void transfer(i32 amount, from ref Account payer, to ref Account payee) {

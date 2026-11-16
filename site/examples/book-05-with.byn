@@ -1,7 +1,7 @@
 struct User {
     string name
     string email
-    i32 age
+    i32    age
 }
 
 void main() {

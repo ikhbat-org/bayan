@@ -9,7 +9,7 @@ bool any(ReadOnlySpan<i32> xs, by Pred p) {
     return false
 }
 
-i32 apply(i32 x, by (i32 -> i32) f) => f(x)
+i32 apply(i32 x, by(i32 -> i32) f) => f(x)
 
 bool isBig(i32 x) => x > 2
 

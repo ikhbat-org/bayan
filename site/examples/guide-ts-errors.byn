@@ -14,7 +14,7 @@ string load(string name) fails FetchError {
 string show(string name) {
     return load(name) catch switch {
         .notFound => "no such user",
-        .badName => "name required",
+        .badName  => "name required",
     }
 }
 

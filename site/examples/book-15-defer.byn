@@ -1,5 +1,5 @@
 struct Ticket {
-    string label
+    string    label
     List<i32> marks
 }
 

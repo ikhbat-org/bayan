@@ -4,11 +4,13 @@ interface IDescribe {
 
 struct Dog : IDescribe {
     string name
+
     string describe() => $"dog {name}"
 }
 
 struct Cat : IDescribe {
     i32 lives
+
     string describe() => $"cat with {lives} lives"
 }
 

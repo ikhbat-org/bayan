@@ -1,5 +1,5 @@
 struct Stat {
-    i32 hits = 0
+    i32 hits  = 0
     i32 total = 0
 
     void record(ref this, i32 ms) {

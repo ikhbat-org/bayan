@@ -4,6 +4,8 @@ void main() {
     sorted.sort()
     print($"{xs[0]} {sorted[0]}")
     var squares = List<i32>()
-    for x in xs { squares.append(x * x) }
+    for x in xs {
+        squares.append(x * x)
+    }
     print($"{squares[0]} {squares[1]} {squares[2]}")
 }

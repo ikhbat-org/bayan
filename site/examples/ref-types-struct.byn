@@ -2,10 +2,11 @@ struct Point {
     i32 x
     i32 y = 0
 
-    i32 sum => x + y
-    bool isOrigin => x == 0 and y == 0
+    i32  sum      => x + y
+    bool isOrigin => x == 0 && y == 0
 
     i32 scaled(i32 k) => sum * k
+
     void shift(ref this, i32 dx) {
         x += dx
     }

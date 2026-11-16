@@ -8,7 +8,7 @@ union error StockError {
 }
 
 union error OrderError = ParseError, StockError
-union error Retryable = OrderError except .notNumber
+union error Retryable  = OrderError except .notNumber
 
 i64 parseQty(string text) fails ParseError {
     fail .empty if text.isEmpty

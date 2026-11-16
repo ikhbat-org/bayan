@@ -5,13 +5,19 @@ void main() {
     scores.append(72)
     scores.append(85)
     var total: i32 = 0
-    for s in scores { total += s }
+    for s in scores {
+        total += s
+    }
     print($"{name}: {scores.length} scores, total {total}, mean {total / scores.length}")
 
     var ages = Map<string, i32>()
     ages["aisha"] = 36
     ages["maryam"] = 45
     print($"{ages.contains("aisha")} {ages.contains("yusuf")}")
-    for e in ages { print($"{e.key} is {e.value}") }
-    for i in 0..scores.length { print($"{i}: {scores[i]}") }
+    for e in ages {
+        print($"{e.key} is {e.value}")
+    }
+    for i in 0..scores.length {
+        print($"{i}: {scores[i]}")
+    }
 }

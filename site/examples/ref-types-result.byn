@@ -10,7 +10,7 @@ Result<i32, LookupError> lookup(string key) {
     return key switch {
         "one" => 1,
         "two" => 2,
-        _ => LookupError.missing,
+        _     => LookupError.missing,
     }
 }
 

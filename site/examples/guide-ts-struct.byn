@@ -4,8 +4,8 @@ enum Role {
 }
 
 struct User {
-    string name
-    Role role = .guest
+    string  name
+    Role    role  = .guest
     string? email = null
 }
 

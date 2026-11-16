@@ -1,5 +1,6 @@
 struct Order {
     i32 id
+
     states {
         draft
         paid(i32 payment)
@@ -9,14 +10,16 @@ struct Order {
     void pay(ref this is .draft, i32 amount) becomes .paid {
         become .paid(amount)
     }
+
     void ship(ref this is .paid, i32 tracking) becomes .shipped {
         become .shipped(payment, tracking)
     }
+
     i32 amount(this is .paid or .shipped) => payment
 }
 
 string describe(Order o) => o switch {
-    .draft => "draft",
+    .draft  => "draft",
     .paid p => $"paid {p.payment}",
     .shipped(let payment, let tracking) => $"shipped {payment} as {tracking}",
 }

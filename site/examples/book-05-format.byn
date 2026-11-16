@@ -8,8 +8,8 @@ struct Money {
 
 struct Line {
     string item
-    Money price
-    i32 qty = 1
+    Money  price
+    i32    qty = 1
 }
 
 void main() {

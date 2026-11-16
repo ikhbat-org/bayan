@@ -1,13 +1,16 @@
 struct Order {
     i32 id
+
     states {
         draft
         paid(i32 payment)
         shipped(i32 payment, i32 tracking)
     }
+
     void pay(ref this is .draft, i32 amount) becomes .paid {
         become .paid(amount)
     }
+
     void ship(ref this is .paid, i32 tracking) becomes .shipped {
         become .shipped(payment, tracking)
     }

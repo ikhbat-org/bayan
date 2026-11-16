@@ -1,10 +1,12 @@
 interface IShape {
     i32 area()
+
     string describe() => $"area {area()}"
 }
 
 struct Square : IShape {
     i32 side
+
     i32 area() => side * side
 }
 

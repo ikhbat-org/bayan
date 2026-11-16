@@ -11,7 +11,7 @@ i32 port(string text) fails ConfigError {
 string describe(string text) {
     let n = port(text) catch switch {
         .missing(let key) => return $"missing key {key}",
-        .badValue => return $"bad value `{text}`",
+        .badValue         => return $"bad value `{text}`",
     }
     return $"port {n}"
 }

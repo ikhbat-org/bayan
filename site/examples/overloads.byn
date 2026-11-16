@@ -4,6 +4,7 @@ struct Pos {
     i32 x
 
     Pos plus(by i32 d) => Pos { x: x + d }
+
     Pos plus(from i32 a, to i32 b) => Pos { x: x - a + b }
 }
 

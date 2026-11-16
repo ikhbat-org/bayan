@@ -1,6 +1,6 @@
 struct Counter {
     string name
-    i32 count = 0
+    i32    count = 0
 
     bool isZero => count == 0
 

@@ -18,7 +18,7 @@ void main() {
     print($"{twice("7") catch -1}")
     print($"{twice("x") catch -1}")
     let r = twice("") catch switch {
-        .empty => 0,
+        .empty    => 0,
         .notDigit => -2,
     }
     print($"{r}")

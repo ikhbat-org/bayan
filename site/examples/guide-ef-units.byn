@@ -1,4 +1,4 @@
-type distinct UserId = i32
+type distinct UserId  = i32
 type distinct OrderId = i32
 
 string describe(UserId id) => $"user {id.value}"

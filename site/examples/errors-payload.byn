@@ -13,9 +13,9 @@ i64 send(i64 n) fails CarrierError {
 
 void report(i64 n) {
     let r = send(n) catch switch {
-        .timeout(let after) => after,
+        .timeout(let after)      => after,
         .rejected(let reason, _) => reason.length,
-        .closed => 0,
+        .closed                  => 0,
     }
     print($"report {r}")
 }

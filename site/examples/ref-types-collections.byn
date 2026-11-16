@@ -15,7 +15,7 @@ i64 total(ReadOnlySpan<i64> items) {
 }
 print($"{total(xs)}")
 let view = xs.span
-print($"{view.length} {view[0]} {view[^1]}")
+print($"{view.length} {view[0]} {view[^ 1]}")
 
 xs.remove(from: 0, until: 1)
 print($"{xs.length}")

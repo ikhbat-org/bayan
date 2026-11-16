@@ -5,9 +5,9 @@ union Shape {
 }
 
 f64 area(Shape shape) => shape switch {
-    .circle(let r) => 3.0 * r * r,
+    .circle(let r)      => 3.0 * r * r,
     .rect(let w, let h) => w * h,
-    .point => 0.0,
+    .point              => 0.0,
 }
 
 void main() {

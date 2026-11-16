@@ -1,5 +1,5 @@
 struct Account {
-    private i32 cents
+    private i32   cents
     public string owner
 
     public static Account open(string owner) => Account { cents: 0, owner: owner }

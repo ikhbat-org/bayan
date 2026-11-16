@@ -13,7 +13,7 @@ i32 parse(string text) fails ParseError {
 void main() {
     print($"{parse("42") catch -1}")
     let n = parse("") catch switch {
-        .empty => 0,
+        .empty     => 0,
         .notNumber => -1,
     }
     print($"{n}")

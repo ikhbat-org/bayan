@@ -3,10 +3,12 @@
 
 struct Entry {
     string word
-    i32 count
+    i32    count
 
     bool isBefore(Entry other) {
-        if count != other.count { return count > other.count }
+        if count != other.count {
+            return count > other.count
+        }
         return word < other.word
     }
 }

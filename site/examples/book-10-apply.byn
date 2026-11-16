@@ -1,6 +1,6 @@
-i64 apply(i64 x, by (i64 -> i64) f) => f(x)
+i64 apply(i64 x, by(i64 -> i64) f) => f(x)
 
-i64 combine(i64 a, to i64 b, by ((i64, i64) -> i64) f) => f(a, b)
+i64 combine(i64 a, to i64 b, by((i64, i64) -> i64) f) => f(a, b)
 
 void main() {
     print($"{apply(5, by: it * 2)}")

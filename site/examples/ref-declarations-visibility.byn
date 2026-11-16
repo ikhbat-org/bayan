@@ -1,7 +1,9 @@
 struct Account {
     private i32 cents = 0
-    string name
+    string      name
+
     i32 balance => cents
+
     void deposit(ref this, i32 amount) {
         cents += amount
     }

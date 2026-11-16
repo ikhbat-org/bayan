@@ -9,7 +9,7 @@ union Shape {
 }
 
 string label(Level l) => l switch {
-    .low => "low",
+    .low  => "low",
     .high => "high",
 }
 

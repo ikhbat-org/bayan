@@ -1,5 +1,5 @@
 void main() {
-    let name = "Ada"
+    let name = "Ali"
     let n = 255
     let pi = 3.14159
     print($"{name} has {n * 2} items")

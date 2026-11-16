@@ -1,7 +1,7 @@
 struct Order {
     string id
-    i32 qty
-    bool paid = false
+    i32    qty
+    bool   paid = false
 }
 
 void main() {

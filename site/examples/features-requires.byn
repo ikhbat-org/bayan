@@ -4,7 +4,7 @@ struct Box {
     i32 w
         requires it > 0
     i32 h
-    requires w < h at .w
+    requires w < h at.w
 }
 
 Box build(i32 w, by i32 h) fails ValidationError<Box> => try Box { w: w, h: h }

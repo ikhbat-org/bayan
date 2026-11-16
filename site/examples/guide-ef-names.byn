@@ -4,12 +4,14 @@ struct Cart {
     // A noun with no arguments is a property.
     i32 total {
         var sum: i32 = 0
-        for p in prices { sum += p }
+        for p in prices {
+            sum += p
+        }
         return sum
     }
 
     // A state reads as isX / hasX / canX.
-    bool isEmpty => prices.length == 0
+    bool isEmpty     => prices.length == 0
     bool hasDiscount => total > 100
 
     // A verb that changes the receiver takes `ref this`.

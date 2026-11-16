@@ -1,5 +1,5 @@
 // `apply` is pure: it charges the effects of `f` to whoever passes `f`.
-public i32 apply(i32 x, by (i32 -> i32) f) => f(x)
+public i32 apply(i32 x, by(i32 -> i32) f) => f(x)
 
 i32 loud(i32 x) {
     print("called")

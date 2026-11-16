@@ -4,7 +4,9 @@ void bump(ref i32 n) {
 
 i32 total(ReadOnlySpan<i32> xs) {
     var sum: i32 = 0
-    for x in xs { sum += x }
+    for x in xs {
+        sum += x
+    }
     return sum
 }
 

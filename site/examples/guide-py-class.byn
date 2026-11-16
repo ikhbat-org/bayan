@@ -1,6 +1,6 @@
 struct Account {
     string owner
-    i32 balance = 0
+    i32    balance = 0
 
     bool isEmpty => balance == 0
 

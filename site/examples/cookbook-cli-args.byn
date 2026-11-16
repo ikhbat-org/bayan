@@ -2,6 +2,8 @@
 // Try: bayan run cookbook-cli-args.byn -- salam 42
 void main(ReadOnlySpan<string> args) {
     print($"{args.length} arguments")
-    for i in 0..args.length { print($"{i}: {args[i]}") }
+    for i in 0..args.length {
+        print($"{i}: {args[i]}")
+    }
     print("no arguments given; run with `-- salam 42`") if args.length == 0
 }
