@@ -88,7 +88,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - **`///` in runs.** A `///` line does not end an alignment run. A blank line or a `//` line still does.
   - Also in `docs/bayan-style.md`: merge "Unary operators and annotations" and "Generics and units" into "Horizontal spacing", fix the units Don't (identical to its Do today) or drop the units pair if no Don't reaches the formatter, and drop "Comment form". `StyleGuideExamplesTests` passes on every pair; a pair marked "Shown at width N" runs at width N (the test reads the marker; checked after T7 lands and is merged in).
   - Then, outside the task: measure `src/` at width 100 and 120 for the user's width decision.
-- [ ] **T7b Lints with one-time fixes (C#).**
+- [x] **T7b Lints with one-time fixes (C#).**
   - Files: as T7 (`Parser.cs` lint pass, or the semantics layer where a lint needs types or constness, `DiagnosticCodes.cs`, `docs/diagnostics/BYN1077.md`–`BYN1080.md`, `tests/cases/diag/` cases, `docs/DIAGNOSTICS.md`).
   - Covers: R7.
   - After: T7. Decisions from the user, 2026-11-15.
