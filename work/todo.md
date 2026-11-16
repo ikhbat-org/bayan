@@ -847,3 +847,15 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - 022 rfix review LOW (s022-rfix-review): `DropsComment` (Parser.cs:146, recover.byn:408) counts a comment as kept when its text appears anywhere in the replacement, e.g. inside a kept string literal `"// x"`; make the check position-aware. Owner: 022 follow-up.
 - 022 rfix review LOW: `bayan fix` prints FormatRewriteAbandoned ("file left unchanged") after an earlier pass already wrote the file, then still prints `fixed <file>` (FixCommand.cs:71-76, fix.byn:155-160); word it per pass. Owner: 022 follow-up.
 - 022 rfix review LOW: `Format.RealPath` in FixCommand.cs:37 runs outside the try/catch; an IOException (symlink loop) crashes the C# CLI while fix.byn:251 reports and exits 1. Owner: 022 follow-up.
+- Review 2026-11-16 (1b3820ce4bab..4a48b58a) LOW: `scripts/cleanup/*.test.sh`, `run-all.test.sh` included, are not in `scripts/ci/script-tests.sh`, so CI never runs them.
+- Review 2026-11-16 LOW: `scripts/cleanup/run-all.sh:126` with a missing `$dir` (bad `CLEANUP_DIR`) lists nothing and `-e` exits 0 with "non-zero: 0"; refuse instead.
+- Review 2026-11-16 LOW: `run-all.sh:80` `accepts()` matches case-arm-looking lines in heredocs and ssh payloads, so a flag can reach a parser that rejects it (exit 2, fails safe).
+- Review 2026-11-16 LOW: `scripts/cleanup/2026-11-16-release-0-3-2.sh:67` aborts under `set -e` on a leftover `.worktrees/<x>` that is no longer a worktree; step 1's `git clean -fdX` runs before step 2's dev check, so a listed worktree on dev loses its ignored files.
+- Review 2026-11-16 LOW: `site/gen/markdown.byn:304-311,344` `isAbsolute` accepts any scheme (`javascript:` hrefs); allow http, https, mailto only.
+- Review 2026-11-16 LOW: `site/gen/markdown.byn:488,508` a link URL ends at the first `)`, so `.../A_(b)` breaks; balance parentheses as CommonMark does.
+- Review 2026-11-16 LOW: `site/gen/markdown.byn` shows `<!-- generated: … -->` markers of `docs/STATUS.md` as visible text; drop HTML comments.
+- Review 2026-11-16 LOW: `site/gen/markdown.byn:247` `startsBlock` lets any ordered marker interrupt a paragraph (a wrapped `2026. ` line starts `<ol start="2026">`); CommonMark allows only `1.`.
+- Review 2026-11-16 LOW: `site/gen/main.byn:214-229,386` page names can collide (same base and parent name, dated sibling, a doc named `index`) and overwrite silently; refuse a collision.
+- Review 2026-11-16 LOW: `.github/workflows/pages.yml` rebuilds `out/` from empty, so only the current `docs/<version>/` is published and older release doc links break after the next deploy; decide whether old versions stay.
+- Review 2026-11-16 LOW: `scripts/release/docs-pdf.sh:31` `file://$root/...` is not percent-encoded (space or `#` in the checkout path).
+- Review 2026-11-16 LOW: `scripts/release/cut.sh:42` a roadmap dated the same day as the previous tag passes even when last edited before the tag.

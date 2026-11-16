@@ -102,8 +102,12 @@ for f in $scratch; do
     if [ ! -e "$path" ]; then printf 'skip:  %s is gone\n' "$f"; continue; fi
     if [ "$delete_scratch" -eq 1 ]; then run rm -rf "$path"; else printf 'keep:  %s; pass --delete-scratch\n' "$f"; fi
 done
+# .build-<sha>-<pid>: stale once that pid has exited; a live one belongs to a build running now
 for d in "$common"/.cache/bayan/.build-*; do
     [ -e "$d" ] || { echo "skip:  no .cache/bayan/.build-* dirs"; break; }
+    pid="${d##*-}"
+    case "$pid" in ''|*[!0-9]*) printf 'keep:  %s; no pid in its name\n' "${d#$common/}"; continue ;; esac
+    if ps -p "$pid" >/dev/null 2>&1; then printf 'keep:  %s; process %s is running\n' "${d#$common/}" "$pid"; continue; fi
     if [ "$delete_scratch" -eq 1 ]; then run rm -rf "$d"; else printf 'keep:  %s; pass --delete-scratch\n' "${d#$common/}"; fi
 done
 

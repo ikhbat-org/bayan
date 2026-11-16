@@ -8,6 +8,7 @@
 #                                                               (bin/, obj/, tmp/) inside the worker
 #                                                               worktrees first, so `git worktree remove`
 #                                                               accepts them
+#   scripts/cleanup/022-style-guide.sh -e --delete-scratch      also delete the scratch in /tmp and in tmp/ (steps 4, 5)
 #
 # Run it from a checkout of this repo that is on `dev`, after 022 is merged into dev:
 # `git branch -d` checks merged-ness against the current branch.
@@ -15,10 +16,12 @@ set -euo pipefail
 
 execute=0
 delete_build=0
+delete_scratch=0
 for arg in "$@"; do
     case "$arg" in
         -e|--execute) execute=1 ;;
         --delete-build-output) delete_build=1 ;;
+        --delete-scratch) delete_scratch=1 ;;
         *) printf 'unknown argument: %s\n' "$arg"; exit 2 ;;
     esac
 done
@@ -78,16 +81,15 @@ for b in $branches; do
 done
 
 echo "== 4. stray scratch outside the repo"
-for f in /tmp/x /tmp/t8b-gate.log; do
-    if [ -e "$f" ]; then run rm -f "$f"; else printf "skip:  %s is gone\n" "$f"; fi
-done
-if [ -e /tmp/gate-sm2 ]; then run rm -rf /tmp/gate-sm2; else printf "skip:  %s is gone\n" /tmp/gate-sm2; fi
+scratch() { # path: delete it only with --delete-scratch
+    if [ ! -e "$1" ]; then printf "skip:  %s is gone\n" "$1"
+    elif [ "$delete_scratch" -eq 1 ]; then run rm -rf "$1"
+    else printf "keep:  %s; pass --delete-scratch\n" "$1"; fi
+}
+for f in /tmp/x /tmp/t8b-gate.log /tmp/gate-sm2; do scratch "$f"; done
 
 echo "== 5. scratch in the repo's tmp/ (ignored files moved out of writer worktrees before land)"
-for d in manifesto-site-ignored sabk-verify; do
-    dir="$common/tmp/$d"
-    if [ -e "$dir" ]; then run rm -rf "$dir"; else printf "skip:  %s is gone\n" "$dir"; fi
-done
+for d in manifesto-site-ignored sabk-verify; do scratch "$common/tmp/$d"; done
 
 echo "== remaining"
 git -C "$common" worktree list | grep -E 'worker-s022|readme-examples' || echo "no 022 or README worktrees left"
