@@ -1,5 +1,5 @@
 ---
-id: L032
+id: L038
 title: Format is idempotent and meaning-preserving
 status: proposed
 release: unscheduled
@@ -7,7 +7,7 @@ sources: spec 022 R4
 kind: property
 scope: csharp/Bayan.Cli/Format.cs
 proof: csharp/tests/Bayan.Tests/LayoutTests.cs
-check: dotnet test -v q --filter "Law=L032"
+check: dotnet test -v q --filter "Law=L038"
 ---
 
 ## Statement
@@ -17,4 +17,4 @@ For every `.byn` source that `bayan format` accepts and every `style` setting, f
 A source and a `style`, with the first line where the second format differs from the first, or the first line of emitted C that differs between the original and the formatted program.
 
 ## Proof notes
-Not proven. The `LayoutTests` corpus tests format the corpus twice and compare the token sequences of input and output; they do not yet compare emitted C, and none carries the `Law=L032` trait. `/prove` writes the test.
+Not proven. The `LayoutTests` corpus tests format the corpus twice and compare the token sequences of input and output; they do not yet compare emitted C, and none carries the `Law=L038` trait. `/prove` writes the test.
