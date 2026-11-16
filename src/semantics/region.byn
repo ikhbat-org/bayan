@@ -263,7 +263,8 @@ bool t42Undo(ref Ctx c, to T42Mark mark) {
     return true
 }
 
-/// `t41SummaryRun` in an arena, undone (`undone` set) when it filled a `changedFields` entry.
+/// `t41SummaryRun` in an arena, undone (`undone` set) when it filled a `changedFields` entry; stays in `General` when a
+/// bag is the sink, as `t42AnalyzeRegions` does.
 T41Changed t42SummaryInArena(
     ref Ctx c,
     for FuncId fn,
@@ -272,6 +273,7 @@ T41Changed t42SummaryInArena(
     to ref List<StorePair> pairs,
     through ref List<i64> returns
 ) {
+    return t41SummaryRun(ref c, for: fn, by: known, from: returned, to: ref pairs, through: ref returns) if c.sink >= 0
     var flags = T41Changed {}
     let mark = t42Mark(c)
     using let arena = Arena()
