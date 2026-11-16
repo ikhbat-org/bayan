@@ -71,7 +71,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - **Member groups:** inside a type body, one blank line between member groups (fields, `states`, properties, static members, methods) and between methods. This is the one place besides the top level where layout inserts a blank line. Inside function bodies it still never inserts one (doc "Paragraphs inside functions").
   - Each rule changes whitespace and newlines only, so the safety net (`Check`) keeps holding. A rule that would change a token, an adjacency in `TriviaMatters`, or a comment's order is skipped for that site.
   - Also done when the corpus-test flake is fixed. `TheCorpusLaysOutOnceAndForAll` failed about 1 run in 8, on a different file each time. The test-only statics `Format.MaxPasses` (`Format.cs:36`) and `Format.RewriteHook` (`Format.cs:39`) are process-wide, and `FormatTests.NonConvergenceIsReported` and `ARewriteThatDoesNotParseIsAbandoned` set them while the corpus theory runs in parallel. Both become per-thread, like `Layout.OutputHook`. `MaxPasses` keeps the default of 10 on every thread (a `[ThreadStatic]` initializer runs only on the first thread). A test shows that setting `MaxPasses` on one thread leaves another thread's format run at 10. Files: `csharp/Bayan.Cli/Format.cs` and `FormatTests.cs`.
-- [ ] **T6c Layout: the rules the user approved after the Fable review (C#).**
+- [x] **T6c Layout: the rules the user approved after the Fable review (C#).**
   - Files: `csharp/Bayan.Cli/Layout.cs`, `csharp/tests/Bayan.Tests/LayoutTests.cs`, `docs/bayan-style.md` (Do/Don't pairs for each rule, plus the doc tidy).
   - Covers: R3, R1.
   - After: T6b. Decisions from the user, 2026-11-15, after three Fable 5.2 passes.
@@ -101,6 +101,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - **Qualified constants** (`Op.a or Op.b`) stay out.
     - **Banner column:** 80.
     - **Self-hosted manifest row:** the self-hosted manifest parity row joins T7's expected-red list until T9.
+  - Plan-owner decision 2026-11-16, after T7b's full run: the self-hosted rows that compare usage or dispatch output with the C# CLI and fail only because the C# usage now lists `fix` (`SelfhostDriverT1Tests.MatchesTheCSharpCli`, `AScriptRunsAndAGlobalOptionBeforeItIsTaken`, `SelfhostDriverT2Tests.DispatchAsCliApp`, `SelfhostDriverT5Tests.DispatchAsCliApp`, `SelfhostDefaultT12Tests.EveryOtherArmOfRunIsTheCSharps`, `SelfhostDefaultT2Tests.FeaturesMatchesTheCSharpCli`; 29 rows) join the expected-red list until T9, which ports `bayan fix` to the self-hosted driver.
   - Done when each lint below defaults to `.suggestion`, takes its severity from `lints`, has a `diag/` case and a fix, and its fix applied by `bayan fix` gives code that passes `bayan check` (test each on its `diag/` case):
     - **BYN1077 `sections.banner`.** A banner comment `// ── Title ──…` is filled with `─` up to one fixed column.
     - **BYN1078 `conditions.patterns`.** Fires when one `&&` or `||` group tests the same operand against constants two or more times, and the operand is a plain name, field or index path. The fix writes a pattern: `x >= A && x <= B` becomes `x is A..=B`, and `op == .a || op == .b` becomes `op is .a or .b`. Mixed groups (`c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C`) become one `or` pattern. A single comparison never fires.
@@ -124,8 +125,8 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
 - [ ] **T9 Lints and severity port (self-hosted).**
   - Files: `src/parser/*.byn` lint pass, the `src/driver` check path, parity rows.
   - Covers: R7, R6.
-  - After: T7, T7b (BYN1077–BYN1080 are ported too).
-  - Done when each lint `diag/` case and each severity case gives the same output through stage 2 as the C#.
+  - After: T7, T7b (BYN1077–BYN1080, the `check --package` lints fix and the `bayan fix` command are ported too).
+  - Done when each lint `diag/` case and each severity case gives the same output through stage 2 as the C#, `bayan fix` gives the same output and bytes as the C# on every `FormatTests` fix case, and every row on T7's and T7b's expected-red lists, except the T8 format rows, is green.
 - [ ] **T10 Format the repo's sources.**
   - On hold until the user approves the measured format (2026-11-15).
   - Files: every `src/**/*.byn`, `lib/**/*.byn` and `examples/**/*.byn` that the formatter changes (one commit, nothing else in it; it also applies the `bayan fix` output of `guards.postfix`, `sections.banner`, `conditions.patterns`, `literals.empty` and `optionals.bind`); `bootstrap/bayan.c` (next commit); `.git-blame-ignore-revs` (new, naming the format commit).
