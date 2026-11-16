@@ -1608,9 +1608,12 @@ internal static class Layout
         private bool SpacedColon(int i)
         {
             var depth = 0;
+            // A `,` at this level ends a ternary operand, so a `?` before it is another entry's (`f(c ? a : b, by: x)`).
+            var pastComma = false;
             for (var k = i - 1; k >= 0; k--)
             {
                 var kind = Kind(k);
+                if (kind == TokenKind.Comma && depth == 0) pastComma = true;
                 if (kind is TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.CloseBrace or TokenKind.InterpolationEnd) depth++;
                 else if (kind is TokenKind.OpenParen or TokenKind.OpenBracket or TokenKind.OpenBrace or TokenKind.InterpolationStart)
                 {
@@ -1618,7 +1621,7 @@ internal static class Layout
                     depth--;
                 }
                 else if (depth == 0 && (kind is TokenKind.StructKeyword or TokenKind.InterfaceKeyword or TokenKind.ExtensionKeyword
-                             || kind == TokenKind.Question && Trivia(k) || kind == TokenKind.Identifier && Text(k) == "where"))
+                             || kind == TokenKind.Question && Trivia(k) && !pastComma || kind == TokenKind.Identifier && Text(k) == "where"))
                     return true;
                 // A chain link continues its line, so the scan goes on through it to a `?` before the chain.
                 if (_lineStart[k] && depth == 0 && !IsWasl(k)) return false;

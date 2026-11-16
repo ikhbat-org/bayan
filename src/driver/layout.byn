@@ -2537,18 +2537,19 @@ struct LayoutEngine {
     /// Layout.cs: Engine.SpacedColon. Whether the `:` at `i` is a ternary's or a conformance's (`struct S : I`, `where T : I`).
     bool spacedColon(i64 i) {
         var depth: i64 = 0
+        // A `,` at this level ends a ternary operand, so a `?` before it is another entry's (`f(c ? a : b, by: x)`).
+        var pastComma = false
         var k = i - 1
         while k >= 0 {
             let at = kind(k)
+            pastComma = true if at == .comma && depth == 0
             if at is .closeParen or .closeBracket or .closeBrace or .interpolationEnd {
                 depth += 1
             } else if at is .openParen or .openBracket or .openBrace or .interpolationStart {
                 return false if depth == 0
                 depth -= 1
             } else if depth == 0
-                    && (at == .structKeyword || at == .interfaceKeyword || at == .extensionKeyword || at == .question && trivia(
-                        k,
-                    )
+                    && (at == .structKeyword || at == .interfaceKeyword || at == .extensionKeyword || at == .question && trivia(k) && !pastComma
                     || at == .identifier && textIs(k, as: "where")) {
                 return true
             }
