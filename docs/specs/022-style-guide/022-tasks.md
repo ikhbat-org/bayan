@@ -134,7 +134,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - Covers: R7, R6.
   - After: T7, T7b (BYN1077–BYN1080, the `check --package` lints fix and the `bayan fix` command are ported too).
   - Done when each lint `diag/` case and each severity case gives the same output through stage 2 as the C#, `bayan fix` gives the same output and bytes as the C# on every `FormatTests` fix case, and every row on T7's and T7b's expected-red lists, except the T8 format rows, is green.
-- [ ] **T10 Format the repo's sources.**
+- [x] **T10 Format the repo's sources.** (landed in dbc05369 plus the regen and `.git-blame-ignore-revs` commits; SelfhostDriver 1668/1668, BootstrapTests 7/7)
   - On hold until the user approves the measured format (2026-11-15).
   - Files: every `src/**/*.byn`, `lib/**/*.byn` and `examples/**/*.byn` that the formatter changes (one commit, nothing else in it; it also applies the `bayan fix` output of `guards.postfix`, `sections.banner`, `conditions.patterns`, `literals.empty` and `optionals.bind`); `bootstrap/bayan.c` (next commit); `.git-blame-ignore-revs` (new, naming the format commit).
   - Covers: R8.
