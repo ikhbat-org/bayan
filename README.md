@@ -60,13 +60,13 @@ Salam, world!
 You need two things: the `bayan` binary and a C compiler.
 
 1. **Get `bayan`.** Download the archive for your machine from the
-   [releases page](https://github.com/ikhbat-org/bayan/releases): `bayan-0.3.0-macos-arm64.tar.gz`,
-   `bayan-0.3.0-linux-x64.tar.gz`, `bayan-0.3.0-windows-x64.zip` and so on. Unpack it and put the
+   [releases page](https://github.com/ikhbat-org/bayan/releases): `bayan-0.3.1-macos-arm64.tar.gz`,
+   `bayan-0.3.1-linux-x64.tar.gz`, `bayan-0.3.1-windows-x64.zip` and so on. Unpack it and put the
    `bayan` binary somewhere on your `PATH`:
 
    ```sh
-   tar -xzf bayan-0.3.0-macos-arm64.tar.gz
-   cp bayan-0.3.0-macos-arm64/bayan ~/.local/bin/
+   tar -xzf bayan-0.3.1-macos-arm64.tar.gz
+   cp bayan-0.3.1-macos-arm64/bayan ~/.local/bin/
    ```
 
 2. **Get a C compiler.** Bayān prefers [zig](https://ziglang.org) (`zig cc`), because it can build for
@@ -124,7 +124,7 @@ For a one-off script you don't need a project. Write a single `.byn` file and ru
 ## Batteries included
 
 One `bayan` binary holds the compiler, the formatter, the test runner and the release builder. There is
-nothing else to install except a C compiler. The commands are from `bayan --help`.
+nothing else to install except a C compiler. The commands are from `bayan --help`, except `bayan test --coverage`, which works but is not in the help text yet.
 
 | Command | What it does |
 |---|---|
