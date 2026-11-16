@@ -1,7 +1,7 @@
 # Bayān — Language Specification
 
 Version: 0.3.2 (matches `bayan --version`)
-Revisions applied: 0001–0023
+Revisions applied: 0001–0024
 
 > **Status:** normative for `bayan 0.3.0` unless a section says otherwise. It describes the language as designed; a `(not in 0.3)` or `(partial in 0.3: …)` tag marks what `bayan 0.3.0` does not implement yet.
 > **Provisional text (rev 0023):** a section or item tagged `(not in 0.3)`, `(not in 0.x)`, `(partial in 0.3: …)` or `spec-only` describes a design, not a promise: building it may change it by revision at no compatibility cost (§19.4), and a conflict between provisional texts is resolved when the feature is built.
@@ -89,7 +89,7 @@ print("Salam, world!")
 | Integer | `42`, `1_000_000`, `0xFF`, `0b1010` | **Untyped** until context gives a type; out-of-range is a compile error |
 | Float | `3.14`, `1e5`, `2.5e-3` | `e` followed by a digit or sign is an exponent |
 | Unit-suffixed | `5s`, `250ms`, `4KiB`, `100m` | Suffix must be an imported unit symbol; not allowed on hex/binary literals (not in 0.3, §3.4) |
-| Built-in suffixes | `u`, `l`, `ul`, `f` | Reserved. C#'s `m`/`d` suffixes are retired; decimal is `1.50dec` |
+| Built-in suffixes | `u`, `l`, `ul`, `f`, `dec` | Reserved. C#'s `m`/`d` suffixes are retired; decimal is `1.50dec`, `40dec` (not in 0.3, §3.1) |
 | Rune | `'a'`, `'\n'`, `'\u{1F600}'` | 32-bit scalar; ASCII rune literals narrow to `u8` in comparisons |
 | String | `"text"`, `"""raw multi-line"""` | Stored in `.rodata` |
 | Interpolated | `$"total {x}"`, `$"{n, as: .hex}"` | Allocates, except when passed directly to a formatting sink (`print`, `log`, `panic`, `StrBuf.append`); specs are named arguments in the hole (§16.4) |
@@ -183,6 +183,13 @@ C# primitive names are accepted per project (`style.primitives: .sized | .csharp
 > Round 3 §10: `char` suggests C#'s 16-bit unit; `rune` names the scalar, and the `Runes` unit and `runeCount` follow it. Codes: BYN1048.
 
 Lowercase type names are reserved for the language. C interop types: `c_int`, `c_long`, `c_char`, … (`c_long` follows the platform). BYN1030 is retired; the C# primitive names stay reserved words, so none can be declared as an identifier (revision 0001).
+
+**`dec` (decimal arithmetic; not in 0.3).**
+- **Representation:** a 128-bit value with a .NET-compatible layout: a 96-bit unsigned integer coefficient (`0` to `2^96 - 1`, `79_228_162_514_264_337_593_543_950_335`), a sign bit, and a scale `0..=28` (divisor `10^scale`). The C ABI layout matches .NET `System.Decimal` and database numeric columns directly.
+- **Literals and scale:** written with the `dec` suffix on an integer or decimal literal (`2.50dec`, `85dec`, `0.025dec`; no exponent, no hex or binary). A literal preserves its written trailing fractional zeros in its scale: `1.50dec` has scale 2, prints `1.50` (`string(1.50dec)` is `"1.50"`), and compares equal to `1.5dec` (`1.50dec == 1.5dec` is `true`, and `<`, `<=`, `>`, `>=` compare numerical values). A literal with more than 28 fractional digits or a coefficient above `2^96 - 1` is a compile error.
+- **Arithmetic, rounding and overflow:** `+`, `-`, `*`, `/`, `%` and unary `-` operate on `dec`. Addition and subtraction keep the larger of the operands' scales, multiplication adds scales, and division uses the scale needed for the quotient, each capped at 28; when a result exceeds 96 bits of coefficient or 28 fractional digits and can be brought in range by discarding fractional digits, it rounds once to nearest, ties to even. Overflow (a magnitude above `(2^96 - 1)` at scale 0) and division by zero trap in every build mode (§0, §17); `+% -% *%` and `+| -| *|` do not apply to `dec`.
+- **Explicit rounding:** `x.rounded()` and `x.rounded(digits: n)` (`0..=28`, default `0`) round to nearest, ties away from zero, matching unit `rounded` and `Money.rounded()` (§3.4): for `let zakat = wealth * 0.025dec`, `zakat.rounded(digits: 2)` rounds to two decimal places with ties away from zero. `x.floor()` and `x.ceiling()` round toward `−∞` and `+∞` to scale 0.
+- **Conversions and parsing (§6.2):** integers convert to `dec` explicitly (`dec(n)`, infallible). `dec` converts to an integer explicitly (`i64(d)` truncates toward zero and traps when the truncated integer is out of range; `i64.tryFrom(d)` returns `i64?`, `null` when out of range or when `d` has a nonzero fractional part). `dec` converts to `f64` or `f32` explicitly (`f64(d)`, `f32(d)`), rounding the mathematical value once to nearest, ties to even. There is no `dec(x)` cast from `f32` or `f64`: `dec(0.1)` on a float literal is BYN2206 with a fix-it to `0.1dec`, and `dec(x)` on a runtime `f32` or `f64` is BYN2206 with a fix-it to `dec.fromF64(x, digits: n)`. `dec.fromF64(x, digits: n)` (`digits` in `0..=28`) converts a finite `f64` rounded to `digits` fractional places (nearest, ties to even) and traps on `nan`, `±inf` or an out-of-range value; `dec.tryFromF64(x, digits: n)` returns `dec?` (`null` where `fromF64` would trap). `dec.tryParse(text)` returns `dec?`: an optional `-`, one or more digits, and an optional `.` followed by one or more digits (up to 28 fractional digits, no exponent, no `_`, no spaces), preserving the written scale. `dec` is not a `Map` key (§3.5, BYN2760). (rev 0024)
 
 ### 3.2 Strings
 - Always **valid UTF-8** and immutable; a string borrows its bytes (a literal, a request body, a slice) or owns them. Decoding is a codec (§16.4): `Utf8.tryDecode(bytes)` returns `string?`; `try Utf8.decode(bytes)` fails `Utf8Error`. There is no `fromUtf8`, and `string(bytes)` formats the bytes (`[104, 105]`), it never decodes.
@@ -701,7 +708,7 @@ extension<T> Span<T> where T : INumber<T> {
     public T sum() { … }
 }
 extension static Duration {
-    public static Duration fromHours(f64 h) => Duration(h * 3600s)
+    public static Duration fromHours(f64 h) => Duration(h * 3600s)   // proposed: float-to-unit conversion is not specified
 }
 ```
 
@@ -830,9 +837,16 @@ No user-defined operator symbols. Operator implementations must not allocate, su
 
 | Conversion | Rule |
 |---|---|
-| Lossless numeric widening | Implicit |
-| Narrowing `u8(x)` | Explicit; traps in every build mode if out of range. `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
-| Truncation | `x.truncate<u8>()` |
+| Lossless numeric widening | Implicit: `i8`→`i16`→`i32`→`i64`, `u8`→`u16`→`u32`→`u64`, `u8`→`i16`/`i32`/`i64`, `u16`→`i32`/`i64`, `u32`→`i64`, `f32`→`f64`, and `i8`/`u8`/`i16`/`u16`→`f32` and `i8`/`u8`/`i16`/`u16`/`i32`/`u32`→`f64` |
+| Integer ↔ integer narrowing or sign change `u8(x)` | Explicit; traps in every build mode if out of range (`isize`/`usize` included). `u8.tryFrom(x)` returns `u8?` (`null` when out of range) |
+| Wide integer → float `f64(n)`, `f32(n)` | Explicit on `i64`/`u64`/`isize`/`usize`→`f64` and `i32`/`u32`/`i64`/`u64`/`isize`/`usize`→`f32`; rounds the mathematical value once to nearest, ties to even |
+| `f64` → `f32` `f32(x)` | Explicit; rounds the mathematical value once to nearest, ties to even (overflow gives `±∞`) |
+| Float → integer `i64(x)` | Explicit; truncates toward zero, saturates to the target's minimum or maximum when out of range (`0` for negative inputs to unsigned types), and `nan` becomes `0`; the one narrowing conversion that saturates instead of trapping. `i64.tryFrom(x)` returns `i64?` (`null` on `nan`, out of range, or a nonzero fractional part) |
+| Integer → `dec` `dec(n)` | Explicit; exact and infallible for every integer type (not in 0.3, §3.1) |
+| `dec` → integer `i64(d)` | Explicit; truncates toward zero and traps if out of range; `i64.tryFrom(d)` returns `i64?` (`null` if out of range or if `d` has a nonzero fractional part) (not in 0.3) |
+| `dec` → float `f64(d)`, `f32(d)` | Explicit; rounds the mathematical value once to nearest, ties to even (not in 0.3) |
+| Float → `dec` | Rejected: `dec(x)` on `f32` or `f64` is BYN2206 (fix-it `0.1dec` on a literal, `dec.fromF64(x, digits: n)` on a runtime value); `dec.fromF64(x, digits: n)` and `dec.tryFromF64(x, digits: n)` convert with explicit decimal places (not in 0.3, §3.1) |
+| Truncation | `x.truncate<u8>()` (low bits of an integer) |
 | Bit reinterpretation | `bitcast<T>(x)` (same size; non-plain types require `unsafe`) |
 | Units / distinct types | `Seconds(raw)`, `i64(t)` |
 | Enum ↔ number | `.ordinal` / `.value`; `T.fromOrdinal(i)` returns `T?` |
@@ -844,10 +858,11 @@ No user-defined operator symbols. Operator implementations must not allocate, su
 | Integer → text in a radix | `string(n, as: .hex)`; `as:` takes a `Radix` and defaults to `.decimal`; output is lowercase with no prefix (§3.2). Integers only |
 | Text → integer | `u64.tryParse(text)` returns `u64?`; `tryParse(text, as: .hex)` accepts the same `Radix` |
 | Text → float | `f64.tryParse(text)` returns `f64?` (`f32.tryParse` likewise; no `as:`): the float literal form without `_`, an optional leading `-`, no spaces, no `inf`/`nan`/hex; correctly rounded; out of range gives `±∞` (revision 0015) |
+| Text → `dec` | `dec.tryParse(text)` returns `dec?`: optional `-`, digits, optional `.` and 1..=28 fractional digits, no exponent, no `_`, no spaces; preserves scale (not in 0.3, §3.1) |
 | Bytes → text | A codec: `try Utf8.decode(bytes)` (fails `Utf8Error`), `Utf8.tryDecode(bytes)` (`string?`), `Utf8.decode(bytes, invalid: .replace)` (lossy, never fails); `try Latin1.decode(bytes)` (`kit`), `try Utf16.decode(units)` (`std.text`) (§3.2). Hex and base64 are codecs too: `Hex.encode(bytes)`, `try Hex.decode(text)` |
 | User-defined implicit conversions | Not allowed |
 
-There are no implicit user conversions; a conversion is `T(x)`, never an instance `toX` or `asX` member (§5.2). `checked(expr)` evaluates a whole expression with overflow detection and returns `T?` (`null` on overflow). Unlike C#, where `checked` throws, it never traps. Float-to-integer conversion saturates (NaN becomes 0). Integer division by zero traps. (not in 0.3: `checked(expr)`)
+There are no implicit user conversions; a conversion is `T(x)`, never an instance `toX` or `asX` member (§5.2), and any cast outside the table is BYN2206. Every explicit conversion that rounds (`Wide integer → float`, `f64` → `f32`, `dec` → float) rounds the mathematical value once to the target type, to nearest, ties to even. `checked(expr)` evaluates a whole expression with overflow detection and returns `T?` (`null` on overflow). Unlike C#, where `checked` throws, it never traps. Float-to-integer `I(x)` truncates toward zero, saturates to `I`'s bounds, and maps `nan` to `0`; `I.tryFrom(x)` returns `null` on `nan`, out of range or a nonzero fractional part. Integer and `dec` division by zero traps. (not in 0.3: `checked(expr)`, `dec`; rev 0024)
 
 The C# cast `(T)x` is an input form for `T(x)` (BYN1057).
 
@@ -1492,6 +1507,7 @@ Deterministic. Allowed: pure computation, reading files by **literal path inside
 
 ### 12.4 Semantics
 - Runs on the build machine with the **target's** layout rules (pointer size, endianness, alignment).
+- Comptime numeric operations and conversions produce the same bit-for-bit results as the compiled program, except in functions marked `@fastMath`, which comptime ignores (§17). (rev 0024)
 - Values crossing into runtime must be const-serializable and land in `.rodata`.
 - `typeof(T)` returns `TypeInfo` (name, fields, methods, interfaces, attributes, size, align, kind).
 - `comptime for`, `comptime if`, `this.[field]` field access.
@@ -2207,9 +2223,9 @@ Diagnostic numbers are allocated at merge:
 |---|---|
 | debug, safe, fast, small | Traps |
 
-Overflow is a bug and traps in every build mode. `+% -% *%` wrap; `+| -| *|` saturate; compound forms `+%=` etc. The compiler removes checks it can prove unnecessary (loop counters, values of distinct types with `requires` ranges; not in 0.3).
+Overflow is a bug and traps in every build mode, for integers and `dec` alike (`dec` is not in 0.3, §3.1). `+% -% *%` wrap; `+| -| *|` saturate; compound forms `+%=` etc. (integers only). The compiler removes checks it can prove unnecessary (loop counters, values of distinct types with `requires` ranges; not in 0.3).
 
-Floats are IEEE 754; C is emitted with `-ffp-contract=off`; `@fastMath` opts in per function. Derived equality and hashing on floats use IEEE `totalOrder` (so a struct containing NaN equals itself, and `0.0` and `-0.0` differ there, unlike `==`).
+Floats are IEEE 754; C is emitted with `-ffp-contract=off`; `@fastMath` opts in per function at run time and is ignored during comptime evaluation, so a `@fastMath` function's comptime and runtime results may differ (§12.4). Derived equality on structs containing floats uses IEEE `totalOrder` (so a struct containing NaN equals itself, and `0.0` and `-0.0` differ there, unlike `==`); floats and types containing them are not `Map` keys (§3.5, BYN2760, BYN2831). (rev 0024)
 
 > Round 2 §3: replaces "wraps in fast"; an arithmetic bug must not change meaning with the build mode.
 
@@ -2627,7 +2643,7 @@ Roadmap: v0.3 WASM + `.d.ts`; v0.4 `bayan gen ts`; post-v1 portable JS backend (
 | `Count` / `Count()` / `Length` | `length`; `count(p)` for a predicate count |
 | `ToString()` | `format()` / `formatInto(ref StrBuf)` (§6.6); a conversion is `string(x)` |
 | `foreach`, `if (…)`, `x == null`, `;`, `T x` (local), `[Attr]`, `/* */`, `char` | Input forms, rewritten (§21.5) |
-| `m` / `d` literal suffixes | `dec`; doubles unsuffixed |
+| `m` / `d` literal suffixes, `(decimal)x` | `dec` suffix (`2.50dec`), doubles unsuffixed; `dec(0.1)` is BYN2206 (fix-it `0.1dec`), runtime `f64` converts via `dec.fromF64(x, digits: n)` (not in 0.3, §3.1, §6.2) |
 
 > Round 2 §1, §8, §11, §13, §15: compatibility rows follow the new forms.
 
