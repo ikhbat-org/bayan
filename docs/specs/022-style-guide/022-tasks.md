@@ -140,7 +140,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - Covers: R8.
   - After: T8, T9.
   - Done when `bayan format --check src lib examples` exits 0 with both drivers, `SelfhostDriverTests` (the stage-3 fixed point and `SourcesAreFormatted`) and `BootstrapTests` pass, and `git blame --ignore-revs-file .git-blame-ignore-revs` shows the authors from before.
-- [ ] **T11 Docs and laws.**
+- [x] **T11 Docs and laws.**
   - Files: `docs/bayan-spec.md` §19.2 and the §21.2 `bayan format` row, `docs/STATUS.md`, `CHANGELOG.md`, `docs/laws/` (two `proposed` laws: format idempotent and meaning-preserving; format parity), `docs/bayan-questions.md` (the unattended decisions, the `functions.length` bound, the parameter-list trailing comma, and the proposal §3.1 After: its blank lines between paragraphs cannot come from the formatter, which never inserts one, and its header wraps only below width 120, so T5's test runs it at width 100), the progress log.
   - Covers: R9.
   - After: T10.
