@@ -43,8 +43,8 @@ if [ "$branch" != "dev" ]; then
     printf '        dry run continues so you can see the list.\n'
 fi
 
-worktrees="worker-s022-t7b worker-s022-t8b worker-s022-t9 worker-s022-t10 worker-s022-t11 readme-examples worker-readme-v2 readme-v2"
-branches="docs/readme-examples docs/readme-v2 chore/worker-readme-v2 fix/review-2026-11-16-1"
+worktrees="worker-s022-t7b worker-s022-t8b worker-s022-t9 worker-s022-t10 worker-s022-t11 readme-examples worker-readme-v2 readme-v2 fix-review-2026-11-16-2"
+branches="docs/readme-examples docs/readme-v2 chore/worker-readme-v2 fix/review-2026-11-16-1 fix/review-2026-11-16-2"
 for t in 1 2 3 4 5 6 6b 6c 7 7b 8 8b 9 10 11; do branches="$branches chore/worker-s022-t$t"; done
 
 echo "== 1. ignored build output inside the worktrees"
