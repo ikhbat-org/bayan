@@ -9,7 +9,10 @@ const maxDepth: i64 = 64
 
 /// The files whose path matches `pattern` (`**`, `*`, `?`, `[…]`, `{a,b}` as `Glob.matches` reads them), sorted by byte
 /// order, written with `/` separators and starting as `pattern` does. Directories are walked but not listed; a base
-/// directory that is missing or unreadable gives an empty list.
+/// directory that is missing or unreadable gives an empty list. Names starting with `.` are listed and dot-directories
+/// are entered, as any other name (the Go and Rust rule); a caller that wants them hidden filters the result. A
+/// pattern with `**` or `{` is walked 64 directory levels below its base directory; matches deeper than that are not
+/// returned.
 public List<string> glob(string pattern) uses fs, alloc {
     var found = List<string>()
     let base = baseOf(pattern)
