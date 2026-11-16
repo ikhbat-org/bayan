@@ -212,4 +212,4 @@ So "keep them out of diagnostics" holds for the message line, not for explain te
 - **Q4:** the owner leans `std`; recommendation agrees (SPEC §3.4 already defines `Money`), awaiting confirmation.
 - **Q3, Q5, Q6:** owner asked for real-world examples with and without; sent 2026-11-16, awaiting answers.
 - **Q8:** yes to a priority order; owner asked for the recommendation and a build-order dependency chain; sent 2026-11-16.
-- **Q9:** owner asked what the freeze means; explanation sent 2026-11-16, awaiting answer.
+- **Q9:** the syntax freeze stays in force until spec 019a lands (owner agreed after the explanation: no new keywords, statement forms or renamed syntax; library, lint, fix and doc changes continue).
