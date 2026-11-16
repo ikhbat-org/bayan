@@ -17,7 +17,7 @@ namespace Bayan.Tests;
 /// exit code, stdout and stderr (elapsed seconds masked); the <c>.diag</c> files stay <c>DiagTests</c>'. The same ruling for <c>run</c>
 /// stderr: stage 2's equals the C# CLI's on the case, since both print the compile warnings before the program's own output.
 /// A <c>run/</c> input is left out when its file name ends in <c>.test.byn</c> (<c>RunTests</c> runs those with <c>bayan test -v</c>) or a
-/// <c>.stdin</c> file with the same name beside it exists (spec Q5: stage 2's <c>run</c> feeds no stdin). The only skips are the two <c>diag/</c> cases in <see cref="DiagSkips"/> (Q1052).
+/// <c>.stdin</c> file with the same name beside it exists (spec Q5: stage 2's <c>run</c> feeds no stdin). The only skips are the <c>diag/</c> cases in <see cref="DiagSkips"/> (Q1052).
 /// The <c>.test.byn</c> cases go through <c>test</c> instead (017 T11): <see cref="TestAsCSharpCli"/> and <see cref="CasesTypeMismatchAsCSharpTest"/>.
 /// </summary>
 [Collection(nameof(ToolchainEnvironment))]
@@ -72,6 +72,7 @@ public sealed class SelfhostDriverGoldenTests
         ["diag/capability-exceeded/main.byn"] = "Q1052", // BYN6004 needs the manifest's capabilities; `check .` stops at the missing src/app, `--package` ignores package.byn
         ["diag/std-imports-package/main.byn"] = "Q1052", // BYN2033 needs the case's stdlib/ as the std library: the CLI reads only the shipped std and stops at BYN2032
         ["diag/cases-type-mismatch.test.byn"] = "Q1221", // BYN2202 needs IncludeTests, which `check` never sets; compared through `test` by CasesTypeMismatchAsCSharpTest (017 T11)
+        ["diag/style-fix-keeps-comments.byn"] = "Q1052", // BYN1072/BYN1073 are style lints, which `check` skips once there are errors (CliApp.cs:327); each block comment is BYN1047
     };
     /// <summary>
     /// <c>BAYAN_GOLDEN_SHARD=i/n</c> (0 &lt;= i &lt; n) keeps the <c>run/</c> cases whose index among the in-scope ones is i modulo n, so the slow
