@@ -1,0 +1,72 @@
+note BYN1072: an early exit in a block can be a postfix guard
+
+  16 │     if customers.isEmpty /* why */ {
+     │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ an early exit in a block
+     │
+  help: write it as a postfix guard
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  16 │     if customers.isEmpty /* why */ {
+     │                          ^^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 16 │     if customers.isEmpty // why
+     │    │                           +++++
+     │ 17 │      {
+     │    │ ++++
+
+note BYN1072: an early exit in a block can be a postfix guard
+
+  19 │     if /* why */ customers.isEmpty {
+     │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ an early exit in a block
+     │
+  help: write it as a postfix guard
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  19 │     if /* why */ customers.isEmpty {
+     │        ^^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 19 │     if // why
+     │    │         +++++
+     │ 20 │      customers.isEmpty {
+     │    │ ++++
+
+note BYN1073: `c => c.…` reads one member and can use `it`
+
+  22 │     let before = any(customers, by: c => /* why */ c.isActive)
+     │                                     ^^^^^^^^^^^^^^^^^^^^^^^^^ reads one member of its
+     │                                                               parameter
+     │
+  help: write `it` for the parameter
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  22 │     let before = any(customers, by: c => /* why */ c.isActive)
+     │                                          ^^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 22 │     let before = any(customers, by: c => // why
+     │    │                                           +++++
+     │ 23 │      c.isActive)
+     │    │ ++++
+
+note BYN1073: `c => c.…` reads one member and can use `it`
+
+  23 │     let after = any(customers, by: c /* q */ => c.isActive)
+     │                                    ^^^^^^^^^^^^^^^^^^^^^^^ reads one member of its parameter
+     │
+  help: write `it` for the parameter
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  23 │     let after = any(customers, by: c /* q */ => c.isActive)
+     │                                      ^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 23 │     let after = any(customers, by: c // q
+     │    │                                       +++
+     │ 24 │      => c.isActive)
+     │    │ ++++

@@ -56,10 +56,22 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
     // The C# `SortedSet<string>(StringComparer.Ordinal)`: sorted, each once.
     files.sort()
     var sorted = List<string>()
+    // A file named twice (`dup ./dup`, `. src`) is fixed once: a second copy would apply the fixes found before the first rewrote it.
+    var reals: Map<string, bool> = []
     for f in files {
         continue if sorted.length > 0 && sorted[sorted.length - 1] == f
         if Path.fileName(f) != "package.byn" {
-            sorted.append(f)
+            let real = realPath(f) catch switch {
+                // coverage-exempt: Q1106 a file that exists resolves
+                IoError e => {
+                    Io.stderr.write($"bayan: {f}: {e}\n")
+                    return exitFailure
+                }
+            }
+            unless reals.contains(real) {
+                reals[real] = true
+                sorted.append(f)
+            }
         }
     }
     // `GroupBy` the full directory, in the order a directory first appears.
@@ -83,7 +95,7 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
                 module.append(f)
             }
         }
-        fixModule(dir, for: in module, until: d.maxPasses) catch switch {
+        fixModule(dir, for: in module, until: d.maxPasses, through: ref exit) catch switch {
             IoError e => {
                 Io.stderr.write($"bayan: {dir}: {e}\n")
                 exit = exitFailure
@@ -93,24 +105,37 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
     return exit
 }
 
-/// Fixes the files of one module until no fix applies, then prints each changed file's count.
+/// Fixes the files of one module until no fix applies, then prints each changed file's count. As `bayan format`, a file with a blocking
+/// parse error is not fixed and its errors are rendered, and a pass whose fixed bytes no longer parse is abandoned for that file; either
+/// sets `exit` to 1 (the C# `false`).
 // FixCommand.cs: FixModule
-void fixModule(string dir, for in List<string> files, until i64 maxPasses)
+void fixModule(string dir, for in List<string> files, until i64 maxPasses, through ref i32 exit)
         uses alloc, clock, console, fs
         fails IoError {
     var counts = List<i64>()
+    var refused = List<bool>()
     for _ in files {
         counts.append(0)
+        refused.append(false)
     }
     for _ in 0..maxPasses {
         let typed = try typedFixes(dir)
         var changed = false
         for k in 0..files.length {
+            continue if refused[k]
             let real = try realPath(files[k])
             let bytes = try Io.readFile(real)
-            var p = t8Parser(real, from: in bytes)
+            var p = t8Parser(files[k], from: in bytes)
             let _ = parser.parseCompilationUnit(ref p)
+            let blocking = fixBlocking(in p.lexed.diagnostics)
+            if blocking.length > 0 {
+                Io.stderr.write(t8RenderAll(files[k], from: in bytes, for: in blocking))
+                refused[k] = true
+                exit = exitFailure
+                continue
+            }
             parser.lintBanners(ref p)
+            parser.keepComments(ref p)
             var fixes = List<T8Fix>()
             for lint in p.styleLints {
                 if lint.hasFix {
@@ -126,6 +151,17 @@ void fixModule(string dir, for in List<string> files, until i64 maxPasses)
             var applied: i64 = 0
             let fixedBytes = applyFixesCounting(in bytes, for: in fixes, to: ref applied)
             continue if t8SameBytes(in fixedBytes, as: in bytes)
+            var check = t8Parser(files[k], from: in fixedBytes)
+            let _ = parser.parseCompilationUnit(ref check)
+            if fixBlocking(in check.lexed.diagnostics).length > 0 {
+                // coverage-exempt: Q1122 through `rewriting it made it unparsable`
+                Io.stderr.write(
+                    $"bayan: {files[k]}: rewriting it made it unparsable, so the rewrite was abandoned and the file left unchanged\n",
+                )
+                refused[k] = true
+                exit = exitFailure
+                continue
+            }
             try writeReplacing(real, from: in fixedBytes)
             counts[k] += applied
             changed = true
@@ -139,6 +175,18 @@ void fixModule(string dir, for in List<string> files, until i64 maxPasses)
             Io.stdout.write($"fixed {files[k]} ({counts[k]})\n")
         }
     }
+}
+
+/// The tree's blocking errors: every code but an input form's. A report the parser withdrew (`unreport`, Q440) is gone from the C# bag.
+// FixCommand.cs: FixModule (its `Blocking`)
+List<T8Diagnostic> fixBlocking(in List<T8Diagnostic> diagnostics) uses alloc {
+    var blocking = List<T8Diagnostic>()
+    for d in diagnostics {
+        if !d.code.isEmpty && !inputForms(d.code) {
+            blocking.append(d)
+        }
+    }
+    return blocking
 }
 
 /// The fixes of the lints that need types (BYN1078, and BYN1080 on a local), by full path, from a compilation of the module with

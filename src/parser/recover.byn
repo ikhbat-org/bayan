@@ -421,6 +421,63 @@ void lintFunctionLength(ref Parser p, at TextSpan body) {
     )
 }
 
+/// Drops the fix of each style lint, typed or not, that would delete a comment (`dropsComment`); the lint stays.
+// Parser.cs: KeepComments
+public void keepComments(ref Parser p) uses alloc {
+    for i in 0..p.styleLints.length {
+        let lint = p.styleLints[i]
+        p.styleLints[i] = keepingComments(ref p, for: lint)
+    }
+    for i in 0..p.typedLints.length {
+        let lint = p.typedLints[i].lint
+        p.typedLints[i].lint = keepingComments(ref p, for: lint)
+        if (p.typedLints[i].otherwise is { } o) {
+            p.typedLints[i].otherwise = keepingComments(ref p, for: o)
+        }
+    }
+}
+
+// Parser.cs: KeepingComments
+Diagnostic keepingComments(ref Parser p, for Diagnostic lint) uses alloc {
+    return lint if !lint.hasFix || !dropsComment(ref p, at: lint.fixSpan, by: lint.fixReplacement)
+    return styleLintOf(lint.code, at: lint.span, by: lint.message, label: lint.label, help: lint.help)
+}
+
+/// Whether a comment lies whole inside the span a fix replaces, `span`, and the fix's `replacement` does not hold its text.
+// Parser.cs: DropsComment
+bool dropsComment(ref Parser p, at TextSpan span, by string replacement) uses alloc {
+    var i = tokenAt(ref p, at: span.start)
+    while i < p.count && (i == 0 ? 0 : p.lexed.tokens[i - 1].end) < span.end {
+        // Between two tokens there is only whitespace and comments.
+        let end = p.lexed.tokens[i].start
+        var at = i == 0 ? 0 : p.lexed.tokens[i - 1].end
+        while at + 1 < end {
+            if p.lexed.source.bytes[at] != '/'
+                    || (p.lexed.source.bytes[at + 1] != '/' && p.lexed.source.bytes[at + 1] != '*') {
+                at += 1
+                continue
+            }
+            var close = at + 2
+            if p.lexed.source.bytes[at + 1] == '/' {
+                while close < end && p.lexed.source.bytes[close] != '\n' {
+                    close += 1
+                }
+            } else {
+                while close + 1 < end
+                        && !(p.lexed.source.bytes[close] == '*' && p.lexed.source.bytes[close + 1] == '/') {
+                    close += 1
+                }
+                close = close + 2 < end ? close + 2 : end
+            }
+            return true if at >= span.start && close <= span.end
+                && !replacement.contains(p.lexed.source.getText(TextSpan.fromBounds(at, until: close)))
+            at = close
+        }
+        i += 1
+    }
+    return false
+}
+
 /// Whether token `index` continues the statement on the line before it.
 bool joinsLineBefore(ref Parser p, at i64 index) =>
     !breaksLine(ref p, at: index) || !hasBlankLineBefore(ref p, at: index) && p.kindAt(index - 1) != .openBrace

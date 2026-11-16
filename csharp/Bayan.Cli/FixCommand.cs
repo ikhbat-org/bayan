@@ -32,11 +32,13 @@ internal static class FixCommand
             if (Directory.Exists(path)) files.UnionWith(Format.BynFiles(path, stderr, ref exit, Format.RealPath(path)));
             else files.Add(path);
         }
-        foreach (var module in files.Where(f => Path.GetFileName(f) != "package.byn").GroupBy(f => Path.GetDirectoryName(Path.GetFullPath(f))!))
+        // A file named twice (`dup ./dup`, `. src`) is fixed once: a second copy would apply the fixes found before the first rewrote it.
+        var reals = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var module in files.Where(f => Path.GetFileName(f) != "package.byn" && reals.Add(Format.RealPath(f))).GroupBy(f => Path.GetDirectoryName(Path.GetFullPath(f))!))
         {
             try
             {
-                FixModule(module.Key, [.. module], stdout);
+                if (!FixModule(module.Key, [.. module], stdout, stderr)) exit = CliApp.ExitFailure;
             }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException)
             {
@@ -47,23 +49,42 @@ internal static class FixCommand
         return exit;
     }
 
-    /// <summary>Fixes the files of one module until no fix applies, then prints each changed file's count.</summary>
-    private static void FixModule(string dir, List<string> files, TextWriter stdout)
+    /// <summary>
+    /// Fixes the files of one module until no fix applies, then prints each changed file's count. As <c>bayan format</c>, a file with a
+    /// blocking parse error is not fixed and its errors are rendered, and a pass whose fixed bytes no longer parse is abandoned for that
+    /// file; false when either happened.
+    /// </summary>
+    private static bool FixModule(string dir, List<string> files, TextWriter stdout, TextWriter stderr)
     {
         var counts = files.ToDictionary(f => f, _ => 0, StringComparer.Ordinal);
+        var refused = new HashSet<string>(StringComparer.Ordinal);
+        static List<Diagnostic> Blocking(SyntaxTree tree) => [.. tree.Diagnostics.Where(d => d.IsError && !Format.InputForms.Contains(d.Code))];
         for (var pass = 0; pass < Format.MaxPasses; pass++)
         {
             var typed = TypedFixes(dir);
             var changed = false;
-            foreach (var file in files)
+            foreach (var file in files.Where(f => !refused.Contains(f)))
             {
                 var real = Format.RealPath(file);
                 var bytes = File.ReadAllBytes(real);
-                var tree = SyntaxTree.Parse(new SourceText(real, bytes));
+                var tree = SyntaxTree.Parse(new SourceText(file, bytes));
+                if (Blocking(tree) is { Count: > 0 } blocking)
+                {
+                    stderr.Write(DiagnosticRenderer.RenderAll(blocking, includePath: true));
+                    refused.Add(file);
+                    continue;
+                }
                 var fixes = tree.StyleLints.Select(d => d.Fix).Concat(typed.GetValueOrDefault(real) ?? []).OfType<Fix>().ToList();
                 if (fixes.Count == 0) continue;
                 var fixedBytes = Format.ApplyFixes(bytes, fixes, out var applied);
+                if (Format.RewriteHook is not null) fixedBytes = Format.RewriteHook(fixedBytes);
                 if (fixedBytes.AsSpan().SequenceEqual(bytes)) continue;
+                if (Blocking(SyntaxTree.Parse(new SourceText(file, fixedBytes))).Count > 0)
+                {
+                    stderr.WriteLine(Messages.FormatRewriteAbandoned.Text(file));
+                    refused.Add(file);
+                    continue;
+                }
                 Format.WriteReplacing(real, fixedBytes);
                 counts[file] += applied;
                 changed = true;
@@ -72,6 +93,7 @@ internal static class FixCommand
         }
         foreach (var (file, count) in counts.Where(c => c.Value > 0))
             stdout.WriteLine(Messages.FixFixed.Text(file, count));
+        return refused.Count == 0;
     }
 
     /// <summary>

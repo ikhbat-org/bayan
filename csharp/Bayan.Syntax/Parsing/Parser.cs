@@ -107,6 +107,7 @@ public sealed class Parser
         var root = parser.ParseCompilationUnit();
         parser.LintBanners();
         parser.LintPatterns();
+        parser.KeepComments();
         return new SyntaxTree(source, root, parser._diagnostics.Items)
         {
             Lints = parser.LintLineJoins(), StyleLints = parser._styleLints.Items, TypedLints = parser._typedLints,
@@ -418,6 +419,43 @@ public sealed class Parser
         if (lines > MaxFunctionLines)
             _styleLints.Report(DiagnosticCodes.FunctionsLength, _source, new TextSpan(body.Span.Start, 1), [lines], label: $"{lines} lines",
                 help: "split it into named steps");
+    }
+
+    /// <summary>Drops the fix of each style lint, typed or not, that would delete a comment (<see cref="DropsComment"/>); the lint stays.</summary>
+    private void KeepComments()
+    {
+        foreach (var d in _styleLints.Items.ToList()) _styleLints.Replace(d, KeepingComments(d));
+        for (var i = 0; i < _typedLints.Count; i++)
+            _typedLints[i] = _typedLints[i] with { Lint = KeepingComments(_typedLints[i].Lint), Otherwise = _typedLints[i].Otherwise is { } o ? KeepingComments(o) : null };
+    }
+
+    private Diagnostic KeepingComments(Diagnostic lint) => lint.Fix is { } fix && DropsComment(fix) ? lint with { Fix = null } : lint;
+
+    /// <summary>Whether a comment lies whole inside the span <paramref name="fix"/> replaces and the replacement does not hold its text.</summary>
+    private bool DropsComment(Fix fix)
+    {
+        var bytes = _source.Bytes.Span;
+        for (var i = TokenAt(fix.Span.Start); i < _count && (i == 0 ? 0 : _tokens[i - 1].End) < fix.Span.End; i++)
+        {
+            // Between two tokens there is only whitespace and comments.
+            var end = _tokens[i].Start;
+            for (var at = i == 0 ? 0 : _tokens[i - 1].End; at + 1 < end; at++)
+            {
+                if (bytes[at] != '/' || (bytes[at + 1] != '/' && bytes[at + 1] != '*')) continue;
+                var close = at + 2;
+                if (bytes[at + 1] == '/')
+                    while (close < end && bytes[close] != '\n') close++;
+                else
+                {
+                    while (close + 1 < end && !(bytes[close] == '*' && bytes[close + 1] == '/')) close++;
+                    close = Math.Min(close + 2, end);
+                }
+                if (at >= fix.Span.Start && close <= fix.Span.End
+                    && !fix.Replacement.Contains(_source.GetText(TextSpan.FromBounds(at, close)), StringComparison.Ordinal)) return true;
+                at = close - 1;
+            }
+        }
+        return false;
     }
 
     // ── Style lints with one-time fixes (BYN1077–BYN1080) ────────────────────────────
