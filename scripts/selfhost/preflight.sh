@@ -9,7 +9,7 @@
 #   files      every file the branch changes is in the task's files list or one the guard allows; prints the addition
 #   questions  every Question number the branch adds is new to docs/bayan-questions.md (the branch's and the base's) and inside the task's
 #              range (its task line, else $BAYAN_QRANGES or <main checkout>/tmp/q-ranges.tsv, written by wave-brief.py)
-#   tests      the classes declared in the task's tests/Bayan.Tests/*.cs and those of test-map.tsv (the smoke set always, a row when
+#   tests      the classes declared in the task's test files (csharp/tests/Bayan.Tests/, src/tests/) and those of test-map.tsv (the smoke set always, a row when
 #              the branch changes a file its glob matches) pass, each running at least one test; plan-strings-check passes (scripts/bayan-tool.sh)
 #   wp1        tmp/wp1/<sha>.out (wp1-test.sh) exists for the branch's HEAD, ends in `exit 0`, ran tests, and its filter names every class above
 # On a checkout of <branch> the working tree is checked (a writer before its commit), else the branch's commit in a temporary worktree.
@@ -45,17 +45,17 @@ if [[ $HL == *"files: "* ]]; then
   FL=$(sed -E 's/\([^()]*(\([^()]*\)[^()]*)*\)//g' <<< "$FL")
 fi
 ALLOW=(docs/bayan-questions.md docs/bayan-progress-log.md "$DIR/$TASKS"); TESTF=()
-# a brace list in a name (`selfhost/semantics/{compile,types}.byn`, 012 T18) is one name per alternative
+# a brace list in a name (`src/semantics/{compile,types}.byn`, 012 T18) is one name per alternative
 BR_RE='^([^{]*)\{([^{}]*)\}(.*)$'
 braces() { local pre post a A; if [[ $1 =~ $BR_RE ]]; then pre=${BASH_REMATCH[1]}; post=${BASH_REMATCH[3]}
   IFS=',' read -ra A <<< "${BASH_REMATCH[2]}"; for a in "${A[@]}"; do braces "$pre$a$post"; done; else echo "$1"; fi; }
 while IFS= read -r f; do
   [ -n "$f" ] || continue
   [[ $f =~ ^$SPEC-[a-z]+\.md$ ]] && f=$DIR/$f
-  if [[ $f == .github/* || $f == tests/* || $f == docs/* || $f == src/* || $f == work/* || $f == bootstrap/* || $f == scripts/* || $f =~ ^[A-Z]+\.md$ ]]; then
-    ALLOW+=("$f"); [[ $f =~ ^tests/Bayan\.Tests/[A-Za-z0-9]+Tests\.cs$ ]] && TESTF+=("$f")
-  elif [[ $f == *.byn ]]; then [[ $f == selfhost/* ]] && ALLOW+=("$f") || ALLOW+=("$BYDIR/$f")
-  elif [[ $f == *.cs ]]; then ALLOW+=("tests/Bayan.Tests/$f"); TESTF+=("tests/Bayan.Tests/$f"); fi
+  if [[ $f == .github/* || $f == tests/* || $f == docs/* || $f == csharp/* || $f == runtime/* || $f == src/tests/* || $f == work/* || $f == bootstrap/* || $f == scripts/* || $f =~ ^[A-Z]+\.md$ ]]; then
+    ALLOW+=("$f"); [[ $f =~ ^(csharp/tests/Bayan\.Tests|src/tests)/[A-Za-z0-9]+Tests\.cs$ ]] && TESTF+=("$f")
+  elif [[ $f == *.byn ]]; then [[ $f == src/* ]] && ALLOW+=("$f") || ALLOW+=("$BYDIR/$f")
+  elif [[ $f == *.cs ]]; then d=csharp/tests/Bayan.Tests; [[ $f == Selfhost* ]] && d=src/tests; ALLOW+=("$d/$f"); TESTF+=("$d/$f"); fi
 done < <(grep -oE '`[^`]+\.(byn|cs|md|c|h|diag|txt|stdout|stderr|exitcode|sha256|sh|yml|yaml)`' <<< "$FL" | tr -d '`' | while IFS= read -r x; do braces "$x"; done)
 
 CHANGED=$( { git diff --name-only "$BASE...HEAD"; git diff --name-only; git ls-files --others --exclude-standard; } | sort -u)

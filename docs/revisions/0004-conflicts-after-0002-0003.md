@@ -1,6 +1,8 @@
 # 0004 — Conflicts left after applying 0002 and 0003
 
-Status: accepted. Date: 2026-10-24. Found while applying revisions 0002 and 0003 (`chore/worker-r3-rev23`). Amends 0002 item 27 and 0003 §2 and §4.
+Status: done; accepted. Date: 2026-10-24. Found while applying revisions 0002 and 0003 (`chore/worker-r3-rev23`). Amends 0002 item 27 and 0003 §2 and §4.
+Release: 0.1.0
+Sources: revisions 0002, 0003
 
 ## Problem
 

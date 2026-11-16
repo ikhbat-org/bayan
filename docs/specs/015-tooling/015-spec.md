@@ -1,5 +1,6 @@
 # 015 — Bayān tooling: replace Python, Deno and other non-Bayān scripts
 Status: in progress (T1–T8 landed: review-brief, plan-strings-check and install-textmate ported; T9–T17 open)
+Release: unscheduled
 Created: 2026-11-02
 
 Sources: the 2026-11-02 tooling brief (filed as 015 because 014 is the `Path` module; its decisions T1–T4 and port rules are in `docs/decisions/2026-11-02-002-tooling-port-rules.md`) and
@@ -43,8 +44,8 @@ exist) and every workflow step. `scripts/cleanup/` (19 one-off scripts, written 
 | `scripts/quality/stryker_to_quality.py` | 105 | Stryker JSON → `bayan-quality` JSON | `scripts/quality/mutate.sh` |
 | `scripts/quality/cobertura_to_quality.py` | 105 | Cobertura XML → `bayan-quality` JSON | `scripts/quality/coverage.sh` |
 | `scripts/ci/known-failures.py` | 59 | failed tests in `.trx` files vs `tests/windows-known-failures.txt` | `ci.yml` (Windows) |
-| `scripts/unicode/gen-lowercase.py` | 76 | downloads `UnicodeData.txt`, regenerates the case tables in `src/runtime/bayan-rt.c` (rev 0015) | by hand |
-| inline in `scripts/selfhost/mutate-batch.sh:26` | ~60 | the group/file/filter plan: glob `selfhost/**/*.byn`, brace-expand and match task patterns, shard | `mutate-batch.sh` |
+| `scripts/unicode/gen-lowercase.py` | 76 | downloads `UnicodeData.txt`, regenerates the case tables in `runtime/bayan-rt.c` (rev 0015) | by hand |
+| inline in `scripts/selfhost/mutate-batch.sh:26` | ~60 | the group/file/filter plan: glob `src/**/*.byn`, brace-expand and match task patterns, shard | `mutate-batch.sh` |
 | inline in `scripts/selfhost/mutate-batch.sh:100` | 12 | rewrites report paths repo-relative | `mutate-batch.sh` |
 | inline in `scripts/selfhost/mutation-step.sh:25` | 1 | lists `binary<TAB>sites` from `manifest.json` | `mutation-step.sh` |
 | inline in `scripts/selfhost/guard.sh:80` | 1 | coverage-report files missing from the changed list (`realpath` over the report's paths); found by the 2026-11-08 inventory | `guard.sh` |
@@ -53,7 +54,7 @@ exist) and every workflow step. `scripts/cleanup/` (19 one-off scripts, written 
 
 | File | What it does | Runtime |
 | --- | --- | --- |
-| `scripts/plan-strings-check.js` (128) + `.test.js` (156) | plan diagnostic strings vs `src/` and `docs/diagnostics/` — **done**: ported (T4) and deleted, Deno left | Deno |
+| `scripts/plan-strings-check.js` (128) + `.test.js` (156) | plan diagnostic strings vs `csharp/` and `docs/diagnostics/` — **done**: ported (T4) and deleted, Deno left | Deno |
 | `editors/visualstudio/install-textmate.ps1` (8) | copies the TextMate grammar into `%USERPROFILE%\.vs\Extensions\bayan` | PowerShell |
 | `editors/vscode/extension.js`, `package.json`, `.vscodeignore` | the VS Code extension | VS Code's Node |
 | `docs/assets/artifact.js` | browser behaviour for generated HTML docs; synced from `~/.claude/tools/html/` | browser |

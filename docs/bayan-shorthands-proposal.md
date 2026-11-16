@@ -1,6 +1,8 @@
 # Bayān shorthand notation — proposal for the round-4 batch (final draft)
 
-Status: final draft for review. It lands in the round-4 syntax batch (one migration after 012), not as an addendum.
+Status: open; final draft for review. It lands in the round-4 syntax batch (one migration after 012), not as an addendum.
+Release: unscheduled
+Sources: Q745
 Diagnostic codes are TBD until the round-4 renumbering.
 SPEC references are to `docs/bayan-spec.md`.
 

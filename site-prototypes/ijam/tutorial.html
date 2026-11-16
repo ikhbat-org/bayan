@@ -32,7 +32,7 @@
       <p>Bayan is built from source for now. You need the .NET 10 SDK, and <code>zig</code> on your <code>PATH</code>, which the compiler uses as its C compiler.</p>
 <pre><code><span class="prompt">$ </span>git clone https://github.com/ikhbat-org/bayan
 <span class="prompt">$ </span>cd bayan
-<span class="prompt">$ </span>dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
+<span class="prompt">$ </span>dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
 <span class="prompt">$ </span>./tmp/publish/bayan --version</code></pre>
       <p>Change <code>osx-arm64</code> to your platform's runtime identifier, and put the <code>bayan</code> binary on your <code>PATH</code>. Then ask it to check its surroundings:</p>
 <pre><code><span class="prompt">$ </span>bayan doctor</code></pre>

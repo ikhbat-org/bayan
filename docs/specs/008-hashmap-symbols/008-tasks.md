@@ -1,4 +1,9 @@
 # 008 — Tasks
+
+Status: done
+Release: 0.1.0
+Sources: Q371, Q381; revisions 0002
+
 Plan: ./008-plan.md
 Depends on: feat/007-lambdas at cc96838 (dev, round 3, spec 006 and 007 merged); merges into dev after 007. Round 3 is complete there (5.1a–5.1e syntax, 5.2 `bayan format`, 5.3d effect pass, 5.4a/5.4b stdlib and particles), so no task waits on a round-3 step. Nothing from 006 or 007 is used; 007's deferred parts that 008's users would want are in the plan's Risks. Each 008 task rebases over the ones merged before it and re-runs the suite. Line numbers are dropped; locate by method name.
 

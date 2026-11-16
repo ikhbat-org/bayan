@@ -1,5 +1,9 @@
 # Bayān — Mid-flight addendum A1 (during 010–013)
 
+Status: done (addendum A1, 2026-11-01)
+Release: 0.1.0
+Sources: revision 0011
+
 Nov 1, 2026
 
 Erratum (2026-11-05): K2's example named the runtime header `bayan_rt.h`; the file in the tree is `src/runtime/bayan-rt.h` (addendum A2, `docs/revisions/a2-lessons-mid-flight.md`, Errata for A1).

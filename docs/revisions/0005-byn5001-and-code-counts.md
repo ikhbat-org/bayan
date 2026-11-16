@@ -1,6 +1,8 @@
 # 0005 — BYN5001 re-scoped; spec-only codes in the plan §7 count
 
-Status: approved 2026-10-24 (user, in session). Erratum (2026-10-24): Problem 2 and Decision 2 said 13 spec-only codes, an estimate; counted against the §4 rows it is 12, since BYN5014 is raised by the 5.4 dictionary (J84–J86). The rule is unchanged. Date: 2026-10-24. Found while applying revision 0004 (`chore/worker-r3-rev4`). Amends 0004 items 2 and 6.
+Status: done; approved 2026-10-24 (user, in session). Erratum (2026-10-24): Problem 2 and Decision 2 said 13 spec-only codes, an estimate; counted against the §4 rows it is 12, since BYN5014 is raised by the 5.4 dictionary (J84–J86). The rule is unchanged. Date: 2026-10-24. Found while applying revision 0004 (`chore/worker-r3-rev4`). Amends 0004 items 2 and 6.
+Release: 0.1.0
+Sources: user, 2026-10-24; revision 0004
 
 ## Problem
 

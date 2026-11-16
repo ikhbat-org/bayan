@@ -1,2 +1,2 @@
-selfhost/semantics/a.byn -> FullyQualifiedName~SelfhostSemanticsATests|FullyQualifiedName~SelfhostSemanticsBTests|FullyQualifiedName~SelfhostSemanticsCTests
-selfhost/semantics/c.byn -> FullyQualifiedName~SelfhostSemanticsATests|FullyQualifiedName~SelfhostSemanticsBTests|FullyQualifiedName~SelfhostSemanticsCTests
+src/semantics/a.byn -> FullyQualifiedName~SelfhostSemanticsATests|FullyQualifiedName~SelfhostSemanticsBTests|FullyQualifiedName~SelfhostSemanticsCTests
+src/semantics/c.byn -> FullyQualifiedName~SelfhostSemanticsATests|FullyQualifiedName~SelfhostSemanticsBTests|FullyQualifiedName~SelfhostSemanticsCTests

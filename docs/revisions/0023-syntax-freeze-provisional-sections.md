@@ -1,6 +1,8 @@
 # 0023 — Syntax freeze to 0.3.0, provisional sections, §13 placeholder
 
-Status: accepted (user decision 2026-11-12, "I approve any changes", after an outside review of the 2026-11-09 export)
+Status: done (accepted, user decision 2026-11-12, "I approve any changes", after an outside review of the 2026-11-09 export)
+Release: 0.3.0
+Sources: user, 2026-11-12; revisions 0019, 0020, 0022
 
 ## Problem
 

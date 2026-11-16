@@ -1,4 +1,9 @@
 # 013 — Plan
+
+Status: done
+Release: 0.1.0
+Sources: Q4, Q5; revisions 0014
+
 Spec: ./013-spec.md
 
 ## Approach

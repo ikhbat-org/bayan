@@ -1,6 +1,8 @@
 # 0020 — Versioned spec, 2026-11-04 style standard, AUDIT fixes
 
-Status: accepted (user decision 2026-11-09)
+Status: done (accepted, user decision 2026-11-09)
+Release: 0.3.0
+Sources: user, 2026-11-09; revisions 0001, 0002, 0004, 0005, 0013, 0015, 0016, 0017, 0019
 
 ## Problem
 

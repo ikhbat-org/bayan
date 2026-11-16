@@ -1,4 +1,9 @@
 # 016 — Plan
+
+Status: done
+Release: 0.3.0
+Sources: Q1, Q2, Q3, Q4
+
 Spec: ./016-spec.md
 
 ## Approach

@@ -1,5 +1,7 @@
 # Bayan: going public on GitHub
 
+Snapshot: 2026-10-20; not maintained. Current text: none
+
 Oct 20, 2026 · @Sy
 
 ## Recommendation

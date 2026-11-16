@@ -1,5 +1,7 @@
 # Sūq — friction log
 
+Snapshot: 2026-10-22; not maintained. Current text: none
+
 Places where writing Sūq against the round-3 spec read badly, needed a workaround, or hit something the spec doesn't define. Per §21 these are proposals for you to decide on, not spec changes. Code that depends on an assumption is marked with the entry number.
 
 **Status:** *Gap* means the spec is silent and I picked something. *Friction* means the spec covers it but the result reads badly. *Security* means the rules let something risky through.

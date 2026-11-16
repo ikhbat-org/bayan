@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bench/friction.sh: counts in selfhost/**/*.byn of `unsafe`, `@allow`, calls to `...Unchecked` members and
+# bench/friction.sh: counts in src/**/*.byn of `unsafe`, `@allow`, calls to `...Unchecked` members and
 # `@unformatted` (occurrences on lines that are not comment-only), and of the BYN50xx diagnostics the bayan
 # compiler reports on the self-hosted sources (each carries a fix). Writes bench/results/<commit>-friction.txt.
 # Feeds the round-4 reevaluation of particles and naming rules. Not a CI gate.
@@ -7,7 +7,7 @@
 #     bash bench/friction.sh
 #
 # Environment: BAYAN_BIN (default tmp/bench/publish/bayan, published on demand), BENCH_TMP (default tmp/bench),
-# BENCH_RESULTS (default bench/results), FRICTION_SRC (default selfhost; a directory of *.byn to count in).
+# BENCH_RESULTS (default bench/results), FRICTION_SRC (default src; a directory of *.byn to count in).
 set -u
 
 usage() { echo "usage: bash bench/friction.sh   (environment: BAYAN_BIN, BENCH_TMP, BENCH_RESULTS, FRICTION_SRC)" >&2; }
@@ -22,7 +22,7 @@ cd "$root" || exit 1
 . bench/rid.sh
 T=${BENCH_TMP:-tmp/bench}
 results=${BENCH_RESULTS:-bench/results}
-src=${FRICTION_SRC:-selfhost}
+src=${FRICTION_SRC:-src}
 commit=$(git rev-parse --short HEAD 2>/dev/null || echo nogit)
 W="$T/friction-$commit-$$"
 mkdir -p "$W" "$results"
@@ -30,7 +30,7 @@ mkdir -p "$W" "$results"
 
 bayan=${BAYAN_BIN:-$T/publish/$(bench_exe "$(uname -s)")}
 if [ ! -x "$bayan" ] && [ -z "${BAYAN_BIN:-}" ] && command -v dotnet >/dev/null 2>&1 && rid=$(bench_rid "$(uname -s)" "$(uname -m)"); then
-    dotnet publish src/Bayan.Cli -c Release -r "$rid" -o "$T/publish" >"$W/publish.log" 2>&1
+    dotnet publish csharp/Bayan.Cli -c Release -r "$rid" -o "$T/publish" >"$W/publish.log" 2>&1
 fi
 if [ ! -x "$bayan" ] && [ -z "${BAYAN_BIN:-}" ] && ! bench_rid "$(uname -s)" "$(uname -m)" >/dev/null; then
     echo "bench/friction.sh: no runtime identifier for $(uname -s)-$(uname -m); set BAYAN_BIN" >&2; exit 1
@@ -43,8 +43,8 @@ count() { grep -rh --include='*.byn' -E "$1" "$src" | grep -v '^[[:space:]]*//' 
 
 # The compiler's package layout (see bench/baseline.sh): semantics as entry module, parser and lexer beside it.
 mkdir -p "$W/sh/src/app"
-cp selfhost/semantics/*.byn "$W/sh/src/app/"
-cp -R selfhost/parser selfhost/lexer "$W/sh/src/"
+cp src/semantics/*.byn "$W/sh/src/app/"
+cp -R src/parser src/lexer "$W/sh/src/"
 cat > "$W/sh/package.byn" <<'PKG'
 Package {
     name: "local/bench-selfhost",

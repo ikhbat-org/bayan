@@ -1,5 +1,9 @@
 # A2: Lessons, mid-flight (during 011–012)
 
+Status: done (addendum A2, 2026-11-05)
+Release: 0.2.0
+Sources: addendum A1 (revision 0016)
+
 Date: 2026-11-05. Follows addendum A1.
 
 ## Ground rules (same as A1)

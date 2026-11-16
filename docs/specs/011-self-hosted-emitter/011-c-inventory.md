@@ -1,30 +1,34 @@
 # 011 K2 inventory: compiler extensions in the emitted C
 
-R4. Every hit of the token regex in `tests/Bayan.Tests/CInventoryTests.cs` is one row of the table below, and every row has a hit; the test fails on either gap. Scope: `src/runtime/bayan-rt.{h,c}` as C, `src/Bayan.Backend.C/CEmitter.cs` and `selfhost/emitter/cprint/*.byn` over their string literals only (interpolation holes removed; Q828). An `__attribute__((a, b))` list is one row per item. `alloca` and the other regex tokens without a row have no use. A site is a file and an anchor (Q1040): a quoted fragment that must match exactly one line of the file, the line of the hit; an anchor that matches no line or more than one is a test failure naming it, and a moved line is not.
+Status: done
+Release: 0.2.0
+Sources: Q7, Q828, Q1040
+
+R4. Every hit of the token regex in `csharp/tests/Bayan.Tests/CInventoryTests.cs` is one row of the table below, and every row has a hit; the test fails on either gap. Scope: `runtime/bayan-rt.{h,c}` as C, `csharp/Bayan.Backend.C/CEmitter.cs` and `src/emitter/cprint/*.byn` over their string literals only (interpolation holes removed; Q828). An `__attribute__((a, b))` list is one row per item. `alloca` and the other regex tokens without a row have no use. A site is a file and an anchor (Q1040): a quoted fragment that must match exactly one line of the file, the line of the hit; an anchor that matches no line or more than one is a test failure naming it, and a moved line is not.
 
 | Site | Token | Why it is needed |
 |---|---|---|
-| src/runtime/bayan-rt.h `#define BYN_NORETURN __attribute__` | `__attribute__((noreturn))` | Marks `BYN_NORETURN` panics so the compiler drops dead code after them. C11 replacement: `_Noreturn`. |
-| src/runtime/bayan-rt.h `#define BYN_COLD __attribute__` | `__attribute__((cold))` | Marks `BYN_COLD` failure paths unlikely. C11 replacement: none needed, drop it (hint only). |
-| src/runtime/bayan-rt.h `#define BYN_UNLIKELY(x) __builtin_expect` | `__builtin_expect` | `BYN_UNLIKELY` branch hint. C11 replacement: none needed, `#define BYN_UNLIKELY(x) (x)`. |
-| src/runtime/bayan-rt.h `BYN_UNLIKELY(__builtin_add_overflow(a, b, &r)` | `__builtin_add_overflow` | Checked `+` traps on overflow. C11 replacement: range test before the add in unsigned arithmetic. |
-| src/runtime/bayan-rt.h `BYN_UNLIKELY(__builtin_sub_overflow(a, b, &r)` | `__builtin_sub_overflow` | Checked `-` traps on overflow. C11 replacement: range test before the subtract. |
-| src/runtime/bayan-rt.h `BYN_UNLIKELY(__builtin_mul_overflow(a, b, &r)` | `__builtin_mul_overflow` | Checked `*` traps on overflow. C11 replacement: division-based range test or a wider type. |
-| src/runtime/bayan-rt.h `BYN_UNLIKELY(__builtin_sub_overflow((T)0, a, &r)` | `__builtin_sub_overflow` | Checked negation as `0 - a`. C11 replacement: `a == MIN` test. |
-| src/runtime/bayan-rt.h `if (!__builtin_add_overflow(a, b, &r))` | `__builtin_add_overflow` | Saturating `+` needs the overflow flag. C11 replacement: as the checked `+` row. |
-| src/runtime/bayan-rt.h `if (!__builtin_sub_overflow(a, b, &r))` | `__builtin_sub_overflow` | Saturating `-` needs the overflow flag. C11 replacement: as the checked `-` row. |
-| src/runtime/bayan-rt.h `if (!__builtin_mul_overflow(a, b, &r))` | `__builtin_mul_overflow` | Saturating `*` needs the overflow flag. C11 replacement: as the checked `*` row. |
-| src/runtime/bayan-rt.c `if (__builtin_mul_overflow(byn_str_count(s, x)` | `__builtin_mul_overflow` | `replaced` panics when its length overflows. C11 replacement: as the checked `*` row. |
-| src/runtime/bayan-rt.c `if (__builtin_mul_overflow(byn_str_count(s, x)` | `__builtin_add_overflow` | `replaced` panics when its length overflows. C11 replacement: as the checked `+` row. |
-| src/runtime/bayan-rt.c `__builtin_mul_overflow(n - 1, sep.len, &len)` | `__builtin_mul_overflow` | `joined` panics when its length overflows. C11 replacement: as the checked `*` row. |
-| src/runtime/bayan-rt.c `__builtin_add_overflow(len, xs[i].len, &len)` | `__builtin_add_overflow` | `joined` panics when its length overflows. C11 replacement: as the checked `+` row. |
-| src/runtime/bayan-rt.c `__builtin_mul_overflow(grown, elem_size, &bytes)` | `__builtin_mul_overflow` | `byn_list_reserve` panics when the byte size overflows. C11 replacement: as the checked `*` row. |
-| src/Bayan.Backend.C/CEmitter.cs `"NULL", "asm", "typeof"` | `asm` | In the reserved-identifier list; reserved word, not a use; no replacement needed. |
-| src/Bayan.Backend.C/CEmitter.cs `"NULL", "asm", "typeof"` | `typeof` | In the reserved-identifier list; reserved word, not a use; no replacement needed. |
-| selfhost/emitter/cprint/cctx.byn `"NULL", "asm", "typeof"` | `asm` | Port of the `CEmitter.cs` reserved-identifier list; reserved word, not a use; no replacement needed. |
-| selfhost/emitter/cprint/cctx.byn `"NULL", "asm", "typeof"` | `typeof` | Port of the `CEmitter.cs` reserved-identifier list; reserved word, not a use; no replacement needed. |
-| src/Bayan.Backend.C/CEmitter.cs `static __attribute__((unused)) void byn_w_error` | `__attribute__((unused))` | Emitted on `byn_w_error` so an unused static does not warn. C11 replacement: `(void)byn_w_error;` or drop it. |
-| selfhost/emitter/cprint/program.byn `static __attribute__((unused)) void byn_w_error` | `__attribute__((unused))` | Port of the `CEmitter.cs` `__attribute__((unused))` on `byn_w_error`; same C11 replacement. |
+| runtime/bayan-rt.h `#define BYN_NORETURN __attribute__` | `__attribute__((noreturn))` | Marks `BYN_NORETURN` panics so the compiler drops dead code after them. C11 replacement: `_Noreturn`. |
+| runtime/bayan-rt.h `#define BYN_COLD __attribute__` | `__attribute__((cold))` | Marks `BYN_COLD` failure paths unlikely. C11 replacement: none needed, drop it (hint only). |
+| runtime/bayan-rt.h `#define BYN_UNLIKELY(x) __builtin_expect` | `__builtin_expect` | `BYN_UNLIKELY` branch hint. C11 replacement: none needed, `#define BYN_UNLIKELY(x) (x)`. |
+| runtime/bayan-rt.h `BYN_UNLIKELY(__builtin_add_overflow(a, b, &r)` | `__builtin_add_overflow` | Checked `+` traps on overflow. C11 replacement: range test before the add in unsigned arithmetic. |
+| runtime/bayan-rt.h `BYN_UNLIKELY(__builtin_sub_overflow(a, b, &r)` | `__builtin_sub_overflow` | Checked `-` traps on overflow. C11 replacement: range test before the subtract. |
+| runtime/bayan-rt.h `BYN_UNLIKELY(__builtin_mul_overflow(a, b, &r)` | `__builtin_mul_overflow` | Checked `*` traps on overflow. C11 replacement: division-based range test or a wider type. |
+| runtime/bayan-rt.h `BYN_UNLIKELY(__builtin_sub_overflow((T)0, a, &r)` | `__builtin_sub_overflow` | Checked negation as `0 - a`. C11 replacement: `a == MIN` test. |
+| runtime/bayan-rt.h `if (!__builtin_add_overflow(a, b, &r))` | `__builtin_add_overflow` | Saturating `+` needs the overflow flag. C11 replacement: as the checked `+` row. |
+| runtime/bayan-rt.h `if (!__builtin_sub_overflow(a, b, &r))` | `__builtin_sub_overflow` | Saturating `-` needs the overflow flag. C11 replacement: as the checked `-` row. |
+| runtime/bayan-rt.h `if (!__builtin_mul_overflow(a, b, &r))` | `__builtin_mul_overflow` | Saturating `*` needs the overflow flag. C11 replacement: as the checked `*` row. |
+| runtime/bayan-rt.c `if (__builtin_mul_overflow(byn_str_count(s, x)` | `__builtin_mul_overflow` | `replaced` panics when its length overflows. C11 replacement: as the checked `*` row. |
+| runtime/bayan-rt.c `if (__builtin_mul_overflow(byn_str_count(s, x)` | `__builtin_add_overflow` | `replaced` panics when its length overflows. C11 replacement: as the checked `+` row. |
+| runtime/bayan-rt.c `__builtin_mul_overflow(n - 1, sep.len, &len)` | `__builtin_mul_overflow` | `joined` panics when its length overflows. C11 replacement: as the checked `*` row. |
+| runtime/bayan-rt.c `__builtin_add_overflow(len, xs[i].len, &len)` | `__builtin_add_overflow` | `joined` panics when its length overflows. C11 replacement: as the checked `+` row. |
+| runtime/bayan-rt.c `__builtin_mul_overflow(grown, elem_size, &bytes)` | `__builtin_mul_overflow` | `byn_list_reserve` panics when the byte size overflows. C11 replacement: as the checked `*` row. |
+| csharp/Bayan.Backend.C/CEmitter.cs `"NULL", "asm", "typeof"` | `asm` | In the reserved-identifier list; reserved word, not a use; no replacement needed. |
+| csharp/Bayan.Backend.C/CEmitter.cs `"NULL", "asm", "typeof"` | `typeof` | In the reserved-identifier list; reserved word, not a use; no replacement needed. |
+| src/emitter/cprint/cctx.byn `"NULL", "asm", "typeof"` | `asm` | Port of the `CEmitter.cs` reserved-identifier list; reserved word, not a use; no replacement needed. |
+| src/emitter/cprint/cctx.byn `"NULL", "asm", "typeof"` | `typeof` | Port of the `CEmitter.cs` reserved-identifier list; reserved word, not a use; no replacement needed. |
+| csharp/Bayan.Backend.C/CEmitter.cs `static __attribute__((unused)) void byn_w_error` | `__attribute__((unused))` | Emitted on `byn_w_error` so an unused static does not warn. C11 replacement: `(void)byn_w_error;` or drop it. |
+| src/emitter/cprint/program.byn `static __attribute__((unused)) void byn_w_error` | `__attribute__((unused))` | Port of the `CEmitter.cs` `__attribute__((unused))` on `byn_w_error`; same C11 replacement. |
 
 ## Platform guards (not extensions, not checked by the regex)
 

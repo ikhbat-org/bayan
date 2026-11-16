@@ -37,7 +37,7 @@
       <p>The v0.1 compiler is built from source. It needs the .NET 10 SDK, and <code>zig</code> on your <code>PATH</code> to turn the generated C into an executable.</p>
 <pre><code>git clone https://github.com/ikhbat-org/bayan
 cd bayan
-dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
+dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
 ./tmp/publish/bayan --version</code></pre>
       <p>Use your own runtime identifier in place of <code>osx-arm64</code>. Then run <code>bayan doctor</code>: it checks the C compiler, zig, git and the build cache, and says how to fix what is missing.</p>
     </li>
