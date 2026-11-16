@@ -233632,57 +233632,65 @@ bool byn_main__LayoutEngine__callLike(bynt_main__LayoutEngine* self, int64_t p_i
 
 bool byn_main__LayoutEngine__spacedColon(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_depth = {0};
-    int64_t l1_k = {0};
-    byn_lexer_TokenKind l2_at = {0};
+    bool l1_pastComma = {0};
+    int64_t l2_k = {0};
+    byn_lexer_TokenKind l3_at = {0};
 #line 2539 "driver/layout.byn"
     l0_depth = INT64_C(0);
-#line 2540 "driver/layout.byn"
-    l1_k = byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2540);
 #line 2541 "driver/layout.byn"
+    l1_pastComma = false;
+#line 2542 "driver/layout.byn"
+    l2_k = byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2542);
+#line 2543 "driver/layout.byn"
     for (;;) {
-#line 2541 "driver/layout.byn"
-        if ((!(l1_k >= INT64_C(0)))) {
-#line 2541 "driver/layout.byn"
+#line 2543 "driver/layout.byn"
+        if ((!(l2_k >= INT64_C(0)))) {
+#line 2543 "driver/layout.byn"
             goto break_1;
         }
-#line 2542 "driver/layout.byn"
-        l2_at = byn_main__LayoutEngine__kind(&(*self), l1_k);
-#line 2543 "driver/layout.byn"
-        if (((((l2_at == ((byn_lexer_TokenKind)16)) || (l2_at == ((byn_lexer_TokenKind)18))) || (l2_at == ((byn_lexer_TokenKind)20))) || (l2_at == ((byn_lexer_TokenKind)13)))) {
 #line 2544 "driver/layout.byn"
-            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_99, 2544);
-        } else {
+        l3_at = byn_main__LayoutEngine__kind(&(*self), l2_k);
 #line 2545 "driver/layout.byn"
-            if (((((l2_at == ((byn_lexer_TokenKind)15)) || (l2_at == ((byn_lexer_TokenKind)17))) || (l2_at == ((byn_lexer_TokenKind)19))) || (l2_at == ((byn_lexer_TokenKind)12)))) {
+        if (((l3_at == ((byn_lexer_TokenKind)22)) && (l0_depth == INT64_C(0)))) {
+#line 2545 "driver/layout.byn"
+            l1_pastComma = true;
+        }
 #line 2546 "driver/layout.byn"
+        if (((((l3_at == ((byn_lexer_TokenKind)16)) || (l3_at == ((byn_lexer_TokenKind)18))) || (l3_at == ((byn_lexer_TokenKind)20))) || (l3_at == ((byn_lexer_TokenKind)13)))) {
+#line 2547 "driver/layout.byn"
+            l0_depth = byn_add_i64(l0_depth, INT64_C(1), byn_file_99, 2547);
+        } else {
+#line 2548 "driver/layout.byn"
+            if (((((l3_at == ((byn_lexer_TokenKind)15)) || (l3_at == ((byn_lexer_TokenKind)17))) || (l3_at == ((byn_lexer_TokenKind)19))) || (l3_at == ((byn_lexer_TokenKind)12)))) {
+#line 2549 "driver/layout.byn"
                 if ((l0_depth == INT64_C(0))) {
-#line 2546 "driver/layout.byn"
+#line 2549 "driver/layout.byn"
                     return false;
                 }
-#line 2547 "driver/layout.byn"
-                l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_99, 2547);
+#line 2550 "driver/layout.byn"
+                l0_depth = byn_sub_i64(l0_depth, INT64_C(1), byn_file_99, 2550);
             } else {
-#line 2548 "driver/layout.byn"
-                if (((l0_depth == INT64_C(0)) && (((((l2_at == ((byn_lexer_TokenKind)72)) || (l2_at == ((byn_lexer_TokenKind)79))) || (l2_at == ((byn_lexer_TokenKind)81))) || ((l2_at == ((byn_lexer_TokenKind)27)) && byn_main__LayoutEngine__trivia(&(*self), l1_k))) || ((l2_at == ((byn_lexer_TokenKind)1)) && byn_main__LayoutEngine__textIs(&(*self), l1_k, BYN_STR("where", 5)))))) {
-#line 2553 "driver/layout.byn"
+#line 2551 "driver/layout.byn"
+                if (((l0_depth == INT64_C(0)) && (((((l3_at == ((byn_lexer_TokenKind)72)) || (l3_at == ((byn_lexer_TokenKind)79))) || (l3_at == ((byn_lexer_TokenKind)81))) || (((l3_at == ((byn_lexer_TokenKind)27)) && byn_main__LayoutEngine__trivia(&(*self), l2_k)) && (!l1_pastComma))) || ((l3_at == ((byn_lexer_TokenKind)1)) && byn_main__LayoutEngine__textIs(&(*self), l2_k, BYN_STR("where", 5)))))) {
+#line 2554 "driver/layout.byn"
                     return true;
                 }
             }
         }
-#line 2556 "driver/layout.byn"
-        if ((((*bynh_at_list_bool((*self).lineStart, (int64_t)l1_k, false, byn_file_99, 2556)) && (l0_depth == INT64_C(0))) && (!byn_main__LayoutEngine__isWasl(&(*self), l1_k)))) {
-#line 2556 "driver/layout.byn"
+#line 2557 "driver/layout.byn"
+        if ((((*bynh_at_list_bool((*self).lineStart, (int64_t)l2_k, false, byn_file_99, 2557)) && (l0_depth == INT64_C(0))) && (!byn_main__LayoutEngine__isWasl(&(*self), l2_k)))) {
+#line 2557 "driver/layout.byn"
             return false;
         }
-#line 2557 "driver/layout.byn"
-        l1_k = byn_sub_i64(l1_k, INT64_C(1), byn_file_99, 2557);
+#line 2558 "driver/layout.byn"
+        l2_k = byn_sub_i64(l2_k, INT64_C(1), byn_file_99, 2558);
     continue_2:;
     }
 break_1:;
-#line 2559 "driver/layout.byn"
+#line 2560 "driver/layout.byn"
     return false;
 }
-#line 233686 "main.c"
+#line 233694 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};
