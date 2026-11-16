@@ -24,7 +24,7 @@ These docs replace the former v0.1 work plan and its two addenda (split 2026-11-
 
 A bootstrap compiler, written in **C# on .NET 10, published with NativeAOT**, that compiles a useful subset of Bayan to C and then to a native executable via `zig cc`.
 
-**Exit criterion:** `bayan run examples/hello/main.byn` prints `Hello, world!`, and `bayan test examples/tally-lite` passes (a reduced version of the tally example, defined in M8).
+**Exit criterion:** `bayan run examples/hello/main.byn` prints `Salam, world!`, and `bayan test examples/tally-lite` passes (a reduced version of the tally example, defined in M8).
 
 The bootstrap compiler is temporary: Bayan will eventually self-host. Optimize for clarity and correctness first, then speed.
 
