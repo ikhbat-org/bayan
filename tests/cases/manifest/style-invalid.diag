@@ -29,7 +29,8 @@ error BYN3102: `style.trailingCommas` must be `.multiline` or `.never`, not `tru
      │                         ^^^^
 
 error BYN3102: `style.lints` must be a known lint name: `guards.postfix`, `lambdas.it`,
-`nesting.depth`, `functions.length`, `conditions.named`
+`nesting.depth`, `functions.length`, `conditions.named`, `sections.banner`, `conditions.patterns`,
+`literals.empty`, `optionals.bind`
 
   11 │         lints: ["guards.prefix": .warning, "lambdas.it": .loud],
      │                 ^^^^^^^^^^^^^^^

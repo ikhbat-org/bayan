@@ -38,6 +38,24 @@ Each row reverts one rule in `csharp/Bayan.Cli/Layout.cs` (line numbers from the
 
 The same filter on the restored `Layout.cs`: 1396 passed, 0 failed (Total: 1396).
 
+## T7b
+
+Each row breaks one line, runs the narrowest test filter, then restores the file from a backup and checks it with `cmp`.
+
+| test | change | result |
+|---|---|---|
+| b1 `sections.banner` column | `Parser.cs` `BannerColumn = 80` to `79` | caught: `DiagGolden(style-sections-banner)` |
+| b2 `conditions.patterns` range order | `Parser.cs` dropped `lo.Value <= hi.Value` from the range check | caught: `DiagGolden(style-conditions-patterns)`, `FixGivesTheFixedRunCase(conditions-patterns)` |
+| b3 `literals.empty` fix text | `Parser.cs` `(callee.Span, "[]")` to `(callee.Span, "{}")` | caught: `DiagGolden(style-literals-empty)`, `FixClearsItsLintAndIsIdempotent(style-literals-empty)`, `FixKeepsTheSameC(style-literals-empty)` |
+| b4 `optionals.bind` exit form | `Parser.cs` `var head = simple ?` to `var head = true ?` (always `?? exit`) | caught: `DiagGolden(style-optionals-bind)`, `FixGivesTheFixedRunCase(optionals-bind)` |
+| b5 `optionals.bind` local form, rename | `Parser.cs` `NarrowLint` appends `bind.Name` instead of `x` | caught: `DiagGolden(style-optionals-bind)`, `FixClearsItsLintAndIsIdempotent(style-optionals-bind)`, `FixGivesTheFixedRunCase(optionals-bind)` |
+| b6 `optionals.bind` local form, type check | `Compilation.cs` `NarrowableLocal` accepts any local kind (`true \|\|`) | caught: `DiagGolden(style-optionals-bind)`, `FixClearsItsLintAndIsIdempotent(style-optionals-bind)`, `FixGivesTheFixedRunCase(optionals-bind)` |
+| b7 `NoteLintOperand` on `is` | `BinderExpressions.cs` removed `_c.NoteLintOperand(i.Value, value)` | caught: `DiagGolden(style-optionals-bind)`, `FixGivesTheFixedRunCase(optionals-bind)` |
+| b10 `NoteLintOperand` on a binary left | `BinderExpressions.cs` removed `_c.NoteLintOperand(b.Left, left)` | caught: `DiagGolden(style-conditions-patterns)`, `FixClearsItsLintAndIsIdempotent(style-conditions-patterns)`, `FixGivesTheFixedRunCase(conditions-patterns)`, `FixDoesNotFormat` |
+| b8 `bayan fix` repeats until stable | `FixCommand.cs` `pass < Format.MaxPasses` to `pass < 1` | caught: `FixClearsItsLintAndIsIdempotent(style-optionals-bind)`, `FixGivesTheFixedRunCase(optionals-bind)` (the BYN1072 follow-on fixes need a second pass) |
+| b9 `check --package` reads the package's `lints` | `CliApp.cs` `StyleLintsAt(manifest ?? lintManifest)` to `StyleLintsAt(manifest)` | caught: `CheckPackageReadsTheRootsLints` |
+| b11 `bayan fix` on a missing path exits 2 | `FixCommand.cs` the not-found branch returns `CliApp.ExitFailure` instead of `CliApp.ExitUsage` | caught: `CliTests.FixOfAMissingPathExits2LikeFormat` |
+| b12 `conditions.patterns` takes relational terms in `\|\|` groups | `Parser.cs` `PatternItem` relational branch disabled (`if (false && relational && ...)`) | caught: `DiagTests.DiagGolden(diag/style-conditions-patterns.byn)`, `FormatTests.FixGivesTheFixedRunCase(conditions-patterns)` |
 ## T8
 
 Each row reverts one ported rule in `src/driver/layout.byn` (line numbers from the restored file) after `cp` to `tmp/t8-bt/<id>.bak`, runs `dotnet test csharp/tests/Bayan.Tests -v q --filter "FullyQualifiedName~SelfhostDriverStage2FormatTests.LayoutInputsFormatAsCliApp"` (38 rows: LayoutTests.cs and FormatTests.cs, 19 styles each, stage 2 against the C#), and restores the file with `cp` (`cmp` clean after every row). The scripts and logs are in `tmp/t8-bt/` (`run.sh`, `<id>.log`). `Layout-n` is the row `(file: "LayoutTests.cs", style: n)`, and `Format-n` is the FormatTests.cs row. "First diverging input" is the first case file that stage 2 formats and the C# leaves alone, or the reverse.

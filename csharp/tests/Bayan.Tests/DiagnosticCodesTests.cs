@@ -85,6 +85,10 @@ public sealed class DiagnosticCodesTests
         ["BYN1074"] = "style lint: kept out of Diagnostics, reported by `bayan check`; tests/cases/diag/style-* cover it",
         ["BYN1075"] = "style lint: kept out of Diagnostics, reported by `bayan check`; tests/cases/diag/style-* cover it",
         ["BYN1076"] = "style lint: off by default and kept out of Diagnostics; tests/cases/diag/style-functions-length-* cover it",
+        ["BYN1077"] = "style lint: kept out of Diagnostics, reported by `bayan check`; tests/cases/diag/style-* cover it",
+        ["BYN1078"] = "style lint: kept out of Diagnostics, reported by `bayan check`; tests/cases/diag/style-* cover it",
+        ["BYN1079"] = "style lint: kept out of Diagnostics, reported by `bayan check`; tests/cases/diag/style-* cover it",
+        ["BYN1080"] = "style lint: kept out of Diagnostics, reported by `bayan check`; tests/cases/diag/style-* cover it",
         ["BYN2015"] = "multi-file: the module's file is imported elsewhere",
         ["BYN2026"] = "retired: the example now reports BYN1017 and BYN1018",
         ["BYN2033"] = "multi-file: needs a std module, and no shipped one imports a package module",
@@ -113,7 +117,7 @@ public sealed class DiagnosticCodesTests
     // Skipped docs whose example is not compilable text, or that have no example block (the rest must still fail to report their own code).
     private static readonly HashSet<string> StructuralExamples =
     [
-        "BYN0001", "BYN0005", "BYN0015", "BYN0016", "BYN1072", "BYN1073", "BYN1074", "BYN1075", "BYN1076", "BYN2005", "BYN2010", "BYN2015", "BYN2033",
+        "BYN0001", "BYN0005", "BYN0015", "BYN0016", "BYN1072", "BYN1073", "BYN1074", "BYN1075", "BYN1076", "BYN1077", "BYN1078", "BYN1079", "BYN1080", "BYN2005", "BYN2010", "BYN2015", "BYN2033",
         "BYN3100", "BYN3101", "BYN3102", "BYN3103", "BYN3104", "BYN3213", "BYN3215", "BYN3217", "BYN4001", "BYN4002", "BYN6004",
     ];
 

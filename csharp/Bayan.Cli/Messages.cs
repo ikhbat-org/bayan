@@ -57,6 +57,8 @@ public static class Messages
           cache stats          show the shared build cache's location and size
           format <path>        rewrite input forms (those with a fix-it) in a `.byn` file or a directory of them,
                                and booleans and primitives to `style` in `package.byn` [--check: list, don't write]
+          fix [<path>…]        apply every style lint's fix (whatever its severity in `lints`) to `.byn` files
+                               or directories of them (default: the current directory); does not format
           audit <path>         list every `because` bypass and `unsafe` or `extern` declaration, with its reason
           features --used <path>
                                print the syntax node kinds, builtins and diagnostics a build touched, as JSON
@@ -112,6 +114,7 @@ public static class Messages
     public static readonly Message FormatRewriteAbandoned = Register("format.rewrite-abandoned", "bayan: {0}: rewriting it made it unparsable, so the rewrite was abandoned and the file left unchanged");
     public static readonly Message FormatLayoutSkipped = Register("format.layout-skipped", "bayan format: layout skipped for {0}: {1}");
     public static readonly Message FormatIoError = Register("format.io-error", "bayan: {0}: {1}");
+    public static readonly Message FixFixed = Register("fix.fixed", "fixed {0} ({1})");
     public static readonly Message CommandUsage = Register("usage.command", "usage: {0}");
 
     // ── audit ────────────────────────────────────────────────────────────────────────

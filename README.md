@@ -126,7 +126,7 @@ it in more detail, for example `bayan explain BYN1043`.
 
 ## Where to go next
 
-- `bayan --help` lists every command: `build`, `run`, `test`, `format`, `check`, `dist` and more.
+- `bayan --help` lists every command: `build`, `run`, `test`, `format`, `fix`, `check`, `dist` and more.
 - [`docs/bayan-spec.md`](docs/bayan-spec.md) is the language specification, the full reference.
 - [`docs/bayan-style.md`](docs/bayan-style.md) and [`docs/bayan-grammar.md`](docs/bayan-grammar.md) cover
   naming and style.
