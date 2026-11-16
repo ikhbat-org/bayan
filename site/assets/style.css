@@ -69,6 +69,7 @@ ul.dots li::before { content: ""; position: absolute; left: .2rem; top: .6em; wi
 .brand { display: flex; align-items: center; gap: .9rem; color: var(--ink); text-decoration: none; }
 .brand img { height: 3rem; width: auto; display: block; }
 .brand [lang="ar"] { font-size: 1.75rem; line-height: 1; color: var(--ink); }
+.site-head .version { margin-right: auto; font-family: var(--sans); font-size: .85rem; color: var(--ink-soft); }
 .site-head nav { display: flex; gap: 1.75rem; font-family: var(--sans); font-size: .95rem; }
 .site-head nav a { color: var(--ink); text-decoration: none; padding: .25rem 0; border-bottom: 2px solid transparent; }
 .site-head nav a:hover, .site-head nav a[aria-current] { border-bottom-color: var(--gold); }
