@@ -81,6 +81,13 @@ echo "== 4. stray scratch outside the repo"
 for f in /tmp/x /tmp/t8b-gate.log; do
     if [ -e "$f" ]; then run rm -f "$f"; else printf "skip:  %s is gone\n" "$f"; fi
 done
+if [ -e /tmp/gate-sm2 ]; then run rm -rf /tmp/gate-sm2; else printf "skip:  %s is gone\n" /tmp/gate-sm2; fi
+
+echo "== 5. scratch in the repo's tmp/ (ignored files moved out of writer worktrees before land)"
+for d in manifesto-site-ignored sabk-verify; do
+    dir="$common/tmp/$d"
+    if [ -e "$dir" ]; then run rm -rf "$dir"; else printf "skip:  %s is gone\n" "$dir"; fi
+done
 
 echo "== remaining"
 git -C "$common" worktree list | grep -E 'worker-s022|readme-examples' || echo "no 022 or README worktrees left"
