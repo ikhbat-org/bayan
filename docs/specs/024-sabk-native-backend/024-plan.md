@@ -1,5 +1,8 @@
 # 024 — Plan
 Spec: ./024-spec.md
+Status: draft
+Release: unscheduled
+Sources: ./024-spec.md; an independent Fable review of this plan (2026-11-16), applied
 
 ## Approach
 Sabk lives in its own directory, `src/sabk/`, as Bayān modules with `*.test.byn` unit tests run by `bayan test --package src src/sabk`; `src/sabk` imports every submodule, so that one command reaches all of them. Nothing in `src/driver/` or `src/emitter/` imports it in phase 1, so the driver's C (`bootstrap/bayan.c`), every golden case and every law stay byte-identical (spec goal 3). Phase 2 adds the import and `--backend native`.
