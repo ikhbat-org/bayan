@@ -6,6 +6,6 @@ let list = [
 ]
 let size = "abc"
     .length
-let ok = total > 1 and
+let ok = total > 1 &&
     size > 1
 print($"{total} {list.length} {size} {ok}")

@@ -5,12 +5,14 @@ union Outcome {
 }
 
 string render(Outcome r) => r switch {
-    .ok(let v) => $"ok: {v}",
+    .ok(let v)       => $"ok: {v}",
     .failed(let why) => $"failed: {why}",
-    .pending => "pending",
+    .pending         => "pending",
 }
 
 void main() {
     let all: List<Outcome> = [.ok("done"), .failed("timeout"), .pending]
-    for r in all { print(render(r)) }
+    for r in all {
+        print(render(r))
+    }
 }

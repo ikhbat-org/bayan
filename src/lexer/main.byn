@@ -9,10 +9,10 @@
 // Exit 2 on a usage error or an unreadable file under `--many`/`--time`; exit 4 when the input of
 // the token dump cannot be read.
 
-const exitOk: i32 = 0
+const exitOk: i32      = 0
 const exitFailure: i32 = 1
-const exitUsage: i32 = 2
-const exitInput: i32 = 4
+const exitUsage: i32   = 2
+const exitInput: i32   = 4
 
 i32 usage(string message) {
     Io.stderr.write($"bayan-lex: {message}\nusage: bayan-lex [--json] [<path>|-] | --many <dir> | --time <path>\n")
@@ -30,7 +30,8 @@ i32 unreadable(string path) {
 }
 
 /// Lexes `path` and appends its dump (`json`: the JSON form) to `sb`; returns whether any diagnostic is an error.
-public bool dumpFile(string path, from move List<u8> bytes, by Keywords keywords, to ref StrBuf sb, bool json) uses alloc {
+public bool dumpFile(string path, from move List<u8> bytes, by Keywords keywords, to ref StrBuf sb, bool json)
+        uses alloc {
     var result = lex(SourceText.create(path, from: move bytes), by: keywords)
     if json {
         dumpJson(ref result, to: ref sb)
@@ -44,12 +45,20 @@ public bool dumpFile(string path, from move List<u8> bytes, by Keywords keywords
 void checkSpans(ref LexResult result, to ref StrBuf sb) {
     let size = result.source.bytes.length
     for token in result.tokens {
-        unless inside(TextSpan { start: token.start, length: token.length }, until: size) { sb.append($"span out of range: token {token.start}+{token.length}\n") }
-        unless inside(TextSpan { start: token.docStart, length: token.docLength }, until: size) { sb.append($"span out of range: doc {token.docStart}+{token.docLength}\n") }
+        unless inside(TextSpan { start: token.start, length: token.length }, until: size) {
+            sb.append($"span out of range: token {token.start}+{token.length}\n")
+        }
+        unless inside(TextSpan { start: token.docStart, length: token.docLength }, until: size) {
+            sb.append($"span out of range: doc {token.docStart}+{token.docLength}\n")
+        }
     }
     for d in result.diagnostics {
-        unless inside(d.span, until: size) { sb.append($"span out of range: {d.code} {d.span.start}+{d.span.length}\n") }
-        if d.hasFix && !inside(d.fixSpan, until: size) { sb.append($"span out of range: {d.code} fix {d.fixSpan.start}+{d.fixSpan.length}\n") }
+        unless inside(d.span, until: size) {
+            sb.append($"span out of range: {d.code} {d.span.start}+{d.span.length}\n")
+        }
+        if d.hasFix && !inside(d.fixSpan, until: size) {
+            sb.append($"span out of range: {d.code} fix {d.fixSpan.start}+{d.fixSpan.length}\n")
+        }
     }
 }
 
@@ -75,7 +84,9 @@ i32 lexOne(string path, by Keywords keywords, bool json) {
 i32 lexMany(string dir, by Keywords keywords) {
     let names = Io.listDir(dir) catch return usage($"cannot list `{dir}`")
     for name in names {
-        unless name.endsWith(".byn") { continue }
+        unless name.endsWith(".byn") {
+            continue
+        }
         using let arena = Arena()
         provide allocator: arena {
             let path = $"{dir}/{name}"
@@ -102,12 +113,16 @@ i32 lexTimed(string path, by Keywords keywords) {
 
 i32 main(ReadOnlySpan<string> args) {
     let keywords = Keywords.build()
-    if args.length == 0 { return lexOne("-", by: keywords, json: false) }
-    if args.length == 1 && args[0] == "--json" { return lexOne("-", by: keywords, json: true) }
-    if args.length == 1 && !args[0].startsWith("--") { return lexOne(args[0], by: keywords, json: false) }
-    if args.length == 2 && args[0] == "--json" && !args[1].startsWith("--") { return lexOne(args[1], by: keywords, json: true) }
-    if args.length == 2 && args[1] == "--json" && !args[0].startsWith("--") { return lexOne(args[0], by: keywords, json: true) }
-    if args.length == 2 && args[0] == "--many" { return lexMany(args[1], by: keywords) }
-    if args.length == 2 && args[0] == "--time" { return lexTimed(args[1], by: keywords) }
+    return lexOne("-", by: keywords, json: false) if args.length == 0
+    return lexOne("-", by: keywords, json: true) if args.length == 1 && args[0] == "--json"
+    return lexOne(args[0], by: keywords, json: false) if args.length == 1 && !args[0].startsWith("--")
+    return lexOne(args[1], by: keywords, json: true) if args.length == 2
+        && args[0] == "--json"
+        && !args[1].startsWith("--")
+    return lexOne(args[0], by: keywords, json: true) if args.length == 2
+        && args[1] == "--json"
+        && !args[0].startsWith("--")
+    return lexMany(args[1], by: keywords) if args.length == 2 && args[0] == "--many"
+    return lexTimed(args[1], by: keywords) if args.length == 2 && args[0] == "--time"
     return usage("expected `[--json] [<path>|-]`, `--many <dir>` or `--time <path>`")
 }

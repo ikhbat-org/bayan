@@ -1,6 +1,6 @@
-i64 applyTwice(i64 x, by (i64 -> i64) step) => step(step(x))
+i32 applyTwice(i32 x, by(i32 -> i32) step) => step(step(x))
 
-i64 addOne(i64 x) => x + 1
+i32 addOne(i32 x) => x + 1
 
 void main() {
     print($"{applyTwice(5, by: it * 3)}")

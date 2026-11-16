@@ -60,6 +60,29 @@ public sealed class CliTests
         Assert.Contains("z.byn:3:1", stderr);
     }
 
+    [Fact]
+    public void FixRewritesAFileAndPrintsItsCount()
+    {
+        var dir = Fresh("fix-count", "void main() {\n    let x = 2\n    print(\"y\") if x == 1 || x == 2\n}\n");
+        var file = Path.Combine(dir, "main.byn");
+        var (exit, stdout, stderr) = Run("fix", dir);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Empty(stderr);
+        Assert.Equal($"fixed {file} (1)", stdout.TrimEnd());
+        Assert.Contains("x is 1 or 2", File.ReadAllText(file));
+    }
+
+    [Fact]
+    public void FixOfAMissingPathExits2LikeFormat()
+    {
+        var missing = Path.Combine(Golden.RepoRoot, "tmp", "cli", "fix-missing", "nope.byn");
+        var (exit, stdout, stderr) = Run("fix", missing);
+        Assert.Equal(CliApp.ExitUsage, exit);
+        Assert.Empty(stdout);
+        Assert.Contains("not found", stderr);
+        Assert.Equal(Run("format", missing).Err, stderr);
+    }
+
     private static string Fresh(string name, string source)
     {
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "cli", name);

@@ -1,6 +1,6 @@
 struct Order {
     string id
-    i64 qty
+    i32    qty
 }
 
 void main() {

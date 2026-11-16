@@ -1,14 +1,14 @@
-(i64 quotient, i64 remainder) divide(i64 a, by i64 b) {
+(i32 quotient, i32 remainder) divide(i32 a, by i32 b) {
     return (a / b, a % b)
 }
 
 void main() {
     let result = divide(17, by: 5)
     print($"{result.quotient} remainder {result.remainder}")
-    let pair = (name: "Ada", age: 36)
+    let pair = (name: "Ali", age: 36)
     print($"{pair.name} is {pair.age}")
     print($"{pair}")
-    let points: List<(i64, i64)> = [(1, 2), (3, 4)]
+    let points: List<(i32, i32)> = [(1, 2), (3, 4)]
     for (x, y) in points {
         print($"{x} + {y} = {x + y}")
     }

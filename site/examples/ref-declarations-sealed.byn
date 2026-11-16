@@ -1,6 +1,7 @@
 @sealed
 struct Meter {
-    i64 n
+    i32 n
+
     void bump(ref this) {
         n += 1
     }

@@ -1,8 +1,8 @@
 # Bayān roadmap
 
-Version: 0.3.1 (matches `bayan --version`)
+Version: 0.3.2 (matches `bayan --version`)
 
-State of `dev` at 04366a4f, 2026-11-14. Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
+State of `dev` at da562b8b, 2026-11-16. This file is kept live: it is updated whenever an order or state below changes, and checked at every release (`docs/RELEASING.md`, Cutting a release; `scripts/release/cut.sh` refuses a roadmap dated before the previous release). Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
 
 Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan` you download (`CHANGELOG.md`, 0.3.0). The next goals are to drop .NET and the C# compiler's role (`docs/bayan-milestones.md`, Target: zero dependencies) and to land the tooling ports.
 
@@ -12,7 +12,8 @@ Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan`
 |---|---|---|---|---|
 | 0.1.0 | 2026-11-02 | `v0.1.0` | shipped | `CHANGELOG.md` `[0.1.0]` |
 | 0.2.0 | 2026-11-06 | `v0.2.0` | shipped | `CHANGELOG.md` `[0.2.0]` |
-| 0.3.0 | 2026-11-14 | `v0.3.0` (pending) | cut on `dev` (`VERSION` is `0.3.0`, `CHANGELOG.md` `[0.3.0]`); waits for the dev → main merge and the tag, both the user's | `VERSION`, `CHANGELOG.md` `[0.3.0]`, `docs/RELEASING.md` |
+| 0.3.0 | 2026-11-14 | `v0.3.0` | shipped | `CHANGELOG.md` `[0.3.0]` |
+| 0.3.1 | 2026-11-15 | `v0.3.1` | shipped | `CHANGELOG.md` `[0.3.1]` |
 
 ### 0.1.0: the C# compiler (M0 — Skeleton to M12 — CLI completeness and machine-readable output)
 
@@ -71,10 +72,11 @@ The order below follows the sources where they give one and the dependencies whe
 | Order | Item | State today | Source |
 |---|---|---|---|
 | 1 | Revision 0024, numeric conversions | The last syntax change admitted after the freeze. The text is not in `docs/revisions/` yet; Q1 and Q1274 are decided (a float literal `dec(0.1)` is an error with a fix-it to `0.1dec`, and a runtime `f64` in `dec(x)` is an error with a fix-it to `dec.fromF64(x, digits)`) | `docs/bayan-spec.md` line 8, `docs/decisions/2026-11-14-004-answered-questions.md` Questions 1274, `docs/plans/2026-11-12-008-release-prep-and-process.md` |
-| 2 | Plan 015, Q31 memory follow-ups | Phases A, B and D are merged into `dev`; phase C (emit arena) is deferred by the user. Left open: the LOWs below | `docs/plans/2026-11-14-015-q31-followups.md`, `docs/bayan-progress-log.md` (2026-11-14), `work/todo.md` lines 770–775, 794 |
-| 3 | Spec 019, the .NET exit | Approved 2026-11-13, not written; to be written after 0.3.0, estimate 4–7 weeks. C# test outputs become goldens, the language server moves to Bayān, CI builds from `bootstrap/bayan.c`, the C# compiler stays frozen for diverse double-compiling | `docs/bayan-milestones.md` (Target: zero dependencies) |
+| 2 | Plan 015, Q31 memory follow-ups | Phases A, B and D are merged into `dev`; phase C (emit arena) is deferred by the user. Left open: the LOWs below | `docs/plans/2026-11-14-015-q31-followups.md`, `docs/bayan-progress-log.md` (2026-11-14), `work/todo.md` lines 776–800 |
+| 3 | Spec 019, the .NET exit, in two parts | Approved 2026-11-13, not written. **019a**: C# test outputs become goldens, the language server moves to Bayān, CI builds from `bootstrap/bayan.c`. **019b**: the C# compiler is archived (an annotated tag `csharp-final` and a decision doc with the restore command, removal in its own commit) and stays frozen for diverse double-compiling. Estimate 4–7 weeks for both | `docs/bayan-milestones.md` (Target: zero dependencies), `docs/decisions/2026-11-16-006-after-022-roadmap-decisions.md` (proposed) |
+| 3b | Spec 023, catch-up | Draft. Brings the self-hosted compiler, std and tooling up to the spec; phases 1–4 are needed for 0.4. Runs alongside sabk after 019a | `docs/specs/023-spec-catch-up/023-spec.md` |
 | 4 | Spec 020, test-result cache | Approved; 0 of 27 tasks ticked. Build now with a thin adaptor if cheap, otherwise after 019 | `docs/specs/020-test-result-cache/020-spec.md` (Open questions, item 4), `020-tasks.md` |
-| 5 | Sabk, native debug backend (`bayan build --backend native`) | Scheduled by the user 2026-11-13 after spec 019. `c` stays the default path; LLVM stays for release builds | `docs/plans/2026-11-05-005-parking-lot.md` (B04), `docs/bayan-milestones.md` (Target: zero dependencies) |
+| 5 | Sabk, native debug backend (`bayan build --backend native`) | Scheduled by the user 2026-11-16: starts after 019a and runs in parallel with spec 023 (catch-up). `c` stays the default path; LLVM stays for release builds | `docs/plans/2026-11-05-005-parking-lot.md` (B04), `docs/bayan-milestones.md` (Target: zero dependencies) |
 | 6 | Spec 015, tooling ports | 8 of 17 tasks ticked; T9–T17 open (`gen-lowercase`, `stryker-to-quality`, `quality-baseline`, `mutate-plan`, `std.regex`, `guard-checks`, `Base64`, `replay`). 012 is done, so the original wait is over | `docs/specs/015-tooling/015-tasks.md`, `docs/decisions/2026-11-02-002-tooling-port-rules.md` |
 | 7 | Round-4 design work, A1 and A2 addenda | 42 inventory rows open and 2 open as conflicts. Batches 1–8 landed as revisions 0019–0023; the rest wait for evidence or a user decision | `docs/bayan-design-round-4-inventory.md`, `docs/revisions/0019-round-4-batches-1-8-consistency.md`, `docs/revisions/a2-lessons-mid-flight.md`, `docs/revisions/0016-addendum-a1-midflight.md`, `docs/revisions/0017-addendum-a2-diagnostic-codes.md` |
 | 8 | Concurrency, `scope` and `spawn` | Design confirmed, spec removed from §13 by revision 0023 (placeholder). Spec and runtime not written; `async` and `await` stay reserved in the lexer | `docs/bayan-concurrency.md`, `docs/misc/2026-11-04-design-inputs-review.md`, `work/todo.md` (A12) |
@@ -86,8 +88,8 @@ The order below follows the sources where they give one and the dependencies whe
 | Follow-up | State | Source |
 |---|---|---|
 | Rev 0021 naming lints, Q1186–Q1189 | "Decision needed" in the Questions with no later decision entry; Q1190 (option A) and Q1191 (std skipped) were settled on 2026-11-11 | `docs/decisions/2026-11-14-004-answered-questions.md` lines 3264–3276, `docs/bayan-progress-log.md` lines 63, 435 |
-| Plan 015 LOWs | `test`, `mutate` and `dist` still build with the frontend alive; `--emit-c` runs in the arena for no gain; `t42SummaryInArena` has no `c.sink` guard | `work/todo.md` lines 771, 775, 794 |
-| mmap arena chunks | `bayan-rt.c` large arena chunks through `mmap` and `munmap`, so macOS returns freed arenas to the OS | `work/todo.md` line 772 |
+| Plan 015 LOWs | `test`, `mutate` and `dist` still build with the frontend alive; `--emit-c` runs in the arena for no gain; `t42SummaryInArena` has no `c.sink` guard | `work/todo.md` lines 777, 781, 800 |
+| mmap arena chunks | `bayan-rt.c` large arena chunks through `mmap` and `munmap`, so macOS returns freed arenas to the OS | `work/todo.md` line 778 |
 | Mutation CI | The `mutation` workflow stays disabled; `ci` and `laws-nightly` are re-enabled | `docs/bayan-progress-log.md`, "CI repair before 0.3.0" |
 | After 0.3.0 list | Q1229, Q1272, Q1273, the General allocator (Q31) arena per phase, parser and ownership depth (BYN1xxx "nested too deep") | `docs/decisions/2026-11-14-004-answered-questions.md` (Decided by the user 2026-11-12, "After 0.3.0") |
 | Before the tag | `authors` CI is red on `dev` since 2026-11-03; fixing needs a history rewrite the user runs | `work/todo.md` ("Before 0.3.0"), `scripts/move/2026-11-14-history-rewrite.sh` |

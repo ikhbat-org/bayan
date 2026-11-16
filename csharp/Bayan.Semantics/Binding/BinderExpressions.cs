@@ -342,6 +342,7 @@ internal sealed partial class Binder
             case IsExpr i:
             {
                 var value = BindExpr(i.Value);
+                _c.NoteLintOperand(i.Value, value);
                 var pattern = BindPattern(i.Pattern, value.Type);
                 return new BoundIs(i, value, pattern);
             }
@@ -1286,6 +1287,8 @@ internal sealed partial class Binder
             var hint = b.Op is BinaryOp.Shl or BinaryOp.Shr ? PrimitiveType.I32 : left.Type is OptionalType o ? o.Inner : left.Type;
             right = Operand(b.Right, hint);
         }
+        _c.NoteLintOperand(b.Left, left);
+        _c.NoteLintOperand(b.Right, right);
         // `x is null` is valid only on an optional `x`: for `null == null` or a non-optional operand BYN2208 reports alone.
         if (nullTested is not null && nullTested is not LiteralExpr { Kind: LiteralKind.Null } && (nullTested == b.Left ? left : right).Type is OptionalType)
         {

@@ -1,6 +1,6 @@
 # Memory and disk leaks
 
-Version: 0.3.1 (matches `bayan --version`)
+Version: 0.3.2 (matches `bayan --version`)
 
 Every Bayan memory or disk leak found so far, what caused it, and the rule that keeps it
 from coming back. Read this before writing anything that walks directories, watches files,
@@ -67,7 +67,7 @@ or by luck; LOW = small or one-shot. Source reports: `tmp/leak-audit/*.out` (scr
 | MEDIUM | `dist` inputs hash followed symlinks | fixed, M4 |
 | MEDIUM | Program cache `v1/programs` never evicted | fixed, M5: LRU, 2 GiB / 4000 entries, `BAYAN_CACHE_MAX_MB` |
 | MEDIUM | Prebuilt runtime objects (`v1/runtime/<rkey>/`, plan 009) could pile up, one per compiler and flag set | bounded: they share the 2 GiB / 4000-entry LRU and the `v1/tmp/` staging sweep with `programs/` (`Toolchain.Evict`, `SweepStale`) |
-| LOW | Per-process compiler identity memo (`Toolchain.identities`, plan 009) | bounded: cleared past 64 entries (`Toolchain.cs:196`) |
+| LOW | Per-process compiler identity memo (`Toolchain.identities`, plan 009) | bounded: cleared past 64 entries (`Toolchain.cs:223`) |
 | MEDIUM | Staging dirs left by killed compiles; macOS `program.dSYM` moved into cache entries | fixed, M5/M6: stale sweep |
 | MEDIUM | Parser and ownership analysis recurse with input depth | open: needs a BYN1xxx diagnostic and selfhost parity (decision) |
 | LOW | C compiler ran with no timeout | fixed, M7: 10 min, `BAYAN_CC_TIMEOUT_S` |

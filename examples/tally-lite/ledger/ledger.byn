@@ -2,8 +2,8 @@ import money
 
 /// One payment, shared evenly by `participants` (the payer may or may not be among them).
 public struct Expense {
-    public string payer
-    public money.Cents amount
+    public string       payer
+    public money.Cents  amount
     public List<string> participants
 }
 
@@ -11,8 +11,8 @@ public struct Expense {
 public type Share = (string name, i64 cents)
 
 public struct Transfer {
-    public string from
-    public string to
+    public string      from
+    public string      to
     public money.Cents cents
 }
 

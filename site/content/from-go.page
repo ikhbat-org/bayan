@@ -11,15 +11,15 @@ template: docs
 <tr><th>Task</th><th>Go</th><th>Bayan</th></tr>
 <tr><td>Print with values</td><td><code>fmt.Printf("%d items\n", n)</code></td><td><code>print($"{n} items")</code></td></tr>
 <tr><td>Fixed value</td><td><code>const x = 1</code></td><td><code>let x = 1</code></td></tr>
-<tr><td>Changing value</td><td><code>x := 1</code> / <code>var x int</code></td><td><code>var x = 1</code> or <code>var x: i64 = 0</code></td></tr>
+<tr><td>Changing value</td><td><code>x := 1</code> / <code>var x int</code></td><td><code>var x = 1</code> or <code>var x: i32 = 0</code></td></tr>
 <tr><td>Integer types</td><td><code>int</code>, <code>int32</code>, <code>uint8</code></td><td><code>i64</code>, <code>i32</code>, <code>u8</code></td></tr>
-<tr><td>Make a slice</td><td><code>xs := []int{1, 2, 3}</code></td><td><code>let xs: List&lt;i64&gt; = [1, 2, 3]</code></td></tr>
+<tr><td>Make a slice</td><td><code>xs := []int{1, 2, 3}</code></td><td><code>let xs: List&lt;i32&gt; = [1, 2, 3]</code></td></tr>
 <tr><td>Append</td><td><code>xs = append(xs, 4)</code></td><td><code>xs.append(4)</code></td></tr>
 <tr><td>Length</td><td><code>len(xs)</code></td><td><code>xs.length</code></td></tr>
 <tr><td>Sub-slice</td><td><code>xs[1:3]</code></td><td><code>xs.span[1..3]</code></td></tr>
-<tr><td>Fixed array</td><td><code>var a [3]int</code></td><td><code>let a: i64[3] = [1, 2, 3]</code></td></tr>
-<tr><td>Make a map</td><td><code>m := map[string]int{}</code></td><td><code>var m = Map&lt;string, i64&gt;()</code></td></tr>
-<tr><td>Look up with a check</td><td><code>v, ok := m[k]</code></td><td><code>m.tryGet(at: k)</code> gives an <code>i64?</code></td></tr>
+<tr><td>Fixed array</td><td><code>var a [3]int</code></td><td><code>let a: i32[3] = [1, 2, 3]</code></td></tr>
+<tr><td>Make a map</td><td><code>m := map[string]int{}</code></td><td><code>var m = Map&lt;string, i32&gt;()</code></td></tr>
+<tr><td>Look up with a check</td><td><code>v, ok := m[k]</code></td><td><code>m.tryGet(at: k)</code> gives an <code>i32?</code></td></tr>
 <tr><td>Look up with a default</td><td><code>if !ok { v = 0 }</code></td><td><code>m.tryGet(at: k) ?? 0</code></td></tr>
 <tr><td>Delete a key</td><td><code>delete(m, k)</code></td><td><code>m.remove(k)</code> (it returns whether the key was there; write <code>let _ =</code> to ignore that)</td></tr>
 <tr><td>Count loop</td><td><code>for i := 0; i &lt; n; i++</code></td><td><code>for i in 0..n { … }</code></td></tr>
@@ -27,9 +27,9 @@ template: docs
 <tr><td>Range over a map</td><td><code>for k, v := range m</code></td><td><code>for (k, v) in m { … }</code></td></tr>
 <tr><td>While loop</td><td><code>for cond { … }</code></td><td><code>while cond { … }</code></td></tr>
 <tr><td>No value</td><td><code>nil</code></td><td><code>null</code>, in a type that ends in <code>?</code></td></tr>
-<tr><td>Struct</td><td><code>type P struct { X int }</code></td><td><code>struct P { i64 x }</code></td></tr>
-<tr><td>Method that changes the receiver</td><td><code>func (s *Stack) Push(x int)</code></td><td><code>void push(ref this, i64 x)</code></td></tr>
-<tr><td>Pointer parameter</td><td><code>func bump(n *int)</code></td><td><code>void bump(ref i64 n)</code>, called as <code>bump(ref a)</code></td></tr>
+<tr><td>Struct</td><td><code>type P struct { X int }</code></td><td><code>struct P { i32 x }</code></td></tr>
+<tr><td>Method that changes the receiver</td><td><code>func (s *Stack) Push(x int)</code></td><td><code>void push(ref this, i32 x)</code></td></tr>
+<tr><td>Pointer parameter</td><td><code>func bump(n *int)</code></td><td><code>void bump(ref i32 n)</code>, called as <code>bump(ref a)</code></td></tr>
 <tr><td>Return an error</td><td><code>return 0, errors.New("empty")</code></td><td><code>fail .empty</code></td></tr>
 <tr><td>Check and pass up</td><td><code>if err != nil { return err }</code></td><td><code>try f()</code></td></tr>
 <tr><td>Handle an error</td><td><code>if err != nil { v = 0 }</code></td><td><code>f() catch 0</code></td></tr>
@@ -64,7 +64,7 @@ func (s *Stack) Pop() (int, bool) {
     return last, true
 }</code></pre>
 <example name="guide-go-basics"/>
-<p><code>Pop</code> returns an <code>i64?</code> where Go returns a pair. The caller cannot ignore the "was there one" half, because the type does not let it use the value until it has dealt with <code>null</code>. Here <code>?? -1</code> supplies a fallback for the empty stack.</p>
+<p><code>Pop</code> returns an <code>i32?</code> where Go returns a pair. The caller cannot ignore the "was there one" half, because the type does not let it use the value until it has dealt with <code>null</code>. Here <code>?? -1</code> supplies a fallback for the empty stack.</p>
 <p>A struct literal must set every field that has no default. Leave one out and the compiler stops: <code>P needs a value for y</code> (BYN2109). Go fills in zero values silently, and Bayan does not.</p>
 
 <h2 id="ref">Pointers become ref and spans</h2>

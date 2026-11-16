@@ -4,17 +4,17 @@ union error PortError {
 }
 
 // Failure that the caller should handle: `fails`.
-i64 parsePort(string text) fails PortError {
-    let n = i64.tryParse(text) ?? fail .notNumber
+i32 parsePort(string text) fails PortError {
+    let n = i32.tryParse(text) ?? fail .notNumber
     fail .outOfRange unless n in 1..=65535
     return n
 }
 
 // "No value" is not an error: an optional.
-i64? lookup(Map<string, i64> ports, at string name) => ports.tryGet(at: name)
+i32? lookup(Map<string, i32> ports, at string name) => ports.tryGet(at: name)
 
 void main() {
-    var ports = Map<string, i64>()
+    var ports = Map<string, i32>()
     ports["web"] = 8080
     print($"{lookup(ports, at: "web") ?? 0} {lookup(ports, at: "db") ?? 0}")
     print($"{parsePort("8080") catch 0}")

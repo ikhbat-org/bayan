@@ -1,6 +1,6 @@
-i64 square(i64 x) => x * x
+i32 square(i32 x) => x * x
 
-i64 clamp(i64 x, to i64 max) => x > max ? max : x
+i32 clamp(i32 x, to i32 max) => x > max ? max : x
 
 void main() {
     print($"{square(7)}")

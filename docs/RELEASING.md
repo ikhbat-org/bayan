@@ -1,6 +1,6 @@
 # Releasing Bayān
 
-Version: 0.3.1 (matches `bayan --version`)
+Version: 0.3.2 (matches `bayan --version`)
 
 How a version is cut, checked, tagged and published, and where the version and the versioned docs live.
 
@@ -21,8 +21,8 @@ The versioned docs carry a header in their first lines (`bayan_header_docs`): `d
 `docs/bayan-grammar.md`, `docs/bayan-style.md`, `docs/DIAGNOSTICS.md` and `docs/STATUS.md`.
 
 ```text
-Version: 0.2.0 (matches `bayan --version`)
-Revisions applied: 0001–0020
+Version: X.Y.Z (matches `bayan --version`)
+Revisions applied: 0001–0023
 ```
 
 `Revisions applied` names the highest `docs/revisions/NNNN-*.md`; the range covers every revision from 0001.
@@ -98,7 +98,8 @@ commit.
 
 Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
 
-1. **Cut.** `bash scripts/release/cut.sh X.Y.Z`. It:
+1. **Cut.** First update `docs/bayan-roadmap.md` (the states, the order, the `State of `dev` at <sha>, <date>.` line);
+   `cut.sh` refuses a roadmap dated before the previous release. Then run `bash scripts/release/cut.sh X.Y.Z`. It:
    - sets `VERSION`, the mirrors and the headers to `X.Y.Z`, with `Revisions applied` at the highest revision;
    - regenerates the generated docs;
    - turns the `## [Unreleased]` body of `CHANGELOG.md` into `## [X.Y.Z] - <today>`, leaving `[Unreleased]` empty.
@@ -134,7 +135,9 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
      is marked a prerelease (`package.sh release-flags`; user, 2026-11-14).
 
    Publishing the draft is a manual step.
-8. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors
+8. **PDFs.** Run `bash scripts/release/docs-pdf.sh` (needs Chrome; `CHROME` names it) and attach `dist/bayan-manifesto-X.Y.Z.pdf`
+   and `dist/bayan-book-X.Y.Z.pdf` to the GitHub release.
+9. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors
    and the headers to `-dev` and regenerates the generated docs. Regenerate `bootstrap/bayan.c` and commit all of it
    as one commit on `dev`.
 

@@ -1,6 +1,6 @@
-type distinct UserId = i64
+type distinct UserId  = i64
 type distinct OrderId = i64
-type distinct Grams = i64 requires it > 0
+type distinct Grams   = i64 requires it > 0
 
 string describe(UserId u) => $"user {u.value}"
 

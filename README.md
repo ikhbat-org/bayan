@@ -497,7 +497,7 @@ self-hosted compiler as plain C). Both produce the self-hosted `bayan`. See
 ```sh
 bayan build --mode safe --package src -o tmp/bayan-selfhost src/driver
 cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm -o tmp/bayan-boot
-./tmp/bayan-selfhost --version                 # bayan 0.3.1 (selfhost)
+./tmp/bayan-selfhost --version                 # bayan <version> (selfhost)
 ```
 
 The self-hosted compiler's tests are in `src/tests/` and run with the same `dotnet test`.
@@ -506,7 +506,7 @@ Local builds go in `dist/` (gitignored). `scripts/dist.sh` writes `dist/<target>
 per target that every build replaces. `bayan dist` writes `dist/<version>/` and one `dist/latest/`.
 
 ```sh
-scripts/dist.sh                                # this host: dist/macos-arm64/0.3.1/bayan
+scripts/dist.sh                                # this host: dist/macos-arm64/0.3.2/bayan
 scripts/dist.sh --from <publish-dir> --rid win-x64 --commit <sha>   # import a binary published on another OS
 ```
 

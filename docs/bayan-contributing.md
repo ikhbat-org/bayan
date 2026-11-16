@@ -1,6 +1,6 @@
 # Working on Bayān: rules, stack, layout and conventions
 
-Version: 0.3.1 (matches `bayan --version`)
+Version: 0.3.2 (matches `bayan --version`)
 
 How work on the compiler is done. The spec (`docs/bayan-spec.md`) is the source of truth for the language; `AGENTS.md` holds the short agent rules. This file keeps only what neither of them says. The milestones are in `docs/bayan-milestones.md`.
 
@@ -117,5 +117,7 @@ The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/w
 ```
 /bin/bash scripts/ci/script-tests.sh
 ```
+
+Pushes to `dev` or `main` run `scripts/ci/pre-push.sh <sha>` through the machine's git pre-push hook: it checks the pushed commit out under `tmp/pre-push/`, runs the script tests there, and refuses the push if they fail (`--no-verify` on the push bypasses it once). To run it by hand, use `scripts/ci/pre-push.sh HEAD`; a tree that already passed is skipped.
 
 macOS ships bash 3.2. It parses the body of `$( … )`, `<( … )` and `>( … )` only when the line runs, and a bare `pat)` case arm there closes the substitution, so `bash -n` passes and the script dies later. Inside a substitution, write every case pattern as `(pat)`. `scripts/ci/bash32-parse.test.sh` enforces this on every tracked `.sh` file on every OS.

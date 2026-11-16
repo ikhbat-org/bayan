@@ -1,8 +1,8 @@
 i64 parsed(string text) => parseAmount(text) catch switch {
-    .empty => -1,
+    .empty      => -1,
     .notANumber => -2,
     .tooPrecise => -3,
-    .tooLarge => -4,
+    .tooLarge   => -4,
 }
 
 bool formats(Cents cents, as string expected) {

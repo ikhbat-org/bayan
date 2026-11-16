@@ -1,5 +1,5 @@
 void main() {
-    let line = "  ada, 90 ,grace,85  "
+    let line = "  ali, 90 ,hafsa,85  "
     let clean = line.trimmed()
     print($"[{clean}] {clean.length} bytes")
     for part in clean.parts(by: ",") {
@@ -17,5 +17,5 @@ void main() {
     buf.append($"{12 * 3}")
     print(buf.finish())
     print($"{i64.tryParse("90") ?? -1} {i64.tryParse("9x") ?? -1}")
-    print($"[{"ada", width: 7}] [{7, width: 4, fill: '0'}]")
+    print($"[{"ali", width: 7}] [{7, width: 4, fill: '0'}]")
 }

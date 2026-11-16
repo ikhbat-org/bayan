@@ -2,6 +2,42 @@
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-11-16
+
+The style guide ships: `bayan format` is a layout engine in both compilers, and `bayan fix` applies nine style lints.
+bayan.run publishes this release's docs, the roadmap and the manifesto, built by a site generator written in Bayān.
+
+### Added
+- `.github/workflows/pages.yml` builds `site/` with the compiler from the same commit (every example is run and checked) and publishes it to GitHub Pages on each push to `main`, for bayan.run.
+- Style guide (`docs/bayan-style.md`, spec 022): every layout rule and lint has a Do and a Don't example, and a test checks that the formatter turns each Don't into its Do.
+- `bayan format` is a layout engine, in the C# CLI and in the self-hosted driver, with byte-identical output. It wraps lists and chains at `style.width`, aligns runs, and keeps or drops trailing commas.
+- `package.byn` `style` takes `width`, `align`, `trailingCommas` (`.multiline` or `.never`) and `lints`. `braces`, `maxLine` and a bool `trailingCommas` are manifest errors that name the new knob.
+- Style lints BYN1072–BYN1080, reported by `bayan check` with a severity per lint (`functions.length` is off by default), and `bayan fix [<path>…]`, which applies their fixes.
+- `.git-blame-ignore-revs` names the format commit dbc05369.
+- Site docs: the release docs are published as `docs/<version>/` pages through a Markdown renderer written in Bayān (`site/gen/markdown.byn`), with a sidebar, a table of contents per page and an index. The roadmap is published as `roadmap.html`; the header links Roadmap and Docs and shows the version.
+- Site look: light and dark themes with a toggle (mockups b and c of the redesign).
+- The Bayān manifesto (`docs/manifesto/bayan-manifesto.md`, edition 1, with its figures) is a release doc, published as `manifesto.html` and linked from every page's footer.
+- `book.html` holds every book chapter on one page for printing; `style.css` has a print stylesheet.
+- `scripts/release/docs-pdf.sh` prints the manifesto and the book to `dist/bayan-manifesto-<version>.pdf` and `dist/bayan-book-<version>.pdf` with headless Chrome, for the GitHub release.
+- `scripts/ci/pre-push.sh`, run by the git pre-push hook for pushes to `dev` or `main`, runs the ci script tests on the pushed commit in a throwaway checkout.
+- `scripts/cleanup/run-all.sh` runs every cleanup script with grouped flags (dry run by default).
+
+### Changed
+- README: "A taste of the language" is now four small iftar programs: errors with a payload (the iftar keeps its own seat count, so a caller only asks for seats), effects in a signature (`uses fs, alloc`, with the BYN6002 message), typestate (`states`, `becomes`, with the BYN7001 message) and an arena with `provide`. Each was run on the dev compiler.
+- Roadmap: 019 is split into 019a and 019b, 023 (spec catch-up) is added, sabk follows 019a, and the roadmap is checked and updated at every release.
+- 13 `src/` files and `site/gen` are reformatted with the release formatter; an intermediate stage-2 build had put a space before labels after a `?:` argument.
+- `src/`, `lib/` and `examples/` are reformatted with `bayan format` and `bayan fix` (dbc05369). `src/` grows from 69,705 to 88,439 lines.
+
+### Revisions
+- none
+
+### Status changes
+- Reformat of `src/`, `lib/` and `examples/` (Other features): new, built
+- Style guide (Other features): new, built
+- Style knobs `width`, `align`, `trailingCommas`, `lints` (Other features): new, built
+- Style lints BYN1072–BYN1080 and `bayan fix` (Other features): new, built
+- `bayan format` layout engine (Other features): new, built
+
 ## [0.3.1] - 2026-11-15
 
 ### Added

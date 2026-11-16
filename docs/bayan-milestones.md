@@ -1,6 +1,6 @@
 # Bayān milestones
 
-Version: 0.3.1 (matches `bayan --version`)
+Version: 0.3.2 (matches `bayan --version`)
 
 What v0.1 was, its milestones M0 to M12, what came after, and the road to self-hosting. The coarse table of releases is `work/milestones.md`; the plan after 0.3.0 is `docs/bayan-roadmap.md`.
 
@@ -24,7 +24,7 @@ These docs replace the former v0.1 work plan and its two addenda (split 2026-11-
 
 A bootstrap compiler, written in **C# on .NET 10, published with NativeAOT**, that compiles a useful subset of Bayan to C and then to a native executable via `zig cc`.
 
-**Exit criterion:** `bayan run examples/hello/main.byn` prints `Hello, world!`, and `bayan test examples/tally-lite` passes (a reduced version of the tally example, defined in M8).
+**Exit criterion:** `bayan run examples/hello/main.byn` prints `Salam, world!`, and `bayan test examples/tally-lite` passes (a reduced version of the tally example, defined in M8).
 
 The bootstrap compiler is temporary: Bayan will eventually self-host. Optimize for clarity and correctness first, then speed.
 

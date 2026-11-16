@@ -57,7 +57,7 @@ template: docs
 <p>Start with the simple case. A struct is a value, so <code>var q = p</code> makes a second, independent value. A fixed-size array works the same way. A <code>List</code> is different: it owns a buffer, so Bayan never copies it for you.</p>
 <example name="book-13-copies"/>
 <p>Changing <code>q</code> did not change <code>p</code>, and the same for the array. The list copy is explicit: <code>xs.copy()</code> allocates a new buffer from the current allocator and copies the elements. <code>xs.copy(to: arena)</code> allocates from the allocator you name.</p>
-<p>Now try the copy a C# or Python programmer would write, <code>var ys = xs</code>, with no <code>.copy()</code>.</p>
+<p>Now try the copy you might write without thinking, <code>var ys = xs</code>, with no <code>.copy()</code>.</p>
 <pre><code class="byn">void main() {
     var xs = List&lt;i64&gt;()
     xs.append(1)

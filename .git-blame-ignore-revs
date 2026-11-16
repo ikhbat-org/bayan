@@ -1,0 +1,5 @@
+# Commits that only reformat sources. Use: git blame --ignore-revs-file .git-blame-ignore-revs
+# (or: git config blame.ignoreRevsFile .git-blame-ignore-revs).
+
+# style: format src, lib and examples with bayan format and bayan fix (spec 022 T10)
+dbc0536971d0ca9221528730e3d26de6d13167ba

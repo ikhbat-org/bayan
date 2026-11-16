@@ -6,10 +6,10 @@ union error UsageError {
 }
 
 struct Options {
-    string pattern
-    bool ignoreCase
-    bool numbers
-    bool countOnly
+    string       pattern
+    bool         ignoreCase
+    bool         numbers
+    bool         countOnly
     List<string> files
 
     bool matches(string line) uses alloc {
@@ -43,16 +43,19 @@ Options parseArgs(ReadOnlySpan<string> args) uses alloc fails UsageError {
     return opts
 }
 
-
 /// Prints the matching lines of one file and returns how many matched.
-i64 search(string text, by Options opts, as string name, to bool showName) uses console, alloc {
-    var found: i64 = 0
-    var number: i64 = 0
+i32 search(string text, by Options opts, as string name, to bool showName) uses console, alloc {
+    var found: i32 = 0
+    var number: i32 = 0
     for line in text.lines {
         number += 1
-        if !opts.matches(line) { continue }
+        if !opts.matches(line) {
+            continue
+        }
         found += 1
-        if opts.countOnly { continue }
+        if opts.countOnly {
+            continue
+        }
         let prefix = showName ? $"{name}:" : ""
         print(opts.numbers ? $"{prefix}{number}:{line}" : $"{prefix}{line}")
     }
@@ -68,7 +71,7 @@ i32 main(ReadOnlySpan<string> args) uses console, alloc, fs fails UsageError {
         list = demo.span
     }
     let opts = try parseArgs(list)
-    var total: i64 = 0
+    var total: i32 = 0
     var failed = false
     for path in opts.files {
         let text = Io.readText(path) catch {
@@ -77,9 +80,13 @@ i32 main(ReadOnlySpan<string> args) uses console, alloc, fs fails UsageError {
             continue
         }
         let n = search(text, by: opts, as: path, to: opts.files.length > 1)
-        if opts.countOnly { print($"{path}: {n}") }
+        if opts.countOnly {
+            print($"{path}: {n}")
+        }
         total += n
     }
-    if failed { return 2 }
+    if failed {
+        return 2
+    }
     return total > 0 ? 0 : 1
 }

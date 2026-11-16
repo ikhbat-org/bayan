@@ -1,4 +1,4 @@
-(i64 count, string label) pair() => (7, "seven")
+(i32 count, string label) pair() => (7, "seven")
 
 let p = pair()
 print($"{p.count} {p.label}")
@@ -11,7 +11,7 @@ switch t {
         print("other")
 }
 
-let rows: List<(i64 id, string name)> = [(1, "a"), (2, "b")]
+let rows: List<(i32 id, string name)> = [(1, "a"), (2, "b")]
 for (id, name) in rows {
     print($"{id}{name}")
 }

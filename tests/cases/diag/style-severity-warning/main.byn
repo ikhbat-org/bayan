@@ -1,0 +1,15 @@
+// `.warning` reports the lint as a warning.
+union error CartError {
+    empty
+}
+
+void check(List<i32> lines) fails CartError {
+    if lines.isEmpty {
+        fail .empty
+    }
+}
+
+void main() fails CartError {
+    let lines: List<i32> = [1]
+    try check(lines)
+}

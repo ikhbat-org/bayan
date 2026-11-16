@@ -1,5 +1,7 @@
-string? findName(i64 id) {
-    if id == 1 { return "Ada" }
+string? findName(i32 id) {
+    if id == 1 {
+        return "Ali"
+    }
     return null
 }
 
@@ -18,10 +20,10 @@ void main() {
     }
     let label = b switch {
         null => "none",
-        _ => "some",
+        _    => "some",
     }
     print(label)
-    var count: i64? = null
+    var count: i32? = null
     print($"{count ?? 0}")
     count = 5
     print($"{count ?? 0}")

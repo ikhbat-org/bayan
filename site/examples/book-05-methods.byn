@@ -1,12 +1,12 @@
 struct Counter {
     string name
-    i64 count = 0
+    i32    count = 0
 
     bool isZero => count == 0
 
     string describe() => $"{name}: {count}"
 
-    void add(ref this, i64 amount = 1) {
+    void add(ref this, i32 amount = 1) {
         count += amount
     }
 

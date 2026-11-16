@@ -9,7 +9,9 @@ import semantics
 /// The arguments after the command (`args[1..]` of CliApp.cs:49).
 List<string> t2Rest(in List<string> kept) {
     var rest = List<string>()
-    for i in 1..kept.length { rest.append(kept[i]) }
+    for i in 1..kept.length {
+        rest.append(kept[i])
+    }
     return rest
 }
 
@@ -30,7 +32,7 @@ bool tryReadSingleFile(in List<string> args) {
 i32 lexCommand(in List<string> kept) {
     let args = t2Rest(kept)
     for a in args {
-        if a == "--json" { return refuse("lex --json") }
+        return refuse("lex --json") if a == "--json"
     }
     var bytes = List<u8>()
     var name = "<stdin>"
@@ -38,7 +40,9 @@ i32 lexCommand(in List<string> kept) {
         // coverage-exempt: Q943 the C# `CopyTo` has no failure branch; the runtime side is tested by `RuntimeNativeTests.FailedReadReleasesItsBuffer` (stdin from a directory)
         bytes = Io.stdin.readAllBytes() catch return exitFailure
     } else {
-        unless tryReadSingleFile(in args) { return exitUsage }
+        unless tryReadSingleFile(in args) {
+            return exitUsage
+        }
         name = args[0]
         // coverage-exempt: Q943 reached only if the file changes between the reads of `t1FileExists` and here
         bytes = Io.readFile(name) catch return exitFailure
@@ -60,9 +64,13 @@ i32 parseCommand(in List<string> kept) {
             rest.append(kept[i])
         }
     }
-    unless tryReadSingleFile(in rest) { return exitUsage }
+    unless tryReadSingleFile(in rest) {
+        return exitUsage
+    }
     // `parseOne` reads stdin for `-`; the C# parses the file named `-` (CliApp.cs:128, :1107), so it is read as `./-`.
-    if printAst { return parser.parseOne(rest[0] == "-" ? "./-" : rest[0], by: lexer.Keywords.build()) }
+    if printAst {
+        return parser.parseOne(rest[0] == "-" ? "./-" : rest[0], by: lexer.Keywords.build())
+    }
     // stub: T2 parse without --ast (blocked: Q940)
     return refuse("parse")
 }
@@ -70,8 +78,18 @@ i32 parseCommand(in List<string> kept) {
 /// `s_styleErr` for the diagnostic renderer and the failure line (CliApp.cs:310 `Report`, :521 `Failed`): the symbols, the width and, with colour, the
 /// `Palette.Prefix` of `Role.Error`, `Warning`, `Help` and `Note` (`t7Prefix` 0, 1, 2, 4).
 semantics.T26Symbols t19Symbols(in DStyle style) uses alloc {
-    unless style.color { return semantics.t26Symbols(style.ascii, width: style.width) }
-    return semantics.t26Symbols(style.ascii, color: true, width: style.width, error: t7Prefix(by: style.palette, for: 0), warning: t7Prefix(by: style.palette, for: 1), help: t7Prefix(by: style.palette, for: 2), note: t7Prefix(by: style.palette, for: 4))
+    unless style.color {
+        return semantics.t26Symbols(style.ascii, width: style.width)
+    }
+    return semantics.t26Symbols(
+        style.ascii,
+        color: true,
+        width: style.width,
+        error: t7Prefix(by: style.palette, for: 0),
+        warning: t7Prefix(by: style.palette, for: 1),
+        help: t7Prefix(by: style.palette, for: 2),
+        note: t7Prefix(by: style.palette, for: 4),
+    )
 }
 
 /// CliApp.cs:141 `Types`.
@@ -81,8 +99,18 @@ i32 typesCommand(in List<string> kept, by in DCtx d) {
     let symbols = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
-    var c = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
-    unless ok { return exitFailure }
+    var c = t5Compile(
+        in o,
+        by: in symbols,
+        to: ref reported,
+        through: ref ok,
+        ascii: d.styleErr.ascii,
+        width: d.styleErr.width,
+        isTty: d.stderrTty,
+    )
+    unless ok {
+        return exitFailure
+    }
     Io.stdout.write(semantics.typedDump(ref c))
     return exitOk
 }
@@ -95,11 +123,32 @@ i32 checkCommand(in List<string> kept, by in DCtx d) {
     let symbols = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
-    var c = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
-    unless ok { return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols) }
+    var c = t5Compile(
+        in o,
+        by: in symbols,
+        to: ref reported,
+        through: ref ok,
+        ascii: d.styleErr.ascii,
+        width: d.styleErr.width,
+        isTty: d.stderrTty,
+        styleLints: true,
+    )
+    unless ok {
+        return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols)
+    }
     unless o.json {
         let dot = semantics.t26Symbols(d.styleOut.ascii).dot
-        print(t5Paint(.success, by: d.styleOut, for: semantics.checkSummary(dot, for: semantics.programName(ref c, for: o.path), by: semantics.t26Seconds(Io.monotonicNanos() - clock))))
+        print(
+            t5Paint(
+                .success,
+                by: d.styleOut,
+                for: semantics.checkSummary(
+                    dot,
+                    for: semantics.programName(ref c, for: o.path),
+                    by: semantics.t26Seconds(Io.monotonicNanos() - clock),
+                ),
+            ),
+        )
     }
     return exitOk
 }

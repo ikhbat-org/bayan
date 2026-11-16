@@ -10,9 +10,9 @@ enum Color {
 }
 
 string name(Color c) => c switch {
-    .red => "red",
+    .red   => "red",
     .green => "green",
-    .blue => "blue",
+    .blue  => "blue",
 }
 
 void main() {

@@ -2,7 +2,7 @@ union error ParseError {
     notNumber
 }
 
-i64 parseAll(ReadOnlySpan<string> items, by (string -> i64 fails ParseError) read) fails ParseError {
+i64 parseAll(ReadOnlySpan<string> items, by(string -> i64 fails ParseError) read) fails ParseError {
     var sum = 0
     for s in items {
         sum += try read(s)

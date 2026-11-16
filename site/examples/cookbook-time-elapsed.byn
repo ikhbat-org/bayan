@@ -1,7 +1,9 @@
 // Io.monotonicNanos() is a clock that only moves forward: use it to measure elapsed time.
 i64 sumSquares(i64 count) {
     var total: i64 = 0
-    for i in 0..count { total += i * i }
+    for i in 0..count {
+        total += i * i
+    }
     return total
 }
 

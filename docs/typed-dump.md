@@ -1,6 +1,6 @@
 # Typed dump: `bayan types`
 
-Version: 0.3.1 (matches `bayan --version`)
+Version: 0.3.2 (matches `bayan --version`)
 
 `bayan types <path>` compiles a program the way `bayan check` does (a project directory, a script, or a file or directory of `.byn` files) and prints, for every function, the resolved type of each parameter and local. Diagnostics go to stderr. A program with errors prints nothing to stdout and exits 1.
 

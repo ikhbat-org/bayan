@@ -1,13 +1,13 @@
 @positional
 struct Point {
-    i64 x
-    i64 y
+    i32 x
+    i32 y
 }
 
 struct Date {
-    i64 year
-    i64 month
-    i64 day
+    i32 year
+    i32 month
+    i32 day
 }
 
 let p = Point(3, 4)

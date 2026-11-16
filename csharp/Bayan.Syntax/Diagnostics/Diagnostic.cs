@@ -68,6 +68,13 @@ public sealed class DiagnosticBag
 
     public void Remove(Diagnostic diagnostic) => _items?.Remove(diagnostic);
 
+    /// <summary>Replaces each diagnostic with what <paramref name="map"/> returns for it, in place and in order.</summary>
+    public void ReplaceEach(Func<Diagnostic, Diagnostic> map)
+    {
+        if (_items is null) return;
+        for (var i = 0; i < _items.Count; i++) _items[i] = map(_items[i]);
+    }
+
     /// <summary>Puts <paramref name="replacement"/> in the place of <paramref name="diagnostic"/>, if it is still reported.</summary>
     public void Replace(Diagnostic diagnostic, Diagnostic replacement)
     {

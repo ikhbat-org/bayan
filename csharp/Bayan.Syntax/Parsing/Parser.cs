@@ -13,7 +13,35 @@ public sealed record SyntaxTree(SourceText Source, CompilationUnit Root, IReadOn
 
     /// <summary>The line-join lint (BYN5103): reported by a compilation and fixed by <c>bayan format</c>, not by <c>bayan parse</c>.</summary>
     public IReadOnlyList<Diagnostic> Lints { get; init; } = [];
+
+    /// <summary>The style lints (BYN1072–BYN1076): reported by <c>bayan check</c> only, with the severity of the manifest's <c>lints</c>.</summary>
+    public IReadOnlyList<Diagnostic> StyleLints { get; init; } = [];
+
+    /// <summary>The style lints that hold only if an operand binds as their check asks: the compilation confirms them.</summary>
+    public IReadOnlyList<TypedLint> TypedLints { get; init; } = [];
 }
+
+/// <summary>What the operand of a <see cref="TypedLint"/> must bind to.</summary>
+public enum TypedLintCheck
+{
+    /// <summary>An integer, not untrusted (BYN1078 on integer constants).</summary>
+    PatternInteger,
+
+    /// <summary>A rune, not untrusted (BYN1078 on rune constants).</summary>
+    PatternRune,
+
+    /// <summary>A string, not untrusted (BYN1078 on string constants).</summary>
+    PatternString,
+
+    /// <summary>An enum without fields (BYN1078 on <c>.case</c> constants).</summary>
+    PatternEnum,
+
+    /// <summary>An optional <c>let</c> local or by-value parameter, which <c>is not null</c> narrows (BYN1080).</summary>
+    NarrowableLocal,
+}
+
+/// <summary>A style lint the parser cannot decide alone: <see cref="Lint"/> holds if <see cref="Operand"/> passes <see cref="Check"/>, else <see cref="Otherwise"/> (if any).</summary>
+public sealed record TypedLint(Diagnostic Lint, Expr Operand, TypedLintCheck Check, Diagnostic? Otherwise = null);
 
 /// <summary>
 /// Recursive-descent parser with precedence climbing for binary operators. A statement ends at a
@@ -26,6 +54,10 @@ public sealed class Parser
     private readonly Token[] _tokens;
     private readonly int _count;
     private readonly DiagnosticBag _diagnostics = new();
+
+    /// <summary>The style lints found while parsing; a block's depth is counted from the enclosing function's body.</summary>
+    private readonly DiagnosticBag _styleLints = new();
+    private int _blockDepth;
     private int _pos;
     private int _prevEnd;
     private int _lastErrorAt = -1;
@@ -73,7 +105,13 @@ public sealed class Parser
     {
         var parser = new Parser(Lexer.Lex(source));
         var root = parser.ParseCompilationUnit();
-        return new SyntaxTree(source, root, parser._diagnostics.Items) { Lints = parser.LintLineJoins() };
+        parser.LintBanners();
+        parser.LintPatterns();
+        parser.KeepComments();
+        return new SyntaxTree(source, root, parser._diagnostics.Items)
+        {
+            Lints = parser.LintLineJoins(), StyleLints = parser._styleLints.Items, TypedLints = parser._typedLints,
+        };
     }
 
     // ── Token access ─────────────────────────────────────────────────────────────────
@@ -328,6 +366,396 @@ public sealed class Parser
                 fix: new Fix(new TextSpan(lineStart, indent.Length), statementIndent + "    "));
         }
         return lints.Items;
+    }
+
+    // ── Style lints (BYN1072–BYN1076) ────────────────────────────────────────────────
+
+    /// <summary>The token index where each call argument's value starts: a lambda there is an argument itself, not inside a group or a tuple.</summary>
+    private readonly HashSet<int> _argumentStarts = [];
+
+    private const int MaxNesting = 4;
+    private const int MaxFunctionLines = 60;
+
+    /// <summary>BYN1072 on an <c>if</c> without <c>else</c> whose block holds only a <c>return</c>, <c>fail</c>, <c>break</c> or <c>continue</c>; the fix writes it as a postfix guard.</summary>
+    private void LintPostfixGuard(IfStmt stmt)
+    {
+        if (stmt.Else is not null || stmt.Likelihood != Likelihood.None) return;
+        if (stmt.Then is not BlockStmt { Statements: [{ } only] } block || only is not (ReturnStmt or FailStmt or BreakStmt or ContinueStmt) || block.Span.Length < 2) return;
+        // A break or continue has an empty span (its span is taken before its label is read), so the exit is read off the block's text.
+        var body = _source.GetText(block.Span)[1..^1].Trim().TrimEnd(';').TrimEnd();
+        var condition = _source.GetText(stmt.Condition.Span);
+        // A comment, a second statement or a line break in the block or the condition has no place in the one-line rewrite: no fix.
+        var plain = !body.Contains('\n') && !body.Contains('/') && !body.Contains(';') && !condition.Contains('\n');
+        _styleLints.Report(DiagnosticCodes.GuardsPostfix, _source, TextSpan.FromBounds(stmt.Span.Start, block.Span.Start), label: "an early exit in a block",
+            help: "write it as a postfix guard", fix: plain ? new Fix(stmt.Span, $"{body} if {condition}") : null);
+    }
+
+    /// <summary>BYN1073 on a lambda argument <c>x => x.f</c>; the fix writes <c>it.f</c>.</summary>
+    private void LintItLambda(LambdaExpr lambda, int startIndex)
+    {
+        if (lambda.Params is not [var param] || param.Text == "it" || !_argumentStarts.Contains(startIndex)) return;
+        if (lambda.Body is not MemberExpr { Target: NameExpr { Name.Text: var target, TypeArgs.Length: 0 }, NullConditional: false, TypeArgs.Length: 0 } member || target != param.Text) return;
+        _styleLints.Report(DiagnosticCodes.LambdasIt, _source, lambda.Span, [param.Text], label: "reads one member of its parameter",
+            help: "write `it` for the parameter", fix: new Fix(lambda.Span, $"it.{member.Member.Text}"));
+    }
+
+    /// <summary>BYN1074 on a control head whose condition continues on a later line than the keyword at token <paramref name="keywordIndex"/>.</summary>
+    private void LintWrappedCondition(int keywordIndex, Expr condition)
+    {
+        for (var i = keywordIndex + 1; i < _pos; i++)
+        {
+            if (!_tokens[i].HasNewlineBefore) continue;
+            _styleLints.Report(DiagnosticCodes.ConditionsNamed, _source, condition.Span, label: "the condition wraps",
+                help: "name the condition with a `let`");
+            return;
+        }
+    }
+
+    /// <summary>BYN1076 on a function body of more than 60 lines between its braces.</summary>
+    private void LintFunctionLength(BlockStmt body)
+    {
+        if (body.Span.Length == 0) return;
+        var lines = _source.GetLineIndex(body.Span.End - 1) - _source.GetLineIndex(body.Span.Start) - 1;
+        if (lines > MaxFunctionLines)
+            _styleLints.Report(DiagnosticCodes.FunctionsLength, _source, new TextSpan(body.Span.Start, 1), [lines], label: $"{lines} lines",
+                help: "split it into named steps");
+    }
+
+    /// <summary>Drops the fix of each style lint, typed or not, that would delete a comment (<see cref="DropsComment"/>); the lint stays.</summary>
+    private void KeepComments()
+    {
+        _styleLints.ReplaceEach(KeepingComments);
+        for (var i = 0; i < _typedLints.Count; i++)
+            _typedLints[i] = _typedLints[i] with { Lint = KeepingComments(_typedLints[i].Lint), Otherwise = _typedLints[i].Otherwise is { } o ? KeepingComments(o) : null };
+    }
+
+    private Diagnostic KeepingComments(Diagnostic lint) => lint.Fix is { } fix && DropsComment(fix) ? lint with { Fix = null } : lint;
+
+    /// <summary>Whether a comment lies whole inside the span <paramref name="fix"/> replaces and the replacement does not hold its text.</summary>
+    private bool DropsComment(Fix fix)
+    {
+        var bytes = _source.Bytes.Span;
+        for (var i = TokenAt(fix.Span.Start); i < _count && (i == 0 ? 0 : _tokens[i - 1].End) < fix.Span.End; i++)
+        {
+            // Between two tokens there is only whitespace and comments.
+            var end = _tokens[i].Start;
+            for (var at = i == 0 ? 0 : _tokens[i - 1].End; at + 1 < end; at++)
+            {
+                if (bytes[at] != '/' || (bytes[at + 1] != '/' && bytes[at + 1] != '*')) continue;
+                var close = at + 2;
+                if (bytes[at + 1] == '/')
+                    while (close < end && bytes[close] != '\n') close++;
+                else
+                {
+                    while (close + 1 < end && !(bytes[close] == '*' && bytes[close + 1] == '/')) close++;
+                    close = Math.Min(close + 2, end);
+                }
+                if (at >= fix.Span.Start && close <= fix.Span.End
+                    && !fix.Replacement.Contains(_source.GetText(TextSpan.FromBounds(at, close)), StringComparison.Ordinal)) return true;
+                at = close - 1;
+            }
+        }
+        return false;
+    }
+
+    // ── Style lints with one-time fixes (BYN1077–BYN1080) ────────────────────────────
+
+    private const int BannerColumn = 80;
+
+    /// <summary>The lints the compilation confirms from operand types, and the bag their diagnostics are made in.</summary>
+    private readonly List<TypedLint> _typedLints = [];
+    private readonly DiagnosticBag _typedBag = new();
+
+    /// <summary>Every <c>&amp;&amp;</c> and <c>||</c>, with the index of the token after it.</summary>
+    private readonly List<(BinaryExpr Expr, int Next)> _logical = [];
+
+    /// <summary>The <c>if (X is { } k)</c> sites whose miss leaves, until their block says whether the hit body can move up.</summary>
+    private readonly Dictionary<IfStmt, (Diagnostic Exit, TypedLint? Local)> _bindExits = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>BYN1077 on a banner comment <c>// ── Title ──…</c> whose fill does not end at column 80; the fix refills it.</summary>
+    private void LintBanners()
+    {
+        for (var line = 0; line < _source.LineCount; line++)
+        {
+            var span = _source.GetLineSpan(line);
+            var text = _source.GetText(span);
+            var slash = text.IndexOf("// ── ", StringComparison.Ordinal);
+            if (slash < 0 || text[..slash].Trim(' ', '\t').Length > 0) continue;
+            var fill = text.Length - text.TrimEnd('─').Length;
+            var title = text[(slash + 6)..^fill];
+            if (fill == 0 || title.Length < 2 || title[^1] != ' ' || title[..^1].Trim().Length != title.Length - 1 || title[^2] == '─') continue;
+            // A `//` inside a multi-line string is not a comment.
+            var next = TokenAt(span.Start + slash);
+            if (next > 0 && _tokens[next - 1].End > span.Start + slash) continue;
+            var columns = text.EnumerateRunes().Count();
+            var want = BannerColumn - (columns - fill);
+            if (columns == BannerColumn || want < 2) continue;
+            var fillSpan = TextSpan.FromBounds(span.End - Encoding.UTF8.GetByteCount(text[^fill..]), span.End);
+            _styleLints.Report(DiagnosticCodes.SectionsBanner, _source, fillSpan, [columns, BannerColumn], label: $"ends at column {columns}",
+                help: $"fill it with `─` to column {BannerColumn}", fix: new Fix(fillSpan, new string('─', want)));
+        }
+    }
+
+    /// <summary>BYN1078 on an <c>||</c> or <c>&amp;&amp;</c> chain that tests one path against constants; the fix writes one <c>is</c> pattern.</summary>
+    private void LintPatterns()
+    {
+        var children = new HashSet<BinaryExpr>(ReferenceEqualityComparer.Instance);
+        foreach (var (e, _) in _logical)
+            if (e.Left is BinaryExpr l && l.Op == e.Op) children.Add(l);
+        var consumed = new HashSet<BinaryExpr>(ReferenceEqualityComparer.Instance);
+        foreach (var (e, next) in _logical.Where(x => x.Expr.Op == BinaryOp.LogicalOr && !children.Contains(x.Expr)))
+        {
+            var parts = new List<Expr>();
+            Flatten(e);
+            var items = parts.Select(p => PatternItem(p, relational: true)).ToList();
+            if (items.Any(i => i is null)) continue;
+            if (LintPatternChain(e, next, items.Select(i => i!.Value).ToList()))
+                foreach (var p in parts)
+                    if (Unwrap(p) is BinaryExpr { Op: BinaryOp.LogicalAnd } range) consumed.Add(range);
+
+            void Flatten(Expr x)
+            {
+                if (x is BinaryExpr { Op: BinaryOp.LogicalOr } b)
+                {
+                    Flatten(b.Left);
+                    Flatten(b.Right);
+                }
+                else parts.Add(x);
+            }
+        }
+        foreach (var (e, next) in _logical.Where(x => x.Expr.Op == BinaryOp.LogicalAnd && !children.Contains(x.Expr) && !consumed.Contains(x.Expr)))
+            if (PatternItem(e) is { Range: true } item) LintPatternChain(e, next, [item]);
+    }
+
+    /// <summary>Reports BYN1078 on <paramref name="chain"/> if its items test one operand with one kind of constant, distinct, and nothing after it joins the pattern.</summary>
+    private bool LintPatternChain(BinaryExpr chain, int next, List<(Expr Operand, string Pattern, char Kind, bool Range)> items)
+    {
+        var after = _tokens[Math.Min(next, _count - 1)];
+        if (!after.HasNewlineBefore && after.Kind is not (TokenKind.CloseParen or TokenKind.CloseBracket or TokenKind.Comma or TokenKind.OpenBrace
+                or TokenKind.Semicolon or TokenKind.CloseBrace or TokenKind.EndOfFile or TokenKind.AmpAmp or TokenKind.BarBar)) return false;
+        var operand = _source.GetText(items[0].Operand.Span);
+        if (items.Any(i => _source.GetText(i.Operand.Span) != operand || i.Kind != items[0].Kind)) return false;
+        if (items.Select(i => i.Pattern).Distinct().Count() != items.Count) return false;
+        var tests = items.Sum(i => i.Range ? 2 : 1);
+        var check = items[0].Kind switch
+        {
+            'i' => TypedLintCheck.PatternInteger,
+            'c' => TypedLintCheck.PatternRune,
+            's' => TypedLintCheck.PatternString,
+            _ => TypedLintCheck.PatternEnum,
+        };
+        var pattern = $"{operand} is {string.Join(" or ", items.Select(i => i.Pattern))}";
+        var lint = _typedBag.Report(DiagnosticCodes.ConditionsPatterns, _source, chain.Span, [operand, tests], label: $"{tests} tests of `{operand}`",
+            help: $"write `{pattern}`", fix: new Fix(chain.Span, pattern));
+        _typedLints.Add(new TypedLint(lint, items[0].Operand, check));
+        return true;
+    }
+
+    /// <summary>
+    /// One test of a chain: <c>x == C</c> gives <c>C</c>, and <c>x &gt;= A &amp;&amp; x &lt;= B</c> (A at most B) gives <c>A..=B</c>. With
+    /// <paramref name="relational"/> (a term of an <c>||</c> chain), <c>x &lt; C</c> gives <c>&lt; C</c>, and <c>C &gt; x</c> gives the same.
+    /// </summary>
+    private (Expr Operand, string Pattern, char Kind, bool Range)? PatternItem(Expr e, bool relational = false)
+    {
+        e = Unwrap(e);
+        if (e is BinaryExpr { Op: BinaryOp.Eq } eq && IsPathOperand(eq.Left) && ConstantKind(eq.Right) is { } kind)
+            return (eq.Left, _source.GetText(eq.Right.Span), kind, false);
+        if (relational && e is BinaryExpr { Op: BinaryOp.Lt or BinaryOp.Le or BinaryOp.Gt or BinaryOp.Ge } cmp)
+        {
+            var (operand, bound, op) = IsPathOperand(cmp.Left) ? (cmp.Left, cmp.Right, cmp.Op)
+                : (cmp.Right, cmp.Left, cmp.Op switch { BinaryOp.Lt => BinaryOp.Gt, BinaryOp.Le => BinaryOp.Ge, BinaryOp.Gt => BinaryOp.Lt, _ => BinaryOp.Le });
+            var text = op switch { BinaryOp.Lt => "<", BinaryOp.Le => "<=", BinaryOp.Gt => ">", _ => ">=" };
+            if (IsPathOperand(operand) && RangeBound(bound) is { } b) return (operand, $"{text} {_source.GetText(bound.Span)}", b.Kind, false);
+        }
+        if (e is BinaryExpr { Op: BinaryOp.LogicalAnd, Left: BinaryExpr { Op: BinaryOp.Ge } ge, Right: BinaryExpr { Op: BinaryOp.Le } le }
+            && IsPathOperand(ge.Left) && _source.GetText(ge.Left.Span) == _source.GetText(le.Left.Span)
+            && RangeBound(ge.Right) is { } lo && RangeBound(le.Right) is { } hi && lo.Kind == hi.Kind && lo.Value <= hi.Value)
+            return (ge.Left, $"{_source.GetText(ge.Right.Span)}..={_source.GetText(le.Right.Span)}", lo.Kind, true);
+        return null;
+    }
+
+    /// <summary>A name, a field path or an index path whose indexes are names or literals: reading it twice reads the same value.</summary>
+    private static bool IsPathOperand(Expr e) => e switch
+    {
+        NameExpr { TypeArgs.Length: 0 } => true,
+        MemberExpr { NullConditional: false, TypeArgs.Length: 0 } m => m.Target is ThisExpr || IsPathOperand(m.Target),
+        IndexExpr { Index: NameExpr { TypeArgs.Length: 0 } or LiteralExpr } i => IsPathOperand(i.Target),
+        _ => false,
+    };
+
+    /// <summary>The kind of a constant a pattern can hold: <c>i</c>nteger, <c>c</c>har (rune), <c>s</c>tring or <c>e</c>num case; qualified names and floats are left out.</summary>
+    private char? ConstantKind(Expr e) => e switch
+    {
+        LiteralExpr { Kind: LiteralKind.Integer, Suffix: null } or UnaryExpr { Op: UnaryOp.Negate, Operand: LiteralExpr { Kind: LiteralKind.Integer, Suffix: null } } => 'i',
+        LiteralExpr { Kind: LiteralKind.Char, Suffix: null } => 'c',
+        LiteralExpr { Kind: LiteralKind.String, Suffix: null } s when _source.GetText(s.Span) is var t && t.StartsWith('"') && !t.StartsWith("\"\"\"", StringComparison.Ordinal) => 's',
+        TargetMemberExpr => 'e',
+        _ => null,
+    };
+
+    /// <summary>The value of a range bound: an integer literal (signed, with <c>0x</c>, <c>0o</c> or <c>0b</c>) or a rune literal of one plain character.</summary>
+    private (char Kind, Int128 Value)? RangeBound(Expr e)
+    {
+        if (e is UnaryExpr { Op: UnaryOp.Negate, Operand: LiteralExpr { Kind: LiteralKind.Integer, Suffix: null } negated })
+            return IntegerValue(_source.GetText(negated.Span)) is { } v ? ('i', -v) : null;
+        if (e is LiteralExpr { Kind: LiteralKind.Integer, Suffix: null } integer)
+            return IntegerValue(_source.GetText(integer.Span)) is { } v ? ('i', v) : null;
+        if (e is LiteralExpr { Kind: LiteralKind.Char, Suffix: null } rune && _source.GetText(rune.Span) is ['\'', .. var inner, '\''] && !inner.Contains('\\')
+            && inner.EnumerateRunes().ToList() is [var only])
+            return ('c', only.Value);
+        return null;
+    }
+
+    private static Int128? IntegerValue(string text)
+    {
+        text = text.Replace("_", "");
+        var radix = text.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? 16 : text.StartsWith("0o", StringComparison.OrdinalIgnoreCase) ? 8
+            : text.StartsWith("0b", StringComparison.OrdinalIgnoreCase) ? 2 : 10;
+        var digits = radix == 10 ? text : text[2..];
+        if (digits.Length is 0 or > 30) return null;
+        Int128 value = 0;
+        foreach (var c in digits)
+        {
+            var d = c is >= '0' and <= '9' ? c - '0' : c is >= 'a' and <= 'f' ? c - 'a' + 10 : c is >= 'A' and <= 'F' ? c - 'A' + 10 : 99;
+            if (d >= radix) return null;
+            value = value * radix + d;
+        }
+        return value;
+    }
+
+    /// <summary>BYN1079 on <c>= List&lt;T&gt;()</c>, <c>= Map&lt;K, V&gt;()</c> or <c>= T {}</c> spelling the declared type; the fix writes <c>[]</c> or <c>{}</c>.</summary>
+    private void LintEmptyLiteral(TypeSyntax type, Expr? init)
+    {
+        var (spelled, empty) = init switch
+        {
+            CallExpr { Callee: NameExpr { Name.Text: "List" or "Map", TypeArgs.Length: > 0 } callee, Args.Length: 0, Because: null } => (callee.Span, "[]"),
+            StructLiteralExpr { Type: { } t, Fields.Length: 0 } => (t.Span, "{}"),
+            _ => (default(TextSpan), null),
+        };
+        if (empty is null || Squeezed(spelled) != Squeezed(type.Span)) return;
+        _styleLints.Report(DiagnosticCodes.LiteralsEmpty, _source, init!.Span, [empty], label: "spells out the declared type",
+            help: $"write `{empty}`", fix: new Fix(init.Span, empty));
+    }
+
+    private string Squeezed(TextSpan span) => string.Concat(_source.GetText(span).Where(c => !char.IsWhiteSpace(c)));
+
+    /// <summary>The operand and name of <c>X is { } k</c>.</summary>
+    private static (Expr Value, string Name)? OptionalBinding(Expr condition) =>
+        condition is IsExpr { Pattern: PropertyPattern { Type: null, Properties.Length: 0, Designation: { } k } } i ? (i.Value, k.Text) : null;
+
+    /// <summary>BYN1080 on <c>while (X is { } k)</c>; the fix writes <c>while let k = X</c>.</summary>
+    private void LintWhileBind(Token keyword, Expr condition, bool parenthesized, int conditionEnd, Stmt body)
+    {
+        if (!parenthesized || body is not BlockStmt || OptionalBinding(condition) is not { } bind) return;
+        var x = _source.GetText(bind.Value.Span);
+        // `while let` takes a bare value, which ends at `{`.
+        if (x.Contains('{') || x.Contains('\n')) return;
+        var span = TextSpan.FromBounds(keyword.Start, conditionEnd);
+        var fixedText = $"while let {bind.Name} = {x}";
+        _styleLints.Report(DiagnosticCodes.OptionalsBind, _source, span, [x, bind.Name, "write `while let`"], label: "binds with a pattern",
+            help: $"write `{fixedText}`", fix: new Fix(span, fixedText));
+    }
+
+    /// <summary>
+    /// BYN1080 on <c>if (X is { } k)</c>: on a <c>let</c> local or parameter the fix tests <c>X is not null</c> and reads <c>X</c>
+    /// (confirmed by the compilation); where the miss leaves, it binds <c>let k = X ?? exit</c> (decided by the block).
+    /// </summary>
+    private void LintIfBind(IfStmt stmt, bool parenthesized, int conditionStart, int conditionEnd, bool elseIf)
+    {
+        if (!parenthesized || stmt.Likelihood != Likelihood.None || stmt.Then is not BlockStmt then || OptionalBinding(stmt.Condition) is not { } bind) return;
+        if (stmt.Else is not (null or BlockStmt or IfStmt)) return;
+        var x = _source.GetText(bind.Value.Span);
+        if (x.Contains('\n')) return;
+        var local = bind.Value is NameExpr { TypeArgs.Length: 0 } ? NarrowLint(then, x, bind, conditionStart, conditionEnd) : null;
+        var exit = elseIf ? null : ExitBindLint(stmt, then, x, bind.Name, conditionStart, conditionEnd);
+        if (exit is not null) _bindExits[stmt] = (exit, local);
+        else if (local is not null) _typedLints.Add(local);
+    }
+
+    /// <summary>The <c>if X is not null</c> rewrite: <c>k</c> in the hit block becomes <c>X</c>, unless a use of it is not a plain read.</summary>
+    private TypedLint? NarrowLint(BlockStmt then, string x, (Expr Value, string Name) bind, int conditionStart, int conditionEnd)
+    {
+        var body = new StringBuilder();
+        var from = then.Span.Start;
+        for (var i = TokenAt(then.Span.Start); i < _count && _tokens[i].Start < then.Span.End; i++)
+        {
+            var t = _tokens[i];
+            // A lambda may not see the narrowing.
+            if (t.Kind == TokenKind.FatArrow) return null;
+            if (t.Kind != TokenKind.Identifier || Text(t) != bind.Name) continue;
+            if (KindAt(i - 1) is TokenKind.Dot or TokenKind.RefKeyword or TokenKind.InKeyword or TokenKind.OutKeyword || KindAt(i + 1) == TokenKind.Colon) return null;
+            body.Append(_source.GetText(TextSpan.FromBounds(from, t.Start))).Append(x);
+            from = t.End;
+        }
+        body.Append(_source.GetText(TextSpan.FromBounds(from, then.Span.End)));
+        var open = _tokens[TokenAt(conditionStart)];
+        var head = (open.HasTriviaBefore ? "" : " ") + $"{x} is not null" + _source.GetText(TextSpan.FromBounds(conditionEnd, then.Span.Start));
+        var span = TextSpan.FromBounds(conditionStart, conditionEnd);
+        var lint = _typedBag.Report(DiagnosticCodes.OptionalsBind, _source, span, [x, bind.Name, $"`{x} is not null` narrows `{x}`"],
+            label: "binds a second name", help: $"write `if {x} is not null` and read `{x}`",
+            fix: new Fix(TextSpan.FromBounds(conditionStart, then.Span.End), head + body));
+        return new TypedLint(lint, bind.Value, TypedLintCheck.NarrowableLocal);
+    }
+
+    /// <summary>The <c>let k = X ?? exit</c> rewrite of an <c>if</c> whose <c>else</c> block is one bare exit; the hit block moves up a level.</summary>
+    private Diagnostic? ExitBindLint(IfStmt stmt, BlockStmt then, string x, string name, int conditionStart, int conditionEnd)
+    {
+        if (stmt.Else is not BlockStmt { Statements: [var only] } otherwise || only is not (ReturnStmt or BreakStmt { Label: null } or ContinueStmt { Label: null })) return null;
+        var exit = _source.GetText(otherwise.Span)[1..^1].Trim();
+        if (exit.Contains('\n') || exit.Contains('/') || exit.Contains(';')) return null;
+        if (only is BreakStmt && exit != "break" || only is ContinueStmt && exit != "continue") return null;
+        var lineStart = _source.GetLineSpan(_source.GetLineIndex(stmt.Span.Start)).Start;
+        var indent = _source.GetText(TextSpan.FromBounds(lineStart, stmt.Span.Start));
+        if (indent.Trim(' ', '\t').Length > 0 || DedentedBody(then, indent) is not { } body) return null;
+        var simple = only is BreakStmt or ContinueStmt || only is ReturnStmt { Value: LiteralExpr or NameExpr { TypeArgs.Length: 0 } or TargetMemberExpr };
+        var head = simple ? $"let {name} = {x} ?? {exit}" : $"let {name} = {x}\n{indent}{exit} if {name} is null";
+        return _typedBag.Report(DiagnosticCodes.OptionalsBind, _source, TextSpan.FromBounds(conditionStart, conditionEnd), [x, name, "the miss leaves, so a `let` can bind it"],
+            label: "binds with a pattern", help: simple ? $"write `{head}`" : $"write `let {name} = {x}` and `{exit} if {name} is null`",
+            fix: new Fix(stmt.Span, head + "\n" + body));
+    }
+
+    /// <summary>The statements of <paramref name="block"/> one level out at <paramref name="indent"/>, or null if a line or token does not allow it.</summary>
+    private string? DedentedBody(BlockStmt block, string indent)
+    {
+        for (var i = TokenAt(block.Span.Start); i < _count && _tokens[i].Start < block.Span.End; i++)
+            if (_source.GetText(_tokens[i].Span).Contains('\n')) return null;
+        var inner = _source.GetText(block.Span)[1..^1];
+        if (inner.Contains('\r')) return null;
+        if (!inner.Contains('\n')) return inner.Trim() is { Length: > 0 } one ? indent + one : null;
+        var lines = inner.Split('\n');
+        if (lines[0].Trim().Length > 0 || lines[^1] != indent) return null;
+        var deeper = indent + "    ";
+        var body = new List<string>();
+        foreach (var line in lines[1..^1])
+        {
+            if (line.Trim().Length == 0) body.Add("");
+            else if (line.StartsWith(deeper, StringComparison.Ordinal)) body.Add(indent + line[deeper.Length..]);
+            else return null;
+        }
+        return body.Count > 0 ? string.Join("\n", body) : null;
+    }
+
+    /// <summary>
+    /// Decides the <c>if (X is { } k)</c> sites among <paramref name="statements"/>: the hit block moves up only if it declares nothing
+    /// that would outlive it (no local, <c>defer</c> or <c>using</c>, unless it is the last statement) and no later statement names <c>k</c>.
+    /// </summary>
+    private void LintBindExits(List<Stmt> statements)
+    {
+        for (var i = 0; i < statements.Count; i++)
+        {
+            if (statements[i] is not IfStmt { Then: BlockStmt then } stmt || !_bindExits.Remove(stmt, out var site)) continue;
+            var name = OptionalBinding(stmt.Condition)!.Value.Name;
+            var outlives = then.Statements.Any(s => s is DeferStmt or LocalDecl { Using: true }) || i < statements.Count - 1 && then.Statements.Any(s => s is LocalDecl);
+            var named = false;
+            for (var t = TokenAt(stmt.Span.End); i < statements.Count - 1 && t < _count && _tokens[t].Start < statements[^1].Span.End; t++)
+                named |= _tokens[t].Kind == TokenKind.Identifier && Text(_tokens[t]) == name;
+            if (!outlives && !named)
+            {
+                if (site.Local is { } local) _typedLints.Add(local with { Otherwise = site.Exit });
+                else _styleLints.Add(site.Exit);
+            }
+            else if (site.Local is { } local) _typedLints.Add(local);
+        }
     }
 
     /// <summary>Whether the line starting at token <paramref name="index"/> continues the line before: inside <c>()</c> or <c>[]</c>, waṣl, or after lā (not <c>{</c>, which opens a block).</summary>
@@ -1144,6 +1572,7 @@ public sealed class Parser
         if (Accept(TokenKind.Equals)) init = ParseExpression();
         var requires = ParseRequiresLines();
         ExpectEnd();
+        LintEmptyLiteral(type, init);
         return new FieldDecl(SpanFrom(start), modifiers, type, name, init) { Requires = requires };
     }
 
@@ -1277,7 +1706,11 @@ public sealed class Parser
         Expr? expressionBody = null;
         if (Kind == TokenKind.OpenBrace)
         {
+            var outer = _blockDepth;
+            _blockDepth = -1;
             body = ParseBlock();
+            _blockDepth = outer;
+            LintFunctionLength(body);
         }
         else if (Accept(TokenKind.FatArrow))
         {
@@ -2232,6 +2665,9 @@ public sealed class Parser
         var start = Current.Start;
         var open = Expect(TokenKind.OpenBrace);
         if (open.Length == 0) return new BlockStmt(new TextSpan(start, 0), []);
+        if (++_blockDepth == MaxNesting + 1)
+            _styleLints.Report(DiagnosticCodes.NestingDepth, _source, open.Span, label: $"nested more than {MaxNesting} deep",
+                help: "flatten it with early exits");
         var statements = new List<Stmt>();
         while (Kind != TokenKind.CloseBrace && !AtEnd)
         {
@@ -2244,6 +2680,8 @@ public sealed class Parser
             if (_pos == before) Advance();
         }
         ExpectClose(open, "block");
+        _blockDepth--;
+        if (_bindExits.Count > 0) LintBindExits(statements);
         return new BlockStmt(SpanFrom(start), statements.ToArray());
     }
 
@@ -2278,6 +2716,7 @@ public sealed class Parser
                 return RejectPostfixAfterCompound(ParseUnless(start));
             case TokenKind.WhileKeyword:
                 var whileKeyword = Advance();
+                var whileIndex = _pos - 1;
                 if (Accept(TokenKind.LetKeyword))
                 {
                     var variable = ExpectName("a variable name");
@@ -2287,7 +2726,10 @@ public sealed class Parser
                 }
                 {
                     var condition = ParseCondition(out var parenthesized, out var parens);
+                    var conditionEnd = _prevEnd;
+                    LintWrappedCondition(whileIndex, condition);
                     var body = parenthesized ? ParseBody(whileKeyword, ref parens) : ParseBlock();
+                    LintWhileBind(whileKeyword, condition, parenthesized, conditionEnd, body);
                     return new WhileStmt(SpanFrom(start), condition, body);
                 }
             case TokenKind.DoKeyword:
@@ -2405,6 +2847,7 @@ public sealed class Parser
             ParseExpression();
         }
         ExpectEnd();
+        if (kind == BindingKind.Let && type is not null) LintEmptyLiteral(type, init);
         return new LocalDecl(SpanFrom(start), kind, isUsing, type, name, init);
     }
 
@@ -2691,6 +3134,7 @@ public sealed class Parser
     private Stmt ParseIf(int start, bool elseIf = false)
     {
         var keyword = Advance();
+        var keywordIndex = _pos - 1;
         var likelihood = Likelihood.None;
         if (Kind == TokenKind.NeverKeyword && Peek(1) != TokenKind.OpenBrace && CanStartExpression(Peek(1)))
         {
@@ -2702,7 +3146,10 @@ public sealed class Parser
             Advance();
             likelihood = Likelihood.Unlikely;
         }
+        var conditionStart = Current.Start;
         var condition = ParseCondition(out var parenthesized, out var parens);
+        var conditionEnd = _prevEnd;
+        LintWrappedCondition(keywordIndex, condition);
         // The BYN1017 fix leaves a bare condition, after which `then` and `else` must both be blocks: it braces both.
         var then = parenthesized ? ParseBody(keyword, ref parens) : ParseBlock();
         Stmt? otherwise = null;
@@ -2715,7 +3162,10 @@ public sealed class Parser
             otherwise = Kind == TokenKind.IfKeyword ? RejectPostfixAfterCompound(ParseIf(Current.Start, elseIf: true))
                 : parenthesized ? ParseBody(elseKeyword, ref parens) : ParseBlock();
         }
-        return new IfStmt(SpanFrom(start), condition, then, otherwise) { Likelihood = likelihood };
+        var ifStmt = new IfStmt(SpanFrom(start), condition, then, otherwise) { Likelihood = likelihood };
+        if (!elseIf && !parenthesized) LintPostfixGuard(ifStmt);
+        LintIfBind(ifStmt, parenthesized, conditionStart, conditionEnd, elseIf);
+        return ifStmt;
     }
 
     private static Expr Unwrap(Expr e) => e is ParenExpr p ? Unwrap(p.Inner) : e;
@@ -2769,8 +3219,10 @@ public sealed class Parser
     private Stmt ParseUnless(int start)
     {
         var keyword = Advance();
+        var keywordIndex = _pos - 1;
         SkipUnlessLikelihood();
         var condition = ParseCondition(out var parenthesized, out var parens);
+        LintWrappedCondition(keywordIndex, condition);
         // The `if` fix spans the parentheses and drops them, so it replaces the BYN1017 report.
         var check = CheckUnlessCondition(condition, TextSpan.FromBounds(keyword.Start, _prevEnd));
         if (check is not null) Unreport(parens);
@@ -3404,6 +3856,7 @@ public sealed class Parser
             // `??` is right-associative; everything else is left-associative.
             var right = op == BinaryOp.Coalesce ? ParseBinary(prec) : ParseBinary(prec + 1);
             left = new BinaryExpr(SpanFrom(start), op, left, right);
+            if (op is BinaryOp.LogicalAnd or BinaryOp.LogicalOr) _logical.Add(((BinaryExpr)left, _pos));
         }
     }
 
@@ -3725,6 +4178,7 @@ public sealed class Parser
                     _ => ArgModifier.None,
                 };
                 if (modifier != ArgModifier.None) Advance();
+                _argumentStarts.Add(_pos);
                 var value = ParseExpression();
                 args.Add(new Argument(SpanFrom(start), name, modifier, value));
             } while (Accept(TokenKind.Comma));
@@ -3862,7 +4316,9 @@ public sealed class Parser
         Expect(TokenKind.FatArrow);
         if (Kind == TokenKind.OpenBrace) return new LambdaExpr(SpanFrom(start), parameters.ToArray(), null, ParseBlock());
         var body = ParseExpression();
-        return new LambdaExpr(SpanFrom(start), parameters.ToArray(), body, null);
+        var lambda = new LambdaExpr(SpanFrom(start), parameters.ToArray(), body, null);
+        LintItLambda(lambda, TokenAt(start));
+        return lambda;
     }
 
     /// <summary>

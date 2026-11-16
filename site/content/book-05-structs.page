@@ -8,7 +8,7 @@ template: docs
 <h2 id="struct">Fields and values</h2>
 <example name="book-05-point"/>
 <ul>
-  <li><code>struct Point { i64 x  i64 y }</code> declares a type with two fields, type first, one per line.</li>
+  <li><code>struct Point { i32 x  i32 y }</code> declares a type with two fields, type first, one per line.</li>
   <li><code>Point { x: 3, y: 4 }</code> makes a value. Every field is named in the construction.</li>
   <li>A struct is a value. <code>var q = p</code> makes a copy, so changing <code>q.x</code> leaves <code>p</code> alone: the output shows <code>p.x is 3, q.x is 10</code>.</li>
   <li><code>==</code> compares all fields. <code>p == Point { x: 3, y: 4 }</code> is true.</li>
@@ -28,14 +28,14 @@ template: docs
 <span class="gut">  explain: bayan explain BYN2109</span></pre>
 <figcaption>Real output from the compiler (<code>bayan check missingfield.byn</code>). The path is shortened to <code>missingfield.byn</code>.</figcaption>
 </figure>
-<p>A field can have a default (<code>i64 count = 0</code>, below), and then it may be left out.</p>
+<p>A field can have a default (<code>i32 count = 0</code>, below), and then it may be left out.</p>
 
 <h2 id="methods">Methods</h2>
 <example name="book-05-methods"/>
 <ul>
   <li>A method is a function declared inside the struct. <code>string describe() =&gt; $"{name}: {count}"</code> reads the fields directly.</li>
   <li>A field-like member with no parentheses, <code>bool isZero =&gt; count == 0</code>, is called without them: <code>hits.isZero</code>.</li>
-  <li>A method is read-only by default. One that changes the value says so with <code>ref this</code> as its first parameter: <code>void add(ref this, i64 amount = 1)</code>. At the call it is plain: <code>hits.add()</code>. Other parameters work as in <a href="book-04-functions.html">chapter 4</a>: here <code>amount</code> has a default and is passed by name.</li>
+  <li>A method is read-only by default. One that changes the value says so with <code>ref this</code> as its first parameter: <code>void add(ref this, i32 amount = 1)</code>. At the call it is plain: <code>hits.add()</code>. Other parameters work as in <a href="book-04-functions.html">chapter 4</a>: here <code>amount</code> has a default and is passed by name.</li>
   <li><code>static</code> declares a function on the type itself, called as <code>Counter.named("hits")</code>. Use it to build values.</li>
 </ul>
 <p>If you forget <code>ref this</code>, the compiler finds the line that changes the field:</p>
@@ -85,7 +85,7 @@ template: docs
 
 <h2 id="with">Copy and update with <code>with</code></h2>
 <example name="book-05-with"/>
-<p><code>ada with { age: 37 }</code> makes a new <code>User</code> with the same fields except the ones you list. <code>ada</code> itself is unchanged, which is why this works on a <code>let</code>. Use it when you would rather build a new value than change one in place.</p>
+<p><code>aisha with { age: 37 }</code> makes a new <code>User</code> with the same fields except the ones you list. <code>aisha</code> itself is unchanged, which is why this works on a <code>let</code>. Use it when you would rather build a new value than change one in place.</p>
 
 <h2 id="format">Printing your own types</h2>
 <p>A struct does not print by itself. Interpolating one is refused:</p>

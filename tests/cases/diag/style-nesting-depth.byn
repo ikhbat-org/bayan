@@ -1,0 +1,24 @@
+// BYN1075: more than 4 block levels inside a function. Four levels are quiet.
+void main() {
+    let n = 1
+    if n > 0 {
+        if n > 1 {
+            if n > 2 {
+                if n > 3 {
+                    print("four")
+                }
+            }
+        }
+    }
+    if n > 0 {
+        if n > 1 {
+            if n > 2 {
+                if n > 3 {
+                    if n > 4 {
+                        print("five")
+                    }
+                }
+            }
+        }
+    }
+}

@@ -6,8 +6,8 @@
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 unix=(scripts/ci/bash32-parse.test.sh scripts/ci/install-zig.test.sh scripts/ci/install-dotnet.test.sh
-  scripts/ci/sdk-patch-check.test.sh scripts/ci/known-failures.test.sh scripts/ci/script-tests.test.sh
-  scripts/release/package.test.sh scripts/release/memory-gate.test.sh scripts/release/editor-gate.test.sh
+  scripts/ci/sdk-patch-check.test.sh scripts/ci/known-failures.test.sh scripts/ci/script-tests.test.sh scripts/ci/pre-push.test.sh
+  scripts/release/package.test.sh scripts/release/docs-pdf.test.sh scripts/release/memory-gate.test.sh scripts/release/editor-gate.test.sh
   scripts/release/refuse-draft.test.sh scripts/release/release-workflow.test.sh scripts/bayan-tool.test.sh
   scripts/parity/run.test.sh)
 docs=(scripts/release/set-version.test.sh scripts/release/cut.test.sh scripts/docs/*.test.sh scripts/docs/check.sh)

@@ -1,5 +1,5 @@
-i64 sum(rest ReadOnlySpan<i64> numbers) {
-    var total: i64 = 0
+i32 sum(rest ReadOnlySpan<i32> numbers) {
+    var total: i32 = 0
     for n in numbers {
         total += n
     }

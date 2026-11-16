@@ -1,7 +1,7 @@
 string greeting(string name) {
-    return $"Hello, {name}!"
+    return $"Salam, {name}!"
 }
 
 void main() {
-    print(greeting("Ada"))
+    print(greeting("Aisha"))
 }

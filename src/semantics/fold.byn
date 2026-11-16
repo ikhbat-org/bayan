@@ -15,7 +15,7 @@ Constant t6Flag(bool flag) => Constant { kind: .flag, flag: flag }
 
 /// `ConstantFolding.Wrap`: a non-integer `type` leaves `n` as it is.
 Big t6Wrap(Big n, as Type type) {
-    if !isInteger(type) { return n }
+    return n if !isInteger(type)
     return bigWrap(n, to: primitiveBits(primKindOf(typeIndex(type))), signed: isSignedInteger(type))
 }
 
@@ -24,14 +24,15 @@ Constant? foldUnary(ref Ctx c, for parser.UnaryOp op, by in Constant operand, as
         case .plus:
             return operand
         case .negate:
-            if operand.kind == .integer { return t6Integer(bigNeg(operand.integer)) }
-            if operand.kind == .real { return t6Real(-operand.real) }
+            return t6Integer(bigNeg(operand.integer)) if operand.kind == .integer
+            return t6Real(-operand.real) if operand.kind == .real
             return null
         case .notKeyword:
-            if operand.kind == .flag { return t6Flag(flag: !operand.flag) }
+            return t6Flag(flag: !operand.flag) if operand.kind == .flag
             return null
         case .complement:
-            if operand.kind == .integer && kindOf(type) == .primitive { return t6Integer(t6Wrap(bigNot(operand.integer), as: type)) }
+            return t6Integer(t6Wrap(bigNot(operand.integer), as: type)) if operand.kind == .integer
+                && kindOf(type) == .primitive
             return null
         default:
             return null
@@ -39,7 +40,7 @@ Constant? foldUnary(ref Ctx c, for parser.UnaryOp op, by in Constant operand, as
 }
 
 Constant? foldBinary(ref Ctx c, for parser.BinaryOp op, from in Constant l, by in Constant r, as Type type) {
-    if l.kind != r.kind { return null }
+    return null if l.kind != r.kind
     switch l.kind {
         case .integer:
             return t6IntegerOp(op, from: l.integer, by: r.integer, as: type)
@@ -69,21 +70,25 @@ Constant? foldBinary(ref Ctx c, for parser.BinaryOp op, from in Constant l, by i
             }
         case .rune:
             var order: i64 = 0
-            if l.rune < r.rune { order = -1 }
-            if l.rune > r.rune { order = 1 }
+            if l.rune < r.rune {
+                order = -1
+            }
+            if l.rune > r.rune {
+                order = 1
+            }
             return t6Compare(op, by: order, equal: l.rune == r.rune)
         case .text:
-            if op == .eq || op == .ne { return t6Compare(op, by: 0, equal: l.text == r.text) }
+            return t6Compare(op, by: 0, equal: l.text == r.text) if op is .eq or .ne
             return null
     }
 }
 
 /// `double.CompareTo`: NaN orders below every number and equals itself.
 i64 t6RealOrder(f64 a, as f64 b) {
-    if a < b { return -1 }
-    if a > b { return 1 }
-    if a == b { return 0 }
-    if a != a { return b != b ? 0 : -1 }
+    return -1 if a < b
+    return 1 if a > b
+    return 0 if a == b
+    return b != b ? 0 : -1 if a != a
     return 1
 }
 
@@ -123,9 +128,9 @@ Constant? t6IntegerOp(parser.BinaryOp op, from Big a, by Big b, as Type type) {
             case .subSat: return t6Integer(bigSaturate(bigSub(a, by: b), to: bits, signed: signed))
             case .mulSat: return t6Integer(bigSaturate(bigMul(a, by: b), to: bits, signed: signed))
             case .shl:
-                if inShift { return t6Integer(t6Wrap(bigShl(a, by: bigToI64(b)), as: type)) }
+                return t6Integer(t6Wrap(bigShl(a, by: bigToI64(b)), as: type)) if inShift
             case .shr:
-                if inShift { return t6Integer(bigShr(a, by: bigToI64(b))) }
+                return t6Integer(bigShr(a, by: bigToI64(b))) if inShift
             default:
         }
     }
@@ -135,17 +140,19 @@ Constant? t6IntegerOp(parser.BinaryOp op, from Big a, by Big b, as Type type) {
 /// The value of `e` with the given locals and fields of `this` replaced by constants, or null when some
 /// part of it is only known at run time.
 Constant? evaluate(ref Ctx c, for BExpr e, from in Map<LocalId, Constant> locals, by in Map<FieldId, Constant> fields) {
-    if (exprConstant(in c, for: e) is { } k) { return k }
+    if (exprConstant(in c, for: e) is { } k) {
+        return k
+    }
     let i = boundIndex(e)
     switch boundKind(e) {
         case .local:
             return locals.tryGet(at: c.bLocals[i].local)
         case .field:
-            if boundKind(c.bFields[i].receiver) != .thisRef { return null }
+            return null if boundKind(c.bFields[i].receiver) != .thisRef
             return fields.tryGet(at: c.bFields[i].field)
         case .conversion:
             let kind = c.bConversions[i].kind
-            if kind != .identity && kind != .widen && kind != .numericCast { return null }
+            return null if kind != .identity && kind != .widen && kind != .numericCast
             let operand = c.bConversions[i].operand
             let to = c.bConversions[i].type
             if (evaluate(ref c, for: operand, from: in locals, by: in fields) is { } v) {
@@ -163,10 +170,10 @@ Constant? evaluate(ref Ctx c, for BExpr e, from in Map<LocalId, Constant> locals
             let op = c.bBinaries[i].op
             let left = c.bBinaries[i].left
             let right = c.bBinaries[i].right
-            if op == .logicalAnd || op == .logicalOr {
+            if op is .logicalAnd or .logicalOr {
                 // Short-circuits like the run-time test, so a decided left side is enough.
                 let l = evaluate(ref c, for: left, from: in locals, by: in fields) ?? return null
-                if l.kind == .flag && l.flag == (op == .logicalOr) { return l }
+                return l if l.kind == .flag && l.flag == (op == .logicalOr)
                 return evaluate(ref c, for: right, from: in locals, by: in fields)
             }
             let x = evaluate(ref c, for: left, from: in locals, by: in fields) ?? return null
@@ -174,7 +181,7 @@ Constant? evaluate(ref Ctx c, for BExpr e, from in Map<LocalId, Constant> locals
             return foldBinary(ref c, for: op, from: in x, by: in y, as: exprType(in c, for: left))
         case .isExpr:
             let p = c.bIses[i].pattern
-            if boundKind(p) != .rangePattern { return null }
+            return null if boundKind(p) != .rangePattern
             let value = c.bIses[i].value
             let start = c.bRangePatterns[boundIndex(p)].start
             let end = c.bRangePatterns[boundIndex(p)].end
@@ -185,9 +192,9 @@ Constant? evaluate(ref Ctx c, for BExpr e, from in Map<LocalId, Constant> locals
             let vt = exprType(in c, for: value)
             let low = foldBinary(ref c, for: .ge, from: in v, by: in s, as: vt)
             let high = foldBinary(ref c, for: inclusive ? .le : .lt, from: in v, by: in n, as: vt)
-            if (low is { } lo) {
-                if (high is { } hi) {
-                    if lo.kind == .flag && hi.kind == .flag { return t6Flag(flag: lo.flag && hi.flag) }
+            if low is not null {
+                if high is not null {
+                    return t6Flag(flag: low.flag && high.flag) if low.kind == .flag && high.kind == .flag
                 }
             }
             return null
@@ -198,13 +205,13 @@ Constant? evaluate(ref Ctx c, for BExpr e, from in Map<LocalId, Constant> locals
 
 /// A cast of a constant, or null when the value does not fit (left to the run-time check).
 Constant? foldCast(ref Ctx c, for in Constant value, from Type a, to Type t) {
-    if kindOf(t) != .primitive { return null }
+    return null if kindOf(t) != .primitive
     switch value.kind {
         case .integer:
             let n = value.integer
             if isInteger(t) {
                 let r = range(primKindOf(typeIndex(t)))
-                if bigCmp(n, as: r.min) >= 0 && bigCmp(n, as: r.max) <= 0 { return t6Integer(n) }
+                return t6Integer(n) if bigCmp(n, as: r.min) >= 0 && bigCmp(n, as: r.max) <= 0
                 return null
             }
             if isFloat(t) {
@@ -214,28 +221,28 @@ Constant? foldCast(ref Ctx c, for in Constant value, from Type a, to Type t) {
             if t == prim(.char) {
                 if bigCmp(n, as: bigZero()) >= 0 && bigCmp(n, as: bigFromI64(0x10FFFF)) <= 0 {
                     let v = bigToI64(n)
-                    if v < 0xD800 || v > 0xDFFF { return Constant { kind: .rune, rune: u32(v) } }
+                    return Constant { kind: .rune, rune: u32(v) } if v is < 0xD800 or > 0xDFFF
                 }
                 return null
             }
         case .real:
             let d = value.real
-            if isFloat(t) { return t6Real(t == prim(.f32) ? f64(f32(d)) : d) }
+            return t6Real(t == prim(.f32) ? f64(f32(d)) : d) if isFloat(t)
             if isInteger(t) {
-                if d != d { return t6Integer(bigZero()) }
+                return t6Integer(bigZero()) if d != d
                 let r = range(primKindOf(typeIndex(t)))
-                if d <= bigToF64(r.min) { return t6Integer(r.min) }
-                if d >= bigToF64(r.max) { return t6Integer(r.max) }
+                return t6Integer(r.min) if d <= bigToF64(r.min)
+                return t6Integer(r.max) if d >= bigToF64(r.max)
                 return t6Integer(bigFromF64(d))
             }
         case .rune:
             if isInteger(t) {
                 let n = bigFromI64(i64(value.rune))
-                if bigCmp(n, as: range(primKindOf(typeIndex(t))).max) <= 0 { return t6Integer(n) }
+                return t6Integer(n) if bigCmp(n, as: range(primKindOf(typeIndex(t))).max) <= 0
                 return null
             }
         default:
     }
-    if a == t { return value }
+    return value if a == t
     return null
 }

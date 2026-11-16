@@ -1,4 +1,4 @@
-public i64 checksum(ReadOnlySpan<i64> xs) {
+public i64 checksum(ReadOnlySpan<i32> xs) {
     var total: i64 = 0
     for x in xs {
         total = total * 31 + x
@@ -6,8 +6,8 @@ public i64 checksum(ReadOnlySpan<i64> xs) {
     return total
 }
 
-public List<i64> squares(i64 n) uses alloc {
-    var xs = List<i64>()
+public List<i32> squares(i32 n) uses alloc {
+    var xs = List<i32>()
     for i in 0..n {
         xs.append(i * i)
     }

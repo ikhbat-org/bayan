@@ -20,7 +20,7 @@ struct Digits : IParser {
 
 void attempt(dyn ref readonly IParser p, from string s) {
     let n = p.parse(s) catch switch {
-        .empty => -1,
+        .empty    => -1,
         .notDigit => -2,
     }
     print($"{s} gives {n}")

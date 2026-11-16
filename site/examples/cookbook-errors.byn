@@ -3,15 +3,15 @@ union error ConfigError {
     badValue
 }
 
-i64 port(string text) fails ConfigError {
+i32 port(string text) fails ConfigError {
     fail .missing("port") if text.length == 0
-    return i64.tryParse(text) ?? fail .badValue
+    return i32.tryParse(text) ?? fail .badValue
 }
 
 string describe(string text) {
     let n = port(text) catch switch {
         .missing(let key) => return $"missing key {key}",
-        .badValue => return $"bad value `{text}`",
+        .badValue         => return $"bad value `{text}`",
     }
     return $"port {n}"
 }

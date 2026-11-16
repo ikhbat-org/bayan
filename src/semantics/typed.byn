@@ -19,7 +19,9 @@ public string typedDump(ref Ctx c) uses alloc {
         var functions = List<FuncId>()
         for k in 0..c.modules[module].allFunctions.length {
             let f = c.modules[module].allFunctions[k]
-            if c.functions[f].file >= 0 && !functionIsInstance(ref c, by: f) { functions.append(f) }
+            if c.functions[f].file >= 0 && !functionIsInstance(ref c, by: f) {
+                functions.append(f)
+            }
         }
         t26OrderFunctions(ref c, by: module, to: ref functions)
         for fn in functions {
@@ -28,7 +30,9 @@ public string typedDump(ref Ctx c) uses alloc {
             let path = c.files[c.functions[fn].file].path
             sb.append($"      \"path\": {t26JsonString(t26PathOf(ref c, for: path))},\n")
             var owner = c.functions[fn].owner
-            if owner < 0 { owner = c.functions[t26Outermost(ref c, for: fn)].owner }
+            if owner < 0 {
+                owner = c.functions[t26Outermost(ref c, for: fn)].owner
+            }
             let name = owner < 0 ? c.functions[fn].name : $"{c.structs[owner].name}.{c.functions[fn].name}"
             sb.append($"      \"name\": {t26JsonString(name)},\n")
             t26WriteSpan(ref sb, by: c.functions[fn].span, at: "      ")
@@ -37,7 +41,7 @@ public string typedDump(ref Ctx c) uses alloc {
             for k in 0..c.functions[fn].locals.length {
                 let local = c.functions[fn].locals[k]
                 // `l.Location is not null`: a Bayan local always has one (Q645).
-                if c.locals[local].kind == .temp { continue }
+                continue if c.locals[local].kind == .temp
                 sb.append(anyLocal ? ",\n        {\n" : "\n        {\n")
                 anyLocal = true
                 sb.append($"          \"name\": {t26JsonString(c.locals[local].name)},\n")
@@ -47,7 +51,9 @@ public string typedDump(ref Ctx c) uses alloc {
                 sb.append("        }")
             }
             sb.append(anyLocal ? "\n      ]" : "]")
-            if c.functions[fn].kind == .lambda { t26WriteCaptures(ref c, for: fn, to: ref sb) }
+            if c.functions[fn].kind == .lambda {
+                t26WriteCaptures(ref c, for: fn, to: ref sb)
+            }
             sb.append("\n    }")
         }
     }
@@ -74,17 +80,17 @@ void t26OrderFunctions(ref Ctx c, by ModId module, to ref List<FuncId> functions
 bool t26FunctionBefore(ref Ctx c, by ModId module, from FuncId a, to FuncId b) {
     let fa = t26FileIndex(ref c, by: module, for: c.functions[a].file)
     let fb = t26FileIndex(ref c, by: module, for: c.functions[b].file)
-    if fa != fb { return fa < fb }
+    return fa < fb if fa != fb
     let sa = c.functions[a].span
     let sb = c.functions[b].span
-    if sa.start != sb.start { return sa.start < sb.start }
+    return sa.start < sb.start if sa.start != sb.start
     return sa.end < sb.end
 }
 
 /// The C# `module.Files.IndexOf(file)`: -1 when `file` is not one of the module's.
 i64 t26FileIndex(ref Ctx c, by ModId module, for FileId file) {
     for i in 0..c.modules[module].files.length {
-        if c.modules[module].files[i] == file { return i }
+        return i if c.modules[module].files[i] == file
     }
     return -1
 }
@@ -120,7 +126,9 @@ void t26WriteCaptures(ref Ctx c, for FuncId lambda, to ref StrBuf sb) {
 /// TypedDump.cs:75 `Outermost`.
 FuncId t26Outermost(ref Ctx c, for FuncId fn) {
     var f = fn
-    while c.functions[f].enclosing >= 0 { f = c.functions[f].enclosing }
+    while c.functions[f].enclosing >= 0 {
+        f = c.functions[f].enclosing
+    }
     return f
 }
 
@@ -187,7 +195,7 @@ string t26JsonString(string s) {
             sb.append("\\f")
         } else if v == 0x0D {
             sb.append("\\r")
-        } else if v < 0x20 || (v >= 0x7F && v <= 0x9F) || v == 0x2028 || v == 0x2029 {
+        } else if v is < 0x20 or 0x7F..=0x9F or 0x2028 or 0x2029 {
             sb.append($"\\u{t26Hex4(v)}")
         } else if v > 0xFFFF {
             let u = v - 0x10000

@@ -1,4 +1,4 @@
-string grade(i64 score) {
+string grade(i32 score) {
     return "fail" if score < 50
     return "pass"
 }

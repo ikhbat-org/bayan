@@ -5,12 +5,12 @@ union error LookupError {
     blank
 }
 
-Result<i64, LookupError> lookup(string key) {
+Result<i32, LookupError> lookup(string key) {
     return .blank if key.isEmpty
     return key switch {
         "one" => 1,
         "two" => 2,
-        _ => LookupError.missing,
+        _     => LookupError.missing,
     }
 }
 

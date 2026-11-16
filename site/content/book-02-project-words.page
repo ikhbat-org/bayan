@@ -71,11 +71,11 @@ template: docs
 <p>Notice what you did not write: no helper to find word boundaries, and no loop over characters. Strings in Bayan are UTF-8 text, and the string methods work with that for you.</p>
 
 <h2 id="count">Step 3: count the words</h2>
-<p>A <code>Map&lt;string, i64&gt;</code> maps a string to a 64-bit integer. Use the word as the key and the count as the value.</p>
+<p>A <code>Map&lt;string, i32&gt;</code> maps a string to a 32-bit integer. Use the word as the key and the count as the value.</p>
 <example name="book-02-count"/>
 <ul>
-  <li><code>Map&lt;string, i64&gt;()</code> makes an empty map. The type goes in the angle brackets.</li>
-  <li><code>counts.tryGet(at: word)</code> looks a key up and gives back <code>i64?</code>, a number or <code>null</code> for "not there". <code>?? 0</code> replaces <code>null</code> with <code>0</code>. So the line reads: the new count is the old count, or zero, plus one.</li>
+  <li><code>Map&lt;string, i32&gt;()</code> makes an empty map. The type goes in the angle brackets.</li>
+  <li><code>counts.tryGet(at: word)</code> looks a key up and gives back <code>i32?</code>, a number or <code>null</code> for "not there". <code>?? 0</code> replaces <code>null</code> with <code>0</code>. So the line reads: the new count is the old count, or zero, plus one.</li>
   <li><code>for e in counts</code> goes through the entries, and each has a <code>.key</code> and a <code>.value</code>.</li>
 </ul>
 <p>The output is in the order the words first appeared, not in order of count. A <code>Map</code> in Bayan remembers insertion order.</p>
@@ -91,7 +91,7 @@ template: docs
 <p>A <code>Map</code> has no order by count. You need a list of (word, count) pairs, and a way to order them. Define a <code>struct</code> for a pair:</p>
 <pre><code class="byn">struct Entry {
     string word
-    i64 count
+    i32 count
 
     bool isBefore(Entry other) {
         if count != other.count { return count &gt; other.count }
@@ -126,11 +126,11 @@ template: docs
 <pre><span class="err">error BYN6002:</span> `emptyCounts` uses `alloc` but does not declare it
   <span class="gut">--&gt;</span> publicalloc.byn:2:12
 
-<span class="gut">  2 │</span>     return Map&lt;string, i64&gt;()
+<span class="gut">  2 │</span>     return Map&lt;string, i32&gt;()
 <span class="gut">    │</span>            ^^^^^^^^^^^^^^^^^^ uses `alloc`
 <span class="gut">    │</span>
 <span class="gut">  help: add `alloc` to the `uses` clause, or remove the call</span>
-<span class="gut">    │ 1 │</span> public Map&lt;string, i64&gt; emptyCounts() uses alloc {
+<span class="gut">    │ 1 │</span> public Map&lt;string, i32&gt; emptyCounts() uses alloc {
 <span class="gut">    │   │</span><span class="add">                                      +++++++++++</span>
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
@@ -169,14 +169,14 @@ c 1</code></pre>
 </details>
 <details class="quiz">
   <summary>In <code>counts[word] = (counts.tryGet(at: word) ?? 0) + 1</code>, what does <code>?? 0</code> do, and what would happen to a word you had not seen before without it?</summary>
-  <p><code>tryGet</code> returns <code>i64?</code>. <code>??</code> picks the right side when the left is <code>null</code>, so a new word starts from 0. Without <code>?? 0</code> the value is a number that might be missing, and you cannot add <code>1</code> to that. Reading with <code>counts[word]</code> instead does compile, but it panics on the first new word, because reading an absent key is a panic. <code>tryGet</code> is how you ask "is it there?" without stopping the program.</p>
+  <p><code>tryGet</code> returns <code>i32?</code>. <code>??</code> picks the right side when the left is <code>null</code>, so a new word starts from 0. Without <code>?? 0</code> the value is a number that might be missing, and you cannot add <code>1</code> to that. Reading with <code>counts[word]</code> instead does compile, but it panics on the first new word, because reading an absent key is a panic. <code>tryGet</code> is how you ask "is it there?" without stopping the program.</p>
 </details>
 <example name="book-02-q2" output="no"/>
 <details class="quiz">
   <summary>What does this line print?</summary>
   <p>It prints:</p>
 <pre><code>true true true false</code></pre>
-  <p>Strings compare by their bytes, not by dictionary order. <code>"fig" &lt; "pear"</code> is true because <code>f</code> comes before <code>p</code>. <code>"Zed" &lt; "apple"</code> is true because a capital letter has a lower byte value than any lowercase letter. <code>"a" &lt; "ab"</code> is true because a prefix is smaller than the longer string. <code>"b" &lt; "ab"</code> is false because <code>b</code> is greater than <code>a</code>. This is why step 2 lowercases every word before it is counted.</p>
+  <p>Strings compare by their bytes, not by dictionary order. <code>"fig" &lt; "pear"</code> is true because <code>f</code> comes before <code>p</code>. <code>"Yusuf" &lt; "apple"</code> is true because a capital letter has a lower byte value than any lowercase letter. <code>"a" &lt; "ab"</code> is true because a prefix is smaller than the longer string. <code>"b" &lt; "ab"</code> is false because <code>b</code> is greater than <code>a</code>. This is why step 2 lowercases every word before it is counted.</p>
 </details>
 <details class="quiz">
   <summary>You delete <code>fails IoError</code> from <code>main</code> but leave the <code>try</code> calls. What does the compiler do?</summary>

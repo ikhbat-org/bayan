@@ -12,6 +12,9 @@ wish list; the value is in recording the ones nobody has got to yet.
 Small, clear, and could be picked up without a design decision.
 
 - ~~CI: install zig (or set `BAYAN_CC`) on all three runners so `run/` goldens execute there.~~ (done: ci.yml:40-42 installs zig; triage 2026-11-09)
+- `bayan build --emit-c file.byn` (0.3.1) leaves a stray `a.o` in the current directory (README v3 writer, 2026-11-16).
+- Spec §21.4 says `bayan dist` writes `dist/<version>/<target>/`; 0.3.1 writes `dist/<version>/` and `dist/latest/` (README follows the binary). Reconcile spec or code.
+- `bayan --help` lists `parse [--ast] <file>`, but plain `bayan parse` is refused by the self-hosted compiler while `parse --ast` works; settle in the help rewrite (review of 9e54c2e..cf32c38).
 - `docs/export/BAYAN-DIAGNOSTICS.md` and `BAYAN-GRAMMAR.md` still say BYN5014 is "not a known verb or noun"; regenerate the export snapshot.
 - `#line`: function signatures and prologues map to `main.c`, so a debugger breakpoint on a function names generated code until its first statement; mapping the signature to the declaration line would fix it.
 - `CliToolchainTests.GeneratedCTheCCompilerRejectsIsAnInternalCompilerError` uses a `/bin/sh` fake compiler and returns early on Windows.
@@ -824,3 +827,43 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - `scripts/dotnet-env.test.sh` fails on dev (seen 2026-11-15, plan 017): `scripts/selfhost/pre-push-laws.sh` and `scripts/selfhost/preflight.sh` run dotnet without `MSBUILDDISABLENODEREUSE=1` and `DOTNET_CLI_USE_MSBUILD_SERVER=0`; not in ci.yml.
 - scripts/ci/bash32-parse.test.sh: a `$((cmd; case …))` subshell-in-substitution is taken as arithmetic and not scanned (bash itself parses it ambiguously; no tracked file uses it). Review 93cfe60eaf59..5d30d219, LOW.
 - scripts/ci/bash32-parse.test.sh heredoc(): a shift `$((1 << n))` is still taken for a heredoc when a later line is exactly `n`, hiding bare arms up to it (latent: no tracked .sh shifts with <<). Review 93cfe60eaf59..5d30d219 round 3, LOW.
+- `src/driver/main.byn` usage text (and `csharp/Bayan.Cli/CliApp.cs` help): `bayan test --coverage` works but is not listed in `bayan --help`; README.md:127 notes it (review 34308a65744e..9015d7c4).
+- `bayan format` BYN1041 fix (`else` on its own line) deletes a comment between `}` and `else`: `if a {\n}\n// c\nelse {\n}` loses `// c` (both drivers, before spec 022). Found by the 022 T3/T4 review, 2026-11-15.
+- `csharp/Bayan.Cli/Layout.cs` (022 T6b): when spacing one `*` fails `Check`, the whole file is laid out again with every `*` gap as written, silently, rather than skipping that site. No CLI input found that reaches it (pointer files stop at BYN1067/BYN1001). T6b gate, LOW, 2026-11-15.
+- `LayoutTests.APointerWrittenTightStaysAPointer` (022 T6b) uses `u8*p`; `src/parser/types.byn` says the spaced `u8* p` is the pointer form, so the test name may describe the wrong thing. T6b gate, LOW, 2026-11-15.
+- Parser.cs `BreakStmt`/`ContinueStmt` have empty spans (`SpanFrom` runs before `Advance`), found by 022 T7, 2026-11-15.
+- BYN1073 lambdas.it (022 T7) covers only lambdas passed as arguments, not lambdas bound to a name or returned.
+- `var xs = []` with no target type checks without a diagnostic (found by Fable, spec 022 pass 3, 2026-11-15); expected: an error asking for a type. LOW.
+- Feature spec after 022: promote `if let k = X { … }` from deferred (spec §7.2), mirroring `while let`; covers the ~240 `is { } k` sites `optionals.bind` leaves alone. Amend spec §3.6 (implies `?? return` replaces `is { } k` everywhere). User approved queueing it, 2026-11-15.
+- `literals.empty` (BYN1079, 022 T7b) covers field defaults and annotated `let` locals only; extend it to arguments and struct-literal initialisers.
+- `src/tests/SelfhostDriverTests.cs` (`SelfhostDriverStage2FormatTests.Literals`): the scanner skips raw `"""` and verbatim `@"` strings, so a future LayoutTests/FormatTests input written that way gets no stage-2 row silently (022 T8 gate 4, LOW; fix in T11).
+- `scripts/ci/pre-push.sh`: with `dotnet` missing from PATH and no cached pinned build, `bayan-tool.test.sh` and `parity/run.test.sh` fail with `pinned-bayan: building bayan ... failed` and the cause is only in a build log (`dotnet: command not found`). Check for `dotnet` (or fall back to `$HOME/.dotnet`) up front and say so in one line (seen 2026-11-16 pushing da562b8b from a `!` shell).
+- `bayan fix` typed fixes (BYN1078, BYN1080) come from the root compile with the fewest errors when none is clean (`csharp/Bayan.Cli/FixCommand.cs` `TypedFixes`, `src/driver/fix.byn`); `check` reports these lints only after an error-free compile, so `fix` can apply a rewrite `check` never shows. 022 full review, LOW, 2026-11-16.
+- `bayan fix` compiles each directory under up to 4 roots per pass, 10 passes: up to 40 full compiles per directory when none is clean (`FixCommand.cs` `FixModule`/`TypedFixes`). Cache the root choice across passes. 022 full review, LOW, 2026-11-16.
+- `Layout.cs` `Breaks` (and `layout.byn`) is about quadratic in nesting depth: nested calls 400/800/1600 deep take 0.6/1.9/6.7 s. `AlignRun` restarts per outlier (O(run²)); `Parser.LintBindExits` scans to block end per site. 022 full review, LOW, 2026-11-16.
+- `CliApp.cs:316` `check`: a `package.byn` with errors is ignored for lint severities without saying so; configured `lints` silently fall back to defaults. 022 full review, LOW, 2026-11-16.
+- `bayan fix`: an `IOException` partway through a module skips the "fixed … (n)" lines of files already rewritten (`FixCommand.cs:39-46`, `fix.byn`). 022 full review, LOW, 2026-11-16.
+- `bayan format` layout: a struct literal written vertically keeps no trailing comma, one the formatter breaks gets one (R3 says `.multiline` adds it); a comment before a comma leaves the comma alone on its line; a lone `\r` counts as a blank in `Gaps` (`Layout.cs:88`). 022 full review, LOW, 2026-11-16.
+- 022 rfix review LOW (s022-rfix-review): `DropsComment` (Parser.cs:146, recover.byn:408) counts a comment as kept when its text appears anywhere in the replacement, e.g. inside a kept string literal `"// x"`; make the check position-aware. Owner: 022 follow-up.
+- 022 rfix review LOW: `bayan fix` prints FormatRewriteAbandoned ("file left unchanged") after an earlier pass already wrote the file, then still prints `fixed <file>` (FixCommand.cs:71-76, fix.byn:155-160); word it per pass. Owner: 022 follow-up.
+- 022 rfix review LOW: `Format.RealPath` in FixCommand.cs:37 runs outside the try/catch; an IOException (symlink loop) crashes the C# CLI while fix.byn:251 reports and exits 1. Owner: 022 follow-up.
+- Review 2026-11-16 (1b3820ce4bab..4a48b58a) LOW: `scripts/cleanup/*.test.sh`, `run-all.test.sh` included, are not in `scripts/ci/script-tests.sh`, so CI never runs them.
+- Review 2026-11-16 LOW: `scripts/cleanup/run-all.sh:126` with a missing `$dir` (bad `CLEANUP_DIR`) lists nothing and `-e` exits 0 with "non-zero: 0"; refuse instead.
+- Review 2026-11-16 LOW: `run-all.sh:80` `accepts()` matches case-arm-looking lines in heredocs and ssh payloads, so a flag can reach a parser that rejects it (exit 2, fails safe).
+- Review 2026-11-16 LOW: `scripts/cleanup/2026-11-16-release-0-3-2.sh:67` aborts under `set -e` on a leftover `.worktrees/<x>` that is no longer a worktree; step 1's `git clean -fdX` runs before step 2's dev check, so a listed worktree on dev loses its ignored files.
+- Review 2026-11-16 LOW: `site/gen/markdown.byn:304-311,344` `isAbsolute` accepts any scheme (`javascript:` hrefs); allow http, https, mailto only.
+- Review 2026-11-16 LOW: `site/gen/markdown.byn:488,508` a link URL ends at the first `)`, so `.../A_(b)` breaks; balance parentheses as CommonMark does.
+- Review 2026-11-16 LOW: `site/gen/markdown.byn` shows `<!-- generated: … -->` markers of `docs/STATUS.md` as visible text; drop HTML comments.
+- Review 2026-11-16 LOW: `site/gen/markdown.byn:247` `startsBlock` lets any ordered marker interrupt a paragraph (a wrapped `2026. ` line starts `<ol start="2026">`); CommonMark allows only `1.`.
+- Review 2026-11-16 LOW: `site/gen/main.byn:214-229,386` page names can collide (same base and parent name, dated sibling, a doc named `index`) and overwrite silently; refuse a collision.
+- Review 2026-11-16 LOW: `.github/workflows/pages.yml` rebuilds `out/` from empty, so only the current `docs/<version>/` is published and older release doc links break after the next deploy; decide whether old versions stay.
+- Review 2026-11-16 LOW: `scripts/release/docs-pdf.sh:31` `file://$root/...` is not percent-encoded (space or `#` in the checkout path).
+- Review 2026-11-16 LOW: `scripts/release/cut.sh:42` a roadmap dated the same day as the previous tag passes even when last edited before the tag.
+||||||| 4a48b58a
+- Site: `book.html` prints an extra title page before chapter 1 (print stylesheet). 2026-11-16, 0.3.2 prep.
+- Site: inline code in `.page` bodies is not formatted by `bayan format` (only fenced examples are checked). 2026-11-16.
+- wlt1 has no Python, so 3 `SelfhostSnapshotTests` fail there; install Python or skip them with a reason on hosts without it. 2026-11-16.
+- `dist/macos-arm64/latest` is 0.2.0-dev (2026-11-05) and rejects the current clause order (BYN1065); rebuild with `scripts/dist.sh` after 0.3.2. 2026-11-16.
+- VM shard runs abort when ghosthive's MemAvailable falls under 10 GiB; it sat at 12 GiB on 2026-11-16, so the 0.3.2 suite ran on wp1 + mb1. Find what holds ghosthive's memory.
+- Manifesto edition 1 is written against 0.2.0 (lines 9 and 1413) and its status badges reflect that; refresh the content for a later edition. 2026-11-16.
+- `scripts/cleanup/run-all.sh:153` shows only `refuse` lines at the start of a line in its summary; indented `  refused:` lines from some scripts are missed. Gate note, 2026-11-16.

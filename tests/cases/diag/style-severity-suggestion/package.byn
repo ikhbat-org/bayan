@@ -1,0 +1,8 @@
+Package {
+    name: "local/style",
+    version: "0.1.0",
+
+    style: Style {
+        lints: ["guards.postfix": .suggestion],
+    },
+}

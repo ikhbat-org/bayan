@@ -1,12 +1,14 @@
 struct Stack {
-    List<i64> items
+    List<i32> items
 
-    void push(ref this, i64 x) {
+    void push(ref this, i32 x) {
         items.append(x)
     }
 
-    i64? pop(ref this) {
-        if items.length == 0 { return null }
+    i32? pop(ref this) {
+        if items.length == 0 {
+            return null
+        }
         let last = items[items.length - 1]
         items.remove(at: items.length - 1)
         return last
@@ -14,7 +16,7 @@ struct Stack {
 }
 
 void main() {
-    var s = Stack { items: List<i64>() }
+    var s = Stack { items: List<i32>() }
     s.push(1)
     s.push(2)
     print($"{s.pop() ?? -1} {s.pop() ?? -1} {s.pop() ?? -1}")

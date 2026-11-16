@@ -12,10 +12,10 @@ enum T5Level {
 
 /// `Doctor.Check` (Doctor.cs:17); a null `fix` is C#'s `Fix = null`.
 struct T5Check {
-    T5Level level = .ok
-    string name = ""
-    string detail = ""
-    string? fix = null
+    T5Level level  = .ok
+    string  name   = ""
+    string  detail = ""
+    string? fix    = null
 }
 
 /// `Role` of Style.cs:3 for the four roles `Render` paints.
@@ -33,7 +33,9 @@ const t5Commit: string = "selfhost"
 
 /// `Style.Paint` (Style.cs:68) with the palette of `style` (`t7Prefix`) when `style.color`.
 string t5Paint(T5Role role, by DStyle style, for string text) uses alloc {
-    unless style.color { return $"{text}" }
+    unless style.color {
+        return $"{text}"
+    }
     var index = 4
     switch role {
         case .error:
@@ -59,7 +61,14 @@ i32 doctorCommand(by in DCtx d) uses alloc, clock, console, env, fs, process {
         checks.append(T5Check { level: .ok, name: "host", detail: $"{host}" })
     } else {
         // coverage-exempt: Q1092 the no-host row
-        checks.append(T5Check { level: .broken, name: "host", detail: "this machine has no Bayan target", fix: "build on linux, macos or windows, x64 or arm64" })
+        checks.append(
+            T5Check {
+                level: .broken,
+                name: "host",
+                detail: "this machine has no Bayan target",
+                fix: "build on linux, macos or windows, x64 or arm64",
+            },
+        )
     }
     checks.append(t5CCompiler())
     checks.append(t5Zig())
@@ -67,7 +76,7 @@ i32 doctorCommand(by in DCtx d) uses alloc, clock, console, env, fs, process {
     checks.append(t5Cache())
     Io.stdout.write(t5Render(in checks, by: d.styleOut))
     for c in checks {
-        if c.level == .broken { return exitToolchain }
+        return exitToolchain if c.level == .broken
     }
     return exitOk
 }
@@ -77,7 +86,9 @@ string t5Render(in List<T5Check> checks, by DStyle style) uses alloc {
     let symbols = semantics.t26Symbols(style.ascii)
     var width = 0
     for c in checks {
-        if c.name.length > width { width = c.name.length }
+        if c.name.length > width {
+            width = c.name.length
+        }
     }
     var sb = StrBuf()
     for c in checks {
@@ -87,7 +98,9 @@ string t5Render(in List<T5Check> checks, by DStyle style) uses alloc {
             let mark = t5Paint(c.level == .ok ? .success : .note, by: style, for: symbols.dot)
             var padded = StrBuf()
             padded.append(c.name)
-            for _ in c.name.length..width { padded.append(" ") }
+            for _ in c.name.length..width {
+                padded.append(" ")
+            }
             sb.append($"{mark} {padded.finish()}  {c.detail}\n")
         }
         if (c.fix is { } fix) {
@@ -101,20 +114,33 @@ string t5Render(in List<T5Check> checks, by DStyle style) uses alloc {
 T5Check t5CCompiler() uses alloc, env, fs, process {
     let fromEnv = (Env.get("BAYAN_CC") ?? "").length > 0
     let compiler = t5FindCompiler()
-    if compiler.length == 0 {
-        return T5Check { level: .broken, name: "C compiler", detail: "none found", fix: $"install zig ({t5ZigUrl}), or set BAYAN_CC to a C compiler" }
-    }
+    return T5Check {
+        level: .broken,
+        name: "C compiler",
+        detail: "none found",
+        fix: $"install zig ({t5ZigUrl}), or set BAYAN_CC to a C compiler",
+    } if compiler.length == 0
     let command = ccJoin(in compiler)
     var args = List<string>()
-    for i in 1..compiler.length { args.append(compiler[i]) }
+    for i in 1..compiler.length {
+        args.append(compiler[i])
+    }
     args.append("--version")
     if (t5Version(compiler[0], by: in args) is { } found) {
         return T5Check { level: .ok, name: "C compiler", detail: $"{command} ({found})" }
     }
-    if fromEnv {
-        return T5Check { level: .broken, name: "C compiler", detail: $"BAYAN_CC is `{command}`, which can't be run", fix: "point BAYAN_CC at a C compiler, or unset it to use zig" }
+    return T5Check {
+        level: .broken,
+        name: "C compiler",
+        detail: $"BAYAN_CC is `{command}`, which can't be run",
+        fix: "point BAYAN_CC at a C compiler, or unset it to use zig",
+    } if fromEnv
+    return T5Check {
+        level: .broken,
+        name: "C compiler",
+        detail: $"`{command}` can't be run",
+        fix: "reinstall it, or set BAYAN_CC to a working C compiler",
     }
-    return T5Check { level: .broken, name: "C compiler", detail: $"`{command}` can't be run", fix: "reinstall it, or set BAYAN_CC to a working C compiler" }
 }
 
 /// Toolchain.cs:107 `FindCompiler`: `$BAYAN_CC` split on spaces (:110), else cc.byn `ccFindCompiler`; empty is C#'s null.
@@ -122,10 +148,14 @@ List<string> t5FindCompiler() uses alloc, env, fs {
     if ((Env.get("BAYAN_CC") ?? "") is { } cc && cc.length > 0) {
         var found = List<string>()
         for part in cc.parts(by: " ") {
-            if part.length > 0 { found.append($"{part}") }
+            if part.length > 0 {
+                found.append($"{part}")
+            }
         }
         // the C# `compiler[0]` of Doctor.cs:56 throws IndexOutOfRangeException on no words; the driver panics (Q1095)
-        if found.length == 0 { panic("BAYAN_CC is set but names no program") }
+        if found.length == 0 {
+            panic("BAYAN_CC is set but names no program")
+        }
         return found
     }
     return ccFindCompiler()
@@ -135,7 +165,12 @@ List<string> t5FindCompiler() uses alloc, env, fs {
 T5Check t5Zig() uses alloc, env, fs, process {
     let found = ccFindOnPath("zig", for: Target.os)
     if found is null {
-        return T5Check { level: .note, name: "zig", detail: "not found; building for other targets needs it", fix: $"install zig ({t5ZigUrl})" }
+        return T5Check {
+            level: .note,
+            name: "zig",
+            detail: "not found; building for other targets needs it",
+            fix: $"install zig ({t5ZigUrl})",
+        }
     }
     let zig = found
     var args = List<string>()
@@ -150,7 +185,12 @@ T5Check t5Zig() uses alloc, env, fs, process {
 T5Check t5Git() uses alloc, env, fs, process {
     let found = ccFindOnPath("git", for: Target.os)
     if found is null {
-        return T5Check { level: .note, name: "git", detail: "not found; `bayan new` skips `git init`, `bayan dist` records no commit, `bayan test --changed` is unavailable", fix: "install git" }
+        return T5Check {
+            level: .note,
+            name: "git",
+            detail: "not found; `bayan new` skips `git init`, `bayan dist` records no commit, `bayan test --changed` is unavailable",
+            fix: "install git",
+        }
     }
     let git = found
     var args = List<string>()
@@ -172,20 +212,33 @@ T5Check t5Cache() uses alloc, clock, env, fs {
     let stats = cacheStats()
     // `{2:0.0}` of `Bytes / 1024.0 / 1024.0`: exact in binary, so half-up on the tenths is .NET's rounding (cache.byn `cacheCommand`)
     let tenths = (stats.bytes * 10 + 524288) / 1048576
-    return T5Check { level: .ok, name: "cache", detail: $"{dir} (writable, {stats.programs} programs, {tenths / 10}.{tenths % 10} MB)" }
+    return T5Check {
+        level: .ok,
+        name: "cache",
+        detail: $"{dir} (writable, {stats.programs} programs, {tenths / 10}.{tenths % 10} MB)",
+    }
 }
 
 /// The `catch` of Doctor.cs:93.
 T5Check t5CacheBroken(string dir, by string message) {
-    return T5Check { level: .broken, name: "cache", detail: $"{dir} isn't writable: {message}", fix: "set BAYAN_CACHE to a writable directory" }
+    return T5Check {
+        level: .broken,
+        name: "cache",
+        detail: $"{dir} isn't writable: {message}",
+        fix: "set BAYAN_CACHE to a writable directory",
+    }
 }
 
 /// Doctor.cs:100 `Version`: the first line `file` prints for `args`, trimmed (stdout, else stderr); null if it can't run or fails.
 string? t5Version(string file, by in List<string> args) uses alloc, process {
     let r = Io.run(file, args.span) catch return null
     let text = r.stdout.length > 0 ? r.stdout : r.stderr
-    unless r.exitCode == 0 { return null }
-    for line in text.parts(by: "\n") { return $"{line.trimmed()}" }
+    unless r.exitCode == 0 {
+        return null
+    }
+    for line in text.parts(by: "\n") {
+        return $"{line.trimmed()}"
+    }
     // coverage-exempt: Q1092 `parts` yields at least one part (an empty text gives one empty part), so the loop always returns; the C# `Split('\n')[0]` has no such line
     return null
 }

@@ -5,15 +5,15 @@ union error ParseError {
     notNumber
 }
 
-i64 parse(string text) fails ParseError {
+i32 parse(string text) fails ParseError {
     fail .empty if text.isEmpty
-    return i64.tryParse(text) ?? fail .notNumber
+    return i32.tryParse(text) ?? fail .notNumber
 }
 
 void main() {
     print($"{parse("42") catch -1}")
     let n = parse("") catch switch {
-        .empty => 0,
+        .empty     => 0,
         .notNumber => -1,
     }
     print($"{n}")

@@ -13,7 +13,7 @@ const featuresVersion: i64 = 1
 /// Insertion into the set `items`, kept as a list in first-seen order (sorted by `t2Sorted`).
 void t2Add(string item, to ref List<string> items) uses alloc {
     for x in items {
-        if x == item { return }
+        return if x == item
     }
     items.append(item)
 }
@@ -138,7 +138,9 @@ string t2NodeName(semantics.NodeSyntaxKind kind) {
 void t2Attributes(in List<parser.AttributeSyntax> attributes, to ref List<string> nodes) uses alloc {
     for a in attributes {
         t2Add("AttributeSyntax", to: ref nodes)
-        if a.becauseKeyword is not null { t2Add("BecauseClause", to: ref nodes) }
+        if a.becauseKeyword is not null {
+            t2Add("BecauseClause", to: ref nodes)
+        }
     }
 }
 
@@ -214,15 +216,22 @@ void t2Declarations(in List<parser.Decl> decls, to ref List<string> nodes) uses 
 }
 
 /// Features.cs:41-51 for one function: the syntax kinds, builtins of its body (a `BoundBlock`, else nothing).
-void t2Function(in semantics.Ctx c, for semantics.FuncId fn, to ref List<string> nodes, through ref List<string> builtins) uses alloc {
+void t2Function(
+    in semantics.Ctx c,
+    for semantics.FuncId fn,
+    to ref List<string> nodes,
+    through ref List<string> builtins
+) uses alloc {
     let body = c.functions[fn].body
     // coverage-exempt: Q1078 every function the C# counts has a block body here: no test row has a bodiless one
-    if body == -1 || semantics.boundKind(body) != .block { return }
+    return if body == -1 || semantics.boundKind(body) != .block
     for node in semantics.descendants(in c, for: body) {
         if (semantics.exprSyntax(in c, for: node) is { } e) {
             t2Add(t2ExprName(e.kind), to: ref nodes)
-            if e.kind == .callExpr && e.becauseKeyword { t2Add("BecauseClause", to: ref nodes) }
-        // coverage-exempt: Q1078 a bound node with neither syntax is not reached by the rows; the C# `else if` has no else
+            if e.kind == .callExpr && e.becauseKeyword {
+                t2Add("BecauseClause", to: ref nodes)
+            }
+            // coverage-exempt: Q1078 a bound node with neither syntax is not reached by the rows; the C# `else if` has no else
         } else if (semantics.nodeSyntax(in c, for: node) is { } s) {
             t2Add(t2NodeName(s.kind), to: ref nodes)
         }
@@ -232,7 +241,9 @@ void t2Function(in semantics.Ctx c, for semantics.FuncId fn, to ref List<string>
                 t2Add(t2Pascal($"{c.bBuiltinCalls[index].member}"), to: ref builtins)
             case .call:
                 let builtin = c.functions[c.bCalls[index].function].builtin
-                if builtin != .none { t2Add(t2Pascal($"{builtin}"), to: ref builtins) }
+                if builtin != .none {
+                    t2Add(t2Pascal($"{builtin}"), to: ref builtins)
+                }
             default:
                 continue
         }
@@ -259,14 +270,22 @@ string t2ToJson(in semantics.Ctx c) uses alloc {
     var nodes = List<string>()
     var builtins = List<string>()
     for m in c.modules {
-        for f in m.files { t2Declarations(in c.files[f].unit.members, to: ref nodes) }
+        for f in m.files {
+            t2Declarations(in c.files[f].unit.members, to: ref nodes)
+        }
     }
     for m in c.modules {
-        for fn in m.allFunctions { t2Function(in c, for: fn, to: ref nodes, through: ref builtins) }
-        for t in m.tests { t2Function(in c, for: c.tests[t].function, to: ref nodes, through: ref builtins) }
+        for fn in m.allFunctions {
+            t2Function(in c, for: fn, to: ref nodes, through: ref builtins)
+        }
+        for t in m.tests {
+            t2Function(in c, for: c.tests[t].function, to: ref nodes, through: ref builtins)
+        }
     }
     var diagnostics = List<string>()
-    for d in c.diagnostics { t2Add(d.code, to: ref diagnostics) }
+    for d in c.diagnostics {
+        t2Add(d.code, to: ref diagnostics)
+    }
     t2Sorted(through: ref nodes)
     t2Sorted(through: ref builtins)
     t2Sorted(through: ref diagnostics)
@@ -299,8 +318,19 @@ i32 featuresCommand(in List<string> kept, by in DCtx d) {
     let symbols = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
-    let compiled = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, includeTests: true, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
-    unless ok { return exitFailure }
+    let compiled = t5Compile(
+        in o,
+        by: in symbols,
+        to: ref reported,
+        through: ref ok,
+        includeTests: true,
+        ascii: d.styleErr.ascii,
+        width: d.styleErr.width,
+        isTty: d.stderrTty,
+    )
+    unless ok {
+        return exitFailure
+    }
     Io.stdout.write(t2ToJson(in compiled))
     return exitOk
 }

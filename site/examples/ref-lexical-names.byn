@@ -3,7 +3,7 @@ let error = 3
 let type = 4
 let δ = 5
 struct Box {
-    i64 set
+    i32 set
 }
 let b = Box { set: 6 }
 print($"{error} {type} {δ} {b.set}")

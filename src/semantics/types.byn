@@ -18,7 +18,7 @@
 // Every function takes `ref Ctx c` as its unlabeled object; later parameters carry a particle
 // (`by` an operand, `to`/`at`/`for`/`as` the others).
 
-// ── Kinds ──────────────────────────────────────────────────────────────────────
+// ── Kinds ────────────────────────────────────────────────────────────────────
 
 /// The kind word of a `Type`; the ordinals are fixed.
 public enum TypeKind {
@@ -102,7 +102,7 @@ public enum BuiltinKind {
     millis
 }
 
-// ── Handles ─────────────────────────────────────────────────────────────────────
+// ── Handles ──────────────────────────────────────────────────────────────────
 
 public Type makeType(TypeKind kind, at i64 index) => (i64(kind.ordinal) << 32) | index
 
@@ -192,25 +192,23 @@ public BuiltinKind builtinKindOf(i64 i) {
 
 bool listContains(in List<i64> xs, by i64 x) {
     for e in xs {
-        if e == x { return true }
+        return true if e == x
     }
     return false
 }
 
 bool listContainsString(in List<string> xs, by string x) {
     for e in xs {
-        if e == x { return true }
+        return true if e == x
     }
     return false
 }
-
-
 
 i64 typeIndex(Type t) => t & 0xFFFFFFFF
 
 public bool typeEquals(Type a, as Type b) => a == b
 
-// ── Non-arena types ────────────────────────────────────────────────────────────
+// ── Non-arena types ──────────────────────────────────────────────────────────
 
 public Type prim(PrimitiveKind k) => makeType(.primitive, at: k.ordinal)
 
@@ -304,7 +302,7 @@ public i64 primitiveBits(PrimitiveKind k) {
     }
 }
 
-// ── Predicates ─────────────────────────────────────────────────────────────────
+// ── Predicates ───────────────────────────────────────────────────────────────
 
 public bool isError(Type t) => kindOf(t) == .error
 
@@ -317,23 +315,23 @@ public bool isBool(Type t) => t == prim(.bool)
 public bool isString(Type t) => t == prim(.string)
 
 public bool isInteger(Type t) {
-    if kindOf(t) != .primitive { return false }
+    return false if kindOf(t) != .primitive
     let i = typeIndex(t)
-    return i >= 0 && i <= 9
+    return i is 0..=9
 }
 
 public bool isFloat(Type t) {
-    if kindOf(t) != .primitive { return false }
+    return false if kindOf(t) != .primitive
     let i = typeIndex(t)
-    return i == 10 || i == 11
+    return i is 10 or 11
 }
 
 public bool isNumeric(Type t) => isInteger(t) || isFloat(t)
 
 public bool isSignedInteger(Type t) {
-    if kindOf(t) != .primitive { return false }
+    return false if kindOf(t) != .primitive
     let i = typeIndex(t)
-    return i == 0 || i == 1 || i == 2 || i == 3 || i == 8
+    return i is 0 or 1 or 2 or 3 or 8
 }
 
 public bool isUnsignedInteger(Type t) => isInteger(t) && !isSignedInteger(t)
@@ -348,7 +346,7 @@ public bool isBorrow(ref Ctx c, by Type t) {
         case .optional: return isBorrow(ref c, by: c.optionalTypes[typeIndex(t)])
         case .tuple:
             for i in 0..c.tupleTypes[typeIndex(t)].length {
-                if isBorrow(ref c, by: c.tupleTypes[typeIndex(t)][i].type) { return true }
+                return true if isBorrow(ref c, by: c.tupleTypes[typeIndex(t)][i].type)
             }
             return false
         case .result: return isBorrow(ref c, by: c.resultTypes[typeIndex(t)].value)
@@ -357,7 +355,7 @@ public bool isBorrow(ref Ctx c, by Type t) {
     }
 }
 
-// ── Primitive ranges ───────────────────────────────────────────────────────────
+// ── Primitive ranges ─────────────────────────────────────────────────────────
 
 /// The C# `PrimitiveType.Range`; a non-integer kind is a caller bug.
 public struct TypeRange {
@@ -382,31 +380,39 @@ public TypeRange range(PrimitiveKind k) {
     }
 }
 
-// ── Copy and key helpers ───────────────────────────────────────────────────────
+// ── Copy and key helpers ─────────────────────────────────────────────────────
 
 /// A copy of `xs` (used to pass a list `in` to a `ref Ctx` function without borrowing `c`).
 List<i64> copyIds(in List<i64> xs) {
     var r = List<i64>()
-    for x in xs { r.append(x) }
+    for x in xs {
+        r.append(x)
+    }
     return r
 }
 
 List<string> copyStrings(in List<string> xs) {
     var r = List<string>()
-    for x in xs { r.append(x) }
+    for x in xs {
+        r.append(x)
+    }
     return r
 }
 
 List<TupleField> copyTupleFields(in List<TupleField> xs) {
     var r = List<TupleField>()
-    for f in xs { r.append(f) }
+    for f in xs {
+        r.append(f)
+    }
     return r
 }
 
 string joinIds(in List<i64> xs) {
     var sb = StrBuf()
     for i in 0..xs.length {
-        if i > 0 { sb.append(",") }
+        if i > 0 {
+            sb.append(",")
+        }
         sb.append(string(xs[i]))
     }
     return $"{sb.finish()}"
@@ -415,7 +421,9 @@ string joinIds(in List<i64> xs) {
 /// A length-prefixed join of effect names (unambiguous regardless of their bytes).
 string joinUses(in List<string> xs) {
     var sb = StrBuf()
-    for x in xs { sb.append($"{x.length}:{x}") }
+    for x in xs {
+        sb.append($"{x.length}:{x}")
+    }
     return $"{sb.finish()}"
 }
 
@@ -433,12 +441,12 @@ string tupleKey(in List<TupleField> fields) {
     return $"{sb.finish()}"
 }
 
-// ── Interning ──────────────────────────────────────────────────────────────────
+// ── Interning ────────────────────────────────────────────────────────────────
 
 public Type internOptional(ref Ctx c, by Type inner) uses alloc {
     let key = string(inner)
     let found = c.optionalIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.optional, at: id) }
+    return makeType(.optional, at: found) if found is not null
     let id = c.optionalTypes.length
     c.optionalTypes.append(inner)
     c.optionalIntern[key] = id
@@ -448,7 +456,7 @@ public Type internOptional(ref Ctx c, by Type inner) uses alloc {
 public Type internSpan(ref Ctx c, by Type element, bool readOnly) uses alloc {
     let key = $"{element},{readOnly}"
     let found = c.spanIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.span, at: id) }
+    return makeType(.span, at: found) if found is not null
     let id = c.spanTypes.length
     c.spanTypes.append(SpanData { element: element, readOnly: readOnly })
     c.spanIntern[key] = id
@@ -458,7 +466,7 @@ public Type internSpan(ref Ctx c, by Type element, bool readOnly) uses alloc {
 public Type internDynRef(ref Ctx c, by InterfaceId iface, bool readOnly) uses alloc {
     let key = $"{iface},{readOnly}"
     let found = c.dynRefIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.dynRef, at: id) }
+    return makeType(.dynRef, at: found) if found is not null
     let id = c.dynRefTypes.length
     c.dynRefTypes.append(DynRefData { iface: iface, readOnly: readOnly })
     c.dynRefIntern[key] = id
@@ -468,7 +476,7 @@ public Type internDynRef(ref Ctx c, by InterfaceId iface, bool readOnly) uses al
 public Type internList(ref Ctx c, by Type element) uses alloc {
     let key = string(element)
     let found = c.listIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.list, at: id) }
+    return makeType(.list, at: found) if found is not null
     let id = c.listTypes.length
     c.listTypes.append(element)
     c.listIntern[key] = id
@@ -478,7 +486,7 @@ public Type internList(ref Ctx c, by Type element) uses alloc {
 public Type internMap(ref Ctx c, by Type key, to Type value) uses alloc {
     let k = $"{key},{value}"
     let found = c.mapIntern.tryGet(at: k)
-    if (found is { } id) { return makeType(.map, at: id) }
+    return makeType(.map, at: found) if found is not null
     let id = c.mapTypes.length
     c.mapTypes.append(MapData { key: key, value: value })
     c.mapIntern[k] = id
@@ -488,7 +496,7 @@ public Type internMap(ref Ctx c, by Type key, to Type value) uses alloc {
 public Type internOwned(ref Ctx c, by Type inner) uses alloc {
     let key = string(inner)
     let found = c.ownedIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.owned, at: id) }
+    return makeType(.owned, at: found) if found is not null
     let id = c.ownedTypes.length
     c.ownedTypes.append(inner)
     c.ownedIntern[key] = id
@@ -498,7 +506,7 @@ public Type internOwned(ref Ctx c, by Type inner) uses alloc {
 public Type internUntrusted(ref Ctx c, by Type inner) uses alloc {
     let key = string(inner)
     let found = c.untrustedIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.untrusted, at: id) }
+    return makeType(.untrusted, at: found) if found is not null
     let id = c.untrustedTypes.length
     c.untrustedTypes.append(inner)
     c.untrustedIntern[key] = id
@@ -508,7 +516,7 @@ public Type internUntrusted(ref Ctx c, by Type inner) uses alloc {
 public Type internArray(ref Ctx c, by Type element, at i64 length) uses alloc {
     let key = $"{element},{length}"
     let found = c.arrayIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.array, at: id) }
+    return makeType(.array, at: found) if found is not null
     let id = c.arrayTypes.length
     c.arrayTypes.append(ArrayData { element: element, length: length })
     c.arrayIntern[key] = id
@@ -518,7 +526,7 @@ public Type internArray(ref Ctx c, by Type element, at i64 length) uses alloc {
 public Type internRange(ref Ctx c, by Type element) uses alloc {
     let key = string(element)
     let found = c.rangeIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.range, at: id) }
+    return makeType(.range, at: found) if found is not null
     let id = c.rangeTypes.length
     c.rangeTypes.append(element)
     c.rangeIntern[key] = id
@@ -528,24 +536,32 @@ public Type internRange(ref Ctx c, by Type element) uses alloc {
 public Type internTuple(ref Ctx c, for in List<TupleField> fields) uses alloc {
     let key = tupleKey(in fields)
     let found = c.tupleIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.tuple, at: id) }
+    return makeType(.tuple, at: found) if found is not null
     let id = c.tupleTypes.length
     c.tupleTypes.append(copyTupleFields(in fields))
     c.tupleIntern[key] = id
     return makeType(.tuple, at: id)
 }
 
-public Type internFunction(ref Ctx c, for in List<Type> parameters, to Type ret, by in List<ErrorSetId> errorSets, as in List<string> effects) uses alloc {
+public Type internFunction(
+    ref Ctx c,
+    for in List<Type> parameters,
+    to Type ret,
+    by in List<ErrorSetId> errorSets,
+    as in List<string> effects
+) uses alloc {
     var sortedFails = copyIds(in errorSets)
     sortedFails.sort()
     var sortedUses = copyStrings(in effects)
     sortedUses.sort()
     let key = $"{joinIds(in parameters)};{ret};{joinIds(in sortedFails)};{joinUses(in sortedUses)}"
     let found = c.functionIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.function, at: id) }
+    return makeType(.function, at: found) if found is not null
     let id = c.functionTypes.length
     var params = copyIds(in parameters)
-    c.functionTypes.append(FunctionData { parameters: move params, ret: ret, errorSets: move sortedFails, effects: move sortedUses })
+    c.functionTypes.append(
+        FunctionData { parameters: move params, ret: ret, errorSets: move sortedFails, effects: move sortedUses },
+    )
     c.functionIntern[key] = id
     return makeType(.function, at: id)
 }
@@ -553,7 +569,7 @@ public Type internFunction(ref Ctx c, for in List<Type> parameters, to Type ret,
 public Type internResult(ref Ctx c, by Type value, to Type error) uses alloc {
     let key = $"{value},{error}"
     let found = c.resultIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.result, at: id) }
+    return makeType(.result, at: found) if found is not null
     let id = c.resultTypes.length
     c.resultTypes.append(ResultData { value: value, error: error })
     c.resultIntern[key] = id
@@ -563,12 +579,14 @@ public Type internResult(ref Ctx c, by Type value, to Type error) uses alloc {
 public Type internState(ref Ctx c, by StructId s, for in List<VariantId> states) uses alloc {
     var distinct = List<VariantId>()
     for v in states {
-        if !listContains(in distinct, by: v) { distinct.append(v) }
+        if !listContains(in distinct, by: v) {
+            distinct.append(v)
+        }
     }
     distinct.sort()
     let key = $"{s}|{joinIds(in distinct)}"
     let found = c.stateIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.state, at: id) }
+    return makeType(.state, at: found) if found is not null
     let id = c.stateTypes.length
     c.stateTypes.append(StateData { s: s, states: move distinct })
     c.stateIntern[key] = id
@@ -577,17 +595,17 @@ public Type internState(ref Ctx c, by StructId s, for in List<VariantId> states)
 
 /// The C# `ErrorUnionType.Of`: one set and no exclusions returns the set itself.
 public Type errorUnionOf(ref Ctx c, for in List<ErrorSetId> sets, as in List<VariantId> excluded) uses alloc {
-    if sets.length == 1 && excluded.length == 0 { return errorSetTypeOf(sets[0]) }
+    return errorSetTypeOf(sets[0]) if sets.length == 1 && excluded.length == 0
     let key = $"{joinIds(in sets)}|{joinIds(in excluded)}"
     let found = c.errorUnionIntern.tryGet(at: key)
-    if (found is { } id) { return makeType(.errorUnion, at: id) }
+    return makeType(.errorUnion, at: found) if found is not null
     let id = c.errorUnionTypes.length
     c.errorUnionTypes.append(ErrorUnionData { sets: copyIds(in sets), excluded: copyIds(in excluded) })
     c.errorUnionIntern[key] = id
     return makeType(.errorUnion, at: id)
 }
 
-// ── Display ────────────────────────────────────────────────────────────────────
+// ── Display ──────────────────────────────────────────────────────────────────
 
 /// The C# `TextViewType.DisplayName`.
 string textViewName(TextViewKind k) {
@@ -627,7 +645,9 @@ string tupleDisplay(ref Ctx c, by i64 idx) {
     var sb = StrBuf()
     sb.append("(")
     for i in 0..len {
-        if i > 0 { sb.append(", ") }
+        if i > 0 {
+            sb.append(", ")
+        }
         let f = c.tupleTypes[idx][i]
         if (f.name is { } nm) {
             sb.append($"{typeDisplay(ref c, by: f.type)} {nm}")
@@ -645,12 +665,16 @@ string functionDisplay(ref Ctx c, by i64 idx) {
     let flen = c.functionTypes[idx].errorSets.length
     let ulen = c.functionTypes[idx].effects.length
     var sb = StrBuf()
-    if plen == 1 && kindOf(c.functionTypes[idx].parameters[0]) != .tuple && kindOf(c.functionTypes[idx].parameters[0]) != .function {
+    if plen == 1
+            && kindOf(c.functionTypes[idx].parameters[0]) != .tuple
+            && kindOf(c.functionTypes[idx].parameters[0]) != .function {
         sb.append(typeDisplay(ref c, by: c.functionTypes[idx].parameters[0]))
     } else {
         sb.append("(")
         for i in 0..plen {
-            if i > 0 { sb.append(", ") }
+            if i > 0 {
+                sb.append(", ")
+            }
             sb.append(typeDisplay(ref c, by: c.functionTypes[idx].parameters[i]))
         }
         sb.append(")")
@@ -664,14 +688,18 @@ string functionDisplay(ref Ctx c, by i64 idx) {
     if ulen > 0 {
         sb.append(" uses ")
         for i in 0..ulen {
-            if i > 0 { sb.append(", ") }
+            if i > 0 {
+                sb.append(", ")
+            }
             sb.append(c.functionTypes[idx].effects[i])
         }
     }
     if flen > 0 {
         sb.append(" fails ")
         for i in 0..flen {
-            if i > 0 { sb.append(", ") }
+            if i > 0 {
+                sb.append(", ")
+            }
             sb.append(errorSetDisplayName(ref c, by: c.functionTypes[idx].errorSets[i]))
         }
     }
@@ -682,13 +710,13 @@ string stateDisplay(ref Ctx c, by i64 idx) {
     let s = c.stateTypes[idx].s
     let slen = c.stateTypes[idx].states.length
     let st = structDisplayName(ref c, by: s)
-    if slen == 1 {
-        return $"{st}.{c.unionVariants[c.stateTypes[idx].states[0]].name}"
-    }
+    return $"{st}.{c.unionVariants[c.stateTypes[idx].states[0]].name}" if slen == 1
     var sb = StrBuf()
     sb.append($"{st} is ")
     for i in 0..slen {
-        if i > 0 { sb.append(" or ") }
+        if i > 0 {
+            sb.append(" or ")
+        }
         sb.append($".{c.unionVariants[c.stateTypes[idx].states[i]].name}")
     }
     return $"{sb.finish()}"
@@ -697,17 +725,21 @@ string stateDisplay(ref Ctx c, by i64 idx) {
 string errorUnionDisplay(ref Ctx c, by i64 idx) {
     let setLen = c.errorUnionTypes[idx].sets.length
     let exLen = c.errorUnionTypes[idx].excluded.length
-    if setLen == 0 { return "error" }
+    return "error" if setLen == 0
     var sets = copyIds(in c.errorUnionTypes[idx].sets)
     var sb = StrBuf()
     for i in 0..setLen {
-        if i > 0 { sb.append(" | ") }
+        if i > 0 {
+            sb.append(" | ")
+        }
         sb.append(displayNameAmong(ref c, by: sets[i], for: in sets))
     }
     if exLen > 0 {
         sb.append(" except ")
         for j in 0..exLen {
-            if j > 0 { sb.append(", ") }
+            if j > 0 {
+                sb.append(", ")
+            }
             sb.append($".{c.errorVariants[c.errorUnionTypes[idx].excluded[j]].name}")
         }
     }
@@ -758,7 +790,7 @@ public string typeDisplay(ref Ctx c, by Type t) uses alloc {
     }
 }
 
-// ── Tuple/range/map views ──────────────────────────────────────────────────────
+// ── Tuple/range/map views ────────────────────────────────────────────────────
 
 /// The C# `MapType.Entry`: `(K key, V value)`.
 public Type mapEntry(ref Ctx c, by Type map) uses alloc {
@@ -788,7 +820,7 @@ public Type textViewElement(TextViewKind k) {
     }
 }
 
-// ── Keys, occurs, tuple index ─────────────────────────────────────────────────
+// ── Keys, occurs, tuple index ────────────────────────────────────────────────
 
 /// The C# `MapType.IsValidKey` with an empty path.
 public bool isValidKey(ref Ctx c, by Type t) uses alloc {
@@ -802,13 +834,13 @@ bool isValidKeyInner(ref Ctx c, by Type t, for ref List<i64> path) {
         case .tuple:
             for i in 0..c.tupleTypes[typeIndex(t)].length {
                 let ft = c.tupleTypes[typeIndex(t)][i].type
-                if kindOf(ft) != .typeParam && !isValidKeyInner(ref c, by: ft, for: ref path) { return false }
+                return false if kindOf(ft) != .typeParam && !isValidKeyInner(ref c, by: ft, for: ref path)
             }
             return true
         case .structType:
             let s = typeIndex(t)
-            if listContainsString(in c.structs[s].attributes, by: "noEquality") { return false }
-            if listContains(in path, by: s) { return false }
+            return false if listContainsString(in c.structs[s].attributes, by: "noEquality")
+            return false if listContains(in path, by: s)
             path.append(s)
             var valid = true
             for j in 0..c.structs[s].fields.length {
@@ -829,11 +861,13 @@ bool isValidKeyInner(ref Ctx c, by Type t, for ref List<i64> path) {
 /// The C# `MapType.InvalidKeyPart`'s result.
 public struct InvalidKeyPart {
     public string part
-    public Type type
+    public Type   type
 }
 
 string fieldPartName(in TupleField f, at i64 i) {
-    if (f.name is { } nm) { return nm }
+    if (f.name is { } nm) {
+        return nm
+    }
     return string(i + 1)
 }
 
@@ -843,19 +877,17 @@ InvalidKeyPart? invalidKeyPart(ref Ctx c, by Type t) {
         case .tuple:
             for i in 0..c.tupleTypes[typeIndex(t)].length {
                 let f = c.tupleTypes[typeIndex(t)][i]
-                if kindOf(f.type) != .typeParam && !isValidKey(ref c, by: f.type) {
-                    return InvalidKeyPart { part: fieldPartName(in f, at: i), type: f.type }
-                }
+                return InvalidKeyPart { part: fieldPartName(in f, at: i), type: f.type } if kindOf(f.type) != .typeParam
+                    && !isValidKey(ref c, by: f.type)
             }
             return null
         case .structType:
             let s = typeIndex(t)
-            if listContainsString(in c.structs[s].attributes, by: "noEquality") { return null }
+            return null if listContainsString(in c.structs[s].attributes, by: "noEquality")
             for j in 0..c.structs[s].fields.length {
                 let f = c.fields[c.structs[s].fields[j]]
-                if kindOf(f.type) != .typeParam && !isValidKey(ref c, by: f.type) {
-                    return InvalidKeyPart { part: f.name, type: f.type }
-                }
+                return InvalidKeyPart { part: f.name, type: f.type } if kindOf(f.type) != .typeParam
+                    && !isValidKey(ref c, by: f.type)
             }
             return null
         default:
@@ -875,7 +907,7 @@ bool occurs(ref Ctx c, by Type t) {
         case .array: return occurs(ref c, by: c.arrayTypes[typeIndex(t)].element)
         case .tuple:
             for i in 0..c.tupleTypes[typeIndex(t)].length {
-                if occurs(ref c, by: c.tupleTypes[typeIndex(t)][i].type) { return true }
+                return true if occurs(ref c, by: c.tupleTypes[typeIndex(t)][i].type)
             }
             return false
         case .result: return occurs(ref c, by: c.resultTypes[typeIndex(t)].value)
@@ -885,7 +917,7 @@ bool occurs(ref Ctx c, by Type t) {
         case .function:
             let flen = c.functionTypes[typeIndex(t)].parameters.length
             for i in 0..flen {
-                if occurs(ref c, by: c.functionTypes[typeIndex(t)].parameters[i]) { return true }
+                return true if occurs(ref c, by: c.functionTypes[typeIndex(t)].parameters[i])
             }
             return occurs(ref c, by: c.functionTypes[typeIndex(t)].ret)
         case .interfaceType: return interfaceIsGeneric(ref c, by: typeIndex(t))
@@ -901,10 +933,14 @@ i64 tupleIndexOf(ref Ctx c, by Type tuple, for string name) {
         let f = c.tupleTypes[typeIndex(tuple)][i]
         var matches = false
         if (f.name is { } nm) {
-            if nm == name { matches = true }
+            if nm == name {
+                matches = true
+            }
         }
-        if $"item{i + 1}" == name { matches = true }
-        if matches { return i }
+        if $"item{i + 1}" == name {
+            matches = true
+        }
+        return i if matches
     }
     return -1
 }

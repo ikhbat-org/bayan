@@ -1,15 +1,17 @@
-i64 square(i64 x) {
+i32 square(i32 x) {
     return x * x
 }
 
-i64 cube(i64 x) => x * square(x)
+i32 cube(i32 x) => x * square(x)
 
-void announce(string label, for i64 value) {
+void announce(string label, for i32 value) {
     print($"{label}: {value}")
 }
 
-i64 factorial(i64 n) {
-    if n <= 1 { return 1 }
+i32 factorial(i32 n) {
+    if n <= 1 {
+        return 1
+    }
     return n * factorial(n - 1)
 }
 

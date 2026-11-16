@@ -9,27 +9,27 @@ import emitter
 import emitter.cprint
 
 type T11CoverageMap = emitter.CoverageMap
-type T11LCtx = emitter.LCtx
+type T11LCtx        = emitter.LCtx
 
 /// `BuildOptions` (CliApp.cs:166) with every field `test` reads; `only` is null when no `--only` was given.
 struct T11Options {
-    string path
-    string mode = "safe"
-    string? output = null
-    bool emitC = false
-    bool json = false
-    List<string> programArgs = List<string>()
-    string? target = null
-    bool testJson = false
-    bool changed = false
-    string? baseRef = null
-    bool verbose = false
-    bool all = false
-    List<string>? only = null
-    bool mutate = false
-    bool coverage = false
-    string? run = null
-    string? package = null
+    string        path
+    string        mode        = "safe"
+    string?       output      = null
+    bool          emitC       = false
+    bool          json        = false
+    List<string>  programArgs = []
+    string?       target      = null
+    bool          testJson    = false
+    bool          changed     = false
+    string?       baseRef     = null
+    bool          verbose     = false
+    bool          all         = false
+    List<string>? only        = null
+    bool          mutate      = false
+    bool          coverage    = false
+    string?       run         = null
+    string?       package     = null
 }
 
 /// CliApp.cs:168 `ParseBuildOptions` as `Test` calls it (CliApp.cs:641: `allowOutput: false, allowTestJson: true, allowVerbose:
@@ -53,7 +53,9 @@ T11Options? t11ParseBuildOptions(in List<string> args) uses alloc, console, fs {
     while i < args.length {
         let a = args[i]
         if a == "--" {
-            for k in (i + 1)..args.length { programArgs.append(args[k]) }
+            for k in (i + 1)..args.length {
+                programArgs.append(args[k])
+            }
             i = args.length
         } else if a == "--mode" && i + 1 < args.length {
             i += 1
@@ -92,7 +94,7 @@ T11Options? t11ParseBuildOptions(in List<string> args) uses alloc, console, fs {
         } else if a == "--only" && i + 1 < args.length {
             i += 1
             only.append(args[i])
-        } else if a == "-v" || a == "--verbose" {
+        } else if a is "-v" or "--verbose" {
             verbose = true
         } else if a == "--package" && i + 1 < args.length {
             i += 1
@@ -106,7 +108,9 @@ T11Options? t11ParseBuildOptions(in List<string> args) uses alloc, console, fs {
         }
         i += 1
     }
-    if path is null && t1FileExists("package.byn") { path = "." }
+    if path is null && t1FileExists("package.byn") {
+        path = "."
+    }
     if (path is not { } p) {
         Io.stderr.write("bayan: expected a file or directory (or run inside a project with a `package.byn`)\n")
         return null
@@ -116,7 +120,9 @@ T11Options? t11ParseBuildOptions(in List<string> args) uses alloc, console, fs {
         return null
     }
     var wanted: List<string>? = null
-    if only.length > 0 { wanted = move only }
+    if only.length > 0 {
+        wanted = move only
+    }
     return T11Options {
         path: p,
         mode: mode,
@@ -136,7 +142,18 @@ T11Options? t11ParseBuildOptions(in List<string> args) uses alloc, console, fs {
 }
 
 /// The `BuildOptions` build.byn `t5Compile` reads.
-T5Options t11T5(in T11Options o) uses alloc => T5Options { path: o.path, mode: o.mode, output: o.output, emitC: o.emitC, json: o.json, target: o.target, verbose: o.verbose, all: o.all, package: o.package }
+T5Options t11T5(in T11Options o) uses alloc =>
+    T5Options {
+        path: o.path,
+        mode: o.mode,
+        output: o.output,
+        emitC: o.emitC,
+        json: o.json,
+        target: o.target,
+        verbose: o.verbose,
+        all: o.all,
+        package: o.package,
+    }
 
 /// CliApp.cs:627 `DeleteWorkDir`: errors are ignored.
 void deleteWorkDir(string dir) uses alloc, fs {
@@ -153,7 +170,9 @@ i64 testTimeout() uses alloc, env {
 /// `Paint` (CliApp.cs:385) with the stdout style: `role` is a `t7Prefix` role, `bold` puts `Palette.Bold` before it. build.byn
 /// `t5Paint` has neither the warning role nor bold (Q1217).
 string t11Paint(i64 role, by in DStyle style, for string text, bool bold = false) uses alloc {
-    unless style.color { return $"{text}" }
+    unless style.color {
+        return $"{text}"
+    }
     return $"{bold ? "\u{1b}[1m" : ""}{t7Prefix(by: style.palette, for: role)}{text}\u{1b}[0m"
 }
 
@@ -167,7 +186,7 @@ string t11Seconds(i64 nanos) uses alloc {
 /// `TestSymbol.Name` contains one of `wanted` (`string.Contains`, ordinal).
 bool t11Matches(string name, by in List<string> wanted) {
     for s in wanted {
-        if name.contains(s) { return true }
+        return true if name.contains(s)
     }
     return false
 }
@@ -176,7 +195,9 @@ bool t11Matches(string name, by in List<string> wanted) {
 i64 t11Line(in List<u8> text, at i64 offset) {
     var line: i64 = 1
     for k in 0..offset {
-        if text[k] == 10 { line += 1 }
+        if text[k] == 10 {
+            line += 1
+        }
     }
     return line
 }
@@ -188,8 +209,19 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     let symbolsErr = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
-    var compiled = t5Compile(in t11T5(in o), by: in symbolsErr, to: ref reported, through: ref ok, includeTests: true, ascii: d.styleErr.ascii, width: d.styleErr.width, isTty: d.stderrTty)
-    unless ok { return exitFailure }
+    var compiled = t5Compile(
+        in t11T5(in o),
+        by: in symbolsErr,
+        to: ref reported,
+        through: ref ok,
+        includeTests: true,
+        ascii: d.styleErr.ascii,
+        width: d.styleErr.width,
+        isTty: d.stderrTty,
+    )
+    unless ok {
+        return exitFailure
+    }
     if o.run is not null && !o.mutate {
         Io.stderr.write("bayan: unexpected argument `--run`\n")
         return exitUsage
@@ -198,9 +230,11 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         Io.stderr.write($"bayan: unexpected argument `{o.coverage ? "--coverage" : "--json"}`\n")
         return exitUsage
     }
-    if o.mutate { return mutateTests(in o, through: ref compiled, by: ref d) }
+    return mutateTests(in o, through: ref compiled, by: ref d) if o.mutate
     var summary = true
-    if (compiled.manifest is { } manifest) { summary = manifest.summary }
+    if (compiled.manifest is { } manifest) {
+        summary = manifest.summary
+    }
     let probes = o.coverage || o.mode == "debug" && summary
     let host = t5HostTarget()
     var map = T11CoverageMap {}
@@ -218,19 +252,28 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     let source = cprint.emit(ref compiled, from: in l.tree, through: in program, by: o.mode == "debug")
     var output: string? = null
     if (t5PrepareOut(in compiled, by: o.mode, for: host, from: source) is { } dir) {
-        output = Path.combine(dir, targetExecutableName($"{semantics.programName(ref compiled, for: o.path)}-test", for: host))
+        output = Path.combine(
+            dir,
+            targetExecutableName($"{semantics.programName(ref compiled, for: o.path)}-test", for: host),
+        )
     }
     let entry = t11EntryModule(ref compiled, for: o.path)
     var selected = List<i64>()
-    for i in 0..program.tests.length { selected.append(i) }
+    for i in 0..program.tests.length {
+        selected.append(i)
+    }
     if (o.only is { } wanted) {
         var any = false
         for t in program.tests {
-            if t11Matches(compiled.tests[t].title, by: in wanted) { any = true }
+            if t11Matches(compiled.tests[t].title, by: in wanted) {
+                any = true
+            }
         }
         unless any {
             var quoted = List<string>()
-            for s in wanted { quoted.append($"`{s}`") }
+            for s in wanted {
+                quoted.append($"`{s}`")
+            }
             Io.stderr.write($"bayan: no test name contains {t5Join(in quoted)}\n")
             return exitUsage
         }
@@ -239,7 +282,9 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         let changed = changedModules(in compiled, by: in o, for: entry) ?? return exitUsage
         var kept2 = List<i64>()
         for i in selected {
-            if changed.all || changed.directories.contains(moduleOf(in compiled, for: program.tests[i], by: entry)) { kept2.append(i) }
+            if changed.all || changed.directories.contains(moduleOf(in compiled, for: program.tests[i], by: entry)) {
+                kept2.append(i)
+            }
         }
         selected = move kept2
     }
@@ -247,7 +292,9 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     if (o.only is { } only) {
         var kept3 = List<i64>()
         for i in selected {
-            if t11Matches(compiled.tests[program.tests[i]].title, by: in only) { kept3.append(i) }
+            if t11Matches(compiled.tests[program.tests[i]].title, by: in only) {
+                kept3.append(i)
+            }
         }
         selected = move kept3
     }
@@ -281,9 +328,13 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     let symbols = semantics.t26Symbols(d.styleOut.ascii)
     let separator = d.styleOut.ascii ? "-" : "·"
     var moduleSet: Map<string, bool> = []
-    for i in selected { moduleSet[moduleOf(in compiled, for: program.tests[i], by: entry)] = true }
+    for i in selected {
+        moduleSet[moduleOf(in compiled, for: program.tests[i], by: entry)] = true
+    }
     var modules: i64 = 0
-    for (_, _) in moduleSet { modules += 1 }
+    for (_, _) in moduleSet {
+        modules += 1
+    }
     if human {
         let tests = count == 1 ? $"{count} test" : $"{count} tests"
         let mods = modules == 1 ? $"{modules} module" : $"{modules} modules"
@@ -302,7 +353,9 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         done(ref progress)
         if (coveragePrefix is { } prefix) {
             // coverage-exempt: Q1219 an unreadable counter file
-            if outcome.timedOut || !mergeCounters($"{prefix}.{i}", to: ref hits) { unknown = true }
+            if outcome.timedOut || !mergeCounters($"{prefix}.{i}", to: ref hits) {
+                unknown = true
+            }
         }
         var status = TestStatus.panicked
         if outcome.timedOut {
@@ -327,23 +380,42 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
             file = compiled.files[f].path
             line = t11Line(in compiled.files[f].text, at: compiled.tests[t].span.start)
         }
-        results.append(TestResult { name: title, file: file, line: line, status: status, elapsedNanos: outcome.elapsedNanos, output: status == .passed ? "" : details })
+        results.append(
+            TestResult {
+                name: title,
+                file: file,
+                line: line,
+                status: status,
+                elapsedNanos: outcome.elapsedNanos,
+                output: status == .passed ? "" : details,
+            },
+        )
         let module = Path.fileName(moduleOf(in compiled, for: t, by: entry))
         let name = visible(title)
         if status == .passed {
-            unless o.verbose { continue }
-            if human { print($"  {t11Paint(3, by: d.styleOut, for: symbols.dot)} {module}: {name}") }
+            unless o.verbose {
+                continue
+            }
+            if human {
+                print($"  {t11Paint(3, by: d.styleOut, for: symbols.dot)} {module}: {name}")
+            }
             if details.length > 0 {
                 for detail in details.parts(by: "\n") {
                     var trimmed = detail
-                    while trimmed.endsWith("\r") { trimmed = trimmed[0..trimmed.length - 1] }
-                    if human { print($"      {visible(trimmed)}") }
+                    while trimmed.endsWith("\r") {
+                        trimmed = trimmed[0..trimmed.length - 1]
+                    }
+                    if human {
+                        print($"      {visible(trimmed)}")
+                    }
                 }
             }
             continue
         }
         if status == .pending {
-            if o.verbose && human { print($"  {t11Paint(1, by: d.styleOut, for: symbols.dot)} {module}: {name} (pending)") }
+            if o.verbose && human {
+                print($"  {t11Paint(1, by: d.styleOut, for: symbols.dot)} {module}: {name} (pending)")
+            }
             continue
         }
         failureNames.append(name)
@@ -357,7 +429,13 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         }
     }
     let totalNanos = Io.monotonicNanos() - total
-    var report = TestReport { package: compiled.manifest is not null ? compiled.packageName : null, mode: o.mode, target: host, elapsedNanos: totalNanos, skipped: unchanged }
+    var report = TestReport {
+        package: compiled.manifest is not null ? compiled.packageName : null,
+        mode: o.mode,
+        target: host,
+        elapsedNanos: totalNanos,
+        skipped: unchanged,
+    }
     report.tests = move results
     let passed = testReportCount(in report, for: .passed)
     let pending = testReportCount(in report, for: .pending)
@@ -367,7 +445,9 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     if human {
         print("")
         if failed > 0 {
-            print($"{dot} {passed} passed {separator} {t11Paint(0, by: d.styleOut, for: symbols.cross)} {failed} failed {separator} {pending} pending {separator} {seconds}")
+            print(
+                $"{dot} {passed} passed {separator} {t11Paint(0, by: d.styleOut, for: symbols.cross)} {failed} failed {separator} {pending} pending {separator} {seconds}",
+            )
         } else if pending > 0 {
             print($"{dot} {passed} passed {separator} {pending} pending {separator} {seconds}")
         } else {
@@ -384,12 +464,18 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
                 }
             }
             let rerun = command.finish()
-            if selectable > 0 { print(selectable == 1 ? $"  rerun the failure: {rerun}" : $"  rerun the failures: {rerun}") }
-            if selectable < failureNames.length { print("  a failing test's name contains control characters and cannot be selected from a shell") }
+            if selectable > 0 {
+                print(selectable == 1 ? $"  rerun the failure: {rerun}" : $"  rerun the failures: {rerun}")
+            }
+            if selectable < failureNames.length {
+                print("  a failing test's name contains control characters and cannot be selected from a shell")
+            }
         }
     }
     let json = testReportJson(in report)
-    if o.testJson { Io.stdout.write(json) }
+    if o.testJson {
+        Io.stdout.write(json)
+    }
     if compiled.manifest is not null {
         let testDir = Path.combine(Path.combine(compiled.displayRoot, "out"), "test")
         // `Directory.CreateDirectory` and `Toolchain.ReplaceFile` throw, uncaught, on an IO error.
@@ -398,8 +484,21 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         let resultsPath = Path.combine(testDir, "results.json")
         t11ReplaceText(resultsPath, from: json, through: ref d) catch { panic($"cannot write {resultsPath}") }
     }
-    let gated = probes && writeCoverage(in o, by: in compiled, from: in map, through: in hits, for: unknown, as: partial, to: buildNanos, at: totalNanos, quiet: !human)
-    if (coverageDir is { } cd) { deleteWorkDir(cd) }
+    let gated = probes
+        && writeCoverage(
+            in o,
+            by: in compiled,
+            from: in map,
+            through: in hits,
+            for: unknown,
+            as: partial,
+            to: buildNanos,
+            at: totalNanos,
+            quiet: !human,
+        )
+    if (coverageDir is { } cd) {
+        deleteWorkDir(cd)
+    }
     return failed > 0 || gated ? exitTestFailure : exitOk
 }
 
@@ -421,7 +520,9 @@ void t11ReplaceText(string path, from string text, through ref DCtx d) uses allo
 /// CliApp.cs:790 `MergeCounters`: a test's counter file added to `hits`; false when it is unreadable. A missing file adds nothing.
 bool mergeCounters(string counterFile, to ref Map<i64, u64> hits) uses alloc, fs {
     // coverage-exempt: Q1219 through `?? return false` a missing or unreadable counter file
-    unless t1FileExists(counterFile) { return true }
+    unless t1FileExists(counterFile) {
+        return true
+    }
     let counts = readCounters(counterFile) ?? return false
     for (id, n) in counts {
         hits[id] = (hits.tryGet(at: id) ?? 0) + n
@@ -431,16 +532,38 @@ bool mergeCounters(string counterFile, to ref Map<i64, u64> hits) uses alloc, fs
 
 /// CliApp.cs:812 `WriteCoverage`: the one-line summary, or with `--coverage` the summary, `out/test/bayan-quality.json` and a
 /// `<file>.cov.txt` per file; whether a gate failed. `quiet` is `--json`'s `TextWriter.Null` for `human`.
-bool writeCoverage(in T11Options o, by in semantics.Ctx compiled, from in emitter.CoverageMap map, through in Map<i64, u64> hits, for bool unknown, as bool partial, to i64 buildNanos, at i64 totalNanos, bool quiet = false) uses alloc, console, fs {
-    let report = qualityCoverage("bayan test --coverage", by: in map, from: in hits, for: unknown, through: buildNanos, as: totalNanos)
+bool writeCoverage(
+    in T11Options o,
+    by in semantics.Ctx compiled,
+    from in emitter.CoverageMap map,
+    through in Map<i64,
+    u64> hits,
+    for bool unknown,
+    as bool partial,
+    to i64 buildNanos,
+    at i64 totalNanos,
+    bool quiet = false
+) uses alloc, console, fs {
+    let report = qualityCoverage(
+        "bayan test --coverage",
+        by: in map,
+        from: in hits,
+        for: unknown,
+        through: buildNanos,
+        as: totalNanos,
+    )
     if !o.coverage {
-        if partial { return false }
+        return false if partial
         unless quiet {
-            print($"coverage: lines {t11Part(in report.lines)}, branches {t11Part(in report.branches)}, error paths {t11Part(in report.errorPaths)}")
+            print(
+                $"coverage: lines {t11Part(in report.lines)}, branches {t11Part(in report.branches)}, error paths {t11Part(in report.errorPaths)}",
+            )
         }
         return false
     }
-    if !partial && !quiet { Io.stdout.write(qualityCoverageSummary(in report)) }
+    if !partial && !quiet {
+        Io.stdout.write(qualityCoverageSummary(in report))
+    }
     let full = Path.fullPath(o.path)
     let root = compiled.manifest is not null ? compiled.displayRoot : Path.directoryName(full) ?? ""
     let dir = Path.combine(Path.combine(root, "out"), "test")
@@ -452,7 +575,9 @@ bool writeCoverage(in T11Options o, by in semantics.Ctx compiled, from in emitte
     for f in report.files {
         let path = Path.isRooted(f.path) ? f.path : Path.fullPath(Path.combine(root, f.path))
         // coverage-exempt: Q1219 through `qualityListing(in f` a listed file deleted during the run, and IO failures the C# lets escape
-        unless t1FileExists(path) { continue }
+        unless t1FileExists(path) {
+            continue
+        }
         let listing = Path.combine(dir, $"{listingName(Path.relative(root, to: path))}.cov.txt")
         let parent = Path.directoryName(listing) ?? dir
         Io.createDirectory(parent) catch { panic($"cannot create the directory {parent}") }
@@ -460,7 +585,7 @@ bool writeCoverage(in T11Options o, by in semantics.Ctx compiled, from in emitte
         let lines = t11ReadAllLines(text)
         Io.writeFile(listing, qualityListing(in f, from: in lines).bytes) catch { panic($"cannot write {listing}") }
     }
-    if partial { return false }
+    return false if partial
     if (compiled.manifest is { } m) {
         return reportGates(in gatesCoverage(in report, by: m.minLines, for: m.minBranches, through: m.minErrorPaths))
     }
@@ -468,27 +593,34 @@ bool writeCoverage(in T11Options o, by in semantics.Ctx compiled, from in emitte
 }
 
 /// `Part` of CliApp.cs:821.
-string t11Part(in QualityTally x) uses alloc => $"{x.covered}/{x.total} ({x.total == 0 ? "100" : gatesFmt(x.covered, by: x.total)}%)"
+string t11Part(in QualityTally x) uses alloc =>
+    $"{x.covered}/{x.total} ({x.total == 0 ? "100" : gatesFmt(x.covered, by: x.total)}%)"
 
 /// `File.ReadAllLines`: lines ended by `\r\n`, `\n` or `\r`, no empty last line after a final ending.
 List<string> t11ReadAllLines(string text) uses alloc {
     var lines = List<string>()
-    for line in text.replaced("\r\n", by: "\n").replaced("\r", by: "\n").parts(by: "\n") { lines.append(line) }
-    if lines[lines.length - 1].length == 0 { let _ = lines.removeLast() }
+    for line in text.replaced("\r\n", by: "\n").replaced("\r", by: "\n").parts(by: "\n") {
+        lines.append(line)
+    }
+    if lines[lines.length - 1].length == 0 {
+        let _ = lines.removeLast()
+    }
     return lines
 }
 
 /// CliApp.cs:846 `ListingName`: each `..` segment becomes `_`; a rooted path keeps only its file name.
 string listingName(string relative) uses alloc {
     // coverage-exempt: Q1219 through `s == ".."` a rooted, Windows or `..` path
-    if Path.isRooted(relative) { return Path.fileName(relative) }
+    return Path.fileName(relative) if Path.isRooted(relative)
     let windows = Target.os == "windows"
     let separator = windows ? "\\" : "/"
     let normal = windows ? relative.replaced("/", by: "\\") : relative
     var sb = StrBuf()
     var first = true
     for s in normal.parts(by: separator) {
-        unless first { sb.append(separator) }
+        unless first {
+            sb.append(separator)
+        }
         first = false
         sb.append(s == ".." ? "_" : s)
     }
@@ -497,7 +629,8 @@ string listingName(string relative) uses alloc {
 
 /// CliApp.cs:994 `FailureDetail`: `panic: ` dropped, the diagram under a failed `assert` moved left, drawn with `symbols` and cut
 /// to `width` columns, and `at file:line` frames as `file:line`, the top three unless `verbose`.
-List<string> failureDetail(string details, by bool verbose, for in semantics.T26Symbols symbols, through i64 width) uses alloc {
+List<string> failureDetail(string details, by bool verbose, for in semantics.T26Symbols symbols, through i64 width)
+        uses alloc {
     // `PowerAssert.Indent` and `PowerAssert.Bar` (PowerAssert.cs:10-13).
     let indent = "       "
     var lines = List<string>()
@@ -505,9 +638,13 @@ List<string> failureDetail(string details, by bool verbose, for in semantics.T26
     var diagram = false
     for raw in details.parts(by: "\n") {
         var l = raw
-        while l.endsWith("\r") { l = l[0..l.length - 1] }
+        while l.endsWith("\r") {
+            l = l[0..l.length - 1]
+        }
         if l.startsWith("  at ") {
-            if verbose || frames < 3 { lines.append(l[5..l.length]) }
+            if verbose || frames < 3 {
+                lines.append(l[5..l.length])
+            }
             frames += 1
             diagram = false
             continue
@@ -516,7 +653,12 @@ List<string> failureDetail(string details, by bool verbose, for in semantics.T26
             l = l[7..l.length]
             diagram = l.startsWith("assert ") || l.startsWith("assert(")
         } else if diagram && l.startsWith(indent) {
-            l = fit(l[indent.length..l.length].replaced("│", by: symbols.bar), to: width, by: symbols.ellipsis, for: symbols.ellipsis == "…" ? 1 : symbols.ellipsis.length)
+            l = fit(
+                l[indent.length..l.length].replaced("│", by: symbols.bar),
+                to: width,
+                by: symbols.ellipsis,
+                for: symbols.ellipsis == "…" ? 1 : symbols.ellipsis.length,
+            )
         }
         lines.append(l)
     }
@@ -531,7 +673,8 @@ struct T11ChangedSet {
 
 /// CliApp.cs:1029 `ChangedModules`: the module directories with files that differ from `HEAD` (or `--base`), untracked files
 /// included; a changed `package.byn` selects everything. Null after reporting why git could not answer.
-T11ChangedSet? changedModules(in semantics.Ctx compiled, by in T11Options o, for string entry) uses alloc, console, env, fs, process {
+T11ChangedSet? changedModules(in semantics.Ctx compiled, by in T11Options o, for string entry)
+        uses alloc, console, env, fs, process {
     var dir = compiled.displayRoot
     if compiled.manifest is null {
         let full = Path.fullPath(o.path)
@@ -550,26 +693,32 @@ T11ChangedSet? changedModules(in semantics.Ctx compiled, by in T11Options o, for
     }
     let baseRef = o.baseRef ?? "HEAD"
     var diffArgs = List<string>()
-    for a in ["diff", "--name-only", "-z", "--relative", baseRef, "--", "."] { diffArgs.append(a) }
+    for a in ["diff", "--name-only", "-z", "--relative", baseRef, "--", "."] {
+        diffArgs.append(a)
+    }
     let diff = distGit(git, at: dir, by: in diffArgs)
     if diff.code != 0 {
         Io.stderr.write($"bayan: git can't compare the working tree with `{baseRef}`\n")
         return null
     }
     var lsArgs = List<string>()
-    for a in ["ls-files", "-z", "--others", "--exclude-standard", "--", "."] { lsArgs.append(a) }
+    for a in ["ls-files", "-z", "--others", "--exclude-standard", "--", "."] {
+        lsArgs.append(a)
+    }
     let ls = distGit(git, at: dir, by: in lsArgs)
     // coverage-exempt: Q1219 `git ls-files` failing after `git diff` succeeded
     let untracked = ls.code == 0 ? ls.stdout : ""
     var set = T11ChangedSet {}
     for relative in $"{diff.stdout}\u{0}{untracked}".parts(by: "\u{0}") {
-        if relative.length == 0 { continue }
+        continue if relative.length == 0
         let full = Path.fullPath(Path.combine(dir, relative))
         if compiled.manifest is not null && full == Path.combine(compiled.displayRoot, "package.byn") {
             set.all = true
             return set
         }
-        if full.endsWith(".byn") { set.directories[moduleDirectory(in compiled, for: full, by: entry)] = true }
+        if full.endsWith(".byn") {
+            set.directories[moduleDirectory(in compiled, for: full, by: entry)] = true
+        }
     }
     return set
 }
@@ -578,17 +727,20 @@ T11ChangedSet? changedModules(in semantics.Ctx compiled, by in T11Options o, for
 string moduleOf(in semantics.Ctx compiled, for i64 testIndex, by string entry) uses alloc, fs {
     let f = compiled.tests[testIndex].file
     // coverage-exempt: Q1219 every test has a location
-    if f == -1 { return "" }
+    return "" if f == -1
     let path = compiled.files[f].path
-    return moduleDirectory(in compiled, for: Path.isRooted(path) ? path : Path.fullPath(Path.combine(compiled.displayRoot, path)), by: entry)
+    return moduleDirectory(
+        in compiled,
+        for: Path.isRooted(path) ? path : Path.fullPath(Path.combine(compiled.displayRoot, path)),
+        by: entry,
+    )
 }
 
 /// CliApp.cs:1069 `ModuleDirectory`: a project's `tests/` files belong to the entry module `entry`.
 string moduleDirectory(in semantics.Ctx compiled, for string file, by string entry) uses alloc {
     let dir = Path.directoryName(file) ?? ""
-    if compiled.manifest is not null && dir == Path.combine(compiled.displayRoot, "tests") {
-        return Path.combine(Path.combine(compiled.displayRoot, "src"), entry)
-    }
+    return Path.combine(Path.combine(compiled.displayRoot, "src"), entry) if compiled.manifest is not null
+        && dir == Path.combine(compiled.displayRoot, "tests")
     return dir
 }
 
@@ -599,43 +751,66 @@ string t11EntryModule(ref semantics.Ctx compiled, for string path) uses alloc, f
 
 /// `TestOutcome` (CliApp.cs:1020): `elapsedNanos` is `Elapsed`.
 struct T11Outcome {
-    i32 exitCode = 0
-    bool timedOut = false
-    string stdout = ""
-    string stderr = ""
-    i64 elapsedNanos = 0
+    i32    exitCode     = 0
+    bool   timedOut     = false
+    string stdout       = ""
+    string stderr       = ""
+    i64    elapsedNanos = 0
 }
 
 /// CliApp.cs:1077 `RunTest`: `executable --test <index>` with `$BAYAN_COVERAGE` set to `coveragePrefix`, killed after `timeoutMs`.
 /// `Io.run` with `timeout:` keeps each stream's first and last 64 KiB, as `BoundedCapture.cs`, and a timed-out test keeps what it
 /// printed before the kill (Q1216). A signal-killed test is exit 128 + the signal, as `Process.ExitCode` reports it.
-T11Outcome runTest(string executable, at i64 index, by string? coveragePrefix, for i64 timeoutMs) uses alloc, clock, process {
+T11Outcome runTest(string executable, at i64 index, by string? coveragePrefix, for i64 timeoutMs)
+        uses alloc, clock, process {
     var args = List<string>()
     args.append("--test")
     args.append($"{index}")
     var env: Map<string, string?> = []
-    if (coveragePrefix is { } prefix) { env["BAYAN_COVERAGE"] = prefix }
+    if coveragePrefix is not null {
+        env["BAYAN_COVERAGE"] = coveragePrefix
+    }
     let clock = Io.monotonicNanos()
     let r = Io.run(executable, args.span, env: env, timeout: Millis(timeoutMs)) catch switch {
-        .timeout(_, let streamOut, let streamErr) => return T11Outcome { exitCode: -1, timedOut: true, stdout: streamOut, stderr: streamErr, elapsedNanos: Io.monotonicNanos() - clock },
-        .signaled(let s, let streamOut, let streamErr) => return T11Outcome { exitCode: 128 + s, stdout: streamOut, stderr: streamErr, elapsedNanos: Io.monotonicNanos() - clock },
+        .timeout(_, let streamOut, let streamErr) => return T11Outcome {
+            exitCode: -1,
+            timedOut: true,
+            stdout: streamOut,
+            stderr: streamErr,
+            elapsedNanos: Io.monotonicNanos() - clock,
+        },
+        .signaled(let s, let streamOut, let streamErr) => return T11Outcome {
+            exitCode: 128 + s,
+            stdout: streamOut,
+            stderr: streamErr,
+            elapsedNanos: Io.monotonicNanos() - clock,
+        },
         // `Process.Start` of the just-built executable throws, uncaught, when it cannot start.
         // coverage-exempt: Q1219 the executable just built cannot start
         IoError e => { panic($"cannot run {executable}") },
     }
-    return T11Outcome { exitCode: r.exitCode, stdout: r.stdout, stderr: r.stderr, elapsedNanos: Io.monotonicNanos() - clock }
+    return T11Outcome {
+        exitCode: r.exitCode,
+        stdout: r.stdout,
+        stderr: r.stderr,
+        elapsedNanos: Io.monotonicNanos() - clock,
+    }
 }
 
 /// CoverageInstrumenter.cs:60 `DeleteStale`: every `<prefix>.*` file is deleted.
 void deleteStale(string prefix) uses alloc, fs {
     let dir = Path.directoryName(Path.fullPath(prefix)) ?? ""
     // coverage-exempt: Q1219 through `if name.startsWith(start)` the coverage directory is fresh, so it holds no stale file
-    unless t5DirectoryExists(dir) { return }
+    unless t5DirectoryExists(dir) {
+        return
+    }
     let start = $"{Path.fileName(prefix)}."
     let names = Io.listDir(dir) catch return
     for name in names {
         let path = Path.combine(dir, name)
-        if name.startsWith(start) && t1FileExists(path) { Io.remove(path) catch { panic($"cannot delete {path}") } }
+        if name.startsWith(start) && t1FileExists(path) {
+            Io.remove(path) catch { panic($"cannot delete {path}") }
+        }
     }
 }
 
@@ -646,12 +821,14 @@ Map<i64, u64>? readCounters(string path) uses alloc, fs {
     // no-oracle: Q1219 `File.ReadAllLines` throws an `IOException` MergeCounters does not catch; an unreadable file is unknown here
     let text = Io.readText(path) catch return null
     let lines = t11ReadAllLines(text)
-    if lines.length == 0 || lines[0] != "bayan-coverage 1" { return null }
+    return null if lines.length == 0 || lines[0] != "bayan-coverage 1"
     var counts: Map<i64, u64> = []
     for k in 1..lines.length {
         var parts = List<string>()
-        for part in lines[k].parts(by: " ") { parts.append(part) }
-        if parts.length < 2 { return null }
+        for part in lines[k].parts(by: " ") {
+            parts.append(part)
+        }
+        return null if parts.length < 2
         let id = t9Digits(parts[0], until: 2147483647) ?? return null
         let n = t9Digits(parts[1], until: 9223372036854775807) ?? return null
         counts[id] = u64(n)

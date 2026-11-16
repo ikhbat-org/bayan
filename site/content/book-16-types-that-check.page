@@ -124,7 +124,7 @@ void main() fails ValidationError&lt;Grams&gt; {
 <li><code>receipt</code> takes <code>Parcel.delivered p</code>, so it cannot be called on any other state.</li>
 <li>After <code>deliver</code>, <code>main</code> reads <code>p.carrier</code>, a field of the delivered state.</li>
 </ul>
-<p>The output is <code>parcel 1 signed by Sam</code>, then <code>DHL</code>. Now send twice:</p>
+<p>The output is <code>parcel 1 signed by Umar</code>, then <code>DHL</code>. Now send twice:</p>
 <pre><code class="byn">type distinct Id = i64
 
 struct Parcel {

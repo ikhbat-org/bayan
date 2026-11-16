@@ -2,6 +2,7 @@ struct Tens : IIndexable {
     type Item = i64
 
     i64 count => 4
+
     i64 get(i64 index) => index * 10
 }
 
