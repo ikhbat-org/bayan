@@ -144,7 +144,7 @@ A failure line has the shape decision 006 §3 shows: the case name, the input pa
 | `SelfhostSnapshot*` | 1 | 10 | 0 | 277 | snapshot of emitted output | `emit` cases |
 | `SelfhostCoverage*` | 1 | 4 | 0 | 182 | coverage output | `quality` cases |
 
-Harness use in `src/tests`, by file: `SelfhostSemanticsHarness` 78, `SelfhostEmitterHarness` 41, in-process C# CLI 19; 100 of 117 files use at least one.
+Harness use in `src/tests`, by file: `SelfhostSemanticsHarness` 78, `SelfhostEmitterHarness` 41, in-process C# CLI 19; 98 of 117 files use at least one.
 
 ### Export interface
 
@@ -189,7 +189,7 @@ A session is a directory: a workspace tree, `in.jsonl` (client messages in order
 | R6 | 1 | T2, T3 |
 | R7 | 1 | T7 |
 | R8 | 1 | T8 |
-| R9 | 1 | T9 |
+| R9 | 1 | T9a, T9b |
 | R10 | 2 | T12–T17 |
 | R11 | 2 | T11, T18 |
 | R12 | 2 | T19 |
@@ -202,17 +202,17 @@ A session is a directory: a workspace tree, `in.jsonl` (client messages in order
 | R19 | 5 | T42 |
 | R20 | 4 | T33–T37 |
 | R21 | 4 | T34, T37 |
-| R22 | 4 | T38 |
+| R22 | 4 | T38a, T38b |
 | R23 | 4 | T39 |
-| R24 | 5 | T40, T41, T43, T44 |
+| R24 | 5 | T40, T41, T43, T44a, T44b |
 | R25 | 5 | T43 |
 | R26 | 5 | T45 |
 | R27 | 5 | T46 |
-| R28 | 5 | T47–T50 |
+| R28 | 5 | T47, T48a–T48d, T49, T50 |
 | R29 | 5 | T51 |
 | R30 | 6 | T64 |
 | R31 | 6 | T65 |
 | R32 | 6 | T66 |
 | R33 | 6 | T67 |
 | R34 | 6 | T68 |
-| R35 | 6 | T69, T70 |
+| R35 | 6 | T69a–T69c, T70 |
