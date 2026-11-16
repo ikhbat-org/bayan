@@ -11,7 +11,7 @@
 export MSBUILDDISABLENODEREUSE=1 DOTNET_CLI_USE_MSBUILD_SERVER=0  # no MSBuild worker or build server outlives the run
 mutation_step() {
   local LOG=$1 FILTER=$2 MUTATE=$3 SURV=$4 REL=${1#$PWD/} n name bin sites l MX failed first
-  local BAYAN SNAP=$1/snap REPLAY HERE
+  local BAYAN SNAP=$1/snap REPLAY
   REPLAY=$(dirname "${BASH_SOURCE[0]}")/replay.py
   # `bayan mutate` is tooling: it runs from the pinned build of dev (scripts/pinned-bayan.sh), never the branch under test
   if ! BAYAN=$(bash "$(dirname "${BASH_SOURCE[0]}")/../pinned-bayan.sh" 2> "$LOG/pinned-bayan.txt"); then

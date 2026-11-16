@@ -54,6 +54,9 @@ STUB
 mkdir -p csharp/Bayan.Cli/bin/Debug/net10.0
 cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 #!/bin/bash
+# `run` is scripts/bayan-tool.sh running manifest-builds: one `binary<TAB>sites` line per build, a malformed manifest fails
+[ "$1" = run ] && { m=${@: -1}; grep -q ']}$' "$m" || { echo "manifest-builds: $m: malformed" >&2; exit 1; }
+  tr '{' '\n' < "$m" | sed -n 's/^"binary": "\([^"]*\)", "sites": "\([^"]*\)".*/\1 \2/p' | tr ' ' '\t'; exit 0; }
 [ "$1" = format ] && { if grep -q BAD "${@: -1}"/*/*.byn; then echo "${@: -1}/m/x.byn"; exit 1; fi; exit 0; }
 [ "$1" = parse ] && { grep -q '^fn ' "${@: -1}" && echo "Function f"; echo "Program"; exit 0; }
 echo "$@" > $AUX/mutate-args.txt; echo "$@" >> $AUX/mutate-args-all.txt
@@ -70,10 +73,10 @@ result() {
     for ((i = 0; i < $2; i++)); do echo "$a:3:14 arithmetic \`+\` -> \`-\`: survived"; done
     for ((i = 0; i < $3; i++)); do echo "$a:3:5 statement \`return a + 1\` -> \`\`: marked"; done
     echo "mutation: $1 killed, $2 survived, 0 timeout, $3 marked, 0 not reached, 0 not emitted"; echo "timing: total 1 s"; } > $aux/out.txt
-  python3 -I -c 'import json, sys
-f, k, s, m = sys.argv[1], *map(int, sys.argv[2:])
-ms = [{"site": {"file": f}, "status": st} for st, n in (("killed", k), ("survived", s), ("marked", m)) for _ in range(n)]
-print(json.dumps({"version": 1, "kind": "mutation", "files": [{"path": f, "mutants": ms}]}))' "$a" "$@" > $aux/report.json; }
+  local ms="" st i
+  for st in killed:$1 survived:$2 marked:$3; do
+    for ((i = 0; i < ${st#*:}; i++)); do ms="$ms${ms:+, }{\"site\": {\"file\": \"$a\"}, \"status\": \"${st%%:*}\"}"; done; done
+  printf '{"version": 1, "kind": "mutation", "files": [{"path": "%s", "mutants": [%s]}]}\n' "$a" "$ms" > $aux/report.json; }
 g() { PATH="$aux:$PATH" bash "$root/scripts/selfhost/guard.sh" --base base --allow "src/semantics/a.byn,tmp/*${ALLOWX:-}" \
   --filter 'FullyQualifiedName~SelfhostSemanticsT99Tests' "$@" 2>&1 || true; }
 result 2 0 1; pass=$(g --mutate src/semantics/a.byn); rec=$(cat $aux/record.txt); args=$(cat $aux/mutate-args.txt)
@@ -92,37 +95,36 @@ touch $aux/recordfail; recordfail=$(g --mutate src/semantics/a.byn); rm $aux/rec
 rm $aux/record.txt; plain=$(g); [ -f $aux/record.txt ] && plainrec=1 || plainrec=0; ls tmp/guard-run/quality-*.json > /dev/null 2>&1 && plainrep=1 || plainrep=0
 printf x > "stray file.txt"; space=$(g); rm "stray file.txt"
 mv csharp/Bayan.Cli/bin/Debug/net10.0/bayan $aux/bayan; nocli=$(g --mutate src/semantics/a.byn); mv $aux/bayan csharp/Bayan.Cli/bin/Debug/net10.0/bayan
-# cov <covered> <total> <missed lines> <unknown lines> <branches [line, column, outcome, status]>: the coverage report of a.byn
-cov() { python3 -I -c 'import json, sys
-f, covered, total, missed, unknown, branches = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), *map(json.loads, sys.argv[4:])
-br = {"covered": sum(b[3] == "hit" for b in branches), "total": len(branches)}
-for s in ("missed", "unknown"): br[s] = [{"line": b[0], "column": b[1], "outcome": b[2]} for b in branches if b[3] == s]
-lines = {"covered": covered, "total": total, "missed": missed, "unknown": unknown}
-print(json.dumps({"version": 1, "kind": "coverage", "files": [{"path": f, "lines": lines, "branches": br, "errorPaths": []}]}))' "$a" "$@" > $aux/cov.json; }
+# cov <covered> <total> <missed lines> <unknown lines> <line,column,outcome,status>...: the coverage report of a.byn, one branch per argument
+cov() { local lines="\"covered\": $1, \"total\": $2, \"missed\": $3, \"unknown\": $4" b l c o st e hit=0 n=0 missed="" unknown=""; shift 4
+  for b in "$@"; do IFS=, read -r l c o st <<< "$b"; e="{\"line\": $l, \"column\": $c, \"outcome\": $o}"; n=$((n + 1))
+    case $st in hit) hit=$((hit + 1)) ;; missed) missed="$missed${missed:+, }$e" ;; unknown) unknown="$unknown${unknown:+, }$e" ;; esac; done
+  printf '{"version": 1, "kind": "coverage", "files": [{"path": "%s", "lines": {%s}, "branches": {"covered": %s, "total": %s, "missed": [%s], "unknown": [%s]}, "errorPaths": []}]}\n' \
+    "$a" "$lines" $hit $n "$missed" "$unknown" > $aux/cov.json; }
 # fns <f's [covered, total] lines> <f's branches> <g's lines> <g's branches>: functions.json for a.byn (f 1-4, a blank line, g 6-9)
 fns() { printf '{"version": 1, "files": {"%s": [{"span": [1, 4], "lines": %s, "branches": %s}, {"span": [6, 9], "lines": %s, "branches": %s}]}}\n' "$a" "$@" > $aux/fns.json; }
 printf '\nfn g(a: int) -> int {\n    if a > 2 { return 2 }\n    return a\n}\n' >> src/semantics/a.byn
 # f uncovered (line 3, branch 2:10 never true), g covered; the blank line opens the hunk adding g
-cov 3 4 '[3]' '[]' '[[2, 10, true, "missed"], [2, 10, false, "hit"], [7, 10, true, "hit"], [7, 10, false, "hit"]]'; fns '[1, 2]' '[1, 2]' '[2, 2]' '[2, 2]'
+cov 3 4 '[3]' '[]' 2,10,true,missed 2,10,false,hit 7,10,true,hit 7,10,false,hit; fns '[1, 2]' '[1, 2]' '[2, 2]' '[2, 2]'
 covpass=$(g); covfiles=$(cat $aux/cover.txt); [ -f tmp/guard-run/quality-coverage.json ] && covrep=1 || covrep=0
 # f and g both short: only g's are items
-cov 1 4 '[3, 8]' '[7]' '[[2, 10, true, "missed"], [7, 10, true, "missed"], [7, 10, false, "hit"], [8, 5, false, "unknown"]]'; fns '[1, 2]' '[0, 1]' '[0, 2]' '[1, 3]'
+cov 1 4 '[3, 8]' '[7]' 2,10,true,missed 7,10,true,missed 7,10,false,hit 8,5,false,unknown; fns '[1, 2]' '[0, 1]' '[0, 2]' '[1, 3]'
 covmiss=$(g)
 touch $aux/testfail; covred=$(g); rm $aux/testfail
 # a coverage baseline above the run's is not checked
 printf '{ "version": 1, "files": { "src/semantics/a.byn": { "mutation": null, "coverage": 1.0, "branches": 1.0 } } }\n' > tests/quality-baseline.json
-cov 3 4 '[3]' '[]' '[[2, 10, true, "missed"], [2, 10, false, "hit"], [7, 10, true, "hit"], [7, 10, false, "hit"]]'; fns '[1, 2]' '[1, 2]' '[2, 2]' '[2, 2]'
+cov 3 4 '[3]' '[]' 2,10,true,missed 2,10,false,hit 7,10,true,hit 7,10,false,hit; fns '[1, 2]' '[1, 2]' '[2, 2]' '[2, 2]'
 covbase=$(ALLOWX=,tests/quality-baseline.json g); git show HEAD:tests/quality-baseline.json > tests/quality-baseline.json
 touch $aux/nocov; covnone=$(g); rm $aux/nocov
 printf '{"version": 1, "files": [' > $aux/cov.json; covbad=$(g)
 # deleting f's line 2 makes f (then 1-3) gated: a deletion touches the lines on either side of it
 sed -i.bak 2d src/semantics/a.byn; rm src/semantics/a.byn.bak
-cov 2 3 '[2]' '[]' '[[6, 10, true, "hit"], [6, 10, false, "hit"]]'
+cov 2 3 '[2]' '[]' 6,10,true,hit 6,10,false,hit
 printf '{"version": 1, "files": {"%s": [{"span": [1, 3], "lines": [0, 1], "branches": [0, 0]}, {"span": [5, 8], "lines": [2, 2], "branches": [2, 2]}]}}\n' "$a" > $aux/fns.json
 covtouch=$(g)
 # a file new since base is touched throughout
 printf 'fn h() -> int {\n    return 1\n}\n' > src/semantics/b.byn
-a=$r/src/semantics/b.byn cov 0 1 '[2]' '[]' '[]'
+a=$r/src/semantics/b.byn cov 0 1 '[2]' '[]'
 printf '{"version": 1, "files": {"%s": [{"span": [1, 3], "lines": [0, 1], "branches": [0, 0]}]}}\n' "$r/src/semantics/b.byn" > $aux/fns.json
 covnew=$(ALLOWX=,src/semantics/b.byn g)
 # a changed file with only constants, absent from the report, has nothing to cover (info line, no FAIL item)
@@ -135,10 +137,10 @@ printf 'fn k() -> int {\n    return 1\n}\n' > lib/std/m/x.byn
 stdgood=$(ALLOWX=,lib/std/m/x.byn g); stdfilter=$(cat $aux/coverfilter.txt)
 # lib/std coverage alone: k covered passes, k's line 2 missed fails by file:line
 git show base:src/semantics/a.byn > src/semantics/a.byn; rm src/semantics/b.byn src/semantics/c.byn
-x=$r/lib/std/m/x.byn; a=$x cov 1 1 '[]' '[]' '[]'
+x=$r/lib/std/m/x.byn; a=$x cov 1 1 '[]' '[]'
 printf '{"version": 1, "files": {"%s": [{"span": [1, 3], "lines": [1, 1], "branches": [0, 0]}]}}\n' "$x" > $aux/fns.json
 stdcovpass=$(ALLOWX=,lib/std/m/x.byn g)
-a=$x cov 0 1 '[2]' '[]' '[]'
+a=$x cov 0 1 '[2]' '[]'
 printf '{"version": 1, "files": {"%s": [{"span": [1, 3], "lines": [0, 1], "branches": [0, 0]}]}}\n' "$x" > $aux/fns.json
 stdcovmiss=$(ALLOWX=,lib/std/m/x.byn g)
 # a branch that does not touch lib/std runs no format check, whatever lib/std holds and whether or not the pinned bayan works

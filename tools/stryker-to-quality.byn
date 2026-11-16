@@ -422,8 +422,8 @@ i32 main(ReadOnlySpan<string> argv) uses fs, console, alloc {
         print("stryker_to_quality: ValueError('could not convert string to float')", to: .stderr)
         return 1
     }
-    let buildS = buildOpt ?? 0.0
-    let totalS = totalOpt ?? 0.0
+    let buildS = buildOpt
+    let totalS = totalOpt
     runConvert(argv[0], from: argv[1], at: buildS, until: totalS, by: argv[4..]) catch switch {
         .failed(let msg) => {
             print($"stryker_to_quality: {msg}", to: .stderr)
