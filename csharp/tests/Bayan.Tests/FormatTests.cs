@@ -106,10 +106,20 @@ public sealed class FormatTests
 
     private const string ErrorSets = "union error E {\n    a\n}\nunion error F {\n    b\n}\nunion error G {\n    c\n}\n";
 
+    private const string CommentHeader = "i32!E g() // keep me\n    fails F\n    uses console";
+    private const string LinesHeader = "i32!E g()\n    fails F\n    uses console";
+    private const string WhereHeader = "i64!E g<T>(T x) fails F where T : IShape expects true";
+    private const string TwoFailsHeader = "i32!E g() fails F uses console fails G, E";
+    private const string TwoUsesHeader = "i32!E g() fails F uses console uses fs";
+
+    /// <summary>The file <see cref="FormatHeader"/> formats: the error sets, an interface and a function with <paramref name="header"/>.</summary>
+    private static string HeaderInput(string header) =>
+        ErrorSets + "interface IShape {\n    i64 area()\n}\n" + header + " {\n    print(\"g\")\n    return 1\n}\n";
+
     private static string FormatHeader(string dir, string header)
     {
         var file = Path.Combine(Fresh(dir), "main.byn");
-        File.WriteAllText(file, ErrorSets + "interface IShape {\n    i64 area()\n}\n" + header + " {\n    print(\"g\")\n    return 1\n}\n");
+        File.WriteAllText(file, HeaderInput(header));
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
         return File.ReadAllText(file);
@@ -118,7 +128,7 @@ public sealed class FormatTests
     [Fact]
     public void AFailsShorthandKeepsAComment()
     {
-        var text = FormatHeader("shorthand-comment", "i32!E g() // keep me\n    fails F\n    uses console");
+        var text = FormatHeader("shorthand-comment", CommentHeader);
         Assert.Contains("i32 g()\n        uses console // keep me\n        fails E, F {", text);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
     }
@@ -126,21 +136,21 @@ public sealed class FormatTests
     [Fact]
     public void AFailsShorthandKeepsAMultiLineHeader()
     {
-        var text = FormatHeader("shorthand-lines", "i32!E g()\n    fails F\n    uses console");
+        var text = FormatHeader("shorthand-lines", LinesHeader);
         Assert.Contains("i32 g()\n        uses console\n        fails E, F {", text);
     }
 
     [Fact]
     public void AFailsShorthandCarriesWhereAndExpects()
     {
-        var text = FormatHeader("shorthand-where", "i64!E g<T>(T x) fails F where T : IShape expects true");
+        var text = FormatHeader("shorthand-where", WhereHeader);
         Assert.Contains("i64 g<T>(T x) where T : IShape expects true fails E, F {", text);
     }
 
     [Fact]
     public void AFailsShorthandMergesEveryFailsClause()
     {
-        var text = FormatHeader("shorthand-two-fails", "i32!E g() fails F uses console fails G, E");
+        var text = FormatHeader("shorthand-two-fails", TwoFailsHeader);
         Assert.Contains("i32 g() uses console fails E, F, G {", text);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
     }
@@ -148,7 +158,7 @@ public sealed class FormatTests
     [Fact]
     public void AFailsShorthandKeepsUsesClausesInSourceOrder()
     {
-        var text = FormatHeader("shorthand-two-uses", "i32!E g() fails F uses console uses fs");
+        var text = FormatHeader("shorthand-two-uses", TwoUsesHeader);
         Assert.Contains("i32 g() uses console uses fs fails E, F {", text);
     }
 
@@ -784,11 +794,13 @@ public sealed class FormatTests
     }
 
     /// <summary>`bayan format` indents each under-indented joined line, so BYN5103 is quiet on its output; quiet input is left alone.</summary>
+    private static readonly (string Name, bool Fires)[] LineJoinCases =
+        [("line-join-member", true), ("line-join-enum-shorthand", true), ("line-join-and", true), ("line-join-quiet", false)];
+
+    public static IEnumerable<object[]> LineJoinRows() => LineJoinCases.Select(c => new object[] { c.Name, c.Fires });
+
     [Theory]
-    [InlineData("line-join-member", true)]
-    [InlineData("line-join-enum-shorthand", true)]
-    [InlineData("line-join-and", true)]
-    [InlineData("line-join-quiet", false)]
+    [MemberData(nameof(LineJoinRows))]
     public void FormattedCodeQuietsTheLineJoinLint(string name, bool fires)
     {
         var source = File.ReadAllBytes(Path.Combine(Golden.CasesRoot, "diag", name + ".byn"));
@@ -801,4 +813,19 @@ public sealed class FormatTests
         Assert.Empty(Bayan.Syntax.Parsing.SyntaxTree.Parse(new Bayan.Syntax.Text.SourceText(file, formatted)).Lints);
         if (!fires) Assert.Equal(source, formatted);
     }
+
+    /// <summary>
+    /// The inputs these cases build from a literal and a named constant or read from <c>tests/cases/diag/</c>, by case name, with
+    /// their <c>Style</c> fields. <c>SelfhostDriverStage2FormatTests.ComposedInputsFormatAsCliApp</c> formats each whole through stage 2.
+    /// </summary>
+    public static IEnumerable<(string Name, string Source, string Style)> ComposedInputs() =>
+    [
+        (nameof(AFailsShorthandKeepsAComment), HeaderInput(CommentHeader), ""),
+        (nameof(AFailsShorthandKeepsAMultiLineHeader), HeaderInput(LinesHeader), ""),
+        (nameof(AFailsShorthandCarriesWhereAndExpects), HeaderInput(WhereHeader), ""),
+        (nameof(AFailsShorthandMergesEveryFailsClause), HeaderInput(TwoFailsHeader), ""),
+        (nameof(AFailsShorthandKeepsUsesClausesInSourceOrder), HeaderInput(TwoUsesHeader), ""),
+        .. LineJoinCases.Select(c => ($"{nameof(FormattedCodeQuietsTheLineJoinLint)}({c.Name})",
+            File.ReadAllText(Path.Combine(Golden.CasesRoot, "diag", c.Name + ".byn")), "")),
+    ];
 }
