@@ -1,0 +1,431 @@
+#!/usr/bin/env bayan
+// Stryker mutation-testing-elements JSON to bayan-quality.json, kind "mutation" (spec 013 R12, R15; spec 015 T10, S8).
+// usage: stryker-to-quality OUT.json REPO_ROOT BUILD_S TOTAL_S REPORT.json...
+
+import std.json
+
+type JsonValue = json.JsonValue
+type JsonMember = json.JsonMember
+type JsonError = json.JsonError
+type Json = json.Json
+
+const filteredReason: string = "Removed by mutate filter"
+
+struct Counts {
+    i64 killed     = 0
+    i64 survived   = 0
+    i64 timeout    = 0
+    i64 marked     = 0
+    i64 notReached = 0
+    i64 notEmitted = 0
+}
+
+struct OperatorEntry {
+    string name
+    Counts counts
+}
+
+struct SurvivingLine {
+    string file
+    i64    line
+    i64    column
+    string original
+    string mutated
+    string operatorName
+    string suggestion
+}
+
+union error ConvertError {
+    failed(string message)
+}
+
+/// Maps a Stryker status name to its `bayan-quality` status name, or `""` when unknown.
+string mapStatus(string s) => s switch {
+    "Killed"       => "killed",
+    "Survived"     => "survived",
+    "Timeout"      => "timeout",
+    "NoCoverage"   => "not_reached",
+    "Ignored"      => "marked",
+    "CompileError" => "not_emitted",
+    "RuntimeError" => "not_emitted",
+    _              => "",
+}
+
+/// Increments the field of `c` matching `status`.
+Counts addStatus(Counts c, for string status) => status switch {
+    "killed"      => Counts { killed: c.killed + 1, survived: c.survived, timeout: c.timeout, marked: c.marked, notReached: c.notReached, notEmitted: c.notEmitted },
+    "survived"    => Counts { killed: c.killed, survived: c.survived + 1, timeout: c.timeout, marked: c.marked, notReached: c.notReached, notEmitted: c.notEmitted },
+    "timeout"     => Counts { killed: c.killed, survived: c.survived, timeout: c.timeout + 1, marked: c.marked, notReached: c.notReached, notEmitted: c.notEmitted },
+    "marked"      => Counts { killed: c.killed, survived: c.survived, timeout: c.timeout, marked: c.marked + 1, notReached: c.notReached, notEmitted: c.notEmitted },
+    "not_reached" => Counts { killed: c.killed, survived: c.survived, timeout: c.timeout, marked: c.marked, notReached: c.notReached + 1, notEmitted: c.notEmitted },
+    _             => Counts { killed: c.killed, survived: c.survived, timeout: c.timeout, marked: c.marked, notReached: c.notReached, notEmitted: c.notEmitted + 1 },
+}
+
+/// `c` as a `JsonValue` object in `COUNTS` key order.
+JsonValue countsJson(Counts c) uses alloc {
+    var m = List<JsonMember>()
+    m.append(JsonMember { key: "killed", value: intJson(c.killed) })
+    m.append(JsonMember { key: "survived", value: intJson(c.survived) })
+    m.append(JsonMember { key: "timeout", value: intJson(c.timeout) })
+    m.append(JsonMember { key: "marked", value: intJson(c.marked) })
+    m.append(JsonMember { key: "not_reached", value: intJson(c.notReached) })
+    m.append(JsonMember { key: "not_emitted", value: intJson(c.notEmitted) })
+    return .object(members: move m)
+}
+
+JsonValue intJson(i64 n) uses alloc => .number(value: f64(n), text: $"{n}")
+
+JsonValue floatJson(f64 v) uses alloc {
+    let s = $"{v}"
+    for b in s.bytes {
+        if b == '.' || b == 'e' || b == 'E' {
+            return .number(value: v, text: s)
+        }
+    }
+    return .number(value: v, text: $"{s}.0")
+}
+
+/// The string value of the last member named `key` in `members`, or null.
+string? optText(ReadOnlySpan<JsonMember> members, for string key) {
+    var i = members.length - 1
+    while i >= 0 {
+        if members[i].key == key {
+            if members[i].value is .text(let s) { return s }
+            return null
+        }
+        i -= 1
+    }
+    return null
+}
+
+/// The string value of the last member named `key` in `members`, or fails.
+string reqText(ReadOnlySpan<JsonMember> members, for string key, in string path) fails ConvertError {
+    var i = members.length - 1
+    while i >= 0 {
+        if members[i].key == key {
+            if members[i].value is .text(let s) { return s }
+            fail .failed(message: $"TypeError(\"{path}: {key} is not a string\")")
+        }
+        i -= 1
+    }
+    fail .failed(message: $"KeyError('{key}')")
+}
+
+/// The integer value of the last member named `key` in `members`, or fails.
+i64 reqInt(ReadOnlySpan<JsonMember> members, for string key, in string path) fails ConvertError {
+    var i = members.length - 1
+    while i >= 0 {
+        if members[i].key == key {
+            if members[i].value is .number(let v, _) { return i64(v) }
+            fail .failed(message: $"TypeError(\"{path}: {key} is not a number\")")
+        }
+        i -= 1
+    }
+    fail .failed(message: $"KeyError('{key}')")
+}
+
+/// The index of the last member named `key` in `members`, or -1.
+i64 memberIndex(ReadOnlySpan<JsonMember> members, for string key) {
+    var i = members.length - 1
+    while i >= 0 {
+        if members[i].key == key { return i }
+        i -= 1
+    }
+    return -1
+}
+
+/// `s[from..until]` by rune indices (0-based, clamped to `[0, runeCount]`), as Python's string slice `s[from:until]`.
+string runeSlice(string s, from i64 startRune, until i64 endRune) uses alloc {
+    var sb = StrBuf()
+    var idx: i64 = 0
+    for r in s.runes {
+        if idx >= startRune && idx < endRune {
+            sb.append($"{r}")
+        }
+        idx += 1
+    }
+    return $"{sb.finish()}"
+}
+
+/// Extracts the original source span from `source` between 1-based `(startLine, startCol)` and `(endLine, endCol)`.
+string originalText(string source, from i64 startLine, at i64 startCol, to i64 endLine, until i64 endCol) uses alloc fails ConvertError {
+    var lines = List<string>()
+    for l in source.parts(by: "\n") { lines.append(l) }
+    if startLine < 1 || startLine > lines.length || endLine < 1 || endLine > lines.length {
+        fail .failed(message: "IndexError('list index out of range')")
+    }
+    if startLine == endLine {
+        let line = lines[startLine - 1]
+        return runeSlice(line, from: startCol - 1, until: endCol - 1)
+    }
+    var sb = StrBuf()
+    let firstLine = lines[startLine - 1]
+    sb.append(runeSlice(firstLine, from: startCol - 1, until: firstLine.runeCount))
+    var ln = startLine
+    while ln < endLine - 1 {
+        sb.append("\n")
+        sb.append(lines[ln])
+        ln += 1
+    }
+    sb.append("\n")
+    sb.append(runeSlice(lines[endLine - 1], from: 0, until: endCol - 1))
+    return $"{sb.finish()}"
+}
+
+/// Whether `mutants` has any item with `statusReason == filteredReason`.
+bool isFiltered(ReadOnlySpan<JsonValue> mutants) fails ConvertError {
+    for m in mutants {
+        if m is .object(let fields) {
+            let reason = optText(fields.span, for: "statusReason") ?? ""
+            if reason == filteredReason { return true }
+        } else {
+            fail .failed(message: "TypeError('mutant is not an object')")
+        }
+    }
+    return false
+}
+
+/// Updates or inserts `op` with `status` in `operators` (preserving insertion order).
+void recordOperator(ref List<OperatorEntry> operators, for string op, as string status) uses alloc {
+    for i in 0..operators.length {
+        if operators[i].name == op {
+            operators[i] = OperatorEntry { name: op, counts: addStatus(operators[i].counts, for: status) }
+            return
+        }
+    }
+    operators.append(OperatorEntry { name: op, counts: addStatus(Counts {}, for: status) })
+}
+
+/// Deduplicates `members` keeping the last occurrence of each key at the first occurrence's position, as Python `dict` does.
+List<JsonMember> dedupMembers(ReadOnlySpan<JsonMember> members) uses alloc {
+    var keys = List<string>()
+    for m in members {
+        var seen = false
+        for k in keys {
+            if k == m.key { seen = true; break }
+        }
+        if !seen { keys.append(m.key) }
+    }
+    var result = List<JsonMember>()
+    for k in keys {
+        let idx = memberIndex(members, for: k)
+        if idx >= 0 {
+            result.append(JsonMember { key: k, value: copyJson(members[idx].value) })
+        }
+    }
+    return result
+}
+
+JsonValue copyJson(JsonValue v) uses alloc {
+    switch v {
+        case .nothing: return .nothing
+        case .flag(let value): return .flag(value: value)
+        case .number(let value, let text): return .number(value: value, text: text)
+        case .text(let value): return .text(value: value)
+        case .list(let items):
+            var cp = List<JsonValue>()
+            for x in items { cp.append(copyJson(x)) }
+            return .list(items: move cp)
+        case .object(let members):
+            var cp = List<JsonMember>()
+            for m in members { cp.append(JsonMember { key: m.key, value: copyJson(m.value) }) }
+            return .object(members: move cp)
+    }
+}
+
+/// Converts the Stryker reports in `paths` and writes `outPath` + stdout summary.
+void runConvert(string outPath, from string root, at f64 buildS, until f64 totalS, by ReadOnlySpan<string> paths) uses fs, console, alloc fails ConvertError {
+    var filesOut = List<JsonValue>()
+    var operators = List<OperatorEntry>()
+    var survivors = List<SurvivingLine>()
+    var nextId: i64 = 1
+
+    for p in paths {
+        let raw = Io.readText(p) catch {
+            fail .failed(message: $"FileNotFoundError(2, 'No such file or directory')")
+        }
+        let clean = raw.replaced("\r\n", by: "\n").replaced("\r", by: "\n")
+        let parsed = Json.parse(clean) catch switch {
+            .syntax e => fail .failed(message: $"JSONDecodeError('Expecting value: line {e.line} column {e.column} (char {e.offset})')"),
+            .tooDeep e => fail .failed(message: $"JSONDecodeError('Too deep: line {e.line} column {e.column} (char {e.offset})')"),
+            _ => fail .failed(message: $"ValueError('{p}: invalid json')"),
+        }
+        let data = (move parsed).trustUnchecked() because "report file read by local tool"
+        if data is .object(let top) {
+            let fi = memberIndex(top.span, for: "files")
+            if fi < 0 {
+                fail .failed(message: $"ValueError('{p}: no files object')")
+            }
+            if top[fi].value is .object(let rawFiles) {
+                let fileEntries = dedupMembers(rawFiles.span)
+                for fe in fileEntries {
+                    var name = fe.key
+                    if Path.isRooted(name) {
+                        name = Path.relative(root, to: name).replaced("\\", by: "/")
+                    }
+                    if fe.value is .object(let entryFields) {
+                        let mi = memberIndex(entryFields.span, for: "mutants")
+                        if mi < 0 { fail .failed(message: "KeyError('mutants')") }
+                        if entryFields[mi].value is .list(let entryMutants) {
+                            if try isFiltered(entryMutants.span) {
+                                continue
+                            }
+                            let src = optText(entryFields.span, for: "source") ?? ""
+                            var mutantsOut = List<JsonValue>()
+                            for m in entryMutants {
+                                if m is .object(let mf) {
+                                    let rawStatus = try reqText(mf.span, for: "status", in: p)
+                                    let status = mapStatus(rawStatus)
+                                    if status.isEmpty {
+                                        fail .failed(message: $"ValueError(\"{p}: unknown status '{rawStatus}'\")")
+                                    }
+                                    let op = try reqText(mf.span, for: "mutatorName", in: p)
+                                    recordOperator(ref operators, for: op, as: status)
+                                    if status == "not_emitted" {
+                                        continue
+                                    }
+                                    let li = memberIndex(mf.span, for: "location")
+                                    if li < 0 { fail .failed(message: "KeyError('location')") }
+                                    var sLine: i64 = 0
+                                    var sCol: i64 = 0
+                                    var eLine: i64 = 0
+                                    var eCol: i64 = 0
+                                    if mf[li].value is .object(let locFields) {
+                                        let si = memberIndex(locFields.span, for: "start")
+                                        let ei = memberIndex(locFields.span, for: "end")
+                                        if si < 0 || ei < 0 { fail .failed(message: "KeyError('start')") }
+                                        if locFields[si].value is .object(let sf) {
+                                            sLine = try reqInt(sf.span, for: "line", in: p)
+                                            sCol = try reqInt(sf.span, for: "column", in: p)
+                                        } else {
+                                            fail .failed(message: "TypeError('start is not an object')")
+                                        }
+                                        if locFields[ei].value is .object(let ef) {
+                                            eLine = try reqInt(ef.span, for: "line", in: p)
+                                            eCol = try reqInt(ef.span, for: "column", in: p)
+                                        } else {
+                                            fail .failed(message: "TypeError('end is not an object')")
+                                        }
+                                    } else {
+                                        fail .failed(message: "TypeError('location is not an object')")
+                                    }
+                                    let orig = try originalText(src, from: sLine, at: sCol, to: eLine, until: eCol)
+                                    let repl = try reqText(mf.span, for: "replacement", in: p)
+                                    var siteMembers = List<JsonMember>()
+                                    siteMembers.append(JsonMember { key: "id", value: intJson(nextId) })
+                                    siteMembers.append(JsonMember { key: "file", value: .text(value: name) })
+                                    siteMembers.append(JsonMember { key: "line", value: intJson(sLine) })
+                                    siteMembers.append(JsonMember { key: "column", value: intJson(sCol) })
+                                    siteMembers.append(JsonMember { key: "operator", value: .text(value: op) })
+                                    siteMembers.append(JsonMember { key: "original", value: .text(value: orig) })
+                                    siteMembers.append(JsonMember { key: "mutated", value: .text(value: repl) })
+                                    var mutMembers = List<JsonMember>()
+                                    mutMembers.append(JsonMember { key: "site", value: .object(members: move siteMembers) })
+                                    mutMembers.append(JsonMember { key: "status", value: .text(value: status) })
+                                    if status == "survived" {
+                                        let sug = "add a case that fails under this change"
+                                        mutMembers.append(JsonMember { key: "suggestion", value: .text(value: sug) })
+                                        survivors.append(SurvivingLine {
+                                            file: name,
+                                            line: sLine,
+                                            column: sCol,
+                                            original: orig,
+                                            mutated: repl,
+                                            operatorName: op,
+                                            suggestion: sug,
+                                        })
+                                    }
+                                    nextId += 1
+                                    mutantsOut.append(.object(members: move mutMembers))
+                                } else {
+                                    fail .failed(message: "TypeError('mutant is not an object')")
+                                }
+                            }
+                            if entryMutants.length > 0 {
+                                var fm = List<JsonMember>()
+                                fm.append(JsonMember { key: "path", value: .text(value: name) })
+                                fm.append(JsonMember { key: "mutants", value: .list(items: move mutantsOut) })
+                                filesOut.append(.object(members: move fm))
+                            }
+                        } else {
+                            fail .failed(message: "TypeError('mutants is not a list')")
+                        }
+                    } else {
+                        fail .failed(message: "TypeError('file entry is not an object')")
+                    }
+                }
+            } else {
+                fail .failed(message: $"ValueError('{p}: no files object')")
+            }
+        } else {
+            fail .failed(message: $"ValueError('{p}: no files object')")
+        }
+    }
+
+    var totals = Counts {}
+    var opMembers = List<JsonMember>()
+    for op in operators {
+        totals = Counts {
+            killed: totals.killed + op.counts.killed,
+            survived: totals.survived + op.counts.survived,
+            timeout: totals.timeout + op.counts.timeout,
+            marked: totals.marked + op.counts.marked,
+            notReached: totals.notReached + op.counts.notReached,
+            notEmitted: totals.notEmitted + op.counts.notEmitted,
+        }
+        opMembers.append(JsonMember { key: op.name, value: countsJson(op.counts) })
+    }
+
+    let run = totals.killed + totals.survived + totals.timeout
+    let mutantS = totalS - buildS > 0.0 ? totalS - buildS : 0.0
+    var timingMembers = List<JsonMember>()
+    timingMembers.append(JsonMember { key: "build_s", value: floatJson(buildS) })
+    let meanVal = run > 0 ? mutantS / f64(run) : 0.0
+    timingMembers.append(JsonMember { key: "mean_mutant_s", value: run > 0 ? floatJson(meanVal) : intJson(0) })
+    timingMembers.append(JsonMember { key: "max_mutant_s", value: intJson(0) })
+    timingMembers.append(JsonMember { key: "total_s", value: floatJson(totalS) })
+    timingMembers.append(JsonMember { key: "mutant_share_of_build", value: buildS > 0.0 ? floatJson(meanVal / buildS) : intJson(0) })
+
+    var reportMembers = List<JsonMember>()
+    reportMembers.append(JsonMember { key: "version", value: intJson(1) })
+    reportMembers.append(JsonMember { key: "kind", value: .text(value: "mutation") })
+    reportMembers.append(JsonMember { key: "tool", value: .text(value: "stryker") })
+    reportMembers.append(JsonMember { key: "timing", value: .object(members: move timingMembers) })
+    reportMembers.append(JsonMember { key: "files", value: .list(items: move filesOut) })
+    reportMembers.append(JsonMember { key: "totals", value: countsJson(totals) })
+    reportMembers.append(JsonMember { key: "operators", value: .object(members: move opMembers) })
+
+    let encoded = Json.encode(.object(members: move reportMembers), indent: 2) catch {
+        fail .failed(message: "ValueError('cannot encode report')")
+    }
+    Io.writeFile(outPath, $"{encoded}\n".bytes) catch {
+        fail .failed(message: $"OSError('cannot write {outPath}')")
+    }
+
+    print($"mutation: {totals.killed} killed, {totals.survived} survived, {totals.timeout} timeout, {totals.marked} marked, {totals.notReached} not reached, {totals.notEmitted} not emitted")
+    for s in survivors {
+        print($"survived: {s.file}:{s.line}:{s.column}: {s.original} -> {s.mutated} [{s.operatorName}]\n  suggestion: {s.suggestion}")
+    }
+}
+
+i32 main(ReadOnlySpan<string> argv) uses fs, console, alloc {
+    if argv.length < 5 {
+        print("Stryker mutation-testing-elements JSON to bayan-quality.json, kind \"mutation\" (spec 013 R12, R15).\n\nusage: stryker_to_quality.py OUT.json REPO_ROOT BUILD_S TOTAL_S REPORT.json...", to: .stderr)
+        return 2
+    }
+    let buildOpt = f64.tryParse(argv[2])
+    let totalOpt = f64.tryParse(argv[3])
+    if buildOpt is null || totalOpt is null {
+        print("stryker_to_quality: ValueError('could not convert string to float')", to: .stderr)
+        return 1
+    }
+    let buildS = buildOpt ?? 0.0
+    let totalS = totalOpt ?? 0.0
+    runConvert(argv[0], from: argv[1], at: buildS, until: totalS, by: argv[4..]) catch switch {
+        .failed(let msg) => {
+            print($"stryker_to_quality: {msg}", to: .stderr)
+            return 1
+        },
+    }
+    return 0
+}

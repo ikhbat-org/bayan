@@ -11,7 +11,7 @@
 export MSBUILDDISABLENODEREUSE=1 DOTNET_CLI_USE_MSBUILD_SERVER=0  # no MSBuild worker or build server outlives the run
 mutation_step() {
   local LOG=$1 FILTER=$2 MUTATE=$3 SURV=$4 REL=${1#$PWD/} n name bin sites l MX failed first
-  local BAYAN SNAP=$1/snap REPLAY
+  local BAYAN SNAP=$1/snap REPLAY HERE
   REPLAY=$(dirname "${BASH_SOURCE[0]}")/replay.py
   # `bayan mutate` is tooling: it runs from the pinned build of dev (scripts/pinned-bayan.sh), never the branch under test
   if ! BAYAN=$(bash "$(dirname "${BASH_SOURCE[0]}")/../pinned-bayan.sh" 2> "$LOG/pinned-bayan.txt"); then
@@ -34,7 +34,7 @@ mutation_step() {
       note "mutation: the recording wrote no $REL/snap/manifest.json: no test under --filter '$FILTER' builds a selfhost program"; fi
   fi
   if [ ${#FAIL[@]} = 0 ]; then
-    BUILDS=$(python3 -I -c 'import json, sys; [print(b["binary"] + "\t" + b["sites"]) for b in json.load(open(sys.argv[1]))["builds"]]' "$SNAP/manifest.json" 2> "$LOG/manifest.txt") \
+    BUILDS=$(bash "$(dirname "${BASH_SOURCE[0]}")/../bayan-tool.sh" manifest-builds "$SNAP/manifest.json" 2> "$LOG/manifest.txt") \
       || note "mutation: $REL/snap/manifest.json is unreadable — $(tail -1 "$LOG/manifest.txt")"
   fi
   [ ${#FAIL[@]} = 0 ] || return 1
