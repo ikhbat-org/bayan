@@ -1,0 +1,19 @@
+/// Dates laid out for iftar: at least one for every guest.
+struct Portion {
+    i32 dates
+        requires it > 0
+    i32 guests
+        requires it > 0
+    requires dates >= guests
+}
+
+Portion portion(i32 dates, for i32 guests) fails ValidationError<Portion> {
+    return try Portion { dates: dates, guests: guests }
+}
+
+/// The same table with `extra` more guests.
+Portion joined(Portion p, by i32 extra) fails ValidationError<Portion> {
+    return try p with { guests: p.guests + extra }
+}
+
+i32 perGuest(Portion p) => p.dates / p.guests

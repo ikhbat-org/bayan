@@ -1,0 +1,28 @@
+union error SeatError {
+    /// Every seat at the table is taken.
+    full
+    /// The guest already has a seat.
+    seated
+}
+
+struct Table {
+    List<string> guests
+    i64 seats
+
+    void add(ref this, string guest) fails SeatError {
+        fail .full if guests.length >= seats
+        for g in guests {
+            fail .seated if g == guest
+        }
+        guests.append(guest)
+    }
+}
+
+void main() {
+    var table = Table { guests: List<string>(), seats: 3 }
+    for guest in ["Aisha", "Bilal", "Aisha", "Maryam", "Yusuf"] {
+        table.add(guest)
+        print($"{guest}: seated")
+    }
+    print($"{table.guests.length} of {table.seats} seats taken")
+}

@@ -1,0 +1,40 @@
+struct Row {
+    string name
+    i64    dishes
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var rows = List<Row>()
+    var width: i64 = 0
+    for line in read.value.lines {
+        var name = ""
+        var dishes: i64 = 0
+        var fields = 0
+        for part in line.parts(by: " ") {
+            continue if part.trimmed().isEmpty
+            if fields == 0 {
+                name = part
+            }
+            if fields == 1 {
+                dishes = i64.tryParse(part) ?? 0
+            }
+            fields += 1
+        }
+        continue if fields == 0
+        rows.append(Row { name: name, dishes: dishes })
+        if name.runeCount > width {
+            width = name.runeCount
+        }
+    }
+    var total: i64 = 0
+    for row in rows {
+        total += row.dishes
+        print($"{row.name.padded(to: width, by: ' ')} {row.dishes, width: 3, align: .end}")
+    }
+    print($"{"total".padded(to: width, by: ' ')} {total, width: 3, align: .end}")
+}

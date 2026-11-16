@@ -1,0 +1,8 @@
+/// Dates left after every guest takes `each`.
+i64 remaining(i64 dates, for i64 guests, by i64 each) => dates - guests * each
+
+void main() {
+    let left = remaining(40, for: 9, by: 3)
+    print($"dates left: {left}")
+    print($"enough for Aisha's table: {left >= 0}")
+}

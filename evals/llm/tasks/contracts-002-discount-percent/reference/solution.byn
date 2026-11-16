@@ -1,0 +1,9 @@
+type distinct Percent = i32 requires it in 0..=100
+
+/// `price` in fils after taking `percent` off, rounded down.
+i64 discounted(i64 price, by Percent percent) => price - price * percent.value / 100
+
+/// `discounted` for a percentage that has not been checked yet.
+i64 priceAfter(i64 price, by i32 rawPercent) fails ValidationError<Percent> {
+    return discounted(price, by: try Percent(rawPercent))
+}
