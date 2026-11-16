@@ -1,5 +1,5 @@
 #!/bin/bash
-# quality-baseline.py: check fails on a mutation, line coverage or branch coverage score below the baseline and passes on an equal or higher one,
+# quality-baseline: check fails on a mutation, line coverage or branch coverage score below the baseline and passes on an equal or higher one,
 # a file with no entry, and a null on either side; update creates the file, adds new files, raises a score and keeps a
 # higher one; report paths (absolute, or relative to the root) become root-relative keys; an absolute or `..` path outside the
 # root exits non-zero naming the report and writes no key; two shards' reports merged by one update keep both shards' raises
@@ -7,14 +7,14 @@
 set -e
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 d="$root/tmp/quality-baseline-test"; rm -rf "$d" && mkdir -p "$d/w"
-q() { python3 -I "$root/scripts/selfhost/quality-baseline.py" "$@"; }
+q() { bash "$root/scripts/bayan-tool.sh" quality-baseline "$@"; }
 fail() { echo "FAIL: $1"; echo "$2"; exit 1; }
 # mutation report: <file> <killed> <survived> [timeout] [marked]
 mut() { local ms="" st i
   for st in killed:$2 survived:$3 timeout:${4:-0} marked:${5:-0}; do
     for ((i = 0; i < ${st#*:}; i++)); do ms="$ms${ms:+, }{\"site\": {\"file\": \"$1\"}, \"status\": \"${st%%:*}\"}"; done; done
   printf '{"version": 1, "kind": "mutation", "files": [{"path": "%s", "mutants": [%s]}]}\n' "$1" "$ms"; }
-# entry <baseline> <file>: the file's entry as `"mutation": 1.0, "coverage": null, ...` (the indent=2 layout quality-baseline.py writes), empty for none
+# entry <baseline> <file>: the file's entry as `"mutation": 1.0, "coverage": null, ...` (the indent=2 layout quality-baseline writes), empty for none
 entry() { awk -v k="    \"$2\": {" '$0 == k { on = 1; next } on && /^    }/ { exit } on { sub(/^ +/, ""); printf "%s%s", s, $0; s = " " }' "$1"; }
 # val <baseline> <file> <score>: one score of the file's entry
 val() { entry "$1" "$2" | sed -n "s/.*\"$3\": \([^,]*\).*/\1/p"; }

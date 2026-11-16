@@ -48,6 +48,7 @@ In each entry, *Current choice* or *Conservative option* is the option in force,
 | Q1279 | Spec 022: the `functions.length` bound is fixed at 60 lines | see the entry | the bound stays fixed at 60. | the user (designer) |
 | Q1280 | Spec 022: should a parameter list take a trailing comma? | see the entry | grammar unchanged; a wrapped parameter list has no trailing comma. | the user (designer) |
 | Q1281 | Spec 022: the proposal §3.1 After block cannot be a formatter test as written | see the entry | the formatter inserts no paragraph breaks; the test uses the width-100 run. | the user (designer) |
+| Q1282 | Spec 015 T12: `looseReal` beside `Fs.realPath` for report paths | see the entry | keep the local `looseReal`, which matches Python `os.path.realpath` on missing paths; no std `normalize`. | the user (designer) |
 
 ### Q60
 
@@ -200,6 +201,10 @@ In each entry, *Current choice* or *Conservative option* is the option in force,
 ### Q1281
 
 1277. **Spec 022: the proposal §3.1 After block cannot be a formatter test as written.** Its blank lines between paragraphs cannot come from the formatter, which never inserts one inside a function, and its header wraps only below width 120, so T5's test runs it at width 100. The block stays in the proposal as the author's intent; the formatter test uses the width-100 run and the author's own blank lines. *Conservative option:* the formatter inserts no paragraph breaks and the test uses the width-100 run; the user decides whether the formatter should insert them.
+
+### Q1282
+
+1278. **Spec 015 T12: `looseReal` beside `Fs.realPath` for report paths.** S4 records T11's caller check: `Fs.realPath` alone serves every caller. The T12 ports (`tools/report-paths.byn`, used by `coverage-missing.byn` and `quality-baseline.byn`) found recorded runs that pass a missing path (parity cases `report-paths/no-such-file`, `coverage-missing/absolute-path`), where Python's `os.path.realpath` resolves the existing prefix and keeps the missing rest. R6 asks for byte-equal output, so T12 added a local `looseReal` (`tools/report-paths.byn:20-41`): `Fs.realPath` when it succeeds, else the parent resolved and the last component appended. *Conservative option:* keep the local `looseReal`; no `normalize` in std path. The user decides whether a missing report path should fail instead (S4's reading), or whether `looseReal` belongs in std path.
 
 ## Self-hosting ports (specs 009 and 010)
 

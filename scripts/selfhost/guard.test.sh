@@ -54,7 +54,10 @@ STUB
 mkdir -p csharp/Bayan.Cli/bin/Debug/net10.0
 cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 #!/bin/bash
-# `run` is scripts/bayan-tool.sh running manifest-builds: one `binary<TAB>sites` line per build, a malformed manifest fails
+# `run` is scripts/bayan-tool.sh running manifest-builds: one `binary<TAB>sites` line per build, a malformed manifest fails;
+# the quality-baseline, report-paths and coverage-missing tools run on the real pinned bayan ($REAL_BAYAN)
+[ "$1" = run ] && [ -f $AUX/missfail ] && case $2 in */coverage-missing.byn) echo "bayan: pinned build failed" >&2; exit 1;; esac
+[ "$1" = run ] && case $2 in */quality-baseline.byn|*/report-paths.byn|*/coverage-missing.byn) exec "$REAL_BAYAN" "$@";; esac
 [ "$1" = run ] && { m=${@: -1}; grep -q ']}$' "$m" || { echo "manifest-builds: $m: malformed" >&2; exit 1; }
   tr '{' '\n' < "$m" | sed -n 's/^"binary": "\([^"]*\)", "sites": "\([^"]*\)".*/\1 \2/p' | tr ' ' '\t'; exit 0; }
 [ "$1" = format ] && { if grep -q BAD "${@: -1}"/*/*.byn; then echo "${@: -1}/m/x.byn"; exit 1; fi; exit 0; }
@@ -65,7 +68,8 @@ echo "$@" > $AUX/mutate-args.txt; echo "$@" >> $AUX/mutate-args-all.txt
 cat $AUX/out.txt; cp $AUX/report.json "$(dirname "$3")/bayan-quality.json"
 grep -q ': survived$' $AUX/out.txt && exit 3 || exit 0
 STUB
-chmod +x $aux/dotnet csharp/Bayan.Cli/bin/Debug/net10.0/bayan; export AUX=$aux PINNED_BAYAN=$PWD/csharp/Bayan.Cli/bin/Debug/net10.0/bayan
+chmod +x $aux/dotnet csharp/Bayan.Cli/bin/Debug/net10.0/bayan; export REAL_BAYAN=$(cd "$root" && env -u PINNED_BAYAN bash scripts/pinned-bayan.sh)
+export AUX=$aux PINNED_BAYAN=$PWD/csharp/Bayan.Cli/bin/Debug/net10.0/bayan
 a=$r/src/semantics/a.byn
 # result <killed> <survived> <marked>: stub per-site lines, summary and report
 result() {
@@ -107,6 +111,7 @@ printf '\nfn g(a: int) -> int {\n    if a > 2 { return 2 }\n    return a\n}\n' >
 # f uncovered (line 3, branch 2:10 never true), g covered; the blank line opens the hunk adding g
 cov 3 4 '[3]' '[]' 2,10,true,missed 2,10,false,hit 7,10,true,hit 7,10,false,hit; fns '[1, 2]' '[1, 2]' '[2, 2]' '[2, 2]'
 covpass=$(g); covfiles=$(cat $aux/cover.txt); [ -f tmp/guard-run/quality-coverage.json ] && covrep=1 || covrep=0
+touch $aux/missfail; covmissfail=$(g); rm $aux/missfail
 # f and g both short: only g's are items
 cov 1 4 '[3, 8]' '[7]' 2,10,true,missed 7,10,true,missed 7,10,false,hit 8,5,false,unknown; fns '[1, 2]' '[0, 1]' '[0, 2]' '[1, 3]'
 covmiss=$(g)
@@ -165,7 +170,7 @@ echo "$nullbase" | grep -q 'fell from' && fail "a null baseline failed" "$nullba
 echo "$nullbase" | grep -q '^- mutation survived' || fail "the null-baseline run did not run mutation" "$nullbase"
 echo "$nomanifest" | grep -q '^- mutation: the recording wrote no tmp/guard-run/snap/manifest.json' || fail "a missing manifest did not fail with a message" "$nomanifest"
 echo "$badmanifest" | grep -q '^GUARD FAIL' && echo "$badmanifest" | grep -q '^- mutation: tmp/guard-run/snap/manifest.json is unreadable — ' || fail "a malformed manifest did not fail naming it" "$badmanifest"
-echo "$badbase" | grep -q '^GUARD FAIL' && echo "$badbase" | grep -q '^- baseline: quality-baseline.py check failed on tests/quality-baseline.json and tmp/guard-run/quality-\*.json — ' || fail "a malformed baseline did not fail naming it" "$badbase"
+echo "$badbase" | grep -q '^GUARD FAIL' && echo "$badbase" | grep -q '^- baseline: quality-baseline check failed on tests/quality-baseline.json and tmp/guard-run/quality-\*.json — ' || fail "a malformed baseline did not fail naming it" "$badbase"
 echo "$recordfail" | grep -q '^- mutation: recording under BAYAN_SNAPSHOT: 1 test(s) failed (tmp/guard-run/record.txt): T99 — first: .*recording broke' || fail "a failed recording did not fail with its message" "$recordfail"
 echo "$nocli" | grep -q '^- mutation: no pinned bayan — pinned-bayan: PINNED_BAYAN=.*/csharp/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not fail with a message" "$nocli"
 echo "$plain" | grep -q '^GUARD PASS$' && [ $plainrec = 0 ] && [ $plainrep = 0 ] || fail "a guard without --mutate recorded or left a report" "$plain"
@@ -191,6 +196,8 @@ echo "$covnew" | grep -qxF -- "- coverage: src/semantics/a.byn is in no build un
   && ! echo "$covnew" | grep -q '^- coverage: src/semantics/b.byn is in no build' || fail "a changed file absent from the coverage report was not a FAIL item naming it" "$covnew"
 echo "$covconst" | grep -qxF -- "coverage: src/semantics/c.byn declares no function; nothing to cover" && ! echo "$covconst" | grep -q '^- coverage: src/semantics/c.byn' || fail "a const-only file absent from the report was not an info line" "$covconst"
 echo "$covpass" | grep -q 'is in no build' && fail "a changed file in the coverage report was reported absent" "$covpass"
+echo "$covmissfail" | grep -q '^GUARD FAIL' && echo "$covmissfail" | grep -qxF -- "- coverage: coverage-missing failed: bayan: pinned build failed" \
+  || fail "a failed coverage-missing run was not a FAIL item" "$covmissfail"
 echo "$covnone" | grep -q "^- coverage: the tests wrote no tmp/guard-run/coverage/bayan-quality.json: no test under --filter 'FullyQualifiedName~SelfhostSemanticsT99Tests' builds a selfhost program with src/semantics/a.byn$" \
   || fail "a coverage run without a report (an earlier run's left in place) did not fail" "$covnone"
 echo "$stdbad" | grep -q '^- format: bayan format --check lib/std failed: .*lib/std/m/x.byn' || fail "a misformatted lib/std file did not fail the format check naming it" "$stdbad"
