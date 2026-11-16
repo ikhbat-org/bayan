@@ -16,10 +16,10 @@ A small, explicit language that compiles to native executables. Errors are value
 [![GC](https://img.shields.io/badge/GC-none-C08A2E)](#memory-you-can-see)
 [![License: ISL-P](https://img.shields.io/badge/license-ISL--P%201.2-1F3A5F)](LICENSE.md)
 
-Bayān (بيان, "clear statement") compiles to a small native executable. There is no runtime to install, no
-garbage collector and no exceptions. Values are copied by default, errors are ordinary return values that
-the compiler makes you handle, and memory comes from scopes and allocators you can see in the code. The
-compiler is written in Bayān itself: it turns your program into C, then hands that C to a C compiler.
+Bayān (بيان, "clear statement") compiles to a small native executable, with no runtime to install, no
+garbage collector and no exceptions. Values are copied by default, errors are return values the compiler
+makes you handle, and memory comes from scopes and allocators you can see. The compiler is written in
+Bayān itself and turns your program into C for a C compiler.
 
 ```swift
 string greeting() {
@@ -124,14 +124,14 @@ For a one-off script you don't need a project. Write a single `.byn` file and ru
 ## Batteries included
 
 One `bayan` binary holds the compiler, the formatter, the test runner and the release builder. There is
-nothing else to install except a C compiler. This is the list from `bayan --help`:
+nothing else to install except a C compiler. The commands are from `bayan --help`; test flags beyond it are from the spec (§21.2).
 
 | Command | What it does |
 |---|---|
 | `bayan new`, `bayan init` | Create an app, library (`--lib`) or script (`--script`), in a new or an existing directory |
 | `bayan run` | Compile and run a project, a script or a file |
 | `bayan build` | Compile to an executable; `--mode debug\|safe\|fast`, `--target`, `--emit-c` |
-| `bayan test` | Run each test in its own process; `--mutate` for mutation testing; `--changed` for modules touched since `HEAD`; `--json` |
+| `bayan test` | Run each test in its own process; `--coverage` for a full report of lines, branches and error paths (a one-line summary prints by default); `--mutate` for mutation testing; `--changed` for modules touched since `HEAD`; `--json` |
 | `bayan check` | Report diagnostics without building; `--diagnostics json` for tools |
 | `bayan format` | Rewrite input forms and apply the `style` in `package.byn`; `--check` writes nothing |
 | `bayan explain` | Explain a diagnostic code, for example `bayan explain BYN6002` |
@@ -178,14 +178,12 @@ flowchart LR
 
 ## A taste of the language
 
-The examples below are small programs around a community iftar. Each one runs as it is with
-`bayan run main.byn`.
+Small programs around a community iftar. Each runs as it is with `bayan run main.byn`.
 
 ### Errors are values
 
-Booking a seat can fail, and the signature says so (`fails BookingError`). The caller handles each error;
-the compiler checks that none is left out. An error can carry data: `notEnough(i64 left)` tells the guest
-how many seats remain.
+Booking can fail, and the signature says so (`fails BookingError`). The compiler checks that the caller
+handles every error. An error can carry data, like `notEnough(i64 left)`.
 
 ```swift
 union error BookingError {
@@ -234,14 +232,12 @@ Yusuf booked 1, 0 left
 Sorry Maryam, the iftar is full
 ```
 
-There are no exceptions. `fail` returns the error to the caller. A call that can fail is marked with `try`
-(pass the error on) or `catch` (handle it here).
+`fail` returns the error. A call that can fail is marked `try` (pass it on) or `catch` (handle it here).
 
 ### Effects are part of the signature
 
-A public function lists what it touches outside its own arguments: files (`fs`), memory (`alloc`), the
-console, the network and so on. With no `uses` clause it only computes. Private functions, `main` and
-scripts work their effects out from what they call, so `main` below needs no clause.
+A public function lists what it touches: files (`fs`), memory (`alloc`) and so on. With no `uses` clause
+it only computes. `main` and private functions work their effects out from their calls.
 
 ```swift
 /// Counts the names in a guest list, one per line. No `uses` clause: it only computes.
@@ -268,14 +264,13 @@ void main() {
 }
 ```
 
-With a `guests.txt` holding `Umar`, `Aisha` and `Bilal` on separate lines:
+With a `guests.txt` of three names:
 
 ```text
 3 guests, 9 dates to break the fast
 ```
 
-Without the file it prints `No guest list yet`. Leave `alloc` out of the `uses` clause and the compiler
-tells you, with the fix:
+Without the file it prints `No guest list yet`. Leave `alloc` out of `uses` and the compiler says so:
 
 <details>
 <summary>The compiler error</summary>
@@ -296,9 +291,8 @@ error BYN6002: `guestsIn` uses `alloc` but does not declare it
 
 ### States the compiler tracks
 
-A catering order is placed, then paid, then delivered. The `states` block names the steps. Each method says
-which state it needs (`ref this is .paid`) and which it leaves behind (`becomes .delivered`). A state can
-carry its own data (`paid(i64 amount)`).
+An order is placed, then paid, then delivered. Each method names the state it needs (`is .paid`) and the
+one it leaves (`becomes .delivered`). A state can carry data (`paid(i64 amount)`).
 
 ```mermaid
 stateDiagram-v2
@@ -349,7 +343,7 @@ lentil soup paid (120), on its way
 lentil soup delivered
 ```
 
-Leave out `order.pay(120)`, so the order is delivered before it is paid, and the program does not compile:
+Deliver before paying (drop `order.pay(120)`) and it does not compile:
 
 <details>
 <summary>The compiler error</summary>
@@ -368,8 +362,8 @@ error BYN7001: `deliver` needs `order` to be `.paid`, but it is `Order.placed`
 
 ### Memory you can see
 
-There is no garbage collector. Text and lists come from an allocator, and `provide` picks which one. Here
-every invitation is built in one arena, and all of them are freed together when the arena's scope ends.
+Text and lists come from an allocator, and `provide` picks which. Here one arena holds every invitation
+and frees them together at the end of its scope.
 
 ```swift
 void main() {
@@ -392,16 +386,12 @@ Salam Bilal, join us for iftar on Friday
 
 ### A few more things
 
-- **Particles.** A function has at most one unlabeled parameter. The others carry a word such as `from`,
-  `to`, `by` or `for`, and the call says it too: `iftar.book("Umar", for: 2)`. You can't swap two
-  arguments by accident.
-- **Locals are `let`** (or `var` when they change). You write `let list = …`, or `let list: string = …`
-  with a type. Declarations put the type first
-  (`i64 countGuests(…)`); local bindings put the name first. Write it the other way and the error message
-  shows you the fix.
-- **`stmt if condition`** is a statement guarded by a condition, as in `fail .full if left == 0`.
-- **Errors teach.** Each error has a code, and `bayan explain <code>` explains it, for example
-  `bayan explain BYN1043`.
+- **Particles.** At most one parameter is unlabeled; the rest carry a word such as `for`, and the call
+  says it too: `iftar.book("Umar", for: 2)`.
+- **Locals** are `let` or `var`: `let list = …`, or `let list: string = …` with a type. Declarations put
+  the type first (`i64 countGuests(…)`).
+- **`stmt if condition`** guards a statement, as in `fail .full if left == 0`.
+- **Errors teach.** Each has a code; `bayan explain BYN1043` explains it.
 
 ---
 
