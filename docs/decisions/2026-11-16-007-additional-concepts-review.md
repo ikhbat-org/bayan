@@ -1,6 +1,6 @@
 # 007 — Review of the additional concepts draft
 
-Status: decided except Q4 (owner leans `std`, one-word confirmation pending)
+Status: decided (all answers recorded below; Q4 confirmed 2026-11-16)
 Date: 2026-11-16
 Sources: `docs/bayan-additional-concepts.md`; `docs/bayan-spec.md` (§0, §19, Appendix A, Appendix B); `docs/bayan-grammar.md` §4, §12, §13; `docs/STATUS.md`; `docs/bayan-not-planned.md`; `docs/bayan-nice-to-have.md`; `docs/revisions/0019`, `0022`, `0023`; drafts `specs/023-spec-catch-up/023-spec.md` and `decisions/2026-11-16-006-after-022-roadmap-decisions.md` (not on `dev`).
 
@@ -209,7 +209,7 @@ So "keep them out of diagnostics" holds for the message line, not for explain te
 - **Q1:** language and script are the default sources; anything drawn from Islamic law or hadith science goes to the owner before it enters a doc.
 - **Q2:** yes, English grade names.
 - **Q7:** yes, `@deprecated` and `lazy` rows in 023, `lazy` in SPEC §2.4.
-- **Q4:** the owner leans `std`; recommendation agrees (SPEC §3.4 already defines `Money`), awaiting confirmation.
+- **Q4:** yes, `Money` goes in `std` (owner confirmed 2026-11-16; SPEC §3.4 already defines it).
 - **Q3: yes, run-time check** (after examples, 2026-11-16, fourth message). `fs.restricted` ships with the `provide` handlers of 023 item 16a; its law: no path outside the root is opened, including through `..` and symlinks.
 - **Q5: yes, no `Ratio` for now.** Weights (`[3, 2, 1]`) cover the cases; add `Ratio` only when a real case needs it.
 - **Q6: yes, the sentence, not the table.** The "where this comes from" doc says Arabic marks expectation on the conditional word and Bayān puts its likelihood word straight after `if`; no idhā/in/law mapping table.
