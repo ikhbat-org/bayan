@@ -109,7 +109,7 @@ The **015** column marks modules the tooling ports are expected to need first; t
 | `std.json` | comptime-generated, zero-allocation reader and writer; decoded output `Untrusted` by default; `@derive(Json)` (unions, validation on decode); no reflection-based polymorphic decoding | none | Decided (std); derivation v0.2 | yes |
 | Byte codecs | `Hex` (v0.1), `Base64` (ships in `std.encoding`), varint; static `encode`/`decode`, `decode` fails a codec error | none | J83; `std.encoding` (Q3, S12) | yes (`Hex`, `Base64`) |
 | `std.text` | `Utf16.decode`, `words`, `graphemes`, full Unicode case mapping and folding, `normalized`, `truncated`, `wrapped`, identifier-case transforms, `slugged`, `escaped`, regex `replaced`, `grouping`, date specs; ordinal and invariant only | none | after v0.1 (rev 0003) | maybe |
-| `std.regex` | compiled at comptime when the pattern is a literal | none | spec | yes |
+| `std.regex` | RE2-style `Regex` (`parse`, `matches`, `find`, `findAll`, `replaced`, `escaped`) and `Match` (`group`, `span`), linear-time Pike VM, no backreferences or lookaround (ships, S3); compiled at comptime when the pattern is a literal (later) | none | spec; runtime-compiled form ships (S3) | yes |
 | `std.crypto` | SHA-2/3, BLAKE3, HMAC, CSPRNG (AEAD, Ed25519, X25519 and Argon2 are in `kit.crypto`); integrated with `Secret`; algorithms always named explicitly | `random` for CSPRNG | spec; scope Decided (Q2) | yes (SHA-256) |
 | `std.random` | seeded PRNG, separate from the CSPRNG | `random` | spec | |
 | `std.log` | the ambient `log` effect, structured fields, spans; never evaluates message content; tainted fields stay marked | `log` (ambient) | `log` builtin in v0.1 | |

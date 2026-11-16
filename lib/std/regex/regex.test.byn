@@ -1,0 +1,230 @@
+// Tests of std.regex. The expected `findAll`, `matches`, `replaced` and `escaped` values are recorded from a run of
+// Go's `regexp` (RE2 syntax and semantics: `FindAllStringSubmatchIndex`, `MatchString` of `^(?:p)$`,
+// `ReplaceAllLiteralString`, `QuoteMeta`), not written by hand. The error kinds and offsets are this module's own; Go
+// rejects each of those patterns too, except `(?P<n>a)`, `(?i)a` and `[[:alpha:]]`, which S3 leaves out.
+
+/// The regex of `pattern`, which the test knows to be valid.
+Regex compiled(string pattern) uses alloc => Regex.parse(pattern) catch panic($"bad test pattern {pattern}")
+
+/// `m` as `start:end` and groups 1 to 3, each its text or `-`.
+string describe(Match m) uses alloc {
+    let span = m.span
+    var sb = StrBuf()
+    sb.append($"{span.start}:{span.end}")
+    for i in 1..4 {
+        sb.append($"|{m.group(i) ?? "-"}")
+    }
+    return $"{sb.finish()}"
+}
+
+/// Every match of `pattern` in `text`, described and joined by spaces.
+string allOf(string pattern, for string text) uses alloc {
+    let re = compiled(pattern)
+    var sb = StrBuf()
+    for m in re.findAll(text) {
+        if sb.view.length > 0 {
+            sb.append(" ")
+        }
+        sb.append(describe(m))
+    }
+    return $"{sb.finish()}"
+}
+
+/// `ok`, or the error `Regex.parse(pattern)` fails with as `kind message @offset`.
+string errorOf(string pattern) uses alloc {
+    let _ = Regex.parse(pattern) catch switch {
+        .syntax(let message, let offset)      => return $"syntax {message} @{offset}",
+        .unsupported(let message, let offset) => return $"unsupported {message} @{offset}",
+        .tooLarge(let offset)                 => return $"tooLarge @{offset}",
+    }
+    return "ok"
+}
+
+@cases(
+    ("abc", "xabcyabc", "1:4|-|-|- 5:8|-|-|-", false),
+    ("a.c", "abc a\nc a.c", "0:3|-|-|- 8:11|-|-|-", false),
+    ("é.", "éa éé", "0:3|-|-|- 4:8|-|-|-", false),
+    ("[a-c]+", "xxabcbazz", "2:7|-|-|-", false),
+    ("[^a-c]+", "abxyzc", "2:5|-|-|-", false),
+    ("[]a]+", "a]]b", "0:3|-|-|-", false),
+    ("[a-]+", "-a-b", "0:3|-|-|-", false),
+    ("[\\d.]+", "v1.20 x", "1:5|-|-|-", false),
+    ("[^\\D]+", "ab12c3", "2:4|-|-|- 5:6|-|-|-", false),
+    ("[\\W]+", "a, b", "1:3|-|-|-", false),
+    ("[à-ÿ]+", "café olé", "3:5|-|-|- 8:10|-|-|-", false),
+    ("[^\\n]+", "ab\ncd", "0:2|-|-|- 3:5|-|-|-", false),
+    ("\\d+", "a12b345", "1:3|-|-|- 4:7|-|-|-", false),
+    ("\\D+", "a12b", "0:1|-|-|- 3:4|-|-|-", false),
+    ("\\s+", "a \t\nb\u{B}c", "1:4|-|-|-", false),
+    ("\\S+", "ab cd", "0:2|-|-|- 3:5|-|-|-", false),
+    ("\\w+", "héllo_w0rld x", "0:1|-|-|- 3:12|-|-|- 13:14|-|-|-", false),
+    ("\\W+", "a, b!", "1:3|-|-|- 4:5|-|-|-", false),
+    ("^a", "aa", "0:1|-|-|-", false),
+    ("a$", "aa", "1:2|-|-|-", false),
+    ("^$", "", "0:0|-|-|-", true),
+    ("^", "abc", "0:0|-|-|-", false),
+    ("$", "ab", "2:2|-|-|-", false),
+    ("\\bfoo\\b", "foo foobar a.foo", "0:3|-|-|- 13:16|-|-|-", false),
+    ("\\Boo\\B", "foo boot", "5:7|-|-|-", false),
+    ("\\b", "ab cd", "0:0|-|-|- 2:2|-|-|- 3:3|-|-|- 5:5|-|-|-", false),
+    ("(a)(b)?", "ab a", "0:2|a|b|- 3:4|a|-|-", false),
+    ("(?:ab)+(c)", "ababc", "0:5|c|-|-", true),
+    ("((a)|b)+", "ab", "0:2|b|a|-", true),
+    ("(a|ab)(c|bcd)(d*)", "abcd", "0:4|a|bcd|", true),
+    ("a?", "baa", "0:0|-|-|- 1:2|-|-|- 2:3|-|-|-", false),
+    ("a*", "baaac", "0:0|-|-|- 1:4|-|-|- 5:5|-|-|-", false),
+    ("a+", "baaac", "1:4|-|-|-", false),
+    ("a{2}", "aaaaa", "0:2|-|-|- 2:4|-|-|-", false),
+    ("a{2,}", "aaaaa b aa", "0:5|-|-|- 8:10|-|-|-", false),
+    ("a{2,3}", "aaaaaaa", "0:3|-|-|- 3:6|-|-|-", false),
+    ("a{0}b", "ab", "1:2|-|-|-", false),
+    ("x{", "x{ x{1", "0:2|-|-|- 3:5|-|-|-", false),
+    ("a{,2}", "a{,2}", "0:5|-|-|-", true),
+    ("a{1,2", "a{1,2", "0:5|-|-|-", true),
+    ("a+?", "aaa", "0:1|-|-|- 1:2|-|-|- 2:3|-|-|-", true),
+    ("a*?b", "aaab", "0:4|-|-|-", true),
+    ("a??", "aa", "0:0|-|-|- 1:1|-|-|- 2:2|-|-|-", false),
+    ("<.*?>", "<a><bb>", "0:3|-|-|- 3:7|-|-|-", true),
+    ("a{2,3}?", "aaaaa", "0:2|-|-|- 2:4|-|-|-", false),
+    ("a{2,}?", "aaaaa", "0:2|-|-|- 2:4|-|-|-", true),
+    ("cat|dog", "hotdog cat", "3:6|-|-|- 7:10|-|-|-", false),
+    ("a|ab", "ab", "0:1|-|-|-", true),
+    ("ab|a", "ab", "0:2|-|-|-", true),
+    ("|a", "ab", "0:0|-|-|- 1:1|-|-|- 2:2|-|-|-", false),
+    ("a|", "ab", "0:1|-|-|- 2:2|-|-|-", false),
+    ("(|x)y", "xy y", "0:2|x|-|- 3:4||-|-", false),
+    ("\\.\\*\\+\\?\\(\\)\\[\\]\\{\\}\\|\\^\\$\\\\", "x.*+?()[]{}|^$\\", "1:15|-|-|-", false),
+    ("\\n\\t", "a\n\tb", "1:3|-|-|-", false),
+    ("a\\-b", "a-b", "0:3|-|-|-", true),
+    ("(a*)*", "b", "0:0||-|- 1:1||-|-", false),
+    ("(a*)+", "b", "0:0||-|- 1:1||-|-", false),
+    ("(a|b)*c", "abac", "0:4|a|-|-", true),
+    ("(a*)*b", "aab", "0:3|aa|-|-", true),
+    ("\\d+", "12a", "0:2|-|-|-", false),
+    ("x*", "", "0:0|-|-|-", true),
+)
+test "findAll, find and matches agree with RE2" (string pattern, string text, string expected, bool whole) {
+    assert allOf(pattern, for: text) == expected
+    let re = compiled(pattern)
+    let first = re.find(text)
+    if (first is { } m) {
+        assert expected.startsWith(describe(m))
+    } else {
+        assert expected == ""
+    }
+    assert re.matches(text) == whole
+}
+
+test "find gives null and findAll nothing when there is no match" {
+    let re = compiled("x+")
+    assert re.find("abc") is null
+    assert re.findAll("abc").length == 0
+    assert !re.matches("abc")
+}
+
+test "Match.group is null for a group that took no part or does not exist" {
+    let re = compiled("(a)|(b)")
+    let m = re.find("b") ?? panic("no match")
+    assert m.group(0) == "b"
+    assert m.group(1) is null
+    assert m.group(2) == "b"
+    assert m.group(3) is null
+    assert m.group(-1) is null
+}
+
+test "Match.span gives byte offsets in the text searched" {
+    let re = compiled("ö+")
+    let m = re.find("aöö!") ?? panic("no match")
+    let span = m.span
+    assert span.start == 1 && span.end == 5
+}
+
+@cases(
+    ("a+", "baaacaa", "-", "b-c-"),
+    ("a*", "baaac", "-", "-b-c-"),
+    ("\\s+", "a  b\tc", " ", "a b c"),
+    ("x", "abc", "y", "abc"),
+    ("(b)", "abc", "$1", "a$1c"),
+    ("", "abc", ".", ".a.b.c."),
+    ("é", "éaé", "e", "eae"),
+    ("\\([^()]*\\)", "f(a) g(b(c))", "", "f g(b)"),
+)
+test "replaced puts the replacement, taken literally, at every match" (
+    string pattern,
+    string text,
+    string by,
+    string expected
+) {
+    assert compiled(pattern).replaced(text, by: by) == expected
+}
+
+@cases(
+    ("", ""),
+    ("abc", "abc"),
+    ("a.b*c", "a\\.b\\*c"),
+    ("\\.+*?()|[]{}^$", "\\\\\\.\\+\\*\\?\\(\\)\\|\\[\\]\\{\\}\\^\\$"),
+    ("x-y #é", "x-y #é"),
+    ("1+1=2", "1\\+1=2"),
+)
+test "escaped quotes every metacharacter and the result matches the text literally" (string text, string expected) {
+    assert Regex.escaped(text) == expected
+    let re = compiled(Regex.escaped(text))
+    assert re.matches(text)
+    assert !re.matches($"{text}x")
+}
+
+@cases(
+    ("(?=a)", "unsupported lookaround @0"),
+    ("(?!a)", "unsupported lookaround @0"),
+    ("a(?<=b)", "unsupported lookaround @1"),
+    ("(?<!b)a", "unsupported lookaround @0"),
+    ("(a)\\1", "unsupported backreference @3"),
+    ("[\\2]", "unsupported backreference @1"),
+    ("\\k<x>", "unsupported backreference @0"),
+    ("(?P<n>a)", "unsupported group flags and named groups @0"),
+    ("(?i)a", "unsupported group flags and named groups @0"),
+    ("[[:alpha:]]", "unsupported POSIX class @1"),
+    ("(a", "syntax missing `)` @0"),
+    ("(?:", "syntax missing `)` @0"),
+    ("a)", "syntax unmatched `)` @1"),
+    ("[a", "syntax missing `]` @0"),
+    ("[]", "syntax missing `]` @0"),
+    ("*a", "syntax missing argument to repetition operator @0"),
+    ("|*", "syntax missing argument to repetition operator @1"),
+    ("a**", "syntax repetition of a repetition @2"),
+    ("a{1001}", "syntax repetition count above 1000 @1"),
+    ("a{3,2}", "syntax repetition maximum below its minimum @1"),
+    ("[z-a]", "syntax range end before its start @1"),
+    ("[a-\\d]", "syntax class escape as a range end @3"),
+    ("a\\", "syntax trailing `\\` @1"),
+    ("\\q", "syntax unknown escape @0"),
+    ("[\\b]", "syntax `\\b` or `\\B` in a class @1"),
+    ("(a{1000}){1000}", "tooLarge @9"),
+)
+test "parse refuses backreferences, lookaround and broken patterns with RegexError" (string pattern, string expected) {
+    assert errorOf(pattern) == expected
+}
+
+test "parse refuses groups nested deeper than 1000" {
+    var sb = StrBuf()
+    sb.appendRepeated('(', by: 1001)
+    sb.appendRepeated(')', by: 1001)
+    assert errorOf(sb.view) == "syntax groups nest too deep @1000"
+}
+
+test "(a*)*b and (a?){n}a{n} run in linear time on long input" {
+    var sb = StrBuf()
+    sb.appendRepeated('a', by: 20000)
+    let text = sb.view
+    assert compiled("(a*)*b").find(text) is null
+    assert compiled("(x+x+)+y").find(text) is null
+    let m = compiled("(a|aa)+$").find(text) ?? panic("no match")
+    assert m.span.end == 20000
+    let re = compiled("(a?){100}a{100}")
+    var n = StrBuf()
+    n.appendRepeated('a', by: 200)
+    assert re.matches(n.view)
+    n.append("a")
+    assert !re.matches(n.view)
+    assert (re.find(n.view) ?? panic("no match")).span.end == 200
+}

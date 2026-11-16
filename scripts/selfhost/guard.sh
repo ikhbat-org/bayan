@@ -81,8 +81,9 @@ if [ $TX = 0 ] && [ -n "$COVER" ]; then
     note "coverage: the tests wrote no tmp/guard-run/coverage/bayan-quality.json: no test under --filter '$TFILTER' builds a selfhost program with $COVER"
   else
     # a changed file no build under --filter compiles has no entry in the report, so none of its functions is checked (Q820);
-    # a malformed report fails in coverage-gate.py below, naming it
-    miss=$(bash "$(dirname "$0")/../bayan-tool.sh" coverage-missing "$COV/bayan-quality.json" "$COVER" 2> /dev/null) || miss=""
+    # the tool failing (pinned build, compile, toolchain, a malformed report) is a FAIL item naming its last stderr line
+    miss=$(bash "$(dirname "$0")/../bayan-tool.sh" coverage-missing "$COV/bayan-quality.json" "$COVER" 2> "$LOG/coverage-missing.txt") \
+      || { note "coverage: coverage-missing failed: $(tail -1 "$LOG/coverage-missing.txt")"; miss=""; }
     while read -r f; do
       [ -n "$f" ] || continue
       # a file declaring no function has no counters, so the report never lists it: nothing to cover (any doubt stays a FAIL item)
