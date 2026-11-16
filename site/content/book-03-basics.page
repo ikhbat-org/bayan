@@ -238,7 +238,7 @@ template: docs
 <example name="book-03-switch"/>
 <p>There are two forms.</p>
 <ul>
-  <li>The <strong>expression</strong> form, <code>value switch { pattern =&gt; result, … }</code>, produces a value. Patterns can be a literal (<code>0</code>), a comparison (<code>&lt; 0</code>), alternatives (<code>1 or 2</code>), a range of conditions (<code>&gt;= 3 and &lt; 10</code>), or <code>_</code> for everything else. The first match wins. The arms must cover every value, which is why the last arm is <code>_</code>. Without it the compiler says <code>switch</code> does not handle every <code>i64</code> (<code>BYN2410</code>).</li>
+  <li>The <strong>expression</strong> form, <code>value switch { pattern =&gt; result, … }</code>, produces a value. Patterns can be a literal (<code>0</code>), a comparison (<code>&lt; 0</code>), alternatives (<code>1 or 2</code>), a range of conditions (<code>&gt;= 3 and &lt; 10</code>), or <code>_</code> for everything else. The first match wins. The arms must cover every value, which is why the last arm is <code>_</code>. Without it the compiler says <code>switch</code> does not handle every <code>i32</code> (<code>BYN2410</code>).</li>
   <li>The <strong>statement</strong> form, <code>switch value { case … : … default: … }</code>, runs code. <code>case "stop" or "halt":</code> matches either. <code>case let w when w.length &gt; 3:</code> binds the value to a name and adds a condition.</li>
 </ul>
 <p>Chapter 6 uses the same <code>switch</code> to take apart unions and enums. There, leaving out a case is a compile error.</p>
