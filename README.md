@@ -12,7 +12,7 @@ A small, explicit language that compiles to native executables. Errors are value
 [![CI](https://github.com/ikhbat-org/bayan/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/ikhbat-org/bayan/actions/workflows/ci.yml)
 [![Version](https://img.shields.io/badge/version-0.3.x-1F3A5F)](CHANGELOG.md)
 [![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Linux%20%7C%20Windows-1F3A5F)](#install)
-[![Runtime](https://img.shields.io/badge/runtime-none-C08A2E)](#a-taste-of-the-language)
+[![Runtime](https://img.shields.io/badge/runtime-none-C08A2E)](#what-bayān-has-instead)
 [![GC](https://img.shields.io/badge/GC-none-C08A2E)](#memory-you-can-see)
 [![License: ISL-P](https://img.shields.io/badge/license-ISL--P%201.2-1F3A5F)](LICENSE.md)
 
@@ -26,12 +26,16 @@ string greeting() {
     return "Salam, world!"
 }
 
-print(greeting())
+void main() {
+    print(greeting())
+}
 ```
 
 ```text
 Salam, world!
 ```
+
+A program starts at `void main()`. A file of top-level statements with no `main` runs too: `bayan run hello.byn`.
 
 > [!NOTE]
 > Bayān is young (version 0.3.x). The language is usable and the compiler builds itself, but expect rough
@@ -61,12 +65,20 @@ You need two things: the `bayan` binary and a C compiler.
 
 1. **Get `bayan`.** Download the archive for your machine from the
    [releases page](https://github.com/ikhbat-org/bayan/releases): `bayan-0.3.1-macos-arm64.tar.gz`,
-   `bayan-0.3.1-linux-x64.tar.gz`, `bayan-0.3.1-windows-x64.zip` and so on. Unpack it and put the
+   `bayan-0.3.1-macos-x64.tar.gz`, `bayan-0.3.1-linux-x64.tar.gz`, `bayan-0.3.1-linux-arm64.tar.gz`,
+   `bayan-0.3.1-windows-x64.zip` or `bayan-0.3.1-windows-arm64.zip`. Unpack it and put the
    `bayan` binary somewhere on your `PATH`:
 
    ```sh
    tar -xzf bayan-0.3.1-macos-arm64.tar.gz
    cp bayan-0.3.1-macos-arm64/bayan ~/.local/bin/
+   ```
+
+   On Windows, unzip the archive and put `bayan.exe` on your `PATH`:
+
+   ```powershell
+   Expand-Archive bayan-0.3.1-windows-x64.zip -DestinationPath .
+   $env:Path += ";$PWD\bayan-0.3.1-windows-x64"
    ```
 
 2. **Get a C compiler.** Bayān prefers [zig](https://ziglang.org) (`zig cc`), because it can build for
@@ -112,12 +124,41 @@ string greeting() {
 print(greeting())
 ```
 
-Change the greeting to `"Salam, Aisha!"` and run `bayan run` again. To run the tests, use `bayan test`.
+It has top-level statements and no `main`: the compiler runs them as the program. Change the greeting to `"Salam, Aisha!"` and run `bayan run` again. To run the tests, use `bayan test`.
 The test will now fail, because it still expects the old greeting. Change it to `"Salam, Aisha!"` too
 and it passes.
 
-For a one-off script you don't need a project. Write a single `.byn` file and run it with
-`bayan run hello.byn`.
+`main` can do real work. This one fails with an error, and `@exitCode` sets the process exit code:
+
+```swift
+union error GuestError {
+    /// The guest list is empty.
+    @exitCode(3)
+    noGuests
+}
+
+i32 countGuests(string list) fails GuestError {
+    fail .noGuests if list.isEmpty
+    return 1
+}
+
+void main() fails GuestError {
+    let guests = try countGuests("")
+    print($"{guests} guests")
+}
+```
+
+```sh
+bayan run main.byn; echo $?
+```
+
+```text
+error: The guest list is empty.
+3
+```
+
+`int` and `long` also compile, and `bayan format` rewrites them to the spelling set by `style.primitives`
+in `package.byn` (spec §3.1).
 
 ---
 
@@ -140,10 +181,10 @@ nothing else to install except a C compiler. The commands are from `bayan --help
 | `bayan mutate` | Run a command once per mutant site of a prebuilt `--mutate` binary |
 | `bayan audit` | List every `because` bypass and every `unsafe` or `extern` declaration, with its reason |
 | `bayan clean`, `bayan cache stats` | Remove `out/` (and `dist/`, the cache on request); show the shared build cache |
-| `bayan lex`, `parse`, `types`, `features` | Look inside the compiler: tokens, syntax tree, inferred types, features a build used |
+| `bayan lex`, `types`, `features --used <path>` | Look inside the compiler: tokens, inferred types, features a build used |
 
 An editor language server, `bayan-lsp`, lives in [`editors/`](editors/README.md) with a VS Code extension.
-It is built from source and is not in the release archives yet.
+The server is early: build it from source, it is not in the release archives yet.
 
 The standard library is compiled in, so a program needs no package manager to use it:
 
@@ -173,7 +214,7 @@ flowchart LR
     D --> E["native executable"]
 ```
 
-`bayan build --emit-c` keeps the C so you can read it.
+`bayan build --emit-c` prints the generated C. A project build keeps it in `out/<mode>/<target>/c/main.c`.
 
 ---
 
@@ -184,29 +225,29 @@ Small programs around a community iftar. Each runs as it is with `bayan run main
 ### Errors are values
 
 Booking can fail, and the signature says so (`fails BookingError`). The compiler checks that the caller
-handles every error. An error can carry data, like `notEnough(i64 left)`.
+handles every error. An error can carry data, like `notEnough(i32 left)`.
 
 ```swift
 union error BookingError {
     /// Every seat is taken.
     full
     /// Fewer seats are left than were asked for.
-    notEnough(i64 left)
+    notEnough(i32 left)
 }
 
 struct Iftar {
-    i64 seats
-    i64 booked
+    i32 seats
+    i32 booked
 
-    i64 left => seats - booked
+    i32 left => seats - booked
 
-    void reserve(ref this, i64 count) fails BookingError {
+    void reserve(ref this, i32 count) fails BookingError {
         fail .full if left == 0
         fail .notEnough(left) if count > left
         booked += count
     }
 
-    string book(ref this, string guest, for i64 count) {
+    string book(ref this, string guest, for i32 count) {
         reserve(count) catch switch {
             .full => return $"Sorry {guest}, the iftar is full",
             .notEnough(let left) => return $"Sorry {guest}, only {left} left",
@@ -233,6 +274,8 @@ Yusuf booked 1, 0 left
 Sorry Maryam, the iftar is full
 ```
 
+`///` is a doc comment, and on an error case its first line is the error's message (`$"{e}"` prints `Every seat is taken.`). A plain `//` comment, also allowed at the end of a line, is not part of the program.
+
 `fail` returns the error. A call that can fail is marked `try` (pass it on) or `catch` (handle it here).
 
 ### Effects are part of the signature
@@ -243,7 +286,7 @@ from their calls.
 
 ```swift
 /// Counts the names in a guest list, one per line. No `uses` clause: it only computes.
-public i64 countGuests(string list) {
+public i32 countGuests(string list) {
     var count = 0
     for line in list.lines {
         count += 1 if !line.trimmed().isEmpty
@@ -252,7 +295,7 @@ public i64 countGuests(string list) {
 }
 
 /// Reads the guest list from a file, so it declares `uses fs`.
-public i64 guestsIn(string path) uses fs, alloc fails IoError {
+public i32 guestsIn(string path) uses fs, alloc fails IoError {
     let list = try Io.readText(path)
     return countGuests(list)
 }
@@ -279,14 +322,17 @@ Without the file it prints `No guest list yet`. Leave `alloc` out of `uses` and 
 
 ```text
 error BYN6002: `guestsIn` uses `alloc` but does not declare it
-  --> main.byn:12:20
+  --> ~/iftar/main.byn:12:20
 
   12 │     let list = try Io.readText(path)
      │                    ^^^^^^^^^^^^^^^^^ uses `alloc`
      │
   help: add `alloc` to the `uses` clause, or remove the call
-     │ 11 │ public i64 guestsIn(string path) uses fs, alloc fails IoError {
+     │ 11 │ public i32 guestsIn(string path) uses fs, alloc fails IoError {
      │    │                                         +++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6002
 ```
 
 </details>
@@ -294,7 +340,7 @@ error BYN6002: `guestsIn` uses `alloc` but does not declare it
 ### States the compiler tracks
 
 An order is placed, then paid, then delivered. Each method names the state it needs (`is .paid`) and the
-one it leaves (`becomes .delivered`). A state can carry data (`paid(i64 amount)`).
+one it leaves (`becomes .delivered`). A state can carry data (`paid(i32 amount)`).
 
 ```mermaid
 stateDiagram-v2
@@ -307,14 +353,14 @@ stateDiagram-v2
 ```swift
 struct Order {
     string dish
-    i64 plates
+    i32 plates
     states {
         placed
-        paid(i64 amount)
-        delivered(i64 amount)
+        paid(i32 amount)
+        delivered(i32 amount)
     }
 
-    void pay(ref this is .placed, i64 amount) becomes .paid {
+    void pay(ref this is .placed, i32 amount) becomes .paid {
         become .paid(amount)
     }
 
@@ -352,12 +398,15 @@ Deliver before paying (drop `order.pay(120)`) and it does not compile:
 
 ```text
 error BYN7001: `deliver` needs `order` to be `.paid`, but it is `Order.placed`
-  --> main.byn:29:5
+  --> ~/iftar/main.byn:29:5
 
   29 │     order.deliver()
      │     ^^^^^
      │
   help: check the state with `is` or `switch` first
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN7001
 ```
 
 </details>
@@ -373,7 +422,7 @@ void main() {
     using let arena = Arena()
     provide allocator: arena {
         for guest in guests {
-            let card = $"Salam {guest}, join us for iftar on Friday"
+            let card = $"Assalamu alaykum {guest}, join us for iftar on Friday"
             print(card)
         }
     }
@@ -381,9 +430,9 @@ void main() {
 ```
 
 ```text
-Salam Umar, join us for iftar on Friday
-Salam Aisha, join us for iftar on Friday
-Salam Bilal, join us for iftar on Friday
+Assalamu alaykum Umar, join us for iftar on Friday
+Assalamu alaykum Aisha, join us for iftar on Friday
+Assalamu alaykum Bilal, join us for iftar on Friday
 ```
 
 ### A few more things
@@ -391,7 +440,7 @@ Salam Bilal, join us for iftar on Friday
 - **Particles.** At most one parameter is unlabeled; the rest carry a word such as `for`, and the call
   says it too: `iftar.book("Umar", for: 2)`. You can't swap two arguments by accident.
 - **Locals** are `let` or `var`: `let list = …`, or `let list: string = …` with a type. Declarations put
-  the type first (`i64 countGuests(…)`), local bindings put the name first; write it the other way and the
+  the type first (`i32 countGuests(…)`), local bindings put the name first; write it the other way and the
   error message shows you the fix.
 - **`stmt if condition`** guards a statement, as in `fail .full if left == 0`.
 - **Errors teach.** Each has a code; `bayan explain BYN1043` explains it.
@@ -414,8 +463,8 @@ Salam Bilal, join us for iftar on Friday
 
 - `bayan --help` lists every command.
 - [`docs/bayan-spec.md`](docs/bayan-spec.md) is the language specification, the full reference.
-- [`docs/bayan-style.md`](docs/bayan-style.md) and [`docs/bayan-grammar.md`](docs/bayan-grammar.md) cover
-  naming and style.
+- [Bayān grammar guide](docs/bayan-grammar.md) is the naming guide; [Bayān style guide](docs/bayan-style.md)
+  is the style guide.
 - [`docs/DIAGNOSTICS.md`](docs/DIAGNOSTICS.md) lists every error and warning.
 - [`CHANGELOG.md`](CHANGELOG.md) says what changed in each version.
 - [`docs/bayan-roadmap.md`](docs/bayan-roadmap.md) says what is coming next; [`docs/bayan-not-planned.md`](docs/bayan-not-planned.md)
@@ -434,20 +483,29 @@ builds the first stage, and it is the reference the tests check the self-hosted 
 the .NET 10 SDK and zig.
 
 ```sh
-dotnet test -v q                               # unit and golden tests
+dotnet test -v q                               # unit and golden tests, for both compilers
 BAYAN_UPDATE=1 dotnet test                     # rewrite golden expected files
 dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
-./tmp/publish/bayan --version
+./tmp/publish/bayan --version                  # the C# compiler
 ```
 
-`bootstrap/bayan.c` is the self-hosted compiler as plain C, so you can build `bayan` with nothing but a
-C compiler. See [`bootstrap/README.md`](bootstrap/README.md).
-
-Local builds go in `dist/` (gitignored). There is one directory per target and version, plus a `latest/`
-per target that every build replaces:
+Build the self-hosted compiler with any `bayan`, or with only a C compiler from `bootstrap/bayan.c` (the
+self-hosted compiler as plain C). Both produce the self-hosted `bayan`. See
+[`bootstrap/README.md`](bootstrap/README.md).
 
 ```sh
-scripts/dist.sh                                # this host: dist/macos-arm64/0.3.2-dev/bayan
+bayan build --mode safe --package src -o tmp/bayan-selfhost src/driver
+cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm -o tmp/bayan-boot
+./tmp/bayan-selfhost --version                 # bayan 0.3.2-dev (selfhost)
+```
+
+The self-hosted compiler's tests are in `src/tests/` and run with the same `dotnet test`.
+
+Local builds go in `dist/` (gitignored). `scripts/dist.sh` writes `dist/<target>/<version>/` plus a `latest/`
+per target that every build replaces. `bayan dist` writes `dist/<version>/` and one `dist/latest/`.
+
+```sh
+scripts/dist.sh                                # this host: dist/macos-arm64/latest/bayan
 scripts/dist.sh --from <publish-dir> --rid win-x64 --commit <sha>   # import a binary published on another OS
 ```
 
