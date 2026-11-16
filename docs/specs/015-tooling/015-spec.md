@@ -150,7 +150,7 @@ Easiest first; each New API arrives with the first port that needs it. Group by 
 | 7 | `mutate-plan.byn`, `report-paths.byn`, manifest listing | the 3 inline blocks | `std.fs` glob/walk |
 | 8 | `coverage-gate.byn` | `coverage-gate.py` | — |
 | 9 | `stryker-to-quality.byn` | `stryker_to_quality.py` | `f64` formatting (S8) |
-| 10 | `replay.byn` | `replay.py` | `run` with `directory:`/`input:`/`env:`, `Base64` |
+| 10 | `replay.byn` — skipped, gated on Q1141 (T16; `Base64` in `std.encoding` done) | `replay.py` | `run` with `directory:`/`input:`/`env:`, `Base64` |
 | 11 | not ported (S9) | `known-failures.py`, deleted with the C# suite | — |
 | 12 | not ported (S9) | `cobertura_to_quality.py`, deleted with the C# suite | — |
 | 13 | `gen-lowercase.byn` | `gen-lowercase.py` (Python leaves once the C# suite and its two S9 scripts go, R7) | `curl` shell-out (R8) |
