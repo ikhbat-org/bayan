@@ -68,7 +68,7 @@ public Money total(Cart cart) {
 
 ### Alignment runs
 
-Under `.runs`, consecutive fields or properties of the same shape align their name column and the `=>` column, and a blank line or comment line ends the run.
+Under `.runs`, consecutive fields or properties of the same shape align their name column and the `=>` column, and a blank line or a `//` comment line ends the run; a `///` doc comment does not.
 
 Do:
 
@@ -124,6 +124,82 @@ let label = order switch {
 }
 ```
 
+### Outliers in a run
+
+A line whose column sits more than 8 columns past the next-widest in its run (fields, properties, switch arms) leaves the run and stays unaligned, so one long line does not push the rest out.
+
+Do:
+
+```bayan
+bool literal(TokenKind kind) => kind switch {
+    .integerLiteral => true,
+    .floatLiteral   => true,
+    .stringLiteral or .rawStringLiteral or .cStringLiteral => true,
+    _               => false,
+}
+```
+
+Don't:
+
+```bayan
+bool literal(TokenKind kind) => kind switch {
+    .integerLiteral                                        => true,
+    .floatLiteral                                          => true,
+    .stringLiteral or .rawStringLiteral or .cStringLiteral => true,
+    _                                                      => false,
+}
+```
+
+### Field defaults
+
+In a run of fields, the `=` of each default aligns too; a field without a default takes part in the name column only.
+
+Do:
+
+```bayan
+struct DistSource {
+    string? commit = null
+    bool    dirty  = false
+    i64     count
+}
+```
+
+Don't:
+
+```bayan
+struct DistSource {
+    string? commit = null
+    bool    dirty = false
+    i64     count
+}
+```
+
+### Doc comments in a run
+
+A `///` line documents the next member and does not end its run; a blank line or a `//` line does.
+
+Do:
+
+```bayan
+struct CCtx {
+    /// `OwnershipChecks`.
+    public bool   checks = false
+    /// `_packageRoot`.
+    public string root   = ""
+}
+```
+
+Don't:
+
+```bayan
+struct CCtx {
+    /// `OwnershipChecks`.
+    public bool checks = false
+    /// `_packageRoot`.
+    public string root = ""
+}
+```
+
 ### Top-level layout
 
 Top-level declarations are separated by one blank line, except consecutive one-line declarations of the same kind, which form a run and align their `=`.
@@ -170,6 +246,55 @@ Don't:
 
 ```bayan
 public void promote(ref this, to Tier next) { tier = next }
+```
+
+### Case bodies
+
+A `case` body on its own lines is indented one level past its `case`.
+
+Do:
+
+```bayan
+switch kind {
+    case .binary:
+        let op = c.op
+        go(op)
+    default: {}
+}
+```
+
+Don't:
+
+```bayan
+switch kind {
+    case .binary:
+    let op = c.op
+    go(op)
+    default: {}
+}
+```
+
+### Empty arms
+
+An empty arm, `default: {}`, stays on one line.
+
+Do:
+
+```bayan
+switch kind {
+    case .a: go()
+    default: {}
+}
+```
+
+Don't:
+
+```bayan
+switch kind {
+    case .a: go()
+    default:
+        {}
+}
 ```
 
 ### Attributes
@@ -366,44 +491,153 @@ let shipment = carrier.book(
 )
 ```
 
-### Horizontal spacing
+### Break order
 
-Binary operators, `=>`, `??` and `=` take one space on each side; ranges, calls, unary operators, generics and units are tight; a label has no space before `:` and one after; struct literals have spaces inside the braces, and list literals and calls have none.
+An expression that does not fit breaks before every operator of its lowest precedence level (`??`, then `||`, then `&&`), in `if`, `let` and `return` alike; a parenthesised group that fits stays on one line, and nothing breaks inside an argument list while an operator break remains. Shown at width 60.
 
 Do:
 
 ```bayan
-void show() {
-    let total = price * quantity
-    let port = config.port ?? 8080
-    let span = 0..n
-    let origin = Point { x: 1, y: 2 }
-    let sizes = [1, 2]
-    let label = format(total)
+bool hidden(i64 c) {
+    return c < 0x20
+        || (c >= 0x7F && c <= 0x9F)
+        || c == 0x61C
+        || (c >= 0x202A && c <= 0x202E)
 }
 ```
 
 Don't:
 
 ```bayan
-void show() {
-    let total = price*quantity
-    let port = config.port??8080
-    let span = 0 .. n
-    let origin = Point {x:1, y:2}
-    let sizes = [ 1, 2 ]
-    let label = format( total )
+bool hidden(i64 c) {
+    return c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C
+        || (c >= 0x202A
+            && c <= 0x202E)
 }
 ```
 
-### Unary operators and annotations
+### Groups that do not fit
 
-Unary symbols are tight, and an annotation or label has no space before `:` and one after.
+Only when a line still does not fit after its own operators have broken does a group break, before its own lowest operators. Shown at width 50.
 
 Do:
 
 ```bayan
-void show() {
+let inInstance = host != -1
+    && !c.fns[host].isStatic
+    && (c.fns[host].kind == .method
+        || c.fns[host].kind == .getter)
+```
+
+Don't:
+
+```bayan
+let inInstance = host != -1 && !c.fns[host].isStatic && (
+    c.fns[host].kind == .method || c.fns[host].kind == .getter)
+```
+
+### Indexes and members stay whole
+
+A line never breaks inside an index bracket or a unit literal, or before a `.member` that follows `]`. Shown at width 56.
+
+Do:
+
+```bayan
+let empty = c.variants[i].payload.length == 0
+    && c.errors[c.variants[i].variant].fields.length > 0
+```
+
+Don't:
+
+```bayan
+let empty = c.variants[i].payload.length == 0
+    && c.errors[
+        c.variants[i].variant
+    ].fields.length > 0
+```
+
+### Ternary ladder
+
+A ternary that does not fit breaks before `?` and before `:`, each one continuation in. A line that starts with `?` or `:` would end a statement, so the ladder applies inside brackets only; a chain inside a ternary breaks only after the ternary has broken. Shown at width 80.
+
+Do:
+
+```bayan
+shown.append(
+    compiled.manifest is not null
+        ? Path.relative(compiled.root, to: output).replaced("\\", by: "/")
+        : output,
+)
+```
+
+Don't:
+
+```bayan
+shown.append(
+    compiled.manifest is not null ? Path
+        .relative(compiled.root, to: output)
+        .replaced("\\", by: "/") : output,
+)
+```
+
+### Arrow bodies
+
+A header with a `=>` body that does not fit breaks after `=>` first; its parameters wrap only when the header alone still does not fit. Shown at width 60.
+
+Do:
+
+```bayan
+i64 total(i64 firstArgument, i64 secondArgument) =>
+    firstArgument + secondArgument
+```
+
+Don't:
+
+```bayan
+i64 total(
+    i64 firstArgument,
+    i64 secondArgument
+) => firstArgument + secondArgument
+```
+
+### Scalar lists
+
+A list made only of scalars (numbers, chars, strings of 16 columns or fewer) fills each line, keeping as many items per row as your first row when that fits, and otherwise as many as fit the width.
+
+Do:
+
+```bayan
+const t: u32[8] = [
+    0x0041, 0x005A, 0x005F, 0x005F,
+    0x0061, 0x007A, 0x00AA, 0x00AA,
+]
+```
+
+Don't:
+
+```bayan
+const t: u32[8] = [
+    0x0041, 0x005A, 0x005F, 0x005F,
+    0x0061,
+    0x007A, 0x00AA,
+    0x00AA,
+]
+```
+
+### Horizontal spacing
+
+Binary operators, `=>`, `??` and `=` take one space on each side; ranges, calls, unary operators and generic arguments are tight; an annotation or label has no space before `:` and one after; struct literals have spaces inside the braces, and list literals and calls have none. A unit literal is tight by its grammar: `30 s` lexes as two tokens, so only `30s` is a duration.
+
+Do:
+
+```bayan
+void show(List<Sku> skus) {
+    let total = price * quantity
+    let port = config.port ?? 8080
+    let span = 0..n
+    let origin = Point { x: 1, y: 2 }
+    let sizes = [1, 2]
+    let label = format(total)
     let done = !finished
     let w: Grams = -weight
 }
@@ -412,29 +646,15 @@ void show() {
 Don't:
 
 ```bayan
-void show() {
+void show(List< Sku > skus) {
+    let total = price*quantity
+    let port = config.port??8080
+    let span = 0 .. n
+    let origin = Point {x:1, y:2}
+    let sizes = [ 1, 2 ]
+    let label = format( total )
     let done = ! finished
     let w : Grams = - weight
-}
-```
-
-### Generics and units
-
-Generic arguments and unit literals are tight.
-
-Do:
-
-```bayan
-void fill(List<Sku> skus) {
-    let wait = 30s
-}
-```
-
-Don't:
-
-```bayan
-void fill(List< Sku > skus) {
-    let wait = 30s
 }
 ```
 
@@ -474,22 +694,6 @@ struct Server {
     i64  port // default 8080
     bool tls // on by default
 }
-```
-
-### Comment form
-
-A comment starts with `// ` and a space.
-
-Do:
-
-```bayan
-// default port
-```
-
-Don't:
-
-```bayan
-//default port
 ```
 
 ### Files
