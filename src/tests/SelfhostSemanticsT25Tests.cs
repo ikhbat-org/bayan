@@ -522,14 +522,17 @@ public sealed class SelfhostSemanticsT25Tests
         }
         """;
 
-    /// <summary>Q31 (plan 015): <c>t42AnalyzeRegions</c> run inside a bag, then General memory churned so a freed arena's
-    /// chunks are reused; the bag must still hold what the C# reports. Without the <c>c.sink</c> guard the bag keeps arena
-    /// strings (ASan: heap-use-after-free).</summary>
+    /// <summary>Q31 (plan 015): <c>summarizeRegions</c> and <c>t42AnalyzeRegions</c> run inside a bag, then General memory
+    /// churned so a freed arena's chunks are reused; the bag must still hold what the C# reports. Without the <c>c.sink</c>
+    /// guard the bag keeps arena strings (ASan: heap-use-after-free).</summary>
     private static string BaggedFunction() => """
         void tcBagged(string name) {
             var c = tcLoad(name)
             print($"== bag {name}")
             let outer = pushBag(ref c)
+            c.storeSummaries.clear()
+            c.returnSummaries.clear()
+            summarizeRegions(ref c)
             let fns = copyIds(in c.modules[c.entryModule].allFunctions)
             for fn in fns {
                 if c.functions[fn].body != -1 && !functionIsGeneric(ref c, by: fn) && !functionIsInstance(ref c, by: fn) { t42AnalyzeRegions(ref c, for: fn) }
