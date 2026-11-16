@@ -1,6 +1,6 @@
 # bayan.run content map
 
-What the site holds, page by page, and who writes it. Format: `FORMAT.md`. Source of truth for the language: `docs/bayan-spec.md` (and Appendix A for settled decisions); the compiler at `$BAYAN` (default `dist/macos-arm64/latest/bayan`) is the judge of what works today.
+What the site holds, page by page, and who writes it. Format: `FORMAT.md`. Source of truth for the language: `docs/bayan-spec.md` (and Appendix A for settled decisions); the compiler at `$BAYAN` (default: the CLI built from HEAD by `scripts/pinned-bayan.sh`) is the judge of what works today.
 
 ## Models
 
