@@ -171,7 +171,7 @@ public static class Toolchain
             {
                 try { return new FileStream(Path.Combine(dir, $"{i}.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
                 catch (IOException e) when (e.GetType() == typeof(IOException)) { }
-                catch (DirectoryNotFoundException) { break; }
+                catch (Exception e) when (e is DirectoryNotFoundException or FileNotFoundException) { break; }
             }
             Thread.Sleep(100);
         }
