@@ -2,6 +2,8 @@
 
 import std.path
 
+type Glob = path.Glob
+
 /// The depth below the base directory a walk stops at when the pattern has `**` or `{}` (its length is unknown).
 const maxDepth: i64 = 64
 
@@ -11,8 +13,8 @@ const maxDepth: i64 = 64
 public List<string> glob(string pattern) uses fs, alloc {
     var found = List<string>()
     let base = baseOf(pattern)
-    let depth = (pattern.contains("**") || pattern.contains("{")) ? maxDepth : count(pattern, "/") + 1
-    walk(pattern, in: base, depth: depth, into: found)
+    let depth = (pattern.contains("**") || pattern.contains("{")) ? maxDepth : count(pattern, for: "/") + 1
+    walk(pattern, from: base, until: depth, to: ref found)
     var j = 0
     while j < found.length {
         var k = j
@@ -42,21 +44,21 @@ string baseOf(string pattern) {
 }
 
 /// The number of times `part` occurs in `text`.
-i64 count(string text, string part) {
+i64 count(string text, for string part) {
     var n = 0
     for _ in text.parts(by: part) { n += 1 }
     return n - 1
 }
 
 /// Adds every file under `dir` (to `depth` levels) whose path matches `pattern`.
-void walk(string pattern, string dir, i64 depth, List<string> found) uses fs, alloc {
+void walk(string pattern, from string dir, until i64 depth, to ref List<string> found) uses fs, alloc {
     let names = Io.listDir(dir.isEmpty ? "." : dir) catch { return }
     for name in names {
-        let path = dir.isEmpty ? $"{name}" : (dir.endsWith("/") ? $"{dir}{name}" : $"{dir}/{name}")
-        let inside = Io.listDir(path) catch {
-            if Glob.matches(pattern, path) { found.append(path) }
+        let entry = dir.isEmpty ? $"{name}" : (dir.endsWith("/") ? $"{dir}{name}" : $"{dir}/{name}")
+        let inside = Io.listDir(entry) catch {
+            if Glob.matches(pattern, for: entry) { found.append(entry) }
             continue
         }
-        if depth > 1 { walk(pattern, in: path, depth: depth - 1, into: found) }
+        if depth > 1 { walk(pattern, from: entry, until: depth - 1, to: ref found) }
     }
 }

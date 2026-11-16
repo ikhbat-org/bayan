@@ -1,11 +1,11 @@
 // Tests of std.fs glob, over a tree the tests build in tmp/ below the working directory.
 
 /// Writes `rel` (and its parent directories) under `root`, empty.
-void touch(string root, string rel) uses fs, alloc {
-    var dir = root
+void touch(string root, at string rel) uses fs, alloc {
+    var dir = $"{root}"
     for part in rel.parts(by: "/") {
         let at = Path.combine(dir, part)
-        if part.endsWith(".byn") || part.endsWith(".cs") {
+        if part.contains(".") {
             Io.writeFile(at, "".bytes) catch { assert false }
         } else {
             Io.createDirectory(at) catch { assert false }
@@ -14,21 +14,37 @@ void touch(string root, string rel) uses fs, alloc {
     }
 }
 
+/// `found` as one line, entries separated by a space.
+string joined(List<string> found) uses alloc {
+    var sb = StrBuf()
+    for f in found {
+        if sb.length > 0 { sb.append(" ") }
+        sb.append(f)
+    }
+    return sb.finish()
+}
+
 test "glob lists the matching files, sorted, with / separators" {
     let root = "tmp/glob-test"
-    touch(root, "src/b.byn")
-    touch(root, "src/a.byn")
-    touch(root, "src/x/c.byn")
-    touch(root, "src/x/y/d.byn")
-    touch(root, "src/x/e.cs")
-    touch(root, "lib/f.byn")
-    assert glob("tmp/glob-test/src/**/*.byn") == [
-        "tmp/glob-test/src/a.byn", "tmp/glob-test/src/b.byn", "tmp/glob-test/src/x/c.byn", "tmp/glob-test/src/x/y/d.byn"]
-    assert glob("tmp/glob-test/src/*.byn") == ["tmp/glob-test/src/a.byn", "tmp/glob-test/src/b.byn"]
-    assert glob("tmp/glob-test/{src,lib}/*.byn") == ["tmp/glob-test/lib/f.byn", "tmp/glob-test/src/a.byn", "tmp/glob-test/src/b.byn"]
-    assert glob("tmp/glob-test/src/x/?.cs") == ["tmp/glob-test/src/x/e.cs"]
-    assert glob("tmp/glob-test/src/[ab].byn") == ["tmp/glob-test/src/a.byn", "tmp/glob-test/src/b.byn"]
-    assert glob("tmp/glob-test/src/a.byn") == ["tmp/glob-test/src/a.byn"]
+    touch(root, at: "src/b.byn")
+    touch(root, at: "src/a.byn")
+    touch(root, at: "src/x/c.byn")
+    touch(root, at: "src/x/y/d.byn")
+    touch(root, at: "src/x/e.cs")
+    touch(root, at: "lib/f.byn")
+    let all = glob("tmp/glob-test/src/**/*.byn")
+    assert joined(all) == "tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn tmp/glob-test/src/x/c.byn tmp/glob-test/src/x/y/d.byn"
+    assert joined(glob("tmp/glob-test/src/*.byn")) == "tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn"
+    assert joined(glob("tmp/glob-test/{src,lib}/*.byn")) == "tmp/glob-test/lib/f.byn tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn"
+    assert joined(glob("tmp/glob-test/src/x/?.cs")) == "tmp/glob-test/src/x/e.cs"
+    assert joined(glob("tmp/glob-test/src/[ab].byn")) == "tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn"
+    assert joined(glob("tmp/glob-test/src/a.byn")) == "tmp/glob-test/src/a.byn"
+    for f in all { assert Glob.matches("tmp/glob-test/src/**/*.byn", for: f) }
+}
+
+test "glob finds nothing for a directory, a missing base or a pattern no file fits" {
     assert glob("tmp/glob-test/src").length == 0
     assert glob("tmp/glob-test/none/*.byn").length == 0
+    assert glob("tmp/glob-test/src/*.rs").length == 0
+    assert glob("tmp/glob-test/src/?.byn/x").length == 0
 }
