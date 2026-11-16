@@ -918,6 +918,15 @@ public sealed class SelfhostDriverT1Tests
             "check-style-clean" => (new() { ["main.byn"] = SymbolsAndSized }, [["--check", "{D}"]]),
             "idempotent-empty" => (new() { ["main.byn"] = IdempotentInput }, [["{D}/main.byn"], ["--check", "{D}/main.byn"], ["{D}/main.byn"]]),
             "idempotent-package" => (new() { ["package.byn"] = Pkg("booleans: .words, primitives: .csharp"), ["main.byn"] = IdempotentInput }, [["{D}/main.byn"], ["--check", "{D}/main.byn"], ["{D}/main.byn"]]),
+            "symlink" => (new() { ["real.byn"] = Fixable }, [["{D}/link.byn"]]),
+            "cycle" => (new() { ["main.byn"] = Fixable }, [["--check", "{D}"]]),
+            "parent-link" => (new() { ["outer/dir/main.byn"] = Fixable, ["outer/outside.byn"] = Fixable }, [["--check", "{D}/outer/dir"]]),
+            "link-through-dir" => (new() { ["real/g.byn"] = Fixable, ["proj/g.byn"] = "decoy, not Bayan\n" }, [["{D}/proj/sub/f.byn"]]),
+            "link-through-dir-nodecoy" => (new() { ["real/g.byn"] = Fixable }, [["{D}/proj/sub/f.byn"]]),
+            "walk-through-dir" => (new() { ["real/g.byn"] = Fixable, ["proj/g.byn"] = "let b = true\nif (b) { print(\"y\") }\n", ["other/h.byn"] = "let c = true\nif (c) { print(\"z\") }\n" }, [["--check", "{D}/proj"]]),
+            "loop-link" => (new() { ["a.byn"] = Fixable, ["sub/b.byn"] = Fixable }, [["--check", "{D}"]]),
+            "link-dotdot-file" => (new() { ["a.byn"] = Fixable, ["other/a.byn"] = "let b = true\nif b {\n    print(\"y\")\n}\n" }, [["{D}/link/../a.byn"]]),
+            "link-dotdot-dir" => (new() { ["a.byn"] = Fixable, ["other/a.byn"] = "let b = true\nif (b) { print(\"y\") }\n" }, [["--check", "{D}/link/.."]]),
             _ => throw new ArgumentException(name),
         };
     }
@@ -927,10 +936,10 @@ public sealed class SelfhostDriverT1Tests
         | UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
 
     /// <summary>Writes the row's tree afresh and returns its runs, each a full argument list.</summary>
-    private static string[][] FormatRow(string name, out string dir)
+    private static string[][] FormatRow(string name, out string dir, string root = "t8-format")
     {
         var (files, runs) = FormatRowSpec(name);
-        dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-format", name);
+        dir = Path.Combine(Golden.RepoRoot, "tmp", root, name);
         if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
         Directory.CreateDirectory(dir);
         foreach (var (rel, text) in files)
@@ -946,12 +955,58 @@ public sealed class SelfhostDriverT1Tests
             Directory.CreateSymbolicLink(Path.Combine(dir, "fixture", "inner-link"), Path.Combine(dir, "fixture", "tmp"));
         }
         if (name == "package-link-outside") Directory.CreateSymbolicLink(Path.Combine(dir, "pkg", "vendor"), "../outside");
+        if (s_linkRows.Contains(name)) MakeLinks(name, dir);
         var d = dir;
         return [.. runs.Select(args => (string[])["format", .. args.Select(a => a.Replace("{D}", d))])];
     }
 
-    /// <summary>Every file under <paramref name="dir"/> with its Unix mode and text, in ordinal order; a temp file left behind shows here.</summary>
-    private static string Tree(string dir) => string.Join("", Directory.GetFiles(dir, "*", SearchOption.AllDirectories)
+    /// <summary>The rows replaying FormatTests.cs's symlink trees (:591-:744); their links are made by <see cref="MakeLinks"/>.</summary>
+    private static readonly HashSet<string> s_linkRows =
+        ["symlink", "cycle", "parent-link", "link-through-dir", "link-through-dir-nodecoy", "walk-through-dir", "loop-link", "link-dotdot-file", "link-dotdot-dir"];
+
+    /// <summary>The directories and links of a <see cref="s_linkRows"/> row, as the FormatTests.cs case makes them.</summary>
+    private static void MakeLinks(string name, string dir)
+    {
+        string At(string rel) => Path.Combine(dir, rel);
+        switch (name)
+        {
+            case "symlink":
+                File.CreateSymbolicLink(At("link.byn"), "real.byn");
+                break;
+            case "cycle":
+                Directory.CreateDirectory(At("sub"));
+                Directory.CreateSymbolicLink(At("sub/up"), "..");
+                Directory.CreateSymbolicLink(At("sub/up2"), "..");
+                File.CreateSymbolicLink(At("alias.byn"), "main.byn");
+                break;
+            case "parent-link":
+                Directory.CreateSymbolicLink(At("outer/dir/link"), "..");
+                break;
+            case "link-through-dir" or "link-through-dir-nodecoy" or "walk-through-dir":
+                Directory.CreateDirectory(At("proj"));
+                Directory.CreateDirectory(At("real/deep"));
+                File.CreateSymbolicLink(At("real/deep/f.byn"), "../g.byn");
+                Directory.CreateSymbolicLink(At("proj/sub"), "../real/deep");
+                if (name != "walk-through-dir") break;
+                Directory.CreateDirectory(At("other/deep"));
+                Directory.CreateSymbolicLink(At("proj/x"), "../other/deep");
+                Directory.CreateSymbolicLink(At("proj/up"), "x/..");
+                break;
+            case "loop-link":
+                File.CreateSymbolicLink(At("loop.byn"), "loop.byn");
+                break;
+            case "link-dotdot-file" or "link-dotdot-dir":
+                Directory.CreateDirectory(At("other/deep"));
+                Directory.CreateSymbolicLink(At("link"), "other/deep");
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Every file under <paramref name="dir"/> with its Unix mode and text, in ordinal order; a temp file left behind shows here. Links
+    /// are not entered (a cycle row's <c>sub/up -&gt; ..</c> would not end); what they point at inside the tree is listed where it is.
+    /// </summary>
+    private static string Tree(string dir) => string.Join("", Directory.GetFiles(dir, "*", new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint })
         .Order(StringComparer.Ordinal)
         .Select(f => $"== {Path.GetRelativePath(dir, f)} {(OperatingSystem.IsWindows() ? "" : File.GetUnixFileMode(f).ToString())}\n{File.ReadAllText(f)}"));
 
@@ -1029,19 +1084,40 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("idempotent-package")]
     [InlineData("outward-links")]
     [InlineData("package-link-outside")]
-    public void FormatAsCliApp(string name)
+    [InlineData("symlink")]
+    [InlineData("cycle")]
+    [InlineData("parent-link")]
+    [InlineData("link-through-dir")]
+    [InlineData("link-through-dir-nodecoy")]
+    [InlineData("walk-through-dir")]
+    [InlineData("loop-link")]
+    [InlineData("link-dotdot-file")]
+    [InlineData("link-dotdot-dir")]
+    public void FormatAsCliApp(string name) => FormatRowMatches(name, "t8-format", SelfhostDriverHarness.Run);
+
+    /// <summary>The body of <see cref="FormatAsCliApp"/> with <paramref name="run"/> as the driver, the tree under <c>tmp/</c><paramref name="root"/>.</summary>
+    internal static void FormatRowMatches(string name, string root, Func<string[], (int Exit, string Out, string Err)> run)
     {
-        if (OperatingSystem.IsWindows() && name is "outward-links" or "package-link-outside") return;
-        var runs = FormatRow(name, out var dir);
+        if (OperatingSystem.IsWindows() && (name is "outward-links" or "package-link-outside" || s_linkRows.Contains(name))) return;
+        var runs = FormatRow(name, out var dir, root);
         var expected = runs.Select(Oracle).ToList();
         var expectedTree = Tree(dir);
-        FormatRow(name, out _);
+        FormatRow(name, out _, root);
         for (var i = 0; i < runs.Length; i++)
         {
-            var actual = SelfhostDriverHarness.Run(runs[i]);
+            var actual = run(runs[i]);
             Assert.Equal(expected[i].Exit, actual.Exit);
             SelfhostEmitterHarness.AssertSame($"stdout of `{name}` run {i}", expected[i].Out, actual.Out);
-            SelfhostEmitterHarness.AssertSame($"stderr of `{name}` run {i}", expected[i].Err, actual.Err);
+            if (name == "loop-link")
+            {
+                // The loop's line ends in the .NET message (Q1106), so it is compared up to it; the rest must match.
+                var loop = $"bayan: {Path.Combine(dir, "loop.byn")}: ";
+                Assert.StartsWith(loop, expected[i].Err);
+                Assert.StartsWith(loop, actual.Err);
+                Assert.DoesNotContain('\n', expected[i].Err.TrimEnd('\n'));
+                Assert.DoesNotContain('\n', actual.Err.TrimEnd('\n'));
+            }
+            else SelfhostEmitterHarness.AssertSame($"stderr of `{name}` run {i}", expected[i].Err, actual.Err);
         }
         SelfhostEmitterHarness.AssertSame($"files after `{name}`", expectedTree, Tree(dir));
     }
@@ -1054,10 +1130,13 @@ public sealed class SelfhostDriverT1Tests
     [InlineData("directory", "a.byn")]
     [InlineData("unreadable-dir", "locked")]
     [InlineData("unreadable-package", "package.byn")]
-    public void FormatReportsAnUnreadablePathAsCliApp(string name, string locked)
+    public void FormatReportsAnUnreadablePathAsCliApp(string name, string locked) => UnreadablePathMatches(name, locked, "t8-format", SelfhostDriverHarness.Run);
+
+    /// <summary>The body of <see cref="FormatReportsAnUnreadablePathAsCliApp"/> with <paramref name="run"/> as the driver.</summary>
+    internal static void UnreadablePathMatches(string name, string locked, string root, Func<string[], (int Exit, string Out, string Err)> run)
     {
         if (OperatingSystem.IsWindows()) return;
-        var args = FormatRow(name, out var dir)[0];
+        var args = FormatRow(name, out var dir, root)[0];
         var target = Path.Combine(dir, locked);
         var isDir = Directory.Exists(target);
         var open = isDir ? UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute : UnixFileMode.UserRead | UnixFileMode.UserWrite;
@@ -1074,9 +1153,9 @@ public sealed class SelfhostDriverT1Tests
             var expected = Oracle(args);
             File.SetUnixFileMode(target, open);
             var expectedTree = Tree(dir);
-            FormatRow(name, out _);
+            FormatRow(name, out _, root);
             File.SetUnixFileMode(target, UnixFileMode.None);
-            var actual = SelfhostDriverHarness.Run(args);
+            var actual = run(args);
             File.SetUnixFileMode(target, open);
             Assert.Equal(CliApp.ExitFailure, expected.Exit);
             Assert.Equal(expected.Exit, actual.Exit);
@@ -1092,17 +1171,20 @@ public sealed class SelfhostDriverT1Tests
 
     /// <summary><c>format loop.byn</c> with <c>loop.byn -> loop.byn</c>: <c>RealPath(file)</c> fails inside <c>Run</c>'s <c>try</c> on both sides; stderr is compared up to the message (Q1106).</summary>
     [Fact]
-    public void FormatReportsALoopingFileLinkAsCliApp()
+    public void FormatReportsALoopingFileLinkAsCliApp() => LoopingFileLinkMatches("t8-loop", SelfhostDriverHarness.Run);
+
+    /// <summary>The body of <see cref="FormatReportsALoopingFileLinkAsCliApp"/> with <paramref name="run"/> as the driver.</summary>
+    internal static void LoopingFileLinkMatches(string root, Func<string[], (int Exit, string Out, string Err)> run)
     {
         if (OperatingSystem.IsWindows()) return;
-        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-loop");
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", root);
         if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
         Directory.CreateDirectory(dir);
         var loop = Path.Combine(dir, "loop.byn");
         File.CreateSymbolicLink(loop, "loop.byn");
         string[] args = ["format", loop];
         var expected = Oracle(args);
-        var actual = SelfhostDriverHarness.Run(args);
+        var actual = run(args);
         Assert.Equal(CliApp.ExitFailure, expected.Exit);
         Assert.Equal(expected.Exit, actual.Exit);
         SelfhostEmitterHarness.AssertSame("stdout", expected.Out, actual.Out);
@@ -1115,10 +1197,13 @@ public sealed class SelfhostDriverT1Tests
     /// and is reported; stderr is compared up to the .NET message.
     /// </summary>
     [Fact]
-    public void FormatReportsAnUnwritableFileAsCliApp()
+    public void FormatReportsAnUnwritableFileAsCliApp() => UnwritableFileMatches("t8-format", SelfhostDriverHarness.Run);
+
+    /// <summary>The body of <see cref="FormatReportsAnUnwritableFileAsCliApp"/> with <paramref name="run"/> as the driver.</summary>
+    internal static void UnwritableFileMatches(string root, Func<string[], (int Exit, string Out, string Err)> run)
     {
         if (OperatingSystem.IsWindows()) return;
-        var args = FormatRow("a-fix", out var dir)[^1];
+        var args = FormatRow("a-fix", out var dir, root)[^1];
         var target = Path.Combine(dir, "main.byn");
         const UnixFileMode Open = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute;
         void Lock()
@@ -1144,9 +1229,9 @@ public sealed class SelfhostDriverT1Tests
             var expected = Oracle(args);
             Unlock();
             var expectedTree = Tree(dir);
-            FormatRow("a-fix", out _);
+            FormatRow("a-fix", out _, root);
             Lock();
-            var actual = SelfhostDriverHarness.Run(args);
+            var actual = run(args);
             Unlock();
             Assert.Equal(CliApp.ExitFailure, expected.Exit);
             Assert.Equal(expected.Exit, actual.Exit);
@@ -1228,8 +1313,12 @@ public sealed class SelfhostDriverStage2FormatTests
     /// Every string literal of <paramref name="file"/> (literals joined by <c>+</c> read as one) is a file of one directory, with a
     /// <c>package.byn</c> holding style <paramref name="style"/>; stage 2's <c>format</c> of it equals the C#'s in exit, stdout, stderr and
     /// the files after. An input a case joins from a literal and a named constant is formatted whole by
-    /// <see cref="ComposedInputsFormatAsCliApp"/>. The only case with no stage-2 row is <c>LayoutTests.ADifferenceKeepsTheInput</c>: it
-    /// injects its fault through <c>Layout.OutputHook</c>, a C#-only seam that no CLI run can reach.
+    /// <see cref="ComposedInputsFormatAsCliApp"/>, a case with its own <c>package.byn</c> by <see cref="ManifestInputsFormatAsCliApp"/>, and
+    /// FormatTests.cs's trees, <c>--check</c> runs and symlinks as written by <see cref="FormatTreesAsCliApp"/> and the rows after it.
+    /// The cases with no stage-2 row reach the formatter through a C#-only seam no CLI run can reach: <c>LayoutTests.ADifferenceKeepsTheInput</c>
+    /// (<c>Layout.OutputHook</c>); <c>FormatTests.NonConvergenceIsReported</c> and <c>MaxPassesSetOnOneThreadLeavesAnotherAtTen</c>
+    /// (<c>Format.MaxPasses</c>); <c>ARewriteThatDoesNotParseIsAbandoned</c> (<c>Format.RewriteHook</c>); <c>IdenticalFixesApplyOnce</c> and
+    /// <c>HashMapFixesGiveAProgramTheCheckerAccepts</c> (<c>Format.ApplyFixes</c>, no CLI).
     /// </summary>
     [Theory]
     [MemberData(nameof(LayoutInputRows))]
@@ -1266,6 +1355,88 @@ public sealed class SelfhostDriverStage2FormatTests
         var (source, style) = s_composed[name];
         FormatsAsCliApp(name, Path.Combine("composed", name), style, [source]);
     }
+
+    private static readonly Dictionary<string, (string Source, string Package)> s_manifests =
+        LayoutTests.ManifestInputs().ToDictionary(x => x.Name, x => (x.Source, x.Package));
+
+    public static IEnumerable<object[]> ManifestInputRows() => s_manifests.Keys.Select(name => new object[] { name });
+
+    /// <summary>The guard of <see cref="ManifestInputsFormatAsCliApp"/>: TheManifestsAlignNoneReachesLayout and TheManifestsIndentWidthAndCommasReachLayout.</summary>
+    [Fact]
+    public void ManifestInputsAreAllListed() => Assert.Equal(2, s_manifests.Count);
+
+    /// <summary>
+    /// A LayoutTests case's <c>main.byn</c> beside its own <c>package.byn</c>, text for text, and <c>format main.byn</c> as the case runs it:
+    /// stage 2's exit, stdout, stderr and files after equal the C#'s.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(ManifestInputRows))]
+    public void ManifestInputsFormatAsCliApp(string name)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var (source, package) = s_manifests[name];
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-layout", "manifest", name);
+        var file = Path.Combine(dir, "main.byn");
+        void Write()
+        {
+            if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(Path.Combine(dir, "package.byn"), package);
+            File.WriteAllText(file, source);
+        }
+        Write();
+        var expected = SelfhostDriverT1Tests.Oracle(["format", file]);
+        var expectedTree = Tree(dir);
+        Write();
+        var (exit, stdout, stderr) = SelfhostDriverT1Tests.Run(BootstrapTests.Stage2Executable(), "format", file);
+        Assert.Equal(expected.Exit, exit);
+        SelfhostEmitterHarness.AssertSame($"stdout of {name}", expected.Out, stdout.ReplaceLineEndings("\n"));
+        SelfhostEmitterHarness.AssertSame($"stderr of {name}", expected.Err, stderr.ReplaceLineEndings("\n"));
+        SelfhostEmitterHarness.AssertSame($"files after {name}", expectedTree, Tree(dir));
+    }
+
+    private static (int Exit, string Out, string Err) Stage2(string[] args)
+    {
+        var (exit, stdout, stderr) = SelfhostDriverT1Tests.Run(BootstrapTests.Stage2Executable(), args);
+        return (exit, stdout.ReplaceLineEndings("\n"), stderr.ReplaceLineEndings("\n"));
+    }
+
+    /// <summary>The <see cref="InlineDataAttribute"/> rows of <see cref="SelfhostDriverT1Tests"/>'s test <paramref name="method"/>.</summary>
+    private static IEnumerable<object[]> RowsOf(string method) =>
+        typeof(SelfhostDriverT1Tests).GetMethod(method)!.GetCustomAttributes<InlineDataAttribute>().SelectMany(a => a.GetData(null!));
+
+    public static IEnumerable<object[]> FormatTreeRows() => RowsOf(nameof(SelfhostDriverT1Tests.FormatAsCliApp));
+
+    public static IEnumerable<object[]> UnreadablePathRows() => RowsOf(nameof(SelfhostDriverT1Tests.FormatReportsAnUnreadablePathAsCliApp));
+
+    /// <summary>The guard of <see cref="FormatTreesAsCliApp"/> and <see cref="UnreadablePathsAsCliApp"/>: every row the stage-1 driver replays.</summary>
+    [Fact]
+    public void FormatTreesAreAllListed()
+    {
+        Assert.Equal(75, FormatTreeRows().Count());
+        Assert.Equal(3, UnreadablePathRows().Count());
+    }
+
+    /// <summary>
+    /// Each <see cref="SelfhostDriverT1Tests.FormatAsCliApp"/> row (FormatTests.cs's trees, <c>--check</c> runs, packages and symlinks, as
+    /// written) under <c>tmp/t8-format2/</c>, with stage 2 as the driver.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(FormatTreeRows))]
+    public void FormatTreesAsCliApp(string name) => SelfhostDriverT1Tests.FormatRowMatches(name, "t8-format2", Stage2);
+
+    /// <summary>FormatTests.cs's unreadable file, directory and package (:524, :550), with stage 2 as the driver.</summary>
+    [Theory]
+    [MemberData(nameof(UnreadablePathRows))]
+    public void UnreadablePathsAsCliApp(string name, string locked) => SelfhostDriverT1Tests.UnreadablePathMatches(name, locked, "t8-format2", Stage2);
+
+    /// <summary><c>format loop.byn</c> with <c>loop.byn -&gt; loop.byn</c>, with stage 2 as the driver.</summary>
+    [Fact]
+    public void ALoopingFileLinkAsCliApp() => SelfhostDriverT1Tests.LoopingFileLinkMatches("t8-loop2", Stage2);
+
+    /// <summary>A read-only file in a read-only directory, with stage 2 as the driver.</summary>
+    [Fact]
+    public void AnUnwritableFileAsCliApp() => SelfhostDriverT1Tests.UnwritableFileMatches("t8-format2", Stage2);
 
     /// <summary>
     /// Writes <paramref name="inputs"/> as <c>caseNNN.byn</c> under <c>tmp/t8-layout/</c><paramref name="dirName"/> (with a

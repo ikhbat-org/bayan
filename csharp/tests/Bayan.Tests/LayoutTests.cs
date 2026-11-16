@@ -467,17 +467,18 @@ public sealed class LayoutTests
         Assert.Equal(source, Lay(source, new LayoutOptions(AlignRuns: false)));
     }
 
+    private const string AlignNoneInput = "struct S {\n    i32 a\n    string bb\n}\n";
+    private const string AlignNonePackage = "Package { name: \"local/t\", version: \"0.1.0\", style: Style { align: .none } }\n";
+
     [Fact]
     public void TheManifestsAlignNoneReachesLayout()
     {
-        const string source = "struct S {\n    i32 a\n    string bb\n}\n";
-        var file = Fresh("align", source);
-        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"),
-            "Package { name: \"local/t\", version: \"0.1.0\", style: Style { align: .none } }\n");
+        var file = Fresh("align", AlignNoneInput);
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"), AlignNonePackage);
         var (exit, _, stderr) = Run("format", file);
         Assert.Equal(CliApp.ExitOk, exit);
         Assert.DoesNotContain("skipped", stderr);
-        Assert.Equal(source, File.ReadAllText(file));
+        Assert.Equal(AlignNoneInput, File.ReadAllText(file));
     }
 
     [Fact]
@@ -783,6 +784,16 @@ public sealed class LayoutTests
         Assert.Equal(UnformattedTable + "\nvoid f() {\n    let a = 1\n}\n", Lay(UnformattedInput));
 
     /// <summary>
+    /// The cases that format <c>main.byn</c> beside a <c>package.byn</c> of their own, by case name, with both texts;
+    /// <c>SelfhostDriverStage2FormatTests.ManifestInputsFormatAsCliApp</c> replays each through stage 2.
+    /// </summary>
+    public static IEnumerable<(string Name, string Source, string Package)> ManifestInputs() =>
+    [
+        (nameof(TheManifestsAlignNoneReachesLayout), AlignNoneInput, AlignNonePackage),
+        (nameof(TheManifestsIndentWidthAndCommasReachLayout), KnobsInput, KnobsPackage),
+    ];
+
+    /// <summary>
     /// The inputs these cases build from a literal and a named constant, by case name, with the <c>Style</c> fields their options
     /// need. <c>SelfhostDriverStage2FormatTests.ComposedInputsFormatAsCliApp</c> formats each whole through stage 2.
     /// </summary>
@@ -817,12 +828,15 @@ public sealed class LayoutTests
         Assert.Equal(source, Lay(source));
     }
 
+    private const string KnobsInput = "void main() {\n    let t = g(argumentNumberOne, argumentNumberTwo)\n    let s = f(\n        a,\n        b,\n    )\n}\n";
+    private const string KnobsPackage =
+        "Package { name: \"local/t\", version: \"0.1.0\", style: Style { indent: 2, width: 30, trailingCommas: .never } }\n";
+
     [Fact]
     public void TheManifestsIndentWidthAndCommasReachLayout()
     {
-        var file = Fresh("knobs", "void main() {\n    let t = g(argumentNumberOne, argumentNumberTwo)\n    let s = f(\n        a,\n        b,\n    )\n}\n");
-        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"),
-            "Package { name: \"local/t\", version: \"0.1.0\", style: Style { indent: 2, width: 30, trailingCommas: .never } }\n");
+        var file = Fresh("knobs", KnobsInput);
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"), KnobsPackage);
         var (exit, _, stderr) = Run("format", file);
         Assert.Equal(CliApp.ExitOk, exit);
         Assert.DoesNotContain("skipped", stderr);
