@@ -24,7 +24,7 @@ public sealed class SelfhostEmitterApiTests
             Assert.True(m.Success, $"malformed index line: {line}");
             var file = m.Groups[2].Value;
             if (!files.TryGetValue(file, out var lines))
-                files[file] = lines = File.ReadAllLines(Path.Combine(SelfhostSemanticsHarness.SelfhostDir, file));
+                files[file] = lines = SelfhostSemanticsApiTests.Declarations(File.ReadAllLines(Path.Combine(SelfhostSemanticsHarness.SelfhostDir, file)));
             var signature = m.Groups[3].Value;
             if (!lines.Any(l => SelfhostSemanticsApiTests.SignatureStarts(l.StartsWith("public ", StringComparison.Ordinal) ? l["public ".Length..] : l, signature)))
                 missing.Add($"{m.Groups[1].Value} {file}: {signature}");

@@ -25,8 +25,8 @@ R4. Every hit of the token regex in `csharp/tests/Bayan.Tests/CInventoryTests.cs
 | runtime/bayan-rt.c `__builtin_mul_overflow(grown, elem_size, &bytes)` | `__builtin_mul_overflow` | `byn_list_reserve` panics when the byte size overflows. C11 replacement: as the checked `*` row. |
 | csharp/Bayan.Backend.C/CEmitter.cs `"NULL", "asm", "typeof"` | `asm` | In the reserved-identifier list; reserved word, not a use; no replacement needed. |
 | csharp/Bayan.Backend.C/CEmitter.cs `"NULL", "asm", "typeof"` | `typeof` | In the reserved-identifier list; reserved word, not a use; no replacement needed. |
-| src/emitter/cprint/cctx.byn `"NULL", "asm", "typeof"` | `asm` | Port of the `CEmitter.cs` reserved-identifier list; reserved word, not a use; no replacement needed. |
-| src/emitter/cprint/cctx.byn `"NULL", "asm", "typeof"` | `typeof` | Port of the `CEmitter.cs` reserved-identifier list; reserved word, not a use; no replacement needed. |
+| src/emitter/cprint/cctx.byn `"NULL", "asm",` | `asm` | Port of the `CEmitter.cs` reserved-identifier list; reserved word, not a use; no replacement needed. |
+| src/emitter/cprint/cctx.byn `"typeof",` | `typeof` | Port of the `CEmitter.cs` reserved-identifier list; reserved word, not a use; no replacement needed. |
 | csharp/Bayan.Backend.C/CEmitter.cs `static __attribute__((unused)) void byn_w_error` | `__attribute__((unused))` | Emitted on `byn_w_error` so an unused static does not warn. C11 replacement: `(void)byn_w_error;` or drop it. |
 | src/emitter/cprint/program.byn `static __attribute__((unused)) void byn_w_error` | `__attribute__((unused))` | Port of the `CEmitter.cs` `__attribute__((unused))` on `byn_w_error`; same C11 replacement. |
 
