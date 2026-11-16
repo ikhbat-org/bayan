@@ -4,9 +4,9 @@
 
 *Syntax is a contract. Ten axioms for a language that says what it means, explained for developers who have never written Bayān or studied Arabic.*
 
-Edition 1 · November 2026 · written against the Bayān specification at commit 8d5e5c71 (revisions 0001–0019) and compiler 0.2.0
-
 Version: 0.3.2-dev (matches `bayan --version`)
+
+Edition 1 · November 2026 · written against the Bayān specification at commit 8d5e5c71 (revisions 0001–0019) and compiler 0.2.0
 
 ---
 
