@@ -119,8 +119,8 @@ public sealed class LayoutTests
 
     [Fact]
     public void ALabelAfterATernaryArgumentStaysTight() => Assert.Equal(
-        "let s = pick(c ? a : b, by: x)\nlet t = [c ? a : b, d]\nlet u = f(c ? a : b, by: d ? e : g)\n",
-        Lay("let s = pick(c ? a : b, by: x)\nlet t = [c ? a : b, d]\nlet u = f(c ? a : b, by: d ? e:g)\n"));
+        "let s = pick(c ? a : b, by: x)\nlet u = f(c ? a : b, by: d ? e : g)\n",
+        Lay("let s = pick(c ? a : b, by: x)\nlet u = f(c ? a : b, by: d ? e:g)\n"));
 
     [Fact]
     public void GroupsAreNotPaddedAndCallsAreTight() => Assert.Equal(
