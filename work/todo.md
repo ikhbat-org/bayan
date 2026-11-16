@@ -847,3 +847,10 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - 022 rfix review LOW (s022-rfix-review): `DropsComment` (Parser.cs:146, recover.byn:408) counts a comment as kept when its text appears anywhere in the replacement, e.g. inside a kept string literal `"// x"`; make the check position-aware. Owner: 022 follow-up.
 - 022 rfix review LOW: `bayan fix` prints FormatRewriteAbandoned ("file left unchanged") after an earlier pass already wrote the file, then still prints `fixed <file>` (FixCommand.cs:71-76, fix.byn:155-160); word it per pass. Owner: 022 follow-up.
 - 022 rfix review LOW: `Format.RealPath` in FixCommand.cs:37 runs outside the try/catch; an IOException (symlink loop) crashes the C# CLI while fix.byn:251 reports and exits 1. Owner: 022 follow-up.
+- Site: `book.html` prints an extra title page before chapter 1 (print stylesheet). 2026-11-16, 0.3.2 prep.
+- Site: inline code in `.page` bodies is not formatted by `bayan format` (only fenced examples are checked). 2026-11-16.
+- wlt1 has no Python, so 3 `SelfhostSnapshotTests` fail there; install Python or skip them with a reason on hosts without it. 2026-11-16.
+- `dist/macos-arm64/latest` is 0.2.0-dev (2026-11-05) and rejects the current clause order (BYN1065); rebuild with `scripts/dist.sh` after 0.3.2. 2026-11-16.
+- VM shard runs abort when ghosthive's MemAvailable falls under 10 GiB; it sat at 12 GiB on 2026-11-16, so the 0.3.2 suite ran on wp1 + mb1. Find what holds ghosthive's memory.
+- Manifesto edition 1 is written against 0.2.0 (lines 9 and 1413) and its status badges reflect that; refresh the content for a later edition. 2026-11-16.
+- `scripts/cleanup/run-all.sh:153` shows only `refuse` lines at the start of a line in its summary; indented `  refused:` lines from some scripts are missed. Gate note, 2026-11-16.
