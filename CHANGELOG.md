@@ -4,6 +4,9 @@
 
 ## [0.3.2] - 2026-11-16
 
+The style guide ships: `bayan format` is a layout engine in both compilers, and `bayan fix` applies nine style lints.
+bayan.run publishes this release's docs, the roadmap and the manifesto, built by a site generator written in Bayān.
+
 ### Added
 - `.github/workflows/pages.yml` builds `site/` with the compiler from the same commit (every example is run and checked) and publishes it to GitHub Pages on each push to `main`, for bayan.run.
 - Style guide (`docs/bayan-style.md`, spec 022): every layout rule and lint has a Do and a Don't example, and a test checks that the formatter turns each Don't into its Do.
