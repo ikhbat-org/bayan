@@ -3,7 +3,7 @@ nav: Guides
 order: 57
 template: docs
 ---
-<p>How do I run work concurrently in Bayan? The design uses structured concurrency with <code>scope</code> blocks and <code>spawn</code> (Revision 0019, replacing earlier <code>async</code>/<code>await</code> drafts). The compiler does not run it yet: concurrency is not in v0.1. Every section below is Planned, and none has a runnable example. Nothing here compiles yet.</p>
+<p>How do I run work concurrently in Bayan? The design uses structured concurrency with <code>scope</code> blocks and <code>spawn</code> (Revision 0019, replacing earlier <code>async</code>/<code>await</code> drafts). The compiler does not run it yet. Every section below is Planned, and none has a runnable example. Nothing here compiles yet.</p>
 <note>The concurrency design is not implemented yet. <code>spawn</code> is legal only inside a <code>scope</code> block, and functions are ordinary functions without special declaration keywords.</note>
 
 <h2 id="spawn">Start a task</h2>
