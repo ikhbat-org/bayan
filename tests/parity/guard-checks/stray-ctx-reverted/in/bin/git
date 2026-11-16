@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 case "$*" in
   "diff --name-only base...HEAD"|"diff --name-only")
-    printf 'docs/bayan-questions.md\nsrc/semantics/ctx.byn\n' ;;
+    printf 'docs/bayan-questions.md\nselfhost/semantics/ctx.byn\n' ;;
   "ls-files --others --exclude-standard")
     ;;
   "merge-base base HEAD")
     echo "base-sha" ;;
-  "diff -U0 base-sha -- src/semantics/ctx.byn")
+  "diff -U0 base-sha -- selfhost/semantics/ctx.byn")
     ;;
   "diff base-sha -- docs/bayan-questions.md docs/bayan-progress-log.md")
     cat <<'EOF'

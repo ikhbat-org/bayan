@@ -1,8 +1,6 @@
 # 0019 — Round-4 batches 1-9: contradiction pass
 
-Status: done (accepted, user, 2026-11-06, batch 8 "Contradiction pass"; batch 9 "Tiers Q7", "Also")
-Release: 0.2.0
-Sources: user, 2026-11-06 (round-4 batches 8 and 9); revision 0003
+Status: accepted (user, 2026-11-06, batch 8 "Contradiction pass"; batch 9 "Tiers Q7", "Also")
 
 ## Problem
 

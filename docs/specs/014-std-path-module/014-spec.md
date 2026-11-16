@@ -1,7 +1,5 @@
 # 014 — Standard-library `Path` module
 Status: done
-Release: 0.2.0
-Sources: Q1, Q2, Q3, Q571, Q743, Q753, Q757, Q816, Q886, Q888
 Created: 2026-11-02
 Revised: 2026-11-04 (open questions answered by the user; state after 011 P2; base branch feat/011-self-hosted-emitter)
 

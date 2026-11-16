@@ -16,7 +16,7 @@ done
 results="$repo/tmp/quality/coverlet"
 rm -rf "$results"
 mkdir -p "$results" "$(dirname "$out")"
-project="$repo/csharp/tests/Bayan.Tests/Bayan.Tests.csproj"
+project="$repo/tests/Bayan.Tests/Bayan.Tests.csproj"
 
 start=$SECONDS
 dotnet build "$project" -v q --nologo >&2

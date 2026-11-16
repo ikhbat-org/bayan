@@ -1,8 +1,6 @@
 # 0002 — Round 3 consistency review
 
-Status: done; approved 2026-10-24 (user). Date: 2026-10-24. Applies to `docs/bayan-design-round-3.md` ("HANDOFF"), `docs/plans/2026-10-22-002-design-round-3.md` ("plan") and `SPEC.md`. Line numbers are those of the draft (at `27a5116`); `handoff:` means `docs/bayan-milestones.md`.
-Release: 0.1.0
-Sources: user, 2026-10-24; Q34, Q43, Q90, Q115, Q119, Q122, Q131, Q132; revision 0001
+Status: approved 2026-10-24 (user). Date: 2026-10-24. Applies to `docs/bayan-design-round-3.md` ("HANDOFF"), `docs/plans/2026-10-22-002-design-round-3.md` ("plan") and `SPEC.md`. Line numbers are those of the draft (at `27a5116`); `handoff:` means `docs/bayan-milestones.md`.
 
 ## Problem
 

@@ -10,7 +10,7 @@ Landing is ijam's look, docs are qalam's layout in the same palette, tutorial fo
 5. Docs: "On this page" button (top of content, always visible) toggles the column. `aria-expanded` and `aria-controls="toc"`, native `<button>` so Enter/Space work. Collapsed: the grid drops to two columns and content takes the freed width. State in `localStorage` key `bayan-toc`, applied on load.
 6. No C# positioning anywhere. Removed from the qalam docs: the `out` row's "C# compatibility" (now "Output parameter. Prefer returning T? or a tuple."), "C#-style ambiguity resolution".
 7. No Arabic explanation: removed the Arabic particle etymology sentence from docs; no dots history, hoopoe story or meaning gloss.
-8. Landing examples, source beside output: hello (`tests/cases/run/hello.byn`, `hello.stdout`); structs and enums (`shapes.byn`, written for this page, output from `dotnet run --project csharp/Bayan.Cli -- run`); errors (`errors-defer-failing.byn` verbatim, output from `.stdout`).
+8. Landing examples, source beside output: hello (`tests/cases/run/hello.byn`, `hello.stdout`); structs and enums (`shapes.byn`, written for this page, output from `dotnet run --project src/Bayan.Cli -- run`); errors (`errors-defer-failing.byn` verbatim, output from `.stdout`).
 
 Docs content is qalam's Parameters and arguments page, unchanged apart from note 6/7 edits. Tutorial text is qalam's.
 

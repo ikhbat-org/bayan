@@ -1,5 +1,3 @@
-Snapshot: 2026-10-27; not maintained. Current text: none
-
 Read URL: https://bbtree.xiangpeng.systems/post/#apply-to-b-trees
 Viewed bayan-spec.md:1-100
 Viewed bayan-contributing.md

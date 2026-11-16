@@ -1,9 +1,4 @@
 # 006 — Tasks
-
-Status: done
-Release: 0.1.0
-Sources: Q88, Q89, Q113; docs/decisions/2026-11-14-004-answered-questions.md
-
 Plan: ./006-plan.md
 Depends on: design-round-2 steps 3.1–3.3 on dev before T1 starts (`for x in` from 3.1, `ref this` parsing and declared `IsMutating` from 3.3); the tasks reuse round 2's `ref this` parse and add no `readonly` member modifier.
 

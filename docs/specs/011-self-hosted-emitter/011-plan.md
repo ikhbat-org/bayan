@@ -1,8 +1,6 @@
 # 011 — Plan
 Spec: ./011-spec.md
-Status: done; draft, rev 4 (2026-11-02)
-Release: 0.2.0
-Sources: Q1, Q662, Q663, Q674, Q742, Q743, Q744, Q745, Q849
+Status: draft, rev 4 (2026-11-02)
 
 Line counts below are `wc -l` on this worktree. C# ranges name methods in `src/Bayan.Lowering/` and `src/Bayan.Backend.C/`; locate by method when they drift. Sizes assume 010's measured 1.45 Bayan lines per C# line and the ~1,000-line task cap.
 

@@ -1,9 +1,4 @@
 # 008 — Plan
-
-Status: done
-Release: 0.1.0
-Sources: Q89, Q102, Q113, Q114, Q131, Q345, Q362, Q371, Q372, Q373, Q376, Q377, Q381; revisions 0002, 0003, 0006, 0009
-
 Spec: ./008-spec.md
 Written 2026-10-22 against dev at `b538763` (round 2 applied). Re-located 2026-10-25: depends on feat/007-lambdas at cc96838 (dev, round 3, spec 006 and 007 merged); merges into dev after 007. File and method names below were checked on that commit; line numbers are dropped, so locate by method name. Round 3 is complete there (`docs/bayan-design-round-3.md`, plan `docs/plans/2026-10-22-002-design-round-3.md`, revisions 0002–0011) and wins on conflict. `rune` is still `PrimitiveKind.Char` / `PrimitiveType.Char` in the C#, so the key checks below meet it under that name.
 

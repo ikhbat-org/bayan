@@ -2,11 +2,9 @@
 id: L023
 title: The Bayan checker never panics and keeps every diagnostic span inside its file
 status: enacted
-release: 0.1.0
-sources: Q486, Q508, Q661, Q662, Q663, Q744, Q748, Q874
 kind: property
-scope: src/semantics/
-proof: src/tests/SelfhostSemanticsNoPanicLawTests.cs
+scope: selfhost/semantics/
+proof: tests/Bayan.Tests/SelfhostSemanticsNoPanicLawTests.cs
 check: dotnet test -v q --filter "Law=L023"
 timeout: 300
 ---
@@ -18,7 +16,7 @@ For every input in the stated corpus (every golden, the generator's seeds, and r
 `bayan-check --many` over a corpus directory exits 134 with `panic: index out of range` and `at semantics/<file>.byn:<line>` on stderr after the `== <input>` header of the input it died on (as `run/suq-money.test.byn` did before Q661's fix), prints `exit 2` after an input, or prints `span out of range: BYN2101 00628.byn 5..11 (size 10)` for a diagnostic whose span ends past the file.
 
 ## Proof notes
-Proof: `src/tests/SelfhostSemanticsNoPanicLawTests.cs`, two facts tagged `Law=L023`. The binary is
+Proof: `tests/Bayan.Tests/SelfhostSemanticsNoPanicLawTests.cs`, two facts tagged `Law=L023`. The binary is
 built as `SelfhostSemanticsCorpusParityTests` builds it (`SelfhostSemanticsHarness.Build` of the real
 `main.byn`).
 
@@ -91,6 +89,6 @@ restored with `cp`; `cmp` or `git diff --quiet` clean afterwards; the worker hoo
 
 | line as it stands | change | fails | first difference |
 |---|---|---|---|
-| `src/semantics/diag.byn:22` `span: span,` | `span: TextSpan { start: span.start, length: span.length + 1 },` | `BayanCheckNeverPanicsAndEveryDiagnosticSpanLiesInItsFile` (42 s) | `random/00628.byn` (a compared input, not a replacement): `span out of range: BYN2101 00628.byn 5..11 (size 10)` |
-| `src/semantics/compile.byn:690` `…, declIndex: declIndex, returnType: prim(.void) })` | drop `returnType: prim(.void)` | both facts (44 s) | reproducer exit 134 `panic: index out of range at semantics/symbols.byn:605`; corpus: `golden/run-suq-money.test.byn` panics |
-| `src/semantics/main.byn:336` `return exitOk` (end of `golden`) | `return exitUsage` | both facts (23 s) | corpus: `golden: exit 2 after typed-unconstrained-i32.byn`; reproducer: exit 2 |
+| `selfhost/semantics/diag.byn:22` `span: span,` | `span: TextSpan { start: span.start, length: span.length + 1 },` | `BayanCheckNeverPanicsAndEveryDiagnosticSpanLiesInItsFile` (42 s) | `random/00628.byn` (a compared input, not a replacement): `span out of range: BYN2101 00628.byn 5..11 (size 10)` |
+| `selfhost/semantics/compile.byn:690` `…, declIndex: declIndex, returnType: prim(.void) })` | drop `returnType: prim(.void)` | both facts (44 s) | reproducer exit 134 `panic: index out of range at semantics/symbols.byn:605`; corpus: `golden/run-suq-money.test.byn` panics |
+| `selfhost/semantics/main.byn:336` `return exitOk` (end of `golden`) | `return exitUsage` | both facts (23 s) | corpus: `golden: exit 2 after typed-unconstrained-i32.byn`; reproducer: exit 2 |

@@ -1,7 +1,5 @@
 # Bayān — Design round 4 (draft)
 
-Snapshot: 2026-11-01; not maintained. Current text: none
-
 Nov 1, 2026
 
 ## 1. Status and process

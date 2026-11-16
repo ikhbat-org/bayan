@@ -1,7 +1,5 @@
 # Design inputs review (2026-11-04)
 
-Snapshot: 2026-11-04; not maintained. Current text: none
-
 Consistency review of the docs filed on 2026-11-04 (`bayan-views.md`, `bayan-concurrency.md`, `bayan-shorthands-proposal.md`, `bayan-style-proposal.md`, the round-4 draft) against the spec, Appendix A, the grammar, the style doc, revisions 0016-0018 and each other. One Opus reviewer; the dispatcher spot-checked its spec and code citations (spec :1243, :1310, :1549-1556, :2104, :2271, :2449, :2458; DiagnosticCodes.cs BYN1069, BYN4001, BYN7010). Rows await the user's decisions; nothing in the filed docs is changed yet.
 
 Also: `bayan-milestones.md` "After v0.1" puts fibers and `Io.Evented` in v0.3; `bayan-concurrency.md` says v0.2 (with C3). The user's copies of `bayan-library-tiers.md`, `HANDOFF-014-tooling.md` and `addendum-A2-diagnostic-codes.md` are the originals of the filed versions (tooling spec renumbered 014 → 015); they were not re-filed.

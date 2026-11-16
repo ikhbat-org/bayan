@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 using Bayan.Syntax.Lexing;
 
-// Generates src/lexer/unicode-tables.byn and csharp/Bayan.Syntax/Lexing/UnicodeTables.g.cs from the UCD of a pinned Unicode version, after
+// Generates selfhost/lexer/unicode-tables.byn and src/Bayan.Syntax/Lexing/UnicodeTables.g.cs from the UCD of a pinned Unicode version, after
 // checking that the version matches what this .NET runtime uses for categories and NFC.
 
 string? version = null, outPath = null, csOutPath = null;
@@ -130,7 +130,7 @@ UnicodeTables.DecompIdx = decompIndex.Select(ParseUInt).ToArray();
 UnicodeTables.Decomp = decompData.Select(ParseUInt).ToArray();
 UnicodeTables.Comp = comp.SelectMany(p => new[] { (uint)p.Key.First, (uint)p.Key.Second, (uint)p.Value }).ToArray();
 
-// Assertion (b): table-driven NFC (csharp/Bayan.Syntax/Lexing/Nfc.cs) agrees with the runtime's
+// Assertion (b): table-driven NFC (src/Bayan.Syntax/Lexing/Nfc.cs) agrees with the runtime's
 // string.Normalize / IsNormalized, and the range tables agree with assertion (a).
 for (var cp = 0; cp < 0x110000; cp++)
 {
@@ -268,7 +268,7 @@ static string Hex(int cp) => "0x" + cp.ToString("X4", CultureInfo.InvariantCultu
 
 static string Dump(string s) => string.Join(' ', s.EnumerateRunes().Select(r => $"U+{r.Value:X4}"));
 
-// The classes Lexer.IsIdentifierStart / IsIdentifierContinue in csharp/Bayan.Syntax/Lexing/Lexer.cs get from the tables.
+// The classes Lexer.IsIdentifierStart / IsIdentifierContinue in src/Bayan.Syntax/Lexing/Lexer.cs get from the tables.
 static bool RuneIsStart(Rune r) =>
     r.Value == '_' || Rune.GetUnicodeCategory(r) is UnicodeCategory.UppercaseLetter
         or UnicodeCategory.LowercaseLetter or UnicodeCategory.TitlecaseLetter or UnicodeCategory.ModifierLetter

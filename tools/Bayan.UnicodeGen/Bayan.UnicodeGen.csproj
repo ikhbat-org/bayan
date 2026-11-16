@@ -4,6 +4,6 @@
     <RootNamespace>Bayan.UnicodeGen</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../csharp/Bayan.Syntax/Lexing/Nfc.cs" Link="Nfc.cs" />
+    <Compile Include="../../src/Bayan.Syntax/Lexing/Nfc.cs" Link="Nfc.cs" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,5 @@
 # 013 — Test tooling: mutation and coverage
 Status: done (2026-11-02)
-Release: 0.1.0
-Sources: Q4, Q5; revisions 0014
 Created: 2026-10-31
 
 ## Problem

@@ -1,9 +1,4 @@
 # 013 — Measurements (T18)
-
-Status: done
-Release: 0.1.0
-Sources: Q743
-
 Spec: ./013-spec.md · Plan risk: ./013-plan.md "C compile time of a schemata build"
 
 Machine: macOS dev machine, shared and loaded, runs under `nice`. Date: 2026-11-02.

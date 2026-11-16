@@ -1,7 +1,5 @@
 # Sūq → Bayan: round-3 review input and Sūq-0 goldens
 
-Snapshot: 2026-10-22; not maintained. Current text: none
-
 From Sy, for the compiler agent. This follows `docs/bayan-status-for-suq.md` (commit `af964b5`, `feat/design-round-2`).
 
 The round-3 plan (J1–J25) is awaiting Sy's approval. This document feeds Sūq's findings into that plan before approval, and adds a first compilable slice of Sūq as golden tests.

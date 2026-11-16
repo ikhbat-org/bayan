@@ -1,7 +1,5 @@
 # Revisions
 
-Version: 0.3.1 (matches `bayan --version`)
-
 After round 3's documentation deliverables, `docs/bayan-spec.md`, `docs/bayan-grammar.md` and `docs/bayan-style.md` change only through a numbered revision here (HANDOFF round 3 §32).
 
 - File: `NNNN-title.md`, four digits, next = highest + 1, kebab-case title.

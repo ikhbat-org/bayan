@@ -1,9 +1,4 @@
 # 006 — Plan
-
-Status: done
-Release: 0.1.0
-Sources: Q87, Q88, Q89, Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101, Q102, Q103, Q104, Q105, Q106, Q107, Q108, Q109, Q110, Q111, Q112, Q113
-
 Spec: ./006-spec.md
 Revised 2026-10-22 for design round 2 (`docs/bayan-design-round-2.md`; plan `docs/plans/2026-10-21-001-design-round-2.md`, Conflicts C1, C2, C3, C6). Depends on steps 3.1–3.3 of that plan landing on dev; line citations below are pre-round-2 and are re-located after they land.
 

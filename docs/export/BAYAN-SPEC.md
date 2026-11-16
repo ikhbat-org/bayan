@@ -2,8 +2,6 @@ Commit 821afa40, 2026-11-09. Snapshot of `docs/bayan-spec.md` with revisions 000
 
 # Bayān — Language Specification (draft 0.1) (rev 0016)
 
-Snapshot: 2026-11-09 (821afa40); not maintained. Current text: docs/bayan-spec.md
-
 > **Status:** design complete enough to build v0.1. This document is normative unless a section says otherwise.
 > **Source files:** `.byn` · **CLI:** `bayan` · **Manifest:** `package.byn` · **Build script:** `build.byn`
 > Code samples use C#-style highlighting because Bayan's surface syntax is C#-derived.

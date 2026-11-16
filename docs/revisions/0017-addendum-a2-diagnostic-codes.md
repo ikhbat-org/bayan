@@ -1,9 +1,5 @@
 # Bayān — Addendum A2: diagnostic code scheme
 
-Status: done (addendum A2, 2026-11-01)
-Release: 0.1.0
-Sources: revision 0016
-
 Nov 1, 2026
 
 The scheme is decided now. Renumbering happens once in round 4, after 012. Until then, no existing code changes; this addendum only adds rules for codes allocated mid-flight.

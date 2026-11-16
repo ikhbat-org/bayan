@@ -1,7 +1,5 @@
 # Sūq-0 goldens: Part D report
 
-Snapshot: 2026-10-22; not maintained. Current text: none
-
 The brief is `docs/suq-agent-brief.md` (Sūq → Bayan, Part D). Goldens are single-file, so `suq-quote.byn`, `suq-order.byn` and `suq-money.test.byn` carry a copy of the `Currency`/`code`/`PricingError`/`maxCents`/`Money` declarations from `suq-money.byn` (without its top-level statements), marked by a comment.
 
 ## Pass/fail

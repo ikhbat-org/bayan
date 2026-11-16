@@ -16,8 +16,8 @@
 # ticked one is a FAIL item, so the stub's owner covers the lines and removes the marker before it lands, and integration sees none.
 # Without the three optional arguments a coverage-blocked marker is a FAIL item.
 # A file under another row's bydir in scripts/selfhost/specs.tsv (read beside this script) that exists at <merge-base> is another
-# spec's port (an 011 task editing src/semantics): only the
-# lines the work tree adds or changes in it are gated, since the rest of its functions is the owning spec's coverage (Q871). A file outside every bydir (src/parser) or inside <dir> keeps the touched-function rule. The other functions of the file are one info line (covered/total), never a FAIL: the task's --filter tests are
+# spec's port (an 011 task editing selfhost/semantics): only the
+# lines the work tree adds or changes in it are gated, since the rest of its functions is the owning spec's coverage (Q871). A file outside every bydir (selfhost/parser) or inside <dir> keeps the touched-function rule. The other functions of the file are one info line (covered/total), never a FAIL: the task's --filter tests are
 # not meant to cover other tasks' functions. A source file absent from the work tree has no markers. An unreadable report, function or source file, or a failing git, exits 1 naming it.
 import json, os, re, subprocess, sys
 

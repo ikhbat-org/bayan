@@ -9,8 +9,8 @@
     <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
 
-  <!-- Everything under csharp/ but its tests ships inside the NativeAOT binary: analyzers on, trim warnings fatal. -->
-  <PropertyGroup Condition="$(MSBuildProjectDirectory.StartsWith('$(MSBuildThisFileDirectory)csharp')) And !$(MSBuildProjectDirectory.StartsWith('$(MSBuildThisFileDirectory)csharp$([System.IO.Path]::DirectorySeparatorChar)tests'))">
+  <!-- Everything under src/ ships inside the NativeAOT binary: analyzers on, trim warnings fatal. -->
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('$([System.IO.Path]::DirectorySeparatorChar)src$([System.IO.Path]::DirectorySeparatorChar)'))">
     <IsAotCompatible>true</IsAotCompatible>
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
   </PropertyGroup>

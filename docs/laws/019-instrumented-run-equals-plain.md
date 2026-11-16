@@ -2,11 +2,9 @@
 id: L019
 title: An instrumented run's output and exit code equal the plain run's
 status: enacted
-release: 0.1.0
-sources: none recorded
 kind: property
-scope: csharp/Bayan.Backend.C, csharp/Bayan.Lowering (coverage counters, mutant schemata)
-proof: csharp/tests/Bayan.Tests/InstrumentedRunLawTests.cs
+scope: src/Bayan.Backend.C, src/Bayan.Lowering (coverage counters, mutant schemata)
+proof: tests/Bayan.Tests/InstrumentedRunLawTests.cs
 check: dotnet test -v q --filter "Law=L019"
 enacted: 2026-10-31
 ---

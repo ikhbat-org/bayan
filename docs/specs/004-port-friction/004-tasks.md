@@ -1,9 +1,4 @@
 # 004 — Tasks
-
-Status: done
-Release: 0.1.0
-Sources: Q71, Q77
-
 Plan: ./004-plan.md
 
 - [x] T1 Implied argument names and BYN2307 swapped arguments — files: `BinderCalls.cs`, `DiagnosticCodes.cs`, `docs/diagnostics/BYN2307.md`, `BYN2305.md`, goldens `diag/argument-implied-name`, `diag/arguments-swapped` — covers: R1, R2, R12 — done when: goldens pass, break-test fails them

@@ -1,9 +1,4 @@
 # 007 — Plan
-
-Status: done
-Release: 0.1.0
-Sources: Q345, Q346, Q347, Q348, Q349, Q350, Q351, Q352, Q353, Q354, Q355, Q356, Q357, Q358, Q359, Q360, Q361, Q362; revisions 0002, 0005, 0006, 0008, 0009, 0011; docs/decisions/2026-11-14-004-answered-questions.md
-
 Spec: ./007-spec.md
 Written 2026-10-22 against dev at `0a5b502` (round 2 applied; spec §3.16 is round 2 §8, `docs/plans/2026-10-21-001-design-round-2.md`). Revised 2026-10-22 for design round 3 (`docs/bayan-design-round-3.md`, plan `docs/plans/2026-10-22-002-design-round-3.md`; round 3 wins on conflict). Revised 2026-10-25 against dev at 58cfad9 (round 3, revisions 0002–0011 and spec 006 merged): files and methods re-located there; line citations dropped, so locate by method name.
 

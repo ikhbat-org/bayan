@@ -2,11 +2,9 @@
 id: L005
 title: Io.runBatch passes every argument unchanged or runs nothing
 status: enacted
-release: 0.1.0
-sources: none recorded
 kind: property
-scope: runtime/bayan-rt.c
-proof: csharp/tests/Bayan.Tests/L005RunBatchTests.cs
+scope: src/runtime/bayan-rt.c
+proof: tests/Bayan.Tests/L005RunBatchTests.cs
 check: dotnet test --filter Law=L005
 enacted: 2026-10-21
 ---
@@ -18,7 +16,7 @@ On Windows, for every batch file and every list of argument strings, `Io.runBatc
 `Io.runBatch(".\\echo-args.cmd", ["a\"&calc"])` that starts `calc`; a batch file that receives `a"` and `calc` as two arguments, or whose `%~1` is `a^&calc`; `["%PATH%"]` or, with DelayedExpansion enabled in the registry, `["!PATH!"]` whose `%~1` is the expanded path; a tenth argument that arrives changed; `["é"]` that arrives as `Ã©`; `["a\nb"]` that runs; or `Io.runBatch` on Linux that returns anything but `unsupported`.
 
 ## Proof notes
-`csharp/tests/Bayan.Tests/L005RunBatchTests.cs`, three tests tagged `[Trait("Law", "L005")]`:
+`tests/Bayan.Tests/L005RunBatchTests.cs`, three tests tagged `[Trait("Law", "L005")]`:
 - `EveryCaseIsRefusedOrReadBackUnchanged` runs 33 hand-written edge cases plus 4,000 argument lists generated from `Random(5005)` through a native driver over `byn_batch_cmdline`. Each case is either refused, or its command line is parsed by a model of `cmd.exe` and the batch file's `%~1`/`shift` reads, and every argument comes back unchanged.
 - `ModelReadsKnownCommandLines` checks the model itself against 21 known command lines.
 - `RunBatchIsUnsupportedOffWindows` checks that `Io.runBatch` returns `unsupported` off Windows, for a refused argument as well as an accepted one.

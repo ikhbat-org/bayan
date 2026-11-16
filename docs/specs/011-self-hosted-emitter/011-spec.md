@@ -1,7 +1,5 @@
 # 011 — Self-hosting step 5: lowering and the C emitter in Bayan
 Status: done (2026-11-04, 0.2.0; T16 batch mutation not run)
-Release: 0.2.0
-Sources: Q1, Q2, Q743, Q745
 Created: 2026-11-02
 
 ## Problem

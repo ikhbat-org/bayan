@@ -1,8 +1,6 @@
 # 0018 — `StrBuf.finish()` returns a loan on the buffer
 
-Status: done (accepted, user, 2026-11-03, handoff Q745)
-Release: 0.2.0
-Sources: user, 2026-11-03; Q745
+Status: accepted (user, 2026-11-03, handoff Q745)
 
 ## Problem
 

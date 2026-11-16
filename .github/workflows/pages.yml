@@ -1,0 +1,62 @@
+name: pages
+
+# Builds bayan.run (site/) with the compiler from the same commit and publishes it to GitHub Pages.
+# main is the release branch, so the site matches the latest release.
+on:
+  push:
+    branches: [main]
+  # By hand: gh workflow run pages.yml --ref main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deploy at a time; a newer push waits rather than cancelling a deploy halfway.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # The same shell checkout as ci.yml (spec 015 T4).
+      - name: Checkout
+        shell: bash
+        run: |
+          git init -q .
+          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q --detach FETCH_HEAD
+      - name: Install .NET SDK
+        shell: bash
+        run: |
+          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
+          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
+          echo "$dotnet_root" >> "$GITHUB_PATH"
+      # site/build.sh runs every example with `bayan run`, which compiles C with zig.
+      - name: Install zig
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      - name: Publish the compiler
+        run: dotnet publish csharp/Bayan.Cli -c Release -r linux-x64 -o "$RUNNER_TEMP/bayan"
+      - name: Build the site
+        run: BAYAN="$RUNNER_TEMP/bayan/bayan" sh site/build.sh
+      # GitHub's own Pages actions, kept like upload-artifact (decision 2026-11-02-002 T4).
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

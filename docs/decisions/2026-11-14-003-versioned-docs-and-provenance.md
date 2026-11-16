@@ -1,7 +1,7 @@
 # Every doc is versioned, specs are indexed, and features keep their history
 
 Status: done (decided 2026-11-14)
-Release: 0.3.1 (moved from 0.3.0 by the user 2026-11-14)
+Release: 0.3.0
 Sources: user, 2026-11-14 ("all docs, not just spec, style and status, should be versioned … we should be able to understand where a feature came from and why a feature wasn't implemented or why a feature was changed"); extends revision 0020; plan `docs/plans/2026-11-14-016-versioned-docs-and-provenance.md`.
 
 ## Decision

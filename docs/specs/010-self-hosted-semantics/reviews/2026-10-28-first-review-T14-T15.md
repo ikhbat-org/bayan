@@ -1,7 +1,3 @@
-Status: done
-Release: 0.1.0
-Sources: Q585, Q587, Q590, Q591, Q592, Q594
-
 Audit of T14 (conformance.byn) and T15 (binder.byn). I read every function and test in scope and ran no tests. Note: the C# binder file is `src/Bayan.Semantics/Binding/Binder.cs`, not `src/Bayan.Semantics/Binder.cs`. Bayan paths are relative to `selfhost/semantics/`.
 
 ## Findings (most severe first)

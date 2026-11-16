@@ -1,9 +1,4 @@
 # 017 — Tasks
-
-Status: in progress
-Release: 0.3.0
-Sources: Q3, Q565, Q919, Q1076, Q1087, Q1096, Q1107, Q1119, Q1121, Q1143, Q1217, Q1220
-
 Plan: ./017-plan.md
 
 Depends on: `dev` with 012 landed through T21 (L027, L028 enacted; `Env.get`, `Fs.fileExists`, `Io.remove`/`createDirectory`/`removeDirectory`, `Path.*`). Serial order: P1; then the wave T1, T2, T3, T4, T5, T10 (disjoint files; each touches only its own `refuse` case line in `main.byn`, landed one at a time by `land.sh`); then T6 and T7; then T8 (after T6) and T9 (after T3), in parallel; then T12 (after T9) in parallel with T11 (after T7, T10 and the D6 decision); then T13; then T14, T15, T16 (parallel); then T17, T18. Driver tasks land only through `scripts/selfhost/land.sh` (after P1, its 017 row) with an independent review against the C#; expected values come from `CliApp.Run`, `CliApp.EmitC` or the C# golden tests run in-process or as `dotnet <Bayan.Cli.dll>`, never typed by hand (AGENTS.md). Every new diagnostic needs a `tests/cases/diag/` case; none is expected (port, do not invent). Each task's Questions use its own five-number range, assigned by the dispatcher at brief time (012 D6). Every task follows the spec's D1–D3 and the plan's D1–D9; a task that meets a new choice records it as a Question.

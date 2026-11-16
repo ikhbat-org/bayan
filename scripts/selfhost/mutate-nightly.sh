@@ -13,7 +13,7 @@
 # for it (rc 4: mutant 0 does not replay, no manifest ...) is logged and the next one runs; a setup-class rc (mutate-batch.sh: 2 or 3,
 # e.g. no pinned bayan, a build failure, its lock held, a baseline crash) stops the night with the cursor unmoved and the reason
 # logged, exit 2. A file whose recording failed with failed tests (rc 4, `mutation: recording under BAYAN_SNAPSHOT: N test(s)
-# failed`) records no time, and the rest of its family (src/<dir>, the batch's recording group) is logged `rc=skip` and
+# failed`) records no time, and the rest of its family (selfhost/<dir>, the batch's recording group) is logged `rc=skip` and
 # passed that night: each would re-record the same failing tests (30–95 min a file on 2026-11-09). The night's skipped families are
 # kept in <state>/skip (the deadline epoch on its first line; a restart of the same night loads it, another night replaces it).
 # The failed file and the files passed as `rc=skip` go to <state>/retry (one path per line): each night runs them first, in path
@@ -51,7 +51,7 @@ QUEUE=$(sed -n 's/ -> .*//p' <<< "$QUEUE" | LC_ALL=C sort)
 [ -n "$QUEUE" ] || { echo "mutate-nightly: mutate-batch.sh --list gave no file"; exit 2; }
 total=$(wc -l <<< "$QUEUE" | tr -d ' ')
 echo "== $(date '+%F %T') start: deadline $DEADLINE, $total files, cursor $(cat "$STATE/cursor" 2>/dev/null || echo none)" >> "$LOG"
-done_n=0; SKIP=""; RAN=""  # SKIP: families (src/<dir>) whose recording failed tonight: their tests fail the same way for every file; RAN: files handled tonight
+done_n=0; SKIP=""; RAN=""  # SKIP: families (selfhost/<dir>) whose recording failed tonight: their tests fail the same way for every file; RAN: files handled tonight
 if [ "$(head -1 "$STATE/skip" 2>/dev/null)" = "$END" ]; then SKIP=$(tail -n +2 "$STATE/skip"); else echo "$END" > "$STATE/skip"; fi
 # retry files no longer in the queue are dropped
 [ -f "$STATE/retry" ] && { grep -xFf <(printf '%s\n' "$QUEUE") "$STATE/retry" | LC_ALL=C sort -u > "$STATE/retry.new"; mv "$STATE/retry.new" "$STATE/retry"; }

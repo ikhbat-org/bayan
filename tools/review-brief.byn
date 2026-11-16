@@ -125,25 +125,10 @@ List<string> lawNumbers(string s) {
     return found
 }
 
-/// A bare test file name's directory: the Bayan compiler's tests (`Selfhost*`) are in `src/tests/`, the rest beside the C#.
-string testDir(string name) => name.startsWith("Selfhost") ? "src/tests" : "csharp/tests/Bayan.Tests"
-
-/// A done task's row keeps the layout before plan 017 as history; its paths map to today's (wave-brief.py `current_path`).
-string currentPath(string f) {
-    if f.startsWith("src/runtime/") { return $"runtime/{f[12..f.length]}" }
-    if f.startsWith("tests/native/") { return $"runtime/tests/{f[13..f.length]}" }
-    if f.startsWith("tests/Bayan.Tests/Selfhost") { return $"src/tests/{f[18..f.length]}" }
-    if f.startsWith("tests/Bayan.Tests/") { return $"csharp/{f}" }
-    if f.startsWith("src/Bayan.") { return $"csharp/{f[4..f.length]}" }
-    if f.startsWith("selfhost/") { return $"src/{f[9..f.length]}" }
-    return f
-}
-
-/// `re.fullmatch(r'(csharp/tests/Bayan\.Tests|src/tests)/[A-Za-z0-9]+Tests\.cs', f)`.
+/// `re.fullmatch(r'tests/Bayan\.Tests/[A-Za-z0-9]+Tests\.cs', f)`.
 bool isTestPath(string f) {
-    let start: i64 = f.startsWith("csharp/tests/Bayan.Tests/") ? 25 : f.startsWith("src/tests/") ? 10 : -1
-    if start < 0 || f.length <= start + 8 || !f.endsWith("Tests.cs") { return false }
-    for i in start..f.length - 8 {
+    if !(f.length > 26 && f.startsWith("tests/Bayan.Tests/") && f.endsWith("Tests.cs")) { return false }
+    for i in 18..f.length - 8 {
         unless isAlnum(f.bytes[i]) { return false }
     }
     return true
@@ -244,19 +229,19 @@ i32 main(ReadOnlySpan<string> argv) {
     var desc = ""
     var oracle = ""
     if spec == "010" {
-        desc = "the Bayan type checker ported from C# `csharp/Bayan.Semantics/` into Bayan under `src/semantics/`"
+        desc = "the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`"
         oracle = "SelfhostSemanticsT10Tests.Expected"
     } else if spec == "011" {
-        desc = "the Bayan lowering and C emitter ported from C# `csharp/Bayan.Lowering/` and `csharp/Bayan.Backend.C/` into Bayan under `src/emitter/`"
+        desc = "the Bayan lowering and C emitter ported from C# `src/Bayan.Lowering/` and `src/Bayan.Backend.C/` into Bayan under `selfhost/emitter/`"
         oracle = "SelfhostEmitterHarness.AssertSame"
     } else if spec == "012" {
-        desc = "the Bayan compiler driver ported from C# `csharp/Bayan.Cli/` (`CliApp`) into Bayan under `src/driver/`, compiled with package root `src/` (stage 1 of the bootstrap)"
+        desc = "the Bayan compiler driver ported from C# `src/Bayan.Cli/` (`CliApp`) into Bayan under `selfhost/driver/`, compiled with package root `selfhost/` (stage 1 of the bootstrap)"
         oracle = "SelfhostDriverHarness"
     } else if spec == "017" {
-        desc = "the remaining `bayan` commands ported from C# `csharp/Bayan.Cli/` and `csharp/Bayan.Testing/` into the self-hosted driver under `src/driver/` (spec 017, the self-hosted compiler as the default `bayan`)"
+        desc = "the remaining `bayan` commands ported from C# `src/Bayan.Cli/` and `src/Bayan.Testing/` into the self-hosted driver under `selfhost/driver/` (spec 017, the self-hosted compiler as the default `bayan`)"
         oracle = "SelfhostDriverHarness"
     } else if spec == "018" {
-        desc = "revision 0021 checker changes (help texts, fix-its, new diagnostics) made in C# `csharp/Bayan.Semantics/` and ported into the self-hosted checker under `src/semantics/` (spec 018), with messages and fix-its byte-identical in both compilers"
+        desc = "revision 0021 checker changes (help texts, fix-its, new diagnostics) made in C# `src/Bayan.Semantics/` and ported into the self-hosted checker under `selfhost/semantics/` (spec 018), with messages and fix-its byte-identical in both compilers"
         oracle = "SelfhostSemanticsT10Tests.Expected"
     } else {
         print($"review-brief: no brief text for spec {spec}", to: .stderr)
@@ -332,22 +317,21 @@ i32 main(ReadOnlySpan<string> argv) {
         let filesText = first[fp + 7..cp]
         let csCut = filesText.position(" — C#:") ?? filesText.length
         let head2 = withoutParens(filesText[0..csCut])
-        var files: List<string> = List<string>()
-        for f in codeFiles(head2) { files.append(currentPath(f)) }
-        // tests/, docs/, csharp/, runtime/, src/tests/ and work/ paths are written from the repo root; other src/ paths keep their own directory
+        let files = codeFiles(head2)
+        // tests/, docs/ and src/ paths are written from the repo root; selfhost/ paths keep their own directory
         var rooted: List<string> = List<string>()
         for f in files {
-            if f.startsWith("tests/") || f.startsWith("docs/") || f.startsWith("csharp/") || f.startsWith("runtime/") || f.startsWith("src/tests/") || f.startsWith("work/") { rooted.append(f) }
+            if f.startsWith("tests/") || f.startsWith("docs/") || f.startsWith("src/") || f.startsWith("work/") { rooted.append(f) }
         }
         var byns: List<string> = List<string>()
         var tests: List<string> = List<string>()
         var ownTests: List<string> = List<string>()
         for f in files {
-            if f.endsWith(".byn") && !has(rooted, for: f) { byns.append(f.startsWith("src/") ? f : $"{field(head, at: row, for: "bydir")}/{f}") }
+            if f.endsWith(".byn") && !has(rooted, for: f) { byns.append(f.startsWith("selfhost/") ? f : $"{field(head, at: row, for: "bydir")}/{f}") }
         }
         for f in files {
             if f.endsWith(".cs") && !has(rooted, for: f) {
-                tests.append($"{testDir(f)}/{f}")
+                tests.append($"tests/Bayan.Tests/{f}")
                 ownTests.append(f)
             }
         }
@@ -357,11 +341,11 @@ i32 main(ReadOnlySpan<string> argv) {
         var filt = !law.isEmpty && ownTests.isEmpty ? $"Law=L{law[0]}" : $"FullyQualifiedName~{testClass}"
         if spec == "010" && law.isEmpty && ownTests.isEmpty && byns.isEmpty { filt = "FullyQualifiedName~SelfhostSemanticsApiTests" }  // a docs-only task
         // 011: every test class the task owns gates it (a task with a law page and tests too, T14), and T21 also counts the SelfhostSemantics* tests (Q867, Q870)
-        // the classes are those the task's test files declare, bare names or with their directory (SelfhostDriverInventoryTests.cs
+        // the classes are those the task's tests/Bayan.Tests/*.cs files declare, bare names or with their directory (SelfhostDriverInventoryTests.cs
         // holds SelfhostDriverT8Tests); a file not written yet counts by its name; never a `<prefix><n>Tests` class the task does not have (012 T17).
         // As in wave-brief.py, a task with bare test names keeps them alone (011 T14 re-pins the rooted ones)
         var testPaths: List<string> = List<string>()
-        for f in ownTests { testPaths.append($"{testDir(f)}/{f}") }
+        for f in ownTests { testPaths.append($"tests/Bayan.Tests/{f}") }
         if testPaths.isEmpty {
             for f in rooted {
                 if isTestPath(f) { testPaths.append(f) }

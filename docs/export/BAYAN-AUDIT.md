@@ -2,8 +2,6 @@ Commit `821afa40`, 2026-11-09.
 
 # Bayān audit
 
-Snapshot: 2026-11-09 (821afa40); not maintained. Current text: docs/audits/2026-11-14-0.3.0-docs-audit.md
-
 Contradictions, stale examples, grammar-rule violations, wrong code references and spec-vs-code mismatches found while writing the export. Sources: the diagnostics writer's notes, the spec and grammar writer's notes (each re-checked against the files at this commit), and the status writer's own findings. No fix is applied here. Each entry gives location, problem, the rule it conflicts with, and a proposed fix.
 
 "SPEC" is `docs/bayan-spec.md`, "GRAMMAR" is `docs/bayan-grammar.md`, "STYLE" is `docs/bayan-style.md`. Code paths are relative to the repository root. Code under `src/` and `tests/` is identical at `821afa40` and at this branch's head.
