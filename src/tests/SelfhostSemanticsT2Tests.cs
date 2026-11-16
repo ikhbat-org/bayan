@@ -443,9 +443,10 @@ public sealed class SelfhostSemanticsT2Tests
     private static bool IsSemaCode(string code) =>
         int.Parse(code.AsSpan(3), CultureInfo.InvariantCulture) is >= 2000 and <= 8999;
 
-    /// <summary>BYN2000–BYN8999 plus the three BYN1xxx codes the checker reports.</summary>
+    /// <summary>BYN2000–BYN8999 plus the three BYN1xxx codes the checker reports and the style lints BYN1072–BYN1080 (spec 022).</summary>
     private static bool IsT2Code(string code) =>
-        IsSemaCode(code) || code is "BYN1016" or "BYN1054" or "BYN1056";
+        IsSemaCode(code) || code is "BYN1016" or "BYN1054" or "BYN1056"
+        || int.Parse(code.AsSpan(3), CultureInfo.InvariantCulture) is >= 1072 and <= 1080;
 
     /// <summary>
     /// The C# table the port must reproduce: `DiagnosticCodes.All` for the semantic ranges and the

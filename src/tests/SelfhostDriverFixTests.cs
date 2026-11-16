@@ -80,17 +80,23 @@ public sealed class SelfhostDriverFixTests
 
     [Theory]
     [MemberData(nameof(Cases))]
-    public void FixAsCSharpCli(string kind, string name)
+    public void FixAsCSharpCli(string kind, string name) => Compare(kind, name, "selfhost", SelfhostDriverHarness.Build());
+
+    /// <summary>The same rows through stage 2, the bootstrap-built <c>bayan</c>.</summary>
+    [Theory]
+    [MemberData(nameof(Cases))]
+    public void FixAsStage2(string kind, string name) => Compare(kind, name, "stage2", BootstrapTests.Stage2Executable());
+
+    private static void Compare(string kind, string name, string side, string program)
     {
-        var expectedPath = Layout(kind, name, "cs");
-        var actualPath = Layout(kind, name, "selfhost");
+        var expectedPath = Layout(kind, name, "cs-" + side);
+        var actualPath = Layout(kind, name, side);
         var expectedDir = kind == "run" || kind == "missing" ? Path.GetDirectoryName(expectedPath)! : expectedPath;
         var actualDir = kind == "run" || kind == "missing" ? Path.GetDirectoryName(actualPath)! : actualPath;
-        var selfhost = SelfhostDriverHarness.Build();
         for (var pass = 1; pass <= 2; pass++)
         {
             var expected = Start("dotnet", [typeof(CliApp).Assembly.Location], "fix", expectedPath);
-            var actual = Start(selfhost, [], "fix", actualPath);
+            var actual = Start(program, [], "fix", actualPath);
             Assert.Equal(expected.Exit, actual.Exit);
             SelfhostEmitterHarness.AssertSame($"stdout of fix pass {pass} on {kind}/{name}", expected.Out.Replace(expectedDir, "<dir>"), actual.Out.Replace(actualDir, "<dir>"));
             SelfhostEmitterHarness.AssertSame($"stderr of fix pass {pass} on {kind}/{name}", expected.Err.Replace(expectedDir, "<dir>"), actual.Err.Replace(actualDir, "<dir>"));

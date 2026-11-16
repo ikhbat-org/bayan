@@ -71,11 +71,18 @@ public sealed class SelfhostDriverStyleLintsTests
 
     [Theory]
     [MemberData(nameof(Cases))]
-    public void CheckProjectAsCSharpCli(string folder)
+    public void CheckProjectAsCSharpCli(string folder) => Compare(folder, SelfhostDriverHarness.Build());
+
+    /// <summary>The same rows through stage 2, the bootstrap-built <c>bayan</c>.</summary>
+    [Theory]
+    [MemberData(nameof(Cases))]
+    public void CheckProjectAsStage2(string folder) => Compare(folder, BootstrapTests.Stage2Executable());
+
+    private static void Compare(string folder, string program)
     {
         var dir = Project(folder);
         var expected = Start("dotnet", [typeof(CliApp).Assembly.Location], dir, "check", ".");
-        var actual = Start(SelfhostDriverHarness.Build(), [], dir, "check", ".");
+        var actual = Start(program, [], dir, "check", ".");
         Assert.Equal(expected.Exit, actual.Exit);
         SelfhostEmitterHarness.AssertSame($"stdout of `check .` in {folder}", Mask(expected.Out), Mask(actual.Out));
         SelfhostEmitterHarness.AssertSame($"stderr of `check .` in {folder}", Mask(expected.Err), Mask(actual.Err));
