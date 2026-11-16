@@ -35,7 +35,7 @@ void main() {
 Salam, world!
 ```
 
-A program starts at `void main()`. A file of top-level statements with no `main` is a script: `bayan run hello.byn`.
+A program starts at `void main()`. A file of top-level statements with no `main` runs too: `bayan run hello.byn`.
 
 > [!NOTE]
 > Bayān is young (version 0.3.x). The language is usable and the compiler builds itself, but expect rough
