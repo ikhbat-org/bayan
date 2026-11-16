@@ -1,9 +1,4 @@
 # 007 — Tasks
-
-Status: done
-Release: 0.1.0
-Sources: Q113, Q345, Q362; revisions 0006; docs/decisions/2026-11-14-004-answered-questions.md
-
 Plan: ./007-plan.md
 Depends on: dev at 58cfad9 (round 3 and spec 006 merged). Revised 2026-10-25: line citations dropped; files and methods as the plan re-locates them.
 

@@ -1,8 +1,6 @@
 # 009 — Prebuilt runtime object and the C compiler's identity in the program key
 
 Status: done (ce0fb8d5). Was: approved by the user 2026-11-13. Measurements: tmp/bench (m1–m3), summarised below.
-Release: 0.3.0
-Sources: user, 2026-11-13 (approved); Q1148
 
 ## Why
 

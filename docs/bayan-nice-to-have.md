@@ -1,7 +1,5 @@
 # Bayān: nice to have
 
-Version: 0.3.1 (matches `bayan --version`)
-
 Optional improvements with no commitment and no slot. State of `dev` at 04366a4f, 2026-11-14. An item here moves to `docs/bayan-roadmap.md` when someone commits to it. Items the user decided against are in `docs/bayan-not-planned.md`. Line numbers for `work/todo.md` are as of this date.
 
 ## Language

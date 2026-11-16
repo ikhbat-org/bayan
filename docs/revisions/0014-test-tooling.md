@@ -1,8 +1,6 @@
 # 0014 — Test tooling: mutation operators, coverage, `@unobservable`, statement attributes
 
-Status: done; applied 2026-11-01 by spec 013 T17 (accepted 2026-10-31, user decision on spec 013).
-Release: 0.1.0
-Sources: user, 2026-10-31 (spec 013)
+Status: applied 2026-11-01 by spec 013 T17 (accepted 2026-10-31, user decision on spec 013).
 
 ## Problem
 

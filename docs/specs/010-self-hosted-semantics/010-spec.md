@@ -1,7 +1,5 @@
 # 010 — Self-hosting step 4: semantics in Bayan
 Status: done
-Release: 0.1.0
-Sources: none recorded
 Created: 2026-10-26
 
 ## Problem

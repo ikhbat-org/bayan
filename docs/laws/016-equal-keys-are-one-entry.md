@@ -2,11 +2,9 @@
 id: L016
 title: Equal keys are one entry
 status: enacted
-release: 0.1.0
-sources: Q415
 kind: property
-scope: csharp/Bayan.Backend.C/CEmitter.cs
-proof: csharp/tests/Bayan.Tests/MapKeyLawTests.cs
+scope: src/Bayan.Backend.C/CEmitter.cs
+proof: tests/Bayan.Tests/MapKeyLawTests.cs
 check: dotnet test -v q --filter "Law=L003|Law=L016"
 enacted: 2026-10-25
 ---
@@ -18,7 +16,7 @@ For every key type from the key generator (tuples and structs mixing `bool`, `i8
 `m[Named { flag: true, name: "n7", kind: "k7" }] = 1` then `m[named(7)] = 2`, with `named` building the same value with an interpolated `$"n{id}"`, and `m.length` printing `2`; or two keys that differ only in their last field sharing one entry.
 
 ## Proof notes
-`csharp/tests/Bayan.Tests/MapKeyLawTests.cs`, tagged `[Trait("Law", "L016")]` on the class, and `MapModelTests.L003GeneratedKeyTypeMatchesModel`, tagged L003. Both use `MapModelTests.KeyGen`. It generates a struct or tuple of `bool`, `i8`, `i64`, `rune`, `string`, `Symbol` and the plain enum `Tint`, with one level of nested structs and tuples. Every composite has a small part before a large one, so its layout has padding. A struct nests only structs, because a tuple-typed struct field does not parse. A key value is a mixed-radix code over the leaves. `Literal(code)` writes the key in place, and `make(i64 code)` builds the same value in another function, with `string` and `Symbol` parts made by interpolation and `Symbol.intern`. Each program uses 8 codes: one random code, its neighbours that differ from it in exactly one leaf, then more random codes.
+`tests/Bayan.Tests/MapKeyLawTests.cs`, tagged `[Trait("Law", "L016")]` on the class, and `MapModelTests.L003GeneratedKeyTypeMatchesModel`, tagged L003. Both use `MapModelTests.KeyGen`. It generates a struct or tuple of `bool`, `i8`, `i64`, `rune`, `string`, `Symbol` and the plain enum `Tint`, with one level of nested structs and tuples. Every composite has a small part before a large one, so its layout has padding. A struct nests only structs, because a tuple-typed struct field does not parse. A key value is a mixed-radix code over the leaves. `Literal(code)` writes the key in place, and `make(i64 code)` builds the same value in another function, with `string` and `Symbol` parts made by interpolation and `Symbol.intern`. Each program uses 8 codes: one random code, its neighbours that differ from it in exactly one leaf, then more random codes.
 
 - `EqualKeysAreOneEntry` (seeds 1–12): map `m` gets each key as a literal and then through `make`, and map `n` the other way round. Both must end with 8 entries, the second write must win, and `contains` must be true.
 - `PaddedKeysBuiltApartAreOneEntry`: fixed padded layouts `Pad(bool, i64)`, `Small(i8, i64)`, `Tail(i64, rune)`, `Named(bool, string, Symbol)`, `Outer(bool, Small)`, `(bool, i64)` and `(i8, string)`. Each key is written once as a literal and once built field by field in another function after a stack smear (`smear`).

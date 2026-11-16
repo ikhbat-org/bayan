@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Regenerates the generated parts of docs/STATUS.md: the header's two lines, the keyword rows (between
-# `<!-- generated: keywords -->` and `<!-- end generated: keywords -->`) from csharp/Bayan.Syntax/Lexing/Keywords.cs and
+# `<!-- generated: keywords -->` and `<!-- end generated: keywords -->`) from src/Bayan.Syntax/Lexing/Keywords.cs and
 # TokenKind.cs, and the stdlib rows (`<!-- generated: stdlib -->` … `<!-- end generated: stdlib -->`) from
-# csharp/Bayan.Semantics/Binding/BuiltinMembers.cs. Everything else in the file (the feature rows) is hand-kept and
+# src/Bayan.Semantics/Binding/BuiltinMembers.cs. Everything else in the file (the feature rows) is hand-kept and
 # copied through. Deterministic: sorted, LF, no dates.
 #   gen-status.sh            print the regenerated file
 #   gen-status.sh --write    rewrite docs/STATUS.md
@@ -12,9 +12,9 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 . "$root/scripts/release/version.sh"
 die() { echo "gen-status: $*" >&2; exit 1; }
 status="$root/docs/STATUS.md"
-keywords="$root/csharp/Bayan.Syntax/Lexing/Keywords.cs"
-kinds="$root/csharp/Bayan.Syntax/Lexing/TokenKind.cs"
-members="$root/csharp/Bayan.Semantics/Binding/BuiltinMembers.cs"
+keywords="$root/src/Bayan.Syntax/Lexing/Keywords.cs"
+kinds="$root/src/Bayan.Syntax/Lexing/TokenKind.cs"
+members="$root/src/Bayan.Semantics/Binding/BuiltinMembers.cs"
 for f in "$status" "$keywords" "$kinds" "$members"; do [ -f "$f" ] || die "${f#"$root/"} not found"; done
 v="$(bayan_version "$root")"; rev="$(bayan_latest_revision "$root")"
 [ -n "$rev" ] || die "no docs/revisions/NNNN-*.md"

@@ -11,12 +11,12 @@
   },
   "files": [
     {
-      "path": "csharp/A.cs",
+      "path": "src/A.cs",
       "mutants": [
         {
           "site": {
             "id": 1,
-            "file": "csharp/A.cs",
+            "file": "src/A.cs",
             "line": 2,
             "column": 10,
             "operator": "Arithmetic",
@@ -28,7 +28,7 @@
         {
           "site": {
             "id": 2,
-            "file": "csharp/A.cs",
+            "file": "src/A.cs",
             "line": 2,
             "column": 10,
             "operator": "Arithmetic",
@@ -41,7 +41,7 @@
         {
           "site": {
             "id": 3,
-            "file": "csharp/A.cs",
+            "file": "src/A.cs",
             "line": 2,
             "column": 3,
             "operator": "Statement",
@@ -53,7 +53,7 @@
         {
           "site": {
             "id": 4,
-            "file": "csharp/A.cs",
+            "file": "src/A.cs",
             "line": 1,
             "column": 1,
             "operator": "Statement",
@@ -65,7 +65,7 @@
         {
           "site": {
             "id": 5,
-            "file": "csharp/A.cs",
+            "file": "src/A.cs",
             "line": 2,
             "column": 10,
             "operator": "Arithmetic",

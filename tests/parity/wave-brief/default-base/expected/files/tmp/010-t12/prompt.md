@@ -1,15 +1,15 @@
-You are doing task T12 of spec 010 (the Bayan type checker ported from C# `csharp/Bayan.Semantics/` into Bayan under `src/semantics/`). Other writers port the sibling files in parallel; every cross-file function already exists as a compiling stub with its final signature, so you call real names and never write stand-ins. A separate reviewer compares your port with the C# line by line before it lands; invented logic, sibling fallbacks and hand-typed test expectations fail that review.
+You are doing task T12 of spec 010 (the Bayan type checker ported from C# `src/Bayan.Semantics/` into Bayan under `selfhost/semantics/`). Other writers port the sibling files in parallel; every cross-file function already exists as a compiling stub with its final signature, so you call real names and never write stand-ins. A separate reviewer compares your port with the C# line by line before it lands; invented logic, sibling fallbacks and hand-typed test expectations fail that review.
 
 ## Writer protocol (binding; the dispatcher runs the same guard after you, so skipping a step only costs you a resume)
 
 Turns are your scarce resource: this run has 120, and you will be resumed with the guard's report if you run out. Put several Read/Grep/Bash calls in ONE turn whenever they do not depend on each other.
 
-1. **Read only what the brief lists** (turns 1–6). The brief gives you the exact C# line ranges, the signatures you may call, and the files you own. Do not grep the spec, tests/cases or other modules to learn the language: the cheat sheet below is compiler-checked, and when unsure, **probe**: write the snippet to `tmp/probe/<name>/main.byn` and run `csharp/Bayan.Cli/bin/Debug/net10.0/bayan check tmp/probe/<name>/main.byn` (0.3 s).
+1. **Read only what the brief lists** (turns 1–6). The brief gives you the exact C# line ranges, the signatures you may call, and the files you own. Do not grep the spec, tests/cases or other modules to learn the language: the cheat sheet below is compiler-checked, and when unsure, **probe**: write the snippet to `tmp/probe/<name>/main.byn` and run `src/Bayan.Cli/bin/Debug/net10.0/bayan check tmp/probe/<name>/main.byn` (0.3 s).
 2. **Skeleton by turn 15, and it must compile.** Every function the brief assigns to you, with its exact signature and a stub body (`return <default>` / `.none`), plus the test file with one real test. Run the fast check (below). Fix until green before porting any body.
 3. **Compile early, compile often.** Port one function or ~80 lines at a time, then run the fast check. Never write more than ~150 lines between two checks. Use Edit for slices, not a whole-file Write.
 4. **Tests are part of the task, and the C# is the oracle.** Every ported function gets a test whose expected lines are *computed* by running the C# implementation in-process on the same input (`Compilation.Create`, `new Binder(…)`, or the C# class directly; model: `SelfhostSemanticsT10Tests.Expected`), including a failure/diagnostic path; diagnostics compare as `code line:col message`. Typing the expected lines by hand is not a test: it only proves the code does what the code does, and the guard rejects it (at most 2 exemptions per file, each `// no-oracle: Qnnn` with the Question saying why no C# path exists). When a sibling stub stands in the way, pick an input that does not reach it, or build the sibling's output by hand on both sides; never assert a stub's default. Then break-test: change one line the test covers, run it and see it FAIL, restore by copying back a copy you took first (`cp f tmp/f.orig` … `cp tmp/f.orig f`; never `git checkout`, which reverts to the stub and loses your work), run it and see it PASS. Record each break-test (file:line `code as it stands`, change, failing test) in your Question; cite lines as they are after your last edit.
 4a. **Port, do not invent.** Method for method, in C# order, every branch. Logic that is not in the C# is a bug even if it makes a test pass. In particular, never write a stand-in for a sibling: call the sibling's entry point even while it is a stub, and accept that its default flows through. No fallback for a sibling's `-1`/`false`/empty result, no private re-implementation of a sibling's function, no fake handles, no skipping a sibling call.
-4b. **State has a home.** When the C# keeps a field (`_instantiating`, `_caught`, `MutationChecks`, …) that `Ctx` or `Binder` lacks, add it to your own `// ── <task> state` section of `src/semantics/ctx.byn`, with a default value; touch nothing else in ctx.byn (the guard checks). Never approximate a field (a scope depth for a scope, a path prefix for a list, an index for an identity).
+4b. **State has a home.** When the C# keeps a field (`_instantiating`, `_caught`, `MutationChecks`, …) that `Ctx` or `Binder` lacks, add it to your own `// ── <task> state` section of `selfhost/semantics/ctx.byn`, with a default value; touch nothing else in ctx.byn (the guard checks). Never approximate a field (a scope depth for a scope, a path prefix for a list, an index for an identity).
 4c. **Blocked is a state, not a workaround.** If a Question in `docs/bayan-questions.md` says it must be decided before your task and is still Open, stop and report it. If an entry point truly cannot be ported yet, leave its stub, mark it `// stub: <task> … (blocked: Qnnn)`, and write the Question. Delete the `// stub:` marker of every function you port.
 4d. **Docs say what the code does.** Each Question describes the code as it stands, not as planned; add one Progress log entry for your task (what landed, what is blocked, test count). Do not tick the task: `scripts/selfhost/land.sh` ticks it after an independent review passes.
 5. **Before you finish, run the guard** (command in the brief) and paste its last 15 lines into your summary. `GUARD PASS` is the only finished state. The per-task guard runs no mutants (user decision 2026-11-01): mutation runs in batches and survivors become T28 cases, so do not add cases only to kill mutants; do cover every ported branch with a C#-oracle case. For the batch runs, only when a statement's sole observable effect goes through an unported sibling's stub may you mark it `@unobservable because "…"` (spec 013 R7; narrow it to one operator with `@unobservable(boundary) because "…"`); the reason names the sibling and the test to add when it lands. Its mutants are reported `marked`, not survived.
@@ -26,7 +26,7 @@ Fast check: `dotnet build -v q 2>&1 | grep -E " error | warning " | head -20; do
 
 Guard (run before you finish):
 ```
-bash scripts/selfhost/guard.sh --base feat/010-self-hosted-semantics --allow 'src/semantics/declare.byn,src/tests/SelfhostSemanticsT12Tests.cs,docs/bayan-questions.md,docs/specs/010-self-hosted-semantics/010-tasks.md' --filter 'FullyQualifiedName~SelfhostSemanticsT12Tests' --task T12
+bash scripts/selfhost/guard.sh --base feat/010-self-hosted-semantics --allow 'selfhost/semantics/declare.byn,tests/Bayan.Tests/SelfhostSemanticsT12Tests.cs,docs/bayan-questions.md,docs/specs/010-self-hosted-semantics/010-tasks.md' --filter 'FullyQualifiedName~SelfhostSemanticsT12Tests' --task T12
 ```
 Do not commit, merge, checkout, reset or stash; the dispatcher commits for you.
 
@@ -52,16 +52,16 @@ Port method for method in C# order, keeping C# names lowerCamel. Read the C# ran
 Landed and callable: `ctx.byn` (T1), `codes.byn`/`diag.byn` (T2: `report`, `addDiag`, `pushBag`, `popBag`), `symbols.byn`/`types.byn` (T3), `bound.byn` (T4: `add<Kind>`, `children`, `exprType`, `Constant`), `bigint.byn` (T5: labels `bigCmp(a, as: b)`, `bigAdd(a, by: b)`, `bigFits(n, to: bits, signed: s)`; see Q540).
 
 ## Tests: use the shared harness, do not write another build helper
-`src/tests/SelfhostSemanticsHarness.cs`: `SelfhostSemanticsHarness.RunSections(mainSource)` builds `src/semantics` with your generated `main.byn` (a C# string) and returns its output split at lines `== <section>`; `SelfhostSemanticsHarness.AssertSection(sections, "<section>", expectedLines)` names the first differing line. Build once per class (`static readonly Lazy<…>`). The oracle is the C# implementation: run the same input through `Bayan.Semantics` in-process (`Compilation.Create`, or the C# class directly when it is public/internal-visible) and print the same lines. Every ported function gets a compared case including a failure/diagnostic path; diagnostics compare as `code line:col message`.
+`tests/Bayan.Tests/SelfhostSemanticsHarness.cs`: `SelfhostSemanticsHarness.RunSections(mainSource)` builds `selfhost/semantics` with your generated `main.byn` (a C# string) and returns its output split at lines `== <section>`; `SelfhostSemanticsHarness.AssertSection(sections, "<section>", expectedLines)` names the first differing line. Build once per class (`static readonly Lazy<…>`). The oracle is the C# implementation: run the same input through `Bayan.Semantics` in-process (`Compilation.Create`, or the C# class directly when it is public/internal-visible) and print the same lines. Every ported function gets a compared case including a failure/diagnostic path; diagnostics compare as `code line:col message`.
 
 ## Files you own
-`src/semantics/declare.byn`, `src/tests/SelfhostSemanticsT12Tests.cs`, `docs/bayan-questions.md` (Questions Q575–Q579 only, inserted in number order), your own `// ── T12 state` sections of `src/semantics/ctx.byn` (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`bash scripts/bayan-tool.sh review-brief`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.
+`selfhost/semantics/declare.byn`, `tests/Bayan.Tests/SelfhostSemanticsT12Tests.cs`, `docs/bayan-questions.md` (Questions Q575–Q579 only, inserted in number order), your own `// ── T12 state` sections of `selfhost/semantics/ctx.byn` (new fields with defaults only). Do not tick the task: after your guard passes, an independent reviewer checks the port against the C# (`bash scripts/bayan-tool.sh review-brief`) and `scripts/selfhost/land.sh` merges and ticks it only on `Verdict: PASS`.
 
 ## Bayan cheat sheet (compiler-checked)
 # Bayan cheat sheet for porters (compiler-checked 2026-10-26)
 
 **Probe before you write.** Unsure whether something compiles? Put it in `tmp/probe/<name>/main.byn` (one dir per probe; a dir is a module) and run
-`<repo>/csharp/Bayan.Cli/bin/Debug/net10.0/bayan check tmp/probe/<name>/main.byn` (0.3 s). Do this instead of grepping the spec.
+`<repo>/src/Bayan.Cli/bin/Debug/net10.0/bayan check tmp/probe/<name>/main.byn` (0.3 s). Do this instead of grepping the spec.
 
 ## Checked by the compiler (trust these over anything below)
 | Form | Result |
@@ -91,7 +91,7 @@ struct Parser {
     bool inExtern
 }
 ```
-`src/parser/parser.byn:27-36`
+`selfhost/parser/parser.byn:27-36`
 
 **Struct literal — `{ field: value }` with trailing comma; nested literals target-typed.**
 ```byn
@@ -102,7 +102,7 @@ return Parser {
     inExtern: false,
 }
 ```
-`src/parser/parser.byn:62-69`
+`selfhost/parser/parser.byn:62-69`
 
 **Union declaration — one camelCase case per line, payloads named and type-first.**
 ```byn
@@ -112,7 +112,7 @@ union Decl {
     none
 }
 ```
-`src/parser/nodes.byn:190-210`
+`selfhost/parser/nodes.byn:190-210`
 
 **Enum (payload-free union form) — one case per line, no commas.**
 ```byn
@@ -122,7 +122,7 @@ enum ParamModifier {
     moveKeyword
 }
 ```
-`src/parser/nodes.byn:369-374`
+`selfhost/parser/nodes.byn:369-374`
 
 **`switch` on a union is exhaustive; payload binds with `case .x(let n)`, `_` binds whole.**
 ```byn
@@ -135,21 +135,21 @@ switch lexed.tokens[i].kind {
         continue
 }
 ```
-`src/parser/parser.byn:47-57`
+`selfhost/parser/parser.byn:47-57`
 
 **Optional: `T?`, `null` literal, `is null` / `is not null`; bind a field path with `is { }` to narrow.**
 ```byn
 if (d.value.failsKeyword is { } fails) { … fails.errors … }
 if failsSpan is null { failsSpan = at }
 ```
-`docs/decisions/2026-11-14-004-answered-questions.md:1343` (Q480), `src/parser/decls.byn:825`
+`docs/decisions/2026-11-14-004-answered-questions.md:1343` (Q480), `selfhost/parser/decls.byn:825`
 
 **Optional early exit: `?? return` / `?? fail`.**
 ```byn
 let bytes = Io.readFile(path) catch return unreadable(path)
 let order = db.find(id) ?? return .notFound
 ```
-`src/parser/main.byn:48`, `docs/bayan-spec.md:1010`
+`selfhost/parser/main.byn:48`, `docs/bayan-spec.md:1010`
 
 **List creation and append; `length`; index; `for` binds a borrow.**
 ```byn
@@ -158,7 +158,7 @@ for i in 0..count {
     inGroup.append(groups.length > 0 && groups[groups.length - 1])
 }
 ```
-`src/parser/parser.byn:40-57`
+`selfhost/parser/parser.byn:40-57`
 
 **Map: literal `["k": v]`, empty `[]` target-typed, `contains`, indexing, `tryGet(at:) ??`.**
 ```byn
@@ -181,7 +181,7 @@ var sb = StrBuf()
 sb.append($"== {name}\n")
 Io.stdout.write(sb.finish())
 ```
-`src/parser/parser.byn:99`, `src/parser/main.byn:65-69`
+`selfhost/parser/parser.byn:99`, `selfhost/parser/main.byn:65-69`
 
 **Interpolation is the concat form; `$"…"` allocates unless passed to `print`/`StrBuf.append`; return a copy of `finish()` with `$"{…}"`.**
 ```byn
@@ -193,7 +193,7 @@ return $"{sb.finish()}"
 ```byn
 unless name.endsWith(".byn") { continue }
 ```
-`src/parser/main.byn:61`; API `docs/bayan-spec.md:1922`
+`selfhost/parser/main.byn:61`; API `docs/bayan-spec.md:1922`
 
 **Integer types: `i8 i16 i32 i64 u8 … usize f32 f64`; sizes/counts are `i64`; conversions are calls `T(x)` (narrowing traps), `T.tryFrom(x)` returns `T?`.**
 ```byn
@@ -201,14 +201,14 @@ const exitOk: i32 = 0
 let size = result.source.bytes.length      // i64
 u8(x)                                       // never (u8)x
 ```
-`src/lexer/main.byn:24`, `docs/bayan-spec.md:828`
+`selfhost/lexer/main.byn:24`, `docs/bayan-spec.md:828`
 
 **`ref this` declares a mutating member; default is read-only; call through a `var`.**
 ```byn
 Token advance(ref this) { … pos += 1 … return token }
 i32 errorCount(ref this) => …
 ```
-`src/parser/parser.byn:86-91`
+`selfhost/parser/parser.byn:86-91`
 
 **`ref`/`in` at the call site for a mutable/read-only borrow; `Owned<T>` payload is read-only, so readers take `in`.**
 ```byn
@@ -216,14 +216,14 @@ string exprText(in Expr e)        // called exprText(in n.value.left)
 var p = Parser.create(lexer.lex(…))
 let unit = parseCompilationUnit(ref p)
 ```
-`docs/decisions/2026-11-14-004-answered-questions.md:1271` (Q436), `src/parser/main.byn:50-51`
+`docs/decisions/2026-11-14-004-answered-questions.md:1271` (Q436), `selfhost/parser/main.byn:50-51`
 
 **`move` transfers ownership; `List`/`Map`/`StrBuf`/`Owned` and any struct holding them are `unique`. Broken implicit copy is BYN2780.**
 ```byn
 return Parser { lexed: move lexed, inGroup: move inGroup, … }
 let b = move a                     // var b = a is BYN2780
 ```
-`src/parser/parser.byn:62-69`, `docs/diagnostics/BYN2780.md`
+`selfhost/parser/parser.byn:62-69`, `docs/diagnostics/BYN2780.md`
 
 **`Owned` and `in` — mutating through `Owned` or a temporary is BYN2106.**
 ```byn
@@ -238,7 +238,7 @@ public void remove(ref this, from Index start, until Index end)
 xs.remove(from: 2, until: 5)
 bool inside(TextSpan span, until i64 size) => span.end <= size
 ```
-`docs/bayan-spec.md:1356-1364`, `src/lexer/main.byn:55`
+`docs/bayan-spec.md:1356-1364`, `selfhost/lexer/main.byn:55`
 
 **`bool` arguments must be passed by name (BYN2305).**
 ```byn
@@ -266,7 +266,7 @@ provide allocator: arena {
     …
 }
 ```
-`src/parser/main.byn:62-63`
+`selfhost/parser/main.byn:62-63`
 
 **Imports: a directory is a module; `import lexer`; qualify nothing — import brings names in; alias with `as`.**
 ```byn
@@ -274,14 +274,14 @@ import lexer
 
 const exitOk: i32 = 0
 ```
-`src/parser/main.byn:16-18`, `docs/bayan-spec.md:2071`
+`selfhost/parser/main.byn:16-18`, `docs/bayan-spec.md:2071`
 
 **Re-export/alias a module type with `type X = lexer.X`; a struct literal cannot name its type through a module (Q431).**
 ```byn
 type TextSpan = lexer.TextSpan
 type Token = lexer.Token
 ```
-`src/parser/parser.byn:19-23`
+`selfhost/parser/parser.byn:19-23`
 
 **Tests: `test "name" { assert expr }`, sibling `x.test.byn`; `assert f() fails E.case`; `@cases(...)`; plain expressions, no fluent API.**
 ```byn
@@ -304,13 +304,13 @@ if token.kind != .endOfFile {
     prevEnd = token.end
 }
 ```
-`src/parser/parser.byn:87-92`
+`selfhost/parser/parser.byn:87-92`
 
 **Casing: types PascalCase, everything else camelCase; union cases/error variants camelCase; keywords can't be identifiers.**
 ```byn
 enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 ```
-`docs/bayan-spec.md:723-726`, `src/parser/nodes.byn:369-374`
+`docs/bayan-spec.md:723-726`, `selfhost/parser/nodes.byn:369-374`
 
 ## Does NOT have (C# habit → BYN code → replacement)
 
@@ -330,7 +330,7 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 | `foreach` / `for (…;…;…)` / `while (x)` | BYN1019, BYN1017 (`docs/bayan-spec.md:2275-2276`) | `for x in xs`, `while x` |
 | string `+`, `s[i]` indexer, `Substring`, `ToString()`, `Length` capital, `string.Format` | `docs/bayan-spec.md:190` (no indexer), `:195` (no `+`), `:1749` (slice for Substring), `:915` (no `toString`), `:188` (`length`) | `$"{a}{b}"`, `StrBuf`, `s[a..b]`, `string(x)`, `.length` |
 | `s.Contains` case-insensitive ambient culture | §16.4:1970-1971 no ambient culture, ordinal only | `equals(t, as: .caseless)`; culture via `kit.intl` |
-| current working directory / `Environment.CurrentDirectory` builtin | **Unverified — I found no cwd builtin** in §16 or the selfhost; the CLI takes explicit paths (`src/parser/main.byn:5-9`) | pass paths explicitly; `Io.listDir`/`Io.readFile` take a path |
+| current working directory / `Environment.CurrentDirectory` builtin | **Unverified — I found no cwd builtin** in §16 or the selfhost; the CLI takes explicit paths (`selfhost/parser/main.byn:5-9`) | pass paths explicitly; `Io.listDir`/`Io.readFile` take a path |
 | ASCII-only casing in the ported compiler (`A`–`Z` for `char.IsUpper`) | Q442 is superseded by Q1142: `char.IsUpper`/`IsLower` are Unicode Lu/Ll in C#, and law L017 caught the parser diverging on `Åp { x: 1 }` | `lexer.firstIsUpper`/`firstIsLower` (the generated `upperRanges`/`lowerRanges`, BMP); never `A`–`Z` for a C# `char.IsUpper` |
 | tuple-typed struct field `(i8, i64) f1` | `work/todo.md:24` BYN1001 (parsed as function type) | use a named struct |
 | `List<T>` element removal by index in the port's first cut | Q440 "`List` has no `removeAt`" (a tombstone workaround); spec has `remove(at:)` §16:1743 | set `code = ""` and skip, or `remove(at:)` where built |
@@ -342,7 +342,7 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 
 ## Gotchas seen in the selfhost port
 
-- Q430: no package root for `src/parser`, so `import lexer` works only via the test loader / API, not `bayan build src/parser`.
+- Q430: no package root for `selfhost/parser`, so `import lexer` works only via the test loader / API, not `bayan build selfhost/parser`.
 - Q431: only public lexer members are reachable; the parser made `TokenKind`, `Keywords.build`, `TextSpan`, `SourceText` and token fields public.
 - Q433: 70 parser codes (69 before BYN1069, spec 013 T2), and an empty file dumps `CompilationUnit\n` without the extra blank line.
 - Q435: union children are `Owned<…>` variants plus `none`; `List<Stmt>`/`List<Decl>` of the unions; defaults `List<T>()`, `.none`, `null`, `false` are all writable in a struct.
@@ -372,7 +372,7 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 - Q490/Q500/Q502: `--many` exits 0/2 like `bayan-lex`; the span-check lines are Bayan-only and compared up to the first `span out of range:`.
 - `work/todo.md`: `if a == b` emits `((x == y))` and fails clang `-Werror`; `map[k].clear()/add` are BYN2106; `List<T>` reassignment while borrowed is unchecked; unique generic instances are not region-checked; `string` and `Symbol` have duplicate-switch-arm holes.
 
-Not reached: I did not read the actual `tests/cases/run/*.test.byn` bodies (only their names/sizes), the `src/lexer/lexer.byn` internals, or the C# front end; tuple `let`-destructuring and `pair.0` absence are marked unverified rather than proven.
+Not reached: I did not read the actual `tests/cases/run/*.test.byn` bodies (only their names/sizes), the `selfhost/lexer/lexer.byn` internals, or the C# front end; tuple `let`-destructuring and `pair.0` absence are marked unverified rather than proven.
 exit=0
 
 ## End your final message with

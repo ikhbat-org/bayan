@@ -33,8 +33,7 @@ if [ ! -x "$cache/bin/$exe" ]; then
   mkdir -p "$build/src"
   trap 'rm -rf "$build"; exit 1' INT TERM
   log="$build/build.log"
-  # The C# compiler sits in csharp/ since plan 017 and in src/ before it; the pin may predate the move.
-  if ! { git clone -q --shared --no-checkout "$main" "$build/src" && git -C "$build/src" checkout -q --detach "$sha" && cli="$build/src/csharp/Bayan.Cli" && { [ -d "$cli" ] || cli="$build/src/src/Bayan.Cli"; } && dotnet build "$cli" -c Debug -o "$build/bin" -v q --nologo -p:UseSharedCompilation=false; } > "$log" 2>&1; then
+  if ! { git clone -q --shared --no-checkout "$main" "$build/src" && git -C "$build/src" checkout -q --detach "$sha" && dotnet build "$build/src/src/Bayan.Cli" -c Debug -o "$build/bin" -v q --nologo -p:UseSharedCompilation=false; } > "$log" 2>&1; then
     echo "pinned-bayan: building bayan at $sha ($ref) failed; log: $log" >&2; exit 1
   fi
   rm -rf "$build/src"  # only bin/ is used (the version is stamped at build time); nothing reads the checkout afterwards

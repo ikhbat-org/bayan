@@ -1,9 +1,4 @@
 # 018 — Tasks
-
-Status: in progress
-Release: 0.3.0
-Sources: Q1168, Q1175, Q1196, Q1197, Q1205, Q1207, Q1208
-
 Plan: ./018-plan.md
 
 Order: P1; Part 5 = T1, T2, then merge `feat/018-rev-0021-checker` into `dev`; Part 3 = T3, T4, merge; Part 4 = T5–T9, merge.

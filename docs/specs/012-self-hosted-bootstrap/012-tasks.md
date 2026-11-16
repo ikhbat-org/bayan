@@ -1,9 +1,4 @@
 # 012 — Tasks
-
-Status: done
-Release: 0.2.0
-Sources: Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q753, Q917, Q922, Q944, Q947, Q970, Q971, Q972, Q973, Q974, Q975, Q978, Q1016, Q1017, Q1018, Q1021, Q1040, Q1041, Q1042, Q1043, Q1045, Q1050, Q1055, Q1060, Q1064; docs/decisions/2026-11-14-004-answered-questions.md
-
 Plan: ./012-plan.md
 
 Depends on: `dev` with 011 merged and L024/L025 enacted (011 T17–T20); spec 014's `Path.combine`, `Path.directoryName` and `Path.fullPath` (`uses alloc` only, user decision 2026-11-04, following the dispatcher decision Q753 of 2026-11-03 for `Path.relative`) for the tasks with `014` in `after:`. Serial order: P1, T1; then the wave T2, T4, T8 (disjoint files, siblings through `012-api.md` signatures); T3 and T5 once 014 has landed; then T6, T7, T9, T10, T11–T14. Driver tasks land only through `scripts/selfhost/land.sh` (after P1, its 012 row) with an independent review against the C#; expected values come from `CliApp.Run`, `CliApp.EmitC` or the C# golden tests, never typed by hand. Each task's Questions use its own five-number range, assigned by the dispatcher at brief time (plan D6). Every task follows the spec's *Decisions* (Q1–Q9, decided by the user 2026-11-04); a task that meets a new choice records it as a Question.

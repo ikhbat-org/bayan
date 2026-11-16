@@ -1,7 +1,5 @@
 # Bayān — Concurrency design
 
-Version: 0.3.1 (matches `bayan --version`)
-
 Nov 1, 2026 · Confirmed design, to be specced in round 4 and implemented in v0.2. Nothing here changes 010–013.
 
 Examples use the round-4 clause order (`where → expects → uses → becomes → fails`). Cancel words use US spelling (`canceled`, `canceling`).

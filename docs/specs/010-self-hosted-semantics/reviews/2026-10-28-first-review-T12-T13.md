@@ -1,7 +1,3 @@
-Status: done
-Release: 0.1.0
-Sources: Q575, Q577, Q578, Q579, Q580, Q581, Q582, Q704
-
 ## Audit of T12 (declare.byn) and T13 (generics.byn)
 
 I read all the code involved. I ran one probe, under `tmp/review-b/probe1`, which showed that `map[k]` on a missing key panics. Nothing tracked was modified.

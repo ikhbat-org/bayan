@@ -1,9 +1,4 @@
 # 017 — Plan
-
-Status: in progress
-Release: 0.3.0
-Sources: Q1, Q3, Q919, Q1106, Q1111, Q1112, Q1244, Q1246
-
 Spec: ./017-spec.md
 Tasks: ./017-tasks.md
 

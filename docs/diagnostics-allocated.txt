@@ -1,4 +1,4 @@
-# Diagnostic codes allocated outside csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs, read by
+# Diagnostic codes allocated outside src/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs, read by
 # scripts/docs/gen-diagnostics.sh into docs/DIAGNOSTICS.md: plan codes, reservations with no descriptor, and descriptors
 # retired or reserved only in their docs/diagnostics/ page. A code with a `// BYNnnnn is retired|reserved` or round-4
 # comment there is not listed here. One code per line: status (plan, reserved or retired), code, name (- when none),

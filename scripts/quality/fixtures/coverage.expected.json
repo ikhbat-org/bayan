@@ -8,7 +8,7 @@
   },
   "files": [
     {
-      "path": "csharp/A.cs",
+      "path": "src/A.cs",
       "lines": {
         "covered": 3,
         "total": 4,
@@ -32,7 +32,7 @@
       "errorPaths": []
     },
     {
-      "path": "csharp/B.cs",
+      "path": "src/B.cs",
       "lines": {
         "covered": 1,
         "total": 1,

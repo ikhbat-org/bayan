@@ -1,9 +1,4 @@
 # 002 — Plan
-
-Status: done
-Release: 0.1.0
-Sources: Q49, Q55, Q56; docs/decisions/2026-11-14-004-answered-questions.md
-
 Spec: ./002-spec.md
 
 ## Approach

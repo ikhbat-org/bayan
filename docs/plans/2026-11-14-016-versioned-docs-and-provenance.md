@@ -1,7 +1,7 @@
 # Plan 016: every doc versioned, a spec index, and a feature history
 
-Status: done (approved by the user 2026-11-14, "Full, after the split"; built 2026-11-15, unattended run)
-Release: 0.3.1 (docs only; no compiler change; moved from 0.3.0 by the user 2026-11-14, "cut 0.3.0 … then finish the docs and do 0.3.1")
+Status: open (approved by the user 2026-11-14, "Full, after the split"; starts when the handoff split lands)
+Release: 0.3.0 (docs only; no compiler change)
 Sources: user request 2026-11-14; revision 0020 (the versioned-spec rule this extends); `docs/RELEASING.md`.
 
 ## Goal
@@ -20,9 +20,8 @@ Anyone can tell, from the files alone:
 
 | kind | what | header (first ten lines) | changes when |
 |---|---|---|---|
-| **release** | describes the software as it is at a version: SPEC, GRAMMAR, STYLE, STATUS, DIAGNOSTICS, RELEASING, contributing, milestones, roadmap, not-planned, nice-to-have, questions, library tiers, concurrency, views, self-hosting, memory leaks, terminal style, typed dump, `docs/security/*`, `docs/revisions/README.md`, `docs/laws/README.md`, the spec index, the feature history | `Version: X.Y.Z (matches \`bayan --version\`)` | every release: `next-dev.sh` bumps them, as it does the five today |
-| **record** | a decision made or work done at a point in time: `docs/specs/NNN-*/`, `docs/plans/`, `docs/handoffs/`, `docs/decisions/`, `docs/revisions/`, `docs/audits/`, `docs/laws/`, the progress log | `Status:` (done / in progress / open / approved (not started) / deferred / superseded by X / rejected), `Release:` (the release it shipped in or targets, or `unscheduled`), and `Sources:` (Q-ids, revisions, decisions, user decisions with dates) | when its status changes; its body is history and is not rewritten |
-| **exempt, for now** | `docs/diagnostics/BYN*.md` (332 pages) | none | they are embedded in `bayan explain` and in `selfhost/driver/diagdocs.byn` → `bootstrap/bayan.c`, so a `Version:` line would change compiler output on every bump, against "docs only; no compiler change". Found by W1 2026-11-15; kept out as the conservative option until the user decides (release kind with the line stripped at embed time, or a separate kind) |
+| **release** | describes the software as it is at a version: SPEC, GRAMMAR, STYLE, STATUS, DIAGNOSTICS, RELEASING, contributing, milestones, roadmap, not-planned, nice-to-have, questions, library tiers, concurrency, views, self-hosting, memory leaks, terminal style, typed dump, `docs/diagnostics/*.md`, `docs/security/*`, the spec index, the feature history | `Version: X.Y.Z (matches \`bayan --version\`)` | every release: `next-dev.sh` bumps them, as it does the five today |
+| **record** | a decision made or work done at a point in time: `docs/specs/NNN-*/`, `docs/plans/`, `docs/decisions/`, `docs/revisions/`, `docs/audits/`, `docs/laws/`, the progress log | `Status:` (done / in progress / open / approved (not started) / deferred / superseded by X / rejected), `Release:` (the release it shipped in or targets, or `unscheduled`), and `Sources:` (Q-ids, revisions, decisions, user decisions with dates) | when its status changes; its body is history and is not rewritten |
 | **snapshot** | kept for reference, not maintained: `docs/export/`, `docs/misc/`, design rounds 2–4, the suq reports | `Snapshot: <date>; not maintained. Current text: <path>` | never |
 
 ## Spec index

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1",
   "files": {
-    "/repo/csharp/A.cs": {
+    "/repo/src/A.cs": {
       "language": "cs",
       "source": "int f(int a) {\n  return a + 1;\n}\n",
       "mutants": [
@@ -13,7 +13,7 @@
         {"id": "6", "mutatorName": "Arithmetic", "replacement": "a %% 1", "location": {"start": {"line": 2, "column": 10}, "end": {"line": 2, "column": 15}}, "status": "CompileError"}
       ]
     },
-    "/repo/csharp/Other.cs": {
+    "/repo/src/Other.cs": {
       "language": "cs",
       "source": "x\n",
       "mutants": [

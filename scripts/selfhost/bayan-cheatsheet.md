@@ -2,7 +2,7 @@
 # Bayan cheat sheet for porters (compiler-checked 2026-10-26)
 
 **Probe before you write.** Unsure whether something compiles? Put it in `tmp/probe/<name>/main.byn` (one dir per probe; a dir is a module) and run
-`<repo>/csharp/Bayan.Cli/bin/Debug/net10.0/bayan check tmp/probe/<name>/main.byn` (0.3 s). Do this instead of grepping the spec.
+`<repo>/src/Bayan.Cli/bin/Debug/net10.0/bayan check tmp/probe/<name>/main.byn` (0.3 s). Do this instead of grepping the spec.
 
 ## Checked by the compiler (trust these over anything below)
 | Form | Result |
@@ -32,7 +32,7 @@ struct Parser {
     bool inExtern
 }
 ```
-`src/parser/parser.byn:27-36`
+`selfhost/parser/parser.byn:27-36`
 
 **Struct literal — `{ field: value }` with trailing comma; nested literals target-typed.**
 ```byn
@@ -43,7 +43,7 @@ return Parser {
     inExtern: false,
 }
 ```
-`src/parser/parser.byn:62-69`
+`selfhost/parser/parser.byn:62-69`
 
 **Union declaration — one camelCase case per line, payloads named and type-first.**
 ```byn
@@ -53,7 +53,7 @@ union Decl {
     none
 }
 ```
-`src/parser/nodes.byn:190-210`
+`selfhost/parser/nodes.byn:190-210`
 
 **Enum (payload-free union form) — one case per line, no commas.**
 ```byn
@@ -63,7 +63,7 @@ enum ParamModifier {
     moveKeyword
 }
 ```
-`src/parser/nodes.byn:369-374`
+`selfhost/parser/nodes.byn:369-374`
 
 **`switch` on a union is exhaustive; payload binds with `case .x(let n)`, `_` binds whole.**
 ```byn
@@ -76,21 +76,21 @@ switch lexed.tokens[i].kind {
         continue
 }
 ```
-`src/parser/parser.byn:47-57`
+`selfhost/parser/parser.byn:47-57`
 
 **Optional: `T?`, `null` literal, `is null` / `is not null`; bind a field path with `is { }` to narrow.**
 ```byn
 if (d.value.failsKeyword is { } fails) { … fails.errors … }
 if failsSpan is null { failsSpan = at }
 ```
-`docs/decisions/2026-11-14-004-answered-questions.md:1343` (Q480), `src/parser/decls.byn:825`
+`docs/decisions/2026-11-14-004-answered-questions.md:1343` (Q480), `selfhost/parser/decls.byn:825`
 
 **Optional early exit: `?? return` / `?? fail`.**
 ```byn
 let bytes = Io.readFile(path) catch return unreadable(path)
 let order = db.find(id) ?? return .notFound
 ```
-`src/parser/main.byn:48`, `docs/bayan-spec.md:1010`
+`selfhost/parser/main.byn:48`, `docs/bayan-spec.md:1010`
 
 **List creation and append; `length`; index; `for` binds a borrow.**
 ```byn
@@ -99,7 +99,7 @@ for i in 0..count {
     inGroup.append(groups.length > 0 && groups[groups.length - 1])
 }
 ```
-`src/parser/parser.byn:40-57`
+`selfhost/parser/parser.byn:40-57`
 
 **Map: literal `["k": v]`, empty `[]` target-typed, `contains`, indexing, `tryGet(at:) ??`.**
 ```byn
@@ -122,7 +122,7 @@ var sb = StrBuf()
 sb.append($"== {name}\n")
 Io.stdout.write(sb.finish())
 ```
-`src/parser/parser.byn:99`, `src/parser/main.byn:65-69`
+`selfhost/parser/parser.byn:99`, `selfhost/parser/main.byn:65-69`
 
 **Interpolation is the concat form; `$"…"` allocates unless passed to `print`/`StrBuf.append`; return a copy of `finish()` with `$"{…}"`.**
 ```byn
@@ -134,7 +134,7 @@ return $"{sb.finish()}"
 ```byn
 unless name.endsWith(".byn") { continue }
 ```
-`src/parser/main.byn:61`; API `docs/bayan-spec.md:1922`
+`selfhost/parser/main.byn:61`; API `docs/bayan-spec.md:1922`
 
 **Integer types: `i8 i16 i32 i64 u8 … usize f32 f64`; sizes/counts are `i64`; conversions are calls `T(x)` (narrowing traps), `T.tryFrom(x)` returns `T?`.**
 ```byn
@@ -142,14 +142,14 @@ const exitOk: i32 = 0
 let size = result.source.bytes.length      // i64
 u8(x)                                       // never (u8)x
 ```
-`src/lexer/main.byn:24`, `docs/bayan-spec.md:828`
+`selfhost/lexer/main.byn:24`, `docs/bayan-spec.md:828`
 
 **`ref this` declares a mutating member; default is read-only; call through a `var`.**
 ```byn
 Token advance(ref this) { … pos += 1 … return token }
 i32 errorCount(ref this) => …
 ```
-`src/parser/parser.byn:86-91`
+`selfhost/parser/parser.byn:86-91`
 
 **`ref`/`in` at the call site for a mutable/read-only borrow; `Owned<T>` payload is read-only, so readers take `in`.**
 ```byn
@@ -157,14 +157,14 @@ string exprText(in Expr e)        // called exprText(in n.value.left)
 var p = Parser.create(lexer.lex(…))
 let unit = parseCompilationUnit(ref p)
 ```
-`docs/decisions/2026-11-14-004-answered-questions.md:1271` (Q436), `src/parser/main.byn:50-51`
+`docs/decisions/2026-11-14-004-answered-questions.md:1271` (Q436), `selfhost/parser/main.byn:50-51`
 
 **`move` transfers ownership; `List`/`Map`/`StrBuf`/`Owned` and any struct holding them are `unique`. Broken implicit copy is BYN2780.**
 ```byn
 return Parser { lexed: move lexed, inGroup: move inGroup, … }
 let b = move a                     // var b = a is BYN2780
 ```
-`src/parser/parser.byn:62-69`, `docs/diagnostics/BYN2780.md`
+`selfhost/parser/parser.byn:62-69`, `docs/diagnostics/BYN2780.md`
 
 **`Owned` and `in` — mutating through `Owned` or a temporary is BYN2106.**
 ```byn
@@ -179,7 +179,7 @@ public void remove(ref this, from Index start, until Index end)
 xs.remove(from: 2, until: 5)
 bool inside(TextSpan span, until i64 size) => span.end <= size
 ```
-`docs/bayan-spec.md:1356-1364`, `src/lexer/main.byn:55`
+`docs/bayan-spec.md:1356-1364`, `selfhost/lexer/main.byn:55`
 
 **`bool` arguments must be passed by name (BYN2305).**
 ```byn
@@ -207,7 +207,7 @@ provide allocator: arena {
     …
 }
 ```
-`src/parser/main.byn:62-63`
+`selfhost/parser/main.byn:62-63`
 
 **Imports: a directory is a module; `import lexer`; qualify nothing — import brings names in; alias with `as`.**
 ```byn
@@ -215,14 +215,14 @@ import lexer
 
 const exitOk: i32 = 0
 ```
-`src/parser/main.byn:16-18`, `docs/bayan-spec.md:2071`
+`selfhost/parser/main.byn:16-18`, `docs/bayan-spec.md:2071`
 
 **Re-export/alias a module type with `type X = lexer.X`; a struct literal cannot name its type through a module (Q431).**
 ```byn
 type TextSpan = lexer.TextSpan
 type Token = lexer.Token
 ```
-`src/parser/parser.byn:19-23`
+`selfhost/parser/parser.byn:19-23`
 
 **Tests: `test "name" { assert expr }`, sibling `x.test.byn`; `assert f() fails E.case`; `@cases(...)`; plain expressions, no fluent API.**
 ```byn
@@ -245,13 +245,13 @@ if token.kind != .endOfFile {
     prevEnd = token.end
 }
 ```
-`src/parser/parser.byn:87-92`
+`selfhost/parser/parser.byn:87-92`
 
 **Casing: types PascalCase, everything else camelCase; union cases/error variants camelCase; keywords can't be identifiers.**
 ```byn
 enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 ```
-`docs/bayan-spec.md:723-726`, `src/parser/nodes.byn:369-374`
+`docs/bayan-spec.md:723-726`, `selfhost/parser/nodes.byn:369-374`
 
 ## Does NOT have (C# habit → BYN code → replacement)
 
@@ -271,7 +271,7 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 | `foreach` / `for (…;…;…)` / `while (x)` | BYN1019, BYN1017 (`docs/bayan-spec.md:2275-2276`) | `for x in xs`, `while x` |
 | string `+`, `s[i]` indexer, `Substring`, `ToString()`, `Length` capital, `string.Format` | `docs/bayan-spec.md:190` (no indexer), `:195` (no `+`), `:1749` (slice for Substring), `:915` (no `toString`), `:188` (`length`) | `$"{a}{b}"`, `StrBuf`, `s[a..b]`, `string(x)`, `.length` |
 | `s.Contains` case-insensitive ambient culture | §16.4:1970-1971 no ambient culture, ordinal only | `equals(t, as: .caseless)`; culture via `kit.intl` |
-| current working directory / `Environment.CurrentDirectory` builtin | **Unverified — I found no cwd builtin** in §16 or the selfhost; the CLI takes explicit paths (`src/parser/main.byn:5-9`) | pass paths explicitly; `Io.listDir`/`Io.readFile` take a path |
+| current working directory / `Environment.CurrentDirectory` builtin | **Unverified — I found no cwd builtin** in §16 or the selfhost; the CLI takes explicit paths (`selfhost/parser/main.byn:5-9`) | pass paths explicitly; `Io.listDir`/`Io.readFile` take a path |
 | ASCII-only casing in the ported compiler (`A`–`Z` for `char.IsUpper`) | Q442 is superseded by Q1142: `char.IsUpper`/`IsLower` are Unicode Lu/Ll in C#, and law L017 caught the parser diverging on `Åp { x: 1 }` | `lexer.firstIsUpper`/`firstIsLower` (the generated `upperRanges`/`lowerRanges`, BMP); never `A`–`Z` for a C# `char.IsUpper` |
 | tuple-typed struct field `(i8, i64) f1` | `work/todo.md:24` BYN1001 (parsed as function type) | use a named struct |
 | `List<T>` element removal by index in the port's first cut | Q440 "`List` has no `removeAt`" (a tombstone workaround); spec has `remove(at:)` §16:1743 | set `code = ""` and skip, or `remove(at:)` where built |
@@ -283,7 +283,7 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 
 ## Gotchas seen in the selfhost port
 
-- Q430: no package root for `src/parser`, so `import lexer` works only via the test loader / API, not `bayan build src/parser`.
+- Q430: no package root for `selfhost/parser`, so `import lexer` works only via the test loader / API, not `bayan build selfhost/parser`.
 - Q431: only public lexer members are reachable; the parser made `TokenKind`, `Keywords.build`, `TextSpan`, `SourceText` and token fields public.
 - Q433: 70 parser codes (69 before BYN1069, spec 013 T2), and an empty file dumps `CompilationUnit\n` without the extra blank line.
 - Q435: union children are `Owned<…>` variants plus `none`; `List<Stmt>`/`List<Decl>` of the unions; defaults `List<T>()`, `.none`, `null`, `false` are all writable in a struct.
@@ -313,5 +313,5 @@ enum ParamModifier { none, refKeyword, moveKeyword }   // written one per line
 - Q490/Q500/Q502: `--many` exits 0/2 like `bayan-lex`; the span-check lines are Bayan-only and compared up to the first `span out of range:`.
 - `work/todo.md`: `if a == b` emits `((x == y))` and fails clang `-Werror`; `map[k].clear()/add` are BYN2106; `List<T>` reassignment while borrowed is unchecked; unique generic instances are not region-checked; `string` and `Symbol` have duplicate-switch-arm holes.
 
-Not reached: I did not read the actual `tests/cases/run/*.test.byn` bodies (only their names/sizes), the `src/lexer/lexer.byn` internals, or the C# front end; tuple `let`-destructuring and `pair.0` absence are marked unverified rather than proven.
+Not reached: I did not read the actual `tests/cases/run/*.test.byn` bodies (only their names/sizes), the `selfhost/lexer/lexer.byn` internals, or the C# front end; tuple `let`-destructuring and `pair.0` absence are marked unverified rather than proven.
 exit=0

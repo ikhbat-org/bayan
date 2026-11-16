@@ -1,9 +1,4 @@
 # 015 — Plan
-
-Status: in progress
-Release: unscheduled
-Sources: Q910, Q916, Q1009, Q1065, Q1140, Q1141; revisions 0015, 2026
-
 Spec: ./015-spec.md
 
 ## Approach
@@ -55,7 +50,7 @@ decisions of 2026-11-08 (below, U1–U5). The section above stays as history; wh
 
 ### What the inventory found
 - T3 and T4 deleted their originals: `review-brief.py` and `plan-strings-check.{js,test.js}` are gone from `git ls-files`.
-- S6 has landed here (T5, `byn_io_run_with`, `runtime/bayan-rt.h:464`) and is not on `dev`. No script uses a
+- S6 has landed here (T5, `byn_io_run_with`, `src/runtime/bayan-rt.h:464`) and is not on `dev`. No script uses a
   subprocess timeout or streaming.
 - `std.json` exists only on `dev` (`lib/std/json/{reader,value}.byn`); this branch has no `lib/`.
 - Missing on both branches: regex (S3), `Base64` (S12), glob/walk (S5), a file lock, append-mode open. The fs slice in
@@ -63,12 +58,12 @@ decisions of 2026-11-08 (below, U1–U5). The section above stays as history; wh
   builtin `Time` struct, i64 ns since the Unix epoch), `Fs.realPath` (fails if the path is missing) and
   `IoError.crossDevice`; D6 (`Io.run` `timeout`, `null` removes an `env:` variable, W0 status mapping,
   `.timeout(Millis)`/`.signaled(i32)`) follows it.
-- Q1065 is still open: `byn_io_run_with` captures through `byn_process_finish` (`runtime/bayan-rt.c:3174`), which
+- Q1065 is still open: `byn_io_run_with` captures through `byn_process_finish` (`src/runtime/bayan-rt.c:3174`), which
   fails `invalidUtf8` on non-UTF-8 output and drops the exit code. A byte-exact `replay` needs a bytes-returning
   `Io.run`, which is new API (R4): Q1141, decided 2026-11-08 as no new API now, settled in the later
   process-handle/streaming API after D6/W0.
 - `Io.createDirectory` is idempotent (`Builtins.cs:378`, as .NET `Directory.CreateDirectory`; `byn_mkdir_all`,
-  `runtime/bayan-rt.c:3050`, returns 0 on an existing directory), so "atomic creation of a lock directory" cannot
+  `src/runtime/bayan-rt.c:3050`, returns 0 on an existing directory), so "atomic creation of a lock directory" cannot
   be built on it as is: Q1140.
 - Spec inventory was stale (line counts, a missing inline block, two deleted originals, `scripts/cleanup/` vs R2); fixed
   in the spec in this revision.
@@ -112,7 +107,7 @@ the start. The directory always holds `pid` before its first rename and is only 
 ever exists. Four tests, run on Linux and on wp1 (Q1140 lists them): contended acquire, release, stale takeover, live
 lock not taken over with a failed verify renamed back. Error mapping today: the runtime's `IoError` codes are
 `notFound`, `permissionDenied`, `invalidUtf8`, `notADirectory`, `other`, `invalidInput`, `unsupported`
-(`runtime/bayan-rt.h:430-436`), so a failed rename onto an existing directory would surface as `.other`;
+(`src/runtime/bayan-rt.h:430-436`), so a failed rename onto an existing directory would surface as `.other`;
 `.alreadyExists` (U4) is added, mapped from EEXIST and ENOTEMPTY on `Fs.rename`, an approved R4 shape (U4), built in
 G6's first task.
 

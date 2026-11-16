@@ -1,9 +1,4 @@
 # 020 — Tasks
-
-Status: approved (not started)
-Release: unscheduled
-Sources: none recorded
-
 Plan: ./020-plan.md
 
 T1 is a go/no-go gate: nothing from T2 on starts until its numbers are reported to the user and the gate passes. Laws take L032–L037 (029 and 030 are absent from `docs/laws/` and left free). R6 is met by plan 009 (`docs/plans/2026-11-13-009-prebuilt-runtime-object.md`, compiler identity in the program key), not by a task here.

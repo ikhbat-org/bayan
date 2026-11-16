@@ -4,20 +4,20 @@
   <packages>
     <package name="P">
       <classes>
-        <class name="A" filename="/repo/csharp/A.cs">
+        <class name="A" filename="/repo/src/A.cs">
           <lines>
             <line number="1" hits="3" branch="False" />
             <line number="2" hits="0" branch="False" />
             <line number="3" hits="2" branch="True" condition-coverage="50.5% (1/2)" />
           </lines>
         </class>
-        <class name="A/Inner" filename="/repo/csharp/A.cs">
+        <class name="A/Inner" filename="/repo/src/A.cs">
           <lines>
             <line number="2" hits="1" branch="False" />
             <line number="4" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="B" filename="csharp/B.cs">
+        <class name="B" filename="src/B.cs">
           <lines>
             <line number="7" hits="1" branch="True" condition-coverage="100% (2/2)" />
           </lines>

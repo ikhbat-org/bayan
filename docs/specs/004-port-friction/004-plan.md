@@ -1,9 +1,4 @@
 # 004 — Plan
-
-Status: done
-Release: 0.1.0
-Sources: Q71, Q72, Q73, Q74, Q75, Q76, Q77, Q78; docs/decisions/2026-11-14-004-answered-questions.md
-
 Spec: ./004-spec.md
 
 ## Approach

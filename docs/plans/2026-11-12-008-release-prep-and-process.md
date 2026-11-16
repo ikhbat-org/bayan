@@ -1,8 +1,6 @@
 # 008 — 0.3.0 release prep, faster landing, docs drift
 
 Status: done (9653928b).
-Release: 0.3.0
-Sources: Q31, Q1216, Q1217, Q1218, Q1227, Q1229, Q1247, Q1262, Q1263, Q1264, Q1265, Q1267, Q1270, Q1272, Q1273, Q1274
 
 Tier: Standard. Approved by the user 2026-11-12. The decisions are listed in `docs/decisions/2026-11-14-004-answered-questions.md` (*Questions*, "Decided by the user (2026-11-12)", and Q1274).
 Branch: `feat/008-release-prep-and-process`. Each work package (W) is one writer on its own worker branch, gated against its section below, then landed here. W1–W5 own disjoint files. **No writer edits `docs/bayan-progress-log.md`**: the dispatcher writes the Progress log. A spec gap becomes a line in the writer's final reply, not a handoff edit.

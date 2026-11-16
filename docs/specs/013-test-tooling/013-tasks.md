@@ -1,9 +1,4 @@
 # 013 — Tasks
-
-Status: done
-Release: 0.1.0
-Sources: revisions 0014
-
 Plan: ./013-plan.md
 
 Order: T1–T3 groundwork, T4–T8 mutation, T9–T13 coverage and gates, T14–T15 spec 010 guard, T16 C#, T17 docs, T18–T19 measurement and platforms, T20–T25 laws. Every task runs on macOS; T19 repeats the whole suite on Linux (Docker) and Windows (`ssh wp1`). Every new diagnostic gets a `diag/` case and every runtime feature a `run/` case (AGENTS.md).

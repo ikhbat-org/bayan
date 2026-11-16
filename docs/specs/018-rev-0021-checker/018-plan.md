@@ -1,9 +1,4 @@
 # 018 — Plan
-
-Status: in progress
-Release: 0.3.0
-Sources: none recorded
-
 Spec: ./018-spec.md
 
 ## Approach

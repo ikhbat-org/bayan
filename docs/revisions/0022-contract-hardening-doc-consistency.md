@@ -1,8 +1,6 @@
 # 0022 — Contract hardening and documentation consistency
 
-Status: done (accepted, user decisions D1–D6 and Q1, handed off from `tmp/dropoff-0020/drop.md` after verification against `dev` at 58950f39)
-Release: 0.3.0
-Sources: user decisions D1–D6 and Q1; Q1272, Q1273; revisions 0002, 0016, 0017, 0019, 0020, 0021
+Status: accepted (user decisions D1–D6 and Q1, handed off from `tmp/dropoff-0020/drop.md` after verification against `dev` at 58950f39)
 
 ## Problem
 

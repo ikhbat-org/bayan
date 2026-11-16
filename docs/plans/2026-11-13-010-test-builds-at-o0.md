@@ -1,8 +1,6 @@
 # 010 — Test builds at -O0
 
 Status: deferred (the -O0 gate failed at step 1 on 2026-11-13; see Result). Was: approved by the user 2026-11-13, gated on step 1 (build steps 2–4 only if the suite is ≥10% faster with no new failures). Decisions: `bayan test` for users stays -O2; merge gates at -O0, nightly, release and laws at -O2 (the recommendations). Builds on plan 009 (prebuilt runtime object). Measurements: tmp/bench (m2, m3).
-Release: unscheduled
-Sources: user, 2026-11-13 (approved, gated on step 1); plan 009
 
 ## Why
 
@@ -22,13 +20,13 @@ Cost on the other side: an -O0 program runs slower. m2 measured the five compile
 
 1. **Measure first (tmp/, no Bayan change).** On the ghosthive VM `bayan-test01` (Linux, the fastest host), run the full suite twice on one commit with `BAYAN_CC` pointing at a wrapper that rewrites `-O2` to `-O0` for `main.c` only (both runs with plan 009 applied, if merged; else both without). Compare suite wall time, per-class time and failures. Go only if the suite is at least 10% faster with no new failures; otherwise this plan stops and only plan 009 lands.
 2. **One switch, `BAYAN_OPT=0`**, read by both compilers. For `safe` and `fast` builds it compiles the program's own C at -O0 (the runtime object stays -O2, `-DBYN_NDEBUG` stays, so semantics do not change); `debug` builds are unaffected; any other value is an error naming the allowed ones. It is part of the flag list and so of every key. Documented in the CLI help as a build-speed switch for development, not for releases.
-3. **Who sets it.** `csharp/tests/Bayan.Tests/TestSetup.cs` sets it for the test run unless `BAYAN_OPT` is already set; `scripts/selfhost/shard-test.sh` passes it through. The nightly full tier, the release workflow and the laws gate set `BAYAN_OPT=2` explicitly, so the shipped flags are exercised every night and before every release.
-4. **Both compilers.** C# `Toolchain.cs` and `src/driver/cc.byn` / `cache.byn` change in one branch through `scripts/selfhost/land.sh`; `bootstrap/bayan.c` regenerated; the byte-comparison parity tests run with the same `BAYAN_OPT` on both sides.
+3. **Who sets it.** `tests/Bayan.Tests/TestSetup.cs` sets it for the test run unless `BAYAN_OPT` is already set; `scripts/selfhost/shard-test.sh` passes it through. The nightly full tier, the release workflow and the laws gate set `BAYAN_OPT=2` explicitly, so the shipped flags are exercised every night and before every release.
+4. **Both compilers.** C# `Toolchain.cs` and `selfhost/driver/cc.byn` / `cache.byn` change in one branch through `scripts/selfhost/land.sh`; `bootstrap/bayan.c` regenerated; the byte-comparison parity tests run with the same `BAYAN_OPT` on both sides.
 
 ## Changes by area
 
-- `csharp/Bayan.Backend.C/Toolchain.cs`, `src/driver/cc.byn`, `src/driver/cache.byn` — read `BAYAN_OPT`, pick the program's -O level, error on bad values.
-- `csharp/tests/Bayan.Tests/TestSetup.cs` — default `BAYAN_OPT=0`; `scripts/selfhost/shard-test.sh` — pass it on; nightly and release workflow files and the laws gate invocation — `BAYAN_OPT=2`.
+- `src/Bayan.Backend.C/Toolchain.cs`, `selfhost/driver/cc.byn`, `selfhost/driver/cache.byn` — read `BAYAN_OPT`, pick the program's -O level, error on bad values.
+- `tests/Bayan.Tests/TestSetup.cs` — default `BAYAN_OPT=0`; `scripts/selfhost/shard-test.sh` — pass it on; nightly and release workflow files and the laws gate invocation — `BAYAN_OPT=2`.
 - Tests: key differs between 0 and 2; `debug` ignores it; a bad value is a diagnostic in both compilers (parity); a run corpus sample built both ways gives the same output; a test that fails if the nightly/release workflows do not set `BAYAN_OPT=2`.
 - `docs/bayan-progress-log.md` Progress log; CHANGELOG `[Unreleased]`.
 

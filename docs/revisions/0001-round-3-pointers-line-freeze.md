@@ -1,9 +1,5 @@
 # 0001 — Round 3 update: postfix pointers, BYN1030 retired, `#line` mapping, spec freeze
 
-Status: done (adopted by the user, 2026-10-24)
-Release: 0.1.0
-Sources: user, 2026-10-24 (adopted with the updated HANDOFF); plan `docs/plans/2026-10-22-002-design-round-3.md`
-
 Date: 2026-10-24. Adopted by the user with the updated HANDOFF (`docs/bayan-design-round-3.md`) and plan (`docs/plans/2026-10-22-002-design-round-3.md`).
 
 ## Problem

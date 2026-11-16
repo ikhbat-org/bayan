@@ -1,8 +1,6 @@
 # Bayān Style — Proposal
 
-Status: done; decided (all items in §5 settled; C21 revised 2026-11-04). Layout rules land in `bayan format` and docs/bayan-style.md in round 4; no grammar revision is needed.
-Release: 0.2.0
-Sources: none recorded
+Status: decided (all items in §5 settled; C21 revised 2026-11-04). Layout rules land in `bayan format` and docs/bayan-style.md in round 4; no grammar revision is needed.
 
 ---
 
@@ -374,7 +372,7 @@ This reuses the existing `because` purpose clause, and `bayan audit` lists every
 - **One engine.** The formatter is in the compiler and works on the lossless syntax tree, so comments and trivia are preserved. It is a Wadler-style group/break printer, as in Prettier: a group that doesn't fit breaks into one item per line.
 - **CLI.** `bayan format` writes. `bayan format --check` writes nothing, lists each file that would change and exits 1 (spec :2243, unchanged); `--check --diff` prints the diff instead, for CI logs (review row C23). `bayan format --range a:b` formats a selection.
 - **LSP.** `formatting`, `rangeFormatting` and `onTypeFormatting` call the same engine, so Visual Studio and VS Code format on save identically. Lints arrive as ordinary diagnostics with code actions.
-- **Guarantees.** The formatter is idempotent (`FormattingIsIdempotent` in `csharp/tests/Bayan.Tests/FormatTests.cs`), output re-parses to the same AST, and generated code goes through the same formatter, so it stays readable.
+- **Guarantees.** The formatter is idempotent (`FormattingIsIdempotent` in `tests/Bayan.Tests/FormatTests.cs`), output re-parses to the same AST, and generated code goes through the same formatter, so it stays readable.
 
 ---
 
@@ -390,13 +388,13 @@ This reuses the existing `because` purpose clause, and `bayan audit` lists every
 | 6 | Style lints | **x900–x999 of the matching area** (A2), assigned at renumbering |
 | 7 | Opt-out | **`@unformatted because "…"`** only |
 
-Timing: layout rules and lints touch `bayan format`, docs/bayan-style.md and the `style` knobs, which the C# manifest check (csharp/Bayan.Syntax/Packages/Manifest.cs:35) and its self-hosted port (src/semantics/manifest.byn) validate. They land in the round-4 revision, after self-hosting.
+Timing: layout rules and lints touch `bayan format`, docs/bayan-style.md and the `style` knobs, which the C# manifest check (src/Bayan.Syntax/Packages/Manifest.cs:35) and its self-hosted port (selfhost/semantics/manifest.byn) validate. They land in the round-4 revision, after self-hosting.
 
 Round-4 edits (review row C8, user decision 2026-11-04: drop `braces`, take this proposal's knobs):
 
 | Site | Change |
 | --- | --- |
 | spec §19.2 manifest example (:2088-2094), bayan-style.md:11-14 and :72-74 | `maxLine: 100` → `width: 120`; drop `braces`; `trailingCommas: true` → `.multiline` (or `.never`); add `align: .runs` (or `.none`) and `lints` |
-| Manifest.cs:35, :179-183 and src/semantics/manifest.byn | the same knob set and types; an old knob name gets the manifest migration (review rows C24, I14) |
+| Manifest.cs:35, :179-183 and selfhost/semantics/manifest.byn | the same knob set and types; an old knob name gets the manifest migration (review rows C24, I14) |
 | spec :2104, bayan-style.md:5 | C9 wording (§4.1) |
 

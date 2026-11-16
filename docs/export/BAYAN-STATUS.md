@@ -2,8 +2,6 @@ Commit `821afa40`, 2026-11-09.
 
 # Bayān status
 
-Snapshot: 2026-11-09 (821afa40); not maintained. Current text: docs/STATUS.md
-
 One row per feature, keyword, pattern, effect, stdlib member family and diagnostic family, showing what was decided, where it was decided and what the compiler does at this commit.
 
 Status values:

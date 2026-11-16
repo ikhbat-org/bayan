@@ -1,7 +1,5 @@
 # Tooling ports: scope, pinned build and language rules
-Status: done; decided (user, 2026-11-02). Spec 015 (`docs/specs/015-tooling/015-spec.md`) carries the port list and its own decisions S1–S13; this record holds what that spec does not repeat.
-Release: 0.2.0
-Sources: user, 2026-11-02; spec 015
+Status: decided (user, 2026-11-02). Spec 015 (`docs/specs/015-tooling/015-spec.md`) carries the port list and its own decisions S1–S13; this record holds what that spec does not repeat.
 
 ## Decisions
 

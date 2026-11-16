@@ -1,7 +1,5 @@
 # Sūq — feature coverage
 
-Snapshot: 2026-10-23; not maintained. Current text: none
-
 Which `suq/` files exercise each feature that HANDOFF §21 (`docs/bayan-design-round-3.md`) asks Sūq to cover. The tree holds the paper storefront, order lifecycle and packing parts (`suq/README.md`); the other parts exist only in `docs/suq-reference-app.zip`, whose own coverage matrix is the full one. Until the compiler implements `bayan features --used`, this table is kept by hand.
 
 ## Parts

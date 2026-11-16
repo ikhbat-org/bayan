@@ -1,4 +1,4 @@
 --tasks
 tasks.md
 --files
-src/semantics/a.byn,src/semantics/c.byn
+selfhost/semantics/a.byn,selfhost/semantics/c.byn

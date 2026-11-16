@@ -1,9 +1,4 @@
 # 009 — Plan
-
-Status: done
-Release: 0.1.0
-Sources: Q430, Q431, Q432, Q435, Q437, Q440, Q455, Q500, Q508, Q509
-
 Spec: ./009-spec.md
 
 ## Approach

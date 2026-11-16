@@ -2,11 +2,9 @@
 id: L022
 title: Binder equivalence
 status: enacted
-release: 0.1.0
-sources: Q658
 kind: property
-scope: src/semantics/main.byn
-proof: src/tests/SelfhostSemanticsEquivalenceLawTests.cs
+scope: selfhost/semantics/main.byn
+proof: tests/Bayan.Tests/SelfhostSemanticsEquivalenceLawTests.cs
 check: dotnet test -v q --filter "Law=L022"
 timeout: 1800
 enacted: 2026-11-01
@@ -19,7 +17,7 @@ For every program that parses without errors, `bayan-check --types` and `bayan t
 A program that parses without errors on which `bayan-check` and `bayan check` differ in one stderr line (a missing, extra or reordered diagnostic, or one whose code, location, message, label or help differs), on which `bayan-check --types` and `bayan types` differ in one line of the typed dump (a binding's kind, name, span or type, or a function's order), or on which either pair exits with different codes.
 
 ## Proof notes
-`src/tests/SelfhostSemanticsEquivalenceLawTests.cs`, fact `BayanCheckEqualsTheCCheckerOnEveryCleanParse` tagged `[Trait("Law", "L022")]`. Three corpora: the diag cases (`Golden.Cases("diag")`) that parse without errors, every typed case (`Golden.Cases("typed")`), and the generator's 39 valid and 40 faulty seed programs (`SelfhostSemanticsGeneratorTests.Corpus(SelfhostSemanticsGenerator.Seeds)`, five fault kinds over eight seeds). Each program is copied alone to `tmp/l022/<corpus>/<NNNNN>/` (a single-file case as itself, a directory case as its whole directory with its `package.byn`, a generated program as `main.byn`), because a check reads the whole directory.
+`tests/Bayan.Tests/SelfhostSemanticsEquivalenceLawTests.cs`, fact `BayanCheckEqualsTheCCheckerOnEveryCleanParse` tagged `[Trait("Law", "L022")]`. Three corpora: the diag cases (`Golden.Cases("diag")`) that parse without errors, every typed case (`Golden.Cases("typed")`), and the generator's 39 valid and 40 faulty seed programs (`SelfhostSemanticsGeneratorTests.Corpus(SelfhostSemanticsGenerator.Seeds)`, five fault kinds over eight seeds). Each program is copied alone to `tmp/l022/<corpus>/<NNNNN>/` (a single-file case as itself, a directory case as its whole directory with its `package.byn`, a generated program as `main.byn`), because a check reads the whole directory.
 
 "Parses without errors" is decided by the C# parser: no error in `SyntaxTree.Diagnostics` of any `*.byn` under the program's directory, nor of any tree `Compilation.FromPath` loads (imports included), `package.byn` (the manifest) excepted; L017 makes it the Bayan parser's answer too. The exclusion is by any error in `SyntaxTree.Diagnostics`, not by code range: the parser also reports codes outside BYN1xxx (BYN8001 for a missing `because`, for one), and the binder reports some BYN1xxx codes (BYN1016). The diag cases outside the domain are listed by name in the test output, with their parse error codes, not dropped silently. The domain is pinned: the test asserts exactly 435 clean and 90 excluded diag cases (`PinnedClean`, `PinnedExcluded`), so a parser or corpus change that moves a case in or out fails until the pin is updated (Q658). It also asserts that every typed and generated program parses clean.
 
@@ -29,9 +27,9 @@ Measured on 2026-11-01: diag 435 of 525 cases parse clean and all 435 are compar
 
 Note 2026-11-07: the pin now lives in `SelfhostSemanticsEquivalenceLawTests.PinnedClean`; the figures here are not re-measured.
 
-Mutation 1 (widened conversion): `src/semantics/conversions.byn:110`, in `isWidening`, `return isUnsignedInteger(a) && isSignedInteger(t) && ab < tb` changed to `ab <= tb`, so `u64` widens implicitly to `i64`. `Law=L022` failed on `diag/bad-binary-operands.byn` (copy `tmp/l022/diag/00013/`), `check`, stderr line 1. Expected ``error BYN2208: `+` cannot be applied to `i64` and `u64` ``, actual ``error BYN2208: `+` cannot be applied to `bool` and `i32` `` (the first diagnostic disappeared).
+Mutation 1 (widened conversion): `selfhost/semantics/conversions.byn:110`, in `isWidening`, `return isUnsignedInteger(a) && isSignedInteger(t) && ab < tb` changed to `ab <= tb`, so `u64` widens implicitly to `i64`. `Law=L022` failed on `diag/bad-binary-operands.byn` (copy `tmp/l022/diag/00013/`), `check`, stderr line 1. Expected ``error BYN2208: `+` cannot be applied to `i64` and `u64` ``, actual ``error BYN2208: `+` cannot be applied to `bool` and `i32` `` (the first diagnostic disappeared).
 
-Mutation 2 (dropped diagnostic): `src/semantics/ownership.byn:423`, the `t24Report(… for: .useAfterMove …)` call for a read after a move, commented out. `Law=L022` failed on `diag/move-narrowed-use-after.byn` (copy `tmp/l022/diag/00272/`), `check`, stderr line 1. Expected ``error BYN2781: `b` is used after it was moved``, actual an empty line.
+Mutation 2 (dropped diagnostic): `selfhost/semantics/ownership.byn:423`, the `t24Report(… for: .useAfterMove …)` call for a read after a move, commented out. `Law=L022` failed on `diag/move-narrowed-use-after.byn` (copy `tmp/l022/diag/00272/`), `check`, stderr line 1. Expected ``error BYN2781: `b` is used after it was moved``, actual an empty line.
 
 Each file was copied to `tmp/l022-bt/<file>.orig` first and restored with `cp`. `cmp` was clean after each restore, and the rerun passed.
 

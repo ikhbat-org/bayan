@@ -141,14 +141,14 @@ helps most.
 
 ## Working on the compiler
 
-The self-hosted compiler lives in `src/`. The original compiler is written in C# (`csharp/`). It still
+The self-hosted compiler lives in `selfhost/`. The original compiler is written in C# (`src/`). It still
 builds the first stage, and it is the reference the tests check the self-hosted compiler against. You need
 the .NET 10 SDK and zig.
 
 ```sh
 dotnet test -v q                               # unit and golden tests
 BAYAN_UPDATE=1 dotnet test                     # rewrite golden expected files
-dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
+dotnet publish src/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
 ./tmp/publish/bayan --version
 ```
 
@@ -159,7 +159,7 @@ Local builds go in `dist/` (gitignored). There is one directory per target and v
 per target that every build replaces:
 
 ```sh
-scripts/dist.sh                                # this host: dist/macos-arm64/0.3.1/bayan
+scripts/dist.sh                                # this host: dist/macos-arm64/0.3.0/bayan
 scripts/dist.sh --from <publish-dir> --rid win-x64 --commit <sha>   # import a binary published on another OS
 ```
 

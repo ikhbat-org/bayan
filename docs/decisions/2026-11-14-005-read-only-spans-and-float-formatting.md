@@ -1,7 +1,5 @@
 # Read-only spans and float formatting
-Status: done; decided 2026-10-20 (addendum 001 to the v0.1 work plan, answering Q34 and the float formatting boundary). Applied to the spec: `ReadOnlySpan<T>` (spec §3.5 and §6.2) and float formatting (spec §6.6). Q34 is also in `docs/decisions/2026-11-14-004-answered-questions.md`.
-Release: 0.1.0
-Sources: Q34; revision 0003
+Status: decided 2026-10-20 (addendum 001 to the v0.1 work plan, answering Q34 and the float formatting boundary). Applied to the spec: `ReadOnlySpan<T>` (spec §3.5 and §6.2) and float formatting (spec §6.6). Q34 is also in `docs/decisions/2026-11-14-004-answered-questions.md`.
 
 ### Q34 — read-only `string.bytes`
 

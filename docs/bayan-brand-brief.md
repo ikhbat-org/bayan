@@ -1,7 +1,5 @@
 # Bayan: brand brief (draft)
 
-Snapshot: 2026-10-20; not maintained. Current text: none
-
 The identity has three parts that share one visual language, the strokes and dots of written Arabic: the **mark** (icon), the **flat hoopoe** (everyday mascot) and the **calligraphic hoopoe** (signature image). The hoopoe is the **only character**; the reed pen (qalam) appears as an object, never as a character.
 
 ## 1. The system

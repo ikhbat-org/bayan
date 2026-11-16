@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # package.sh on a fixture repo: tag check, archive names and layout per rid (docs under share/doc/bayan/), the docs
-# archive (every release doc), SHA256SUMS, CHANGELOG notes, refusals.
+# archive, SHA256SUMS, CHANGELOG notes, refusals.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 t="$root/tmp/release-package-test"
@@ -13,13 +13,6 @@ setv() { printf '%s\n' "$1" > "$t/repo/VERSION"; }
 setv 1.2.3
 echo readme > "$t/repo/README.md"
 for d in bayan-spec bayan-grammar bayan-style DIAGNOSTICS STATUS; do echo "$d" > "$t/repo/docs/$d.md"; done
-. "$t/repo/scripts/release/version.sh"
-# The other release docs, each holding its path; the docs archive ships them under share/doc/bayan/<path below docs/>.
-extra=""
-for d in $bayan_release_docs; do
-  case " $bayan_header_docs " in *" $d "*) continue ;; esac
-  mkdir -p "$t/repo/$(dirname "$d")"; echo "$d" > "$t/repo/$d"; extra="$extra share/doc/bayan/${d#docs/}"
-done
 docs=" share/ share/doc/ share/doc/bayan/ share/doc/bayan/CHANGELOG.md share/doc/bayan/DIAGNOSTICS.md share/doc/bayan/GRAMMAR.md"
 docs="$docs share/doc/bayan/SPEC.md share/doc/bayan/STATUS.md share/doc/bayan/STYLE.md"
 printf '# Changelog\n\n## [Unreleased]\n\n## [1.2.3] - 2026-11-02\n\n### Added\n- one\n\n## [1.2.2]\n- old\n' > "$t/repo/CHANGELOG.md"
@@ -80,24 +73,14 @@ grep -q "bayan-1.2.3-windows-arm64/bayan.exe" "$t/zip-list" || fail "zip lacks t
 grep -q "bayan-1.2.3-windows-arm64/share/doc/bayan/STATUS.md" "$t/zip-list" || fail "zip lacks the docs"
 [ "$(tar -xzOf "$t/out/bayan-1.2.3-linux-x64.tar.gz" bayan-1.2.3-linux-x64/share/doc/bayan/SPEC.md)" = bayan-spec ] || fail "SPEC.md is not docs/bayan-spec.md"
 bash "$s" docs "$t/out" >/dev/null
-want="$(for f in $docs $extra; do case "$f" in (*/) ;; (*) echo "bayan-1.2.3-docs/$f" ;; esac; done | LC_ALL=C sort | tr '\n' ' ')"
-[ "$(tar -tzf "$t/out/bayan-1.2.3-docs.tar.gz" | grep -v '/$' | LC_ALL=C sort | tr '\n' ' ')" = "$want" ] \
-  || fail "docs archive files: $(tar -tzf "$t/out/bayan-1.2.3-docs.tar.gz")"
-for d in $bayan_release_docs; do
-  case " $bayan_header_docs " in *" $d "*) continue ;; esac
-  [ "$(tar -xzOf "$t/out/bayan-1.2.3-docs.tar.gz" "bayan-1.2.3-docs/share/doc/bayan/${d#docs/}")" = "$d" ] || fail "docs archive ${d#docs/}"
-done
+[ "$(tar -tzf "$t/out/bayan-1.2.3-docs.tar.gz" | LC_ALL=C sort | tr '\n' ' ')" = "$(layout bayan-1.2.3-docs $docs)" ] \
+  || fail "docs archive layout: $(tar -tzf "$t/out/bayan-1.2.3-docs.tar.gz")"
 [ "$(tar -xzOf "$t/out/bayan-1.2.3-docs.tar.gz" bayan-1.2.3-docs/share/doc/bayan/CHANGELOG.md)" = "$(cat "$t/repo/CHANGELOG.md")" ] || fail "docs archive CHANGELOG.md"
 [ -z "$(ls -A "$t/out" | grep '^\.stage' || true)" ] || fail "staging left behind"
 mv "$t/repo/docs/STATUS.md" "$t/STATUS.md"
 out="$(bash "$s" docs "$t/out2" 2>&1)" && fail "missing doc accepted"
 echo "$out" | grep -q "docs/STATUS.md not found" || fail "no missing-doc message: $out"
 mv "$t/STATUS.md" "$t/repo/docs/STATUS.md"
-mv "$t/repo/docs/laws/README.md" "$t/laws-README.md"
-out="$(bash "$s" docs "$t/out2" 2>&1)" && fail "missing release doc accepted"
-echo "$out" | grep -q "docs/laws/README.md not found" || fail "no missing-release-doc message: $out"
-bash "$s" pack linux-x64 "$t/pub/linux" "$t/out3" >/dev/null 2>&1 || fail "pack needs a release doc outside the six"
-mv "$t/laws-README.md" "$t/repo/docs/laws/README.md"
 out="$(bash "$s" pack win-x64 "$t/pub/unix" "$t/out" 2>&1)" && fail "missing exe accepted"
 echo "$out" | grep -q "bayan.exe not found" || fail "no missing-exe message: $out"
 # The machine guard: each format matching and mismatching, and an unknown format.
@@ -120,7 +103,7 @@ grep -q " bayan-1.2.3-docs.tar.gz$" "$t/out/SHA256SUMS" || fail "SHA256SUMS lack
 (cd "$t/out" && if command -v sha256sum >/dev/null; then sha256sum -c --quiet SHA256SUMS; else shasum -a 256 -c --quiet SHA256SUMS; fi) || fail "sums do not verify"
 mkdir -p "$t/empty"; bash "$s" sums "$t/empty" 2>/dev/null && fail "sums over no archives accepted"
 
-[ "$(bash "$s" notes 1.2.3)" = "$(printf '\n### Added\n- one\n\nKnown limit: the stage-2 build of `src/driver` peaks at 1.69 GB of memory.')" ] || fail "notes: $(bash "$s" notes 1.2.3)"
+[ "$(bash "$s" notes 1.2.3)" = "$(printf '\n### Added\n- one\n\nKnown limit: the stage-2 build of `selfhost/driver` peaks at 1.69 GB of memory.')" ] || fail "notes: $(bash "$s" notes 1.2.3)"
 bash "$s" notes 9.9.9 2>/dev/null && fail "missing CHANGELOG section accepted"
 
 # release.yml builds the shipped bayan as stage 2 and smoke-tests the "(selfhost)" version line (spec 017 R5).
@@ -128,8 +111,8 @@ y="$root/.github/workflows/release.yml"
 yline() { grep -nxF -m1 -- "$1" "$y" | cut -d: -f1 || true; } # the line number of a whole line, with its indent; empty when absent
 l_pub="$(yline '      - name: Publish (NativeAOT)')"; l_pkg="$(yline '      - name: Package')"; l_mg="$(yline '  memory-gate:')"
 l_zig="$(yline '        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"')"
-l_s1="$(yline '        run: ./publish/${{ matrix.exe }} build --mode safe --package src -o "$RUNNER_TEMP/stage1-${{ matrix.exe }}" src/driver')"
-l_s2="$(yline '          "$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package src -o publish/${{ matrix.exe }} src/driver')"
+l_s1="$(yline '        run: ./publish/${{ matrix.exe }} build --mode safe --package selfhost -o "$RUNNER_TEMP/stage1-${{ matrix.exe }}" selfhost/driver')"
+l_s2="$(yline '          "$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package selfhost -o publish/${{ matrix.exe }} selfhost/driver')"
 l_sm="$(yline '        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan $(cat VERSION) (selfhost)"')"
 [ -n "$l_pub" ] && [ -n "$l_pkg" ] && [ -n "$l_mg" ] || fail "release.yml lacks the Publish or Package step or the memory-gate job"
 [ -n "$l_zig" ] && [ "$l_zig" -gt "$l_pub" ] && [ "$l_zig" -lt "$l_mg" ] || fail "release.yml: no Install zig run in the build job after Publish"

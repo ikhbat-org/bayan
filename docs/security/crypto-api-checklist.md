@@ -1,7 +1,5 @@
 # Crypto and auth API checklist
 
-Version: 0.3.1 (matches `bayan --version`)
-
 Date: 2026-11-07. Source: plan `docs/plans/2026-11-07-006-in-band-errors-and-c-boundary.md` (the sshole lessons: an error returned as a valid-looking value).
 
 The first `std.crypto` spec must cite each item below by number, with a golden for each. No code exists yet (`Secret` is absent from `Builtins.cs`; spec §15.2-15.3 are spec-only), so these rules are written before the first line.

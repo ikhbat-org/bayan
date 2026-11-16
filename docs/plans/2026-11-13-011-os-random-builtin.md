@@ -1,8 +1,6 @@
 # 011 — `Io.randomU64`: OS random for unique cache names
 
 Status: done (1d6d190c).
-Release: 0.3.0
-Sources: Q1042, Q1111, Q1149
 
 Approved by the user 2026-11-13 ("Builtin first"), as an A1 exception like Q1042/Q1111.
 

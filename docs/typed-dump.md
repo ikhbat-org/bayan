@@ -1,10 +1,8 @@
 # Typed dump: `bayan types`
 
-Version: 0.3.1 (matches `bayan --version`)
-
 `bayan types <path>` compiles a program the way `bayan check` does (a project directory, a script, or a file or directory of `.byn` files) and prints, for every function, the resolved type of each parameter and local. Diagnostics go to stderr. A program with errors prints nothing to stdout and exits 1.
 
-The output is indented JSON written by `TypedDump.ToJson` (`csharp/Bayan.Semantics/Binding/TypedDump.cs`). Golden cases live in `tests/cases/typed/` (`*.byn` → `*.types`).
+The output is indented JSON written by `TypedDump.ToJson` (`src/Bayan.Semantics/Binding/TypedDump.cs`). Golden cases live in `tests/cases/typed/` (`*.byn` → `*.types`).
 
 ## Form
 

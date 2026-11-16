@@ -1,8 +1,6 @@
 # 0007 — Field writes by invariant, and `with` reassignment as a move
 
-Status: done; accepted. Date: 2026-10-24. Amends HANDOFF O11 (§26), the plan's BYN3216 entry and J78, and the 5.3b criteria.
-Release: 0.1.0
-Sources: none recorded
+Status: accepted. Date: 2026-10-24. Amends HANDOFF O11 (§26), the plan's BYN3216 entry and J78, and the 5.3b criteria.
 
 ## Problem
 

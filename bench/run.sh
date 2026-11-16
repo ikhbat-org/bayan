@@ -39,7 +39,7 @@ if [ ! -x "$bayan" ]; then
         if ! rid=$(bench_rid "$(uname -s)" "$(uname -m)"); then
             bayan_note="n/a (no runtime identifier for $(uname -s)-$(uname -m); set BAYAN_BIN)"
         elif command -v dotnet >/dev/null 2>&1; then
-            dotnet publish csharp/Bayan.Cli -c Release -r "$rid" -o "$T/publish" >"$T/publish.log" 2>&1
+            dotnet publish src/Bayan.Cli -c Release -r "$rid" -o "$T/publish" >"$T/publish.log" 2>&1
         fi
         [ -x "$bayan" ] || [ -n "$bayan_note" ] || bayan_note="n/a (no bayan: dotnet publish failed or dotnet missing)"
     fi
@@ -93,10 +93,10 @@ for b in hash parse; do
     else note $b zig "n/a (build failed)"; fi
 done
 
-# Lexer: src/semantics/*.byn concatenated in name order (every file of the largest self-hosted module).
-cat src/semantics/*.byn > "$T/lexer-input.byn"
+# Lexer: selfhost/semantics/*.byn concatenated in name order (every file of the largest self-hosted module).
+cat selfhost/semantics/*.byn > "$T/lexer-input.byn"
 if [ -n "$bayan_note" ]; then note lexer bayan "$bayan_note"
-elif "$bayan" build src/lexer/main.byn --mode fast -o "$T/bin/bayan-lexer" >"$T/bin/bayan-lexer.log" 2>&1; then
+elif "$bayan" build selfhost/lexer/main.byn --mode fast -o "$T/bin/bayan-lexer" >"$T/bin/bayan-lexer.log" 2>&1; then
     measure lexer bayan "$T/bin/bayan-lexer" --time "$T/lexer-input.byn"
 else note lexer bayan "n/a (build failed)"; fi
 for l in c rust zig; do note lexer $l "n/a (no port)"; done

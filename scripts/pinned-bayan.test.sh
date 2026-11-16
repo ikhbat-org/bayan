@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Tests scripts/pinned-bayan.sh on a scratch repo with a stub `dotnet` whose "build" writes a bayan that prints the
-# commit's csharp/Bayan.Cli/stamp (src/Bayan.Cli/stamp in a commit from before plan 017).
+# commit's src/Bayan.Cli/stamp.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -24,20 +24,20 @@ export AUX="$tmp/aux" PATH="$tmp/aux:$PATH"
 unset PINNED_BAYAN PINNED_BAYAN_REF
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@example.com GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@example.com  # CI runners have no git identity
 
-r="$tmp/repo"; mkdir -p "$r/csharp/Bayan.Cli"; cd "$r"
+r="$tmp/repo"; mkdir -p "$r/src/Bayan.Cli"; cd "$r"
 git init -q -b dev; git config core.hooksPath /dev/null  # a scratch repo: the global hooks refuse commits on dev
-echo one > csharp/Bayan.Cli/stamp; git add -A; git commit -qm one
+echo one > src/Bayan.Cli/stamp; git add -A; git commit -qm one
 devsha=$(git rev-parse dev)
-git checkout -q -b feat/x; echo two > csharp/Bayan.Cli/stamp; git commit -qam two
-echo dirty > csharp/Bayan.Cli/stamp
+git checkout -q -b feat/x; echo two > src/Bayan.Cli/stamp; git commit -qam two
+echo dirty > src/Bayan.Cli/stamp
 
 # Built from dev's tip, not the branch or the dirty tree, and cached by that commit.
 bin=$("$script") || fail "pinned build failed"
 [ "$bin" = "$r/.cache/bayan/$devsha/bin/bayan" ] || fail "binary path was '$bin'"
 [ "$("$bin")" = one ] || fail "the binary was not built from dev"
 [ "$(cat "$AUX/commit.txt")" = "$devsha" ] || fail "git in the build sees $(cat "$AUX/commit.txt"), not $devsha (the version line would lie)"
-[ "$(cat csharp/Bayan.Cli/stamp)" = dirty ] && [ "$(git rev-parse --abbrev-ref HEAD)" = feat/x ] || fail "the caller's tree changed"
-[ -z "$(git status --porcelain -- . ':!csharp/Bayan.Cli/stamp' ':!.cache')" ] || fail "the build left files outside .cache/: $(git status --porcelain)"
+[ "$(cat src/Bayan.Cli/stamp)" = dirty ] && [ "$(git rev-parse --abbrev-ref HEAD)" = feat/x ] || fail "the caller's tree changed"
+[ -z "$(git status --porcelain -- . ':!src/Bayan.Cli/stamp' ':!.cache')" ] || fail "the build left files outside .cache/: $(git status --porcelain)"
 
 # The second call reuses the cache.
 [ "$("$script")" = "$bin" ] && [ "$(wc -l < "$AUX/builds.txt" | tr -d ' ')" = 1 ] || fail "the cached build was rebuilt"
@@ -49,26 +49,21 @@ git worktree add -q --detach "$tmp/wt" feat/x
 # PINNED_BAYAN_REF picks another commit.
 [ "$(PINNED_BAYAN_REF=feat/x "$script" | xargs sh)" = two ] || fail "PINNED_BAYAN_REF was not honoured"
 
-# A commit from before plan 017's move builds src/Bayan.Cli.
-git checkout -q -- csharp/Bayan.Cli/stamp; git checkout -q -b premove feat/x; git mv csharp src; echo old > src/Bayan.Cli/stamp; git add src; git commit -qm premove
-[ "$(PINNED_BAYAN_REF=premove "$script" | xargs sh)" = old ] || fail "a pre-move commit did not build src/Bayan.Cli"
-git checkout -q feat/x; echo dirty > csharp/Bayan.Cli/stamp
-
 # A concurrent build of the same commit that finishes first wins; ours leaves nothing behind.
-git checkout -q -b race feat/x; echo race > csharp/Bayan.Cli/stamp; git commit -qam race; racesha=$(git rev-parse race)
+git checkout -q -b race feat/x; echo race > src/Bayan.Cli/stamp; git commit -qam race; racesha=$(git rev-parse race)
 rc="$r/.cache/bayan/$racesha"
 RACE_CACHE="$rc" PINNED_BAYAN_REF=race "$script" > "$tmp/out" || fail "the lost race failed"
 [ "$(cat "$tmp/out")" = "$rc/bin/bayan" ] && [ "$("$rc/bin/bayan")" = winner ] || fail "the race did not keep the winner's build"
 [ -z "$(ls -d "$rc"/.build-* "$r/.cache/bayan"/.build-"$racesha"-* 2>/dev/null)" ] || fail "the losing build was left behind: $(ls -a "$rc")"
 
 # A cache directory without a binary is refused, not rebuilt into.
-git checkout -q -b hollow race; echo hollow > csharp/Bayan.Cli/stamp; git commit -qam hollow; mkdir -p "$r/.cache/bayan/$(git rev-parse hollow)"
+git checkout -q -b hollow race; echo hollow > src/Bayan.Cli/stamp; git commit -qam hollow; mkdir -p "$r/.cache/bayan/$(git rev-parse hollow)"
 if PINNED_BAYAN_REF=hollow "$script" > "$tmp/out" 2> "$tmp/err"; then fail "a hollow cache was accepted: $(cat "$tmp/out")"; fi
 grep -q "exists but holds no bin/bayan" "$tmp/err" || fail "no hollow-cache message: $(cat "$tmp/err")"
 git checkout -q feat/x
 
 # A failed build exits 1 naming the commit and the log, and prints no binary.
-git checkout -q -- csharp/Bayan.Cli/stamp; git checkout -q dev; touch csharp/Bayan.Cli/broken; git add csharp; git commit -qm broken; badsha=$(git rev-parse dev)
+git checkout -q -- src/Bayan.Cli/stamp; git checkout -q dev; touch src/Bayan.Cli/broken; git add src; git commit -qm broken; badsha=$(git rev-parse dev)
 if out=$("$script" 2> "$tmp/err"); then fail "a failed build succeeded: $out"; fi
 [ -z "$out" ] || fail "a failed build printed '$out'"
 grep -q "building bayan at $badsha (dev) failed; log: .*build.log" "$tmp/err" || fail "no failure message: $(cat "$tmp/err")"
@@ -87,7 +82,7 @@ grep -q "PINNED_BAYAN=$tmp/none is not an executable" "$tmp/err" || fail "no PIN
 for d in "$r/.cache/bayan"/*/; do touch -t 202001010000 "$d"; done  # everything built so far is long unused
 for i in 1 2 3 4 5; do mkdir -p "$r/.cache/bayan/fake$i/bin"; touch -t 20200101000$i "$r/.cache/bayan/fake$i"; done
 mkdir -p "$r/.cache/bayan/.build-other-1"
-git checkout -q -b evict race; echo evict > csharp/Bayan.Cli/stamp; git commit -qam evict; evsha=$(git rev-parse evict)
+git checkout -q -b evict race; echo evict > src/Bayan.Cli/stamp; git commit -qam evict; evsha=$(git rev-parse evict)
 PINNED_BAYAN_REF=evict "$script" > "$tmp/out" || fail "the eviction build failed"
 [ -x "$r/.cache/bayan/$evsha/bin/bayan" ] || fail "the new build was evicted"
 [ ! -e "$r/.cache/bayan/$evsha/src" ] || fail "the build's src checkout was kept"
@@ -101,7 +96,7 @@ touch -t 202001010000 "$r/.cache/bayan/$evsha"
 PINNED_BAYAN_REF=evict "$script" > /dev/null || fail "resolving the cached pin failed"
 [ -n "$(find "$r/.cache/bayan/$evsha" -maxdepth 0 -mmin -5)" ] || fail "resolving did not touch the pin"
 for i in 1 2 3 4; do mkdir -p "$r/.cache/bayan/recent$i/bin"; done
-git checkout -q -b evict2 evict; echo evict2 > csharp/Bayan.Cli/stamp; git commit -qam evict2
+git checkout -q -b evict2 evict; echo evict2 > src/Bayan.Cli/stamp; git commit -qam evict2
 PINNED_BAYAN_REF=evict2 "$script" > /dev/null || fail "the second eviction build failed"
 for i in 1 2 3 4; do [ -d "$r/.cache/bayan/recent$i" ] || fail "a pin used within 2 hours was evicted"; done
 git checkout -q feat/x
@@ -121,7 +116,7 @@ chmod u+w "$r/.cache/bayan"
 # A leftover temporary tag is not counted as a cached commit: a fresh one stays, a stale one goes.
 c="$r/.cache/bayan"; : > "$c/CACHEDIR.TAG.11111"; : > "$c/CACHEDIR.TAG.22222"; touch -t 202001010000 "$c/CACHEDIR.TAG.22222"
 for d in "$c"/*/; do touch -t 202001010000 "$d"; done
-git checkout -q -b evict3 evict; echo evict3 > csharp/Bayan.Cli/stamp; git commit -qam evict3
+git checkout -q -b evict3 evict; echo evict3 > src/Bayan.Cli/stamp; git commit -qam evict3
 PINNED_BAYAN_REF=evict3 "$script" > /dev/null || fail "the third eviction build failed"
 [ "$(ls "$c" | grep -v '^CACHEDIR' | wc -l | tr -d ' ')" = 3 ] || fail "a temporary tag took a cached commit's place: $(ls "$c")"
 [ -f "$c/CACHEDIR.TAG.11111" ] || fail "a fresh temporary tag was removed"

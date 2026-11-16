@@ -46,7 +46,7 @@ mkdir -p wc/vm1/out wc/wp1 wc/vm2/out; printf 'vm1 0.91 4\nvm2 0.91 4\nwp1 0.52 
 wcmd=$(bash "$S" weights-cmd wc)
 ok "weights command lists the trx files with their speeds" "$wcmd" \
   "(weights: bash scripts/selfhost/shard-test.sh times 0.91@wc/vm1/out/chunk1.trx 0.91@wc/vm1/out/chunk2.trx 0.52@wc/wp1/chunk1.trx)"
-ok "weights command has no glob" "$(case $wcmd in (*'*'*) echo glob;; (*) echo none;; esac)" "none"
+ok "weights command has no glob" "$(case $wcmd in *'*'*) echo glob;; *) echo none;; esac)" "none"
 
 # host spec NAME=SPEED[:SLICES[:THREADS]]: defaults 1 slice, 4 threads; each bad part named, exit 2
 ok "host spec defaults" "$(bash "$S" host-spec vm=0.91) $(bash "$S" host-spec wlt1=0.45:1) $(bash "$S" host-spec mb1=.71)" "vm=0.91:1:4 wlt1=0.45:1:4 mb1=.71:1:4"
@@ -141,8 +141,6 @@ namespace Ns.B
 }
 X
 ok "serial classes from the .cs tree" "$(bash "$S" serial cs | tr '\n' ' ')" "Ns.A.OneTests Ns.B.FourTests Ns.B.ThreeTests "
-mkdir -p cs2; printf 'namespace Ns.C;\n\n[Collection(nameof(Ser))]\npublic sealed class SixTests\n{\n}\n' > cs2/C.cs
-ok "a definition in one dir serves a class in another" "$(bash "$S" serial cs cs2 | tr '\n' ' ')" "Ns.A.OneTests Ns.B.FourTests Ns.B.ThreeTests Ns.C.SixTests "
 ok "no .cs files: no serial classes" "$(bash "$S" serial nowhere | wc -l | tr -d ' ')" "0"
 
 # filter chunking
