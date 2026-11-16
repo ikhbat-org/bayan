@@ -188,6 +188,26 @@ public sealed class LayoutTests
         Lay("void f(Order o) requires o is .paid and o is .shipped {\n}\n"));
 
     [Fact]
+    public void NullCoalescingKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "let parsed = Suit.parse(\"spades\") ?? .clubs\n",
+        Lay("let parsed = Suit.parse(\"spades\") ?? .clubs\n"));
+
+    [Fact]
+    public void CatchKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "print($\"{size(1) catch .good}\")\n",
+        Lay("print($\"{size(1) catch .good}\")\n"));
+
+    [Fact]
+    public void OrOrKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "let a = c == .red || c == .green\n",
+        Lay("let a = c == .red || c == .green\n"));
+
+    [Fact]
+    public void AndAndKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "let a = c != .red && c != .green\n",
+        Lay("let a = c != .red && c != .green\n"));
+
+    [Fact]
     public void MemberAccessAfterANameStaysJoined() => Assert.Equal(
         "let a = order.paid\nlet b = f().x\n",
         Lay("let a = order.paid\nlet b = f().x\n"));
