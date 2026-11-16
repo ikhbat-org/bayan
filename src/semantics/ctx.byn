@@ -267,12 +267,24 @@ public struct TestBody {
     public SyntaxRef caseArgument
 }
 
+/// A parser's `TypedLint` in its file, with every binding of its operand (the C# `_lintOperands` entry).
+public struct TypedLintSite {
+    public lexer.Diagnostic lint
+    public FileId file
+    public TextSpan operand
+    public parser.TypedLintCheck check
+    public lexer.Diagnostic? otherwise = null
+    public List<BExpr> bounds = List<BExpr>()
+}
+
 public struct Ctx {
     public List<SourceFile> files
     public List<Mod> modules
     public List<Diag> diagnostics
     /// The C# `Compilation.StyleLints`: every file's style lints (BYN1072–BYN1076), kept out of `diagnostics`; only `bayan check` reports them.
     public List<Diag> styleLints = List<Diag>()
+    /// The C# `_typedLints` and `_lintOperands`: the style lints that wait on how their operand binds, each with the operand's bindings.
+    public List<TypedLintSite> typedLints = List<TypedLintSite>()
     /// Nested sinks; empty for the outermost.
     public List<DiagBag> bags
     /// The bag index new diagnostics go to, or -1 for `diagnostics`.

@@ -1,4 +1,4 @@
-// ── Style lints with one-time fixes (BYN1077–BYN1080) ────────────────────────────
+// ── Style lints with one-time fixes (BYN1077–BYN1080) ────────────────────────
 // Ports the Parser.cs region of that name. BYN1077 and BYN1079 append to `p.styleLints` as the other style lints do;
 // BYN1078 and some BYN1080 sites are typed lints, which the compilation keeps only if their operand binds as `check` asks
 // (compile.byn `confirmTypedLints`). The C# parser keeps node references; this one records plain spans and texts when
@@ -73,7 +73,7 @@ public struct OptionalBind {
     public bool isName
 }
 
-bool sameSpan(TextSpan a, TextSpan b) => a.start == b.start && a.length == b.length
+bool sameSpan(TextSpan a, as TextSpan b) => a.start == b.start && a.length == b.length
 
 /// A space or tab byte.
 bool isIndentByte(u8 b) => b == ' ' || b == '\t'
@@ -131,7 +131,7 @@ public void lintBanners(ref Parser p) uses alloc {
     }
 }
 
-// ── BYN1078 conditions.patterns ───────────────────────────────────────────────────
+// ── BYN1078 conditions.patterns ──────────────────────────────────────────────
 
 /// Records the `&&` or `||` just built, `e`, with the index of the token after it.
 // Parser.cs: ParseBinary (its `_logical.Add`)
@@ -149,7 +149,7 @@ void noteLogicalBinary(ref Parser p, for BinaryExpr b) {
     if b.left is .binaryExpr(let l) && l.value.op == b.op {
         var i = p.logical.length - 1
         while i >= 0 {
-            if p.logical[i].op == b.op && sameSpan(p.logical[i].span, l.value.span) {
+            if p.logical[i].op == b.op && sameSpan(p.logical[i].span, as: l.value.span) {
                 p.logical[i].child = true
                 break
             }
@@ -214,7 +214,7 @@ public void lintPatterns(ref Parser p) uses alloc {
         if p.logical[i].op != .logicalAnd || p.logical[i].child || !p.logical[i].allItems { continue }
         var taken = false
         for r in consumed {
-            if sameSpan(r, p.logical[i].span) { taken = true }
+            if sameSpan(r, as: p.logical[i].span) { taken = true }
         }
         if !taken { let _ = lintPatternChain(ref p, at: i) }
     }
@@ -288,7 +288,7 @@ PatternItem? binaryPatternItem(ref Parser p, for BinaryExpr b, bool relational) 
         && p.lexed.source.getText(exprSpan(in ge.value.left)) == p.lexed.source.getText(exprSpan(in le.value.left)) {
         let lo = rangeBound(ref p, for: ge.value.right)
         let hi = rangeBound(ref p, for: le.value.right)
-        if lo is not null && hi is not null && lo.kind == hi.kind && boundAtMost(lo, hi) {
+        if lo is not null && hi is not null && lo.kind == hi.kind && boundAtMost(lo, to: hi) {
             let text = $"{p.lexed.source.getText(exprSpan(in ge.value.right))}..={p.lexed.source.getText(exprSpan(in le.value.right))}"
             return PatternItem { operand: exprSpan(in ge.value.left), pattern: text, kind: lo.kind, range: true }
         }
@@ -374,7 +374,7 @@ public struct Bound {
 }
 
 /// Whether `a` is at most `b`, both of one kind.
-bool boundAtMost(Bound a, Bound b) {
+bool boundAtMost(Bound a, to Bound b) {
     if a.negative != b.negative { return a.negative }
     var order: i64 = 0
     if a.l3 != b.l3 {
@@ -431,8 +431,8 @@ u64 scalarAt(ref Parser p, at i64 at) {
     if b0 < 0xF0 {
         return ((b0 & 0x0F) << 12) | ((u64(p.lexed.source.bytes[at + 1]) & 0x3F) << 6) | (u64(p.lexed.source.bytes[at + 2]) & 0x3F)
     }
-    return ((b0 & 0x07) << 18) | ((u64(p.lexed.source.bytes[at + 1]) & 0x3F) << 12) | ((u64(p.lexed.source.bytes[at + 2]) & 0x3F) << 6)
-        | (u64(p.lexed.source.bytes[at + 3]) & 0x3F)
+    let high = ((b0 & 0x07) << 18) | ((u64(p.lexed.source.bytes[at + 1]) & 0x3F) << 12)
+    return high | ((u64(p.lexed.source.bytes[at + 2]) & 0x3F) << 6) | (u64(p.lexed.source.bytes[at + 3]) & 0x3F)
 }
 
 /// The value of the integer literal at `span`, without `_`; null past 30 digits or on a digit outside its radix.
@@ -480,7 +480,7 @@ Bound? integerValue(ref Parser p, at TextSpan span) {
     return v
 }
 
-// ── BYN1079 literals.empty ────────────────────────────────────────────────────────
+// ── BYN1079 literals.empty ───────────────────────────────────────────────────
 
 /// BYN1079 on `= List<T>()`, `= Map<K, V>()` or `= T {}` spelling the declared type; the fix writes `[]` or `{}`.
 // Parser.cs: LintEmptyLiteral
@@ -506,7 +506,7 @@ void lintEmptyLiteral(ref Parser p, for TypeSyntax type, by Expr init) {
         default:
             return
     }
-    unless sameSqueezed(ref p, spelled, typeSpan(in type)) { return }
+    unless sameSqueezed(ref p, from: spelled, as: typeSpan(in type)) { return }
     let span = exprSpan(in init)
     reportStyleLint(ref p, for: "BYN1079", at: span, by: $"the type is known from the target; write `{empty}`", label: "spells out the declared type",
         help: $"write `{empty}`", fixSpan: span, fixReplacement: empty)
@@ -514,7 +514,7 @@ void lintEmptyLiteral(ref Parser p, for TypeSyntax type, by Expr init) {
 
 /// Whether the texts of `a` and `b` are the same without their whitespace.
 // Parser.cs: Squeezed
-bool sameSqueezed(ref Parser p, TextSpan a, TextSpan b) {
+bool sameSqueezed(ref Parser p, from TextSpan a, as TextSpan b) {
     var i = a.start
     var j = b.start
     while true {
@@ -525,10 +525,9 @@ bool sameSqueezed(ref Parser p, TextSpan a, TextSpan b) {
         i += 1
         j += 1
     }
-    return false
 }
 
-// ── BYN1080 optionals.bind ────────────────────────────────────────────────────────
+// ── BYN1080 optionals.bind ───────────────────────────────────────────────────
 
 /// The BYN1080 message for `X is { } k`, with `reason`.
 string optionalsBindMessage(string x, by string name, for string reason) => $"`{x} is {{ }} {name}` binds an optional with a pattern; {reason}"
@@ -556,7 +555,7 @@ OptionalBind? optionalBinding(ref Parser p, for Expr condition) {
 
 /// BYN1080 on `while (X is { } k)`; the fix writes `while let k = X`.
 // Parser.cs: LintWhileBind
-void lintWhileBind(ref Parser p, at Token keyword, for Expr condition, by Stmt body, bool parenthesized, i64 conditionEnd) {
+void lintWhileBind(ref Parser p, at Token keyword, for Expr condition, by Stmt body, until i64 conditionEnd, bool parenthesized) {
     if !parenthesized || !isBlockStmt(in body) { return }
     let bind = optionalBinding(ref p, for: condition)
     if bind is null { return }
@@ -572,8 +571,9 @@ void lintWhileBind(ref Parser p, at Token keyword, for Expr condition, by Stmt b
 /// BYN1080 on `if (X is { } k)`: on a `let` local or parameter the fix tests `X is not null` and reads `X` (confirmed by the
 /// compilation); where the miss leaves, it binds `let k = X ?? exit` (decided by the block). `span` is the `if` statement's.
 // Parser.cs: LintIfBind
+/// `conditionSpan` runs from the condition's first token to its end.
 void lintIfBind(ref Parser p, at TextSpan span, for Expr condition, by Stmt then, from Stmt otherwise, as Likelihood likelihood,
-    bool parenthesized, i64 conditionStart, i64 conditionEnd, bool elseIf) {
+    through TextSpan conditionSpan, bool parenthesized, bool elseIf) {
     if !parenthesized || likelihood != .none { return }
     switch otherwise {
         case .blockStmt(_) or .ifStmt(_):
@@ -583,20 +583,20 @@ void lintIfBind(ref Parser p, at TextSpan span, for Expr condition, by Stmt then
     }
     switch then {
         case .blockStmt(let block):
-            lintIfBindBlock(ref p, at: span, for: condition, by: block.value, from: otherwise, conditionStart, conditionEnd, elseIf)
+            lintIfBindBlock(ref p, at: span, for: condition, by: block.value, from: otherwise, through: conditionSpan, elseIf: elseIf)
         default:
             return
     }
 }
 
-void lintIfBindBlock(ref Parser p, at TextSpan span, for Expr condition, by BlockStmt then, from Stmt otherwise, i64 conditionStart,
-    i64 conditionEnd, bool elseIf) {
+void lintIfBindBlock(ref Parser p, at TextSpan span, for Expr condition, by BlockStmt then, from Stmt otherwise,
+    through TextSpan conditionSpan, bool elseIf) {
     let bind = optionalBinding(ref p, for: condition)
     if bind is null { return }
     let x = p.lexed.source.getText(bind.value)
     if x.contains("\n") { return }
-    let local = narrowLint(ref p, for: then, by: bind, x, conditionStart, conditionEnd)
-    let exit = exitBindLint(ref p, at: span, for: then, from: otherwise, x, bind.name, conditionStart, conditionEnd, elseIf)
+    let local = narrowLint(ref p, for: then, by: bind, through: conditionSpan)
+    let exit = exitBindLint(ref p, at: span, for: then, from: otherwise, by: bind, through: conditionSpan, elseIf: elseIf)
     if exit is not null {
         var declares = false
         var hasLocal = false
@@ -620,8 +620,11 @@ void lintIfBindBlock(ref Parser p, at TextSpan span, for Expr condition, by Bloc
 /// The `if X is not null` rewrite: `k` in the hit block becomes `X`, unless a use of it is not a plain read; null unless `X`
 /// is a name.
 // Parser.cs: NarrowLint
-TypedLint? narrowLint(ref Parser p, for BlockStmt then, by OptionalBind bind, string x, i64 conditionStart, i64 conditionEnd) {
+TypedLint? narrowLint(ref Parser p, for BlockStmt then, by OptionalBind bind, through TextSpan conditionSpan) {
     unless bind.isName { return null }
+    let x = p.lexed.source.getText(bind.value)
+    let conditionStart = conditionSpan.start
+    let conditionEnd = conditionSpan.end
     var body = StrBuf()
     var from = then.span.start
     var i = tokenAt(ref p, at: then.span.start)
@@ -666,19 +669,21 @@ bool isSimpleReturn(Expr value) {
 /// The `let k = X ?? exit` rewrite of an `if` whose `else` block is one bare exit; the hit block moves up a level. Null for
 /// an `else if`.
 // Parser.cs: ExitBindLint
-Diagnostic? exitBindLint(ref Parser p, at TextSpan span, for BlockStmt then, from Stmt otherwise, string x, string name, i64 conditionStart,
-    i64 conditionEnd, bool elseIf) {
+Diagnostic? exitBindLint(ref Parser p, at TextSpan span, for BlockStmt then, from Stmt otherwise, by OptionalBind bind,
+    through TextSpan conditionSpan, bool elseIf) {
     if elseIf { return null }
     switch otherwise {
         case .blockStmt(let block):
-            return exitBindBlock(ref p, at: span, for: then, from: block.value, x, name, conditionStart, conditionEnd)
+            return exitBindBlock(ref p, at: span, for: then, from: block.value, by: bind, through: conditionSpan)
         default:
             return null
     }
 }
 
-Diagnostic? exitBindBlock(ref Parser p, at TextSpan span, for BlockStmt then, from BlockStmt otherwise, string x, string name,
-    i64 conditionStart, i64 conditionEnd) {
+Diagnostic? exitBindBlock(ref Parser p, at TextSpan span, for BlockStmt then, from BlockStmt otherwise, by OptionalBind bind,
+    through TextSpan conditionSpan) {
+    let x = p.lexed.source.getText(bind.value)
+    let name = bind.name
     if otherwise.statements.length != 1 || otherwise.span.length < 2 { return null }
     var jump = ""
     var simple = false
@@ -711,7 +716,7 @@ Diagnostic? exitBindBlock(ref Parser p, at TextSpan span, for BlockStmt then, fr
     if body is null { return null }
     let head = simple ? $"let {name} = {x} ?? {exit}" : $"let {name} = {x}\n{indent}{exit} if {name} is null"
     let help = simple ? $"write `{head}`" : $"write `let {name} = {x}` and `{exit} if {name} is null`"
-    return styleLintOf("BYN1080", at: TextSpan.fromBounds(conditionStart, until: conditionEnd),
+    return styleLintOf("BYN1080", at: conditionSpan,
         by: optionalsBindMessage(x, by: name, for: "the miss leaves, so a `let` can bind it"), label: "binds with a pattern", help: help,
         fixSpan: span, fixReplacement: $"{head}\n{body}")
 }
@@ -781,13 +786,14 @@ void lintBindExits(ref Parser p, for List<Stmt> statements) {
         }
         var found: i64 = -1
         for j in 0..p.bindExits.length {
-            if sameSpan(p.bindExits[j].stmt, span) {
+            if sameSpan(p.bindExits[j].stmt, as: span) {
                 found = j
                 break
             }
         }
         if found == -1 { continue }
-        let site = p.bindExits.remove(at: found)
+        let site = p.bindExits[found]
+        p.bindExits.remove(at: found)
         let outlives = site.declares || i < last && site.hasLocal
         var named = false
         if i < last {

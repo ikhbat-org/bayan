@@ -169,6 +169,10 @@ BExpr bindBinary(ref Binder b, through ref Ctx c, for in parser.BinaryExpr e, to
         let hint = e.op == .shl || e.op == .shr ? prim(.i32) : kindOf(lt) == .optional ? c.optionalTypes[typeIndex(lt)] : lt
         right = t19Operand(ref b, through: ref c, for: in e.right, to: hint, arithmetic: arithmetic)
     }
+    if c.typedLints.length > 0 {
+        noteLintOperand(ref c, for: b.file, at: parser.exprSpan(in e.left), by: left)
+        noteLintOperand(ref c, for: b.file, at: parser.exprSpan(in e.right), by: right)
+    }
     // `x is null` is valid only on an optional `x`: for `null == null` or a non-optional operand BYN2208 reports alone.
     if nullTested != 0 {
         let testedIsNull = nullTested == 1 ? leftNull : rightNull

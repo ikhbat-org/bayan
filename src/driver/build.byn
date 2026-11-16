@@ -183,7 +183,7 @@ semantics.Ctx t5Compile(in T5Options o, by in semantics.T26Symbols symbols, to r
             done(ref progress)
             semantics.t26Report(in o26, by: in symbols, for: ref c, to: ref reported)
             ok = !t5HasErrors(in c)
-            if styleLints && ok { ok = semantics.t26StyleLints(o26, by: symbols, for: c, to: ref reported) }
+            if styleLints && ok { ok = semantics.t26StyleLints(o26, by: symbols, for: c, to: ref reported, lintRoot: Path.fullPath(package)) }
             return c
         }
     }

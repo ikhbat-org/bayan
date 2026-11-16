@@ -198,6 +198,7 @@ Decl parseFieldOrProperty(ref Parser p, at i64 start, by Modifiers modifiers, th
     if p.accept(.equals) { init = parseExpression(ref p) }
     var rules = parseRequiresLines(ref p)
     expectEnd(ref p)
+    lintEmptyLiteral(ref p, for: type, by: init)
     var field = FieldDecl {
         span: p.spanFrom(start),
         modifiers: modifiers,

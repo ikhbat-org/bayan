@@ -162,6 +162,12 @@ void writeReplacing(string file, from in List<u8> bytes) fails IoError {
 
 /// Format.cs:301 `ApplyFixes`: the bytes with each distinct fix applied in order; a fix overlapping an earlier one is skipped.
 List<u8> applyFixes(in List<u8> bytes, for in List<T8Fix> fixes) uses alloc {
+    var applied: i64 = 0
+    return applyFixesCounting(in bytes, for: in fixes, to: ref applied)
+}
+
+/// Format.cs:316 `ApplyFixes`, counting the fixes `applied`.
+List<u8> applyFixesCounting(in List<u8> bytes, for in List<T8Fix> fixes, to ref i64 applied) uses alloc {
     // `fixes.Distinct().OrderBy(f => f.Span.Start)`: the first of each equal fix, then a stable sort by start.
     var ordered = List<T8Fix>()
     for f in fixes {
@@ -186,6 +192,7 @@ List<u8> applyFixes(in List<u8> bytes, for in List<T8Fix> fixes) uses alloc {
     var at: i64 = 0
     for fix in ordered {
         if fix.span.start < at { continue }
+        applied += 1
         for i in at..fix.span.start { result.append(bytes[i]) }
         for b in fix.replacement.bytes { result.append(b) }
         at = fix.span.end

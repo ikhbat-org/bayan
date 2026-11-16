@@ -166,9 +166,17 @@ public Ctx t26Compile(in T26Options o, by in T26Symbols symbols, to ref List<T26
 }
 
 /// CliApp.cs: Compile, its `styleLints` step (`check` only, after an error-free compile): reports `StyleLintsAt` of the
-/// compilation's manifest and returns false when one of them is an error.
-public bool t26StyleLints(T26Options o, by T26Symbols symbols, for Ctx c, to ref List<T26Reported> reported) uses alloc, console {
-    let lints = styleLintsAt(c, by: c.manifest)
+/// compilation's manifest and returns false when one of them is an error. Under `--package <root>`, `lintRoot` is the root, whose
+/// `package.byn` (if it reads without errors) sets the severities instead (the C# `lintManifest`).
+public bool t26StyleLints(T26Options o, by T26Symbols symbols, for Ctx c, to ref List<T26Reported> reported, string? lintRoot = null)
+    uses alloc, console, fs {
+    var lintManifest: Manifest? = null
+    if lintRoot is not null && t26FileExists(t11Combine(lintRoot, by: "package.byn")) {
+        // An unreadable one reads as an empty one (Q565), whose BYN3100 leaves the defaults.
+        var read = manifestRead(t11Combine(lintRoot, by: "package.byn")) catch manifestParse(lexer.SourceText.create("package.byn", from: List<u8>()))
+        if manifestErrorCount(in read) == 0 { lintManifest = move read }
+    }
+    let lints = lintManifest is not null ? styleLintsAt(c, by: lintManifest) : styleLintsAt(c, by: c.manifest)
     var ok = true
     for d in lints {
         reported.append(T26Reported { path: pathOf(in c, for: in d), start: d.span.start, code: d.code, isWarning: d.isWarning, isNote: d.isNote })
