@@ -110,7 +110,7 @@ While the C# compiler is the oracle, every language change is built twice. The o
 - **Two bootstraps agree.** For the frozen tree, the self-hosted compiler built by the C# compiler and the one built from `bootstrap/bayan.c` emit the same C for `src/driver`. Kind: property (R27). This restates L027 (bootstrap fixpoint) without a live C# compiler and may be enacted as its amendment.
 
 ## Open questions
-Each has the most conservative option as the default; work proceeds on the default until the owner decides.
+Each has the most conservative option as the default; work proceeds on the default until the owner decides. Decision 008 D7 (2026-11-17): OQ3, OQ4, OQ5, OQ7, OQ9 and OQ10 take their defaults; OQ1 follows the re-tag in D6; OQ6, OQ8 and the language server's part (019a here, 019b in decision 006) stay open.
 
 - **OQ1 The `v0.3.2` tag.** The tag does not resolve in the checkout this text was written in (2026-11-17); `dev` is at the release merge 06eab86f. *Default:* the freeze export waits for the owner's tag and takes its commit from it; no other commit is used.
 - **OQ2 Freeze conditions.** Decision 006 §2 sets three conditions for freezing at 0.3.2: revision 0024 in or explicitly out, the wording questions (Q1272, Q1186–Q1189) landed, and divergences listed. This spec did not verify the first two at the tag. *Default:* the first freeze task checks all three and stops with a report if one fails; revision 0024 is treated as out and becomes the first catch-up item (decision 006 §2).
