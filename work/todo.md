@@ -859,3 +859,11 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - Review 2026-11-16 LOW: `.github/workflows/pages.yml` rebuilds `out/` from empty, so only the current `docs/<version>/` is published and older release doc links break after the next deploy; decide whether old versions stay.
 - Review 2026-11-16 LOW: `scripts/release/docs-pdf.sh:31` `file://$root/...` is not percent-encoded (space or `#` in the checkout path).
 - Review 2026-11-16 LOW: `scripts/release/cut.sh:42` a roadmap dated the same day as the previous tag passes even when last edited before the tag.
+||||||| 4a48b58a
+- Site: `book.html` prints an extra title page before chapter 1 (print stylesheet). 2026-11-16, 0.3.2 prep.
+- Site: inline code in `.page` bodies is not formatted by `bayan format` (only fenced examples are checked). 2026-11-16.
+- wlt1 has no Python, so 3 `SelfhostSnapshotTests` fail there; install Python or skip them with a reason on hosts without it. 2026-11-16.
+- `dist/macos-arm64/latest` is 0.2.0-dev (2026-11-05) and rejects the current clause order (BYN1065); rebuild with `scripts/dist.sh` after 0.3.2. 2026-11-16.
+- VM shard runs abort when ghosthive's MemAvailable falls under 10 GiB; it sat at 12 GiB on 2026-11-16, so the 0.3.2 suite ran on wp1 + mb1. Find what holds ghosthive's memory.
+- Manifesto edition 1 is written against 0.2.0 (lines 9 and 1413) and its status badges reflect that; refresh the content for a later edition. 2026-11-16.
+- `scripts/cleanup/run-all.sh:153` shows only `refuse` lines at the start of a line in its summary; indented `  refused:` lines from some scripts are missed. Gate note, 2026-11-16.
