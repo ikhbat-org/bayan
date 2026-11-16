@@ -3,7 +3,7 @@ void greet(string name) {
 }
 
 void main() {
-    let typed: Untrusted<string> = Untrusted("aisha")
+    let typed: Untrusted<string> = Untrusted("ali")
     print($"{typed.length}")
     let name: string = typed.trustUnchecked() because "demo input"
     greet(name)
