@@ -158,9 +158,34 @@ public sealed class LayoutTests
         Lay("void pay(ref this is .draft) becomes .paid {\n}\n"));
 
     [Fact]
-    public void BecomesKeepsTheSpaceBeforeEachOfSeveralStates() => Assert.Equal(
-        "void pay(ref this is .draft) becomes .paid or .shipped {\n}\n",
-        Lay("void pay(ref this is .draft) becomes .paid or .shipped {\n}\n"));
+    public void IsKeepsTheSpaceBeforeEachOfSeveralStates() => Assert.Equal(
+        "i64 amount(this is .paid or .shipped) => payment\n",
+        Lay("i64 amount(this is .paid or .shipped) => payment\n"));
+
+    [Fact]
+    public void ReturnKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "Color pick() {\n    return .red\n}\n",
+        Lay("Color pick() {\n    return .red\n}\n"));
+
+    [Fact]
+    public void FailKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "void check(string s) fails ParseError {\n    fail .empty if s.isEmpty\n}\n",
+        Lay("void check(string s) fails ParseError {\n    fail .empty if s.isEmpty\n}\n"));
+
+    [Fact]
+    public void CaseKeepsTheSpaceBeforeItsPattern() => Assert.Equal(
+        "i64 f(Color c) => c switch {\n    case .red => 1\n    case .green => 2\n}\n",
+        Lay("i64 f(Color c) => c switch {\n    case .red => 1\n    case .green => 2\n}\n"));
+
+    [Fact]
+    public void ExceptKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "union error Retryable = SendError except .rejected\n",
+        Lay("union error Retryable = SendError except .rejected\n"));
+
+    [Fact]
+    public void AndKeepsTheSpaceBeforeItsState() => Assert.Equal(
+        "void f(Order o) requires o is .paid and o is .shipped {\n}\n",
+        Lay("void f(Order o) requires o is .paid and o is .shipped {\n}\n"));
 
     [Fact]
     public void MemberAccessAfterANameStaysJoined() => Assert.Equal(
