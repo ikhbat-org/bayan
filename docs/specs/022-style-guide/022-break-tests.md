@@ -37,3 +37,24 @@ Each row reverts one rule in `csharp/Bayan.Cli/Layout.cs` (line numbers from the
 | Round 4: the author's group break goes | AnAuthorsGroupBreakGivesWayToItsOperators | `Joins`:587 `_lineStart[k] = false;` in the group loop replaced by a no-op | 2 failed: AnAuthorsGroupBreakGivesWayToItsOperators, Guide("Groups that do not fit") |
 
 The same filter on the restored `Layout.cs`: 1396 passed, 0 failed (Total: 1396).
+
+## T8
+
+Each row reverts one ported rule in `src/driver/layout.byn` (line numbers from the restored file) after `cp` to `tmp/t8-bt/<id>.bak`, runs `dotnet test csharp/tests/Bayan.Tests -v q --filter "FullyQualifiedName~SelfhostDriverStage2FormatTests.LayoutInputsFormatAsCliApp"` (38 rows: LayoutTests.cs and FormatTests.cs, 19 styles each, stage 2 against the C#), and restores the file with `cp` (`cmp` clean after every row). The scripts and logs are in `tmp/t8-bt/` (`run.sh`, `<id>.log`). `Layout-n` is the row `(file: "LayoutTests.cs", style: n)`, and `Format-n` is the FormatTests.cs row. "First diverging input" is the first case file that stage 2 formats and the C# leaves alone, or the reverse.
+
+| Rule | .byn change | Row | Result |
+|---|---|---|---|
+| Round 4: the author's group break goes (`Joins` group loop) | `joins`:953-954 `{ lineStart[g + 1] = false }` and `{ lineStart[c] = false }` replaced by `{ }` | LayoutInputsFormatAsCliApp | 14 of 38 failed: Layout-1, 2, 3, 4, 5, 7, 9, 11, 13, 14, 15, 16, 17, 18 |
+| Control-head group: the head's `(` never opens (AControlHeadGroupDoesNotOpen) | `breakLine`:1356 `\|\| control && o == p + 1` removed from the list skip | LayoutInputsFormatAsCliApp | 7 of 38 failed: Layout-2, 3, 4, 7, 13, 14, 15; first diverging input `if (originalValueNumberOne == originalValueNumberTwo) is true {` |
+| Atoms: no operator break inside an index (AnOperatorInsideAnIndexDoesNotBreak) | `lowestOperators`:1414 `&& !(o >= 0 && isIndex(o))` removed | LayoutInputsFormatAsCliApp | 7 of 38 failed: Layout-2, 3, 4, 7, 13, 14, 15; first diverging input `let v = table[firstKeyNameValue ?? …].value` |
+| Atoms: the member after an index stays on its line (AChainAfterAnIndexKeepsItsFirstMember) | `chains`:1126 `&& kind(j - 1) != .closeBracket` replaced by `&& j >= 0` (removing it leaves `if (a \|\| b)`, which BYN1017 rejects) | LayoutInputsFormatAsCliApp | 7 of 38 failed: Layout-2, 3, 4, 7, 13, 14, 15; first diverging input `let w = rows[i].first().second(alphaValue)…` |
+| Chains wait for the ternary: a `:` scan goes on through a chain link (ACaseLabelAfterATernaryKeepsItsColonTight) | `spacedColon`:2123 `&& !isWasl(k)` removed | LayoutInputsFormatAsCliApp | 9 of 38 failed: Layout-2, 3, 4, 5, 7, 13, 14, 15, 16; first diverging input `let shown = ready ? Path.relative(…).replaced(…): output` |
+| C: `=>` first (AnArrowHeaderBreaksAfterTheArrowBeforeAStructDefault) | `breakLine`:1273 `if headerArrow[k] && …` forced false | LayoutInputsFormatAsCliApp | 13 of 38 failed: Format-2, 3, 4, 7, 13, 14 and Layout-2, 3, 4, 7, 13, 14, 15; first difference `) =>` expected, `) => firstArgument + secondArgument` actual |
+| D: break before the lowest operators | `breakLine`:1302 `lowestOperators(s, from: p, until: e)` replaced by `List<i64>()` | LayoutInputsFormatAsCliApp | 22 of 38 failed: Format-2, 3, 7, 13 and Layout-0 to 11, 13 to 18 |
+| Chains wait for the ternary (Breaks) | `breakLine`:1348 `if ternary[…] { continue }` forced false | LayoutInputsFormatAsCliApp | 9 of 38 failed: Layout-2, 3, 4, 5, 7, 13, 14, 15, 16; first difference `let shown = ready ? Path.relative(` expected, `let shown = ready ? Path` actual |
+| `///` does not end a run | `separated`:1787 `&& !doc(gaps[s].items[k])` removed | LayoutInputsFormatAsCliApp | 16 of 38 failed: Layout-0, 1, 3, 4, 5, 7, 8, 9, 10, 11, 13 to 18; first difference `public bool   checks = false` expected, `public bool checks = false` actual |
+| An empty arm stays on its line | `guideStmt`:1529 `lineStart[o] = false` replaced by `lineStart[o] = lineStart[o]` | LayoutInputsFormatAsCliApp | 18 of 38 failed: Layout-0 to 11, 13 to 18; first diverging input `switch kind { case .a: go() default: {} }` |
+| Case bodies go one level in | `levels`:724 `frames[top].inSwitch && …` forced false | LayoutInputsFormatAsCliApp | 18 of 38 failed: Layout-0 to 11, 13 to 18; first diverging input `case .binary: let op = c.op …` |
+| Outlier limit | `alignRun`:1845 `outliers && target - second > 8` forced false | LayoutInputsFormatAsCliApp | 16 of 38 failed: Layout-0, 1, 3, 4, 5, 7, 8, 9, 10, 11, 13 to 18 |
+
+The same filter on the restored `layout.byn`: 38 passed, 0 failed (Total: 38).

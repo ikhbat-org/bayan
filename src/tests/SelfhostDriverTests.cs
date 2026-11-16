@@ -1216,6 +1216,7 @@ public sealed class SelfhostDriverStage2FormatTests
     [
         "", "width: 100", "width: 30", "width: 40", "width: 45", "width: 72", "align: .none", "width: 40, trailingCommas: .never", "indent: 2",
         "booleans: .words, primitives: .csharp", "primitives: .csharp", "booleans: .words", "booleans: .both",
+        "width: 44", "width: 50", "width: 60", "width: 80", "width: 88", "width: 96",
     ];
 
     public static IEnumerable<object[]> LayoutInputRows() =>

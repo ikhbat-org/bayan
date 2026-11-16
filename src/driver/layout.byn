@@ -47,6 +47,7 @@ struct LayoutFrame {
     bool control = false
     bool clause = false
     i64 body = -1
+    bool inSwitch = false
 }
 
 /// Layout.cs: Side.
@@ -355,6 +356,8 @@ LayoutEngine layoutEngine(move List<u8> source, from move List<lexer.Token> toke
         commentPad: List<i64>(),
         tightAfter: List<bool>(),
         tightBefore: List<bool>(),
+        enclosing: List<i64>(),
+        headerArrow: List<bool>(),
         output: List<u8>(),
     }
     for i in 0..n {
@@ -370,6 +373,8 @@ LayoutEngine layoutEngine(move List<u8> source, from move List<lexer.Token> toke
         engine.commentPad.append(0)
         engine.tightAfter.append(false)
         engine.tightBefore.append(false)
+        engine.enclosing.append(0)
+        engine.headerArrow.append(false)
     }
     return engine
 }
@@ -582,6 +587,8 @@ struct LayoutEngine {
     List<i64> commentPad
     List<bool> tightAfter
     List<bool> tightBefore
+    List<i64> enclosing
+    List<bool> headerArrow
     List<u8> output
 
     /// Layout.cs: Engine.Render.
@@ -709,10 +716,12 @@ struct LayoutEngine {
                 } else if !inGroup && gaps[i].hasBlank {
                     continues = false
                 } else {
-                    continues = isWasl(i) || layoutAfterLa(prev)
+                    // A line can start with a ternary's `?` or `:` only inside brackets, where it continues the entry.
+                    continues = isWasl(i) || layoutAfterLa(prev) || first == .question || first == .colon
                 }
                 if !continues {
-                    level = frames[top].line + 1
+                    // A `case` body goes one level past its `case`.
+                    level = frames[top].line + (frames[top].inSwitch && !(first == .caseKeyword || first == .defaultKeyword) ? 2 : 1)
                     frames[top].statement = level
                     frames[top].statementIndent = originalIndent(i)
                     frames[top].control = first == .ifKeyword || first == .whileKeyword || first == .forKeyword || first == .unlessKeyword
@@ -732,7 +741,18 @@ struct LayoutEngine {
             for k in i..j {
                 if layoutIsOpener(kind(k)) {
                     let line = kind(k) == .openBrace && body >= 0 ? body : level
-                    frames.append(LayoutFrame { opener: kind(k), line: line, statement: line, statementIndent: originalIndent(i), body: body })
+                    // A group in a control header continues the header: its lines and its `{` keep the header's levels.
+                    let outer = frames[frames.length - 1]
+                    let header = kind(k) == .openParen && outer.control && !callLike(k - 1)
+                    frames.append(LayoutFrame {
+                        opener: kind(k),
+                        line: line,
+                        statement: header ? outer.statement : line,
+                        statementIndent: originalIndent(i),
+                        body: body,
+                        control: header,
+                        inSwitch: kind(k) == .openBrace && (kind(k + 1) == .caseKeyword || kind(k + 1) == .defaultKeyword),
+                    })
                 } else if layoutIsCloser(kind(k)) {
                     if frames.length > 1 { frames.remove(at: frames.length - 1) }
                 }
@@ -770,16 +790,19 @@ struct LayoutEngine {
         var open = List<i64>()
         for i in 0..tokens.length {
             matchOf[i] = -1
-            if layoutIsOpener(kind(i)) {
-                open.append(i)
-            } else if layoutIsCloser(kind(i)) && open.length > 0 {
+            if layoutIsCloser(kind(i)) && open.length > 0 {
                 let o = open[open.length - 1]
                 open.remove(at: open.length - 1)
                 matchOf[o] = i
                 matchOf[i] = o
             }
+            enclosing[i] = open.length > 0 ? open[open.length - 1] : -1
+            if layoutIsOpener(kind(i)) { open.append(i) }
         }
     }
+
+    /// Layout.cs: Engine.IsIndex. Whether the `[` at `o` is an index (`xs[i]`, `u8[4]`), not a list literal.
+    bool isIndex(i64 o) => kind(o) == .openBracket && o > 0 && layoutOperandEnd(kind(o - 1))
 
     /// Layout.cs: Engine.Columns. The columns token `i` takes: its UTF-8 lead bytes.
     i64 columns(i64 i) {
@@ -918,6 +941,18 @@ struct LayoutEngine {
                 }
             }
         }
+        // A group breaks only before its own operators: the author's break after its `(` or before its `)` goes.
+        for g in 1..tokens.length {
+            if kind(g) != .openParen || matchOf[g] <= g + 1 || callLike(g - 1) || kind(g - 1) == .greater || inPattern(g) { continue }
+            let c = matchOf[g]
+            var comma = false
+            for k in items(g, until: c) {
+                if kind(k) == .comma { comma = true }
+            }
+            if comma { continue }
+            if lineStart[g + 1] && !hasComment(g + 1) && editable(g + 1, through: g + 1) { lineStart[g + 1] = false }
+            if lineStart[c] && !hasComment(c) && editable(c, through: c) { lineStart[c] = false }
+        }
         var o: i64 = 0
         while o < tokens.length {
             if (kind(o) == .openParen || kind(o) == .openBracket) && matchOf[o] >= o {
@@ -925,7 +960,20 @@ struct LayoutEngine {
                 if joinable(o, until: c) {
                     var breaks = List<i64>()
                     for k in o + 1..c + 1 { breaks.append(k) }
-                    if tryJoin(o, through: c, for: breaks) { o = c }
+                    if tryJoin(o, through: c, for: breaks) {
+                        o = c
+                    } else {
+                        // A header with a `=>` body breaks after the `=>` before its parameters wrap.
+                        let arrow = headerArrowAfter(c)
+                        if arrow > 0 && !lineStart[arrow + 1] && editable(arrow + 1, through: arrow + 1) {
+                            lineStart[arrow + 1] = true
+                            if tryJoin(o, through: c, for: breaks) {
+                                o = c
+                            } else {
+                                lineStart[arrow + 1] = false
+                            }
+                        }
+                    }
                 }
             }
             o += 1
@@ -949,8 +997,44 @@ struct LayoutEngine {
                 }
                 k += 1
             }
-            if only { let _ = tryJoin(chain.start, through: chain.end, for: chain.dots) }
+            if !only { continue }
+            // A chain in a ternary that has not broken joins: the ternary breaks first.
+            if inUnbrokenTernary(chain.start) {
+                for d in chain.dots { lineStart[d] = false }
+            } else {
+                let _ = tryJoin(chain.start, through: chain.end, for: chain.dots)
+            }
         }
+    }
+
+    /// Layout.cs: Engine.HeaderArrow. The header `=>` on the line after the parameter list closed at `c`, or -1.
+    i64 headerArrowAfter(i64 c) {
+        var k = c + 1
+        while k < tokens.length && !lineStart[k] {
+            if headerArrow[k] { return k }
+            if layoutIsOpener(kind(k)) && matchOf[k] > k { k = matchOf[k] }
+            k += 1
+        }
+        return -1
+    }
+
+    /// Layout.cs: Engine.InUnbrokenTernary. Whether token `i` is in an operand of a ternary inside `( )` or `[ ]` whose `?` has not
+    /// broken.
+    bool inUnbrokenTernary(i64 i) {
+        let o = enclosing[i]
+        if o < 0 || !(kind(o) == .openParen || kind(o) == .openBracket) { return false }
+        var k = i - 1
+        while k > o {
+            if layoutIsCloser(kind(k)) && matchOf[k] >= 0 && matchOf[k] < k {
+                k = matchOf[k]
+            } else if kind(k) == .comma {
+                return false
+            } else if kind(k) == .question && trivia(k) {
+                return !lineStart[k]
+            }
+            k -= 1
+        }
+        return false
     }
 
     /// Layout.cs: Engine.Joinable.
@@ -1038,7 +1122,8 @@ struct LayoutEngine {
                     k = matchOf[k] + 1
                 }
                 if call { calls += 1 }
-                if call || breakable.length > 0 { breakable.append(j) }
+                // A `.member` after an index stays on its line (`c.items[i].payload`).
+                if (call || breakable.length > 0) && kind(j - 1) != .closeBracket { breakable.append(j) }
                 end = k - 1
                 j = k
             }
@@ -1079,7 +1164,7 @@ struct LayoutEngine {
                 if kind(k) == .comma { comma = true }
                 if lineStart[k] { started = true }
             }
-            if !editable(o, through: c) || !comma { continue }
+            if !editable(o, through: c) || isIndex(o) || !comma { continue }
             if lineStart[c] || trailingComma(c) || started { breakList(o, until: c) }
         }
         for round in 0..tokens.length {
@@ -1099,15 +1184,65 @@ struct LayoutEngine {
     /// Layout.cs: Engine.BreakList. One item per line: a break after the opener and after each item, and the trailing comma the knob asks for.
     void breakList(ref this, i64 o, until i64 c) uses alloc {
         if o + 1 < c { lineStart[o + 1] = true }
+        var starts = List<i64>()
         for k in items(o, until: c) {
-            if kind(k) == .comma && k + 1 < c { lineStart[k + 1] = true }
+            if (k == o + 1 || kind(k - 1) == .comma) && k < c { starts.append(k) }
         }
+        var widths = List<i64>()
+        let row = scalars(o, until: c, at: starts, to: ref widths) ? rowOf(o, at: starts, by: widths) : 1
+        for n in 1..starts.length { lineStart[starts[n]] = n % row == 0 }
         lineStart[c] = true
         if options.trailingCommas == .multiline && kind(c - 1) != .comma && o + 1 < c && commaSafe(o, until: c) { addComma[c - 1] = true }
     }
 
-    /// Whether `kind` joins the parts of a wrapped condition: `&&`, `||`, `and` or `or`.
-    bool isJoiner(lexer.TokenKind k) => k == .ampAmp || k == .barBar || k == .andKeyword || k == .orKeyword
+    /// Layout.cs: Engine.Scalars. Whether every item of the list literal `[o, c]` is a scalar (a number, a char, or a string of at most 16
+    /// columns, signed or not) and no comment is inside; the columns of each item into `widths` when so (the C# null is false).
+    bool scalars(i64 o, until i64 c, at List<i64> starts, to ref List<i64> widths) uses alloc {
+        if kind(o) != .openBracket || isIndex(o) || starts.length < 2 { return false }
+        for k in o + 1..c + 1 {
+            if hasComment(k) { return false }
+        }
+        for n in 0..starts.length {
+            var k = starts[n]
+            if kind(k) == .minus || kind(k) == .plus { k += 1 }
+            if !(kind(k) == .integerLiteral || kind(k) == .floatLiteral || kind(k) == .charLiteral
+                || kind(k) == .stringLiteral && !multiline(k) && columns(k) <= 16) {
+                return false
+            }
+            if kind(k + 1) == .numericSuffix { k += 1 }
+            if !(kind(k + 1) == .comma || kind(k + 1) == .closeBracket) { return false }
+            widths.append(width(starts[n], until: k + 1) - levelOf[starts[n]] * options.indent)
+        }
+        return true
+    }
+
+    /// Layout.cs: Engine.Row. The items per row of a broken scalar list: as many as the author's first row holds when rows of that many
+    /// fit, otherwise the most that fit in every row (at least one).
+    i64 rowOf(i64 o, at List<i64> starts, by List<i64> widths) {
+        let indent = (levelOf[lineStartOf(o)] + 1) * options.indent
+        var first: i64 = 1
+        while first < starts.length && !gaps[starts[first]].hasNewline { first += 1 }
+        if rowFits(first, by: widths, at: indent) { return first }
+        var n = (first < starts.length ? first : starts.length) - 1
+        while n > 1 {
+            if rowFits(n, by: widths, at: indent) { return n }
+            n -= 1
+        }
+        return 1
+    }
+
+    /// Layout.cs: Engine.Row (its local `Fits`). Whether rows of `n` items fit in `width`.
+    bool rowFits(i64 n, by List<i64> widths, at i64 indent) {
+        var at: i64 = 0
+        while at < widths.length {
+            var width = indent + 1
+            let end = widths.length < at + n ? widths.length : at + n
+            for m in at..end { width += widths[m] + (m > at ? 2 : 0) }
+            if width > options.width { return false }
+            at += n
+        }
+        return true
+    }
 
     /// Layout.cs: Engine.BreakLine. Breaks the over-wide line `[s, e)` at its widest structure; false when it has none.
     bool breakLine(ref this, i64 s, until i64 e, for List<LayoutChain> lineChains) uses alloc {
@@ -1133,22 +1268,12 @@ struct LayoutEngine {
                 k += 1
             }
         }
-        // A wrapped condition breaks before each `&&`, `||`, `and` and `or` outside brackets, as does its continuation line.
-        if kind(p) == .elseKeyword { p += 1 }
-        let condition = kind(p)
-        if p < e && (condition == .ifKeyword || condition == .whileKeyword || condition == .unlessKeyword || isJoiner(condition)) {
-            var depth: i64 = 0
-            for k in p + 1..e {
-                if layoutIsCloser(kind(k)) { depth -= 1 }
-                if depth == 0 && kind(k) == .openBrace { break }
-                // `if (a) ⏎ && b` would read `(a)` as the whole condition (BYN1017).
-                if depth == 0 && isJoiner(kind(k)) && !lineStart[k] && editable(k, through: k) && !(kind(k - 1) == .closeParen && matchOf[k - 1] == p + 1) {
-                    lineStart[k] = true
-                    changed = true
-                }
-                if layoutIsOpener(kind(k)) { depth += 1 }
+        // A header with a `=>` body breaks after the `=>` first; its parameters wrap only if the header still does not fit.
+        for k in s..e - 1 {
+            if headerArrow[k] && !lineStart[k + 1] && editable(k + 1, through: k + 1) {
+                lineStart[k + 1] = true
+                return true
             }
-            if changed { return true }
         }
         // Header clauses after the `)` go one per line when the head before them fits.
         var clauseDepth: i64 = 0
@@ -1171,12 +1296,43 @@ struct LayoutEngine {
             if layoutIsOpener(kind(k)) { clauseDepth += 1 }
         }
         if changed { return true }
+        // An expression breaks before each operator of its lowest level outside brackets, then inside the widest group.
+        if kind(p) == .elseKeyword { p += 1 }
+        let control = p < e && (kind(p) == .ifKeyword || kind(p) == .whileKeyword || kind(p) == .unlessKeyword)
+        var ops = lowestOperators(s, from: p, until: e)
+        if ops.length == 0 {
+            var widest: i64 = 0
+            var depth: i64 = 0
+            for k in s..e {
+                if layoutIsCloser(kind(k)) { depth = depth > 0 ? depth - 1 : 0 }
+                if depth == 0 && kind(k) == .openParen && matchOf[k] > k + 1 && matchOf[k] < e && (k == s || !callLike(k - 1))
+                    && tokens[matchOf[k]].end - tokens[k].start > widest {
+                    let inner = lowestOperators(k, from: k + 1, until: matchOf[k])
+                    if inner.length > 0 {
+                        widest = tokens[matchOf[k]].end - tokens[k].start
+                        ops = inner.copy()
+                    }
+                }
+                if layoutIsOpener(kind(k)) { depth += 1 }
+            }
+        }
+        if ops.length > 0 {
+            for k in ops { lineStart[k] = true }
+            return true
+        }
         // Otherwise the outermost chain or list on the line: a chain before a list at the same depth, then the leftmost.
+        // A chain in a ternary that has not broken stays whole, and nothing breaks inside an index. A control head's
+        // `(` never opens: a line after its `)` would end the condition (BYN1017).
         var depths = List<i64>()
+        var ternary = List<bool>()
         var d: i64 = 0
+        var q: i64 = -1
         for k in s..e {
             if layoutIsCloser(kind(k)) { d -= 1 }
+            if q >= 0 && (d < depths[q - s] || d == depths[q - s] && kind(k) == .comma) { q = -1 }
             depths.append(d)
+            if q < 0 && k > s && kind(k) == .question && trivia(k) { q = k }
+            ternary.append(q >= 0 && d == depths[q - s])
             if layoutIsOpener(kind(k)) { d += 1 }
         }
         var bestChain: i64 = -1
@@ -1189,6 +1345,7 @@ struct LayoutEngine {
                 if lineStart[b] { broken = true }
             }
             if broken || !editable(lineChains[ci].start, through: lineChains[ci].end) { continue }
+            if ternary[lineChains[ci].breakable[0] - s] { continue }
             if depths[lineChains[ci].breakable[0] - s] < best {
                 best = depths[lineChains[ci].breakable[0] - s]
                 bestChain = ci
@@ -1196,9 +1353,17 @@ struct LayoutEngine {
         }
         var bestList: i64 = -1
         for o in s..e {
-            if !(kind(o) == .openParen || kind(o) == .openBracket || isStructLiteral(o)) { continue }
+            if !(kind(o) == .openParen || kind(o) == .openBracket || isStructLiteral(o)) || isIndex(o) || control && o == p + 1 { continue }
             let c = matchOf[o]
             if c <= o + 1 || c >= e || depths[o - s] >= best || !editable(o, through: c) || kind(o) == .openParen && inPattern(o) { continue }
+            // A group around one operand followed by a member (`(move parsed).trust()`) is an atom, as `xs[i].member` is.
+            if kind(o) == .openParen && (o == s || !callLike(o - 1)) && (kind(c + 1) == .dot || kind(c + 1) == .questionDot) {
+                var comma = false
+                for k in items(o, until: c) {
+                    if kind(k) == .comma { comma = true }
+                }
+                if !comma { continue }
+            }
             best = depths[o - s]
             bestList = o
             bestChain = -1
@@ -1210,6 +1375,59 @@ struct LayoutEngine {
         if bestList < 0 { return false }
         breakList(bestList, until: matchOf[bestList])
         return true
+    }
+
+    /// Layout.cs: Engine.LowestOperators. The operators of the lowest level in tokens `[from, e)` outside brackets that a line may
+    /// start with, before any header clause: a ternary's `?` and `:` inside `( )` or a list's `[ ]` (at a statement's level a line
+    /// starting with `?` ends the statement), then `??`, `||`, `&&` and their words outside an index.
+    List<i64> lowestOperators(i64 s, from i64 start, until i64 e) uses alloc {
+        var found = List<i64>()
+        var levels = List<i64>()
+        var ternaries: i64 = 0
+        var depth: i64 = 0
+        for k in start..e {
+            if layoutIsCloser(kind(k)) { depth = depth > 0 ? depth - 1 : 0 }
+            if depth == 0 {
+                if k > s && isClause(k) { break }
+                let t = kind(k)
+                var level: i64 = -1
+                if t == .question && trivia(k) {
+                    level = 0
+                } else if t == .colon && ternaries > 0 {
+                    level = 0
+                } else if t == .questionQuestion {
+                    level = 1
+                } else if t == .barBar || t == .orKeyword {
+                    level = 2
+                } else if t == .ampAmp || t == .andKeyword {
+                    level = 3
+                }
+                if t == .question && level == 0 {
+                    ternaries += 1
+                } else if t == .colon && level == 0 {
+                    ternaries -= 1
+                }
+                let o = enclosing[k]
+                // `if (a) ⏎ && b` would read `(a)` as the whole condition (BYN1017), on any line of the header.
+                let afterHead = kind(k - 1) == .closeParen && matchOf[k - 1] > 0
+                    && (kind(matchOf[k - 1] - 1) == .ifKeyword || kind(matchOf[k - 1] - 1) == .whileKeyword || kind(matchOf[k - 1] - 1) == .unlessKeyword)
+                if level >= 0 && !lineStart[k] && editable(k, through: k) && !(o >= 0 && isIndex(o))
+                    && (level > 0 || o >= 0 && (kind(o) == .openParen || kind(o) == .openBracket)) && !afterHead {
+                    found.append(k)
+                    levels.append(level)
+                }
+            }
+            if layoutIsOpener(kind(k)) { depth += 1 }
+        }
+        var lowest: i64 = 4
+        for l in levels {
+            if l < lowest { lowest = l }
+        }
+        var result = List<i64>()
+        for n in 0..found.length {
+            if levels[n] == lowest { result.append(found[n]) }
+        }
+        return result
     }
 
     // ── Blank lines between top-level declarations (pass 7, proposal §3.7) ───────────
@@ -1282,7 +1500,12 @@ struct LayoutEngine {
                 }
             }
             switch decl {
-                case .functionDecl(let f): guideStmt(f.value.body)
+                case .functionDecl(let f):
+                    unless f.value.expressionBody is .none {
+                        let arrow = tokenAt(parser.exprSpan(in f.value.expressionBody).start) - 1
+                        if arrow > 0 && kind(arrow) == .fatArrow { headerArrow[arrow] = true }
+                    }
+                    guideStmt(f.value.body)
                 case .constructorDecl(let c): guideStmt(c.value.body)
                 case .testDecl(let t): guideStmt(t.value.body)
                 case .propertyDecl(let p): guideStmt(p.value.block)
@@ -1300,6 +1523,11 @@ struct LayoutEngine {
         switch stmt {
             case .blockStmt(let b):
                 let o = tokenAt(b.value.span.start)
+                // An empty arm stays on its label's line: `default: {}`.
+                if b.value.statements.length == 0 && kind(o) == .openBrace && kind(o - 1) == .colon && matchOf[o] == o + 1 && !hasComment(o)
+                    && gaps[o + 1].items.length == 0 && editable(o, through: o + 1) {
+                    lineStart[o] = false
+                }
                 if b.value.statements.length > 0 && kind(o) == .openBrace && matchOf[o] >= o && editable(o, through: matchOf[o]) {
                     for s in b.value.statements { lineStart[tokenAt(parser.stmtSpan(in s).start)] = true }
                     lineStart[matchOf[o]] = true
@@ -1428,7 +1656,7 @@ struct LayoutEngine {
             var ok = shapeMap.contains(s) && plain(s)
             if ok {
                 for k in shapeMap[s].columns {
-                    if !padded(s, at: k) { ok = false }
+                    if !(k < 0 || padded(s, at: k)) { ok = false }
                 }
             }
             if run.length > 0 && (!ok || shapeMap[s].key != shapeMap[run[0]].key || levelOf[s] != levelOf[run[0]] || separated(s)) {
@@ -1461,22 +1689,31 @@ struct LayoutEngine {
             if (s == start || kind(s) == .at) && tokenAt(span.end) == e {
                 var name: i64 = -1
                 var hasBody = false
+                // A top-level `const` parses as a statement but declares like the rest.
+                var declares = true
                 switch decl {
                     case .fieldDecl(let f): name = tokenAt(f.value.name.start)
                     case .propertyDecl(let p):
                         name = tokenAt(p.value.name.start)
                         hasBody = !(p.value.body is .none)
+                    case .globalStatement(let g):
+                        declares = false
+                        switch g.value.statement {
+                            case .localDecl(let l): declares = l.value.kind == .constKeyword
+                            default:
+                        }
                     default:
                 }
                 let isField = decl is .fieldDecl(_)
                 let isProperty = decl is .propertyDecl(_)
-                if topLevel && !(decl is .globalStatement(_)) && firstAt(.equals, from: start, until: e) > 0 {
+                if topLevel && declares && firstAt(.equals, from: start, until: e) > 0 {
                     var columns = List<i64>()
                     columns.append(firstAt(.equals, from: start, until: e))
                     shapeMap[s] = LayoutShape { key: $"{layoutDeclType(decl)} {leadingKeywords(start)}", columns: move columns }
                 } else if !topLevel && isField {
                     var columns = List<i64>()
                     columns.append(name)
+                    columns.append(firstAt(.equals, from: name, until: e))
                     shapeMap[s] = LayoutShape { key: "field", columns: move columns }
                 } else if !topLevel && isProperty && hasBody && firstAt(.fatArrow, from: name, until: e) > 0 {
                     var columns = List<i64>()
@@ -1543,13 +1780,20 @@ struct LayoutEngine {
     bool padded(i64 s, at i64 k) uses alloc =>
         k > s && k < lineEnd(s) && space(k, from: tokens[k - 1].end) && !layoutTriviaMatters(source, from: tokens, at: k)
 
-    /// Layout.cs: Engine.Separated. Whether a blank line, an inserted one or a comment line comes before line start `s`.
+    /// Layout.cs: Engine.Separated. Whether a blank line, an inserted one or a `//` line comes before line start `s`; a `///` line does not.
     bool separated(i64 s) {
         if gaps[s].hasBlank || needsBlank[s] { return true }
         for k in 1..gaps[s].items.length {
-            if gaps[s].items[k].isComment { return true }
+            if gaps[s].items[k].isComment && !doc(gaps[s].items[k]) { return true }
         }
         return false
+    }
+
+    /// Layout.cs: Engine.Doc. Whether the comment `item` is a `///` line.
+    bool doc(LayoutGapItem item) {
+        let n = item.end - item.start
+        if n < 3 || source[item.start] != 0x2f || source[item.start + 1] != 0x2f || source[item.start + 2] != 0x2f { return false }
+        return n == 3 || source[item.start + 3] != 0x2f
     }
 
     /// Layout.cs: Engine.Pads. The padding the run has already put in tokens `(s, e)`.
@@ -1563,24 +1807,64 @@ struct LayoutEngine {
     i64 lineWidth(i64 s) uses alloc => width(s, until: lineEnd(s)) + pads(s, until: lineEnd(s))
 
     /// Layout.cs: Engine.AlignRun.
-    void alignRun(ref this, List<i64> run, by Map<i64, LayoutShape> shapeMap) uses alloc {
-        if run.length < 2 { return }
-        for c in 0..shapeMap[run[0]].columns.length {
-            var at = List<i64>()
-            for s in run {
-                let column = shapeMap[s].columns[c]
-                at.append(width(s, until: column) + pads(s, until: column) + 1)
+    void alignRun(ref this, List<i64> lines, by Map<i64, LayoutShape> shapeMap) uses alloc {
+        if lines.length < 2 { return }
+        var run = lines.copy()
+        let key = shapeMap[run[0]].key
+        let outliers = key == "field" || key == "property" || key == "arm"
+        var restart = true
+        // Each restart drops one line, so the loop ends within `lines.length` passes.
+        while restart {
+            restart = false
+            if run.length < 2 { return }
+            for c in 0..shapeMap[run[0]].columns.length {
+                // Only the lines that have the column take part: a field without a default has no `=`.
+                var part = List<i64>()
+                for s in run {
+                    if shapeMap[s].columns[c] >= 0 { part.append(s) }
+                }
+                if part.length < 2 { continue }
+                var at = List<i64>()
+                for s in part {
+                    let column = shapeMap[s].columns[c]
+                    at.append(width(s, until: column) + pads(s, until: column) + 1)
+                }
+                var target = at[0]
+                var widest: i64 = 0
+                for n in 0..at.length {
+                    if at[n] > target {
+                        target = at[n]
+                        widest = n
+                    }
+                }
+                var second: i64 = -2147483648
+                for n in 0..at.length {
+                    if n != widest && at[n] > second { second = at[n] }
+                }
+                // A line more than 8 columns past the next-widest leaves the run and stays unaligned.
+                if outliers && target - second > 8 {
+                    for s in run {
+                        for k in shapeMap[s].columns {
+                            if k >= 0 { pad[k] = 0 }
+                        }
+                    }
+                    let outlier = part[widest]
+                    for n in 0..run.length {
+                        if run[n] == outlier {
+                            run.remove(at: n)
+                            break
+                        }
+                    }
+                    restart = true
+                    break
+                }
+                var over = false
+                for n in 0..part.length {
+                    if at[n] < target && lineWidth(part[n]) + target - at[n] > options.width { over = true }
+                }
+                if over { continue }
+                for n in 0..part.length { pad[shapeMap[part[n]].columns[c]] = target - at[n] }
             }
-            var target = at[0]
-            for x in at {
-                if x > target { target = x }
-            }
-            var over = false
-            for n in 0..run.length {
-                if at[n] < target && lineWidth(run[n]) + target - at[n] > options.width { over = true }
-            }
-            if over { continue }
-            for n in 0..run.length { pad[shapeMap[run[n]].columns[c]] = target - at[n] }
         }
     }
 
@@ -1835,7 +2119,8 @@ struct LayoutEngine {
                 || at == .identifier && textIs(k, as: "where")) {
                 return true
             }
-            if lineStart[k] && depth == 0 { return false }
+            // A chain link continues its line, so the scan goes on through it to a `?` before the chain.
+            if lineStart[k] && depth == 0 && !isWasl(k) { return false }
             k -= 1
         }
         return false
