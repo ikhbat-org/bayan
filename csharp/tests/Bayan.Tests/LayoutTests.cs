@@ -152,6 +152,21 @@ public sealed class LayoutTests
         "let s = $\"{n, as: .hex} and {a + 1}\"\n",
         Lay("let s = $\"{n,as:.hex} and { a+1 }\"\n"));
 
+    [Fact]
+    public void BecomesKeepsTheSpaceBeforeItsState() => Assert.Equal(
+        "void pay(ref this is .draft) becomes .paid {\n}\n",
+        Lay("void pay(ref this is .draft) becomes .paid {\n}\n"));
+
+    [Fact]
+    public void BecomesKeepsTheSpaceBeforeEachOfSeveralStates() => Assert.Equal(
+        "void pay(ref this is .draft) becomes .paid or .shipped {\n}\n",
+        Lay("void pay(ref this is .draft) becomes .paid or .shipped {\n}\n"));
+
+    [Fact]
+    public void MemberAccessAfterANameStaysJoined() => Assert.Equal(
+        "let a = order.paid\nlet b = f().x\n",
+        Lay("let a = order.paid\nlet b = f().x\n"));
+
     // ── Blank lines ──
 
     [Fact]
