@@ -1,0 +1,174 @@
+#!/usr/bin/env bayan
+// Rewrites the source paths of one bayan-quality.json report to repo-root-relative ones (spec 015 T12): `bayan mutate`
+// writes absolute paths, and any machine must be able to read the report. Port of the inline block of
+// scripts/selfhost/mutate-batch.sh. A path is looked up under <root>, then under <root>/src; a path that lands outside the
+// root or is no file exits 1 naming the report and leaves it as it was.
+// Usage: bash scripts/bayan-tool.sh report-paths <report.json> <root>
+
+import std.json
+
+type JsonValue = json.JsonValue
+type JsonMember = json.JsonMember
+type JsonError = json.JsonError
+type Json = json.Json
+
+union error PathsError {
+    failed(string message)
+}
+
+/// `Fs.realPath(path)`, or null when the path is missing.
+string? tryReal(string path) uses fs, alloc {
+    let r = Fs.realPath(path) catch {
+        return null
+    }
+    return $"{r}"
+}
+
+/// Python's `os.path.realpath`: links in the existing part of `path` resolved, the missing rest kept as it is.
+string looseReal(string path) uses fs, alloc {
+    let full = Path.fullPath(path.isEmpty ? "." : path)
+    return resolveFrom(full)
+}
+
+string resolveFrom(string full) uses fs, alloc {
+    let r = tryReal(full)
+    if r is null {
+        let parent = Path.directoryName(full) ?? ""
+        if parent.isEmpty || parent == full { return full }
+        return Path.combine(resolveFrom(parent), Path.fileName(full))
+    }
+    return r
+}
+
+/// The index of the last member named `key` in `members`, or -1.
+i64 memberIndex(ReadOnlySpan<JsonMember> members, for string key) {
+    var i = members.length - 1
+    while i >= 0 {
+        if members[i].key == key { return i }
+        i -= 1
+    }
+    return -1
+}
+
+/// `v` as Python's `json.load` keeps it: in an object the last of equal keys, at the first one's place.
+JsonValue dedup(JsonValue v) uses alloc {
+    switch v {
+        case .nothing: return .nothing
+        case .flag(let value): return .flag(value: value)
+        case .number(let value, let text): return .number(value: value, text: $"{text}")
+        case .text(let value): return .text(value: $"{value}")
+        case .list(let items):
+            var cp = List<JsonValue>()
+            for x in items { cp.append(dedup(x)) }
+            return .list(items: move cp)
+        case .object(let members):
+            let ms = dedupMembers(members.span)
+            return .object(members: move ms)
+    }
+}
+
+List<JsonMember> dedupMembers(ReadOnlySpan<JsonMember> members) uses alloc {
+    var keys = List<string>()
+    for m in members {
+        var seen = false
+        for k in keys {
+            if k == m.key {
+                seen = true
+                break
+            }
+        }
+        if !seen { keys.append($"{m.key}") }
+    }
+    var result = List<JsonMember>()
+    for k in keys {
+        let idx = memberIndex(members, for: k)
+        result.append(JsonMember { key: $"{k}", value: dedup(members[idx].value) })
+    }
+    return result
+}
+
+/// The `path` of a report file entry, as the entry's text.
+string entryPath(ReadOnlySpan<JsonMember> entry) uses alloc fails PathsError {
+    let i = memberIndex(entry, for: "path")
+    if i < 0 { fail .failed(message: "KeyError('path')") }
+    if entry[i].value is .text(let s) { return $"{s}" }
+    fail .failed(message: "TypeError('path is not a string')")
+}
+
+/// The entry with its `path` made `rel`.
+JsonValue withPath(ReadOnlySpan<JsonMember> entry, to string rel) uses alloc {
+    var cp = List<JsonMember>()
+    for m in entry {
+        if m.key == "path" {
+            cp.append(JsonMember { key: "path", value: .text(value: rel) })
+        } else {
+            cp.append(JsonMember { key: $"{m.key}", value: dedup(m.value) })
+        }
+    }
+    return .object(members: move cp)
+}
+
+i32 rewrite(string reportPath, from string rootArg) uses fs, alloc fails PathsError {
+    let root = looseReal(rootArg)
+    let raw = Io.readText(reportPath) catch {
+        fail .failed(message: $"[Errno 2] No such file or directory: '{reportPath}'")
+    }
+    let parsed = Json.parse(raw) catch switch {
+        .syntax e => fail .failed(message: $"JSONDecodeError('Expecting value: line {e.line} column {e.column} (char {e.offset})')"),
+        .tooDeep e => fail .failed(message: $"JSONDecodeError('Too deep: line {e.line} column {e.column} (char {e.offset})')"),
+        _ => fail .failed(message: $"{reportPath}: invalid json"),
+    }
+    let tree = dedup((move parsed).trustUnchecked() because "report written by a local tool")
+    if tree is .object(let top) {
+        let fi = memberIndex(top.span, for: "files")
+        if fi < 0 { fail .failed(message: "KeyError('files')") }
+        if top[fi].value is .list(let files) {
+            var entries = List<JsonValue>()
+            for f in files {
+                if f is .object(let entry) {
+                    let name = try entryPath(entry.span)
+                    var p = Path.combine(root, name)
+                    if !Path.isRooted(name) && !Fs.fileExists(p) {
+                        p = Path.combine(Path.combine(root, "src"), name)
+                    }
+                    let rel = Path.relative(root, to: looseReal(p)).replaced("\\", by: "/")
+                    if rel == ".." || rel.startsWith("../") {
+                        fail .failed(message: $"{reportPath}: path {name} is not under the repo root {root}")
+                    }
+                    if !Fs.fileExists(p) {
+                        fail .failed(message: $"{reportPath}: path {name} is no file under the repo root {root} or its src/")
+                    }
+                    entries.append(withPath(entry.span, to: rel))
+                } else {
+                    fail .failed(message: "TypeError('file entry is not an object')")
+                }
+            }
+            var members = List<JsonMember>()
+            for i in 0..fi { members.append(JsonMember { key: $"{top[i].key}", value: dedup(top[i].value) }) }
+            members.append(JsonMember { key: "files", value: .list(items: move entries) })
+            for i in (fi + 1)..top.length { members.append(JsonMember { key: $"{top[i].key}", value: dedup(top[i].value) }) }
+            let encoded = Json.encode(.object(members: move members), indent: 2) catch {
+                fail .failed(message: "ValueError('cannot encode report')")
+            }
+            Io.writeFile(reportPath, $"{encoded}\n".bytes) catch {
+                fail .failed(message: $"OSError('cannot write {reportPath}')")
+            }
+            return 0
+        }
+    }
+    fail .failed(message: $"{reportPath}: no files list")
+}
+
+i32 main(ReadOnlySpan<string> argv) uses fs, console, alloc {
+    if argv.length != 2 {
+        print("usage: report-paths <report.json> <root>", to: .stderr)
+        return 2
+    }
+    let code = rewrite(argv[0], from: argv[1]) catch switch {
+        .failed(let msg) => {
+            print(msg, to: .stderr)
+            return 1
+        },
+    }
+    return code
+}

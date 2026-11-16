@@ -35,7 +35,8 @@ done
 
 # Files only: git keeps no empty directories, so they are not part of a case (a case that leaves nothing has no
 # expected/files in a checkout).
-list_files() { [ -d "$1" ] && (cd "$1" && find . \( -type f -o -type l \) | LC_ALL=C sort); return 0; }
+# Names compare in NFC: macOS tar writes é decomposed, so the copied tree would differ from the checkout by bytes alone.
+list_files() { [ -d "$1" ] && (cd "$1" && find . \( -type f -o -type l \) | perl -CS -MUnicode::Normalize -pe '$_ = NFC($_)' | LC_ALL=C sort); return 0; }
 same_files() {
   diff <(list_files "$1") <(list_files "$2") || return 1
   local f; while IFS= read -r f; do cmp "$1/$f" "$2/$f" || return 1; done < <(list_files "$2")
@@ -70,6 +71,8 @@ for c in "${cases[@]}"; do
   # Scratch paths differ per checkout: the work and repo paths read as $WORK and $ROOT.
   # Literal match, and only a whole path: a root of /w must not rewrite /wave-brief.
   for f in stdout stderr; do W="$work" R="$root" perl -pi -e 's/\Q$ENV{W}\E(?![\w.-])/\$WORK/g; s/\Q$ENV{R}\E(?![\w.-])/\$ROOT/g' "$got/$f"; done
+  # A tool that writes an absolute path into a file: the same rewrite over the files it left.
+  find "$got/files" -type f -exec env W="$work" R="$root" perl -pi -e 's/\Q$ENV{W}\E(?![\w.-])/\$WORK/g; s/\Q$ENV{R}\E(?![\w.-])/\$ROOT/g' {} +
   # Python 3.11+ adds traceback caret lines (`  ^^^^`, `~~~^^`) that older Pythons do not print: drop them.
   perl -ni -e 'print unless /^\s*[~^]+\s*$/' "$got/stderr"
   if [ $record = 1 ]; then

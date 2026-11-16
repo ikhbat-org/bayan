@@ -14,7 +14,7 @@
 # which files are mutated (BAYAN_SNAPSHOT_FILES) but each group keeps the union filter of all its (shard's) files, the one a full run
 # raised the baseline with.
 # Per group: reports and logs in tmp/mutate-batch/<group>/ (quality-<n>-<binary>.json), bayan mutate's summary printed. A group
-# whose CLI, recording or mutant 0 fails is named and fails the run. Then quality-baseline.py check over the reports: a score
+# whose CLI, recording or mutant 0 fails is named and fails the run. Then quality-baseline check over the reports: a score
 # below the baseline names the file with old and new score and exits 1 with the baseline untouched; else `update` raises it.
 # MUTATE_BASELINE names another baseline file to check and raise instead (mutate-nightly.sh's scratch copy).
 # Each copied report's `path`s are rewritten relative to the repo root (a path outside it fails the group, naming the report);
@@ -23,7 +23,7 @@
 # one run at a time: tmp/mutate-batch.lock (a directory holding the holder's pid) is taken for the run, a lock whose pid is gone is taken over;
 # exit codes: 0 done and the baseline raised; 1 a score fell below the baseline (nothing raised); 2 usage or plan error;
 # 3 setup-class failure that says nothing about the file (the lock is held, no pinned bayan, the recording failed with no failed test,
-# quality-baseline.py check/update crashed or could not read the baseline); 4 a group failed for its files (tests failed in the recording, mutant 0 does not replay,
+# quality-baseline check/update crashed or could not read the baseline); 4 a group failed for its files (tests failed in the recording, mutant 0 does not replay,
 # no or unreadable manifest, no report, a report path that is no file): rerunning the same file fails the same way;
 # a lock without a pid file is held for 60 s (its holder may be between mkdir and the pid write), then stale;
 # CI shards (.github/workflows/mutation.yml) upload only the reports, and a final job runs one `update` over all of them.
@@ -122,23 +122,7 @@ while IFS= read -r g <&3; do
   mutation_step "$LOG" "$flt" "$mut" 0
   # bayan mutate writes absolute source paths: make each report's paths repo-root-relative, so any machine can read it
   if [ ${#FAIL[@]} = 0 ]; then for rp in "$LOG"/quality-*.json; do
-    [ -f "$rp" ] && { python3 -I - "$rp" "$(pwd -W 2>/dev/null || pwd)" <<'PY' 2> "$LOG/relpath.txt" || note "report: $(tail -1 "$LOG/relpath.txt")"
-import json, os, sys
-rp, root = sys.argv[1:3]
-root = os.path.realpath(root)
-report = json.load(open(rp, encoding='utf-8'))
-for e in report['files']:
-    p = os.path.join(root, e['path'])
-    if not os.path.isabs(e['path']) and not os.path.isfile(p):
-        p = os.path.join(root, 'src', e['path'])
-    rel = os.path.relpath(os.path.realpath(p), root).replace(os.sep, '/')
-    if rel.split('/')[0] == '..':
-        sys.exit(f'{rp}: path {e["path"]} is not under the repo root {root}')
-    if not os.path.isfile(p):
-        sys.exit(f'{rp}: path {e["path"]} is no file under the repo root {root} or its src/')
-    e['path'] = rel
-open(rp, 'w', encoding='utf-8').write(json.dumps(report, indent=2) + '\n')
-PY
+    [ -f "$rp" ] && { bash "$HERE/../bayan-tool.sh" report-paths "$rp" "$(pwd -W 2>/dev/null || pwd)" 2> "$LOG/relpath.txt" || note "report: $(tail -1 "$LOG/relpath.txt")"
     }; done; fi
   if [ ${#FAIL[@]} = 0 ]; then
     OK+=("$g")
@@ -154,14 +138,14 @@ PY
 done 3< <(cut -f1 <<< "$PLAN" | awk '!s[$0]++')
 REPORTS=(); for g in ${OK[@]+"${OK[@]}"}; do REPORTS+=("$OUT/$g"/quality-*.json); done
 if [ ${#REPORTS[@]} -gt 0 ]; then
-  out=$(python3 -I "$HERE/quality-baseline.py" check "$BASELINE" . "${REPORTS[@]}" 2> "$OUT/baseline.txt"); BX=$?
+  out=$(bash "$HERE/../bayan-tool.sh" quality-baseline check "$BASELINE" . "${REPORTS[@]}" 2> "$OUT/baseline.txt"); BX=$?
   if [ $BX != 0 ]; then
-    [ -n "$out" ] && echo "$out" || echo "baseline: quality-baseline.py check failed on $BASELINE — $(tail -1 "$OUT/baseline.txt")"
+    [ -n "$out" ] && echo "$out" || echo "baseline: quality-baseline check failed on $BASELINE — $(tail -1 "$OUT/baseline.txt")"
     # a refused shard uploads no accepted report: every report it would have applied moves to its group's rejected/
     for g in "${OK[@]}"; do mkdir -p "$OUT/$g/rejected"
       for rp in "$OUT/$g"/quality-*.json; do [ -f "$rp" ] && mv "$rp" "$OUT/$g/rejected/rejected-$(basename "$rp")"; done; done
     echo "mutate-batch: baseline not updated"; [ $BX = 1 ] && [ -n "$out" ] && exit 1; exit 3; fi
-  python3 -I "$HERE/quality-baseline.py" update "$BASELINE" . "${REPORTS[@]}" || { echo "mutate-batch: baseline update failed"; exit 3; }
+  bash "$HERE/../bayan-tool.sh" quality-baseline update "$BASELINE" . "${REPORTS[@]}" || { echo "mutate-batch: baseline update failed"; exit 3; }
   echo "baseline: $BASELINE updated from ${#REPORTS[@]} report(s)"
 fi
 [ $SETUP = 1 ] && exit 3; [ $BAD = 1 ] && exit 4; exit 0

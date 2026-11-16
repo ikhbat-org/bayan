@@ -1,0 +1,437 @@
+#!/usr/bin/env bayan
+// The per-file quality baseline of the selfhost tests (spec 013 R14, spec 015 T12), shared by guard.sh, land.sh,
+// mutate-batch.sh and mutation.yml. Port of scripts/selfhost/quality-baseline.py.
+// Landings run update only: a filtered per-task run can only raise the recorded coverage; the drop check waits for a full-suite measurement.
+// Usage: bash scripts/bayan-tool.sh quality-baseline check|update <baseline.json> <root> <bayan-quality.json>...
+// The baseline is { "version": 1, "files": { "<path relative to root>": { "mutation": <score or null>, "coverage": <ratio or null>,
+//   "branches": <ratio or null> } } }.
+// A file's mutation score is (killed + timeout) / (killed + timeout + survived) over every report naming it (Gates.Mutation's
+// score; marked and not-reached mutants are left out), its coverage the covered / total lines of a coverage report and its branches
+// the covered / total branches (null when it reports none).
+// check: prints one line per file whose score fell below its baseline entry and exits 1 if any did; a null on either side
+// never fails. update: writes each reported file's score when it has none or it is equal or higher; a lower one is kept.
+// A report path that is absolute or `..` and lands outside <root> exits non-zero naming the report: no `../..` key is written.
+// A ratio is written as Python's `round(x, 4)` repr (`1.0`, `0.8333`), so a baseline the original wrote stays byte-identical.
+
+import std.json
+
+type JsonValue = json.JsonValue
+type JsonMember = json.JsonMember
+type JsonError = json.JsonError
+type Json = json.Json
+
+union error BaselineError {
+    failed(string message)
+}
+
+/// One file's tallies over every report naming it.
+struct Acc {
+    string path
+    i64 killed    = 0
+    i64 survived  = 0
+    i64 covered   = 0
+    i64 total     = 0
+    bool has      = false
+    i64 branchCov = 0
+    i64 branchTot = 0
+}
+
+/// One file's three scores; null where the reports give none.
+struct Score {
+    string path
+    f64? mutation
+    f64? coverage
+    f64? branches
+}
+
+/// `Fs.realPath(path)`, or null when the path is missing.
+string? tryReal(string path) uses fs, alloc {
+    let r = Fs.realPath(path) catch {
+        return null
+    }
+    return $"{r}"
+}
+
+/// Python's `os.path.realpath`: links in the existing part of `path` resolved, the missing rest kept as it is.
+string looseReal(string path) uses fs, alloc {
+    let full = Path.fullPath(path.isEmpty ? "." : path)
+    return resolveFrom(full)
+}
+
+string resolveFrom(string full) uses fs, alloc {
+    let r = tryReal(full)
+    if r is null {
+        let parent = Path.directoryName(full) ?? ""
+        if parent.isEmpty || parent == full { return full }
+        return Path.combine(resolveFrom(parent), Path.fileName(full))
+    }
+    return r
+}
+
+/// `x` as Python's `repr` of a float.
+string pyFloat(f64 x) uses alloc {
+    let s = $"{x}"
+    for b in s.bytes {
+        if b == '.' || b == 'e' || b == 'E' { return s }
+    }
+    return $"{s}.0"
+}
+
+JsonValue floatJson(f64 x) uses alloc => .number(value: x, text: pyFloat(x))
+
+/// `round(num / den, 4)` for `den > 0`: the nearest multiple of 0.0001, a tie to the even one.
+f64 round4(i64 num, by i64 den) {
+    let n = num * 10000
+    var q = n / den
+    let r = n % den
+    if r * 2 > den || (r * 2 == den && q % 2 == 1) { q += 1 }
+    return f64(q) / 10000.0
+}
+
+/// The index of the last member named `key` in `members`, or -1.
+i64 memberIndex(ReadOnlySpan<JsonMember> members, for string key) {
+    var i = members.length - 1
+    while i >= 0 {
+        if members[i].key == key { return i }
+        i -= 1
+    }
+    return -1
+}
+
+/// The string value of the last member named `key`, or null.
+string? optText(ReadOnlySpan<JsonMember> members, for string key) {
+    let i = memberIndex(members, for: key)
+    if i >= 0 {
+        if members[i].value is .text(let s) { return s }
+    }
+    return null
+}
+
+/// The number of the last member named `key`, or null when it is absent or not a number.
+f64? optNumber(ReadOnlySpan<JsonMember> members, for string key) {
+    let i = memberIndex(members, for: key)
+    if i >= 0 {
+        if members[i].value is .number(let v, _) { return v }
+    }
+    return null
+}
+
+/// The integer `members[key]`, or fails as Python's `KeyError` does.
+i64 reqInt(ReadOnlySpan<JsonMember> members, for string key) fails BaselineError {
+    let v = optNumber(members, for: key)
+    if v is null { fail .failed(message: $"KeyError('{key}')") }
+    return i64(v ?? 0.0)
+}
+
+/// The object `members[key]`'s members, or an empty list when it is absent.
+List<JsonMember> optObject(ReadOnlySpan<JsonMember> members, for string key) uses alloc {
+    var result = List<JsonMember>()
+    let i = memberIndex(members, for: key)
+    if i >= 0 {
+        if members[i].value is .object(let inner) {
+            result = dedupMembers(inner.span)
+        }
+    }
+    return result
+}
+
+/// `v` as Python's `json.load` keeps it: in an object the last of equal keys, at the first one's place.
+JsonValue dedup(JsonValue v) uses alloc {
+    switch v {
+        case .nothing: return .nothing
+        case .flag(let value): return .flag(value: value)
+        case .number(let value, let text): return .number(value: value, text: $"{text}")
+        case .text(let value): return .text(value: $"{value}")
+        case .list(let items):
+            var cp = List<JsonValue>()
+            for x in items { cp.append(dedup(x)) }
+            return .list(items: move cp)
+        case .object(let members):
+            let ms = dedupMembers(members.span)
+            return .object(members: move ms)
+    }
+}
+
+List<JsonMember> dedupMembers(ReadOnlySpan<JsonMember> members) uses alloc {
+    var keys = List<string>()
+    for m in members {
+        var seen = false
+        for k in keys {
+            if k == m.key {
+                seen = true
+                break
+            }
+        }
+        if !seen { keys.append($"{m.key}") }
+    }
+    var result = List<JsonMember>()
+    for k in keys {
+        let idx = memberIndex(members, for: k)
+        result.append(JsonMember { key: $"{k}", value: dedup(members[idx].value) })
+    }
+    return result
+}
+
+/// The JSON tree of `path`.
+JsonValue loadJson(string path) uses fs, alloc fails BaselineError {
+    let raw = Io.readText(path) catch {
+        fail .failed(message: $"[Errno 2] No such file or directory: '{path}'")
+    }
+    let parsed = Json.parse(raw) catch switch {
+        .syntax e => fail .failed(message: $"{path}: Expecting value: line {e.line} column {e.column} (char {e.offset})"),
+        .tooDeep e => fail .failed(message: $"{path}: Too deep: line {e.line} column {e.column} (char {e.offset})"),
+        _ => fail .failed(message: $"{path}: invalid json"),
+    }
+    let tree = (move parsed).trustUnchecked() because "baseline and reports are written by local tools"
+    return dedup(tree)
+}
+
+/// Adds the counts of `reportPath` to `accs`.
+void readReport(string reportPath, from string root, to ref List<Acc> accs) uses fs, alloc fails BaselineError {
+    let tree = try loadJson(reportPath)
+    if tree is .object(let top) {
+        let kind = optText(top.span, for: "kind")
+        let fi = memberIndex(top.span, for: "files")
+        if kind is null { fail .failed(message: "KeyError('kind')") }
+        if fi < 0 { fail .failed(message: "KeyError('files')") }
+        if top[fi].value is .list(let files) {
+            let realRoot = looseReal(root)
+            for fv in files {
+                if fv is .object(let entry) {
+                    let name = optText(entry.span, for: "path") ?? ""
+                    if memberIndex(entry.span, for: "path") < 0 { fail .failed(message: "KeyError('path')") }
+                    let rel = Path.relative(realRoot, to: looseReal(Path.combine(root, name)))
+                    if rel == ".." || rel.startsWith("../") {
+                        fail .failed(message: $"quality-baseline: {reportPath}: path {name} is outside the root {root}; a key would not be root-relative")
+                    }
+                    var idx = -1
+                    for i in 0..accs.length {
+                        if accs[i].path == rel { idx = i }
+                    }
+                    if idx < 0 {
+                        accs.append(Acc { path: rel })
+                        idx = accs.length - 1
+                    }
+                    var a = accs[idx]
+                    let mi = memberIndex(entry.span, for: "mutants")
+                    if mi >= 0 {
+                        if entry[mi].value is .list(let mutants) {
+                            for mv in mutants {
+                                if mv is .object(let mf) {
+                                    let status = optText(mf.span, for: "status")
+                                    if status is null { fail .failed(message: "KeyError('status')") }
+                                    if status == "killed" || status == "timeout" {
+                                        a.killed += 1
+                                    } else if status == "survived" {
+                                        a.survived += 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if kind == "coverage" {
+                        let li = memberIndex(entry.span, for: "lines")
+                        if li < 0 { fail .failed(message: "KeyError('lines')") }
+                        if entry[li].value is .object(let lines) {
+                            a.covered += try reqInt(lines.span, for: "covered")
+                            a.total += try reqInt(lines.span, for: "total")
+                        } else {
+                            fail .failed(message: "TypeError('lines is not an object')")
+                        }
+                        a.has = true
+                        let branches = optObject(entry.span, for: "branches")
+                        let bc = optNumber(branches.span, for: "covered")
+                        if bc is null { a.branchCov += 0 } else { a.branchCov += i64(bc) }
+                        let bt = optNumber(branches.span, for: "total")
+                        if bt is null { a.branchTot += 0 } else { a.branchTot += i64(bt) }
+                    }
+                    accs[idx] = a
+                } else {
+                    fail .failed(message: "TypeError('file entry is not an object')")
+                }
+            }
+        } else {
+            fail .failed(message: "TypeError('files is not a list')")
+        }
+    } else {
+        fail .failed(message: $"{reportPath}: not an object")
+    }
+}
+
+/// The scores of every file the `reports` name, by path.
+List<Score> scores(string root, by ReadOnlySpan<string> reports) uses fs, alloc fails BaselineError {
+    var accs = List<Acc>()
+    for r in reports { try readReport(r, from: root, to: ref accs) }
+    var result = List<Score>()
+    for a in accs {
+        var mutation: f64? = null
+        if a.killed + a.survived > 0 { mutation = round4(a.killed, by: a.killed + a.survived) }
+        var coverage: f64? = null
+        if a.has && a.total > 0 { coverage = round4(a.covered, by: a.total) }
+        var branches: f64? = null
+        if a.branchTot > 0 { branches = round4(a.branchCov, by: a.branchTot) }
+        result.append(Score { path: a.path, mutation: mutation, coverage: coverage, branches: branches })
+    }
+    // sorted by path, as Python's `sorted`
+    if result.length > 1 {
+        for i in 1..result.length {
+            var j = i
+            while j > 0 && result[j].path < result[j - 1].path {
+                let t = result[j]
+                result[j] = result[j - 1]
+                result[j - 1] = t
+                j -= 1
+            }
+        }
+    }
+    return result
+}
+
+const kinds: string[3] = ["mutation", "coverage", "branches"]
+
+/// `s`'s score of the kind at index `k`.
+f64? pick(Score s, at i64 k) => k switch {
+    0 => s.mutation,
+    1 => s.coverage,
+    _ => s.branches,
+}
+
+/// `entry` with the scores of `s` raised into it: a score is written when the entry has none or it is equal or higher.
+JsonValue raise(JsonValue entry, to Score s) uses alloc fails BaselineError {
+    if entry is .object(let fields) {
+        var result = dedupMembers(fields.span)
+        for k in 0..3 {
+            let name = kinds[k]
+            let next = pick(s, at: k)
+            if next is null { continue }
+            let v = next
+                let i = memberIndex(result.span, for: name)
+                let old = i >= 0 ? optNumber(result.span, for: name) : null
+                if old is null || v >= old {
+                    let member = JsonMember { key: name, value: floatJson(v) }
+                    if i >= 0 { result[i] = move member } else { result.append(move member) }
+                }
+        }
+        return .object(members: move result)
+    }
+    fail .failed(message: "TypeError('baseline entry is not an object')")
+}
+
+/// Prints one line per score of `s` below the one in `old`, the baseline entry; whether any did.
+bool checkEntry(ReadOnlySpan<JsonMember> old, for Score s, at string path) uses console, alloc {
+    var fell = false
+    for k in 0..3 {
+        let name = kinds[k]
+        let was = optNumber(old, for: name)
+        let now = pick(s, at: k)
+        if was is null || now is null { continue }
+        if now < was {
+            let oi = memberIndex(old, for: name)
+            var text = ""
+            if old[oi].value is .number(_, let t) { text = $"{t}" }
+            print($"baseline: {name} score of {s.path} fell from {text} to {pyFloat(now)} ({path})")
+            fell = true
+        }
+    }
+    return fell
+}
+
+i32 checkBaseline(string path, from JsonValue baseline, by List<Score> news) uses console, alloc fails BaselineError {
+    var fell = 0
+    if baseline is .object(let top) {
+        let fi = memberIndex(top.span, for: "files")
+        if fi < 0 { fail .failed(message: "KeyError('files')") }
+        if top[fi].value is .object(let files) {
+            for s in news {
+                let ei = memberIndex(files.span, for: s.path)
+                if ei >= 0 {
+                    if files[ei].value is .object(let ef) {
+                        if checkEntry(ef.span, for: s, at: path) { fell = 1 }
+                    }
+                }
+            }
+            return fell
+        }
+    }
+    fail .failed(message: "TypeError('baseline files is not an object')")
+}
+
+void updateBaseline(string path, from JsonValue baseline, by List<Score> news) uses fs, alloc fails BaselineError {
+    var top = List<JsonMember>()
+    if baseline is .object(let members) {
+        top = dedupMembers(members.span)
+    } else {
+        fail .failed(message: "TypeError('baseline is not an object')")
+    }
+    let fi = memberIndex(top.span, for: "files")
+    if fi < 0 { fail .failed(message: "KeyError('files')") }
+    var files = List<JsonMember>()
+    if top[fi].value is .object(let existing) {
+        files = dedupMembers(existing.span)
+    } else {
+        fail .failed(message: "TypeError('baseline files is not an object')")
+    }
+    for s in news {
+        let i = memberIndex(files.span, for: s.path)
+        if i >= 0 {
+            files[i] = JsonMember { key: s.path, value: try raise(files[i].value, to: s) }
+        } else {
+            var nulls = List<JsonMember>()
+            for name in kinds { nulls.append(JsonMember { key: name, value: .nothing }) }
+            files.append(JsonMember { key: s.path, value: try raise(.object(members: move nulls), to: s) })
+        }
+    }
+    // sorted by path, as Python's `sorted`
+    var order = List<i64>()
+    for i in 0..files.length {
+        var j = order.length
+        order.append(i)
+        while j > 0 && files[order[j]].key < files[order[j - 1]].key {
+            let t = order[j]
+            order[j] = order[j - 1]
+            order[j - 1] = t
+            j -= 1
+        }
+    }
+    var sorted = List<JsonMember>()
+    for i in order { sorted.append(JsonMember { key: $"{files[i].key}", value: dedup(files[i].value) }) }
+    top[fi] = JsonMember { key: "files", value: .object(members: move sorted) }
+    let encoded = Json.encode(.object(members: move top), indent: 2) catch {
+        fail .failed(message: "ValueError('cannot encode baseline')")
+    }
+    Io.writeFile(path, $"{encoded}\n".bytes) catch {
+        fail .failed(message: $"OSError('cannot write {path}')")
+    }
+}
+
+i32 run(string command, by ReadOnlySpan<string> argv) uses fs, console, alloc fails BaselineError {
+    let path = argv[0]
+    let root = argv[1]
+    var baseline: JsonValue = .object(members: List<JsonMember>())
+    if Fs.fileExists(path) {
+        baseline = try loadJson(path)
+    } else {
+        var top = List<JsonMember>()
+        top.append(JsonMember { key: "version", value: .number(value: 1.0, text: "1") })
+        top.append(JsonMember { key: "files", value: .object(members: List<JsonMember>()) })
+        baseline = .object(members: move top)
+    }
+    let news = try scores(root, by: argv[2..])
+    if command == "check" { return try checkBaseline(path, from: baseline, by: news) }
+    try updateBaseline(path, from: baseline, by: news)
+    return 0
+}
+
+i32 main(ReadOnlySpan<string> argv) uses fs, console, alloc {
+    if argv.length < 3 || (argv[0] != "check" && argv[0] != "update") {
+        print("usage: quality-baseline.py check|update <baseline.json> <root> <bayan-quality.json>...", to: .stderr)
+        return 2
+    }
+    let code = run(argv[0], by: argv[1..]) catch switch {
+        .failed(let msg) => {
+            print(msg.startsWith("quality-baseline: ") ? msg : $"quality-baseline: {msg}", to: .stderr)
+            return 1
+        },
+    }
+    return code
+}
