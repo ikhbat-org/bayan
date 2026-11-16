@@ -1,0 +1,33 @@
+i64 leftOver(i64 total, for i64 people) {
+    let _ = share(total, for: people) catch switch {
+        .uneven(let left) => return left,
+        _ => return -1,
+    }
+    return 0
+}
+
+test "share divides evenly" {
+    assert (try share(120, for: 4)) == 30
+    assert (try share(0, for: 3)) == 0
+}
+
+test "share fails with no people before anything else" {
+    assert share(120, for: 0) fails ShareError.noPeople
+    assert share(-5, for: 0) fails ShareError.noPeople
+    assert share(120, for: -2) fails ShareError.noPeople
+}
+
+test "share fails on a negative amount" {
+    assert share(-5, for: 2) fails ShareError.negative
+}
+
+test "share carries what is left over" {
+    assert share(100, for: 3) fails ShareError.uneven
+    assert leftOver(100, for: 3) == 1
+    assert leftOver(17, for: 5) == 2
+}
+
+@cases((120, 4, "each gets 30"), (120, 0, "no people"), (-5, 2, "negative amount: -5"), (100, 3, "left over: 1"))
+test "describe writes one line" (i64 total, i64 people, string expected) {
+    assert describe(total, for: people) == expected
+}

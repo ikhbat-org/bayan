@@ -1,0 +1,32 @@
+union error TimeError {
+    /// The text is not two numbers joined by one colon.
+    badFormat
+    /// The hour is past 23 or the minute is past 59.
+    outOfRange
+}
+
+/// Minutes since midnight for a time written `HH:MM`.
+i64 minutesOfDay(string text) fails TimeError {
+    var hour: i64 = 0
+    var minute: i64 = 0
+    var fields = 0
+    for part in text.parts(by: ":") {
+        let n = u8.tryParse(part) ?? fail .badFormat
+        if fields == 0 {
+            hour = n
+        }
+        if fields == 1 {
+            minute = n
+        }
+        fields += 1
+    }
+    fail .badFormat if fields != 2
+    fail .outOfRange if hour > 23 || minute > 59
+    return hour * 60 + minute
+}
+
+/// Minutes from `now` until `iftar`; an iftar earlier in the day is tomorrow's.
+i64 minutesUntil(string iftar, from string now) fails TimeError {
+    let left = (try minutesOfDay(iftar)) - try minutesOfDay(now)
+    return left < 0 ? left + 1440 : left
+}

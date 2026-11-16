@@ -1,0 +1,21 @@
+test "a valid portion is built" {
+    let p = try portion(21, for: 7)
+    assert p.dates == 21
+    assert p.guests == 7
+    assert perGuest(p) == 3
+}
+
+@cases((0, 3), (-4, 2), (9, 0), (9, -1), (3, 4))
+test "an invalid portion is refused" (i32 dates, i32 guests) {
+    assert portion(dates, for: guests) fails ValidationError<Portion>
+}
+
+test "one date each is enough" {
+    assert perGuest(try portion(5, for: 5)) == 1
+}
+
+test "joined re-checks the rules" {
+    let p = try portion(10, for: 8)
+    assert perGuest(try joined(p, by: 2)) == 1
+    assert joined(p, by: 3) fails ValidationError<Portion>
+}
