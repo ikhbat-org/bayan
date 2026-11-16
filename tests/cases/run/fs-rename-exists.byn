@@ -1,0 +1,26 @@
+// `Fs.rename` of a directory onto a non-empty directory fails `alreadyExists` and moves nothing (Q1140).
+void main() uses fs, console, alloc fails IoError {
+    let a: u8[1] = [0x41]
+    let b: u8[1] = [0x42]
+    try Io.createDirectory("fs-rename-exists-a.tmp")
+    try Io.writeFile("fs-rename-exists-a.tmp/pid", a.span)
+    try Io.createDirectory("fs-rename-exists-b.tmp")
+    try Io.writeFile("fs-rename-exists-b.tmp/pid", b.span)
+    try Io.createDirectory("fs-rename-exists-c.tmp/sub")
+    Fs.rename("fs-rename-exists-a.tmp", to: "fs-rename-exists-b.tmp") catch switch {
+        .alreadyExists => print("onto a non-empty directory: .alreadyExists"),
+        _ => print("onto a non-empty directory: other"),
+    }
+    Fs.rename("fs-rename-exists-a.tmp", to: "fs-rename-exists-c.tmp") catch switch {
+        .alreadyExists => print("onto an existing directory: .alreadyExists"),
+        _ => print("onto an existing directory: other"),
+    }
+    print(try Io.readText("fs-rename-exists-a.tmp/pid"))
+    print(try Io.readText("fs-rename-exists-b.tmp/pid"))
+    try Io.remove("fs-rename-exists-a.tmp/pid")
+    try Io.remove("fs-rename-exists-b.tmp/pid")
+    try Io.removeDirectory("fs-rename-exists-a.tmp")
+    try Io.removeDirectory("fs-rename-exists-b.tmp")
+    try Io.removeDirectory("fs-rename-exists-c.tmp/sub")
+    try Io.removeDirectory("fs-rename-exists-c.tmp")
+}

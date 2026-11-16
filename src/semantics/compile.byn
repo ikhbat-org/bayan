@@ -885,7 +885,7 @@ Work t11CopyWork(in Work w) => Work {
 // ── Compilation.cs:244 DeclareBuiltinVariants ────────────────────────────────
 
 /// The variants of the builtin error set `name`. `IoError` is numbered first, so the runtime can return its codes 1
-/// to 11 directly; `Utf8Error` follows (12). The C# `_nextErrorCode` is `errorVariants.length + 1`: every
+/// to 12 directly; `Utf8Error` follows (13). The C# `_nextErrorCode` is `errorVariants.length + 1`: every
 /// `ErrorVariantSymbol` takes the next code (Q572).
 void t11DeclareBuiltinVariants(ref Ctx c, for string name) {
     let set = typeIndex(t9Type(ref c, for: name))

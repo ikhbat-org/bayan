@@ -433,7 +433,7 @@ byn_str byn_utf8_decode_replace(const uint8_t* p, int64_t n, byn_alloc* to);
  * On Windows they come from the UTF-16 command line instead of `argv`, and `*argc` is set to their count. */
 byn_str* byn_args(int* argc, char** argv);
 
-/* `IoError` codes 1 to 11: the compiler numbers its variants first, then `Utf8Error` (12); user error variants start at 13. */
+/* `IoError` codes 1 to 12: the compiler numbers its variants first, then `Utf8Error` (13); user error variants start at 14. */
 #define BYN_IO_NOT_FOUND 1u
 #define BYN_IO_PERMISSION_DENIED 2u
 #define BYN_IO_INVALID_UTF8 3u
@@ -448,8 +448,10 @@ byn_str* byn_args(int* argc, char** argv);
 /* `IoError.timeout(Millis after, string stdout, string stderr)`: no runtime detail (the caller knows the timeout); the
  * captured streams are in `*out`, as for `BYN_IO_SIGNALED`. */
 #define BYN_IO_TIMEOUT 11u
+/* `Fs.rename` onto a non-empty directory (EEXIST/ENOTEMPTY). */
+#define BYN_IO_ALREADY_EXISTS 12u
 /* `Utf8Error.invalidSequence(i64 at)`: no runtime detail; `bynh_utf8_decode` writes it. */
-#define BYN_UTF8_INVALID_SEQUENCE 12u
+#define BYN_UTF8_INVALID_SEQUENCE 13u
 
 /* Reads a whole file into memory from `alloc`. Returns 0 or an `IoError` code. */
 uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc);
@@ -614,7 +616,8 @@ typedef struct byn_time { int64_t nanos; } byn_time;
 /* `Time.now`: the wall clock. */
 byn_time byn_time_now(void);
 
-/* `Fs.rename`: POSIX `rename`, Windows `MoveFileExW` replacing an existing file. Across devices it fails `crossDevice`; nothing is copied. */
+/* `Fs.rename`: POSIX `rename`, Windows `MoveFileExW` replacing an existing file. Across devices it fails `crossDevice`; nothing is copied.
+ * Onto a non-empty directory it fails `alreadyExists`. */
 uint32_t byn_fs_rename(byn_str path, byn_str dest);
 
 /* `Fs.copy`: a file's bytes and permission bits, not its times; an existing `dest` is replaced, a directory source fails `isDirectory`, and `dest` that is the source (by file identity) fails `invalidInput`. */
