@@ -152,6 +152,66 @@ public sealed class LayoutTests
         "let s = $\"{n, as: .hex} and {a + 1}\"\n",
         Lay("let s = $\"{n,as:.hex} and { a+1 }\"\n"));
 
+    [Fact]
+    public void BecomesKeepsTheSpaceBeforeItsState() => Assert.Equal(
+        "void pay(ref this is .draft) becomes .paid {\n}\n",
+        Lay("void pay(ref this is .draft) becomes .paid {\n}\n"));
+
+    [Fact]
+    public void IsKeepsTheSpaceBeforeEachOfSeveralStates() => Assert.Equal(
+        "i64 amount(this is .paid or .shipped) => payment\n",
+        Lay("i64 amount(this is .paid or .shipped) => payment\n"));
+
+    [Fact]
+    public void ReturnKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "Color pick() {\n    return .red\n}\n",
+        Lay("Color pick() {\n    return .red\n}\n"));
+
+    [Fact]
+    public void FailKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "void check(string s) fails ParseError {\n    fail .empty if s.isEmpty\n}\n",
+        Lay("void check(string s) fails ParseError {\n    fail .empty if s.isEmpty\n}\n"));
+
+    [Fact]
+    public void CaseKeepsTheSpaceBeforeItsPattern() => Assert.Equal(
+        "i64 f(Color c) => c switch {\n    case .red => 1\n    case .green => 2\n}\n",
+        Lay("i64 f(Color c) => c switch {\n    case .red => 1\n    case .green => 2\n}\n"));
+
+    [Fact]
+    public void ExceptKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "union error Retryable = SendError except .rejected\n",
+        Lay("union error Retryable = SendError except .rejected\n"));
+
+    [Fact]
+    public void AndKeepsTheSpaceBeforeItsState() => Assert.Equal(
+        "void f(Order o) requires o is .paid and o is .shipped {\n}\n",
+        Lay("void f(Order o) requires o is .paid and o is .shipped {\n}\n"));
+
+    [Fact]
+    public void NullCoalescingKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "let parsed = Suit.parse(\"spades\") ?? .clubs\n",
+        Lay("let parsed = Suit.parse(\"spades\") ?? .clubs\n"));
+
+    [Fact]
+    public void CatchKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "print($\"{size(1) catch .good}\")\n",
+        Lay("print($\"{size(1) catch .good}\")\n"));
+
+    [Fact]
+    public void OrOrKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "let a = c == .red || c == .green\n",
+        Lay("let a = c == .red || c == .green\n"));
+
+    [Fact]
+    public void AndAndKeepsTheSpaceBeforeItsCase() => Assert.Equal(
+        "let a = c != .red && c != .green\n",
+        Lay("let a = c != .red && c != .green\n"));
+
+    [Fact]
+    public void MemberAccessAfterANameStaysJoined() => Assert.Equal(
+        "let a = order.paid\nlet b = f().x\n",
+        Lay("let a = order.paid\nlet b = f().x\n"));
+
     // ── Blank lines ──
 
     [Fact]
@@ -190,14 +250,18 @@ public sealed class LayoutTests
         "    return total\n" +
         "}\n";
 
+    private const string Proposal31Before =
+        "public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 uses db fails QuoteError {\n" + QuoteBody;
+
+    private const int Proposal31Width = 100;
+
     // The Before header is 109 columns, so it fits at 120; at 100 its clauses wrap. The After's blank lines are the
     // author's: the formatter never inserts one (docs/bayan-style.md, "Paragraphs inside functions").
     [Fact]
     public void Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines() => Assert.Equal(
         "public Money quote(Cart cart, for Customer customer)\n        expects cart.lines.length > 0\n        uses db\n" +
         "        fails QuoteError {\n" + QuoteBody,
-        Lay("public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 uses db fails QuoteError {\n"
-            + QuoteBody, new LayoutOptions(Width: 100)));
+        Lay(Proposal31Before, new LayoutOptions(Width: Proposal31Width)));
 
     [Fact]
     public void Proposal31AfterIsLaidOut()
@@ -283,8 +347,8 @@ public sealed class LayoutTests
 
     [Fact]
     public void AnAuthorsTrailingCommaKeepsAListVertical() => Assert.Equal(
-        "let s = f(\n    a,\n    b,\n)\nlet t = [\n    1,\n    2,\n]\n",
-        Lay("let s = f(a, b,)\nlet t = [\n    1, 2,\n]\n"));
+        "let s = f(\n    a,\n    b,\n)\nlet t = [\n    x,\n    y,\n]\n",
+        Lay("let s = f(a, b,)\nlet t = [\n    x, y,\n]\n"));
 
     [Fact]
     public void NeverDropsTrailingCommasAndAddsNone() => Assert.Equal(
@@ -463,17 +527,18 @@ public sealed class LayoutTests
         Assert.Equal(source, Lay(source, new LayoutOptions(AlignRuns: false)));
     }
 
+    private const string AlignNoneInput = "struct S {\n    i32 a\n    string bb\n}\n";
+    private const string AlignNonePackage = "Package { name: \"local/t\", version: \"0.1.0\", style: Style { align: .none } }\n";
+
     [Fact]
     public void TheManifestsAlignNoneReachesLayout()
     {
-        const string source = "struct S {\n    i32 a\n    string bb\n}\n";
-        var file = Fresh("align", source);
-        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"),
-            "Package { name: \"local/t\", version: \"0.1.0\", style: Style { align: .none } }\n");
+        var file = Fresh("align", AlignNoneInput);
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"), AlignNonePackage);
         var (exit, _, stderr) = Run("format", file);
         Assert.Equal(CliApp.ExitOk, exit);
         Assert.DoesNotContain("skipped", stderr);
-        Assert.Equal(source, File.ReadAllText(file));
+        Assert.Equal(AlignNoneInput, File.ReadAllText(file));
     }
 
     [Fact]
@@ -493,10 +558,12 @@ public sealed class LayoutTests
 
     [Fact]
     public void StyleHorizontalSpacing() => Assert.Equal(
-        "void show() {\n    let total = price * quantity\n    let port = config.port ?? 8080\n    let span = 0..n\n"
-        + "    let origin = Point { x: 1, y: 2 }\n    let sizes = [1, 2]\n    let label = format(total)\n}\n",
-        Lay("void show() {\n    let total = price*quantity\n    let port = config.port??8080\n    let span = 0 .. n\n"
-            + "    let origin = Point {x:1, y:2}\n    let sizes = [ 1, 2 ]\n    let label = format( total )\n}\n"));
+        "void show(List<Sku> skus) {\n    let total = price * quantity\n    let port = config.port ?? 8080\n    let span = 0..n\n"
+        + "    let origin = Point { x: 1, y: 2 }\n    let sizes = [1, 2]\n    let label = format(total)\n"
+        + "    let done = !finished\n    let w: Grams = -weight\n}\n",
+        Lay("void show(List< Sku > skus) {\n    let total = price*quantity\n    let port = config.port??8080\n    let span = 0 .. n\n"
+            + "    let origin = Point {x:1, y:2}\n    let sizes = [ 1, 2 ]\n    let label = format( total )\n"
+            + "    let done = ! finished\n    let w : Grams = - weight\n}\n"));
 
     [Fact]
     public void APointerWrittenTightStaysAPointer()
@@ -559,6 +626,198 @@ public sealed class LayoutTests
         Assert.Equal(source, Lay(source));
     }
 
+    // ── The T6c rules (docs/specs/022-style-guide/022-tasks.md), from the self-hosted compiler ──
+
+    [Fact]
+    public void AnExpressionBreaksBeforeItsLowestOperators() => Assert.Equal(
+        "bool hidden(i64 c) {\n    return c < 0x20\n        || (c >= 0x7F && c <= 0x9F)\n        || c == 0x61C\n" +
+        "        || (c >= 0x202A && c <= 0x202E)\n}\n",
+        Lay("bool hidden(i64 c) {\n    return c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C || (c >= 0x202A && c <= 0x202E)\n}\n",
+            new LayoutOptions(Width: 60)));
+
+    [Fact]
+    public void AnOperatorBreaksBeforeAnArgumentList() => Assert.Equal(
+        "let ok = ready\n    && check(firstArgument, secondArgument)\n    && done\n",
+        Lay("let ok = ready && check(firstArgument, secondArgument) && done\n", new LayoutOptions(Width: 44)));
+
+    [Fact]
+    public void AGroupThatDoesNotFitBreaksInside() => Assert.Equal(
+        "let inInstance = host != -1\n    && !c.fns[host].isStatic\n    && (c.fns[host].kind == .method\n" +
+        "        || c.fns[host].kind == .getter)\n",
+        Lay("let inInstance = host != -1 && !c.fns[host].isStatic && (c.fns[host].kind == .method || c.fns[host].kind == .getter)\n",
+            new LayoutOptions(Width: 50)));
+
+    [Fact]
+    public void AnIndexAndAMemberAfterItStayWhole() => Assert.Equal(
+        "let empty = c.variants[i].payload.length == 0\n    && c.errors[c.variants[i].variant].fields.length > 0\n",
+        Lay("let empty = c.variants[i].payload.length == 0 && c.errors[c.variants[i].variant].fields.length > 0\n",
+            new LayoutOptions(Width: 50)));
+
+    // driver/mutate.byn:728 at width 100: `(move parsed).member` does not open, as `xs[i].member` does not.
+    [Fact]
+    public void AGroupAroundAnOperandBeforeAMemberStaysWhole()
+    {
+        const string source = "void f() {\n    let root = (move parsed).trustUnchecked() because \"a site map only names sites; each field is checked below\"\n}\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(Width: 100)));
+    }
+
+    // The author's break after a group's `(` goes: the group breaks before its own operators.
+    [Fact]
+    public void AnAuthorsGroupBreakGivesWayToItsOperators() => Assert.Equal(
+        "let inInstance = host != -1\n    && !c.fns[host].isStatic\n    && (c.fns[host].kind == .method\n        || c.fns[host].kind == .getter)\n",
+        Lay("let inInstance = host != -1 && !c.fns[host].isStatic && (\n    c.fns[host].kind == .method || c.fns[host].kind == .getter)\n",
+            new LayoutOptions(Width: 50)));
+
+    // The author's broken chain in a ternary joins, and the ternary breaks first.
+    [Fact]
+    public void AnAuthorsChainInATernaryJoinsForTheLadder() => Assert.Equal(
+        "shown.append(\n    compiled.manifest is not null\n        ? Path.relative(compiled.root, to: output).replaced(\"\\\\\", by: \"/\")\n" +
+        "        : output,\n)\n",
+        Lay("shown.append(\n    compiled.manifest is not null ? Path\n        .relative(compiled.root, to: output)\n        .replaced(\"\\\\\", by: \"/\") : output,\n)\n",
+            new LayoutOptions(Width: 80)));
+
+    // The author's wrapped parameters join when the header fits once the `=>` body moves to the next line.
+    [Fact]
+    public void AnAuthorsWrappedParametersJoinBeforeTheArrowBreaks() => Assert.Equal(
+        "i64 total(i64 firstArgument, i64 secondArgument) =>\n    firstArgument + secondArgument\n",
+        Lay("i64 total(\n    i64 firstArgument,\n    i64 secondArgument\n) => firstArgument + secondArgument\n", new LayoutOptions(Width: 60)));
+
+    [Fact]
+    public void ATernaryInAnArgumentBreaksBeforeQuestionAndColon() => Assert.Equal(
+        "shown.append(\n    compiled.manifest is not null\n        ? Path.relative(compiled.root, to: output).replaced(\"\\\\\", by: \"/\")\n" +
+        "        : output,\n)\n",
+        Lay("shown.append(compiled.manifest is not null ? Path.relative(compiled.root, to: output).replaced(\"\\\\\", by: \"/\") : output)\n",
+            new LayoutOptions(Width: 80)));
+
+    [Fact]
+    public void AnOutlierLeavesTheRun() => Assert.Equal(
+        "bool literal(TokenKind kind) => kind switch {\n    .integerLiteral => true,\n    .floatLiteral   => true,\n" +
+        "    .stringLiteral or .rawStringLiteral or .cStringLiteral => true,\n    _               => false,\n}\n",
+        Lay("bool literal(TokenKind kind) => kind switch {\n    .integerLiteral => true,\n    .floatLiteral => true,\n" +
+            "    .stringLiteral or .rawStringLiteral or .cStringLiteral => true,\n    _ => false,\n}\n"));
+
+    [Fact]
+    public void FieldDefaultsAlignTheirEquals() => Assert.Equal(
+        "struct DistSource {\n    string? commit = null\n    bool    dirty  = false\n    i64     count\n}\n",
+        Lay("struct DistSource {\n    string? commit = null\n    bool dirty = false\n    i64 count\n}\n"));
+
+    [Fact]
+    public void AnArrowHeaderBreaksAfterTheArrowFirst() => Assert.Equal(
+        "i64 total(i64 firstArgument, i64 secondArgument) =>\n    firstArgument + secondArgument\n",
+        Lay("i64 total(i64 firstArgument, i64 secondArgument) => firstArgument + secondArgument\n", new LayoutOptions(Width: 60)));
+
+    [Fact]
+    public void AScalarListKeepsTheAuthorsFirstRow() => Assert.Equal(
+        "const t: u32[8] = [\n    0x0041, 0x005A, 0x005F, 0x005F,\n    0x0061, 0x007A, 0x00AA, 0x00AA,\n]\n",
+        Lay("const t: u32[8] = [\n    0x0041, 0x005A, 0x005F, 0x005F,\n    0x0061, 0x007A,\n    0x00AA, 0x00AA,\n]\n"));
+
+    [Fact]
+    public void AScalarListFillsToTheWidth() => Assert.Equal(
+        "const t: u32[8] = [\n    0x0041, 0x005A, 0x005F,\n    0x005F, 0x0061, 0x007A,\n    0x00AA, 0x00AA,\n]\n",
+        Lay("const t: u32[8] = [0x0041, 0x005A, 0x005F, 0x005F, 0x0061, 0x007A, 0x00AA, 0x00AA]\n", new LayoutOptions(Width: 30)));
+
+    [Fact]
+    public void ACaseBodyGoesOneLevelIn() => Assert.Equal(
+        "void f() {\n    switch kind {\n        case .binary:\n            let op = c.op\n            go(op)\n" +
+        "        default: {}\n    }\n}\n",
+        Lay("void f() {\n    switch kind {\n        case .binary:\n        let op = c.op\n        go(op)\n" +
+            "        default: {}\n    }\n}\n"));
+
+    [Fact]
+    public void AnEmptyArmStaysOnItsLine() => Assert.Equal(
+        "void f() {\n    switch kind {\n        case .a: go()\n        default: {}\n    }\n}\n",
+        Lay("void f() {\n    switch kind {\n        case .a: go()\n        default:\n            {}\n    }\n}\n"));
+
+    [Fact]
+    public void ADocCommentDoesNotEndARun() => Assert.Equal(
+        "struct CCtx {\n    /// `OwnershipChecks`.\n    public bool   checks = false\n    /// `_packageRoot`.\n" +
+        "    public string root   = \"\"\n    // ── T2 state\n    public i64    n      = 0\n    public string longer = \"\"\n}\n",
+        Lay("struct CCtx {\n    /// `OwnershipChecks`.\n    public bool checks = false\n    /// `_packageRoot`.\n" +
+            "    public string root = \"\"\n    // ── T2 state\n    public i64 n = 0\n    public string longer = \"\"\n}\n"));
+
+    // A ternary at statement level cannot break, so its chain stays whole and the argument list breaks.
+    [Fact]
+    public void AChainInATernaryWaitsForTheTernary() => Assert.Equal(
+        "void f() {\n    let shown = ready ? Path.relative(\n        root,\n        to: output,\n    ).replaced(\"a\", by: \"/\") : output\n}\n",
+        Lay("void f() {\n    let shown = ready ? Path.relative(root, to: output).replaced(\"a\", by: \"/\") : output\n}\n",
+            new LayoutOptions(Width: 60)));
+
+    // binder2.byn:305 at width 120 (indent 36): the head group breaks at its own `||`, and never opens as a list. A line
+    // after its `)` would read `(…)` as the whole condition (BYN1017), so `&&` stays on the `)` line.
+    [Fact]
+    public void AControlHeadGroupBreaksAtItsOwnOperators() => Assert.Equal(
+        "void f() {\n    if (member == \"handler\"\n            || member == \"onPanic\") && t15Lookup(ref b, for: \"Panic\") == -1 {\n" +
+        "        return bindOnPanic(ref b, through: ref c, for: in a.value)\n    }\n}\n",
+        Lay("void f() {\n    if (member == \"handler\" || member == \"onPanic\") && t15Lookup(ref b, for: \"Panic\") == -1 {\n" +
+            "        return bindOnPanic(ref b, through: ref c, for: in a.value)\n    }\n}\n",
+            new LayoutOptions(Width: 88)));
+
+    // lower.byn:692 at width 100 (indent 8): the top-level `&&` that may break goes first, then the group's `||`.
+    [Fact]
+    public void AControlHeadGroupBreaksAfterTheTopLevelOperators() => Assert.Equal(
+        "void f() {\n    if (i < barrier && !isTrivial(in c, through: in l, for: values[i])\n            || movedFirst[i]) && !lvalue\n" +
+        "            && !isVoidExpr(values[i]) {\n        values[i] = spill(ref c, through: ref l, for: values[i])\n    }\n}\n",
+        Lay("void f() {\n    if (i < barrier && !isTrivial(in c, through: in l, for: values[i]) || movedFirst[i]) && !lvalue && !isVoidExpr(values[i]) {\n" +
+            "        values[i] = spill(ref c, through: ref l, for: values[i])\n    }\n}\n",
+            new LayoutOptions(Width: 96)));
+
+    // cprint/expr.byn:191 at width 100 (indent 16): a head group with no operator to break opens the call inside it.
+    [Fact]
+    public void AControlHeadGroupOpensTheCallInside() => Assert.Equal(
+        "void f() {\n    if (checkedStore(\n        ref cc,\n        for: ref f,\n        from: ref c,\n        through: t,\n" +
+        "        at: t.assignExprs[i].target,\n        to: t.assignExprs[i].value,\n        claim: false,\n    ) is { } stored) {\n" +
+        "        return stored\n    }\n}\n",
+        Lay("void f() {\n    if (checkedStore(ref cc, for: ref f, from: ref c, through: t, at: t.assignExprs[i].target, to: t.assignExprs[i].value, claim: false) is { } stored) {\n" +
+            "        return stored\n    }\n}\n",
+            new LayoutOptions(Width: 88)));
+
+    // With nothing else to break, the head's `(` still does not open.
+    [Fact]
+    public void AControlHeadGroupDoesNotOpen()
+    {
+        const string source = "void f() {\n    if (originalValueNumberOne == originalValueNumberTwo) is true {\n        return 1\n    }\n}\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(Width: 40)));
+    }
+
+    [Fact]
+    public void AnOperatorInsideAnIndexDoesNotBreak()
+    {
+        const string source = "let v = table[\n    firstKeyNameValue ?? secondKeyNameValue ?? thirdKeyNameValue\n].value\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(Width: 40)));
+    }
+
+    [Fact]
+    public void AChainAfterAnIndexKeepsItsFirstMember() => Assert.Equal(
+        "let w = rows[i].first()\n    .second(alphaValue)\n    .third(betaValue)\n    .fourth()\n",
+        Lay("let w = rows[i].first().second(alphaValue).third(betaValue).fourth()\n", new LayoutOptions(Width: 40)));
+
+    // The ternary's line ends the scan: the next label's `:` takes no space.
+    [Fact]
+    public void ACaseLabelAfterATernaryKeepsItsColonTight()
+    {
+        const string source = "void f() {\n    switch kind {\n        case .binary:\n            let op = ready ? c.op : d.op\n" +
+            "        case .unary:\n            go(op)\n        default: {}\n    }\n}\n";
+        Assert.Equal(source, Lay(source));
+    }
+
+    // The parameters cannot join again around the struct literal, so the `=>` must break first.
+    [Fact]
+    public void AnArrowHeaderBreaksAfterTheArrowBeforeAStructDefault() => Assert.Equal(
+        "Point moved(Point p, Point by = Point { x: 0, y: 0 }) =>\n    p.plus(by)\n",
+        Lay("Point moved(Point p, Point by = Point { x: 0, y: 0 }) => p.plus(by)\n", new LayoutOptions(Width: 60)));
+
+    [Fact]
+    public void ATernaryColonAfterABrokenChainKeepsItsSpace()
+    {
+        const string source = "void f() {\n    let shown = ready ? Path\n        .relative(root, to: output)\n        .replaced(\"a\", by: \"/\") : output\n}\n";
+        Assert.Equal(source, Lay(source, new LayoutOptions(Width: 60)));
+    }
+
+    [Fact]
+    public void TopLevelConstsAlignTheirEquals() => Assert.Equal(
+        "const distMaxFiles: i64 = 20000\nconst distMaxDirs: i64  = 4000\nconst distMaxDepth: i64 = 64\n",
+        Lay("const distMaxFiles: i64 = 20000\nconst distMaxDirs: i64 = 4000\nconst distMaxDepth: i64 = 64\n"));
+
     // ── Idempotence, @unformatted ──
 
     private const string Messy =
@@ -576,12 +835,33 @@ public sealed class LayoutTests
         Assert.Equal(once, Lay(once));
     }
 
+    private const string UnformattedTable = "@unformatted because \"a table\"\nvoid t() {  \r\n  let grid = [\n  1,   0,\t\n  0,   1,\n  ]\n}\n";
+
+    private const string UnformattedInput = UnformattedTable + "void f() {\nlet a=1\n}\n";
+
     [Fact]
-    public void AnUnformattedDeclarationKeepsItsBytes()
-    {
-        const string table = "@unformatted because \"a table\"\nvoid t() {  \r\n  let grid = [\n  1,   0,\t\n  0,   1,\n  ]\n}\n";
-        Assert.Equal(table + "\nvoid f() {\n    let a = 1\n}\n", Lay(table + "void f() {\nlet a=1\n}\n"));
-    }
+    public void AnUnformattedDeclarationKeepsItsBytes() =>
+        Assert.Equal(UnformattedTable + "\nvoid f() {\n    let a = 1\n}\n", Lay(UnformattedInput));
+
+    /// <summary>
+    /// The cases that format <c>main.byn</c> beside a <c>package.byn</c> of their own, by case name, with both texts;
+    /// <c>SelfhostDriverStage2FormatTests.ManifestInputsFormatAsCliApp</c> replays each through stage 2.
+    /// </summary>
+    public static IEnumerable<(string Name, string Source, string Package)> ManifestInputs() =>
+    [
+        (nameof(TheManifestsAlignNoneReachesLayout), AlignNoneInput, AlignNonePackage),
+        (nameof(TheManifestsIndentWidthAndCommasReachLayout), KnobsInput, KnobsPackage),
+    ];
+
+    /// <summary>
+    /// The inputs these cases build from a literal and a named constant, by case name, with the <c>Style</c> fields their options
+    /// need. <c>SelfhostDriverStage2FormatTests.ComposedInputsFormatAsCliApp</c> formats each whole through stage 2.
+    /// </summary>
+    public static IEnumerable<(string Name, string Source, string Style)> ComposedInputs() =>
+    [
+        (nameof(Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines), Proposal31Before, $"width: {Proposal31Width}"),
+        (nameof(AnUnformattedDeclarationKeepsItsBytes), UnformattedInput, ""),
+    ];
 
     [Fact]
     public void AnUnformattedMemberKeepsItsBytes()
@@ -608,12 +888,15 @@ public sealed class LayoutTests
         Assert.Equal(source, Lay(source));
     }
 
+    private const string KnobsInput = "void main() {\n    let t = g(argumentNumberOne, argumentNumberTwo)\n    let s = f(\n        a,\n        b,\n    )\n}\n";
+    private const string KnobsPackage =
+        "Package { name: \"local/t\", version: \"0.1.0\", style: Style { indent: 2, width: 30, trailingCommas: .never } }\n";
+
     [Fact]
     public void TheManifestsIndentWidthAndCommasReachLayout()
     {
-        var file = Fresh("knobs", "void main() {\n    let t = g(argumentNumberOne, argumentNumberTwo)\n    let s = f(\n        a,\n        b,\n    )\n}\n");
-        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"),
-            "Package { name: \"local/t\", version: \"0.1.0\", style: Style { indent: 2, width: 30, trailingCommas: .never } }\n");
+        var file = Fresh("knobs", KnobsInput);
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, "package.byn"), KnobsPackage);
         var (exit, _, stderr) = Run("format", file);
         Assert.Equal(CliApp.ExitOk, exit);
         Assert.DoesNotContain("skipped", stderr);
@@ -637,6 +920,9 @@ public sealed class LayoutTests
         Assert.Equal(source, output);
     }
 
+    /// <summary>
+    /// No stage-2 row replays this case: it injects its fault through <c>Layout.OutputHook</c>, a C#-only seam no CLI run can reach.
+    /// </summary>
     [Theory]
     [InlineData("tokens", "let a = 1\nlet b = 2\n", "let a = 1\nlet b = 3\n", "the tokens changed")]
     [InlineData("diagnostics", "let a = 1\nlet b = 2\n", "let a = 1 let b = 2\n", "the diagnostics changed")]
@@ -663,9 +949,15 @@ public sealed class LayoutTests
 
     // ── Corpus ──
 
+    /// <summary>The roots <see cref="Corpus"/> walks; <c>SelfhostDriverStage2FormatTests.CorpusFormatsAsCliApp</c> copies the same.</summary>
+    public static readonly string[] CorpusRoots = [Golden.CasesRoot, Path.Combine(Golden.RepoRoot, "src"), Path.Combine(Golden.RepoRoot, "lib")];
+
+    /// <summary>The file filter <see cref="Corpus"/> walks each of <see cref="CorpusRoots"/> with.</summary>
+    public const string CorpusPattern = "*.byn";
+
     public static IEnumerable<object[]> Corpus() =>
-        new[] { Golden.CasesRoot, Path.Combine(Golden.RepoRoot, "src"), Path.Combine(Golden.RepoRoot, "lib") }
-            .SelectMany(root => Directory.EnumerateFiles(root, "*.byn", SearchOption.AllDirectories))
+        CorpusRoots
+            .SelectMany(root => Directory.EnumerateFiles(root, CorpusPattern, SearchOption.AllDirectories))
             .Order(StringComparer.Ordinal)
             .Select(f => new object[] { Path.GetRelativePath(Golden.RepoRoot, f) });
 

@@ -138,9 +138,9 @@ public sealed class ManifestTests
         Assert.Equal(120, m.Width);
         Assert.Equal(AlignStyle.Runs, m.Align);
         Assert.Equal(TrailingCommaStyle.Multiline, m.TrailingCommas);
-        Assert.Equal(5, m.Lints.Count);
+        Assert.Equal(9, m.Lints.Count);
         Assert.Equal(LintSeverity.None, m.Lints["functions.length"]);
-        foreach (var name in new[] { "guards.postfix", "lambdas.it", "nesting.depth", "conditions.named" })
+        foreach (var name in new[] { "guards.postfix", "lambdas.it", "nesting.depth", "conditions.named", "sections.banner", "conditions.patterns", "literals.empty", "optionals.bind" })
             Assert.Equal(LintSeverity.Suggestion, m.Lints[name]);
         Assert.Equal(4, Manifest.Parse(new Bayan.Syntax.Text.SourceText("package.byn",
             System.Text.Encoding.UTF8.GetBytes("Package { name: \"local/t\", version: \"0.1.0\" }"))).Indent);
@@ -174,7 +174,7 @@ public sealed class ManifestTests
     [InlineData("indent: 0", "`style.indent` must be a positive integer, e.g. `4`")]
     [InlineData("width: \"80\"", "`style.width` must be a positive integer, e.g. `120`")]
     [InlineData("align: .left", "`style.align` must be `.runs` or `.none`")]
-    [InlineData("lints: [\"guards.prefix\": .warning]", "`style.lints` must be a known lint name: `guards.postfix`, `lambdas.it`, `nesting.depth`, `functions.length`, `conditions.named`")]
+    [InlineData("lints: [\"guards.prefix\": .warning]", "`style.lints` must be a known lint name: `guards.postfix`, `lambdas.it`, `nesting.depth`, `functions.length`, `conditions.named`, `sections.banner`, `conditions.patterns`, `literals.empty`, `optionals.bind`")]
     [InlineData("lints: [\"lambdas.it\": .loud]", "`style.lints` must be `.none`, `.suggestion`, `.warning` or `.error` for `lambdas.it`")]
     [InlineData("lints: [\"lambdas.it\"]", "`style.lints` must be a map from a lint name to `.none`, `.suggestion`, `.warning` or `.error`, e.g. `[\"guards.postfix\": .warning]`")]
     public void StyleRejects(string style, string message)

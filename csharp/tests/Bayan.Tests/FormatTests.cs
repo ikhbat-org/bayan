@@ -106,10 +106,20 @@ public sealed class FormatTests
 
     private const string ErrorSets = "union error E {\n    a\n}\nunion error F {\n    b\n}\nunion error G {\n    c\n}\n";
 
+    private const string CommentHeader = "i32!E g() // keep me\n    fails F\n    uses console";
+    private const string LinesHeader = "i32!E g()\n    fails F\n    uses console";
+    private const string WhereHeader = "i64!E g<T>(T x) fails F where T : IShape expects true";
+    private const string TwoFailsHeader = "i32!E g() fails F uses console fails G, E";
+    private const string TwoUsesHeader = "i32!E g() fails F uses console uses fs";
+
+    /// <summary>The file <see cref="FormatHeader"/> formats: the error sets, an interface and a function with <paramref name="header"/>.</summary>
+    private static string HeaderInput(string header) =>
+        ErrorSets + "interface IShape {\n    i64 area()\n}\n" + header + " {\n    print(\"g\")\n    return 1\n}\n";
+
     private static string FormatHeader(string dir, string header)
     {
         var file = Path.Combine(Fresh(dir), "main.byn");
-        File.WriteAllText(file, ErrorSets + "interface IShape {\n    i64 area()\n}\n" + header + " {\n    print(\"g\")\n    return 1\n}\n");
+        File.WriteAllText(file, HeaderInput(header));
         var (exit, _, stderr) = Run("format", file);
         Assert.True(exit == CliApp.ExitOk, stderr);
         return File.ReadAllText(file);
@@ -118,7 +128,7 @@ public sealed class FormatTests
     [Fact]
     public void AFailsShorthandKeepsAComment()
     {
-        var text = FormatHeader("shorthand-comment", "i32!E g() // keep me\n    fails F\n    uses console");
+        var text = FormatHeader("shorthand-comment", CommentHeader);
         Assert.Contains("i32 g()\n        uses console // keep me\n        fails E, F {", text);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
     }
@@ -126,21 +136,21 @@ public sealed class FormatTests
     [Fact]
     public void AFailsShorthandKeepsAMultiLineHeader()
     {
-        var text = FormatHeader("shorthand-lines", "i32!E g()\n    fails F\n    uses console");
+        var text = FormatHeader("shorthand-lines", LinesHeader);
         Assert.Contains("i32 g()\n        uses console\n        fails E, F {", text);
     }
 
     [Fact]
     public void AFailsShorthandCarriesWhereAndExpects()
     {
-        var text = FormatHeader("shorthand-where", "i64!E g<T>(T x) fails F where T : IShape expects true");
+        var text = FormatHeader("shorthand-where", WhereHeader);
         Assert.Contains("i64 g<T>(T x) where T : IShape expects true fails E, F {", text);
     }
 
     [Fact]
     public void AFailsShorthandMergesEveryFailsClause()
     {
-        var text = FormatHeader("shorthand-two-fails", "i32!E g() fails F uses console fails G, E");
+        var text = FormatHeader("shorthand-two-fails", TwoFailsHeader);
         Assert.Contains("i32 g() uses console fails E, F, G {", text);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, "fails"));
     }
@@ -148,7 +158,7 @@ public sealed class FormatTests
     [Fact]
     public void AFailsShorthandKeepsUsesClausesInSourceOrder()
     {
-        var text = FormatHeader("shorthand-two-uses", "i32!E g() fails F uses console uses fs");
+        var text = FormatHeader("shorthand-two-uses", TwoUsesHeader);
         Assert.Contains("i32 g() uses console uses fs fails E, F {", text);
     }
 
@@ -784,11 +794,13 @@ public sealed class FormatTests
     }
 
     /// <summary>`bayan format` indents each under-indented joined line, so BYN5103 is quiet on its output; quiet input is left alone.</summary>
+    private static readonly (string Name, bool Fires)[] LineJoinCases =
+        [("line-join-member", true), ("line-join-enum-shorthand", true), ("line-join-and", true), ("line-join-quiet", false)];
+
+    public static IEnumerable<object[]> LineJoinRows() => LineJoinCases.Select(c => new object[] { c.Name, c.Fires });
+
     [Theory]
-    [InlineData("line-join-member", true)]
-    [InlineData("line-join-enum-shorthand", true)]
-    [InlineData("line-join-and", true)]
-    [InlineData("line-join-quiet", false)]
+    [MemberData(nameof(LineJoinRows))]
     public void FormattedCodeQuietsTheLineJoinLint(string name, bool fires)
     {
         var source = File.ReadAllBytes(Path.Combine(Golden.CasesRoot, "diag", name + ".byn"));
@@ -801,4 +813,120 @@ public sealed class FormatTests
         Assert.Empty(Bayan.Syntax.Parsing.SyntaxTree.Parse(new Bayan.Syntax.Text.SourceText(file, formatted)).Lints);
         if (!fires) Assert.Equal(source, formatted);
     }
+
+    // ── bayan fix (spec 022 T7b) ─────────────────────────────────────────────────────
+
+    /// <summary>A copy of the <c>diag/</c> case <paramref name="name"/> as <c>main.byn</c> in a fresh directory.</summary>
+    private static string FixCase(string name)
+    {
+        var dir = Fresh("fix-" + name);
+        File.Copy(Path.Combine(Golden.RepoRoot, "tests", "cases", "diag", name + ".byn"), Path.Combine(dir, "main.byn"));
+        return dir;
+    }
+
+    [Theory]
+    [InlineData("style-sections-banner", "BYN1077")]
+    [InlineData("style-conditions-patterns", "BYN1078")]
+    [InlineData("style-literals-empty", "BYN1079")]
+    [InlineData("style-optionals-bind", "BYN1080")]
+    [InlineData("style-guards-postfix", "BYN1072")]
+    [InlineData("style-lambdas-it", "BYN1073")]
+    public void FixClearsItsLintAndIsIdempotent(string name, string code)
+    {
+        var dir = FixCase(name);
+        var file = Path.Combine(dir, "main.byn");
+        var (exit, _, err) = Run("check", file);
+        Assert.Contains($"note {code}", err);
+        (exit, var stdout, _) = Run("fix", dir);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Matches(@"^fixed .*main\.byn \(\d+\)\n$", stdout.ReplaceLineEndings("\n"));
+        var once = File.ReadAllBytes(file);
+        (exit, stdout, _) = Run("fix", dir);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Equal("", stdout);
+        Assert.Equal(once, File.ReadAllBytes(file));
+        (exit, _, err) = Run("check", file);
+        Assert.True(exit == CliApp.ExitOk, err);
+        // A `guards.postfix` site without a fix (a comment in the block) stays.
+        if (code != "BYN1072") Assert.DoesNotContain(code, err);
+    }
+
+    [Theory]
+    [InlineData("conditions-patterns")]
+    [InlineData("optionals-bind")]
+    [InlineData("literals-empty")]
+    [InlineData("sections-banner")]
+    public void FixGivesTheFixedRunCase(string name)
+    {
+        // Both run cases print the same output (RunTests), so the fix keeps the program's behaviour.
+        var run = Path.Combine(Golden.RepoRoot, "tests", "cases", "run");
+        Assert.Equal(File.ReadAllText(Path.Combine(run, $"style-fix-{name}.stdout")), File.ReadAllText(Path.Combine(run, $"style-fix-{name}-fixed.stdout")));
+        var dir = Fresh("fix-run-" + name);
+        var file = Path.Combine(dir, "main.byn");
+        File.Copy(Path.Combine(run, $"style-fix-{name}.byn"), file);
+        var (exit, _, _) = Run("fix", file);
+        Assert.Equal(CliApp.ExitOk, exit);
+        Assert.Equal(File.ReadAllText(Path.Combine(run, $"style-fix-{name}-fixed.byn")), File.ReadAllText(file));
+    }
+
+    [Theory]
+    [InlineData("style-literals-empty")]
+    [InlineData("style-sections-banner")]
+    public void FixKeepsTheSameC(string name)
+    {
+        var dir = FixCase(name);
+        var file = Path.Combine(dir, "main.byn");
+        var (exit, before, err) = Run("build", file, "--emit-c");
+        Assert.True(exit == CliApp.ExitOk, err);
+        Assert.Equal(CliApp.ExitOk, Run("fix", dir).Exit);
+        (exit, var after, err) = Run("build", file, "--emit-c");
+        Assert.True(exit == CliApp.ExitOk, err);
+        Assert.Equal(before, after);
+    }
+
+    [Fact]
+    public void FixMissingPathExitsTwo()
+    {
+        var missing = Path.Combine(Golden.RepoRoot, "tmp", "format", "fix-missing", "nope.byn");
+        var (exit, _, err) = Run("fix", missing);
+        Assert.Equal(CliApp.ExitUsage, exit);
+        Assert.Equal(Messages.NotFound.Text(missing), err.TrimEnd());
+        Assert.Equal(Run("format", missing).Err, err);
+    }
+
+    [Fact]
+    public void FixDoesNotFormat()
+    {
+        var dir = Fresh("fix-no-format");
+        var file = Path.Combine(dir, "main.byn");
+        const string Source = "void main() {\n    let x = 1\n    if x == 1 || x == 2 { print(\"y\") }\n    let ok  =  true\n    print($\"{ok}\")\n}\n";
+        File.WriteAllText(file, Source);
+        Assert.Equal(CliApp.ExitOk, Run("fix", dir).Exit);
+        Assert.Equal(Source.Replace("x == 1 || x == 2", "x is 1 or 2"), File.ReadAllText(file));
+    }
+
+    [Fact]
+    public void CheckPackageReadsTheRootsLints()
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tests", "cases", "diag", "style-severity-error");
+        // As `bayan check --all --package . main.byn` run in that directory.
+        var (exit, _, err) = Run("check", "--all", "--package", dir, Path.Combine(dir, "main.byn"));
+        Assert.NotEqual(CliApp.ExitOk, exit);
+        Assert.Contains("error BYN1072", err);
+    }
+
+    /// <summary>
+    /// The inputs these cases build from a literal and a named constant or read from <c>tests/cases/diag/</c>, by case name, with
+    /// their <c>Style</c> fields. <c>SelfhostDriverStage2FormatTests.ComposedInputsFormatAsCliApp</c> formats each whole through stage 2.
+    /// </summary>
+    public static IEnumerable<(string Name, string Source, string Style)> ComposedInputs() =>
+    [
+        (nameof(AFailsShorthandKeepsAComment), HeaderInput(CommentHeader), ""),
+        (nameof(AFailsShorthandKeepsAMultiLineHeader), HeaderInput(LinesHeader), ""),
+        (nameof(AFailsShorthandCarriesWhereAndExpects), HeaderInput(WhereHeader), ""),
+        (nameof(AFailsShorthandMergesEveryFailsClause), HeaderInput(TwoFailsHeader), ""),
+        (nameof(AFailsShorthandKeepsUsesClausesInSourceOrder), HeaderInput(TwoUsesHeader), ""),
+        .. LineJoinCases.Select(c => ($"{nameof(FormattedCodeQuietsTheLineJoinLint)}({c.Name})",
+            File.ReadAllText(Path.Combine(Golden.CasesRoot, "diag", c.Name + ".byn")), "")),
+    ];
 }

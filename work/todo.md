@@ -831,3 +831,5 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - BYN1073 lambdas.it (022 T7) covers only lambdas passed as arguments, not lambdas bound to a name or returned.
 - `var xs = []` with no target type checks without a diagnostic (found by Fable, spec 022 pass 3, 2026-11-15); expected: an error asking for a type. LOW.
 - Feature spec after 022: promote `if let k = X { … }` from deferred (spec §7.2), mirroring `while let`; covers the ~240 `is { } k` sites `optionals.bind` leaves alone. Amend spec §3.6 (implies `?? return` replaces `is { } k` everywhere). User approved queueing it, 2026-11-15.
+- `literals.empty` (BYN1079, 022 T7b) covers field defaults and annotated `let` locals only; extend it to arguments and struct-literal initialisers.
+- `src/tests/SelfhostDriverTests.cs` (`SelfhostDriverStage2FormatTests.Literals`): the scanner skips raw `"""` and verbatim `@"` strings, so a future LayoutTests/FormatTests input written that way gets no stage-2 row silently (022 T8 gate 4, LOW; fix in T11).

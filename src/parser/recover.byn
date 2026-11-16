@@ -422,7 +422,7 @@ void unreport(ref Parser p, at i64 index) {
 
 /// `TokenKindFacts.IsContextualKeyword`: declaration-only keywords that are names wherever the grammar
 /// does not need them as keywords.
-bool isContextualKeyword(TokenKind kind) => kind switch {
+public bool isContextualKeyword(TokenKind kind) => kind switch {
     .errorKeyword or .flagsKeyword or .unitKeyword or .distinctKeyword or
     .openKeyword or .extensibleKeyword or .setKeyword or .typeKeyword or
     .lawKeyword or .derivationKeyword or .attributeKeyword or .embedKeyword or

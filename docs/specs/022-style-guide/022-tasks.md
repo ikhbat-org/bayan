@@ -71,7 +71,7 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - **Member groups:** inside a type body, one blank line between member groups (fields, `states`, properties, static members, methods) and between methods. This is the one place besides the top level where layout inserts a blank line. Inside function bodies it still never inserts one (doc "Paragraphs inside functions").
   - Each rule changes whitespace and newlines only, so the safety net (`Check`) keeps holding. A rule that would change a token, an adjacency in `TriviaMatters`, or a comment's order is skipped for that site.
   - Also done when the corpus-test flake is fixed. `TheCorpusLaysOutOnceAndForAll` failed about 1 run in 8, on a different file each time. The test-only statics `Format.MaxPasses` (`Format.cs:36`) and `Format.RewriteHook` (`Format.cs:39`) are process-wide, and `FormatTests.NonConvergenceIsReported` and `ARewriteThatDoesNotParseIsAbandoned` set them while the corpus theory runs in parallel. Both become per-thread, like `Layout.OutputHook`. `MaxPasses` keeps the default of 10 on every thread (a `[ThreadStatic]` initializer runs only on the first thread). A test shows that setting `MaxPasses` on one thread leaves another thread's format run at 10. Files: `csharp/Bayan.Cli/Format.cs` and `FormatTests.cs`.
-- [ ] **T6c Layout: the rules the user approved after the Fable review (C#).**
+- [x] **T6c Layout: the rules the user approved after the Fable review (C#).**
   - Files: `csharp/Bayan.Cli/Layout.cs`, `csharp/tests/Bayan.Tests/LayoutTests.cs`, `docs/bayan-style.md` (Do/Don't pairs for each rule, plus the doc tidy).
   - Covers: R3, R1.
   - After: T6b. Decisions from the user, 2026-11-15, after three Fable 5.2 passes.
@@ -88,12 +88,21 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
     - **`///` in runs.** A `///` line does not end an alignment run. A blank line or a `//` line still does.
   - Also in `docs/bayan-style.md`: merge "Unary operators and annotations" and "Generics and units" into "Horizontal spacing", fix the units Don't (identical to its Do today) or drop the units pair if no Don't reaches the formatter, and drop "Comment form". `StyleGuideExamplesTests` passes on every pair; a pair marked "Shown at width N" runs at width N (the test reads the marker; checked after T7 lands and is merged in).
   - Then, outside the task: measure `src/` at width 100 and 120 for the user's width decision.
-- [ ] **T7b Lints with one-time fixes (C#).**
+- [x] **T7b Lints with one-time fixes (C#).**
   - Files: as T7 (`Parser.cs` lint pass, or the semantics layer where a lint needs types or constness, `DiagnosticCodes.cs`, `docs/diagnostics/BYN1077.md`–`BYN1080.md`, `tests/cases/diag/` cases, `docs/DIAGNOSTICS.md`).
   - Covers: R7.
   - After: T7. Decisions from the user, 2026-11-15.
   - Adds the C# `bayan fix [paths…]` subcommand (plan-owner decision 2026-11-16: no fix command existed after T7). It applies every lint fix (`guards.postfix`, `lambdas.it` and the four below) to the named files or package directories, rewrites only files that change, prints the count of fixes per file, and exits 0. Running it twice changes nothing on the second run. It has a `CliTests` case, including one for a path that does not exist (exit 2, the same message `format` gives).
   - Also fixes T7's gate note: `check --package <dir> <file>` reads `lints` from that package's manifest (`csharp/Bayan.Cli/CliApp.cs` near `StyleLintsAt(null)`). Test: `bayan check --all --package . main.byn` in `tests/cases/diag/style-severity-error` gives `error BYN1072` and a nonzero exit.
+  - Plan-owner decisions 2026-11-16, after T7b's first run:
+    - **Fix equivalence:** a fix keeps the program's behaviour, shown by a `run/` case that prints the same output before and after the fix. Byte-identical C is required only of `literals.empty`.
+    - **`literals.empty` sites:** field defaults and annotated `let` locals. Arguments and struct-literal field initialisers go to `work/todo.md`.
+    - **`conditions.patterns` operands:** an index path qualifies only when every index is a name or a literal.
+    - **Qualified constants** (`Op.a or Op.b`) stay out.
+    - **Banner column:** 80.
+    - **Self-hosted manifest row:** the self-hosted manifest parity row joins T7's expected-red list until T9.
+  - Plan-owner decision 2026-11-16, after T7b's full run: the self-hosted rows that compare usage or dispatch output with the C# CLI and fail only because the C# usage now lists `fix` (`SelfhostDriverT1Tests.MatchesTheCSharpCli`, `AScriptRunsAndAGlobalOptionBeforeItIsTaken`, `SelfhostDriverT2Tests.DispatchAsCliApp`, `SelfhostDriverT5Tests.DispatchAsCliApp`, `SelfhostDefaultT12Tests.EveryOtherArmOfRunIsTheCSharps`, `SelfhostDefaultT2Tests.FeaturesMatchesTheCSharpCli`; 29 rows) join the expected-red list until T9, which ports `bayan fix` to the self-hosted driver.
+  - Plan-owner decision 2026-11-16, after T7b's first gate: four more rows fail on feat as well, and only because the self-hosted side lacks a later port. Until T9: `SelfhostSemanticsTests.ForTryTypes` (the missing BYN1072 note), `SelfhostSemanticsEquivalenceLawTests.BayanCheckEqualsTheCCheckerOnEveryCleanParse` (the clean count, 545 with T7b's diag cases; T9 re-pins it from the C#), and `SelfhostDriverGoldenTests.DiagAsCSharpCli(diag/style-functions-length-on/main.byn)` (the self-hosted side prints no BYN1076). Until T8: `SelfhostDriverT1Tests.FormatReportsAnUnreadablePathAsCliApp` (2 cases; green on the T8 branch).
   - Done when each lint below defaults to `.suggestion`, takes its severity from `lints`, has a `diag/` case and a fix, and its fix applied by `bayan fix` gives code that passes `bayan check` (test each on its `diag/` case):
     - **BYN1077 `sections.banner`.** A banner comment `// ── Title ──…` is filled with `─` up to one fixed column.
     - **BYN1078 `conditions.patterns`.** Fires when one `&&` or `||` group tests the same operand against constants two or more times, and the operand is a plain name, field or index path. The fix writes a pattern: `x >= A && x <= B` becomes `x is A..=B`, and `op == .a || op == .b` becomes `op is .a or .b`. Mixed groups (`c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C`) become one `or` pattern. A single comparison never fires.
@@ -109,16 +118,22 @@ Writers: `codegen` for T4–T6 and T8, `codegen-lite` for the rest. Each task is
   - After: T6, T1, T2.
   - Done when the five lints are reported by `bayan check` only, with the codes of the plan and `// target:` comments, with fixes for `guards.postfix` and `lambdas.it`, and with severity from `lints` (`.suggestion` renders as a note; `.error` fails `check`). `functions.length` is off by default and bounds at 60 lines when on. `StyleGuideExamplesTests` passes on every pair of `docs/bayan-style.md`, and `bash scripts/docs/check.sh` passes.
   - Expected red until T9 lands (plan-owner decision 2026-11-15, after T7's gate returned PLAN-CHANGE): any test that compares self-hosted `check` output with C# `check` and fails only because the self-hosted side lacks the new lint notes. That covers `SelfhostDriverT2Tests.CheckAsCliApp`, `SelfhostSemanticsParityTests.CheckParity`, `ForTrySource`, the generator seed cases, and `SelfhostSemanticsEquivalenceLawTests.PinnedClean` (530 → 541). Every other test stays green. T9 turns these rows green, and re-pins `PinnedClean` from the C# if its count still differs. 022 does not merge into dev while any of them is red.
-- [ ] **T8 Layout port (self-hosted).**
+- [x] **T8 Layout port (self-hosted).**
   - Files: `src/driver/layout.byn` (new), `src/driver/format.byn`, `csharp/tests/Bayan.Tests/SelfhostDriverTests.cs` rows.
   - Covers: R6.
   - After: T7, T6c (the T6c rules are ported on the same worker key).
   - Done when every `LayoutTests` and `FormatTests` case gives the same stdout, stderr, exit code and bytes through stage 2 as the C#, and `bootstrap/bayan.c` is regenerated (`BAYAN_UPDATE=1` BootstrapTests).
+  - Plan-owner note 2026-11-16, after T8's first gate: "every case" means the whole input each case formats, including inputs joined from a literal and a named constant (`Proposal31ParagraphsWrapTheHeaderClausesAndAddNoBlankLines`, `AnUnformattedDeclarationKeepsItsBytes`, the `FormatHeader` callers). One exception: `ADifferenceKeepsTheInput` injects its fault through `Layout.OutputHook`, a C#-only seam that no CLI run can reach, so it has no stage-2 row; the test's doc comment says so.
+- [x] **T8b Space after the contextual clause words (C# and self-hosted).**
+  - Found 2026-11-16 while checking the README examples: `bayan format` rewrites `void pay(ref this is .draft) becomes .paid {` as `becomes.paid`, in the C# layout and the self-hosted layout alike (`tests/cases/run/typestate-order.byn` shows it). The guide and the spec write `becomes .paid`.
+  - Files: the C# layout (`csharp/Bayan.Syntax/Formatting/`), `src/driver/layout.byn`, `LayoutTests`, the stage-2 rows, `bootstrap/bayan.c`.
+  - Covers: R6.
+  - Done when a leading-dot operand after a clause word keeps its space: `becomes .paid` (a `becomes` clause names one state, spec §3.17 item 11; the `or` form is covered by `this is .paid or .shipped`), and the same after each word that takes a leading-dot operand: `??`, `catch` and `except` from the spec §2 waṣl list, `or` between `is` states, `==` and `!=` in a `&&`, `||` or `and` chain, and `is`, `fail`, `return`, `case` (the other waṣl words, `where`, `expects`, `requires`, `fails`, `uses`, take names, types or conditions, never a leading dot), while a member access after a name (`order.paid`) stays joined. A `LayoutTests` case covers each, its stage-2 row passes, and formatting `tests/cases/run/typestate-order.byn` leaves its `becomes` lines unchanged. Break-test in "## T8b" of `022-break-tests.md`.
 - [ ] **T9 Lints and severity port (self-hosted).**
   - Files: `src/parser/*.byn` lint pass, the `src/driver` check path, parity rows.
   - Covers: R7, R6.
-  - After: T7, T7b (BYN1077–BYN1080 are ported too).
-  - Done when each lint `diag/` case and each severity case gives the same output through stage 2 as the C#.
+  - After: T7, T7b (BYN1077–BYN1080, the `check --package` lints fix and the `bayan fix` command are ported too).
+  - Done when each lint `diag/` case and each severity case gives the same output through stage 2 as the C#, `bayan fix` gives the same output and bytes as the C# on every `FormatTests` fix case, and every row on T7's and T7b's expected-red lists, except the T8 format rows, is green.
 - [ ] **T10 Format the repo's sources.**
   - On hold until the user approves the measured format (2026-11-15).
   - Files: every `src/**/*.byn`, `lib/**/*.byn` and `examples/**/*.byn` that the formatter changes (one commit, nothing else in it; it also applies the `bayan fix` output of `guards.postfix`, `sections.banner`, `conditions.patterns`, `literals.empty` and `optionals.bind`); `bootstrap/bayan.c` (next commit); `.git-blame-ignore-revs` (new, naming the format commit).
