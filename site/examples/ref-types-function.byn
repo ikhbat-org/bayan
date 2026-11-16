@@ -1,6 +1,6 @@
-type Pred = i64 -> bool
+type Pred = i32 -> bool
 
-bool any(ReadOnlySpan<i64> xs, by Pred p) {
+bool any(ReadOnlySpan<i32> xs, by Pred p) {
     for x in xs {
         if p(x) {
             return true
@@ -9,11 +9,11 @@ bool any(ReadOnlySpan<i64> xs, by Pred p) {
     return false
 }
 
-i64 apply(i64 x, by (i64 -> i64) f) => f(x)
+i32 apply(i32 x, by (i32 -> i32) f) => f(x)
 
-bool isBig(i64 x) => x > 2
+bool isBig(i32 x) => x > 2
 
-let xs: Span<i64> = [1, 2, 3]
+let xs: Span<i32> = [1, 2, 3]
 let base = 10
 print($"{any(xs, by: it > 2)} {any(xs, by: x => x > 5)} {any(xs, by: isBig)}")
 print($"{apply(1, by: x => x + base)}")

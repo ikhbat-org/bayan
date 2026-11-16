@@ -229,7 +229,7 @@ print($"{a}")</code></pre>
 
 <h2 id="unused-values">Unused values</h2>
 <p>A call whose value is not used is an error (BYN3201). A bare expression that is not a call, an assignment or <code>++</code>/<code>--</code> is an error too (BYN1012). Together these catch a line that was split by mistake. To drop a value on purpose, assign it to <code>_</code>.</p>
-<pre><code class="byn">i64 f() =&gt; 1
+<pre><code class="byn">i32 f() =&gt; 1
 
 void main() {
     f()
