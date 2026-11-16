@@ -51,7 +51,7 @@ Code labelled **Bayān** is Bayān. Code labelled with another language is shown
 
 # Bayān in two minutes
 
-Bayān (بيان, *bayān*, "clarity, eloquent exposition") is a natively compiled systems language derived from C#. It compiles through C to native executables and WebAssembly. It aims for Rust and Zig speed without their punctuation.
+Bayān (بيان, *bayān*, "clarity, eloquent exposition") is a natively compiled systems language with a C-family surface. It compiles through C to native executables and WebAssembly. It aims for Rust and Zig speed without their punctuation.
 
 | What it has | What it does not have |
 |---|---|
@@ -84,7 +84,7 @@ Most Arabic words are built from two parts: a **root** of three consonants that 
 
 ![One root, many predictable words. The root carries the meaning; the pattern carries the role.](assets/root-wheel.svg)
 
-Arabic grammarians described these rules as a closed system more than twelve centuries ago. Sībawayh's *al-Kitāb* (8th century) treats the language as rules with predictable outputs. A compiler wants exactly that: a small set of rules, applied the same way every time, with nothing left to guess.
+Arabic grammarians described these rules as a closed system more than twelve centuries ago. Sībawayh's *al-Kitāb* (8th century) treats the language as rules with predictable outputs. A compiler wants that: a small set of rules, applied the same way every time, with nothing left to guess.
 
 Bayān borrows **rules**, not script or word order. Bayān code reads left to right, in English words. Arabic appears only in documentation and in `bayan explain`, where a diagnostic tells you where its rule comes from. The compiler's messages are plain English.
 
@@ -110,7 +110,7 @@ Bayān is not a decorative layer over C syntax. It is a systems language built o
 
 **VI. Head first** *(taqdīm, ḥāl)*. The head of a construct comes first and its circumstances follow: `struct unique`, `defer failing`.
 
-**VII. One spelling, free composition** *(iʿjām, ḥadhf)*. One canonical spelling per construct. Familiar alternatives are rewritten by the formatter. Different sentences built from the same grammar are welcome; synonyms are not.
+**VII. One spelling, free composition** *(iʿjām, ḥadhf)*. One spelling per construct. Familiar alternatives are rewritten by the formatter. Different sentences built from the same grammar are welcome; synonyms are not.
 
 **VIII. Nothing hidden** *(bayān)*. A signature says what a function needs, what it touches, what it becomes, and how it fails. Allocation, I/O, suspension and failure are never invisible.
 
@@ -411,7 +411,7 @@ Arabic grammar has a whole chapter on exception, *istithnāʾ*. The classic exam
 
 > جاءَ القومُ إلّا زيدًا · *jāʾa l-qawmu illā Zaydan* · "the people came, except Zayd"
 
-The sentence names the whole and then names exactly what is subtracted. Nothing is filtered by a hidden condition. Bayān's `except` works the same way: it subtracts a **pattern** from a sequence, a set, or an error set.
+The sentence names the whole and then names what is subtracted. Nothing is filtered by a hidden condition. Bayān's `except` works the same way: it subtracts a **pattern** from a sequence, a set, or an error set.
 
 ![`except` subtracts a pattern. The result has a narrower type: subtracting `null` leaves values that cannot be null.](assets/except-venn.svg)
 
@@ -516,7 +516,7 @@ unsafe because "sqlite3_open writes the handle through its out parameter" {
 let host = header.trustUnchecked() because "HMAC checked by the gateway"
 ```
 
-`because` is required in exactly four places, all of them bypasses:
+`because` is required in four places, all of them bypasses:
 
 | Bypass | Form |
 |---|---|
@@ -731,7 +731,7 @@ Transfer(payer: alice, payee: bob, amount: amount);  // names are optional
 *Swift*
 
 ```swift
-transfer(amount, from: alice, to: bob)
+transfer(amount, from: aisha, to: bilal)
 // Swift has labels: free-form, chosen per API,
 // so every library invents its own vocabulary
 ```
@@ -750,7 +750,7 @@ public void insert(ref this, T item, at Index i) uses alloc
 public void remove(ref this, from Index start, until Index end)
 
 copy(from: a, to: b)
-try ledger.transfer(amount, from: alice, to: bob)
+try ledger.transfer(amount, from: aisha, to: bilal)
 lines.insert(x, at: 3)
 xs.remove(from: 2, until: 5)
 ```
@@ -759,7 +759,7 @@ xs.remove(from: 2, until: 5)
 
 ```csharp
 copy(a, b)                       // ✗ BYN5005: `a` needs its particle `from:`
-ledger.transfer(amount, alice, bob)
+ledger.transfer(amount, aisha, bilal)
 ```
 
 The rules are short:
@@ -918,7 +918,7 @@ struct Parcel {
 
 ## The idea, without Arabic
 
-Early Arabic script used one shape for several letters. The shape ٮ could be read as *b*, *t*, *th*, *n* or *y*. Readers who already knew the text were fine; everyone else had to guess. In the first century of Islam, scholars added dots, *iʿjām*, so that every letter had exactly one reading.
+Early Arabic script used one shape for several letters. The shape ٮ could be read as *b*, *t*, *th*, *n* or *y*. Readers who already knew the text were fine; everyone else had to guess. In the first century of Islam, scholars added dots, *iʿjām*, so that every letter had one reading.
 
 ![Iʿjām: one ambiguous shape becomes three unambiguous letters. Bayān does the same for syntax.](assets/ijam.svg)
 
@@ -930,13 +930,13 @@ Bayān keeps both: **no synonyms** (iʿjām), and **ellipsis where context recov
 
 | Kind | Example | Bayān's rule |
 |---|---|---|
-| **Synonym**: two spellings of one construct | `x == null` and `x is null` | Rejected. One is canonical; the other is an input form the formatter rewrites |
+| **Synonym**: two spellings of one construct | `x == null` and `x is null` | Rejected. One is the written form; the other is an input form the formatter rewrites |
 | **Paraphrase**: different sentences from the same grammar | `users except null` and `users.where(it is not null)` | Allowed, if truly equivalent in narrowing, cost and effects |
 | **Ellipsis**: a part the context recovers | `it`, inferred types, `.paid` for `Order.paid` | Allowed |
 
 ## Input forms: your habits still work
 
-You may type C# or Zig habits in your editor. `bayan format` rewrites them; the compiler explains the canonical form with a machine-applicable fix. You are taught, not punished.
+You may type habits from other languages in your editor. `bayan format` rewrites them; the compiler explains the preferred form with a machine-applicable fix. You are taught, not punished.
 
 | You type | Bayān writes | Code |
 |---|---|---|
@@ -944,7 +944,7 @@ You may type C# or Zig habits in your editor. `bayan format` rewrites them; the 
 | `foreach (var x in xs)` | `for x in xs` | BYN1019 |
 | `if (ready) {` | `if ready {` | BYN1017 |
 | `/* … */` | `//` lines | BYN1047 |
-| `"Hello " + name` | `$"Hello {name}"` | BYN2209 |
+| `"Salam " + name` | `$"Salam {name}"` | BYN2209 |
 | `(u8)x` | `u8(x)` | BYN1057 |
 | `User!EmailError f()` | `User f() fails EmailError` | BYN1031 |
 | `errdefer` | `defer failing` | BYN1020 |
@@ -975,7 +975,7 @@ if (x is not { }) { }
 
 ## Two exceptions, on purpose
 
-Bayān admits exactly two synonym pairs. Each is a closed set of tokens, identical in meaning and cost, and **chosen once per project** in `package.byn`, then normalized by the formatter:
+Bayān admits two synonym pairs. Each is a closed set of tokens, identical in meaning and cost, and **chosen once per project** in `package.byn`, then normalized by the formatter:
 
 *Bayān*
 
@@ -1294,7 +1294,7 @@ flowchart TB
 
 ## The idea
 
-In Sūrat an-Naml (27:20–22), Solomon reviews the birds and finds the hoopoe missing. When it returns, it does not apologize or speculate. It reports exactly what it saw, and says it brings news that is بِنَبَإٍ يَقِين *bi-nabaʾin yaqīn*, "certain". The hoopoe is Bayān's mascot, and its report is the model for every compiler message: exact, located, explained, actionable.
+In Sūrat an-Naml (27:20–22), Solomon reviews the birds and finds the hoopoe missing. When it returns, it does not apologize or speculate. It reports what it saw, and says it brings news that is بِنَبَإٍ يَقِين *bi-nabaʾin yaqīn*, "certain". The hoopoe is Bayān's mascot, and its report is the model for every compiler message: exact, located, explained, actionable.
 
 ![The hoopoe on the macron of bayān: the mascot sits on the mark that makes the name's long vowel unambiguous.](assets/hoopoe.svg)
 
@@ -1355,16 +1355,16 @@ The ten axioms rest on twelve working principles from the specification. They ar
 2. **Every keystroke carries meaning.** If the compiler can infer it, don't type it.
 3. **Brief but complete.** One spelling per construct; free composition.
 4. **Predictable.** Roots plus a closed set of patterns.
-5. **Elegant by default.** One formatter, one canonical form.
+5. **Elegant by default.** One formatter, one form.
 6. **Kind to the programmer.** Errors explain what, where, why and how to fix.
 7. **Instant feedback.** REPL, scripts and incremental builds under 100 ms.
 8. **Joy is a requirement.**
 9. **Memory safety is never a build-mode option.**
-10. **Promise as little as possible.** Anything specified exactly is permanent.
-11. **Bayān follows its own principles.** C# familiarity is a benefit, never a deciding reason.
+10. **Promise as little as possible.** Anything specified precisely is permanent.
+11. **Bayān follows its own principles.** Familiarity from other languages is a benefit, never a deciding reason.
 12. **Head-first word order.** The head comes first; modifiers follow.
 
-The point of all of it is the eighth. A language whose names keep their promises, whose lines mean one thing, and whose compiler speaks clearly is a language that is a pleasure to write. That is what *bayān* means.
+The point of all of it is the eighth. A language whose names keep their promises, whose lines mean one thing, and whose compiler speaks plainly is a language that is a pleasure to write. That is what *bayān* means.
 
 # Appendix A: glossary
 

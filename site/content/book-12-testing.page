@@ -200,7 +200,7 @@ uncovered branch: grade.byn:10:19 never true
 uncovered branch: grade.byn:10:19 never false
 uncovered error path: grade.byn: grade GradeError.tooHigh</code></pre>
 <p>The report names what is missing. Line 8, column 32 is <code>score &gt; 100</code>, which no test made true: that is the <code>tooHigh</code> error path. The conditions on lines 9 and 10 were only ever seen one way, because only the score 90 reached them. Add a test with 101, one with 85 and one with 70, and all three counts reach 100%. The paths in the report are shortened here; the compiler prints the path it was given.</p>
-<p>Without <code>--coverage</code>, <code>bayan test --mode debug</code> prints the one-line summary after the pass count,. <code>--coverage</code> also writes <code>out/test/bayan-quality.json</code> in a project, for tools to read.</p>
+<p>Without <code>--coverage</code>, <code>bayan test --mode debug</code> prints the one-line summary after the pass count. <code>--coverage</code> also writes <code>out/test/bayan-quality.json</code> in a project, for tools to read.</p>
 <p>To make coverage a gate, set minimums in <code>package.byn</code>:</p>
 <pre><code class="byn">Package {
     name: "local/gate",
@@ -228,7 +228,7 @@ grade.byn:7:41 literal `0` -&gt; `1`: survived
 …
 grade.byn:10:28 literal `80` -&gt; `79`: not reached
 11 killed, 6 survived, 0 timeout, 8 not reached, 0 marked, 0 not emitted</code></pre>
-<p>The survivor at <code>score &lt; 0</code> to <code>score &lt;= 0</code> says no test tries a score of exactly 0. A boundary test would kill it. Each line gives the position, the kind of change, the old and new text, and the result.</p>
+<p>The survivor at <code>score &lt; 0</code> to <code>score &lt;= 0</code> says no test tries a score of 0. A boundary test would kill it. Each line gives the position, the kind of change, the old and new text, and the result.</p>
 
 <h2 id="planned">Planned test features</h2>
 <note>Planned: not in the compiler yet. Each fragment below comes from the specification (§20). The compiler rejects them today: <code>@pairwise</code> is "unknown attribute", and <code>property</code>, <code>bench</code> and <code>snapshot</code> are not recognised.</note>
@@ -264,3 +264,7 @@ fuzz "reader never crashes" (string text) { … }</code></pre>
 <details class="quiz"><summary><code>package.byn</code> has <code>test: Tests { lines: 100 }</code>, and your tests cover 90% of lines. Which command fails, and with which exit code?</summary>
 <p><code>bayan test --coverage</code> fails with exit code 3 and lists the uncovered lines. A plain <code>bayan test</code> passes with 0 in this version, because it does not check the gate. Code 1 means a compile error, and code 4 is for toolchain problems, so neither applies.</p>
 </details>
+
+<div class="next-box">
+  <p>Next: <a href="book-13-memory.html">13. Memory, ownership and regions</a> covers where values live, copies and moves, borrows, and how arenas free memory without a garbage collector.</p>
+</div>
