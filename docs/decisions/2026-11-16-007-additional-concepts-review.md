@@ -203,3 +203,13 @@ So "keep them out of diagnostics" holds for the message line, not for explain te
 7. **Should `@deprecated` and `lazy` get rows in the catch-up inventory?** Recommended: yes, both small; `lazy` also needs an entry in SPEC §2.4.
 8. **Will you write the priority order, and test it against past decisions first?** Recommended: yes, as a decision doc with an English title. A possible order to test: safety checks, then visible cost, then clarity, then familiarity.
 9. **Is the syntax freeze still in force after 0.3.1?** Recommended: say so in writing, and extend it until spec 019a lands. Nothing in this review needs it lifted.
+
+## Decided by the user, 2026-11-16
+
+- **Q1:** language and script are the default sources; anything drawn from Islamic law or hadith science goes to the owner before it enters a doc.
+- **Q2:** yes, English grade names.
+- **Q7:** yes, `@deprecated` and `lazy` rows in 023, `lazy` in SPEC §2.4.
+- **Q4:** the owner leans `std`; recommendation agrees (SPEC §3.4 already defines `Money`), awaiting confirmation.
+- **Q3, Q5, Q6:** owner asked for real-world examples with and without; sent 2026-11-16, awaiting answers.
+- **Q8:** yes to a priority order; owner asked for the recommendation and a build-order dependency chain; sent 2026-11-16.
+- **Q9:** owner asked what the freeze means; explanation sent 2026-11-16, awaiting answer.
