@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -335,12 +336,87 @@ public static class SelfhostSemanticsHarness
         return (p.ExitCode, stdout.ToArray(), stderr.ToArray());
     }
 
-    /// <summary>Builds and runs <paramref name="mainSource"/>; it must exit 0 with empty stderr.</summary>
+    /// <summary>Builds and runs <paramref name="mainSource"/>; it must exit 0 with empty stderr. Under
+    /// <c>BAYAN_EXPORT_DIR</c> the program and arguments are kept for <see cref="AssertSection"/>'s case.</summary>
     public static Dictionary<string, List<string>> RunSections(string mainSource, params string[] args)
     {
         var (exit, stdout, stderr) = SelfhostParserTests.Run(Build(mainSource), args);
         Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
-        return Sections(stdout);
+        var sections = Sections(stdout);
+        if (ExportDir is not null)
+        {
+            // `params` leaves no room for [CallerFilePath]: the caller's file comes from its stack frame.
+            var input = new ExportInput(mainSource, string.Concat(args.Select(a => (Path.IsPathRooted(a) && a.StartsWith(Golden.RepoRoot, StringComparison.Ordinal)
+                ? Path.GetRelativePath(Golden.RepoRoot, a) : a) + "\n")));
+            ExportInputs.AddOrUpdate(sections, input);
+            var runs = ExportRuns.GetOrAdd(new StackTrace(1, true).GetFrame(0)?.GetFileName() ?? "", _ => []);
+            lock (runs) runs.Add((input, sections.Keys.ToHashSet(StringComparer.Ordinal)));
+        }
+        return sections;
+    }
+
+    /// <summary>The export directory (spec 019 R10) when <c>BAYAN_EXPORT_DIR</c> is set, else null; a relative path is
+    /// taken from the repo root.</summary>
+    public static string? ExportDir =>
+        Environment.GetEnvironmentVariable("BAYAN_EXPORT_DIR") is { Length: > 0 } dir ? Path.GetFullPath(dir, Golden.RepoRoot) : null;
+
+    /// <summary>A generated program and its arguments (one per line, a repo path made relative to the repo root).</summary>
+    private sealed record ExportInput(string Program, string Args);
+
+    private static readonly ConditionalWeakTable<Dictionary<string, List<string>>, ExportInput> ExportInputs = new();
+
+    private static readonly ConcurrentDictionary<string, List<(ExportInput Input, HashSet<string> Sections)>> ExportRuns = new(StringComparer.Ordinal);
+
+    private static readonly Lock ExportLock = new();
+
+    private static readonly HashSet<string> ExportWritten = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Under <c>BAYAN_EXPORT_DIR</c>: writes <c>sem/&lt;class&gt;/&lt;test&gt;-&lt;section&gt;/</c> (a repeat gets
+    /// <c>-2</c>, <c>-3</c>, …) with <c>expected.sections</c> (the <c>== section</c> header and the C# lines) and the
+    /// program that printed <paramref name="actual"/>: the run that returned it, else the latest run from
+    /// <paramref name="file"/> that printed <paramref name="section"/>, else that file's only distinct run. When the
+    /// process exits, <c>sem/counts.tsv</c> lists the cases written per class.
+    /// </summary>
+    private static void Export(string export, Dictionary<string, List<string>> actual, string section, IReadOnlyList<string> expected, string test, string file)
+    {
+        var input = ExportInputs.TryGetValue(actual, out var found) ? found : null;
+        if (input is null && ExportRuns.TryGetValue(file, out var runs))
+            lock (runs)
+            {
+                input = runs.LastOrDefault(r => r.Sections.Contains(section)).Input;
+                if (input is null && runs.Select(r => r.Input).Distinct().Count() == 1) input = runs[0].Input;
+            }
+        static string Safe(string s) => string.Concat(s.Select(ch => ch < ' ' || "<>:\"/\\|?*".Contains(ch) ? '_' : ch));
+        var root = Path.Combine(export, "sem", Path.GetFileNameWithoutExtension(file));
+        var name = Safe($"{test}-{section}");
+        string dir;
+        lock (ExportLock)
+        {
+            if (ExportWritten.Count == 0) AppDomain.CurrentDomain.ProcessExit += (_, _) => WriteExportCounts();
+            dir = Path.Combine(root, name);
+            for (var k = 2; !ExportWritten.Add(dir); k++) dir = Path.Combine(root, $"{name}-{k}");
+        }
+        Directory.CreateDirectory(dir);
+        if (input is not null)
+        {
+            File.WriteAllText(Path.Combine(dir, "input.byn"), input.Program);
+            if (input.Args.Length > 0) File.WriteAllText(Path.Combine(dir, "args"), input.Args);
+        }
+        File.WriteAllText(Path.Combine(dir, "expected.sections"), $"== {section}\n" + string.Concat(expected.Select(l => l + "\n")));
+    }
+
+    /// <summary>Writes each export directory's <c>sem/counts.tsv</c>: each class and the cases this process wrote for it.</summary>
+    internal static void WriteExportCounts()
+    {
+        lock (ExportLock)
+        {
+            foreach (var sem in ExportWritten.GroupBy(d => Path.GetDirectoryName(Path.GetDirectoryName(d))!))
+            {
+                var counts = sem.GroupBy(d => Path.GetFileName(Path.GetDirectoryName(d))!).OrderBy(g => g.Key, StringComparer.Ordinal);
+                File.WriteAllText(Path.Combine(sem.Key, "counts.tsv"), string.Concat(counts.Select(g => $"{g.Key}\t{g.Count()}\n")));
+            }
+        }
     }
 
     /// <summary>
@@ -367,10 +443,17 @@ public static class SelfhostSemanticsHarness
 
     /// <summary>
     /// <paramref name="actual"/>'s section <paramref name="section"/> against <paramref name="expected"/>,
-    /// naming the first differing line; a missing section or a count mismatch fails too.
+    /// naming the first differing line; a missing section or a count mismatch fails too. Under
+    /// <c>BAYAN_EXPORT_DIR</c> it compares nothing and writes the case instead (see <see cref="Export"/>).
     /// </summary>
-    public static void AssertSection(Dictionary<string, List<string>> actual, string section, IReadOnlyList<string> expected)
+    public static void AssertSection(Dictionary<string, List<string>> actual, string section, IReadOnlyList<string> expected,
+        [CallerMemberName] string test = "", [CallerFilePath] string file = "")
     {
+        if (ExportDir is { } export)
+        {
+            Export(export, actual, section, expected, test, file);
+            return;
+        }
         Assert.True(actual.TryGetValue(section, out var lines), $"section '{section}' was not printed");
         var n = Math.Min(lines!.Count, expected.Count);
         for (var i = 0; i < n; i++)

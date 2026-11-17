@@ -22,6 +22,33 @@ public sealed class SelfhostSemanticsHarnessTests
         Assert.Empty(s["beta"]);
     }
 
+    /// <summary>Under <c>BAYAN_EXPORT_DIR</c> the section is not compared: its program and C# lines are written as a case.</summary>
+    [Fact]
+    public void ExportWritesTheCase()
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "export-sem-test");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        var old = Environment.GetEnvironmentVariable("BAYAN_EXPORT_DIR");
+        try
+        {
+            Environment.SetEnvironmentVariable("BAYAN_EXPORT_DIR", dir);
+            var s = SelfhostSemanticsHarness.RunSections(Main);
+            SelfhostSemanticsHarness.AssertSection(s, "alpha", ["a1", "differs"]);
+            SelfhostSemanticsHarness.AssertSection(s, "alpha", ["again"]);
+            SelfhostSemanticsHarness.WriteExportCounts();
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("BAYAN_EXPORT_DIR", old);
+        }
+        var cases = Path.Combine(dir, "sem", nameof(SelfhostSemanticsHarnessTests));
+        Assert.Equal(Main, File.ReadAllText(Path.Combine(cases, "ExportWritesTheCase-alpha", "input.byn")));
+        Assert.Equal("== alpha\na1\ndiffers\n", File.ReadAllText(Path.Combine(cases, "ExportWritesTheCase-alpha", "expected.sections")));
+        Assert.False(File.Exists(Path.Combine(cases, "ExportWritesTheCase-alpha", "args")));
+        Assert.Equal("== alpha\nagain\n", File.ReadAllText(Path.Combine(cases, "ExportWritesTheCase-alpha-2", "expected.sections")));
+        Assert.Equal($"{nameof(SelfhostSemanticsHarnessTests)}\t2\n", File.ReadAllText(Path.Combine(dir, "sem", "counts.tsv")));
+    }
+
     [Fact]
     public void FirstDifferingLineFails()
     {
