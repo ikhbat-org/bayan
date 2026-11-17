@@ -209,7 +209,22 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     if args.length == 2 && args[0] == "--list-cases" {
         return goldenList(args[1])
     }
+    // `--golden-case <kind> <name> <input>` (spec 019 T4): one in-process golden case, run as a child so its time limit can stop it; golden.byn.
+    if args.length == 4 && args[0] == "--golden-case" {
+        return goldenCaseChild(args[1], for: args[2], at: args[3])
+    }
     let o = t11ParseBuildOptions(in args) ?? return exitUsage
+    // A cases directory (spec 019 T4): each golden case is one test with the time limit of a test block; golden.byn.
+    if goldenIsCasesDir(o.path) {
+        var wanted = List<string>()
+        if (o.only is { } only) {
+            for s in only {
+                wanted.append(s)
+            }
+        }
+        var results = List<GoldenResult>()
+        return goldenTest(o.path, by: wanted, for: testTimeout(), to: ref results)
+    }
     let symbolsErr = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
     var ok = false
