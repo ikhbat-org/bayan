@@ -20,6 +20,7 @@ if [ -z "${BAYAN_EXE:-}" ]; then
   pinned="$(PINNED_BAYAN_REF="${PINNED_BAYAN_REF:-HEAD}" bash scripts/pinned-bayan.sh)" \
     && "$pinned" build --mode safe --package src -o "$BAYAN_EXE" src/driver || failed+=("build of src/driver for BAYAN_EXE")
 fi
+export BAYAN_EXE # the golden runner bound reads the driver path from it
 
 run dotnet test -v q --filter "FullyQualifiedName~LanguageServer"
 run dotnet test -v q --filter "FullyQualifiedName~CliMemoryBounds"
