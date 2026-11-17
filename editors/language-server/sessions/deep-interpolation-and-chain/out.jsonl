@@ -1,0 +1,3 @@
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/chain.byn","version":1,"diagnostics":[]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/deep.byn","version":1,"diagnostics":[{"range":{"start":{"line":0,"character":768},"end":{"line":0,"character":499489}},"severity":1,"source":"bayan","message":"string interpolation nested deeper than 256 levels"}]}}
+{"jsonrpc":"2.0","id":1,"result":{"isIncomplete":false,"items":[]}}

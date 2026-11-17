@@ -1,0 +1,6 @@
+{"fs":"write","path":"tests/cases/run/.bayan-staging-1/e.byn","text":"struct Staged {}\n"}
+{"fs":"write","path":"tmp/b.byn","text":"struct Scratch {}\n"}
+{"fs":"write","path":".worktrees/w/c.byn","text":"struct Worktree {}\n"}
+{"fs":"write","path":"src/obj/g.byn","text":"struct Built {}\n"}
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@","capabilities":{}}}
+{"jsonrpc":"2.0","id":2,"method":"workspace/symbol","params":{"query":""}}

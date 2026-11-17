@@ -1,0 +1,57 @@
+kind	class	name	session	reason
+test	LanguageServerWorkspaceTests	IndexFolderSkipsHiddenTmpAndBuildDirectories	index-skips-dirs	workspace/symbol after initialize lists only src/ and lib/deep/; tmp/, .worktrees/, node_modules/, .bayan-staging-1/ and src/obj/ are skipped
+test	LanguageServerWorkspaceTests	WatcherLoadIgnoresExcludedAndOutsidePaths	watcher-excluded-outside	created events under tmp/, .worktrees/ and outside the root are not indexed; one under src/ is
+test	LanguageServerWorkspaceTests	FileCountLimitStopsIndexingButNotOpenBuffers	bound-only -> T38a	the file budget is 20,000 at the server's defaults; the test sets maxFiles 3 on Workspace, which no message reaches
+test	LanguageServerWorkspaceTests	CharacterBudgetCountsRemovedFilesBack	bound-only -> T38a	the character budget is 256 MiB at the server's defaults; the test sets maxChars 10 on Workspace
+test	LanguageServerWorkspaceTests	OversizedFileIsSkipped	oversized-file-skipped	a disk file over the 4 MiB per-file limit is not indexed (the test's 50-byte limit becomes the default 4 MiB)
+test	LanguageServerWorkspaceTests	SymlinkLoopIsNotFollowed	symlink-loop	a directory link back to the root is not entered
+test	LanguageServerWorkspaceTests	LimitRecoversAfterRemoveAndSecondRootIsIndexed	bound-only -> T38a	needs the file budget spent (maxFiles 3 on Workspace; 20,000 at the defaults)
+test	LanguageServerWorkspaceTests	CharCountTracksOpenApplyAndClose	open-edit-delete-close	the protocol path (open over a disk file, incremental change, file deleted, close removes it and publishes empty); the CharCount figures themselves are internal -> T38a
+test	LanguageServerWorkspaceTests	NestedRootUnderSkippedDirIsIndexed	nested-root-under-skipped	a second workspace folder under tmp/ is indexed, and a file created there is loaded
+test	LanguageServerWorkspaceTests	CloseAppliesExclusionAndSizeRules	close-exclusion-size	closing a buffer under .worktrees/ or over a disk file over 4 MiB removes it and publishes empty; CharCount is internal -> T38a
+test	LanguageServerWorkspaceTests	KnownFileGrownPastSizeLimitIsRemoved	known-file-grown-past-size	an indexed file rewritten past 4 MiB is dropped on its change event
+test	LanguageServerWorkspaceTests	KnownFileGrownPastCharBudgetIsRemoved	bound-only -> T38a	needs the 256 MiB character budget spent (maxChars 10 on Workspace)
+test	LanguageServerWorkspaceTests	SymlinkedFileIsNotIndexed	symlinked-file	a file link under the root is not indexed
+test	LanguageServerWorkspaceTests	WalkStopsAfterFileRejectedForBudget	bound-only -> T38a	needs the character budget spent (maxChars 10) and asserts on the stderr log, which is not a protocol message
+test	LanguageServerWorkspaceTests	CloseKeepsClientUri	close-keeps-client-uri	after close the document is the disk text under the URI as the client spelled it (%41bc.byn)
+test	LanguageServerWorkspaceTests	KnownFileThatDoesNotGrowIsNeverEvictedForBudget	bound-only -> T38a	needs the character budget spent (maxChars 10 on Workspace)
+test	LanguageServerWorkspaceTests	LoadFromDiskSkipsNewSymlinkedFile	watcher-skips-new-symlink	a created event for a file link indexes nothing; one for its target does
+test	LanguageServerWorkspaceTests	CloseKeepsPreviousDocumentWhenReloadIsDenied	close-keeps-doc-when-reload-denied	closing a buffer whose file is unreadable keeps the buffer text, no longer open (publish without version); record as a non-root user
+test	LanguageServerWorkspaceTests	CharCountStaysExactWhenOpenReplacesDocumentUnderOtherSpelling	open-other-spelling	the protocol path (an open under another spelling replaces the indexed document); the CharCount sums and Document.Replace are internal -> T38a
+test	LanguageServerWorkspaceTests	CharCountStaysExactAfterDirectEditsAndCloseReload	edits-then-close-reload	the protocol path (full and incremental changes, disk rewritten, close reloads the disk text); the CharCount sums are internal -> T38a
+test	LanguageServerLeakTests	ClosedDiskDocumentsRetainAtMostTwelveBytesPerChar	bound-only -> T38a	a heap measurement (bytes retained per char); no message carries it
+test	LanguageServerLeakTests	DeepInterpolationAndLongReceiverChainDoNotOverflowTheStack	deep-interpolation-and-chain	the same 100,000-deep interpolation and 300,000-link chain: one "nested deeper than 256" diagnostic and a completion object; running on a 1 MiB stack is the bound -> T38a
+test	LanguageServerLeakTests	HundredThousandNestedBracketsAndBlocksStillGetAnAnswer	deep-brackets-and-blocks	1,000-deep brackets and blocks (past the 256 cap; 100,000 would put the whole text in a 1.5 MB completion detail): one nesting diagnostic each and answers to documentSymbol, completion and signatureHelp; the 100,000 depth on a 1 MiB stack is the bound -> T38a
+test	LanguageServerLeakTests	FolderDeleteAndRenameUpdateTheIndex	folder-delete-and-rename	a folder moved away: its delete event drops both files (publishes empty), its create event at the new name indexes them again
+test	LanguageServerLeakTests	FolderCreatedUnderSkippedDirectoryIsNotIndexed	folder-created-under-skipped	created events for tmp/new and tmp index nothing
+test	LanguageServerLeakTests	ReplacedDocumentsAreCollectableBeforeTheNextRequest	bound-only -> T38a	asserts on a WeakReference after a GC; no message carries it
+test	LanguageServerLeakTests	OversizedOpenBufferIsNotAnalysedOrKept	oversized-open-buffer	the same messages: a 5 MiB didOpen gets one notice, an incremental change is ignored, a full change that fits is analysed; the retained-bytes measurement is the bound -> T38a
+test	LanguageServerLeakTests	DefinitionAndWorkspaceSymbolReachClosedDocuments	closed-documents-definition	definition and workspace/symbol reach a closed disk document; definition and documentSymbol on a never-opened one analyse it on demand
+test	LanguageServerLeakTests	DiagnosticsAreCappedWithASummaryEntry	diagnostics-capped	a didOpen of 262,144 semicolons publishes 1,001 diagnostics, the last "261144 more problems not shown"; the cap itself is also a bound -> T38a
+test	LanguageServerLeakTests	TransportDropsItsBodyBufferAfterALargeMessage	bound-only -> T38a	asserts on the capacity of a private buffer after a 4 MB write
+test	LanguageServerLeakTests	TruncatedBodyEndsTheReadLikeEndOfStream	truncated-body	a body cut short by end of input ends the session after the answers already sent
+test	LanguageServerLeakTests	ContentLengthDoesNotAllocateTheBodyUpFront	bound-only -> T38a	an allocation measurement on a 60 MiB Content-Length; the protocol side (end of input mid-body) is truncated-body
+test	LanguageServerLeakTests	MessagesOverTheLimitAreSkippedAndLargeOnesStillParse	bound-only -> T38a	the message limit is 64 MiB at the defaults (the test sets 400,000 on the transport); a session would hold a 64 MiB message
+test	LanguageServerLeakTests	RewalkingAFolderDoesNotSpendTheDirectoryBound	bound-only -> T38a	the directory bound is 200,000 at the defaults; the test sets maxDirs 3 on Workspace
+test	LanguageServerLeakTests	RemovedFolderRefundsItsDirectories	bound-only -> T38a	needs the directory bound spent (maxDirs 2 on Workspace)
+test	LanguageServerLeakTests	TooLargeCountsUtf8BytesNotChars	too-large-counts-utf8-bytes	at the default 4 MiB: 4,194,304 'a' and 2,097,152 'é' (4 MiB of UTF-8) are analysed, 2,097,153 'é' get the too-large notice
+test	LanguageServerLeakTests	WatcherChangeDoesNotReloadATooLargeOpenBuffer	watcher-keeps-too-large-buffer	a change event for a file whose open buffer was dropped as too large does not load the disk text
+test	LanguageServerLeakTests	FolderWalkStopsAtTheDirectoryBound	bound-only -> T38a	needs the directory bound spent (maxDirs 3 on Workspace)
+test	LanguageServerLeakTests	BuildOutputAndLibraryDirectoriesAreSkipped	build-and-library-dirs-skipped	Library/, node_modules/, target/, out/ and build/ are not indexed
+test	LanguageServerLeakTests	SymlinkedRootAndItsTargetAreOneDocument	symlinked-root-one-document	with the root opened through a link, opens through the link and the real path replace one document
+test	LanguageServerLeakTests	ResolvePrefersTheRecomputedCopyOfTheSameDocument	resolve-prefers-same-document	definition of a bare `total` in each closed file resolves to that file's field
+test	LanguageServerLeakTests	IsExcludedResolvesLinksLikeRoots	links-excluded-real-root links-excluded-link-root	created events through a link to the root load src/ and skip tmp/ (real root); through the real path with the root opened by the link (link root)
+request	-	initialize	requests-tour index-skips-dirs folder-delete-and-rename	rootUri, workspaceFolders (nested-root-under-skipped) and no root (close-keeps-client-uri)
+request	-	shutdown	requests-tour	a request after it gets -32600
+request	-	exit	requests-tour	after shutdown
+request	-	didOpen	requests-tour closed-documents-definition too-large-counts-utf8-bytes	open buffers, including over the 4 MiB limit
+request	-	didChange	requests-tour edits-then-close-reload oversized-open-buffer	incremental and full changes
+request	-	didClose	requests-tour close-exclusion-size close-keeps-client-uri	a closed buffer reloads from disk or is removed
+request	-	completion	requests-tour deep-interpolation-and-chain deep-brackets-and-blocks	member and global lists; requests-tour also sends completionItem/resolve
+request	-	definition	requests-tour closed-documents-definition resolve-prefers-same-document	open, closed and never-opened documents
+request	-	documentSymbol	requests-tour closed-documents-definition deep-brackets-and-blocks	open and never-opened documents
+request	-	hover	requests-tour	a function, a local, a keyword, a builtin and a blank line
+request	-	signatureHelp	requests-tour deep-brackets-and-blocks	a declared function and a builtin; null past the nesting cap
+request	-	workspace/symbol	requests-tour folder-delete-and-rename index-skips-dirs	a query and the empty query
+request	-	didChangeWatchedFiles	folder-delete-and-rename watcher-excluded-outside known-file-grown-past-size	created, changed and deleted
+request	-	publishDiagnostics	requests-tour diagnostics-capped oversized-open-buffer	with and without version, empty, the too-large notice, the 1,001-entry cap

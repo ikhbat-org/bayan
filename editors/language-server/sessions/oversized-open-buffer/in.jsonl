@@ -1,0 +1,6 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@","capabilities":{}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/big.byn","languageId":"bayan","version":1,"text":{"@repeat":"struct Big {}\n","@times":374492}}}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/big.byn","version":2},"contentChanges":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"text":"x"}]}}
+{"jsonrpc":"2.0","id":2,"method":"workspace/symbol","params":{"query":""}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/big.byn","version":3},"contentChanges":[{"text":"struct Fits {}\n"}]}}
+{"jsonrpc":"2.0","id":3,"method":"workspace/symbol","params":{"query":""}}

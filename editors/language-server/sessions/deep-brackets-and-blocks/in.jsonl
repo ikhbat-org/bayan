@@ -1,0 +1,8 @@
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/brackets.byn","languageId":"bayan","version":1,"text":{"@concat":["f",{"@repeat":"(","@times":1000},"x",{"@repeat":")","@times":1000}]}}}}
+{"jsonrpc":"2.0","id":1,"method":"textDocument/documentSymbol","params":{"textDocument":{"uri":"file://@WS@/brackets.byn"}}}
+{"jsonrpc":"2.0","id":2,"method":"textDocument/completion","params":{"textDocument":{"uri":"file://@WS@/brackets.byn"},"position":{"line":0,"character":2002}}}
+{"jsonrpc":"2.0","id":3,"method":"textDocument/signatureHelp","params":{"textDocument":{"uri":"file://@WS@/brackets.byn"},"position":{"line":0,"character":2001}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/blocks.byn","languageId":"bayan","version":1,"text":{"@concat":["void f() ",{"@repeat":"{ let a = [","@times":1000},"x",{"@repeat":"]; }","@times":1000}]}}}}
+{"jsonrpc":"2.0","id":4,"method":"textDocument/documentSymbol","params":{"textDocument":{"uri":"file://@WS@/blocks.byn"}}}
+{"jsonrpc":"2.0","id":5,"method":"textDocument/completion","params":{"textDocument":{"uri":"file://@WS@/blocks.byn"},"position":{"line":0,"character":15010}}}
+{"jsonrpc":"2.0","id":6,"method":"textDocument/signatureHelp","params":{"textDocument":{"uri":"file://@WS@/blocks.byn"},"position":{"line":0,"character":15009}}}

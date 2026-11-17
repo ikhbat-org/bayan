@@ -1,0 +1,6 @@
+{"fs":"write","path":"p/tmp/demo/b.byn","text":"struct Bilal {}\n"}
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@/p","capabilities":{},"workspaceFolders":[{"uri":"file://@WS@/p","name":"p"},{"uri":"file://@WS@/p/tmp/demo","name":"demo"}]}}
+{"jsonrpc":"2.0","id":2,"method":"workspace/symbol","params":{"query":""}}
+{"fs":"write","path":"p/tmp/demo/c.byn","text":"struct Iftar {}\n"}
+{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file://@WS@/p/tmp/demo/c.byn","type":1}]}}
+{"jsonrpc":"2.0","id":3,"method":"workspace/symbol","params":{"query":""}}

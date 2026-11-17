@@ -1,0 +1,6 @@
+{"jsonrpc":"2.0","id":1,"result":{"capabilities":{"textDocumentSync":{"openClose":true,"change":2},"completionProvider":{"resolveProvider":true,"triggerCharacters":[".","@"]},"hoverProvider":true,"definitionProvider":true,"documentSymbolProvider":true,"workspaceSymbolProvider":true,"signatureHelpProvider":{"triggerCharacters":["(",","]}},"serverInfo":{"name":"bayan-lsp","version":"0.0.1"}}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/a.byn","version":1,"diagnostics":[]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/a.byn","version":2,"diagnostics":[]}}
+{"jsonrpc":"2.0","id":2,"result":[{"name":"Bilal","detail":"","kind":23,"range":{"start":{"line":1,"character":0},"end":{"line":1,"character":15}},"selectionRange":{"start":{"line":1,"character":7},"end":{"line":1,"character":12}}}]}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/a.byn","diagnostics":[]}}
+{"jsonrpc":"2.0","id":3,"result":[]}

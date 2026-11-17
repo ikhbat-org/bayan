@@ -1,0 +1,3 @@
+void run() {
+  let o = Sadaqah { total: 1 }
+}
