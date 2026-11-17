@@ -43,11 +43,12 @@ public static class SelfhostEmitterHarness
 
     /// <summary>
     /// Fails with the first line where <paramref name="actual"/> differs from <paramref name="expected"/>, CRLF read as LF. With
-    /// <c>BAYAN_EXPORT_DIR</c> set and an <paramref name="input"/> (the program the C# side compiled), writes the case instead (spec 019 R10);
+    /// <c>BAYAN_EXPORT_DIR</c> set and an <paramref name="input"/> (the program the C# side compiled), writes the case instead (spec 019 R10),
+    /// with the <c>bayan-emit</c> <paramref name="args"/> of the run when given and each input path as its name in the case (<see cref="Mapped"/>);
     /// without one, lists the call in <c>emit-c/UNEXPORTED.tsv</c>, and asserts nothing either way.
     /// </summary>
     public static void AssertSame(string name, string expected, string actual, string? input = null,
-        [CallerMemberName] string test = "", [CallerFilePath] string file = "")
+        [CallerMemberName] string test = "", [CallerFilePath] string file = "", string[]? args = null)
     {
         if (SelfhostExport.Dir is { } root)
         {
@@ -59,7 +60,11 @@ public static class SelfhostEmitterHarness
             }
             var dir = ExportCase(root, name, test, file);
             SelfhostExport.WriteInput(dir, [input]);
-            SelfhostExport.WriteExpected(dir, "expected.c", expected);
+            var names = CaseNames([input]);
+            // A plain file's directory (its `--package`) is the case directory, where its `input.<ext>` is.
+            string Arg(string a) => !Directory.Exists(input) && Path.GetFileName(input) != "main.byn" && a == Path.GetDirectoryName(input) ? "." : Mapped(a, names);
+            if (args is not null) SelfhostExport.WriteExpected(dir, "args", string.Concat(args.Select(a => Arg(a) + "\n")));
+            SelfhostExport.WriteExpected(dir, "expected.c", Mapped(expected, names));
             return;
         }
         // The C# CLI on Windows ends some lines with Environment.NewLine; the self-hosted runtime writes LF (Q816).
@@ -152,10 +157,12 @@ public static class SelfhostEmitterHarness
         if (SelfhostExport.Dir is { } root)
         {
             var dir = ExportCase(root, name, test, file);
-            SelfhostExport.WriteInput(dir, cli.Where(a => File.Exists(a) || Directory.Exists(a)).ToList());
-            SelfhostExport.WriteExpected(dir, "args", string.Concat(cli.Select(a => a + "\n")));
-            SelfhostExport.WriteExpected(dir, "expected.c", Named(stdout.ToString()));
-            SelfhostExport.WriteExpected(dir, "expected.stderr", Named(stderr.ToString()));
+            var inputs = cli.Where(a => File.Exists(a) || Directory.Exists(a)).ToList();
+            SelfhostExport.WriteInput(dir, inputs);
+            var names = CaseNames(inputs);
+            SelfhostExport.WriteExpected(dir, "args", string.Concat(cli.Select(a => Mapped(a, names) + "\n")));
+            SelfhostExport.WriteExpected(dir, "expected.c", Mapped(Named(stdout.ToString()), names));
+            SelfhostExport.WriteExpected(dir, "expected.stderr", Mapped(Named(stderr.ToString()), names));
             SelfhostExport.WriteExpected(dir, "expected.exitcode", $"{exit}\n");
             return;
         }
@@ -201,16 +208,10 @@ public static class SelfhostEmitterHarness
         var dir = SelfhostExport.Case(root, "emit-c", cls, member);
         var inputs = args.Where(File.Exists).Distinct().ToList();
         if (inputs.Count > 0) SelfhostExport.WriteInput(dir, inputs);
-        // The fixture as WriteInput names it in the case; another path as ExportCase keeps it.
-        string Arg(string a)
-        {
-            if (!inputs.Contains(a)) return Portable(a);
-            var name = Path.GetFileName(a);
-            return inputs.Count > 1 ? $"input/{name}" : "input" + (name.IndexOf('.') is var dot and >= 0 ? name[dot..] : "");
-        }
-        SelfhostExport.WriteExpected(dir, "args", string.Concat(args.Select(a => Arg(a) + "\n")));
-        SelfhostExport.WriteExpected(dir, "expected.sections",
-            section == "" ? string.Join('\n', expected) : $"== {section}\n" + string.Concat(expected.Select(l => l + "\n")));
+        var names = CaseNames(inputs);
+        SelfhostExport.WriteExpected(dir, "args", string.Concat(args.Select(a => Mapped(a, names) + "\n")));
+        SelfhostExport.WriteExpected(dir, "expected.sections", Mapped(
+            section == "" ? string.Join('\n', expected) : $"== {section}\n" + string.Concat(expected.Select(l => l + "\n")), names));
     }
 
     // ── Export (spec 019 R10) ────────────────────────────────────────────────────
@@ -237,6 +238,29 @@ public static class SelfhostEmitterHarness
         var (cls, member) = ExportName(test, file);
         return SelfhostExport.Case(root, "emit-c", cls, $"{member}-{Portable(name)}");
     }
+
+    /// <summary>
+    /// Each of <paramref name="inputs"/> paired with its name in the case as <see cref="SelfhostExport.WriteInput"/> lays it out (a tree's
+    /// directory with a trailing separator too, so a file under it keeps its relative path), longest first.
+    /// </summary>
+    private static List<(string From, string To)> CaseNames(IReadOnlyList<string> inputs)
+    {
+        var names = new List<(string From, string To)>();
+        foreach (var p in inputs)
+        {
+            var path = Path.TrimEndingDirectorySeparator(Path.GetFullPath(p));
+            var tree = Directory.Exists(path) ? path : Path.GetFileName(path) == "main.byn" ? Path.GetDirectoryName(path)! : null;
+            var name = Path.GetFileName(tree ?? path);
+            var to = inputs.Count > 1 ? $"input/{name}" : tree is not null ? "input" : "input" + (name.IndexOf('.') is var dot and >= 0 ? name[dot..] : "");
+            if (tree is null) names.Add((path, to));
+            else names.AddRange([(tree + Path.DirectorySeparatorChar, to + "/"), (tree, to)]);
+        }
+        return names.OrderByDescending(n => n.From.Length).ToList();
+    }
+
+    /// <summary><paramref name="text"/> with each input path as its name in the case (<see cref="CaseNames"/>), then any other path <see cref="Portable"/>.</summary>
+    private static string Mapped(string text, List<(string From, string To)> names) =>
+        Portable(names.Aggregate(text, (t, n) => t.Replace(n.From, n.To)));
 
     /// <summary>A path in <paramref name="text"/> kept from the repo root, or past a fixture's per-run directory under the temp root (T21's <c>bayan-t21-&lt;guid&gt;</c>).</summary>
     private static string Portable(string text) =>
@@ -265,9 +289,12 @@ public sealed class SelfhostEmitterExportTests
         var stdout = new StringWriter();
         var stderr = new StringWriter();
         var exit = CliApp.Run(["build", "--emit-c", app], stdout, stderr);
-        Assert.Equal(["build", "--emit-c", app], File.ReadAllLines(Path.Combine(dir, "args")));
-        Assert.Equal(stdout.ToString(), File.ReadAllText(Path.Combine(dir, "expected.c")));
-        Assert.Equal(stderr.ToString(), File.ReadAllText(Path.Combine(dir, "expected.stderr")));
+        // The app's directory is the case's `input`, so no case holds a path of this machine.
+        string InCase(string text) => text.Replace(app + Path.DirectorySeparatorChar, "input/").Replace(app, "input");
+        Assert.Equal(["build", "--emit-c", "input"], File.ReadAllLines(Path.Combine(dir, "args")));
+        Assert.Equal(InCase(stdout.ToString()), File.ReadAllText(Path.Combine(dir, "expected.c")));
+        Assert.Equal(InCase(stderr.ToString()), File.ReadAllText(Path.Combine(dir, "expected.stderr")));
+        Assert.DoesNotContain(Golden.RepoRoot, File.ReadAllText(Path.Combine(dir, "expected.c")));
         Assert.Equal($"{exit}\n", File.ReadAllText(Path.Combine(dir, "expected.exitcode")));
         Assert.Equal(File.ReadAllText(Path.Combine(app, "src", "app", "main.byn")), File.ReadAllText(Path.Combine(dir, "input", "src", "app", "main.byn")));
         Assert.Equal(File.ReadAllText(Path.Combine(app, "src", "keep", "keep.byn")), File.ReadAllText(Path.Combine(dir, "input", "src", "keep", "keep.byn")));
