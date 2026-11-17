@@ -3,7 +3,7 @@ id: L045
 title: Two bootstraps agree
 status: retired
 release: unscheduled
-sources: spec 019 R27; retired 2026-11-18, folded into L027 (D8)
+sources: spec 019 R27
 kind: property
 scope: bootstrap/bayan.c, scripts/ci/ddc.sh
 ---
