@@ -16,7 +16,7 @@ struct Fund {
     string name
     i64    balance
 
-    void take(ref this, i64 amount) fails FundError {
+    void withdraw(ref this, i64 amount) fails FundError {
         fail .underfunded(name: name) if amount > balance
         balance -= amount
     }
@@ -38,7 +38,7 @@ i64 find(List<Fund> funds, for string name) fails FundError {
 }
 
 /// Runs one command on `funds`, printing what `show` asks for.
-void run(ref List<Fund> funds, for List<string> words) fails FundError {
+void carryOut(ref List<Fund> funds, for List<string> words) fails FundError {
     let args = words.length - 1
     if words[0] == "open" && args == 2 {
         let amount = try number(words[2])
@@ -51,12 +51,12 @@ void run(ref List<Fund> funds, for List<string> words) fails FundError {
         funds[at].balance += try number(words[2])
     } else if words[0] == "take" && args == 2 {
         let at = try find(funds, for: words[1])
-        try funds[at].take(try number(words[2]))
+        try funds[at].withdraw(try number(words[2]))
     } else if words[0] == "move" && args == 3 {
         let from = try find(funds, for: words[1])
         let to = try find(funds, for: words[2])
         let amount = try number(words[3])
-        try funds[from].take(amount)
+        try funds[from].withdraw(amount)
         funds[to].balance += amount
     } else if words[0] == "show" && args == 0 {
         var total: i64 = 0
@@ -84,7 +84,7 @@ void main() {
             words.append(part.trimmed())
         }
         continue if words.length == 0
-        run(ref funds, for: words) catch switch {
+        carryOut(ref funds, for: words) catch switch {
             .noFund(let name)      => print($"error: no fund {name}"),
             .opened(let name)      => print($"error: {name} already open"),
             .underfunded(let name) => print($"error: not enough in {name}"),
