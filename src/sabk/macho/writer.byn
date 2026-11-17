@@ -1,0 +1,298 @@
+// sabk phase 1 (spec 024 R5, R10): the Mach-O relocatable writer. One `MH_OBJECT` for arm64 macOS with one
+// `LC_SEGMENT_64` holding `__text`, `__cstring` and `__data` (those names, in the order given), `LC_BUILD_VERSION`
+// (macOS, minos 15.0, sdk 0), `LC_SYMTAB` and `LC_DYSYMTAB`. Relocations are symbol-based (`r_extern = 1`), symbols are
+// ordered local, defined external, undefined, and names are written as given: the caller supplies the leading underscore.
+// The output buffer is sized from the input and no pass recurses over it.
+
+public enum RelocKind {
+    branch26
+    page21
+    pageoff12
+    unsigned
+}
+
+/// A relocation at `offset` bytes into its section against the symbol named `symbol`.
+public struct Reloc {
+    public i64 offset
+    public string symbol
+    public RelocKind kind
+}
+
+/// `align` is in bytes (a power of two). `name` is `__text`, `__cstring` or `__data`.
+public struct Section {
+    public string name
+    public List<u8> bytes
+    public List<Reloc> relocs
+    public i64 align
+}
+
+/// `section` is the name of the defining section, null for an undefined symbol; `external` makes it global.
+public struct ObjSymbol {
+    public string name
+    public string? section
+    public i64 offset
+    public bool external
+}
+
+public union error MachoError {
+    unknownSection(string name)
+    unknownObjSymbol(string name)
+    badAlign(string section)
+}
+
+const headerSize: i64 = 32
+const segmentSize: i64 = 72
+const sectionSize: i64 = 80
+const symtabSize: i64 = 24
+const dysymtabSize: i64 = 80
+const buildSize: i64 = 24
+const nlistSize: i64 = 16
+const relocSize: i64 = 8
+
+void put32(ref List<u8> buf, as i64 value) {
+    buf.append(u8(value & 0xFF))
+    buf.append(u8((value >> 8) & 0xFF))
+    buf.append(u8((value >> 16) & 0xFF))
+    buf.append(u8((value >> 24) & 0xFF))
+}
+
+void put64(ref List<u8> buf, as i64 value) {
+    put32(ref buf, as: value)
+    put32(ref buf, as: value >> 32)
+}
+
+/// `text` as a 16-byte NUL-padded field.
+void putName(ref List<u8> buf, as string text) {
+    var i = 0
+    while i < 16 {
+        buf.append(i < text.length ? text.bytes[i] : u8(0))
+        i += 1
+    }
+}
+
+i64 alignUp(i64 value, to i64 align) {
+    return (value + align - 1) / align * align
+}
+
+/// log2 of a power of two, -1 for anything else.
+i64 exponent(i64 align) {
+    var n = 0
+    var v = 1
+    while v < align {
+        v = v * 2
+        n += 1
+    }
+    return v == align && align > 0 ? n : -1
+}
+
+string segmentOf(string section) {
+    return section == "__data" ? "__DATA" : "__TEXT"
+}
+
+/// `S_REGULAR | S_ATTR_PURE_INSTRUCTIONS | S_ATTR_SOME_INSTRUCTIONS`, `S_CSTRING_LITERALS`, `S_REGULAR`.
+i64 flagsOf(string section) {
+    return section == "__text" ? 0x80000400 : section == "__cstring" ? 2 : 0
+}
+
+i64 relocType(RelocKind kind) {
+    return 0 if kind == .unsigned
+    return 2 if kind == .branch26
+    return 3 if kind == .page21
+    return 4
+}
+
+/// The index of the section named `name`, or -1.
+i64 sectionIndex(List<Section> sections, at string name) {
+    var i = 0
+    while i < sections.length {
+        return i if sections[i].name == name
+        i += 1
+    }
+    return -1
+}
+
+/// Writes `sections` and `symbols` as one arm64 macOS relocatable object. Relocations are written last first, the order
+/// `clang` writes them (descending address when given ascending).
+public List<u8> writeObject(List<Section> sections, for List<ObjSymbol> symbols) uses alloc fails MachoError {
+    // Section layout: addresses from 0, file data right after the load commands.
+    let n = sections.length
+    let commandsSize = segmentSize + sectionSize * n + buildSize + symtabSize + dysymtabSize
+    var addrs = List<i64>()
+    var offsets = List<i64>()
+    var end = 0
+    var relocCount = 0
+    for s in sections {
+        let e = exponent(s.align)
+        fail .badAlign(s.name) if e < 0
+        fail .unknownSection(s.name) if s.name != "__text" && s.name != "__cstring" && s.name != "__data"
+        end = alignUp(end, to: s.align)
+        addrs.append(end)
+        offsets.append(headerSize + commandsSize + end)
+        end += s.bytes.length
+        relocCount += s.relocs.length
+    }
+    let dataEnd = headerSize + commandsSize + end
+    let relocOff = alignUp(dataEnd, to: 4)
+    let symOff = alignUp(relocOff + relocCount * relocSize, to: 8)
+    let strOff = symOff + symbols.length * nlistSize
+
+    // ObjSymbol order: local, defined external, undefined; each group keeps the input order.
+    var order = List<i64>()
+    var strtab = List<u8>()
+    var strx = List<i64>()
+    var index = Map<string, i64>()
+    var localCount = 0
+    var definedCount = 0
+    var group = 0
+    while group < 3 {
+        var i = 0
+        while i < symbols.length {
+            let s = symbols[i]
+            let g = s.section is null ? 2 : s.external ? 1 : 0
+            if g == group {
+                index[s.name] = order.length
+                order.append(i)
+                if g == 0 { localCount += 1 }
+                if g == 1 { definedCount += 1 }
+            }
+            i += 1
+        }
+        group += 1
+    }
+    strtab.append(u8(0))
+    for i in order {
+        strx.append(strtab.length)
+        for b in symbols[i].name.bytes {
+            strtab.append(b)
+        }
+        strtab.append(u8(0))
+    }
+
+    // Bayan has no List capacity argument, so the buffer grows by append; its final length is exactly `strOff + strtab.length`.
+    var buf = List<u8>()
+    // mach_header_64
+    put32(ref buf, as: 0xFEEDFACF)
+    put32(ref buf, as: 0x0100000C)
+    put32(ref buf, as: 0)
+    put32(ref buf, as: 1)
+    put32(ref buf, as: 4)
+    put32(ref buf, as: commandsSize)
+    put32(ref buf, as: 0)
+    put32(ref buf, as: 0)
+    // LC_SEGMENT_64
+    put32(ref buf, as: 0x19)
+    put32(ref buf, as: segmentSize + sectionSize * n)
+    putName(ref buf, as: "")
+    put64(ref buf, as: 0)
+    put64(ref buf, as: end)
+    put64(ref buf, as: headerSize + commandsSize)
+    put64(ref buf, as: end)
+    put32(ref buf, as: 7)
+    put32(ref buf, as: 7)
+    put32(ref buf, as: n)
+    put32(ref buf, as: 0)
+    var relocAt = relocOff
+    var k = 0
+    while k < n {
+        putName(ref buf, as: sections[k].name)
+        putName(ref buf, as: segmentOf(sections[k].name))
+        put64(ref buf, as: addrs[k])
+        put64(ref buf, as: sections[k].bytes.length)
+        put32(ref buf, as: offsets[k])
+        put32(ref buf, as: exponent(sections[k].align))
+        put32(ref buf, as: sections[k].relocs.length == 0 ? 0 : relocAt)
+        put32(ref buf, as: sections[k].relocs.length)
+        put32(ref buf, as: flagsOf(sections[k].name))
+        put32(ref buf, as: 0)
+        put32(ref buf, as: 0)
+        put32(ref buf, as: 0)
+        relocAt += sections[k].relocs.length * relocSize
+        k += 1
+    }
+    // LC_BUILD_VERSION: platform macOS, minos 15.0, sdk 0, no tools
+    put32(ref buf, as: 0x32)
+    put32(ref buf, as: buildSize)
+    put32(ref buf, as: 1)
+    put32(ref buf, as: 0x000F0000)
+    put32(ref buf, as: 0)
+    put32(ref buf, as: 0)
+    // LC_SYMTAB
+    put32(ref buf, as: 2)
+    put32(ref buf, as: symtabSize)
+    put32(ref buf, as: symOff)
+    put32(ref buf, as: symbols.length)
+    put32(ref buf, as: strOff)
+    put32(ref buf, as: strtab.length)
+    // LC_DYSYMTAB: ilocalsym, nlocalsym, iextdefsym, nextdefsym, iundefsym, nundefsym, then twelve zero fields
+    put32(ref buf, as: 0xB)
+    put32(ref buf, as: dysymtabSize)
+    put32(ref buf, as: 0)
+    put32(ref buf, as: localCount)
+    put32(ref buf, as: localCount)
+    put32(ref buf, as: definedCount)
+    put32(ref buf, as: localCount + definedCount)
+    put32(ref buf, as: symbols.length - localCount - definedCount)
+    var z = 0
+    while z < 12 {
+        put32(ref buf, as: 0)
+        z += 1
+    }
+    // Section data, padded to each section's address.
+    k = 0
+    while k < n {
+        while buf.length < offsets[k] {
+            buf.append(u8(0))
+        }
+        for b in sections[k].bytes {
+            buf.append(b)
+        }
+        k += 1
+    }
+    while buf.length < relocOff {
+        buf.append(u8(0))
+    }
+    // Relocations, section by section, each last to first.
+    for s in sections {
+        var r = s.relocs.length - 1
+        while r >= 0 {
+            let rel = s.relocs[r]
+            let sym = index.tryGet(at: rel.symbol)
+            fail .unknownObjSymbol(rel.symbol) if sym is null
+            let pcrel = rel.kind == .branch26 || rel.kind == .page21 ? 1 : 0
+            let length = rel.kind == .unsigned ? 3 : 2
+            put32(ref buf, as: rel.offset)
+            put32(ref buf, as: (sym ?? 0) | (pcrel << 24) | (length << 25) | (1 << 27) | (relocType(rel.kind) << 28))
+            r -= 1
+        }
+    }
+    while buf.length < symOff {
+        buf.append(u8(0))
+    }
+    // ObjSymbol table
+    var j = 0
+    while j < order.length {
+        let s = symbols[order[j]]
+        let sect = s.section
+        put32(ref buf, as: strx[j])
+        if sect is null {
+            buf.append(u8(0x01))
+            buf.append(u8(0))
+            buf.append(u8(0))
+            buf.append(u8(0))
+            put64(ref buf, as: 0)
+        } else {
+            let at = sectionIndex(sections, at: sect)
+            fail .unknownSection(sect) if at < 0
+            buf.append(s.external ? u8(0x0F) : u8(0x0E))
+            buf.append(u8(at + 1))
+            buf.append(u8(0))
+            buf.append(u8(0))
+            put64(ref buf, as: addrs[at] + s.offset)
+        }
+        j += 1
+    }
+    for b in strtab {
+        buf.append(b)
+    }
+    return buf
+}
