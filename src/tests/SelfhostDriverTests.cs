@@ -10,6 +10,18 @@ using Bayan.Syntax.Text;
 
 namespace Bayan.Tests;
 
+// Spec 019 T15b export counts (BAYAN_EXPORT_DIR=tmp/export-cli, cli/counts.tsv) against tests/inventory-019.tsv, class: tests / cases.
+// - SelfhostDriverT1Tests: 181 / 206. 147 tests (rows) write cases; 34 compare no CLI oracle run (quality report, walk, manifestFor,
+//   package names, style decisions, isscript, timer probes) and write none. Tests with several oracle calls write one case per call, 59 more:
+//   FormatAsCliApp's 38 two-run rows (75 rows, 113 cases), MutateArgumentsAsCliAppDoes 11, DiagnosticsJsonArgumentsAsCliAppDoes 6,
+//   AScriptRunsAndAGlobalOptionBeforeItIsTaken 3, DispatchesTest 3, DispatchesBuildAndRun 2, RefuseLibraryAsCliAppDoes 2.
+// - SelfhostDriverStage2FormatTests: 139 / 174. 136 tests (rows) write cases; the 3 guard facts (ComposedInputsAreAllListed,
+//   ManifestInputsAreAllListed, FormatTreesAreAllListed) compare nothing with C# and write none; FormatTreesAsCliApp's 75 rows run 113 times.
+// - SelfhostDriverStyleEnvironmentTests: 84 / 42. Only TheEnvironmentPaintsAsCliAppRun's 42 rows run CliApp.Run; the other 42 tests
+//   compare probes, palettes and timer frames, not a C# CLI run, and write none.
+// - SelfhostDriverStyleCaseTests: 147 / 147.
+// - SelfhostDriverFixTests (T15d): 33 / 64. 32 rows of two passes, a case per pass; CoversTheFormatTestsFixInputs writes none.
+
 /// <summary>
 /// 012 T1: the driver's dispatch, usage and global options against <see cref="CliApp.Run"/> (R2), and its refusals (R3).
 /// The expected lines come from the C# run in-process; only the version line's parenthesised part is masked (spec Q3).
