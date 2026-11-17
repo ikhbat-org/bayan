@@ -917,4 +917,7 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (019 T2b gate) `src/driver/cc.byn:376`: the BYN4002 message copies the `.errorNodeReachedLowering` text from `codes.byn` instead of referencing it; the two can drift.
 - LOW (019 T5 gate) `src/driver/golden.byn:1075`: `--jobs` workers all share `BAYAN_CACHE=tmp/cache`; concurrent builds may race on one cache entry. Give each worker its own cache dir or check the cache's write path is atomic.
 - LOW (019 T5 gate) `src/driver/golden.byn:590`: on Windows (no `sh`) or with `BAYAN_EXE` unset, `--jobs N` runs cases one at a time without saying so; print one line, settle with T10.
+- LOW (019 T6) `goldenTest` starts the driver's version command twice per run (the `driver:` header and the BAYAN_EXE check); run it once.
+- LOW (019 T6) in the `new`, `out`, `emit` and `quality` kinds every regular file is a case, so a `<stem>.pending` file there would be found as a case itself.
+- LOW (019 T6) `goldenStyleCompare` reads `tests/cases/style` under the working directory, not the cases root, and takes no part in update mode.
 - LOW (019 T5) `src/driver/main.byn` help text does not mention cases directories, `--jobs` or `--only`.
