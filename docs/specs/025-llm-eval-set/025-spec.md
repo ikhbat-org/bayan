@@ -177,7 +177,7 @@ All answered; each resolution is marked with the owner's decision.
   - If the re-check takes more than about 3 minutes at full size, it moves to a nightly workflow and a 12-task smoke subset stays on push. To settle in the plan: `scripts/pinned-bayan.sh` pins the tip of `dev` and builds the C# CLI, so the scorer is not the self-hosted compiler users download; and a branch re-check runs the `dev`-tip compiler, not the branch's.
 
 ## Seed record
-Checked 2026-11-17 with `bayan 0.3.3-dev` (commit `5810cf25b398`) from `scripts/pinned-bayan.sh`; all are `Split: dev`, `Revision: 0023`.
+Checked 2026-11-18 with `bayan 0.3.3-dev` (commit `0530e92ea69c`) from `scripts/pinned-bayan.sh`: `bash scripts/bayan-tool.sh llm-eval recheck evals/llm/tasks` printed 12 `PASS` lines. All are `Split: dev`, `Revision: 0023`. The two repair tasks were corrected (T4): each program now reads its data from `checks/stdin`, each prompt shows an example run on input that is not the hidden input, so a candidate of `print` lines taken from the prompt fails, and the diagnostic text in each prompt is the pinned compiler's output for the new starter. The other 10 tasks still record commit `5810cf25b398` in `Checked:`.
 
 | Task | Tier | Check | What it covers |
 |---|---|---|---|
@@ -191,5 +191,5 @@ Checked 2026-11-17 with `bayan 0.3.3-dev` (commit `5810cf25b398`) from `scripts/
 | `contracts-002-discount-percent` | 1 | tests | `type distinct` with `requires` |
 | `port-001-python-guest-table` | 2 | stdout | a Python snippet: padding and alignment |
 | `port-002-shell-numbered-lines` | 1 | stdout | a shell `read` loop |
-| `repair-001-missing-particle` | 1 | stdout | BYN5005, an argument without its particle |
-| `repair-002-unhandled-failure` | 2 | stdout | BYN2602, where the offered `try` is not the fix the task needs |
+| `repair-001-missing-particle` | 1 | stdout | BYN5005, an argument without its particle; reads `checks/stdin` |
+| `repair-002-unhandled-failure` | 2 | stdout | BYN2602, where the offered `try` is not the fix the task needs; reads `checks/stdin` |
