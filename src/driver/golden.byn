@@ -679,7 +679,10 @@ i32 goldenTest(string root, by List<string> only, for i64 limitMs, to ref List<G
     print($"running {cases.length} {cases.length == 1 ? "case" : "cases"} of {root}")
     let total = Io.monotonicNanos()
     var mine = List<GoldenResult>()
-    if jobs > 1 && cases.length > 1 && exe != "" && Target.os != "windows" {
+    // Workers need a driver that starts (T2c); without one the cases run here, each failing with the T2c text as under `--jobs 1`.
+    var unusable = ""
+    let driver = goldenExeOf(exe, through: ref unusable)
+    if jobs > 1 && cases.length > 1 && driver != "" && Target.os != "windows" {
         goldenJobs(in cases, by: exe, for: limitMs, as: jobs, to: ref mine)
         for r in mine {
             goldenPrint(in r)
@@ -2268,28 +2271,36 @@ test "a .pending case that does not build fails with its build error, and one th
         && results[1].detail.contains("error BYN2001: `nope` is not defined"))
 }
 
-/// `bayan test root --jobs 1` through `$BAYAN_EXE` with the child's `$BAYAN_EXE` set to `value` (unset when null): its exit code and stdout.
-GoldenOutcome goldenExeRun(string root, by string? value) uses alloc, env, fs, process {
+/// `bayan test root --jobs <jobs>` (no `--jobs` when empty) through `$BAYAN_EXE` with the child's `$BAYAN_EXE` set to `value` (unset when
+/// null): its exit code and stdout with the seconds masked (`goldenTestSeconds`).
+GoldenOutcome goldenExeRun(string root, by string? value, as string jobs = "") uses alloc, env, fs, process {
     var failure = ""
     let exe = goldenExe(through: ref failure)
     var args = List<string>()
-    for a in ["test", root, "--jobs", "1"] {
-        args.append(a)
+    args.append("test")
+    args.append(root)
+    if jobs != "" {
+        args.append("--jobs")
+        args.append(jobs)
     }
     var env = goldenEnv()
     env["BAYAN_EXE"] = value
     let r = Io.run(exe, args.span, env: env) catch return GoldenOutcome { stdout: failure, exitCode: -1 }
-    return GoldenOutcome { stdout: goldenLf(r.stdout), stderr: r.stderr, exitCode: r.exitCode }
+    return GoldenOutcome { stdout: goldenTestSeconds(goldenLf(r.stdout)), stderr: r.stderr, exitCode: r.exitCode }
 }
 
-test "a .pending case with BAYAN_EXE unset or naming a missing file fails naming BAYAN_EXE" {
+test "a .pending case with BAYAN_EXE unset or naming a missing file fails naming BAYAN_EXE, with --jobs 1 and the default jobs alike" {
     let root = Path.combine(Path.fullPath("tmp"), "golden-pending-exe")
     goldenPendingFixture(root)
     let none = Path.combine(root, "none")
-    let unset = goldenExeRun(root, by: null)
-    let missing = goldenExeRun(root, by: none)
+    let unset = goldenExeRun(root, by: null, as: "1")
+    let missing = goldenExeRun(root, by: none, as: "1")
+    let unsetDefault = goldenExeRun(root, by: null)
+    let missingDefault = goldenExeRun(root, by: none)
     deleteWorkDir(root)
     assert(unset.exitCode == exitTestFailure && missing.exitCode == exitTestFailure)
+    assert(unsetDefault.exitCode == exitTestFailure && missingDefault.exitCode == exitTestFailure)
+    assert(unsetDefault.stdout == unset.stdout && missingDefault.stdout == missing.stdout)
     for stem in ["lex/p", "run/broken", "run/q"] {
         let input = Path.combine(root, $"{stem}.byn")
         assert(unset.stdout.contains(
