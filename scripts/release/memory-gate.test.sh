@@ -50,13 +50,16 @@ export LOG="$tmp/log" BIN="$tmp/bin" BAYAN_EXE="$tmp/bin/bayan" PATH="$tmp/bin:$
 : > "$LOG"
 FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err" || fail "an all-pass gate exited non-zero: $(cat "$tmp/err")"
 grep -qx "memory-gate: PASS" "$tmp/out" || fail "an all-pass gate printed no PASS"
-[ "$(wc -l < "$LOG" | tr -d ' ')" = 5 ] || fail "the gate did not run all 5 commands: $(cat "$LOG")"
+[ "$(wc -l < "$LOG" | tr -d ' ')" = 4 ] || fail "the gate did not run all 4 commands: $(cat "$LOG")"
 grep -qxF "bayan timeout=600000 test --package src src/driver --only $title" "$LOG" || fail "the golden runner bound did not run with a 10 minute timeout: $(cat "$LOG")"
+grep -qE "^bayan timeout=[0-9]* test --package src src/driver --only bound: $" "$LOG" || fail "the gate did not run the bound: blocks: $(cat "$LOG")"
+! grep -qE 'CliMemoryBounds|SelfhostDefaultBounds' "$gate" || fail "memory-gate.sh still runs the .NET bound tests"
+grep -q '^test "bound: ' "$root/src/driver/bounds.byn" || fail "src/driver/bounds.byn has no test block titled bound: ..."
 
 : > "$LOG"
-if FAIL_ON=CliMemoryBounds bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err"; then fail "a failing CliMemoryBounds run passed the gate"; fi
-grep -q "FAILED: dotnet test -v q --filter FullyQualifiedName~CliMemoryBounds" "$tmp/err" || fail "the failing command was not named: $(cat "$tmp/err")"
-[ "$(wc -l < "$LOG" | tr -d ' ')" = 5 ] || fail "a failure stopped the remaining gate commands: $(cat "$LOG")"
+if FAIL_ON="bound: " bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err"; then fail "a failing bound: run passed the gate"; fi
+grep -q "FAILED: $BAYAN_EXE test --package src src/driver --only bound: " "$tmp/err" || fail "the failing command was not named: $(cat "$tmp/err")"
+[ "$(wc -l < "$LOG" | tr -d ' ')" = 4 ] || fail "a failure stopped the remaining gate commands: $(cat "$LOG")"
 ! grep -q PASS "$tmp/out" || fail "a failing gate printed PASS"
 
 : > "$LOG"
@@ -74,6 +77,7 @@ grep -q "FAILED: the golden runner bound reported pending" "$tmp/err" || fail "t
 : > "$LOG"
 if NOMATCH=1 FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err"; then fail "a bound title that selects no test passed the gate"; fi
 grep -q "FAILED: the golden runner bound did not run (no test matched)" "$tmp/err" || fail "the unmatched golden runner bound was not named: $(cat "$tmp/err")"
+grep -q "FAILED: the bound: blocks did not run (none passed)" "$tmp/err" || fail "the unmatched bound: blocks were not named: $(cat "$tmp/err")"
 
 # BAYAN_EXE unset: the gate builds src/driver with the pinned bayan at HEAD and runs the bound with that driver.
 : > "$LOG"
