@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test for tools/llm-eval.byn `score` (spec 025 T2). Scratch is under the repo's tmp/. Builds small task sets there at run
+# Test for tools/llm-eval.byn `score` and `recheck` (spec 025 T2, T3). Scratch is under the repo's tmp/. Builds small task sets there at run
 # time; the seed under evals/llm/tasks is only read.
 #   bash scripts/evals/llm-eval.test.sh
 set -uo pipefail
@@ -96,6 +96,69 @@ score lint1 "$exit3" "$root/cand/lint.byn"
 check "existing sample directory refused" "$code $(grep -c 'exists' "$root/rec/lint1.err")" "1 1"
 bash scripts/bayan-tool.sh llm-eval score "$exit3" > /dev/null 2>&1
 check "usage" "$?" "2"
+
+# recheck (T3). Each case is its own task set under $root/sets/<case>, made from one good stdout task (the exit-code task
+# above with a full header) and one good repair task; a case changes one thing.
+# recheck <case> [args...]: the output goes to $root/rec/rc-<case>, the exit code to $code.
+recheck() {
+  local c=$1; shift
+  bash scripts/bayan-tool.sh llm-eval recheck "$root/sets/$c" --out "$root/out/rc-$c" "$@" > "$root/rec/rc-$c" 2>&1
+  code=$?
+}
+full() { printf '# %s\n\nTitle: %s\nCategory: %s\nTier: 1\nSplit: dev\nRevision: 0023\nChecked: bayan 0.3.3-dev (commit 5810cf25b398)\nCheck: stdout\n\n## Files\n\n## Notes\n\n## Check command\n' "$1" "$2" "$3"; }
+# good <case> <dir-name> <category>: a passing task of <category> in set <case>.
+good() {
+  local t=$root/sets/$1/$2
+  mkdir -p "$t/checks" "$t/reference"
+  cp "$exit3/checks/expected.stdout" "$exit3/checks/exitcode" "$t/checks/"
+  cp "$root/cand/right.byn" "$t/reference/solution.byn"
+  printf 'Write a program that prints a greeting and exits with code 3.\n' > "$t/prompt.md"
+  if [ "$3" = repair ]; then
+    full "$2" "Repair BYN5005" repair > "$t/task.md"
+    mkdir -p "$t/starter"
+    printf 'i64 sum(i64 a, by i64 b) => a + b\n\ni32 main() {\n    print("salam")\n    return i32(sum(1, 2))\n}\n' > "$t/starter/solution.byn"
+  else
+    full "$2" "Greeting" "$3" > "$t/task.md"
+  fi
+}
+for c in ok lint unformatted header name twice compiles other-code leak; do
+  good $c small-900-salam small
+  good $c repair-900-greeting repair
+done
+s=$root/sets
+cp "$root/cand/lint.byn" "$s/lint/small-900-salam/reference/solution.byn"
+printf 'i32 main() {\n  print("salam")\n  return 3\n}\n' > "$s/unformatted/small-900-salam/reference/solution.byn"
+grep -v '^Revision:' "$s/header/small-900-salam/task.md" > "$s/header/x" && mv "$s/header/x" "$s/header/small-900-salam/task.md"
+mv "$s/name/small-900-salam" "$s/name/small-90-salam"
+good twice small-900-again small
+cp "$root/cand/right.byn" "$s/compiles/repair-900-greeting/starter/solution.byn"
+cp "$root/cand/broken.byn" "$s/other-code/repair-900-greeting/starter/solution.byn"
+printf 'Print this:\n\nsalam\n' > "$s/leak/small-900-salam/prompt.md"
+
+recheck ok
+check "recheck: good set passes" "$code $(grep -c '^PASS' "$root/rec/rc-ok") $(grep -c '^slowest run: [0-9]* ms (' "$root/rec/rc-ok")" "0 2 1"
+# fails <case> <task> <reason>: recheck of <case> exits 1 with FAIL <task> naming <reason>, and the other task passes.
+fails() {
+  recheck "$1"
+  local line; line=$(grep "^FAIL $2: " "$root/rec/rc-$1")
+  check "recheck: $1 fails" "$code $(grep -c '^FAIL' "$root/rec/rc-$1") $(grep -c '^PASS' "$root/rec/rc-$1")" "1 1 1"
+  check "recheck: $1 names its reason" "$(case "$line" in *"$3"*) echo named ;; *) echo "$line" ;; esac)" "named"
+}
+fails lint small-900-salam "lint-clean false"
+fails unformatted small-900-salam "format-stable false"
+fails header small-900-salam 'no `Revision:` line'
+fails name small-90-salam "not <category>-<NNN>-<slug>"
+fails compiles repair-900-greeting "starter/solution.byn compiles"
+fails other-code repair-900-greeting "not only BYN5005"
+fails leak small-900-salam "whole of checks/expected.stdout"
+recheck twice
+check "recheck: a number used twice fails both" "$code $(grep -c '^FAIL small-900-.*: number small-900 is also used by' "$root/rec/rc-twice")" "1 2"
+
+# --only checks one task: the failing one is left out.
+recheck leak --only repair-900-greeting
+check "recheck --only" "$code $(grep -c '^PASS\|^FAIL' "$root/rec/rc-leak") $(grep -c '^PASS repair-900-greeting$' "$root/rec/rc-leak")" "0 1 1"
+recheck leak --only small-999-none
+check "recheck --only an unknown task" "$code" "1"
 
 echo "llm-eval.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]

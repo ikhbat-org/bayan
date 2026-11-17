@@ -8,8 +8,16 @@
 // <out>/work/<task>/1/, with `src/` (the scratch directory of R10), `bin/`, `cache/` and `tmp/`; an existing one is refused.
 // --out defaults to tmp/llm-eval/score/ under the repo root. Every compiler call and the candidate's run go through
 // scripts/evals/llm-sandbox.sh (R15), with the pinned compiler (R35). Nothing is written under the tasks directory.
-// `recheck` (T3) and `run` (T7, T8) are not written yet.
 // Exit 0 when the record is printed (whatever the candidate scored), 1 when scoring could not start, 2 on bad usage.
+//
+//   bash scripts/bayan-tool.sh llm-eval recheck <tasks-dir> [--only <task>] [--out <dir>]
+//
+// `recheck` scores every task's reference as `score` does, in <out>/<n>/ (the first free number; --out defaults to
+// tmp/llm-eval/recheck/), and checks the task itself: name and number (R1), files (R1), header (R2, R26), that a repair
+// starter fails `bayan check` with only the code its `Title:` names (R13), and that `prompt.md` of a `stdout` task does
+// not hold its whole `checks/expected.stdout`. It prints `PASS <task>` or `FAIL <task>: <reasons>` and the slowest run.
+// Exit 0 when every task passed, 1 when one failed or the recheck could not start, 2 on bad usage. `run` (T7, T8) is not
+// written yet.
 
 import std.json
 
@@ -17,9 +25,9 @@ type JsonValue  = json.JsonValue
 type JsonMember = json.JsonMember
 type Json       = json.Json
 
-const usage: string    = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]"
-const buildMs: i64     = 120000
-const runMs: i64       = 10000
+const usage: string = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]\n       llm-eval recheck <tasks-dir> [--only <task>] [--out <dir>]"
+const buildMs: i64 = 120000
+const runMs: i64 = 10000
 const outputBytes: i64 = 1048576
 
 union error EvalError {
@@ -158,13 +166,14 @@ JsonValue result(bool value, at bool reached) => reached ? .flag(value: value) :
 
 JsonValue number(i64 n) => .number(value: f64(n), text: $"{n}")
 
-/// Scores `candidate` against the task in `taskDir` and prints its record.
-void score(string taskDir, for string candidate, to string outDir) fails EvalError {
-    let root = Env.get("BAYAN_REPO_ROOT")
+/// The repo root, from the launcher.
+string repoRoot() fails EvalError {
+    return Env.get("BAYAN_REPO_ROOT")
         ?? fail .failed(message: "BAYAN_REPO_ROOT is not set; run through scripts/bayan-tool.sh")
-    let task = try readTask(taskDir)
-    let source = Io.readFile(candidate) catch fail .failed(message: $"cannot read {candidate}")
+}
 
+/// The pinned compiler's path (R35).
+string pinnedBayan(string root) fails EvalError {
     var script = List<string>()
     script.append("scripts/pinned-bayan.sh")
     let pinned = Io.run(
@@ -173,10 +182,28 @@ void score(string taskDir, for string candidate, to string outDir) fails EvalErr
         directory: root,
     ) catch fail .failed(message: "cannot run scripts/pinned-bayan.sh")
     fail .failed(message: $"scripts/pinned-bayan.sh exited {pinned.exitCode}") if pinned.exitCode != 0
+    return pinned.stdout.trimmed()
+}
+
+/// A scored candidate: its record, whether it got all four results (R8, R29), and how long its run took (for a `tests`
+/// task, `bayan test`, which builds too). The time is never part of the record (R9); only `recheck` reports it.
+struct Scored {
+    string record
+    bool   clean    = false
+    string results  = ""
+    bool   tested   = false
+    i64    runNanos = 0
+}
+
+/// Scores `candidate` against the task in `taskDir` with the compiler `bayan`, in a new sample directory under `outDir`.
+Scored scoreSample(string taskDir, for string candidate, from string bayan, to string outDir) fails EvalError {
+    let root = try repoRoot()
+    let task = try readTask(taskDir)
+    let source = Io.readFile(candidate) catch fail .failed(message: $"cannot read {candidate}")
     let sample = Path.combine(outDir, $"work/{task.name}/1")
     fail .failed(message: $"{sample} exists; give another --out") if isDirectory(sample)
     let p = Places {
-        bayan: pinned.stdout.trimmed(),
+        bayan: bayan,
         launcher: Path.combine(root, "scripts/evals/llm-sandbox.sh"),
         tasks: Path.directoryName(taskDir) ?? taskDir,
         sample: sample,
@@ -215,6 +242,7 @@ void score(string taskDir, for string candidate, to string outDir) fails EvalErr
     var passes = false
     var limit = check.limit
     var formatStable = false
+    var runNanos: i64 = 0
     if compiles {
         if task.check == "stdout" {
             let exe = Path.combine(sample, "bin/solution")
@@ -230,6 +258,7 @@ void score(string taskDir, for string candidate, to string outDir) fails EvalErr
             if build.exitCode == 0 && !build.limit {
                 let stdinPath = Path.combine(checks, "stdin")
                 let outFile = Path.combine(sample, "run.stdout")
+                let started = Io.monotonicNanos()
                 let run = try launch(
                     exe,
                     at: p,
@@ -238,6 +267,7 @@ void score(string taskDir, for string candidate, to string outDir) fails EvalErr
                     for: src,
                     until: runMs,
                 )
+                runNanos = Io.monotonicNanos() - started
                 limit = run.limit
                 let expectedPath = Path.combine(checks, "expected.stdout")
                 let expected = Io.readFile(expectedPath) catch fail .failed(message: $"cannot read {expectedPath}")
@@ -252,6 +282,7 @@ void score(string taskDir, for string candidate, to string outDir) fails EvalErr
             }
         } else {
             let outFile = Path.combine(sample, "test.json")
+            let started = Io.monotonicNanos()
             let tested = try launch(
                 $"{p.bayan}\ttest\t--json\t{src}",
                 at: p,
@@ -260,6 +291,7 @@ void score(string taskDir, for string candidate, to string outDir) fails EvalErr
                 for: sample,
                 until: buildMs,
             )
+            runNanos = Io.monotonicNanos() - started
             let report = Io.readText(outFile) catch ""
             limit = tested.limit || report.contains("\"status\": \"timeout\"")
             passes = tested.exitCode == 0 && !tested.limit
@@ -274,6 +306,7 @@ void score(string taskDir, for string candidate, to string outDir) fails EvalErr
         )
         formatStable = format.exitCode == 0 && !format.limit
     }
+    let lintClean = !namesSolution(check.stderr)
     let outcome = compiles ? (passes ? "pass" : (limit ? "limit" : "fail")) : (limit ? "limit" : "no-compile")
 
     var limits = List<JsonMember>()
@@ -290,14 +323,267 @@ void score(string taskDir, for string candidate, to string outDir) fails EvalErr
     m.append(JsonMember { key: "sample", value: number(1) })
     m.append(JsonMember { key: "compiles", value: .flag(value: compiles) })
     m.append(JsonMember { key: "passes", value: result(value: passes, at: compiles) })
-    m.append(JsonMember { key: "lintClean", value: result(value: !namesSolution(check.stderr), at: compiles) })
+    m.append(JsonMember { key: "lintClean", value: result(value: lintClean, at: compiles) })
     m.append(JsonMember { key: "formatStable", value: result(value: formatStable, at: compiles) })
     m.append(JsonMember { key: "outcome", value: .text(value: outcome) })
     m.append(JsonMember { key: "passed", value: .flag(value: compiles && passes) })
     m.append(JsonMember { key: "sandbox", value: .text(value: probe.sandbox) })
     m.append(JsonMember { key: "limits", value: .object(members: move limits) })
     let record = Json.encode(.object(members: move m)) catch fail .failed(message: "cannot encode the record")
-    print(record)
+    var results = "does not compile"
+    if compiles {
+        results = $"compiles true, passes {passes}, lint-clean {lintClean}, format-stable {formatStable}"
+    }
+    return Scored {
+        record: record,
+        clean: compiles && passes && lintClean && formatStable,
+        results: results,
+        tested: task.check == "tests",
+        runNanos: runNanos,
+    }
+}
+
+/// Scores `candidate` against the task in `taskDir` and prints its record.
+void score(string taskDir, for string candidate, to string outDir) fails EvalError {
+    let root = try repoRoot()
+    let bayan = try pinnedBayan(root)
+    let scored = try scoreSample(taskDir, for: candidate, from: bayan, to: outDir)
+    print(scored.record)
+}
+
+/// Whether `s` is not empty and every byte passes: lower-case letters, and digits when `digitsToo`.
+bool lowerWord(string s, at bool digitsToo) {
+    return false if s.isEmpty
+    for b in s.bytes {
+        let letter = b >= 'a' && b <= 'z'
+        let digit = b >= '0' && b <= '9'
+        return false if !letter && !(digitsToo && digit)
+    }
+    return true
+}
+
+/// Whether `s` is `count` digits.
+bool digits(string s, for i64 count) {
+    return false if s.length != count
+    for b in s.bytes {
+        return false if b < '0' || b > '9'
+    }
+    return true
+}
+
+/// Whether `xs` holds `x`.
+bool has(List<string> xs, for string x) {
+    for y in xs {
+        return true if y == x
+    }
+    return false
+}
+
+/// `xs` with `separator` between each two.
+string joined(List<string> xs, by string separator) {
+    var text = ""
+    for i in 0..xs.length {
+        text = i == 0 ? xs[i] : $"{text}{separator}{xs[i]}"
+    }
+    return text
+}
+
+/// The category and number of a name `<category>-<NNN>-<slug>`, as `<category>-<NNN>`, or null when the name is not of
+/// that form (R1). The slug is lower-case letters and digits in parts joined by `-`.
+string? numberKey(string name) {
+    var parts = List<string>()
+    for part in name.parts(by: "-") {
+        parts.append($"{part}")
+    }
+    return null if parts.length < 3 || !lowerWord(parts[0], at: false) || !digits(parts[1], for: 3)
+    for i in 2..parts.length {
+        return null if !lowerWord(parts[i], at: true)
+    }
+    return $"{parts[0]}-{parts[1]}"
+}
+
+/// The diagnostic code a repair task names: the first `BYN` and four digits in its `Title:` line (R13), or null.
+string? namedCode(string title) {
+    let k = title.position("BYN") ?? -1
+    return null if k < 0 || title.length < k + 7
+    let code = title[k..k + 7]
+    for b in code[3..].bytes {
+        return null if b < '0' || b > '9'
+    }
+    return code
+}
+
+/// The codes of the error diagnostics in `--diagnostics json` output.
+List<string> errorCodes(string text) {
+    var codes = List<string>()
+    for line in text.parts(by: "\n") {
+        continue if !line.contains("\"severity\":\"error\"")
+        let k = line.position("\"code\":\"") ?? -1
+        continue if k < 0
+        let rest = line[k + 8..]
+        codes.append(rest[..(rest.position("\"") ?? rest.length)])
+    }
+    return codes
+}
+
+/// Why the starter of the repair task in `dir` does not fail `bayan check` with only the code `title` names (R13), or null.
+string? starterProblem(string dir, for string title, by string bayan) {
+    let starter = Path.combine(dir, "starter/solution.byn")
+    return "no starter/solution.byn" if !Fs.fileExists(starter)
+    let code = namedCode(title) ?? return "the `Title:` line names no diagnostic code"
+    var args = List<string>()
+    for a in ["check", "--diagnostics", "json", starter] {
+        args.append(a)
+    }
+    let r = Io.run(bayan, args.span, directory: dir) catch return "cannot run bayan check on the starter"
+    return "starter/solution.byn compiles" if r.exitCode == 0
+    let codes = errorCodes($"{r.stdout}\n{r.stderr}")
+    var named = false
+    var others = List<string>()
+    for c in codes {
+        if c == code {
+            named = true
+        } else if !has(others, for: c) {
+            others.append(c)
+        }
+    }
+    return null if named && others.isEmpty
+    let got = codes.isEmpty ? "no error code" : joined(others.isEmpty ? codes : others, by: ", ")
+    return $"starter/solution.byn fails with {got}, not only {code}"
+}
+
+/// What is wrong with the task `name` in `tasksDir` apart from its reference's scoring: its name and number (R1), its
+/// files (R1), its header (R2, R26), its starter (R13) and the leak guard (plan 025). `names` is every task directory.
+List<string> taskProblems(string tasksDir, at string name, from List<string> names, by string bayan) {
+    var problems = List<string>()
+    let dir = Path.combine(tasksDir, name)
+    let key = numberKey(name)
+    if key is null {
+        problems.append("the name is not <category>-<NNN>-<slug>")
+    } else {
+        for other in names {
+            if other != name && numberKey(other) == key {
+                problems.append($"number {key} is also used by {other}")
+            }
+        }
+    }
+    for file in ["task.md", "prompt.md", "reference/solution.byn"] {
+        problems.append($"no {file}") if !Fs.fileExists(Path.combine(dir, file))
+    }
+    problems.append("no checks/") if !isDirectory(Path.combine(dir, "checks"))
+
+    let text = Io.readText(Path.combine(dir, "task.md")) catch return problems
+    let end = text.position("\n## ") ?? text.length
+    let head = text[..end]
+    problems.append("task.md does not start with a `# ` title") if !text.startsWith("# ")
+    for k in ["Title", "Category", "Tier", "Split", "Revision", "Checked", "Check"] {
+        problems.append($"task.md has no `{k}:` line") if (field(head, for: k) ?? "").isEmpty
+    }
+    let category = field(head, for: "Category") ?? ""
+    if key is not null && !category.isEmpty && !name.startsWith($"{category}-") {
+        problems.append($"`Category: {category}` does not match the name")
+    }
+    let split = field(head, for: "Split") ?? ""
+    problems.append($"`Split: {split}` is neither dev nor heldout") if !split.isEmpty && split != "dev"
+        && split != "heldout"
+    let revision = field(head, for: "Revision") ?? ""
+    problems.append($"`Revision: {revision}` is not a four-digit revision") if !revision.isEmpty
+        && !digits(revision, for: 4)
+    let stamp = field(head, for: "Checked") ?? ""
+    problems.append("`Checked:` does not name a bayan version and commit") if !stamp.isEmpty
+        && (!stamp.startsWith("bayan ") || !stamp.contains("(commit "))
+    let sections = ["\n## Files\n", "\n## Notes\n", "\n## Check command\n"]
+    var offset: i64 = 0
+    for section in sections {
+        let found = text[offset..].position(section) ?? -1
+        if found < 0 {
+            problems.append($"task.md has no `{section.trimmed()}` section after the ones before it")
+            break
+        }
+        offset += found + section.length - 1
+    }
+
+    // A task that shows its whole expected output to the model is passed by printing it (plan 025, the leak).
+    let check = field(head, for: "Check") ?? ""
+    if check == "stdout" {
+        let expected = Io.readText(Path.combine(dir, "checks/expected.stdout")) catch ""
+        let prompt = Io.readText(Path.combine(dir, "prompt.md")) catch ""
+        let bare = expected.endsWith("\n") ? expected[..expected.length - 1] : expected
+        problems.append("prompt.md shows the whole of checks/expected.stdout") if prompt.contains(bare)
+    }
+
+    if category == "port" {
+        var source = false
+        let files = Io.listDir(dir) catch List<string>()
+        for f in files {
+            source = true if f.startsWith("source.")
+        }
+        problems.append("a port task has no source.<ext>") if !source
+    }
+    if category == "repair" {
+        let problem = starterProblem(dir, for: field(head, for: "Title") ?? "", by: bayan)
+        problems.append(problem) if problem is not null
+    }
+    return problems
+}
+
+/// Re-checks every task directory in `tasksDir`, or only the one named `only`: prints `PASS <task>` or
+/// `FAIL <task>: <reasons>`, then the slowest run. Returns whether every task passed (R29).
+bool recheck(string tasksDir, for string? only, to string outDir) fails EvalError {
+    let root = try repoRoot()
+    let bayan = try pinnedBayan(root)
+    let entries = Io.listDir(tasksDir) catch fail .failed(message: $"cannot list {tasksDir}")
+    var names = List<string>()
+    for e in entries {
+        names.append(e) if isDirectory(Path.combine(tasksDir, e))
+    }
+    if only is not null {
+        fail .failed(message: $"no task {only} in {tasksDir}") if !has(names, for: only)
+    }
+    // Each recheck scores in a new numbered directory, so a sample directory is never reused.
+    var n: i64 = 1
+    while isDirectory(Path.combine(outDir, $"{n}")) {
+        n += 1
+    }
+    let runDir = Path.combine(outDir, $"{n}")
+    var allPassed = true
+    // The slowest program run, and apart from it the slowest `bayan test`, whose time holds a build.
+    var slowest: i64 = -1
+    var slowestTask = ""
+    var slowestTest: i64 = -1
+    var slowestTestTask = ""
+    for name in names {
+        continue if only is not null && name != only
+        var problems = taskProblems(tasksDir, at: name, from: names, by: bayan)
+        let dir = Path.combine(tasksDir, name)
+        let reference = Path.combine(dir, "reference/solution.byn")
+        if Fs.fileExists(reference) {
+            let scored = scoreSample(dir, for: reference, from: bayan, to: runDir) catch switch {
+                .failed(let message) => Scored { record: "", results: message },
+            }
+            problems.append($"reference: {scored.results}") if !scored.clean
+            if scored.tested && scored.runNanos > slowestTest {
+                slowestTest = scored.runNanos
+                slowestTestTask = name
+            } else if !scored.tested && scored.runNanos > slowest {
+                slowest = scored.runNanos
+                slowestTask = name
+            }
+        }
+        if problems.isEmpty {
+            print($"PASS {name}")
+        } else {
+            allPassed = false
+            print($"FAIL {name}: {joined(problems, by: "; ")}")
+        }
+    }
+    if slowest >= 0 {
+        print($"slowest run: {slowest / 1000000} ms ({slowestTask})")
+    }
+    if slowestTest >= 0 {
+        print($"slowest test, build included: {slowestTest / 1000000} ms ({slowestTestTask})")
+    }
+    return allPassed
 }
 
 i32 main(ReadOnlySpan<string> argv) {
@@ -310,34 +596,48 @@ i32 main(ReadOnlySpan<string> argv) {
         return 2
     }
     let command = args[0]
-    if command is "recheck" or "run" {
-        // recheck: T3; run: T7, T8.
+    if command == "run" {
+        // run: T7, T8.
         print($"llm-eval: `{command}` is not written yet", to: .stderr)
         return 2
     }
-    if command != "score" {
+    if command != "score" && command != "recheck" {
         print(usage, to: .stderr)
         return 2
     }
-    var outDir = Path.combine(Env.get("BAYAN_REPO_ROOT") ?? ".", "tmp/llm-eval/score")
+    var outDir = Path.combine(Env.get("BAYAN_REPO_ROOT") ?? ".", $"tmp/llm-eval/{command}")
+    var only: string? = null
     var rest = List<string>()
     var i: i64 = 1
     while i < args.length {
-        if args[i] == "--out" {
+        if args[i] == "--out" || (command == "recheck" && args[i] == "--only") {
             if i + 1 >= args.length {
                 print(usage, to: .stderr)
                 return 2
             }
-            outDir = args[i + 1]
+            if args[i] == "--out" {
+                outDir = args[i + 1]
+            } else {
+                only = args[i + 1]
+            }
             i += 2
         } else {
             rest.append(args[i])
             i += 1
         }
     }
-    if rest.length != 2 {
+    if rest.length != (command == "score" ? 2 : 1) {
         print(usage, to: .stderr)
         return 2
+    }
+    if command == "recheck" {
+        let passed = recheck(Path.fullPath(rest[0]), for: only, to: Path.fullPath(outDir)) catch switch {
+            .failed(let message) => {
+                print($"llm-eval: {message}", to: .stderr)
+                return 1
+            },
+        }
+        return passed ? 0 : 1
     }
     score(Path.fullPath(rest[0]), for: Path.fullPath(rest[1]), to: Path.fullPath(outDir)) catch switch {
         .failed(let message) => {
