@@ -368,9 +368,9 @@ public sealed class SelfhostEmitterT8Tests
         var expected = SelfhostSemanticsHarness.Sections(Oracle(Compile(path)));
         var (exit, stdout, stderr) = Run("corpus", "-", path);
         Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
-        var actual = SelfhostSemanticsHarness.Sections(stdout);
+        var actual = SelfhostEmitterHarness.Sections(stdout, "corpus", "-", path);
         foreach (var section in new[] { "corpus", "helpers", "formatinto" })
-            SelfhostSemanticsHarness.AssertSection(actual, section, expected[section]);
+            SelfhostEmitterHarness.AssertSection(actual, section, expected[section]);
     }, payload);
 
     [Theory]

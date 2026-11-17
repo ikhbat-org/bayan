@@ -476,7 +476,7 @@ public sealed class SelfhostEmitterT5Tests
     {
         var (exit, stdout, stderr) = SelfhostParserTests.Run(Build(), [mode, "-", "-", .. data]);
         Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
-        return SelfhostSemanticsHarness.Sections(stdout);
+        return SelfhostEmitterHarness.Sections(stdout, [mode, "-", "-", .. data]);
     }
 
     private static readonly Type FunctionLowerer = typeof(Lowerer).Assembly.GetType("Bayan.Lowering.FunctionLowerer", throwOnError: true)!;
@@ -931,11 +931,11 @@ public sealed class SelfhostEmitterT5Tests
 
     [Fact]
     public void Cases_MatchCSharp() => WithFixture(Fixture, path =>
-        SelfhostSemanticsHarness.AssertSection(RunMode("cases", [path, .. CaseSpecs]), "cases", CasesOracle(Compile(path))));
+        SelfhostEmitterHarness.AssertSection(RunMode("cases", [path, .. CaseSpecs]), "cases", CasesOracle(Compile(path))));
 
     [Fact]
     public void Synth_MatchesCSharp() => WithFixture(Fixture, path =>
-        SelfhostSemanticsHarness.AssertSection(RunMode("synth", path), "synth", SynthOracle(Compile(path))));
+        SelfhostEmitterHarness.AssertSection(RunMode("synth", path), "synth", SynthOracle(Compile(path))));
 
     // ── PowerAssert.cs ───────────────────────────────────────────────────────────
 
@@ -970,5 +970,5 @@ public sealed class SelfhostEmitterT5Tests
     }
 
     private static void AssertSection(string section, Dictionary<string, List<string>> actual, IEnumerable<string> expected) =>
-        SelfhostSemanticsHarness.AssertSection(actual, section, expected.ToList());
+        SelfhostEmitterHarness.AssertSection(actual, section, expected.ToList());
 }
