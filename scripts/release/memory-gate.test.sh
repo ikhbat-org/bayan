@@ -37,6 +37,7 @@ cat > "$tmp/bin/bayan" <<'STUB'
 echo "bayan timeout=$BAYAN_TEST_TIMEOUT_MS $*" >> "$LOG"
 case "$*" in *"$FAIL_ON"*) [ -n "$FAIL_ON" ] && exit 1 ;; esac
 [ "$1" = build ] && { cp "$0" "${@: -2:1}"; exit 0; }
+[ "$1" = test ] && echo "$BAYAN_EXE" > "$LOG.exe"
 if [ -n "$PENDING" ]; then echo "  ◆ driver: $6 (pending)"; echo "◆ 0 passed · 1 pending · 1s"
 elif [ -n "$NOMATCH" ]; then echo "◆ 0 passed · 1s"; else echo "◆ 1 passed · 1s"; fi
 STUB
@@ -80,6 +81,7 @@ BAYAN_EXE= FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > /dev/null 2> "$tm
 grep -qxF "pinned ref=HEAD" "$LOG" || fail "the gate did not ask for the pinned bayan at HEAD: $(cat "$LOG")"
 grep -qxF "bayan timeout= build --mode safe --package src -o $w/tmp/memory-gate/bayan src/driver" "$LOG" || fail "the gate did not build src/driver: $(cat "$LOG")"
 grep -qxF "bayan timeout=600000 test --package src src/driver --only $title" "$LOG" || fail "the built driver did not run the bound: $(cat "$LOG")"
+[ "$(cat "$LOG.exe")" = "$w/tmp/memory-gate/bayan" ] || fail "the bound did not see the built driver in BAYAN_EXE: $(cat "$LOG.exe")"
 : > "$LOG"
 if BAYAN_EXE= FAIL_ON=build bash "$w/scripts/release/memory-gate.sh" > /dev/null 2> "$tmp/err"; then fail "a failed driver build passed the gate"; fi
 grep -q "FAILED: build of src/driver for BAYAN_EXE" "$tmp/err" || fail "the failed driver build was not named: $(cat "$tmp/err")"
