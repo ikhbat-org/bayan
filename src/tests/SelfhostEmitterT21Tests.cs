@@ -140,7 +140,7 @@ public sealed class SelfhostEmitterT21Tests
             var expected = Expected(path);
             compared += expected.Count;
             Assert.True(sections.TryGetValue(path, out var actual), $"{path}: not printed");
-            SelfhostEmitterHarness.AssertSame(path, string.Join("\n", expected), string.Join("\n", actual!));
+            SelfhostEmitterHarness.AssertSame(path, string.Join("\n", expected), string.Join("\n", actual!), path.TrimStart('+'));
         }
         Assert.True(compared > 0, "the oracle produced no lines");
     }
