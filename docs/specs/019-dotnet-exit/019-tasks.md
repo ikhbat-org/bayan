@@ -101,17 +101,17 @@ Placement C (decided 2026-11-17): these tasks do not block T51. They must be don
 
 ## Laws
 
-- [ ] T52 enact L040 every case is reported once — done when: the user sets `status: enacted`.
+- [ ] T52 enact L040 every case is reported once — drafted 2026-11-18 as docs/laws/040-*.md, awaiting enactment — done when: the user sets `status: enacted`.
 - [ ] T53 prove L040 via /prove — depends on T4 — done when: `laws-check.js --run` holds.
-- [ ] T54 enact L041 job count does not change the result — done when: the user sets `status: enacted`.
+- [ ] T54 enact L041 job count does not change the result — drafted 2026-11-18 as docs/laws/041-*.md, awaiting enactment — done when: the user sets `status: enacted`.
 - [ ] T55 prove L041 via /prove — depends on T5 — done when: `laws-check.js --run` holds.
-- [ ] T56 enact L042 a run without update writes nothing — done when: the user sets `status: enacted`.
+- [ ] T56 enact L042 a run without update writes nothing — drafted 2026-11-18 as docs/laws/042-*.md, awaiting enactment — done when: the user sets `status: enacted`.
 - [ ] T57 prove L042 via /prove — depends on T6 — done when: `laws-check.js --run` holds.
-- [ ] T58 enact L043 frozen files come from the frozen compiler — done when: the user sets `status: enacted`.
+- [ ] T58 enact L043 frozen files come from the frozen compiler — drafted 2026-11-18 as docs/laws/043-*.md, awaiting enactment — done when: the user sets `status: enacted`.
 - [ ] T59 prove L043 via /prove — depends on T20, T46 — done when: the R27 job reproduces every manifest file outside the divergence list.
-- [ ] T60 enact L044 language server equivalence — done when: the user sets `status: enacted`.
+- [ ] T60 enact L044 language server equivalence — drafted 2026-11-18 as docs/laws/044-*.md, awaiting enactment — done when: the user sets `status: enacted`.
 - [ ] T61 prove L044 via /prove — depends on T37 — done when: `laws-check.js --run` holds.
-- [ ] T62 enact L045 two bootstraps agree (or as the amendment of L027) — done when: the user sets `status: enacted`.
+- [ ] T62 enact L045 two bootstraps agree (or as the amendment of L027) — drafted 2026-11-18 as docs/laws/045-*.md, awaiting enactment — done when: the user sets `status: enacted`.
 - [ ] T63 prove L045 via /prove — depends on T46 — done when: the R27 job holds.
 
 ## 019b: the archive
