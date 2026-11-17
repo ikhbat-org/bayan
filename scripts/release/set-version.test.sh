@@ -41,4 +41,13 @@ echo "$out" | grep -q "docs/laws/README.md has no Version: line in its first ten
 printf 'no version here\n' > "$r/src/driver/main.byn"
 out="$(bash "$s" 1.4.0 2>&1)" && fail "mirror without a version accepted"
 echo "$out" | grep -q "src/driver/main.byn has no version to set" || fail "no missing-mirror message: $out"
+
+# The C# tree retired: no Toolchain.cs, the mirror is skipped with one line and the rest is set as before.
+rm -f "$r/csharp/Bayan.Backend.C/Toolchain.cs"
+printf 'const version: string = "1.3.0"\n' > "$r/src/driver/main.byn"
+out="$(bash "$s" 1.5.0 2>&1)" || fail "set-version fails without Toolchain.cs: $out"
+[ "$(echo "$out" | grep -c 'Toolchain.cs is absent, mirror skipped')" = 1 ] || fail "no single skip line: $out"
+echo "$out" | grep -qx "changed src/driver/main.byn" || fail "main.byn not changed without Toolchain.cs: $out"
+echo "$out" | grep -q "changed csharp/" && fail "csharp mirror touched while absent: $out"
+[ ! -e "$r/csharp/Bayan.Backend.C/Toolchain.cs" ] || fail "Toolchain.cs recreated"
 echo PASS
