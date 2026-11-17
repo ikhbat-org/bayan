@@ -1,0 +1,537 @@
+import semantics
+import emitter.cprint
+import emitter.ltree
+
+type CCtx = cprint.CCtx
+type BMove = semantics.BMove
+type CFunc = cprint.CFunc
+type CompilationOptions = semantics.CompilationOptions
+type LAssignExpr = ltree.LAssignExpr
+type LClaim = ltree.LClaim
+type LErrorCode = ltree.LErrorCode
+type LErrorField = ltree.LErrorField
+type LFailingCall = ltree.LFailingCall
+type LFunctionValue = ltree.LFunctionValue
+type LGoto = ltree.LGoto
+type LIndexUnchecked = ltree.LIndexUnchecked
+type LLabel = ltree.LLabel
+type LLoop = ltree.LLoop
+type LNever = ltree.LNever
+type LNextChar = ltree.LNextChar
+type LOptionalHas = ltree.LOptionalHas
+type LOptionalValue = ltree.LOptionalValue
+type LPanic = ltree.LPanic
+type LPushPanicHandler = ltree.LPushPanicHandler
+type LReturnError = ltree.LReturnError
+type LSequence = ltree.LSequence
+type LVoid = ltree.LVoid
+type LWrite = ltree.LWrite
+
+i32 main(ReadOnlySpan<string> args) {
+    var rest = List<string>()
+    for i in 3..args.length { rest.append(args[i]) }
+    let ascii = false
+    let symbols = semantics.t26Symbols(ascii)
+    let o = semantics.t26ParseBuildOptions(in rest, allowSpans: false) ?? return 2
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    var c = semantics.t26Compile(in o, by: in symbols, to: ref reported, through: ref ok)
+    var l = LCtx {}
+    let mode = args[0]
+    if mode == "lower" { Io.stdout.write(t2PrintLower(ref c, through: ref l)) }
+    if mode == "lowertests" {
+        var withTests = semantics.fromPath(args[3], by: in CompilationOptions { includeTests: true })
+        Io.stdout.write(t2PrintLower(ref withTests, through: ref l))
+    }
+    if mode == "synth" { Io.stdout.write(t2PrintSynth(ref c, through: ref l)) }
+    if mode == "helper" { Io.stdout.write(t2PrintHelper()) }
+    if mode == "keyfail" { Io.stdout.write(t2KeyFail(ref c)) }
+    if mode == "corpus" {
+        Io.stdout.write(t2PrintCTypes(ref c))
+        Io.stdout.write(t2PrintKeys(ref c))
+        Io.stdout.write(t2PrintPredicates(ref c, through: ref l))
+        Io.stdout.write(t2PrintLines(ref c, for: args[2]))
+    }
+    return 0
+}
+
+/// `Lowerer.Lower`'s filter: the functions it lowers, in order.
+List<FuncId> t2Functions(ref Ctx c) uses alloc {
+    var r = List<FuncId>()
+    for m in 0..c.modules.length {
+        for k in 0..c.modules[m].allFunctions.length {
+            let fn = c.modules[m].allFunctions[k]
+            if c.functions[fn].body == -1 || c.functions[fn].kind == .testKeyword || semantics.functionIsGeneric(ref c, by: fn) { continue }
+            r.append(fn)
+        }
+    }
+    return r
+}
+
+string t2PrintLower(ref Ctx c, through ref LCtx l) uses alloc {
+    let p = lower(ref c, to: ref l)
+    var sb = StrBuf()
+    sb.append("== lower\n")
+    for f in p.functions { sb.append(t2PrintFunction(in c, at: $"fn {c.functions[f.symbol].name}", for: in f)) }
+    sb.append(p.main == -1 ? "main -\n" : $"main {c.functions[p.main].name}\n")
+    for i in 0..p.tests.length { sb.append(t2PrintFunction(in c, at: $"test {c.tests[p.tests[i]].title}", for: in p.testFunctions[i])) }
+    return $"{sb.finish()}"
+}
+
+string t2PrintFunction(in Ctx c, at string head, for in LoweredFunction f) uses alloc {
+    return $"{head} locals={f.locals.length} ctx={f.contextSlots} panic={f.panicSlots} stmts={c.bBlocks[f.body & 0xFFFFFFFF].statements.length}\n"
+}
+
+string t2PrintHelper() uses alloc {
+    var cc = CCtx {}
+    var sb = StrBuf()
+    sb.append("== helper\n")
+    sb.append($"{cprint.helper(ref cc, for: "a", from: "pa", as: "ba")}\n")
+    sb.append($"{cprint.helper(ref cc, for: "a", from: "px", as: "bx")}\n")
+    sb.append($"{cprint.helper(ref cc, for: "b", from: "pb", as: "bb")}\n")
+    if cprint.helperReserve(ref cc, for: "o", from: "po") {
+        sb.append($"{cprint.helper(ref cc, for: "i", from: "pi", as: "bi")}\n")
+        sb.append($"{cprint.helper(ref cc, for: "o", from: "px", as: "bx")}\n")
+        sb.append($"{cprint.helperFill(ref cc, for: "o", from: "po", as: "bo")}\n")
+    }
+    for n in cc.helperOrder { sb.append($"{n} {cc.helpers[n].proto} | {cc.helpers[n].body}\n") }
+    return $"{sb.finish()}"
+}
+
+/// `Key` of a generic function's first parameter type, which has no C type.
+string t2KeyFail(ref Ctx c) uses alloc {
+    for m in 0..c.modules.length {
+        for k in 0..c.modules[m].allFunctions.length {
+            let fn = c.modules[m].allFunctions[k]
+            if semantics.functionIsGeneric(ref c, by: fn) {
+                let t = c.locals[c.functions[fn].parameters[0]].type
+                return cprint.key(ref c, for: t)
+            }
+        }
+    }
+    return ""
+}
+
+string t2PrintCTypes(ref Ctx c) uses alloc {
+    var cc = CCtx {}
+    var sb = StrBuf()
+    sb.append("== ctype\n")
+    for fn in t2Functions(ref c) {
+        var types = List<Type>()
+        for p in c.functions[fn].parameters { types.append(c.locals[p].type) }
+        types.append(c.functions[fn].returnType)
+        for t in types { sb.append($"{cprint.cType(ref cc, from: ref c, for: t)}\n") }
+    }
+    sb.append($"error {cprint.errorCType(ref cc, from: ref c)}\n")
+    for n in cc.typeOrder { sb.append($"order {n}\n") }
+    return $"{sb.finish()}"
+}
+
+string t2PrintPredicates(ref Ctx c, through ref LCtx l) uses alloc {
+    var sb = StrBuf()
+    sb.append("== pred\n")
+    for fn in t2Functions(ref c) {
+        l.fn = fn
+        l.outs = List<List<BStmt>>()
+        l.outs.append(List<BStmt>())
+        l.locals = List<LocalId>()
+        l.seen = Map<LocalId, bool>()
+        let body = c.functions[fn].body
+        var decls = List<i64>()
+        for s in c.bBlocks[body & 0xFFFFFFFF].statements {
+            if !ltree.isLowered(s) && semantics.boundKind(s) == .localDecl { decls.append(s & 0xFFFFFFFF) }
+        }
+        var declared = List<LocalId>()
+        for d in decls {
+            let init = c.bLocalDecls[d].initializer
+            let local = c.bLocalDecls[d].local
+            if init != -1 {
+                sb.append($"{isTrivial(in c, through: in l, for: init)} {isRepeatable(in c, through: in l, for: init)} {isLvalue(in c, through: in l, for: init)} {hasEffects(in c, through: in l, for: init)}")
+                for x in declared { sb.append($" {moves(in c, through: in l, for: init, by: x)}") }
+                let n0 = l.locals.length
+                captureBegin(ref l)
+                let sp = spill(ref c, through: ref l, for: init)
+                let spilled = captureEnd(ref l)
+                captureBegin(ref l)
+                emitEffect(ref c, through: ref l, for: init)
+                let effects = captureEnd(ref l)
+                sb.append($" spill={spilled.length} temps={l.locals.length - n0} effect={effects.length}\n")
+            }
+            declared.append(local)
+        }
+    }
+    return $"{sb.finish()}"
+}
+
+/// Each function's file is named as `CEmitter.FileName` names it: `byn_file_N`, numbered in function order.
+string t2PrintLines(ref Ctx c, for string linePath) uses alloc {
+    var sb = StrBuf()
+    sb.append("== lines\n")
+    var files = Map<string, string>()
+    for fn in t2Functions(ref c) {
+        let key = $"{c.functions[fn].file}"
+        if !files.contains(key) { files[key] = $"byn_file_{files.length}" }
+        let file = files[key]
+        let span = semantics.nodeSpan(in c, for: c.functions[fn].body)
+        var withPath = CFunc { fn: fn, file: file, linePath: linePath, lineStarts: cprint.lineStartsOf(in c, for: c.functions[fn].file) }
+        if linePath == "-" { withPath.linePath = null }
+        sb.append(t2LineCase(in c, through: ref withPath, at: span))
+        var without = CFunc { fn: fn, file: file, linePath: null, lineStarts: cprint.lineStartsOf(in c, for: c.functions[fn].file) }
+        sb.append(t2LineCase(in c, through: ref without, at: span))
+    }
+    return $"{sb.finish()}"
+}
+
+string t2LineCase(in Ctx c, through ref CFunc f, at semantics.TextSpan span) uses alloc {
+    var buf = StrBuf()
+    cprint.mapLine(ref buf, from: in c, through: ref f, at: span)
+    cprint.mapLine(ref buf, from: in c, through: ref f, at: span)
+    cprint.line(ref buf, by: in f, for: "a;")
+    cprint.mapLine(ref buf, from: in c, through: ref f, at: span)
+    f.indent = 2
+    cprint.line(ref buf, by: in f, for: "b;")
+    return $"line {cprint.lineOf(in c, by: in f, at: span)} loc {cprint.loc(in c, by: in f, at: span)}\n{buf.finish()}"
+}
+
+/// `Key` and `CType` of each function's parameter, return and top-level local types.
+string t2PrintKeys(ref Ctx c) uses alloc {
+    var cc = CCtx {}
+    var sb = StrBuf()
+    sb.append("== keys\n")
+    for fn in t2Functions(ref c) {
+        var types = List<Type>()
+        for p in c.functions[fn].parameters { types.append(c.locals[p].type) }
+        types.append(c.functions[fn].returnType)
+        for s in c.bBlocks[c.functions[fn].body & 0xFFFFFFFF].statements {
+            if !ltree.isLowered(s) && semantics.boundKind(s) == .localDecl { types.append(c.locals[c.bLocalDecls[s & 0xFFFFFFFF].local].type) }
+        }
+        for t in types { sb.append($"{cprint.key(ref c, for: t)} {cprint.cType(ref cc, from: ref c, for: t)}\n") }
+    }
+    return $"{sb.finish()}"
+}
+
+/// `new FunctionLowerer(fn, …)`'s fields.
+void t2Reset(ref LCtx l, for FuncId fn) uses alloc {
+    l.fn = fn
+    l.outs = List<List<BStmt>>()
+    l.outs.append(List<BStmt>())
+    l.locals = List<LocalId>()
+    l.seen = Map<LocalId, bool>()
+    l.scopes = List<LScope>()
+    l.labelCount = 0
+}
+
+FuncId t2Func(ref Ctx c, for string name) uses alloc {
+    for fn in t2Functions(ref c) {
+        if c.functions[fn].name == name { return fn }
+    }
+    return -1
+}
+
+/// The index of `fn`'s top-level declaration of `name`.
+i64 t2Decl(in Ctx c, at FuncId fn, for string name) {
+    for s in c.bBlocks[c.functions[fn].body & 0xFFFFFFFF].statements {
+        if !ltree.isLowered(s) && semantics.boundKind(s) == .localDecl && c.locals[c.bLocalDecls[s & 0xFFFFFFFF].local].name == name { return s & 0xFFFFFFFF }
+    }
+    return -1
+}
+
+BExpr t2Init(in Ctx c, at FuncId fn, for string name) => c.bLocalDecls[t2Decl(in c, at: fn, for: name)].initializer
+
+LocalId t2Var(in Ctx c, at FuncId fn, for string name) => c.bLocalDecls[t2Decl(in c, at: fn, for: name)].local
+
+TextSpan t2At(in Ctx c, at FuncId fn, for string name) => semantics.nodeSpan(in c, for: t2Init(in c, at: fn, for: name))
+
+BExpr t2Read(ref Ctx c, at FuncId fn, for string name) uses alloc => localExpr(ref c, at: t2At(in c, at: fn, for: name), for: t2Var(in c, at: fn, for: name))
+
+bool t2IsTemp(in Ctx c, for BExpr e) => !ltree.isLowered(e) && semantics.boundKind(e) == .local && c.locals[c.bLocals[e & 0xFFFFFFFF].local].kind == .temp
+
+string t2Which(BExpr r, by BExpr a, as BExpr b) => r == a ? "a" : r == b ? "b" : "new"
+
+string t2StmtName(BStmt s) uses alloc {
+    if ltree.isLowered(s) {
+        switch ltree.lKindOf(s) {
+            case .setContext: return "LSetContext"
+            case .freeArena: return "LFreeArena"
+            case .popPanicHandler: return "LPopPanicHandler"
+            default: return "L?"
+        }
+    }
+    switch semantics.boundKind(s) {
+        case .assign: return "BoundAssign"
+        case .exprStmt: return "BoundExprStmt"
+        default: return "B?"
+    }
+}
+
+string t2Names(in List<BStmt> xs) uses alloc {
+    var sb = StrBuf()
+    for x in xs { sb.append($" {t2StmtName(x)}") }
+    return $"{sb.finish()}"
+}
+
+/// The lowered nodes and helpers of Lowerer.cs 95-351 on `g`'s and the `Order` methods' bound nodes.
+string t2PrintSynth(ref Ctx c, through ref LCtx l) uses alloc {
+    var sb = StrBuf()
+    sb.append("== synth\n")
+    let g = t2Func(ref c, for: "g")
+    t2Reset(ref l, for: g)
+    let k = c.functions[g].parameters[0]
+    let s = c.functions[g].parameters[1]
+    let dInit = t2Init(in c, at: g, for: "d")
+    let i64Type = c.locals[k].type
+    let uVariant = c.bUnionNews[t2Init(in c, at: g, for: "u") & 0xFFFFFFFF].variant
+    let eVariant = c.bErrorVariants[t2Init(in c, at: g, for: "er") & 0xFFFFFFFF].variant
+    let h = t2Func(ref c, for: "h")
+    let empty = block(ref c, at: t2At(in c, at: g, for: "a"), for: List<BStmt>())
+
+    var items = List<BExpr>()
+    items.append(ltree.addLOptionalHas(ref l.tree, from: LOptionalHas { span: t2At(in c, at: g, for: "o"), optional: t2Read(ref c, at: g, for: "o") }))
+    items.append(ltree.addLOptionalValue(ref l.tree, from: LOptionalValue { span: t2At(in c, at: g, for: "o"), optional: t2Read(ref c, at: g, for: "o"), type: i64Type }))
+    items.append(ltree.addLOptionalValue(ref l.tree, from: LOptionalValue { span: t2At(in c, at: g, for: "c"), optional: t2Init(in c, at: g, for: "c"), type: i64Type }))
+    items.append(ltree.addLOptionalValue(ref l.tree, from: LOptionalValue { span: t2At(in c, at: g, for: "el"), optional: t2Init(in c, at: g, for: "el"), type: i64Type }))
+    items.append(ltree.addLOptionalValue(ref l.tree, from: LOptionalValue { span: t2At(in c, at: g, for: "d"), optional: dInit, type: i64Type }))
+    items.append(ltree.addLUnionTag(ref l.tree, from: LUnionTag { span: t2At(in c, at: g, for: "u"), unionValue: t2Read(ref c, at: g, for: "u") }))
+    items.append(ltree.addLUnionField(ref l.tree, from: LUnionField { span: t2At(in c, at: g, for: "u"), unionValue: t2Read(ref c, at: g, for: "u"), variant: uVariant, index: 0 }))
+    items.append(ltree.addLErrorCode(ref l.tree, from: LErrorCode { span: t2At(in c, at: g, for: "er"), error: t2Read(ref c, at: g, for: "er") }))
+    items.append(ltree.addLErrorField(ref l.tree, from: LErrorField { span: t2At(in c, at: g, for: "er"), error: t2Read(ref c, at: g, for: "er"), variant: eVariant, index: 0 }))
+    items.append(ltree.addLAssignExpr(ref l.tree, from: LAssignExpr { span: t2At(in c, at: g, for: "a"), target: t2Read(ref c, at: g, for: "a"), value: dInit }))
+    var effects1 = List<BExpr>()
+    effects1.append(t2Init(in c, at: g, for: "c"))
+    items.append(ltree.addLSequence(ref l.tree, from: LSequence { span: t2At(in c, at: g, for: "b"), effects: move effects1, value: t2Read(ref c, at: g, for: "b") }))
+    var effects2 = List<BExpr>()
+    effects2.append(dInit)
+    items.append(ltree.addLSequence(ref l.tree, from: LSequence { span: t2At(in c, at: g, for: "e"), effects: move effects2, value: t2Init(in c, at: g, for: "b") }))
+    let unchecked = ltree.addLIndexUnchecked(ref l.tree, from: LIndexUnchecked { span: t2At(in c, at: g, for: "el"), target: t2Read(ref c, at: g, for: "xs"), index: t2Init(in c, at: g, for: "b"), type: i64Type }) because "a node for the predicates; it is never emitted"
+    items.append(unchecked)
+    items.append(ltree.addLNextChar(ref l.tree, from: LNextChar { span: t2At(in c, at: g, for: "str"), text: t2Read(ref c, at: g, for: "str"), position: t2Var(in c, at: g, for: "b") }))
+    items.append(ltree.addLNever(ref l.tree, from: LNever { span: t2At(in c, at: g, for: "w"), type: i64Type }))
+    items.append(ltree.addLFunctionValue(ref l.tree, from: LFunctionValue { span: t2At(in c, at: g, for: "hv"), function: h, env: -1, functionType: c.locals[t2Var(in c, at: g, for: "hv")].type }))
+    items.append(ltree.addLVoid(ref l.tree, from: LVoid { span: t2At(in c, at: g, for: "f") }))
+    // A tuple element; a move of a lowered node and of a field; assignments whose target, or neither side, reads `s`.
+    items.append(t2Init(in c, at: g, for: "f"))
+    let movedOptional = ltree.addLOptionalValue(ref l.tree, from: LOptionalValue { span: t2At(in c, at: g, for: "o"), optional: t2Read(ref c, at: g, for: "o"), type: i64Type })
+    c.bMoves.append(BMove { span: t2At(in c, at: g, for: "o"), operand: movedOptional, type: i64Type })
+    items.append(semantics.makeBound(.moveExpr, at: c.bMoves.length - 1))
+    items.append(semantics.addMove(ref c, from: BMove { span: t2At(in c, at: g, for: "e"), operand: t2Init(in c, at: g, for: "e") }))
+    items.append(ltree.addLAssignExpr(ref l.tree, from: LAssignExpr { span: t2At(in c, at: g, for: "a"), target: localExpr(ref c, at: t2At(in c, at: g, for: "a"), for: s), value: t2Init(in c, at: g, for: "b") }))
+    items.append(ltree.addLAssignExpr(ref l.tree, from: LAssignExpr { span: t2At(in c, at: g, for: "a"), target: t2Read(ref c, at: g, for: "a"), value: t2Init(in c, at: g, for: "b") }))
+    for x in c.bBlocks[c.functions[g].body & 0xFFFFFFFF].statements {
+        if !ltree.isLowered(x) && semantics.boundKind(x) == .assign { items.append(c.bAssigns[x & 0xFFFFFFFF].target) }
+    }
+    for x in items {
+        let span = t2Span(in c, through: in l, for: x)
+        sb.append($"{cprint.key(ref c, for: t2Type(in c, through: in l, for: x))} {span.start} {span.length} {isTrivial(in c, through: in l, for: x)} {isRepeatable(in c, through: in l, for: x)} {isLvalue(in c, through: in l, for: x)} {hasEffects(in c, through: in l, for: x)} {t2IsExpr(x)} {moves(in c, through: in l, for: x, by: s)} {anyNode(in c, through: in l, for: x, by: .readsLocalMovedBy(dInit))}")
+        captureBegin(ref l)
+        emitEffect(ref c, through: ref l, for: x)
+        let effected = captureEnd(ref l)
+        let n0 = l.locals.length
+        captureBegin(ref l)
+        let spilled = spill(ref c, through: ref l, for: x)
+        let spills = captureEnd(ref l)
+        sb.append($" effect={effected.length} spill={spills.length} temps={l.locals.length - n0} same={spilled == x}\n")
+    }
+
+    var stmts = List<BStmt>()
+    stmts.append(ltree.addLLabel(ref l.tree, from: LLabel { span: t2At(in c, at: g, for: "a"), name: "x" }))
+    stmts.append(ltree.addLGoto(ref l.tree, from: LGoto { span: t2At(in c, at: g, for: "b"), label: "x" }))
+    stmts.append(ltree.addLLoop(ref l.tree, from: LLoop { span: t2At(in c, at: g, for: "c"), body: empty }))
+    stmts.append(ltree.addLReturn(ref l.tree, from: LReturn { span: t2At(in c, at: g, for: "d"), value: -1 }))
+    stmts.append(ltree.addLReturnError(ref l.tree, from: LReturnError { span: t2At(in c, at: g, for: "e"), code: t2Read(ref c, at: g, for: "er") }))
+    stmts.append(ltree.addLFailingCall(ref l.tree, from: LFailingCall { span: t2At(in c, at: g, for: "f"), error: t2Var(in c, at: g, for: "er"), call: dInit, result: -1 }))
+    stmts.append(ltree.addLWrite(ref l.tree, from: LWrite { span: t2At(in c, at: g, for: "o"), sink: .print, target: -1, parts: List<semantics.BInterpolationPart>() }))
+    stmts.append(ltree.addLPanic(ref l.tree, from: LPanic { span: t2At(in c, at: g, for: "u"), message: "m" }))
+    stmts.append(ltree.addLSetContext(ref l.tree, from: LSetContext { span: t2At(in c, at: g, for: "er"), arena: -1, slot: 1 }))
+    stmts.append(ltree.addLFreeArena(ref l.tree, from: LFreeArena { span: t2At(in c, at: g, for: "str"), arena: t2Read(ref c, at: g, for: "xs") }))
+    stmts.append(ltree.addLPushPanicHandler(ref l.tree, from: LPushPanicHandler { span: t2At(in c, at: g, for: "xs"), slot: 2, panic: -1, body: empty }))
+    stmts.append(ltree.addLPopPanicHandler(ref l.tree, from: LPopPanicHandler { span: t2At(in c, at: g, for: "el"), slot: 2 }))
+    stmts.append(ltree.addLClaim(ref l.tree, from: LClaim { span: t2At(in c, at: g, for: "hv"), local: t2Var(in c, at: g, for: "a") }))
+    for x in stmts {
+        let span = t2Span(in c, through: in l, for: x)
+        sb.append($"stmt {span.start} {span.length} {t2IsExpr(x)} {anyNode(in c, through: in l, for: x, by: .readsLocalMovedBy(dInit))}\n")
+    }
+
+    // Note: a parameter, a local twice, then a lambda's capture and a local of the lambda's.
+    t2Reset(ref l, for: g)
+    note(ref c, through: ref l, for: k)
+    note(ref c, through: ref l, for: t2Var(in c, at: g, for: "a"))
+    note(ref c, through: ref l, for: t2Var(in c, at: g, for: "a"))
+    sb.append($"note {l.locals.length}")
+    t2Reset(ref l, for: c.bLambdas[t2Init(in c, at: g, for: "lam") & 0xFFFFFFFF].lambda)
+    note(ref c, through: ref l, for: t2Var(in c, at: g, for: "a"))
+    note(ref c, through: ref l, for: t2Var(in c, at: g, for: "b"))
+    sb.append($" {l.locals.length}\n")
+
+    t2Reset(ref l, for: g)
+    let label1 = newLabel(ref l, for: "loop")
+    let label2 = newLabel(ref l, for: "end")
+    sb.append($"label {label1} {label2}\n")
+    let at = t2At(in c, at: g, for: "b")
+    var ints = List<i64>()
+    ints.append(5)
+    ints.append(-5)
+    ints.append(0)
+    for v in ints {
+        let lit = i64Literal(ref c, at: at, by: v)
+        let value = semantics.exprConstant(in c, for: lit) ?? return "no constant"
+        sb.append($"i64 {cprint.key(ref c, for: t2Type(in c, through: in l, for: lit))} {value.integer.lo} {value.integer.hi}\n")
+    }
+    let yes = boolLiteral(ref c, at: at, by: true)
+    let no = boolLiteral(ref c, at: at, by: false)
+    let five = i64Literal(ref c, at: at, by: 5)
+    let bRead = t2Read(ref c, at: g, for: "b")
+    let voidValue = ltree.addLVoid(ref l.tree, from: LVoid { span: at })
+    sb.append($"and {t2Which(andExpr(ref c, through: in l, for: yes, by: bRead), by: yes, as: bRead)} {t2Which(andExpr(ref c, through: in l, for: bRead, by: yes), by: bRead, as: yes)} {t2Which(andExpr(ref c, through: in l, for: no, by: five), by: no, as: five)} {t2Which(andExpr(ref c, through: in l, for: voidValue, by: bRead), by: voidValue, as: bRead)}")
+    var made = List<BExpr>()
+    made.append(andExpr(ref c, through: in l, for: no, by: five))
+    made.append(orExpr(ref c, through: in l, for: no, by: five))
+    made.append(notExpr(ref c, through: in l, for: no))
+    for x in made {
+        let span = t2Span(in c, through: in l, for: x)
+        sb.append($" {cprint.key(ref c, for: t2Type(in c, through: in l, for: x))} {span.start} {span.length}")
+    }
+    let yesValue = semantics.exprConstant(in c, for: yes) ?? return "no constant"
+    let noValue = semantics.exprConstant(in c, for: no) ?? return "no constant"
+    sb.append($" {yesValue.flag} {noValue.flag}\n")
+
+    // EmitAssign: a never value, a never-typed jump, a void value, a call.
+    let jump = c.bCoalesces[t2Init(in c, at: g, for: "w") & 0xFFFFFFFF].right
+    var counts = List<i64>()
+    var assigned = List<BExpr>()
+    assigned.append(ltree.addLNever(ref l.tree, from: LNever { span: at, type: i64Type }))
+    assigned.append(jump)
+    assigned.append(voidValue)
+    assigned.append(t2Init(in c, at: g, for: "c"))
+    for v in assigned {
+        captureBegin(ref l)
+        emitAssign(ref c, through: ref l, to: t2Read(ref c, at: g, for: "b"), as: v)
+        counts.append(captureEnd(ref l).length)
+    }
+    sb.append($"assign {counts[0]} {counts[1]} {counts[2]} {counts[3]}\n")
+
+    // Operands: two effects; a move a later operand reads; an addressable operand; a plain one beside it.
+    let cInit = t2Init(in c, at: g, for: "c")
+    let yi = t2Init(in c, at: g, for: "yi")
+    var ops1 = List<BExpr>()
+    ops1.append(cInit)
+    ops1.append(cInit)
+    sb.append(t2Operands(ref c, through: ref l, for: in ops1, as: in List<bool>()))
+    var ops2 = List<BExpr>()
+    ops2.append(dInit)
+    ops2.append(localExpr(ref c, at: at, for: s))
+    sb.append(t2Operands(ref c, through: ref l, for: in ops2, as: in List<bool>()))
+    var ops3 = List<BExpr>()
+    ops3.append(yi)
+    ops3.append(cInit)
+    ops3.append(cInit)
+    var lv3 = List<bool>()
+    lv3.append(true)
+    sb.append(t2Operands(ref c, through: ref l, for: in ops3, as: in lv3))
+    var ops4 = List<BExpr>()
+    ops4.append(localExpr(ref c, at: at, for: k))
+    ops4.append(cInit)
+    var lv4 = List<bool>()
+    lv4.append(true)
+    lv4.append(false)
+    sb.append(t2Operands(ref c, through: ref l, for: in ops4, as: in lv4))
+    var ops5 = List<BExpr>()
+    ops5.append(localExpr(ref c, at: at, for: k))
+    ops5.append(cInit)
+    ops5.append(cInit)
+    sb.append(t2Operands(ref c, through: ref l, for: in ops5, as: in List<bool>()))
+
+    // Key and CType of the builtin and text view types no corpus signature has.
+    var cc = CCtx {}
+    var builtins = List<Type>()
+    builtins.append(semantics.builtinType(.io))
+    builtins.append(semantics.builtinType(.hex))
+    builtins.append(semantics.builtinType(.utf8))
+    builtins.append(semantics.builtinType(.ioStream))
+    builtins.append(semantics.builtinType(.ioInput))
+    builtins.append(semantics.builtinType(.path))
+    builtins.append(semantics.textViewType(.runes))
+    for t in builtins { sb.append($"type {cprint.key(ref c, for: t)} {cprint.cType(ref cc, from: ref c, for: t)}\n") }
+
+    sb.append($"guard {captureGuard(ref c, through: ref l, for: empty) == empty}\n")
+
+    // CaptureGuard on guarded defer bodies, a plain `if` with and without `else`, and a call.
+    let gd = t2Func(ref c, for: "gd")
+    t2Reset(ref l, for: gd)
+    let gdBody = c.functions[gd].body & 0xFFFFFFFF
+    for gi in 0..c.bBlocks[gdBody].statements.length {
+        let d = c.bBlocks[gdBody].statements[gi]
+        if ltree.isLowered(d) || semantics.boundKind(d) != .deferStmt { continue }
+        let body = c.bDefers[d & 0xFFFFFFFF].body
+        let o0 = l.outs[l.outs.length - 1].length
+        let r = captureGuard(ref c, through: ref l, for: body)
+        sb.append($"guard {r == body} {!ltree.isLowered(r) && semantics.boundKind(r) == .ifStmt}")
+        if !ltree.isLowered(r) && semantics.boundKind(r) == .ifStmt && semantics.boundKind(body) == .ifStmt {
+            let ri = r & 0xFFFFFFFF
+            let bi = body & 0xFFFFFFFF
+            sb.append($" then={c.bIfs[ri].then == c.bIfs[bi].then} else={c.bIfs[ri].elseBranch == -1} temp={t2IsTemp(in c, for: c.bIfs[ri].condition)}")
+        }
+        sb.append($" out={l.outs[l.outs.length - 1].length - o0}\n")
+    }
+
+    // EmitCleanups over every cleanup kind, without and with a failing error.
+    for round in 0..2 {
+        let withError = round == 1
+        t2Reset(ref l, for: g)
+        var outer = List<LCleanup>()
+        outer.append(LCleanup.deferCleanup(empty))
+        outer.append(LCleanup.errdeferCleanup(-1, empty))
+        outer.append(LCleanup.errdeferCleanup(t2Var(in c, at: g, for: "b"), empty))
+        outer.append(LCleanup.restoreContext(at, 3))
+        outer.append(LCleanup.freeArena(at, t2Var(in c, at: g, for: "a")))
+        outer.append(LCleanup.popPanicHandler(at, 4))
+        l.scopes.append(LScope { cleanups: move outer })
+        var inner = List<LCleanup>()
+        inner.append(LCleanup.deferCleanup(empty))
+        l.scopes.append(LScope { cleanups: move inner })
+        captureBegin(ref l)
+        emitCleanups(ref c, through: ref l, at: 0, for: withError ? t2Var(in c, at: g, for: "er") : -1)
+        let emitted = captureEnd(ref l)
+        sb.append($"cleanup{t2Names(in emitted)} locals={l.locals.length} scopes={l.scopes.length}\n")
+    }
+
+    // Become: a payload to spill, a constant one, none.
+    var methods = List<string>()
+    methods.append("pay")
+    methods.append("repay")
+    methods.append("reset")
+    for name in methods {
+        let fn = t2Func(ref c, for: name)
+        t2Reset(ref l, for: fn)
+        captureBegin(ref l)
+        var body = List<BStmt>()
+        for x in c.bBlocks[c.functions[fn].body & 0xFFFFFFFF].statements { body.append(x) }
+        for x in body {
+            if !ltree.isLowered(x) && semantics.boundKind(x) == .becomeStmt { lowerBecome(ref c, through: ref l, for: x) }
+        }
+        let emitted = captureEnd(ref l)
+        sb.append($"become {name}{t2Names(in emitted)} locals={l.locals.length}\n")
+    }
+
+    // LineOf of a function with no file.
+    for fn in 0..c.functions.length {
+        if c.functions[fn].file == -1 {
+            let nofile = CFunc { fn: fn, file: "x", linePath: null }
+            sb.append($"nofile {cprint.lineOf(in c, by: in nofile, at: at)}\n")
+            break
+        }
+    }
+    return $"{sb.finish()}"
+}
+
+string t2Operands(ref Ctx c, through ref LCtx l, for in List<BExpr> ops, as in List<bool> lvalues) uses alloc {
+    let n0 = l.locals.length
+    var values = List<BExpr>()
+    captureBegin(ref l)
+    let ok = operands(ref c, through: ref l, for: in ops, as: in lvalues, to: ref values)
+    let emitted = captureEnd(ref l)
+    var sb = StrBuf()
+    sb.append($"operands {ok}{t2Names(in emitted)} temps={l.locals.length - n0}")
+    for v in values { sb.append($" {t2IsTemp(in c, for: v)}") }
+    sb.append("\n")
+    return $"{sb.finish()}"
+}

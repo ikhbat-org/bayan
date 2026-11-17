@@ -1,0 +1,89 @@
+import lexer
+
+void spans(in Stmt s, to ref StrBuf sb) {
+    switch s {
+        case .blockStmt(let n):
+            sb.append($"BlockStmt {n.value.span.start} {n.value.span.end}\n")
+            for st in n.value.statements { spans(in st, to: ref sb) }
+        case .localDecl(let n):
+            sb.append($"LocalDecl {n.value.span.start} {n.value.span.end}\n")
+        case .exprStmt(let n):
+            sb.append($"ExprStmt {n.value.span.start} {n.value.span.end}\n")
+        case .assignStmt(let n):
+            sb.append($"AssignStmt {n.value.span.start} {n.value.span.end}\n")
+        case .incDecStmt(let n):
+            sb.append($"IncDecStmt {n.value.span.start} {n.value.span.end}\n")
+        case .returnStmt(let n):
+            sb.append($"ReturnStmt {n.value.span.start} {n.value.span.end}\n")
+        case .failStmt(let n):
+            sb.append($"FailStmt {n.value.span.start} {n.value.span.end}\n")
+        case .breakStmt(let n):
+            sb.append($"BreakStmt {n.value.span.start} {n.value.span.end}\n")
+        case .continueStmt(let n):
+            sb.append($"ContinueStmt {n.value.span.start} {n.value.span.end}\n")
+        case .becomeStmt(let n):
+            sb.append($"BecomeStmt {n.value.span.start} {n.value.span.end}\n")
+        case .ifStmt(let n):
+            sb.append($"IfStmt {n.value.span.start} {n.value.span.end}\n")
+            spans(in n.value.then, to: ref sb)
+            spans(in n.value.elseKeyword, to: ref sb)
+        case .unlessStmt(let n):
+            sb.append($"UnlessStmt {n.value.span.start} {n.value.span.end}\n")
+            spans(in n.value.body, to: ref sb)
+        case .guardedStmt(let n):
+            sb.append($"GuardedStmt {n.value.span.start} {n.value.span.end}\n")
+            spans(in n.value.statement, to: ref sb)
+        case .whileStmt(let n):
+            sb.append($"WhileStmt {n.value.span.start} {n.value.span.end}\n")
+            spans(in n.value.body, to: ref sb)
+        case .doWhileStmt(let n):
+            sb.append($"DoWhileStmt {n.value.span.start} {n.value.span.end}\n")
+            spans(in n.value.body, to: ref sb)
+        case .whileLetStmt(let n):
+            sb.append($"WhileLetStmt {n.value.span.start} {n.value.span.end}\n")
+            spans(in n.value.body, to: ref sb)
+        case .forStmt(let n):
+            sb.append($"ForStmt {n.value.span.start} {n.value.span.end}\n")
+            spans(in n.value.body, to: ref sb)
+        case .labeledStmt(let n):
+            sb.append($"LabeledStmt {n.value.span.start} {n.value.span.end}\n")
+            spans(in n.value.statement, to: ref sb)
+        case .switchStmt(let n):
+            sb.append($"SwitchStmt {n.value.span.start} {n.value.span.end}\n")
+            for sec in n.value.sections {
+                for st in sec.statements { spans(in st, to: ref sb) }
+            }
+        case .deferStmt(let n):
+            sb.append($"DeferStmt {n.value.span.start} {n.value.span.end}\n")
+            spans(in n.value.body, to: ref sb)
+        case .assertStmt(let n):
+            sb.append($"AssertStmt {n.value.span.start} {n.value.span.end}\n")
+        case .contextStmt(let n):
+            sb.append($"ContextStmt {n.value.span.start} {n.value.span.end}\n")
+            spans(in n.value.body, to: ref sb)
+        case .emptyStmt(let n):
+            sb.append($"EmptyStmt {n.value.span.start} {n.value.span.end}\n")
+        case .errorStmt(let n):
+            sb.append($"ErrorStmt {n.value.span.start} {n.value.span.end}\n")
+        case .none:
+            return
+    }
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    let keywords = Keywords.build()
+    var bytes = Io.readFile(args[0]) catch return 4
+    var p = Parser.create(lexer.lex(SourceText.create(args[0], from: move bytes), by: keywords))
+    var unit = parseCompilationUnit(ref p)
+    var sb = StrBuf()
+    for d in unit.members {
+        switch d {
+            case .functionDecl(let f):
+                spans(in f.value.body, to: ref sb)
+            default:
+                continue
+        }
+    }
+    Io.stdout.write(sb.finish())
+    return 0
+}
