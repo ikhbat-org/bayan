@@ -151812,9 +151812,9 @@ bynt_list_semantics__StdSource byn_semantics__stdShippedSources(void) {
 #line 7 "semantics/stdsource.byn"
     (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("encoding/base64.test.byn", 24), BYN_STR("// Tests of std.encoding. Expected encodings for non-RFC vectors are recorded from a run of\012// `python3 -c 'import base64,sys; print(base64.b64encode(...).decode())'`, not written by hand.\012\012/// `ok`, or the error `Base64.decode(text)` fails with.\012string errorOf(string text) uses alloc {\012    let _ = Base64.decode(text) catch switch {\012        .badDigit(let at) => return $\042badDigit @{at}\042,\012        .overflow         => return \042overflow\042,\012    }\012    return \042ok\042\012}\012\012@cases(\012    (\042\042, \042\042),\012    (\042f\042, \042Zg==\042),\012    (\042fo\042, \042Zm8=\042),\012    (\042foo\042, \042Zm9v\042),\012    (\042foob\042, \042Zm9vYg==\042),\012    (\042fooba\042, \042Zm9vYmE=\042),\012    (\042foobar\042, \042Zm9vYmFy\042),\012)\012test \042RFC 4648 \302\24710 vectors encode and decode\042 (string input, string expected) {\012    assert Base64.encode(input.bytes) == expected\012    let decoded = try Base64.decode(expected)\012    assert (try Utf8.decode(decoded.span)) == input\012}\012\012test \042all 256 byte values round-trip and match recorded b64encode output\042 {\012    var all = List<u8>()\012    for i in 0..256 {\012        all.append(u8(i))\012        var single = List<u8>()\012        single.append(u8(i))\012        let back = try Base64.decode(Base64.encode(single.span))\012        assert back.length == 1 && back[0] == u8(i)\012    }\012    let expected = \042AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==\042\012    let encoded = Base64.encode(all.span)\012    assert encoded == expected\012    let decoded = try Base64.decode(encoded)\012    assert Hex.encode(decoded.span) == Hex.encode(all.span)\012}\012\012@cases(\012    (\04200\042, \042AA==\042),\012    (\0420000\042, \042AAA=\042),\012    (\042000000\042, \042AAAA\042),\012    (\042fbefbe\042, \042++++\042),\012    (\042ffffff\042, \042////\042),\012    (\042fbffbf\042, \042+/+/\042),\012)\012test \042non-RFC byte vectors encode and decode\042 (string hex, string expected) {\012    let raw = try Hex.decode(hex)\012    assert Base64.encode(raw.span) == expected\012    let decoded = try Base64.decode(expected)\012    assert Hex.encode(decoded.span) == hex\012}\012\012@cases(\012    (\042Zg=\042, \042badDigit @3\042),\012    (\042Z\042, \042badDigit @1\042),\012    (\042Zg\042, \042badDigit @2\042),\012    (\042Zm8\042, \042badDigit @3\042),\012    (\042Zm9!\042, \042badDigit @3\042),\012    (\042!m9v\042, \042badDigit @0\042),\012    (\042Z!9v\042, \042badDigit @1\042),\012    (\042Zm!v\042, \042badDigit @2\042),\012    (\042Zg==Zg==\042, \042badDigit @2\042),\012    (\042Zm8=Zg==\042, \042badDigit @3\042),\012    (\042=g==\042, \042badDigit @0\042),\012    (\042Z===\042, \042badDigit @1\042),\012    (\042Zg=A\042, \042badDigit @3\042),\012    (\042Zh==\042, \042badDigit @1\042),\012    (\042Zm9=\042, \042badDigit @2\042),\012    (\042Zm9v\134n\042, \042badDigit @4\042),\012    (\042 Zm9v\042, \042badDigit @0\042),\012    (\042Zm 9v\042, \042badDigit @2\042),\012)\012test \042decode refuses broken text with the bad byte offset\042 (string input, string expected) {\012    assert errorOf(input) == expected\012}\012", 2809)}));
 #line 8 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("fs/glob.byn", 11), BYN_STR("// std.fs glob (spec 015 S5, T13): the files under the working directory a pattern names.\012\012import std.path\012\012type Glob = path.Glob\012\012/// The depth below the base directory a walk stops at when the pattern has `**` or `{}` (its length is unknown).\012const maxDepth: i64 = 64\012\012/// The files whose path matches `pattern` (`**`, `*`, `\077`, `[\342\200\246]`, `{a,b}` as `Glob.matches` reads them), sorted by byte\012/// order, written with `/` separators and starting as `pattern` does. Directories are walked but not listed; a base\012/// directory that is missing or unreadable gives an empty list, and a directory below it that cannot be read is\012/// skipped. Names starting with `.` are listed and dot-directories\012/// are entered, as any other name (the Go and Rust rule); a caller that wants them hidden filters the result. A\012/// pattern with `**` or `{` is walked 64 directory levels below its base directory; matches deeper than that are not\012/// returned.\012public List<string> glob(string pattern) uses fs, alloc {\012    var found = List<string>()\012    let base = baseOf(pattern)\012    let depth = (pattern.contains(\042**\042) || pattern.contains(\042{\042)) \077 maxDepth : count(pattern, for: \042/\042) + 1\012    walk(pattern, from: base, until: depth, to: ref found)\012    var j = 0\012    while j < found.length {\012        var k = j\012        while k > 0 && found[k] < found[k - 1] {\012            let t = found[k]\012            found[k] = found[k - 1]\012            found[k - 1] = t\012            k -= 1\012        }\012        j += 1\012    }\012    return found\012}\012\012/// The directory a walk for `pattern` starts in: its leading segments with no `*`, `\077`, `[` or `{`.\012string baseOf(string pattern) {\012    var i = 0\012    var slash = -1\012    while i < pattern.length {\012        let b = pattern.bytes[i]\012        if b == '*' || b == '\077' || b == '[' || b == '{' { break }\012        if b == '/' { slash = i }\012        i += 1\012    }\012    if slash < 0 { return \042\042 }\012    return slash == 0 \077 \042/\042 : pattern[0..slash]\012}\012\012/// The number of times `part` occurs in `text`.\012i64 count(string text, for string part) {\012    var n = 0\012    for _ in text.parts(by: part) { n += 1 }\012    return n - 1\012}\012\012/// Adds every file under `dir` (to `depth` levels) whose path matches `pattern`.\012void walk(string pattern, from string dir, until i64 depth, to ref List<string> found) uses fs, alloc {\012    let names = Io.listDir(dir.isEmpty \077 \042.\042 : dir) catch { return }\012    for name in names {\012        let entry = dir.isEmpty \077 $\042{name}\042 : (dir.endsWith(\042/\042) \077 $\042{dir}{name}\042 : $\042{dir}/{name}\042)\012        if Fs.fileExists(entry) {\012            if Glob.matches(pattern, for: entry) { found.append(entry) }\012        } else if depth > 1 {\012            walk(pattern, from: entry, until: depth - 1, to: ref found)\012        }\012    }\012}\012", 2708)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("fs/glob.byn", 11), BYN_STR("// std.fs glob (spec 015 S5, T13): the files under the working directory a pattern names.\012\012import std.path\012\012type Glob = path.Glob\012\012/// The depth below the base directory a walk stops at when the pattern has `**` or `{}` (its length is unknown).\012const maxDepth: i64 = 64\012\012/// The files whose path matches `pattern` (`**`, `*`, `\077`, `[\342\200\246]`, `{a,b}` as `Glob.matches` reads them), sorted by byte\012/// order, written with `/` separators and starting as `pattern` does. Directories are walked but not listed; a base\012/// directory that is missing or unreadable gives an empty list, and a directory below it that cannot be read is\012/// skipped. Names starting with `.` are listed and dot-directories\012/// are entered, as any other name (the Go and Rust rule); a caller that wants them hidden filters the result. A\012/// pattern with `**` or `{` is walked 64 directory levels below its base directory; matches deeper than that are not\012/// returned.\012public List<string> glob(string pattern) uses fs, alloc {\012    var found = List<string>()\012    let base = baseOf(pattern)\012    let depth = (pattern.contains(\042**\042) || pattern.contains(\042{\042)) \077 maxDepth : count(pattern, for: \042/\042) + 1\012    var seen: Map<string, bool> = []\012    walk(pattern, from: base, until: depth, through: ref seen, to: ref found)\012    var j = 0\012    while j < found.length {\012        var k = j\012        while k > 0 && found[k] < found[k - 1] {\012            let t = found[k]\012            found[k] = found[k - 1]\012            found[k - 1] = t\012            k -= 1\012        }\012        j += 1\012    }\012    return found\012}\012\012/// The directory a walk for `pattern` starts in: its leading segments with no `*`, `\077`, `[` or `{`.\012string baseOf(string pattern) {\012    var i = 0\012    var slash = -1\012    while i < pattern.length {\012        let b = pattern.bytes[i]\012        if b == '*' || b == '\077' || b == '[' || b == '{' { break }\012        if b == '/' { slash = i }\012        i += 1\012    }\012    if slash < 0 { return \042\042 }\012    return slash == 0 \077 \042/\042 : pattern[0..slash]\012}\012\012/// The number of times `part` occurs in `text`.\012i64 count(string text, for string part) {\012    var n = 0\012    for _ in text.parts(by: part) { n += 1 }\012    return n - 1\012}\012\012/// Adds every file under `dir` (to `depth` levels) whose path matches `pattern`. A directory whose real path is in `seen` is not entered\012/// again, so a link back up the tree (`a/loop -> ..`) or two links into each other's trees list each file once.\012void walk(string pattern, from string dir, until i64 depth, through ref Map<string, bool> seen, to ref List<string> found) uses fs, alloc {\012    let real = Fs.realPath(dir.isEmpty \077 \042.\042 : dir) catch { return }\012    return if seen.contains(real)\012    seen[real] = true\012    let names = Io.listDir(dir.isEmpty \077 \042.\042 : dir) catch { return }\012    for name in names {\012        let entry = dir.isEmpty \077 $\042{name}\042 : (dir.endsWith(\042/\042) \077 $\042{dir}{name}\042 : $\042{dir}/{name}\042)\012        if Fs.fileExists(entry) {\012            if Glob.matches(pattern, for: entry) { found.append(entry) }\012        } else if depth > 1 {\012            walk(pattern, from: entry, until: depth - 1, through: ref seen, to: ref found)\012        }\012    }\012}\012", 3113)}));
 #line 9 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("fs/glob.test.byn", 16), BYN_STR("// Tests of std.fs glob, over a tree the tests build in tmp/ below the working directory.\012\012/// Writes `rel` (and its parent directories) under `root`, empty.\012void touch(string root, at string rel) uses fs, alloc {\012    var dir = $\042{root}\042\012    for part in rel.parts(by: \042/\042) {\012        let at = Path.combine(dir, part)\012        if part.contains(\042.\042) {\012            Io.writeFile(at, \042\042.bytes) catch { assert false }\012        } else {\012            Io.createDirectory(at) catch { assert false }\012        }\012        dir = at\012    }\012}\012\012/// `found` as one line, entries separated by a space.\012string joined(List<string> found) uses alloc {\012    var sb = StrBuf()\012    for f in found {\012        if sb.length > 0 { sb.append(\042 \042) }\012        sb.append(f)\012    }\012    return sb.finish()\012}\012\012test \042glob lists the matching files, sorted, with / separators\042 {\012    let root = \042tmp/glob-test\042\012    touch(root, at: \042src/b.byn\042)\012    touch(root, at: \042src/a.byn\042)\012    touch(root, at: \042src/x/c.byn\042)\012    touch(root, at: \042src/x/y/d.byn\042)\012    touch(root, at: \042src/x/e.cs\042)\012    touch(root, at: \042lib/f.byn\042)\012    let all = glob(\042tmp/glob-test/src/**/*.byn\042)\012    assert joined(all) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn tmp/glob-test/src/x/c.byn tmp/glob-test/src/x/y/d.byn\042\012    assert joined(glob(\042tmp/glob-test/src/*.byn\042)) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/{src,lib}/*.byn\042)) == \042tmp/glob-test/lib/f.byn tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/src/x/\077.cs\042)) == \042tmp/glob-test/src/x/e.cs\042\012    assert joined(glob(\042tmp/glob-test/src/[ab].byn\042)) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/src/a.byn\042)) == \042tmp/glob-test/src/a.byn\042\012    for f in all { assert Glob.matches(\042tmp/glob-test/src/**/*.byn\042, for: f) }\012}\012\012test \042glob finds nothing for a directory, a missing base or a pattern no file fits\042 {\012    assert glob(\042tmp/glob-test/src\042).length == 0\012    assert glob(\042tmp/glob-test/none/*.byn\042).length == 0\012    assert glob(\042tmp/glob-test/src/*.rs\042).length == 0\012    assert glob(\042tmp/glob-test/src/\077.byn/x\042).length == 0\012}\012\012test \042glob skips a directory it cannot read, and does not list it\042 {\012    let root = \042tmp/glob-locked\042\012    Io.createDirectory(\042tmp/glob-locked/locked.byn\042) catch { assert false }\012    touch(root, at: \042a.byn\042)\012    touch(\042tmp/glob-locked/locked.byn\042, at: \042b.byn\042)\012    let lock: string[2] = [\042-c\042, \042chmod 000 tmp/glob-locked/locked.byn\042]\012    // No `sh` (Windows): nothing to test.\012    let _ = Io.run(\042sh\042, lock.span) catch { return }\012    let found = unreadable(\042tmp/glob-locked/locked.byn\042) \077 joined(glob(\042tmp/glob-locked/**/*.byn\042)) : \042tmp/glob-locked/a.byn\042\012    let unlock: string[2] = [\042-c\042, \042chmod 755 tmp/glob-locked/locked.byn\042]\012    let _ = Io.run(\042sh\042, unlock.span) catch { panic(\042chmod 755 failed\042) }\012    assert found == \042tmp/glob-locked/a.byn\042\012}\012\012/// Whether listing `dir` fails (false when running as root, which reads it anyway).\012bool unreadable(string dir) uses fs, alloc {\012    let _ = Io.listDir(dir) catch { return true }\012    return false\012}\012", 3088)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("fs/glob.test.byn", 16), BYN_STR("// Tests of std.fs glob, over a tree the tests build in tmp/ below the working directory.\012\012/// Writes `rel` (and its parent directories) under `root`, empty.\012void touch(string root, at string rel) uses fs, alloc {\012    var dir = $\042{root}\042\012    for part in rel.parts(by: \042/\042) {\012        let at = Path.combine(dir, part)\012        if part.contains(\042.\042) {\012            Io.writeFile(at, \042\042.bytes) catch { assert false }\012        } else {\012            Io.createDirectory(at) catch { assert false }\012        }\012        dir = at\012    }\012}\012\012/// `found` as one line, entries separated by a space.\012string joined(List<string> found) uses alloc {\012    var sb = StrBuf()\012    for f in found {\012        if sb.length > 0 { sb.append(\042 \042) }\012        sb.append(f)\012    }\012    return sb.finish()\012}\012\012test \042glob lists the matching files, sorted, with / separators\042 {\012    let root = \042tmp/glob-test\042\012    touch(root, at: \042src/b.byn\042)\012    touch(root, at: \042src/a.byn\042)\012    touch(root, at: \042src/x/c.byn\042)\012    touch(root, at: \042src/x/y/d.byn\042)\012    touch(root, at: \042src/x/e.cs\042)\012    touch(root, at: \042lib/f.byn\042)\012    let all = glob(\042tmp/glob-test/src/**/*.byn\042)\012    assert joined(all) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn tmp/glob-test/src/x/c.byn tmp/glob-test/src/x/y/d.byn\042\012    assert joined(glob(\042tmp/glob-test/src/*.byn\042)) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/{src,lib}/*.byn\042)) == \042tmp/glob-test/lib/f.byn tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/src/x/\077.cs\042)) == \042tmp/glob-test/src/x/e.cs\042\012    assert joined(glob(\042tmp/glob-test/src/[ab].byn\042)) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/src/a.byn\042)) == \042tmp/glob-test/src/a.byn\042\012    for f in all { assert Glob.matches(\042tmp/glob-test/src/**/*.byn\042, for: f) }\012}\012\012test \042glob finds nothing for a directory, a missing base or a pattern no file fits\042 {\012    assert glob(\042tmp/glob-test/src\042).length == 0\012    assert glob(\042tmp/glob-test/none/*.byn\042).length == 0\012    assert glob(\042tmp/glob-test/src/*.rs\042).length == 0\012    assert glob(\042tmp/glob-test/src/\077.byn/x\042).length == 0\012}\012\012test \042glob skips a directory it cannot read, and does not list it\042 {\012    let root = \042tmp/glob-locked\042\012    Io.createDirectory(\042tmp/glob-locked/locked.byn\042) catch { assert false }\012    touch(root, at: \042a.byn\042)\012    touch(\042tmp/glob-locked/locked.byn\042, at: \042b.byn\042)\012    let lock: string[2] = [\042-c\042, \042chmod 000 tmp/glob-locked/locked.byn\042]\012    // No `sh` (Windows): nothing to test.\012    let _ = Io.run(\042sh\042, lock.span) catch { return }\012    let found = unreadable(\042tmp/glob-locked/locked.byn\042) \077 joined(glob(\042tmp/glob-locked/**/*.byn\042)) : \042tmp/glob-locked/a.byn\042\012    let unlock: string[2] = [\042-c\042, \042chmod 755 tmp/glob-locked/locked.byn\042]\012    let _ = Io.run(\042sh\042, unlock.span) catch { panic(\042chmod 755 failed\042) }\012    assert found == \042tmp/glob-locked/a.byn\042\012}\012\012/// Whether listing `dir` fails (false when running as root, which reads it anyway).\012bool unreadable(string dir) uses fs, alloc {\012    let _ = Io.listDir(dir) catch { return true }\012    return false\012}\012\012/// Runs `ln -sfn target link` in `sh`; false when there is no `sh` or no links (Windows).\012bool link(string target, at string path) uses fs, alloc, process {\012    let args: string[2] = [\042-c\042, $\042ln -sfn {target} {path}\042]\012    let _ = Io.run(\042sh\042, args.span) catch { return false }\012    return true\012}\012\012test \042glob lists each file once through a link back up the tree\042 {\012    let root = \042tmp/glob-loop\042\012    touch(root, at: \042a/f.byn\042)\012    touch(root, at: \042a/g.byn\042)\012    if !link(\042..\042, at: \042tmp/glob-loop/a/loop\042) { return }\012    assert joined(glob(\042tmp/glob-loop/**/*.byn\042)) == \042tmp/glob-loop/a/f.byn tmp/glob-loop/a/g.byn\042\012}\012\012test \042glob lists each file once through two links into each other's trees\042 {\012    let root = \042tmp/glob-cross\042\012    touch(root, at: \042a/f.byn\042)\012    touch(root, at: \042b/g.byn\042)\012    if !link(\042../b\042, at: \042tmp/glob-cross/a/x\042) { return }\012    if !link(\042../a\042, at: \042tmp/glob-cross/b/y\042) { return }\012    // Which of a file's paths is listed depends on the order the directories are read in, so only the count is fixed.\012    assert glob(\042tmp/glob-cross/**/*.byn\042).length == 2\012}\012", 4169)}));
 #line 10 "semantics/stdsource.byn"
     (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("json/json.test.byn", 18), BYN_STR("// Tests of std.json. The \042parse then encode\042 table's expected encodings are python3 `json.dumps` output (indent 0 is\012// `json.dumps(v)`, N is `json.dumps(v, indent=N)`) for `json.loads` of the input, recorded from a run, not written by hand.\012// Number text is kept as read (`1e400`, `1E2`; spec 016), so the cases with such numbers are not python's output.\012\012/// The tree of `text`, trusted for the test.\012JsonValue tree(string text) uses alloc fails JsonError {\012    return (try Json.parse(text)).trustUnchecked() because \042test input is a literal\042\012}\012\012/// `ok`, or the error `Json.parse(text)` fails with, as `describe` writes it.\012string errorOf(string text) uses alloc {\012    let _ = Json.parse(text) catch switch {\012        JsonError e => return describe(e),\012    }\012    return \042ok\042\012}\012\012/// `ok`, or the error `Json.encode(v)` fails with, as `describe` writes it.\012string encodeErrorOf(JsonValue v) uses alloc {\012    let _ = Json.encode(v) catch switch {\012        JsonError e => return describe(e),\012    }\012    return \042ok\042\012}\012\012/// `e` as `kind message @offset line:column`, or its kind alone when it has no position.\012string describe(JsonError e) uses alloc => e switch {\012    .syntax s      => $\042syntax {s.message} @{s.offset} {s.line}:{s.column}\042,\012    .tooDeep d     => $\042tooDeep @{d.offset} {d.line}:{d.column}\042,\012    .nonFinite     => \042nonFinite\042,\012    .nestedTooDeep => \042nestedTooDeep\042,\012}\012\012/// `depth` lists, each holding the next, around `null`.\012JsonValue nested(i64 depth) uses alloc {\012    var v = JsonValue.nothing\012    for _ in 0..depth {\012        var items = List<JsonValue>()\012        items.append(move v)\012        v = .list(items: move items)\012    }\012    return v\012}\012\012/// The tokens of `text`, one word each.\012string tokensOf(string text) uses alloc fails JsonError {\012    var reader = JsonReader.over(text)\012    var sb = StrBuf()\012    while true {\012        let token = (try reader.next()) \077\077 break\012        let word = token switch {\012            .startObject     => \042{\042,\012            .endObject       => \042}\042,\012            .startList       => \042[\042,\012            .endList         => \042]\042,\012            .key(let name)   => $\042key:{name}\042,\012            .text(let value) => $\042text:{value}\042,\012            .number(let value, let digits) => $\042number:{value}/{digits}\042,\012            .flag(let value) => $\042flag:{value}\042,\012            .nothing         => \042null\042,\012        }\012        sb.append($\042{word} \042)\012    }\012    return $\042{sb.finish()}\042\012}\012\012@cases(\012    (\042null\042, 0, \042null\042),\012    (\042null\042, 2, \042null\042),\012    (\042null\042, 4, \042null\042),\012    (\042true\042, 0, \042true\042),\012    (\042true\042, 2, \042true\042),\012    (\042true\042, 4, \042true\042),\012    (\042false\042, 0, \042false\042),\012    (\042false\042, 2, \042false\042),\012    (\042false\042, 4, \042false\042),\012    (\0420\042, 0, \0420\042),\012    (\0420\042, 2, \0420\042),\012    (\0420\042, 4, \0420\042),\012    (\042-12\042, 0, \042-12\042),\012    (\042-12\042, 2, \042-12\042),\012    (\042-12\042, 4, \042-12\042),\012    (\0421.5\042, 0, \0421.5\042),\012    (\0421.5\042, 2, \0421.5\042),\012    (\0421.5\042, 4, \0421.5\042),\012    (\042\134\042hi\134\042\042, 0, \042\134\042hi\134\042\042),\012    (\042\134\042hi\134\042\042, 2, \042\134\042hi\134\042\042),\012    (\042\134\042hi\134\042\042, 4, \042\134\042hi\134\042\042),\012    (\042[]\042, 0, \042[]\042),\012    (\042[]\042, 2, \042[]\042),\012    (\042[]\042, 4, \042[]\042),\012    (\042{}\042, 0, \042{}\042),\012    (\042{}\042, 2, \042{}\042),\012    (\042{}\042, 4, \042{}\042),\012    (\042[1, 2, 3]\042, 0, \042[1, 2, 3]\042),\012    (\042[1, 2, 3]\042, 2, \042[\134n  1,\134n  2,\134n  3\134n]\042),\012    (\042[1, 2, 3]\042, 4, \042[\134n    1,\134n    2,\134n    3\134n]\042),\012    (\042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042, 0, \042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042),\012    (\042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042, 2, \042{\134n  \134\042a\134\042: 1,\134n  \134\042b\134\042: [\134n    1,\134n    2\134n  ]\134n}\042),\012    (\042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042, 4, \042{\134n    \134\042a\134\042: 1,\134n    \134\042b\134\042: [\134n        1,\134n        2\134n    ]\134n}\042),\012    (\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042,\012        0,\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042\012    ),\012    (\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042,\012        2,\012        \042{\134n  \134\042a\134\042: {\134n    \134\042b\134\042: {\134n      \134\042c\134\042: []\134n    }\134n  },\134n  \134\042d\134\042: [\134n    {},\134n    [],\134n    [\134n      null,\134n      true,\134n      false\134n    ]\134n  ],\134n  \134\042e\134\042: \134\042x\134\042\134n}\042\012    ),\012    (\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042,\012        4,\012        \042{\134n    \134\042a\134\042: {\134n        \134\042b\134\042: {\134n            \134\042c\134\042: []\134n        }\134n    },\134n    \134\042d\134\042: [\134n        {},\134n        [],\134n        [\134n            null,\134n            true,\134n            false\134n        ]\134n    ],\134n    \134\042e\134\042: \134\042x\134\042\134n}\042\012    ),\012    (\042 \134t\134r\134n [ 1 , { \134\042x\134\042 : \134\042y\134\042 } ] \134n\042, 0, \042[1, {\134\042x\134\042: \134\042y\134\042}]\042),\012    (\042 \134t\134r\134n [ 1 , { \134\042x\134\042 : \134\042y\134\042 } ] \134n\042, 2, \042[\134n  1,\134n  {\134n    \134\042x\134\042: \134\042y\134\042\134n  }\134n]\042),\012    (\042 \134t\134r\134n [ 1 , { \134\042x\134\042 : \134\042y\134\042 } ] \134n\042, 4, \042[\134n    1,\134n    {\134n        \134\042x\134\042: \134\042y\134\042\134n    }\134n]\042),\012    (\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042,\012        0,\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042\012    ),\012    (\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042,\012        2,\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042\012    ),\012    (\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042,\012        4,\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042\012    ),\012    (\042\134\042caf\303\251 \344\270\255 \360\237\230\200\134\042\042, 0, \042\134\042caf\134\134u00e9 \134\134u4e2d \134\134ud83d\134\134ude00\134\042\042),\012    (\042\134\042caf\303\251 \344\270\255 \360\237\230\200\134\042\042, 2, \042\134\042caf\134\134u00e9 \134\134u4e2d \134\134ud83d\134\134ude00\134\042\042),\012    (\042\134\042caf\303\251 \344\270\255 \360\237\230\200\134\042\042, 4, \042\134\042caf\134\134u00e9 \134\134u4e2d \134\134ud83d\134\134ude00\134\042\042),\012    (\042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042, 0, \042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042),\012    (\012        \042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042,\012        2,\012        \042[\134n  0,\134n  10,\134n  -3.25,\134n  0.5,\134n  2.0,\134n  1e+21,\134n  -1.5e-07\134n]\042\012    ),\012    (\012        \042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042,\012        4,\012        \042[\134n    0,\134n    10,\134n    -3.25,\134n    0.5,\134n    2.0,\134n    1e+21,\134n    -1.5e-07\134n]\042\012    ),\012)\012test \042parse then encode is json.dumps\042 (string input, i32 indent, string expected) {\012    assert (try Json.encode(try tree(input), indent: indent)) == expected\012}\012\012test \042the reader gives every token kind, then null\042 {\012    assert (\012        try tokensOf(\042{\134\042a\134\042: [1.5e1, true, false, null, \134\042x\134\042, {}]}\042)\012    ) == \042{ key:a [ number:15/1.5e1 flag:true flag:false null text:x { } ] } \042\012}\012\012test \042next stays null after the end\042 {\012    var reader = JsonReader.over(\042 7 \042)\012    assert (try reader.next()) is .number(let value, _) && value == 7.0\012    assert (try reader.next()) is null\012    assert (try reader.next()) is null\012}\012\012test \042a number keeps its text and its value\042 {\012    assert (try Json.encode(try tree(\042[1E5, 1.0, -0, 1e400]\042))) == \042[1E5, 1.0, -0, 1e400]\042\012    assert (try tree(\0422.5e-1\042)) is .number(let value, _) && value == 0.25\012}\012\012test \042duplicate keys are kept in order\042 {\012    let v = try tree(\042{\134\042k\134\042: 1, \134\042j\134\042: 2, \134\042k\134\042: 3}\042)\012    assert v is .object(let members) && members.length == 3 && members[0].key == \042k\042 && members[2].key == \042k\042\012}\012\012test \042escapes decode to their runes\042 {\012    assert (try tree(\042\134\042\134\134u00e9\134\134ud83d\134\134ude00\134\134n\134\134/\134\042\042)) is .text(let value) && value == \042\303\251\360\237\230\200\134n/\042\012    assert (try tree(\042\134\042\134\134u00C9\134\134uE000\134\042\042)) is .text(let upper) && upper == \042\303\211\134u{E000}\042\012}\012\012test \042encode writes a built tree as json.dumps does\042 {\012    var members = List<JsonMember>()\012    members.append(JsonMember { key: \042name\042, value: .text(value: \042Bay\304\201n\042) })\012    members.append(JsonMember { key: \042tags\042, value: .list(items: List<JsonValue>()) })\012    members.append(JsonMember { key: \042meta\042, value: .object(members: List<JsonMember>()) })\012    members.append(JsonMember { key: \042n\042, value: .number(value: 3.0, text: \0423\042) })\012    members.append(JsonMember { key: \042ok\042, value: .nothing })\012    let v = JsonValue.object(members: move members)\012    assert (try Json.encode(v)) == \042{\134\042name\134\042: \134\042Bay\134\134u0101n\134\042, \134\042tags\134\042: [], \134\042meta\134\042: {}, \134\042n\134\042: 3, \134\042ok\134\042: null}\042\012    assert (\012        try Json.encode(v, indent: 2)\012    ) == \042{\134n  \134\042name\134\042: \134\042Bay\134\134u0101n\134\042,\134n  \134\042tags\134\042: [],\134n  \134\042meta\134\042: {},\134n  \134\042n\134\042: 3,\134n  \134\042ok\134\042: null\134n}\042\012}\012\012test \042encode writes a built number's text only when it is a JSON number\042 {\012    let inf = f64.tryParse(\0421e400\042) \077\077 0.0\012    assert inf > 1e308\012    assert (try Json.encode(JsonValue.number(value: 1.0, text: \0421, \134\042admin\134\042: true\042))) == \0421\042\012    assert (try Json.encode(JsonValue.number(value: 2.5, text: \042\042))) == \0422.5\042\012    assert (try Json.encode(JsonValue.number(value: 3.0, text: \042nan\042))) == \0423\042\012    assert (try Json.encode(JsonValue.number(value: 0.25, text: \042true\042))) == \0420.25\042\012    assert (try Json.encode(JsonValue.number(value: 100000.0, text: \0421E5\042))) == \0421E5\042\012    assert (try Json.encode(JsonValue.number(value: -0.0005, text: \042-0.5e-3\042))) == \042-0.5e-3\042\012    assert Json.encode(JsonValue.number(value: inf, text: \042inf\042)) fails JsonError.nonFinite\012    assert Json.encode(JsonValue.number(value: -inf, text: \042\042)) fails JsonError.nonFinite\012    assert encodeErrorOf(JsonValue.number(value: inf - inf, text: \042nan\042)) == \042nonFinite\042\012    assert (try Json.encode(JsonValue.number(value: inf, text: \0421e400\042))) == \0421e400\042\012}\012\012test \042encode refuses a tree nested past 128 levels\042 {\012    assert (try Json.encode(nested(128))) == $\042{\042[\042.repeated(128)}null{\042]\042.repeated(128)}\042\012    assert encodeErrorOf(nested(129)) == \042nestedTooDeep\042\012    var members = List<JsonMember>()\012    members.append(JsonMember { key: \042a\042, value: nested(128) })\012    assert Json.encode(JsonValue.object(members: move members)) fails JsonError.nestedTooDeep\012    assert encodeErrorOf(nested(1000000)) == \042nestedTooDeep\042\012    var deep = JsonValue.object(members: List<JsonMember>())\012    for _ in 0..128 {\012        var items = List<JsonValue>()\012        items.append(move deep)\012        deep = .list(items: move items)\012    }\012    assert Json.encode(deep) fails JsonError.nestedTooDeep\012}\012\012@cases(\012    (\042\042, \042syntax unexpected end of input @0 1:1\042),\012    (\042  \042, \042syntax unexpected end of input @2 1:3\042),\012    (\042[1,\042, \042syntax unexpected end of input @3 1:4\042),\012    (\0421 2\042, \042syntax unexpected content after the value @2 1:3\042),\012    (\042[1 2]\042, \042syntax expected `,` or `]` @3 1:4\042),\012    (\042{\134\042a\134\042: 1 \134\042b\134\042: 2}\042, \042syntax expected `,` or `}` @8 1:9\042),\012    (\042{\134\042a\134\042 1}\042, \042syntax expected `:` @5 1:6\042),\012    (\042{1: 2}\042, \042syntax expected a string key @1 1:2\042),\012    (\042{\134\042a\134\042: 1,}\042, \042syntax expected a string key @8 1:9\042),\012    (\042[1,]\042, \042syntax expected a value @3 1:4\042),\012    (\042NaN\042, \042syntax expected a value @0 1:1\042),\012    (\042Infinity\042, \042syntax expected a value @0 1:1\042),\012    (\042-Infinity\042, \042syntax invalid number @0 1:1\042),\012    (\042+1\042, \042syntax expected a value @0 1:1\042),\012    (\042.5\042, \042syntax expected a value @0 1:1\042),\012    (\04201\042, \042syntax leading zero in a number @0 1:1\042),\012    (\042-01\042, \042syntax leading zero in a number @0 1:1\042),\012    (\0421.\042, \042syntax invalid number @0 1:1\042),\012    (\0421.e5\042, \042syntax invalid number @0 1:1\042),\012    (\0421e\042, \042syntax invalid number @0 1:1\042),\012    (\0421e+\042, \042syntax invalid number @0 1:1\042),\012    (\042-\042, \042syntax invalid number @0 1:1\042),\012    (\042tru\042, \042syntax expected a value @0 1:1\042),\012    (\042\134\042abc\042, \042syntax unterminated string @0 1:1\042),\012    (\042\134\042a\134u{1}\134\042\042, \042syntax control character in a string @2 1:3\042),\012    (\042\134\042a\134\134x\134\042\042, \042syntax invalid escape @2 1:3\042),\012    (\042\134\042\134\134u12g4\134\042\042, \042syntax invalid \134\134u escape @1 1:2\042),\012    (\042\134\042\134\134u12G4\134\042\042, \042syntax invalid \134\134u escape @1 1:2\042),\012    (\042\134\042\134\134u-123\134\042\042, \042syntax invalid \134\134u escape @1 1:2\042),\012    (\042\134\042\134\134ud83d\134\134ue000\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042\134\042\134\134ud83d\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042\134\042\134\134ud83d\134\134u0041\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042\134\042\134\134ude00\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042[\134\042\134\134ud83d\134\134u12\134\042]\042, \042syntax invalid \134\134u escape @8 1:9\042),\012    (\042[\134n  \134\042\303\251\134\042, x]\042, \042syntax expected a value @10 2:8\042),\012    (\042[1] x\042, \042syntax unexpected content after the value @4 1:5\042),\012)\012test \042parse refuses broken text\042 (string input, string expected) {\012    assert errorOf(input) == expected\012}\012\012test \042line and column are reported past one line\042 {\012    assert errorOf($\042[1,\134n{\042 \042.repeated(70000)}x\042) == \042syntax expected a value @70004 2:70001\042\012}\012\012test \042line and column hold values past i32\042 {\012    assert describe(\012        JsonError.syntax(message: \042m\042, offset: 0, line: 3000000000, column: 4000000000),\012    ) == \042syntax m @0 3000000000:4000000000\042\012    assert describe(\012        JsonError.tooDeep(offset: 0, line: 3000000000, column: 4000000000),\012    ) == \042tooDeep @0 3000000000:4000000000\042\012}\012\012test \042nesting past 128 levels is tooDeep\042 {\012    assert errorOf(\042[\042.repeated(128)) == \042syntax unexpected end of input @128 1:129\042\012    assert errorOf(\042[\042.repeated(129)) == \042tooDeep @128 1:129\042\012    assert errorOf($\042{\042{\134\042a\134\042:\042.repeated(128)}{{\042) == \042tooDeep @640 1:641\042\012    assert Json.parse(\042[\042.repeated(100000)) fails JsonError.tooDeep\012}\012\012test \042a reader error is the parse error\042 {\012    var reader = JsonReader.over(\042[}\042)\012    assert (try reader.next()) is .startList\012    assert reader.next() fails JsonError.syntax\012}\012", 12637)}));
 #line 11 "semantics/stdsource.byn"
@@ -227356,109 +227356,118 @@ bynt_map_str_bool byn_main__t6OtherUses(byn_str p_file, bynt_list_u8 p_bytes, by
 
 byn_err byn_main__manifestFor(byn_str p_file, bynt_map_str_opt_main__T6Found* p_cache, bynt_opt_main__T6Found* byn_out) {
     bynt_opt_str l0_dir = {0};
-    bynt_list_str l1_seen = {0};
-    bynt_opt_main__T6Found l2_found = {0};
-    byn_str l3_current = {0};
-    bynt_opt_main__T6Found t4 = {0};
-    byn_str l5_candidate = {0};
-    bynt_semantics__Manifest l6_manifest = {0};
-    byn_err t7 = {0};
-    bynt_semantics__Manifest t8 = {0};
-    bool l9_hasErrors = {0};
-    byn_str l10_report = {0};
-    byn_str t11 = {0};
-    bynt_opt_main__T6Found t12 = {0};
-    bynt_opt_str t13 = {0};
-    byn_str l14_d = {0};
-    bynt_list_str t15 = {0};
-    int64_t t16 = {0};
-#line 151 "driver/walk.byn"
-    l0_dir = bynh_path_directory_name(byn_path_full_path(p_file, byn_context, byn_file_108, 151));
-#line 152 "driver/walk.byn"
-    l1_seen = ((bynt_list_str){NULL, 0, 0, byn_context});
+    byn_err t1 = {0};
+    byn_str t2 = {0};
+    bynt_list_str l3_seen = {0};
+    bynt_opt_main__T6Found l4_found = {0};
+    byn_str l5_current = {0};
+    bynt_opt_main__T6Found t6 = {0};
+    byn_str l7_candidate = {0};
+    bynt_semantics__Manifest l8_manifest = {0};
+    byn_err t9 = {0};
+    bynt_semantics__Manifest t10 = {0};
+    bool l11_hasErrors = {0};
+    byn_str l12_report = {0};
+    byn_str t13 = {0};
+    bynt_opt_main__T6Found t14 = {0};
+    bynt_opt_str t15 = {0};
+    byn_str l16_d = {0};
+    bynt_list_str t17 = {0};
+    int64_t t18 = {0};
 #line 153 "driver/walk.byn"
-    l2_found = ((bynt_opt_main__T6Found){0});
+    t1 = byn_main__realPath(p_file, &t2);
+#line 153 "driver/walk.byn"
+    if ((!(t1.code == ((uint32_t)0)))) {
+#line 153 "driver/walk.byn"
+        return t1;
+    }
+#line 153 "driver/walk.byn"
+    l0_dir = bynh_path_directory_name(t2);
 #line 154 "driver/walk.byn"
-    for (;;) {
-#line 154 "driver/walk.byn"
-        if ((!(l0_dir.has && ((l3_current = l0_dir.value), true)))) {
-#line 154 "driver/walk.byn"
-            goto break_1;
-        }
+    l3_seen = ((bynt_list_str){NULL, 0, 0, byn_context});
 #line 155 "driver/walk.byn"
-        if (bynh_has_map_str_opt_main__T6Found((*p_cache), l3_current)) {
+    l4_found = ((bynt_opt_main__T6Found){0});
 #line 156 "driver/walk.byn"
-            t4 = bynh_index_map_str_opt_main__T6Found((*p_cache), l3_current, byn_file_108, 156);
+    for (;;) {
 #line 156 "driver/walk.byn"
-            l2_found = t4;
+        if ((!(l0_dir.has && ((l5_current = l0_dir.value), true)))) {
+#line 156 "driver/walk.byn"
+            goto break_1;
+        }
 #line 157 "driver/walk.byn"
-            goto break_1;
-        }
+        if (bynh_has_map_str_opt_main__T6Found((*p_cache), l5_current)) {
+#line 158 "driver/walk.byn"
+            t6 = bynh_index_map_str_opt_main__T6Found((*p_cache), l5_current, byn_file_108, 158);
+#line 158 "driver/walk.byn"
+            l4_found = t6;
 #line 159 "driver/walk.byn"
-        (void)bynh_add_list_str(&l1_seen, l3_current);
-#line 160 "driver/walk.byn"
-        l5_candidate = byn_path_combine(l3_current, BYN_STR("package.byn", 11), byn_context);
-#line 161 "driver/walk.byn"
-        if (byn_fs_file_exists(l5_candidate)) {
-#line 162 "driver/walk.byn"
-            t7 = byn_semantics__manifestRead(l5_candidate, &t8);
-#line 162 "driver/walk.byn"
-            if ((!(t7.code == ((uint32_t)0)))) {
-#line 162 "driver/walk.byn"
-                return t7;
-            }
-#line 162 "driver/walk.byn"
-            l6_manifest = t8;
-#line 163 "driver/walk.byn"
-            l9_hasErrors = (byn_semantics__manifestErrorCount(l6_manifest) > INT64_C(0));
-#line 164 "driver/walk.byn"
-            l10_report = BYN_STR("", 0);
-#line 165 "driver/walk.byn"
-            if (l9_hasErrors) {
-#line 166 "driver/walk.byn"
-                t11 = byn_main__t8RenderManifest(l5_candidate, l6_manifest.diagnostics);
-#line 166 "driver/walk.byn"
-                l10_report = t11;
-            }
-#line 168 "driver/walk.byn"
-            t12 = ((bynt_opt_main__T6Found){true, ((bynt_main__T6Found){l3_current, l6_manifest.booleans, l6_manifest.primitives, l9_hasErrors, l10_report, l6_manifest.indent, l6_manifest.width, l6_manifest.align, l6_manifest.trailingCommas})});
-#line 168 "driver/walk.byn"
-            l2_found = t12;
-#line 170 "driver/walk.byn"
             goto break_1;
         }
+#line 161 "driver/walk.byn"
+        (void)bynh_add_list_str(&l3_seen, l5_current);
+#line 162 "driver/walk.byn"
+        l7_candidate = byn_path_combine(l5_current, BYN_STR("package.byn", 11), byn_context);
+#line 163 "driver/walk.byn"
+        if (byn_fs_file_exists(l7_candidate)) {
+#line 164 "driver/walk.byn"
+            t9 = byn_semantics__manifestRead(l7_candidate, &t10);
+#line 164 "driver/walk.byn"
+            if ((!(t9.code == ((uint32_t)0)))) {
+#line 164 "driver/walk.byn"
+                return t9;
+            }
+#line 164 "driver/walk.byn"
+            l8_manifest = t10;
+#line 165 "driver/walk.byn"
+            l11_hasErrors = (byn_semantics__manifestErrorCount(l8_manifest) > INT64_C(0));
+#line 166 "driver/walk.byn"
+            l12_report = BYN_STR("", 0);
+#line 167 "driver/walk.byn"
+            if (l11_hasErrors) {
+#line 168 "driver/walk.byn"
+                t13 = byn_main__t8RenderManifest(l7_candidate, l8_manifest.diagnostics);
+#line 168 "driver/walk.byn"
+                l12_report = t13;
+            }
+#line 170 "driver/walk.byn"
+            t14 = ((bynt_opt_main__T6Found){true, ((bynt_main__T6Found){l5_current, l8_manifest.booleans, l8_manifest.primitives, l11_hasErrors, l12_report, l8_manifest.indent, l8_manifest.width, l8_manifest.align, l8_manifest.trailingCommas})});
+#line 170 "driver/walk.byn"
+            l4_found = t14;
 #line 172 "driver/walk.byn"
-        t13 = bynh_path_directory_name(l3_current);
-#line 172 "driver/walk.byn"
-        l0_dir = t13;
+            goto break_1;
+        }
+#line 174 "driver/walk.byn"
+        t15 = bynh_path_directory_name(l5_current);
+#line 174 "driver/walk.byn"
+        l0_dir = t15;
     continue_2:;
     }
 break_1:;
-#line 174 "driver/walk.byn"
-    t15 = l1_seen;
-#line 174 "driver/walk.byn"
-    t16 = INT64_C(0);
-#line 174 "driver/walk.byn"
+#line 176 "driver/walk.byn"
+    t17 = l3_seen;
+#line 176 "driver/walk.byn"
+    t18 = INT64_C(0);
+#line 176 "driver/walk.byn"
     for (;;) {
-#line 174 "driver/walk.byn"
-        if ((!(t16 < t15.len))) {
-#line 174 "driver/walk.byn"
+#line 176 "driver/walk.byn"
+        if ((!(t18 < t17.len))) {
+#line 176 "driver/walk.byn"
             goto break_3;
         }
-#line 174 "driver/walk.byn"
-        l14_d = t15.ptr[t16];
-#line 175 "driver/walk.byn"
-        (*bynh_slot_map_str_opt_main__T6Found(&(*p_cache), l14_d, ((bynt_opt_main__T6Found){0}))) = l2_found;
+#line 176 "driver/walk.byn"
+        l16_d = t17.ptr[t18];
+#line 177 "driver/walk.byn"
+        (*bynh_slot_map_str_opt_main__T6Found(&(*p_cache), l16_d, ((bynt_opt_main__T6Found){0}))) = l4_found;
     continue_4:;
-#line 174 "driver/walk.byn"
-        t16 = byn_addw_i64(t16, INT64_C(1));
+#line 176 "driver/walk.byn"
+        t18 = byn_addw_i64(t18, INT64_C(1));
     }
 break_3:;
-#line 177 "driver/walk.byn"
-    *byn_out = l2_found;
+#line 179 "driver/walk.byn"
+    *byn_out = l4_found;
     return (byn_err){0};
 }
-#line 227462 "main.c"
+#line 227471 "main.c"
 
 bynt_map_str_bool byn_main__packageNames(byn_str p_dir) {
     bynt_map_str_bool l0_names = {0};
@@ -227484,112 +227493,112 @@ bynt_map_str_bool byn_main__packageNames(byn_str p_dir) {
     int64_t t20 = {0};
     byn_str l21_name = {0};
     bool l22__ = {0};
-#line 183 "driver/walk.byn"
+#line 185 "driver/walk.byn"
     l0_names = ((bynt_map_str_bool){{.alloc = byn_context}, NULL, NULL});
-#line 184 "driver/walk.byn"
+#line 186 "driver/walk.byn"
     l1_ignored = ((int32_t)0);
-#line 186 "driver/walk.byn"
+#line 188 "driver/walk.byn"
     t3 = byn_main__realPath(p_dir, &t4);
-#line 186 "driver/walk.byn"
+#line 188 "driver/walk.byn"
     if ((!(t3.code == ((uint32_t)0)))) {
-#line 186 "driver/walk.byn"
+#line 188 "driver/walk.byn"
         return l0_names;
     }
-#line 186 "driver/walk.byn"
+#line 188 "driver/walk.byn"
     l2_root = t4;
-#line 187 "driver/walk.byn"
+#line 189 "driver/walk.byn"
     t6 = byn_main__bynFiles(p_dir, &l1_ignored, ((bynt_opt_str){true, l2_root}), true);
-#line 187 "driver/walk.byn"
+#line 189 "driver/walk.byn"
     t7 = INT64_C(0);
-#line 187 "driver/walk.byn"
+#line 189 "driver/walk.byn"
     for (;;) {
-#line 187 "driver/walk.byn"
+#line 189 "driver/walk.byn"
         if ((!(t7 < t6.len))) {
-#line 187 "driver/walk.byn"
+#line 189 "driver/walk.byn"
             goto break_1;
         }
-#line 187 "driver/walk.byn"
+#line 189 "driver/walk.byn"
         l5_file = t6.ptr[t7];
-#line 188 "driver/walk.byn"
-        if (byn_str_eq(byn_path_file_name(l5_file, byn_context), BYN_STR("package.byn", 11))) {
-#line 188 "driver/walk.byn"
-            goto continue_2;
-        }
-#line 189 "driver/walk.byn"
-        t9 = (byn_err){ .code = bynh_io_read_file(l5_file, &t10) };
-#line 189 "driver/walk.byn"
-        if ((!(t9.code == ((uint32_t)0)))) {
-#line 189 "driver/walk.byn"
-            goto continue_2;
-        }
-#line 189 "driver/walk.byn"
-        l8_bytes = t10;
 #line 190 "driver/walk.byn"
+        if (byn_str_eq(byn_path_file_name(l5_file, byn_context), BYN_STR("package.byn", 11))) {
+#line 190 "driver/walk.byn"
+            goto continue_2;
+        }
+#line 191 "driver/walk.byn"
+        t9 = (byn_err){ .code = bynh_io_read_file(l5_file, &t10) };
+#line 191 "driver/walk.byn"
+        if ((!(t9.code == ((uint32_t)0)))) {
+#line 191 "driver/walk.byn"
+            goto continue_2;
+        }
+#line 191 "driver/walk.byn"
+        l8_bytes = t10;
+#line 192 "driver/walk.byn"
         l11_copy = ((bynt_list_u8){NULL, 0, 0, byn_context});
-#line 191 "driver/walk.byn"
+#line 193 "driver/walk.byn"
         t13 = l8_bytes;
-#line 191 "driver/walk.byn"
+#line 193 "driver/walk.byn"
         t14 = INT64_C(0);
-#line 191 "driver/walk.byn"
+#line 193 "driver/walk.byn"
         for (;;) {
-#line 191 "driver/walk.byn"
+#line 193 "driver/walk.byn"
             if ((!(t14 < t13.len))) {
-#line 191 "driver/walk.byn"
+#line 193 "driver/walk.byn"
                 goto break_3;
             }
-#line 191 "driver/walk.byn"
+#line 193 "driver/walk.byn"
             l12_b = t13.ptr[t14];
-#line 192 "driver/walk.byn"
+#line 194 "driver/walk.byn"
             (void)bynh_add_list_u8(&l11_copy, l12_b);
         continue_4:;
-#line 191 "driver/walk.byn"
+#line 193 "driver/walk.byn"
             t14 = byn_addw_i64(t14, INT64_C(1));
         }
     break_3:;
-#line 195 "driver/walk.byn"
-        t16 = byn_lexer__SourceText__create(l5_file, l11_copy);
-#line 194 "driver/walk.byn"
-        l15_p = byn_parser__Parser__create(byn_lexer__lex(t16, byn_lexer__Keywords__build()));
 #line 197 "driver/walk.byn"
+        t16 = byn_lexer__SourceText__create(l5_file, l11_copy);
+#line 196 "driver/walk.byn"
+        l15_p = byn_parser__Parser__create(byn_lexer__lex(t16, byn_lexer__Keywords__build()));
+#line 199 "driver/walk.byn"
         l17_tree = byn_parser__parseCompilationUnit(&l15_p);
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
         t19 = byn_main__t6OtherUses(l5_file, l8_bytes, l17_tree, &l15_p);
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
         t20 = INT64_C(0);
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
         for (;;) {
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
             if ((!(t20 < t19.h.len))) {
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
                 goto break_5;
             }
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
             if ((!(!t19.h.dead[t20]))) {
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
                 goto continue_6;
             }
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
             l18__ = ((bynt_tup2_str_bool){t19.keys[t20], t19.vals[t20]});
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
             l21_name = l18__.item1;
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
             l22__ = l18__.item2;
-#line 199 "driver/walk.byn"
+#line 201 "driver/walk.byn"
             (*bynh_slot_map_str_bool(&l0_names, l21_name, ((bool){0}))) = true;
         continue_6:;
-#line 198 "driver/walk.byn"
+#line 200 "driver/walk.byn"
             t20 = byn_addw_i64(t20, INT64_C(1));
         }
     break_5:;
     continue_2:;
-#line 187 "driver/walk.byn"
+#line 189 "driver/walk.byn"
         t7 = byn_addw_i64(t7, INT64_C(1));
     }
 break_1:;
-#line 202 "driver/walk.byn"
+#line 204 "driver/walk.byn"
     return l0_names;
 }
-#line 227593 "main.c"
+#line 227602 "main.c"
 
 bynt_main__NativeBuild byn_main__ZigOrCc__compile(bynt_main__ZigOrCc* self, byn_str p_dir, byn_str p_source, byn_str p_output, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_compiler = {0};
@@ -227871,7 +227880,7 @@ break_1:;
 #line 297 "driver/cc.byn"
     return ((bynt_main__NativeBuild){true, BYN_STR("", 0), false});
 }
-#line 227875 "main.c"
+#line 227884 "main.c"
 
 bynt_list_u8 byn_main__LayoutEngine__render(bynt_main__LayoutEngine* self, bynt_parser__CompilationUnit p_tree) {
     int64_t l0_i = {0};
@@ -228005,7 +228014,7 @@ break_5:;
 #line 710 "driver/layout.byn"
     return bynh_copy_list_u8((*self).output, byn_context);
 }
-#line 228009 "main.c"
+#line 228018 "main.c"
 
 byn_lexer_TokenKind byn_main__LayoutEngine__kind(bynt_main__LayoutEngine* self, int64_t p_i) {
 #line 715 "driver/layout.byn"
@@ -228016,13 +228025,13 @@ byn_lexer_TokenKind byn_main__LayoutEngine__kind(bynt_main__LayoutEngine* self, 
 #line 716 "driver/layout.byn"
     return ((byn_lexer_TokenKind)0);
 }
-#line 228020 "main.c"
+#line 228029 "main.c"
 
 bool byn_main__LayoutEngine__textIs(bynt_main__LayoutEngine* self, int64_t p_i, byn_str p_word) {
 #line 720 "driver/layout.byn"
     return byn_main__layoutBytesAre((*self).source, (*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_99, 720)).start, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_99, 720))), p_word);
 }
-#line 228026 "main.c"
+#line 228035 "main.c"
 
 byn_str byn_main__LayoutEngine__text(bynt_main__LayoutEngine* self, int64_t p_i) {
     bynt_list_u8 l0_bytes = {0};
@@ -228054,13 +228063,13 @@ break_1:;
 #line 728 "driver/layout.byn"
     return byn_main__layoutString(l0_bytes);
 }
-#line 228058 "main.c"
+#line 228067 "main.c"
 
 bool byn_main__LayoutEngine__trivia(bynt_main__LayoutEngine* self, int64_t p_i) {
 #line 732 "driver/layout.byn"
     return byn_lexer__Token__get_hasTriviaBefore(&(*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_99, 732)));
 }
-#line 228064 "main.c"
+#line 228073 "main.c"
 
 int64_t byn_main__LayoutEngine__tokenAt(bynt_main__LayoutEngine* self, int64_t p_offset) {
     int64_t l0_lo = {0};
@@ -228096,7 +228105,7 @@ break_1:;
 #line 746 "driver/layout.byn"
     return l0_lo;
 }
-#line 228100 "main.c"
+#line 228109 "main.c"
 
 void byn_main__LayoutEngine__freeze(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     int64_t l0_depth = {0};
@@ -228183,7 +228192,7 @@ break_1:;
     }
 break_3:;
 }
-#line 228187 "main.c"
+#line 228196 "main.c"
 
 int64_t byn_main__LayoutEngine__originalIndent(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_at = {0};
@@ -228215,7 +228224,7 @@ break_1:;
 #line 785 "driver/layout.byn"
     return l1_n;
 }
-#line 228219 "main.c"
+#line 228228 "main.c"
 
 void byn_main__LayoutEngine__levels(bynt_main__LayoutEngine* self) {
     bynt_list_main__LayoutFrame l0_frames = {0};
@@ -228435,7 +228444,7 @@ void byn_main__LayoutEngine__levels(bynt_main__LayoutEngine* self) {
     }
 break_1:;
 }
-#line 228439 "main.c"
+#line 228448 "main.c"
 
 bool byn_main__LayoutEngine__isWasl(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -228444,7 +228453,7 @@ bool byn_main__LayoutEngine__isWasl(bynt_main__LayoutEngine* self, int64_t p_i) 
 #line 878 "driver/layout.byn"
     return (((((((((((((l0_k == ((byn_lexer_TokenKind)23)) || (l0_k == ((byn_lexer_TokenKind)30))) || (l0_k == ((byn_lexer_TokenKind)28))) || (l0_k == ((byn_lexer_TokenKind)49))) || (l0_k == ((byn_lexer_TokenKind)51))) || (l0_k == ((byn_lexer_TokenKind)130))) || (l0_k == ((byn_lexer_TokenKind)131))) || (l0_k == ((byn_lexer_TokenKind)122))) || (l0_k == ((byn_lexer_TokenKind)151))) || (l0_k == ((byn_lexer_TokenKind)148))) || (l0_k == ((byn_lexer_TokenKind)120))) || (l0_k == ((byn_lexer_TokenKind)150))) || byn_main__LayoutEngine__isClause(&(*self), p_i));
 }
-#line 228448 "main.c"
+#line 228457 "main.c"
 
 bool byn_main__LayoutEngine__isClause(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -228481,7 +228490,7 @@ bool byn_main__LayoutEngine__isClause(bynt_main__LayoutEngine* self, int64_t p_i
 #line 903 "driver/layout.byn"
     return false;
 }
-#line 228485 "main.c"
+#line 228494 "main.c"
 
 void byn_main__LayoutEngine__match(bynt_main__LayoutEngine* self) {
     bynt_list_i64 l0_open = {0};
@@ -228533,13 +228542,13 @@ void byn_main__LayoutEngine__match(bynt_main__LayoutEngine* self) {
     }
 break_1:;
 }
-#line 228537 "main.c"
+#line 228546 "main.c"
 
 bool byn_main__LayoutEngine__isIndex(bynt_main__LayoutEngine* self, int64_t p_o) {
 #line 927 "driver/layout.byn"
     return (((byn_main__LayoutEngine__kind(&(*self), p_o) == ((byn_lexer_TokenKind)17)) && (p_o > INT64_C(0))) && byn_main__layoutOperandEnd(byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(p_o, INT64_C(1), byn_file_99, 927))));
 }
-#line 228543 "main.c"
+#line 228552 "main.c"
 
 int64_t byn_main__LayoutEngine__columns(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_n = {0};
@@ -228574,7 +228583,7 @@ break_1:;
 #line 937 "driver/layout.byn"
     return l0_n;
 }
-#line 228578 "main.c"
+#line 228587 "main.c"
 
 bool byn_main__LayoutEngine__multiline(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_b = {0};
@@ -228606,7 +228615,7 @@ break_1:;
 #line 945 "driver/layout.byn"
     return false;
 }
-#line 228610 "main.c"
+#line 228619 "main.c"
 
 int64_t byn_main__LayoutEngine__lineStartOf(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_k = {0};
@@ -228627,7 +228636,7 @@ break_1:;
 #line 954 "driver/layout.byn"
     return l0_k;
 }
-#line 228631 "main.c"
+#line 228640 "main.c"
 
 int64_t byn_main__LayoutEngine__lineEnd(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_k = {0};
@@ -228653,7 +228662,7 @@ break_1:;
 #line 964 "driver/layout.byn"
     return byn_sub_i64((*self).tokens.len, INT64_C(1), byn_file_99, 964);
 }
-#line 228657 "main.c"
+#line 228666 "main.c"
 
 int64_t byn_main__LayoutEngine__width(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_e) {
     int64_t l0_width = {0};
@@ -228706,7 +228715,7 @@ break_1:;
 #line 978 "driver/layout.byn"
     return l0_width;
 }
-#line 228710 "main.c"
+#line 228719 "main.c"
 
 bool byn_main__LayoutEngine__editable(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end) {
     int64_t l0_k = {0};
@@ -228743,7 +228752,7 @@ break_1:;
 #line 988 "driver/layout.byn"
     return true;
 }
-#line 228747 "main.c"
+#line 228756 "main.c"
 
 bynt_list_i64 byn_main__LayoutEngine__items(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     bynt_list_i64 l0_result = {0};
@@ -228777,13 +228786,13 @@ break_1:;
 #line 1002 "driver/layout.byn"
     return l0_result;
 }
-#line 228781 "main.c"
+#line 228790 "main.c"
 
 bool byn_main__LayoutEngine__trailingComma(bynt_main__LayoutEngine* self, int64_t p_c) {
 #line 1006 "driver/layout.byn"
     return ((byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(p_c, INT64_C(1), byn_file_99, 1006)) == ((byn_lexer_TokenKind)22)) && (!(*bynh_at_list_bool((*self).dropComma, (int64_t)byn_sub_i64(p_c, INT64_C(1), byn_file_99, 1006), false, byn_file_99, 1006))));
 }
-#line 228787 "main.c"
+#line 228796 "main.c"
 
 bool byn_main__LayoutEngine__isStructLiteral(bynt_main__LayoutEngine* self, int64_t p_o) {
     byn_lexer_TokenKind l0_prev = {0};
@@ -228797,7 +228806,7 @@ bool byn_main__LayoutEngine__isStructLiteral(bynt_main__LayoutEngine* self, int6
 #line 1012 "driver/layout.byn"
     return (((((l0_prev == ((byn_lexer_TokenKind)1)) || (l0_prev == ((byn_lexer_TokenKind)60))) || (l0_prev == ((byn_lexer_TokenKind)133))) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_o, INT64_C(1), byn_file_99, 1012)) == ((byn_lexer_TokenKind)1))) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_o, INT64_C(2), byn_file_99, 1012)) == ((byn_lexer_TokenKind)26)));
 }
-#line 228801 "main.c"
+#line 228810 "main.c"
 
 bool byn_main__LayoutEngine__commaSafe(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     byn_lexer_TokenKind l0_k = {0};
@@ -228842,7 +228851,7 @@ bool byn_main__LayoutEngine__commaSafe(bynt_main__LayoutEngine* self, int64_t p_
 #line 1034 "driver/layout.byn"
     return (((*bynh_at_list_bool((*self).lineStart, (int64_t)l1_name, false, byn_file_99, 1034)) || byn_main__layoutExpressionBefore(byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(l1_name, INT64_C(1), byn_file_99, 1035)))) || ((byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(l1_name, INT64_C(1), byn_file_99, 1036)) == ((byn_lexer_TokenKind)27)) && byn_main__LayoutEngine__trivia(&(*self), byn_sub_i64(l1_name, INT64_C(1), byn_file_99, 1036))));
 }
-#line 228846 "main.c"
+#line 228855 "main.c"
 
 bool byn_main__LayoutEngine__inPattern(bynt_main__LayoutEngine* self, int64_t p_o) {
     int64_t l0_k = {0};
@@ -228917,7 +228926,7 @@ break_3:;
 #line 1063 "driver/layout.byn"
     return false;
 }
-#line 228921 "main.c"
+#line 228930 "main.c"
 
 bool byn_main__LayoutEngine__hasComment(bynt_main__LayoutEngine* self, int64_t p_k) {
     bynt_main__LayoutGapItem l0_x = {0};
@@ -228949,7 +228958,7 @@ break_1:;
 #line 1071 "driver/layout.byn"
     return false;
 }
-#line 228953 "main.c"
+#line 228962 "main.c"
 
 void byn_main__LayoutEngine__joins(bynt_main__LayoutEngine* self) {
     int64_t l0_c = {0};
@@ -229275,7 +229284,7 @@ break_7:;
     }
 break_11:;
 }
-#line 229279 "main.c"
+#line 229288 "main.c"
 
 int64_t byn_main__LayoutEngine__headerArrowAfter(bynt_main__LayoutEngine* self, int64_t p_c) {
     int64_t l0_k = {0};
@@ -229309,7 +229318,7 @@ break_1:;
 #line 1182 "driver/layout.byn"
     return INT64_C(-1);
 }
-#line 229313 "main.c"
+#line 229322 "main.c"
 
 bool byn_main__LayoutEngine__inUnbrokenTernary(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_o = {0};
@@ -229358,7 +229367,7 @@ break_1:;
 #line 1201 "driver/layout.byn"
     return false;
 }
-#line 229362 "main.c"
+#line 229371 "main.c"
 
 bool byn_main__LayoutEngine__joinable(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     bool l0_broken = {0};
@@ -229398,7 +229407,7 @@ break_1:;
 #line 1221 "driver/layout.byn"
     return (l0_broken && (!(*bynh_at_list_bool((*self).frozen, (int64_t)p_o, false, byn_file_99, 1221))));
 }
-#line 229402 "main.c"
+#line 229411 "main.c"
 
 bool byn_main__LayoutEngine__tryJoin(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end, bynt_list_i64 p_breaks) {
     bynt_list_i64 l0_cleared = {0};
@@ -229487,13 +229496,13 @@ break_5:;
 #line 1240 "driver/layout.byn"
     return false;
 }
-#line 229491 "main.c"
+#line 229500 "main.c"
 
 bool byn_main__LayoutEngine__isLink(bynt_main__LayoutEngine* self, int64_t p_j) {
 #line 1245 "driver/layout.byn"
     return (((byn_main__LayoutEngine__kind(&(*self), p_j) == ((byn_lexer_TokenKind)23)) || (byn_main__LayoutEngine__kind(&(*self), p_j) == ((byn_lexer_TokenKind)30))) && ((byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_j, INT64_C(1), byn_file_99, 1246)) == ((byn_lexer_TokenKind)1)) || byn_parser__isContextualKeyword(byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_j, INT64_C(1), byn_file_99, 1246)))));
 }
-#line 229497 "main.c"
+#line 229506 "main.c"
 
 bool byn_main__LayoutEngine__armLine(bynt_main__LayoutEngine* self, int64_t p_j) {
     int64_t l0_depth = {0};
@@ -229534,7 +229543,7 @@ break_1:;
 #line 1262 "driver/layout.byn"
     return false;
 }
-#line 229538 "main.c"
+#line 229547 "main.c"
 
 bynt_list_main__LayoutChain byn_main__LayoutEngine__chains(bynt_main__LayoutEngine* self) {
     bynt_list_main__LayoutChain l0_result = {0};
@@ -229704,7 +229713,7 @@ break_3:;
 #line 1329 "driver/layout.byn"
     return l0_result;
 }
-#line 229708 "main.c"
+#line 229717 "main.c"
 
 bool byn_main__LayoutEngine__hasLambda(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     int64_t l0_k = {0};
@@ -229736,7 +229745,7 @@ break_1:;
 #line 1337 "driver/layout.byn"
     return false;
 }
-#line 229740 "main.c"
+#line 229749 "main.c"
 
 void byn_main__LayoutEngine__breaks(bynt_main__LayoutEngine* self) {
     bynt_list_main__LayoutChain l0_all = {0};
@@ -229955,7 +229964,7 @@ break_7:;
     }
 break_11:;
 }
-#line 229959 "main.c"
+#line 229968 "main.c"
 
 void byn_main__LayoutEngine__breakList(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     bynt_list_i64 l0_starts = {0};
@@ -230032,7 +230041,7 @@ break_3:;
         (*bynh_at_list_bool((*self).addComma, (int64_t)byn_sub_i64(p_c, INT64_C(1), byn_file_99, 1414), false, byn_file_99, 1414)) = true;
     }
 }
-#line 230036 "main.c"
+#line 230045 "main.c"
 
 bool byn_main__LayoutEngine__scalars(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c, bynt_list_i64 p_starts, bynt_list_i64* p_widths) {
     int64_t l0_k = {0};
@@ -230115,7 +230124,7 @@ break_3:;
 #line 1440 "driver/layout.byn"
     return true;
 }
-#line 230119 "main.c"
+#line 230128 "main.c"
 
 int64_t byn_main__LayoutEngine__rowOf(bynt_main__LayoutEngine* self, int64_t p_o, bynt_list_i64 p_starts, bynt_list_i64 p_widths) {
     int64_t l0_indent = {0};
@@ -230164,7 +230173,7 @@ break_3:;
 #line 1457 "driver/layout.byn"
     return INT64_C(1);
 }
-#line 230168 "main.c"
+#line 230177 "main.c"
 
 bool byn_main__LayoutEngine__rowFits(bynt_main__LayoutEngine* self, int64_t p_n, bynt_list_i64 p_widths, int64_t p_indent) {
     int64_t l0_at = {0};
@@ -230225,7 +230234,7 @@ break_1:;
 #line 1472 "driver/layout.byn"
     return true;
 }
-#line 230229 "main.c"
+#line 230238 "main.c"
 
 bool byn_main__LayoutEngine__breakLine(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_e, bynt_list_main__LayoutChain p_lineChains) {
     bool l0_changed = {0};
@@ -230747,7 +230756,7 @@ break_17:;
 #line 1647 "driver/layout.byn"
     return true;
 }
-#line 230751 "main.c"
+#line 230760 "main.c"
 
 bynt_list_i64 byn_main__LayoutEngine__lowestOperators(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_start, int64_t p_e) {
     bynt_list_i64 l0_found = {0};
@@ -230924,7 +230933,7 @@ break_5:;
 #line 1710 "driver/layout.byn"
     return l16_result;
 }
-#line 230928 "main.c"
+#line 230937 "main.c"
 
 void byn_main__LayoutEngine__topLevelBlanks(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     int64_t l0_d = {0};
@@ -231020,7 +231029,7 @@ void byn_main__LayoutEngine__topLevelBlanks(bynt_main__LayoutEngine* self, bynt_
     }
 break_1:;
 }
-#line 231024 "main.c"
+#line 231033 "main.c"
 
 bool byn_main__LayoutEngine__oneLine(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end) {
     int64_t l0_i = {0};
@@ -231052,7 +231061,7 @@ break_1:;
 #line 1740 "driver/layout.byn"
     return true;
 }
-#line 231056 "main.c"
+#line 231065 "main.c"
 
 byn_str byn_main__LayoutEngine__leadingKeywords(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_writer l0_words = {0};
@@ -231093,7 +231102,7 @@ break_1:;
 #line 1754 "driver/layout.byn"
     return byn_strbuf_str(t2);
 }
-#line 231097 "main.c"
+#line 231106 "main.c"
 
 void byn_main__LayoutEngine__guide(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     int64_t l0_o = {0};
@@ -231130,7 +231139,7 @@ void byn_main__LayoutEngine__guide(bynt_main__LayoutEngine* self, bynt_list_pars
     }
 break_1:;
 }
-#line 231134 "main.c"
+#line 231143 "main.c"
 
 void byn_main__LayoutEngine__guideDecls(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_decls) {
     byn_parser_Decl l0_decl = {0};
@@ -231274,7 +231283,7 @@ void byn_main__LayoutEngine__guideDecls(bynt_main__LayoutEngine* self, bynt_list
     }
 break_1:;
 }
-#line 231278 "main.c"
+#line 231287 "main.c"
 
 void byn_main__LayoutEngine__guideStmt(bynt_main__LayoutEngine* self, byn_parser_Stmt p_stmt) {
     int64_t l0_o = {0};
@@ -231476,7 +231485,7 @@ void byn_main__LayoutEngine__guideStmt(bynt_main__LayoutEngine* self, byn_parser
     }
 switch_end_1:;
 }
-#line 231480 "main.c"
+#line 231489 "main.c"
 
 int64_t byn_main__LayoutEngine__genericClose(bynt_main__LayoutEngine* self, int64_t p_o) {
     int64_t l0_depth = {0};
@@ -231530,7 +231539,7 @@ break_1:;
 #line 1882 "driver/layout.byn"
     return INT64_C(-1);
 }
-#line 231534 "main.c"
+#line 231543 "main.c"
 
 void byn_main__LayoutEngine__memberBlanks(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_decls) {
     bynt_list_parser__UnionVariant l0_none = {0};
@@ -231592,7 +231601,7 @@ void byn_main__LayoutEngine__memberBlanks(bynt_main__LayoutEngine* self, bynt_li
     }
 break_1:;
 }
-#line 231596 "main.c"
+#line 231605 "main.c"
 
 void byn_main__LayoutEngine__memberBlanksOf(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members, bynt_list_parser__UnionVariant p_states) {
     bynt_list_main__LayoutMember l0_found = {0};
@@ -231716,7 +231725,7 @@ break_3:;
     }
 break_7:;
 }
-#line 231720 "main.c"
+#line 231729 "main.c"
 
 int64_t byn_main__LayoutEngine__memberStart(bynt_main__LayoutEngine* self, byn_parser_Decl p_decl) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -231733,7 +231742,7 @@ int64_t byn_main__LayoutEngine__memberStart(bynt_main__LayoutEngine* self, byn_p
 #line 1947 "driver/layout.byn"
     return byn_main__LayoutEngine__tokenAt(&(*self), l0_span.start);
 }
-#line 231737 "main.c"
+#line 231746 "main.c"
 
 int64_t byn_main__LayoutEngine__statesStart(bynt_main__LayoutEngine* self, int64_t p_first) {
     int64_t l0_o = {0};
@@ -231742,7 +231751,7 @@ int64_t byn_main__LayoutEngine__statesStart(bynt_main__LayoutEngine* self, int64
 #line 1953 "driver/layout.byn"
     return ((((byn_main__LayoutEngine__kind(&(*self), l0_o) == ((byn_lexer_TokenKind)19)) && (l0_o > INT64_C(0))) && byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(l0_o, INT64_C(1), byn_file_99, 1953), BYN_STR("states", 6))) ? byn_sub_i64(l0_o, INT64_C(1), byn_file_99, 1953) : INT64_C(-1));
 }
-#line 231746 "main.c"
+#line 231755 "main.c"
 
 void byn_main__LayoutEngine__align(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     bynt_map_i64_main__LayoutShape l0_shapeMap = {0};
@@ -231923,7 +231932,7 @@ break_7:;
 #line 2007 "driver/layout.byn"
     (void)byn_main__LayoutEngine__alignComments(&(*self), l5_run);
 }
-#line 231927 "main.c"
+#line 231936 "main.c"
 
 void byn_main__LayoutEngine__shapes(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_decls, bool p_topLevel, bynt_map_i64_main__LayoutShape* p_shapeMap) {
     byn_parser_Decl l0_decl = {0};
@@ -232117,7 +232126,7 @@ void byn_main__LayoutEngine__shapes(bynt_main__LayoutEngine* self, bynt_list_par
     }
 break_1:;
 }
-#line 232121 "main.c"
+#line 232130 "main.c"
 
 void byn_main__LayoutEngine__arms(bynt_main__LayoutEngine* self, bynt_map_i64_main__LayoutShape* p_shapeMap) {
     int64_t l0_o = {0};
@@ -232234,7 +232243,7 @@ void byn_main__LayoutEngine__arms(bynt_main__LayoutEngine* self, bynt_map_i64_ma
     }
 break_1:;
 }
-#line 232238 "main.c"
+#line 232247 "main.c"
 
 int64_t byn_main__LayoutEngine__firstAt(bynt_main__LayoutEngine* self, byn_lexer_TokenKind p_wanted, int64_t p_start, int64_t p_e) {
     int64_t l0_k = {0};
@@ -232268,7 +232277,7 @@ break_1:;
 #line 2101 "driver/layout.byn"
     return INT64_C(-1);
 }
-#line 232272 "main.c"
+#line 232281 "main.c"
 
 bool byn_main__LayoutEngine__plain(bynt_main__LayoutEngine* self, int64_t p_s) {
     int64_t l0_e = {0};
@@ -232308,13 +232317,13 @@ break_1:;
 #line 2111 "driver/layout.byn"
     return true;
 }
-#line 232312 "main.c"
+#line 232321 "main.c"
 
 bool byn_main__LayoutEngine__padded(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_k) {
 #line 2116 "driver/layout.byn"
     return ((((p_k > p_s) && (p_k < byn_main__LayoutEngine__lineEnd(&(*self), p_s))) && byn_main__LayoutEngine__space(&(*self), p_k, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token((*self).tokens, (int64_t)byn_sub_i64(p_k, INT64_C(1), byn_file_99, 2118), false, byn_file_99, 2118))))) && (!byn_main__layoutTriviaMatters((*self).source, (*self).tokens, p_k)));
 }
-#line 232318 "main.c"
+#line 232327 "main.c"
 
 bool byn_main__LayoutEngine__separated(bynt_main__LayoutEngine* self, int64_t p_s) {
     int64_t l0_k = {0};
@@ -232351,7 +232360,7 @@ break_1:;
 #line 2127 "driver/layout.byn"
     return false;
 }
-#line 232355 "main.c"
+#line 232364 "main.c"
 
 bool byn_main__LayoutEngine__doc(bynt_main__LayoutEngine* self, bynt_main__LayoutGapItem p_item) {
     int64_t l0_n = {0};
@@ -232365,7 +232374,7 @@ bool byn_main__LayoutEngine__doc(bynt_main__LayoutEngine* self, bynt_main__Layou
 #line 2137 "driver/layout.byn"
     return ((l0_n == INT64_C(3)) || (!((*bynh_at_list_u8((*self).source, (int64_t)byn_add_i64(p_item.start, INT64_C(3), byn_file_99, 2137), false, byn_file_99, 2137)) == ((uint8_t)47))));
 }
-#line 232369 "main.c"
+#line 232378 "main.c"
 
 int64_t byn_main__LayoutEngine__pads(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_e) {
     int64_t l0_n = {0};
@@ -232403,7 +232412,7 @@ break_1:;
 #line 2146 "driver/layout.byn"
     return l0_n;
 }
-#line 232407 "main.c"
+#line 232416 "main.c"
 
 int64_t byn_main__LayoutEngine__lineWidth(bynt_main__LayoutEngine* self, int64_t p_s) {
     int64_t t0 = {0};
@@ -232412,7 +232421,7 @@ int64_t byn_main__LayoutEngine__lineWidth(bynt_main__LayoutEngine* self, int64_t
 #line 2150 "driver/layout.byn"
     return byn_add_i64(t0, byn_main__LayoutEngine__pads(&(*self), p_s, byn_main__LayoutEngine__lineEnd(&(*self), p_s)), byn_file_99, 2150);
 }
-#line 232416 "main.c"
+#line 232425 "main.c"
 
 void byn_main__LayoutEngine__alignRun(bynt_main__LayoutEngine* self, bynt_list_i64 p_lines, bynt_map_i64_main__LayoutShape p_shapeMap) {
     bynt_list_i64 l0_run = {0};
@@ -232751,7 +232760,7 @@ void byn_main__LayoutEngine__alignRun(bynt_main__LayoutEngine* self, bynt_list_i
     }
 break_1:;
 }
-#line 232755 "main.c"
+#line 232764 "main.c"
 
 void byn_main__LayoutEngine__alignComments(bynt_main__LayoutEngine* self, bynt_list_i64 p_run) {
     bynt_list_i64 l0_at = {0};
@@ -232902,7 +232911,7 @@ break_5:;
     }
 break_9:;
 }
-#line 232906 "main.c"
+#line 232915 "main.c"
 
 void byn_main__LayoutEngine__emitGap(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_start = {0};
@@ -233161,7 +233170,7 @@ break_13:;
         (void)byn_main__LayoutEngine__indent(&(*self), (*bynh_at_list_i64((*self).levelOf, (int64_t)p_i, false, byn_file_99, 2344)));
     }
 }
-#line 233165 "main.c"
+#line 233174 "main.c"
 
 void byn_main__LayoutEngine__add(bynt_main__LayoutEngine* self, bynt_main__LayoutGapItem p_item) {
     uint8_t l0_b = {0};
@@ -233188,13 +233197,13 @@ void byn_main__LayoutEngine__add(bynt_main__LayoutEngine* self, bynt_main__Layou
     }
 break_1:;
 }
-#line 233192 "main.c"
+#line 233201 "main.c"
 
 void byn_main__LayoutEngine__indent(bynt_main__LayoutEngine* self, int64_t p_level) {
 #line 2356 "driver/layout.byn"
     (void)byn_main__LayoutEngine__spaces(&(*self), byn_mul_i64(p_level, (*self).options.indent, byn_file_99, 2356));
 }
-#line 233198 "main.c"
+#line 233207 "main.c"
 
 void byn_main__LayoutEngine__spaces(bynt_main__LayoutEngine* self, int64_t p_n) {
     int64_t l0_k = {0};
@@ -233221,7 +233230,7 @@ void byn_main__LayoutEngine__spaces(bynt_main__LayoutEngine* self, int64_t p_n) 
     }
 break_1:;
 }
-#line 233225 "main.c"
+#line 233234 "main.c"
 
 void byn_main__LayoutEngine__hygiene(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end) {
     int64_t l0_blanks = {0};
@@ -233313,7 +233322,7 @@ break_1:;
     }
 break_5:;
 }
-#line 233317 "main.c"
+#line 233326 "main.c"
 
 bool byn_main__LayoutEngine__space(bynt_main__LayoutEngine* self, int64_t p_i, int64_t p_start) {
     bool l0_written = {0};
@@ -233366,7 +233375,7 @@ bool byn_main__LayoutEngine__space(bynt_main__LayoutEngine* self, int64_t p_i, i
 #line 2407 "driver/layout.byn"
     return (l3_spaced || (l0_written && byn_main__LayoutEngine__merges(&(*self), p_i)));
 }
-#line 233370 "main.c"
+#line 233379 "main.c"
 
 bool byn_main__LayoutEngine__merges(bynt_main__LayoutEngine* self, int64_t p_i) {
     bynt_list_u8 l0_joined = {0};
@@ -233429,7 +233438,7 @@ break_3:;
 #line 2422 "driver/layout.byn"
     return (((!(l7_lexed.tokens.len == INT64_C(3))) || (!((*bynh_at_list_lexer__Token(l7_lexed.tokens, (int64_t)INT64_C(0), false, byn_file_99, 2423)).kind == (*bynh_at_list_lexer__Token((*self).tokens, (int64_t)byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2423), false, byn_file_99, 2423)).kind))) || (!((*bynh_at_list_lexer__Token(l7_lexed.tokens, (int64_t)INT64_C(1), false, byn_file_99, 2424)).kind == (*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_99, 2424)).kind)));
 }
-#line 233433 "main.c"
+#line 233442 "main.c"
 
 bool byn_main__LayoutEngine__tightProduct(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_next = {0};
@@ -233443,13 +233452,13 @@ bool byn_main__LayoutEngine__tightProduct(bynt_main__LayoutEngine* self, int64_t
 #line 2436 "driver/layout.byn"
     return (((((((((l0_next == ((byn_lexer_TokenKind)1)) || (l0_next == ((byn_lexer_TokenKind)2))) || (l0_next == ((byn_lexer_TokenKind)3))) || (l0_next == ((byn_lexer_TokenKind)5))) || (l0_next == ((byn_lexer_TokenKind)15))) || (l0_next == ((byn_lexer_TokenKind)137))) || (l0_next == ((byn_lexer_TokenKind)10))) || byn_lexer__isStringLiteral(l0_next)) || byn_parser__isContextualKeyword(l0_next));
 }
-#line 233447 "main.c"
+#line 233456 "main.c"
 
 bool byn_main__LayoutEngine__isUnary(bynt_main__LayoutEngine* self, int64_t p_i) {
 #line 2448 "driver/layout.byn"
     return ((*bynh_at_list_bool((*self).lineStart, (int64_t)p_i, false, byn_file_99, 2448)) || (!byn_main__layoutOperandEnd(byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_99, 2448)))));
 }
-#line 233453 "main.c"
+#line 233462 "main.c"
 
 byn_main_LayoutSide byn_main__LayoutEngine__star(bynt_main__LayoutEngine* self, int64_t p_i, byn_main_LayoutSide p_prefix) {
 #line 2452 "driver/layout.byn"
@@ -233470,7 +233479,7 @@ byn_main_LayoutSide byn_main__LayoutEngine__star(bynt_main__LayoutEngine* self, 
 #line 2455 "driver/layout.byn"
     return (byn_main__LayoutEngine__trivia(&(*self), p_i) ? ((byn_main_LayoutSide)1) : ((byn_main_LayoutSide)3));
 }
-#line 233474 "main.c"
+#line 233483 "main.c"
 
 byn_main_LayoutSide byn_main__LayoutEngine__after(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -233534,7 +233543,7 @@ byn_main_LayoutSide byn_main__LayoutEngine__after(bynt_main__LayoutEngine* self,
 #line 2482 "driver/layout.byn"
     return ((byn_main_LayoutSide)0);
 }
-#line 233538 "main.c"
+#line 233547 "main.c"
 
 byn_main_LayoutSide byn_main__LayoutEngine__before(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -233626,7 +233635,7 @@ byn_main_LayoutSide byn_main__LayoutEngine__before(bynt_main__LayoutEngine* self
 #line 2515 "driver/layout.byn"
     return ((byn_main_LayoutSide)0);
 }
-#line 233630 "main.c"
+#line 233639 "main.c"
 
 bool byn_main__LayoutEngine__particleTuple(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind t0 = {0};
@@ -233653,7 +233662,7 @@ bool byn_main__LayoutEngine__particleTuple(bynt_main__LayoutEngine* self, int64_
 #line 2530 "driver/layout.byn"
     return (((l1_close > p_i) && (byn_add_i64(l1_close, INT64_C(1), byn_file_99, 2530) < (*self).matchOf.len)) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(l1_close, INT64_C(1), byn_file_99, 2530)) == ((byn_lexer_TokenKind)1)));
 }
-#line 233657 "main.c"
+#line 233666 "main.c"
 
 bool byn_main__LayoutEngine__callLike(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -233667,7 +233676,7 @@ bool byn_main__LayoutEngine__callLike(bynt_main__LayoutEngine* self, int64_t p_i
 #line 2537 "driver/layout.byn"
     return ((l0_k == ((byn_lexer_TokenKind)1)) && (!((byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("where", 5)) || byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("expects", 7))) || byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("becomes", 7)))));
 }
-#line 233671 "main.c"
+#line 233680 "main.c"
 
 bool byn_main__LayoutEngine__spacedColon(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_depth = {0};
@@ -233729,7 +233738,7 @@ break_1:;
 #line 2565 "driver/layout.byn"
     return false;
 }
-#line 233733 "main.c"
+#line 233742 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};
