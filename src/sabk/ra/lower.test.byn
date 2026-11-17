@@ -214,6 +214,18 @@ test "a frame beyond the pre-index range uses sub sp then stp" {
     assert wordIs(obj, at: n - 2, as: .addImm(.x, sp(), sp(), u16(a.frameSize), false))
 }
 
+test "a 512-byte frame is past the post-index range and uses sub sp" {
+    let a = allocate(wide(by: 68)) catch switch {
+        AllocError e => panic("alloc"),
+    }
+    assert a.frameSize == 512
+    let obj = assemble(wide(by: 68))
+    assert wordIs(obj, at: 0, as: .subImm(.x, sp(), sp(), 512, false))
+    assert wordIs(obj, at: 1, as: .stp(.offset, gx(29), gx(30), sp(), 0))
+    let n = obj.bytes.length / 4
+    assert wordIs(obj, at: n - 2, as: .addImm(.x, sp(), sp(), 512, false))
+}
+
 test "a spilled operand goes through x16 and x17 and a spilled result is stored from x16" {
     let f = wide(by: 20)
     let a = allocate(f) catch switch {

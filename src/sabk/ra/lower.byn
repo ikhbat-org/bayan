@@ -21,8 +21,8 @@ type Cond = enc.Cond
 type Label = enc.Label
 type LabelError = enc.LabelError
 
-/// The largest frame `stp ... !` reaches (imm7 * 8, down to -512).
-i64 preIndexLimit() => 512
+/// The largest frame whose `ldp ... ], #frame` post-index fits (imm7 * 8 reaches 504; the prologue's -512 would fit but the pair must match).
+i64 preIndexLimit() => 504
 
 Reg rx(i64 n) => Reg { kind: .general, number: u8(n) }
 
