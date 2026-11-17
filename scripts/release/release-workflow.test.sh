@@ -19,6 +19,8 @@ awk '/^  release:/{r=1} r&&/needs:/{print; exit}' "$wf" | grep -qw 'ddc' || fail
 grep -qx '  workflow_call:' "$ddc" || fail "ddc.yml is not callable"
 grep -qE "^    - cron: '[0-9]+ [0-9]+ \* \* [0-6]'" "$ddc" || fail "ddc.yml lost its weekly schedule"
 grep -q 'bash scripts/ci/install-dotnet.sh' "$ddc" && grep -q 'bash scripts/ci/ddc.sh' "$ddc" || fail "ddc.yml does not install .NET with install-dotnet.sh and run ddc.sh"
+ddcref=$(sed -n "s/.*DDC_REF: \${{ inputs.ref || '\([^']*\)' }}.*/\1/p" "$ddc")
+git -C "$root" rev-parse -q --verify "refs/tags/$ddcref^{commit}" >/dev/null || fail "ddc.yml defaults to ref '$ddcref', which is not a tag here"
 grep -qx '  workflow_call:' "$ln" || fail "laws-nightly.yml is not callable"
 grep -q "cron: '0 4 \* \* \*'" "$ln" || fail "laws-nightly.yml lost its schedule"
 grep -q 'timeout-minutes: 180' "$ln" || fail "laws-nightly.yml's job no longer allows 180 min"
