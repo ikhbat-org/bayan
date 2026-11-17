@@ -1,0 +1,151 @@
+// Tests of the label buffer (spec 024 T5). Expected words are rows of testdata/encodings.tsv, laid obj at the offsets
+// the reference assembler used (b-fwd, b-back, bl-back, b-cond-eq, cbz-x-back, cbz-w-fwd, adr-fwd, adrp-reloc).
+
+Reg lx(u8 number) => Reg { kind: .general, number: number }
+
+/// One filler instruction (`ret`), 4 bytes.
+Inst pad() => .ret(lx(30))
+
+/// The little-endian word at byte `at`.
+u32 wordAt(List<u8> bytes, at i64 at) =>
+    u32(bytes[at]) | (u32(bytes[at + 1]) << 8) | (u32(bytes[at + 2]) << 16) | (u32(bytes[at + 3]) << 24)
+
+/// "kind|label" or "kind|mnemonic" of the failure `finish` or `bind` gives, "ok" when none.
+string failure(LabelError e) uses alloc {
+    switch e {
+        case .unbound(let label): return $"unbound|{label}"
+        case .rebound(let label): return $"rebound|{label}"
+        case .refused(let mnemonic, let _): return $"refused|{mnemonic}"
+    }
+}
+
+test "b and bl patch forward and backward" {
+    var asm = Assembler {}
+    let l = asm.newLabel()
+    asm.emit(.b(l)) catch { panic("emit") }
+    asm.emit(pad()) catch { panic("emit") }
+    asm.bind(l) catch { panic("bind") }
+    asm.emit(pad()) catch { panic("emit") }
+    asm.emit(.b(l)) catch { panic("emit") }
+    asm.emit(.bl(l)) catch { panic("emit") }
+    let obj = asm.finish() catch { panic("finish") }
+    assert obj.bytes.length == 20
+    assert obj.relocs.length == 0
+    assert wordAt(obj.bytes, at: 0) == 0x14000002
+    assert wordAt(obj.bytes, at: 12) == 0x17ffffff
+    assert wordAt(obj.bytes, at: 16) == 0x97fffffe
+}
+
+test "b.cond, cbz and adr patch forward and backward" {
+    var asm = Assembler {}
+    let back = asm.newLabel()
+    let fwd = asm.newLabel()
+    asm.bind(back) catch { panic("bind") }
+    var i = 0
+    while i < 19 {
+        asm.emit(pad()) catch { panic("emit") }
+        i += 1
+    }
+    asm.emit(.cbz(.x, lx(0), back)) catch { panic("emit") }
+    asm.emit(.bCond(.eq, back)) catch { panic("emit") }
+    asm.emit(.cbz(.w, lx(1), fwd)) catch { panic("emit") }
+    asm.emit(pad()) catch { panic("emit") }
+    asm.emit(.adr(lx(1), fwd)) catch { panic("emit") }
+    asm.emit(pad()) catch { panic("emit") }
+    asm.bind(fwd) catch { panic("bind") }
+    let obj = asm.finish() catch { panic("finish") }
+    assert wordAt(obj.bytes, at: 76) == 0xb4fffda0
+    let backCond = encodeAt(.bCond(.eq, back), at: -80) catch { panic("encode") }
+    assert wordAt(obj.bytes, at: 80) == backCond
+    // cbz w1 at 84 reaches 100: +16 as in cbz-w-fwd.
+    assert wordAt(obj.bytes, at: 84) == 0x34000081
+    // adr x1 at 92 reaches 100: +8 as in adr-fwd.
+    assert wordAt(obj.bytes, at: 92) == 0x10000041
+}
+
+test "b.cond patches to the offset of the b-cond-eq row" {
+    var asm = Assembler {}
+    let l = asm.newLabel()
+    asm.bind(l) catch { panic("bind") }
+    var i = 0
+    while i < 5 {
+        asm.emit(pad()) catch { panic("emit") }
+        i += 1
+    }
+    asm.emit(.bCond(.eq, l)) catch { panic("emit") }
+    let obj = asm.finish() catch { panic("finish") }
+    assert wordAt(obj.bytes, at: 20) == 0x54ffff60
+}
+
+test "a bl to an external symbol is a BRANCH26 record with a zero word" {
+    var asm = Assembler {}
+    let ext = asm.newLabel()
+    asm.bindSymbol(ext, to: "_byn_print") catch { panic("bindSymbol") }
+    asm.emit(pad()) catch { panic("emit") }
+    asm.emit(.bl(ext)) catch { panic("emit") }
+    let obj = asm.finish() catch { panic("finish") }
+    assert wordAt(obj.bytes, at: 4) == 0x94000000
+    assert obj.relocs.length == 1
+    assert obj.relocs[0].offset == 4
+    assert obj.relocs[0].symbol == "_byn_print"
+    assert obj.relocs[0].kind == .branch26
+}
+
+test "adrp and add @PAGEOFF to a local symbol are PAGE21 and PAGEOFF12 records" {
+    var asm = Assembler {}
+    asm.emit(.adrp(lx(0), "l_str")) catch { panic("emit") }
+    asm.emit(.addPageOff(lx(0), lx(0), "l_str")) catch { panic("emit") }
+    let obj = asm.finish() catch { panic("finish") }
+    assert wordAt(obj.bytes, at: 0) == 0x90000000
+    assert wordAt(obj.bytes, at: 4) == 0x91000000
+    assert obj.relocs.length == 2
+    assert obj.relocs[0].offset == 0
+    assert obj.relocs[0].kind == .page21
+    assert obj.relocs[1].offset == 4
+    assert obj.relocs[1].kind == .pageoff12
+    assert obj.relocs[1].symbol == "l_str"
+}
+
+test "a label never bound is a typed error" {
+    var asm = Assembler {}
+    let l = asm.newLabel()
+    asm.emit(.b(l)) catch { panic("emit") }
+    let _ = asm.finish() catch switch {
+        LabelError e => {
+            assert failure(e) == "unbound|0"
+            return
+        },
+    }
+    panic("finish succeeded with an unbound label")
+}
+
+test "a branch out of range fails when its label is bound" {
+    var asm = Assembler {}
+    let l = asm.newLabel()
+    asm.emit(.cbz(.x, lx(0), l)) catch { panic("emit") }
+    var i = 0
+    while i < 262144 {
+        asm.emit(pad()) catch { panic("emit") }
+        i += 1
+    }
+    asm.bind(l) catch switch {
+        LabelError e => {
+            assert failure(e) == "refused|cbz"
+            return
+        },
+    }
+    panic("bind succeeded obj of range")
+}
+
+test "a label cannot be bound twice" {
+    var asm = Assembler {}
+    let l = asm.newLabel()
+    asm.bind(l) catch { panic("bind") }
+    asm.bind(l) catch switch {
+        LabelError e => {
+            assert failure(e) == "rebound|0"
+            return
+        },
+    }
+    panic("second bind succeeded")
+}
