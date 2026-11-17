@@ -11,7 +11,7 @@ Check: stdout
 ## Files
 - `prompt.md`: the text the model is given.
 - `starter/solution.byn`: the file to repair; its text is also in the prompt.
-- `checks/expected.stdout`: hidden. The output the program must print; it reads no input.
+- `checks/stdin`, `checks/expected.stdout`: hidden. The input the program is run on and the output it must print.
 - `reference/solution.byn`: a solution that passes every check.
 
 ## Notes
