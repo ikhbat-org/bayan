@@ -357,6 +357,9 @@ public static class SelfhostSemanticsHarness
     /// <summary>The export directory a test sets for its own async flow, ahead of <c>BAYAN_EXPORT_DIR</c>.</summary>
     internal static readonly AsyncLocal<string?> ExportOverride = new();
 
+    /// <summary>The class and test a case is filed under when a test runs another class's test, ahead of the caller's.</summary>
+    internal static readonly AsyncLocal<(string Cls, string Test)?> ExportCaller = new();
+
     /// <summary>The export directory (spec 019 R10): <see cref="ExportOverride"/>, else <c>BAYAN_EXPORT_DIR</c> when
     /// set, else null; a relative path is taken from the repo root.</summary>
     public static string? ExportDir =>
@@ -469,6 +472,7 @@ public static class SelfhostSemanticsHarness
     {
         if (ExportDir is { } export)
         {
+            if (ExportCaller.Value is { } caller) (cls, test) = caller;
             Export(export, run ?? actual, printed ?? section, expected, test, cls ?? Path.GetFileNameWithoutExtension(file), section, compare, noExport);
             return;
         }

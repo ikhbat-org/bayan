@@ -703,7 +703,19 @@ public sealed class SelfhostSemanticsT41Tests
     [Theory]
     [InlineData("outlives")]
     [InlineData("outlives.none")]
-    public void CheckOutlivesIsTheCSharps(string name) => new SelfhostSemanticsT37Tests().CaseMatches(name);
+    public void CheckOutlivesIsTheCSharps(string name)
+    {
+        // The export files T37's case under this test, not as a second copy of T37's own.
+        SelfhostSemanticsHarness.ExportCaller.Value = (nameof(SelfhostSemanticsT41Tests), nameof(CheckOutlivesIsTheCSharps));
+        try
+        {
+            new SelfhostSemanticsT37Tests().CaseMatches(name);
+        }
+        finally
+        {
+            SelfhostSemanticsHarness.ExportCaller.Value = null;
+        }
+    }
 
     /// <summary>
     /// The diagnostics in order, then the summary lines sorted: the selfhost prints them by function id, the C#
