@@ -16,8 +16,17 @@
 // tmp/llm-eval/recheck/), and checks the task itself: name and number (R1), files (R1), header (R2, R26), that a repair
 // starter fails `bayan check` with only the code its `Title:` names (R13), and that `prompt.md` of a `stdout` task does
 // not hold its whole `checks/expected.stdout`. It prints `PASS <task>` or `FAIL <task>: <reasons>` and the slowest run.
-// Exit 0 when every task passed, 1 when one failed or the recheck could not start, 2 on bad usage. `run` (T7, T8) is not
-// written yet.
+// Exit 0 when every task passed, 1 when one failed or the recheck could not start, 2 on bad usage.
+//
+//   bash scripts/bayan-tool.sh llm-eval run <tasks-dir> --model '<command>' [--context <file>] [--only <task>] [--out <dir>]
+//
+// `run` sends each task's prompt to the model command and scores its reply as `score` does, in <out>/<n>/ (the first free
+// number; --out defaults to tmp/llm-eval/run/). The prompt is evals/llm/preamble.md, then the context file when given,
+// then the task's `prompt.md` (R3, R36). The command is run with `sh -c`, the prompt on its standard input; its standard
+// output is the reply and a `tokens: <n>` line on its standard error is read (R33). The code is the contents of the last
+// fenced code block of the reply, or the whole reply when it has none (R16). It prints one record per task, with `wallMs`,
+// `tokens` (when printed) and `reply`. The runner opens no socket (R34). Exit 0 when every record is printed, 1 when the
+// run could not start or the model command failed, 2 on bad usage. Samples, records.jsonl and the summary are T8.
 
 import std.json
 
@@ -25,7 +34,7 @@ type JsonValue  = json.JsonValue
 type JsonMember = json.JsonMember
 type Json       = json.Json
 
-const usage: string = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]\n       llm-eval recheck <tasks-dir> [--only <task>] [--out <dir>]"
+const usage: string = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]\n       llm-eval recheck <tasks-dir> [--only <task>] [--out <dir>]\n       llm-eval run <tasks-dir> --model '<command>' [--context <file>] [--only <task>] [--out <dir>]"
 const buildMs: i64 = 120000
 const runMs: i64 = 10000
 const outputBytes: i64 = 1048576
@@ -195,8 +204,17 @@ struct Scored {
     i64    runNanos = 0
 }
 
+/// What `run` adds to a record: the wall time of the model command (R31), the tokens it reported (R33) and its reply.
+struct Reply {
+    i64    wallMs
+    i64?   tokens
+    string text
+}
+
 /// Scores `candidate` against the task in `taskDir` with the compiler `bayan`, in a new sample directory under `outDir`.
-Scored scoreSample(string taskDir, for string candidate, from string bayan, to string outDir) fails EvalError {
+/// A model's reply, when given, is added at the end of the record.
+Scored scoreSample(string taskDir, for string candidate, from string bayan, to string outDir, at Reply? reply)
+        fails EvalError {
     let root = try repoRoot()
     let task = try readTask(taskDir)
     let source = Io.readFile(candidate) catch fail .failed(message: $"cannot read {candidate}")
@@ -329,6 +347,13 @@ Scored scoreSample(string taskDir, for string candidate, from string bayan, to s
     m.append(JsonMember { key: "passed", value: .flag(value: compiles && passes) })
     m.append(JsonMember { key: "sandbox", value: .text(value: probe.sandbox) })
     m.append(JsonMember { key: "limits", value: .object(members: move limits) })
+    if reply is not null {
+        m.append(JsonMember { key: "wallMs", value: number(reply.wallMs) })
+        if reply.tokens is not null {
+            m.append(JsonMember { key: "tokens", value: number(reply.tokens ?? 0) })
+        }
+        m.append(JsonMember { key: "reply", value: .text(value: reply.text) })
+    }
     let record = Json.encode(.object(members: move m)) catch fail .failed(message: "cannot encode the record")
     var results = "does not compile"
     if compiles {
@@ -347,7 +372,7 @@ Scored scoreSample(string taskDir, for string candidate, from string bayan, to s
 void score(string taskDir, for string candidate, to string outDir) fails EvalError {
     let root = try repoRoot()
     let bayan = try pinnedBayan(root)
-    let scored = try scoreSample(taskDir, for: candidate, from: bayan, to: outDir)
+    let scored = try scoreSample(taskDir, for: candidate, from: bayan, to: outDir, at: null)
     print(scored.record)
 }
 
@@ -527,11 +552,8 @@ List<string> taskProblems(string tasksDir, at string name, from List<string> nam
     return problems
 }
 
-/// Re-checks every task directory in `tasksDir`, or only the one named `only`: prints `PASS <task>` or
-/// `FAIL <task>: <reasons>`, then the slowest run. Returns whether every task passed (R29).
-bool recheck(string tasksDir, for string? only, to string outDir) fails EvalError {
-    let root = try repoRoot()
-    let bayan = try pinnedBayan(root)
+/// The task directories in `tasksDir`; fails when `only` is given and is not one of them.
+List<string> taskNames(string tasksDir, for string? only) fails EvalError {
     let entries = Io.listDir(tasksDir) catch fail .failed(message: $"cannot list {tasksDir}")
     var names = List<string>()
     for e in entries {
@@ -540,12 +562,26 @@ bool recheck(string tasksDir, for string? only, to string outDir) fails EvalErro
     if only is not null {
         fail .failed(message: $"no task {only} in {tasksDir}") if !has(names, for: only)
     }
-    // Each recheck scores in a new numbered directory, so a sample directory is never reused.
+    return names
+}
+
+/// The first `<outDir>/<n>` that does not exist: each recheck or run scores in a new one, so a sample directory is never
+/// reused.
+string freshDir(string outDir) {
     var n: i64 = 1
     while isDirectory(Path.combine(outDir, $"{n}")) {
         n += 1
     }
-    let runDir = Path.combine(outDir, $"{n}")
+    return Path.combine(outDir, $"{n}")
+}
+
+/// Re-checks every task directory in `tasksDir`, or only the one named `only`: prints `PASS <task>` or
+/// `FAIL <task>: <reasons>`, then the slowest run. Returns whether every task passed (R29).
+bool recheck(string tasksDir, for string? only, to string outDir) fails EvalError {
+    let root = try repoRoot()
+    let bayan = try pinnedBayan(root)
+    let names = try taskNames(tasksDir, for: only)
+    let runDir = freshDir(outDir)
     var allPassed = true
     // The slowest program run, and apart from it the slowest `bayan test`, whose time holds a build.
     var slowest: i64 = -1
@@ -558,7 +594,7 @@ bool recheck(string tasksDir, for string? only, to string outDir) fails EvalErro
         let dir = Path.combine(tasksDir, name)
         let reference = Path.combine(dir, "reference/solution.byn")
         if Fs.fileExists(reference) {
-            let scored = scoreSample(dir, for: reference, from: bayan, to: runDir) catch switch {
+            let scored = scoreSample(dir, for: reference, from: bayan, to: runDir, at: null) catch switch {
                 .failed(let message) => Scored { record: "", results: message },
             }
             problems.append($"reference: {scored.results}") if !scored.clean
@@ -586,6 +622,74 @@ bool recheck(string tasksDir, for string? only, to string outDir) fails EvalErro
     return allPassed
 }
 
+/// The code in a model's reply (R16): the contents of the last fenced code block when there is one, otherwise the whole
+/// reply. A fence is a line that starts with three backticks; a block that is not closed runs to the end of the reply.
+string extracted(string reply) {
+    var found = false
+    var inside = false
+    var block = ""
+    var code = ""
+    for line in reply.parts(by: "\n") {
+        if line.trimmed().startsWith("```") {
+            if inside {
+                code = block
+                found = true
+            }
+            inside = !inside
+            block = ""
+            continue
+        }
+        block = $"{block}{line}\n" if inside
+    }
+    if inside {
+        code = block
+        found = true
+    }
+    return found ? code : reply
+}
+
+/// Sends the prompt of every task in `tasksDir`, or only of `only`, to the model command `modelCommand` and prints the
+/// record of its reply. `contextFile`, when given, goes between the preamble and `prompt.md` (R36).
+void run(string tasksDir, by string modelCommand, from string? contextFile, for string? only, to string outDir)
+        fails EvalError {
+    let root = try repoRoot()
+    let bayan = try pinnedBayan(root)
+    let preamblePath = Path.combine(root, "evals/llm/preamble.md")
+    let preamble = Io.readText(preamblePath) catch fail .failed(message: $"cannot read {preamblePath}")
+    var contextText = ""
+    if contextFile is not null {
+        let text = Io.readText(contextFile) catch fail .failed(message: $"cannot read {contextFile}")
+        contextText = $"{text}\n"
+    }
+    let names = try taskNames(tasksDir, for: only)
+    let runDir = freshDir(outDir)
+    for name in names {
+        continue if only is not null && name != only
+        let dir = Path.combine(tasksDir, name)
+        let promptPath = Path.combine(dir, "prompt.md")
+        let task = Io.readText(promptPath) catch fail .failed(message: $"cannot read {promptPath}")
+        let prompt = $"{preamble}\n{contextText}{task}"
+        var args = List<string>()
+        args.append("-c")
+        args.append(modelCommand)
+        let started = Io.monotonicNanos()
+        let r = Io.run("sh", args.span, input: prompt.bytes) catch switch {
+            IoError e => fail .failed(message: $"cannot run the model command for {name}: {e}"),
+        }
+        let wallMs = (Io.monotonicNanos() - started) / 1000000
+        fail .failed(
+            message: $"the model command exited {r.exitCode} for {name}: {r.stderr.trimmed()}",
+        ) if r.exitCode != 0
+        let replies = Path.combine(runDir, $"replies/{name}")
+        Io.createDirectory(replies) catch fail .failed(message: $"cannot make {replies}")
+        let candidate = Path.combine(replies, "1.byn")
+        Io.writeFile(candidate, extracted(r.stdout).bytes) catch fail .failed(message: $"cannot write {candidate}")
+        let reply = Reply { wallMs: wallMs, tokens: i64.tryParse(field(r.stderr, for: "tokens") ?? ""), text: r.stdout }
+        let scored = try scoreSample(dir, for: candidate, from: bayan, to: runDir, at: reply)
+        print(scored.record)
+    }
+}
+
 i32 main(ReadOnlySpan<string> argv) {
     var args: List<string> = List<string>()
     for a in argv {
@@ -596,29 +700,32 @@ i32 main(ReadOnlySpan<string> argv) {
         return 2
     }
     let command = args[0]
-    if command == "run" {
-        // run: T7, T8.
-        print($"llm-eval: `{command}` is not written yet", to: .stderr)
-        return 2
-    }
-    if command != "score" && command != "recheck" {
+    if command != "score" && command != "recheck" && command != "run" {
         print(usage, to: .stderr)
         return 2
     }
     var outDir = Path.combine(Env.get("BAYAN_REPO_ROOT") ?? ".", $"tmp/llm-eval/{command}")
     var only: string? = null
+    var modelCommand: string? = null
+    var contextFile: string? = null
     var rest = List<string>()
     var i: i64 = 1
     while i < args.length {
-        if args[i] == "--out" || (command == "recheck" && args[i] == "--only") {
+        let a = args[i]
+        let runOption = command == "run" && (a is "--model" or "--context")
+        if a == "--out" || (command != "score" && a == "--only") || runOption {
             if i + 1 >= args.length {
                 print(usage, to: .stderr)
                 return 2
             }
-            if args[i] == "--out" {
+            if a == "--out" {
                 outDir = args[i + 1]
-            } else {
+            } else if a == "--only" {
                 only = args[i + 1]
+            } else if a == "--model" {
+                modelCommand = args[i + 1]
+            } else {
+                contextFile = Path.fullPath(args[i + 1])
             }
             i += 2
         } else {
@@ -626,9 +733,24 @@ i32 main(ReadOnlySpan<string> argv) {
             i += 1
         }
     }
-    if rest.length != (command == "score" ? 2 : 1) {
+    if rest.length != (command == "score" ? 2 : 1) || (command == "run" && modelCommand is null) {
         print(usage, to: .stderr)
         return 2
+    }
+    if command == "run" {
+        run(
+            Path.fullPath(rest[0]),
+            by: modelCommand ?? "",
+            from: contextFile,
+            for: only,
+            to: Path.fullPath(outDir),
+        ) catch switch {
+            .failed(let message) => {
+                print($"llm-eval: {message}", to: .stderr)
+                return 1
+            },
+        }
+        return 0
     }
     if command == "recheck" {
         let passed = recheck(Path.fullPath(rest[0]), for: only, to: Path.fullPath(outDir)) catch switch {
