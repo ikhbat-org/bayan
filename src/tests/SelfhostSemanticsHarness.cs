@@ -341,7 +341,7 @@ public static class SelfhostSemanticsHarness
     public static Dictionary<string, List<string>> RunSections(string mainSource, params string[] args)
     {
         // The files and directories the arguments name, copied before the run (which may rewrite them), for the case's `input/`.
-        var staged = ExportDir is null ? null : SelfhostDriverT1Tests.StageInputs(args.Where(SelfhostDriverT1Tests.IsPath));
+        var staged = ExportDir is null ? null : SelfhostDriverT1Tests.StageInputs(args.Where(a => a.Length > 0 && SelfhostDriverT1Tests.IsPath(a)));
         var (exit, stdout, stderr) = SelfhostParserTests.Run(Build(mainSource), args);
         Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
         var sections = Sections(stdout);
