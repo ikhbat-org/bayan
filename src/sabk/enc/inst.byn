@@ -109,7 +109,6 @@ public union Inst {
     adr(Reg rd, Label target)
 }
 
-public struct EncodeError {
-    public string mnemonic
-    public string reason
+public union error EncodeError {
+    refused(string mnemonic, string reason)
 }

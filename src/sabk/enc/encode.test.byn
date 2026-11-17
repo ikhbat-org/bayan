@@ -1,0 +1,345 @@
+// Tests of `encode` (spec 024 T3, T4): every row of testdata/encodings.tsv, then the refusals.
+// The expected words come only from the table, which the reference assembler wrote (R3).
+
+Reg spReg() => Reg { kind: .sp, number: 31 }
+Reg zrReg() => Reg { kind: .zero, number: 31 }
+
+// ---- the assembler-text reader: exactly the syntax of testdata/encodings.s ----
+
+/// `x3`, `w3`, `sp`, `xzr` or `wzr` as a register.
+Reg parseReg(string t) {
+    if t == "sp" { return spReg() }
+    if t == "xzr" || t == "wzr" { return zrReg() }
+    let n = u8.tryParse(t[1..])
+    assert n is not null
+    return gp(n ?? 0)
+}
+
+Width widthOf(string t) => t.bytes[0] == 'w' ? .w : .x
+
+/// `#12` or `#-12`.
+i64 parseImm(string t) {
+    let n = i64.tryParse(t[1..])
+    assert n is not null
+    return n ?? 0
+}
+
+Cond parseCond(string t) {
+    switch t {
+        case "eq": return .eq
+        case "ne": return .ne
+        case "hs": return .hs
+        case "lo": return .lo
+        case "mi": return .mi
+        case "pl": return .pl
+        case "vs": return .vs
+        case "vc": return .vc
+        case "hi": return .hi
+        case "ls": return .ls
+        case "ge": return .ge
+        case "lt": return .lt
+        case "gt": return .gt
+        case "le": return .le
+        default: panic($"unknown condition {t}")
+    }
+}
+
+/// The operands of one instruction: split at commas outside `[...]`, each trimmed.
+List<string> operands(string text) uses alloc {
+    var pieces = List<string>()
+    var depth = 0
+    var start = 0
+    var i = 0
+    while i < text.length {
+        let b = text.bytes[i]
+        if b == '[' { depth += 1 }
+        if b == ']' { depth -= 1 }
+        if b == ',' && depth == 0 {
+            pieces.append($"{text[start..i].trimmed()}")
+            start = i + 1
+        }
+        i += 1
+    }
+    pieces.append($"{text[start..].trimmed()}")
+    return pieces
+}
+
+/// `lsl #3` (the optional trailing operand at `index`): kind and amount, `lsl #0` when absent.
+ShiftKind shiftKindAt(List<string> ops, at i64 index) {
+    if ops.length <= index { return .lsl }
+    if ops[index].startsWith("lsr") { return .lsr }
+    if ops[index].startsWith("asr") { return .asr }
+    return .lsl
+}
+
+u8 shiftAmountAt(List<string> ops, at i64 index) {
+    if ops.length <= index { return 0 }
+    return u8(parseImm(ops[index][4..]))
+}
+
+/// The inside of `[base, #off]` or `[base]`: base register and offset.
+Reg memBase(string t) {
+    let close = t.position("]") ?? 0
+    let inner = t[1..close]
+    let comma = inner.position(",")
+    return parseReg(comma is null ? inner : inner[0..(comma ?? 0)])
+}
+
+i64 memOffset(string t) {
+    let close = t.position("]") ?? 0
+    let inner = t[1..close]
+    let comma = inner.position(",")
+    if comma is null { return 0 }
+    return parseImm(inner[(comma + 1)..].trimmed())
+}
+
+Indexing memMode(string t) => t.endsWith("!") ? .pre : .offset
+
+/// The `Inst` for one assembler line; a label operand is `Label(0)`, its offset is added by the caller.
+Inst parseInst(string text) uses alloc {
+    let space = text.position(" ")
+    let mnemonic = space is null ? text : text[0..(space ?? 0)]
+    let ops = operands(space is null ? "" : text[((space ?? 0) + 1)..])
+    let label = Label(0)
+    switch mnemonic {
+        case "movz" or "movk":
+            let shift: u8 = ops.length > 2 ? u8(parseImm(ops[2][4..])) : 0
+            let imm = u16(parseImm(ops[1]))
+            let w = widthOf(ops[0])
+            return mnemonic == "movz" ? .movz(w, parseReg(ops[0]), imm, shift) : .movk(w, parseReg(ops[0]), imm, shift)
+        case "mov":
+            let rd = parseReg(ops[0])
+            let rm = parseReg(ops[1])
+            if rd.kind == .sp || rm.kind == .sp { return .movSp(rd, rm) }
+            return .movReg(widthOf(ops[0]), rd, rm)
+        case "add" or "sub" or "subs":
+            let w = widthOf(ops[0])
+            let rd = parseReg(ops[0])
+            let rn = parseReg(ops[1])
+            if ops[2].contains("@PAGEOFF") {
+                return .addPageOff(rd, rn, ops[2][0..(ops[2].position("@") ?? 0)])
+            }
+            if ops[2].startsWith("#") {
+                let imm = u16(parseImm(ops[2]))
+                let l12 = ops.length > 3
+                if mnemonic == "add" { return .addImm(w, rd, rn, imm, l12) }
+                if mnemonic == "sub" { return .subImm(w, rd, rn, imm, l12) }
+                return .subsImm(w, rd, rn, imm, l12)
+            }
+            let rm = parseReg(ops[2])
+            let kind = shiftKindAt(ops, at: 3)
+            let amount = shiftAmountAt(ops, at: 3)
+            if mnemonic == "add" { return .addReg(w, rd, rn, rm, kind, amount) }
+            if mnemonic == "sub" { return .subReg(w, rd, rn, rm, kind, amount) }
+            return .subsReg(w, rd, rn, rm, kind, amount)
+        case "cmp":
+            let w = widthOf(ops[0])
+            if ops[1].startsWith("#") { return .cmpImm(w, parseReg(ops[0]), u16(parseImm(ops[1])), ops.length > 2) }
+            return .cmpReg(w, parseReg(ops[0]), parseReg(ops[1]), shiftKindAt(ops, at: 2), shiftAmountAt(ops, at: 2))
+        case "mul":
+            return .mul(widthOf(ops[0]), parseReg(ops[0]), parseReg(ops[1]), parseReg(ops[2]))
+        case "sdiv":
+            return .sdiv(widthOf(ops[0]), parseReg(ops[0]), parseReg(ops[1]), parseReg(ops[2]))
+        case "msub":
+            return .msub(widthOf(ops[0]), parseReg(ops[0]), parseReg(ops[1]), parseReg(ops[2]), parseReg(ops[3]))
+        case "neg":
+            return .neg(widthOf(ops[0]), parseReg(ops[0]), parseReg(ops[1]))
+        case "and" or "orr" or "eor":
+            let w = widthOf(ops[0])
+            let rd = parseReg(ops[0])
+            let rn = parseReg(ops[1])
+            let rm = parseReg(ops[2])
+            let kind = shiftKindAt(ops, at: 3)
+            let amount = shiftAmountAt(ops, at: 3)
+            if mnemonic == "and" { return .andReg(w, rd, rn, rm, kind, amount) }
+            if mnemonic == "orr" { return .orrReg(w, rd, rn, rm, kind, amount) }
+            return .eorReg(w, rd, rn, rm, kind, amount)
+        case "cset":
+            return .cset(widthOf(ops[0]), parseReg(ops[0]), parseCond(ops[1]))
+        case "csel":
+            return .csel(widthOf(ops[0]), parseReg(ops[0]), parseReg(ops[1]), parseReg(ops[2]), parseCond(ops[3]))
+        case "ldr" or "str":
+            let w = widthOf(ops[0])
+            let off = u16(memOffset(ops[1]))
+            if mnemonic == "ldr" { return .ldrImm(w, parseReg(ops[0]), memBase(ops[1]), off) }
+            return .strImm(w, parseReg(ops[0]), memBase(ops[1]), off)
+        case "ldur" or "stur":
+            let w = widthOf(ops[0])
+            let off = i16(memOffset(ops[1]))
+            if mnemonic == "ldur" { return .ldur(w, parseReg(ops[0]), memBase(ops[1]), off) }
+            return .stur(w, parseReg(ops[0]), memBase(ops[1]), off)
+        case "stp" or "ldp":
+            // `[base], #imm` is post-index: the offset is its own operand.
+            let post = ops.length > 3
+            let mode: Indexing = post ? .post : memMode(ops[2])
+            let off = i16(post ? parseImm(ops[3]) : memOffset(ops[2]))
+            if mnemonic == "stp" { return .stp(mode, parseReg(ops[0]), parseReg(ops[1]), memBase(ops[2]), off) }
+            return .ldp(mode, parseReg(ops[0]), parseReg(ops[1]), memBase(ops[2]), off)
+        case "b":
+            return .b(label)
+        case "bl":
+            return .bl(label)
+        case "cbz":
+            return .cbz(widthOf(ops[0]), parseReg(ops[0]), label)
+        case "cbnz":
+            return .cbnz(widthOf(ops[0]), parseReg(ops[0]), label)
+        case "br":
+            return .br(parseReg(ops[0]))
+        case "blr":
+            return .blr(parseReg(ops[0]))
+        case "ret":
+            return .ret(ops[0].isEmpty ? gp(30) : parseReg(ops[0]))
+        case "adrp":
+            return .adrp(parseReg(ops[0]), ops[1][0..(ops[1].position("@") ?? 0)])
+        case "adr":
+            return .adr(parseReg(ops[0]), label)
+        default:
+            if mnemonic.startsWith("b.") { return .bCond(parseCond(mnemonic[2..]), label) }
+            panic($"unknown mnemonic {mnemonic}")
+    }
+}
+
+// ---- the label offset of a table row, read back from its recorded word ----
+
+/// The bits of the word that hold the target offset, 0 for a form with no label.
+u32 offsetMask(string mnemonic) {
+    if mnemonic == "b" || mnemonic == "bl" { return 0x03FFFFFF }
+    if mnemonic == "adr" { return 0x60FFFFE0 }
+    if mnemonic == "cbz" || mnemonic == "cbnz" || mnemonic.startsWith("b.") { return 0x00FFFFE0 }
+    return 0
+}
+
+/// The byte offset the recorded `word` encodes for a label form.
+i64 recordedOffset(string mnemonic, from u32 word) {
+    if mnemonic == "b" || mnemonic == "bl" { return signed(i64(word & 0x03FFFFFF), at: 26) * 4 }
+    if mnemonic == "adr" {
+        let imm = i64((word >> 29) & 3) | (i64((word >> 5) & 0x7FFFF) << 2)
+        return signed(imm, at: 21)
+    }
+    return signed(i64((word >> 5) & 0x7FFFF), at: 19) * 4
+}
+
+i64 signed(i64 value, at i64 bits) => value >= (1 << (bits - 1)) ? value - (1 << bits) : value
+
+test "encode matches every row of encodings.tsv" {
+    let text = Io.readText("src/sabk/testdata/encodings.tsv") catch { panic("cannot read encodings.tsv") }
+    var rows = 0
+    var compared = 0
+    var padding = 0
+    var failures = StrBuf()
+    for line in text.parts(by: "\n") {
+        if line.isEmpty || line.startsWith("#") { continue }
+        rows += 1
+        var cols = List<string>()
+        for c in line.parts(by: "\t") { cols.append($"{c}") }
+        assert cols.length == 3
+        let form = cols[0]
+        let asm = cols[1]
+        let expected = u32.tryParse(cols[2], as: .hex) ?? 0
+        // `nop` only pads the section so the label offsets are the recorded ones; it is not in the subset.
+        if asm == "nop" {
+            padding += 1
+            continue
+        }
+        let space = asm.position(" ")
+        let mnemonic = space is null ? asm : asm[0..(space ?? 0)]
+        let inst = parseInst(asm)
+        let mask = offsetMask(mnemonic)
+        var got = encode(inst) catch switch {
+            EncodeError e => 0,
+        }
+        var want = expected & ~mask
+        var ok = got == want
+        if mask != 0 {
+            // A label operand encodes with offset 0; with the recorded offset it is the whole word.
+            let at = encodeAt(inst, at: recordedOffset(mnemonic, from: expected)) catch switch {
+                EncodeError e => 0,
+            }
+            ok = ok && at == expected
+            got = at
+            want = expected
+        }
+        compared += 1
+        unless ok {
+            failures.append($"{form}: {asm}: got {string(got, as: .hex)} want {string(want, as: .hex)}\n")
+        }
+    }
+    let report = failures.finish()
+    assert report == ""
+    assert compared + padding == rows
+    assert rows == 322
+}
+
+// ---- refusals (T4) ----
+
+/// "mnemonic|reason" of the error `inst` fails with at `offset`, or "ok" when it encodes.
+string refusal(Inst inst, at i64 offset = 0) uses alloc {
+    let _ = encodeAt(inst, at: offset) catch switch {
+        .refused(let mnemonic, let reason) => return $"{mnemonic}|{reason}",
+    }
+    return "ok"
+}
+
+test "an immediate out of range is refused naming mnemonic and operand" {
+    let x0 = gp(0)
+    let x1 = gp(1)
+    assert refusal(.addImm(.x, x0, x1, 4096, false)).startsWith("add|operand imm12")
+    assert refusal(.subImm(.x, x0, x1, 5000, true)).startsWith("sub|operand imm12")
+    assert refusal(.subsImm(.w, x0, x1, 4096, false)).startsWith("subs|operand imm12")
+    assert refusal(.cmpImm(.x, x1, 4096, false)).startsWith("cmp|operand imm12")
+    assert refusal(.movz(.x, x0, 1, 8)).startsWith("movz|operand shift")
+    assert refusal(.movk(.x, x0, 1, 64)).startsWith("movk|operand shift")
+    assert refusal(.movz(.w, x0, 1, 32)).startsWith("movz|operand shift")
+    assert refusal(.movk(.w, x0, 1, 48)).startsWith("movk|operand shift")
+    assert refusal(.ldrImm(.x, x0, x1, 4)).startsWith("ldr|operand offset")
+    assert refusal(.ldrImm(.x, x0, x1, 32768)).startsWith("ldr|operand offset")
+    assert refusal(.strImm(.w, x0, x1, 2)).startsWith("str|operand offset")
+    assert refusal(.strImm(.w, x0, x1, 16384)).startsWith("str|operand offset")
+    assert refusal(.ldur(.x, x0, x1, 256)).startsWith("ldur|operand offset")
+    assert refusal(.stur(.x, x0, x1, -257)).startsWith("stur|operand offset")
+    assert refusal(.stp(.pre, x0, x1, spReg(), 512)).startsWith("stp|operand offset")
+    assert refusal(.stp(.offset, x0, x1, spReg(), -520)).startsWith("stp|operand offset")
+    assert refusal(.ldp(.post, x0, x1, spReg(), 12)).startsWith("ldp|operand offset")
+    assert refusal(.addReg(.w, x0, x1, gp(2), .lsl, 32)).startsWith("add|operand shift amount")
+    assert refusal(.addImm(.x, x0, x1, 4095, true)) == "ok"
+}
+
+test "a branch offset out of range or misaligned is refused" {
+    let x0 = gp(0)
+    let target = Label(0)
+    assert refusal(.b(target), at: 134217728).startsWith("b|operand target")
+    assert refusal(.bl(target), at: -134217732).startsWith("bl|operand target")
+    assert refusal(.b(target), at: 2).startsWith("b|operand target")
+    assert refusal(.b(target), at: 134217724) == "ok"
+    assert refusal(.b(target), at: -134217728) == "ok"
+    assert refusal(.bCond(.eq, target), at: 1048576).startsWith("b.cond|operand target")
+    assert refusal(.bCond(.eq, target), at: -1048580).startsWith("b.cond|operand target")
+    assert refusal(.bCond(.eq, target), at: 6).startsWith("b.cond|operand target")
+    assert refusal(.bCond(.eq, target), at: 1048572) == "ok"
+    assert refusal(.cbz(.x, x0, target), at: 1048576).startsWith("cbz|operand target")
+    assert refusal(.cbnz(.w, x0, target), at: -1048580).startsWith("cbnz|operand target")
+    assert refusal(.cbnz(.w, x0, target), at: 1).startsWith("cbnz|operand target")
+    assert refusal(.adr(x0, target), at: 1048576).startsWith("adr|operand target")
+    assert refusal(.adr(x0, target), at: -1048577).startsWith("adr|operand target")
+    assert refusal(.adr(x0, target), at: -1048576) == "ok"
+}
+
+test "an unsupported operand is refused naming mnemonic and operand" {
+    let x0 = gp(0)
+    let x1 = gp(1)
+    assert refusal(.addReg(.x, spReg(), x0, x1, .lsl, 0)).startsWith("add|operand rd: sp")
+    assert refusal(.mul(.x, x0, spReg(), x1)).startsWith("mul|operand rn: sp")
+    assert refusal(.movReg(.x, x0, spReg())).startsWith("mov|operand rm: sp")
+    assert refusal(.subsImm(.x, spReg(), x0, 1, false)).startsWith("subs|operand rd: sp")
+    assert refusal(.addImm(.x, zrReg(), x0, 1, false)).startsWith("add|operand rd: xzr")
+    assert refusal(.addImm(.x, x0, zrReg(), 1, false)).startsWith("add|operand rn: xzr")
+    assert refusal(.ldrImm(.x, x0, zrReg(), 0)).startsWith("ldr|operand rn: xzr")
+    assert refusal(.ldrImm(.x, spReg(), x0, 0)).startsWith("ldr|operand rt: sp")
+    assert refusal(.movSp(zrReg(), x0)).startsWith("mov|operand rd: xzr")
+    assert refusal(.br(spReg())).startsWith("br|operand rn: sp")
+    assert refusal(.ret(zrReg())).startsWith("ret|operand rn: xzr")
+    assert refusal(.addImm(.w, x0, spReg(), 1, false)).startsWith("add|operand rn: sp needs the 64-bit form")
+    assert refusal(.movz(.x, gp(31), 1, 0)).startsWith("movz|operand rd: register number 31")
+    assert refusal(.cset(.x, x0, .al)).startsWith("cset|")
+    assert refusal(.addImm(.x, spReg(), spReg(), 1, false)) == "ok"
+}
