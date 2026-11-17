@@ -1,0 +1,272 @@
+// Tests of `lower` (spec 024 T10, R6): every emitted instruction encodes, the prologue and epilogue shape, spill scratch use.
+import sabk.enc
+import sabk.sir
+
+type Assembled = enc.Assembled
+
+/// Allocates and lowers `f`; `finish` fails when any emitted instruction does not encode or a label stays unbound.
+Assembled assemble(Function f) uses alloc {
+    let a = allocate(f) catch switch {
+        AllocError e => panic("alloc"),
+    }
+    var asm = Assembler {}
+    lower(ref asm, from: f, by: a) catch { panic("lower") }
+    return asm.finish() catch { panic("finish") }
+}
+
+u32 wordAt(List<u8> bytes, at i64 at) =>
+    u32(bytes[at]) | (u32(bytes[at + 1]) << 8) | (u32(bytes[at + 2]) << 16) | (u32(bytes[at + 3]) << 24)
+
+Reg gx(i64 n) => Reg { kind: .general, number: u8(n) }
+
+Reg sp() => Reg { kind: .sp, number: 31 }
+
+u32 enc1(Inst inst) uses alloc {
+    return enc.encode(inst) catch { panic("encode") }
+}
+
+/// Whether the word of `inst` appears at index `n` (counting instructions).
+bool wordIs(Assembled obj, at i64 n, as Inst inst) uses alloc => wordAt(obj.bytes, at: 4 * n) == enc1(inst)
+
+/// How many times the word of `inst` appears.
+i64 count(Assembled obj, for Inst inst) uses alloc {
+    let w = enc1(inst)
+    var n = 0
+    for i in 0..(obj.bytes.length / 4) {
+        n = n + 1 if wordAt(obj.bytes, at: 4 * i) == w
+    }
+    return n
+}
+
+Function straight() uses alloc {
+    var f = sir.newFunction("calc", by: 2)
+    let b = sir.newBlock(ref f)
+    let c = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(c, 0x123456789))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], c))
+    let d = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .mul(d, s, f.params[1]))
+    let e = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .div(e, d, c))
+    let g = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .sub(g, e, c))
+    sir.terminate(ref f, at: b, as: .ret(g))
+    return f
+}
+
+/// Counts v0 down to 0 through a loop block.
+Function loop() uses alloc {
+    var f = sir.newFunction("countdown", by: 1)
+    let entry = sir.newBlock(ref f)
+    let body = sir.newBlock(ref f)
+    let done = sir.newBlock(ref f)
+    let one = sir.newVReg(ref f)
+    let zero = sir.newVReg(ref f)
+    sir.emit(ref f, to: entry, as: .imm(one, 1))
+    sir.emit(ref f, to: entry, as: .imm(zero, 0))
+    sir.terminate(ref f, at: entry, as: .jump(body))
+    let next = sir.newVReg(ref f)
+    sir.emit(ref f, to: body, as: .sub(next, f.params[0], one))
+    sir.emit(ref f, to: body, as: .add(f.params[0], next, zero))
+    sir.terminate(ref f, at: body, as: .br(.gt, next, zero, body, done))
+    sir.terminate(ref f, at: done, as: .ret(zero))
+    return f
+}
+
+/// A value live across a call, plus a global load and store.
+Function calls() uses alloc {
+    var f = sir.newFunction("caller", by: 2)
+    let b = sir.newBlock(ref f)
+    let r = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .call(r, "helper", [f.params[1], f.params[0]]))
+    let g = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .load(g, "counter"))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, r, g))
+    sir.emit(ref f, to: b, as: .store("counter", s))
+    let p = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .addrGlobal(p, "counter"))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "side", []))
+    let t = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(t, s, f.params[0]))
+    sir.terminate(ref f, at: b, as: .ret(t))
+    return f
+}
+
+Function wide(by i64 count) uses alloc {
+    var f = sir.newFunction("pressure", by: 0)
+    let b = sir.newBlock(ref f)
+    var vs = List<VReg>()
+    for i in 0..count {
+        let v = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .imm(v, i))
+        vs.append(v)
+    }
+    var acc = vs[0]
+    for i in 1..count {
+        let s = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .add(s, acc, vs[i]))
+        acc = s
+    }
+    sir.terminate(ref f, at: b, as: .ret(acc))
+    return f
+}
+
+Function salam() uses alloc {
+    var f = sir.newFunction("main", by: 0)
+    let b = sir.newBlock(ref f)
+    let stream = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(stream, 0))
+    let ptr = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .addrStr(ptr, 0))
+    let len = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(len, 13))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "byn_print", [stream, ptr, len]))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "byn_stdout_flush", []))
+    let code = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(code, 7))
+    sir.terminate(ref f, at: b, as: .ret(code))
+    return f
+}
+
+test "every emitted instruction encodes" {
+    let straightObj = assemble(straight())
+    assert straightObj.bytes.length > 0
+    assert straightObj.relocs.length == 0
+    let loopObj = assemble(loop())
+    assert loopObj.bytes.length > 0
+    let callObj = assemble(calls())
+    // two bl, and adrp+add pairs for load, store and addrGlobal
+    assert callObj.relocs.length == 2 + 2 * 3
+    let mid = assemble(wide(by: 20))
+    assert mid.bytes.length > 0
+    let big = assemble(wide(by: 514))
+    assert big.bytes.length > 0
+    let r8 = assemble(salam())
+    // bl byn_print, bl byn_stdout_flush, adrp + add for str0
+    assert r8.relocs.length == 4
+    assert r8.relocs[0].symbol == "str0"
+    assert r8.relocs[2].symbol == "byn_print"
+    assert r8.relocs[3].symbol == "byn_stdout_flush"
+}
+
+test "a leaf frame is stp x29, x30 and ldp, then ret" {
+    let obj = assemble(straight())
+    assert wordIs(obj, at: 0, as: .stp(.pre, gx(29), gx(30), sp(), -16))
+    assert wordIs(obj, at: 1, as: .movSp(gx(29), sp()))
+    let n = obj.bytes.length / 4
+    assert wordIs(obj, at: n - 2, as: .ldp(.post, gx(29), gx(30), sp(), 16))
+    assert wordIs(obj, at: n - 1, as: .ret(gx(30)))
+}
+
+test "callee-saved registers are saved in pairs and restored in the epilogue" {
+    let f = calls()
+    let a = allocate(f) catch switch {
+        AllocError e => panic("alloc"),
+    }
+    // the first parameter and the call result cross the second call, so x19 and x20 are used
+    assert a.usedCalleeSaved.length == 2
+    assert a.frameSize == 32
+    let obj = assemble(f)
+    assert wordIs(obj, at: 0, as: .stp(.pre, gx(29), gx(30), sp(), -32))
+    assert wordIs(obj, at: 1, as: .movSp(gx(29), sp()))
+    assert wordIs(obj, at: 2, as: .stp(.offset, gx(19), gx(20), sp(), 16))
+    let n = obj.bytes.length / 4
+    assert wordIs(obj, at: n - 3, as: .ldp(.offset, gx(19), gx(20), sp(), 16))
+    assert wordIs(obj, at: n - 2, as: .ldp(.post, gx(29), gx(30), sp(), 32))
+    assert wordIs(obj, at: n - 1, as: .ret(gx(30)))
+}
+
+test "an odd number of callee-saved registers ends with str and ldr" {
+    var f = sir.newFunction("three", by: 3)
+    let b = sir.newBlock(ref f)
+    let c = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(c, 1))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "side", []))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], f.params[1]))
+    let t = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(t, s, f.params[2]))
+    sir.terminate(ref f, at: b, as: .ret(t))
+    let a = allocate(f) catch switch {
+        AllocError e => panic("alloc"),
+    }
+    assert a.usedCalleeSaved.length == 3
+    let obj = assemble(f)
+    assert wordIs(obj, at: 2, as: .stp(.offset, gx(19), gx(20), sp(), 16))
+    assert wordIs(obj, at: 3, as: .strImm(.x, gx(21), sp(), 32))
+    let n = obj.bytes.length / 4
+    assert wordIs(obj, at: n - 4, as: .ldp(.offset, gx(19), gx(20), sp(), 16))
+    assert wordIs(obj, at: n - 3, as: .ldrImm(.x, gx(21), sp(), 32))
+}
+
+test "a frame beyond the pre-index range uses sub sp then stp" {
+    let obj = assemble(wide(by: 100))
+    let a = allocate(wide(by: 100)) catch switch {
+        AllocError e => panic("alloc"),
+    }
+    assert a.frameSize > 512
+    assert wordIs(obj, at: 0, as: .subImm(.x, sp(), sp(), u16(a.frameSize), false))
+    assert wordIs(obj, at: 1, as: .stp(.offset, gx(29), gx(30), sp(), 0))
+    let n = obj.bytes.length / 4
+    assert wordIs(obj, at: n - 3, as: .ldp(.offset, gx(29), gx(30), sp(), 0))
+    assert wordIs(obj, at: n - 2, as: .addImm(.x, sp(), sp(), u16(a.frameSize), false))
+}
+
+test "a spilled operand goes through x16 and x17 and a spilled result is stored from x16" {
+    let f = wide(by: 20)
+    let a = allocate(f) catch switch {
+        AllocError e => panic("alloc"),
+    }
+    let obj = assemble(f)
+    var slot = -1
+    for i in 0..a.locations.length {
+        switch a.locations[i] {
+            case .stack(let s): slot = s if slot < 0
+            default: continue
+        }
+    }
+    assert slot >= 0
+    let off = u16(16 + 8 * a.usedCalleeSaved.length + 8 * slot)
+    // the spilled constant is built in x16 and stored; some add reloads a spilled operand into x16 or x17
+    assert count(obj, for: .strImm(.x, gx(16), sp(), off)) >= 1
+    assert count(obj, for: .ldrImm(.x, gx(16), sp(), off)) + count(obj, for: .ldrImm(.x, gx(17), sp(), off)) >= 1
+}
+
+test "call arguments are moved as a parallel move" {
+    // f(a, b) calls g(b, a): x0 and x1 swap through x16
+    var f = sir.newFunction("swap", by: 2)
+    let b = sir.newBlock(ref f)
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "g", [f.params[1], f.params[0]]))
+    sir.terminate(ref f, at: b, as: .ret(sir.noReg()))
+    let obj = assemble(f)
+    // prologue stp, mov x29; then the swap: mov x16, x0; mov x0, x1; mov x1, x16; bl
+    assert wordIs(obj, at: 2, as: .movReg(.x, gx(16), gx(0)))
+    assert wordIs(obj, at: 3, as: .movReg(.x, gx(0), gx(1)))
+    assert wordIs(obj, at: 4, as: .movReg(.x, gx(1), gx(16)))
+    assert obj.relocs.length == 1
+    assert obj.relocs[0].offset == 20
+
+    // g(b, c) with b in x1 and c in x2 reads x1 before writing it: x0 <- x1 first, then x1 <- x2
+    var h = sir.newFunction("shift", by: 3)
+    let hb = sir.newBlock(ref h)
+    sir.emit(ref h, to: hb, as: .call(sir.noReg(), "g", [h.params[1], h.params[2], h.params[0]]))
+    sir.terminate(ref h, at: hb, as: .ret(sir.noReg()))
+    let shifted = assemble(h)
+    assert wordIs(shifted, at: 2, as: .movReg(.x, gx(16), gx(0)))
+    assert count(shifted, for: .movReg(.x, gx(16), gx(0))) == 1
+    assert wordIs(shifted, at: 3, as: .movReg(.x, gx(0), gx(1)))
+    assert wordIs(shifted, at: 4, as: .movReg(.x, gx(1), gx(2)))
+    assert wordIs(shifted, at: 5, as: .movReg(.x, gx(2), gx(16)))
+}
+
+test "a loop branches back with b.cond and falls through to the exit" {
+    let obj = assemble(loop())
+    // the body is the second block and branches to itself: b.gt back, and no b to the exit since it follows
+    var branches = 0
+    for i in 0..(obj.bytes.length / 4) {
+        branches = branches + 1 if (wordAt(obj.bytes, at: 4 * i) & 0xFF000010) == 0x54000000
+    }
+    assert branches == 1
+}
