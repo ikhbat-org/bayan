@@ -1,0 +1,20 @@
+test "a valid donation is built" {
+    let d = try donation("Aisha", for: 50)
+    assert d.donor == "Aisha"
+    assert d.amount == 50
+}
+
+test "the edges of the rules are allowed" {
+    assert (try donation("B", for: 1)).amount == 1
+    assert (try donation("012345678901234567890123456789", for: 1)).amount == 1
+}
+
+@cases(("", 50), ("Aisha", 0), ("Aisha", -5), ("", 0), ("0123456789012345678901234567890", 50))
+test "an invalid donation is refused" (string donor, i64 amount) {
+    assert donation(donor, for: amount) fails ValidationError<Donation>
+}
+
+test "receipt writes one line" {
+    assert receipt(try donation("Aisha", for: 50)) == "Aisha gave 50"
+    assert receipt(try donation("Bilal", for: 1)) == "Bilal gave 1"
+}

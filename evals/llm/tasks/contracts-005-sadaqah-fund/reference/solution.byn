@@ -1,0 +1,43 @@
+type distinct Amount = i64 requires it in 1..=1000000
+
+/// A fund that is raising money towards a target.
+struct Fund {
+    string name
+        requires it.runeCount in 1..=20
+    i64 target
+        requires it > 0
+    i64 raised
+        requires it >= 0
+    requires raised <= target
+}
+
+/// A fund with nothing raised yet.
+Fund openFund(string name, for i64 target) fails ValidationError<Fund> {
+    return try Fund { name: name, target: target, raised: 0 }
+}
+
+/// The fund after one more gift.
+Fund donate(Fund fund, by Amount gift) fails ValidationError<Fund> {
+    return try fund with { raised: fund.raised + gift.value }
+}
+
+/// The fund after each gift in turn, stopping at the first that fails.
+Fund donateAll(Fund fund, from List<i64> gifts) fails ValidationError<Amount>, ValidationError<Fund> {
+    var current = fund
+    for gift in gifts {
+        current = try donate(current, by: try Amount(gift))
+    }
+    return current
+}
+
+/// Two funds run as one.
+Fund joined(Fund a, to Fund b) fails ValidationError<Fund> {
+    return try Fund {
+        name: $"{a.name} and {b.name}",
+        target: a.target + b.target,
+        raised: a.raised + b.raised,
+    }
+}
+
+/// How much is left to raise.
+i64 remaining(Fund fund) => fund.target - fund.raised

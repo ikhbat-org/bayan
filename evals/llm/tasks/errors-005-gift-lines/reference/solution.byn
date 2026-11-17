@@ -1,0 +1,92 @@
+union error AmountError {
+    /// The text is empty.
+    empty
+    /// The text is not a whole number.
+    notNumber
+    /// The number is 0 or below.
+    notPositive
+}
+
+union error GiftError {
+    /// The line is not two fields.
+    badLine
+    /// No donor has this name.
+    unknownDonor(string name)
+    /// The gift is above the donor's limit.
+    overLimit(i64 limit)
+}
+
+/// A person who gives, and the most they may give at once.
+struct Donor {
+    string name
+    i64    limit
+}
+
+/// What a list of gift lines came to.
+struct Summary {
+    i64 accepted
+    i64 refused
+    i64 total
+}
+
+/// A whole number of dirhams, 1 or more.
+i64 readAmount(string text) fails AmountError {
+    fail .empty if text.isEmpty
+    let amount = i64.tryParse(text) ?? fail .notNumber
+    fail .notPositive if amount <= 0
+    return amount
+}
+
+/// The amount of one `<name> <amount>` line.
+i64 giftFrom(List<Donor> donors, for string line) fails AmountError, GiftError {
+    var fields = List<string>()
+    for part in line.parts(by: " ") {
+        fields.append(part)
+    }
+    fail .badLine if fields.length != 2
+    var limit: i64 = -1
+    for donor in donors {
+        if donor.name == fields[0] {
+            limit = donor.limit
+        }
+    }
+    fail .unknownDonor(name: fields[0]) if limit < 0
+    let amount = try readAmount(fields[1])
+    fail .overLimit(limit: limit) if amount > limit
+    return amount
+}
+
+/// The text before the first space.
+string leadingName(string line) {
+    for part in line.parts(by: " ") {
+        return part
+    }
+    return ""
+}
+
+/// One line of thanks, or the reason the gift is refused.
+string receipt(List<Donor> donors, for string line) {
+    let amount = giftFrom(donors, for: line) catch switch {
+        .badLine                => return "bad line",
+        .unknownDonor(let name) => return $"unknown donor {name}",
+        .overLimit(let limit)   => return $"over the limit of {limit}",
+        .empty                  => return "bad amount",
+        .notNumber              => return "bad amount",
+        .notPositive            => return "bad amount",
+    }
+    return $"thank you {leadingName(line)}: {amount}"
+}
+
+/// Counts and sums the gifts in `lines`.
+Summary tally(List<Donor> donors, for List<string> lines) {
+    var summary = Summary { accepted: 0, refused: 0, total: 0 }
+    for line in lines {
+        let amount = giftFrom(donors, for: line) catch {
+            summary.refused += 1
+            continue
+        }
+        summary.accepted += 1
+        summary.total += amount
+    }
+    return summary
+}
