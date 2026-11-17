@@ -77,7 +77,7 @@ grep -q "FAILED: the golden runner bound did not run (no test matched)" "$tmp/er
 
 # BAYAN_EXE unset: the gate builds src/driver with the pinned bayan at HEAD and runs the bound with that driver.
 : > "$LOG"
-BAYAN_EXE= FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > /dev/null 2> "$tmp/err" || fail "a gate that built its driver exited non-zero: $(cat "$tmp/err")"
+env -u BAYAN_EXE FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > /dev/null 2> "$tmp/err" || fail "a gate that built its driver exited non-zero: $(cat "$tmp/err")"
 grep -qxF "pinned ref=HEAD" "$LOG" || fail "the gate did not ask for the pinned bayan at HEAD: $(cat "$LOG")"
 grep -qxF "bayan timeout= build --mode safe --package src -o $w/tmp/memory-gate/bayan src/driver" "$LOG" || fail "the gate did not build src/driver: $(cat "$LOG")"
 grep -qxF "bayan timeout=600000 test --package src src/driver --only $title" "$LOG" || fail "the built driver did not run the bound: $(cat "$LOG")"
