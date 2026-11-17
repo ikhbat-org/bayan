@@ -861,15 +861,11 @@ public sealed class SelfhostDefaultT9Tests
     private static string Machineless(string text) =>
         text.Replace(Golden.RepoRoot + Path.DirectorySeparatorChar, "").Replace(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "<home>");
 
-    /// <summary>The case directory <see cref="Same"/> wrote last on this thread, for a test that adds an expected file of its own.</summary>
-    [ThreadStatic]
-    private static string? LastCase;
-
     /// <summary>
     /// The steps on two trees seeded alike (the C#'s first); exit code and masked streams compared per step, the names of both trees
     /// after the last. The C#'s masked stdout per step. Under the export each step writes <c>cli/SelfhostDefaultT9Tests/&lt;test&gt;-&lt;name&gt;[-n]</c>:
     /// the tree it ran in without <c>cache/</c> and <c>cc.log</c> as <c>input/</c>, <c>args</c>, <c>env</c> (<c>-NAME</c> unsets; the inherited <c>PATH</c> as <c>$PATH</c>), the C#'s masked
-    /// <c>expected.exitcode</c>, <c>expected.stdout</c>, <c>expected.stderr</c>, and the last also <c>expected.names</c>; nothing is compared. A step with <c>TMPDIR=&lt;root&gt;-tmp</c> also has that seeded tree as <c>input/root-tmp</c> (the tree as <c>input/root</c>); file ages are not kept.
+    /// <c>expected.exitcode</c>, <c>expected.stdout</c>, <c>expected.stderr</c>, and the last also <c>expected.names</c>; nothing is compared.
     /// </summary>
     private static List<string> Same(string name, Action<string> seed, params Step[] steps)
     {
@@ -888,27 +884,16 @@ public sealed class SelfhostDefaultT9Tests
             // `<root>` in a variable's value is the tree's root.
             (string, string?)[] Env(string root) => [.. (step.Env ?? []).Select(e => (e.Name, e.Value?.Replace("<root>", root)))];
             step.Before?.Invoke(a);
-            var snapshot = Path.Combine(dir, "snapshot", "root");
-            var snapshotTmp = snapshot + "-tmp";
+            var snapshot = Path.Combine(dir, "snapshot");
             if (SelfhostExport.Dir is not null)
             {
-                TestDirs.Delete(Path.GetDirectoryName(snapshot)!);
+                TestDirs.Delete(snapshot);
                 Directory.CreateDirectory(snapshot);
-                void Copy(string from, string to, Func<string, bool> keep)
+                foreach (var f in Directory.EnumerateFiles(a, "*", SearchOption.AllDirectories).Where(f => Path.GetRelativePath(a, f).Split(Path.DirectorySeparatorChar)[0] != "cache" && Path.GetFileName(f) != "cc.log"))
                 {
-                    foreach (var f in Directory.EnumerateFiles(from, "*", SearchOption.AllDirectories).Where(keep))
-                    {
-                        var target = Path.Combine(to, Path.GetRelativePath(from, f));
-                        Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                        File.Copy(f, target);
-                    }
-                }
-                Copy(a, snapshot, f => Path.GetRelativePath(a, f).Split(Path.DirectorySeparatorChar)[0] != "cache" && Path.GetFileName(f) != "cc.log");
-                // `TMPDIR=<root>-tmp` of a step: the seeded tree beside the root, as `input/root-tmp`.
-                if (Directory.Exists(a + "-tmp"))
-                {
-                    Directory.CreateDirectory(snapshotTmp);
-                    Copy(a + "-tmp", snapshotTmp, _ => true);
+                    var to = Path.Combine(snapshot, Path.GetRelativePath(a, f));
+                    Directory.CreateDirectory(Path.GetDirectoryName(to)!);
+                    File.Copy(f, to);
                 }
             }
             var expected = Bayan(false, a, Env(a), step.Args);
@@ -918,8 +903,7 @@ public sealed class SelfhostDefaultT9Tests
             if (SelfhostExport.Dir is { } export)
             {
                 last = SelfhostExport.Case(export, "cli", nameof(SelfhostDefaultT9Tests), $"{step.Test}-{name}");
-                LastCase = last;
-                SelfhostExport.WriteInput(last, Directory.Exists(a + "-tmp") ? [snapshot, snapshotTmp] : [snapshot]);
+                SelfhostExport.WriteInput(last, [snapshot]);
                 SelfhostExport.WriteExpected(last, "args", string.Concat(step.Args.Select(x => x + "\n")));
                 if (step.Env is { Length: > 0 } env)
                     SelfhostExport.WriteExpected(last, "env", string.Concat(env.Select(e => (e.Value is null ? "-" + e.Name : $"{e.Name}={e.Value.Replace(Environment.GetEnvironmentVariable("PATH") ?? "\0", "$PATH").Replace(Golden.RepoRoot + Path.DirectorySeparatorChar, "")}") + "\n")));
@@ -1329,6 +1313,12 @@ public sealed class SelfhostDefaultT9Tests
     [InlineData("7200")]
     public void ABuildSweepsStaleDirectories(string? timeout)
     {
+        if (SelfhostExport.Dir is { } export)
+        {
+            SelfhostExport.NotExported(export, "cli", nameof(SelfhostDefaultT9Tests), nameof(ABuildSweepsStaleDirectories),
+                $"sweep-build-{timeout} (not exported: depends on file ages, empty seeded directories and cache staging keys, which the case format does not carry; covered later by a Bayan test (T19))");
+            return;
+        }
         string[] seeded = ["bayan-coverage-old/", "bayan-coverage-old/inside", "bayan-mutate-old/", "bayan-asan-old/", "bayan-coverage-new/", "other-old/", "bayan-coverage-file"];
         void Seed(string root)
         {
@@ -1352,8 +1342,7 @@ public sealed class SelfhostDefaultT9Tests
             new Step(["build", "arithmetic.byn"], Env: [("TMPDIR", "<root>-tmp"), ("TMP", "<root>-tmp"), ("BAYAN_CC_TIMEOUT_S", timeout)]));
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", $"sweep-build-{timeout}");
         string Left(string side) => string.Join("\n", seeded.Where(n => Path.Exists(Path.Combine(dir, side + "-tmp", n.TrimEnd('/')))));
-        if (LastCase is not null && SelfhostExport.Dir is not null) SelfhostExport.WriteExpected(LastCase, "expected.tmpnames", Left("cs") + "\n");
-        else SelfhostEmitterHarness.AssertSame("seeded names left in TMPDIR", Left("cs"), Left("s2"));
+        SelfhostEmitterHarness.AssertSame("seeded names left in TMPDIR", Left("cs"), Left("s2"));
         Assert.Equal("bayan-coverage-new/\nother-old/\nbayan-coverage-file", Left("s2"));
         Assert.Equal(timeout == "7200", Directory.Exists(Path.Combine(dir, "s2", "cache", "v1", "tmp", "key-running")));
         Assert.False(Directory.Exists(Path.Combine(dir, "s2", "cache", "v1", "tmp", "key-old")));
