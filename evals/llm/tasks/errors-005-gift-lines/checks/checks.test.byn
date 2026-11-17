@@ -1,0 +1,84 @@
+List<Donor> donors() {
+    var list = List<Donor>()
+    list.append(Donor { name: "Aisha", limit: 100 })
+    list.append(Donor { name: "Bilal", limit: 50 })
+    return list
+}
+
+List<string> mixed() {
+    var list = List<string>()
+    list.append("Aisha 40")
+    list.append("Bilal 80")
+    list.append("Bilal 10")
+    return list
+}
+
+@cases(("1", 1), ("250", 250), ("007", 7))
+test "readAmount reads a whole number" (string text, i64 expected) {
+    assert (try readAmount(text)) == expected
+}
+
+test "readAmount names each failure" {
+    assert readAmount("") fails AmountError.empty
+    assert readAmount("ten") fails AmountError.notNumber
+    assert readAmount("2.5") fails AmountError.notNumber
+    assert readAmount("1 2") fails AmountError.notNumber
+    assert readAmount("0") fails AmountError.notPositive
+    assert readAmount("-5") fails AmountError.notPositive
+}
+
+test "giftFrom returns the amount" {
+    assert (try giftFrom(donors(), for: "Aisha 40")) == 40
+    assert (try giftFrom(donors(), for: "Aisha 100")) == 100
+    assert (try giftFrom(donors(), for: "Bilal 50")) == 50
+}
+
+@cases("", "Aisha", "Aisha 5 6", "Aisha  5", " Aisha 5")
+test "giftFrom refuses a line that is not two fields" (string line) {
+    assert giftFrom(donors(), for: line) fails GiftError.badLine
+}
+
+test "giftFrom refuses an unknown donor before reading the amount" {
+    assert giftFrom(donors(), for: "Omar 10") fails GiftError.unknownDonor
+    assert giftFrom(donors(), for: "Omar ten") fails GiftError.unknownDonor
+    assert giftFrom(donors(), for: "aisha 10") fails GiftError.unknownDonor
+}
+
+test "giftFrom passes on the amount error" {
+    assert giftFrom(donors(), for: "Aisha ten") fails AmountError.notNumber
+    assert giftFrom(donors(), for: "Aisha 0") fails AmountError.notPositive
+    assert giftFrom(donors(), for: "Bilal -1") fails AmountError.notPositive
+}
+
+test "giftFrom refuses a gift over the limit" {
+    assert giftFrom(donors(), for: "Bilal 51") fails GiftError.overLimit
+    assert giftFrom(donors(), for: "Aisha 101") fails GiftError.overLimit
+}
+
+@cases(
+    ("Aisha 40", "thank you Aisha: 40"),
+    ("Bilal 50", "thank you Bilal: 50"),
+    ("Aisha", "bad line"),
+    ("", "bad line"),
+    ("Omar 10", "unknown donor Omar"),
+    ("Bilal 80", "over the limit of 50"),
+    ("Aisha 0", "bad amount"),
+    ("Aisha ten", "bad amount"),
+)
+test "noteFor says what happened" (string line, string expected) {
+    assert noteFor(donors(), for: line) == expected
+}
+
+test "countGifts counts accepted and refused lines" {
+    let s = countGifts(donors(), for: mixed())
+    assert s.accepted == 2
+    assert s.refused == 1
+    assert s.total == 50
+}
+
+test "countGifts of nothing is zero" {
+    let s = countGifts(donors(), for: List<string>())
+    assert s.accepted == 0
+    assert s.refused == 0
+    assert s.total == 0
+}

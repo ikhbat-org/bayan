@@ -1,0 +1,14 @@
+/// One gift to the sadaqah fund.
+struct Donation {
+    string donor
+        requires it.runeCount in 1..=30
+    i64 amount
+        requires it >= 1
+}
+
+Donation donation(string donor, for i64 amount) fails ValidationError<Donation> {
+    return try Donation { donor: donor, amount: amount }
+}
+
+/// The line written on the receipt.
+string slipFor(Donation d) => $"{d.donor} gave {d.amount}"

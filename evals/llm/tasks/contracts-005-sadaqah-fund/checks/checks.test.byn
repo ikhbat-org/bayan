@@ -1,0 +1,96 @@
+List<i64> gifts(i64 first, to i64 second) {
+    var list = List<i64>()
+    list.append(first)
+    list.append(second)
+    return list
+}
+
+test "openFund starts empty" {
+    let p = try openFund("Water well", for: 500)
+    assert p.name == "Water well"
+    assert p.target == 500
+    assert p.raised == 0
+    assert roomLeft(p) == 500
+}
+
+@cases(("", 500), ("Water well", 0), ("Water well", -1), ("012345678901234567890", 500))
+test "openFund refuses a broken rule" (string name, i64 target) {
+    assert openFund(name, for: target) fails ValidationError<Fund>
+}
+
+test "donate adds the gift" {
+    let p = try donate(try openFund("Well", for: 500), by: Amount(200))
+    assert p.raised == 200
+    assert roomLeft(p) == 300
+}
+
+test "a fund can be filled exactly" {
+    let p = try openFund("Well", for: 500)
+    let full = try donate(p, by: Amount(500))
+    assert roomLeft(full) == 0
+}
+
+test "a fund cannot be filled past its target" {
+    let p = try openFund("Well", for: 500)
+    assert donate(p, by: Amount(501)) fails ValidationError<Fund>
+}
+
+test "a full fund takes nothing more" {
+    let full = try donate(try openFund("Well", for: 500), by: Amount(500))
+    assert donate(full, by: Amount(1)) fails ValidationError<Fund>
+}
+
+@cases(0, -3, 1000001)
+test "an amount outside 1 through 1000000 is refused" (i64 raw) {
+    assert Amount(raw) fails ValidationError<Amount>
+}
+
+test "the edges of an amount are allowed" {
+    assert Amount(1).value == 1
+    assert Amount(1000000).value == 1000000
+}
+
+test "donateAll adds every gift" {
+    let p = try donateAll(try openFund("Well", for: 500), from: gifts(100, to: 250))
+    assert p.raised == 350
+}
+
+test "donateAll with no gifts changes nothing" {
+    let p = try donateAll(try openFund("Well", for: 500), from: List<i64>())
+    assert p.raised == 0
+}
+
+test "donateAll fails on a gift that is not an amount" {
+    let p = try openFund("Well", for: 500)
+    assert donateAll(p, from: gifts(100, to: 0)) fails ValidationError<Amount>
+}
+
+test "donateAll stops at the first failure" {
+    let p = try openFund("Well", for: 500)
+    assert donateAll(p, from: gifts(0, to: 600)) fails ValidationError<Amount>
+}
+
+test "donateAll fails when the fund overflows" {
+    let p = try openFund("Well", for: 500)
+    assert donateAll(p, from: gifts(400, to: 200)) fails ValidationError<Fund>
+}
+
+test "donateAll reports the fund first when it fails first" {
+    let p = try openFund("Well", for: 500)
+    assert donateAll(p, from: gifts(600, to: 0)) fails ValidationError<Fund>
+}
+
+test "mergeFunds adds the targets and the raised amounts" {
+    let a = try donate(try openFund("Well", for: 500), by: Amount(120))
+    let b = try donate(try openFund("School", for: 300), by: Amount(30))
+    let both = try mergeFunds(a, to: b)
+    assert both.name == "Well and School"
+    assert both.target == 800
+    assert both.raised == 150
+}
+
+test "mergeFunds re-checks the name" {
+    let a = try openFund("Water well in Dhaka", for: 500)
+    let b = try openFund("School", for: 300)
+    assert mergeFunds(a, to: b) fails ValidationError<Fund>
+}

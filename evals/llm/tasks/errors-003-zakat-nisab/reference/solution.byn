@@ -1,0 +1,16 @@
+union error ZakatError {
+    /// The nisab is 0 or less.
+    badNisab
+    /// The savings are below 0.
+    negative
+    /// The savings are below the nisab.
+    belowNisab
+}
+
+/// One fortieth of `savings`, once they reach `nisab`.
+i64 zakatDue(i64 savings, at i64 nisab) fails ZakatError {
+    fail .badNisab if nisab <= 0
+    fail .negative if savings < 0
+    fail .belowNisab if savings < nisab
+    return savings / 40
+}
