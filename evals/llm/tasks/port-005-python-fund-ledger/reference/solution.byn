@@ -1,0 +1,95 @@
+union error FundError {
+    /// No fund has this name.
+    noFund(string name)
+    /// A fund with this name exists.
+    opened(string name)
+    /// The fund holds less than was asked.
+    underfunded(string name)
+    /// The amount is not a whole number of 1 or more.
+    badAmount
+    /// The command is not one of the five.
+    badCommand
+}
+
+/// A named pot of dirhams.
+struct Fund {
+    string name
+    i64    balance
+
+    void withdraw(ref this, i64 amount) fails FundError {
+        fail .underfunded(name: name) if amount > balance
+        balance -= amount
+    }
+}
+
+/// A whole number of 1 or more.
+i64 number(string text) fails FundError {
+    let amount = i64.tryParse(text) ?? fail .badAmount
+    fail .badAmount if amount < 1
+    return amount
+}
+
+/// Where in `funds` the fund called `name` is.
+i64 find(List<Fund> funds, for string name) fails FundError {
+    for i in 0..funds.length {
+        return i if funds[i].name == name
+    }
+    fail .noFund(name: name)
+}
+
+/// Runs one command on `funds`, printing what `show` asks for.
+void carryOut(ref List<Fund> funds, for List<string> words) fails FundError {
+    let args = words.length - 1
+    if words[0] == "open" && args == 2 {
+        let amount = try number(words[2])
+        for fund in funds {
+            fail .opened(name: words[1]) if fund.name == words[1]
+        }
+        funds.append(Fund { name: words[1], balance: amount })
+    } else if words[0] == "give" && args == 2 {
+        let at = try find(funds, for: words[1])
+        funds[at].balance += try number(words[2])
+    } else if words[0] == "take" && args == 2 {
+        let at = try find(funds, for: words[1])
+        try funds[at].withdraw(try number(words[2]))
+    } else if words[0] == "move" && args == 3 {
+        let from = try find(funds, for: words[1])
+        let to = try find(funds, for: words[2])
+        let amount = try number(words[3])
+        try funds[from].withdraw(amount)
+        funds[to].balance += amount
+    } else if words[0] == "show" && args == 0 {
+        var total: i64 = 0
+        for fund in funds {
+            print($"{fund.name}: {fund.balance}")
+            total += fund.balance
+        }
+        print($"total: {total}")
+    } else {
+        fail .badCommand
+    }
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var funds = List<Fund>()
+    for line in read.value.lines {
+        var words = List<string>()
+        for part in line.parts(by: " ") {
+            continue if part.trimmed().isEmpty
+            words.append(part.trimmed())
+        }
+        continue if words.length == 0
+        carryOut(ref funds, for: words) catch switch {
+            .noFund(let name)      => print($"error: no fund {name}"),
+            .opened(let name)      => print($"error: {name} already open"),
+            .underfunded(let name) => print($"error: not enough in {name}"),
+            .badAmount             => print("error: bad amount"),
+            .badCommand            => print("error: bad command"),
+        }
+    }
+}

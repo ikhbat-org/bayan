@@ -1,0 +1,53 @@
+/// The five daily prayers.
+enum Prayer {
+    fajr
+    dhuhr
+    asr
+    maghrib
+    isha
+}
+
+/// The prayer a word names, if any.
+Prayer? prayerNamed(string word) {
+    return .fajr if word == "fajr"
+    return .dhuhr if word == "dhuhr"
+    return .asr if word == "asr"
+    return .maghrib if word == "maghrib"
+    return .isha if word == "isha"
+    return null
+}
+
+/// How many rak'ahs the obligatory part of `prayer` has.
+i64 rakats(Prayer prayer) {
+    var count: i64 = 0
+    switch prayer {
+        case .fajr: count = 2
+        case .dhuhr: count = 4
+        case .asr: count = 4
+        case .maghrib: count = 3
+        case .isha: count = 4
+    }
+    return count
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var total: i64 = 0
+    for line in read.value.lines {
+        let word = line.trimmed()
+        continue if word.isEmpty
+        let prayer = prayerNamed(word)
+        if prayer is null {
+            print($"unknown: {word}")
+            continue
+        }
+        let count = rakats(prayer)
+        total += count
+        print($"{word}: {count}")
+    }
+    print($"total: {total}")
+}
