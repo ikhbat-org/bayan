@@ -6,11 +6,11 @@ The payload is the Base64 encoding of UTF-8 text `<kind> <amount>`: a kind, one 
 
 A note that fails is rejected and counts for nothing. Print `rejected line <n>: <reason>` at once, where `<n>` is its line number and the reason is the first of these that applies:
 
-1. `line`: there is no `:`, or the donor is empty.
+1. `malformed`: there is no `:`, or the donor is empty.
 2. `base64`: the payload is not valid Base64.
 3. `utf8`: the decoded bytes are not valid UTF-8.
 4. `payload`: the text is not exactly two fields separated by one space.
-5. `kind`: the first field is not one of the three kinds.
+5. `unlisted`: the first field is not one of the three kinds.
 6. `amount`: the second field is not a whole number of 1 or more.
 
 After the last line print the totals of the accepted notes:

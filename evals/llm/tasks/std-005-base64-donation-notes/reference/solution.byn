@@ -2,11 +2,11 @@ import std.encoding
 
 /// Why a note was refused.
 union error NoteError {
-    line
+    malformed
     base64
     utf8
     payload
-    kind
+    unlisted
     amount
 }
 
@@ -25,9 +25,9 @@ struct Gift {
 }
 
 /// The gift in `note`, or the first reason it is refused.
-Gift open(string note) fails NoteError {
+Gift unseal(string note) fails NoteError {
     let colon = note.position(":") ?? -1
-    fail .line if colon <= 0
+    fail .malformed if colon <= 0
     let bytes = encoding.Base64.decode(note[colon + 1..]) catch fail .base64
     let text = Utf8.decode(bytes.span) catch fail .utf8
     var fields = List<string>()
@@ -41,7 +41,7 @@ Gift open(string note) fails NoteError {
     } else if fields[0] == "fidya" {
         kind = .fidya
     } else if fields[0] != "zakat" {
-        fail .kind
+        fail .unlisted
     }
     let amount = i64.tryParse(fields[1]) ?? 0
     fail .amount if amount < 1
@@ -49,14 +49,14 @@ Gift open(string note) fails NoteError {
 }
 
 /// The word `rejected line` reports for `reason`.
-string name(NoteError reason) {
+string reasonWord(NoteError reason) {
     return reason switch {
-        .line    => "line",
-        .base64  => "base64",
-        .utf8    => "utf8",
-        .payload => "payload",
-        .kind    => "kind",
-        .amount  => "amount",
+        .malformed => "malformed",
+        .base64    => "base64",
+        .utf8      => "utf8",
+        .payload   => "payload",
+        .unlisted  => "unlisted",
+        .amount    => "amount",
     }
 }
 
@@ -76,9 +76,9 @@ void main() {
         number += 1
         let text = line.trimmed()
         continue if text.isEmpty
-        let gift = open(text) catch switch {
+        let gift = unseal(text) catch switch {
             let reason => {
-                print($"rejected line {number}: {name(reason)}")
+                print($"rejected line {number}: {reasonWord(reason)}")
                 continue
             }
         }
