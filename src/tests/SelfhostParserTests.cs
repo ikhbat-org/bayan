@@ -73,7 +73,7 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
             var (exit, o, e) = SelfhostSemanticsHarness.RunRecorded(dir, program, null, args);
             return (exit, Encoding.UTF8.GetString(o), Encoding.UTF8.GetString(e));
         }
-        var psi = new ProcessStartInfo(program) { RedirectStandardOutput = true, StandardOutputEncoding = System.Text.Encoding.UTF8, RedirectStandardError = true, StandardErrorEncoding = System.Text.Encoding.UTF8, UseShellExecute = false };
+        var psi = new ProcessStartInfo(program) { RedirectStandardOutput = true, StandardOutputEncoding = System.Text.Encoding.UTF8, RedirectStandardError = true, StandardErrorEncoding = System.Text.Encoding.UTF8, UseShellExecute = false, WorkingDirectory = AppContext.BaseDirectory };
         foreach (var a in args) psi.ArgumentList.Add(a);
         using var p = Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndAsync();

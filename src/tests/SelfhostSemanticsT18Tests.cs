@@ -376,7 +376,7 @@ public sealed class SelfhostSemanticsT18Tests
     {
         WriteOther();
         var path = Path.Combine(Dir, "main.byn");
-        var c = Compilation.Create([SourceText.FromString(path, Source + "\n")], packageRoot: Dir, options: new CompilationOptions(Library: true));
+        var c = Compilation.Create([SourceText.FromString(path, Source + "\n")], packageRoot: Path.Combine(AppContext.BaseDirectory, Dir), options: new CompilationOptions(Library: true));
         var file = c.Modules.SelectMany(m => m.Files).First(f => f.Source.Path == path);
         var mark = c.Diagnostics.Items.Count;
         var unit = file.Tree.Root;
@@ -446,8 +446,8 @@ public sealed class SelfhostSemanticsT18Tests
 
     private static void WriteOther()
     {
-        Directory.CreateDirectory(Path.Combine(Dir, "other"));
-        File.WriteAllText(Path.Combine(Dir, "other", "other.byn"), Other + "\n");
+        Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, Dir, "other"));
+        File.WriteAllText(Path.Combine(AppContext.BaseDirectory, Dir, "other", "other.byn"), Other + "\n");
     }
 
     private static readonly Lazy<Dictionary<string, List<string>>> Sections = new(() =>
