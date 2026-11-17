@@ -56,7 +56,7 @@ public sealed class SelfhostDriverT1Tests
     internal sealed record Staged(string Root, List<string> Inputs, Dictionary<string, string> Extra);
 
     /// <summary>An argument naming a file, a directory or a link.</summary>
-    internal static bool IsPath(string arg) => File.Exists(arg) || Directory.Exists(arg) || new FileInfo(arg).LinkTarget is not null;
+    internal static bool IsPath(string arg) => arg.Length > 0 && (File.Exists(arg) || Directory.Exists(arg) || new FileInfo(arg).LinkTarget is not null);
 
     /// <summary>
     /// A copy of each of <paramref name="paths"/> under <c>tmp/export-stage/</c>, taken before the C# side runs (which may rewrite them),

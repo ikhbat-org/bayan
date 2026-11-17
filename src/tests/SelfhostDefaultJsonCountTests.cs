@@ -39,6 +39,7 @@ public sealed class SelfhostDefaultJsonCountTests
     {
         var expected = PassCount(driver: false);
         Assert.NotEqual("0", expected);
+        if (SelfhostExport.Cli(["test", "lib/std/json"], 0, $"{expected} passed\n", "", extra: new Dictionary<string, string> { ["compare"] = "pass-count\n" })) return;
         Assert.Equal(expected, PassCount(driver: true));
     }
 }

@@ -68,8 +68,22 @@ public sealed class SelfhostDefaultT4Tests
 
     private static string Mask(string text, string dir) => text.Replace(dir, "<D>");
 
+    /// <summary>
+    /// Under the export (spec 019 R10): the case of a C# run in <paramref name="dir"/>, its seeded tree <paramref name="staged"/> as <c>input/</c>,
+    /// the argv with <c>{D}</c> as typed, <c>cwd</c> and <c>env</c> when the run had them, and the masked tree after it as <c>expected.tree</c>.
+    /// </summary>
+    private static void Export(string[] args, Result r, SelfhostDriverT1Tests.Staged staged, string dir, string? cwd, string? path, string test)
+    {
+        if (cwd is not null) staged.Extra["cwd"] = cwd + "\n";
+        if (!string.IsNullOrEmpty(path) && File.Exists(Path.Combine(path, "git"))) staged.Extra["env.git"] = File.ReadAllText(Path.Combine(path, "git"));
+        var form = new SelfhostDriverT1Tests.ExportForm("masked", t => Mask(t, dir), t => Mask(t, dir), () => Mask(Tree(dir), dir));
+        SelfhostDriverT1Tests.Record(args, (r.Exit, r.Out, r.Err), staged, form, nameof(SelfhostDefaultT4Tests), test, "",
+            path is null ? null : [("PATH", string.IsNullOrEmpty(path) ? "" : "<bin>")]);
+    }
+
     /// <summary>Runs <paramref name="args"/> (with <c>{D}</c> standing for the directory) under both CLIs after <paramref name="setup"/>.</summary>
-    private static void Same(string[] args, Action<string>? setup = null, string? path = null, string? relativeCwd = null, string? contains = null)
+    private static void Same(string[] args, Action<string>? setup = null, string? path = null, string? relativeCwd = null, string? contains = null,
+        [System.Runtime.CompilerServices.CallerMemberName] string test = "")
     {
         var cs = Fresh();
         var s1 = Fresh();
@@ -79,7 +93,13 @@ public sealed class SelfhostDefaultT4Tests
             setup?.Invoke(s1);
             var csCwd = relativeCwd is null ? cs : Path.Combine(cs, relativeCwd);
             var s1Cwd = relativeCwd is null ? s1 : Path.Combine(s1, relativeCwd);
+            var staged = SelfhostExport.Dir is null ? null : SelfhostDriverT1Tests.StageInputs([cs]);
             var expected = Start("dotnet", [typeof(CliApp).Assembly.Location], csCwd, [.. args.Select(a => a.Replace("{D}", cs))], path);
+            if (staged is not null)
+            {
+                Export(args, expected, staged, cs, relativeCwd, path, test);
+                return;
+            }
             var actual = Start(SelfhostDriverHarness.Build(), [], s1Cwd, [.. args.Select(a => a.Replace("{D}", s1))], path);
             Assert.Equal(Mask(expected.Out, cs), Mask(actual.Out, s1));
             if (contains is not null) Assert.Contains(contains, actual.Out);
@@ -126,9 +146,16 @@ public sealed class SelfhostDefaultT4Tests
         var s1 = Fresh();
         try
         {
+            var staged = SelfhostExport.Dir is null ? null : SelfhostDriverT1Tests.StageInputs([cs]);
             var o = new StringWriter();
             var e = new StringWriter();
             var exit = CliApp.Run(["new", Path.Combine(cs, "tally"), "--lib", "--vcs", "none", "--ci", "github"], o, e);
+            if (staged is not null)
+            {
+                Export(["new", "{D}/tally", "--lib", "--vcs", "none", "--ci", "github"], new Result(exit, o.ToString().ReplaceLineEndings("\n"), e.ToString().ReplaceLineEndings("\n")),
+                    staged, cs, null, null, nameof(RootedNewMatchesTheInProcessCSharp));
+                return;
+            }
             var actual = Start(SelfhostDriverHarness.Build(), [], s1, ["new", Path.Combine(s1, "tally"), "--lib", "--vcs", "none", "--ci", "github"], null);
             Assert.Equal(Mask(o.ToString().Replace("\r\n", "\n"), cs), Mask(actual.Out, s1));
             Assert.Equal(e.ToString(), actual.Err);
