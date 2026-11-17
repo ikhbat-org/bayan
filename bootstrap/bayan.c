@@ -13163,6 +13163,9 @@ int64_t byn_main__goldenModified(byn_str p_path);
 byn_str byn_main__goldenTree(byn_str p_root);
 void byn_main__goldenPendingFixture(byn_str p_root);
 bynt_main__GoldenOutcome byn_main__goldenExeRun(byn_str p_root, bynt_opt_str p_value, byn_str p_jobs);
+bynt_main__GoldenOutcome byn_main__goldenRowsRun(byn_str p_dir, bynt_list_str p_extra);
+bynt_list_str byn_main__goldenRowLines(byn_str p_stdout);
+byn_str byn_main__goldenRowsFixture(byn_str p_root);
 bynt_main__LayoutResult byn_main__layoutApply(bynt_list_u8 p_source, bynt_main__LayoutOptions p_options);
 int64_t byn_main__layoutBom(bynt_list_u8 p_bytes);
 bynt_lexer__LexResult byn_main__layoutLex(bynt_list_u8 p_bytes, bynt_lexer__Keywords p_keywords);
@@ -19242,7 +19245,7 @@ byn_str byn_lexer__codeText(byn_lexer_DiagnosticCode p_code) {
 #line 29 "lexer/diagnostics.byn"
     return t3;
 }
-#line 19246 "main.c"
+#line 19249 "main.c"
 
 byn_str byn_lexer__messageFormat(byn_lexer_DiagnosticCode p_code) {
     byn_str t0 = {0};
@@ -19371,7 +19374,7 @@ switch_end_1:;
 #line 33 "lexer/diagnostics.byn"
     return t0;
 }
-#line 19375 "main.c"
+#line 19378 "main.c"
 
 byn_str byn_lexer__format(byn_str p_template, bynt_tup2_str_str p_args) {
     byn_writer l0_sb = {0};
@@ -19429,7 +19432,7 @@ break_1:;
 #line 71 "lexer/diagnostics.byn"
     return byn_strbuf_str(t4);
 }
-#line 19433 "main.c"
+#line 19436 "main.c"
 
 void byn_lexer__render(bynt_lexer__Diagnostic p_diagnostic, byn_writer* p_sb, bynt_lexer__SourceText* p_source) {
     byn_str l0_head = {0};
@@ -19867,7 +19870,7 @@ break_3:;
     break_9:;
     }
 }
-#line 19871 "main.c"
+#line 19874 "main.c"
 
 void byn_lexer__appendLines(bynt_list_str* p_lines, byn_writer* p_sb, byn_str p_separator) {
     int64_t l0_i = {0};
@@ -19899,7 +19902,7 @@ void byn_lexer__appendLines(bynt_list_str* p_lines, byn_writer* p_sb, byn_str p_
     }
 break_1:;
 }
-#line 19903 "main.c"
+#line 19906 "main.c"
 
 void byn_lexer__wrap(byn_str p_text, bynt_list_str* p_lines, bynt_lexer__Widths p_widths) {
     bynt_span_u8 l0_t = {0};
@@ -19992,7 +19995,7 @@ void byn_lexer__wrap(byn_str p_text, bynt_list_str* p_lines, bynt_lexer__Widths 
     }
 break_1:;
 }
-#line 19996 "main.c"
+#line 19999 "main.c"
 
 void byn_lexer__renderAll(bynt_span_lexer__Diagnostic p_diagnostics, byn_writer* p_sb, bynt_lexer__SourceText* p_source) {
     bynt_list_i64 l0_order = {0};
@@ -20027,7 +20030,7 @@ void byn_lexer__renderAll(bynt_span_lexer__Diagnostic p_diagnostics, byn_writer*
     }
 break_1:;
 }
-#line 20031 "main.c"
+#line 20034 "main.c"
 
 bynt_list_i64 byn_lexer__sourceOrder(bynt_span_lexer__Diagnostic p_diagnostics) {
     bynt_list_i64 l0_order = {0};
@@ -20081,7 +20084,7 @@ break_1:;
 #line 277 "lexer/diagnostics.byn"
     return l0_order;
 }
-#line 20085 "main.c"
+#line 20088 "main.c"
 
 byn_str byn_lexer__lineNumber(int64_t p_number, int64_t p_width) {
     byn_str l0_digits = {0};
@@ -20138,7 +20141,7 @@ break_1:;
 #line 287 "lexer/diagnostics.byn"
     return byn_strbuf_str(t6);
 }
-#line 20142 "main.c"
+#line 20145 "main.c"
 
 bynt_lexer__FixView byn_lexer__applyFix(bynt_lexer__TextSpan p_fix, byn_str p_replacement, bynt_lexer__SourceText* p_source, bynt_list_str* p_lines) {
     int64_t l0_firstLine = {0};
@@ -20305,7 +20308,7 @@ break_9:;
 #line 336 "lexer/diagnostics.byn"
     return ((bynt_lexer__FixView){l0_firstLine, t25, byn_sub_i64(byn_add_i64(t24, l16_shown.len, byn_file_0, 339), l12_tail, byn_file_0, 339), (l15_inserted ? BYN_STR("+", 1) : BYN_STR("-", 1))});
 }
-#line 20309 "main.c"
+#line 20312 "main.c"
 
 void byn_lexer__display(bynt_span_u8 p_text, byn_writer* p_sb) {
     int64_t l0_pos = {0};
@@ -20340,7 +20343,7 @@ void byn_lexer__display(bynt_span_u8 p_text, byn_writer* p_sb) {
     }
 break_1:;
 }
-#line 20344 "main.c"
+#line 20347 "main.c"
 
 void byn_lexer__indent(bynt_span_u8 p_prefix, byn_writer* p_sb) {
     int64_t l0_pos = {0};
@@ -20364,7 +20367,7 @@ void byn_lexer__indent(bynt_span_u8 p_prefix, byn_writer* p_sb) {
     }
 break_1:;
 }
-#line 20368 "main.c"
+#line 20371 "main.c"
 
 void byn_lexer__dump(bynt_lexer__LexResult* p_result, byn_writer* p_sb) {
     int64_t l0_i = {0};
@@ -20445,7 +20448,7 @@ break_1:;
         byn_arena_free(l7_arena);
     }
 }
-#line 20449 "main.c"
+#line 20452 "main.c"
 
 void byn_lexer__escape(bynt_span_u8 p_text, byn_writer* p_sb) {
     int64_t l0_pos = {0};
@@ -20509,7 +20512,7 @@ break_1:;
 #line 51 "lexer/dump.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR("`", 1));
 }
-#line 20513 "main.c"
+#line 20516 "main.c"
 
 void byn_lexer__dumpJson(bynt_lexer__LexResult* p_result, byn_writer* p_sb) {
     bynt_span_u8 l0_bytes = {0};
@@ -20667,7 +20670,7 @@ break_3:;
 #line 98 "lexer/dump.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR("]}\012", 3));
 }
-#line 20671 "main.c"
+#line 20674 "main.c"
 
 void byn_lexer__jsonOptional(byn_str p_text, byn_writer* p_sb) {
 #line 103 "lexer/dump.byn"
@@ -20679,7 +20682,7 @@ void byn_lexer__jsonOptional(byn_str p_text, byn_writer* p_sb) {
         (void)byn_lexer__jsonString(bynh_str_bytes(p_text), &(*p_sb));
     }
 }
-#line 20683 "main.c"
+#line 20686 "main.c"
 
 void byn_lexer__jsonString(bynt_span_u8 p_text, byn_writer* p_sb) {
     int64_t l0_pos = {0};
@@ -20753,7 +20756,7 @@ break_1:;
 #line 135 "lexer/dump.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR("\042", 1));
 }
-#line 20757 "main.c"
+#line 20760 "main.c"
 
 bynt_lexer__LexResult byn_lexer__lex(bynt_lexer__SourceText p_source, bynt_lexer__Keywords p_keywords) {
     bynt_list_lexer__ModeEntry l0_modes = {0};
@@ -20790,7 +20793,7 @@ break_1:;
 #line 25 "lexer/lexer.byn"
     return l4_result;
 }
-#line 20794 "main.c"
+#line 20797 "main.c"
 
 bool byn_lexer__inRanges(bynt_span_u32 p_ranges, uint32_t p_cp) {
     int64_t l0_lo = {0};
@@ -20826,31 +20829,31 @@ break_1:;
 #line 42 "lexer/lexer.byn"
     return ((l0_lo < byn_div_i64(p_ranges.len, INT64_C(2), byn_file_2, 42)) && ((*bynh_at_span_u32(p_ranges, (int64_t)byn_mul_i64(l0_lo, INT64_C(2), byn_file_2, 42), false, byn_file_2, 42)) <= p_cp));
 }
-#line 20830 "main.c"
+#line 20833 "main.c"
 
 bool byn_lexer__isIdentifierStart(uint32_t p_cp) {
 #line 46 "lexer/lexer.byn"
     return byn_lexer__inRanges(((bynt_span_u32){(*(bynt_arr1362_u32*)&byn_lexer__identStartRanges).v, 1362}), p_cp);
 }
-#line 20836 "main.c"
+#line 20839 "main.c"
 
 bool byn_lexer__firstIsUpper(bynt_span_u8 p_text) {
 #line 50 "lexer/lexer.byn"
     return ((p_text.len > INT64_C(0)) && byn_lexer__inRanges(((bynt_span_u32){(*(bynt_arr1218_u32*)&byn_lexer__upperRanges).v, 1218}), byn_lexer__decodeAt(p_text, INT64_C(0)).value));
 }
-#line 20842 "main.c"
+#line 20845 "main.c"
 
 bool byn_lexer__firstIsLower(bynt_span_u8 p_text) {
 #line 54 "lexer/lexer.byn"
     return ((p_text.len > INT64_C(0)) && byn_lexer__inRanges(((bynt_span_u32){(*(bynt_arr1240_u32*)&byn_lexer__lowerRanges).v, 1240}), byn_lexer__decodeAt(p_text, INT64_C(0)).value));
 }
-#line 20848 "main.c"
+#line 20851 "main.c"
 
 bool byn_lexer__isIdentifierContinue(uint32_t p_cp) {
 #line 57 "lexer/lexer.byn"
     return (byn_lexer__isIdentifierStart(p_cp) || byn_lexer__inRanges(((bynt_span_u32){(*(bynt_arr776_u32*)&byn_lexer__identContinueRanges).v, 776}), p_cp));
 }
-#line 20854 "main.c"
+#line 20857 "main.c"
 
 bynt_tup2_i64_u32 byn_lexer__bidiControlAt(bynt_span_u8 p_text, int64_t p_pos) {
     uint8_t l0_b1 = {0};
@@ -20872,7 +20875,7 @@ bynt_tup2_i64_u32 byn_lexer__bidiControlAt(bynt_span_u8 p_text, int64_t p_pos) {
 #line 67 "lexer/lexer.byn"
     return ((bynt_tup2_i64_u32){INT64_C(0), ((uint32_t)0)});
 }
-#line 20876 "main.c"
+#line 20879 "main.c"
 
 int64_t byn_lexer__findTriple(bynt_span_u32 p_table, uint32_t p_cp) {
     int64_t l0_lo = {0};
@@ -20908,7 +20911,7 @@ break_1:;
 #line 95 "lexer/lexer.byn"
     return (((l0_lo < byn_div_i64(p_table.len, INT64_C(3), byn_file_2, 95)) && ((*bynh_at_span_u32(p_table, (int64_t)byn_mul_i64(l0_lo, INT64_C(3), byn_file_2, 95), false, byn_file_2, 95)) == p_cp)) ? l0_lo : INT64_C(-1));
 }
-#line 20912 "main.c"
+#line 20915 "main.c"
 
 int64_t byn_lexer__ccc(uint32_t p_cp) {
     int64_t l0_lo = {0};
@@ -20944,7 +20947,7 @@ break_1:;
 #line 110 "lexer/lexer.byn"
     return (((l0_lo < byn_div_i64(((void)(*(bynt_arr1179_u32*)&byn_lexer__cccRanges), INT64_C(1179)), INT64_C(3), byn_file_2, 110)) && ((*bynh_at_arr1179_u32(&(*(bynt_arr1179_u32*)&byn_lexer__cccRanges), (int64_t)byn_mul_i64(l0_lo, INT64_C(3), byn_file_2, 110), false, byn_file_2, 110)) <= p_cp)) ? ((int64_t)(*bynh_at_arr1179_u32(&(*(bynt_arr1179_u32*)&byn_lexer__cccRanges), (int64_t)byn_add_i64(byn_mul_i64(l0_lo, INT64_C(3), byn_file_2, 110), INT64_C(2), byn_file_2, 110), false, byn_file_2, 110))) : INT64_C(0));
 }
-#line 20948 "main.c"
+#line 20951 "main.c"
 
 void byn_lexer__decompose(uint32_t p_cp, bynt_list_u32* p_output) {
     int64_t l0_s = {0};
@@ -21004,7 +21007,7 @@ void byn_lexer__decompose(uint32_t p_cp, bynt_list_u32* p_output) {
     }
 break_1:;
 }
-#line 21008 "main.c"
+#line 21011 "main.c"
 
 void byn_lexer__reorder(bynt_list_u32* p_cps) {
     int64_t l0_i = {0};
@@ -21062,7 +21065,7 @@ void byn_lexer__reorder(bynt_list_u32* p_cps) {
     }
 break_1:;
 }
-#line 21066 "main.c"
+#line 21069 "main.c"
 
 int64_t byn_lexer__composePair(uint32_t p_first, uint32_t p_second) {
     int64_t l0_l = {0};
@@ -21128,7 +21131,7 @@ break_1:;
 #line 173 "lexer/lexer.byn"
     return INT64_C(-1);
 }
-#line 21132 "main.c"
+#line 21135 "main.c"
 
 void byn_lexer__compose(bynt_list_u32* p_cps) {
     int64_t l0_starterIndex = {0};
@@ -21210,7 +21213,7 @@ break_1:;
     }
 break_3:;
 }
-#line 21214 "main.c"
+#line 21217 "main.c"
 
 bynt_list_u32 byn_lexer__normalize(bynt_span_u32 p_input) {
     bynt_list_u32 l0_cps = {0};
@@ -21246,7 +21249,7 @@ break_1:;
 #line 210 "lexer/lexer.byn"
     return l0_cps;
 }
-#line 21250 "main.c"
+#line 21253 "main.c"
 
 bool byn_lexer__isDigitOf(byn_lexer_DigitKind p_kind, uint8_t p_b) {
     bool t0 = {0};
@@ -21277,25 +21280,25 @@ switch_end_1:;
 #line 1061 "lexer/lexer.byn"
     return t0;
 }
-#line 21281 "main.c"
+#line 21284 "main.c"
 
 bool byn_lexer__isDigit(uint8_t p_b) {
 #line 1067 "lexer/lexer.byn"
     return ((p_b >= ((uint8_t)48)) && (p_b <= ((uint8_t)57)));
 }
-#line 21287 "main.c"
+#line 21290 "main.c"
 
 bool byn_lexer__isAsciiIdentStart(uint8_t p_b) {
 #line 1069 "lexer/lexer.byn"
     return ((((p_b >= ((uint8_t)97)) && (p_b <= ((uint8_t)122))) || ((p_b >= ((uint8_t)65)) && (p_b <= ((uint8_t)90)))) || (p_b == ((uint8_t)95)));
 }
-#line 21293 "main.c"
+#line 21296 "main.c"
 
 bool byn_lexer__isAsciiIdentContinue(uint8_t p_b) {
 #line 1071 "lexer/lexer.byn"
     return (byn_lexer__isAsciiIdentStart(p_b) || byn_lexer__isDigit(p_b));
 }
-#line 21299 "main.c"
+#line 21302 "main.c"
 
 int64_t byn_lexer__hexValue(uint8_t p_b) {
 #line 1074 "lexer/lexer.byn"
@@ -21316,7 +21319,7 @@ int64_t byn_lexer__hexValue(uint8_t p_b) {
 #line 1077 "lexer/lexer.byn"
     return INT64_C(-1);
 }
-#line 21320 "main.c"
+#line 21323 "main.c"
 
 int32_t byn_lexer__usage(byn_str p_message) {
     byn_writer t0 = {0};
@@ -21339,7 +21342,7 @@ int32_t byn_lexer__usage(byn_str p_message) {
 #line 19 "lexer/main.byn"
     return ((int32_t)2);
 }
-#line 21343 "main.c"
+#line 21346 "main.c"
 
 int32_t byn_lexer__fileNotFound(byn_str p_path) {
     byn_writer t0 = {0};
@@ -21362,7 +21365,7 @@ int32_t byn_lexer__fileNotFound(byn_str p_path) {
 #line 24 "lexer/main.byn"
     return ((int32_t)2);
 }
-#line 21366 "main.c"
+#line 21369 "main.c"
 
 int32_t byn_lexer__unreadable(byn_str p_path) {
     byn_writer t0 = {0};
@@ -21385,7 +21388,7 @@ int32_t byn_lexer__unreadable(byn_str p_path) {
 #line 29 "lexer/main.byn"
     return ((int32_t)4);
 }
-#line 21389 "main.c"
+#line 21392 "main.c"
 
 bool byn_lexer__dumpFile(byn_str p_path, bynt_list_u8 p_bytes, bynt_lexer__Keywords p_keywords, byn_writer* p_sb, bool p_json) {
     bynt_lexer__LexResult l0_result = {0};
@@ -21402,7 +21405,7 @@ bool byn_lexer__dumpFile(byn_str p_path, bynt_list_u8 p_bytes, bynt_lexer__Keywo
 #line 41 "lexer/main.byn"
     return (!(l0_result.diagnostics.len == 0));
 }
-#line 21406 "main.c"
+#line 21409 "main.c"
 
 void byn_lexer__checkSpans(bynt_lexer__LexResult* p_result, byn_writer* p_sb) {
     int64_t l0_size = {0};
@@ -21511,13 +21514,13 @@ break_1:;
     }
 break_3:;
 }
-#line 21515 "main.c"
+#line 21518 "main.c"
 
 bool byn_lexer__inside(bynt_lexer__TextSpan p_span, int64_t p_size) {
 #line 65 "lexer/main.byn"
     return (((p_span.start >= INT64_C(0)) && (p_span.length >= INT64_C(0))) && (byn_lexer__TextSpan__get_end(&p_span) <= p_size));
 }
-#line 21521 "main.c"
+#line 21524 "main.c"
 
 int32_t byn_lexer__lexOne(byn_str p_path, bynt_lexer__Keywords p_keywords, bool p_json) {
     bynt_list_u8 l0_bytes = {0};
@@ -21565,7 +21568,7 @@ int32_t byn_lexer__lexOne(byn_str p_path, bynt_lexer__Keywords p_keywords, bool 
 #line 81 "lexer/main.byn"
     return (l6_failed ? ((int32_t)1) : ((int32_t)0));
 }
-#line 21569 "main.c"
+#line 21572 "main.c"
 
 int32_t byn_lexer__lexMany(byn_str p_dir, bynt_lexer__Keywords p_keywords) {
     bynt_list_str l0_names = {0};
@@ -21690,7 +21693,7 @@ break_1:;
 #line 102 "lexer/main.byn"
     return ((int32_t)0);
 }
-#line 21694 "main.c"
+#line 21697 "main.c"
 
 int32_t byn_lexer__lexTimed(byn_str p_path, bynt_lexer__Keywords p_keywords) {
     bynt_list_u8 l0_bytes = {0};
@@ -21725,7 +21728,7 @@ int32_t byn_lexer__lexTimed(byn_str p_path, bynt_lexer__Keywords p_keywords) {
 #line 111 "lexer/main.byn"
     return ((l4_result.tokens.len == 0) ? ((int32_t)1) : ((int32_t)0));
 }
-#line 21729 "main.c"
+#line 21732 "main.c"
 
 int32_t byn_lexer__main(bynt_span_str p_args) {
     bynt_lexer__Keywords l0_keywords = {0};
@@ -21769,13 +21772,13 @@ int32_t byn_lexer__main(bynt_span_str p_args) {
 #line 127 "lexer/main.byn"
     return byn_lexer__usage(BYN_STR("expected `[--json] [<path>|-]`, `--many <dir>` or `--time <path>`", 65));
 }
-#line 21773 "main.c"
+#line 21776 "main.c"
 
 bool byn_lexer__isContinuation(bynt_span_u8 p_bytes, int64_t p_pos, uint8_t p_lo, uint8_t p_hi) {
 #line 107 "lexer/source.byn"
     return (((p_pos < p_bytes.len) && ((*bynh_at_span_u8(p_bytes, (int64_t)p_pos, false, byn_file_4, 107)) >= p_lo)) && ((*bynh_at_span_u8(p_bytes, (int64_t)p_pos, false, byn_file_4, 107)) <= p_hi));
 }
-#line 21779 "main.c"
+#line 21782 "main.c"
 
 bynt_lexer__Decoded byn_lexer__decodeAt(bynt_span_u8 p_bytes, int64_t p_pos) {
     uint8_t l0_b0 = {0};
@@ -21852,13 +21855,13 @@ bynt_lexer__Decoded byn_lexer__decodeAt(bynt_span_u8 p_bytes, int64_t p_pos) {
 #line 148 "lexer/source.byn"
     return byn_lexer__invalid(INT64_C(1));
 }
-#line 21856 "main.c"
+#line 21859 "main.c"
 
 bynt_lexer__Decoded byn_lexer__invalid(int64_t p_length) {
 #line 151 "lexer/source.byn"
     return ((bynt_lexer__Decoded){((uint32_t)65533), p_length, false});
 }
-#line 21862 "main.c"
+#line 21865 "main.c"
 
 void byn_lexer__appendUtf8(bynt_span_u8 p_bytes, byn_writer* p_sb) {
     int64_t l0_pos = {0};
@@ -21887,7 +21890,7 @@ void byn_lexer__appendUtf8(bynt_span_u8 p_bytes, byn_writer* p_sb) {
     }
 break_1:;
 }
-#line 21891 "main.c"
+#line 21894 "main.c"
 
 byn_str byn_lexer__utf8(bynt_span_u8 p_bytes) {
     byn_writer l0_sb = {0};
@@ -21908,7 +21911,7 @@ byn_str byn_lexer__utf8(bynt_span_u8 p_bytes) {
 #line 167 "lexer/source.byn"
     return byn_strbuf_str(t1);
 }
-#line 21912 "main.c"
+#line 21915 "main.c"
 
 int64_t byn_lexer__runeCount(bynt_span_u8 p_bytes) {
     int64_t l0_count = {0};
@@ -21940,7 +21943,7 @@ break_1:;
 #line 178 "lexer/source.byn"
     return l0_count;
 }
-#line 21944 "main.c"
+#line 21947 "main.c"
 
 byn_str byn_lexer__hex(uint32_t p_value, int64_t p_digits) {
     byn_writer l0_sb = {0};
@@ -22004,7 +22007,7 @@ break_3:;
 #line 197 "lexer/source.byn"
     return byn_strbuf_str(t4);
 }
-#line 22008 "main.c"
+#line 22011 "main.c"
 
 bool byn_lexer__isKeyword(byn_lexer_TokenKind p_kind) {
     int32_t t0 = {0};
@@ -22024,7 +22027,7 @@ bool byn_lexer__isKeyword(byn_lexer_TokenKind p_kind) {
 #line 189 "lexer/tokens.byn"
     return t2;
 }
-#line 22028 "main.c"
+#line 22031 "main.c"
 
 bool byn_lexer__isReservedKeyword(byn_lexer_TokenKind p_kind) {
     int32_t t0 = {0};
@@ -22044,7 +22047,7 @@ bool byn_lexer__isReservedKeyword(byn_lexer_TokenKind p_kind) {
 #line 192 "lexer/tokens.byn"
     return t2;
 }
-#line 22048 "main.c"
+#line 22051 "main.c"
 
 bool byn_lexer__isStringLiteral(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -22068,7 +22071,7 @@ switch_end_1:;
 #line 194 "lexer/tokens.byn"
     return t0;
 }
-#line 22072 "main.c"
+#line 22075 "main.c"
 
 byn_str byn_lexer__kindName(byn_lexer_TokenKind p_kind) {
     byn_str l0_name = {0};
@@ -22088,7 +22091,7 @@ byn_str byn_lexer__kindName(byn_lexer_TokenKind p_kind) {
 #line 202 "lexer/tokens.byn"
     return byn_strbuf_str(t1);
 }
-#line 22092 "main.c"
+#line 22095 "main.c"
 
 byn_str byn_lexer__kindText(byn_lexer_TokenKind p_kind) {
     byn_str t0 = {0};
@@ -22593,7 +22596,7 @@ switch_end_1:;
 #line 208 "lexer/tokens.byn"
     return t0;
 }
-#line 22597 "main.c"
+#line 22600 "main.c"
 
 byn_str byn_lexer__keywordText(byn_lexer_TokenKind p_kind) {
     byn_str l0_name = {0};
@@ -22602,7 +22605,7 @@ byn_str byn_lexer__keywordText(byn_lexer_TokenKind p_kind) {
 #line 308 "lexer/tokens.byn"
     return bynh_slice_str(l0_name, (int64_t)INT64_C(0), 0, (int64_t)byn_sub_i64(l0_name.len, INT64_C(7), byn_file_5, 308), 0, false, byn_file_5, 308);
 }
-#line 22606 "main.c"
+#line 22609 "main.c"
 
 bool byn_lexer__sameBytes(bynt_span_u8 p_a, bynt_span_u8 p_b) {
     int64_t t0 = {0};
@@ -22642,7 +22645,7 @@ break_1:;
 #line 351 "lexer/tokens.byn"
     return true;
 }
-#line 22646 "main.c"
+#line 22649 "main.c"
 
 void byn_lexer__LexResult__run(bynt_lexer__LexResult* self, bynt_lexer__Keywords p_keywords) {
 #line 239 "lexer/lexer.byn"
@@ -22684,13 +22687,13 @@ void byn_lexer__LexResult__run(bynt_lexer__LexResult* self, bynt_lexer__Keywords
     }
 break_1:;
 }
-#line 22688 "main.c"
+#line 22691 "main.c"
 
 uint8_t byn_lexer__LexResult__peek(bynt_lexer__LexResult* self, int64_t p_offset) {
 #line 266 "lexer/lexer.byn"
     return ((byn_add_i64((*self).pos, p_offset, byn_file_2, 266) < (*self).source.bytes.len) ? (*bynh_at_list_u8((*self).source.bytes, (int64_t)byn_add_i64((*self).pos, p_offset, byn_file_2, 266), false, byn_file_2, 266)) : ((uint8_t)0));
 }
-#line 22694 "main.c"
+#line 22697 "main.c"
 
 void byn_lexer__LexResult__add(bynt_lexer__LexResult* self, byn_lexer_TokenKind p_kind, bynt_lexer__TextSpan p_span) {
     int64_t l0_docLength = {0};
@@ -22703,7 +22706,7 @@ void byn_lexer__LexResult__add(bynt_lexer__LexResult* self, byn_lexer_TokenKind 
 #line 279 "lexer/lexer.byn"
     (*self).docStart = INT64_C(-1);
 }
-#line 22707 "main.c"
+#line 22710 "main.c"
 
 void byn_lexer__LexResult__report(bynt_lexer__LexResult* self, byn_lexer_DiagnosticCode p_code, bynt_lexer__TextSpan p_span, byn_str p_arg0, byn_str p_arg1, byn_str p_label, byn_str p_help) {
     byn_str t0 = {0};
@@ -22712,7 +22715,7 @@ void byn_lexer__LexResult__report(bynt_lexer__LexResult* self, byn_lexer_Diagnos
 #line 291 "lexer/lexer.byn"
     (void)bynh_add_list_lexer__Diagnostic(&(*self).diagnostics, ((bynt_lexer__Diagnostic){t0, p_span, byn_lexer__format(byn_lexer__messageFormat(p_code), ((bynt_tup2_str_str){p_arg0, p_arg1})), p_label, p_help, false, p_span, BYN_STR("", 0)}));
 }
-#line 22716 "main.c"
+#line 22719 "main.c"
 
 void byn_lexer__LexResult__reportFix(bynt_lexer__LexResult* self, byn_lexer_DiagnosticCode p_code, bynt_lexer__TextSpan p_span, byn_str p_replacement, byn_str p_arg0, byn_str p_label, byn_str p_help) {
     byn_str t0 = {0};
@@ -22721,7 +22724,7 @@ void byn_lexer__LexResult__reportFix(bynt_lexer__LexResult* self, byn_lexer_Diag
 #line 312 "lexer/lexer.byn"
     (void)bynh_add_list_lexer__Diagnostic(&(*self).diagnostics, ((bynt_lexer__Diagnostic){t0, p_span, byn_lexer__format(byn_lexer__messageFormat(p_code), ((bynt_tup2_str_str){p_arg0, BYN_STR("", 0)})), p_label, p_help, true, p_span, p_replacement}));
 }
-#line 22725 "main.c"
+#line 22728 "main.c"
 
 bool byn_lexer__LexResult__isIdentifierStartAt(bynt_lexer__LexResult* self, int64_t p_at) {
     uint8_t l0_b = {0};
@@ -22743,7 +22746,7 @@ bool byn_lexer__LexResult__isIdentifierStartAt(bynt_lexer__LexResult* self, int6
 #line 329 "lexer/lexer.byn"
     return (l1_d.valid && byn_lexer__isIdentifierStart(l1_d.value));
 }
-#line 22747 "main.c"
+#line 22750 "main.c"
 
 void byn_lexer__LexResult__advanceCodePoint(bynt_lexer__LexResult* self, bool p_allowBidi) {
     uint8_t l0_b = {0};
@@ -22786,13 +22789,13 @@ void byn_lexer__LexResult__advanceCodePoint(bynt_lexer__LexResult* self, bool p_
 #line 353 "lexer/lexer.byn"
     (*self).pos = byn_add_i64((*self).pos, l2_d.length, byn_file_2, 353);
 }
-#line 22790 "main.c"
+#line 22793 "main.c"
 
 void byn_lexer__LexResult__reportBidi(bynt_lexer__LexResult* self, uint32_t p_codePoint, int64_t p_start) {
 #line 357 "lexer/lexer.byn"
     (void)byn_lexer__LexResult__reportFix(&(*self), ((byn_lexer_DiagnosticCode)0), ((bynt_lexer__TextSpan){p_start, INT64_C(3)}), BYN_STR("", 0), byn_lexer__hex(p_codePoint, INT64_C(4)), BYN_STR("invisible character that reorders how the text displays", 55), BYN_STR("remove it; bidi controls may only appear inside string literals (Trojan Source, CVE-2021-42574)", 95));
 }
-#line 22796 "main.c"
+#line 22799 "main.c"
 
 void byn_lexer__LexResult__skipTrivia(bynt_lexer__LexResult* self) {
     uint8_t l0_b = {0};
@@ -22926,7 +22929,7 @@ void byn_lexer__LexResult__skipTrivia(bynt_lexer__LexResult* self) {
     }
 break_1:;
 }
-#line 22930 "main.c"
+#line 22933 "main.c"
 
 byn_str byn_lexer__LexResult__lineComments(bynt_lexer__LexResult* self, int64_t p_start, int64_t p_end) {
     bynt_span_u8 l0_text = {0};
@@ -23126,13 +23129,13 @@ break_15:;
 #line 488 "lexer/lexer.byn"
     return byn_strbuf_str(t17);
 }
-#line 23130 "main.c"
+#line 23133 "main.c"
 
 bool byn_lexer__LexResult__isAtLineStart(bynt_lexer__LexResult* self) {
 #line 491 "lexer/lexer.byn"
     return (((*self).pos == INT64_C(0)) || ((*bynh_at_list_u8((*self).source.bytes, (int64_t)byn_sub_i64((*self).pos, INT64_C(1), byn_file_2, 491), false, byn_file_2, 491)) == ((uint8_t)10)));
 }
-#line 23136 "main.c"
+#line 23139 "main.c"
 
 void byn_lexer__LexResult__lexToken(bynt_lexer__LexResult* self, bynt_lexer__Keywords p_keywords) {
     int64_t l0_start = {0};
@@ -23698,7 +23701,7 @@ void byn_lexer__LexResult__lexToken(bynt_lexer__LexResult* self, bynt_lexer__Key
     (void)byn_lexer__LexResult__reportUnexpected(&(*self), ((uint32_t)l1_c), INT64_C(1));
 switch_end_1:;
 }
-#line 23702 "main.c"
+#line 23705 "main.c"
 
 void byn_lexer__LexResult__reportUnexpected(bynt_lexer__LexResult* self, uint32_t p_cp, int64_t p_length) {
     byn_str l0_shown = {0};
@@ -23742,13 +23745,13 @@ void byn_lexer__LexResult__reportUnexpected(bynt_lexer__LexResult* self, uint32_
 #line 648 "lexer/lexer.byn"
     (*self).tokenFlags = ((uint8_t)((*self).tokenFlags | ((uint8_t)1)));
 }
-#line 23746 "main.c"
+#line 23749 "main.c"
 
 void byn_lexer__LexResult__single(bynt_lexer__LexResult* self, byn_lexer_TokenKind p_kind) {
 #line 651 "lexer/lexer.byn"
     (void)byn_lexer__LexResult__addFixed(&(*self), p_kind, INT64_C(1));
 }
-#line 23752 "main.c"
+#line 23755 "main.c"
 
 void byn_lexer__LexResult__addFixed(bynt_lexer__LexResult* self, byn_lexer_TokenKind p_kind, int64_t p_length) {
     int64_t l0_n = {0};
@@ -23759,7 +23762,7 @@ void byn_lexer__LexResult__addFixed(bynt_lexer__LexResult* self, byn_lexer_Token
 #line 657 "lexer/lexer.byn"
     (*self).pos = byn_add_i64((*self).pos, l0_n, byn_file_2, 657);
 }
-#line 23763 "main.c"
+#line 23766 "main.c"
 
 void byn_lexer__LexResult__lexIdentifier(bynt_lexer__LexResult* self, bynt_lexer__Keywords p_keywords) {
     int64_t l0_start = {0};
@@ -23858,7 +23861,7 @@ break_1:;
 #line 707 "lexer/lexer.byn"
     (void)byn_lexer__LexResult__add(&(*self), l6_kind, ((bynt_lexer__TextSpan){l0_start, byn_sub_i64((*self).pos, l0_start, byn_file_2, 707)}));
 }
-#line 23862 "main.c"
+#line 23865 "main.c"
 
 void byn_lexer__LexResult__checkNfc(bynt_lexer__LexResult* self, bynt_span_u8 p_span, int64_t p_start) {
     bynt_list_u32 l0_input = {0};
@@ -23967,7 +23970,7 @@ break_5:;
 #line 733 "lexer/lexer.byn"
     (void)byn_lexer__LexResult__reportFix(&(*self), ((byn_lexer_DiagnosticCode)4), t13, t14, byn_lexer__utf8(p_span), BYN_STR("same letters, different encoding", 32), BYN_STR("use the composed (NFC) form; identifiers that look the same must be byte-identical", 82));
 }
-#line 23971 "main.c"
+#line 23974 "main.c"
 
 void byn_lexer__LexResult__lexNumber(bynt_lexer__LexResult* self) {
     int64_t l0_start = {0};
@@ -24108,7 +24111,7 @@ void byn_lexer__LexResult__lexNumber(bynt_lexer__LexResult* self) {
         }
     }
 }
-#line 24112 "main.c"
+#line 24115 "main.c"
 
 void byn_lexer__LexResult__scanDigits(bynt_lexer__LexResult* self, byn_lexer_DigitKind p_digits, int64_t p_literalStart) {
     int64_t l0_first = {0};
@@ -24167,7 +24170,7 @@ break_1:;
         }
     }
 }
-#line 24171 "main.c"
+#line 24174 "main.c"
 
 void byn_lexer__LexResult__lexString(bynt_lexer__LexResult* self, byn_lexer_TokenKind p_kind, int64_t p_start, int64_t p_quote) {
     int64_t l0_end = {0};
@@ -24246,7 +24249,7 @@ void byn_lexer__LexResult__lexString(bynt_lexer__LexResult* self, byn_lexer_Toke
     }
 break_3:;
 }
-#line 24250 "main.c"
+#line 24253 "main.c"
 
 void byn_lexer__LexResult__lexInterpolatedText(bynt_lexer__LexResult* self) {
     int64_t l0_modeStart = {0};
@@ -24351,7 +24354,7 @@ void byn_lexer__LexResult__lexInterpolatedText(bynt_lexer__LexResult* self) {
     }
 break_1:;
 }
-#line 24355 "main.c"
+#line 24358 "main.c"
 
 void byn_lexer__LexResult__addText(bynt_lexer__LexResult* self, int64_t p_start) {
 #line 953 "lexer/lexer.byn"
@@ -24360,7 +24363,7 @@ void byn_lexer__LexResult__addText(bynt_lexer__LexResult* self, int64_t p_start)
         (void)byn_lexer__LexResult__add(&(*self), ((byn_lexer_TokenKind)11), ((bynt_lexer__TextSpan){p_start, byn_sub_i64((*self).pos, p_start, byn_file_2, 954)}));
     }
 }
-#line 24364 "main.c"
+#line 24367 "main.c"
 
 void byn_lexer__LexResult__lexChar(bynt_lexer__LexResult* self) {
     int64_t l0_start = {0};
@@ -24421,7 +24424,7 @@ break_1:;
 #line 993 "lexer/lexer.byn"
     (void)byn_lexer__LexResult__add(&(*self), ((byn_lexer_TokenKind)5), ((bynt_lexer__TextSpan){l0_start, byn_sub_i64((*self).pos, l0_start, byn_file_2, 993)}));
 }
-#line 24425 "main.c"
+#line 24428 "main.c"
 
 void byn_lexer__LexResult__scanEscape(bynt_lexer__LexResult* self) {
     int64_t l0_start = {0};
@@ -24516,7 +24519,7 @@ void byn_lexer__LexResult__scanEscape(bynt_lexer__LexResult* self) {
     (void)byn_lexer__LexResult__invalidEscape(&(*self), l0_start);
 switch_end_1:;
 }
-#line 24520 "main.c"
+#line 24523 "main.c"
 
 void byn_lexer__LexResult__invalidEscape(bynt_lexer__LexResult* self, int64_t p_start) {
     bynt_span_u8 t0 = {0};
@@ -24530,31 +24533,31 @@ void byn_lexer__LexResult__invalidEscape(bynt_lexer__LexResult* self, int64_t p_
 #line 1046 "lexer/lexer.byn"
     (void)byn_lexer__LexResult__report(&(*self), ((byn_lexer_DiagnosticCode)5), t1, byn_lexer__utf8(bynh_slice_span_u8(t0, (int64_t)p_start, 0, (int64_t)(*self).pos, 0, false, byn_file_2, 1049)), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("use a valid escape: \134n \134r \134t \1340 \134\134 \134\042 \134' and \134u{\342\200\246}", 52));
 }
-#line 24534 "main.c"
+#line 24537 "main.c"
 
 int64_t byn_lexer__TextSpan__get_end(bynt_lexer__TextSpan* self) {
 #line 9 "lexer/source.byn"
     return byn_add_i64((*self).start, (*self).length, byn_file_4, 9);
 }
-#line 24540 "main.c"
+#line 24543 "main.c"
 
 bynt_lexer__TextSpan byn_lexer__TextSpan__fromBounds(int64_t p_start, int64_t p_end) {
 #line 11 "lexer/source.byn"
     return ((bynt_lexer__TextSpan){p_start, byn_sub_i64(p_end, p_start, byn_file_4, 11)});
 }
-#line 24546 "main.c"
+#line 24549 "main.c"
 
 int64_t byn_lexer__SourceText__get_length(bynt_lexer__SourceText* self) {
 #line 22 "lexer/source.byn"
     return (*self).bytes.len;
 }
-#line 24552 "main.c"
+#line 24555 "main.c"
 
 bynt_lexer__SourceText byn_lexer__SourceText__create(byn_str p_path, bynt_list_u8 p_bytes) {
 #line 25 "lexer/source.byn"
     return ((bynt_lexer__SourceText){p_path, p_bytes, ((bynt_list_i64){NULL, 0, 0, byn_context})});
 }
-#line 24558 "main.c"
+#line 24561 "main.c"
 
 int64_t byn_lexer__SourceText__lineCount(bynt_lexer__SourceText* self) {
 #line 28 "lexer/source.byn"
@@ -24562,7 +24565,7 @@ int64_t byn_lexer__SourceText__lineCount(bynt_lexer__SourceText* self) {
 #line 29 "lexer/source.byn"
     return (*self).lineStarts.len;
 }
-#line 24566 "main.c"
+#line 24569 "main.c"
 
 void byn_lexer__SourceText__ensureLineStarts(bynt_lexer__SourceText* self) {
     int64_t l0_i = {0};
@@ -24599,7 +24602,7 @@ void byn_lexer__SourceText__ensureLineStarts(bynt_lexer__SourceText* self) {
     }
 break_1:;
 }
-#line 24603 "main.c"
+#line 24606 "main.c"
 
 int64_t byn_lexer__SourceText__getLineIndex(bynt_lexer__SourceText* self, int64_t p_offset) {
     int64_t l0_lo = {0};
@@ -24642,7 +24645,7 @@ break_1:;
 #line 61 "lexer/source.byn"
     return byn_sub_i64(l0_lo, INT64_C(1), byn_file_4, 61);
 }
-#line 24646 "main.c"
+#line 24649 "main.c"
 
 bynt_lexer__TextSpan byn_lexer__SourceText__getLineSpan(bynt_lexer__SourceText* self, int64_t p_lineIndex) {
     int64_t l0_start = {0};
@@ -24666,7 +24669,7 @@ bynt_lexer__TextSpan byn_lexer__SourceText__getLineSpan(bynt_lexer__SourceText* 
 #line 75 "lexer/source.byn"
     return byn_lexer__TextSpan__fromBounds(l0_start, l1_end);
 }
-#line 24670 "main.c"
+#line 24673 "main.c"
 
 bynt_tup2_i64_i64 byn_lexer__SourceText__getLinePosition(bynt_lexer__SourceText* self, int64_t p_offset) {
     int64_t l0_line = {0};
@@ -24707,7 +24710,7 @@ break_1:;
 #line 88 "lexer/source.byn"
     return ((bynt_tup2_i64_i64){byn_add_i64(l0_line, INT64_C(1), byn_file_4, 88), l2_column});
 }
-#line 24711 "main.c"
+#line 24714 "main.c"
 
 byn_str byn_lexer__SourceText__getText(bynt_lexer__SourceText* self, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -24726,31 +24729,31 @@ byn_str byn_lexer__SourceText__getText(bynt_lexer__SourceText* self, bynt_lexer_
 #line 92 "lexer/source.byn"
     return byn_strbuf_str(t0);
 }
-#line 24730 "main.c"
+#line 24733 "main.c"
 
 int64_t byn_lexer__Token__get_end(bynt_lexer__Token* self) {
 #line 297 "lexer/tokens.byn"
     return byn_add_i64((*self).start, (*self).length, byn_file_5, 297);
 }
-#line 24736 "main.c"
+#line 24739 "main.c"
 
 bool byn_lexer__Token__get_hasDoc(bynt_lexer__Token* self) {
 #line 298 "lexer/tokens.byn"
     return ((*self).docLength > INT64_C(0));
 }
-#line 24742 "main.c"
+#line 24745 "main.c"
 
 bool byn_lexer__Token__get_hasTriviaBefore(bynt_lexer__Token* self) {
 #line 299 "lexer/tokens.byn"
     return (!(((uint8_t)((*self).tokenFlags & ((uint8_t)1))) == ((uint8_t)0)));
 }
-#line 24748 "main.c"
+#line 24751 "main.c"
 
 bool byn_lexer__Token__get_hasNewlineBefore(bynt_lexer__Token* self) {
 #line 300 "lexer/tokens.byn"
     return (!(((uint8_t)((*self).tokenFlags & ((uint8_t)2))) == ((uint8_t)0)));
 }
-#line 24754 "main.c"
+#line 24757 "main.c"
 
 bynt_lexer__Keywords byn_lexer__Keywords__build(void) {
     bynt_lexer__Keywords l0_keywords = {0};
@@ -24824,7 +24827,7 @@ break_1:;
 #line 330 "lexer/tokens.byn"
     return l0_keywords;
 }
-#line 24828 "main.c"
+#line 24831 "main.c"
 
 byn_lexer_TokenKind byn_lexer__Keywords__lookup(bynt_lexer__Keywords* self, bynt_span_u8 p_text) {
     uint8_t l0_letter = {0};
@@ -24873,7 +24876,7 @@ break_1:;
 #line 342 "lexer/tokens.byn"
     return ((byn_lexer_TokenKind)1);
 }
-#line 24877 "main.c"
+#line 24880 "main.c"
 
 byn_str byn_parser__codeText(byn_parser_ParseCode p_code) {
     byn_str t0 = {0};
@@ -25373,7 +25376,7 @@ switch_end_1:;
 #line 82 "parser/codes.byn"
     return t0;
 }
-#line 25377 "main.c"
+#line 25380 "main.c"
 
 byn_str byn_parser__messageFormat(byn_parser_ParseCode p_code) {
     byn_str t0 = {0};
@@ -25873,7 +25876,7 @@ switch_end_1:;
 #line 156 "parser/codes.byn"
     return t0;
 }
-#line 25877 "main.c"
+#line 25880 "main.c"
 
 bool byn_parser__isInputForm(byn_parser_ParseCode p_code) {
     bool t0 = {0};
@@ -25897,7 +25900,7 @@ switch_end_1:;
 #line 231 "parser/codes.byn"
     return t0;
 }
-#line 25901 "main.c"
+#line 25904 "main.c"
 
 byn_str byn_parser__format(byn_str p_template, bynt_tup3_str_str_str p_args) {
     byn_writer l0_sb = {0};
@@ -25964,7 +25967,7 @@ break_1:;
 #line 267 "parser/codes.byn"
     return byn_strbuf_str(t5);
 }
-#line 25968 "main.c"
+#line 25971 "main.c"
 
 bynt_parser__CompilationUnit byn_parser__parseCompilationUnit(bynt_parser__Parser* p_p) {
     bynt_list_parser__Decl l0_members = {0};
@@ -26019,7 +26022,7 @@ break_1:;
 #line 37 "parser/decls.byn"
     return ((bynt_parser__CompilationUnit){((bynt_lexer__TextSpan){INT64_C(0), byn_lexer__SourceText__get_length(&(*p_p).lexed.source)}), l0_members});
 }
-#line 26023 "main.c"
+#line 26026 "main.c"
 
 bynt_opt_str byn_parser__docOf(bynt_parser__Parser* p_p, bynt_lexer__Token p_token) {
     byn_writer t0 = {0};
@@ -26043,7 +26046,7 @@ bynt_opt_str byn_parser__docOf(bynt_parser__Parser* p_p, bynt_lexer__Token p_tok
 #line 44 "parser/decls.byn"
     return ((bynt_opt_str){true, byn_strbuf_str(t0)});
 }
-#line 26047 "main.c"
+#line 26050 "main.c"
 
 uint16_t byn_parser__parseModifiers(bynt_parser__Parser* p_p) {
     uint16_t l0_modifiers = {0};
@@ -26157,7 +26160,7 @@ uint16_t byn_parser__parseModifiers(bynt_parser__Parser* p_p) {
     }
 break_1:;
 }
-#line 26161 "main.c"
+#line 26164 "main.c"
 
 void byn_parser__rejectModifiers(bynt_parser__Parser* p_p, uint16_t p_modifiers, uint16_t p_allowed, int64_t p_start) {
     uint16_t l0_bad = {0};
@@ -26281,7 +26284,7 @@ void byn_parser__rejectModifiers(bynt_parser__Parser* p_p, uint16_t p_modifiers,
     }
 break_1:;
 }
-#line 26285 "main.c"
+#line 26288 "main.c"
 
 byn_parser_Decl byn_parser__parseDeclaration(bynt_parser__Parser* p_p, bool p_topLevel, bynt_opt_lexer__TextSpan p_structName) {
     bynt_lexer__Token l0_first = {0};
@@ -26695,13 +26698,13 @@ byn_parser_Decl byn_parser__parseDeclaration(bynt_parser__Parser* p_p, bool p_to
 #line 265 "parser/decls.byn"
     return l9_decl;
 }
-#line 26699 "main.c"
+#line 26702 "main.c"
 
 bool byn_parser__isAttributeStart(bynt_parser__Parser* p_p) {
 #line 269 "parser/decls.byn"
     return (((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)33)) && byn_parser__isName(byn_parser__Parser__peek(&(*p_p), INT64_C(1)))) || (((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)17)) && (byn_parser__Parser__peek(&(*p_p), INT64_C(1)) == ((byn_lexer_TokenKind)1))) && ((byn_parser__Parser__peek(&(*p_p), INT64_C(2)) == ((byn_lexer_TokenKind)15)) || (byn_parser__Parser__peek(&(*p_p), INT64_C(2)) == ((byn_lexer_TokenKind)18)))));
 }
-#line 26705 "main.c"
+#line 26708 "main.c"
 
 bynt_list_parser__AttributeSyntax byn_parser__parseAttributes(bynt_parser__Parser* p_p) {
     bynt_list_parser__AttributeSyntax l0_attributes = {0};
@@ -26939,7 +26942,7 @@ break_1:;
 #line 330 "parser/decls.byn"
     return l0_attributes;
 }
-#line 26943 "main.c"
+#line 26946 "main.c"
 
 bynt_opt_parser__BecauseClause byn_parser__parseBecause(bynt_parser__Parser* p_p, byn_str p_construct, bynt_lexer__TextSpan p_constructSpan) {
     int64_t l0_start = {0};
@@ -26985,7 +26988,7 @@ bynt_opt_parser__BecauseClause byn_parser__parseBecause(bynt_parser__Parser* p_p
 #line 351 "parser/decls.byn"
     return ((bynt_opt_parser__BecauseClause){true, ((bynt_parser__BecauseClause){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l4_reason})});
 }
-#line 26989 "main.c"
+#line 26992 "main.c"
 
 bynt_list_parser__AttributeSyntax byn_parser__parseStatementAttributes(bynt_parser__Parser* p_p) {
     bynt_list_parser__AttributeSyntax l0_attributes = {0};
@@ -27077,14 +27080,14 @@ break_1:;
 #line 381 "parser/decls.byn"
     return l0_attributes;
 }
-#line 27081 "main.c"
+#line 27084 "main.c"
 
 void byn_parser__reportMissingBecause(bynt_parser__Parser* p_p, byn_str p_construct, bynt_lexer__TextSpan p_span) {
     int64_t l0__ = {0};
 #line 385 "parser/decls.byn"
     l0__ = byn_parser__Parser__report(&(*p_p), ((byn_parser_ParseCode)69), p_span, p_construct, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("bypasses a safety rule", 22), BYN_STR("explain the bypass in a `because` clause", 40));
 }
-#line 27088 "main.c"
+#line 27091 "main.c"
 
 bynt_opt_str byn_parser__delegateAlias(bynt_parser__Parser* p_p, int64_t p_index, byn_str* p_type) {
     int64_t l0_returnEnd = {0};
@@ -27220,13 +27223,13 @@ bynt_opt_str byn_parser__delegateAlias(bynt_parser__Parser* p_p, int64_t p_index
 #line 434 "parser/decls.byn"
     return ((bynt_opt_str){true, byn_parser__Parser__textOf(&(*p_p), (*bynh_at_list_lexer__Token((*p_p).lexed.tokens, (int64_t)l0_returnEnd, false, byn_file_7, 434)))});
 }
-#line 27224 "main.c"
+#line 27227 "main.c"
 
 byn_str byn_parser__tokensText(bynt_parser__Parser* p_p, int64_t p_start, int64_t p_end) {
 #line 439 "parser/decls.byn"
     return byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_lexer__TextSpan__fromBounds((*bynh_at_list_lexer__Token((*p_p).lexed.tokens, (int64_t)p_start, false, byn_file_7, 439)).start, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token((*p_p).lexed.tokens, (int64_t)byn_sub_i64(p_end, INT64_C(1), byn_file_7, 439), false, byn_file_7, 439)))));
 }
-#line 27230 "main.c"
+#line 27233 "main.c"
 
 bool byn_parser__isTypeThenName(bynt_parser__Parser* p_p, int64_t p_index) {
     int64_t l0_after = {0};
@@ -27235,7 +27238,7 @@ bool byn_parser__isTypeThenName(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 443 "parser/decls.byn"
     return ((l0_after > INT64_C(0)) && byn_parser__isName(byn_parser__Parser__kindAt(&(*p_p), l0_after)));
 }
-#line 27239 "main.c"
+#line 27242 "main.c"
 
 bool byn_parser__isFunctionStart(bynt_parser__Parser* p_p) {
     int64_t l0_after = {0};
@@ -27260,7 +27263,7 @@ bool byn_parser__isFunctionStart(bynt_parser__Parser* p_p) {
 #line 453 "parser/decls.byn"
     return (byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l0_after, INT64_C(1), byn_file_7, 453)) == ((byn_lexer_TokenKind)15));
 }
-#line 27264 "main.c"
+#line 27267 "main.c"
 
 bool byn_parser__isNameFirstFunctionStart(bynt_parser__Parser* p_p, bool p_allowNoBody) {
     int64_t l0_open = {0};
@@ -27303,13 +27306,13 @@ bool byn_parser__isNameFirstFunctionStart(bynt_parser__Parser* p_p, bool p_allow
 #line 471 "parser/decls.byn"
     return (((!p_allowNoBody) && (!byn_lexer__Token__get_hasNewlineBefore(&(*bynh_at_list_lexer__Token((*p_p).lexed.tokens, (int64_t)((l3_next < byn_sub_i64((*p_p).count, INT64_C(1), byn_file_7, 471)) ? l3_next : byn_sub_i64((*p_p).count, INT64_C(1), byn_file_7, 471)), false, byn_file_7, 471))))) && ((byn_parser__Parser__kindAt(&(*p_p), l3_next) == ((byn_lexer_TokenKind)19)) || (byn_parser__Parser__kindAt(&(*p_p), l3_next) == ((byn_lexer_TokenKind)120))));
 }
-#line 27307 "main.c"
+#line 27310 "main.c"
 
 bool byn_parser__isNameThenType(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 476 "parser/decls.byn"
     return (byn_parser__isName(byn_parser__Parser__kindAt(&(*p_p), p_index)) && (byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(p_index, INT64_C(1), byn_file_7, 476)) == ((byn_lexer_TokenKind)26)));
 }
-#line 27313 "main.c"
+#line 27316 "main.c"
 
 bynt_lexer__TextSpan byn_parser__parseNameThenType(bynt_parser__Parser* p_p, byn_parser_TypeSyntax* p_type) {
     bynt_lexer__TextSpan l0_name = {0};
@@ -27380,7 +27383,7 @@ bynt_lexer__TextSpan byn_parser__parseNameThenType(bynt_parser__Parser* p_p, byn
 #line 497 "parser/decls.byn"
     return l0_name;
 }
-#line 27384 "main.c"
+#line 27387 "main.c"
 
 int64_t byn_parser__skipFailsShorthand(bynt_parser__Parser* p_p, int64_t p_index) {
     int64_t l0_i = {0};
@@ -27419,7 +27422,7 @@ break_1:;
 #line 509 "parser/decls.byn"
     return (((l0_i > INT64_C(0)) && (byn_parser__Parser__kindAt(&(*p_p), l0_i) == ((byn_lexer_TokenKind)16))) ? byn_add_i64(l0_i, INT64_C(1), byn_file_7, 509) : INT64_C(-1));
 }
-#line 27423 "main.c"
+#line 27426 "main.c"
 
 int64_t byn_parser__skipErrorType(bynt_parser__Parser* p_p, int64_t p_index) {
     int64_t l0_i = {0};
@@ -27441,7 +27444,7 @@ int64_t byn_parser__skipErrorType(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 521 "parser/decls.byn"
     return l0_i;
 }
-#line 27445 "main.c"
+#line 27448 "main.c"
 
 int64_t byn_parser__skipQualifiedName(bynt_parser__Parser* p_p, int64_t p_index) {
     int64_t l0_i = {0};
@@ -27467,7 +27470,7 @@ break_1:;
 #line 533 "parser/decls.byn"
     return byn_add_i64(l0_i, INT64_C(1), byn_file_7, 533);
 }
-#line 27471 "main.c"
+#line 27474 "main.c"
 
 bynt_list_lexer__TextSpan byn_parser__parseTypeParams(bynt_parser__Parser* p_p) {
     bynt_list_lexer__TextSpan l0_names = {0};
@@ -27501,7 +27504,7 @@ break_1:;
 #line 546 "parser/decls.byn"
     return l0_names;
 }
-#line 27505 "main.c"
+#line 27508 "main.c"
 
 bynt_parser__ImportDecl byn_parser__parseImport(bynt_parser__Parser* p_p, int64_t p_start) {
     bynt_lexer__Token l0__ = {0};
@@ -27540,7 +27543,7 @@ break_1:;
 #line 561 "parser/decls.byn"
     return ((bynt_parser__ImportDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), l1_path, l2_alias, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 27544 "main.c"
+#line 27547 "main.c"
 
 bynt_list_str byn_parser__itName(void) {
     bynt_list_str l0_names = {0};
@@ -27551,7 +27554,7 @@ bynt_list_str byn_parser__itName(void) {
 #line 568 "parser/decls.byn"
     return l0_names;
 }
-#line 27555 "main.c"
+#line 27558 "main.c"
 
 bynt_parser__StructDecl byn_parser__parseStruct(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers) {
     bynt_lexer__Token l0__ = {0};
@@ -27931,7 +27934,7 @@ break_23:;
 #line 709 "parser/decls.byn"
     return ((bynt_parser__StructDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), l1_mods, l2_name, l12_members, l3_typeParams, l4_bases, l5_where, l42_sorted, l7_states, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 27935 "main.c"
+#line 27938 "main.c"
 
 bynt_list_parser__UnionVariant byn_parser__parseStatesBlock(bynt_parser__Parser* p_p, byn_str p_structName) {
     bynt_lexer__Token l0__ = {0};
@@ -28025,7 +28028,7 @@ break_5:;
 #line 749 "parser/decls.byn"
     return l2_states;
 }
-#line 28029 "main.c"
+#line 28032 "main.c"
 
 void byn_parser__reportStateLines(bynt_parser__Parser* p_p, bynt_list_lexer__Token p_keywords, bynt_list_parser__UnionVariant p_lines, bool p_hasBlock) {
     bynt_list_i64 l0_starts = {0};
@@ -28196,7 +28199,7 @@ break_1:;
     }
 break_7:;
 }
-#line 28200 "main.c"
+#line 28203 "main.c"
 
 int64_t byn_parser__segment(bynt_parser__Parser* p_p, bynt_lexer__Token p_keyword, bynt_parser__UnionVariant p_state, int64_t* p_end) {
     int64_t l0_start = {0};
@@ -28278,7 +28281,7 @@ break_3:;
 #line 832 "parser/decls.byn"
     return INT64_C(-1);
 }
-#line 28282 "main.c"
+#line 28285 "main.c"
 
 bool byn_parser__namesAny(bynt_parser__Parser* p_p, bynt_parser__RequiresRule p_rule, bynt_list_str p_fields) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -28337,7 +28340,7 @@ break_1:;
 #line 849 "parser/decls.byn"
     return false;
 }
-#line 28341 "main.c"
+#line 28344 "main.c"
 
 int64_t byn_parser__tokenAt(bynt_parser__Parser* p_p, int64_t p_offset) {
     int64_t l0_lo = {0};
@@ -28373,7 +28376,7 @@ break_1:;
 #line 864 "parser/decls.byn"
     return l0_lo;
 }
-#line 28377 "main.c"
+#line 28380 "main.c"
 
 bynt_parser__RequiresRule byn_parser__parseRequiresRule(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -28438,7 +28441,7 @@ break_1:;
 #line 892 "parser/decls.byn"
     return ((bynt_parser__RequiresRule){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l2_condition, l9_field});
 }
-#line 28442 "main.c"
+#line 28445 "main.c"
 
 bynt_list_parser__TypeSyntax byn_parser__parseBases(bynt_parser__Parser* p_p) {
     bynt_list_parser__TypeSyntax l0_bases = {0};
@@ -28466,7 +28469,7 @@ break_1:;
 #line 905 "parser/decls.byn"
     return l0_bases;
 }
-#line 28470 "main.c"
+#line 28473 "main.c"
 
 bynt_list_parser__WhereClause byn_parser__parseWhere(bynt_parser__Parser* p_p) {
     bynt_list_parser__WhereClause l0_clauses = {0};
@@ -28513,7 +28516,7 @@ break_1:;
 #line 922 "parser/decls.byn"
     return l0_clauses;
 }
-#line 28517 "main.c"
+#line 28520 "main.c"
 
 bynt_parser__FunctionDecl byn_parser__parseFunction(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers, bool p_allowNoBody) {
     bool l0_nameFirst = {0};
@@ -29294,7 +29297,7 @@ break_3:;
 #line 1195 "parser/decls.byn"
     return ((bynt_parser__FunctionDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), p_modifiers, l1_returnType, l8_name, l15_parameters, l97_failsClause, l100_body, l101_expressionBody, l9_typeParams, l12_refThis, l13_moveThis, l14_receiverStates, l10_paramsStart, l19_requiresList, l18_where, l20_becomes, l24_usesClause, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 29298 "main.c"
+#line 29301 "main.c"
 
 void byn_parser__reportClauseOrder(bynt_parser__Parser* p_p, bynt_list_parser__SignatureClause p_clauses) {
     int64_t l0_i = {0};
@@ -29493,7 +29496,7 @@ void byn_parser__reportClauseOrder(bynt_parser__Parser* p_p, bynt_list_parser__S
     }
 break_1:;
 }
-#line 29497 "main.c"
+#line 29500 "main.c"
 
 bynt_list_str byn_parser__particles(void) {
     bynt_list_str l0_words = {0};
@@ -29518,7 +29521,7 @@ bynt_list_str byn_parser__particles(void) {
 #line 1275 "parser/decls.byn"
     return l0_words;
 }
-#line 29522 "main.c"
+#line 29525 "main.c"
 
 bynt_opt_lexer__TextSpan byn_parser__parseParticle(bynt_parser__Parser* p_p) {
     byn_lexer_TokenKind l0_next = {0};
@@ -29578,7 +29581,7 @@ break_1:;
 #line 1300 "parser/decls.byn"
     return ((bynt_opt_lexer__TextSpan){0});
 }
-#line 29582 "main.c"
+#line 29585 "main.c"
 
 void byn_parser__reportRemovedEffects(bynt_parser__Parser* p_p) {
     bynt_lexer__Token l0_word = {0};
@@ -29622,7 +29625,7 @@ void byn_parser__reportRemovedEffects(bynt_parser__Parser* p_p) {
     }
 break_1:;
 }
-#line 29626 "main.c"
+#line 29629 "main.c"
 
 byn_parser_TypeSyntax byn_parser__parseNameFirstReturn(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_name, int64_t p_paramsEnd) {
     byn_str l0_header = {0};
@@ -29737,7 +29740,7 @@ byn_parser_TypeSyntax byn_parser__parseNameFirstReturn(bynt_parser__Parser* p_p,
 #line 1354 "parser/decls.byn"
     return ((byn_parser_TypeSyntax){.tag = 0, .u.namedType = {bynh_own_parser__NamedType(((bynt_parser__NamedType){l13_at, l18_path, ((bynt_list_parser__TypeSyntax){NULL, 0, 0, byn_context})}))}});
 }
-#line 29741 "main.c"
+#line 29744 "main.c"
 
 bynt_list_parser__Param byn_parser__parseParams(bynt_parser__Parser* p_p) {
     bynt_opt_lexer__TextSpan l0_refThis = {0};
@@ -29752,7 +29755,7 @@ bynt_list_parser__Param byn_parser__parseParams(bynt_parser__Parser* p_p) {
 #line 1361 "parser/decls.byn"
     return byn_parser__parseParamsWith(&(*p_p), &l0_refThis, &l1_moveThis, &l2_receiverStates, false);
 }
-#line 29756 "main.c"
+#line 29759 "main.c"
 
 bynt_list_parser__Param byn_parser__parseParamsWith(bynt_parser__Parser* p_p, bynt_opt_lexer__TextSpan* p_refThis, bynt_opt_lexer__TextSpan* p_moveThis, bynt_list_lexer__TextSpan* p_receiverStates, bool p_allowRefThis) {
     bynt_list_lexer__TextSpan t0 = {0};
@@ -30084,7 +30087,7 @@ bynt_list_parser__Param byn_parser__parseParamsWith(bynt_parser__Parser* p_p, by
 #line 1510 "parser/decls.byn"
     return l2_list;
 }
-#line 30088 "main.c"
+#line 30091 "main.c"
 
 bynt_list_lexer__TextSpan byn_parser__parseReceiverState(bynt_parser__Parser* p_p) {
 #line 1515 "parser/decls.byn"
@@ -30095,7 +30098,7 @@ bynt_list_lexer__TextSpan byn_parser__parseReceiverState(bynt_parser__Parser* p_
 #line 1516 "parser/decls.byn"
     return ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context});
 }
-#line 30099 "main.c"
+#line 30102 "main.c"
 
 bynt_list_lexer__TextSpan byn_parser__parseStateList(bynt_parser__Parser* p_p) {
     bynt_list_lexer__TextSpan l0_states = {0};
@@ -30124,7 +30127,7 @@ break_1:;
 #line 1529 "parser/decls.byn"
     return l0_states;
 }
-#line 30128 "main.c"
+#line 30131 "main.c"
 
 byn_parser_TypeSyntax byn_parser__parseRefinement(bynt_parser__Parser* p_p, byn_parser_TypeSyntax p_type, bynt_opt_lexer__TextSpan p_name) {
     bynt_lexer__Token l0_keyword = {0};
@@ -30235,7 +30238,7 @@ byn_parser_TypeSyntax byn_parser__parseRefinement(bynt_parser__Parser* p_p, byn_
 #line 1562 "parser/decls.byn"
     return ((byn_parser_TypeSyntax){.tag = 6, .u.refinedType = {bynh_own_parser__RefinedType(((bynt_parser__RefinedType){byn_lexer__TextSpan__fromBounds(l2_typeSpan.start, (*p_p).prevEnd), p_type, l1_states}))}});
 }
-#line 30239 "main.c"
+#line 30242 "main.c"
 
 bool byn_parser__isVariadicArray(bynt_parser__Parser* p_p, int64_t p_index) {
     int64_t l0_end = {0};
@@ -30244,7 +30247,7 @@ bool byn_parser__isVariadicArray(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 1576 "parser/decls.byn"
     return ((((l0_end > INT64_C(0)) && (byn_parser__Parser__kindAt(&(*p_p), l0_end) == ((byn_lexer_TokenKind)17))) && (byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l0_end, INT64_C(1), byn_file_7, 1576)) == ((byn_lexer_TokenKind)18))) && byn_parser__isName(byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l0_end, INT64_C(2), byn_file_7, 1576))));
 }
-#line 30248 "main.c"
+#line 30251 "main.c"
 
 bynt_parser__Param byn_parser__parseParamsInput(bynt_parser__Parser* p_p, int64_t p_start) {
     bynt_lexer__Token l0_keyword = {0};
@@ -30268,7 +30271,7 @@ bynt_parser__Param byn_parser__parseParamsInput(bynt_parser__Parser* p_p, int64_
 #line 1587 "parser/decls.byn"
     return byn_parser__reportRestInput(&(*p_p), p_start, byn_parser__spanOf(l0_keyword), l1_element, l4_typeEnd, l5_name);
 }
-#line 30272 "main.c"
+#line 30275 "main.c"
 
 bynt_parser__Param byn_parser__parseEllipsisInput(bynt_parser__Parser* p_p, int64_t p_start, byn_parser_TypeSyntax p_element) {
     bynt_lexer__TextSpan l0_dots = {0};
@@ -30295,7 +30298,7 @@ bynt_parser__Param byn_parser__parseEllipsisInput(bynt_parser__Parser* p_p, int6
 #line 1597 "parser/decls.byn"
     return byn_parser__reportRestInput(&(*p_p), p_start, l0_dots, p_element, l5_typeEnd, l6_name);
 }
-#line 30299 "main.c"
+#line 30302 "main.c"
 
 bynt_parser__Param byn_parser__reportRestInput(bynt_parser__Parser* p_p, int64_t p_start, bynt_lexer__TextSpan p_span, byn_parser_TypeSyntax p_element, int64_t p_typeEnd, bynt_lexer__TextSpan p_name) {
     bynt_lexer__TextSpan l0_elementSpan = {0};
@@ -30347,7 +30350,7 @@ bynt_parser__Param byn_parser__reportRestInput(bynt_parser__Parser* p_p, int64_t
 #line 1628 "parser/decls.byn"
     return ((bynt_parser__Param){byn_parser__Parser__spanFrom(&(*p_p), p_start), ((byn_parser_ParamModifier)0), l10_type, p_name, ((byn_parser_Expr){.tag = 34}), ((bynt_opt_lexer__TextSpan){0}), true});
 }
-#line 30351 "main.c"
+#line 30354 "main.c"
 
 bynt_parser__InterfaceDecl byn_parser__parseInterface(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers) {
     bynt_lexer__Token l0__ = {0};
@@ -30405,7 +30408,7 @@ break_1:;
 #line 32 "parser/decls2.byn"
     return ((bynt_parser__InterfaceDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), p_modifiers, l1_name, l5_members, l2_typeParams, l3_where, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 30409 "main.c"
+#line 30412 "main.c"
 
 byn_parser_Decl byn_parser__parseInterfaceMember(bynt_parser__Parser* p_p) {
     bynt_lexer__Token l0_first = {0};
@@ -30543,7 +30546,7 @@ byn_parser_Decl byn_parser__parseInterfaceMember(bynt_parser__Parser* p_p) {
 #line 131 "parser/decls2.byn"
     return ((byn_parser_Decl){.tag = 18});
 }
-#line 30547 "main.c"
+#line 30550 "main.c"
 
 bynt_parser__ExtensionDecl byn_parser__parseExtension(bynt_parser__Parser* p_p, int64_t p_start) {
     bynt_lexer__Token l0__ = {0};
@@ -30604,7 +30607,7 @@ bynt_parser__ExtensionDecl byn_parser__parseExtension(bynt_parser__Parser* p_p, 
 #line 158 "parser/decls2.byn"
     return ((bynt_parser__ExtensionDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), l1_name, l2_bases, l3_members, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 30608 "main.c"
+#line 30611 "main.c"
 
 void byn_parser__expectClose(bynt_parser__Parser* p_p, bynt_lexer__Token p_open, byn_str p_what) {
     int64_t l0_line = {0};
@@ -30647,7 +30650,7 @@ void byn_parser__expectClose(bynt_parser__Parser* p_p, bynt_lexer__Token p_open,
 #line 164 "parser/decls2.byn"
     l1__ = byn_parser__Parser__report(&(*p_p), ((byn_parser_ParseCode)1), t4, BYN_STR("`}`", 3), t5, BYN_STR("", 0), BYN_STR("", 0), t3);
 }
-#line 30651 "main.c"
+#line 30654 "main.c"
 
 byn_parser_Decl byn_parser__parseFieldOrProperty(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers, bynt_list_parser__AttributeSyntax p_attributes, bynt_opt_str p_doc) {
     bool l0_collect = {0};
@@ -30752,7 +30755,7 @@ byn_parser_Decl byn_parser__parseFieldOrProperty(bynt_parser__Parser* p_p, int64
 #line 251 "parser/decls2.byn"
     return ((byn_parser_Decl){.tag = 8, .u.fieldDecl = {bynh_own_parser__FieldDecl(l16_field)}});
 }
-#line 30756 "main.c"
+#line 30759 "main.c"
 
 bynt_list_parser__RequiresRule byn_parser__parseRequiresLines(bynt_parser__Parser* p_p) {
     bynt_list_parser__RequiresRule l0_rules = {0};
@@ -30773,7 +30776,7 @@ break_1:;
 #line 260 "parser/decls2.byn"
     return l0_rules;
 }
-#line 30777 "main.c"
+#line 30780 "main.c"
 
 bynt_parser__ConstructorDecl byn_parser__parseConstructor(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers) {
     bynt_lexer__TextSpan l0_name = {0};
@@ -30788,7 +30791,7 @@ bynt_parser__ConstructorDecl byn_parser__parseConstructor(bynt_parser__Parser* p
 #line 267 "parser/decls2.byn"
     return ((bynt_parser__ConstructorDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), p_modifiers, l0_name, l1_parameters, l2_body, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 30792 "main.c"
+#line 30795 "main.c"
 
 byn_parser_Decl byn_parser__parseErrorUnion(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers, bynt_list_parser__AttributeSyntax p_attributes, bynt_opt_str p_doc) {
     bynt_lexer__Token l0_first = {0};
@@ -30878,7 +30881,7 @@ break_1:;
 #line 324 "parser/decls2.byn"
     return ((byn_parser_Decl){.tag = 11, .u.errorEnumDecl = {bynh_own_parser__ErrorEnumDecl(((bynt_parser__ErrorEnumDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), p_modifiers, l2_name, l5_variants, p_doc, p_attributes}))}});
 }
-#line 30882 "main.c"
+#line 30885 "main.c"
 
 bynt_parser__ErrorSetDecl byn_parser__parseErrorComposition(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers, bynt_lexer__Token p_first, bynt_lexer__Token p_second, bynt_lexer__TextSpan p_name) {
     bynt_lexer__Token l0__ = {0};
@@ -31017,7 +31020,7 @@ break_1:;
 #line 392 "parser/decls2.byn"
     return ((bynt_parser__ErrorSetDecl){t20, p_modifiers, p_name, l1_members, byn_lexer__TextSpan__fromBounds(p_first.start, byn_lexer__Token__get_end(&p_second)), l4_exceptNames, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 31021 "main.c"
+#line 31024 "main.c"
 
 void byn_parser__reportKeywordOrder(bynt_parser__Parser* p_p, bynt_lexer__Token p_modifier, bynt_lexer__Token p_kind, byn_str p_canonical) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -31089,13 +31092,13 @@ break_1:;
 #line 411 "parser/decls2.byn"
     l3__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)37), l0_span, l0_span, t8, t9, p_canonical, BYN_STR("", 0), BYN_STR("the input form", 14), byn_strbuf_str(t7));
 }
-#line 31093 "main.c"
+#line 31096 "main.c"
 
 bool byn_parser__isWhiteSpace(uint8_t p_b) {
 #line 425 "parser/decls2.byn"
     return ((((((p_b == ((uint8_t)32)) || (p_b == ((uint8_t)9))) || (p_b == ((uint8_t)10))) || (p_b == ((uint8_t)13))) || (p_b == ((uint8_t)11))) || (p_b == ((uint8_t)12)));
 }
-#line 31099 "main.c"
+#line 31102 "main.c"
 
 bynt_parser__EnumDecl byn_parser__parseEnum(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers) {
     bynt_lexer__Token l0__ = {0};
@@ -31194,7 +31197,7 @@ break_3:;
 #line 462 "parser/decls2.byn"
     return ((bynt_parser__EnumDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), p_modifiers, l1_name, l2_parameters, l7_members, l4_bases, l5_where, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 31198 "main.c"
+#line 31201 "main.c"
 
 bynt_parser__UnionDecl byn_parser__parseUnion(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers) {
     bynt_lexer__Token l0__ = {0};
@@ -31288,7 +31291,7 @@ break_3:;
 #line 506 "parser/decls2.byn"
     return ((bynt_parser__UnionDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), p_modifiers, l1_name, l6_variants, l2_typeParams, l3_bases, l4_where, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 31292 "main.c"
+#line 31295 "main.c"
 
 bynt_list_parser__UnionField byn_parser__parsePayload(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_variant) {
     bynt_list_parser__UnionField l0_fields = {0};
@@ -31391,7 +31394,7 @@ break_1:;
 #line 553 "parser/decls2.byn"
     return l0_fields;
 }
-#line 31395 "main.c"
+#line 31398 "main.c"
 
 bool byn_parser__nextCase(bynt_parser__Parser* p_p, bynt_list_lexer__Token* p_commas) {
     bynt_lexer__Token t0 = {0};
@@ -31407,7 +31410,7 @@ bool byn_parser__nextCase(bynt_parser__Parser* p_p, bynt_list_lexer__Token* p_co
 #line 563 "parser/decls2.byn"
     return byn_lexer__Token__get_hasNewlineBefore(&t0);
 }
-#line 31411 "main.c"
+#line 31414 "main.c"
 
 void byn_parser__reportCaseCommas(bynt_parser__Parser* p_p, byn_str p_typeName, bynt_lexer__Token p_open, bynt_list_lexer__TextSpan p_cases, bynt_list_lexer__Token p_commas) {
     byn_str l0_outer = {0};
@@ -31558,7 +31561,7 @@ void byn_parser__reportCaseCommas(bynt_parser__Parser* p_p, byn_str p_typeName, 
 #line 604 "parser/decls2.byn"
     l22__ = byn_parser__Parser__report(&(*p_p), ((byn_parser_ParseCode)45), byn_parser__spanOf((*bynh_at_list_lexer__Token(p_commas, (int64_t)INT64_C(0), false, byn_file_8, 606))), p_typeName, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("the first `,`", 13), BYN_STR("write each case on its own line", 31));
 }
-#line 31562 "main.c"
+#line 31565 "main.c"
 
 byn_str byn_parser__keptComment(byn_str p_gap) {
     int64_t l0_first = {0};
@@ -31614,7 +31617,7 @@ break_3:;
 #line 623 "parser/decls2.byn"
     return t3;
 }
-#line 31618 "main.c"
+#line 31621 "main.c"
 
 byn_str byn_parser__withoutCommas(bynt_parser__Parser* p_p, int64_t p_start, int64_t p_end, bynt_list_lexer__Token p_commas) {
     byn_writer l0_text = {0};
@@ -31709,7 +31712,7 @@ break_5:;
 #line 649 "parser/decls2.byn"
     return byn_strbuf_str(t9);
 }
-#line 31713 "main.c"
+#line 31716 "main.c"
 
 bynt_parser__TypeAliasDecl byn_parser__parseTypeAlias(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers) {
     bynt_lexer__Token l0_first = {0};
@@ -31753,7 +31756,7 @@ bynt_parser__TypeAliasDecl byn_parser__parseTypeAlias(bynt_parser__Parser* p_p, 
 #line 668 "parser/decls2.byn"
     return ((bynt_parser__TypeAliasDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), p_modifiers, l4_name, l7_target, l1_isDistinct, l8_rules, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 31757 "main.c"
+#line 31760 "main.c"
 
 bynt_parser__EffectDecl byn_parser__parseEffect(bynt_parser__Parser* p_p, int64_t p_start, uint16_t p_modifiers) {
     bynt_lexer__Token l0__ = {0};
@@ -31787,7 +31790,7 @@ break_1:;
 #line 689 "parser/decls2.byn"
     return ((bynt_parser__EffectDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), p_modifiers, l1_name, l3_effects, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 31791 "main.c"
+#line 31794 "main.c"
 
 bynt_parser__TestDecl byn_parser__parseTest(bynt_parser__Parser* p_p, int64_t p_start) {
     bynt_lexer__Token l0__ = {0};
@@ -31841,7 +31844,7 @@ bynt_parser__TestDecl byn_parser__parseTest(bynt_parser__Parser* p_p, int64_t p_
 #line 711 "parser/decls2.byn"
     return ((bynt_parser__TestDecl){byn_parser__Parser__spanFrom(&(*p_p), p_start), l1_title, l7_parameters, l9_body, ((bynt_opt_str){0}), ((bynt_list_parser__AttributeSyntax){NULL, 0, 0, byn_context})});
 }
-#line 31845 "main.c"
+#line 31848 "main.c"
 
 void byn_parser__dump(bynt_parser__CompilationUnit p_unit, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     byn_parser_Decl l0_member = {0};
@@ -31914,7 +31917,7 @@ break_1:;
         byn_arena_free(l3_arena);
     }
 }
-#line 31918 "main.c"
+#line 31921 "main.c"
 
 void byn_parser__indent(int64_t p_depth, byn_writer* p_sb) {
     int64_t l0_i = {0};
@@ -31941,7 +31944,7 @@ void byn_parser__indent(int64_t p_depth, byn_writer* p_sb) {
     }
 break_1:;
 }
-#line 31945 "main.c"
+#line 31948 "main.c"
 
 void byn_parser__line(byn_str p_text, int64_t p_depth, byn_writer* p_sb) {
 #line 43 "parser/dump.byn"
@@ -31951,7 +31954,7 @@ void byn_parser__line(byn_str p_text, int64_t p_depth, byn_writer* p_sb) {
 #line 45 "parser/dump.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR("\012", 1));
 }
-#line 31955 "main.c"
+#line 31958 "main.c"
 
 void byn_parser__doc(bynt_opt_str p_text, int64_t p_depth, byn_writer* p_sb) {
 #line 50 "parser/dump.byn"
@@ -31968,7 +31971,7 @@ void byn_parser__doc(bynt_opt_str p_text, int64_t p_depth, byn_writer* p_sb) {
 #line 54 "parser/dump.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR("\012", 1));
 }
-#line 31972 "main.c"
+#line 31975 "main.c"
 
 void byn_parser__attributes(bynt_list_parser__AttributeSyntax p_attributes, int64_t p_depth, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     bynt_parser__AttributeSyntax l0_a = {0};
@@ -32006,7 +32009,7 @@ void byn_parser__attributes(bynt_list_parser__AttributeSyntax p_attributes, int6
     }
 break_1:;
 }
-#line 32010 "main.c"
+#line 32013 "main.c"
 
 byn_str byn_parser__exprText(byn_parser_Expr p_e, bynt_parser__Parser* p_p) {
     byn_writer l0_sb = {0};
@@ -32027,7 +32030,7 @@ byn_str byn_parser__exprText(byn_parser_Expr p_e, bynt_parser__Parser* p_p) {
 #line 70 "parser/dump.byn"
     return byn_strbuf_str(t1);
 }
-#line 32031 "main.c"
+#line 32034 "main.c"
 
 byn_str byn_parser__typeText(byn_parser_TypeSyntax p_t, bynt_parser__Parser* p_p) {
     byn_writer l0_sb = {0};
@@ -32048,7 +32051,7 @@ byn_str byn_parser__typeText(byn_parser_TypeSyntax p_t, bynt_parser__Parser* p_p
 #line 77 "parser/dump.byn"
     return byn_strbuf_str(t1);
 }
-#line 32052 "main.c"
+#line 32055 "main.c"
 
 byn_str byn_parser__patternText(byn_parser_Pattern p_pattern, bynt_parser__Parser* p_p) {
     byn_writer l0_sb = {0};
@@ -32069,7 +32072,7 @@ byn_str byn_parser__patternText(byn_parser_Pattern p_pattern, bynt_parser__Parse
 #line 84 "parser/dump.byn"
     return byn_strbuf_str(t1);
 }
-#line 32073 "main.c"
+#line 32076 "main.c"
 
 byn_str byn_parser__mods(uint16_t p_modifiers) {
     bynt_list_str l0_parts = {0};
@@ -32139,7 +32142,7 @@ byn_str byn_parser__mods(uint16_t p_modifiers) {
 #line 118 "parser/dump.byn"
     return byn_strbuf_str(t1);
 }
-#line 32143 "main.c"
+#line 32146 "main.c"
 
 byn_str byn_parser__typeParams(bynt_list_lexer__TextSpan p_names, bynt_parser__Parser* p_p) {
     bynt_list_str l0_parts = {0};
@@ -32188,7 +32191,7 @@ break_1:;
 #line 128 "parser/dump.byn"
     return byn_strbuf_str(t4);
 }
-#line 32192 "main.c"
+#line 32195 "main.c"
 
 byn_str byn_parser__basesText(bynt_list_parser__TypeSyntax p_bases, bynt_parser__Parser* p_p) {
     bynt_list_str l0_parts = {0};
@@ -32236,7 +32239,7 @@ break_1:;
 #line 138 "parser/dump.byn"
     return byn_strbuf_str(t4);
 }
-#line 32240 "main.c"
+#line 32243 "main.c"
 
 byn_str byn_parser__whereText(bynt_list_parser__WhereClause p_where, bynt_parser__Parser* p_p) {
     byn_writer l0_sb = {0};
@@ -32315,7 +32318,7 @@ break_1:;
 #line 151 "parser/dump.byn"
     return byn_strbuf_str(t9);
 }
-#line 32319 "main.c"
+#line 32322 "main.c"
 
 byn_str byn_parser__attributeText(bynt_parser__AttributeSyntax p_a, bynt_parser__Parser* p_p) {
     byn_writer l0_sb = {0};
@@ -32412,7 +32415,7 @@ break_1:;
 #line 174 "parser/dump.byn"
     return byn_strbuf_str(t11);
 }
-#line 32416 "main.c"
+#line 32419 "main.c"
 
 byn_str byn_parser__rulesText(bynt_list_parser__RequiresRule p_rules, bynt_parser__Parser* p_p) {
     byn_writer l0_sb = {0};
@@ -32472,7 +32475,7 @@ break_1:;
 #line 186 "parser/dump.byn"
     return byn_strbuf_str(t5);
 }
-#line 32476 "main.c"
+#line 32479 "main.c"
 
 byn_str byn_parser__receiverText(bynt_list_lexer__TextSpan p_states, bynt_parser__Parser* p_p, bool p_refThis, bool p_moveThis) {
     bool l0_stated = {0};
@@ -32555,7 +32558,7 @@ byn_str byn_parser__receiverText(bynt_list_lexer__TextSpan p_states, bynt_parser
 #line 208 "parser/dump.byn"
     return byn_strbuf_str(t7);
 }
-#line 32559 "main.c"
+#line 32562 "main.c"
 
 byn_str byn_parser__paramsText(bynt_list_parser__Param p_parameters, bynt_parser__Parser* p_p, byn_str p_receiver) {
     byn_writer l0_sb = {0};
@@ -32648,7 +32651,7 @@ break_1:;
 #line 241 "parser/dump.byn"
     return byn_strbuf_str(t6);
 }
-#line 32652 "main.c"
+#line 32655 "main.c"
 
 byn_str byn_parser__paramModifierText(byn_parser_ParamModifier p_modifier) {
     byn_str t0 = {0};
@@ -32693,7 +32696,7 @@ switch_end_1:;
 #line 245 "parser/dump.byn"
     return t0;
 }
-#line 32697 "main.c"
+#line 32700 "main.c"
 
 byn_str byn_parser__bindingKindText(byn_parser_BindingKind p_kind) {
     byn_str t0 = {0};
@@ -32724,7 +32727,7 @@ switch_end_1:;
 #line 254 "parser/dump.byn"
     return t0;
 }
-#line 32728 "main.c"
+#line 32731 "main.c"
 
 byn_str byn_parser__likelihoodText(byn_parser_Likelihood p_likelihood) {
     byn_str t0 = {0};
@@ -32755,7 +32758,7 @@ switch_end_1:;
 #line 261 "parser/dump.byn"
     return t0;
 }
-#line 32759 "main.c"
+#line 32762 "main.c"
 
 byn_str byn_parser__deferKindText(byn_parser_DeferKind p_kind) {
     byn_str t0 = {0};
@@ -32786,7 +32789,7 @@ switch_end_1:;
 #line 268 "parser/dump.byn"
     return t0;
 }
-#line 32790 "main.c"
+#line 32793 "main.c"
 
 void byn_parser__decl(byn_parser_Decl p_node, int64_t p_depth, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     bynt_parser__ImportDecl* l0_d = {0};
@@ -34336,7 +34339,7 @@ void byn_parser__decl(byn_parser_Decl p_node, int64_t p_depth, bynt_parser__Pars
     }
 switch_end_1:;
 }
-#line 34340 "main.c"
+#line 34343 "main.c"
 
 void byn_parser__stmt(byn_parser_Stmt p_node, int64_t p_depth, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     byn_parser_Stmt l0_child = {0};
@@ -35262,7 +35265,7 @@ void byn_parser__stmt(byn_parser_Stmt p_node, int64_t p_depth, bynt_parser__Pars
     }
 switch_end_1:;
 }
-#line 35266 "main.c"
+#line 35269 "main.c"
 
 void byn_parser__stmtAttributes(byn_parser_Stmt p_node, int64_t p_depth, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     bynt_parser__BlockStmt* l0_s = {0};
@@ -35466,7 +35469,7 @@ void byn_parser__stmtAttributes(byn_parser_Stmt p_node, int64_t p_depth, bynt_pa
     }
 switch_end_1:;
 }
-#line 35470 "main.c"
+#line 35473 "main.c"
 
 byn_str byn_parser__assignText(byn_parser_AssignOp p_op) {
     byn_str t0 = {0};
@@ -35560,7 +35563,7 @@ switch_end_1:;
 #line 17 "parser/dump2.byn"
     return t0;
 }
-#line 35564 "main.c"
+#line 35567 "main.c"
 
 byn_str byn_parser__binaryText(byn_parser_BinaryOp p_op) {
     byn_str t0 = {0};
@@ -35745,7 +35748,7 @@ switch_end_1:;
 #line 33 "parser/dump2.byn"
     return t0;
 }
-#line 35749 "main.c"
+#line 35752 "main.c"
 
 byn_str byn_parser__unaryText(byn_parser_UnaryOp p_op) {
     byn_str t0 = {0};
@@ -35790,13 +35793,13 @@ switch_end_1:;
 #line 62 "parser/dump2.byn"
     return t0;
 }
-#line 35794 "main.c"
+#line 35797 "main.c"
 
 byn_str byn_parser__nameText(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span) {
 #line 71 "parser/dump2.byn"
     return ((p_span.length == INT64_C(0)) ? BYN_STR("<missing>", 9) : byn_lexer__SourceText__getText(&(*p_p).lexed.source, p_span));
 }
-#line 35800 "main.c"
+#line 35803 "main.c"
 
 byn_str byn_parser__quote(byn_str p_text) {
     byn_writer l0_sb = {0};
@@ -35921,7 +35924,7 @@ break_1:;
 #line 121 "parser/dump2.byn"
     return byn_strbuf_str(t9);
 }
-#line 35925 "main.c"
+#line 35928 "main.c"
 
 void byn_parser__appendUnicodeEscape(uint32_t p_value, byn_writer* p_sb) {
     int64_t l0_n = {0};
@@ -35969,7 +35972,7 @@ break_3:;
 #line 137 "parser/dump2.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR("}", 1));
 }
-#line 35973 "main.c"
+#line 35976 "main.c"
 
 void byn_parser__appendTypes(bynt_list_parser__TypeSyntax p_types, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     bool l0_first = {0};
@@ -36006,7 +36009,7 @@ void byn_parser__appendTypes(bynt_list_parser__TypeSyntax p_types, bynt_parser__
     }
 break_1:;
 }
-#line 36010 "main.c"
+#line 36013 "main.c"
 
 void byn_parser__fieldInits(bynt_list_parser__FieldInit p_fields, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     bynt_parser__FieldInit l0_f = {0};
@@ -36041,7 +36044,7 @@ void byn_parser__fieldInits(bynt_list_parser__FieldInit p_fields, bynt_parser__P
     }
 break_1:;
 }
-#line 36045 "main.c"
+#line 36048 "main.c"
 
 bool byn_parser__allMapEntries(bynt_list_parser__Expr p_elements) {
     bool l0_any = {0};
@@ -36078,7 +36081,7 @@ break_1:;
 #line 173 "parser/dump2.byn"
     return l0_any;
 }
-#line 36082 "main.c"
+#line 36085 "main.c"
 
 void byn_parser__dumpBlockExpr(byn_parser_Stmt p_block, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     byn_parser_Stmt l0_s = {0};
@@ -36125,7 +36128,7 @@ switch_end_1:;
 #line 190 "parser/dump2.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR(")", 1));
 }
-#line 36129 "main.c"
+#line 36132 "main.c"
 
 void byn_parser__appendFlattened(byn_str p_text, byn_writer* p_sb) {
     bynt_span_u8 l0_t = {0};
@@ -36237,7 +36240,7 @@ break_1:;
     }
 break_3:;
 }
-#line 36241 "main.c"
+#line 36244 "main.c"
 
 void byn_parser__dumpType(byn_parser_TypeSyntax p_t, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     bynt_parser__NamedType* l0_n = {0};
@@ -36627,7 +36630,7 @@ void byn_parser__dumpType(byn_parser_TypeSyntax p_t, bynt_parser__Parser* p_p, b
     }
 switch_end_1:;
 }
-#line 36631 "main.c"
+#line 36634 "main.c"
 
 void byn_parser__dumpExpr(byn_parser_Expr p_e, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     bynt_parser__LiteralExpr* l0_n = {0};
@@ -37633,7 +37636,7 @@ void byn_parser__dumpExpr(byn_parser_Expr p_e, bynt_parser__Parser* p_p, byn_wri
     }
 switch_end_1:;
 }
-#line 37637 "main.c"
+#line 37640 "main.c"
 
 void byn_parser__dumpPattern(byn_parser_Pattern p_pattern, bynt_parser__Parser* p_p, byn_writer* p_sb) {
     bynt_parser__ConstantPattern* l0_n = {0};
@@ -37978,7 +37981,7 @@ void byn_parser__dumpPattern(byn_parser_Pattern p_pattern, bynt_parser__Parser* 
     }
 switch_end_1:;
 }
-#line 37982 "main.c"
+#line 37985 "main.c"
 
 bynt_list_lexer__TextSpan byn_parser__typeNames(bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
     bynt_list_lexer__TextSpan t0 = {0};
@@ -37998,7 +38001,7 @@ bynt_list_lexer__TextSpan byn_parser__typeNames(bynt_parser__CompilationUnit p_t
 #line 798 "parser/dump2.byn"
     return bynh_copy_list_lexer__TextSpan((*p_p).collectedTypeNames, byn_context);
 }
-#line 38002 "main.c"
+#line 38005 "main.c"
 
 bynt_list_lexer__TextSpan byn_parser__calleeAndReceiverNames(bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
     bynt_list_lexer__TextSpan t0 = {0};
@@ -38018,7 +38021,7 @@ bynt_list_lexer__TextSpan byn_parser__calleeAndReceiverNames(bynt_parser__Compil
 #line 808 "parser/dump2.byn"
     return bynh_copy_list_lexer__TextSpan((*p_p).collectedCalleeNames, byn_context);
 }
-#line 38022 "main.c"
+#line 38025 "main.c"
 
 bool byn_parser__canStartExpression(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -38050,7 +38053,7 @@ bool byn_parser__canStartExpression(byn_lexer_TokenKind p_kind) {
 #line 27 "parser/exprs.byn"
     return t1;
 }
-#line 38054 "main.c"
+#line 38057 "main.c"
 
 byn_parser_Expr byn_parser__parseExpression(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -38079,7 +38082,7 @@ byn_parser_Expr byn_parser__parseExpression(bynt_parser__Parser* p_p) {
 #line 46 "parser/exprs.byn"
     return ((byn_parser_Expr){.tag = 11, .u.conditionalExpr = {bynh_own_parser__ConditionalExpr(((bynt_parser__ConditionalExpr){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l1_condition, l3_whenTrue, l5_whenFalse}))}});
 }
-#line 38083 "main.c"
+#line 38086 "main.c"
 
 bynt_tup3_parser__BinaryOp_i64_i64 byn_parser__binaryOperator(bynt_parser__Parser* p_p) {
     byn_lexer_TokenKind l0_kind = {0};
@@ -38286,7 +38289,7 @@ switch_end_1:;
 #line 62 "parser/exprs.byn"
     return t3;
 }
-#line 38290 "main.c"
+#line 38293 "main.c"
 
 byn_parser_Expr byn_parser__parseBinary(bynt_parser__Parser* p_p, int64_t p_minPrec) {
     int64_t l0_start = {0};
@@ -38320,7 +38323,7 @@ byn_parser_Expr byn_parser__parseBinary(bynt_parser__Parser* p_p, int64_t p_minP
 #line 104 "parser/exprs.byn"
     return byn_parser__parseBinaryRest(&(*p_p), l0_start, l5_left, p_minPrec);
 }
-#line 38324 "main.c"
+#line 38327 "main.c"
 
 byn_parser_Expr byn_parser__parseBinaryRest(bynt_parser__Parser* p_p, int64_t p_start, byn_parser_Expr p_first, int64_t p_minPrec) {
     byn_parser_Expr l0_left = {0};
@@ -38478,7 +38481,7 @@ byn_parser_Expr byn_parser__parseBinaryRest(bynt_parser__Parser* p_p, int64_t p_
     }
 break_1:;
 }
-#line 38482 "main.c"
+#line 38485 "main.c"
 
 byn_parser_Pattern byn_parser__parseExceptPattern(bynt_parser__Parser* p_p) {
     byn_parser_Pattern l0_pattern = {0};
@@ -38529,7 +38532,7 @@ switch_end_1:;
 #line 193 "parser/exprs.byn"
     return ((byn_parser_Pattern){.tag = 0, .u.constantPattern = {bynh_own_parser__ConstantPattern(((bynt_parser__ConstantPattern){l7_span, l6_condition}))}});
 }
-#line 38533 "main.c"
+#line 38536 "main.c"
 
 byn_parser_Expr byn_parser__reparseConstant(bynt_parser__Parser* p_p, int64_t p_start) {
     int64_t l0_after = {0};
@@ -38601,7 +38604,7 @@ break_3:;
 #line 221 "parser/exprs.byn"
     return l8_value;
 }
-#line 38605 "main.c"
+#line 38608 "main.c"
 
 bool byn_parser__canStartRangeEnd(bynt_parser__Parser* p_p) {
     byn_lexer_TokenKind l0_kind = {0};
@@ -38610,7 +38613,7 @@ bool byn_parser__canStartRangeEnd(bynt_parser__Parser* p_p) {
 #line 226 "parser/exprs.byn"
     return (((byn_parser__canStartExpression(l0_kind) && (!(l0_kind == ((byn_lexer_TokenKind)19)))) && (!(l0_kind == ((byn_lexer_TokenKind)24)))) && (!(l0_kind == ((byn_lexer_TokenKind)25))));
 }
-#line 38614 "main.c"
+#line 38617 "main.c"
 
 byn_parser_Expr byn_parser__parseCatch(bynt_parser__Parser* p_p, int64_t p_start, byn_parser_Expr p_operand) {
     bynt_lexer__Token l0__ = {0};
@@ -38754,7 +38757,7 @@ byn_parser_Expr byn_parser__parseCatch(bynt_parser__Parser* p_p, int64_t p_start
 #line 282 "parser/exprs.byn"
     return ((byn_parser_Expr){.tag = 19, .u.catchExpr = {bynh_own_parser__CatchExpr(((bynt_parser__CatchExpr){byn_parser__Parser__spanFrom(&(*p_p), p_start), p_operand, l1_binding, l2_variant, l17_handler}))}});
 }
-#line 38758 "main.c"
+#line 38761 "main.c"
 
 byn_parser_Expr byn_parser__parseUnary(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -38805,7 +38808,7 @@ break_1:;
 #line 307 "parser/exprs.byn"
     return l1_expr;
 }
-#line 38809 "main.c"
+#line 38812 "main.c"
 
 byn_parser_Expr byn_parser__parsePrefixed(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -39093,7 +39096,7 @@ break_3:;
 #line 409 "parser/exprs.byn"
     return l46_expr;
 }
-#line 39097 "main.c"
+#line 39100 "main.c"
 
 bool byn_parser__isCast(bynt_parser__Parser* p_p) {
     int64_t l0_after = {0};
@@ -39136,7 +39139,7 @@ bool byn_parser__isCast(bynt_parser__Parser* p_p) {
 #line 416 "parser/exprs.byn"
     return t3;
 }
-#line 39140 "main.c"
+#line 39143 "main.c"
 
 byn_parser_Expr byn_parser__parseSwitchArms(bynt_parser__Parser* p_p, int64_t p_start, byn_parser_Expr p_value) {
     byn_parser_Expr l0_subject = {0};
@@ -39242,7 +39245,7 @@ break_2:;
 #line 468 "parser/exprs.byn"
     return ((byn_parser_Expr){.tag = 16, .u.switchExpr = {bynh_own_parser__SwitchExpr(((bynt_parser__SwitchExpr){byn_parser__Parser__spanFrom(&(*p_p), p_start), l0_subject, l3_arms}))}});
 }
-#line 39246 "main.c"
+#line 39249 "main.c"
 
 byn_parser_Expr byn_parser__parsePostfix(bynt_parser__Parser* p_p, byn_parser_Expr p_first) {
     byn_parser_Expr l0_expr = {0};
@@ -39370,7 +39373,7 @@ byn_parser_Expr byn_parser__parsePostfix(bynt_parser__Parser* p_p, byn_parser_Ex
     }
 break_1:;
 }
-#line 39374 "main.c"
+#line 39377 "main.c"
 
 bool byn_parser__isTypeArgsBeforeCall(bynt_parser__Parser* p_p) {
     int64_t l0_after = {0};
@@ -39379,7 +39382,7 @@ bool byn_parser__isTypeArgsBeforeCall(bynt_parser__Parser* p_p) {
 #line 518 "parser/exprs.byn"
     return ((l0_after > INT64_C(0)) && (byn_parser__Parser__kindAt(&(*p_p), l0_after) == ((byn_lexer_TokenKind)15)));
 }
-#line 39383 "main.c"
+#line 39386 "main.c"
 
 void byn_parser__reportTrustInput(bynt_parser__Parser* p_p, bynt_parser__CallExpr p_call) {
     bynt_lexer__TextSpan l0_calleeSpan = {0};
@@ -39577,7 +39580,7 @@ switch_end_3:;
 #line 572 "parser/exprs.byn"
     l28__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)50), l0_calleeSpan, p_call.span, t30, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("the input form", 14), BYN_STR("call `trustUnchecked()` on the value and give the reason in `because`", 69));
 }
-#line 39581 "main.c"
+#line 39584 "main.c"
 
 bynt_list_parser__Argument byn_parser__parseArguments(bynt_parser__Parser* p_p) {
     bool l0_saved = {0};
@@ -39591,7 +39594,7 @@ bynt_list_parser__Argument byn_parser__parseArguments(bynt_parser__Parser* p_p) 
 #line 586 "parser/exprs.byn"
     return l1_args;
 }
-#line 39595 "main.c"
+#line 39598 "main.c"
 
 bynt_list_parser__Argument byn_parser__parseArgumentList(bynt_parser__Parser* p_p) {
     bynt_lexer__Token l0__ = {0};
@@ -39704,7 +39707,7 @@ bynt_list_parser__Argument byn_parser__parseArgumentList(bynt_parser__Parser* p_
 #line 621 "parser/exprs.byn"
     return l1_args;
 }
-#line 39708 "main.c"
+#line 39711 "main.c"
 
 bynt_lexer__TextSpan byn_parser__exprSpan(byn_parser_Expr p_e) {
     bynt_lexer__TextSpan t0 = {0};
@@ -39993,7 +39996,7 @@ switch_end_1:;
 #line 625 "parser/exprs.byn"
     return t0;
 }
-#line 39997 "main.c"
+#line 40000 "main.c"
 
 bynt_lexer__TextSpan byn_parser__blockSpan(byn_parser_Stmt p_block) {
     bynt_parser__BlockStmt* l0_n = {0};
@@ -40008,7 +40011,7 @@ bynt_lexer__TextSpan byn_parser__blockSpan(byn_parser_Stmt p_block) {
     return ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)});
 switch_end_1:;
 }
-#line 40012 "main.c"
+#line 40015 "main.c"
 
 byn_parser_Expr byn_parser__parsePrimary(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -40243,13 +40246,13 @@ switch_end_1:;
 #line 91 "parser/exprs2.byn"
     return ((byn_parser_Expr){.tag = 33, .u.errorExpr = {bynh_own_parser__ErrorExpr(((bynt_parser__ErrorExpr){((bynt_lexer__TextSpan){l0_start, INT64_C(0)})}))}});
 }
-#line 40247 "main.c"
+#line 40250 "main.c"
 
 byn_parser_Expr byn_parser__literal(byn_parser_LiteralKind p_kind, bynt_lexer__TextSpan p_span, byn_str p_text) {
 #line 96 "parser/exprs2.byn"
     return ((byn_parser_Expr){.tag = 0, .u.literalExpr = {bynh_own_parser__LiteralExpr(((bynt_parser__LiteralExpr){p_span, p_kind, p_text, ((bynt_opt_lexer__TextSpan){0})}))}});
 }
-#line 40253 "main.c"
+#line 40256 "main.c"
 
 byn_parser_Expr byn_parser__parseLambda(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -40405,7 +40408,7 @@ byn_parser_Expr byn_parser__parseLambda(bynt_parser__Parser* p_p) {
 #line 172 "parser/exprs2.byn"
     return ((byn_parser_Expr){.tag = 30, .u.lambdaExpr = {bynh_own_parser__LambdaExpr(((bynt_parser__LambdaExpr){l23_span, l1_parameters, l22_body, ((byn_parser_Stmt){.tag = 24})}))}});
 }
-#line 40409 "main.c"
+#line 40412 "main.c"
 
 bool byn_parser__isPatternExprStart(bynt_parser__Parser* p_p) {
     bynt_lexer__Token t0 = {0};
@@ -40422,7 +40425,7 @@ bool byn_parser__isPatternExprStart(bynt_parser__Parser* p_p) {
 #line 178 "parser/exprs2.byn"
     return t1;
 }
-#line 40426 "main.c"
+#line 40429 "main.c"
 
 byn_parser_Expr byn_parser__parsePatternExpr(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -40434,7 +40437,7 @@ byn_parser_Expr byn_parser__parsePatternExpr(bynt_parser__Parser* p_p) {
 #line 183 "parser/exprs2.byn"
     return ((byn_parser_Expr){.tag = 32, .u.patternExpr = {bynh_own_parser__PatternExpr(((bynt_parser__PatternExpr){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l1_pattern}))}});
 }
-#line 40438 "main.c"
+#line 40441 "main.c"
 
 byn_parser_Expr byn_parser__parseNameOrStructLiteral(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -40529,7 +40532,7 @@ byn_parser_Expr byn_parser__parseNameOrStructLiteral(bynt_parser__Parser* p_p) {
 #line 246 "parser/exprs2.byn"
     return ((byn_parser_Expr){.tag = 2, .u.nameExpr = {bynh_own_parser__NameExpr(((bynt_parser__NameExpr){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l2_name, l9_typeArgs}))}});
 }
-#line 40533 "main.c"
+#line 40536 "main.c"
 
 bool byn_parser__endsExprTypeArgs(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -40553,7 +40556,7 @@ switch_end_1:;
 #line 250 "parser/exprs2.byn"
     return t0;
 }
-#line 40557 "main.c"
+#line 40560 "main.c"
 
 byn_parser_TypeSyntax byn_parser__parseTypeNameOnly(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -40601,7 +40604,7 @@ byn_parser_TypeSyntax byn_parser__parseTypeNameOnly(bynt_parser__Parser* p_p) {
 #line 277 "parser/exprs2.byn"
     return ((byn_parser_TypeSyntax){.tag = 0, .u.namedType = {bynh_own_parser__NamedType(((bynt_parser__NamedType){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l2_path, l3_args}))}});
 }
-#line 40605 "main.c"
+#line 40608 "main.c"
 
 bool byn_parser__braceBodyHasStatementBreak(bynt_parser__Parser* p_p) {
     int64_t l0_depth = {0};
@@ -40678,13 +40681,13 @@ break_1:;
 #line 303 "parser/exprs2.byn"
     return false;
 }
-#line 40682 "main.c"
+#line 40685 "main.c"
 
 bool byn_parser__isStructLiteralBody(bynt_parser__Parser* p_p) {
 #line 308 "parser/exprs2.byn"
     return ((byn_parser__Parser__peek(&(*p_p), INT64_C(1)) == ((byn_lexer_TokenKind)20)) || (byn_parser__isName(byn_parser__Parser__peek(&(*p_p), INT64_C(1))) && ((byn_parser__Parser__peek(&(*p_p), INT64_C(2)) == ((byn_lexer_TokenKind)26)) || (byn_parser__Parser__peek(&(*p_p), INT64_C(2)) == ((byn_lexer_TokenKind)55)))));
 }
-#line 40688 "main.c"
+#line 40691 "main.c"
 
 bynt_list_parser__FieldInit byn_parser__parseFieldInits(bynt_parser__Parser* p_p) {
     bynt_lexer__Token l0_open = {0};
@@ -40754,7 +40757,7 @@ break_1:;
 #line 342 "parser/exprs2.byn"
     return l1_fields;
 }
-#line 40758 "main.c"
+#line 40761 "main.c"
 
 byn_parser_Expr byn_parser__parseParenOrTuple(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -40817,7 +40820,7 @@ break_1:;
 #line 372 "parser/exprs2.byn"
     return ((byn_parser_Expr){.tag = 28, .u.tupleExpr = {bynh_own_parser__TupleExpr(((bynt_parser__TupleExpr){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l5_elements}))}});
 }
-#line 40821 "main.c"
+#line 40824 "main.c"
 
 bynt_parser__TupleElement byn_parser__parseTupleElement(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -40832,7 +40835,7 @@ bynt_parser__TupleElement byn_parser__parseTupleElement(bynt_parser__Parser* p_p
 #line 379 "parser/exprs2.byn"
     return ((bynt_parser__TupleElement){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l1_name, l2_value});
 }
-#line 40836 "main.c"
+#line 40839 "main.c"
 
 bynt_opt_lexer__TextSpan byn_parser__parseTupleName(bynt_parser__Parser* p_p) {
     bynt_opt_lexer__TextSpan l0_name = {0};
@@ -40852,7 +40855,7 @@ bynt_opt_lexer__TextSpan byn_parser__parseTupleName(bynt_parser__Parser* p_p) {
 #line 389 "parser/exprs2.byn"
     return l0_name;
 }
-#line 40856 "main.c"
+#line 40859 "main.c"
 
 byn_parser_Expr byn_parser__parseCollection(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -40925,7 +40928,7 @@ break_1:;
 #line 424 "parser/exprs2.byn"
     return ((byn_parser_Expr){.tag = 27, .u.collectionExpr = {bynh_own_parser__CollectionExpr(((bynt_parser__CollectionExpr){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l2_elements}))}});
 }
-#line 40929 "main.c"
+#line 40932 "main.c"
 
 byn_parser_Expr byn_parser__parseCollectionPart(bynt_parser__Parser* p_p) {
     byn_parser_Expr l0_part = {0};
@@ -40962,7 +40965,7 @@ switch_end_1:;
 #line 443 "parser/exprs2.byn"
     return l0_part;
 }
-#line 40966 "main.c"
+#line 40969 "main.c"
 
 byn_parser_Expr byn_parser__parseInterpolated(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -41082,7 +41085,7 @@ byn_parser_Expr byn_parser__parseInterpolated(bynt_parser__Parser* p_p) {
     }
 break_1:;
 }
-#line 41086 "main.c"
+#line 41089 "main.c"
 
 bynt_list_parser__Argument byn_parser__parseFormatSpecs(bynt_parser__Parser* p_p) {
     bynt_list_parser__Argument l0_specs = {0};
@@ -41129,7 +41132,7 @@ break_1:;
 #line 518 "parser/exprs2.byn"
     return l0_specs;
 }
-#line 41133 "main.c"
+#line 41136 "main.c"
 
 bynt_list_parser__Argument byn_parser__parseCompactSpec(bynt_parser__Parser* p_p) {
     bynt_lexer__Token l0_colon = {0};
@@ -41333,7 +41336,7 @@ switch_end_3:;
 #line 570 "parser/exprs2.byn"
     return l29_specs;
 }
-#line 41337 "main.c"
+#line 41340 "main.c"
 
 bool byn_parser__allAsciiDigits(bynt_span_u8 p_bytes) {
     uint8_t l0_b = {0};
@@ -41365,25 +41368,25 @@ break_1:;
 #line 578 "parser/exprs2.byn"
     return true;
 }
-#line 41369 "main.c"
+#line 41372 "main.c"
 
 bool byn_parser__sameSpan(bynt_lexer__TextSpan p_a, bynt_lexer__TextSpan p_b) {
 #line 76 "parser/lints.byn"
     return ((p_a.start == p_b.start) && (p_a.length == p_b.length));
 }
-#line 41375 "main.c"
+#line 41378 "main.c"
 
 bool byn_parser__isIndentByte(uint8_t p_b) {
 #line 79 "parser/lints.byn"
     return ((p_b == ((uint8_t)32)) || (p_b == ((uint8_t)9)));
 }
-#line 41381 "main.c"
+#line 41384 "main.c"
 
 bool byn_parser__isBoxDash(bynt_parser__Parser* p_p, int64_t p_at) {
 #line 83 "parser/lints.byn"
     return (((((p_at >= INT64_C(0)) && (byn_add_i64(p_at, INT64_C(3), byn_file_13, 84) <= byn_lexer__SourceText__get_length(&(*p_p).lexed.source))) && ((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)p_at, false, byn_file_13, 85)) == ((uint8_t)226))) && ((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)byn_add_i64(p_at, INT64_C(1), byn_file_13, 86), false, byn_file_13, 86)) == ((uint8_t)148))) && ((*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)byn_add_i64(p_at, INT64_C(2), byn_file_13, 87), false, byn_file_13, 87)) == ((uint8_t)128)));
 }
-#line 41387 "main.c"
+#line 41390 "main.c"
 
 bool byn_parser__spansLine(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span) {
     int64_t l0_i = {0};
@@ -41415,7 +41418,7 @@ break_1:;
 #line 94 "parser/lints.byn"
     return false;
 }
-#line 41419 "main.c"
+#line 41422 "main.c"
 
 void byn_parser__lintBanners(bynt_parser__Parser* p_p) {
     int64_t l0_lines = {0};
@@ -41635,7 +41638,7 @@ void byn_parser__lintBanners(bynt_parser__Parser* p_p) {
     }
 break_1:;
 }
-#line 41639 "main.c"
+#line 41642 "main.c"
 
 void byn_parser__noteLogical(bynt_parser__Parser* p_p, byn_parser_Expr p_e) {
     bynt_parser__BinaryExpr* l0_b = {0};
@@ -41650,7 +41653,7 @@ void byn_parser__noteLogical(bynt_parser__Parser* p_p, byn_parser_Expr p_e) {
     return;
 switch_end_1:;
 }
-#line 41654 "main.c"
+#line 41657 "main.c"
 
 void byn_parser__noteLogicalBinary(bynt_parser__Parser* p_p, bynt_parser__BinaryExpr p_b) {
     bynt_parser__BinaryExpr* l0_l = {0};
@@ -41705,7 +41708,7 @@ void byn_parser__noteLogicalBinary(bynt_parser__Parser* p_p, bynt_parser__Binary
 #line 191 "parser/lints.byn"
     (void)bynh_add_list_parser__LogicalSite(&(*p_p).logical, l2_site);
 }
-#line 41709 "main.c"
+#line 41712 "main.c"
 
 void byn_parser__flattenOr(bynt_parser__Parser* p_p, byn_parser_Expr p_x, bynt_parser__LogicalSite* p_site) {
     bynt_parser__BinaryExpr* l0_b = {0};
@@ -41738,7 +41741,7 @@ void byn_parser__flattenOr(bynt_parser__Parser* p_p, byn_parser_Expr p_x, bynt_p
         (void)bynh_add_list_lexer__TextSpan(&(*p_site).ranges, l2_range.value);
     }
 }
-#line 41742 "main.c"
+#line 41745 "main.c"
 
 bynt_opt_lexer__TextSpan byn_parser__andSpan(byn_parser_Expr p_x) {
     bynt_parser__ParenExpr* l0_paren = {0};
@@ -41766,7 +41769,7 @@ bynt_opt_lexer__TextSpan byn_parser__andSpan(byn_parser_Expr p_x) {
     return ((bynt_opt_lexer__TextSpan){0});
 switch_end_1:;
 }
-#line 41770 "main.c"
+#line 41773 "main.c"
 
 void byn_parser__lintPatterns(bynt_parser__Parser* p_p) {
     bynt_list_lexer__TextSpan l0_consumed = {0};
@@ -41888,13 +41891,13 @@ break_1:;
     }
 break_5:;
 }
-#line 41892 "main.c"
+#line 41895 "main.c"
 
 bool byn_parser__endsPattern(byn_lexer_TokenKind p_kind) {
 #line 255 "parser/lints.byn"
     return (((((((((p_kind == ((byn_lexer_TokenKind)16)) || (p_kind == ((byn_lexer_TokenKind)18))) || (p_kind == ((byn_lexer_TokenKind)22))) || (p_kind == ((byn_lexer_TokenKind)19))) || (p_kind == ((byn_lexer_TokenKind)21))) || (p_kind == ((byn_lexer_TokenKind)20))) || (p_kind == ((byn_lexer_TokenKind)0))) || (p_kind == ((byn_lexer_TokenKind)49))) || (p_kind == ((byn_lexer_TokenKind)51)));
 }
-#line 41898 "main.c"
+#line 41901 "main.c"
 
 bool byn_parser__lintPatternChain(bynt_parser__Parser* p_p, int64_t p_site) {
     int64_t l0_next = {0};
@@ -42067,7 +42070,7 @@ break_1:;
 #line 304 "parser/lints.byn"
     return true;
 }
-#line 42071 "main.c"
+#line 42074 "main.c"
 
 bynt_opt_parser__PatternItem byn_parser__patternItem(bynt_parser__Parser* p_p, byn_parser_Expr p_e, bool p_relational) {
     bynt_parser__ParenExpr* l0_paren = {0};
@@ -42090,7 +42093,7 @@ bynt_opt_parser__PatternItem byn_parser__patternItem(bynt_parser__Parser* p_p, b
     return ((bynt_opt_parser__PatternItem){0});
 switch_end_1:;
 }
-#line 42094 "main.c"
+#line 42097 "main.c"
 
 bynt_opt_parser__PatternItem byn_parser__binaryPatternItem(bynt_parser__Parser* p_p, bynt_parser__BinaryExpr p_b, bool p_relational) {
     byn_parser_ConstKind l0_kind = {0};
@@ -42168,7 +42171,7 @@ bynt_opt_parser__PatternItem byn_parser__binaryPatternItem(bynt_parser__Parser* 
 #line 352 "parser/lints.byn"
     return ((bynt_opt_parser__PatternItem){0});
 }
-#line 42172 "main.c"
+#line 42175 "main.c"
 
 bynt_opt_parser__PatternItem byn_parser__relationalItem(bynt_parser__Parser* p_p, byn_parser_Expr p_operand, byn_parser_Expr p_bound, byn_parser_BinaryOp p_op) {
     byn_str l0_text = {0};
@@ -42205,7 +42208,7 @@ bynt_opt_parser__PatternItem byn_parser__relationalItem(bynt_parser__Parser* p_p
 #line 363 "parser/lints.byn"
     return ((bynt_opt_parser__PatternItem){true, ((bynt_parser__PatternItem){t3, byn_strbuf_str(t2), l1_b.value.kind, false})});
 }
-#line 42209 "main.c"
+#line 42212 "main.c"
 
 bool byn_parser__isPathOperand(byn_parser_Expr p_e) {
     bynt_parser__NameExpr* l0_n = {0};
@@ -42274,7 +42277,7 @@ bool byn_parser__isPathOperand(byn_parser_Expr p_e) {
     return false;
 switch_end_1:;
 }
-#line 42278 "main.c"
+#line 42281 "main.c"
 
 byn_parser_ConstKind byn_parser__constantKind(bynt_parser__Parser* p_p, byn_parser_Expr p_e) {
     bynt_parser__LiteralExpr* l0_l = {0};
@@ -42338,7 +42341,7 @@ byn_parser_ConstKind byn_parser__constantKind(bynt_parser__Parser* p_p, byn_pars
     return ((byn_parser_ConstKind)0);
 switch_end_1:;
 }
-#line 42342 "main.c"
+#line 42345 "main.c"
 
 bool byn_parser__isPlainInteger(byn_parser_Expr p_e) {
     bynt_parser__LiteralExpr* l0_l = {0};
@@ -42364,7 +42367,7 @@ bool byn_parser__isPlainInteger(byn_parser_Expr p_e) {
     return false;
 switch_end_1:;
 }
-#line 42368 "main.c"
+#line 42371 "main.c"
 
 bool byn_parser__boundAtMost(bynt_parser__Bound p_a, bynt_parser__Bound p_b) {
     int64_t l0_order = {0};
@@ -42413,7 +42416,7 @@ bool byn_parser__boundAtMost(bynt_parser__Bound p_a, bynt_parser__Bound p_b) {
 #line 452 "parser/lints.byn"
     return (p_a.negative ? (l0_order >= INT64_C(0)) : (l0_order <= INT64_C(0)));
 }
-#line 42417 "main.c"
+#line 42420 "main.c"
 
 bynt_opt_parser__Bound byn_parser__rangeBound(bynt_parser__Parser* p_p, byn_parser_Expr p_e) {
     bynt_parser__UnaryExpr* l0_u = {0};
@@ -42545,7 +42548,7 @@ bynt_opt_parser__Bound byn_parser__rangeBound(bynt_parser__Parser* p_p, byn_pars
     return ((bynt_opt_parser__Bound){0});
 switch_end_1:;
 }
-#line 42549 "main.c"
+#line 42552 "main.c"
 
 uint64_t byn_parser__scalarAt(bynt_parser__Parser* p_p, int64_t p_at) {
     uint64_t l0_b0 = {0};
@@ -42572,7 +42575,7 @@ uint64_t byn_parser__scalarAt(bynt_parser__Parser* p_p, int64_t p_at) {
 #line 502 "parser/lints.byn"
     return ((uint64_t)(((uint64_t)(l1_high | byn_shl_u64(((uint64_t)(((uint64_t)(*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)byn_add_i64(p_at, INT64_C(2), byn_file_13, 502), false, byn_file_13, 502))) & UINT64_C(63))), (int64_t)(((int32_t)6))))) | ((uint64_t)(((uint64_t)(*bynh_at_list_u8((*p_p).lexed.source.bytes, (int64_t)byn_add_i64(p_at, INT64_C(3), byn_file_13, 502), false, byn_file_13, 502))) & UINT64_C(63)))));
 }
-#line 42576 "main.c"
+#line 42579 "main.c"
 
 bynt_opt_parser__Bound byn_parser__integerValue(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span) {
     bynt_list_u8 l0_digits = {0};
@@ -42739,7 +42742,7 @@ break_3:;
 #line 551 "parser/lints.byn"
     return ((bynt_opt_parser__Bound){true, l8_v});
 }
-#line 42743 "main.c"
+#line 42746 "main.c"
 
 void byn_parser__lintEmptyLiteral(bynt_parser__Parser* p_p, byn_parser_TypeSyntax p_type, byn_parser_Expr p_init) {
     bynt_lexer__TextSpan l0_spelled = {0};
@@ -42859,7 +42862,7 @@ switch_end_1:;
 #line 584 "parser/lints.byn"
     (void)byn_parser__reportStyleLint(&(*p_p), BYN_STR("BYN1079", 7), l12_span, t15, BYN_STR("spells out the declared type", 28), byn_strbuf_str(t14), ((bynt_opt_lexer__TextSpan){true, l12_span}), l1_empty);
 }
-#line 42863 "main.c"
+#line 42866 "main.c"
 
 bool byn_parser__sameSqueezed(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_a, bynt_lexer__TextSpan p_b) {
     int64_t l0_i = {0};
@@ -42917,7 +42920,7 @@ bool byn_parser__sameSqueezed(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_a
     }
 break_1:;
 }
-#line 42921 "main.c"
+#line 42924 "main.c"
 
 byn_str byn_parser__optionalsBindMessage(byn_str p_x, byn_str p_name, byn_str p_reason) {
     byn_writer t0 = {0};
@@ -42938,7 +42941,7 @@ byn_str byn_parser__optionalsBindMessage(byn_str p_x, byn_str p_name, byn_str p_
 #line 619 "parser/lints.byn"
     return byn_strbuf_str(t0);
 }
-#line 42942 "main.c"
+#line 42945 "main.c"
 
 bynt_opt_parser__OptionalBind byn_parser__optionalBinding(bynt_parser__Parser* p_p, byn_parser_Expr p_condition) {
     bynt_parser__IsExpr* l0_i = {0};
@@ -42996,7 +42999,7 @@ bynt_opt_parser__OptionalBind byn_parser__optionalBinding(bynt_parser__Parser* p
     return ((bynt_opt_parser__OptionalBind){0});
 switch_end_1:;
 }
-#line 43000 "main.c"
+#line 43003 "main.c"
 
 void byn_parser__lintWhileBind(bynt_parser__Parser* p_p, bynt_lexer__Token p_keyword, byn_parser_Expr p_condition, byn_parser_Stmt p_body, int64_t p_conditionEnd, bool p_parenthesized) {
     bynt_opt_parser__OptionalBind l0_bind = {0};
@@ -43057,7 +43060,7 @@ void byn_parser__lintWhileBind(bynt_parser__Parser* p_p, bynt_lexer__Token p_key
 #line 666 "parser/lints.byn"
     (void)byn_parser__reportStyleLint(&(*p_p), BYN_STR("BYN1080", 7), l2_span, t6, BYN_STR("binds with a pattern", 20), byn_strbuf_str(t5), ((bynt_opt_lexer__TextSpan){true, l2_span}), l3_fixedText);
 }
-#line 43061 "main.c"
+#line 43064 "main.c"
 
 void byn_parser__lintIfBind(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span, byn_parser_Expr p_condition, byn_parser_Stmt p_then, byn_parser_Stmt p_otherwise, byn_parser_Likelihood p_likelihood, bynt_lexer__TextSpan p_conditionSpan, bool p_parenthesized, bool p_elseIf) {
     int32_t l0__ = {0};
@@ -43091,7 +43094,7 @@ switch_end_1:;
     return;
 switch_end_2:;
 }
-#line 43095 "main.c"
+#line 43098 "main.c"
 
 void byn_parser__lintIfBindBlock(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span, byn_parser_Expr p_condition, bynt_parser__BlockStmt p_then, byn_parser_Stmt p_otherwise, bynt_lexer__TextSpan p_conditionSpan, bool p_elseIf) {
     bynt_opt_parser__OptionalBind l0_bind = {0};
@@ -43178,7 +43181,7 @@ void byn_parser__lintIfBindBlock(bynt_parser__Parser* p_p, bynt_lexer__TextSpan 
         }
     }
 }
-#line 43182 "main.c"
+#line 43185 "main.c"
 
 bynt_opt_parser__TypedLint byn_parser__narrowLint(bynt_parser__Parser* p_p, bynt_parser__BlockStmt p_then, bynt_parser__OptionalBind p_bind, bynt_lexer__TextSpan p_conditionSpan) {
     byn_str l0_x = {0};
@@ -43325,7 +43328,7 @@ break_1:;
 #line 808 "parser/lints.byn"
     return ((bynt_opt_parser__TypedLint){true, ((bynt_parser__TypedLint){l13_lint, p_bind.value, ((byn_parser_TypedLintCheck)4), ((bynt_opt_lexer__Diagnostic){0})})});
 }
-#line 43329 "main.c"
+#line 43332 "main.c"
 
 bool byn_parser__isSimpleReturn(byn_parser_Expr p_value) {
     bynt_parser__NameExpr* l0_n = {0};
@@ -43347,7 +43350,7 @@ bool byn_parser__isSimpleReturn(byn_parser_Expr p_value) {
     return false;
 switch_end_1:;
 }
-#line 43351 "main.c"
+#line 43354 "main.c"
 
 bynt_opt_lexer__Diagnostic byn_parser__exitBindLint(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span, bynt_parser__BlockStmt p_then, byn_parser_Stmt p_otherwise, bynt_parser__OptionalBind p_bind, bynt_lexer__TextSpan p_conditionSpan, bool p_elseIf) {
     bynt_parser__BlockStmt* l0_block = {0};
@@ -43367,7 +43370,7 @@ bynt_opt_lexer__Diagnostic byn_parser__exitBindLint(bynt_parser__Parser* p_p, by
     return ((bynt_opt_lexer__Diagnostic){0});
 switch_end_1:;
 }
-#line 43371 "main.c"
+#line 43374 "main.c"
 
 bynt_opt_lexer__Diagnostic byn_parser__exitBindBlock(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span, bynt_parser__BlockStmt p_then, bynt_parser__BlockStmt p_otherwise, bynt_parser__OptionalBind p_bind, bynt_lexer__TextSpan p_conditionSpan) {
     byn_str l0_x = {0};
@@ -43633,7 +43636,7 @@ break_6:;
 #line 894 "parser/lints.byn"
     return ((bynt_opt_lexer__Diagnostic){true, byn_parser__styleLintOf(BYN_STR("BYN1080", 7), p_conditionSpan, t29, BYN_STR("binds with a pattern", 20), l24_help, t30, byn_strbuf_str(t28))});
 }
-#line 43637 "main.c"
+#line 43640 "main.c"
 
 bool byn_parser__isBlank(bynt_parser__Parser* p_p, int64_t p_from, int64_t p_to) {
     int64_t l0_i = {0};
@@ -43665,7 +43668,7 @@ break_1:;
 #line 912 "parser/lints.byn"
     return true;
 }
-#line 43669 "main.c"
+#line 43672 "main.c"
 
 bynt_opt_str byn_parser__dedentedBody(bynt_parser__Parser* p_p, bynt_parser__BlockStmt p_block, byn_str p_indent) {
     int64_t l0_t = {0};
@@ -43878,7 +43881,7 @@ break_9:;
 #line 966 "parser/lints.byn"
     return ((bynt_opt_str){true, byn_strbuf_str(t19)});
 }
-#line 43882 "main.c"
+#line 43885 "main.c"
 
 void byn_parser__lintBindExits(bynt_parser__Parser* p_p, bynt_list_parser__Stmt p_statements) {
     int64_t l0_last = {0};
@@ -44030,7 +44033,7 @@ void byn_parser__lintBindExits(bynt_parser__Parser* p_p, bynt_list_parser__Stmt 
     }
 break_1:;
 }
-#line 44034 "main.c"
+#line 44037 "main.c"
 
 byn_str byn_parser__decodeString(bynt_span_u8 p_token) {
     bynt_list_rune l0_text = {0};
@@ -44053,7 +44056,7 @@ byn_str byn_parser__decodeString(bynt_span_u8 p_token) {
 #line 18 "parser/literals.byn"
     return byn_parser__stringOf(l3_result);
 }
-#line 44057 "main.c"
+#line 44060 "main.c"
 
 byn_str byn_parser__decodeRawString(bynt_span_u8 p_token) {
     bynt_list_rune l0_text = {0};
@@ -44209,7 +44212,7 @@ break_3:;
 #line 59 "parser/literals.byn"
     return byn_parser__stringOf(l15_result);
 }
-#line 44213 "main.c"
+#line 44216 "main.c"
 
 byn_str byn_parser__decodeInterpolatedText(bynt_span_u8 p_text) {
     bynt_list_rune l0_runes = {0};
@@ -44223,7 +44226,7 @@ byn_str byn_parser__decodeInterpolatedText(bynt_span_u8 p_text) {
 #line 67 "parser/literals.byn"
     return byn_parser__stringOf(l1_result);
 }
-#line 44227 "main.c"
+#line 44230 "main.c"
 
 int64_t byn_parser__decodeChar(bynt_span_u8 p_tokenText) {
     bynt_list_rune l0_text = {0};
@@ -44251,7 +44254,7 @@ int64_t byn_parser__decodeChar(bynt_span_u8 p_tokenText) {
 #line 78 "parser/literals.byn"
     return byn_cast_i64_u((uint64_t)(*bynh_at_list_rune(l3_result, (int64_t)INT64_C(0), false, byn_file_14, 78)), byn_file_14, 78);
 }
-#line 44255 "main.c"
+#line 44258 "main.c"
 
 byn_str byn_parser__decodeDoc(bynt_span_u8 p_doc) {
     bynt_list_rune l0_text = {0};
@@ -44355,7 +44358,7 @@ break_1:;
 #line 107 "parser/literals.byn"
     return byn_parser__stringOf(l2_result);
 }
-#line 44359 "main.c"
+#line 44362 "main.c"
 
 void byn_parser__unescape(bynt_span_rune p_text, bynt_list_rune* p_result, bool p_interpolated) {
     int64_t l0_i = {0};
@@ -44466,7 +44469,7 @@ void byn_parser__unescape(bynt_span_rune p_text, bynt_list_rune* p_result, bool 
     }
 break_1:;
 }
-#line 44470 "main.c"
+#line 44473 "main.c"
 
 int64_t byn_parser__hexValue(bynt_span_rune p_digits) {
     int64_t l0_value = {0};
@@ -44540,7 +44543,7 @@ break_1:;
 #line 174 "parser/literals.byn"
     return l0_value;
 }
-#line 44544 "main.c"
+#line 44547 "main.c"
 
 bool byn_parser__isUnicodeWhiteSpace(uint32_t p_r) {
     uint32_t l0_c = {0};
@@ -44549,7 +44552,7 @@ bool byn_parser__isUnicodeWhiteSpace(uint32_t p_r) {
 #line 180 "parser/literals.byn"
     return ((((((((((((l0_c >= ((uint32_t)9)) && (l0_c <= ((uint32_t)13))) || (l0_c == ((uint32_t)32))) || (l0_c == ((uint32_t)133))) || (l0_c == ((uint32_t)160))) || (l0_c == ((uint32_t)5760))) || ((l0_c >= ((uint32_t)8192)) && (l0_c <= ((uint32_t)8202)))) || (l0_c == ((uint32_t)8232))) || (l0_c == ((uint32_t)8233))) || (l0_c == ((uint32_t)8239))) || (l0_c == ((uint32_t)8287))) || (l0_c == ((uint32_t)12288)));
 }
-#line 44553 "main.c"
+#line 44556 "main.c"
 
 void byn_parser__withoutCarriageReturns(bynt_span_rune p_text, bynt_list_rune* p_result) {
     int64_t l0_i = {0};
@@ -44579,7 +44582,7 @@ void byn_parser__withoutCarriageReturns(bynt_span_rune p_text, bynt_list_rune* p
     }
 break_1:;
 }
-#line 44583 "main.c"
+#line 44586 "main.c"
 
 int64_t byn_parser__indexOf(bynt_span_rune p_text, uint32_t p_c) {
     int64_t l0_i = {0};
@@ -44611,7 +44614,7 @@ break_1:;
 #line 206 "parser/literals.byn"
     return INT64_C(-1);
 }
-#line 44615 "main.c"
+#line 44618 "main.c"
 
 int64_t byn_parser__lastIndexOf(bynt_span_rune p_text, uint32_t p_c) {
     int64_t l0_i = {0};
@@ -44632,7 +44635,7 @@ break_1:;
 #line 214 "parser/literals.byn"
     return l0_i;
 }
-#line 44636 "main.c"
+#line 44639 "main.c"
 
 bool byn_parser__startsWith(bynt_span_rune p_text, bynt_span_rune p_prefix) {
     int64_t t0 = {0};
@@ -44672,7 +44675,7 @@ break_1:;
 #line 222 "parser/literals.byn"
     return true;
 }
-#line 44676 "main.c"
+#line 44679 "main.c"
 
 byn_str byn_parser__stringOf(bynt_list_rune p_runes) {
     byn_writer l0_sb = {0};
@@ -44719,7 +44722,7 @@ break_1:;
 #line 231 "parser/literals.byn"
     return byn_strbuf_str(t4);
 }
-#line 44723 "main.c"
+#line 44726 "main.c"
 
 bynt_list_rune byn_parser__runesOf(bynt_span_u8 p_bytes) {
     bynt_list_rune l0_runes = {0};
@@ -44831,13 +44834,13 @@ break_1:;
 #line 278 "parser/literals.byn"
     return l0_runes;
 }
-#line 44835 "main.c"
+#line 44838 "main.c"
 
 bool byn_parser__continues(bynt_span_u8 p_bytes, int64_t p_pos, uint8_t p_lo, uint8_t p_hi) {
 #line 282 "parser/literals.byn"
     return (((p_pos < p_bytes.len) && ((*bynh_at_span_u8(p_bytes, (int64_t)p_pos, false, byn_file_14, 282)) >= p_lo)) && ((*bynh_at_span_u8(p_bytes, (int64_t)p_pos, false, byn_file_14, 282)) <= p_hi));
 }
-#line 44841 "main.c"
+#line 44844 "main.c"
 
 int32_t byn_parser__usage(byn_str p_message) {
     byn_writer t0 = {0};
@@ -44860,7 +44863,7 @@ int32_t byn_parser__usage(byn_str p_message) {
 #line 23 "parser/main.byn"
     return ((int32_t)2);
 }
-#line 44864 "main.c"
+#line 44867 "main.c"
 
 int32_t byn_parser__fileNotFound(byn_str p_path) {
     byn_writer t0 = {0};
@@ -44883,7 +44886,7 @@ int32_t byn_parser__fileNotFound(byn_str p_path) {
 #line 28 "parser/main.byn"
     return ((int32_t)2);
 }
-#line 44887 "main.c"
+#line 44890 "main.c"
 
 int32_t byn_parser__unreadable(byn_str p_path) {
     byn_writer t0 = {0};
@@ -44906,7 +44909,7 @@ int32_t byn_parser__unreadable(byn_str p_path) {
 #line 33 "parser/main.byn"
     return ((int32_t)4);
 }
-#line 44910 "main.c"
+#line 44913 "main.c"
 
 int32_t byn_parser__parseOne(byn_str p_path, bynt_lexer__Keywords p_keywords) {
     bynt_list_u8 l0_bytes = {0};
@@ -44959,7 +44962,7 @@ int32_t byn_parser__parseOne(byn_str p_path, bynt_lexer__Keywords p_keywords) {
 #line 52 "parser/main.byn"
     return ((byn_parser__Parser__errorCount(&l5_p) == INT64_C(0)) ? ((int32_t)0) : ((int32_t)1));
 }
-#line 44963 "main.c"
+#line 44966 "main.c"
 
 int32_t byn_parser__parseMany(byn_str p_dir, bynt_lexer__Keywords p_keywords) {
     bynt_list_str l0_names = {0};
@@ -45087,7 +45090,7 @@ break_1:;
 #line 75 "parser/main.byn"
     return ((int32_t)0);
 }
-#line 45091 "main.c"
+#line 45094 "main.c"
 
 int32_t byn_parser__parseTimed(byn_str p_path, bynt_lexer__Keywords p_keywords) {
     bynt_list_u8 l0_bytes = {0};
@@ -45166,7 +45169,7 @@ int32_t byn_parser__parseTimed(byn_str p_path, bynt_lexer__Keywords p_keywords) 
 #line 95 "parser/main.byn"
     return ((int32_t)0);
 }
-#line 45170 "main.c"
+#line 45173 "main.c"
 
 int32_t byn_parser__printCodes(void) {
     byn_parser_ParseCode l0_code = {0};
@@ -45206,7 +45209,7 @@ break_1:;
 #line 103 "parser/main.byn"
     return ((int32_t)0);
 }
-#line 45210 "main.c"
+#line 45213 "main.c"
 
 int32_t byn_parser__main(bynt_span_str p_args) {
     bynt_lexer__Keywords l0_keywords = {0};
@@ -45240,13 +45243,13 @@ int32_t byn_parser__main(bynt_span_str p_args) {
 #line 113 "parser/main.byn"
     return byn_parser__usage(BYN_STR("expected `[<path>|-]`, `--many <dir>`, `--time <path>` or `--codes`", 67));
 }
-#line 45244 "main.c"
+#line 45247 "main.c"
 
 bynt_lexer__TextSpan byn_parser__spanOf(bynt_lexer__Token p_token) {
 #line 277 "parser/parser.byn"
     return ((bynt_lexer__TextSpan){p_token.start, p_token.length});
 }
-#line 45250 "main.c"
+#line 45253 "main.c"
 
 byn_parser_Pattern byn_parser__parsePattern(bynt_parser__Parser* p_p) {
     bool l0_saved = {0};
@@ -45260,7 +45263,7 @@ byn_parser_Pattern byn_parser__parsePattern(bynt_parser__Parser* p_p) {
 #line 11 "parser/patterns.byn"
     return l1_pattern;
 }
-#line 45264 "main.c"
+#line 45267 "main.c"
 
 byn_parser_Pattern byn_parser__parseOrPattern(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -45293,7 +45296,7 @@ break_1:;
 #line 25 "parser/patterns.byn"
     return l1_left;
 }
-#line 45297 "main.c"
+#line 45300 "main.c"
 
 byn_parser_Pattern byn_parser__parseAndPattern(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -45326,7 +45329,7 @@ break_1:;
 #line 38 "parser/patterns.byn"
     return l1_left;
 }
-#line 45330 "main.c"
+#line 45333 "main.c"
 
 byn_parser_Pattern byn_parser__parseNotPattern(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -45346,7 +45349,7 @@ byn_parser_Pattern byn_parser__parseNotPattern(bynt_parser__Parser* p_p) {
 #line 49 "parser/patterns.byn"
     return byn_parser__parsePrimaryPattern(&(*p_p));
 }
-#line 45350 "main.c"
+#line 45353 "main.c"
 
 byn_parser_Pattern byn_parser__parsePrimaryPattern(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -45632,7 +45635,7 @@ byn_parser_Pattern byn_parser__parsePrimaryPattern(bynt_parser__Parser* p_p) {
 #line 158 "parser/patterns.byn"
     return ((byn_parser_Pattern){.tag = 0, .u.constantPattern = {bynh_own_parser__ConstantPattern(((bynt_parser__ConstantPattern){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l39_constant}))}});
 }
-#line 45636 "main.c"
+#line 45639 "main.c"
 
 byn_parser_Pattern byn_parser__parsePropertyPattern(bynt_parser__Parser* p_p, int64_t p_start, byn_parser_TypeSyntax p_type) {
     bynt_lexer__Token l0_open = {0};
@@ -45738,7 +45741,7 @@ break_1:;
 #line 186 "parser/patterns.byn"
     return ((byn_parser_Pattern){.tag = 7, .u.propertyPattern = {bynh_own_parser__PropertyPattern(((bynt_parser__PropertyPattern){byn_parser__Parser__spanFrom(&(*p_p), p_start), p_type, l1_properties, l7_designation}))}});
 }
-#line 45742 "main.c"
+#line 45745 "main.c"
 
 byn_parser_Pattern byn_parser__parseListPattern(bynt_parser__Parser* p_p, int64_t p_start) {
     bynt_lexer__Token l0__ = {0};
@@ -45790,7 +45793,7 @@ break_1:;
 #line 211 "parser/patterns.byn"
     return ((byn_parser_Pattern){.tag = 11, .u.listPattern = {bynh_own_parser__ListPattern(((bynt_parser__ListPattern){byn_parser__Parser__spanFrom(&(*p_p), p_start), l1_elements}))}});
 }
-#line 45794 "main.c"
+#line 45797 "main.c"
 
 void byn_parser__expectEnd(bynt_parser__Parser* p_p) {
     bynt_lexer__Token t0 = {0};
@@ -45866,7 +45869,7 @@ void byn_parser__expectEnd(bynt_parser__Parser* p_p) {
 #line 25 "parser/recover.byn"
     l2__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)5), t5, t6, t7, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), byn_strbuf_str(t4), BYN_STR("put the next statement on its own line", 38));
 }
-#line 45870 "main.c"
+#line 45873 "main.c"
 
 void byn_parser__reportSemicolon(bynt_parser__Parser* p_p, bynt_lexer__Token p_semicolon) {
     int64_t l0_from = {0};
@@ -45934,7 +45937,7 @@ break_3:;
 #line 56 "parser/recover.byn"
     l5__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)33), t7, t8, byn_strbuf_str(t6), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("remove `;`", 10), BYN_STR("put the next statement on its own line", 38));
 }
-#line 45938 "main.c"
+#line 45941 "main.c"
 
 byn_str byn_parser__indentAt(bynt_parser__Parser* p_p, int64_t p_offset) {
     bynt_lexer__TextSpan l0_line = {0};
@@ -45958,13 +45961,13 @@ break_1:;
 #line 73 "parser/recover.byn"
     return byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_lexer__TextSpan__fromBounds(l0_line.start, l1_end));
 }
-#line 45962 "main.c"
+#line 45965 "main.c"
 
 bool byn_parser__breaksLine(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 80 "parser/recover.byn"
     return (((p_index < (*p_p).count) && byn_lexer__Token__get_hasNewlineBefore(&(*bynh_at_list_lexer__Token((*p_p).lexed.tokens, (int64_t)p_index, false, byn_file_18, 80)))) && (!(*bynh_at_list_bool((*p_p).inGroup, (int64_t)p_index, false, byn_file_18, 80))));
 }
-#line 45968 "main.c"
+#line 45971 "main.c"
 
 bool byn_parser__hasBlankLineBefore(bynt_parser__Parser* p_p, int64_t p_index) {
     bool l0_lineIsBlank = {0};
@@ -46018,7 +46021,7 @@ break_1:;
 #line 95 "parser/recover.byn"
     return false;
 }
-#line 46022 "main.c"
+#line 46025 "main.c"
 
 bool byn_parser__isWasl(bynt_parser__Parser* p_p, int64_t p_index) {
     byn_lexer_TokenKind t0 = {0};
@@ -46072,13 +46075,13 @@ bool byn_parser__isWasl(bynt_parser__Parser* p_p, int64_t p_index) {
     return false;
 switch_end_1:;
 }
-#line 46076 "main.c"
+#line 46079 "main.c"
 
 bool byn_parser__lineContinues(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 120 "parser/recover.byn"
     return (byn_parser__isWasl(&(*p_p), p_index) || byn_parser__afterLa(&(*p_p), p_index));
 }
-#line 46082 "main.c"
+#line 46085 "main.c"
 
 bool byn_parser__afterLa(bynt_parser__Parser* p_p, int64_t p_index) {
     byn_lexer_TokenKind t0 = {0};
@@ -46100,13 +46103,13 @@ bool byn_parser__afterLa(bynt_parser__Parser* p_p, int64_t p_index) {
     return false;
 switch_end_1:;
 }
-#line 46104 "main.c"
+#line 46107 "main.c"
 
 bool byn_parser__stopsHere(bynt_parser__Parser* p_p) {
 #line 144 "parser/recover.byn"
     return (byn_parser__breaksLine(&(*p_p), (*p_p).pos) && (byn_parser__hasBlankLineBefore(&(*p_p), (*p_p).pos) || (!byn_parser__isWasl(&(*p_p), (*p_p).pos))));
 }
-#line 46110 "main.c"
+#line 46113 "main.c"
 
 bool byn_parser__endsBefore(bynt_parser__Parser* p_p, int64_t p_index) {
     byn_lexer_TokenKind l0_kind = {0};
@@ -46115,7 +46118,7 @@ bool byn_parser__endsBefore(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 149 "parser/recover.byn"
     return ((((l0_kind == ((byn_lexer_TokenKind)21)) || (l0_kind == ((byn_lexer_TokenKind)20))) || (l0_kind == ((byn_lexer_TokenKind)0))) || byn_parser__breaksLine(&(*p_p), p_index));
 }
-#line 46119 "main.c"
+#line 46122 "main.c"
 
 bynt_list_lexer__Diagnostic byn_parser__lintLineJoins(bynt_parser__Parser* p_p) {
     bynt_list_lexer__Diagnostic l0_lints = {0};
@@ -46347,19 +46350,19 @@ break_6:;
 #line 212 "parser/recover.byn"
     return l0_lints;
 }
-#line 46351 "main.c"
+#line 46354 "main.c"
 
 void byn_parser__reportStyleLint(bynt_parser__Parser* p_p, byn_str p_code, bynt_lexer__TextSpan p_span, byn_str p_message, byn_str p_label, byn_str p_help, bynt_opt_lexer__TextSpan p_fixSpan, byn_str p_fixReplacement) {
 #line 234 "parser/recover.byn"
     (void)bynh_add_list_lexer__Diagnostic(&(*p_p).styleLints, byn_parser__styleLintOf(p_code, p_span, p_message, p_label, p_help, p_fixSpan, p_fixReplacement));
 }
-#line 46357 "main.c"
+#line 46360 "main.c"
 
 bynt_lexer__Diagnostic byn_parser__styleLintOf(byn_str p_code, bynt_lexer__TextSpan p_span, byn_str p_message, byn_str p_label, byn_str p_help, bynt_opt_lexer__TextSpan p_fixSpan, byn_str p_fixReplacement) {
 #line 257 "parser/recover.byn"
     return ((bynt_lexer__Diagnostic){p_code, p_span, p_message, p_label, p_help, (!(!p_fixSpan.has)), (p_fixSpan.has ? p_fixSpan.value : ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)})), p_fixReplacement});
 }
-#line 46363 "main.c"
+#line 46366 "main.c"
 
 void byn_parser__lintPostfixGuard(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span, byn_parser_Expr p_condition, byn_parser_Stmt p_then, byn_parser_Stmt p_otherwise, byn_parser_Likelihood p_likelihood) {
     bynt_lexer__TextSpan l0_block = {0};
@@ -46498,13 +46501,13 @@ break_9:;
         (void)byn_parser__reportStyleLint(&(*p_p), BYN_STR("BYN1072", 7), l9_at, l10_message, BYN_STR("an early exit in a block", 24), BYN_STR("write it as a postfix guard", 27), ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 46502 "main.c"
+#line 46505 "main.c"
 
 bool byn_parser__isTriviaSpace(uint8_t p_b) {
 #line 341 "parser/recover.byn"
     return ((((p_b == ((uint8_t)32)) || (p_b == ((uint8_t)9))) || (p_b == ((uint8_t)13))) || (p_b == ((uint8_t)10)));
 }
-#line 46508 "main.c"
+#line 46511 "main.c"
 
 void byn_parser__lintItLambda(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span, bynt_list_lexer__TextSpan p_parameters, byn_parser_Expr p_body, int64_t p_startIndex) {
     byn_str l0_param = {0};
@@ -46588,7 +46591,7 @@ void byn_parser__lintItLambda(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_s
     return;
 switch_end_1:;
 }
-#line 46592 "main.c"
+#line 46595 "main.c"
 
 void byn_parser__lintWrappedCondition(bynt_parser__Parser* p_p, int64_t p_keywordIndex, byn_parser_Expr p_condition) {
     int64_t l0_i = {0};
@@ -46622,7 +46625,7 @@ void byn_parser__lintWrappedCondition(bynt_parser__Parser* p_p, int64_t p_keywor
     }
 break_1:;
 }
-#line 46626 "main.c"
+#line 46629 "main.c"
 
 void byn_parser__lintNestingDepth(bynt_parser__Parser* p_p, bynt_lexer__Token p_open) {
     byn_writer t0 = {0};
@@ -46650,7 +46653,7 @@ void byn_parser__lintNestingDepth(bynt_parser__Parser* p_p, bynt_lexer__Token p_
 #line 398 "parser/recover.byn"
     (void)byn_parser__reportStyleLint(&(*p_p), BYN_STR("BYN1075", 7), t1, BYN_STR("blocks nested more than 4 deep; flatten them with early exits", 61), byn_strbuf_str(t0), BYN_STR("flatten it with early exits", 27), ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 46654 "main.c"
+#line 46657 "main.c"
 
 void byn_parser__lintFunctionLength(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_body) {
     int64_t l0_lines = {0};
@@ -46701,7 +46704,7 @@ void byn_parser__lintFunctionLength(bynt_parser__Parser* p_p, bynt_lexer__TextSp
 #line 414 "parser/recover.byn"
     (void)byn_parser__reportStyleLint(&(*p_p), BYN_STR("BYN1076", 7), t4, t5, byn_strbuf_str(t3), BYN_STR("split it into named steps", 25), ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 46705 "main.c"
+#line 46708 "main.c"
 
 void byn_parser__keepComments(bynt_parser__Parser* p_p) {
     int64_t l0_i = {0};
@@ -46775,7 +46778,7 @@ break_1:;
     }
 break_3:;
 }
-#line 46779 "main.c"
+#line 46782 "main.c"
 
 bynt_lexer__Diagnostic byn_parser__keepingComments(bynt_parser__Parser* p_p, bynt_lexer__Diagnostic p_lint) {
 #line 442 "parser/recover.byn"
@@ -46786,7 +46789,7 @@ bynt_lexer__Diagnostic byn_parser__keepingComments(bynt_parser__Parser* p_p, byn
 #line 443 "parser/recover.byn"
     return byn_parser__styleLintOf(p_lint.code, p_lint.span, p_lint.message, p_lint.label, p_lint.help, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 46790 "main.c"
+#line 46793 "main.c"
 
 bool byn_parser__dropsComment(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span, byn_str p_replacement) {
     int64_t l0_i = {0};
@@ -46884,13 +46887,13 @@ break_1:;
 #line 478 "parser/recover.byn"
     return false;
 }
-#line 46888 "main.c"
+#line 46891 "main.c"
 
 bool byn_parser__joinsLineBefore(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 483 "parser/recover.byn"
     return ((!byn_parser__breaksLine(&(*p_p), p_index)) || (((!byn_parser__hasBlankLineBefore(&(*p_p), p_index)) && (!(byn_parser__Parser__kindAt(&(*p_p), byn_sub_i64(p_index, INT64_C(1), byn_file_18, 483)) == ((byn_lexer_TokenKind)19)))) && byn_parser__lineContinues(&(*p_p), p_index)));
 }
-#line 46894 "main.c"
+#line 46897 "main.c"
 
 bool byn_parser__inGroup(bynt_parser__Parser* p_p, int64_t p_open, byn_lexer_TokenKind p_kind) {
     int32_t l0_depth = {0};
@@ -46957,7 +46960,7 @@ break_1:;
 #line 504 "parser/recover.byn"
     return false;
 }
-#line 46961 "main.c"
+#line 46964 "main.c"
 
 bynt_lexer__TextSpan byn_parser__expectName(bynt_parser__Parser* p_p, byn_str p_what) {
     bynt_lexer__Token l0_token = {0};
@@ -46994,19 +46997,19 @@ bynt_lexer__TextSpan byn_parser__expectName(bynt_parser__Parser* p_p, byn_str p_
 #line 528 "parser/recover.byn"
     return ((bynt_lexer__TextSpan){byn_parser__Parser__current(&(*p_p)).start, INT64_C(0)});
 }
-#line 46998 "main.c"
+#line 47001 "main.c"
 
 bynt_lexer__TextSpan byn_parser__nameOf(bynt_lexer__Token p_token) {
 #line 531 "parser/recover.byn"
     return byn_parser__spanOf(p_token);
 }
-#line 47004 "main.c"
+#line 47007 "main.c"
 
 bool byn_parser__isName(byn_lexer_TokenKind p_kind) {
 #line 534 "parser/recover.byn"
     return ((p_kind == ((byn_lexer_TokenKind)1)) || byn_parser__isContextualKeyword(p_kind));
 }
-#line 47010 "main.c"
+#line 47013 "main.c"
 
 bool byn_parser__isStatementKeyword(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -47030,7 +47033,7 @@ switch_end_1:;
 #line 538 "parser/recover.byn"
     return t0;
 }
-#line 47034 "main.c"
+#line 47037 "main.c"
 
 void byn_parser__synchronize(bynt_parser__Parser* p_p) {
     int32_t l0_depth = {0};
@@ -47096,7 +47099,7 @@ void byn_parser__synchronize(bynt_parser__Parser* p_p) {
     }
 break_1:;
 }
-#line 47100 "main.c"
+#line 47103 "main.c"
 
 void byn_parser__recoverIfNeeded(bynt_parser__Parser* p_p, int64_t p_syntaxErrorsBefore) {
     bynt_lexer__Token t0 = {0};
@@ -47120,7 +47123,7 @@ void byn_parser__recoverIfNeeded(bynt_parser__Parser* p_p, int64_t p_syntaxError
 #line 583 "parser/recover.byn"
     (void)byn_parser__synchronize(&(*p_p));
 }
-#line 47124 "main.c"
+#line 47127 "main.c"
 
 void byn_parser__unreport(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 590 "parser/recover.byn"
@@ -47129,7 +47132,7 @@ void byn_parser__unreport(bynt_parser__Parser* p_p, int64_t p_index) {
         (*bynh_at_list_lexer__Diagnostic((*p_p).lexed.diagnostics, (int64_t)p_index, false, byn_file_18, 591)).code = BYN_STR("", 0);
     }
 }
-#line 47133 "main.c"
+#line 47136 "main.c"
 
 bool byn_parser__isContextualKeyword(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -47153,7 +47156,7 @@ switch_end_1:;
 #line 599 "parser/recover.byn"
     return t0;
 }
-#line 47157 "main.c"
+#line 47160 "main.c"
 
 bool byn_parser__isCSharpPrimitive(byn_str p_text) {
     bool t0 = {0};
@@ -47177,13 +47180,13 @@ switch_end_1:;
 #line 609 "parser/recover.byn"
     return t0;
 }
-#line 47181 "main.c"
+#line 47184 "main.c"
 
 bool byn_parser__isItName(byn_str p_text) {
 #line 616 "parser/recover.byn"
     return byn_str_eq(p_text, BYN_STR("it", 2));
 }
-#line 47187 "main.c"
+#line 47190 "main.c"
 
 bool byn_parser__isParticle(byn_str p_text) {
     bool t0 = {0};
@@ -47207,7 +47210,7 @@ switch_end_1:;
 #line 619 "parser/recover.byn"
     return t0;
 }
-#line 47211 "main.c"
+#line 47214 "main.c"
 
 void byn_parser__nodeSpan(bynt_lexer__TextSpan p_span, byn_str p_what, int64_t p_length, byn_writer* p_sb) {
 #line 35 "parser/spans.byn"
@@ -47227,7 +47230,7 @@ void byn_parser__nodeSpan(bynt_lexer__TextSpan p_span, byn_str p_what, int64_t p
         }
     }
 }
-#line 47231 "main.c"
+#line 47234 "main.c"
 
 void byn_parser__childSpan(bynt_lexer__TextSpan p_child, byn_str p_what, bynt_lexer__TextSpan p_parent, byn_writer* p_sb) {
     int64_t t0 = {0};
@@ -47262,7 +47265,7 @@ void byn_parser__childSpan(bynt_lexer__TextSpan p_child, byn_str p_what, bynt_le
         }
     }
 }
-#line 47266 "main.c"
+#line 47269 "main.c"
 
 void byn_parser__enter(bynt_lexer__TextSpan p_span, byn_str p_what, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
 #line 49 "parser/spans.byn"
@@ -47270,7 +47273,7 @@ void byn_parser__enter(bynt_lexer__TextSpan p_span, byn_str p_what, bynt_lexer__
 #line 50 "parser/spans.byn"
     (void)byn_parser__childSpan(p_span, p_what, p_parent, &(*p_sb));
 }
-#line 47274 "main.c"
+#line 47277 "main.c"
 
 void byn_parser__childSpans(bynt_list_lexer__TextSpan p_spans, byn_str p_what, bynt_lexer__TextSpan p_parent, byn_writer* p_sb) {
     bynt_lexer__TextSpan l0_sp = {0};
@@ -47297,7 +47300,7 @@ void byn_parser__childSpans(bynt_list_lexer__TextSpan p_spans, byn_str p_what, b
     }
 break_1:;
 }
-#line 47301 "main.c"
+#line 47304 "main.c"
 
 void byn_parser__checkSpans(bynt_parser__CompilationUnit p_unit, int64_t p_length, byn_writer* p_sb) {
     byn_parser_Decl l0_m = {0};
@@ -47326,7 +47329,7 @@ void byn_parser__checkSpans(bynt_parser__CompilationUnit p_unit, int64_t p_lengt
     }
 break_1:;
 }
-#line 47330 "main.c"
+#line 47333 "main.c"
 
 void byn_parser__walkDecl(byn_parser_Decl p_d, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_parser__ImportDecl* l0_n = {0};
@@ -48664,7 +48667,7 @@ void byn_parser__walkDecl(byn_parser_Decl p_d, bynt_lexer__TextSpan p_parent, in
     }
 switch_end_1:;
 }
-#line 48668 "main.c"
+#line 48671 "main.c"
 
 void byn_parser__walkAttribute(bynt_parser__AttributeSyntax p_a, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_parser__Argument l0_arg = {0};
@@ -48701,7 +48704,7 @@ break_1:;
         (void)byn_parser__enter(l3_bc.span, BYN_STR("becauseClause", 13), p_a.span, p_length, &(*p_sb));
     }
 }
-#line 48705 "main.c"
+#line 48708 "main.c"
 
 void byn_parser__walkRequiresRule(bynt_parser__RequiresRule p_r, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_lexer__TextSpan l0_at = {0};
@@ -48715,7 +48718,7 @@ void byn_parser__walkRequiresRule(bynt_parser__RequiresRule p_r, bynt_lexer__Tex
         (void)byn_parser__childSpan(l0_at, BYN_STR("requiresRule at", 15), p_r.span, &(*p_sb));
     }
 }
-#line 48719 "main.c"
+#line 48722 "main.c"
 
 void byn_parser__walkParam(bynt_parser__Param p_p, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_lexer__TextSpan l0_pa = {0};
@@ -48733,7 +48736,7 @@ void byn_parser__walkParam(bynt_parser__Param p_p, bynt_lexer__TextSpan p_parent
         (void)byn_parser__childSpan(l0_pa, BYN_STR("param particle", 14), p_p.span, &(*p_sb));
     }
 }
-#line 48737 "main.c"
+#line 48740 "main.c"
 
 void byn_parser__walkFailsClause(bynt_parser__FailsClause p_f, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     byn_parser_TypeSyntax l0_t = {0};
@@ -48762,7 +48765,7 @@ void byn_parser__walkFailsClause(bynt_parser__FailsClause p_f, bynt_lexer__TextS
     }
 break_1:;
 }
-#line 48766 "main.c"
+#line 48769 "main.c"
 
 void byn_parser__walkUsesClause(bynt_parser__UsesClause p_u, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
 #line 350 "parser/spans.byn"
@@ -48770,7 +48773,7 @@ void byn_parser__walkUsesClause(bynt_parser__UsesClause p_u, bynt_lexer__TextSpa
 #line 351 "parser/spans.byn"
     (void)byn_parser__childSpans(p_u.effects, BYN_STR("usesClause effects", 18), p_u.span, &(*p_sb));
 }
-#line 48774 "main.c"
+#line 48777 "main.c"
 
 void byn_parser__walkWhereClause(bynt_parser__WhereClause p_w, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     byn_parser_TypeSyntax l0_b = {0};
@@ -48801,7 +48804,7 @@ void byn_parser__walkWhereClause(bynt_parser__WhereClause p_w, bynt_lexer__TextS
     }
 break_1:;
 }
-#line 48805 "main.c"
+#line 48808 "main.c"
 
 void byn_parser__walkUnionField(bynt_parser__UnionField p_u, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
 #line 363 "parser/spans.byn"
@@ -48811,7 +48814,7 @@ void byn_parser__walkUnionField(bynt_parser__UnionField p_u, bynt_lexer__TextSpa
 #line 365 "parser/spans.byn"
     (void)byn_parser__childSpan(p_u.name, BYN_STR("unionField name", 15), p_u.span, &(*p_sb));
 }
-#line 48815 "main.c"
+#line 48818 "main.c"
 
 void byn_parser__walkUnionVariant(bynt_parser__UnionVariant p_v, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_parser__UnionField l0_f = {0};
@@ -48844,7 +48847,7 @@ break_1:;
 #line 374 "parser/spans.byn"
     (void)byn_parser__walkExpr(p_v.value, p_v.span, p_length, &(*p_sb));
 }
-#line 48848 "main.c"
+#line 48851 "main.c"
 
 void byn_parser__walkErrorVariant(bynt_parser__ErrorVariant p_v, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_parser__AttributeSyntax l0_a = {0};
@@ -48898,7 +48901,7 @@ break_1:;
     }
 break_3:;
 }
-#line 48902 "main.c"
+#line 48905 "main.c"
 
 void byn_parser__walkEnumMember(bynt_parser__EnumMember p_m, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_list_parser__Argument l0_args = {0};
@@ -48933,7 +48936,7 @@ void byn_parser__walkEnumMember(bynt_parser__EnumMember p_m, bynt_lexer__TextSpa
     break_1:;
     }
 }
-#line 48937 "main.c"
+#line 48940 "main.c"
 
 void byn_parser__walkArgument(bynt_parser__Argument p_a, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_lexer__TextSpan l0_nm = {0};
@@ -48947,7 +48950,7 @@ void byn_parser__walkArgument(bynt_parser__Argument p_a, bynt_lexer__TextSpan p_
 #line 403 "parser/spans.byn"
     (void)byn_parser__walkExpr(p_a.value, p_a.span, p_length, &(*p_sb));
 }
-#line 48951 "main.c"
+#line 48954 "main.c"
 
 void byn_parser__walkSwitchLabel(bynt_parser__SwitchLabel p_l, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
 #line 407 "parser/spans.byn"
@@ -48957,7 +48960,7 @@ void byn_parser__walkSwitchLabel(bynt_parser__SwitchLabel p_l, bynt_lexer__TextS
 #line 409 "parser/spans.byn"
     (void)byn_parser__walkExpr(p_l.guard, p_l.span, p_length, &(*p_sb));
 }
-#line 48961 "main.c"
+#line 48964 "main.c"
 
 void byn_parser__walkSwitchSection(bynt_parser__SwitchSection p_s, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     byn_parser_Stmt l0_st = {0};
@@ -48988,7 +48991,7 @@ void byn_parser__walkSwitchSection(bynt_parser__SwitchSection p_s, bynt_lexer__T
     }
 break_1:;
 }
-#line 48992 "main.c"
+#line 48995 "main.c"
 
 void byn_parser__walkNamedArg(bynt_parser__NamedArg p_a, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
 #line 421 "parser/spans.byn"
@@ -48998,7 +49001,7 @@ void byn_parser__walkNamedArg(bynt_parser__NamedArg p_a, bynt_lexer__TextSpan p_
 #line 423 "parser/spans.byn"
     (void)byn_parser__walkExpr(p_a.value, p_a.span, p_length, &(*p_sb));
 }
-#line 49002 "main.c"
+#line 49005 "main.c"
 
 void byn_parser__walkFieldInit(bynt_parser__FieldInit p_f, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
 #line 427 "parser/spans.byn"
@@ -49008,7 +49011,7 @@ void byn_parser__walkFieldInit(bynt_parser__FieldInit p_f, bynt_lexer__TextSpan 
 #line 429 "parser/spans.byn"
     (void)byn_parser__walkExpr(p_f.value, p_f.span, p_length, &(*p_sb));
 }
-#line 49012 "main.c"
+#line 49015 "main.c"
 
 void byn_parser__walkSwitchArm(bynt_parser__SwitchArm p_a, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
 #line 433 "parser/spans.byn"
@@ -49020,7 +49023,7 @@ void byn_parser__walkSwitchArm(bynt_parser__SwitchArm p_a, bynt_lexer__TextSpan 
 #line 436 "parser/spans.byn"
     (void)byn_parser__walkExpr(p_a.value, p_a.span, p_length, &(*p_sb));
 }
-#line 49024 "main.c"
+#line 49027 "main.c"
 
 void byn_parser__walkTupleTypeElement(bynt_parser__TupleTypeElement p_e, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_lexer__TextSpan l0_nm = {0};
@@ -49034,7 +49037,7 @@ void byn_parser__walkTupleTypeElement(bynt_parser__TupleTypeElement p_e, bynt_le
         (void)byn_parser__childSpan(l0_nm, BYN_STR("tupleTypeElement name", 21), p_e.span, &(*p_sb));
     }
 }
-#line 49038 "main.c"
+#line 49041 "main.c"
 
 void byn_parser__walkTupleElement(bynt_parser__TupleElement p_e, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_lexer__TextSpan l0_nm = {0};
@@ -49048,7 +49051,7 @@ void byn_parser__walkTupleElement(bynt_parser__TupleElement p_e, bynt_lexer__Tex
 #line 452 "parser/spans.byn"
     (void)byn_parser__walkExpr(p_e.value, p_e.span, p_length, &(*p_sb));
 }
-#line 49052 "main.c"
+#line 49055 "main.c"
 
 void byn_parser__walkPropertySubpattern(bynt_parser__PropertySubpattern p_s, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
 #line 456 "parser/spans.byn"
@@ -49058,7 +49061,7 @@ void byn_parser__walkPropertySubpattern(bynt_parser__PropertySubpattern p_s, byn
 #line 458 "parser/spans.byn"
     (void)byn_parser__walkPattern(p_s.pattern, p_s.span, p_length, &(*p_sb));
 }
-#line 49062 "main.c"
+#line 49065 "main.c"
 
 void byn_parser__walkType(byn_parser_TypeSyntax p_t, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_parser__NamedType* l0_n = {0};
@@ -49264,7 +49267,7 @@ void byn_parser__walkType(byn_parser_TypeSyntax p_t, bynt_lexer__TextSpan p_pare
     }
 switch_end_1:;
 }
-#line 49268 "main.c"
+#line 49271 "main.c"
 
 void byn_parser__walkStmt(byn_parser_Stmt p_s, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_parser__BlockStmt* l0_n = {0};
@@ -50317,7 +50320,7 @@ void byn_parser__walkStmt(byn_parser_Stmt p_s, bynt_lexer__TextSpan p_parent, in
     }
 switch_end_1:;
 }
-#line 50321 "main.c"
+#line 50324 "main.c"
 
 void byn_parser__walkExpr(byn_parser_Expr p_e, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_parser__LiteralExpr* l0_n = {0};
@@ -51048,7 +51051,7 @@ void byn_parser__walkExpr(byn_parser_Expr p_e, bynt_lexer__TextSpan p_parent, in
     }
 switch_end_1:;
 }
-#line 51052 "main.c"
+#line 51055 "main.c"
 
 void byn_parser__walkPattern(byn_parser_Pattern p_p, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_parser__ConstantPattern* l0_n = {0};
@@ -51324,7 +51327,7 @@ void byn_parser__walkPattern(byn_parser_Pattern p_p, bynt_lexer__TextSpan p_pare
     }
 switch_end_1:;
 }
-#line 51328 "main.c"
+#line 51331 "main.c"
 
 void byn_parser__walkPart(byn_parser_InterpolationPart p_part, bynt_lexer__TextSpan p_parent, int64_t p_length, byn_writer* p_sb) {
     bynt_parser__InterpolationText* l0_n = {0};
@@ -51373,7 +51376,7 @@ void byn_parser__walkPart(byn_parser_InterpolationPart p_part, bynt_lexer__TextS
     }
 switch_end_1:;
 }
-#line 51377 "main.c"
+#line 51380 "main.c"
 
 byn_parser_Stmt byn_parser__parseBlock(bynt_parser__Parser* p_p, bool p_rejectPostfix) {
     int64_t l0_start = {0};
@@ -51449,7 +51452,7 @@ break_1:;
 #line 50 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 0, .u.blockStmt = {bynh_own_parser__BlockStmt(((bynt_parser__BlockStmt){t8, l2_statements, byn_parser__takeStatementAttributes(&(*p_p), l0_start)}))}});
 }
-#line 51453 "main.c"
+#line 51456 "main.c"
 
 byn_parser_Stmt byn_parser__parseStatement(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -51792,19 +51795,19 @@ switch_end_1:;
 #line 226 "parser/stmts.byn"
     return byn_parser__finishSimpleStatement(&(*p_p), l0_start, l55_simple);
 }
-#line 51796 "main.c"
+#line 51799 "main.c"
 
 bool byn_parser__hasStatementAttributes(bynt_parser__Parser* p_p, int64_t p_start) {
 #line 232 "parser/stmts.byn"
     return (((*p_p).statementAttributeKeys.len > INT64_C(0)) && ((*bynh_at_list_i64((*p_p).statementAttributeKeys, (int64_t)byn_sub_i64((*p_p).statementAttributeKeys.len, INT64_C(1), byn_file_20, 232), false, byn_file_20, 232)) == p_start));
 }
-#line 51802 "main.c"
+#line 51805 "main.c"
 
 bynt_lexer__TextSpan byn_parser__statementSpan(bynt_parser__Parser* p_p, int64_t p_start, bynt_lexer__TextSpan p_span) {
 #line 237 "parser/stmts.byn"
     return (byn_parser__hasStatementAttributes(&(*p_p), p_start) ? byn_parser__Parser__spanFrom(&(*p_p), (*bynh_at_list_i64((*p_p).statementAttributeStarts, (int64_t)byn_sub_i64((*p_p).statementAttributeStarts.len, INT64_C(1), byn_file_20, 240), false, byn_file_20, 240))) : p_span);
 }
-#line 51808 "main.c"
+#line 51811 "main.c"
 
 bynt_list_parser__AttributeSyntax byn_parser__takeStatementAttributes(bynt_parser__Parser* p_p, int64_t p_start) {
     int64_t l0__ = {0};
@@ -51821,13 +51824,13 @@ bynt_list_parser__AttributeSyntax byn_parser__takeStatementAttributes(bynt_parse
 #line 249 "parser/stmts.byn"
     return bynh_pop_list_list_parser__AttributeSyntax(&(*p_p).statementAttributes, byn_file_20, 249);
 }
-#line 51825 "main.c"
+#line 51828 "main.c"
 
 byn_parser_Stmt byn_parser__parseEmbedded(bynt_parser__Parser* p_p) {
 #line 253 "parser/stmts.byn"
     return byn_parser__parseStatement(&(*p_p));
 }
-#line 51831 "main.c"
+#line 51834 "main.c"
 
 bool byn_parser__isLocalDeclarationStart(bynt_parser__Parser* p_p) {
     int64_t l0_after = {0};
@@ -51841,7 +51844,7 @@ bool byn_parser__isLocalDeclarationStart(bynt_parser__Parser* p_p) {
 #line 259 "parser/stmts.byn"
     return ((((l0_after > INT64_C(0)) && byn_parser__isName(byn_parser__Parser__kindAt(&(*p_p), l0_after))) && (!byn_lexer__Token__get_hasNewlineBefore(&(*bynh_at_list_lexer__Token((*p_p).lexed.tokens, (int64_t)l0_after, false, byn_file_20, 259))))) && ((byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l0_after, INT64_C(1), byn_file_20, 260)) == ((byn_lexer_TokenKind)55)) || byn_parser__endsBefore(&(*p_p), byn_add_i64(l0_after, INT64_C(1), byn_file_20, 260))));
 }
-#line 51845 "main.c"
+#line 51848 "main.c"
 
 byn_parser_Stmt byn_parser__parseLocal(bynt_parser__Parser* p_p, int64_t p_start) {
     bool l0_isUsing = {0};
@@ -51978,7 +51981,7 @@ byn_parser_Stmt byn_parser__parseLocal(bynt_parser__Parser* p_p, int64_t p_start
 #line 313 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 1, .u.localDecl = {bynh_own_parser__LocalDecl(((bynt_parser__LocalDecl){t20, l1_kind, l0_isUsing, l3_type, l4_name, l12_init, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
-#line 51982 "main.c"
+#line 51985 "main.c"
 
 void byn_parser__reportTypeFirstLocal(bynt_parser__Parser* p_p, byn_parser_BindingKind p_kind, bool p_keyword, bynt_lexer__TextSpan p_type, bynt_lexer__TextSpan p_name) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -52109,7 +52112,7 @@ switch_end_1:;
 #line 336 "parser/stmts.byn"
     l8__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)32), l0_span, l0_span, t13, t14, t15, BYN_STR("", 0), BYN_STR("type before name", 16), byn_strbuf_str(t12));
 }
-#line 52113 "main.c"
+#line 52116 "main.c"
 
 bool byn_parser__isWrittenLater(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_name) {
     int64_t l0_depth = {0};
@@ -52223,7 +52226,7 @@ break_1:;
 #line 390 "parser/stmts.byn"
     return false;
 }
-#line 52227 "main.c"
+#line 52230 "main.c"
 
 bool byn_parser__hasText(bynt_parser__Parser* p_p, int64_t p_index, bynt_lexer__TextSpan p_name) {
     bynt_lexer__Token l0_token = {0};
@@ -52263,7 +52266,7 @@ break_1:;
 #line 400 "parser/stmts.byn"
     return true;
 }
-#line 52267 "main.c"
+#line 52270 "main.c"
 
 bool byn_parser__isAssignmentKind(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -52287,7 +52290,7 @@ switch_end_1:;
 #line 404 "parser/stmts.byn"
     return t0;
 }
-#line 52291 "main.c"
+#line 52294 "main.c"
 
 byn_parser_Expr byn_parser__parseParenCondition(bynt_parser__Parser* p_p, int64_t* p_parens) {
     bynt_lexer__Token l0_open = {0};
@@ -52371,13 +52374,13 @@ byn_parser_Expr byn_parser__parseParenCondition(bynt_parser__Parser* p_p, int64_
 #line 441 "parser/stmts.byn"
     return l4_condition;
 }
-#line 52375 "main.c"
+#line 52378 "main.c"
 
 bool byn_parser__isTrimmed(uint8_t p_b) {
 #line 445 "parser/stmts.byn"
     return ((((((p_b == ((uint8_t)32)) || (p_b == ((uint8_t)9))) || (p_b == ((uint8_t)10))) || (p_b == ((uint8_t)13))) || (p_b == ((uint8_t)11))) || (p_b == ((uint8_t)12)));
 }
-#line 52381 "main.c"
+#line 52384 "main.c"
 
 byn_parser_Stmt byn_parser__parseBody(bynt_parser__Parser* p_p, bynt_lexer__Token p_keyword) {
     int64_t l0_header = {0};
@@ -52386,7 +52389,7 @@ byn_parser_Stmt byn_parser__parseBody(bynt_parser__Parser* p_p, bynt_lexer__Toke
 #line 451 "parser/stmts.byn"
     return byn_parser__parseBody__o1(&(*p_p), p_keyword, &l0_header);
 }
-#line 52390 "main.c"
+#line 52393 "main.c"
 
 byn_parser_Stmt byn_parser__parseBody__o1(bynt_parser__Parser* p_p, bynt_lexer__Token p_keyword, int64_t* p_header) {
     bynt_parser__BracesReport l0_braces = {0};
@@ -52395,7 +52398,7 @@ byn_parser_Stmt byn_parser__parseBody__o1(bynt_parser__Parser* p_p, bynt_lexer__
 #line 458 "parser/stmts.byn"
     return byn_parser__parseBody__o2(&(*p_p), p_keyword, &(*p_header), &l0_braces);
 }
-#line 52399 "main.c"
+#line 52402 "main.c"
 
 byn_parser_Stmt byn_parser__parseBody__o2(bynt_parser__Parser* p_p, bynt_lexer__Token p_keyword, int64_t* p_header, bynt_parser__BracesReport* p_braces) {
     int64_t l0_gapStart = {0};
@@ -52465,7 +52468,7 @@ break_1:;
 #line 488 "parser/stmts.byn"
     return l4_body;
 }
-#line 52469 "main.c"
+#line 52472 "main.c"
 
 int64_t byn_parser__reportBraceless(bynt_parser__Parser* p_p, bynt_lexer__Token p_keyword, int64_t p_gapStart, bynt_lexer__TextSpan p_body, bool p_clean, int64_t p_header, bynt_parser__BracesReport* p_braces) {
     int64_t l0_start = {0};
@@ -52693,7 +52696,7 @@ break_1:;
 #line 581 "parser/stmts.byn"
     return p_header;
 }
-#line 52697 "main.c"
+#line 52700 "main.c"
 
 byn_parser_Expr byn_parser__parseCondition(bynt_parser__Parser* p_p, bool* p_parenthesized, int64_t* p_parens) {
     bool t0 = {0};
@@ -52706,7 +52709,7 @@ byn_parser_Expr byn_parser__parseCondition(bynt_parser__Parser* p_p, bool* p_par
 #line 590 "parser/stmts.byn"
     return ((*p_parenthesized) ? byn_parser__parseParenCondition(&(*p_p), &(*p_parens)) : byn_parser__parseBareCondition(&(*p_p)));
 }
-#line 52710 "main.c"
+#line 52713 "main.c"
 
 bool byn_parser__isParenthesizedCondition(bynt_parser__Parser* p_p) {
     int64_t l0_next = {0};
@@ -52738,7 +52741,7 @@ bool byn_parser__isParenthesizedCondition(bynt_parser__Parser* p_p) {
 #line 611 "parser/stmts.byn"
     return (!byn_parser__bodyBraceFirst(&(*p_p), l0_next));
 }
-#line 52742 "main.c"
+#line 52745 "main.c"
 
 bool byn_parser__bodyBraceFirst(bynt_parser__Parser* p_p, int64_t p_index) {
     int64_t l0_depth = {0};
@@ -52813,7 +52816,7 @@ break_1:;
 #line 634 "parser/stmts.byn"
     return false;
 }
-#line 52817 "main.c"
+#line 52820 "main.c"
 
 int64_t byn_parser__matchingClose(bynt_parser__Parser* p_p, int64_t p_open) {
     int64_t l0_depth = {0};
@@ -52868,7 +52871,7 @@ break_1:;
 #line 651 "parser/stmts.byn"
     return byn_sub_i64((*p_p).count, INT64_C(1), byn_file_20, 651);
 }
-#line 52872 "main.c"
+#line 52875 "main.c"
 
 byn_parser_Expr byn_parser__parseBareCondition(bynt_parser__Parser* p_p) {
     int64_t l0_saved = {0};
@@ -52882,7 +52885,7 @@ byn_parser_Expr byn_parser__parseBareCondition(bynt_parser__Parser* p_p) {
 #line 659 "parser/stmts.byn"
     return l1_condition;
 }
-#line 52886 "main.c"
+#line 52889 "main.c"
 
 bool byn_parser__braceLiteralAllowed(bynt_parser__Parser* p_p) {
     int64_t l0_depth = {0};
@@ -52937,7 +52940,7 @@ break_1:;
 #line 676 "parser/stmts.byn"
     return (l0_depth > INT64_C(0));
 }
-#line 52941 "main.c"
+#line 52944 "main.c"
 
 bool byn_parser__atUnlikely(bynt_parser__Parser* p_p) {
     bynt_lexer__Token t0 = {0};
@@ -52954,7 +52957,7 @@ bool byn_parser__atUnlikely(bynt_parser__Parser* p_p) {
 #line 681 "parser/stmts.byn"
     return ((t1 && (!(byn_parser__Parser__peek(&(*p_p), INT64_C(1)) == ((byn_lexer_TokenKind)19)))) && byn_parser__canStartExpression(byn_parser__Parser__peek(&(*p_p), INT64_C(1))));
 }
-#line 52958 "main.c"
+#line 52961 "main.c"
 
 byn_parser_Stmt byn_parser__parseIf(bynt_parser__Parser* p_p, int64_t p_start, bool p_elseIf, bool p_rejectPostfix) {
     bynt_lexer__Token l0_keyword = {0};
@@ -53059,7 +53062,7 @@ byn_parser_Stmt byn_parser__parseIf(bynt_parser__Parser* p_p, int64_t p_start, b
 #line 742 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 10, .u.ifStmt = {bynh_own_parser__IfStmt(((bynt_parser__IfStmt){t19, l8_condition, l10_then, l11_otherwise, l2_likelihood, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
-#line 53063 "main.c"
+#line 53066 "main.c"
 
 bool byn_parser__isNullTest(byn_parser_Expr p_e) {
     bynt_parser__IsExpr* l0_n = {0};
@@ -53098,7 +53101,7 @@ bool byn_parser__isNullTest(byn_parser_Expr p_e) {
     return false;
 switch_end_1:;
 }
-#line 53102 "main.c"
+#line 53105 "main.c"
 
 int64_t byn_parser__checkUnlessCondition(bynt_parser__Parser* p_p, byn_parser_Expr p_condition, bynt_lexer__TextSpan p_fixSpan) {
     bynt_parser__ParenExpr* l0_n = {0};
@@ -53195,7 +53198,7 @@ switch_end_1:;
 #line 818 "parser/stmts.byn"
     return INT64_C(-1);
 }
-#line 53199 "main.c"
+#line 53202 "main.c"
 
 void byn_parser__skipUnlessLikelihood(bynt_parser__Parser* p_p) {
     bynt_lexer__Token l0_word = {0};
@@ -53216,7 +53219,7 @@ void byn_parser__skipUnlessLikelihood(bynt_parser__Parser* p_p) {
 #line 826 "parser/stmts.byn"
     l1__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)31), t2, t3, BYN_STR("", 0), byn_parser__Parser__textOf(&(*p_p), l0_word), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("a likelihood word", 17), BYN_STR("remove the word, or write `if unlikely` with the negated condition", 66));
 }
-#line 53220 "main.c"
+#line 53223 "main.c"
 
 byn_parser_Stmt byn_parser__parseUnless(bynt_parser__Parser* p_p, int64_t p_start, bool p_rejectPostfix) {
     bynt_lexer__Token l0_keyword = {0};
@@ -53298,7 +53301,7 @@ byn_parser_Stmt byn_parser__parseUnless(bynt_parser__Parser* p_p, int64_t p_star
 #line 883 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 11, .u.unlessStmt = {bynh_own_parser__UnlessStmt(((bynt_parser__UnlessStmt){t14, l4_condition, l8_body, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
-#line 53302 "main.c"
+#line 53305 "main.c"
 
 byn_parser_Stmt byn_parser__parseFor(bynt_parser__Parser* p_p, int64_t p_start) {
     bynt_lexer__Token l0_keyword = {0};
@@ -53493,13 +53496,13 @@ byn_parser_Stmt byn_parser__parseFor(bynt_parser__Parser* p_p, int64_t p_start) 
 #line 943 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 16, .u.forStmt = {bynh_own_parser__ForStmt(((bynt_parser__ForStmt){t32, ((byn_parser_BindingKind)0), l2_type, l3_variable, l30_iterable, l31_body, l1_isTry, l4_names, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
-#line 53497 "main.c"
+#line 53500 "main.c"
 
 bool byn_parser__isTupleLoopVariables(bynt_parser__Parser* p_p) {
 #line 959 "parser/stmts.byn"
     return ((((!byn_parser__inGroup(&(*p_p), (*p_p).pos, ((byn_lexer_TokenKind)97))) && (!byn_parser__inGroup(&(*p_p), (*p_p).pos, ((byn_lexer_TokenKind)98)))) && (!byn_parser__inGroup(&(*p_p), (*p_p).pos, ((byn_lexer_TokenKind)109)))) && (!byn_parser__inGroup(&(*p_p), (*p_p).pos, ((byn_lexer_TokenKind)21))));
 }
-#line 53503 "main.c"
+#line 53506 "main.c"
 
 byn_parser_Stmt byn_parser__parseParenFor(bynt_parser__Parser* p_p, int64_t p_start, bynt_lexer__Token p_keyword, bool p_tryKeyword) {
     bynt_lexer__Token l0_open = {0};
@@ -53678,7 +53681,7 @@ byn_parser_Stmt byn_parser__parseParenFor(bynt_parser__Parser* p_p, int64_t p_st
 #line 1017 "parser/stmts.byn"
     return ((byn_parser_Stmt){.tag = 16, .u.forStmt = {bynh_own_parser__ForStmt(((bynt_parser__ForStmt){t29, l1_kind, l2_type, l4_name, l12_iterable, l28_body, p_tryKeyword, t30, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
-#line 53682 "main.c"
+#line 53685 "main.c"
 
 void byn_parser__skipPastCloseParen(bynt_parser__Parser* p_p) {
     int64_t l0_depth = {0};
@@ -53723,7 +53726,7 @@ void byn_parser__skipPastCloseParen(bynt_parser__Parser* p_p) {
     }
 break_1:;
 }
-#line 53727 "main.c"
+#line 53730 "main.c"
 
 bool byn_parser__isBlockStmt(byn_parser_Stmt p_s) {
 #line 1049 "parser/stmts.byn"
@@ -53737,7 +53740,7 @@ bool byn_parser__isBlockStmt(byn_parser_Stmt p_s) {
     return false;
 switch_end_1:;
 }
-#line 53741 "main.c"
+#line 53744 "main.c"
 
 bool byn_parser__isErrorStmt(byn_parser_Stmt p_s) {
 #line 1058 "parser/stmts.byn"
@@ -53751,7 +53754,7 @@ bool byn_parser__isErrorStmt(byn_parser_Stmt p_s) {
     return false;
 switch_end_1:;
 }
-#line 53755 "main.c"
+#line 53758 "main.c"
 
 bool byn_parser__isNoType(byn_parser_TypeSyntax p_t) {
 #line 1067 "parser/stmts.byn"
@@ -53765,7 +53768,7 @@ bool byn_parser__isNoType(byn_parser_TypeSyntax p_t) {
     return false;
 switch_end_1:;
 }
-#line 53769 "main.c"
+#line 53772 "main.c"
 
 bynt_lexer__TextSpan byn_parser__stmtSpan(byn_parser_Stmt p_s) {
     bynt_lexer__TextSpan t0 = {0};
@@ -53974,7 +53977,7 @@ switch_end_1:;
 #line 1078 "parser/stmts.byn"
     return t0;
 }
-#line 53978 "main.c"
+#line 53981 "main.c"
 
 bynt_lexer__TextSpan byn_parser__typeSpan(byn_parser_TypeSyntax p_t) {
     bynt_lexer__TextSpan t0 = {0};
@@ -54055,7 +54058,7 @@ switch_end_1:;
 #line 1106 "parser/stmts.byn"
     return t0;
 }
-#line 54059 "main.c"
+#line 54062 "main.c"
 
 byn_parser_Stmt byn_parser__parseSwitchStatement(bynt_parser__Parser* p_p, int64_t p_start) {
     bynt_lexer__Token l0__ = {0};
@@ -54226,7 +54229,7 @@ break_9:;
 #line 88 "parser/stmts2.byn"
     return ((byn_parser_Stmt){.tag = 18, .u.switchStmt = {bynh_own_parser__SwitchStmt(((bynt_parser__SwitchStmt){t31, l3_value, l5_sections, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
-#line 54230 "main.c"
+#line 54233 "main.c"
 
 bynt_parser__SwitchLabel byn_parser__parseSwitchLabel(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -54266,7 +54269,7 @@ bynt_parser__SwitchLabel byn_parser__parseSwitchLabel(bynt_parser__Parser* p_p) 
 #line 110 "parser/stmts2.byn"
     return ((bynt_parser__SwitchLabel){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l3_pattern, l4_guard});
 }
-#line 54270 "main.c"
+#line 54273 "main.c"
 
 byn_parser_Pattern byn_parser__parseArmPattern(bynt_parser__Parser* p_p, byn_str p_head) {
     int64_t l0_start = {0};
@@ -54340,7 +54343,7 @@ byn_parser_Pattern byn_parser__parseArmPattern(bynt_parser__Parser* p_p, byn_str
 #line 135 "parser/stmts2.byn"
     return ((byn_parser_Pattern){.tag = 6, .u.binaryPattern = {bynh_own_parser__BinaryPattern(((bynt_parser__BinaryPattern){byn_parser__Parser__spanFrom(&(*p_p), l0_start), true, l1_pattern, l5_notPat}))}});
 }
-#line 54344 "main.c"
+#line 54347 "main.c"
 
 byn_parser_Stmt byn_parser__parseDefer(bynt_parser__Parser* p_p, int64_t p_start) {
     bynt_lexer__Token l0_keyword = {0};
@@ -54413,7 +54416,7 @@ byn_parser_Stmt byn_parser__parseDefer(bynt_parser__Parser* p_p, int64_t p_start
 #line 183 "parser/stmts2.byn"
     return ((byn_parser_Stmt){.tag = 19, .u.deferStmt = {bynh_own_parser__DeferStmt(((bynt_parser__DeferStmt){t16, l1_kind, l5_binding, l12_body, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
-#line 54417 "main.c"
+#line 54420 "main.c"
 
 bool byn_parser__startsDeferBody(bynt_parser__Parser* p_p, int64_t p_n) {
     bynt_lexer__Token t0 = {0};
@@ -54433,19 +54436,19 @@ bool byn_parser__startsDeferBody(bynt_parser__Parser* p_p, int64_t p_n) {
 #line 194 "parser/stmts2.byn"
     return t2;
 }
-#line 54437 "main.c"
+#line 54440 "main.c"
 
 bool byn_parser__isBinding(bynt_parser__Parser* p_p, int64_t p_n) {
 #line 197 "parser/stmts2.byn"
     return (((byn_parser__Parser__peek(&(*p_p), p_n) == ((byn_lexer_TokenKind)15)) && byn_parser__isName(byn_parser__Parser__peek(&(*p_p), byn_add_i64(p_n, INT64_C(1), byn_file_21, 197)))) && (byn_parser__Parser__peek(&(*p_p), byn_add_i64(p_n, INT64_C(2), byn_file_21, 197)) == ((byn_lexer_TokenKind)16)));
 }
-#line 54443 "main.c"
+#line 54446 "main.c"
 
 bool byn_parser__atContextual(bynt_parser__Parser* p_p, byn_str p_word) {
 #line 199 "parser/stmts2.byn"
     return ((byn_parser__Parser__kind(&(*p_p)) == ((byn_lexer_TokenKind)1)) && byn_str_eq(byn_parser__Parser__textOf(&(*p_p), byn_parser__Parser__current(&(*p_p))), p_word));
 }
-#line 54449 "main.c"
+#line 54452 "main.c"
 
 byn_parser_Stmt byn_parser__parseContext(bynt_parser__Parser* p_p, int64_t p_start) {
     bynt_lexer__Token l0_keyword = {0};
@@ -54555,7 +54558,7 @@ byn_parser_Stmt byn_parser__parseContext(bynt_parser__Parser* p_p, int64_t p_sta
 #line 242 "parser/stmts2.byn"
     return ((byn_parser_Stmt){.tag = 21, .u.contextStmt = {bynh_own_parser__ContextStmt(((bynt_parser__ContextStmt){t18, l3_values, l17_body, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
-#line 54559 "main.c"
+#line 54562 "main.c"
 
 byn_parser_Stmt byn_parser__parseGoto(bynt_parser__Parser* p_p, int64_t p_start) {
     bynt_lexer__Token l0_keyword = {0};
@@ -54610,7 +54613,7 @@ byn_parser_Stmt byn_parser__parseGoto(bynt_parser__Parser* p_p, int64_t p_start)
 #line 280 "parser/stmts2.byn"
     return ((byn_parser_Stmt){.tag = 7, .u.breakStmt = {bynh_own_parser__BreakStmt(((bynt_parser__BreakStmt){t9, l5_label, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
-#line 54614 "main.c"
+#line 54617 "main.c"
 
 byn_parser_Stmt byn_parser__parseSimpleStatement(bynt_parser__Parser* p_p, int64_t p_start, bool* p_ended) {
     byn_lexer_TokenKind t0 = {0};
@@ -54878,7 +54881,7 @@ switch_end_1:;
 #line 414 "parser/stmts2.byn"
     return ((byn_parser_Stmt){.tag = 2, .u.exprStmt = {bynh_own_parser__ExprStmt(((bynt_parser__ExprStmt){t54, l34_expr, byn_parser__takeStatementAttributes(&(*p_p), l53_key)}))}});
 }
-#line 54882 "main.c"
+#line 54885 "main.c"
 
 int64_t byn_parser__simpleKey(bynt_parser__Parser* p_p, int64_t p_start, bool* p_ended) {
 #line 425 "parser/stmts2.byn"
@@ -54893,7 +54896,7 @@ int64_t byn_parser__simpleKey(bynt_parser__Parser* p_p, int64_t p_start, bool* p
 #line 428 "parser/stmts2.byn"
     return p_start;
 }
-#line 54897 "main.c"
+#line 54900 "main.c"
 
 bynt_opt_lexer__TextSpan byn_parser__parseJumpLabel(bynt_parser__Parser* p_p, bynt_lexer__Token p_keyword) {
     bynt_lexer__Token t0 = {0};
@@ -54919,7 +54922,7 @@ bynt_opt_lexer__TextSpan byn_parser__parseJumpLabel(bynt_parser__Parser* p_p, by
 #line 439 "parser/stmts2.byn"
     return ((bynt_opt_lexer__TextSpan){true, byn_parser__nameOf(byn_parser__Parser__advance(&(*p_p)))});
 }
-#line 54923 "main.c"
+#line 54926 "main.c"
 
 void byn_parser__reportOnNewLine(bynt_parser__Parser* p_p, bynt_lexer__Token p_keyword) {
     int64_t l0__ = {0};
@@ -54947,7 +54950,7 @@ void byn_parser__reportOnNewLine(bynt_parser__Parser* p_p, bynt_lexer__Token p_k
 #line 444 "parser/stmts2.byn"
     l0__ = byn_parser__Parser__reportFix(&(*p_p), ((byn_parser_ParseCode)35), t2, t3, BYN_STR(" ", 1), t4, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("on the next line", 16), byn_strbuf_str(t1));
 }
-#line 54951 "main.c"
+#line 54954 "main.c"
 
 bool byn_parser__isStatementExpression(byn_parser_Expr p_expr) {
     bynt_parser__TryExpr* l0_t = {0};
@@ -55008,7 +55011,7 @@ bool byn_parser__isStatementExpression(byn_parser_Expr p_expr) {
     return false;
 switch_end_1:;
 }
-#line 55012 "main.c"
+#line 55015 "main.c"
 
 bynt_opt_parser__AssignOp byn_parser__tryAssignOp(bynt_parser__Parser* p_p) {
     bynt_opt_parser__AssignOp l0_op = {0};
@@ -55129,7 +55132,7 @@ switch_end_1:;
 #line 490 "parser/stmts2.byn"
     return ((bynt_opt_parser__AssignOp){0});
 }
-#line 55133 "main.c"
+#line 55136 "main.c"
 
 void byn_parser__checkAssignable(bynt_parser__Parser* p_p, byn_parser_Expr p_target) {
     bynt_parser__MemberExpr* l0_m = {0};
@@ -55193,7 +55196,7 @@ void byn_parser__checkAssignable(bynt_parser__Parser* p_p, byn_parser_Expr p_tar
     return;
 switch_end_1:;
 }
-#line 55197 "main.c"
+#line 55200 "main.c"
 
 byn_parser_Stmt byn_parser__finishSimpleStatement(bynt_parser__Parser* p_p, int64_t p_start, byn_parser_Stmt p_statement) {
     bool l0_stranded = {0};
@@ -55284,7 +55287,7 @@ byn_parser_Stmt byn_parser__finishSimpleStatement(bynt_parser__Parser* p_p, int6
 #line 565 "parser/stmts2.byn"
     return ((byn_parser_Stmt){.tag = 12, .u.guardedStmt = {bynh_own_parser__GuardedStmt(((bynt_parser__GuardedStmt){t18, p_statement, l7_isUnless, l10_condition, l8_unlikely, byn_parser__takeStatementAttributes(&(*p_p), p_start)}))}});
 }
-#line 55288 "main.c"
+#line 55291 "main.c"
 
 bool byn_parser__strandedPostfix(bynt_parser__Parser* p_p) {
     byn_lexer_TokenKind t0 = {0};
@@ -55293,7 +55296,7 @@ bool byn_parser__strandedPostfix(bynt_parser__Parser* p_p) {
 #line 577 "parser/stmts2.byn"
     return ((((((t0 == ((byn_lexer_TokenKind)102)) || (t0 == ((byn_lexer_TokenKind)104))) && byn_parser__breaksLine(&(*p_p), (*p_p).pos)) && (!byn_parser__hasBlankLineBefore(&(*p_p), (*p_p).pos))) && (!(byn_parser__Parser__peek(&(*p_p), INT64_C(1)) == ((byn_lexer_TokenKind)15)))) && (!byn_parser__bodyBraceFirst(&(*p_p), byn_add_i64((*p_p).pos, INT64_C(1), byn_file_21, 578))));
 }
-#line 55297 "main.c"
+#line 55300 "main.c"
 
 bool byn_parser__postfixFollows(bynt_parser__Parser* p_p) {
     byn_lexer_TokenKind t0 = {0};
@@ -55321,7 +55324,7 @@ bool byn_parser__postfixFollows(bynt_parser__Parser* p_p) {
 #line 582 "parser/stmts2.byn"
     return t3;
 }
-#line 55325 "main.c"
+#line 55328 "main.c"
 
 void byn_parser__rejectPostfixAfterCompound(bynt_parser__Parser* p_p) {
     byn_lexer_TokenKind t0 = {0};
@@ -55356,7 +55359,7 @@ void byn_parser__rejectPostfixAfterCompound(bynt_parser__Parser* p_p) {
         (void)byn_parser__expectEnd(&(*p_p));
     }
 }
-#line 55360 "main.c"
+#line 55363 "main.c"
 
 bynt_lexer__TextSpan byn_parser__patternSpan(byn_parser_Pattern p_p) {
     bynt_parser__ConstantPattern* l0_n = {0};
@@ -55464,7 +55467,7 @@ bynt_lexer__TextSpan byn_parser__patternSpan(byn_parser_Pattern p_p) {
     }
 switch_end_1:;
 }
-#line 55468 "main.c"
+#line 55471 "main.c"
 
 byn_parser_TypeSyntax byn_parser__wrapType(byn_parser_ParsedType p_parsed) {
     byn_parser_ParsedType t0 = {0};
@@ -55488,13 +55491,13 @@ byn_parser_TypeSyntax byn_parser__wrapType(byn_parser_ParsedType p_parsed) {
     }
 switch_end_1:;
 }
-#line 55492 "main.c"
+#line 55495 "main.c"
 
 bool byn_parser__isTypeNameToken(byn_lexer_TokenKind p_kind) {
 #line 29 "parser/types.byn"
     return ((p_kind == ((byn_lexer_TokenKind)1)) || (p_kind == ((byn_lexer_TokenKind)123)));
 }
-#line 55498 "main.c"
+#line 55501 "main.c"
 
 bool byn_parser__isDynAt(bynt_parser__Parser* p_p, int64_t p_index) {
     bynt_span_u8 t0 = {0};
@@ -55511,13 +55514,13 @@ bool byn_parser__isDynAt(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 33 "parser/types.byn"
     return (t1 && ((byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(p_index, INT64_C(1), byn_file_22, 34)) == ((byn_lexer_TokenKind)135)) || byn_parser__isTypeNameToken(byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(p_index, INT64_C(1), byn_file_22, 34)))));
 }
-#line 55515 "main.c"
+#line 55518 "main.c"
 
 int64_t byn_parser__scanType(bynt_parser__Parser* p_p, int64_t p_index) {
 #line 37 "parser/types.byn"
     return byn_parser__scanTypeNested(&(*p_p), p_index, false).item1;
 }
-#line 55521 "main.c"
+#line 55524 "main.c"
 
 bynt_tup2_i64_bool byn_parser__scanTypeNested(bynt_parser__Parser* p_p, int64_t p_index, bool p_nested) {
     int64_t l0_at = {0};
@@ -55722,13 +55725,13 @@ bynt_tup2_i64_bool byn_parser__scanTypeNested(bynt_parser__Parser* p_p, int64_t 
     }
 break_5:;
 }
-#line 55726 "main.c"
+#line 55729 "main.c"
 
 bool byn_parser__isTypeArrow(bynt_parser__Parser* p_p, int64_t p_index, bool p_nested) {
 #line 116 "parser/types.byn"
     return ((byn_parser__Parser__kindAt(&(*p_p), p_index) == ((byn_lexer_TokenKind)32)) || ((p_nested && (!(*p_p).exprTypeArgs)) && (byn_parser__Parser__kindAt(&(*p_p), p_index) == ((byn_lexer_TokenKind)31))));
 }
-#line 55732 "main.c"
+#line 55735 "main.c"
 
 bynt_tup2_i64_bool byn_parser__scanFunctionType(bynt_parser__Parser* p_p, int64_t p_index, bool p_nested) {
     int64_t l0_i = {0};
@@ -55769,7 +55772,7 @@ break_1:;
 #line 133 "parser/types.byn"
     return ((bynt_tup2_i64_bool){l0_i, true});
 }
-#line 55773 "main.c"
+#line 55776 "main.c"
 
 int64_t byn_parser__scanClauseList(bynt_parser__Parser* p_p, int64_t p_index, bool p_names) {
     bool l0_paren = {0};
@@ -55817,7 +55820,7 @@ break_1:;
 #line 150 "parser/types.byn"
     return ((byn_parser__Parser__kindAt(&(*p_p), l1_i) == ((byn_lexer_TokenKind)16)) ? byn_add_i64(l1_i, INT64_C(1), byn_file_22, 150) : INT64_C(-1));
 }
-#line 55821 "main.c"
+#line 55824 "main.c"
 
 int64_t byn_parser__scanTypeArgs(bynt_parser__Parser* p_p, int64_t p_index) {
     int64_t l0_i = {0};
@@ -55853,7 +55856,7 @@ int64_t byn_parser__scanTypeArgs(bynt_parser__Parser* p_p, int64_t p_index) {
     }
 break_1:;
 }
-#line 55857 "main.c"
+#line 55860 "main.c"
 
 int64_t byn_parser__scanExprTypeArgs(bynt_parser__Parser* p_p, int64_t p_index) {
     bool l0_saved = {0};
@@ -55867,7 +55870,7 @@ int64_t byn_parser__scanExprTypeArgs(bynt_parser__Parser* p_p, int64_t p_index) 
 #line 172 "parser/types.byn"
     return l1_end;
 }
-#line 55871 "main.c"
+#line 55874 "main.c"
 
 byn_str byn_parser__cSharpTypeName(byn_str p_name) {
     byn_str t0 = {0};
@@ -55940,13 +55943,13 @@ switch_end_1:;
 #line 178 "parser/types.byn"
     return t0;
 }
-#line 55944 "main.c"
+#line 55947 "main.c"
 
 byn_parser_TypeSyntax byn_parser__parseType(bynt_parser__Parser* p_p, bool p_fatArrow, bool p_lists) {
 #line 195 "parser/types.byn"
     return byn_parser__wrapType(byn_parser__parseTypeParts(&(*p_p), p_fatArrow, p_lists, INT64_C(-1)));
 }
-#line 55950 "main.c"
+#line 55953 "main.c"
 
 byn_parser_ParsedType byn_parser__parseTypeParts(bynt_parser__Parser* p_p, bool p_fatArrow, bool p_lists, int64_t p_readOnlyStart) {
     int64_t l0_start = {0};
@@ -56211,7 +56214,7 @@ byn_parser_ParsedType byn_parser__parseTypeParts(bynt_parser__Parser* p_p, bool 
     }
 break_4:;
 }
-#line 56215 "main.c"
+#line 56218 "main.c"
 
 bool byn_parser__starsEndType(bynt_parser__Parser* p_p, bool p_fatArrow) {
     int64_t l0_j = {0};
@@ -56240,7 +56243,7 @@ break_1:;
 #line 321 "parser/types.byn"
     return (!(((l1_k == ((byn_lexer_TokenKind)17)) && ((byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l0_j, INT64_C(1), byn_file_22, 321)) == ((byn_lexer_TokenKind)2)) || (byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l0_j, INT64_C(1), byn_file_22, 321)) == ((byn_lexer_TokenKind)1)))) && (byn_parser__Parser__kindAt(&(*p_p), byn_add_i64(l0_j, INT64_C(2), byn_file_22, 322)) == ((byn_lexer_TokenKind)18))));
 }
-#line 56244 "main.c"
+#line 56247 "main.c"
 
 bynt_parser__FunctionTypeSyntax byn_parser__parseFunctionType(bynt_parser__Parser* p_p, int64_t p_start, bynt_list_parser__TupleTypeElement p_parameters, bool p_fatArrow, bool p_lists) {
     bynt_parser__TupleTypeElement l0_e = {0};
@@ -56360,7 +56363,7 @@ break_3:;
 #line 379 "parser/types.byn"
     return ((bynt_parser__FunctionTypeSyntax){t20, byn_parser__elementTypes(p_parameters), l9_result, l10_failsClause, l11_usesClause});
 }
-#line 56364 "main.c"
+#line 56367 "main.c"
 
 bynt_list_parser__TypeSyntax byn_parser__elementTypes(bynt_list_parser__TupleTypeElement p_parameters) {
     bynt_list_parser__TupleTypeElement l0_elements = {0};
@@ -56412,7 +56415,7 @@ break_4:;
 #line 404 "parser/types.byn"
     return l5_types;
 }
-#line 56416 "main.c"
+#line 56419 "main.c"
 
 bynt_list_parser__TypeSyntax byn_parser__parseClauseTypes(bynt_parser__Parser* p_p, bool p_lists) {
     bool l0_paren = {0};
@@ -56450,7 +56453,7 @@ break_1:;
 #line 422 "parser/types.byn"
     return l2_items;
 }
-#line 56454 "main.c"
+#line 56457 "main.c"
 
 bynt_list_lexer__TextSpan byn_parser__parseClauseNames(bynt_parser__Parser* p_p, bool p_lists) {
     bool l0_paren = {0};
@@ -56488,7 +56491,7 @@ break_1:;
 #line 439 "parser/types.byn"
     return l2_items;
 }
-#line 56492 "main.c"
+#line 56495 "main.c"
 
 byn_parser_TypeSyntax byn_parser__parsePrefixPointer(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -56587,7 +56590,7 @@ byn_parser_TypeSyntax byn_parser__parsePrefixPointer(bynt_parser__Parser* p_p) {
 #line 480 "parser/types.byn"
     return l17_type;
 }
-#line 56591 "main.c"
+#line 56594 "main.c"
 
 byn_str byn_parser__pointeeText(byn_parser_TypeSyntax p_pointee, bynt_parser__Parser* p_p) {
     byn_writer t0 = {0};
@@ -56617,7 +56620,7 @@ byn_str byn_parser__pointeeText(byn_parser_TypeSyntax p_pointee, bynt_parser__Pa
     return byn_lexer__SourceText__getText(&(*p_p).lexed.source, byn_parser__typeSpan(p_pointee));
 switch_end_1:;
 }
-#line 56621 "main.c"
+#line 56624 "main.c"
 
 void byn_parser__reportPointerOutsideExtern(bynt_parser__Parser* p_p, bynt_lexer__TextSpan p_span) {
     byn_str t0 = {0};
@@ -56631,7 +56634,7 @@ void byn_parser__reportPointerOutsideExtern(bynt_parser__Parser* p_p, bynt_lexer
 #line 498 "parser/types.byn"
     (void)bynh_add_list_lexer__Diagnostic(&(*p_p).lexed.diagnostics, ((bynt_lexer__Diagnostic){t0, p_span, byn_parser__format(byn_parser__messageFormat(((byn_parser_ParseCode)59)), ((bynt_tup3_str_str_str){BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)})), BYN_STR("a pointer type", 14), BYN_STR("wrap the C call in an `extern` declaration", 42), false, p_span, BYN_STR("", 0)}));
 }
-#line 56635 "main.c"
+#line 56638 "main.c"
 
 byn_parser_TypeSyntax byn_parser__parseNamedType(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -56699,7 +56702,7 @@ break_1:;
 #line 538 "parser/types.byn"
     return ((byn_parser_TypeSyntax){.tag = 0, .u.namedType = {bynh_own_parser__NamedType(((bynt_parser__NamedType){byn_parser__Parser__spanFrom(&(*p_p), l0_start), l1_path, l3_args}))}});
 }
-#line 56703 "main.c"
+#line 56706 "main.c"
 
 byn_parser_TypeSyntax byn_parser__missingType(bynt_parser__Parser* p_p) {
     int64_t l0_start = {0};
@@ -56719,7 +56722,7 @@ byn_parser_TypeSyntax byn_parser__missingType(bynt_parser__Parser* p_p) {
 #line 547 "parser/types.byn"
     return ((byn_parser_TypeSyntax){.tag = 0, .u.namedType = {bynh_own_parser__NamedType(((bynt_parser__NamedType){((bynt_lexer__TextSpan){l0_start, INT64_C(0)}), l3_path, ((bynt_list_parser__TypeSyntax){NULL, 0, 0, byn_context})}))}});
 }
-#line 56723 "main.c"
+#line 56726 "main.c"
 
 bynt_list_parser__TypeSyntax byn_parser__parseTypeArgs(bynt_parser__Parser* p_p) {
     bynt_lexer__Token l0__ = {0};
@@ -56748,7 +56751,7 @@ break_1:;
 #line 560 "parser/types.byn"
     return l1_args;
 }
-#line 56752 "main.c"
+#line 56755 "main.c"
 
 bynt_parser__Parser byn_parser__Parser__create(bynt_lexer__LexResult p_lexed) {
     int64_t l0_count = {0};
@@ -56822,43 +56825,43 @@ break_1:;
 #line 86 "parser/parser.byn"
     return ((bynt_parser__Parser){p_lexed, l0_count, INT64_C(0), INT64_C(0), INT64_C(-1), INT64_C(0), INT64_C(-1), l1_inGroup, false, false, false, ((bynt_list_list_parser__AttributeSyntax){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), false, ((bynt_list_parser__FieldDecl){NULL, 0, 0, byn_context}), false, ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context}), ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context}), ((bynt_list_lexer__Diagnostic){NULL, 0, 0, byn_context}), INT64_C(0), l3_argumentStarts, ((bynt_list_parser__TypedLint){NULL, 0, 0, byn_context}), ((bynt_list_parser__LogicalSite){NULL, 0, 0, byn_context}), ((bynt_list_parser__BindExit){NULL, 0, 0, byn_context})});
 }
-#line 56826 "main.c"
+#line 56829 "main.c"
 
 bynt_lexer__Token byn_parser__Parser__current(bynt_parser__Parser* self) {
 #line 104 "parser/parser.byn"
     return (*bynh_at_list_lexer__Token((*self).lexed.tokens, (int64_t)(*self).pos, false, byn_file_16, 104));
 }
-#line 56832 "main.c"
+#line 56835 "main.c"
 
 byn_lexer_TokenKind byn_parser__Parser__kind(bynt_parser__Parser* self) {
 #line 106 "parser/parser.byn"
     return (*bynh_at_list_lexer__Token((*self).lexed.tokens, (int64_t)(*self).pos, false, byn_file_16, 106)).kind;
 }
-#line 56838 "main.c"
+#line 56841 "main.c"
 
 bynt_lexer__Token byn_parser__Parser__peekToken(bynt_parser__Parser* self, int64_t p_n) {
 #line 108 "parser/parser.byn"
     return (*bynh_at_list_lexer__Token((*self).lexed.tokens, (int64_t)((byn_add_i64((*self).pos, p_n, byn_file_16, 108) < byn_sub_i64((*self).count, INT64_C(1), byn_file_16, 108)) ? byn_add_i64((*self).pos, p_n, byn_file_16, 108) : byn_sub_i64((*self).count, INT64_C(1), byn_file_16, 108)), false, byn_file_16, 108));
 }
-#line 56844 "main.c"
+#line 56847 "main.c"
 
 byn_lexer_TokenKind byn_parser__Parser__peek(bynt_parser__Parser* self, int64_t p_n) {
 #line 110 "parser/parser.byn"
     return byn_parser__Parser__peekToken(&(*self), p_n).kind;
 }
-#line 56850 "main.c"
+#line 56853 "main.c"
 
 byn_lexer_TokenKind byn_parser__Parser__kindAt(bynt_parser__Parser* self, int64_t p_index) {
 #line 112 "parser/parser.byn"
     return (*bynh_at_list_lexer__Token((*self).lexed.tokens, (int64_t)((p_index < byn_sub_i64((*self).count, INT64_C(1), byn_file_16, 112)) ? p_index : byn_sub_i64((*self).count, INT64_C(1), byn_file_16, 112)), false, byn_file_16, 112)).kind;
 }
-#line 56856 "main.c"
+#line 56859 "main.c"
 
 bool byn_parser__Parser__atEnd(bynt_parser__Parser* self) {
 #line 114 "parser/parser.byn"
     return (byn_parser__Parser__kind(&(*self)) == ((byn_lexer_TokenKind)0));
 }
-#line 56862 "main.c"
+#line 56865 "main.c"
 
 bynt_lexer__Token byn_parser__Parser__advance(bynt_parser__Parser* self) {
     bynt_lexer__Token l0_token = {0};
@@ -56877,7 +56880,7 @@ bynt_lexer__Token byn_parser__Parser__advance(bynt_parser__Parser* self) {
 #line 122 "parser/parser.byn"
     return l0_token;
 }
-#line 56881 "main.c"
+#line 56884 "main.c"
 
 bool byn_parser__Parser__accept(bynt_parser__Parser* self, byn_lexer_TokenKind p_kind) {
     bynt_lexer__Token l0__ = {0};
@@ -56891,7 +56894,7 @@ bool byn_parser__Parser__accept(bynt_parser__Parser* self, byn_lexer_TokenKind p
 #line 128 "parser/parser.byn"
     return true;
 }
-#line 56895 "main.c"
+#line 56898 "main.c"
 
 bynt_span_u8 byn_parser__Parser__text(bynt_parser__Parser* self, bynt_lexer__Token p_token) {
     bynt_span_u8 t0 = {0};
@@ -56900,19 +56903,19 @@ bynt_span_u8 byn_parser__Parser__text(bynt_parser__Parser* self, bynt_lexer__Tok
 #line 132 "parser/parser.byn"
     return bynh_slice_span_u8(t0, (int64_t)p_token.start, 0, (int64_t)byn_lexer__Token__get_end(&p_token), 0, false, byn_file_16, 132);
 }
-#line 56904 "main.c"
+#line 56907 "main.c"
 
 byn_str byn_parser__Parser__textOf(bynt_parser__Parser* self, bynt_lexer__Token p_token) {
 #line 134 "parser/parser.byn"
     return byn_lexer__SourceText__getText(&(*self).lexed.source, byn_parser__spanOf(p_token));
 }
-#line 56910 "main.c"
+#line 56913 "main.c"
 
 bynt_lexer__TextSpan byn_parser__Parser__spanFrom(bynt_parser__Parser* self, int64_t p_start) {
 #line 136 "parser/parser.byn"
     return byn_lexer__TextSpan__fromBounds(p_start, (((*self).prevEnd > p_start) ? (*self).prevEnd : p_start));
 }
-#line 56916 "main.c"
+#line 56919 "main.c"
 
 bool byn_parser__Parser__atShiftRight(bynt_parser__Parser* self, int64_t p_offset) {
     bynt_lexer__Token t0 = {0};
@@ -56929,7 +56932,7 @@ bool byn_parser__Parser__atShiftRight(bynt_parser__Parser* self, int64_t p_offse
 #line 140 "parser/parser.byn"
     return t1;
 }
-#line 56933 "main.c"
+#line 56936 "main.c"
 
 bool byn_parser__Parser__setNoLambda(bynt_parser__Parser* self, bool p_value) {
     bool l0_saved = {0};
@@ -56940,7 +56943,7 @@ bool byn_parser__Parser__setNoLambda(bynt_parser__Parser* self, bool p_value) {
 #line 149 "parser/parser.byn"
     return l0_saved;
 }
-#line 56944 "main.c"
+#line 56947 "main.c"
 
 bool byn_parser__Parser__setExprTypeArgs(bynt_parser__Parser* self, bool p_value) {
     bool l0_saved = {0};
@@ -56951,7 +56954,7 @@ bool byn_parser__Parser__setExprTypeArgs(bynt_parser__Parser* self, bool p_value
 #line 155 "parser/parser.byn"
     return l0_saved;
 }
-#line 56955 "main.c"
+#line 56958 "main.c"
 
 bool byn_parser__Parser__setInExtern(bynt_parser__Parser* self, bool p_value) {
     bool l0_saved = {0};
@@ -56962,7 +56965,7 @@ bool byn_parser__Parser__setInExtern(bynt_parser__Parser* self, bool p_value) {
 #line 161 "parser/parser.byn"
     return l0_saved;
 }
-#line 56966 "main.c"
+#line 56969 "main.c"
 
 int64_t byn_parser__Parser__setConditionStart(bynt_parser__Parser* self, int64_t p_value) {
     int64_t l0_saved = {0};
@@ -56973,19 +56976,19 @@ int64_t byn_parser__Parser__setConditionStart(bynt_parser__Parser* self, int64_t
 #line 167 "parser/parser.byn"
     return l0_saved;
 }
-#line 56977 "main.c"
+#line 56980 "main.c"
 
 int64_t byn_parser__Parser__report(bynt_parser__Parser* self, byn_parser_ParseCode p_code, bynt_lexer__TextSpan p_span, byn_str p_arg0, byn_str p_arg1, byn_str p_arg2, byn_str p_label, byn_str p_help) {
 #line 185 "parser/parser.byn"
     return byn_parser__Parser__add(&(*self), p_code, p_span, ((bynt_tup3_str_str_str){p_arg0, p_arg1, p_arg2}), p_label, p_help, false, p_span, BYN_STR("", 0));
 }
-#line 56983 "main.c"
+#line 56986 "main.c"
 
 int64_t byn_parser__Parser__reportFix(bynt_parser__Parser* self, byn_parser_ParseCode p_code, bynt_lexer__TextSpan p_span, bynt_lexer__TextSpan p_fixSpan, byn_str p_replacement, byn_str p_arg0, byn_str p_arg1, byn_str p_arg2, byn_str p_label, byn_str p_help) {
 #line 200 "parser/parser.byn"
     return byn_parser__Parser__add(&(*self), p_code, p_span, ((bynt_tup3_str_str_str){p_arg0, p_arg1, p_arg2}), p_label, p_help, true, p_fixSpan, p_replacement);
 }
-#line 56989 "main.c"
+#line 56992 "main.c"
 
 int64_t byn_parser__Parser__add(bynt_parser__Parser* self, byn_parser_ParseCode p_code, bynt_lexer__TextSpan p_span, bynt_tup3_str_str_str p_args, byn_str p_label, byn_str p_help, bool p_hasFix, bynt_lexer__TextSpan p_fixSpan, byn_str p_fixReplacement) {
     byn_str t0 = {0};
@@ -57008,7 +57011,7 @@ int64_t byn_parser__Parser__add(bynt_parser__Parser* self, byn_parser_ParseCode 
 #line 237 "parser/parser.byn"
     return byn_sub_i64((*self).lexed.diagnostics.len, INT64_C(1), byn_file_16, 237);
 }
-#line 57012 "main.c"
+#line 57015 "main.c"
 
 int64_t byn_parser__Parser__errorCount(bynt_parser__Parser* self) {
     int64_t l0_n = {0};
@@ -57043,7 +57046,7 @@ break_1:;
 #line 248 "parser/parser.byn"
     return l0_n;
 }
-#line 57047 "main.c"
+#line 57050 "main.c"
 
 byn_str byn_parser__Parser__describe(bynt_parser__Parser* self, bynt_lexer__Token p_token) {
     byn_lexer_TokenKind l0_kind = {0};
@@ -57135,7 +57138,7 @@ byn_str byn_parser__Parser__describe(bynt_parser__Parser* self, bynt_lexer__Toke
 #line 260 "parser/parser.byn"
     return byn_strbuf_str(t4);
 }
-#line 57139 "main.c"
+#line 57142 "main.c"
 
 bynt_lexer__Token byn_parser__Parser__expect(bynt_parser__Parser* self, byn_lexer_TokenKind p_kind, byn_str p_label) {
     int64_t l0__ = {0};
@@ -57167,31 +57170,31 @@ bynt_lexer__Token byn_parser__Parser__expect(bynt_parser__Parser* self, byn_lexe
 #line 272 "parser/parser.byn"
     return ((bynt_lexer__Token){p_kind, ((uint8_t)0), byn_parser__Parser__current(&(*self)).start, INT64_C(0), INT64_C(0), INT64_C(0)});
 }
-#line 57171 "main.c"
+#line 57174 "main.c"
 
 uint64_t byn_semantics__bigBitsOfI64(int64_t p_v) {
 #line 6 "semantics/bigint.byn"
     return ((p_v >= INT64_C(0)) ? byn_cast_u64_i((int64_t)p_v, byn_file_23, 6) : ((uint64_t)~byn_cast_u64_i((int64_t)byn_neg_i64(byn_add_i64(p_v, INT64_C(1), byn_file_23, 6), byn_file_23, 6), byn_file_23, 6)));
 }
-#line 57177 "main.c"
+#line 57180 "main.c"
 
 int64_t byn_semantics__bigI64OfBits(uint64_t p_v) {
 #line 9 "semantics/bigint.byn"
     return ((p_v < UINT64_C(9223372036854775808)) ? byn_cast_i64_u((uint64_t)p_v, byn_file_23, 9) : byn_sub_i64(byn_neg_i64(byn_cast_i64_u((uint64_t)((uint64_t)~p_v), byn_file_23, 9), byn_file_23, 9), INT64_C(1), byn_file_23, 9));
 }
-#line 57183 "main.c"
+#line 57186 "main.c"
 
 bool byn_semantics__bigIsNeg(bynt_semantics__Big p_a) {
 #line 12 "semantics/bigint.byn"
     return (!(((uint64_t)(p_a.hi & UINT64_C(9223372036854775808))) == UINT64_C(0)));
 }
-#line 57189 "main.c"
+#line 57192 "main.c"
 
 bynt_semantics__Big byn_semantics__bigZero(void) {
 #line 15 "semantics/bigint.byn"
     return ((bynt_semantics__Big){UINT64_C(0), UINT64_C(0)});
 }
-#line 57195 "main.c"
+#line 57198 "main.c"
 
 bynt_semantics__Big byn_semantics__bigFromI64(int64_t p_v) {
     uint64_t l0_hi = {0};
@@ -57200,13 +57203,13 @@ bynt_semantics__Big byn_semantics__bigFromI64(int64_t p_v) {
 #line 19 "semantics/bigint.byn"
     return ((bynt_semantics__Big){byn_semantics__bigBitsOfI64(p_v), l0_hi});
 }
-#line 57204 "main.c"
+#line 57207 "main.c"
 
 bynt_semantics__Big byn_semantics__bigFromU64(uint64_t p_v) {
 #line 22 "semantics/bigint.byn"
     return ((bynt_semantics__Big){p_v, UINT64_C(0)});
 }
-#line 57210 "main.c"
+#line 57213 "main.c"
 
 bynt_semantics__BigParse byn_semantics__bigParse(byn_str p_text) {
     bynt_semantics__Big l0_max = {0};
@@ -57348,7 +57351,7 @@ break_1:;
 #line 75 "semantics/bigint.byn"
     return ((bynt_semantics__BigParse){l6_acc, true, l9_overflow});
 }
-#line 57352 "main.c"
+#line 57355 "main.c"
 
 byn_str byn_semantics__literalDecimalText(byn_str p_text) {
     bynt_span_u8 l0_b = {0};
@@ -57534,7 +57537,7 @@ break_7:;
 #line 121 "semantics/bigint.byn"
     return byn_strbuf_str(t23);
 }
-#line 57538 "main.c"
+#line 57541 "main.c"
 
 byn_str byn_semantics__bigText(bynt_semantics__Big p_n) {
     bool l0_neg = {0};
@@ -57612,7 +57615,7 @@ break_3:;
 #line 142 "semantics/bigint.byn"
     return byn_strbuf_str(t8);
 }
-#line 57616 "main.c"
+#line 57619 "main.c"
 
 int32_t byn_semantics__bigCmp(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     int64_t l0_ah = {0};
@@ -57644,13 +57647,13 @@ int32_t byn_semantics__bigCmp(bynt_semantics__Big p_a, bynt_semantics__Big p_b) 
 #line 155 "semantics/bigint.byn"
     return ((int32_t)0);
 }
-#line 57648 "main.c"
+#line 57651 "main.c"
 
 bool byn_semantics__bigEq(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
 #line 158 "semantics/bigint.byn"
     return ((p_a.lo == p_b.lo) && (p_a.hi == p_b.hi));
 }
-#line 57654 "main.c"
+#line 57657 "main.c"
 
 bynt_semantics__Big byn_semantics__bigNeg(bynt_semantics__Big p_a) {
     uint64_t l0_lo = {0};
@@ -57662,7 +57665,7 @@ bynt_semantics__Big byn_semantics__bigNeg(bynt_semantics__Big p_a) {
 #line 166 "semantics/bigint.byn"
     return ((bynt_semantics__Big){l0_lo, l1_hi});
 }
-#line 57666 "main.c"
+#line 57669 "main.c"
 
 bynt_semantics__Big byn_semantics__bigAdd(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     uint64_t l0_lo = {0};
@@ -57677,7 +57680,7 @@ bynt_semantics__Big byn_semantics__bigAdd(bynt_semantics__Big p_a, bynt_semantic
 #line 174 "semantics/bigint.byn"
     return ((bynt_semantics__Big){l0_lo, byn_addw_u64(l2_hi, l1_carry)});
 }
-#line 57681 "main.c"
+#line 57684 "main.c"
 
 bynt_semantics__Big byn_semantics__bigSub(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     uint64_t l0_lo = {0};
@@ -57692,7 +57695,7 @@ bynt_semantics__Big byn_semantics__bigSub(bynt_semantics__Big p_a, bynt_semantic
 #line 182 "semantics/bigint.byn"
     return ((bynt_semantics__Big){l0_lo, byn_subw_u64(l2_hi, l1_borrow)});
 }
-#line 57696 "main.c"
+#line 57699 "main.c"
 
 bynt_semantics__Big byn_semantics__bigMul(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     uint64_t l0_al = {0};
@@ -57731,7 +57734,7 @@ bynt_semantics__Big byn_semantics__bigMul(bynt_semantics__Big p_a, bynt_semantic
 #line 198 "semantics/bigint.byn"
     return ((bynt_semantics__Big){l9_lo, l10_hi});
 }
-#line 57735 "main.c"
+#line 57738 "main.c"
 
 bynt_semantics__Big byn_semantics__bigDiv(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     bool l0_negA = {0};
@@ -57752,7 +57755,7 @@ bynt_semantics__Big byn_semantics__bigDiv(bynt_semantics__Big p_a, bynt_semantic
 #line 208 "semantics/bigint.byn"
     return ((l0_negA == l1_negB) ? l4_q : byn_semantics__bigNeg(l4_q));
 }
-#line 57756 "main.c"
+#line 57759 "main.c"
 
 bynt_semantics__Big byn_semantics__bigRem(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     bynt_semantics__Big l0_ma = {0};
@@ -57767,7 +57770,7 @@ bynt_semantics__Big byn_semantics__bigRem(bynt_semantics__Big p_a, bynt_semantic
 #line 216 "semantics/bigint.byn"
     return (byn_semantics__bigIsNeg(p_a) ? byn_semantics__bigNeg(l2_r) : l2_r);
 }
-#line 57771 "main.c"
+#line 57774 "main.c"
 
 int32_t byn_semantics__bigUCmp(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
 #line 223 "semantics/bigint.byn"
@@ -57793,7 +57796,7 @@ int32_t byn_semantics__bigUCmp(bynt_semantics__Big p_a, bynt_semantics__Big p_b)
 #line 227 "semantics/bigint.byn"
     return ((int32_t)0);
 }
-#line 57797 "main.c"
+#line 57800 "main.c"
 
 bynt_semantics__Big byn_semantics__bigUShr(bynt_semantics__Big p_a, int64_t p_n) {
 #line 232 "semantics/bigint.byn"
@@ -57809,7 +57812,7 @@ bynt_semantics__Big byn_semantics__bigUShr(bynt_semantics__Big p_a, int64_t p_n)
 #line 234 "semantics/bigint.byn"
     return ((bynt_semantics__Big){((uint64_t)(byn_shr_u64(p_a.lo, (int64_t)(p_n)) | byn_shl_u64(p_a.hi, (int64_t)(byn_sub_i64(INT64_C(64), p_n, byn_file_23, 234))))), byn_shr_u64(p_a.hi, (int64_t)(p_n))});
 }
-#line 57813 "main.c"
+#line 57816 "main.c"
 
 int64_t byn_semantics__bigU64BitLength(uint64_t p_v) {
     int64_t l0_n = {0};
@@ -57838,13 +57841,13 @@ break_1:;
 #line 245 "semantics/bigint.byn"
     return l0_n;
 }
-#line 57842 "main.c"
+#line 57845 "main.c"
 
 int64_t byn_semantics__bigUBitLength(bynt_semantics__Big p_a) {
 #line 249 "semantics/bigint.byn"
     return ((!(p_a.hi == UINT64_C(0))) ? byn_add_i64(INT64_C(64), byn_semantics__bigU64BitLength(p_a.hi), byn_file_23, 249) : byn_semantics__bigU64BitLength(p_a.lo));
 }
-#line 57848 "main.c"
+#line 57851 "main.c"
 
 bynt_semantics__Big byn_semantics__bigUDiv(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     bynt_semantics__Big l0_q = {0};
@@ -57906,13 +57909,13 @@ break_1:;
 #line 265 "semantics/bigint.byn"
     return l0_q;
 }
-#line 57910 "main.c"
+#line 57913 "main.c"
 
 bynt_semantics__Big byn_semantics__bigURem(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
 #line 269 "semantics/bigint.byn"
     return byn_semantics__bigSub(p_a, byn_semantics__bigMul(byn_semantics__bigUDiv(p_a, p_b), p_b));
 }
-#line 57916 "main.c"
+#line 57919 "main.c"
 
 bynt_tup2_semantics__Big_u64 byn_semantics__bigUDivSmall(bynt_semantics__Big p_a, uint64_t p_d) {
     uint64_t l0_r = {0};
@@ -57965,7 +57968,7 @@ bynt_tup2_semantics__Big_u64 byn_semantics__bigUDivSmall(bynt_semantics__Big p_a
 #line 286 "semantics/bigint.byn"
     return ((bynt_tup2_semantics__Big_u64){((bynt_semantics__Big){((uint64_t)(byn_shl_u64(l8_q1, (int64_t)(((int32_t)32))) | l11_q0)), ((uint64_t)(byn_shl_u64(l2_q3, (int64_t)(((int32_t)32))) | l5_q2))}), l0_r});
 }
-#line 57969 "main.c"
+#line 57972 "main.c"
 
 bynt_semantics__Big byn_semantics__bigShl(bynt_semantics__Big p_a, int64_t p_n) {
 #line 293 "semantics/bigint.byn"
@@ -57981,7 +57984,7 @@ bynt_semantics__Big byn_semantics__bigShl(bynt_semantics__Big p_a, int64_t p_n) 
 #line 295 "semantics/bigint.byn"
     return ((bynt_semantics__Big){byn_shl_u64(p_a.lo, (int64_t)(p_n)), ((uint64_t)(byn_shl_u64(p_a.hi, (int64_t)(p_n)) | byn_shr_u64(p_a.lo, (int64_t)(byn_sub_i64(INT64_C(64), p_n, byn_file_23, 295)))))});
 }
-#line 57985 "main.c"
+#line 57988 "main.c"
 
 bynt_semantics__Big byn_semantics__bigShr(bynt_semantics__Big p_a, int64_t p_n) {
     uint64_t l0_fill = {0};
@@ -58006,31 +58009,31 @@ bynt_semantics__Big byn_semantics__bigShr(bynt_semantics__Big p_a, int64_t p_n) 
 #line 307 "semantics/bigint.byn"
     return ((bynt_semantics__Big){((uint64_t)(byn_shr_u64(p_a.lo, (int64_t)(p_n)) | byn_shl_u64(p_a.hi, (int64_t)(byn_sub_i64(INT64_C(64), p_n, byn_file_23, 307))))), ((uint64_t)(byn_shr_u64(p_a.hi, (int64_t)(p_n)) | byn_shl_u64(l0_fill, (int64_t)(byn_sub_i64(INT64_C(64), p_n, byn_file_23, 307)))))});
 }
-#line 58010 "main.c"
+#line 58013 "main.c"
 
 bynt_semantics__Big byn_semantics__bigAnd(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
 #line 310 "semantics/bigint.byn"
     return ((bynt_semantics__Big){((uint64_t)(p_a.lo & p_b.lo)), ((uint64_t)(p_a.hi & p_b.hi))});
 }
-#line 58016 "main.c"
+#line 58019 "main.c"
 
 bynt_semantics__Big byn_semantics__bigOr(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
 #line 312 "semantics/bigint.byn"
     return ((bynt_semantics__Big){((uint64_t)(p_a.lo | p_b.lo)), ((uint64_t)(p_a.hi | p_b.hi))});
 }
-#line 58022 "main.c"
+#line 58025 "main.c"
 
 bynt_semantics__Big byn_semantics__bigXor(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
 #line 314 "semantics/bigint.byn"
     return ((bynt_semantics__Big){((uint64_t)(p_a.lo ^ p_b.lo)), ((uint64_t)(p_a.hi ^ p_b.hi))});
 }
-#line 58028 "main.c"
+#line 58031 "main.c"
 
 bynt_semantics__Big byn_semantics__bigNot(bynt_semantics__Big p_a) {
 #line 316 "semantics/bigint.byn"
     return ((bynt_semantics__Big){((uint64_t)~p_a.lo), ((uint64_t)~p_a.hi)});
 }
-#line 58034 "main.c"
+#line 58037 "main.c"
 
 bynt_semantics__Big byn_semantics__bigMin(int64_t p_bits, bool p_signed) {
 #line 322 "semantics/bigint.byn"
@@ -58041,7 +58044,7 @@ bynt_semantics__Big byn_semantics__bigMin(int64_t p_bits, bool p_signed) {
 #line 323 "semantics/bigint.byn"
     return byn_semantics__bigNeg(byn_semantics__bigShl(((bynt_semantics__Big){UINT64_C(1), UINT64_C(0)}), byn_sub_i64(p_bits, INT64_C(1), byn_file_23, 323)));
 }
-#line 58045 "main.c"
+#line 58048 "main.c"
 
 bynt_semantics__Big byn_semantics__bigMax(int64_t p_bits, bool p_signed) {
     bynt_semantics__Big l0_one = {0};
@@ -58055,13 +58058,13 @@ bynt_semantics__Big byn_semantics__bigMax(int64_t p_bits, bool p_signed) {
 #line 330 "semantics/bigint.byn"
     return byn_semantics__bigSub(byn_semantics__bigShl(l0_one, byn_sub_i64(p_bits, INT64_C(1), byn_file_23, 330)), l0_one);
 }
-#line 58059 "main.c"
+#line 58062 "main.c"
 
 bool byn_semantics__bigFits(bynt_semantics__Big p_n, int64_t p_bits, bool p_signed) {
 #line 335 "semantics/bigint.byn"
     return ((byn_semantics__bigCmp(p_n, byn_semantics__bigMin(p_bits, p_signed)) >= ((int32_t)0)) && (byn_semantics__bigCmp(p_n, byn_semantics__bigMax(p_bits, p_signed)) <= ((int32_t)0)));
 }
-#line 58065 "main.c"
+#line 58068 "main.c"
 
 bynt_semantics__Big byn_semantics__bigWrap(bynt_semantics__Big p_n, int64_t p_bits, bool p_signed) {
     bynt_semantics__Big l0_one = {0};
@@ -58081,7 +58084,7 @@ bynt_semantics__Big byn_semantics__bigWrap(bynt_semantics__Big p_n, int64_t p_bi
 #line 343 "semantics/bigint.byn"
     return l2_m;
 }
-#line 58085 "main.c"
+#line 58088 "main.c"
 
 bynt_semantics__Big byn_semantics__bigSaturate(bynt_semantics__Big p_n, int64_t p_bits, bool p_signed) {
     bynt_semantics__Big l0_mn = {0};
@@ -58103,13 +58106,13 @@ bynt_semantics__Big byn_semantics__bigSaturate(bynt_semantics__Big p_n, int64_t 
 #line 352 "semantics/bigint.byn"
     return p_n;
 }
-#line 58107 "main.c"
+#line 58110 "main.c"
 
 int64_t byn_semantics__bigToI64(bynt_semantics__Big p_n) {
 #line 358 "semantics/bigint.byn"
     return ((p_n.hi == UINT64_C(0)) ? byn_cast_i64_u((uint64_t)p_n.lo, byn_file_23, 358) : byn_semantics__bigI64OfBits(p_n.lo));
 }
-#line 58113 "main.c"
+#line 58116 "main.c"
 
 double byn_semantics__bigToF64(bynt_semantics__Big p_n) {
     bool l0_neg = {0};
@@ -58187,7 +58190,7 @@ break_1:;
 #line 380 "semantics/bigint.byn"
     return (l0_neg ? (-l15_d) : l15_d);
 }
-#line 58191 "main.c"
+#line 58194 "main.c"
 
 bynt_semantics__Big byn_semantics__bigFromF64(double p_d) {
     bool l0_neg = {0};
@@ -58218,7 +58221,7 @@ bynt_semantics__Big byn_semantics__bigFromF64(double p_d) {
 #line 392 "semantics/bigint.byn"
     return (l0_neg ? byn_semantics__bigNeg(l4_m) : l4_m);
 }
-#line 58222 "main.c"
+#line 58225 "main.c"
 
 uint64_t byn_semantics__bigTruncToU64(double p_x) {
     uint64_t l0_top = {0};
@@ -58235,7 +58238,7 @@ uint64_t byn_semantics__bigTruncToU64(double p_x) {
 #line 400 "semantics/bigint.byn"
     return ((uint64_t)(byn_shl_u64(l0_top, (int64_t)(((int32_t)32))) | l1_bot));
 }
-#line 58239 "main.c"
+#line 58242 "main.c"
 
 byn_str byn_semantics__t15Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -58263,7 +58266,7 @@ byn_str byn_semantics__t15Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer_
 #line 12 "semantics/binder.byn"
     return t2;
 }
-#line 58267 "main.c"
+#line 58270 "main.c"
 
 bynt_semantics__Diag byn_semantics__t15CloneDiag(bynt_semantics__Diag p_d) {
     bynt_list_semantics__Related l0_rel = {0};
@@ -58295,7 +58298,7 @@ break_1:;
 #line 20 "semantics/binder.byn"
     return ((bynt_semantics__Diag){p_d.code, p_d.file, p_d.span, p_d.message, p_d.label, p_d.help, p_d.isWarning, false, p_d.hasFix, p_d.fixSpan, p_d.fixReplacement, l0_rel});
 }
-#line 58299 "main.c"
+#line 58302 "main.c"
 
 bool byn_semantics__t15ContainsLocal(bynt_list_i64 p_list, int64_t p_id) {
     int64_t l0_x = {0};
@@ -58327,7 +58330,7 @@ break_1:;
 #line 39 "semantics/binder.byn"
     return false;
 }
-#line 58331 "main.c"
+#line 58334 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__t15StmtSpan(byn_parser_Stmt p_s) {
     bynt_parser__BlockStmt* l0_n = {0};
@@ -58531,7 +58534,7 @@ bynt_lexer__TextSpan byn_semantics__t15StmtSpan(byn_parser_Stmt p_s) {
     }
 switch_end_1:;
 }
-#line 58535 "main.c"
+#line 58538 "main.c"
 
 int64_t byn_semantics__t15Scope(bynt_semantics__Binder* p_b) {
 #line 77 "semantics/binder.byn"
@@ -58546,7 +58549,7 @@ int64_t byn_semantics__t15Scope(bynt_semantics__Binder* p_b) {
 #line 82 "semantics/binder.byn"
     return byn_sub_i64((*p_b).scopes.len, INT64_C(1), byn_file_24, 82);
 }
-#line 58550 "main.c"
+#line 58553 "main.c"
 
 int64_t byn_semantics__t15Lookup(bynt_semantics__Binder* p_b, byn_str p_name) {
     int64_t l0_i = {0};
@@ -58572,7 +58575,7 @@ break_1:;
 #line 92 "semantics/binder.byn"
     return INT64_C(-1);
 }
-#line 58576 "main.c"
+#line 58579 "main.c"
 
 int64_t byn_semantics__hold(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c) {
     int64_t t0 = {0};
@@ -58585,7 +58588,7 @@ int64_t byn_semantics__hold(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_
 #line 102 "semantics/binder.byn"
     return byn_sub_i64((*p_b).held, INT64_C(1), byn_file_24, 102);
 }
-#line 58589 "main.c"
+#line 58592 "main.c"
 
 bynt_list_tup2_i64_i64 byn_semantics__release(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c) {
     int64_t l0_held = {0};
@@ -58864,7 +58867,7 @@ break_13:;
 #line 161 "semantics/binder.byn"
     return ((bynt_list_tup2_i64_i64){NULL, 0, 0, byn_context});
 }
-#line 58868 "main.c"
+#line 58871 "main.c"
 
 void byn_semantics__report(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_semantics_SemaCode p_code, bynt_lexer__TextSpan p_span, bynt_tup5_str_str_str_str_str p_args, byn_str p_label, byn_str p_help, bool p_hasFix, bynt_opt_lexer__TextSpan p_fixSpan, byn_str p_fixReplacement) {
     int64_t l0_outer = {0};
@@ -58883,7 +58886,7 @@ void byn_semantics__report(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c
 #line 195 "semantics/binder.byn"
     (*p_c).sink = l0_outer;
 }
-#line 58887 "main.c"
+#line 58890 "main.c"
 
 void byn_semantics__checkValueName(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_name) {
     int64_t l0_outer = {0};
@@ -58902,7 +58905,7 @@ void byn_semantics__checkValueName(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 204 "semantics/binder.byn"
     (*p_c).sink = l0_outer;
 }
-#line 58906 "main.c"
+#line 58909 "main.c"
 
 void byn_semantics__t15CaptureTypes(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c) {
     int64_t t0 = {0};
@@ -59044,7 +59047,7 @@ void byn_semantics__t15CaptureTypes(bynt_semantics__Binder* p_b, bynt_semantics_
         }
     }
 }
-#line 59048 "main.c"
+#line 59051 "main.c"
 
 int64_t byn_semantics__t15InterfaceSelf(bynt_semantics__Ctx* p_c, int64_t p_i) {
     bynt_list_i64 l0_constraints = {0};
@@ -59063,7 +59066,7 @@ int64_t byn_semantics__t15InterfaceSelf(bynt_semantics__Ctx* p_c, int64_t p_i) {
 #line 241 "semantics/binder.byn"
     return byn_semantics__typeParamTypeOf((*bynh_at_list_semantics__InterfaceSymbol((*p_c).interfaces, (int64_t)p_i, false, byn_file_24, 241)).self);
 }
-#line 59067 "main.c"
+#line 59070 "main.c"
 
 int64_t byn_semantics__resolveType(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_TypeSyntax p_t) {
     bynt_map_str_i64 l0_map = {0};
@@ -59127,7 +59130,7 @@ break_1:;
 #line 258 "semantics/binder.byn"
     return l9_type;
 }
-#line 59131 "main.c"
+#line 59134 "main.c"
 
 void byn_semantics__pushScope(bynt_semantics__Binder* p_b) {
     int64_t l0__ = {0};
@@ -59140,7 +59143,7 @@ void byn_semantics__pushScope(bynt_semantics__Binder* p_b) {
 #line 267 "semantics/binder.byn"
     (*p_b).nextScopeId = byn_add_i64((*p_b).nextScopeId, INT64_C(1), byn_file_24, 267);
 }
-#line 59144 "main.c"
+#line 59147 "main.c"
 
 void byn_semantics__popScope(bynt_semantics__Binder* p_b) {
 #line 271 "semantics/binder.byn"
@@ -59148,7 +59151,7 @@ void byn_semantics__popScope(bynt_semantics__Binder* p_b) {
 #line 272 "semantics/binder.byn"
     (void)bynh_remove_through_list_i64(&(*p_b).scopeIds, byn_sub_i64((*p_b).scopeIds.len, INT64_C(1), byn_file_24, 272), 0, 2, byn_file_24, 272);
 }
-#line 59152 "main.c"
+#line 59155 "main.c"
 
 int64_t byn_semantics__declareLocal(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_name, int64_t p_type, byn_semantics_LocalKind p_kind) {
     int64_t l0_local = {0};
@@ -59166,7 +59169,7 @@ int64_t byn_semantics__declareLocal(bynt_semantics__Binder* p_b, bynt_semantics_
 #line 289 "semantics/binder.byn"
     return l0_local;
 }
-#line 59170 "main.c"
+#line 59173 "main.c"
 
 int64_t byn_semantics__declareDiscard(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_name, int64_t p_type, byn_semantics_LocalKind p_kind) {
     int64_t l0_local = {0};
@@ -59182,7 +59185,7 @@ int64_t byn_semantics__declareDiscard(bynt_semantics__Binder* p_b, bynt_semantic
 #line 308 "semantics/binder.byn"
     return l0_local;
 }
-#line 59186 "main.c"
+#line 59189 "main.c"
 
 void byn_semantics__addLocal(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_name, int64_t p_local) {
     byn_str l0_text = {0};
@@ -59269,7 +59272,7 @@ void byn_semantics__addLocal(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p
 #line 349 "semantics/binder.byn"
     (*bynh_slot_map_str_i64(&(*bynh_at_list_map_str_i64((*p_b).scopes, (int64_t)l1_scope, false, byn_file_24, 349)), l0_text, ((int64_t){0}))) = p_local;
 }
-#line 59273 "main.c"
+#line 59276 "main.c"
 
 void byn_semantics__t15DeclareParameters(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c) {
     bynt_list_i64 l0_ps = {0};
@@ -59331,7 +59334,7 @@ break_1:;
     }
 break_3:;
 }
-#line 59335 "main.c"
+#line 59338 "main.c"
 
 int64_t byn_semantics__t15ThisFacts(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c) {
     int64_t l0_made = {0};
@@ -59351,7 +59354,7 @@ int64_t byn_semantics__t15ThisFacts(bynt_semantics__Binder* p_b, bynt_semantics_
 #line 375 "semantics/binder.byn"
     return l1_fresh;
 }
-#line 59355 "main.c"
+#line 59358 "main.c"
 
 void byn_semantics__bindFunctionBody(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__FunctionDecl p_decl) {
     int64_t l0_own = {0};
@@ -59434,7 +59437,7 @@ switch_end_1:;
         (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)(*p_b).fn, false, byn_file_24, 424)).body = t10;
     }
 }
-#line 59438 "main.c"
+#line 59441 "main.c"
 
 bynt_list_i64 byn_semantics__t15BindRequires(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__FunctionDecl p_decl) {
     bynt_list_i64 l0_conditions = {0};
@@ -59531,7 +59534,7 @@ break_1:;
 #line 496 "semantics/binder.byn"
     return l1_checks;
 }
-#line 59535 "main.c"
+#line 59538 "main.c"
 
 void byn_semantics__t15CheckExpects(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_clause, int64_t p_condition) {
     bynt_list_i64 l0_nodes = {0};
@@ -59669,7 +59672,7 @@ break_3:;
 #line 535 "semantics/binder.byn"
     (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)229), t18, t19, BYN_STR("", 0), byn_strbuf_str(t17), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 59673 "main.c"
+#line 59676 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__t15ExpectsKeyword(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__TextSpan p_clause) {
     bynt_span_u8 l0_bytes = {0};
@@ -59702,13 +59705,13 @@ break_1:;
 #line 555 "semantics/binder.byn"
     return (byn_str_eq(byn_semantics__getText(l0_bytes, l4_keyword), BYN_STR("expects", 7)) ? l4_keyword : p_clause);
 }
-#line 59706 "main.c"
+#line 59709 "main.c"
 
 int64_t byn_semantics__addLocalNode(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_local) {
 #line 560 "semantics/binder.byn"
     return byn_semantics__addLocal__o1(&(*p_c), ((bynt_semantics__BLocal){p_span, p_local, (*bynh_at_list_semantics__LocalSymbol((*p_c).locals, (int64_t)p_local, false, byn_file_24, 560)).type}));
 }
-#line 59712 "main.c"
+#line 59715 "main.c"
 
 void byn_semantics__bindChecks(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_semantics__StructChecks p_checks) {
     int64_t l0_s = {0};
@@ -60026,7 +60029,7 @@ break_14:;
 #line 733 "semantics/binder.byn"
     (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)(*p_b).fn, false, byn_file_24, 733)).body = t50;
 }
-#line 60030 "main.c"
+#line 60033 "main.c"
 
 void byn_semantics__t28AddRule(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__RequiresRule p_r, int64_t p_field, bynt_semantics__T28Checks* p_st) {
     int64_t l0_condition = {0};
@@ -60285,7 +60288,7 @@ break_3:;
 #line 989 "semantics/binder.byn"
     (void)bynh_add_list_i64(&(*p_st).statements, byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){p_r.span, l9_failing, l31_then, INT64_C(-1), false, false})), ((byn_semantics_NodeSyntaxKind)36), p_r.span));
 }
-#line 60289 "main.c"
+#line 60292 "main.c"
 
 int64_t byn_semantics__ruleOf(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__RequiresRule p_r, int64_t p_field, int64_t p_condition) {
     int64_t l0_rule = {0};
@@ -60390,7 +60393,7 @@ switch_end_1:;
 #line 1069 "semantics/binder.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addUnionNew(&(*p_c), ((bynt_semantics__BUnionNew){p_r.span, byn_semantics__findUnionVariant(&(*p_c), l0_rule, BYN_STR("custom", 6)), ((bynt_list_i64){NULL, 0, 0, byn_context}), INT64_C(-1)})), ((byn_semantics_NodeSyntaxKind)36), p_r.span);
 }
-#line 60394 "main.c"
+#line 60397 "main.c"
 
 int64_t byn_semantics__t28RuleBound(bynt_semantics__Ctx* p_c, int64_t p_e) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -60411,7 +60414,7 @@ int64_t byn_semantics__t28RuleBound(bynt_semantics__Ctx* p_c, int64_t p_e) {
 #line 1097 "semantics/binder.byn"
     return INT64_C(-1);
 }
-#line 60415 "main.c"
+#line 60418 "main.c"
 
 void byn_semantics__t15BindParameterDefaults(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c) {
     bynt_list_i64 l0_ps = {0};
@@ -60465,7 +60468,7 @@ break_1:;
     }
 break_3:;
 }
-#line 60469 "main.c"
+#line 60472 "main.c"
 
 int64_t byn_semantics__t15ParameterOwner(bynt_semantics__Ctx p_c, int64_t p_p) {
     int64_t l0_f = {0};
@@ -60497,7 +60500,7 @@ break_1:;
 #line 1115 "semantics/binder.byn"
     return INT64_C(-1);
 }
-#line 60501 "main.c"
+#line 60504 "main.c"
 
 int64_t byn_semantics__bindParameterDefault(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_p) {
     int64_t l0_f = {0};
@@ -60597,7 +60600,7 @@ int64_t byn_semantics__bindParameterDefault(bynt_semantics__Binder* p_b, bynt_se
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 60601 "main.c"
+#line 60604 "main.c"
 
 int64_t byn_semantics__t15BindDefault(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_d, int64_t p_type) {
     int64_t l0_value = {0};
@@ -60617,7 +60620,7 @@ int64_t byn_semantics__t15BindDefault(bynt_semantics__Binder* p_b, bynt_semantic
 #line 1193 "semantics/binder.byn"
     return l0_value;
 }
-#line 60621 "main.c"
+#line 60624 "main.c"
 
 int64_t byn_semantics__bindExpressionBody(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -60633,7 +60636,7 @@ int64_t byn_semantics__bindExpressionBody(bynt_semantics__Binder* p_b, bynt_sema
 #line 1207 "semantics/binder.byn"
     return byn_semantics__recordSyntax(&(*p_c), byn_semantics__addReturn(&(*p_c), ((bynt_semantics__BReturn){l0_span, byn_semantics__bindConverted(&(*p_b), &(*p_c), p_e, (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)(*p_b).fn, false, byn_file_24, 1213)).returnType, false)})), p_e);
 }
-#line 60637 "main.c"
+#line 60640 "main.c"
 
 void byn_semantics__bindGetter(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__PropertyDecl p_d) {
     bynt_parser__BlockStmt* l0_block = {0};
@@ -60668,7 +60671,7 @@ switch_end_1:;
 #line 1244 "semantics/binder.byn"
     (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)(*p_b).fn, false, byn_file_24, 1244)).body = t4;
 }
-#line 60672 "main.c"
+#line 60675 "main.c"
 
 void byn_semantics__bindConstructor(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ConstructorDecl p_d) {
     bynt_parser__BlockStmt* l0_block = {0};
@@ -60692,7 +60695,7 @@ void byn_semantics__bindConstructor(bynt_semantics__Binder* p_b, bynt_semantics_
     goto switch_end_1;
 switch_end_1:;
 }
-#line 60696 "main.c"
+#line 60699 "main.c"
 
 void byn_semantics__bindMain(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_list_semantics__SyntaxRef p_statements) {
     bynt_list_i64 l0_bound = {0};
@@ -60764,7 +60767,7 @@ break_1:;
 #line 1284 "semantics/binder.byn"
     (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)(*p_b).fn, false, byn_file_24, 1284)).body = t10;
 }
-#line 60768 "main.c"
+#line 60771 "main.c"
 
 void byn_semantics__bindTest(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_semantics__TestBody p_body) {
     byn_parser_Decl t0 = {0};
@@ -60854,7 +60857,7 @@ void byn_semantics__bindTest(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p
     (void)byn_panic_str(BYN_STR("internal error: a test body ref is not a test", 45), byn_file_24, 1346);
 switch_end_1:;
 }
-#line 60858 "main.c"
+#line 60861 "main.c"
 
 int64_t byn_semantics__t15BindCaseValue(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_arg, int64_t p_i, int64_t p_type) {
     bynt_parser__TupleExpr* l0_tuple = {0};
@@ -60869,7 +60872,7 @@ int64_t byn_semantics__t15BindCaseValue(bynt_semantics__Binder* p_b, bynt_semant
     return byn_semantics__bindConverted(&(*p_b), &(*p_c), p_arg, p_type, false);
 switch_end_1:;
 }
-#line 60873 "main.c"
+#line 60876 "main.c"
 
 int64_t byn_semantics__bindFieldDefault(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_f) {
     byn_parser_Decl t0 = {0};
@@ -60904,7 +60907,7 @@ int64_t byn_semantics__bindFieldDefault(bynt_semantics__Binder* p_b, bynt_semant
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 60908 "main.c"
+#line 60911 "main.c"
 
 void byn_semantics__bindEnumArguments(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_e) {
     bynt_list_i64 l0_ps = {0};
@@ -61122,7 +61125,7 @@ break_1:;
     goto switch_end_3;
 switch_end_3:;
 }
-#line 61126 "main.c"
+#line 61129 "main.c"
 
 void byn_semantics__bindModuleConstant(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_k) {
     byn_parser_Decl t0 = {0};
@@ -61154,7 +61157,7 @@ void byn_semantics__bindModuleConstant(bynt_semantics__Binder* p_b, bynt_semanti
     goto switch_end_1;
 switch_end_1:;
 }
-#line 61158 "main.c"
+#line 61161 "main.c"
 
 void byn_semantics__t15BindConstant(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_k, bynt_parser__LocalDecl p_decl) {
     int64_t l0_declared = {0};
@@ -61241,7 +61244,7 @@ void byn_semantics__t15BindConstant(bynt_semantics__Binder* p_b, bynt_semantics_
 #line 1543 "semantics/binder.byn"
     (*bynh_at_list_semantics__ConstSymbol((*p_c).consts, (int64_t)p_k, false, byn_file_24, 1543)).bound = l4_value;
 }
-#line 61245 "main.c"
+#line 61248 "main.c"
 
 void byn_semantics__t15BindStaticArray(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_k, bynt_parser__LocalDecl p_decl, int64_t p_value) {
     byn_str l0_name = {0};
@@ -61416,7 +61419,7 @@ break_5:;
     }
 break_7:;
 }
-#line 61420 "main.c"
+#line 61423 "main.c"
 
 int64_t byn_semantics__bindArraySize(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_size) {
     int64_t l0_value = {0};
@@ -61456,7 +61459,7 @@ int64_t byn_semantics__bindArraySize(bynt_semantics__Binder* p_b, bynt_semantics
 #line 1624 "semantics/binder.byn"
     return INT64_C(-1);
 }
-#line 61460 "main.c"
+#line 61463 "main.c"
 
 bynt_semantics__JumpTarget byn_semantics__t16Target(bynt_semantics__Ctx* p_c, bynt_opt_semantics__JumpTarget p_labelTarget, bool p_isLoop) {
 #line 17 "semantics/binder2.byn"
@@ -61467,7 +61470,7 @@ bynt_semantics__JumpTarget byn_semantics__t16Target(bynt_semantics__Ctx* p_c, by
 #line 18 "semantics/binder2.byn"
     return byn_semantics__t16NewTarget(&(*p_c), ((bynt_opt_str){0}), p_isLoop);
 }
-#line 61471 "main.c"
+#line 61474 "main.c"
 
 bynt_semantics__JumpTarget byn_semantics__t16NewTarget(bynt_semantics__Ctx* p_c, bynt_opt_str p_label, bool p_isLoop) {
     bynt_semantics__JumpTarget l0_target = {0};
@@ -61478,13 +61481,13 @@ bynt_semantics__JumpTarget byn_semantics__t16NewTarget(bynt_semantics__Ctx* p_c,
 #line 29 "semantics/binder2.byn"
     return l0_target;
 }
-#line 61482 "main.c"
+#line 61485 "main.c"
 
 int64_t byn_semantics__t16ScopeId(bynt_semantics__Binder* p_b) {
 #line 33 "semantics/binder2.byn"
     return (*bynh_at_list_i64((*p_b).scopeIds, (int64_t)byn_semantics__t15Scope(&(*p_b)), false, byn_file_25, 33));
 }
-#line 61488 "main.c"
+#line 61491 "main.c"
 
 int32_t byn_semantics__bindExitCode(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__AttributeSyntax p_a) {
     bynt_opt_lexer__TextSpan t0 = {0};
@@ -61545,7 +61548,7 @@ int32_t byn_semantics__bindExitCode(bynt_semantics__Binder* p_b, bynt_semantics_
 #line 64 "semantics/binder2.byn"
     return ((int32_t)1);
 }
-#line 61549 "main.c"
+#line 61552 "main.c"
 
 int64_t byn_semantics__bindBlock(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__BlockStmt p_block) {
     bynt_list_i64 l0_statements = {0};
@@ -61581,7 +61584,7 @@ break_1:;
 #line 76 "semantics/binder2.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addBlock(&(*p_c), ((bynt_semantics__BBlock){p_block.span, l0_statements})), ((byn_semantics_NodeSyntaxKind)0), p_block.span);
 }
-#line 61585 "main.c"
+#line 61588 "main.c"
 
 int64_t byn_semantics__bindBody(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Stmt p_body) {
     bynt_parser__BlockStmt* l0_blk = {0};
@@ -61603,7 +61606,7 @@ int64_t byn_semantics__bindBody(bynt_semantics__Binder* p_b, bynt_semantics__Ctx
     return l1_s;
 switch_end_1:;
 }
-#line 61607 "main.c"
+#line 61610 "main.c"
 
 void byn_semantics__bindUnobservable(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_stmt, bynt_parser__AttributeSyntax p_attribute) {
     bynt_opt_str l0_op = {0};
@@ -61743,7 +61746,7 @@ void byn_semantics__bindUnobservable(bynt_semantics__Binder* p_b, bynt_semantics
 #line 149 "semantics/binder2.byn"
     (void)byn_semantics__t28AddUnobservable(&(*p_c), ((bynt_semantics__UnobservableMark){(*bynh_at_list_semantics__SourceFile((*p_c).files, (int64_t)(*p_b).file, false, byn_file_25, 149)).path, p_stmt, l0_op, l16_reason}));
 }
-#line 61747 "main.c"
+#line 61750 "main.c"
 
 void byn_semantics__t28AddUnobservable(bynt_semantics__Ctx* p_c, bynt_semantics__UnobservableMark p_mark) {
     byn_str l0_key = {0};
@@ -61775,7 +61778,7 @@ void byn_semantics__t28AddUnobservable(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 166 "semantics/binder2.byn"
     (void)bynh_add_list_semantics__UnobservableMark(&(*p_c).unobservable, p_mark);
 }
-#line 61779 "main.c"
+#line 61782 "main.c"
 
 void byn_semantics__t28BindUnobservables(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Stmt p_stmt) {
     bynt_parser__AttributeSyntax l0_a = {0};
@@ -62483,7 +62486,7 @@ void byn_semantics__t28BindUnobservables(bynt_semantics__Binder* p_b, bynt_seman
     }
 switch_end_1:;
 }
-#line 62487 "main.c"
+#line 62490 "main.c"
 
 int64_t byn_semantics__bindStatement(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Stmt p_stmt, bynt_opt_semantics__JumpTarget p_labelTarget) {
     bynt_parser__BlockStmt* l0_blk = {0};
@@ -62917,7 +62920,7 @@ int64_t byn_semantics__bindStatement(bynt_semantics__Binder* p_b, bynt_semantics
     return byn_semantics__recordStmtSyntax(&(*p_c), byn_semantics__addErrorStmt(&(*p_c), ((bynt_semantics__BErrorStmt){l72_span})), p_stmt);
 switch_end_1:;
 }
-#line 62921 "main.c"
+#line 62924 "main.c"
 
 int64_t byn_semantics__negate(bynt_semantics__Ctx* p_c, byn_parser_Expr p_syntax, int64_t p_cond) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -62943,13 +62946,13 @@ int64_t byn_semantics__negate(bynt_semantics__Ctx* p_c, byn_parser_Expr p_syntax
 #line 482 "semantics/binder2.byn"
     return byn_semantics__recordSyntax(&(*p_c), byn_semantics__addUnary(&(*p_c), ((bynt_semantics__BUnary){l0_span, ((byn_parser_UnaryOp)2), p_cond, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))})), p_syntax);
 }
-#line 62947 "main.c"
+#line 62950 "main.c"
 
 int64_t byn_semantics__bindCondition(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e) {
 #line 491 "semantics/binder2.byn"
     return byn_semantics__bindConverted(&(*p_b), &(*p_c), p_e, byn_semantics__prim(((byn_semantics_PrimitiveKind)12)), false);
 }
-#line 62953 "main.c"
+#line 62956 "main.c"
 
 int64_t byn_semantics__bindAssert(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__AssertStmt p_a) {
     int32_t l0__ = {0};
@@ -62999,7 +63002,7 @@ switch_end_1:;
 #line 520 "semantics/binder2.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addErrorStmt(&(*p_c), ((bynt_semantics__BErrorStmt){p_a.span})), ((byn_semantics_NodeSyntaxKind)20), p_a.span);
 }
-#line 63003 "main.c"
+#line 63006 "main.c"
 
 int64_t byn_semantics__t16BindAssertOperand(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e, byn_parser_Expr p_condition) {
     bynt_parser__ParenExpr* l0_p = {0};
@@ -63035,7 +63038,7 @@ int64_t byn_semantics__t16BindAssertOperand(bynt_semantics__Binder* p_b, bynt_se
     return byn_semantics__bindExpr(&(*p_b), &(*p_c), p_condition, INT64_C(-1));
 switch_end_1:;
 }
-#line 63039 "main.c"
+#line 63042 "main.c"
 
 int64_t byn_semantics__bindAssertFails(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__AssertStmt p_a) {
     int64_t l0_operand = {0};
@@ -63268,7 +63271,7 @@ break_4:;
 #line 648 "semantics/binder2.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addAssert(&(*p_c), ((bynt_semantics__BAssert){p_a.span, l0_operand, l14_set, l15_variant})), ((byn_semantics_NodeSyntaxKind)20), p_a.span);
 }
-#line 63272 "main.c"
+#line 63275 "main.c"
 
 bool byn_semantics__isNonNull(bynt_semantics__Binder* p_b, int64_t p_local) {
     bynt_tup2_i64_i64 l0_pair = {0};
@@ -63326,7 +63329,7 @@ break_1:;
 #line 666 "semantics/binder2.byn"
     return false;
 }
-#line 63330 "main.c"
+#line 63333 "main.c"
 
 bynt_semantics__NarrowedScope byn_semantics__narrowedBegin(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_cond, bool p_whenTrue) {
     int64_t l0_mark = {0};
@@ -63390,7 +63393,7 @@ break_3:;
 #line 681 "semantics/binder2.byn"
     return ((bynt_semantics__NarrowedScope){l0_mark, l5_before, l9_learned});
 }
-#line 63394 "main.c"
+#line 63397 "main.c"
 
 void byn_semantics__narrowedEnd(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_semantics__NarrowedScope p_scope) {
     bynt_list_tup3_i64_i64_i64 l0_kept = {0};
@@ -63462,7 +63465,7 @@ break_3:;
 #line 704 "semantics/binder2.byn"
     (void)byn_semantics__unlearnStates(&(*p_b), p_scope.learned);
 }
-#line 63466 "main.c"
+#line 63469 "main.c"
 
 int64_t byn_semantics__narrowAfter(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_i) {
     bynt_semantics__BIf l0_node = {0};
@@ -63509,7 +63512,7 @@ int64_t byn_semantics__narrowAfter(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 719 "semantics/binder2.byn"
     return p_i;
 }
-#line 63513 "main.c"
+#line 63516 "main.c"
 
 bool byn_semantics__exits(bynt_semantics__Ctx p_c, int64_t p_s) {
     byn_semantics_BoundKind t0 = {0};
@@ -63553,7 +63556,7 @@ bool byn_semantics__exits(bynt_semantics__Ctx p_c, int64_t p_s) {
     return false;
 switch_end_1:;
 }
-#line 63557 "main.c"
+#line 63560 "main.c"
 
 bynt_list_i64 byn_semantics__nonNullWhen(bynt_semantics__Ctx p_c, int64_t p_cond, bool p_whenTrue) {
     bynt_list_i64 l0_found = {0};
@@ -63564,7 +63567,7 @@ bynt_list_i64 byn_semantics__nonNullWhen(bynt_semantics__Ctx p_c, int64_t p_cond
 #line 743 "semantics/binder2.byn"
     return l0_found;
 }
-#line 63568 "main.c"
+#line 63571 "main.c"
 
 void byn_semantics__nonNullCollect(bynt_semantics__Ctx p_c, int64_t p_cond, bool p_when, bynt_list_i64* p_found) {
     byn_semantics_BoundKind t0 = {0};
@@ -63664,7 +63667,7 @@ void byn_semantics__nonNullCollect(bynt_semantics__Ctx p_c, int64_t p_cond, bool
     }
 switch_end_1:;
 }
-#line 63668 "main.c"
+#line 63671 "main.c"
 
 int64_t byn_semantics__bindLabeled(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__LabeledStmt p_l) {
     byn_str l0_text = {0};
@@ -63742,7 +63745,7 @@ switch_end_3:;
 #line 820 "semantics/binder2.byn"
     return byn_semantics__bindStatement(&(*p_b), &(*p_c), p_l.statement, ((bynt_opt_semantics__JumpTarget){true, l7_target}));
 }
-#line 63746 "main.c"
+#line 63749 "main.c"
 
 int64_t byn_semantics__bindLocalDecl(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__LocalDecl p_d) {
     int64_t l0_declared = {0};
@@ -63938,7 +63941,7 @@ switch_end_4:;
 #line 922 "semantics/binder2.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addLocalDecl(&(*p_c), ((bynt_semantics__BLocalDecl){p_d.span, l20_local, l5_init})), ((byn_semantics_NodeSyntaxKind)1), p_d.span);
 }
-#line 63942 "main.c"
+#line 63945 "main.c"
 
 bool byn_semantics__checkUniqueConst(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__LocalDecl p_d, int64_t p_type) {
     bynt_lexer__TextSpan l0_keyword = {0};
@@ -63972,7 +63975,7 @@ bool byn_semantics__checkUniqueConst(bynt_semantics__Binder* p_b, bynt_semantics
 #line 947 "semantics/binder2.byn"
     return true;
 }
-#line 63976 "main.c"
+#line 63979 "main.c"
 
 void byn_semantics__checkDisposable(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__LocalDecl p_d, int64_t p_type) {
 #line 951 "semantics/binder2.byn"
@@ -63983,7 +63986,7 @@ void byn_semantics__checkDisposable(bynt_semantics__Binder* p_b, bynt_semantics_
 #line 952 "semantics/binder2.byn"
     (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)77), p_d.name, ((bynt_tup5_str_str_str_str_str){byn_semantics__typeDisplay(&(*p_c), p_type), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("use `using` only for values that own memory: `Arena` and `List<T>`", 66), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 63987 "main.c"
+#line 63990 "main.c"
 
 int64_t byn_semantics__defaultType(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_init, byn_parser_Expr p_syntax) {
     int64_t l0_t = {0};
@@ -64011,7 +64014,7 @@ int64_t byn_semantics__defaultType(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 981 "semantics/binder2.byn"
     return l0_t;
 }
-#line 64015 "main.c"
+#line 64018 "main.c"
 
 int64_t byn_semantics__bindWhileLet(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__WhileLetStmt p_w, bynt_semantics__JumpTarget p_target) {
     int64_t l0_value = {0};
@@ -64060,7 +64063,7 @@ int64_t byn_semantics__bindWhileLet(bynt_semantics__Binder* p_b, bynt_semantics_
 #line 1008 "semantics/binder2.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addWhile(&(*p_c), ((bynt_semantics__BWhile){p_w.span, l5_cond, l6_body, p_target.id})), ((byn_semantics_NodeSyntaxKind)15), p_w.span);
 }
-#line 64064 "main.c"
+#line 64067 "main.c"
 
 bool byn_semantics__isBorrowedPlace(bynt_semantics__Ctx* p_c, int64_t p_e) {
     byn_semantics_BoundKind t0 = {0};
@@ -64356,7 +64359,7 @@ bool byn_semantics__isBorrowedPlace(bynt_semantics__Ctx* p_c, int64_t p_e) {
     return false;
 switch_end_1:;
 }
-#line 64360 "main.c"
+#line 64363 "main.c"
 
 int64_t byn_semantics__bindPresent(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_name, int64_t p_input, bool p_discard) {
     int64_t l0_local = {0};
@@ -64367,7 +64370,7 @@ int64_t byn_semantics__bindPresent(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 1099 "semantics/binder2.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addPropertyPattern(&(*p_c), ((bynt_semantics__BPropertyPattern){p_name, p_input, byn_semantics__unwrap(&(*p_c), p_input), ((bynt_list_semantics__BSubpattern){NULL, 0, 0, byn_context}), l0_local})), ((byn_semantics_NodeSyntaxKind)40), p_name);
 }
-#line 64371 "main.c"
+#line 64374 "main.c"
 
 int64_t byn_semantics__bindFor(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ForStmt p_f, bynt_semantics__JumpTarget p_target) {
     int64_t l0_iterable = {0};
@@ -64521,7 +64524,7 @@ int64_t byn_semantics__bindFor(bynt_semantics__Binder* p_b, bynt_semantics__Ctx*
 #line 1170 "semantics/binder2.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addFor(&(*p_c), ((bynt_semantics__BFor){p_f.span, l19_variable, l0_iterable, l20_body, p_target.id, l1_user})), ((byn_semantics_NodeSyntaxKind)16), p_f.span);
 }
-#line 64525 "main.c"
+#line 64528 "main.c"
 
 int64_t byn_semantics__userElement(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ForStmt p_f, int64_t p_iterable, bynt_opt_semantics__UserIteration* p_user) {
     int64_t l0_itType = {0};
@@ -64816,7 +64819,7 @@ break_5:;
 #line 136 "semantics/binder3.byn"
     return l25_element;
 }
-#line 64820 "main.c"
+#line 64823 "main.c"
 
 bynt_tup2_i64_i64 byn_semantics__witness(bynt_semantics__Ctx* p_c, int64_t p_conf, int64_t p_member) {
     bynt_opt_i64 t0 = {0};
@@ -64834,7 +64837,7 @@ bynt_tup2_i64_i64 byn_semantics__witness(bynt_semantics__Ctx* p_c, int64_t p_con
 #line 144 "semantics/binder3.byn"
     return ((bynt_tup2_i64_i64){INT64_C(-1), (t2.has ? t2.value : INT64_C(-1))});
 }
-#line 64838 "main.c"
+#line 64841 "main.c"
 
 int64_t byn_semantics__declaredElement(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ForStmt p_f, int64_t p_element) {
     int64_t l0_result = {0};
@@ -64879,7 +64882,7 @@ int64_t byn_semantics__declaredElement(bynt_semantics__Binder* p_b, bynt_semanti
 #line 168 "semantics/binder3.byn"
     return l0_result;
 }
-#line 64883 "main.c"
+#line 64886 "main.c"
 
 int64_t byn_semantics__bindForBody(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ForStmt p_f, int64_t p_variable, bynt_semantics__JumpTarget p_target) {
     bynt_list_i64 l0_prelude = {0};
@@ -65003,7 +65006,7 @@ int64_t byn_semantics__bindForBody(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 234 "semantics/binder3.byn"
     return byn_semantics__recordStmtSyntax(&(*p_c), byn_semantics__addBlock(&(*p_c), ((bynt_semantics__BBlock){byn_parser__stmtSpan(p_f.body), l0_prelude})), p_f.body);
 }
-#line 65007 "main.c"
+#line 65010 "main.c"
 
 int64_t byn_semantics__bindForTry(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ForStmt p_f, int64_t p_iterable, bynt_semantics__JumpTarget p_target) {
     int64_t l0_itType = {0};
@@ -65155,7 +65158,7 @@ int64_t byn_semantics__bindForTry(bynt_semantics__Binder* p_b, bynt_semantics__C
 #line 369 "semantics/binder3.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addBlock(&(*p_c), ((bynt_semantics__BBlock){p_f.span, l26_statements})), ((byn_semantics_NodeSyntaxKind)16), p_f.span);
 }
-#line 65159 "main.c"
+#line 65162 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__t28SyntheticName(bynt_semantics__Ctx* p_c, byn_str p_text, bynt_lexer__TextSpan p_span) {
 #line 381 "semantics/binder3.byn"
@@ -65165,7 +65168,7 @@ bynt_lexer__TextSpan byn_semantics__t28SyntheticName(bynt_semantics__Ctx* p_c, b
 #line 383 "semantics/binder3.byn"
     return ((bynt_lexer__TextSpan){byn_neg_i64((*p_c).syntheticNames.len, byn_file_26, 383), INT64_C(0)});
 }
-#line 65169 "main.c"
+#line 65172 "main.c"
 
 byn_parser_Expr byn_semantics__t28CloneLocalName(byn_parser_Expr p_e) {
     bynt_parser__NameExpr* l0_n = {0};
@@ -65194,7 +65197,7 @@ byn_parser_Expr byn_semantics__t28CloneLocalName(byn_parser_Expr p_e) {
     (void)byn_panic_str(BYN_STR("internal error: an in-place `for try` iterable is a local", 57), byn_file_26, 398);
 switch_end_1:;
 }
-#line 65198 "main.c"
+#line 65201 "main.c"
 
 int64_t byn_semantics__fallibleNext(bynt_semantics__Ctx* p_c, int64_t p_type) {
     int64_t l0_m = {0};
@@ -65231,7 +65234,7 @@ break_1:;
 #line 414 "semantics/binder3.byn"
     return INT64_C(-1);
 }
-#line 65235 "main.c"
+#line 65238 "main.c"
 
 int64_t byn_semantics__notIterable(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ForStmt p_f, int64_t p_type) {
     bynt_lexer__TextSpan t0 = {0};
@@ -65254,7 +65257,7 @@ int64_t byn_semantics__notIterable(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 443 "semantics/binder3.byn"
     return byn_semantics__errorType();
 }
-#line 65258 "main.c"
+#line 65261 "main.c"
 
 int64_t byn_semantics__bindReturn(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ReturnStmt p_r) {
     int64_t l0_fn = {0};
@@ -65351,7 +65354,7 @@ int64_t byn_semantics__bindReturn(bynt_semantics__Binder* p_b, bynt_semantics__C
 #line 524 "semantics/binder3.byn"
     return byn_semantics__recordReturnSyntax(&(*p_c), byn_semantics__addReturn(&(*p_c), ((bynt_semantics__BReturn){p_r.span, byn_semantics__bindConverted(&(*p_b), &(*p_c), p_r.value, l1_returnType, false)})), p_r);
 }
-#line 65355 "main.c"
+#line 65358 "main.c"
 
 int64_t byn_semantics__tryBindFailure(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_value) {
     int64_t l0_fn = {0};
@@ -65447,7 +65450,7 @@ int64_t byn_semantics__tryBindFailure(bynt_semantics__Binder* p_b, bynt_semantic
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 65451 "main.c"
+#line 65454 "main.c"
 
 bool byn_semantics__hasCase(bynt_semantics__Ctx* p_c, int64_t p_type, byn_str p_name) {
     int64_t l0_t = {0};
@@ -65466,7 +65469,7 @@ bool byn_semantics__hasCase(bynt_semantics__Ctx* p_c, int64_t p_type, byn_str p_
 #line 607 "semantics/binder3.byn"
     return false;
 }
-#line 65470 "main.c"
+#line 65473 "main.c"
 
 bynt_list_i64 byn_semantics__errorMatches(bynt_semantics__Ctx* p_c, bynt_list_i64 p_sets, byn_str p_name) {
     bynt_list_i64 l0_matches = {0};
@@ -65504,7 +65507,7 @@ break_1:;
 #line 619 "semantics/binder3.byn"
     return l0_matches;
 }
-#line 65508 "main.c"
+#line 65511 "main.c"
 
 byn_str byn_semantics__matchedSets(bynt_semantics__Ctx* p_c, bynt_list_i64 p_matches) {
     byn_writer l0_sb = {0};
@@ -65551,7 +65554,7 @@ break_1:;
 #line 631 "semantics/binder3.byn"
     return byn_strbuf_str(t4);
 }
-#line 65555 "main.c"
+#line 65558 "main.c"
 
 int64_t byn_semantics__bindFail(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__FailStmt p_f) {
     int64_t l0_fn = {0};
@@ -65845,7 +65848,7 @@ switch_end_1:;
 #line 820 "semantics/binder3.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addFail(&(*p_c), ((bynt_semantics__BFail){p_f.span, l32_error})), ((byn_semantics_NodeSyntaxKind)6), p_f.span);
 }
-#line 65849 "main.c"
+#line 65852 "main.c"
 
 void byn_semantics__checkCanFailWith(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_set, bynt_lexer__TextSpan p_span) {
     int64_t l0_fn = {0};
@@ -65936,7 +65939,7 @@ break_3:;
 #line 844 "semantics/binder3.byn"
     (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)110), p_span, t10, BYN_STR("", 0), byn_strbuf_str(t9), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 65940 "main.c"
+#line 65943 "main.c"
 
 void byn_semantics__checkNotExcluded(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_variant, bynt_lexer__TextSpan p_span) {
     bool l0_excluded = {0};
@@ -66006,7 +66009,7 @@ break_1:;
 #line 864 "semantics/binder3.byn"
     (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)110), p_span, t7, BYN_STR("", 0), byn_strbuf_str(t6), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 66010 "main.c"
+#line 66013 "main.c"
 
 bynt_opt_semantics__JumpTarget byn_semantics__findTarget(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_opt_lexer__TextSpan p_label, bool p_loopOnly, bynt_lexer__TextSpan p_span, byn_str p_keyword) {
     int64_t l0_i = {0};
@@ -66075,7 +66078,7 @@ break_1:;
 #line 921 "semantics/binder3.byn"
     return ((bynt_opt_semantics__JumpTarget){0});
 }
-#line 66079 "main.c"
+#line 66082 "main.c"
 
 int64_t byn_semantics__bindBreak(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__BreakStmt p_s) {
     bynt_opt_semantics__JumpTarget t0 = {0};
@@ -66090,7 +66093,7 @@ int64_t byn_semantics__bindBreak(bynt_semantics__Binder* p_b, bynt_semantics__Ct
 #line 933 "semantics/binder3.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addErrorStmt(&(*p_c), ((bynt_semantics__BErrorStmt){p_s.span})), ((byn_semantics_NodeSyntaxKind)7), p_s.span);
 }
-#line 66094 "main.c"
+#line 66097 "main.c"
 
 int64_t byn_semantics__bindContinue(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ContinueStmt p_s) {
     bynt_opt_semantics__JumpTarget t0 = {0};
@@ -66105,7 +66108,7 @@ int64_t byn_semantics__bindContinue(bynt_semantics__Binder* p_b, bynt_semantics_
 #line 950 "semantics/binder3.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addErrorStmt(&(*p_c), ((bynt_semantics__BErrorStmt){p_s.span})), ((byn_semantics_NodeSyntaxKind)8), p_s.span);
 }
-#line 66109 "main.c"
+#line 66112 "main.c"
 
 int64_t byn_semantics__bindErrdefer(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__DeferStmt p_d) {
     int64_t l0_fn = {0};
@@ -66172,7 +66175,7 @@ int64_t byn_semantics__bindErrdefer(bynt_semantics__Binder* p_b, bynt_semantics_
 #line 985 "semantics/binder3.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addErrdefer(&(*p_c), ((bynt_semantics__BErrdefer){p_d.span, l4_err, l10_body})), ((byn_semantics_NodeSyntaxKind)19), p_d.span);
 }
-#line 66176 "main.c"
+#line 66179 "main.c"
 
 int64_t byn_semantics__bindPanicDefer(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__DeferStmt p_d) {
     int64_t l0_panic = {0};
@@ -66211,7 +66214,7 @@ int64_t byn_semantics__bindPanicDefer(bynt_semantics__Binder* p_b, bynt_semantic
 #line 1010 "semantics/binder3.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addPanicDefer(&(*p_c), ((bynt_semantics__BPanicDefer){p_d.span, l0_panic, l5_body})), ((byn_semantics_NodeSyntaxKind)19), p_d.span);
 }
-#line 66215 "main.c"
+#line 66218 "main.c"
 
 int64_t byn_semantics__bindOnPanic(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__AssignStmt p_a) {
     bynt_parser__MemberExpr* l0_m = {0};
@@ -66396,7 +66399,7 @@ switch_end_1:;
 #line 1113 "semantics/binder3.byn"
     return byn_semantics__recordAssignSyntax(&(*p_c), byn_semantics__addSetOnPanic(&(*p_c), ((bynt_semantics__BSetOnPanic){p_a.span, l5_handler})), p_a);
 }
-#line 66400 "main.c"
+#line 66403 "main.c"
 
 bool byn_semantics__inPanicHandler(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, byn_str p_keyword) {
     byn_writer t0 = {0};
@@ -66421,7 +66424,7 @@ bool byn_semantics__inPanicHandler(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 1133 "semantics/binder3.byn"
     return true;
 }
-#line 66425 "main.c"
+#line 66428 "main.c"
 
 int64_t byn_semantics__bindContext(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ContextStmt p_s) {
     int64_t l0_allocator = {0};
@@ -66502,7 +66505,7 @@ break_1:;
 #line 1174 "semantics/binder3.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addContext(&(*p_c), ((bynt_semantics__BContext){p_s.span, l0_allocator, l8_body})), ((byn_semantics_NodeSyntaxKind)21), p_s.span);
 }
-#line 66506 "main.c"
+#line 66509 "main.c"
 
 int64_t byn_semantics__contextBody(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ContextStmt p_s) {
     bynt_parser__BlockStmt* l0_block = {0};
@@ -66517,7 +66520,7 @@ int64_t byn_semantics__contextBody(bynt_semantics__Binder* p_b, bynt_semantics__
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 66521 "main.c"
+#line 66524 "main.c"
 
 int64_t byn_semantics__bindSwitchStatement(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__SwitchStmt p_s, bynt_semantics__JumpTarget p_target) {
     bynt_semantics__SwitchSubjectResult l0_subjectResult = {0};
@@ -66703,7 +66706,7 @@ break_5:;
 #line 1269 "semantics/binder3.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addSwitch(&(*p_c), ((bynt_semantics__BSwitch){p_s.span, l1_value, l3_sections, p_target.id, l20_exhaustive})), ((byn_semantics_NodeSyntaxKind)18), p_s.span);
 }
-#line 66707 "main.c"
+#line 66710 "main.c"
 
 byn_str byn_semantics__constantText(bynt_semantics__Constant p_k) {
     byn_writer t0 = {0};
@@ -66765,7 +66768,7 @@ byn_str byn_semantics__constantText(bynt_semantics__Constant p_k) {
     }
 switch_end_1:;
 }
-#line 66769 "main.c"
+#line 66772 "main.c"
 
 byn_str byn_semantics__realText(double p_v) {
     byn_str l0_s = {0};
@@ -67173,13 +67176,13 @@ break_15:;
 #line 367 "semantics/bound.byn"
     return byn_strbuf_str(t36);
 }
-#line 67177 "main.c"
+#line 67180 "main.c"
 
 int64_t byn_semantics__makeBound(byn_semantics_BoundKind p_kind, int64_t p_index) {
 #line 372 "semantics/bound.byn"
     return ((int64_t)(byn_shl_i64(((int64_t)((int32_t)p_kind)), (int64_t)(((int32_t)32))) | p_index));
 }
-#line 67183 "main.c"
+#line 67186 "main.c"
 
 byn_semantics_BoundKind byn_semantics__boundKind(int64_t p_n) {
     bynt_opt_semantics__BoundKind t0 = {0};
@@ -67188,13 +67191,13 @@ byn_semantics_BoundKind byn_semantics__boundKind(int64_t p_n) {
 #line 374 "semantics/bound.byn"
     return (t0.has ? t0.value : ((byn_semantics_BoundKind)38));
 }
-#line 67192 "main.c"
+#line 67195 "main.c"
 
 int64_t byn_semantics__boundIndex(int64_t p_n) {
 #line 376 "semantics/bound.byn"
     return ((int64_t)(p_n & INT64_C(4294967295)));
 }
-#line 67198 "main.c"
+#line 67201 "main.c"
 
 bool byn_semantics__isStmtKind(byn_semantics_BoundKind p_k) {
     int32_t t0 = {0};
@@ -67214,7 +67217,7 @@ bool byn_semantics__isStmtKind(byn_semantics_BoundKind p_k) {
 #line 378 "semantics/bound.byn"
     return t2;
 }
-#line 67218 "main.c"
+#line 67221 "main.c"
 
 bool byn_semantics__isPatternKind(byn_semantics_BoundKind p_k) {
 #line 382 "semantics/bound.byn"
@@ -67228,25 +67231,25 @@ bool byn_semantics__isPatternKind(byn_semantics_BoundKind p_k) {
     return false;
 switch_end_1:;
 }
-#line 67232 "main.c"
+#line 67235 "main.c"
 
 bool byn_semantics__isExprKind(byn_semantics_BoundKind p_k) {
 #line 390 "semantics/bound.byn"
     return ((!byn_semantics__isStmtKind(p_k)) && (!byn_semantics__isPatternKind(p_k)));
 }
-#line 67238 "main.c"
+#line 67241 "main.c"
 
 bynt_opt_semantics__Constant byn_semantics__exprConstant(bynt_semantics__Ctx p_c, int64_t p_e) {
 #line 395 "semantics/bound.byn"
     return bynh_try_get_map_i64_semantics__Constant(p_c.constants, p_e);
 }
-#line 67244 "main.c"
+#line 67247 "main.c"
 
 void byn_semantics__setConstant(bynt_semantics__Ctx* p_c, int64_t p_e, bynt_semantics__Constant p_k) {
 #line 398 "semantics/bound.byn"
     (*bynh_slot_map_i64_semantics__Constant(&(*p_c).constants, p_e, ((bynt_semantics__Constant){0}))) = p_k;
 }
-#line 67250 "main.c"
+#line 67253 "main.c"
 
 int64_t byn_semantics__syntaxFlags(bynt_semantics__Ctx p_c, int64_t p_n) {
     bynt_opt_i64 t0 = {0};
@@ -67255,19 +67258,19 @@ int64_t byn_semantics__syntaxFlags(bynt_semantics__Ctx p_c, int64_t p_n) {
 #line 413 "semantics/bound.byn"
     return (t0.has ? t0.value : INT64_C(0));
 }
-#line 67259 "main.c"
+#line 67262 "main.c"
 
 void byn_semantics__setSyntaxFlags(bynt_semantics__Ctx* p_c, int64_t p_n, int64_t p_flags) {
 #line 417 "semantics/bound.byn"
     (*bynh_slot_map_i64_i64(&(*p_c).syntaxFlags, p_n, ((int64_t){0}))) = p_flags;
 }
-#line 67265 "main.c"
+#line 67268 "main.c"
 
 bool byn_semantics__hasSyntax(bynt_semantics__Ctx p_c, int64_t p_n, int64_t p_flag) {
 #line 420 "semantics/bound.byn"
     return (!(((int64_t)(byn_semantics__syntaxFlags(p_c, p_n) & p_flag)) == INT64_C(0)));
 }
-#line 67271 "main.c"
+#line 67274 "main.c"
 
 bynt_opt_semantics__ExprSyntax byn_semantics__exprSyntax(bynt_semantics__Ctx p_c, int64_t p_n) {
     int64_t l0_h = {0};
@@ -67284,13 +67287,13 @@ bynt_opt_semantics__ExprSyntax byn_semantics__exprSyntax(bynt_semantics__Ctx p_c
 #line 498 "semantics/bound.byn"
     return ((bynt_opt_semantics__ExprSyntax){true, (*bynh_at_list_semantics__ExprSyntax(p_c.exprSyntaxNodes, (int64_t)l0_h, false, byn_file_27, 498))});
 }
-#line 67288 "main.c"
+#line 67291 "main.c"
 
 bynt_semantics__ExprSyntax byn_semantics__exprSyntaxNode(bynt_semantics__Ctx p_c, int64_t p_node) {
 #line 502 "semantics/bound.byn"
     return (*bynh_at_list_semantics__ExprSyntax(p_c.exprSyntaxNodes, (int64_t)p_node, false, byn_file_27, 502));
 }
-#line 67294 "main.c"
+#line 67297 "main.c"
 
 int64_t byn_semantics__syntaxNode(bynt_semantics__Ctx* p_c, byn_parser_Expr p_e) {
     bynt_parser__LiteralExpr* l0_x = {0};
@@ -67574,13 +67577,13 @@ int64_t byn_semantics__syntaxNode(bynt_semantics__Ctx* p_c, byn_parser_Expr p_e)
     }
 switch_end_1:;
 }
-#line 67578 "main.c"
+#line 67581 "main.c"
 
 int64_t byn_semantics__syntaxLeaf(bynt_semantics__Ctx* p_c, byn_semantics_ExprSyntaxKind p_kind, bynt_lexer__TextSpan p_span) {
 #line 584 "semantics/bound.byn"
     return byn_semantics__syntaxAppend(&(*p_c), ((bynt_semantics__ExprSyntax){p_kind, p_span, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), ((byn_parser_UnaryOp)0), ((byn_parser_BinaryOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((byn_parser_LiteralKind)0), ((bynt_opt_lexer__TextSpan){0}), false}));
 }
-#line 67584 "main.c"
+#line 67587 "main.c"
 
 int64_t byn_semantics__syntaxAppend(bynt_semantics__Ctx* p_c, bynt_semantics__ExprSyntax p_node) {
 #line 587 "semantics/bound.byn"
@@ -67588,7 +67591,7 @@ int64_t byn_semantics__syntaxAppend(bynt_semantics__Ctx* p_c, bynt_semantics__Ex
 #line 588 "semantics/bound.byn"
     return byn_sub_i64((*p_c).exprSyntaxNodes.len, INT64_C(1), byn_file_27, 588);
 }
-#line 67592 "main.c"
+#line 67595 "main.c"
 
 int64_t byn_semantics__syntaxOfParen(bynt_semantics__Ctx* p_c, bynt_parser__ParenExpr p_x) {
     int64_t l0_inner = {0};
@@ -67597,13 +67600,13 @@ int64_t byn_semantics__syntaxOfParen(bynt_semantics__Ctx* p_c, bynt_parser__Pare
 #line 594 "semantics/bound.byn"
     return byn_semantics__syntaxAppend(&(*p_c), ((bynt_semantics__ExprSyntax){((byn_semantics_ExprSyntaxKind)29), p_x.span, l0_inner, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), ((byn_parser_UnaryOp)0), ((byn_parser_BinaryOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((byn_parser_LiteralKind)0), ((bynt_opt_lexer__TextSpan){0}), false}));
 }
-#line 67601 "main.c"
+#line 67604 "main.c"
 
 int64_t byn_semantics__syntaxOfMember(bynt_semantics__Ctx* p_c, bynt_parser__MemberExpr p_x) {
 #line 600 "semantics/bound.byn"
     return byn_semantics__syntaxAppend(&(*p_c), ((bynt_semantics__ExprSyntax){((byn_semantics_ExprSyntaxKind)4), p_x.span, INT64_C(-1), byn_semantics__t40RealSpan((*p_c), p_x.member), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), ((byn_parser_UnaryOp)0), ((byn_parser_BinaryOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((byn_parser_LiteralKind)0), ((bynt_opt_lexer__TextSpan){0}), false}));
 }
-#line 67607 "main.c"
+#line 67610 "main.c"
 
 int64_t byn_semantics__syntaxOfCall(bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_x) {
     int64_t l0_callee = {0};
@@ -67612,13 +67615,13 @@ int64_t byn_semantics__syntaxOfCall(bynt_semantics__Ctx* p_c, bynt_parser__CallE
 #line 605 "semantics/bound.byn"
     return byn_semantics__syntaxAppend(&(*p_c), ((bynt_semantics__ExprSyntax){((byn_semantics_ExprSyntaxKind)6), p_x.span, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), l0_callee, INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), ((byn_parser_UnaryOp)0), ((byn_parser_BinaryOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((byn_parser_LiteralKind)0), ((bynt_opt_lexer__TextSpan){0}), (!(!p_x.becauseKeyword.has))}));
 }
-#line 67616 "main.c"
+#line 67619 "main.c"
 
 int64_t byn_semantics__syntaxOfLiteral(bynt_semantics__Ctx* p_c, bynt_parser__LiteralExpr p_x) {
 #line 618 "semantics/bound.byn"
     return byn_semantics__syntaxAppend(&(*p_c), ((bynt_semantics__ExprSyntax){((byn_semantics_ExprSyntaxKind)0), p_x.span, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), ((byn_parser_UnaryOp)0), ((byn_parser_BinaryOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), p_x.kind, p_x.suffix, false}));
 }
-#line 67622 "main.c"
+#line 67625 "main.c"
 
 int64_t byn_semantics__syntaxOfBinary(bynt_semantics__Ctx* p_c, bynt_parser__BinaryExpr p_x) {
     int64_t l0_left = {0};
@@ -67627,7 +67630,7 @@ int64_t byn_semantics__syntaxOfBinary(bynt_semantics__Ctx* p_c, bynt_parser__Bin
 #line 623 "semantics/bound.byn"
     return byn_semantics__syntaxAppend(&(*p_c), ((bynt_semantics__ExprSyntax){((byn_semantics_ExprSyntaxKind)9), p_x.span, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), INT64_C(-1), l0_left, INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), ((byn_parser_UnaryOp)0), p_x.op, byn_parser__exprSpan(p_x.right), ((byn_parser_LiteralKind)0), ((bynt_opt_lexer__TextSpan){0}), false}));
 }
-#line 67631 "main.c"
+#line 67634 "main.c"
 
 int64_t byn_semantics__syntaxOfIs(bynt_semantics__Ctx* p_c, bynt_parser__IsExpr p_x) {
     int64_t l0_value = {0};
@@ -67636,7 +67639,7 @@ int64_t byn_semantics__syntaxOfIs(bynt_semantics__Ctx* p_c, bynt_parser__IsExpr 
 #line 638 "semantics/bound.byn"
     return byn_semantics__syntaxAppend(&(*p_c), ((bynt_semantics__ExprSyntax){((byn_semantics_ExprSyntaxKind)13), p_x.span, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), INT64_C(-1), INT64_C(-1), l0_value, INT64_C(-1), INT64_C(-1), INT64_C(-1), ((byn_parser_UnaryOp)0), ((byn_parser_BinaryOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((byn_parser_LiteralKind)0), ((bynt_opt_lexer__TextSpan){0}), false}));
 }
-#line 67640 "main.c"
+#line 67643 "main.c"
 
 int64_t byn_semantics__syntaxOfIndex(bynt_semantics__Ctx* p_c, bynt_parser__IndexExpr p_x) {
     int64_t l0_target = {0};
@@ -67645,7 +67648,7 @@ int64_t byn_semantics__syntaxOfIndex(bynt_semantics__Ctx* p_c, bynt_parser__Inde
 #line 644 "semantics/bound.byn"
     return byn_semantics__syntaxAppend(&(*p_c), ((bynt_semantics__ExprSyntax){((byn_semantics_ExprSyntaxKind)7), p_x.span, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), INT64_C(-1), INT64_C(-1), INT64_C(-1), l0_target, INT64_C(-1), INT64_C(-1), ((byn_parser_UnaryOp)0), ((byn_parser_BinaryOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((byn_parser_LiteralKind)0), ((bynt_opt_lexer__TextSpan){0}), false}));
 }
-#line 67649 "main.c"
+#line 67652 "main.c"
 
 int64_t byn_semantics__syntaxOfConditional(bynt_semantics__Ctx* p_c, bynt_parser__ConditionalExpr p_x) {
     int64_t l0_condition = {0};
@@ -67654,7 +67657,7 @@ int64_t byn_semantics__syntaxOfConditional(bynt_semantics__Ctx* p_c, bynt_parser
 #line 650 "semantics/bound.byn"
     return byn_semantics__syntaxAppend(&(*p_c), ((bynt_semantics__ExprSyntax){((byn_semantics_ExprSyntaxKind)11), p_x.span, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), l0_condition, INT64_C(-1), ((byn_parser_UnaryOp)0), ((byn_parser_BinaryOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((byn_parser_LiteralKind)0), ((bynt_opt_lexer__TextSpan){0}), false}));
 }
-#line 67658 "main.c"
+#line 67661 "main.c"
 
 int64_t byn_semantics__syntaxOfUnary(bynt_semantics__Ctx* p_c, bynt_parser__UnaryExpr p_x) {
     int64_t l0_operand = {0};
@@ -67663,7 +67666,7 @@ int64_t byn_semantics__syntaxOfUnary(bynt_semantics__Ctx* p_c, bynt_parser__Unar
 #line 656 "semantics/bound.byn"
     return byn_semantics__syntaxAppend(&(*p_c), ((bynt_semantics__ExprSyntax){((byn_semantics_ExprSyntaxKind)8), p_x.span, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), l0_operand, p_x.op, ((byn_parser_BinaryOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((byn_parser_LiteralKind)0), ((bynt_opt_lexer__TextSpan){0}), false}));
 }
-#line 67667 "main.c"
+#line 67670 "main.c"
 
 int64_t byn_semantics__recordSyntaxNode(bynt_semantics__Ctx* p_c, int64_t p_n, int64_t p_h) {
 #line 661 "semantics/bound.byn"
@@ -67674,13 +67677,13 @@ int64_t byn_semantics__recordSyntaxNode(bynt_semantics__Ctx* p_c, int64_t p_n, i
 #line 664 "semantics/bound.byn"
     return p_n;
 }
-#line 67678 "main.c"
+#line 67681 "main.c"
 
 int64_t byn_semantics__recordSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, byn_parser_Expr p_e) {
 #line 669 "semantics/bound.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), p_n, byn_semantics__syntaxNode(&(*p_c), p_e));
 }
-#line 67684 "main.c"
+#line 67687 "main.c"
 
 int64_t byn_semantics__shareSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, int64_t p_value) {
     int64_t l0_h = {0};
@@ -67700,7 +67703,7 @@ int64_t byn_semantics__shareSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, int64_
 #line 677 "semantics/bound.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), p_n, (t2.has ? t2.value : INT64_C(-1)));
 }
-#line 67704 "main.c"
+#line 67707 "main.c"
 
 bynt_opt_semantics__NodeSyntax byn_semantics__nodeSyntax(bynt_semantics__Ctx p_c, int64_t p_n) {
     int64_t l0_h = {0};
@@ -67717,13 +67720,13 @@ bynt_opt_semantics__NodeSyntax byn_semantics__nodeSyntax(bynt_semantics__Ctx p_c
 #line 744 "semantics/bound.byn"
     return ((bynt_opt_semantics__NodeSyntax){true, (*bynh_at_list_semantics__NodeSyntax(p_c.nodeSyntaxNodes, (int64_t)l0_h, false, byn_file_27, 744))});
 }
-#line 67721 "main.c"
+#line 67724 "main.c"
 
 int64_t byn_semantics__recordNodeSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, byn_semantics_NodeSyntaxKind p_kind, bynt_lexer__TextSpan p_span) {
 #line 749 "semantics/bound.byn"
     return byn_semantics__recordNodeSyntaxOf(&(*p_c), p_n, ((bynt_semantics__NodeSyntax){p_kind, p_span, ((byn_parser_AssignOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_opt_lexer__TextSpan){0})}));
 }
-#line 67727 "main.c"
+#line 67730 "main.c"
 
 int64_t byn_semantics__recordNodeSyntaxOf(bynt_semantics__Ctx* p_c, int64_t p_n, bynt_semantics__NodeSyntax p_node) {
     int64_t t0 = {0};
@@ -67736,7 +67739,7 @@ int64_t byn_semantics__recordNodeSyntaxOf(bynt_semantics__Ctx* p_c, int64_t p_n,
 #line 754 "semantics/bound.byn"
     return p_n;
 }
-#line 67740 "main.c"
+#line 67743 "main.c"
 
 int64_t byn_semantics__recordAssignSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, bynt_parser__AssignStmt p_s) {
     bynt_lexer__TextSpan t0 = {0};
@@ -67745,7 +67748,7 @@ int64_t byn_semantics__recordAssignSyntax(bynt_semantics__Ctx* p_c, int64_t p_n,
 #line 759 "semantics/bound.byn"
     return byn_semantics__recordNodeSyntaxOf(&(*p_c), p_n, ((bynt_semantics__NodeSyntax){((byn_semantics_NodeSyntaxKind)3), p_s.span, p_s.op, t0, ((bynt_opt_lexer__TextSpan){true, byn_parser__exprSpan(p_s.value)})}));
 }
-#line 67749 "main.c"
+#line 67752 "main.c"
 
 int64_t byn_semantics__recordReturnSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, bynt_parser__ReturnStmt p_s) {
 #line 773 "semantics/bound.byn"
@@ -67756,7 +67759,7 @@ int64_t byn_semantics__recordReturnSyntax(bynt_semantics__Ctx* p_c, int64_t p_n,
 #line 774 "semantics/bound.byn"
     return byn_semantics__recordNodeSyntaxOf(&(*p_c), p_n, ((bynt_semantics__NodeSyntax){((byn_semantics_NodeSyntaxKind)5), p_s.span, ((byn_parser_AssignOp)0), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_opt_lexer__TextSpan){true, byn_parser__exprSpan(p_s.value)})}));
 }
-#line 67760 "main.c"
+#line 67763 "main.c"
 
 int64_t byn_semantics__recordStmtSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, byn_parser_Stmt p_s) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -67941,7 +67944,7 @@ int64_t byn_semantics__recordStmtSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, b
     }
 switch_end_1:;
 }
-#line 67945 "main.c"
+#line 67948 "main.c"
 
 int64_t byn_semantics__recordPatternSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, byn_parser_Pattern p_p) {
     bynt_opt_semantics__NodeSyntax t0 = {0};
@@ -67956,7 +67959,7 @@ int64_t byn_semantics__recordPatternSyntax(bynt_semantics__Ctx* p_c, int64_t p_n
 #line 845 "semantics/bound.byn"
     return p_n;
 }
-#line 67960 "main.c"
+#line 67963 "main.c"
 
 bynt_opt_semantics__NodeSyntax byn_semantics__patternSyntax(byn_parser_Pattern p_p) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -68055,7 +68058,7 @@ bynt_opt_semantics__NodeSyntax byn_semantics__patternSyntax(byn_parser_Pattern p
     }
 switch_end_1:;
 }
-#line 68059 "main.c"
+#line 68062 "main.c"
 
 int64_t byn_semantics__addLiteral(bynt_semantics__Ctx* p_c, bynt_semantics__BLiteral p_n) {
 #line 1467 "semantics/bound.byn"
@@ -68063,7 +68066,7 @@ int64_t byn_semantics__addLiteral(bynt_semantics__Ctx* p_c, bynt_semantics__BLit
 #line 1468 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)0), byn_sub_i64((*p_c).bLiterals.len, INT64_C(1), byn_file_27, 1468));
 }
-#line 68067 "main.c"
+#line 68070 "main.c"
 
 int64_t byn_semantics__addSymbolLiteral(bynt_semantics__Ctx* p_c, bynt_semantics__BSymbolLiteral p_n) {
 #line 1472 "semantics/bound.byn"
@@ -68071,7 +68074,7 @@ int64_t byn_semantics__addSymbolLiteral(bynt_semantics__Ctx* p_c, bynt_semantics
 #line 1473 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)1), byn_sub_i64((*p_c).bSymbolLiterals.len, INT64_C(1), byn_file_27, 1473));
 }
-#line 68075 "main.c"
+#line 68078 "main.c"
 
 int64_t byn_semantics__addHostTarget(bynt_semantics__Ctx* p_c, bynt_semantics__BHostTarget p_n) {
 #line 1477 "semantics/bound.byn"
@@ -68079,7 +68082,7 @@ int64_t byn_semantics__addHostTarget(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1478 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)2), byn_sub_i64((*p_c).bHostTargets.len, INT64_C(1), byn_file_27, 1478));
 }
-#line 68083 "main.c"
+#line 68086 "main.c"
 
 int64_t byn_semantics__addDefault(bynt_semantics__Ctx* p_c, bynt_semantics__BDefault p_n) {
 #line 1482 "semantics/bound.byn"
@@ -68087,7 +68090,7 @@ int64_t byn_semantics__addDefault(bynt_semantics__Ctx* p_c, bynt_semantics__BDef
 #line 1483 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)3), byn_sub_i64((*p_c).bDefaults.len, INT64_C(1), byn_file_27, 1483));
 }
-#line 68091 "main.c"
+#line 68094 "main.c"
 
 int64_t byn_semantics__addLocal__o1(bynt_semantics__Ctx* p_c, bynt_semantics__BLocal p_n) {
     bynt_semantics__BLocal l0_m = {0};
@@ -68106,7 +68109,7 @@ int64_t byn_semantics__addLocal__o1(bynt_semantics__Ctx* p_c, bynt_semantics__BL
 #line 1493 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)4), byn_sub_i64((*p_c).bLocals.len, INT64_C(1), byn_file_27, 1493));
 }
-#line 68110 "main.c"
+#line 68113 "main.c"
 
 int64_t byn_semantics__addThis(bynt_semantics__Ctx* p_c, bynt_semantics__BThis p_n) {
 #line 1497 "semantics/bound.byn"
@@ -68114,7 +68117,7 @@ int64_t byn_semantics__addThis(bynt_semantics__Ctx* p_c, bynt_semantics__BThis p
 #line 1498 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)5), byn_sub_i64((*p_c).bThises.len, INT64_C(1), byn_file_27, 1498));
 }
-#line 68118 "main.c"
+#line 68121 "main.c"
 
 int64_t byn_semantics__addField(bynt_semantics__Ctx* p_c, bynt_semantics__BField p_n) {
     bynt_semantics__BField l0_m = {0};
@@ -68130,7 +68133,7 @@ int64_t byn_semantics__addField(bynt_semantics__Ctx* p_c, bynt_semantics__BField
 #line 1505 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)6), byn_sub_i64((*p_c).bFields.len, INT64_C(1), byn_file_27, 1505));
 }
-#line 68134 "main.c"
+#line 68137 "main.c"
 
 int64_t byn_semantics__addTupleElement(bynt_semantics__Ctx* p_c, bynt_semantics__BTupleElement p_n) {
 #line 1509 "semantics/bound.byn"
@@ -68138,7 +68141,7 @@ int64_t byn_semantics__addTupleElement(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 1510 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)7), byn_sub_i64((*p_c).bTupleElements.len, INT64_C(1), byn_file_27, 1510));
 }
-#line 68142 "main.c"
+#line 68145 "main.c"
 
 int64_t byn_semantics__addCall(bynt_semantics__Ctx* p_c, bynt_semantics__BCall p_n) {
 #line 1514 "semantics/bound.byn"
@@ -68146,7 +68149,7 @@ int64_t byn_semantics__addCall(bynt_semantics__Ctx* p_c, bynt_semantics__BCall p
 #line 1515 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)8), byn_sub_i64((*p_c).bCalls.len, INT64_C(1), byn_file_27, 1515));
 }
-#line 68150 "main.c"
+#line 68153 "main.c"
 
 int64_t byn_semantics__addBuiltinCall(bynt_semantics__Ctx* p_c, bynt_semantics__BBuiltinCall p_n) {
 #line 1519 "semantics/bound.byn"
@@ -68154,7 +68157,7 @@ int64_t byn_semantics__addBuiltinCall(bynt_semantics__Ctx* p_c, bynt_semantics__
 #line 1520 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)9), byn_sub_i64((*p_c).bBuiltinCalls.len, INT64_C(1), byn_file_27, 1520));
 }
-#line 68158 "main.c"
+#line 68161 "main.c"
 
 int64_t byn_semantics__addUnary(bynt_semantics__Ctx* p_c, bynt_semantics__BUnary p_n) {
 #line 1524 "semantics/bound.byn"
@@ -68162,7 +68165,7 @@ int64_t byn_semantics__addUnary(bynt_semantics__Ctx* p_c, bynt_semantics__BUnary
 #line 1525 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)10), byn_sub_i64((*p_c).bUnaries.len, INT64_C(1), byn_file_27, 1525));
 }
-#line 68166 "main.c"
+#line 68169 "main.c"
 
 int64_t byn_semantics__addBinary(bynt_semantics__Ctx* p_c, bynt_semantics__BBinary p_n) {
 #line 1529 "semantics/bound.byn"
@@ -68170,7 +68173,7 @@ int64_t byn_semantics__addBinary(bynt_semantics__Ctx* p_c, bynt_semantics__BBina
 #line 1530 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)11), byn_sub_i64((*p_c).bBinaries.len, INT64_C(1), byn_file_27, 1530));
 }
-#line 68174 "main.c"
+#line 68177 "main.c"
 
 int64_t byn_semantics__addConversion(bynt_semantics__Ctx* p_c, bynt_semantics__BConversion p_n) {
 #line 1534 "semantics/bound.byn"
@@ -68178,7 +68181,7 @@ int64_t byn_semantics__addConversion(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1535 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)12), byn_sub_i64((*p_c).bConversions.len, INT64_C(1), byn_file_27, 1535));
 }
-#line 68182 "main.c"
+#line 68185 "main.c"
 
 int64_t byn_semantics__addTryFrom(bynt_semantics__Ctx* p_c, bynt_semantics__BTryFrom p_n) {
 #line 1539 "semantics/bound.byn"
@@ -68186,7 +68189,7 @@ int64_t byn_semantics__addTryFrom(bynt_semantics__Ctx* p_c, bynt_semantics__BTry
 #line 1540 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)13), byn_sub_i64((*p_c).bTryFroms.len, INT64_C(1), byn_file_27, 1540));
 }
-#line 68190 "main.c"
+#line 68193 "main.c"
 
 int64_t byn_semantics__addConditional(bynt_semantics__Ctx* p_c, bynt_semantics__BConditional p_n) {
 #line 1544 "semantics/bound.byn"
@@ -68194,7 +68197,7 @@ int64_t byn_semantics__addConditional(bynt_semantics__Ctx* p_c, bynt_semantics__
 #line 1545 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)14), byn_sub_i64((*p_c).bConditionals.len, INT64_C(1), byn_file_27, 1545));
 }
-#line 68198 "main.c"
+#line 68201 "main.c"
 
 int64_t byn_semantics__addCoalesce(bynt_semantics__Ctx* p_c, bynt_semantics__BCoalesce p_n) {
 #line 1549 "semantics/bound.byn"
@@ -68202,7 +68205,7 @@ int64_t byn_semantics__addCoalesce(bynt_semantics__Ctx* p_c, bynt_semantics__BCo
 #line 1550 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)15), byn_sub_i64((*p_c).bCoalesces.len, INT64_C(1), byn_file_27, 1550));
 }
-#line 68206 "main.c"
+#line 68209 "main.c"
 
 int64_t byn_semantics__addStructLiteral(bynt_semantics__Ctx* p_c, bynt_semantics__BStructLiteral p_n) {
     bynt_semantics__BStructLiteral l0_m = {0};
@@ -68221,7 +68224,7 @@ int64_t byn_semantics__addStructLiteral(bynt_semantics__Ctx* p_c, bynt_semantics
 #line 1560 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)16), byn_sub_i64((*p_c).bStructLiterals.len, INT64_C(1), byn_file_27, 1560));
 }
-#line 68225 "main.c"
+#line 68228 "main.c"
 
 int64_t byn_semantics__addWith(bynt_semantics__Ctx* p_c, bynt_semantics__BWith p_n) {
     bynt_semantics__BWith l0_m = {0};
@@ -68237,7 +68240,7 @@ int64_t byn_semantics__addWith(bynt_semantics__Ctx* p_c, bynt_semantics__BWith p
 #line 1567 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)17), byn_sub_i64((*p_c).bWiths.len, INT64_C(1), byn_file_27, 1567));
 }
-#line 68241 "main.c"
+#line 68244 "main.c"
 
 int64_t byn_semantics__addTuple(bynt_semantics__Ctx* p_c, bynt_semantics__BTuple p_n) {
 #line 1571 "semantics/bound.byn"
@@ -68245,7 +68248,7 @@ int64_t byn_semantics__addTuple(bynt_semantics__Ctx* p_c, bynt_semantics__BTuple
 #line 1572 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)18), byn_sub_i64((*p_c).bTuples.len, INT64_C(1), byn_file_27, 1572));
 }
-#line 68249 "main.c"
+#line 68252 "main.c"
 
 int64_t byn_semantics__addCollection(bynt_semantics__Ctx* p_c, bynt_semantics__BCollection p_n) {
 #line 1576 "semantics/bound.byn"
@@ -68253,7 +68256,7 @@ int64_t byn_semantics__addCollection(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1577 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)19), byn_sub_i64((*p_c).bCollections.len, INT64_C(1), byn_file_27, 1577));
 }
-#line 68257 "main.c"
+#line 68260 "main.c"
 
 int64_t byn_semantics__addSpread(bynt_semantics__Ctx* p_c, bynt_semantics__BSpread p_n) {
 #line 1581 "semantics/bound.byn"
@@ -68261,7 +68264,7 @@ int64_t byn_semantics__addSpread(bynt_semantics__Ctx* p_c, bynt_semantics__BSpre
 #line 1582 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)20), byn_sub_i64((*p_c).bSpreads.len, INT64_C(1), byn_file_27, 1582));
 }
-#line 68265 "main.c"
+#line 68268 "main.c"
 
 int64_t byn_semantics__addIndex(bynt_semantics__Ctx* p_c, bynt_semantics__BIndex p_n) {
 #line 1586 "semantics/bound.byn"
@@ -68269,7 +68272,7 @@ int64_t byn_semantics__addIndex(bynt_semantics__Ctx* p_c, bynt_semantics__BIndex
 #line 1587 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)21), byn_sub_i64((*p_c).bIndexes.len, INT64_C(1), byn_file_27, 1587));
 }
-#line 68273 "main.c"
+#line 68276 "main.c"
 
 int64_t byn_semantics__addSlice(bynt_semantics__Ctx* p_c, bynt_semantics__BSlice p_n) {
 #line 1591 "semantics/bound.byn"
@@ -68277,7 +68280,7 @@ int64_t byn_semantics__addSlice(bynt_semantics__Ctx* p_c, bynt_semantics__BSlice
 #line 1592 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)22), byn_sub_i64((*p_c).bSlices.len, INT64_C(1), byn_file_27, 1592));
 }
-#line 68281 "main.c"
+#line 68284 "main.c"
 
 int64_t byn_semantics__addRange(bynt_semantics__Ctx* p_c, bynt_semantics__BRange p_n) {
 #line 1596 "semantics/bound.byn"
@@ -68285,7 +68288,7 @@ int64_t byn_semantics__addRange(bynt_semantics__Ctx* p_c, bynt_semantics__BRange
 #line 1597 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)23), byn_sub_i64((*p_c).bRanges.len, INT64_C(1), byn_file_27, 1597));
 }
-#line 68289 "main.c"
+#line 68292 "main.c"
 
 int64_t byn_semantics__addIs(bynt_semantics__Ctx* p_c, bynt_semantics__BIs p_n) {
 #line 1601 "semantics/bound.byn"
@@ -68293,7 +68296,7 @@ int64_t byn_semantics__addIs(bynt_semantics__Ctx* p_c, bynt_semantics__BIs p_n) 
 #line 1602 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)24), byn_sub_i64((*p_c).bIses.len, INT64_C(1), byn_file_27, 1602));
 }
-#line 68297 "main.c"
+#line 68300 "main.c"
 
 int64_t byn_semantics__addSwitchExpr(bynt_semantics__Ctx* p_c, bynt_semantics__BSwitchExpr p_n) {
 #line 1606 "semantics/bound.byn"
@@ -68301,7 +68304,7 @@ int64_t byn_semantics__addSwitchExpr(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1607 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)25), byn_sub_i64((*p_c).bSwitchExprs.len, INT64_C(1), byn_file_27, 1607));
 }
-#line 68305 "main.c"
+#line 68308 "main.c"
 
 int64_t byn_semantics__addInterpolated(bynt_semantics__Ctx* p_c, bynt_semantics__BInterpolated p_n) {
 #line 1611 "semantics/bound.byn"
@@ -68309,7 +68312,7 @@ int64_t byn_semantics__addInterpolated(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 1612 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)26), byn_sub_i64((*p_c).bInterpolateds.len, INT64_C(1), byn_file_27, 1612));
 }
-#line 68313 "main.c"
+#line 68316 "main.c"
 
 int64_t byn_semantics__addMove(bynt_semantics__Ctx* p_c, bynt_semantics__BMove p_n) {
     bynt_semantics__BMove l0_m = {0};
@@ -68325,7 +68328,7 @@ int64_t byn_semantics__addMove(bynt_semantics__Ctx* p_c, bynt_semantics__BMove p
 #line 1619 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)27), byn_sub_i64((*p_c).bMoves.len, INT64_C(1), byn_file_27, 1619));
 }
-#line 68329 "main.c"
+#line 68332 "main.c"
 
 int64_t byn_semantics__addTry(bynt_semantics__Ctx* p_c, bynt_semantics__BTry p_n) {
 #line 1623 "semantics/bound.byn"
@@ -68333,7 +68336,7 @@ int64_t byn_semantics__addTry(bynt_semantics__Ctx* p_c, bynt_semantics__BTry p_n
 #line 1624 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)28), byn_sub_i64((*p_c).bTries.len, INT64_C(1), byn_file_27, 1624));
 }
-#line 68337 "main.c"
+#line 68340 "main.c"
 
 int64_t byn_semantics__addCatch(bynt_semantics__Ctx* p_c, bynt_semantics__BCatch p_n) {
 #line 1628 "semantics/bound.byn"
@@ -68341,7 +68344,7 @@ int64_t byn_semantics__addCatch(bynt_semantics__Ctx* p_c, bynt_semantics__BCatch
 #line 1629 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)29), byn_sub_i64((*p_c).bCatches.len, INT64_C(1), byn_file_27, 1629));
 }
-#line 68345 "main.c"
+#line 68348 "main.c"
 
 int64_t byn_semantics__addJump(bynt_semantics__Ctx* p_c, bynt_semantics__BJump p_n) {
 #line 1633 "semantics/bound.byn"
@@ -68349,7 +68352,7 @@ int64_t byn_semantics__addJump(bynt_semantics__Ctx* p_c, bynt_semantics__BJump p
 #line 1634 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)30), byn_sub_i64((*p_c).bJumps.len, INT64_C(1), byn_file_27, 1634));
 }
-#line 68353 "main.c"
+#line 68356 "main.c"
 
 int64_t byn_semantics__addBlockExpr(bynt_semantics__Ctx* p_c, bynt_semantics__BBlockExpr p_n) {
 #line 1638 "semantics/bound.byn"
@@ -68357,7 +68360,7 @@ int64_t byn_semantics__addBlockExpr(bynt_semantics__Ctx* p_c, bynt_semantics__BB
 #line 1639 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)31), byn_sub_i64((*p_c).bBlockExprs.len, INT64_C(1), byn_file_27, 1639));
 }
-#line 68361 "main.c"
+#line 68364 "main.c"
 
 int64_t byn_semantics__addErrorVariant(bynt_semantics__Ctx* p_c, bynt_semantics__BErrorVariant p_n) {
     bynt_semantics__BErrorVariant l0_m = {0};
@@ -68373,7 +68376,7 @@ int64_t byn_semantics__addErrorVariant(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 1646 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)32), byn_sub_i64((*p_c).bErrorVariants.len, INT64_C(1), byn_file_27, 1646));
 }
-#line 68377 "main.c"
+#line 68380 "main.c"
 
 int64_t byn_semantics__addEnumMember(bynt_semantics__Ctx* p_c, bynt_semantics__BEnumMember p_n) {
     bynt_semantics__BEnumMember l0_m = {0};
@@ -68389,7 +68392,7 @@ int64_t byn_semantics__addEnumMember(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1653 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)33), byn_sub_i64((*p_c).bEnumMembers.len, INT64_C(1), byn_file_27, 1653));
 }
-#line 68393 "main.c"
+#line 68396 "main.c"
 
 int64_t byn_semantics__addUnionNew(bynt_semantics__Ctx* p_c, bynt_semantics__BUnionNew p_n) {
     bynt_semantics__BUnionNew l0_m = {0};
@@ -68405,7 +68408,7 @@ int64_t byn_semantics__addUnionNew(bynt_semantics__Ctx* p_c, bynt_semantics__BUn
 #line 1660 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)34), byn_sub_i64((*p_c).bUnionNews.len, INT64_C(1), byn_file_27, 1660));
 }
-#line 68409 "main.c"
+#line 68412 "main.c"
 
 int64_t byn_semantics__addEnumValues(bynt_semantics__Ctx* p_c, bynt_semantics__BEnumValues p_n) {
 #line 1664 "semantics/bound.byn"
@@ -68413,7 +68416,7 @@ int64_t byn_semantics__addEnumValues(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1665 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)35), byn_sub_i64((*p_c).bEnumValues.len, INT64_C(1), byn_file_27, 1665));
 }
-#line 68417 "main.c"
+#line 68420 "main.c"
 
 int64_t byn_semantics__addStaticArray(bynt_semantics__Ctx* p_c, bynt_semantics__BStaticArray p_n) {
     bynt_semantics__BStaticArray l0_m = {0};
@@ -68429,7 +68432,7 @@ int64_t byn_semantics__addStaticArray(bynt_semantics__Ctx* p_c, bynt_semantics__
 #line 1672 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)36), byn_sub_i64((*p_c).bStaticArrays.len, INT64_C(1), byn_file_27, 1672));
 }
-#line 68433 "main.c"
+#line 68436 "main.c"
 
 int64_t byn_semantics__addStackalloc(bynt_semantics__Ctx* p_c, bynt_semantics__BStackalloc p_n) {
 #line 1676 "semantics/bound.byn"
@@ -68437,7 +68440,7 @@ int64_t byn_semantics__addStackalloc(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1677 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)37), byn_sub_i64((*p_c).bStackallocs.len, INT64_C(1), byn_file_27, 1677));
 }
-#line 68441 "main.c"
+#line 68444 "main.c"
 
 int64_t byn_semantics__addErrorExpr(bynt_semantics__Ctx* p_c, bynt_semantics__BErrorExpr p_n) {
 #line 1681 "semantics/bound.byn"
@@ -68445,7 +68448,7 @@ int64_t byn_semantics__addErrorExpr(bynt_semantics__Ctx* p_c, bynt_semantics__BE
 #line 1682 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)38), byn_sub_i64((*p_c).bErrorExprs.len, INT64_C(1), byn_file_27, 1682));
 }
-#line 68449 "main.c"
+#line 68452 "main.c"
 
 int64_t byn_semantics__addTypeRef(bynt_semantics__Ctx* p_c, bynt_semantics__BTypeRef p_n) {
 #line 1686 "semantics/bound.byn"
@@ -68453,7 +68456,7 @@ int64_t byn_semantics__addTypeRef(bynt_semantics__Ctx* p_c, bynt_semantics__BTyp
 #line 1687 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)39), byn_sub_i64((*p_c).bTypeRefs.len, INT64_C(1), byn_file_27, 1687));
 }
-#line 68457 "main.c"
+#line 68460 "main.c"
 
 int64_t byn_semantics__addModuleRef(bynt_semantics__Ctx* p_c, bynt_semantics__BModuleRef p_n) {
 #line 1691 "semantics/bound.byn"
@@ -68461,7 +68464,7 @@ int64_t byn_semantics__addModuleRef(bynt_semantics__Ctx* p_c, bynt_semantics__BM
 #line 1692 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)40), byn_sub_i64((*p_c).bModuleRefs.len, INT64_C(1), byn_file_27, 1692));
 }
-#line 68465 "main.c"
+#line 68468 "main.c"
 
 int64_t byn_semantics__addLambda(bynt_semantics__Ctx* p_c, bynt_semantics__BLambda p_n) {
 #line 1696 "semantics/bound.byn"
@@ -68469,7 +68472,7 @@ int64_t byn_semantics__addLambda(bynt_semantics__Ctx* p_c, bynt_semantics__BLamb
 #line 1697 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)41), byn_sub_i64((*p_c).bLambdas.len, INT64_C(1), byn_file_27, 1697));
 }
-#line 68473 "main.c"
+#line 68476 "main.c"
 
 int64_t byn_semantics__addFunctionRef(bynt_semantics__Ctx* p_c, bynt_semantics__BFunctionRef p_n) {
 #line 1701 "semantics/bound.byn"
@@ -68477,7 +68480,7 @@ int64_t byn_semantics__addFunctionRef(bynt_semantics__Ctx* p_c, bynt_semantics__
 #line 1702 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)42), byn_sub_i64((*p_c).bFunctionRefs.len, INT64_C(1), byn_file_27, 1702));
 }
-#line 68481 "main.c"
+#line 68484 "main.c"
 
 int64_t byn_semantics__addBlock(bynt_semantics__Ctx* p_c, bynt_semantics__BBlock p_n) {
 #line 1706 "semantics/bound.byn"
@@ -68485,7 +68488,7 @@ int64_t byn_semantics__addBlock(bynt_semantics__Ctx* p_c, bynt_semantics__BBlock
 #line 1707 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)43), byn_sub_i64((*p_c).bBlocks.len, INT64_C(1), byn_file_27, 1707));
 }
-#line 68489 "main.c"
+#line 68492 "main.c"
 
 int64_t byn_semantics__addLocalDecl(bynt_semantics__Ctx* p_c, bynt_semantics__BLocalDecl p_n) {
 #line 1711 "semantics/bound.byn"
@@ -68493,7 +68496,7 @@ int64_t byn_semantics__addLocalDecl(bynt_semantics__Ctx* p_c, bynt_semantics__BL
 #line 1712 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)44), byn_sub_i64((*p_c).bLocalDecls.len, INT64_C(1), byn_file_27, 1712));
 }
-#line 68497 "main.c"
+#line 68500 "main.c"
 
 int64_t byn_semantics__addExprStmt(bynt_semantics__Ctx* p_c, bynt_semantics__BExprStmt p_n) {
 #line 1716 "semantics/bound.byn"
@@ -68501,7 +68504,7 @@ int64_t byn_semantics__addExprStmt(bynt_semantics__Ctx* p_c, bynt_semantics__BEx
 #line 1717 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)45), byn_sub_i64((*p_c).bExprStmts.len, INT64_C(1), byn_file_27, 1717));
 }
-#line 68505 "main.c"
+#line 68508 "main.c"
 
 int64_t byn_semantics__addAssign(bynt_semantics__Ctx* p_c, bynt_semantics__BAssign p_n) {
 #line 1721 "semantics/bound.byn"
@@ -68509,7 +68512,7 @@ int64_t byn_semantics__addAssign(bynt_semantics__Ctx* p_c, bynt_semantics__BAssi
 #line 1722 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)46), byn_sub_i64((*p_c).bAssigns.len, INT64_C(1), byn_file_27, 1722));
 }
-#line 68513 "main.c"
+#line 68516 "main.c"
 
 int64_t byn_semantics__addReturn(bynt_semantics__Ctx* p_c, bynt_semantics__BReturn p_n) {
 #line 1726 "semantics/bound.byn"
@@ -68517,7 +68520,7 @@ int64_t byn_semantics__addReturn(bynt_semantics__Ctx* p_c, bynt_semantics__BRetu
 #line 1727 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)47), byn_sub_i64((*p_c).bReturns.len, INT64_C(1), byn_file_27, 1727));
 }
-#line 68521 "main.c"
+#line 68524 "main.c"
 
 int64_t byn_semantics__addFail(bynt_semantics__Ctx* p_c, bynt_semantics__BFail p_n) {
 #line 1731 "semantics/bound.byn"
@@ -68525,7 +68528,7 @@ int64_t byn_semantics__addFail(bynt_semantics__Ctx* p_c, bynt_semantics__BFail p
 #line 1732 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)48), byn_sub_i64((*p_c).bFails.len, INT64_C(1), byn_file_27, 1732));
 }
-#line 68529 "main.c"
+#line 68532 "main.c"
 
 int64_t byn_semantics__addBecome(bynt_semantics__Ctx* p_c, bynt_semantics__BBecome p_n) {
 #line 1736 "semantics/bound.byn"
@@ -68533,7 +68536,7 @@ int64_t byn_semantics__addBecome(bynt_semantics__Ctx* p_c, bynt_semantics__BBeco
 #line 1737 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)49), byn_sub_i64((*p_c).bBecomes.len, INT64_C(1), byn_file_27, 1737));
 }
-#line 68537 "main.c"
+#line 68540 "main.c"
 
 int64_t byn_semantics__addBreak(bynt_semantics__Ctx* p_c, bynt_semantics__BBreak p_n) {
 #line 1741 "semantics/bound.byn"
@@ -68541,7 +68544,7 @@ int64_t byn_semantics__addBreak(bynt_semantics__Ctx* p_c, bynt_semantics__BBreak
 #line 1742 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)50), byn_sub_i64((*p_c).bBreaks.len, INT64_C(1), byn_file_27, 1742));
 }
-#line 68545 "main.c"
+#line 68548 "main.c"
 
 int64_t byn_semantics__addContinue(bynt_semantics__Ctx* p_c, bynt_semantics__BContinue p_n) {
 #line 1746 "semantics/bound.byn"
@@ -68549,7 +68552,7 @@ int64_t byn_semantics__addContinue(bynt_semantics__Ctx* p_c, bynt_semantics__BCo
 #line 1747 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)51), byn_sub_i64((*p_c).bContinues.len, INT64_C(1), byn_file_27, 1747));
 }
-#line 68553 "main.c"
+#line 68556 "main.c"
 
 int64_t byn_semantics__addIf(bynt_semantics__Ctx* p_c, bynt_semantics__BIf p_n) {
 #line 1751 "semantics/bound.byn"
@@ -68557,7 +68560,7 @@ int64_t byn_semantics__addIf(bynt_semantics__Ctx* p_c, bynt_semantics__BIf p_n) 
 #line 1752 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)52), byn_sub_i64((*p_c).bIfs.len, INT64_C(1), byn_file_27, 1752));
 }
-#line 68561 "main.c"
+#line 68564 "main.c"
 
 int64_t byn_semantics__addWhile(bynt_semantics__Ctx* p_c, bynt_semantics__BWhile p_n) {
 #line 1756 "semantics/bound.byn"
@@ -68565,7 +68568,7 @@ int64_t byn_semantics__addWhile(bynt_semantics__Ctx* p_c, bynt_semantics__BWhile
 #line 1757 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)53), byn_sub_i64((*p_c).bWhiles.len, INT64_C(1), byn_file_27, 1757));
 }
-#line 68569 "main.c"
+#line 68572 "main.c"
 
 int64_t byn_semantics__addDoWhile(bynt_semantics__Ctx* p_c, bynt_semantics__BDoWhile p_n) {
 #line 1761 "semantics/bound.byn"
@@ -68573,7 +68576,7 @@ int64_t byn_semantics__addDoWhile(bynt_semantics__Ctx* p_c, bynt_semantics__BDoW
 #line 1762 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)54), byn_sub_i64((*p_c).bDoWhiles.len, INT64_C(1), byn_file_27, 1762));
 }
-#line 68577 "main.c"
+#line 68580 "main.c"
 
 int64_t byn_semantics__addFor(bynt_semantics__Ctx* p_c, bynt_semantics__BFor p_n) {
 #line 1766 "semantics/bound.byn"
@@ -68581,7 +68584,7 @@ int64_t byn_semantics__addFor(bynt_semantics__Ctx* p_c, bynt_semantics__BFor p_n
 #line 1767 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)55), byn_sub_i64((*p_c).bFors.len, INT64_C(1), byn_file_27, 1767));
 }
-#line 68585 "main.c"
+#line 68588 "main.c"
 
 int64_t byn_semantics__addSwitch(bynt_semantics__Ctx* p_c, bynt_semantics__BSwitch p_n) {
 #line 1771 "semantics/bound.byn"
@@ -68589,7 +68592,7 @@ int64_t byn_semantics__addSwitch(bynt_semantics__Ctx* p_c, bynt_semantics__BSwit
 #line 1772 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)56), byn_sub_i64((*p_c).bSwitches.len, INT64_C(1), byn_file_27, 1772));
 }
-#line 68593 "main.c"
+#line 68596 "main.c"
 
 int64_t byn_semantics__addDefer(bynt_semantics__Ctx* p_c, bynt_semantics__BDefer p_n) {
 #line 1776 "semantics/bound.byn"
@@ -68597,7 +68600,7 @@ int64_t byn_semantics__addDefer(bynt_semantics__Ctx* p_c, bynt_semantics__BDefer
 #line 1777 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)57), byn_sub_i64((*p_c).bDefers.len, INT64_C(1), byn_file_27, 1777));
 }
-#line 68601 "main.c"
+#line 68604 "main.c"
 
 int64_t byn_semantics__addAssert(bynt_semantics__Ctx* p_c, bynt_semantics__BAssert p_n) {
 #line 1781 "semantics/bound.byn"
@@ -68605,7 +68608,7 @@ int64_t byn_semantics__addAssert(bynt_semantics__Ctx* p_c, bynt_semantics__BAsse
 #line 1782 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)58), byn_sub_i64((*p_c).bAsserts.len, INT64_C(1), byn_file_27, 1782));
 }
-#line 68609 "main.c"
+#line 68612 "main.c"
 
 int64_t byn_semantics__addErrdefer(bynt_semantics__Ctx* p_c, bynt_semantics__BErrdefer p_n) {
 #line 1786 "semantics/bound.byn"
@@ -68613,7 +68616,7 @@ int64_t byn_semantics__addErrdefer(bynt_semantics__Ctx* p_c, bynt_semantics__BEr
 #line 1787 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)59), byn_sub_i64((*p_c).bErrdefers.len, INT64_C(1), byn_file_27, 1787));
 }
-#line 68617 "main.c"
+#line 68620 "main.c"
 
 int64_t byn_semantics__addPanicDefer(bynt_semantics__Ctx* p_c, bynt_semantics__BPanicDefer p_n) {
 #line 1791 "semantics/bound.byn"
@@ -68621,7 +68624,7 @@ int64_t byn_semantics__addPanicDefer(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1792 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)60), byn_sub_i64((*p_c).bPanicDefers.len, INT64_C(1), byn_file_27, 1792));
 }
-#line 68625 "main.c"
+#line 68628 "main.c"
 
 int64_t byn_semantics__addSetOnPanic(bynt_semantics__Ctx* p_c, bynt_semantics__BSetOnPanic p_n) {
 #line 1796 "semantics/bound.byn"
@@ -68629,7 +68632,7 @@ int64_t byn_semantics__addSetOnPanic(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1797 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)61), byn_sub_i64((*p_c).bSetOnPanics.len, INT64_C(1), byn_file_27, 1797));
 }
-#line 68633 "main.c"
+#line 68636 "main.c"
 
 int64_t byn_semantics__addContext(bynt_semantics__Ctx* p_c, bynt_semantics__BContext p_n) {
 #line 1801 "semantics/bound.byn"
@@ -68637,7 +68640,7 @@ int64_t byn_semantics__addContext(bynt_semantics__Ctx* p_c, bynt_semantics__BCon
 #line 1802 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)62), byn_sub_i64((*p_c).bContexts.len, INT64_C(1), byn_file_27, 1802));
 }
-#line 68641 "main.c"
+#line 68644 "main.c"
 
 int64_t byn_semantics__addErrorStmt(bynt_semantics__Ctx* p_c, bynt_semantics__BErrorStmt p_n) {
 #line 1806 "semantics/bound.byn"
@@ -68645,7 +68648,7 @@ int64_t byn_semantics__addErrorStmt(bynt_semantics__Ctx* p_c, bynt_semantics__BE
 #line 1807 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)63), byn_sub_i64((*p_c).bErrorStmts.len, INT64_C(1), byn_file_27, 1807));
 }
-#line 68649 "main.c"
+#line 68652 "main.c"
 
 int64_t byn_semantics__addConstantPattern(bynt_semantics__Ctx* p_c, bynt_semantics__BConstantPattern p_n) {
 #line 1811 "semantics/bound.byn"
@@ -68653,7 +68656,7 @@ int64_t byn_semantics__addConstantPattern(bynt_semantics__Ctx* p_c, bynt_semanti
 #line 1812 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)64), byn_sub_i64((*p_c).bConstantPatterns.len, INT64_C(1), byn_file_27, 1812));
 }
-#line 68657 "main.c"
+#line 68660 "main.c"
 
 int64_t byn_semantics__addRelationalPattern(bynt_semantics__Ctx* p_c, bynt_semantics__BRelationalPattern p_n) {
 #line 1816 "semantics/bound.byn"
@@ -68661,7 +68664,7 @@ int64_t byn_semantics__addRelationalPattern(bynt_semantics__Ctx* p_c, bynt_seman
 #line 1817 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)65), byn_sub_i64((*p_c).bRelationalPatterns.len, INT64_C(1), byn_file_27, 1817));
 }
-#line 68665 "main.c"
+#line 68668 "main.c"
 
 int64_t byn_semantics__addRangePattern(bynt_semantics__Ctx* p_c, bynt_semantics__BRangePattern p_n) {
 #line 1821 "semantics/bound.byn"
@@ -68669,7 +68672,7 @@ int64_t byn_semantics__addRangePattern(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 1822 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)66), byn_sub_i64((*p_c).bRangePatterns.len, INT64_C(1), byn_file_27, 1822));
 }
-#line 68673 "main.c"
+#line 68676 "main.c"
 
 int64_t byn_semantics__addBindPattern(bynt_semantics__Ctx* p_c, bynt_semantics__BBindPattern p_n) {
 #line 1826 "semantics/bound.byn"
@@ -68677,7 +68680,7 @@ int64_t byn_semantics__addBindPattern(bynt_semantics__Ctx* p_c, bynt_semantics__
 #line 1827 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)67), byn_sub_i64((*p_c).bBindPatterns.len, INT64_C(1), byn_file_27, 1827));
 }
-#line 68681 "main.c"
+#line 68684 "main.c"
 
 int64_t byn_semantics__addNotPattern(bynt_semantics__Ctx* p_c, bynt_semantics__BNotPattern p_n) {
 #line 1831 "semantics/bound.byn"
@@ -68685,7 +68688,7 @@ int64_t byn_semantics__addNotPattern(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1832 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)68), byn_sub_i64((*p_c).bNotPatterns.len, INT64_C(1), byn_file_27, 1832));
 }
-#line 68689 "main.c"
+#line 68692 "main.c"
 
 int64_t byn_semantics__addBinaryPattern(bynt_semantics__Ctx* p_c, bynt_semantics__BBinaryPattern p_n) {
 #line 1836 "semantics/bound.byn"
@@ -68693,7 +68696,7 @@ int64_t byn_semantics__addBinaryPattern(bynt_semantics__Ctx* p_c, bynt_semantics
 #line 1837 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)69), byn_sub_i64((*p_c).bBinaryPatterns.len, INT64_C(1), byn_file_27, 1837));
 }
-#line 68697 "main.c"
+#line 68700 "main.c"
 
 int64_t byn_semantics__addPropertyPattern(bynt_semantics__Ctx* p_c, bynt_semantics__BPropertyPattern p_n) {
 #line 1841 "semantics/bound.byn"
@@ -68701,7 +68704,7 @@ int64_t byn_semantics__addPropertyPattern(bynt_semantics__Ctx* p_c, bynt_semanti
 #line 1842 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)70), byn_sub_i64((*p_c).bPropertyPatterns.len, INT64_C(1), byn_file_27, 1842));
 }
-#line 68705 "main.c"
+#line 68708 "main.c"
 
 int64_t byn_semantics__addUnionField(bynt_semantics__Ctx* p_c, bynt_semantics__BUnionField p_n) {
     bynt_semantics__BUnionField l0_m = {0};
@@ -68717,7 +68720,7 @@ int64_t byn_semantics__addUnionField(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1849 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)71), byn_sub_i64((*p_c).bUnionFields.len, INT64_C(1), byn_file_27, 1849));
 }
-#line 68721 "main.c"
+#line 68724 "main.c"
 
 int64_t byn_semantics__addUnionPattern(bynt_semantics__Ctx* p_c, bynt_semantics__BUnionPattern p_n) {
 #line 1853 "semantics/bound.byn"
@@ -68725,7 +68728,7 @@ int64_t byn_semantics__addUnionPattern(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 1854 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)72), byn_sub_i64((*p_c).bUnionPatterns.len, INT64_C(1), byn_file_27, 1854));
 }
-#line 68729 "main.c"
+#line 68732 "main.c"
 
 int64_t byn_semantics__addErrorField(bynt_semantics__Ctx* p_c, bynt_semantics__BErrorField p_n) {
     bynt_semantics__BErrorField l0_m = {0};
@@ -68741,7 +68744,7 @@ int64_t byn_semantics__addErrorField(bynt_semantics__Ctx* p_c, bynt_semantics__B
 #line 1861 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)73), byn_sub_i64((*p_c).bErrorFields.len, INT64_C(1), byn_file_27, 1861));
 }
-#line 68745 "main.c"
+#line 68748 "main.c"
 
 int64_t byn_semantics__addErrorPattern(bynt_semantics__Ctx* p_c, bynt_semantics__BErrorPattern p_n) {
 #line 1865 "semantics/bound.byn"
@@ -68749,7 +68752,7 @@ int64_t byn_semantics__addErrorPattern(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 1866 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)74), byn_sub_i64((*p_c).bErrorPatterns.len, INT64_C(1), byn_file_27, 1866));
 }
-#line 68753 "main.c"
+#line 68756 "main.c"
 
 int64_t byn_semantics__addMethodGroup(bynt_semantics__Ctx* p_c, bynt_semantics__BMethodGroup p_n) {
 #line 1870 "semantics/bound.byn"
@@ -68757,7 +68760,7 @@ int64_t byn_semantics__addMethodGroup(bynt_semantics__Ctx* p_c, bynt_semantics__
 #line 1871 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)75), byn_sub_i64((*p_c).bMethodGroups.len, INT64_C(1), byn_file_27, 1871));
 }
-#line 68761 "main.c"
+#line 68764 "main.c"
 
 int64_t byn_semantics__addVariantGroup(bynt_semantics__Ctx* p_c, bynt_semantics__BVariantGroup p_n) {
 #line 1875 "semantics/bound.byn"
@@ -68765,7 +68768,7 @@ int64_t byn_semantics__addVariantGroup(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 1876 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)76), byn_sub_i64((*p_c).bVariantGroups.len, INT64_C(1), byn_file_27, 1876));
 }
-#line 68769 "main.c"
+#line 68772 "main.c"
 
 int64_t byn_semantics__addBuiltinGroup(bynt_semantics__Ctx* p_c, bynt_semantics__BBuiltinGroup p_n) {
 #line 1880 "semantics/bound.byn"
@@ -68773,7 +68776,7 @@ int64_t byn_semantics__addBuiltinGroup(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 1881 "semantics/bound.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)77), byn_sub_i64((*p_c).bBuiltinGroups.len, INT64_C(1), byn_file_27, 1881));
 }
-#line 68777 "main.c"
+#line 68780 "main.c"
 
 int64_t byn_semantics__exprType(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -69122,7 +69125,7 @@ int64_t byn_semantics__exprType(bynt_semantics__Ctx p_c, int64_t p_e) {
     return byn_semantics__errorType();
 switch_end_1:;
 }
-#line 69126 "main.c"
+#line 69129 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__nodeSpan(bynt_semantics__Ctx p_c, int64_t p_n) {
     int64_t l0_i = {0};
@@ -69679,7 +69682,7 @@ bynt_lexer__TextSpan byn_semantics__nodeSpan(bynt_semantics__Ctx p_c, int64_t p_
     }
 switch_end_1:;
 }
-#line 69683 "main.c"
+#line 69686 "main.c"
 
 int64_t byn_semantics__patternInput(bynt_semantics__Ctx p_c, int64_t p_p) {
     int64_t l0_i = {0};
@@ -69755,7 +69758,7 @@ int64_t byn_semantics__patternInput(bynt_semantics__Ctx p_c, int64_t p_p) {
     return byn_semantics__errorType();
 switch_end_1:;
 }
-#line 69759 "main.c"
+#line 69762 "main.c"
 
 bynt_list_i64 byn_semantics__children(bynt_semantics__Ctx p_c, int64_t p_n) {
     bynt_list_i64 l0_result = {0};
@@ -70652,7 +70655,7 @@ switch_end_1:;
 #line 2253 "semantics/bound.byn"
     return l0_result;
 }
-#line 70656 "main.c"
+#line 70659 "main.c"
 
 bynt_list_i64 byn_semantics__descendants(bynt_semantics__Ctx p_c, int64_t p_n) {
     bynt_list_i64 l0_result = {0};
@@ -70701,7 +70704,7 @@ break_1:;
 #line 2271 "semantics/bound.byn"
     return l0_result;
 }
-#line 70705 "main.c"
+#line 70708 "main.c"
 
 int64_t byn_semantics__t9Module(bynt_semantics__Ctx* p_c) {
     int64_t l0_i = {0};
@@ -70733,7 +70736,7 @@ break_1:;
 #line 67 "semantics/builtins.byn"
     return byn_semantics__t9Create(&(*p_c));
 }
-#line 70737 "main.c"
+#line 70740 "main.c"
 
 int64_t byn_semantics__t9Type(bynt_semantics__Ctx* p_c, byn_str p_name) {
     int64_t l0_m = {0};
@@ -70745,7 +70748,7 @@ int64_t byn_semantics__t9Type(bynt_semantics__Ctx* p_c, byn_str p_name) {
 #line 73 "semantics/builtins.byn"
     return (t1.has ? t1.value : INT64_C(-1));
 }
-#line 70749 "main.c"
+#line 70752 "main.c"
 
 bynt_list_i64 byn_semantics__detailVariants(bynt_semantics__Ctx* p_c) {
     bynt_list_i64 l0_all = {0};
@@ -70762,7 +70765,7 @@ bynt_list_i64 byn_semantics__detailVariants(bynt_semantics__Ctx* p_c) {
 #line 84 "semantics/builtins.byn"
     return l0_all;
 }
-#line 70766 "main.c"
+#line 70769 "main.c"
 
 int64_t byn_semantics__t9Variant(bynt_semantics__Ctx* p_c, byn_str p_set, byn_str p_name) {
     int64_t l0_s = {0};
@@ -70797,7 +70800,7 @@ break_1:;
 #line 93 "semantics/builtins.byn"
     (void)byn_panic_str(BYN_STR("no such builtin error variant", 29), byn_file_28, 93);
 }
-#line 70801 "main.c"
+#line 70804 "main.c"
 
 int64_t byn_semantics__t9Function(bynt_semantics__Ctx* p_c, byn_str p_key) {
     int64_t l0_m = {0};
@@ -70811,7 +70814,7 @@ int64_t byn_semantics__t9Function(bynt_semantics__Ctx* p_c, byn_str p_key) {
 #line 100 "semantics/builtins.byn"
     return INT64_C(-1);
 }
-#line 70815 "main.c"
+#line 70818 "main.c"
 
 int64_t byn_semantics__t9Create(bynt_semantics__Ctx* p_c) {
     int64_t l0_m = {0};
@@ -71186,7 +71189,7 @@ int64_t byn_semantics__t9Create(bynt_semantics__Ctx* p_c) {
 #line 588 "semantics/builtins.byn"
     return l0_m;
 }
-#line 71190 "main.c"
+#line 71193 "main.c"
 
 int64_t byn_semantics__t9Parse(bynt_semantics__Ctx* p_c, byn_str p_text, int64_t p_m) {
     bynt_list_u8 l0_bytes = {0};
@@ -71255,7 +71258,7 @@ break_3:;
 #line 612 "semantics/builtins.byn"
     return byn_sub_i64((*p_c).files.len, INT64_C(1), byn_file_28, 612);
 }
-#line 71259 "main.c"
+#line 71262 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__t9DeclName(bynt_semantics__Ctx* p_c, int64_t p_file, int64_t p_index) {
     byn_parser_Decl t0 = {0};
@@ -71305,7 +71308,7 @@ bynt_lexer__TextSpan byn_semantics__t9DeclName(bynt_semantics__Ctx* p_c, int64_t
     return ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)});
 switch_end_1:;
 }
-#line 71309 "main.c"
+#line 71312 "main.c"
 
 byn_str byn_semantics__t9Text(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lexer__TextSpan p_span) {
     bynt_list_u8 t0 = {0};
@@ -71314,7 +71317,7 @@ byn_str byn_semantics__t9Text(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lex
 #line 627 "semantics/builtins.byn"
     return byn_semantics__getText(bynh_span_list_u8(t0), p_span);
 }
-#line 71318 "main.c"
+#line 71321 "main.c"
 
 int64_t byn_semantics__t9Enum(bynt_semantics__Ctx* p_c, byn_str p_text, int64_t p_m) {
     int64_t l0_file = {0};
@@ -71404,7 +71407,7 @@ break_4:;
 #line 668 "semantics/builtins.byn"
     return l2_e;
 }
-#line 71408 "main.c"
+#line 71411 "main.c"
 
 int64_t byn_semantics__t9ErrorSet(bynt_semantics__Ctx* p_c, byn_str p_text, int64_t p_m) {
     int64_t l0_file = {0};
@@ -71427,7 +71430,7 @@ int64_t byn_semantics__t9ErrorSet(bynt_semantics__Ctx* p_c, byn_str p_text, int6
 #line 689 "semantics/builtins.byn"
     return l2_e;
 }
-#line 71431 "main.c"
+#line 71434 "main.c"
 
 int64_t byn_semantics__t9Rule(bynt_semantics__Ctx* p_c, int64_t p_m) {
     int64_t l0_file = {0};
@@ -71450,7 +71453,7 @@ int64_t byn_semantics__t9Rule(bynt_semantics__Ctx* p_c, int64_t p_m) {
 #line 710 "semantics/builtins.byn"
     return l2_u;
 }
-#line 71454 "main.c"
+#line 71457 "main.c"
 
 int64_t byn_semantics__t9Interface(bynt_semantics__Ctx* p_c, int64_t p_file, int64_t p_index) {
     bynt_lexer__TextSpan l0_name = {0};
@@ -71473,7 +71476,7 @@ int64_t byn_semantics__t9Interface(bynt_semantics__Ctx* p_c, int64_t p_file, int
 #line 731 "semantics/builtins.byn"
     return l2_i;
 }
-#line 71477 "main.c"
+#line 71480 "main.c"
 
 bynt_list_semantics__BuiltinParameter byn_semantics__t9One(byn_str p_name, int64_t p_type) {
     bynt_list_semantics__BuiltinParameter l0_ps = {0};
@@ -71484,7 +71487,7 @@ bynt_list_semantics__BuiltinParameter byn_semantics__t9One(byn_str p_name, int64
 #line 737 "semantics/builtins.byn"
     return l0_ps;
 }
-#line 71488 "main.c"
+#line 71491 "main.c"
 
 bynt_list_semantics__BuiltinParameter byn_semantics__t9Two(byn_str p_name, int64_t p_type, byn_str p_name2, int64_t p_type2) {
     bynt_list_semantics__BuiltinParameter l0_ps = {0};
@@ -71497,7 +71500,7 @@ bynt_list_semantics__BuiltinParameter byn_semantics__t9Two(byn_str p_name, int64
 #line 744 "semantics/builtins.byn"
     return l0_ps;
 }
-#line 71501 "main.c"
+#line 71504 "main.c"
 
 int64_t byn_semantics__t9Make(bynt_semantics__Ctx* p_c, int64_t p_m, byn_str p_name, byn_semantics_BuiltinFunction p_kind, int64_t p_returns, bynt_list_semantics__BuiltinParameter p_parameters, byn_str p_key) {
     int64_t l0_f = {0};
@@ -71542,7 +71545,7 @@ break_1:;
 #line 786 "semantics/builtins.byn"
     return l0_f;
 }
-#line 71546 "main.c"
+#line 71549 "main.c"
 
 int64_t byn_semantics__t9MakeIo(bynt_semantics__Ctx* p_c, int64_t p_m, byn_str p_name, byn_semantics_BuiltinFunction p_kind, int64_t p_returns, bynt_list_semantics__BuiltinParameter p_parameters, int64_t p_ioError) {
     int64_t l0_f = {0};
@@ -71564,7 +71567,7 @@ int64_t byn_semantics__t9MakeIo(bynt_semantics__Ctx* p_c, int64_t p_m, byn_str p
 #line 801 "semantics/builtins.byn"
     return l0_f;
 }
-#line 71568 "main.c"
+#line 71571 "main.c"
 
 void byn_semantics__t9Fails(bynt_semantics__Ctx* p_c, int64_t p_f, int64_t p_set) {
 #line 806 "semantics/builtins.byn"
@@ -71572,7 +71575,7 @@ void byn_semantics__t9Fails(bynt_semantics__Ctx* p_c, int64_t p_f, int64_t p_set
 #line 807 "semantics/builtins.byn"
     (void)bynh_add_list_i64(&(*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_f, false, byn_file_28, 807)).errorSets, p_set);
 }
-#line 71576 "main.c"
+#line 71579 "main.c"
 
 int64_t byn_semantics__findInterface(bynt_semantics__Ctx* p_c, byn_str p_name) {
 #line 813 "semantics/builtins.byn"
@@ -71593,7 +71596,7 @@ switch_end_1:;
 #line 816 "semantics/builtins.byn"
     return INT64_C(-1);
 }
-#line 71597 "main.c"
+#line 71600 "main.c"
 
 int64_t byn_semantics__findPath(bynt_semantics__Ctx* p_c, byn_str p_name) {
     byn_writer t0 = {0};
@@ -71618,7 +71621,7 @@ switch_end_1:;
 #line 829 "semantics/builtins.byn"
     return INT64_C(-1);
 }
-#line 71622 "main.c"
+#line 71625 "main.c"
 
 int64_t byn_semantics__findEnv(bynt_semantics__Ctx* p_c, byn_str p_name) {
 #line 835 "semantics/builtins.byn"
@@ -71632,7 +71635,7 @@ switch_end_1:;
 #line 837 "semantics/builtins.byn"
     return INT64_C(-1);
 }
-#line 71636 "main.c"
+#line 71639 "main.c"
 
 int64_t byn_semantics__findFs(bynt_semantics__Ctx* p_c, byn_str p_name) {
     byn_writer t0 = {0};
@@ -71657,7 +71660,7 @@ switch_end_1:;
 #line 850 "semantics/builtins.byn"
     return INT64_C(-1);
 }
-#line 71661 "main.c"
+#line 71664 "main.c"
 
 int64_t byn_semantics__findTime(bynt_semantics__Ctx* p_c, byn_str p_name) {
 #line 856 "semantics/builtins.byn"
@@ -71678,7 +71681,7 @@ switch_end_1:;
 #line 859 "semantics/builtins.byn"
     return INT64_C(-1);
 }
-#line 71682 "main.c"
+#line 71685 "main.c"
 
 int64_t byn_semantics__findString(bynt_semantics__Ctx* p_c, byn_str p_name) {
 #line 865 "semantics/builtins.byn"
@@ -71692,7 +71695,7 @@ switch_end_1:;
 #line 867 "semantics/builtins.byn"
     return INT64_C(-1);
 }
-#line 71696 "main.c"
+#line 71699 "main.c"
 
 int64_t byn_semantics__findUtf8(bynt_semantics__Ctx* p_c, byn_str p_name) {
 #line 873 "semantics/builtins.byn"
@@ -71713,7 +71716,7 @@ switch_end_1:;
 #line 876 "semantics/builtins.byn"
     return INT64_C(-1);
 }
-#line 71717 "main.c"
+#line 71720 "main.c"
 
 int64_t byn_semantics__intParse(bynt_semantics__Ctx* p_c, byn_semantics_PrimitiveKind p_t) {
     byn_str l0_key = {0};
@@ -71758,7 +71761,7 @@ int64_t byn_semantics__intParse(bynt_semantics__Ctx* p_c, byn_semantics_Primitiv
 #line 897 "semantics/builtins.byn"
     return l6_f;
 }
-#line 71762 "main.c"
+#line 71765 "main.c"
 
 int64_t byn_semantics__findIo(bynt_semantics__Ctx* p_c, byn_str p_name) {
     byn_writer t0 = {0};
@@ -71783,7 +71786,7 @@ switch_end_1:;
 #line 919 "semantics/builtins.byn"
     return INT64_C(-1);
 }
-#line 71787 "main.c"
+#line 71790 "main.c"
 
 bynt_opt_i64 byn_semantics__find(bynt_semantics__Ctx* p_c, byn_str p_name) {
 #line 924 "semantics/builtins.byn"
@@ -71797,13 +71800,13 @@ switch_end_1:;
 #line 932 "semantics/builtins.byn"
     return ((bynt_opt_i64){0});
 }
-#line 71801 "main.c"
+#line 71804 "main.c"
 
 bynt_semantics__PropertyResult byn_semantics__t9Property(byn_semantics_BuiltinMember p_member, int64_t p_type) {
 #line 937 "semantics/builtins.byn"
     return ((bynt_semantics__PropertyResult){p_member, p_type});
 }
-#line 71807 "main.c"
+#line 71810 "main.c"
 
 bynt_opt_semantics__PropertyResult byn_semantics__builtinProperty(bynt_semantics__Ctx* p_c, int64_t p_type, byn_str p_name) {
     int64_t l0_i = {0};
@@ -72160,7 +72163,7 @@ switch_end_2:;
 #line 1026 "semantics/builtins.byn"
     return ((bynt_opt_semantics__PropertyResult){0});
 }
-#line 72164 "main.c"
+#line 72167 "main.c"
 
 bynt_opt_semantics__BuiltinMethod byn_semantics__method(bynt_semantics__Ctx* p_c, int64_t p_type, byn_str p_name) {
     int64_t l0_i = {0};
@@ -72752,7 +72755,7 @@ switch_end_2:;
 #line 1388 "semantics/builtins.byn"
     return ((bynt_opt_semantics__BuiltinMethod){0});
 }
-#line 72756 "main.c"
+#line 72759 "main.c"
 
 bool byn_semantics__hasMethod(bynt_semantics__Ctx* p_c, int64_t p_type, byn_str p_name) {
     bynt_opt_semantics__BuiltinMethod t0 = {0};
@@ -72761,7 +72764,7 @@ bool byn_semantics__hasMethod(bynt_semantics__Ctx* p_c, int64_t p_type, byn_str 
 #line 1393 "semantics/builtins.byn"
     return ((!(!t0.has)) || ((p_type == byn_semantics__builtinType(((byn_semantics_BuiltinKind)6))) && byn_str_eq(p_name, BYN_STR("readAllBytes", 12))));
 }
-#line 72765 "main.c"
+#line 72768 "main.c"
 
 bynt_list_str byn_semantics__t9Candidates(void) {
     bynt_list_str t0 = {0};
@@ -72886,7 +72889,7 @@ bynt_list_str byn_semantics__t9Candidates(void) {
 #line 1396 "semantics/builtins.byn"
     return t0;
 }
-#line 72890 "main.c"
+#line 72893 "main.c"
 
 bynt_list_str byn_semantics__names(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_str l0_result = {0};
@@ -72935,7 +72938,7 @@ break_1:;
 #line 1414 "semantics/builtins.byn"
     return l0_result;
 }
-#line 72939 "main.c"
+#line 72942 "main.c"
 
 bool byn_semantics__t9IsUnique(bynt_semantics__Ctx* p_c, int64_t p_t) {
     int64_t l0_i = {0};
@@ -72990,7 +72993,7 @@ bool byn_semantics__t9IsUnique(bynt_semantics__Ctx* p_c, int64_t p_t) {
     return false;
 switch_end_1:;
 }
-#line 72994 "main.c"
+#line 72997 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__stripParens(byn_parser_Expr p_e) {
     bynt_parser__ParenExpr* l0_p = {0};
@@ -73005,7 +73008,7 @@ bynt_lexer__TextSpan byn_semantics__stripParens(byn_parser_Expr p_e) {
     return byn_parser__exprSpan(p_e);
 switch_end_1:;
 }
-#line 73009 "main.c"
+#line 73012 "main.c"
 
 int64_t byn_semantics__bindCall(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, byn_parser_Expr p_syntax, int64_t p_expected) {
     bynt_opt_str l0_calleeName = {0};
@@ -73424,7 +73427,7 @@ switch_end_4:;
 #line 294 "semantics/calls.byn"
     return byn_semantics__recordSyntax(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_call.span})), p_syntax);
 }
-#line 73428 "main.c"
+#line 73431 "main.c"
 
 bool byn_semantics__t20HasArgument(bynt_semantics__Ctx p_c, int64_t p_f, bynt_parser__CallExpr p_call, byn_str p_name) {
     bynt_parser__Argument l0_a = {0};
@@ -73457,7 +73460,7 @@ break_1:;
 #line 302 "semantics/calls.byn"
     return false;
 }
-#line 73461 "main.c"
+#line 73464 "main.c"
 
 int64_t byn_semantics__t20BindGroupCall(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, byn_parser_Expr p_e, byn_parser_Expr p_syntax, int64_t p_fn, int64_t p_receiver, bool p_explicit) {
     bynt_parser__ParenExpr* l0_p = {0};
@@ -73485,7 +73488,7 @@ int64_t byn_semantics__t20BindGroupCall(bynt_semantics__Binder* p_b, bynt_semant
     return byn_semantics__bindFunctionCall(&(*p_b), &(*p_c), p_call, p_fn, p_receiver, p_syntax, ((bynt_opt_list_parser__TypeSyntax){0}));
 switch_end_1:;
 }
-#line 73489 "main.c"
+#line 73492 "main.c"
 
 int64_t byn_semantics__t20Overload(bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_f, bynt_parser__CallExpr p_call) {
     bynt_list_i64 l0_overloads = {0};
@@ -73585,7 +73588,7 @@ break_3:;
 #line 372 "semantics/calls.byn"
     return p_fn;
 }
-#line 73589 "main.c"
+#line 73592 "main.c"
 
 bool byn_semantics__t20Accepts(bynt_semantics__Ctx p_c, int64_t p_f, bynt_map_str_bool p_named, int64_t p_positional) {
     bynt_list_semantics__T12Param l0_ps = {0};
@@ -73736,7 +73739,7 @@ break_7:;
 #line 404 "semantics/calls.byn"
     return ((p_positional >= l15_needed) && ((p_positional <= l14_open) || l16_rest));
 }
-#line 73740 "main.c"
+#line 73743 "main.c"
 
 int64_t byn_semantics__bindTryFrom(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, byn_semantics_PrimitiveKind p_target) {
     bynt_opt_lexer__TextSpan t0 = {0};
@@ -73815,7 +73818,7 @@ int64_t byn_semantics__bindTryFrom(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 447 "semantics/calls.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t12, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 73819 "main.c"
+#line 73822 "main.c"
 
 int64_t byn_semantics__bindTryParse(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, byn_semantics_PrimitiveKind p_target) {
     int64_t l0_radixType = {0};
@@ -73919,7 +73922,7 @@ break_1:;
 #line 522 "semantics/calls.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t17, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 73923 "main.c"
+#line 73926 "main.c"
 
 int64_t byn_semantics__bindFloatTryParse(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, byn_semantics_PrimitiveKind p_target) {
     bynt_list_i64 l0_ps = {0};
@@ -73987,7 +73990,7 @@ break_1:;
 #line 579 "semantics/calls.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t9, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 73991 "main.c"
+#line 73994 "main.c"
 
 int64_t byn_semantics__bindParse(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, byn_parser_Expr p_syntax, byn_semantics_PrimitiveKind p_target) {
     int64_t l0_fn = {0};
@@ -74103,7 +74106,7 @@ break_3:;
 #line 646 "semantics/calls.byn"
     return byn_semantics__recordSyntax(&(*p_c), byn_semantics__addCall(&(*p_c), ((bynt_semantics__BCall){p_call.span, l0_fn, INT64_C(-1), t17, (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)l0_fn, false, byn_file_29, 655)).returnType})), p_syntax);
 }
-#line 74107 "main.c"
+#line 74110 "main.c"
 
 void byn_semantics__t20Unhandled(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, byn_str p_name) {
     bynt_list_semantics__CoveredCall l0_covered = {0};
@@ -74128,13 +74131,13 @@ void byn_semantics__t20Unhandled(bynt_semantics__Binder* p_b, bynt_semantics__Ct
         (void)byn_semantics__reportUnhandled(&(*p_b), &(*p_c), p_span, p_name, false);
     }
 }
-#line 74132 "main.c"
+#line 74135 "main.c"
 
 void byn_semantics__bindArgumentsForRecovery(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call) {
 #line 676 "semantics/calls.byn"
     (void)byn_semantics__bindArgumentListForRecovery(&(*p_b), &(*p_c), p_call.args);
 }
-#line 74138 "main.c"
+#line 74141 "main.c"
 
 void byn_semantics__bindArgumentListForRecovery(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_list_parser__Argument p_args) {
     bynt_parser__Argument l0_a = {0};
@@ -74183,7 +74186,7 @@ void byn_semantics__bindArgumentListForRecovery(bynt_semantics__Binder* p_b, byn
     }
 break_1:;
 }
-#line 74187 "main.c"
+#line 74190 "main.c"
 
 bool byn_semantics__t20IsLambda(byn_parser_Expr p_e) {
 #line 692 "semantics/calls.byn"
@@ -74197,7 +74200,7 @@ bool byn_semantics__t20IsLambda(byn_parser_Expr p_e) {
     return false;
 switch_end_1:;
 }
-#line 74201 "main.c"
+#line 74204 "main.c"
 
 bool byn_semantics__t20IsInterpolated(byn_parser_Expr p_e) {
 #line 699 "semantics/calls.byn"
@@ -74211,7 +74214,7 @@ bool byn_semantics__t20IsInterpolated(byn_parser_Expr p_e) {
     return false;
 switch_end_1:;
 }
-#line 74215 "main.c"
+#line 74218 "main.c"
 
 int64_t byn_semantics__bindFunctionCall(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, int64_t p_fn, int64_t p_receiver, byn_parser_Expr p_syntax, bynt_opt_list_parser__TypeSyntax p_typeArgs) {
     int64_t l0_target = {0};
@@ -74468,7 +74471,7 @@ break_1:;
 #line 842 "semantics/calls.byn"
     return byn_semantics__recordSyntax(&(*p_c), byn_semantics__addCall(&(*p_c), ((bynt_semantics__BCall){p_call.span, l0_target, l16_recv, l15_args, l43_type})), p_syntax);
 }
-#line 74472 "main.c"
+#line 74475 "main.c"
 
 bynt_semantics__T20DeclFacts byn_semantics__t20DeclFacts(bynt_semantics__Ctx p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -74574,7 +74577,7 @@ switch_end_1:;
 #line 895 "semantics/calls.byn"
     return ((bynt_semantics__T20DeclFacts){false, ((bynt_opt_lexer__TextSpan){0})});
 }
-#line 74578 "main.c"
+#line 74581 "main.c"
 
 int64_t byn_semantics__t20Instantiate(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, int64_t p_fn, bynt_list_parser__TypeSyntax p_typeArgs) {
     bynt_list_i64 l0_parameters = {0};
@@ -74974,7 +74977,7 @@ break_11:;
 #line 1024 "semantics/calls.byn"
     return byn_semantics__instantiateFunction(&(*p_c), p_fn, l46_args, (*p_b).file, p_call.span);
 }
-#line 74978 "main.c"
+#line 74981 "main.c"
 
 bool byn_semantics__t20Unify(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_p, int64_t p_a, bynt_map_i64_i64* p_found, int64_t p_fn, bynt_lexer__TextSpan p_span) {
     int64_t l0_i = {0};
@@ -75326,19 +75329,19 @@ bool byn_semantics__t20Unify(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p
     return true;
 switch_end_1:;
 }
-#line 75330 "main.c"
+#line 75333 "main.c"
 
 bynt_list_i64 byn_semantics__bindArguments(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, bynt_list_i64 p_ps, int64_t p_fn, bool p_enforceNames, byn_str p_displayName) {
 #line 1246 "semantics/calls.byn"
     return byn_semantics__t21BindArgumentList(&(*p_b), &(*p_c), p_call.args, p_call.span, p_ps, p_fn, p_enforceNames, p_displayName, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 75336 "main.c"
+#line 75339 "main.c"
 
 bynt_list_i64 byn_semantics__bindArgumentList(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_list_parser__Argument p_args, bynt_lexer__TextSpan p_span, bynt_list_i64 p_ps, int64_t p_fn, bool p_enforceNames, byn_str p_displayName) {
 #line 1270 "semantics/calls.byn"
     return byn_semantics__t21BindArgumentList(&(*p_b), &(*p_c), p_args, p_span, p_ps, p_fn, p_enforceNames, p_displayName, INT64_C(-1));
 }
-#line 75342 "main.c"
+#line 75345 "main.c"
 
 bynt_list_i64 byn_semantics__t21BindArgumentList(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_list_parser__Argument p_args, bynt_lexer__TextSpan p_span, bynt_list_i64 p_ps, int64_t p_fn, bool p_enforceNames, byn_str p_displayName, int64_t p_syntax) {
     byn_str l0_name = {0};
@@ -75891,7 +75894,7 @@ break_11:;
 #line 1492 "semantics/calls.byn"
     return l3_result;
 }
-#line 75895 "main.c"
+#line 75898 "main.c"
 
 int64_t byn_semantics__t20BindRestTail(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_list_parser__Argument p_args, bynt_lexer__TextSpan p_span, int64_t p_p, bynt_list_i64 p_tail, int64_t p_syntax) {
     int64_t l0_type = {0};
@@ -75993,7 +75996,7 @@ break_2:;
 #line 1537 "semantics/calls.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addCollection(&(*p_c), ((bynt_semantics__BCollection){p_span, l0_type, l12_elements})), p_syntax);
 }
-#line 75997 "main.c"
+#line 76000 "main.c"
 
 bynt_semantics__T12Param byn_semantics__t20Param(bynt_semantics__Ctx p_c, int64_t p_p) {
     int64_t l0_f = {0};
@@ -76034,13 +76037,13 @@ bynt_semantics__T12Param byn_semantics__t20Param(bynt_semantics__Ctx p_c, int64_
 #line 1554 "semantics/calls.byn"
     return ((bynt_semantics__T12Param){(*bynh_at_list_semantics__LocalSymbol(p_c.locals, (int64_t)p_p, false, byn_file_29, 1554)).name, ((bynt_opt_semantics__T12Syntax){0})});
 }
-#line 76038 "main.c"
+#line 76041 "main.c"
 
 byn_str byn_semantics__label(bynt_semantics__Ctx* p_c, int64_t p_p) {
 #line 1558 "semantics/calls.byn"
     return byn_semantics__t20Param((*p_c), p_p).label;
 }
-#line 76044 "main.c"
+#line 76047 "main.c"
 
 bynt_opt_str byn_semantics__t20ImpliedName(bynt_semantics__Ctx p_c, int64_t p_f, byn_parser_Expr p_e) {
     bynt_parser__NameExpr* l0_n = {0};
@@ -76073,7 +76076,7 @@ bynt_opt_str byn_semantics__t20ImpliedName(bynt_semantics__Ctx p_c, int64_t p_f,
     return ((bynt_opt_str){0});
 switch_end_1:;
 }
-#line 76077 "main.c"
+#line 76080 "main.c"
 
 int64_t byn_semantics__t20BindArgument(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__Argument p_arg, int64_t p_p, byn_str p_callee) {
     byn_parser_ParamModifier l0_pm = {0};
@@ -76257,7 +76260,7 @@ int64_t byn_semantics__t20BindArgument(bynt_semantics__Binder* p_b, bynt_semanti
 #line 1668 "semantics/calls.byn"
     return byn_semantics__t20BindArgumentValue(&(*p_b), &(*p_c), p_arg, l2_ptype, ((bynt_opt_str){true, p_callee}));
 }
-#line 76261 "main.c"
+#line 76264 "main.c"
 
 int64_t byn_semantics__t20BindArgumentValue(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__Argument p_arg, int64_t p_type, bynt_opt_str p_callee) {
     bynt_lexer__TextSpan l0_valueSpan = {0};
@@ -76329,7 +76332,7 @@ int64_t byn_semantics__t20BindArgumentValue(bynt_semantics__Binder* p_b, bynt_se
 #line 1707 "semantics/calls.byn"
     return byn_semantics__convert(&(*p_b), &(*p_c), l2_value, p_type, l0_valueSpan, true, (!l1_early.has));
 }
-#line 76333 "main.c"
+#line 76336 "main.c"
 
 int64_t byn_semantics__t20BindIt(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e, bynt_lexer__TextSpan p_it, int64_t p_type) {
     bynt_list_lexer__TextSpan l0_ps = {0};
@@ -76360,7 +76363,7 @@ int64_t byn_semantics__t20BindIt(bynt_semantics__Binder* p_b, bynt_semantics__Ct
 #line 1757 "semantics/calls.byn"
     return l2_lambda;
 }
-#line 76364 "main.c"
+#line 76367 "main.c"
 
 bynt_opt_lexer__TextSpan byn_semantics__t20MentionedIt(bynt_semantics__Ctx p_c, int64_t p_f, byn_parser_Expr p_e) {
     bynt_parser__NameExpr* l0_n = {0};
@@ -76864,7 +76867,7 @@ bynt_opt_lexer__TextSpan byn_semantics__t20MentionedIt(bynt_semantics__Ctx p_c, 
     return ((bynt_opt_lexer__TextSpan){0});
 switch_end_1:;
 }
-#line 76868 "main.c"
+#line 76871 "main.c"
 
 bool byn_semantics__t21Named(bynt_semantics__Ctx p_c, int64_t p_f, bynt_parser__Argument p_a, byn_str p_name) {
     bynt_lexer__TextSpan l0_n = {0};
@@ -76876,13 +76879,13 @@ bool byn_semantics__t21Named(bynt_semantics__Ctx p_c, int64_t p_f, bynt_parser__
 #line 16 "semantics/calls2.byn"
     return false;
 }
-#line 76880 "main.c"
+#line 76883 "main.c"
 
 int64_t byn_semantics__t21Param(bynt_semantics__Ctx* p_c, byn_str p_name, int64_t p_type, int64_t p_ordinal) {
 #line 21 "semantics/calls2.byn"
     return byn_semantics__newLocal(&(*p_c), ((bynt_semantics__LocalSymbol){p_name, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), p_type, ((byn_semantics_LocalKind)3), false, INT64_C(-1), false, false, ((bynt_opt_lexer__TextSpan){0}), ((bynt_opt_lexer__TextSpan){0}), false, true, ((byn_parser_ParamModifier)0), p_ordinal, ((bynt_opt_semantics__Constant){0}), INT64_C(-1)}));
 }
-#line 76886 "main.c"
+#line 76889 "main.c"
 
 int64_t byn_semantics__bindConstruction(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, int64_t p_type) {
     bynt_lexer__TextSpan l0_calleeSpan = {0};
@@ -77419,7 +77422,7 @@ switch_end_1:;
 #line 398 "semantics/calls2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t80, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 77423 "main.c"
+#line 77426 "main.c"
 
 int64_t byn_semantics__bindIntegerText(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call) {
     int64_t l0_value = {0};
@@ -77534,7 +77537,7 @@ int64_t byn_semantics__bindIntegerText(bynt_semantics__Binder* p_b, bynt_semanti
 #line 466 "semantics/calls2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t19, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 77538 "main.c"
+#line 77541 "main.c"
 
 int64_t byn_semantics__bindOwned(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, int64_t p_inner) {
     int64_t l0_t = {0};
@@ -77610,7 +77613,7 @@ int64_t byn_semantics__bindOwned(bynt_semantics__Binder* p_b, bynt_semantics__Ct
 #line 518 "semantics/calls2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t12, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 77614 "main.c"
+#line 77617 "main.c"
 
 int64_t byn_semantics__bindUntrusted(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, int64_t p_inner) {
     int64_t l0_t = {0};
@@ -77686,7 +77689,7 @@ int64_t byn_semantics__bindUntrusted(bynt_semantics__Binder* p_b, bynt_semantics
 #line 570 "semantics/calls2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t12, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 77690 "main.c"
+#line 77693 "main.c"
 
 int64_t byn_semantics__bindTrust(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call) {
     int64_t l0_value = {0};
@@ -77777,7 +77780,7 @@ switch_end_1:;
 #line 639 "semantics/calls2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t15, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 77781 "main.c"
+#line 77784 "main.c"
 
 int64_t byn_semantics__bindTrustUnchecked(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, bynt_parser__MemberExpr p_callee) {
     int64_t l0_value = {0};
@@ -77819,7 +77822,7 @@ int64_t byn_semantics__bindTrustUnchecked(bynt_semantics__Binder* p_b, bynt_sema
 #line 676 "semantics/calls2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t7, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 77823 "main.c"
+#line 77826 "main.c"
 
 int64_t byn_semantics__bindBuiltinMethodCall(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, int64_t p_receiver, byn_str p_name) {
     bynt_semantics__BuiltinMethod l0_m = {0};
@@ -78184,7 +78187,7 @@ break_2:;
 #line 880 "semantics/calls2.byn"
     return l53_n;
 }
-#line 78188 "main.c"
+#line 78191 "main.c"
 
 bool byn_semantics__isDefaultable(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 886 "semantics/calls2.byn"
@@ -78205,13 +78208,13 @@ bool byn_semantics__isDefaultable(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 889 "semantics/calls2.byn"
     return ((byn_semantics__isNumeric(p_t) || byn_semantics__isBool(p_t)) || byn_semantics__isString(p_t));
 }
-#line 78209 "main.c"
+#line 78212 "main.c"
 
 int64_t byn_semantics__bindMove(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_operand) {
 #line 896 "semantics/calls2.byn"
     return byn_semantics__t21BindMove(&(*p_b), &(*p_c), p_span, p_operand, INT64_C(-1));
 }
-#line 78215 "main.c"
+#line 78218 "main.c"
 
 int64_t byn_semantics__recordMoveSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, int64_t p_syntax, bynt_lexer__TextSpan p_span) {
 #line 901 "semantics/calls2.byn"
@@ -78222,7 +78225,7 @@ int64_t byn_semantics__recordMoveSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, i
 #line 902 "semantics/calls2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), p_n, p_syntax);
 }
-#line 78226 "main.c"
+#line 78229 "main.c"
 
 int64_t byn_semantics__t21BindMove(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_operand, int64_t p_syntax) {
     bynt_semantics__BConversion l0_n = {0};
@@ -78446,13 +78449,13 @@ int64_t byn_semantics__t21BindMove(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 1002 "semantics/calls2.byn"
     return byn_semantics__recordMoveSyntax(&(*p_c), byn_semantics__addMove(&(*p_c), ((bynt_semantics__BMove){p_span, p_operand, INT64_C(-1)})), p_syntax, p_span);
 }
-#line 78450 "main.c"
+#line 78453 "main.c"
 
 bynt_semantics__SwitchSubjectResult byn_semantics__bindSwitchSubject(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_value) {
 #line 1013 "semantics/calls2.byn"
     return byn_semantics__t21SwitchSubject(&(*p_b), &(*p_c), p_value, p_value);
 }
-#line 78456 "main.c"
+#line 78459 "main.c"
 
 bynt_semantics__SwitchSubjectResult byn_semantics__t21SwitchSubject(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_value, byn_parser_Expr p_inner) {
     bynt_parser__ParenExpr* l0_p = {0};
@@ -78611,7 +78614,7 @@ bynt_semantics__SwitchSubjectResult byn_semantics__t21SwitchSubject(bynt_semanti
     return ((bynt_semantics__SwitchSubjectResult){byn_semantics__bindExpr(&(*p_b), &(*p_c), p_value, INT64_C(-1)), false});
 switch_end_1:;
 }
-#line 78615 "main.c"
+#line 78618 "main.c"
 
 void byn_semantics__reportUnhandled(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, byn_str p_name, bool p_structLiteral) {
     byn_writer t0 = {0};
@@ -78638,7 +78641,7 @@ void byn_semantics__reportUnhandled(bynt_semantics__Binder* p_b, bynt_semantics_
         (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)109), p_span, ((bynt_tup5_str_str_str_str_str){p_name, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("propagate the error with `try`, or handle it with `catch`", 57), true, ((bynt_opt_lexer__TextSpan){true, ((bynt_lexer__TextSpan){p_span.start, INT64_C(0)})}), BYN_STR("try ", 4));
     }
 }
-#line 78642 "main.c"
+#line 78645 "main.c"
 
 bool byn_semantics__handles(byn_parser_Expr p_e) {
 #line 1117 "semantics/calls2.byn"
@@ -78652,7 +78655,7 @@ bool byn_semantics__handles(byn_parser_Expr p_e) {
     return false;
 switch_end_1:;
 }
-#line 78656 "main.c"
+#line 78659 "main.c"
 
 int64_t byn_semantics__checkedValue(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_syntax, int64_t p_value, bynt_opt_list_i64 p_changed) {
     bool l0_literal = {0};
@@ -78672,7 +78675,7 @@ switch_end_1:;
 #line 1135 "semantics/calls2.byn"
     return byn_semantics__t21Checked(&(*p_b), &(*p_c), t1, l0_literal, p_value, byn_semantics__syntaxNode(&(*p_c), p_syntax), p_changed);
 }
-#line 78676 "main.c"
+#line 78679 "main.c"
 
 int64_t byn_semantics__t21Checked(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, bool p_structLiteral, int64_t p_value, int64_t p_syntax, bynt_opt_list_i64 p_changed) {
     int64_t l0_vt = {0};
@@ -78822,7 +78825,7 @@ int64_t byn_semantics__t21Checked(bynt_semantics__Binder* p_b, bynt_semantics__C
 #line 1202 "semantics/calls2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addCall(&(*p_c), ((bynt_semantics__BCall){p_span, (*bynh_at_list_semantics__StructChecks((*p_c).checks, (int64_t)l3_ci, false, byn_file_30, 1204)).check, p_value, ((bynt_list_i64){NULL, 0, 0, byn_context}), l0_vt})), p_syntax);
 }
-#line 78826 "main.c"
+#line 78829 "main.c"
 
 int64_t byn_semantics__checkConstant(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_literal, int64_t p_ci) {
     int64_t l0_li = {0};
@@ -79075,7 +79078,7 @@ break_5:;
 #line 1276 "semantics/calls2.byn"
     return l21_all;
 }
-#line 79079 "main.c"
+#line 79082 "main.c"
 
 int64_t byn_semantics__bindTry(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__TryExpr p_t, int64_t p_expected) {
 #line 7 "semantics/calls3.byn"
@@ -79086,7 +79089,7 @@ int64_t byn_semantics__bindTry(bynt_semantics__Binder* p_b, bynt_semantics__Ctx*
 #line 17 "semantics/calls3.byn"
     return byn_semantics__t34Try(&(*p_b), &(*p_c), p_t, p_t.operand, p_expected);
 }
-#line 79090 "main.c"
+#line 79093 "main.c"
 
 int64_t byn_semantics__t34Try(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__TryExpr p_t, byn_parser_Expr p_inner, int64_t p_expected) {
     bynt_parser__ParenExpr* l0_p = {0};
@@ -79269,7 +79272,7 @@ switch_end_1:;
 #line 112 "semantics/calls3.byn"
     return l5_operand;
 }
-#line 79273 "main.c"
+#line 79276 "main.c"
 
 void byn_semantics__reportTryCoversMore(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__TryExpr p_t, bynt_lexer__TextSpan p_failing) {
     bynt_lexer__TextSpan l0_operandSpan = {0};
@@ -79325,13 +79328,13 @@ void byn_semantics__reportTryCoversMore(bynt_semantics__Binder* p_b, bynt_semant
 #line 123 "semantics/calls3.byn"
     (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)1), l0_operandSpan, t9, BYN_STR("cannot fail", 11), byn_strbuf_str(t8), true, ((bynt_opt_lexer__TextSpan){true, p_t.span}), l4_fixedText);
 }
-#line 79329 "main.c"
+#line 79332 "main.c"
 
 int64_t byn_semantics__bindCatch(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CatchExpr p_e, int64_t p_expected) {
 #line 139 "semantics/calls3.byn"
     return byn_semantics__t34Catch(&(*p_b), &(*p_c), p_e, p_e.operand, p_expected);
 }
-#line 79335 "main.c"
+#line 79338 "main.c"
 
 int64_t byn_semantics__t34Catch(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CatchExpr p_e, byn_parser_Expr p_inner, int64_t p_expected) {
     bynt_parser__ParenExpr* l0_p = {0};
@@ -79682,7 +79685,7 @@ switch_end_7:;
 #line 311 "semantics/calls3.byn"
     return l50_result;
 }
-#line 79686 "main.c"
+#line 79689 "main.c"
 
 int64_t byn_semantics__bindSwitchExpr(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__SwitchExpr p_s, int64_t p_expected) {
     bynt_semantics__SwitchSubjectResult l0_subj = {0};
@@ -80078,13 +80081,13 @@ break_15:;
 #line 475 "semantics/calls3.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t60, byn_semantics__syntaxLeaf(&(*p_c), ((byn_semantics_ExprSyntaxKind)16), p_s.span));
 }
-#line 80082 "main.c"
+#line 80085 "main.c"
 
 int64_t byn_semantics__unwrap(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 485 "semantics/calls3.byn"
     return ((byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)4)) ? (*bynh_at_list_i64((*p_c).optionalTypes, (int64_t)byn_semantics__typeIndex(p_t), false, byn_file_31, 485)) : p_t);
 }
-#line 80088 "main.c"
+#line 80091 "main.c"
 
 int64_t byn_semantics__bindPattern(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Pattern p_p, int64_t p_input) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -80528,7 +80531,7 @@ int64_t byn_semantics__bindPattern(bynt_semantics__Binder* p_b, bynt_semantics__
     return byn_semantics__recordPatternSyntax(&(*p_c), byn_semantics__addBindPattern(&(*p_c), ((bynt_semantics__BBindPattern){l0_span, p_input, INT64_C(-1)})), p_p);
 switch_end_1:;
 }
-#line 80532 "main.c"
+#line 80535 "main.c"
 
 void byn_semantics__checkOwningOverlap(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_p) {
     byn_semantics_BoundKind l0_k = {0};
@@ -80706,7 +80709,7 @@ void byn_semantics__checkOwningOverlap(bynt_semantics__Binder* p_b, bynt_semanti
     }
 switch_end_3:;
 }
-#line 80710 "main.c"
+#line 80713 "main.c"
 
 bool byn_semantics__repeatsField(bynt_semantics__Ctx* p_c, int64_t p_p) {
     int64_t l0_i = {0};
@@ -80823,7 +80826,7 @@ break_5:;
 #line 886 "semantics/calls3.byn"
     return false;
 }
-#line 80827 "main.c"
+#line 80830 "main.c"
 
 bool byn_semantics__t34Overlap(bynt_list_list_str p_a, bynt_list_list_str p_b) {
     bynt_list_str l0_x = {0};
@@ -80913,7 +80916,7 @@ break_1:;
 #line 905 "semantics/calls3.byn"
     return false;
 }
-#line 80917 "main.c"
+#line 80920 "main.c"
 
 byn_str byn_semantics__t34StepKey(bynt_semantics__BMemberStep p_s) {
     byn_str l0_builtin = {0};
@@ -80960,7 +80963,7 @@ byn_str byn_semantics__t34StepKey(bynt_semantics__BMemberStep p_s) {
 #line 914 "semantics/calls3.byn"
     return byn_strbuf_str(t4);
 }
-#line 80964 "main.c"
+#line 80967 "main.c"
 
 bynt_list_str byn_semantics__t34StepKeys(bynt_list_semantics__BMemberStep p_path) {
     bynt_list_str l0_keys = {0};
@@ -80992,7 +80995,7 @@ break_1:;
 #line 922 "semantics/calls3.byn"
     return l0_keys;
 }
-#line 80996 "main.c"
+#line 80999 "main.c"
 
 bynt_list_str byn_semantics__t34Concat(bynt_list_str p_a, bynt_list_str p_b) {
     bynt_list_str l0_joined = {0};
@@ -81047,7 +81050,7 @@ break_3:;
 #line 934 "semantics/calls3.byn"
     return l0_joined;
 }
-#line 81051 "main.c"
+#line 81054 "main.c"
 
 bynt_list_list_str byn_semantics__owningPaths(bynt_semantics__Ctx* p_c, int64_t p_p) {
     bynt_list_list_str l0_paths = {0};
@@ -81299,7 +81302,7 @@ switch_end_1:;
 #line 992 "semantics/calls3.byn"
     return l0_paths;
 }
-#line 81303 "main.c"
+#line 81306 "main.c"
 
 void byn_semantics__guardBindings(bynt_semantics__Ctx* p_c, int64_t p_p, bynt_lexer__TextSpan p_guard) {
     int64_t l0_i = {0};
@@ -81435,7 +81438,7 @@ void byn_semantics__guardBindings(bynt_semantics__Ctx* p_c, int64_t p_p, bynt_le
     }
 switch_end_1:;
 }
-#line 81439 "main.c"
+#line 81442 "main.c"
 
 bool byn_semantics__checkGuardWrite(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_target, bynt_lexer__TextSpan p_span, byn_str p_why) {
     int64_t l0_l = {0};
@@ -81476,7 +81479,7 @@ bool byn_semantics__checkGuardWrite(bynt_semantics__Binder* p_b, bynt_semantics_
 #line 1052 "semantics/calls3.byn"
     return false;
 }
-#line 81480 "main.c"
+#line 81483 "main.c"
 
 bool byn_semantics__hasBindings(bynt_semantics__Ctx* p_c, int64_t p_p) {
     int64_t l0_i = {0};
@@ -81601,7 +81604,7 @@ bool byn_semantics__hasBindings(bynt_semantics__Ctx* p_c, int64_t p_p) {
     return false;
 switch_end_1:;
 }
-#line 81605 "main.c"
+#line 81608 "main.c"
 
 int64_t byn_semantics__bindUnionPattern(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_semantics__NodeSyntax p_syntax, int64_t p_input, int64_t p_owner, bynt_lexer__TextSpan p_name, bynt_list_parser__Pattern p_elements, bynt_opt_lexer__TextSpan p_binding) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -81961,7 +81964,7 @@ break_5:;
 #line 1223 "semantics/calls3.byn"
     return byn_semantics__recordNodeSyntaxOf(&(*p_c), byn_semantics__addBindPattern(&(*p_c), ((bynt_semantics__BBindPattern){l0_span, p_input, INT64_C(-1)})), p_syntax);
 }
-#line 81965 "main.c"
+#line 81968 "main.c"
 
 int64_t byn_semantics__bindWholeVariant(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_semantics__NodeSyntax p_syntax, int64_t p_input, int64_t p_unionType, int64_t p_variant, bynt_lexer__TextSpan p_binding) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -82016,7 +82019,7 @@ int64_t byn_semantics__bindWholeVariant(bynt_semantics__Binder* p_b, bynt_semant
 #line 1256 "semantics/calls3.byn"
     return byn_semantics__recordNodeSyntaxOf(&(*p_c), byn_semantics__addUnionPattern(&(*p_c), ((bynt_semantics__BUnionPattern){l0_span, p_input, p_variant, ((bynt_list_i64){NULL, 0, 0, byn_context}), l8_local})), p_syntax);
 }
-#line 82020 "main.c"
+#line 82023 "main.c"
 
 void byn_semantics__requireConstant(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_value, bynt_lexer__TextSpan p_span) {
     byn_semantics_BoundKind l0_k = {0};
@@ -82031,7 +82034,7 @@ void byn_semantics__requireConstant(bynt_semantics__Binder* p_b, bynt_semantics_
         (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)70), p_span, ((bynt_tup5_str_str_str_str_str){BYN_STR("a pattern", 9), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("bind it with `var x` and compare in a `when` guard", 50), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 82035 "main.c"
+#line 82038 "main.c"
 
 int64_t byn_semantics__bindConstantPattern(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ConstantPattern p_k, int64_t p_input) {
     bynt_semantics__NodeSyntax l0_syntax = {0};
@@ -82270,7 +82273,7 @@ switch_end_4:;
 #line 1459 "semantics/calls3.byn"
     return byn_semantics__recordNodeSyntaxOf(&(*p_c), byn_semantics__addConstantPattern(&(*p_c), ((bynt_semantics__BConstantPattern){p_k.span, p_input, l21_value})), l0_syntax);
 }
-#line 82274 "main.c"
+#line 82277 "main.c"
 
 int64_t byn_semantics__bindErrorSetPattern(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_semantics__NodeSyntax p_syntax, int64_t p_input, int64_t p_set, bynt_opt_lexer__TextSpan p_name) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -82380,7 +82383,7 @@ int64_t byn_semantics__bindErrorSetPattern(bynt_semantics__Binder* p_b, bynt_sem
 #line 1544 "semantics/calls3.byn"
     return l8_tested;
 }
-#line 82384 "main.c"
+#line 82387 "main.c"
 
 int64_t byn_semantics__bindPropertyPattern(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__PropertyPattern p_pp, int64_t p_input) {
     int64_t l0_valueType = {0};
@@ -82519,7 +82522,7 @@ break_2:;
 #line 1591 "semantics/calls3.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addPropertyPattern(&(*p_c), ((bynt_semantics__BPropertyPattern){p_pp.span, p_input, l0_valueType, l5_subs, l18_designation})), ((byn_semantics_NodeSyntaxKind)31), p_pp.span);
 }
-#line 82523 "main.c"
+#line 82526 "main.c"
 
 bynt_opt_semantics__BMemberStep byn_semantics__resolveStep(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_type, bynt_lexer__TextSpan p_name) {
     byn_str l0_text = {0};
@@ -82611,7 +82614,7 @@ switch_end_1:;
 #line 1664 "semantics/calls3.byn"
     return ((bynt_opt_semantics__BMemberStep){0});
 }
-#line 82615 "main.c"
+#line 82618 "main.c"
 
 bool byn_semantics__checkExhaustive(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type, bynt_list_tup2_i64_i64 p_arms, bool p_statement) {
     bynt_opt_list_str l0_domain = {0};
@@ -83159,7 +83162,7 @@ break_1:;
 #line 137 "semantics/calls4.byn"
     return false;
 }
-#line 83163 "main.c"
+#line 83166 "main.c"
 
 byn_str byn_semantics__t39Join(bynt_list_str p_xs) {
     byn_writer l0_sb = {0};
@@ -83206,7 +83209,7 @@ break_1:;
 #line 151 "semantics/calls4.byn"
     return byn_strbuf_str(t4);
 }
-#line 83210 "main.c"
+#line 83213 "main.c"
 
 void byn_semantics__t39Add(bynt_list_str* p_set, byn_str p_k) {
 #line 156 "semantics/calls4.byn"
@@ -83215,7 +83218,7 @@ void byn_semantics__t39Add(bynt_list_str* p_set, byn_str p_k) {
         (void)bynh_add_list_str(&(*p_set), p_k);
     }
 }
-#line 83219 "main.c"
+#line 83222 "main.c"
 
 bynt_opt_list_str byn_semantics__t39Domain(bynt_semantics__Ctx* p_c, int64_t p_type) {
     int64_t l0_i = {0};
@@ -83484,7 +83487,7 @@ bynt_opt_list_str byn_semantics__t39Domain(bynt_semantics__Ctx* p_c, int64_t p_t
     return ((bynt_opt_list_str){0});
 switch_end_1:;
 }
-#line 83488 "main.c"
+#line 83491 "main.c"
 
 byn_str byn_semantics__t39VariantKey(bynt_semantics__Ctx* p_c, int64_t p_v, int64_t p_type) {
     int64_t l0_u = {0};
@@ -83520,7 +83523,7 @@ byn_str byn_semantics__t39VariantKey(bynt_semantics__Ctx* p_c, int64_t p_v, int6
 #line 220 "semantics/calls4.byn"
     return byn_strbuf_str(t2);
 }
-#line 83524 "main.c"
+#line 83527 "main.c"
 
 bool byn_semantics__irrefutable(bynt_semantics__Ctx* p_c, int64_t p_p) {
     int64_t l0_i = {0};
@@ -83599,7 +83602,7 @@ bool byn_semantics__irrefutable(bynt_semantics__Ctx* p_c, int64_t p_p) {
     return false;
 switch_end_1:;
 }
-#line 83603 "main.c"
+#line 83606 "main.c"
 
 bool byn_semantics__t39AllIrrefutable(bynt_semantics__Ctx* p_c, bynt_list_i64 p_ps) {
     int64_t l0_p = {0};
@@ -83631,7 +83634,7 @@ break_1:;
 #line 250 "semantics/calls4.byn"
     return true;
 }
-#line 83635 "main.c"
+#line 83638 "main.c"
 
 void byn_semantics__collect(bynt_semantics__Ctx* p_c, int64_t p_p, int64_t p_type, bynt_list_str* p_covered) {
     int64_t l0_i = {0};
@@ -83889,7 +83892,7 @@ void byn_semantics__collect(bynt_semantics__Ctx* p_c, int64_t p_p, int64_t p_typ
     }
 switch_end_1:;
 }
-#line 83893 "main.c"
+#line 83896 "main.c"
 
 bynt_opt_parser__BinaryOp byn_semantics__compoundOperator(byn_parser_AssignOp p_op) {
 #line 325 "semantics/calls4.byn"
@@ -83973,7 +83976,7 @@ bynt_opt_parser__BinaryOp byn_semantics__compoundOperator(byn_parser_AssignOp p_
     return ((bynt_opt_parser__BinaryOp){0});
 switch_end_1:;
 }
-#line 83977 "main.c"
+#line 83980 "main.c"
 
 int64_t byn_semantics__bindAssign(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__AssignStmt p_a) {
     int64_t l0_target = {0};
@@ -84247,7 +84250,7 @@ int64_t byn_semantics__bindAssign(bynt_semantics__Binder* p_b, bynt_semantics__C
 #line 518 "semantics/calls4.byn"
     return byn_semantics__recordAssignSyntax(&(*p_c), byn_semantics__addAssign(&(*p_c), ((bynt_semantics__BAssign){p_a.span, l0_target, l43_converted, ((bynt_opt_parser__BinaryOp){true, l28_bop})})), p_a);
 }
-#line 84251 "main.c"
+#line 84254 "main.c"
 
 int64_t byn_semantics__bindIncDec(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__IncDecStmt p_i) {
     int64_t l0_target = {0};
@@ -84293,7 +84296,7 @@ int64_t byn_semantics__bindIncDec(bynt_semantics__Binder* p_b, bynt_semantics__C
 #line 569 "semantics/calls4.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addAssign(&(*p_c), ((bynt_semantics__BAssign){p_i.span, l0_target, l4_one, ((bynt_opt_parser__BinaryOp){true, l6_op})})), ((byn_semantics_NodeSyntaxKind)4), p_i.span);
 }
-#line 84297 "main.c"
+#line 84300 "main.c"
 
 bool byn_semantics__t39CheckFieldWrite(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_target, bynt_lexer__TextSpan p_span) {
     int64_t l0_field = {0};
@@ -84382,7 +84385,7 @@ bool byn_semantics__t39CheckFieldWrite(bynt_semantics__Binder* p_b, bynt_semanti
 #line 617 "semantics/calls4.byn"
     return false;
 }
-#line 84386 "main.c"
+#line 84389 "main.c"
 
 bynt_opt_str byn_semantics__t39Invariant(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_file = {0};
@@ -84478,7 +84481,7 @@ bynt_opt_str byn_semantics__t39Invariant(bynt_semantics__Ctx* p_c, int64_t p_s) 
     (void)byn_panic_str(BYN_STR("internal error: a struct without a struct declaration", 53), byn_file_32, 643);
 switch_end_1:;
 }
-#line 84482 "main.c"
+#line 84485 "main.c"
 
 int64_t byn_semantics__mapWriteTarget(bynt_semantics__Ctx* p_c, int64_t p_target) {
     int64_t l0_i = {0};
@@ -84492,7 +84495,7 @@ int64_t byn_semantics__mapWriteTarget(bynt_semantics__Ctx* p_c, int64_t p_target
 #line 651 "semantics/calls4.byn"
     return byn_semantics__shareSyntax(&(*p_c), byn_semantics__addBuiltinCall(&(*p_c), ((bynt_semantics__BBuiltinCall){(*bynh_at_list_semantics__BBuiltinCall((*p_c).bBuiltinCalls, (int64_t)l0_i, false, byn_file_32, 652)).span, ((byn_semantics_BuiltinMember)61), (*bynh_at_list_semantics__BBuiltinCall((*p_c).bBuiltinCalls, (int64_t)l0_i, false, byn_file_32, 654)).receiver, byn_semantics__copyIds((*bynh_at_list_semantics__BBuiltinCall((*p_c).bBuiltinCalls, (int64_t)l0_i, false, byn_file_32, 655)).arguments), (*bynh_at_list_semantics__BBuiltinCall((*p_c).bBuiltinCalls, (int64_t)l0_i, false, byn_file_32, 656)).type})), p_target);
 }
-#line 84496 "main.c"
+#line 84499 "main.c"
 
 void byn_semantics__reportMutatesWithoutRefThis(bynt_semantics__Ctx* p_c, int64_t p_fn, bynt_lexer__TextSpan p_span) {
     bynt_tup3_i64_i64_i64 l0_d = {0};
@@ -84504,7 +84507,7 @@ void byn_semantics__reportMutatesWithoutRefThis(bynt_semantics__Ctx* p_c, int64_
 #line 665 "semantics/calls4.byn"
     (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)49), l1_file, p_span, ((bynt_tup5_str_str_str_str_str){(*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_fn, false, byn_file_32, 670)).name, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("`this` is modified here", 23), BYN_STR("declare it `ref this` as the first parameter", 44), true, ((bynt_opt_lexer__TextSpan){true, ((bynt_lexer__TextSpan){l0_d.item1, INT64_C(0)})}), ((l0_d.item2 > INT64_C(0)) ? BYN_STR("ref ", 4) : ((l0_d.item3 > INT64_C(0)) ? BYN_STR("ref this, ", 10) : BYN_STR("ref this", 8))));
 }
-#line 84508 "main.c"
+#line 84511 "main.c"
 
 bynt_tup3_i64_i64_i64 byn_semantics__t39DeclFacts(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -84609,7 +84612,7 @@ switch_end_1:;
 #line 727 "semantics/calls4.byn"
     (void)byn_panic_str(BYN_STR("internal error: a method without a function declaration", 55), byn_file_32, 727);
 }
-#line 84613 "main.c"
+#line 84616 "main.c"
 
 bool byn_semantics__checkWritable(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_target, bynt_lexer__TextSpan p_span, byn_str p_why) {
     int64_t l0_written = {0};
@@ -84852,7 +84855,7 @@ bool byn_semantics__checkWritable(bynt_semantics__Binder* p_b, bynt_semantics__C
     return false;
 switch_end_1:;
 }
-#line 84856 "main.c"
+#line 84859 "main.c"
 
 int64_t byn_semantics__writtenLocal(bynt_semantics__Ctx* p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -84913,7 +84916,7 @@ int64_t byn_semantics__writtenLocal(bynt_semantics__Ctx* p_c, int64_t p_e) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 84917 "main.c"
+#line 84920 "main.c"
 
 void byn_semantics__t39ReportImmutable(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_l, bynt_lexer__TextSpan p_span, byn_str p_why) {
     byn_str l0_label = {0};
@@ -85033,13 +85036,13 @@ switch_end_1:;
 #line 910 "semantics/calls4.byn"
     (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)38), p_span, ((bynt_tup5_str_str_str_str_str){(*bynh_at_list_semantics__LocalSymbol((*p_c).locals, (int64_t)p_l, false, byn_file_32, 915)).name, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), l0_label, l1_help, l2_hasFix, l3_fixSpan, (l2_hasFix ? BYN_STR("var", 3) : BYN_STR("", 0)));
 }
-#line 85037 "main.c"
+#line 85040 "main.c"
 
 bynt_semantics__T26Symbols byn_semantics__t26Symbols(bool p_ascii, bool p_color, int64_t p_width, byn_str p_error, byn_str p_warning, byn_str p_help, byn_str p_note) {
 #line 65 "semantics/cli.byn"
     return (p_ascii ? ((bynt_semantics__T26Symbols){BYN_STR("*", 1), BYN_STR("x", 1), BYN_STR("...", 3), BYN_STR("|", 1), p_color, p_error, p_warning, p_help, p_note, p_width}) : ((bynt_semantics__T26Symbols){BYN_STR("\342\227\206", 3), BYN_STR("\342\234\227", 3), BYN_STR("\342\200\246", 3), BYN_STR("\342\224\202", 3), p_color, p_error, p_warning, p_help, p_note, p_width}));
 }
-#line 85043 "main.c"
+#line 85046 "main.c"
 
 bool byn_semantics__t26FileExists(byn_str p_path) {
     bynt_list_u8 l0__ = {0};
@@ -85062,7 +85065,7 @@ bool byn_semantics__t26FileExists(byn_str p_path) {
 #line 94 "semantics/cli.byn"
     return true;
 }
-#line 85066 "main.c"
+#line 85069 "main.c"
 
 bynt_opt_semantics__T26Options byn_semantics__t26ParseBuildOptions(bynt_list_str p_args, bool p_allowSpans) {
     bynt_opt_str l0_path = {0};
@@ -85244,13 +85247,13 @@ break_1:;
 #line 151 "semantics/cli.byn"
     return ((bynt_opt_semantics__T26Options){0});
 }
-#line 85248 "main.c"
+#line 85251 "main.c"
 
 bynt_semantics__Ctx byn_semantics__t26EmptyCtx(void) {
 #line 155 "semantics/cli.byn"
     return ((bynt_semantics__Ctx){((bynt_list_semantics__SourceFile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Mod){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context}), ((bynt_list_semantics__TypedLintSite){NULL, 0, 0, byn_context}), ((bynt_list_semantics__DiagBag){NULL, 0, 0, byn_context}), INT64_C(-1), false, false, ((bynt_opt_list_str){0}), BYN_STR("", 0), ((bynt_list_semantics__StructSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FieldSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__PropertySymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FunctionSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__InterfaceSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Conformance){NULL, 0, 0, byn_context}), ((bynt_list_semantics__LocalSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ConstSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorSetSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorVariantSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__TestSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumFieldSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__EnumMemberSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnionSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnionVariantSymbol){NULL, 0, 0, byn_context}), ((bynt_list_semantics__TypeParam){NULL, 0, 0, byn_context}), ((bynt_list_semantics__AliasPlaceholder){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__SpanData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__DynRefData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__MapData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ArrayData){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_list_semantics__TupleField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__FunctionData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ResultData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__StateData){NULL, 0, 0, byn_context}), ((bynt_list_semantics__ErrorUnionData){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__BLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSymbolLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BHostTarget){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDefault){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLocal){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BThis){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTupleElement){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCall){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBuiltinCall){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnary){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBinary){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConversion){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTryFrom){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConditional){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCoalesce){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStructLiteral){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BWith){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTuple){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCollection){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSpread){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIndex){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSlice){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRange){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIs){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSwitchExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BInterpolated){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BMove){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTry){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BCatch){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BJump){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBlockExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorVariant){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BEnumMember){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionNew){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BEnumValues){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStaticArray){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BStackalloc){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorExpr){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BTypeRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BModuleRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLambda){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFunctionRef){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBlock){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BLocalDecl){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BExprStmt){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BAssign){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BReturn){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFail){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBecome){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBreak){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BContinue){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BIf){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BWhile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDoWhile){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BFor){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSwitch){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BDefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BAssert){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrdefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BPanicDefer){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BSetOnPanic){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BContext){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorStmt){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BConstantPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRelationalPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BRangePattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBindPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BNotPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBinaryPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BPropertyPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BUnionPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorField){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BErrorPattern){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BMethodGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BVariantGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__BBuiltinGroup){NULL, 0, 0, byn_context}), ((bynt_list_semantics__JumpTarget){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__Constant){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__ExprSyntax){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__StructChecks){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__ExitCodeRef){NULL, 0, 0, byn_context}), INT64_C(-1), ((bynt_list_semantics__SyntaxRef){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__TestBody){{.alloc = byn_context}, NULL, NULL}), false, false, ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_str_lexer__TextSpan){{.alloc = byn_context}, NULL, NULL}), INT64_C(-1), INT64_C(-1), BYN_STR("", 0), BYN_STR("", 0), ((bynt_list_i64){NULL, 0, 0, byn_context}), INT64_C(-1), INT64_C(-1), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_semantics__StdLibrary){((bynt_list_semantics__StdModule){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context})}), INT64_C(0), INT64_C(0), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__TestCases){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(0), false, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_list_semantics__Diag){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(-1), ((bynt_list_semantics__FirstPass){NULL, 0, 0, byn_context}), ((bynt_list_semantics__RequiresCheck){NULL, 0, 0, byn_context}), false, ((bynt_list_semantics__Work){NULL, 0, 0, byn_context}), false, ((bynt_opt_str){0}), ((bynt_map_i64_lexer__TextSpan){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_semantics__Manifest){0}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_semantics__UnobservableMark){NULL, 0, 0, byn_context}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_semantics__MutationCheck){NULL, 0, 0, byn_context}), ((bynt_map_i64_list_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_semantics__T39ThisWrite){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context}), ((bynt_list_semantics__NodeSyntax){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_semantics__CompilationOptions){false, false, false, ((bynt_opt_list_str){0}), ((bynt_opt_str){0}), ((bynt_opt_str){0}), ((bynt_opt_list_semantics__StdSource){0})}), ((bynt_list_lexer__SourceText){NULL, 0, 0, byn_context}), ((bynt_map_str_lexer__SourceText){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_map_i64_list_semantics__StorePair){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_list_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_semantics__Grammar){((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_list_str){NULL, 0, 0, byn_context}), ((bynt_map_str_str){{.alloc = byn_context}, NULL, NULL})}), false});
 }
-#line 85254 "main.c"
+#line 85257 "main.c"
 
 bynt_semantics__Ctx byn_semantics__t26Compile(bynt_semantics__T26Options p_o, bynt_semantics__T26Symbols p_symbols, bynt_list_semantics__T26Reported* p_reported, bool* p_ok, bool p_includeTests, bool p_styleLints) {
     byn_str l0_manifestPath = {0};
@@ -85379,7 +85382,7 @@ bynt_semantics__Ctx byn_semantics__t26Compile(bynt_semantics__T26Options p_o, by
 #line 224 "semantics/cli.byn"
     return l18_c;
 }
-#line 85383 "main.c"
+#line 85386 "main.c"
 
 bool byn_semantics__t26StyleLints(bynt_semantics__T26Options p_o, bynt_semantics__T26Symbols p_symbols, bynt_semantics__Ctx p_c, bynt_list_semantics__T26Reported* p_reported, bynt_opt_str p_lintRoot) {
     bynt_opt_semantics__Manifest l0_lintManifest = {0};
@@ -85487,7 +85490,7 @@ break_1:;
 #line 282 "semantics/cli.byn"
     return l6_ok;
 }
-#line 85491 "main.c"
+#line 85494 "main.c"
 
 void byn_semantics__t26Report(bynt_semantics__T26Options p_o, bynt_semantics__T26Symbols p_symbols, bynt_semantics__Ctx* p_c, bynt_list_semantics__T26Reported* p_reported) {
     bynt_semantics__Diag l0_d = {0};
@@ -85556,7 +85559,7 @@ break_1:;
         (void)byn_io_write(t7, byn_strbuf_str(t6));
     }
 }
-#line 85560 "main.c"
+#line 85563 "main.c"
 
 void byn_semantics__t26ReportManifest(bynt_semantics__T26Options p_o, bynt_semantics__T26Symbols p_symbols, bynt_semantics__Manifest p_m, byn_str p_path, bynt_list_semantics__T26Reported* p_reported) {
     bynt_semantics__Ctx l0_c = {0};
@@ -85624,7 +85627,7 @@ break_1:;
 #line 345 "semantics/cli.byn"
     (void)byn_semantics__t26Report(p_o, p_symbols, &l0_c, &(*p_reported));
 }
-#line 85628 "main.c"
+#line 85631 "main.c"
 
 bool byn_semantics__t26IsScript(byn_str p_path) {
     bynt_list_u8 l0_bytes = {0};
@@ -85647,7 +85650,7 @@ bool byn_semantics__t26IsScript(byn_str p_path) {
 #line 354 "semantics/cli.byn"
     return (((l0_bytes.len >= INT64_C(2)) && ((*bynh_at_list_u8(l0_bytes, (int64_t)INT64_C(0), false, byn_file_33, 354)) == ((uint8_t)35))) && ((*bynh_at_list_u8(l0_bytes, (int64_t)INT64_C(1), false, byn_file_33, 354)) == ((uint8_t)33)));
 }
-#line 85651 "main.c"
+#line 85654 "main.c"
 
 int32_t byn_semantics__types(bynt_list_str p_args, bynt_semantics__T26Symbols p_symbols) {
     bynt_semantics__T26Options l0_o = {0};
@@ -85687,7 +85690,7 @@ int32_t byn_semantics__types(bynt_list_str p_args, bynt_semantics__T26Symbols p_
 #line 367 "semantics/cli.byn"
     return ((int32_t)0);
 }
-#line 85691 "main.c"
+#line 85694 "main.c"
 
 int32_t byn_semantics__check(bynt_list_str p_args, bynt_semantics__T26Symbols p_symbols) {
     int64_t l0_clock = {0};
@@ -85738,7 +85741,7 @@ int32_t byn_semantics__check(bynt_list_str p_args, bynt_semantics__T26Symbols p_
 #line 392 "semantics/cli.byn"
     return ((int32_t)0);
 }
-#line 85742 "main.c"
+#line 85745 "main.c"
 
 byn_str byn_semantics__t26Seconds(int64_t p_nanos) {
     int64_t l0_hundredths = {0};
@@ -85785,7 +85788,7 @@ byn_str byn_semantics__t26Seconds(int64_t p_nanos) {
 #line 399 "semantics/cli.byn"
     return t4;
 }
-#line 85789 "main.c"
+#line 85792 "main.c"
 
 int32_t byn_semantics__t26Failed(bynt_semantics__T26Options p_o, bynt_list_semantics__T26Reported p_reported, bynt_semantics__T26Symbols p_symbols) {
     int64_t l0_first = {0};
@@ -85884,7 +85887,7 @@ break_1:;
 #line 429 "semantics/cli.byn"
     return ((int32_t)1);
 }
-#line 85888 "main.c"
+#line 85891 "main.c"
 
 void byn_semantics__t26CheckSpans(bynt_semantics__Ctx* p_c) {
     bynt_semantics__Diag l0_d = {0};
@@ -85950,7 +85953,7 @@ void byn_semantics__t26CheckSpans(bynt_semantics__Ctx* p_c) {
     }
 break_1:;
 }
-#line 85954 "main.c"
+#line 85957 "main.c"
 
 void byn_semantics__t26CheckSpan(bynt_lexer__TextSpan p_span, int64_t p_size, byn_str p_code, byn_str p_path) {
 #line 450 "semantics/cli.byn"
@@ -85977,7 +85980,7 @@ void byn_semantics__t26CheckSpan(bynt_lexer__TextSpan p_span, int64_t p_size, by
         byn_w_println(w);
     }
 }
-#line 85981 "main.c"
+#line 85984 "main.c"
 
 byn_str byn_semantics__codeText(byn_semantics_SemaCode p_code) {
     byn_str t0 = {0};
@@ -87891,7 +87894,7 @@ switch_end_1:;
 #line 286 "semantics/codes.byn"
     return t0;
 }
-#line 87895 "main.c"
+#line 87898 "main.c"
 
 byn_str byn_semantics__messageFormat(byn_semantics_SemaCode p_code) {
     byn_str t0 = {0};
@@ -89805,7 +89808,7 @@ switch_end_1:;
 #line 562 "semantics/codes.byn"
     return t0;
 }
-#line 89809 "main.c"
+#line 89812 "main.c"
 
 bool byn_semantics__isWarning(byn_semantics_SemaCode p_code) {
     bool t0 = {0};
@@ -89829,7 +89832,7 @@ switch_end_1:;
 #line 838 "semantics/codes.byn"
     return t0;
 }
-#line 89833 "main.c"
+#line 89836 "main.c"
 
 bynt_list_semantics__SemaCode byn_semantics__allSemaCodes(void) {
     bynt_list_semantics__SemaCode l0_codes = {0};
@@ -89861,7 +89864,7 @@ break_1:;
 #line 858 "semantics/codes.byn"
     return l0_codes;
 }
-#line 89865 "main.c"
+#line 89868 "main.c"
 
 byn_str byn_semantics__format(byn_str p_template, bynt_tup5_str_str_str_str_str p_args) {
     byn_writer l0_sb = {0};
@@ -89928,7 +89931,7 @@ break_1:;
 #line 896 "semantics/codes.byn"
     return byn_strbuf_str(t5);
 }
-#line 89932 "main.c"
+#line 89935 "main.c"
 
 bynt_semantics__StdLibrary byn_semantics__stdLibraryCreate(bynt_list_semantics__StdSource p_files) {
     bynt_semantics__StdLibrary l0_library = {0};
@@ -90092,7 +90095,7 @@ break_3:;
 #line 79 "semantics/compile.byn"
     return l0_library;
 }
-#line 90096 "main.c"
+#line 90099 "main.c"
 
 bynt_tup2_str_str byn_semantics__hostTargetSplit(byn_str p_target) {
     bynt_opt_i64 t0 = {0};
@@ -90135,13 +90138,13 @@ bynt_tup2_str_str byn_semantics__hostTargetSplit(byn_str p_target) {
 #line 88 "semantics/compile.byn"
     return ((bynt_tup2_str_str){BYN_STR("", 0), BYN_STR("", 0)});
 }
-#line 90139 "main.c"
+#line 90142 "main.c"
 
 int64_t byn_semantics__declKey(int64_t p_file, int64_t p_declIndex) {
 #line 98 "semantics/compile.byn"
     return ((int64_t)(byn_shl_i64(p_file, (int64_t)(((int32_t)32))) | p_declIndex));
 }
-#line 90145 "main.c"
+#line 90148 "main.c"
 
 bynt_semantics__Ctx byn_semantics__fromPath(byn_str p_path, bynt_semantics__CompilationOptions p_options, bool p_wholeDirectory) {
     byn_str l0_full = {0};
@@ -90201,7 +90204,7 @@ break_1:;
 #line 121 "semantics/compile.byn"
     return byn_semantics__create(l5_sources, l2_dir, p_options, ((bynt_opt_str){0}));
 }
-#line 90205 "main.c"
+#line 90208 "main.c"
 
 bynt_semantics__Ctx byn_semantics__fromProject(byn_str p_root, byn_str p_entryModule, bynt_semantics__CompilationOptions p_options) {
     byn_str l0_src = {0};
@@ -90316,13 +90319,13 @@ break_5:;
 #line 155 "semantics/compile.byn"
     return byn_semantics__create(l13_sources, l0_src, p_options, ((bynt_opt_str){true, p_root}));
 }
-#line 90320 "main.c"
+#line 90323 "main.c"
 
 bynt_semantics__Ctx byn_semantics__create(bynt_list_lexer__SourceText p_entryFiles, byn_str p_packageRoot, bynt_semantics__CompilationOptions p_options, bynt_opt_str p_displayRoot) {
 #line 167 "semantics/compile.byn"
     return byn_semantics__t2Create(p_entryFiles, p_packageRoot, p_options, ((bynt_map_str_lexer__SourceText){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_str){NULL, 0, 0, byn_context}), p_displayRoot);
 }
-#line 90326 "main.c"
+#line 90329 "main.c"
 
 bynt_semantics__Ctx byn_semantics__withFile(bynt_semantics__Ctx p_c, bynt_lexer__SourceText p_text) {
     bynt_map_str_lexer__SourceText l0_replaced = {0};
@@ -90398,13 +90401,13 @@ break_3:;
 #line 193 "semantics/compile.byn"
     return byn_semantics__t2Create(l7_entry, p_c.packageRoot, p_c.options, l0_replaced, l1_paths, ((bynt_opt_str){true, p_c.displayRoot}));
 }
-#line 90402 "main.c"
+#line 90405 "main.c"
 
 bynt_lexer__SourceText byn_semantics__t2CopySource(bynt_lexer__SourceText p_s) {
 #line 203 "semantics/compile.byn"
     return byn_lexer__SourceText__create(p_s.path, bynh_copy_list_u8(p_s.bytes, byn_context));
 }
-#line 90408 "main.c"
+#line 90411 "main.c"
 
 bynt_semantics__CompilationOptions byn_semantics__t2CopyOptions(bynt_semantics__CompilationOptions p_o) {
     bynt_opt_list_str l0_capabilities = {0};
@@ -90422,7 +90425,7 @@ bynt_semantics__CompilationOptions byn_semantics__t2CopyOptions(bynt_semantics__
 #line 211 "semantics/compile.byn"
     return ((bynt_semantics__CompilationOptions){p_o.includeTests, p_o.library, p_o.skipOwnershipCheck, l0_capabilities, p_o.packageName, p_o.target, ((bynt_opt_list_semantics__StdSource){0})});
 }
-#line 90426 "main.c"
+#line 90429 "main.c"
 
 bynt_semantics__Ctx byn_semantics__t2Create(bynt_list_lexer__SourceText p_entryFiles, byn_str p_packageRoot, bynt_semantics__CompilationOptions p_options, bynt_map_str_lexer__SourceText p_replaced, bynt_list_str p_replacedPaths, bynt_opt_str p_displayRoot) {
     bynt_opt_list_str l0_capabilities = {0};
@@ -90556,7 +90559,7 @@ break_3:;
 #line 281 "semantics/compile.byn"
     return l3_c;
 }
-#line 90560 "main.c"
+#line 90563 "main.c"
 
 bool byn_semantics__t11HasErrors(bynt_semantics__Ctx p_c) {
     bynt_semantics__Diag l0_d = {0};
@@ -90588,7 +90591,7 @@ break_1:;
 #line 289 "semantics/compile.byn"
     return false;
 }
-#line 90592 "main.c"
+#line 90595 "main.c"
 
 bynt_list_str byn_semantics__t11ModuleFiles(byn_str p_dir, bool p_includeTests) {
     bynt_list_str l0_files = {0};
@@ -90638,7 +90641,7 @@ break_1:;
 #line 307 "semantics/compile.byn"
     return l0_files;
 }
-#line 90642 "main.c"
+#line 90645 "main.c"
 
 byn_str byn_semantics__styleLintName(byn_str p_code) {
     byn_str t0 = {0};
@@ -90718,7 +90721,7 @@ switch_end_1:;
 #line 313 "semantics/compile.byn"
     return t0;
 }
-#line 90722 "main.c"
+#line 90725 "main.c"
 
 bynt_list_semantics__Diag byn_semantics__styleLintsAt(bynt_semantics__Ctx p_c, bynt_opt_semantics__Manifest p_manifest) {
     bynt_list_semantics__Diag l0_lints = {0};
@@ -90797,7 +90800,7 @@ break_1:;
 #line 349 "semantics/compile.byn"
     return l0_lints;
 }
-#line 90801 "main.c"
+#line 90804 "main.c"
 
 int64_t byn_semantics__loadModule(bynt_semantics__Ctx* p_c, byn_str p_name, byn_str p_dir, bynt_list_lexer__SourceText p_sources, int64_t p_importer) {
     int64_t l0_module = {0};
@@ -91092,7 +91095,7 @@ break_20:;
 #line 484 "semantics/compile.byn"
     return l0_module;
 }
-#line 91096 "main.c"
+#line 91099 "main.c"
 
 void byn_semantics__t11OrderModules(bynt_semantics__Ctx* p_c) {
     bynt_list_i64 l0_newId = {0};
@@ -91569,7 +91572,7 @@ break_14:;
         }
     }
 }
-#line 91573 "main.c"
+#line 91576 "main.c"
 
 void byn_semantics__resolveImport(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_parser__ImportDecl p_decl) {
     byn_writer l0_nameBuf = {0};
@@ -92003,7 +92006,7 @@ break_3:;
         (*bynh_slot_map_str_i64(&(*bynh_at_list_semantics__SourceFile((*p_c).files, (int64_t)p_file, false, byn_file_35, 690)).imports, l19_alias, ((int64_t){0}))) = l20_module;
     }
 }
-#line 92007 "main.c"
+#line 92010 "main.c"
 
 byn_str byn_semantics__t11CNameOf(byn_str p_moduleName) {
     byn_writer l0_sb = {0};
@@ -92065,7 +92068,7 @@ break_1:;
 #line 710 "semantics/compile.byn"
     return byn_strbuf_str(t4);
 }
-#line 92069 "main.c"
+#line 92072 "main.c"
 
 void byn_semantics__declare(bynt_semantics__Ctx* p_c) {
     int64_t l0_m = {0};
@@ -92803,13 +92806,13 @@ break_52:;
         (void)byn_semantics__t11CheckMainSignature(&(*p_c), l105_main);
     }
 }
-#line 92807 "main.c"
+#line 92810 "main.c"
 
 bynt_semantics__Work byn_semantics__t11CopyWork(bynt_semantics__Work p_w) {
 #line 871 "semantics/compile.byn"
     return ((bynt_semantics__Work){p_w.kind, p_w.subject, byn_semantics__copyIds(p_w.args), p_w.instance, p_w.file, p_w.span, p_w.declIndex, p_w.memberIndex, p_w.atSite, p_w.siteFile, p_w.siteSpan});
 }
-#line 92813 "main.c"
+#line 92816 "main.c"
 
 void byn_semantics__t11DeclareBuiltinVariants(bynt_semantics__Ctx* p_c, byn_str p_name) {
     int64_t l0_set = {0};
@@ -92936,7 +92939,7 @@ void byn_semantics__t11DeclareBuiltinVariants(bynt_semantics__Ctx* p_c, byn_str 
     (void)byn_panic_str(BYN_STR("a builtin error set is a `union error`", 38), byn_file_35, 935);
 switch_end_1:;
 }
-#line 92940 "main.c"
+#line 92943 "main.c"
 
 void byn_semantics__t11CheckMainSignature(bynt_semantics__Ctx* p_c, int64_t p_main) {
     int64_t l0_returns = {0};
@@ -92983,7 +92986,7 @@ void byn_semantics__t11CheckMainSignature(bynt_semantics__Ctx* p_c, int64_t p_ma
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)150), (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_main, false, byn_file_35, 962)).file, (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_main, false, byn_file_35, 963)).nameSpan, ((bynt_tup5_str_str_str_str_str){BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("write `void main()`, `i32 main()`, `void main(ReadOnlySpan<string> args)` or `i32 main(ReadOnlySpan<string> args)`, each optionally with `fails`", 144), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 92987 "main.c"
+#line 92990 "main.c"
 
 void byn_semantics__t11CheckAttributes(bynt_semantics__Ctx* p_c, int64_t p_file, byn_parser_Decl p_decl, int64_t p_declIndex) {
     bynt_parser__ImportDecl* l0_n = {0};
@@ -93139,7 +93142,7 @@ void byn_semantics__t11CheckAttributes(bynt_semantics__Ctx* p_c, int64_t p_file,
     }
 switch_end_1:;
 }
-#line 93143 "main.c"
+#line 93146 "main.c"
 
 void byn_semantics__t11CheckAttributeList(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_list_parser__AttributeSyntax p_attributes, byn_parser_Decl p_decl, int64_t p_declIndex) {
     bool l0_isTest = {0};
@@ -93353,7 +93356,7 @@ break_2:;
     goto switch_end_5;
 switch_end_5:;
 }
-#line 93357 "main.c"
+#line 93360 "main.c"
 
 bynt_list_i64 byn_semantics__t11CheckCases(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_parser__TestDecl p_t, bynt_parser__AttributeSyntax p_a) {
     bynt_list_i64 l0_cases = {0};
@@ -93526,7 +93529,7 @@ break_3:;
 #line 1329 "semantics/compile.byn"
     return l0_cases;
 }
-#line 93530 "main.c"
+#line 93533 "main.c"
 
 int64_t byn_semantics__t11CaseValueCount(byn_parser_Expr p_e) {
     bynt_parser__TupleExpr* l0_t = {0};
@@ -93541,7 +93544,7 @@ int64_t byn_semantics__t11CaseValueCount(byn_parser_Expr p_e) {
     return INT64_C(1);
 switch_end_1:;
 }
-#line 93545 "main.c"
+#line 93548 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__t11CaseValueSpan(byn_parser_Expr p_e, int64_t p_k) {
     bynt_parser__TupleExpr* l0_t = {0};
@@ -93556,7 +93559,7 @@ bynt_lexer__TextSpan byn_semantics__t11CaseValueSpan(byn_parser_Expr p_e, int64_
     return byn_parser__exprSpan(p_e);
 switch_end_1:;
 }
-#line 93560 "main.c"
+#line 93563 "main.c"
 
 bool byn_semantics__t11CaseValueIsLiteral(byn_parser_Expr p_e, int64_t p_k) {
     bynt_parser__TupleExpr* l0_t = {0};
@@ -93571,7 +93574,7 @@ bool byn_semantics__t11CaseValueIsLiteral(byn_parser_Expr p_e, int64_t p_k) {
     return byn_semantics__t11IsCaseLiteral(p_e);
 switch_end_1:;
 }
-#line 93575 "main.c"
+#line 93578 "main.c"
 
 bool byn_semantics__t11IsCaseLiteral(byn_parser_Expr p_e) {
     bynt_parser__UnaryExpr* l0_u = {0};
@@ -93621,7 +93624,7 @@ bool byn_semantics__t11IsCaseLiteral(byn_parser_Expr p_e) {
     return false;
 switch_end_1:;
 }
-#line 93625 "main.c"
+#line 93628 "main.c"
 
 void byn_semantics__t11DeclareTest(bynt_semantics__Ctx* p_c, int64_t p_file, int64_t p_declIndex, bynt_lexer__TextSpan p_span, byn_str p_title, int64_t p_attribute, int64_t p_arg) {
     int64_t l0_module = {0};
@@ -93652,7 +93655,7 @@ void byn_semantics__t11DeclareTest(bynt_semantics__Ctx* p_c, int64_t p_file, int
         (*bynh_slot_map_i64_semantics__TestBody(&(*p_c).testBodies, l1_fn, ((bynt_semantics__TestBody){0}))) = t4;
     }
 }
-#line 93656 "main.c"
+#line 93659 "main.c"
 
 byn_str byn_semantics__t11CaseTitle(bynt_semantics__Ctx p_c, int64_t p_file, bynt_parser__TestDecl p_t, byn_parser_Expr p_values) {
     byn_writer l0_sb = {0};
@@ -93709,7 +93712,7 @@ break_1:;
 #line 1438 "semantics/compile.byn"
     return byn_strbuf_str(t4);
 }
-#line 93713 "main.c"
+#line 93716 "main.c"
 
 void byn_semantics__declareFile(bynt_semantics__Ctx* p_c, int64_t p_file) {
     int64_t l0_module = {0};
@@ -94521,7 +94524,7 @@ break_1:;
         }
     }
 }
-#line 94525 "main.c"
+#line 94528 "main.c"
 
 bynt_map_str_i64 byn_semantics__t11CopyMap(bynt_map_str_i64 p_m) {
     bynt_map_str_i64 l0_copy = {0};
@@ -94564,7 +94567,7 @@ break_1:;
 #line 1883 "semantics/compile.byn"
     return l0_copy;
 }
-#line 94568 "main.c"
+#line 94571 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__t11DeclSpan(byn_parser_Decl p_d) {
     bynt_parser__GlobalStatement* l0_g = {0};
@@ -94579,7 +94582,7 @@ bynt_lexer__TextSpan byn_semantics__t11DeclSpan(byn_parser_Decl p_d) {
     (void)byn_panic_str(BYN_STR("main statements are global statements", 37), byn_file_35, 1890);
 switch_end_1:;
 }
-#line 94583 "main.c"
+#line 94586 "main.c"
 
 int64_t byn_semantics__associatedType(bynt_semantics__Ctx* p_c, int64_t p_owner, byn_str p_name) {
     byn_str l0_key = {0};
@@ -94622,7 +94625,7 @@ int64_t byn_semantics__associatedType(bynt_semantics__Ctx* p_c, int64_t p_owner,
 #line 1902 "semantics/compile.byn"
     return l2_t;
 }
-#line 94626 "main.c"
+#line 94629 "main.c"
 
 bynt_opt_map_str_i64 byn_semantics__declareTypeParameters(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_list_lexer__TextSpan p_names, bynt_list_i64* p_into) {
     bynt_map_str_i64 l0_map = {0};
@@ -94687,7 +94690,7 @@ break_1:;
 #line 1929 "semantics/compile.byn"
     return ((bynt_opt_map_str_i64){true, l0_map});
 }
-#line 94691 "main.c"
+#line 94694 "main.c"
 
 void byn_semantics__declareWhere(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_list_parser__WhereClause p_clauses, bynt_list_i64 p_parameters, bynt_opt_map_str_i64 p_typeMap, byn_str p_owner) {
     bynt_map_str_i64 l0_args = {0};
@@ -94904,7 +94907,7 @@ void byn_semantics__declareWhere(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_
     }
 break_1:;
 }
-#line 94908 "main.c"
+#line 94911 "main.c"
 
 int64_t byn_semantics__resolveInterface(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_types, int64_t p_file, bynt_parser__NamedType p_syntax) {
     int64_t l0_t = {0};
@@ -94958,7 +94961,7 @@ int64_t byn_semantics__resolveInterface(bynt_semantics__Ctx* p_c, bynt_semantics
 #line 2035 "semantics/compile.byn"
     return INT64_C(-1);
 }
-#line 94962 "main.c"
+#line 94965 "main.c"
 
 void byn_semantics__t11RejectBases(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_list_parser__TypeSyntax p_bases, byn_str p_name, byn_str p_kind) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -94976,7 +94979,7 @@ void byn_semantics__t11RejectBases(bynt_semantics__Ctx* p_c, int64_t p_file, byn
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)182), p_file, l0_span, ((bynt_tup5_str_str_str_str_str){p_name, p_kind, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("listed here", 11), BYN_STR("wrap it in a struct that conforms", 33), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 94980 "main.c"
+#line 94983 "main.c"
 
 bool byn_semantics__addType(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lexer__TextSpan p_name, int64_t p_type) {
 #line 2059 "semantics/compile.byn"
@@ -94989,7 +94992,7 @@ bool byn_semantics__addType(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lexer
 #line 2061 "semantics/compile.byn"
     return true;
 }
-#line 94993 "main.c"
+#line 94996 "main.c"
 
 void byn_semantics__addFunction(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lexer__TextSpan p_name, int64_t p_f) {
     int64_t l0_module = {0};
@@ -95025,7 +95028,7 @@ void byn_semantics__addFunction(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_l
 #line 2081 "semantics/compile.byn"
     (void)bynh_add_list_i64(&(*bynh_at_list_semantics__Mod((*p_c).modules, (int64_t)l0_module, false, byn_file_35, 2081)).allFunctions, p_f);
 }
-#line 95029 "main.c"
+#line 95032 "main.c"
 
 void byn_semantics__afterMembersDeclared(bynt_semantics__Ctx* p_c, bynt_semantics__Work p_work) {
     bynt_semantics__Work l0_w = {0};
@@ -95043,13 +95046,13 @@ void byn_semantics__afterMembersDeclared(bynt_semantics__Ctx* p_c, bynt_semantic
 #line 2093 "semantics/compile.byn"
     (void)bynh_add_list_semantics__Work(&(*p_c).pendingKeys, l0_w);
 }
-#line 95047 "main.c"
+#line 95050 "main.c"
 
 void byn_semantics__reportInto(bynt_semantics__Ctx* p_c, int64_t p_bag) {
 #line 2101 "semantics/compile.byn"
     (*p_c).sink = p_bag;
 }
-#line 95053 "main.c"
+#line 95056 "main.c"
 
 void byn_semantics__runWork(bynt_semantics__Ctx* p_c, bynt_semantics__Work p_work) {
     bool l0__ = {0};
@@ -95119,7 +95122,7 @@ void byn_semantics__runWork(bynt_semantics__Ctx* p_c, bynt_semantics__Work p_wor
     }
 switch_end_1:;
 }
-#line 95123 "main.c"
+#line 95126 "main.c"
 
 void byn_semantics__t11RunWhere(bynt_semantics__Ctx* p_c, bynt_semantics__Work p_work) {
     int64_t l0_file = {0};
@@ -95297,7 +95300,7 @@ void byn_semantics__t11RunWhere(bynt_semantics__Ctx* p_c, bynt_semantics__Work p
     (void)byn_panic_str(BYN_STR("a `where` item names a generic declaration", 42), byn_file_35, 2220);
 switch_end_1:;
 }
-#line 95301 "main.c"
+#line 95304 "main.c"
 
 byn_str byn_semantics__t11Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -95316,7 +95319,7 @@ byn_str byn_semantics__t11Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer_
 #line 2227 "semantics/compile.byn"
     return byn_strbuf_str(t0);
 }
-#line 95320 "main.c"
+#line 95323 "main.c"
 
 bynt_list_u8 byn_semantics__t11ReadAllBytes(byn_str p_path) {
     bynt_list_u8 l0_bytes = {0};
@@ -95342,7 +95345,7 @@ bynt_list_u8 byn_semantics__t11ReadAllBytes(byn_str p_path) {
 #line 2232 "semantics/compile.byn"
     return l0_bytes;
 }
-#line 95346 "main.c"
+#line 95349 "main.c"
 
 bool byn_semantics__t11DirectoryExists(byn_str p_path) {
     bynt_list_str l0__ = {0};
@@ -95360,7 +95363,7 @@ bool byn_semantics__t11DirectoryExists(byn_str p_path) {
 #line 2238 "semantics/compile.byn"
     return true;
 }
-#line 95364 "main.c"
+#line 95367 "main.c"
 
 bynt_list_str byn_semantics__t11ListFiles(byn_str p_dir) {
     bynt_list_str l0_names = {0};
@@ -95378,7 +95381,7 @@ bynt_list_str byn_semantics__t11ListFiles(byn_str p_dir) {
 #line 2244 "semantics/compile.byn"
     return l0_names;
 }
-#line 95382 "main.c"
+#line 95385 "main.c"
 
 byn_str byn_semantics__t11DirectoryName(byn_str p_path) {
     bynt_opt_str t0 = {0};
@@ -95396,25 +95399,25 @@ byn_str byn_semantics__t11DirectoryName(byn_str p_path) {
 #line 2249 "semantics/compile.byn"
     return t1;
 }
-#line 95400 "main.c"
+#line 95403 "main.c"
 
 byn_str byn_semantics__t11FullPath(byn_str p_path) {
 #line 2254 "semantics/compile.byn"
     return byn_path_full_path(p_path, byn_context, byn_file_35, 2254);
 }
-#line 95406 "main.c"
+#line 95409 "main.c"
 
 byn_str byn_semantics__t11Combine(byn_str p_a, byn_str p_b) {
 #line 2259 "semantics/compile.byn"
     return byn_path_combine(p_a, p_b, byn_context);
 }
-#line 95412 "main.c"
+#line 95415 "main.c"
 
 byn_str byn_semantics__t11RelativePath(byn_str p_root, byn_str p_path) {
 #line 2264 "semantics/compile.byn"
     return byn_path_relative(p_root, p_path, byn_context, byn_file_35, 2264);
 }
-#line 95418 "main.c"
+#line 95421 "main.c"
 
 void byn_semantics__t11SortOrdinal(bynt_list_str* p_xs) {
     int64_t l0_i = {0};
@@ -95464,13 +95467,13 @@ void byn_semantics__t11SortOrdinal(bynt_list_str* p_xs) {
     }
 break_1:;
 }
-#line 95468 "main.c"
+#line 95471 "main.c"
 
 bynt_semantics__Diag byn_semantics__styleLintDiag(bynt_lexer__Diagnostic p_d, int64_t p_file) {
 #line 2281 "semantics/compile.byn"
     return ((bynt_semantics__Diag){p_d.code, p_file, p_d.span, p_d.message, p_d.label, p_d.help, false, false, p_d.hasFix, p_d.fixSpan, p_d.fixReplacement, ((bynt_list_semantics__Related){NULL, 0, 0, byn_context})});
 }
-#line 95474 "main.c"
+#line 95477 "main.c"
 
 void byn_semantics__noteLintOperand(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lexer__TextSpan p_span, int64_t p_bound) {
     int64_t l0_i = {0};
@@ -95500,7 +95503,7 @@ void byn_semantics__noteLintOperand(bynt_semantics__Ctx* p_c, int64_t p_file, by
     }
 break_1:;
 }
-#line 95504 "main.c"
+#line 95507 "main.c"
 
 void byn_semantics__confirmTypedLints(bynt_semantics__Ctx* p_c) {
     int64_t l0_i = {0};
@@ -95568,7 +95571,7 @@ void byn_semantics__confirmTypedLints(bynt_semantics__Ctx* p_c) {
     }
 break_1:;
 }
-#line 95572 "main.c"
+#line 95575 "main.c"
 
 bool byn_semantics__lintPasses(bynt_semantics__Ctx p_c, int64_t p_b, byn_parser_TypedLintCheck p_check) {
     int64_t l0_t = {0};
@@ -95627,13 +95630,13 @@ bool byn_semantics__lintPasses(bynt_semantics__Ctx p_c, int64_t p_b, byn_parser_
     }
 switch_end_1:;
 }
-#line 95631 "main.c"
+#line 95634 "main.c"
 
 bynt_semantics__T14Fix byn_semantics__t14NoFix(void) {
 #line 16 "semantics/conformance.byn"
     return ((bynt_semantics__T14Fix){false, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), BYN_STR("", 0)});
 }
-#line 95637 "main.c"
+#line 95640 "main.c"
 
 byn_str byn_semantics__t14Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -95652,7 +95655,7 @@ byn_str byn_semantics__t14Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer_
 #line 18 "semantics/conformance.byn"
     return byn_strbuf_str(t0);
 }
-#line 95656 "main.c"
+#line 95659 "main.c"
 
 bynt_map_str_i64 byn_semantics__t14CopyMap(bynt_map_str_i64 p_m) {
     bynt_map_str_i64 l0_res = {0};
@@ -95695,7 +95698,7 @@ break_1:;
 #line 25 "semantics/conformance.byn"
     return l0_res;
 }
-#line 95699 "main.c"
+#line 95702 "main.c"
 
 int64_t byn_semantics__associatedBinding(bynt_semantics__Ctx* p_c, int64_t p_s, byn_str p_name) {
     byn_str l0_key = {0};
@@ -95789,7 +95792,7 @@ int64_t byn_semantics__associatedBinding(bynt_semantics__Ctx* p_c, int64_t p_s, 
     (void)byn_panic_str(BYN_STR("internal error: a struct without a struct declaration", 53), byn_file_36, 57);
 switch_end_1:;
 }
-#line 95793 "main.c"
+#line 95796 "main.c"
 
 void byn_semantics__checkConformances(bynt_semantics__Ctx* p_c) {
     int64_t l0_m = {0};
@@ -96044,7 +96047,7 @@ break_17:;
 #line 117 "semantics/conformance.byn"
     (void)((*p_c).pendingConstraints.len = 0);
 }
-#line 96048 "main.c"
+#line 96051 "main.c"
 
 void byn_semantics__conform(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_file = {0};
@@ -96736,7 +96739,7 @@ void byn_semantics__conform(bynt_semantics__Ctx* p_c, int64_t p_s) {
     }
 break_1:;
 }
-#line 96740 "main.c"
+#line 96743 "main.c"
 
 void byn_semantics__t14OrderByStart(bynt_semantics__Ctx p_c, bynt_list_i64* p_list) {
     int64_t l0_k = {0};
@@ -96786,7 +96789,7 @@ void byn_semantics__t14OrderByStart(bynt_semantics__Ctx p_c, bynt_list_i64* p_li
     }
 break_1:;
 }
-#line 96790 "main.c"
+#line 96793 "main.c"
 
 int64_t byn_semantics__t14LaterDefault(bynt_semantics__Ctx* p_c, int64_t p_s, int64_t p_i, byn_str p_name) {
     int64_t l0_b = {0};
@@ -96870,7 +96873,7 @@ break_1:;
 #line 352 "semantics/conformance.byn"
     return INT64_C(-1);
 }
-#line 96874 "main.c"
+#line 96877 "main.c"
 
 bynt_semantics__FunctionSymbol byn_semantics__t14Expected(bynt_semantics__Ctx* p_c, int64_t p_i, int64_t p_member, bynt_map_str_i64 p_map) {
     int64_t l0_fn = {0};
@@ -96941,7 +96944,7 @@ switch_end_1:;
 #line 390 "semantics/conformance.byn"
     return byn_semantics__t14Drop(&(*p_c), l0_fn);
 }
-#line 96945 "main.c"
+#line 96948 "main.c"
 
 int64_t byn_semantics__t14CloneDefault(bynt_semantics__Ctx* p_c, int64_t p_s, int64_t p_i, int64_t p_member, bynt_map_str_i64 p_map, bynt_lexer__TextSpan p_at) {
     byn_str l0_name = {0};
@@ -97059,25 +97062,25 @@ switch_end_1:;
 #line 481 "semantics/conformance.byn"
     return l9_fn;
 }
-#line 97063 "main.c"
+#line 97066 "main.c"
 
 int64_t byn_semantics__quietlyBegin(bynt_semantics__Ctx* p_c) {
 #line 486 "semantics/conformance.byn"
     return byn_semantics__pushBag(&(*p_c));
 }
-#line 97069 "main.c"
+#line 97072 "main.c"
 
 void byn_semantics__quietlyEnd(bynt_semantics__Ctx* p_c, int64_t p_previous) {
 #line 491 "semantics/conformance.byn"
     (void)byn_semantics__popBag(&(*p_c), p_previous);
 }
-#line 97075 "main.c"
+#line 97078 "main.c"
 
 bool byn_semantics__conformancesChecked(bynt_semantics__Ctx* p_c) {
 #line 496 "semantics/conformance.byn"
     return (*p_c).checkedConformances;
 }
-#line 97081 "main.c"
+#line 97084 "main.c"
 
 bool byn_semantics__t14SameShape(bynt_semantics__Ctx p_c, bynt_semantics__FunctionSymbol p_own, bynt_semantics__FunctionSymbol p_expected) {
     int64_t t0 = {0};
@@ -97143,7 +97146,7 @@ break_1:;
 #line 512 "semantics/conformance.byn"
     return (byn_semantics__t14SetEquals(p_own.errorSets, p_expected.errorSets) && byn_semantics__t14SetEquals(p_own.excludedErrors, p_expected.excludedErrors));
 }
-#line 97147 "main.c"
+#line 97150 "main.c"
 
 bynt_semantics__FunctionSymbol byn_semantics__t14View(bynt_semantics__Ctx p_c, int64_t p_f) {
     byn_str t0 = {0};
@@ -97173,7 +97176,7 @@ bynt_semantics__FunctionSymbol byn_semantics__t14View(bynt_semantics__Ctx p_c, i
 #line 517 "semantics/conformance.byn"
     return ((bynt_semantics__FunctionSymbol){t0, t1, t2, INT64_C(-1), t3, ((byn_semantics_Accessibility)1), INT64_C(0), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), INT64_C(-1), false, t4, t5, t6, t7, byn_semantics__copyIds((*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_f, false, byn_file_36, 527)).excludedErrors), (*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_f, false, byn_file_36, 524)).hasFails, (*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_f, false, byn_file_36, 525)).infersErrors, ((byn_semantics_BuiltinFunction)0), ((bynt_list_i64){NULL, 0, 0, byn_context}), (*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_f, false, byn_file_36, 521)).isMutating, ((bynt_list_i64){NULL, 0, 0, byn_context}), INT64_C(-1), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), INT64_C(-1), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_str){0}), ((bynt_opt_lexer__TextSpan){0}), ((bynt_opt_lexer__TextSpan){0}), INT64_C(-1), ((bynt_list_i64){NULL, 0, 0, byn_context})});
 }
-#line 97177 "main.c"
+#line 97180 "main.c"
 
 bool byn_semantics__t14SetEquals(bynt_list_i64 p_a, bynt_list_i64 p_b) {
     int64_t l0_x = {0};
@@ -97231,7 +97234,7 @@ break_3:;
 #line 538 "semantics/conformance.byn"
     return true;
 }
-#line 97235 "main.c"
+#line 97238 "main.c"
 
 bool byn_semantics__t14Has(bynt_list_i64 p_xs, int64_t p_x) {
     int64_t l0_y = {0};
@@ -97263,13 +97266,13 @@ break_1:;
 #line 546 "semantics/conformance.byn"
     return false;
 }
-#line 97267 "main.c"
+#line 97270 "main.c"
 
 bool byn_semantics__t14Same(int64_t p_a, int64_t p_b) {
 #line 550 "semantics/conformance.byn"
     return ((byn_semantics__isError(p_a) || byn_semantics__isError(p_b)) || (p_a == p_b));
 }
-#line 97273 "main.c"
+#line 97276 "main.c"
 
 byn_str byn_semantics__t14SignatureText(bynt_semantics__Ctx* p_c, bynt_semantics__FunctionSymbol p_f) {
     byn_str l0_name = {0};
@@ -97436,7 +97439,7 @@ break_1:;
 #line 588 "semantics/conformance.byn"
     return byn_strbuf_str(t13);
 }
-#line 97440 "main.c"
+#line 97443 "main.c"
 
 bynt_semantics__T14Fix byn_semantics__t14InsertMember(bynt_semantics__Ctx* p_c, int64_t p_s, bynt_semantics__FunctionSymbol p_expected) {
     byn_str l0_name = {0};
@@ -97549,7 +97552,7 @@ bynt_semantics__T14Fix byn_semantics__t14InsertMember(bynt_semantics__Ctx* p_c, 
     (void)byn_panic_str(BYN_STR("internal error: a struct without a struct declaration", 53), byn_file_36, 608);
 switch_end_1:;
 }
-#line 97553 "main.c"
+#line 97556 "main.c"
 
 bynt_semantics__T14Fix byn_semantics__t14RefThisFix(bynt_semantics__Ctx* p_c, int64_t p_s, int64_t p_own) {
     int64_t l0_file = {0};
@@ -97593,7 +97596,7 @@ bynt_semantics__T14Fix byn_semantics__t14RefThisFix(bynt_semantics__Ctx* p_c, in
     return byn_semantics__t14NoFix();
 switch_end_1:;
 }
-#line 97597 "main.c"
+#line 97600 "main.c"
 
 bynt_semantics__T14Fix byn_semantics__t14RefThisEdit(bynt_parser__FunctionDecl p_decl) {
     bynt_lexer__TextSpan l0_refThis = {0};
@@ -97608,7 +97611,7 @@ bynt_semantics__T14Fix byn_semantics__t14RefThisEdit(bynt_parser__FunctionDecl p
 #line 638 "semantics/conformance.byn"
     return ((bynt_semantics__T14Fix){true, ((bynt_lexer__TextSpan){p_decl.paramsStart, INT64_C(0)}), ((p_decl.params.len > INT64_C(0)) ? BYN_STR("ref this, ", 10) : BYN_STR("ref this", 8))});
 }
-#line 97612 "main.c"
+#line 97615 "main.c"
 
 bynt_semantics__FunctionSymbol byn_semantics__t14Drop(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     bynt_semantics__FunctionSymbol l0_expected = {0};
@@ -97623,7 +97626,7 @@ bynt_semantics__FunctionSymbol byn_semantics__t14Drop(bynt_semantics__Ctx* p_c, 
 #line 652 "semantics/conformance.byn"
     return l0_expected;
 }
-#line 97627 "main.c"
+#line 97630 "main.c"
 
 bynt_opt_semantics__ConversionKind byn_semantics__implicit(bynt_semantics__Ctx* p_c, int64_t p_a, int64_t p_t, bool p_argument) {
     int64_t l0_inner = {0};
@@ -97847,7 +97850,7 @@ bynt_opt_semantics__ConversionKind byn_semantics__implicit(bynt_semantics__Ctx* 
 #line 82 "semantics/conversions.byn"
     return ((bynt_opt_semantics__ConversionKind){0});
 }
-#line 97851 "main.c"
+#line 97854 "main.c"
 
 bynt_opt_semantics__ConversionKind byn_semantics__implicitFunction(bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_t) {
     int64_t l0_ft = {0};
@@ -97952,7 +97955,7 @@ break_3:;
 #line 103 "semantics/conversions.byn"
     return ((bynt_opt_semantics__ConversionKind){true, ((byn_semantics_ConversionKind)14)});
 }
-#line 97956 "main.c"
+#line 97959 "main.c"
 
 bool byn_semantics__isWidening(int64_t p_a, int64_t p_t) {
     int64_t l0_ab = {0};
@@ -97985,7 +97988,7 @@ bool byn_semantics__isWidening(int64_t p_a, int64_t p_t) {
 #line 118 "semantics/conversions.byn"
     return ((p_a == byn_semantics__prim(((byn_semantics_PrimitiveKind)10))) && (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)11))));
 }
-#line 97989 "main.c"
+#line 97992 "main.c"
 
 bynt_opt_semantics__ConversionKind byn_semantics__explicit(bynt_semantics__Ctx* p_c, int64_t p_a, int64_t p_t) {
     bynt_opt_semantics__ConversionKind t0 = {0};
@@ -98020,7 +98023,7 @@ bynt_opt_semantics__ConversionKind byn_semantics__explicit(bynt_semantics__Ctx* 
 #line 130 "semantics/conversions.byn"
     return ((bynt_opt_semantics__ConversionKind){0});
 }
-#line 98024 "main.c"
+#line 98027 "main.c"
 
 int64_t byn_semantics__common(bynt_semantics__Ctx* p_c, int64_t p_a, int64_t p_b) {
     bynt_opt_semantics__ConversionKind t0 = {0};
@@ -98085,13 +98088,13 @@ int64_t byn_semantics__common(bynt_semantics__Ctx* p_c, int64_t p_a, int64_t p_b
 #line 149 "semantics/conversions.byn"
     return INT64_C(-1);
 }
-#line 98089 "main.c"
+#line 98092 "main.c"
 
 bool byn_semantics__isUnique(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 157 "semantics/conversions.byn"
     return (!(byn_semantics__uniquePart(&(*p_c), p_t) == INT64_C(-1)));
 }
-#line 98095 "main.c"
+#line 98098 "main.c"
 
 int64_t byn_semantics__uniquePart(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_i64 l0_seen = {0};
@@ -98109,7 +98112,7 @@ int64_t byn_semantics__uniquePart(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 165 "semantics/conversions.byn"
     return INT64_C(-1);
 }
-#line 98113 "main.c"
+#line 98116 "main.c"
 
 bynt_opt_str byn_semantics__whyUnique(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_i64 l0_seen = {0};
@@ -98127,7 +98130,7 @@ bynt_opt_str byn_semantics__whyUnique(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 174 "semantics/conversions.byn"
     return ((bynt_opt_str){0});
 }
-#line 98131 "main.c"
+#line 98134 "main.c"
 
 bynt_opt_semantics__T6Unique byn_semantics__t6Find(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i64* p_seen) {
     byn_semantics_TypeKind t0 = {0};
@@ -98468,7 +98471,7 @@ bynt_opt_semantics__T6Unique byn_semantics__t6Find(bynt_semantics__Ctx* p_c, int
     return ((bynt_opt_semantics__T6Unique){0});
 switch_end_1:;
 }
-#line 98472 "main.c"
+#line 98475 "main.c"
 
 bynt_opt_semantics__T6Unique byn_semantics__t6Held(bynt_semantics__Ctx* p_c, int64_t p_outer, bynt_opt_semantics__T6Unique p_inner) {
     byn_writer t0 = {0};
@@ -98496,7 +98499,7 @@ bynt_opt_semantics__T6Unique byn_semantics__t6Held(bynt_semantics__Ctx* p_c, int
 #line 258 "semantics/conversions.byn"
     return ((bynt_opt_semantics__T6Unique){0});
 }
-#line 98500 "main.c"
+#line 98503 "main.c"
 
 bynt_semantics__CalleeOf byn_semantics__calleeOfCall(bynt_parser__CallExpr p_call) {
     bynt_semantics__CalleeOf l0_r = {0};
@@ -98559,7 +98562,7 @@ switch_end_1:;
 #line 659 "semantics/ctx.byn"
     return l0_r;
 }
-#line 98563 "main.c"
+#line 98566 "main.c"
 
 void byn_semantics__declareMembers(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_file = {0};
@@ -99117,7 +99120,7 @@ void byn_semantics__declareMembers(bynt_semantics__Ctx* p_c, int64_t p_s) {
     (void)byn_panic_str(BYN_STR("a struct is declared by a `StructDecl` or a `type distinct`", 59), byn_file_39, 292);
 switch_end_1:;
 }
-#line 99121 "main.c"
+#line 99124 "main.c"
 
 void byn_semantics__declareVariants(bynt_semantics__Ctx* p_c, int64_t p_set) {
     int64_t l0_file = {0};
@@ -99246,7 +99249,7 @@ void byn_semantics__declareVariants(bynt_semantics__Ctx* p_c, int64_t p_set) {
     (void)byn_panic_str(BYN_STR("an error set is declared by an `ErrorEnumDecl`", 46), byn_file_39, 387);
 switch_end_1:;
 }
-#line 99250 "main.c"
+#line 99253 "main.c"
 
 void byn_semantics__declarePayloads(bynt_semantics__Ctx* p_c, int64_t p_set) {
     int64_t l0_file = {0};
@@ -99361,7 +99364,7 @@ void byn_semantics__declarePayloads(bynt_semantics__Ctx* p_c, int64_t p_set) {
     (void)byn_panic_str(BYN_STR("an error set is declared by an `ErrorEnumDecl`", 46), byn_file_39, 435);
 switch_end_1:;
 }
-#line 99365 "main.c"
+#line 99368 "main.c"
 
 void byn_semantics__checkComposition(bynt_semantics__Ctx* p_c, int64_t p_alias, bynt_parser__ErrorSetDecl p_decl) {
     int64_t l0_file = {0};
@@ -99472,7 +99475,7 @@ void byn_semantics__checkComposition(bynt_semantics__Ctx* p_c, int64_t p_alias, 
     }
 break_1:;
 }
-#line 99476 "main.c"
+#line 99479 "main.c"
 
 void byn_semantics__declareEnumMembers(bynt_semantics__Ctx* p_c, int64_t p_e) {
     int64_t l0_file = {0};
@@ -99640,7 +99643,7 @@ break_7:;
 #line 598 "semantics/declare.byn"
     (*bynh_at_list_semantics__EnumSymbol((*p_c).enums, (int64_t)p_e, false, byn_file_39, 598)).parse = l22_parse;
 }
-#line 99644 "main.c"
+#line 99647 "main.c"
 
 void byn_semantics__declareEnumFields(bynt_semantics__Ctx* p_c, int64_t p_e) {
     int64_t l0_file = {0};
@@ -99806,7 +99809,7 @@ void byn_semantics__declareEnumFields(bynt_semantics__Ctx* p_c, int64_t p_e) {
     (void)byn_panic_str(BYN_STR("an enum is declared by an `EnumDecl` or its struct", 50), byn_file_39, 706);
 switch_end_1:;
 }
-#line 99810 "main.c"
+#line 99813 "main.c"
 
 void byn_semantics__declareUnionVariants(bynt_semantics__Ctx* p_c, int64_t p_u) {
     int64_t l0_file = {0};
@@ -99841,7 +99844,7 @@ void byn_semantics__declareUnionVariants(bynt_semantics__Ctx* p_c, int64_t p_u) 
     (void)byn_panic_str(BYN_STR("a union is declared by a `UnionDecl` or its struct", 50), byn_file_39, 721);
 switch_end_1:;
 }
-#line 99845 "main.c"
+#line 99848 "main.c"
 
 void byn_semantics__declareVariantList(bynt_semantics__Ctx* p_c, int64_t p_u, bynt_list_parser__UnionVariant p_variants, bynt_lexer__TextSpan p_nameSpan) {
     int64_t l0_file = {0};
@@ -100078,7 +100081,7 @@ break_1:;
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)125), l0_file, p_nameSpan, ((bynt_tup5_str_str_str_str_str){(*bynh_at_list_semantics__UnionSymbol((*p_c).unions, (int64_t)p_u, false, byn_file_39, 840)).name, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("add the variants, or remove the union", 37), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 100082 "main.c"
+#line 100085 "main.c"
 
 bynt_opt_i64 byn_semantics__t12UnionValue(byn_parser_Expr p_e) {
     bynt_parser__UnaryExpr* l0_u = {0};
@@ -100098,7 +100101,7 @@ bynt_opt_i64 byn_semantics__t12UnionValue(byn_parser_Expr p_e) {
     return byn_semantics__t12UnionLiteral(p_e, false);
 switch_end_1:;
 }
-#line 100102 "main.c"
+#line 100105 "main.c"
 
 bynt_opt_i64 byn_semantics__t12UnionLiteral(byn_parser_Expr p_e, bool p_negate) {
     bynt_parser__LiteralExpr* l0_l = {0};
@@ -100145,7 +100148,7 @@ bynt_opt_i64 byn_semantics__t12UnionLiteral(byn_parser_Expr p_e, bool p_negate) 
     return ((bynt_opt_i64){0});
 switch_end_1:;
 }
-#line 100149 "main.c"
+#line 100152 "main.c"
 
 void byn_semantics__checkOverloads(bynt_semantics__Ctx* p_c, int64_t p_module) {
     bynt_list_str l0_keys = {0};
@@ -100288,7 +100291,7 @@ break_1:;
     }
 break_3:;
 }
-#line 100292 "main.c"
+#line 100295 "main.c"
 
 bool byn_semantics__overlap(bynt_semantics__Ctx* p_c, int64_t p_a, int64_t p_b) {
     bynt_list_semantics__T12Param l0_pa = {0};
@@ -100423,7 +100426,7 @@ break_7:;
 #line 954 "semantics/declare.byn"
     return t20;
 }
-#line 100427 "main.c"
+#line 100430 "main.c"
 
 int64_t byn_semantics__t12MinPositional(bynt_list_semantics__T12Param p_ps) {
     int64_t l0_n = {0};
@@ -100459,7 +100462,7 @@ break_1:;
 #line 964 "semantics/declare.byn"
     return l0_n;
 }
-#line 100463 "main.c"
+#line 100466 "main.c"
 
 int64_t byn_semantics__t12MaxPositional(bynt_list_semantics__T12Param p_ps) {
     int64_t l0_n = {0};
@@ -100503,7 +100506,7 @@ break_1:;
 #line 977 "semantics/declare.byn"
     return l0_n;
 }
-#line 100507 "main.c"
+#line 100510 "main.c"
 
 bynt_list_semantics__T12Param byn_semantics__t12Params(bynt_semantics__Ctx p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -100629,7 +100632,7 @@ break_5:;
 #line 1015 "semantics/declare.byn"
     return l15_result;
 }
-#line 100633 "main.c"
+#line 100636 "main.c"
 
 bynt_list_semantics__T12Param byn_semantics__t12FromSyntax(bynt_semantics__Ctx p_c, int64_t p_fn, bynt_list_parser__Param p_ps) {
     int64_t l0_f = {0};
@@ -100691,7 +100694,7 @@ break_1:;
 #line 1036 "semantics/declare.byn"
     return l1_result;
 }
-#line 100695 "main.c"
+#line 100698 "main.c"
 
 bool byn_semantics__checkUnique(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lexer__TextSpan p_name) {
     int64_t l0_m = {0};
@@ -100752,7 +100755,7 @@ bool byn_semantics__checkUnique(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_l
 #line 1056 "semantics/declare.byn"
     return true;
 }
-#line 100756 "main.c"
+#line 100759 "main.c"
 
 void byn_semantics__reportDuplicate(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_lexer__TextSpan p_name, bynt_semantics__Location p_previous) {
     byn_str l0_where = {0};
@@ -100807,7 +100810,7 @@ void byn_semantics__reportDuplicate(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_
 #line 1061 "semantics/declare.byn"
     (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)8), p_f, p_name, t5, byn_strbuf_str(t4), BYN_STR("", 0), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 100811 "main.c"
+#line 100814 "main.c"
 
 bynt_opt_semantics__Location byn_semantics__t12LocationOf(bynt_semantics__Ctx p_c, int64_t p_t) {
     int64_t l0_i = {0};
@@ -100849,13 +100852,13 @@ bynt_opt_semantics__Location byn_semantics__t12LocationOf(bynt_semantics__Ctx p_
 #line 1080 "semantics/declare.byn"
     return ((bynt_opt_semantics__Location){0});
 }
-#line 100853 "main.c"
+#line 100856 "main.c"
 
 bynt_semantics__Location byn_semantics__loc(int64_t p_file, bynt_lexer__TextSpan p_span) {
 #line 1085 "semantics/declare.byn"
     return ((bynt_semantics__Location){p_file, p_span});
 }
-#line 100859 "main.c"
+#line 100862 "main.c"
 
 byn_semantics_Accessibility byn_semantics__accessOf(uint16_t p_m) {
 #line 1088 "semantics/declare.byn"
@@ -100871,7 +100874,7 @@ byn_semantics_Accessibility byn_semantics__accessOf(uint16_t p_m) {
 #line 1090 "semantics/declare.byn"
     return ((byn_semantics_Accessibility)1);
 }
-#line 100875 "main.c"
+#line 100878 "main.c"
 
 bool byn_semantics__t12Unique(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lexer__TextSpan p_name, bynt_map_str_semantics__Location* p_names) {
     byn_str l0_text = {0};
@@ -100896,7 +100899,7 @@ bool byn_semantics__t12Unique(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lex
 #line 1103 "semantics/declare.byn"
     return true;
 }
-#line 100900 "main.c"
+#line 100903 "main.c"
 
 bool byn_semantics__t12Has(bynt_list_i64 p_ids, int64_t p_i) {
     int64_t l0_x = {0};
@@ -100928,7 +100931,7 @@ break_1:;
 #line 1110 "semantics/declare.byn"
     return false;
 }
-#line 100932 "main.c"
+#line 100935 "main.c"
 
 bool byn_semantics__t12IsAssociated(bynt_semantics__Ctx* p_c, int64_t p_s, byn_str p_name) {
     int64_t l0_i = {0};
@@ -100981,7 +100984,7 @@ break_1:;
 #line 1120 "semantics/declare.byn"
     return false;
 }
-#line 100985 "main.c"
+#line 100988 "main.c"
 
 bool byn_semantics__t12PlainEnum(bynt_semantics__Ctx p_c, int64_t p_e) {
     byn_parser_Decl t0 = {0};
@@ -101009,7 +101012,7 @@ bool byn_semantics__t12PlainEnum(bynt_semantics__Ctx p_c, int64_t p_e) {
     (void)byn_panic_str(BYN_STR("an enum is declared by an `EnumDecl` or its struct", 50), byn_file_39, 1128);
 switch_end_1:;
 }
-#line 101013 "main.c"
+#line 101016 "main.c"
 
 byn_str byn_semantics__t12ModifierName(byn_parser_ParamModifier p_m) {
 #line 1135 "semantics/declare.byn"
@@ -101049,7 +101052,7 @@ byn_str byn_semantics__t12ModifierName(byn_parser_ParamModifier p_m) {
     }
 switch_end_1:;
 }
-#line 101053 "main.c"
+#line 101056 "main.c"
 
 int64_t byn_semantics__t12Line(bynt_semantics__Ctx p_c, bynt_semantics__Location p_l) {
     bynt_list_u8 t0 = {0};
@@ -101058,7 +101061,7 @@ int64_t byn_semantics__t12Line(bynt_semantics__Ctx p_c, bynt_semantics__Location
 #line 1144 "semantics/declare.byn"
     return byn_add_i64(byn_semantics__lineIndex(bynh_span_list_u8(t0), p_l.span.start), INT64_C(1), byn_file_39, 1144);
 }
-#line 101062 "main.c"
+#line 101065 "main.c"
 
 byn_str byn_semantics__t12Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -101077,7 +101080,7 @@ byn_str byn_semantics__t12Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer_
 #line 1146 "semantics/declare.byn"
     return byn_strbuf_str(t0);
 }
-#line 101081 "main.c"
+#line 101084 "main.c"
 
 int64_t byn_semantics__validationErrorOf(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_opt_i64 t0 = {0};
@@ -101244,7 +101247,7 @@ switch_end_1:;
 #line 117 "semantics/declare2.byn"
     return l5_set;
 }
-#line 101248 "main.c"
+#line 101251 "main.c"
 
 void byn_semantics__declareCheck(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_file = {0};
@@ -101421,7 +101424,7 @@ switch_end_1:;
 #line 181 "semantics/declare2.byn"
     (*bynh_slot_map_i64_i64(&(*p_c).checksOf, p_s, ((int64_t){0}))) = t22;
 }
-#line 101425 "main.c"
+#line 101428 "main.c"
 
 int64_t byn_semantics__statesOf(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_file = {0};
@@ -101585,7 +101588,7 @@ switch_end_2:;
 #line 257 "semantics/declare2.byn"
     return l8_u;
 }
-#line 101589 "main.c"
+#line 101592 "main.c"
 
 void byn_semantics__checkStateNames(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_states = {0};
@@ -101716,7 +101719,7 @@ void byn_semantics__checkStateNames(bynt_semantics__Ctx* p_c, int64_t p_s) {
     return;
 switch_end_1:;
 }
-#line 101720 "main.c"
+#line 101723 "main.c"
 
 void byn_semantics__declareInterfaceMembers(bynt_semantics__Ctx* p_c, int64_t p_i) {
     int64_t l0_file = {0};
@@ -102031,7 +102034,7 @@ void byn_semantics__declareInterfaceMembers(bynt_semantics__Ctx* p_c, int64_t p_
     (void)byn_panic_str(BYN_STR("an interface is declared by an `InterfaceDecl`", 46), byn_file_40, 431);
 switch_end_1:;
 }
-#line 102035 "main.c"
+#line 102038 "main.c"
 
 void byn_semantics__t38DeclareGetter(bynt_semantics__Ctx* p_c, int64_t p_i, int64_t p_mIdx, uint16_t p_modifiers, byn_parser_TypeSyntax p_type, bynt_lexer__TextSpan p_name, bool p_isAbstract, bynt_semantics__TypeResolver p_types, bynt_map_str_semantics__Location* p_names) {
     int64_t l0_file = {0};
@@ -102086,7 +102089,7 @@ void byn_semantics__t38DeclareGetter(bynt_semantics__Ctx* p_c, int64_t p_i, int6
         (void)bynh_add_list_i64(&(*bynh_at_list_semantics__InterfaceSymbol((*p_c).interfaces, (int64_t)p_i, false, byn_file_40, 468)).properties, l2_getter);
     }
 }
-#line 102090 "main.c"
+#line 102093 "main.c"
 
 void byn_semantics__rejectStatic(bynt_semantics__Ctx* p_c, int64_t p_file, uint16_t p_modifiers, bynt_lexer__TextSpan p_name) {
 #line 475 "semantics/declare2.byn"
@@ -102095,7 +102098,7 @@ void byn_semantics__rejectStatic(bynt_semantics__Ctx* p_c, int64_t p_file, uint1
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)177), p_file, p_name, ((bynt_tup5_str_str_str_str_str){BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("declared `static`", 17), BYN_STR("remove `static` or make it a free function", 42), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 102099 "main.c"
+#line 102102 "main.c"
 
 void byn_semantics__rejectModifiers(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lexer__TextSpan p_span, uint16_t p_actual, uint16_t p_rejected, byn_str p_what) {
     byn_writer t0 = {0};
@@ -102117,7 +102120,7 @@ void byn_semantics__rejectModifiers(bynt_semantics__Ctx* p_c, int64_t p_file, by
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)23), p_file, p_span, ((bynt_tup5_str_str_str_str_str){byn_strbuf_str(t0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("", 0), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 102121 "main.c"
+#line 102124 "main.c"
 
 byn_str byn_semantics__t38ModifierText(uint16_t p_m) {
     bynt_arr9_str l0_flagNames = {0};
@@ -102175,7 +102178,7 @@ break_1:;
 #line 523 "semantics/declare2.byn"
     return byn_strbuf_str(t6);
 }
-#line 102179 "main.c"
+#line 102182 "main.c"
 
 bynt_semantics__Fix byn_semantics__refReceiverFix(bynt_parser__FunctionDecl p_decl) {
     bynt_lexer__TextSpan l0_moveSpan = {0};
@@ -102190,7 +102193,7 @@ bynt_semantics__Fix byn_semantics__refReceiverFix(bynt_parser__FunctionDecl p_de
 #line 533 "semantics/declare2.byn"
     return ((bynt_semantics__Fix){((bynt_lexer__TextSpan){p_decl.paramsStart, INT64_C(0)}), l1_text});
 }
-#line 102194 "main.c"
+#line 102197 "main.c"
 
 void byn_semantics__declareSignature(bynt_semantics__Ctx* p_c, int64_t p_fn, bynt_parser__FunctionDecl p_decl, int64_t p_file, int64_t p_owner) {
     bynt_semantics__TypeResolver l0_types = {0};
@@ -102449,7 +102452,7 @@ void byn_semantics__declareSignature(bynt_semantics__Ctx* p_c, int64_t p_fn, byn
     break_1:;
     }
 }
-#line 102453 "main.c"
+#line 102456 "main.c"
 
 void byn_semantics__declareParameters(bynt_semantics__Ctx* p_c, int64_t p_fn, bynt_list_parser__Param p_parameters, int64_t p_file, bynt_semantics__TypeResolver p_types) {
     bynt_parser__Param l0_p = {0};
@@ -102517,7 +102520,7 @@ break_1:;
 #line 689 "semantics/declare2.byn"
     (void)byn_semantics__checkParticles(&(*p_c), p_file, p_fn);
 }
-#line 102521 "main.c"
+#line 102524 "main.c"
 
 void byn_semantics__checkStructShape(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_file = {0};
@@ -102619,7 +102622,7 @@ break_1:;
 #line 729 "semantics/declare2.byn"
     (void)byn_semantics__checkRecursion(&(*p_c), byn_semantics__structTypeOf(p_s), l14_name, l0_file, (*bynh_at_list_semantics__StructSymbol((*p_c).structs, (int64_t)p_s, false, byn_file_40, 729)).nameSpan);
 }
-#line 102623 "main.c"
+#line 102626 "main.c"
 
 bool byn_semantics__functionTypeNotHere(bynt_semantics__Ctx* p_c, int64_t p_t, int64_t p_source, bynt_lexer__TextSpan p_span, byn_str p_position) {
 #line 735 "semantics/declare2.byn"
@@ -102632,7 +102635,7 @@ bool byn_semantics__functionTypeNotHere(bynt_semantics__Ctx* p_c, int64_t p_t, i
 #line 744 "semantics/declare2.byn"
     return true;
 }
-#line 102636 "main.c"
+#line 102639 "main.c"
 
 void byn_semantics__checkUnionShape(bynt_semantics__Ctx* p_c, int64_t p_u) {
     int64_t l0_file = {0};
@@ -102704,7 +102707,7 @@ break_1:;
 #line 767 "semantics/declare2.byn"
     (void)byn_semantics__checkRecursion(&(*p_c), byn_semantics__unionTypeOf(p_u), l8_name, l0_file, (*bynh_at_list_semantics__UnionSymbol((*p_c).unions, (int64_t)p_u, false, byn_file_40, 767)).nameSpan);
 }
-#line 102708 "main.c"
+#line 102711 "main.c"
 
 void byn_semantics__checkRecursion(bynt_semantics__Ctx* p_c, int64_t p_t, byn_str p_name, int64_t p_source, bynt_lexer__TextSpan p_span) {
     bynt_list_i64 l0_seen = {0};
@@ -102801,7 +102804,7 @@ void byn_semantics__checkRecursion(bynt_semantics__Ctx* p_c, int64_t p_t, byn_st
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)147), p_source, p_span, t12, BYN_STR("", 0), byn_strbuf_str(t11), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 102805 "main.c"
+#line 102808 "main.c"
 
 bynt_opt_list_i64 byn_semantics__cycle(bynt_semantics__Ctx* p_c, int64_t p_t, int64_t p_target, bynt_list_i64* p_seen) {
     bynt_list_i64 l0_parts = {0};
@@ -103019,7 +103022,7 @@ break_10:;
 #line 846 "semantics/declare2.byn"
     return ((bynt_opt_list_i64){0});
 }
-#line 103023 "main.c"
+#line 103026 "main.c"
 
 void byn_semantics__report__o1(bynt_semantics__Ctx* p_c, byn_semantics_SemaCode p_code, int64_t p_f, bynt_lexer__TextSpan p_span, bynt_tup5_str_str_str_str_str p_args, byn_str p_label, byn_str p_help, bool p_hasFix, bynt_opt_lexer__TextSpan p_fixSpan, byn_str p_fixReplacement) {
     byn_str t0 = {0};
@@ -103031,7 +103034,7 @@ void byn_semantics__report__o1(bynt_semantics__Ctx* p_c, byn_semantics_SemaCode 
 #line 25 "semantics/diag.byn"
     (void)byn_semantics__addDiag(&(*p_c), ((bynt_semantics__Diag){t0, p_f, p_span, t1, p_label, p_help, byn_semantics__isWarning(p_code), false, p_hasFix, (p_fixSpan.has ? p_fixSpan.value : ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)})), p_fixReplacement, ((bynt_list_semantics__Related){NULL, 0, 0, byn_context})}));
 }
-#line 103035 "main.c"
+#line 103038 "main.c"
 
 void byn_semantics__addDiag(bynt_semantics__Ctx* p_c, bynt_semantics__Diag p_d) {
     bynt_semantics__Diag l0_m = {0};
@@ -103087,7 +103090,7 @@ break_1:;
         (void)bynh_add_list_semantics__Diag(&(*p_c).diagnostics, l0_m);
     }
 }
-#line 103091 "main.c"
+#line 103094 "main.c"
 
 int64_t byn_semantics__pushBag(bynt_semantics__Ctx* p_c) {
     int64_t l0_previous = {0};
@@ -103103,19 +103106,19 @@ int64_t byn_semantics__pushBag(bynt_semantics__Ctx* p_c) {
 #line 62 "semantics/diag.byn"
     return l0_previous;
 }
-#line 103107 "main.c"
+#line 103110 "main.c"
 
 void byn_semantics__popBag(bynt_semantics__Ctx* p_c, int64_t p_previous) {
 #line 68 "semantics/diag.byn"
     (*p_c).sink = p_previous;
 }
-#line 103113 "main.c"
+#line 103116 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__t40RealSpan(bynt_semantics__Ctx p_c, bynt_lexer__TextSpan p_span) {
 #line 73 "semantics/diag.byn"
     return ((p_span.start < INT64_C(0)) ? (*bynh_at_list_lexer__TextSpan(p_c.syntheticSpans, (int64_t)byn_sub_i64(INT64_C(-1), p_span.start, byn_file_41, 73), false, byn_file_41, 73)) : p_span);
 }
-#line 103119 "main.c"
+#line 103122 "main.c"
 
 void byn_semantics__removeRepeats(bynt_semantics__Ctx* p_c) {
     bynt_list_tup5_str_i64_i64_i64_str l0_seen = {0};
@@ -103205,7 +103208,7 @@ break_1:;
     }
 break_5:;
 }
-#line 103209 "main.c"
+#line 103212 "main.c"
 
 byn_str byn_semantics__render(bynt_semantics__Ctx p_c, bynt_semantics__Diag p_d, bool p_includePath, bynt_semantics__T26Symbols p_style) {
     byn_writer l0_sb = {0};
@@ -103862,7 +103865,7 @@ break_5:;
 #line 275 "semantics/diag.byn"
     return byn_strbuf_str(t83);
 }
-#line 103866 "main.c"
+#line 103869 "main.c"
 
 byn_str byn_semantics__renderAll(bynt_semantics__Ctx p_c, bynt_list_semantics__Diag p_diags, bool p_includePath, int64_t p_errorLimit, int64_t* p_omitted) {
     bynt_semantics__T26Symbols l0_plain = {0};
@@ -103871,7 +103874,7 @@ byn_str byn_semantics__renderAll(bynt_semantics__Ctx p_c, bynt_list_semantics__D
 #line 289 "semantics/diag.byn"
     return byn_semantics__renderAllBy(p_c, p_diags, p_includePath, p_errorLimit, &(*p_omitted), l0_plain);
 }
-#line 103875 "main.c"
+#line 103878 "main.c"
 
 byn_str byn_semantics__renderAllBy(bynt_semantics__Ctx p_c, bynt_list_semantics__Diag p_diags, bool p_includePath, int64_t p_errorLimit, int64_t* p_omitted, bynt_semantics__T26Symbols p_style) {
     bynt_list_i64 l0_order = {0};
@@ -103946,7 +103949,7 @@ break_1:;
 #line 321 "semantics/diag.byn"
     return byn_strbuf_str(t8);
 }
-#line 103950 "main.c"
+#line 103953 "main.c"
 
 bynt_list_i64 byn_semantics__sortOrder(bynt_semantics__Ctx p_c, bynt_list_semantics__Diag p_diags) {
     bynt_list_i64 l0_order = {0};
@@ -104000,7 +104003,7 @@ break_1:;
 #line 337 "semantics/diag.byn"
     return l0_order;
 }
-#line 104004 "main.c"
+#line 104007 "main.c"
 
 bool byn_semantics__before(bynt_semantics__Ctx p_c, bynt_semantics__Diag p_a, bynt_semantics__Diag p_b) {
     byn_str l0_pa = {0};
@@ -104017,13 +104020,13 @@ bool byn_semantics__before(bynt_semantics__Ctx p_c, bynt_semantics__Diag p_a, by
 #line 346 "semantics/diag.byn"
     return (p_a.span.start < p_b.span.start);
 }
-#line 104021 "main.c"
+#line 104024 "main.c"
 
 byn_str byn_semantics__pathOf(bynt_semantics__Ctx p_c, bynt_semantics__Diag p_d) {
 #line 350 "semantics/diag.byn"
     return ((p_d.file < INT64_C(0)) ? BYN_STR("", 0) : (*bynh_at_list_semantics__SourceFile(p_c.files, (int64_t)p_d.file, false, byn_file_41, 350)).displayPath);
 }
-#line 104027 "main.c"
+#line 104030 "main.c"
 
 bool byn_semantics__pathLess(byn_str p_a, byn_str p_b) {
     bynt_span_u8 l0_x = {0};
@@ -104075,13 +104078,13 @@ break_1:;
 #line 361 "semantics/diag.byn"
     return (t7 < l1_y.len);
 }
-#line 104079 "main.c"
+#line 104082 "main.c"
 
 byn_str byn_semantics__severityName(bool p_isWarning, bool p_isNote) {
 #line 365 "semantics/diag.byn"
     return (p_isNote ? BYN_STR("note", 4) : (p_isWarning ? BYN_STR("warning", 7) : BYN_STR("error", 5)));
 }
-#line 104085 "main.c"
+#line 104088 "main.c"
 
 void byn_semantics__sortMarks(bynt_list_semantics__Mark* p_marks) {
     int64_t l0_i = {0};
@@ -104131,7 +104134,7 @@ void byn_semantics__sortMarks(bynt_list_semantics__Mark* p_marks) {
     }
 break_1:;
 }
-#line 104135 "main.c"
+#line 104138 "main.c"
 
 void byn_semantics__appendLines(bynt_list_str* p_lines, byn_writer* p_sb, byn_str p_separator) {
     int64_t l0_i = {0};
@@ -104163,7 +104166,7 @@ void byn_semantics__appendLines(bynt_list_str* p_lines, byn_writer* p_sb, byn_st
     }
 break_1:;
 }
-#line 104167 "main.c"
+#line 104170 "main.c"
 
 byn_str byn_semantics__lineNumber(int64_t p_number, int64_t p_width) {
     byn_str l0_digits = {0};
@@ -104220,7 +104223,7 @@ break_1:;
 #line 398 "semantics/diag.byn"
     return byn_strbuf_str(t6);
 }
-#line 104224 "main.c"
+#line 104227 "main.c"
 
 bynt_semantics__FixView byn_semantics__applyFix(bynt_span_u8 p_text, bynt_lexer__TextSpan p_fix, byn_str p_replacement, bynt_list_str* p_lines) {
     int64_t l0_firstLine = {0};
@@ -104387,7 +104390,7 @@ break_9:;
 #line 447 "semantics/diag.byn"
     return ((bynt_semantics__FixView){l0_firstLine, t25, byn_sub_i64(byn_add_i64(t24, l16_shown.len, byn_file_41, 450), l12_tail, byn_file_41, 450), (l15_inserted ? BYN_STR("+", 1) : BYN_STR("-", 1))});
 }
-#line 104391 "main.c"
+#line 104394 "main.c"
 
 void byn_semantics__wrap(byn_str p_text, bynt_list_str* p_lines, bynt_semantics__Widths p_widths) {
     bynt_span_u8 l0_t = {0};
@@ -104524,7 +104527,7 @@ void byn_semantics__wrap(byn_str p_text, bynt_list_str* p_lines, bynt_semantics_
     }
 break_1:;
 }
-#line 104528 "main.c"
+#line 104531 "main.c"
 
 bynt_list_str byn_semantics__splitWords(byn_str p_paragraph) {
     bynt_span_u8 l0_t = {0};
@@ -104628,7 +104631,7 @@ break_3:;
 #line 519 "semantics/diag.byn"
     return l9_simple;
 }
-#line 104632 "main.c"
+#line 104635 "main.c"
 
 void byn_semantics__display(bynt_span_u8 p_text, byn_writer* p_sb) {
     int64_t l0_pos = {0};
@@ -104663,7 +104666,7 @@ void byn_semantics__display(bynt_span_u8 p_text, byn_writer* p_sb) {
     }
 break_1:;
 }
-#line 104667 "main.c"
+#line 104670 "main.c"
 
 void byn_semantics__indent(bynt_span_u8 p_prefix, byn_writer* p_sb) {
     int64_t l0_pos = {0};
@@ -104687,13 +104690,13 @@ void byn_semantics__indent(bynt_span_u8 p_prefix, byn_writer* p_sb) {
     }
 break_1:;
 }
-#line 104691 "main.c"
+#line 104694 "main.c"
 
 byn_str byn_semantics__getText(bynt_span_u8 p_text, bynt_lexer__TextSpan p_span) {
 #line 546 "semantics/diag.byn"
     return byn_semantics__utf8(bynh_slice_span_u8(p_text, (int64_t)p_span.start, 0, (int64_t)byn_lexer__TextSpan__get_end(&p_span), 0, false, byn_file_41, 546));
 }
-#line 104697 "main.c"
+#line 104700 "main.c"
 
 int64_t byn_semantics__runeCount(bynt_span_u8 p_bytes) {
     int64_t l0_count = {0};
@@ -104725,7 +104728,7 @@ break_1:;
 #line 556 "semantics/diag.byn"
     return l0_count;
 }
-#line 104729 "main.c"
+#line 104732 "main.c"
 
 int64_t byn_semantics__lineIndex(bynt_span_u8 p_text, int64_t p_offset) {
     int64_t l0_line = {0};
@@ -104765,7 +104768,7 @@ break_1:;
 #line 572 "semantics/diag.byn"
     return l0_line;
 }
-#line 104769 "main.c"
+#line 104772 "main.c"
 
 int64_t byn_semantics__lineStart(bynt_span_u8 p_text, int64_t p_line) {
     int64_t l0_seen = {0};
@@ -104810,7 +104813,7 @@ break_1:;
 #line 585 "semantics/diag.byn"
     return p_text.len;
 }
-#line 104814 "main.c"
+#line 104817 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__lineSpanOf(bynt_span_u8 p_text, int64_t p_line) {
     int64_t l0_start = {0};
@@ -104855,7 +104858,7 @@ break_1:;
 #line 601 "semantics/diag.byn"
     return byn_lexer__TextSpan__fromBounds(l0_start, l1_end);
 }
-#line 104859 "main.c"
+#line 104862 "main.c"
 
 bynt_tup2_i64_i64 byn_semantics__linePosition(bynt_span_u8 p_text, int64_t p_offset) {
     int64_t l0_line = {0};
@@ -104896,13 +104899,13 @@ break_1:;
 #line 615 "semantics/diag.byn"
     return ((bynt_tup2_i64_i64){byn_add_i64(l0_line, INT64_C(1), byn_file_41, 615), l2_column});
 }
-#line 104900 "main.c"
+#line 104903 "main.c"
 
 bool byn_semantics__isContinuation(bynt_span_u8 p_bytes, int64_t p_pos, uint8_t p_lo, uint8_t p_hi) {
 #line 630 "semantics/diag.byn"
     return (((p_pos < p_bytes.len) && ((*bynh_at_span_u8(p_bytes, (int64_t)p_pos, false, byn_file_41, 630)) >= p_lo)) && ((*bynh_at_span_u8(p_bytes, (int64_t)p_pos, false, byn_file_41, 630)) <= p_hi));
 }
-#line 104906 "main.c"
+#line 104909 "main.c"
 
 bynt_semantics__Decoded byn_semantics__decodeAt(bynt_span_u8 p_bytes, int64_t p_pos) {
     uint8_t l0_b0 = {0};
@@ -104979,13 +104982,13 @@ bynt_semantics__Decoded byn_semantics__decodeAt(bynt_span_u8 p_bytes, int64_t p_
 #line 671 "semantics/diag.byn"
     return byn_semantics__invalid(INT64_C(1));
 }
-#line 104983 "main.c"
+#line 104986 "main.c"
 
 bynt_semantics__Decoded byn_semantics__invalid(int64_t p_length) {
 #line 674 "semantics/diag.byn"
     return ((bynt_semantics__Decoded){((uint32_t)65533), p_length, false});
 }
-#line 104989 "main.c"
+#line 104992 "main.c"
 
 void byn_semantics__appendUtf8(bynt_span_u8 p_bytes, byn_writer* p_sb) {
     int64_t l0_pos = {0};
@@ -105014,7 +105017,7 @@ void byn_semantics__appendUtf8(bynt_span_u8 p_bytes, byn_writer* p_sb) {
     }
 break_1:;
 }
-#line 105018 "main.c"
+#line 105021 "main.c"
 
 byn_str byn_semantics__utf8(bynt_span_u8 p_bytes) {
     byn_writer l0_sb = {0};
@@ -105035,7 +105038,7 @@ byn_str byn_semantics__utf8(bynt_span_u8 p_bytes) {
 #line 690 "semantics/diag.byn"
     return byn_strbuf_str(t1);
 }
-#line 105039 "main.c"
+#line 105042 "main.c"
 
 byn_str byn_semantics__paint(bynt_semantics__T26Symbols p_style, byn_str p_prefix, byn_str p_text, bool p_bold) {
     byn_writer t0 = {0};
@@ -105090,7 +105093,7 @@ byn_str byn_semantics__paint(bynt_semantics__T26Symbols p_style, byn_str p_prefi
 #line 698 "semantics/diag.byn"
     return t3;
 }
-#line 105094 "main.c"
+#line 105097 "main.c"
 
 bynt_list_str byn_semantics__t23Primitives(void) {
     bynt_list_str t0 = {0};
@@ -105117,7 +105120,7 @@ bynt_list_str byn_semantics__t23Primitives(void) {
 #line 77 "semantics/effects.byn"
     return t0;
 }
-#line 105121 "main.c"
+#line 105124 "main.c"
 
 bynt_list_str byn_semantics__t23Capabilities(void) {
     bynt_list_str t0 = {0};
@@ -105134,7 +105137,7 @@ bynt_list_str byn_semantics__t23Capabilities(void) {
 #line 80 "semantics/effects.byn"
     return t0;
 }
-#line 105138 "main.c"
+#line 105141 "main.c"
 
 void byn_semantics__t42AnalyzeEffects(bynt_semantics__Ctx* p_c) {
     bool l0_undone = {0};
@@ -105174,7 +105177,7 @@ void byn_semantics__t42AnalyzeEffects(bynt_semantics__Ctx* p_c) {
 #line 92 "semantics/effects.byn"
     byn_arena_free(l2_arena);
 }
-#line 105178 "main.c"
+#line 105181 "main.c"
 
 void byn_semantics__analyzeEffects(bynt_semantics__Ctx* p_c) {
     bynt_list_map_str_list_str l0_aliases = {0};
@@ -106369,7 +106372,7 @@ break_35:;
     }
 break_43:;
 }
-#line 106373 "main.c"
+#line 106376 "main.c"
 
 bynt_list_str byn_semantics__t23Visible(bynt_semantics__Ctx* p_c, bynt_semantics__T23Effects p_e, int64_t p_f) {
     int64_t l0_callee = {0};
@@ -106437,7 +106440,7 @@ bynt_list_str byn_semantics__t23Visible(bynt_semantics__Ctx* p_c, bynt_semantics
 #line 393 "semantics/effects.byn"
     return byn_semantics__t23Resolve(&(*p_c), l0_callee, l7_decl, p_e.aliases, &l8_none, false);
 }
-#line 106441 "main.c"
+#line 106444 "main.c"
 
 bool byn_semantics__t23HasUse(bynt_list_semantics__T23Use p_list, byn_str p_effect) {
     bynt_semantics__T23Use l0_u = {0};
@@ -106469,7 +106472,7 @@ break_1:;
 #line 400 "semantics/effects.byn"
     return false;
 }
-#line 106473 "main.c"
+#line 106476 "main.c"
 
 void byn_semantics__t23SortBySpan(bynt_list_semantics__T23Use* p_list) {
     int64_t l0_k = {0};
@@ -106519,7 +106522,7 @@ void byn_semantics__t23SortBySpan(bynt_list_semantics__T23Use* p_list) {
     }
 break_1:;
 }
-#line 106523 "main.c"
+#line 106526 "main.c"
 
 bynt_list_semantics__T23Passed byn_semantics__t23Passed(bynt_semantics__Ctx* p_c, int64_t p_call) {
     bynt_list_semantics__T23Passed l0_result = {0};
@@ -106581,7 +106584,7 @@ break_1:;
 #line 436 "semantics/effects.byn"
     return l0_result;
 }
-#line 106585 "main.c"
+#line 106588 "main.c"
 
 bynt_list_str byn_semantics__t23PassedValues(bynt_semantics__Ctx* p_c, int64_t p_call) {
     bynt_list_str l0_result = {0};
@@ -106670,7 +106673,7 @@ break_1:;
 #line 465 "semantics/effects.byn"
     return l0_result;
 }
-#line 106674 "main.c"
+#line 106677 "main.c"
 
 bynt_list_str byn_semantics__t23PassedEffects(bynt_semantics__Ctx* p_c, bynt_semantics__T23Effects p_e, int64_t p_call) {
     bynt_list_str l0_result = {0};
@@ -106746,13 +106749,13 @@ break_5:;
 #line 479 "semantics/effects.byn"
     return l0_result;
 }
-#line 106750 "main.c"
+#line 106753 "main.c"
 
 bool byn_semantics__t23IsCheck(bynt_semantics__Ctx* p_c, int64_t p_fn, bynt_semantics__T23Decl p_decl) {
 #line 485 "semantics/effects.byn"
     return ((byn_str_eq((*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_fn, false, byn_file_42, 485)).name, BYN_STR("requires", 8)) && (!((*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_fn, false, byn_file_42, 485)).owner == INT64_C(-1)))) && (!p_decl.found));
 }
-#line 106756 "main.c"
+#line 106759 "main.c"
 
 bynt_semantics__T23Set byn_semantics__t23Declared(bynt_semantics__Ctx* p_c, int64_t p_fn, bynt_list_map_str_list_str p_aliases, bynt_list_str* p_reported) {
     bynt_semantics__T23Decl l0_decl = {0};
@@ -106826,7 +106829,7 @@ bynt_semantics__T23Set byn_semantics__t23Declared(bynt_semantics__Ctx* p_c, int6
 #line 513 "semantics/effects.byn"
     return ((bynt_semantics__T23Set){false, ((bynt_list_str){NULL, 0, 0, byn_context})});
 }
-#line 106830 "main.c"
+#line 106833 "main.c"
 
 bynt_list_str byn_semantics__t23Resolve(bynt_semantics__Ctx* p_c, int64_t p_fn, bynt_semantics__T23Decl p_decl, bynt_list_map_str_list_str p_aliases, bynt_list_str* p_reported, bool p_track) {
     bool l0_doReport = {0};
@@ -106931,7 +106934,7 @@ break_1:;
 #line 550 "semantics/effects.byn"
     return l5_result;
 }
-#line 106935 "main.c"
+#line 106938 "main.c"
 
 bynt_map_str_list_str byn_semantics__t23ResolveAliases(bynt_semantics__Ctx* p_c, int64_t p_module) {
     bynt_semantics__T23Aliases l0_a = {0};
@@ -107121,7 +107124,7 @@ break_10:;
 #line 599 "semantics/effects.byn"
     return l26_resolved;
 }
-#line 107125 "main.c"
+#line 107128 "main.c"
 
 bynt_list_str byn_semantics__t23Expand(bynt_semantics__T23Aliases* p_a, bynt_semantics__Ctx* p_c, byn_str p_name) {
     int64_t l0_file = {0};
@@ -107299,13 +107302,13 @@ break_9:;
 #line 649 "semantics/effects.byn"
     return l18_distinct;
 }
-#line 107303 "main.c"
+#line 107306 "main.c"
 
 void byn_semantics__reportUnknown(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_lexer__TextSpan p_name) {
 #line 655 "semantics/effects.byn"
     (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)251), p_f, p_name, ((bynt_tup5_str_str_str_str_str){byn_semantics__t15Text((*p_c), p_f, p_name), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("not an effect or an `effect` alias of this module", 49), BYN_STR("choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console`, or a declared effect alias", 121), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 107309 "main.c"
+#line 107312 "main.c"
 
 bynt_semantics__T23Fix byn_semantics__t23DeclareFix(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_semantics__T23Decl p_decl, bynt_list_str p_effects) {
     byn_str l0_list = {0};
@@ -107378,7 +107381,7 @@ break_1:;
 #line 686 "semantics/effects.byn"
     return ((bynt_semantics__T23Fix){true, t7, byn_strbuf_str(t6)});
 }
-#line 107382 "main.c"
+#line 107385 "main.c"
 
 bynt_list_str byn_semantics__t23Builtin(byn_semantics_BuiltinFunction p_f) {
     bynt_list_str t0 = {0};
@@ -107482,7 +107485,7 @@ bynt_list_str byn_semantics__t23Builtin(byn_semantics_BuiltinFunction p_f) {
 #line 724 "semantics/effects.byn"
     return ((bynt_list_str){NULL, 0, 0, byn_context});
 }
-#line 107486 "main.c"
+#line 107489 "main.c"
 
 bynt_list_str byn_semantics__t23Member(byn_semantics_BuiltinMember p_m) {
     bynt_list_str t0 = {0};
@@ -107520,7 +107523,7 @@ bynt_list_str byn_semantics__t23Member(byn_semantics_BuiltinMember p_m) {
 #line 748 "semantics/effects.byn"
     return ((bynt_list_str){NULL, 0, 0, byn_context});
 }
-#line 107524 "main.c"
+#line 107527 "main.c"
 
 bynt_list_i64 byn_semantics__propagated(bynt_semantics__Ctx* p_c, int64_t p_body) {
     bynt_list_i64 l0_sets = {0};
@@ -107700,7 +107703,7 @@ break_10:;
 #line 791 "semantics/effects.byn"
     return l20_distinct;
 }
-#line 107704 "main.c"
+#line 107707 "main.c"
 
 bynt_list_i64 byn_semantics__uncaught(bynt_semantics__Ctx* p_c, int64_t p_callee, int64_t p_caught) {
     bynt_list_i64 l0_result = {0};
@@ -107738,7 +107741,7 @@ break_1:;
 #line 803 "semantics/effects.byn"
     return l0_result;
 }
-#line 107742 "main.c"
+#line 107745 "main.c"
 
 bynt_semantics__T23Decl byn_semantics__t23DeclOf(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -107843,7 +107846,7 @@ switch_end_2:;
 #line 836 "semantics/effects.byn"
     return ((bynt_semantics__T23Decl){false, INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), false, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context}), INT64_C(0), INT64_C(0), INT64_C(0)});
 }
-#line 107847 "main.c"
+#line 107850 "main.c"
 
 bynt_semantics__T23Decl byn_semantics__t23FactsOf(bynt_parser__FunctionDecl p_d, int64_t p_f) {
     bynt_semantics__T23Decl l0_r = {0};
@@ -107907,7 +107910,7 @@ bynt_semantics__T23Decl byn_semantics__t23FactsOf(bynt_parser__FunctionDecl p_d,
 #line 855 "semantics/effects.byn"
     return l0_r;
 }
-#line 107911 "main.c"
+#line 107914 "main.c"
 
 int64_t byn_semantics__bindErrorNew(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, int64_t p_expected) {
     int64_t l0_callee = {0};
@@ -108017,7 +108020,7 @@ switch_end_1:;
 #line 35 "semantics/errorcases.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t13, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 108021 "main.c"
+#line 108024 "main.c"
 
 int64_t byn_semantics__bindPayload(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, int64_t p_variant) {
     int64_t l0_v = {0};
@@ -108065,7 +108068,7 @@ int64_t byn_semantics__bindPayload(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 71 "semantics/errorcases.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t7, byn_semantics__syntaxOfCall(&(*p_c), p_call));
 }
-#line 108069 "main.c"
+#line 108072 "main.c"
 
 int64_t byn_semantics__built(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_value, byn_parser_Expr p_syntax) {
     bool l0__ = {0};
@@ -108074,7 +108077,7 @@ int64_t byn_semantics__built(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p
 #line 81 "semantics/errorcases.byn"
     return p_value;
 }
-#line 108078 "main.c"
+#line 108081 "main.c"
 
 bool byn_semantics__checkPayloadGiven(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_error, byn_parser_Expr p_syntax) {
     int64_t l0_v = {0};
@@ -108149,7 +108152,7 @@ break_1:;
 #line 104 "semantics/errorcases.byn"
     return false;
 }
-#line 108153 "main.c"
+#line 108156 "main.c"
 
 int64_t byn_semantics__errorCase(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Pattern p_p, int64_t p_set, bynt_lexer__TextSpan p_name) {
     byn_str l0_text = {0};
@@ -108221,7 +108224,7 @@ break_1:;
 #line 135 "semantics/errorcases.byn"
     return byn_semantics__recordPatternSyntax(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){byn_parser__patternSpan(p_p)})), p_p);
 }
-#line 108225 "main.c"
+#line 108228 "main.c"
 
 int64_t byn_semantics__bindErrorCasePattern(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Pattern p_p, int64_t p_input, int64_t p_bound, bynt_list_parser__Pattern p_elements, bynt_opt_lexer__TextSpan p_binding) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -108462,13 +108465,13 @@ break_3:;
 #line 261 "semantics/errorcases.byn"
     return byn_semantics__recordPatternSyntax(&(*p_c), byn_semantics__addBindPattern(&(*p_c), ((bynt_semantics__BBindPattern){l0_span, p_input, INT64_C(-1)})), p_p);
 }
-#line 108466 "main.c"
+#line 108469 "main.c"
 
 int64_t byn_semantics__bindExpr(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e, int64_t p_expected) {
 #line 20 "semantics/express.byn"
     return byn_semantics__asValue(&(*p_b), &(*p_c), byn_semantics__bindExprOrType(&(*p_b), &(*p_c), p_e, p_expected), p_e);
 }
-#line 108472 "main.c"
+#line 108475 "main.c"
 
 int64_t byn_semantics__asValue(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_bound, byn_parser_Expr p_e) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -108650,7 +108653,7 @@ int64_t byn_semantics__asValue(bynt_semantics__Binder* p_b, bynt_semantics__Ctx*
     return p_bound;
 switch_end_1:;
 }
-#line 108654 "main.c"
+#line 108657 "main.c"
 
 int64_t byn_semantics__bindConverted(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e, int64_t p_target, bool p_argument) {
     int64_t l0_bound = {0};
@@ -108659,7 +108662,7 @@ int64_t byn_semantics__bindConverted(bynt_semantics__Binder* p_b, bynt_semantics
 #line 77 "semantics/express.byn"
     return byn_semantics__convert(&(*p_b), &(*p_c), l0_bound, p_target, byn_parser__exprSpan(p_e), p_argument, true);
 }
-#line 108663 "main.c"
+#line 108666 "main.c"
 
 int64_t byn_semantics__bindExprFor(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e, int64_t p_expected) {
     int64_t l0_bound = {0};
@@ -108696,13 +108699,13 @@ int64_t byn_semantics__bindExprFor(bynt_semantics__Binder* p_b, bynt_semantics__
 #line 93 "semantics/express.byn"
     return byn_semantics__asValue(&(*p_b), &(*p_c), l0_bound, p_e);
 }
-#line 108700 "main.c"
+#line 108703 "main.c"
 
 bool byn_semantics__t17Constructible(bynt_semantics__Ctx p_c, int64_t p_s) {
 #line 97 "semantics/express.byn"
     return ((((*bynh_at_list_semantics__StructSymbol(p_c.structs, (int64_t)p_s, false, byn_file_44, 97)).constructors.len > INT64_C(0)) || bynh_has_map_i64_i64(p_c.distinct, p_s)) || bynh_has_map_i64_i64(p_c.positional, byn_semantics__declKey((*bynh_at_list_semantics__StructSymbol(p_c.structs, (int64_t)p_s, false, byn_file_44, 99)).file, (*bynh_at_list_semantics__StructSymbol(p_c.structs, (int64_t)p_s, false, byn_file_44, 99)).declIndex)));
 }
-#line 108706 "main.c"
+#line 108709 "main.c"
 
 int64_t byn_semantics__bindStatementExpression(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e) {
     int64_t l0_bound = {0};
@@ -108725,7 +108728,7 @@ int64_t byn_semantics__bindStatementExpression(bynt_semantics__Binder* p_b, bynt
 #line 117 "semantics/express.byn"
     return l0_bound;
 }
-#line 108729 "main.c"
+#line 108732 "main.c"
 
 int64_t byn_semantics__convert(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_value, int64_t p_target, bynt_lexer__TextSpan p_span, bool p_argument, bool p_constrains) {
     byn_semantics_BoundKind l0_bk = {0};
@@ -109043,7 +109046,7 @@ int64_t byn_semantics__convert(bynt_semantics__Binder* p_b, bynt_semantics__Ctx*
 #line 285 "semantics/express.byn"
     return byn_semantics__t17SameSyntax(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){l2_at})), p_value);
 }
-#line 109047 "main.c"
+#line 109050 "main.c"
 
 int64_t byn_semantics__t17SameSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, int64_t p_value) {
     int64_t l0_flags = {0};
@@ -109057,7 +109060,7 @@ int64_t byn_semantics__t17SameSyntax(bynt_semantics__Ctx* p_c, int64_t p_n, int6
 #line 294 "semantics/express.byn"
     return byn_semantics__shareSyntax(&(*p_c), p_n, p_value);
 }
-#line 109061 "main.c"
+#line 109064 "main.c"
 
 int64_t byn_semantics__t17ConvertToFunction(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_value, int64_t p_target, bynt_lexer__TextSpan p_span) {
     byn_str l0_text = {0};
@@ -109641,7 +109644,7 @@ break_20:;
 #line 481 "semantics/express.byn"
     return byn_semantics__shareSyntax(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){byn_semantics__nodeSpan((*p_c), p_value)})), p_value);
 }
-#line 109645 "main.c"
+#line 109648 "main.c"
 
 void byn_semantics__t17ParameterNames(bynt_semantics__Ctx p_c, int64_t p_fn, bynt_list_str* p_names, bynt_list_opt_str* p_particles) {
     bynt_list_semantics__T12Param l0_ps = {0};
@@ -109688,7 +109691,7 @@ void byn_semantics__t17ParameterNames(bynt_semantics__Ctx p_c, int64_t p_fn, byn
     }
 break_1:;
 }
-#line 109692 "main.c"
+#line 109695 "main.c"
 
 void byn_semantics__constrain(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_value, int64_t p_target) {
     byn_semantics_BoundKind l0_vk = {0};
@@ -109737,7 +109740,7 @@ void byn_semantics__constrain(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* 
         }
     }
 }
-#line 109741 "main.c"
+#line 109744 "main.c"
 
 void byn_semantics__constrain__o1(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_value, int64_t p_other, byn_parser_Expr p_otherSyntax) {
     bynt_list_i64 l0_decls = {0};
@@ -109826,7 +109829,7 @@ void byn_semantics__constrain__o1(bynt_semantics__Binder* p_b, bynt_semantics__C
         }
     }
 }
-#line 109830 "main.c"
+#line 109833 "main.c"
 
 void byn_semantics__t17PendingDecls(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_e, bynt_list_i64* p_outDecls) {
     byn_semantics_BoundKind t0 = {0};
@@ -109871,7 +109874,7 @@ void byn_semantics__t17PendingDecls(bynt_semantics__Binder* p_b, bynt_semantics_
     return;
 switch_end_1:;
 }
-#line 109875 "main.c"
+#line 109878 "main.c"
 
 int64_t byn_semantics__findPeer(bynt_semantics__Binder* p_b, int64_t p_key) {
     int64_t l0_d = {0};
@@ -109895,7 +109898,7 @@ break_1:;
 #line 571 "semantics/express.byn"
     return l0_d;
 }
-#line 109899 "main.c"
+#line 109902 "main.c"
 
 bool byn_semantics__isPending(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_e) {
     byn_semantics_BoundKind t0 = {0};
@@ -109950,13 +109953,13 @@ bool byn_semantics__isPending(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* 
     return false;
 switch_end_1:;
 }
-#line 109954 "main.c"
+#line 109957 "main.c"
 
 bool byn_semantics__t17Untyped(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_e) {
 #line 596 "semantics/express.byn"
     return (byn_semantics__isPending(&(*p_b), &(*p_c), p_e) || byn_semantics__hasSyntax((*p_c), p_e, INT64_C(4)));
 }
-#line 109960 "main.c"
+#line 109963 "main.c"
 
 bool byn_semantics__t17ContainsUntrusted(bynt_semantics__Ctx p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -110001,7 +110004,7 @@ bool byn_semantics__t17ContainsUntrusted(bynt_semantics__Ctx p_c, int64_t p_t) {
     return false;
 switch_end_1:;
 }
-#line 110005 "main.c"
+#line 110008 "main.c"
 
 bynt_semantics__Constant byn_semantics__t17WidenConstant(bynt_semantics__Constant p_k, int64_t p_target) {
 #line 610 "semantics/express.byn"
@@ -110012,7 +110015,7 @@ bynt_semantics__Constant byn_semantics__t17WidenConstant(bynt_semantics__Constan
 #line 611 "semantics/express.byn"
     return p_k;
 }
-#line 110016 "main.c"
+#line 110019 "main.c"
 
 void byn_semantics__t17ReportMismatch(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_value, int64_t p_target, bynt_lexer__TextSpan p_span) {
     int64_t l0_vt = {0};
@@ -110102,7 +110105,7 @@ void byn_semantics__t17ReportMismatch(bynt_semantics__Binder* p_b, bynt_semantic
 #line 635 "semantics/express.byn"
     (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)53), p_span, ((bynt_tup5_str_str_str_str_str){t11, byn_semantics__typeDisplay(&(*p_c), p_target), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), l1_help, l2_hasFix, ((bynt_opt_lexer__TextSpan){true, p_span}), l3_fixReplacement);
 }
-#line 110106 "main.c"
+#line 110109 "main.c"
 
 byn_str byn_semantics__t17RangeHelp(byn_semantics_PrimitiveKind p_k) {
     bynt_semantics__TypeRange l0_r = {0};
@@ -110133,7 +110136,7 @@ byn_str byn_semantics__t17RangeHelp(byn_semantics_PrimitiveKind p_k) {
 #line 650 "semantics/express.byn"
     return byn_strbuf_str(t1);
 }
-#line 110137 "main.c"
+#line 110140 "main.c"
 
 bool byn_semantics__fits(bynt_semantics__Big p_n, byn_semantics_PrimitiveKind p_t) {
     bynt_semantics__TypeRange l0_r = {0};
@@ -110142,7 +110145,7 @@ bool byn_semantics__fits(bynt_semantics__Big p_n, byn_semantics_PrimitiveKind p_
 #line 655 "semantics/express.byn"
     return ((byn_semantics__bigCmp(p_n, l0_r.min) >= ((int32_t)0)) && (byn_semantics__bigCmp(p_n, l0_r.max) <= ((int32_t)0)));
 }
-#line 110146 "main.c"
+#line 110149 "main.c"
 
 int64_t byn_semantics__literal(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type, bynt_semantics__Constant p_value) {
     int64_t l0_lit = {0};
@@ -110153,7 +110156,7 @@ int64_t byn_semantics__literal(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_
 #line 661 "semantics/express.byn"
     return l0_lit;
 }
-#line 110157 "main.c"
+#line 110160 "main.c"
 
 int64_t byn_semantics__bindExprOrType(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e, int64_t p_expected) {
     bynt_parser__LiteralExpr* l0_l = {0};
@@ -110560,7 +110563,7 @@ int64_t byn_semantics__bindExprOrType(bynt_semantics__Binder* p_b, bynt_semantic
     return byn_semantics__recordSyntax(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){l59_span})), p_e);
 switch_end_1:;
 }
-#line 110564 "main.c"
+#line 110567 "main.c"
 
 int64_t byn_semantics__bindLiteral(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__LiteralExpr p_l, int64_t p_expected, bool p_negate, bynt_opt_lexer__TextSpan p_whole) {
     bynt_lexer__TextSpan l0_wholeSpan = {0};
@@ -110834,7 +110837,7 @@ int64_t byn_semantics__bindLiteral(bynt_semantics__Binder* p_b, bynt_semantics__
     return byn_semantics__t17FromLiteral(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_l.span})), p_l);
 switch_end_1:;
 }
-#line 110838 "main.c"
+#line 110841 "main.c"
 
 int64_t byn_semantics__t17FromLiteral(bynt_semantics__Ctx* p_c, int64_t p_n, bynt_parser__LiteralExpr p_l) {
     bool l0_untyped = {0};
@@ -110845,7 +110848,7 @@ int64_t byn_semantics__t17FromLiteral(bynt_semantics__Ctx* p_c, int64_t p_n, byn
 #line 1045 "semantics/express.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), p_n, byn_semantics__syntaxOfLiteral(&(*p_c), p_l));
 }
-#line 110849 "main.c"
+#line 110852 "main.c"
 
 int64_t byn_semantics__t17CheckedIntegerLiteral(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__LiteralExpr p_l, bynt_lexer__TextSpan p_span, bynt_semantics__Big p_value, byn_semantics_PrimitiveKind p_typeKind) {
     bynt_semantics__TypeRange l0_r = {0};
@@ -110902,13 +110905,13 @@ int64_t byn_semantics__t17CheckedIntegerLiteral(bynt_semantics__Binder* p_b, byn
 #line 1072 "semantics/express.byn"
     return byn_semantics__t17FromLiteral(&(*p_c), byn_semantics__literal(&(*p_c), p_l.span, byn_semantics__prim(p_typeKind), ((bynt_semantics__Constant){((byn_semantics_ConstantKind)0), p_value, (0.0), false, BYN_STR("", 0), ((uint32_t)0)})), p_l);
 }
-#line 110906 "main.c"
+#line 110909 "main.c"
 
 bynt_semantics__Big byn_semantics__parseInteger(byn_str p_text) {
 #line 1079 "semantics/express.byn"
     return byn_semantics__bigParse(p_text).value;
 }
-#line 110912 "main.c"
+#line 110915 "main.c"
 
 bool byn_semantics__isUntypedLiteral(byn_parser_Expr p_e) {
     bynt_parser__LiteralExpr* l0_l = {0};
@@ -110971,7 +110974,7 @@ bool byn_semantics__isUntypedLiteral(byn_parser_Expr p_e) {
     return false;
 switch_end_1:;
 }
-#line 110975 "main.c"
+#line 110978 "main.c"
 
 int64_t byn_semantics__bindName(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__NameExpr p_n) {
     int64_t l0_syntax = {0};
@@ -111379,7 +111382,7 @@ int64_t byn_semantics__bindName(bynt_semantics__Binder* p_b, bynt_semantics__Ctx
 #line 1399 "semantics/express.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_n.span})), l0_syntax);
 }
-#line 111383 "main.c"
+#line 111386 "main.c"
 
 byn_parser_TypeSyntax byn_semantics__t17CloneTypeSyntax(byn_parser_TypeSyntax p_t) {
     bynt_list_lexer__TextSpan l0_path = {0};
@@ -111697,7 +111700,7 @@ byn_parser_TypeSyntax byn_semantics__t17CloneTypeSyntax(byn_parser_TypeSyntax p_
     }
 switch_end_1:;
 }
-#line 111701 "main.c"
+#line 111704 "main.c"
 
 byn_parser_Expr byn_semantics__t17CloneSizeExpr(byn_parser_Expr p_e) {
     bynt_parser__LiteralExpr* l0_l = {0};
@@ -111732,7 +111735,7 @@ byn_parser_Expr byn_semantics__t17CloneSizeExpr(byn_parser_Expr p_e) {
     (void)byn_panic_str(BYN_STR("internal error: an array size is a literal or a name", 52), byn_file_44, 1515);
 switch_end_1:;
 }
-#line 111736 "main.c"
+#line 111739 "main.c"
 
 void byn_semantics__t17ReportUndefined(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_nameSpan) {
     byn_str l0_nameText = {0};
@@ -112033,7 +112036,7 @@ break_17:;
         (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)3), p_nameSpan, ((bynt_tup5_str_str_str_str_str){l0_nameText, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("", 0), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 112037 "main.c"
+#line 112040 "main.c"
 
 bynt_opt_str byn_semantics__suggest(byn_str p_name, bynt_list_str p_candidates) {
     bynt_opt_str l0_best = {0};
@@ -112129,7 +112132,7 @@ break_3:;
 #line 1596 "semantics/express.byn"
     return ((bynt_opt_str){0});
 }
-#line 112133 "main.c"
+#line 112136 "main.c"
 
 int64_t byn_semantics__t17Distance(byn_str p_a, byn_str p_b) {
     bynt_list_u16 l0_aBytes = {0};
@@ -112291,7 +112294,7 @@ break_7:;
 #line 1635 "semantics/express.byn"
     return (*bynh_at_list_i64(l10_prev, (int64_t)l9_bLen, false, byn_file_44, 1635));
 }
-#line 112295 "main.c"
+#line 112298 "main.c"
 
 double byn_semantics__t17LiteralToF64(byn_str p_text, bool p_negate) {
     bynt_span_u8 l0_b = {0};
@@ -112516,7 +112519,7 @@ break_9:;
 #line 1693 "semantics/express.byn"
     return (p_negate ? (-l28_d) : l28_d);
 }
-#line 112520 "main.c"
+#line 112523 "main.c"
 
 byn_str byn_semantics__t18Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -112544,7 +112547,7 @@ byn_str byn_semantics__t18Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer_
 #line 30 "semantics/express2.byn"
     return t2;
 }
-#line 112548 "main.c"
+#line 112551 "main.c"
 
 bool byn_semantics__t18ContainsBraces(byn_str p_text) {
     uint8_t l0_b = {0};
@@ -112576,13 +112579,13 @@ break_1:;
 #line 36 "semantics/express2.byn"
     return false;
 }
-#line 112580 "main.c"
+#line 112583 "main.c"
 
 int64_t byn_semantics__constantRef(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_k) {
 #line 42 "semantics/express2.byn"
     return byn_semantics__t21ConstantRef(&(*p_b), &(*p_c), p_span, p_k, INT64_C(-1));
 }
-#line 112586 "main.c"
+#line 112589 "main.c"
 
 int64_t byn_semantics__t21ConstantRef(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_k, int64_t p_syntax) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -112604,13 +112607,13 @@ int64_t byn_semantics__t21ConstantRef(bynt_semantics__Binder* p_b, bynt_semantic
 #line 57 "semantics/express2.byn"
     return byn_semantics__t21ConstantLiteral(&(*p_c), p_span, (*bynh_at_list_semantics__ConstSymbol((*p_c).consts, (int64_t)p_k, false, byn_file_45, 57)).type, l1_value, p_syntax);
 }
-#line 112608 "main.c"
+#line 112611 "main.c"
 
 int64_t byn_semantics__constantLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type, bynt_semantics__Constant p_value) {
 #line 61 "semantics/express2.byn"
     return byn_semantics__t21ConstantLiteral(&(*p_c), p_span, p_type, p_value, INT64_C(-1));
 }
-#line 112614 "main.c"
+#line 112617 "main.c"
 
 int64_t byn_semantics__t21ConstantLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type, bynt_semantics__Constant p_value, int64_t p_syntax) {
     int64_t l0_sLit = {0};
@@ -112631,7 +112634,7 @@ int64_t byn_semantics__t21ConstantLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__
 #line 72 "semantics/express2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), l1_lit, p_syntax);
 }
-#line 112635 "main.c"
+#line 112638 "main.c"
 
 bynt_semantics__MemberRef byn_semantics__lookupMember(bynt_semantics__Ctx* p_c, int64_t p_t, byn_str p_name) {
     byn_semantics_TypeKind l0_tk = {0};
@@ -112710,7 +112713,7 @@ bynt_semantics__MemberRef byn_semantics__lookupMember(bynt_semantics__Ctx* p_c, 
 #line 94 "semantics/express2.byn"
     return ((bynt_semantics__MemberRef){((byn_semantics_MemberRefKind)0), INT64_C(-1)});
 }
-#line 112714 "main.c"
+#line 112717 "main.c"
 
 int64_t byn_semantics__bindImplicitThisMember(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__NameExpr p_n, bynt_semantics__MemberRef p_member) {
     int64_t l0_syntax = {0};
@@ -112792,7 +112795,7 @@ int64_t byn_semantics__bindImplicitThisMember(bynt_semantics__Binder* p_b, bynt_
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_n.span})), l0_syntax);
 switch_end_1:;
 }
-#line 112796 "main.c"
+#line 112799 "main.c"
 
 int64_t byn_semantics__bindMember(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__MemberExpr p_m) {
     int64_t l0_syntax = {0};
@@ -113552,7 +113555,7 @@ int64_t byn_semantics__bindMember(bynt_semantics__Binder* p_b, bynt_semantics__C
 #line 644 "semantics/express2.byn"
     return byn_semantics__t21BindValueMember(&(*p_b), &(*p_c), p_m.span, l1_target, p_m.member, l0_syntax);
 }
-#line 113556 "main.c"
+#line 113559 "main.c"
 
 int64_t byn_semantics__t18BindVariant(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_syntaxSpan, bynt_lexer__TextSpan p_memberSpan, int64_t p_u, int64_t p_syntax) {
     byn_str l0_name = {0};
@@ -113629,7 +113632,7 @@ break_1:;
 #line 692 "semantics/express2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_syntaxSpan})), p_syntax);
 }
-#line 113633 "main.c"
+#line 113636 "main.c"
 
 int64_t byn_semantics__t18BindEnumStatic(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__MemberExpr p_m, int64_t p_e, int64_t p_syntax) {
     byn_str l0_name = {0};
@@ -113749,7 +113752,7 @@ break_2:;
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_m.span})), p_syntax);
 switch_end_1:;
 }
-#line 113753 "main.c"
+#line 113756 "main.c"
 
 int64_t byn_semantics__t18BindModuleMember(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__MemberExpr p_m, int64_t p_mod, int64_t p_syntax) {
     byn_str l0_name = {0};
@@ -113815,7 +113818,7 @@ int64_t byn_semantics__t18BindModuleMember(bynt_semantics__Binder* p_b, bynt_sem
 #line 827 "semantics/express2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_m.span})), p_syntax);
 }
-#line 113819 "main.c"
+#line 113822 "main.c"
 
 void byn_semantics__checkAccess(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_semantics_Accessibility p_access, int64_t p_owner, int64_t p_module, bynt_lexer__TextSpan p_name, bool p_publicRequired) {
     int64_t l0_currModule = {0};
@@ -113907,13 +113910,13 @@ void byn_semantics__checkAccess(bynt_semantics__Binder* p_b, bynt_semantics__Ctx
     }
 switch_end_1:;
 }
-#line 113911 "main.c"
+#line 113914 "main.c"
 
 int64_t byn_semantics__bindValueMember(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_target, bynt_lexer__TextSpan p_member) {
 #line 893 "semantics/express2.byn"
     return byn_semantics__t21BindValueMember(&(*p_b), &(*p_c), p_span, p_target, p_member, INT64_C(-1));
 }
-#line 113917 "main.c"
+#line 113920 "main.c"
 
 int64_t byn_semantics__t21BindValueMember(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_target, bynt_lexer__TextSpan p_member, int64_t p_syntax) {
     byn_str l0_name = {0};
@@ -114585,7 +114588,7 @@ int64_t byn_semantics__t21BindValueMember(bynt_semantics__Binder* p_b, bynt_sema
 #line 1315 "semantics/express2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_span})), p_syntax);
 }
-#line 114589 "main.c"
+#line 114592 "main.c"
 
 int64_t byn_semantics__t18BindInterfaceMember(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_syntaxSpan, int64_t p_target, int64_t p_m, bynt_lexer__TextSpan p_memberSpan, int64_t p_syntax) {
     int64_t l0_returnType = {0};
@@ -114606,7 +114609,7 @@ int64_t byn_semantics__t18BindInterfaceMember(bynt_semantics__Binder* p_b, bynt_
 #line 1357 "semantics/express2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addMethodGroup(&(*p_c), ((bynt_semantics__BMethodGroup){p_syntaxSpan, p_target, p_m, ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context})})), p_syntax);
 }
-#line 114610 "main.c"
+#line 114613 "main.c"
 
 int64_t byn_semantics__returnTypeThrough(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_receiver, int64_t p_m) {
     int64_t l0_tp = {0};
@@ -114675,7 +114678,7 @@ int64_t byn_semantics__returnTypeThrough(bynt_semantics__Binder* p_b, bynt_seman
 #line 1393 "semantics/express2.byn"
     return (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_m, false, byn_file_45, 1394)).returnType;
 }
-#line 114679 "main.c"
+#line 114682 "main.c"
 
 bool byn_semantics__reportRenamed(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_type, bynt_lexer__TextSpan p_member) {
     byn_str l0_name = {0};
@@ -114853,7 +114856,7 @@ bool byn_semantics__reportRenamed(bynt_semantics__Binder* p_b, bynt_semantics__C
 #line 1464 "semantics/express2.byn"
     return true;
 }
-#line 114857 "main.c"
+#line 114860 "main.c"
 
 bynt_opt_semantics__RenamedResult byn_semantics__t18RenamedCall(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_type, bynt_lexer__TextSpan p_memberSpan) {
     byn_str l0_name = {0};
@@ -115109,7 +115112,7 @@ bynt_opt_semantics__RenamedResult byn_semantics__t18RenamedCall(bynt_semantics__
 #line 1612 "semantics/express2.byn"
     return ((bynt_opt_semantics__RenamedResult){0});
 }
-#line 115113 "main.c"
+#line 115116 "main.c"
 
 bynt_opt_str byn_semantics__memberSuggestion(bynt_semantics__Ctx* p_c, int64_t p_type, byn_str p_name) {
     bynt_list_str l0_candidates = {0};
@@ -115298,7 +115301,7 @@ bynt_opt_str byn_semantics__memberSuggestion(bynt_semantics__Ctx* p_c, int64_t p
 #line 1646 "semantics/express2.byn"
     return ((bynt_opt_str){0});
 }
-#line 115302 "main.c"
+#line 115305 "main.c"
 
 int64_t byn_semantics__bindTargetMember(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__TargetMemberExpr p_t, int64_t p_expected) {
     int64_t l0_syntax = {0};
@@ -115654,7 +115657,7 @@ int64_t byn_semantics__bindTargetMember(bynt_semantics__Binder* p_b, bynt_semant
 #line 1809 "semantics/express2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_t.span})), l0_syntax);
 }
-#line 115658 "main.c"
+#line 115661 "main.c"
 
 int64_t byn_semantics__bindIndex(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__IndexExpr p_i) {
     int64_t l0_syntax = {0};
@@ -115879,7 +115882,7 @@ switch_end_3:;
 #line 1911 "semantics/express2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addIndex(&(*p_c), ((bynt_semantics__BIndex){p_i.span, l1_target, l21_index, l20_fromEnd, l10_element})), l0_syntax);
 }
-#line 115883 "main.c"
+#line 115886 "main.c"
 
 int64_t byn_semantics__t18BindIndexValue(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_syntax) {
     int64_t l0_index = {0};
@@ -115917,7 +115920,7 @@ int64_t byn_semantics__t18BindIndexValue(bynt_semantics__Binder* p_b, bynt_seman
 #line 1949 "semantics/express2.byn"
     return byn_semantics__convert(&(*p_b), &(*p_c), l0_index, byn_semantics__prim(((byn_semantics_PrimitiveKind)3)), l2_span, false, true);
 }
-#line 115921 "main.c"
+#line 115924 "main.c"
 
 int64_t byn_semantics__bindSlice(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__IndexExpr p_i, int64_t p_target, bynt_parser__RangeExpr p_r, int64_t p_type) {
     int64_t l0_start = {0};
@@ -116004,7 +116007,7 @@ switch_end_2:;
 #line 1990 "semantics/express2.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t12, byn_semantics__syntaxOfIndex(&(*p_c), p_i));
 }
-#line 116008 "main.c"
+#line 116011 "main.c"
 
 byn_str byn_semantics__interpolationSource(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e) {
     byn_str l0_text = {0};
@@ -116047,7 +116050,7 @@ switch_end_1:;
 #line 2018 "semantics/express2.byn"
     return byn_strbuf_str(t2);
 }
-#line 116051 "main.c"
+#line 116054 "main.c"
 
 void byn_semantics__t18ReportStringIndexer(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__IndexExpr p_i) {
     bynt_lexer__TextSpan l0_targetSpan = {0};
@@ -116117,7 +116120,7 @@ void byn_semantics__t18ReportStringIndexer(bynt_semantics__Binder* p_b, bynt_sem
 #line 2029 "semantics/express2.byn"
     (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)52), l4_diagSpan, t9, BYN_STR("strings have no indexer", 23), l6_help, true, t10, byn_strbuf_str(t8));
 }
-#line 116121 "main.c"
+#line 116124 "main.c"
 
 int64_t byn_semantics__bindUnary(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__UnaryExpr p_u, int64_t p_expected) {
     int64_t l0_flags = {0};
@@ -116287,7 +116290,7 @@ int64_t byn_semantics__bindUnary(bynt_semantics__Binder* p_b, bynt_semantics__Ct
 #line 126 "semantics/express3.byn"
     return l23_result;
 }
-#line 116291 "main.c"
+#line 116294 "main.c"
 
 byn_str byn_semantics__t19UnaryText(byn_parser_UnaryOp p_op) {
 #line 131 "semantics/express3.byn"
@@ -116322,7 +116325,7 @@ byn_str byn_semantics__t19UnaryText(byn_parser_UnaryOp p_op) {
     return BYN_STR("^", 1);
 switch_end_1:;
 }
-#line 116326 "main.c"
+#line 116329 "main.c"
 
 byn_str byn_semantics__binaryText(byn_parser_BinaryOp p_op) {
 #line 141 "semantics/express3.byn"
@@ -116502,13 +116505,13 @@ byn_str byn_semantics__binaryText(byn_parser_BinaryOp p_op) {
     }
 switch_end_1:;
 }
-#line 116506 "main.c"
+#line 116509 "main.c"
 
 bool byn_semantics__t19IsComparison(byn_parser_BinaryOp p_op) {
 #line 169 "semantics/express3.byn"
     return ((((((p_op == ((byn_parser_BinaryOp)13)) || (p_op == ((byn_parser_BinaryOp)14))) || (p_op == ((byn_parser_BinaryOp)15))) || (p_op == ((byn_parser_BinaryOp)16))) || (p_op == ((byn_parser_BinaryOp)17))) || (p_op == ((byn_parser_BinaryOp)18)));
 }
-#line 116512 "main.c"
+#line 116515 "main.c"
 
 int64_t byn_semantics__bindBinary(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__BinaryExpr p_e, int64_t p_expected) {
     bool l0_leftNull = {0};
@@ -116951,7 +116954,7 @@ switch_end_3:;
 #line 400 "semantics/express3.byn"
     return byn_semantics__fold(&(*p_b), &(*p_c), l74_bound, l21_left, l22_right, l45_common);
 }
-#line 116955 "main.c"
+#line 116958 "main.c"
 
 int64_t byn_semantics__t19Operand(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e, int64_t p_hint, bool p_arithmetic) {
     int64_t l0_bound = {0};
@@ -116965,7 +116968,7 @@ int64_t byn_semantics__t19Operand(bynt_semantics__Binder* p_b, bynt_semantics__C
 #line 407 "semantics/express3.byn"
     return byn_semantics__fact(&(*p_c), l0_bound);
 }
-#line 116969 "main.c"
+#line 116972 "main.c"
 
 int64_t byn_semantics__fact(bynt_semantics__Ctx* p_c, int64_t p_value) {
     int64_t l0_vt = {0};
@@ -116985,7 +116988,7 @@ int64_t byn_semantics__fact(bynt_semantics__Ctx* p_c, int64_t p_value) {
 #line 428 "semantics/express3.byn"
     return p_value;
 }
-#line 116989 "main.c"
+#line 116992 "main.c"
 
 bool byn_semantics__t19IsStringLiteral(byn_parser_Expr p_e) {
     bynt_parser__LiteralExpr* l0_l = {0};
@@ -117026,7 +117029,7 @@ bool byn_semantics__t19IsStringLiteral(byn_parser_Expr p_e) {
     return false;
 switch_end_1:;
 }
-#line 117030 "main.c"
+#line 117033 "main.c"
 
 bool byn_semantics__t19IsPlainStringLiteral(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e) {
     bynt_parser__LiteralExpr* l0_l = {0};
@@ -117049,7 +117052,7 @@ bool byn_semantics__t19IsPlainStringLiteral(bynt_semantics__Binder* p_b, bynt_se
     return false;
 switch_end_1:;
 }
-#line 117053 "main.c"
+#line 117056 "main.c"
 
 int64_t byn_semantics__t19TypeParameterOf(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 455 "semantics/express3.byn"
@@ -117065,7 +117068,7 @@ int64_t byn_semantics__t19TypeParameterOf(bynt_semantics__Ctx* p_c, int64_t p_t)
 #line 458 "semantics/express3.byn"
     return INT64_C(-1);
 }
-#line 117069 "main.c"
+#line 117072 "main.c"
 
 int64_t byn_semantics__t19TypeParameterOperator(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, byn_str p_op, int64_t p_tp) {
     byn_str l0_name = {0};
@@ -117091,7 +117094,7 @@ int64_t byn_semantics__t19TypeParameterOperator(bynt_semantics__Binder* p_b, byn
 #line 472 "semantics/express3.byn"
     return byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_span}));
 }
-#line 117095 "main.c"
+#line 117098 "main.c"
 
 int64_t byn_semantics__fold(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_bound, int64_t p_left, int64_t p_right, int64_t p_operandType) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -117149,7 +117152,7 @@ int64_t byn_semantics__fold(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_
 #line 507 "semantics/express3.byn"
     return p_bound;
 }
-#line 117153 "main.c"
+#line 117156 "main.c"
 
 bool byn_semantics__t19IsBareCase(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_operand = {0};
@@ -117168,7 +117171,7 @@ bool byn_semantics__t19IsBareCase(bynt_semantics__Ctx p_c, int64_t p_e) {
 #line 516 "semantics/express3.byn"
     return false;
 }
-#line 117172 "main.c"
+#line 117175 "main.c"
 
 bool byn_semantics__operatorApplies(bynt_semantics__Ctx* p_c, byn_parser_BinaryOp p_op, int64_t p_t) {
 #line 521 "semantics/express3.byn"
@@ -117210,7 +117213,7 @@ bool byn_semantics__operatorApplies(bynt_semantics__Ctx* p_c, byn_parser_BinaryO
     return false;
 switch_end_1:;
 }
-#line 117214 "main.c"
+#line 117217 "main.c"
 
 bool byn_semantics__isEquatable(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_i64 l0_seen = {0};
@@ -117219,7 +117222,7 @@ bool byn_semantics__isEquatable(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 538 "semantics/express3.byn"
     return byn_semantics__t19IsEquatable(&(*p_c), p_t, &l0_seen);
 }
-#line 117223 "main.c"
+#line 117226 "main.c"
 
 bool byn_semantics__t19IsEquatable(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i64* p_seen) {
     int64_t l0_i = {0};
@@ -117525,7 +117528,7 @@ bool byn_semantics__t19IsEquatable(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_l
     return false;
 switch_end_1:;
 }
-#line 117529 "main.c"
+#line 117532 "main.c"
 
 int64_t byn_semantics__t19BadOperands(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__BinaryExpr p_e, int64_t p_left, int64_t p_right) {
     int64_t l0_lt = {0};
@@ -117588,7 +117591,7 @@ int64_t byn_semantics__t19BadOperands(bynt_semantics__Binder* p_b, bynt_semantic
 #line 636 "semantics/express3.byn"
     return l8_n;
 }
-#line 117592 "main.c"
+#line 117595 "main.c"
 
 int64_t byn_semantics__bindCoalesce(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__BinaryExpr p_e, int64_t p_expected) {
     int64_t l0_left = {0};
@@ -117660,7 +117663,7 @@ int64_t byn_semantics__bindCoalesce(bynt_semantics__Binder* p_b, bynt_semantics_
 #line 685 "semantics/express3.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t13, byn_semantics__syntaxOfBinary(&(*p_c), p_e));
 }
-#line 117664 "main.c"
+#line 117667 "main.c"
 
 int64_t byn_semantics__bindRange(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__RangeExpr p_r, int64_t p_expected) {
     bool l0_open = {0};
@@ -117770,7 +117773,7 @@ switch_end_2:;
 #line 753 "semantics/express3.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t18, byn_semantics__syntaxLeaf(&(*p_c), ((byn_semantics_ExprSyntaxKind)10), p_r.span));
 }
-#line 117774 "main.c"
+#line 117777 "main.c"
 
 int64_t byn_semantics__bindIn(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__InExpr p_i) {
     int64_t l0_value = {0};
@@ -117865,7 +117868,7 @@ int64_t byn_semantics__bindIn(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* 
     return byn_semantics__recordSyntaxNode(&(*p_c), t21, byn_semantics__syntaxLeaf(&(*p_c), ((byn_semantics_ExprSyntaxKind)15), p_i.span));
 switch_end_1:;
 }
-#line 117869 "main.c"
+#line 117872 "main.c"
 
 int64_t byn_semantics__bindConditional(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__ConditionalExpr p_cond, int64_t p_expected) {
     int64_t l0_condition = {0};
@@ -117971,13 +117974,13 @@ int64_t byn_semantics__bindConditional(bynt_semantics__Binder* p_b, bynt_semanti
 #line 908 "semantics/express3.byn"
     return l15_result;
 }
-#line 117975 "main.c"
+#line 117978 "main.c"
 
 int64_t byn_semantics__bindCast(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CastExpr p_cast, byn_parser_Expr p_syntax) {
 #line 912 "semantics/express3.byn"
     return byn_semantics__bindConversion(&(*p_b), &(*p_c), p_syntax, byn_semantics__resolveType(&(*p_b), &(*p_c), p_cast.type), p_cast.operand);
 }
-#line 117981 "main.c"
+#line 117984 "main.c"
 
 int64_t byn_semantics__bindConversion(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e, int64_t p_target, byn_parser_Expr p_operandSyntax) {
     bynt_lexer__TextSpan t0 = {0};
@@ -117986,7 +117989,7 @@ int64_t byn_semantics__bindConversion(bynt_semantics__Binder* p_b, bynt_semantic
 #line 929 "semantics/express3.byn"
     return byn_semantics__t21BindConversion(&(*p_b), &(*p_c), t0, p_target, p_operandSyntax, byn_semantics__syntaxNode(&(*p_c), p_e));
 }
-#line 117990 "main.c"
+#line 117993 "main.c"
 
 int64_t byn_semantics__t21BindConversion(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_target, byn_parser_Expr p_operandSyntax, int64_t p_syntax) {
     int64_t l0_operand = {0};
@@ -118057,7 +118060,7 @@ int64_t byn_semantics__t21BindConversion(bynt_semantics__Binder* p_b, bynt_seman
 #line 988 "semantics/express3.byn"
     return l7_conv;
 }
-#line 118061 "main.c"
+#line 118064 "main.c"
 
 int64_t byn_semantics__bindStructLiteral(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__StructLiteralExpr p_s, byn_parser_Expr p_syntax, int64_t p_expected) {
     int64_t l0_type = {0};
@@ -118704,7 +118707,7 @@ break_21:;
 #line 1255 "semantics/express3.byn"
     return byn_semantics__checkedValue(&(*p_b), &(*p_c), p_syntax, l84_literal, ((bynt_opt_list_i64){0}));
 }
-#line 118708 "main.c"
+#line 118711 "main.c"
 
 int64_t byn_semantics__bindWith(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__WithExpr p_w, byn_parser_Expr p_syntax) {
     int64_t l0_target = {0};
@@ -118796,7 +118799,7 @@ break_1:;
 #line 1321 "semantics/express3.byn"
     return byn_semantics__checkedValue(&(*p_b), &(*p_c), p_syntax, l12_withNode, l13_fields);
 }
-#line 118800 "main.c"
+#line 118803 "main.c"
 
 int64_t byn_semantics__bindCollection(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CollectionExpr p_coll, int64_t p_expected) {
     int64_t l0_target = {0};
@@ -118925,7 +118928,7 @@ break_5:;
 #line 59 "semantics/express4.byn"
     return byn_semantics__t35FinishCollection(&(*p_b), &(*p_c), p_coll, l0_target, l11_elements);
 }
-#line 118929 "main.c"
+#line 118932 "main.c"
 
 int64_t byn_semantics__t35ElementOf(bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -118961,13 +118964,13 @@ int64_t byn_semantics__t35ElementOf(bynt_semantics__Ctx* p_c, int64_t p_t) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 118965 "main.c"
+#line 118968 "main.c"
 
 bool byn_semantics__t35CannotInfer(int64_t p_t) {
 #line 75 "semantics/express4.byn"
     return (((byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)2)) || byn_semantics__isVoid(p_t)) || byn_semantics__isNever(p_t));
 }
-#line 118971 "main.c"
+#line 118974 "main.c"
 
 int64_t byn_semantics__t35BindUntypedCollection(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CollectionExpr p_coll) {
     int64_t l0_first = {0};
@@ -119154,7 +119157,7 @@ break_8:;
 #line 136 "semantics/express4.byn"
     return byn_semantics__t35FinishCollection(&(*p_b), &(*p_c), p_coll, l29_array, l23_elements);
 }
-#line 119158 "main.c"
+#line 119161 "main.c"
 
 int64_t byn_semantics__t35FinishCollection(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CollectionExpr p_coll, int64_t p_target, bynt_list_i64 p_elements) {
     int64_t l0_i = {0};
@@ -119371,7 +119374,7 @@ break_5:;
 #line 199 "semantics/express4.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t31, byn_semantics__syntaxLeaf(&(*p_c), ((byn_semantics_ExprSyntaxKind)27), p_coll.span));
 }
-#line 119375 "main.c"
+#line 119378 "main.c"
 
 bynt_opt_i64 byn_semantics__t35KnownLength(bynt_semantics__Ctx* p_c, bynt_list_i64 p_elements) {
     int64_t l0_n = {0};
@@ -119424,7 +119427,7 @@ break_1:;
 #line 221 "semantics/express4.byn"
     return ((bynt_opt_i64){true, l0_n});
 }
-#line 119428 "main.c"
+#line 119431 "main.c"
 
 int64_t byn_semantics__bindSpread(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__SpreadExpr p_s, int64_t p_element) {
     int64_t l0_operand = {0};
@@ -119569,7 +119572,7 @@ int64_t byn_semantics__bindSpread(bynt_semantics__Binder* p_b, bynt_semantics__C
 #line 288 "semantics/express4.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t20, byn_semantics__syntaxLeaf(&(*p_c), ((byn_semantics_ExprSyntaxKind)25), p_s.span));
 }
-#line 119573 "main.c"
+#line 119576 "main.c"
 
 int64_t byn_semantics__bindMapLiteral(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CollectionExpr p_coll, int64_t p_target) {
     byn_parser_Expr l0_e = {0};
@@ -119954,7 +119957,7 @@ break_19:;
 #line 449 "semantics/express4.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t56, byn_semantics__syntaxLeaf(&(*p_c), ((byn_semantics_ExprSyntaxKind)27), p_coll.span));
 }
-#line 119958 "main.c"
+#line 119961 "main.c"
 
 void byn_semantics__t35BindMapPart(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_parser_Expr p_e) {
     int64_t l0__ = {0};
@@ -119983,7 +119986,7 @@ void byn_semantics__t35BindMapPart(bynt_semantics__Binder* p_b, bynt_semantics__
     l5__ = byn_semantics__bindExpr(&(*p_b), &(*p_c), p_e, INT64_C(-1));
 switch_end_1:;
 }
-#line 119987 "main.c"
+#line 119990 "main.c"
 
 int64_t byn_semantics__bindTuple(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__TupleExpr p_t, int64_t p_expected) {
     int64_t l0_target = {0};
@@ -120221,7 +120224,7 @@ break_9:;
 #line 549 "semantics/express4.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t38, byn_semantics__syntaxLeaf(&(*p_c), ((byn_semantics_ExprSyntaxKind)28), p_t.span));
 }
-#line 120225 "main.c"
+#line 120228 "main.c"
 
 int64_t byn_semantics__bindLambda(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, bynt_list_lexer__TextSpan p_parameters, bynt_opt_parser__Expr p_body, bynt_opt_parser__BlockStmt p_block, int64_t p_expected) {
     int64_t l0_fi = {0};
@@ -120684,7 +120687,7 @@ break_18:;
 #line 711 "semantics/express4.byn"
     return byn_semantics__addLambda(&(*p_c), ((bynt_semantics__BLambda){p_span, l27_lambda, l56_captures, p_expected}));
 }
-#line 120688 "main.c"
+#line 120691 "main.c"
 
 bool byn_semantics__inLambda(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, byn_str p_name, byn_str p_reason) {
 #line 719 "semantics/express4.byn"
@@ -120697,7 +120700,7 @@ bool byn_semantics__inLambda(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p
 #line 728 "semantics/express4.byn"
     return true;
 }
-#line 120701 "main.c"
+#line 120704 "main.c"
 
 int64_t byn_semantics__t35LambdaAt(bynt_semantics__Binder p_b, int64_t p_i) {
     bynt_tup2_i64_list_i64 t0 = {0};
@@ -120714,7 +120717,7 @@ int64_t byn_semantics__t35LambdaAt(bynt_semantics__Binder p_b, int64_t p_i) {
     }
 switch_end_1:;
 }
-#line 120718 "main.c"
+#line 120721 "main.c"
 
 bool byn_semantics__capture(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__NameExpr p_n, int64_t p_local, int64_t p_type) {
     bynt_opt_str l0_reason = {0};
@@ -120893,7 +120896,7 @@ break_2:;
 #line 796 "semantics/express4.byn"
     return true;
 }
-#line 120897 "main.c"
+#line 120900 "main.c"
 
 int64_t byn_semantics__bindStackalloc(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__StackallocExpr p_s) {
     int64_t l0_element = {0};
@@ -120948,7 +120951,7 @@ int64_t byn_semantics__bindStackalloc(bynt_semantics__Binder* p_b, bynt_semantic
 #line 841 "semantics/express4.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t9, byn_semantics__syntaxLeaf(&(*p_c), ((byn_semantics_ExprSyntaxKind)31), p_s.span));
 }
-#line 120952 "main.c"
+#line 120955 "main.c"
 
 bynt_opt_str byn_semantics__t35TargetMember(bynt_semantics__Ctx p_c, int64_t p_f, byn_parser_Expr p_e) {
     bynt_parser__TargetMemberExpr* l0_tm = {0};
@@ -120963,7 +120966,7 @@ bynt_opt_str byn_semantics__t35TargetMember(bynt_semantics__Ctx p_c, int64_t p_f
     return ((bynt_opt_str){0});
 switch_end_1:;
 }
-#line 120967 "main.c"
+#line 120970 "main.c"
 
 int64_t byn_semantics__bindInterpolated(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__InterpolatedExpr p_i) {
     bynt_list_semantics__BInterpolationPart l0_parts = {0};
@@ -121103,7 +121106,7 @@ break_1:;
 #line 914 "semantics/express4.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), t21, byn_semantics__syntaxLeaf(&(*p_c), ((byn_semantics_ExprSyntaxKind)1), p_i.span));
 }
-#line 121107 "main.c"
+#line 121110 "main.c"
 
 bynt_semantics__BFormatSpec byn_semantics__bindFormatSpec(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_list_parser__Argument p_specs, int64_t p_type) {
     bynt_semantics__BFormatSpec l0_spec = {0};
@@ -121332,7 +121335,7 @@ break_1:;
 #line 1038 "semantics/express4.byn"
     return l0_spec;
 }
-#line 121336 "main.c"
+#line 121339 "main.c"
 
 bool byn_semantics__isFormattable(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_i64 l0_seen = {0};
@@ -121344,7 +121347,7 @@ bool byn_semantics__isFormattable(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 1044 "semantics/express4.byn"
     return (!t1.has);
 }
-#line 121348 "main.c"
+#line 121351 "main.c"
 
 bynt_opt_str byn_semantics__whyNotFormattable(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i64* p_seen) {
     int64_t l0_i = {0};
@@ -121660,7 +121663,7 @@ bynt_opt_str byn_semantics__whyNotFormattable(bynt_semantics__Ctx* p_c, int64_t 
     return ((bynt_opt_str){true, BYN_STR("", 0)});
 switch_end_1:;
 }
-#line 121664 "main.c"
+#line 121667 "main.c"
 
 bynt_opt_str byn_semantics__t35WhyNotDebugFormattable(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i64* p_seen) {
     bynt_list_i64 l0_fields = {0};
@@ -121760,7 +121763,7 @@ bynt_opt_str byn_semantics__t35WhyNotDebugFormattable(bynt_semantics__Ctx* p_c, 
 #line 1124 "semantics/express4.byn"
     return byn_semantics__whyNotFormattable(&(*p_c), p_t, &(*p_seen));
 }
-#line 121764 "main.c"
+#line 121767 "main.c"
 
 bynt_opt_str byn_semantics__t35Part(bynt_semantics__Ctx* p_c, byn_str p_name, int64_t p_part, bynt_list_i64* p_seen) {
     bynt_opt_str t0 = {0};
@@ -121797,7 +121800,7 @@ bynt_opt_str byn_semantics__t35Part(bynt_semantics__Ctx* p_c, byn_str p_name, in
 #line 1132 "semantics/express4.byn"
     return ((bynt_opt_str){0});
 }
-#line 121801 "main.c"
+#line 121804 "main.c"
 
 int64_t byn_semantics__propertyType(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_semantics_BuiltinMember p_member, int64_t p_type) {
 #line 1138 "semantics/express4.byn"
@@ -121818,7 +121821,7 @@ int64_t byn_semantics__propertyType(bynt_semantics__Binder* p_b, bynt_semantics_
     return p_type;
 switch_end_1:;
 }
-#line 121822 "main.c"
+#line 121825 "main.c"
 
 bool byn_semantics__t35HasFormatInto(bynt_semantics__Ctx* p_c, int64_t p_s) {
     bynt_list_i64 l0_methods = {0};
@@ -121879,7 +121882,7 @@ break_3:;
 #line 1161 "semantics/express4.byn"
     return false;
 }
-#line 121883 "main.c"
+#line 121886 "main.c"
 
 bool byn_semantics__t35TakesFormatSpec(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_i64 l0_methods = {0};
@@ -121942,7 +121945,7 @@ break_3:;
 #line 1183 "semantics/express4.byn"
     return false;
 }
-#line 121946 "main.c"
+#line 121949 "main.c"
 
 int64_t byn_semantics__host(bynt_semantics__Binder p_b, bynt_semantics__Ctx p_c) {
     int64_t l0_fn = {0};
@@ -121966,7 +121969,7 @@ break_1:;
 #line 1193 "semantics/express4.byn"
     return l0_fn;
 }
-#line 121970 "main.c"
+#line 121973 "main.c"
 
 void byn_semantics__analyzeFlow(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     bynt_semantics__Flow l0_f = {0};
@@ -121980,7 +121983,7 @@ void byn_semantics__analyzeFlow(bynt_semantics__Ctx* p_c, int64_t p_fn) {
 #line 33 "semantics/flow.byn"
     (void)byn_semantics__t23Run(&l0_f, &(*p_c));
 }
-#line 121984 "main.c"
+#line 121987 "main.c"
 
 bynt_semantics__FlowState byn_semantics__t23Clone(bynt_semantics__FlowState p_s) {
     bynt_list_i64 l0_a = {0};
@@ -122012,13 +122015,13 @@ break_1:;
 #line 41 "semantics/flow.byn"
     return ((bynt_semantics__FlowState){p_s.reachable, l0_a, p_s.became});
 }
-#line 122016 "main.c"
+#line 122019 "main.c"
 
 bynt_semantics__FlowState byn_semantics__t23Unreachable(void) {
 #line 44 "semantics/flow.byn"
     return ((bynt_semantics__FlowState){false, ((bynt_list_i64){NULL, 0, 0, byn_context}), false});
 }
-#line 122022 "main.c"
+#line 122025 "main.c"
 
 bynt_semantics__FlowState byn_semantics__t23Join(bynt_semantics__FlowState p_s, bynt_semantics__FlowState p_other) {
     bynt_semantics__FlowState l0_r = {0};
@@ -122073,7 +122076,7 @@ break_1:;
 #line 59 "semantics/flow.byn"
     return l0_r;
 }
-#line 122077 "main.c"
+#line 122080 "main.c"
 
 void byn_semantics__t23Assign(bynt_semantics__FlowState* p_s, int64_t p_l) {
 #line 63 "semantics/flow.byn"
@@ -122082,7 +122085,7 @@ void byn_semantics__t23Assign(bynt_semantics__FlowState* p_s, int64_t p_l) {
         (void)bynh_add_list_i64(&(*p_s).assigned, p_l);
     }
 }
-#line 122086 "main.c"
+#line 122089 "main.c"
 
 void byn_semantics__t23Run(bynt_semantics__Flow* p_f, bynt_semantics__Ctx* p_c) {
     int64_t l0_fn = {0};
@@ -122161,7 +122164,7 @@ break_1:;
 #line 107 "semantics/flow.byn"
     (void)byn_semantics__t23CheckBecame(&(*p_f), &(*p_c), l6_end, l8_closing);
 }
-#line 122165 "main.c"
+#line 122168 "main.c"
 
 void byn_semantics__t23Track(bynt_semantics__Flow* p_f, int64_t p_l) {
 #line 111 "semantics/flow.byn"
@@ -122170,7 +122173,7 @@ void byn_semantics__t23Track(bynt_semantics__Flow* p_f, int64_t p_l) {
         (void)bynh_add_list_i64(&(*p_f).tracked, p_l);
     }
 }
-#line 122174 "main.c"
+#line 122177 "main.c"
 
 void byn_semantics__t23CheckOutAssigned(bynt_semantics__Flow* p_f, bynt_semantics__Ctx* p_c, bynt_semantics__FlowState p_state, bynt_lexer__TextSpan p_span) {
     int64_t l0_fn = {0};
@@ -122221,7 +122224,7 @@ void byn_semantics__t23CheckOutAssigned(bynt_semantics__Flow* p_f, bynt_semantic
     }
 break_1:;
 }
-#line 122225 "main.c"
+#line 122228 "main.c"
 
 void byn_semantics__t23CheckBecame(bynt_semantics__Flow* p_f, bynt_semantics__Ctx* p_c, bynt_semantics__FlowState p_state, bynt_lexer__TextSpan p_span) {
     int64_t l0_fn = {0};
@@ -122281,7 +122284,7 @@ void byn_semantics__t23CheckBecame(bynt_semantics__Flow* p_f, bynt_semantics__Ct
 #line 139 "semantics/flow.byn"
     (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)266), (*p_f).file, p_span, t7, BYN_STR("", 0), byn_strbuf_str(t6), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 122285 "main.c"
+#line 122288 "main.c"
 
 bynt_semantics__FlowState byn_semantics__t23Block(bynt_semantics__Flow* p_f, bynt_semantics__Ctx* p_c, bynt_list_i64 p_statements, bynt_semantics__FlowState p_start) {
     bynt_semantics__FlowState l0_state = {0};
@@ -122326,7 +122329,7 @@ break_1:;
 #line 164 "semantics/flow.byn"
     return l0_state;
 }
-#line 122330 "main.c"
+#line 122333 "main.c"
 
 bynt_opt_bool byn_semantics__t23ConstantBool(bynt_semantics__Ctx p_c, int64_t p_e) {
     bynt_semantics__Constant l0_k = {0};
@@ -122352,7 +122355,7 @@ bynt_opt_bool byn_semantics__t23ConstantBool(bynt_semantics__Ctx p_c, int64_t p_
 #line 171 "semantics/flow.byn"
     return ((bynt_opt_bool){true, l0_k.flag});
 }
-#line 122356 "main.c"
+#line 122359 "main.c"
 
 bynt_semantics__FlowState byn_semantics__t23Statement(bynt_semantics__Flow* p_f, bynt_semantics__Ctx* p_c, int64_t p_s, bynt_semantics__FlowState p_start) {
     bynt_semantics__FlowState l0_state = {0};
@@ -122827,7 +122830,7 @@ bynt_semantics__FlowState byn_semantics__t23Statement(bynt_semantics__Flow* p_f,
     return l0_state;
 switch_end_1:;
 }
-#line 122831 "main.c"
+#line 122834 "main.c"
 
 bool byn_semantics__t23IsBecomeSyntax(bynt_semantics__Ctx* p_c, int64_t p_file, bynt_lexer__TextSpan p_span) {
     bynt_span_u8 l0_text = {0};
@@ -122890,7 +122893,7 @@ break_1:;
 #line 333 "semantics/flow.byn"
     return (!l9_letter);
 }
-#line 122894 "main.c"
+#line 122897 "main.c"
 
 void byn_semantics__t23Merge(bynt_map_i64_semantics__FlowState* p_map, int64_t p_target, bynt_semantics__FlowState p_state) {
     bynt_semantics__FlowState l0_joined = {0};
@@ -122913,7 +122916,7 @@ void byn_semantics__t23Merge(bynt_map_i64_semantics__FlowState* p_map, int64_t p
         (*bynh_slot_map_i64_semantics__FlowState(&(*p_map), p_target, ((bynt_semantics__FlowState){0}))) = t1;
     }
 }
-#line 122917 "main.c"
+#line 122920 "main.c"
 
 bynt_semantics__FlowState byn_semantics__t23Exit(bynt_semantics__Flow* p_f, int64_t p_target, bynt_semantics__FlowState p_after) {
     bool l0__ = {0};
@@ -122933,13 +122936,13 @@ bynt_semantics__FlowState byn_semantics__t23Exit(bynt_semantics__Flow* p_f, int6
 #line 353 "semantics/flow.byn"
     return p_after;
 }
-#line 122937 "main.c"
+#line 122940 "main.c"
 
 bool byn_semantics__t23IsNeverBlock(bynt_semantics__Ctx p_c, int64_t p_e) {
 #line 359 "semantics/flow.byn"
     return ((byn_semantics__boundKind(p_e) == ((byn_semantics_BoundKind)31)) && byn_semantics__isNever((*bynh_at_list_semantics__BBlockExpr(p_c.bBlockExprs, (int64_t)byn_semantics__boundIndex(p_e), false, byn_file_48, 359)).type));
 }
-#line 122943 "main.c"
+#line 122946 "main.c"
 
 bynt_semantics__FlowState byn_semantics__t23Expr(bynt_semantics__Flow* p_f, bynt_semantics__Ctx* p_c, int64_t p_e, bynt_semantics__FlowState p_start) {
     bynt_semantics__FlowState l0_state = {0};
@@ -123433,7 +123436,7 @@ bynt_semantics__FlowState byn_semantics__t23Expr(bynt_semantics__Flow* p_f, bynt
     return byn_semantics__t23Default(&(*p_f), &(*p_c), p_e, l0_state);
 switch_end_1:;
 }
-#line 123437 "main.c"
+#line 123440 "main.c"
 
 bynt_semantics__FlowState byn_semantics__t23Default(bynt_semantics__Flow* p_f, bynt_semantics__Ctx* p_c, int64_t p_e, bynt_semantics__FlowState p_start) {
     bynt_semantics__FlowState l0_state = {0};
@@ -123474,7 +123477,7 @@ break_1:;
 #line 545 "semantics/flow.byn"
     return ((byn_semantics__isNever(byn_semantics__exprType((*p_c), p_e)) && (!(byn_semantics__boundKind(p_e) == ((byn_semantics_BoundKind)38)))) ? byn_semantics__t23Unreachable() : l0_state);
 }
-#line 123478 "main.c"
+#line 123481 "main.c"
 
 void byn_semantics__t23CheckPropagation(bynt_semantics__Flow* p_f, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_operand, int64_t p_caught) {
     int64_t l0_callee = {0};
@@ -123714,7 +123717,7 @@ break_3:;
     }
 break_7:;
 }
-#line 123718 "main.c"
+#line 123721 "main.c"
 
 byn_str byn_semantics__t23JoinText(bynt_list_str p_parts, byn_str p_separator) {
     byn_writer l0_sb = {0};
@@ -123761,25 +123764,25 @@ break_1:;
 #line 620 "semantics/flow.byn"
     return byn_strbuf_str(t4);
 }
-#line 123765 "main.c"
+#line 123768 "main.c"
 
 bynt_semantics__Constant byn_semantics__t6Integer(bynt_semantics__Big p_n) {
 #line 10 "semantics/fold.byn"
     return ((bynt_semantics__Constant){((byn_semantics_ConstantKind)0), p_n, (0.0), false, BYN_STR("", 0), ((uint32_t)0)});
 }
-#line 123771 "main.c"
+#line 123774 "main.c"
 
 bynt_semantics__Constant byn_semantics__t6Real(double p_d) {
 #line 12 "semantics/fold.byn"
     return ((bynt_semantics__Constant){((byn_semantics_ConstantKind)1), ((bynt_semantics__Big){UINT64_C(0), UINT64_C(0)}), p_d, false, BYN_STR("", 0), ((uint32_t)0)});
 }
-#line 123777 "main.c"
+#line 123780 "main.c"
 
 bynt_semantics__Constant byn_semantics__t6Flag(bool p_flag) {
 #line 14 "semantics/fold.byn"
     return ((bynt_semantics__Constant){((byn_semantics_ConstantKind)2), ((bynt_semantics__Big){UINT64_C(0), UINT64_C(0)}), (0.0), p_flag, BYN_STR("", 0), ((uint32_t)0)});
 }
-#line 123783 "main.c"
+#line 123786 "main.c"
 
 bynt_semantics__Big byn_semantics__t6Wrap(bynt_semantics__Big p_n, int64_t p_type) {
     int64_t t0 = {0};
@@ -123793,7 +123796,7 @@ bynt_semantics__Big byn_semantics__t6Wrap(bynt_semantics__Big p_n, int64_t p_typ
 #line 19 "semantics/fold.byn"
     return byn_semantics__bigWrap(p_n, t0, byn_semantics__isSignedInteger(p_type));
 }
-#line 123797 "main.c"
+#line 123800 "main.c"
 
 bynt_opt_semantics__Constant byn_semantics__foldUnary(bynt_semantics__Ctx* p_c, byn_parser_UnaryOp p_op, bynt_semantics__Constant p_operand, int64_t p_type) {
 #line 24 "semantics/fold.byn"
@@ -123848,7 +123851,7 @@ bynt_opt_semantics__Constant byn_semantics__foldUnary(bynt_semantics__Ctx* p_c, 
     return ((bynt_opt_semantics__Constant){0});
 switch_end_1:;
 }
-#line 123852 "main.c"
+#line 123855 "main.c"
 
 bynt_opt_semantics__Constant byn_semantics__foldBinary(bynt_semantics__Ctx* p_c, byn_parser_BinaryOp p_op, bynt_semantics__Constant p_l, bynt_semantics__Constant p_r, int64_t p_type) {
     double l0_a = {0};
@@ -124009,7 +124012,7 @@ bynt_opt_semantics__Constant byn_semantics__foldBinary(bynt_semantics__Ctx* p_c,
     }
 switch_end_1:;
 }
-#line 124013 "main.c"
+#line 124016 "main.c"
 
 int64_t byn_semantics__t6RealOrder(double p_a, double p_b) {
 #line 88 "semantics/fold.byn"
@@ -124035,7 +124038,7 @@ int64_t byn_semantics__t6RealOrder(double p_a, double p_b) {
 #line 92 "semantics/fold.byn"
     return INT64_C(1);
 }
-#line 124039 "main.c"
+#line 124042 "main.c"
 
 bynt_opt_semantics__Constant byn_semantics__t6Compare(byn_parser_BinaryOp p_op, int64_t p_order, bool p_equal) {
 #line 97 "semantics/fold.byn"
@@ -124084,7 +124087,7 @@ bynt_opt_semantics__Constant byn_semantics__t6Compare(byn_parser_BinaryOp p_op, 
     return ((bynt_opt_semantics__Constant){0});
 switch_end_1:;
 }
-#line 124088 "main.c"
+#line 124091 "main.c"
 
 bynt_opt_semantics__Constant byn_semantics__t6IntegerOp(byn_parser_BinaryOp p_op, bynt_semantics__Big p_a, bynt_semantics__Big p_b, int64_t p_type) {
     int64_t l0_bits = {0};
@@ -124225,7 +124228,7 @@ switch_end_1:;
 #line 137 "semantics/fold.byn"
     return byn_semantics__t6Compare(p_op, t3, byn_semantics__bigEq(p_a, p_b));
 }
-#line 124229 "main.c"
+#line 124232 "main.c"
 
 bynt_opt_semantics__Constant byn_semantics__evaluate(bynt_semantics__Ctx* p_c, int64_t p_e, bynt_map_i64_semantics__Constant p_locals, bynt_map_i64_semantics__Constant p_fields) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -124481,7 +124484,7 @@ bynt_opt_semantics__Constant byn_semantics__evaluate(bynt_semantics__Ctx* p_c, i
     return ((bynt_opt_semantics__Constant){0});
 switch_end_1:;
 }
-#line 124485 "main.c"
+#line 124488 "main.c"
 
 bynt_opt_semantics__Constant byn_semantics__foldCast(bynt_semantics__Ctx* p_c, bynt_semantics__Constant p_value, int64_t p_a, int64_t p_t) {
     bynt_semantics__Big l0_n = {0};
@@ -124597,7 +124600,7 @@ switch_end_1:;
 #line 247 "semantics/fold.byn"
     return ((bynt_opt_semantics__Constant){0});
 }
-#line 124601 "main.c"
+#line 124604 "main.c"
 
 byn_str byn_semantics__t13Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -124616,7 +124619,7 @@ byn_str byn_semantics__t13Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer_
 #line 51 "semantics/generics.byn"
     return byn_strbuf_str(t0);
 }
-#line 124620 "main.c"
+#line 124623 "main.c"
 
 bynt_semantics__Diag byn_semantics__t13CloneDiag(bynt_semantics__Diag p_d) {
     bynt_list_semantics__Related l0_rel = {0};
@@ -124648,7 +124651,7 @@ break_1:;
 #line 58 "semantics/generics.byn"
     return ((bynt_semantics__Diag){p_d.code, p_d.file, p_d.span, p_d.message, p_d.label, p_d.help, p_d.isWarning, false, p_d.hasFix, p_d.fixSpan, p_d.fixReplacement, l0_rel});
 }
-#line 124652 "main.c"
+#line 124655 "main.c"
 
 void byn_semantics__t13Add(bynt_semantics__Ctx* p_c, bynt_semantics__Diag p_d) {
 #line 75 "semantics/generics.byn"
@@ -124660,7 +124663,7 @@ void byn_semantics__t13Add(bynt_semantics__Ctx* p_c, bynt_semantics__Diag p_d) {
         (void)bynh_add_list_semantics__Diag(&(*p_c).diagnostics, p_d);
     }
 }
-#line 124664 "main.c"
+#line 124667 "main.c"
 
 bool byn_semantics__t13HasErrors(bynt_semantics__Ctx p_c) {
     bynt_semantics__Diag l0_d = {0};
@@ -124692,7 +124695,7 @@ break_1:;
 #line 87 "semantics/generics.byn"
     return false;
 }
-#line 124696 "main.c"
+#line 124699 "main.c"
 
 byn_str byn_semantics__t13Key(byn_str p_kind, int64_t p_generic, bynt_list_i64 p_args) {
     byn_writer l0_sb = {0};
@@ -124749,13 +124752,13 @@ break_1:;
 #line 97 "semantics/generics.byn"
     return byn_strbuf_str(t4);
 }
-#line 124753 "main.c"
+#line 124756 "main.c"
 
 bynt_semantics__Binder byn_semantics__t13NewBinder(int64_t p_file, int64_t p_fn, int64_t p_owner) {
 #line 100 "semantics/generics.byn"
     return ((bynt_semantics__Binder){p_file, p_fn, p_owner, INT64_C(-1), INT64_C(0), ((bynt_list_map_str_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__JumpTarget){NULL, 0, 0, byn_context}), INT64_C(0), false, INT64_C(-1), false, ((bynt_list_tup2_i64_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(0), INT64_C(0), ((bynt_list_tup2_i64_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_tup2_i64_i64){NULL, 0, 0, byn_context}), ((bynt_list_tup3_i64_i64_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_map_str_i64){0}), INT64_C(-1), ((bynt_opt_i64){0}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_list_i64){NULL, 0, 0, byn_context}), INT64_C(0), INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_opt_lexer__TextSpan){0}), INT64_C(-1), false, ((bynt_opt_str){0}), ((bynt_opt_semantics__CalleeOf){0}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_list_semantics__CoveredCall){0}), false, ((bynt_list_tup3_bool_lexer__TextSpan_lexer__TextSpan){NULL, 0, 0, byn_context})});
 }
-#line 124759 "main.c"
+#line 124762 "main.c"
 
 void byn_semantics__bindAll(bynt_semantics__Ctx* p_c) {
     int64_t l0_i = {0};
@@ -125371,7 +125374,7 @@ break_35:;
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)16), (*bynh_at_list_i64((*bynh_at_list_semantics__Mod((*p_c).modules, (int64_t)(*p_c).entryModule, false, byn_file_50, 271)).files, (int64_t)INT64_C(0), false, byn_file_50, 271)), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_tup5_str_str_str_str_str){BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("", 0), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 125375 "main.c"
+#line 125378 "main.c"
 
 bynt_map_str_i64 byn_semantics__t13Substitution(bynt_semantics__Ctx p_c, bynt_opt_map_str_i64 p_outer, bynt_list_i64 p_parameters, bynt_list_i64 p_args) {
     bynt_map_str_i64 l0_map = {0};
@@ -125444,7 +125447,7 @@ break_3:;
 #line 297 "semantics/generics.byn"
     return l0_map;
 }
-#line 125448 "main.c"
+#line 125451 "main.c"
 
 bynt_semantics__InstantiatingScope byn_semantics__instantiatingBegin(bynt_semantics__Ctx* p_c, int64_t p_site, bynt_lexer__TextSpan p_span) {
     int64_t l0_outer = {0};
@@ -125470,7 +125473,7 @@ bynt_semantics__InstantiatingScope byn_semantics__instantiatingBegin(bynt_semant
 #line 319 "semantics/generics.byn"
     return l2_scope;
 }
-#line 125474 "main.c"
+#line 125477 "main.c"
 
 bool byn_semantics__t13Reported(bynt_semantics__Ctx p_c, bynt_semantics__Diag p_d) {
     bynt_semantics__Diag l0_t = {0};
@@ -125531,7 +125534,7 @@ break_3:;
 #line 332 "semantics/generics.byn"
     return false;
 }
-#line 125535 "main.c"
+#line 125538 "main.c"
 
 void byn_semantics__instantiatingEnd(bynt_semantics__Ctx* p_c, bynt_semantics__InstantiatingScope p_scope, int64_t p_instance) {
     int64_t l0_count = {0};
@@ -125663,7 +125666,7 @@ void byn_semantics__instantiatingEnd(bynt_semantics__Ctx* p_c, bynt_semantics__I
     }
 break_1:;
 }
-#line 125667 "main.c"
+#line 125670 "main.c"
 
 bool byn_semantics__t13DeclareInstance(bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_template, bynt_list_i64 p_args, bool p_check) {
     int64_t l0_file = {0};
@@ -125802,19 +125805,19 @@ switch_end_3:;
 #line 447 "semantics/generics.byn"
     return l11_satisfied;
 }
-#line 125806 "main.c"
+#line 125809 "main.c"
 
 bynt_opt_i64 byn_semantics__t13Handle(int64_t p_h) {
 #line 451 "semantics/generics.byn"
     return ((p_h == INT64_C(-1)) ? ((bynt_opt_i64){0}) : ((bynt_opt_i64){true, p_h}));
 }
-#line 125812 "main.c"
+#line 125815 "main.c"
 
 bynt_opt_i64 byn_semantics__t13FirstPass(bynt_semantics__Ctx p_c) {
 #line 454 "semantics/generics.byn"
     return byn_semantics__t13Handle(p_c.firstPass);
 }
-#line 125818 "main.c"
+#line 125821 "main.c"
 
 bool byn_semantics__t13DeclareAt(bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_template, bynt_list_i64 p_args, int64_t p_site, bynt_lexer__TextSpan p_span, bool p_check) {
     bynt_opt_i64 t0 = {0};
@@ -125877,7 +125880,7 @@ bool byn_semantics__t13DeclareAt(bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t
 #line 486 "semantics/generics.byn"
     return l9_satisfied;
 }
-#line 125881 "main.c"
+#line 125884 "main.c"
 
 int64_t byn_semantics__instantiateFunction(bynt_semantics__Ctx* p_c, int64_t p_template, bynt_list_i64 p_args, int64_t p_site, bynt_lexer__TextSpan p_span) {
     byn_str l0_key = {0};
@@ -125958,7 +125961,7 @@ break_1:;
 #line 542 "semantics/generics.byn"
     return l10_fn;
 }
-#line 125962 "main.c"
+#line 125965 "main.c"
 
 bool byn_semantics__t13CheckTypeConstraints(bynt_semantics__Ctx* p_c, int64_t p_instance) {
     byn_semantics_TypeKind l0_kind = {0};
@@ -126202,7 +126205,7 @@ switch_end_1:;
     (void)byn_panic_str(BYN_STR("internal error: a generic type without a declaration", 52), byn_file_50, 617);
 switch_end_8:;
 }
-#line 126206 "main.c"
+#line 126209 "main.c"
 
 void byn_semantics__t13RunConstraint(bynt_semantics__Ctx* p_c, bynt_semantics__Work p_work) {
     bynt_semantics__InstantiatingScope l0_scope = {0};
@@ -126214,7 +126217,7 @@ void byn_semantics__t13RunConstraint(bynt_semantics__Ctx* p_c, bynt_semantics__W
 #line 626 "semantics/generics.byn"
     (void)byn_semantics__instantiatingEnd(&(*p_c), l0_scope, INT64_C(-1));
 }
-#line 126218 "main.c"
+#line 126221 "main.c"
 
 bool byn_semantics__checkConstraints(bynt_semantics__Ctx* p_c, bynt_list_i64 p_parameters, bynt_list_parser__WhereClause p_clauses, int64_t p_file, int64_t p_owner, bynt_opt_map_str_i64 p_typeMap, bynt_list_i64 p_args) {
     bool l0_satisfied = {0};
@@ -126360,7 +126363,7 @@ break_3:;
 #line 667 "semantics/generics.byn"
     return l0_satisfied;
 }
-#line 126364 "main.c"
+#line 126367 "main.c"
 
 bool byn_semantics__t13CheckBound(bynt_semantics__Ctx* p_c, byn_parser_TypeSyntax p_bound, bynt_semantics__TypeResolver p_types, int64_t p_arg, int64_t p_file) {
     int64_t l0_quiet = {0};
@@ -126520,7 +126523,7 @@ bool byn_semantics__t13CheckBound(bynt_semantics__Ctx* p_c, byn_parser_TypeSynta
     (void)byn_panic_str(BYN_STR("internal error: a `where` bound that is not a named type", 56), byn_file_50, 710);
 switch_end_1:;
 }
-#line 126524 "main.c"
+#line 126527 "main.c"
 
 void byn_semantics__t13CheckConstraintsAt(bynt_semantics__Ctx* p_c, int64_t p_site, bynt_lexer__TextSpan p_span, bynt_list_i64 p_parameters, int64_t p_instance) {
     bool l0_any = {0};
@@ -126569,7 +126572,7 @@ break_1:;
         (void)bynh_add_list_semantics__Work(&(*p_c).pendingConstraints, l4_work);
     }
 }
-#line 126573 "main.c"
+#line 126576 "main.c"
 
 bool byn_semantics__t13Conforms(bynt_semantics__Ctx p_c, int64_t p_t, int64_t p_i) {
     byn_semantics_TypeKind t0 = {0};
@@ -126650,7 +126653,7 @@ bool byn_semantics__t13Conforms(bynt_semantics__Ctx p_c, int64_t p_t, int64_t p_
     return false;
 switch_end_1:;
 }
-#line 126654 "main.c"
+#line 126657 "main.c"
 
 byn_str byn_semantics__t13MissingMember(bynt_semantics__Ctx* p_c, int64_t p_t, int64_t p_i) {
     bynt_list_i64 l0_members = {0};
@@ -126815,7 +126818,7 @@ break_9:;
 #line 788 "semantics/generics.byn"
     return byn_strbuf_str(t19);
 }
-#line 126819 "main.c"
+#line 126822 "main.c"
 
 int64_t byn_semantics__instantiateType(bynt_semantics__Ctx* p_c, int64_t p_template, bynt_list_i64 p_args, int64_t p_site, bynt_lexer__TextSpan p_span) {
     byn_str l0_key = {0};
@@ -127103,7 +127106,7 @@ break_1:;
     }
 switch_end_3:;
 }
-#line 127107 "main.c"
+#line 127110 "main.c"
 
 int64_t byn_semantics__fieldDefault(bynt_semantics__Ctx* p_c, int64_t p_s, int64_t p_f, int64_t p_site, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -127169,7 +127172,7 @@ int64_t byn_semantics__fieldDefault(bynt_semantics__Ctx* p_c, int64_t p_s, int64
 #line 961 "semantics/generics.byn"
     return (*bynh_at_list_semantics__FieldSymbol((*p_c).fields, (int64_t)p_f, false, byn_file_50, 961)).defaultValue;
 }
-#line 127173 "main.c"
+#line 127176 "main.c"
 
 bynt_opt_i64 byn_semantics__templateOf(bynt_semantics__Ctx* p_c, int64_t p_f) {
     int64_t l0_owner = {0};
@@ -127219,7 +127222,7 @@ break_1:;
 #line 976 "semantics/generics.byn"
     return ((bynt_opt_i64){0});
 }
-#line 127223 "main.c"
+#line 127226 "main.c"
 
 void byn_semantics__t13AnalyzeInstance(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_outer = {0};
@@ -127290,7 +127293,7 @@ void byn_semantics__t13AnalyzeInstance(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     }
 break_1:;
 }
-#line 127294 "main.c"
+#line 127297 "main.c"
 
 void byn_semantics__bindConstant(bynt_semantics__Ctx* p_c, int64_t p_k) {
     int64_t t0 = {0};
@@ -127322,7 +127325,7 @@ void byn_semantics__bindConstant(bynt_semantics__Ctx* p_c, int64_t p_k) {
 #line 1017 "semantics/generics.byn"
     (*bynh_at_list_semantics__ConstSymbol((*p_c).consts, (int64_t)p_k, false, byn_file_50, 1017)).state = INT64_C(2);
 }
-#line 127326 "main.c"
+#line 127329 "main.c"
 
 int64_t byn_semantics__t13Outermost(bynt_semantics__Ctx p_c, int64_t p_f) {
     int64_t l0_o = {0};
@@ -127347,7 +127350,7 @@ break_1:;
 #line 1026 "semantics/generics.byn"
     return l0_o;
 }
-#line 127351 "main.c"
+#line 127354 "main.c"
 
 void byn_semantics__bindFunction(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_checkCount = {0};
@@ -127742,7 +127745,7 @@ break_21:;
 #line 1140 "semantics/generics.byn"
     l61__ = byn_semantics__t13BindBody(&(*p_c), p_fn, ((bynt_opt_list_tup2_i64_i64){true, l5_seeds.value}));
 }
-#line 127746 "main.c"
+#line 127749 "main.c"
 
 bynt_opt_list_tup2_i64_i64 byn_semantics__t13BindBody(bynt_semantics__Ctx* p_c, int64_t p_fn, bynt_opt_list_tup2_i64_i64 p_seeds) {
     int64_t l0_file = {0};
@@ -128025,7 +128028,7 @@ switch_end_1:;
 #line 1232 "semantics/generics.byn"
     return ((bynt_opt_list_tup2_i64_i64){0});
 }
-#line 128029 "main.c"
+#line 128032 "main.c"
 
 void byn_semantics__inferErrorSets(bynt_semantics__Ctx* p_c) {
     bynt_list_i64 l0_inferred = {0};
@@ -128243,7 +128246,7 @@ break_5:;
     }
 break_13:;
 }
-#line 128247 "main.c"
+#line 128250 "main.c"
 
 bynt_opt_i64 byn_semantics__t13Find(bynt_list_i64 p_xs, int64_t p_x) {
     int64_t l0_i = {0};
@@ -128275,7 +128278,7 @@ break_1:;
 #line 1287 "semantics/generics.byn"
     return ((bynt_opt_i64){0});
 }
-#line 128279 "main.c"
+#line 128282 "main.c"
 
 bool byn_semantics__t13Contains(bynt_list_i64 p_xs, int64_t p_x) {
     bynt_opt_i64 t0 = {0};
@@ -128284,7 +128287,7 @@ bool byn_semantics__t13Contains(bynt_list_i64 p_xs, int64_t p_x) {
 #line 1290 "semantics/generics.byn"
     return (!(!t0.has));
 }
-#line 128288 "main.c"
+#line 128291 "main.c"
 
 void byn_semantics__checkMutation(bynt_semantics__Ctx* p_c) {
     int64_t l0_i = {0};
@@ -128419,7 +128422,7 @@ break_3:;
     }
 break_5:;
 }
-#line 128423 "main.c"
+#line 128426 "main.c"
 
 void byn_semantics__checkRequires(bynt_semantics__Ctx* p_c) {
     int64_t l0_i = {0};
@@ -128661,7 +128664,7 @@ void byn_semantics__checkRequires(bynt_semantics__Ctx* p_c) {
     }
 break_1:;
 }
-#line 128665 "main.c"
+#line 128668 "main.c"
 
 int64_t byn_semantics__invokeSymbol(bynt_semantics__Ctx* p_c, int64_t p_type) {
     int64_t l0_data = {0};
@@ -128732,7 +128735,7 @@ break_1:;
 #line 1407 "semantics/generics.byn"
     return l6_invoke;
 }
-#line 128736 "main.c"
+#line 128739 "main.c"
 
 bool byn_semantics__t13SyntaxDefault(bynt_semantics__Ctx p_c, int64_t p_f, int64_t p_p) {
     int64_t l0_file = {0};
@@ -128859,7 +128862,7 @@ bool byn_semantics__t13SyntaxDefault(bynt_semantics__Ctx p_c, int64_t p_f, int64
     return false;
 switch_end_1:;
 }
-#line 128863 "main.c"
+#line 128866 "main.c"
 
 bynt_opt_i64 byn_semantics__parameterDefault(bynt_semantics__Ctx* p_c, int64_t p_f, int64_t p_p) {
     bynt_semantics__Binder l0_b = {0};
@@ -128926,7 +128929,7 @@ bynt_opt_i64 byn_semantics__parameterDefault(bynt_semantics__Ctx* p_c, int64_t p
 #line 1455 "semantics/generics.byn"
     return ((bynt_opt_i64){true, (*bynh_at_list_semantics__LocalSymbol((*p_c).locals, (int64_t)p_p, false, byn_file_50, 1455)).defaultValue});
 }
-#line 128930 "main.c"
+#line 128933 "main.c"
 
 bynt_list_i64 byn_semantics__errorSetsOf(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     byn_semantics_FunctionKind l0_kind = {0};
@@ -128940,7 +128943,7 @@ bynt_list_i64 byn_semantics__errorSetsOf(bynt_semantics__Ctx* p_c, int64_t p_fn)
 #line 1462 "semantics/generics.byn"
     return byn_semantics__copyIds((*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_fn, false, byn_file_50, 1462)).errorSets);
 }
-#line 128944 "main.c"
+#line 128947 "main.c"
 
 void byn_semantics__reportHeld(bynt_semantics__Ctx* p_c, bynt_list_semantics__Diag p_held) {
     bynt_semantics__Diag l0_d = {0};
@@ -128967,7 +128970,7 @@ void byn_semantics__reportHeld(bynt_semantics__Ctx* p_c, bynt_list_semantics__Di
     }
 break_1:;
 }
-#line 128971 "main.c"
+#line 128974 "main.c"
 
 byn_str byn_semantics__capLine(byn_str p_mark, int64_t p_omitted) {
     byn_writer t0 = {0};
@@ -128986,7 +128989,7 @@ byn_str byn_semantics__capLine(byn_str p_mark, int64_t p_omitted) {
 #line 7 "semantics/json.byn"
     return byn_strbuf_str(t0);
 }
-#line 128990 "main.c"
+#line 128993 "main.c"
 
 byn_str byn_semantics__buildFailed(byn_str p_mark, int64_t p_errors, int64_t p_warnings) {
     byn_str l0_e = {0};
@@ -129074,7 +129077,7 @@ byn_str byn_semantics__buildFailed(byn_str p_mark, int64_t p_errors, int64_t p_w
 #line 15 "semantics/json.byn"
     return byn_strbuf_str(t8);
 }
-#line 129078 "main.c"
+#line 129081 "main.c"
 
 byn_str byn_semantics__buildExplain(byn_str p_code) {
     byn_writer t0 = {0};
@@ -129091,7 +129094,7 @@ byn_str byn_semantics__buildExplain(byn_str p_code) {
 #line 19 "semantics/json.byn"
     return byn_strbuf_str(t0);
 }
-#line 129095 "main.c"
+#line 129098 "main.c"
 
 byn_str byn_semantics__checkSummary(byn_str p_mark, byn_str p_program, byn_str p_seconds) {
     byn_writer t0 = {0};
@@ -129111,7 +129114,7 @@ byn_str byn_semantics__checkSummary(byn_str p_mark, byn_str p_program, byn_str p
 #line 23 "semantics/json.byn"
     return byn_strbuf_str(t0);
 }
-#line 129115 "main.c"
+#line 129118 "main.c"
 
 byn_str byn_semantics__programName(bynt_semantics__Ctx* p_c, byn_str p_path) {
     bynt_semantics__Manifest l0_m = {0};
@@ -129137,13 +129140,13 @@ byn_str byn_semantics__programName(bynt_semantics__Ctx* p_c, byn_str p_path) {
 #line 36 "semantics/json.byn"
     return l2_name;
 }
-#line 129141 "main.c"
+#line 129144 "main.c"
 
 byn_str byn_semantics__t26FileName(byn_str p_path) {
 #line 41 "semantics/json.byn"
     return byn_path_file_name(p_path, byn_context);
 }
-#line 129147 "main.c"
+#line 129150 "main.c"
 
 byn_str byn_semantics__t26FileNameWithoutExtension(byn_str p_path) {
     byn_str l0_name = {0};
@@ -129191,7 +129194,7 @@ break_1:;
 #line 56 "semantics/json.byn"
     return bynh_slice_str(l0_name, (int64_t)INT64_C(0), 0, (int64_t)l1_dot, 0, false, byn_file_51, 56);
 }
-#line 129195 "main.c"
+#line 129198 "main.c"
 
 byn_str byn_semantics__t26TrimEndSlash(byn_str p_path) {
     uint8_t l0_separator = {0};
@@ -129215,7 +129218,7 @@ break_1:;
 #line 67 "semantics/json.byn"
     return bynh_slice_str(p_path, (int64_t)INT64_C(0), 0, (int64_t)l1_end, 0, false, byn_file_51, 67);
 }
-#line 129219 "main.c"
+#line 129222 "main.c"
 
 byn_str byn_semantics__t26DiagnosticJson(bynt_semantics__Ctx p_c, bynt_semantics__Diag p_d) {
     byn_writer l0_sb = {0};
@@ -129304,7 +129307,7 @@ byn_str byn_semantics__t26DiagnosticJson(bynt_semantics__Ctx p_c, bynt_semantics
 #line 92 "semantics/json.byn"
     return byn_strbuf_str(t3);
 }
-#line 129308 "main.c"
+#line 129311 "main.c"
 
 byn_str byn_semantics__t26DiagnosticJsonAll(bynt_semantics__Ctx p_c, bynt_list_semantics__Diag p_diags) {
     byn_writer l0_sb = {0};
@@ -129348,7 +129351,7 @@ break_1:;
 #line 102 "semantics/json.byn"
     return byn_strbuf_str(t4);
 }
-#line 129352 "main.c"
+#line 129355 "main.c"
 
 void byn_semantics__t26JsonSpan(byn_writer* p_sb, bynt_semantics__Ctx p_c, int64_t p_file, bynt_lexer__TextSpan p_span) {
     bynt_tup2_i64_i64 l0_start = {0};
@@ -129392,13 +129395,13 @@ void byn_semantics__t26JsonSpan(byn_writer* p_sb, bynt_semantics__Ctx p_c, int64
         byn_w_str(w, BYN_STR("}", 1));
     }
 }
-#line 129396 "main.c"
+#line 129399 "main.c"
 
 byn_str byn_semantics__t26JsonOptional(byn_str p_value) {
 #line 114 "semantics/json.byn"
     return ((p_value.len == INT64_C(0)) ? BYN_STR("null", 4) : byn_semantics__t26JsonString(p_value));
 }
-#line 129402 "main.c"
+#line 129405 "main.c"
 
 int32_t byn_semantics__usage(void) {
 #line 30 "semantics/main.byn"
@@ -129406,7 +129409,7 @@ int32_t byn_semantics__usage(void) {
 #line 33 "semantics/main.byn"
     return ((int32_t)2);
 }
-#line 129410 "main.c"
+#line 129413 "main.c"
 
 int32_t byn_semantics__golden(bynt_list_str p_args) {
     bool l0_tests = {0};
@@ -129574,7 +129577,7 @@ break_1:;
 #line 86 "semantics/main.byn"
     return ((int32_t)0);
 }
-#line 129578 "main.c"
+#line 129581 "main.c"
 
 int32_t byn_semantics__many(byn_str p_dir) {
     bynt_list_str l0_names = {0};
@@ -129671,7 +129674,7 @@ break_1:;
 #line 120 "semantics/main.byn"
     return l3_worst;
 }
-#line 129675 "main.c"
+#line 129678 "main.c"
 
 int32_t byn_semantics__timed(byn_str p_path, bynt_semantics__T26Symbols p_symbols) {
     bynt_list_str l0_args = {0};
@@ -129733,7 +129736,7 @@ int32_t byn_semantics__timed(byn_str p_path, bynt_semantics__T26Symbols p_symbol
 #line 134 "semantics/main.byn"
     return ((int32_t)0);
 }
-#line 129737 "main.c"
+#line 129740 "main.c"
 
 int32_t byn_semantics__printCodes(void) {
     byn_semantics_SemaCode l0_code = {0};
@@ -129773,7 +129776,7 @@ break_1:;
 #line 143 "semantics/main.byn"
     return ((int32_t)0);
 }
-#line 129777 "main.c"
+#line 129780 "main.c"
 
 int32_t byn_semantics__main(bynt_span_str p_args) {
     bool l0_ascii = {0};
@@ -129935,7 +129938,7 @@ break_1:;
 #line 194 "semantics/main.byn"
     return byn_semantics__check(l1_rest, l15_symbols);
 }
-#line 129939 "main.c"
+#line 129942 "main.c"
 
 int64_t byn_semantics__manifestErrorCount(bynt_semantics__Manifest p_m) {
     int64_t l0_n = {0};
@@ -129970,7 +129973,7 @@ break_1:;
 #line 128 "semantics/manifest.byn"
     return l0_n;
 }
-#line 129974 "main.c"
+#line 129977 "main.c"
 
 byn_err byn_semantics__manifestRead(byn_str p_path, bynt_semantics__Manifest* byn_out) {
     bynt_list_u8 l0_bytes = {0};
@@ -129989,7 +129992,7 @@ byn_err byn_semantics__manifestRead(byn_str p_path, bynt_semantics__Manifest* by
     *byn_out = byn_semantics__manifestParse(byn_lexer__SourceText__create(BYN_STR("package.byn", 11), l0_bytes));
     return (byn_err){0};
 }
-#line 129993 "main.c"
+#line 129996 "main.c"
 
 bynt_semantics__Manifest byn_semantics__manifestParse(bynt_lexer__SourceText p_source) {
     bynt_semantics__Manifest l0_m = {0};
@@ -130132,7 +130135,7 @@ break_7:;
 #line 169 "semantics/manifest.byn"
     return l0_m;
 }
-#line 130136 "main.c"
+#line 130139 "main.c"
 
 void byn_semantics__t10Bind(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, int64_t p_package) {
     bynt_map_str_i64 l0_fields = {0};
@@ -130278,7 +130281,7 @@ void byn_semantics__t10Bind(bynt_semantics__Manifest* p_m, bynt_semantics__T10Re
         (void)byn_semantics__t10BindDist(&(*p_m), p_r, bynh_index_map_str_i64(l0_fields, BYN_STR("dist", 4), byn_file_53, 246));
     }
 }
-#line 130282 "main.c"
+#line 130285 "main.c"
 
 void byn_semantics__t10BindTests(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, int64_t p_tests) {
     bynt_map_str_i64 l0_fields = {0};
@@ -130329,7 +130332,7 @@ void byn_semantics__t10BindTests(bynt_semantics__Manifest* p_m, bynt_semantics__
         }
     }
 }
-#line 130333 "main.c"
+#line 130336 "main.c"
 
 bynt_opt_i64 byn_semantics__t10Percent(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, bynt_map_str_i64 p_fields, byn_str p_name) {
     int64_t l0_value = {0};
@@ -130361,7 +130364,7 @@ bynt_opt_i64 byn_semantics__t10Percent(bynt_semantics__Manifest* p_m, bynt_seman
 #line 282 "semantics/manifest.byn"
     return ((bynt_opt_i64){0});
 }
-#line 130365 "main.c"
+#line 130368 "main.c"
 
 void byn_semantics__t10BindStyle(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, int64_t p_style) {
     bynt_map_str_i64 l0_fields = {0};
@@ -130646,7 +130649,7 @@ void byn_semantics__t10BindStyle(bynt_semantics__Manifest* p_m, bynt_semantics__
         }
     }
 }
-#line 130650 "main.c"
+#line 130653 "main.c"
 
 void byn_semantics__t10BindGrammar(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, int64_t p_grammar) {
     bynt_map_str_i64 l0_fields = {0};
@@ -130714,7 +130717,7 @@ void byn_semantics__t10BindGrammar(bynt_semantics__Manifest* p_m, bynt_semantics
         }
     }
 }
-#line 130718 "main.c"
+#line 130721 "main.c"
 
 void byn_semantics__t10BindWords(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, bynt_map_str_i64 p_fields, byn_str p_field) {
     int64_t l0_list = {0};
@@ -130792,7 +130795,7 @@ void byn_semantics__t10BindWords(bynt_semantics__Manifest* p_m, bynt_semantics__
     }
 break_1:;
 }
-#line 130796 "main.c"
+#line 130799 "main.c"
 
 void byn_semantics__t10AddWord(bynt_list_str* p_words, byn_str p_word) {
     byn_str l0_w = {0};
@@ -130824,7 +130827,7 @@ break_1:;
 #line 484 "semantics/manifest.byn"
     (void)bynh_add_list_str(&(*p_words), p_word);
 }
-#line 130828 "main.c"
+#line 130831 "main.c"
 
 void byn_semantics__t10BindDist(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, int64_t p_dist) {
     bynt_map_str_i64 l0_fields = {0};
@@ -130890,7 +130893,7 @@ void byn_semantics__t10BindDist(bynt_semantics__Manifest* p_m, bynt_semantics__T
         }
     }
 }
-#line 130894 "main.c"
+#line 130897 "main.c"
 
 bynt_list_str byn_semantics__t10PackageFields(void) {
     bynt_list_str t0 = {0};
@@ -130921,7 +130924,7 @@ bynt_list_str byn_semantics__t10PackageFields(void) {
 #line 523 "semantics/manifest.byn"
     return t0;
 }
-#line 130925 "main.c"
+#line 130928 "main.c"
 
 bynt_list_str byn_semantics__t10TestsFields(void) {
     bynt_list_str t0 = {0};
@@ -130944,7 +130947,7 @@ bynt_list_str byn_semantics__t10TestsFields(void) {
 #line 525 "semantics/manifest.byn"
     return t0;
 }
-#line 130948 "main.c"
+#line 130951 "main.c"
 
 bynt_list_str byn_semantics__t10DistFields(void) {
     bynt_list_str t0 = {0};
@@ -130957,7 +130960,7 @@ bynt_list_str byn_semantics__t10DistFields(void) {
 #line 527 "semantics/manifest.byn"
     return t0;
 }
-#line 130961 "main.c"
+#line 130964 "main.c"
 
 bynt_list_str byn_semantics__t10StyleFields(void) {
     bynt_list_str t0 = {0};
@@ -130980,7 +130983,7 @@ bynt_list_str byn_semantics__t10StyleFields(void) {
 #line 529 "semantics/manifest.byn"
     return t0;
 }
-#line 130984 "main.c"
+#line 130987 "main.c"
 
 bynt_list_str byn_semantics__t10RemovedStyleFields(void) {
     bynt_list_str t0 = {0};
@@ -130993,7 +130996,7 @@ bynt_list_str byn_semantics__t10RemovedStyleFields(void) {
 #line 532 "semantics/manifest.byn"
     return t0;
 }
-#line 130997 "main.c"
+#line 131000 "main.c"
 
 bynt_list_str byn_semantics__t10LintNames(void) {
     bynt_list_str t0 = {0};
@@ -131020,7 +131023,7 @@ bynt_list_str byn_semantics__t10LintNames(void) {
 #line 535 "semantics/manifest.byn"
     return t0;
 }
-#line 131024 "main.c"
+#line 131027 "main.c"
 
 bynt_map_str_semantics__LintSeverity byn_semantics__t10DefaultLints(void) {
     bynt_map_str_semantics__LintSeverity t0 = {0};
@@ -131047,7 +131050,7 @@ bynt_map_str_semantics__LintSeverity byn_semantics__t10DefaultLints(void) {
 #line 548 "semantics/manifest.byn"
     return t0;
 }
-#line 131051 "main.c"
+#line 131054 "main.c"
 
 bynt_list_str byn_semantics__t10GrammarFields(void) {
     bynt_list_str t0 = {0};
@@ -131066,7 +131069,7 @@ bynt_list_str byn_semantics__t10GrammarFields(void) {
 #line 560 "semantics/manifest.byn"
     return t0;
 }
-#line 131070 "main.c"
+#line 131073 "main.c"
 
 bynt_map_str_i64 byn_semantics__t10Fields(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, int64_t p_obj, bynt_list_str p_known, bynt_list_str p_removed) {
     bynt_map_str_i64 l0_fields = {0};
@@ -131175,7 +131178,7 @@ break_1:;
 #line 594 "semantics/manifest.byn"
     return l0_fields;
 }
-#line 131179 "main.c"
+#line 131182 "main.c"
 
 bool byn_semantics__t10Contains(bynt_list_str p_xs, byn_str p_x) {
     byn_str l0_s = {0};
@@ -131207,7 +131210,7 @@ break_1:;
 #line 601 "semantics/manifest.byn"
     return false;
 }
-#line 131211 "main.c"
+#line 131214 "main.c"
 
 int64_t byn_semantics__t10Required(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, bynt_map_str_i64 p_fields, byn_str p_name, int64_t p_package) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -131223,7 +131226,7 @@ int64_t byn_semantics__t10Required(bynt_semantics__Manifest* p_m, bynt_semantics
 #line 609 "semantics/manifest.byn"
     return INT64_C(-1);
 }
-#line 131227 "main.c"
+#line 131230 "main.c"
 
 bynt_opt_str byn_semantics__t10Text(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, int64_t p_value, byn_str p_field, byn_str p_expected) {
 #line 614 "semantics/manifest.byn"
@@ -131236,7 +131239,7 @@ bynt_opt_str byn_semantics__t10Text(bynt_semantics__Manifest* p_m, bynt_semantic
 #line 616 "semantics/manifest.byn"
     return ((bynt_opt_str){0});
 }
-#line 131240 "main.c"
+#line 131243 "main.c"
 
 void byn_semantics__t10CheckOverlap(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, bynt_map_str_i64 p_fields) {
     bynt_map_str_str l0_seen = {0};
@@ -131396,13 +131399,13 @@ void byn_semantics__t10CheckOverlap(bynt_semantics__Manifest* p_m, bynt_semantic
     }
 break_1:;
 }
-#line 131400 "main.c"
+#line 131403 "main.c"
 
 void byn_semantics__t10Invalid(bynt_semantics__Manifest* p_m, bynt_semantics__T10Reader p_r, int64_t p_value, byn_str p_field, byn_str p_expected) {
 #line 662 "semantics/manifest.byn"
     (void)byn_semantics__t10Report(&(*p_m), ((byn_semantics_SemaCode)214), (*bynh_at_list_semantics__T10Value(p_r.values, (int64_t)p_value, false, byn_file_53, 662)).span, byn_semantics__t10Args(p_field, p_expected), BYN_STR("", 0));
 }
-#line 131406 "main.c"
+#line 131409 "main.c"
 
 void byn_semantics__t10Report(bynt_semantics__Manifest* p_m, byn_semantics_SemaCode p_code, bynt_lexer__TextSpan p_span, bynt_tup5_str_str_str_str_str p_args, byn_str p_help) {
     byn_str t0 = {0};
@@ -131414,19 +131417,19 @@ void byn_semantics__t10Report(bynt_semantics__Manifest* p_m, byn_semantics_SemaC
 #line 673 "semantics/manifest.byn"
     (void)bynh_add_list_semantics__Diag(&(*p_m).diagnostics, ((bynt_semantics__Diag){t0, INT64_C(-1), p_span, t1, BYN_STR("", 0), p_help, byn_semantics__isWarning(p_code), false, false, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), BYN_STR("", 0), ((bynt_list_semantics__Related){NULL, 0, 0, byn_context})}));
 }
-#line 131418 "main.c"
+#line 131421 "main.c"
 
 bynt_tup5_str_str_str_str_str byn_semantics__t10Args(byn_str p_a, byn_str p_b) {
 #line 687 "semantics/manifest.byn"
     return ((bynt_tup5_str_str_str_str_str){p_a, p_b, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)});
 }
-#line 131424 "main.c"
+#line 131427 "main.c"
 
 bool byn_semantics__t10IsEnum(bynt_semantics__T10Reader p_r, int64_t p_value, byn_str p_name) {
 #line 691 "semantics/manifest.byn"
     return (((*bynh_at_list_semantics__T10Value(p_r.values, (int64_t)p_value, false, byn_file_53, 691)).kind == ((byn_semantics_T10ValueKind)3)) && byn_str_eq((*bynh_at_list_semantics__T10Value(p_r.values, (int64_t)p_value, false, byn_file_53, 691)).text, p_name));
 }
-#line 131430 "main.c"
+#line 131433 "main.c"
 
 bool byn_semantics__t10IsListOf(bynt_semantics__T10Reader p_r, int64_t p_value, byn_semantics_T10ValueKind p_kind) {
     int64_t l0_item = {0};
@@ -131463,7 +131466,7 @@ break_1:;
 #line 699 "semantics/manifest.byn"
     return true;
 }
-#line 131467 "main.c"
+#line 131470 "main.c"
 
 bool byn_semantics__t10IsStringMap(bynt_semantics__T10Reader p_r, int64_t p_value) {
     int64_t l0_i = {0};
@@ -131505,19 +131508,19 @@ break_1:;
 #line 709 "semantics/manifest.byn"
     return true;
 }
-#line 131509 "main.c"
+#line 131512 "main.c"
 
 bynt_semantics__Diag byn_semantics__t10FromLexer(bynt_lexer__Diagnostic p_d) {
 #line 713 "semantics/manifest.byn"
     return ((bynt_semantics__Diag){p_d.code, INT64_C(-1), p_d.span, p_d.message, p_d.label, p_d.help, false, false, p_d.hasFix, p_d.fixSpan, p_d.fixReplacement, ((bynt_list_semantics__Related){NULL, 0, 0, byn_context})});
 }
-#line 131515 "main.c"
+#line 131518 "main.c"
 
 bynt_semantics__Diag byn_semantics__t10CopyDiag(bynt_semantics__Diag p_d) {
 #line 726 "semantics/manifest.byn"
     return ((bynt_semantics__Diag){p_d.code, p_d.file, p_d.span, p_d.message, p_d.label, p_d.help, p_d.isWarning, p_d.isNote, p_d.hasFix, p_d.fixSpan, p_d.fixReplacement, ((bynt_list_semantics__Related){NULL, 0, 0, byn_context})});
 }
-#line 131521 "main.c"
+#line 131524 "main.c"
 
 byn_str byn_semantics__kebabOf(byn_str p_camel) {
     bynt_list_u8 l0_buf = {0};
@@ -131572,7 +131575,7 @@ break_1:;
 #line 756 "semantics/manifest.byn"
     return byn_strbuf_str(t5);
 }
-#line 131576 "main.c"
+#line 131579 "main.c"
 
 byn_str byn_semantics__camelOf(byn_str p_kebab) {
     bynt_span_u8 l0_t = {0};
@@ -131627,7 +131630,7 @@ break_1:;
 #line 776 "semantics/manifest.byn"
     return byn_strbuf_str(t5);
 }
-#line 131631 "main.c"
+#line 131634 "main.c"
 
 byn_str byn_semantics__t10ShortName(bynt_semantics__Manifest p_m) {
     bynt_span_u8 l0_t = {0};
@@ -131639,31 +131642,31 @@ byn_str byn_semantics__t10ShortName(bynt_semantics__Manifest p_m) {
 #line 783 "semantics/manifest.byn"
     return bynh_slice_str(p_m.name, (int64_t)byn_add_i64(l1_slash, INT64_C(1), byn_file_53, 783), 0, (int64_t)l0_t.len, 0, false, byn_file_53, 783);
 }
-#line 131643 "main.c"
+#line 131646 "main.c"
 
 byn_str byn_semantics__t10EntryModule(bynt_semantics__Manifest p_m) {
 #line 787 "semantics/manifest.byn"
     return ((p_m.kind == ((byn_semantics_PackageKind)1)) ? byn_semantics__camelOf(byn_semantics__t10ShortName(p_m)) : BYN_STR("app", 3));
 }
-#line 131649 "main.c"
+#line 131652 "main.c"
 
 bool byn_semantics__t10IsAsciiLower(uint8_t p_c) {
 #line 789 "semantics/manifest.byn"
     return ((p_c >= ((uint8_t)97)) && (p_c <= ((uint8_t)122)));
 }
-#line 131655 "main.c"
+#line 131658 "main.c"
 
 bool byn_semantics__t10IsAsciiDigit(uint8_t p_c) {
 #line 791 "semantics/manifest.byn"
     return ((p_c >= ((uint8_t)48)) && (p_c <= ((uint8_t)57)));
 }
-#line 131661 "main.c"
+#line 131664 "main.c"
 
 bool byn_semantics__t10IsAsciiLetterOrDigit(uint8_t p_c) {
 #line 793 "semantics/manifest.byn"
     return ((byn_semantics__t10IsAsciiLower(p_c) || byn_semantics__t10IsAsciiDigit(p_c)) || ((p_c >= ((uint8_t)65)) && (p_c <= ((uint8_t)90))));
 }
-#line 131667 "main.c"
+#line 131670 "main.c"
 
 bool byn_semantics__t10IsKebabName(bynt_span_u8 p_text) {
     int64_t l0_i = {0};
@@ -131712,7 +131715,7 @@ break_1:;
 #line 806 "semantics/manifest.byn"
     return true;
 }
-#line 131716 "main.c"
+#line 131719 "main.c"
 
 bool byn_semantics__t10IsPackageName(byn_str p_text) {
     bynt_span_u8 l0_t = {0};
@@ -131734,7 +131737,7 @@ bool byn_semantics__t10IsPackageName(byn_str p_text) {
 #line 815 "semantics/manifest.byn"
     return (byn_semantics__t10IsKebabName(bynh_slice_span_u8(l0_t, (int64_t)INT64_C(0), 0, (int64_t)l1_slash, 0, false, byn_file_53, 815)) && byn_semantics__t10IsKebabName(bynh_slice_span_u8(l0_t, (int64_t)byn_add_i64(l1_slash, INT64_C(1), byn_file_53, 815), 0, (int64_t)l0_t.len, 0, false, byn_file_53, 815)));
 }
-#line 131738 "main.c"
+#line 131741 "main.c"
 
 bool byn_semantics__t10IsSemanticVersion(byn_str p_text) {
     bynt_span_u8 l0_t = {0};
@@ -131846,7 +131849,7 @@ break_1:;
 #line 843 "semantics/manifest.byn"
     return (l5_parts == INT64_C(3));
 }
-#line 131850 "main.c"
+#line 131853 "main.c"
 
 int64_t byn_semantics__compareVersions(byn_str p_a, byn_str p_b) {
     bynt_semantics__VersionParts l0_pa = {0};
@@ -131931,7 +131934,7 @@ break_1:;
 #line 868 "semantics/manifest.byn"
     return ((!l1_pb.pre.has) ? INT64_C(0) : INT64_C(1));
 }
-#line 131935 "main.c"
+#line 131938 "main.c"
 
 bynt_semantics__VersionParts byn_semantics__splitVersion(byn_str p_v) {
     bynt_span_u8 l0_t = {0};
@@ -132019,7 +132022,7 @@ break_1:;
 #line 901 "semantics/manifest.byn"
     return ((bynt_semantics__VersionParts){l5_numbers, l11_pre});
 }
-#line 132023 "main.c"
+#line 132026 "main.c"
 
 bool byn_semantics__t10Identifiers(bynt_span_u8 p_text) {
     int64_t l0_length = {0};
@@ -132068,7 +132071,7 @@ break_1:;
 #line 917 "semantics/manifest.byn"
     return (l0_length > INT64_C(0));
 }
-#line 132072 "main.c"
+#line 132075 "main.c"
 
 int64_t byn_semantics__t10IndexOf(bynt_span_u8 p_text, uint8_t p_b) {
     int64_t l0_i = {0};
@@ -132100,7 +132103,7 @@ break_1:;
 #line 924 "semantics/manifest.byn"
     return INT64_C(-1);
 }
-#line 132104 "main.c"
+#line 132107 "main.c"
 
 bynt_lexer__Token byn_semantics__t10Current(bynt_semantics__T10Reader p_r) {
     int64_t l0_last = {0};
@@ -132109,19 +132112,19 @@ bynt_lexer__Token byn_semantics__t10Current(bynt_semantics__T10Reader p_r) {
 #line 931 "semantics/manifest.byn"
     return (*bynh_at_list_lexer__Token(p_r.tokens, (int64_t)((p_r.pos < l0_last) ? p_r.pos : l0_last), false, byn_file_53, 931));
 }
-#line 132113 "main.c"
+#line 132116 "main.c"
 
 bool byn_semantics__t10AtEnd(bynt_semantics__T10Reader p_r) {
 #line 934 "semantics/manifest.byn"
     return (byn_semantics__t10Current(p_r).kind == ((byn_lexer_TokenKind)0));
 }
-#line 132119 "main.c"
+#line 132122 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__t10SpanOf(bynt_lexer__Token p_t) {
 #line 936 "semantics/manifest.byn"
     return ((bynt_lexer__TextSpan){p_t.start, p_t.length});
 }
-#line 132125 "main.c"
+#line 132128 "main.c"
 
 byn_str byn_semantics__t10TextOf(bynt_semantics__T10Reader p_r, bynt_lexer__Token p_t) {
     byn_writer l0_sb = {0};
@@ -132145,7 +132148,7 @@ byn_str byn_semantics__t10TextOf(bynt_semantics__T10Reader p_r, bynt_lexer__Toke
 #line 941 "semantics/manifest.byn"
     return byn_strbuf_str(t2);
 }
-#line 132149 "main.c"
+#line 132152 "main.c"
 
 void byn_semantics__t10Fail(bynt_semantics__T10Reader p_r, byn_str p_expected, bynt_list_semantics__Diag* p_diags) {
     bynt_semantics__Diag l0_d = {0};
@@ -132186,7 +132189,7 @@ break_1:;
 #line 951 "semantics/manifest.byn"
     (void)bynh_add_list_semantics__Diag(&(*p_diags), ((bynt_semantics__Diag){t4, INT64_C(-1), t5, byn_semantics__format(t3, byn_semantics__t10Args(p_expected, BYN_STR("", 0))), BYN_STR("", 0), BYN_STR("write strings, integers, `true`/`false`, `.names`, `[lists]` or `Type { field: value }`; no calls or expressions", 112), false, false, false, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), BYN_STR("", 0), ((bynt_list_semantics__Related){NULL, 0, 0, byn_context})}));
 }
-#line 132190 "main.c"
+#line 132193 "main.c"
 
 bool byn_semantics__t10Accept(bynt_semantics__T10Reader* p_r, byn_lexer_TokenKind p_kind) {
 #line 964 "semantics/manifest.byn"
@@ -132199,13 +132202,13 @@ bool byn_semantics__t10Accept(bynt_semantics__T10Reader* p_r, byn_lexer_TokenKin
 #line 966 "semantics/manifest.byn"
     return true;
 }
-#line 132203 "main.c"
+#line 132206 "main.c"
 
 bool byn_semantics__t10IsName(byn_lexer_TokenKind p_kind) {
 #line 970 "semantics/manifest.byn"
     return ((p_kind == ((byn_lexer_TokenKind)1)) || byn_lexer__isKeyword(p_kind));
 }
-#line 132209 "main.c"
+#line 132212 "main.c"
 
 bool byn_semantics__t10AcceptName(bynt_semantics__T10Reader* p_r) {
 #line 973 "semantics/manifest.byn"
@@ -132218,7 +132221,7 @@ bool byn_semantics__t10AcceptName(bynt_semantics__T10Reader* p_r) {
 #line 977 "semantics/manifest.byn"
     return true;
 }
-#line 132222 "main.c"
+#line 132225 "main.c"
 
 int64_t byn_semantics__t10Add(bynt_semantics__T10Reader* p_r, bynt_semantics__T10Value p_v) {
 #line 981 "semantics/manifest.byn"
@@ -132226,7 +132229,7 @@ int64_t byn_semantics__t10Add(bynt_semantics__T10Reader* p_r, bynt_semantics__T1
 #line 982 "semantics/manifest.byn"
     return byn_sub_i64((*p_r).values.len, INT64_C(1), byn_file_53, 982);
 }
-#line 132230 "main.c"
+#line 132233 "main.c"
 
 int64_t byn_semantics__t10ReadValue(bynt_semantics__T10Reader* p_r, bynt_list_semantics__Diag* p_diags) {
     bynt_lexer__Token l0_t = {0};
@@ -132522,7 +132525,7 @@ int64_t byn_semantics__t10ReadValue(bynt_semantics__T10Reader* p_r, bynt_list_se
 #line 1093 "semantics/manifest.byn"
     return INT64_C(-1);
 }
-#line 132526 "main.c"
+#line 132529 "main.c"
 
 bynt_opt_i64 byn_semantics__t10ParseLong(bynt_span_u8 p_text) {
     int64_t l0_value = {0};
@@ -132585,7 +132588,7 @@ break_1:;
 #line 1111 "semantics/manifest.byn"
     return ((bynt_opt_i64){true, l0_value});
 }
-#line 132589 "main.c"
+#line 132592 "main.c"
 
 byn_str byn_semantics__t10DecodeString(bynt_span_u8 p_token) {
     int64_t l0_start = {0};
@@ -132735,7 +132738,7 @@ break_1:;
 #line 1160 "semantics/manifest.byn"
     return byn_strbuf_str(t12);
 }
-#line 132739 "main.c"
+#line 132742 "main.c"
 
 int64_t byn_semantics__t10ParseScalar(bynt_span_u8 p_hex) {
     int64_t l0_value = {0};
@@ -132822,7 +132825,7 @@ break_1:;
 #line 1185 "semantics/manifest.byn"
     return l0_value;
 }
-#line 132826 "main.c"
+#line 132829 "main.c"
 
 void byn_semantics__t10AppendScalar(bynt_list_u8* p_buf, int64_t p_v) {
 #line 1190 "semantics/manifest.byn"
@@ -132858,7 +132861,7 @@ void byn_semantics__t10AppendScalar(bynt_list_u8* p_buf, int64_t p_v) {
         }
     }
 }
-#line 132862 "main.c"
+#line 132865 "main.c"
 
 void byn_semantics__buildLexicon(bynt_semantics__Ctx* p_c) {
     bynt_list_str t0 = {0};
@@ -134723,7 +134726,7 @@ void byn_semantics__buildLexicon(bynt_semantics__Ctx* p_c) {
 #line 116 "semantics/naming.byn"
     (*p_c).lexiconIrregularSingulars = t5;
 }
-#line 134727 "main.c"
+#line 134730 "main.c"
 
 bool byn_semantics__isParticleWord(byn_str p_w) {
     bool t0 = {0};
@@ -134747,7 +134750,7 @@ switch_end_1:;
 #line 120 "semantics/naming.byn"
     return t0;
 }
-#line 134751 "main.c"
+#line 134754 "main.c"
 
 bool byn_semantics__isFunctionWord(byn_str p_w) {
     bool t0 = {0};
@@ -134771,7 +134774,7 @@ switch_end_1:;
 #line 125 "semantics/naming.byn"
     return t0;
 }
-#line 134775 "main.c"
+#line 134778 "main.c"
 
 bool byn_semantics__isMathWord(byn_str p_w) {
     bool t0 = {0};
@@ -134795,7 +134798,7 @@ switch_end_1:;
 #line 133 "semantics/naming.byn"
     return t0;
 }
-#line 134799 "main.c"
+#line 134802 "main.c"
 
 void byn_semantics__checkType(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_lexer__TextSpan p_name) {
     byn_str l0_text = {0};
@@ -134843,7 +134846,7 @@ void byn_semantics__checkType(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_lexer_
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)10), p_f, p_name, t5, BYN_STR("", 0), byn_strbuf_str(t4), true, ((bynt_opt_lexer__TextSpan){true, p_name}), l3_fixedName);
     }
 }
-#line 134847 "main.c"
+#line 134850 "main.c"
 
 void byn_semantics__checkInterface(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_lexer__TextSpan p_name) {
     byn_str l0_text = {0};
@@ -134901,7 +134904,7 @@ void byn_semantics__checkInterface(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_l
 #line 168 "semantics/naming.byn"
     (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)167), p_f, p_name, t6, BYN_STR("an interface name", 17), byn_strbuf_str(t5), true, ((bynt_opt_lexer__TextSpan){true, p_name}), l3_fixedName);
 }
-#line 134905 "main.c"
+#line 134908 "main.c"
 
 void byn_semantics__checkValue(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_lexer__TextSpan p_name) {
     byn_str l0_text = {0};
@@ -134970,7 +134973,7 @@ void byn_semantics__checkValue(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_lexer
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)11), p_f, p_name, ((bynt_tup5_str_str_str_str_str){l0_text, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), l4_help, true, ((bynt_opt_lexer__TextSpan){true, p_name}), l3_fixedName);
     }
 }
-#line 134974 "main.c"
+#line 134977 "main.c"
 
 void byn_semantics__checkMembers(bynt_semantics__Ctx* p_c, int64_t p_s) {
     bynt_semantics__Grammar l0_grammar = {0};
@@ -134979,7 +134982,7 @@ void byn_semantics__checkMembers(bynt_semantics__Ctx* p_c, int64_t p_s) {
 #line 209 "semantics/naming.byn"
     (void)byn_semantics__checkMembersWith(&(*p_c), p_s, l0_grammar);
 }
-#line 134983 "main.c"
+#line 134986 "main.c"
 
 void byn_semantics__checkMembersWith(bynt_semantics__Ctx* p_c, int64_t p_s, bynt_semantics__Grammar p_grammar) {
     int64_t l0_f = {0};
@@ -135476,7 +135479,7 @@ break_17:;
 #line 350 "semantics/naming.byn"
     (void)byn_semantics__checkDoer(&(*p_c), p_grammar, l0_f, (*bynh_at_list_semantics__StructSymbol((*p_c).structs, (int64_t)p_s, false, byn_file_54, 354)).module, (*bynh_at_list_semantics__StructSymbol((*p_c).structs, (int64_t)p_s, false, byn_file_54, 355)).declIndex, (*bynh_at_list_semantics__StructSymbol((*p_c).structs, (int64_t)p_s, false, byn_file_54, 356)).nameSpan, l55_publicMethods, l59_others);
 }
-#line 135480 "main.c"
+#line 135483 "main.c"
 
 void byn_semantics__checkSignatures(bynt_semantics__Ctx* p_c, int64_t p_module) {
     bynt_semantics__Grammar l0_grammar = {0};
@@ -135810,7 +135813,7 @@ break_13:;
     }
 break_17:;
 }
-#line 135814 "main.c"
+#line 135817 "main.c"
 
 void byn_semantics__t7CheckParameters(bynt_semantics__Ctx* p_c, bynt_semantics__Grammar p_grammar, int64_t p_f, int64_t p_fn) {
     bynt_list_semantics__ParamFacts l0_facts = {0};
@@ -135867,7 +135870,7 @@ void byn_semantics__t7CheckParameters(bynt_semantics__Ctx* p_c, bynt_semantics__
     }
 break_1:;
 }
-#line 135871 "main.c"
+#line 135874 "main.c"
 
 bynt_list_semantics__T7Getter byn_semantics__t7InterfaceGetters(bynt_semantics__Ctx* p_c, int64_t p_i) {
     bynt_list_semantics__T7Getter l0_found = {0};
@@ -135949,7 +135952,7 @@ switch_end_1:;
 #line 503 "semantics/naming.byn"
     return l0_found;
 }
-#line 135953 "main.c"
+#line 135956 "main.c"
 
 bynt_list_semantics__T7Payload byn_semantics__t7Payloads(bynt_semantics__Ctx* p_c, int64_t p_f, int64_t p_declIndex) {
     bynt_list_semantics__T7Payload l0_found = {0};
@@ -136100,7 +136103,7 @@ switch_end_1:;
 #line 536 "semantics/naming.byn"
     return l0_found;
 }
-#line 136104 "main.c"
+#line 136107 "main.c"
 
 void byn_semantics__checkPayload(bynt_semantics__Ctx* p_c, bynt_semantics__Grammar p_grammar, int64_t p_f, bynt_list_lexer__TextSpan p_fields, bynt_list_i64 p_declared) {
     bynt_lexer__TextSpan l0_name = {0};
@@ -136185,7 +136188,7 @@ void byn_semantics__checkPayload(bynt_semantics__Ctx* p_c, bynt_semantics__Gramm
     }
 break_1:;
 }
-#line 136189 "main.c"
+#line 136192 "main.c"
 
 void byn_semantics__checkDoer(bynt_semantics__Ctx* p_c, bynt_semantics__Grammar p_grammar, int64_t p_f, int64_t p_module, int64_t p_declIndex, bynt_lexer__TextSpan p_name, bynt_list_i64 p_methods, bynt_list_str p_others) {
     byn_str l0_text = {0};
@@ -136482,7 +136485,7 @@ break_7:;
     }
 break_13:;
 }
-#line 136486 "main.c"
+#line 136489 "main.c"
 
 bool byn_semantics__actsAs(byn_str p_m, byn_str p_v) {
     byn_writer t0 = {0};
@@ -136549,7 +136552,7 @@ bool byn_semantics__actsAs(byn_str p_m, byn_str p_v) {
 #line 655 "semantics/naming.byn"
     return t6;
 }
-#line 136553 "main.c"
+#line 136556 "main.c"
 
 bool byn_semantics__t8DeclRenamed(bynt_semantics__Ctx* p_c, int64_t p_f, int64_t p_declIndex) {
     byn_parser_Decl t0 = {0};
@@ -136587,7 +136590,7 @@ bool byn_semantics__t8DeclRenamed(bynt_semantics__Ctx* p_c, int64_t p_f, int64_t
     return false;
 switch_end_1:;
 }
-#line 136591 "main.c"
+#line 136594 "main.c"
 
 bynt_opt_str byn_semantics__doerVerb(byn_str p_noun) {
     bynt_opt_str t0 = {0};
@@ -136709,7 +136712,7 @@ switch_end_1:;
 #line 671 "semantics/naming.byn"
     return t0;
 }
-#line 136713 "main.c"
+#line 136716 "main.c"
 
 bool byn_semantics__isTool(byn_str p_noun) {
     bool t0 = {0};
@@ -136733,7 +136736,7 @@ switch_end_1:;
 #line 691 "semantics/naming.byn"
     return t0;
 }
-#line 136737 "main.c"
+#line 136740 "main.c"
 
 bynt_list_str byn_semantics__doerNouns(byn_str p_verb) {
     bynt_list_str l0_nouns = {0};
@@ -136819,7 +136822,7 @@ bynt_list_str byn_semantics__doerNouns(byn_str p_verb) {
 #line 715 "semantics/naming.byn"
     return l0_nouns;
 }
-#line 136823 "main.c"
+#line 136826 "main.c"
 
 bool byn_semantics__isRenamed(bynt_list_parser__AttributeSyntax p_attributes, bynt_span_u8 p_text) {
     bynt_parser__AttributeSyntax l0_a = {0};
@@ -136854,7 +136857,7 @@ break_1:;
 #line 725 "semantics/naming.byn"
     return false;
 }
-#line 136858 "main.c"
+#line 136861 "main.c"
 
 bool byn_semantics__t7MemberRenamed(bynt_semantics__Ctx* p_c, int64_t p_f, int64_t p_declIndex, int64_t p_memberIndex) {
     byn_parser_Decl t0 = {0};
@@ -136909,13 +136912,13 @@ bool byn_semantics__t7MemberRenamed(bynt_semantics__Ctx* p_c, int64_t p_f, int64
     return false;
 switch_end_1:;
 }
-#line 136913 "main.c"
+#line 136916 "main.c"
 
 bool byn_semantics__isLink(byn_str p_w) {
 #line 751 "semantics/naming.byn"
     return (byn_semantics__isParticleWord(byn_semantics__lowerAscii(p_w)) || byn_semantics__isFunctionWord(byn_semantics__lowerAscii(p_w)));
 }
-#line 136919 "main.c"
+#line 136922 "main.c"
 
 void byn_semantics__checkNumber(bynt_semantics__Ctx* p_c, bynt_semantics__Grammar p_grammar, int64_t p_f, bynt_lexer__TextSpan p_name, byn_str p_text, int64_t p_type) {
     bynt_list_semantics__WordSpan l0_spans = {0};
@@ -137113,7 +137116,7 @@ break_3:;
         }
     }
 }
-#line 137117 "main.c"
+#line 137120 "main.c"
 
 bool byn_semantics__namesItsType(bynt_semantics__Ctx* p_c, byn_str p_word, int64_t p_type) {
     byn_str l0_display = {0};
@@ -137167,7 +137170,7 @@ break_1:;
 #line 842 "semantics/naming.byn"
     return t7;
 }
-#line 137171 "main.c"
+#line 137174 "main.c"
 
 bool byn_semantics__checkCount(bynt_semantics__Ctx* p_c, bynt_semantics__Grammar p_grammar, int64_t p_f, bynt_lexer__TextSpan p_name, byn_str p_text, int64_t p_type) {
     bynt_list_str l0_words = {0};
@@ -137416,7 +137419,7 @@ break_9:;
 #line 893 "semantics/naming.byn"
     return true;
 }
-#line 137420 "main.c"
+#line 137423 "main.c"
 
 bool byn_semantics__isPlural(bynt_semantics__Ctx* p_c, byn_str p_word, bynt_semantics__Grammar p_grammar) {
     bynt_opt_str t0 = {0};
@@ -137430,13 +137433,13 @@ bool byn_semantics__isPlural(bynt_semantics__Ctx* p_c, byn_str p_word, bynt_sema
 #line 900 "semantics/naming.byn"
     return (!(!t0.has));
 }
-#line 137434 "main.c"
+#line 137437 "main.c"
 
 bool byn_semantics__looksPlural(bynt_semantics__Ctx* p_c, byn_str p_word, bynt_semantics__Grammar p_grammar) {
 #line 906 "semantics/naming.byn"
     return (byn_semantics__isPlural(&(*p_c), p_word, p_grammar) || (((byn_str_ends_with(p_word, BYN_STR("s", 1)) && (!byn_str_ends_with(p_word, BYN_STR("ss", 2)))) && (!byn_str_ends_with(p_word, BYN_STR("us", 2)))) && (!byn_str_ends_with(p_word, BYN_STR("is", 2)))));
 }
-#line 137440 "main.c"
+#line 137443 "main.c"
 
 bynt_opt_str byn_semantics__singular(bynt_semantics__Ctx* p_c, byn_str p_word, bynt_semantics__Grammar p_grammar) {
     bynt_tup2_str_str l0__ = {0};
@@ -137597,7 +137600,7 @@ break_5:;
 #line 929 "semantics/naming.byn"
     return ((bynt_opt_str){0});
 }
-#line 137601 "main.c"
+#line 137604 "main.c"
 
 byn_str byn_semantics__plural(bynt_semantics__Ctx* p_c, byn_str p_word, bynt_semantics__Grammar p_grammar) {
     bynt_opt_str t0 = {0};
@@ -137687,19 +137690,19 @@ break_1:;
 #line 951 "semantics/naming.byn"
     return byn_strbuf_str(t8);
 }
-#line 137691 "main.c"
+#line 137694 "main.c"
 
 bool byn_semantics__isNoun(bynt_semantics__Ctx* p_c, byn_str p_word, bynt_semantics__Grammar p_grammar) {
 #line 956 "semantics/naming.byn"
     return (byn_semantics__listContainsString((*p_c).lexiconNouns, p_word) || byn_semantics__listContainsString(p_grammar.nouns, p_word));
 }
-#line 137697 "main.c"
+#line 137700 "main.c"
 
 bool byn_semantics__isVerb(bynt_semantics__Ctx* p_c, byn_str p_word, bynt_semantics__Grammar p_grammar) {
 #line 960 "semantics/naming.byn"
     return (byn_semantics__listContainsString((*p_c).lexiconVerbs, p_word) || byn_semantics__listContainsString(p_grammar.verbs, p_word));
 }
-#line 137703 "main.c"
+#line 137706 "main.c"
 
 byn_str byn_semantics__matchCase(byn_str p_like, byn_str p_word) {
     byn_writer t0 = {0};
@@ -137724,7 +137727,7 @@ byn_str byn_semantics__matchCase(byn_str p_like, byn_str p_word) {
 #line 965 "semantics/naming.byn"
     return byn_strbuf_str(t0);
 }
-#line 137728 "main.c"
+#line 137731 "main.c"
 
 void byn_semantics__checkParticiple(bynt_semantics__Ctx* p_c, bynt_semantics__Grammar p_grammar, int64_t p_f, bynt_lexer__TextSpan p_name, byn_str p_text) {
     bynt_list_str l0_stems = {0};
@@ -137814,7 +137817,7 @@ break_3:;
 #line 988 "semantics/naming.byn"
     (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)219), p_f, p_name, ((bynt_tup5_str_str_str_str_str){p_text, l7_stem, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view", 92), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 137818 "main.c"
+#line 137821 "main.c"
 
 void byn_semantics__checkParticleName(bynt_semantics__Ctx* p_c, int64_t p_s, int64_t p_f, bynt_lexer__TextSpan p_name, byn_str p_text, bool p_isStatic) {
     bynt_list_semantics__WordSpan l0_words = {0};
@@ -137899,7 +137902,7 @@ void byn_semantics__checkParticleName(bynt_semantics__Ctx* p_c, int64_t p_s, int
 #line 1022 "semantics/naming.byn"
     (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)228), p_f, p_name, ((bynt_tup5_str_str_str_str_str){p_text, l1_particle, l5_instead, BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("use a view noun, `copy()`, or a `T(x)` conversion", 49), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 137903 "main.c"
+#line 137906 "main.c"
 
 bool byn_semantics__isPrimitiveWord(byn_str p_w) {
     bool t0 = {0};
@@ -137923,7 +137926,7 @@ switch_end_1:;
 #line 1033 "semantics/naming.byn"
     return t0;
 }
-#line 137927 "main.c"
+#line 137930 "main.c"
 
 void byn_semantics__checkWords(bynt_semantics__Ctx* p_c, bynt_semantics__Grammar p_grammar, int64_t p_f, bynt_lexer__TextSpan p_name, byn_str p_text, byn_str p_guess) {
     bynt_semantics__WordSpan l0_w = {0};
@@ -137995,7 +137998,7 @@ void byn_semantics__checkWords(bynt_semantics__Ctx* p_c, bynt_semantics__Grammar
     }
 break_1:;
 }
-#line 137999 "main.c"
+#line 138002 "main.c"
 
 byn_str byn_semantics__offer(byn_str p_field, byn_str p_word) {
     byn_writer t0 = {0};
@@ -138015,7 +138018,7 @@ byn_str byn_semantics__offer(byn_str p_field, byn_str p_word) {
 #line 1062 "semantics/naming.byn"
     return byn_strbuf_str(t0);
 }
-#line 138019 "main.c"
+#line 138022 "main.c"
 
 bool byn_semantics__isKnown(bynt_semantics__Ctx* p_c, byn_str p_word, bynt_semantics__Grammar p_grammar) {
     bynt_tup2_str_str l0__ = {0};
@@ -138089,13 +138092,13 @@ break_3:;
 #line 1072 "semantics/naming.byn"
     return false;
 }
-#line 138093 "main.c"
+#line 138096 "main.c"
 
 bool byn_semantics__isListed(bynt_semantics__Ctx* p_c, byn_str p_w, bynt_semantics__Grammar p_grammar) {
 #line 1076 "semantics/naming.byn"
     return ((((((((((byn_semantics__listContainsString((*p_c).lexiconVerbs, p_w) || byn_semantics__listContainsString((*p_c).lexiconNouns, p_w)) || byn_semantics__listContainsString((*p_c).lexiconAdjectives, p_w)) || byn_semantics__listContainsString((*p_c).lexiconCollectives, p_w)) || byn_semantics__listContainsString((*p_c).lexiconIrregularPlurals, p_w)) || byn_semantics__isParticleWord(p_w)) || byn_semantics__isFunctionWord(p_w)) || byn_semantics__listContainsString(p_grammar.verbs, p_w)) || byn_semantics__listContainsString(p_grammar.nouns, p_w)) || byn_semantics__listContainsString(p_grammar.adjectives, p_w)) || byn_semantics__listContainsString(p_grammar.collectives, p_w));
 }
-#line 138099 "main.c"
+#line 138102 "main.c"
 
 bynt_list_str byn_semantics__bases(byn_str p_word) {
     bynt_list_str l0_found = {0};
@@ -138327,7 +138330,7 @@ break_7:;
 #line 1117 "semantics/naming.byn"
     return l0_found;
 }
-#line 138331 "main.c"
+#line 138334 "main.c"
 
 bynt_list_str byn_semantics__endingReplacements(byn_str p_ending) {
     bynt_list_str t0 = {0};
@@ -138382,7 +138385,7 @@ switch_end_1:;
 #line 1121 "semantics/naming.byn"
     return t0;
 }
-#line 138386 "main.c"
+#line 138389 "main.c"
 
 bynt_semantics__Grammar byn_semantics__grammarOf(bynt_semantics__Ctx* p_c) {
     bynt_semantics__Grammar t0 = {0};
@@ -138398,7 +138401,7 @@ bynt_semantics__Grammar byn_semantics__grammarOf(bynt_semantics__Ctx* p_c) {
 #line 1135 "semantics/naming.byn"
     return byn_semantics__lowerGrammar((*p_c).grammarRead);
 }
-#line 138402 "main.c"
+#line 138405 "main.c"
 
 bynt_semantics__Grammar byn_semantics__readGrammar(bynt_semantics__Ctx* p_c) {
     byn_str l0_path = {0};
@@ -138442,7 +138445,7 @@ bynt_semantics__Grammar byn_semantics__readGrammar(bynt_semantics__Ctx* p_c) {
 #line 1147 "semantics/naming.byn"
     return byn_semantics__lowerGrammar(l7_manifest.grammar);
 }
-#line 138446 "main.c"
+#line 138449 "main.c"
 
 int64_t byn_semantics__packageFileIndex(bynt_list_semantics__SourceFile p_files) {
     int64_t l0_i = {0};
@@ -138474,7 +138477,7 @@ break_1:;
 #line 1155 "semantics/naming.byn"
     return INT64_C(-1);
 }
-#line 138478 "main.c"
+#line 138481 "main.c"
 
 bynt_semantics__Grammar byn_semantics__lowerGrammar(bynt_semantics__Grammar p_grammar) {
     bynt_semantics__Grammar l0_lower = {0};
@@ -138612,7 +138615,7 @@ break_9:;
 #line 1176 "semantics/naming.byn"
     return l0_lower;
 }
-#line 138616 "main.c"
+#line 138619 "main.c"
 
 void byn_semantics__checkBoolState(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_lexer__TextSpan p_name, byn_str p_text) {
     byn_str l0_fixedName = {0};
@@ -138656,13 +138659,13 @@ void byn_semantics__checkBoolState(bynt_semantics__Ctx* p_c, int64_t p_f, bynt_l
 #line 1185 "semantics/naming.byn"
     (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)233), p_f, p_name, t4, BYN_STR("", 0), byn_strbuf_str(t3), true, ((bynt_opt_lexer__TextSpan){true, p_name}), l0_fixedName);
 }
-#line 138660 "main.c"
+#line 138663 "main.c"
 
 bool byn_semantics__isStateName(byn_str p_name) {
 #line 1200 "semantics/naming.byn"
     return ((byn_semantics__statePrefixed(p_name, BYN_STR("is", 2)) || byn_semantics__statePrefixed(p_name, BYN_STR("has", 3))) || byn_semantics__statePrefixed(p_name, BYN_STR("can", 3)));
 }
-#line 138666 "main.c"
+#line 138669 "main.c"
 
 bool byn_semantics__statePrefixed(byn_str p_name, byn_str p_prefix) {
     int64_t t0 = {0};
@@ -138682,7 +138685,7 @@ bool byn_semantics__statePrefixed(byn_str p_name, byn_str p_prefix) {
 #line 1203 "semantics/naming.byn"
     return t2;
 }
-#line 138686 "main.c"
+#line 138689 "main.c"
 
 bynt_list_str byn_semantics__participleStems(byn_str p_name) {
     bynt_list_str l0_stems = {0};
@@ -138747,13 +138750,13 @@ bynt_list_str byn_semantics__participleStems(byn_str p_name) {
 #line 1238 "semantics/naming.byn"
     return l0_stems;
 }
-#line 138751 "main.c"
+#line 138754 "main.c"
 
 bool byn_semantics__isVowel(uint8_t p_b) {
 #line 1241 "semantics/naming.byn"
     return (((((p_b == ((uint8_t)97)) || (p_b == ((uint8_t)101))) || (p_b == ((uint8_t)105))) || (p_b == ((uint8_t)111))) || (p_b == ((uint8_t)117)));
 }
-#line 138757 "main.c"
+#line 138760 "main.c"
 
 bool byn_semantics__isNotParticiple(byn_str p_w) {
     bool t0 = {0};
@@ -138777,7 +138780,7 @@ switch_end_1:;
 #line 1244 "semantics/naming.byn"
     return t0;
 }
-#line 138781 "main.c"
+#line 138784 "main.c"
 
 bool byn_semantics__isThingNoun(byn_str p_w) {
     bool t0 = {0};
@@ -138801,7 +138804,7 @@ switch_end_1:;
 #line 1250 "semantics/naming.byn"
     return t0;
 }
-#line 138805 "main.c"
+#line 138808 "main.c"
 
 byn_str byn_semantics__toPascal(byn_str p_name) {
     bynt_list_semantics__WordSpan l0_words = {0};
@@ -138851,7 +138854,7 @@ break_1:;
 #line 1265 "semantics/naming.byn"
     return byn_strbuf_str(t5);
 }
-#line 138855 "main.c"
+#line 138858 "main.c"
 
 byn_str byn_semantics__toCamel(byn_str p_name) {
     bynt_list_semantics__WordSpan l0_words = {0};
@@ -138903,7 +138906,7 @@ break_1:;
 #line 1276 "semantics/naming.byn"
     return byn_strbuf_str(t5);
 }
-#line 138907 "main.c"
+#line 138910 "main.c"
 
 byn_str byn_semantics__capitalize(byn_str p_word) {
     bynt_list_u8 l0_bytes = {0};
@@ -138970,7 +138973,7 @@ break_1:;
 #line 1294 "semantics/naming.byn"
     return byn_strbuf_str(t5);
 }
-#line 138974 "main.c"
+#line 138977 "main.c"
 
 bynt_list_semantics__WordSpan byn_semantics__wordSpans(byn_str p_name) {
     bynt_list_semantics__WordSpan l0_words = {0};
@@ -139052,25 +139055,25 @@ break_1:;
 #line 1335 "semantics/naming.byn"
     return l0_words;
 }
-#line 139056 "main.c"
+#line 139059 "main.c"
 
 bool byn_semantics__isUpperAscii(uint8_t p_b) {
 #line 1338 "semantics/naming.byn"
     return ((p_b >= ((uint8_t)65)) && (p_b <= ((uint8_t)90)));
 }
-#line 139062 "main.c"
+#line 139065 "main.c"
 
 bool byn_semantics__isLowerAscii(uint8_t p_b) {
 #line 1340 "semantics/naming.byn"
     return ((p_b >= ((uint8_t)97)) && (p_b <= ((uint8_t)122)));
 }
-#line 139068 "main.c"
+#line 139071 "main.c"
 
 bool byn_semantics__isDigitAscii(uint8_t p_b) {
 #line 1342 "semantics/naming.byn"
     return ((p_b >= ((uint8_t)48)) && (p_b <= ((uint8_t)57)));
 }
-#line 139074 "main.c"
+#line 139077 "main.c"
 
 byn_str byn_semantics__lowerAscii(byn_str p_s) {
     bynt_list_u8 l0_bytes = {0};
@@ -139118,7 +139121,7 @@ break_1:;
 #line 1353 "semantics/naming.byn"
     return byn_strbuf_str(t4);
 }
-#line 139122 "main.c"
+#line 139125 "main.c"
 
 byn_str byn_semantics__upperAscii(byn_str p_s) {
     bynt_list_u8 l0_bytes = {0};
@@ -139166,7 +139169,7 @@ break_1:;
 #line 1365 "semantics/naming.byn"
     return byn_strbuf_str(t4);
 }
-#line 139170 "main.c"
+#line 139173 "main.c"
 
 bool byn_semantics__isAllAscii(byn_str p_s) {
     uint8_t l0_b = {0};
@@ -139198,7 +139201,7 @@ break_1:;
 #line 1372 "semantics/naming.byn"
     return true;
 }
-#line 139202 "main.c"
+#line 139205 "main.c"
 
 bool byn_semantics__isAllLowerLetters(byn_str p_s) {
     uint8_t l0_b = {0};
@@ -139230,7 +139233,7 @@ break_1:;
 #line 1381 "semantics/naming.byn"
     return true;
 }
-#line 139234 "main.c"
+#line 139237 "main.c"
 
 byn_str byn_semantics__trimDigits(byn_str p_s) {
     int64_t l0_n = {0};
@@ -139251,7 +139254,7 @@ break_1:;
 #line 1390 "semantics/naming.byn"
     return bynh_slice_str(p_s, (int64_t)INT64_C(0), 0, (int64_t)l0_n, 0, false, byn_file_54, 1390);
 }
-#line 139255 "main.c"
+#line 139258 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__returnTypeSpan(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -139307,7 +139310,7 @@ bynt_lexer__TextSpan byn_semantics__returnTypeSpan(bynt_semantics__Ctx* p_c, int
     return (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_fn, false, byn_file_54, 1409)).nameSpan;
 switch_end_1:;
 }
-#line 139311 "main.c"
+#line 139314 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__memberReturnSpan(bynt_list_parser__Decl p_members, int64_t p_m) {
     byn_parser_Decl t0 = {0};
@@ -139330,7 +139333,7 @@ bynt_lexer__TextSpan byn_semantics__memberReturnSpan(bynt_list_parser__Decl p_me
     return ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)});
 switch_end_1:;
 }
-#line 139334 "main.c"
+#line 139337 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__typeSyntaxSpan(byn_parser_TypeSyntax p_t) {
     bynt_lexer__TextSpan t0 = {0};
@@ -139411,7 +139414,7 @@ switch_end_1:;
 #line 1423 "semantics/naming.byn"
     return t0;
 }
-#line 139415 "main.c"
+#line 139418 "main.c"
 
 void byn_semantics__checkParticles(bynt_semantics__Ctx* p_c, int64_t p_f, int64_t p_fn) {
     bynt_list_semantics__ParamFacts l0_params = {0};
@@ -139618,7 +139621,7 @@ break_3:;
     }
 break_5:;
 }
-#line 139622 "main.c"
+#line 139625 "main.c"
 
 bynt_list_semantics__ParamFacts byn_semantics__paramFacts(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -139674,7 +139677,7 @@ bynt_list_semantics__ParamFacts byn_semantics__paramFacts(bynt_semantics__Ctx* p
     return ((bynt_list_semantics__ParamFacts){NULL, 0, 0, byn_context});
 switch_end_1:;
 }
-#line 139678 "main.c"
+#line 139681 "main.c"
 
 bynt_list_semantics__ParamFacts byn_semantics__memberParamFacts(bynt_list_parser__Decl p_members, int64_t p_m) {
     byn_parser_Decl t0 = {0};
@@ -139705,7 +139708,7 @@ bynt_list_semantics__ParamFacts byn_semantics__memberParamFacts(bynt_list_parser
     return ((bynt_list_semantics__ParamFacts){NULL, 0, 0, byn_context});
 switch_end_1:;
 }
-#line 139709 "main.c"
+#line 139712 "main.c"
 
 bynt_list_semantics__ParamFacts byn_semantics__paramFactsOf(bynt_list_parser__Param p_params) {
     bynt_list_semantics__ParamFacts l0_facts = {0};
@@ -139737,7 +139740,7 @@ break_1:;
 #line 1547 "semantics/naming.byn"
     return l0_facts;
 }
-#line 139741 "main.c"
+#line 139744 "main.c"
 
 void byn_semantics__analyzeOwnership(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     bynt_semantics__Ownership l0_a = {0};
@@ -139755,7 +139758,7 @@ void byn_semantics__analyzeOwnership(bynt_semantics__Ctx* p_c, int64_t p_fn) {
 #line 56 "semantics/ownership.byn"
     l2__ = byn_semantics__t24Block(&l0_a, &(*p_c), l1_statements, ((bynt_semantics__OwnState){true, ((bynt_list_semantics__T24Moved){NULL, 0, 0, byn_context})}));
 }
-#line 139759 "main.c"
+#line 139762 "main.c"
 
 bynt_list_semantics__T24Moved byn_semantics__t24CopyMoved(bynt_list_semantics__T24Moved p_xs) {
     bynt_list_semantics__T24Moved l0_r = {0};
@@ -139787,19 +139790,19 @@ break_1:;
 #line 66 "semantics/ownership.byn"
     return l0_r;
 }
-#line 139791 "main.c"
+#line 139794 "main.c"
 
 bynt_semantics__OwnState byn_semantics__t24Clone(bynt_semantics__OwnState p_s) {
 #line 69 "semantics/ownership.byn"
     return ((bynt_semantics__OwnState){p_s.reachable, byn_semantics__t24CopyMoved(p_s.moved)});
 }
-#line 139797 "main.c"
+#line 139800 "main.c"
 
 bynt_semantics__OwnState byn_semantics__t24Unreachable(void) {
 #line 71 "semantics/ownership.byn"
     return ((bynt_semantics__OwnState){false, ((bynt_list_semantics__T24Moved){NULL, 0, 0, byn_context})});
 }
-#line 139803 "main.c"
+#line 139806 "main.c"
 
 int64_t byn_semantics__t24Find(bynt_list_semantics__T24Moved p_moved, int64_t p_l) {
     int64_t l0_k = {0};
@@ -139831,7 +139834,7 @@ break_1:;
 #line 78 "semantics/ownership.byn"
     return INT64_C(-1);
 }
-#line 139835 "main.c"
+#line 139838 "main.c"
 
 void byn_semantics__t24Set(bynt_list_semantics__T24Moved* p_moved, int64_t p_l, bynt_lexer__TextSpan p_site) {
     int64_t l0_k = {0};
@@ -139846,7 +139849,7 @@ void byn_semantics__t24Set(bynt_list_semantics__T24Moved* p_moved, int64_t p_l, 
         (void)bynh_add_list_semantics__T24Moved(&(*p_moved), ((bynt_semantics__T24Moved){p_l, p_site}));
     }
 }
-#line 139850 "main.c"
+#line 139853 "main.c"
 
 void byn_semantics__t24Remove(bynt_list_semantics__T24Moved* p_moved, int64_t p_l) {
     int64_t l0_k = {0};
@@ -139858,7 +139861,7 @@ void byn_semantics__t24Remove(bynt_list_semantics__T24Moved* p_moved, int64_t p_
         (void)bynh_remove_through_list_semantics__T24Moved(&(*p_moved), l0_k, 0, 2, byn_file_55, 95);
     }
 }
-#line 139862 "main.c"
+#line 139865 "main.c"
 
 bynt_semantics__OwnState byn_semantics__t24Join(bynt_semantics__OwnState p_s, bynt_semantics__OwnState p_other) {
     bynt_semantics__OwnState l0_r = {0};
@@ -139903,7 +139906,7 @@ break_1:;
 #line 109 "semantics/ownership.byn"
     return l0_r;
 }
-#line 139907 "main.c"
+#line 139910 "main.c"
 
 bool byn_semantics__t24SameAs(bynt_semantics__OwnState p_s, bynt_semantics__OwnState p_other) {
     int64_t t0 = {0};
@@ -139951,13 +139954,13 @@ break_1:;
 #line 117 "semantics/ownership.byn"
     return true;
 }
-#line 139955 "main.c"
+#line 139958 "main.c"
 
 bool byn_semantics__t24SameSpan(bynt_lexer__TextSpan p_a, bynt_lexer__TextSpan p_b) {
 #line 120 "semantics/ownership.byn"
     return ((p_a.start == p_b.start) && (p_a.length == p_b.length));
 }
-#line 139961 "main.c"
+#line 139964 "main.c"
 
 void byn_semantics__t24Report(bynt_semantics__Ownership* p_a, bynt_semantics__Ctx* p_c, byn_semantics_SemaCode p_code, bynt_lexer__TextSpan p_span, byn_str p_arg, byn_str p_label, byn_str p_help, bool p_hasFix, bynt_opt_lexer__TextSpan p_fixSpan, byn_str p_fixReplacement) {
     byn_str l0_text = {0};
@@ -139994,7 +139997,7 @@ break_1:;
 #line 139 "semantics/ownership.byn"
     (void)byn_semantics__report__o1(&(*p_c), p_code, (*p_a).file, p_span, ((bynt_tup5_str_str_str_str_str){p_arg, BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0), BYN_STR("", 0)}), p_label, p_help, p_hasFix, p_fixSpan, p_fixReplacement);
 }
-#line 139998 "main.c"
+#line 140001 "main.c"
 
 int64_t byn_semantics__t24Line(bynt_semantics__Ctx p_c, int64_t p_file, int64_t p_offset) {
     bynt_list_u8 t0 = {0};
@@ -140003,7 +140006,7 @@ int64_t byn_semantics__t24Line(bynt_semantics__Ctx p_c, int64_t p_file, int64_t 
 #line 153 "semantics/ownership.byn"
     return byn_semantics__linePosition(bynh_span_list_u8(t0), p_offset).item1;
 }
-#line 140007 "main.c"
+#line 140010 "main.c"
 
 bynt_semantics__OwnState byn_semantics__t24Block(bynt_semantics__Ownership* p_a, bynt_semantics__Ctx* p_c, bynt_list_i64 p_statements, bynt_semantics__OwnState p_start) {
     bynt_semantics__OwnState l0_state = {0};
@@ -140056,7 +140059,7 @@ break_3:;
 #line 167 "semantics/ownership.byn"
     return l0_state;
 }
-#line 140060 "main.c"
+#line 140063 "main.c"
 
 bynt_semantics__OwnState byn_semantics__t24Statement(bynt_semantics__Ownership* p_a, bynt_semantics__Ctx* p_c, int64_t p_s, bynt_semantics__OwnState p_start) {
     bynt_semantics__OwnState l0_state = {0};
@@ -140632,7 +140635,7 @@ bynt_semantics__OwnState byn_semantics__t24Statement(bynt_semantics__Ownership* 
     return l0_state;
 switch_end_1:;
 }
-#line 140636 "main.c"
+#line 140639 "main.c"
 
 bynt_semantics__OwnState byn_semantics__t24Bind(bynt_semantics__Ctx p_c, int64_t p_pattern, bynt_semantics__OwnState p_start) {
     bynt_semantics__OwnState l0_state = {0};
@@ -140706,7 +140709,7 @@ break_1:;
 #line 387 "semantics/ownership.byn"
     return l0_state;
 }
-#line 140710 "main.c"
+#line 140713 "main.c"
 
 void byn_semantics__t24Register(bynt_semantics__Ownership* p_a, bynt_semantics__Ctx* p_c, int64_t p_body, bynt_lexer__TextSpan p_site, bool p_onFailure, bynt_semantics__OwnState p_state, bool p_panic) {
     bynt_list_i64 l0_assigned = {0};
@@ -140788,7 +140791,7 @@ break_1:;
 #line 420 "semantics/ownership.byn"
     (void)bynh_add_list_semantics__T24Cleanup(&(*p_a).cleanups, ((bynt_semantics__T24Cleanup){p_site, p_onFailure, l1_reads, l2_moves, byn_semantics__t24CopyMoved(p_state.moved), p_panic}));
 }
-#line 140792 "main.c"
+#line 140795 "main.c"
 
 void byn_semantics__t24RunCleanups(bynt_semantics__Ownership* p_a, bynt_semantics__Ctx* p_c, bynt_semantics__OwnState p_state, int64_t p_depth, bool p_failing) {
     bynt_list_semantics__T24Moved l0_moved = {0};
@@ -140932,7 +140935,7 @@ void byn_semantics__t24RunCleanups(bynt_semantics__Ownership* p_a, bynt_semantic
     }
 break_1:;
 }
-#line 140936 "main.c"
+#line 140939 "main.c"
 
 void byn_semantics__t24Merge(bynt_map_i64_semantics__OwnState* p_map, int64_t p_target, bynt_semantics__OwnState p_state) {
     bynt_semantics__OwnState l0_joined = {0};
@@ -140955,7 +140958,7 @@ void byn_semantics__t24Merge(bynt_map_i64_semantics__OwnState* p_map, int64_t p_
         (*bynh_slot_map_i64_semantics__OwnState(&(*p_map), p_target, ((bynt_semantics__OwnState){0}))) = t1;
     }
 }
-#line 140959 "main.c"
+#line 140962 "main.c"
 
 bynt_semantics__OwnState byn_semantics__t24Exit(bynt_semantics__Ownership* p_a, int64_t p_target, bynt_semantics__OwnState p_after) {
     bool l0__ = {0};
@@ -140975,7 +140978,7 @@ bynt_semantics__OwnState byn_semantics__t24Exit(bynt_semantics__Ownership* p_a, 
 #line 481 "semantics/ownership.byn"
     return p_after;
 }
-#line 140979 "main.c"
+#line 140982 "main.c"
 
 bynt_semantics__OwnState byn_semantics__t24Expr(bynt_semantics__Ownership* p_a, bynt_semantics__Ctx* p_c, int64_t p_e, bynt_semantics__OwnState p_start) {
     bynt_semantics__OwnState l0_state = {0};
@@ -141433,7 +141436,7 @@ bynt_semantics__OwnState byn_semantics__t24Expr(bynt_semantics__Ownership* p_a, 
     return byn_semantics__t24Default(&(*p_a), &(*p_c), p_e, l0_state);
 switch_end_1:;
 }
-#line 141437 "main.c"
+#line 141440 "main.c"
 
 bynt_semantics__OwnState byn_semantics__t24Default(bynt_semantics__Ownership* p_a, bynt_semantics__Ctx* p_c, int64_t p_e, bynt_semantics__OwnState p_start) {
     bynt_semantics__OwnState l0_state = {0};
@@ -141526,7 +141529,7 @@ break_3:;
 #line 641 "semantics/ownership.byn"
     return ((byn_semantics__isNever(byn_semantics__exprType((*p_c), p_e)) && (!(byn_semantics__boundKind(p_e) == ((byn_semantics_BoundKind)38)))) ? byn_semantics__t24Unreachable() : l0_state);
 }
-#line 141530 "main.c"
+#line 141533 "main.c"
 
 bynt_list_i64 byn_semantics__t24StoredOperands(bynt_semantics__Ctx p_c, int64_t p_e) {
     bynt_list_i64 l0_r = {0};
@@ -141694,7 +141697,7 @@ switch_end_1:;
 #line 676 "semantics/ownership.byn"
     return l0_r;
 }
-#line 141698 "main.c"
+#line 141701 "main.c"
 
 void byn_semantics__t24CheckStore(bynt_semantics__Ownership* p_a, bynt_semantics__Ctx* p_c, int64_t p_value, bool p_captured) {
     byn_str l0_why = {0};
@@ -141946,7 +141949,7 @@ break_1:;
 #line 751 "semantics/ownership.byn"
     (void)byn_semantics__t24Report(&(*p_a), &(*p_c), ((byn_semantics_SemaCode)161), l4_span, l0_why, BYN_STR("", 0), l30_help, l16_hasFix, ((bynt_opt_lexer__TextSpan){true, l17_fixSpan}), l18_fixReplacement);
 }
-#line 141950 "main.c"
+#line 141953 "main.c"
 
 bool byn_semantics__t24IsSelfWith(bynt_semantics__Ctx p_c, int64_t p_value, int64_t p_local) {
     int64_t l0_core = {0};
@@ -141976,7 +141979,7 @@ bool byn_semantics__t24IsSelfWith(bynt_semantics__Ctx p_c, int64_t p_value, int6
     return false;
 switch_end_1:;
 }
-#line 141980 "main.c"
+#line 141983 "main.c"
 
 bool byn_semantics__t24IsMovable(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_l = {0};
@@ -141998,7 +142001,7 @@ bool byn_semantics__t24IsMovable(bynt_semantics__Ctx p_c, int64_t p_e) {
 #line 784 "semantics/ownership.byn"
     return ((*bynh_at_list_semantics__LocalSymbol(p_c.locals, (int64_t)l0_l, false, byn_file_55, 784)).isParameter && ((*bynh_at_list_semantics__LocalSymbol(p_c.locals, (int64_t)l0_l, false, byn_file_55, 784)).modifier == ((byn_parser_ParamModifier)2)));
 }
-#line 142002 "main.c"
+#line 142005 "main.c"
 
 bool byn_semantics__t24IsPlace(bynt_semantics__Ctx* p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -142195,13 +142198,13 @@ bool byn_semantics__t24IsPlace(bynt_semantics__Ctx* p_c, int64_t p_e) {
     return false;
 switch_end_1:;
 }
-#line 142199 "main.c"
+#line 142202 "main.c"
 
 int64_t byn_semantics__t24StripConversions(bynt_semantics__Ctx p_c, int64_t p_e) {
 #line 843 "semantics/ownership.byn"
     return ((byn_semantics__boundKind(p_e) == ((byn_semantics_BoundKind)12)) ? byn_semantics__t24StripConversions(p_c, (*bynh_at_list_semantics__BConversion(p_c.bConversions, (int64_t)byn_semantics__boundIndex(p_e), false, byn_file_55, 843)).operand) : p_e);
 }
-#line 142205 "main.c"
+#line 142208 "main.c"
 
 void byn_semantics__lintNeverReassignedVar(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_file = {0};
@@ -142283,7 +142286,7 @@ void byn_semantics__lintNeverReassignedVar(bynt_semantics__Ctx* p_c, int64_t p_f
     }
 break_1:;
 }
-#line 142287 "main.c"
+#line 142290 "main.c"
 
 void byn_semantics__lintSpanParameter(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_file = {0};
@@ -142495,7 +142498,7 @@ break_3:;
     }
 break_10:;
 }
-#line 142499 "main.c"
+#line 142502 "main.c"
 
 void byn_semantics__t24Written(bynt_list_i64* p_candidates, bynt_semantics__Ctx p_c, int64_t p_target) {
     int64_t l0_root = {0};
@@ -142507,7 +142510,7 @@ void byn_semantics__t24Written(bynt_list_i64* p_candidates, bynt_semantics__Ctx 
         (void)byn_semantics__t24RemoveId(&(*p_candidates), l0_root);
     }
 }
-#line 142511 "main.c"
+#line 142514 "main.c"
 
 void byn_semantics__t24RemoveId(bynt_list_i64* p_xs, int64_t p_x) {
     bynt_list_i64 l0_kept = {0};
@@ -142542,7 +142545,7 @@ break_1:;
 #line 971 "semantics/ownership.byn"
     (*p_xs) = l0_kept;
 }
-#line 142546 "main.c"
+#line 142549 "main.c"
 
 bool byn_semantics__t24ReadOnlyUse(bynt_semantics__Ctx* p_c, int64_t p_parent, int64_t p_use) {
     int64_t l0_i = {0};
@@ -142639,7 +142642,7 @@ bool byn_semantics__t24ReadOnlyUse(bynt_semantics__Ctx* p_c, int64_t p_parent, i
     return false;
 switch_end_1:;
 }
-#line 142643 "main.c"
+#line 142646 "main.c"
 
 int64_t byn_semantics__t24Root(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -142687,7 +142690,7 @@ int64_t byn_semantics__t24Root(bynt_semantics__Ctx p_c, int64_t p_e) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 142691 "main.c"
+#line 142694 "main.c"
 
 bynt_list_semantics__T24NamedParam byn_semantics__t24ParamSyntax(bynt_semantics__Ctx p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -142813,7 +142816,7 @@ break_5:;
 #line 1051 "semantics/ownership.byn"
     return l15_result;
 }
-#line 142817 "main.c"
+#line 142820 "main.c"
 
 bynt_list_semantics__T24NamedParam byn_semantics__t24FromSyntax(bynt_semantics__Ctx p_c, int64_t p_fn, bynt_list_parser__Param p_ps) {
     bynt_list_semantics__T24NamedParam l0_result = {0};
@@ -142866,7 +142869,7 @@ break_1:;
 #line 1067 "semantics/ownership.byn"
     return l0_result;
 }
-#line 142870 "main.c"
+#line 142873 "main.c"
 
 void byn_semantics__checkPanicHandler(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_file = {0};
@@ -142889,7 +142892,7 @@ void byn_semantics__checkPanicHandler(bynt_semantics__Ctx* p_c, int64_t p_fn) {
         (void)byn_semantics__t24FindHandlers(&(*p_c), p_fn, l1_body);
     }
 }
-#line 142893 "main.c"
+#line 142896 "main.c"
 
 void byn_semantics__t24FindHandlers(bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_node) {
     int64_t l0_child = {0};
@@ -142923,7 +142926,7 @@ void byn_semantics__t24FindHandlers(bynt_semantics__Ctx* p_c, int64_t p_fn, int6
     }
 break_1:;
 }
-#line 142927 "main.c"
+#line 142930 "main.c"
 
 void byn_semantics__t24CheckHandler(bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_body, bool p_whole) {
     int64_t l0_file = {0};
@@ -143195,7 +143198,7 @@ void byn_semantics__t24CheckHandler(bynt_semantics__Ctx* p_c, int64_t p_fn, int6
     }
 break_1:;
 }
-#line 143199 "main.c"
+#line 143202 "main.c"
 
 bool byn_semantics__t24AllocatingFunction(byn_semantics_BuiltinFunction p_b) {
 #line 1213 "semantics/ownership.byn"
@@ -143209,7 +143212,7 @@ bool byn_semantics__t24AllocatingFunction(byn_semantics_BuiltinFunction p_b) {
     return false;
 switch_end_1:;
 }
-#line 143213 "main.c"
+#line 143216 "main.c"
 
 bool byn_semantics__t24AllocatingMember(byn_semantics_BuiltinMember p_m) {
 #line 1246 "semantics/ownership.byn"
@@ -143223,13 +143226,13 @@ bool byn_semantics__t24AllocatingMember(byn_semantics_BuiltinMember p_m) {
     return false;
 switch_end_1:;
 }
-#line 143227 "main.c"
+#line 143230 "main.c"
 
 bynt_semantics__Borrow byn_semantics__t25None(void) {
 #line 88 "semantics/region.byn"
     return ((bynt_semantics__Borrow){((bynt_list_semantics__Region){NULL, 0, 0, byn_context}), ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_opt_map_i64_i64){0})});
 }
-#line 143233 "main.c"
+#line 143236 "main.c"
 
 bynt_semantics__Borrow byn_semantics__t25Region(int64_t p_depth, byn_str p_name) {
     bynt_list_semantics__Region l0_regions = {0};
@@ -143240,13 +143243,13 @@ bynt_semantics__Borrow byn_semantics__t25Region(int64_t p_depth, byn_str p_name)
 #line 94 "semantics/region.byn"
     return ((bynt_semantics__Borrow){l0_regions, ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_opt_map_i64_i64){0})});
 }
-#line 143244 "main.c"
+#line 143247 "main.c"
 
 bool byn_semantics__t25IsEmpty(bynt_semantics__Borrow p_b) {
 #line 98 "semantics/region.byn"
     return ((p_b.regions.len == INT64_C(0)) && (p_b.owners.len == INT64_C(0)));
 }
-#line 143250 "main.c"
+#line 143253 "main.c"
 
 bynt_semantics__Borrow byn_semantics__t25Copy(bynt_semantics__Borrow p_b) {
     bynt_list_semantics__Region l0_regions = {0};
@@ -143304,7 +143307,7 @@ break_3:;
 #line 110 "semantics/region.byn"
     return ((bynt_semantics__Borrow){l0_regions, l4_owners, byn_semantics__t25CopyLends(p_b.lends)});
 }
-#line 143308 "main.c"
+#line 143311 "main.c"
 
 bynt_semantics__Borrow byn_semantics__t25WithoutOwners(bynt_semantics__Borrow p_b) {
     bynt_list_semantics__Region l0_regions = {0};
@@ -143336,7 +143339,7 @@ break_1:;
 #line 119 "semantics/region.byn"
     return ((bynt_semantics__Borrow){l0_regions, ((bynt_list_i64){NULL, 0, 0, byn_context}), byn_semantics__t25CopyLends(p_b.lends)});
 }
-#line 143340 "main.c"
+#line 143343 "main.c"
 
 bynt_opt_map_i64_i64 byn_semantics__t25CopyLends(bynt_opt_map_i64_i64 p_lends) {
     bynt_map_i64_i64 l0_l = {0};
@@ -143385,7 +143388,7 @@ bynt_opt_map_i64_i64 byn_semantics__t25CopyLends(bynt_opt_map_i64_i64 p_lends) {
 #line 130 "semantics/region.byn"
     return ((bynt_opt_map_i64_i64){0});
 }
-#line 143389 "main.c"
+#line 143392 "main.c"
 
 void byn_semantics__t25AddRegion(bynt_list_semantics__Region* p_regions, bynt_semantics__Region p_x) {
     bynt_semantics__Region l0_y = {0};
@@ -143417,7 +143420,7 @@ break_1:;
 #line 138 "semantics/region.byn"
     (void)bynh_add_list_semantics__Region(&(*p_regions), p_x);
 }
-#line 143421 "main.c"
+#line 143424 "main.c"
 
 void byn_semantics__t25AddOwner(bynt_list_i64* p_owners, int64_t p_x) {
     int64_t l0_y = {0};
@@ -143449,7 +143452,7 @@ break_1:;
 #line 146 "semantics/region.byn"
     (void)bynh_add_list_i64(&(*p_owners), p_x);
 }
-#line 143453 "main.c"
+#line 143456 "main.c"
 
 bynt_semantics__Borrow byn_semantics__unionBorrow(bynt_semantics__Borrow p_a, bynt_semantics__Borrow p_b) {
     bynt_list_semantics__Region l0_regions = {0};
@@ -143563,7 +143566,7 @@ break_7:;
 #line 168 "semantics/region.byn"
     return ((bynt_semantics__Borrow){l0_regions, l7_owners, byn_semantics__t25Merge(p_a.lends, p_b.lends)});
 }
-#line 143567 "main.c"
+#line 143570 "main.c"
 
 bynt_semantics__Borrow byn_semantics__lent(bynt_semantics__Borrow p_b, int64_t p_owner, int64_t p_at) {
     bynt_list_semantics__Region l0_regions = {0};
@@ -143631,7 +143634,7 @@ break_3:;
 #line 184 "semantics/region.byn"
     return ((bynt_semantics__Borrow){l0_regions, l4_owners, byn_semantics__t25Merge(p_b.lends, l9_added)});
 }
-#line 143635 "main.c"
+#line 143638 "main.c"
 
 bynt_opt_map_i64_i64 byn_semantics__t25Merge(bynt_opt_map_i64_i64 p_a, bynt_opt_map_i64_i64 p_b) {
     bynt_map_i64_i64 l0_result = {0};
@@ -143738,7 +143741,7 @@ bynt_opt_map_i64_i64 byn_semantics__t25Merge(bynt_opt_map_i64_i64 p_a, bynt_opt_
 #line 206 "semantics/region.byn"
     return ((bynt_opt_map_i64_i64){true, l0_result});
 }
-#line 143742 "main.c"
+#line 143745 "main.c"
 
 void byn_semantics__analyzeRegions(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     bynt_semantics__Regions l0_r = {0};
@@ -143752,7 +143755,7 @@ void byn_semantics__analyzeRegions(bynt_semantics__Ctx* p_c, int64_t p_fn) {
 #line 214 "semantics/region.byn"
     (void)byn_semantics__runRegions(&l0_r, &(*p_c));
 }
-#line 143756 "main.c"
+#line 143759 "main.c"
 
 void byn_semantics__t42AnalyzeRegions(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     bool l0_undone = {0};
@@ -143792,7 +143795,7 @@ void byn_semantics__t42AnalyzeRegions(bynt_semantics__Ctx* p_c, int64_t p_fn) {
 #line 228 "semantics/region.byn"
     byn_arena_free(l2_arena);
 }
-#line 143796 "main.c"
+#line 143799 "main.c"
 
 bynt_semantics__T42Mark byn_semantics__t42Mark(bynt_semantics__Ctx p_c) {
     int64_t t0 = {0};
@@ -143804,7 +143807,7 @@ bynt_semantics__T42Mark byn_semantics__t42Mark(bynt_semantics__Ctx p_c) {
 #line 246 "semantics/region.byn"
     return ((bynt_semantics__T42Mark){t0, t1, p_c.changedFieldsKeys.len});
 }
-#line 143808 "main.c"
+#line 143811 "main.c"
 
 bool byn_semantics__t42Undo(bynt_semantics__Ctx* p_c, bynt_semantics__T42Mark p_mark) {
     bynt_semantics__Diag l0__ = {0};
@@ -143857,7 +143860,7 @@ break_5:;
 #line 263 "semantics/region.byn"
     return true;
 }
-#line 143861 "main.c"
+#line 143864 "main.c"
 
 bynt_semantics__T41Changed byn_semantics__t42SummaryInArena(bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_known, int64_t p_returned, bynt_list_semantics__StorePair* p_pairs, bynt_list_i64* p_returns) {
     bynt_semantics__T41Changed l0_flags = {0};
@@ -143900,7 +143903,7 @@ bynt_semantics__T41Changed byn_semantics__t42SummaryInArena(bynt_semantics__Ctx*
 #line 279 "semantics/region.byn"
     byn_arena_free(l2_arena);
 }
-#line 143904 "main.c"
+#line 143907 "main.c"
 
 void byn_semantics__summarizeRegions(bynt_semantics__Ctx* p_c) {
     bynt_list_i64 l0_functions = {0};
@@ -144056,7 +144059,7 @@ break_1:;
     }
 break_5:;
 }
-#line 144060 "main.c"
+#line 144063 "main.c"
 
 bynt_semantics__T41Changed byn_semantics__t41SummaryRun(bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_known, int64_t p_returned, bynt_list_semantics__StorePair* p_pairs, bynt_list_i64* p_returns) {
     bynt_semantics__Regions l0_r = {0};
@@ -144129,7 +144132,7 @@ bynt_semantics__T41Changed byn_semantics__t41SummaryRun(bynt_semantics__Ctx* p_c
 #line 377 "semantics/region.byn"
     return ((bynt_semantics__T41Changed){l1_pairsChanged, l2_returnsChanged, false});
 }
-#line 144133 "main.c"
+#line 144136 "main.c"
 
 bool byn_semantics__t41HasTargets(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     bynt_list_i64 l0_ps = {0};
@@ -144167,13 +144170,13 @@ break_1:;
 #line 387 "semantics/region.byn"
     return (((*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_fn, false, byn_file_56, 387)).isMutating && byn_semantics__functionHasThis(&(*p_c), p_fn)) && ((l4_owner == INT64_C(-1)) || byn_semantics__t41MayHold(&(*p_c), byn_semantics__structTypeOf(l4_owner))));
 }
-#line 144171 "main.c"
+#line 144174 "main.c"
 
 bool byn_semantics__t41IsTarget(bynt_semantics__Ctx* p_c, int64_t p_p) {
 #line 393 "semantics/region.byn"
     return ((byn_semantics__t37RefOrOut((*p_c), p_p) || byn_semantics__t37WritableDynRef((*p_c), (*bynh_at_list_semantics__LocalSymbol((*p_c).locals, (int64_t)p_p, false, byn_file_56, 393)).type)) && byn_semantics__t41MayHold(&(*p_c), (*bynh_at_list_semantics__LocalSymbol((*p_c).locals, (int64_t)p_p, false, byn_file_56, 393)).type));
 }
-#line 144177 "main.c"
+#line 144180 "main.c"
 
 bool byn_semantics__t41MayHold(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_i64 l0_seen = {0};
@@ -144182,7 +144185,7 @@ bool byn_semantics__t41MayHold(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 398 "semantics/region.byn"
     return (byn_semantics__mayBorrow(&(*p_c), p_t, &l0_seen) || byn_semantics__occurs(&(*p_c), p_t));
 }
-#line 144186 "main.c"
+#line 144189 "main.c"
 
 bynt_semantics__Borrow byn_semantics__t41Source(int64_t p_source) {
     bynt_list_semantics__Region l0_regions = {0};
@@ -144193,7 +144196,7 @@ bynt_semantics__Borrow byn_semantics__t41Source(int64_t p_source) {
 #line 405 "semantics/region.byn"
     return ((bynt_semantics__Borrow){l0_regions, ((bynt_list_i64){NULL, 0, 0, byn_context}), ((bynt_opt_map_i64_i64){0})});
 }
-#line 144197 "main.c"
+#line 144200 "main.c"
 
 void byn_semantics__runRegions(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c) {
     bynt_list_i64 l0_ps = {0};
@@ -144329,7 +144332,7 @@ break_1:;
         (void)byn_semantics__checkMutations(&(*p_r), &(*p_c));
     }
 }
-#line 144333 "main.c"
+#line 144336 "main.c"
 
 void byn_semantics__t25SetRestTail(bynt_semantics__Regions* p_r, bynt_semantics__Region p_tail, byn_str p_name) {
     int64_t l0_k = {0};
@@ -144363,7 +144366,7 @@ break_1:;
 #line 463 "semantics/region.byn"
     (void)bynh_add_list_semantics__RestTail(&(*p_r).restTails, ((bynt_semantics__RestTail){p_tail, p_name}));
 }
-#line 144367 "main.c"
+#line 144370 "main.c"
 
 void byn_semantics__stmtRegions(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_i = {0};
@@ -144679,7 +144682,7 @@ void byn_semantics__stmtRegions(bynt_semantics__Regions* p_r, bynt_semantics__Ct
     return;
 switch_end_1:;
 }
-#line 144683 "main.c"
+#line 144686 "main.c"
 
 void byn_semantics__t25For(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_i = {0};
@@ -144884,7 +144887,7 @@ void byn_semantics__t25For(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_
 #line 629 "semantics/region.byn"
     (*p_r).depth = byn_sub_i64((*p_r).depth, INT64_C(1), byn_file_56, 629);
 }
-#line 144888 "main.c"
+#line 144891 "main.c"
 
 void byn_semantics__iterateRegions(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_depth, int64_t p_body) {
     int64_t l0_outer = {0};
@@ -144897,7 +144900,7 @@ void byn_semantics__iterateRegions(bynt_semantics__Regions* p_r, bynt_semantics_
 #line 636 "semantics/region.byn"
     (*p_r).iteration = l0_outer;
 }
-#line 144901 "main.c"
+#line 144904 "main.c"
 
 void byn_semantics__declareBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_local, int64_t p_position) {
 #line 640 "semantics/region.byn"
@@ -144905,7 +144908,7 @@ void byn_semantics__declareBorrow(bynt_semantics__Regions* p_r, bynt_semantics__
 #line 641 "semantics/region.byn"
     (*bynh_slot_map_i64_i64(&(*p_r).declaredAt, p_local, ((int64_t){0}))) = p_position;
 }
-#line 144909 "main.c"
+#line 144912 "main.c"
 
 bynt_semantics__Borrow byn_semantics__exprRegions(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_e) {
     bynt_semantics__Borrow l0_result = {0};
@@ -144925,7 +144928,7 @@ bynt_semantics__Borrow byn_semantics__exprRegions(bynt_semantics__Regions* p_r, 
 #line 651 "semantics/region.byn"
     return byn_semantics__t25None();
 }
-#line 144929 "main.c"
+#line 144932 "main.c"
 
 bynt_semantics__Borrow byn_semantics__computeBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -145519,7 +145522,7 @@ break_13:;
     return l80_result;
 switch_end_1:;
 }
-#line 145523 "main.c"
+#line 145526 "main.c"
 
 bynt_semantics__Borrow byn_semantics__builtinBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -145721,7 +145724,7 @@ break_6:;
     return l12_acc;
 switch_end_5:;
 }
-#line 145725 "main.c"
+#line 145728 "main.c"
 
 int64_t byn_semantics__t41BuiltinStore(byn_semantics_BuiltinMember p_member) {
 #line 924 "semantics/region.byn"
@@ -145756,7 +145759,7 @@ int64_t byn_semantics__t41BuiltinStore(byn_semantics_BuiltinMember p_member) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 145760 "main.c"
+#line 145763 "main.c"
 
 bynt_semantics__Borrow byn_semantics__t37CopyBorrow(bynt_semantics__Borrow p_b) {
     bynt_list_semantics__Region l0_regions = {0};
@@ -145834,7 +145837,7 @@ break_1:;
 #line 18 "semantics/region2.byn"
     return ((bynt_semantics__Borrow){l0_regions, l4_owners, ((bynt_opt_map_i64_i64){0})});
 }
-#line 145838 "main.c"
+#line 145841 "main.c"
 
 bool byn_semantics__t37HasRegion(bynt_list_semantics__Region p_regions, bynt_semantics__Region p_region) {
     bynt_semantics__Region l0_x = {0};
@@ -145866,7 +145869,7 @@ break_1:;
 #line 26 "semantics/region2.byn"
     return false;
 }
-#line 145870 "main.c"
+#line 145873 "main.c"
 
 bool byn_semantics__t37HasId(bynt_list_i64 p_xs, int64_t p_x) {
     int64_t l0_y = {0};
@@ -145898,7 +145901,7 @@ break_1:;
 #line 33 "semantics/region2.byn"
     return false;
 }
-#line 145902 "main.c"
+#line 145905 "main.c"
 
 void byn_semantics__t37UnionIds(bynt_list_i64* p_into, bynt_list_i64 p_xs) {
     int64_t l0_x = {0};
@@ -145928,13 +145931,13 @@ void byn_semantics__t37UnionIds(bynt_list_i64* p_into, bynt_list_i64 p_xs) {
     }
 break_1:;
 }
-#line 145932 "main.c"
+#line 145935 "main.c"
 
 bool byn_semantics__t37WritableDynRef(bynt_semantics__Ctx p_c, int64_t p_t) {
 #line 45 "semantics/region2.byn"
     return ((byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)7)) && (!(*bynh_at_list_semantics__DynRefData(p_c.dynRefTypes, (int64_t)byn_semantics__typeIndex(p_t), false, byn_file_57, 45)).readOnly));
 }
-#line 145938 "main.c"
+#line 145941 "main.c"
 
 bool byn_semantics__t37RefOrOut(bynt_semantics__Ctx p_c, int64_t p_p) {
     byn_parser_ParamModifier t0 = {0};
@@ -145943,13 +145946,13 @@ bool byn_semantics__t37RefOrOut(bynt_semantics__Ctx p_c, int64_t p_p) {
 #line 47 "semantics/region2.byn"
     return ((t0 == ((byn_parser_ParamModifier)1)) || (t0 == ((byn_parser_ParamModifier)3)));
 }
-#line 145947 "main.c"
+#line 145950 "main.c"
 
 bool byn_semantics__t37SpanOrDynRef(int64_t p_t) {
 #line 49 "semantics/region2.byn"
     return ((byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)5)) || (byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)7)));
 }
-#line 145953 "main.c"
+#line 145956 "main.c"
 
 bynt_semantics__Borrow byn_semantics__callBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_call) {
     int64_t l0_ci = {0};
@@ -146558,7 +146561,7 @@ break_13:;
 #line 283 "semantics/region2.byn"
     return l64_result;
 }
-#line 146562 "main.c"
+#line 146565 "main.c"
 
 bynt_list_semantics__StorePair byn_semantics__t41Stores(bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_call) {
     int64_t l0_ci = {0};
@@ -146771,25 +146774,25 @@ break_9:;
 #line 341 "semantics/region2.byn"
     return l3_result;
 }
-#line 146775 "main.c"
+#line 146778 "main.c"
 
 bool byn_semantics__t41IsBroad(bynt_semantics__Ctx p_c, int64_t p_fn) {
 #line 347 "semantics/region2.byn"
     return ((((*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_fn, false, byn_file_57, 347)).kind == ((byn_semantics_FunctionKind)8)) || (*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_fn, false, byn_file_57, 347)).isAbstract) || (!(((int64_t)((*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_fn, false, byn_file_57, 347)).modifiers & INT64_C(128))) == INT64_C(0))));
 }
-#line 146781 "main.c"
+#line 146784 "main.c"
 
 bool byn_semantics__t41BuiltinFresh(byn_semantics_BuiltinFunction p_builtin) {
 #line 352 "semantics/region2.byn"
     return (((((((((((((((((((((p_builtin == ((byn_semantics_BuiltinFunction)13)) || (p_builtin == ((byn_semantics_BuiltinFunction)27))) || (p_builtin == ((byn_semantics_BuiltinFunction)14))) || (p_builtin == ((byn_semantics_BuiltinFunction)19))) || (p_builtin == ((byn_semantics_BuiltinFunction)20))) || (p_builtin == ((byn_semantics_BuiltinFunction)21))) || (p_builtin == ((byn_semantics_BuiltinFunction)28))) || (p_builtin == ((byn_semantics_BuiltinFunction)29))) || (p_builtin == ((byn_semantics_BuiltinFunction)30))) || (p_builtin == ((byn_semantics_BuiltinFunction)34))) || (p_builtin == ((byn_semantics_BuiltinFunction)31))) || (p_builtin == ((byn_semantics_BuiltinFunction)32))) || (p_builtin == ((byn_semantics_BuiltinFunction)45))) || (p_builtin == ((byn_semantics_BuiltinFunction)51))) || (p_builtin == ((byn_semantics_BuiltinFunction)33))) || (p_builtin == ((byn_semantics_BuiltinFunction)39))) || (p_builtin == ((byn_semantics_BuiltinFunction)40))) || (p_builtin == ((byn_semantics_BuiltinFunction)41))) || (p_builtin == ((byn_semantics_BuiltinFunction)42))) || (p_builtin == ((byn_semantics_BuiltinFunction)43))) || (p_builtin == ((byn_semantics_BuiltinFunction)44)));
 }
-#line 146787 "main.c"
+#line 146790 "main.c"
 
 byn_str byn_semantics__t41ParameterName(bynt_semantics__Ctx p_c, int64_t p_fn, int64_t p_index) {
 #line 375 "semantics/region2.byn"
     return ((p_index == INT64_C(-1)) ? BYN_STR("this", 4) : (*bynh_at_list_semantics__LocalSymbol(p_c.locals, (int64_t)(*bynh_at_list_i64((*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_fn, false, byn_file_57, 375)).parameters, (int64_t)p_index, false, byn_file_57, 375)), false, byn_file_57, 375)).name);
 }
-#line 146793 "main.c"
+#line 146796 "main.c"
 
 bynt_semantics__Borrow byn_semantics__lendBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_source, bynt_semantics__Borrow p_sourceBorrow, int64_t p_at) {
     bynt_semantics__Borrow l0_b = {0};
@@ -146923,7 +146926,7 @@ bynt_semantics__Borrow byn_semantics__lendBorrow(bynt_semantics__Regions* p_r, b
 #line 435 "semantics/region2.byn"
     return byn_semantics__unionBorrow(l0_b, l15_temporary);
 }
-#line 146927 "main.c"
+#line 146930 "main.c"
 
 bynt_semantics__Borrow byn_semantics__allocatedFrom(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_allocator) {
     bynt_semantics__Borrow l0_borrow = {0};
@@ -146932,7 +146935,7 @@ bynt_semantics__Borrow byn_semantics__allocatedFrom(bynt_semantics__Regions* p_r
 #line 442 "semantics/region2.byn"
     return byn_semantics__t41AllocatedFrom(&(*p_r), &(*p_c), p_allocator, l0_borrow);
 }
-#line 146936 "main.c"
+#line 146939 "main.c"
 
 bynt_semantics__Borrow byn_semantics__t41AllocatedFrom(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_allocator, bynt_semantics__Borrow p_borrow) {
     int64_t l0_root = {0};
@@ -147051,7 +147054,7 @@ break_1:;
 #line 479 "semantics/region2.byn"
     return ((bynt_semantics__Borrow){l3_regions, l14_owners, ((bynt_opt_map_i64_i64){0})});
 }
-#line 147055 "main.c"
+#line 147058 "main.c"
 
 void byn_semantics__t37BindPattern(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_pattern, bynt_semantics__Borrow p_value) {
     bynt_list_i64 l0_nodes = {0};
@@ -147131,13 +147134,13 @@ void byn_semantics__t37BindPattern(bynt_semantics__Regions* p_r, bynt_semantics_
     }
 break_1:;
 }
-#line 147135 "main.c"
+#line 147138 "main.c"
 
 void byn_semantics__storeBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_local, bynt_semantics__Borrow p_value, bynt_lexer__TextSpan p_span) {
 #line 507 "semantics/region2.byn"
     (void)byn_semantics__t41StoreBorrow(&(*p_r), &(*p_c), p_local, p_value, p_span, ((bynt_opt_semantics__Related){0}));
 }
-#line 147141 "main.c"
+#line 147144 "main.c"
 
 void byn_semantics__t41StoreBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_local, bynt_semantics__Borrow p_value, bynt_lexer__TextSpan p_span, bynt_opt_semantics__Related p_note) {
     bynt_semantics__Borrow l0_merged = {0};
@@ -147232,7 +147235,7 @@ break_1:;
 #line 548 "semantics/region2.byn"
     (void)byn_semantics__t41CheckOutlives(&(*p_r), &(*p_c), p_value, (t11.has ? t11.value : INT64_C(0)), l10_holder, p_span, p_note);
 }
-#line 147236 "main.c"
+#line 147239 "main.c"
 
 void byn_semantics__t41Record(bynt_semantics__Regions* p_r, int64_t p_target, bynt_semantics__Borrow p_value, bynt_lexer__TextSpan p_span) {
     bynt_semantics__Region l0_region = {0};
@@ -147298,13 +147301,13 @@ void byn_semantics__t41Record(bynt_semantics__Regions* p_r, int64_t p_target, by
     }
 break_1:;
 }
-#line 147302 "main.c"
+#line 147305 "main.c"
 
 void byn_semantics__storeIntoBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_target, bynt_semantics__Borrow p_value, bynt_lexer__TextSpan p_span) {
 #line 578 "semantics/region2.byn"
     (void)byn_semantics__t41StoreIntoBorrow(&(*p_r), &(*p_c), p_target, p_value, p_span, ((bynt_opt_semantics__Related){0}));
 }
-#line 147308 "main.c"
+#line 147311 "main.c"
 
 void byn_semantics__t41StoreIntoBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_target, bynt_semantics__Borrow p_value, bynt_lexer__TextSpan p_span, bynt_opt_semantics__Related p_note) {
     int64_t l0_root = {0};
@@ -147383,13 +147386,13 @@ void byn_semantics__t41StoreIntoBorrow(bynt_semantics__Regions* p_r, bynt_semant
 #line 619 "semantics/region2.byn"
     (void)byn_semantics__t41CheckOutlives(&(*p_r), &(*p_c), p_value, INT64_C(0), BYN_STR("this", 4), p_span, p_note);
 }
-#line 147387 "main.c"
+#line 147390 "main.c"
 
 void byn_semantics__checkOutlives(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, bynt_semantics__Borrow p_value, int64_t p_depth, byn_str p_holder, bynt_lexer__TextSpan p_span) {
 #line 630 "semantics/region2.byn"
     (void)byn_semantics__t41CheckOutlives(&(*p_r), &(*p_c), p_value, p_depth, p_holder, p_span, ((bynt_opt_semantics__Related){0}));
 }
-#line 147393 "main.c"
+#line 147396 "main.c"
 
 void byn_semantics__t41CheckOutlives(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, bynt_semantics__Borrow p_value, int64_t p_depth, byn_str p_holder, bynt_lexer__TextSpan p_span, bynt_opt_semantics__Related p_note) {
     bynt_list_semantics__Region l0_ordered = {0};
@@ -147445,7 +147448,7 @@ void byn_semantics__t41CheckOutlives(bynt_semantics__Regions* p_r, bynt_semantic
     }
 break_1:;
 }
-#line 147449 "main.c"
+#line 147452 "main.c"
 
 void byn_semantics__checkReturn(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, bynt_semantics__Borrow p_value, bynt_lexer__TextSpan p_span) {
     bynt_semantics__Region l0_region = {0};
@@ -147521,7 +147524,7 @@ void byn_semantics__checkReturn(bynt_semantics__Regions* p_r, bynt_semantics__Ct
     }
 break_3:;
 }
-#line 147525 "main.c"
+#line 147528 "main.c"
 
 bool byn_semantics__restEscapes(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, bynt_semantics__Region p_region, bynt_lexer__TextSpan p_span) {
     bool l0_found = {0};
@@ -147585,7 +147588,7 @@ break_1:;
 #line 705 "semantics/region2.byn"
     return true;
 }
-#line 147589 "main.c"
+#line 147592 "main.c"
 
 void byn_semantics__mutateBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_target, bynt_lexer__TextSpan p_span, bool p_moved) {
     int64_t l0_root = {0};
@@ -147612,7 +147615,7 @@ void byn_semantics__mutateBorrow(bynt_semantics__Regions* p_r, bynt_semantics__C
         (void)bynh_add_list_semantics__Mutation(&(*p_r).mutations, ((bynt_semantics__Mutation){l1_field, p_span, p_moved, INT64_C(-1)}));
     }
 }
-#line 147616 "main.c"
+#line 147619 "main.c"
 
 void byn_semantics__mutateOwners(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_via, bynt_semantics__Borrow p_borrow, bynt_lexer__TextSpan p_span) {
     bool l0_isLocal = {0};
@@ -147666,7 +147669,7 @@ void byn_semantics__mutateOwners(bynt_semantics__Regions* p_r, bynt_semantics__C
     }
 break_1:;
 }
-#line 147670 "main.c"
+#line 147673 "main.c"
 
 void byn_semantics__referBorrow(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_local, int64_t p_value) {
     bool l0_may = {0};
@@ -147722,7 +147725,7 @@ switch_end_1:;
 #line 748 "semantics/region2.byn"
     (*bynh_slot_map_i64_bool(&(*p_r).referentMayBorrow, p_local, ((bool){0}))) = t8;
 }
-#line 147726 "main.c"
+#line 147729 "main.c"
 
 int64_t byn_semantics__lastUse(bynt_semantics__Regions p_r, int64_t p_holder, bynt_map_i64_i64 p_useOf, bynt_list_list_i64 p_useLists, bynt_list_lexer__TextSpan p_loops) {
     int64_t l0_declared = {0};
@@ -147800,7 +147803,7 @@ break_1:;
 #line 775 "semantics/region2.byn"
     return l2_end;
 }
-#line 147804 "main.c"
+#line 147807 "main.c"
 
 void byn_semantics__checkMutations(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c) {
     bynt_map_i64_i64 l0_useOf = {0};
@@ -148085,7 +148088,7 @@ break_1:;
     }
 break_3:;
 }
-#line 148089 "main.c"
+#line 148092 "main.c"
 
 int64_t byn_semantics__rootLocal(bynt_semantics__Ctx* p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -148134,7 +148137,7 @@ int64_t byn_semantics__rootLocal(bynt_semantics__Ctx* p_c, int64_t p_e) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 148138 "main.c"
+#line 148141 "main.c"
 
 bool byn_semantics__isThisRooted(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -148198,7 +148201,7 @@ bool byn_semantics__isThisRooted(bynt_semantics__Ctx p_c, int64_t p_e) {
     return false;
 switch_end_1:;
 }
-#line 148202 "main.c"
+#line 148205 "main.c"
 
 int64_t byn_semantics__thisField(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_e) {
     int64_t l0_field = {0};
@@ -148207,7 +148210,7 @@ int64_t byn_semantics__thisField(bynt_semantics__Regions* p_r, bynt_semantics__C
 #line 889 "semantics/region2.byn"
     return ((!(l0_field == INT64_C(-1))) ? byn_semantics__fieldLocal(&(*p_r), &(*p_c), l0_field) : INT64_C(-1));
 }
-#line 148211 "main.c"
+#line 148214 "main.c"
 
 int64_t byn_semantics__fieldLocal(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_field) {
     int64_t l0_local = {0};
@@ -148225,7 +148228,7 @@ int64_t byn_semantics__fieldLocal(bynt_semantics__Regions* p_r, bynt_semantics__
 #line 897 "semantics/region2.byn"
     return l0_local;
 }
-#line 148229 "main.c"
+#line 148232 "main.c"
 
 int64_t byn_semantics__thisFieldSymbol(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -148272,7 +148275,7 @@ int64_t byn_semantics__thisFieldSymbol(bynt_semantics__Ctx p_c, int64_t p_e) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 148276 "main.c"
+#line 148279 "main.c"
 
 bynt_list_i64 byn_semantics__changedFields(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, int64_t p_fn) {
     bynt_semantics__T37Tarjan l0_t = {0};
@@ -148288,7 +148291,7 @@ bynt_list_i64 byn_semantics__changedFields(bynt_semantics__Regions* p_r, bynt_se
 #line 932 "semantics/region2.byn"
     return byn_semantics__copyIds(bynh_index_map_i64_list_i64((*p_c).changedFields, p_fn, byn_file_57, 932));
 }
-#line 148292 "main.c"
+#line 148295 "main.c"
 
 void byn_semantics__changedFieldsVisit(bynt_semantics__T37Tarjan* p_t, bynt_semantics__Ctx* p_c, int64_t p_f) {
     int64_t l0_n = {0};
@@ -148437,7 +148440,7 @@ break_3:;
     }
 break_5:;
 }
-#line 148441 "main.c"
+#line 148444 "main.c"
 
 bynt_semantics__T37Changes byn_semantics__directChanges(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     bynt_list_i64 l0_fields = {0};
@@ -148600,7 +148603,7 @@ break_1:;
 #line 1061 "semantics/region2.byn"
     return ((bynt_semantics__T37Changes){l0_fields, l1_callees});
 }
-#line 148604 "main.c"
+#line 148607 "main.c"
 
 int64_t byn_semantics__writtenArgument(bynt_semantics__Ctx p_c, int64_t p_parameter, int64_t p_argument) {
 #line 1066 "semantics/region2.byn"
@@ -148616,7 +148619,7 @@ int64_t byn_semantics__writtenArgument(bynt_semantics__Ctx p_c, int64_t p_parame
 #line 1070 "semantics/region2.byn"
     return INT64_C(-1);
 }
-#line 148620 "main.c"
+#line 148623 "main.c"
 
 int64_t byn_semantics__storeRoot(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -148677,7 +148680,7 @@ int64_t byn_semantics__storeRoot(bynt_semantics__Ctx p_c, int64_t p_e) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 148681 "main.c"
+#line 148684 "main.c"
 
 bool byn_semantics__mayBorrow(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i64* p_seen) {
     int64_t l0_i = {0};
@@ -148951,7 +148954,7 @@ bool byn_semantics__mayBorrow(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i
     return false;
 switch_end_1:;
 }
-#line 148955 "main.c"
+#line 148958 "main.c"
 
 bool byn_semantics__mayLend(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i64* p_seen) {
     int64_t l0_i = {0};
@@ -149193,7 +149196,7 @@ bool byn_semantics__mayLend(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i64
     return byn_semantics__mayBorrow(&(*p_c), p_t, &(*p_seen));
 switch_end_1:;
 }
-#line 149197 "main.c"
+#line 149200 "main.c"
 
 bool byn_semantics__containsList(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i64* p_seen) {
     int64_t l0_i = {0};
@@ -149453,7 +149456,7 @@ bool byn_semantics__containsList(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_lis
     return false;
 switch_end_1:;
 }
-#line 149457 "main.c"
+#line 149460 "main.c"
 
 bynt_list_semantics__Region byn_semantics__t37Ordered(bynt_list_semantics__Region p_regions) {
     bynt_list_semantics__Region l0_result = {0};
@@ -149541,7 +149544,7 @@ break_1:;
 #line 1270 "semantics/region2.byn"
     return l0_result;
 }
-#line 149545 "main.c"
+#line 149548 "main.c"
 
 int64_t byn_semantics__lineOf(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span) {
     bynt_list_u8 t0 = {0};
@@ -149550,7 +149553,7 @@ int64_t byn_semantics__lineOf(bynt_semantics__Regions* p_r, bynt_semantics__Ctx*
 #line 1274 "semantics/region2.byn"
     return byn_semantics__linePosition(bynh_span_list_u8(t0), p_span.start).item1;
 }
-#line 149554 "main.c"
+#line 149557 "main.c"
 
 void byn_semantics__regionReport(bynt_semantics__Regions* p_r, bynt_semantics__Ctx* p_c, byn_semantics_SemaCode p_code, bynt_lexer__TextSpan p_span, bynt_tup5_str_str_str_str_str p_args, byn_str p_label, byn_str p_help, bynt_opt_semantics__Related p_note) {
     bynt_tup2_i64_i64 l0_p = {0};
@@ -149607,7 +149610,7 @@ break_1:;
 #line 1308 "semantics/region2.byn"
     (void)byn_semantics__report__o1(&(*p_c), p_code, (*p_r).source, p_span, p_args, p_label, p_help, false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
 }
-#line 149611 "main.c"
+#line 149614 "main.c"
 
 bynt_semantics__T22DeclFacts byn_semantics__t22FactsOf(bynt_parser__FunctionDecl p_d) {
     bynt_list_lexer__TextSpan l0_states = {0};
@@ -149639,7 +149642,7 @@ break_1:;
 #line 26 "semantics/states.byn"
     return ((bynt_semantics__T22DeclFacts){true, p_d.becomes, p_d.refThis, p_d.moveThis, l0_states});
 }
-#line 149643 "main.c"
+#line 149646 "main.c"
 
 bynt_semantics__T22DeclFacts byn_semantics__t22DeclFacts(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -149733,7 +149736,7 @@ switch_end_1:;
 #line 60 "semantics/states.byn"
     return ((bynt_semantics__T22DeclFacts){false, ((bynt_opt_lexer__TextSpan){0}), ((bynt_opt_lexer__TextSpan){0}), ((bynt_opt_lexer__TextSpan){0}), ((bynt_list_lexer__TextSpan){NULL, 0, 0, byn_context})});
 }
-#line 149737 "main.c"
+#line 149740 "main.c"
 
 bynt_opt_semantics__Fix byn_semantics__t22BecomesFixOf(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_fn, byn_str p_state) {
     int64_t l0_f = {0};
@@ -149842,7 +149845,7 @@ switch_end_1:;
 #line 90 "semantics/states.byn"
     return l3_fix;
 }
-#line 149846 "main.c"
+#line 149849 "main.c"
 
 int64_t byn_semantics__bindBecome(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__BecomeStmt p_s) {
     byn_str l0_stateText = {0};
@@ -150029,7 +150032,7 @@ int64_t byn_semantics__bindBecome(bynt_semantics__Binder* p_b, bynt_semantics__C
 #line 228 "semantics/states.byn"
     return byn_semantics__recordNodeSyntax(&(*p_c), byn_semantics__addBecome(&(*p_c), ((bynt_semantics__BBecome){p_s.span, l3_state, l25_payload})), ((byn_semantics_NodeSyntaxKind)9), p_s.span);
 }
-#line 150033 "main.c"
+#line 150036 "main.c"
 
 void byn_semantics__checkBecomesCall(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__CallExpr p_call, int64_t p_caller, int64_t p_fn, bynt_lexer__TextSpan p_state) {
     byn_str l0_toText = {0};
@@ -150105,7 +150108,7 @@ void byn_semantics__checkBecomesCall(bynt_semantics__Binder* p_b, bynt_semantics
         (void)byn_semantics__report(&(*p_b), &(*p_c), ((byn_semantics_SemaCode)260), p_call.span, t11, BYN_STR("", 0), byn_strbuf_str(t10), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 150109 "main.c"
+#line 150112 "main.c"
 
 bynt_semantics__Fix byn_semantics__becomesFix(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_fn, bynt_parser__FunctionDecl p_decl, byn_str p_state) {
     int64_t l0_at = {0};
@@ -150155,7 +150158,7 @@ bynt_semantics__Fix byn_semantics__becomesFix(bynt_semantics__Binder* p_b, bynt_
 #line 288 "semantics/states.byn"
     return ((bynt_semantics__Fix){t6, byn_strbuf_str(t5)});
 }
-#line 150159 "main.c"
+#line 150162 "main.c"
 
 int64_t byn_semantics__afterParams(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_parser__FunctionDecl p_decl) {
     int64_t l0_at = {0};
@@ -150257,7 +150260,7 @@ break_5:;
 #line 318 "semantics/states.byn"
     return l0_at;
 }
-#line 150261 "main.c"
+#line 150264 "main.c"
 
 int64_t byn_semantics__receiverStates(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_fn) {
     bynt_semantics__T22DeclFacts l0_decl = {0};
@@ -150324,7 +150327,7 @@ break_1:;
 #line 336 "semantics/states.byn"
     return byn_semantics__internState(&(*p_c), l1_owner, l3_found);
 }
-#line 150328 "main.c"
+#line 150331 "main.c"
 
 bool byn_semantics__reportWrongState(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_str p_callee, int64_t p_value, int64_t p_wanted, bynt_lexer__TextSpan p_span) {
     bool l0_isThis = {0};
@@ -150421,7 +150424,7 @@ break_1:;
 #line 375 "semantics/states.byn"
     return true;
 }
-#line 150425 "main.c"
+#line 150428 "main.c"
 
 bynt_opt_lexer__TextSpan byn_semantics__targetMemberOf(byn_parser_Expr p_e) {
     bynt_parser__TargetMemberExpr* l0_t = {0};
@@ -150433,7 +150436,7 @@ bynt_opt_lexer__TextSpan byn_semantics__targetMemberOf(byn_parser_Expr p_e) {
 #line 381 "semantics/states.byn"
     return ((bynt_opt_lexer__TextSpan){0});
 }
-#line 150437 "main.c"
+#line 150440 "main.c"
 
 bynt_opt_lexer__TextSpan byn_semantics__testedState(byn_parser_Expr p_body) {
     bynt_parser__IsExpr* l0_x = {0};
@@ -150488,7 +150491,7 @@ switch_end_1:;
 #line 397 "semantics/states.byn"
     return ((bynt_opt_lexer__TextSpan){0});
 }
-#line 150492 "main.c"
+#line 150495 "main.c"
 
 bynt_opt_str byn_semantics__stateTestHelp(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, byn_str p_value, int64_t p_wanted) {
     int64_t l0_s = {0};
@@ -150632,7 +150635,7 @@ break_1:;
 #line 432 "semantics/states.byn"
     return ((bynt_opt_str){0});
 }
-#line 150636 "main.c"
+#line 150639 "main.c"
 
 int64_t byn_semantics__statesUnion(bynt_semantics__Ctx* p_c, int64_t p_t) {
     int64_t l0_u = {0};
@@ -150659,7 +150662,7 @@ int64_t byn_semantics__statesUnion(bynt_semantics__Ctx* p_c, int64_t p_t) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 150663 "main.c"
+#line 150666 "main.c"
 
 int64_t byn_semantics__stateStruct(bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -150683,7 +150686,7 @@ int64_t byn_semantics__stateStruct(bynt_semantics__Ctx* p_c, int64_t p_t) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 150687 "main.c"
+#line 150690 "main.c"
 
 bynt_list_i64 byn_semantics__possibleStates(bynt_semantics__Ctx* p_c, int64_t p_t, int64_t p_states) {
     int64_t l0_u = {0};
@@ -150697,7 +150700,7 @@ bynt_list_i64 byn_semantics__possibleStates(bynt_semantics__Ctx* p_c, int64_t p_
 #line 456 "semantics/states.byn"
     return byn_semantics__copyIds((*bynh_at_list_semantics__UnionSymbol((*p_c).unions, (int64_t)p_states, false, byn_file_58, 456)).variants);
 }
-#line 150701 "main.c"
+#line 150704 "main.c"
 
 int64_t byn_semantics__t22FieldIndex(bynt_semantics__Ctx p_c, bynt_list_i64 p_fields, byn_str p_name) {
     int64_t l0_i = {0};
@@ -150729,13 +150732,13 @@ break_1:;
 #line 464 "semantics/states.byn"
     return INT64_C(-1);
 }
-#line 150733 "main.c"
+#line 150736 "main.c"
 
 int64_t byn_semantics__bindPayloadField(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_target, int64_t p_states, bynt_lexer__TextSpan p_member) {
 #line 475 "semantics/states.byn"
     return byn_semantics__t21BindPayloadField(&(*p_b), &(*p_c), p_span, p_target, p_states, p_member, INT64_C(-1));
 }
-#line 150739 "main.c"
+#line 150742 "main.c"
 
 int64_t byn_semantics__t21BindPayloadField(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_target, int64_t p_states, bynt_lexer__TextSpan p_member, int64_t p_syntax) {
     byn_str l0_name = {0};
@@ -151006,7 +151009,7 @@ break_1:;
 #line 565 "semantics/states.byn"
     return byn_semantics__recordSyntaxNode(&(*p_c), byn_semantics__addErrorExpr(&(*p_c), ((bynt_semantics__BErrorExpr){p_span})), p_syntax);
 }
-#line 151010 "main.c"
+#line 151013 "main.c"
 
 bool byn_semantics__checkStatesExhaustive(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type, int64_t p_states, bynt_list_tup2_i64_i64 p_arms, int64_t p_valueEnd, bynt_opt_lexer__TextSpan p_lastSection) {
     bynt_list_str l0_covered = {0};
@@ -151230,13 +151233,13 @@ break_7:;
 #line 637 "semantics/states.byn"
     return false;
 }
-#line 151234 "main.c"
+#line 151237 "main.c"
 
 int64_t byn_semantics__t22ThisStates(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c) {
 #line 643 "semantics/states.byn"
     return byn_semantics__knownState(&(*p_b), byn_semantics__t15ThisFacts(&(*p_b), &(*p_c)));
 }
-#line 151240 "main.c"
+#line 151243 "main.c"
 
 bynt_opt_semantics__SubjectResult byn_semantics__subject(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_e) {
     byn_semantics_BoundKind t0 = {0};
@@ -151269,7 +151272,7 @@ bynt_opt_semantics__SubjectResult byn_semantics__subject(bynt_semantics__Binder*
     return ((bynt_opt_semantics__SubjectResult){0});
 switch_end_1:;
 }
-#line 151273 "main.c"
+#line 151276 "main.c"
 
 bool byn_semantics__isOpen(bynt_semantics__Binder* p_b, int64_t p_scope) {
     int64_t l0_s = {0};
@@ -151301,7 +151304,7 @@ break_1:;
 #line 661 "semantics/states.byn"
     return false;
 }
-#line 151305 "main.c"
+#line 151308 "main.c"
 
 int64_t byn_semantics__knownState(bynt_semantics__Binder* p_b, int64_t p_local) {
     int64_t l0_i = {0};
@@ -151327,7 +151330,7 @@ break_1:;
 #line 670 "semantics/states.byn"
     return INT64_C(-1);
 }
-#line 151331 "main.c"
+#line 151334 "main.c"
 
 void byn_semantics__learnState(bynt_semantics__Binder* p_b, int64_t p_local, int64_t p_type) {
     int64_t l0_scope = {0};
@@ -151336,7 +151339,7 @@ void byn_semantics__learnState(bynt_semantics__Binder* p_b, int64_t p_local, int
 #line 675 "semantics/states.byn"
     (void)bynh_add_list_tup3_i64_i64_i64(&(*p_b).stateFacts, ((bynt_tup3_i64_i64_i64){l0_scope, p_local, p_type}));
 }
-#line 151340 "main.c"
+#line 151343 "main.c"
 
 void byn_semantics__forgetState(bynt_semantics__Binder* p_b, int64_t p_local) {
     bynt_list_tup3_i64_i64_i64 l0_kept = {0};
@@ -151371,7 +151374,7 @@ break_1:;
 #line 685 "semantics/states.byn"
     (*p_b).stateFacts = l0_kept;
 }
-#line 151375 "main.c"
+#line 151378 "main.c"
 
 void byn_semantics__forgetChangingStates(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c) {
     bool l0_mutating = {0};
@@ -151415,7 +151418,7 @@ break_1:;
 #line 696 "semantics/states.byn"
     (*p_b).stateFacts = l1_kept;
 }
-#line 151419 "main.c"
+#line 151422 "main.c"
 
 bynt_list_tup3_i64_i64_i64 byn_semantics__learnStates(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_cond, bool p_whenTrue) {
     bynt_list_tup3_i64_i64_i64 l0_learned = {0};
@@ -151449,7 +151452,7 @@ break_1:;
 #line 705 "semantics/states.byn"
     return l0_learned;
 }
-#line 151453 "main.c"
+#line 151456 "main.c"
 
 void byn_semantics__t22Collect(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_cond, bool p_when, bynt_list_tup3_i64_i64_i64* p_learned) {
     byn_semantics_BoundKind t0 = {0};
@@ -151508,7 +151511,7 @@ void byn_semantics__t22Collect(bynt_semantics__Binder* p_b, bynt_semantics__Ctx*
     }
 switch_end_1:;
 }
-#line 151512 "main.c"
+#line 151515 "main.c"
 
 void byn_semantics__unlearnStates(bynt_semantics__Binder* p_b, bynt_list_tup3_i64_i64_i64 p_learned) {
     bynt_tup3_i64_i64_i64 l0_f = {0};
@@ -151595,7 +151598,7 @@ break_5:;
 #line 757 "semantics/states.byn"
     (*p_b).stateFacts = l7_kept;
 }
-#line 151599 "main.c"
+#line 151602 "main.c"
 
 void byn_semantics__learnArmState(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_subject, int64_t p_pattern) {
     int64_t l0_key = {0};
@@ -151652,7 +151655,7 @@ switch_end_1:;
         (void)byn_semantics__learnState(&(*p_b), l0_key, l8_narrowed);
     }
 }
-#line 151656 "main.c"
+#line 151659 "main.c"
 
 int64_t byn_semantics__narrow(bynt_semantics__Ctx* p_c, int64_t p_type, int64_t p_pattern, bool p_matched) {
     int64_t l0_states = {0};
@@ -151730,7 +151733,7 @@ break_1:;
 #line 797 "semantics/states.byn"
     return byn_semantics__internState(&(*p_c), l9_s, l3_left);
 }
-#line 151734 "main.c"
+#line 151737 "main.c"
 
 bool byn_semantics__t22StatesOf(bynt_semantics__Ctx* p_c, int64_t p_p, int64_t p_states, bool p_exact, bynt_list_i64* p_into) {
     byn_semantics_BoundKind t0 = {0};
@@ -151904,7 +151907,7 @@ bool byn_semantics__t22StatesOf(bynt_semantics__Ctx* p_c, int64_t p_p, int64_t p
     return false;
 switch_end_1:;
 }
-#line 151908 "main.c"
+#line 151911 "main.c"
 
 void byn_semantics__learnBecomes(bynt_semantics__Binder* p_b, bynt_semantics__Ctx* p_c, int64_t p_e) {
     bool l0_isTry = {0};
@@ -151980,7 +151983,7 @@ void byn_semantics__learnBecomes(bynt_semantics__Binder* p_b, bynt_semantics__Ct
         }
     }
 }
-#line 151984 "main.c"
+#line 151987 "main.c"
 
 bynt_list_semantics__StdSource byn_semantics__stdShippedSources(void) {
     bynt_list_semantics__StdSource l0_sources = {0};
@@ -152011,7 +152014,7 @@ bynt_list_semantics__StdSource byn_semantics__stdShippedSources(void) {
 #line 17 "semantics/stdsource.byn"
     return l0_sources;
 }
-#line 152015 "main.c"
+#line 152018 "main.c"
 
 int64_t byn_semantics__newStruct(bynt_semantics__Ctx* p_c, bynt_semantics__StructSymbol p_s) {
 #line 411 "semantics/symbols.byn"
@@ -152019,7 +152022,7 @@ int64_t byn_semantics__newStruct(bynt_semantics__Ctx* p_c, bynt_semantics__Struc
 #line 412 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).structs.len, INT64_C(1), byn_file_60, 412);
 }
-#line 152023 "main.c"
+#line 152026 "main.c"
 
 int64_t byn_semantics__newField(bynt_semantics__Ctx* p_c, bynt_semantics__FieldSymbol p_s) {
 #line 416 "semantics/symbols.byn"
@@ -152027,7 +152030,7 @@ int64_t byn_semantics__newField(bynt_semantics__Ctx* p_c, bynt_semantics__FieldS
 #line 417 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).fields.len, INT64_C(1), byn_file_60, 417);
 }
-#line 152031 "main.c"
+#line 152034 "main.c"
 
 int64_t byn_semantics__newProperty(bynt_semantics__Ctx* p_c, bynt_semantics__PropertySymbol p_s) {
 #line 421 "semantics/symbols.byn"
@@ -152035,7 +152038,7 @@ int64_t byn_semantics__newProperty(bynt_semantics__Ctx* p_c, bynt_semantics__Pro
 #line 422 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).properties.len, INT64_C(1), byn_file_60, 422);
 }
-#line 152039 "main.c"
+#line 152042 "main.c"
 
 int64_t byn_semantics__newFunction(bynt_semantics__Ctx* p_c, bynt_semantics__FunctionSymbol p_s) {
 #line 426 "semantics/symbols.byn"
@@ -152043,7 +152046,7 @@ int64_t byn_semantics__newFunction(bynt_semantics__Ctx* p_c, bynt_semantics__Fun
 #line 427 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).functions.len, INT64_C(1), byn_file_60, 427);
 }
-#line 152047 "main.c"
+#line 152050 "main.c"
 
 int64_t byn_semantics__newInterface(bynt_semantics__Ctx* p_c, bynt_semantics__InterfaceSymbol p_s) {
 #line 431 "semantics/symbols.byn"
@@ -152051,7 +152054,7 @@ int64_t byn_semantics__newInterface(bynt_semantics__Ctx* p_c, bynt_semantics__In
 #line 432 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).interfaces.len, INT64_C(1), byn_file_60, 432);
 }
-#line 152055 "main.c"
+#line 152058 "main.c"
 
 int64_t byn_semantics__newConformance(bynt_semantics__Ctx* p_c, bynt_semantics__Conformance p_s) {
 #line 436 "semantics/symbols.byn"
@@ -152059,7 +152062,7 @@ int64_t byn_semantics__newConformance(bynt_semantics__Ctx* p_c, bynt_semantics__
 #line 437 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).conformances.len, INT64_C(1), byn_file_60, 437);
 }
-#line 152063 "main.c"
+#line 152066 "main.c"
 
 int64_t byn_semantics__newLocal(bynt_semantics__Ctx* p_c, bynt_semantics__LocalSymbol p_s) {
 #line 441 "semantics/symbols.byn"
@@ -152067,7 +152070,7 @@ int64_t byn_semantics__newLocal(bynt_semantics__Ctx* p_c, bynt_semantics__LocalS
 #line 442 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).locals.len, INT64_C(1), byn_file_60, 442);
 }
-#line 152071 "main.c"
+#line 152074 "main.c"
 
 int64_t byn_semantics__newConst(bynt_semantics__Ctx* p_c, bynt_semantics__ConstSymbol p_s) {
 #line 446 "semantics/symbols.byn"
@@ -152075,7 +152078,7 @@ int64_t byn_semantics__newConst(bynt_semantics__Ctx* p_c, bynt_semantics__ConstS
 #line 447 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).consts.len, INT64_C(1), byn_file_60, 447);
 }
-#line 152079 "main.c"
+#line 152082 "main.c"
 
 int64_t byn_semantics__newErrorSet(bynt_semantics__Ctx* p_c, bynt_semantics__ErrorSetSymbol p_s) {
 #line 451 "semantics/symbols.byn"
@@ -152083,7 +152086,7 @@ int64_t byn_semantics__newErrorSet(bynt_semantics__Ctx* p_c, bynt_semantics__Err
 #line 452 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).errorSets.len, INT64_C(1), byn_file_60, 452);
 }
-#line 152087 "main.c"
+#line 152090 "main.c"
 
 int64_t byn_semantics__newErrorVariant(bynt_semantics__Ctx* p_c, bynt_semantics__ErrorVariantSymbol p_s) {
 #line 456 "semantics/symbols.byn"
@@ -152091,7 +152094,7 @@ int64_t byn_semantics__newErrorVariant(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 457 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).errorVariants.len, INT64_C(1), byn_file_60, 457);
 }
-#line 152095 "main.c"
+#line 152098 "main.c"
 
 int64_t byn_semantics__newTest(bynt_semantics__Ctx* p_c, bynt_semantics__TestSymbol p_s) {
 #line 461 "semantics/symbols.byn"
@@ -152099,7 +152102,7 @@ int64_t byn_semantics__newTest(bynt_semantics__Ctx* p_c, bynt_semantics__TestSym
 #line 462 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).tests.len, INT64_C(1), byn_file_60, 462);
 }
-#line 152103 "main.c"
+#line 152106 "main.c"
 
 int64_t byn_semantics__newEnum(bynt_semantics__Ctx* p_c, bynt_semantics__EnumSymbol p_s) {
 #line 466 "semantics/symbols.byn"
@@ -152107,7 +152110,7 @@ int64_t byn_semantics__newEnum(bynt_semantics__Ctx* p_c, bynt_semantics__EnumSym
 #line 467 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).enums.len, INT64_C(1), byn_file_60, 467);
 }
-#line 152111 "main.c"
+#line 152114 "main.c"
 
 int64_t byn_semantics__newEnumField(bynt_semantics__Ctx* p_c, bynt_semantics__EnumFieldSymbol p_s) {
 #line 471 "semantics/symbols.byn"
@@ -152115,7 +152118,7 @@ int64_t byn_semantics__newEnumField(bynt_semantics__Ctx* p_c, bynt_semantics__En
 #line 472 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).enumFields.len, INT64_C(1), byn_file_60, 472);
 }
-#line 152119 "main.c"
+#line 152122 "main.c"
 
 int64_t byn_semantics__newEnumMember(bynt_semantics__Ctx* p_c, bynt_semantics__EnumMemberSymbol p_s) {
 #line 476 "semantics/symbols.byn"
@@ -152123,7 +152126,7 @@ int64_t byn_semantics__newEnumMember(bynt_semantics__Ctx* p_c, bynt_semantics__E
 #line 477 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).enumMembers.len, INT64_C(1), byn_file_60, 477);
 }
-#line 152127 "main.c"
+#line 152130 "main.c"
 
 int64_t byn_semantics__newUnion(bynt_semantics__Ctx* p_c, bynt_semantics__UnionSymbol p_s) {
 #line 481 "semantics/symbols.byn"
@@ -152131,7 +152134,7 @@ int64_t byn_semantics__newUnion(bynt_semantics__Ctx* p_c, bynt_semantics__UnionS
 #line 482 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).unions.len, INT64_C(1), byn_file_60, 482);
 }
-#line 152135 "main.c"
+#line 152138 "main.c"
 
 int64_t byn_semantics__newUnionVariant(bynt_semantics__Ctx* p_c, bynt_semantics__UnionVariantSymbol p_s) {
 #line 486 "semantics/symbols.byn"
@@ -152139,7 +152142,7 @@ int64_t byn_semantics__newUnionVariant(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 487 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).unionVariants.len, INT64_C(1), byn_file_60, 487);
 }
-#line 152143 "main.c"
+#line 152146 "main.c"
 
 int64_t byn_semantics__newTypeParam(bynt_semantics__Ctx* p_c, bynt_semantics__TypeParam p_s) {
 #line 491 "semantics/symbols.byn"
@@ -152147,7 +152150,7 @@ int64_t byn_semantics__newTypeParam(bynt_semantics__Ctx* p_c, bynt_semantics__Ty
 #line 492 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).typeParams.len, INT64_C(1), byn_file_60, 492);
 }
-#line 152151 "main.c"
+#line 152154 "main.c"
 
 int64_t byn_semantics__newAlias(bynt_semantics__Ctx* p_c, bynt_semantics__AliasPlaceholder p_s) {
 #line 496 "semantics/symbols.byn"
@@ -152155,43 +152158,43 @@ int64_t byn_semantics__newAlias(bynt_semantics__Ctx* p_c, bynt_semantics__AliasP
 #line 497 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).aliases.len, INT64_C(1), byn_file_60, 497);
 }
-#line 152159 "main.c"
+#line 152162 "main.c"
 
 int64_t byn_semantics__structTypeOf(int64_t p_s) {
 #line 502 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)20), p_s);
 }
-#line 152165 "main.c"
+#line 152168 "main.c"
 
 int64_t byn_semantics__interfaceTypeOf(int64_t p_i) {
 #line 504 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)21), p_i);
 }
-#line 152171 "main.c"
+#line 152174 "main.c"
 
 int64_t byn_semantics__enumTypeOf(int64_t p_e) {
 #line 506 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)22), p_e);
 }
-#line 152177 "main.c"
+#line 152180 "main.c"
 
 int64_t byn_semantics__unionTypeOf(int64_t p_u) {
 #line 508 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)23), p_u);
 }
-#line 152183 "main.c"
+#line 152186 "main.c"
 
 int64_t byn_semantics__errorSetTypeOf(int64_t p_e) {
 #line 510 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)24), p_e);
 }
-#line 152189 "main.c"
+#line 152192 "main.c"
 
 int64_t byn_semantics__typeParamTypeOf(int64_t p_tp) {
 #line 512 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)3), p_tp);
 }
-#line 152195 "main.c"
+#line 152198 "main.c"
 
 byn_str byn_semantics__qualify(bynt_semantics__Ctx* p_c, int64_t p_module, byn_str p_name) {
     byn_writer t0 = {0};
@@ -152218,7 +152221,7 @@ byn_str byn_semantics__qualify(bynt_semantics__Ctx* p_c, int64_t p_module, byn_s
 #line 519 "semantics/symbols.byn"
     return t1;
 }
-#line 152222 "main.c"
+#line 152225 "main.c"
 
 byn_str byn_semantics__structDisplayName(bynt_semantics__Ctx* p_c, int64_t p_s) {
     byn_str l0_name = {0};
@@ -152351,7 +152354,7 @@ byn_str byn_semantics__structDisplayName(bynt_semantics__Ctx* p_c, int64_t p_s) 
 #line 552 "semantics/symbols.byn"
     return l2_q;
 }
-#line 152355 "main.c"
+#line 152358 "main.c"
 
 byn_str byn_semantics__interfaceDisplayName(bynt_semantics__Ctx* p_c, int64_t p_i) {
     byn_str l0_name = {0};
@@ -152484,7 +152487,7 @@ byn_str byn_semantics__interfaceDisplayName(bynt_semantics__Ctx* p_c, int64_t p_
 #line 586 "semantics/symbols.byn"
     return l2_q;
 }
-#line 152488 "main.c"
+#line 152491 "main.c"
 
 byn_str byn_semantics__enumDisplayName(bynt_semantics__Ctx* p_c, int64_t p_e) {
     int64_t l0_fieldsOf = {0};
@@ -152521,7 +152524,7 @@ byn_str byn_semantics__enumDisplayName(bynt_semantics__Ctx* p_c, int64_t p_e) {
 #line 599 "semantics/symbols.byn"
     return byn_semantics__qualify(&(*p_c), l4_module, l5_name);
 }
-#line 152525 "main.c"
+#line 152528 "main.c"
 
 byn_str byn_semantics__unionDisplayName(bynt_semantics__Ctx* p_c, int64_t p_u) {
     byn_str l0_name = {0};
@@ -152654,7 +152657,7 @@ byn_str byn_semantics__unionDisplayName(bynt_semantics__Ctx* p_c, int64_t p_u) {
 #line 633 "semantics/symbols.byn"
     return l2_q;
 }
-#line 152658 "main.c"
+#line 152661 "main.c"
 
 byn_str byn_semantics__errorSetDisplayName(bynt_semantics__Ctx* p_c, int64_t p_e) {
     byn_str l0_name = {0};
@@ -152687,7 +152690,7 @@ byn_str byn_semantics__errorSetDisplayName(bynt_semantics__Ctx* p_c, int64_t p_e
 #line 642 "semantics/symbols.byn"
     return byn_strbuf_str(t3);
 }
-#line 152691 "main.c"
+#line 152694 "main.c"
 
 byn_str byn_semantics__displayNameAmong(bynt_semantics__Ctx* p_c, int64_t p_e, bynt_list_i64 p_among) {
     byn_str l0_own = {0};
@@ -152742,7 +152745,7 @@ break_1:;
 #line 660 "semantics/symbols.byn"
     return l6_result;
 }
-#line 152746 "main.c"
+#line 152749 "main.c"
 
 byn_str byn_semantics__functionDisplaySignature(bynt_semantics__Ctx* p_c, int64_t p_f) {
     byn_str l0_name = {0};
@@ -152829,7 +152832,7 @@ break_1:;
 #line 681 "semantics/symbols.byn"
     return byn_strbuf_str(t8);
 }
-#line 152833 "main.c"
+#line 152836 "main.c"
 
 byn_str byn_semantics__errorVariantSummary(bynt_semantics__Ctx* p_c, int64_t p_v) {
     bynt_opt_str l0_doc = {0};
@@ -152854,7 +152857,7 @@ byn_str byn_semantics__errorVariantSummary(bynt_semantics__Ctx* p_c, int64_t p_v
 #line 694 "semantics/symbols.byn"
     return (*bynh_at_list_semantics__ErrorVariantSymbol((*p_c).errorVariants, (int64_t)p_v, false, byn_file_60, 694)).name;
 }
-#line 152858 "main.c"
+#line 152861 "main.c"
 
 int64_t byn_semantics__findField(bynt_semantics__Ctx* p_c, int64_t p_s, byn_str p_name) {
     int64_t l0_f = {0};
@@ -152886,7 +152889,7 @@ break_1:;
 #line 704 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 152890 "main.c"
+#line 152893 "main.c"
 
 int64_t byn_semantics__findProperty(bynt_semantics__Ctx* p_c, int64_t p_s, byn_str p_name) {
     int64_t l0_p = {0};
@@ -152918,7 +152921,7 @@ break_1:;
 #line 712 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 152922 "main.c"
+#line 152925 "main.c"
 
 bynt_list_i64 byn_semantics__findMethods(bynt_semantics__Ctx* p_c, int64_t p_s, byn_str p_name) {
     bynt_list_i64 l0_result = {0};
@@ -152953,7 +152956,7 @@ break_1:;
 #line 723 "semantics/symbols.byn"
     return l0_result;
 }
-#line 152957 "main.c"
+#line 152960 "main.c"
 
 bynt_list_i64 byn_semantics__findInterfaceMethods(bynt_semantics__Ctx* p_c, int64_t p_i, byn_str p_name) {
     bynt_list_i64 l0_result = {0};
@@ -152988,7 +152991,7 @@ break_1:;
 #line 734 "semantics/symbols.byn"
     return l0_result;
 }
-#line 152992 "main.c"
+#line 152995 "main.c"
 
 int64_t byn_semantics__findInterfaceProperty(bynt_semantics__Ctx* p_c, int64_t p_i, byn_str p_name) {
     int64_t l0_p = {0};
@@ -153020,7 +153023,7 @@ break_1:;
 #line 742 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 153024 "main.c"
+#line 153027 "main.c"
 
 int64_t byn_semantics__findErrorVariant(bynt_semantics__Ctx* p_c, int64_t p_e, byn_str p_name) {
     int64_t l0_v = {0};
@@ -153052,7 +153055,7 @@ break_1:;
 #line 750 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 153056 "main.c"
+#line 153059 "main.c"
 
 int64_t byn_semantics__findEnumMember(bynt_semantics__Ctx* p_c, int64_t p_e, byn_str p_name) {
     int64_t l0_m = {0};
@@ -153084,7 +153087,7 @@ break_1:;
 #line 758 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 153088 "main.c"
+#line 153091 "main.c"
 
 int64_t byn_semantics__findEnumField(bynt_semantics__Ctx* p_c, int64_t p_e, byn_str p_name) {
     int64_t l0_f = {0};
@@ -153116,7 +153119,7 @@ break_1:;
 #line 766 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 153120 "main.c"
+#line 153123 "main.c"
 
 int64_t byn_semantics__findUnionVariant(bynt_semantics__Ctx* p_c, int64_t p_u, byn_str p_name) {
     int64_t l0_v = {0};
@@ -153148,7 +153151,7 @@ break_1:;
 #line 774 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 153152 "main.c"
+#line 153155 "main.c"
 
 bool byn_semantics__structIsGeneric(bynt_semantics__Ctx* p_c, int64_t p_s) {
     bynt_list_i64 l0_args = {0};
@@ -153188,7 +153191,7 @@ break_1:;
 #line 786 "semantics/symbols.byn"
     return false;
 }
-#line 153192 "main.c"
+#line 153195 "main.c"
 
 bool byn_semantics__interfaceIsGeneric(bynt_semantics__Ctx* p_c, int64_t p_i) {
     bynt_list_i64 l0_args = {0};
@@ -153228,7 +153231,7 @@ break_1:;
 #line 796 "semantics/symbols.byn"
     return false;
 }
-#line 153232 "main.c"
+#line 153235 "main.c"
 
 bool byn_semantics__unionIsGeneric(bynt_semantics__Ctx* p_c, int64_t p_u) {
     bynt_list_i64 l0_args = {0};
@@ -153268,7 +153271,7 @@ break_1:;
 #line 806 "semantics/symbols.byn"
     return false;
 }
-#line 153272 "main.c"
+#line 153275 "main.c"
 
 bool byn_semantics__functionIsGeneric(bynt_semantics__Ctx* p_c, int64_t p_f) {
     int64_t l0_owner = {0};
@@ -153332,7 +153335,7 @@ break_1:;
 #line 822 "semantics/symbols.byn"
     return false;
 }
-#line 153336 "main.c"
+#line 153339 "main.c"
 
 bool byn_semantics__functionIsInstance(bynt_semantics__Ctx* p_c, int64_t p_f) {
     int64_t l0_template = {0};
@@ -153362,7 +153365,7 @@ bool byn_semantics__functionIsInstance(bynt_semantics__Ctx* p_c, int64_t p_f) {
 #line 833 "semantics/symbols.byn"
     return false;
 }
-#line 153366 "main.c"
+#line 153369 "main.c"
 
 bool byn_semantics__functionHasThis(bynt_semantics__Ctx* p_c, int64_t p_f) {
     int64_t l0_owner = {0};
@@ -153387,7 +153390,7 @@ bool byn_semantics__functionHasThis(bynt_semantics__Ctx* p_c, int64_t p_f) {
 #line 843 "semantics/symbols.byn"
     return (((l2_kind == ((byn_semantics_FunctionKind)1)) || (l2_kind == ((byn_semantics_FunctionKind)3))) || (l2_kind == ((byn_semantics_FunctionKind)2)));
 }
-#line 153391 "main.c"
+#line 153394 "main.c"
 
 bool byn_semantics__structIsDefaultable(bynt_semantics__Ctx* p_c, int64_t p_s) {
     bynt_list_i64 l0_fields = {0};
@@ -153422,19 +153425,19 @@ break_1:;
 #line 852 "semantics/symbols.byn"
     return true;
 }
-#line 153426 "main.c"
+#line 153429 "main.c"
 
 bool byn_semantics__fieldIsRequired(bynt_semantics__Ctx* p_c, int64_t p_f) {
 #line 856 "semantics/symbols.byn"
     return (!(((int64_t)((*bynh_at_list_semantics__FieldSymbol((*p_c).fields, (int64_t)p_f, false, byn_file_60, 856)).modifiers & INT64_C(16))) == INT64_C(0)));
 }
-#line 153432 "main.c"
+#line 153435 "main.c"
 
 bool byn_semantics__fieldIsReadonly(bynt_semantics__Ctx* p_c, int64_t p_f) {
 #line 859 "semantics/symbols.byn"
     return (!(((int64_t)((*bynh_at_list_semantics__FieldSymbol((*p_c).fields, (int64_t)p_f, false, byn_file_60, 859)).modifiers & INT64_C(8))) == INT64_C(0)));
 }
-#line 153438 "main.c"
+#line 153441 "main.c"
 
 bool byn_semantics__localIsMutable(bynt_semantics__Ctx* p_c, int64_t p_l) {
     byn_semantics_LocalKind t0 = {0};
@@ -153443,7 +153446,7 @@ bool byn_semantics__localIsMutable(bynt_semantics__Ctx* p_c, int64_t p_l) {
 #line 863 "semantics/symbols.byn"
     return ((t0 == ((byn_semantics_LocalKind)1)) || (t0 == ((byn_semantics_LocalKind)6)));
 }
-#line 153447 "main.c"
+#line 153450 "main.c"
 
 bool byn_semantics__paramIsByRef(bynt_semantics__Ctx* p_c, int64_t p_l) {
     byn_parser_ParamModifier t0 = {0};
@@ -153460,13 +153463,13 @@ bool byn_semantics__paramIsByRef(bynt_semantics__Ctx* p_c, int64_t p_l) {
 #line 867 "semantics/symbols.byn"
     return t1;
 }
-#line 153464 "main.c"
+#line 153467 "main.c"
 
 byn_str byn_semantics__typeParamDisplayName(bynt_semantics__Ctx* p_c, int64_t p_tp) {
 #line 870 "semantics/symbols.byn"
     return (*bynh_at_list_semantics__TypeParam((*p_c).typeParams, (int64_t)p_tp, false, byn_file_60, 870)).name;
 }
-#line 153470 "main.c"
+#line 153473 "main.c"
 
 byn_str byn_semantics__typedDump(bynt_semantics__Ctx* p_c) {
     byn_writer l0_sb = {0};
@@ -153721,7 +153724,7 @@ break_1:;
 #line 62 "semantics/typed.byn"
     return byn_strbuf_str(t24);
 }
-#line 153725 "main.c"
+#line 153728 "main.c"
 
 void byn_semantics__t26OrderFunctions(bynt_semantics__Ctx* p_c, int64_t p_module, bynt_list_i64* p_functions) {
     int64_t l0_i = {0};
@@ -153771,7 +153774,7 @@ void byn_semantics__t26OrderFunctions(bynt_semantics__Ctx* p_c, int64_t p_module
     }
 break_1:;
 }
-#line 153775 "main.c"
+#line 153778 "main.c"
 
 bool byn_semantics__t26FunctionBefore(bynt_semantics__Ctx* p_c, int64_t p_module, int64_t p_a, int64_t p_b) {
     int64_t l0_fa = {0};
@@ -153802,7 +153805,7 @@ bool byn_semantics__t26FunctionBefore(bynt_semantics__Ctx* p_c, int64_t p_module
 #line 87 "semantics/typed.byn"
     return (t4 < byn_lexer__TextSpan__get_end(&l3_sb));
 }
-#line 153806 "main.c"
+#line 153809 "main.c"
 
 int64_t byn_semantics__t26FileIndex(bynt_semantics__Ctx* p_c, int64_t p_module, int64_t p_file) {
     int64_t l0_i = {0};
@@ -153834,7 +153837,7 @@ break_1:;
 #line 95 "semantics/typed.byn"
     return INT64_C(-1);
 }
-#line 153838 "main.c"
+#line 153841 "main.c"
 
 void byn_semantics__t26WriteCaptures(bynt_semantics__Ctx* p_c, int64_t p_lambda, byn_writer* p_sb) {
     int64_t l0_bound = {0};
@@ -153933,7 +153936,7 @@ void byn_semantics__t26WriteCaptures(bynt_semantics__Ctx* p_c, int64_t p_lambda,
 #line 123 "semantics/typed.byn"
     (void)byn_w_str(&(*p_sb), (l5_any ? BYN_STR("\012      ]", 8) : BYN_STR("]", 1)));
 }
-#line 153937 "main.c"
+#line 153940 "main.c"
 
 int64_t byn_semantics__t26Outermost(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -153957,7 +153960,7 @@ break_1:;
 #line 132 "semantics/typed.byn"
     return l0_f;
 }
-#line 153961 "main.c"
+#line 153964 "main.c"
 
 void byn_semantics__t26WriteSpan(byn_writer* p_sb, bynt_lexer__TextSpan p_span, byn_str p_indent) {
 #line 137 "semantics/typed.byn"
@@ -153997,7 +154000,7 @@ void byn_semantics__t26WriteSpan(byn_writer* p_sb, bynt_lexer__TextSpan p_span, 
         byn_w_str(w, BYN_STR("}", 1));
     }
 }
-#line 154001 "main.c"
+#line 154004 "main.c"
 
 byn_str byn_semantics__t26PathOf(bynt_semantics__Ctx* p_c, byn_str p_path) {
     byn_str l0_shown = {0};
@@ -154062,7 +154065,7 @@ break_1:;
 #line 158 "semantics/typed.byn"
     return byn_strbuf_str(t8);
 }
-#line 154066 "main.c"
+#line 154069 "main.c"
 
 byn_str byn_semantics__t26KindOf(bynt_semantics__Ctx* p_c, int64_t p_local) {
     byn_semantics_LocalKind t0 = {0};
@@ -154107,7 +154110,7 @@ byn_str byn_semantics__t26KindOf(bynt_semantics__Ctx* p_c, int64_t p_local) {
     return ((*bynh_at_list_semantics__LocalSymbol((*p_c).locals, (int64_t)p_local, false, byn_file_61, 169)).isCatch ? BYN_STR("catch", 5) : BYN_STR("let", 3));
 switch_end_1:;
 }
-#line 154111 "main.c"
+#line 154114 "main.c"
 
 byn_str byn_semantics__t26JsonString(byn_str p_s) {
     byn_writer l0_sb = {0};
@@ -154230,7 +154233,7 @@ break_1:;
 #line 209 "semantics/typed.byn"
     return byn_strbuf_str(t7);
 }
-#line 154234 "main.c"
+#line 154237 "main.c"
 
 byn_str byn_semantics__t26Hex4(int64_t p_v) {
     byn_str l0_digits = {0};
@@ -154272,19 +154275,19 @@ break_1:;
 #line 222 "semantics/typed.byn"
     return byn_strbuf_str(t4);
 }
-#line 154276 "main.c"
+#line 154279 "main.c"
 
 int64_t byn_semantics__t8AliasType(int64_t p_alias) {
 #line 23 "semantics/typeresolve.byn"
     return ((int64_t)(INT64_C(107374182400) | p_alias));
 }
-#line 154282 "main.c"
+#line 154285 "main.c"
 
 bool byn_semantics__t8IsAlias(int64_t p_t) {
 #line 25 "semantics/typeresolve.byn"
     return (byn_shr_i64(p_t, (int64_t)(((int32_t)32))) == INT64_C(25));
 }
-#line 154288 "main.c"
+#line 154291 "main.c"
 
 byn_str byn_semantics__t8Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -154303,7 +154306,7 @@ byn_str byn_semantics__t8Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__
 #line 29 "semantics/typeresolve.byn"
     return byn_strbuf_str(t0);
 }
-#line 154307 "main.c"
+#line 154310 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__t8TypeSpan(byn_parser_TypeSyntax p_t) {
     bynt_parser__NamedType* l0_n = {0};
@@ -154379,7 +154382,7 @@ bynt_lexer__TextSpan byn_semantics__t8TypeSpan(byn_parser_TypeSyntax p_t) {
     }
 switch_end_1:;
 }
-#line 154383 "main.c"
+#line 154386 "main.c"
 
 byn_parser_Decl byn_semantics__t8TakeDecl(bynt_semantics__Ctx* p_c, int64_t p_f, int64_t p_i, byn_parser_Decl p_put) {
     bynt_list_parser__Decl l0_members = {0};
@@ -154427,7 +154430,7 @@ break_3:;
 #line 60 "semantics/typeresolve.byn"
     return l3_old;
 }
-#line 154431 "main.c"
+#line 154434 "main.c"
 
 bynt_list_i64 byn_semantics__t8SetsOf(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_i64 l0_sets = {0};
@@ -154443,19 +154446,19 @@ bynt_list_i64 byn_semantics__t8SetsOf(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 68 "semantics/typeresolve.byn"
     return l0_sets;
 }
-#line 154447 "main.c"
+#line 154450 "main.c"
 
 bynt_semantics__Binder byn_semantics__t8Binder(bynt_semantics__TypeResolver p_r) {
 #line 72 "semantics/typeresolve.byn"
     return ((bynt_semantics__Binder){p_r.file, INT64_C(-1), p_r.container, INT64_C(-1), INT64_C(0), ((bynt_list_map_str_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__JumpTarget){NULL, 0, 0, byn_context}), INT64_C(0), false, INT64_C(-1), false, ((bynt_list_tup2_i64_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(0), INT64_C(0), ((bynt_list_tup2_i64_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_tup2_i64_i64){NULL, 0, 0, byn_context}), ((bynt_list_tup3_i64_i64_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_map_str_i64){0}), INT64_C(-1), ((bynt_opt_i64){0}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_list_i64){NULL, 0, 0, byn_context}), INT64_C(0), INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_opt_lexer__TextSpan){0}), INT64_C(-1), false, ((bynt_opt_str){0}), ((bynt_opt_semantics__CalleeOf){0}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_list_semantics__CoveredCall){0}), false, ((bynt_list_tup3_bool_lexer__TextSpan_lexer__TextSpan){NULL, 0, 0, byn_context})});
 }
-#line 154453 "main.c"
+#line 154456 "main.c"
 
 bool byn_semantics__t8MembersDeclared(bynt_semantics__Ctx p_c) {
 #line 89 "semantics/typeresolve.byn"
     return p_c.membersDeclared;
 }
-#line 154459 "main.c"
+#line 154462 "main.c"
 
 int64_t byn_semantics__t8BuiltinSet(bynt_semantics__Ctx p_c, byn_str p_name) {
     int64_t l0_i = {0};
@@ -154487,7 +154490,7 @@ break_1:;
 #line 96 "semantics/typeresolve.byn"
     return byn_semantics__errorType();
 }
-#line 154491 "main.c"
+#line 154494 "main.c"
 
 int64_t byn_semantics__t8BuiltinUnion(bynt_semantics__Ctx p_c, byn_str p_name) {
     int64_t l0_i = {0};
@@ -154519,13 +154522,13 @@ break_1:;
 #line 104 "semantics/typeresolve.byn"
     return byn_semantics__errorType();
 }
-#line 154523 "main.c"
+#line 154526 "main.c"
 
 bool byn_semantics__t8IsBuiltinFile(bynt_semantics__Ctx p_c, int64_t p_f) {
 #line 107 "semantics/typeresolve.byn"
     return ((p_f < INT64_C(0)) || byn_str_eq((*bynh_at_list_semantics__SourceFile(p_c.files, (int64_t)p_f, false, byn_file_62, 107)).path, BYN_STR("<builtin>", 9)));
 }
-#line 154529 "main.c"
+#line 154532 "main.c"
 
 int64_t byn_semantics__resolve(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, byn_parser_TypeSyntax p_syntax, bool p_allowVoid) {
     int64_t l0_t = {0};
@@ -154569,13 +154572,13 @@ int64_t byn_semantics__resolve(bynt_semantics__Ctx* p_c, bynt_semantics__TypeRes
 #line 130 "semantics/typeresolve.byn"
     return l0_t;
 }
-#line 154573 "main.c"
+#line 154576 "main.c"
 
 int64_t byn_semantics__resolveBound(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_syntax) {
 #line 135 "semantics/typeresolve.byn"
     return byn_semantics__resolveNamed(&(*p_c), p_r, p_syntax);
 }
-#line 154579 "main.c"
+#line 154582 "main.c"
 
 int64_t byn_semantics__resolveCore(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, byn_parser_TypeSyntax p_syntax) {
     int64_t l0_inner = {0};
@@ -154904,7 +154907,7 @@ int64_t byn_semantics__resolveCore(bynt_semantics__Ctx* p_c, bynt_semantics__Typ
     return byn_semantics__errorType();
 switch_end_1:;
 }
-#line 154908 "main.c"
+#line 154911 "main.c"
 
 int64_t byn_semantics__resolveNamed(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_n) {
     bynt_lexer__TextSpan l0_name = {0};
@@ -155370,7 +155373,7 @@ int64_t byn_semantics__resolveNamed(bynt_semantics__Ctx* p_c, bynt_semantics__Ty
 #line 490 "semantics/typeresolve.byn"
     return byn_semantics__errorType();
 }
-#line 155374 "main.c"
+#line 155377 "main.c"
 
 int64_t byn_semantics__resolveMap(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_n) {
     int64_t l0_key = {0};
@@ -155424,7 +155427,7 @@ int64_t byn_semantics__resolveMap(bynt_semantics__Ctx* p_c, bynt_semantics__Type
 #line 522 "semantics/typeresolve.byn"
     return byn_semantics__internMap(&(*p_c), l0_key, l1_value);
 }
-#line 155428 "main.c"
+#line 155431 "main.c"
 
 bool byn_semantics__t8CheckKey(bynt_semantics__Ctx* p_c, int64_t p_key, int64_t p_f, bynt_lexer__TextSpan p_span) {
     byn_str l0_shown = {0};
@@ -155455,7 +155458,7 @@ bool byn_semantics__t8CheckKey(bynt_semantics__Ctx* p_c, int64_t p_key, int64_t 
 #line 551 "semantics/typeresolve.byn"
     return false;
 }
-#line 155459 "main.c"
+#line 155462 "main.c"
 
 byn_str byn_semantics__t8JoinPath(bynt_semantics__Ctx p_c, int64_t p_f, bynt_list_lexer__TextSpan p_path) {
     byn_writer l0_sb = {0};
@@ -155502,7 +155505,7 @@ break_1:;
 #line 562 "semantics/typeresolve.byn"
     return byn_strbuf_str(t4);
 }
-#line 155506 "main.c"
+#line 155509 "main.c"
 
 int64_t byn_semantics__resolveStates(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, int64_t p_owner, bynt_list_lexer__TextSpan p_names) {
     int64_t l0_states = {0};
@@ -155589,7 +155592,7 @@ break_1:;
 #line 593 "semantics/typeresolve.byn"
     return byn_semantics__internState(&(*p_c), byn_semantics__typeIndex(p_owner), l2_found);
 }
-#line 155593 "main.c"
+#line 155596 "main.c"
 
 int64_t byn_semantics__resolveDyn(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__DynType p_d) {
     int64_t l0_inner = {0};
@@ -155750,7 +155753,7 @@ switch_end_1:;
 #line 670 "semantics/typeresolve.byn"
     return byn_semantics__internDynRef(&(*p_c), l5_i, p_d.isReadOnly);
 }
-#line 155754 "main.c"
+#line 155757 "main.c"
 
 bool byn_semantics__t8DeclaresType(bynt_semantics__Ctx p_c, int64_t p_i, byn_str p_name) {
     int64_t l0_f = {0};
@@ -155814,7 +155817,7 @@ bool byn_semantics__t8DeclaresType(bynt_semantics__Ctx p_c, int64_t p_i, byn_str
     return false;
 switch_end_1:;
 }
-#line 155818 "main.c"
+#line 155821 "main.c"
 
 int64_t byn_semantics__resolveAssociated(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_n, int64_t p_owner) {
     byn_str l0_name = {0};
@@ -155916,13 +155919,13 @@ int64_t byn_semantics__resolveAssociated(bynt_semantics__Ctx* p_c, bynt_semantic
 #line 718 "semantics/typeresolve.byn"
     return byn_semantics__errorType();
 }
-#line 155920 "main.c"
+#line 155923 "main.c"
 
 bynt_opt_i64 byn_semantics__lookup(bynt_semantics__Ctx p_c, int64_t p_module, byn_str p_name) {
 #line 721 "semantics/typeresolve.byn"
     return bynh_try_get_map_str_i64((*bynh_at_list_semantics__Mod(p_c.modules, (int64_t)p_module, false, byn_file_62, 721)).types, p_name);
 }
-#line 155926 "main.c"
+#line 155929 "main.c"
 
 void byn_semantics__checkVisible(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, int64_t p_t, bynt_lexer__TextSpan p_name) {
     byn_semantics_Accessibility l0_access = {0};
@@ -156017,13 +156020,13 @@ void byn_semantics__checkVisible(bynt_semantics__Ctx* p_c, bynt_semantics__TypeR
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)7), p_r.file, p_name, t10, BYN_STR("not `public`", 12), byn_strbuf_str(t9), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 156021 "main.c"
+#line 156024 "main.c"
 
 int64_t byn_semantics__expandAlias(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, int64_t p_alias) {
 #line 753 "semantics/typeresolve.byn"
     return byn_semantics__expand(&(*p_c), p_r, byn_semantics__t8AliasType(p_alias));
 }
-#line 156027 "main.c"
+#line 156030 "main.c"
 
 int64_t byn_semantics__expand(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, int64_t p_t) {
     int64_t l0_a = {0};
@@ -156112,7 +156115,7 @@ switch_end_1:;
 #line 788 "semantics/typeresolve.byn"
     return (*bynh_at_list_semantics__AliasPlaceholder((*p_c).aliases, (int64_t)l0_a, false, byn_file_62, 788)).target;
 }
-#line 156116 "main.c"
+#line 156119 "main.c"
 
 int64_t byn_semantics__errorSet(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__ErrorSetDecl p_decl) {
     bynt_list_i64 l0_sets = {0};
@@ -156394,13 +156397,13 @@ break_13:;
 #line 858 "semantics/typeresolve.byn"
     return byn_semantics__errorUnionOf(&(*p_c), l0_sets, l1_excluded);
 }
-#line 156398 "main.c"
+#line 156401 "main.c"
 
 bool byn_semantics__t8IsEffectPrimitive(byn_str p_name) {
 #line 868 "semantics/typeresolve.byn"
     return ((((((((byn_str_eq(p_name, BYN_STR("alloc", 5)) || byn_str_eq(p_name, BYN_STR("suspend", 7))) || byn_str_eq(p_name, BYN_STR("net", 3))) || byn_str_eq(p_name, BYN_STR("fs", 2))) || byn_str_eq(p_name, BYN_STR("clock", 5))) || byn_str_eq(p_name, BYN_STR("random", 6))) || byn_str_eq(p_name, BYN_STR("env", 3))) || byn_str_eq(p_name, BYN_STR("process", 7))) || byn_str_eq(p_name, BYN_STR("console", 7)));
 }
-#line 156404 "main.c"
+#line 156407 "main.c"
 
 void byn_semantics__t8AddEffect(bynt_list_semantics__T8EffectAlias p_aliases, byn_str p_name, bynt_list_str* p_result, bynt_list_str* p_seen) {
     bynt_semantics__T8EffectAlias l0_a = {0};
@@ -156467,7 +156470,7 @@ void byn_semantics__t8AddEffect(bynt_list_semantics__T8EffectAlias p_aliases, by
     }
 break_1:;
 }
-#line 156471 "main.c"
+#line 156474 "main.c"
 
 bynt_list_str byn_semantics__effectsOf(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__UsesClause p_clause) {
     bynt_list_semantics__T8EffectAlias l0_aliases = {0};
@@ -156654,7 +156657,7 @@ break_12:;
 #line 935 "semantics/typeresolve.byn"
     return l23_distinct;
 }
-#line 156658 "main.c"
+#line 156661 "main.c"
 
 int64_t byn_semantics__construct(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_n, int64_t p_t, bynt_lexer__TextSpan p_last) {
     bynt_list_i64 l0_parameters = {0};
@@ -156830,7 +156833,7 @@ break_7:;
 #line 987 "semantics/typeresolve.byn"
     return byn_semantics__instantiateType(&(*p_c), p_t, l7_args, p_r.file, p_n.span);
 }
-#line 156834 "main.c"
+#line 156837 "main.c"
 
 void byn_semantics__noTypeArgs(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_n, bynt_lexer__TextSpan p_last) {
     byn_str l0_text = {0};
@@ -156842,7 +156845,7 @@ void byn_semantics__noTypeArgs(bynt_semantics__Ctx* p_c, bynt_semantics__TypeRes
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)24), p_r.file, p_n.span, ((bynt_tup5_str_str_str_str_str){l0_text, BYN_STR("0", 1), byn_int_string((int64_t)p_n.args.len, 64, true, ((byn_builtin_Radix)2), byn_context), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("", 0), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 156846 "main.c"
+#line 156849 "main.c"
 
 byn_str byn_semantics__t8Lower(byn_str p_s) {
     bynt_list_u8 l0_bytes = {0};
@@ -156884,7 +156887,7 @@ break_1:;
 #line 1009 "semantics/typeresolve.byn"
     return byn_strbuf_str(t4);
 }
-#line 156888 "main.c"
+#line 156891 "main.c"
 
 bynt_opt_str byn_semantics__suggestType(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, byn_str p_text) {
     byn_str l0_lower = {0};
@@ -156981,13 +156984,13 @@ break_3:;
 #line 1049 "semantics/typeresolve.byn"
     return ((bynt_opt_str){0});
 }
-#line 156985 "main.c"
+#line 156988 "main.c"
 
 int64_t byn_semantics__makeType(byn_semantics_TypeKind p_kind, int64_t p_index) {
 #line 107 "semantics/types.byn"
     return ((int64_t)(byn_shl_i64(((int64_t)((int32_t)p_kind)), (int64_t)(((int32_t)32))) | p_index));
 }
-#line 156991 "main.c"
+#line 156994 "main.c"
 
 byn_semantics_TypeKind byn_semantics__kindOf(int64_t p_t) {
     int64_t t0 = {0};
@@ -157172,7 +157175,7 @@ byn_semantics_TypeKind byn_semantics__kindOf(int64_t p_t) {
     return ((byn_semantics_TypeKind)25);
 switch_end_1:;
 }
-#line 157176 "main.c"
+#line 157179 "main.c"
 
 byn_semantics_PrimitiveKind byn_semantics__primKindOf(int64_t p_i) {
 #line 142 "semantics/types.byn"
@@ -157291,7 +157294,7 @@ byn_semantics_PrimitiveKind byn_semantics__primKindOf(int64_t p_i) {
     return ((byn_semantics_PrimitiveKind)16);
 switch_end_1:;
 }
-#line 157295 "main.c"
+#line 157298 "main.c"
 
 byn_semantics_TextViewKind byn_semantics__textViewKindOf(int64_t p_i) {
 #line 164 "semantics/types.byn"
@@ -157319,7 +157322,7 @@ byn_semantics_TextViewKind byn_semantics__textViewKindOf(int64_t p_i) {
     return ((byn_semantics_TextViewKind)3);
 switch_end_1:;
 }
-#line 157323 "main.c"
+#line 157326 "main.c"
 
 byn_semantics_BuiltinKind byn_semantics__builtinKindOf(int64_t p_i) {
 #line 173 "semantics/types.byn"
@@ -157438,7 +157441,7 @@ byn_semantics_BuiltinKind byn_semantics__builtinKindOf(int64_t p_i) {
     return ((byn_semantics_BuiltinKind)11);
 switch_end_1:;
 }
-#line 157442 "main.c"
+#line 157445 "main.c"
 
 bool byn_semantics__listContains(bynt_list_i64 p_xs, int64_t p_x) {
     int64_t l0_e = {0};
@@ -157470,7 +157473,7 @@ break_1:;
 #line 197 "semantics/types.byn"
     return false;
 }
-#line 157474 "main.c"
+#line 157477 "main.c"
 
 bool byn_semantics__listContainsString(bynt_list_str p_xs, byn_str p_x) {
     byn_str l0_e = {0};
@@ -157502,49 +157505,49 @@ break_1:;
 #line 204 "semantics/types.byn"
     return false;
 }
-#line 157506 "main.c"
+#line 157509 "main.c"
 
 int64_t byn_semantics__typeIndex(int64_t p_t) {
 #line 207 "semantics/types.byn"
     return ((int64_t)(p_t & INT64_C(4294967295)));
 }
-#line 157512 "main.c"
+#line 157515 "main.c"
 
 bool byn_semantics__typeEquals(int64_t p_a, int64_t p_b) {
 #line 209 "semantics/types.byn"
     return (p_a == p_b);
 }
-#line 157518 "main.c"
+#line 157521 "main.c"
 
 int64_t byn_semantics__prim(byn_semantics_PrimitiveKind p_k) {
 #line 213 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)0), ((int64_t)((int32_t)p_k)));
 }
-#line 157524 "main.c"
+#line 157527 "main.c"
 
 int64_t byn_semantics__errorType(void) {
 #line 215 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)1), INT64_C(0));
 }
-#line 157530 "main.c"
+#line 157533 "main.c"
 
 int64_t byn_semantics__nullType(void) {
 #line 217 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)2), INT64_C(0));
 }
-#line 157536 "main.c"
+#line 157539 "main.c"
 
 int64_t byn_semantics__textViewType(byn_semantics_TextViewKind p_k) {
 #line 219 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)6), ((int64_t)((int32_t)p_k)));
 }
-#line 157542 "main.c"
+#line 157545 "main.c"
 
 int64_t byn_semantics__builtinType(byn_semantics_BuiltinKind p_k) {
 #line 221 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)18), ((int64_t)((int32_t)p_k)));
 }
-#line 157548 "main.c"
+#line 157551 "main.c"
 
 bynt_opt_i64 byn_semantics__primitiveByName(byn_str p_name) {
 #line 226 "semantics/types.byn"
@@ -157754,7 +157757,7 @@ switch_end_1:;
 #line 256 "semantics/types.byn"
     return ((bynt_opt_i64){0});
 }
-#line 157758 "main.c"
+#line 157761 "main.c"
 
 byn_str byn_semantics__primitiveName(byn_semantics_PrimitiveKind p_k) {
 #line 262 "semantics/types.byn"
@@ -157878,7 +157881,7 @@ byn_str byn_semantics__primitiveName(byn_semantics_PrimitiveKind p_k) {
     }
 switch_end_1:;
 }
-#line 157882 "main.c"
+#line 157885 "main.c"
 
 int64_t byn_semantics__primitiveBits(byn_semantics_PrimitiveKind p_k) {
 #line 285 "semantics/types.byn"
@@ -158002,37 +158005,37 @@ int64_t byn_semantics__primitiveBits(byn_semantics_PrimitiveKind p_k) {
     }
 switch_end_1:;
 }
-#line 158006 "main.c"
+#line 158009 "main.c"
 
 bool byn_semantics__isError(int64_t p_t) {
 #line 307 "semantics/types.byn"
     return (byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)1));
 }
-#line 158012 "main.c"
+#line 158015 "main.c"
 
 bool byn_semantics__isNever(int64_t p_t) {
 #line 309 "semantics/types.byn"
     return (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)16)));
 }
-#line 158018 "main.c"
+#line 158021 "main.c"
 
 bool byn_semantics__isVoid(int64_t p_t) {
 #line 311 "semantics/types.byn"
     return (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)15)));
 }
-#line 158024 "main.c"
+#line 158027 "main.c"
 
 bool byn_semantics__isBool(int64_t p_t) {
 #line 313 "semantics/types.byn"
     return (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)12)));
 }
-#line 158030 "main.c"
+#line 158033 "main.c"
 
 bool byn_semantics__isString(int64_t p_t) {
 #line 315 "semantics/types.byn"
     return (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)14)));
 }
-#line 158036 "main.c"
+#line 158039 "main.c"
 
 bool byn_semantics__isInteger(int64_t p_t) {
     int64_t l0_i = {0};
@@ -158046,7 +158049,7 @@ bool byn_semantics__isInteger(int64_t p_t) {
 #line 320 "semantics/types.byn"
     return ((l0_i >= INT64_C(0)) && (l0_i <= INT64_C(9)));
 }
-#line 158050 "main.c"
+#line 158053 "main.c"
 
 bool byn_semantics__isFloat(int64_t p_t) {
     int64_t l0_i = {0};
@@ -158060,13 +158063,13 @@ bool byn_semantics__isFloat(int64_t p_t) {
 #line 326 "semantics/types.byn"
     return ((l0_i == INT64_C(10)) || (l0_i == INT64_C(11)));
 }
-#line 158064 "main.c"
+#line 158067 "main.c"
 
 bool byn_semantics__isNumeric(int64_t p_t) {
 #line 329 "semantics/types.byn"
     return (byn_semantics__isInteger(p_t) || byn_semantics__isFloat(p_t));
 }
-#line 158070 "main.c"
+#line 158073 "main.c"
 
 bool byn_semantics__isSignedInteger(int64_t p_t) {
     int64_t l0_i = {0};
@@ -158080,13 +158083,13 @@ bool byn_semantics__isSignedInteger(int64_t p_t) {
 #line 334 "semantics/types.byn"
     return (((((l0_i == INT64_C(0)) || (l0_i == INT64_C(1))) || (l0_i == INT64_C(2))) || (l0_i == INT64_C(3))) || (l0_i == INT64_C(8)));
 }
-#line 158084 "main.c"
+#line 158087 "main.c"
 
 bool byn_semantics__isUnsignedInteger(int64_t p_t) {
 #line 337 "semantics/types.byn"
     return (byn_semantics__isInteger(p_t) && (!byn_semantics__isSignedInteger(p_t)));
 }
-#line 158090 "main.c"
+#line 158093 "main.c"
 
 bool byn_semantics__isBorrow(bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -158178,7 +158181,7 @@ bool byn_semantics__isBorrow(bynt_semantics__Ctx* p_c, int64_t p_t) {
     return false;
 switch_end_1:;
 }
-#line 158182 "main.c"
+#line 158185 "main.c"
 
 bynt_semantics__TypeRange byn_semantics__range(byn_semantics_PrimitiveKind p_k) {
     bynt_semantics__Big t0 = {0};
@@ -158288,7 +158291,7 @@ bynt_semantics__TypeRange byn_semantics__range(byn_semantics_PrimitiveKind p_k) 
     return ((bynt_semantics__TypeRange){t10, byn_semantics__bigZero()});
 switch_end_1:;
 }
-#line 158292 "main.c"
+#line 158295 "main.c"
 
 bynt_list_i64 byn_semantics__copyIds(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -158320,7 +158323,7 @@ break_1:;
 #line 391 "semantics/types.byn"
     return l0_r;
 }
-#line 158324 "main.c"
+#line 158327 "main.c"
 
 bynt_list_str byn_semantics__copyStrings(bynt_list_str p_xs) {
     bynt_list_str l0_r = {0};
@@ -158352,7 +158355,7 @@ break_1:;
 #line 399 "semantics/types.byn"
     return l0_r;
 }
-#line 158356 "main.c"
+#line 158359 "main.c"
 
 bynt_list_semantics__TupleField byn_semantics__copyTupleFields(bynt_list_semantics__TupleField p_xs) {
     bynt_list_semantics__TupleField l0_r = {0};
@@ -158384,7 +158387,7 @@ break_1:;
 #line 407 "semantics/types.byn"
     return l0_r;
 }
-#line 158388 "main.c"
+#line 158391 "main.c"
 
 byn_str byn_semantics__joinIds(bynt_list_i64 p_xs) {
     byn_writer l0_sb = {0};
@@ -158431,7 +158434,7 @@ break_1:;
 #line 418 "semantics/types.byn"
     return byn_strbuf_str(t4);
 }
-#line 158435 "main.c"
+#line 158438 "main.c"
 
 byn_str byn_semantics__joinUses(bynt_list_str p_xs) {
     byn_writer l0_sb = {0};
@@ -158480,7 +158483,7 @@ break_1:;
 #line 427 "semantics/types.byn"
     return byn_strbuf_str(t4);
 }
-#line 158484 "main.c"
+#line 158487 "main.c"
 
 byn_str byn_semantics__tupleKey(bynt_list_semantics__TupleField p_fields) {
     byn_writer l0_sb = {0};
@@ -158540,7 +158543,7 @@ break_1:;
 #line 441 "semantics/types.byn"
     return byn_strbuf_str(t5);
 }
-#line 158544 "main.c"
+#line 158547 "main.c"
 
 int64_t byn_semantics__internOptional(bynt_semantics__Ctx* p_c, int64_t p_inner) {
     byn_str l0_key = {0};
@@ -158564,7 +158567,7 @@ int64_t byn_semantics__internOptional(bynt_semantics__Ctx* p_c, int64_t p_inner)
 #line 453 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)4), l2_id);
 }
-#line 158568 "main.c"
+#line 158571 "main.c"
 
 int64_t byn_semantics__internSpan(bynt_semantics__Ctx* p_c, int64_t p_element, bool p_readOnly) {
     byn_str l0_key = {0};
@@ -158600,7 +158603,7 @@ int64_t byn_semantics__internSpan(bynt_semantics__Ctx* p_c, int64_t p_element, b
 #line 463 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)5), l3_id);
 }
-#line 158604 "main.c"
+#line 158607 "main.c"
 
 int64_t byn_semantics__internDynRef(bynt_semantics__Ctx* p_c, int64_t p_iface, bool p_readOnly) {
     byn_str l0_key = {0};
@@ -158636,7 +158639,7 @@ int64_t byn_semantics__internDynRef(bynt_semantics__Ctx* p_c, int64_t p_iface, b
 #line 473 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)7), l3_id);
 }
-#line 158640 "main.c"
+#line 158643 "main.c"
 
 int64_t byn_semantics__internList(bynt_semantics__Ctx* p_c, int64_t p_element) {
     byn_str l0_key = {0};
@@ -158660,7 +158663,7 @@ int64_t byn_semantics__internList(bynt_semantics__Ctx* p_c, int64_t p_element) {
 #line 483 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)8), l2_id);
 }
-#line 158664 "main.c"
+#line 158667 "main.c"
 
 int64_t byn_semantics__internMap(bynt_semantics__Ctx* p_c, int64_t p_key, int64_t p_value) {
     byn_str l0_k = {0};
@@ -158696,7 +158699,7 @@ int64_t byn_semantics__internMap(bynt_semantics__Ctx* p_c, int64_t p_key, int64_
 #line 493 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)9), l3_id);
 }
-#line 158700 "main.c"
+#line 158703 "main.c"
 
 int64_t byn_semantics__internOwned(bynt_semantics__Ctx* p_c, int64_t p_inner) {
     byn_str l0_key = {0};
@@ -158720,7 +158723,7 @@ int64_t byn_semantics__internOwned(bynt_semantics__Ctx* p_c, int64_t p_inner) {
 #line 503 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)10), l2_id);
 }
-#line 158724 "main.c"
+#line 158727 "main.c"
 
 int64_t byn_semantics__internUntrusted(bynt_semantics__Ctx* p_c, int64_t p_inner) {
     byn_str l0_key = {0};
@@ -158744,7 +158747,7 @@ int64_t byn_semantics__internUntrusted(bynt_semantics__Ctx* p_c, int64_t p_inner
 #line 513 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)11), l2_id);
 }
-#line 158748 "main.c"
+#line 158751 "main.c"
 
 int64_t byn_semantics__internArray(bynt_semantics__Ctx* p_c, int64_t p_element, int64_t p_length) {
     byn_str l0_key = {0};
@@ -158780,7 +158783,7 @@ int64_t byn_semantics__internArray(bynt_semantics__Ctx* p_c, int64_t p_element, 
 #line 523 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)12), l3_id);
 }
-#line 158784 "main.c"
+#line 158787 "main.c"
 
 int64_t byn_semantics__internRange(bynt_semantics__Ctx* p_c, int64_t p_element) {
     byn_str l0_key = {0};
@@ -158804,7 +158807,7 @@ int64_t byn_semantics__internRange(bynt_semantics__Ctx* p_c, int64_t p_element) 
 #line 533 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)13), l2_id);
 }
-#line 158808 "main.c"
+#line 158811 "main.c"
 
 int64_t byn_semantics__internTuple(bynt_semantics__Ctx* p_c, bynt_list_semantics__TupleField p_fields) {
     byn_str l0_key = {0};
@@ -158828,7 +158831,7 @@ int64_t byn_semantics__internTuple(bynt_semantics__Ctx* p_c, bynt_list_semantics
 #line 543 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)14), l2_id);
 }
-#line 158832 "main.c"
+#line 158835 "main.c"
 
 int64_t byn_semantics__internFunction(bynt_semantics__Ctx* p_c, bynt_list_i64 p_parameters, int64_t p_ret, bynt_list_i64 p_errorSets, bynt_list_str p_effects) {
     bynt_list_i64 l0_sortedFails = {0};
@@ -158887,7 +158890,7 @@ int64_t byn_semantics__internFunction(bynt_semantics__Ctx* p_c, bynt_list_i64 p_
 #line 566 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)15), l7_id);
 }
-#line 158891 "main.c"
+#line 158894 "main.c"
 
 int64_t byn_semantics__internResult(bynt_semantics__Ctx* p_c, int64_t p_value, int64_t p_error) {
     byn_str l0_key = {0};
@@ -158923,7 +158926,7 @@ int64_t byn_semantics__internResult(bynt_semantics__Ctx* p_c, int64_t p_value, i
 #line 576 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)16), l3_id);
 }
-#line 158927 "main.c"
+#line 158930 "main.c"
 
 int64_t byn_semantics__internState(bynt_semantics__Ctx* p_c, int64_t p_s, bynt_list_i64 p_states) {
     bynt_list_i64 l0_distinct = {0};
@@ -158990,7 +158993,7 @@ break_1:;
 #line 593 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)17), l7_id);
 }
-#line 158994 "main.c"
+#line 158997 "main.c"
 
 int64_t byn_semantics__errorUnionOf(bynt_semantics__Ctx* p_c, bynt_list_i64 p_sets, bynt_list_i64 p_excluded) {
     byn_str l0_key = {0};
@@ -159037,7 +159040,7 @@ int64_t byn_semantics__errorUnionOf(bynt_semantics__Ctx* p_c, bynt_list_i64 p_se
 #line 605 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)19), l4_id);
 }
-#line 159041 "main.c"
+#line 159044 "main.c"
 
 byn_str byn_semantics__textViewName(byn_semantics_TextViewKind p_k) {
 #line 613 "semantics/types.byn"
@@ -159065,7 +159068,7 @@ byn_str byn_semantics__textViewName(byn_semantics_TextViewKind p_k) {
     return BYN_STR("PartView", 8);
 switch_end_1:;
 }
-#line 159069 "main.c"
+#line 159072 "main.c"
 
 byn_str byn_semantics__builtinName(byn_semantics_BuiltinKind p_k) {
 #line 623 "semantics/types.byn"
@@ -159184,7 +159187,7 @@ byn_str byn_semantics__builtinName(byn_semantics_BuiltinKind p_k) {
     return BYN_STR("Path", 4);
 switch_end_1:;
 }
-#line 159188 "main.c"
+#line 159191 "main.c"
 
 byn_str byn_semantics__tupleDisplay(bynt_semantics__Ctx* p_c, int64_t p_idx) {
     int64_t l0_len = {0};
@@ -159255,7 +159258,7 @@ break_1:;
 #line 659 "semantics/types.byn"
     return byn_strbuf_str(t7);
 }
-#line 159259 "main.c"
+#line 159262 "main.c"
 
 byn_str byn_semantics__functionDisplay(bynt_semantics__Ctx* p_c, int64_t p_idx) {
     int64_t l0_plen = {0};
@@ -159407,7 +159410,7 @@ byn_str byn_semantics__functionDisplay(bynt_semantics__Ctx* p_c, int64_t p_idx) 
 #line 706 "semantics/types.byn"
     return byn_strbuf_str(t14);
 }
-#line 159411 "main.c"
+#line 159414 "main.c"
 
 byn_str byn_semantics__stateDisplay(bynt_semantics__Ctx* p_c, int64_t p_idx) {
     int64_t l0_s = {0};
@@ -159494,7 +159497,7 @@ break_1:;
 #line 722 "semantics/types.byn"
     return byn_strbuf_str(t8);
 }
-#line 159498 "main.c"
+#line 159501 "main.c"
 
 byn_str byn_semantics__errorUnionDisplay(bynt_semantics__Ctx* p_c, int64_t p_idx) {
     int64_t l0_setLen = {0};
@@ -159594,7 +159597,7 @@ break_1:;
 #line 746 "semantics/types.byn"
     return byn_strbuf_str(t10);
 }
-#line 159598 "main.c"
+#line 159601 "main.c"
 
 byn_str byn_semantics__typeDisplay(bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -159975,7 +159978,7 @@ byn_str byn_semantics__typeDisplay(bynt_semantics__Ctx* p_c, int64_t p_t) {
     }
 switch_end_1:;
 }
-#line 159979 "main.c"
+#line 159982 "main.c"
 
 int64_t byn_semantics__mapEntry(bynt_semantics__Ctx* p_c, int64_t p_map) {
     bynt_semantics__MapData l0_m = {0};
@@ -159991,7 +159994,7 @@ int64_t byn_semantics__mapEntry(bynt_semantics__Ctx* p_c, int64_t p_map) {
 #line 801 "semantics/types.byn"
     return byn_semantics__internTuple(&(*p_c), l1_fields);
 }
-#line 159995 "main.c"
+#line 159998 "main.c"
 
 int64_t byn_semantics__rangeLayout(bynt_semantics__Ctx* p_c, int64_t p_range) {
     int64_t l0_e = {0};
@@ -160009,7 +160012,7 @@ int64_t byn_semantics__rangeLayout(bynt_semantics__Ctx* p_c, int64_t p_range) {
 #line 811 "semantics/types.byn"
     return byn_semantics__internTuple(&(*p_c), l1_fields);
 }
-#line 160013 "main.c"
+#line 160016 "main.c"
 
 int64_t byn_semantics__textViewElement(byn_semantics_TextViewKind p_k) {
 #line 817 "semantics/types.byn"
@@ -160030,7 +160033,7 @@ int64_t byn_semantics__textViewElement(byn_semantics_TextViewKind p_k) {
     return byn_semantics__prim(((byn_semantics_PrimitiveKind)14));
 switch_end_1:;
 }
-#line 160034 "main.c"
+#line 160037 "main.c"
 
 bool byn_semantics__isValidKey(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_i64 l0_path = {0};
@@ -160039,7 +160042,7 @@ bool byn_semantics__isValidKey(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 828 "semantics/types.byn"
     return byn_semantics__isValidKeyInner(&(*p_c), p_t, &l0_path);
 }
-#line 160043 "main.c"
+#line 160046 "main.c"
 
 bool byn_semantics__isValidKeyInner(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i64* p_path) {
     byn_semantics_TypeKind t0 = {0};
@@ -160143,7 +160146,7 @@ bool byn_semantics__isValidKeyInner(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_
     return (((((byn_semantics__isInteger(p_t) || byn_semantics__isString(p_t)) || (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)13)))) || byn_semantics__isBool(p_t)) || (p_t == byn_semantics__builtinType(((byn_semantics_BuiltinKind)10)))) || ((byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)22)) && ((*bynh_at_list_semantics__EnumSymbol((*p_c).enums, (int64_t)byn_semantics__typeIndex(p_t), false, byn_file_63, 857)).fields.len == INT64_C(0))));
 switch_end_1:;
 }
-#line 160147 "main.c"
+#line 160150 "main.c"
 
 byn_str byn_semantics__fieldPartName(bynt_semantics__TupleField p_f, int64_t p_i) {
     byn_str l0_nm = {0};
@@ -160155,7 +160158,7 @@ byn_str byn_semantics__fieldPartName(bynt_semantics__TupleField p_f, int64_t p_i
 #line 871 "semantics/types.byn"
     return byn_int_string((int64_t)byn_add_i64(p_i, INT64_C(1), byn_file_63, 871), 64, true, ((byn_builtin_Radix)2), byn_context);
 }
-#line 160159 "main.c"
+#line 160162 "main.c"
 
 bynt_opt_semantics__InvalidKeyPart byn_semantics__invalidKeyPart(bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -160245,7 +160248,7 @@ bynt_opt_semantics__InvalidKeyPart byn_semantics__invalidKeyPart(bynt_semantics_
     return ((bynt_opt_semantics__InvalidKeyPart){0});
 switch_end_1:;
 }
-#line 160249 "main.c"
+#line 160252 "main.c"
 
 bool byn_semantics__occurs(bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -160408,7 +160411,7 @@ bool byn_semantics__occurs(bynt_semantics__Ctx* p_c, int64_t p_t) {
     return false;
 switch_end_1:;
 }
-#line 160412 "main.c"
+#line 160415 "main.c"
 
 int64_t byn_semantics__tupleIndexOf(bynt_semantics__Ctx* p_c, int64_t p_tuple, byn_str p_name) {
     int64_t l0_len = {0};
@@ -160474,19 +160477,19 @@ break_1:;
 #line 945 "semantics/types.byn"
     return INT64_C(-1);
 }
-#line 160478 "main.c"
+#line 160481 "main.c"
 
 int64_t byn_emitter_ltree__lNode(byn_emitter_ltree_LKind p_kind, int64_t p_index) {
 #line 74 "emitter/ltree/ltree.byn"
     return ((int64_t)(byn_shl_i64(byn_add_i64(INT64_C(100), ((int64_t)((int32_t)p_kind)), byn_file_64, 74), (int64_t)(((int32_t)32))) | p_index));
 }
-#line 160484 "main.c"
+#line 160487 "main.c"
 
 bool byn_emitter_ltree__isLowered(int64_t p_n) {
 #line 77 "emitter/ltree/ltree.byn"
     return ((p_n >= INT64_C(0)) && (byn_shr_i64(p_n, (int64_t)(((int32_t)32))) >= INT64_C(100)));
 }
-#line 160490 "main.c"
+#line 160493 "main.c"
 
 byn_emitter_ltree_LKind byn_emitter_ltree__lKindOf(int64_t p_n) {
     bynt_opt_emitter_ltree__LKind t0 = {0};
@@ -160495,13 +160498,13 @@ byn_emitter_ltree_LKind byn_emitter_ltree__lKindOf(int64_t p_n) {
 #line 79 "emitter/ltree/ltree.byn"
     return (t0.has ? t0.value : ((byn_emitter_ltree_LKind)27));
 }
-#line 160499 "main.c"
+#line 160502 "main.c"
 
 int64_t byn_emitter_ltree__lIndexOf(int64_t p_n) {
 #line 81 "emitter/ltree/ltree.byn"
     return ((int64_t)(p_n & INT64_C(4294967295)));
 }
-#line 160505 "main.c"
+#line 160508 "main.c"
 
 int64_t byn_emitter_ltree__addLLabel(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LLabel p_n) {
 #line 367 "emitter/ltree/ltree.byn"
@@ -160509,7 +160512,7 @@ int64_t byn_emitter_ltree__addLLabel(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 368 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)0), byn_sub_i64((*p_t).labels.len, INT64_C(1), byn_file_64, 368));
 }
-#line 160513 "main.c"
+#line 160516 "main.c"
 
 int64_t byn_emitter_ltree__addLGoto(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LGoto p_n) {
 #line 372 "emitter/ltree/ltree.byn"
@@ -160517,7 +160520,7 @@ int64_t byn_emitter_ltree__addLGoto(bynt_emitter_ltree__LTree* p_t, bynt_emitter
 #line 373 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)1), byn_sub_i64((*p_t).gotoStmts.len, INT64_C(1), byn_file_64, 373));
 }
-#line 160521 "main.c"
+#line 160524 "main.c"
 
 int64_t byn_emitter_ltree__addLLoop(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LLoop p_n) {
 #line 377 "emitter/ltree/ltree.byn"
@@ -160525,7 +160528,7 @@ int64_t byn_emitter_ltree__addLLoop(bynt_emitter_ltree__LTree* p_t, bynt_emitter
 #line 378 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)2), byn_sub_i64((*p_t).loops.len, INT64_C(1), byn_file_64, 378));
 }
-#line 160529 "main.c"
+#line 160532 "main.c"
 
 int64_t byn_emitter_ltree__addLReturn(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LReturn p_n) {
 #line 382 "emitter/ltree/ltree.byn"
@@ -160533,7 +160536,7 @@ int64_t byn_emitter_ltree__addLReturn(bynt_emitter_ltree__LTree* p_t, bynt_emitt
 #line 383 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)3), byn_sub_i64((*p_t).returnStmts.len, INT64_C(1), byn_file_64, 383));
 }
-#line 160537 "main.c"
+#line 160540 "main.c"
 
 int64_t byn_emitter_ltree__addLReturnError(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LReturnError p_n) {
 #line 387 "emitter/ltree/ltree.byn"
@@ -160541,7 +160544,7 @@ int64_t byn_emitter_ltree__addLReturnError(bynt_emitter_ltree__LTree* p_t, bynt_
 #line 388 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)4), byn_sub_i64((*p_t).returnErrors.len, INT64_C(1), byn_file_64, 388));
 }
-#line 160545 "main.c"
+#line 160548 "main.c"
 
 int64_t byn_emitter_ltree__addLFailingCall(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LFailingCall p_n) {
 #line 392 "emitter/ltree/ltree.byn"
@@ -160549,7 +160552,7 @@ int64_t byn_emitter_ltree__addLFailingCall(bynt_emitter_ltree__LTree* p_t, bynt_
 #line 393 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)5), byn_sub_i64((*p_t).failingCalls.len, INT64_C(1), byn_file_64, 393));
 }
-#line 160553 "main.c"
+#line 160556 "main.c"
 
 int64_t byn_emitter_ltree__addLWrite(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LWrite p_n) {
 #line 397 "emitter/ltree/ltree.byn"
@@ -160557,7 +160560,7 @@ int64_t byn_emitter_ltree__addLWrite(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 398 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)6), byn_sub_i64((*p_t).writes.len, INT64_C(1), byn_file_64, 398));
 }
-#line 160561 "main.c"
+#line 160564 "main.c"
 
 int64_t byn_emitter_ltree__addLPanic(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LPanic p_n) {
 #line 402 "emitter/ltree/ltree.byn"
@@ -160565,7 +160568,7 @@ int64_t byn_emitter_ltree__addLPanic(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 403 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)7), byn_sub_i64((*p_t).panics.len, INT64_C(1), byn_file_64, 403));
 }
-#line 160569 "main.c"
+#line 160572 "main.c"
 
 int64_t byn_emitter_ltree__addLSetContext(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LSetContext p_n) {
 #line 407 "emitter/ltree/ltree.byn"
@@ -160573,7 +160576,7 @@ int64_t byn_emitter_ltree__addLSetContext(bynt_emitter_ltree__LTree* p_t, bynt_e
 #line 408 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)8), byn_sub_i64((*p_t).setContexts.len, INT64_C(1), byn_file_64, 408));
 }
-#line 160577 "main.c"
+#line 160580 "main.c"
 
 int64_t byn_emitter_ltree__addLFreeArena(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LFreeArena p_n) {
 #line 412 "emitter/ltree/ltree.byn"
@@ -160581,7 +160584,7 @@ int64_t byn_emitter_ltree__addLFreeArena(bynt_emitter_ltree__LTree* p_t, bynt_em
 #line 413 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)9), byn_sub_i64((*p_t).freeArenas.len, INT64_C(1), byn_file_64, 413));
 }
-#line 160585 "main.c"
+#line 160588 "main.c"
 
 int64_t byn_emitter_ltree__addLPushPanicHandler(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LPushPanicHandler p_n) {
 #line 417 "emitter/ltree/ltree.byn"
@@ -160589,7 +160592,7 @@ int64_t byn_emitter_ltree__addLPushPanicHandler(bynt_emitter_ltree__LTree* p_t, 
 #line 418 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)10), byn_sub_i64((*p_t).pushPanicHandlers.len, INT64_C(1), byn_file_64, 418));
 }
-#line 160593 "main.c"
+#line 160596 "main.c"
 
 int64_t byn_emitter_ltree__addLPopPanicHandler(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LPopPanicHandler p_n) {
 #line 422 "emitter/ltree/ltree.byn"
@@ -160597,7 +160600,7 @@ int64_t byn_emitter_ltree__addLPopPanicHandler(bynt_emitter_ltree__LTree* p_t, b
 #line 423 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)11), byn_sub_i64((*p_t).popPanicHandlers.len, INT64_C(1), byn_file_64, 423));
 }
-#line 160601 "main.c"
+#line 160604 "main.c"
 
 int64_t byn_emitter_ltree__addLClaim(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LClaim p_n) {
 #line 427 "emitter/ltree/ltree.byn"
@@ -160605,7 +160608,7 @@ int64_t byn_emitter_ltree__addLClaim(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 428 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)12), byn_sub_i64((*p_t).claims.len, INT64_C(1), byn_file_64, 428));
 }
-#line 160609 "main.c"
+#line 160612 "main.c"
 
 int64_t byn_emitter_ltree__addLOptionalHas(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LOptionalHas p_n) {
 #line 432 "emitter/ltree/ltree.byn"
@@ -160613,7 +160616,7 @@ int64_t byn_emitter_ltree__addLOptionalHas(bynt_emitter_ltree__LTree* p_t, bynt_
 #line 433 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)13), byn_sub_i64((*p_t).optionalHass.len, INT64_C(1), byn_file_64, 433));
 }
-#line 160617 "main.c"
+#line 160620 "main.c"
 
 int64_t byn_emitter_ltree__addLOptionalValue(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LOptionalValue p_n) {
 #line 437 "emitter/ltree/ltree.byn"
@@ -160621,7 +160624,7 @@ int64_t byn_emitter_ltree__addLOptionalValue(bynt_emitter_ltree__LTree* p_t, byn
 #line 438 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)14), byn_sub_i64((*p_t).optionalValues.len, INT64_C(1), byn_file_64, 438));
 }
-#line 160625 "main.c"
+#line 160628 "main.c"
 
 int64_t byn_emitter_ltree__addLUnionTag(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LUnionTag p_n) {
 #line 442 "emitter/ltree/ltree.byn"
@@ -160629,7 +160632,7 @@ int64_t byn_emitter_ltree__addLUnionTag(bynt_emitter_ltree__LTree* p_t, bynt_emi
 #line 443 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)15), byn_sub_i64((*p_t).unionTags.len, INT64_C(1), byn_file_64, 443));
 }
-#line 160633 "main.c"
+#line 160636 "main.c"
 
 int64_t byn_emitter_ltree__addLUnionField(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LUnionField p_n) {
 #line 447 "emitter/ltree/ltree.byn"
@@ -160637,7 +160640,7 @@ int64_t byn_emitter_ltree__addLUnionField(bynt_emitter_ltree__LTree* p_t, bynt_e
 #line 448 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)16), byn_sub_i64((*p_t).unionFields.len, INT64_C(1), byn_file_64, 448));
 }
-#line 160641 "main.c"
+#line 160644 "main.c"
 
 int64_t byn_emitter_ltree__addLErrorCode(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LErrorCode p_n) {
 #line 452 "emitter/ltree/ltree.byn"
@@ -160645,7 +160648,7 @@ int64_t byn_emitter_ltree__addLErrorCode(bynt_emitter_ltree__LTree* p_t, bynt_em
 #line 453 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)17), byn_sub_i64((*p_t).errorCodes.len, INT64_C(1), byn_file_64, 453));
 }
-#line 160649 "main.c"
+#line 160652 "main.c"
 
 int64_t byn_emitter_ltree__addLErrorField(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LErrorField p_n) {
 #line 457 "emitter/ltree/ltree.byn"
@@ -160653,7 +160656,7 @@ int64_t byn_emitter_ltree__addLErrorField(bynt_emitter_ltree__LTree* p_t, bynt_e
 #line 458 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)18), byn_sub_i64((*p_t).errorFields.len, INT64_C(1), byn_file_64, 458));
 }
-#line 160657 "main.c"
+#line 160660 "main.c"
 
 int64_t byn_emitter_ltree__addLAssignExpr(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LAssignExpr p_n) {
 #line 462 "emitter/ltree/ltree.byn"
@@ -160661,7 +160664,7 @@ int64_t byn_emitter_ltree__addLAssignExpr(bynt_emitter_ltree__LTree* p_t, bynt_e
 #line 463 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)19), byn_sub_i64((*p_t).assignExprs.len, INT64_C(1), byn_file_64, 463));
 }
-#line 160665 "main.c"
+#line 160668 "main.c"
 
 int64_t byn_emitter_ltree__addLSequence(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LSequence p_n) {
 #line 467 "emitter/ltree/ltree.byn"
@@ -160669,7 +160672,7 @@ int64_t byn_emitter_ltree__addLSequence(bynt_emitter_ltree__LTree* p_t, bynt_emi
 #line 468 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)20), byn_sub_i64((*p_t).sequences.len, INT64_C(1), byn_file_64, 468));
 }
-#line 160673 "main.c"
+#line 160676 "main.c"
 
 int64_t byn_emitter_ltree__addLIndexUnchecked(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LIndexUnchecked p_n) {
 #line 472 "emitter/ltree/ltree.byn"
@@ -160677,7 +160680,7 @@ int64_t byn_emitter_ltree__addLIndexUnchecked(bynt_emitter_ltree__LTree* p_t, by
 #line 473 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)21), byn_sub_i64((*p_t).indexUncheckeds.len, INT64_C(1), byn_file_64, 473));
 }
-#line 160681 "main.c"
+#line 160684 "main.c"
 
 int64_t byn_emitter_ltree__addLNextChar(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LNextChar p_n) {
 #line 477 "emitter/ltree/ltree.byn"
@@ -160685,7 +160688,7 @@ int64_t byn_emitter_ltree__addLNextChar(bynt_emitter_ltree__LTree* p_t, bynt_emi
 #line 478 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)22), byn_sub_i64((*p_t).nextChars.len, INT64_C(1), byn_file_64, 478));
 }
-#line 160689 "main.c"
+#line 160692 "main.c"
 
 int64_t byn_emitter_ltree__addLNever(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LNever p_n) {
 #line 482 "emitter/ltree/ltree.byn"
@@ -160693,7 +160696,7 @@ int64_t byn_emitter_ltree__addLNever(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 483 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)23), byn_sub_i64((*p_t).neverValues.len, INT64_C(1), byn_file_64, 483));
 }
-#line 160697 "main.c"
+#line 160700 "main.c"
 
 int64_t byn_emitter_ltree__addLFunctionValue(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LFunctionValue p_n) {
 #line 487 "emitter/ltree/ltree.byn"
@@ -160701,7 +160704,7 @@ int64_t byn_emitter_ltree__addLFunctionValue(bynt_emitter_ltree__LTree* p_t, byn
 #line 488 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)24), byn_sub_i64((*p_t).functionValues.len, INT64_C(1), byn_file_64, 488));
 }
-#line 160705 "main.c"
+#line 160708 "main.c"
 
 int64_t byn_emitter_ltree__addLMutantIs(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LMutantIs p_n) {
 #line 492 "emitter/ltree/ltree.byn"
@@ -160709,7 +160712,7 @@ int64_t byn_emitter_ltree__addLMutantIs(bynt_emitter_ltree__LTree* p_t, bynt_emi
 #line 493 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)25), byn_sub_i64((*p_t).mutantIss.len, INT64_C(1), byn_file_64, 493));
 }
-#line 160713 "main.c"
+#line 160716 "main.c"
 
 int64_t byn_emitter_ltree__addLCount(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LCount p_n) {
 #line 497 "emitter/ltree/ltree.byn"
@@ -160717,7 +160720,7 @@ int64_t byn_emitter_ltree__addLCount(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 498 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)26), byn_sub_i64((*p_t).counts.len, INT64_C(1), byn_file_64, 498));
 }
-#line 160721 "main.c"
+#line 160724 "main.c"
 
 int64_t byn_emitter_ltree__addLVoid(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LVoid p_n) {
 #line 502 "emitter/ltree/ltree.byn"
@@ -160725,7 +160728,7 @@ int64_t byn_emitter_ltree__addLVoid(bynt_emitter_ltree__LTree* p_t, bynt_emitter
 #line 503 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)27), byn_sub_i64((*p_t).voidValues.len, INT64_C(1), byn_file_64, 503));
 }
-#line 160729 "main.c"
+#line 160732 "main.c"
 
 int64_t byn_emitter_ltree__typeOf(bynt_semantics__Ctx p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_i = {0};
@@ -160848,7 +160851,7 @@ int64_t byn_emitter_ltree__typeOf(bynt_semantics__Ctx p_c, bynt_emitter_ltree__L
     return byn_semantics__errorType();
 switch_end_1:;
 }
-#line 160852 "main.c"
+#line 160855 "main.c"
 
 bynt_lexer__TextSpan byn_emitter_ltree__spanOf(bynt_semantics__Ctx p_c, bynt_emitter_ltree__LTree p_t, int64_t p_n) {
     int64_t l0_i = {0};
@@ -161060,13 +161063,13 @@ bynt_lexer__TextSpan byn_emitter_ltree__spanOf(bynt_semantics__Ctx p_c, bynt_emi
     }
 switch_end_1:;
 }
-#line 161064 "main.c"
+#line 161067 "main.c"
 
 byn_str byn_emitter_cprint__t11Expr(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
 #line 11 "emitter/cprint/builtin.byn"
     return byn_emitter_cprint__emitExpr(&(*p_cc), &(*p_f), &(*p_c), p_t, p_e);
 }
-#line 161070 "main.c"
+#line 161073 "main.c"
 
 byn_str byn_emitter_cprint__emitBuiltin(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_call) {
     int64_t l0_bi = {0};
@@ -164255,7 +164258,7 @@ break_1:;
     }
 switch_end_3:;
 }
-#line 164259 "main.c"
+#line 164262 "main.c"
 
 byn_str byn_emitter_cprint__csName(byn_str p_name) {
     byn_writer t0 = {0};
@@ -164272,7 +164275,7 @@ byn_str byn_emitter_cprint__csName(byn_str p_name) {
 #line 483 "emitter/cprint/builtin.byn"
     return byn_strbuf_str(t0);
 }
-#line 164276 "main.c"
+#line 164279 "main.c"
 
 byn_str byn_emitter_cprint__unary(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_u = {0};
@@ -164401,7 +164404,7 @@ byn_str byn_emitter_cprint__unary(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_
     }
 switch_end_1:;
 }
-#line 164405 "main.c"
+#line 164408 "main.c"
 
 bool byn_emitter_cprint__bareCase(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -164433,7 +164436,7 @@ bool byn_emitter_cprint__bareCase(bynt_semantics__Ctx p_c, int64_t p_e) {
     return false;
 switch_end_1:;
 }
-#line 164437 "main.c"
+#line 164440 "main.c"
 
 byn_str byn_emitter_cprint__binary(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_bi = {0};
@@ -165005,7 +165008,7 @@ byn_str byn_emitter_cprint__binary(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter
     return byn_strbuf_str(t35);
 switch_end_2:;
 }
-#line 165009 "main.c"
+#line 165012 "main.c"
 
 byn_str byn_emitter_cprint__opText(byn_parser_BinaryOp p_op) {
     byn_writer t0 = {0};
@@ -165120,7 +165123,7 @@ byn_str byn_emitter_cprint__opText(byn_parser_BinaryOp p_op) {
     }
 switch_end_1:;
 }
-#line 165124 "main.c"
+#line 165127 "main.c"
 
 byn_str byn_emitter_cprint__conversion(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_ci = {0};
@@ -165502,7 +165505,7 @@ switch_end_1:;
     }
 switch_end_2:;
 }
-#line 165506 "main.c"
+#line 165509 "main.c"
 
 byn_str byn_emitter_cprint__index(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_ii = {0};
@@ -165655,7 +165658,7 @@ byn_str byn_emitter_cprint__index(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_
 #line 669 "emitter/cprint/builtin.byn"
     return byn_strbuf_str(t20);
 }
-#line 165659 "main.c"
+#line 165662 "main.c"
 
 byn_str byn_emitter_cprint__slice(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_si = {0};
@@ -165921,7 +165924,7 @@ byn_str byn_emitter_cprint__slice(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_
 #line 710 "emitter/cprint/builtin.byn"
     return byn_strbuf_str(t34);
 }
-#line 165925 "main.c"
+#line 165928 "main.c"
 
 bynt_list_str byn_emitter_cprint__cKeywords(void) {
     bynt_list_str l0_k = {0};
@@ -165953,7 +165956,7 @@ break_1:;
 #line 72 "emitter/cprint/cctx.byn"
     return l0_k;
 }
-#line 165957 "main.c"
+#line 165960 "main.c"
 
 byn_str byn_emitter_cprint__cType(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     int64_t l0_i = {0};
@@ -166256,7 +166259,7 @@ byn_str byn_emitter_cprint__cType(bynt_emitter_cprint__CCtx* p_cc, bynt_semantic
     return byn_emitter_cprint__named(&(*p_cc), &(*p_c), p_t, ((bynt_opt_str){0}));
 switch_end_1:;
 }
-#line 166260 "main.c"
+#line 166263 "main.c"
 
 byn_str byn_emitter_cprint__errorCType(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c) {
     bynt_list_i64 l0_sets = {0};
@@ -166268,7 +166271,7 @@ byn_str byn_emitter_cprint__errorCType(bynt_emitter_cprint__CCtx* p_cc, bynt_sem
 #line 72 "emitter/cprint/common.byn"
     return byn_emitter_cprint__cType(&(*p_cc), &(*p_c), byn_semantics__errorUnionOf(&(*p_c), l0_sets, l1_excluded));
 }
-#line 166272 "main.c"
+#line 166275 "main.c"
 
 byn_str byn_emitter_cprint__key(bynt_semantics__Ctx* p_c, int64_t p_t) {
     int64_t l0_i = {0};
@@ -166895,7 +166898,7 @@ byn_str byn_emitter_cprint__key(bynt_semantics__Ctx* p_c, int64_t p_t) {
     }
 switch_end_1:;
 }
-#line 166899 "main.c"
+#line 166902 "main.c"
 
 byn_str byn_emitter_cprint__named(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t, bynt_opt_str p_name) {
     byn_str l0_n = {0};
@@ -166931,7 +166934,7 @@ byn_str byn_emitter_cprint__named(bynt_emitter_cprint__CCtx* p_cc, bynt_semantic
 #line 174 "emitter/cprint/common.byn"
     return l0_n;
 }
-#line 166935 "main.c"
+#line 166938 "main.c"
 
 byn_str byn_emitter_cprint__t2TypeArgs(bynt_semantics__Ctx* p_c, bynt_list_i64 p_args) {
     byn_writer l0_sb = {0};
@@ -166979,7 +166982,7 @@ break_1:;
 #line 183 "emitter/cprint/common.byn"
     return byn_strbuf_str(t4);
 }
-#line 166983 "main.c"
+#line 166986 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__t2Copy(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -167011,7 +167014,7 @@ break_1:;
 #line 192 "emitter/cprint/common.byn"
     return l0_r;
 }
-#line 167015 "main.c"
+#line 167018 "main.c"
 
 byn_str byn_emitter_cprint__helper(bynt_emitter_cprint__CCtx* p_cc, byn_str p_name, byn_str p_proto, byn_str p_body) {
     byn_str l0__ = {0};
@@ -167023,7 +167026,7 @@ byn_str byn_emitter_cprint__helper(bynt_emitter_cprint__CCtx* p_cc, byn_str p_na
 #line 203 "emitter/cprint/common.byn"
     return p_name;
 }
-#line 167027 "main.c"
+#line 167030 "main.c"
 
 void byn_emitter_cprint__line(byn_writer* p_sb, bynt_emitter_cprint__CFunc p_f, byn_str p_text) {
     int64_t l0_k = {0};
@@ -167054,7 +167057,7 @@ break_1:;
 #line 214 "emitter/cprint/common.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR("\012", 1));
 }
-#line 167058 "main.c"
+#line 167061 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__lineStartsOf(bynt_semantics__Ctx p_c, int64_t p_file) {
     bynt_list_i64 l0_starts = {0};
@@ -167091,7 +167094,7 @@ break_1:;
 #line 226 "emitter/cprint/common.byn"
     return l0_starts;
 }
-#line 167095 "main.c"
+#line 167098 "main.c"
 
 int64_t byn_emitter_cprint__lineOf(bynt_semantics__Ctx p_c, bynt_emitter_cprint__CFunc p_f, bynt_lexer__TextSpan p_span) {
     int64_t l0_file = {0};
@@ -167135,7 +167138,7 @@ break_1:;
 #line 246 "emitter/cprint/common.byn"
     return l1_lo;
 }
-#line 167139 "main.c"
+#line 167142 "main.c"
 
 byn_str byn_emitter_cprint__loc(bynt_semantics__Ctx p_c, bynt_emitter_cprint__CFunc p_f, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -167153,7 +167156,7 @@ byn_str byn_emitter_cprint__loc(bynt_semantics__Ctx p_c, bynt_emitter_cprint__CF
 #line 251 "emitter/cprint/common.byn"
     return byn_strbuf_str(t0);
 }
-#line 167157 "main.c"
+#line 167160 "main.c"
 
 void byn_emitter_cprint__mapLine(byn_writer* p_sb, bynt_semantics__Ctx p_c, bynt_emitter_cprint__CFunc* p_f, bynt_lexer__TextSpan p_span) {
     byn_str l0_path = {0};
@@ -167195,7 +167198,7 @@ void byn_emitter_cprint__mapLine(byn_writer* p_sb, bynt_semantics__Ctx p_c, bynt
 #line 261 "emitter/cprint/common.byn"
     (*p_f).lastLineEnd = t3;
 }
-#line 167199 "main.c"
+#line 167202 "main.c"
 
 bool byn_emitter_cprint__helperReserve(bynt_emitter_cprint__CCtx* p_cc, byn_str p_name, byn_str p_proto) {
     bynt_emitter_cprint__CHelper t0 = {0};
@@ -167213,7 +167216,7 @@ bool byn_emitter_cprint__helperReserve(bynt_emitter_cprint__CCtx* p_cc, byn_str 
 #line 269 "emitter/cprint/common.byn"
     return true;
 }
-#line 167217 "main.c"
+#line 167220 "main.c"
 
 byn_str byn_emitter_cprint__helperFill(bynt_emitter_cprint__CCtx* p_cc, byn_str p_name, byn_str p_proto, byn_str p_body) {
     byn_writer t0 = {0};
@@ -167236,7 +167239,7 @@ byn_str byn_emitter_cprint__helperFill(bynt_emitter_cprint__CCtx* p_cc, byn_str 
 #line 275 "emitter/cprint/common.byn"
     return p_name;
 }
-#line 167240 "main.c"
+#line 167243 "main.c"
 
 bool byn_emitter_cprint__t6StaticReserve(bynt_emitter_cprint__CCtx* p_cc, byn_str p_name) {
 #line 10 "emitter/cprint/data.byn"
@@ -167251,7 +167254,7 @@ bool byn_emitter_cprint__t6StaticReserve(bynt_emitter_cprint__CCtx* p_cc, byn_st
 #line 13 "emitter/cprint/data.byn"
     return true;
 }
-#line 167255 "main.c"
+#line 167258 "main.c"
 
 byn_str byn_emitter_cprint__enumNames(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_e) {
     byn_str l0_name = {0};
@@ -167335,7 +167338,7 @@ break_1:;
 #line 27 "emitter/cprint/data.byn"
     return l0_name;
 }
-#line 167339 "main.c"
+#line 167342 "main.c"
 
 byn_str byn_emitter_cprint__enumValues(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_e) {
     byn_str l0_name = {0};
@@ -167432,7 +167435,7 @@ break_1:;
 #line 47 "emitter/cprint/data.byn"
     return l0_name;
 }
-#line 167436 "main.c"
+#line 167439 "main.c"
 
 byn_str byn_emitter_cprint__enumField(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_field) {
     int64_t l0_owner = {0};
@@ -167554,7 +167557,7 @@ break_1:;
 #line 69 "emitter/cprint/data.byn"
     return l2_name;
 }
-#line 167558 "main.c"
+#line 167561 "main.c"
 
 byn_str byn_emitter_cprint__staticArray(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_k) {
     byn_str l0_at = {0};
@@ -167668,7 +167671,7 @@ byn_str byn_emitter_cprint__staticArray(bynt_emitter_cprint__CCtx* p_cc, bynt_se
 #line 90 "emitter/cprint/data.byn"
     return byn_strbuf_str(t11);
 }
-#line 167672 "main.c"
+#line 167675 "main.c"
 
 byn_str byn_emitter_cprint__cString(byn_str p_s) {
     byn_writer t0 = {0};
@@ -167686,7 +167689,7 @@ byn_str byn_emitter_cprint__cString(byn_str p_s) {
 #line 96 "emitter/cprint/data.byn"
     return byn_strbuf_str(t0);
 }
-#line 167690 "main.c"
+#line 167693 "main.c"
 
 byn_str byn_emitter_cprint__stringLiteral(byn_str p_s) {
     byn_writer t0 = {0};
@@ -167709,7 +167712,7 @@ byn_str byn_emitter_cprint__stringLiteral(byn_str p_s) {
 #line 99 "emitter/cprint/data.byn"
     return byn_strbuf_str(t0);
 }
-#line 167713 "main.c"
+#line 167716 "main.c"
 
 byn_str byn_emitter_cprint__escape(byn_str p_text) {
     byn_writer l0_sb = {0};
@@ -167768,7 +167771,7 @@ break_1:;
 #line 112 "emitter/cprint/data.byn"
     return byn_strbuf_str(t5);
 }
-#line 167772 "main.c"
+#line 167775 "main.c"
 
 byn_str byn_emitter_cprint__constant(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_semantics__Constant p_k, int64_t p_type) {
     byn_writer t0 = {0};
@@ -167914,7 +167917,7 @@ byn_str byn_emitter_cprint__constant(bynt_emitter_cprint__CCtx* p_cc, bynt_seman
     }
 switch_end_1:;
 }
-#line 167918 "main.c"
+#line 167921 "main.c"
 
 byn_str byn_emitter_cprint__t6FloatLiteral(double p_d, bool p_single) {
     byn_str l0_head = {0};
@@ -168019,7 +168022,7 @@ byn_str byn_emitter_cprint__t6FloatLiteral(double p_d, bool p_single) {
 #line 151 "emitter/cprint/data.byn"
     return t9;
 }
-#line 168023 "main.c"
+#line 168026 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__t6Copy(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -168051,7 +168054,7 @@ break_1:;
 #line 162 "emitter/cprint/data.byn"
     return l0_r;
 }
-#line 168055 "main.c"
+#line 168058 "main.c"
 
 byn_str byn_emitter_cprint__t10Join(bynt_list_str p_parts) {
     byn_writer l0_sb = {0};
@@ -168098,7 +168101,7 @@ break_1:;
 #line 15 "emitter/cprint/expr.byn"
     return byn_strbuf_str(t4);
 }
-#line 168102 "main.c"
+#line 168105 "main.c"
 
 byn_str byn_emitter_cprint__t10LoweredName(byn_emitter_ltree_LKind p_k) {
     bynt_arr28_str l0_names = {0};
@@ -168117,7 +168120,7 @@ byn_str byn_emitter_cprint__t10LoweredName(byn_emitter_ltree_LKind p_k) {
 #line 50 "emitter/cprint/expr.byn"
     return byn_strbuf_str(t1);
 }
-#line 168121 "main.c"
+#line 168124 "main.c"
 
 byn_str byn_emitter_cprint__t10BoundName(byn_semantics_BoundKind p_k) {
     bynt_arr78_str l0_names = {0};
@@ -168136,7 +168139,7 @@ byn_str byn_emitter_cprint__t10BoundName(byn_semantics_BoundKind p_k) {
 #line 135 "emitter/cprint/expr.byn"
     return byn_strbuf_str(t1);
 }
-#line 168140 "main.c"
+#line 168143 "main.c"
 
 byn_str byn_emitter_cprint__emitExpr(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -169492,7 +169495,7 @@ byn_str byn_emitter_cprint__emitExpr(bynt_emitter_cprint__CCtx* p_cc, bynt_emitt
     }
 switch_end_4:;
 }
-#line 169496 "main.c"
+#line 169499 "main.c"
 
 byn_str byn_emitter_cprint__call(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e, bynt_opt_str p_result, byn_str p_detail) {
     int64_t l0_n = {0};
@@ -171586,7 +171589,7 @@ break_4:;
 #line 805 "emitter/cprint/expr.byn"
     return byn_strbuf_str(t224);
 }
-#line 171590 "main.c"
+#line 171593 "main.c"
 
 bynt_emitter_cprint__CFunc byn_emitter_cprint__functionEmitter(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LoweredFunction p_f) {
     int64_t l0_fn = {0};
@@ -171783,7 +171786,7 @@ break_7:;
 #line 48 "emitter/cprint/func.byn"
     return l1_fe;
 }
-#line 171787 "main.c"
+#line 171790 "main.c"
 
 bool byn_emitter_cprint__returnsValue(bynt_semantics__Ctx p_c, int64_t p_fn) {
     int64_t l0_r = {0};
@@ -171792,7 +171795,7 @@ bool byn_emitter_cprint__returnsValue(bynt_semantics__Ctx p_c, int64_t p_fn) {
 #line 55 "emitter/cprint/func.byn"
     return (((!byn_semantics__isVoid(l0_r)) && (!byn_semantics__isNever(l0_r))) && (!((*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_fn, false, byn_file_70, 55)).kind == ((byn_semantics_FunctionKind)2))));
 }
-#line 171796 "main.c"
+#line 171799 "main.c"
 
 byn_str byn_emitter_cprint__signature(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, bynt_emitter_ltree__LoweredFunction p_f) {
     bynt_emitter_cprint__CFunc l0_fe = {0};
@@ -171801,7 +171804,7 @@ byn_str byn_emitter_cprint__signature(bynt_emitter_cprint__CCtx* p_cc, bynt_sema
 #line 61 "emitter/cprint/func.byn"
     return byn_emitter_cprint__frameSignature(&(*p_cc), l0_fe, &(*p_c));
 }
-#line 171805 "main.c"
+#line 171808 "main.c"
 
 byn_str byn_emitter_cprint__frameSignature(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc p_fe, bynt_semantics__Ctx* p_c) {
     int64_t l0_fn = {0};
@@ -171985,7 +171988,7 @@ break_3:;
 #line 104 "emitter/cprint/func.byn"
     return byn_strbuf_str(t22);
 }
-#line 171989 "main.c"
+#line 171992 "main.c"
 
 byn_str byn_emitter_cprint__emitFunction(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, bynt_emitter_ltree__LoweredFunction p_f) {
     bynt_emitter_cprint__CFunc l0_fe = {0};
@@ -172346,7 +172349,7 @@ break_11:;
 #line 178 "emitter/cprint/func.byn"
     return byn_strbuf_str(t39);
 }
-#line 172350 "main.c"
+#line 172353 "main.c"
 
 bool byn_emitter_cprint__isOwner(bynt_semantics__Ctx p_c, int64_t p_l) {
     byn_semantics_LocalKind l0_k = {0};
@@ -172355,13 +172358,13 @@ bool byn_emitter_cprint__isOwner(bynt_semantics__Ctx p_c, int64_t p_l) {
 #line 186 "emitter/cprint/func.byn"
     return (((((l0_k == ((byn_semantics_LocalKind)0)) || (l0_k == ((byn_semantics_LocalKind)1))) || (l0_k == ((byn_semantics_LocalKind)5))) && (!(*bynh_at_list_semantics__LocalSymbol(p_c.locals, (int64_t)p_l, false, byn_file_70, 186)).borrowsSubject)) || ((*bynh_at_list_semantics__LocalSymbol(p_c.locals, (int64_t)p_l, false, byn_file_70, 187)).isParameter && ((*bynh_at_list_semantics__LocalSymbol(p_c.locals, (int64_t)p_l, false, byn_file_70, 187)).modifier == ((byn_parser_ParamModifier)2))));
 }
-#line 172359 "main.c"
+#line 172362 "main.c"
 
 bool byn_emitter_cprint__hasSlot(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, int64_t p_l) {
 #line 192 "emitter/cprint/func.byn"
     return (((*p_cc).ownershipChecks && byn_emitter_cprint__isOwner((*p_c), p_l)) && byn_semantics__isUnique(&(*p_c), (*bynh_at_list_semantics__LocalSymbol((*p_c).locals, (int64_t)p_l, false, byn_file_70, 192)).type));
 }
-#line 172365 "main.c"
+#line 172368 "main.c"
 
 byn_str byn_emitter_cprint__slot(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, int64_t p_l) {
     byn_writer t0 = {0};
@@ -172378,7 +172381,7 @@ byn_str byn_emitter_cprint__slot(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_c
 #line 197 "emitter/cprint/func.byn"
     return byn_strbuf_str(t0);
 }
-#line 172382 "main.c"
+#line 172385 "main.c"
 
 int64_t byn_emitter_cprint__ownerRoot(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -172417,7 +172420,7 @@ int64_t byn_emitter_cprint__ownerRoot(bynt_semantics__Ctx p_c, int64_t p_e) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 172421 "main.c"
+#line 172424 "main.c"
 
 int64_t byn_emitter_cprint__root(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -172456,7 +172459,7 @@ int64_t byn_emitter_cprint__root(bynt_semantics__Ctx p_c, int64_t p_e) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 172460 "main.c"
+#line 172463 "main.c"
 
 byn_str byn_emitter_cprint__placeOf(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_i = {0};
@@ -172549,7 +172552,7 @@ byn_str byn_emitter_cprint__placeOf(bynt_emitter_cprint__CCtx* p_cc, bynt_emitte
 #line 241 "emitter/cprint/func.byn"
     return byn_emitter_cprint__emitExpr(&(*p_cc), &(*p_f), &(*p_c), p_t, p_e);
 }
-#line 172553 "main.c"
+#line 172556 "main.c"
 
 bynt_opt_str byn_emitter_cprint__checkedStore(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_target, int64_t p_value, bool p_claim) {
     int64_t l0_r = {0};
@@ -172641,7 +172644,7 @@ bynt_opt_str byn_emitter_cprint__checkedStore(bynt_emitter_cprint__CCtx* p_cc, b
 #line 268 "emitter/cprint/func.byn"
     return ((bynt_opt_str){true, byn_strbuf_str(t12)});
 }
-#line 172645 "main.c"
+#line 172648 "main.c"
 
 byn_str byn_emitter_cprint__claimed(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_str p_call, int64_t p_receiver, bynt_lexer__TextSpan p_span) {
     byn_str l0_claim = {0};
@@ -172676,7 +172679,7 @@ byn_str byn_emitter_cprint__claimed(bynt_emitter_cprint__CCtx* p_cc, bynt_emitte
 #line 284 "emitter/cprint/func.byn"
     return byn_strbuf_str(t2);
 }
-#line 172680 "main.c"
+#line 172683 "main.c"
 
 void byn_emitter_cprint__claimAfterCall(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_place, bynt_lexer__TextSpan p_span) {
     int64_t l0_r = {0};
@@ -172724,7 +172727,7 @@ void byn_emitter_cprint__claimAfterCall(bynt_emitter_cprint__CCtx* p_cc, bynt_em
 #line 307 "emitter/cprint/func.byn"
     (void)bynh_add_list_str(&(*p_f).afterCalls, byn_strbuf_str(t4));
 }
-#line 172728 "main.c"
+#line 172731 "main.c"
 
 void byn_emitter_cprint__claimMapEntry(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_a) {
     int64_t l0_target = {0};
@@ -172776,7 +172779,7 @@ void byn_emitter_cprint__claimMapEntry(bynt_emitter_cprint__CCtx* p_cc, bynt_emi
         (void)byn_emitter_cprint__line(&(*p_sb), (*p_f), byn_strbuf_str(t6));
     }
 }
-#line 172780 "main.c"
+#line 172783 "main.c"
 
 void byn_emitter_cprint__findUnsequenced(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_s) {
     bynt_map_i64_bool t0 = {0};
@@ -172877,7 +172880,7 @@ break_1:;
 #line 356 "emitter/cprint/func.byn"
     (*p_f).hasDryRun = false;
 }
-#line 172881 "main.c"
+#line 172884 "main.c"
 
 void byn_emitter_cprint__block(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_s) {
     bynt_list_i64 l0_inner = {0};
@@ -172917,7 +172920,7 @@ void byn_emitter_cprint__block(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cpr
 #line 373 "emitter/cprint/func.byn"
     (*p_f).indent = byn_sub_i64((*p_f).indent, INT64_C(1), byn_file_70, 373);
 }
-#line 172921 "main.c"
+#line 172924 "main.c"
 
 void byn_emitter_cprint__statement(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_s) {
     bool l0_lowered = {0};
@@ -173776,7 +173779,7 @@ break_9:;
         (*p_f).lastLineEnd = l7_lastLineEnd;
     }
 }
-#line 173780 "main.c"
+#line 173783 "main.c"
 
 void byn_emitter_cprint__afterCalls(byn_writer* p_sb, bynt_emitter_cprint__CFunc* p_f, bynt_list_str p_claims) {
     byn_str l0_x = {0};
@@ -173807,7 +173810,7 @@ break_1:;
 #line 622 "emitter/cprint/func.byn"
     (*p_f).indent = byn_sub_i64((*p_f).indent, INT64_C(1), byn_file_70, 622);
 }
-#line 173811 "main.c"
+#line 173814 "main.c"
 
 void byn_emitter_cprint__returnStmt(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_r) {
     int64_t l0_fn = {0};
@@ -173880,7 +173883,7 @@ void byn_emitter_cprint__returnStmt(bynt_emitter_cprint__CCtx* p_cc, bynt_emitte
         (void)byn_emitter_cprint__line(&(*p_sb), (*p_f), byn_strbuf_str(t4));
     }
 }
-#line 173884 "main.c"
+#line 173887 "main.c"
 
 byn_str byn_emitter_cprint__returned(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_value) {
     int64_t l0_type = {0};
@@ -173910,7 +173913,7 @@ byn_str byn_emitter_cprint__returned(bynt_emitter_cprint__CCtx* p_cc, bynt_emitt
 #line 659 "emitter/cprint/func.byn"
     return byn_emitter_cprint__emitExpr(&(*p_cc), &(*p_f), &(*p_c), p_t, p_value);
 }
-#line 173914 "main.c"
+#line 173917 "main.c"
 
 void byn_emitter_cprint__write(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_s) {
     int64_t l0_i = {0};
@@ -174226,7 +174229,7 @@ break_1:;
 #line 733 "emitter/cprint/func.byn"
     (void)byn_emitter_cprint__line(&(*p_sb), (*p_f), BYN_STR("}", 1));
 }
-#line 174230 "main.c"
+#line 174233 "main.c"
 
 byn_str byn_emitter_cprint__formatWithSpec(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_value, bynt_semantics__BFormatSpec p_spec) {
     int64_t l0_type = {0};
@@ -174340,7 +174343,7 @@ byn_str byn_emitter_cprint__formatWithSpec(bynt_emitter_cprint__CCtx* p_cc, bynt
 #line 791 "emitter/cprint/func.byn"
     return byn_strbuf_str(t14);
 }
-#line 174344 "main.c"
+#line 174347 "main.c"
 
 byn_str byn_emitter_cprint__formatInner(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_type, byn_str p_v, bynt_semantics__BFormatSpec p_spec, byn_str p_sw) {
     byn_str l0_negative = {0};
@@ -174419,7 +174422,7 @@ byn_str byn_emitter_cprint__formatInner(bynt_emitter_cprint__CCtx* p_cc, bynt_se
 #line 805 "emitter/cprint/func.byn"
     return byn_emitter_cprint__format(&(*p_cc), &(*p_c), p_type, p_v, p_sw);
 }
-#line 174423 "main.c"
+#line 174426 "main.c"
 
 byn_str byn_emitter_cprint__debug(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_type, byn_str p_v, byn_str p_w) {
     byn_str l0_quoted = {0};
@@ -174671,7 +174674,7 @@ byn_str byn_emitter_cprint__debug(bynt_emitter_cprint__CCtx* p_cc, bynt_semantic
 #line 860 "emitter/cprint/func.byn"
     return byn_strbuf_str(t27);
 }
-#line 174675 "main.c"
+#line 174678 "main.c"
 
 bynt_list_str byn_emitter_cprint__t9StmtNames(void) {
     bynt_list_str l0_r = {0};
@@ -174703,7 +174706,7 @@ break_1:;
 #line 925 "emitter/cprint/func.byn"
     return l0_r;
 }
-#line 174707 "main.c"
+#line 174710 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__t9Copy(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -174735,7 +174738,7 @@ break_1:;
 #line 934 "emitter/cprint/func.byn"
     return l0_r;
 }
-#line 174739 "main.c"
+#line 174742 "main.c"
 
 void byn_emitter_cprint__t9Truncate(byn_writer* p_sb, int64_t p_mark) {
     byn_str l0_keep = {0};
@@ -174759,7 +174762,7 @@ void byn_emitter_cprint__t9Truncate(byn_writer* p_sb, int64_t p_mark) {
 #line 941 "emitter/cprint/func.byn"
     (void)byn_w_str(&(*p_sb), l0_keep);
 }
-#line 174763 "main.c"
+#line 174766 "main.c"
 
 byn_str byn_emitter_cprint__t8Join(bynt_list_str p_parts, byn_str p_sep) {
     byn_writer l0_sb = {0};
@@ -174806,7 +174809,7 @@ break_1:;
 #line 18 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t4);
 }
-#line 174810 "main.c"
+#line 174813 "main.c"
 
 byn_str byn_emitter_cprint__equalHelper(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t, byn_str p_a, byn_str p_b) {
     int64_t l0_i = {0};
@@ -175286,7 +175289,7 @@ switch_end_1:;
 #line 97 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t50);
 }
-#line 175290 "main.c"
+#line 175293 "main.c"
 
 byn_str byn_emitter_cprint__t8EqBody(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     int64_t l0_i = {0};
@@ -175691,7 +175694,7 @@ switch_end_7:;
 #line 171 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t49);
 }
-#line 175695 "main.c"
+#line 175698 "main.c"
 
 byn_str byn_emitter_cprint__t8EqCase(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_v) {
     bynt_list_str l0_fields = {0};
@@ -175787,7 +175790,7 @@ break_1:;
 #line 182 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t12);
 }
-#line 175791 "main.c"
+#line 175794 "main.c"
 
 byn_str byn_emitter_cprint__t8KeyHash(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_k) {
     byn_str l0_name = {0};
@@ -176003,7 +176006,7 @@ break_6:;
 #line 237 "emitter/cprint/helpers.byn"
     return byn_emitter_cprint__helperFill(&(*p_cc), l0_name, l2_proto, byn_strbuf_str(t23));
 }
-#line 176007 "main.c"
+#line 176010 "main.c"
 
 byn_str byn_emitter_cprint__t8KeyEq(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_k) {
     byn_str l0_ct = {0};
@@ -176088,7 +176091,7 @@ byn_str byn_emitter_cprint__t8KeyEq(bynt_emitter_cprint__CCtx* p_cc, bynt_semant
 #line 247 "emitter/cprint/helpers.byn"
     return byn_emitter_cprint__helperFill(&(*p_cc), l1_name, l3_proto, byn_strbuf_str(t9));
 }
-#line 176092 "main.c"
+#line 176095 "main.c"
 
 byn_str byn_emitter_cprint__mapMethod(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, byn_semantics_BuiltinMember p_member, int64_t p_t, byn_str p_map, bynt_list_str p_args, byn_str p_loc) {
     int64_t l0_i = {0};
@@ -176529,7 +176532,7 @@ byn_str byn_emitter_cprint__mapMethod(bynt_emitter_cprint__CCtx* p_cc, bynt_sema
     return byn_strbuf_str(t46);
 switch_end_1:;
 }
-#line 176533 "main.c"
+#line 176536 "main.c"
 
 byn_str byn_emitter_cprint__format(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t, byn_str p_v, byn_str p_w) {
     int64_t l0_i = {0};
@@ -176860,7 +176863,7 @@ switch_end_1:;
 #line 355 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t23);
 }
-#line 176864 "main.c"
+#line 176867 "main.c"
 
 byn_str byn_emitter_cprint__t8Text(bynt_emitter_cprint__CCtx* p_cc, byn_str p_s) {
     byn_writer t0 = {0};
@@ -176878,7 +176881,7 @@ byn_str byn_emitter_cprint__t8Text(bynt_emitter_cprint__CCtx* p_cc, byn_str p_s)
 #line 360 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t0);
 }
-#line 176882 "main.c"
+#line 176885 "main.c"
 
 byn_str byn_emitter_cprint__t8FormatBody(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     int64_t l0_i = {0};
@@ -177241,7 +177244,7 @@ switch_end_1:;
 #line 436 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t30);
 }
-#line 177245 "main.c"
+#line 177248 "main.c"
 
 int64_t byn_emitter_cprint__formatInto(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_found = {0};
@@ -177285,7 +177288,7 @@ break_1:;
 #line 460 "emitter/cprint/helpers.byn"
     return l0_found;
 }
-#line 177289 "main.c"
+#line 177292 "main.c"
 
 int64_t byn_emitter_cprint__formatIntoWithSpec(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_m = {0};
@@ -177320,7 +177323,7 @@ break_1:;
 #line 478 "emitter/cprint/helpers.byn"
     return INT64_C(-1);
 }
-#line 177324 "main.c"
+#line 177327 "main.c"
 
 void byn_emitter_cprint__t7StorageParts(bynt_semantics__Ctx* p_c, int64_t p_t, byn_str p_at, bynt_list_emitter_cprint__T7Part* p_parts) {
     int64_t l0_i = {0};
@@ -177617,7 +177620,7 @@ void byn_emitter_cprint__t7StorageParts(bynt_semantics__Ctx* p_c, int64_t p_t, b
     return;
 switch_end_1:;
 }
-#line 177621 "main.c"
+#line 177624 "main.c"
 
 bool byn_emitter_cprint__ownsStorage(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_emitter_cprint__T7Part l0_parts = {0};
@@ -177628,7 +177631,7 @@ bool byn_emitter_cprint__ownsStorage(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 72 "emitter/cprint/own.byn"
     return (l0_parts.len > INT64_C(0));
 }
-#line 177632 "main.c"
+#line 177635 "main.c"
 
 byn_str byn_emitter_cprint__t7OwnStatements(bynt_semantics__Ctx* p_c, int64_t p_t, byn_str p_at, byn_emitter_cprint_T7OwnLine p_line) {
     bynt_list_emitter_cprint__T7Part l0_parts = {0};
@@ -177722,7 +177725,7 @@ break_1:;
 #line 87 "emitter/cprint/own.byn"
     return byn_strbuf_str(t5);
 }
-#line 177726 "main.c"
+#line 177729 "main.c"
 
 byn_str byn_emitter_cprint__ownClaim(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_str l0_ct = {0};
@@ -177774,7 +177777,7 @@ byn_str byn_emitter_cprint__ownClaim(bynt_emitter_cprint__CCtx* p_cc, bynt_seman
 #line 95 "emitter/cprint/own.byn"
     return byn_emitter_cprint__helper(&(*p_cc), l1_name, l3_proto, byn_strbuf_str(t5));
 }
-#line 177778 "main.c"
+#line 177781 "main.c"
 
 byn_str byn_emitter_cprint__ownSet(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_str l0_ct = {0};
@@ -177844,7 +177847,7 @@ byn_str byn_emitter_cprint__ownSet(bynt_emitter_cprint__CCtx* p_cc, bynt_semanti
 #line 119 "emitter/cprint/own.byn"
     return l1_name;
 }
-#line 177848 "main.c"
+#line 177851 "main.c"
 
 byn_str byn_emitter_cprint__ownMove(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_str l0_ct = {0};
@@ -177917,7 +177920,7 @@ byn_str byn_emitter_cprint__ownMove(bynt_emitter_cprint__CCtx* p_cc, bynt_semant
 #line 129 "emitter/cprint/own.byn"
     return byn_emitter_cprint__helper(&(*p_cc), l1_name, l3_proto, byn_strbuf_str(t8));
 }
-#line 177921 "main.c"
+#line 177924 "main.c"
 
 byn_str byn_emitter_cprint__ownReturn(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_str l0_ct = {0};
@@ -177971,7 +177974,7 @@ byn_str byn_emitter_cprint__ownReturn(bynt_emitter_cprint__CCtx* p_cc, bynt_sema
 #line 142 "emitter/cprint/own.byn"
     return byn_emitter_cprint__helper(&(*p_cc), l1_name, l3_proto, byn_strbuf_str(t5));
 }
-#line 177975 "main.c"
+#line 177978 "main.c"
 
 byn_str byn_emitter_cprint__intSuffix(int64_t p_t) {
     byn_semantics_PrimitiveKind l0_k = {0};
@@ -178007,7 +178010,7 @@ byn_str byn_emitter_cprint__intSuffix(int64_t p_t) {
     return byn_semantics__primitiveName(l0_k);
 switch_end_1:;
 }
-#line 178011 "main.c"
+#line 178014 "main.c"
 
 byn_str byn_emitter_cprint__emit(bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, bynt_emitter_ltree__LoweredProgram p_program, bool p_ownershipChecks) {
     bynt_emitter_cprint__CCtx l0_cc = {0};
@@ -178039,7 +178042,7 @@ break_1:;
 #line 14 "emitter/cprint/program.byn"
     return byn_emitter_cprint__t6Run(&l0_cc, &(*p_c), p_t, p_program);
 }
-#line 178043 "main.c"
+#line 178046 "main.c"
 
 byn_str byn_emitter_cprint__t6Run(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, bynt_emitter_ltree__LoweredProgram p_program) {
     byn_writer l0_bodies = {0};
@@ -178490,7 +178493,7 @@ break_21:;
 #line 118 "emitter/cprint/program.byn"
     return byn_emitter_cprint__t6ResolveResets(l47_text);
 }
-#line 178494 "main.c"
+#line 178497 "main.c"
 
 void byn_emitter_cprint__t6EmitFunction(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, bynt_emitter_ltree__LoweredFunction p_f, byn_writer* p_protos, byn_writer* p_bodies) {
 #line 130 "emitter/cprint/program.byn"
@@ -178502,7 +178505,7 @@ void byn_emitter_cprint__t6EmitFunction(bynt_emitter_cprint__CCtx* p_cc, bynt_se
 #line 133 "emitter/cprint/program.byn"
     (void)byn_w_str(&(*p_bodies), BYN_STR("\012", 1));
 }
-#line 178506 "main.c"
+#line 178509 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__t6SymbolTable(bynt_emitter_cprint__CCtx* p_cc, byn_writer* p_sb) {
     bynt_list_i64 l0_indexes = {0};
@@ -178640,7 +178643,7 @@ break_7:;
 #line 165 "emitter/cprint/program.byn"
     return l0_indexes;
 }
-#line 178644 "main.c"
+#line 178647 "main.c"
 
 byn_str byn_emitter_cprint__t6SymbolIndexes(byn_str p_text, bynt_list_i64 p_symbolIndex) {
     byn_writer l0_sb = {0};
@@ -178732,7 +178735,7 @@ break_1:;
 #line 194 "emitter/cprint/program.byn"
     return byn_strbuf_str(t9);
 }
-#line 178736 "main.c"
+#line 178739 "main.c"
 
 byn_str byn_emitter_cprint__t6ResolveResets(byn_str p_text) {
     byn_writer l0_sb = {0};
@@ -178817,7 +178820,7 @@ break_1:;
 #line 219 "emitter/cprint/program.byn"
     return byn_strbuf_str(t8);
 }
-#line 178821 "main.c"
+#line 178824 "main.c"
 
 byn_str byn_emitter_cprint__t6EmitMain(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LoweredProgram p_program) {
     byn_writer l0_sb = {0};
@@ -179053,7 +179056,7 @@ byn_str byn_emitter_cprint__t6EmitMain(bynt_emitter_cprint__CCtx* p_cc, bynt_sem
 #line 299 "emitter/cprint/program.byn"
     return byn_strbuf_str(t18);
 }
-#line 179057 "main.c"
+#line 179060 "main.c"
 
 byn_str byn_emitter_cprint__symbolLiteral(bynt_emitter_cprint__CCtx* p_cc, byn_str p_text) {
     int64_t t0 = {0};
@@ -179088,7 +179091,7 @@ byn_str byn_emitter_cprint__symbolLiteral(bynt_emitter_cprint__CCtx* p_cc, byn_s
 #line 310 "emitter/cprint/program.byn"
     return byn_strbuf_str(t2);
 }
-#line 179092 "main.c"
+#line 179095 "main.c"
 
 byn_str byn_emitter_cprint__symbolText(bynt_emitter_cprint__CCtx* p_cc, byn_str p_s) {
     byn_writer t0 = {0};
@@ -179108,7 +179111,7 @@ byn_str byn_emitter_cprint__symbolText(bynt_emitter_cprint__CCtx* p_cc, byn_str 
 #line 316 "emitter/cprint/program.byn"
     return byn_strbuf_str(t0);
 }
-#line 179112 "main.c"
+#line 179115 "main.c"
 
 byn_str byn_emitter_cprint__symbolIntern(bynt_emitter_cprint__CCtx* p_cc, byn_str p_text) {
     byn_writer t0 = {0};
@@ -179128,7 +179131,7 @@ byn_str byn_emitter_cprint__symbolIntern(bynt_emitter_cprint__CCtx* p_cc, byn_st
 #line 322 "emitter/cprint/program.byn"
     return byn_strbuf_str(t0);
 }
-#line 179132 "main.c"
+#line 179135 "main.c"
 
 byn_str byn_emitter_cprint__functionName(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_fn) {
     byn_semantics_FunctionKind l0_kind = {0};
@@ -179344,7 +179347,7 @@ byn_str byn_emitter_cprint__functionName(bynt_emitter_cprint__CCtx* p_cc, bynt_s
 #line 356 "emitter/cprint/program.byn"
     return byn_strbuf_str(t25);
 }
-#line 179348 "main.c"
+#line 179351 "main.c"
 
 int64_t byn_emitter_cprint__t6IndexOf(bynt_list_i64 p_fns, int64_t p_f) {
     int64_t l0_i = {0};
@@ -179376,7 +179379,7 @@ break_1:;
 #line 364 "emitter/cprint/program.byn"
     return INT64_C(-1);
 }
-#line 179380 "main.c"
+#line 179383 "main.c"
 
 byn_str byn_emitter_cprint__t6Overload(bynt_list_i64 p_overloads, int64_t p_f) {
     int64_t l0_i = {0};
@@ -179405,7 +179408,7 @@ byn_str byn_emitter_cprint__t6Overload(bynt_list_i64 p_overloads, int64_t p_f) {
 #line 370 "emitter/cprint/program.byn"
     return t2;
 }
-#line 179409 "main.c"
+#line 179412 "main.c"
 
 byn_str byn_emitter_cprint__fieldName(byn_str p_name) {
     byn_str l0_w = {0};
@@ -179448,7 +179451,7 @@ break_1:;
 #line 378 "emitter/cprint/program.byn"
     return p_name;
 }
-#line 179452 "main.c"
+#line 179455 "main.c"
 
 byn_str byn_emitter_cprint__fileName(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_fn) {
     byn_str l0_relative = {0};
@@ -179476,7 +179479,7 @@ byn_str byn_emitter_cprint__fileName(bynt_emitter_cprint__CCtx* p_cc, bynt_seman
 #line 388 "emitter/cprint/program.byn"
     return bynh_index_map_str_str((*p_cc).files, l0_relative, byn_file_73, 388);
 }
-#line 179480 "main.c"
+#line 179483 "main.c"
 
 byn_str byn_emitter_cprint__filePath(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_file = {0};
@@ -179507,7 +179510,7 @@ byn_str byn_emitter_cprint__filePath(bynt_emitter_cprint__CCtx* p_cc, bynt_seman
 #line 403 "emitter/cprint/program.byn"
     return l2_relative;
 }
-#line 179511 "main.c"
+#line 179514 "main.c"
 
 byn_str byn_emitter_cprint__t10CoverageCounters(int64_t p_count) {
     byn_writer t0 = {0};
@@ -179527,7 +179530,7 @@ byn_str byn_emitter_cprint__t10CoverageCounters(int64_t p_count) {
 #line 459 "emitter/cprint/program.byn"
     return byn_strbuf_str(t0);
 }
-#line 179531 "main.c"
+#line 179534 "main.c"
 
 byn_str byn_emitter_cprint__emitTypes(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c) {
     byn_writer l0_defs = {0};
@@ -179608,7 +179611,7 @@ break_3:;
 #line 22 "emitter/cprint/types.byn"
     return byn_strbuf_str(t8);
 }
-#line 179612 "main.c"
+#line 179615 "main.c"
 
 void byn_emitter_cprint__t7Define(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, byn_writer* p_defs, bynt_map_str_bool* p_done, byn_str p_name) {
     int64_t l0_t = {0};
@@ -180351,7 +180354,7 @@ break_24:;
 #line 189 "emitter/cprint/types.byn"
     (void)byn_w_str(&(*p_defs), BYN_STR("};\012\012", 4));
 }
-#line 180355 "main.c"
+#line 180358 "main.c"
 
 byn_str byn_emitter_cprint__t7VariantUnion(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_list_i64 p_variants, bool p_errors) {
     byn_writer l0_sb = {0};
@@ -180517,7 +180520,7 @@ break_1:;
 #line 219 "emitter/cprint/types.byn"
     return byn_strbuf_str(t19);
 }
-#line 180521 "main.c"
+#line 180524 "main.c"
 
 void byn_emitter_cprint__t7Payloads(bynt_semantics__Ctx* p_c, bynt_list_i64 p_variants, bynt_list_i64* p_payloads, bool p_errors) {
     int64_t l0_v = {0};
@@ -180592,7 +180595,7 @@ void byn_emitter_cprint__t7Payloads(bynt_semantics__Ctx* p_c, bynt_list_i64 p_va
     }
 break_1:;
 }
-#line 180596 "main.c"
+#line 180599 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__t7Slots(bynt_semantics__Ctx p_c, int64_t p_i) {
     bynt_list_i64 l0_r = {0};
@@ -180647,7 +180650,7 @@ break_3:;
 #line 247 "emitter/cprint/types.byn"
     return l0_r;
 }
-#line 180651 "main.c"
+#line 180654 "main.c"
 
 byn_str byn_emitter_cprint__slotName(bynt_semantics__Ctx* p_c, int64_t p_m) {
     byn_writer t0 = {0};
@@ -180669,7 +180672,7 @@ byn_str byn_emitter_cprint__slotName(bynt_semantics__Ctx* p_c, int64_t p_m) {
 #line 253 "emitter/cprint/types.byn"
     return byn_emitter_cprint__fieldName((*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_m, false, byn_file_74, 253)).name);
 }
-#line 180673 "main.c"
+#line 180676 "main.c"
 
 byn_str byn_emitter_cprint__t7SlotSignature(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_m, byn_str p_declarator, bynt_list_str* p_args) {
     int64_t l0_ret = {0};
@@ -180806,7 +180809,7 @@ break_3:;
 #line 285 "emitter/cprint/types.byn"
     return byn_strbuf_str(t17);
 }
-#line 180810 "main.c"
+#line 180813 "main.c"
 
 byn_str byn_emitter_cprint__t7FunctionSignature(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_f, byn_str p_declarator, bynt_list_str* p_args) {
     int64_t l0_i = {0};
@@ -180936,7 +180939,7 @@ break_3:;
 #line 311 "emitter/cprint/types.byn"
     return byn_strbuf_str(t15);
 }
-#line 180940 "main.c"
+#line 180943 "main.c"
 
 byn_str byn_emitter_cprint__t7Join(bynt_list_str p_xs) {
     byn_writer l0_sb = {0};
@@ -180983,7 +180986,7 @@ break_1:;
 #line 323 "emitter/cprint/types.byn"
     return byn_strbuf_str(t4);
 }
-#line 180987 "main.c"
+#line 180990 "main.c"
 
 byn_str byn_emitter_cprint__functionThunk(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_type) {
     byn_str l0_name = {0};
@@ -181050,7 +181053,7 @@ byn_str byn_emitter_cprint__functionThunk(bynt_emitter_cprint__CCtx* p_cc, bynt_
 #line 336 "emitter/cprint/types.byn"
     return byn_emitter_cprint__helper(&(*p_cc), l0_name, l3_proto, byn_strbuf_str(t9));
 }
-#line 181054 "main.c"
+#line 181057 "main.c"
 
 byn_str byn_emitter_cprint__vtable(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_s, int64_t p_i) {
     int64_t l0_sType = {0};
@@ -181336,7 +181339,7 @@ break_3:;
 #line 384 "emitter/cprint/types.byn"
     return l2_name;
 }
-#line 181340 "main.c"
+#line 181343 "main.c"
 
 bynt_emitter__CoverageMap byn_emitter__instrument(bynt_semantics__Ctx* p_c, bynt_list_str p_skipFiles) {
     bynt_emitter__CoverageWalker l0_w = {0};
@@ -181439,7 +181442,7 @@ break_1:;
 #line 63 "emitter/coverage.byn"
     return ((bynt_emitter__CoverageMap){t12, ((bynt_emitter_ltree__CoverageProbes){l11_count, t13, t14, t15})});
 }
-#line 181443 "main.c"
+#line 181446 "main.c"
 
 bool byn_emitter__coverageInTest(bynt_semantics__Ctx p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -181468,7 +181471,7 @@ break_1:;
 #line 81 "emitter/coverage.byn"
     return false;
 }
-#line 181472 "main.c"
+#line 181475 "main.c"
 
 bool byn_emitter__t10Contains(bynt_list_str p_xs, byn_str p_x) {
     byn_str l0_y = {0};
@@ -181500,7 +181503,7 @@ break_1:;
 #line 89 "emitter/coverage.byn"
     return false;
 }
-#line 181504 "main.c"
+#line 181507 "main.c"
 
 byn_str byn_emitter__t10SyntaxKey(bynt_semantics__Ctx p_c, int64_t p_n, int64_t p_file) {
     bynt_opt_semantics__ExprSyntax t0 = {0};
@@ -181573,7 +181576,7 @@ byn_str byn_emitter__t10SyntaxKey(bynt_semantics__Ctx p_c, int64_t p_n, int64_t 
 #line 103 "emitter/coverage.byn"
     return byn_strbuf_str(t7);
 }
-#line 181577 "main.c"
+#line 181580 "main.c"
 
 bynt_lexer__TextSpan byn_emitter__t10SyntaxSpan(bynt_semantics__Ctx p_c, int64_t p_n) {
     bynt_opt_semantics__ExprSyntax t0 = {0};
@@ -181597,7 +181600,7 @@ bynt_lexer__TextSpan byn_emitter__t10SyntaxSpan(bynt_semantics__Ctx p_c, int64_t
 #line 115 "emitter/coverage.byn"
     return byn_semantics__nodeSpan(p_c, p_n);
 }
-#line 181601 "main.c"
+#line 181604 "main.c"
 
 bool byn_emitter__t10SyntaxIsStmt(bynt_semantics__Ctx p_c, int64_t p_n) {
     bynt_opt_semantics__NodeSyntax t0 = {0};
@@ -181615,7 +181618,7 @@ bool byn_emitter__t10SyntaxIsStmt(bynt_semantics__Ctx p_c, int64_t p_n) {
 #line 123 "emitter/coverage.byn"
     return false;
 }
-#line 181619 "main.c"
+#line 181622 "main.c"
 
 bool byn_emitter__t10SyntaxIs(bynt_semantics__Ctx p_c, int64_t p_n, byn_semantics_NodeSyntaxKind p_kind) {
     bynt_opt_semantics__NodeSyntax t0 = {0};
@@ -181630,7 +181633,7 @@ bool byn_emitter__t10SyntaxIs(bynt_semantics__Ctx p_c, int64_t p_n, byn_semantic
 #line 131 "emitter/coverage.byn"
     return false;
 }
-#line 181634 "main.c"
+#line 181637 "main.c"
 
 void byn_emitter__coverageFunction(bynt_semantics__Ctx p_c, bynt_emitter__CoverageWalker* p_w, int64_t p_fn, int64_t p_file) {
     bynt_list_u8 l0_bytes = {0};
@@ -181679,7 +181682,7 @@ void byn_emitter__coverageFunction(bynt_semantics__Ctx p_c, bynt_emitter__Covera
 #line 166 "emitter/coverage.byn"
     (void)byn_emitter__coverageVisit(p_c, &(*p_w), (*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_fn, false, byn_file_75, 166)).body);
 }
-#line 181683 "main.c"
+#line 181686 "main.c"
 
 void byn_emitter__coverageVisit(bynt_semantics__Ctx p_c, bynt_emitter__CoverageWalker* p_w, int64_t p_node) {
     byn_semantics_BoundKind l0_kind = {0};
@@ -181951,7 +181954,7 @@ switch_end_1:;
     }
 break_6:;
 }
-#line 181955 "main.c"
+#line 181958 "main.c"
 
 bool byn_emitter__t10IsLogical(bynt_semantics__Ctx p_c, int64_t p_e) {
     byn_parser_BinaryOp l0_op = {0};
@@ -181965,7 +181968,7 @@ bool byn_emitter__t10IsLogical(bynt_semantics__Ctx p_c, int64_t p_e) {
 #line 277 "emitter/coverage.byn"
     return ((l0_op == ((byn_parser_BinaryOp)22)) || (l0_op == ((byn_parser_BinaryOp)23)));
 }
-#line 181969 "main.c"
+#line 181972 "main.c"
 
 bynt_list_i64 byn_emitter__coverageVariants(bynt_semantics__Ctx p_c, bynt_list_i64 p_sets, bynt_list_i64 p_excluded, int64_t p_extra) {
     bynt_list_i64 l0_result = {0};
@@ -182076,7 +182079,7 @@ break_1:;
 #line 307 "emitter/coverage.byn"
     return l0_result;
 }
-#line 182080 "main.c"
+#line 182083 "main.c"
 
 void byn_emitter__coverageStatement(bynt_semantics__Ctx p_c, bynt_emitter__CoverageWalker* p_w, int64_t p_s) {
     byn_str l0_key = {0};
@@ -182102,7 +182105,7 @@ void byn_emitter__coverageStatement(bynt_semantics__Ctx p_c, bynt_emitter__Cover
 #line 318 "emitter/coverage.byn"
     (*bynh_slot_map_i64_emitter_ltree__BoundProbe(&(*p_w).statements, p_s, ((bynt_emitter_ltree__BoundProbe){0}))) = t4;
 }
-#line 182106 "main.c"
+#line 182109 "main.c"
 
 void byn_emitter__coverageCondition(bynt_semantics__Ctx p_c, bynt_emitter__CoverageWalker* p_w, int64_t p_cond) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -182150,7 +182153,7 @@ void byn_emitter__coverageCondition(bynt_semantics__Ctx p_c, bynt_emitter__Cover
 #line 332 "emitter/coverage.byn"
     (*bynh_slot_map_i64_emitter_ltree__BoundBranchProbe(&(*p_w).branches, p_cond, ((bynt_emitter_ltree__BoundBranchProbe){0}))) = t8;
 }
-#line 182154 "main.c"
+#line 182157 "main.c"
 
 void byn_emitter__coverageErrorOrigin(bynt_semantics__Ctx p_c, bynt_emitter__CoverageWalker* p_w, int64_t p_origin, byn_str p_kind, bynt_list_i64 p_variants) {
     int64_t l0_template = {0};
@@ -182264,7 +182267,7 @@ break_1:;
         (*bynh_slot_map_i64_emitter_ltree__BoundErrorProbe(&(*p_w).errors, p_origin, ((bynt_emitter_ltree__BoundErrorProbe){0}))) = t17;
     }
 }
-#line 182268 "main.c"
+#line 182271 "main.c"
 
 int64_t byn_emitter__coverageAdd(bynt_emitter__CoverageWalker* p_w, byn_str p_kind, bynt_lexer__TextSpan p_span, bynt_opt_str p_function, bynt_opt_str p_variant, bynt_opt_str p_origin, bynt_opt_bool p_outcome) {
     bynt_tup2_i64_i64 l0_pos = {0};
@@ -182275,7 +182278,7 @@ int64_t byn_emitter__coverageAdd(bynt_emitter__CoverageWalker* p_w, byn_str p_ki
 #line 388 "emitter/coverage.byn"
     return byn_sub_i64((*p_w).counters.len, INT64_C(1), byn_file_75, 388);
 }
-#line 182279 "main.c"
+#line 182282 "main.c"
 
 bynt_emitter_ltree__LoweredProgram byn_emitter__lower(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l) {
     bynt_semantics__Diag l0_d = {0};
@@ -182417,7 +182420,7 @@ break_3:;
 #line 63 "emitter/lower.byn"
     return ((bynt_emitter_ltree__LoweredProgram){l3_functions, (*bynh_at_list_semantics__Mod((*p_c).modules, (int64_t)(*p_c).entryModule, false, byn_file_76, 65)).main_, l4_tests, l5_testFunctions, (*p_l).mutating, (*p_l).covering, l18_coverage});
 }
-#line 182421 "main.c"
+#line 182424 "main.c"
 
 bynt_emitter_ltree__LoweredFunction byn_emitter__lowerFunction(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_fn) {
     bynt_list_list_i64 t0 = {0};
@@ -182604,7 +182607,7 @@ break_5:;
 #line 130 "emitter/lower.byn"
     return ((bynt_emitter_ltree__LoweredFunction){p_fn, l26_locals, (*p_l).contextSlots, (*p_l).panicSlots, l30_block});
 }
-#line 182608 "main.c"
+#line 182611 "main.c"
 
 bynt_list_i64 byn_emitter__copyStmts(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -182636,13 +182639,13 @@ break_1:;
 #line 145 "emitter/lower.byn"
     return l0_r;
 }
-#line 182640 "main.c"
+#line 182643 "main.c"
 
 void byn_emitter__emit(bynt_emitter__LCtx* p_l, int64_t p_s) {
 #line 152 "emitter/lower.byn"
     (void)bynh_add_list_i64(&(*bynh_at_list_list_i64((*p_l).outs, (int64_t)byn_sub_i64((*p_l).outs.len, INT64_C(1), byn_file_76, 152), false, byn_file_76, 152)), p_s);
 }
-#line 182646 "main.c"
+#line 182649 "main.c"
 
 void byn_emitter__note(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_local) {
     int64_t l0_x = {0};
@@ -182684,7 +182687,7 @@ break_1:;
         (void)bynh_add_list_i64(&(*p_l).locals, p_local);
     }
 }
-#line 182688 "main.c"
+#line 182691 "main.c"
 
 int64_t byn_emitter__newTemp(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_type) {
     int64_t l0_t = {0};
@@ -182697,7 +182700,7 @@ int64_t byn_emitter__newTemp(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 174 "emitter/lower.byn"
     return l0_t;
 }
-#line 182701 "main.c"
+#line 182704 "main.c"
 
 byn_str byn_emitter__newLabel(bynt_emitter__LCtx* p_l, byn_str p_kind) {
     byn_writer t0 = {0};
@@ -182717,19 +182720,19 @@ byn_str byn_emitter__newLabel(bynt_emitter__LCtx* p_l, byn_str p_kind) {
 #line 180 "emitter/lower.byn"
     return byn_strbuf_str(t0);
 }
-#line 182721 "main.c"
+#line 182724 "main.c"
 
 void byn_emitter__captureBegin(bynt_emitter__LCtx* p_l) {
 #line 185 "emitter/lower.byn"
     (void)bynh_add_list_list_i64(&(*p_l).outs, ((bynt_list_i64){NULL, 0, 0, byn_context}));
 }
-#line 182727 "main.c"
+#line 182730 "main.c"
 
 bynt_list_i64 byn_emitter__captureEnd(bynt_emitter__LCtx* p_l) {
 #line 190 "emitter/lower.byn"
     return bynh_pop_list_list_i64(&(*p_l).outs, byn_file_76, 190);
 }
-#line 182733 "main.c"
+#line 182736 "main.c"
 
 int64_t byn_emitter__captureExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e, bool p_lvalue, bynt_list_i64* p_pre) {
     int64_t l0_value = {0};
@@ -182745,13 +182748,13 @@ int64_t byn_emitter__captureExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
 #line 198 "emitter/lower.byn"
     return l0_value;
 }
-#line 182749 "main.c"
+#line 182752 "main.c"
 
 int64_t byn_emitter__block(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, bynt_list_i64 p_statements) {
 #line 203 "emitter/lower.byn"
     return byn_semantics__addBlock(&(*p_c), ((bynt_semantics__BBlock){p_span, p_statements}));
 }
-#line 182755 "main.c"
+#line 182758 "main.c"
 
 int64_t byn_emitter__boolLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, bool p_value) {
     int64_t l0_e = {0};
@@ -182762,7 +182765,7 @@ int64_t byn_emitter__boolLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan 
 #line 213 "emitter/lower.byn"
     return l0_e;
 }
-#line 182766 "main.c"
+#line 182769 "main.c"
 
 int64_t byn_emitter__i64Literal(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_value) {
     uint64_t l0_lo = {0};
@@ -182779,7 +182782,7 @@ int64_t byn_emitter__i64Literal(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p
 #line 229 "emitter/lower.byn"
     return l2_e;
 }
-#line 182783 "main.c"
+#line 182786 "main.c"
 
 int64_t byn_emitter__notExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
     bynt_lexer__TextSpan t0 = {0};
@@ -182788,7 +182791,7 @@ int64_t byn_emitter__notExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, i
 #line 234 "emitter/lower.byn"
     return byn_semantics__addUnary(&(*p_c), ((bynt_semantics__BUnary){t0, ((byn_parser_UnaryOp)2), p_e, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 182792 "main.c"
+#line 182795 "main.c"
 
 int64_t byn_emitter__andExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, int64_t p_a, int64_t p_b) {
     bynt_lexer__TextSpan t0 = {0};
@@ -182807,7 +182810,7 @@ int64_t byn_emitter__andExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, i
 #line 249 "emitter/lower.byn"
     return byn_semantics__addBinary(&(*p_c), ((bynt_semantics__BBinary){t0, ((byn_parser_BinaryOp)22), p_a, p_b, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 182811 "main.c"
+#line 182814 "main.c"
 
 bool byn_emitter__isTrueLiteral(bynt_semantics__Ctx p_c, int64_t p_e) {
     bynt_semantics__Constant l0_v = {0};
@@ -182821,7 +182824,7 @@ bool byn_emitter__isTrueLiteral(bynt_semantics__Ctx p_c, int64_t p_e) {
 #line 265 "emitter/lower.byn"
     return ((l0_v.kind == ((byn_semantics_ConstantKind)2)) && l0_v.flag);
 }
-#line 182825 "main.c"
+#line 182828 "main.c"
 
 int64_t byn_emitter__orExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, int64_t p_a, int64_t p_b) {
     bynt_lexer__TextSpan t0 = {0};
@@ -182830,7 +182833,7 @@ int64_t byn_emitter__orExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, in
 #line 270 "emitter/lower.byn"
     return byn_semantics__addBinary(&(*p_c), ((bynt_semantics__BBinary){t0, ((byn_parser_BinaryOp)23), p_a, p_b, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 182834 "main.c"
+#line 182837 "main.c"
 
 int64_t byn_emitter__localExpr(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_local) {
 #line 286 "emitter/lower.byn"
@@ -182838,31 +182841,31 @@ int64_t byn_emitter__localExpr(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_
 #line 287 "emitter/lower.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)4), byn_sub_i64((*p_c).bLocals.len, INT64_C(1), byn_file_76, 287));
 }
-#line 182842 "main.c"
+#line 182845 "main.c"
 
 bool byn_emitter__isNeverExpr(int64_t p_e) {
 #line 291 "emitter/lower.byn"
     return (byn_emitter_ltree__isLowered(p_e) && (byn_emitter_ltree__lKindOf(p_e) == ((byn_emitter_ltree_LKind)23)));
 }
-#line 182848 "main.c"
+#line 182851 "main.c"
 
 bool byn_emitter__isVoidExpr(int64_t p_e) {
 #line 294 "emitter/lower.byn"
     return (byn_emitter_ltree__isLowered(p_e) && (byn_emitter_ltree__lKindOf(p_e) == ((byn_emitter_ltree_LKind)27)));
 }
-#line 182854 "main.c"
+#line 182857 "main.c"
 
 int64_t byn_emitter__t2Type(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
 #line 297 "emitter/lower.byn"
     return byn_emitter_ltree__typeOf(p_c, p_l.tree, p_e);
 }
-#line 182860 "main.c"
+#line 182863 "main.c"
 
 bynt_lexer__TextSpan byn_emitter__t2Span(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_n) {
 #line 300 "emitter/lower.byn"
     return byn_emitter_ltree__spanOf(p_c, p_l.tree, p_n);
 }
-#line 182866 "main.c"
+#line 182869 "main.c"
 
 bynt_list_i64 byn_emitter__t2Children(bynt_semantics__Ctx p_c, int64_t p_n) {
 #line 304 "emitter/lower.byn"
@@ -182873,7 +182876,7 @@ bynt_list_i64 byn_emitter__t2Children(bynt_semantics__Ctx p_c, int64_t p_n) {
 #line 305 "emitter/lower.byn"
     return byn_semantics__children(p_c, p_n);
 }
-#line 182877 "main.c"
+#line 182880 "main.c"
 
 bool byn_emitter__t2IsExpr(int64_t p_n) {
     int32_t t0 = {0};
@@ -182887,7 +182890,7 @@ bool byn_emitter__t2IsExpr(int64_t p_n) {
 #line 311 "emitter/lower.byn"
     return byn_semantics__isExprKind(byn_semantics__boundKind(p_n));
 }
-#line 182891 "main.c"
+#line 182894 "main.c"
 
 bool byn_emitter__isTrivial(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -183015,7 +183018,7 @@ bool byn_emitter__isTrivial(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int
     return false;
 switch_end_2:;
 }
-#line 183019 "main.c"
+#line 183022 "main.c"
 
 bool byn_emitter__isRepeatable(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -183129,7 +183132,7 @@ bool byn_emitter__isRepeatable(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, 
     return byn_emitter__isTrivial(p_c, p_l, p_e);
 switch_end_2:;
 }
-#line 183133 "main.c"
+#line 183136 "main.c"
 
 bool byn_emitter__isLvalue(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
     byn_emitter_ltree_LKind t0 = {0};
@@ -183196,7 +183199,7 @@ bool byn_emitter__isLvalue(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int6
     return false;
 switch_end_2:;
 }
-#line 183200 "main.c"
+#line 183203 "main.c"
 
 bool byn_emitter__hasEffects(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
     byn_emitter_ltree_LKind t0 = {0};
@@ -183261,7 +183264,7 @@ bool byn_emitter__hasEffects(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, in
 #line 423 "emitter/lower.byn"
     return ((byn_emitter_ltree__isLowered(p_e) && (byn_emitter_ltree__lKindOf(p_e) == ((byn_emitter_ltree_LKind)14))) && byn_emitter__hasEffects(p_c, p_l, (*bynh_at_list_emitter_ltree__LOptionalValue(p_l.tree.optionalValues, (int64_t)byn_emitter_ltree__lIndexOf(p_e), false, byn_file_76, 425)).optional));
 }
-#line 183265 "main.c"
+#line 183268 "main.c"
 
 int64_t byn_emitter__spill(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_t = {0};
@@ -183280,7 +183283,7 @@ int64_t byn_emitter__spill(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, in
 #line 434 "emitter/lower.byn"
     return byn_emitter__localExpr(&(*p_c), l1_span, l0_t);
 }
-#line 183284 "main.c"
+#line 183287 "main.c"
 
 void byn_emitter__lowerBecome(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_b) {
     int64_t l0_i = {0};
@@ -183401,7 +183404,7 @@ break_5:;
 #line 478 "emitter/lower.byn"
     (void)byn_emitter__emitAssign(&(*p_c), &(*p_l), byn_emitter_ltree__addLUnionTag(&(*p_l).tree, ((bynt_emitter_ltree__LUnionTag){l1_span, l13_self})), l21_tagValue);
 }
-#line 183405 "main.c"
+#line 183408 "main.c"
 
 void byn_emitter__emitAssign(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_target, int64_t p_value) {
 #line 488 "emitter/lower.byn"
@@ -183419,7 +183422,7 @@ void byn_emitter__emitAssign(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 493 "emitter/lower.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addAssign(&(*p_c), ((bynt_semantics__BAssign){byn_emitter__t2Span((*p_c), (*p_l), p_value), p_target, p_value, ((bynt_opt_parser__BinaryOp){0})})));
 }
-#line 183423 "main.c"
+#line 183426 "main.c"
 
 void byn_emitter__emitEffect(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_value) {
 #line 504 "emitter/lower.byn"
@@ -183430,7 +183433,7 @@ void byn_emitter__emitEffect(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 505 "emitter/lower.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addExprStmt(&(*p_c), ((bynt_semantics__BExprStmt){byn_emitter__t2Span((*p_c), (*p_l), p_value), p_value})));
 }
-#line 183434 "main.c"
+#line 183437 "main.c"
 
 bool byn_emitter__operands(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_list_i64 p_ops, bynt_list_bool p_lvalues, bynt_list_i64* p_values) {
     int64_t l0_n = {0};
@@ -183686,7 +183689,7 @@ break_13:;
 #line 580 "emitter/lower.byn"
     return true;
 }
-#line 183690 "main.c"
+#line 183693 "main.c"
 
 bool byn_emitter__t2Passes(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_x, byn_emitter_T2AnyTest p_probe) {
     int64_t l0_i = {0};
@@ -183723,7 +183726,7 @@ bool byn_emitter__t2Passes(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int6
     }
 switch_end_1:;
 }
-#line 183727 "main.c"
+#line 183730 "main.c"
 
 bool byn_emitter__anyNode(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_node, byn_emitter_T2AnyTest p_probe) {
     int64_t l0_i = {0};
@@ -183866,13 +183869,13 @@ break_4:;
 #line 634 "emitter/lower.byn"
     return false;
 }
-#line 183870 "main.c"
+#line 183873 "main.c"
 
 bool byn_emitter__moves(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_node, int64_t p_local) {
 #line 639 "emitter/lower.byn"
     return byn_emitter__anyNode(p_c, p_l, p_node, ((byn_emitter_T2AnyTest){.tag = 0, .u.movesLocal = {p_local}}));
 }
-#line 183876 "main.c"
+#line 183879 "main.c"
 
 int64_t byn_emitter__captureGuard(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_body) {
     int64_t l0_i = {0};
@@ -183897,7 +183900,7 @@ int64_t byn_emitter__captureGuard(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* 
 #line 651 "emitter/lower.byn"
     return byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){(*bynh_at_list_semantics__BIf((*p_c).bIfs, (int64_t)l0_i, false, byn_file_76, 652)).span, l2_condition, (*bynh_at_list_semantics__BIf((*p_c).bIfs, (int64_t)l0_i, false, byn_file_76, 654)).then, (*bynh_at_list_semantics__BIf((*p_c).bIfs, (int64_t)l0_i, false, byn_file_76, 655)).elseBranch, (*bynh_at_list_semantics__BIf((*p_c).bIfs, (int64_t)l0_i, false, byn_file_76, 656)).isNever, (*bynh_at_list_semantics__BIf((*p_c).bIfs, (int64_t)l0_i, false, byn_file_76, 657)).guarded}));
 }
-#line 183901 "main.c"
+#line 183904 "main.c"
 
 void byn_emitter__emitCleanups(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_depth, int64_t p_error) {
     int64_t l0_i = {0};
@@ -183933,7 +183936,7 @@ void byn_emitter__emitCleanups(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l
     }
 break_1:;
 }
-#line 183937 "main.c"
+#line 183940 "main.c"
 
 void byn_emitter__emitCleanup(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_scopeIndex, byn_emitter_LCleanup p_cleanup, int64_t p_error) {
     int64_t l0_body = {0};
@@ -184006,7 +184009,7 @@ void byn_emitter__emitCleanup(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l,
     }
 switch_end_1:;
 }
-#line 184010 "main.c"
+#line 184013 "main.c"
 
 void byn_emitter__lowerOutside(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_scopeIndex, int64_t p_body) {
     bynt_list_emitter__LScope l0_saved = {0};
@@ -184039,19 +184042,19 @@ break_1:;
     }
 break_3:;
 }
-#line 184043 "main.c"
+#line 184046 "main.c"
 
 bool byn_emitter__printable(int64_t p_t) {
 #line 21 "emitter/lowerassert.byn"
     return ((((byn_semantics__isInteger(p_t) || byn_semantics__isFloat(p_t)) || byn_semantics__isBool(p_t)) || byn_semantics__isString(p_t)) || (byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)22)));
 }
-#line 184049 "main.c"
+#line 184052 "main.c"
 
 bool byn_emitter__t5IsBuiltin(bynt_semantics__Ctx p_c, int64_t p_e, byn_semantics_BuiltinMember p_member) {
 #line 30 "emitter/lowerassert.byn"
     return (((!byn_emitter_ltree__isLowered(p_e)) && (byn_semantics__boundKind(p_e) == ((byn_semantics_BoundKind)9))) && ((*bynh_at_list_semantics__BBuiltinCall(p_c.bBuiltinCalls, (int64_t)((int64_t)(p_e & INT64_C(4294967295))), false, byn_file_77, 30)).member == p_member));
 }
-#line 184055 "main.c"
+#line 184058 "main.c"
 
 int64_t byn_emitter__t5Copied(bynt_semantics__Ctx* p_c, int64_t p_old, int64_t p_copy) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -184075,7 +184078,7 @@ int64_t byn_emitter__t5Copied(bynt_semantics__Ctx* p_c, int64_t p_old, int64_t p
 #line 40 "emitter/lowerassert.byn"
     return p_copy;
 }
-#line 184079 "main.c"
+#line 184082 "main.c"
 
 int64_t byn_emitter__t5Builtin(bynt_semantics__Ctx* p_c, int64_t p_b, byn_semantics_BuiltinMember p_member, int64_t p_receiver, bynt_list_i64 p_arguments) {
     int64_t l0_i = {0};
@@ -184093,7 +184096,7 @@ int64_t byn_emitter__t5Builtin(bynt_semantics__Ctx* p_c, int64_t p_b, byn_semant
 #line 58 "emitter/lowerassert.byn"
     return byn_emitter__t5Copied(&(*p_c), p_b, l3_copy);
 }
-#line 184097 "main.c"
+#line 184100 "main.c"
 
 bynt_list_i64 byn_emitter__t5Arguments(bynt_semantics__Ctx p_c, int64_t p_b) {
     bynt_list_i64 l0_r = {0};
@@ -184125,7 +184128,7 @@ break_1:;
 #line 67 "emitter/lowerassert.byn"
     return l0_r;
 }
-#line 184129 "main.c"
+#line 184132 "main.c"
 
 bool byn_emitter__t5Mutating(byn_semantics_BuiltinMember p_m) {
 #line 73 "emitter/lowerassert.byn"
@@ -184160,13 +184163,13 @@ bool byn_emitter__t5Mutating(byn_semantics_BuiltinMember p_m) {
     return false;
 switch_end_1:;
 }
-#line 184164 "main.c"
+#line 184167 "main.c"
 
 int64_t byn_emitter__t5Literal(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type, bynt_semantics__Constant p_k) {
 #line 95 "emitter/lowerassert.byn"
     return byn_semantics__addLiteral(&(*p_c), ((bynt_semantics__BLiteral){p_span, p_type, p_k}));
 }
-#line 184170 "main.c"
+#line 184173 "main.c"
 
 int64_t byn_emitter__t5Check(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, bynt_lexer__TextSpan p_span, int64_t p_fits, byn_parser_BinaryOp p_op, int64_t p_value, int64_t p_bound) {
     int64_t l0_check = {0};
@@ -184180,7 +184183,7 @@ int64_t byn_emitter__t5Check(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, b
 #line 113 "emitter/lowerassert.byn"
     return byn_emitter__andExpr(&(*p_c), p_l, p_fits, l0_check);
 }
-#line 184184 "main.c"
+#line 184187 "main.c"
 
 byn_str byn_emitter__t5Source(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_start, int64_t p_end) {
     byn_writer t0 = {0};
@@ -184205,7 +184208,7 @@ byn_str byn_emitter__t5Source(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, i
 #line 118 "emitter/lowerassert.byn"
     return byn_strbuf_str(t0);
 }
-#line 184209 "main.c"
+#line 184212 "main.c"
 
 int64_t byn_emitter__t5After(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, bynt_lexer__TextSpan p_left, int64_t p_end) {
     bynt_span_u8 l0_bytes = {0};
@@ -184243,7 +184246,7 @@ break_1:;
 #line 127 "emitter/lowerassert.byn"
     return l2_at;
 }
-#line 184247 "main.c"
+#line 184250 "main.c"
 
 int64_t byn_emitter__t5Anchor(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, bynt_semantics__ExprSyntax p_node, int64_t p_end) {
 #line 133 "emitter/lowerassert.byn"
@@ -184299,7 +184302,7 @@ int64_t byn_emitter__t5Anchor(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, b
     return p_node.span.start;
 switch_end_1:;
 }
-#line 184303 "main.c"
+#line 184306 "main.c"
 
 void byn_emitter__lowerAssert(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_a = {0};
@@ -184716,7 +184719,7 @@ break_9:;
 #line 270 "emitter/lowerassert.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){l1_span, t69, byn_emitter__block(&(*p_c), l1_span, l68_body), INT64_C(-1), false, false})));
 }
-#line 184720 "main.c"
+#line 184723 "main.c"
 
 int64_t byn_emitter__t5Guard(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, bynt_emitter__PowerAssertPiece p_piece, bynt_lexer__TextSpan p_span, bynt_list_i64 p_flags) {
     int64_t l0_g = {0};
@@ -184820,7 +184823,7 @@ break_3:;
 #line 303 "emitter/lowerassert.byn"
     return l0_g;
 }
-#line 184824 "main.c"
+#line 184827 "main.c"
 
 int64_t byn_emitter__t5IsVariant(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_error, int64_t p_v) {
     int64_t l0_variant = {0};
@@ -184832,7 +184835,7 @@ int64_t byn_emitter__t5IsVariant(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan 
 #line 312 "emitter/lowerassert.byn"
     return byn_semantics__addBinary(&(*p_c), ((bynt_semantics__BBinary){p_span, ((byn_parser_BinaryOp)17), t1, l0_variant, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 184836 "main.c"
+#line 184839 "main.c"
 
 void byn_emitter__assertFails(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s, int64_t p_set) {
     int64_t l0_a = {0};
@@ -185047,7 +185050,7 @@ break_3:;
 #line 378 "emitter/lowerassert.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){l1_span, t33, byn_emitter__block(&(*p_c), l1_span, l32_body), INT64_C(-1), false, false})));
 }
-#line 185051 "main.c"
+#line 185054 "main.c"
 
 void byn_emitter__shown(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e, bool p_mayNotRun, bynt_list_i64* p_exprs, bynt_list_bool* p_mayNotRuns) {
     bool l0_literal = {0};
@@ -185165,7 +185168,7 @@ switch_end_1:;
     }
 break_2:;
 }
-#line 185169 "main.c"
+#line 185172 "main.c"
 
 bool byn_emitter__isLiteral(bynt_semantics__Ctx p_c, bynt_semantics__ExprSyntax p_syntax) {
 #line 443 "emitter/lowerassert.byn"
@@ -185193,7 +185196,7 @@ bool byn_emitter__isLiteral(bynt_semantics__Ctx p_c, bynt_semantics__ExprSyntax 
     return false;
 switch_end_1:;
 }
-#line 185197 "main.c"
+#line 185200 "main.c"
 
 int64_t byn_emitter__lowerCallParts(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -185333,7 +185336,7 @@ break_3:;
 #line 510 "emitter/lowerassert.byn"
     return byn_emitter__t5Copied(&(*p_c), p_e, l24_copy);
 }
-#line 185337 "main.c"
+#line 185340 "main.c"
 
 int64_t byn_emitter__lowerBuiltinCall(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -185578,7 +185581,7 @@ break_5:;
 #line 612 "emitter/lowerassert.byn"
     return l37_copy;
 }
-#line 185582 "main.c"
+#line 185585 "main.c"
 
 int64_t byn_emitter__lowerStable(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_place) {
     int64_t l0_i = {0};
@@ -185722,13 +185725,13 @@ int64_t byn_emitter__lowerStable(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
 #line 687 "emitter/lowerassert.byn"
     return ((byn_emitter__isTrivial((*p_c), (*p_l), p_place) || byn_emitter__isLvalue((*p_c), (*p_l), p_place)) ? p_place : byn_emitter__spill(&(*p_c), &(*p_l), p_place));
 }
-#line 185726 "main.c"
+#line 185729 "main.c"
 
 int64_t byn_emitter__lowerWrite(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_call, byn_emitter_ltree_WriteSink p_sink, int64_t p_target, int64_t p_text) {
 #line 700 "emitter/lowerassert.byn"
     return byn_emitter__lowerWriteParts(&(*p_c), &(*p_l), p_call, p_sink, p_target, p_text, INT64_C(-1));
 }
-#line 185732 "main.c"
+#line 185735 "main.c"
 
 int64_t byn_emitter__lowerWriteParts(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_call, byn_emitter_ltree_WriteSink p_sink, int64_t p_target, int64_t p_text, int64_t p_level) {
     int64_t l0_ti = {0};
@@ -185892,7 +185895,7 @@ break_5:;
 #line 776 "emitter/lowerassert.byn"
     return byn_emitter_ltree__addLVoid(&(*p_l).tree, ((bynt_emitter_ltree__LVoid){l1_span}));
 }
-#line 185896 "main.c"
+#line 185899 "main.c"
 
 int64_t byn_emitter__lowerSwitchExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_si = {0};
@@ -186011,7 +186014,7 @@ break_1:;
 #line 847 "emitter/lowerassert.byn"
     return byn_emitter__localExpr(&(*p_c), l1_span, l5_result);
 }
-#line 186015 "main.c"
+#line 186018 "main.c"
 
 int64_t byn_emitter__lowerTryFrom(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_ti = {0};
@@ -186125,7 +186128,7 @@ int64_t byn_emitter__lowerTryFrom(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* 
 #line 936 "emitter/lowerassert.byn"
     return byn_emitter__lowerExpr(&(*p_c), &(*p_l), byn_semantics__addConditional(&(*p_c), ((bynt_semantics__BConditional){l1_span, l7_fits, l20_some, l21_none, l3_type})));
 }
-#line 186129 "main.c"
+#line 186132 "main.c"
 
 int64_t byn_emitter__lowerExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_value = {0};
@@ -186163,7 +186166,7 @@ int64_t byn_emitter__lowerExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l
 #line 58 "emitter/lowerexpr.byn"
     return l0_value;
 }
-#line 186167 "main.c"
+#line 186170 "main.c"
 
 int64_t byn_emitter__t4Keep(bynt_semantics__Ctx* p_c, int64_t p_e, int64_t p_copy) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -186178,7 +186181,7 @@ int64_t byn_emitter__t4Keep(bynt_semantics__Ctx* p_c, int64_t p_e, int64_t p_cop
 #line 66 "emitter/lowerexpr.byn"
     return p_copy;
 }
-#line 186182 "main.c"
+#line 186185 "main.c"
 
 bynt_list_i64 byn_emitter__t4Copy(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -186210,7 +186213,7 @@ break_1:;
 #line 75 "emitter/lowerexpr.byn"
     return l0_r;
 }
-#line 186214 "main.c"
+#line 186217 "main.c"
 
 int64_t byn_emitter__t4Never(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     bynt_lexer__TextSpan t0 = {0};
@@ -186219,7 +186222,7 @@ int64_t byn_emitter__t4Never(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 80 "emitter/lowerexpr.byn"
     return byn_emitter_ltree__addLNever(&(*p_l).tree, ((bynt_emitter_ltree__LNever){t0, byn_emitter__t2Type((*p_c), (*p_l), p_e)}));
 }
-#line 186223 "main.c"
+#line 186226 "main.c"
 
 int64_t byn_emitter__lowerExprNode(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -187054,7 +187057,7 @@ int64_t byn_emitter__lowerExprNode(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx*
     }
 switch_end_1:;
 }
-#line 187058 "main.c"
+#line 187061 "main.c"
 
 byn_str byn_emitter__t4TypeName(int64_t p_e) {
     byn_emitter_ltree_LKind t0 = {0};
@@ -187247,13 +187250,13 @@ byn_str byn_emitter__t4TypeName(int64_t p_e) {
     return byn_strbuf_str(t3);
 switch_end_2:;
 }
-#line 187251 "main.c"
+#line 187254 "main.c"
 
 bool byn_emitter__mutantSwitch(bynt_emitter__LCtx p_l, int64_t p_node) {
 #line 586 "emitter/lowerexpr.byn"
     return ((p_l.mutating && (!bynh_has_map_i64_bool(p_l.plain, p_node))) && bynh_has_map_i64_emitter__BoundMutantSwitch(p_l.mutants, p_node));
 }
-#line 187257 "main.c"
+#line 187260 "main.c"
 
 int64_t byn_emitter__mutantExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_key) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -187514,7 +187517,7 @@ break_11:;
 #line 674 "emitter/lowerexpr.byn"
     return l26_target;
 }
-#line 187518 "main.c"
+#line 187521 "main.c"
 
 void byn_emitter__mutantStatement(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_key) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -187610,7 +187613,7 @@ break_3:;
 #line 713 "emitter/lowerexpr.byn"
     l15__ = bynh_remove_map_i64_bool(&(*p_l).plain, l1_original);
 }
-#line 187614 "main.c"
+#line 187617 "main.c"
 
 int64_t byn_emitter__branchProbe(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_whenTrue = {0};
@@ -187648,7 +187651,7 @@ int64_t byn_emitter__branchProbe(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
 #line 736 "emitter/lowerexpr.byn"
     return l5_probe;
 }
-#line 187652 "main.c"
+#line 187655 "main.c"
 
 int64_t byn_emitter__t10Outcome(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_id, bool p_outcome) {
     bynt_list_i64 l0_effects = {0};
@@ -187659,7 +187662,7 @@ int64_t byn_emitter__t10Outcome(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_
 #line 743 "emitter/lowerexpr.byn"
     return byn_emitter_ltree__addLSequence(&(*p_l).tree, ((bynt_emitter_ltree__LSequence){p_span, l0_effects, byn_emitter__boolLiteral(&(*p_c), p_span, p_outcome)}));
 }
-#line 187663 "main.c"
+#line 187666 "main.c"
 
 void byn_emitter__countError(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_origin, int64_t p_error) {
     bynt_lexer__TextSpan l0_syntax = {0};
@@ -187744,7 +187747,7 @@ break_1:;
     }
 break_3:;
 }
-#line 187748 "main.c"
+#line 187751 "main.c"
 
 int64_t byn_emitter__lowerShortCircuit(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -187801,7 +187804,7 @@ int64_t byn_emitter__lowerShortCircuit(bynt_semantics__Ctx* p_c, bynt_emitter__L
 #line 837 "emitter/lowerexpr.byn"
     return byn_emitter__localExpr(&(*p_c), l1_span, l5_t);
 }
-#line 187805 "main.c"
+#line 187808 "main.c"
 
 int64_t byn_emitter__lowerConditional(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -187917,7 +187920,7 @@ break_3:;
 #line 903 "emitter/lowerexpr.byn"
     return l9_target;
 }
-#line 187921 "main.c"
+#line 187924 "main.c"
 
 int64_t byn_emitter__lowerCoalesce(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188020,7 +188023,7 @@ break_1:;
 #line 955 "emitter/lowerexpr.byn"
     return l12_target;
 }
-#line 188024 "main.c"
+#line 188027 "main.c"
 
 int64_t byn_emitter__lowerCollection(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188222,7 +188225,7 @@ int64_t byn_emitter__lowerCollection(bynt_semantics__Ctx* p_c, bynt_emitter__LCt
     return byn_emitter__t4Keep(&(*p_c), p_e, byn_semantics__addCollection(&(*p_c), ((bynt_semantics__BCollection){l1_span, l2_type, l28_elements})));
 switch_end_1:;
 }
-#line 188226 "main.c"
+#line 188229 "main.c"
 
 bool byn_emitter__t4AnySpread(bynt_semantics__Ctx p_c, bynt_list_i64 p_elements) {
     int64_t l0_x = {0};
@@ -188254,7 +188257,7 @@ break_1:;
 #line 1124 "emitter/lowerexpr.byn"
     return false;
 }
-#line 188258 "main.c"
+#line 188261 "main.c"
 
 bool byn_emitter__lowerExpanded(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_list_i64 p_elements, bynt_list_i64* p_values) {
     int64_t l0_element = {0};
@@ -188334,7 +188337,7 @@ break_1:;
 #line 1156 "emitter/lowerexpr.byn"
     return true;
 }
-#line 188338 "main.c"
+#line 188341 "main.c"
 
 void byn_emitter__lowerAddEach(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_spread, int64_t p_source, int64_t p_list, bynt_lexer__TextSpan p_outer) {
     int64_t l0_s = {0};
@@ -188430,7 +188433,7 @@ switch_end_1:;
 #line 1266 "emitter/lowerexpr.byn"
     (void)byn_emitter__emit(&(*p_l), byn_emitter_ltree__addLLabel(&(*p_l).tree, ((bynt_emitter_ltree__LLabel){l1_span, l6_done})));
 }
-#line 188434 "main.c"
+#line 188437 "main.c"
 
 int64_t byn_emitter__lowerSlice(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188509,7 +188512,7 @@ int64_t byn_emitter__lowerSlice(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_
 #line 1314 "emitter/lowerexpr.byn"
     return byn_emitter__t4Keep(&(*p_c), p_e, l13_n);
 }
-#line 188513 "main.c"
+#line 188516 "main.c"
 
 int64_t byn_emitter__lowerCall(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188598,7 +188601,7 @@ switch_end_1:;
 #line 1369 "emitter/lowerexpr.byn"
     return l5_lowered;
 }
-#line 188602 "main.c"
+#line 188605 "main.c"
 
 bynt_opt_tup2_i64_i64 byn_emitter__lowerFailingCall(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_operand) {
     int64_t l0_i = {0};
@@ -188667,7 +188670,7 @@ bynt_opt_tup2_i64_i64 byn_emitter__lowerFailingCall(bynt_semantics__Ctx* p_c, by
 #line 1427 "emitter/lowerexpr.byn"
     return ((bynt_opt_tup2_i64_i64){true, ((bynt_tup2_i64_i64){l10_error, byn_emitter__localExpr(&(*p_c), l1_span, l12_result)})});
 }
-#line 188671 "main.c"
+#line 188674 "main.c"
 
 int64_t byn_emitter__lowerFailed(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_error) {
     int64_t l0_code = {0};
@@ -188679,7 +188682,7 @@ int64_t byn_emitter__lowerFailed(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
 #line 1444 "emitter/lowerexpr.byn"
     return byn_semantics__addBinary(&(*p_c), ((bynt_semantics__BBinary){p_span, ((byn_parser_BinaryOp)18), l0_code, l1_zero, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 188683 "main.c"
+#line 188686 "main.c"
 
 bynt_list_i64 byn_emitter__lowerPropagate(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_error, int64_t p_origin) {
 #line 1454 "emitter/lowerexpr.byn"
@@ -188693,7 +188696,7 @@ bynt_list_i64 byn_emitter__lowerPropagate(bynt_semantics__Ctx* p_c, bynt_emitter
 #line 1464 "emitter/lowerexpr.byn"
     return byn_emitter__captureEnd(&(*p_l));
 }
-#line 188697 "main.c"
+#line 188700 "main.c"
 
 int64_t byn_emitter__lowerTry(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188728,7 +188731,7 @@ int64_t byn_emitter__lowerTry(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l,
 #line 1486 "emitter/lowerexpr.byn"
     return l2_r.item2;
 }
-#line 188732 "main.c"
+#line 188735 "main.c"
 
 int64_t byn_emitter__lowerCatch(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188840,7 +188843,7 @@ int64_t byn_emitter__lowerCatch(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_
 #line 1564 "emitter/lowerexpr.byn"
     return l2_r.item2;
 }
-#line 188844 "main.c"
+#line 188847 "main.c"
 
 int64_t byn_emitter__lowerMatch(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_pattern, int64_t p_subject) {
     int64_t l0_value = {0};
@@ -189182,7 +189185,7 @@ int64_t byn_emitter__lowerMatch(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_
     }
 switch_end_1:;
 }
-#line 189186 "main.c"
+#line 189189 "main.c"
 
 int64_t byn_emitter__t4Inner(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_value) {
     int64_t l0_inner = {0};
@@ -189191,7 +189194,7 @@ int64_t byn_emitter__t4Inner(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 224 "emitter/lowerpat.byn"
     return byn_emitter_ltree__addLOptionalValue(&(*p_l).tree, ((bynt_emitter_ltree__LOptionalValue){p_span, p_value, l0_inner}));
 }
-#line 189195 "main.c"
+#line 189198 "main.c"
 
 int64_t byn_emitter__t4Bind(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_local, int64_t p_value) {
     bynt_list_i64 l0_effects = {0};
@@ -189205,7 +189208,7 @@ int64_t byn_emitter__t4Bind(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, b
 #line 237 "emitter/lowerpat.byn"
     return byn_emitter_ltree__addLSequence(&(*p_l).tree, ((bynt_emitter_ltree__LSequence){p_span, l0_effects, l1_yes}));
 }
-#line 189209 "main.c"
+#line 189212 "main.c"
 
 int64_t byn_emitter__t4All(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, bynt_list_i64 p_tests) {
     int64_t l0_all = {0};
@@ -189234,7 +189237,7 @@ break_1:;
 #line 248 "emitter/lowerpat.byn"
     return l0_all;
 }
-#line 189238 "main.c"
+#line 189241 "main.c"
 
 void byn_emitter__lowerClaim(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_p) {
     int64_t l0_i = {0};
@@ -189402,7 +189405,7 @@ void byn_emitter__lowerClaim(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
     goto switch_end_1;
 switch_end_1:;
 }
-#line 189406 "main.c"
+#line 189409 "main.c"
 
 int64_t byn_emitter__lowerStep(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_receiver, bynt_semantics__BMemberStep p_step) {
     int64_t l0_p = {0};
@@ -189427,13 +189430,13 @@ int64_t byn_emitter__lowerStep(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_
 #line 327 "emitter/lowerpat.byn"
     return byn_semantics__addTupleElement(&(*p_c), ((bynt_semantics__BTupleElement){p_span, p_receiver, p_step.tupleIndex, p_step.type}));
 }
-#line 189431 "main.c"
+#line 189434 "main.c"
 
 int64_t byn_emitter__lowerEqual(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_a, int64_t p_b) {
 #line 335 "emitter/lowerpat.byn"
     return byn_semantics__addBinary(&(*p_c), ((bynt_semantics__BBinary){p_span, ((byn_parser_BinaryOp)17), p_a, p_b, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 189437 "main.c"
+#line 189440 "main.c"
 
 void byn_emitter__lowerStatement(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -189739,7 +189742,7 @@ void byn_emitter__lowerStatement(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
     }
 switch_end_1:;
 }
-#line 189743 "main.c"
+#line 189746 "main.c"
 
 void byn_emitter__lowerProvide(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -189798,7 +189801,7 @@ break_1:;
 #line 167 "emitter/lowerstmt.byn"
     (void)bynh_remove_through_list_emitter__LScope(&(*p_l).scopes, byn_sub_i64((*p_l).scopes.len, INT64_C(1), byn_file_80, 167), 0, 2, byn_file_80, 167);
 }
-#line 189802 "main.c"
+#line 189805 "main.c"
 
 void byn_emitter__lowerAssign(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -190014,7 +190017,7 @@ void byn_emitter__lowerAssign(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l,
 #line 294 "emitter/lowerstmt.byn"
     (void)byn_emitter__emitAssign(&(*p_c), &(*p_l), l9_target, l36_combined);
 }
-#line 190018 "main.c"
+#line 190021 "main.c"
 
 void byn_emitter__lowerReturn(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -190063,7 +190066,7 @@ void byn_emitter__lowerReturn(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l,
 #line 316 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_emitter_ltree__addLReturn(&(*p_l).tree, ((bynt_emitter_ltree__LReturn){l1_span, l3_value})));
 }
-#line 190067 "main.c"
+#line 190070 "main.c"
 
 bool byn_emitter__t3IsPlainValue(bynt_semantics__Ctx p_c, int64_t p_value) {
     byn_semantics_BoundKind t0 = {0};
@@ -190092,7 +190095,7 @@ bool byn_emitter__t3IsPlainValue(bynt_semantics__Ctx p_c, int64_t p_value) {
     return false;
 switch_end_1:;
 }
-#line 190096 "main.c"
+#line 190099 "main.c"
 
 bool byn_emitter__t3AnyCleanups(bynt_emitter__LCtx p_l) {
     bynt_emitter__LScope l0_scope = {0};
@@ -190124,7 +190127,7 @@ break_1:;
 #line 334 "emitter/lowerstmt.byn"
     return false;
 }
-#line 190128 "main.c"
+#line 190131 "main.c"
 
 void byn_emitter__lowerIf(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -190209,7 +190212,7 @@ void byn_emitter__lowerIf(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int
 #line 391 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){l1_span, l5_condition, l13_thenBlock, l14_elseBlock, false, false})));
 }
-#line 190213 "main.c"
+#line 190216 "main.c"
 
 bynt_tup2_str_str byn_emitter__enterLoop(bynt_emitter__LCtx* p_l, int64_t p_target) {
     byn_str l0_brk = {0};
@@ -190226,7 +190229,7 @@ bynt_tup2_str_str byn_emitter__enterLoop(bynt_emitter__LCtx* p_l, int64_t p_targ
 #line 405 "emitter/lowerstmt.byn"
     return ((bynt_tup2_str_str){l0_brk, l1_cont});
 }
-#line 190230 "main.c"
+#line 190233 "main.c"
 
 void byn_emitter__t3GotoIf(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_condition, byn_str p_label) {
     bynt_list_i64 l0_jump = {0};
@@ -190240,7 +190243,7 @@ void byn_emitter__t3GotoIf(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, by
 #line 413 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){p_span, p_condition, l1_then, INT64_C(-1), false, false})));
 }
-#line 190244 "main.c"
+#line 190247 "main.c"
 
 void byn_emitter__t3GotoIfNot(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_condition, byn_str p_label) {
     int64_t l0_negated = {0};
@@ -190249,13 +190252,13 @@ void byn_emitter__t3GotoIfNot(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l,
 #line 419 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3GotoIf(&(*p_c), &(*p_l), p_span, l0_negated, p_label);
 }
-#line 190253 "main.c"
+#line 190256 "main.c"
 
 void byn_emitter__t3Label(bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, byn_str p_name) {
 #line 424 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_emitter_ltree__addLLabel(&(*p_l).tree, ((bynt_emitter_ltree__LLabel){p_span, p_name})));
 }
-#line 190259 "main.c"
+#line 190262 "main.c"
 
 void byn_emitter__t3Loop(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, bynt_list_i64 p_body) {
     int64_t l0_loopBody = {0};
@@ -190264,7 +190267,7 @@ void byn_emitter__t3Loop(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt
 #line 430 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_emitter_ltree__addLLoop(&(*p_l).tree, ((bynt_emitter_ltree__LLoop){p_span, l0_loopBody})));
 }
-#line 190268 "main.c"
+#line 190271 "main.c"
 
 void byn_emitter__exitUnless(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_condition, byn_str p_label) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -190281,7 +190284,7 @@ void byn_emitter__exitUnless(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 438 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3GotoIfNot(&(*p_c), &(*p_l), l0_span, l1_lowered, p_label);
 }
-#line 190285 "main.c"
+#line 190288 "main.c"
 
 void byn_emitter__lowerWhile(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -190315,7 +190318,7 @@ void byn_emitter__lowerWhile(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 454 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3Label(&(*p_l), l1_span, l4_labels.item1);
 }
-#line 190319 "main.c"
+#line 190322 "main.c"
 
 void byn_emitter__lowerDoWhile(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -190349,7 +190352,7 @@ void byn_emitter__lowerDoWhile(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l
 #line 470 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3Label(&(*p_l), l1_span, l4_labels.item1);
 }
-#line 190353 "main.c"
+#line 190356 "main.c"
 
 void byn_emitter__lowerFor(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_fi = {0};
@@ -190805,7 +190808,7 @@ switch_end_1:;
 #line 758 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3Label(&(*p_l), l1_span, l83_labels.item1);
 }
-#line 190809 "main.c"
+#line 190812 "main.c"
 
 int64_t byn_emitter__t3Witness(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_subject, int64_t p_function, int64_t p_field, bynt_list_i64 p_arguments) {
 #line 770 "emitter/lowerstmt.byn"
@@ -190816,7 +190819,7 @@ int64_t byn_emitter__t3Witness(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_
 #line 774 "emitter/lowerstmt.byn"
     return byn_semantics__addCall(&(*p_c), ((bynt_semantics__BCall){p_span, p_function, p_subject, p_arguments, (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_function, false, byn_file_80, 781)).returnType}));
 }
-#line 190820 "main.c"
+#line 190823 "main.c"
 
 void byn_emitter__lowerUserFor(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s, int64_t p_variable, bynt_semantics__UserIteration p_user) {
     int64_t l0_fi = {0};
@@ -190992,7 +190995,7 @@ void byn_emitter__lowerUserFor(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l
 #line 873 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3Label(&(*p_l), l1_span, l29_labels.item1);
 }
-#line 190996 "main.c"
+#line 190999 "main.c"
 
 int64_t byn_emitter__forItem(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s, int64_t p_item) {
     int64_t l0_fi = {0};
@@ -191037,7 +191040,7 @@ int64_t byn_emitter__forItem(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 901 "emitter/lowerstmt.byn"
     return byn_emitter__lowerExpr(&(*p_c), &(*p_l), l7_conversion);
 }
-#line 191041 "main.c"
+#line 191044 "main.c"
 
 int64_t byn_emitter__oneLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type) {
     int64_t l0_e = {0};
@@ -191048,7 +191051,7 @@ int64_t byn_emitter__oneLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p
 #line 911 "emitter/lowerstmt.byn"
     return l0_e;
 }
-#line 191052 "main.c"
+#line 191055 "main.c"
 
 void byn_emitter__lowerSwitch(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_si = {0};
@@ -191241,7 +191244,7 @@ break_1:;
 #line 973 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_emitter_ltree__addLLabel(&(*p_l).tree, ((bynt_emitter_ltree__LLabel){l1_span, l4_end})));
 }
-#line 191245 "main.c"
+#line 191248 "main.c"
 
 int64_t byn_emitter__lowerLvalue(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -191352,7 +191355,7 @@ int64_t byn_emitter__lowerLvalue(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
     return byn_emitter__spill(&(*p_c), &(*p_l), byn_emitter__lowerExpr(&(*p_c), &(*p_l), p_e));
 switch_end_1:;
 }
-#line 191356 "main.c"
+#line 191359 "main.c"
 
 bool byn_emitter__isLvalueShape(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -191401,7 +191404,7 @@ bool byn_emitter__isLvalueShape(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_
     return false;
 switch_end_1:;
 }
-#line 191405 "main.c"
+#line 191408 "main.c"
 
 int32_t byn_emitter__usage(void) {
 #line 34 "emitter/main.byn"
@@ -191409,7 +191412,7 @@ int32_t byn_emitter__usage(void) {
 #line 37 "emitter/main.byn"
     return ((int32_t)2);
 }
-#line 191413 "main.c"
+#line 191416 "main.c"
 
 byn_str byn_emitter__t12Emit(bynt_semantics__Ctx* p_c, byn_str p_mode) {
     bynt_emitter__LCtx l0_l = {0};
@@ -191421,7 +191424,7 @@ byn_str byn_emitter__t12Emit(bynt_semantics__Ctx* p_c, byn_str p_mode) {
 #line 44 "emitter/main.byn"
     return byn_emitter_cprint__emit(&(*p_c), l0_l.tree, l1_program, byn_str_eq(p_mode, BYN_STR("debug", 5)));
 }
-#line 191425 "main.c"
+#line 191428 "main.c"
 
 byn_str byn_emitter__t10Emit(bynt_semantics__Ctx* p_c, byn_str p_mode, bool p_covering, bool p_mutating) {
     bynt_emitter__LCtx l0_l = {0};
@@ -191479,7 +191482,7 @@ byn_str byn_emitter__t10Emit(bynt_semantics__Ctx* p_c, byn_str p_mode, bool p_co
 #line 68 "emitter/main.byn"
     return byn_emitter_cprint__emit(&(*p_c), l0_l.tree, l9_program, byn_str_eq(p_mode, BYN_STR("debug", 5)));
 }
-#line 191483 "main.c"
+#line 191486 "main.c"
 
 bool byn_emitter__t12HasErrors(bynt_semantics__Ctx p_c) {
     bynt_semantics__Diag l0_d = {0};
@@ -191511,7 +191514,7 @@ break_1:;
 #line 75 "emitter/main.byn"
     return false;
 }
-#line 191515 "main.c"
+#line 191518 "main.c"
 
 bynt_semantics__Ctx byn_emitter__t12Compile(byn_str p_dir, bynt_list_u8 p_bytes, byn_str p_file, bool p_tests) {
     bynt_list_lexer__SourceText l0_sources = {0};
@@ -191525,7 +191528,7 @@ bynt_semantics__Ctx byn_emitter__t12Compile(byn_str p_dir, bynt_list_u8 p_bytes,
 #line 83 "emitter/main.byn"
     return byn_semantics__create(l0_sources, p_dir, l1_options, ((bynt_opt_str){0}));
 }
-#line 191529 "main.c"
+#line 191532 "main.c"
 
 int32_t byn_emitter__t12Finish(bynt_semantics__Ctx* p_c, bynt_semantics__T26Options p_o, bynt_semantics__T26Symbols p_symbols, byn_str p_mode, bool p_tests, bool p_covering, bool p_mutating) {
     bynt_list_semantics__T26Reported l0_reported = {0};
@@ -191556,7 +191559,7 @@ int32_t byn_emitter__t12Finish(bynt_semantics__Ctx* p_c, bynt_semantics__T26Opti
 #line 105 "emitter/main.byn"
     return ((int32_t)0);
 }
-#line 191560 "main.c"
+#line 191563 "main.c"
 
 int32_t byn_emitter__t12Package(byn_str p_dir, byn_str p_file, bool p_tests, byn_str p_mode, bynt_semantics__T26Symbols p_symbols, bool p_covering, bool p_mutating) {
     bynt_list_u8 l0_bytes = {0};
@@ -191597,7 +191600,7 @@ int32_t byn_emitter__t12Package(byn_str p_dir, byn_str p_file, bool p_tests, byn
 #line 123 "emitter/main.byn"
     return byn_emitter__t12Finish(&l5_c, l6_o, p_symbols, p_mode, p_tests, p_covering, p_mutating);
 }
-#line 191601 "main.c"
+#line 191604 "main.c"
 
 int32_t byn_emitter__t12Many(byn_str p_dir, byn_str p_mode, bynt_semantics__T26Symbols p_symbols) {
     bynt_list_str l0_names = {0};
@@ -191682,7 +191685,7 @@ break_1:;
 #line 140 "emitter/main.byn"
     return ((int32_t)0);
 }
-#line 191686 "main.c"
+#line 191689 "main.c"
 
 int32_t byn_emitter__t12Timed(byn_str p_path, byn_str p_mode, bool p_ascii) {
     bynt_semantics__T26Symbols l0_symbols = {0};
@@ -191772,7 +191775,7 @@ int32_t byn_emitter__t12Timed(byn_str p_path, byn_str p_mode, bool p_ascii) {
 #line 163 "emitter/main.byn"
     return ((int32_t)0);
 }
-#line 191776 "main.c"
+#line 191779 "main.c"
 
 int32_t byn_emitter__main(bynt_span_str p_args) {
     bool l0_ascii = {0};
@@ -192082,7 +192085,7 @@ break_1:;
 #line 264 "emitter/main.byn"
     return ((int32_t)0);
 }
-#line 192086 "main.c"
+#line 192089 "main.c"
 
 bynt_emitter__PowerAssertLine byn_emitter__powerAssertLine(byn_str p_text, int64_t p_start, bool p_first) {
     int64_t l0_end = {0};
@@ -192157,7 +192160,7 @@ bynt_emitter__PowerAssertLine byn_emitter__powerAssertLine(byn_str p_text, int64
 #line 50 "emitter/powerassert.byn"
     return ((bynt_emitter__PowerAssertLine){l5_from, l6_until, l1_next});
 }
-#line 192161 "main.c"
+#line 192164 "main.c"
 
 byn_str byn_emitter__powerAssertFlatten(byn_str p_text) {
     byn_writer l0_sb = {0};
@@ -192211,7 +192214,7 @@ break_1:;
 #line 70 "emitter/powerassert.byn"
     return byn_strbuf_str(t4);
 }
-#line 192215 "main.c"
+#line 192218 "main.c"
 
 int64_t byn_emitter__powerAssertColumn(byn_str p_before) {
     int64_t l0_count = {0};
@@ -192261,7 +192264,7 @@ break_1:;
 #line 90 "emitter/powerassert.byn"
     return l0_count;
 }
-#line 192265 "main.c"
+#line 192268 "main.c"
 
 void byn_emitter__powerAssertAdd(bynt_list_i64 p_columns, bynt_list_bool p_always, bynt_list_emitter__PowerAssertPiece* p_pieces, byn_str p_text, int64_t p_value, bynt_list_i64 p_whens, bynt_list_i64 p_unlesses, int64_t p_anyFrom) {
     int64_t l0_from = {0};
@@ -192361,13 +192364,13 @@ break_5:;
 #line 125 "emitter/powerassert.byn"
     (void)bynh_add_list_emitter__PowerAssertPiece(&(*p_pieces), ((bynt_emitter__PowerAssertPiece){p_text, p_value, l4_kept, l8_noneShown, l0_from}));
 }
-#line 192365 "main.c"
+#line 192368 "main.c"
 
 byn_str byn_emitter__powerAssertGap(bynt_list_i64 p_columns, int64_t p_k) {
 #line 132 "emitter/powerassert.byn"
     return byn_str_repeated(BYN_STR(" ", 1), byn_sub_i64((*bynh_at_list_i64(p_columns, (int64_t)p_k, false, byn_file_82, 132)), ((p_k == INT64_C(0)) ? INT64_C(0) : byn_add_i64((*bynh_at_list_i64(p_columns, (int64_t)byn_sub_i64(p_k, INT64_C(1), byn_file_82, 132), false, byn_file_82, 132)), INT64_C(1), byn_file_82, 132)), byn_file_82, 132), byn_context, byn_file_82, 132);
 }
-#line 192371 "main.c"
+#line 192374 "main.c"
 
 bynt_list_emitter__PowerAssertPiece byn_emitter__powerAssertDiagram(bynt_list_i64 p_columns, bynt_list_bool p_always) {
     bynt_list_emitter__PowerAssertPiece l0_pieces = {0};
@@ -192538,7 +192541,7 @@ break_3:;
 #line 217 "emitter/powerassert.byn"
     return l0_pieces;
 }
-#line 192542 "main.c"
+#line 192545 "main.c"
 
 bynt_list_str byn_emitter__mutatorOperators(void) {
     bynt_list_str l0_ops = {0};
@@ -192569,7 +192572,7 @@ bynt_list_str byn_emitter__mutatorOperators(void) {
 #line 36 "emitter/schemata.byn"
     return l0_ops;
 }
-#line 192573 "main.c"
+#line 192576 "main.c"
 
 bynt_emitter__Mutations byn_emitter__find(bynt_semantics__Ctx* p_c, bynt_list_str p_skipFiles) {
     bynt_emitter__MutatorWalker l0_w = {0};
@@ -192695,7 +192698,7 @@ break_3:;
 #line 114 "emitter/schemata.byn"
     return ((bynt_emitter__Mutations){t16, t17});
 }
-#line 192699 "main.c"
+#line 192702 "main.c"
 
 void byn_emitter__mutatorFunction(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_fn, int64_t p_file) {
     bynt_lexer__SourceText t0 = {0};
@@ -192778,7 +192781,7 @@ break_3:;
 #line 157 "emitter/schemata.byn"
     (void)byn_emitter__mutatorVisit(&(*p_c), &(*p_w), l3_body, INT64_C(-1));
 }
-#line 192782 "main.c"
+#line 192785 "main.c"
 
 int64_t byn_emitter__t10IndexLiteral(bynt_semantics__Ctx p_c, int64_t p_index) {
     int64_t l0_operand = {0};
@@ -192800,7 +192803,7 @@ int64_t byn_emitter__t10IndexLiteral(bynt_semantics__Ctx p_c, int64_t p_index) {
 #line 167 "emitter/schemata.byn"
     return INT64_C(-1);
 }
-#line 192804 "main.c"
+#line 192807 "main.c"
 
 void byn_emitter__mutatorVisit(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_node, int64_t p_parent) {
     byn_semantics_BoundKind l0_kind = {0};
@@ -193147,7 +193150,7 @@ switch_end_1:;
     }
 break_10:;
 }
-#line 193151 "main.c"
+#line 193154 "main.c"
 
 bool byn_emitter__t10AssignsUninitialized(bynt_semantics__Ctx p_c, bynt_emitter__MutatorWalker p_w, int64_t p_call) {
     int64_t l0_ci = {0};
@@ -193198,7 +193201,7 @@ break_1:;
 #line 301 "emitter/schemata.byn"
     return false;
 }
-#line 193202 "main.c"
+#line 193205 "main.c"
 
 void byn_emitter__mutatorOnBinary(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_b, bynt_semantics__ExprSyntax p_be) {
     int64_t l0_i = {0};
@@ -193285,7 +193288,7 @@ void byn_emitter__mutatorOnBinary(bynt_semantics__Ctx* p_c, bynt_emitter__Mutato
         }
     }
 }
-#line 193289 "main.c"
+#line 193292 "main.c"
 
 bynt_opt_semantics__Big byn_emitter__t10IntegerConstant(bynt_semantics__Ctx p_c, int64_t p_e) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -193303,7 +193306,7 @@ bynt_opt_semantics__Big byn_emitter__t10IntegerConstant(bynt_semantics__Ctx p_c,
 #line 354 "emitter/schemata.byn"
     return ((bynt_opt_semantics__Big){0});
 }
-#line 193307 "main.c"
+#line 193310 "main.c"
 
 bool byn_emitter__t10HasIs(bynt_semantics__Ctx p_c, int64_t p_n) {
     int64_t l0_d = {0};
@@ -193335,7 +193338,7 @@ break_1:;
 #line 362 "emitter/schemata.byn"
     return false;
 }
-#line 193339 "main.c"
+#line 193342 "main.c"
 
 void byn_emitter__mutatorChangeOp(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, byn_str p_op, int64_t p_b, bynt_semantics__ExprSyntax p_be, byn_parser_BinaryOp p_to) {
     int64_t l0_i = {0};
@@ -193389,7 +193392,7 @@ void byn_emitter__mutatorChangeOp(bynt_semantics__Ctx* p_c, bynt_emitter__Mutato
 #line 385 "emitter/schemata.byn"
     (void)byn_emitter__mutatorAdd(&(*p_w), p_op, p_be.span, l6_mutated, p_b, l12_replacement);
 }
-#line 193393 "main.c"
+#line 193396 "main.c"
 
 void byn_emitter__mutatorOnLiteral(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_l, int64_t p_parent) {
     int64_t l0_i = {0};
@@ -193560,7 +193563,7 @@ void byn_emitter__mutatorOnLiteral(bynt_semantics__Ctx* p_c, bynt_emitter__Mutat
     }
 break_1:;
 }
-#line 193564 "main.c"
+#line 193567 "main.c"
 
 bool byn_emitter__mutatorFoldsInParent(bynt_semantics__Ctx p_c, int64_t p_l, bynt_semantics__Big p_value, int64_t p_parent, int64_t p_type) {
     bynt_semantics__BBinary l0_b = {0};
@@ -193597,7 +193600,7 @@ bool byn_emitter__mutatorFoldsInParent(bynt_semantics__Ctx p_c, int64_t p_l, byn
 #line 480 "emitter/schemata.byn"
     return ((l0_b.left == p_l) ? byn_emitter__mutatorFolds(l0_b.op, p_value, l2_o, p_type) : byn_emitter__mutatorFolds(l0_b.op, l2_o, p_value, p_type));
 }
-#line 193601 "main.c"
+#line 193604 "main.c"
 
 bool byn_emitter__mutatorInBounds(bynt_emitter__MutatorWalker p_w, int64_t p_l, bynt_semantics__Big p_value) {
     bynt_emitter__ArrayIndex l0_a = {0};
@@ -193627,7 +193630,7 @@ bool byn_emitter__mutatorInBounds(bynt_emitter__MutatorWalker p_w, int64_t p_l, 
 #line 495 "emitter/schemata.byn"
     return (((byn_semantics__bigCmp(l4_effective, l5_zero) >= ((int32_t)0)) && (byn_semantics__bigCmp(l4_effective, l3_length) < ((int32_t)0))) && (!(l0_a.fromEnd && (byn_semantics__bigCmp(p_value, l5_zero) == ((int32_t)0)))));
 }
-#line 193631 "main.c"
+#line 193634 "main.c"
 
 void byn_emitter__mutatorOnAssign(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_a) {
     int64_t l0_i = {0};
@@ -193770,7 +193773,7 @@ void byn_emitter__mutatorOnAssign(bynt_semantics__Ctx* p_c, bynt_emitter__Mutato
 #line 528 "emitter/schemata.byn"
     (void)byn_emitter__mutatorAdd(&(*p_w), BYN_STR("arithmetic", 10), l5_s.span, l19_mutated, p_a, l25_replacement);
 }
-#line 193774 "main.c"
+#line 193777 "main.c"
 
 void byn_emitter__mutatorRemove(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_s) {
     int64_t l0_replacement = {0};
@@ -193779,7 +193782,7 @@ void byn_emitter__mutatorRemove(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorW
 #line 534 "emitter/schemata.byn"
     (void)byn_emitter__mutatorAdd(&(*p_w), BYN_STR("statement", 9), byn_emitter__t10SyntaxSpan((*p_c), p_s), BYN_STR("", 0), p_s, l0_replacement);
 }
-#line 193783 "main.c"
+#line 193786 "main.c"
 
 void byn_emitter__mutatorOnReturn(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_value, bynt_lexer__TextSpan p_syntax) {
     int64_t l0_type = {0};
@@ -193815,7 +193818,7 @@ void byn_emitter__mutatorOnReturn(bynt_semantics__Ctx* p_c, bynt_emitter__Mutato
 #line 551 "emitter/schemata.byn"
     (void)byn_emitter__mutatorAdd(&(*p_w), BYN_STR("emptyReturn", 11), p_syntax, l1_empty, p_value, l5_replacement);
 }
-#line 193819 "main.c"
+#line 193822 "main.c"
 
 bynt_opt_str byn_emitter__mutatorEmptyText(int64_t p_t) {
 #line 556 "emitter/schemata.byn"
@@ -193846,7 +193849,7 @@ bynt_opt_str byn_emitter__mutatorEmptyText(int64_t p_t) {
 #line 561 "emitter/schemata.byn"
     return ((bynt_opt_str){0});
 }
-#line 193850 "main.c"
+#line 193853 "main.c"
 
 void byn_emitter__mutatorOnFail(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_f) {
     int64_t l0_error = {0};
@@ -193972,7 +193975,7 @@ void byn_emitter__mutatorOnFail(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorW
     }
 break_1:;
 }
-#line 193976 "main.c"
+#line 193979 "main.c"
 
 bool byn_emitter__t10SameFields(bynt_semantics__Ctx p_c, int64_t p_a, int64_t p_b) {
     int64_t t0 = {0};
@@ -194012,7 +194015,7 @@ break_1:;
 #line 606 "emitter/schemata.byn"
     return true;
 }
-#line 194016 "main.c"
+#line 194019 "main.c"
 
 bool byn_emitter__t10Has(bynt_list_i64 p_xs, int64_t p_x) {
     int64_t l0_y = {0};
@@ -194044,7 +194047,7 @@ break_1:;
 #line 614 "emitter/schemata.byn"
     return false;
 }
-#line 194048 "main.c"
+#line 194051 "main.c"
 
 void byn_emitter__mutatorOnCondition(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_cond, bool p_loop) {
     bool l0_constantTrue = {0};
@@ -194096,7 +194099,7 @@ void byn_emitter__mutatorOnCondition(bynt_semantics__Ctx* p_c, bynt_emitter__Mut
 #line 639 "emitter/schemata.byn"
     (void)byn_emitter__mutatorAdd(&(*p_w), BYN_STR("condition", 9), l5_span, byn_strbuf_str(t8), p_cond, l6_replacement);
 }
-#line 194100 "main.c"
+#line 194103 "main.c"
 
 void byn_emitter__mutatorAdd(bynt_emitter__MutatorWalker* p_w, byn_str p_op, bynt_lexer__TextSpan p_span, byn_str p_mutated, int64_t p_original, int64_t p_replacement) {
     bynt_tup2_i64_i64 l0_pos = {0};
@@ -194105,7 +194108,7 @@ void byn_emitter__mutatorAdd(bynt_emitter__MutatorWalker* p_w, byn_str p_op, byn
 #line 659 "emitter/schemata.byn"
     (void)bynh_add_list_emitter__MutationSite(&(*p_w).sites, ((bynt_emitter__MutationSite){(*p_w).source.path, l0_pos.item1, l0_pos.item2, p_op, byn_lexer__SourceText__getText(&(*p_w).source, p_span), p_mutated, (*p_w).fn, p_original, p_replacement}));
 }
-#line 194109 "main.c"
+#line 194112 "main.c"
 
 int64_t byn_emitter__mutatorConstant(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type, bynt_semantics__Constant p_value) {
     int64_t l0_n = {0};
@@ -194116,7 +194119,7 @@ int64_t byn_emitter__mutatorConstant(bynt_semantics__Ctx* p_c, bynt_lexer__TextS
 #line 671 "emitter/schemata.byn"
     return l0_n;
 }
-#line 194120 "main.c"
+#line 194123 "main.c"
 
 byn_str byn_emitter__mutatorOpText(byn_parser_BinaryOp p_op) {
 #line 677 "emitter/schemata.byn"
@@ -194221,7 +194224,7 @@ byn_str byn_emitter__mutatorOpText(byn_parser_BinaryOp p_op) {
     }
 switch_end_1:;
 }
-#line 194225 "main.c"
+#line 194228 "main.c"
 
 bool byn_emitter__mutatorFits(bynt_semantics__Big p_n, int64_t p_t) {
     int64_t l0_bits = {0};
@@ -194238,7 +194241,7 @@ bool byn_emitter__mutatorFits(bynt_semantics__Big p_n, int64_t p_t) {
 #line 702 "emitter/schemata.byn"
     return ((byn_semantics__bigCmp(p_n, byn_emitter__t10Big(INT64_C(0))) >= ((int32_t)0)) && (byn_semantics__bigCmp(p_n, byn_emitter__t10BigPow2(l0_bits)) < ((int32_t)0)));
 }
-#line 194242 "main.c"
+#line 194245 "main.c"
 
 bool byn_emitter__mutatorFolds(byn_parser_BinaryOp p_op, bynt_semantics__Big p_l, bynt_semantics__Big p_r, int64_t p_t) {
     bynt_semantics__Big l0_zero = {0};
@@ -194306,7 +194309,7 @@ switch_end_1:;
 #line 718 "emitter/schemata.byn"
     return byn_emitter__mutatorFits(l1_result, p_t);
 }
-#line 194310 "main.c"
+#line 194313 "main.c"
 
 bynt_semantics__Big byn_emitter__t10Big(int64_t p_v) {
     uint64_t l0_hi = {0};
@@ -194315,19 +194318,19 @@ bynt_semantics__Big byn_emitter__t10Big(int64_t p_v) {
 #line 726 "emitter/schemata.byn"
     return ((bynt_semantics__Big){((p_v >= INT64_C(0)) ? byn_cast_u64_i((int64_t)p_v, byn_file_83, 726) : ((uint64_t)~byn_cast_u64_i((int64_t)byn_neg_i64(byn_add_i64(p_v, INT64_C(1), byn_file_83, 726), byn_file_83, 726), byn_file_83, 726))), l0_hi});
 }
-#line 194319 "main.c"
+#line 194322 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigPow2(int64_t p_k) {
 #line 730 "emitter/schemata.byn"
     return ((p_k < INT64_C(64)) ? ((bynt_semantics__Big){byn_shl_u64(UINT64_C(1), (int64_t)(byn_cast_u64_i((int64_t)p_k, byn_file_83, 730))), UINT64_C(0)}) : ((bynt_semantics__Big){UINT64_C(0), UINT64_C(1)}));
 }
-#line 194325 "main.c"
+#line 194328 "main.c"
 
 bool byn_emitter__t10BigIsNeg(bynt_semantics__Big p_a) {
 #line 732 "emitter/schemata.byn"
     return (!(((uint64_t)(p_a.hi & UINT64_C(9223372036854775808))) == UINT64_C(0)));
 }
-#line 194331 "main.c"
+#line 194334 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigAdd(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     uint64_t l0_lo = {0};
@@ -194339,19 +194342,19 @@ bynt_semantics__Big byn_emitter__t10BigAdd(bynt_semantics__Big p_a, bynt_semanti
 #line 737 "emitter/schemata.byn"
     return ((bynt_semantics__Big){l0_lo, byn_addw_u64(byn_addw_u64(p_a.hi, p_b.hi), l1_carry)});
 }
-#line 194343 "main.c"
+#line 194346 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigNeg(bynt_semantics__Big p_a) {
 #line 740 "emitter/schemata.byn"
     return byn_emitter__t10BigAdd(((bynt_semantics__Big){((uint64_t)~p_a.lo), ((uint64_t)~p_a.hi)}), byn_emitter__t10Big(INT64_C(1)));
 }
-#line 194349 "main.c"
+#line 194352 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigSub(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
 #line 742 "emitter/schemata.byn"
     return byn_emitter__t10BigAdd(p_a, byn_emitter__t10BigNeg(p_b));
 }
-#line 194355 "main.c"
+#line 194358 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigMulU64(uint64_t p_x, uint64_t p_y) {
     uint64_t l0_x0 = {0};
@@ -194384,7 +194387,7 @@ bynt_semantics__Big byn_emitter__t10BigMulU64(uint64_t p_x, uint64_t p_y) {
 #line 755 "emitter/schemata.byn"
     return ((bynt_semantics__Big){((uint64_t)(((uint64_t)(l4_p00 & UINT64_C(4294967295))) | byn_shl_u64(((uint64_t)(l8_mid & UINT64_C(4294967295))), (int64_t)(((int32_t)32))))), byn_addw_u64(byn_addw_u64(byn_addw_u64(l7_p11, byn_shr_u64(l5_p01, (int64_t)(((int32_t)32)))), byn_shr_u64(l6_p10, (int64_t)(((int32_t)32)))), byn_shr_u64(l8_mid, (int64_t)(((int32_t)32))))});
 }
-#line 194388 "main.c"
+#line 194391 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigMul(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     bynt_semantics__Big l0_low = {0};
@@ -194393,7 +194396,7 @@ bynt_semantics__Big byn_emitter__t10BigMul(bynt_semantics__Big p_a, bynt_semanti
 #line 764 "emitter/schemata.byn"
     return ((bynt_semantics__Big){l0_low.lo, byn_addw_u64(byn_addw_u64(l0_low.hi, byn_mulw_u64(p_a.lo, p_b.hi)), byn_mulw_u64(p_a.hi, p_b.lo))});
 }
-#line 194397 "main.c"
+#line 194400 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigDiv(bynt_semantics__Big p_a, bynt_semantics__Big p_b, bool p_remainder) {
     bool l0_na = {0};
@@ -194467,7 +194470,7 @@ break_1:;
 #line 791 "emitter/schemata.byn"
     return ((!(l0_na == l1_nb)) ? byn_emitter__t10BigNeg(l4_q) : l4_q);
 }
-#line 194471 "main.c"
+#line 194474 "main.c"
 
 int64_t byn_emitter__t10IndexOf(byn_str p_text, byn_str p_needle) {
     bynt_span_u8 l0_t = {0};
@@ -194533,7 +194536,7 @@ break_1:;
 #line 812 "emitter/schemata.byn"
     return INT64_C(-1);
 }
-#line 194537 "main.c"
+#line 194540 "main.c"
 
 int64_t byn_emitter__t10LastIndexOf(byn_str p_text, byn_str p_needle, int64_t p_start) {
     bynt_span_u8 l0_t = {0};
@@ -194602,7 +194605,7 @@ break_1:;
 #line 834 "emitter/schemata.byn"
     return INT64_C(-1);
 }
-#line 194606 "main.c"
+#line 194609 "main.c"
 
 byn_str byn_emitter__sitesPath(byn_str p_binary) {
     byn_writer t0 = {0};
@@ -194619,7 +194622,7 @@ byn_str byn_emitter__sitesPath(byn_str p_binary) {
 #line 840 "emitter/schemata.byn"
     return byn_strbuf_str(t0);
 }
-#line 194623 "main.c"
+#line 194626 "main.c"
 
 byn_str byn_emitter__sitesJson(bynt_emitter__Schema p_s) {
     byn_writer l0_sb = {0};
@@ -194727,7 +194730,7 @@ break_1:;
 #line 868 "emitter/schemata.byn"
     return byn_strbuf_str(t8);
 }
-#line 194731 "main.c"
+#line 194734 "main.c"
 
 byn_str byn_emitter__t10Json(byn_str p_s) {
     byn_writer l0_sb = {0};
@@ -194848,7 +194851,7 @@ break_1:;
 #line 904 "emitter/schemata.byn"
     return byn_strbuf_str(t9);
 }
-#line 194852 "main.c"
+#line 194855 "main.c"
 
 bynt_emitter__Schema byn_emitter__buildSchema(bynt_semantics__Ctx* p_c, bynt_list_str p_skipFiles) {
     bynt_emitter__Mutations l0_found = {0};
@@ -195119,7 +195122,7 @@ break_5:;
 #line 978 "emitter/schemata.byn"
     return ((bynt_emitter__Schema){l3_sites, l1_notEmitted, l22_switches});
 }
-#line 195123 "main.c"
+#line 195126 "main.c"
 
 bynt_opt_str byn_emitter__schemataMarkOf(bynt_semantics__Ctx p_c, bynt_emitter__MutationSite p_site) {
     int64_t l0_file = {0};
@@ -195188,7 +195191,7 @@ break_1:;
 #line 986 "emitter/schemata.byn"
     byn_arena_free(l1_arena);
 }
-#line 195192 "main.c"
+#line 195195 "main.c"
 
 bool byn_emitter__schemataRebinds(bynt_semantics__Ctx p_c, bynt_emitter__MutationSite p_site) {
     int64_t l0_file = {0};
@@ -195389,7 +195392,7 @@ break_9:;
 #line 1005 "emitter/schemata.byn"
     byn_arena_free(l1_arena);
 }
-#line 195393 "main.c"
+#line 195396 "main.c"
 
 int64_t byn_emitter__schemataOffset(bynt_lexer__SourceText* p_source, int64_t p_line, int64_t p_column) {
     int64_t l0_offset = {0};
@@ -195433,7 +195436,7 @@ break_1:;
 #line 1053 "emitter/schemata.byn"
     return l0_offset;
 }
-#line 195437 "main.c"
+#line 195440 "main.c"
 
 int64_t byn_emitter__schemataTransfer(bynt_semantics__Ctx* p_c, bynt_emitter__MutationSite p_site, int64_t p_node) {
     byn_semantics_BoundKind l0_kind = {0};
@@ -195532,13 +195535,13 @@ int64_t byn_emitter__schemataTransfer(bynt_semantics__Ctx* p_c, bynt_emitter__Mu
 #line 1137 "emitter/schemata.byn"
     return INT64_C(-1);
 }
-#line 195536 "main.c"
+#line 195539 "main.c"
 
 bool byn_std_json__isDigit(uint8_t p_b) {
 #line 366 "<std>/json/reader.byn"
     return ((p_b >= ((uint8_t)48)) && (p_b <= ((uint8_t)57)));
 }
-#line 195542 "main.c"
+#line 195545 "main.c"
 
 byn_err byn_std_json__treeOf(bynt_std_json__JsonReader* p_reader, byn_std_json_JsonToken p_first, byn_std_json_JsonValue* byn_out) {
     bynt_list_std_json__JsonValue l0_items = {0};
@@ -195725,7 +195728,7 @@ byn_err byn_std_json__treeOf(bynt_std_json__JsonReader* p_reader, byn_std_json_J
     (void)byn_panic_str(BYN_STR("std.json: a reader starts a value with a value token", 52), byn_file_85, 69);
 switch_end_1:;
 }
-#line 195729 "main.c"
+#line 195732 "main.c"
 
 byn_err byn_std_json__encodeInto(byn_writer* p_sb, byn_std_json_JsonValue p_v, int64_t p_indent, int64_t p_level) {
     bool l0_value = {0};
@@ -195889,7 +195892,7 @@ byn_err byn_std_json__encodeInto(byn_writer* p_sb, byn_std_json_JsonValue p_v, i
 switch_end_1:;
     return (byn_err){0};
 }
-#line 195893 "main.c"
+#line 195896 "main.c"
 
 byn_err byn_std_json__numberInto(byn_writer* p_sb, double p_value, byn_str p_text) {
     byn_err t0 = {0};
@@ -195916,7 +195919,7 @@ byn_err byn_std_json__numberInto(byn_writer* p_sb, double p_value, byn_str p_tex
     }
     return (byn_err){0};
 }
-#line 195920 "main.c"
+#line 195923 "main.c"
 
 bool byn_std_json__isNumberText(byn_str p_text) {
     bynt_std_json__JsonReader l0_reader = {0};
@@ -195949,7 +195952,7 @@ bool byn_std_json__isNumberText(byn_str p_text) {
 #line 126 "<std>/json/value.byn"
     return t6;
 }
-#line 195953 "main.c"
+#line 195956 "main.c"
 
 void byn_std_json__separate(byn_writer* p_sb, int64_t p_indent, int64_t p_level, bool p_first) {
 #line 131 "<std>/json/value.byn"
@@ -195960,7 +195963,7 @@ void byn_std_json__separate(byn_writer* p_sb, int64_t p_indent, int64_t p_level,
 #line 134 "<std>/json/value.byn"
     (void)byn_std_json__newline(&(*p_sb), p_indent, p_level);
 }
-#line 195964 "main.c"
+#line 195967 "main.c"
 
 void byn_std_json__newline(byn_writer* p_sb, int64_t p_indent, int64_t p_level) {
 #line 138 "<std>/json/value.byn"
@@ -195973,7 +195976,7 @@ void byn_std_json__newline(byn_writer* p_sb, int64_t p_indent, int64_t p_level) 
 #line 140 "<std>/json/value.byn"
     (void)bynh_strbuf_repeat(&(*p_sb), UINT32_C(32), byn_mul_i64(p_indent, p_level, byn_file_85, 140), byn_file_85, 140);
 }
-#line 195977 "main.c"
+#line 195980 "main.c"
 
 void byn_std_json__quoteInto(byn_writer* p_sb, byn_str p_s) {
     uint32_t l0_r = {0};
@@ -196069,7 +196072,7 @@ break_1:;
 #line 173 "<std>/json/value.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR("\042", 1));
 }
-#line 196073 "main.c"
+#line 196076 "main.c"
 
 void byn_std_json__unitInto(byn_writer* p_sb, uint32_t p_unit) {
     byn_str l0_digits = {0};
@@ -196082,13 +196085,13 @@ void byn_std_json__unitInto(byn_writer* p_sb, uint32_t p_unit) {
 #line 180 "<std>/json/value.byn"
     (void)byn_w_str(&(*p_sb), l0_digits);
 }
-#line 196086 "main.c"
+#line 196089 "main.c"
 
 bynt_std_json__JsonReader byn_std_json__JsonReader__over(byn_str p_text) {
 #line 59 "<std>/json/reader.byn"
     return ((bynt_std_json__JsonReader){p_text, INT64_C(0), INT64_C(1), INT64_C(0), ((byn_std_json_ReadState){.tag = 0}), ((bynt_list_bool){NULL, 0, 0, byn_context})});
 }
-#line 196092 "main.c"
+#line 196095 "main.c"
 
 byn_err byn_std_json__JsonReader__next(bynt_std_json__JsonReader* self, bynt_opt_std_json__JsonToken* byn_out) {
     byn_err t0 = {0};
@@ -196256,13 +196259,13 @@ byn_err byn_std_json__JsonReader__next(bynt_std_json__JsonReader* self, bynt_opt
     *byn_out = ((bynt_opt_std_json__JsonToken){true, t16});
     return (byn_err){0};
 }
-#line 196260 "main.c"
+#line 196263 "main.c"
 
 uint8_t byn_std_json__JsonReader__peek(bynt_std_json__JsonReader* self) {
 #line 127 "<std>/json/reader.byn"
     return (((*self).pos < (*self).text.len) ? (*bynh_at_span_u8(bynh_str_bytes((*self).text), (int64_t)(*self).pos, false, byn_file_84, 127)) : ((uint8_t)0));
 }
-#line 196266 "main.c"
+#line 196269 "main.c"
 
 void byn_std_json__JsonReader__skipSpace(bynt_std_json__JsonReader* self) {
     uint8_t l0_b = {0};
@@ -196297,13 +196300,13 @@ void byn_std_json__JsonReader__skipSpace(bynt_std_json__JsonReader* self) {
     }
 break_1:;
 }
-#line 196301 "main.c"
+#line 196304 "main.c"
 
 int64_t byn_std_json__JsonReader__columnAt(bynt_std_json__JsonReader* self, int64_t p_at) {
 #line 143 "<std>/json/reader.byn"
     return byn_add_i64(byn_str_rune_count(bynh_slice_str((*self).text, (int64_t)(*self).lineStart, 0, (int64_t)p_at, 0, false, byn_file_84, 143)), INT64_C(1), byn_file_84, 143);
 }
-#line 196307 "main.c"
+#line 196310 "main.c"
 
 void byn_std_json__JsonReader__finishValue(bynt_std_json__JsonReader* self) {
     byn_std_json_ReadState t0 = {0};
@@ -196330,7 +196333,7 @@ void byn_std_json__JsonReader__finishValue(bynt_std_json__JsonReader* self) {
         }
     }
 }
-#line 196334 "main.c"
+#line 196337 "main.c"
 
 byn_std_json_JsonToken byn_std_json__JsonReader__close(bynt_std_json__JsonReader* self, byn_std_json_JsonToken p_token) {
     bool l0__ = {0};
@@ -196343,7 +196346,7 @@ byn_std_json_JsonToken byn_std_json__JsonReader__close(bynt_std_json__JsonReader
 #line 160 "<std>/json/reader.byn"
     return p_token;
 }
-#line 196347 "main.c"
+#line 196350 "main.c"
 
 byn_err byn_std_json__JsonReader__openContainer(bynt_std_json__JsonReader* self, bool p_object, byn_std_json_JsonToken* byn_out) {
     byn_err t0 = {0};
@@ -196367,7 +196370,7 @@ byn_err byn_std_json__JsonReader__openContainer(bynt_std_json__JsonReader* self,
     *byn_out = (p_object ? ((byn_std_json_JsonToken){.tag = 0}) : ((byn_std_json_JsonToken){.tag = 2}));
     return (byn_err){0};
 }
-#line 196371 "main.c"
+#line 196374 "main.c"
 
 byn_err byn_std_json__JsonReader__readValue(bynt_std_json__JsonReader* self, byn_std_json_JsonToken* byn_out) {
     uint8_t l0_b = {0};
@@ -196468,7 +196471,7 @@ byn_err byn_std_json__JsonReader__readValue(bynt_std_json__JsonReader* self, byn
 #line 193 "<std>/json/reader.byn"
     return t10;
 }
-#line 196472 "main.c"
+#line 196475 "main.c"
 
 bool byn_std_json__JsonReader__literal(bynt_std_json__JsonReader* self, byn_str p_word) {
     int64_t t0 = {0};
@@ -196487,7 +196490,7 @@ bool byn_std_json__JsonReader__literal(bynt_std_json__JsonReader* self, byn_str 
 #line 200 "<std>/json/reader.byn"
     return true;
 }
-#line 196491 "main.c"
+#line 196494 "main.c"
 
 byn_err byn_std_json__JsonReader__readNumber(bynt_std_json__JsonReader* self, byn_std_json_JsonToken* byn_out) {
     int64_t l0_start = {0};
@@ -196615,7 +196618,7 @@ byn_err byn_std_json__JsonReader__readNumber(bynt_std_json__JsonReader* self, by
     *byn_out = ((byn_std_json_JsonToken){.tag = 6, .u.number = {l6_value, l5_digits}});
     return (byn_err){0};
 }
-#line 196619 "main.c"
+#line 196622 "main.c"
 
 byn_err byn_std_json__JsonReader__readString(bynt_std_json__JsonReader* self, byn_str* byn_out) {
     int64_t l0_start = {0};
@@ -196837,7 +196840,7 @@ byn_err byn_std_json__JsonReader__readString(bynt_std_json__JsonReader* self, by
     }
 break_1:;
 }
-#line 196841 "main.c"
+#line 196844 "main.c"
 
 byn_err byn_std_json__JsonReader__hex4(bynt_std_json__JsonReader* self, int64_t p_escapeAt, uint32_t* byn_out) {
     uint32_t l0_value = {0};
@@ -196913,7 +196916,7 @@ break_1:;
     *byn_out = l0_value;
     return (byn_err){0};
 }
-#line 196917 "main.c"
+#line 196920 "main.c"
 
 byn_err byn_std_json__Json__parse(byn_str p_text, byn_std_json_JsonValue* byn_out) {
     bynt_std_json__JsonReader l0_reader = {0};
@@ -196968,7 +196971,7 @@ byn_err byn_std_json__Json__parse(byn_str p_text, byn_std_json_JsonValue* byn_ou
     *byn_out = l5_value;
     return (byn_err){0};
 }
-#line 196972 "main.c"
+#line 196975 "main.c"
 
 byn_err byn_std_json__Json__encode(byn_std_json_JsonValue p_v, int32_t p_indent, byn_str* byn_out) {
     byn_writer l0_sb = {0};
@@ -196996,7 +196999,7 @@ byn_err byn_std_json__Json__encode(byn_std_json_JsonValue p_v, int32_t p_indent,
     *byn_out = byn_strbuf_str(t2);
     return (byn_err){0};
 }
-#line 197000 "main.c"
+#line 197003 "main.c"
 
 byn_str byn_main__t6PaintWarning(bynt_main__DStyle p_style, byn_str p_text) {
     byn_writer t0 = {0};
@@ -197029,7 +197032,7 @@ byn_str byn_main__t6PaintWarning(bynt_main__DStyle p_style, byn_str p_text) {
 #line 28 "driver/audit.byn"
     return byn_strbuf_str(t1);
 }
-#line 197033 "main.c"
+#line 197036 "main.c"
 
 bool byn_main__t6DirectoryExists(byn_str p_path) {
     bynt_list_str l0__ = {0};
@@ -197062,7 +197065,7 @@ bool byn_main__t6DirectoryExists(byn_str p_path) {
 #line 37 "driver/audit.byn"
     return true;
 }
-#line 197066 "main.c"
+#line 197069 "main.c"
 
 int32_t byn_main__auditCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bynt_list_str l0_args = {0};
@@ -197356,7 +197359,7 @@ break_1:;
 #line 83 "driver/audit.byn"
     return l2_exit;
 }
-#line 197360 "main.c"
+#line 197363 "main.c"
 
 bynt_list_main__T6Bypass byn_main__t6Bypasses(bynt_lexer__LexResult* p_lexed) {
     bynt_list_main__T6Bypass l0_found = {0};
@@ -197438,7 +197441,7 @@ break_1:;
 #line 124 "driver/audit.byn"
     return l0_found;
 }
-#line 197442 "main.c"
+#line 197445 "main.c"
 
 bynt_main__T6Construct byn_main__t6Construct(bynt_lexer__LexResult* p_lexed, bynt_list_lexer__Token p_tokens, int64_t p_end) {
     int64_t l0_name = {0};
@@ -197516,7 +197519,7 @@ bynt_main__T6Construct byn_main__t6Construct(bynt_lexer__LexResult* p_lexed, byn
 #line 154 "driver/audit.byn"
     return ((bynt_main__T6Construct){l6_start, byn_lexer__SourceText__getText(&(*p_lexed).source, byn_lexer__TextSpan__fromBounds(l6_start, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token(p_tokens, (int64_t)p_end, false, byn_file_86, 156)))))});
 }
-#line 197520 "main.c"
+#line 197523 "main.c"
 
 bool byn_main__t5DirectoryExists(byn_str p_path) {
     bynt_list_str l0__ = {0};
@@ -197534,7 +197537,7 @@ bool byn_main__t5DirectoryExists(byn_str p_path) {
 #line 30 "driver/build.byn"
     return true;
 }
-#line 197538 "main.c"
+#line 197541 "main.c"
 
 bynt_opt_main__T5Options byn_main__t5ParseBuildOptions(bynt_list_str p_args, bool p_allowOutput, bool p_allowVerbose) {
     bynt_opt_str l0_path = {0};
@@ -197836,7 +197839,7 @@ break_1:;
 #line 115 "driver/build.byn"
     return ((bynt_opt_main__T5Options){true, ((bynt_main__T5Options){l30_p, l4_mode, l1_output, l8_emitC, l5_json, l9_programArgs, l2_target, l7_verbose, l6_all, l3_package})});
 }
-#line 197840 "main.c"
+#line 197843 "main.c"
 
 byn_str byn_main__t5Join(bynt_list_str p_xs) {
     byn_writer l0_sb = {0};
@@ -197883,13 +197886,13 @@ break_1:;
 #line 138 "driver/build.byn"
     return byn_strbuf_str(t4);
 }
-#line 197887 "main.c"
+#line 197890 "main.c"
 
 bynt_semantics__T26Options byn_main__t5T26(bynt_main__T5Options p_o) {
 #line 142 "driver/build.byn"
     return ((bynt_semantics__T26Options){p_o.path, p_o.json, p_o.all, false, p_o.target});
 }
-#line 197893 "main.c"
+#line 197896 "main.c"
 
 bool byn_main__t5HasErrors(bynt_semantics__Ctx p_c) {
     bynt_semantics__Diag l0_d = {0};
@@ -197921,7 +197924,7 @@ break_1:;
 #line 149 "driver/build.byn"
     return false;
 }
-#line 197925 "main.c"
+#line 197928 "main.c"
 
 bynt_list_str byn_main__t5ModuleFiles(byn_str p_dir, bool p_includeTests) {
     bynt_list_str l0_files = {0};
@@ -197971,7 +197974,7 @@ break_1:;
 #line 164 "driver/build.byn"
     return l0_files;
 }
-#line 197975 "main.c"
+#line 197978 "main.c"
 
 bynt_semantics__Ctx byn_main__t5Compile(bynt_main__T5Options p_o, bynt_semantics__T26Symbols p_symbols, bynt_list_semantics__T26Reported* p_reported, bool* p_ok, bool p_includeTests, bool p_ascii, int64_t p_width, bool p_isTty, bool p_styleLints) {
     bynt_main__DStyle l0_style = {0};
@@ -198109,13 +198112,13 @@ bynt_semantics__Ctx byn_main__t5Compile(bynt_main__T5Options p_o, bynt_semantics
 #line 240 "driver/build.byn"
     return l21_c;
 }
-#line 198113 "main.c"
+#line 198116 "main.c"
 
 byn_str byn_main__t5EmitC(bynt_semantics__Ctx* p_c, byn_str p_mode) {
 #line 244 "driver/build.byn"
     return byn_emitter__t12Emit(&(*p_c), p_mode);
 }
-#line 198119 "main.c"
+#line 198122 "main.c"
 
 bynt_opt_str byn_main__t5PrepareOut(bynt_semantics__Ctx p_compiled, byn_str p_mode, byn_str p_target, byn_str p_source) {
     byn_str l0_root = {0};
@@ -198156,7 +198159,7 @@ bynt_opt_str byn_main__t5PrepareOut(bynt_semantics__Ctx p_compiled, byn_str p_mo
 #line 259 "driver/build.byn"
     return ((bynt_opt_str){true, l1_dir});
 }
-#line 198160 "main.c"
+#line 198163 "main.c"
 
 void byn_main__t5WriteIfChanged(byn_str p_path, byn_str p_text) {
     byn_str l0_old = {0};
@@ -198183,7 +198186,7 @@ void byn_main__t5WriteIfChanged(byn_str p_path, byn_str p_text) {
         }
     }
 }
-#line 198187 "main.c"
+#line 198190 "main.c"
 
 byn_str byn_main__t5HostTarget(void) {
     bynt_opt_str t0 = {0};
@@ -198192,7 +198195,7 @@ byn_str byn_main__t5HostTarget(void) {
 #line 273 "driver/build.byn"
     return (t0.has ? t0.value : BYN_STR("host", 4));
 }
-#line 198196 "main.c"
+#line 198199 "main.c"
 
 int32_t byn_main__buildCommand(bynt_list_str p_kept, bynt_main__DCtx* p_d) {
     int64_t l0_clock = {0};
@@ -198472,7 +198475,7 @@ int32_t byn_main__buildCommand(bynt_list_str p_kept, bynt_main__DCtx* p_d) {
 #line 388 "driver/build.byn"
     return ((int32_t)0);
 }
-#line 198476 "main.c"
+#line 198479 "main.c"
 
 void byn_main__t5ReportToolchain(bynt_main__NativeBuild p_result, bool p_json, bynt_semantics__T26Symbols p_symbols) {
     bynt_semantics__Ctx l0_c = {0};
@@ -198493,7 +198496,7 @@ void byn_main__t5ReportToolchain(bynt_main__NativeBuild p_result, bool p_json, b
 #line 414 "driver/build.byn"
     (void)byn_semantics__t26Report(((bynt_semantics__T26Options){BYN_STR("", 0), true, false, false, ((bynt_opt_str){0})}), p_symbols, &l0_c, &l1_reported);
 }
-#line 198497 "main.c"
+#line 198500 "main.c"
 
 byn_str byn_main__t5Phase(byn_str p_name, byn_str p_value) {
     byn_writer l0_sb = {0};
@@ -198541,7 +198544,7 @@ break_1:;
 #line 426 "driver/build.byn"
     return byn_strbuf_str(t4);
 }
-#line 198545 "main.c"
+#line 198548 "main.c"
 
 int32_t byn_main__runProgram(bynt_list_str p_args, bynt_main__DCtx* p_d) {
     bynt_main__T5Options l0_o = {0};
@@ -198704,7 +198707,7 @@ int32_t byn_main__runProgram(bynt_list_str p_args, bynt_main__DCtx* p_d) {
 #line 494 "driver/build.byn"
     return byn_main__t5Start(l28_built.exe, l0_o.programArgs);
 }
-#line 198708 "main.c"
+#line 198711 "main.c"
 
 int32_t byn_main__t5Start(byn_str p_executable, bynt_list_str p_programArgs) {
     byn_process l0_r = {0};
@@ -198770,7 +198773,7 @@ int32_t byn_main__t5Start(byn_str p_executable, bynt_list_str p_programArgs) {
 #line 512 "driver/build.byn"
     return l0_r.exit_code;
 }
-#line 198774 "main.c"
+#line 198777 "main.c"
 
 byn_str byn_main__cacheDirectory(void) {
     byn_str l0_set = {0};
@@ -198817,13 +198820,13 @@ byn_str byn_main__cacheDirectory(void) {
 #line 24 "driver/cache.byn"
     return byn_path_combine(byn_path_combine(l3_home, BYN_STR(".cache", 6), byn_context), BYN_STR("bayan", 5), byn_context);
 }
-#line 198821 "main.c"
+#line 198824 "main.c"
 
 byn_str byn_main__cacheData(void) {
 #line 28 "driver/cache.byn"
     return byn_path_combine(byn_main__cacheDirectory(), BYN_STR("v1", 2), byn_context);
 }
-#line 198827 "main.c"
+#line 198830 "main.c"
 
 bool byn_main__t3DirectoryExists(byn_str p_path) {
     bynt_list_str l0__ = {0};
@@ -198841,7 +198844,7 @@ bool byn_main__t3DirectoryExists(byn_str p_path) {
 #line 33 "driver/cache.byn"
     return true;
 }
-#line 198845 "main.c"
+#line 198848 "main.c"
 
 bynt_list_str byn_main__t3Entries(byn_str p_dir) {
     bynt_list_str l0_names = {0};
@@ -198859,7 +198862,7 @@ bynt_list_str byn_main__t3Entries(byn_str p_dir) {
 #line 39 "driver/cache.byn"
     return l0_names;
 }
-#line 198863 "main.c"
+#line 198866 "main.c"
 
 bynt_main__CacheStats byn_main__cacheStats(void) {
     int64_t l0_programs = {0};
@@ -199004,7 +199007,7 @@ break_5:;
 #line 75 "driver/cache.byn"
     return ((bynt_main__CacheStats){byn_main__cacheDirectory(), l0_programs, l2_bytes, l1_scripts});
 }
-#line 199008 "main.c"
+#line 199011 "main.c"
 
 int32_t byn_main__cacheCommand(bynt_list_str p_kept) {
     bynt_main__CacheStats l0_s = {0};
@@ -199078,7 +199081,7 @@ int32_t byn_main__cacheCommand(bynt_list_str p_kept) {
 #line 90 "driver/cache.byn"
     return ((int32_t)0);
 }
-#line 199082 "main.c"
+#line 199085 "main.c"
 
 bool byn_main__t3Unlinked(byn_str p_path) {
     byn_err t0 = {0};
@@ -199092,7 +199095,7 @@ bool byn_main__t3Unlinked(byn_str p_path) {
 #line 96 "driver/cache.byn"
     return true;
 }
-#line 199096 "main.c"
+#line 199099 "main.c"
 
 void byn_main__t3RemoveEntry(byn_str p_path) {
     byn_err t0 = {0};
@@ -199137,7 +199140,7 @@ void byn_main__t3RemoveEntry(byn_str p_path) {
     switch_end_1:;
     }
 }
-#line 199141 "main.c"
+#line 199144 "main.c"
 
 void byn_main__t3RemoveTree(byn_str p_dir) {
     byn_str l0_name = {0};
@@ -199193,7 +199196,7 @@ break_1:;
     switch_end_3:;
     }
 }
-#line 199197 "main.c"
+#line 199200 "main.c"
 
 void byn_main__t3Remove(byn_str p_dir, byn_str p_name) {
     byn_writer t0 = {0};
@@ -199221,7 +199224,7 @@ void byn_main__t3Remove(byn_str p_dir, byn_str p_name) {
 #line 128 "driver/cache.byn"
     (void)byn_io_write(t1, byn_strbuf_str(t0));
 }
-#line 199225 "main.c"
+#line 199228 "main.c"
 
 int32_t byn_main__cleanCommand(bynt_list_str p_kept) {
     bynt_opt_str l0_path = {0};
@@ -199351,13 +199354,13 @@ break_1:;
 #line 167 "driver/cache.byn"
     return ((int32_t)0);
 }
-#line 199355 "main.c"
+#line 199358 "main.c"
 
 byn_str byn_main__t9Programs(void) {
 #line 179 "driver/cache.byn"
     return byn_path_combine(byn_main__cacheData(), BYN_STR("programs", 8), byn_context);
 }
-#line 199361 "main.c"
+#line 199364 "main.c"
 
 byn_str byn_main__t9Unique(bynt_main__DCtx* p_d) {
     byn_writer t0 = {0};
@@ -199387,7 +199390,7 @@ byn_str byn_main__t9Unique(bynt_main__DCtx* p_d) {
 #line 185 "driver/cache.byn"
     return byn_strbuf_str(t0);
 }
-#line 199391 "main.c"
+#line 199394 "main.c"
 
 void byn_main__tagCacheDirectory(bynt_main__DCtx* p_d) {
     byn_str l0_tag = {0};
@@ -199428,7 +199431,7 @@ void byn_main__tagCacheDirectory(bynt_main__DCtx* p_d) {
         }
     }
 }
-#line 199432 "main.c"
+#line 199435 "main.c"
 
 byn_err byn_main__t9WriteTag(byn_str p_tag, byn_str p_temp) {
     byn_err t0 = {0};
@@ -199457,31 +199460,31 @@ byn_err byn_main__t9WriteTag(byn_str p_tag, byn_str p_temp) {
     }
     return (byn_err){0};
 }
-#line 199461 "main.c"
+#line 199464 "main.c"
 
 byn_str byn_main__t9Scripts(void) {
 #line 207 "driver/cache.byn"
     return byn_path_combine(byn_main__cacheData(), BYN_STR("scripts", 7), byn_context);
 }
-#line 199467 "main.c"
+#line 199470 "main.c"
 
 byn_str byn_main__t9Staging(void) {
 #line 210 "driver/cache.byn"
     return byn_path_combine(byn_main__cacheData(), BYN_STR("tmp", 3), byn_context);
 }
-#line 199473 "main.c"
+#line 199476 "main.c"
 
 byn_str byn_main__t9ModeName(byn_str p_mode) {
 #line 213 "driver/cache.byn"
     return (byn_str_eq(p_mode, BYN_STR("debug", 5)) ? BYN_STR("Debug", 5) : (byn_str_eq(p_mode, BYN_STR("fast", 4)) ? BYN_STR("Fast", 4) : BYN_STR("Safe", 4)));
 }
-#line 199479 "main.c"
+#line 199482 "main.c"
 
 byn_str byn_main__t9Runtime(void) {
 #line 216 "driver/cache.byn"
     return byn_path_combine(byn_main__cacheData(), BYN_STR("runtime", 7), byn_context);
 }
-#line 199485 "main.c"
+#line 199488 "main.c"
 
 byn_str byn_main__t9CompilerIdentity(bynt_list_str p_compiler, bynt_main__DCtx* p_d) {
     byn_str l0_command = {0};
@@ -199504,7 +199507,7 @@ byn_str byn_main__t9CompilerIdentity(bynt_list_str p_compiler, bynt_main__DCtx* 
 #line 228 "driver/cache.byn"
     return (*p_d).identity;
 }
-#line 199508 "main.c"
+#line 199511 "main.c"
 
 byn_str byn_main__t9ComputeIdentity(bynt_list_str p_compiler) {
     byn_str l0_stamp = {0};
@@ -199630,7 +199633,7 @@ byn_str byn_main__t9ComputeIdentity(bynt_list_str p_compiler) {
 #line 257 "driver/cache.byn"
     return byn_strbuf_str(t15);
 }
-#line 199634 "main.c"
+#line 199637 "main.c"
 
 byn_str byn_main__t9CompilerStamp(bynt_list_str p_compiler) {
     bool l0_zig = {0};
@@ -199688,7 +199691,7 @@ break_1:;
 #line 279 "driver/cache.byn"
     return byn_strbuf_str(l1_sb);
 }
-#line 199692 "main.c"
+#line 199695 "main.c"
 
 byn_str byn_main__t9FileStamp(byn_str p_word) {
     bynt_opt_str l0_file = {0};
@@ -199740,7 +199743,7 @@ byn_str byn_main__t9FileStamp(byn_str p_word) {
 #line 301 "driver/cache.byn"
     return BYN_STR("", 0);
 }
-#line 199744 "main.c"
+#line 199747 "main.c"
 
 byn_str byn_main__t9Key(byn_str p_mode, bynt_opt_str p_target, bynt_list_str p_compiler, byn_str p_identity, bynt_list_str p_flags, byn_str p_cSource) {
     byn_writer l0_sb = {0};
@@ -199783,7 +199786,7 @@ byn_str byn_main__t9Key(byn_str p_mode, bynt_opt_str p_target, bynt_list_str p_c
 #line 332 "driver/cache.byn"
     return byn_main__t9Hash(byn_strbuf_str(l0_sb));
 }
-#line 199787 "main.c"
+#line 199790 "main.c"
 
 bynt_main__T9Built byn_main__t9Build(byn_str p_cSource, byn_str p_mode, bynt_opt_str p_output, bynt_opt_str p_target, bynt_main__DCtx* p_d) {
     bynt_main__T9Built l0_built = {0};
@@ -199829,7 +199832,7 @@ bynt_main__T9Built byn_main__t9Build(byn_str p_cSource, byn_str p_mode, bynt_opt
 #line 355 "driver/cache.byn"
     return l0_built;
 }
-#line 199833 "main.c"
+#line 199836 "main.c"
 
 byn_err byn_main__t9BuildCached(byn_str p_cSource, byn_str p_mode, bynt_opt_str p_output, bynt_opt_str p_target, bynt_main__DCtx* p_d, bynt_main__T9Built* byn_out) {
     bool l0_cross = {0};
@@ -199962,7 +199965,7 @@ byn_err byn_main__t9BuildCached(byn_str p_cSource, byn_str p_mode, bynt_opt_str 
     *byn_out = ((bynt_main__T9Built){l20_ok, l21_given, l10_hit, l9_key});
     return (byn_err){0};
 }
-#line 199966 "main.c"
+#line 199969 "main.c"
 
 byn_err byn_main__replaceFile(byn_str p_path, byn_str p_source, bynt_main__DCtx* p_d) {
     byn_str l0_temp = {0};
@@ -200038,7 +200041,7 @@ break_1:;
     (void)byn_main__t9DeleteFile(l0_temp);
     return (byn_err){0};
 }
-#line 200042 "main.c"
+#line 200045 "main.c"
 
 void byn_main__t9DeleteFile(byn_str p_path) {
     byn_err t0 = {0};
@@ -200053,7 +200056,7 @@ void byn_main__t9DeleteFile(byn_str p_path) {
         }
     }
 }
-#line 200057 "main.c"
+#line 200060 "main.c"
 
 byn_err byn_main__lookup(byn_str p_key, byn_str p_exeName, bynt_main__DCtx* p_d, bynt_opt_str* byn_out) {
     byn_err t0 = {0};
@@ -200069,7 +200072,7 @@ byn_err byn_main__lookup(byn_str p_key, byn_str p_exeName, bynt_main__DCtx* p_d,
     *byn_out = t1;
     return (byn_err){0};
 }
-#line 200073 "main.c"
+#line 200076 "main.c"
 
 byn_err byn_main__t9LookupRuntime(byn_str p_runtimeKey, bynt_main__DCtx* p_d, bynt_opt_str* byn_out) {
     byn_writer t0 = {0};
@@ -200099,7 +200102,7 @@ byn_err byn_main__t9LookupRuntime(byn_str p_runtimeKey, bynt_main__DCtx* p_d, by
     *byn_out = t3;
     return (byn_err){0};
 }
-#line 200103 "main.c"
+#line 200106 "main.c"
 
 byn_err byn_main__t9LookupEntry(byn_str p_dir, byn_str p_file, byn_str p_sumName, bynt_main__DCtx* p_d, bynt_opt_str* byn_out) {
     byn_str l0_exe = {0};
@@ -200149,7 +200152,7 @@ byn_err byn_main__t9LookupEntry(byn_str p_dir, byn_str p_file, byn_str p_sumName
     *byn_out = ((bynt_opt_str){0});
     return (byn_err){0};
 }
-#line 200153 "main.c"
+#line 200156 "main.c"
 
 bool byn_main__t9DirectoryExists(byn_str p_dir) {
     bynt_list_str l0__ = {0};
@@ -200189,7 +200192,7 @@ bool byn_main__t9DirectoryExists(byn_str p_dir) {
 #line 476 "driver/cache.byn"
     return true;
 }
-#line 200193 "main.c"
+#line 200196 "main.c"
 
 bynt_list_rune byn_main__t9Whitespace(void) {
     bynt_list_rune l0_ws = {0};
@@ -200251,7 +200254,7 @@ bynt_list_rune byn_main__t9Whitespace(void) {
 #line 486 "driver/cache.byn"
     return l0_ws;
 }
-#line 200255 "main.c"
+#line 200258 "main.c"
 
 byn_err byn_main__t9ReadTrimmed(byn_str p_path, byn_str* byn_out) {
     byn_str l0_text = {0};
@@ -200276,7 +200279,7 @@ byn_err byn_main__t9ReadTrimmed(byn_str p_path, byn_str* byn_out) {
     *byn_out = byn_str_copy(bynh_trimmed_by(l3_body, bynh_span_list_rune(l4_ws)), byn_context);
     return (byn_err){0};
 }
-#line 200280 "main.c"
+#line 200283 "main.c"
 
 byn_err byn_main__t9Intact(byn_str p_exe, byn_str p_sum, bool* byn_out) {
     byn_str l0_text = {0};
@@ -200359,7 +200362,7 @@ byn_err byn_main__t9Intact(byn_str p_exe, byn_str p_sum, bool* byn_out) {
     *byn_out = byn_str_eq(l0_text, l7_hash);
     return (byn_err){0};
 }
-#line 200363 "main.c"
+#line 200366 "main.c"
 
 byn_err byn_main__t9RuntimeObject(bynt_list_str p_compiler, bynt_list_str p_flags, byn_str p_identity, bynt_main__DCtx* p_d, bynt_main__T9Runtime* byn_out) {
     byn_writer l0_sb = {0};
@@ -200487,7 +200490,7 @@ byn_err byn_main__t9RuntimeObject(bynt_list_str p_compiler, bynt_list_str p_flag
     *byn_out = l10_result;
     return (byn_err){0};
 }
-#line 200491 "main.c"
+#line 200494 "main.c"
 
 byn_err byn_main__t9RuntimeIn(byn_str p_work, bynt_list_str p_compiler, bynt_list_str p_flags, byn_str p_rkey, bynt_main__DCtx* p_d, bynt_main__T9Runtime* byn_out) {
     byn_str t0 = {0};
@@ -200805,7 +200808,7 @@ break_6:;
     *byn_out = ((bynt_main__T9Runtime){((bynt_main__NativeBuild){true, BYN_STR("", 0), false}), byn_path_combine(byn_path_combine(byn_main__t9Runtime(), p_rkey, byn_context), BYN_STR("bayan-rt.o", 10), byn_context)});
     return (byn_err){0};
 }
-#line 200809 "main.c"
+#line 200812 "main.c"
 
 byn_err byn_main__t9Compile(bynt_list_str p_compiler, bynt_list_str p_flags, byn_str p_cSource, byn_str p_key, byn_str p_exeName, byn_str p_runtime, bool p_windows, bynt_main__DCtx* p_d, bynt_main__NativeBuild* byn_out) {
     byn_str l0_work = {0};
@@ -200886,7 +200889,7 @@ byn_err byn_main__t9Compile(bynt_list_str p_compiler, bynt_list_str p_flags, byn
     *byn_out = l4_result;
     return (byn_err){0};
 }
-#line 200890 "main.c"
+#line 200893 "main.c"
 
 byn_err byn_main__t9DiscardLeft(byn_str p_work, bynt_main__DCtx* p_d) {
     byn_err t0 = {0};
@@ -200902,7 +200905,7 @@ byn_err byn_main__t9DiscardLeft(byn_str p_work, bynt_main__DCtx* p_d) {
     }
     return (byn_err){0};
 }
-#line 200906 "main.c"
+#line 200909 "main.c"
 
 byn_err byn_main__t9CompileIn(byn_str p_work, bynt_list_str p_compiler, bynt_list_str p_flags, byn_str p_cSource, byn_str p_key, byn_str p_exeName, byn_str p_runtime, bool p_windows, bynt_main__DCtx* p_d, bynt_main__NativeBuild* byn_out) {
     byn_str t0 = {0};
@@ -201221,7 +201224,7 @@ break_6:;
     *byn_out = ((bynt_main__NativeBuild){true, BYN_STR("", 0), false});
     return (byn_err){0};
 }
-#line 201225 "main.c"
+#line 201228 "main.c"
 
 byn_err byn_main__t9MoveDirectory(byn_str p_dir, byn_str p_dest) {
     byn_err t0 = {0};
@@ -201242,7 +201245,7 @@ byn_err byn_main__t9MoveDirectory(byn_str p_dir, byn_str p_dest) {
     }
     return (byn_err){0};
 }
-#line 201246 "main.c"
+#line 201249 "main.c"
 
 void byn_main__touch(byn_str p_dir) {
     byn_err t0 = {0};
@@ -201254,7 +201257,7 @@ void byn_main__touch(byn_str p_dir) {
         return;
     }
 }
-#line 201258 "main.c"
+#line 201261 "main.c"
 
 void byn_main__evict(byn_str p_keep, bynt_main__DCtx* p_d) {
     int64_t l0_mb = {0};
@@ -201274,7 +201277,7 @@ void byn_main__evict(byn_str p_keep, bynt_main__DCtx* p_d) {
 #line 737 "driver/cache.byn"
     (void)byn_main__evictWith(p_keep, byn_mulw_i64(l0_mb, INT64_C(1048576)), INT64_C(4000), INT64_C(600000000000), &(*p_d));
 }
-#line 201278 "main.c"
+#line 201281 "main.c"
 
 bynt_opt_i64 byn_main__t9Digits(byn_str p_text, int64_t p_max) {
     int64_t l0_value = {0};
@@ -201327,7 +201330,7 @@ break_1:;
 #line 751 "driver/cache.byn"
     return ((bynt_opt_i64){true, l0_value});
 }
-#line 201331 "main.c"
+#line 201334 "main.c"
 
 void byn_main__evictWith(byn_str p_keep, int64_t p_maxBytes, int64_t p_maxEntries, int64_t p_minAgeNanos, bynt_main__DCtx* p_d) {
     byn_err t0 = {0};
@@ -201339,7 +201342,7 @@ void byn_main__evictWith(byn_str p_keep, int64_t p_maxBytes, int64_t p_maxEntrie
         return;
     }
 }
-#line 201343 "main.c"
+#line 201346 "main.c"
 
 byn_err byn_main__t9Evict(byn_str p_keep, int64_t p_maxBytes, int64_t p_maxEntries, int64_t p_minAgeNanos, bynt_main__DCtx* p_d) {
     byn_str l0_programs = {0};
@@ -201723,7 +201726,7 @@ break_13:;
 break_15:;
     return (byn_err){0};
 }
-#line 201727 "main.c"
+#line 201730 "main.c"
 
 void byn_main__sweepOnce(bynt_main__DCtx* p_d) {
 #line 842 "driver/cache.byn"
@@ -201736,7 +201739,7 @@ void byn_main__sweepOnce(bynt_main__DCtx* p_d) {
 #line 844 "driver/cache.byn"
     (void)byn_main__sweepStale(byn_main__t9TempPath(), INT64_C(3600000000000));
 }
-#line 201740 "main.c"
+#line 201743 "main.c"
 
 byn_str byn_main__t9TempPath(void) {
     byn_str l0_tmp = {0};
@@ -201778,7 +201781,7 @@ byn_str byn_main__t9TempPath(void) {
 #line 858 "driver/cache.byn"
     return ((l5_set.len > INT64_C(0)) ? l5_set : BYN_STR("/tmp/", 5));
 }
-#line 201782 "main.c"
+#line 201785 "main.c"
 
 int64_t byn_main__t9CompileTimeout(void) {
     int64_t l0_seconds = {0};
@@ -201793,7 +201796,7 @@ int64_t byn_main__t9CompileTimeout(void) {
 #line 864 "driver/cache.byn"
     return ((l0_seconds > INT64_C(0)) ? byn_mul_i64(l0_seconds, INT64_C(1000000000), byn_file_88, 864) : INT64_C(600000000000));
 }
-#line 201797 "main.c"
+#line 201800 "main.c"
 
 void byn_main__sweepStale(byn_str p_tempRoot, int64_t p_ageNanos) {
     int64_t l0_now = {0};
@@ -201957,7 +201960,7 @@ break_5:;
     }
 break_7:;
 }
-#line 201961 "main.c"
+#line 201964 "main.c"
 
 byn_err byn_main__t9DeleteTree(byn_str p_dir) {
     bynt_list_str l0_names = {0};
@@ -202031,7 +202034,7 @@ break_1:;
     }
     return (byn_err){0};
 }
-#line 202035 "main.c"
+#line 202038 "main.c"
 
 byn_err byn_main__discard(byn_str p_dir, bynt_main__DCtx* p_d) {
     byn_err t0 = {0};
@@ -202074,7 +202077,7 @@ byn_err byn_main__discard(byn_str p_dir, bynt_main__DCtx* p_d) {
     }
     return (byn_err){0};
 }
-#line 202078 "main.c"
+#line 202081 "main.c"
 
 byn_err byn_main__t9MoveAndDelete(byn_str p_dir, bynt_main__DCtx* p_d) {
     byn_str l0_trash = {0};
@@ -202134,7 +202137,7 @@ byn_err byn_main__t9MoveAndDelete(byn_str p_dir, bynt_main__DCtx* p_d) {
     }
     return (byn_err){0};
 }
-#line 202138 "main.c"
+#line 202141 "main.c"
 
 byn_err byn_main__t9PointerLine(byn_str p_path, bool p_stamp, byn_str* byn_out) {
     byn_str l0_text = {0};
@@ -202189,7 +202192,7 @@ break_1:;
     *byn_out = BYN_STR("", 0);
     return (byn_err){0};
 }
-#line 202193 "main.c"
+#line 202196 "main.c"
 
 bynt_opt_str byn_main__lookupScript(byn_str p_scriptKey, byn_str p_exeName, bynt_main__DCtx* p_d) {
     byn_str l0_pointer = {0};
@@ -202258,7 +202261,7 @@ bynt_opt_str byn_main__lookupScript(byn_str p_scriptKey, byn_str p_exeName, bynt
 #line 977 "driver/cache.byn"
     return l9_exe;
 }
-#line 202262 "main.c"
+#line 202265 "main.c"
 
 void byn_main__rememberScript(byn_str p_scriptKey, byn_str p_programKey, bynt_main__DCtx* p_d) {
     byn_err t0 = {0};
@@ -202272,7 +202275,7 @@ void byn_main__rememberScript(byn_str p_scriptKey, byn_str p_programKey, bynt_ma
         return;
     }
 }
-#line 202276 "main.c"
+#line 202279 "main.c"
 
 byn_err byn_main__t9Remember(byn_str p_scriptKey, byn_str p_programKey, bynt_main__DCtx* p_d) {
     byn_str l0_scripts = {0};
@@ -202339,7 +202342,7 @@ byn_err byn_main__t9Remember(byn_str p_scriptKey, byn_str p_programKey, bynt_mai
     }
     return (byn_err){0};
 }
-#line 202343 "main.c"
+#line 202346 "main.c"
 
 byn_str byn_main__scriptKey(bynt_span_u8 p_script, byn_str p_mode, bynt_opt_str p_build) {
     byn_writer l0_sb = {0};
@@ -202376,13 +202379,13 @@ byn_str byn_main__scriptKey(bynt_span_u8 p_script, byn_str p_mode, bynt_opt_str 
 #line 1015 "driver/cache.byn"
     return byn_main__t9Hash(byn_strbuf_str(l0_sb));
 }
-#line 202380 "main.c"
+#line 202383 "main.c"
 
 byn_str byn_main__compilerBuild(void) {
 #line 1022 "driver/cache.byn"
     return BYN_STR("0.3.3-dev", 9);
 }
-#line 202386 "main.c"
+#line 202389 "main.c"
 
 byn_str byn_main__t9Hash(byn_str p_text) {
     bynt_list_u8 t0 = {0};
@@ -202391,7 +202394,7 @@ byn_str byn_main__t9Hash(byn_str p_text) {
 #line 1026 "driver/cache.byn"
     return bynh_hex_encode(bynh_span_list_u8(t0));
 }
-#line 202395 "main.c"
+#line 202398 "main.c"
 
 byn_err byn_main__t9HashFile(byn_str p_path, byn_str* byn_out) {
     bynt_list_u8 l0_bytes = {0};
@@ -202413,7 +202416,7 @@ byn_err byn_main__t9HashFile(byn_str p_path, byn_str* byn_out) {
     *byn_out = bynh_hex_encode(bynh_span_list_u8(t3));
     return (byn_err){0};
 }
-#line 202417 "main.c"
+#line 202420 "main.c"
 
 bynt_list_str byn_main__targetNames(void) {
     bynt_list_str l0_names = {0};
@@ -202436,7 +202439,7 @@ bynt_list_str byn_main__targetNames(void) {
 #line 30 "driver/cc.byn"
     return l0_names;
 }
-#line 202440 "main.c"
+#line 202443 "main.c"
 
 bool byn_main__targetIsKnown(byn_str p_name) {
     bynt_opt_str t0 = {0};
@@ -202445,7 +202448,7 @@ bool byn_main__targetIsKnown(byn_str p_name) {
 #line 35 "driver/cc.byn"
     return (!(!t0.has));
 }
-#line 202449 "main.c"
+#line 202452 "main.c"
 
 bynt_opt_str byn_main__targetTriple(byn_str p_name) {
 #line 40 "driver/cc.byn"
@@ -202486,13 +202489,13 @@ bynt_opt_str byn_main__targetTriple(byn_str p_name) {
 #line 47 "driver/cc.byn"
     return ((bynt_opt_str){0});
 }
-#line 202490 "main.c"
+#line 202493 "main.c"
 
 bynt_opt_str byn_main__targetHost(void) {
 #line 52 "driver/cc.byn"
     return byn_main__targetHostFrom(BYN_HOST_OS, BYN_HOST_ARCH);
 }
-#line 202496 "main.c"
+#line 202499 "main.c"
 
 bynt_opt_str byn_main__targetHostFrom(byn_str p_os, byn_str p_arch) {
     byn_writer t0 = {0};
@@ -202528,7 +202531,7 @@ bynt_opt_str byn_main__targetHostFrom(byn_str p_os, byn_str p_arch) {
 #line 57 "driver/cc.byn"
     return t2;
 }
-#line 202532 "main.c"
+#line 202535 "main.c"
 
 byn_str byn_main__targetExecutableName(byn_str p_name, byn_str p_target) {
     byn_writer t0 = {0};
@@ -202576,7 +202579,7 @@ byn_str byn_main__targetExecutableName(byn_str p_name, byn_str p_target) {
 #line 64 "driver/cc.byn"
     return byn_strbuf_str(t2);
 }
-#line 202580 "main.c"
+#line 202583 "main.c"
 
 bynt_list_str byn_main__ccFindCompiler(void) {
     bynt_list_str l0_found = {0};
@@ -202630,7 +202633,7 @@ break_1:;
 #line 81 "driver/cc.byn"
     return l0_found;
 }
-#line 202634 "main.c"
+#line 202637 "main.c"
 
 bynt_opt_str byn_main__ccFindOnPath(byn_str p_name, byn_str p_os) {
     bynt_list_str l0_exts = {0};
@@ -202721,7 +202724,7 @@ break_1:;
 #line 102 "driver/cc.byn"
     return ((bynt_opt_str){0});
 }
-#line 202725 "main.c"
+#line 202728 "main.c"
 
 byn_str byn_main__ccJoin(bynt_list_str p_compiler) {
     byn_writer l0_joined = {0};
@@ -202758,7 +202761,7 @@ break_1:;
 #line 114 "driver/cc.byn"
     return byn_strbuf_str(l0_joined);
 }
-#line 202762 "main.c"
+#line 202765 "main.c"
 
 byn_str byn_main__ccRefusal(bynt_list_str p_compiler, bynt_opt_str p_target) {
     bool l0_cross = {0};
@@ -202857,7 +202860,7 @@ byn_str byn_main__ccRefusal(bynt_list_str p_compiler, bynt_opt_str p_target) {
 #line 144 "driver/cc.byn"
     return BYN_STR("", 0);
 }
-#line 202861 "main.c"
+#line 202864 "main.c"
 
 byn_str byn_main__ccWithoutExtension(byn_str p_fileName) {
     int64_t l0_dot = {0};
@@ -202869,7 +202872,7 @@ byn_str byn_main__ccWithoutExtension(byn_str p_fileName) {
 #line 150 "driver/cc.byn"
     return ((l0_dot < INT64_C(0)) ? p_fileName : bynh_slice_str(p_fileName, (int64_t)INT64_C(0), 0, (int64_t)l0_dot, 0, false, byn_file_89, 150));
 }
-#line 202873 "main.c"
+#line 202876 "main.c"
 
 bynt_list_str byn_main__ccFlags(byn_str p_mode, bynt_opt_str p_triple) {
     bynt_list_str l0_flags = {0};
@@ -202907,7 +202910,7 @@ bynt_list_str byn_main__ccFlags(byn_str p_mode, bynt_opt_str p_triple) {
 #line 172 "driver/cc.byn"
     return l0_flags;
 }
-#line 202911 "main.c"
+#line 202914 "main.c"
 
 bynt_list_str byn_main__ccCommon(bynt_list_str p_compiler, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_args = {0};
@@ -202979,7 +202982,7 @@ break_3:;
 #line 191 "driver/cc.byn"
     return l0_args;
 }
-#line 202983 "main.c"
+#line 202986 "main.c"
 
 bynt_list_str byn_main__ccRuntimeArguments(bynt_list_str p_compiler, byn_str p_dir, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_args = {0};
@@ -203014,7 +203017,7 @@ bynt_list_str byn_main__ccRuntimeArguments(bynt_list_str p_compiler, byn_str p_d
 #line 205 "driver/cc.byn"
     return l0_args;
 }
-#line 203018 "main.c"
+#line 203021 "main.c"
 
 bynt_list_str byn_main__ccArguments(bynt_list_str p_compiler, byn_str p_dir, byn_str p_output, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_args = {0};
@@ -203051,7 +203054,7 @@ bynt_list_str byn_main__ccArguments(bynt_list_str p_compiler, byn_str p_dir, byn
 #line 230 "driver/cc.byn"
     return l0_args;
 }
-#line 203055 "main.c"
+#line 203058 "main.c"
 
 void byn_main__ccReportToolchain(bynt_main__NativeBuild p_result) {
     bynt_semantics__T26Symbols l0_plain = {0};
@@ -203060,7 +203063,7 @@ void byn_main__ccReportToolchain(bynt_main__NativeBuild p_result) {
 #line 304 "driver/cc.byn"
     (void)byn_main__ccReportToolchainBy(p_result, l0_plain);
 }
-#line 203064 "main.c"
+#line 203067 "main.c"
 
 void byn_main__ccReportToolchainBy(bynt_main__NativeBuild p_result, bynt_semantics__T26Symbols p_symbols) {
     byn_writer t0 = {0};
@@ -203091,7 +203094,7 @@ void byn_main__ccReportToolchainBy(bynt_main__NativeBuild p_result, bynt_semanti
 #line 313 "driver/cc.byn"
     (void)byn_io_write(t2, byn_main__ccRejectedText(p_result, p_symbols));
 }
-#line 203095 "main.c"
+#line 203098 "main.c"
 
 byn_str byn_main__ccRejectedText(bynt_main__NativeBuild p_result, bynt_semantics__T26Symbols p_symbols) {
     byn_str l0_head = {0};
@@ -203131,7 +203134,7 @@ byn_str byn_main__ccRejectedText(bynt_main__NativeBuild p_result, bynt_semantics
 #line 325 "driver/cc.byn"
     return byn_strbuf_str(t1);
 }
-#line 203135 "main.c"
+#line 203138 "main.c"
 
 byn_str byn_main__ccIceText(byn_str p_code, byn_str p_message, byn_str p_help, bynt_semantics__T26Symbols p_symbols) {
     bynt_semantics__Ctx l0_c = {0};
@@ -203148,7 +203151,7 @@ byn_str byn_main__ccIceText(byn_str p_code, byn_str p_message, byn_str p_help, b
 #line 346 "driver/cc.byn"
     return byn_semantics__renderAllBy(l0_c, l0_c.diagnostics, true, INT64_C(2147483647), &l2_omitted, p_symbols);
 }
-#line 203152 "main.c"
+#line 203155 "main.c"
 
 bynt_list_str byn_main__t2Rest(bynt_list_str p_kept) {
     bynt_list_str l0_rest = {0};
@@ -203180,7 +203183,7 @@ break_1:;
 #line 15 "driver/commands.byn"
     return l0_rest;
 }
-#line 203184 "main.c"
+#line 203187 "main.c"
 
 bool byn_main__tryReadSingleFile(bynt_list_str p_args) {
     byn_writer t0 = {0};
@@ -203215,7 +203218,7 @@ bool byn_main__tryReadSingleFile(bynt_list_str p_args) {
 #line 28 "driver/commands.byn"
     return true;
 }
-#line 203219 "main.c"
+#line 203222 "main.c"
 
 int32_t byn_main__lexCommand(bynt_list_str p_kept) {
     bynt_list_str l0_args = {0};
@@ -203303,7 +203306,7 @@ break_1:;
 #line 53 "driver/commands.byn"
     return (l12_failed ? ((int32_t)1) : ((int32_t)0));
 }
-#line 203307 "main.c"
+#line 203310 "main.c"
 
 int32_t byn_main__parseCommand(bynt_list_str p_kept) {
     bool l0_printAst = {0};
@@ -203354,7 +203357,7 @@ break_1:;
 #line 75 "driver/commands.byn"
     return byn_main__refuse(BYN_STR("parse", 5));
 }
-#line 203358 "main.c"
+#line 203361 "main.c"
 
 bynt_semantics__T26Symbols byn_main__t19Symbols(bynt_main__DStyle p_style) {
     byn_str t0 = {0};
@@ -203374,7 +203377,7 @@ bynt_semantics__T26Symbols byn_main__t19Symbols(bynt_main__DStyle p_style) {
 #line 84 "driver/commands.byn"
     return byn_semantics__t26Symbols(p_style.ascii, true, p_style.width, t0, t1, t2, byn_main__t7Prefix(p_style.palette, INT64_C(4)));
 }
-#line 203378 "main.c"
+#line 203381 "main.c"
 
 int32_t byn_main__typesCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bynt_list_str l0_args = {0};
@@ -203420,7 +203423,7 @@ int32_t byn_main__typesCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
 #line 182 "driver/commands.byn"
     return ((int32_t)0);
 }
-#line 203424 "main.c"
+#line 203427 "main.c"
 
 int32_t byn_main__checkCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     int64_t l0_clock = {0};
@@ -203475,13 +203478,13 @@ int32_t byn_main__checkCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
 #line 220 "driver/commands.byn"
     return ((int32_t)0);
 }
-#line 203479 "main.c"
+#line 203482 "main.c"
 
 bynt_main__DCtx byn_main__newDCtx(void) {
 #line 58 "driver/dctx.byn"
     return ((bynt_main__DCtx){false, BYN_STR("auto", 4), ((bynt_main__DStyle){false, false, INT64_C(100), INT64_C(0)}), ((bynt_main__DStyle){false, false, INT64_C(100), INT64_C(0)}), false, INT64_C(10), false, INT64_C(0), false, BYN_STR("", 0), BYN_STR("", 0)});
 }
-#line 203485 "main.c"
+#line 203488 "main.c"
 
 bynt_opt_str byn_main__diagDoc(byn_str p_name) {
 #line 348 "driver/diagdocs.byn"
@@ -205875,7 +205878,7 @@ bynt_opt_str byn_main__diagDoc(byn_str p_name) {
     return ((bynt_opt_str){0});
 switch_end_1:;
 }
-#line 205879 "main.c"
+#line 205882 "main.c"
 
 bynt_main__ScaffoldGitResult byn_main__distGit(byn_str p_git, byn_str p_dir, bynt_list_str p_args) {
     bynt_list_str l0_all = {0};
@@ -205942,7 +205945,7 @@ break_1:;
 #line 24 "driver/dist.byn"
     return ((bynt_main__ScaffoldGitResult){t7, byn_str_trimmed(l4_r.out, 2)});
 }
-#line 205946 "main.c"
+#line 205949 "main.c"
 
 int32_t byn_main__distCommand(bynt_list_str p_kept, bynt_main__DCtx* p_d) {
     bynt_opt_str l0_path = {0};
@@ -206302,7 +206305,7 @@ break_1:;
 #line 150 "driver/dist.byn"
     return l46_code;
 }
-#line 206306 "main.c"
+#line 206309 "main.c"
 
 byn_err byn_main__distBuild(byn_str p_cSource, bynt_main__DistPlan p_plan, bynt_list_str p_targets, bynt_opt_main__DistSource p_source, bynt_main__DCtx* p_d, bynt_semantics__T26Symbols p_symbols, int32_t* byn_out) {
     byn_str l0_distDir = {0};
@@ -206598,7 +206601,7 @@ break_3:;
     *byn_out = ((int32_t)0);
     return (byn_err){0};
 }
-#line 206602 "main.c"
+#line 206605 "main.c"
 
 bynt_opt_list_str byn_main__distResolveTargets(bynt_opt_str p_arg, bynt_list_str p_manifestTargets) {
     bynt_list_str l0_names = {0};
@@ -206736,7 +206739,7 @@ break_3:;
 #line 260 "driver/dist.byn"
     return ((bynt_opt_list_str){true, l5_targets});
 }
-#line 206740 "main.c"
+#line 206743 "main.c"
 
 bynt_opt_main__DistSource byn_main__distReadSource(byn_str p_root) {
     byn_str l0_git = {0};
@@ -206807,7 +206810,7 @@ bynt_opt_main__DistSource byn_main__distReadSource(byn_str p_root) {
 #line 285 "driver/dist.byn"
     return ((bynt_opt_main__DistSource){true, ((bynt_main__DistSource){l6_commit, (!((l9_porcelain.code == ((int32_t)0)) && byn_str_eq(l9_porcelain.stdout_, BYN_STR("", 0))))})});
 }
-#line 206811 "main.c"
+#line 206814 "main.c"
 
 void byn_main__distStop(byn_str p_what, bynt_main__DistWalk* p_w) {
     byn_writer t0 = {0};
@@ -206830,7 +206833,7 @@ void byn_main__distStop(byn_str p_what, bynt_main__DistWalk* p_w) {
 #line 307 "driver/dist.byn"
     (void)byn_io_write(t1, byn_strbuf_str(t0));
 }
-#line 206834 "main.c"
+#line 206837 "main.c"
 
 bool byn_main__distIsLink(byn_str p_path) {
     byn_str l0_real = {0};
@@ -206848,7 +206851,7 @@ bool byn_main__distIsLink(byn_str p_path) {
 #line 314 "driver/dist.byn"
     return (!byn_str_eq(l0_real, p_path));
 }
-#line 206852 "main.c"
+#line 206855 "main.c"
 
 byn_err byn_main__distCollect(byn_str p_dir, byn_str p_rel, bynt_main__DistWalk* p_w, int64_t p_depth) {
     bynt_list_str l0_entries = {0};
@@ -206958,7 +206961,7 @@ byn_err byn_main__distCollect(byn_str p_dir, byn_str p_rel, bynt_main__DistWalk*
 break_1:;
     return (byn_err){0};
 }
-#line 206962 "main.c"
+#line 206965 "main.c"
 
 byn_err byn_main__distInputsHash(byn_str p_root, bynt_opt_str* byn_out) {
     bynt_main__DistWalk l0_w = {0};
@@ -207125,7 +207128,7 @@ break_1:;
     *byn_out = ((bynt_opt_str){true, byn_strbuf_str(t22)});
     return (byn_err){0};
 }
-#line 207129 "main.c"
+#line 207132 "main.c"
 
 byn_str byn_main__distBuildInfo(byn_str p_name, byn_str p_release, byn_str p_mode, bynt_list_str p_targets, bynt_opt_main__DistSource p_source, byn_str p_inputs) {
     byn_writer l0_sb = {0};
@@ -207264,7 +207267,7 @@ break_1:;
 #line 422 "driver/dist.byn"
     return byn_strbuf_str(t5);
 }
-#line 207268 "main.c"
+#line 207271 "main.c"
 
 byn_err byn_main__distRefreshLatest(byn_str p_distDir, bynt_main__DistWalk* p_w, bynt_opt_str* byn_out) {
     byn_str l0_newest = {0};
@@ -207390,7 +207393,7 @@ break_1:;
     *byn_out = ((bynt_opt_str){true, l0_newest});
     return (byn_err){0};
 }
-#line 207394 "main.c"
+#line 207397 "main.c"
 
 byn_err byn_main__distCopyDirectory(byn_str p_from, byn_str p_dest, bynt_main__DistWalk* p_w, int64_t p_depth) {
     byn_err t0 = {0};
@@ -207518,7 +207521,7 @@ break_1:;
 break_3:;
     return (byn_err){0};
 }
-#line 207522 "main.c"
+#line 207525 "main.c"
 
 byn_str byn_main__t5Paint(byn_main_T5Role p_role, bynt_main__DStyle p_style, byn_str p_text) {
     byn_writer t0 = {0};
@@ -207586,7 +207589,7 @@ switch_end_1:;
 #line 51 "driver/doctor.byn"
     return byn_strbuf_str(t3);
 }
-#line 207590 "main.c"
+#line 207593 "main.c"
 
 int32_t byn_main__doctorCommand(bynt_main__DCtx p_d) {
     bynt_list_main__T5Check l0_checks = {0};
@@ -207671,7 +207674,7 @@ break_1:;
 #line 81 "driver/doctor.byn"
     return ((int32_t)0);
 }
-#line 207675 "main.c"
+#line 207678 "main.c"
 
 byn_str byn_main__t5Render(bynt_list_main__T5Check p_checks, bynt_main__DStyle p_style) {
     bynt_semantics__T26Symbols l0_symbols = {0};
@@ -207838,7 +207841,7 @@ break_3:;
 #line 110 "driver/doctor.byn"
     return byn_strbuf_str(t18);
 }
-#line 207842 "main.c"
+#line 207845 "main.c"
 
 bynt_opt_str byn_main__t5RenderCompare(bynt_list_main__T5Check p_checks, byn_str p_shape) {
     byn_str l0_ending = {0};
@@ -207888,7 +207891,7 @@ break_1:;
 #line 125 "driver/doctor.byn"
     return ((bynt_opt_str){0});
 }
-#line 207892 "main.c"
+#line 207895 "main.c"
 
 bynt_main__T5Check byn_main__t5CCompiler(void) {
     bool l0_fromEnv = {0};
@@ -208002,7 +208005,7 @@ break_1:;
 #line 198 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)2), BYN_STR("C compiler", 10), byn_strbuf_str(t13), ((bynt_opt_str){true, BYN_STR("reinstall it, or set BAYAN_CC to a working C compiler", 53)})});
 }
-#line 208006 "main.c"
+#line 208009 "main.c"
 
 bynt_list_str byn_main__t5FindCompiler(void) {
     bynt_opt_str t0 = {0};
@@ -208062,7 +208065,7 @@ bynt_list_str byn_main__t5FindCompiler(void) {
 #line 221 "driver/doctor.byn"
     return byn_main__ccFindCompiler();
 }
-#line 208066 "main.c"
+#line 208069 "main.c"
 
 bynt_main__T5Check byn_main__t5Zig(void) {
     bynt_opt_str l0_found = {0};
@@ -208144,7 +208147,7 @@ bynt_main__T5Check byn_main__t5Zig(void) {
 #line 241 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)2), BYN_STR("zig", 3), t9, ((bynt_opt_str){true, byn_strbuf_str(t8)})});
 }
-#line 208148 "main.c"
+#line 208151 "main.c"
 
 bynt_main__T5Check byn_main__t5Git(void) {
     bynt_opt_str l0_found = {0};
@@ -208199,7 +208202,7 @@ bynt_main__T5Check byn_main__t5Git(void) {
 #line 261 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)1), BYN_STR("git", 3), byn_strbuf_str(t6), ((bynt_opt_str){true, BYN_STR("reinstall git", 13)})});
 }
-#line 208203 "main.c"
+#line 208206 "main.c"
 
 bynt_main__T5Check byn_main__t5Cache(void) {
     byn_str l0_dir = {0};
@@ -208335,7 +208338,7 @@ bynt_main__T5Check byn_main__t5Cache(void) {
 #line 275 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)0), BYN_STR("cache", 5), byn_strbuf_str(t17), ((bynt_opt_str){0})});
 }
-#line 208339 "main.c"
+#line 208342 "main.c"
 
 bynt_main__T5Check byn_main__t5CacheBroken(byn_str p_dir, byn_str p_message) {
     byn_writer t0 = {0};
@@ -208353,7 +208356,7 @@ bynt_main__T5Check byn_main__t5CacheBroken(byn_str p_dir, byn_str p_message) {
 #line 284 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)2), BYN_STR("cache", 5), byn_strbuf_str(t0), ((bynt_opt_str){true, BYN_STR("set BAYAN_CACHE to a writable directory", 39)})});
 }
-#line 208357 "main.c"
+#line 208360 "main.c"
 
 bynt_opt_str byn_main__t5Version(byn_str p_file, bynt_list_str p_args) {
     byn_process l0_r = {0};
@@ -208419,7 +208422,7 @@ break_1:;
 #line 303 "driver/doctor.byn"
     return ((bynt_opt_str){0});
 }
-#line 208423 "main.c"
+#line 208426 "main.c"
 
 int32_t byn_main__explainCommand(bynt_list_str p_kept) {
     bynt_list_str l0_args = {0};
@@ -208463,7 +208466,7 @@ int32_t byn_main__explainCommand(bynt_list_str p_kept) {
 #line 17 "driver/explain.byn"
     return ((int32_t)2);
 }
-#line 208467 "main.c"
+#line 208470 "main.c"
 
 bynt_opt_str byn_main__explainText(byn_str p_code) {
     byn_str l0_name = {0};
@@ -208506,7 +208509,7 @@ break_1:;
 #line 28 "driver/explain.byn"
     return byn_main__diagDoc(l0_name);
 }
-#line 208510 "main.c"
+#line 208513 "main.c"
 
 bool byn_main__t1IsWhiteSpace(int64_t p_cp) {
 #line 33 "driver/explain.byn"
@@ -208522,7 +208525,7 @@ bool byn_main__t1IsWhiteSpace(int64_t p_cp) {
 #line 35 "driver/explain.byn"
     return (((((((((p_cp == INT64_C(32)) || (p_cp == INT64_C(133))) || (p_cp == INT64_C(160))) || (p_cp == INT64_C(5760))) || (p_cp == INT64_C(8232))) || (p_cp == INT64_C(8233))) || (p_cp == INT64_C(8239))) || (p_cp == INT64_C(8287))) || (p_cp == INT64_C(12288)));
 }
-#line 208526 "main.c"
+#line 208529 "main.c"
 
 bynt_tup2_i64_i64 byn_main__t1Decode(byn_str p_text, int64_t p_i) {
     int64_t l0_b = {0};
@@ -208590,7 +208593,7 @@ break_1:;
 #line 55 "driver/explain.byn"
     return ((bynt_tup2_i64_i64){l2_cp, l1_size});
 }
-#line 208594 "main.c"
+#line 208597 "main.c"
 
 byn_str byn_main__t1Trim(byn_str p_text) {
     int64_t l0_start = {0};
@@ -208657,7 +208660,7 @@ break_3:;
 #line 80 "driver/explain.byn"
     return bynh_slice_str(p_text, (int64_t)l0_start, 0, (int64_t)l1_end, 0, false, byn_file_95, 80);
 }
-#line 208661 "main.c"
+#line 208664 "main.c"
 
 void byn_main__t2Add(byn_str p_item, bynt_list_str* p_items) {
     byn_str l0_x = {0};
@@ -208689,7 +208692,7 @@ break_1:;
 #line 18 "driver/features.byn"
     (void)bynh_add_list_str(&(*p_items), p_item);
 }
-#line 208693 "main.c"
+#line 208696 "main.c"
 
 void byn_main__t2Sorted(bynt_list_str* p_items) {
     int64_t l0_i = {0};
@@ -208739,7 +208742,7 @@ void byn_main__t2Sorted(bynt_list_str* p_items) {
     }
 break_1:;
 }
-#line 208743 "main.c"
+#line 208746 "main.c"
 
 byn_str byn_main__t2Pascal(byn_str p_name) {
     byn_writer t0 = {0};
@@ -208759,7 +208762,7 @@ byn_str byn_main__t2Pascal(byn_str p_name) {
 #line 35 "driver/features.byn"
     return byn_strbuf_str(t0);
 }
-#line 208763 "main.c"
+#line 208766 "main.c"
 
 byn_str byn_main__t2ExprName(byn_semantics_ExprSyntaxKind p_kind) {
 #line 40 "driver/features.byn"
@@ -209002,7 +209005,7 @@ byn_str byn_main__t2ExprName(byn_semantics_ExprSyntaxKind p_kind) {
     }
 switch_end_1:;
 }
-#line 209006 "main.c"
+#line 209009 "main.c"
 
 byn_str byn_main__t2NodeName(byn_semantics_NodeSyntaxKind p_kind) {
 #line 85 "driver/features.byn"
@@ -209308,7 +209311,7 @@ byn_str byn_main__t2NodeName(byn_semantics_NodeSyntaxKind p_kind) {
     }
 switch_end_1:;
 }
-#line 209312 "main.c"
+#line 209315 "main.c"
 
 void byn_main__t2Attributes(bynt_list_parser__AttributeSyntax p_attributes, bynt_list_str* p_nodes) {
     bynt_parser__AttributeSyntax l0_a = {0};
@@ -209340,7 +209343,7 @@ void byn_main__t2Attributes(bynt_list_parser__AttributeSyntax p_attributes, bynt
     }
 break_1:;
 }
-#line 209344 "main.c"
+#line 209347 "main.c"
 
 void byn_main__t2Declarations(bynt_list_parser__Decl p_decls, bynt_list_str* p_nodes) {
     byn_parser_Decl l0_decl = {0};
@@ -209559,7 +209562,7 @@ void byn_main__t2Declarations(bynt_list_parser__Decl p_decls, bynt_list_str* p_n
     }
 break_1:;
 }
-#line 209563 "main.c"
+#line 209566 "main.c"
 
 void byn_main__t2Function(bynt_semantics__Ctx p_c, int64_t p_fn, bynt_list_str* p_nodes, bynt_list_str* p_builtins) {
     int64_t l0_body = {0};
@@ -209665,7 +209668,7 @@ void byn_main__t2Function(bynt_semantics__Ctx p_c, int64_t p_fn, bynt_list_str* 
     }
 break_1:;
 }
-#line 209669 "main.c"
+#line 209672 "main.c"
 
 void byn_main__t2Array(byn_str p_name, byn_writer* p_sb, bynt_list_str p_items, bool p_last) {
     int64_t l0_i = {0};
@@ -209727,7 +209730,7 @@ void byn_main__t2Array(byn_str p_name, byn_writer* p_sb, bynt_list_str p_items, 
 #line 265 "driver/features.byn"
     (void)byn_w_str(&(*p_sb), (p_last ? BYN_STR("\012", 1) : BYN_STR(",\012", 2)));
 }
-#line 209731 "main.c"
+#line 209734 "main.c"
 
 byn_str byn_main__t2ToJson(bynt_semantics__Ctx p_c) {
     bynt_list_str l0_nodes = {0};
@@ -209914,7 +209917,7 @@ break_11:;
 #line 299 "driver/features.byn"
     return byn_strbuf_str(t22);
 }
-#line 209918 "main.c"
+#line 209921 "main.c"
 
 int32_t byn_main__featuresCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bool l0_used = {0};
@@ -209999,7 +210002,7 @@ break_1:;
 #line 335 "driver/features.byn"
     return ((int32_t)0);
 }
-#line 210003 "main.c"
+#line 210006 "main.c"
 
 int32_t byn_main__fixCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bynt_list_str l0_args = {0};
@@ -210461,7 +210464,7 @@ break_19:;
 #line 105 "driver/fix.byn"
     return l13_exit;
 }
-#line 210465 "main.c"
+#line 210468 "main.c"
 
 byn_err byn_main__fixModule(byn_str p_dir, bynt_list_str p_files, int64_t p_maxPasses, int32_t* p_exit) {
     bynt_list_i64 l0_counts = {0};
@@ -210773,7 +210776,7 @@ break_3:;
 break_11:;
     return (byn_err){0};
 }
-#line 210777 "main.c"
+#line 210780 "main.c"
 
 bynt_list_lexer__Diagnostic byn_main__fixBlocking(bynt_list_lexer__Diagnostic p_diagnostics) {
     bynt_list_lexer__Diagnostic l0_blocking = {0};
@@ -210808,7 +210811,7 @@ break_1:;
 #line 189 "driver/fix.byn"
     return l0_blocking;
 }
-#line 210812 "main.c"
+#line 210815 "main.c"
 
 byn_err byn_main__typedFixes(byn_str p_dir, bynt_list_main__T9PathFix* byn_out) {
     bynt_list_str l0_paths = {0};
@@ -210975,7 +210978,7 @@ break_3:;
     *byn_out = l22_fixes;
     return (byn_err){0};
 }
-#line 210979 "main.c"
+#line 210982 "main.c"
 
 int64_t byn_main__fixErrorCount(bynt_semantics__Ctx p_c) {
     int64_t l0_n = {0};
@@ -211010,7 +211013,7 @@ break_1:;
 #line 244 "driver/fix.byn"
     return l0_n;
 }
-#line 211014 "main.c"
+#line 211017 "main.c"
 
 bynt_list_str byn_main__fixRoots(byn_str p_dir) {
     bynt_list_str l0_roots = {0};
@@ -211098,7 +211101,7 @@ break_3:;
 #line 267 "driver/fix.byn"
     return l0_roots;
 }
-#line 211102 "main.c"
+#line 211105 "main.c"
 
 bool byn_main__inputForms(byn_str p_code) {
     bool t0 = {0};
@@ -211150,7 +211153,7 @@ switch_end_1:;
 #line 22 "driver/format.byn"
     return t0;
 }
-#line 211154 "main.c"
+#line 211157 "main.c"
 
 bynt_map_str_str byn_main__cSharpPrimitives(void) {
     bynt_map_str_str t0 = {0};
@@ -211183,7 +211186,7 @@ bynt_map_str_str byn_main__cSharpPrimitives(void) {
 #line 53 "driver/format.byn"
     return t0;
 }
-#line 211187 "main.c"
+#line 211190 "main.c"
 
 bynt_map_str_str byn_main__sizedPrimitives(void) {
     bynt_map_str_str l0_sized = {0};
@@ -211226,7 +211229,7 @@ break_1:;
 #line 74 "driver/format.byn"
     return l0_sized;
 }
-#line 211230 "main.c"
+#line 211233 "main.c"
 
 int32_t byn_main__formatCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bynt_list_str l0_rest = {0};
@@ -211721,7 +211724,7 @@ break_4:;
 #line 198 "driver/format.byn"
     return l7_exit;
 }
-#line 211725 "main.c"
+#line 211728 "main.c"
 
 bool byn_main__t8SameBytes(bynt_list_u8 p_a, bynt_list_u8 p_b) {
     int64_t t0 = {0};
@@ -211761,7 +211764,7 @@ break_1:;
 #line 207 "driver/format.byn"
     return true;
 }
-#line 211765 "main.c"
+#line 211768 "main.c"
 
 byn_err byn_main__writeReplacing(byn_str p_file, bynt_list_u8 p_bytes) {
     byn_err t0 = {0};
@@ -211774,7 +211777,7 @@ byn_err byn_main__writeReplacing(byn_str p_file, bynt_list_u8 p_bytes) {
     }
     return (byn_err){0};
 }
-#line 211778 "main.c"
+#line 211781 "main.c"
 
 bynt_list_u8 byn_main__applyFixes(bynt_list_u8 p_bytes, bynt_list_main__T8Fix p_fixes) {
     int64_t l0_applied = {0};
@@ -211783,7 +211786,7 @@ bynt_list_u8 byn_main__applyFixes(bynt_list_u8 p_bytes, bynt_list_main__T8Fix p_
 #line 219 "driver/format.byn"
     return byn_main__applyFixesCounting(p_bytes, p_fixes, &l0_applied);
 }
-#line 211787 "main.c"
+#line 211790 "main.c"
 
 bynt_list_u8 byn_main__applyFixesCounting(bynt_list_u8 p_bytes, bynt_list_main__T8Fix p_fixes, int64_t* p_applied) {
     bynt_list_main__T8Fix l0_ordered = {0};
@@ -211985,7 +211988,7 @@ break_13:;
 #line 262 "driver/format.byn"
     return l11_result;
 }
-#line 211989 "main.c"
+#line 211992 "main.c"
 
 bynt_parser__Parser byn_main__t8Parser(byn_str p_file, bynt_list_u8 p_bytes) {
     bynt_list_u8 l0_copy = {0};
@@ -212020,7 +212023,7 @@ break_1:;
 #line 273 "driver/format.byn"
     return byn_parser__Parser__create(byn_lexer__lex(t4, byn_lexer__Keywords__build()));
 }
-#line 212024 "main.c"
+#line 212027 "main.c"
 
 byn_str byn_main__t8RenderAll(byn_str p_file, bynt_list_u8 p_bytes, bynt_list_lexer__Diagnostic p_diagnostics) {
     bynt_list_u8 l0_empty = {0};
@@ -212098,7 +212101,7 @@ break_3:;
 #line 312 "driver/format.byn"
     return byn_semantics__renderAll(l8_c, l9_diags, true, INT64_C(2147483647), &l13_omitted);
 }
-#line 212102 "main.c"
+#line 212105 "main.c"
 
 byn_str byn_main__t8RenderManifest(byn_str p_path, bynt_list_semantics__Diag p_diagnostics) {
     bynt_list_u8 l0_text = {0};
@@ -212162,7 +212165,7 @@ break_1:;
 #line 357 "driver/format.byn"
     return byn_semantics__renderAll(l7_c, l8_diags, true, INT64_C(2147483647), &l12_omitted);
 }
-#line 212166 "main.c"
+#line 212169 "main.c"
 
 bynt_opt_list_u8 byn_main__formatFile(byn_str p_file, bynt_list_u8 p_bytes, byn_semantics_BooleanStyle p_booleans, byn_semantics_PrimitiveStyle p_primitives, bynt_map_str_bool p_declared, int64_t p_maxPasses, bool* p_unfixable, bynt_main__LayoutOptions p_layout) {
     bool l0_converged = {0};
@@ -212464,7 +212467,7 @@ break_3:;
 #line 455 "driver/format.byn"
     return ((bynt_opt_list_u8){true, l1_current});
 }
-#line 212468 "main.c"
+#line 212471 "main.c"
 
 bynt_list_u8 byn_main__restyle(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p, byn_semantics_BooleanStyle p_booleans, byn_semantics_PrimitiveStyle p_primitives, bynt_map_str_bool p_declared) {
     bynt_map_str_str l0_names = {0};
@@ -212696,7 +212699,7 @@ break_9:;
 #line 532 "driver/format.byn"
     return l26_result;
 }
-#line 212700 "main.c"
+#line 212703 "main.c"
 
 bynt_map_i64_bool byn_main__t8Starts(bynt_list_lexer__TextSpan p_names) {
     bynt_map_i64_bool l0_starts = {0};
@@ -212728,7 +212731,7 @@ break_1:;
 #line 541 "driver/format.byn"
     return l0_starts;
 }
-#line 212732 "main.c"
+#line 212735 "main.c"
 
 bynt_map_str_bool byn_main__otherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
     bynt_list_u8 l0_copy = {0};
@@ -212814,13 +212817,13 @@ break_3:;
 #line 567 "driver/format.byn"
     return l9_found;
 }
-#line 212818 "main.c"
+#line 212821 "main.c"
 
 bool byn_main__t8IsSpace(uint8_t p_b) {
 #line 571 "driver/format.byn"
     return ((((p_b == ((uint8_t)32)) || (p_b == ((uint8_t)9))) || (p_b == ((uint8_t)10))) || (p_b == ((uint8_t)13)));
 }
-#line 212824 "main.c"
+#line 212827 "main.c"
 
 bynt_opt_main__T8Fix byn_main__operatorFix(bynt_list_u8 p_bytes, bynt_list_lexer__Token p_tokens, int64_t p_i, byn_semantics_BooleanStyle p_booleans) {
     bynt_lexer__Token l0_token = {0};
@@ -212975,7 +212978,7 @@ break_3:;
 #line 606 "driver/format.byn"
     return ((bynt_opt_main__T8Fix){true, ((bynt_main__T8Fix){byn_lexer__TextSpan__fromBounds(l0_token.start, l11_next.start), l9_symbol})});
 }
-#line 212979 "main.c"
+#line 212982 "main.c"
 
 byn_str byn_main__shape(bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
     byn_writer l0_sb = {0};
@@ -213103,7 +213106,7 @@ break_3:;
 #line 634 "driver/format.byn"
     return byn_strbuf_str(t15);
 }
-#line 213107 "main.c"
+#line 213110 "main.c"
 
 byn_str byn_main__goldenStem(byn_str p_name) {
     int64_t l0_dot = {0};
@@ -213138,7 +213141,7 @@ break_1:;
 #line 52 "driver/golden.byn"
     return ((l0_dot > INT64_C(0)) ? bynh_slice_str(p_name, (int64_t)INT64_C(0), 0, (int64_t)l0_dot, 0, false, byn_file_99, 52) : p_name);
 }
-#line 213142 "main.c"
+#line 213145 "main.c"
 
 byn_str byn_main__goldenSlashed(byn_str p_path) {
     byn_str l0_text = {0};
@@ -213189,7 +213192,7 @@ break_1:;
 #line 62 "driver/golden.byn"
     return l0_text;
 }
-#line 213193 "main.c"
+#line 213196 "main.c"
 
 void byn_main__goldenBynCases(byn_str p_root, byn_str p_kind, bynt_list_main__GoldenCase* p_cases, int32_t* p_exit) {
     byn_str l0_dir = {0};
@@ -213373,7 +213376,7 @@ break_4:;
     }
 break_6:;
 }
-#line 213377 "main.c"
+#line 213380 "main.c"
 
 void byn_main__goldenFileCases(byn_str p_root, byn_str p_kind, bynt_list_main__GoldenCase* p_cases, int32_t* p_exit, byn_str p_ending) {
     byn_str l0_dir = {0};
@@ -213497,7 +213500,7 @@ break_2:;
     }
 break_4:;
 }
-#line 213501 "main.c"
+#line 213504 "main.c"
 
 bynt_list_main__GoldenCase byn_main__goldenDiscover(byn_str p_root, int32_t* p_exit) {
     bynt_list_main__GoldenCase l0_cases = {0};
@@ -213541,7 +213544,7 @@ break_1:;
 #line 149 "driver/golden.byn"
     return l0_cases;
 }
-#line 213545 "main.c"
+#line 213548 "main.c"
 
 int32_t byn_main__goldenList(byn_str p_root) {
     byn_writer t0 = {0};
@@ -213611,13 +213614,13 @@ break_1:;
 #line 162 "driver/golden.byn"
     return l2_exit;
 }
-#line 213615 "main.c"
+#line 213618 "main.c"
 
 byn_str byn_main__goldenLf(byn_str p_text) {
 #line 166 "driver/golden.byn"
     return byn_str_replaced(p_text, BYN_STR("\015\012", 2), BYN_STR("\012", 1), byn_context, byn_file_99, 166);
 }
-#line 213621 "main.c"
+#line 213624 "main.c"
 
 byn_str byn_main__goldenExpected(byn_str p_input, byn_str p_ending) {
     byn_str l0_name = {0};
@@ -213644,7 +213647,7 @@ byn_str byn_main__goldenExpected(byn_str p_input, byn_str p_ending) {
 #line 171 "driver/golden.byn"
     return byn_strbuf_str(t1);
 }
-#line 213648 "main.c"
+#line 213651 "main.c"
 
 bynt_list_str byn_main__goldenLines(byn_str p_text) {
     bynt_list_str l0_lines = {0};
@@ -213684,7 +213687,7 @@ break_1:;
 #line 180 "driver/golden.byn"
     return l0_lines;
 }
-#line 213688 "main.c"
+#line 213691 "main.c"
 
 bool byn_main__goldenUpdate(void) {
     byn_str l0_value = {0};
@@ -213696,7 +213699,7 @@ bool byn_main__goldenUpdate(void) {
 #line 186 "driver/golden.byn"
     return (byn_str_eq(l0_value, BYN_STR("1", 1)) || byn_str_eq(l0_value, BYN_STR("true", 4)));
 }
-#line 213700 "main.c"
+#line 213703 "main.c"
 
 bynt_opt_str byn_main__goldenCompare(byn_str p_actual, byn_str p_input, byn_str p_expected) {
     byn_str l0_lf = {0};
@@ -213752,7 +213755,7 @@ bynt_opt_str byn_main__goldenCompare(byn_str p_actual, byn_str p_input, byn_str 
 #line 198 "driver/golden.byn"
     return byn_main__goldenDiffer(p_actual, p_input, p_expected);
 }
-#line 213756 "main.c"
+#line 213759 "main.c"
 
 bynt_opt_str byn_main__goldenDiffer(byn_str p_actual, byn_str p_input, byn_str p_expected) {
     byn_str l0_text = {0};
@@ -213832,7 +213835,7 @@ break_1:;
 #line 214 "driver/golden.byn"
     return ((bynt_opt_str){true, byn_strbuf_str(t9)});
 }
-#line 213836 "main.c"
+#line 213839 "main.c"
 
 byn_err byn_main__goldenLoad(byn_str p_input, bynt_lexer__SourceText* byn_out) {
     byn_err t0 = {0};
@@ -213851,7 +213854,7 @@ byn_err byn_main__goldenLoad(byn_str p_input, bynt_lexer__SourceText* byn_out) {
     *byn_out = byn_lexer__SourceText__create(t2, t1);
     return (byn_err){0};
 }
-#line 213855 "main.c"
+#line 213858 "main.c"
 
 byn_str byn_main__goldenLex(byn_str p_input) {
     bynt_list_u8 l0_bytes = {0};
@@ -213878,7 +213881,7 @@ byn_str byn_main__goldenLex(byn_str p_input) {
 #line 227 "driver/golden.byn"
     return byn_strbuf_str(l3_sb);
 }
-#line 213882 "main.c"
+#line 213885 "main.c"
 
 byn_str byn_main__goldenParse(byn_str p_input) {
     bynt_list_u8 l0_bytes = {0};
@@ -213910,7 +213913,7 @@ byn_str byn_main__goldenParse(byn_str p_input) {
 #line 239 "driver/golden.byn"
     return byn_strbuf_str(l6_sb);
 }
-#line 213914 "main.c"
+#line 213917 "main.c"
 
 bynt_semantics__Ctx byn_main__goldenCompile(byn_str p_input, bynt_semantics__CompilationOptions p_options) {
     bynt_list_lexer__SourceText l0_sources = {0};
@@ -213933,7 +213936,7 @@ bynt_semantics__Ctx byn_main__goldenCompile(byn_str p_input, bynt_semantics__Com
 #line 246 "driver/golden.byn"
     return byn_semantics__create(l0_sources, (t3.has ? t3.value : BYN_STR("", 0)), p_options, ((bynt_opt_str){0}));
 }
-#line 213937 "main.c"
+#line 213940 "main.c"
 
 byn_str byn_main__goldenTyped(byn_str p_input) {
     bynt_semantics__CompilationOptions l0_options = {0};
@@ -213953,7 +213956,7 @@ byn_str byn_main__goldenTyped(byn_str p_input) {
 #line 257 "driver/golden.byn"
     return byn_semantics__typedDump(&l1_c);
 }
-#line 213957 "main.c"
+#line 213960 "main.c"
 
 bynt_semantics__Diag byn_main__goldenCopyDiag(bynt_semantics__Diag p_d) {
     bynt_list_semantics__Related l0_related = {0};
@@ -213985,7 +213988,7 @@ break_1:;
 #line 266 "driver/golden.byn"
     return ((bynt_semantics__Diag){p_d.code, p_d.file, p_d.span, p_d.message, p_d.label, p_d.help, p_d.isWarning, p_d.isNote, p_d.hasFix, p_d.fixSpan, p_d.fixReplacement, l0_related});
 }
-#line 213989 "main.c"
+#line 213992 "main.c"
 
 bynt_opt_list_semantics__StdSource byn_main__goldenStd(byn_str p_dir, int32_t* p_exit) {
     byn_str l0_stdlib = {0};
@@ -214049,7 +214052,7 @@ break_1:;
 #line 292 "driver/golden.byn"
     return ((bynt_opt_list_semantics__StdSource){true, l4_sources});
 }
-#line 214053 "main.c"
+#line 214056 "main.c"
 
 byn_str byn_main__goldenDiag(byn_str p_input) {
     byn_str l0_dir = {0};
@@ -214201,7 +214204,7 @@ break_3:;
 #line 329 "driver/golden.byn"
     return byn_semantics__renderAll(l19_c, l21_shown, l2_package, INT64_C(2147483647), &l28_omitted);
 }
-#line 214205 "main.c"
+#line 214208 "main.c"
 
 byn_str byn_main__goldenManifest(byn_str p_input) {
     bynt_semantics__Manifest l0_m = {0};
@@ -214369,7 +214372,7 @@ break_3:;
 #line 375 "driver/golden.byn"
     return byn_semantics__renderAll(l13_c, l21_shown, false, INT64_C(2147483647), &l26_omitted);
 }
-#line 214373 "main.c"
+#line 214376 "main.c"
 
 byn_str byn_main__goldenDiagJson(byn_str p_input) {
     bynt_semantics__CompilationOptions l0_options = {0};
@@ -214381,7 +214384,7 @@ byn_str byn_main__goldenDiagJson(byn_str p_input) {
 #line 382 "driver/golden.byn"
     return byn_semantics__t26DiagnosticJsonAll(l1_c, l1_c.diagnostics);
 }
-#line 214385 "main.c"
+#line 214388 "main.c"
 
 byn_str byn_main__goldenProduce(bynt_main__GoldenCase p_c) {
 #line 388 "driver/golden.byn"
@@ -214430,13 +214433,13 @@ byn_str byn_main__goldenProduce(bynt_main__GoldenCase p_c) {
     return BYN_STR("", 0);
 switch_end_1:;
 }
-#line 214434 "main.c"
+#line 214437 "main.c"
 
 byn_str byn_main__goldenEnding(byn_str p_kind) {
 #line 407 "driver/golden.byn"
     return (byn_str_eq(p_kind, BYN_STR("lex", 3)) ? BYN_STR(".tokens", 7) : (byn_str_eq(p_kind, BYN_STR("parse", 5)) ? BYN_STR(".ast", 4) : (byn_str_eq(p_kind, BYN_STR("typed", 5)) ? BYN_STR(".types", 6) : ((byn_str_eq(p_kind, BYN_STR("diag", 4)) || byn_str_eq(p_kind, BYN_STR("manifest", 8))) ? BYN_STR(".diag", 5) : (byn_str_eq(p_kind, BYN_STR("diag-json", 9)) ? BYN_STR(".jsonl", 6) : BYN_STR("", 0))))));
 }
-#line 214440 "main.c"
+#line 214443 "main.c"
 
 bynt_list_str byn_main__goldenExpectedFiles(byn_str p_kind, byn_str p_input) {
     bynt_list_str l0_files = {0};
@@ -214507,7 +214510,7 @@ bynt_list_str byn_main__goldenExpectedFiles(byn_str p_kind, byn_str p_input) {
 #line 427 "driver/golden.byn"
     return l0_files;
 }
-#line 214511 "main.c"
+#line 214514 "main.c"
 
 bynt_opt_str byn_main__goldenRun(bynt_main__GoldenCase p_c, int64_t p_deadline) {
     bynt_opt_str t0 = {0};
@@ -214607,7 +214610,7 @@ bynt_opt_str byn_main__goldenRun(bynt_main__GoldenCase p_c, int64_t p_deadline) 
 #line 451 "driver/golden.byn"
     return byn_main__goldenCompare(t9, p_c.input, byn_main__goldenExpected(p_c.input, l7_ending));
 }
-#line 214611 "main.c"
+#line 214614 "main.c"
 
 bynt_opt_str byn_main__goldenExeVersion(byn_str p_path, int64_t p_limitMs) {
     bynt_list_str l0_args = {0};
@@ -214678,7 +214681,7 @@ break_1:;
 #line 468 "driver/golden.byn"
     return ((bynt_opt_str){true, bynh_slice_str(t8, (int64_t)INT64_C(0), 0, (int64_t)l4_end, 0, false, byn_file_99, 468)});
 }
-#line 214682 "main.c"
+#line 214685 "main.c"
 
 byn_str byn_main__goldenExeOf(bynt_opt_str p_value, byn_str* p_failure, int64_t p_limitMs) {
     byn_str l0_path = {0};
@@ -214719,13 +214722,13 @@ byn_str byn_main__goldenExeOf(bynt_opt_str p_value, byn_str* p_failure, int64_t 
 #line 484 "driver/golden.byn"
     return l0_path;
 }
-#line 214723 "main.c"
+#line 214726 "main.c"
 
 byn_str byn_main__goldenExe(byn_str* p_failure) {
 #line 489 "driver/golden.byn"
     return byn_main__goldenExeOf(bynh_env_get(BYN_STR("BAYAN_EXE", 9)), &(*p_failure), INT64_C(10000));
 }
-#line 214729 "main.c"
+#line 214732 "main.c"
 
 byn_str byn_main__goldenExeReport(byn_str p_path) {
     byn_writer t0 = {0};
@@ -214748,7 +214751,7 @@ byn_str byn_main__goldenExeReport(byn_str p_path) {
 #line 494 "driver/golden.byn"
     return byn_strbuf_str(t0);
 }
-#line 214752 "main.c"
+#line 214755 "main.c"
 
 int64_t byn_main__goldenLimitMs(int64_t p_deadline) {
     int64_t l0_left = {0};
@@ -214762,7 +214765,7 @@ int64_t byn_main__goldenLimitMs(int64_t p_deadline) {
 #line 506 "driver/golden.byn"
     return ((l0_left > INT64_C(0)) ? l0_left : INT64_C(1));
 }
-#line 214766 "main.c"
+#line 214769 "main.c"
 
 byn_str byn_main__goldenLimitText(int64_t p_ms) {
     byn_writer t0 = {0};
@@ -214799,7 +214802,7 @@ byn_str byn_main__goldenLimitText(int64_t p_ms) {
 #line 510 "driver/golden.byn"
     return t2;
 }
-#line 214803 "main.c"
+#line 214806 "main.c"
 
 int32_t byn_main__goldenCaseChild(byn_str p_kind, byn_str p_name, byn_str p_input) {
     bynt_main__GoldenCase l0_c = {0};
@@ -214819,7 +214822,7 @@ int32_t byn_main__goldenCaseChild(byn_str p_kind, byn_str p_name, byn_str p_inpu
 #line 528 "driver/golden.byn"
     return ((int32_t)0);
 }
-#line 214823 "main.c"
+#line 214826 "main.c"
 
 bynt_opt_str byn_main__goldenInChild(bynt_main__GoldenCase p_c, byn_str p_exe, int64_t p_deadline) {
     bynt_list_str l0_args = {0};
@@ -214990,7 +214993,7 @@ break_1:;
 #line 547 "driver/golden.byn"
     return ((bynt_opt_str){true, byn_strbuf_str(t19)});
 }
-#line 214994 "main.c"
+#line 214997 "main.c"
 
 bynt_main__GoldenResult byn_main__goldenResult(bynt_main__GoldenCase p_c, int64_t p_limitMs, bynt_opt_str p_exe) {
     byn_str l0_name = {0};
@@ -215276,7 +215279,7 @@ break_3:;
 #line 608 "driver/golden.byn"
     return ((bynt_main__GoldenResult){l0_name, BYN_STR("passed", 6), l16_rewrote});
 }
-#line 215280 "main.c"
+#line 215283 "main.c"
 
 bool byn_main__goldenOnlyDiffers(byn_str p_f) {
     bynt_list_str l0_lines = {0};
@@ -215312,7 +215315,7 @@ break_1:;
 #line 628 "driver/golden.byn"
     return (l0_lines.len > INT64_C(0));
 }
-#line 215316 "main.c"
+#line 215319 "main.c"
 
 byn_str byn_main__goldenSnapshot(byn_str p_path) {
     byn_writer t0 = {0};
@@ -215343,7 +215346,7 @@ byn_str byn_main__goldenSnapshot(byn_str p_path) {
 #line 634 "driver/golden.byn"
     return byn_strbuf_str(t0);
 }
-#line 215347 "main.c"
+#line 215350 "main.c"
 
 bool byn_main__goldenIsCasesDir(byn_str p_path) {
     bynt_list_str l0_names = {0};
@@ -215418,7 +215421,7 @@ break_3:;
 #line 650 "driver/golden.byn"
     return false;
 }
-#line 215422 "main.c"
+#line 215425 "main.c"
 
 int32_t byn_main__goldenTest(byn_str p_root, bynt_list_str p_only, int64_t p_limitMs, bynt_list_main__GoldenResult* p_results, int64_t p_jobs) {
     int32_t l0_exit = {0};
@@ -215731,7 +215734,7 @@ break_12:;
 #line 719 "driver/golden.byn"
     return ((((l30_failed > INT64_C(0)) || (l32_timedOut > INT64_C(0))) || (!(l0_exit == ((int32_t)0)))) ? ((int32_t)3) : ((int32_t)0));
 }
-#line 215735 "main.c"
+#line 215738 "main.c"
 
 void byn_main__goldenPrint(bynt_main__GoldenResult p_r) {
     byn_str l0_line = {0};
@@ -215776,7 +215779,7 @@ void byn_main__goldenPrint(bynt_main__GoldenResult p_r) {
     break_1:;
     }
 }
-#line 215780 "main.c"
+#line 215783 "main.c"
 
 void byn_main__goldenJobs(bynt_list_main__GoldenCase p_cases, byn_str p_exe, int64_t p_limitMs, int64_t p_jobs, bynt_list_main__GoldenResult* p_results) {
     byn_str l0_dir = {0};
@@ -215980,7 +215983,7 @@ break_5:;
 #line 781 "driver/golden.byn"
     (void)byn_main__deleteWorkDir(l0_dir);
 }
-#line 215984 "main.c"
+#line 215987 "main.c"
 
 bool byn_main__goldenWrote(byn_str p_path, byn_str p_text) {
     bynt_opt_str t0 = {0};
@@ -216005,7 +216008,7 @@ bool byn_main__goldenWrote(byn_str p_path, byn_str p_text) {
 #line 788 "driver/golden.byn"
     return true;
 }
-#line 216009 "main.c"
+#line 216012 "main.c"
 
 void byn_main__goldenWorkers(bynt_list_str p_args) {
     byn_process l0__ = {0};
@@ -216030,7 +216033,7 @@ void byn_main__goldenWorkers(bynt_list_str p_args) {
 #line 793 "driver/golden.byn"
     l0__ = t2;
 }
-#line 216034 "main.c"
+#line 216037 "main.c"
 
 int32_t byn_main__goldenWorker(byn_str p_dir, byn_str p_k, byn_str p_n, byn_str p_limit) {
     int64_t l0_index = {0};
@@ -216208,7 +216211,7 @@ break_3:;
 #line 818 "driver/golden.byn"
     return ((int32_t)0);
 }
-#line 216212 "main.c"
+#line 216215 "main.c"
 
 bynt_list_str byn_main__goldenStyleEndings(void) {
     bynt_list_str l0_endings = {0};
@@ -216223,7 +216226,7 @@ bynt_list_str byn_main__goldenStyleEndings(void) {
 #line 832 "driver/golden.byn"
     return l0_endings;
 }
-#line 216227 "main.c"
+#line 216230 "main.c"
 
 bynt_main__DStyle byn_main__goldenStyleOf(byn_str p_ending) {
 #line 838 "driver/golden.byn"
@@ -216234,7 +216237,7 @@ bynt_main__DStyle byn_main__goldenStyleOf(byn_str p_ending) {
 #line 839 "driver/golden.byn"
     return ((bynt_main__DStyle){true, byn_str_eq(p_ending, BYN_STR(".ascii", 6)), INT64_C(100), INT64_C(2)});
 }
-#line 216238 "main.c"
+#line 216241 "main.c"
 
 byn_str byn_main__goldenStreams(byn_str p_stdout, byn_str p_stderr) {
     byn_writer t0 = {0};
@@ -216253,7 +216256,7 @@ byn_str byn_main__goldenStreams(byn_str p_stdout, byn_str p_stderr) {
 #line 843 "driver/golden.byn"
     return byn_strbuf_str(t0);
 }
-#line 216257 "main.c"
+#line 216260 "main.c"
 
 bynt_opt_str byn_main__goldenStyleCompare(byn_str p_shape, byn_str p_ending, byn_str p_text) {
     byn_str l0_expected = {0};
@@ -216274,7 +216277,7 @@ bynt_opt_str byn_main__goldenStyleCompare(byn_str p_shape, byn_str p_ending, byn
 #line 848 "driver/golden.byn"
     return byn_main__goldenDiffer(p_text, l0_expected, l0_expected);
 }
-#line 216278 "main.c"
+#line 216281 "main.c"
 
 int64_t byn_main__goldenOffset(byn_str p_text, byn_str p_needle) {
     int64_t l0_i = {0};
@@ -216309,7 +216312,7 @@ break_1:;
 #line 856 "driver/golden.byn"
     return INT64_C(-1);
 }
-#line 216313 "main.c"
+#line 216316 "main.c"
 
 byn_str byn_main__goldenStyleMask(byn_str p_text, byn_str p_dir, byn_str p_cache) {
     byn_str l0_t = {0};
@@ -216468,7 +216471,7 @@ break_5:;
 #line 904 "driver/golden.byn"
     return byn_strbuf_str(l15_sb);
 }
-#line 216472 "main.c"
+#line 216475 "main.c"
 
 int64_t byn_main__goldenSecondsAt(byn_str p_text, int64_t p_start) {
     int64_t l0_i = {0};
@@ -216538,7 +216541,7 @@ break_3:;
 #line 920 "driver/golden.byn"
     return byn_add_i64(l0_i, INT64_C(1), byn_file_99, 920);
 }
-#line 216542 "main.c"
+#line 216545 "main.c"
 
 bynt_opt_str byn_main__goldenSkip(bynt_main__GoldenCase p_c) {
     byn_str l0_block = {0};
@@ -216616,7 +216619,7 @@ switch_end_1:;
 #line 945 "driver/golden.byn"
     return ((bynt_opt_str){true, byn_strbuf_str(t2)});
 }
-#line 216620 "main.c"
+#line 216623 "main.c"
 
 byn_str byn_main__goldenStyleRun(byn_str p_exe, bynt_list_str p_args, bynt_map_str_opt_str p_env, byn_str* p_failure, int64_t p_deadline) {
     byn_writer l0_line = {0};
@@ -216803,7 +216806,7 @@ break_1:;
 #line 979 "driver/golden.byn"
     return byn_strbuf_str(t22);
 }
-#line 216807 "main.c"
+#line 216810 "main.c"
 
 byn_str byn_main__goldenStyleShape(byn_str p_shape, byn_str p_ending, byn_str p_exe, byn_str* p_failure, int64_t p_deadline) {
     byn_str l0_tmp = {0};
@@ -217210,7 +217213,7 @@ switch_end_3:;
 #line 1096 "driver/golden.byn"
     return byn_main__goldenStyleMask(l44_text, l1_dir, l6_cache);
 }
-#line 217214 "main.c"
+#line 217217 "main.c"
 
 bynt_opt_str byn_main__goldenStyle(bynt_main__GoldenCase p_c, byn_str p_exe, int64_t p_deadline) {
     byn_str l0_ending = {0};
@@ -217272,7 +217275,7 @@ break_1:;
 #line 1111 "driver/golden.byn"
     return ((bynt_opt_str){0});
 }
-#line 217276 "main.c"
+#line 217279 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenChild(byn_str p_program, bynt_list_str p_args, byn_str p_directory, bynt_list_u8 p_input, byn_str* p_failure, int64_t p_deadline) {
     byn_writer l0_line = {0};
@@ -217421,7 +217424,7 @@ break_1:;
 #line 1165 "driver/golden.byn"
     return ((bynt_main__GoldenOutcome){t23, l6_r.err, l22_code});
 }
-#line 217425 "main.c"
+#line 217428 "main.c"
 
 bynt_map_str_opt_str byn_main__goldenEnv(void) {
     bynt_map_str_opt_str l0_env = {0};
@@ -217435,7 +217438,7 @@ bynt_map_str_opt_str byn_main__goldenEnv(void) {
 #line 1172 "driver/golden.byn"
     return l0_env;
 }
-#line 217439 "main.c"
+#line 217442 "main.c"
 
 bool byn_main__goldenOsSkip(byn_str p_input) {
     byn_str l0_other = {0};
@@ -217482,7 +217485,7 @@ break_1:;
 #line 1182 "driver/golden.byn"
     return false;
 }
-#line 217486 "main.c"
+#line 217489 "main.c"
 
 byn_str byn_main__goldenMode(byn_str p_input) {
     byn_str l0_first = {0};
@@ -217521,7 +217524,7 @@ byn_str byn_main__goldenMode(byn_str p_input) {
 #line 1191 "driver/golden.byn"
     return ((byn_str_eq(l3_mode, BYN_STR("debug", 5)) || byn_str_eq(l3_mode, BYN_STR("fast", 4))) ? l3_mode : BYN_STR("safe", 4));
 }
-#line 217525 "main.c"
+#line 217528 "main.c"
 
 byn_str byn_main__goldenFlat(bynt_main__GoldenCase p_c) {
     bool l0_sub = {0};
@@ -217543,7 +217546,7 @@ byn_str byn_main__goldenFlat(bynt_main__GoldenCase p_c) {
 #line 1197 "driver/golden.byn"
     return byn_str_replaced(byn_strbuf_str(t1), BYN_STR("/", 1), BYN_STR("_", 1), byn_context, byn_file_99, 1197);
 }
-#line 217547 "main.c"
+#line 217550 "main.c"
 
 bynt_list_str byn_main__goldenArgs(byn_str p_input) {
     byn_str l0_path = {0};
@@ -217600,7 +217603,7 @@ break_1:;
 #line 1210 "driver/golden.byn"
     return l1_args;
 }
-#line 217604 "main.c"
+#line 217607 "main.c"
 
 byn_str byn_main__goldenTestSeconds(byn_str p_text) {
     byn_writer l0_sb = {0};
@@ -217733,7 +217736,7 @@ break_1:;
 #line 1236 "driver/golden.byn"
     return byn_strbuf_str(l0_sb);
 }
-#line 217737 "main.c"
+#line 217740 "main.c"
 
 bynt_list_str byn_main__goldenBuildArgs(byn_str p_input, byn_str p_program, byn_str p_source) {
     bynt_list_str l0_args = {0};
@@ -217754,7 +217757,7 @@ bynt_list_str byn_main__goldenBuildArgs(byn_str p_input, byn_str p_program, byn_
 #line 1248 "driver/golden.byn"
     return l0_args;
 }
-#line 217758 "main.c"
+#line 217761 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenRunOutcome(bynt_main__GoldenCase p_c, byn_str p_exe, byn_str* p_failure, int64_t p_deadline) {
     byn_str l0_tmp = {0};
@@ -218040,7 +218043,7 @@ bynt_main__GoldenOutcome byn_main__goldenRunOutcome(bynt_main__GoldenCase p_c, b
 #line 1329 "driver/golden.byn"
     return byn_main__goldenChild(l36_program, l46_programArgs, l2_work, l42_stdin, &(*p_failure), p_deadline);
 }
-#line 218044 "main.c"
+#line 218047 "main.c"
 
 void byn_main__goldenCheck(byn_str p_input, byn_str p_ending, byn_str p_actual, bool p_optional, bynt_list_str* p_failures) {
     byn_str l0_expected = {0};
@@ -218061,7 +218064,7 @@ void byn_main__goldenCheck(byn_str p_input, byn_str p_ending, byn_str p_actual, 
         (void)bynh_add_list_str(&(*p_failures), l2_f);
     }
 }
-#line 218065 "main.c"
+#line 218068 "main.c"
 
 bynt_opt_str byn_main__goldenRunCase(bynt_main__GoldenCase p_c, byn_str p_exe, int64_t p_deadline) {
     byn_str l0_failure = {0};
@@ -218176,7 +218179,7 @@ break_1:;
 #line 1359 "driver/golden.byn"
     return ((bynt_opt_str){true, l6_text});
 }
-#line 218180 "main.c"
+#line 218183 "main.c"
 
 bynt_list_str byn_main__goldenFiles(byn_str p_root) {
     bynt_list_str l0_files = {0};
@@ -218278,7 +218281,7 @@ break_1:;
 #line 1382 "driver/golden.byn"
     return l0_files;
 }
-#line 218282 "main.c"
+#line 218285 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenCli(byn_str p_exe, bynt_list_str p_args, int32_t p_code, byn_str* p_failure, int64_t p_deadline) {
     bynt_list_u8 l0_none = {0};
@@ -218357,7 +218360,7 @@ bynt_main__GoldenOutcome byn_main__goldenCli(byn_str p_exe, bynt_list_str p_args
 #line 1404 "driver/golden.byn"
     return l1_o;
 }
-#line 218361 "main.c"
+#line 218364 "main.c"
 
 bool byn_main__goldenFresh(byn_str p_dir) {
     byn_err t0 = {0};
@@ -218373,7 +218376,7 @@ bool byn_main__goldenFresh(byn_str p_dir) {
 #line 1411 "driver/golden.byn"
     return true;
 }
-#line 218377 "main.c"
+#line 218380 "main.c"
 
 bynt_opt_str byn_main__goldenNew(bynt_main__GoldenCase p_c, byn_str p_exe, int64_t p_deadline) {
     byn_str l0_dir = {0};
@@ -218530,7 +218533,7 @@ break_2:;
 #line 1443 "driver/golden.byn"
     return byn_main__goldenCompare(byn_strbuf_str(l9_sb), p_c.input, p_c.input);
 }
-#line 218534 "main.c"
+#line 218537 "main.c"
 
 byn_str byn_main__goldenOutMask(byn_str p_text, bool p_host) {
     byn_str l0_key = {0};
@@ -218736,7 +218739,7 @@ break_5:;
 #line 1479 "driver/golden.byn"
     return byn_strbuf_str(l12_lines);
 }
-#line 218740 "main.c"
+#line 218743 "main.c"
 
 byn_str byn_main__goldenOutTree(byn_str p_dir, bool p_host) {
     byn_str l0_target = {0};
@@ -218860,7 +218863,7 @@ break_3:;
 #line 1499 "driver/golden.byn"
     return byn_strbuf_str(l10_sb);
 }
-#line 218864 "main.c"
+#line 218867 "main.c"
 
 void byn_main__goldenOutStep(byn_str p_exe, byn_str p_command, byn_str p_project, int32_t p_code, byn_str* p_failure, int64_t p_deadline) {
     bynt_list_str l0_args = {0};
@@ -218879,7 +218882,7 @@ void byn_main__goldenOutStep(byn_str p_exe, byn_str p_command, byn_str p_project
 #line 1516 "driver/golden.byn"
     l1__ = byn_main__goldenCli(p_exe, l0_args, p_code, &(*p_failure), p_deadline);
 }
-#line 218883 "main.c"
+#line 218886 "main.c"
 
 bynt_opt_str byn_main__goldenOut(bynt_main__GoldenCase p_c, byn_str p_exe, int64_t p_deadline) {
     byn_str l0_fact = {0};
@@ -219047,7 +219050,7 @@ switch_end_1:;
 #line 1559 "driver/golden.byn"
     return byn_main__goldenCompare(l10_actual, p_c.input, p_c.input);
 }
-#line 219051 "main.c"
+#line 219054 "main.c"
 
 byn_str byn_main__goldenEmit(byn_str p_root) {
     int32_t l0_exit = {0};
@@ -219138,7 +219141,7 @@ break_3:;
 #line 1583 "driver/golden.byn"
     return byn_strbuf_str(l6_sb);
 }
-#line 219142 "main.c"
+#line 219145 "main.c"
 
 byn_str byn_main__goldenQuality(void) {
     bynt_list_lexer__SourceText l0_files = {0};
@@ -219253,7 +219256,7 @@ break_3:;
 #line 1629 "driver/golden.byn"
     return byn_main__qualityMutationJson(l16_report);
 }
-#line 219257 "main.c"
+#line 219260 "main.c"
 
 void byn_main__goldenFixture(byn_str p_root, byn_str p_rel) {
     byn_str l0_path = {0};
@@ -219279,7 +219282,7 @@ void byn_main__goldenFixture(byn_str p_root, byn_str p_rel) {
         return;
     }
 }
-#line 219283 "main.c"
+#line 219286 "main.c"
 
 byn_str byn_main__goldenListing(byn_str p_root) {
     int32_t l0_exit = {0};
@@ -219331,7 +219334,7 @@ break_1:;
 #line 1646 "driver/golden.byn"
     return l1_text;
 }
-#line 219335 "main.c"
+#line 219338 "main.c"
 
 bynt_list_str byn_main__goldenFailures(byn_str p_root, byn_str p_kind, int64_t* p_count) {
     int32_t l0_exit = {0};
@@ -219380,7 +219383,7 @@ break_1:;
 #line 1712 "driver/golden.byn"
     return l1_failures;
 }
-#line 219384 "main.c"
+#line 219387 "main.c"
 
 void byn_main__goldenWrite(byn_str p_root, byn_str p_rel, byn_str p_text) {
     byn_str l0_path = {0};
@@ -219406,7 +219409,7 @@ void byn_main__goldenWrite(byn_str p_root, byn_str p_rel, byn_str p_text) {
         return;
     }
 }
-#line 219410 "main.c"
+#line 219413 "main.c"
 
 byn_str byn_main__goldenFakeDriver(byn_str p_root, byn_str p_name, bool p_exec, int64_t p_code, int64_t p_seconds) {
     byn_writer t0 = {0};
@@ -219470,7 +219473,7 @@ byn_str byn_main__goldenFakeDriver(byn_str p_root, byn_str p_name, bool p_exec, 
 #line 1794 "driver/golden.byn"
     return l1_path;
 }
-#line 219474 "main.c"
+#line 219477 "main.c"
 
 bynt_list_str byn_main__goldenStyleFailures(byn_str p_root, bynt_list_str* p_skips) {
     int32_t l0_exit = {0};
@@ -219540,7 +219543,7 @@ break_1:;
 #line 1849 "driver/golden.byn"
     return l1_failures;
 }
-#line 219544 "main.c"
+#line 219547 "main.c"
 
 void byn_main__goldenStyleCopy(byn_str p_root, byn_str p_shape) {
     byn_str l0_ending = {0};
@@ -219603,7 +219606,7 @@ void byn_main__goldenStyleCopy(byn_str p_root, byn_str p_shape) {
     }
 break_1:;
 }
-#line 219607 "main.c"
+#line 219610 "main.c"
 
 void byn_main__goldenCopy(byn_str p_root, byn_str p_rel) {
     byn_str l0_from = {0};
@@ -219660,7 +219663,7 @@ void byn_main__goldenCopy(byn_str p_root, byn_str p_rel) {
         return;
     }
 }
-#line 219664 "main.c"
+#line 219667 "main.c"
 
 void byn_main__goldenRunCopy(byn_str p_root, byn_str p_stem) {
     byn_str l0_ending = {0};
@@ -219699,7 +219702,7 @@ void byn_main__goldenRunCopy(byn_str p_root, byn_str p_stem) {
     }
 break_1:;
 }
-#line 219703 "main.c"
+#line 219706 "main.c"
 
 byn_str byn_main__goldenChangeLine(byn_str p_text, int64_t p_index) {
     bynt_list_str l0_changed = {0};
@@ -219757,7 +219760,7 @@ break_1:;
 #line 1951 "driver/golden.byn"
     return l1_joined;
 }
-#line 219761 "main.c"
+#line 219764 "main.c"
 
 void byn_main__goldenLoopFixture(byn_str p_root) {
     byn_str l0_source = {0};
@@ -219799,7 +219802,7 @@ void byn_main__goldenLoopFixture(byn_str p_root) {
 #line 1968 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("run/c-passes.stdout", 19), l3_stdout);
 }
-#line 219803 "main.c"
+#line 219806 "main.c"
 
 void byn_main__goldenJobsFixture(byn_str p_root) {
     byn_str l0_source = {0};
@@ -219930,7 +219933,7 @@ break_1:;
     }
 break_3:;
 }
-#line 219934 "main.c"
+#line 219937 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenJobsRun(byn_str p_root, byn_str p_jobs) {
     byn_str l0_failure = {0};
@@ -219976,7 +219979,7 @@ break_1:;
 #line 2075 "driver/golden.byn"
     return l6_o;
 }
-#line 219980 "main.c"
+#line 219983 "main.c"
 
 void byn_main__goldenUpdateFixture(byn_str p_root) {
     byn_str l0_source = {0};
@@ -220085,7 +220088,7 @@ break_1:;
 #line 2135 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("run/d-changed.stdout", 20), byn_main__goldenChangeLine(l14_stdout, INT64_C(3)));
 }
-#line 220089 "main.c"
+#line 220092 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenUpdateRun(byn_str p_root, byn_str p_jobs, bynt_opt_str p_update) {
     byn_str l0_failure = {0};
@@ -220155,7 +220158,7 @@ break_1:;
 #line 2149 "driver/golden.byn"
     return ((bynt_main__GoldenOutcome){t10, t11, l7_r.exit_code});
 }
-#line 220159 "main.c"
+#line 220162 "main.c"
 
 int64_t byn_main__goldenModified(byn_str p_path) {
     byn_time l0_t = {0};
@@ -220173,7 +220176,7 @@ int64_t byn_main__goldenModified(byn_str p_path) {
 #line 2155 "driver/golden.byn"
     return l0_t.nanos;
 }
-#line 220177 "main.c"
+#line 220180 "main.c"
 
 byn_str byn_main__goldenTree(byn_str p_root) {
     byn_writer l0_sb = {0};
@@ -220230,7 +220233,7 @@ break_1:;
 #line 2165 "driver/golden.byn"
     return byn_strbuf_str(l0_sb);
 }
-#line 220234 "main.c"
+#line 220237 "main.c"
 
 void byn_main__goldenPendingFixture(byn_str p_root) {
     byn_err t0 = {0};
@@ -220318,7 +220321,7 @@ void byn_main__goldenPendingFixture(byn_str p_root) {
     }
 break_1:;
 }
-#line 220322 "main.c"
+#line 220325 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenExeRun(byn_str p_root, bynt_opt_str p_value, byn_str p_jobs) {
     byn_str l0_failure = {0};
@@ -220376,7 +220379,133 @@ bynt_main__GoldenOutcome byn_main__goldenExeRun(byn_str p_root, bynt_opt_str p_v
 #line 2289 "driver/golden.byn"
     return ((bynt_main__GoldenOutcome){t7, t8, l4_r.exit_code});
 }
-#line 220380 "main.c"
+#line 220383 "main.c"
+
+bynt_main__GoldenOutcome byn_main__goldenRowsRun(byn_str p_dir, bynt_list_str p_extra) {
+    byn_str l0_failure = {0};
+    byn_str l1_exe = {0};
+    bynt_list_str l2_args = {0};
+    byn_str l3_a = {0};
+    bynt_arr3_str t4 = {0};
+    int64_t t5 = {0};
+    byn_str l6_a = {0};
+    bynt_list_str t7 = {0};
+    int64_t t8 = {0};
+    bynt_main__GoldenOutcome l9_o = {0};
+    byn_str t10 = {0};
+#line 2445 "driver/golden.byn"
+    l0_failure = BYN_STR("", 0);
+#line 2446 "driver/golden.byn"
+    l1_exe = byn_main__goldenExe(&l0_failure);
+#line 2447 "driver/golden.byn"
+    l2_args = ((bynt_list_str){NULL, 0, 0, byn_context});
+#line 2448 "driver/golden.byn"
+    t4 = ((bynt_arr3_str){{BYN_STR("test", 4), BYN_STR("-v", 2), p_dir}});
+#line 2448 "driver/golden.byn"
+    t5 = INT64_C(0);
+#line 2448 "driver/golden.byn"
+    for (;;) {
+#line 2448 "driver/golden.byn"
+        if ((!(t5 < ((void)t4, INT64_C(3))))) {
+#line 2448 "driver/golden.byn"
+            goto break_1;
+        }
+#line 2448 "driver/golden.byn"
+        l3_a = t4.v[t5];
+#line 2449 "driver/golden.byn"
+        (void)bynh_add_list_str(&l2_args, l3_a);
+    continue_2:;
+#line 2448 "driver/golden.byn"
+        t5 = byn_addw_i64(t5, INT64_C(1));
+    }
+break_1:;
+#line 2451 "driver/golden.byn"
+    t7 = p_extra;
+#line 2451 "driver/golden.byn"
+    t8 = INT64_C(0);
+#line 2451 "driver/golden.byn"
+    for (;;) {
+#line 2451 "driver/golden.byn"
+        if ((!(t8 < t7.len))) {
+#line 2451 "driver/golden.byn"
+            goto break_3;
+        }
+#line 2451 "driver/golden.byn"
+        l6_a = t7.ptr[t8];
+#line 2452 "driver/golden.byn"
+        (void)bynh_add_list_str(&l2_args, l6_a);
+    continue_4:;
+#line 2451 "driver/golden.byn"
+        t8 = byn_addw_i64(t8, INT64_C(1));
+    }
+break_3:;
+#line 2454 "driver/golden.byn"
+    l9_o = byn_main__goldenChild(l1_exe, l2_args, byn_path_full_path(BYN_STR(".", 1), byn_context, byn_file_99, 2454), ((bynt_list_u8){NULL, 0, 0, byn_context}), &l0_failure, INT64_C(0));
+#line 2455 "driver/golden.byn"
+    t10 = byn_main__goldenTestSeconds(byn_main__goldenLf(l9_o.stdout_));
+#line 2455 "driver/golden.byn"
+    l9_o.stdout_ = t10;
+#line 2456 "driver/golden.byn"
+    return l9_o;
+}
+#line 220452 "main.c"
+
+bynt_list_str byn_main__goldenRowLines(byn_str p_stdout) {
+    bynt_list_str l0_rows = {0};
+    byn_str l1_line = {0};
+    bynt_list_str t2 = {0};
+    int64_t t3 = {0};
+#line 2461 "driver/golden.byn"
+    l0_rows = ((bynt_list_str){NULL, 0, 0, byn_context});
+#line 2462 "driver/golden.byn"
+    t2 = byn_main__goldenLines(p_stdout);
+#line 2462 "driver/golden.byn"
+    t3 = INT64_C(0);
+#line 2462 "driver/golden.byn"
+    for (;;) {
+#line 2462 "driver/golden.byn"
+        if ((!(t3 < t2.len))) {
+#line 2462 "driver/golden.byn"
+            goto break_1;
+        }
+#line 2462 "driver/golden.byn"
+        l1_line = t2.ptr[t3];
+#line 2463 "driver/golden.byn"
+        if ((byn_str_starts_with(l1_line, BYN_STR("  \342\227\206 ", 6)) || byn_str_starts_with(l1_line, BYN_STR("  \342\234\227 ", 6)))) {
+#line 2464 "driver/golden.byn"
+            (void)bynh_add_list_str(&l0_rows, l1_line);
+        }
+    continue_2:;
+#line 2462 "driver/golden.byn"
+        t3 = byn_addw_i64(t3, INT64_C(1));
+    }
+break_1:;
+#line 2467 "driver/golden.byn"
+    return l0_rows;
+}
+#line 220487 "main.c"
+
+byn_str byn_main__goldenRowsFixture(byn_str p_root) {
+    byn_str l0_dir = {0};
+    byn_err t1 = {0};
+    byn_str t2 = {0};
+#line 2473 "driver/golden.byn"
+    (void)byn_main__deleteWorkDir(p_root);
+#line 2474 "driver/golden.byn"
+    l0_dir = byn_path_combine(p_root, BYN_STR("run_test-cases.test", 19), byn_context);
+#line 2478 "driver/golden.byn"
+    t1 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/test-cases.test.byn", 35), byn_context, byn_file_99, 2478), &t2, byn_context) };
+#line 2478 "driver/golden.byn"
+    if ((!(t1.code == ((uint32_t)0)))) {
+#line 2478 "driver/golden.byn"
+        t2 = BYN_STR("", 0);
+    }
+#line 2475 "driver/golden.byn"
+    (void)byn_main__goldenWrite(l0_dir, BYN_STR("test-cases.test.byn", 19), t2);
+#line 2480 "driver/golden.byn"
+    return l0_dir;
+}
+#line 220509 "main.c"
 
 bynt_main__LayoutResult byn_main__layoutApply(bynt_list_u8 p_source, bynt_main__LayoutOptions p_options) {
     bynt_main__LayoutResult l0_spaced = {0};
@@ -220390,13 +220519,13 @@ bynt_main__LayoutResult byn_main__layoutApply(bynt_list_u8 p_source, bynt_main__
 #line 110 "driver/layout.byn"
     return byn_main__layoutApplyWith(p_source, p_options, false);
 }
-#line 220394 "main.c"
+#line 220523 "main.c"
 
 int64_t byn_main__layoutBom(bynt_list_u8 p_bytes) {
 #line 114 "driver/layout.byn"
     return (((((p_bytes.len >= INT64_C(3)) && ((*bynh_at_list_u8(p_bytes, (int64_t)INT64_C(0), false, byn_file_100, 114)) == ((uint8_t)239))) && ((*bynh_at_list_u8(p_bytes, (int64_t)INT64_C(1), false, byn_file_100, 114)) == ((uint8_t)187))) && ((*bynh_at_list_u8(p_bytes, (int64_t)INT64_C(2), false, byn_file_100, 114)) == ((uint8_t)191))) ? INT64_C(3) : INT64_C(0));
 }
-#line 220400 "main.c"
+#line 220529 "main.c"
 
 bynt_lexer__LexResult byn_main__layoutLex(bynt_list_u8 p_bytes, bynt_lexer__Keywords p_keywords) {
     bynt_list_u8 l0_copy = {0};
@@ -220405,7 +220534,7 @@ bynt_lexer__LexResult byn_main__layoutLex(bynt_list_u8 p_bytes, bynt_lexer__Keyw
 #line 119 "driver/layout.byn"
     return byn_lexer__lex(byn_lexer__SourceText__create(BYN_STR("layout", 6), l0_copy), p_keywords);
 }
-#line 220409 "main.c"
+#line 220538 "main.c"
 
 bynt_main__LayoutResult byn_main__layoutApplyWith(bynt_list_u8 p_source, bynt_main__LayoutOptions p_options, bool p_spaceProducts) {
     bynt_lexer__Keywords l0_keywords = {0};
@@ -220506,7 +220635,7 @@ break_1:;
 #line 170 "driver/layout.byn"
     return ((bynt_main__LayoutResult){l8_output, ((bynt_opt_str){0})});
 }
-#line 220510 "main.c"
+#line 220639 "main.c"
 
 bool byn_main__layoutGaps(bynt_list_u8 p_source, bynt_list_lexer__Token p_tokens, int64_t p_bom, bynt_list_main__LayoutGap* p_gaps) {
     int64_t l0_i = {0};
@@ -220659,7 +220788,7 @@ break_1:;
 #line 219 "driver/layout.byn"
     return true;
 }
-#line 220663 "main.c"
+#line 220792 "main.c"
 
 bynt_opt_str byn_main__layoutCheck(bynt_list_u8 p_source, bynt_list_lexer__Token p_tokens, bynt_list_main__LayoutGap p_gaps, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p, bynt_list_u8 p_output) {
     bynt_lexer__LexResult l0_lexed = {0};
@@ -220908,7 +221037,7 @@ break_11:;
 #line 275 "driver/layout.byn"
     return ((bynt_opt_str){0});
 }
-#line 220912 "main.c"
+#line 221041 "main.c"
 
 bool byn_main__layoutTrailing(bynt_list_lexer__Token p_tokens, int64_t p_i) {
     byn_lexer_TokenKind l0_next = {0};
@@ -220922,7 +221051,7 @@ bool byn_main__layoutTrailing(bynt_list_lexer__Token p_tokens, int64_t p_i) {
 #line 282 "driver/layout.byn"
     return (((l0_next == ((byn_lexer_TokenKind)16)) || (l0_next == ((byn_lexer_TokenKind)18))) || (l0_next == ((byn_lexer_TokenKind)20)));
 }
-#line 220926 "main.c"
+#line 221055 "main.c"
 
 bynt_list_main__LayoutTokenText byn_main__layoutSignificant(bynt_lexer__SourceText p_text, bynt_list_lexer__Token p_tokens) {
     bynt_list_main__LayoutTokenText l0_result = {0};
@@ -220959,7 +221088,7 @@ break_1:;
 #line 297 "driver/layout.byn"
     return l0_result;
 }
-#line 220963 "main.c"
+#line 221092 "main.c"
 
 bynt_list_i8 byn_main__layoutAdjacency(bynt_list_u8 p_bytes, bynt_list_lexer__Token p_tokens) {
     bynt_list_i8 l0_result = {0};
@@ -221002,7 +221131,7 @@ break_1:;
 #line 312 "driver/layout.byn"
     return l0_result;
 }
-#line 221006 "main.c"
+#line 221135 "main.c"
 
 bool byn_main__layoutTriviaMatters(bynt_list_u8 p_bytes, bynt_list_lexer__Token p_tokens, int64_t p_i) {
     byn_lexer_TokenKind l0_before = {0};
@@ -221019,7 +221148,7 @@ bool byn_main__layoutTriviaMatters(bynt_list_u8 p_bytes, bynt_list_lexer__Token 
 #line 321 "driver/layout.byn"
     return ((((((l0_before == ((byn_lexer_TokenKind)60)) && ((l1_kind == ((byn_lexer_TokenKind)60)) || (l1_kind == ((byn_lexer_TokenKind)61)))) || ((l0_before == ((byn_lexer_TokenKind)24)) && (l1_kind == ((byn_lexer_TokenKind)23)))) || byn_main__layoutStarGap(p_tokens, p_i)) || (l1_kind == ((byn_lexer_TokenKind)4))) || ((l0_before == ((byn_lexer_TokenKind)1)) && byn_main__layoutBytesAre(p_bytes, (*bynh_at_list_lexer__Token(p_tokens, (int64_t)byn_sub_i64(p_i, INT64_C(1), byn_file_100, 326), false, byn_file_100, 326)).start, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token(p_tokens, (int64_t)byn_sub_i64(p_i, INT64_C(1), byn_file_100, 326), false, byn_file_100, 326))), BYN_STR("unlikely", 8))));
 }
-#line 221023 "main.c"
+#line 221152 "main.c"
 
 bool byn_main__layoutBytesAre(bynt_list_u8 p_bytes, int64_t p_start, int64_t p_end, byn_str p_word) {
     bynt_span_u8 l0_w = {0};
@@ -221059,7 +221188,7 @@ break_1:;
 #line 336 "driver/layout.byn"
     return true;
 }
-#line 221063 "main.c"
+#line 221192 "main.c"
 
 bool byn_main__layoutStarGap(bynt_list_lexer__Token p_tokens, int64_t p_i) {
     byn_lexer_TokenKind l0_before = {0};
@@ -221071,13 +221200,13 @@ bool byn_main__layoutStarGap(bynt_list_lexer__Token p_tokens, int64_t p_i) {
 #line 343 "driver/layout.byn"
     return (((l1_kind == ((byn_lexer_TokenKind)37)) && (byn_main__layoutTypeEnd(l0_before) || (l0_before == ((byn_lexer_TokenKind)37)))) || ((l0_before == ((byn_lexer_TokenKind)37)) && (!byn_lexer__Token__get_hasTriviaBefore(&(*bynh_at_list_lexer__Token(p_tokens, (int64_t)byn_sub_i64(p_i, INT64_C(1), byn_file_100, 344), false, byn_file_100, 344))))));
 }
-#line 221075 "main.c"
+#line 221204 "main.c"
 
 bool byn_main__layoutTypeEnd(byn_lexer_TokenKind p_kind) {
 #line 349 "driver/layout.byn"
     return (((((p_kind == ((byn_lexer_TokenKind)1)) || (p_kind == ((byn_lexer_TokenKind)60))) || (p_kind == ((byn_lexer_TokenKind)27))) || (p_kind == ((byn_lexer_TokenKind)18))) || byn_parser__isContextualKeyword(p_kind));
 }
-#line 221081 "main.c"
+#line 221210 "main.c"
 
 bynt_list_str byn_main__layoutComments(bynt_list_u8 p_bytes, bynt_list_main__LayoutGap p_gaps) {
     bynt_list_str l0_result = {0};
@@ -221133,7 +221262,7 @@ break_1:;
 #line 365 "driver/layout.byn"
     return l0_result;
 }
-#line 221137 "main.c"
+#line 221266 "main.c"
 
 byn_str byn_main__layoutString(bynt_list_u8 p_bytes) {
     bynt_list_u8 l0_copy = {0};
@@ -221145,7 +221274,7 @@ byn_str byn_main__layoutString(bynt_list_u8 p_bytes) {
 #line 372 "driver/layout.byn"
     return byn_lexer__SourceText__getText(&l1_text, byn_lexer__TextSpan__fromBounds(INT64_C(0), p_bytes.len));
 }
-#line 221149 "main.c"
+#line 221278 "main.c"
 
 bynt_list_u8 byn_main__layoutCommentText(bynt_list_u8 p_bytes, bynt_main__LayoutGapItem p_item) {
     int64_t l0_slashes = {0};
@@ -221251,7 +221380,7 @@ break_7:;
 #line 398 "driver/layout.byn"
     return l6_spaced;
 }
-#line 221255 "main.c"
+#line 221384 "main.c"
 
 bynt_main__LayoutEngine byn_main__layoutEngine(bynt_list_u8 p_source, bynt_list_lexer__Token p_tokens, bynt_list_main__LayoutGap p_gaps, int64_t p_bom, bynt_main__LayoutOptions p_options, bool p_spaceProducts) {
     int64_t l0_n = {0};
@@ -221312,19 +221441,19 @@ break_1:;
 #line 451 "driver/layout.byn"
     return l1_engine;
 }
-#line 221316 "main.c"
+#line 221445 "main.c"
 
 bool byn_main__layoutIsOpener(byn_lexer_TokenKind p_kind) {
 #line 455 "driver/layout.byn"
     return ((((p_kind == ((byn_lexer_TokenKind)15)) || (p_kind == ((byn_lexer_TokenKind)17))) || (p_kind == ((byn_lexer_TokenKind)19))) || (p_kind == ((byn_lexer_TokenKind)12)));
 }
-#line 221322 "main.c"
+#line 221451 "main.c"
 
 bool byn_main__layoutIsCloser(byn_lexer_TokenKind p_kind) {
 #line 458 "driver/layout.byn"
     return ((((p_kind == ((byn_lexer_TokenKind)16)) || (p_kind == ((byn_lexer_TokenKind)18))) || (p_kind == ((byn_lexer_TokenKind)20))) || (p_kind == ((byn_lexer_TokenKind)13)));
 }
-#line 221328 "main.c"
+#line 221457 "main.c"
 
 bool byn_main__layoutAfterLa(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -221411,7 +221540,7 @@ switch_end_1:;
 #line 461 "driver/layout.byn"
     return t0;
 }
-#line 221415 "main.c"
+#line 221544 "main.c"
 
 bool byn_main__layoutExpressionBefore(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -221470,7 +221599,7 @@ switch_end_1:;
 #line 476 "driver/layout.byn"
     return t0;
 }
-#line 221474 "main.c"
+#line 221603 "main.c"
 
 bool byn_main__layoutPiece(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -221494,7 +221623,7 @@ switch_end_1:;
 #line 487 "driver/layout.byn"
     return t0;
 }
-#line 221498 "main.c"
+#line 221627 "main.c"
 
 bool byn_main__layoutOperandEnd(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -221525,7 +221654,7 @@ switch_end_1:;
 #line 497 "driver/layout.byn"
     return t0;
 }
-#line 221529 "main.c"
+#line 221658 "main.c"
 
 bool byn_main__layoutIsBinary(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -221591,7 +221720,7 @@ switch_end_1:;
 #line 504 "driver/layout.byn"
     return t0;
 }
-#line 221595 "main.c"
+#line 221724 "main.c"
 
 bynt_lexer__TextSpan byn_main__layoutDeclSpan(byn_parser_Decl p_decl) {
     bynt_lexer__TextSpan t0 = {0};
@@ -221752,7 +221881,7 @@ switch_end_1:;
 #line 516 "driver/layout.byn"
     return t0;
 }
-#line 221756 "main.c"
+#line 221885 "main.c"
 
 byn_str byn_main__layoutDeclType(byn_parser_Decl p_decl) {
     byn_str t0 = {0};
@@ -221895,7 +222024,7 @@ switch_end_1:;
 #line 539 "driver/layout.byn"
     return t0;
 }
-#line 221899 "main.c"
+#line 222028 "main.c"
 
 bynt_list_main__LayoutAttribute byn_main__layoutAttributes(byn_parser_Decl p_decl) {
     bynt_parser__ImportDecl* l0_n = {0};
@@ -222051,7 +222180,7 @@ bynt_list_main__LayoutAttribute byn_main__layoutAttributes(byn_parser_Decl p_dec
     }
 switch_end_1:;
 }
-#line 222055 "main.c"
+#line 222184 "main.c"
 
 bynt_list_main__LayoutAttribute byn_main__layoutAttributeSpans(bynt_list_parser__AttributeSyntax p_attributes) {
     bynt_list_main__LayoutAttribute l0_result = {0};
@@ -222103,7 +222232,7 @@ break_1:;
 #line 604 "driver/layout.byn"
     return l0_result;
 }
-#line 222107 "main.c"
+#line 222236 "main.c"
 
 void byn_main__layoutUnformatted(bynt_list_parser__Decl p_decls, bynt_list_u8 p_bytes, bynt_list_main__LayoutRegion* p_regions) {
     byn_parser_Decl l0_decl = {0};
@@ -222182,7 +222311,7 @@ void byn_main__layoutUnformatted(bynt_list_parser__Decl p_decls, bynt_list_u8 p_
     }
 break_1:;
 }
-#line 222186 "main.c"
+#line 222315 "main.c"
 
 bool byn_main__layoutOwnLineAttributes(byn_parser_Decl p_decl) {
     bool t0 = {0};
@@ -222220,7 +222349,7 @@ switch_end_1:;
 #line 626 "driver/layout.byn"
     return t0;
 }
-#line 222224 "main.c"
+#line 222353 "main.c"
 
 byn_str byn_main__layoutGroup(byn_parser_Decl p_decl) {
     bynt_parser__FieldDecl* l0_f = {0};
@@ -222265,7 +222394,7 @@ byn_str byn_main__layoutGroup(byn_parser_Decl p_decl) {
     return byn_main__layoutDeclType(p_decl);
 switch_end_1:;
 }
-#line 222269 "main.c"
+#line 222398 "main.c"
 
 byn_str byn_main__versionLine(void) {
     byn_writer t0 = {0};
@@ -222283,7 +222412,7 @@ byn_str byn_main__versionLine(void) {
 #line 84 "driver/main.byn"
     return byn_strbuf_str(t0);
 }
-#line 222287 "main.c"
+#line 222416 "main.c"
 
 int32_t byn_main__run(bynt_span_str p_args, bynt_main__DCtx* p_d) {
     bynt_list_str l0_kept = {0};
@@ -222604,7 +222733,7 @@ int32_t byn_main__run(bynt_span_str p_args, bynt_main__DCtx* p_d) {
     return ((int32_t)2);
 switch_end_1:;
 }
-#line 222608 "main.c"
+#line 222737 "main.c"
 
 bool byn_main__takeGlobalOptions(bynt_span_str p_args, bynt_list_str* p_kept, bynt_main__DCtx* p_d) {
     byn_str l0_color = {0};
@@ -222746,7 +222875,7 @@ break_1:;
 #line 217 "driver/main.byn"
     return true;
 }
-#line 222750 "main.c"
+#line 222879 "main.c"
 
 bynt_main__DStyle byn_main__decideStyle(byn_str p_colorFlag, bool p_ascii, bool p_isTty, int64_t p_width) {
     bool l0_dumb = {0};
@@ -222819,7 +222948,7 @@ switch_end_1:;
 #line 247 "driver/main.byn"
     return ((bynt_main__DStyle){l1_color, ((p_ascii || l0_dumb) || (!byn_main__t7Utf8())), ((p_isTty && (p_width > INT64_C(0))) ? p_width : INT64_C(100)), l4_palette});
 }
-#line 222823 "main.c"
+#line 222952 "main.c"
 
 bool byn_main__t7Light(void) {
     byn_str l0_theme = {0};
@@ -222912,7 +223041,7 @@ break_1:;
 #line 282 "driver/main.byn"
     return ((l4_bg == INT64_C(7)) || ((l4_bg >= INT64_C(9)) && (l4_bg <= INT64_C(15))));
 }
-#line 222916 "main.c"
+#line 223045 "main.c"
 
 byn_str byn_main__t7Prefix(int64_t p_palette, int64_t p_role) {
     bynt_arr5_str l0_rows = {0};
@@ -222937,7 +223066,7 @@ byn_str byn_main__t7Prefix(int64_t p_palette, int64_t p_role) {
 #line 308 "driver/main.byn"
     return (*bynh_at_arr5_str(&l2_rows, (int64_t)p_role, false, byn_file_101, 308));
 }
-#line 222941 "main.c"
+#line 223070 "main.c"
 
 bool byn_main__t7Utf8(void) {
     bynt_arr3_str l0_names = {0};
@@ -222982,7 +223111,7 @@ break_1:;
 #line 324 "driver/main.byn"
     return true;
 }
-#line 222986 "main.c"
+#line 223115 "main.c"
 
 bool byn_main__t1FileExists(byn_str p_path) {
     byn_arena* l0_arena = {0};
@@ -223033,7 +223162,7 @@ bool byn_main__t1FileExists(byn_str p_path) {
 #line 330 "driver/main.byn"
     byn_arena_free(l0_arena);
 }
-#line 223037 "main.c"
+#line 223166 "main.c"
 
 bool byn_main__t1IsScript(byn_str p_path) {
     bynt_list_u8 l0_bytes = {0};
@@ -223056,7 +223185,7 @@ bool byn_main__t1IsScript(byn_str p_path) {
 #line 347 "driver/main.byn"
     return (((l0_bytes.len >= INT64_C(2)) && ((*bynh_at_list_u8(l0_bytes, (int64_t)INT64_C(0), false, byn_file_101, 347)) == ((uint8_t)35))) && ((*bynh_at_list_u8(l0_bytes, (int64_t)INT64_C(1), false, byn_file_101, 347)) == ((uint8_t)33)));
 }
-#line 223060 "main.c"
+#line 223189 "main.c"
 
 bool byn_main__refuseLibrary(bynt_semantics__Ctx p_compiled, byn_str p_command) {
     byn_writer t0 = {0};
@@ -223086,7 +223215,7 @@ bool byn_main__refuseLibrary(bynt_semantics__Ctx p_compiled, byn_str p_command) 
 #line 358 "driver/main.byn"
     return true;
 }
-#line 223090 "main.c"
+#line 223219 "main.c"
 
 int32_t byn_main__refuse(byn_str p_what) {
     byn_writer t0 = {0};
@@ -223109,7 +223238,7 @@ int32_t byn_main__refuse(byn_str p_what) {
 #line 364 "driver/main.byn"
     return ((int32_t)2);
 }
-#line 223113 "main.c"
+#line 223242 "main.c"
 
 int32_t byn_main__main(bynt_span_str p_args) {
     bynt_main__DCtx l0_d = {0};
@@ -223118,7 +223247,7 @@ int32_t byn_main__main(bynt_span_str p_args) {
 #line 369 "driver/main.byn"
     return byn_main__run(p_args, &l0_d);
 }
-#line 223122 "main.c"
+#line 223251 "main.c"
 
 int32_t byn_main__mutateTests(bynt_main__T11Options p_o, bynt_semantics__Ctx* p_compiled, bynt_main__DCtx* p_d) {
     bynt_list_str l0_none = {0};
@@ -223443,7 +223572,7 @@ break_5:;
 #line 151 "driver/mutate.byn"
     return (l50_failed ? ((int32_t)3) : ((int32_t)0));
 }
-#line 223447 "main.c"
+#line 223576 "main.c"
 
 bynt_opt_i64 byn_main__t13MinMutation(bynt_semantics__Ctx p_compiled) {
     bynt_semantics__Manifest l0_manifest = {0};
@@ -223455,7 +223584,7 @@ bynt_opt_i64 byn_main__t13MinMutation(bynt_semantics__Ctx p_compiled) {
 #line 159 "driver/mutate.byn"
     return ((bynt_opt_i64){0});
 }
-#line 223459 "main.c"
+#line 223588 "main.c"
 
 int64_t byn_main__t13Index(byn_main_MutantStatus p_s) {
 #line 165 "driver/mutate.byn"
@@ -223502,7 +223631,7 @@ int64_t byn_main__t13Index(byn_main_MutantStatus p_s) {
     }
 switch_end_1:;
 }
-#line 223506 "main.c"
+#line 223635 "main.c"
 
 int32_t byn_main__mutateBinary(bynt_list_str p_args) {
     bynt_opt_str l0_binary = {0};
@@ -223724,7 +223853,7 @@ break_5:;
 #line 230 "driver/mutate.byn"
     return byn_main__runExternal(l23_map, l2_command, l26_full, BYN_STR("bayan mutate", 12), (t31.has ? t31.value : BYN_STR("", 0)), INT64_C(0), l27_min);
 }
-#line 223728 "main.c"
+#line 223857 "main.c"
 
 int32_t byn_main__t13BadSites(byn_str p_sites) {
     byn_writer t0 = {0};
@@ -223747,7 +223876,7 @@ int32_t byn_main__t13BadSites(byn_str p_sites) {
 #line 244 "driver/mutate.byn"
     return ((int32_t)2);
 }
-#line 223751 "main.c"
+#line 223880 "main.c"
 
 byn_str byn_main__t13ReadAllText(bynt_list_u8 p_b) {
     bynt_arr2_u8 t0 = {0};
@@ -223793,7 +223922,7 @@ byn_str byn_main__t13ReadAllText(bynt_list_u8 p_b) {
 #line 256 "driver/mutate.byn"
     return byn_main__t13DecodeUtf8(p_b, INT64_C(0));
 }
-#line 223797 "main.c"
+#line 223926 "main.c"
 
 byn_str byn_main__t13DecodeUtf8(bynt_list_u8 p_b, int64_t p_start) {
     bynt_list_u8 l0_utf8 = {0};
@@ -223923,7 +224052,7 @@ break_1:;
 #line 308 "driver/mutate.byn"
     return bynh_utf8_decode_replace(((bynt_span_u8){l0_utf8.ptr, l0_utf8.len}));
 }
-#line 223927 "main.c"
+#line 224056 "main.c"
 
 bool byn_main__t13Starts(bynt_list_u8 p_b, bynt_span_u8 p_prefix) {
     int64_t t0 = {0};
@@ -223963,7 +224092,7 @@ break_1:;
 #line 317 "driver/mutate.byn"
     return true;
 }
-#line 223967 "main.c"
+#line 224096 "main.c"
 
 byn_str byn_main__t13DecodeWide(bynt_list_u8 p_b, int64_t p_start, int64_t p_width, bool p_bigEndian) {
     bynt_list_u8 l0_utf8 = {0};
@@ -224027,7 +224156,7 @@ break_1:;
 #line 346 "driver/mutate.byn"
     return bynh_utf8_decode_replace(((bynt_span_u8){l0_utf8.ptr, l0_utf8.len}));
 }
-#line 224031 "main.c"
+#line 224160 "main.c"
 
 int64_t byn_main__t13Unit(bynt_list_u8 p_b, int64_t p_i, int64_t p_width, bool p_bigEndian) {
     int64_t l0_u = {0};
@@ -224062,7 +224191,7 @@ break_1:;
 #line 355 "driver/mutate.byn"
     return l0_u;
 }
-#line 224066 "main.c"
+#line 224195 "main.c"
 
 void byn_main__t13AppendUtf8(bynt_list_u8* p_utf8, int64_t p_cp) {
 #line 360 "driver/mutate.byn"
@@ -224098,7 +224227,7 @@ void byn_main__t13AppendUtf8(bynt_list_u8* p_utf8, int64_t p_cp) {
         }
     }
 }
-#line 224102 "main.c"
+#line 224231 "main.c"
 
 bynt_list_str byn_main__shellCommand(byn_str p_command) {
     bynt_list_str t0 = {0};
@@ -224127,7 +224256,7 @@ bynt_list_str byn_main__shellCommand(byn_str p_command) {
 #line 383 "driver/mutate.byn"
     return t1;
 }
-#line 224131 "main.c"
+#line 224260 "main.c"
 
 int32_t byn_main__runExternal(bynt_list_main__ExternalSite p_sites, bynt_list_str p_command, byn_str p_binary, byn_str p_tool, byn_str p_reportDir, int64_t p_buildNanos, bynt_opt_i64 p_minMutation) {
     int64_t l0_total = {0};
@@ -224195,7 +224324,7 @@ int32_t byn_main__runExternal(bynt_list_main__ExternalSite p_sites, bynt_list_st
 #line 407 "driver/mutate.byn"
     return (byn_main__reportGates(byn_main__gatesMutation(l4_report, p_minMutation)) ? ((int32_t)3) : ((int32_t)0));
 }
-#line 224199 "main.c"
+#line 224328 "main.c"
 
 int32_t byn_main__t13BaselineFailed(void) {
 #line 412 "driver/mutate.byn"
@@ -224203,7 +224332,7 @@ int32_t byn_main__t13BaselineFailed(void) {
 #line 413 "driver/mutate.byn"
     return ((int32_t)1);
 }
-#line 224207 "main.c"
+#line 224336 "main.c"
 
 bool byn_main__reportGates(bynt_list_main__GateFailure p_failures) {
     bynt_main__GateFailure l0_f = {0};
@@ -224288,13 +224417,13 @@ break_1:;
 #line 424 "driver/mutate.byn"
     return (p_failures.len > INT64_C(0));
 }
-#line 224292 "main.c"
+#line 224421 "main.c"
 
 byn_str byn_main__externalLine(bynt_main__ExternalResult p_r) {
 #line 428 "driver/mutate.byn"
     return byn_main__t13Line(p_r.site, p_r.status);
 }
-#line 224298 "main.c"
+#line 224427 "main.c"
 
 byn_str byn_main__statusName(byn_main_MutantStatus p_s) {
 #line 433 "driver/mutate.byn"
@@ -224341,13 +224470,13 @@ byn_str byn_main__statusName(byn_main_MutantStatus p_s) {
     }
 switch_end_1:;
 }
-#line 224345 "main.c"
+#line 224474 "main.c"
 
 byn_str byn_main__mutantLine(bynt_main__MutantResult p_m) {
 #line 449 "driver/mutate.byn"
     return byn_main__t13Line(p_m.site, p_m.status);
 }
-#line 224351 "main.c"
+#line 224480 "main.c"
 
 byn_str byn_main__t13Line(bynt_main__ExternalSite p_s, byn_main_MutantStatus p_status) {
     byn_writer t0 = {0};
@@ -224376,7 +224505,7 @@ byn_str byn_main__t13Line(bynt_main__ExternalSite p_s, byn_main_MutantStatus p_s
 #line 453 "driver/mutate.byn"
     return byn_strbuf_str(t0);
 }
-#line 224380 "main.c"
+#line 224509 "main.c"
 
 byn_str byn_main__shellQuote(byn_str p_text) {
     byn_str l0_c = {0};
@@ -224432,7 +224561,7 @@ break_1:;
 #line 461 "driver/mutate.byn"
     return byn_strbuf_str(t4);
 }
-#line 224436 "main.c"
+#line 224565 "main.c"
 
 bynt_main__MutationResult byn_main__mutationRun(byn_str p_executable, bynt_emitter__Schema p_schema, bynt_list_i64 p_tests, byn_str p_workDir, int64_t p_baselineMs) {
     int64_t l0_processes = {0};
@@ -224642,7 +224771,7 @@ break_7:;
 #line 516 "driver/mutate.byn"
     return ((bynt_main__MutationResult){l23_results, l3_excluded, l0_processes});
 }
-#line 224646 "main.c"
+#line 224775 "main.c"
 
 bynt_main__MutantResult byn_main__t13Mutant(byn_str p_executable, bynt_emitter__SchemaSite p_site, bynt_list_i64 p_tests, bynt_map_i64_map_i64_bool p_reach, bynt_map_i64_i64 p_time, int64_t* p_processes) {
     bynt_main__ExternalSite l0_s = {0};
@@ -224710,7 +224839,7 @@ break_1:;
 #line 549 "driver/mutate.byn"
     return ((bynt_main__MutantResult){l0_s, ((l1_runs == INT64_C(0)) ? ((byn_main_MutantStatus)3) : ((byn_main_MutantStatus)1)), l1_runs, ((bynt_opt_i64){0})});
 }
-#line 224714 "main.c"
+#line 224843 "main.c"
 
 int64_t byn_main__t13Limit(int64_t p_elapsedNanos) {
     int64_t l0_ticks = {0};
@@ -224722,7 +224851,7 @@ int64_t byn_main__t13Limit(int64_t p_elapsedNanos) {
 #line 557 "driver/mutate.byn"
     return byn_div_i64(l1_limit, INT64_C(10000), byn_file_102, 557);
 }
-#line 224726 "main.c"
+#line 224855 "main.c"
 
 bynt_opt_list_main__ExternalResult byn_main__mutationRunExternal(bynt_list_main__ExternalSite p_sites, bynt_list_str p_command, byn_str p_binary, int64_t p_baselineMs) {
     bynt_main__T13Outcome l0_baseline = {0};
@@ -224815,7 +224944,7 @@ break_1:;
 #line 586 "driver/mutate.byn"
     return ((bynt_opt_list_main__ExternalResult){true, l4_results});
 }
-#line 224819 "main.c"
+#line 224948 "main.c"
 
 bynt_opt_main__T13Outcome byn_main__t13RunCommand(bynt_list_str p_command, int64_t p_mutant, byn_str p_binary, int64_t p_limitMs) {
     bynt_list_str l0_args = {0};
@@ -224870,7 +224999,7 @@ break_1:;
 #line 599 "driver/mutate.byn"
     return byn_main__t13Run((*bynh_at_list_str(p_command, (int64_t)INT64_C(0), false, byn_file_102, 599)), l0_args, l4_env, p_limitMs);
 }
-#line 224874 "main.c"
+#line 225003 "main.c"
 
 bynt_main__T13Outcome byn_main__t13Exec(byn_str p_executable, int64_t p_index, int64_t p_mutant, bynt_opt_str p_reachPath, int64_t p_limitMs) {
     bynt_list_str l0_args = {0};
@@ -224932,7 +225061,7 @@ bynt_main__T13Outcome byn_main__t13Exec(byn_str p_executable, int64_t p_index, i
 #line 613 "driver/mutate.byn"
     return t6;
 }
-#line 224936 "main.c"
+#line 225065 "main.c"
 
 bynt_opt_main__T13Outcome byn_main__t13Run(byn_str p_program, bynt_list_str p_args, bynt_map_str_opt_str p_env, int64_t p_limitMs) {
     int64_t l0_clock = {0};
@@ -224997,13 +225126,13 @@ bynt_opt_main__T13Outcome byn_main__t13Run(byn_str p_program, bynt_list_str p_ar
 #line 633 "driver/mutate.byn"
     return ((bynt_opt_main__T13Outcome){true, ((bynt_main__T13Outcome){t10, false, byn_sub_i64(byn_io_monotonic_nanos(), l0_clock, byn_file_102, 633)})});
 }
-#line 225001 "main.c"
+#line 225130 "main.c"
 
 bynt_main__ExternalSite byn_main__externalSiteFrom(bynt_emitter__SchemaSite p_s) {
 #line 638 "driver/mutate.byn"
     return ((bynt_main__ExternalSite){p_s.id, p_s.site.file, p_s.site.line, p_s.site.column, p_s.site.op, p_s.site.original, p_s.site.mutated, p_s.emitted, p_s.unobservable});
 }
-#line 225007 "main.c"
+#line 225136 "main.c"
 
 bynt_opt_list_main__ExternalSite byn_main__externalSiteReadAll(byn_str p_text) {
     byn_std_json_JsonValue l0_parsed = {0};
@@ -225104,7 +225233,7 @@ bynt_opt_list_main__ExternalSite byn_main__externalSiteReadAll(byn_str p_text) {
     return ((bynt_opt_list_main__ExternalSite){0});
 switch_end_1:;
 }
-#line 225108 "main.c"
+#line 225237 "main.c"
 
 int64_t byn_main__t13Depth(byn_std_json_JsonValue p_v) {
     int64_t l0_deepest = {0};
@@ -225188,7 +225317,7 @@ int64_t byn_main__t13Depth(byn_std_json_JsonValue p_v) {
     return INT64_C(0);
 switch_end_1:;
 }
-#line 225192 "main.c"
+#line 225321 "main.c"
 
 bynt_opt_main__ExternalSite byn_main__t13Site(byn_std_json_JsonValue p_s) {
     int64_t l0_id = {0};
@@ -225364,7 +225493,7 @@ bynt_opt_main__ExternalSite byn_main__t13Site(byn_std_json_JsonValue p_s) {
     return ((bynt_opt_main__ExternalSite){0});
 switch_end_1:;
 }
-#line 225368 "main.c"
+#line 225497 "main.c"
 
 int64_t byn_main__t13Find(bynt_list_std_json__JsonMember p_members, byn_str p_key) {
     int64_t l0_found = {0};
@@ -225399,7 +225528,7 @@ break_1:;
 #line 760 "driver/mutate.byn"
     return l0_found;
 }
-#line 225403 "main.c"
+#line 225532 "main.c"
 
 bynt_opt_i64 byn_main__t13IntMember(bynt_list_std_json__JsonMember p_members, byn_str p_key) {
     int64_t l0_i = {0};
@@ -225413,7 +225542,7 @@ bynt_opt_i64 byn_main__t13IntMember(bynt_list_std_json__JsonMember p_members, by
 #line 767 "driver/mutate.byn"
     return byn_main__t13Int((*bynh_at_list_std_json__JsonMember(p_members, (int64_t)l0_i, false, byn_file_102, 767)).value);
 }
-#line 225417 "main.c"
+#line 225546 "main.c"
 
 bynt_opt_i64 byn_main__t13Int(byn_std_json_JsonValue p_v) {
     bool l0_negative = {0};
@@ -225447,7 +225576,7 @@ bynt_opt_i64 byn_main__t13Int(byn_std_json_JsonValue p_v) {
     return ((bynt_opt_i64){0});
 switch_end_1:;
 }
-#line 225451 "main.c"
+#line 225580 "main.c"
 
 bynt_opt_str byn_main__t13Str(bynt_list_std_json__JsonMember p_members, byn_str p_key) {
     int64_t l0_i = {0};
@@ -225473,7 +225602,7 @@ bynt_opt_str byn_main__t13Str(bynt_list_std_json__JsonMember p_members, byn_str 
     return ((bynt_opt_str){0});
 switch_end_1:;
 }
-#line 225477 "main.c"
+#line 225606 "main.c"
 
 int64_t byn_main__t7Utf8Length(int64_t p_scalar) {
 #line 25 "driver/progress.byn"
@@ -225494,13 +225623,13 @@ int64_t byn_main__t7Utf8Length(int64_t p_scalar) {
 #line 28 "driver/progress.byn"
     return INT64_C(4);
 }
-#line 225498 "main.c"
+#line 225627 "main.c"
 
 bool byn_main__t7Hidden(int64_t p_c) {
 #line 33 "driver/progress.byn"
     return (((((((p_c < INT64_C(32)) || ((p_c >= INT64_C(127)) && (p_c <= INT64_C(159)))) || (p_c == INT64_C(1564))) || (p_c == INT64_C(8206))) || (p_c == INT64_C(8207))) || ((p_c >= INT64_C(8234)) && (p_c <= INT64_C(8238)))) || ((p_c >= INT64_C(8294)) && (p_c <= INT64_C(8297))));
 }
-#line 225504 "main.c"
+#line 225633 "main.c"
 
 byn_str byn_main__visible(byn_str p_text) {
     bool l0_any = {0};
@@ -225599,7 +225728,7 @@ break_3:;
 #line 63 "driver/progress.byn"
     return byn_strbuf_str(t12);
 }
-#line 225603 "main.c"
+#line 225732 "main.c"
 
 int64_t byn_main__columns(int64_t p_scalar) {
 #line 68 "driver/progress.byn"
@@ -225615,7 +225744,7 @@ int64_t byn_main__columns(int64_t p_scalar) {
 #line 79 "driver/progress.byn"
     return INT64_C(1);
 }
-#line 225619 "main.c"
+#line 225748 "main.c"
 
 byn_str byn_main__fit(byn_str p_phase, int64_t p_room, byn_str p_ellipsis, int64_t p_length) {
     int64_t l0_width = {0};
@@ -225710,7 +225839,7 @@ break_3:;
 #line 97 "driver/progress.byn"
     return byn_strbuf_str(t14);
 }
-#line 225714 "main.c"
+#line 225843 "main.c"
 
 bynt_main__Progress byn_main__start(bynt_main__DStyle p_style, bool p_isTty, bool p_json, byn_str p_phase, int64_t p_after) {
     bool l0_off = {0};
@@ -225750,7 +225879,7 @@ bynt_main__Progress byn_main__start(bynt_main__DStyle p_style, bool p_isTty, boo
 #line 118 "driver/progress.byn"
     return l5_p;
 }
-#line 225754 "main.c"
+#line 225883 "main.c"
 
 void byn_main__tick(bynt_main__Progress* p_p) {
     bynt_list_str l0_frames = {0};
@@ -225815,7 +225944,7 @@ void byn_main__tick(bynt_main__Progress* p_p) {
 #line 131 "driver/progress.byn"
     (*p_p).shown = true;
 }
-#line 225819 "main.c"
+#line 225948 "main.c"
 
 void byn_main__done(bynt_main__Progress* p_p) {
     int64_t l0_elapsed = {0};
@@ -225871,7 +226000,7 @@ void byn_main__done(bynt_main__Progress* p_p) {
         (void)byn_io_write(INT32_C(2), ((*p_p).ascii ? BYN_STR("\012", 1) : BYN_STR("\015\033[2K", 5)));
     }
 }
-#line 225875 "main.c"
+#line 226004 "main.c"
 
 bynt_main__QualityReport byn_main__qualityCoverage(byn_str p_tool, bynt_emitter__CoverageMap p_map, bynt_map_i64_u64 p_hits, bool p_timedOut, int64_t p_buildNanos, int64_t p_totalNanos) {
     byn_str l0_unhit = {0};
@@ -226273,7 +226402,7 @@ break_17:;
 #line 150 "driver/quality.byn"
     return l1_report;
 }
-#line 226277 "main.c"
+#line 226406 "main.c"
 
 int64_t byn_main__qualityHitBranches(bynt_main__QualityFile p_f) {
     int64_t l0_n = {0};
@@ -226308,7 +226437,7 @@ break_1:;
 #line 161 "driver/quality.byn"
     return l0_n;
 }
-#line 226312 "main.c"
+#line 226441 "main.c"
 
 int64_t byn_main__qualityHitErrorPaths(bynt_main__QualityFile p_f) {
     int64_t l0_n = {0};
@@ -226343,7 +226472,7 @@ break_1:;
 #line 172 "driver/quality.byn"
     return l0_n;
 }
-#line 226347 "main.c"
+#line 226476 "main.c"
 
 byn_str byn_main__qualityJson(bynt_main__QualityReport p_r) {
     bynt_main__T11Json l0_w = {0};
@@ -226424,7 +226553,7 @@ break_1:;
 #line 200 "driver/quality.byn"
     return byn_strbuf_str(t4);
 }
-#line 226428 "main.c"
+#line 226557 "main.c"
 
 void byn_main__t11JsonTally(bynt_main__T11Json* p_w, byn_str p_name, bynt_main__QualityTally p_tally) {
     byn_writer t0 = {0};
@@ -226462,7 +226591,7 @@ void byn_main__t11JsonTally(bynt_main__T11Json* p_w, byn_str p_name, bynt_main__
 #line 208 "driver/quality.byn"
     (void)byn_main__t11JsonClose(&(*p_w), BYN_STR("}", 1));
 }
-#line 226466 "main.c"
+#line 226595 "main.c"
 
 void byn_main__qualityWriteCoverage(bynt_main__T11Json* p_w, bynt_main__QualityFile p_f) {
     byn_writer t0 = {0};
@@ -226768,7 +226897,7 @@ break_9:;
 #line 259 "driver/quality.byn"
     (void)byn_main__t11JsonClose(&(*p_w), BYN_STR("]", 1));
 }
-#line 226772 "main.c"
+#line 226901 "main.c"
 
 byn_str byn_main__qualityListing(bynt_main__QualityFile p_f, bynt_list_str p_sourceLines) {
     byn_writer l0_sb = {0};
@@ -226824,7 +226953,7 @@ break_1:;
 #line 273 "driver/quality.byn"
     return byn_strbuf_str(t6);
 }
-#line 226828 "main.c"
+#line 226957 "main.c"
 
 byn_str byn_main__qualityPercent(bynt_main__QualityTally p_t) {
     byn_writer t0 = {0};
@@ -226850,7 +226979,7 @@ byn_str byn_main__qualityPercent(bynt_main__QualityTally p_t) {
 #line 277 "driver/quality.byn"
     return t1;
 }
-#line 226854 "main.c"
+#line 226983 "main.c"
 
 byn_str byn_main__qualityCoverageSummary(bynt_main__QualityReport p_r) {
     byn_writer l0_sb = {0};
@@ -227045,7 +227174,7 @@ break_1:;
 #line 301 "driver/quality.byn"
     return byn_strbuf_str(t19);
 }
-#line 227049 "main.c"
+#line 227178 "main.c"
 
 bynt_list_main__GateFailure byn_main__gatesCoverage(bynt_main__QualityReport p_report, bynt_opt_i64 p_minLines, bynt_opt_i64 p_minBranches, bynt_opt_i64 p_minErrorPaths) {
     bynt_list_main__GateFailure l0_failures = {0};
@@ -227284,7 +227413,7 @@ break_9:;
 #line 343 "driver/quality.byn"
     return l0_failures;
 }
-#line 227288 "main.c"
+#line 227417 "main.c"
 
 void byn_main__gatesAdd(bynt_list_main__GateFailure* p_failures, byn_str p_name, bynt_opt_i64 p_min, int64_t p_covered, bynt_list_str p_missing, bynt_opt_i64 p_missingCount) {
     int64_t l0_total = {0};
@@ -227310,7 +227439,7 @@ void byn_main__gatesAdd(bynt_list_main__GateFailure* p_failures, byn_str p_name,
 #line 358 "driver/quality.byn"
     (void)bynh_add_list_main__GateFailure(&(*p_failures), ((bynt_main__GateFailure){p_name, p_covered, l0_total, l1_m, p_missing}));
 }
-#line 227314 "main.c"
+#line 227443 "main.c"
 
 bynt_list_main__GateFailure byn_main__gatesMutation(bynt_main__MutationReport p_report, bynt_opt_i64 p_minMutation) {
     bynt_list_main__GateFailure l0_failures = {0};
@@ -227393,7 +227522,7 @@ break_1:;
 #line 382 "driver/quality.byn"
     return l0_failures;
 }
-#line 227397 "main.c"
+#line 227526 "main.c"
 
 byn_str byn_main__gatesFmt(int64_t p_covered, int64_t p_total) {
     int64_t l0_thousandths = {0};
@@ -227503,7 +227632,7 @@ break_1:;
 #line 395 "driver/quality.byn"
     return byn_strbuf_str(t11);
 }
-#line 227507 "main.c"
+#line 227636 "main.c"
 
 bool byn_main__t11Has(bynt_list_i64 p_xs, int64_t p_x) {
     int64_t l0_y = {0};
@@ -227535,7 +227664,7 @@ break_1:;
 #line 403 "driver/quality.byn"
     return false;
 }
-#line 227539 "main.c"
+#line 227668 "main.c"
 
 bynt_list_str byn_main__qualityCounts(void) {
     bynt_list_str t0 = {0};
@@ -227556,7 +227685,7 @@ bynt_list_str byn_main__qualityCounts(void) {
 #line 441 "driver/quality.byn"
     return t0;
 }
-#line 227560 "main.c"
+#line 227689 "main.c"
 
 byn_str byn_main__qualitySuggest(byn_str p_op) {
 #line 446 "driver/quality.byn"
@@ -227640,7 +227769,7 @@ byn_str byn_main__qualitySuggest(byn_str p_op) {
     return BYN_STR("add a case that fails under this change", 39);
 switch_end_1:;
 }
-#line 227644 "main.c"
+#line 227773 "main.c"
 
 bynt_main__MutationReport byn_main__qualityMutationResult(byn_str p_tool, bynt_main__MutationResult p_result, bynt_emitter__Schema p_schema, int64_t p_buildNanos, bynt_list_f64 p_mutantSeconds, int64_t p_totalNanos) {
     bynt_list_main__MutationOperator l0_notEmitted = {0};
@@ -227678,7 +227807,7 @@ break_1:;
 #line 488 "driver/quality.byn"
     return byn_main__qualityMutationOf(p_tool, p_result.mutants, l0_notEmitted, p_buildNanos, p_mutantSeconds, p_totalNanos);
 }
-#line 227682 "main.c"
+#line 227811 "main.c"
 
 bynt_main__MutationReport byn_main__qualityMutation(byn_str p_tool, bynt_list_main__ExternalResult p_results, int64_t p_buildNanos, int64_t p_totalNanos) {
     bynt_list_main__MutationOperator l0_notEmitted = {0};
@@ -227728,7 +227857,7 @@ break_1:;
 #line 513 "driver/quality.byn"
     return byn_main__qualityMutationOf(p_tool, l2_mutants, l0_notEmitted, p_buildNanos, l1_seconds, p_totalNanos);
 }
-#line 227732 "main.c"
+#line 227861 "main.c"
 
 bynt_main__MutationReport byn_main__qualityMutationOf(byn_str p_tool, bynt_list_main__MutantResult p_mutants, bynt_list_main__MutationOperator p_notEmitted, int64_t p_buildNanos, bynt_list_f64 p_mutantSeconds, int64_t p_totalNanos) {
     bynt_main__MutationReport l0_report = {0};
@@ -227989,7 +228118,7 @@ break_11:;
 #line 583 "driver/quality.byn"
     return l0_report;
 }
-#line 227993 "main.c"
+#line 228122 "main.c"
 
 int64_t byn_main__qualityOperator(bynt_list_main__MutationOperator* p_operators, byn_str p_op) {
     int64_t l0_i = {0};
@@ -228038,7 +228167,7 @@ break_1:;
 #line 592 "driver/quality.byn"
     return byn_sub_i64((*p_operators).len, INT64_C(1), byn_file_104, 592);
 }
-#line 228042 "main.c"
+#line 228171 "main.c"
 
 int64_t byn_main__qualitySlot(byn_main_MutantStatus p_s) {
 #line 598 "driver/quality.byn"
@@ -228085,7 +228214,7 @@ int64_t byn_main__qualitySlot(byn_main_MutantStatus p_s) {
     }
 switch_end_1:;
 }
-#line 228089 "main.c"
+#line 228218 "main.c"
 
 byn_str byn_main__qualityMutationJson(bynt_main__MutationReport p_r) {
     bynt_main__T11Json l0_w = {0};
@@ -228308,7 +228437,7 @@ break_5:;
 #line 667 "driver/quality.byn"
     return byn_strbuf_str(t21);
 }
-#line 228312 "main.c"
+#line 228441 "main.c"
 
 void byn_main__qualityWriteCounts(bynt_main__T11Json* p_w, byn_str p_name, bynt_list_i64 p_counts) {
     bynt_list_str l0_names = {0};
@@ -228355,7 +228484,7 @@ break_1:;
 #line 677 "driver/quality.byn"
     (void)byn_main__t11JsonClose(&(*p_w), BYN_STR("}", 1));
 }
-#line 228359 "main.c"
+#line 228488 "main.c"
 
 byn_str byn_main__qualitySummary(bynt_main__MutationReport p_r, bynt_list_str p_warnings) {
     byn_writer l0_sb = {0};
@@ -228596,7 +228725,7 @@ break_9:;
 #line 712 "driver/quality.byn"
     return byn_strbuf_str(t24);
 }
-#line 228600 "main.c"
+#line 228729 "main.c"
 
 byn_str byn_main__qualityFmt(double p_v) {
     int64_t l0_thousandths = {0};
@@ -228706,7 +228835,7 @@ break_1:;
 #line 725 "driver/quality.byn"
     return byn_strbuf_str(t11);
 }
-#line 228710 "main.c"
+#line 228839 "main.c"
 
 byn_str byn_main__qualityJsonNumber(double p_v) {
     byn_str l0_text = {0};
@@ -229015,7 +229144,7 @@ break_3:;
 #line 787 "driver/quality.byn"
     return byn_strbuf_str(t37);
 }
-#line 229019 "main.c"
+#line 229148 "main.c"
 
 bynt_list_str byn_main__qualityWarnings(bynt_main__MutationResult p_result, bynt_emitter__Schema p_schema, bynt_semantics__Ctx p_c, bynt_list_lexer__SourceText p_sources) {
     bynt_list_str l0_warnings = {0};
@@ -229203,7 +229332,7 @@ break_3:;
 #line 830 "driver/quality.byn"
     return l0_warnings;
 }
-#line 229207 "main.c"
+#line 229336 "main.c"
 
 bool byn_main__qualityInMark(bynt_semantics__UnobservableMark p_mark, bynt_emitter__MutationSite p_site, bynt_lexer__SourceText* p_source) {
     int64_t l0_offset = {0};
@@ -229252,7 +229381,7 @@ break_1:;
 #line 848 "driver/quality.byn"
     return ((p_mark.span.start <= l0_offset) && (byn_add_i64(l0_offset, bynh_str_bytes(p_site.original).len, byn_file_104, 848) <= byn_add_i64(p_mark.span.start, p_mark.span.length, byn_file_104, 848)));
 }
-#line 229256 "main.c"
+#line 229385 "main.c"
 
 byn_str byn_main__qualityWhere(bynt_main__ExternalSite p_s) {
     byn_writer t0 = {0};
@@ -229272,7 +229401,7 @@ byn_str byn_main__qualityWhere(bynt_main__ExternalSite p_s) {
 #line 852 "driver/quality.byn"
     return byn_strbuf_str(t0);
 }
-#line 229276 "main.c"
+#line 229405 "main.c"
 
 int32_t byn_main__scaffoldNew(bynt_span_str p_args) {
     bynt_main__ScaffoldOptions l0_o = {0};
@@ -229491,7 +229620,7 @@ int32_t byn_main__scaffoldNew(bynt_span_str p_args) {
 #line 185 "driver/scaffold.byn"
     return ((int32_t)0);
 }
-#line 229495 "main.c"
+#line 229624 "main.c"
 
 int32_t byn_main__scaffoldInit(bynt_span_str p_args) {
     bynt_main__ScaffoldOptions l0_o = {0};
@@ -229568,7 +229697,7 @@ int32_t byn_main__scaffoldInit(bynt_span_str p_args) {
 #line 205 "driver/scaffold.byn"
     return ((int32_t)0);
 }
-#line 229572 "main.c"
+#line 229701 "main.c"
 
 byn_str byn_main__scaffoldTrimEnd(byn_str p_path) {
     byn_str l0_separator = {0};
@@ -229592,7 +229721,7 @@ break_1:;
 #line 216 "driver/scaffold.byn"
     return bynh_slice_str(p_path, (int64_t)INT64_C(0), 0, (int64_t)l1_end, 0, false, byn_file_105, 216);
 }
-#line 229596 "main.c"
+#line 229725 "main.c"
 
 int64_t byn_main__scaffoldEntryCount(byn_str p_full) {
     bynt_list_str l0_names = {0};
@@ -229617,7 +229746,7 @@ int64_t byn_main__scaffoldEntryCount(byn_str p_full) {
 #line 223 "driver/scaffold.byn"
     return l0_names.len;
 }
-#line 229621 "main.c"
+#line 229750 "main.c"
 
 bynt_opt_main__ScaffoldOptions byn_main__scaffoldParseOptions(bynt_span_str p_args, byn_str p_command) {
     bynt_opt_str l0_target = {0};
@@ -229734,7 +229863,7 @@ break_1:;
 #line 256 "driver/scaffold.byn"
     return ((bynt_opt_main__ScaffoldOptions){true, ((bynt_main__ScaffoldOptions){l0_target, l1_layout, l2_git, l3_ci})});
 }
-#line 229738 "main.c"
+#line 229867 "main.c"
 
 bynt_opt_main__ScaffoldNames byn_main__scaffoldNames(byn_str p_dirName, byn_main_ScaffoldLayout p_layout) {
     bynt_span_u8 l0_t = {0};
@@ -229854,7 +229983,7 @@ break_1:;
 #line 283 "driver/scaffold.byn"
     return ((bynt_opt_main__ScaffoldNames){true, ((bynt_main__ScaffoldNames){l5_kebab, l8_module})});
 }
-#line 229858 "main.c"
+#line 229987 "main.c"
 
 void byn_main__scaffoldWrite(bynt_map_str_str p_files, byn_str p_root, bool p_listing) {
     bynt_list_str l0_paths = {0};
@@ -230041,7 +230170,7 @@ break_1:;
     }
 break_3:;
 }
-#line 230045 "main.c"
+#line 230174 "main.c"
 
 void byn_main__scaffoldInitGit(byn_str p_dir, bynt_main__ScaffoldOptions p_o) {
     bynt_opt_str l0_found = {0};
@@ -230084,7 +230213,7 @@ void byn_main__scaffoldInitGit(byn_str p_dir, bynt_main__ScaffoldOptions p_o) {
         (void)byn_io_write(INT32_C(1), BYN_STR("note: `git init` failed, so no repository was created\012", 54));
     }
 }
-#line 230088 "main.c"
+#line 230217 "main.c"
 
 bynt_main__ScaffoldGitResult byn_main__scaffoldGit(byn_str p_git, byn_str p_dir, byn_str p_first, byn_str p_second) {
     bynt_list_str l0_args = {0};
@@ -230157,7 +230286,7 @@ bynt_main__ScaffoldGitResult byn_main__scaffoldGit(byn_str p_git, byn_str p_dir,
 #line 366 "driver/scaffold.byn"
     return ((bynt_main__ScaffoldGitResult){t10, byn_str_trimmed(l1_r.out, 2)});
 }
-#line 230161 "main.c"
+#line 230290 "main.c"
 
 bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main__ScaffoldOptions p_o) {
     bynt_map_str_str l0_files = {0};
@@ -230253,7 +230382,7 @@ bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main
 #line 396 "driver/scaffold.byn"
     return l0_files;
 }
-#line 230257 "main.c"
+#line 230386 "main.c"
 
 bynt_list_u64 byn_main__t9RoundConstants(void) {
     bynt_list_u64 l0_k = {0};
@@ -230393,13 +230522,13 @@ bynt_list_u64 byn_main__t9RoundConstants(void) {
 #line 17 "driver/sha256.byn"
     return l0_k;
 }
-#line 230397 "main.c"
+#line 230526 "main.c"
 
 uint64_t byn_main__t9Rotr(uint64_t p_x, uint64_t p_n) {
 #line 21 "driver/sha256.byn"
     return ((uint64_t)(((uint64_t)(byn_shr_u64(p_x, (int64_t)(p_n)) | byn_shl_u64(p_x, (int64_t)(byn_sub_u64(UINT64_C(32), p_n, byn_file_106, 21))))) & UINT64_C(4294967295)));
 }
-#line 230403 "main.c"
+#line 230532 "main.c"
 
 void byn_main__t9Block(bynt_list_u64* p_h, bynt_span_u8 p_data, int64_t p_start, bynt_list_u64 p_k, bynt_list_u64* p_w) {
     int32_t l0_t = {0};
@@ -230607,7 +230736,7 @@ break_5:;
 #line 65 "driver/sha256.byn"
     (*bynh_at_list_u64((*p_h), (int64_t)INT64_C(7), false, byn_file_106, 65)) = t43;
 }
-#line 230611 "main.c"
+#line 230740 "main.c"
 
 bynt_list_u8 byn_main__sha256(bynt_span_u8 p_data) {
     bynt_list_u64 l0_k = {0};
@@ -230798,7 +230927,7 @@ break_13:;
 #line 107 "driver/sha256.byn"
     return l17_digest;
 }
-#line 230802 "main.c"
+#line 230931 "main.c"
 
 bynt_opt_main__T11Options byn_main__t11ParseBuildOptions(bynt_list_str p_args) {
     bynt_opt_str l0_path = {0};
@@ -231163,13 +231292,13 @@ break_1:;
 #line 136 "driver/test.byn"
     return ((bynt_opt_main__T11Options){true, ((bynt_main__T11Options){l38_p, l1_mode, ((bynt_opt_str){0}), false, l2_json, l14_programArgs, ((bynt_opt_str){0}), l3_testJson, l4_changed, l9_baseRef, l6_verbose, l5_all, l41_wanted, l7_mutate, l8_coverage, l10_run, l11_package, l12_jobs})});
 }
-#line 231167 "main.c"
+#line 231296 "main.c"
 
 bynt_main__T5Options byn_main__t11T5(bynt_main__T11Options p_o) {
 #line 157 "driver/test.byn"
     return ((bynt_main__T5Options){p_o.path, p_o.mode, p_o.output, p_o.emitC, p_o.json, ((bynt_list_str){NULL, 0, 0, byn_context}), p_o.target, p_o.verbose, p_o.all, p_o.package});
 }
-#line 231173 "main.c"
+#line 231302 "main.c"
 
 void byn_main__deleteWorkDir(byn_str p_dir) {
     byn_err t0 = {0};
@@ -231181,7 +231310,7 @@ void byn_main__deleteWorkDir(byn_str p_dir) {
         return;
     }
 }
-#line 231185 "main.c"
+#line 231314 "main.c"
 
 int64_t byn_main__testTimeout(void) {
     int64_t l0_ms = {0};
@@ -231196,7 +231325,7 @@ int64_t byn_main__testTimeout(void) {
 #line 178 "driver/test.byn"
     return ((l0_ms > INT64_C(0)) ? l0_ms : INT64_C(60000));
 }
-#line 231200 "main.c"
+#line 231329 "main.c"
 
 byn_str byn_main__t11Paint(int64_t p_role, bynt_main__DStyle p_style, byn_str p_text, bool p_bold) {
     byn_writer t0 = {0};
@@ -231230,7 +231359,7 @@ byn_str byn_main__t11Paint(int64_t p_role, bynt_main__DStyle p_style, byn_str p_
 #line 187 "driver/test.byn"
     return byn_strbuf_str(t1);
 }
-#line 231234 "main.c"
+#line 231363 "main.c"
 
 byn_str byn_main__t11Seconds(int64_t p_nanos) {
     int64_t l0_hundredths = {0};
@@ -231277,7 +231406,7 @@ byn_str byn_main__t11Seconds(int64_t p_nanos) {
 #line 194 "driver/test.byn"
     return t4;
 }
-#line 231281 "main.c"
+#line 231410 "main.c"
 
 bool byn_main__t11Matches(byn_str p_name, bynt_list_str p_wanted) {
     byn_str l0_s = {0};
@@ -231309,7 +231438,7 @@ break_1:;
 #line 202 "driver/test.byn"
     return false;
 }
-#line 231313 "main.c"
+#line 231442 "main.c"
 
 int64_t byn_main__t11Line(bynt_list_u8 p_text, int64_t p_offset) {
     int64_t l0_line = {0};
@@ -231344,7 +231473,7 @@ break_1:;
 #line 213 "driver/test.byn"
     return l0_line;
 }
-#line 231348 "main.c"
+#line 231477 "main.c"
 
 int32_t byn_main__testCommand(bynt_list_str p_kept, bynt_main__DCtx* p_d) {
     bynt_list_str l0_args = {0};
@@ -232650,7 +232779,7 @@ break_17:;
 #line 541 "driver/test.byn"
     return (((l152_failed > INT64_C(0)) || l169_gated) ? ((int32_t)3) : ((int32_t)0));
 }
-#line 232654 "main.c"
+#line 232783 "main.c"
 
 byn_err byn_main__t11ReplaceText(byn_str p_path, byn_str p_text, bynt_main__DCtx* p_d) {
     byn_str l0_temp = {0};
@@ -232726,7 +232855,7 @@ break_1:;
     (void)byn_main__t9DeleteFile(l0_temp);
     return (byn_err){0};
 }
-#line 232730 "main.c"
+#line 232859 "main.c"
 
 bool byn_main__mergeCounters(byn_str p_counterFile, bynt_map_i64_u64* p_hits) {
     bynt_map_i64_u64 l0_counts = {0};
@@ -232792,7 +232921,7 @@ break_1:;
 #line 569 "driver/test.byn"
     return true;
 }
-#line 232796 "main.c"
+#line 232925 "main.c"
 
 bool byn_main__writeCoverage(bynt_main__T11Options p_o, bynt_semantics__Ctx p_compiled, bynt_emitter__CoverageMap p_map, bynt_map_i64_u64 p_hits, bool p_unknown, bool p_partial, int64_t p_buildNanos, int64_t p_totalNanos, bool p_quiet) {
     bynt_main__QualityReport l0_report = {0};
@@ -233007,7 +233136,7 @@ break_1:;
 #line 631 "driver/test.byn"
     return false;
 }
-#line 233011 "main.c"
+#line 233140 "main.c"
 
 byn_str byn_main__t11Part(bynt_main__QualityTally p_x) {
     byn_writer t0 = {0};
@@ -233028,7 +233157,7 @@ byn_str byn_main__t11Part(bynt_main__QualityTally p_x) {
 #line 636 "driver/test.byn"
     return byn_strbuf_str(t0);
 }
-#line 233032 "main.c"
+#line 233161 "main.c"
 
 bynt_list_str byn_main__t11ReadAllLines(byn_str p_text) {
     bynt_list_str l0_lines = {0};
@@ -233064,7 +233193,7 @@ break_1:;
 #line 647 "driver/test.byn"
     return l0_lines;
 }
-#line 233068 "main.c"
+#line 233197 "main.c"
 
 byn_str byn_main__listingName(byn_str p_relative) {
     bool l0_windows = {0};
@@ -233128,7 +233257,7 @@ break_1:;
 #line 666 "driver/test.byn"
     return byn_strbuf_str(t8);
 }
-#line 233132 "main.c"
+#line 233261 "main.c"
 
 bynt_list_str byn_main__failureDetail(byn_str p_details, bool p_verbose, bynt_semantics__T26Symbols p_symbols, int64_t p_width) {
     byn_str l0_indent = {0};
@@ -233227,7 +233356,7 @@ break_1:;
 #line 704 "driver/test.byn"
     return l1_lines;
 }
-#line 233231 "main.c"
+#line 233360 "main.c"
 
 bynt_opt_main__T11ChangedSet byn_main__changedModules(bynt_semantics__Ctx p_compiled, bynt_main__T11Options p_o, byn_str p_entry) {
     byn_str l0_dir = {0};
@@ -233436,7 +233565,7 @@ break_5:;
 #line 762 "driver/test.byn"
     return ((bynt_opt_main__T11ChangedSet){true, l23_set});
 }
-#line 233440 "main.c"
+#line 233569 "main.c"
 
 byn_str byn_main__moduleOf(bynt_semantics__Ctx p_compiled, int64_t p_testIndex, byn_str p_entry) {
     int64_t l0_f = {0};
@@ -233453,7 +233582,7 @@ byn_str byn_main__moduleOf(bynt_semantics__Ctx p_compiled, int64_t p_testIndex, 
 #line 771 "driver/test.byn"
     return byn_main__moduleDirectory(p_compiled, (byn_path_is_rooted(l1_path) ? l1_path : byn_path_full_path(byn_path_combine(p_compiled.displayRoot, l1_path, byn_context), byn_context, byn_file_107, 773)), p_entry);
 }
-#line 233457 "main.c"
+#line 233586 "main.c"
 
 byn_str byn_main__moduleDirectory(bynt_semantics__Ctx p_compiled, byn_str p_file, byn_str p_entry) {
     byn_str l0_dir = {0};
@@ -233470,13 +233599,13 @@ byn_str byn_main__moduleDirectory(bynt_semantics__Ctx p_compiled, byn_str p_file
 #line 783 "driver/test.byn"
     return l0_dir;
 }
-#line 233474 "main.c"
+#line 233603 "main.c"
 
 byn_str byn_main__t11EntryModule(bynt_semantics__Ctx* p_compiled, byn_str p_path) {
 #line 788 "driver/test.byn"
     return ((*p_compiled).library ? byn_semantics__camelOf(byn_semantics__programName(&(*p_compiled), p_path)) : BYN_STR("app", 3));
 }
-#line 233480 "main.c"
+#line 233609 "main.c"
 
 bynt_main__T11Outcome byn_main__runTest(byn_str p_executable, int64_t p_index, bynt_opt_str p_coveragePrefix, int64_t p_timeoutMs) {
     bynt_list_str l0_args = {0};
@@ -233584,7 +233713,7 @@ bynt_main__T11Outcome byn_main__runTest(byn_str p_executable, int64_t p_index, b
 #line 831 "driver/test.byn"
     return ((bynt_main__T11Outcome){t16, false, t17, t18, byn_sub_i64(byn_io_monotonic_nanos(), l4_clock, byn_file_107, 835)});
 }
-#line 233588 "main.c"
+#line 233717 "main.c"
 
 void byn_main__deleteStale(byn_str p_prefix) {
     byn_str l0_dir = {0};
@@ -233667,7 +233796,7 @@ void byn_main__deleteStale(byn_str p_prefix) {
     }
 break_1:;
 }
-#line 233671 "main.c"
+#line 233800 "main.c"
 
 bynt_opt_map_i64_u64 byn_main__readCounters(byn_str p_path) {
     byn_str l0_text = {0};
@@ -233781,7 +233910,7 @@ break_1:;
 #line 875 "driver/test.byn"
     return ((bynt_opt_map_i64_u64){true, l4_counts});
 }
-#line 233785 "main.c"
+#line 233914 "main.c"
 
 int64_t byn_main__testReportCount(bynt_main__TestReport p_r, byn_main_TestStatus p_status) {
     int64_t l0_n = {0};
@@ -233816,7 +233945,7 @@ break_1:;
 #line 42 "driver/testreport.byn"
     return l0_n;
 }
-#line 233820 "main.c"
+#line 233949 "main.c"
 
 byn_str byn_main__testStatusName(byn_main_TestStatus p_status) {
 #line 48 "driver/testreport.byn"
@@ -233856,7 +233985,7 @@ byn_str byn_main__testStatusName(byn_main_TestStatus p_status) {
     }
 switch_end_1:;
 }
-#line 233860 "main.c"
+#line 233989 "main.c"
 
 byn_str byn_main__testReportJson(bynt_main__TestReport p_r) {
     bynt_main__T11Json l0_w = {0};
@@ -234058,7 +234187,7 @@ break_1:;
 #line 90 "driver/testreport.byn"
     return byn_strbuf_str(t21);
 }
-#line 234062 "main.c"
+#line 234191 "main.c"
 
 byn_str byn_main__t11JsonMilliseconds(int64_t p_nanos) {
     int64_t l0_ticks = {0};
@@ -234109,7 +234238,7 @@ byn_str byn_main__t11JsonMilliseconds(int64_t p_nanos) {
 #line 104 "driver/testreport.byn"
     return t5;
 }
-#line 234113 "main.c"
+#line 234242 "main.c"
 
 byn_str byn_main__t11JsonSeconds(int64_t p_nanos) {
     int64_t l0_ticks = {0};
@@ -234205,7 +234334,7 @@ break_3:;
 #line 121 "driver/testreport.byn"
     return byn_strbuf_str(t9);
 }
-#line 234209 "main.c"
+#line 234338 "main.c"
 
 void byn_main__t11JsonItem(bynt_main__T11Json* p_w, bynt_opt_str p_name) {
     int64_t l0__ = {0};
@@ -234258,7 +234387,7 @@ void byn_main__t11JsonItem(bynt_main__T11Json* p_w, bynt_opt_str p_name) {
         (void)bynh_add_list_str(&(*p_w).parts, byn_strbuf_str(t3));
     }
 }
-#line 234262 "main.c"
+#line 234391 "main.c"
 
 void byn_main__t11JsonOpen(bynt_main__T11Json* p_w, bynt_opt_str p_name, byn_str p_bracket) {
 #line 150 "driver/testreport.byn"
@@ -234270,7 +234399,7 @@ void byn_main__t11JsonOpen(bynt_main__T11Json* p_w, bynt_opt_str p_name, byn_str
 #line 153 "driver/testreport.byn"
     (*p_w).first = true;
 }
-#line 234274 "main.c"
+#line 234403 "main.c"
 
 void byn_main__t11JsonClose(bynt_main__T11Json* p_w, byn_str p_bracket) {
     int64_t l0__ = {0};
@@ -234308,7 +234437,7 @@ void byn_main__t11JsonClose(bynt_main__T11Json* p_w, byn_str p_bracket) {
 #line 166 "driver/testreport.byn"
     (*p_w).first = false;
 }
-#line 234312 "main.c"
+#line 234441 "main.c"
 
 void byn_main__t11JsonValue(bynt_main__T11Json* p_w, bynt_opt_str p_name, byn_str p_value) {
 #line 171 "driver/testreport.byn"
@@ -234318,7 +234447,7 @@ void byn_main__t11JsonValue(bynt_main__T11Json* p_w, bynt_opt_str p_name, byn_st
 #line 173 "driver/testreport.byn"
     (*p_w).first = false;
 }
-#line 234322 "main.c"
+#line 234451 "main.c"
 
 byn_str byn_main__t11JsonString(byn_str p_s) {
     byn_writer l0_sb = {0};
@@ -234477,7 +234606,7 @@ break_1:;
 #line 215 "driver/testreport.byn"
     return byn_strbuf_str(t15);
 }
-#line 234481 "main.c"
+#line 234610 "main.c"
 
 byn_str byn_main__t11Hex4(int64_t p_v) {
     byn_str l0_digits = {0};
@@ -234519,7 +234648,7 @@ break_1:;
 #line 228 "driver/testreport.byn"
     return byn_strbuf_str(t4);
 }
-#line 234523 "main.c"
+#line 234652 "main.c"
 
 byn_str byn_main__t11JsonText(bynt_main__T11Json p_w) {
     byn_writer l0_sb = {0};
@@ -234561,13 +234690,13 @@ break_1:;
 #line 237 "driver/testreport.byn"
     return byn_strbuf_str(t4);
 }
-#line 234565 "main.c"
+#line 234694 "main.c"
 
 bool byn_main__t6IsSkippedDirectory(byn_str p_name, bool p_atRoot) {
 #line 16 "driver/walk.byn"
     return (((byn_str_starts_with(p_name, BYN_STR(".", 1)) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("node_modules", 12)) : byn_str_eq(p_name, BYN_STR("node_modules", 12)))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("obj", 3)) : byn_str_eq(p_name, BYN_STR("obj", 3)))) || (p_atRoot && (((((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("bin", 3)) : byn_str_eq(p_name, BYN_STR("bin", 3))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("dist", 4)) : byn_str_eq(p_name, BYN_STR("dist", 4)))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("tmp", 3)) : byn_str_eq(p_name, BYN_STR("tmp", 3))))));
 }
-#line 234571 "main.c"
+#line 234700 "main.c"
 
 bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within) {
     byn_str l0_bound = {0};
@@ -234605,7 +234734,7 @@ bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within) {
 #line 30 "driver/walk.byn"
     return true;
 }
-#line 234609 "main.c"
+#line 234738 "main.c"
 
 bool byn_main__t6IsByn(byn_str p_name) {
     int64_t l0_n = {0};
@@ -234627,7 +234756,7 @@ bool byn_main__t6IsByn(byn_str p_name) {
 #line 41 "driver/walk.byn"
     return (((((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(4), byn_file_109, 41), false, byn_file_109, 41)) == ((uint8_t)46)) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(3), byn_file_109, 41), false, byn_file_109, 41)) | ((uint8_t)32))) == ((uint8_t)98))) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(2), byn_file_109, 41), false, byn_file_109, 41)) | ((uint8_t)32))) == ((uint8_t)121))) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(1), byn_file_109, 41), false, byn_file_109, 41)) | ((uint8_t)32))) == ((uint8_t)110)));
 }
-#line 234631 "main.c"
+#line 234760 "main.c"
 
 byn_err byn_main__realPath(byn_str p_path, byn_str* byn_out) {
     byn_err t0 = {0};
@@ -234643,7 +234772,7 @@ byn_err byn_main__realPath(byn_str p_path, byn_str* byn_out) {
     *byn_out = t1;
     return (byn_err){0};
 }
-#line 234647 "main.c"
+#line 234776 "main.c"
 
 bynt_list_str byn_main__bynFiles(byn_str p_dir, int32_t* p_exit, bynt_opt_str p_within, bool p_silent) {
     bynt_list_str l0_files = {0};
@@ -234983,13 +235112,13 @@ break_2:;
 #line 119 "driver/walk.byn"
     return l0_files;
 }
-#line 234987 "main.c"
+#line 235116 "main.c"
 
 bynt_map_str_bool byn_main__t6OtherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
 #line 145 "driver/walk.byn"
     return byn_main__otherUses(p_file, p_bytes, p_tree, &(*p_p));
 }
-#line 234993 "main.c"
+#line 235122 "main.c"
 
 byn_err byn_main__manifestFor(byn_str p_file, bynt_map_str_opt_main__T6Found* p_cache, bynt_opt_main__T6Found* byn_out) {
     bynt_opt_str l0_dir = {0};
@@ -235095,7 +235224,7 @@ break_3:;
     *byn_out = l2_found;
     return (byn_err){0};
 }
-#line 235099 "main.c"
+#line 235228 "main.c"
 
 bynt_map_str_bool byn_main__packageNames(byn_str p_dir) {
     bynt_map_str_bool l0_names = {0};
@@ -235226,7 +235355,7 @@ break_1:;
 #line 202 "driver/walk.byn"
     return l0_names;
 }
-#line 235230 "main.c"
+#line 235359 "main.c"
 
 bynt_main__NativeBuild byn_main__ZigOrCc__compile(bynt_main__ZigOrCc* self, byn_str p_dir, byn_str p_source, byn_str p_output, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_compiler = {0};
@@ -235508,7 +235637,7 @@ break_1:;
 #line 297 "driver/cc.byn"
     return ((bynt_main__NativeBuild){true, BYN_STR("", 0), false});
 }
-#line 235512 "main.c"
+#line 235641 "main.c"
 
 bynt_list_u8 byn_main__LayoutEngine__render(bynt_main__LayoutEngine* self, bynt_parser__CompilationUnit p_tree) {
     int64_t l0_i = {0};
@@ -235642,7 +235771,7 @@ break_5:;
 #line 710 "driver/layout.byn"
     return bynh_copy_list_u8((*self).output, byn_context);
 }
-#line 235646 "main.c"
+#line 235775 "main.c"
 
 byn_lexer_TokenKind byn_main__LayoutEngine__kind(bynt_main__LayoutEngine* self, int64_t p_i) {
 #line 715 "driver/layout.byn"
@@ -235653,13 +235782,13 @@ byn_lexer_TokenKind byn_main__LayoutEngine__kind(bynt_main__LayoutEngine* self, 
 #line 716 "driver/layout.byn"
     return ((byn_lexer_TokenKind)0);
 }
-#line 235657 "main.c"
+#line 235786 "main.c"
 
 bool byn_main__LayoutEngine__textIs(bynt_main__LayoutEngine* self, int64_t p_i, byn_str p_word) {
 #line 720 "driver/layout.byn"
     return byn_main__layoutBytesAre((*self).source, (*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_100, 720)).start, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_100, 720))), p_word);
 }
-#line 235663 "main.c"
+#line 235792 "main.c"
 
 byn_str byn_main__LayoutEngine__text(bynt_main__LayoutEngine* self, int64_t p_i) {
     bynt_list_u8 l0_bytes = {0};
@@ -235691,13 +235820,13 @@ break_1:;
 #line 728 "driver/layout.byn"
     return byn_main__layoutString(l0_bytes);
 }
-#line 235695 "main.c"
+#line 235824 "main.c"
 
 bool byn_main__LayoutEngine__trivia(bynt_main__LayoutEngine* self, int64_t p_i) {
 #line 732 "driver/layout.byn"
     return byn_lexer__Token__get_hasTriviaBefore(&(*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_100, 732)));
 }
-#line 235701 "main.c"
+#line 235830 "main.c"
 
 int64_t byn_main__LayoutEngine__tokenAt(bynt_main__LayoutEngine* self, int64_t p_offset) {
     int64_t l0_lo = {0};
@@ -235733,7 +235862,7 @@ break_1:;
 #line 746 "driver/layout.byn"
     return l0_lo;
 }
-#line 235737 "main.c"
+#line 235866 "main.c"
 
 void byn_main__LayoutEngine__freeze(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     int64_t l0_depth = {0};
@@ -235820,7 +235949,7 @@ break_1:;
     }
 break_3:;
 }
-#line 235824 "main.c"
+#line 235953 "main.c"
 
 int64_t byn_main__LayoutEngine__originalIndent(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_at = {0};
@@ -235852,7 +235981,7 @@ break_1:;
 #line 785 "driver/layout.byn"
     return l1_n;
 }
-#line 235856 "main.c"
+#line 235985 "main.c"
 
 void byn_main__LayoutEngine__levels(bynt_main__LayoutEngine* self) {
     bynt_list_main__LayoutFrame l0_frames = {0};
@@ -236072,7 +236201,7 @@ void byn_main__LayoutEngine__levels(bynt_main__LayoutEngine* self) {
     }
 break_1:;
 }
-#line 236076 "main.c"
+#line 236205 "main.c"
 
 bool byn_main__LayoutEngine__isWasl(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -236081,7 +236210,7 @@ bool byn_main__LayoutEngine__isWasl(bynt_main__LayoutEngine* self, int64_t p_i) 
 #line 878 "driver/layout.byn"
     return (((((((((((((l0_k == ((byn_lexer_TokenKind)23)) || (l0_k == ((byn_lexer_TokenKind)30))) || (l0_k == ((byn_lexer_TokenKind)28))) || (l0_k == ((byn_lexer_TokenKind)49))) || (l0_k == ((byn_lexer_TokenKind)51))) || (l0_k == ((byn_lexer_TokenKind)130))) || (l0_k == ((byn_lexer_TokenKind)131))) || (l0_k == ((byn_lexer_TokenKind)122))) || (l0_k == ((byn_lexer_TokenKind)151))) || (l0_k == ((byn_lexer_TokenKind)148))) || (l0_k == ((byn_lexer_TokenKind)120))) || (l0_k == ((byn_lexer_TokenKind)150))) || byn_main__LayoutEngine__isClause(&(*self), p_i));
 }
-#line 236085 "main.c"
+#line 236214 "main.c"
 
 bool byn_main__LayoutEngine__isClause(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -236118,7 +236247,7 @@ bool byn_main__LayoutEngine__isClause(bynt_main__LayoutEngine* self, int64_t p_i
 #line 903 "driver/layout.byn"
     return false;
 }
-#line 236122 "main.c"
+#line 236251 "main.c"
 
 void byn_main__LayoutEngine__match(bynt_main__LayoutEngine* self) {
     bynt_list_i64 l0_open = {0};
@@ -236170,13 +236299,13 @@ void byn_main__LayoutEngine__match(bynt_main__LayoutEngine* self) {
     }
 break_1:;
 }
-#line 236174 "main.c"
+#line 236303 "main.c"
 
 bool byn_main__LayoutEngine__isIndex(bynt_main__LayoutEngine* self, int64_t p_o) {
 #line 927 "driver/layout.byn"
     return (((byn_main__LayoutEngine__kind(&(*self), p_o) == ((byn_lexer_TokenKind)17)) && (p_o > INT64_C(0))) && byn_main__layoutOperandEnd(byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(p_o, INT64_C(1), byn_file_100, 927))));
 }
-#line 236180 "main.c"
+#line 236309 "main.c"
 
 int64_t byn_main__LayoutEngine__columns(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_n = {0};
@@ -236211,7 +236340,7 @@ break_1:;
 #line 937 "driver/layout.byn"
     return l0_n;
 }
-#line 236215 "main.c"
+#line 236344 "main.c"
 
 bool byn_main__LayoutEngine__multiline(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_b = {0};
@@ -236243,7 +236372,7 @@ break_1:;
 #line 945 "driver/layout.byn"
     return false;
 }
-#line 236247 "main.c"
+#line 236376 "main.c"
 
 int64_t byn_main__LayoutEngine__lineStartOf(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_k = {0};
@@ -236264,7 +236393,7 @@ break_1:;
 #line 954 "driver/layout.byn"
     return l0_k;
 }
-#line 236268 "main.c"
+#line 236397 "main.c"
 
 int64_t byn_main__LayoutEngine__lineEnd(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_k = {0};
@@ -236290,7 +236419,7 @@ break_1:;
 #line 964 "driver/layout.byn"
     return byn_sub_i64((*self).tokens.len, INT64_C(1), byn_file_100, 964);
 }
-#line 236294 "main.c"
+#line 236423 "main.c"
 
 int64_t byn_main__LayoutEngine__width(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_e) {
     int64_t l0_width = {0};
@@ -236343,7 +236472,7 @@ break_1:;
 #line 978 "driver/layout.byn"
     return l0_width;
 }
-#line 236347 "main.c"
+#line 236476 "main.c"
 
 bool byn_main__LayoutEngine__editable(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end) {
     int64_t l0_k = {0};
@@ -236380,7 +236509,7 @@ break_1:;
 #line 988 "driver/layout.byn"
     return true;
 }
-#line 236384 "main.c"
+#line 236513 "main.c"
 
 bynt_list_i64 byn_main__LayoutEngine__items(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     bynt_list_i64 l0_result = {0};
@@ -236414,13 +236543,13 @@ break_1:;
 #line 1002 "driver/layout.byn"
     return l0_result;
 }
-#line 236418 "main.c"
+#line 236547 "main.c"
 
 bool byn_main__LayoutEngine__trailingComma(bynt_main__LayoutEngine* self, int64_t p_c) {
 #line 1006 "driver/layout.byn"
     return ((byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(p_c, INT64_C(1), byn_file_100, 1006)) == ((byn_lexer_TokenKind)22)) && (!(*bynh_at_list_bool((*self).dropComma, (int64_t)byn_sub_i64(p_c, INT64_C(1), byn_file_100, 1006), false, byn_file_100, 1006))));
 }
-#line 236424 "main.c"
+#line 236553 "main.c"
 
 bool byn_main__LayoutEngine__isStructLiteral(bynt_main__LayoutEngine* self, int64_t p_o) {
     byn_lexer_TokenKind l0_prev = {0};
@@ -236434,7 +236563,7 @@ bool byn_main__LayoutEngine__isStructLiteral(bynt_main__LayoutEngine* self, int6
 #line 1012 "driver/layout.byn"
     return (((((l0_prev == ((byn_lexer_TokenKind)1)) || (l0_prev == ((byn_lexer_TokenKind)60))) || (l0_prev == ((byn_lexer_TokenKind)133))) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_o, INT64_C(1), byn_file_100, 1012)) == ((byn_lexer_TokenKind)1))) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_o, INT64_C(2), byn_file_100, 1012)) == ((byn_lexer_TokenKind)26)));
 }
-#line 236438 "main.c"
+#line 236567 "main.c"
 
 bool byn_main__LayoutEngine__commaSafe(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     byn_lexer_TokenKind l0_k = {0};
@@ -236479,7 +236608,7 @@ bool byn_main__LayoutEngine__commaSafe(bynt_main__LayoutEngine* self, int64_t p_
 #line 1034 "driver/layout.byn"
     return (((*bynh_at_list_bool((*self).lineStart, (int64_t)l1_name, false, byn_file_100, 1034)) || byn_main__layoutExpressionBefore(byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(l1_name, INT64_C(1), byn_file_100, 1035)))) || ((byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(l1_name, INT64_C(1), byn_file_100, 1036)) == ((byn_lexer_TokenKind)27)) && byn_main__LayoutEngine__trivia(&(*self), byn_sub_i64(l1_name, INT64_C(1), byn_file_100, 1036))));
 }
-#line 236483 "main.c"
+#line 236612 "main.c"
 
 bool byn_main__LayoutEngine__inPattern(bynt_main__LayoutEngine* self, int64_t p_o) {
     int64_t l0_k = {0};
@@ -236554,7 +236683,7 @@ break_3:;
 #line 1063 "driver/layout.byn"
     return false;
 }
-#line 236558 "main.c"
+#line 236687 "main.c"
 
 bool byn_main__LayoutEngine__hasComment(bynt_main__LayoutEngine* self, int64_t p_k) {
     bynt_main__LayoutGapItem l0_x = {0};
@@ -236586,7 +236715,7 @@ break_1:;
 #line 1071 "driver/layout.byn"
     return false;
 }
-#line 236590 "main.c"
+#line 236719 "main.c"
 
 void byn_main__LayoutEngine__joins(bynt_main__LayoutEngine* self) {
     int64_t l0_c = {0};
@@ -236912,7 +237041,7 @@ break_7:;
     }
 break_11:;
 }
-#line 236916 "main.c"
+#line 237045 "main.c"
 
 int64_t byn_main__LayoutEngine__headerArrowAfter(bynt_main__LayoutEngine* self, int64_t p_c) {
     int64_t l0_k = {0};
@@ -236946,7 +237075,7 @@ break_1:;
 #line 1182 "driver/layout.byn"
     return INT64_C(-1);
 }
-#line 236950 "main.c"
+#line 237079 "main.c"
 
 bool byn_main__LayoutEngine__inUnbrokenTernary(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_o = {0};
@@ -236995,7 +237124,7 @@ break_1:;
 #line 1201 "driver/layout.byn"
     return false;
 }
-#line 236999 "main.c"
+#line 237128 "main.c"
 
 bool byn_main__LayoutEngine__joinable(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     bool l0_broken = {0};
@@ -237035,7 +237164,7 @@ break_1:;
 #line 1221 "driver/layout.byn"
     return (l0_broken && (!(*bynh_at_list_bool((*self).frozen, (int64_t)p_o, false, byn_file_100, 1221))));
 }
-#line 237039 "main.c"
+#line 237168 "main.c"
 
 bool byn_main__LayoutEngine__tryJoin(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end, bynt_list_i64 p_breaks) {
     bynt_list_i64 l0_cleared = {0};
@@ -237124,13 +237253,13 @@ break_5:;
 #line 1240 "driver/layout.byn"
     return false;
 }
-#line 237128 "main.c"
+#line 237257 "main.c"
 
 bool byn_main__LayoutEngine__isLink(bynt_main__LayoutEngine* self, int64_t p_j) {
 #line 1245 "driver/layout.byn"
     return (((byn_main__LayoutEngine__kind(&(*self), p_j) == ((byn_lexer_TokenKind)23)) || (byn_main__LayoutEngine__kind(&(*self), p_j) == ((byn_lexer_TokenKind)30))) && ((byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_j, INT64_C(1), byn_file_100, 1246)) == ((byn_lexer_TokenKind)1)) || byn_parser__isContextualKeyword(byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_j, INT64_C(1), byn_file_100, 1246)))));
 }
-#line 237134 "main.c"
+#line 237263 "main.c"
 
 bool byn_main__LayoutEngine__armLine(bynt_main__LayoutEngine* self, int64_t p_j) {
     int64_t l0_depth = {0};
@@ -237171,7 +237300,7 @@ break_1:;
 #line 1262 "driver/layout.byn"
     return false;
 }
-#line 237175 "main.c"
+#line 237304 "main.c"
 
 bynt_list_main__LayoutChain byn_main__LayoutEngine__chains(bynt_main__LayoutEngine* self) {
     bynt_list_main__LayoutChain l0_result = {0};
@@ -237341,7 +237470,7 @@ break_3:;
 #line 1329 "driver/layout.byn"
     return l0_result;
 }
-#line 237345 "main.c"
+#line 237474 "main.c"
 
 bool byn_main__LayoutEngine__hasLambda(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     int64_t l0_k = {0};
@@ -237373,7 +237502,7 @@ break_1:;
 #line 1337 "driver/layout.byn"
     return false;
 }
-#line 237377 "main.c"
+#line 237506 "main.c"
 
 void byn_main__LayoutEngine__breaks(bynt_main__LayoutEngine* self) {
     bynt_list_main__LayoutChain l0_all = {0};
@@ -237592,7 +237721,7 @@ break_7:;
     }
 break_11:;
 }
-#line 237596 "main.c"
+#line 237725 "main.c"
 
 void byn_main__LayoutEngine__breakList(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     bynt_list_i64 l0_starts = {0};
@@ -237669,7 +237798,7 @@ break_3:;
         (*bynh_at_list_bool((*self).addComma, (int64_t)byn_sub_i64(p_c, INT64_C(1), byn_file_100, 1414), false, byn_file_100, 1414)) = true;
     }
 }
-#line 237673 "main.c"
+#line 237802 "main.c"
 
 bool byn_main__LayoutEngine__scalars(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c, bynt_list_i64 p_starts, bynt_list_i64* p_widths) {
     int64_t l0_k = {0};
@@ -237752,7 +237881,7 @@ break_3:;
 #line 1440 "driver/layout.byn"
     return true;
 }
-#line 237756 "main.c"
+#line 237885 "main.c"
 
 int64_t byn_main__LayoutEngine__rowOf(bynt_main__LayoutEngine* self, int64_t p_o, bynt_list_i64 p_starts, bynt_list_i64 p_widths) {
     int64_t l0_indent = {0};
@@ -237801,7 +237930,7 @@ break_3:;
 #line 1457 "driver/layout.byn"
     return INT64_C(1);
 }
-#line 237805 "main.c"
+#line 237934 "main.c"
 
 bool byn_main__LayoutEngine__rowFits(bynt_main__LayoutEngine* self, int64_t p_n, bynt_list_i64 p_widths, int64_t p_indent) {
     int64_t l0_at = {0};
@@ -237862,7 +237991,7 @@ break_1:;
 #line 1472 "driver/layout.byn"
     return true;
 }
-#line 237866 "main.c"
+#line 237995 "main.c"
 
 bool byn_main__LayoutEngine__breakLine(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_e, bynt_list_main__LayoutChain p_lineChains) {
     bool l0_changed = {0};
@@ -238384,7 +238513,7 @@ break_17:;
 #line 1647 "driver/layout.byn"
     return true;
 }
-#line 238388 "main.c"
+#line 238517 "main.c"
 
 bynt_list_i64 byn_main__LayoutEngine__lowestOperators(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_start, int64_t p_e) {
     bynt_list_i64 l0_found = {0};
@@ -238561,7 +238690,7 @@ break_5:;
 #line 1710 "driver/layout.byn"
     return l16_result;
 }
-#line 238565 "main.c"
+#line 238694 "main.c"
 
 void byn_main__LayoutEngine__topLevelBlanks(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     int64_t l0_d = {0};
@@ -238657,7 +238786,7 @@ void byn_main__LayoutEngine__topLevelBlanks(bynt_main__LayoutEngine* self, bynt_
     }
 break_1:;
 }
-#line 238661 "main.c"
+#line 238790 "main.c"
 
 bool byn_main__LayoutEngine__oneLine(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end) {
     int64_t l0_i = {0};
@@ -238689,7 +238818,7 @@ break_1:;
 #line 1740 "driver/layout.byn"
     return true;
 }
-#line 238693 "main.c"
+#line 238822 "main.c"
 
 byn_str byn_main__LayoutEngine__leadingKeywords(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_writer l0_words = {0};
@@ -238730,7 +238859,7 @@ break_1:;
 #line 1754 "driver/layout.byn"
     return byn_strbuf_str(t2);
 }
-#line 238734 "main.c"
+#line 238863 "main.c"
 
 void byn_main__LayoutEngine__guide(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     int64_t l0_o = {0};
@@ -238767,7 +238896,7 @@ void byn_main__LayoutEngine__guide(bynt_main__LayoutEngine* self, bynt_list_pars
     }
 break_1:;
 }
-#line 238771 "main.c"
+#line 238900 "main.c"
 
 void byn_main__LayoutEngine__guideDecls(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_decls) {
     byn_parser_Decl l0_decl = {0};
@@ -238911,7 +239040,7 @@ void byn_main__LayoutEngine__guideDecls(bynt_main__LayoutEngine* self, bynt_list
     }
 break_1:;
 }
-#line 238915 "main.c"
+#line 239044 "main.c"
 
 void byn_main__LayoutEngine__guideStmt(bynt_main__LayoutEngine* self, byn_parser_Stmt p_stmt) {
     int64_t l0_o = {0};
@@ -239113,7 +239242,7 @@ void byn_main__LayoutEngine__guideStmt(bynt_main__LayoutEngine* self, byn_parser
     }
 switch_end_1:;
 }
-#line 239117 "main.c"
+#line 239246 "main.c"
 
 int64_t byn_main__LayoutEngine__genericClose(bynt_main__LayoutEngine* self, int64_t p_o) {
     int64_t l0_depth = {0};
@@ -239167,7 +239296,7 @@ break_1:;
 #line 1882 "driver/layout.byn"
     return INT64_C(-1);
 }
-#line 239171 "main.c"
+#line 239300 "main.c"
 
 void byn_main__LayoutEngine__memberBlanks(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_decls) {
     bynt_list_parser__UnionVariant l0_none = {0};
@@ -239229,7 +239358,7 @@ void byn_main__LayoutEngine__memberBlanks(bynt_main__LayoutEngine* self, bynt_li
     }
 break_1:;
 }
-#line 239233 "main.c"
+#line 239362 "main.c"
 
 void byn_main__LayoutEngine__memberBlanksOf(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members, bynt_list_parser__UnionVariant p_states) {
     bynt_list_main__LayoutMember l0_found = {0};
@@ -239353,7 +239482,7 @@ break_3:;
     }
 break_7:;
 }
-#line 239357 "main.c"
+#line 239486 "main.c"
 
 int64_t byn_main__LayoutEngine__memberStart(bynt_main__LayoutEngine* self, byn_parser_Decl p_decl) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -239370,7 +239499,7 @@ int64_t byn_main__LayoutEngine__memberStart(bynt_main__LayoutEngine* self, byn_p
 #line 1947 "driver/layout.byn"
     return byn_main__LayoutEngine__tokenAt(&(*self), l0_span.start);
 }
-#line 239374 "main.c"
+#line 239503 "main.c"
 
 int64_t byn_main__LayoutEngine__statesStart(bynt_main__LayoutEngine* self, int64_t p_first) {
     int64_t l0_o = {0};
@@ -239379,7 +239508,7 @@ int64_t byn_main__LayoutEngine__statesStart(bynt_main__LayoutEngine* self, int64
 #line 1953 "driver/layout.byn"
     return ((((byn_main__LayoutEngine__kind(&(*self), l0_o) == ((byn_lexer_TokenKind)19)) && (l0_o > INT64_C(0))) && byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(l0_o, INT64_C(1), byn_file_100, 1953), BYN_STR("states", 6))) ? byn_sub_i64(l0_o, INT64_C(1), byn_file_100, 1953) : INT64_C(-1));
 }
-#line 239383 "main.c"
+#line 239512 "main.c"
 
 void byn_main__LayoutEngine__align(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     bynt_map_i64_main__LayoutShape l0_shapeMap = {0};
@@ -239560,7 +239689,7 @@ break_7:;
 #line 2007 "driver/layout.byn"
     (void)byn_main__LayoutEngine__alignComments(&(*self), l5_run);
 }
-#line 239564 "main.c"
+#line 239693 "main.c"
 
 void byn_main__LayoutEngine__shapes(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_decls, bool p_topLevel, bynt_map_i64_main__LayoutShape* p_shapeMap) {
     byn_parser_Decl l0_decl = {0};
@@ -239754,7 +239883,7 @@ void byn_main__LayoutEngine__shapes(bynt_main__LayoutEngine* self, bynt_list_par
     }
 break_1:;
 }
-#line 239758 "main.c"
+#line 239887 "main.c"
 
 void byn_main__LayoutEngine__arms(bynt_main__LayoutEngine* self, bynt_map_i64_main__LayoutShape* p_shapeMap) {
     int64_t l0_o = {0};
@@ -239871,7 +240000,7 @@ void byn_main__LayoutEngine__arms(bynt_main__LayoutEngine* self, bynt_map_i64_ma
     }
 break_1:;
 }
-#line 239875 "main.c"
+#line 240004 "main.c"
 
 int64_t byn_main__LayoutEngine__firstAt(bynt_main__LayoutEngine* self, byn_lexer_TokenKind p_wanted, int64_t p_start, int64_t p_e) {
     int64_t l0_k = {0};
@@ -239905,7 +240034,7 @@ break_1:;
 #line 2101 "driver/layout.byn"
     return INT64_C(-1);
 }
-#line 239909 "main.c"
+#line 240038 "main.c"
 
 bool byn_main__LayoutEngine__plain(bynt_main__LayoutEngine* self, int64_t p_s) {
     int64_t l0_e = {0};
@@ -239945,13 +240074,13 @@ break_1:;
 #line 2111 "driver/layout.byn"
     return true;
 }
-#line 239949 "main.c"
+#line 240078 "main.c"
 
 bool byn_main__LayoutEngine__padded(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_k) {
 #line 2116 "driver/layout.byn"
     return ((((p_k > p_s) && (p_k < byn_main__LayoutEngine__lineEnd(&(*self), p_s))) && byn_main__LayoutEngine__space(&(*self), p_k, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token((*self).tokens, (int64_t)byn_sub_i64(p_k, INT64_C(1), byn_file_100, 2118), false, byn_file_100, 2118))))) && (!byn_main__layoutTriviaMatters((*self).source, (*self).tokens, p_k)));
 }
-#line 239955 "main.c"
+#line 240084 "main.c"
 
 bool byn_main__LayoutEngine__separated(bynt_main__LayoutEngine* self, int64_t p_s) {
     int64_t l0_k = {0};
@@ -239988,7 +240117,7 @@ break_1:;
 #line 2127 "driver/layout.byn"
     return false;
 }
-#line 239992 "main.c"
+#line 240121 "main.c"
 
 bool byn_main__LayoutEngine__doc(bynt_main__LayoutEngine* self, bynt_main__LayoutGapItem p_item) {
     int64_t l0_n = {0};
@@ -240002,7 +240131,7 @@ bool byn_main__LayoutEngine__doc(bynt_main__LayoutEngine* self, bynt_main__Layou
 #line 2137 "driver/layout.byn"
     return ((l0_n == INT64_C(3)) || (!((*bynh_at_list_u8((*self).source, (int64_t)byn_add_i64(p_item.start, INT64_C(3), byn_file_100, 2137), false, byn_file_100, 2137)) == ((uint8_t)47))));
 }
-#line 240006 "main.c"
+#line 240135 "main.c"
 
 int64_t byn_main__LayoutEngine__pads(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_e) {
     int64_t l0_n = {0};
@@ -240040,7 +240169,7 @@ break_1:;
 #line 2146 "driver/layout.byn"
     return l0_n;
 }
-#line 240044 "main.c"
+#line 240173 "main.c"
 
 int64_t byn_main__LayoutEngine__lineWidth(bynt_main__LayoutEngine* self, int64_t p_s) {
     int64_t t0 = {0};
@@ -240049,7 +240178,7 @@ int64_t byn_main__LayoutEngine__lineWidth(bynt_main__LayoutEngine* self, int64_t
 #line 2150 "driver/layout.byn"
     return byn_add_i64(t0, byn_main__LayoutEngine__pads(&(*self), p_s, byn_main__LayoutEngine__lineEnd(&(*self), p_s)), byn_file_100, 2150);
 }
-#line 240053 "main.c"
+#line 240182 "main.c"
 
 void byn_main__LayoutEngine__alignRun(bynt_main__LayoutEngine* self, bynt_list_i64 p_lines, bynt_map_i64_main__LayoutShape p_shapeMap) {
     bynt_list_i64 l0_run = {0};
@@ -240388,7 +240517,7 @@ void byn_main__LayoutEngine__alignRun(bynt_main__LayoutEngine* self, bynt_list_i
     }
 break_1:;
 }
-#line 240392 "main.c"
+#line 240521 "main.c"
 
 void byn_main__LayoutEngine__alignComments(bynt_main__LayoutEngine* self, bynt_list_i64 p_run) {
     bynt_list_i64 l0_at = {0};
@@ -240539,7 +240668,7 @@ break_5:;
     }
 break_9:;
 }
-#line 240543 "main.c"
+#line 240672 "main.c"
 
 void byn_main__LayoutEngine__emitGap(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_start = {0};
@@ -240798,7 +240927,7 @@ break_13:;
         (void)byn_main__LayoutEngine__indent(&(*self), (*bynh_at_list_i64((*self).levelOf, (int64_t)p_i, false, byn_file_100, 2344)));
     }
 }
-#line 240802 "main.c"
+#line 240931 "main.c"
 
 void byn_main__LayoutEngine__add(bynt_main__LayoutEngine* self, bynt_main__LayoutGapItem p_item) {
     uint8_t l0_b = {0};
@@ -240825,13 +240954,13 @@ void byn_main__LayoutEngine__add(bynt_main__LayoutEngine* self, bynt_main__Layou
     }
 break_1:;
 }
-#line 240829 "main.c"
+#line 240958 "main.c"
 
 void byn_main__LayoutEngine__indent(bynt_main__LayoutEngine* self, int64_t p_level) {
 #line 2356 "driver/layout.byn"
     (void)byn_main__LayoutEngine__spaces(&(*self), byn_mul_i64(p_level, (*self).options.indent, byn_file_100, 2356));
 }
-#line 240835 "main.c"
+#line 240964 "main.c"
 
 void byn_main__LayoutEngine__spaces(bynt_main__LayoutEngine* self, int64_t p_n) {
     int64_t l0_k = {0};
@@ -240858,7 +240987,7 @@ void byn_main__LayoutEngine__spaces(bynt_main__LayoutEngine* self, int64_t p_n) 
     }
 break_1:;
 }
-#line 240862 "main.c"
+#line 240991 "main.c"
 
 void byn_main__LayoutEngine__hygiene(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end) {
     int64_t l0_blanks = {0};
@@ -240950,7 +241079,7 @@ break_1:;
     }
 break_5:;
 }
-#line 240954 "main.c"
+#line 241083 "main.c"
 
 bool byn_main__LayoutEngine__space(bynt_main__LayoutEngine* self, int64_t p_i, int64_t p_start) {
     bool l0_written = {0};
@@ -241003,7 +241132,7 @@ bool byn_main__LayoutEngine__space(bynt_main__LayoutEngine* self, int64_t p_i, i
 #line 2407 "driver/layout.byn"
     return (l3_spaced || (l0_written && byn_main__LayoutEngine__merges(&(*self), p_i)));
 }
-#line 241007 "main.c"
+#line 241136 "main.c"
 
 bool byn_main__LayoutEngine__merges(bynt_main__LayoutEngine* self, int64_t p_i) {
     bynt_list_u8 l0_joined = {0};
@@ -241066,7 +241195,7 @@ break_3:;
 #line 2422 "driver/layout.byn"
     return (((!(l7_lexed.tokens.len == INT64_C(3))) || (!((*bynh_at_list_lexer__Token(l7_lexed.tokens, (int64_t)INT64_C(0), false, byn_file_100, 2423)).kind == (*bynh_at_list_lexer__Token((*self).tokens, (int64_t)byn_sub_i64(p_i, INT64_C(1), byn_file_100, 2423), false, byn_file_100, 2423)).kind))) || (!((*bynh_at_list_lexer__Token(l7_lexed.tokens, (int64_t)INT64_C(1), false, byn_file_100, 2424)).kind == (*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_100, 2424)).kind)));
 }
-#line 241070 "main.c"
+#line 241199 "main.c"
 
 bool byn_main__LayoutEngine__tightProduct(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_next = {0};
@@ -241080,13 +241209,13 @@ bool byn_main__LayoutEngine__tightProduct(bynt_main__LayoutEngine* self, int64_t
 #line 2436 "driver/layout.byn"
     return (((((((((l0_next == ((byn_lexer_TokenKind)1)) || (l0_next == ((byn_lexer_TokenKind)2))) || (l0_next == ((byn_lexer_TokenKind)3))) || (l0_next == ((byn_lexer_TokenKind)5))) || (l0_next == ((byn_lexer_TokenKind)15))) || (l0_next == ((byn_lexer_TokenKind)137))) || (l0_next == ((byn_lexer_TokenKind)10))) || byn_lexer__isStringLiteral(l0_next)) || byn_parser__isContextualKeyword(l0_next));
 }
-#line 241084 "main.c"
+#line 241213 "main.c"
 
 bool byn_main__LayoutEngine__isUnary(bynt_main__LayoutEngine* self, int64_t p_i) {
 #line 2448 "driver/layout.byn"
     return ((*bynh_at_list_bool((*self).lineStart, (int64_t)p_i, false, byn_file_100, 2448)) || (!byn_main__layoutOperandEnd(byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_100, 2448)))));
 }
-#line 241090 "main.c"
+#line 241219 "main.c"
 
 byn_main_LayoutSide byn_main__LayoutEngine__star(bynt_main__LayoutEngine* self, int64_t p_i, byn_main_LayoutSide p_prefix) {
 #line 2452 "driver/layout.byn"
@@ -241107,7 +241236,7 @@ byn_main_LayoutSide byn_main__LayoutEngine__star(bynt_main__LayoutEngine* self, 
 #line 2455 "driver/layout.byn"
     return (byn_main__LayoutEngine__trivia(&(*self), p_i) ? ((byn_main_LayoutSide)1) : ((byn_main_LayoutSide)3));
 }
-#line 241111 "main.c"
+#line 241240 "main.c"
 
 byn_main_LayoutSide byn_main__LayoutEngine__after(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -241171,7 +241300,7 @@ byn_main_LayoutSide byn_main__LayoutEngine__after(bynt_main__LayoutEngine* self,
 #line 2482 "driver/layout.byn"
     return ((byn_main_LayoutSide)0);
 }
-#line 241175 "main.c"
+#line 241304 "main.c"
 
 byn_main_LayoutSide byn_main__LayoutEngine__before(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -241263,7 +241392,7 @@ byn_main_LayoutSide byn_main__LayoutEngine__before(bynt_main__LayoutEngine* self
 #line 2515 "driver/layout.byn"
     return ((byn_main_LayoutSide)0);
 }
-#line 241267 "main.c"
+#line 241396 "main.c"
 
 bool byn_main__LayoutEngine__particleTuple(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind t0 = {0};
@@ -241290,7 +241419,7 @@ bool byn_main__LayoutEngine__particleTuple(bynt_main__LayoutEngine* self, int64_
 #line 2530 "driver/layout.byn"
     return (((l1_close > p_i) && (byn_add_i64(l1_close, INT64_C(1), byn_file_100, 2530) < (*self).matchOf.len)) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(l1_close, INT64_C(1), byn_file_100, 2530)) == ((byn_lexer_TokenKind)1)));
 }
-#line 241294 "main.c"
+#line 241423 "main.c"
 
 bool byn_main__LayoutEngine__callLike(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -241304,7 +241433,7 @@ bool byn_main__LayoutEngine__callLike(bynt_main__LayoutEngine* self, int64_t p_i
 #line 2537 "driver/layout.byn"
     return ((l0_k == ((byn_lexer_TokenKind)1)) && (!((byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("where", 5)) || byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("expects", 7))) || byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("becomes", 7)))));
 }
-#line 241308 "main.c"
+#line 241437 "main.c"
 
 bool byn_main__LayoutEngine__spacedColon(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_depth = {0};
@@ -241366,7 +241495,7 @@ break_1:;
 #line 2565 "driver/layout.byn"
     return false;
 }
-#line 241370 "main.c"
+#line 241499 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};

@@ -2436,3 +2436,144 @@ test "a run case is built in its // mode:, the C of its build arguments matching
     let frozen = Io.readText(Path.fullPath("tests/cases/emit/run-c.sha256")) catch ""
     assert(frozen.contains($"{t9Hash(o.stdout)}  run/switch-move-guard.byn\n"))
 }
+
+// `@cases` rows (spec 019 T7, R7): each case of a test is one reported test that `--only` can select by its title; a non-constant value is
+// BYN2774. The expected text is the frozen `run/test-cases.test` and `diag/cases-not-constant` files.
+
+/// `bayan test -v` through `$BAYAN_EXE` of `dir` with `extra` after it: its exit code and stdout with the seconds masked.
+GoldenOutcome goldenRowsRun(string dir, by in List<string> extra) uses alloc, clock, env, fs, process {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    var args = List<string>()
+    for a in ["test", "-v", dir] {
+        args.append(a)
+    }
+    for a in extra {
+        args.append(a)
+    }
+    var o = goldenChild(exe, by: in args, at: Path.fullPath("."), from: in List<u8>(), through: ref failure)
+    o.stdout = goldenTestSeconds(goldenLf(o.stdout))
+    return o
+}
+
+/// The result lines of a `bayan test -v` report: each passed (`◆`) or failed (`✗`) test, one line.
+List<string> goldenRowLines(string stdout) uses alloc {
+    var rows = List<string>()
+    for line in goldenLines(stdout) {
+        if line.startsWith("  ◆ ") || line.startsWith("  ✗ ") {
+            rows.append(line)
+        }
+    }
+    return rows
+}
+
+/// A copy of the `run` case test-cases.test in `root`/run_test-cases.test, the work directory name the runner gives it, so that its
+/// report names the module as the frozen `.stdout` does; returns that directory.
+string goldenRowsFixture(string root) uses alloc, fs {
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "run_test-cases.test")
+    goldenWrite(
+        dir,
+        for: "test-cases.test.byn",
+        as: Io.readText(Path.fullPath("tests/cases/run/test-cases.test.byn")) catch "",
+    )
+    return dir
+}
+
+test "@cases reports one result per row, each failing row on its own, and exits with the test-failure code" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cases-rows")
+    let dir = goldenRowsFixture(root)
+    let o = goldenRowsRun(dir, by: in List<string>())
+    deleteWorkDir(root)
+    let stdout = goldenLf(Io.readText(Path.fullPath("tests/cases/run/test-cases.test.stdout")) catch "")
+    let code = Io.readText(Path.fullPath("tests/cases/run/test-cases.test.exitcode")) catch ""
+    assert(o.stdout == stdout)
+    assert(o.exitCode == exitTestFailure && $"{o.exitCode}\n" == code)
+    // 4 + 3 + 2 rows and one plain test, every result line different
+    let rows = goldenRowLines(o.stdout)
+    assert(rows.length == 10 && o.stdout.contains("running 10 tests in 1 module"))
+    for i in 0..rows.length {
+        for j in (i + 1)..rows.length {
+            assert(rows[i] != rows[j])
+        }
+    }
+    // a failing row is its own result: another row of the same test passed
+    var failed: i64 = 0
+    for row in rows {
+        continue unless row.startsWith("  ✗ ")
+        failed += 1
+        var name = ""
+        for part in row["  ✗ ".length..row.length].parts(by: " (") {
+            name = $"{part}"
+            break
+        }
+        var passedRow = false
+        for other in rows {
+            passedRow = passedRow || other.startsWith($"  ◆ {name} (")
+        }
+        assert(passedRow)
+    }
+    assert(failed == 2)
+}
+
+test "--only with one row's title runs that row alone, passing or failing" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cases-only")
+    let dir = goldenRowsFixture(root)
+    let all = goldenRowLines(goldenRowsRun(dir, by: in List<string>()).stdout)
+    var passing = ""
+    var failing = ""
+    for row in all {
+        if passing == "" && row.startsWith("  ◆ ") {
+            passing = row
+        }
+        if failing == "" && row.startsWith("  ✗ ") {
+            failing = row
+        }
+    }
+    let prefix = "  ◆ run_test-cases.test: "
+    var one = List<string>()
+    one.append($"{passing[prefix.length..passing.length]}")
+    let p = goldenRowsRun(dir, by: in ["--only", one[0]])
+    var two = List<string>()
+    two.append($"{failing[prefix.length..failing.length]}")
+    let f = goldenRowsRun(dir, by: in ["--only", two[0]])
+    deleteWorkDir(root)
+    assert(all.length == 10 && passing.startsWith(prefix) && failing.startsWith("  ✗ run_test-cases.test: "))
+    assert(p.exitCode == exitOk
+        && p.stdout.contains("running 1 test in 1 module")
+        && p.stdout.contains("◆ 1 passed · Ts"))
+    let pRows = goldenRowLines(p.stdout)
+    assert(pRows.length == 1 && pRows[0] == passing)
+    assert(f.exitCode == exitTestFailure && f.stdout.contains("running 1 test in 1 module")
+        && f.stdout.contains("◆ 0 passed · ✗ 1 failed"))
+    let fRows = goldenRowLines(f.stdout)
+    assert(fRows.length == 1 && fRows[0] == failing)
+}
+
+test "a non-constant @cases value is BYN2774 under check, as the frozen diag case says" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cases-constant")
+    deleteWorkDir(root)
+    goldenCopy(root, for: "diag/cases-not-constant.byn")
+    let input = Path.combine(root, "diag/cases-not-constant.byn")
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    var args = List<string>()
+    args.append("check")
+    args.append(input)
+    let o = goldenChild(exe, by: in args, at: Path.fullPath("."), from: in List<u8>(), through: ref failure)
+    deleteWorkDir(root)
+    // the diag file is the report without each `  --> <input>:<line>:<column>` line and without the closing summary
+    var sb = StrBuf()
+    var located: i64 = 0
+    for line in goldenLines(goldenLf(o.stderr)) {
+        if line.startsWith($"  --> {input}:") {
+            located += 1
+            continue
+        }
+        break if line.startsWith("✗ build failed: ")
+        sb.append($"{line}\n")
+    }
+    let diag = goldenLf(Io.readText(Path.fullPath("tests/cases/diag/cases-not-constant.diag")) catch "")
+    assert(failure == "" && o.exitCode == exitFailure)
+    assert(sb.finish() == $"{diag}\n" && located == 4)
+}
