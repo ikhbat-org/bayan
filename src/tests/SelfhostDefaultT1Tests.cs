@@ -6,6 +6,17 @@ using Bayan.Syntax.Text;
 
 namespace Bayan.Tests;
 
+// Spec 019 T15e export counts (BAYAN_EXPORT_DIR=tmp/export-t15ef) against tests/inventory-019.tsv, class: tests / cases.
+// - SelfhostDefaultT1Tests: 32 / 372. ExplainsEveryDocumentedCode writes one case per docs/diagnostics file (-n).
+// - SelfhostDefaultT2Tests: 25 / 1069. FeaturesMatchesTheCSharpCliOnTheCorpus writes one case per corpus file; each row writes one.
+// - SelfhostDefaultT4Tests: 65 / 61. The 3 NewMatchesTheTreeGoldens rows compare a golden file and ScriptWithAnEmptyPathPanicsAtChmod
+//   has no C# oracle: none written.
+// - SelfhostDefaultT5Tests: 19 / 41. Tests that loop over the argv list (3) or several env settings write a case per run; tests with no
+//   C# compare (render probes, ACompilerFromTheEnvironmentThatNamesNoProgram, where the C# throws) write none.
+// - SelfhostDefaultP2Tests (sem): 3 / 1014. The corpus test writes one case per program path; ErrorPathNodesRecordTheCSharpSyntax a node
+//   and a diagnostics case per file; WithFileRebindsAFileFromTextAsCSharpDoes 8.
+// - SelfhostDefaultJsonCountTests: 1 / 1.
+
 /// <summary>
 /// 017 T1: <c>bayan explain</c> of the self-hosted driver. <c>src/driver/diagdocs.byn</c> holds one constant per
 /// <c>docs/diagnostics/BYN####.md</c> (plan D2); <c>BAYAN_UPDATE=1</c> regenerates it. The rows compare stage 2 with <see cref="CliApp.Run"/>.

@@ -7,6 +7,12 @@ using Bayan.Syntax.Diagnostics;
 
 namespace Bayan.Tests;
 
+// Spec 019 T15f export counts (BAYAN_EXPORT_DIR=tmp/export-t15ef) against tests/inventory-019.tsv, class: tests / cases.
+// - SelfhostDefaultT3Tests: 31 / 29. The two RefusesToReport tests (CleanDoesNotReportAFileItCannotRemove, ...ADirectoryItCannotRemove)
+//   run the driver only, no C# oracle: none written.
+// - SelfhostDefaultT12Tests: 86 / 109. A case per step of a multi-step test (layout, force, clean, latest, ...), the last with expected.tree.
+
+
 /// <summary>
 /// 017 T3: <c>cache stats</c> and <c>clean</c> against <see cref="CliApp.Run"/> (L028): the same argv on two identical trees,
 /// stdout, stderr, exit code and the tree left behind compared, the cache and root paths masked. The oracle runs in-process, so
