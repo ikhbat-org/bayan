@@ -50,7 +50,7 @@ LexerSnapshotRecordingTests	src/tests/SelfhostLexerTests.cs	selfhost-lexer	1	dro
 LexerTests	csharp/tests/Bayan.Tests/LexerTests.cs	golden-folder	29	golden	tests/cases/lex	folder runner reads the same files; allocation fact becomes a Bayan bound test
 LfOutputTests	csharp/tests/Bayan.Tests/LfOutputTests.cs	cli	2	run	run	output carries no CR; runs on every platform
 LineDirectiveTests	csharp/tests/Bayan.Tests/LineDirectiveTests.cs	cli	7	emit-c	emit-c	#line directives in emitted C
-LoweringInvariantTests	csharp/tests/Bayan.Tests/LoweringInvariantTests.cs	csharp-internals	5	no counterpart		C# lowering internal error on a bound error expression with none reported has no source-level form; owner approval pending (OQ4)
+LoweringInvariantTests	csharp/tests/Bayan.Tests/LoweringInvariantTests.cs	csharp-internals	5	no counterpart		asserts on C# bound nodes mutated in memory; the self-hosted lowerer raises no such error (src/driver/cc.byn:373-374); BYN4002 rendering covered by tests/cases/style/lower-ice.*; owner approval via Fable 2026-11-17 (OQ4)
 ManifestTests	csharp/tests/Bayan.Tests/ManifestTests.cs	cli	70	cli	cli	reads cases; command output
 MapKeyEmitTests	csharp/tests/Bayan.Tests/MapKeyEmitTests.cs	csharp-internals	5	emit-c	emit-c	key hash helpers in emitted C
 MapKeyLawTests	csharp/tests/Bayan.Tests/MapKeyLawTests.cs	law	13	check	check:L016	law proof becomes a check: command (R18)
@@ -69,11 +69,11 @@ OwnershipGeneratorTests	csharp/tests/Bayan.Tests/OwnershipGeneratorTests.cs	runt
 OwnershipTableTests	csharp/tests/Bayan.Tests/OwnershipTableTests.cs	runtime-c	3	shell	runtime/tests/*.c	C harness over bayan-rt.c
 ParserPerfTests	csharp/tests/Bayan.Tests/ParserTests.cs	csharp-internals	2	bayan-test	lib/std bound tests	parser time bound measured by a Bayan test
 ParserTests	csharp/tests/Bayan.Tests/ParserTests.cs	golden-folder	217	golden	tests/cases/parse	folder runner reads the same files
-PeakSamplerTests	csharp/tests/Bayan.Tests/PeakSamplerTests.cs	infrastructure	1	dropped		harness-only: process memory sampler goes with the harness
+PeakSamplerTests	csharp/tests/Bayan.Tests/PeakSamplerTests.cs	infrastructure	1	dropped		harness-only: goes with the harness; the runner bound test (T9a) must report a peak for a process shorter than its sampling interval
 PowerAssertTests	csharp/tests/Bayan.Tests/PowerAssertTests.cs	cli	8	cli	cli	failed-assert diagram through bayan test
 ProgressTests	csharp/tests/Bayan.Tests/ProgressTests.cs	cli	11	cli	cli	progress line through the command; TTY width case needs parity set-up
 QualityReportTests	csharp/tests/Bayan.Tests/QualityReportTests.cs	cli	8	cli	quality	report JSON and summary through the command
-RegionAnalysisPerfTests	csharp/tests/Bayan.Tests/RegionAnalysisPerfTests.cs	csharp-internals	1	no counterpart		counts C# region-analysis work per call path; owner approval pending (OQ4)
+RegionAnalysisPerfTests	csharp/tests/Bayan.Tests/RegionAnalysisPerfTests.cs	csharp-internals	1	check	check	timed bayan check of the generated 200-method struct, 5 s bound, minimum of 3 runs (a wall-clock bound, expressible from source; Fable 2026-11-17)
 RunTests	csharp/tests/Bayan.Tests/RunTests.cs	golden-folder	346	golden	tests/cases/run	folder runner reads the same files
 RuntimeNativeTests	csharp/tests/Bayan.Tests/RuntimeNativeTests.cs	runtime-c	15	shell	runtime/tests/*.c	shell runner over C harness; Windows runBatch fact becomes a run case
 RuntimeSizeOverflowTests	csharp/tests/Bayan.Tests/RuntimeSizeOverflowTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime behaviour
