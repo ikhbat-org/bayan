@@ -48,8 +48,8 @@ for rel in ${targets[@]+"${targets[@]}"}; do
   fi
 done
 
-# 3. scratch written outside the project (a cwd probe; the 024 T10 gate checker's round-1 copy)
-for probe in /tmp/claude-cwd-probe /tmp/t10gate.KNso; do
+# 3. scratch written outside the project (a cwd probe; the 024 T10 gate checker's round-1 copy; the 019 T1 writer's stage-0 build dir in the OS temp dir)
+for probe in /tmp/claude-cwd-probe /tmp/t10gate.KNso /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/tmp.adUOv5tDUd; do
 if [ -e "$probe" ]; then
   if [ $execute = 1 ]; then
     rm -rf -- "$probe"
