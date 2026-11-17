@@ -922,3 +922,7 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (019 T6) `goldenStyleCompare` reads `tests/cases/style` under the working directory, not the cases root, and takes no part in update mode.
 - LOW (019 T5) `src/driver/main.byn` help text does not mention cases directories, `--jobs` or `--only`.
 - LOW (019 T7) building src/ with stage 0 warns BYN2311 at `src/semantics/types.byn:729` (`var sets` should be `let`) and suggests `let` near line 561 (`params = copyIds(...)`); fix the declarations in the next src/semantics pass.
+- LOW (019 T8) golden entries in results.json carry `durationMs: 0`; `GoldenResult` records no elapsed time.
+- LOW (019 T8) a failing golden case gets no `--only` rerun suggestion.
+- LOW (019 T8) `docs/bayan-questions.md` row Q1284 says "see the entry" but no `### Q1284` section exists.
+- LOW (019 T8) stage 0 also warns BYN2311 at `src/semantics/symbols.byn:848`.
