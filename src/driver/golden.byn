@@ -2135,6 +2135,7 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     }
     var failure = ""
     let exe = goldenExe(through: ref failure)
+    print(failure) if exe == ""
     assert(exe != "")
     let tmp = Path.fullPath("tmp")
     let root = Path.combine(tmp, "golden-bound")
@@ -2166,8 +2167,11 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     // measured 2026-11-17 on macOS arm64 (10 CPUs, shared), default --jobs 4, four runs: runner 9,296 to 9,984 KB, largest worker 9,568 to
     // 9,792 KB; the bounds are 1.5 times that. The runner lists the cases, starts the workers and reads their results; each worker runs its
     // share of the cases in itself, so it is sampled on its own. The drivers a worker starts to build or run a case are not counted.
+    // `cache` is the program cache `goldenEnv` names (CACHEDIR.TAG, kept between runs as the C# classes keep it), not scratch: a fresh
+    // clone has no tmp/cache before the first run.
     var left = List<string>()
     for name in after {
+        continue if name == "cache"
         var old = false
         for b in before {
             old = old || b == name
