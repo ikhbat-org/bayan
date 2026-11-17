@@ -37,7 +37,7 @@ for p in "$repo"/tmp/*-build-out* "$repo"/tmp/t24-win "$repo"/tmp/t24b-win "$rep
          "$repo"/tmp/t12 "$repo"/tmp/t13 "$repo"/tmp/gate-export-* "$repo"/tmp/std-path-export \
          "$repo"/tmp/l005-run-batch-export "$repo"/tmp/zig-global \
          "$repo"/tmp/t40-linux "$repo"/tmp/t40-win "$repo"/tmp/rwt.* "$repo"/tmp/025-t32 "$repo"/tmp/export-t1* "$repo"/tmp/export-t2* \
-         "$repo"/tmp/export-full "$repo"/tmp/export-full-*.txt "$repo"/tmp/export-full.out "$repo"/tmp/snapshot-rerun.out "$repo"/tmp/t17-split.md; do
+         "$repo"/tmp/export-full "$repo"/tmp/export-full-*.txt "$repo"/tmp/export-full.out "$repo"/tmp/snapshot-rerun.out "$repo"/tmp/t17-split.md "$repo"/tmp/t17b-split.md; do
   rel=${p#"$repo"/}
   if git -C "$repo" ls-files --error-unmatch -- "$rel" >/dev/null 2>&1; then
     printf 'refuse: %s is tracked by git. Propose it as a commit instead. Left alone.\n' "$rel"; failed=1; continue
