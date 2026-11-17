@@ -1,6 +1,7 @@
 # 024 — Tasks
 Status: approved (spec and plan verified by Fable 2026-11-16; build started 2026-11-17)
 Release: unscheduled
+Sources: ./024-spec.md, ./024-plan.md
 Plan: ./024-plan.md
 
 Order: T1–T4 (encoder) → T5 (labels) → T6 (Mach-O) → T7–T10 (SIR, allocator, lowering) → T11 (checker) → T12–T13 (xUnit, e2e) → T14 (docs) → T15–T18 (laws). Phase 1 touches nothing under `src/driver/` or `src/emitter/`; `bootstrap/bayan.c`, every golden case and every law stay byte-identical. A missing std or runtime piece is a stop for a decision (plan, Risks), never a workaround.
