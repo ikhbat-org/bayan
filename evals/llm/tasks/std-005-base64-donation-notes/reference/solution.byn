@@ -5,9 +5,9 @@ union error NoteError {
     malformed
     base64
     utf8
-    payload
+    layout
     unlisted
-    amount
+    figure
 }
 
 /// The kinds of gift a note can hold.
@@ -34,7 +34,7 @@ Gift unseal(string note) fails NoteError {
     for part in text.parts(by: " ") {
         fields.append(part)
     }
-    fail .payload if fields.length != 2
+    fail .layout if fields.length != 2
     var kind = Kind.zakat
     if fields[0] == "sadaqah" {
         kind = .sadaqah
@@ -44,7 +44,7 @@ Gift unseal(string note) fails NoteError {
         fail .unlisted
     }
     let amount = i64.tryParse(fields[1]) ?? 0
-    fail .amount if amount < 1
+    fail .figure if amount < 1
     return Gift { donor: note[0..colon], kind: kind, amount: amount }
 }
 
@@ -54,9 +54,9 @@ string reasonWord(NoteError reason) {
         .malformed => "malformed",
         .base64    => "base64",
         .utf8      => "utf8",
-        .payload   => "payload",
+        .layout    => "layout",
         .unlisted  => "unlisted",
-        .amount    => "amount",
+        .figure    => "figure",
     }
 }
 

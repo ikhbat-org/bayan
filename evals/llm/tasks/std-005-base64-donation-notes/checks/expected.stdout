@@ -2,12 +2,12 @@ rejected line 5: malformed
 rejected line 6: malformed
 rejected line 7: base64
 rejected line 8: utf8
-rejected line 9: payload
-rejected line 10: payload
-rejected line 11: payload
+rejected line 9: layout
+rejected line 10: layout
+rejected line 11: layout
 rejected line 12: unlisted
-rejected line 13: amount
-rejected line 14: amount
+rejected line 13: figure
+rejected line 14: figure
 rejected line 19: malformed
 zakat: 515
 sadaqah: 55

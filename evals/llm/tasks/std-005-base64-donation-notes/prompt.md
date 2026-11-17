@@ -9,9 +9,9 @@ A note that fails is rejected and counts for nothing. Print `rejected line <n>: 
 1. `malformed`: there is no `:`, or the donor is empty.
 2. `base64`: the payload is not valid Base64.
 3. `utf8`: the decoded bytes are not valid UTF-8.
-4. `payload`: the text is not exactly two fields separated by one space.
+4. `layout`: the text is not exactly two fields separated by one space.
 5. `unlisted`: the first field is not one of the three kinds.
-6. `amount`: the second field is not a whole number of 1 or more.
+6. `figure`: the second field is not a whole number of 1 or more.
 
 After the last line print the totals of the accepted notes:
 
