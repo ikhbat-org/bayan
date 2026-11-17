@@ -1,0 +1,81 @@
+Module emptyModule() uses alloc => Module { functions: List<Function>(), strings: List<string>(), globals: List<Global>() }
+
+test "straight-line arithmetic prints" {
+    var f = newFunction("calc", by: 2)
+    let b = newBlock(ref f)
+    let c = newVReg(ref f)
+    emit(ref f, to: b, as: .imm(c, 7))
+    let s = newVReg(ref f)
+    emit(ref f, to: b, as: .add(s, f.params[0], c))
+    let d = newVReg(ref f)
+    emit(ref f, to: b, as: .sub(d, s, f.params[1]))
+    let p = newVReg(ref f)
+    emit(ref f, to: b, as: .mul(p, d, d))
+    let q = newVReg(ref f)
+    emit(ref f, to: b, as: .div(q, p, c))
+    terminate(ref f, at: b, as: .ret(q))
+    assert printFunction(f) == "func calc(v0, v1) {\nb0:\n  v2 = const 7\n  v3 = add v0, v2\n  v4 = sub v3, v1\n  v5 = mul v4, v4\n  v6 = div v5, v2\n  ret v6\n}\n"
+}
+
+test "a counted-down loop prints cmp and branch" {
+    var f = newFunction("countdown", by: 1)
+    let entry = newBlock(ref f)
+    let loop = newBlock(ref f)
+    let done = newBlock(ref f)
+    let one = newVReg(ref f)
+    let zero = newVReg(ref f)
+    emit(ref f, to: entry, as: .imm(one, 1))
+    emit(ref f, to: entry, as: .imm(zero, 0))
+    terminate(ref f, at: entry, as: .jump(loop))
+    let next = newVReg(ref f)
+    emit(ref f, to: loop, as: .sub(next, f.params[0], one))
+    terminate(ref f, at: loop, as: .br(.gt, next, zero, loop, done))
+    terminate(ref f, at: done, as: .ret(noReg()))
+    assert printFunction(f) == "func countdown(v0) {\nb0:\n  v1 = const 1\n  v2 = const 0\n  jump b1\nb1:\n  v3 = sub v0, v1\n  br gt v3, v2 -> b1, b2\nb2:\n  ret\n}\n"
+}
+
+test "a call with a result and a global print" {
+    var m = emptyModule()
+    m.globals.append(Global { name: "counter", init: 3 })
+    var f = newFunction("caller", by: 1)
+    let b = newBlock(ref f)
+    let r = newVReg(ref f)
+    emit(ref f, to: b, as: .call(r, "helper", [f.params[0], f.params[0]]))
+    let g = newVReg(ref f)
+    emit(ref f, to: b, as: .addrGlobal(g, "counter"))
+    let l = newVReg(ref f)
+    emit(ref f, to: b, as: .load(l, "counter"))
+    emit(ref f, to: b, as: .store("counter", r))
+    terminate(ref f, at: b, as: .ret(r))
+    m.functions.append(move f)
+    assert printModule(m) == "global @counter = 3\nfunc caller(v0) {\nb0:\n  v1 = call helper(v0, v0)\n  v2 = addr @counter\n  v3 = load @counter\n  store @counter, v1\n  ret v1\n}\n"
+}
+
+test "the R8 program prints" {
+    var m = emptyModule()
+    let msg = internString(ref m, as: "Salam, world!")
+    assert msg == 0
+    assert internString(ref m, as: "Salam, world!") == 0
+    var f = newFunction("main", by: 0)
+    let b = newBlock(ref f)
+    let stream = newVReg(ref f)
+    emit(ref f, to: b, as: .imm(stream, 0))
+    let ptr = newVReg(ref f)
+    emit(ref f, to: b, as: .addrStr(ptr, msg))
+    let len = newVReg(ref f)
+    emit(ref f, to: b, as: .imm(len, 13))
+    emit(ref f, to: b, as: .call(noReg(), "byn_print", [stream, ptr, len]))
+    emit(ref f, to: b, as: .call(noReg(), "byn_stdout_flush", []))
+    let code = newVReg(ref f)
+    emit(ref f, to: b, as: .imm(code, 7))
+    terminate(ref f, at: b, as: .ret(code))
+    m.functions.append(move f)
+    assert printModule(m) == "str0 \"Salam, world!\"\nfunc main() {\nb0:\n  v0 = const 0\n  v1 = addr str0\n  v2 = const 13\n  call byn_print(v0, v1, v2)\n  call byn_stdout_flush()\n  v3 = const 7\n  ret v3\n}\n"
+}
+
+test "string constants print with quotes, backslashes and newlines escaped" {
+    var m = emptyModule()
+    let _ = internString(ref m, as: "say \"hi\"\\n\nbye")
+    let _ = internString(ref m, as: "ok")
+    assert printModule(m) == "str0 \"say \\\"hi\\\"\\\\n\\nbye\"\nstr1 \"ok\"\n"
+}

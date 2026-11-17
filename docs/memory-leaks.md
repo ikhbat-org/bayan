@@ -87,6 +87,7 @@ or by luck; LOW = small or one-shot. Source reports: `tmp/leak-audit/*.out` (scr
 | LOW | Arena resize always copies (≤ 2× geometric) | accepted |
 | LOW | Caught panic skips `byn_arena_free` of unwound frames | open, todo |
 | LOW | Owned payload in an error `Result` never dropped (Q311) | open |
+| — | Sabk (spec 024 phase 1): object buffers, liveness, allocation and the soundness check | bounded by construction: the Mach-O writer sizes its buffer from its input (T6); liveness (T8) and the checker (T11) are iterative worklists, and nothing in `src/sabk/` recurses over input (`ra/lower.byn:11`); the end-to-end test writes only `tmp/sabk/` |
 
 ### Tests and tooling
 

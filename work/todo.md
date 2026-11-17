@@ -919,3 +919,18 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (same review) `src/driver/walk.byn:153`: `bayan format` of stage 2 and the C# driver now differ on purpose for files under a directory link into another package; check whether a parity test (`FormatTests.cs:~366-373`, `CliTests.cs:~312-316`) runs both drivers over link cases against stage 2.
 - LOW (same review, fix/review-2026-11-17-7) `lib/std/fs/glob.byn` `walk`: follows links with only the 64-level depth cap, against `docs/memory-leaks.md` rule 1 (file, byte and directory budgets); since the fix a directory reached through N links is walked N times, so a link-dense tree can grow the walk fast. Add a directory budget.
 - LOW (same review) pinned formatter splits a generic argument list at its comma: `through ref Map<string,\n    bool> seen` in `lib/std/fs/glob.byn` `walk`. Formatter bug; fix it there, not by hand in the file.
+- 024 T5 LOW: `labels.test.byn:58-59` checks the backward `b.cond` against `encodeAt`'s own output, not a TSV row; add a `b-cond-back` row to encodings.s/tsv and assert against it (T16 sweep).
+- LOW (024 branch review) `src/tests/SabkTests.cs`, `SabkLawTests.cs`: off arm64 macOS the tests return early and count as passed, not skipped; report them as skips so the R9 count line is honest.
+- LOW (024 branch review) `RunInRoot` in `SabkTests.cs`/`SabkLawTests.cs` has no timeout and is duplicated; one helper with a timeout.
+- LOW (024 branch review) `SabkTests.cs:81` requires `ld` stderr to be empty; a minos-15 warning from a newer ld fails it. Match known warnings or assert on the exit code and output.
+- LOW (024 branch review) `SabkSourceTestsPass` reads `sweep.tsv` that a previous run may have left stale; regenerate or check its age.
+- LOW (024 branch review) `src/sabk/enc/labels.byn:65-70` `bind` sets the offset before patching, so a `word` failure leaves the assembler half-bound.
+- LOW (024 branch review) `src/sabk/ra/lower.byn:270` an `.open` block is skipped silently; refuse it.
+- LOW (024 branch review) `src/sabk/enc/encode.byn:213-220` accepts unpredictable ldp/stp forms (writeback with Rt == Rn, or Rt == Rt2 on load); refuse them.
+- LOW (024 branch review) `src/sabk/enc/encode.test.byn:239,250,257,294` `?? 0` / `catch => 0` turn a parse failure into a value; fail the test instead.
+- LOW (024 branch review) `labels.test.byn`, `writer.test.byn` still hold hand-typed hex words (spec 024 R3); take them from encodings.tsv.
+- LOW (024 branch review) `src/sabk/macho/writer.byn:117-126,282` does not refuse duplicate section names or symbol offsets past their section's end.
+- LOW (024 branch review) CI time: the sabk tests build four stage-2 packages; share one build.
+- LOW (024 branch review) `scripts/sabk/record-macho.sh` uses the host's unpinned Apple clang/otool/nm; a second toolchain (CLT clang-2100.3.34.2, SDK 27.0) gave identical bytes (refuted as MEDIUM), but the symbol and reloc order still depend on the assembler version.
+- LOW (024 fix re-review) `src/sabk/enc/labels.test.byn:129-148`: the cbz-refusal test does not prove "changes nothing"; a `symbols[id]` set before the refusal still passes. Call `bind(l)` after the refusal and assert `finish` succeeds.
+- LOW (024 fix re-review) `scripts/sabk/record-skip.test.sh:14-22` covers only the not-macOS and no-otool skips; not-arm64, the zig check and the clang/nm loop are untested, and a skip counts as a pass in `script-tests.sh:28`, so nothing shows the arm64 macOS job ran the recorders.
