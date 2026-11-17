@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Tests scripts/ci/inventory-check.sh on fixture trees under tmp/: a clean pass, then each failure alone (class with no row,
-# dropped row with no reason, case count below the test count, frozen row in csharp-internals), and the skip without EXPORT.tsv.
+# dropped row with no reason, also with the 8th column memberdata set, case count below the test count, frozen row in
+# csharp-internals), and the skip without EXPORT.tsv.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 fail() { echo "FAIL $1"; exit 1; }
@@ -32,6 +33,11 @@ good
 printf 'BetaTests\tb\tcli\t1\tdropped\t\t\n' >> "$t/tests/inventory-019.tsv"
 sed -i.bak '/^BetaTests.*gone$/d' "$t/tests/inventory-019.tsv"; rm "$t/tests/inventory-019.tsv.bak"
 expect "dropped, no reason" 1 "row BetaTests is dropped with no reason"
+good
+sed -i.bak 's/$/\t/; 1s/\t$/\tmemberdata/' "$t/tests/inventory-019.tsv"; rm "$t/tests/inventory-019.tsv.bak"   # the 8th column
+expect "memberdata column" 0 "inventory-check: ok"
+sed -i.bak 's/^BetaTests.*/BetaTests\tb\tcli\t1\tdropped\t\t\tno export: typed rows/' "$t/tests/inventory-019.tsv"; rm "$t/tests/inventory-019.tsv.bak"
+expect "dropped, no reason, memberdata set" 1 "row BetaTests is dropped with no reason"
 good
 sed -i.bak 's/^GammaTests.*/GammaTests\tg\tcsharp-internals\t1\tfrozen\t\tr/' "$t/tests/inventory-019.tsv"; rm "$t/tests/inventory-019.tsv.bak"
 expect "frozen csharp-internals" 1 "row GammaTests is csharp-internals and proven only by the frozen compiler"

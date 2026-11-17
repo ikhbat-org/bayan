@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Spec 019 R11: checks tests/inventory-019.tsv against the tree. Exit 1 names each offender:
+# Spec 019 R11: checks tests/inventory-019.tsv (class, file, family, tests, disposition, target, reason, memberdata) against
+# the tree; the 8th column, the T16e [MemberData] audit, is read and not checked. Exit 1 names each offender:
 #   (a) a test class (a class with a [Fact] or [Theory] member under csharp/tests or src/tests) with no row;
 #   (b) a row with disposition dropped and an empty reason;
 #   (c) a row of an exported case kind (disposition sem, emit-c, lex, parse, run, cli or diag, with a target of that one word)
@@ -37,7 +38,7 @@ done
 export_tsv="$root/tests/cases/EXPORT.tsv"
 if [ -f "$export_tsv" ]; then counting=1; else counting=0; echo "skip case counts: no tests/cases/EXPORT.tsv"; fi
 # tabs become \037 so that read keeps empty fields (a tab IFS would merge them)
-while IFS="$(printf '\037')" read -r class file family tests disp target reason; do
+while IFS="$(printf '\037')" read -r class file family tests disp target reason memberdata; do
   [ "$class" = class ] && continue
   if [ "$disp" = dropped ] && [ -z "$reason" ]; then offend "row $class is dropped with no reason"; fi
   case "$disp" in (frozen*) [ "$family" = csharp-internals ] && offend "row $class is csharp-internals and proven only by the frozen compiler ($disp)" ;; esac
