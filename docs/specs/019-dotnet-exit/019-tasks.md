@@ -96,7 +96,7 @@ Placement C (decided 2026-11-17): these tasks do not block T51. They must be don
 - [ ] T48c Script call sites: mutation batch and step — files: scripts/selfhost/mutate-batch.sh, scripts/selfhost/mutation-step.sh — covers: R28 — done when: neither calls `dotnet` and `mutate-batch.test.sh` passes.
 - [ ] T48d Script call sites: mutate — files: scripts/quality/mutate.sh — covers: R28 — done when: it does not call `dotnet`, `mutate.test.sh` passes, and `grep -rl dotnet scripts .github` lists only the R27 job's files, `install-dotnet.sh`, `sdk-patch-check.sh` and their tests.
 - [ ] T49 Docs generators — files: scripts/docs/gen-diagnostics.sh, scripts/docs/gen-status.sh — covers: R28 — done when: both read the self-hosted compiler's sources or output, their outputs are unchanged, and `scripts/docs/check.sh` passes.
-- [ ] T50 Version mirrors — files: scripts/release/version.sh — covers: R28 — done when: it works with and without `csharp/Bayan.Backend.C/Toolchain.cs` present and `set-version.test.sh` passes.
+- [x] T50 Version mirrors — files: scripts/release/version.sh — covers: R28 — done when: it works with and without `csharp/Bayan.Backend.C/Toolchain.cs` present and `set-version.test.sh` passes.
 - [ ] T51 Declare 019a landed — files: docs/bayan-roadmap.md, docs/specs/019-dotnet-exit/019-spec.md — covers: R29 — done when: `dotnet test` is no longer run on `dev`, the roadmap and the spec header name the commit, and both say the syntax freeze of revision 0023 is over.
 
 ## Laws
