@@ -23,7 +23,7 @@ The golden runner (T1–T10) comes first and T10 is a gate: nothing from T11 on 
 - [ ] T8 One report — files: src/driver/testreport.byn, src/driver/test.byn — covers: R8 — done when: golden cases appear in the summary, in `--json` and in `out/test/results.json` with kind and path, and the exit code is non-zero on any failure.
 - [ ] T9a Bound test for the runner — files: src/driver/golden.byn — covers: R9 — done when: a test block shows a run over the full cases tree stays under a stated memory bound and its scratch directories are gone afterwards.
 - [ ] T9b Runner bound in the release gate — files: scripts/release/memory-gate.sh, docs/memory-leaks.md — covers: R9 — depends on T9a — done when: the gate runs the T9a test, the Release gate block names it, and `scripts/release/memory-gate.test.sh` passes.
-- [ ] T10 Gate: runner agrees with xUnit — files: tmp/ only — covers: gate for R1–R6 — done when: reported to the user: for all 12 kinds, the runner's pass and fail sets equal those of the xUnit classes that read `tests/cases/`, on macOS, Linux and Windows.
+- [ ] T10 Gate: runner agrees with xUnit — files: tmp/ only — covers: gate for R1–R6 — done when: reported to the user: for all 12 kinds, the runner's pass and fail sets equal those of the xUnit classes that read `tests/cases/`, on macOS, Linux and Windows; the 17 runner `style` shapes plus the 5 skipped ones, each skip naming a test block that exists and passed.
 
 ## 019a: the freeze
 

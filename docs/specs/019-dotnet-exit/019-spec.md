@@ -43,7 +43,7 @@ While the C# compiler is the oracle, every language change is built twice. The o
 ## Requirements
 
 ### 019a: the golden runner (built first)
-- **R1 Cases are tests.** Given a cases directory, `bayan test` treats every case under `<dir>/<kind>/` as one test, with no test source. Every kind present at the freeze is covered: `diag`, `diag-json`, `emit`, `lex`, `manifest`, `new`, `out`, `parse`, `quality`, `run`, `style`, `typed`, and any kind R10 adds.
+- **R1 Cases are tests.** Given a cases directory, `bayan test` treats every case under `<dir>/<kind>/` as one test, with no test source. Every kind present at the freeze is covered: `diag`, `diag-json`, `emit`, `lex`, `manifest`, `new`, `out`, `parse`, `quality`, `run`, `style`, `typed`, and any kind R10 adds. A case with no process-level form (no driver command produces it) is reported skipped, naming the Bayān test block that compares its frozen expected files; that block must exist and run (the list of such cases has one home, checked by T10). `BAYAN_UPDATE=1` does not rewrite those files.
 - **R2 One result per case.** Each case reports its own result under the name `<kind>/<case>`: passed, failed, skipped or timed out. A failure names the input path and shows the first differing line, expected and actual. A failing case never stops the cases after it.
 - **R3 Selection and time limit.** `--only` selects cases by name. Every case has a time limit; a case over it is reported as timed out and the run continues.
 - **R4 Parallel, same report.** `--jobs N` runs up to N cases at once. For any N the set of results, their order in the report and the exit code are the same.
