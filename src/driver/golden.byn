@@ -26,11 +26,11 @@ import parser
 import semantics
 
 type GoldenOptions = semantics.CompilationOptions
-type GoldenDiag = semantics.Diag
+type GoldenDiag    = semantics.Diag
 type GoldenRelated = semantics.Related
-type GoldenStd = semantics.StdSource
-type GoldenCtx = semantics.Ctx
-type GoldenFile = semantics.SourceFile
+type GoldenStd     = semantics.StdSource
+type GoldenCtx     = semantics.Ctx
+type GoldenFile    = semantics.SourceFile
 
 /// One case: `kind` is the directory under the cases root, `name` the case below it (`/`-separated, no extension) and `input` the path of its
 /// input file (the `.byn` or `main.byn`, the `.color` file of a style shape, or the one file of a file kind).
@@ -62,7 +62,8 @@ string goldenSlashed(string path) uses alloc {
 }
 
 /// The cases of one `.byn` kind (Golden.cs:25-27), sorted by name.
-void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit) uses alloc, console, fs {
+void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit)
+        uses alloc, console, fs {
     let dir = Path.combine(root, kind)
     return unless t6DirectoryExists(dir)
     let real = realPath(dir) catch switch {
@@ -99,7 +100,13 @@ void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases,
 
 /// The cases of a kind named by the files of its directory: with an `ending`, the stems of the files that end in it (`style`); else every regular
 /// file. Sorted by name.
-void goldenFileCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit, by string ending = "")
+void goldenFileCases(
+    string root,
+    for string kind,
+    to ref List<GoldenCase> cases,
+    through ref i32 exit,
+    by string ending = ""
+)
         uses alloc, console, fs {
     let dir = Path.combine(root, kind)
     return unless t6DirectoryExists(dir)
@@ -126,7 +133,9 @@ void goldenFileCases(string root, for string kind, to ref List<GoldenCase> cases
 List<GoldenCase> goldenDiscover(string root, through ref i32 exit) uses alloc, console, fs {
     var cases = List<GoldenCase>()
     // Alphabetical, so the listing is in `<kind>/<case>` order.
-    let kinds = ["diag", "diag-json", "emit", "lex", "manifest", "new", "out", "parse", "quality", "run", "style", "typed"]
+    let kinds = [
+        "diag", "diag-json", "emit", "lex", "manifest", "new", "out", "parse", "quality", "run", "style", "typed",
+    ]
     for kind in kinds {
         if kind == "style" {
             goldenFileCases(root, for: kind, to: ref cases, through: ref exit, by: ".color")
@@ -328,7 +337,14 @@ string goldenManifest(string input) uses alloc, fs {
     )
     let unit = parser.parseCompilationUnit(ref p)
     c.files.append(
-        GoldenFile { path: "package.byn", displayPath: "package.byn", text: move text, unit: move unit, imports: Map<string, i64>() },
+        GoldenFile {
+            path: "package.byn",
+            displayPath: "package.byn",
+            text: move text,
+            unit: move unit,
+            imports: Map<string,
+            i64>(),
+        },
     )
     var shown = List<GoldenDiag>()
     for d in m.diagnostics {
@@ -369,7 +385,8 @@ string goldenProduce(in GoldenCase c) uses alloc, clock, console, fs {
 
 /// Runs the text kinds of `c` (T2): null when it passes, else the failure text. Kinds not compared yet (`style`, T3's kinds) fail with that said.
 string? goldenRun(in GoldenCase c) uses alloc, clock, console, fs {
-    let ending = c.kind is "lex" ? ".tokens" : c.kind is "parse" ? ".ast" : c.kind is "typed" ? ".types" : c.kind is "diag" or "manifest" ? ".diag" : c.kind is "diag-json" ? ".jsonl" : ""
+    let ending = c.kind is "lex" ? ".tokens" : c.kind is "parse" ? ".ast" : c.kind is "typed" ? ".types" : c.kind is "diag"
+        or "manifest" ? ".diag" : c.kind is "diag-json" ? ".jsonl" : ""
     return $"{c.input}\nkind `{c.kind}` is not compared yet" if ending == ""
     return goldenCompare(goldenProduce(in c), for: c.input, at: goldenExpected(c.input, for: ending))
 }
