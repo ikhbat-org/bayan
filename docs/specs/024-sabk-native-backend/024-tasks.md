@@ -23,7 +23,7 @@ Order: T1–T4 (encoder) → T5 (labels) → T6 (Mach-O) → T7–T10 (SIR, allo
 - [x] T10 Lowering — files: src/sabk/ra/lower.byn, src/sabk/ra/lower.test.byn — covers: R6 — done when: allocated SIR lowers to `enc` instructions with prologue/epilogue (`stp x29, x30`, used callee-saved pairs, frame) and every instruction it emits encodes without `EncodeError`.
 
 ## Checker
-- [ ] T11 Soundness checker — files: src/sabk/check/sound.byn, src/sabk/check/sound.test.byn — covers: R7, R10 — done when: forward dataflow (iterative worklist) over allocated code reports conflicts and reads of unwritten locations; it shares no code with `ra/`; it finds zero issues on every T7–T10 test function and finds each of two hand-corrupted allocations (shared register, read before write).
+- [x] T11 Soundness checker — files: src/sabk/check/sound.byn, src/sabk/check/sound.test.byn — covers: R7, R10 — done when: forward dataflow (iterative worklist) over allocated code reports conflicts and reads of unwritten locations; it shares no code with `ra/`; it finds zero issues on every T7–T10 test function and finds each of two hand-corrupted allocations (shared register, read before write).
 
 ## Suite and end to end
 - [ ] T12 `SabkTests` (a) and (b) — files: src/tests/SabkTests.cs — covers: R3, R9 — done when: (a) runs `bayan test --package src src/sabk` with the stage-2 driver, asserts 0 failed and a nonzero pass count; (b) re-runs the recorder and fails if the TSV differs; on non-arm64-macOS hosts each returns early with "sabk tests need arm64 macOS (024 R9)".
