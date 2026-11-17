@@ -50,7 +50,7 @@ LexerSnapshotRecordingTests	src/tests/SelfhostLexerTests.cs	selfhost-lexer	1	dro
 LexerTests	csharp/tests/Bayan.Tests/LexerTests.cs	golden-folder	29	golden	tests/cases/lex	folder runner reads the same files; allocation fact becomes a Bayan bound test
 LfOutputTests	csharp/tests/Bayan.Tests/LfOutputTests.cs	cli	2	run	run	output carries no CR; runs on every platform
 LineDirectiveTests	csharp/tests/Bayan.Tests/LineDirectiveTests.cs	cli	7	emit-c	emit-c	#line directives in emitted C
-LoweringInvariantTests	csharp/tests/Bayan.Tests/LoweringInvariantTests.cs	csharp-internals	5	no counterpart		asserts on C# bound nodes mutated in memory; the self-hosted lowerer raises no such error (src/driver/cc.byn:373-374); BYN4002 rendering covered by tests/cases/style/lower-ice.*; owner approval via Fable 2026-11-17 (OQ4)
+LoweringInvariantTests	csharp/tests/Bayan.Tests/LoweringInvariantTests.cs	csharp-internals	5	no counterpart		asserts on C# bound nodes mutated in memory; the self-hosted lowerer raises no such error (src/driver/cc.byn:373-374); BYN4002 rendering covered by tests/cases/style/lower-ice.*; owner approved 2026-11-17 on Fable's reading (OQ4)
 ManifestTests	csharp/tests/Bayan.Tests/ManifestTests.cs	cli	70	cli	cli	reads cases; command output
 MapKeyEmitTests	csharp/tests/Bayan.Tests/MapKeyEmitTests.cs	csharp-internals	5	emit-c	emit-c	key hash helpers in emitted C
 MapKeyLawTests	csharp/tests/Bayan.Tests/MapKeyLawTests.cs	law	13	check	check:L016	law proof becomes a check: command (R18)
