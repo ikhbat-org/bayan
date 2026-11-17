@@ -26,10 +26,14 @@ run dotnet test -v q --filter "FullyQualifiedName~CliMemoryBounds"
 run dotnet test -v q --filter "FullyQualifiedName~SelfhostDefaultBounds"
 run bash scripts/pinned-bayan.test.sh
 run env BAYAN_TEST_TIMEOUT_MS=600000 "$BAYAN_EXE" test --package src src/driver --only 'a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'
-# The block is pending only on Windows (no sh or ps); anywhere else pending means it did not run, which must not pass.
+# The block is pending only on Windows (no sh or ps); anywhere else pending, or a title that selects nothing, means it did
+# not run, which must not pass.
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*) ;;
-  *) ! grep -qF '(pending)' "$log" || failed+=("the golden runner bound reported pending") ;;
+  *)
+    if grep -qF '(pending)' "$log"; then failed+=("the golden runner bound reported pending")
+    elif ! grep -qE '(^|[^0-9])1 passed' "$log"; then failed+=("the golden runner bound did not run (no test matched)")
+    fi ;;
 esac
 
 if [ ${#failed[@]} -gt 0 ]; then

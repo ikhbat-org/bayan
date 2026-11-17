@@ -37,7 +37,8 @@ cat > "$tmp/bin/bayan" <<'STUB'
 echo "bayan timeout=$BAYAN_TEST_TIMEOUT_MS $*" >> "$LOG"
 case "$*" in *"$FAIL_ON"*) [ -n "$FAIL_ON" ] && exit 1 ;; esac
 [ "$1" = build ] && { cp "$0" "${@: -2:1}"; exit 0; }
-if [ -n "$PENDING" ]; then echo "  ◆ driver: $6 (pending)"; echo "◆ 0 passed · 1 pending · 1s"; else echo "◆ 1 passed · 1s"; fi
+if [ -n "$PENDING" ]; then echo "  ◆ driver: $6 (pending)"; echo "◆ 0 passed · 1 pending · 1s"
+elif [ -n "$NOMATCH" ]; then echo "◆ 0 passed · 1s"; else echo "◆ 1 passed · 1s"; fi
 STUB
 chmod +x "$tmp/bin/bayan"
 printf '#!/bin/bash\necho "pinned ref=$PINNED_BAYAN_REF" >> "$LOG"\necho "$BIN/bayan"\n' > "$w/scripts/pinned-bayan.sh"
@@ -68,6 +69,10 @@ grep -q "FAILED: env BAYAN_TEST_TIMEOUT_MS=600000 $BAYAN_EXE test --package src 
 : > "$LOG"
 if PENDING=1 FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err"; then fail "a pending golden runner bound passed the gate"; fi
 grep -q "FAILED: the golden runner bound reported pending" "$tmp/err" || fail "the pending golden runner bound was not named: $(cat "$tmp/err")"
+
+: > "$LOG"
+if NOMATCH=1 FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err"; then fail "a bound title that selects no test passed the gate"; fi
+grep -q "FAILED: the golden runner bound did not run (no test matched)" "$tmp/err" || fail "the unmatched golden runner bound was not named: $(cat "$tmp/err")"
 
 # BAYAN_EXE unset: the gate builds src/driver with the pinned bayan at HEAD and runs the bound with that driver.
 : > "$LOG"
