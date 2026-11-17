@@ -926,3 +926,6 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (019 T8) a failing golden case gets no `--only` rerun suggestion.
 - LOW (019 T8) `docs/bayan-questions.md` row Q1284 says "see the entry" but no `### Q1284` section exists.
 - LOW (019 T8) stage 0 also warns BYN2311 at `src/semantics/symbols.byn:848`.
+- LOW (019 T9a) the 15 MB runner block fails when an earlier crashed run left `tmp/run`, `tmp/style` or a sibling behind (`golden.byn` ~2176), even if this run cleaned its own.
+- LOW (019 T9a) in-process test blocks calling `goldenFailures`/`goldenResult` without `goldenTest` leave `tmp/run`, `tmp/run-build`, `tmp/scaffold`, `tmp/output`.
+- LOW (019 T9a) `walk.byn` has no file budget of its own (memory-leaks rule 1).
