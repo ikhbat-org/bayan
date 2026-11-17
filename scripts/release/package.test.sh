@@ -137,7 +137,7 @@ l_sm="$(yline '        run: ./publish/${{ matrix.exe }} --version | grep -F "bay
 [ -n "$l_s2" ] || fail "release.yml lacks the stage 2 build"
 [ -n "$l_sm" ] || fail "release.yml smoke test lacks (selfhost)"
 [ "$l_zig" -lt "$l_s1" ] && [ "$l_s1" -lt "$l_s2" ] && [ "$l_s2" -lt "$l_sm" ] && [ "$l_sm" -lt "$l_pkg" ] || fail "release.yml: zig, stage 1, stage 2, smoke test and Package are out of order"
-grep -qxF -- '    needs: [build, memory-gate, editor-gate, laws]' "$y" || fail "release job no longer needs build, memory-gate, editor-gate and laws"
+grep -qxF -- '    needs: [build, memory-gate, editor-gate, laws, ddc]' "$y" || fail "release job no longer needs build, memory-gate, editor-gate, laws and ddc"
 # The dry run: workflow_dispatch with a version input, one tag value per job, the release job only on a tag push or a non-dry dispatch (which refuse-draft.sh stops).
 for line in '  workflow_dispatch:' "      version: { description: 'Dry-run version (e.g. 0.3.0-rc.1)', required: true }" \
   "      RELEASE_TAG: \${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}" \
