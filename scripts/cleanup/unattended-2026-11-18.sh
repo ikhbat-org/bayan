@@ -2,9 +2,11 @@
 # Written 2026-11-18 by the unattended session on specs 019 (dotnet exit) and 025 (LLM eval set).
 # Worktrees and branches merged into dev go to scripts/cleanup/merged-worktree-backlog.sh, which computes its targets
 # at run time; this script runs it (same flags), then removes the session's scratch:
-#   repo tmp/: worker build output moved aside before land, the T24 and T24b export and Windows staging dirs
+#   repo tmp/: worker build output moved aside before land, the T24, T24b and T40 export and staging dirs,
+#     the release-workflow test scratch (tmp/rwt.*)
 #   ~/.cache/zig (broken 2026-11-18: libcompiler_rt.a FileNotFound), with --clear-zig-cache
-#   on wp1: C:\tmp\t24-* and C:\tmp\t24b-*, with --remove-remote
+#   on wp1: C:\tmp\t24* and C:\tmp\t40*, with --remove-remote
+# Kept on purpose: tmp/export-parse and tmp/export-lex (T17 lands them).
 # Dry run by default. --execute / -e acts.
 set -euo pipefail
 
@@ -31,7 +33,8 @@ bash "$(dirname "${BASH_SOURCE[0]}")/merged-worktree-backlog.sh" ${pass[@]+"${pa
 shopt -s nullglob
 for p in "$repo"/tmp/*-build-out* "$repo"/tmp/t24-win "$repo"/tmp/t24b-win "$repo"/tmp/export-t24b* \
          "$repo"/tmp/t12 "$repo"/tmp/t13 "$repo"/tmp/gate-export-* "$repo"/tmp/std-path-export \
-         "$repo"/tmp/l005-run-batch-export "$repo"/tmp/zig-global; do
+         "$repo"/tmp/l005-run-batch-export "$repo"/tmp/zig-global \
+         "$repo"/tmp/t40-linux "$repo"/tmp/t40-win "$repo"/tmp/rwt.*; do
   rel=${p#"$repo"/}
   if git -C "$repo" ls-files --error-unmatch -- "$rel" >/dev/null 2>&1; then
     printf 'refuse: %s is tracked by git. Propose it as a commit instead. Left alone.\n' "$rel"; failed=1; continue
@@ -48,9 +51,11 @@ else printf 'would remove %s (%s; needs --execute --clear-zig-cache)\n' "$z" "$(
 
 # 4. Windows staging on wp1
 if [ $execute = 1 ] && [ $remote = 1 ]; then
-  ssh wp1 "powershell -NoProfile -Command \"Get-ChildItem C:\\tmp -Filter 't24*' -ErrorAction SilentlyContinue | ForEach-Object { Remove-Item -Recurse -Force \$_.FullName; 'removed ' + \$_.FullName }\"" || failed=1
+  # wp1's ssh shell expands $_ inside -Command text; -EncodedCommand (UTF-16LE base64) passes it through untouched
+  ps='Get-ChildItem C:\tmp\* -Include t24*,t40* -ErrorAction SilentlyContinue | ForEach-Object { Remove-Item -Recurse -Force $_.FullName; "removed " + $_.FullName }'
+  ssh wp1 "powershell -NoProfile -EncodedCommand $(printf '%s' "$ps" | iconv -f UTF-8 -t UTF-16LE | base64)" || failed=1
 else
-  printf 'would: on wp1 remove C:\\tmp\\t24* (needs --execute --remove-remote)\n'
+  printf 'would: on wp1 remove C:\\tmp\\t24* and C:\\tmp\\t40* (needs --execute --remove-remote)\n'
 fi
 
 printf 'left in tmp/: %s\n' "$(ls "$repo/tmp" | wc -l | tr -d ' ') entries"
