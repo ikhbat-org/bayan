@@ -91,6 +91,62 @@ test "a bl to an external symbol is a BRANCH26 record with a zero word" {
     assert obj.relocs[0].kind == .branch26
 }
 
+/// adrp, `b` to a label for `_g`, add @PAGEOFF; the label is bound to `_g` before the `b` when `first`, else after all three.
+Assembled bindSymbolAround(bool first) uses alloc {
+    var asm = Assembler {}
+    let g = asm.newLabel()
+    if first { asm.bindSymbol(g, to: "_g") catch { panic("bindSymbol") } }
+    asm.emit(.adrp(lx(0), "l_str")) catch { panic("emit") }
+    asm.emit(.b(g)) catch { panic("emit") }
+    asm.emit(.addPageOff(lx(0), lx(0), "l_str")) catch { panic("emit") }
+    unless first { asm.bindSymbol(g, to: "_g") catch { panic("bindSymbol") } }
+    return asm.finish() catch { panic("finish") }
+}
+
+test "a b emitted before its label is bound to a symbol gives what binding first gives" {
+    let after = bindSymbolAround(first: false)
+    let before = bindSymbolAround(first: true)
+    assert after.bytes.length == before.bytes.length
+    var i = 0
+    while i < before.bytes.length {
+        assert after.bytes[i] == before.bytes[i]
+        i += 1
+    }
+    assert after.relocs.length == 3
+    assert after.relocs.length == before.relocs.length
+    i = 0
+    while i < before.relocs.length {
+        assert after.relocs[i].offset == before.relocs[i].offset
+        assert after.relocs[i].symbol == before.relocs[i].symbol
+        assert after.relocs[i].kind == before.relocs[i].kind
+        i += 1
+    }
+    assert after.relocs[1].offset == 4
+    assert after.relocs[1].symbol == "_g"
+    assert after.relocs[1].kind == .branch26
+}
+
+test "a cbz waiting for a label refuses its binding to a symbol and changes nothing" {
+    var asm = Assembler {}
+    let l = asm.newLabel()
+    asm.emit(.cbz(.x, lx(0), l)) catch { panic("emit") }
+    var refused = false
+    asm.bindSymbol(l, to: "_g") catch switch {
+        LabelError e => {
+            assert failure(e) == "refused|cbz"
+            refused = true
+        },
+    }
+    assert refused
+    let _ = asm.finish() catch switch {
+        LabelError e => {
+            assert failure(e) == "unbound|0"
+            return
+        },
+    }
+    panic("finish succeeded with an unbound label")
+}
+
 test "adrp and add @PAGEOFF to a local symbol are PAGE21 and PAGEOFF12 records" {
     var asm = Assembler {}
     asm.emit(.adrp(lx(0), "l_str")) catch { panic("emit") }

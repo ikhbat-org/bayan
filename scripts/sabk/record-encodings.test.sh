@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 # record-encodings.sh: two runs give the same TSV, the committed TSV equals a fresh run, one row per '// form:' line,
-# and an invalid instruction fails the script.
+# and an invalid instruction fails the script. Off arm64 macOS, or without otool and zig, it says why and skips (exit 0).
 set -euo pipefail
+skip() { echo "record-encodings.test: skipped: $1"; exit 0; }
+[ "$(uname -s)" = Darwin ] || skip "not macOS ($(uname -s))"
+[ "$(uname -m)" = arm64 ] || skip "not arm64 ($(uname -m))"
+command -v otool >/dev/null 2>&1 || skip "otool not on PATH"
+command -v zig >/dev/null 2>&1 || [ -x "$HOME/.local/bin/zig" ] || skip "zig not on PATH or in ~/.local/bin"
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 t="$root/tmp/sabk-record-test"
 rm -rf "$t" && mkdir -p "$t"
