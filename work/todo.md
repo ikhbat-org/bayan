@@ -943,3 +943,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - 019 T24b (LOW, 2026-11-18): `runtime/tests/run.sh` replaces `@CWD@` anywhere in a line with sed, not only at the start of a field; harmless today (60/60 match).
 - 019 T42 (LOW): `scripts/ci/known-failures.py` now reads the saved output of `scripts/test.sh`; it can be ported to shell (spec 015 shell port).
 - 019 T41: `.github/workflows/ci.yml:79` still calls `known-failures.py LIST TestResults/windows.trx`; T41 must call `known-failures.py tests/windows-known-failures.txt <saved test.sh output>` (`bash scripts/test.sh | tee report.txt`).
+- 019 T15b export (gate 50c3f268): `SourcesFormatCheckAsCliApp` cases copy all of `src/` and `tests/cases/run/` into `input/`; T17 decides whether to land them or reference the tree. Style-case `env` files hold `BAYAN_CACHE` and, for `build-ice`, `PATH` (machine paths); T17 masks them.
