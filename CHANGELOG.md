@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- sabk phase 1 (spec 024), not yet reachable from the command line: an arm64 encoder checked against the reference assembler, a Mach-O object writer, a linear-scan register allocator and an independent soundness checker under `src/sabk/`. Laws L046 (encoder output equals the assembler's) and L047 (allocation is sound) hold.
+
 ## [0.3.2] - 2026-11-16
 
 The style guide ships: `bayan format` is a layout engine in both compilers, and `bayan fix` applies nine style lints.
