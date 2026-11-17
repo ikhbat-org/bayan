@@ -1,0 +1,29 @@
+Aisha pledged 100
+Bilal pledged 50
+Zaynab pledged 30
+Aisha 100 0 unpaid
+Bilal 50 0 unpaid
+Zaynab 30 0 unpaid
+pledged: 180 paid: 0
+Aisha: 60 left
+Bilal: settled
+Zaynab: over by 15
+unknown: Omar
+Aisha pledged 125
+Aisha: settled
+Aisha 125 125 settled
+Bilal 50 50 settled
+Zaynab 30 45 over
+pledged: 205 paid: 220
+bad command: pledge Aisha 0
+bad command: pledge Aisha ten
+bad command: pledge Aisha
+bad command: pay Bilal -5
+bad command: pay Bilal 5 6
+bad command: zakat Aisha 5
+bad command: report now
+Aisha: over by 1
+Aisha 125 126 over
+Bilal 50 50 settled
+Zaynab 30 45 over
+pledged: 205 paid: 221

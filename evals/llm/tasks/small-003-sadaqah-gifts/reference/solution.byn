@@ -1,0 +1,29 @@
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var gifts: i64 = 0
+    var total: i64 = 0
+    var largest: i64 = 0
+    var bad: i64 = 0
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        let amount = i64.tryParse(text) ?? -1
+        if amount < 0 {
+            bad += 1
+            continue
+        }
+        gifts += 1
+        total += amount
+        if amount > largest {
+            largest = amount
+        }
+    }
+    print($"gifts: {gifts}")
+    print($"total: {total}")
+    print($"largest: {largest}")
+    print($"bad: {bad}")
+}

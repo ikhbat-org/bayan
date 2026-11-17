@@ -1,0 +1,117 @@
+import std.encoding
+
+/// Why a note was refused.
+union error NoteError {
+    malformed
+    base64
+    utf8
+    layout
+    unlisted
+    figure
+}
+
+/// The kinds of gift a note can hold.
+enum Kind {
+    zakat
+    sadaqah
+    fidya
+}
+
+/// A note that was accepted.
+struct Gift {
+    string donor
+    Kind   kind
+    i64    amount
+}
+
+/// The gift in `note`, or the first reason it is refused.
+Gift unseal(string note) fails NoteError {
+    let colon = note.position(":") ?? -1
+    fail .malformed if colon <= 0
+    let bytes = encoding.Base64.decode(note[colon + 1..]) catch fail .base64
+    let text = Utf8.decode(bytes.span) catch fail .utf8
+    var fields = List<string>()
+    for part in text.parts(by: " ") {
+        fields.append(part)
+    }
+    fail .layout if fields.length != 2
+    var kind = Kind.zakat
+    if fields[0] == "sadaqah" {
+        kind = .sadaqah
+    } else if fields[0] == "fidya" {
+        kind = .fidya
+    } else if fields[0] != "zakat" {
+        fail .unlisted
+    }
+    let amount = i64.tryParse(fields[1]) ?? 0
+    fail .figure if amount < 1
+    return Gift { donor: note[0..colon], kind: kind, amount: amount }
+}
+
+/// The word `rejected line` reports for `reason`.
+string reasonWord(NoteError reason) {
+    return reason switch {
+        .malformed => "malformed",
+        .base64    => "base64",
+        .utf8      => "utf8",
+        .layout    => "layout",
+        .unlisted  => "unlisted",
+        .figure    => "figure",
+    }
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var donors = List<string>()
+    var sums = Map<string, i64>()
+    var zakat: i64 = 0
+    var sadaqah: i64 = 0
+    var fidya: i64 = 0
+    var number = 0
+    for line in read.value.lines {
+        number += 1
+        let text = line.trimmed()
+        continue if text.isEmpty
+        let gift = unseal(text) catch switch {
+            let reason => {
+                print($"rejected line {number}: {reasonWord(reason)}")
+                continue
+            }
+        }
+        if gift.kind == .zakat {
+            zakat += gift.amount
+        } else if gift.kind == .sadaqah {
+            sadaqah += gift.amount
+        } else {
+            fidya += gift.amount
+        }
+        if !sums.contains(gift.donor) {
+            donors.append(gift.donor)
+        }
+        sums[gift.donor] = (sums.tryGet(at: gift.donor) ?? 0) + gift.amount
+    }
+    print($"zakat: {zakat}")
+    print($"sadaqah: {sadaqah}")
+    print($"fidya: {fidya}")
+    var printed = List<bool>()
+    for _ in donors {
+        printed.append(false)
+    }
+    for _ in donors {
+        var best = -1
+        var bestSum: i64 = 0
+        for i in 0..donors.length {
+            continue if printed[i]
+            if sums[donors[i]] > bestSum {
+                best = i
+                bestSum = sums[donors[i]]
+            }
+        }
+        printed[best] = true
+        print($"{donors[best]} {bestSum}")
+    }
+}
