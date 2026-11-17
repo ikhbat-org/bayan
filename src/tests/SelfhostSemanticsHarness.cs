@@ -379,8 +379,8 @@ public static class SelfhostSemanticsHarness
     private static readonly HashSet<string> ExportUnexported = new(StringComparer.Ordinal);
 
     /// <summary>
-    /// Under <c>BAYAN_EXPORT_DIR</c>: writes <c>sem/&lt;cls&gt;/&lt;test&gt;-&lt;section&gt;/</c> (a repeat gets
-    /// <c>-2</c>, <c>-3</c>, …) with <c>input.byn</c> (and <c>args</c>) of the run that printed section
+    /// Under <c>BAYAN_EXPORT_DIR</c>: writes <c>sem/&lt;cls&gt;/&lt;test&gt;/</c> (a repeat gets <c>-2</c>, <c>-3</c>,
+    /// …) with <c>section</c> (<paramref name="section"/>), <c>input.byn</c> (and <c>args</c>) of the run that printed section
     /// <paramref name="printed"/> of <paramref name="run"/>, <c>expected.sections</c> (the <c>== printed</c> header and
     /// the C# lines) and, with <paramref name="compare"/>, a <c>compare</c> file naming the normal form both sides are
     /// put in before comparing. A call with <paramref name="noExport"/>, or whose program is not found, writes no case
@@ -407,7 +407,7 @@ public static class SelfhostSemanticsHarness
         }
         static string Safe(string s) => string.Concat(s.Select(ch => ch < ' ' || "<>:\"/\\|?*".Contains(ch) ? '_' : ch));
         var root = Path.Combine(sem, cls);
-        var name = Safe($"{test}-{section}");
+        var name = Safe(test);
         string dir;
         lock (ExportLock)
         {
@@ -418,8 +418,26 @@ public static class SelfhostSemanticsHarness
         Directory.CreateDirectory(dir);
         File.WriteAllText(Path.Combine(dir, "input.byn"), input.Program);
         if (input.Args.Length > 0) File.WriteAllText(Path.Combine(dir, "args"), input.Args);
+        File.WriteAllText(Path.Combine(dir, "section"), section + "\n");
         if (compare is not null) File.WriteAllText(Path.Combine(dir, "compare"), compare + "\n");
         File.WriteAllText(Path.Combine(dir, "expected.sections"), $"== {printed}\n" + string.Concat(expected.Select(l => l + "\n")));
+    }
+
+    /// <summary>
+    /// Under <c>BAYAN_EXPORT_DIR</c>: writes <paramref name="actual"/>'s section <paramref name="section"/> and
+    /// <paramref name="expected"/> as a case (see <see cref="Export"/>) without comparing; otherwise nothing. The test
+    /// is <paramref name="test"/>, the class <paramref name="cls"/> or else <paramref name="file"/>'s stem, both
+    /// replaced by <see cref="ExportCaller"/> when set. A caller that compares lines it derived from a run passes the
+    /// <paramref name="run"/>, the section it <paramref name="printed"/> and the <paramref name="compare"/> word for the
+    /// derivation; one that compares no program output passes <paramref name="noExport"/>, its reason.
+    /// </summary>
+    public static void ExportSection(Dictionary<string, List<string>> actual, string section, IReadOnlyList<string> expected,
+        [CallerMemberName] string test = "", [CallerFilePath] string file = "", string? cls = null,
+        Dictionary<string, List<string>>? run = null, string? printed = null, string? compare = null, string? noExport = null)
+    {
+        if (ExportDir is not { } export) return;
+        if (ExportCaller.Value is { } caller) (cls, test) = caller;
+        Export(export, run ?? actual, printed ?? section, expected, test, cls ?? Path.GetFileNameWithoutExtension(file), section, compare, noExport);
     }
 
     /// <summary>Writes each export directory's <c>sem/counts.tsv</c>: each class and the cases this process wrote for it.</summary>
@@ -460,22 +478,13 @@ public static class SelfhostSemanticsHarness
     /// <summary>
     /// <paramref name="actual"/>'s section <paramref name="section"/> against <paramref name="expected"/>,
     /// naming the first differing line; a missing section or a count mismatch fails too. Under
-    /// <c>BAYAN_EXPORT_DIR</c> it compares nothing and writes the case instead (see <see cref="Export"/>): the test is
-    /// <paramref name="test"/>, the class <paramref name="cls"/> or else <paramref name="file"/>'s stem. A caller that
-    /// compares lines it derived from a run passes the <paramref name="run"/>, the section it <paramref name="printed"/>
-    /// and the <paramref name="compare"/> word for the derivation; one that compares no program output passes
-    /// <paramref name="noExport"/>, its reason.
+    /// <c>BAYAN_EXPORT_DIR</c> it first writes the case (see <see cref="ExportSection"/>), then compares as without it.
     /// </summary>
     public static void AssertSection(Dictionary<string, List<string>> actual, string section, IReadOnlyList<string> expected,
         [CallerMemberName] string test = "", [CallerFilePath] string file = "", string? cls = null,
         Dictionary<string, List<string>>? run = null, string? printed = null, string? compare = null, string? noExport = null)
     {
-        if (ExportDir is { } export)
-        {
-            if (ExportCaller.Value is { } caller) (cls, test) = caller;
-            Export(export, run ?? actual, printed ?? section, expected, test, cls ?? Path.GetFileNameWithoutExtension(file), section, compare, noExport);
-            return;
-        }
+        ExportSection(actual, section, expected, test, file, cls, run, printed, compare, noExport);
         Assert.True(actual.TryGetValue(section, out var lines), $"section '{section}' was not printed");
         var n = Math.Min(lines!.Count, expected.Count);
         for (var i = 0; i < n; i++)

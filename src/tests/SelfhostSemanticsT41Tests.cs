@@ -692,7 +692,11 @@ public sealed class SelfhostSemanticsT41Tests
         var expected = Sorted(Expected(Dir(name), Flag(name)));
         var actual = new Dictionary<string, List<string>> { [section] = Sorted(Sections.Value[section]) };
         // A program with no diagnostic and no summary prints nothing on either side; the export still writes its case.
-        if (expected.Count == 0 && SelfhostSemanticsHarness.ExportDir is null) Assert.Empty(actual[section]);
+        if (expected.Count == 0)
+        {
+            SelfhostSemanticsHarness.ExportSection(actual, section, expected, run: Sections.Value, printed: section, compare: "t41");
+            Assert.Empty(actual[section]);
+        }
         else SelfhostSemanticsHarness.AssertSection(actual, section, expected, run: Sections.Value, printed: section, compare: "t41");
     }
 
