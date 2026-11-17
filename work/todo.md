@@ -948,3 +948,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - 019 T22 LOW: `scripts/quality/coverage.test.sh:17` runs `coverage.sh` against the real `tmp/quality`, wiping a real run's report and log; point it at its own temp dir (fixing task: T29).
 - 019 T22 LOW: `src/driver/golden.byn` is not in v0.3.2, so it has no baseline entry and T29's gate skips it; add its figure when T29 lands (fixing task: T29).
 - 019 T22 LOW: `coverage.test.sh`, `converters.test.sh` and `mutate.test.sh` under `scripts/quality/` are not called by `scripts/ci/script-tests.sh`; wire them in (fixing task: T41).
+- 019 T16bc LOW (export branch): `//` count comments sit between the `///` summary and its method at `SelfhostParserT6Tests.cs:246` and `SelfhostParserT7Tests.cs:113`; export-only code, never merges (fixing task: none, drop at T17).
