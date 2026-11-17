@@ -361,12 +361,11 @@ bool unreadable(string dir) uses fs, alloc {
     return false
 }
 
-/// Runs `ln -sfn target link` in `sh`; false when there is no `sh` or the link was not made (Windows, or `ln` that copies).
+/// Runs `ln -sfn target link` and `test -L link` in `sh`; false when there is no `sh` or the link was not made (Windows, or `ln` that copies).
 bool link(string target, at string path) uses fs, alloc, process {
-    let args: string[2] = ["-c", $"ln -sfn {target} {path}"]
-    let _ = Io.run("sh", args.span) catch { return false }
-    let real = Fs.realPath(path) catch { return false }
-    return real != path
+    let args: string[2] = ["-c", $"ln -sfn {target} {path} && test -L {path}"]
+    let r = Io.run("sh", args.span) catch { return false }
+    return r.exitCode == 0
 }
 
 test "glob lists each file once through a link back up the tree" {
