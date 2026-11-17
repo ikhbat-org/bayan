@@ -243,6 +243,16 @@ public sealed class SelfhostParserT9Tests(ITestOutputHelper output)
     public void ExpressionsAgreeWithTheCSharpParser()
     {
         var program = Driver.Replace("INPUTS", string.Join("\n        ", Inputs.Select(i => $"parseOne({Quote(i)}, by: keywords)")));
+        if (SelfhostExport.Dir is { } root)
+        {
+            var exportDir = SelfhostExport.Case(root, "parse", nameof(SelfhostParserT9Tests), nameof(ExpressionsAgreeWithTheCSharpParser));
+            var exportInput = Path.Combine(Golden.RepoRoot, "tmp", "selfhost-parser", "t9-test.byn");
+            Directory.CreateDirectory(Path.GetDirectoryName(exportInput)!);
+            File.WriteAllText(exportInput, program);
+            SelfhostExport.WriteInput(exportDir, [exportInput]);
+            SelfhostExport.WriteExpected(exportDir, "expected.stdout", string.Concat(Inputs.Select(i => CSharpLine(i) + "\n")));
+            return;
+        }
         var sources = Directory.GetFiles(ParserDir, "*.byn")
             .Where(f => Path.GetFileName(f) != "main.byn").Order(StringComparer.Ordinal)
             .Select(f => SourceText.FromFile(f)).Append(SourceText.FromString(Path.Combine(ParserDir, "t9-test.byn"), program)).ToList();

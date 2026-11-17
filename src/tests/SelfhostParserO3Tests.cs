@@ -30,6 +30,14 @@ public sealed class SelfhostParserO3Tests(ITestOutputHelper output)
         var refPath = Path.Combine(Golden.RepoRoot, "tmp", "parser-ref", "o3_" + name + ".ast");
         Directory.CreateDirectory(Path.GetDirectoryName(refPath)!);
         File.WriteAllText(refPath, AstDump.Dump(tree));
+        if (SelfhostExport.Dir is { } root)
+        {
+            var export = SelfhostExport.Case(root, "parse", nameof(SelfhostParserO3Tests), nameof(FieldRulesSplitAsTheCSharpParser));
+            SelfhostExport.WriteInput(export, [input]);
+            SelfhostExport.WriteExpected(export, "expected.ast", AstDump.Dump(tree));
+            SelfhostExport.WriteExpected(export, "expected.exitcode", tree.Diagnostics.Any(d => d.IsError) ? "1\n" : "0\n");
+            return;
+        }
         var (exit, stdout, stderr) = SelfhostParserTests.Run(SelfhostParserTests.Built, input);
         output.WriteLine(stderr);
         if (Golden.Compare(refPath, stdout, update: false).Failure is { } failure) Assert.Fail(failure);

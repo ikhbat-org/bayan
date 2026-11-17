@@ -119,6 +119,16 @@ public sealed class SelfhostParserT5Tests(ITestOutputHelper output)
     [Fact]
     public void DeclarationsMatchTheCSharpParser()
     {
+        if (SelfhostExport.Dir is { } root)
+        {
+            var exportDir = SelfhostExport.Case(root, "parse", nameof(SelfhostParserT5Tests), nameof(DeclarationsMatchTheCSharpParser));
+            var exportInput = Path.Combine(Golden.RepoRoot, "tmp", "selfhost-parser", "t5-test.byn");
+            Directory.CreateDirectory(Path.GetDirectoryName(exportInput)!);
+            File.WriteAllText(exportInput, Program());
+            SelfhostExport.WriteInput(exportDir, [exportInput]);
+            SelfhostExport.WriteExpected(exportDir, "expected.stdout", string.Concat(Cases.Select(k => Expected(k.Source))));
+            return;
+        }
         var sources = Directory.GetFiles(ParserDir, "*.byn").Where(f => Path.GetFileName(f) != "main.byn").Order(StringComparer.Ordinal)
             .Select(f => SourceText.FromFile(f)).Append(SourceText.FromString(Path.Combine(ParserDir, "t5-test.byn"), Program())).ToList();
         Environment.SetEnvironmentVariable("BAYAN_CACHE", Path.Combine(Golden.RepoRoot, "tmp", "cache"));

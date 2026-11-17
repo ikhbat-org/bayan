@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Bayan.Backend.C;
 using Bayan.Cli;
@@ -239,6 +240,19 @@ public sealed class SelfhostParserT6Tests(ITestOutputHelper output)
         return path;
     }
 
+    /// <summary>Under the export (spec 019 R10): writes <c>parse/SelfhostParserT6Tests/&lt;test&gt;[-n]</c> with <paramref name="input"/>, the
+    /// port's <paramref name="args"/> (one per line, after the input path) and the C# side's <paramref name="expected"/> as
+    /// <c>expected.&lt;what&gt;</c>, and returns true, so the caller returns without running the port; otherwise false.</summary>
+    private static bool Export(string input, string[] args, string what, string expected, [CallerMemberName] string test = "")
+    {
+        if (SelfhostExport.Dir is not { } root) return false;
+        var dir = SelfhostExport.Case(root, "parse", nameof(SelfhostParserT6Tests), test);
+        SelfhostExport.WriteInput(dir, [input]);
+        SelfhostExport.WriteExpected(dir, "args", string.Concat(args.Select(a => a + "\n")));
+        SelfhostExport.WriteExpected(dir, "expected." + what, expected);
+        return true;
+    }
+
     private static string BuiltPath
     {
         get
@@ -311,6 +325,7 @@ public sealed class SelfhostParserT6Tests(ITestOutputHelper output)
     public void TypesMatchTheCSharpParser(string type, string mode)
     {
         var input = Write("type", Encoding.UTF8.GetBytes(type + "\n"));
+        if (Export(input, ["type " + mode], "type", ExpectedType(SourceText.FromFile(input), mode))) return;
         var (exit, stdout, stderr) = Run(BuiltPath, input, "type " + mode);
         output.WriteLine(stderr);
         Assert.Equal(0, exit);
@@ -340,6 +355,7 @@ public sealed class SelfhostParserT6Tests(ITestOutputHelper output)
     public void LiteralsMatchTheCSharpDecoder(string source)
     {
         var input = Write("literals", Encoding.UTF8.GetBytes(source));
+        if (Export(input, ["literals"], "literals", ExpectedLiterals(SourceText.FromFile(input)))) return;
         var (exit, stdout, stderr) = Run(BuiltPath, input, "literals");
         output.WriteLine(stderr);
         Assert.Equal(0, exit);
@@ -353,6 +369,7 @@ public sealed class SelfhostParserT6Tests(ITestOutputHelper output)
         var bytes = Encoding.UTF8.GetBytes("let a = \"x").Concat(new byte[] { 0xC3, 0x28, 0xE2, 0x82, 0xF0, 0x9F, 0x98 })
             .Concat(Encoding.UTF8.GetBytes("\\n\"\n\u00a0\u3000/// doc\nvoid f() {}\n")).ToArray();
         var input = Write("utf8", bytes);
+        if (Export(input, ["literals"], "literals", ExpectedLiterals(SourceText.FromFile(input)))) return;
         var (exit, stdout, stderr) = Run(BuiltPath, input, "literals");
         output.WriteLine(stderr);
         Assert.Equal(0, exit);
