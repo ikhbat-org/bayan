@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Bayan.Backend.C;
 using Bayan.Cli;
@@ -56,6 +57,36 @@ public sealed class SelfhostDriverT5Tests
         Process(SelfhostDriverHarness.Build(), null, cwd, args);
 
     private static string Text(byte[] bytes) => System.Text.Encoding.UTF8.GetString(bytes).ReplaceLineEndings("\n");
+
+    /// <summary>The normal form <see cref="Differs"/> compares: stdout and stderr through <see cref="Mask"/>.</summary>
+    private static readonly SelfhostDriverT1Tests.ExportForm Masked = new("masked", Out: Mask, Err: Mask);
+
+    /// <summary>The normal form <see cref="SameFailure"/> compares: stdout as is, stderr as its <see cref="BayanPrefix"/> line.</summary>
+    private static readonly SelfhostDriverT1Tests.ExportForm Failure = new("stderr-bayan-prefix", Err: e => BayanPrefix(e) is { } p ? p + "\n" : "");
+
+    /// <summary>One name per line.</summary>
+    private static string Lines(IEnumerable<string> names) => string.Concat(names.Select(n => n + "\n"));
+
+    /// <summary>
+    /// <see cref="Cs"/> (with <paramref name="path"/> and <paramref name="cache"/> as <see cref="Process"/> takes them). Under the export
+    /// (spec 019 R10) it records the run as <c>cli/SelfhostDriverT5Tests/&lt;test&gt;[-n]</c>: <paramref name="cwd"/>'s tree before the run
+    /// and each rooted path argument as inputs, <c>PATH</c> and <c>BAYAN_CACHE</c> when given as <c>env</c>, stdout and stderr in
+    /// <paramref name="form"/> (<see cref="Masked"/> by default), and what <paramref name="tree"/> lists after the run as <c>expected.tree</c>.
+    /// </summary>
+    private static (int Exit, byte[] Out, string Err) Oracle(string cwd, string[] args, string? path = null, string? cache = null,
+        SelfhostDriverT1Tests.ExportForm? form = null, Func<string>? tree = null, [CallerMemberName] string test = "")
+    {
+        var staged = SelfhostExport.Dir is null ? null
+            : SelfhostDriverT1Tests.StageInputs([cwd, .. args.Where(a => Path.IsPathRooted(a) && SelfhostDriverT1Tests.IsPath(a))]);
+        var result = Process("dotnet", [typeof(CliApp).Assembly.Location], cwd, args, path, cache);
+        if (staged is not null)
+        {
+            (string, string?)[] env = [.. path is null ? [] : new (string, string?)[] { ("PATH", path) }, .. cache is null ? [] : new (string, string?)[] { ("BAYAN_CACHE", cache) }];
+            SelfhostDriverT1Tests.Record(args, (result.Exit, Text(result.Out), result.Err), staged, (form ?? Masked) with { Tree = tree }, nameof(SelfhostDriverT5Tests), test, "",
+                env.Length == 0 ? null : env);
+        }
+        return result;
+    }
 
     /// <summary>A difference as `label: what`, or null when exit code and both streams are equal after <see cref="Mask"/>.</summary>
     private static string? Differs(string label, (int Exit, byte[] Out, string Err) expected, (int Exit, byte[] Out, string Err) actual)
@@ -116,7 +147,8 @@ public sealed class SelfhostDriverT5Tests
     private static void AllSame(Func<string, string?> compare)
     {
         var failures = new ConcurrentBag<string>();
-        Parallel.ForEach(RunInputs(), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, name =>
+        // one at a time under the export, so each input's case number is its place in RunInputs
+        Parallel.ForEach(RunInputs(), new ParallelOptions { MaxDegreeOfParallelism = SelfhostExport.Dir is null ? Environment.ProcessorCount : 1 }, name =>
         {
             if (compare(name) is { } f) failures.Add(f);
         });
@@ -131,7 +163,8 @@ public sealed class SelfhostDriverT5Tests
         {
             var copy = Isolated(name, "emit");
             var mode = ModeArgs(copy);
-            var expected = Cs(Path.GetDirectoryName(copy)!, ["build", "--emit-c", .. mode, Path.GetFileName(copy)]);
+            var expected = Oracle(Path.GetDirectoryName(copy)!, ["build", "--emit-c", .. mode, Path.GetFileName(copy)], form: new("stdout-exact-stderr-masked", Err: Mask));
+            if (SelfhostExport.Dir is not null) return null;
             copy = Isolated(name, "emit");
             var actual = Self(Path.GetDirectoryName(copy)!, ["build", "--emit-c", .. mode, Path.GetFileName(copy)]);
             if (!expected.Out.AsSpan().SequenceEqual(actual.Out)) return $"{name}: emitted C differs";
@@ -149,7 +182,8 @@ public sealed class SelfhostDriverT5Tests
             var argsFile = Path.ChangeExtension(Path.Combine(Golden.CasesRoot, name), ".args");
             string[] programArgs = File.Exists(argsFile) ? ["--", .. File.ReadAllLines(argsFile)] : [];
             var mode = ModeArgs(copy);
-            var expected = Cs(Empty(name), ["run", .. mode, copy, .. programArgs]);
+            var expected = Oracle(Empty(name), ["run", .. mode, copy, .. programArgs]);
+            if (SelfhostExport.Dir is not null) return null;
             copy = Isolated(name, "run");
             var actual = Self(Empty(name), ["run", .. mode, copy, .. programArgs]);
             return Differs(name, expected, actual);
@@ -166,11 +200,12 @@ public sealed class SelfhostDriverT5Tests
         return dir;
     }
 
-    private static void SameIn(string name, params string[] args)
+    private static void SameIn(string name, string[] args, [CallerMemberName] string test = "")
     {
         var cs = Fresh("cs", name);
         var self = Fresh("self", name);
-        var expected = Cs(cs, args);
+        var expected = Oracle(cs, args, tree: () => Lines(Entries(cs)), test: test);
+        if (SelfhostExport.Dir is not null) return;
         var actual = Self(self, args);
         Assert.Null(Differs(string.Join(' ', args), expected, actual));
         Assert.Equal(Entries(cs), Entries(self));
@@ -196,7 +231,9 @@ public sealed class SelfhostDriverT5Tests
             foreach (var dir in new[] { cs, self })
                 foreach (var name in new[] { "main.c", "bayan-rt.h", "bayan-rt.c" })
                     File.WriteAllText(Path.Combine(dir, name), $"// the user's {name}\n");
-            Assert.Null(Differs(label, Cs(cs, args), Self(self, args)));
+            var expected = Oracle(cs, args, tree: () => Lines(Entries(cs)) + string.Concat(new[] { "main.c", "bayan-rt.h", "bayan-rt.c" }.Select(n => $"== {n}\n{File.ReadAllText(Path.Combine(cs, n))}")));
+            if (SelfhostExport.Dir is not null) continue;
+            Assert.Null(Differs(label, expected, Self(self, args)));
             foreach (var name in new[] { "main.c", "bayan-rt.h", "bayan-rt.c" })
                 Assert.True(File.ReadAllBytes(Path.Combine(cs, name)).AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(self, name))), $"`{label}`: the driver changed the user's {name}");
             Assert.Equal(Entries(cs), Entries(self));
@@ -217,7 +254,9 @@ public sealed class SelfhostDriverT5Tests
             sides.Add(dir);
         }
         var before = File.ReadAllBytes(Path.Combine(sides[1], "tool"));
-        Assert.Null(Differs("run tool", Cs(sides[0], "run", "tool"), Self(sides[1], "run", "tool")));
+        var expected = Oracle(sides[0], ["run", "tool"], tree: () => Lines(Entries(sides[0])));
+        if (SelfhostExport.Dir is not null) return;
+        Assert.Null(Differs("run tool", expected, Self(sides[1], "run", "tool")));
         Assert.True(before.AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(sides[1], "tool"))), "`run tool` wrote over the source");
         Assert.Equal(Entries(sides[0]), Entries(sides[1]));
     }
@@ -225,21 +264,34 @@ public sealed class SelfhostDriverT5Tests
     [Fact]
     public void OutputNamesAsCliApp()
     {
-        SameIn("default", "build", "arithmetic.byn");
-        SameIn("dot", "build", ".");
-        SameIn("named", "build", "-o", "prog", "arithmetic.byn");
-        SameIn("verbose", "build", "-v", "arithmetic.byn");
-        SameIn("json", "build", "--diagnostics", "json", "arithmetic.byn");
-        SameIn("debug", "build", "--mode", "debug", "--target", "host", "arithmetic.byn");
-        SameIn("run-package", "run", "--package", ".", "arithmetic.byn");
-        SameIn("run", "run", "arithmetic.byn");
-        SameIn("run-dir", "run", ".");
-        SameIn("safe", "build", "--mode", "safe", "--verbose", "arithmetic.byn");
+        SameIn("default", ["build", "arithmetic.byn"]);
+        SameIn("dot", ["build", "."]);
+        SameIn("named", ["build", "-o", "prog", "arithmetic.byn"]);
+        SameIn("verbose", ["build", "-v", "arithmetic.byn"]);
+        SameIn("json", ["build", "--diagnostics", "json", "arithmetic.byn"]);
+        SameIn("debug", ["build", "--mode", "debug", "--target", "host", "arithmetic.byn"]);
+        SameIn("run-package", ["run", "--package", ".", "arithmetic.byn"]);
+        SameIn("run", ["run", "arithmetic.byn"]);
+        SameIn("run-dir", ["run", "."]);
+        SameIn("safe", ["build", "--mode", "safe", "--verbose", "arithmetic.byn"]);
     }
 
-    private static void SameAsInProcess(params string[] args)
+    /// <summary><see cref="InProcess"/> against the driver; under the export (spec 019 R10) the C# run is recorded in <see cref="Masked"/> form instead.</summary>
+    private static void SameAsInProcess(string[] args, [CallerMemberName] string test = "")
     {
+        // the repo's own src/ as an input is not copied into a case (spec 019 R10: no case)
+        if (SelfhostExport.Dir is { } export && args.Contains(Path.Combine(Golden.RepoRoot, "src")))
+        {
+            SelfhostExport.NotExported(export, "cli", nameof(SelfhostDriverT5Tests), test, string.Join(' ', args));
+            return;
+        }
+        var staged = SelfhostExport.Dir is null ? null : SelfhostDriverT1Tests.StageInputs(args.Where(SelfhostDriverT1Tests.IsPath));
         var expected = InProcess(args);
+        if (staged is not null)
+        {
+            SelfhostDriverT1Tests.Record(args, expected, staged, Masked, nameof(SelfhostDriverT5Tests), test, "");
+            return;
+        }
         var actual = SelfhostDriverHarness.Run(args);
         var label = string.Join(' ', args);
         Assert.Equal(expected.Exit, actual.Exit);
@@ -257,25 +309,25 @@ public sealed class SelfhostDriverT5Tests
         File.WriteAllText(broken, "void main() {\n    let x: i32 = \"no\"\n    print(y)\n}\n");
         foreach (var command in new[] { "build", "run" })
         {
-            SameAsInProcess(command);
-            SameAsInProcess(command, "--mode", "bogus", file);
-            SameAsInProcess(command, "--diagnostics", "yaml", file);
-            SameAsInProcess(command, file, file);
-            SameAsInProcess(command, "--bogus", file);
-            SameAsInProcess(command, Path.Combine(dir, "missing.byn"));
-            SameAsInProcess(command, broken);
-            SameAsInProcess(command, "--diagnostics", "json", broken);
+            SameAsInProcess([command]);
+            SameAsInProcess([command, "--mode", "bogus", file]);
+            SameAsInProcess([command, "--diagnostics", "yaml", file]);
+            SameAsInProcess([command, file, file]);
+            SameAsInProcess([command, "--bogus", file]);
+            SameAsInProcess([command, Path.Combine(dir, "missing.byn")]);
+            SameAsInProcess([command, broken]);
+            SameAsInProcess([command, "--diagnostics", "json", broken]);
         }
-        SameAsInProcess("build", "--target", "bogus", file);
-        SameAsInProcess("build", "--emit-c", "--target", "bogus", file);
-        SameAsInProcess("run", "-o", "x", file);
-        SameAsInProcess("run", "-v", file);
-        SameAsInProcess("build", "--emit-c", "--package", Path.Combine(Golden.RepoRoot, "src"), broken);
+        SameAsInProcess(["build", "--target", "bogus", file]);
+        SameAsInProcess(["build", "--emit-c", "--target", "bogus", file]);
+        SameAsInProcess(["run", "-o", "x", file]);
+        SameAsInProcess(["run", "-v", file]);
+        SameAsInProcess(["build", "--emit-c", "--package", Path.Combine(Golden.RepoRoot, "src"), broken]);
         foreach (var dangling in new[] { "--mode", "--diagnostics", "-o", "--target", "--package" })
-            SameAsInProcess("build", file, dangling);
-        SameAsInProcess("run", "--emit-c", file);
-        SameAsInProcess("run", "--target", "linux-x64", file);
-        SameAsInProcess("build", "--emit-c", "--all", "--diagnostics", "text", "--mode", "debug", file);
+            SameAsInProcess(["build", file, dangling]);
+        SameAsInProcess(["run", "--emit-c", file]);
+        SameAsInProcess(["run", "--target", "linux-x64", file]);
+        SameAsInProcess(["build", "--emit-c", "--all", "--diagnostics", "text", "--mode", "debug", file]);
     }
 
     /// <summary>`Target.os`/`Target.arch` fold to the `--target`'s strings on the path and `--package` branches, and stay the host macros without it.</summary>
@@ -286,14 +338,14 @@ public sealed class SelfhostDriverT5Tests
         Directory.CreateDirectory(dir);
         File.WriteAllText(Path.Combine(dir, "main.byn"), "void main() {\n    print(Target.os)\n    print(Target.arch)\n}\n");
         var root = Path.GetDirectoryName(dir)!;
-        SameAsInProcess("build", "--emit-c", "--target", "linux-x64", dir);
-        SameAsInProcess("build", "--emit-c", "--target", "windows-x64", "--package", root, dir);
-        SameAsInProcess("build", "--emit-c", "--target", "host", dir);
+        SameAsInProcess(["build", "--emit-c", "--target", "linux-x64", dir]);
+        SameAsInProcess(["build", "--emit-c", "--target", "windows-x64", "--package", root, dir]);
+        SameAsInProcess(["build", "--emit-c", "--target", "host", dir]);
         Assert.Contains("BYN_STR(\"linux\", 5)", InProcess("build", "--emit-c", "--target", "linux-x64", dir).Out);
         // The `package.byn` branch passes the target too (CliApp.cs:283-284).
         var project = Project("self", "target", lib: false);
         File.WriteAllText(Path.Combine(project, "src", "app", "main.byn"), "void main() {\n    print(Target.os)\n    print(Target.arch)\n}\n");
-        SameAsInProcess("build", "--emit-c", "--target", "windows-x64", project);
+        SameAsInProcess(["build", "--emit-c", "--target", "windows-x64", project]);
         Assert.Contains("BYN_STR(\"windows\", 7)", InProcess("build", "--emit-c", "--target", "windows-x64", project).Out);
     }
 
@@ -309,6 +361,12 @@ public sealed class SelfhostDriverT5Tests
         foreach (var dir in new[] { "lexer", "driver" })
         {
             string[] args = ["build", "--emit-c", "--mode", "debug", "--package", "src", $"src/{dir}"];
+            // the input is the repo's own src/ package, run from the repo root (spec 019 R10: no case)
+            if (SelfhostExport.Dir is { } export)
+            {
+                SelfhostExport.NotExported(export, "cli", nameof(SelfhostDriverT5Tests), nameof(EmitsAPackageAsCliApp), string.Join(' ', args));
+                continue;
+            }
             var expected = Cs(Golden.RepoRoot, args);
             var actual = Self(Golden.RepoRoot, args);
             Assert.True(expected.Exit == actual.Exit, $"{dir}: exit {expected.Exit} != {actual.Exit}\n{actual.Err}");
@@ -358,23 +416,23 @@ public sealed class SelfhostDriverT5Tests
         File.WriteAllText(Path.Combine(dir, "a.byn"), "void main() {\n    print($\"{ayy() + bee() + abb()}\")\n}\n");
         File.WriteAllText(Path.Combine(dir, "c.test.byn"), "test \"never\" {\n}\n");
         File.WriteAllText(Path.Combine(dir, "notes.txt"), "not code\n");
-        SameAsInProcess("build", "--emit-c", "--package", root, dir);
-        SameAsInProcess("build", "--emit-c", dir);
+        SameAsInProcess(["build", "--emit-c", "--package", root, dir]);
+        SameAsInProcess(["build", "--emit-c", dir]);
         var scripts = Path.Combine(root, "scripts");
         Directory.CreateDirectory(scripts);
         File.WriteAllText(Path.Combine(scripts, "s.byn"), "#!/usr/bin/env bayan\nprint(\"hi\")\n");
         File.WriteAllText(Path.Combine(scripts, "other.byn"), "this does not parse (\n");
-        SameAsInProcess("build", "--emit-c", Path.Combine(scripts, "s.byn"));
+        SameAsInProcess(["build", "--emit-c", Path.Combine(scripts, "s.byn")]);
         var empty = Path.Combine(root, "empty");
         Directory.CreateDirectory(empty);
         File.WriteAllText(Path.Combine(empty, "e.byn"), "");
         File.WriteAllText(Path.Combine(empty, "f.byn"), "#");
-        SameAsInProcess("build", "--emit-c", Path.Combine(empty, "e.byn"));
-        SameAsInProcess("build", "--emit-c", Path.Combine(empty, "f.byn"));
+        SameAsInProcess(["build", "--emit-c", Path.Combine(empty, "e.byn")]);
+        SameAsInProcess(["build", "--emit-c", Path.Combine(empty, "f.byn")]);
         var hash = Path.Combine(root, "hash");
         Directory.CreateDirectory(hash);
         File.WriteAllText(Path.Combine(hash, "h.byn"), "#x\nvoid main() {\n}\n");
-        SameAsInProcess("build", "--emit-c", Path.Combine(hash, "h.byn"));
+        SameAsInProcess(["build", "--emit-c", Path.Combine(hash, "h.byn")]);
     }
 
     /// <summary>A project made by the C# `bayan new` under `tmp/t5/<side>/project/`, its directory.</summary>
@@ -399,19 +457,26 @@ public sealed class SelfhostDriverT5Tests
         // A fresh project, no `out/` on either side: `PrepareOut` makes `out/<mode>/<target>/c/` (CliApp.cs:440).
         foreach (var args in new[] { new[] { "build" }, ["build"], ["build", "-v"], ["build", "-v", "-o", "prog"], ["run"], ["build", "--package", "..", "."] })
         {
-            Assert.Null(Differs(string.Join(' ', args), Cs(cs, args), Self(self, args)));
+            var expected = Oracle(cs, args, tree: () => Lines(Tree(cs)));
+            if (SelfhostExport.Dir is not null) continue;
+            Assert.Null(Differs(string.Join(' ', args), expected, Self(self, args)));
             Assert.Equal(Tree(cs), Tree(self));
         }
         // A rebuild after a source edit: `out/.../c/main.c` exists and differs, so `WriteIfChanged` rewrites it.
         foreach (var side in new[] { cs, self })
             File.WriteAllText(Path.Combine(side, "src", "app", "main.byn"), "void main() {\n    print(\"edited\")\n}\n");
-        Assert.Null(Differs("build after edit", Cs(cs, "build"), Self(self, "build")));
-        Assert.Equal(File.ReadAllText(Path.Combine(cs, "out", "safe", CliApp.HostTarget, "c", "main.c")), File.ReadAllText(Path.Combine(self, "out", "safe", CliApp.HostTarget, "c", "main.c")));
-        Assert.Null(Differs("run after edit", Cs(cs, "run"), Self(self, "run")));
+        var built = Oracle(cs, ["build"], tree: () => File.ReadAllText(Path.Combine(cs, "out", "safe", CliApp.HostTarget, "c", "main.c")));
+        if (SelfhostExport.Dir is null) Assert.Null(Differs("build after edit", built, Self(self, "build")));
+        if (SelfhostExport.Dir is null) Assert.Equal(File.ReadAllText(Path.Combine(cs, "out", "safe", CliApp.HostTarget, "c", "main.c")), File.ReadAllText(Path.Combine(self, "out", "safe", CliApp.HostTarget, "c", "main.c")));
+        var ran = Oracle(cs, ["run"]);
+        if (SelfhostExport.Dir is null) Assert.Null(Differs("run after edit", ran, Self(self, "run")));
         var csLib = Project("cs", "kit", lib: true);
         var selfLib = Project("self", "kit", lib: true);
         foreach (var args in new[] { new[] { "build" }, ["run"] })
-            Assert.Null(Differs(string.Join(' ', args), Cs(csLib, args), Self(selfLib, args)));
+        {
+            var expected = Oracle(csLib, args);
+            if (SelfhostExport.Dir is null) Assert.Null(Differs(string.Join(' ', args), expected, Self(selfLib, args)));
+        }
     }
 
     /// <summary>The paths under `dir`, files and directories, relative to it, in ordinal order.</summary>
@@ -445,8 +510,9 @@ public sealed class SelfhostDriverT5Tests
             var cs = Fresh("cs", "unwritable");
             var self = Fresh("self", "unwritable");
             foreach (var dir in new[] { cs, self }) File.WriteAllText(Path.Combine(dir, "file"), "a file\n");
-            var expected = Cs(cs, args);
+            var expected = Oracle(cs, args, form: Failure, tree: () => Lines(Entries(cs)));
             Assert.Equal(CliApp.ExitToolchain, expected.Exit);
+            if (SelfhostExport.Dir is not null) continue;
             var actual = Self(self, args);
             SameFailure(label, expected, actual);
             Assert.Empty(actual.Out);
@@ -463,7 +529,9 @@ public sealed class SelfhostDriverT5Tests
                 Directory.CreateDirectory(Path.Combine(dir, "out"));
                 File.WriteAllText(Path.Combine(dir, "out", "safe"), "a file\n");
             }
-            SameFailure(label, Cs(cs, args), Self(self, args));
+            var expected = Oracle(cs, args, form: Failure, tree: () => Lines(Tree(cs)));
+            if (SelfhostExport.Dir is not null) continue;
+            SameFailure(label, expected, Self(self, args));
             Assert.Equal(Tree(cs), Tree(self));
         }
         foreach (var args in new[] { new[] { "run" }, ["build"] })
@@ -478,8 +546,9 @@ public sealed class SelfhostDriverT5Tests
                 File.SetUnixFileMode(Path.Combine(dir, target), UnixFileMode.UserRead | UnixFileMode.UserExecute);
             try
             {
-                var expected = Cs(cs, args);
+                var expected = Oracle(cs, args, form: Failure, tree: () => Lines(Tree(cs)));
                 Assert.Equal(CliApp.ExitToolchain, expected.Exit);
+                if (SelfhostExport.Dir is not null) continue;
                 SameFailure(label, expected, Self(self, args));
                 Assert.Equal(Tree(cs), Tree(self));
             }
@@ -532,7 +601,9 @@ public sealed class SelfhostDriverT5Tests
                 Directory.CreateDirectory(Path.Combine(dir, "sub"));
                 if (user) File.WriteAllText(Path.Combine(dir, "arithmetic.pdb"), "the user's pdb\n");
             }
-            var expected = Both("cs", cs, args, path);
+            var expected = Oracle(cs, args, path, cache, path == empty ? Failure : null,
+                () => Lines(Entries(cs)) + "== sub\n" + Lines(Entries(Path.Combine(cs, "sub"))));
+            if (SelfhostExport.Dir is not null) continue;
             var actual = Both("self", self, args, path);
             if (expected.Item1 == 0) Assert.Null(Differs(label, expected, actual));
             else SameFailure(label, expected, actual);
@@ -544,7 +615,9 @@ public sealed class SelfhostDriverT5Tests
         var selfProject = Project("self", "pdb", lib: false);
         foreach (var c in new[] { cache, selfCache })
             if (Directory.Exists(c)) Directory.Delete(c, recursive: true);
-        Assert.Null(Differs("build --target windows-x64 in a project", Both("cs", csProject, ["build", "--target", "windows-x64"], bin), Both("self", selfProject, ["build", "--target", "windows-x64"], bin)));
+        var built = Oracle(csProject, ["build", "--target", "windows-x64"], bin, cache, tree: () => Lines(Tree(csProject)));
+        if (SelfhostExport.Dir is not null) return;
+        Assert.Null(Differs("build --target windows-x64 in a project", built, Both("self", selfProject, ["build", "--target", "windows-x64"], bin)));
         Assert.Equal(Tree(csProject), Tree(selfProject));
     }
 
@@ -558,8 +631,9 @@ public sealed class SelfhostDriverT5Tests
             var self = Fresh("self", "no-cc");
             var empty = Path.Combine(Golden.RepoRoot, "tmp", "t5", "empty-path");
             Directory.CreateDirectory(empty);
-            var expected = Process("dotnet", [typeof(CliApp).Assembly.Location], cs, args, empty);
+            var expected = Oracle(cs, args, empty);
             Assert.Equal(CliApp.ExitToolchain, expected.Exit);
+            if (SelfhostExport.Dir is not null) continue;
             Assert.Null(Differs(string.Join(' ', args), expected, Process(SelfhostDriverHarness.Build(), null, self, args, empty)));
         }
     }
@@ -579,9 +653,10 @@ public sealed class SelfhostDriverT5Tests
         {
             var cs = Fresh("cs", "rejected");
             var self = Fresh("self", "rejected");
-            var expected = Process("dotnet", [typeof(CliApp).Assembly.Location], cs, args, bin);
+            var expected = Oracle(cs, args, bin, tree: () => Lines(Entries(cs)));
             Assert.Equal(CliApp.ExitToolchain, expected.Exit);
             Assert.Contains("BYN4001", expected.Err);
+            if (SelfhostExport.Dir is not null) continue;
             Assert.Null(Differs(string.Join(' ', args), expected, Process(SelfhostDriverHarness.Build(), null, self, args, bin)));
             // A failed link leaves nothing beside the source either.
             Assert.Equal(Entries(cs), Entries(self));
@@ -600,6 +675,8 @@ public sealed class SelfhostDriverT5Tests
         Directory.CreateDirectory(dir);
         var script = Path.Combine(dir, "hello.byn");
         File.WriteAllText(script, "#!/usr/bin/env bayan\nprint(\"hello\")\n");
-        Assert.Null(Differs("script", Cs(dir, script, "a", "b"), Self(dir, script, "a", "b")));
+        var expected = Oracle(dir, [script, "a", "b"]);
+        if (SelfhostExport.Dir is not null) return;
+        Assert.Null(Differs("script", expected, Self(dir, script, "a", "b")));
     }
 }

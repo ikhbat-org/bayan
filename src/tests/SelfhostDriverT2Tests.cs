@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Bayan.Cli;
 
@@ -15,21 +16,26 @@ public sealed class SelfhostDriverT2Tests
     /// <summary>The version line's commit part differs by design (spec Q3); only stdout of `version` and `--version` has one.</summary>
     private static string MaskVersion(string text) => Regex.Replace(text, @"^(bayan \S+) \(.*\)$", "$1 (masked)", RegexOptions.Multiline);
 
-    private static (int Exit, string Out, string Err) Oracle(string[] args)
+    /// <summary><c>CliApp.Run</c> in-process; under the export it records the run in <paramref name="form"/> (spec 019 R10).</summary>
+    private static (int Exit, string Out, string Err) Oracle(string[] args, SelfhostDriverT1Tests.ExportForm? form = null, [CallerMemberName] string test = "")
     {
+        var staged = SelfhostExport.Dir is null ? null : SelfhostDriverT1Tests.StageInputs(args.Where(SelfhostDriverT1Tests.IsPath));
         var stdout = new StringWriter();
         var stderr = new StringWriter();
         var exit = CliApp.Run(args, stdout, stderr);
-        return (exit, stdout.ToString().ReplaceLineEndings("\n"), stderr.ToString().ReplaceLineEndings("\n"));
+        var result = (exit, stdout.ToString().ReplaceLineEndings("\n"), stderr.ToString().ReplaceLineEndings("\n"));
+        if (staged is not null) SelfhostDriverT1Tests.Record(args, result, staged, form, nameof(SelfhostDriverT2Tests), test, "");
+        return result;
     }
 
-    private static void AssertSameAsCs(params string[] args)
+    private static void AssertSameAsCs(string[] args, [CallerMemberName] string test = "")
     {
-        var expected = Oracle(args);
+        Func<string, string> out_ = args is ["version"] or ["--version"] ? t => MaskVersion(Mask(t)) : Mask;
+        var expected = Oracle(args, new(args is ["version"] or ["--version"] ? "version-seconds-masked" : "seconds-masked", Out: out_, Err: Mask), test);
+        if (SelfhostExport.Dir is not null) return;
         var actual = SelfhostDriverHarness.Run(args);
         var label = string.Join(' ', args);
         Assert.Equal(expected.Exit, actual.Exit);
-        Func<string, string> out_ = args is ["version"] or ["--version"] ? t => MaskVersion(Mask(t)) : Mask;
         SelfhostEmitterHarness.AssertSame($"stdout of `{label}`", out_(expected.Out), out_(actual.Out));
         SelfhostEmitterHarness.AssertSame($"stderr of `{label}`", Mask(expected.Err), Mask(actual.Err));
     }
@@ -67,23 +73,23 @@ public sealed class SelfhostDriverT2Tests
 
     [Theory]
     [MemberData(nameof(LexCases))]
-    public void LexAsCliApp(string name) => AssertSameAsCs("lex", Case(name));
+    public void LexAsCliApp(string name) => AssertSameAsCs(["lex", Case(name)]);
 
     [Theory]
     [MemberData(nameof(ParseCases))]
-    public void ParseAstAsCliApp(string name) => AssertSameAsCs("parse", "--ast", Case(name));
+    public void ParseAstAsCliApp(string name) => AssertSameAsCs(["parse", "--ast", Case(name)]);
 
     public static TheoryData<string> TypedCases => Golden.Cases("typed");
     public static TheoryData<string> DiagCases => Golden.Cases("diag");
 
     [Theory]
     [MemberData(nameof(TypedCases))]
-    public void TypesAsCliApp(string name) => AssertSameAsCs("types", Isolated(name));
+    public void TypesAsCliApp(string name) => AssertSameAsCs(["types", Isolated(name)]);
 
     /// <summary>`check` prints `checked <name> in <n.nn>s` on success; <see cref="Mask"/> replaces the seconds on both sides.</summary>
     [Theory]
     [MemberData(nameof(DiagCases))]
-    public void CheckAsCliApp(string name) => AssertSameAsCs("check", Isolated(name));
+    public void CheckAsCliApp(string name) => AssertSameAsCs(["check", Isolated(name)]);
 
     [Fact]
     public void ACleanProgramAsCliApp()
@@ -92,10 +98,10 @@ public sealed class SelfhostDriverT2Tests
         Directory.CreateDirectory(dir);
         var main = Path.Combine(dir, "main.byn");
         File.WriteAllText(main, "void main() {\n    print(\"hi\")\n}\n");
-        AssertSameAsCs("check", main);
-        AssertSameAsCs("check", main, "--diagnostics", "json");
-        AssertSameAsCs("types", main);
-        AssertSameAsCs("types", Isolated("diag/ambiguous-variant.byn"));
+        AssertSameAsCs(["check", main]);
+        AssertSameAsCs(["check", main, "--diagnostics", "json"]);
+        AssertSameAsCs(["types", main]);
+        AssertSameAsCs(["types", Isolated("diag/ambiguous-variant.byn")]);
     }
 
     /// <summary>`Mask` leaves a line that looks like a version line alone; only `MaskVersion` (for `version` stdout) rewrites it.</summary>
@@ -114,8 +120,8 @@ public sealed class SelfhostDriverT2Tests
         File.Copy(Case("parse/assert.byn"), dash, overwrite: true);
         try
         {
-            Assert.Equal(0, Oracle(["parse", "--ast", "-"]).Exit);
-            AssertSameAsCs("parse", "--ast", "-");
+            if (SelfhostExport.Dir is null) Assert.Equal(0, Oracle(["parse", "--ast", "-"]).Exit);
+            AssertSameAsCs(["parse", "--ast", "-"]);
         }
         finally { File.Delete(dash); }
     }
@@ -124,19 +130,19 @@ public sealed class SelfhostDriverT2Tests
     public void ArgumentErrorsAsCliApp()
     {
         var file = Case("lex/bad-chars.byn");
-        AssertSameAsCs("lex");
-        AssertSameAsCs("lex", file, file);
-        AssertSameAsCs("lex", Case("lex/missing.byn"));
-        AssertSameAsCs("parse", "--ast");
-        AssertSameAsCs("parse", "--ast", Case("parse/missing.byn"));
-        AssertSameAsCs("parse", "--ast", "-");
-        AssertSameAsCs("types");
-        AssertSameAsCs("types", Case("typed/missing.byn"));
-        AssertSameAsCs("types", file, "--bogus");
-        AssertSameAsCs("check", Case("diag/missing.byn"));
-        AssertSameAsCs("check", file, "--json");
-        AssertSameAsCs("check", file, "--diagnostics", "json");
-        AssertSameAsCs("check", file, "--all");
+        AssertSameAsCs(["lex"]);
+        AssertSameAsCs(["lex", file, file]);
+        AssertSameAsCs(["lex", Case("lex/missing.byn")]);
+        AssertSameAsCs(["parse", "--ast"]);
+        AssertSameAsCs(["parse", "--ast", Case("parse/missing.byn")]);
+        AssertSameAsCs(["parse", "--ast", "-"]);
+        AssertSameAsCs(["types"]);
+        AssertSameAsCs(["types", Case("typed/missing.byn")]);
+        AssertSameAsCs(["types", file, "--bogus"]);
+        AssertSameAsCs(["check", Case("diag/missing.byn")]);
+        AssertSameAsCs(["check", file, "--json"]);
+        AssertSameAsCs(["check", file, "--diagnostics", "json"]);
+        AssertSameAsCs(["check", file, "--all"]);
     }
 
     /// <summary>The cases of <c>run</c> that precede and surround the T2 commands (the dispatch the T2 stubs were replaced in).</summary>
@@ -162,10 +168,37 @@ public sealed class SelfhostDriverT2Tests
     public void LexReadsStandardInput()
     {
         var file = Case("lex/bad-chars.byn");
-        var expected = Oracle(["lex", file]);
+        var expected = Oracle(["lex", file], new("stdout"));
+        if (SelfhostExport.Dir is not null) return;
         var (exit, stdout, _, _, _) = SelfhostLexerTests.RunOnStdin(SelfhostDriverHarness.Build(), ["lex", "-"], File.ReadAllBytes(file), 30_000);
         Assert.Equal(expected.Exit, exit);
         SelfhostEmitterHarness.AssertSame("stdout of `lex -`", expected.Out, System.Text.Encoding.UTF8.GetString(stdout).ReplaceLineEndings("\n"));
+    }
+
+    /// <summary>The export path of <see cref="Oracle"/> (spec 019 R10): a lex row writes its case, the input as <c>input.byn</c>, stdout and stderr masked.</summary>
+    [Fact]
+    public void OracleExportsARowAsACase()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-driver-t2");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var old = SelfhostExport.Override.Value;
+        (int Exit, string Out, string Err) expected;
+        try
+        {
+            SelfhostExport.Override.Value = root;
+            LexAsCliApp("lex/bad-chars.byn");
+            SelfhostExport.Override.Value = "";
+            expected = Oracle(["lex", Case("lex/bad-chars.byn")]);
+        }
+        finally { SelfhostExport.Override.Value = old; }
+        var dir = Path.Combine(root, "cli", nameof(SelfhostDriverT2Tests), nameof(LexAsCliApp));
+        Assert.Equal($"lex\n{Case("lex/bad-chars.byn")}\n", File.ReadAllText(Path.Combine(dir, "args")));
+        Assert.Equal($"{expected.Exit}\n", File.ReadAllText(Path.Combine(dir, "expected.exitcode")));
+        Assert.Equal(Mask(expected.Out), File.ReadAllText(Path.Combine(dir, "expected.stdout")));
+        Assert.Equal(Mask(expected.Err), File.ReadAllText(Path.Combine(dir, "expected.stderr")));
+        Assert.Equal("seconds-masked\n", File.ReadAllText(Path.Combine(dir, "compare")));
+        Assert.Equal(File.ReadAllText(Case("lex/bad-chars.byn")), File.ReadAllText(Path.Combine(dir, "input.byn")));
+        Assert.False(Directory.Exists(dir + "-2"));
     }
 
     [Fact]
