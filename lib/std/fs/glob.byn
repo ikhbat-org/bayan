@@ -9,7 +9,8 @@ const maxDepth: i64 = 64
 
 /// The files whose path matches `pattern` (`**`, `*`, `?`, `[…]`, `{a,b}` as `Glob.matches` reads them), sorted by byte
 /// order, written with `/` separators and starting as `pattern` does. Directories are walked but not listed; a base
-/// directory that is missing or unreadable gives an empty list. Names starting with `.` are listed and dot-directories
+/// directory that is missing or unreadable gives an empty list, and a directory below it that cannot be read is
+/// skipped. Names starting with `.` are listed and dot-directories
 /// are entered, as any other name (the Go and Rust rule); a caller that wants them hidden filters the result. A
 /// pattern with `**` or `{` is walked 64 directory levels below its base directory; matches deeper than that are not
 /// returned.
@@ -58,10 +59,10 @@ void walk(string pattern, from string dir, until i64 depth, to ref List<string> 
     let names = Io.listDir(dir.isEmpty ? "." : dir) catch { return }
     for name in names {
         let entry = dir.isEmpty ? $"{name}" : (dir.endsWith("/") ? $"{dir}{name}" : $"{dir}/{name}")
-        let inside = Io.listDir(entry) catch {
+        if Fs.fileExists(entry) {
             if Glob.matches(pattern, for: entry) { found.append(entry) }
-            continue
+        } else if depth > 1 {
+            walk(pattern, from: entry, until: depth - 1, to: ref found)
         }
-        if depth > 1 { walk(pattern, from: entry, until: depth - 1, to: ref found) }
     }
 }

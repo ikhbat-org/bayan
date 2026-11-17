@@ -150,6 +150,11 @@ grep -q 'preflight.sh' tmp/010-t10/prompt.md && { echo "FAIL: the 010 brief name
 # a brace list in a files list (012 T18) is one name per alternative in the guard's --allow (which splits on commas)
 bash scripts/bayan-tool.sh wave-brief "$q" T98 --spec 012 > /dev/null
 grep '^bash scripts/selfhost/guard.sh' "$q/tmp/012-t98/prompt.md" | grep -q -- "--allow 'src/semantics/compile.byn,src/semantics/types.byn,src/driver/x.byn," || { echo "FAIL: a brace list is not expanded in --allow"; grep '^bash scripts/selfhost/guard.sh' "$q/tmp/012-t98/prompt.md"; exit 1; }
+# two test files of a task declaring the same class (as C# partial classes do) name it once in the filter
+mkdir -p "$q/src/tests"; printf 'public class DupTests {}\n' > "$q/src/tests/DupATests.cs"; printf 'public partial class DupTests {}\n' > "$q/src/tests/DupBTests.cs"
+printf -- '- [ ] T89 t — files: `src/driver/t89.byn`, `src/tests/DupATests.cs`, `src/tests/DupBTests.cs` — covers: R1 — Questions Q1300–Q1304\n' >> "$q/docs/specs/012-self-hosted-bootstrap/012-tasks.md"
+bash scripts/bayan-tool.sh wave-brief "$q" T89 --spec 012 > /dev/null
+grep '^bash scripts/selfhost/guard.sh' "$q/tmp/012-t89/prompt.md" | grep -q -- "--filter 'FullyQualifiedName~DupTests' " || { echo "FAIL: a class two test files declare is not named once in the filter"; grep '^bash scripts/selfhost/guard.sh' "$q/tmp/012-t89/prompt.md"; exit 1; }
 rm -rf "$q"
 # 012 T17 names its test files with their directory: its review runs those classes, not SelfhostDriverT17Tests (no such class);
 # a file declaring another class (SelfhostDriverInventoryTests.cs holds SelfhostDriverT8Tests) is gated by that class
