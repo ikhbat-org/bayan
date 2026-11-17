@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Bayan.Backend.C;
 using Bayan.Lowering;
@@ -348,14 +349,14 @@ public sealed class SelfhostEmitterT7Tests
     private static string Oracle(Compilation c) =>
         TypesOracle(c) + OwnOracle(c) + SuffixOracle() + DynOracle(c);
 
-    private static void AssertSections(string name, string expected, string actual)
+    private static void AssertSections(string name, string expected, string actual, string input, [CallerMemberName] string test = "")
     {
         var e = SelfhostSemanticsHarness.Sections(expected);
         var a = SelfhostSemanticsHarness.Sections(actual);
         foreach (var (section, lines) in e)
         {
             if (section == "") continue;
-            SelfhostEmitterHarness.AssertSame($"{name} {section}", string.Join('\n', lines), string.Join('\n', a.GetValueOrDefault(section) ?? []));
+            SelfhostEmitterHarness.AssertSame($"{name} {section}", string.Join('\n', lines), string.Join('\n', a.GetValueOrDefault(section) ?? []), input, test);
         }
     }
 
@@ -408,7 +409,7 @@ public sealed class SelfhostEmitterT7Tests
         Assert.False(c.Diagnostics.HasErrors, string.Join('\n', c.Diagnostics.Items));
         var (exit, stdout, stderr) = Run("corpus", path);
         Assert.True(exit == 0, $"exited {exit}: {stderr}");
-        AssertSections("plain", Oracle(c), stdout);
+        AssertSections("plain", Oracle(c), stdout, path);
     });
 
     private const string SlotFixture = """
@@ -451,7 +452,7 @@ public sealed class SelfhostEmitterT7Tests
         Assert.False(c.Diagnostics.HasErrors, string.Join('\n', c.Diagnostics.Items));
         var (exit, stdout, stderr) = Run("corpus", path);
         Assert.True(exit == 0, $"exited {exit}: {stderr}");
-        AssertSections("slots", Oracle(c), stdout);
+        AssertSections("slots", Oracle(c), stdout, path);
     });
 
     [Fact]
@@ -474,7 +475,7 @@ public sealed class SelfhostEmitterT7Tests
                 failures.Add($"{Path.GetFileName(corpus)}: exited {exit}: {stderr}");
                 return;
             }
-            try { AssertSections(Path.GetFileName(corpus), Oracle(c), stdout); }
+            try { AssertSections(Path.GetFileName(corpus), Oracle(c), stdout, path); }
             catch (Exception ex) { failures.Add(ex.Message); return; }
             Interlocked.Increment(ref compared);
         }));
@@ -530,7 +531,7 @@ public sealed class SelfhostEmitterT7Tests
         var expected = Section("thunk", $"{Call(e, "FunctionThunk", fn, type)}\n{Helpers(e)}");
         var (exit, stdout, stderr) = Run("thunk", function, local, path);
         Assert.True(exit == 0, $"exited {exit}: {stderr}");
-        AssertSections($"thunk {function}", expected, stdout);
+        AssertSections($"thunk {function}", expected, stdout, path);
     });
 
     [Fact]
@@ -572,7 +573,7 @@ public sealed class SelfhostEmitterT7Tests
         var expected = Section("types", (string)Call(e, "EmitTypes")!);
         var (exit, stdout, stderr) = Run("iface", path);
         Assert.True(exit == 0, $"exited {exit}: {stderr}");
-        AssertSections("iface", expected, stdout);
+        AssertSections("iface", expected, stdout, path);
     });
 
     [Fact]
@@ -637,6 +638,6 @@ public sealed class SelfhostEmitterT7Tests
         Assert.False(c.Diagnostics.HasErrors, string.Join('\n', c.Diagnostics.Items));
         var (exit, stdout, stderr) = Run("corpus", path);
         Assert.True(exit == 0, $"exited {exit}: {stderr}");
-        AssertSections("states", Oracle(c), stdout);
+        AssertSections("states", Oracle(c), stdout, path);
     });
 }

@@ -268,7 +268,7 @@ public sealed class SelfhostEmitterT22Tests
         Assert.Contains(lines, x => x.StartsWith("close tag", StringComparison.Ordinal) && x.EndsWith(" 18446744073709551615", StringComparison.Ordinal));
         var (exit, stdout, stderr) = SelfhostParserTests.Run(Build(), ["shapes", path]);
         Assert.True(exit == 0, $"generated main exited {exit}:\n{stderr}");
-        SelfhostEmitterHarness.AssertSame("shapes", string.Join('\n', lines) + "\n", stdout);
+        SelfhostEmitterHarness.AssertSame("shapes", string.Join('\n', lines) + "\n", stdout, path);
         return 0;
     });
 

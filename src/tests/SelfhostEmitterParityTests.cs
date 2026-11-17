@@ -45,7 +45,7 @@ public sealed class SelfhostEmitterParityTests
         Toolchain.TryParseMode(mode, out var buildMode);
         var (exit, output, error) = SelfhostEmitterHarness.Run("--mode", mode, "--package", Path.GetDirectoryName(input)!, input);
         Assert.True(exit == 0, $"{name}: exit {exit}\n{error}");
-        SelfhostEmitterHarness.AssertSame(name, CliApp.EmitC(c, buildMode), output);
+        SelfhostEmitterHarness.AssertSame(name, CliApp.EmitC(c, buildMode), output, input);
     }
 
     /// <summary>Every <c>*.test.byn</c> as <c>bayan test -v</c> builds it: alone in a work directory, the directory compiled with tests, no <c>--mode</c> (Safe).</summary>
@@ -60,7 +60,7 @@ public sealed class SelfhostEmitterParityTests
         if (SelfhostEmitterHarness.TestRunC(input, work) is not { } expected) return;
         var (exit, output, error) = SelfhostEmitterHarness.Run("--tests", work);
         Assert.True(exit == 0, $"{name}: exit {exit}\n{error}");
-        SelfhostEmitterHarness.AssertSame(name, expected, output);
+        SelfhostEmitterHarness.AssertSame(name, expected, output, input);
     }
 
     /// <summary>The inputs <c>CliTests.BuildEmitsC</c> and <c>CacheTests</c> pass to <c>--emit-c</c>, over every example project.</summary>
