@@ -913,3 +913,15 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (same review) `lib/std/fs/glob.test.byn:57-62`: `locked.byn` is restored to 755 only if the test reaches the unlock; an aborted run leaves a mode-000 dir in `tmp/` that breaks the next run and `rm -rf tmp`. Restore with `defer`, or chmod before `touch`.
 - LOW (same review) `lib/std/fs/glob.test.byn:59-60`: when the lock has no effect (root, or a chmod that does nothing under MSYS) the test sets `found` to the expected value and checks nothing; report it as a skip, and check `chmod`'s exit status.
 - 024 T5 LOW: `labels.test.byn:58-59` checks the backward `b.cond` against `encodeAt`'s own output, not a TSV row; add a `b-cond-back` row to encodings.s/tsv and assert against it (T16 sweep).
+- LOW (024 branch review) `src/tests/SabkTests.cs`, `SabkLawTests.cs`: off arm64 macOS the tests return early and count as passed, not skipped; report them as skips so the R9 count line is honest.
+- LOW (024 branch review) `RunInRoot` in `SabkTests.cs`/`SabkLawTests.cs` has no timeout and is duplicated; one helper with a timeout.
+- LOW (024 branch review) `SabkTests.cs:81` requires `ld` stderr to be empty; a minos-15 warning from a newer ld fails it. Match known warnings or assert on the exit code and output.
+- LOW (024 branch review) `SabkSourceTestsPass` reads `sweep.tsv` that a previous run may have left stale; regenerate or check its age.
+- LOW (024 branch review) `src/sabk/enc/labels.byn:65-70` `bind` sets the offset before patching, so a `word` failure leaves the assembler half-bound.
+- LOW (024 branch review) `src/sabk/ra/lower.byn:270` an `.open` block is skipped silently; refuse it.
+- LOW (024 branch review) `src/sabk/enc/encode.byn:213-220` accepts unpredictable ldp/stp forms (writeback with Rt == Rn, or Rt == Rt2 on load); refuse them.
+- LOW (024 branch review) `src/sabk/enc/encode.test.byn:239,250,257,294` `?? 0` / `catch => 0` turn a parse failure into a value; fail the test instead.
+- LOW (024 branch review) `labels.test.byn`, `writer.test.byn` still hold hand-typed hex words (spec 024 R3); take them from encodings.tsv.
+- LOW (024 branch review) `src/sabk/obj/writer.byn:117-126,282` does not refuse duplicate section names or symbol offsets past their section's end.
+- LOW (024 branch review) CI time: the sabk tests build four stage-2 packages; share one build.
+- LOW (024 branch review) `scripts/sabk/record-macho.sh` uses the host's unpinned Apple clang/otool/nm; a second toolchain (CLT clang-2100.3.34.2, SDK 27.0) gave identical bytes (refuted as MEDIUM), but the symbol and reloc order still depend on the assembler version.
