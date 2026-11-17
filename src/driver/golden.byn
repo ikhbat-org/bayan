@@ -19,7 +19,7 @@
 //
 // Comparison (spec 019 T2): `goldenRun` produces a case's text in this process and `goldenCompare` sets it against the expected file beside the
 // input, as Golden.cs:35 `Compare` does: CR LF reads as LF, and the first differing line is reported. Per kind the producer is the one the C# class
-// calls (named on each function). `style` and the file kinds are T3.
+// calls (named on each function); `style` (T2b) runs a child driver, below `goldenExeReport`. The file kinds are T3.
 
 import lexer
 import parser
@@ -383,8 +383,16 @@ string goldenProduce(in GoldenCase c) uses alloc, clock, console, fs {
     }
 }
 
-/// Runs the text kinds of `c` (T2): null when it passes, else the failure text. Kinds not compared yet (`style`, T3's kinds) fail with that said.
-string? goldenRun(in GoldenCase c) uses alloc, clock, console, fs {
+/// Runs the text kinds of `c` (T2) and `style` (T2b): null when it passes or is skipped (`goldenSkip`), else the failure text. Kinds not
+/// compared yet (T3's kinds) fail with that said.
+string? goldenRun(in GoldenCase c) uses alloc, clock, console, env, fs, process {
+    if c.kind == "style" {
+        return null if goldenSkip(in c) is not null
+        var failure = ""
+        let exe = goldenExe(through: ref failure)
+        return $"{c.input}\n{failure}" if exe == ""
+        return goldenStyle(in c, by: exe)
+    }
     let ending = c.kind is "lex" ? ".tokens" : c.kind is "parse" ? ".ast" : c.kind is "typed" ? ".types" : c.kind is "diag"
         or "manifest" ? ".diag" : c.kind is "diag-json" ? ".jsonl" : ""
     return $"{c.input}\nkind `{c.kind}` is not compared yet" if ending == ""
@@ -432,6 +440,291 @@ string goldenExe(through ref string failure) uses alloc, env, process {
 /// The runner report's driver lines: the path and its version line.
 string goldenExeReport(string path) uses alloc, process {
     return $"driver: {path}\n{goldenExeVersion(path) ?? ""}\n"
+}
+
+// The `style` kind (spec 019 T2b). StyleTests.cs:44-210 renders each shape three ways; 17 shapes are a `bayan` command, run here as a child of the
+// driver `$BAYAN_EXE` names in the env `Render` sets (:57-69, `CliEnvironmentTests.WithTerminalEnv`), with `BAYAN_TERMINAL=100` standing for
+// `new CliApp.Terminal(true, true, 100)` (:215). The other five build their input by hand (:172-208); each is a `test` block beside the renderer
+// (plan change 2026-11-17 (T2b)), and the runner skips it naming that block.
+
+/// The three renderings of StyleTests.cs:46, in its order.
+List<string> goldenStyleEndings() uses alloc {
+    var endings = List<string>()
+    endings.append(".color")
+    endings.append(".plain")
+    endings.append(".ascii")
+    return endings
+}
+
+/// The style `TerminalStyle.Decide("auto", ascii, isTty: true, …, 100)` picks in `Render`'s env (`COLORTERM=truecolor`, `BAYAN_THEME=dark`,
+/// `NO_COLOR=1` for `.plain`, `LANG=en_US.UTF-8`) for the rendering `ending`: StyleTests.cs:180 `TerminalStyleFor`.
+DStyle goldenStyleOf(string ending) {
+    return DStyle { color: false, ascii: false, width: 100 } if ending == ".plain"
+    return DStyle { color: true, ascii: ending == ".ascii", width: 100, palette: 2 }
+}
+
+/// StyleTests.cs:178 `Streams`.
+string goldenStreams(string stdout, for string stderr) uses alloc => $"--- stdout ---\n{stdout}--- stderr ---\n{stderr}"
+
+/// `text` set against the frozen tests/cases/style/`shape``ending`, read now: null when it matches, else the failure naming that file.
+string? goldenStyleCompare(string shape, for string ending, as string text) uses alloc, fs {
+    let expected = Path.fullPath($"tests/cases/style/{shape}{ending}")
+    return goldenCompare(text, for: expected, at: expected)
+}
+
+/// The byte offset of the first `needle` in `text`; -1 when there is none.
+i64 goldenOffset(string text, for string needle) {
+    for i in 0..text.length - needle.length + 1 {
+        return i if text[i..i + needle.length] == needle
+    }
+    return -1
+}
+
+/// StyleTests.cs:213 `Mask`: line endings, the scratch `dir`, the `cache`, the host target, the version and `.exe`, then `\d+\.\d+s` as `0.00s`.
+/// An empty `dir` or `cache` is not replaced.
+string goldenStyleMask(string text, for string dir, at string cache) uses alloc {
+    var t = goldenLf(text)
+    if dir != "" {
+        t = t.replaced($"{dir}{Target.os == "windows" ? "\\" : "/"}", by: "<dir>/").replaced(dir, by: "<dir>")
+    }
+    if Target.os == "windows" {
+        // `<dir>/\S*` with `\` read as `/`
+        var sb = StrBuf()
+        var first = true
+        for part in t.parts(by: "<dir>/") {
+            if first {
+                sb.append(part)
+                first = false
+                continue
+            }
+            var end: i64 = 0
+            while end < part.length && !(part.bytes[end] is 0x20 or 0x09 or 0x0a or 0x0d) {
+                end += 1
+            }
+            sb.append($"<dir>/{part[0..end].replaced("\\", by: "/")}{part[end..part.length]}")
+        }
+        t = sb.finish()
+    }
+    if cache != "" {
+        t = t.replaced(cache, by: "<cache>")
+    }
+    t = t.replaced(t5HostTarget(), by: "<host>").replaced(version, by: "<version>").replaced(".exe", by: "")
+    // a match starts and ends at ASCII bytes, so the slices between matches keep whole code points
+    var sb = StrBuf()
+    var from: i64 = 0
+    var i: i64 = 0
+    while i < t.length {
+        let end = goldenSecondsAt(t, at: i)
+        if end > i {
+            sb.append(t[from..i])
+            sb.append("0.00s")
+            i = end
+            from = end
+        } else {
+            i += 1
+        }
+    }
+    sb.append(t[from..t.length])
+    return sb.finish()
+}
+
+/// The end of a `\d+\.\d+s` match starting at `start` in `text`, or `start` when none starts there.
+i64 goldenSecondsAt(string text, at i64 start) {
+    var i = start
+    while i < text.length && text.bytes[i] is 0x30..=0x39 {
+        i += 1
+    }
+    return start if i == start || i >= text.length || text.bytes[i] != 0x2e
+    i += 1
+    let fraction = i
+    while i < text.length && text.bytes[i] is 0x30..=0x39 {
+        i += 1
+    }
+    return start if i == fraction || i >= text.length || text.bytes[i] != 0x73
+    return i + 1
+}
+
+/// The skip of a `style` case rendered in-process by StyleTests.cs:172-208: its covering `test` block, named; null for any other case.
+string? goldenSkip(in GoldenCase c) uses alloc {
+    return null if c.kind != "style"
+    var block = ""
+    var file = "src/driver/cc.byn"
+    switch c.name {
+        case "diag-secondary":
+            block = "a related span renders as"
+            file = "src/driver/commands.byn"
+        case "build-ice":
+            block = "a rejected build renders as"
+        case "lower-ice":
+            block = "an error node that reached lowering renders as"
+        case "doctor-ok":
+            block = "passing checks render as"
+            file = "src/driver/doctor.byn"
+        case "doctor-fail":
+            block = "failing checks render as"
+            file = "src/driver/doctor.byn"
+        default:
+            return null
+    }
+    return $"skipped: covered by the test block \"{c.name}: {block} tests/cases/style/{c.name} in each style\" in {file}"
+}
+
+/// StyleTests.cs:213 `Run` in a child: `exe args` in `env`, as `# bayan <args>`, the exit code and both streams. A child that is killed, outlives
+/// two minutes or cannot start sets `failure`.
+string goldenStyleRun(string exe, by in List<string> args, for in Map<string, string?> env, through ref string failure)
+        uses alloc, process {
+    var line = StrBuf()
+    for i in 0..args.length {
+        line.append(i == 0 ? args[i] : $" {args[i]}")
+    }
+    let shown = line.finish()
+    let r = Io.run(exe, args.span, env: env, timeout: Millis(120000)) catch switch {
+        .signaled(let s, _, let streamErr) => {
+            failure = $"`bayan {shown}` was killed by signal {s}\n{streamErr}"
+            return ""
+        },
+        .timeout(_, _, _) => {
+            failure = $"`bayan {shown}` did not exit within 120 s"
+            return ""
+        },
+        IoError e => {
+            failure = $"cannot run {exe}: {e}"
+            return ""
+        },
+    }
+    return $"# bayan {shown}\nexit: {r.exitCode}\n{goldenStreams(r.stdout, for: r.stderr)}"
+}
+
+/// StyleTests.cs:52 `Render` and :76 `Produce` of a CLI `shape` in the rendering `ending`, through the driver `exe`; masked. `failure` is set
+/// when a child does not exit normally.
+string goldenStyleShape(string shape, for string ending, by string exe, through ref string failure)
+        uses alloc, fs, process {
+    let tmp = Path.fullPath("tmp")
+    let dir = Path.combine(Path.combine(tmp, "style"), shape)
+    deleteWorkDir(dir)
+    let program = Path.combine(dir, "tally")
+    Io.createDirectory(program) catch {
+        failure = $"cannot create {program}"
+        return ""
+    }
+    let cache = Path.combine(Path.combine(tmp, "style-cache"), shape)
+    if shape is "build-ok" or "build-ok-cache" or "build-ok-verbose" {
+        deleteWorkDir(cache)
+    }
+    let none: string? = null
+    var env: Map<string, string?> = []
+    for name in ["NO_COLOR", "FORCE_COLOR", "TERM", "COLORTERM", "BAYAN_THEME", "COLORFGBG", "LC_ALL", "LC_CTYPE"] {
+        env[name] = none
+    }
+    env["LANG"] = "en_US.UTF-8"
+    env["COLORTERM"] = "truecolor"
+    env["BAYAN_THEME"] = "dark"
+    env["CI"] = "1"
+    env["NO_COLOR"] = ending == ".plain" ? "1" : none
+    env["BAYAN_CACHE"] = cache
+    env["BAYAN_TERMINAL"] = "100"
+    let main = Path.combine(program, "main.byn")
+    let output = Path.combine(program, targetExecutableName("tally", for: t5HostTarget()))
+    let ok = "void main() {\n    print(\"hi\")\n}\n"
+    let broken = "void main() {\n    let x = 1\n    x = 2\n    print($\"{x}\")\n}\n"
+    var source = ok
+    var tests = ""
+    var args = List<string>()
+    if ending == ".ascii" {
+        args.append("--ascii")
+    }
+    var twice = false
+    switch shape {
+        case "diag-error-fix":
+            source = "void main() {\n    let total = 0\n    total += 1\n    print($\"{total}\")\n}\n"
+            args.append("check")
+        case "diag-removal-fix":
+            source = "i64 twice(i64 x) => x * 2\n\nvoid main() {\n    let n = try twice(2)\n    print($\"{n}\")\n}\n"
+            args.append("check")
+        case "diag-cap" or "diag-cap-all":
+            var many = StrBuf()
+            many.append("void main() {\n    var y = 0\n")
+            for k in 1..26 {
+                many.append($"    y = x{k}\n")
+            }
+            many.append("}\n")
+            source = many.finish()
+            args.append("check")
+            if shape == "diag-cap-all" {
+                args.append("--all")
+            }
+        case "build-ok" or "build-ok-cache" or "build-ok-verbose" or "build-fail":
+            source = shape == "build-fail" ? broken : ok
+            twice = shape == "build-ok-cache"
+            args.append("build")
+            if shape == "build-ok-verbose" {
+                args.append("-v")
+            }
+            args.append("-o")
+            args.append(output)
+        case "check-ok":
+            args.append("check")
+        case "run-fail":
+            source = broken
+            args.append("run")
+        case "test-ok":
+            tests = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"compares\" {\n    assert(\"a\" != \"b\")\n}\n"
+        case "test-fail":
+            tests = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"is false\" {\n    assert(false)\n}\n\ntest \"panics\" {\n    panic(\"boom\")\n}\n"
+        case "test-pending":
+            tests = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"later\" {\n    todo(\"split by weight\")\n}\n"
+        case "test-verbose":
+            tests = "test \"adds\" {\n    assert(1 + 1 == 2)\n}\n\ntest \"later\" {\n    todo(\"split by weight\")\n}\n\ntest \"is false\" {\n    assert(false)\n}\n"
+        case "test-assert-values":
+            tests = "i64 cents(i64 units) {\n    return units * 100\n}\n\ntest \"leftover cents\" {\n    let net = cents(2) - 1\n    assert(net == cents(2))\n}\n"
+        case "test-control-chars":
+            tests = "test \"ok\\u{1b}]0;PWNED\\u{7}\" {\n    assert(true);\n}\n\ntest \"later\\u{1b}[2J\" {\n    todo(\"soon\");\n}\n\ntest \"y\\u{1b}]0;PWNED\\u{7}\\u{1b}[2J\" {\n    panic(\"boom\\u{1b}[2J\\u{9b}31m\");\n}\n"
+        case "audit":
+            source = "@allow(BYN2230) because \"kept for the C ABI\"\nvoid toHex() {\n}\n\nunsafe void poke() {\n}\n"
+            args.append("audit")
+        default:
+            failure = $"unknown style shape `{shape}`"
+            return ""
+    }
+    if tests != "" {
+        // StyleTests.cs:87 `Tests`: `test [-v] <program>`
+        Io.writeFile(Path.combine(program, "main.test.byn"), tests.bytes) catch {
+            failure = $"cannot write {program}"
+            return ""
+        }
+        args.append("test")
+        if shape is "test-verbose" or "test-control-chars" {
+            args.append("-v")
+        }
+        args.append(program)
+    } else {
+        args.append(main)
+    }
+    Io.writeFile(main, source.bytes) catch {
+        failure = $"cannot write {main}"
+        return ""
+    }
+    if twice {
+        let _ = goldenStyleRun(exe, by: in args, for: in env, through: ref failure)
+        return "" if failure != ""
+    }
+    let text = goldenStyleRun(exe, by: in args, for: in env, through: ref failure)
+    return goldenStyleMask(text, for: dir, at: cache)
+}
+
+/// A CLI `style` case through the driver `exe`: null when its `.color`, `.plain` and `.ascii` files all match, else the failure, naming the
+/// expected file and its first differing line, or the child that did not exit normally.
+string? goldenStyle(in GoldenCase c, by string exe) uses alloc, fs, process {
+    for ending in goldenStyleEndings() {
+        let expected = goldenExpected(c.input, for: ending)
+        var failure = ""
+        let text = goldenStyleShape(c.name, for: ending, by: exe, through: ref failure)
+        return $"{expected}\n{failure}" if failure != ""
+        if (goldenCompare(text, for: expected, at: expected) is { } different) {
+            return different
+        }
+    }
+    return null
 }
 
 /// Writes `text` to `root`/`rel`, creating the directories above it.
@@ -503,7 +796,8 @@ test "a missing kind directory and a missing root list nothing" {
 }
 
 /// Failure texts of the cases of `kind` under `root`, and in `count` how many ran.
-List<string> goldenFailures(string root, for string kind, to ref i64 count) uses alloc, clock, console, fs {
+List<string> goldenFailures(string root, for string kind, to ref i64 count)
+        uses alloc, clock, console, env, fs, process {
     var exit = 0
     var failures = List<string>()
     for c in goldenDiscover(root, through: ref exit) {
@@ -636,4 +930,93 @@ test "an unset, empty or non-executable BAYAN_EXE fails naming BAYAN_EXE" {
         && plainFailure.contains("BAYAN_EXE")
         && missing.contains("BAYAN_EXE") && exited.contains("BAYAN_EXE") && slow.contains("BAYAN_EXE"))
     assert(unset != plainFailure)
+}
+
+/// The `style` cases of `root`: in `skips` the skip texts, and the failures returned (T2b). `$BAYAN_EXE` names the driver.
+List<string> goldenStyleFailures(string root, to ref List<string> skips) uses alloc, clock, console, env, fs, process {
+    var exit = 0
+    var failures = List<string>()
+    for c in goldenDiscover(root, through: ref exit) {
+        continue if c.kind != "style"
+        if (goldenSkip(in c) is { } skip) {
+            skips.append($"style/{c.name}: {skip}")
+        } else if (goldenRun(in c) is { } failure) {
+            failures.append(failure)
+        }
+    }
+    return failures
+}
+
+/// Copies tests/cases/style/`shape`.{color,plain,ascii} into `root`/style/.
+void goldenStyleCopy(string root, for string shape) uses alloc, fs {
+    for ending in goldenStyleEndings() {
+        let text = Io.readText(Path.fullPath($"tests/cases/style/{shape}{ending}")) catch ""
+        goldenWrite(root, for: $"style/{shape}{ending}", as: text)
+    }
+}
+
+test "the 17 CLI style shapes match through BAYAN_EXE and the five in-process shapes are skipped naming their test block" {
+    var skips = List<string>()
+    let failures = goldenStyleFailures(Path.fullPath("tests/cases"), to: ref skips)
+    for f in failures {
+        print(f)
+    }
+    assert(failures.length == 0)
+    assert(skips.length == 5)
+    for skip in skips {
+        assert(skip.contains("covered by the test block \"") && skip.contains("src/driver/"))
+    }
+}
+
+test "a changed expected .color line fails naming the file and the first differing line" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-style-compare")
+    deleteWorkDir(root)
+    goldenStyleCopy(root, for: "check-ok")
+    let path = Path.combine(root, "style/check-ok.color")
+    let expected = Io.readText(path) catch ""
+    var changed = goldenLines(expected)
+    let was = changed[3]
+    changed[3] = "changed line"
+    var text = ""
+    for i in 0..changed.length {
+        text = i == 0 ? changed[i] : $"{text}\n{changed[i]}"
+    }
+    goldenWrite(root, for: "style/check-ok.color", as: text)
+    var skips = List<string>()
+    let failures = goldenStyleFailures(root, to: ref skips)
+    deleteWorkDir(root)
+    assert(failures.length == 1)
+    assert(failures[0].startsWith($"{path}\n"))
+    assert(failures[0].contains($"expected line 4: changed line\nactual line 4: {was}"))
+}
+
+test "a style child killed by a signal fails that case and the next case still runs" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-style-crash")
+    deleteWorkDir(root)
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(exe != "")
+    goldenStyleCopy(root, for: "check-ok")
+    goldenStyleCopy(root, for: "diag-error-fix")
+    // a driver that crashes on the `check-ok` scratch directory and is `$BAYAN_EXE` otherwise
+    goldenWrite(
+        root,
+        for: "crash",
+        as: $"#!/bin/sh\ncase \"$*\" in *\"/style/check-ok/\"*) kill -SEGV $$ ;; esac\nexec \"{exe}\" \"$@\"\n",
+    )
+    let crash = Path.combine(root, "crash")
+    var args = List<string>()
+    args.append("a+x")
+    args.append(crash)
+    let _ = Io.run("chmod", args.span) catch { panic($"cannot make {crash} executable") }
+    var exit = 0
+    var results = List<string>()
+    for c in goldenDiscover(root, through: ref exit) {
+        results.append(goldenStyle(in c, by: crash) ?? "passed")
+    }
+    deleteWorkDir(root)
+    assert(results.length == 2)
+    assert(results[0].startsWith(Path.combine(root, "style/check-ok.color"))
+        && results[0].contains("killed by signal 11"))
+    assert(results[1] == "passed")
 }
