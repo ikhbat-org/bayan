@@ -18,15 +18,22 @@
 // not hold its whole `checks/expected.stdout`. It prints `PASS <task>` or `FAIL <task>: <reasons>` and the slowest run.
 // Exit 0 when every task passed, 1 when one failed or the recheck could not start, 2 on bad usage.
 //
-//   bash scripts/bayan-tool.sh llm-eval run <tasks-dir> --model '<command>' [--context <file>] [--only <task>] [--out <dir>]
+//   bash scripts/bayan-tool.sh llm-eval run <tasks-dir> --model '<command>' [--samples <k>] [--context <file>]
+//        [--label <text>] [--settings <text>] [--machine <text> | --remote <provider>] [--only <task>] [--out <dir>]
 //
-// `run` sends each task's prompt to the model command and scores its reply as `score` does, in <out>/<n>/ (the first free
-// number; --out defaults to tmp/llm-eval/run/). The prompt is evals/llm/preamble.md, then the context file when given,
-// then the task's `prompt.md` (R3, R36). The command is run with `sh -c`, the prompt on its standard input; its standard
-// output is the reply and a `tokens: <n>` line on its standard error is read (R33). The code is the contents of the last
-// fenced code block of the reply, or the whole reply when it has none (R16). It prints one record per task, with `wallMs`,
-// `tokens` (when printed) and `reply`. The runner opens no socket (R34). Exit 0 when every record is printed, 1 when the
-// run could not start or the model command failed, 2 on bad usage. Samples, records.jsonl and the summary are T8.
+// `run` sends each task's prompt to the model command k times (--samples, default 1) and scores each reply as `score`
+// does, in <out>/<n>/work/<task>/<sample>/ (<n> the first free number; --out defaults to tmp/llm-eval/run/). The prompt is
+// evals/llm/preamble.md, then the context file when given, then the task's `prompt.md` (R3, R36). The command is run with
+// `sh -c`, the prompt on its standard input; its standard output is the reply and a `tokens: <n>` line on its standard
+// error is read (R33). The code is the contents of the last fenced code block of the reply, or the whole reply when it
+// has none (R16). It prints one record per task and sample, with `wallMs`, `tokens` (when printed) and `reply`, and
+// writes them to <out>/<n>/records.jsonl (R37). <out>/<n>/summary.json holds pass@1, pass@k, compile, lint-clean and
+// format-stable as counts and rates, overall, per category, per tier and per revision (R30); pass@k counts the tasks
+// where at least one of the k samples passed, as R30 defines it. It names the task-set commit, the compiler, the
+// revisions, the context file, the label, the settings, k, the limits, the sandbox and the machine or `remote` with the
+// provider (R27, R32), and the speed: total wall time, and tokens per second only when every sample printed `tokens:`
+// (R31). The runner opens no socket (R34). Exit 0 when the summary is written, 1 when the run could not start or the
+// model command failed, 2 on bad usage.
 
 import std.json
 
@@ -34,7 +41,7 @@ type JsonValue  = json.JsonValue
 type JsonMember = json.JsonMember
 type Json       = json.Json
 
-const usage: string = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]\n       llm-eval recheck <tasks-dir> [--only <task>] [--out <dir>]\n       llm-eval run <tasks-dir> --model '<command>' [--context <file>] [--only <task>] [--out <dir>]"
+const usage: string = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]\n       llm-eval recheck <tasks-dir> [--only <task>] [--out <dir>]\n       llm-eval run <tasks-dir> --model '<command>' [--samples <k>] [--context <file>] [--label <text>] [--settings <text>]\n            [--machine <text> | --remote <provider>] [--only <task>] [--out <dir>]"
 const buildMs: i64 = 120000
 const runMs: i64 = 10000
 const outputBytes: i64 = 1048576
@@ -198,10 +205,24 @@ string pinnedBayan(string root) fails EvalError {
 /// task, `bayan test`, which builds too). The time is never part of the record (R9); only `recheck` reports it.
 struct Scored {
     string record
-    bool   clean    = false
-    string results  = ""
-    bool   tested   = false
-    i64    runNanos = 0
+    bool   clean        = false
+    string results      = ""
+    bool   tested       = false
+    i64    runNanos     = 0
+    bool   compiles     = false
+    bool   passed       = false
+    bool   lintClean    = false
+    bool   formatStable = false
+    string sandbox      = ""
+}
+
+/// The limits of R14 as JSON.
+JsonValue limitsJson() {
+    var limits = List<JsonMember>()
+    limits.append(JsonMember { key: "buildSeconds", value: number(buildMs / 1000) })
+    limits.append(JsonMember { key: "runSeconds", value: number(runMs / 1000) })
+    limits.append(JsonMember { key: "outputBytes", value: number(outputBytes) })
+    return .object(members: move limits)
 }
 
 /// What `run` adds to a record: the wall time of the model command (R31), the tokens it reported (R33) and its reply.
@@ -211,14 +232,20 @@ struct Reply {
     string text
 }
 
-/// Scores `candidate` against the task in `taskDir` with the compiler `bayan`, in a new sample directory under `outDir`.
-/// A model's reply, when given, is added at the end of the record.
-Scored scoreSample(string taskDir, for string candidate, from string bayan, to string outDir, at Reply? reply)
-        fails EvalError {
+/// Scores `candidate` against the task in `taskDir` with the compiler `bayan`, in a new sample directory under `outDir`
+/// named by the sample's number `n`. A model's reply, when given, is added at the end of the record.
+Scored scoreSample(
+    string taskDir,
+    for string candidate,
+    from string bayan,
+    to string outDir,
+    at Reply? reply,
+    as i64 n
+) fails EvalError {
     let root = try repoRoot()
     let task = try readTask(taskDir)
     let source = Io.readFile(candidate) catch fail .failed(message: $"cannot read {candidate}")
-    let sample = Path.combine(outDir, $"work/{task.name}/1")
+    let sample = Path.combine(outDir, $"work/{task.name}/{n}")
     fail .failed(message: $"{sample} exists; give another --out") if isDirectory(sample)
     let p = Places {
         bayan: bayan,
@@ -327,10 +354,6 @@ Scored scoreSample(string taskDir, for string candidate, from string bayan, to s
     let lintClean = !namesSolution(check.stderr)
     let outcome = compiles ? (passes ? "pass" : (limit ? "limit" : "fail")) : (limit ? "limit" : "no-compile")
 
-    var limits = List<JsonMember>()
-    limits.append(JsonMember { key: "buildSeconds", value: number(buildMs / 1000) })
-    limits.append(JsonMember { key: "runSeconds", value: number(runMs / 1000) })
-    limits.append(JsonMember { key: "outputBytes", value: number(outputBytes) })
     var m = List<JsonMember>()
     m.append(JsonMember { key: "task", value: .text(value: task.name) })
     m.append(JsonMember { key: "category", value: .text(value: task.category) })
@@ -338,7 +361,7 @@ Scored scoreSample(string taskDir, for string candidate, from string bayan, to s
     m.append(JsonMember { key: "split", value: .text(value: task.split) })
     m.append(JsonMember { key: "revision", value: .text(value: task.revision) })
     m.append(JsonMember { key: "check", value: .text(value: task.check) })
-    m.append(JsonMember { key: "sample", value: number(1) })
+    m.append(JsonMember { key: "sample", value: number(n) })
     m.append(JsonMember { key: "compiles", value: .flag(value: compiles) })
     m.append(JsonMember { key: "passes", value: result(value: passes, at: compiles) })
     m.append(JsonMember { key: "lintClean", value: result(value: lintClean, at: compiles) })
@@ -346,7 +369,7 @@ Scored scoreSample(string taskDir, for string candidate, from string bayan, to s
     m.append(JsonMember { key: "outcome", value: .text(value: outcome) })
     m.append(JsonMember { key: "passed", value: .flag(value: compiles && passes) })
     m.append(JsonMember { key: "sandbox", value: .text(value: probe.sandbox) })
-    m.append(JsonMember { key: "limits", value: .object(members: move limits) })
+    m.append(JsonMember { key: "limits", value: limitsJson() })
     if reply is not null {
         m.append(JsonMember { key: "wallMs", value: number(reply.wallMs) })
         if reply.tokens is not null {
@@ -365,6 +388,11 @@ Scored scoreSample(string taskDir, for string candidate, from string bayan, to s
         results: results,
         tested: task.check == "tests",
         runNanos: runNanos,
+        compiles: compiles,
+        passed: compiles && passes,
+        lintClean: compiles && lintClean,
+        formatStable: compiles && formatStable,
+        sandbox: probe.sandbox,
     }
 }
 
@@ -372,7 +400,7 @@ Scored scoreSample(string taskDir, for string candidate, from string bayan, to s
 void score(string taskDir, for string candidate, to string outDir) fails EvalError {
     let root = try repoRoot()
     let bayan = try pinnedBayan(root)
-    let scored = try scoreSample(taskDir, for: candidate, from: bayan, to: outDir, at: null)
+    let scored = try scoreSample(taskDir, for: candidate, from: bayan, to: outDir, at: null, as: 1)
     print(scored.record)
 }
 
@@ -594,7 +622,7 @@ bool recheck(string tasksDir, for string? only, to string outDir) fails EvalErro
         let dir = Path.combine(tasksDir, name)
         let reference = Path.combine(dir, "reference/solution.byn")
         if Fs.fileExists(reference) {
-            let scored = scoreSample(dir, for: reference, from: bayan, to: runDir, at: null) catch switch {
+            let scored = scoreSample(dir, for: reference, from: bayan, to: runDir, at: null, as: 1) catch switch {
                 .failed(let message) => Scored { record: "", results: message },
             }
             problems.append($"reference: {scored.results}") if !scored.clean
@@ -648,46 +676,253 @@ string extracted(string reply) {
     return found ? code : reply
 }
 
-/// Sends the prompt of every task in `tasksDir`, or only of `only`, to the model command `modelCommand` and prints the
-/// record of its reply. `contextFile`, when given, goes between the preamble and `prompt.md` (R36).
-void run(string tasksDir, by string modelCommand, from string? contextFile, for string? only, to string outDir)
-        fails EvalError {
+/// What `run` is given apart from the tasks directory and `--out`.
+struct RunOptions {
+    string  command
+    string? contextFile = null
+    string? only        = null
+    i64     samples     = 1
+    string? label       = null
+    string? settings    = null
+    string? machine     = null
+    string? remote      = null
+}
+
+/// What one task counts for in the summary (R30): the first sample's results, and whether any sample passed.
+struct Counted {
+    string category
+    i64    tier
+    string revision
+    string split
+    bool   passedFirst
+    bool   passedAny
+    bool   compiles
+    bool   lintClean
+    bool   formatStable
+}
+
+/// `count / total` to four decimal places, rounded, as a JSON number (0 when `total` is 0).
+JsonValue rate(i64 count, by i64 total) {
+    let scaled = total == 0 ? 0 : (count * 20000 / total + 1) / 2
+    let fraction = scaled % 10000
+    var pad = ""
+    if fraction < 10 {
+        pad = "000"
+    } else if fraction < 100 {
+        pad = "00"
+    } else if fraction < 1000 {
+        pad = "0"
+    }
+    return .number(value: f64(scaled) / 10000.0, text: $"{scaled / 10000}.{pad}{fraction}")
+}
+
+/// `count` of `total` as `{"count": …, "rate": …}`.
+JsonValue countAndRate(i64 count, by i64 total) {
+    var m = List<JsonMember>()
+    m.append(JsonMember { key: "count", value: number(count) })
+    m.append(JsonMember { key: "rate", value: rate(count, by: total) })
+    return .object(members: move m)
+}
+
+/// The key of `c` in a grouping: its category, tier or revision; "" for `all`.
+string groupKey(Counted c, by string kind) {
+    return c.category if kind == "category"
+    return $"{c.tier}" if kind == "tier"
+    return c.revision if kind == "revision"
+    return ""
+}
+
+/// The five metrics of R30 over the tasks of `counts` whose `kind` key is `key`, with the number of tasks.
+JsonValue metrics(List<Counted> counts, by string kind, at string key) {
+    var tasks: i64 = 0
+    var passedFirst: i64 = 0
+    var passedAny: i64 = 0
+    var compiles: i64 = 0
+    var lintClean: i64 = 0
+    var formatStable: i64 = 0
+    for c in counts {
+        continue if groupKey(c, by: kind) != key
+        tasks += 1
+        passedFirst += 1 if c.passedFirst
+        passedAny += 1 if c.passedAny
+        compiles += 1 if c.compiles
+        lintClean += 1 if c.lintClean
+        formatStable += 1 if c.formatStable
+    }
+    var m = List<JsonMember>()
+    m.append(JsonMember { key: "tasks", value: number(tasks) })
+    m.append(JsonMember { key: "pass@1", value: countAndRate(passedFirst, by: tasks) })
+    m.append(JsonMember { key: "pass@k", value: countAndRate(passedAny, by: tasks) })
+    m.append(JsonMember { key: "compile", value: countAndRate(compiles, by: tasks) })
+    m.append(JsonMember { key: "lintClean", value: countAndRate(lintClean, by: tasks) })
+    m.append(JsonMember { key: "formatStable", value: countAndRate(formatStable, by: tasks) })
+    return .object(members: move m)
+}
+
+/// The distinct `kind` keys of `counts`, in the order they first appear.
+List<string> groupKeys(List<Counted> counts, by string kind) {
+    var keys = List<string>()
+    for c in counts {
+        let k = groupKey(c, by: kind)
+        keys.append(k) if !has(keys, for: k)
+    }
+    return keys
+}
+
+/// The metrics per `kind` key, as one object.
+JsonValue grouped(List<Counted> counts, by string kind) {
+    var m = List<JsonMember>()
+    for k in groupKeys(counts, by: kind) {
+        m.append(JsonMember { key: k, value: metrics(counts, by: kind, at: k) })
+    }
+    return .object(members: move m)
+}
+
+/// The first line of standard output of `program args` in `directory`, or null when it cannot run or exits non-zero.
+string? firstLine(string program, for List<string> args, at string directory) {
+    let r = Io.run(program, args.span, directory: directory) catch return null
+    return null if r.exitCode != 0
+    let text = r.stdout.trimmed()
+    return text[..(text.position("\n") ?? text.length)]
+}
+
+/// Sends the prompt of every task in `tasksDir`, or only of `o.only`, to the model command `o.samples` times, prints
+/// the record of each reply, and writes `records.jsonl` and `summary.json` (R30, R37). `o.contextFile`, when given, goes
+/// between the preamble and `prompt.md` (R36).
+void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
     let root = try repoRoot()
     let bayan = try pinnedBayan(root)
     let preamblePath = Path.combine(root, "evals/llm/preamble.md")
     let preamble = Io.readText(preamblePath) catch fail .failed(message: $"cannot read {preamblePath}")
     var contextText = ""
-    if contextFile is not null {
-        let text = Io.readText(contextFile) catch fail .failed(message: $"cannot read {contextFile}")
+    if o.contextFile is not null {
+        let path = o.contextFile ?? ""
+        let text = Io.readText(path) catch fail .failed(message: $"cannot read {path}")
         contextText = $"{text}\n"
     }
-    let names = try taskNames(tasksDir, for: only)
+    let names = try taskNames(tasksDir, for: o.only)
     let runDir = freshDir(outDir)
+    Io.createDirectory(runDir) catch fail .failed(message: $"cannot make {runDir}")
+    let recordsPath = Path.combine(runDir, "records.jsonl")
+    var records = ""
+    var counts = List<Counted>()
+    var revisions = List<string>()
+    var splits = List<string>()
+    var sandbox = "none"
+    var samples: i64 = 0
+    var wallTotal: i64 = 0
+    var tokensTotal: i64 = 0
+    var everyTokens = true
     for name in names {
-        continue if only is not null && name != only
+        continue if o.only is not null && name != o.only
         let dir = Path.combine(tasksDir, name)
+        let header = try readTask(dir)
+        revisions.append(header.revision) if !has(revisions, for: header.revision)
+        splits.append(header.split) if !has(splits, for: header.split)
         let promptPath = Path.combine(dir, "prompt.md")
         let task = Io.readText(promptPath) catch fail .failed(message: $"cannot read {promptPath}")
         let prompt = $"{preamble}\n{contextText}{task}"
-        var args = List<string>()
-        args.append("-c")
-        args.append(modelCommand)
-        let started = Io.monotonicNanos()
-        let r = Io.run("sh", args.span, input: prompt.bytes) catch switch {
-            IoError e => fail .failed(message: $"cannot run the model command for {name}: {e}"),
-        }
-        let wallMs = (Io.monotonicNanos() - started) / 1000000
-        fail .failed(
-            message: $"the model command exited {r.exitCode} for {name}: {r.stderr.trimmed()}",
-        ) if r.exitCode != 0
         let replies = Path.combine(runDir, $"replies/{name}")
         Io.createDirectory(replies) catch fail .failed(message: $"cannot make {replies}")
-        let candidate = Path.combine(replies, "1.byn")
-        Io.writeFile(candidate, extracted(r.stdout).bytes) catch fail .failed(message: $"cannot write {candidate}")
-        let reply = Reply { wallMs: wallMs, tokens: i64.tryParse(field(r.stderr, for: "tokens") ?? ""), text: r.stdout }
-        let scored = try scoreSample(dir, for: candidate, from: bayan, to: runDir, at: reply)
-        print(scored.record)
+        var counted = Counted {
+            category: header.category,
+            tier: header.tier,
+            revision: header.revision,
+            split: header.split,
+            passedFirst: false,
+            passedAny: false,
+            compiles: false,
+            lintClean: false,
+            formatStable: false,
+        }
+        for s in 1..o.samples + 1 {
+            var args = List<string>()
+            args.append("-c")
+            args.append(o.command)
+            let started = Io.monotonicNanos()
+            let r = Io.run("sh", args.span, input: prompt.bytes) catch switch {
+                IoError e => fail .failed(message: $"cannot run the model command for {name}: {e}"),
+            }
+            let wallMs = (Io.monotonicNanos() - started) / 1000000
+            fail .failed(
+                message: $"the model command exited {r.exitCode} for {name}: {r.stderr.trimmed()}",
+            ) if r.exitCode != 0
+            let candidate = Path.combine(replies, $"{s}.byn")
+            Io.writeFile(candidate, extracted(r.stdout).bytes) catch fail .failed(message: $"cannot write {candidate}")
+            let tokens = i64.tryParse(field(r.stderr, for: "tokens") ?? "")
+            let reply = Reply { wallMs: wallMs, tokens: tokens, text: r.stdout }
+            let scored = try scoreSample(dir, for: candidate, from: bayan, to: runDir, at: reply, as: s)
+            print(scored.record)
+            records = $"{records}{scored.record}\n"
+            Io.writeFile(recordsPath, records.bytes) catch fail .failed(message: $"cannot write {recordsPath}")
+            samples += 1
+            wallTotal += wallMs
+            if tokens is not null {
+                tokensTotal += tokens
+            } else {
+                everyTokens = false
+            }
+            sandbox = scored.sandbox if samples == 1
+            if s == 1 {
+                counted.passedFirst = scored.passed
+                counted.compiles = scored.compiles
+                counted.lintClean = scored.lintClean
+                counted.formatStable = scored.formatStable
+            }
+            counted.passedAny = true if scored.passed
+        }
+        counts.append(counted)
     }
+
+    let compiler = firstLine(bayan, for: ["--version"], at: root) ?? "unknown"
+    let at = compiler.position("(commit ") ?? -1
+    let compilerCommit = at < 0 ? "unknown" : compiler[at + 8..(compiler.position(")") ?? compiler.length)]
+    var revisionList = List<JsonValue>()
+    for r in revisions {
+        revisionList.append(.text(value: r))
+    }
+    var speed = List<JsonMember>()
+    speed.append(JsonMember { key: "samples", value: number(samples) })
+    speed.append(JsonMember { key: "wallMs", value: number(wallTotal) })
+    // Tokens per second only from counts the model command printed, never estimated (R31).
+    if everyTokens && samples > 0 {
+        speed.append(JsonMember { key: "tokens", value: number(tokensTotal) })
+        if wallTotal > 0 {
+            speed.append(JsonMember { key: "tokensPerSecond", value: rate(tokensTotal * 1000, by: wallTotal) })
+        }
+    }
+    var m = List<JsonMember>()
+    m.append(JsonMember { key: "split", value: .text(value: joined(splits, by: ", ")) })
+    m.append(JsonMember {
+        key: "taskSetCommit",
+        value: .text(value: firstLine("git", for: ["rev-parse", "HEAD"], at: tasksDir) ?? "none"),
+    })
+    m.append(JsonMember { key: "compiler", value: .text(value: compiler) })
+    m.append(JsonMember { key: "compilerCommit", value: .text(value: compilerCommit) })
+    m.append(JsonMember { key: "revisions", value: .list(items: move revisionList) })
+    m.append(JsonMember { key: "context", value: .text(value: o.contextFile ?? "none") })
+    m.append(JsonMember { key: "label", value: .text(value: o.label ?? "none") })
+    m.append(JsonMember { key: "settings", value: .text(value: o.settings ?? "none") })
+    m.append(JsonMember { key: "k", value: number(o.samples) })
+    m.append(JsonMember { key: "limits", value: limitsJson() })
+    m.append(JsonMember { key: "sandbox", value: .text(value: sandbox) })
+    if o.remote is not null {
+        m.append(JsonMember { key: "machine", value: .text(value: "remote") })
+        m.append(JsonMember { key: "provider", value: .text(value: o.remote ?? "") })
+    } else {
+        m.append(JsonMember { key: "machine", value: .text(value: o.machine ?? "not given") })
+    }
+    m.append(JsonMember { key: "speed", value: .object(members: move speed) })
+    m.append(JsonMember { key: "overall", value: metrics(counts, by: "all", at: "") })
+    m.append(JsonMember { key: "byCategory", value: grouped(counts, by: "category") })
+    m.append(JsonMember { key: "byTier", value: grouped(counts, by: "tier") })
+    m.append(JsonMember { key: "byRevision", value: grouped(counts, by: "revision") })
+    let summary = Json.encode(
+        .object(members: move m),
+        indent: 2,
+    ) catch fail .failed(message: "cannot encode the summary")
+    let summaryPath = Path.combine(runDir, "summary.json")
+    Io.writeFile(summaryPath, $"{summary}\n".bytes) catch fail .failed(message: $"cannot write {summaryPath}")
 }
 
 i32 main(ReadOnlySpan<string> argv) {
@@ -708,11 +943,17 @@ i32 main(ReadOnlySpan<string> argv) {
     var only: string? = null
     var modelCommand: string? = null
     var contextFile: string? = null
+    var samples: i64? = 1
+    var label: string? = null
+    var settings: string? = null
+    var machine: string? = null
+    var remote: string? = null
     var rest = List<string>()
     var i: i64 = 1
     while i < args.length {
         let a = args[i]
-        let runOption = command == "run" && (a is "--model" or "--context")
+        let runOption = command == "run"
+            && (a is "--model" or "--context" or "--samples" or "--label" or "--settings" or "--machine" or "--remote")
         if a == "--out" || (command != "score" && a == "--only") || runOption {
             if i + 1 >= args.length {
                 print(usage, to: .stderr)
@@ -724,6 +965,16 @@ i32 main(ReadOnlySpan<string> argv) {
                 only = args[i + 1]
             } else if a == "--model" {
                 modelCommand = args[i + 1]
+            } else if a == "--samples" {
+                samples = i64.tryParse(args[i + 1])
+            } else if a == "--label" {
+                label = args[i + 1]
+            } else if a == "--settings" {
+                settings = args[i + 1]
+            } else if a == "--machine" {
+                machine = args[i + 1]
+            } else if a == "--remote" {
+                remote = args[i + 1]
             } else {
                 contextFile = Path.fullPath(args[i + 1])
             }
@@ -733,18 +984,24 @@ i32 main(ReadOnlySpan<string> argv) {
             i += 1
         }
     }
-    if rest.length != (command == "score" ? 2 : 1) || (command == "run" && modelCommand is null) {
+    let k = samples ?? 0
+    let badRun = command == "run" && (modelCommand is null || k < 1 || (machine is not null && remote is not null))
+    if rest.length != (command == "score" ? 2 : 1) || badRun {
         print(usage, to: .stderr)
         return 2
     }
     if command == "run" {
-        run(
-            Path.fullPath(rest[0]),
-            by: modelCommand ?? "",
-            from: contextFile,
-            for: only,
-            to: Path.fullPath(outDir),
-        ) catch switch {
+        let options = RunOptions {
+            command: modelCommand ?? "",
+            contextFile: contextFile,
+            only: only,
+            samples: k,
+            label: label,
+            settings: settings,
+            machine: machine,
+            remote: remote,
+        }
+        run(Path.fullPath(rest[0]), by: options, to: Path.fullPath(outDir)) catch switch {
             .failed(let message) => {
                 print($"llm-eval: {message}", to: .stderr)
                 return 1

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test for tools/llm-eval.byn `score`, `recheck` and `run` (spec 025 T2, T3, T7). Scratch is under the repo's tmp/. Builds small task sets there at run
+# Test for tools/llm-eval.byn `score`, `recheck` and `run` (spec 025 T2, T3, T7, T8). Scratch is under the repo's tmp/. Builds small task sets there at run
 # time; the seed under evals/llm/tasks is only read.
 #   bash scripts/evals/llm-eval.test.sh
 set -uo pipefail
@@ -198,6 +198,97 @@ check "run: no code block, the whole reply is scored" "$(get none outcome) $(get
 check "run: no tokens line, no tokens field" "$(grep -c '"tokens"' "$root/rec/none")" "0"
 bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" > /dev/null 2>&1
 check "run: no --model is usage" "$?" "2"
+bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model true --machine m --remote p > /dev/null 2>&1
+check "run: --machine with --remote is usage" "$?" "2"
+bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model true --samples 0 > /dev/null 2>&1
+check "run: --samples 0 is usage" "$?" "2"
+
+# Samples, records and summary (T8). Four stdout tasks, each prompt tagged; a stub model command answers sample <n> of
+# task <tag> with $root/plan/<tag>.<n> and prints `tokens: <t>` on standard error when given <t>.
+#   sh stats.sh <root> [<t>]
+# Candidates: right passes with all four; wrong-code compiles, fails, lint-clean, format-stable; broken does not compile;
+# lint passes, compiles, not lint-clean, format-stable.
+#   task              category tier revision  sample 1    sample 2    sample 3
+#   small-901-a       small    1    0023      right       broken      broken
+#   small-902-b       small    2    0023      wrong-code  wrong-code  right
+#   errors-901-c      errors   1    0023      broken      wrong-code  wrong-code
+#   errors-902-d      errors   2    0024      lint        broken      broken
+# Hand counts (tasks, pass@1, pass@3, compile, lint-clean, format-stable; rates are count / tasks):
+#   overall  4  2 3 3 2 3   (pass@1 a d; pass@3 a b d; compile a b d; lint-clean a b; format-stable a b d)
+#   small    2  1 2 2 2 2
+#   errors   2  1 1 1 0 1
+#   tier 1   2  1 1 1 1 1   (a c)
+#   tier 2   2  1 2 2 1 2   (b d)
+#   0023     3  1 2 2 2 2   (a b c)
+#   0024     1  1 1 1 0 1   (d)
+st=$root/sets/stats
+mkdir -p "$root/plan" "$root/count"
+for spec in small-901-a:small:1:0023 small-902-b:small:2:0023 errors-901-c:errors:1:0023 errors-902-d:errors:2:0024; do
+  IFS=: read -r name cat tier rev <<< "$spec"
+  good stats "$name" "$cat"
+  sed -i.bak -e "s/^Tier: 1$/Tier: $tier/" -e "s/^Revision: 0023$/Revision: $rev/" "$st/$name/task.md"; rm "$st/$name/task.md.bak"
+  printf 'Write a program that prints a greeting and exits with code 3.\n\nTag: %s\n' "${name##*-}" > "$st/$name/prompt.md"
+done
+plan() { local tag=$1; shift; local n=1; for c in "$@"; do cp "$root/cand/$c.byn" "$root/plan/$tag.$n"; n=$((n + 1)); done; }
+plan a right broken broken broken
+plan b wrong-code wrong-code right
+plan c broken wrong-code wrong-code
+plan d lint broken broken
+cat > "$root/stats.sh" <<'EOF'
+tag=$(sed -n 's/^Tag: //p')
+n=$(( $(cat "$1/count/$tag" 2>/dev/null || echo 0) + 1 ))
+echo "$n" > "$1/count/$tag"
+cat "$1/plan/$tag.$n"
+if [ -n "${2:-}" ]; then echo "tokens: $2" >&2; fi
+EOF
+find "$st" -type f | sort | xargs shasum > "$root/stats-before"
+bash scripts/bayan-tool.sh llm-eval run "$st" --model "sh $root/stats.sh $root" --samples 3 --context "$root/context.md" \
+  --settings "temperature 0.2" --label stub --machine "Mac test, M1, 64 GB, macOS, stub, none" \
+  --out "$root/out/stats" > "$root/rec/stats" 2> "$root/rec/stats.err"
+code=$?
+out=$root/out/stats/1
+recs() { grep -c "\"task\": \"$1\"" "$out/records.jsonl"; }
+check "run --samples 3: three records per task" \
+  "$code $(wc -l < "$out/records.jsonl" | tr -d ' ') $(recs small-901-a) $(recs small-902-b) $(recs errors-901-c) $(recs errors-902-d) $(grep -c '"sample": 3,' "$out/records.jsonl") $(wc -l < "$root/rec/stats" | tr -d ' ')" \
+  "0 12 3 3 3 3 4 12"
+flat=$(tr -d ' \n' < "$out/summary.json")
+# blk <tasks> <pass@1> <pass@k> <compile> <lint-clean> <format-stable>: the metrics object of the summary.
+blk() {
+  local n=$1 s="{\"tasks\":$1" k; shift
+  for k in pass@1 pass@k compile lintClean formatStable; do
+    s="$s,\"$k\":{\"count\":$1,\"rate\":$(awk "BEGIN { printf \"%.4f\", $1 / $n }")}"; shift
+  done
+  echo "$s}"
+}
+holds() { case "$flat" in *"$1"*) echo holds ;; *) echo "missing $1" ;; esac; }
+check "summary: overall hand counts" "$(holds "\"overall\":$(blk 4 2 3 3 2 3)")" holds
+check "summary: per category hand counts" "$(holds "\"small\":$(blk 2 1 2 2 2 2)") $(holds "\"errors\":$(blk 2 1 1 1 0 1)")" "holds holds"
+check "summary: per tier hand counts" "$(holds "\"1\":$(blk 2 1 1 1 1 1)") $(holds "\"2\":$(blk 2 1 2 2 1 2)")" "holds holds"
+check "summary: per revision hand counts" "$(holds "\"0023\":$(blk 3 1 2 2 2 2)") $(holds "\"0024\":$(blk 1 1 1 1 0 1)")" "holds holds"
+commit=$(git rev-parse HEAD)
+compiler=$("$(bash scripts/pinned-bayan.sh)" --version)
+ccommit=$(echo "$compiler" | sed -n 's/.*(commit \([0-9a-f]*\)).*/\1/p')
+check "summary: names commits, revisions, context, k, settings, limits, sandbox, machine" \
+  "$(holds "\"taskSetCommit\":\"$commit\"") $(holds "\"compiler\":\"$(echo "$compiler" | tr -d ' ')\"") $(holds "\"compilerCommit\":\"$ccommit\"") $(holds '"revisions":["0023","0024"]') $(holds "\"context\":\"$(echo "$root/context.md" | tr -d ' ')\"") $(holds '"k":3,') $(holds '"settings":"temperature0.2"') $(holds '"limits":{"buildSeconds":120,"runSeconds":10,"outputBytes":1048576}') $(holds "\"sandbox\":\"$sandbox\"") $(holds '"machine":"Mactest,M1,64GB,macOS,stub,none"') $(holds '"split":"dev"')" \
+  "holds holds holds holds holds holds holds holds holds holds holds"
+check "summary: no tokens line, no tokens per second" "$(grep -c '"tokens' "$out/summary.json") $(holds '"speed":{"samples":12,"wallMs":')" "0 holds"
+check "run: nothing written under the tasks directory" "$(find "$st" -type f | sort | xargs shasum | cmp -s - "$root/stats-before" && echo same)" "same"
+
+# --remote names the provider; a `tokens:` line on every sample gives tokens per second.
+bash scripts/bayan-tool.sh llm-eval run "$st" --model "sh $root/stats.sh $root 50" --only small-901-a --remote example-provider \
+  --out "$root/out/stats-remote" > "$root/rec/stats-remote" 2>&1
+code=$?
+flat=$(tr -d ' \n' < "$root/out/stats-remote/1/summary.json")
+check "summary: remote with provider, tokens per second when printed" \
+  "$code $(holds '"machine":"remote","provider":"example-provider"') $(holds '"k":1,') $(holds '"tokens":50,"tokensPerSecond":') $(holds '"context":"none"') $(holds '"settings":"none"')" \
+  "0 holds holds holds holds holds"
+
+# A run over the seed leaves git status of the tasks directory clean (R37).
+seedTask=$(basename "$(ls -d "$seed"/*/ | head -1)")
+bash scripts/bayan-tool.sh llm-eval run "$seed" --model "cat $root/cand/broken.byn" --only "$seedTask" --out "$root/out/seed-run" \
+  > "$root/rec/seed-run" 2>&1
+check "run: git status shows nothing written under the tasks directory" \
+  "$? $(git status --porcelain --ignored --untracked-files=all -- "$seed" | wc -l | tr -d ' ') $(grep -c '"outcome": "no-compile"' "$root/out/seed-run/1/records.jsonl")" "0 0 1"
 
 # The whole run, the tool and the stub, inside the launcher's network denial (R34). Writes go only under $root. The pin is
 # found outside: pinned-bayan.sh touches the shared cache, which the sandbox denies. On macOS the scorer's own launches
