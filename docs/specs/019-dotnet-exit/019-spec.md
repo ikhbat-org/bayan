@@ -115,7 +115,7 @@ The port is built during 019a, but 019a lands without it (R24, R29). Until the B
 - **Two bootstraps agree.** For the frozen tree, the self-hosted compiler built by the C# compiler and the one built from `bootstrap/bayan.c` emit the same C for `src/driver`. Kind: property (R27). This restates L027 (bootstrap fixpoint) without a live C# compiler and may be enacted as its amendment.
 
 ## Open questions
-Each has the most conservative option as the default; work proceeds on the default until the owner decides.
+Each had the most conservative option as its default. Every question below is now resolved, and the resolution replaces the default.
 
 - **OQ1 The `v0.3.2` tag.** The tag did not resolve in the checkout this text was written in (2026-11-17); `dev` was at the release merge 06eab86f. *Default:* the freeze export waits for the owner's tag and takes its commit from it; no other commit is used. *Update 2026-11-17:* the tag resolves to 984aa479; the freeze export takes that commit.
 - **OQ2 Freeze conditions.** Decision 006 §2 sets three conditions for freezing at 0.3.2: revision 0024 in or explicitly out, the wording questions (Q1272, Q1186–Q1189) landed, and divergences listed. At the tag, revision 0024 is out, and the Q1272 rewording is in neither compiler (BYN2321 still reads "violates `requires`" where the clause is `expects`). *Resolved:* Freeze at `v0.3.2` as it is: revision 0024, Q1272 and Q1186 are out at the tag and land after 019a, in the self-hosted compiler only, with hand-reviewed goldens. (owner, 2026-11-17, Fable's recommendation).
