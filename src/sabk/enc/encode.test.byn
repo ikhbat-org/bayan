@@ -40,6 +40,7 @@ Cond parseCond(string t) {
         case "lt": return .lt
         case "gt": return .gt
         case "le": return .le
+        case "al": return .al
         default: panic($"unknown condition {t}")
     }
 }
@@ -268,6 +269,56 @@ test "encode matches every row of encodings.tsv" {
     assert report == ""
     assert compared + padding == rows
     assert rows == 322
+}
+
+// ---- L046: the recorded table and the generated sweep ----
+
+/// The first row of a form<TAB>assembler text<TAB>hex table whose word `encode` does not return, as
+/// "form: text: encode <word> assembler <word>", or "" when there is none. A label form is compared with its offset field
+/// zero. `rows` counts the rows compared; `nop` rows (padding, not in the subset) are skipped.
+string firstCounterexample(string text, by ref i64 rows) uses alloc {
+    for line in text.parts(by: "\n") {
+        if line.isEmpty || line.startsWith("#") {
+            continue
+        }
+        var cols = List<string>()
+        for c in line.parts(by: "\t") {
+            cols.append($"{c}")
+        }
+        assert cols.length == 3
+        let asm = cols[1]
+        if asm == "nop" {
+            continue
+        }
+        rows += 1
+        let expected = u32.tryParse(cols[2], as: .hex) ?? 0
+        let space = asm.position(" ")
+        let mnemonic = space is null ? asm : asm[0..(space ?? 0)]
+        let want = expected & ~offsetMask(mnemonic)
+        let got = encode(parseInst(asm)) catch switch {
+            .refused(let m, let reason) => return $"{cols[0]}: {asm}: encode refused ({m}: {reason}) assembler {string(want, as: .hex)}",
+        }
+        if got != want {
+            return $"{cols[0]}: {asm}: encode {string(got, as: .hex)} assembler {string(want, as: .hex)}"
+        }
+    }
+    return ""
+}
+
+test "L046: encode agrees with the reference assembler on the recorded table and the generated sweep" {
+    // The sweep is written by SabkLawTests.cs at test time; without it (any other run) only the table is checked.
+    let table = Io.readText("src/sabk/testdata/encodings.tsv") catch { panic("cannot read encodings.tsv") }
+    var tableRows = 0
+    let tableFirst = firstCounterexample(table, by: ref tableRows)
+    assert tableFirst == ""
+    assert tableRows > 0
+    let sweep = Io.readText("tmp/sabk-law046/sweep.tsv") catch ""
+    var sweepRows = 0
+    let sweepFirst = firstCounterexample(sweep, by: ref sweepRows)
+    assert sweepFirst == ""
+    if sweepRows > 0 {
+        Io.writeFile("tmp/sabk-law046/checked.txt", $"{sweepRows}\n".bytes) catch { assert false }
+    }
 }
 
 // ---- refusals (T4) ----
