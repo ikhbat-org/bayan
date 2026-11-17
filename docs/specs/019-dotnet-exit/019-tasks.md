@@ -72,7 +72,7 @@ The golden runner (T1–T10) comes first and T10 is a gate: nothing from T11 on 
 Placement C (decided 2026-11-17): these tasks do not block T51. They must be done before T64 (R30).
 
 - [ ] T33 Reading a message from standard input — files: decided by OQ8 (runtime/bayan-rt.c and lib/std if the default holds) — covers: R20 — done when: the owner has approved the `Io.stdin.read(into:)` signature (OQ8, decided 2026-11-17) and a Bayān program can read a message of a given byte length from standard input and keep running.
-- [ ] T34 Record sessions — files: editors/language-server/sessions/ (new) — covers: R21 — done when: every request kind in R20 and every protocol case of the 42 existing tests has a recorded session against the C# server at the tag.
+- [x] T34 Record sessions — files: editors/language-server/sessions/ (new) — covers: R21 — done when: every request kind in R20 and every protocol case of the 42 existing tests has a recorded session against the C# server at the tag.
 - [ ] T35 Transport, lexer, keywords — files: editors/language-server/bayan.toml, editors/language-server/src/ (transport, lexer, keywords modules) — covers: R20 — done when: `initialize`, `shutdown` and `exit` sessions replay the same; an oversized or malformed message is refused as the C# server refuses it.
 - [ ] T36 Indexer and workspace — files: editors/language-server/src/ (indexer, workspace modules) — covers: R20, R22 — done when: `didOpen`, `didChange`, `didClose` and `didChangeWatchedFiles` sessions replay the same and the budgets stop indexing with one log line.
 - [ ] T37 Requests — files: editors/language-server/src/ (server, main modules) — covers: R20, R21 — done when: every recorded session replays the same.
