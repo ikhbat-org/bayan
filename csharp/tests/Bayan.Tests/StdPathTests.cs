@@ -276,6 +276,20 @@ public sealed class StdPathTests
             shown.Add($"{Convert.ToHexStringLower(from)} -> {Convert.ToHexStringLower(to)}");
         }
         Assert.True(expected.Count > 400, $"only {expected.Count} cases");
+        if (ExportDir is { } export)
+        {
+            // Spec 019 T24b: the driver's stdin and, per case, the hex of .NET's result as the driver prints it.
+            var os = Path.Combine(export, "runtime", OperatingSystem.IsWindows() ? "windows" : OperatingSystem.IsMacOS() ? "macos" : "linux");
+            Directory.CreateDirectory(os);
+            var utf8 = new UTF8Encoding(false);
+            // A field that starts with the working directory holds `@CWD@` and the hex of the rest, so the file is the same on every host.
+            var cwdHex = Convert.ToHexStringLower(cwd);
+            var portable = string.Concat(input.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(line =>
+                string.Join(' ', line.Split(' ').Select(f => f.StartsWith(cwdHex, StringComparison.Ordinal) ? "@CWD@" + f[cwdHex.Length..] : f)) + "\n"));
+            File.WriteAllText(Path.Combine(os, "path-relative.in"), portable, utf8);
+            File.WriteAllText(Path.Combine(os, "path-relative.expected"),
+                string.Concat(expected.Select(r => Convert.ToHexStringLower(Encoding.UTF8.GetBytes(r)) + "\n")), utf8);
+        }
 
         var actual = await RunDriver(input.ToString());
         Assert.Equal(expected.Count + 1, actual.Length);
@@ -310,6 +324,43 @@ public sealed class StdPathTests
         var report = string.Join("\n", steps.Select(s => $"{s.Path}\n  GetFullPath: [{s.Full}]\n  runtime:     [{s.Runtime}]"));
         Assert.True(steps.All(s => s.Relative == s.Full), "GetRelativePath from another root is not GetFullPath:\n" + report);
         Assert.True(steps.All(s => s.Runtime == s.Full), report);
+    }
+
+    /// <summary>Set by <see cref="InvalidUtf8ExportsFixtures"/> in place of <c>BAYAN_EXPORT_DIR</c>, so no other test sees it.</summary>
+    private static readonly AsyncLocal<string?> ExportOverride = new();
+
+    /// <summary>The directory <c>BAYAN_EXPORT_DIR</c> names (spec 019 T24b), or the override; null when unset.</summary>
+    private static string? ExportDir =>
+        ExportOverride.Value ?? (Environment.GetEnvironmentVariable("BAYAN_EXPORT_DIR") is { Length: > 0 } dir ? dir : null);
+
+    /// <summary>The export path: <see cref="InvalidUtf8MatchesDotNet"/> with an export directory writes the driver's fixtures.</summary>
+    [Fact]
+    public async Task InvalidUtf8ExportsFixtures()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "std-path-export");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var old = ExportOverride.Value;
+        try
+        {
+            ExportOverride.Value = root;
+            await InvalidUtf8MatchesDotNet();
+        }
+        finally { ExportOverride.Value = old; }
+        var os = Path.Combine(root, "runtime", OperatingSystem.IsWindows() ? "windows" : OperatingSystem.IsMacOS() ? "macos" : "linux");
+        var input = File.ReadAllText(Path.Combine(os, "path-relative.in"));
+        var expected = File.ReadAllText(Path.Combine(os, "path-relative.expected"));
+        Assert.DoesNotContain('\r', input + expected);
+        var cases = input.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        Assert.True(cases.Length > 400, $"only {cases.Length} cases");
+        var lines = expected.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        Assert.Equal(cases.Length, lines.Length);
+        // The first case is `/<FF>/a` to `/<FF>/b`.
+        Assert.Equal("2fff2f61 2fff2f62", cases[0]);
+        Assert.Equal(Convert.ToHexStringLower(Encoding.UTF8.GetBytes(Relative("/\uFFFD/a", "/\uFFFD/b")!)), lines[0]);
+        // The cases from the working directory carry the marker, not its bytes.
+        Assert.Contains(cases, l => l.StartsWith("@CWD@", StringComparison.Ordinal));
+        var cwdHex = Convert.ToHexStringLower(Encoding.UTF8.GetBytes(Directory.GetCurrentDirectory()));
+        Assert.DoesNotContain(cases.Concat(lines), l => l.Contains(cwdHex, StringComparison.Ordinal));
     }
 
     /// <summary>Runs <c>runtime/tests/path-relative-cases.c</c> on <paramref name="input"/> and returns its output lines.</summary>

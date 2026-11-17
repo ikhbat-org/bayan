@@ -107,6 +107,48 @@ public sealed class L005RunBatchTests
         }
         // Both outcomes are exercised often.
         Assert.InRange(accepted, cases.Count / 10, cases.Count * 9 / 10);
+        if (ExportDir is { } export)
+        {
+            // Spec 019 T24b: the driver's stdin and its output, each line checked above against the model.
+            var os = Path.Combine(export, "runtime", OperatingSystem.IsWindows() ? "windows" : OperatingSystem.IsMacOS() ? "macos" : "linux");
+            Directory.CreateDirectory(os);
+            var utf8 = new UTF8Encoding(false);
+            File.WriteAllText(Path.Combine(os, "batch-cmdline.in"), input.ToString(), utf8);
+            File.WriteAllText(Path.Combine(os, "batch-cmdline.expected"), string.Concat(lines.Select(l => l + "\n")), utf8);
+        }
+    }
+
+    /// <summary>Set by <see cref="EveryCaseExportsFixtures"/> in place of <c>BAYAN_EXPORT_DIR</c>, so no other test sees it.</summary>
+    private static readonly AsyncLocal<string?> ExportOverride = new();
+
+    /// <summary>The directory <c>BAYAN_EXPORT_DIR</c> names (spec 019 T24b), or the override; null when unset.</summary>
+    private static string? ExportDir =>
+        ExportOverride.Value ?? (Environment.GetEnvironmentVariable("BAYAN_EXPORT_DIR") is { Length: > 0 } dir ? dir : null);
+
+    /// <summary>The export path: <see cref="EveryCaseIsRefusedOrReadBackUnchanged"/> with an export directory writes the driver's fixtures.</summary>
+    [Fact]
+    public void EveryCaseExportsFixtures()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "l005-run-batch-export");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var old = ExportOverride.Value;
+        try
+        {
+            ExportOverride.Value = root;
+            EveryCaseIsRefusedOrReadBackUnchanged();
+        }
+        finally { ExportOverride.Value = old; }
+        var os = Path.Combine(root, "runtime", OperatingSystem.IsWindows() ? "windows" : OperatingSystem.IsMacOS() ? "macos" : "linux");
+        var input = File.ReadAllText(Path.Combine(os, "batch-cmdline.in"));
+        var expected = File.ReadAllText(Path.Combine(os, "batch-cmdline.expected"));
+        Assert.DoesNotContain('\r', input + expected);
+        var cases = input.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var lines = expected.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        Assert.Equal(Edges.Length + 4000, cases.Length);
+        Assert.Equal(cases.Length, lines.Length);
+        // The first edge, `.\echo.cmd` with `a"&calc`, is refused.
+        Assert.Equal(Hex(Edges[0].Path) + " " + Hex(Edges[0].Args[0]), cases[0]);
+        Assert.Equal("refused", lines[0]);
     }
 
     [Theory]
