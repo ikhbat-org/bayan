@@ -91,6 +91,11 @@
       "coverage": 1.0,
       "branches": 1.0
     },
+    "src/driver/runtime.byn": {
+      "mutation": null,
+      "coverage": null,
+      "branches": null
+    },
     "src/driver/scaffold.byn": {
       "mutation": null,
       "coverage": 0.9655,
@@ -171,6 +176,11 @@
       "coverage": 1.0,
       "branches": 1.0
     },
+    "src/emitter/lctx.byn": {
+      "mutation": null,
+      "coverage": null,
+      "branches": null
+    },
     "src/emitter/lower.byn": {
       "mutation": null,
       "coverage": 1.0,
@@ -246,6 +256,11 @@
       "coverage": 1.0,
       "branches": 0.875
     },
+    "src/lexer/unicode-tables.byn": {
+      "mutation": null,
+      "coverage": null,
+      "branches": null
+    },
     "src/parser/codes.byn": {
       "mutation": null,
       "coverage": 1.0,
@@ -295,6 +310,11 @@
       "mutation": null,
       "coverage": 0.8814,
       "branches": 0.8462
+    },
+    "src/parser/nodes.byn": {
+      "mutation": null,
+      "coverage": null,
+      "branches": null
     },
     "src/parser/parser.byn": {
       "mutation": null,

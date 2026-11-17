@@ -22,7 +22,7 @@ cov() { printf '{"version": 1, "kind": "coverage", "files": [{"path": "%s", "lin
 # coverage report with branches: <file> <covered lines> <total lines> <covered branches> <total branches>
 bcov() { printf '{"version": 1, "kind": "coverage", "files": [{"path": "%s", "lines": {"covered": %s, "total": %s, "missed": []}, "branches": {"covered": %s, "total": %s, "missed": []}}]}\n' "$@"; }
 B=$d/baseline.json
-printf '{ "version": 1, "files": { "a.byn": { "mutation": 0.75, "coverage": 0.5, "branches": 0.5 }, "n.byn": { "mutation": null, "coverage": null } } }\n' > $B
+printf '{ "version": 1, "files": { "a.byn": { "mutation": 0.75, "coverage": 0.5, "branches": 0.5 }, "n.byn": { "mutation": null, "coverage": null }, "z.byn": { "mutation": null, "coverage": null, "branches": null } } }\n' > $B
 mut a.byn 2 1 > $d/drop.json; mut a.byn 2 1 1 > $d/equal.json; mut "$d/w/a.byn" 4 0 0 3 > $d/abs.json
 mut b.byn 1 1 > $d/new.json; mut n.byn 0 5 > $d/null.json; cov a.byn 1 4 > $d/covdrop.json; bcov a.byn 2 4 1 4 > $d/brdrop.json; bcov a.byn 2 4 0 0 > $d/brnone.json; mut m.byn 0 0 0 2 > $d/marked.json
 out=$(q check $B "$d/w" $d/drop.json) && fail "a mutation drop passed" "$out"
@@ -38,6 +38,8 @@ echo "$out" | grep -q 'coverage score of a.byn fell from 0.5 to 0.25' || fail "c
 out=$(q check $B "$d/w" $d/brdrop.json) && fail "a branch coverage drop passed" "$out"
 [ "$out" = "baseline: branches score of a.byn fell from 0.5 to 0.25 ($B)" ] || fail "branch drop message" "$out"
 out=$(q check $B "$d/w" $d/brnone.json) || fail "a report with no branches (null branch score) failed" "$out"
+# a file with no figure (lines and branches null: no code at the time, 019 T22) is skipped whatever it later scores
+bcov z.byn 0 5 0 4 > $d/nofigure.json; out=$(q check $B "$d/w" $d/nofigure.json) || fail "a file with null lines and branches failed" "$out"
 q update $B "$d/w" $d/abs.json $d/new.json
 got="$(entry $B a.byn) | $(entry $B b.byn) | $(entry $B n.byn)"
 [ "$got" = '"mutation": 1.0, "coverage": 0.5, "branches": 0.5 | "mutation": 0.5, "coverage": null, "branches": null | "mutation": null, "coverage": null' ] || fail "update did not raise a.byn and add b.byn" "$got"

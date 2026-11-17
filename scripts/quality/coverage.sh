@@ -32,8 +32,9 @@ built=$SECONDS
 if [ -n "$selfhost" ]; then
   # every selfhost build counts all its files; the harness writes the report when the test host exits, merging every
   # build's counters, so vstest is given as long as guard.sh gives it
-  BAYAN_COVERAGE="$results" VSTEST_TESTHOST_SHUTDOWN_TIMEOUT=600000 \
-    dotnet test "$project" --no-build -v q --nologo "$@" >&2 || echo "coverage.sh: dotnet test failed; the report counts the run anyway" >&2
+  # a failing test still leaves a report, written below; the script then exits with dotnet test's status
+  tx=0; BAYAN_COVERAGE="$results" VSTEST_TESTHOST_SHUTDOWN_TIMEOUT=600000 \
+    dotnet test "$project" --no-build -v q --nologo "$@" 2>&1 | tee "$repo/tmp/quality/selfhost-test.txt" >&2 || tx=$?
   [ -f "$results/bayan-quality.json" ] || { echo "coverage.sh: the harness wrote no bayan-quality.json" >&2; exit 1; }
   python3 -I - "$results/bayan-quality.json" "$selfhost" "$out" <<'PY'
 import json, os, sys
@@ -45,8 +46,10 @@ r["files"] = [f for f in r["files"] if f["path"].startswith("src/") and f["path"
 json.dump(r, open(out, "w"), indent=2)
 PY
   echo "selfhost coverage: $((built - start))s build, $((SECONDS - start))s total" >&2
+  echo "tests: $(grep -E '^(Passed|Failed)! ' "$repo/tmp/quality/selfhost-test.txt" | tr -s ' ' || echo "no summary line")"
   echo "wrote $out"
-  exit 0
+  [ $tx = 0 ] || echo "coverage.sh: dotnet test failed (exit $tx); the report above still counts the run" >&2
+  exit $tx
 fi
 dotnet test "$project" --no-build --collect:"XPlat Code Coverage" --results-directory "$results" -v q --nologo "$@" >&2
 cobertura="$(find "$results" -name 'coverage.cobertura.xml' | head -n 1)"
