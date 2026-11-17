@@ -7,7 +7,8 @@
 #   025 T32 staging (tmp/025-t32) and the per-task export dirs (tmp/export-t1*, tmp/export-t2*)
 #   ~/.cache/zig (broken 2026-11-18: libcompiler_rt.a FileNotFound), with --clear-zig-cache
 #   on wp1: C:\tmp\t24* and C:\tmp\t40*, with --remove-remote
-# Kept on purpose: tmp/export-parse and tmp/export-lex (T17 lands them).
+# Kept on purpose: tmp/export-parse and tmp/export-lex (T17 lands them). The per-task export dirs are count checks;
+# T17 reruns the export, so run this script after T17 lands.
 # Dry run by default. --execute / -e acts.
 set -euo pipefail
 
