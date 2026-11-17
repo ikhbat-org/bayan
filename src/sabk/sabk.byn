@@ -5,3 +5,4 @@ import sabk.enc
 import sabk.sir
 import sabk.macho
 import sabk.ra
+import sabk.check
