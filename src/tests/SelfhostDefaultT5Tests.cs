@@ -49,13 +49,15 @@ public sealed partial class SelfhostDefaultT5Tests
         return path;
     }
 
+    private static (string Name, string? Value)[] AllVars((string Name, string? Value)[] vars) =>
+    [
+        ("NO_COLOR", null), ("FORCE_COLOR", null), ("TERM", null), ("COLORTERM", null), ("BAYAN_THEME", null),
+        ("COLORFGBG", null), ("LC_ALL", null), ("LC_CTYPE", null), ("LANG", "en_US.UTF-8"), .. vars,
+    ];
+
     private static void WithEnv((string Name, string? Value)[] vars, Action body)
     {
-        (string Name, string? Value)[] all =
-        [
-            ("NO_COLOR", null), ("FORCE_COLOR", null), ("TERM", null), ("COLORTERM", null), ("BAYAN_THEME", null),
-            ("COLORFGBG", null), ("LC_ALL", null), ("LC_CTYPE", null), ("LANG", "en_US.UTF-8"), .. vars,
-        ];
+        var all = AllVars(vars);
         var saved = all.Select(v => (v.Name, Value: Environment.GetEnvironmentVariable(v.Name))).ToArray();
         foreach (var (name, value) in all) Environment.SetEnvironmentVariable(name, value);
         try
@@ -77,10 +79,24 @@ public sealed partial class SelfhostDefaultT5Tests
     }
 
     /// <summary>Both sides under <paramref name="vars"/>; returns the driver's stdout for the test to look at.</summary>
-    private static string Same((string Name, string? Value)[] vars, params string[] args)
+    private static string Same((string Name, string? Value)[] vars, string[] args, [System.Runtime.CompilerServices.CallerMemberName] string test = "")
     {
-        SelfhostDriverHarness.Build();
         var result = "";
+        if (SelfhostExport.Dir is not null)
+        {
+            // the env values under the repo are the inputs (fake tools, caches), copied before the run, and the repo root is masked as <repo>
+            string Repo(string text) => text.Replace(Golden.RepoRoot, "<repo>");
+            WithEnv(vars, () =>
+            {
+                var staged = SelfhostDriverT1Tests.StageInputs(vars.Select(v => v.Value).Where(v => v is not null && v.StartsWith(Golden.RepoRoot, StringComparison.Ordinal) && SelfhostDriverT1Tests.IsPath(v))!);
+                var run = Oracle(args);
+                SelfhostDriverT1Tests.Record(args, run, staged, new SelfhostDriverT1Tests.ExportForm("repo-masked", Repo, Repo), nameof(SelfhostDefaultT5Tests), test, "",
+                    AllVars(vars).Select(v => (v.Name, v.Value is null ? null : Repo(v.Value))));
+                result = run.Out;
+            });
+            return result;
+        }
+        SelfhostDriverHarness.Build();
         WithEnv(vars, () =>
         {
             var expected = Oracle(args);
@@ -99,7 +115,7 @@ public sealed partial class SelfhostDefaultT5Tests
     /// <summary><c>doctor</c> reaches the driver's own checks (moved from <c>SelfhostDriverT1Tests</c>, which runs in parallel with this collection's
     /// <c>BAYAN_CC</c>/<c>BAYAN_CACHE</c> changes and with tests that fill the shared cache whose program count <c>doctor</c> prints).</summary>
     [Fact]
-    public void DispatchesDoctorAsCliApp() => Same([("BAYAN_CACHE", Fresh("dispatch"))], "doctor");
+    public void DispatchesDoctorAsCliApp() => Same([("BAYAN_CACHE", Fresh("dispatch"))], ["doctor"]);
 
     [Fact]
     public void ADoctorOfThisMachine()
@@ -108,15 +124,15 @@ public sealed partial class SelfhostDefaultT5Tests
     }
 
     [Fact]
-    public void ExplainStillDispatches() => Same([], "explain", "BYN0003");
+    public void ExplainStillDispatches() => Same([], ["explain", "BYN0003"]);
 
     /// <summary>T5 edits `run`, whose `cache` and `clean` arms are T3's: the guard gates every line of a touched function.</summary>
     [Fact]
     public void CacheAndCleanStillDispatch()
     {
         var cache = Fresh("dispatch");
-        Same([("BAYAN_CACHE", cache)], "cache", "stats");
-        Same([("BAYAN_CACHE", cache)], "clean");
+        Same([("BAYAN_CACHE", cache)], ["cache", "stats"]);
+        Same([("BAYAN_CACHE", cache)], ["clean"]);
     }
 
     [Fact]
@@ -129,7 +145,7 @@ public sealed partial class SelfhostDefaultT5Tests
             var text = Same([("BAYAN_CC", cc), ("PATH", Path.Combine(dir, "empty"))], args);
             UnixContains("not found; building for other targets needs it", text);
         }
-        var spaced = Same([("BAYAN_CC", $"  {cc}   -O2 "), ("PATH", Path.Combine(dir, "empty"))], "doctor");
+        var spaced = Same([("BAYAN_CC", $"  {cc}   -O2 "), ("PATH", Path.Combine(dir, "empty"))], ["doctor"]);
         UnixContains($"{cc} -O2 (fakecc 1.0)", spaced);
     }
 
@@ -176,7 +192,7 @@ public sealed partial class SelfhostDefaultT5Tests
         var dir = Fresh("path");
         Script(dir, "zig", 0, "0.99.0");
         Script(dir, "git", 0, "git version 9.9");
-        var text = Same([("BAYAN_CC", null), ("PATH", dir)], "doctor");
+        var text = Same([("BAYAN_CC", null), ("PATH", dir)], ["doctor"]);
         UnixContains($"{Path.Combine(dir, "zig")} cc (0.99.0)", text);
         UnixContains($"git         {Path.Combine(dir, "git")} (git version 9.9)", text);
         var broken = Fresh("path-broken");
@@ -189,14 +205,14 @@ public sealed partial class SelfhostDefaultT5Tests
         }
         var cc = Fresh("path-cc");
         Script(cc, "cc", 1, "x");
-        UnixContains("`" + Path.Combine(cc, "cc") + "` can't be run", Same([("BAYAN_CC", null), ("PATH", cc)], "doctor"));
+        UnixContains("`" + Path.Combine(cc, "cc") + "` can't be run", Same([("BAYAN_CC", null), ("PATH", cc)], ["doctor"]));
         var good = Fresh("path-gcc");
         Script(good, "gcc", 0, "gcc (GCC) 1.2");
-        UnixContains($"{Path.Combine(good, "gcc")} (gcc (GCC) 1.2)", Same([("BAYAN_CC", null), ("PATH", good)], "doctor"));
+        UnixContains($"{Path.Combine(good, "gcc")} (gcc (GCC) 1.2)", Same([("BAYAN_CC", null), ("PATH", good)], ["doctor"]));
         var stderrOnly = Fresh("path-stderr");
         var script = Path.Combine(stderrOnly, "zig");
         Executable(script, "#!/bin/sh\necho '  on stderr  ' >&2\nexit 0\n");
-        UnixContains("(on stderr)", Same([("BAYAN_CC", null), ("PATH", stderrOnly)], "doctor"));
+        UnixContains("(on stderr)", Same([("BAYAN_CC", null), ("PATH", stderrOnly)], ["doctor"]));
     }
 
     [Fact]
@@ -206,7 +222,7 @@ public sealed partial class SelfhostDefaultT5Tests
         File.WriteAllText(blocker, "");
         foreach (var args in Argvs())
             Assert.Contains("isn't writable", Same([("BAYAN_CACHE", blocker)], args));
-        Assert.Contains("isn't writable", Same([("BAYAN_CACHE", Path.Combine(blocker, "sub"))], "doctor"));
+        Assert.Contains("isn't writable", Same([("BAYAN_CACHE", Path.Combine(blocker, "sub"))], ["doctor"]));
     }
 
     [Fact]
@@ -220,11 +236,11 @@ public sealed partial class SelfhostDefaultT5Tests
         File.WriteAllBytes(Path.Combine(cache, "v1", "programs", "b", "program"), new byte[10]);
         Directory.CreateDirectory(Path.Combine(program, "nested"));
         File.WriteAllBytes(Path.Combine(cache, "v1", "programs", "stray"), new byte[5]);
-        var text = Same([("BAYAN_CACHE", cache)], "doctor");
+        var text = Same([("BAYAN_CACHE", cache)], ["doctor"]);
         Assert.Contains("(writable, 2 programs, 1.6 MB)", text);
         var home = Fresh("home");
-        Same([("BAYAN_CACHE", null), ("HOME", home), ("XDG_CACHE_HOME", Path.Combine(home, "xdg"))], "doctor");
-        Same([("BAYAN_CACHE", null), ("HOME", home), ("XDG_CACHE_HOME", "relative")], "doctor");
+        Same([("BAYAN_CACHE", null), ("HOME", home), ("XDG_CACHE_HOME", Path.Combine(home, "xdg"))], ["doctor"]);
+        Same([("BAYAN_CACHE", null), ("HOME", home), ("XDG_CACHE_HOME", "relative")], ["doctor"]);
     }
 
     [Fact]
@@ -256,7 +272,7 @@ public sealed partial class SelfhostDefaultT5Tests
         File.SetUnixFileMode(file, UnixFileMode.None);
         try
         {
-            Assert.Contains("(writable, 1 programs,", Same([("BAYAN_CACHE", cache)], "doctor"));
+            Assert.Contains("(writable, 1 programs,", Same([("BAYAN_CACHE", cache)], ["doctor"]));
         }
         finally
         {

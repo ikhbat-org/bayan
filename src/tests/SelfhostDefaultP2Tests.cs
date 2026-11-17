@@ -160,7 +160,7 @@ public sealed class SelfhostDefaultP2Tests
         return functions.Select(f => f.Body).OfType<BoundBlock>().Concat(outside).SelectMany(BoundTree.Descendants).Select(Line).ToList();
     }
 
-    private static Dictionary<string, List<string>> AssertSameAsCSharp(IReadOnlyList<string> paths)
+    private static Dictionary<string, List<string>> AssertSameAsCSharp(IReadOnlyList<string> paths, [System.Runtime.CompilerServices.CallerMemberName] string test = "")
     {
         var sections = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         foreach (var chunk in Chunks(paths))
@@ -171,6 +171,11 @@ public sealed class SelfhostDefaultP2Tests
         {
             var expected = Expected(path);
             compared += expected.Count;
+            if (SelfhostExport.Dir is not null)
+            {
+                SelfhostSemanticsHarness.AssertSection(sections, path, expected, test);
+                continue;
+            }
             Assert.True(sections.TryGetValue(path, out var actual), $"{path}: not printed");
             SelfhostEmitterHarness.AssertSame(path, string.Join("\n", expected), string.Join("\n", actual!));
         }

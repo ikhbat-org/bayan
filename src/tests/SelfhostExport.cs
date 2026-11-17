@@ -107,6 +107,9 @@ public static class SelfhostExport
                 File.Copy(paths[i], target, overwrite: true);
                 continue;
             }
+            Directory.CreateDirectory(target);
+            foreach (var d in Directory.EnumerateDirectories(tree, "*", SearchOption.AllDirectories))
+                Directory.CreateDirectory(Path.Combine(target, Path.GetRelativePath(tree, d)));
             foreach (var f in Directory.EnumerateFiles(tree, "*", SearchOption.AllDirectories))
             {
                 var to = Path.Combine(target, Path.GetRelativePath(tree, f));

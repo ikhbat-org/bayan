@@ -110,17 +110,18 @@ public sealed class SelfhostDefaultT12Tests
     /// The steps on two trees seeded alike (the C#'s first); exit code and masked streams compared per step, then the <c>dist/</c> trees, and
     /// the inputs hash each <c>BUILDINFO.json</c> prints against <see cref="Dist.InputsHash"/> of the tree. The C#'s masked stdout per step.
     /// </summary>
-    private static List<(int Exit, string Out, string Err)> Same(string name, Action<string> seed, params Step[] steps) => Same(name, seed, outside: false, steps);
+    private static List<(int Exit, string Out, string Err)> Same(string test, string name, Action<string> seed, params Step[] steps) => Same(test, name, seed, outside: false, steps);
 
-    private static List<(int Exit, string Out, string Err)> Same(string name, Action<string> seed, bool outside, params Step[] steps)
+    private static List<(int Exit, string Out, string Err)> Same(string test, string name, Action<string> seed, bool outside, params Step[] steps)
     {
+        var export = SelfhostExport.Dir is not null;
         var dir = outside ? Directory.CreateTempSubdirectory("bayan-t12-").FullName : Fresh(name);
         var a = Path.Combine(dir, "cs");
         var b = Path.Combine(dir, "s2");
         var results = new List<(int, string, string)>();
         try
         {
-            foreach (var root in new[] { a, b })
+            foreach (var root in export ? new[] { a } : new[] { a, b })
             {
                 Directory.CreateDirectory(root);
                 seed(root);
@@ -129,7 +130,20 @@ public sealed class SelfhostDefaultT12Tests
             {
                 (string, string?)[] Env(string root) => [.. (step.Env ?? []).Select(e => (e.Name, e.Value?.Replace("<root>", root)))];
                 step.Before?.Invoke(a);
+                var staged = export ? SelfhostDriverT1Tests.StageInputs([a]) : null;
                 var expected = Bayan(false, a, Env(a), step.Args);
+                if (staged is not null)
+                {
+                    // a case per step: the tree before it as input/, the run's directory <root>, and after the last step the dist tree and inputs hashes
+                    string Root(string text) => Masked(text, a);
+                    var last = ReferenceEquals(step, steps[^1]);
+                    if (last) staged.Extra["expected.inputs"] = Inputs(a) + "\n";
+                    staged.Extra["cwd"] = "<root>\n";
+                    SelfhostDriverT1Tests.Record(step.Args, expected, staged, new SelfhostDriverT1Tests.ExportForm("root-masked", Root, Root, last ? () => Root(Describe(Path.Combine(Project(a), "dist"))) + "\n" : null),
+                        nameof(SelfhostDefaultT12Tests), test, "", [("BAYAN_CACHE", "<root>/cache"), ("BAYAN_CC", null), .. step.Env ?? []]);
+                    results.Add((expected.Exit, Masked(expected.Out, a), Masked(expected.Err, a)));
+                    continue;
+                }
                 step.Before?.Invoke(b);
                 var actual = Bayan(true, b, Env(b), step.Args);
                 var label = $"{name}: {string.Join(' ', step.Args)}";
@@ -137,6 +151,12 @@ public sealed class SelfhostDefaultT12Tests
                 SelfhostEmitterHarness.AssertSame($"stdout of `{label}`", Masked(expected.Out, a), Masked(actual.Out, b));
                 SelfhostEmitterHarness.AssertSame($"stderr of `{label}`", Masked(expected.Err, a), Masked(actual.Err, b));
                 results.Add((expected.Exit, Masked(expected.Out, a), Masked(expected.Err, a)));
+            }
+            if (export)
+            {
+                var csInputs = Inputs(a).Split('\n', StringSplitOptions.RemoveEmptyEntries).Distinct().ToList();
+                if (csInputs.Count == 1) Assert.Equal(Dist.InputsHash(Project(a)), csInputs[0]);
+                return results;
             }
             SelfhostEmitterHarness.AssertSame($"dist tree of `{name}`", Masked(Describe(Path.Combine(Project(a), "dist")), a), Masked(Describe(Path.Combine(Project(b), "dist")), b));
             var inputs = Inputs(b);
@@ -158,7 +178,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void ADistWritesAVersionDirectoryAndLatest()
     {
-        var r = Same("layout", NewApp(), DistStep(), DistStep(), DistStep("--force"));
+        var r = Same(nameof(ADistWritesAVersionDirectoryAndLatest), "layout", NewApp(), DistStep(), DistStep(), DistStep("--force"));
         Assert.Equal(0, r[0].Exit);
         Assert.Equal(CliApp.ExitUsage, r[1].Exit);
         Assert.Contains("`dist/0.1.0/` already exists", r[1].Err);
@@ -168,7 +188,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void ForceReplacesTheVersionDirectory()
     {
-        Same("force", NewApp(), DistStep(),
+        Same(nameof(ForceReplacesTheVersionDirectory), "force", NewApp(), DistStep(),
             new Step(["dist", "tally", "--force"], root => File.WriteAllText(Path.Combine(Project(root), "dist", "0.1.0", "marker"), "")));
     }
 
@@ -184,19 +204,19 @@ public sealed class SelfhostDefaultT12Tests
     [InlineData("wasm32")]
     public void ATargetIsBuilt(string target)
     {
-        Same($"target-{target}", NewApp(), DistStep("--target", target));
+        Same(nameof(ATargetIsBuilt), $"target-{target}", NewApp(), DistStep("--target", target));
     }
 
     [Fact]
     public void AllTargetsAreBuilt()
     {
-        Same("target-all", NewApp(), DistStep("--target", "all"));
+        Same(nameof(AllTargetsAreBuilt), "target-all", NewApp(), DistStep("--target", "all"));
     }
 
     [Fact]
     public void ABadTargetIsRefused()
     {
-        var r = Same("target-bad", NewApp(), DistStep("--target", "nope"), DistStep("--target", "all", "--mode", "fast"));
+        var r = Same(nameof(ABadTargetIsRefused), "target-bad", NewApp(), DistStep("--target", "nope"), DistStep("--target", "all", "--mode", "fast"));
         Assert.Equal(CliApp.ExitUsage, r[0].Exit);
         Assert.Contains("unknown target `nope` (expected host, all, ", r[0].Err);
     }
@@ -205,7 +225,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void TheManifestTargetsAreDeduplicated()
     {
-        Same("targets-manifest", root =>
+        Same(nameof(TheManifestTargetsAreDeduplicated), "targets-manifest", root =>
         {
             NewApp()(root);
             var manifest = Path.Combine(Project(root), "package.byn");
@@ -216,7 +236,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void ABadManifestTargetIsRefused()
     {
-        var r = Same("targets-manifest-bad", root =>
+        var r = Same(nameof(ABadManifestTargetIsRefused), "targets-manifest-bad", root =>
         {
             NewApp()(root);
             var manifest = Path.Combine(Project(root), "package.byn");
@@ -228,7 +248,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void TheManifestModeIsTheDefault()
     {
-        Same("mode-manifest", root =>
+        Same(nameof(TheManifestModeIsTheDefault), "mode-manifest", root =>
         {
             NewApp()(root);
             var manifest = Path.Combine(Project(root), "package.byn");
@@ -252,26 +272,26 @@ public sealed class SelfhostDefaultT12Tests
     [InlineData("--nope")]
     public void AnArgumentIsParsedAsTheCSharpDoes(params string[] args)
     {
-        Same($"args-{string.Join('-', args)}", NewApp(), DistStep(args));
+        Same(nameof(AnArgumentIsParsedAsTheCSharpDoes), $"args-{string.Join('-', args)}", NewApp(), DistStep(args));
     }
 
     [Fact]
     public void ASecondPathIsAnUnexpectedArgument()
     {
-        var r = Same("args-two-paths", NewApp(), new Step(["dist", "tally", "other"]));
+        var r = Same(nameof(ASecondPathIsAnUnexpectedArgument), "args-two-paths", NewApp(), new Step(["dist", "tally", "other"]));
         Assert.Contains("unexpected argument `other`", r[0].Err);
     }
 
     [Fact]
     public void ATargetAfterThePathAndAFlagBeforeIt()
     {
-        Same("args-order", NewApp(), new Step(["dist", "--allow-dirty", "--target", "host", "tally"]));
+        Same(nameof(ATargetAfterThePathAndAFlagBeforeIt), "args-order", NewApp(), new Step(["dist", "--allow-dirty", "--target", "host", "tally"]));
     }
 
     [Fact]
     public void TheCurrentDirectoryIsTheDefaultPath()
     {
-        Same("args-dot", root =>
+        Same(nameof(TheCurrentDirectoryIsTheDefaultPath), "args-dot", root =>
         {
             NewApp()(root);
             foreach (var f in Directory.GetFileSystemEntries(Project(root))) Directory.Move(f, Path.Combine(root, Path.GetFileName(f)));
@@ -282,7 +302,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AScriptAndADirectoryWithoutAManifestHaveNoDist()
     {
-        var r = Same("not-project", NewApp(), new Step(["dist", Path.Combine("tally", "src", "app", "main.byn")]), new Step(["dist", "."]));
+        var r = Same(nameof(AScriptAndADirectoryWithoutAManifestHaveNoDist), "not-project", NewApp(), new Step(["dist", Path.Combine("tally", "src", "app", "main.byn")]), new Step(["dist", "."]));
         Assert.Contains("have no dist", r[0].Err);
         Assert.Contains("have no dist", r[1].Err);
     }
@@ -290,14 +310,14 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void ALibraryHasNoDistYet()
     {
-        var r = Same("library", NewApp("--lib"), DistStep());
+        var r = Same(nameof(ALibraryHasNoDistYet), "library", NewApp("--lib"), DistStep());
         Assert.Contains("library distribution arrives later", r[0].Err);
     }
 
     [Fact]
     public void ABrokenProgramIsNotDistributed()
     {
-        var r = Same("broken", root =>
+        var r = Same(nameof(ABrokenProgramIsNotDistributed), "broken", root =>
         {
             NewApp()(root);
             File.AppendAllText(Path.Combine(Project(root), "src", "app", "main.byn"), "\ni32 broken() { return \"no\" }\n");
@@ -309,7 +329,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AFailedBuildLeavesNoStaging()
     {
-        var r = Same("toolchain", NewApp(), DistStep(), new Step(["dist", "tally", "--force"], root => { File.WriteAllText(Path.Combine(root, "cachefile"), ""); }, [("BAYAN_CACHE", "<root>/cachefile")]));
+        var r = Same(nameof(AFailedBuildLeavesNoStaging), "toolchain", NewApp(), DistStep(), new Step(["dist", "tally", "--force"], root => { File.WriteAllText(Path.Combine(root, "cachefile"), ""); }, [("BAYAN_CACHE", "<root>/cachefile")]));
         Assert.Equal(CliApp.ExitToolchain, r[1].Exit);
     }
 
@@ -342,14 +362,14 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void ACleanRepositoryRecordsItsCommit()
     {
-        var r = Same("git-clean", InRepo(true), DistStep());
+        var r = Same(nameof(ACleanRepositoryRecordsItsCommit), "git-clean", InRepo(true), DistStep());
         Assert.Equal(0, r[0].Exit);
     }
 
     [Fact]
     public void ARepositoryWithoutACommitIsDirty()
     {
-        var r = Same("git-nocommit", InRepo(false), DistStep(), DistStep("--allow-dirty"));
+        var r = Same(nameof(ARepositoryWithoutACommitIsDirty), "git-nocommit", InRepo(false), DistStep(), DistStep("--allow-dirty"));
         Assert.Equal(CliApp.ExitUsage, r[0].Exit);
         Assert.Contains("--allow-dirty", r[0].Err);
     }
@@ -357,7 +377,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void ADirtyTreeNeedsAllowDirty()
     {
-        var r = Same("git-dirty", InRepo(true), new Step(["dist", "tally"], root => File.AppendAllText(Path.Combine(Project(root), "src", "app", "main.byn"), "\n")), DistStep("--allow-dirty"));
+        var r = Same(nameof(ADirtyTreeNeedsAllowDirty), "git-dirty", InRepo(true), new Step(["dist", "tally"], root => File.AppendAllText(Path.Combine(Project(root), "src", "app", "main.byn"), "\n")), DistStep("--allow-dirty"));
         Assert.Equal(CliApp.ExitUsage, r[0].Exit);
         Assert.Equal(0, r[1].Exit);
     }
@@ -366,7 +386,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AnIgnoredProjectHasNoSource()
     {
-        Same("git-ignored", root =>
+        Same(nameof(AnIgnoredProjectHasNoSource), "git-ignored", root =>
         {
             NewApp()(root);
             Git(root, "init", "--quiet");
@@ -377,7 +397,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AProjectOutsideAnyRepositoryHasNoSource()
     {
-        var r = Same("git-outside", NewApp(), outside: true, DistStep());
+        var r = Same(nameof(AProjectOutsideAnyRepositoryHasNoSource), "git-outside", NewApp(), outside: true, DistStep());
         Assert.Equal(0, r[0].Exit);
     }
 
@@ -385,7 +405,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AnEmptyManifestTargetListMeansTheHost()
     {
-        Same("targets-empty", root =>
+        Same(nameof(AnEmptyManifestTargetListMeansTheHost), "targets-empty", root =>
         {
             NewApp()(root);
             var manifest = Path.Combine(Project(root), "package.byn");
@@ -397,7 +417,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void ThreeManifestTargetsAreBuilt()
     {
-        var r = Same("targets-three", root =>
+        var r = Same(nameof(ThreeManifestTargetsAreBuilt), "targets-three", root =>
         {
             NewApp()(root);
             var manifest = Path.Combine(Project(root), "package.byn");
@@ -410,7 +430,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void CleanRemovesOutAndOnRequestDist()
     {
-        var r = Same("clean", NewApp(), new Step(["build", "tally"]), DistStep(), new Step(["clean", "tally"]), new Step(["clean", "tally", "--dist"]), new Step(["clean", Path.Combine("tally", "src")]));
+        var r = Same(nameof(CleanRemovesOutAndOnRequestDist), "clean", NewApp(), new Step(["build", "tally"]), DistStep(), new Step(["clean", "tally"]), new Step(["clean", "tally", "--dist"]), new Step(["clean", Path.Combine("tally", "src")]));
         Assert.Equal("removed out/\n", r[2].Out);
         Assert.Equal("removed dist/\n", r[3].Out);
         Assert.Equal(CliApp.ExitUsage, r[4].Exit);
@@ -420,7 +440,7 @@ public sealed class SelfhostDefaultT12Tests
     public void SeveralManifestTargetsAreBuiltInOrder()
     {
         var other = Targets.Host == "linux-x64" ? "linux-arm64" : "linux-x64";
-        Same("targets-two", root =>
+        Same(nameof(SeveralManifestTargetsAreBuiltInOrder), "targets-two", root =>
         {
             NewApp()(root);
             var manifest = Path.Combine(Project(root), "package.byn");
@@ -432,7 +452,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AStaleStagingDirectoryIsReplaced()
     {
-        Same("stale-staging", root =>
+        Same(nameof(AStaleStagingDirectoryIsReplaced), "stale-staging", root =>
         {
             NewApp()(root);
             Directory.CreateDirectory(Path.Combine(Project(root), "dist", ".0.1.0.tmp"));
@@ -446,7 +466,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AFileNamedLikeAVersionIsNotARelease()
     {
-        Same("file-version", root =>
+        Same(nameof(AFileNamedLikeAVersionIsNotARelease), "file-version", root =>
         {
             NewApp()(root);
             Directory.CreateDirectory(Path.Combine(Project(root), "dist"));
@@ -464,7 +484,7 @@ public sealed class SelfhostDefaultT12Tests
         string[] locked = [];
         try
         {
-            var r = Same("unreadable", root =>
+            var r = Same(nameof(AnUnreadableSourceDirectoryIsSkipped), "unreadable", root =>
             {
                 NewApp()(root);
                 foreach (var name in new[] { "locked", "locked.byn" })
@@ -492,7 +512,7 @@ public sealed class SelfhostDefaultT12Tests
         if (OperatingSystem.IsWindows()) return;
         var cc = Toolchain.FindOnPath("cc");
         Assert.NotNull(cc);
-        Same("git-absent", root =>
+        Same(nameof(WithoutGitThereIsNoSource), "git-absent", root =>
         {
             NewApp()(root);
             Directory.CreateDirectory(Path.Combine(root, "bin"));
@@ -504,7 +524,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AProjectInsideTheGitDirectoryHasNoSource()
     {
-        Same("git-inside-gitdir", root =>
+        Same(nameof(AProjectInsideTheGitDirectoryHasNoSource), "git-inside-gitdir", root =>
         {
             Git(root, "init", "--quiet");
             var exit = CliApp.Run(["new", Path.Combine(root, ".git", "tally"), "--vcs", "none"], new StringWriter(), new StringWriter());
@@ -516,7 +536,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AFailingStatusCountsAsDirty()
     {
-        var r = Same("git-bad-index", root =>
+        var r = Same(nameof(AFailingStatusCountsAsDirty), "git-bad-index", root =>
         {
             InRepo(true)(root);
             File.WriteAllText(Path.Combine(Project(root), ".git", "index"), "not an index");
@@ -536,7 +556,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void LatestIsTheHighestVersionNotTheNewestBuild()
     {
-        Same("latest", root =>
+        Same(nameof(LatestIsTheHighestVersionNotTheNewestBuild), "latest", root =>
         {
             NewApp()(root);
             var dist = Path.Combine(Project(root), "dist");
@@ -560,14 +580,14 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AnOlderVersionLeavesLatestAlone()
     {
-        var r = Same("latest-old", NewApp(), Release("3.0.0"), Release("2.9.9"), Release("3.0.0-z"));
+        var r = Same(nameof(AnOlderVersionLeavesLatestAlone), "latest-old", NewApp(), Release("3.0.0"), Release("2.9.9"), Release("3.0.0-z"));
         Assert.Contains("is 3.0.0", r[2].Out);
     }
 
     [Fact]
     public void ForcingTheHighestVersionRefreshesLatest()
     {
-        Same("latest-force", NewApp(), Release("1.0.0"), new Step(["dist", "tally", "--force"], root => File.WriteAllText(Path.Combine(Project(root), "src", "app", "extra.txt"), "")));
+        Same(nameof(ForcingTheHighestVersionRefreshesLatest), "latest-force", NewApp(), Release("1.0.0"), new Step(["dist", "tally", "--force"], root => File.WriteAllText(Path.Combine(Project(root), "src", "app", "extra.txt"), "")));
     }
 
     // ── InputsHash follows no link (CliMemoryBoundsTests.M4_InputsHashDoesNotFollowLinks) ────
@@ -583,7 +603,7 @@ public sealed class SelfhostDefaultT12Tests
         var inputs = new List<string>();
         foreach (var variant in new[] { "plain", "links" })
         {
-            Same($"inputs-{variant}", root =>
+            Same(nameof(TheInputsHashDoesNotFollowLinks), $"inputs-{variant}", root =>
             {
                 NewApp()(root);
                 var src = Path.Combine(Project(root), "src");
@@ -610,7 +630,7 @@ public sealed class SelfhostDefaultT12Tests
     public void AnInputsRootThatIsALinkIsFollowed()
     {
         if (OperatingSystem.IsWindows()) return;
-        Same("inputs-root-link", root =>
+        Same(nameof(AnInputsRootThatIsALinkIsFollowed), "inputs-root-link", root =>
         {
             NewApp()(root);
             var src = Path.Combine(Project(root), "src");
@@ -622,7 +642,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void AnAppWithoutItsSourceDirectoryIsRefused()
     {
-        var r = Same("inputs-nosrc", root =>
+        var r = Same(nameof(AnAppWithoutItsSourceDirectoryIsRefused), "inputs-nosrc", root =>
         {
             NewApp()(root);
             Directory.Delete(Path.Combine(Project(root), "src"), recursive: true);
@@ -734,7 +754,7 @@ public sealed class SelfhostDefaultT12Tests
     [InlineData("mutate")]
     public void EveryOtherArmOfRunIsTheCSharps(params string[] args)
     {
-        Same($"run-{string.Join('-', args).Replace('/', '_')}", NewApp(), new Step(args));
+        Same(nameof(EveryOtherArmOfRunIsTheCSharps), $"run-{string.Join('-', args).Replace('/', '_')}", NewApp(), new Step(args));
     }
 
     /// <summary>The commands the driver does not port refuse by name (spec Q4); the C# runs them, so the streams differ by design.</summary>
@@ -763,7 +783,7 @@ public sealed class SelfhostDefaultT12Tests
     [Fact]
     public void TheDistArmRoutesToTheCommand()
     {
-        var r = Same("arm", NewApp(), new Step(["dist", "--bogus"]));
+        var r = Same(nameof(TheDistArmRoutesToTheCommand), "arm", NewApp(), new Step(["dist", "--bogus"]));
         Assert.Equal(CliApp.ExitUsage, r[0].Exit);
     }
 }

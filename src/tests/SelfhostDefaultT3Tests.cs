@@ -7,6 +7,12 @@ using Bayan.Syntax.Diagnostics;
 
 namespace Bayan.Tests;
 
+// Spec 019 T15f export counts (BAYAN_EXPORT_DIR=tmp/export-t15ef) against tests/inventory-019.tsv, class: tests / cases.
+// - SelfhostDefaultT3Tests: 31 / 29. The two RefusesToReport tests (CleanDoesNotReportAFileItCannotRemove, ...ADirectoryItCannotRemove)
+//   run the driver only, no C# oracle: none written.
+// - SelfhostDefaultT12Tests: 86 / 109. A case per step of a multi-step test (layout, force, clean, latest, ...), the last with expected.tree.
+
+
 /// <summary>
 /// 017 T3: <c>cache stats</c> and <c>clean</c> against <see cref="CliApp.Run"/> (L028): the same argv on two identical trees,
 /// stdout, stderr, exit code and the tree left behind compared, the cache and root paths masked. The oracle runs in-process, so
@@ -79,12 +85,22 @@ public sealed class SelfhostDefaultT3Tests
     }
 
     /// <summary>The same argv on two trees; <paramref name="env"/> maps a tree's root to the variables (default: only <c>BAYAN_CACHE</c> = <c>&lt;root&gt;/cache</c>).</summary>
-    private static void Same(string name, Action<string> seed, Func<string, Dictionary<string, string?>>? env, params string[] args)
+    private static void Same(string test, string name, Action<string> seed, Func<string, Dictionary<string, string?>>? env, params string[] args)
     {
         var a = Tree(name, "cs", seed);
         var b = Tree(name, "s2", seed);
         env ??= r => new() { ["BAYAN_CACHE"] = Path.Combine(r, "cache") };
+        var staged = SelfhostExport.Dir is null ? null : SelfhostDriverT1Tests.StageInputs([a]);
         var expected = Cs(a, env(a), args);
+        if (staged is not null)
+        {
+            // the seeded tree is input/, the run's working directory is the tree (<root>), and the tree left behind is expected.tree
+            staged.Extra["cwd"] = "<root>\n";
+            string Root(string text) => Masked(text, a);
+            SelfhostDriverT1Tests.Record(args, expected, staged, new SelfhostDriverT1Tests.ExportForm("root-masked", Root, Root, () => Listing(a) + "\n"), nameof(SelfhostDefaultT3Tests), test, "",
+                Variables.Select(v => (v, env(a).GetValueOrDefault(v) is { } value ? Root(value) : null)));
+            return;
+        }
         var actual = Stage2(b, env(b), args);
         var label = $"{name}: {string.Join(' ', args)}";
         Assert.Equal(expected.Exit, actual.Exit);
@@ -93,7 +109,7 @@ public sealed class SelfhostDefaultT3Tests
         SelfhostEmitterHarness.AssertSame($"tree of `{label}`", Listing(a), Listing(b));
     }
 
-    private static void Same(string name, Action<string> seed, params string[] args) => Same(name, seed, null, args);
+    private static void Same(string test, string name, Action<string> seed, params string[] args) => Same(test, name, seed, null, args);
 
     private static void Nothing(string root) { }
 
@@ -147,22 +163,22 @@ public sealed class SelfhostDefaultT3Tests
 
     private static void SeededProject(string root) { Project(root); Seeded(root); }
 
-    [Fact] public void StatsOfNoCache() => Same("stats-none", Nothing, "cache", "stats");
-    [Fact] public void StatsOfASeededCache() => Same("stats-seeded", Seeded, "cache", "stats");
-    [Fact] public void CacheWithoutStatsIsUsage() => Same("cache-usage", Seeded, "cache");
-    [Fact] public void CacheWithAnotherArgumentIsUsage() => Same("cache-other", Seeded, "cache", "wipe");
-    [Fact] public void CacheStatsWithAnExtraArgumentIsUsage() => Same("cache-extra", Seeded, "cache", "stats", "more");
-    [Fact] public void CleanCacheOutsideAProject() => Same("clean-cache", Seeded, "clean", "--cache");
-    [Fact] public void CleanCacheOfAnEmptyCache() => Same("clean-cache-empty", Nothing, "clean", "--cache");
-    [Fact] public void CleanCacheInAProject() => Same("clean-cache-project", SeededProject, "clean", "--cache");
-    [Fact] public void CleanAProjectInTheWorkingDirectory() => Same("clean-cwd", Project, "clean");
-    [Fact] public void CleanAProjectKeepsDistWithoutTheFlag() => Same("clean-nodist", Project, "clean", ".");
-    [Fact] public void CleanAProjectWithDist() => Same("clean-dist", Project, "clean", "--dist");
+    [Fact] public void StatsOfNoCache() => Same(nameof(StatsOfNoCache), "stats-none", Nothing, "cache", "stats");
+    [Fact] public void StatsOfASeededCache() => Same(nameof(StatsOfASeededCache), "stats-seeded", Seeded, "cache", "stats");
+    [Fact] public void CacheWithoutStatsIsUsage() => Same(nameof(CacheWithoutStatsIsUsage), "cache-usage", Seeded, "cache");
+    [Fact] public void CacheWithAnotherArgumentIsUsage() => Same(nameof(CacheWithAnotherArgumentIsUsage), "cache-other", Seeded, "cache", "wipe");
+    [Fact] public void CacheStatsWithAnExtraArgumentIsUsage() => Same(nameof(CacheStatsWithAnExtraArgumentIsUsage), "cache-extra", Seeded, "cache", "stats", "more");
+    [Fact] public void CleanCacheOutsideAProject() => Same(nameof(CleanCacheOutsideAProject), "clean-cache", Seeded, "clean", "--cache");
+    [Fact] public void CleanCacheOfAnEmptyCache() => Same(nameof(CleanCacheOfAnEmptyCache), "clean-cache-empty", Nothing, "clean", "--cache");
+    [Fact] public void CleanCacheInAProject() => Same(nameof(CleanCacheInAProject), "clean-cache-project", SeededProject, "clean", "--cache");
+    [Fact] public void CleanAProjectInTheWorkingDirectory() => Same(nameof(CleanAProjectInTheWorkingDirectory), "clean-cwd", Project, "clean");
+    [Fact] public void CleanAProjectKeepsDistWithoutTheFlag() => Same(nameof(CleanAProjectKeepsDistWithoutTheFlag), "clean-nodist", Project, "clean", ".");
+    [Fact] public void CleanAProjectWithDist() => Same(nameof(CleanAProjectWithDist), "clean-dist", Project, "clean", "--dist");
     [Fact]
     public void CleanDoesNotFollowASymlinkToADirectory()
     {
         if (OperatingSystem.IsWindows()) return;
-        Same("clean-link", LinkedDist, "clean", "app", "--dist");
+        Same(nameof(CleanDoesNotFollowASymlinkToADirectory), "clean-link", LinkedDist, "clean", "app", "--dist");
         Assert.True(File.Exists(Path.Combine(Base, "s2", "clean-link", "outside", "keep.txt")));
     }
 
@@ -170,7 +186,7 @@ public sealed class SelfhostDefaultT3Tests
     public void CleanRemovesATopLevelSymlinkAndKeepsItsTarget()
     {
         if (OperatingSystem.IsWindows()) return;
-        Same("clean-top-link", LinkedTop, "clean", "--dist", "--cache");
+        Same(nameof(CleanRemovesATopLevelSymlinkAndKeepsItsTarget), "clean-top-link", LinkedTop, "clean", "--dist", "--cache");
         Assert.True(File.Exists(Path.Combine(Base, "s2", "clean-top-link", "outside", "sub", "f")));
     }
 
@@ -206,14 +222,14 @@ public sealed class SelfhostDefaultT3Tests
         RefusesToReport("clean-locked-dir", r => { Project(r); Directory.CreateDirectory(Path.Combine(r, "out", "locked", "empty")); }, Path.Combine("out", "locked"), Path.Combine("out", "locked", "empty"));
     }
 
-    [Fact] public void CleanAProjectWithDistAndCache() => Same("clean-all", SeededProject, "clean", "--dist", "--cache");
-    [Fact] public void CleanAProjectByPathWithCache() => Same("clean-path", s => { Project(Path.Combine(s, "app")); Seeded(s); }, "clean", "app", "--cache");
-    [Fact] public void CleanAProjectWithNothingBuilt() => Same("clean-nothing", s => File.WriteAllText(Path.Combine(s, "package.byn"), "package demo\n"), "clean", "--dist");
-    [Fact] public void CleanOutsideAProject() => Same("clean-not-project", Nothing, "clean");
-    [Fact] public void CleanAMissingDirectory() => Same("clean-missing", Nothing, "clean", "nowhere");
-    [Fact] public void CleanDistOutsideAProject() => Same("clean-dist-not-project", Nothing, "clean", "--dist");
-    [Fact] public void CleanAnUnknownOptionIsUsage() => Same("clean-option", Project, "clean", "--bogus");
-    [Fact] public void CleanTwoPathsIsUsage() => Same("clean-two", Project, "clean", ".", "other");
+    [Fact] public void CleanAProjectWithDistAndCache() => Same(nameof(CleanAProjectWithDistAndCache), "clean-all", SeededProject, "clean", "--dist", "--cache");
+    [Fact] public void CleanAProjectByPathWithCache() => Same(nameof(CleanAProjectByPathWithCache), "clean-path", s => { Project(Path.Combine(s, "app")); Seeded(s); }, "clean", "app", "--cache");
+    [Fact] public void CleanAProjectWithNothingBuilt() => Same(nameof(CleanAProjectWithNothingBuilt), "clean-nothing", s => File.WriteAllText(Path.Combine(s, "package.byn"), "package demo\n"), "clean", "--dist");
+    [Fact] public void CleanOutsideAProject() => Same(nameof(CleanOutsideAProject), "clean-not-project", Nothing, "clean");
+    [Fact] public void CleanAMissingDirectory() => Same(nameof(CleanAMissingDirectory), "clean-missing", Nothing, "clean", "nowhere");
+    [Fact] public void CleanDistOutsideAProject() => Same(nameof(CleanDistOutsideAProject), "clean-dist-not-project", Nothing, "clean", "--dist");
+    [Fact] public void CleanAnUnknownOptionIsUsage() => Same(nameof(CleanAnUnknownOptionIsUsage), "clean-option", Project, "clean", "--bogus");
+    [Fact] public void CleanTwoPathsIsUsage() => Same(nameof(CleanTwoPathsIsUsage), "clean-two", Project, "clean", ".", "other");
 
     private static void SeededDefaults(string root)
     {
@@ -223,9 +239,9 @@ public sealed class SelfhostDefaultT3Tests
 
     private static Dictionary<string, string?> Home(string root, string? cache) => new() { ["HOME"] = Path.Combine(root, "home"), ["BAYAN_CACHE"] = cache };
 
-    [Fact] public void StatsOfTheDefaultCache() => Same("stats-default", SeededDefaults, r => Home(r, null), "cache", "stats");
-    [Fact] public void StatsWithAnEmptyBayanCacheUsesTheDefault() => Same("stats-empty-var", SeededDefaults, r => Home(r, ""), "cache", "stats");
-    [Fact] public void CleanCacheOfTheDefaultCache() => Same("clean-default", SeededDefaults, r => Home(r, null), "clean", "--cache");
+    [Fact] public void StatsOfTheDefaultCache() => Same(nameof(StatsOfTheDefaultCache), "stats-default", SeededDefaults, r => Home(r, null), "cache", "stats");
+    [Fact] public void StatsWithAnEmptyBayanCacheUsesTheDefault() => Same(nameof(StatsWithAnEmptyBayanCacheUsesTheDefault), "stats-empty-var", SeededDefaults, r => Home(r, ""), "cache", "stats");
+    [Fact] public void CleanCacheOfTheDefaultCache() => Same(nameof(CleanCacheOfTheDefaultCache), "clean-default", SeededDefaults, r => Home(r, null), "clean", "--cache");
 
     private static void Source(string root) => File.WriteAllText(Path.Combine(root, "main.byn"), "i32 main() {\n    return 0\n}\n");
 
@@ -236,5 +252,5 @@ public sealed class SelfhostDefaultT3Tests
     [InlineData("check")]
     [InlineData("explain")]
     public void TheCommandsRunBeforeTheCacheArmsStillMatch(string command, string? option = null) =>
-        Same("dispatch-" + command, Source, option is null ? [command, "main.byn"] : [command, option, "main.byn"]);
+        Same(nameof(TheCommandsRunBeforeTheCacheArmsStillMatch), "dispatch-" + command, Source, option is null ? [command, "main.byn"] : [command, option, "main.byn"]);
 }

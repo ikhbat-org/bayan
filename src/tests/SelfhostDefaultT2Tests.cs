@@ -22,8 +22,16 @@ public sealed class SelfhostDefaultT2Tests
         return (exit, stdout.ToString().ReplaceLineEndings("\n"), stderr.ToString().ReplaceLineEndings("\n"));
     }
 
-    private static void AssertSameAsCs(params string[] args)
+    private static void AssertSameAsCs(string[] args, [System.Runtime.CompilerServices.CallerMemberName] string test = "")
     {
+        if (SelfhostExport.Dir is not null)
+        {
+            // the repo root is masked as <repo> in the argv and the output; the inputs it names are copied before the run
+            string Repo(string text) => text.Replace(Golden.RepoRoot, "<repo>");
+            var staged = SelfhostDriverT1Tests.StageInputs(args.Where(SelfhostDriverT1Tests.IsPath));
+            SelfhostDriverT1Tests.Record([.. args.Select(Repo)], Oracle(args), staged, new SelfhostDriverT1Tests.ExportForm("repo-masked", Repo, Repo), nameof(SelfhostDefaultT2Tests), test, "");
+            return;
+        }
         var expected = Oracle(args);
         var actual = SelfhostDriverHarness.Run(args);
         var label = string.Join(' ', args);
@@ -158,7 +166,7 @@ public sealed class SelfhostDefaultT2Tests
     {
         foreach (var dir in new[] { "run", "typed", "parse", "diag" })
             foreach (var file in Directory.GetFiles(Path.Combine(Golden.CasesRoot, dir), "*.byn", SearchOption.TopDirectoryOnly).Order(StringComparer.Ordinal))
-                AssertSameAsCs("features", "--used", file, "--package", Path.GetDirectoryName(file)!);
+                AssertSameAsCs(["features", "--used", file, "--package", Path.GetDirectoryName(file)!]);
     }
 
     private static IEnumerable<string> Concrete(Type baseType) =>

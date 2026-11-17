@@ -6,6 +6,17 @@ using Bayan.Syntax.Text;
 
 namespace Bayan.Tests;
 
+// Spec 019 T15e export counts (BAYAN_EXPORT_DIR=tmp/export-t15ef) against tests/inventory-019.tsv, class: tests / cases.
+// - SelfhostDefaultT1Tests: 32 / 372. ExplainsEveryDocumentedCode writes one case per docs/diagnostics file (-n).
+// - SelfhostDefaultT2Tests: 25 / 1069. FeaturesMatchesTheCSharpCliOnTheCorpus writes one case per corpus file; each row writes one.
+// - SelfhostDefaultT4Tests: 65 / 61. The 3 NewMatchesTheTreeGoldens rows compare a golden file and ScriptWithAnEmptyPathPanicsAtChmod
+//   has no C# oracle: none written.
+// - SelfhostDefaultT5Tests: 19 / 41. Tests that loop over the argv list (3) or several env settings write a case per run; tests with no
+//   C# compare (render probes, ACompilerFromTheEnvironmentThatNamesNoProgram, where the C# throws) write none.
+// - SelfhostDefaultP2Tests (sem): 3 / 1014. The corpus test writes one case per program path; ErrorPathNodesRecordTheCSharpSyntax a node
+//   and a diagnostics case per file; WithFileRebindsAFileFromTextAsCSharpDoes 8.
+// - SelfhostDefaultJsonCountTests: 1 / 1.
+
 /// <summary>
 /// 017 T1: <c>bayan explain</c> of the self-hosted driver. <c>src/driver/diagdocs.byn</c> holds one constant per
 /// <c>docs/diagnostics/BYN####.md</c> (plan D2); <c>BAYAN_UPDATE=1</c> regenerates it. The rows compare stage 2 with <see cref="CliApp.Run"/>.
@@ -89,17 +100,10 @@ public sealed class SelfhostDefaultT1Tests
         Assert.Equal(Generate(), File.ReadAllText(DiagDocsPath), ignoreLineEndingDifferences: false);
     }
 
-    private static (int Exit, string Out, string Err) Oracle(string[] args)
+    private static void AssertSameAsCs(string[] args, [System.Runtime.CompilerServices.CallerMemberName] string test = "")
     {
-        var stdout = new StringWriter();
-        var stderr = new StringWriter();
-        var exit = CliApp.Run(args, stdout, stderr);
-        return (exit, stdout.ToString().ReplaceLineEndings("\n"), stderr.ToString().ReplaceLineEndings("\n"));
-    }
-
-    private static void AssertSameAsCs(params string[] args)
-    {
-        var expected = Oracle(args);
+        var expected = SelfhostDriverT1Tests.Oracle(args, nameof(SelfhostDefaultT1Tests), test: test);
+        if (SelfhostExport.Dir is not null) return;
         var actual = SelfhostDriverHarness.Run(args);
         var label = string.Join(' ', args);
         Assert.Equal(expected.Exit, actual.Exit);
@@ -149,6 +153,26 @@ public sealed class SelfhostDefaultT1Tests
     public void ExplainsEveryDocumentedCode()
     {
         foreach (var file in DocFiles())
-            AssertSameAsCs("explain", Path.GetFileNameWithoutExtension(file));
+            AssertSameAsCs(["explain", Path.GetFileNameWithoutExtension(file)]);
+    }
+
+    /// <summary>The export path (spec 019 R10): a row writes its case, the C# output as <c>expected.*</c>, and does not run the driver.</summary>
+    [Fact]
+    public void ARowExportsItsCase()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-t1");
+        TestDirs.Delete(root);
+        var old = SelfhostExport.Override.Value;
+        try
+        {
+            SelfhostExport.Override.Value = root;
+            ExplainAsCliAppRun(["explain", "BYN0003"]);
+        }
+        finally { SelfhostExport.Override.Value = old; }
+        var dir = Path.Combine(root, "cli", nameof(SelfhostDefaultT1Tests), nameof(ExplainAsCliAppRun));
+        var expected = SelfhostDriverT1Tests.Oracle(["explain", "BYN0003"]);
+        Assert.Equal("explain\nBYN0003\n", File.ReadAllText(Path.Combine(dir, "args")));
+        Assert.Equal(expected.Out, File.ReadAllText(Path.Combine(dir, "expected.stdout")));
+        Assert.Equal($"{expected.Exit}\n", File.ReadAllText(Path.Combine(dir, "expected.exitcode")));
     }
 }
