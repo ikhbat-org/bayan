@@ -61,6 +61,11 @@ mkdir -p "$t/tests/cases/sem/AlphaTests/a" "$t/tests/cases/sem/AlphaTests/b" "$t
 expect "golden below" 1 "row DeltaTests has 4 cases in tests/cases/fmt, below the 5 tests of its golden rows"
 touch "$t/tests/cases/fmt/c5.byn"
 expect "golden met" 0 "inventory-check: ok"
+printf 'ZetaTests\tz\tcli\t12\tgolden\ttests/cases\tr\n' >> "$t/tests/inventory-019.tsv"
+printf 'public class ZetaTests { [Fact] public void A() {} }\n' > "$t/src/tests/ZetaTests.cs"
+expect "golden tests/cases below" 1 "row ZetaTests has 6 cases across the kind folders of tests/cases, below its 12 tests"
+mkdir -p "$t/tests/cases/other"; for i in 1 2 3 4 5 6 7; do touch "$t/tests/cases/other/o$i.byn"; done
+expect "golden tests/cases met" 0 "inventory-check: ok"
 
 good
 printf 'class\tkind\ttests\tcases\treason\n' > "$t/tests/cases/EXPORT.tsv"
