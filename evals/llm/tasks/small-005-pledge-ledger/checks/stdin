@@ -1,0 +1,21 @@
+pledge Aisha 100
+pledge Bilal 50
+pledge Zaynab 30
+report
+pay Aisha 40
+pay Bilal 50
+pay Zaynab 45
+pay Omar 10
+  pledge Aisha 25  
+pay Aisha 85
+report
+pledge Aisha 0
+pledge Aisha ten
+pledge Aisha
+pay Bilal -5
+pay Bilal 5 6
+zakat Aisha 5
+report now
+
+pay Aisha 1
+report
