@@ -1,0 +1,234 @@
+// sabk phase 1 (spec 024): `encode` turns one `Inst` into its 4-byte arm64 word. Field layouts are the ARM Architecture
+// Reference Manual's; the tests check every form against the reference assembler's bytes (`testdata/encodings.tsv`).
+// An operand the form cannot hold is an `EncodeError` naming the mnemonic and operand, never a truncated word.
+
+/// The word for `inst`. A branch or `adr` target is encoded with offset 0: the label fixup (T5) or the relocation fills it.
+public u32 encode(Inst inst) fails EncodeError => try encodeAt(inst, 0)
+
+/// The word for `inst` with `offset` bytes from the instruction to its target; `offset` is read by `b`, `bl`, `b.cond`,
+/// `cbz`, `cbnz` and `adr` only.
+public u32 encodeAt(Inst inst, at i64 offset) fails EncodeError {
+    switch inst {
+        case .movz(let width, let rd, let imm, let shift):
+            return try moveWide("movz", 0x52800000, width, rd, imm, shift)
+        case .movk(let width, let rd, let imm, let shift):
+            return try moveWide("movk", 0x72800000, width, rd, imm, shift)
+        case .movReg(let width, let rd, let rm):
+            return sf(width, 0x2A0003E0) | (try reg("mov", "rm", rm, width, false, true) << 16) | (try reg("mov", "rd", rd, width, false, true))
+        case .movSp(let rd, let rn):
+            return 0x91000000 | (try reg("mov", "rn", rn, .x, true, false) << 5) | (try reg("mov", "rd", rd, .x, true, false))
+        case .addImm(let width, let rd, let rn, let imm12, let shift12):
+            return try arithImm("add", 0x11000000, width, rd, true, rn, imm12, shift12)
+        case .subImm(let width, let rd, let rn, let imm12, let shift12):
+            return try arithImm("sub", 0x51000000, width, rd, true, rn, imm12, shift12)
+        case .subsImm(let width, let rd, let rn, let imm12, let shift12):
+            return try arithImm("subs", 0x71000000, width, rd, false, rn, imm12, shift12)
+        case .cmpImm(let width, let rn, let imm12, let shift12):
+            return try arithImm("cmp", 0x71000000, width, Reg { kind: .zero, number: 31 }, false, rn, imm12, shift12)
+        case .addReg(let width, let rd, let rn, let rm, let shift, let amount):
+            return try shifted("add", 0x0B000000, width, rd, rn, rm, shift, amount)
+        case .subReg(let width, let rd, let rn, let rm, let shift, let amount):
+            return try shifted("sub", 0x4B000000, width, rd, rn, rm, shift, amount)
+        case .subsReg(let width, let rd, let rn, let rm, let shift, let amount):
+            return try shifted("subs", 0x6B000000, width, rd, rn, rm, shift, amount)
+        case .cmpReg(let width, let rn, let rm, let shift, let amount):
+            return try shifted("cmp", 0x6B000000, width, Reg { kind: .zero, number: 31 }, rn, rm, shift, amount)
+        case .andReg(let width, let rd, let rn, let rm, let shift, let amount):
+            return try shifted("and", 0x0A000000, width, rd, rn, rm, shift, amount)
+        case .orrReg(let width, let rd, let rn, let rm, let shift, let amount):
+            return try shifted("orr", 0x2A000000, width, rd, rn, rm, shift, amount)
+        case .eorReg(let width, let rd, let rn, let rm, let shift, let amount):
+            return try shifted("eor", 0x4A000000, width, rd, rn, rm, shift, amount)
+        case .mul(let width, let rd, let rn, let rm):
+            return try threeReg("mul", 0x1B007C00, width, rd, rn, rm)
+        case .sdiv(let width, let rd, let rn, let rm):
+            return try threeReg("sdiv", 0x1AC00C00, width, rd, rn, rm)
+        case .msub(let width, let rd, let rn, let rm, let ra):
+            return try threeReg("msub", 0x1B008000, width, rd, rn, rm) | (try reg("msub", "ra", ra, width, false, true) << 10)
+        case .neg(let width, let rd, let rm):
+            return sf(width, 0x4B0003E0) | (try reg("neg", "rm", rm, width, false, true) << 16) | (try reg("neg", "rd", rd, width, false, true))
+        case .cset(let width, let rd, let cond):
+            // cset is csinc rd, zr, zr, !cond; `al` has no inverse.
+            if cond == .al { fail EncodeError { mnemonic: "cset", reason: "cond al has no inverse condition" } }
+            return sf(width, 0x1A9F07E0) | ((condition(cond) ^ 1) << 12) | (try reg("cset", "rd", rd, width, false, true))
+        case .csel(let width, let rd, let rn, let rm, let cond):
+            return try threeReg("csel", 0x1A800000, width, rd, rn, rm) | (condition(cond) << 12)
+        case .ldrImm(let width, let rt, let rn, let offset):
+            return try memImm("ldr", 0xB9400000, width, rt, rn, offset)
+        case .strImm(let width, let rt, let rn, let offset):
+            return try memImm("str", 0xB9000000, width, rt, rn, offset)
+        case .ldur(let width, let rt, let rn, let offset):
+            return try memUnscaled("ldur", 0xB8400000, width, rt, rn, offset)
+        case .stur(let width, let rt, let rn, let offset):
+            return try memUnscaled("stur", 0xB8000000, width, rt, rn, offset)
+        case .stp(let mode, let rt, let rt2, let rn, let offset):
+            return try pair("stp", mode, 0xA9000000, 0xA9800000, 0xA8800000, rt, rt2, rn, offset)
+        case .ldp(let mode, let rt, let rt2, let rn, let offset):
+            return try pair("ldp", mode, 0xA9400000, 0xA9C00000, 0xA8C00000, rt, rt2, rn, offset)
+        case .b(let _):
+            return 0x14000000 | (try wordOffset("b", offset, 26))
+        case .bl(let _):
+            return 0x94000000 | (try wordOffset("bl", offset, 26))
+        case .bCond(let cond, let _):
+            return 0x54000000 | (try wordOffset("b.cond", offset, 19) << 5) | condition(cond)
+        case .cbz(let width, let rt, let _):
+            return sf(width, 0x34000000) | (try wordOffset("cbz", offset, 19) << 5) | (try reg("cbz", "rt", rt, width, false, true))
+        case .cbnz(let width, let rt, let _):
+            return sf(width, 0x35000000) | (try wordOffset("cbnz", offset, 19) << 5) | (try reg("cbnz", "rt", rt, width, false, true))
+        case .br(let rn):
+            return 0xD61F0000 | (try reg("br", "rn", rn, .x, false, false) << 5)
+        case .blr(let rn):
+            return 0xD63F0000 | (try reg("blr", "rn", rn, .x, false, false) << 5)
+        case .ret(let rn):
+            return 0xD65F0000 | (try reg("ret", "rn", rn, .x, false, false) << 5)
+        case .adrp(let rd, let _):
+            return 0x90000000 | (try reg("adrp", "rd", rd, .x, false, true))
+        case .addPageOff(let rd, let rn, let _):
+            return 0x91000000 | (try reg("add", "rn", rn, .x, true, false) << 5) | (try reg("add", "rd", rd, .x, true, false))
+        case .adr(let rd, let _):
+            // The byte offset is a signed 21-bit value split into immlo (2 bits) and immhi (19 bits).
+            if offset < -1048576 || offset > 1048575 {
+                fail EncodeError { mnemonic: "adr", reason: $"target offset {offset} is outside -1048576..1048575 (+-1 MiB)" }
+            }
+            let imm = u32(offset & 0x1FFFFF)
+            return 0x10000000 | ((imm & 3) << 29) | ((imm >> 2) << 5) | (try reg("adr", "rd", rd, .x, false, true))
+    }
+}
+
+/// `base` is the 32-bit form; the 64-bit form sets `sf` (bit 31).
+u32 sf(Width width, u32 base) => width == .x ? base | 0x80000000 : base
+
+/// The 4-bit condition field.
+u32 condition(Cond cond) {
+    switch cond {
+        case .eq: return 0
+        case .ne: return 1
+        case .hs: return 2
+        case .lo: return 3
+        case .mi: return 4
+        case .pl: return 5
+        case .vs: return 6
+        case .vc: return 7
+        case .hi: return 8
+        case .ls: return 9
+        case .ge: return 10
+        case .lt: return 11
+        case .gt: return 12
+        case .le: return 13
+        case .al: return 14
+    }
+}
+
+/// The register number of `r` for operand `operand` of `mnemonic`. Register 31 is `sp` only where `allowSp` (64-bit
+/// forms), the zero register only where `allowZr`; a general register is `x0`-`x30`.
+u32 reg(string mnemonic, string operand, Reg r, Width width, bool allowSp, bool allowZr) fails EncodeError {
+    switch r.kind {
+        case .general:
+            if r.number > 30 {
+                fail EncodeError { mnemonic: mnemonic, reason: $"operand {operand}: register number {r.number} is outside x0-x30" }
+            }
+        case .sp:
+            unless allowSp {
+                fail EncodeError { mnemonic: mnemonic, reason: $"operand {operand}: sp is not allowed here, need a general register" }
+            }
+            if width != .x || r.number != 31 {
+                fail EncodeError { mnemonic: mnemonic, reason: $"operand {operand}: sp needs the 64-bit form" }
+            }
+        case .zero:
+            unless allowZr {
+                fail EncodeError { mnemonic: mnemonic, reason: $"operand {operand}: xzr/wzr is not allowed here, need a register or sp" }
+            }
+            unless r.number == 31 {
+                fail EncodeError { mnemonic: mnemonic, reason: $"operand {operand}: the zero register is register 31" }
+            }
+    }
+    return u32(r.number)
+}
+
+u32 moveWide(string mnemonic, u32 base, Width width, Reg rd, u16 imm, u8 shift) fails EncodeError {
+    let limit: u8 = width == .x ? 48 : 16
+    if shift % 16 != 0 || shift > limit {
+        let allowed = width == .x ? "0, 16, 32 or 48" : "0 or 16"
+        fail EncodeError { mnemonic: mnemonic, reason: $"operand shift: {shift} is not {allowed} for this width" }
+    }
+    return sf(width, base) | (u32(shift / 16) << 21) | (u32(imm) << 5) | (try reg(mnemonic, "rd", rd, width, false, true))
+}
+
+/// add/sub/subs/cmp with a 12-bit immediate: `rn` may be `sp`, `rd` is `sp` only for add/sub (`rdSp`).
+u32 arithImm(string mnemonic, u32 base, Width width, Reg rd, bool rdSp, Reg rn, u16 imm12, bool shift12) fails EncodeError {
+    if imm12 > 4095 {
+        fail EncodeError { mnemonic: mnemonic, reason: $"operand imm12: {imm12} is outside 0..4095" }
+    }
+    let rdn = try reg(mnemonic, "rd", rd, width, rdSp, !rdSp)
+    let rnn = try reg(mnemonic, "rn", rn, width, true, false)
+    return sf(width, base) | (shift12 ? 0x400000 : 0) | (u32(imm12) << 10) | (rnn << 5) | rdn
+}
+
+/// add/sub/subs/cmp/and/orr/eor with a shifted register: no `sp`, the zero register allowed.
+u32 shifted(string mnemonic, u32 base, Width width, Reg rd, Reg rn, Reg rm, ShiftKind shift, u8 amount) fails EncodeError {
+    let limit: u8 = width == .x ? 63 : 31
+    if amount > limit {
+        fail EncodeError { mnemonic: mnemonic, reason: $"operand shift amount: {amount} is outside 0..{limit}" }
+    }
+    let kind: u32 = shift == .lsl ? 0 : shift == .lsr ? 1 : 2
+    let rdn = try reg(mnemonic, "rd", rd, width, false, true)
+    let rnn = try reg(mnemonic, "rn", rn, width, false, true)
+    let rmn = try reg(mnemonic, "rm", rm, width, false, true)
+    return sf(width, base) | (kind << 22) | (rmn << 16) | (u32(amount) << 10) | (rnn << 5) | rdn
+}
+
+/// The `rm`, `rn`, `rd` fields of a three-register form (mul, sdiv, msub, csel).
+u32 threeReg(string mnemonic, u32 base, Width width, Reg rd, Reg rn, Reg rm) fails EncodeError {
+    let rdn = try reg(mnemonic, "rd", rd, width, false, true)
+    let rnn = try reg(mnemonic, "rn", rn, width, false, true)
+    let rmn = try reg(mnemonic, "rm", rm, width, false, true)
+    return sf(width, base) | (rmn << 16) | (rnn << 5) | rdn
+}
+
+/// ldr/str with an unsigned offset, a multiple of the access size (8 for x, 4 for w), at most 4095 accesses.
+u32 memImm(string mnemonic, u32 base, Width width, Reg rt, Reg rn, u16 offset) fails EncodeError {
+    let size: u16 = width == .x ? 8 : 4
+    if offset % size != 0 || offset / size > 4095 {
+        fail EncodeError { mnemonic: mnemonic, reason: $"operand offset: {offset} is not a multiple of {size} in 0..{size * 4095}" }
+    }
+    let rtn = try reg(mnemonic, "rt", rt, width, false, true)
+    let rnn = try reg(mnemonic, "rn", rn, .x, true, false)
+    let word = width == .x ? base | 0x40000000 : base
+    return word | (u32(offset / size) << 10) | (rnn << 5) | rtn
+}
+
+/// ldur/stur with a signed 9-bit byte offset.
+u32 memUnscaled(string mnemonic, u32 base, Width width, Reg rt, Reg rn, i16 offset) fails EncodeError {
+    if offset < -256 || offset > 255 {
+        fail EncodeError { mnemonic: mnemonic, reason: $"operand offset: {offset} is outside -256..255" }
+    }
+    let rtn = try reg(mnemonic, "rt", rt, width, false, true)
+    let rnn = try reg(mnemonic, "rn", rn, .x, true, false)
+    let word = width == .x ? base | 0x40000000 : base
+    return word | (u32(i64(offset) & 0x1FF) << 12) | (rnn << 5) | rtn
+}
+
+/// stp/ldp of two x registers: a signed offset, a multiple of 8, -512..504; `mode` picks the base word.
+u32 pair(string mnemonic, Indexing mode, u32 plain, u32 pre, u32 post, Reg rt, Reg rt2, Reg rn, i16 offset) fails EncodeError {
+    if offset % 8 != 0 || offset < -512 || offset > 504 {
+        fail EncodeError { mnemonic: mnemonic, reason: $"operand offset: {offset} is not a multiple of 8 in -512..504" }
+    }
+    let rtn = try reg(mnemonic, "rt", rt, .x, false, true)
+    let rt2n = try reg(mnemonic, "rt2", rt2, .x, false, true)
+    let rnn = try reg(mnemonic, "rn", rn, .x, true, false)
+    let word = mode == .offset ? plain : mode == .pre ? pre : post
+    return word | (u32(i64(offset / 8) & 0x7F) << 15) | (rt2n << 10) | (rnn << 5) | rtn
+}
+
+/// A branch byte offset as a signed `bits`-bit word count, masked to its field; a multiple of 4.
+u32 wordOffset(string mnemonic, i64 offset, i64 bits) fails EncodeError {
+    let limit = 1 << (bits - 1)
+    if offset % 4 != 0 {
+        fail EncodeError { mnemonic: mnemonic, reason: $"operand target: offset {offset} is not a multiple of 4" }
+    }
+    let words = offset / 4
+    if words < -limit || words >= limit {
+        fail EncodeError { mnemonic: mnemonic, reason: $"operand target: offset {offset} is outside {-limit * 4}..{limit * 4 - 4}" }
+    }
+    return u32(words & (limit * 2 - 1))
+}
