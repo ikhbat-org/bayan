@@ -1,5 +1,7 @@
 // sabk phase 1 (spec 024, R7, R10): an independent soundness check of a register allocation (T11). It shares no code with
-// `ra/`: its input is a SIR function plus a per-vreg location map. A forward dataflow over the CFG (iterative worklist, no
+// `ra/`: its input is a SIR function plus location segments. A segment gives a vreg a location over a range of positions
+// (the checker numbers every instruction and terminator in block order, from 0, inclusive on both ends). A vreg whose
+// segments change location with no move between them has a missing move: the later read finds a location that never held it. A forward dataflow over the CFG (iterative worklist, no
 // recursion over the input, every buffer sized from the function) tracks, for each location, which vreg it currently holds:
 // a vreg, "unwritten", "mixed" (paths disagree at a join) or "clobbered" (a call destroyed a caller-saved register). Every
 // operand must be the current occupant of its location; anything else is a finding. A final pass over the fixpoint reports.
@@ -26,6 +28,14 @@ public enum FindingKind {
     unassigned
 }
 
+/// `vreg` lives in `location` at positions `from` through `until`.
+public struct Segment {
+    public VReg  vreg
+    public i64   from
+    public i64   until
+    public Loc   location
+}
+
 public struct Finding {
     public string      function
     public BlockId     block
@@ -46,7 +56,11 @@ const clobbered: i64 = -3
 
 struct Ctx {
     string        name
-    List<Loc>     locs
+    List<Segment> segs
+    /// The position of the first instruction of each block.
+    List<i64>     base
+    /// The current position.
+    i64           gpos
     i64           regCount
     /// Slots follow the registers: location index of slot k is `regCount + k`.
     i64           width
@@ -66,11 +80,12 @@ i64 locIndex(in Ctx c, for Loc l) {
 
 void read(ref Ctx c, for VReg v) uses alloc {
     return if v == sir.noReg()
-    if v >= c.locs.length || v < 0 {
+    let at = segmentAt(c, for: v)
+    if at < 0 {
         report(ref c, for: v, as: .unassigned, at: .reg(0))
         return
     }
-    let l = c.locs[v]
+    let l = c.segs[at].location
     let occupant = c.state[locIndex(c, for: l)]
     return if occupant == v
     var kind = FindingKind.conflict
@@ -79,14 +94,24 @@ void read(ref Ctx c, for VReg v) uses alloc {
     report(ref c, for: v, as: kind, at: l)
 }
 
+/// The index of the segment of `v` covering the current position, or -1.
+i64 segmentAt(in Ctx c, for VReg v) {
+    for i in 0..c.segs.length {
+        return i if c.segs[i].vreg == v && c.segs[i].from <= c.gpos && c.gpos <= c.segs[i].until
+    }
+    return -1
+}
+
 void report(ref Ctx c, for VReg v, as FindingKind kind, at Loc l) uses alloc {
     return if !c.report
     c.found.append(Finding { function: c.name, block: c.block, position: c.pos, kind: kind, vreg: v, location: l })
 }
 
 void write(ref Ctx c, for VReg v) {
-    return if v == sir.noReg() || v >= c.locs.length || v < 0
-    c.state[locIndex(c, for: c.locs[v])] = v
+    return if v == sir.noReg()
+    let at = segmentAt(c, for: v)
+    return if at < 0
+    c.state[locIndex(c, for: c.segs[at].location)] = v
 }
 
 void clobberCalls(ref Ctx c) {
@@ -100,6 +125,7 @@ void step(ref Ctx c, from in sir.Function f, at BlockId b) uses alloc {
     c.block = b
     for i in 0..f.blocks[b].insts.length {
         c.pos = i
+        c.gpos = c.base[b] + i
         switch f.blocks[b].insts[i] {
             case .imm(let dst, let value): write(ref c, for: dst)
             case .add(let dst, let a, let b2):
@@ -131,6 +157,7 @@ void step(ref Ctx c, from in sir.Function f, at BlockId b) uses alloc {
         }
     }
     c.pos = f.blocks[b].insts.length
+    c.gpos = c.base[b] + c.pos
     switch f.blocks[b].terminator {
         case .open: return
         case .jump(let target): return
@@ -168,19 +195,19 @@ bool join(ref List<i64> into, at i64 base, from in List<i64> other, by i64 n) {
     return changed
 }
 
-/// Checks the allocation `locs` (indexed by vreg) of `f`. An empty result means every read sees the vreg it names.
-public List<Finding> checkAllocation(in sir.Function f, as move List<Loc> locs) uses alloc {
+/// Checks the allocation `segs` of `f`. An empty result means every read sees the vreg it names.
+public List<Finding> checkAllocation(in sir.Function f, as move List<Segment> segs) uses alloc {
     var maxReg = minRegCount - 1
     var maxSlot = -1
-    for l in locs {
-        switch l {
+    for sg in segs {
+        switch sg.location {
             case .reg(let n): maxReg = n if n > maxReg
             case .slot(let k): maxSlot = k if k > maxSlot
         }
     }
     let regCount = maxReg + 1
     let width = regCount + maxSlot + 1
-    var c = Ctx { name: f.name, locs: move locs, regCount: regCount, width: width, state: List<i64>(), found: List<Finding>(),
+    var c = Ctx { name: f.name, segs: move segs, base: List<i64>(), gpos: 0, regCount: regCount, width: width, state: List<i64>(), found: List<Finding>(),
                   report: false, block: 0, pos: 0 }
     let n = f.blocks.length
     if n == 0 {
@@ -196,9 +223,15 @@ public List<Finding> checkAllocation(in sir.Function f, as move List<Loc> locs) 
         visited.append(false)
         queued.append(false)
     }
+    var next = 0
+    for b in 0..n {
+        c.base.append(next)
+        next = next + f.blocks[b].insts.length + 1
+    }
     for p in f.params {
-        if p >= 0 && p < c.locs.length {
-            inState[locIndex(c, for: c.locs[p])] = p
+        let at = segmentAt(c, for: p)
+        if at >= 0 {
+            inState[locIndex(c, for: c.segs[at].location)] = p
         }
     }
     var work = List<BlockId>()
