@@ -6,7 +6,9 @@
 #   bash scripts/cleanup/2026-11-17-vm-zig-cache.sh                                  # dry run
 #   bash scripts/cleanup/2026-11-17-vm-zig-cache.sh --execute --delete-zig-cache     # act
 #
-# Starts bayan-test01 if stopped, waits for its agent, and stops it at the end.
+# Starts bayan-test01 if stopped, waits for its agent, and stops it at the end,
+# on any exit. A VM that is already running may be serving a job: the script
+# then measures only, refuses to delete, and leaves it running.
 set -euo pipefail
 
 execute=0 delete=0
@@ -34,6 +36,10 @@ if [ "$state" != RUNNING ]; then
         exit 0
     fi
     ssh "$host" incus start "$vm"
+    trap 'ssh "$host" incus stop "$vm" && echo "$vm stopped (it stays stopped between jobs)"' EXIT
+elif [ $execute -eq 1 ] && [ $delete -eq 1 ]; then
+    echo "refuse: $vm was already running and may be serving a job; stop it first, then rerun"
+    exit 1
 fi
 # The VM agent comes up some seconds after start; wait up to 3 minutes.
 for _ in $(seq 1 36); do
@@ -68,6 +74,5 @@ fi
 
 # 4. State after.
 ssh "$host" incus exec "$vm" -- df -h /
-if [ $execute -eq 1 ]; then ssh "$host" incus stop "$vm"; echo "$vm stopped (it stays stopped between jobs)"; fi
 if [ $execute -eq 1 ] && [ $failed -eq 1 ]; then exit 1; fi
 exit 0
