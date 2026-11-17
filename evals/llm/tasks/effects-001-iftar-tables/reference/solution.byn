@@ -1,0 +1,11 @@
+/// How many guests sit at each table when `guests` fill tables of `seats` in order.
+public List<i64> tableSizes(i64 guests, by i64 seats) uses alloc {
+    var sizes = List<i64>()
+    var left = guests
+    while left > 0 {
+        let n = left < seats ? left : seats
+        sizes.append(n)
+        left -= n
+    }
+    return sizes
+}
