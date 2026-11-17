@@ -69,8 +69,8 @@ refused
 check batch-cmdline "$want"
 
 # batch-cmdline-cases.c reads hex cases from stdin (`-` is an empty argument). Cases are the L005RunBatchTests.cs rows that pair
-# a path and arguments with the exact command line (ModelReadsKnownCommandLines, lines 113-119), the same on every OS; the
-# generated corpus is T24b.
+# a path and arguments with the exact command line the builder makes (ModelReadsKnownCommandLines, lines 113-120 and 123; the
+# other rows are command lines the builder never makes), the same on every OS; the generated corpus is T24b.
 if build batch-cmdline-cases; then
     P='cmd.exe /d /e:ON /v:OFF /s /c '
     in="$(hex '.\echo.cmd') $(hex 'a b')
@@ -80,6 +80,8 @@ $(hex '.\echo.cmd') $(hex 'a\')
 $(hex '.\echo.cmd') $(hex x) $(hex 'y z')
 $(hex '.\echo.cmd')
 $(hex 'C:\dir\X.CMD') $(hex a)
+$(hex '.\echo.cmd') $(hex 'a,b;c=d')
+$(hex '.\echo.cmd') $(hex '!x!')
 "
     want="$(hex "$P"'"".\echo.cmd" "a b""')"'
 '"$(hex "$P"'"".\echo.cmd" """')"'
@@ -88,6 +90,8 @@ $(hex 'C:\dir\X.CMD') $(hex a)
 '"$(hex "$P"'"".\echo.cmd" "x" "y z""')"'
 '"$(hex "$P"'"".\echo.cmd""')"'
 '"$(hex "$P"'""C:\dir\X.CMD" "a""')"'
+'"$(hex "$P"'"".\echo.cmd" "a,b;c=d""')"'
+'"$(hex "$P"'"".\echo.cmd" "!x!""')"'
 '
     printf '%s' "$in" | "$work/batch-cmdline-cases.exe" 2>&1 | tr -d '\r' >"$work/bcc.out"
     rc=${PIPESTATUS[1]}
