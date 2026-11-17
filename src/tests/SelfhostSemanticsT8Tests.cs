@@ -363,7 +363,8 @@ public sealed class SelfhostSemanticsT8Tests
             Assert.Empty(printed);
             return;
         }
-        SelfhostSemanticsHarness.AssertSection(new() { [name] = printed }, name, diagnostics.Order(StringComparer.Ordinal).ToList(), test);
+        SelfhostSemanticsHarness.AssertSection(new() { [name] = printed }, name, diagnostics.Order(StringComparer.Ordinal).ToList(), test,
+            run: Sections.Value, printed: $"{name} diagnostics", compare: "sorted");
     }
 
     [Fact]

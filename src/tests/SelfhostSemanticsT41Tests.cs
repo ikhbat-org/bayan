@@ -693,7 +693,7 @@ public sealed class SelfhostSemanticsT41Tests
         var actual = new Dictionary<string, List<string>> { [section] = Sorted(Sections.Value[section]) };
         // A program with no diagnostic and no summary prints nothing on either side.
         if (expected.Count == 0) Assert.Empty(actual[section]);
-        else SelfhostSemanticsHarness.AssertSection(actual, section, expected);
+        else SelfhostSemanticsHarness.AssertSection(actual, section, expected, run: Sections.Value, printed: section, compare: "t41");
     }
 
     /// <summary>

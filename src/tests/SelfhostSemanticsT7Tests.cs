@@ -186,7 +186,8 @@ public sealed class SelfhostSemanticsT7Tests
         // Both sides are sorted (C# reports in walk order) and end with `end`, so a clean case still compares a line.
         Assert.True(Output.Value.TryGetValue(name, out var lines), $"section '{name}' was not printed");
         var actual = new Dictionary<string, List<string>> { [name] = [.. lines!.Order(StringComparer.Ordinal), "end"] };
-        SelfhostSemanticsHarness.AssertSection(actual, name, [.. Cases.Value.Expected[name], "end"], test);
+        SelfhostSemanticsHarness.AssertSection(actual, name, [.. Cases.Value.Expected[name], "end"], test,
+            run: Output.Value, printed: name, compare: "sorted-end");
     }
 
     // ── The oracle and the generated main ─────────────────────────────────────────────────
