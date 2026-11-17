@@ -42,8 +42,8 @@ The work goes in this order: launcher, `score`, `recheck`, the two leaking repai
 **Laws.** The three law candidates become three pairs of tasks: draft as `proposed` and wait for the owner to enact, then prove. A worker may create a `proposed` file and may not enact it (`docs/laws/README.md`). The proofs are cases in the shell tests, so each law sets `check:` itself.
 
 ### Missing, for the owner
-- The name and location of the private `heldout` repository, and who may write `heldout` tasks. A hosted-model worker that writes them sends them through a provider (spec, Open questions). T22 cannot start without this.
-- R24 asks for the marker in every `heldout` file. `checks/stdin`, `checks/expected.stdout` and `checks/exitcode` are compared or fed byte for byte and cannot hold one. The plan puts the marker in every file that can hold a comment or free text (`task.md`, `prompt.md`, every `.byn`, `source.*`) and exempts those three. This needs the owner's yes, and one sentence in R24.
+- *Resolved 2026-11-17:* the private repository is `github.com/ikhbat-org/bayan-heldout`, owner-only write; `heldout` tasks are written by the owner or a local model, hosted workers write `dev` only (spec, Open questions). T22 waits for the owner to create the repository.
+- *Resolved 2026-11-17:* R24 exempts `checks/stdin`, `checks/expected.stdout` and `checks/exitcode`; the marker goes in every file that can hold a comment or free text (`task.md`, `prompt.md`, every `.byn`, `source.*`).
 - The marker string is made in the private repository and is never written in this one. `recheck` reads it from a file named `MARKER` at the root of the tasks directory when that file exists.
 - The spec names an acceptance criteria file for this plan. None is in the worktree. The plan works from the list in the task message.
 
