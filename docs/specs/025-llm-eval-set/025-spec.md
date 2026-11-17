@@ -59,8 +59,8 @@ An evaluation set answers that, provided it measures every model the same way an
   A candidate that does not compile has the other three recorded as not reached. `bayan fmt` is not a command; the formatter is `bayan format`.
 - R12 A task is passed when the candidate compiles and passes. Lint-clean and format-stable are reported beside it and never change whether a task is passed.
 - R13 A repair task also requires that its starter file fails `bayan check` with the diagnostic code the task names. This is a property of the task, checked with the reference, not of the candidate.
-- R14 Each build and each run has a time limit and an output limit, the same for every model and stated in the result. Reaching a limit is a fail, never a retry.
-- R15 A candidate is a program written by a model and is run as one. The runner starts it in the scratch directory as an ordinary user process with no secrets in its environment. Anything stronger is an open question.
+- R14 Each build and each run has a time limit and an output limit, the same for every model and stated in the result. Reaching a limit is a fail, never a retry, and is reported as its own outcome, `limit`. The limits are 120 seconds to build, 10 seconds to run and 1 MiB of output, loose enough that only a program that does not stop reaches them.
+- R15 A candidate is a program written by a model and is run as one. The runner starts it in the scratch directory as a process with no secrets in its environment, under an OS sandbox that denies network access, denies reading the task set and allows writes only in the scratch directory (macOS first). Where no sandbox is available the runner says so in the result.
 - R16 The code is taken from the model's reply by one fixed rule, the same for every model: the contents of the last fenced code block when there is one, otherwise the whole reply.
 
 ### Categories
@@ -91,7 +91,7 @@ An evaluation set answers that, provided it measures every model the same way an
   The seed has tiers 1 and 2 only. Results are reported per tier as well as overall.
 
 ### Splits and contamination
-- R20 Every task is in one split. `dev` tasks may be read by anyone, used to tune prompts, and used as few-shot examples. `heldout` tasks are never used for training, for prompt tuning or as examples, and their prompts, checks and references never enter a training corpus.
+- R20 Every task is in one split. `dev` tasks may be read by anyone, used to tune prompts, and used as few-shot examples. They are never training data for the project's own models. `heldout` tasks are never used for training, for prompt tuning or as examples, and their prompts, checks and references never enter a training corpus.
 - R21 The headline number of a model is its result on `heldout`. A `dev` result is always labelled as such.
 - R22 A task never moves from `dev` to `heldout`. A `heldout` task that leaks (shown in a prompt, found in a corpus, published) moves to `dev`.
 - R23 No task is copied or adapted from text in this repository: `tests/cases/`, `examples/`, `lib/std/` and its tests, `src/`, `tools/`, the code samples in `docs/`, or the site. Prompts are new text. The reverse also holds: no eval task is later reused as a repository test or a docs sample.
@@ -102,7 +102,7 @@ An evaluation set answers that, provided it measures every model the same way an
 - R26 `Revision:` names the language revision the task was written against. `Checked:` names the compiler version and commit its reference last passed with.
 - R27 A result records the commit of the task set, the compiler version and commit, and the revision. Results from different revisions are never joined into one series without saying so.
 - R28 When the pinned compiler first implements a new revision, every reference is re-run. The first re-check is at revision 0024 (numeric conversions; its text is applied, its implementation has not started, and it is the last syntax change the freeze admits before 0.3.0). A task whose reference then fails is corrected and gets the new `Revision:`, or is retired; a retired task's directory name is not reused.
-- R29 The re-check is one command that runs every task's reference through scoring and exits non-zero when any reference does not get all four results.
+- R29 The re-check is one command that runs every task's reference through scoring and exits non-zero when any reference does not get all four results. It runs in CI on every push, in the Linux job, over the `dev` tasks. The `heldout` tasks are re-checked on the owner's machine, and the runner gives no headline number unless that re-check passed for the same compiler commit.
 
 ### Metrics
 - R30 Reported for every run, overall and per category and per tier, as counts and as rates:
@@ -124,6 +124,10 @@ An evaluation set answers that, provided it measures every model the same way an
 - R35 The runner is Bayān or shell, as spec 015 requires of tooling, and scores with the pinned compiler (`scripts/pinned-bayan.sh`), never the working tree's.
 - R36 The prompt sent for a task is a fixed preamble (what to reply with: one file, `solution.byn`, in one code block), then an optional context file, then `prompt.md`. The result names the context file. Results with different contexts are different runs and are never averaged together.
 - R37 The runner writes one record per task and sample (the four results, the times, the reply) and a summary, to a path it is given, under `tmp/` by default. It writes nothing into the task set.
+- R38 The runner takes the tasks directory as an argument, so the same runner scores `evals/llm/tasks` (`dev`) and the separate `heldout` set.
+- R39 The task data lives in `evals/llm/tasks/` at the root. The `dev` tasks are committed to this repository. The `heldout` tasks are kept in a separate private repository and are never committed here.
+- R40 The task text is under ISL-P 1.2 like the rest of the repository; `NOTICE.md` names `evals/`.
+- R41 The target size of the full set is 240 tasks: 30 in each of the 8 categories, tiers in the ratio 12/12/6 per category, two thirds `heldout` (160 `heldout`, 80 `dev`). The first usable cut is 120 tasks (15 per category, tiers 6/6/3, 80 `heldout`, 40 `dev`). `effects` and `spec` counts are provisional until one task of each passes the compiler (R18). Tasks about `expects` are counted in `contracts`.
 
 ## Findings from the seed
 Facts about the compiler at `bayan 0.3.3-dev` (commit `5810cf25b398`) that the format above depends on. Each was observed while checking the seed.
@@ -151,17 +155,24 @@ Facts about the compiler at `bayan 0.3.3-dev` (commit `5810cf25b398`) that the f
 - **Hidden stays hidden:** for every task, no line of `checks/` or `reference/` appears in the prompt the runner sends (R3), apart from lines the prompt itself states.
 
 ## Open questions
-Owner decisions:
-- Where the set lives. The seed is in `evals/llm/tasks/`. `~/.claude/docs/repo-layout.md` names no home for evaluation data, and `tests/` holds the compiler's own cases, so this is a new directory at the root.
-- Whether the set ships in the repository. Anything in a public repository can end up in a model's training data. One option: `dev` in the repository, `heldout` kept out of it.
-- The license of the task text. The repository is under ISL-P 1.2; prompts and references may need their own statement, and the choice affects whether others may train on `dev`.
-- Which model runs the first baseline, and with which context: no context at all, or a primer such as `docs/bayan-grammar.md`. A model that has never seen Bayān will score near zero with no context.
-- Whether `dev` tasks may be used as training data, or only as prompts and examples (R20 allows examples only until this is decided).
+All answered; each resolution is marked with the owner's decision.
 
-For the plan:
-- The size of the full set per category and tier, and the share that is `heldout`.
-- The limits of R14 and the isolation of R15.
-- Whether the re-check of R29 runs in CI.
+- **Where the set lives.** *Resolved:* `evals/llm/tasks/` at the root (R39), with the runner wherever spec 015 puts tooling, not inside `evals/` (owner, 2026-11-17, Fable's recommendation).
+  - `tests/` stays the compiler's own cases, which keeps R23 visible in the tree, and a corpus can exclude `evals/` by path.
+- **Whether the set ships in the repository.** *Resolved:* `dev` tasks in this repository; `heldout` tasks in a separate private repository, never committed here. The reason is that this repository is public (since 2026-11-01), so anything committed once is public in every clone (owner, 2026-11-17, Fable's recommendation).
+  - The runner takes a tasks directory (R38). Leak paths to manage: scoring a hosted model sends every `heldout` prompt to that provider, so `heldout` runs only against endpoints with a no-training term and the result records the provider; `heldout` tasks written by a hosted-model worker also pass through a provider.
+- **The license of the task text.** *Resolved:* no separate license; task text stays under ISL-P 1.2 and `NOTICE.md` gets one line naming `evals/` (R40) (owner, 2026-11-17, Fable's recommendation).
+  - The license is silent on model training; whether the Foundation wants ISL terms to say anything about it is a question for the license, not this spec.
+- **Which model runs the first baseline, and with which context.** *Resolved:* the first run is a set-validation run on the strongest hosted model the owner already pays for, twice (no context, then `docs/bayan-grammar.md`), then a local base model the owner picks under the same two contexts (owner, 2026-11-17, Fable's recommendation).
+  - The no-context number is the one to track for fine-tuning. The grammar file describes syntax and not std, so `std` tasks measure guessing API names; report `std` separately or accept a low number. The owner still names the local model and its machine.
+- **Whether `dev` tasks may be used as training data.** *Resolved:* no; `dev` is for prompt tuning and few-shot examples only, as R20 says (owner, 2026-11-17, Fable's recommendation).
+  - This keeps a daily number that stays meaningful and `heldout` looked at rarely. Others may train on `dev` under the license (R40). The scoring procedure (R11) may be reused as a reward on separately written tasks.
+- **Size per category and tier, and the share that is `heldout`.** *Resolved:* R41: 240 tasks, two thirds `heldout`, with a first cut of 120 (owner, 2026-11-17, Fable's recommendation).
+  - With 160 `heldout` tasks the 95% interval near 50% is about 8 points, enough to see a real change from fine-tuning; paired comparison of two models on the same tasks is tighter.
+- **The limits of R14 and the isolation of R15.** *Resolved:* fixed generous limits (R14) and an OS sandbox with no network, no read of the task set and writes only in scratch, macOS first (R15) (owner, 2026-11-17, Fable's recommendation).
+  - `timeout` is not on stock macOS, so the runner needs its own watchdog or a stated dependency. Check the limits against the slowest reference (run limit at least 10 times it). Gap: `repair-001-missing-particle/prompt.md` prints the full expected output, so a candidate of two `print` lines passes; repair checks need an input the prompt does not show, or a second hidden case.
+- **Whether the re-check of R29 runs in CI.** *Resolved:* yes for `dev`, on every push in the Linux job, with `heldout` re-checked locally under a runner guard (R29) (owner, 2026-11-17, Fable's recommendation).
+  - If the re-check takes more than about 3 minutes at full size, it moves to a nightly workflow and a 12-task smoke subset stays on push. To settle in the plan: `scripts/pinned-bayan.sh` pins the tip of `dev` and builds the C# CLI, so the scorer is not the self-hosted compiler users download; and a branch re-check runs the `dev`-tip compiler, not the branch's.
 
 ## Seed record
 Checked 2026-11-17 with `bayan 0.3.3-dev` (commit `5810cf25b398`) from `scripts/pinned-bayan.sh`; all are `Split: dev`, `Revision: 0023`.
