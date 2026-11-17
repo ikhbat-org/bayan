@@ -1,0 +1,28 @@
+/// Each pledge after `rule` has been applied to it.
+public List<i64> adjustPledges(List<i64> pledges, by (i64 -> i64) rule) uses alloc {
+    var adjusted = List<i64>()
+    for pledge in pledges {
+        adjusted.append(rule(pledge))
+    }
+    return adjusted
+}
+
+/// The sum of the pledges after `rule` has been applied to each.
+public i64 totalAfter(List<i64> pledges, by (i64 -> i64) rule) {
+    var total: i64 = 0
+    for pledge in pledges {
+        total += rule(pledge)
+    }
+    return total
+}
+
+/// How many pledges are above `floor`.
+public i64 countAbove(List<i64> pledges, at i64 floor) {
+    var count: i64 = 0
+    for pledge in pledges {
+        if pledge > floor {
+            count += 1
+        }
+    }
+    return count
+}
