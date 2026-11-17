@@ -165,6 +165,54 @@ public static class SelfhostEmitterHarness
         Assert.True(exit == actualExit, $"{name}: exit {actualExit}, expected {exit}");
     }
 
+    /// <summary><see cref="SelfhostSemanticsHarness.Sections"/> of a <c>bayan-emit</c> run's <paramref name="stdout"/>, kept with its <paramref name="args"/> (see <see cref="Recorded"/>).</summary>
+    public static Dictionary<string, List<string>> Sections(string stdout, params string[] args) =>
+        Recorded(SelfhostSemanticsHarness.Sections(stdout), args);
+
+    /// <summary><paramref name="sections"/>; under <c>BAYAN_EXPORT_DIR</c> the <c>bayan-emit</c> <paramref name="args"/> that printed them are kept for <see cref="AssertSection(Dictionary{string, List{string}}, string, IReadOnlyList{string}, string, string)"/>'s case.</summary>
+    public static Dictionary<string, List<string>> Recorded(Dictionary<string, List<string>> sections, params string[] args)
+    {
+        if (SelfhostExport.Dir is not null) SectionArgs.AddOrUpdate(sections, args);
+        return sections;
+    }
+
+    private static readonly ConditionalWeakTable<Dictionary<string, List<string>>, string[]> SectionArgs = new();
+
+    /// <summary>
+    /// <see cref="SelfhostSemanticsHarness.AssertSection"/> of a <c>bayan-emit</c> run. Under <c>BAYAN_EXPORT_DIR</c> it asserts nothing and writes
+    /// <c>emit-c/&lt;Class&gt;/&lt;test&gt;[-n]</c> (class and test by <see cref="ExportName"/>) with the fixture the run read (<see cref="SelfhostExport.WriteInput"/>),
+    /// <c>args</c> (the fixture as its name in the case) and <c>expected.sections</c> (the <c>== section</c> header, none for <c>""</c>, and the C# lines);
+    /// a run not kept by <see cref="Recorded"/> is listed in <c>emit-c/UNEXPORTED.tsv</c>.
+    /// </summary>
+    public static void AssertSection(Dictionary<string, List<string>> actual, string section, IReadOnlyList<string> expected,
+        [CallerMemberName] string test = "", [CallerFilePath] string file = "")
+    {
+        if (SelfhostExport.Dir is not { } root)
+        {
+            SelfhostSemanticsHarness.AssertSection(actual, section, expected);
+            return;
+        }
+        var (cls, member) = ExportName(test, file);
+        if (!SectionArgs.TryGetValue(actual, out var args))
+        {
+            SelfhostExport.NotExported(root, "emit-c", cls, member, section);
+            return;
+        }
+        var dir = SelfhostExport.Case(root, "emit-c", cls, member);
+        var inputs = args.Where(File.Exists).Distinct().ToList();
+        if (inputs.Count > 0) SelfhostExport.WriteInput(dir, inputs);
+        // The fixture as WriteInput names it in the case; another path as ExportCase keeps it.
+        string Arg(string a)
+        {
+            if (!inputs.Contains(a)) return Portable(a);
+            var name = Path.GetFileName(a);
+            return inputs.Count > 1 ? $"input/{name}" : "input" + (name.IndexOf('.') is var dot and >= 0 ? name[dot..] : "");
+        }
+        SelfhostExport.WriteExpected(dir, "args", string.Concat(args.Select(a => Arg(a) + "\n")));
+        SelfhostExport.WriteExpected(dir, "expected.sections",
+            section == "" ? string.Join('\n', expected) : $"== {section}\n" + string.Concat(expected.Select(l => l + "\n")));
+    }
+
     // ── Export (spec 019 R10) ────────────────────────────────────────────────────
 
     /// <summary>
@@ -187,11 +235,13 @@ public static class SelfhostEmitterHarness
     private static string ExportCase(string root, string name, string test, string file)
     {
         var (cls, member) = ExportName(test, file);
-        // A path in the name is kept from the repo root, or past a fixture's per-run directory under the temp root (T21's `bayan-t21-<guid>`).
-        var row = System.Text.RegularExpressions.Regex.Replace(name.Replace(Golden.RepoRoot + Path.DirectorySeparatorChar, ""),
-            System.Text.RegularExpressions.Regex.Escape(Path.GetTempPath()) + @"[^/\\]*[/\\]", "");
-        return SelfhostExport.Case(root, "emit-c", cls, $"{member}-{row}");
+        return SelfhostExport.Case(root, "emit-c", cls, $"{member}-{Portable(name)}");
     }
+
+    /// <summary>A path in <paramref name="text"/> kept from the repo root, or past a fixture's per-run directory under the temp root (T21's <c>bayan-t21-&lt;guid&gt;</c>).</summary>
+    private static string Portable(string text) =>
+        System.Text.RegularExpressions.Regex.Replace(text.Replace(Golden.RepoRoot + Path.DirectorySeparatorChar, ""),
+            System.Text.RegularExpressions.Regex.Escape(Path.GetTempPath()) + @"[^/\\]*[/\\]", "");
 }
 
 /// <summary>The export path itself: <see cref="SelfhostEmitterParityTests.CacheAppEmitsTheSameC"/> with the export set writes its case.</summary>
@@ -222,5 +272,28 @@ public sealed class SelfhostEmitterExportTests
         Assert.Equal(File.ReadAllText(Path.Combine(app, "src", "app", "main.byn")), File.ReadAllText(Path.Combine(dir, "input", "src", "app", "main.byn")));
         Assert.Equal(File.ReadAllText(Path.Combine(app, "src", "keep", "keep.byn")), File.ReadAllText(Path.Combine(dir, "input", "src", "keep", "keep.byn")));
         Assert.Single(Directory.GetDirectories(Path.Combine(root, "emit-c", nameof(SelfhostEmitterParityTests))));
+    }
+
+    /// <summary><see cref="SelfhostEmitterT6Tests.Strings_EscapeAndFieldNamesMatchCSharp"/>: an <c>AssertSection</c> writes the fixture, <c>args</c> and <c>expected.sections</c>.</summary>
+    [Fact]
+    public void ASectionCompareWritesTheFixtureArgsAndSections()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-emit-c-sections");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var old = SelfhostExport.Override.Value;
+        try
+        {
+            SelfhostExport.Override.Value = root;
+            new SelfhostEmitterT6Tests().Strings_EscapeAndFieldNamesMatchCSharp();
+        }
+        finally { SelfhostExport.Override.Value = old; }
+        var dir = Path.Combine(root, "emit-c", nameof(SelfhostEmitterT6Tests), nameof(SelfhostEmitterT6Tests.Strings_EscapeAndFieldNamesMatchCSharp));
+        Assert.Equal(["args", "expected.sections", "input.byn"], Directory.GetFiles(dir).Select(f => Path.GetFileName(f)).Order(StringComparer.Ordinal).ToArray());
+        Assert.Equal("i64 f(i64 x) => x\n\nbool g(bool b) => b\n", File.ReadAllText(Path.Combine(dir, "input.byn")));
+        Assert.Equal("strings\ninput.byn\n\n", File.ReadAllText(Path.Combine(dir, "args")));
+        var sections = File.ReadAllLines(Path.Combine(dir, "expected.sections"));
+        Assert.Equal("== strings", sections[0]);
+        Assert.Equal(new[] { "int", "main", "name", "typeof", "Int", "class" }.Select(CEmitter.FieldName), sections[^6..]);
+        Assert.False(File.Exists(Path.Combine(root, "emit-c", "UNEXPORTED.tsv")));
     }
 }

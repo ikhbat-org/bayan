@@ -542,7 +542,7 @@ public sealed class SelfhostEmitterT10Tests
         var (code, stdout, err) = SelfhostParserTests.Run(Build(), [mode, file, linePath, path]);
         exit = code;
         stderr = err;
-        return SelfhostSemanticsHarness.Sections(stdout);
+        return SelfhostEmitterHarness.Sections(stdout, mode, file, linePath, path);
     }
 
     [Fact]
@@ -559,8 +559,8 @@ public sealed class SelfhostEmitterT10Tests
         var (file, linePath) = FileOf(NewEmitterFor(c).Fe);
         var actual = RunMode("expr", path, file, linePath, out var exit, out var stderr);
         Assert.True(exit == 0, $"generated main exited {exit}:\n{stderr}");
-        SelfhostSemanticsHarness.AssertSection(actual, "expr", ExprOracle(c, out var helpers));
-        SelfhostSemanticsHarness.AssertSection(actual, "helpers", helpers);
+        SelfhostEmitterHarness.AssertSection(actual, "expr", ExprOracle(c, out var helpers));
+        SelfhostEmitterHarness.AssertSection(actual, "helpers", helpers);
     });
 
     [Fact]
@@ -570,7 +570,7 @@ public sealed class SelfhostEmitterT10Tests
         var (file, linePath) = FileOf(NewEmitterFor(c).Fe);
         var actual = RunMode("owned", path, file, linePath, out var exit, out var stderr);
         Assert.True(exit == 0, $"generated main exited {exit}:\n{stderr}");
-        SelfhostSemanticsHarness.AssertSection(actual, "owned", OwnedOracle(c));
+        SelfhostEmitterHarness.AssertSection(actual, "owned", OwnedOracle(c));
     });
 
     [Fact]

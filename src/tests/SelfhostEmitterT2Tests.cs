@@ -610,7 +610,7 @@ public sealed class SelfhostEmitterT2Tests
     {
         var (exit, stdout, stderr) = Run(mode, path, file, linePath);
         Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
-        return SelfhostSemanticsHarness.Sections(stdout);
+        return SelfhostEmitterHarness.Sections(stdout, mode, file, linePath, path);
     }
 
     private static readonly Type FunctionLowerer = typeof(Lowerer).Assembly.GetType("Bayan.Lowering.FunctionLowerer", throwOnError: true)!;
@@ -664,7 +664,7 @@ public sealed class SelfhostEmitterT2Tests
     // Tests included, as `bayan test` compiles them.
     [Fact]
     public void Lower_ProgramShapeMatchesCSharp() => WithFixture(LowerFixture, path =>
-        SelfhostSemanticsHarness.AssertSection(RunMode("lowertests", path), "lower",
+        SelfhostEmitterHarness.AssertSection(RunMode("lowertests", path), "lower",
             LowerOracle(Compilation.Create([SourceText.FromFile(path)], Path.GetDirectoryName(path)!, new CompilationOptions(IncludeTests: true)))));
 
     // A warning does not stop the lowering; the functions' shapes are T3's, so only the program's `main` is compared.
@@ -716,7 +716,7 @@ public sealed class SelfhostEmitterT2Tests
         }));
         var helpers = (Dictionary<string, (string Proto, string Body)>)Field(emitter, "_helpers")!;
         foreach (var n in (List<string>)Field(emitter, "_helperOrder")!) expected.Add($"{n} {helpers[n].Proto} | {helpers[n].Body}");
-        SelfhostSemanticsHarness.AssertSection(RunMode("helper", path), "helper", expected);
+        SelfhostEmitterHarness.AssertSection(RunMode("helper", path), "helper", expected);
     });
 
     // ── Key's failure (CEmitter.cs:468) ───────────────────────────────────────────
@@ -1131,5 +1131,5 @@ public sealed class SelfhostEmitterT2Tests
 
     [Fact]
     public void Synth_MatchesCSharp() => WithFixture(SynthFixture, path =>
-        SelfhostSemanticsHarness.AssertSection(RunMode("synth", path), "synth", SynthOracle(Compile(path))));
+        SelfhostEmitterHarness.AssertSection(RunMode("synth", path), "synth", SynthOracle(Compile(path))));
 }

@@ -294,7 +294,7 @@ public sealed class SelfhostEmitterT6Tests
     {
         var (exit, stdout, stderr) = Run(mode, path, flag);
         Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
-        return SelfhostSemanticsHarness.Sections(stdout);
+        return SelfhostEmitterHarness.Sections(stdout, mode, path, flag);
     }
 
     private static object? Call(object target, string name, params object?[] args) =>
@@ -329,7 +329,7 @@ public sealed class SelfhostEmitterT6Tests
     {
         var (exit, stdout, stderr) = Run(mode, path, flag);
         Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
-        return new() { [""] = Lines(stdout.Replace("\r\n", "\n")) };
+        return SelfhostEmitterHarness.Recorded(new() { [""] = Lines(stdout.Replace("\r\n", "\n")) }, mode, path, flag);
     }
 
     // ── Fixtures ─────────────────────────────────────────────────────────────────
@@ -413,8 +413,8 @@ public sealed class SelfhostEmitterT6Tests
             var c = Compile(path);
             var p = Lowerer.Lower(c);
             var e = WithFlag(p, flag);
-            if (mode == "main") SelfhostSemanticsHarness.AssertSection(RawMode(mode, path, flag), "", Lines("== main\n" + oracle(c, p, e)));
-            else SelfhostSemanticsHarness.AssertSection(RunMode(mode, path, flag), mode, SectionLines(oracle(c, p, e)));
+            if (mode == "main") SelfhostEmitterHarness.AssertSection(RawMode(mode, path, flag), "", Lines("== main\n" + oracle(c, p, e)));
+            else SelfhostEmitterHarness.AssertSection(RunMode(mode, path, flag), mode, SectionLines(oracle(c, p, e)));
         });
 
     // ── Static data and literals (CEmitter.cs 1047-1147) ─────────────────────────
@@ -461,7 +461,7 @@ public sealed class SelfhostEmitterT6Tests
         var lines = new List<string>();
         foreach (var v in values)
             foreach (var t in types) lines.Add(e.Constant(new ConstantValue(v), t));
-        SelfhostSemanticsHarness.AssertSection(RunMode("consts", path), "consts", lines);
+        SelfhostEmitterHarness.AssertSection(RunMode("consts", path), "consts", lines);
     });
 
     /// <summary>
@@ -513,7 +513,7 @@ public sealed class SelfhostEmitterT6Tests
         foreach (var s in new[] { "", "plain", "a\"b", "back\\slash", "what?", "tab\there\nnl\r", "héllo ✓" })
             lines.Add($"{Call(e, "Escape", (object)Encoding.UTF8.GetBytes(s))}|{Call(e, "CString", s)}|{Call(e, "StringLiteral", s)}");
         foreach (var w in new[] { "int", "main", "name", "typeof", "Int", "class" }) lines.Add(CEmitter.FieldName(w));
-        SelfhostSemanticsHarness.AssertSection(RunMode("strings", path), "strings", lines);
+        SelfhostEmitterHarness.AssertSection(RunMode("strings", path), "strings", lines);
     });
 
     // ── Symbols and names (CEmitter.cs 137-178, 348-396) ─────────────────────────
@@ -572,7 +572,7 @@ public sealed class SelfhostEmitterT6Tests
         SetField(e, "_packageRoot", sub);
         var expected = SectionLines(NamesOracle(c, p, e));
         Assert.Contains(expected, l => l.EndsWith(" a.byn", StringComparison.Ordinal));
-        SelfhostSemanticsHarness.AssertSection(RunMode("names", path, "root:" + sub), "names", expected);
+        SelfhostEmitterHarness.AssertSection(RunMode("names", path, "root:" + sub), "names", expected);
     });
 
     // A test function missing from `_testIndex`: C# throws KeyNotFoundException (CEmitter.cs:350), Bayan panics.
@@ -653,7 +653,7 @@ public sealed class SelfhostEmitterT6Tests
     public void Run_SectionsAndSubstitutionMatchCSharp(string which, string flag) => WithFixture(which == "full" ? Full : Library, path =>
     {
         var c = Compile(path);
-        SelfhostSemanticsHarness.AssertSection(RawMode("run", path, flag), "", Lines(RunOf(c, flag, prepare: true)));
+        SelfhostEmitterHarness.AssertSection(RawMode("run", path, flag), "", Lines(RunOf(c, flag, prepare: true)));
     });
 
     [Theory]
@@ -662,7 +662,7 @@ public sealed class SelfhostEmitterT6Tests
     public void Emit_OfAnEmptyProgramMatchesCSharp(string which, string flag) => WithFixture(which == "full" ? Full : Library, path =>
     {
         var c = Compile(path);
-        SelfhostSemanticsHarness.AssertSection(RawMode("emit", path, flag), "", Lines(RunOf(c, flag, prepare: false)));
+        SelfhostEmitterHarness.AssertSection(RawMode("emit", path, flag), "", Lines(RunOf(c, flag, prepare: false)));
     });
 
     private const string Lowered = "void f() {\n}\n\ntest \"t\" {\n}\n";
@@ -674,6 +674,6 @@ public sealed class SelfhostEmitterT6Tests
     public void Emit_OfLoweredFunctionsMatchesCSharp(string flag) => WithFixture(Lowered, path =>
     {
         var expected = CEmitter.Emit(Lowerer.Lower(Compile(path)), flag == "debug");
-        SelfhostSemanticsHarness.AssertSection(RawMode("lowered", path, flag), "", Lines(expected));
+        SelfhostEmitterHarness.AssertSection(RawMode("lowered", path, flag), "", Lines(expected));
     });
 }

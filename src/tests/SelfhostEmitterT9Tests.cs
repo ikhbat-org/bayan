@@ -747,9 +747,9 @@ public sealed class SelfhostEmitterT9Tests
         var expected = EmitOracle(Compile(path), checks);
         var (exit, stdout, stderr) = Run("emit", checks, path);
         Assert.True(exit == 0, $"generated main exited {exit}:\n{stderr}");
-        var actual = SelfhostSemanticsHarness.Sections(stdout);
-        SelfhostSemanticsHarness.AssertSection(actual, "emit", expected["emit"]);
-        SelfhostSemanticsHarness.AssertSection(actual, "helpers", expected["helpers"]);
+        var actual = SelfhostEmitterHarness.Sections(stdout, "emit", checks ? "true" : "false", path);
+        SelfhostEmitterHarness.AssertSection(actual, "emit", expected["emit"]);
+        SelfhostEmitterHarness.AssertSection(actual, "helpers", expected["helpers"]);
     });
 
     // A statement with no C arm fails on both sides: `main`'s bound local declaration.
