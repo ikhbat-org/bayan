@@ -51,7 +51,7 @@ test "a loop keeps a value live across the back-edge" {
     assert show(l) == "v0:0-5 v1:0-5 v2:1-5 v3:3-5"
 }
 
-test "a value live across a call crosses it; an argument and a result do not" {
+test "a value live across a call crosses it, a parameter read after a call at position 0 included; the call's result does not" {
     var f = sir.newFunction("caller", by: 1)
     let b = sir.newBlock(ref f)
     let r = sir.newVReg(ref f)
@@ -64,7 +64,7 @@ test "a value live across a call crosses it; an argument and a result do not" {
     assert show(l) == "v0:0-1 v1:0-1 v2:1-2"
     assert l.calls.length == 1
     assert l.calls[0] == 0
-    assert !crossesCall(l, at: l.intervals[0])
+    assert crossesCall(l, at: l.intervals[0])      // v0 is read again after the call
     assert !crossesCall(l, at: l.intervals[1])
 
     var g = sir.newFunction("keeps", by: 1)
@@ -73,10 +73,10 @@ test "a value live across a call crosses it; an argument and a result do not" {
     sir.emit(ref g, to: gb, as: .call(sir.noReg(), "side", List<VReg>()))
     sir.emit(ref g, to: gb, as: .add(x, g.params[0], g.params[0]))
     sir.terminate(ref g, at: gb, as: .ret(x))
-    // 0: call side()  1: x = add v0, v0  2: ret x; v0 is live from 0 to 1 and the call is at 0: start is not before it.
+    // 0: call side()  1: x = add v0, v0  2: ret x; v0 is a parameter, live into the call at 0 and read after it, so it crosses.
     let m = liveIntervals(g)
     assert show(m) == "v0:0-1 v1:1-2"
-    assert !crossesCall(m, at: m.intervals[0])
+    assert crossesCall(m, at: m.intervals[0])
 
     var h = sir.newFunction("spans", by: 1)
     let hb = sir.newBlock(ref h)

@@ -23,12 +23,18 @@ public struct Liveness {
     public List<Interval> intervals
     /// The position of every `call`, ascending.
     public List<i64>      calls
+    /// The value each call in `calls` defines (`sir.noReg()` for none), at the same index.
+    public List<VReg>     callDefs
 }
 
-/// True when the value is live across the call at some position: defined before it and still needed after it.
+/// True when the value is live across the call at some position: live before it (defined earlier, or a parameter, which
+/// starts at the same position 0 as a first-instruction call) and still needed after it. The call's own result starts at
+/// the call and does not cross it.
 public bool crossesCall(Liveness live, at Interval iv) {
-    for p in live.calls {
-        return true if iv.start < p && p < iv.end
+    for i in 0..live.calls.length {
+        let p = live.calls[i]
+        let before = iv.start < p || (iv.start == p && iv.vreg != live.callDefs[i])
+        return true if before && p < iv.end
     }
     return false
 }
@@ -207,6 +213,7 @@ public Liveness liveIntervals(Function f) uses alloc {
         r.hi.append(-1)
     }
     var calls = List<i64>()
+    var callDefs = List<VReg>()
     if nb > 0 {
         for p in f.params {
             touch(ref r, for: p, at: 0)
@@ -222,7 +229,10 @@ public Liveness liveIntervals(Function f) uses alloc {
             let w = instDef(inst)
             touch(ref r, for: w, at: pos) if w != sir.noReg()
             switch inst {
-                case .call(let dst, let symbol, let args): calls.append(pos)
+                case .call(let dst, let symbol, let args): {
+                    calls.append(pos)
+                    callDefs.append(dst)
+                }
                 default: pos = pos
             }
             pos = pos + 1
@@ -249,5 +259,5 @@ public Liveness liveIntervals(Function f) uses alloc {
         }
         intervals[at] = iv
     }
-    return Liveness { intervals: move intervals, calls: move calls }
+    return Liveness { intervals: move intervals, calls: move calls, callDefs: move callDefs }
 }
