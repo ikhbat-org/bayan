@@ -118,9 +118,15 @@ test "bound: a test printing until killed stays under 300 MB and reports the eli
     }
     let exe = boundExe()
     let root = boundFresh("spam-s2")
-    let spam = "void main() {\n}\n\ntest \"spam\" {\n    while true {\n        print(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\")\n    }\n}\n"
+    // 1 KiB lines and a 6 s timeout, as the C# row: at 100-byte lines and 3 s a starved test binary printed less than the
+    // 2 × 64 KiB kept, so nothing was omitted.
+    var line = ""
+    for i in 0..1024 {
+        line = $"{line}x"
+    }
+    let spam = $"void main() {{\n}}\n\ntest \"spam\" {{\n    while true {{\n        print(\"{line}\")\n    }}\n}}\n"
     Io.writeFile(Path.combine(root, "main.byn"), spam.bytes) catch { panic("cannot write main.byn") }
-    let run = boundStart(boundList([exe, "test", "main.byn"]), at: root, as: boundList(["BAYAN_TEST_TIMEOUT_MS=3000"]))
+    let run = boundStart(boundList([exe, "test", "main.byn"]), at: root, as: boundList(["BAYAN_TEST_TIMEOUT_MS=6000"]))
     deleteWorkDir(root)
     print($"peak {run.peakKb} KB, exit {run.exit}")
     assert(run.peakKb > 0)
