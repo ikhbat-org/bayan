@@ -53,6 +53,17 @@ expect "class not exported" 0
 
 good
 printf 'class\tkind\ttests\tcases\treason\n' > "$t/tests/cases/EXPORT.tsv"
+printf 'DeltaTests\td\tcli\t3\tgolden\ttests/cases/fmt\tr\nEpsTests\te\tcli\t2\tgolden\ttests/cases/fmt\tr\n' >> "$t/tests/inventory-019.tsv"
+printf 'public class DeltaTests { [Fact] public void A() {} }\npublic class EpsTests { [Fact] public void A() {} }\n' > "$t/src/tests/DeltaTests.cs"
+expect "golden folder missing" 1 "row DeltaTests has 0 cases, no tests/cases/fmt folder"
+mkdir -p "$t/tests/cases/fmt"; for i in 1 2 3 4; do touch "$t/tests/cases/fmt/c$i.byn" "$t/tests/cases/fmt/c$i.out"; done
+mkdir -p "$t/tests/cases/sem/AlphaTests/a" "$t/tests/cases/sem/AlphaTests/b" "$t/tests/cases/sem/AlphaTests/c"
+expect "golden below" 1 "row DeltaTests has 4 cases in tests/cases/fmt, below the 5 tests of its golden rows"
+touch "$t/tests/cases/fmt/c5.byn"
+expect "golden met" 0 "inventory-check: ok"
+
+good
+printf 'class\tkind\ttests\tcases\treason\n' > "$t/tests/cases/EXPORT.tsv"
 sed -i.bak 's/^AlphaTests.*/AlphaTests\ta\tcsharp-internals\t3\tfrozen\t\t/' "$t/tests/inventory-019.tsv"; rm "$t/tests/inventory-019.tsv.bak"
 printf 'public class DeltaTests { [Fact] public void A() {} }\n' > "$t/src/tests/DeltaTests.cs"
 expect "several offenders" 1 "AlphaTests is csharp-internals"
