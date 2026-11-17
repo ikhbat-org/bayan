@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -74,7 +75,7 @@ public sealed class SelfhostSemanticsTests
     [Fact]
     public void NoPathAndBadMode()
     {
-        SameAsCli("no path", "check");
+        SameAsCli("no path", ["check"]);
         var (exit, output, error) = SelfhostParserTests.Run(Built, "--many");
         Assert.Equal(CliApp.ExitUsage, exit);
         Assert.Equal("", output);
@@ -215,7 +216,8 @@ public sealed class SelfhostSemanticsTests
     }
 
     /// <summary><c>bayan-check</c> with <see cref="SelfArgs"/> of <paramref name="cli"/> against <c>CliApp.Run(cli)</c>: exit, stderr and stdout.</summary>
-    internal static string SameAsCli(string input, params string[] cli) => SameAsCli(input, cli, SelfArgs(cli));
+    internal static string SameAsCli(string input, string[] cli, string? cls = null, [CallerMemberName] string test = "", [CallerFilePath] string file = "") =>
+        SameAsCli(input, cli, SelfArgs(cli), cls, test, file);
 
     /// <summary>
     /// <c>bayan</c>'s arguments as <c>bayan-check</c> takes them: no <c>check</c> word (R1), and <c>types</c> as
@@ -241,12 +243,33 @@ public sealed class SelfhostSemanticsTests
         return cli;
     }
 
+    /// <summary>
+    /// Under the export (<see cref="SelfhostExport.Dir"/>): the case <c>sem/&lt;cls&gt;/&lt;test&gt;</c>, <paramref name="cls"/> or else
+    /// <paramref name="file"/>'s stem, both replaced by <see cref="SelfhostExport.Caller"/> when set.
+    /// </summary>
+    private static string ExportCase(string root, string? cls, string test, string file)
+    {
+        if (SelfhostExport.Caller.Value is { } caller) (cls, test) = caller;
+        return SelfhostExport.Case(root, "sem", cls ?? Path.GetFileNameWithoutExtension(file), test);
+    }
+
     /// <summary><c>bayan-check self</c> against <c>CliApp.Run(cli)</c>, for a Bayan-only flag such as <c>--spans</c>.</summary>
-    internal static string SameAsCli(string input, string[] cli, string[] self)
+    internal static string SameAsCli(string input, string[] cli, string[] self, string? cls = null, [CallerMemberName] string test = "", [CallerFilePath] string file = "")
     {
         var stdout = new StringWriter();
         var stderr = new StringWriter();
         var exit = CliApp.Run(cli, stdout, stderr);
+        if (SelfhostExport.Dir is { } root)
+        {
+            var dir = ExportCase(root, cls, test, file);
+            SelfhostExport.WriteInput(dir, cli.Where(a => File.Exists(a) || Directory.Exists(a)).ToList());
+            SelfhostExport.WriteExpected(dir, "args", string.Concat(cli.Select(a => a + "\n")));
+            SelfhostExport.WriteExpected(dir, "compare", "untimed\n");
+            SelfhostExport.WriteExpected(dir, "expected.stdout", Untimed(stdout.ToString()));
+            SelfhostExport.WriteExpected(dir, "expected.stderr", Untimed(stderr.ToString()));
+            SelfhostExport.WriteExpected(dir, "expected.exitcode", $"{exit}\n");
+            return stdout.ToString();
+        }
         var (actualExit, actualOut, actualErr) = SelfhostParserTests.Run(Built, self);
         AssertSameLines(input, "stderr", Untimed(stderr.ToString()), Untimed(actualErr));
         AssertSameLines(input, "stdout", Untimed(stdout.ToString()), Untimed(actualOut));
@@ -260,7 +283,7 @@ public sealed class SelfhostSemanticsTests
     public void CheckCleanFile()
     {
         var dir = Fixture("clean", ("hello.byn", Hello));
-        SameAsCli("clean", "check", Path.Combine(dir, "hello.byn"));
+        SameAsCli("clean", ["check", Path.Combine(dir, "hello.byn")]);
         // `--spans` is bayan-check's alone; every span in range prints nothing more than `bayan check`.
         SameAsCli("clean --spans", ["check", Path.Combine(dir, "hello.byn")], ["--spans", Path.Combine(dir, "hello.byn")]);
     }
@@ -270,16 +293,16 @@ public sealed class SelfhostSemanticsTests
     public void CheckNamesMainAndDirectory()
     {
         var dir = Fixture("named", ("shop/main.byn", Hello));
-        SameAsCli("main.byn", "check", Path.Combine(dir, "shop", "main.byn"));
-        SameAsCli("directory", "check", Path.Combine(dir, "shop") + "/");
+        SameAsCli("main.byn", ["check", Path.Combine(dir, "shop", "main.byn")]);
+        SameAsCli("directory", ["check", Path.Combine(dir, "shop") + "/"]);
     }
 
     [Fact]
     public void CheckErrorFooter()
     {
         var dir = Fixture("broken", ("broken.byn", "void main( {\n"));
-        SameAsCli("broken", "check", Path.Combine(dir, "broken.byn"));
-        SameAsCli("broken types", "types", Path.Combine(dir, "broken.byn"));
+        SameAsCli("broken", ["check", Path.Combine(dir, "broken.byn")]);
+        SameAsCli("broken types", ["types", Path.Combine(dir, "broken.byn")]);
     }
 
     /// <summary>Over 20 errors: the cap line, and every error with <c>--all</c>.</summary>
@@ -288,29 +311,29 @@ public sealed class SelfhostSemanticsTests
     {
         var source = string.Concat(Enumerable.Range(0, 25).Select(i => $"void f{i}() {{ let x = }}\n")) + Hello;
         var dir = Fixture("many", ("many.byn", source));
-        SameAsCli("many", "check", Path.Combine(dir, "many.byn"));
-        SameAsCli("many --all", "check", "--all", Path.Combine(dir, "many.byn"));
+        SameAsCli("many", ["check", Path.Combine(dir, "many.byn")]);
+        SameAsCli("many --all", ["check", "--all", Path.Combine(dir, "many.byn")]);
     }
 
     [Fact]
     public void CheckProjects()
     {
         var bad = Fixture("bad-manifest", ("package.byn", "Package {\n    name \"local/shop\",\n}\n"), ("src/app/main.byn", Hello));
-        SameAsCli("bad manifest", "check", bad);
+        SameAsCli("bad manifest", ["check", bad]);
         var noApp = Fixture("no-app", ("package.byn", "Package {\n    name: \"local/shop\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .app,\n}\n"));
-        SameAsCli("no src/app", "check", noApp);
+        SameAsCli("no src/app", ["check", noApp]);
         var lib = Fixture("lib", ("package.byn", "Package {\n    name: \"local/tools\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .lib,\n}\n"),
             ("src/lib/tools.byn", "pub i64 twice(i64 x) => x * 2\n"));
-        SameAsCli("lib", "check", lib);
+        SameAsCli("lib", ["check", lib]);
     }
 
     [Fact]
     public void CheckBadArguments()
     {
         var dir = Fixture("args", ("hello.byn", Hello));
-        SameAsCli("unexpected", "check", "--bogus", Path.Combine(dir, "hello.byn"));
-        SameAsCli("not found", "check", Path.Combine(dir, "missing.byn"));
-        SameAsCli("output", "check", "-o", "x", Path.Combine(dir, "hello.byn"));
+        SameAsCli("unexpected", ["check", "--bogus", Path.Combine(dir, "hello.byn")]);
+        SameAsCli("not found", ["check", Path.Combine(dir, "missing.byn")]);
+        SameAsCli("output", ["check", "-o", "x", Path.Combine(dir, "hello.byn")]);
     }
 
     /// <summary>The ported <c>ParseBuildOptions</c> cases: <c>--mode</c>, an unknown mode, and <c>--</c>.</summary>
@@ -319,10 +342,10 @@ public sealed class SelfhostSemanticsTests
     {
         var dir = Fixture("options", ("hello.byn", Hello));
         var file = Path.Combine(dir, "hello.byn");
-        SameAsCli("mode", "check", "--mode", "fast", file);
-        SameAsCli("unknown mode", "check", "--mode", "turbo", file);
-        SameAsCli("program args", "check", file, "--", "--bogus");
-        SameAsCli("types mode", "types", "--mode", "debug", file);
+        SameAsCli("mode", ["check", "--mode", "fast", file]);
+        SameAsCli("unknown mode", ["check", "--mode", "turbo", file]);
+        SameAsCli("program args", ["check", file, "--", "--bogus"]);
+        SameAsCli("types mode", ["types", "--mode", "debug", file]);
     }
 
     /// <summary>
@@ -338,14 +361,14 @@ public sealed class SelfhostSemanticsTests
         var manifest = Fixture("json-manifest", ("package.byn", "Package {\n    name \"local/shop\",\n}\n"), ("src/app/main.byn", Hello));
         foreach (var format in new[] { "json", "text" })
         {
-            SameAsCli($"{format} warn", "check", "--diagnostics", format, warn);
-            SameAsCli($"{format} wrong", "check", "--diagnostics", format, wrong);
-            SameAsCli($"{format} many", "check", "--diagnostics", format, many);
-            SameAsCli($"{format} manifest", "check", "--diagnostics", format, manifest);
-            SameAsCli($"{format} types", "types", "--diagnostics", format, wrong);
+            SameAsCli($"{format} warn", ["check", "--diagnostics", format, warn]);
+            SameAsCli($"{format} wrong", ["check", "--diagnostics", format, wrong]);
+            SameAsCli($"{format} many", ["check", "--diagnostics", format, many]);
+            SameAsCli($"{format} manifest", ["check", "--diagnostics", format, manifest]);
+            SameAsCli($"{format} types", ["types", "--diagnostics", format, wrong]);
         }
-        SameAsCli("unknown format", "check", "--diagnostics", "xml", warn);
-        SameAsCli("no format", "check", warn, "--diagnostics");
+        SameAsCli("unknown format", ["check", "--diagnostics", "xml", warn]);
+        SameAsCli("no format", ["check", warn, "--diagnostics"]);
     }
 
     /// <summary>CliApp.cs:304 <c>TakeGlobalOptions</c>: <c>--color</c> in its forms, a bad value, and <c>--ascii</c> kept after <c>--</c>.</summary>
@@ -354,13 +377,13 @@ public sealed class SelfhostSemanticsTests
     {
         var file = Path.Combine(Fixture("global", ("hello.byn", Hello)), "hello.byn");
         var broken = Path.Combine(Fixture("global-broken", ("broken.byn", "void main( {\n")), "broken.byn");
-        SameAsCli("color never", "--color", "never", "check", file);
-        SameAsCli("color=auto", "--color=auto", "check", broken);
-        SameAsCli("color after the path", "check", broken, "--color", "never");
-        SameAsCli("unknown color", "--color", "pink", "check", file);
-        SameAsCli("color without a value", "check", file, "--color");
-        SameAsCli("ascii summary", "--ascii", "check", file);
-        SameAsCli("ascii after --", "check", broken, "--", "--ascii");
+        SameAsCli("color never", ["--color", "never", "check", file]);
+        SameAsCli("color=auto", ["--color=auto", "check", broken]);
+        SameAsCli("color after the path", ["check", broken, "--color", "never"]);
+        SameAsCli("unknown color", ["--color", "pink", "check", file]);
+        SameAsCli("color without a value", ["check", file, "--color"]);
+        SameAsCli("ascii summary", ["--ascii", "check", file]);
+        SameAsCli("ascii after --", ["check", broken, "--", "--ascii"]);
     }
 
     /// <summary>CliApp.cs:274 and :351: a <c>#!</c> file is compiled alone, any other file with its whole directory.</summary>
@@ -368,9 +391,9 @@ public sealed class SelfhostSemanticsTests
     public void CheckScriptAlone()
     {
         var dir = Fixture("script", ("tool.byn", "#!/usr/bin/env bayan\nprint(\"hi\")\n"), ("other.byn", "void f() {\n    let x: i32 = \"s\"\n}\n"));
-        SameAsCli("script", "check", Path.Combine(dir, "tool.byn"));
-        SameAsCli("not a script", "check", Path.Combine(dir, "other.byn"));
-        SameAsCli("types script", "types", Path.Combine(dir, "tool.byn"));
+        SameAsCli("script", ["check", Path.Combine(dir, "tool.byn")]);
+        SameAsCli("not a script", ["check", Path.Combine(dir, "other.byn")]);
+        SameAsCli("types script", ["types", Path.Combine(dir, "tool.byn")]);
     }
 
     /// <summary><c>--codes</c> against <c>DiagnosticCodes</c>: the semantic ranges, the three BYN1 codes the checker reports, the style lints `bayan check` reports (BYN1072–BYN1080), and the three second message forms after their codes (Q527).</summary>
@@ -425,7 +448,7 @@ public sealed class SelfhostSemanticsTests
     {
         var source = "i64 apply((i64 -> i64) f, to i64 x) => f(x)\n\nvoid main() {\n    let k = 3\n    print($\"{apply((x) => x + k, to: 2)}\")\n}\n";
         var dir = Fixture("types", ("lambda.byn", source));
-        var output = SameAsCli("types", "types", Path.Combine(dir, "lambda.byn"));
+        var output = SameAsCli("types", ["types", Path.Combine(dir, "lambda.byn")]);
         using var json = JsonDocument.Parse(output);
         Assert.Equal(TypedDumpVersion, json.RootElement.GetProperty("version").GetInt32());
         Assert.True(json.RootElement.GetProperty("functions").GetArrayLength() > 1);
@@ -464,7 +487,7 @@ public sealed class SelfhostSemanticsTests
 
             """;
         var dir = Fixture("types-kinds", ("kinds.byn", source));
-        var output = SameAsCli("kinds", "types", Path.Combine(dir, "kinds.byn"));
+        var output = SameAsCli("kinds", ["types", Path.Combine(dir, "kinds.byn")]);
         foreach (var kind in new[] { "var", "const", "for", "pattern", "catch" }) Assert.Contains($"\"kind\": \"{kind}\"", output);
     }
 
@@ -475,7 +498,7 @@ public sealed class SelfhostSemanticsTests
         var padding = string.Concat(Enumerable.Repeat("// padding so that main starts after every function of b.byn\n", 4));
         var dir = Fixture("types-order", ("a.byn", padding + "void main() {\n    print($\"{twice(2)} {ten()}\")\n}\n"),
             ("b.byn", "i64 twice(i64 x) {\n    let f: (i64 -> i64) = (y) => y * 2\n    return f(x)\n}\n\ni64 ten() => 10\n"));
-        SameAsCli("module order", "types", dir);
+        SameAsCli("module order", ["types", dir]);
     }
 
     /// <summary>TypedDump.cs:89 <c>PathOf</c>: a project's files relative to its root.</summary>
@@ -484,7 +507,7 @@ public sealed class SelfhostSemanticsTests
     {
         var dir = Fixture("types-project", ("package.byn", "Package {\n    name: \"local/shop\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .app,\n}\n"),
             ("src/app/main.byn", "void main() {\n    print($\"{one()}\")\n}\n"), ("src/app/util.byn", "i64 one() => 1\n"));
-        SameAsCli("project", "types", dir);
+        SameAsCli("project", ["types", dir]);
     }
 
     private const int TypedDumpVersion = Bayan.Semantics.Binding.TypedDump.Version;
@@ -501,7 +524,7 @@ public sealed class SelfhostSemanticsTests
     [InlineData("typed/rune.byn")]
     [InlineData("typed/lambda-narrowed-capture.byn")]
     [InlineData("typed/function-types.byn")]
-    public void TypesAgree(string name) => SameAsCli(name, "types", Isolated(name));
+    public void TypesAgree(string name) => SameAsCli(name, ["types", Isolated(name)]);
 
     // ── T26: golden mode against DiagTests ────────────────────────────────────────────────────────
 
@@ -509,7 +532,7 @@ public sealed class SelfhostSemanticsTests
     /// <c>--golden</c> on a diag case against <see cref="DiagTests"/>' rendering: the case's directory as
     /// the package, its manifest's capabilities and name, tests for <c>*.test.byn</c>, paths in packages.
     /// </summary>
-    internal static void GoldenSame(string name)
+    internal static void GoldenSame(string name, string? cls = null, [CallerMemberName] string test = "", [CallerFilePath] string file = "")
     {
         var path = Path.Combine(Golden.CasesRoot, name);
         var dir = Path.GetDirectoryName(path)!;
@@ -519,9 +542,18 @@ public sealed class SelfhostSemanticsTests
             Capabilities: manifest?.Capabilities, PackageName: manifest?.Name));
         var package = Path.GetFileName(dir) != "diag";
         string[] args = ["--golden", "--package", dir, .. tests ? new[] { "--tests" } : [], .. package ? new[] { "--include-path" } : [], path];
+        var expected = DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: package);
+        if (SelfhostExport.Dir is { } root)
+        {
+            var outDir = ExportCase(root, cls, test, file);
+            SelfhostExport.WriteInput(outDir, [package ? dir : path]);
+            SelfhostExport.WriteExpected(outDir, "args", string.Concat(args.Select(a => a + "\n")));
+            SelfhostExport.WriteExpected(outDir, "expected.golden", expected);
+            return;
+        }
         var (exit, output, error) = SelfhostParserTests.Run(Built, args);
         Assert.True(exit == 0 && error.Length == 0, $"{name}: exit {exit}\n{error}");
-        AssertSameLines(name, "golden", DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: package), output);
+        AssertSameLines(name, "golden", expected, output);
     }
 
     /// <summary>Diag cases that already agree: plain cases, a <c>*.test.byn</c>, packages, one with a manifest.</summary>
@@ -537,7 +569,7 @@ public sealed class SelfhostSemanticsTests
     /// Plan :130's CLI comparison: the diag case copied to <c>tmp/t26-tests/cli/&lt;slug&gt;/</c> (a directory case
     /// whole), then <c>CliApp.Run(["check", copy])</c> against <c>bayan-check copy</c>, stderr and exit.
     /// </summary>
-    internal static void CheckSame(string name)
+    internal static void CheckSame(string name, string? cls = null, [CallerMemberName] string test = "", [CallerFilePath] string file = "")
     {
         var source = Path.Combine(Golden.CasesRoot, name);
         var caseDir = Path.GetDirectoryName(source)!;
@@ -547,16 +579,25 @@ public sealed class SelfhostSemanticsTests
         if (Path.GetFileName(caseDir) == "diag") File.Copy(source, Path.Combine(dir, Path.GetFileName(source)));
         else
         {
-            foreach (var file in Directory.EnumerateFiles(caseDir, "*", SearchOption.AllDirectories))
+            foreach (var f in Directory.EnumerateFiles(caseDir, "*", SearchOption.AllDirectories))
             {
-                var target = Path.Combine(dir, Path.GetRelativePath(caseDir, file));
+                var target = Path.Combine(dir, Path.GetRelativePath(caseDir, f));
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                File.Copy(file, target);
+                File.Copy(f, target);
             }
         }
         var copy = Path.Combine(dir, Path.GetFileName(source));
         var stderr = new StringWriter();
         var exit = CliApp.Run(["check", copy], new StringWriter(), stderr);
+        if (SelfhostExport.Dir is { } root)
+        {
+            var outDir = ExportCase(root, cls, test, file);
+            SelfhostExport.WriteInput(outDir, [Path.GetFileName(caseDir) == "diag" ? copy : dir]);
+            SelfhostExport.WriteExpected(outDir, "args", copy + "\n");
+            SelfhostExport.WriteExpected(outDir, "expected.stderr", stderr.ToString());
+            SelfhostExport.WriteExpected(outDir, "expected.exitcode", $"{exit}\n");
+            return;
+        }
         var (actualExit, _, actualErr) = SelfhostParserTests.Run(Built, copy);
         AssertSameLines(name, "stderr", stderr.ToString(), actualErr);
         Assert.True(exit == actualExit, $"{name}: exit {actualExit}, expected {exit}");
@@ -570,6 +611,31 @@ public sealed class SelfhostSemanticsTests
         Assert.Contains("case.byn: stdout line 2", e.Message);
         Assert.Contains("expected: b", e.Message);
         Assert.Contains("actual: B", e.Message);
+    }
+
+    /// <summary>The export path: <see cref="SameAsCli(string, string[], string?, string, string)"/> writes a <c>sem</c> case and asserts nothing.</summary>
+    [Fact]
+    public void ExportWritesTheSemCase()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-sem");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var dir = Fixture("export", ("hello.byn", Hello));
+        var old = SelfhostExport.Override.Value;
+        try
+        {
+            SelfhostExport.Override.Value = root;
+            SameAsCli("clean", ["check", Path.Combine(dir, "hello.byn")]);
+        }
+        finally
+        {
+            SelfhostExport.Override.Value = old;
+        }
+        var made = Path.Combine(root, "sem", nameof(SelfhostSemanticsTests), nameof(ExportWritesTheSemCase));
+        Assert.Equal($"check\n{Path.Combine(dir, "hello.byn")}\n", File.ReadAllText(Path.Combine(made, "args")));
+        Assert.Equal(Hello, File.ReadAllText(Path.Combine(made, "input.byn")));
+        Assert.Equal("0\n", File.ReadAllText(Path.Combine(made, "expected.exitcode")));
+        Assert.Equal("untimed\n", File.ReadAllText(Path.Combine(made, "compare")));
+        Assert.True(File.Exists(Path.Combine(made, "expected.stdout")));
     }
 
     // ── T28: `@unobservable` marks against Compilation.Unobservable ─────────────────────────────────
@@ -723,7 +789,7 @@ public sealed class SelfhostSemanticsTests
 
             """;
         var dir = Fixture("for-try-reports", ("reports.byn", source));
-        SameAsCli("for try reports", "check", Path.Combine(dir, "reports.byn"));
+        SameAsCli("for try reports", ["check", Path.Combine(dir, "reports.byn")]);
     }
 
     /// <summary>The typed dump of the hidden copy (of a temporary and of a <c>let</c>), the in-place <c>var</c> and a <c>ref</c> parameter in parentheses.</summary>
@@ -731,8 +797,8 @@ public sealed class SelfhostSemanticsTests
     public void ForTryTypes()
     {
         var dir = Fixture("for-try-types", ("steps.byn", ForTrySource));
-        SameAsCli("for try types", "types", Path.Combine(dir, "steps.byn"));
-        SameAsCli("for try check", "check", Path.Combine(dir, "steps.byn"));
+        SameAsCli("for try types", ["types", Path.Combine(dir, "steps.byn")]);
+        SameAsCli("for try check", ["check", Path.Combine(dir, "steps.byn")]);
     }
 }
 
@@ -746,15 +812,15 @@ public sealed class SelfhostSemanticsParityTests
 
     [Theory]
     [MemberData(nameof(TypedCases))]
-    public void TypesParity(string name) => SelfhostSemanticsTests.SameAsCli(name, "types", SelfhostSemanticsTests.Isolated(name));
+    public void TypesParity(string name) => SelfhostSemanticsTests.SameAsCli(name, ["types", SelfhostSemanticsTests.Isolated(name)], test: $"{nameof(TypesParity)}-{name}", cls: nameof(SelfhostSemanticsParityTests));
 
     public static TheoryData<string> DiagCases => Golden.Cases("diag");
 
     [Theory]
     [MemberData(nameof(DiagCases))]
-    public void GoldenParity(string name) => SelfhostSemanticsTests.GoldenSame(name);
+    public void GoldenParity(string name) => SelfhostSemanticsTests.GoldenSame(name, nameof(SelfhostSemanticsParityTests), $"{nameof(GoldenParity)}-{name}");
 
     [Theory]
     [MemberData(nameof(DiagCases))]
-    public void CheckParity(string name) => SelfhostSemanticsTests.CheckSame(name);
+    public void CheckParity(string name) => SelfhostSemanticsTests.CheckSame(name, nameof(SelfhostSemanticsParityTests), $"{nameof(CheckParity)}-{name}");
 }
